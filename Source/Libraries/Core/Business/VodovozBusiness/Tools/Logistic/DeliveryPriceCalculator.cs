@@ -20,8 +20,8 @@ namespace Vodovoz.Tools.Logistic
 		private readonly IGeographicGroupRepository _geographicGroupRepository;
 		private readonly IScheduleRestrictionRepository _scheduleRestrictionRepository;
 		private readonly IFuelRepository _fuelRepository;
-		private readonly IGlobalSettings _globalSettings;
-		private readonly OsrmClient _osrmClient;
+		private readonly IOsrmSettings _globalSettings;
+		private readonly IOsrmClient _osrmClient;
 		private readonly IDeliveryRepository _deliveryRepository;
 
 		public DeliveryPriceCalculator(
@@ -29,8 +29,8 @@ namespace Vodovoz.Tools.Logistic
 			IGeographicGroupRepository geographicGroupRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
 			IFuelRepository fuelRepository,
-			IGlobalSettings globalSettings,
-			OsrmClient osrmClient,
+			IOsrmSettings globalSettings,
+			IOsrmClient osrmClient,
 			IDeliveryRepository deliveryRepository)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));

@@ -8,7 +8,6 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
-using QS.Project.Journal.EntitySelector;
 using QS.Project.Journal.Search;
 using QS.Project.Search;
 using QS.Services;
@@ -21,19 +20,26 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using System.Windows.Input;
+using QS.Dialog;
+using QS.ViewModels.Control.EEVM;
+using ResourceLocker.Library;
+using ResourceLocker.Library.Factories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Settings.Delivery;
-using Vodovoz.TempAdapters;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
 using Vodovoz.ViewModels.TempAdapters;
 using VodOrder = Vodovoz.Domain.Orders.Order;
+using VodovozBusiness.Services;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments
 {
@@ -57,38 +63,50 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private readonly IOrderRepository _orderRepository;
 		private readonly IPaymentItemsRepository _paymentItemsRepository;
 		private readonly IPaymentsRepository _paymentsRepository;
+		private readonly IPaymentService _paymentService;
 		private readonly IDialogsFactory _dialogsFactory;
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
-		private DelegateCommand _revertAllocatedSum;
+		private readonly ViewModelEEVMBuilder<ProfitCategory> _profitCategoryEevmBuilder;
+		private IResourceLocker _resourceLocker;
 
 		public ManualPaymentMatchingViewModel(
 			ILifetimeScope lifetimeScope,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory uowFactory,
 			ICommonServices commonServices,
+			INavigationManager navigationManager,
 			IOrderRepository orderRepository,
 			IPaymentItemsRepository paymentItemsRepository,
 			IPaymentsRepository paymentsRepository,
+			IPaymentService paymentService,
 			IDialogsFactory dialogsFactory,
 			IOrganizationRepository organizationRepository,
-			ICounterpartyJournalFactory counterpartyJournalFactory,
-			IDeliveryScheduleSettings deliveryScheduleSettings) : base(uowBuilder, uowFactory, commonServices)
+			IDeliveryScheduleSettings deliveryScheduleSettings,
+			IResourceLockerFactory resourceLockerFactory,
+			IUserRepository userRepository,
+			ViewModelEEVMBuilder<ProfitCategory> profitCategoryEevmBuilder) : base(uowBuilder, uowFactory, commonServices)
 		{
-			if(lifetimeScope == null)
+			if(resourceLockerFactory == null)
 			{
-				throw new ArgumentNullException(nameof(lifetimeScope));
+				throw new ArgumentNullException(nameof(resourceLockerFactory));
+			}
+
+			if(userRepository == null)
+			{
+				throw new ArgumentNullException(nameof(userRepository));
 			}
 
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_paymentItemsRepository = paymentItemsRepository ?? throw new ArgumentNullException(nameof(paymentItemsRepository));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
+			_paymentService = paymentService ?? throw new ArgumentNullException(nameof(paymentService));
 			_dialogsFactory = dialogsFactory ?? throw new ArgumentNullException(nameof(dialogsFactory));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
-			CounterpartyAutocompleteSelectorFactory =
-				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
-				.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
+			_profitCategoryEevmBuilder = profitCategoryEevmBuilder ?? throw new ArgumentNullException(nameof(profitCategoryEevmBuilder));
+			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 
 			if(uowBuilder.IsNewEntity)
 			{
@@ -97,16 +115,20 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					_error);
 			}
 
-			var curEditor = Entity.CurrentEditorUser;
-			if(curEditor != null)
-			{
-				throw new AbortCreatingPageException(
-					$"Невозможно открыть диалог ручного распределения платежа №{Entity.PaymentNum}," +
-					$" т.к. он уже открыт пользователем: {curEditor.Name}",
-					_error);
-			}
+			_resourceLocker = resourceLockerFactory.Create($"{nameof(ManualPaymentMatchingViewModel)}[Id:{Entity.Id}]");
+			
+			var lockResult = _resourceLocker.TryLockResourceAsync().GetAwaiter().GetResult();
 
-			UpdateCurrentEditor();
+			if(!lockResult.IsSuccess)
+			{
+				var ownerUser = userRepository.GetUserByLogin(UoW, lockResult.OwnerLockValue?.Split(':')[0]);
+
+				throw new AbortCreatingPageException(
+					$"Не удалось открыть выписку {Entity.Id}. Она уже открыта пользователем: {ownerUser?.Name}.",
+					"Не удалось открыть диалог",
+					ImportanceLevel.Warning);
+			}
+			
 			TabName = "Ручное распределение платежей";
 
 			//Поиск
@@ -118,9 +140,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			GetLastBalance();
 			UpdateSumToAllocate();
 			UpdateCurrentBalance();
-			CreateCommands();
+			InitializeCommands();
 			GetCounterpartyDebt();
 			ConfigureEntityChangingRelations();
+			InitializeViewModels();
 			UpdateNodes();
 
 			if(HasPaymentItems)
@@ -129,7 +152,6 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			}
 
 			TabClosed += OnTabClosed;
-
 			Entity.Items.CollectionChanged += OnPaymentItemsChanged;
 		}
 
@@ -355,7 +377,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				return false;
 			}
 
-			paymentItem.CancelAllocation(true);
+			_paymentService.CancelAllocationWithUpdateOrderPayments(UoW, paymentItem);
 
 			UoW.Save();
 
@@ -371,12 +393,15 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			return true;
 		}
 
-		private void CreateCommands()
+		private void InitializeCommands()
 		{
 			CreateOpenOrderCommand();
 			CreateAddCounterpatyCommand();
 			CreateCompleteAllocationCommand();
 			CreateSaveViewModelCommand();
+
+			RevertAllocatedSum = new DelegateCommand(RevertAllocationSum, () => HasPaymentItems);
+			CloseCommand = new DelegateCommand(() => Close(false, CloseSource.Cancel));
 		}
 
 		public void UpdateCurrentBalance() => CurrentBalance = SumToAllocate - AllocatedSum;
@@ -477,24 +502,13 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			);
 		}
 
-		public DelegateCommand RevertAllocatedSum => _revertAllocatedSum ?? (_revertAllocatedSum = new DelegateCommand(
-			() =>
-			{
-				if(RevertPay())
-				{
-					GetLastBalance();
-					UpdateSumToAllocate();
-					GetCounterpartyDebt();
-					UpdateNodes();
-				}
-			},
-			() => HasPaymentItems
-			)
-		);
-
-		public IEntityAutocompleteSelectorFactory CounterpartyAutocompleteSelectorFactory { get; }
+		public ICommand RevertAllocatedSum { get; private set; }
+		public ICommand CloseCommand { get; private set; }
 
 		public bool CanChangeCounterparty => !Entity.Items.Any(x => x.PaymentItemStatus == AllocationStatus.Accepted);
+		public ILifetimeScope LifetimeScope { get; private set; }
+		public INavigationManager NavigationManager { get; }
+		public IEntityEntryViewModel ProfitCategoryEntryViewModel { get; private set; }
 
 		#endregion Commands
 
@@ -557,7 +571,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 		private void SaveAndCloseDialog()
 		{
-			UpdateCurrentEditor();
+			ReleaseLock();
 
 			try
 			{
@@ -567,9 +581,13 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			{
 				ShowErrorMessage("При сохранении платежа произошла ошибка. Переоткройте диалог.");
 				UoW.Session.Clear();
-				RemoveCurrentEditor(UoW);
 				Close(false, CloseSource.Self);
 			}
+		}
+
+		private void ReleaseLock()
+		{
+			_resourceLocker.DisposeAsync().AsTask().GetAwaiter().GetResult();
 		}
 
 		private void ConfigureEntityChangingRelations()
@@ -577,6 +595,19 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			SetPropertyChangeRelation(
 				p => p.Counterparty,
 				() => CounterpartyIsNull);
+		}
+
+		private void RevertAllocationSum()
+		{
+			if(!RevertPay())
+			{
+				return;
+			}
+
+			GetLastBalance();
+			UpdateSumToAllocate();
+			GetCounterpartyDebt();
+			UpdateNodes();
 		}
 
 		private void NewCounterpartySaved(object sender, QS.Tdi.EntitySavedEventArgs e)
@@ -766,6 +797,21 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				: default;
 		}
 		
+		private void InitializeViewModels()
+		{
+			var profitCategoryEntryViewModel = _profitCategoryEevmBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, x => x.ProfitCategory)
+				.UseViewModelJournalAndAutocompleter<ProfitCategoriesJournalViewModel>()
+				.UseViewModelDialog<ProfitCategoryViewModel>()
+				.Finish();
+
+			profitCategoryEntryViewModel.IsEditable = Entity.Status == PaymentState.undistributed;
+			profitCategoryEntryViewModel.CanViewEntity = false;
+			ProfitCategoryEntryViewModel = profitCategoryEntryViewModel;
+		}
+		
 		private void OnPaymentItemsChanged(object sender, NotifyCollectionChangedEventArgs e)
 		{
 			if(e.Action == NotifyCollectionChangedAction.Add
@@ -799,41 +845,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			return null;
 		}
 
-		private void UpdateCurrentEditor()
-		{
-			if(Entity.CurrentEditorUser != null)
-			{
-				DeleteCurrentEditor();
-			}
-			else
-			{
-				Entity.CurrentEditorUser = CurrentUser;
-				UoW.Save();
-			}
-		}
-
-		private void DeleteCurrentEditor()
-		{
-			Entity.CurrentEditorUser = null;
-		}
-
 		private void OnTabClosed(object sender, EventArgs e)
 		{
-			if(Entity.CurrentEditorUser != null)
-			{
-				using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
-				{
-					RemoveCurrentEditor(uow);
-				}
-			}
-		}
-
-		private void RemoveCurrentEditor(IUnitOfWork uow)
-		{
-			var curPayment = uow.GetById<Payment>(Entity.Id);
-			curPayment.CurrentEditorUser = null;
-			uow.Save(curPayment);
-			uow.Commit();
+			ReleaseLock();
 		}
 
 		private ICriterion GetSearchCriterion(params Expression<Func<object>>[] aliasPropertiesExpr)
@@ -876,6 +890,13 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			{
 				Entity.CashlessMovementOperation.Counterparty = Entity.Counterparty;
 			}
+		}
+
+		public override void Dispose()
+		{
+			LifetimeScope = null;
+			Entity.Items.CollectionChanged -= OnPaymentItemsChanged;
+			base.Dispose();
 		}
 	}
 

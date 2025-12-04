@@ -16,6 +16,7 @@ using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Organizations;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
 namespace Edo.Transfer.Routine.Services
@@ -24,6 +25,7 @@ namespace Edo.Transfer.Routine.Services
 	{
 		private readonly ILogger<ClosingDocumentsOrdersUpdSendService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
 		private readonly IOptionsMonitor<ClosingDocumentsOrdersUpdSendSettings> _optionsMonitor;
 		private readonly MessageService _edoMessageService;
@@ -34,12 +36,14 @@ namespace Edo.Transfer.Routine.Services
 		public ClosingDocumentsOrdersUpdSendService(
 			ILogger<ClosingDocumentsOrdersUpdSendService> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
+			IOrganizationSettings organizationSettings,
 			IDeliveryScheduleSettings deliveryScheduleSettings,
 			IOptionsMonitor<ClosingDocumentsOrdersUpdSendSettings> optionsMonitor,
 			MessageService edoMessageService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 			_optionsMonitor = optionsMonitor;
 			_edoMessageService = edoMessageService ?? throw new ArgumentNullException(nameof(edoMessageService));
@@ -62,23 +66,36 @@ namespace Edo.Transfer.Routine.Services
 
 			var orders =
 				await (from order in uow.Session.Query<OrderEntity>()
-					   join client in uow.Session.Query<CounterpartyEntity>() on order.Client.Id equals client.Id
-					   join er in uow.Session.Query<OrderEdoRequest>() on order.Id equals er.Order.Id into edoRequests
-					   from edoRequest in edoRequests.DefaultIfEmpty()
-					   join ec in uow.Session.Query<EdoContainerEntity>()
-						   on new { OrderId = order.Id, DocType = DocumentContainerType.Upd } equals new { OrderId = ec.Order.Id, DocType = ec.Type } into edoContainers
-					   from edoContainer in edoContainers.DefaultIfEmpty()
-					   where
-						   order.PaymentType == PaymentType.Cashless
-						   && order.DeliveryDate >= DateTime.Today.AddDays(-_optionsMonitor.CurrentValue.MaxDaysFromDeliveryDate)
-						   && order.DeliverySchedule.Id == _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId
-						   && _orderStatusesToSendUpd.Contains(order.OrderStatus)
-						   && client.IsNewEdoProcessing
-						   && client.ConsentForEdoStatus == ConsentForEdoStatus.Agree
-						   && !client.IsNotSendDocumentsByEdo
-						   && edoContainer.Id == null
-						   && edoRequest.Id == null
-					   select order)
+					join client in uow.Session.Query<CounterpartyEntity>() on order.Client.Id equals client.Id
+					join contract in uow.Session.Query<CounterpartyContractEntity>()
+						on order.Contract.Id equals contract.Id
+					join organization in uow.Session.Query<CounterpartyEntity>()
+						on contract.Organization.Id equals organization.Id
+					join er in uow.Session.Query<OrderEdoRequest>() on order.Id equals er.Order.Id into edoRequests
+					from edoRequest in edoRequests.DefaultIfEmpty()
+					join ec in uow.Session.Query<EdoContainerEntity>()
+					   on new { OrderId = order.Id, DocType = DocumentContainerType.Upd } equals new { OrderId = ec.Order.Id, DocType = ec.Type } into edoContainers
+					from edoContainer in edoContainers.DefaultIfEmpty()
+					join defaultEdoAccount in uow.Session.Query<CounterpartyEdoAccountEntity>()
+						on new { a = client.Id, b = (int?)contract.Organization.Id, c = true }
+						equals new { a = defaultEdoAccount.Counterparty.Id, b = defaultEdoAccount.OrganizationId, c = defaultEdoAccount.IsDefault }
+						into edoAccountsByOrder
+					from edoAccountByOrder in edoAccountsByOrder.DefaultIfEmpty()
+					join defaultVodovozEdoAccount in uow.Session.Query<CounterpartyEdoAccountEntity>()
+						on new { a = client.Id, b = (int?)_organizationSettings.VodovozOrganizationId, c = true }
+						equals new { a = defaultVodovozEdoAccount.Counterparty.Id, b = defaultVodovozEdoAccount.OrganizationId, c = defaultVodovozEdoAccount.IsDefault }
+					where
+						order.PaymentType == PaymentType.Cashless
+						&& order.DeliveryDate >= DateTime.Today.AddDays(-_optionsMonitor.CurrentValue.MaxDaysFromDeliveryDate)
+						&& order.DeliverySchedule.Id == _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId
+						&& _orderStatusesToSendUpd.Contains(order.OrderStatus)
+						&& client.IsNewEdoProcessing
+						&& (edoAccountByOrder.ConsentForEdoStatus == ConsentForEdoStatus.Agree
+							|| defaultVodovozEdoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
+						&& !client.IsNotSendDocumentsByEdo
+						&& edoContainer.Id == null
+						&& edoRequest.Id == null
+					select order)
 				.ToListAsync(cancellationToken);
 
 			_logger.LogInformation("Найдено {OrdersCount} заказов для отправки ЭДО УПД", orders.Count());

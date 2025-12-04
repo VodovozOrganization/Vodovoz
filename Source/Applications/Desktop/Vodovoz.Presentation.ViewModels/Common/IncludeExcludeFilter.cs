@@ -2,8 +2,10 @@
 using QS.DomainModel.Entity;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Vodovoz.Presentation.ViewModels.Common
 {
@@ -14,12 +16,14 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 		private string _title;
 
-		private Func<IncludeExcludeFilter, IDictionary<string, object>> _getReportParametersFunc;
+		private Func<IncludeExcludeFilter, StringBuilder, bool, IDictionary<string, object>> _getReportParametersFunc;
 
 		internal IncludeExcludeFilter()
 		{
 			IncludedElements.ListContentChanged += (s, e) => OnPropertyChanged(nameof(IncludedCount));
 			ExcludedElements.ListContentChanged += (s, e) => OnPropertyChanged(nameof(ExcludedCount));
+			FilteredElements.ElementAdded += OnFilteredElementsAdded;
+			FilteredElements.ElementRemoved -= OnFilteredElementsElementRemoved;
 
 			GetReportParametersFunc = DefaultGetReportParameters;
 
@@ -47,8 +51,9 @@ namespace Vodovoz.Presentation.ViewModels.Common
 		public Type Type { get; set; }
 
 		public EventHandler SelectionChanged;
+		private string _defaultName;
 
-		public Func<IncludeExcludeFilter, IDictionary<string, object>> GetReportParametersFunc
+		public Func<IncludeExcludeFilter, StringBuilder, bool, IDictionary<string, object>> GetReportParametersFunc
 		{
 			get => _getReportParametersFunc;
 			set => _getReportParametersFunc = value;
@@ -60,8 +65,21 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			set => SetField(ref _title, value);
 		}
 
+		public string GenitivePluralTitle { get; set; }
+
+		public string DefaultName
+		{
+			get => _defaultName;
+			set => SetField(ref _defaultName, value);
+		}
+
 		protected virtual void ClearExcludes()
 		{
+			if(ExcludedElements.Count == 1 && !ExcludedElements[0].IsEditable)
+			{
+				return;
+			}
+
 			while(ExcludedCount > 0)
 			{
 				var currentExcludedElement = ExcludedElements.FirstOrDefault();
@@ -82,6 +100,11 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 		protected virtual void ClearIncludes()
 		{
+			if(IncludedElements.Count == 1 && !IncludedElements[0].IsEditable)
+			{
+				return;
+			}
+
 			while(IncludedCount > 0)
 			{
 				var currentIncludedElement = IncludedElements.FirstOrDefault();
@@ -269,6 +292,23 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			element.ElementUnIncluded -= OnElementUnIncluded;
 			element.ElementUnExcluded -= OnElementUnExcluded;
 		}
+		
+		private void OnFilteredElementsAdded(object aList, int[] aIdx)
+		{
+			if(aList is IList<IncludeExcludeElement> list)
+			{
+				var element = list[aIdx[0]];
+				SubscribeToElement(element);
+			}
+		}
+		
+		private void OnFilteredElementsElementRemoved(object aList, int[] aIdx, object aObject)
+		{
+			if(aObject is IncludeExcludeElement element)
+			{
+				UnsubscribeFromElement(element);
+			}
+		}
 
 		public void Dispose()
 		{
@@ -277,29 +317,39 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			ExcludedElements.Clear();
 		}
 
-		public virtual IDictionary<string, object> GetReportParameters()
-			=> GetReportParametersFunc.Invoke(this);
+		public virtual IDictionary<string, object> GetReportParameters(StringBuilder sb, bool withCounts)
+			=> GetReportParametersFunc.Invoke(this, sb, withCounts);
 
-		private IDictionary<string, object> DefaultGetReportParameters(IncludeExcludeFilter filter)
+		private IDictionary<string, object> DefaultGetReportParameters(IncludeExcludeFilter filter, StringBuilder sb, bool withCounts)
 		{
 			var result = new Dictionary<string, object>();
 
-			var includeParameterName = filter.Type.Name + defaultIncludePrefix;
+			var includeParameterName = string.IsNullOrEmpty(filter.DefaultName) 
+				? filter.Type.Name + defaultIncludePrefix 
+				: filter.DefaultName + defaultIncludePrefix ;
+
+			var title = filter.GenitivePluralTitle ?? filter.Title;
 
 			if(filter.IncludedCount > 0)
 			{
 				result.Add(includeParameterName, filter.IncludedElements.Select(x => x.Number).ToArray());
+				var includeElements = withCounts ? filter.IncludedCount.ToString() : string.Join(",", filter.IncludedElements.Select(x => x.Title));
+				sb.AppendLine($"Вкл. {title.ToLower()}: {includeElements}");
 			}
 			else
 			{
 				result.Add(includeParameterName, new object[] { "0" });
 			}
 
-			var excludeParameterName = filter.Type.Name + defaultExcludePrefix;
+			var excludeParameterName = string.IsNullOrEmpty(filter.DefaultName) 
+				? filter.Type.Name + defaultExcludePrefix
+				: filter.DefaultName + defaultExcludePrefix;
 
 			if(filter.ExcludedCount > 0)
 			{
 				result.Add(excludeParameterName, filter.ExcludedElements.Select(x => x.Number).ToArray());
+				var excludeElements = withCounts ? filter.ExcludedCount.ToString() : string.Join(",", filter.ExcludedElements.Select(x => x.Title));
+				sb.AppendLine($"Искл. {title.ToLower()}: {excludeElements}");
 			}
 			else
 			{

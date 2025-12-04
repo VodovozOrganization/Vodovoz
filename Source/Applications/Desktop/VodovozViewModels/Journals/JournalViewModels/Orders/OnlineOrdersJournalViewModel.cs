@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Timers;
+using Core.Infrastructure;
 using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
@@ -8,6 +9,7 @@ using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
@@ -57,7 +59,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			dataLoader.AddQuery(RequestsForCallQuery);
 			
 			dataLoader.MergeInOrderBy(x => x.OrderByStatusValue);
-			dataLoader.MergeInOrderBy(x => x.EntityTypeString, true);
 			dataLoader.MergeInOrderBy(x => x.CreationDate, true);
 			DataLoader = dataLoader;
 
@@ -106,7 +107,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
 				.Left.JoinAlias(o => o.EmployeeWorkWith, () => employeeWorkWithAlias)
-				.Left.JoinAlias(o => o.Order, () => orderAlias)
+				.Left.JoinAlias(o => o.Orders, () => orderAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
 				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicalGroupAlias)
 				.Left.JoinAlias(() => orderAlias.SelfDeliveryGeoGroup, () => selfDeliveryGeographicalGroupAlias);
@@ -118,6 +119,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				Projections.Property(() => employeeWorkWithAlias.Name),
 				Projections.Property(() => employeeWorkWithAlias.Patronymic)
 			);
+
+			var ordersIdsProjection = CustomProjections.GroupConcat(() => orderAlias.Id);
 
 			var orderByStatusProjection =
 				Projections.Conditional(
@@ -157,6 +160,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			if(_filterViewModel.RestrictPaymentType.HasValue)
 			{
 				query.Where(o => o.OnlineOrderPaymentType == _filterViewModel.RestrictPaymentType);
+			}
+			
+			if(_filterViewModel.RestrictOnlinePaymentSource.HasValue)
+			{
+				query.Where(o => o.OnlinePaymentSource == _filterViewModel.RestrictOnlinePaymentSource);
 			}
 
 			if(_filterViewModel.EmployeeWorkWith != null)
@@ -246,7 +254,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			
 			if(_filterViewModel.OrderId.HasValue)
 			{
-				query.Where(o => o.Order.Id == _filterViewModel.OrderId.Value);
+				query.Where(() => orderAlias.Id == _filterViewModel.OrderId.Value);
 			}
 
 			if(_filterViewModel.OnlineOrderId.HasValue)
@@ -286,6 +294,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					|| (orderAlias.SelfDelivery && selfDeliveryGeographicalGroupAlias.Id == _filterViewModel.GeographicGroup.Id));
 			}
 
+			if(_filterViewModel.WithoutDeliverySchedule)
+			{
+				query.Where(() => onlineOrderAlias.DeliverySchedule.Id == null);
+			}
+
 			#endregion
 
 			query.Where(_filterViewModel.SearchByAddressViewModel?.GetSearchCriterion(
@@ -312,7 +325,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.Select(o => o.OnlinePayment).WithAlias(() => resultAlias.OnlinePayment)
 					.Select(o => o.OnlineOrderPaymentType).WithAlias(() => resultAlias.OnlineOrderPaymentType)
 					.Select(o => o.IsNeedConfirmationByCall).WithAlias(() => resultAlias.IsNeedConfirmationByCall)
-					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(ordersIdsProjection).WithAlias(() => resultAlias.OrdersIds)
 				)
 				.OrderBy(o => o.OnlineOrderStatus).Asc()
 				.ThenBy(o => o.Created).Desc()
@@ -358,6 +371,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					},
 					Projections.Constant(int.MaxValue)
 				);
+			
+			var ordersIdsProjection = CustomProjections.GroupConcat(() => orderAlias.Id);
 
 			#region Фильтрация
 			
@@ -365,13 +380,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				&& _filterViewModel.OnlineRequestsType == OnlineRequestsType.OnlineOrders)
 				|| _filterViewModel.OnlineOrderPaymentStatus.HasValue
 				|| _filterViewModel.RestrictPaymentType.HasValue
+				|| _filterViewModel.RestrictOnlinePaymentSource.HasValue
 				|| _filterViewModel.DeliveryPoint != null
 				|| _filterViewModel.RestrictSelfDelivery.HasValue
 				|| _filterViewModel.RestrictNeedConfirmationByCall.HasValue
 				|| _filterViewModel.RestrictFastDelivery.HasValue
 				|| _filterViewModel.OnlineOrderId.HasValue
 				|| _filterViewModel.GeographicGroup != null
-				|| _filterViewModel.FilterDateType == OrdersDateFilterType.DeliveryDate)
+				|| _filterViewModel.FilterDateType == OrdersDateFilterType.DeliveryDate
+				|| _filterViewModel.WithoutDeliverySchedule)
 			{
 				query.Where(r => r.Id == null);
 			}
@@ -420,7 +437,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					
 					if(endDate.HasValue)
 					{ 
-						query.Where(r => r.Created <= endDate); 
+						query.Where(r => r.Created <= endDate.Value.LatestDayTime()); 
 					}
 					break;
 			}
@@ -468,7 +485,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
 					.Select(employeeWorkWithProjection).WithAlias(() => resultAlias.ManagerWorkWith)
 					.Select(r => r.Source).WithAlias(() => resultAlias.Source)
-					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(ordersIdsProjection).WithAlias(() => resultAlias.OrdersIds)
 				)
 				.OrderBy(r => r.RequestForCallStatus).Asc()
 				.ThenBy(r => r.Created).Desc()
@@ -483,16 +500,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			
 			PopupActionsList.Add(
 				new JournalAction(
-					"Перейти в оформленный заказ",
-					selectedItems => selectedItems.All(x => (x as OnlineOrdersJournalNode).OrderId.HasValue),
-					selectedItems => true,
-					(selectedItems) =>
+					"Перейти в оформленный заказ(ы)",
+					sensitiveSelected =>
+						sensitiveSelected.All(x => !string.IsNullOrWhiteSpace((x as OnlineOrdersJournalNode).OrdersIds)),
+					visibleSelected => true,
+					selectedItems =>
 					{
 						var selectedNodes = selectedItems.Cast<OnlineOrdersJournalNode>();
 
 						foreach(var selectedNode in selectedNodes)
 						{
-							_gtkTabsOpener.OpenOrderDlgFromViewModelByNavigator(this, selectedNode.OrderId.Value);
+							var ordersIds = selectedNode.OrdersIds.ParseNumbers();
+
+							foreach(var orderId in ordersIds)
+							{
+								_gtkTabsOpener.OpenOrderDlgFromViewModelByNavigator(this, orderId);
+							}
 						}
 					}
 				)

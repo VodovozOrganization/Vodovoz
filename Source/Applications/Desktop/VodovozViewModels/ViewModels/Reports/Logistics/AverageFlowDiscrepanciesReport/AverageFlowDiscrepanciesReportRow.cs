@@ -81,11 +81,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 		public DateTime? NextCalibrationDate { get; internal set; }
 
 		/// <summary>
-		/// Приходы топлива по операциям
-		/// </summary>
-		public decimal? LitersOperations { get; internal set; }
-
-		/// <summary>
 		/// Операция калибровки на конец периода между калибровками
 		/// </summary>
 		public decimal? NextCalibrationFuelOperation { get; internal set; }

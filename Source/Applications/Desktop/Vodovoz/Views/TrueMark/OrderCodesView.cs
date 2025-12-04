@@ -1,11 +1,12 @@
-﻿using Gamma.Binding.Converters;
+﻿using Gamma.Binding;
+using Gamma.Binding.Converters;
+using Gamma.Binding.Core.RecursiveTreeConfig;
 using Gamma.ColumnConfig;
-using Gamma.GtkWidgets;
 using Gtk;
 using QS.Journal.GtkUI;
 using QS.Views.Dialog;
-using QSOrmProject.DomainMapping;
 using System;
+using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.TrueMark;
 namespace Vodovoz.Views.TrueMark
@@ -41,6 +42,8 @@ namespace Vodovoz.Views.TrueMark
 		public OrderCodesView(OrderCodesViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
+
+			ybuttonRefresh.BindCommand(ViewModel.RefreshCommand);
 
 			entryOrder.IsEditable = false;
 			entryOrder.Binding.AddSource(ViewModel)
@@ -79,21 +82,38 @@ namespace Vodovoz.Views.TrueMark
 				.AddFuncBinding(vm => $"Из пула ({vm.TotalAddedFromPool})", w => w.LabelProp)
 				.InitializeFromSource();
 
+			entrySearch.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.SearchText, w => w.Text)
+				.InitializeFromSource();
+
+			var driverRecursiveConfig = new RecursiveConfig<OrderCodeItemViewModel>(
+				x => x.Parent,
+				x => x.Children);
+			ytreeviewDriver.AfterModelChanged += TreeViewAfterModelChanged;
 			ytreeviewDriver.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.ScannedByDriverCodes, w => w.ItemsDataSource)
+				.AddFuncBinding(
+					vm => new RecursiveTreeModel<OrderCodeItemViewModel>(vm.ScannedByDriverCodes, driverRecursiveConfig), 
+					w => w.YTreeModel
+				)
 				.AddBinding(vm => vm.ScannedByDriverCodesSelected, w => w.SelectedRows, 
 					new ArrayToEnumerableConverter<OrderCodeItemViewModel>())
 				.InitializeFromSource();
 			ytreeviewDriver.Selection.Mode = SelectionMode.Multiple;
 			ytreeviewDriver.ColumnsConfig = FluentColumnsConfig<OrderCodeItemViewModel>.Create()
+				.AddColumn("Тип")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.Type)
+					.Editable(false)
 				.AddColumn("Исходный код")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.SourceIdentificationCode)
 					.Editable(false)
+					.SearchHighlight()
 				.AddColumn("Итоговый код")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.ResultIdentificationCode)
 					.Editable(false)
+					.SearchHighlight()
 				.AddColumn("Заменен из пула")
 					.HeaderAlignment(0.5f)
 					.AddToggleRenderer(x => x.ReplacedFromPool)
@@ -132,21 +152,34 @@ namespace Vodovoz.Views.TrueMark
 			ytreeviewDriver.ButtonReleaseEvent += TableDriverRightClick;
 			ytreeviewDriver.WidgetEvent += SuppressRightClickWithManyRowsSelected;
 
+			var warehouseRecursiveConfig = new RecursiveConfig<OrderCodeItemViewModel>(
+				x => x.Parent,
+				x => x.Children);
+			ytreeviewWarehouse.AfterModelChanged += TreeViewAfterModelChanged;
 			ytreeviewWarehouse.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.ScannedByWarehouseCodes, w => w.ItemsDataSource)
+				.AddFuncBinding(
+					vm => new RecursiveTreeModel<OrderCodeItemViewModel>(vm.ScannedByWarehouseCodes, warehouseRecursiveConfig), 
+					w => w.YTreeModel
+				)
 				.AddBinding(vm => vm.ScannedByWarehouseCodesSelected, w => w.SelectedRows,
 					new ArrayToEnumerableConverter<OrderCodeItemViewModel>())
 				.InitializeFromSource();
 			ytreeviewWarehouse.Selection.Mode = SelectionMode.Multiple;
 			ytreeviewWarehouse.ColumnsConfig = FluentColumnsConfig<OrderCodeItemViewModel>.Create()
+				.AddColumn("Тип")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.Type)
+					.Editable(false)
 				.AddColumn("Исходный код")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.SourceIdentificationCode)
 					.Editable(false)
+					.SearchHighlight()
 				.AddColumn("Итоговый код")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.ResultIdentificationCode)
 					.Editable(false)
+					.SearchHighlight()
 				.AddColumn("Заменен из пула")
 					.HeaderAlignment(0.5f)
 					.AddToggleRenderer(x => x.ReplacedFromPool)
@@ -187,21 +220,34 @@ namespace Vodovoz.Views.TrueMark
 			ytreeviewWarehouse.WidgetEvent += SuppressRightClickWithManyRowsSelected;
 
 			// selfdelivery table
+			var selfdeliveryRecursiveConfig = new RecursiveConfig<OrderCodeItemViewModel>(
+				x => x.Parent,
+				x => x.Children);
+			ytreeviewSelfdelivery.AfterModelChanged += TreeViewAfterModelChanged;
 			ytreeviewSelfdelivery.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.ScannedBySelfdeliveryCodes, w => w.ItemsDataSource)
+				.AddFuncBinding(
+					vm => new RecursiveTreeModel<OrderCodeItemViewModel>(vm.ScannedBySelfdeliveryCodes, selfdeliveryRecursiveConfig), 
+					w => w.YTreeModel
+				)
 				.AddBinding(vm => vm.ScannedBySelfdeliveryCodesSelected, w => w.SelectedRows,
 					new ArrayToEnumerableConverter<OrderCodeItemViewModel>())
 				.InitializeFromSource();
 			ytreeviewSelfdelivery.Selection.Mode = SelectionMode.Multiple;
 			ytreeviewSelfdelivery.ColumnsConfig = FluentColumnsConfig<OrderCodeItemViewModel>.Create()
+				.AddColumn("Тип")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.Type)
+					.Editable(false)
 				.AddColumn("Исходный код")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.SourceIdentificationCode)
 					.Editable(false)
+					.SearchHighlight()
 				.AddColumn("Итоговый код")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.ResultIdentificationCode)
 					.Editable(false)
+					.SearchHighlight()
 				.AddColumn("Заменен из пула")
 					.HeaderAlignment(0.5f)
 					.AddToggleRenderer(x => x.ReplacedFromPool)
@@ -251,6 +297,9 @@ namespace Vodovoz.Views.TrueMark
 				.AddColumn("Код")
 					.AddTextRenderer(x => x.ResultIdentificationCode)
 					.Editable(false)
+					.SearchHighlight()
+				.AddColumn("Причина не отсканированных кодов")
+				.AddTextRenderer(x => x.UnscannedCodesReason)
 				.AddColumn("")
 				.Finish();
 			ytreeviewPool.Add(_poolPopup);
@@ -260,6 +309,56 @@ namespace Vodovoz.Views.TrueMark
 			_poolCopyCodes.Activated += (sender, e) => ViewModel.CopyPoolCodesCommand.Execute(null);
 			ytreeviewPool.ButtonReleaseEvent += OnTablePoolRightClick;
 			ytreeviewPool.WidgetEvent += SuppressRightClickWithManyRowsSelected;
+
+			ViewModel.PropertyChanged += ViewModelPropertyChanged;
+		}
+
+		private void TreeViewAfterModelChanged(object sender, EventArgs e)
+		{
+			var treeView = sender as TreeView;
+			if(treeView == null)
+			{
+				return;
+			}
+			treeView.ExpandAll();
+		}
+
+		private void ViewModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(ViewModel.IsValidSearchCodeText))
+			{
+				HighlightSearchText();
+				SetColorForSearchEntry();
+			}
+		}
+
+		private void SetColorForSearchEntry()
+		{
+			if(ViewModel.IsValidSearchCodeText == null)
+			{
+				entrySearch.SetColor(StateType.Normal, GdkColors.PrimaryText);
+				entrySearch.SetColor(StateType.Active, GdkColors.PrimaryText);
+				return;
+			}
+
+			if(ViewModel.IsValidSearchCodeText.Value)
+			{
+				entrySearch.SetColor(StateType.Normal, GdkColors.SuccessText);
+				entrySearch.SetColor(StateType.Active, GdkColors.SuccessText);
+			}
+			else
+			{
+				entrySearch.SetColor(StateType.Normal, GdkColors.DangerText);
+				entrySearch.SetColor(StateType.Active, GdkColors.DangerText);
+			}
+		}
+
+		private void HighlightSearchText()
+		{
+			ytreeviewDriver.SearchHighlightText = ViewModel.ParsedSearchCodeSerialNumber;
+			ytreeviewWarehouse.SearchHighlightText = ViewModel.ParsedSearchCodeSerialNumber;
+			ytreeviewSelfdelivery.SearchHighlightText = ViewModel.ParsedSearchCodeSerialNumber;
+			ytreeviewPool.SearchHighlightText = ViewModel.ParsedSearchCodeSerialNumber;
 		}
 
 		private void SuppressRightClickWithManyRowsSelected(object o, WidgetEventArgs args)
@@ -354,6 +453,10 @@ namespace Vodovoz.Views.TrueMark
 			_selfdeliveryOpenAuthor.Destroy();
 			_poolPopup.Destroy();
 			_poolCopyCodes.Destroy();
+			ytreeviewDriver.Destroy();
+			ytreeviewWarehouse.Destroy();
+			ytreeviewSelfdelivery.Destroy();
+			ytreeviewPool.Destroy();
 
 			base.OnDestroyed();
 		}

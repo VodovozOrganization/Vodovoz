@@ -17,6 +17,7 @@ using NLog.Extensions.Logging;
 using QS.DomainModel.UoW;
 using RabbitMQ.Infrastructure;
 using RabbitMQ.MailSending;
+using Vodovoz.Core.Data.Orders;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
@@ -53,8 +54,8 @@ namespace FastPaymentsAPI.Library.Models
 		}
 
 		public string ValidateParameters(int orderId) => _fastPaymentValidator.Validate(orderId);
-		public string ValidateParameters(RequestRegisterOnlineOrderDTO registerOnlineOrderDto, RequestFromType requestFromType) =>
-			_fastPaymentValidator.Validate(registerOnlineOrderDto, requestFromType);
+		public string ValidateParameters(RequestRegisterOnlineOrderDTO registerOnlineOrderDto, FastPaymentRequestFromType fastPaymentRequestFromType) =>
+			_fastPaymentValidator.Validate(registerOnlineOrderDto, fastPaymentRequestFromType);
 		public string ValidateParameters(int orderId, ref string phoneNumber) => _fastPaymentValidator.Validate(orderId, ref phoneNumber);
 		public string ValidateOrder(Order order, int orderId) => _fastPaymentValidator.Validate(order, orderId);
 		public string ValidateOnlineOrder(decimal onlineOrderSum) => _fastPaymentValidator.ValidateOnlineOrder(onlineOrderSum);
@@ -69,9 +70,9 @@ namespace FastPaymentsAPI.Library.Models
 		public Task<OrderRegistrationResponseDTO> RegisterOnlineOrder(
 			RequestRegisterOnlineOrderDTO registerOnlineOrderDto,
 			Organization organization,
-			RequestFromType requestFromType)
+			FastPaymentRequestFromType fastPaymentRequestFromType)
 		{
-			return _orderRequestManager.RegisterOnlineOrder(registerOnlineOrderDto, organization, requestFromType);
+			return _orderRequestManager.RegisterOnlineOrder(registerOnlineOrderDto, organization, fastPaymentRequestFromType);
 		}
 
 		public Task<OrderInfoResponseDTO> GetOrderInfo(string ticket, Organization organization)

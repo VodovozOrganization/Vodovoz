@@ -818,7 +818,7 @@
       <Textbox Name="Textbox20">
         <Height>22.59pt</Height>
         <Width>815.89pt</Width>
-        <Value>="Отчет по бензину с " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " по " + Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy") +Iif({?car_id} &lt;&gt; -1, " на машину " + First({reg_number}, "Fuel"), " водителю " + First({driver}, "Fuel"))</Value>
+        <Value>="Отчет по бензину с " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " по " + Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy") +Iif({?car_id} &lt;&gt; -1, " на машину " + First({reg_number} + " от " + Format(Convert.ToDateTime({?create_date}), "dd/MM/yyyy"), "Fuel"), " водителю " + First({driver}  + " от " + Format(Convert.ToDateTime({?create_date}), "dd/MM/yyyy"), "Fuel"))</Value>
         <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>12.00pt</Top>
@@ -883,6 +883,7 @@ WITH all_fuel_operations as
         SUM(cashless_payed_for_fuel) as cashless_payed_for_fuel,
         SUM(liters_limits) as liters_limits,
         reg_number,
+        car_id,
         is_fine
     FROM
         (
@@ -899,6 +900,7 @@ WITH all_fuel_operations as
                 IF(fuel_documents.fuel_payment_type = 'Cashless', fuel_documents.payed_for_fuel, 0) AS cashless_payed_for_fuel,
                 IFNULL(fuel_documents.gived_fuel_limits_amount, 0) AS liters_limits,
                 cars.reg_number AS reg_number,
+                cars.id AS car_id,
                 0 as is_fine
 	            FROM
                 fuel_operations
@@ -929,6 +931,7 @@ WITH all_fuel_operations as
                 IF(fuel_documents.fuel_payment_type = 'Cashless', fuel_documents.payed_for_fuel, 0) AS cashless_payed_for_fuel,
                 IFNULL(fuel_documents.gived_fuel_limits_amount, 0) AS liters_limits,
                 cars.reg_number AS reg_number,
+                cars.id AS car_id,
                 fuel_operations.is_fine as is_fine
              FROM
                 fuel_operations
@@ -961,12 +964,13 @@ WITH all_fuel_operations as
 	        0 AS payed_for_fuel,
 	        0 AS cashless_payed_for_fuel,
             0 AS liters_limits,
-	        c.reg_number AS reg_number,
+	        cars.reg_number AS reg_number,
+	        cars.id AS car_id,
             0 as is_fine
 		FROM 
 			mileage_write_off mwo 
 			LEFT JOIN employees e ON mwo.driver_id = e.id 
-			LEFT JOIN cars c on mwo.car_id = c.id 
+			LEFT JOIN cars on mwo.car_id = cars.id 
 		WHERE
 			mwo.write_off_date &gt;= @start_date AND mwo.write_off_date &lt;= @end_date
 	        AND ((@driver_id &lt;&gt; -1 AND mwo.driver_id = @driver_id) 
@@ -990,6 +994,7 @@ SELECT
     afo.cashless_payed_for_fuel as cashless_payed_for_fuel,
     afo.liters_limits as liters_limits,
     afo.reg_number as reg_number,
+    afo.car_id as car_id,
     afo.is_fine as is_fine,
 	#Устанавливаем порядоквый номер МЛ за день для сопоставления с транзакциями
 	(SELECT COUNT(*)+1 FROM all_fuel_operations WHERE NOT route_list_date IS NULL AND afo.route_list_date = route_list_date AND afo.route_list_id &gt; route_list_id) as daily_rl_number
@@ -1003,6 +1008,7 @@ all_transactions AS
 SELECT
 	fuel_transactions.transaction_date as transaction_date,
 	fuel_transactions.id as transaction_id,
+	fuel_transactions.card_id as card_id,
 	fuel_transactions.quantity as fuel_transactions_quantity,
 	fuel_transactions.total_sum  as fuel_transactions_total_sum,
 	cars.reg_number as reg_number,
@@ -1034,8 +1040,12 @@ transactions_data AS
 (
 SELECT at.*,
 ##Устанавливаем порядоквый номер транзакции за день для сопоставления с МЛ
-(SELECT COUNT(*)+1 FROM all_transactions WHERE at.transaction_date &gt; transaction_date AND transaction_date &gt;= DATE(at.transaction_date)) as daily_transaction_number
+(SELECT COUNT(*)+1 FROM all_transactions WHERE at.transaction_date &gt; transaction_date AND transaction_date &gt;= DATE(at.transaction_date)) as daily_transaction_number,
+cars.id AS car_id
 FROM all_transactions at
+LEFT JOIN fuel_cards ON fuel_cards.card_id = at.card_id
+LEFT JOIN fuel_card_versions ON fuel_cards.id = fuel_card_versions.fuel_card_id
+LEFT JOIN cars ON fuel_card_versions.car_id = cars.id
 ),
 
 #Совмещаем данные по МЛ и данные по транзакциям. Выполняем LEFT JOIN, поэтому часть транзакций в выборку не попадет
@@ -1053,6 +1063,7 @@ SELECT
 	fod.cashless_payed_for_fuel,
 	fod.liters_limits,
 	fod.reg_number,
+	fod.car_id,
 	fod.is_fine,
 	td.fuel_transactions_quantity,
 	td.fuel_transactions_total_sum,
@@ -1081,6 +1092,7 @@ route_lists_transactions AS
 	rlt.cashless_payed_for_fuel,
 	rlt.liters_limits,
 	rlt.reg_number,
+	rlt.car_id,
 	rlt.is_fine,
 	IFNULL(rlt.fuel_transactions_quantity,0) as fuel_transactions_quantity,
 	IFNULL(rlt.fuel_transactions_total_sum,0) as fuel_transactions_total_sum,
@@ -1099,6 +1111,7 @@ UNION ALL
 	0 as cashless_payed_for_fuel,
 	0 as liters_limits,
 	IFNULL((SELECT reg_number FROM route_lists_part_of_transactions WHERE route_list_date = td.transaction_date ORDER BY route_list_id DESC LIMIT 1), td.reg_number) as reg_number,
+	IFNULL((SELECT car_id FROM route_lists_part_of_transactions WHERE route_list_date =  DATE(td.transaction_date) ORDER BY route_list_id DESC LIMIT 1), td.car_id) as car_id,
 	0 as is_fine,
 	td.fuel_transactions_quantity,
 	td.fuel_transactions_total_sum,
@@ -1120,15 +1133,54 @@ SELECT
 	route_lists_transactions.distance,
 	route_lists_transactions.liters_outlayed,
 	route_lists_transactions.liters_gived,
+	ROUND(
+        route_lists_transactions.fuel_transactions_quantity + 
+        IFNULL(
+            route_lists_transactions.payed_for_fuel / (
+                SELECT IF(f.quantity &gt; 0, f.total_sum / f.quantity, NULL)
+                FROM fuel_transactions f
+                WHERE f.card_id = (
+                    SELECT fc.card_id
+                    FROM fuel_cards fc
+                    LEFT JOIN fuel_card_versions fcv ON fc.id = fcv.fuel_card_id
+                    WHERE fcv.car_id = route_lists_transactions.car_id
+                      AND NOT(fcv.start_date &gt; route_lists_transactions.date)
+                      AND (fcv.end_date IS NULL OR fcv.end_date &gt;= route_lists_transactions.date)
+                    LIMIT 1
+                )
+                  AND NOT(f.transaction_date &gt; route_lists_transactions.date)
+                ORDER BY f.transaction_date DESC
+                LIMIT 1
+            ),
+            0
+        ),
+        2
+    ) AS fuel_transactions_quantity,
 	route_lists_transactions.payed_for_fuel,
 	route_lists_transactions.cashless_payed_for_fuel,
 	route_lists_transactions.liters_limits,
 	route_lists_transactions.reg_number,
 	route_lists_transactions.is_fine,
-	route_lists_transactions.fuel_transactions_quantity,
 	route_lists_transactions.fuel_transactions_total_sum,
 	route_lists_transactions.gazprom_product_name,
-    ROUND((@fuel_balance:=@fuel_balance - IF(route_lists_transactions.is_fine=0,route_lists_transactions.liters_outlayed,0) + route_lists_transactions.liters_gived),2) AS balance
+    ROUND((@fuel_balance:=@fuel_balance - IF(route_lists_transactions.is_fine=0,route_lists_transactions.liters_outlayed,0) + route_lists_transactions.fuel_transactions_quantity + IFNULL(route_lists_transactions.payed_for_fuel / (
+                                                                                                                                                                                                    SELECT IF(f.quantity &gt; 0, f.total_sum / f.quantity, NULL)
+                                                                                                                                                                                                    FROM fuel_transactions f
+                                                                                                                                                                                                    WHERE f.card_id = (
+                                                                                                                                                                                                        SELECT fc.card_id
+                                                                                                                                                                                                        FROM fuel_cards fc
+                                                                                                                                                                                                        LEFT JOIN fuel_card_versions fcv ON fc.id = fcv.fuel_card_id
+                                                                                                                                                                                                        WHERE fcv.car_id = route_lists_transactions.car_id
+                                                                                                                                                                                                          AND NOT(fcv.start_date &gt; route_lists_transactions.date)
+                                                                                                                                                                                                          AND (fcv.end_date IS NULL OR fcv.end_date &gt;= route_lists_transactions.date)
+                                                                                                                                                                                                        LIMIT 1
+                                                                                                                                                                                                    )
+                                                                                                                                                                                                      AND NOT(f.transaction_date &gt; route_lists_transactions.date)
+                                                                                                                                                                                                    ORDER BY f.transaction_date DESC
+                                                                                                                                                                                                    LIMIT 1
+                                                                                                                                                                                                ),
+                                                                                                                                                                                                0
+                                                                                                                                                                                            )),2) AS balance
 FROM 
 	route_lists_transactions,
     #Выбирается баланс на начало выбранного периода
@@ -1340,6 +1392,18 @@ SELECT * FROM route_lists_transactions_balance
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="create_date">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>=TODAY()</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>Create Date</Prompt>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>

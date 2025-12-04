@@ -29,6 +29,7 @@ using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalFactories;
 using Vodovoz.ViewModels.TempAdapters;
+using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.ViewModels.Widgets
 {
@@ -41,6 +42,7 @@ namespace Vodovoz.ViewModels.Widgets
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IRouteListItemRepository _routeListItemRepository;
+		private readonly IOrderContractUpdater _contractUpdater;
 		private IList<UndeliveryObject> _entityObjectSource;
 		private IList<UndeliveryKind> _entityKindSource;
 		private IList<UndeliveryKind> _entityKinds;
@@ -79,7 +81,8 @@ namespace Vodovoz.ViewModels.Widgets
 			IEmployeeJournalFactory employeeJournalFactory,
 			IEmployeeRepository employeeRepository,
 			IGtkTabsOpener gtkTabsOpener,
-			IRouteListItemRepository routeListItemRepository)
+			IRouteListItemRepository routeListItemRepository,
+			IOrderContractUpdater contractUpdater)
 			: base(entity, commonServices)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
@@ -92,6 +95,7 @@ namespace Vodovoz.ViewModels.Widgets
 			_employeeRepository = employeeRepository ?? throw new ArgumentException(nameof(employeeRepository));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentException(nameof(gtkTabsOpener));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
+			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
 			UoW = uow ?? throw new ArgumentNullException(nameof(uow));
 
 			_canReadDetalization = CommonServices.CurrentPermissionService
@@ -415,14 +419,14 @@ namespace Vodovoz.ViewModels.Widgets
 		public bool CanChangeUndeliveryKind => CanEdit && UndeliveryObject != null;
 		public bool CanChangeDetalization => CanReadDetalization && UndeliveryKind != null;
 		public IEntityAutocompleteSelectorFactory UndeliveryDetalizationSelectorFactory { get; }
-		public bool HasPermissionOrNew => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.UndeliveredOrder.CanEditUndeliveries) || Entity.Id == 0;
-		public bool CanCloseUndeliveries => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.UndeliveredOrder.CanCloseUndeliveries);
-		public bool CanEditUndeliveries => (CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.UndeliveredOrder.CanEditUndeliveries)
+		public bool HasPermissionOrNew => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.UndeliveredOrder.CanEditUndeliveries) || Entity.Id == 0;
+		public bool CanCloseUndeliveries => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.UndeliveredOrder.CanCloseUndeliveries);
+		public bool CanEditUndeliveries => (CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.UndeliveredOrder.CanEditUndeliveries)
 										   || Entity.Id == 0)
 										   && Entity.OldOrder != null
 										   && Entity.UndeliveryStatus != UndeliveryStatus.Closed;
 		public Action RemoveItemsFromStatusEnumAction { get; set; }
-		public bool CanChangeProblemSource => CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.Order.UndeliveredOrder.CanChangeUndeliveryProblemSource, CommonServices.UserService.CurrentUserId);
+		public bool CanChangeProblemSource => CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.UndeliveredOrder.CanChangeUndeliveryProblemSource, CommonServices.UserService.CurrentUserId);
 		public IEntityAutocompleteSelectorFactory OrderSelector { get; set; }
 		public string Info => Entity.GetOldOrderInfo(_orderRepository);
 		public bool RouteListDoesNotExist => Entity.OldOrder != null
@@ -435,7 +439,7 @@ namespace Vodovoz.ViewModels.Widgets
 			set => SetField(ref _newResultText, value);
 		}
 
-		public bool CanEditReference => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.RouteList.CanDelete);
+		public bool CanEditReference => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanDelete);
 		public IDeliveryScheduleJournalFactory DeliveryScheduleJournalFactory { get; }
 		public Func<bool, bool> SaveUndelivery;
 
@@ -595,9 +599,9 @@ namespace Vodovoz.ViewModels.Widgets
 					   (Entity.OldOrder.OrderSum == Entity.NewOrder.OrderSum) &&
 					   CommonServices.InteractiveService.Question("Перенести на выбранный заказ Оплату по Карте?"))
 					{
-						Entity.NewOrder.PaymentType = Entity.OldOrder.PaymentType;
-						Entity.NewOrder.OnlineOrder = Entity.OldOrder.OnlineOrder;
-						Entity.NewOrder.PaymentByCardFrom = Entity.OldOrder.PaymentByCardFrom;
+						Entity.NewOrder.UpdatePaymentType(Entity.OldOrder.PaymentType, _contractUpdater);
+						Entity.NewOrder.OnlinePaymentNumber = Entity.OldOrder.OnlinePaymentNumber;
+						Entity.NewOrder.UpdatePaymentByCardFrom(Entity.OldOrder.PaymentByCardFrom, _contractUpdater);
 					}
 				};
 			});

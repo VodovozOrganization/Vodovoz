@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NPOI.SS.Formula.Functions;
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -100,7 +101,7 @@ namespace Vodovoz.Models.TrueMark
 			var result = new TrueMarkWaterCode
 			{
 				SourceCode = sourceCode,
-				GTIN = gtin,
+				Gtin = gtin,
 				SerialNumber = serialNumber,
 				CheckCode = checkCode
 			};
@@ -143,8 +144,58 @@ namespace Vodovoz.Models.TrueMark
 			catch(Exception ex)
 			{
 				exceptionAction(ex);
-				return await Task.FromResult(Vodovoz.Errors.TrueMark.TrueMarkCode.TrueMarkCodeParsingError);
+				return await Task.FromResult(Vodovoz.Errors.TrueMark.TrueMarkCodeErrors.TrueMarkCodeParsingError);
 			}
+		}
+
+		/// <summary>
+		/// Попытка распарсить код честного знака
+		/// с учетом того что код может быть введен не в полном формате.<br/>
+		/// Все части кода являются не обязательными, кроме серийного номера <br/>
+		/// Пример: https://regex101.com/r/sFR6jq/1
+		/// </summary>
+		public bool FuzzyParse(string input, out ITrueMarkWaterCode code)
+		{
+			var pattern = "^(?<SpecialCodeOne>(\\u00e8)|(\\u001d)|([\u00e8,\u001d]{1}))?(?<IdentificationCode>(01)?((?<GTIN>[^\u001d,^\u000a]{14}))?(^|(21)|(.{14}21.{13}))(?<SerialNumber>[^\u001d]{13}))((((\\u001d)|([\u001d]{1}))?($|(93)|(93.{4}))(?<CheckCode>[^\u001d]{4})?)|$)$";
+
+			var regex = new Regex(pattern);
+			var match = regex.Match(input);
+			if(!match.Success)
+			{
+				code = null;
+				return false;
+			}
+
+			var result = new TrueMarkWaterCode();
+
+			var gtinGroup = match.Groups[_gtinGroupName];
+			if(gtinGroup != null)
+			{
+				result.Gtin = gtinGroup.Value;
+			}
+
+			var serialGroup = match.Groups[_serialGroupName];
+			if(serialGroup != null)
+			{
+				result.SerialNumber = serialGroup.Value;
+			}
+
+			var checkGroup = match.Groups[_checkGroupName];
+			if(checkGroup != null)
+			{
+				result.CheckCode = checkGroup.Value;
+			}
+
+			code = result;
+			return true;
+		}
+
+		public bool IsTransportCode(string rawCode)
+		{
+			var pattern = "((^00)(\\d{26}$))|(^\\d{26}$)";
+			var regex = new Regex(pattern);
+			var match = regex.Match(rawCode);
+			return match.Success;
 		}
 
 		/// <summary>
@@ -153,19 +204,19 @@ namespace Vodovoz.Models.TrueMark
 		[Obsolete("Используйте свойство IdentificationCode в коде")]
 		public string GetWaterIdentificationCode(ITrueMarkWaterCode trueMarkWaterCode)
 		{
-			return $"01{trueMarkWaterCode.GTIN}21{trueMarkWaterCode.SerialNumber}";
+			return $"01{trueMarkWaterCode.Gtin}21{trueMarkWaterCode.SerialNumber}";
 		}
 
 		[Obsolete("Используйте свойство CashReceiptCode в коде")]
 		public string GetProductCodeForCashReceipt(ITrueMarkWaterCode trueMarkWaterCode)
 		{
-			return $"01{trueMarkWaterCode.GTIN}21{trueMarkWaterCode.SerialNumber}\u001d93{trueMarkWaterCode.CheckCode}";
+			return $"01{trueMarkWaterCode.Gtin}21{trueMarkWaterCode.SerialNumber}\u001d93{trueMarkWaterCode.CheckCode}";
 		}
 
 		[Obsolete("Используйте свойство Tag1260Code в коде")]
 		public string GetProductCodeForTag1260(ITrueMarkWaterCode trueMarkWaterCode)
 		{			
-			return $"01{trueMarkWaterCode.GTIN}21{trueMarkWaterCode.SerialNumber}\u001d93{trueMarkWaterCode.CheckCode}";
+			return $"01{trueMarkWaterCode.Gtin}21{trueMarkWaterCode.SerialNumber}\u001d93{trueMarkWaterCode.CheckCode}";
 		}
 
 		public TrueMarkWaterCode ParseCodeFrom1c(string code)
@@ -200,7 +251,7 @@ namespace Vodovoz.Models.TrueMark
 			var result = new TrueMarkWaterCode
 			{
 				SourceCode = sourceCode,
-				GTIN = gtin,
+				Gtin = gtin,
 				SerialNumber = serialNumber,
 				CheckCode = checkCode
 			};
@@ -236,7 +287,7 @@ namespace Vodovoz.Models.TrueMark
 			var result = new TrueMarkWaterCode
 			{
 				SourceCode = sourceCode,
-				GTIN = gtin,
+				Gtin = gtin,
 				SerialNumber = serialNumber,
 				CheckCode = checkCode
 			};

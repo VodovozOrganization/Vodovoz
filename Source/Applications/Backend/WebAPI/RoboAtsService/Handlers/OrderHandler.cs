@@ -15,6 +15,7 @@ using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Models;
 using Vodovoz.Models.Orders;
 using Vodovoz.Settings.Roboats;
+using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Services.Orders;
 using static VodovozBusiness.Services.Orders.CreateOrderRequest;
 using VodovozBusiness.Extensions.Mapping;
@@ -30,6 +31,7 @@ namespace RoboatsService.Handlers
 		private readonly IRoboatsSettings _roboatsSettings;
 		private readonly RoboatsCallRegistrator _callRegistrator;
 		private readonly IFastPaymentSender _fastPaymentSender;
+		private readonly IOrderOrganizationManager _orderOrganizationManager;
 
 		public OrderRequestType RequestType { get; }
 
@@ -60,7 +62,8 @@ namespace RoboatsService.Handlers
 			RequestDto requestDto,
 			IRoboatsSettings roboatsSettings,
 			RoboatsCallRegistrator callRegistrator,
-			IFastPaymentSender fastPaymentSender) : base(requestDto)
+			IFastPaymentSender fastPaymentSender,
+			IOrderOrganizationManager orderOrganizationManager) : base(requestDto)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
@@ -69,6 +72,7 @@ namespace RoboatsService.Handlers
 			_roboatsSettings = roboatsSettings ?? throw new ArgumentNullException(nameof(roboatsSettings));
 			_callRegistrator = callRegistrator ?? throw new ArgumentNullException(nameof(callRegistrator));
 			_fastPaymentSender = fastPaymentSender ?? throw new ArgumentNullException(nameof(fastPaymentSender));
+			_orderOrganizationManager = orderOrganizationManager ?? throw new ArgumentNullException(nameof(orderOrganizationManager));
 
 			if(RequestDto.RequestSubType == "price")
 			{
@@ -309,7 +313,6 @@ namespace RoboatsService.Handlers
 				}
 			}
 
-
 			if(!int.TryParse(RequestDto.BanknoteForReturn, out int banknoteForReturn))
 			{
 				banknoteForReturn = 0;
@@ -319,8 +322,22 @@ namespace RoboatsService.Handlers
 			if((banknoteForReturn > maxBanknoteForReturn || banknoteForReturn < 0) && isFullOrder && payment == RoboAtsOrderPayment.Cash)
 			{
 				//Если "сдача с" выходит за установленные лимиты, то это значит что робот дает клиенту не корректный выбор, надо корректировать лимиты либо исправлять робота Roboats
-				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.UnknownIsTerminalValue, RoboatsCallOperation.CreateOrder,
+				_callRegistrator.RegisterFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.IncorrectTrifleForCashOrder, RoboatsCallOperation.CreateOrder,
 					$"Невозможно создать заказ. Указанная \"сдача с\", должна быть меньше лимита ({maxBanknoteForReturn}). Сдача с: {RequestDto.BanknoteForReturn}. Контрагент {counterpartyId}, точка доставки {deliveryPointId}. Обратитесь в отдел разработки.");
+				return ErrorMessage;
+			}
+			
+			var paymentType = payment.MapToPaymentType();
+			
+			if(_orderOrganizationManager.OrderHasGoodsFromSeveralOrganizations(
+				watersInfo.Select(x => x.NomenclatureId).ToList()))
+			{
+				_callRegistrator.RegisterFail(
+					ClientPhone,
+					RequestDto.CallGuid,
+					RoboatsCallFailType.OrderHasGoodsSoldFromSeveralOrganizations,
+					RoboatsCallOperation.CreateOrder,
+					"Невозможно создать заказ. Выбранные товары в заказе, продаются от разных организаций. Обратитесь в отдел разработки.");
 				return ErrorMessage;
 			}
 
@@ -332,7 +349,7 @@ namespace RoboatsService.Handlers
 			orderArgs.BottlesReturn = bottlesReturn;
 			orderArgs.Date = date;
 			orderArgs.DeliveryScheduleId = deliverySchedule.Id;
-			orderArgs.PaymentType = payment.MapToPaymentType();
+			orderArgs.PaymentType = paymentType;
 			orderArgs.BanknoteForReturn = banknoteForReturn;
 
 			try

@@ -2,6 +2,7 @@
 using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 
 namespace Vodovoz.Domain.Orders.Documents
@@ -14,9 +15,20 @@ namespace Vodovoz.Domain.Orders.Documents
 	[HistoryTrace]
 	public class EdoContainer : EdoContainerEntity
 	{
+		private Counterparty _counterparty;
 		private OrderWithoutShipmentForAdvancePayment _orderWithoutShipmentForAdvancePayment;
 		private OrderWithoutShipmentForDebt _orderWithoutShipmentForDebt;
 		private OrderWithoutShipmentForPayment _orderWithoutShipmentForPayment;
+		
+		/// <summary>
+		/// Контрагент
+		/// </summary>
+		[Display(Name = "Контрагент")]
+		public new virtual Counterparty Counterparty
+		{
+			get => _counterparty;
+			set => SetField(ref _counterparty, value);
+		}
 
 		[Display(Name = "Счет без отгрузки на предоплату")]
 		public virtual OrderWithoutShipmentForAdvancePayment OrderWithoutShipmentForAdvancePayment

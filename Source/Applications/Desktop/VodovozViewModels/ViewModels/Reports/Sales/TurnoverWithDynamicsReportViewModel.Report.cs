@@ -445,6 +445,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						return x => x.CounterpartyClassification;
 					case GroupingType.PromotionalSet:
 						return x => x.PromotionalSetId;
+					case GroupingType.CounterpartyManager:
+						return x => x.SalesManagerId;
+					case GroupingType.OrderAuthor:
+						return x => x.OrderAuthorId;
 					default:
 						return x => x.Id;
 				}
@@ -482,6 +486,10 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						return x => x.CounterpartyClassification.GetEnumTitle();
 					case GroupingType.PromotionalSet:
 						return x => x.PromotionalSetName;
+					case GroupingType.CounterpartyManager:
+						return x => x.SalesManagerName;
+					case GroupingType.OrderAuthor:
+						return x => x.OrderAuthorName;
 					default:
 						return x => x.Id.ToString();
 				}

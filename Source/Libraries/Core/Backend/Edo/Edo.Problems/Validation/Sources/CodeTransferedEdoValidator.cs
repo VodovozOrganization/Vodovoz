@@ -64,7 +64,9 @@ namespace Edo.Problems.Validation.Sources
 			using(var uow = uowFactory.CreateWithoutRoot())
 			{
 				var toOrg = uow.GetById<OrganizationEntity>(transferTask.ToOrganizationId);
-				var notTransfered = codesResults.Where(x => x.Value.ProductInstanceStatus.OwnerInn != toOrg.INN);
+				var notTransfered = codesResults
+					.Where(x => x.Value.ItemCodeType == EdoTaskItemCodeType.Result)
+					.Where(x => x.Value.ProductInstanceStatus.OwnerInn != toOrg.INN);
 				
 				if(notTransfered.Any())
 				{

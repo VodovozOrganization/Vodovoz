@@ -125,7 +125,7 @@ namespace Vodovoz.Representations
 
 			_currentEmployee = employeeRepository.GetEmployeeForCurrentUser(UoW);
 
-			_canSendBulkEmails = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Email.CanSendBulkEmails);
+			_canSendBulkEmails = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.EmailPermissions.CanSendBulkEmails);
 
 			_waterSemiozerieId = nomenclatureSettings.WaterSemiozerieId;
 			_waterSemiozeriePrice = nomenclatureRepository.Get(UoW, n => n.Id == _waterSemiozerieId)
@@ -224,6 +224,7 @@ namespace Vodovoz.Representations
 		{
 			DeliveryPoint deliveryPointAlias = null;
 			Counterparty counterpartyAlias = null;
+			Employee salesManagerAlias = null;
 			BottlesMovementOperation bottleMovementOperationAlias = null;
 			BottlesMovementOperation bottlesMovementAlias = null;
 			Order orderAlias = null;
@@ -279,6 +280,8 @@ namespace Vodovoz.Representations
 				.Where(() => emailAlias.Counterparty.Id == counterpartyAlias.Id)
 				.Select(Projections.Property(() => emailAlias.Id));
 
+			
+			
 			var countDeliveryPoint = QueryOver.Of(() => deliveryPointAlias)
 				.Where(x => x.Counterparty.Id == counterpartyAlias.Id)
 				.Select(Projections.Count(Projections.Id()));
@@ -390,6 +393,12 @@ namespace Vodovoz.Representations
 				if(_filterViewModel.Address != null)
 				{
 					ordersQuery = ordersQuery.Where((arg) => arg.DeliveryPoint.Id == _filterViewModel.Address.Id);
+				}
+
+				if(_filterViewModel.SalesManager != null)
+				{
+					ordersQuery = ordersQuery
+						.Where(() => counterpartyAlias.SalesManager.Id == _filterViewModel.SalesManager.Id);
 				}
 
 				if(_filterViewModel.OPF != null)
@@ -1029,6 +1038,12 @@ namespace Vodovoz.Representations
 				if(_filterViewModel.Address != null)
 				{
 					ordersQuery = ordersQuery.Where((arg) => arg.DeliveryPoint.Id == _filterViewModel.Address.Id);
+				}
+				
+				if(_filterViewModel.SalesManager != null)
+				{
+					ordersQuery = ordersQuery
+						.Where(() => counterpartyAlias.SalesManager.Id == _filterViewModel.SalesManager.Id);
 				}
 
 				if(_filterViewModel.OPF != null)

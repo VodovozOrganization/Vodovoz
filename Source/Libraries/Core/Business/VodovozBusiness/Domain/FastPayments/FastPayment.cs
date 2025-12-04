@@ -14,6 +14,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Services;
 using Vodovoz.Settings.Nomenclature;
+using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Domain.FastPayments
 {
@@ -165,7 +166,8 @@ namespace Vodovoz.Domain.FastPayments
 			INomenclatureSettings nomenclatureSettings,
 			IRouteListItemRepository routeListItemRepository,
 			ISelfDeliveryRepository selfDeliveryRepository,
-			ICashRepository cashRepository)
+			ICashRepository cashRepository,
+			IOrderContractUpdater contractUpdater)
 		{
 			FastPaymentStatus = FastPaymentStatus.Performed;
 
@@ -195,10 +197,10 @@ namespace Vodovoz.Domain.FastPayments
 			}
 			
 			PaidDate = paidDate;
-			Order.OnlineOrder = ExternalId;
-			Order.PaymentType = PaymentType;
-			Order.PaymentByCardFrom = PaymentByCardFrom;
-			Order.ForceUpdateContract(Organization);
+			Order.OnlinePaymentNumber = ExternalId;
+			Order.UpdatePaymentType(PaymentType, contractUpdater, false);
+			Order.UpdatePaymentByCardFrom(PaymentByCardFrom, contractUpdater, false);
+			contractUpdater.ForceUpdateContract(uow, Order, Organization);
 
 			foreach(var routeListItem in routeListItemRepository.GetRouteListItemsForOrder(uow, Order.Id))
 			{

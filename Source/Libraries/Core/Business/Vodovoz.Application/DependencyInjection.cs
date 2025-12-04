@@ -1,27 +1,34 @@
-﻿using DriverApi.Notifications.Client;
+using DriverApi.Notifications.Client;
 using Microsoft.Extensions.DependencyInjection;
 using RevenueService.Client;
 using TrueMarkApi.Client;
+using Vodovoz.Application.Clients;
+using Vodovoz.Application.Clients.Services;
 using Vodovoz.Application.Complaints;
 using Vodovoz.Application.Contacts;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Application.Goods;
 using Vodovoz.Application.Logistics;
-using Vodovoz.Application.Logistics.RouteOptimization;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Application.Pacs;
 using Vodovoz.Application.Payments;
-using Vodovoz.Application.Services;
+using Vodovoz.Application.Receipts;
 using Vodovoz.Application.Services.Subdivisions;
 using Vodovoz.Application.TrueMark;
 using Vodovoz.Application.Users;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Service;
+using Vodovoz.Handlers;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Orders;
+using VodovozBusiness.Controllers;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Settings;
+using VodovozBusiness.Models.TrueMark;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
+using VodovozBusiness.Services.Receipts;
 using VodovozBusiness.Services.Subdivisions;
 using VodovozBusiness.Services.TrueMark;
 using VodovozBusiness.Employees;
@@ -34,7 +41,6 @@ namespace Vodovoz.Application
 	public static class DependencyInjection
 	{
 		public static IServiceCollection AddApplication(this IServiceCollection services) => services
-			.AddScoped<IRouteOptimizer, RouteOptimizer>()
 			.AddSecurityServices()
 			.AddApplicationServices()
 			.ConfigureFileOptions()
@@ -42,14 +48,18 @@ namespace Vodovoz.Application
 			.AddRevenueServiceClient();
 
 		public static IServiceCollection AddSecurityServices(this IServiceCollection services) => services
-			.AddScoped<IUserRoleService, UserRoleService>();
+			.AddScoped<IUserRoleService, UserRoleService>()
+			.AddScoped<GrantsRoleParser>();
 
 		public static IServiceCollection AddApplicationServices(this IServiceCollection services) => services
 			.AddSingleton<OperatorService>()
 			.AddScoped<ICounterpartyService, CounterpartyService>()
 			.AddScoped<IRouteListService, RouteListService>()
-			.AddScoped<IPaymentService, PaymentService>()
-			.AddScoped<IOrderService, OrderService>()
+			.AddScoped<IRouteListTransferService, RouteListTransferService>()
+			.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
+			.AddScoped<IOnlineOrderService, OnlineOrderService>()
+			.AddScoped<IRouteListTransferService, RouteListTransferService>()
+			.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
 			.AddScoped<IPhoneService, PhoneService>()
 			.AddScoped<INomenclatureService, NomenclatureService>()
 			.AddScoped<IComplaintService, ComplaintService>()
@@ -59,8 +69,10 @@ namespace Vodovoz.Application
 			.AddScoped<ITrueMarkWaterGroupCodeFactory, TrueMarkWaterGroupCodeFactory>()
 			.AddScoped<ITrueMarkWaterIdentificationCodeFactory, TrueMarkWaterIdentificationCodeFactory>()
 			.AddScoped<IExternalApplicationUserService, ExternalApplicationUserService>()
+			.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>()
+			.AddScoped<OurCodesChecker>()
 			.AddTrueMarkApiClient()
-			.AddOrderServicesDependencies()
+			.AddApplicationOrderServices()
 		;
 
 		public static IServiceCollection AddApplicationWarehouseServices(this IServiceCollection services) => services
@@ -68,6 +80,7 @@ namespace Vodovoz.Application
 
 		public static IServiceCollection AddApplicationOrderServices(this IServiceCollection services) => services
 			.AddScoped<IOrderService, OrderService>()
+			.AddScoped<IPaymentService, PaymentService>()
 			.AddOrderServicesDependencies()
 			;
 
@@ -79,7 +92,24 @@ namespace Vodovoz.Application
 			.AddScoped<IOrderDeliveryPriceGetter, OrderDeliveryPriceGetter>()
 			.AddScoped<IClientDeliveryPointsChecker, ClientDeliveryPointsChecker>()
 			.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
+			.AddScoped<IOnlineOrderDiscountHandler, OnlineOrderDiscountHandler>()
+			.AddScoped<IOnlineOrderFixedPriceHandler, OnlineOrderFixedPriceHandler>()
 			.AddDriverApiNotificationsSenders()
+			.AddScoped<IOrderOrganizationManager, OrderOrganizationManager>()
+			.AddScoped<IOrderReceiptHandler, OrderReceiptHandler>()
+			.AddTransient<IOrganizationForOrderFromSet, OrganizationForOrderFromSet>()
+			.AddScoped<IOrganizationForOnlinePaymentService, OrganizationForOnlinePaymentService>()
+			.AddTransient<OrderOurOrganizationForOrderHandler>()
+			.AddTransient<ContractOrganizationForOrderHandler>()
+			.AddTransient<OrganizationByOrderAuthorHandler>()
+			.AddTransient<OrganizationByOrderContentForOrderHandler>()
+			.AddTransient<OrganizationByPaymentTypeForOrderHandler>()
+			.AddTransient<OrganizationForDeliveryOrderByPaymentTypeHandler>()
+			.AddTransient<OrganizationForSelfDeliveryOrderByPaymentTypeHandler>()
+			.AddTransient<OrganizationFromClientForOrderHandler>()
+			.AddScoped<IOrderContractUpdater, OrderContractUpdater>()
+			.AddScoped<IOrderConfirmationService, OrderConfirmationService>()
+			.AddScoped<IPartitioningOrderService, PartitioningOrderService>()
 		;
 
 		private static IServiceCollection ConfigureFileOptions(this IServiceCollection services)

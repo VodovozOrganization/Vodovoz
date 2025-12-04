@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>209.804mm</PageHeight>
   <PageWidth>296.926mm</PageWidth>
   <Width>7.5in</Width>
@@ -12,7 +10,7 @@
   <RightMargin>5mm</RightMargin>
   <BottomMargin>5mm</BottomMargin>
   <PageHeader>
-    <Height>68.2pt</Height>
+    <Height>32.7pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
     <ReportItems>
@@ -31,27 +29,10 @@
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>36.72pt</Height>
-        <Width>801.63pt</Width>
-        <Value>В отчет попадают завершенные платежи, которые:
-- находятся в статусах:  Не Новый, Ожидание оплаты, Отменен, Недовоз, Доставка Отменена
-- находятся между выбранными датами
-- были созданы выбранным сотрудником</Value>
-        <ZIndex>0</ZIndex>
-        <Left>11.30pt</Left>
-        <Top>29.70pt</Top>
-        <Style>
-          <FontSize>8pt</FontSize>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>97.3pt</Height>
+    <Height>119.6pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>Data</DataSetName>
@@ -65,13 +46,13 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>22.5pt</Width>
+            <Width>37.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>63.2pt</Width>
+            <Width>60pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>63.2pt</Width>
+            <Width>50pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>162.8pt</Width>
@@ -86,13 +67,16 @@
             <Width>65.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>71.7pt</Width>
-          </TableColumn>
-          <TableColumn>
             <Width>108.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>86.8pt</Width>
+            <Width>60pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>50pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>64.1pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -137,7 +121,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox38">
-                      <Value>№ заказа</Value>
+                      <Value>№ первого заказа</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -221,23 +205,6 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox35">
-                      <Value>Долг по клиенту, бут. ( при первом заказе )</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox13">
                       <Value>Основание скидки </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -255,8 +222,42 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox2">
+                    <Textbox Name="Textbox24">
                       <Value>Дата второго заказа</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>№ второго заказа</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>Сумма второго заказа</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -305,7 +306,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
-                      <Value>=Format({delivery_date}, "dd.MM.yy")</Value>
+                      <Value>=Format({first_order_delivery_date}, "dd.MM.yy")</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -327,7 +328,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox39">
-                      <Value>={order_id}</Value>
+                      <Value>={first_order_id}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -393,7 +394,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox34">
-                      <Value>={sum_to_receive}</Value>
+                      <Value>={first_order_total_sum}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -435,17 +436,16 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox37">
-                      <Value>={BottleBalance}</Value>
+                    <Textbox Name="Textbox18">
+                      <Value>={first_order_discount_info}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <FontWeight>Normal</FontWeight>
                         <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                         <PaddingTop>5pt</PaddingTop>
                         <PaddingBottom>5pt</PaddingBottom>
                         <PaddingLeft>3pt</PaddingLeft>
@@ -457,8 +457,8 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox18">
-                      <Value>={discount}</Value>
+                    <Textbox Name="Textbox25">
+                      <Value>=Format({second_order_delivery_date}, "dd.MM.yy")</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -472,14 +472,13 @@
                         <PaddingLeft>3pt</PaddingLeft>
                         <PaddingRight>3pt</PaddingRight>
                       </Style>
-                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox3">
-                      <Value>=Format({secondOrderDate}, "dd.MM.yy")</Value>
+                      <Value>={second_order_id}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -494,6 +493,26 @@
                         <PaddingRight>3pt</PaddingRight>
                       </Style>
                       <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
+                      <Value>={second_order_total_sum}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>3pt</PaddingRight>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -501,8 +520,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>8.0pt</Left>
-        <Top>14.5pt</Top>
+        <Left>3.2pt</Left>
+        <Top>42.2pt</Top>
         <PageBreakAtStart>false</PageBreakAtStart>
         <Footer>
           <TableRows>
@@ -523,8 +542,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -542,8 +560,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -561,8 +578,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -580,16 +596,14 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>
-                      </Value>
+                      <Value></Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox9">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -618,15 +632,14 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>="Итого: " + Sum({sum_to_receive})</Value>
+                      <Value>="Итого: " + Sum({first_order_total_sum})</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox17">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
@@ -643,7 +656,8 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox53">
+                    <Textbox Name="Textbox54">
+                      <Value></Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -655,16 +669,14 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>='Итого: ' + Sum({BottleBalance})</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox54">
-                      <Value>
-                      </Value>
-                      <Style>
+                    <Textbox Name="Textbox26">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>
                           <Left>None</Left>
@@ -692,7 +704,25 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Value>="Кол-во вторичек: " + Count({secondOrderDate})</Value>
+                      <Value>="Кол-во вторичек: " + Count({second_order_delivery_date})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -701,6 +731,35 @@
           </TableRows>
         </Footer>
       </Table>
+      <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.94pt</Height>
+        <Width>806.88pt</Width>
+        <Value>={?selected_filters_info}</Value>
+        <ZIndex>0</ZIndex>
+        <Left>0.8pt</Left>
+        <Top>13.8pt</Top>
+        <Style>
+          <FontSize>8pt</FontSize>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <CanGrow>true</CanGrow>
+      </Textbox>
+      <Textbox Name="Textbox23" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.94pt</Height>
+        <Width>806.88pt</Width>
+        <Value>Установленные фильтры:</Value>
+        <ZIndex>0</ZIndex>
+        <Left>0pt</Left>
+        <Top>0pt</Top>
+        <Style>
+          <FontSize>8pt</FontSize>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
     </ReportItems>
     <Columns>1</Columns>
   </Body>
@@ -730,145 +789,104 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
-    orders.id AS order_id,
-    orders.delivery_date AS delivery_date,
-    counterparty.name AS client_name,
-    orders.sum_to_receive ,
-    OrderDeposit.Balance AS deposit,
-    (
-        SELECT GROUP_CONCAT(DISTINCT IFNULL(ds.name, IFNULL(ps.discount_reason_info, '')) SEPARATOR ', ')
-        FROM order_items oi
-            LEFT JOIN discount_reasons ds ON oi.discount_reason_id = ds.id
-            LEFT JOIN promotional_sets ps ON oi.promotional_set_id = ps.id
-        WHERE oi.order_id = orders.id
-            AND
-            (
-                ds.id is not null OR ps.id is not null    
-            )
-    ) AS discount,
-    SecondOrder.delivery_date AS secondOrderDate,
-    SecondOrder.Id AS secondOrderId,
-    IFNULL(TransferTo.Balance,0) + IFNULL(TransferFrom.Balance,0) + OrderBottles.Balance as BottleBalance,
-    IFNULL(
+        <Timeout>180</Timeout>
+        <CommandText>WITH first_orders_data as(
+SELECT
+    c.id AS client_id,
+    c.full_name AS client_name,
+    o.id AS order_id,
+    o.delivery_date AS order_delivery_date,
+    o.delivery_point_id AS delivery_point_id,
+    o.order_status as order_status,
+    IFNULL(SUM(GET_TOTAL_SUM_FOR_ORDER_ITEM(oi.id)),0) AS order_total_sum,
+    IFNULL(GET_PARAMETER('AdvancedPaymentNomenclatureId'),0) as advanced_payment_sum,
+	(
+		SELECT
+			GROUP_CONCAT(DISTINCT IFNULL(ds.name, IFNULL(ps.discount_reason_info, '')) SEPARATOR ', ')
+		FROM order_items oi
+		LEFT JOIN discount_reasons ds ON oi.discount_reason_id = ds.id
+		LEFT JOIN promotional_sets ps ON oi.promotional_set_id = ps.id
+		WHERE
+			oi.order_id = o.id
+			AND (ds.id is not null OR ps.id is not null)
+    ) AS discount_info
+FROM counterparty c
+JOIN orders o ON o.client_id = c.id
+JOIN order_items oi ON oi.order_id = o.id
+LEFT JOIN discount_reasons dr ON oi.discount_reason_id = dr.id
+WHERE
+	o.delivery_date &gt;= @start_date and o.delivery_date &lt; DATE_ADD(@end_date, INTERVAL 1 DAY)
+	AND o.order_status IN (@first_order_statuses)
+	AND o.is_first_order = 1
+	AND (@author_employer_id = 0 OR o.author_employee_id = @author_employer_id)
+	AND 
+    (CASE
+		WHEN @discount_id = 0 AND @has_promo_set = 0 THEN o.id is not null
+		WHEN @discount_id = 0 AND @has_promo_set = 1 THEN oi.promotional_set_id is not null
+		WHEN @discount_id = 1 AND @has_promo_set = 0 THEN dr.id = @discount_id
+		WHEN @discount_id = 1 AND @has_promo_set = 1 THEN dr.id = @discount_id OR oi.promotional_set_id is not null
+	END)
+GROUP BY o.id
+),
+
+second_orders_data as(
+SELECT
+    c.id AS client_id,
+    c.full_name AS client_name,
+    o.id AS order_id,
+    o.delivery_date AS order_delivery_date,
+    o.order_status as order_status,
+    IFNULL(SUM(GET_TOTAL_SUM_FOR_ORDER_ITEM(oi.id)),0) AS order_total_sum,
+    IFNULL(GET_PARAMETER('AdvancedPaymentNomenclatureId'),0) as advanced_payment_sum
+FROM orders o 
+JOIN counterparty c ON o.client_id = c.id
+JOIN order_items oi ON oi.order_id = o.id
+WHERE
+	o.delivery_date &gt;= @start_date and o.delivery_date &lt; DATE_ADD(@end_date, INTERVAL 1 DAY)
+	AND o.client_id IN (SELECT client_id FROM first_orders_data)
+	AND NOT o.id IN (SELECT order_id FROM first_orders_data)
+GROUP BY o.id
+)
+
+SELECT
+	IFNULL(
             (SELECT TRIM('\n' FROM GROUP_CONCAT(DISTINCT CONCAT('8', digits_number) SEPARATOR ';\n'))
              FROM phones
-             WHERE delivery_point_id = orders.delivery_point_id
+             WHERE delivery_point_id = fod.delivery_point_id
              AND phones.is_archive = 0),
             (SELECT TRIM('\n' FROM GROUP_CONCAT(DISTINCT CONCAT('8', digits_number) SEPARATOR ';\n'))
              FROM phones
-             WHERE counterparty_id = orders.client_id
+             WHERE counterparty_id = fod.client_id
              AND phones.is_archive = 0)
-        ) AS phones
-FROM
-    orders
-        JOIN order_items ON orders.id = order_items.order_id
-        LEFT JOIN discount_reasons ON order_items.discount_reason_id = discount_reasons.id
-        JOIN counterparty ON orders.id = counterparty.first_order_id
-        LEFT JOIN phones p1 ON p1.counterparty_id = orders.client_id
-        LEFT JOIN phones p2 ON p2.delivery_point_id = orders.delivery_point_id
-
-        LEFT JOIN
+    ) AS phones,
     (
-        SELECT
-            orders.delivery_date ,
-            orders.client_id ,
-            orders.id as Id
-        FROM orders
-                 LEFT JOIN counterparty ON counterparty.id = orders.client_id
-        WHERE counterparty.first_order_id != orders.id
-          AND
-            (orders.order_status != 'NewOrder' AND
-             orders.order_status != 'WaitForPayment' AND
-             orders.order_status != 'Canceled' AND
-             orders.order_status != 'NotDelivered' AND
-             orders.order_status != 'DeliveryCanceled'
-                )
-        ORDER BY orders.id DESC
-    ) as SecondOrder ON SecondOrder.client_id = orders.client_id
-
-        LEFT JOIN
-    (
-        SELECT
-            transfer_operations.to_client_id AS counterparty_id,
-            IFNULL(SUM((CAST(bottles_movement_operations.delivered AS SIGNED) - CAST(bottles_movement_operations.returned AS SIGNED))),0) as Balance
-        FROM
-            transfer_operations
-                JOIN bottles_movement_operations ON bottles_movement_operations.id = transfer_operations.incoming_bottle_operation
-        GROUP BY
-            transfer_operations.to_client_id
-    ) AS TransferTo ON TransferTo.counterparty_id = orders.client_id
-
-        LEFT JOIN
-    (
-        SELECT
-            transfer_operations.from_client_id AS counterparty_id,
-            IFNULL(SUM((CAST(bottles_movement_operations.delivered AS SIGNED) - CAST(bottles_movement_operations.returned AS SIGNED))),0) as Balance
-        FROM
-            transfer_operations
-                JOIN bottles_movement_operations ON bottles_movement_operations.id = transfer_operations.outgoing_bottle_operation
-        GROUP BY
-            transfer_operations.from_client_id
-    ) AS TransferFrom ON TransferFrom.counterparty_id = orders.client_id
-
-        LEFT JOIN
-    (
-        SELECT
-            bottles_movement_operations.order_id,
-            IFNULL((CAST(bottles_movement_operations.delivered AS SIGNED) - CAST(bottles_movement_operations.returned AS SIGNED)),0) as Balance
-        FROM
-            bottles_movement_operations
-        GROUP BY
-            bottles_movement_operations.order_id
-    ) AS OrderBottles ON OrderBottles.order_id = orders.id
-
-        LEFT JOIN
-    (
-        SELECT
-            deposit_operations.order_id,
-            SUM(IFNULL((CAST(deposit_operations.received_deposit AS SIGNED) - CAST(deposit_operations.refund_deposit AS SIGNED)),0)) as Balance
-        FROM
-            deposit_operations
-        WHERE
-                deposit_operations.deposit_type = 'Bottles'
-        GROUP BY
-            deposit_operations.order_id
-    ) AS OrderDeposit ON OrderDeposit.order_id = orders.id
+		SELECT
+			SUM(IFNULL((CAST(deposit_operations.received_deposit AS SIGNED) - CAST(deposit_operations.refund_deposit AS SIGNED)), 0)) as Balance
+		FROM deposit_operations
+		WHERE deposit_operations.deposit_type = 'Bottles' AND deposit_operations.order_id = fod.order_id
+		GROUP BY deposit_operations.order_id
+    ) AS deposit,
+	fod.client_name as client_name,
+	fod.order_id as first_order_id,
+	fod.order_delivery_date as first_order_delivery_date,
+	fod.order_total_sum as first_order_total_sum,
+	fod.discount_info as first_order_discount_info,
+	sod.order_id as second_order_id,
+	sod.order_delivery_date as second_order_delivery_date,
+	sod.order_total_sum as second_order_total_sum
+FROM first_orders_data fod
+LEFT JOIN second_orders_data sod
+	ON fod.client_id = sod.client_id
+		AND sod.order_total_sum &gt; sod.advanced_payment_sum
+		AND sod.order_status IN (@second_order_statuses)
+		AND sod.order_id = (SELECT MIN(order_id) FROM second_orders_data WHERE client_id = fod.client_id)
 WHERE
-    orders.delivery_date BETWEEN @start_date AND @end_date AND
-    (orders.order_status != 'NewOrder' AND
-     orders.order_status != 'WaitForPayment' AND
-     orders.order_status != 'Canceled' AND
-     orders.order_status != 'NotDelivered' AND
-     orders.order_status != 'DeliveryCanceled'
-        ) AND
-    (CASE 
-        WHEN @discount_id = 0 AND !@has_promo_set THEN discount_reasons.id is not null
-        WHEN @discount_id = 0 AND @has_promo_set THEN order_items.promotional_set_id is not null
-        WHEN @discount_id = 1 AND !@has_promo_set THEN discount_reasons.id = @discount_id
-        WHEN @discount_id = 1 AND @has_promo_set THEN discount_reasons.id = @discount_id OR order_items.promotional_set_id is not null
-    END) AND
-    (@author_employer_id = 0 OR orders.author_employee_id = @author_employer_id) AND
-    (@show_only_client_with_one_order = 0 OR SecondOrder.Id IS NULL) AND
-    NOT EXISTS
-        (
-            SELECT
-                *
-            FROM
-                orders as o
-            WHERE
-                    o.client_id = orders.client_id AND
-                    o.delivery_date &lt; orders.delivery_date AND
-                (orders.order_status != 'NewOrder' AND
-                 orders.order_status != 'WaitForPayment' AND
-                 orders.order_status != 'Canceled' AND
-                 orders.order_status != 'NotDelivered' AND
-                 orders.order_status != 'DeliveryCanceled')
-        )
-GROUP BY
-    orders.id DESC;</CommandText>
+	fod.order_total_sum &gt; fod.advanced_payment_sum
+	AND (@show_only_client_with_one_order = 0 OR sod.order_id IS NULL)
+ORDER BY fod.client_id
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -888,44 +906,50 @@ GROUP BY
           <QueryParameter Name="has_promo_set">
             <Value>={?has_promo_set}</Value>
           </QueryParameter>
+          <QueryParameter Name="first_order_statuses">
+            <Value>={?first_order_statuses}</Value>
+          </QueryParameter>
+          <QueryParameter Name="second_order_statuses">
+            <Value>={?second_order_statuses}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
-        <Field Name="order_id">
-          <DataField>order_id</DataField>
+      <Fields>
+        <Field Name="first_order_id">
+          <DataField>first_order_id</DataField>
           <TypeName>System.UInt32</TypeName>
         </Field>
-        <Field Name="delivery_date">
-          <DataField>delivery_date</DataField>
+        <Field Name="first_order_delivery_date">
+          <DataField>first_order_delivery_date</DataField>
           <TypeName>System.DateTime</TypeName>
         </Field>
         <Field Name="client_name">
           <DataField>client_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="sum_to_receive">
-          <DataField>sum_to_receive</DataField>
+        <Field Name="first_order_total_sum">
+          <DataField>first_order_total_sum</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="discount">
-          <DataField>discount</DataField>
+        <Field Name="first_order_discount_info">
+          <DataField>first_order_discount_info</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="secondOrderDate">
-          <DataField>secondOrderDate</DataField>
+        <Field Name="second_order_delivery_date">
+          <DataField>second_order_delivery_date</DataField>
           <TypeName>System.DateTime</TypeName>
         </Field>
-        <Field Name="secondOrderId">
-          <DataField>secondOrderId</DataField>
+        <Field Name="second_order_id">
+          <DataField>second_order_id</DataField>
           <TypeName>System.UInt32</TypeName>
-        </Field>
-        <Field Name="BottleBalance">
-          <DataField>BottleBalance</DataField>
-          <TypeName>System.Int64</TypeName>
         </Field>
         <Field Name="phones">
           <DataField>phones</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="second_order_total_sum">
+          <DataField>second_order_total_sum</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
         <Field Name="deposit">
           <DataField>deposit</DataField>
@@ -955,8 +979,7 @@ GROUP BY
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
@@ -968,8 +991,7 @@ GROUP BY
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="discount_id">
       <DataType>Integer</DataType>
@@ -981,8 +1003,7 @@ GROUP BY
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="show_only_client_with_one_order">
       <DataType>Boolean</DataType>
@@ -994,8 +1015,7 @@ GROUP BY
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="author_employer_id">
       <DataType>Integer</DataType>
@@ -1007,11 +1027,31 @@ GROUP BY
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="has_promo_set">
       <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="first_order_statuses">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="second_order_statuses">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="selected_filters_info">
+      <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>

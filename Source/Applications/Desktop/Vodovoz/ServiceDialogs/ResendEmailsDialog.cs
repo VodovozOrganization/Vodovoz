@@ -9,7 +9,8 @@ namespace Vodovoz.ServiceDialogs
 	{
 		public ResendEmailsDialog()
 		{
-			this.Build();
+			Build();
+			TabName = "Переотправка почты";
 			datepicker1.Date = DateTime.Now;
 			buttonSendErrorSendedEmails.Clicked += ButtonSendErrorSendedEmails_Clicked;
 		}

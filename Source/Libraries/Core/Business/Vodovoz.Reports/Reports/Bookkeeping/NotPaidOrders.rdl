@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -38,22 +38,22 @@
             <Width>52.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>55.6pt</Width>
+            <Width>50.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>164.8pt</Width>
+            <Width>134.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>53.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>120pt</Width>
+            <Width>116.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>62.6pt</Width>
+            <Width>57.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>51.0pt</Width>
+            <Width>54.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>54.5pt</Width>
@@ -63,6 +63,9 @@
           </TableColumn>
           <TableColumn>
             <Width>46.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>42.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>42.0pt</Width>
@@ -116,7 +119,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>12</ColSpan>
+                  <ColSpan>13</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -190,7 +193,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>7</ColSpan>
+                  <ColSpan>8</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -416,6 +419,23 @@
                       <Value>Дней
 прос-
 рочки</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox_DaysWithoutPayment_Header">
+                      <Value>Дней без оплаты</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -708,6 +728,26 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox_Total">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <Format>0</Format>
+                        <PaddingRight>1pt</PaddingRight>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -736,6 +776,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -758,7 +799,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                       </Style>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -781,7 +822,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                       </Style>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -789,7 +830,7 @@
                   <ReportItems>
                     <Textbox Name="Textbox14">
                       <Value>={inn}</Value>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -849,7 +890,7 @@
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                       </Style>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -893,7 +934,7 @@
                         <PaddingLeft>0pt</PaddingLeft>
                         <PaddingRight>0pt</PaddingRight>
                       </Style>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -916,6 +957,7 @@
                         <PaddingRight>1pt</PaddingRight>
                         <Format>#,##0.00</Format>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -938,7 +980,7 @@
                         <Format>#,##0.00</Format>
                         <PaddingLeft>0pt</PaddingLeft>
                       </Style>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -961,7 +1003,7 @@
                         <Format>#,##0.00</Format>
                         <PaddingLeft>0pt</PaddingLeft>
                       </Style>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -984,6 +1026,7 @@
                         <Format>0</Format>
                         <PaddingLeft>0pt</PaddingLeft>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1006,6 +1049,30 @@
                         <Format>0</Format>
                         <PaddingLeft>0pt</PaddingLeft>
                       </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox_DaysWithoutPayment_Data">
+                      <Value>=Fields!days_without_payment.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingTop>0pt</PaddingTop>
+                        <PaddingBottom>0pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
+                        <PaddingRight>1pt</PaddingRight>
+                        <Format>0</Format>
+                        <PaddingLeft>0pt</PaddingLeft>
+                      </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1043,7 +1110,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     o.id AS order_id,
@@ -1082,10 +1149,12 @@
         0
     ) AS partial_order_sum,
     c.delay_days_for_buyers,
-    DATEDIFF(NOW(), o.delivery_date) - CAST(c.delay_days_for_buyers AS INT) delay_days_fact
+    DATEDIFF(NOW(), o.delivery_date) - CAST(c.delay_days_for_buyers AS INT) delay_days_fact,
+    DATEDIFF(NOW(), o.delivery_date) AS days_without_payment
 FROM orders o
 INNER JOIN counterparty c ON o.client_id = c.id
 LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
+LEFT JOIN counterparty_camefrom ccf ON c.counterparty_camefrom_id = ccf.id
 LEFT JOIN organizations org ON cc.organization_id = org.id
 WHERE
       o.order_payment_status != 'Paid'
@@ -1098,6 +1167,10 @@ WHERE
              (0 IN (@Counterparty_include) OR (o.client_id IN (@Counterparty_include)))
 				AND (NOT (o.client_id IN (@Counterparty_exclude)) OR o.client_id IS NULL)
          )
+      AND (
+              (0 IN (@Organization_include) OR (org.id IN (@Organization_include)))
+        AND (NOT (org.id IN (@Organization_exclude)) OR org.id IS NULL)
+          )
       AND
         (
             (
@@ -1124,6 +1197,15 @@ WHERE
       		AND (NOT c.close_delivery_debt_type IN (@DebtType_exclude) OR c.close_delivery_debt_type IS NULL)
       )
       AND (
+             (0 IN (@SalesManager_include) OR (c.sales_manager_id IN (@SalesManager_include)))
+                AND (c.sales_manager_id IS NULL OR NOT (c.sales_manager_id IN (@SalesManager_exclude)))
+      )
+      AND
+      (
+          ('0' IN (@RevenueStatus_include) OR (c.revenue_status IN (@RevenueStatus_include)))
+          AND (NOT (c.revenue_status IN (@RevenueStatus_exclude)) OR c.revenue_status IS NULL)
+      )      
+      AND (
       	@is_closing_documents IS NULL 
       	OR (@is_closing_documents = FALSE AND (o.delivery_schedule_id != @closing_document_delivery_schedule_id OR o.delivery_schedule_id IS NULL)) 
       	OR (@is_closing_documents = TRUE AND o.delivery_schedule_id = @closing_document_delivery_schedule_id)
@@ -1134,8 +1216,7 @@ WHERE
       	OR (@is_expired = FALSE AND DATEDIFF(NOW(), o.delivery_date) - CAST(c.delay_days_for_buyers AS INT) &lt;= 0)
       	OR (@is_expired = TRUE AND DATEDIFF(NOW(), o.delivery_date) - CAST(c.delay_days_for_buyers AS INT) &gt; 0)
       )
-      AND (@is_liquidated IS NULL OR c.is_liquidating = @is_liquidated)
-  
+      AND (@is_tender IS NULL OR (@is_tender = TRUE AND ccf.id = GET_PARAMETER('counterparty_from_tender_id')) OR (@is_tender = FALSE AND (ccf.id IS NULL OR ccf.id != GET_PARAMETER('counterparty_from_tender_id'))))
   AND (SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money) FROM order_items oi WHERE oi.order_id = o.id) &gt; 0
 ORDER BY IF(@order_by_date, o.delivery_date, true) DESC,
          IF(!@order_by_date, order_sum - partial_order_sum, false) DESC
@@ -1155,6 +1236,18 @@ ORDER BY IF(@order_by_date, o.delivery_date, true) DESC,
           </QueryParameter>
           <QueryParameter Name="Counterparty_exclude">
             <Value>={?Counterparty_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="SalesManager_include">
+            <Value>=Parameters!SalesManager_include</Value>
+          </QueryParameter>
+          <QueryParameter Name="SalesManager_exclude">
+            <Value>=Parameters!SalesManager_exclude</Value>
+          </QueryParameter>
+          <QueryParameter Name="Organization_include">
+            <Value>={?Organization_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="Organization_exclude">
+            <Value>={?Organization_exclude}</Value>
           </QueryParameter>
           <QueryParameter Name="CounterpartyType_include">
             <Value>={?CounterpartyType_include}</Value>
@@ -1189,15 +1282,21 @@ ORDER BY IF(@order_by_date, o.delivery_date, true) DESC,
           <QueryParameter Name="is_expired">
             <Value>={?is_expired}</Value>
           </QueryParameter>
-          <QueryParameter Name="is_liquidated">
-            <Value>={?is_liquidated}</Value>
-          </QueryParameter>
           <QueryParameter Name="order_by_date">
             <Value>={?order_by_date}</Value>
           </QueryParameter>
+          <QueryParameter Name="is_tender">
+            <Value>={?is_tender}</Value>
+          </QueryParameter>
+          <QueryParameter Name="RevenueStatus_include">
+            <Value>={?RevenueStatus_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="RevenueStatus_exclude">
+            <Value>={?RevenueStatus_exclude}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.Int32</TypeName>
@@ -1242,6 +1341,10 @@ ORDER BY IF(@order_by_date, o.delivery_date, true) DESC,
           <DataField>delay_days_fact</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
+        <Field Name="days_without_payment">
+          <DataField>days_without_payment</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -1256,7 +1359,7 @@ ORDER BY IF(@order_by_date, o.delivery_date, true) DESC,
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
@@ -1301,6 +1404,20 @@ ORDER BY IF(@order_by_date, o.delivery_date, true) DESC,
     </ReportParameter>
     <ReportParameter Name="Counterparty_exclude">
       <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Organization_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Organization_exclude">
+      <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
@@ -1383,11 +1500,39 @@ ORDER BY IF(@order_by_date, o.delivery_date, true) DESC,
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="is_liquidated">
+    <ReportParameter Name="is_tender">
       <DataType>Boolean</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SalesManager_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="SalesManager_exclude">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RevenueStatus_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RevenueStatus_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>

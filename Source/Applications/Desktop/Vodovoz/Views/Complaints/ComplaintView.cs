@@ -189,6 +189,14 @@ namespace Vodovoz.Views.Complaints
 
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(ViewModel.CanEdit, QS.Navigation.CloseSource.Cancel);
 
+			orderRatingEntry.Binding
+				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
+				.InitializeFromSource();
+
+			lblOrderRating.Binding
+				.AddBinding(ViewModel, vm => vm.IsClientComplaint, w => w.Visible)
+				.InitializeFromSource();
+			
 			orderRatingEntry.ViewModel = ViewModel.OrderRatingEntryViewModel;
 
 			if(!string.IsNullOrWhiteSpace(ViewModel.Entity.Phone))

@@ -18,7 +18,8 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Logistic.Drivers;
 using IApiRouteListService = DriverAPI.Library.V6.Services.IRouteListService;
-using IRouteListService = Vodovoz.Services.Logistics.IRouteListService;
+using IRouteListTransferService = Vodovoz.Services.Logistics.IRouteListTransferService;
+using IRouteListSpecialConditionsService = Vodovoz.Services.Logistics.IRouteListSpecialConditionsService;
 
 namespace DriverAPI.Controllers.V6
 {
@@ -36,7 +37,8 @@ namespace DriverAPI.Controllers.V6
 		private readonly IEmployeeService _employeeService;
 		private readonly IDriverMobileAppActionRecordService _driverMobileAppActionRecordService;
 		private readonly IActionTimeHelper _actionTimeHelper;
-		private readonly IRouteListService _routeListService;
+		private readonly IRouteListTransferService _routeListTransferService;
+		private readonly IRouteListSpecialConditionsService _routeListSpecialConditionsService;
 		private readonly UserManager<IdentityUser> _userManager;
 
 		/// <summary>
@@ -49,7 +51,8 @@ namespace DriverAPI.Controllers.V6
 		/// <param name="employeeService"></param>
 		/// <param name="driverMobileAppActionRecordService"></param>
 		/// <param name="actionTimeHelper">Хелпер-класс для времени</param>
-		/// <param name="routeListService">Сервис маршрутных листов</param>
+		/// <param name="routeListTransferService">Сервис трансфера маршрутных листов</param>
+		/// <param name="routeListSpecialConditionsService">Сервис условий МЛ</param>
 		/// <param name="userManager">Менеджер пользователей</param>
 		/// <exception cref="ArgumentNullException"></exception>
 
@@ -61,7 +64,8 @@ namespace DriverAPI.Controllers.V6
 			IEmployeeService employeeService,
 			IDriverMobileAppActionRecordService driverMobileAppActionRecordService,
 			IActionTimeHelper actionTimeHelper,
-			IRouteListService routeListService,
+			IRouteListTransferService routeListTransferService,
+			IRouteListSpecialConditionsService routeListSpecialConditionsService,
 			UserManager<IdentityUser> userManager) : base(logger)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -71,7 +75,8 @@ namespace DriverAPI.Controllers.V6
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_driverMobileAppActionRecordService = driverMobileAppActionRecordService ?? throw new ArgumentNullException(nameof(driverMobileAppActionRecordService));
 			_actionTimeHelper = actionTimeHelper ?? throw new ArgumentNullException(nameof(actionTimeHelper));
-			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
+			_routeListTransferService = routeListTransferService ?? throw new ArgumentNullException(nameof(routeListTransferService));
+			_routeListSpecialConditionsService = routeListSpecialConditionsService ?? throw new ArgumentNullException(nameof(routeListSpecialConditionsService));
 			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 		}
 
@@ -196,8 +201,8 @@ namespace DriverAPI.Controllers.V6
 
 						var firstError = result.Errors.First();
 
-						if(firstError == Vodovoz.Errors.Logistics.RouteList.NotEnRouteState
-							|| firstError == Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotCompletedState)
+						if(firstError == Vodovoz.Errors.Logistics.RouteListErrors.NotEnRouteState
+							|| firstError == Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotCompletedState)
 						{
 							return StatusCodes.Status400BadRequest;
 						}
@@ -207,7 +212,7 @@ namespace DriverAPI.Controllers.V6
 							return StatusCodes.Status403Forbidden;
 						}
 
-						if(firstError == Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFound)
+						if(firstError == Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotFound)
 						{
 							return StatusCodes.Status404NotFound;
 						}
@@ -255,7 +260,7 @@ namespace DriverAPI.Controllers.V6
 
 			var employee = _employeeService.GetByAPILogin(userName);
 
-			_routeListService.AcceptConditions(_unitOfWork, employee.Id, specialConditionsIds);
+			_routeListSpecialConditionsService.AcceptConditions(_unitOfWork, employee.Id, specialConditionsIds);
 
 			return NoContent();
 		}
@@ -343,7 +348,7 @@ namespace DriverAPI.Controllers.V6
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		public IActionResult ConfirmRouteListAddressTransferRecieved(ConfirmRouteListAddressTransferRecievedRequest confirmRouteListAddressTransferRecievedRequest)
 		{
-			_routeListService.ConfirmRouteListAddressTransferRecieved(confirmRouteListAddressTransferRecievedRequest.RouteListAddress, confirmRouteListAddressTransferRecievedRequest.ActionTimeUtc.ToLocalTime());
+			_routeListTransferService.ConfirmRouteListAddressTransferRecieved(confirmRouteListAddressTransferRecievedRequest.RouteListAddress, confirmRouteListAddressTransferRecievedRequest.ActionTimeUtc.ToLocalTime());
 			return NoContent();
 		}
 

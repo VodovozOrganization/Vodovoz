@@ -18,9 +18,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.OrderStatusForSendingUpd)
 				.Column("order_status_for_sending_upd");
 
-			Map(x => x.ConsentForEdoStatus)
-				.Column("consent_for_edo_status");
-
 			Map(x => x.IsArchive)
 				.Column("is_archive");
 
@@ -56,9 +53,12 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 
 			Map(x => x.KPP)
 				.Column("kpp");
-
-			Map(x => x.IsLiquidating)
-				.Column("is_liquidating");
+			
+			Map(x => x.RevenueStatus)
+				.Column("revenue_status");
+			
+			Map(x => x.RevenueStatusDate)
+				.Column("revenue_status_date");
 
 			Map(x => x.OGRN)
 				.Column("ogrn");
@@ -210,9 +210,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.CanSendUpdInAdvance)
 				.Column("can_send_upd_in_advance");
 
-			Map(x => x.PersonalAccountIdInEdo)
-				.Column("personal_account_id_in_edo");
-
 			Map(x => x.SpecialContractNumber)
 				.Column("special_contract_number");
 
@@ -259,6 +256,12 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 
 			HasMany(x => x.SpecialNomenclatures)
 				.Cascade.AllDeleteOrphan()
+				.LazyLoad()
+				.KeyColumn("counterparty_id");
+			
+			HasMany(x => x.CounterpartyEdoAccounts)
+				.Cascade.AllDeleteOrphan()
+				.Inverse()
 				.LazyLoad()
 				.KeyColumn("counterparty_id");
 		}

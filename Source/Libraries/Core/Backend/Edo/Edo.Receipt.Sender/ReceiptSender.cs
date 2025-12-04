@@ -1,8 +1,6 @@
-﻿using Edo.Contracts.Messages.Events;
-using Edo.Problems;
+﻿using Edo.Problems;
 using Edo.Problems.Custom.Sources;
 using Edo.Problems.Validation;
-using MassTransit;
 using Microsoft.Extensions.Logging;
 using ModulKassa;
 using ModulKassa.DTO;
@@ -23,7 +21,6 @@ namespace Edo.Receipt.Sender
 		private readonly CashboxClientProvider _cashboxClientProvider;
 		private readonly FiscalDocumentFactory _fiscalDocumentFactory;
 		private readonly EdoTaskValidator _edoTaskValidator;
-		private readonly IBus _messageBus;
 
 		public ReceiptSender(
 			ILogger<ReceiptSender> logger,
@@ -31,8 +28,7 @@ namespace Edo.Receipt.Sender
 			EdoProblemRegistrar edoProblemRegistrar,
 			CashboxClientProvider cashboxClientProvider,
 			FiscalDocumentFactory fiscalDocumentFactory,
-			EdoTaskValidator edoTaskValidator,
-			IBus messageBus
+			EdoTaskValidator edoTaskValidator
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -41,7 +37,6 @@ namespace Edo.Receipt.Sender
 			_cashboxClientProvider = cashboxClientProvider ?? throw new ArgumentNullException(nameof(cashboxClientProvider));
 			_fiscalDocumentFactory = fiscalDocumentFactory ?? throw new ArgumentNullException(nameof(fiscalDocumentFactory));
 			_edoTaskValidator = edoTaskValidator ?? throw new ArgumentNullException(nameof(edoTaskValidator));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
 		public async Task HandleReceiptSendEvent(int edoTaskId, CancellationToken cancellationToken)
@@ -103,8 +98,6 @@ namespace Edo.Receipt.Sender
 				throw new InvalidOperationException("Не указана касса для отправки чека. Должна проверяться валидацией задачи");
 			}
 
-			object message = null;
-
 			try
 			{
 				var cashboxClient = await _cashboxClientProvider.GetCashboxAsync(edoTask.CashboxId.Value, cancellationToken);
@@ -154,12 +147,11 @@ namespace Edo.Receipt.Sender
 					_edoProblemRegistrar.SolveCustomProblem<NotAllReceiptsWasSended>(edoTask);
 
 					edoTask.ReceiptStatus = EdoReceiptStatus.Sent;
-					message = new ReceiptSentEvent { ReceiptEdoTaskId = edoTask.Id };
 				}
 			}
 			catch(CashboxException ex)
 			{
-				_logger.LogWarning("Ошибка при отправке чека по задаче №{edoTaskId}.", edoTask.Id);
+				_logger.LogWarning(ex, "Ошибка при отправке чека по задаче №{edoTaskId}", edoTask.Id);
 				throw;
 			}
 
@@ -167,11 +159,6 @@ namespace Edo.Receipt.Sender
 			await _uow.CommitAsync(cancellationToken);
 
 			_logger.LogInformation("Все чеки по задаче №{edoTaskId} отправлены успешно.", edoTask.Id);
-
-			if(message != null)
-			{
-				await _messageBus.Publish(message, cancellationToken);
-			}
 		}
 
 		public void Dispose()

@@ -18,6 +18,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Extensions;
+using Vodovoz.Tools;
 
 namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 {
@@ -70,7 +71,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 			_warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
 		}
 
-		public IncludeExludeFiltersViewModel CreateSalesReportIncludeExcludeFilter(IUnitOfWork unitOfWork, bool canFilterEmployees)
+		public IncludeExludeFiltersViewModel CreateSalesReportIncludeExcludeFilter(IUnitOfWork unitOfWork, int? onlyEmployeeId)
 		{
 			var includeExludeFiltersViewModel = CreateDefaultIncludeExludeFiltersViewModel();
 
@@ -83,7 +84,12 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 			AddDiscountReasonFilter(unitOfWork, includeExludeFiltersViewModel);
 			AddSubdivisionFilter(unitOfWork, includeExludeFiltersViewModel);
 
-			if(canFilterEmployees)
+			if(onlyEmployeeId.HasValue)
+			{
+				AddEmployeeFilter(unitOfWork, includeExludeFiltersViewModel, e => e.Id == onlyEmployeeId, onlyEmployeeId);
+				includeExludeFiltersViewModel.Filters.Last().RefreshFilteredElementsCommand.Execute();
+			}
+			else
 			{
 				AddEmployeeFilter(unitOfWork, includeExludeFiltersViewModel);
 			}
@@ -100,13 +106,13 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 				OrderStatus.OnTheWay,
 				OrderStatus.Shipped,
 				OrderStatus.UnloadingOnStock,
-				OrderStatus.WaitForPayment,
 				OrderStatus.Closed
 			};
 
 			AddOrderStatusFilter(includeExludeFiltersViewModel, statusesToSelect);
 			AddCounterpartyCompositeClassificationFilter(includeExludeFiltersViewModel);
-
+			AddSalesManagerFilter(unitOfWork, includeExludeFiltersViewModel);
+			
 			return includeExludeFiltersViewModel;
 		}
 
@@ -133,7 +139,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 				config.RefreshFilteredElements();
 			});
 		}
-
+		
 		private static void AddOrderStatusFilter(IncludeExludeFiltersViewModel includeExludeFiltersViewModel, OrderStatus[] statusesToSelect)
 		{
 			includeExludeFiltersViewModel.AddFilter<OrderStatus>(config =>
@@ -173,8 +179,10 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 
 					var paymentValues = _paymentFromRepository.Get(unitOfWork, paymentFrom =>
 						(includeExludeFiltersViewModel.ShowArchived || !paymentFrom.IsArchive)
-						&& string.IsNullOrWhiteSpace(includeExludeFiltersViewModel.CurrentSearchString)
-							|| paymentFrom.Name.ToLower().Like($"%{includeExludeFiltersViewModel.CurrentSearchString.ToLower()}%"));
+						&& (
+								string.IsNullOrWhiteSpace(includeExludeFiltersViewModel.CurrentSearchString)
+								|| paymentFrom.Name.ToLower().Like($"%{includeExludeFiltersViewModel.CurrentSearchString.ToLower()}%")
+							));
 
 					// Заполнение начального списка
 
@@ -239,102 +247,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 					}
 				};
 
-				filterConfig.GetReportParametersFunc = (filter) =>
-				{
-					var result = new Dictionary<string, object>();
-
-					// Тип оплаты
-
-					var includePaymentTypeValues = filter.IncludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<PaymentType, PaymentType>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(includePaymentTypeValues.Length > 0)
-					{
-						result.Add(typeof(PaymentType).Name + _includeString, includePaymentTypeValues);
-					}
-					else
-					{
-						result.Add(typeof(PaymentType).Name + _includeString, new object[] { "0" });
-					}
-
-					var excludePaymentTypeValues = filter.ExcludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<PaymentType, PaymentType>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(excludePaymentTypeValues.Length > 0)
-					{
-						result.Add(typeof(PaymentType).Name + _excludeString, excludePaymentTypeValues);
-					}
-					else
-					{
-						result.Add(typeof(PaymentType).Name + _excludeString, new object[] { "0" });
-					}
-
-					// Оплата по термииналу
-
-					var includePaymentByTerminalSourceValues = filter.IncludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(includePaymentByTerminalSourceValues.Length > 0)
-					{
-						result.Add(typeof(PaymentByTerminalSource).Name + _includeString, includePaymentByTerminalSourceValues);
-					}
-					else
-					{
-						result.Add(typeof(PaymentByTerminalSource).Name + _includeString, new object[] { "0" });
-					}
-
-					var excludePaymentByTerminalSourceValues = filter.ExcludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<PaymentByTerminalSource, PaymentByTerminalSource>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(excludePaymentByTerminalSourceValues.Length > 0)
-					{
-						result.Add(typeof(PaymentByTerminalSource).Name + _excludeString, excludePaymentByTerminalSourceValues);
-					}
-					else
-					{
-						result.Add(typeof(PaymentByTerminalSource).Name + _excludeString, new object[] { "0" });
-					}
-
-					// Оплачено онлайн
-
-					var includePaymentFromValues = filter.IncludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<int, PaymentFrom>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(includePaymentFromValues.Length > 0)
-					{
-						result.Add(typeof(PaymentFrom).Name + _includeString, includePaymentFromValues);
-					}
-					else
-					{
-						result.Add(typeof(PaymentFrom).Name + _includeString, new object[] { "0" });
-					}
-
-					var excludePaymentFromValues = filter.ExcludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<int, PaymentFrom>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(excludePaymentFromValues.Length > 0)
-					{
-						result.Add(typeof(PaymentFrom).Name + _excludeString, excludePaymentFromValues);
-					}
-					else
-					{
-						result.Add(typeof(PaymentFrom).Name + _excludeString, new object[] { "0" });
-					}
-
-					return result;
-				};
+				filterConfig.GetReportParametersFunc = CustomReportParametersFunc.PaymentTypeReportParametersFunc;
 			});
 		}
 
@@ -343,12 +256,71 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 			includeExludeFiltersViewModel.AddFilter(unitOfWork, _geographicalGroupRepository);
 		}
 
-		private void AddEmployeeFilter(IUnitOfWork unitOfWork, IncludeExludeFiltersViewModel includeExludeFiltersViewModel)
+		private void AddEmployeeFilter(
+			IUnitOfWork unitOfWork,
+			IncludeExludeFiltersViewModel includeExludeFiltersViewModel,
+			Expression<Func<Employee, bool>> specificationExpression = null,
+			int? onlyEmployeeId = null)
 		{
 			includeExludeFiltersViewModel.AddFilter(unitOfWork, _employeeRepository, config =>
 			{
 				config.Title = "Авторы заказов";
+				config.DefaultName = "OrderAuthor";
+				config.GenitivePluralTitle = "Авторов заказов";
 
+				config.RefreshFunc = (IncludeExcludeEntityFilter<Employee> filter) =>
+				{
+					var splitedWords = includeExludeFiltersViewModel.CurrentSearchString.Split(' ');
+					var currentSpecification = specificationExpression;
+
+					foreach(var word in splitedWords)
+					{
+						if(string.IsNullOrWhiteSpace(word))
+						{
+							continue;
+						}
+
+						Expression<Func<Employee, bool>> searchInFullNameSpec = employee =>
+							employee.Name.ToLower().Like($"%{word.ToLower()}%")
+							|| employee.LastName.ToLower().Like($"%{word.ToLower()}%")
+							|| employee.Patronymic.ToLower().Like($"%{word.ToLower()}%");
+
+						currentSpecification = currentSpecification.CombineWith(searchInFullNameSpec);
+					}
+
+					var elementsToAdd = _employeeRepository.Get(
+							unitOfWork,
+							currentSpecification,
+							limit: IncludeExludeFiltersViewModel.DefaultLimit)
+						.Select(x => new IncludeExcludeElement<int, Employee>
+						{
+							Id = x.Id,
+							Title = $"{x.LastName} {x.Name} {x.Patronymic}",
+						});
+
+					filter.FilteredElements.Clear();
+
+					foreach(var element in elementsToAdd)
+					{
+						filter.FilteredElements.Add(element);
+
+						if(onlyEmployeeId.HasValue && onlyEmployeeId.Value == element.Id)
+						{
+							element.Include = true;
+							element.IsEditable = false;
+						}
+					}
+				};
+			});
+		}
+
+		private void AddSalesManagerFilter(IUnitOfWork unitOfWork, IncludeExludeFiltersViewModel includeExludeFiltersViewModel)
+		{
+			includeExludeFiltersViewModel.AddFilter(unitOfWork, _employeeRepository, config =>
+			{
+				config.Title = "Менеджеры КА";
+				config.GenitivePluralTitle = "Менеджеров КА";
+				config.DefaultName = "SalesManager";
 				config.RefreshFunc = (IncludeExcludeEntityFilter<Employee> filter) =>
 				{
 					Expression<Func<Employee, bool>> specificationExpression = null;
@@ -389,7 +361,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 				};
 			});
 		}
-
+		
 		private void AddSubdivisionFilter(IUnitOfWork unitOfWork, IncludeExludeFiltersViewModel includeExludeFiltersViewModel)
 		{
 			includeExludeFiltersViewModel.AddFilter(unitOfWork, _subdivisionRepository);
@@ -463,72 +435,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 					}
 				};
 
-				filterConfig.GetReportParametersFunc = (filter) =>
-				{
-					var result = new Dictionary<string, object>();
-
-					// Тип контрагента
-
-					var includeCounterpartyTypeValues = filter.IncludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<CounterpartyType, CounterpartyType>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(includeCounterpartyTypeValues.Length > 0)
-					{
-						result.Add(typeof(CounterpartyType).Name + _includeString, includeCounterpartyTypeValues);
-					}
-					else
-					{
-						result.Add(typeof(CounterpartyType).Name + _includeString, new object[] { "0" });
-					}
-
-					var excludeCounterpartyTypeValues = filter.ExcludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<CounterpartyType, CounterpartyType>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(excludeCounterpartyTypeValues.Length > 0)
-					{
-						result.Add(typeof(CounterpartyType).Name + _excludeString, excludeCounterpartyTypeValues);
-					}
-					else
-					{
-						result.Add(typeof(CounterpartyType).Name + _excludeString, new object[] { "0" });
-					}
-
-					// Клиент Рекламного Отдела
-
-					var includeCounterpartySubtypeValues = filter.IncludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<int, CounterpartySubtype>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(includeCounterpartySubtypeValues.Length > 0)
-					{
-						result.Add(typeof(CounterpartySubtype).Name + _includeString, includeCounterpartySubtypeValues);
-					}
-					else
-					{
-						result.Add(typeof(CounterpartySubtype).Name + _includeString, new object[] { "0" });
-					}
-
-					var excludeCounterpartySubtypeValues = filter.ExcludedElements
-						.Where(x => x.GetType() == typeof(IncludeExcludeElement<int, CounterpartySubtype>))
-						.Select(x => x.Number)
-						.ToArray();
-
-					if(excludeCounterpartySubtypeValues.Length > 0)
-					{
-						result.Add(typeof(CounterpartySubtype).Name + _excludeString, excludeCounterpartySubtypeValues);
-					}
-					else
-					{
-						result.Add(typeof(CounterpartySubtype).Name + _excludeString, new object[] { "0" });
-					}
-
-					return result;
-				};
+				filterConfig.GetReportParametersFunc = CustomReportParametersFunc.CounterpartyTypeReportParametersFunc;
 			});
 		}
 

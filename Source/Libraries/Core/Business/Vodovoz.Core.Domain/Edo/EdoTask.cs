@@ -14,6 +14,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private DateTime? _startTime;
 		private DateTime? _endTime;
 		private IObservableList<EdoTaskProblem> _problems;
+		private string _cancellationReason;
 
 		[Display(Name = "Код")]
 		public virtual int Id
@@ -65,6 +66,13 @@ namespace Vodovoz.Core.Domain.Edo
 		{
 			get => _problems;
 			set => SetField(ref _problems, value);
+		}
+
+		[Display(Name = "Причина отмены")]
+		public virtual string CancellationReason
+		{
+			get => _cancellationReason;
+			set => SetField(ref _cancellationReason, value);
 		}
 	}
 }

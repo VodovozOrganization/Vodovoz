@@ -1,16 +1,19 @@
-﻿using NHibernate.Linq;
+﻿using DateTimeHelpers;
+using MoreLinq;
+using NHibernate.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
-using DateTimeHelpers;
 using Vodovoz.Presentation.ViewModels.Reports;
-using Vodovoz.Core.Domain.Results;
 
 namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 {
@@ -49,6 +52,9 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				?? throw new ArgumentNullException(nameof(eventsSummary));
 			EventsSummaryDetails = eventsSummaryDetails;
 			CreatedAt = DateTime.Now;
+
+			UiRows =
+				UiRow.CreateUiRows(Rows, CarTransferRows, CarReceptionRows, EventsSummary, EventsSummaryDetails);
 		}
 
 		public string TemplatePath => @".\Reports\Logistic\CarIsNotAtLineReport.xlsx";
@@ -79,9 +85,11 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 
 		public IEnumerable<CarReceptionRow> CarReceptionRows { get; set; }
 
+		public IList<UiRow> UiRows { get; private set; }
+
 		#endregion Строки отчета
 
-		public static Result<CarIsNotAtLineReport> Generate(
+		public static async Task<Result<CarIsNotAtLineReport>> Generate(
 			IUnitOfWork unitOfWork,
 			IGenericRepository<CarEvent> carEventRepository,
 			DateTime date,
@@ -90,46 +98,50 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			IEnumerable<(int Id, string Title)> excludedEvents,
 			IEnumerable<int> excludeCarsIds,
 			int carTransferEventTypeId,
-			int carReceptionEventTypeId)
+			int carReceptionEventTypeId,
+			CancellationToken cancellationToken)
 		{
 			var startDate = date.AddDays(-countDays).Date;
 
-			var cars = (from car in unitOfWork.Session.Query<Car>()
-						let carOwnType =
-							(CarOwnType?)(from carVersion in unitOfWork.Session.Query<CarVersion>()
-										  where carVersion.Car.Id == car.Id
-											&& carVersion.EndDate == null
-											&& _carOwnTypes.Contains(carVersion.CarOwnType)
-										  select carVersion.CarOwnType)
-							.FirstOrDefault()
-						where !excludeCarsIds.Contains(car.Id)
-							&& !car.IsArchive
-							&& carOwnType != null
-							&& !_excludeTypesOfUse.Contains(car.CarModel.CarTypeOfUse)
-						select car)
+			var cars = await (from car in unitOfWork.Session.Query<Car>()
+							  let carOwnType =
+								  (CarOwnType?)(from carVersion in unitOfWork.Session.Query<CarVersion>()
+												where carVersion.Car.Id == car.Id
+												  && carVersion.EndDate == null
+												  && _carOwnTypes.Contains(carVersion.CarOwnType)
+												select carVersion.CarOwnType)
+								  .FirstOrDefault()
+							  where !excludeCarsIds.Contains(car.Id)
+								  && !car.IsArchive
+								  && carOwnType != null
+								  && !_excludeTypesOfUse.Contains(car.CarModel.CarTypeOfUse)
+								  && car.IsUsedInDelivery
+							  select car)
 				.Fetch(c => c.Driver)
-				.ToList();
+				.ToListAsync(cancellationToken);
 
 			var carIds = cars
 				.Select(c => c.Id)
 				.ToArray();
 
-			var carsWithLastRouteLists =
-				(from car in unitOfWork.Session.Query<Car>()
-				 let lastRouteListDate =
-					(DateTime?)(from routeList in unitOfWork.Session.Query<RouteList>()
-								where routeList.Car.Id == car.Id
-									&& routeList.Date <= date.LatestDayTime()
-								orderby routeList.Date descending
-								select routeList.Date)
-					.FirstOrDefault()
-				 where carIds.Contains(car.Id)
-				 select new
-				 {
-					 car,
-					 lastRouteListDate
-				 })
-				.ToArray();
+			var carsWithLastRouteLists = await (
+				from car in unitOfWork.Session.Query<Car>()
+				let lastRouteListDate = (DateTime?)
+					(
+						from routeList in unitOfWork.Session.Query<RouteList>()
+						where routeList.Car.Id == car.Id
+							&& routeList.Date <= date.LatestDayTime()
+							&& RouteList.EnRouteAndDeliveredStatuses.Contains(routeList.Status)
+						orderby routeList.Date descending
+						select routeList.Date
+					).FirstOrDefault()
+				where carIds.Contains(car.Id)
+				select new
+				{
+					car,
+					lastRouteListDate
+				})
+				.ToListAsync(cancellationToken);
 
 			var carIdsWithoutRouteListsAfterStartDate = cars
 				.Where(c => !carsWithLastRouteLists.Any(cwrl => cwrl.lastRouteListDate > startDate && cwrl.car.Id == c.Id))
@@ -139,12 +151,15 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 			var includedEventsIds = includedEvents.Select(iep => iep.Id).ToArray();
 			var excludedEventsIds = excludedEvents.Select(iep => iep.Id).ToArray();
 
-			var events = carEventRepository.Get(
+			var events = (await carEventRepository.GetAsync(
 				unitOfWork,
 				ce => ce.StartDate <= date.Date
 					&& ce.EndDate >= date.Date
 					&& (!includedEventsIds.Any() || includedEventsIds.Contains(ce.CarEventType.Id))
-					&& (!excludedEventsIds.Any() || !excludedEventsIds.Contains(ce.CarEventType.Id)));
+					&& (!excludedEventsIds.Any() || !excludedEventsIds.Contains(ce.CarEventType.Id)),
+				cancellationToken: cancellationToken))
+				.Value
+				.ToArray();
 
 			var notTransferRecieveEvents = events
 				.Where(ce => ce.CarEventType.Id != carTransferEventTypeId
@@ -154,88 +169,109 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				.GroupBy(ce => ce.Car.Id)
 				.ToArray();
 
-			var filteredTransferEvents = carEventRepository.Get(
+			var filteredTransferEvents = (await carEventRepository.GetAsync(
 				unitOfWork,
 				e => carIds.Contains(e.Car.Id)
 					&& e.CarEventType.Id == carTransferEventTypeId
 					&& (!includedEventsIds.Any() || includedEventsIds.Contains(carTransferEventTypeId))
 					&& (!excludedEventsIds.Any() || !excludedEventsIds.Contains(carTransferEventTypeId))
 					&& e.CreateDate >= date.AddDays(-1).Date
-					&& e.CreateDate <= date.LatestDayTime())
+					&& e.CreateDate <= date.LatestDayTime(),
+				cancellationToken: cancellationToken))
+				.Value
 				.ToArray();
 
-			var filteredRecieveEvents = carEventRepository.Get(
+			var filteredRecieveEvents = (await carEventRepository.GetAsync(
 				unitOfWork,
 				e => carIds.Contains(e.Car.Id)
 					&& e.CarEventType.Id == carReceptionEventTypeId
 					&& (!includedEventsIds.Any() || includedEventsIds.Contains(carReceptionEventTypeId))
 					&& (!excludedEventsIds.Any() || !excludedEventsIds.Contains(carReceptionEventTypeId))
 					&& e.CreateDate >= date.AddDays(-1).Date
-					&& e.CreateDate <= date.LatestDayTime())
+					&& e.CreateDate <= date.LatestDayTime(),
+				cancellationToken: cancellationToken))
+				.Value
 				.ToArray();
 
 			var rows = new List<Row>();
 			var carTransferRows = new List<CarTransferRow>();
 			var carReceptionRows = new List<CarReceptionRow>();
 
-			var carsModels = events
-				.Select(fe => fe.Car.CarModel.Id)
-				.Distinct()
-				.ToArray();
+			var rowsHavingEvents = new List<Row>();
+			var rowsWithoutEvents = new List<Row>();
 
-			var eventsGrouppedByCarModel = events.GroupBy(fe => fe.Car.CarModel.Id);
-
-			var skippedRows = 0;
-
-			for(var i = 0; i < cars.Count; i++)
+			foreach(var car in cars)
 			{
-				var carEventGroup = notTransferRecieveEvents.FirstOrDefault(x => x.Key == cars[i].Id);
+				var carEventGroup = notTransferRecieveEvents.FirstOrDefault(x => x.Key == car.Id);
+
+				if(!carIdsWithoutRouteListsAfterStartDate.Contains(car.Id))
+				{
+					continue;
+				}
 
 				if(carEventGroup == null)
 				{
-					if(!carIdsWithoutRouteListsAfterStartDate.Contains(cars[i].Id))
+					rowsWithoutEvents.Add(new Row
 					{
-						skippedRows++;
-						continue;
-					}
-
-					rows.Add(new Row
-					{
-						Id = i + 1 - skippedRows,
-						RegistationNumber = cars[i].RegistrationNumber,
-						DowntimeStartedAt = carsWithLastRouteLists.FirstOrDefault(cwlrl => cwlrl.car.Id == cars[i].Id)?.lastRouteListDate?.AddDays(1),
-						CarType = cars[i].CarModel.Name,
+						RegistationNumber = car.RegistrationNumber,
+						DowntimeStartedAt = carsWithLastRouteLists.FirstOrDefault(cwlrl => cwlrl.car.Id == car.Id)?.lastRouteListDate?.AddDays(1),
+						CarType = car.CarModel.Name,
+						CarOwnType = GetCarOwnType(date, car),
 						CarTypeWithGeographicalGroup =
-							$"{cars[i].CarModel.Name} {GetGeoGroupFromCar(cars[i])}",
-						TimeAndBreakdownReason = "Простой",
+							$"{car.CarModel.Name} {GetGeoGroupFromCar(car)}",
+						TimeAndBreakdownReason = "Простой без водителя",
+						AreasOfResponsibility = null,
 						PlannedReturnToLineDate = null,
-						PlannedReturnToLineDateAndReschedulingReason = "",
+						PlannedReturnToLineDateAndReschedulingReason = ""
 					});
 
 					continue;
 				}
 
-				rows.Add(new Row
+				var areas = carEventGroup
+					.Select(ce => ce.CarEventType.AreaOfResponsibility)
+					.Distinct()
+					.OrderBy(area => area)
+					.ToList();
+
+				rowsHavingEvents.Add(new Row
 				{
-					Id = i + 1 - skippedRows,
-					RegistationNumber = cars[i].RegistrationNumber,
-					DowntimeStartedAt = carsWithLastRouteLists.FirstOrDefault(cwlrl => cwlrl.car.Id == cars[i].Id)?.lastRouteListDate?.AddDays(1),
-					CarType = cars[i].CarModel.Name,
+					RegistationNumber = car.RegistrationNumber,
+					DowntimeStartedAt = carsWithLastRouteLists.FirstOrDefault(cwlrl => cwlrl.car.Id == car.Id)?.lastRouteListDate?.AddDays(1),
+					CarType = car.CarModel.Name,
+					CarOwnType = GetCarOwnType(date, car),
 					CarTypeWithGeographicalGroup =
-						$"{cars[i].CarModel.Name} {GetGeoGroupFromCar(cars[i])}",
-					CaeEventTypes = string.Join("/", carEventGroup.Select(ce => ce.CarEventType.Name)),
+						$"{car.CarModel.Name} {GetGeoGroupFromCar(car)}",
+					CarEventTypes = string.Join("/", carEventGroup.Select(ce => ce.CarEventType.Name)),
 					TimeAndBreakdownReason = string.Join(", ", carEventGroup.Select(ce => $"{ce.StartDate.ToString(_defaultDateTimeFormat)} {ce.CarEventType.Name}")),
+					AreasOfResponsibility = areas,
 					PlannedReturnToLineDate = carEventGroup.First().EndDate,
 					PlannedReturnToLineDateAndReschedulingReason = string.Join(", ", carEventGroup.Select(ce => ce.Comment)),
 				});
 			}
 
+			rows.AddRange(
+				rowsHavingEvents
+					.OrderBy(x => x.AreasOfResponsibilityShortNames)
+					.ThenBy(x => x.CarEventTypes.First())
+					.ThenBy(x => x.DowntimeStartedAt)
+			);
+			rows.AddRange(
+				rowsWithoutEvents
+					.OrderBy(x => x.AreasOfResponsibilityShortNames)
+					.ThenBy(x => x.DowntimeStartedAt)
+			);
+
+			var counter = 1;
+			rows.ForEach(x => x.Id = counter++);
+			
 			for(var i = 0; i < filteredTransferEvents.Length; i++)
 			{
 				carTransferRows.Add(new CarTransferRow
 				{
 					Id = i + 1,
 					RegistationNumber = filteredTransferEvents[i].Car.RegistrationNumber,
+					CarOwnType = GetCarOwnType(date, filteredTransferEvents[i].Car),
 					CarTypeWithGeographicalGroup =
 						$"{filteredTransferEvents[i].Car.CarModel.Name} {GetGeoGroupFromCarEvent(filteredTransferEvents[i])}",
 					Comment = filteredTransferEvents[i].Comment,
@@ -249,6 +285,7 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				{
 					Id = i + 1,
 					RegistationNumber = filteredRecieveEvents[i].Car.RegistrationNumber,
+					CarOwnType = GetCarOwnType(date, filteredRecieveEvents[i].Car),
 					CarTypeWithGeographicalGroup =
 						$"{filteredRecieveEvents[i].Car.CarModel.Name} {GetGeoGroupFromCarEvent(filteredRecieveEvents[i])}",
 					Comment = filteredRecieveEvents[i].Comment,
@@ -264,16 +301,49 @@ namespace Vodovoz.Presentation.ViewModels.Logistic.Reports
 				$"Всего {rows.Count()} авто.\n" +
 				string.Join("\n", summaryByCarModel);
 
-			var summaryByEventThanCar = rows
-				.GroupBy(row => (row.CaeEventTypes, row.CarType))
-				.GroupBy(g => g.Key.CaeEventTypes)
-				.Select(g => (string.IsNullOrWhiteSpace(g.Key) ? "Простой" : g.Key) + "\n" +
-					$"{string.Join("\n", g.Select(x => $"{x.Key.CarType}: {x.Count()}"))}\n");
+			var summaryByArea = rows
+				.GroupBy(row => row.AreasOfResponsibilityShortNames)
+				.Select(areaGroup =>
+					$"{(string.IsNullOrWhiteSpace(areaGroup.Key) ? "Без зоны ответственности" : areaGroup.Key)}\n" +
+					string.Join("\n",
+						areaGroup
+							.GroupBy(row => row.CarEventTypes)
+							.Select(eventGroup =>
+								$"{(string.IsNullOrWhiteSpace(eventGroup.Key) ? "Простой без водителя" : eventGroup.Key)}\n" +
+								string.Join("\n",
+									eventGroup
+										.GroupBy(row => row.CarType)
+										.Select(carGroup => $"{carGroup.Key}: {carGroup.Count()}"))
+							)
+					) + "\n"
+				);
 
 			var eventsSummaryDetails =
-				string.Join("\n", summaryByEventThanCar);
+				string.Join("\n", summaryByArea);
 
 			return new CarIsNotAtLineReport(date, countDays, includedEvents, excludedEvents, rows, carTransferRows, carReceptionRows, eventsSummary, eventsSummaryDetails);
+		}
+
+		private static string GetCarOwnType(DateTime date, Car car)
+		{
+			var version = car.GetActiveCarVersionOnDate(date);
+
+			if(version is null)
+			{
+				return string.Empty;
+			}
+
+			switch(version.CarOwnType)
+			{
+				case CarOwnType.Company:
+					return "К";
+				case CarOwnType.Driver:
+					return "В";
+				case CarOwnType.Raskat:
+					return "Р";
+				default:
+					return string.Empty;
+			}
 		}
 
 		private static string GetGeoGroupFromCarEvent(CarEvent carEvent) =>

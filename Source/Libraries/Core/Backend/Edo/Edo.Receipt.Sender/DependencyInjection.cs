@@ -3,10 +3,10 @@ using Edo.Problems;
 using Edo.Transport;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
-using ModulKassa;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using ModulKassa;
 using QS.DomainModel.UoW;
+using System.Reflection;
 
 namespace Edo.Receipt.Sender
 {
@@ -22,7 +22,7 @@ namespace Edo.Receipt.Sender
 			services.TryAddScoped<ReceiptSender>();
 
 			services.AddEdo();
-			services.AddEdoProblemRegistation();
+			services.AddEdoProblemRegistration();
 
 			return services;
 		}

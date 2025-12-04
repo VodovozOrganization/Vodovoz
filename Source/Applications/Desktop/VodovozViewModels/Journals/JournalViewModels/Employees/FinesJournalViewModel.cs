@@ -16,15 +16,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.NHibernateProjections.Employees;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Widgets.Search;
+
 
 namespace Vodovoz.Journals.JournalViewModels.Employees
 {
@@ -110,17 +111,19 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 			FineJournalNode resultAlias = null;
 			Fine fineAlias = null;
 			FineItem fineItemAlias = null;
+			FineCategory fineCategoryAlias = null;
 			Employee finedEmployeeAlias = null;
 			Subdivision finedEmployeeSubdivision = null;
 			Employee fineAuthorAlias = null;
 			RouteList routeListAlias = null;
 
 			var query = unitOfWork.Session.QueryOver(() => fineAlias)
-				.JoinAlias(() => fineAlias.Author, () => fineAuthorAlias)
-				.JoinAlias(f => f.Items, () => fineItemAlias)
-				.JoinAlias(() => fineItemAlias.Employee, () => finedEmployeeAlias)
-				.JoinAlias(() => finedEmployeeAlias.Subdivision, () => finedEmployeeSubdivision)
-				.JoinAlias(f => f.RouteList, () => routeListAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+				.Left.JoinAlias(() => fineAlias.FineCategory, () => fineCategoryAlias)
+				.Left.JoinAlias(() => fineAlias.Author, () => fineAuthorAlias)
+				.Left.JoinAlias(f => f.Items, () => fineItemAlias)
+				.Left.JoinAlias(() => fineItemAlias.Employee, () => finedEmployeeAlias)
+				.Left.JoinAlias(() => finedEmployeeAlias.Subdivision, () => finedEmployeeSubdivision)
+				.Left.JoinAlias(f => f.RouteList, () => routeListAlias);
 
 			if(_filterViewModel.Subdivision != null)
 			{
@@ -162,6 +165,11 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 				query.WhereRestrictionOn(() => fineAlias.Id).IsIn(_filterViewModel.FindFinesWithIds);
 			}
 
+			if(_filterViewModel.SelectedFineCategoryIds != null)
+			{
+				query.WhereRestrictionOn(() => fineCategoryAlias.Id).IsIn(_filterViewModel.SelectedFineCategoryIds);
+			}	
+
 			CarEvent carEventAlias = null;
 			CarEventType carEventTypeAliase = null;
 			Fine finesAlias = null;
@@ -198,8 +206,9 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 							Projections.Property(() => finedEmployeeAlias.Patronymic)
 						),
 						Projections.Constant("\n"))).WithAlias(() => resultAlias.FinedEmployeesNames)
-					.Select(() => fineAlias.FineReasonString).WithAlias(() => resultAlias.FineReason)
+					.Select(() => fineCategoryAlias.Name).WithAlias(() => resultAlias.FineCategoryName)
 					.Select(() => fineAlias.TotalMoney).WithAlias(() => resultAlias.FineSum)
+					.Select(() => fineAlias.FineReasonString).WithAlias(() => resultAlias.FineReason)
 					.Select(Projections.SqlFunction(new StandardSQLFunction("CONCAT_WS"),
 							NHibernateUtil.String,
 							Projections.Constant(" "),
@@ -213,7 +222,9 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 						Projections.Property(() => finedEmployeeSubdivision.Name),
 						Projections.Constant("\n"))).WithAlias(() => resultAlias.FinedEmployeesSubdivisions)
 					.SelectSubQuery(carEventSubquery).WithAlias(() => resultAlias.CarEvent)
-				).OrderBy(o => o.Date).Desc.OrderBy(o => o.Id).Desc
+				)
+				.OrderBy(o => o.Date).Desc
+				.OrderBy(o => o.Id).Desc
 				.TransformUsing(Transformers.AliasToBean<FineJournalNode>());
 		}
 
@@ -226,6 +237,8 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 
 		private void CreateXLExportAction()
 		{
+			const int fineReasonIdx = 5;
+
 			var xlExportAction = new JournalAction("Экспорт в Excel",
 				(selected) => true,
 				(selected) => true,
@@ -241,6 +254,7 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 								   row.FinedEmployeesNames,
 								   row.FineSum,
 								   row.FineReason,
+								   row.FineCategoryName,
 								   row.AuthorName,
 								   row.FinedEmployeesSubdivisions
 							   };
@@ -249,17 +263,48 @@ namespace Vodovoz.Journals.JournalViewModels.Employees
 					{
 						var sheetName = $"{DateTime.Now:dd.MM.yyyy}";
 						var ws = wb.Worksheets.Add(sheetName);
-						var columnNames = new List<string> { "Номер", "Дата", "Сотрудники", "Сумма штрафа", "Причина штрафа", "Автор штрафа", "Подразделения сотрудников" };
+						var columnNames = new List<string> { "Номер", "Дата", "Сотрудники", "Сумма штрафа", "Причина штрафа", "Категория штрафа", "Автор штрафа", "Подразделения сотрудников" };
 						var index = 1;
 
 						foreach(var name in columnNames)
 						{
 							ws.Cell(1, index).Value = name;
+							ws.Cell(1, index).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 							index++;
 						}
 
 						ws.Cell(2, 1).InsertData(rows);
+
+						const double maxColumnWidth = 120.0;
+
 						ws.Columns().AdjustToContents();
+
+						foreach(var column in ws.Columns())
+						{
+							if(column.Width > maxColumnWidth)
+							{
+								column.Width = maxColumnWidth;
+							}
+						}
+
+						int lastRow = ws.LastRowUsed().RowNumber();
+						int lastColumn = ws.LastColumnUsed().ColumnNumber();
+
+						for(int col = 1; col <= lastColumn; col++)
+						{
+							var alignment = col == fineReasonIdx
+								? XLAlignmentHorizontalValues.Left
+								: XLAlignmentHorizontalValues.Center;
+
+							for(int row = 2; row <= lastRow; row++)
+							{
+								var cell = ws.Cell(row, col);
+								cell.Style.Alignment.WrapText = true;
+								cell.Style.Alignment.Horizontal = alignment;
+								cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+							}
+						}
+
 
 						var extension = ".xlsx";
 						var dialogSettings = new DialogSettings

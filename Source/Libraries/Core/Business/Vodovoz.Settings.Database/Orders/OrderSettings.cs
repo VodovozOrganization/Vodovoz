@@ -20,6 +20,10 @@ namespace Vodovoz.Settings.Database.Orders
 		public int PaymentByCardFromSmsId => _settingsController.GetIntValue("sms_payment_by_card_from_id");
 		public int PaymentFromTerminalId => _settingsController.GetIntValue("paymentfrom_terminal_id");
 		public int OldInternalOnlineStoreId => _settingsController.GetIntValue("OldInternalOnlineStoreId");
+		public int PaymentByCardFromYandexSplitFromSiteId =>
+			_settingsController.GetIntValue("PaymentByCardFromYandexSplitFromSiteId");
+		public int PaymentByCardFromYandexSplitFromMobileAppId =>
+			_settingsController.GetIntValue("PaymentByCardFromYandexSplitFromMobileAppId");
 		public int GetPaymentByCardFromMarketplaceId => _settingsController.GetIntValue("payment_by_card_from_marketplace_id");
 		public int PaymentFromSmsYuKassaId => _settingsController.GetIntValue("payment_by_card_from_sms_yukassa_id");
 		public int GetPaymentByCardFromFastPaymentServiceId =>

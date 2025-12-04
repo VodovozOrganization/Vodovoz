@@ -52,7 +52,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 				.InitializeFromSource();
 			
 			entityViewModelEntryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelectorFactory);
-			entityViewModelEntryCounterparty.Changed += ViewModel.OnEntityViewModelEntryChanged;
+			entityViewModelEntryCounterparty.Changed += ViewModel.OnCounterpartyEntityViewModelEntryChanged;
 
 			entityViewModelEntryCounterparty.Binding
 				.AddBinding(ViewModel.Entity, e => e.Client, w => w.Subject)
@@ -70,6 +70,11 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 			
 			ViewModel.OpenCounterpartyJournal += entityViewModelEntryCounterparty.OpenSelectDialog;
 
+			organizationEntry.ViewModel = ViewModel.OrganizationViewModel;
+			organizationEntry.Binding
+				.AddBinding(ViewModel, vm => vm.CanSetOrganization, w => w.Sensitive)
+				.InitializeFromSource();
+			
 			ConfigureTreeItems();
 
 			treeViewEdoContainers.ColumnsConfig = FluentColumnsConfig<EdoContainer>.Create()
@@ -229,7 +234,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 		
 		public override void Destroy()
 		{
-			entityViewModelEntryCounterparty.Changed -= ViewModel.OnEntityViewModelEntryChanged;
+			entityViewModelEntryCounterparty.Changed -= ViewModel.OnCounterpartyEntityViewModelEntryChanged;
 			
 			base.Destroy();
 		}

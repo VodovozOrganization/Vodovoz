@@ -53,10 +53,10 @@ namespace Vodovoz.Domain.Orders
 		private decimal _onlineOrderSum;
 		private bool _dontArriveBeforeInterval;
 		private OnlineOrderStatus _onlineOrderStatus;
-		private Order _order;
 		private Employee _employeeWorkWith;
 		private bool? _isDeliveryPointNotBelongCounterparty;
 		private OnlineOrderCancellationReason _onlineOrderCancellationReason;
+		private IList<Order> _orders = new List<Order>();
 		private IList<OnlineOrderItem> _onlineOrderItems = new List<OnlineOrderItem>();
 		private IList<OnlineFreeRentPackage> _onlineRentPackages = new List<OnlineFreeRentPackage>();
 
@@ -265,11 +265,11 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _dontArriveBeforeInterval, value);
 		}
 		
-		[Display(Name = "Выставленный заказ")]
-		public virtual Order Order
+		[Display(Name = "Выставленные заказы")]
+		public virtual IList<Order> Orders
 		{
-			get => _order;
-			set => SetField(ref _order, value);
+			get => _orders;
+			set => SetField(ref _orders, value);
 		}
 		
 		[Display(Name = "У кого в работе заявка")]
@@ -306,14 +306,18 @@ namespace Vodovoz.Domain.Orders
 			protected set => SetField(ref _isDeliveryPointNotBelongCounterparty, value);
 		}
 
-		public virtual void SetOrderPerformed(Order order, Employee employee = null)
+		public virtual void SetOrderPerformed(IEnumerable<Order> orders, Employee employee = null)
 		{
 			if(employee != null)
 			{
 				EmployeeWorkWith = employee;
 			}
-			
-			Order = order;
+
+			foreach(var order in orders)
+			{
+				Orders.Add(order);
+			}
+
 			OnlineOrderStatus = OnlineOrderStatus.OrderPerformed;
 		}
 		

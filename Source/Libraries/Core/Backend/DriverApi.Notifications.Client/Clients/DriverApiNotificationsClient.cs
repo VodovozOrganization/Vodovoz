@@ -5,9 +5,11 @@ using System;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using DriverApi.Contracts.V6.Requests;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.NotificationSenders;
 using Vodovoz.Settings.Logistics;
+using VodovozBusiness.NotificationSenders;
 using CommonErrors = Vodovoz.Errors.Common;
 
 namespace DriverApi.Notifications.Client.Clients
@@ -17,7 +19,7 @@ namespace DriverApi.Notifications.Client.Clients
 		IFastDeliveryOrderAddedNotificationSender,
 		IWaitingTimeChangedNotificationSender,
 		ICashRequestForDriverIsGivenForTakeNotificationSender,
-		IRouteListTransferHandByHandNotificationSender
+		IRouteListChangesNotificationSender
 	{
 		private readonly ILogger<DriverApiNotificationsClient> _logger;
 		private readonly IDriverApiSettings _driverApiSettings;
@@ -94,9 +96,9 @@ namespace DriverApi.Notifications.Client.Clients
 			}
 		}
 
-		public async Task<Result> NotifyOfOrderWithGoodsTransferingIsTransfered(int orderId)
+		public async Task<Result> NotifyOfRouteListChanged(NotificationRouteListChangesRequest changesRequest)
 		{
-			using(var response = await _httpClient.PostAsJsonAsync(_driverApiSettings.NotifyOfOrderWithGoodsTransferingIsTransferedUri, orderId))
+			using(var response = await _httpClient.PostAsJsonAsync(_driverApiSettings.NotifyOfRouteListChangedUri, changesRequest))
 			{
 				var responseBody = await response.Content.ReadAsStringAsync();
 
@@ -107,17 +109,17 @@ namespace DriverApi.Notifications.Client.Clients
 
 				if(string.IsNullOrWhiteSpace(responseBody))
 				{
-					return Result.Failure(CommonErrors.DriverApiClient.ApiError(response.ReasonPhrase));
+					return Result.Failure(CommonErrors.DriverApiClientErrors.ApiError(response.ReasonPhrase));
 				}
 
 				try
 				{
 					var problemDetails = JsonSerializer.Deserialize<ProblemDetails>(responseBody);
-					return Result.Failure(CommonErrors.DriverApiClient.OrderWithGoodsTransferingIsTransferedNotNotified(problemDetails.Detail));
+					return Result.Failure(CommonErrors.DriverApiClientErrors.OrderWithGoodsTransferingIsTransferedNotNotified(problemDetails.Detail));
 				}
 				catch(Exception ex)
 				{
-					return Result.Failure(CommonErrors.DriverApiClient.ApiError(ex.Message));
+					return Result.Failure(CommonErrors.DriverApiClientErrors.ApiError(ex.Message));
 				}
 			}
 		}

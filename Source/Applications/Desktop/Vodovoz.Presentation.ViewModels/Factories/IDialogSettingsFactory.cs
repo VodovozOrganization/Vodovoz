@@ -5,6 +5,6 @@ namespace Vodovoz.Presentation.ViewModels.Factories
 {
 	public interface IDialogSettingsFactory
 	{
-		DialogSettings CreateForClosedXmlReport(IClosedXmlReport closedXmlReport);
+		DialogSettings CreateForClosedXmlReport(IClosedXmlReport closedXmlReport, string fileName = null);
 	}
 }

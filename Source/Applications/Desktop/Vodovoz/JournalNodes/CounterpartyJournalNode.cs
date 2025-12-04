@@ -1,4 +1,5 @@
 ﻿using QS.Project.Journal;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 
@@ -10,7 +11,7 @@ namespace Vodovoz.JournalNodes
 
 		public bool IsArhive { get; set; }
 
-		public bool IsLiquidating { get; set; }
+		public RevenueStatus? RevenueStatus { get; set; }
 
 		public string Name { get; set; }
 

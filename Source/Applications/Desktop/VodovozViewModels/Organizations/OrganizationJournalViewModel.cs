@@ -8,6 +8,8 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using System;
+using NHibernate.SqlCommand;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.ViewModels.Organizations
@@ -43,14 +45,44 @@ namespace Vodovoz.ViewModels.Organizations
 		protected override IQueryOver<Organization> ItemsQuery(IUnitOfWork uow)
 		{
 			Organization organizationAlias = null;
+			TaxcomEdoSettings taxcomEdoSettingsAlias = null;
 			OrganizationJournalNode resultAlias = null;
 
-			var query = uow.Session.QueryOver(() => organizationAlias);
+			var query = uow.Session.QueryOver(() => organizationAlias)
+				.JoinEntityAlias(
+					() => taxcomEdoSettingsAlias,
+					() => organizationAlias.Id == taxcomEdoSettingsAlias.OrganizationId,
+					JoinType.LeftOuterJoin);
 
-			if(_filterViewModel.IsAvangardShop)
+			if(_filterViewModel.HasAvangardShopId)
 			{
 				query.Where(x => x.AvangardShopId != null);
 			}
+
+			if(_filterViewModel.HasCashBoxId)
+			{
+				query.Where(x => x.CashBoxId != null);
+			}
+
+			if(_filterViewModel.HasTaxcomEdoAccountId)
+			{
+				query.Where(x => taxcomEdoSettingsAlias.EdoAccount != null);
+			}
+
+			var hasAvangardShopIdProjection = Projections.Conditional(
+				Restrictions.Where(() => organizationAlias.AvangardShopId == null),
+				Projections.Constant(false),
+				Projections.Constant(true));
+			
+			var hasTaxcomEdoAccountIdProjection = Projections.Conditional(
+				Restrictions.Where(() => taxcomEdoSettingsAlias.EdoAccount == null),
+				Projections.Constant(false),
+				Projections.Constant(true));
+			
+			var hasCashBoxIdProjection = Projections.Conditional(
+				Restrictions.Where(() => organizationAlias.CashBoxId == null),
+				Projections.Constant(false),
+				Projections.Constant(true));
 
 			query.Where(
 				GetSearchCriterion(
@@ -59,7 +91,11 @@ namespace Vodovoz.ViewModels.Organizations
 
 			var result = query.SelectList(list => list
 				.Select(x => x.Id).WithAlias(() => resultAlias.Id)
-				.Select(x => x.Name).WithAlias(() => resultAlias.Name))
+				.Select(x => x.Name).WithAlias(() => resultAlias.Name)
+				.Select(hasAvangardShopIdProjection).WithAlias(() => resultAlias.HasAvangardShopId)
+				.Select(hasTaxcomEdoAccountIdProjection).WithAlias(() => resultAlias.HasTaxcomEdoAccountId)
+				.Select(hasCashBoxIdProjection).WithAlias(() => resultAlias.HasCashBoxId)
+				)
 				.TransformUsing(Transformers.AliasToBean<OrganizationJournalNode>())
 				.OrderBy(x => x.Id).Asc;
 

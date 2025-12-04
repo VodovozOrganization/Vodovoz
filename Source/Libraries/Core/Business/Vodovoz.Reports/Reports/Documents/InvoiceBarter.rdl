@@ -1110,7 +1110,7 @@ payment_type='ToClient'</CommandText>
           <Textbox Name="Textbox42">
             <Height>12.00pt</Height>
             <Width>243.42pt</Width>
-            <Value>Предполагаемое количетво возвратной тары:</Value>
+            <Value>Предполагаемое количество возвратной тары:</Value>
             <ZIndex>0</ZIndex>
             <Left>4.8pt</Left>
             <Top>116.7pt</Top>

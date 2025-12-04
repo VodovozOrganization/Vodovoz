@@ -23,25 +23,29 @@ namespace Vodovoz.RobotMia.Api.Specifications
 
 		/// <summary>
 		/// Спецификация валидации заказов для выборки последних заказов для робота Мия
+		/// Нужна проверка на соответствие номенклатур продаваемым в роботе Мия
 		/// </summary>
 		/// <param name="orderCompletedStatuses"></param>
 		/// <param name="deliveryDateStartsAt"></param>
 		/// <param name="paidDeliveryNomenclatureId"></param>
 		/// <param name="fastDeliveryNomenclatureId"></param>
+		/// <param name="forfeitNomenclatureId"></param>
 		/// <returns></returns>
 		public static LastOrderSpecification CreateForValidRobotMiaLastOrders(
 			OrderStatus[] orderCompletedStatuses,
 			DateTime deliveryDateStartsAt,
 			int paidDeliveryNomenclatureId,
-			int fastDeliveryNomenclatureId)
+			int fastDeliveryNomenclatureId,
+			int forfeitNomenclatureId)
 			=> new LastOrderSpecification(order => orderCompletedStatuses.Contains(order.OrderStatus)
 				&& !order.IsBottleStock
 				&& order.DeliveryDate >= deliveryDateStartsAt
 				&& !order.PromotionalSets.Any()
-				&& !order.OrderItems
-					.Where(x => x.Nomenclature.Id != paidDeliveryNomenclatureId)
-					.Where(x => x.Nomenclature.Id != fastDeliveryNomenclatureId)
-					.Any(x => x.Nomenclature.Category != NomenclatureCategory.water)
+				//&& !order.OrderItems
+				//	.Where(x => x.Nomenclature.Id != paidDeliveryNomenclatureId)
+				//	.Where(x => x.Nomenclature.Id != fastDeliveryNomenclatureId)
+				//	.Where(x => x.Nomenclature.Id != forfeitNomenclatureId)
+				//	.Any()
 				&& order.OrderItems.OrderBy(x =>x.Nomenclature.Id).Distinct().Count() == order.OrderItems.OrderBy(x => x.Nomenclature.Id).Count()
 				&& order.Client.ReasonForLeaving != ReasonForLeaving.Unknown
 				&& order.DeliveryPoint.IsActive);

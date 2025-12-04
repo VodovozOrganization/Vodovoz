@@ -255,7 +255,7 @@ namespace Vodovoz.JournalViewModels
 
 			if(FilterViewModel.OnlineOrderId != null)
 			{
-				query.Where(() => orderAlias.OnlineOrder == FilterViewModel.OnlineOrderId);
+				query.Where(() => orderAlias.OnlinePaymentNumber == FilterViewModel.OnlineOrderId);
 			}
 
 			var startDate = FilterViewModel.StartDate;
@@ -340,7 +340,8 @@ namespace Vodovoz.JournalViewModels
 				.Select(Projections.Sum(() => orderItemAlias.Count));
 
 			var sanitisationCountSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
-				.Where(() => orderAlias.Id == orderItemAlias.Order.Id && orderItemAlias.Nomenclature.IsNeedSanitisation)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => orderAlias.Id == orderItemAlias.Order.Id && nomenclatureAlias.IsNeedSanitisation)
 				.Select(Projections.Sum(() => orderItemAlias.Count));
 
 			var orderSumSubquery = QueryOver.Of<OrderItem>(() => orderItemAlias)
@@ -383,7 +384,7 @@ namespace Vodovoz.JournalViewModels
 				() => deliveryPointAlias.CompiledAddress,
 				() => authorAlias.LastName,
 				() => orderAlias.DriverCallId,
-				() => orderAlias.OnlineOrder,
+				() => orderAlias.OnlinePaymentNumber,
 				() => orderAlias.EShopOrder,
 				() => orderAlias.OrderPaymentStatus
 			));
@@ -406,7 +407,7 @@ namespace Vodovoz.JournalViewModels
 				   .Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 				   .Select(() => orderAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 				   .Select(() => orderAlias.DriverCallId).WithAlias(() => resultAlias.DriverCallId)
-				   .Select(() => orderAlias.OnlineOrder).WithAlias(() => resultAlias.OnlineOrder)
+				   .Select(() => orderAlias.OnlinePaymentNumber).WithAlias(() => resultAlias.OnlineOrder)
 				   .Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
 				   .Select(() => counterpartyAlias.INN).WithAlias(() => resultAlias.Inn)
 				   .Select(() => districtAlias.DistrictName).WithAlias(() => resultAlias.DistrictName)

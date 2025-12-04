@@ -55,7 +55,10 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 		private bool _sortDeliveryDateVisibility;
 		private bool? _sortDeliveryDate;
 		private OnlineRequestsType? _onlineRequestsType;
-		
+		private OnlinePaymentSource? _restrictOnlinePaymentSource;
+		private bool _isVisibleOnlinePaymentSource;
+		private bool _withoutDeliverySchedule;
+
 		public OnlineOrdersJournalFilterViewModel(
 			ILifetimeScope lifetimeScope)
 		{
@@ -64,7 +67,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 			_searchByAddressViewModel = new CompositeSearchViewModel();
 			_searchByAddressViewModel.OnSearch += OnSearchByAddressViewModel;
 
-			StartDate = DateTime.Today.AddDays(-1);
+			StartDate = DateTime.Today.AddMonths(-1);
 			EndDate = DateTime.Today.AddDays(7);
 		}
 
@@ -140,12 +143,42 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 			{
 				if(UpdateFilterField(ref _restrictPaymentType, value))
 				{
+					if(_restrictPaymentType is OnlineOrderPaymentType.PaidOnline)
+					{
+						IsVisibleOnlinePaymentSource = true;
+					}
+					else
+					{
+						IsVisibleOnlinePaymentSource = false;
+						RestrictOnlinePaymentSource = null;
+					}
+					
 					CanChangePaymentType = false;
 				}
 			}
 		}
 
 		public bool CanChangePaymentType { get; private set; } = true;
+
+		public virtual OnlinePaymentSource? RestrictOnlinePaymentSource
+		{
+			get => _restrictOnlinePaymentSource;
+			set
+			{
+				if(UpdateFilterField(ref _restrictOnlinePaymentSource, value))
+				{
+					CanChangeOnlinePaymentSource = false;
+				}
+			}
+		}
+
+		public bool CanChangeOnlinePaymentSource { get; private set; } = true;
+
+		public bool IsVisibleOnlinePaymentSource
+		{
+			get => _isVisibleOnlinePaymentSource;
+			set => SetField(ref _isVisibleOnlinePaymentSource, value);
+		}
 
 		public virtual Counterparty RestrictCounterparty
 		{
@@ -240,6 +273,12 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 					CanChangeFastDelivery = false;
 				}
 			}
+		}
+		
+		public bool WithoutDeliverySchedule
+		{
+			get => _withoutDeliverySchedule;
+			set => UpdateFilterField(ref _withoutDeliverySchedule, value);
 		}
 
 		public bool CanChangeFastDelivery { get; private set; } = true;

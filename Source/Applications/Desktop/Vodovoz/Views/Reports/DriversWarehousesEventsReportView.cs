@@ -36,6 +36,18 @@ namespace Vodovoz.Views.Reports
 				.AddBinding(ViewModel, vm => vm.EndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
+			dateGroupRadioButton.Binding
+				.AddBinding(ViewModel, vm => vm.IsDateGroup, w => w.Active)
+				.InitializeFromSource();
+			
+			driverGroupRadioButton.Binding
+				.AddBinding(ViewModel, vm => vm.IsDriverGroup, w => w.Active)
+				.InitializeFromSource();
+			
+			carGroupRadioButton.Binding
+				.AddBinding(ViewModel, vm => vm.IsCarGroup, w => w.Active)
+				.InitializeFromSource();
+			
 			lblDriver.LabelProp = DriversWarehousesEventsReportViewModel.EmloyeeTitle;
 			carEntry.ViewModel = ViewModel.CarViewModel;
 			driverEntry.ViewModel = ViewModel.DriverViewModel;

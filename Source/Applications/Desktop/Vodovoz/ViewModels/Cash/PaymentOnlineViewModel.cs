@@ -18,6 +18,8 @@ using Vodovoz.Services;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
+using VodovozBusiness.Services.Orders;
+using static OneOf.Types.TrueFalseOrNull;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Cash
@@ -26,6 +28,8 @@ namespace Vodovoz.ViewModels.Cash
 	{
 		private readonly Employee _currentEmployee;
 		private readonly ICallTaskWorker _callTaskWorker;
+		private readonly IOrderContractUpdater _contractUpdater;
+		private readonly IInteractiveService _interactiveService;
 
 		public PaymentOnlineViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -36,7 +40,9 @@ namespace Vodovoz.ViewModels.Cash
 			IOrderPaymentSettings orderPaymentSettings,
 			IOrderSettings orderSettings,
 			IDeliveryRulesSettings deliveryRulesSettings,
-			IEmployeeService employeeService) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
+			IOrderContractUpdater contractUpdater,
+			IEmployeeService employeeService,
+			IInteractiveService interactiveService) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(orderPaymentSettings == null)
 			{
@@ -52,13 +58,12 @@ namespace Vodovoz.ViewModels.Cash
 				throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			}
 
-			if(employeeService is null)
-			{
-				throw new ArgumentNullException(nameof(employeeService));
-			}
-
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
-			_currentEmployee = employeeService.GetEmployeeForCurrentUser();
+			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
+			_currentEmployee =
+				(employeeService ?? throw new ArgumentNullException(nameof(employeeService)))
+				.GetEmployeeForCurrentUser(UoW);
+			_interactiveService = interactiveService;
 
 			TabName = "Онлайн оплата";
 
@@ -83,7 +88,7 @@ namespace Vodovoz.ViewModels.Cash
 		public PaymentFrom PaymentOnlineFrom
 		{
 			get => Entity.PaymentByCardFrom;
-			set => Entity.PaymentByCardFrom = value;
+			set => Entity.UpdatePaymentByCardFrom(value, _contractUpdater);
 		}
 
 		public List<PaymentFrom> ItemsList { get; private set; }
@@ -91,7 +96,28 @@ namespace Vodovoz.ViewModels.Cash
 		public DelegateCommand SaveCommand { get; }
 		public DelegateCommand CloseCommand { get; }
 
-		public bool CanSave => Entity.OnlineOrder != null;
+		public bool CanSave => Entity.OnlinePaymentNumber != null;
+
+		protected override bool BeforeSave()
+		{
+			bool isUnshippedSelfDeliveryWithPayAfterShipment = Entity.PayAfterShipment
+				&& Entity.SelfDelivery
+				&& Entity.OrderStatus != OrderStatus.OnLoading;
+
+			if(!isUnshippedSelfDeliveryWithPayAfterShipment)
+			{
+				return true;
+			}
+
+			if(!_interactiveService.Question(
+				"Данный заказ ещё не отгружен.\nПри принятии оплаты заказ будет закрыт и его невозможно будет отгрузить.\nПродолжить?",
+				"Внимание"))
+			{
+				return false;
+			}
+
+			return true;
+		}
 
 		private void SaveHandler()
 		{
@@ -143,7 +169,7 @@ namespace Vodovoz.ViewModels.Cash
 				OnPropertyChanged(nameof(PaymentOnlineFrom));
 			}
 
-			if(e.PropertyName == nameof(Entity.OnlineOrder))
+			if(e.PropertyName == nameof(Entity.OnlinePaymentNumber))
 			{
 				OnPropertyChanged(nameof(CanSave));
 			}

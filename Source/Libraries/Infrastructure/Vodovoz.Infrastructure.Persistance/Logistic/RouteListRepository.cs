@@ -26,6 +26,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Stock;
@@ -33,6 +34,8 @@ using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Settings.Organizations;
+using VodovozBusiness.Domain.Client;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Logistic
@@ -42,12 +45,18 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 		private readonly ISettingsController _settingsController;
 		private readonly IStockRepository _stockRepository;
 		private readonly INomenclatureSettings _nomenclatureSettings;
+		private readonly IOrganizationSettings _organizationSettings;
 
-		public RouteListRepository(ISettingsController settingsController, IStockRepository stockRepository, INomenclatureSettings nomenclatureSettings)
+		public RouteListRepository(
+			ISettingsController settingsController,
+			IStockRepository stockRepository,
+			INomenclatureSettings nomenclatureSettings,
+			IOrganizationSettings organizationSettings)
 		{
 			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
+			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 		}
 
 		public IEnumerable<RouteList> GetDriverRouteLists(IUnitOfWork uow, int driverId, DateTime? date = null, RouteListStatus? status = null)
@@ -370,6 +379,9 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 			OrderItem orderItemsAlias = null;
 			Counterparty counterpartyAlias = null;
 			Nomenclature orderItemNomenclatureAlias = null;
+			CounterpartyContract contractAlias = null;
+			Organization organizationAlias = null;
+			CounterpartyEdoAccount defaultEdoAccountAlias = null;
 
 			var ordersQuery = QueryOver.Of(() => orderAlias);
 
@@ -382,6 +394,13 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 			
 			var isNeedIndividualSetOnLoadSubquery = QueryOver.Of(() => orderAlias)
 				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.JoinAlias(() => orderAlias.Contract, () => contractAlias)
+				.JoinAlias(() => contractAlias.Organization, () => organizationAlias)
+				.JoinAlias(() => counterpartyAlias.CounterpartyEdoAccounts,
+					() => defaultEdoAccountAlias,
+					JoinType.LeftOuterJoin,
+					Restrictions.Where(() => defaultEdoAccountAlias.OrganizationId == organizationAlias.Id
+						&& defaultEdoAccountAlias.IsDefault))
 				.Where(() => orderAlias.Id == orderItemsAlias.Order.Id)
 				.Select(Projections.Conditional(
 					Restrictions.Disjunction()
@@ -389,7 +408,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 							Restrictions.Conjunction()
 								.Add(Restrictions.Eq(Projections.Property(() => orderAlias.PaymentType), PaymentType.Cashless))
 								.Add(Restrictions.Eq(Projections.Property(() => counterpartyAlias.OrderStatusForSendingUpd), OrderStatusForSendingUpd.EnRoute))
-								.Add(Restrictions.Eq(Projections.Property(() => counterpartyAlias.ConsentForEdoStatus), ConsentForEdoStatus.Agree))
+								.Add(Restrictions.Eq(Projections.Property(() => defaultEdoAccountAlias.ConsentForEdoStatus), ConsentForEdoStatus.Agree))
 						)
 						.Add(
 							Restrictions.Conjunction()
@@ -1636,8 +1655,8 @@ FROM
 
 		public async Task<IList<RouteList>> GetCarsRouteListsForPeriod(
 			IUnitOfWork uow,
-			CarTypeOfUse? carTypeOfUse,
-			CarOwnType carOwnType,
+			CarTypeOfUse[] carTypesOfUse,
+			CarOwnType[] carOwnTypes,
 			Car car,
 			int[] includedCarModelIds,
 			int[] excludedCarModelIds,
@@ -1669,12 +1688,8 @@ FROM
 					.Where(() => !carAlias.IsArchive)
 					.And(() => carModelAlias.CarTypeOfUse != CarTypeOfUse.Truck)
 					.And(() => assignedDriverAlias.Id == null || !assignedDriverAlias.VisitingMaster)
-					.And(() => carVersionAlias.CarOwnType == carOwnType);
-
-				if(carTypeOfUse != null)
-				{
-					query.Where(() => carModelAlias.CarTypeOfUse == carTypeOfUse);
-				}
+					.And(Restrictions.In(Projections.Property(() => carVersionAlias.CarOwnType), carOwnTypes))
+					.And(Restrictions.In(Projections.Property(() => carModelAlias.CarTypeOfUse), carTypesOfUse));
 
 				if(car != null)
 				{
@@ -1803,6 +1818,20 @@ FROM
 					&& routeList.ConfirmedDistance > 0)
 				.Select(Projections.Sum<RouteList>(routeList => routeList.ConfirmedDistance))
 				.SingleOrDefault<decimal>();
+		}
+
+		public IEnumerable<int> GetCompletedOrdersInTodayRouteListsByCarId(IUnitOfWork uow, int carId)
+		{
+			var query =
+				from routeList in uow.Session.Query<RouteList>()
+				join routeListAddress in uow.Session.Query<RouteListItem>() on routeList.Id equals routeListAddress.RouteList.Id
+				where
+					routeList.Date == DateTime.Today
+					&& routeList.Car.Id == carId
+					&& routeListAddress.Status == RouteListItemStatus.Completed
+				select routeListAddress.Order.Id;
+
+			return query.ToList();
 		}
 	}
 }

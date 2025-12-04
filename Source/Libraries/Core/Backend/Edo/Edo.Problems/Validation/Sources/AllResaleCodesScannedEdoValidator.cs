@@ -7,6 +7,7 @@ using Edo.Common;
 using Microsoft.Extensions.DependencyInjection;
 using NHibernate.Linq;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Logistics;
@@ -17,6 +18,14 @@ namespace Edo.Problems.Validation.Sources
 {
 	public partial class AllResaleCodesScannedEdoValidator : OrderEdoValidatorBase, IEdoTaskValidator
 	{
+		private readonly ICounterpartyEdoAccountEntityController _edoAccountEntityController;
+
+		public AllResaleCodesScannedEdoValidator(ICounterpartyEdoAccountEntityController edoAccountEntityController)
+		{
+			_edoAccountEntityController =
+				edoAccountEntityController ?? throw new ArgumentNullException(nameof(edoAccountEntityController));
+		}
+		
 		public override string Name
 		{
 			get => "Order.AllResaleCodesScanned";
@@ -56,7 +65,7 @@ namespace Edo.Problems.Validation.Sources
 			
 			var orderEdoRequest = orderEdoTask.OrderEdoRequest;
 
-			return (orderEdoRequest.Order.IsOrderForResale && !orderEdoRequest.Order.IsNeedIndividualSetOnLoad)
+			return (orderEdoRequest.Order.IsOrderForResale && !orderEdoRequest.Order.IsNeedIndividualSetOnLoad(_edoAccountEntityController))
 				|| orderEdoRequest.Order.IsOrderForTender;
 		}
 
@@ -113,7 +122,7 @@ namespace Edo.Problems.Validation.Sources
 						on routeListItem.Id equals productCode.RouteListItem.Id
 					where routeListItem.Order.Id == orderEdoRequest.Order.Id
 					      && productCode.SourceCodeStatus == SourceProductCodeStatus.Accepted
-					group productCode by productCode.ResultCode.GTIN
+					group productCode by productCode.ResultCode.Gtin
 					into grouped
 					select new ScannedNomenclatureGtinDto
 					{
@@ -129,7 +138,7 @@ namespace Edo.Problems.Validation.Sources
 					where document.Order.Id == orderEdoRequest.Order.Id
 					join productCode in unitOfWork.Session.Query<SelfDeliveryDocumentItemTrueMarkProductCode>()
 						on item.Id equals productCode.SelfDeliveryDocumentItem.Id
-					group productCode by productCode.ResultCode.GTIN
+					group productCode by productCode.ResultCode.Gtin
 					into grouped
 					select new ScannedNomenclatureGtinDto
 					{

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Windows.Input;
 using Autofac;
 using QS.Commands;
 using QS.Dialog;
@@ -11,6 +12,7 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Extension;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.DiscountReasons;
@@ -20,7 +22,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {
-	public class DiscountReasonViewModel : EntityTabViewModelBase<DiscountReason>
+	public class DiscountReasonViewModel : EntityTabViewModelBase<DiscountReason>, IAskSaveOnCloseViewModel
 	{
 		private readonly IDiscountReasonRepository _discountReasonRepository;
 		private ILifetimeScope _lifetimeScope;
@@ -28,13 +30,13 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private ProductGroup _selectedProductGroup;
 		private ProductGroupsJournalViewModel _selectProductGroupJournalViewModel;
 
-		private DelegateCommand _addNomenclatureCommand;
-		private DelegateCommand _addProductGroupCommand;
-		private DelegateCommand _removeNomenclatureCommand;
-		private DelegateCommand _removeProductGroupCommand;
-		private DelegateCommand<bool> _updateSelectedCategoriesCommand;
+		private int _currentPage;
+		private bool _hasOrderMinSum;
+		private bool _discountInfoTabActive;
+		private bool _promoCodeSettingsTabActive;
+		private bool _hasPromoCodeDurationTime;
+		private bool _selectedAllCategories;
 
-		
 		public DiscountReasonViewModel(
 			ILifetimeScope lifetimeScope,
 			IEntityUoWBuilder uowBuilder,
@@ -47,14 +49,23 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
 			
-			TabName = UoWGeneric.IsNew ? "Новое основание для скидки" : $"Основание для скидки \"{Entity.Name}\"";
+			TabName = IsNewEntity ? "Новое основание для скидки" : $"Основание для скидки \"{Entity.Name}\"";
 
+			SetPermissions();
+			InitializeCommands();
 			InitializeNomenclatureCategoriesList();
+			InitializeHasOrderMinSum();
+			InitializeHasPromoCodeDurationTime();
 		}
 
+		public bool IsNewEntity => Entity.Id == 0;
+		public bool AskSaveOnClose => CanEditDiscountReason;
+		public bool CanEditDiscountReason => (IsNewEntity && PermissionResult.CanCreate) || PermissionResult.CanUpdate;
+		public bool CanRemoveNomenclature => IsNomenclatureSelected && CanEditDiscountReason;
 		public bool IsNomenclatureSelected => SelectedNomenclature != null;
+		public bool CanRemoveProductGroup => IsProductGroupSelected && CanEditDiscountReason;
 		public bool IsProductGroupSelected => SelectedProductGroup != null;
-		public bool CanChangeDiscountReasonName => Entity.Id == 0;
+		public bool CanChangeDiscountReasonName => IsNewEntity && CanEditDiscountReason;
 
 		public Nomenclature SelectedNomenclature
 		{
@@ -79,116 +90,171 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				}
 			} 
 		}
-
-		public IList<SelectableNomenclatureCategoryNode> SelectableNomenclatureCategoryNodes { get; private set; }
-
-		public DelegateCommand AddNomenclatureCommand => _addNomenclatureCommand ?? (_addNomenclatureCommand = new DelegateCommand(
-					() =>
-					{
-						NavigationManager.OpenViewModel<NomenclaturesJournalViewModel>(this,
-							OpenPageOptions.AsSlave,
-							vm =>
-							{
-								vm.SelectionMode = QS.Project.Journal.JournalSelectionMode.Single;
-								vm.OnSelectResult += (s, ea) =>
-								{
-									var selectedNode = ea.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
-									if(selectedNode == null)
-									{
-										return;
-									}
-
-									Entity.AddNomenclature(UoW.GetById<Nomenclature>(selectedNode.Id));
-								};
-							});
-					}
-				)
-			);
 		
-		public DelegateCommand RemoveNomenclatureCommand => _removeNomenclatureCommand ?? (_removeNomenclatureCommand = new DelegateCommand(
-					() =>
-					{
-						Entity.RemoveNomenclature(_selectedNomenclature);
-					}
-				)
-			);
-
-		public DelegateCommand AddProductGroupCommand => _addProductGroupCommand ?? (_addProductGroupCommand = new DelegateCommand(
-				() =>
-				{
-					var selectGroupPage = NavigationManager.OpenViewModel<ProductGroupsJournalViewModel, Action<ProductGroupsJournalFilterViewModel>>(
-						this,
-						filter =>
-						{
-							filter.IsGroupSelectionMode = true;
-						},
-						OpenPageOptions.AsSlave,
-						vm =>
-						{
-							vm.SelectionMode = JournalSelectionMode.Single;
-						});
-					
-					if(_selectProductGroupJournalViewModel != null)
-					{
-						_selectProductGroupJournalViewModel.OnSelectResult -= OnProductGroupSelected;
-					}
-
-					_selectProductGroupJournalViewModel = selectGroupPage.ViewModel;
-					_selectProductGroupJournalViewModel.OnSelectResult += OnProductGroupSelected;
-				}
-			)
-		);
-
-
-		public DelegateCommand RemoveProductGroupCommand => _removeProductGroupCommand ?? (_removeProductGroupCommand = new DelegateCommand(
-				() =>
-				{
-					Entity.RemoveProductGroup(_selectedProductGroup);
-				}
-			)
-		);
-		
-		public DelegateCommand<bool> UpdateSelectedCategoriesCommand =>
-			_updateSelectedCategoriesCommand ?? (_updateSelectedCategoriesCommand = new DelegateCommand<bool>(
-					selected =>
-					{
-						foreach(var node in SelectableNomenclatureCategoryNodes)
-						{
-							node.IsSelected = selected;
-							UpdateNomenclatureCategories(node);
-						}
-					}
-				)
-			);
-		
-		public override bool Save(bool close)
+		public bool SelectedAllCategories
 		{
-			using(var uow = UnitOfWorkFactory.CreateWithoutRoot())
+			get => _selectedAllCategories;
+			set
 			{
-				if(_discountReasonRepository.ExistsActiveDiscountReasonWithName(
-					uow, Entity.Id, Entity.Name, out var activeDiscountReasonWithSameName))
+				if(SetField(ref _selectedAllCategories, value))
 				{
-					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-						"Уже существует основание для скидки с таким названием.\n" +
-						"Сохранение текущего основания невозможно.\n" +
-						"Существующее основание:\n" +
-						$"Код: {activeDiscountReasonWithSameName.Id}\n" +
-						$"Название: {activeDiscountReasonWithSameName.Name}");
-					return false;
+					UpdateSelectedCategories(_selectedAllCategories);
 				}
 			}
-			
-			return base.Save(close);
+		}
+
+		public IList<SelectableNomenclatureCategoryNode> SelectableNomenclatureCategoryNodes { get; private set; }
+		
+		public ICommand SaveCommand { get; private set; }
+		public ICommand CloseCommand { get; private set; }
+		public ICommand AddProductGroupCommand { get; private set; }
+		public ICommand RemoveProductGroupCommand { get; private set; }
+		public ICommand AddNomenclatureCommand { get; private set; }
+		public ICommand RemoveNomenclatureCommand { get; private set; }
+
+		public int CurrentPage
+		{
+			get => _currentPage;
+			set => SetField(ref _currentPage, value);
+		}
+
+		public bool HasOrderMinSum
+		{
+			get => _hasOrderMinSum;
+			set
+			{
+				if(SetField(ref _hasOrderMinSum, value) && !value)
+				{
+					Entity.ResetOrderMinSum();
+				}
+			}
+		}
+
+		public bool HasPromoCodeDurationTime
+		{
+			get => _hasPromoCodeDurationTime;
+			set
+			{
+				if(SetField(ref _hasPromoCodeDurationTime, value) && !value)
+				{
+					Entity.ResetTimeDuration();
+				}
+			}
+		}
+
+		public bool CanEditPromoCode { get; private set; }
+		public bool CanChangePromoCodeName => IsNewEntity && CanEditPromoCode;
+		public bool CanChangeIsPromoCode => IsNewEntity && CanEditPromoCode;
+
+		public bool DiscountInfoTabActive
+		{
+			get => _discountInfoTabActive;
+			set
+			{
+				if(SetField(ref _discountInfoTabActive, value) && value)
+				{
+					CurrentPage = 0;
+				}
+			}
+		}
+		
+		public bool PromoCodeSettingsTabActive
+		{
+			get => _promoCodeSettingsTabActive;
+			set
+			{
+				if(SetField(ref _promoCodeSettingsTabActive, value) && value)
+				{
+					CurrentPage = 1;
+				}
+			}
+		}
+
+		public void UpdateNomenclatureCategories(SelectableNomenclatureCategoryNode selectedCategory) =>
+			Entity.UpdateNomenclatureCategories(selectedCategory);
+		
+		private void SetPermissions()
+		{
+			CanEditPromoCode = CommonServices.CurrentPermissionService.ValidatePresetPermission(
+				Vodovoz.Permissions.DiscountReasonPermissions.CanEditPromoCode)
+				&& CanEditDiscountReason;
+		}
+		
+		private void InitializeCommands()
+		{
+			SaveCommand = new DelegateCommand(SaveAndClose);
+			CloseCommand = new DelegateCommand(()=> Close(false, CloseSource.Cancel));
+			AddProductGroupCommand = new DelegateCommand(AddProductGroup);
+			RemoveProductGroupCommand = new DelegateCommand(RemoveProductGroup);
+			AddNomenclatureCommand = new DelegateCommand(AddNomenclature);
+			RemoveNomenclatureCommand = new DelegateCommand(RemoveNomenclature);
+		}
+		
+		private void UpdateSelectedCategories(bool value)
+		{
+			foreach(var node in SelectableNomenclatureCategoryNodes)
+			{
+				node.IsSelected = value;
+				UpdateNomenclatureCategories(node);
+			}
+		}
+		
+		private void AddNomenclature()
+		{
+			NavigationManager.OpenViewModel<NomenclaturesJournalViewModel>(this,
+				OpenPageOptions.AsSlave,
+				vm =>
+				{
+					vm.SelectionMode = QS.Project.Journal.JournalSelectionMode.Single;
+					vm.OnSelectResult += (s, ea) =>
+					{
+						var selectedNode = ea.SelectedObjects.Cast<NomenclatureJournalNode>().FirstOrDefault();
+						if(selectedNode == null)
+						{
+							return;
+						}
+
+						Entity.AddNomenclature(UoW.GetById<Nomenclature>(selectedNode.Id));
+					};
+				});
+		}
+
+		private void RemoveNomenclature()
+		{
+			Entity.RemoveNomenclature(_selectedNomenclature);
+		}
+
+		private void AddProductGroup()
+		{
+			var selectGroupPage = NavigationManager.OpenViewModel<ProductGroupsJournalViewModel, Action<ProductGroupsJournalFilterViewModel>>(
+				this,
+				filter =>
+				{
+					filter.IsGroupSelectionMode = true;
+				},
+				OpenPageOptions.AsSlave,
+				vm =>
+				{
+					vm.SelectionMode = JournalSelectionMode.Single;
+				});
+					
+			if(_selectProductGroupJournalViewModel != null)
+			{
+				_selectProductGroupJournalViewModel.OnSelectResult -= OnProductGroupSelected;
+			}
+
+			_selectProductGroupJournalViewModel = selectGroupPage.ViewModel;
+			_selectProductGroupJournalViewModel.OnSelectResult += OnProductGroupSelected;
+		}
+
+		private void RemoveProductGroup()
+		{
+			Entity.RemoveProductGroup(_selectedProductGroup);
 		}
 
 		private void OnProductGroupSelected(object sender, JournalSelectedEventArgs e)
 		{
 			var selectedNode = e.SelectedObjects.FirstOrDefault();
-
-			if(selectedNode == null)
-			{
-				return;
-			}
 
 			if(!(selectedNode is ProductGroupsJournalNode selectedProductNode))
 			{
@@ -197,9 +263,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
 			Entity.AddProductGroup(UoW.GetById<ProductGroup>(selectedProductNode.Id));
 		}
-
-		public void UpdateNomenclatureCategories(SelectableNomenclatureCategoryNode selectedCategory) =>
-			Entity.UpdateNomenclatureCategories(selectedCategory);
 		
 		private void InitializeNomenclatureCategoriesList()
 		{
@@ -208,17 +271,21 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			
 			foreach(var category in discountNomenclatureCategories)
 			{
-				SelectableNomenclatureCategoryNodes.Add(CreateNewNode(category));
+				SelectableNomenclatureCategoryNodes.Add(
+					SelectableNomenclatureCategoryNode.Create(
+						category,
+						Entity.NomenclatureCategories.Contains(category)));
 			}
 		}
 
-		private SelectableNomenclatureCategoryNode CreateNewNode(DiscountReasonNomenclatureCategory discountNomenclatureCategory)
+		private void InitializeHasOrderMinSum()
 		{
-			return new SelectableNomenclatureCategoryNode
-			{
-				DiscountReasonNomenclatureCategory = discountNomenclatureCategory,
-				IsSelected = Entity.NomenclatureCategories.Contains(discountNomenclatureCategory)
-			};
+			HasOrderMinSum = Entity.HasOrderMinSum;
+		}
+
+		private void InitializeHasPromoCodeDurationTime()
+		{
+			HasPromoCodeDurationTime = Entity.HasPromoCodeDurationTime;
 		}
 
 		public override void Dispose()

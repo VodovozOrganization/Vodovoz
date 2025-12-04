@@ -143,7 +143,7 @@ namespace Vodovoz.ViewModels.Cash
 					typeof(Income), userService.CurrentUserId, nameof(RetroactivelyClosePermission));
 
 			CanEditDate = commonServices.CurrentPermissionService
-				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Cash.Income.CanEditDate);
+				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.Income.CanEditDate);
 
 			CachedOrganizations = UoW.GetAll<Organization>().ToList().AsReadOnly();
 
@@ -402,7 +402,7 @@ namespace Vodovoz.ViewModels.Cash
 			|| CanEditRectroactively;
 
 		public bool CanChangeRouteList =>
-			CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.RouteList.CanDelete)
+			CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanDelete)
 			&& IsDriverReport;
 
 		public bool IsReturnOperation => Entity.TypeOperation == IncomeType.Return;

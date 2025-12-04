@@ -5,5 +5,6 @@
 		public static string Path => "ContactsUpdaterOptions";
 		
 		public int DelayBetweenContactsProcessingInSeconds { get; set; }
+		public string EdoAccount { get; set; }
 	}
 }

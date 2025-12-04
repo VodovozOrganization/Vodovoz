@@ -105,5 +105,24 @@ namespace Vodovoz.Infrastructure.Persistance
 			return await GetAsync(unitOfWork, predicate, limit)
 				.MapAsync(entities => entities.Select(x => map(x)));
 		}
+
+		/// <inheritdoc/>
+		public TEntity GetFirstOrDefault(IUnitOfWork unitOfWork, ExpressionSpecification<TEntity> expressionSpecification)
+		{
+			return GetQueriable(unitOfWork, expressionSpecification).FirstOrDefault();
+		}
+
+		/// <inheritdoc/>
+		public TEntity GetLastOrDefault(IUnitOfWork unitOfWork, ExpressionSpecification<TEntity> expressionSpecification)
+		{
+			return GetQueriable(unitOfWork, expressionSpecification).OrderByDescending(x => x.Id).FirstOrDefault();
+		}
+
+		/// <inheritdoc/>
+		private IQueryable<TEntity> GetQueriable(IUnitOfWork unitOfWork, ExpressionSpecification<TEntity> expressionSpecification)
+		{
+			return unitOfWork.Session.Query<TEntity>()
+				.Where(expressionSpecification.Expression);
+		}
 	}
 }

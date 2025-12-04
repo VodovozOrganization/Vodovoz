@@ -5,8 +5,10 @@ using FastPaymentsAPI.Library.Factories;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
+using Vodovoz.Core.Data.Orders;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain.FastPayments;
+using Vodovoz.Settings.Orders;
 
 namespace FastPaymentsAPI.Library.Notifications
 {
@@ -15,24 +17,27 @@ namespace FastPaymentsAPI.Library.Notifications
 		private readonly ILogger<SiteNotifier> _logger;
 		private readonly SiteClient _siteClient;
 		private readonly NotificationModel _notificationModel;
+		private readonly IOrderSettings _orderSettings;
 		private readonly IFastPaymentFactory _fastPaymentFactory;
 
 		public SiteNotifier(
 			ILogger<SiteNotifier> logger,
 			SiteClient siteClient,
 			NotificationModel notificationModel,
+			IOrderSettings orderSettings,
 			IFastPaymentFactory fastPaymentFactory)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_siteClient = siteClient ?? throw new ArgumentNullException(nameof(siteClient));
 			_notificationModel = notificationModel ?? throw new ArgumentNullException(nameof(notificationModel));
+			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_fastPaymentFactory = fastPaymentFactory ?? throw new ArgumentNullException(nameof(fastPaymentFactory));
 		}
 
 		public async Task NotifyPaymentStatusChangeAsync(FastPayment payment)
 		{
 			var paymentFromId = payment.PaymentByCardFrom.Id;
-			if(paymentFromId != (int)RequestFromType.FromSiteByQr)
+			if(paymentFromId != _orderSettings.GetPaymentByCardFromSiteByQrCodeId)
 			{
 				_logger.LogWarning("Попытка отправки уведомления на сайт для платежа с не соответствующем источником оплаты. " +
 					"Источник оплаты: {paymentFrom}.", payment.PaymentByCardFrom.Name);

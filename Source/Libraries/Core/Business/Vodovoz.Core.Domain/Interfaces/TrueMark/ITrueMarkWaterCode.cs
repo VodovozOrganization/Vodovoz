@@ -2,7 +2,7 @@
 {
 	public interface ITrueMarkWaterCode
 	{
-		string GTIN { get; set; }
+		string Gtin { get; set; }
 		string SerialNumber { get; set; }
 		string CheckCode { get; set; }
 	}

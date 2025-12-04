@@ -13,6 +13,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
+using VodovozBusiness.Controllers;
 using VodovozBusiness.Services.TrueMark;
 
 namespace DriverAPI.Library.V6.Converters
@@ -30,6 +31,7 @@ namespace DriverAPI.Library.V6.Converters
 		private readonly QrPaymentConverter _qrPaymentConverter;
 		private readonly IOrderRepository _orderRepository;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly ICounterpartyEdoAccountController _edoAccountController;
 
 		/// <summary>
 		/// Конструктор
@@ -51,7 +53,8 @@ namespace DriverAPI.Library.V6.Converters
 			SignatureTypeConverter signatureTypeConverter,
 			QrPaymentConverter qrPaymentConverter,
 			IOrderRepository orderRepository,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService)
+			ITrueMarkWaterCodeService trueMarkWaterCodeService,
+			ICounterpartyEdoAccountController edoAccountController)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_deliveryPointConverter = deliveryPointConverter ?? throw new ArgumentNullException(nameof(deliveryPointConverter));
@@ -61,6 +64,7 @@ namespace DriverAPI.Library.V6.Converters
 			_qrPaymentConverter = qrPaymentConverter ?? throw new ArgumentNullException(nameof(qrPaymentConverter));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_edoAccountController = edoAccountController ?? throw new ArgumentNullException(nameof(edoAccountController));
 		}
 
 		/// <summary>
@@ -129,7 +133,7 @@ namespace DriverAPI.Library.V6.Converters
 		private OrderReasonForLeavingDtoType GetOrderType(
 			Order vodovozOrder)
 		{
-			if(vodovozOrder.IsNeedIndividualSetOnLoad || vodovozOrder.IsNeedIndividualSetOnLoadForTender)
+			if(vodovozOrder.IsNeedIndividualSetOnLoad(_edoAccountController) || vodovozOrder.IsNeedIndividualSetOnLoadForTender)
 			{
 				return OrderReasonForLeavingDtoType.Distributing;
 			}
@@ -297,7 +301,7 @@ namespace DriverAPI.Library.V6.Converters
 			var sequenceNumber = 0;
 
 			var addedTrueMarkWaterCodes =
-				saleItem.IsTrueMarkCodesMustBeAddedInWarehouse
+				saleItem.IsTrueMarkCodesMustBeAddedInWarehouse(_edoAccountController)
 				? GetCodesAddedInWarehouse(saleItem)
 				: GetCodesAddedByDriver(saleItem, routeListItem);
 
@@ -348,7 +352,7 @@ namespace DriverAPI.Library.V6.Converters
 			var nomenclatureGtins = saleItem.Nomenclature.Gtins.Select(x => x.GtinNumber).ToList();
 
 			var waterCodes = _orderRepository.GetTrueMarkCodesAddedInWarehouseToOrderByOrderId(_uow, saleItem.Order.Id)
-				.Where(x => nomenclatureGtins.Contains(x.GTIN));
+				.Where(x => nomenclatureGtins.Contains(x.Gtin));
 
 			var codes = waterCodes
 				.Skip(skipCodesCount)

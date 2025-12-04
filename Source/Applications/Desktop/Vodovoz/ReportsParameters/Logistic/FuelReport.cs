@@ -130,6 +130,7 @@ namespace Vodovoz.Reports
 			var carTypesOfUse = new List<CarTypeOfUse>
 			{
 				CarTypeOfUse.GAZelle,
+				CarTypeOfUse.Minivan,
 				CarTypeOfUse.Largus,
 				CarTypeOfUse.Truck
 			};

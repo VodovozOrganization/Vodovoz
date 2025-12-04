@@ -6,6 +6,8 @@ using FastPaymentsAPI.Library.Models;
 using FastPaymentsAPI.Library.Notifications;
 using FastPaymentsAPI.Library.Validators;
 using Microsoft.Extensions.DependencyInjection;
+using Vodovoz.Application;
+using Vodovoz.Application.Orders.Services;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.FastPayments;
@@ -17,6 +19,8 @@ using Vodovoz.Models;
 using Vodovoz.Services;
 using Vodovoz.Settings.FastPayments;
 using Vodovoz.Tools.Orders;
+using VodovozBusiness.Domain.Settings;
+using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Cryptography;
 
 namespace FastPaymentsAPI.Library
@@ -26,6 +30,7 @@ namespace FastPaymentsAPI.Library
 		public static IServiceCollection AddDependencyGroup(this IServiceCollection services)
 		{
 			services
+				.AddApplication()
 				.AddScoped<ISiteSettings, SiteSettings>()
 				.AddScoped<SiteClient>()
 				.AddScoped<MobileAppClient>()
@@ -33,7 +38,6 @@ namespace FastPaymentsAPI.Library
 				.AddScoped<MobileAppNotifier>()
 				.AddScoped<NotificationModel>()
 				.AddScoped<OrderStateKey>()
-				.AddScoped<IOrganizationProvider, Stage2OrganizationProvider>()
 				.AddScoped<FastPaymentStatusManagerFromDesktop>()
 				.AddScoped<FastPaymentStatusManagerFromDriverApp>()
 				.AddScoped<FastPaymentStatusManagerFromOnline>()

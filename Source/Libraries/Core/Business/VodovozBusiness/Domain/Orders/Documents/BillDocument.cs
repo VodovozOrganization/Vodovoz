@@ -9,6 +9,7 @@ using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -69,7 +70,7 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		#endregion
 
-		public virtual EmailTemplate GetEmailTemplate()
+		public virtual EmailTemplate GetEmailTemplate(ICounterpartyEdoAccountController edoAccountController = null)
 		{
 			var template = new EmailTemplate();
 

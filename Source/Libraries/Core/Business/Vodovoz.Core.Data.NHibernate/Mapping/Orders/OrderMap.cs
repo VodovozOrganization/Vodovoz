@@ -8,7 +8,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 	{
 		public OrderMap()
 		{
-			Table("orders");
+			Table(OrderEntity.Table);
 
 			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);
 
@@ -93,7 +93,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 			Map(x => x.Trifle)
 				.Column("trifle");
 
-			Map(x => x.OnlineOrder)
+			Map(x => x.OnlinePaymentNumber)
 				.Column("online_order");
 
 			Map(x => x.ToClientText)
@@ -207,6 +207,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 
 			Map(x => x.PaymentType).Column("payment_type")
 				.Access.CamelCaseField(Prefix.Underscore);
+			
+			Map(x => x.OrderPartsIds)
+				.Column("order_parts_ids");
 
 			References(x => x.PaymentByCardFrom)
 				.Column("payment_from_id");

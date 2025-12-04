@@ -49,6 +49,7 @@ namespace Vodovoz.Domain.Documents
 			= new List<SelfDeliveryDocumentReturned>();
 		private int _defBottleId;
 		private int _returnedTareBefore;
+		private int _tareToReturn;
 
 		/// <summary>
 		/// <inheritdoc/>
@@ -175,7 +176,11 @@ namespace Vodovoz.Domain.Documents
 		/// <summary>
 		/// Количество тары, которую нужно вернуть
 		/// </summary>
-		public virtual int TareToReturn { get; set; }
+		public virtual int TareToReturn
+		{
+			get => _tareToReturn;
+			set => SetField(ref _tareToReturn, value);
+		}
 
 		#endregion
 
@@ -238,9 +243,17 @@ namespace Vodovoz.Domain.Documents
 						new[] { this.GetPropertyName(o => o.Items) });
 				}
 
+				var count =  decimal.ToInt32(item.Document.GetNomenclaturesCountInOrder(item.Nomenclature));
+				if(item.Amount != count)
+				{
+					yield return new ValidationResult(
+						$"Нельзя частично отгрузить номенклатуру <{item.Nomenclature.Name}> в заказе. Для отпуска необходимо {count} шт., а не {decimal.ToInt32(item.Amount)} шт.",
+						new[] { this.GetPropertyName(o => o.Items) });
+				}
+				
 				if(!skipTrueMarkCodesCheck
 					&& !commonServices.CurrentPermissionService.ValidatePresetPermission(
-					   Vodovoz.Core.Domain.Permissions.Logistic.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded)
+					   Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded)
 				   && Order.Client.ReasonForLeaving == ReasonForLeaving.Resale
 				   && item.Nomenclature.IsAccountableInTrueMark
 				   && item.Amount > item.TrueMarkProductCodes.Count

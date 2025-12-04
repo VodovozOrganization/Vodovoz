@@ -28,7 +28,8 @@ namespace Dialogs.Logistic
 	{
 		private static ILogger<TrackOnMapWnd> _logger = ScopeProvider.Scope.Resolve<ILogger<TrackOnMapWnd>>();
 		private readonly ITrackRepository _trackRepository = ScopeProvider.Scope.Resolve<ITrackRepository>();
-		private readonly IGlobalSettings _globalSettings = ScopeProvider.Scope.Resolve<IGlobalSettings>();
+		private readonly IOsrmSettings _osrmSettings = ScopeProvider.Scope.Resolve<IOsrmSettings>();
+		private readonly IOsrmClient _osrmClient = ScopeProvider.Scope.Resolve<IOsrmClient>();
 
 		#region Поля
 
@@ -291,13 +292,22 @@ namespace Dialogs.Logistic
 		protected void OnButtonRecalculateToBaseClicked(object sender, EventArgs e)
 		{
 			var curTrack = _trackRepository.GetTrackByRouteListId(UoW, routeList.Id);
-			var response = curTrack.CalculateDistanceToBase();
+			var responseResult = curTrack.CalculateDistanceToBase(_osrmSettings, _osrmClient);
 			UoW.Save(curTrack);
 			UoW.Commit();
 			UpdateDistanceLabel();
 
 			trackToBaseOverlay.Clear();
-			var decodedPoints = Polyline.DecodePolyline(response.Routes.First().RouteGeometry);
+
+			if(responseResult.IsFailure)
+			{
+				MessageDialogHelper.RunInfoDialog(responseResult.Errors.First().Message);
+				return;
+			}
+
+			var response = responseResult.Value;
+			var responseFirstRoute = response.Routes.First();
+			var decodedPoints = Polyline.DecodePolyline(responseFirstRoute.RouteGeometry);
 			var points = decodedPoints.Select(p => new PointLatLng(p.Latitude * 0.1, p.Longitude * 0.1)).ToList();
 
 			var route = new GMapRoute(points, "RouteToBase") {
@@ -314,8 +324,8 @@ namespace Dialogs.Logistic
 
 			MessageDialogHelper.RunInfoDialog(string.Format("Расстояние от {0} до склада {1} км. Время в пути {2}.",
 				response.Waypoints.First().Name,
-				response.Routes.First().TotalDistanceKm,
-				response.Routes.First().TotalTime
+				responseFirstRoute.TotalDistanceKm,
+				responseFirstRoute.TotalTime
 			));
 		}
 
@@ -375,7 +385,7 @@ namespace Dialogs.Logistic
 					}
 					routePoints.Add (new PointOnEarth (point.Latitude, point.Longitude));
 
-					var missedTrack = OsrmClientFactory.Instance.GetRoute(routePoints, false, GeometryOverview.Simplified, _globalSettings.ExcludeToll);
+					var missedTrack = _osrmClient.GetRoute(routePoints, false, GeometryOverview.Simplified, _osrmSettings.ExcludeToll);
 					if (missedTrack == null)
 					{
 						MessageDialogHelper.RunErrorDialog ("Не удалось получить ответ от сервиса \"Спутник\"");
@@ -562,7 +572,7 @@ namespace Dialogs.Logistic
 					}
 				}
 
-				var recalculatedTrackResponse = OsrmClientFactory.Instance.GetRoute(pointsToRecalculate, false, GeometryOverview.Full, _globalSettings.ExcludeToll);
+				var recalculatedTrackResponse = _osrmClient.GetRoute(pointsToRecalculate, false, GeometryOverview.Full, _osrmSettings.ExcludeToll);
 				var recalculatedTrack = recalculatedTrackResponse.Routes.First();
 				var decodedPoints = Polyline.DecodePolyline(recalculatedTrack.RouteGeometry);
 				var pointsRecalculated = decodedPoints.Select(p => new PointLatLng(p.Latitude, p.Longitude)).ToList();
@@ -587,7 +597,7 @@ namespace Dialogs.Logistic
 			pointsToBase.Add(new PointOnEarth(baseLat, baseLon));
 			pointsToBase.Add(pointsToRecalculate.First());
 
-			var recalculatedToBaseResponse = OsrmClientFactory.Instance.GetRoute(pointsToBase, false, GeometryOverview.Full, _globalSettings.ExcludeToll);
+			var recalculatedToBaseResponse = _osrmClient.GetRoute(pointsToBase, false, GeometryOverview.Full, _osrmSettings.ExcludeToll);
 			var recalculatedToBase = recalculatedToBaseResponse.Routes.First();
 			var decodedToBase = Polyline.DecodePolyline(recalculatedToBase.RouteGeometry);
 			var pointsRecalculatedToBase = decodedToBase.Select(p => new PointLatLng(p.Latitude, p.Longitude)).ToList();

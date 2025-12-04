@@ -51,6 +51,16 @@ namespace Vodovoz.EntityRepositories.TrueMark
 		bool IsTrueMarkAnyCodeAlreadySaved(IUnitOfWork uow, TrueMarkAnyCode trueMarkAnyCode);
 
 		/// <summary>
+		/// Возвращает транспортные коды маркировки
+		/// </summary>
+		IEnumerable<TrueMarkTransportCode> GetTransportCodes(IUnitOfWork uow, IEnumerable<int> transportCodeIds);
+
+		/// <summary>
+		/// Возвращает групповые коды маркировки
+		/// </summary>
+		IEnumerable<TrueMarkWaterGroupCode> GetGroupWaterCodes(IUnitOfWork uow, IEnumerable<int> groupCodeIds);
+
+		/// <summary>
 		/// Возвращает коды маркировки для заказа,
 		/// которые были добавлены складом в документе погрузки автомобиля.
 		/// </summary>

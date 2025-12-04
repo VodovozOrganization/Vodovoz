@@ -15,6 +15,7 @@ namespace Vodovoz.Core.Data.NHibernate.Logistic.Cars
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.RegistrationNumber).Column("reg_number");
+			Map(x => x.IsUsedInDelivery).Column("is_used_in_delivery");
 
 			HasMany(x => x.AttachedFileInformations).Cascade.AllDeleteOrphan().Inverse().KeyColumn("car_id");
 		}

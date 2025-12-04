@@ -49,7 +49,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 
 		#region Статья расхода
 
-		private bool _hasFinancialExpenseCategoryPermission => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Cash.FinancialCategory.CanChangeFinancialExpenseCategory);
+		private bool _hasFinancialExpenseCategoryPermission => CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.FinancialCategory.CanChangeFinancialExpenseCategory);
 
 		private PayoutRequestState[] _expenseCategoriesForAll => new[]
 		{
@@ -734,7 +734,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 				roles.Add(PayoutRequestUserRole.Coordinator);
 			}
 
-			if(CheckRole(Vodovoz.Core.Domain.Permissions.Cash.PresetPermissionsRoles.Cashier, userId))
+			if(CheckRole(Vodovoz.Core.Domain.Permissions.CashPermissions.PresetPermissionsRoles.Cashier, userId))
 			{
 				roles.Add(PayoutRequestUserRole.Cashier);
 			}

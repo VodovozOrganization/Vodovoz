@@ -26,7 +26,9 @@ namespace Vodovoz.ViewModels.Factories
 				new GroupingNode { Name = "Тип оплаты", GroupType = GroupingType.PaymentType },
 				new GroupingNode { Name = "Организация", GroupType = GroupingType.Organization },
 				new GroupingNode { Name = "Классификация контрагента", GroupType = GroupingType.CounterpartyClassification },
-				new GroupingNode { Name = "Промонаборы", GroupType = GroupingType.PromotionalSet }
+				new GroupingNode { Name = "Промонаборы", GroupType = GroupingType.PromotionalSet },
+				new GroupingNode { Name = "Менеджер КА", GroupType = GroupingType.CounterpartyManager },
+				new GroupingNode { Name = "Автор заказа", GroupType = GroupingType.OrderAuthor },
 			}.AsReadOnly();
 
 		private static ReadOnlyCollection<GroupingNode> _defaultSalesWithDynamicsReportsGroupingNodes =>
@@ -44,7 +46,9 @@ namespace Vodovoz.ViewModels.Factories
 				new GroupingNode { Name = "Тип оплаты", GroupType = GroupingType.PaymentType },
 				new GroupingNode { Name = "Организация", GroupType = GroupingType.Organization },
 				new GroupingNode { Name = "Классификация контрагента", GroupType = GroupingType.CounterpartyClassification },
-				new GroupingNode { Name = "Промонаборы", GroupType = GroupingType.PromotionalSet }
+				new GroupingNode { Name = "Промонаборы", GroupType = GroupingType.PromotionalSet },
+				new GroupingNode { Name = "Менеджер КА", GroupType = GroupingType.CounterpartyManager },
+				new GroupingNode { Name = "Автор заказа", GroupType = GroupingType.OrderAuthor },
 			}.AsReadOnly();
 
 		private readonly IEnumerable<GroupingNode> _defaultCompletedDriverEventsSortingNodes =
@@ -81,18 +85,23 @@ namespace Vodovoz.ViewModels.Factories
 
 		public LeftRightListViewModel<GroupingNode> CreateSalesWithDynamicsReportGroupingsConstructor()
 		{
-			LeftRightListViewModel<GroupingNode> leftRightListViewModel = new LeftRightListViewModel<GroupingNode>
+			var leftRightListViewModel = new LeftRightListViewModel<GroupingNode>
 			{
 				LeftLabel = "Доступные группировки",
 				RightLabel = "Выбранные группировки (макс. 3)",
 				RightItemsMaximum = 3
 			};
 
-			leftRightListViewModel.SetLeftItems(_defaultSalesWithDynamicsReportsGroupingNodes, x => x.Name);
+			SetDefaultLeftItemsForSalesWithDynamicsReportGroupings(leftRightListViewModel);
 
 			return leftRightListViewModel;
 		}
-		
+
+		public void SetDefaultLeftItemsForSalesWithDynamicsReportGroupings(LeftRightListViewModel<GroupingNode> leftRightListViewModel)
+		{
+			leftRightListViewModel.SetLeftItems(_defaultSalesWithDynamicsReportsGroupingNodes, x => x.Name);
+		}
+
 		public LeftRightListViewModel<GroupingNode> CreateCompletedDriverEventsSortingConstructor()
 		{
 			const int maxRightItems = 2;

@@ -12,11 +12,14 @@ using System.Linq;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Presentation.ViewModels.Documents;
 using Vodovoz.Services;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
+using VodovozBusiness.Services.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Cash
@@ -25,6 +28,8 @@ namespace Vodovoz.ViewModels.Cash
 	{
 		private readonly Employee _currentEmployee;
 		private readonly ICallTaskWorker _callTaskWorker;
+		private readonly IOrderContractUpdater _contractUpdater;
+		private readonly IInteractiveService _interactiveService;
 
 		public PaymentByCardViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -32,16 +37,12 @@ namespace Vodovoz.ViewModels.Cash
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
 			ICallTaskWorker callTaskWorker,
-			IOrderPaymentSettings orderPaymentSettings,
 			IOrderSettings orderSettings,
 			IDeliveryRulesSettings deliveryRulesSettings,
-			IEmployeeService employeeService) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
+			IOrderContractUpdater contractUpdater,
+			IEmployeeService employeeService,
+			IInteractiveService interactiveService) : base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
-			if(orderPaymentSettings == null)
-			{
-				throw new ArgumentNullException(nameof(orderPaymentSettings));
-			}
-
 			if(orderSettings == null)
 			{
 				throw new ArgumentNullException(nameof(orderSettings));
@@ -51,18 +52,16 @@ namespace Vodovoz.ViewModels.Cash
 				throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			}
 
-			if(employeeService is null)
-			{
-				throw new ArgumentNullException(nameof(employeeService));
-			}
-
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
-			_currentEmployee = employeeService.GetEmployeeForCurrentUser();
+			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
+			_currentEmployee =
+				(employeeService ?? throw new ArgumentNullException(nameof(employeeService)))
+				.GetEmployeeForCurrentUser(UoW);
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 
 			TabName = "Оплата по карте";
 
-			Entity.PaymentType = PaymentType.Terminal;
-
+			PaymentType = PaymentType.Terminal;
 			Entity.PropertyChanged += Entity_PropertyChanged;
 
 			ValidationContext.ServiceContainer.AddService(orderSettings);
@@ -77,13 +76,34 @@ namespace Vodovoz.ViewModels.Cash
 		public PaymentType PaymentType
 		{
 			get => Entity.PaymentType;
-			set => Entity.PaymentType = value;
+			set => Entity.UpdatePaymentType(value, _contractUpdater);
 		}
 
 		public DelegateCommand SaveCommand { get; }
 		public DelegateCommand CloseCommand { get; }
 
-		public bool CanSave => Entity.OnlineOrder != null;
+		public bool CanSave => Entity.OnlinePaymentNumber != null;
+
+		protected override bool BeforeSave()
+		{
+			bool isUnshippedSelfDeliveryWithPayAfterShipment = Entity.PayAfterShipment
+				&& Entity.SelfDelivery
+				&& Entity.OrderStatus != OrderStatus.OnLoading;
+
+			if(!isUnshippedSelfDeliveryWithPayAfterShipment)
+			{
+				return true;
+			}
+
+			if(!_interactiveService.Question(
+				"Данный заказ ещё не отгружен.\nПри принятии оплаты заказ будет закрыт и его невозможно будет отгрузить.\nПродолжить?",
+				"Внимание"))
+			{
+				return false;
+			}
+
+			return true;
+		}
 
 		private void SaveHandler()
 		{
@@ -91,16 +111,16 @@ namespace Vodovoz.ViewModels.Cash
 			{
 				if(!Save(false))
 				{
-					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Не удалось сохранить документ");
+					_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не удалось сохранить документ");
 					return;
 				}
 
 				var document = Entity.OrderDocuments
-					.FirstOrDefault(x =>
-						x.Type == OrderDocumentType.Invoice
-						|| x.Type == OrderDocumentType.InvoiceBarter
-						|| x.Type == OrderDocumentType.InvoiceContractDoc)
-					as IPrintableRDLDocument;
+						.FirstOrDefault(x =>
+							x.Type == OrderDocumentType.Invoice
+							|| x.Type == OrderDocumentType.InvoiceBarter
+							|| x.Type == OrderDocumentType.InvoiceContractDoc)
+						as IPrintableRDLDocument;
 
 				var page = NavigationManager
 					.OpenViewModel<PrintableRdlDocumentViewModel<IPrintableRDLDocument>, IPrintableRDLDocument>(this, document, OpenPageOptions.AsSlave);
@@ -135,7 +155,7 @@ namespace Vodovoz.ViewModels.Cash
 				OnPropertyChanged(nameof(PaymentType));
 			}
 
-			if(e.PropertyName == nameof(Entity.OnlineOrder))
+			if(e.PropertyName == nameof(Entity.OnlinePaymentNumber))
 			{
 				OnPropertyChanged(nameof(CanSave));
 			}

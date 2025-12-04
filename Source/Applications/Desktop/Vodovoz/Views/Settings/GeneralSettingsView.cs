@@ -2,8 +2,24 @@
 using QS.DomainModel.Entity;
 using QS.Views;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using Autofac;
+using Gamma.GtkWidgets;
+using Gtk;
+using QS.Extensions.Observable.Collections.List;
+using QS.ViewModels.Control.EEVM;
+using QS.Views.Control;
+using ReactiveUI;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.ViewModels.Settings;
+using Vodovoz.ViewModels.Widgets;
+using Vodovoz.Views.Common;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Settings;
+using VodovozBusiness.Nodes;
 
 namespace Vodovoz.Views.Settings
 {
@@ -43,6 +59,15 @@ namespace Vodovoz.Views.Settings
 			ycheckCanAddForwardersToLargus.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanAddForwardersToLargus, w => w.Active)
 				.AddBinding(vm => vm.CanEditCanAddForwardersToLargus, w => w.Sensitive)
+				.InitializeFromSource();
+
+			btnSaveCanAddForwardersToMinivan.Clicked += (sender, args) => ViewModel.SaveCanAddForwardersToMinivanCommand.Execute();
+			btnSaveCanAddForwardersToMinivan.Binding.AddBinding(ViewModel, vm => vm.CanEditCanAddForwardersToMinivan, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ycheckCanAddForwardersToMinivan.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanAddForwardersToMinivan, w => w.Active)
+				.AddBinding(vm => vm.CanEditCanAddForwardersToMinivan, w => w.Sensitive)
 				.InitializeFromSource();
 
 			yspinbuttonRouteListsCount.Binding
@@ -116,7 +141,55 @@ namespace Vodovoz.Views.Settings
 			complaintSubdivisionsView.ViewModel = ViewModel.ComplaintsSubdivisionSettingsViewModel;
 			#endregion Вкладка Рекламации
 
-			#region Вкладка Заказы
+			ConfigureOrdersSettings();
+
+			#region Вкладка Склад
+			
+			warehousesForPricesAndStocksIntegrationsView.ViewModel = ViewModel.WarehousesForPricesAndStocksIntegrationViewModel;
+
+			yentryCarLoadDocumentInfoString.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.CarLoadDocumentInfoString, w => w.Text)
+				.AddBinding(vm => vm.CanSaveCarLoadDocumentInfoString, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ybuttonSaveCarLoadDocumentInfoString.Sensitive = ViewModel.CanSaveCarLoadDocumentInfoString;
+			ybuttonSaveCarLoadDocumentInfoString.Clicked += (s, e) => ViewModel.SaveCarLoadDocumentInfoStringCommand.Execute();
+			
+			#endregion Вкладка Склад
+
+			#region Вкладка Бухгалтерия
+
+			ConfigureAccountingSettings();
+
+			#endregion Вкладка Бухгалтерия
+		}
+
+		#region Вкладка заказы
+
+		private void ConfigureOrdersSettings()
+		{
+			ynotebook2.ShowTabs = false;
+			ynotebook2.Binding
+				.AddBinding(ViewModel, vm => vm.OrderSettingsCurrentPage, w => w.CurrentPage)
+				.InitializeFromSource();
+			
+			RadioBtnOrdersGeneralSettings.Binding
+				.AddBinding(ViewModel, vm => vm.OrderGeneralSettingsTabActive, w => w.Active)
+				.InitializeFromSource();
+			
+			RadioBtnOrganizationForOrderSettings.Binding
+				.AddBinding(ViewModel, vm => vm.OrderOrganizationSettingsTabActive, w => w.Active)
+				.InitializeFromSource();
+			
+			ConfigureOrdersGeneralSettings();
+			ConfigureOrdersOrganizationSettings();
+		}
+
+		#region Общие настройки заказа
+
+		private void ConfigureOrdersGeneralSettings()
+		{
 			roboatssettingsview1.ViewModel = ViewModel.RoboatsSettingsViewModel;
 
 			alternativePriceSubdivisionsView.ViewModel = ViewModel.AlternativePricesSubdivisionSettingsViewModel;
@@ -140,29 +213,24 @@ namespace Vodovoz.Views.Settings
 			ybuttonSaveIsSecondOrderDiscountAvailable.Clicked += (sender, args) => ViewModel.SaveSecondOrderDiscountAvailabilityCommand.Execute();
 
 			ConfigureEmployeesFixedPrices();
-
-			#endregion Вкладка Заказы
-
-			#region Вкладка Склад
-			warehousesForPricesAndStocksIntegrationsView.ViewModel = ViewModel.WarehousesForPricesAndStocksIntegrationViewModel;
-
-			yentryCarLoadDocumentInfoString.Binding
+			
+			yspinbuttonTargetPaymentDeferent.Binding
 				.AddSource(ViewModel)
-				.AddBinding(vm => vm.CarLoadDocumentInfoString, w => w.Text)
-				.AddBinding(vm => vm.CanSaveCarLoadDocumentInfoString, w => w.Sensitive)
+				.AddBinding(vm => vm.TargetPaymentDeferment, w => w.ValueAsInt)
 				.InitializeFromSource();
-
-			ybuttonSaveCarLoadDocumentInfoString.Sensitive = ViewModel.CanSaveCarLoadDocumentInfoString;
-			ybuttonSaveCarLoadDocumentInfoString.Clicked += (s, e) => ViewModel.SaveCarLoadDocumentInfoStringCommand.Execute();
-			#endregion Вкладка Склад
-
-			#region Вкладка Бухгалтерия
-
-			ConfigureAccountingSettings();
-
-			#endregion Вкладка Бухгалтерия
+			yspinbuttonNewPaymentDeferent.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.NewPaymentDeferment, w => w.ValueAsInt)
+				.InitializeFromSource();
+			buttonCalculatePaymentDeferent.BindCommand(ViewModel.CalculatePaymentDefermentCommand);
+			
+			yspinbuttonDefaultPaymentDeferent.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.DefaultPaymentDeferment, w => w.ValueAsInt)
+				.InitializeFromSource();
+			buttonSaveDefaultPaymentDeferent.BindCommand(ViewModel.SaveDefaultPaymentDefermentCommand);
 		}
-
+		
 		private void ConfigureEmployeesFixedPrices()
 		{
 			//Чтобы помещалось 4 строчки без полосы прокрутки
@@ -222,6 +290,231 @@ namespace Vodovoz.Views.Settings
 				.AddBinding(vm => vm.CanRemoveFixedPrice, w => w.Sensitive)
 				.InitializeFromSource();
 		}
+
+		#endregion
+
+		#region Настройка юр.лиц в заказе
+		
+		private void ConfigureOrdersOrganizationSettings()
+		{
+			btnSaveOrderOrganizationSettings.BindCommand(ViewModel.SaveOrderOrganizationSettingsCommand);
+			btnSaveOrderOrganizationSettings.Sensitive = ViewModel.CanEditOrderOrganizationsSettings;
+
+			ConfigureWidgetsForSets();
+			ConfigurePaymentTypesWidgets();
+		}
+
+		private void ConfigureWidgetsForSets()
+		{
+			const string nomenclatures = "Номенклатуры: ";
+			const string productGroups = "Группы товаров: ";
+			const string authorsSubdivisions = "Подразделения авторов заказа: ";
+			
+			ConfigureAddOrRemoveIDomainObjectWidget(
+				ProductGroupsForSet1View, productGroups, typeof(ProductGroup), ViewModel.OrganizationsByOrderContent[1].ProductGroups);
+			ConfigureAddOrRemoveIDomainObjectWidget(
+				NomenclaturesForSet1View, nomenclatures, typeof(Nomenclature), ViewModel.OrganizationsByOrderContent[1].Nomenclatures);
+			ConfigureAddOrRemoveOrganizationsWidget(
+				OrganizationsForSet1View,
+				ViewModel.OrganizationsByOrderContent[1].Organizations,
+				new OrganizationChoiceParametersForOrderOrganizationSettings(true, true, true));
+			ConfigureAddOrRemoveIDomainObjectWidget(
+				ProductGroupsForSet2View, productGroups, typeof(ProductGroup), ViewModel.OrganizationsByOrderContent[2].ProductGroups);
+			ConfigureAddOrRemoveIDomainObjectWidget(
+				NomenclaturesForSet2View, nomenclatures, typeof(Nomenclature), ViewModel.OrganizationsByOrderContent[2].Nomenclatures);
+			ConfigureAddOrRemoveOrganizationsWidget(
+				OrganizationsForSet2View,
+				ViewModel.OrganizationsByOrderContent[2].Organizations,
+				new OrganizationChoiceParametersForOrderOrganizationSettings(true, true, true));
+			ConfigureAddOrRemoveIDomainObjectWidget(
+				AuthorsSubdivisionsView, authorsSubdivisions, typeof(Subdivision), ViewModel.AuthorsSubdivisions);
+
+			listCmbAuthorsSet.ItemsList = ViewModel.AuthorsSets;
+			listCmbAuthorsSet.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.SelectedOrganizationBasedOrderContentSet, w => w.SelectedItem)
+				.AddBinding(vm => vm.CanEditOrderOrganizationsSettings, w => w.Sensitive)
+				.InitializeFromSource();
+		}
+
+		private void ConfigureAddOrRemoveOrganizationsWidget(
+			AddOrRemoveIDomainObjectView view,
+			IEnumerable<INamedDomainObject> entities,
+			OrganizationChoiceParametersForOrderOrganizationSettings organizationChoiceParameters
+			)
+		{
+			view.WidthRequest = 400;
+			view.HeightRequest = 150;
+			var viewModel =
+				new OrganizationForOrderOrganizationSettingsViewModel(ViewModel.NavigationManager, ViewModel.OrganizationForOrderFromSet);
+			
+			viewModel.Configure(
+				ViewModel.CanEditOrderOrganizationsSettings,
+				ViewModel.UowOrderOrganizationSettings,
+				ViewModel,
+				organizationChoiceParameters,
+				entities);
+
+			view.ViewModel = viewModel;
+			view.Show();
+			
+		}
+
+		private void ConfigureAddOrRemoveIDomainObjectWidget(
+			AddOrRemoveIDomainObjectView view,
+			string title,
+			Type entityType,
+			IEnumerable<INamedDomainObject> entities)
+		{
+			view.WidthRequest = 400;
+			view.HeightRequest = 150;
+			var viewModel =
+				new AddOrRemoveIDomainObjectViewModel(ViewModel.EntityJournalOpener);
+			
+			viewModel.Configure(
+				entityType,
+				ViewModel.CanEditOrderOrganizationsSettings,
+				title,
+				ViewModel.UowOrderOrganizationSettings,
+				parentViewModel: ViewModel,
+				entities);
+
+			view.ViewModel = viewModel;
+			view.Show();
+		}
+
+		private void ConfigurePaymentTypesWidgets()
+		{
+			ConfigureAddOrRemoveOrganizationsWidget(
+				OrganizationsForCashView,
+				ViewModel.PaymentTypesOrganizationSettings[PaymentType.Cash].First().Organizations,
+				new OrganizationChoiceParametersForOrderOrganizationSettings(true, false, true));
+			ConfigureAddOrRemoveOrganizationsWidget(
+				OrganizationsForTerminalView,
+				ViewModel.PaymentTypesOrganizationSettings[PaymentType.Terminal].First().Organizations,
+				new OrganizationChoiceParametersForOrderOrganizationSettings(true, false, true));
+			ConfigureAddOrRemoveOrganizationsWidget(
+				OrganizationsForDriverAppView,
+				ViewModel.PaymentTypesOrganizationSettings[PaymentType.DriverApplicationQR].First().Organizations,
+				new OrganizationChoiceParametersForOrderOrganizationSettings(true, true, true));
+			ConfigureAddOrRemoveOrganizationsWidget(
+				OrganizationsForSmsQrView,
+				ViewModel.PaymentTypesOrganizationSettings[PaymentType.SmsQR].First().Organizations,
+				new OrganizationChoiceParametersForOrderOrganizationSettings(true, true, true));
+			ConfigureAddOrRemoveOrganizationsWidget(
+				OrganizationsForBarterView,
+				ViewModel.PaymentTypesOrganizationSettings[PaymentType.Barter].First().Organizations,
+				new OrganizationChoiceParametersForOrderOrganizationSettings(true, false, false));
+			ConfigureAddOrRemoveOrganizationsWidget(
+				OrganizationsForContractDocView,
+				ViewModel.PaymentTypesOrganizationSettings[PaymentType.ContractDocumentation].First().Organizations,
+				new OrganizationChoiceParametersForOrderOrganizationSettings(true, false, false));
+			ConfigureAddOrRemoveOrganizationsWidget(
+				OrganizationsForCashlessView,
+				ViewModel.PaymentTypesOrganizationSettings[PaymentType.Cashless].First().Organizations,
+				new OrganizationChoiceParametersForOrderOrganizationSettings(true, false, false));
+			
+			ConfigurePaidOnlineWidgets(ViewModel.PaymentTypesOrganizationSettings[PaymentType.PaidOnline]);
+		}
+
+		private void ConfigurePaidOnlineWidgets(IEnumerable<PaymentTypeOrganizationSettings> paymentTypesOrganizations)
+		{
+			tablePaidOnlinePaymentFromsSettings.NRows = (uint)paymentTypesOrganizations.Count() + 1;
+			uint row = 1;
+			
+			foreach(var paymentTypeOrganizations in paymentTypesOrganizations)
+			{
+				if(!(paymentTypeOrganizations is OnlinePaymentTypeOrganizationSettings onlinePaymentSettings))
+				{
+					continue;
+				}
+				
+				uint column = 0;
+				GeneratePaymentFromLabelAndAttachToTable(onlinePaymentSettings, row, column);
+
+				column++;
+				GenerateOrganizationsWidgetAndAttachToTable(onlinePaymentSettings, row, column);
+				
+				column++;
+				GenerateCriterionLabelAndAttachToTable(onlinePaymentSettings, row, column);
+
+				row++;
+				
+				var separator = new HSeparator();
+				tablePaidOnlinePaymentFromsSettings.Attach(separator, 0, column + 1, row, row + 1);
+				separator.Show();
+				
+				row++;
+			}
+		}
+
+		private void GeneratePaymentFromLabelAndAttachToTable(
+			OnlinePaymentTypeOrganizationSettings onlinePaymentSettings,
+			uint row,
+			uint column)
+		{
+			var paymentFromNameLabel = new yLabel();
+			paymentFromNameLabel.Name = "lbl" + onlinePaymentSettings.PaymentFrom.Name;
+			paymentFromNameLabel.LabelProp = onlinePaymentSettings.PaymentFrom.Name;
+			paymentFromNameLabel.Show();
+
+			AttachPaymentFromWidget(paymentFromNameLabel, row, column);
+		}
+		
+		private void GenerateOrganizationsWidgetAndAttachToTable(
+			OnlinePaymentTypeOrganizationSettings onlinePaymentSettings,
+			uint row,
+			uint column)
+		{
+			var organizationsWidget = new AddOrRemoveIDomainObjectView();
+			organizationsWidget.Name = "orgs" + onlinePaymentSettings.PaymentFrom.Name;
+
+			var organizationChoiceParameter = new OrganizationChoiceParametersForOrderOrganizationSettings(
+				onlinePaymentSettings.PaymentFrom.RegistrationInTaxcomRequired,
+				onlinePaymentSettings.PaymentFrom.RegistrationInAvangardRequired,
+				onlinePaymentSettings.PaymentFrom.OnlineCashBoxRegistrationRequired);
+
+			ConfigureAddOrRemoveOrganizationsWidget(
+				organizationsWidget,
+				onlinePaymentSettings.Organizations,
+				organizationChoiceParameter);
+			organizationsWidget.Show();
+
+			AttachPaymentFromWidget(organizationsWidget, row, column);
+		}
+
+		private void GenerateCriterionLabelAndAttachToTable(
+			OnlinePaymentTypeOrganizationSettings onlinePaymentSettings,
+			uint row,
+			uint column)
+		{
+			var criterionLabel = new yLabel();
+			criterionLabel.Name = "criterion" + onlinePaymentSettings.PaymentFrom.Name;
+			criterionLabel.Wrap = true;
+			criterionLabel.WidthRequest = 400;
+			criterionLabel.LabelProp = onlinePaymentSettings.CriterionForOrganization;
+			criterionLabel.Show();
+
+			AttachPaymentFromWidget(criterionLabel, row, column);
+		}
+
+		private void AttachPaymentFromWidget(Widget widget, uint row, uint column)
+		{
+			tablePaidOnlinePaymentFromsSettings.Attach(
+				widget,
+				column,
+				column + 1,
+				row,
+				row + 1,
+				AttachOptions.Shrink,
+				AttachOptions.Shrink,
+				0,
+				0);
+		}
+
+		#endregion
+
+		#endregion
 
 		private void OnNomenclaturesSelectionChanged(object sender, EventArgs e)
 		{
@@ -286,6 +579,10 @@ namespace Vodovoz.Views.Settings
 				.AddBinding(ViewModel, vm => vm.LoaderMaxDailyFuelLimit, w => w.ValueAsInt)
 				.InitializeFromSource();
 
+			yspinbuttonMinivanMaxDailyFuelLimit.Binding
+				.AddBinding(ViewModel, vm => vm.MinivanMaxDailyFuelLimit, w => w.ValueAsInt)
+				.InitializeFromSource();
+			
 			ybuttonSaveMaxDailyFuelLimits.BindCommand(ViewModel.SaveDailyFuelLimitsCommand);
 		}
 
@@ -352,7 +649,6 @@ namespace Vodovoz.Views.Settings
 				return;
 			}
 		}
-
 		public override void Destroy()
 		{
 			treeNomenclatures.Selection.Changed -= OnNomenclaturesSelectionChanged;

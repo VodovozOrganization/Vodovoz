@@ -9,8 +9,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
 using Vodovoz.Core.Data.Logistics;
+using Vodovoz.Core.Data.Repositories;
+using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Interfaces.TrueMark;
+using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.TrueMark;
+using Vodovoz.Models.TrueMark;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Employees;
 
@@ -22,22 +28,30 @@ namespace Vodovoz.ViewModels.TrueMark
 		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IClipboard _clipboard;
-
+		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
+		private readonly IRouteListItemRepository _routeListItemRepository;
 		private int _codesRequired;
 		private int _codesProvided;
 		private int _codesProvidedFromScan;
 		private int _totalScannedByDriver;
+		private IList<OrderCodeItemViewModel> _scannedByDriverCodesOrigin;
 		private IList<OrderCodeItemViewModel> _scannedByDriverCodes;
 		private IEnumerable<OrderCodeItemViewModel> _scannedByDriverCodesSelected;
 		private int _totalScannedByWarehouse;
+		private IList<OrderCodeItemViewModel> _scannedByWarehouseCodesOrigin;
 		private IList<OrderCodeItemViewModel> _scannedByWarehouseCodes;
 		private IEnumerable<OrderCodeItemViewModel> _scannedByWarehouseCodesSelected;
 		private int _totalScannedBySelfdelivery;
+		private IList<OrderCodeItemViewModel> _scannedBySelfdeliveryCodesOrigin;
 		private IList<OrderCodeItemViewModel> _scannedBySelfdeliveryCodes;
 		private IEnumerable<OrderCodeItemViewModel> _scannedBySelfdeliveryCodesSelected;
 		private int _totalAddedFromPool;
+		private IList<OrderCodeItemViewModel> _addedFromPoolCodesOrigin;
 		private IList<OrderCodeItemViewModel> _addedFromPoolCodes;
 		private IEnumerable<OrderCodeItemViewModel> _addedFromPoolCodesSelected;
+		private string _searchText;
+		private bool? _isValidSearchCodeText;
+		private string _parsedSearchCodeSerialNumber;
 
 		public OrderCodesViewModel(
 			int orderId,
@@ -45,7 +59,9 @@ namespace Vodovoz.ViewModels.TrueMark
 			ITrueMarkRepository trueMarkRepository,
 			IGtkTabsOpener gtkTabsOpener,
 			IClipboard clipboard,
-			INavigationManager navigation
+			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
+			INavigationManager navigation,
+			IRouteListItemRepository routeListItemRepository
 			) : base(navigation)
 		{
 			OrderId = orderId;
@@ -53,6 +69,8 @@ namespace Vodovoz.ViewModels.TrueMark
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_clipboard = clipboard ?? throw new ArgumentNullException(nameof(clipboard));
+			_trueMarkWaterCodeParser = trueMarkWaterCodeParser ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeParser));
+			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 
 			_scannedByDriverCodes = new List<OrderCodeItemViewModel>();
 			_scannedByDriverCodesSelected = Enumerable.Empty<OrderCodeItemViewModel>();
@@ -174,6 +192,28 @@ namespace Vodovoz.ViewModels.TrueMark
 		{
 			get => _addedFromPoolCodesSelected;
 			set => SetField(ref _addedFromPoolCodesSelected, value);
+		}
+
+		public virtual string SearchText
+		{
+			get => _searchText;
+			set
+			{
+				SetField(ref _searchText, value);
+				FilterCodes();
+			}
+		}
+
+		public virtual bool? IsValidSearchCodeText
+		{
+			get => _isValidSearchCodeText;
+			set => SetField(ref _isValidSearchCodeText, value);
+		}
+
+		public virtual string ParsedSearchCodeSerialNumber
+		{
+			get => _parsedSearchCodeSerialNumber;
+			set => SetField(ref _parsedSearchCodeSerialNumber, value);
 		}
 
 		private void CreateCommands()
@@ -298,16 +338,12 @@ namespace Vodovoz.ViewModels.TrueMark
 					+ TotalScannedByWarehouse
 					+ TotalScannedBySelfdelivery;
 
-				OnPropertyChanged(nameof(TotalScannedByDriver));
-				OnPropertyChanged(nameof(ScannedByDriverCodes));
-				OnPropertyChanged(nameof(TotalScannedByWarehouse));
-				OnPropertyChanged(nameof(ScannedByWarehouseCodes));
-				OnPropertyChanged(nameof(TotalScannedBySelfdelivery));
-				OnPropertyChanged(nameof(ScannedBySelfdeliveryCodes));
-				OnPropertyChanged(nameof(TotalAddedFromPool));
-				OnPropertyChanged(nameof(AddedFromPoolCodes));
+				_searchText = null;
+
+				FilterCodes();
 
 				OnPropertyChanged(nameof(CodesRequired));
+				OnPropertyChanged(nameof(SearchText));
 				CodesProvidedFromScan = TotalScannedByDriver
 					+ TotalScannedByWarehouse
 					+ TotalScannedBySelfdelivery;
@@ -317,75 +353,427 @@ namespace Vodovoz.ViewModels.TrueMark
 
 		private void ReloadCodesFromDriver(IUnitOfWork uow)
 		{
-			var driverCodes = _trueMarkRepository.GetCodesFromDriverByOrder(uow, OrderId);
-			_totalScannedByDriver = driverCodes.Count();
-			_scannedByDriverCodes = driverCodes.Select(x => new OrderCodeItemViewModel
+			var instanceCodes = _trueMarkRepository.GetCodesFromDriverByOrder(uow, OrderId);
+
+			var groupCodesIds = instanceCodes
+				.Where(x => x.SourceCode != null)
+				.Where(x => x.SourceCode.ParentWaterGroupCodeId != null)
+				.Select(x => x.SourceCode.ParentWaterGroupCodeId.Value)
+				.Distinct();
+			var groupCodes = _trueMarkRepository.GetGroupWaterCodes(uow, groupCodesIds);
+
+			var transportCodesIdsFromIndividual = instanceCodes
+				.Where(x => x.SourceCode != null)
+				.Where(x => x.SourceCode.ParentTransportCodeId != null)
+				.Select(x => x.SourceCode.ParentTransportCodeId.Value);
+			var transportCodesIdsFromGroups = groupCodes
+				.Where(x => x.ParentTransportCodeId != null)
+				.Select(x => x.ParentTransportCodeId.Value);
+			var transportCodesIds = transportCodesIdsFromIndividual
+				.Concat(transportCodesIdsFromGroups)
+				.Distinct();
+			var transportCodes = _trueMarkRepository.GetTransportCodes(uow, transportCodesIds);
+
+			var transportItemViewModels = transportCodes
+				.Select(x => new OrderCodeItemViewModel{ TransportCode = x })
+				.ToDictionary(x => x.TransportCode.Id);
+			var groupItemViewModels = groupCodes
+				.Select(x =>
+				{
+					var vm = new OrderCodeItemViewModel { GroupCode = x };
+					if(x.ParentTransportCodeId.HasValue)
+					{
+						vm.Parent = transportItemViewModels[x.ParentTransportCodeId.Value];
+						vm.Parent.Children.Add(vm);
+					}
+					return vm;
+				})
+				.ToDictionary(x => x.GroupCode.Id);
+
+			_totalScannedByDriver = instanceCodes.Count();
+			_scannedByDriverCodesOrigin = instanceCodes.Select(x =>
 			{
-				SourceIdentificationCode = x.SourceCode?.IdentificationCode,
-				ResultIdentificationCode = x.ResultCode?.IdentificationCode,
-				ReplacedFromPool = x.SourceCodeStatus == SourceProductCodeStatus.Changed,
-				Problem = x.Problem,
-				SourceDocumentId = x.RouteListItem.RouteList.Id,
-				CodeAuthorId = x.RouteListItem.RouteList.Driver.Id,
-				CodeAuthor = x.RouteListItem.RouteList.Driver.FullName
-			}).ToList();
+				var vm =  new OrderCodeItemViewModel
+				{
+					SourceCode = x.SourceCode,
+					ResultCode = x.ResultCode,
+					ReplacedFromPool = x.SourceCodeStatus == SourceProductCodeStatus.Changed,
+					Problem = x.Problem,
+					SourceDocumentId = x.RouteListItem.RouteList.Id,
+					CodeAuthorId = x.RouteListItem.RouteList.Driver.Id,
+					CodeAuthor = x.RouteListItem.RouteList.Driver.FullName
+				};
+
+				if(x.SourceCode != null && x.SourceCode.ParentTransportCodeId.HasValue)
+				{
+					vm.Parent = transportItemViewModels[x.SourceCode.ParentTransportCodeId.Value];
+					vm.Parent.Children.Add(vm);
+				}
+
+				if(x.SourceCode != null && x.SourceCode.ParentWaterGroupCodeId.HasValue)
+				{
+					vm.Parent = groupItemViewModels[x.SourceCode.ParentWaterGroupCodeId.Value];
+					vm.Parent.Children.Add(vm);
+				}
+				return vm;
+			})
+			// для рекурсивной модели необходимо найти все корневые узлы
+			.Where(x => x.Parent == null)
+			.Concat(groupItemViewModels.Values.Where(x => x.Parent == null))
+			.Concat(transportItemViewModels.Values.Where(x => x.Parent == null))
+			.ToList();
 		}
 
 		private void ReloadCodesFromWarehouse(IUnitOfWork uow)
 		{
-			var warehouseCodes = _trueMarkRepository.GetCodesFromWarehouseByOrder(uow, OrderId);
-			_totalScannedByWarehouse = warehouseCodes.Count();
+			var instanceCodes = _trueMarkRepository.GetCodesFromWarehouseByOrder(uow, OrderId);
 
-			var carLoadDocumentIds = warehouseCodes.Select(x => x.CarLoadDocumentItem.Document.Id).Distinct();
+			var groupCodesIds = instanceCodes
+				.Where(x => x.SourceCode != null)
+				.Where(x => x.SourceCode.ParentWaterGroupCodeId != null)
+				.Select(x => x.SourceCode.ParentWaterGroupCodeId.Value)
+				.Distinct();
+			var groupCodes = _trueMarkRepository.GetGroupWaterCodes(uow, groupCodesIds);
+
+			var transportCodesIdsFromIndividual = instanceCodes
+				.Where(x => x.SourceCode != null)
+				.Where(x => x.SourceCode.ParentTransportCodeId != null)
+				.Select(x => x.SourceCode.ParentTransportCodeId.Value);
+			var transportCodesIdsFromGroups = groupCodes
+				.Where(x => x.ParentTransportCodeId != null)
+				.Select(x => x.ParentTransportCodeId.Value);
+			var transportCodesIds = transportCodesIdsFromIndividual
+				.Concat(transportCodesIdsFromGroups)
+				.Distinct();
+			var transportCodes = _trueMarkRepository.GetTransportCodes(uow, transportCodesIds);
+
+			var transportItemViewModels = transportCodes
+				.Select(x => new OrderCodeItemViewModel { TransportCode = x })
+				.ToDictionary(x => x.TransportCode.Id);
+			var groupItemViewModels = groupCodes
+				.Select(x =>
+				{
+					var vm = new OrderCodeItemViewModel { GroupCode = x };
+					if(x.ParentTransportCodeId.HasValue)
+					{
+						vm.Parent = transportItemViewModels[x.ParentTransportCodeId.Value];
+						vm.Parent.Children.Add(vm);
+					}
+					return vm;
+				})
+				.ToDictionary(x => x.GroupCode.Id);
+
+			var carLoadDocumentIds = instanceCodes.Select(x => x.CarLoadDocumentItem.Document.Id).Distinct();
 			var carLoadEvents = uow.Session.QueryOver<CompletedDriverWarehouseEventProxy>()
 				.WhereRestrictionOn(x => x.DocumentId).IsIn(carLoadDocumentIds.ToArray())
 				.List();
-			_scannedByWarehouseCodes = warehouseCodes.Select(x => {
+
+			_totalScannedByWarehouse = instanceCodes.Count();
+			_scannedByWarehouseCodesOrigin = instanceCodes.Select(x =>
+			{
 				var vm = new OrderCodeItemViewModel
 				{
-					SourceIdentificationCode = x.SourceCode?.IdentificationCode,
-					ResultIdentificationCode = x.ResultCode?.IdentificationCode,
+					SourceCode = x.SourceCode,
+					ResultCode = x.ResultCode,
 					ReplacedFromPool = x.SourceCodeStatus == SourceProductCodeStatus.Changed,
 					Problem = x.Problem,
 					SourceDocumentId = x.CarLoadDocumentItem.Document.Id
 				};
+
 				var author = carLoadEvents
 					.Where(y => y.DocumentId == x.CarLoadDocumentItem.Document.Id)
 					.FirstOrDefault()?.Employee;
 
 				vm.CodeAuthorId = author?.Id;
 				vm.CodeAuthor = author == null ? "" : author.FullName;
+
+				if(x.SourceCode != null && x.SourceCode.ParentTransportCodeId.HasValue)
+				{
+					vm.Parent = transportItemViewModels[x.SourceCode.ParentTransportCodeId.Value];
+					vm.Parent.Children.Add(vm);
+				}
+
+				if(x.SourceCode != null && x.SourceCode.ParentWaterGroupCodeId.HasValue)
+				{
+					vm.Parent = groupItemViewModels[x.SourceCode.ParentWaterGroupCodeId.Value];
+					vm.Parent.Children.Add(vm);
+				}
 				return vm;
-			}).ToList();
+			})
+			// для рекурсивной модели необходимо найти все корневые узлы
+			.Where(x => x.Parent == null)
+			.Concat(groupItemViewModels.Values.Where(x => x.Parent == null))
+			.Concat(transportItemViewModels.Values.Where(x => x.Parent == null))
+			.ToList();
 		}
 
 		private void ReloadCodesFromSelfdelivery(IUnitOfWork uow)
 		{
-			var selfdeliveryCodes = _trueMarkRepository.GetCodesFromSelfdeliveryByOrder(uow, OrderId);
-			_totalScannedBySelfdelivery = selfdeliveryCodes.Count();
-			_scannedBySelfdeliveryCodes = selfdeliveryCodes.Select(x => new OrderCodeItemViewModel
+			var instanceCodes = _trueMarkRepository.GetCodesFromSelfdeliveryByOrder(uow, OrderId);
+
+			var groupCodesIds = instanceCodes
+				.Where(x => x.SourceCode != null)
+				.Where(x => x.SourceCode.ParentWaterGroupCodeId != null)
+				.Select(x => x.SourceCode.ParentWaterGroupCodeId.Value)
+				.Distinct();
+			var groupCodes = _trueMarkRepository.GetGroupWaterCodes(uow, groupCodesIds);
+
+			var transportCodesIdsFromIndividual = instanceCodes
+				.Where(x => x.SourceCode != null)
+				.Where(x => x.SourceCode.ParentTransportCodeId != null)
+				.Select(x => x.SourceCode.ParentTransportCodeId.Value);
+			var transportCodesIdsFromGroups = groupCodes
+				.Where(x => x.ParentTransportCodeId != null)
+				.Select(x => x.ParentTransportCodeId.Value);
+			var transportCodesIds = transportCodesIdsFromIndividual
+				.Concat(transportCodesIdsFromGroups)
+				.Distinct();
+			var transportCodes = _trueMarkRepository.GetTransportCodes(uow, transportCodesIds);
+
+			var transportItemViewModels = transportCodes
+				.Select(x => new OrderCodeItemViewModel { TransportCode = x })
+				.ToDictionary(x => x.TransportCode.Id);
+			var groupItemViewModels = groupCodes
+				.Select(x =>
+				{
+					var vm = new OrderCodeItemViewModel { GroupCode = x };
+					if(x.ParentTransportCodeId.HasValue)
+					{
+						vm.Parent = transportItemViewModels[x.ParentTransportCodeId.Value];
+						vm.Parent.Children.Add(vm);
+					}
+					return vm;
+				})
+				.ToDictionary(x => x.GroupCode.Id);
+
+			_totalScannedBySelfdelivery = instanceCodes.Count();
+			_scannedBySelfdeliveryCodesOrigin = instanceCodes.Select(x =>
 			{
-				SourceIdentificationCode = x.SourceCode?.IdentificationCode,
-				ResultIdentificationCode = x.ResultCode?.IdentificationCode,
-				ReplacedFromPool = x.SourceCodeStatus == SourceProductCodeStatus.Changed,
-				Problem = x.Problem,
-				SourceDocumentId = x.SelfDeliveryDocumentItem.SelfDeliveryDocument.Id,
-				CodeAuthorId = x.SelfDeliveryDocumentItem.SelfDeliveryDocument.Author.Id,
-				CodeAuthor = x.SelfDeliveryDocumentItem.SelfDeliveryDocument.Author.FullName
-			}).ToList();
+				var vm = new OrderCodeItemViewModel
+				{
+					SourceCode = x.SourceCode,
+					ResultCode = x.ResultCode,
+					ReplacedFromPool = x.SourceCodeStatus == SourceProductCodeStatus.Changed,
+					Problem = x.Problem,
+					SourceDocumentId = x.SelfDeliveryDocumentItem.SelfDeliveryDocument.Id,
+					CodeAuthorId = x.SelfDeliveryDocumentItem.SelfDeliveryDocument.Author.Id,
+					CodeAuthor = x.SelfDeliveryDocumentItem.SelfDeliveryDocument.Author.FullName
+				};
+
+				if(x.SourceCode != null && x.SourceCode.ParentTransportCodeId.HasValue)
+				{
+					vm.Parent = transportItemViewModels[x.SourceCode.ParentTransportCodeId.Value];
+					vm.Parent.Children.Add(vm);
+				}
+
+				if(x.SourceCode != null && x.SourceCode.ParentWaterGroupCodeId.HasValue)
+				{
+					vm.Parent = groupItemViewModels[x.SourceCode.ParentWaterGroupCodeId.Value];
+					vm.Parent.Children.Add(vm);
+				}
+				return vm;
+			})
+			// для рекурсивной модели необходимо найти все корневые узлы
+			.Where(x => x.Parent == null)
+			.Concat(groupItemViewModels.Values.Where(x => x.Parent == null))
+			.Concat(transportItemViewModels.Values.Where(x => x.Parent == null))
+			.ToList();
 		}
 
 		private void ReloadCodesFromPool(IUnitOfWork uow)
 		{
 			var poolCodes = _trueMarkRepository.GetCodesFromPoolByOrder(uow, OrderId);
+			var unscannedReason = _routeListItemRepository.GetUnscannedCodesReason(uow, OrderId);
 			_totalAddedFromPool = poolCodes.Count();
-			_addedFromPoolCodes = poolCodes.Select(x => new OrderCodeItemViewModel
+
+			if(poolCodes.Any())
 			{
-				SourceIdentificationCode = x.SourceCode?.IdentificationCode,
-				ResultIdentificationCode = x.ResultCode?.IdentificationCode,
-				ReplacedFromPool = true,
-				Problem = x.Problem
-			}).ToList();
+				_addedFromPoolCodesOrigin = poolCodes.Select(x => new OrderCodeItemViewModel
+				{
+					SourceCode = x.SourceCode,
+					ResultCode = x.ResultCode,
+					ReplacedFromPool = true,
+					Problem = x.Problem,
+					UnscannedCodesReason = unscannedReason
+				}).ToList();
+			}
+			else
+			{
+				if(!string.IsNullOrWhiteSpace(unscannedReason))
+				{
+					_addedFromPoolCodesOrigin = new List<OrderCodeItemViewModel>
+					{
+						new OrderCodeItemViewModel
+						{
+							UnscannedCodesReason = unscannedReason
+						}
+					};
+				}
+				else
+				{
+					_addedFromPoolCodesOrigin = new List<OrderCodeItemViewModel>();
+				}
+			}
+		}
+
+		private  void FilterCodes()
+		{
+			if(SearchText.IsNullOrWhiteSpace())
+			{
+				ParsedSearchCodeSerialNumber = null;
+				IsValidSearchCodeText = null;
+
+				_scannedBySelfdeliveryCodes = _scannedBySelfdeliveryCodesOrigin;
+				_scannedByWarehouseCodes = _scannedByWarehouseCodesOrigin;
+				_scannedByDriverCodes = _scannedByDriverCodesOrigin;
+				_addedFromPoolCodes = _addedFromPoolCodesOrigin;
+			}
+			else if(_trueMarkWaterCodeParser.FuzzyParse(SearchText, out var parsedCode))
+			{
+				ParsedSearchCodeSerialNumber = parsedCode.SerialNumber;
+				IsValidSearchCodeText = true;
+				FilterDriverCodes(parsedCode);
+				FilterWarehouseCodes(parsedCode);
+				FilterSelfdeliveryCodes(parsedCode);
+				FilterPoolCodes(parsedCode);
+			}
+			else if(_trueMarkWaterCodeParser.IsTransportCode(SearchText))
+			{
+				ParsedSearchCodeSerialNumber = SearchText;
+				IsValidSearchCodeText = true;
+				FilterDriverCodes(SearchText);
+				FilterWarehouseCodes(SearchText);
+				FilterSelfdeliveryCodes(SearchText);
+				FilterPoolCodes(SearchText);
+			}
+			else
+			{
+				CleanCodesFilter();
+				ParsedSearchCodeSerialNumber = null;
+				IsValidSearchCodeText = false;
+
+				_scannedBySelfdeliveryCodes = _scannedBySelfdeliveryCodesOrigin;
+				_scannedByWarehouseCodes = _scannedByWarehouseCodesOrigin;
+				_scannedByDriverCodes = _scannedByDriverCodesOrigin;
+				_addedFromPoolCodes = _addedFromPoolCodesOrigin;
+			}
+
+			OnPropertyChanged(nameof(TotalScannedByDriver));
+			OnPropertyChanged(nameof(ScannedByDriverCodes));
+			OnPropertyChanged(nameof(TotalScannedByWarehouse));
+			OnPropertyChanged(nameof(ScannedByWarehouseCodes));
+			OnPropertyChanged(nameof(TotalScannedBySelfdelivery));
+			OnPropertyChanged(nameof(ScannedBySelfdeliveryCodes));
+			OnPropertyChanged(nameof(TotalAddedFromPool));
+			OnPropertyChanged(nameof(AddedFromPoolCodes));
+		}
+
+		private void FilterDriverCodes(ITrueMarkWaterCode code)
+		{
+			var filteredCodes = _scannedByDriverCodesOrigin.Where(x => CodeMatched(x, code));
+			_scannedByDriverCodes = filteredCodes.ToList();
+		}
+
+		private void FilterDriverCodes(string transportCode)
+		{
+			var filteredCodes = _scannedByDriverCodesOrigin.Where(x => CodeMatched(x, transportCode));
+			_scannedByDriverCodes = filteredCodes.ToList();
+		}
+
+		private void FilterWarehouseCodes(ITrueMarkWaterCode code)
+		{
+			var filteredCodes = _scannedByWarehouseCodesOrigin.Where(x => CodeMatched(x, code));
+			_scannedByWarehouseCodes = filteredCodes.ToList();
+		}
+
+		private void FilterWarehouseCodes(string transportCode)
+		{
+			var filteredCodes = _scannedByWarehouseCodesOrigin.Where(x => CodeMatched(x, transportCode));
+			_scannedByWarehouseCodes = filteredCodes.ToList();
+		}
+
+		private void FilterSelfdeliveryCodes(ITrueMarkWaterCode code)
+		{
+			var filteredCodes = _scannedBySelfdeliveryCodesOrigin.Where(x => CodeMatched(x, code));
+			_scannedBySelfdeliveryCodes = filteredCodes.ToList();
+		}
+
+		private void FilterSelfdeliveryCodes(string transportCode)
+		{
+			var filteredCodes = _scannedBySelfdeliveryCodesOrigin.Where(x => CodeMatched(x, transportCode));
+			_scannedBySelfdeliveryCodes = filteredCodes.ToList();
+		}
+
+		private void FilterPoolCodes(ITrueMarkWaterCode code)
+		{
+			var filteredCodes = _addedFromPoolCodesOrigin.Where(x => CodeMatched(x, code));
+			_addedFromPoolCodes = filteredCodes.ToList();
+		}
+
+		private void FilterPoolCodes(string transportCode)
+		{
+			var filteredCodes = _addedFromPoolCodesOrigin.Where(x => CodeMatched(x, transportCode));
+			_addedFromPoolCodes = filteredCodes.ToList();
+		}
+
+		private bool CodeMatched(OrderCodeItemViewModel codeItem, ITrueMarkWaterCode desiredCode)
+		{
+			if(codeItem.SourceCode != null && codeItem.SourceCode.SerialNumber == desiredCode.SerialNumber)
+			{
+				return true;
+			}
+
+			if(codeItem.ResultCode != null && codeItem.ResultCode.SerialNumber == desiredCode.SerialNumber)
+			{
+				return true;
+			}
+
+			if(codeItem.GroupCode != null && codeItem.GroupCode.SerialNumber == desiredCode.SerialNumber)
+			{
+				return true;
+			}
+
+			if(codeItem.Children.Any(x => CodeMatched(x, desiredCode)))
+			{
+				return true;
+			}
+
+			return false;
+		}
+
+		private bool CodeMatched(OrderCodeItemViewModel codeItem, string transportCode)
+		{
+			if(codeItem.TransportCode != null)
+			{
+				if(codeItem.TransportCode.RawCode == transportCode)
+				{
+					return true;
+				}
+
+				if(codeItem.TransportCode.RawCode.Length > transportCode.Length)
+				{
+					return codeItem.TransportCode.RawCode.Remove(0, 2) == transportCode;
+				}
+				else
+				{
+					return codeItem.TransportCode.RawCode == transportCode.Remove(0, 2);
+				}
+			}
+
+			if(codeItem.Children.Any(x => CodeMatched(x, transportCode)))
+			{
+				return true;
+			}
+
+			return false;
+		}
+
+		private void CleanCodesFilter()
+		{
+			_scannedByDriverCodes = _scannedByDriverCodesOrigin;
+			_scannedByWarehouseCodes = _scannedByWarehouseCodesOrigin;
+			_scannedBySelfdeliveryCodes = _scannedBySelfdeliveryCodesOrigin;
+			_addedFromPoolCodes = _addedFromPoolCodesOrigin;
 		}
 
 		private void CopySourceCodesToClipboard(IEnumerable<OrderCodeItemViewModel> codes)
