@@ -1,5 +1,4 @@
 ﻿using System;
-using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Library.Dto.Counterparties;
 using Vodovoz.Domain.Client;
 using Vodovoz.Factories;
@@ -10,19 +9,15 @@ namespace CustomerAppsApi.Library.Factories
 	{
 		private readonly IRegisteredNaturalCounterpartyDtoFactory _registeredNaturalCounterpartyDtoFactory;
 		private readonly IExternalCounterpartyMatchingFactory _externalCounterpartyMatchingFactory;
-		private readonly IExternalCounterpartyFactory _externalCounterpartyFactory;
 
 		public CounterpartyModelFactory(
 			IRegisteredNaturalCounterpartyDtoFactory registeredNaturalCounterpartyDtoFactory,
-			IExternalCounterpartyMatchingFactory externalCounterpartyMatchingFactory,
-			IExternalCounterpartyFactory externalCounterpartyFactory)
+			IExternalCounterpartyMatchingFactory externalCounterpartyMatchingFactory)
 		{
 			_registeredNaturalCounterpartyDtoFactory =
 				registeredNaturalCounterpartyDtoFactory ?? throw new ArgumentNullException(nameof(registeredNaturalCounterpartyDtoFactory));
 			_externalCounterpartyMatchingFactory =
 				externalCounterpartyMatchingFactory ?? throw new ArgumentNullException(nameof(externalCounterpartyMatchingFactory));
-			_externalCounterpartyFactory =
-				externalCounterpartyFactory ?? throw new ArgumentNullException(nameof(externalCounterpartyFactory));
 		}
 
 		#region CounterpartyIdentificationDto
@@ -133,36 +128,6 @@ namespace CustomerAppsApi.Library.Factories
 			{
 				CounterpartyUpdateStatus = CounterpartyUpdateStatus.CounterpartyNotFound
 			};
-		}
-
-		#endregion
-
-		#region ExternalCounterparty
-
-		public ExternalCounterparty CreateExternalCounterparty(CounterpartyFrom counterpartyFrom) =>
-			_externalCounterpartyFactory.CreateNewExternalCounterparty(counterpartyFrom);
-		
-		public ExternalCounterparty CopyToOtherExternalCounterparty(ExternalCounterparty copyingCounterparty, Guid externalCounterpartyId)
-		{
-			switch(copyingCounterparty.CounterpartyFrom)
-			{
-				case CounterpartyFrom.MobileApp:
-					return new WebSiteCounterparty
-					{
-						Email = copyingCounterparty.Email,
-						Phone = copyingCounterparty.Phone,
-						ExternalCounterpartyId = externalCounterpartyId
-					};
-				case CounterpartyFrom.WebSite:
-					return new MobileAppCounterparty
-					{
-						Email = copyingCounterparty.Email,
-						Phone = copyingCounterparty.Phone,
-						ExternalCounterpartyId = externalCounterpartyId
-					};
-				default:
-					return null;
-			}
 		}
 
 		#endregion

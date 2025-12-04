@@ -16,6 +16,8 @@ namespace VodovozBusiness.Extensions
 					return GoodsOnlineParameterType.ForVodovozWebSite;
 				case Source.KulerSaleWebSite:
 					return GoodsOnlineParameterType.ForKulerSaleWebSite;
+				case Source.AiBot:
+					return GoodsOnlineParameterType.ForAiBot;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(source), $"ИПЗ {source} не поддерживается");
 			}

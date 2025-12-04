@@ -1,5 +1,4 @@
 ﻿using System;
-using CustomerAppsApi.Library.Dto;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
@@ -18,6 +17,8 @@ namespace CustomerAppsApi.Library.Converters
 					return GoodsOnlineParameterType.ForVodovozWebSite;
 				case Source.KulerSaleWebSite:
 					return GoodsOnlineParameterType.ForKulerSaleWebSite;
+				case Source.AiBot:
+					return GoodsOnlineParameterType.ForAiBot;
 				default:
 					throw new InvalidOperationException("Неизвестный источник запроса");
 			}
@@ -31,6 +32,8 @@ namespace CustomerAppsApi.Library.Converters
 					return CounterpartyFrom.MobileApp;
 				case Source.VodovozWebSite:
 					return CounterpartyFrom.WebSite;
+				case Source.AiBot:
+					return CounterpartyFrom.AiBot;
 				default:
 					throw new InvalidOperationException("Неизвестный источник запроса");
 			}

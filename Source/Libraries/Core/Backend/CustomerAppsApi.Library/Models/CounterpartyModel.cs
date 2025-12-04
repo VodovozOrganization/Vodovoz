@@ -20,6 +20,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Roboats;
 using Vodovoz.Settings.Roboats;
 using VodovozBusiness.Controllers;
+using VodovozBusiness.Extensions;
 
 namespace CustomerAppsApi.Library.Models
 {
@@ -145,22 +146,29 @@ namespace CustomerAppsApi.Library.Models
 			_logger.LogInformation("Ищем зарегистрированного пользователя, но на другой площадке");
 			/*
 			 * Ищем зарегистрированного клиента с другой площадки
-			 * если запрос пришел от мобилки, то смотрим клиента с таким номером телефона, зарегистрированного через сайт
-			 * и наоборот, если запрос с сайта - ищем зарегистрированного через мобилку
+			 * если запрос пришел от мобилки, то смотрим клиента с таким номером телефона, зарегистрированного через другие ИПЗ
 			 */
-			var registeredFromOtherPlatform = counterpartyFrom == CounterpartyFrom.MobileApp
-				? CounterpartyFrom.WebSite
-				: CounterpartyFrom.MobileApp;
+			var othersCounterpartyFrom = counterpartyFrom.ExceptCurrentValues();
 			
-			externalCounterparty = _externalCounterpartyRepository.GetExternalCounterparty(_uow, phoneNumber, registeredFromOtherPlatform);
+			foreach(var registeredFromOtherPlatform in othersCounterpartyFrom)
+			{
+				externalCounterparty = _externalCounterpartyRepository.GetExternalCounterparty(_uow, phoneNumber, registeredFromOtherPlatform);
+
+				if(externalCounterparty != null)
+				{
+					break;
+				}
+			}
 
 			if(externalCounterparty != null)
 			{
 				_logger.LogInformation("Нашли, создаем нового для {CounterpartyFrom}", counterpartyFrom);
 				//Создаем нужный контакт и отправляем данные в ИПЗ
-				var copiedExternalCounterparty =
-					_counterpartyModelFactory.CopyToOtherExternalCounterparty(externalCounterparty,
-						counterpartyContactInfoDto.ExternalCounterpartyId);
+				var copiedExternalCounterparty = ExternalCounterparty.Create(
+					externalCounterparty.Phone,
+					externalCounterparty.Email,
+					counterpartyContactInfoDto.ExternalCounterpartyId,
+					externalCounterparty.CounterpartyFrom);
 
 				_uow.Save(copiedExternalCounterparty);
 				_uow.Commit();
@@ -176,10 +184,11 @@ namespace CustomerAppsApi.Library.Models
 				case FoundContactStatus.Success:
 					
 					_logger.LogInformation("Нашли правильное соответствие, создаем нового пользователя");
-					externalCounterparty = _counterpartyModelFactory.CreateExternalCounterparty(counterpartyFrom);
-					externalCounterparty.ExternalCounterpartyId = counterpartyContactInfoDto.ExternalCounterpartyId;
-					externalCounterparty.Phone = contact.Phone;
-					externalCounterparty.Email = GetCounterpartyEmailForExternalCounterparty(contact.Phone.Counterparty.Id);
+					externalCounterparty = ExternalCounterparty.Create(
+						contact.Phone,
+						GetCounterpartyEmailForExternalCounterparty(contact.Phone.Counterparty.Id),
+						counterpartyContactInfoDto.ExternalCounterpartyId,
+						counterpartyFrom);
 					
 					_uow.Save(externalCounterparty);
 					_uow.Commit();
@@ -248,10 +257,11 @@ namespace CustomerAppsApi.Library.Models
 			var email = CreateNewEmail(counterpartyDto.Email, counterparty);
 
 			//Делаем привязку нового клиента и покупателя
-			var externalCounterparty = _counterpartyModelFactory.CreateExternalCounterparty(counterpartyFrom);
-			externalCounterparty.Email = email;
-			externalCounterparty.ExternalCounterpartyId = counterpartyDto.ExternalCounterpartyId;
-			externalCounterparty.Phone = phone;
+			var externalCounterparty = ExternalCounterparty.Create(
+				phone,
+				email,
+				counterpartyDto.ExternalCounterpartyId,
+				counterpartyFrom);
 			
 			_uow.Save(counterparty);
 			_uow.Save(externalCounterparty);

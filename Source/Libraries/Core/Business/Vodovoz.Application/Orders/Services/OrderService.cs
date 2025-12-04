@@ -635,6 +635,9 @@ namespace Vodovoz.Application.Orders.Services
 				case Source.KulerSaleWebSite:
 					employee = await uow.Session.GetAsync<Employee>(_employeeSettings.KulerSaleWebSiteEmployee, cancellationToken);
 					break;
+				case Source.AiBot:
+					employee = await uow.Session.GetAsync<Employee>(_employeeSettings.AiBotEmployee, cancellationToken);
+					break;
 			}
 
 			// Необходимо сделать асинхронным
