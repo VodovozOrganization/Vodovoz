@@ -277,7 +277,7 @@ namespace Edo.Transport
 					rabbitCfg.UseMessageRetry(r => 
 					{
 						r.Interval(5, TimeSpan.FromSeconds(5));
-
+						
 						// Если не ставить ничего, то все будут обрабатываться
 						// Если установить Handle, то остальные будут игнорироваться
 						// Если установить Ignore, то будут обрабатываться все кроме игнорируемых
