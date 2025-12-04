@@ -51,6 +51,11 @@ namespace TrueMarkApi.Client
 				},
 				cancellationToken);
 
+			if(result.Outcome == OutcomeType.Failure)
+			{
+				throw result.FinalException;
+			}
+
 			return result.Result;
 		}
 

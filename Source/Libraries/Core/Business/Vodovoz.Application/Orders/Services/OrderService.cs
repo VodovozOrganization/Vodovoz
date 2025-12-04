@@ -9,14 +9,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
@@ -900,6 +902,31 @@ namespace Vodovoz.Application.Orders.Services
 			else
 			{
 				order.OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
+			}
+		}
+
+		public void RejectOrderTrueMarkCodes(IUnitOfWork uow, int orderId)
+		{
+			var requests = uow.Session.QueryOver<OrderEdoRequest>()
+				.Where(x => x.Order.Id == orderId)
+				.List();
+
+			var requestWithCodes = requests.Where(x => x.ProductCodes.Any()).FirstOrDefault();
+			if(requestWithCodes == null)
+			{
+				return;
+			}
+
+			if(requestWithCodes.Task == null || requestWithCodes.Task.Status != EdoTaskStatus.Cancelled)
+			{
+				throw new InvalidOperationException("Отклонить коды можно только у отмененной ЭДО задачи");
+			}
+
+			foreach(var productCode in requestWithCodes.ProductCodes)
+			{
+				productCode.SourceCodeStatus = SourceProductCodeStatus.Rejected;
+				productCode.ResultCode = null;
+				uow.Save(productCode);
 			}
 		}
 	}

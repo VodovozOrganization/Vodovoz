@@ -1,4 +1,5 @@
 ﻿using Edo.Common;
+using Edo.Problems;
 using Edo.Transport;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +19,7 @@ namespace Edo.Admin
 			services.TryAddScoped<IEdoCancellationValidator, EdoCancellationValidator>();
 
 			services.AddEdo();
+			services.AddEdoProblemRegistration();
 
 			return services;
 		}

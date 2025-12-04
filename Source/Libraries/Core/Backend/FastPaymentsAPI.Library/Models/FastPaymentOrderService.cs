@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using FastPaymentsApi.Contracts;
@@ -12,17 +9,14 @@ using FastPaymentsApi.Contracts.Responses;
 using FastPaymentsAPI.Library.Managers;
 using FastPaymentsAPI.Library.Validators;
 using Mailjet.Api.Abstractions;
-using Microsoft.Extensions.Logging;
-using NLog.Extensions.Logging;
+using MassTransit;
 using QS.DomainModel.UoW;
-using RabbitMQ.Infrastructure;
 using RabbitMQ.MailSending;
 using Vodovoz.Core.Data.Orders;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Common;
-using VodovozInfrastructure.Configuration;
 
 namespace FastPaymentsAPI.Library.Models
 {
@@ -33,19 +27,22 @@ namespace FastPaymentsAPI.Library.Models
 		private readonly IFastPaymentValidator _fastPaymentValidator;
 		private readonly IEmailSettings _emailSettings;
 		private readonly IOrderRequestManager _orderRequestManager;
+		private readonly IPublishEndpoint _publishEndpoint;
 
 		public FastPaymentOrderService(
 			IUnitOfWork uow,
 			IOrderRepository orderRepository,
 			IFastPaymentValidator fastPaymentValidator,
 			IEmailSettings emailSettings,
-			IOrderRequestManager orderRequestManager)
+			IOrderRequestManager orderRequestManager,
+			IPublishEndpoint publishEndpoint)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_fastPaymentValidator = fastPaymentValidator ?? throw new ArgumentNullException(nameof(fastPaymentValidator));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_orderRequestManager = orderRequestManager ?? throw new ArgumentNullException(nameof(orderRequestManager));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
 		public Order GetOrder(int orderId)
@@ -91,10 +88,8 @@ namespace FastPaymentsAPI.Library.Models
 			return (PaidOrderInfoDTO)new XmlSerializer(typeof(PaidOrderInfoDTO)).Deserialize(reader);
 		}
 
-		public void NotifyEmployee(string orderNumber, string bankSignature, long shopId, string paymentSignature)
+		public async Task NotifyEmployee(string orderNumber, string bankSignature, long shopId, string paymentSignature)
 		{
-			var configuration = _uow.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
-
 			string messageText = $"Оповещение о пришедшей оплате с неверной подписью: {bankSignature}" +
 				$" для платежа по заказу №{orderNumber}, shopId {shopId}, рассчитанная подпись {paymentSignature}";
 
@@ -126,25 +121,7 @@ namespace FastPaymentsAPI.Library.Models
 				}
 			};
 
-			var serializedMessage = JsonSerializer.Serialize(sendEmailMessage);
-			var sendingBody = Encoding.UTF8.GetBytes(serializedMessage);
-
-			var Logger = new Logger<RabbitMQConnectionFactory>(new NLogLoggerFactory());
-
-			var connectionFactory = new RabbitMQConnectionFactory(Logger);
-			var connection = connectionFactory.CreateConnection(
-				configuration.MessageBrokerHost,
-				configuration.MessageBrokerUsername,
-				configuration.MessageBrokerPassword,
-				configuration.MessageBrokerVirtualHost,
-				configuration.Port,
-				true);
-			var channel = connection.CreateModel();
-
-			var properties = channel.CreateBasicProperties();
-			properties.Persistent = true;
-
-			channel.BasicPublish(configuration.EmailSendExchange, configuration.EmailSendKey, false, properties, sendingBody);
+			await _publishEndpoint.Publish(sendEmailMessage);
 		}
 	}
 }

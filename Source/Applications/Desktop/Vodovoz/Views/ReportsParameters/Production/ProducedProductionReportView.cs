@@ -25,7 +25,12 @@ namespace Vodovoz.Views.ReportsParameters.Production
 				.AddBinding(vm => vm.ReportModes, w => w.ItemsEnum)
 				.AddBinding(vm => vm.SelectedReportMode, w => w.SelectedItem)
 				.InitializeFromSource();
-			
+
+			yenumcomboboxMeasurementUnit.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.MeasurementUnits, w => w.ItemsEnum)
+				.AddBinding(vm => vm.SelectedMeasurementUnit, w => w.SelectedItem)
+				.InitializeFromSource();
+
 			var filterView = new IncludeExludeFiltersView(viewModel.FilterViewModel);
 			vboxParameters.Add(filterView);
 			filterView.Show();

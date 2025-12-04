@@ -1,0 +1,5 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>informal-order-documents.worker</ContainerRepository>
+  </PropertyGroup>
+</Project>

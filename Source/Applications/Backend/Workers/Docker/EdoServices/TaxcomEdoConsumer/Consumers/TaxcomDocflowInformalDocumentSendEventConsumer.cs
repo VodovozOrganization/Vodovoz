@@ -1,0 +1,44 @@
+﻿using Edo.Docflow.Taxcom;
+using MassTransit;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
+using Edo.Contracts.Messages.Events;
+
+namespace TaxcomEdoConsumer.Consumers
+{
+	public class TaxcomDocflowInformalDocumentSendEventConsumer : IConsumer<TaxcomDocflowInformalDocumentSendEvent>
+	{
+		private readonly ILogger<TaxcomDocflowInformalDocumentSendEventConsumer> _logger;
+		private readonly IEdoDocflowHandler _edoDocflowHandler;
+
+		public TaxcomDocflowInformalDocumentSendEventConsumer(
+			ILogger<TaxcomDocflowInformalDocumentSendEventConsumer> logger,
+			IEdoDocflowHandler edoDocflowHandler)
+		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_edoDocflowHandler = edoDocflowHandler ?? throw new ArgumentNullException(nameof(edoDocflowHandler));
+		}
+
+		public async Task Consume(ConsumeContext<TaxcomDocflowInformalDocumentSendEvent> context)
+		{
+			var message = context.Message;
+
+			try
+			{
+				_logger.LogInformation(
+					"Создаем исходящий документооборот с неформализованным документом типа {EdoDocument}",
+					message.DocumentInfo.MainDocumentId);
+
+				await _edoDocflowHandler.CreateTaxcomDocflowInformalDocument(message);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e,
+					"Ошибка при создании исходящего документооборота с неформализованным документом типа{EdoDocument}",
+					message.DocumentInfo.MainDocumentId);
+			}
+		}
+	}
+}
+

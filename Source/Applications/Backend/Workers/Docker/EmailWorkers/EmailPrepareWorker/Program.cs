@@ -1,5 +1,7 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using EmailPrepareWorker.Prepares;
+using MassTransit;
+using MessageTransport;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -10,6 +12,9 @@ using QS.Project.Core;
 using QS.Report;
 using RabbitMQ.Client;
 using RabbitMQ.Infrastructure;
+using RabbitMQ.MailSending;
+using System;
+using System.Net.Security;
 using Vodovoz.Application.Clients;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
@@ -18,6 +23,7 @@ using Vodovoz.Settings;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Common;
+using Vodovoz.Settings.Pacs;
 using VodovozBusiness.Controllers;
 
 namespace EmailPrepareWorker
@@ -42,18 +48,18 @@ namespace EmailPrepareWorker
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureServices((hostContext, services) =>
 				{
-					services.AddTransient<RabbitMQConnectionFactory>();
+					services
+						.AddMassTransit(busConf =>
+						{
+							var transportSettings = new ConfigTransportSettings();
+							hostContext.Configuration.Bind("MessageBroker", transportSettings);
 
-					services.AddTransient((sp) =>
-						sp.GetRequiredService<RabbitMQConnectionFactory>()
-							.CreateConnection(sp.GetRequiredService<IConfiguration>()));
-
-					services.AddTransient((sp) =>
-					{
-						var channel = sp.GetRequiredService<IConnection>().CreateModel();
-						channel.BasicQos(0, 1, false);
-						return channel;
-					});
+							busConf.ConfigureRabbitMq((rabbitMq, context) =>
+							{
+								rabbitMq.AddSendEmailMessageTopology(context);
+							},
+							transportSettings);
+						});
 
 					services.AddMappingAssemblies(
 						typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
@@ -66,8 +72,8 @@ namespace EmailPrepareWorker
 					);
 
 					services.AddDatabaseConnection();
-					services.AddCore()
-						.AddInfrastructure();
+					services.AddCore();
+					services.AddInfrastructure();
 					services.AddTrackedUoW();
 					services.AddStaticHistoryTracker();
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);

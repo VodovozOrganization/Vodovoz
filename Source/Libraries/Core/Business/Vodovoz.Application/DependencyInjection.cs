@@ -10,6 +10,7 @@ using Vodovoz.Application.FileStorage;
 using Vodovoz.Application.Goods;
 using Vodovoz.Application.Logistics;
 using Vodovoz.Application.Orders.Services;
+using Vodovoz.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Application.Pacs;
 using Vodovoz.Application.Payments;
 using Vodovoz.Application.Receipts;
@@ -65,6 +66,7 @@ namespace Vodovoz.Application
 			.AddScoped<ITrueMarkWaterIdentificationCodeFactory, TrueMarkWaterIdentificationCodeFactory>()
 			.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>()
 			.AddScoped<OurCodesChecker>()
+			.AddScoped<OrderCancellationService>()
 			.AddTrueMarkApiClient()
 			.AddApplicationOrderServices()
 		;

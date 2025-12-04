@@ -79,7 +79,8 @@ namespace VodovozBusiness.Services.TrueMark
 			RouteListItem routeListAddress,
 			OrderItem orderItem,
 			CancellationToken cancellationToken,
-			bool isCheckForCodeChange = false)
+			bool isCheckForCodeChange = false
+		)
 		{
 			Result codeCheckingProcessResult;
 
@@ -146,7 +147,8 @@ namespace VodovozBusiness.Services.TrueMark
 			TrueMarkAnyCode trueMarkAnyCode,
 			SourceProductCodeStatus status,
 			ProductCodeProblem problem,
-			CancellationToken cancellationToken = default)
+			CancellationToken cancellationToken = default
+		)
 		{
 			IEnumerable<TrueMarkAnyCode> trueMarkAnyCodes = trueMarkAnyCode.Match(
 				transportCode => trueMarkAnyCodes = transportCode.GetAllCodes(),
