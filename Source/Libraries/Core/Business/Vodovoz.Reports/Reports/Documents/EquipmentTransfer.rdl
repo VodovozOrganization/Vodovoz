@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -126,8 +126,8 @@ WHERE
             ROUND(COALESCE(oi.actual_count, oi.count), 2) AS deposit_count,
             mu.name AS deposit_unit,
             oi.include_nds as deposit_vat,
-            oi.price AS deposit_price,
-            ROUND(oi.count * oi.price, 2) AS deposit_sum
+            ROUND(oi.price - oi.include_nds, 2) AS deposit_price,
+            ROUND(oi.count * oi.price * (1 - oi.discount / 100), 2) AS deposit_sum
           FROM
             orders o
           LEFT JOIN order_items oi ON
@@ -253,7 +253,8 @@ WHERE
       <Textbox Name="Textbox2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>20.25pt</Height>
         <Width>152.63pt</Width>
-        <Value>=Format(Max({order_date}, "Order"), "dd.MM.yy")</Value>
+        <Value>="Санкт-Петербург
+              "+Format(Max({order_date}, "Order"), "dd.MM.yy")</Value>
         <ZIndex>0</ZIndex>
         <Left>357.2pt</Left>
         <Top>140.7pt</Top>
@@ -1170,7 +1171,7 @@ WHERE
             <Width>22.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>166.0pt</Width>
+            <Width>170.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>60pt</Width>
@@ -1178,14 +1179,14 @@ WHERE
           <TableColumn>
             <Width>36.3pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>53.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>80pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>77.6pt</Width>
+            <Width>75.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -1273,7 +1274,7 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="DepositVATHeader">
                       <Value>Сумма НДС</Value>
@@ -1338,6 +1339,7 @@ WHERE
                         </BorderStyle>
                         <FontSize>10pt</FontSize>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1380,7 +1382,7 @@ WHERE
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="DepositVAT">
                       <Value>={deposit_vat}</Value>
