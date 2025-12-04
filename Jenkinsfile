@@ -496,7 +496,7 @@ def PrepareSources() {
 		extensions: scm.extensions
 		+ [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Vodovoz']]
 		+ [[$class: 'CloneOption', reference: "${REFERENCE_REPOSITORY_PATH}"]]
-		+ [[$class: 'SubmoduleOption', disableSubmodules: false, recursiveSubmodules: true, parentCredentials: true]],
+		+ [[$class: 'SubmoduleOption', disableSubmodules: false, recursiveSubmodules: true, parentCredentials: true]]
 		+ [[$class: 'CleanBeforeCheckout']], 
 		userRemoteConfigs: scm.userRemoteConfigs
 	])
