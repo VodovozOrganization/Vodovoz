@@ -49,6 +49,7 @@ using QSProjectsLib;
 using QSWidgetLib;
 using Vodovoz.Application.Orders;
 using Vodovoz.Application.Orders.Services;
+using Vodovoz.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
@@ -241,6 +242,7 @@ namespace Vodovoz
 		private readonly IInteractiveService _interactiveService = ScopeProvider.Scope.Resolve<IInteractiveService>();
 		private readonly ICurrentPermissionService _currentPermissionService = ScopeProvider.Scope.Resolve<ICurrentPermissionService>();
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory = ScopeProvider.Scope.Resolve<IUnitOfWorkFactory>();
+		private readonly OrderCancellationService _orderCancellationService = ScopeProvider.Scope.Resolve<OrderCancellationService>();
 
 		private IOrderService _orderService => ScopeProvider.Scope
 			.Resolve<IOrderService>();
@@ -4276,34 +4278,56 @@ namespace Vodovoz
 
 		protected void OnButtonCancelOrderClicked(object sender, EventArgs e)
 		{
-
 			bool isShipped = !_orderRepository.IsSelfDeliveryOrderWithoutShipment(UoW, Entity.Id);
 			bool orderHasIncome = _cashRepository.OrderHasIncome(UoW, Entity.Id);
 
 			if(Entity.SelfDelivery && (orderHasIncome || isShipped))
 			{
-				MessageDialogHelper.RunErrorDialog(
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Error,
 					"Вы не можете отменить отгруженный или оплаченный самовывоз. " +
-					"Для продолжения необходимо удалить отгрузку или приходник.");
+						"Для продолжения необходимо удалить отгрузку или приходник."
+				);
 				return;
 			}
 
-			ValidationContext validationContext = new ValidationContext(Entity, null, new Dictionary<object, object> {
-				{ "NewStatus", OrderStatus.Canceled }
-			});
+			var validationContext = new ValidationContext(
+				Entity, 
+				null, 
+				new Dictionary<object, object> 
+				{
+					{ "NewStatus", OrderStatus.Canceled }
+				}
+			);
 
 			if(!Validate(validationContext))
 			{
 				return;
 			}
 
-			OpenUndelivery();
+			var permit = _orderCancellationService.CanCancelOrder(UoW, Entity);
+			switch(permit.Type)
+			{
+				case OrderCancellationPermitType.AllowCancelDocflow:
+					if(permit.EdoTaskToCancellationId == null)
+					{
+						throw new InvalidOperationException("Для аннулирования документооборота должен быть указан идентификатор ЭДО задачи.");
+					}
+					_orderCancellationService.CancelDocflowByUser(Entity, permit.EdoTaskToCancellationId.Value);
+					return;
+				case OrderCancellationPermitType.AllowCancelOrder:
+					OpenUndelivery(permit);
+					break;
+				case OrderCancellationPermitType.Deny:
+				default:
+					return;
+			}
 		}
 
 		/// <summary>
 		/// Открытие окна недовоза при отмене заказа
 		/// </summary>
-		private void OpenUndelivery()
+		private void OpenUndelivery(OrderCancellationPermit permit)
 		{
 			_undeliveryViewModel = NavigationManager.OpenViewModelOnTdi<UndeliveryViewModel>(
 				this,
@@ -4311,7 +4335,7 @@ namespace Vodovoz
 				vm =>
 				{
 					vm.Saved += OnUndeliveryViewModelSaved;
-					vm.Initialize(UoW, Entity.Id);
+					vm.Initialize(UoW, Entity.Id, cancellationPermit: permit);
 				}
 			).ViewModel;
 		}
@@ -4354,7 +4378,16 @@ namespace Vodovoz
 
 			UpdateUIState();
 
-			if(Save() && e.NeedClose)
+			var saved = Save();
+
+			var allowCancellation = e.CancellationPermit.Type == OrderCancellationPermitType.AllowCancelOrder;
+			var hasEdoTaskToCancellationId = e.CancellationPermit.EdoTaskToCancellationId != null;
+			if(saved && allowCancellation && hasEdoTaskToCancellationId)
+			{
+				_orderCancellationService.AutomaticCancelDocflow(UoW, Entity, e.CancellationPermit.EdoTaskToCancellationId.Value);
+			}
+
+			if(saved && e.NeedClose)
 			{
 				OnCloseTab(false);
 			}
@@ -4377,7 +4410,7 @@ namespace Vodovoz
 				&& PaymentType != PaymentType.DriverApplicationQR
 				&& PaymentType != PaymentType.SmsQR)
 			{
-				entOnlineOrder.Text = string.Empty; //костыль, т.к. Entity.OnlineOrder = null не убирает почему-то текст из виджета
+				entOnlineOrder.Text = string.Empty;
 			}
 		}
 

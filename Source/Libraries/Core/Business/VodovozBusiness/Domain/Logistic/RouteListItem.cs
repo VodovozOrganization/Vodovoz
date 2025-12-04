@@ -654,7 +654,7 @@ namespace Vodovoz.Domain.Logistic
 			switch(status)
 			{
 				case RouteListItemStatus.Canceled:
-					Order.ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
+					Order.CancelDelivery(uow, callTaskWorker);
 					SetOrderActualCountsToZeroOnCanceled();
 					break;
 				case RouteListItemStatus.Completed:
@@ -674,7 +674,7 @@ namespace Vodovoz.Domain.Logistic
 					onlineOrderService.NotifyClientOfOnlineOrderStatusChange(uow, Order.OnlineOrder);
 					break;
 				case RouteListItemStatus.Overdue:
-					Order.ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
+					Order.OverdueDelivery(uow, callTaskWorker);
 					SetOrderActualCountsToZeroOnCanceled();
 					break;
 			}
