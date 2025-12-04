@@ -127,6 +127,7 @@
     <Compile Include="Logistic\Reports\CarIsNotAtLineReport.UiRowType.cs" />
     <Compile Include="Logistic\SelfDeliveringOrderEditViewModel.cs" />
     <Compile Include="ReportsParameters\Bookkeeping\CounterpartyCashlessDebtsReportViewModel.CounterpartyCashlessDebtsReportType.cs" />
+    <Compile Include="ReportsParameters\Production\ProducedProductionReportViewModel.ProducedProductionReportMeasurementUnit.cs" />
     <Compile Include="Store\Reports\DefectiveItemsReport.SummaryByNomenclatureRow.cs" />
     <Compile Include="Store\Reports\DefectiveItemsReport.SummaryByOldNomenclatureRow.cs" />
     <Compile Include="Store\Reports\DevectiveItemsReport.SummaryByNomenclatureWithTypeDefectRow.cs" />

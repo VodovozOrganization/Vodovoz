@@ -464,7 +464,7 @@ namespace FastPaymentsAPI.Controllers
 
 					try
 					{
-						_fastPaymentOrderService.NotifyEmployee(orderNumber, bankSignature, shopId, paymentSignature);
+						await _fastPaymentOrderService.NotifyEmployee(orderNumber, bankSignature, shopId, paymentSignature);
 					}
 					catch(Exception e)
 					{

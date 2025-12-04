@@ -1,0 +1,5 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>edo.document.worker</ContainerRepository>
+  </PropertyGroup>
+</Project>

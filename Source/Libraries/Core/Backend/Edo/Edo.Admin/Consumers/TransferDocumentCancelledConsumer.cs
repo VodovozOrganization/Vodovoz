@@ -8,15 +8,10 @@ namespace Edo.Admin.Consumers
 {
 	public class TransferDocumentCancelledConsumer : IConsumer<TransferDocumentCancelledEvent>
 	{
-		private readonly ILogger<EdoCancellationConsumer> _logger;
 		private readonly EdoCancellationService _edoCancellationService;
 
-		public TransferDocumentCancelledConsumer(
-			ILogger<EdoCancellationConsumer> logger,
-			EdoCancellationService edoCancellationService
-			)
+		public TransferDocumentCancelledConsumer(EdoCancellationService edoCancellationService)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_edoCancellationService = edoCancellationService ?? throw new ArgumentNullException(nameof(edoCancellationService));
 		}
 

@@ -23,13 +23,15 @@ namespace TaxcomEdoApi.Library.Services
 		private readonly WarrantOptions _warrantOptions;
 		private readonly IEdoTaxcomDocumentsFactory5_03 _edoTaxcomDocumentsFactory503;
 		private readonly IEdoBillFactory _edoBillFactory;
-		
+		private readonly IEdoInformalOrderDocumentFactory _edoInformalOrderDocumentFactory;
+
 		public TaxcomEdoService(
 			ILogger<TaxcomEdoService> logger,
 			IOptionsSnapshot<TaxcomEdoApiOptions> apiOptions,
 			IOptionsSnapshot<WarrantOptions> warrantOptions,
 			IEdoTaxcomDocumentsFactory5_03 edoTaxcomDocumentsFactory503,
 			IEdoBillFactory edoBillFactory,
+			IEdoInformalOrderDocumentFactory edoInformalOrderDocumentFactory,
 			X509Certificate2 certificate
 			)
 		{
@@ -37,6 +39,7 @@ namespace TaxcomEdoApi.Library.Services
 			_edoTaxcomDocumentsFactory503 =
 				edoTaxcomDocumentsFactory503 ?? throw new ArgumentNullException(nameof(edoTaxcomDocumentsFactory503));
 			_edoBillFactory = edoBillFactory ?? throw new ArgumentNullException(nameof(edoBillFactory));
+			_edoInformalOrderDocumentFactory = edoInformalOrderDocumentFactory ?? throw new ArgumentNullException(nameof(edoInformalOrderDocumentFactory));
 			_certificate = certificate ?? throw new ArgumentNullException(nameof(certificate));
 			_apiOptions = (apiOptions ?? throw new ArgumentNullException(nameof(apiOptions))).Value;
 			_warrantOptions = (warrantOptions ?? throw new ArgumentNullException(nameof(warrantOptions))).Value;
@@ -211,6 +214,28 @@ namespace TaxcomEdoApi.Library.Services
 					_warrantOptions.EndDate);
 			}
 
+			return container;
+		}
+
+		public TaxcomContainer CreateContainerWithInformalOrderDocument(InfoForCreatingEdoInformalOrderDocument data)
+		{
+			var container = new TaxcomContainer
+			{
+				SignMode = DocumentSignMode.UseSpecifiedCertificate
+			};
+
+			var document = _edoInformalOrderDocumentFactory.CreateInformalOrderDocument(data);
+			container.Documents.Add(document);
+			document.AddCertificateForSign(_certificate.Thumbprint);
+			if(!string.IsNullOrWhiteSpace(_warrantOptions.WarrantNumber))
+			{
+				container.SetWarrantParameters(
+					_warrantOptions.WarrantNumber,
+					data.OrganizationInfoForEdo.Inn,
+					_warrantOptions.RepresentativeInn,
+					_warrantOptions.StartDate,
+					_warrantOptions.EndDate);
+			}
 			return container;
 		}
 

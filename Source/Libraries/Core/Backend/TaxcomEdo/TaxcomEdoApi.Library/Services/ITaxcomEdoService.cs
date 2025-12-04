@@ -12,6 +12,12 @@ namespace TaxcomEdoApi.Library.Services
 		TaxcomContainer CreateContainerWithUpd(UniversalTransferDocumentInfo updInfo);
 		TaxcomContainer CreateContainerWithBill(InfoForCreatingEdoBill data);
 		TaxcomContainer CreateContainerWithBillWithoutShipment(InfoForCreatingBillWithoutShipmentEdo data);
+		/// <summary>
+		/// Создание контейнера с неформализованным документом заказа
+		/// </summary>
+		/// <param name="data"></param>
+		/// <returns></returns>
+		TaxcomContainer CreateContainerWithInformalOrderDocument(InfoForCreatingEdoInformalOrderDocument data);
 		string GetSendCustomerInformationEvent(string docflowId, string organization, string updFormat);
 		SendOfferCancellationEvent CreateOfferCancellation(string docflowId, string comment);
 		SendAcceptCancellationOfferEvent AcceptOfferCancellation(string docflowId);

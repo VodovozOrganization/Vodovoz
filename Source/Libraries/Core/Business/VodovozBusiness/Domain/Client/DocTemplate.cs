@@ -14,100 +14,82 @@ namespace Vodovoz.Domain.Client
 		NominativePlural = "шаблоны документов",
 		Nominative = "шаблон документа")]
 	[EntityPermission]
-	public class DocTemplate : PropertyChangedBase, IDomainObject, IDocTemplate
+	public class DocTemplate : DocTemplateEntity, IDocTemplate
 	{
 		#region Свойства
-		public virtual int Id { get; set; }
 
-		string name;
+		private TemplateType _templateType;
+		private Organization _organization;
 
-		[Display (Name = "Название")]
-		[StringLength(45)]
-		public virtual string Name {
-			get { return name; }
-			set { SetField (ref name, value, () => Name); }
-		}
-
-		TemplateType templateType;
-
+		/// <summary>
+		/// Тип шаблона
+		/// </summary>
 		[Display (Name = "Тип шаблона")]
-		public virtual TemplateType TemplateType {
-			get { return templateType; }
+		public override TemplateType TemplateType {
+			get => _templateType;
 			set { 
-				bool needUpdateName = String.IsNullOrWhiteSpace(Name) || Name == templateType.GetEnumTitle();
-				if (SetField(ref templateType, value, () => TemplateType))
+				bool needUpdateName = String.IsNullOrWhiteSpace(Name) || Name == _templateType.GetEnumTitle();
+				if (SetField(ref _templateType, value, () => TemplateType))
 				{
-					docParser = null;
-				if(needUpdateName)
-					Name = templateType.GetEnumTitle();
+					_docParser = null;
+					if(needUpdateName)
+					{
+						Name = _templateType.GetEnumTitle();
+					}
 				}					
 			}
 		}
 
-		Organization organization;
-
+		/// <summary>
+		/// Организация
+		/// </summary>
 		[Display (Name = "Организация")]
-		public virtual Organization Organization {
-			get { return organization; }
-			set { SetField (ref organization, value, () => Organization); }
+		public virtual new Organization Organization 
+		{
+			get => _organization;
+			set => SetField (ref _organization, value, () => Organization);
 		}
 
-		ContractType contractType;
-
-		[Display(Name = "Тип договора")]
-		public virtual ContractType ContractType {
-			get { return contractType; }
-			set { SetField(ref contractType, value, () => ContractType); }
-		}
-
-		byte[] templateFile;
-
-		[Display (Name = "Файл шаблона")]
-		[PropertyChangedAlso("FileSize")]
-		[Required]
-		public virtual byte[] TempalteFile {
-			get { return templateFile; }
-			set { SetField (ref templateFile, value, () => TempalteFile); }
-		}
-			
 		#endregion
 
 		#region Вычисляемые
 
-		public virtual long FileSize{
-			get{
-				return TempalteFile != null ? TempalteFile.LongLength : 0;
-			}
+		public virtual long FileSize
+		{
+			get => TempalteFile != null ? TempalteFile.LongLength : 0;
 		}
 
-		public virtual byte[] File{
-			get{
-				return ChangedDocFile ?? TempalteFile;
-			}
+		public virtual byte[] File
+		{
+			get => ChangedDocFile ?? TempalteFile;
 		}
 			
 		#endregion
 
 		#region Не сохраняемые
 
-		byte[] changedDocFile;
+		byte[] _changedDocFile;
 
 		[Display (Name = "Измененный Файл шаблона")]
 		[PropertyChangedAlso("FileSize")]
-		public virtual byte[] ChangedDocFile {
-			get { return changedDocFile; }
-			set { SetField (ref changedDocFile, value, () => ChangedDocFile); }
+		public virtual byte[] ChangedDocFile 
+		{
+			get => _changedDocFile;
+			set => SetField (ref _changedDocFile, value, () => ChangedDocFile);
 		}
 
-		IDocParser docParser;
+		IDocParser _docParser;
 
 		public virtual IDocParser DocParser
 		{
 			get
 			{
-				if (docParser == null)
-					docParser = CreateParser(TemplateType);
-				return docParser;
+				if(_docParser == null)
+				{
+					_docParser = CreateParser(TemplateType);
+				}
+
+				return _docParser;
 			}
 		}
 
@@ -115,7 +97,7 @@ namespace Vodovoz.Domain.Client
 
 		public DocTemplate()
 		{
-			Name = templateType.GetEnumTitle();
+			Name = _templateType.GetEnumTitle();
 		}
 
 		#region Функции
