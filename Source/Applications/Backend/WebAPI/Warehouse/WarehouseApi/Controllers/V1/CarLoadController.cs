@@ -30,7 +30,8 @@ namespace WarehouseApi.Controllers.V1
 	[Authorize(Roles = _rolesToAccess)]
 	[ApiController]
 	[WarehouseErrorHandlingFilter]
-	[OnlyOneSession][Route("/api/[action]")]
+	[OnlyOneSession]
+	[Route("/api/[action]")]
 	public class CarLoadController : VersionedController
 	{
 		private const string _rolesToAccess =
