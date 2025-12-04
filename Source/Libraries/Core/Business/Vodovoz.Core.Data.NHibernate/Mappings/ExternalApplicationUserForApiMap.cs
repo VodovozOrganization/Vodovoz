@@ -1,12 +1,15 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Domain.Schemas.Employees;
 
-namespace Vodovoz.Core.Data.NHibernate.Security
+namespace Vodovoz.Core.Data.NHibernate.Mappings
 {
-	public class ExternalApplicationUserMap : ClassMap<ExternalApplicationUser>
+	/// <summary>
+	/// После реорганизации проекта VodovozBussines, можно будет избавиться от дубликата класса
+	/// </summary>
+	public class ExternalApplicationUserForApiMap : ClassMap<ExternalApplicationUserForApi>
 	{
-		public ExternalApplicationUserMap()
+		public ExternalApplicationUserForApiMap()
 		{
 			Table(ExternalApplicationUserSchema.TableName);
 
