@@ -53,7 +53,6 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly IOrderDailyNumberController _orderDailyNumberController;
 		private readonly IPaymentFromBankClientController _paymentFromBankClientController;
 		private readonly IOrderFromOnlineOrderCreator _orderFromOnlineOrderCreator;
-		private readonly IOrderFromOnlineOrderValidator _onlineOrderValidator;
 		private readonly IEmployeeSettings _employeeSettings;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IGenericRepository<DiscountReason> _discountReasonRepository;
@@ -80,7 +79,6 @@ namespace Vodovoz.Application.Orders.Services
 			IOrderDailyNumberController orderDailyNumberController,
 			IPaymentFromBankClientController paymentFromBankClientController,
 			IOrderFromOnlineOrderCreator orderFromOnlineOrderCreator,
-			IOrderFromOnlineOrderValidator onlineOrderValidator,
 			IEmployeeSettings employeeSettings,
 			INomenclatureRepository nomenclatureRepository,
 			IGenericRepository<DiscountReason> discountReasonRepository,
@@ -111,7 +109,6 @@ namespace Vodovoz.Application.Orders.Services
 			_orderDailyNumberController = orderDailyNumberController ?? throw new ArgumentNullException(nameof(orderDailyNumberController));
 			_paymentFromBankClientController = paymentFromBankClientController ?? throw new ArgumentNullException(nameof(paymentFromBankClientController));
 			_orderFromOnlineOrderCreator = orderFromOnlineOrderCreator ?? throw new ArgumentNullException(nameof(orderFromOnlineOrderCreator));
-			_onlineOrderValidator = onlineOrderValidator ?? throw new ArgumentNullException(nameof(onlineOrderValidator));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
@@ -612,13 +609,6 @@ namespace Vodovoz.Application.Orders.Services
 		)
 		{
 			if(onlineOrder.IsNeedConfirmationByCall)
-			{
-				return 0;
-			}
-
-			var validationResult = _onlineOrderValidator.ValidateOnlineOrder(uow, onlineOrder);
-
-			if(validationResult.IsFailure)
 			{
 				return 0;
 			}
