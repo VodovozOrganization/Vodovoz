@@ -422,11 +422,14 @@ stage('CleanUp'){
 		"Desktop ${NODE_VOD7}" : { DeleteCompressedArtifactAtNode(NODE_VOD7, "VodovozDesktop") },
 		"Desktop ${NODE_VOD13}" : { DeleteCompressedArtifactAtNode(NODE_VOD13, "VodovozDesktop") },
 		"Desktop ${NODE_WIN_BUILD}" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "VodovozDesktop") },
-		"Desktop ${NODE_WIN_BUILD}" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "VodovozDesktop") },
 	)
 
 	if(IS_RELEASE){
 		WinRemoveOldJenkinsTempFiles();
+	}
+
+	node(NODE_WIN_BUILD){
+		deleteDir()
 	}
 }
 
