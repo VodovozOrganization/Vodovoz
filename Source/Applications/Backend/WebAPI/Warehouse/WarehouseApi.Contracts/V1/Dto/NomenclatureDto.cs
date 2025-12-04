@@ -1,10 +1,6 @@
 ﻿using System.Collections.Generic;
 
-<<<<<<<< HEAD:Source/Libraries/Core/Backend/WarehouseApi.Contracts/Dto/V1/NomenclatureDto.cs
-namespace WarehouseApi.Contracts.Dto.V1
-========
 namespace WarehouseApi.Contracts.V1.Dto
->>>>>>>> origin/master:Source/Applications/Backend/WebAPI/Warehouse/WarehouseApi.Contracts/V1/Dto/NomenclatureDto.cs
 {
 	/// <summary>
 	/// Номенклатура

@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:Source/Libraries/Core/Backend/WarehouseApi.Contracts/Dto/V1/TrueMarkCodeDto.cs
-﻿namespace WarehouseApi.Contracts.Dto.V1
-========
 ﻿namespace WarehouseApi.Contracts.V1.Dto
->>>>>>>> origin/master:Source/Applications/Backend/WebAPI/Warehouse/WarehouseApi.Contracts/V1/Dto/TrueMarkCodeDto.cs
 {
 	/// <summary>
 	/// Код маркировки ЧЗ

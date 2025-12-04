@@ -1,20 +1,21 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Employees;
 
-namespace Vodovoz.Core.Domain.Employees
+namespace Vodovoz.Core.Data.Employees
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "пользователи внешних приложений",
 		Nominative = "пользователь внешнего приложения")]
 	[HistoryTrace]
-	public class ExternalApplicationUser : PropertyChangedBase, IDomainObject
+	public class ExternalApplicationUserForApi : PropertyChangedBase, IDomainObject
 	{
 		private string _login;
 		private string _password;
 		private string _androidSessionKey;
 		private string _token;
-		private EmployeeEntity _employee;
+		private EmployeeWithLogin _employee;
 		
 		public virtual int Id { get; set; }
 
@@ -39,6 +40,9 @@ namespace Vodovoz.Core.Domain.Employees
 			set => SetField(ref _androidSessionKey, value);
 		}
 
+		/// <summary>
+		/// Токен приложения пользователя для отправки Push-сообщений
+		/// </summary>
 		[Display(Name = "Токен приложения пользователя для отправки Push-сообщений")]
 		public virtual string Token
 		{
@@ -47,7 +51,7 @@ namespace Vodovoz.Core.Domain.Employees
 		}
 
 		[Display(Name = "Сотрудник")]
-		public virtual EmployeeEntity Employee
+		public virtual EmployeeWithLogin Employee
 		{
 			get => _employee;
 			set => SetField(ref _employee, value);

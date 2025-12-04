@@ -1,10 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-<<<<<<<< HEAD:Source/Libraries/Core/Backend/WarehouseApi.Contracts/Requests/V1/ChangeOrderCodeRequest.cs
-namespace WarehouseApi.Contracts.Requests.V1
-========
 namespace WarehouseApi.Contracts.V1.Requests
->>>>>>>> origin/master:Source/Applications/Backend/WebAPI/Warehouse/WarehouseApi.Contracts/V1/Requests/ChangeOrderCodeRequest.cs
 {
 	/// <summary>
 	/// DTO запроса замены отсканированного кода номенклатуры в заказе

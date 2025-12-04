@@ -14,15 +14,9 @@ using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Errors;
 using Vodovoz.Presentation.WebApi.Security.OnlyOneSession;
-<<<<<<<< HEAD:Source/Applications/Backend/WebAPI/WarehouseApi/Controllers/V1/CarLoadController.cs
-using WarehouseApi.Contracts.Dto.V1;
-using WarehouseApi.Contracts.Requests.V1;
-using WarehouseApi.Contracts.Responses.V1;
-========
 using WarehouseApi.Contracts.V1.Dto;
 using WarehouseApi.Contracts.V1.Requests;
 using WarehouseApi.Contracts.V1.Responses;
->>>>>>>> origin/master:Source/Applications/Backend/WebAPI/Warehouse/WarehouseApi/Controllers/V1/CarLoadController.cs
 using WarehouseApi.Filters;
 using WarehouseApi.Library.Services;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocumentErrors;
@@ -31,20 +25,12 @@ using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
 namespace WarehouseApi.Controllers.V1
 {
 	/// <summary>
-<<<<<<<< HEAD:Source/Applications/Backend/WebAPI/WarehouseApi/Controllers/V1/CarLoadController.cs
-	/// Контроллер для работы с талонами погрузки
-========
 	/// Контроллер талонов погрузки автомобилей
->>>>>>>> origin/master:Source/Applications/Backend/WebAPI/Warehouse/WarehouseApi/Controllers/V1/CarLoadController.cs
 	/// </summary>
 	[Authorize(Roles = _rolesToAccess)]
 	[ApiController]
 	[WarehouseErrorHandlingFilter]
-	[OnlyOneSession]
-<<<<<<<< HEAD:Source/Applications/Backend/WebAPI/WarehouseApi/Controllers/V1/CarLoadController.cs
-========
-	[Route("/api/[action]")]
->>>>>>>> origin/master:Source/Applications/Backend/WebAPI/Warehouse/WarehouseApi/Controllers/V1/CarLoadController.cs
+	[OnlyOneSession][Route("/api/[action]")]
 	public class CarLoadController : VersionedController
 	{
 		private const string _rolesToAccess =
@@ -54,14 +40,8 @@ namespace WarehouseApi.Controllers.V1
 
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly ICarLoadService _carLoadService;
-
-		/// <summary>
-<<<<<<<< HEAD:Source/Applications/Backend/WebAPI/WarehouseApi/Controllers/V1/CarLoadController.cs
-		/// Конструктор контроллера
-========
+		
 		/// Конструктор
->>>>>>>> origin/master:Source/Applications/Backend/WebAPI/Warehouse/WarehouseApi/Controllers/V1/CarLoadController.cs
-		/// </summary>
 		/// <param name="logger"></param>
 		/// <param name="userManager"></param>
 		/// <param name="carLoadService"></param>

@@ -1,4 +1,4 @@
-using Edo.Contracts.Messages.Events;
+﻿using Edo.Contracts.Messages.Events;
 using Gamma.Utilities;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Data.Employees;
+using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
@@ -37,9 +39,8 @@ namespace WarehouseApi.Library.Services
 		private readonly ILogger<CarLoadService> _logger;
 		private readonly IUnitOfWork _uow;
 		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository;
+		private readonly IEmployeeWithLoginRepository _employeeWithLoginRepository;
 		private readonly IGenericRepository<OrderEntity> _orderRepository;
-		private readonly IGenericRepository<EmployeeEntity> _employeeRepository;
-		private readonly IGenericRepository<ExternalApplicationUser> _externalApplicationUserRepository;
 		private readonly IRouteListDailyNumberProvider _routeListDailyNumberProvider;
 		private readonly ILogisticsEventsCreationService _logisticsEventsCreationService;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
@@ -51,40 +52,26 @@ namespace WarehouseApi.Library.Services
 			ILogger<CarLoadService> logger,
 			IUnitOfWork uow,
 			ICarLoadDocumentRepository carLoadDocumentRepository,
+			IEmployeeWithLoginRepository employeeWithLoginRepository,
 			IGenericRepository<OrderEntity> orderRepository,
-			IGenericRepository<ExternalApplicationUser> externalApplicationUserRepository,
 			IRouteListDailyNumberProvider routeListDailyNumberProvider,
 			ILogisticsEventsCreationService logisticsEventsCreationService,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			CarLoadDocumentConverter carLoadDocumentConverter,
 			CarLoadDocumentProcessingErrorsChecker documentErrorsChecker,
-			IBus messageBus,
-			IGenericRepository<EmployeeEntity> employeeRepository)
+			IBus messageBus)
 		{
-			_logger = logger
-				?? throw new ArgumentNullException(nameof(logger));
-			_uow = uow
-				?? throw new ArgumentNullException(nameof(uow));
-			_carLoadDocumentRepository = carLoadDocumentRepository
-				?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
-			_orderRepository = orderRepository
-				?? throw new ArgumentNullException(nameof(orderRepository));
-			_externalApplicationUserRepository = externalApplicationUserRepository
-				?? throw new ArgumentNullException(nameof(externalApplicationUserRepository));
-			_routeListDailyNumberProvider = routeListDailyNumberProvider
-				?? throw new ArgumentNullException(nameof(routeListDailyNumberProvider));
-			_logisticsEventsCreationService = logisticsEventsCreationService
-				?? throw new ArgumentNullException(nameof(logisticsEventsCreationService));
-			_trueMarkWaterCodeService = trueMarkWaterCodeService
-				?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
-			_carLoadDocumentConverter = carLoadDocumentConverter
-				?? throw new ArgumentNullException(nameof(carLoadDocumentConverter));
-			_documentErrorsChecker = documentErrorsChecker
-				?? throw new ArgumentNullException(nameof(documentErrorsChecker));
-			_messageBus = messageBus
-				?? throw new ArgumentNullException(nameof(messageBus));
-			_employeeRepository = employeeRepository
-				?? throw new ArgumentNullException(nameof(employeeRepository));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
+			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
+			_employeeWithLoginRepository = employeeWithLoginRepository;
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_routeListDailyNumberProvider = routeListDailyNumberProvider ?? throw new ArgumentNullException(nameof(routeListDailyNumberProvider));
+			_logisticsEventsCreationService = logisticsEventsCreationService ?? throw new ArgumentNullException(nameof(logisticsEventsCreationService));
+			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_carLoadDocumentConverter = carLoadDocumentConverter ?? throw new ArgumentNullException(nameof(carLoadDocumentConverter));
+			_documentErrorsChecker = documentErrorsChecker ?? throw new ArgumentNullException(nameof(documentErrorsChecker));
+			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
 		public async Task<RequestProcessingResult<StartLoadResponse>> StartLoad(int documentId, string userLogin, string accessToken, CancellationToken cancellationToken)
@@ -377,7 +364,7 @@ namespace WarehouseApi.Library.Services
 					PopulateGroupCode(trueMarkAnyCodes),
 					PopulateWaterCode(trueMarkAnyCodes)));
 			}
-			
+
 			var waterCodes =
 				trueMarkAnyCodes
 				.Where(x => x.IsTrueMarkWaterIdentificationCode)
@@ -724,7 +711,7 @@ namespace WarehouseApi.Library.Services
 
 			CarLoadDocumentItemEntity documentItemToEdit = null;
 
-			var codesToAdd = 
+			var codesToAdd =
 				newTrueMarkAnyCodes
 				.Where(x => x.IsTrueMarkWaterIdentificationCode)
 				.Select(x => x.TrueMarkWaterIdentificationCode)
@@ -1016,7 +1003,7 @@ namespace WarehouseApi.Library.Services
 
 		private void CreateAndSaveCarLoadDocumentLoadingProcessAction(
 			int documentId,
-			EmployeeEntity employee,
+			EmployeeWithLogin employee,
 			CarLoadDocumentLoadingProcessActionType actionType)
 		{
 			var action = CreateCarLoadDocumentLoadingProcessAction(documentId, employee.Id, actionType);
@@ -1171,22 +1158,10 @@ namespace WarehouseApi.Library.Services
 			}
 		}
 
-		public EmployeeEntity GetEmployeeProxyByApiLogin(
+		public EmployeeWithLogin GetEmployeeProxyByApiLogin(
 			string userLogin,
-			ExternalApplicationType applicationType = ExternalApplicationType.WarehouseApp)
-		{
-			var employeeId = _externalApplicationUserRepository
-				.GetFirstOrDefault(_uow, x => x.Login == userLogin && x.ExternalApplicationType == applicationType)
-				?.EmployeeId;
-
-			if(employeeId == null)
-			{
-				return null;
-			}
-
-			return _employeeRepository.GetFirstOrDefault(_uow, x => x.Id == employeeId);
-
-		}
+			ExternalApplicationType applicationType = ExternalApplicationType.WarehouseApp) =>
+			_employeeWithLoginRepository.GetEmployeeWithLogin(_uow, userLogin, applicationType);
 
 		private static Func<TrueMarkWaterIdentificationCode, TrueMarkCodeDto> PopulateWaterCode(IEnumerable<TrueMarkAnyCode> allCodes)
 		{

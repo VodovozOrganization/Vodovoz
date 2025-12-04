@@ -169,7 +169,7 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 		{
 			var query = from externalUser in uow.Session.Query<ExternalApplicationUser>()
 						join employee in uow.Session.Query<Employee>()
-							on externalUser.EmployeeId equals employee.Id
+							on externalUser.Employee.Id equals employee.Id
 						where externalUser.Token != null
 							&& externalUser.Token.Length > 2
 							&& externalUser.ExternalApplicationType == ExternalApplicationType.DriverApp
@@ -181,7 +181,7 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 		public string GetDriverPushTokenById(IUnitOfWork unitOfWork, int notifyableEmployeeId)
 		{
 			return (from externalUser in unitOfWork.Session.Query<ExternalApplicationUser>()
-					where externalUser.EmployeeId == notifyableEmployeeId
+					where externalUser.Employee.Id == notifyableEmployeeId
 					   && externalUser.ExternalApplicationType == ExternalApplicationType.DriverApp
 					select externalUser.Token)
 					.FirstOrDefault();

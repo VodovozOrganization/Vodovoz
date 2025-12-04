@@ -1,15 +1,16 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Data.Employees;
+using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
@@ -30,8 +31,8 @@ namespace WarehouseApi.Library.Errors
 		private readonly IUnitOfWork _uow;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository;
+		private readonly IEmployeeWithLoginRepository _employeeWithLoginRepository;
 		private readonly ICarLoadDocumentLoadingProcessSettings _carLoadDocumentLoadingProcessSettings;
-		private readonly IGenericRepository<EmployeeEntity> _employeeRepository;
 		private readonly IGenericRepository<OrderEntity> _orderRepository;
 		private readonly ICounterpartyEdoAccountEntityController _counterpartyEdoAccountController;
 
@@ -40,8 +41,8 @@ namespace WarehouseApi.Library.Errors
 			IUnitOfWork uow,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			ICarLoadDocumentRepository carLoadDocumentRepository,
+			IEmployeeWithLoginRepository employeeWithLoginRepository,
 			ICarLoadDocumentLoadingProcessSettings carLoadDocumentLoadingProcessSettings,
-			IGenericRepository<EmployeeEntity> employeeRepository,
 			IGenericRepository<OrderEntity> orderRepository,
 			ICounterpartyEdoAccountEntityController counterpartyEdoAccountController)
 		{
@@ -49,8 +50,8 @@ namespace WarehouseApi.Library.Errors
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
+			_employeeWithLoginRepository = employeeWithLoginRepository ?? throw new ArgumentNullException(nameof(employeeWithLoginRepository));
 			_carLoadDocumentLoadingProcessSettings = carLoadDocumentLoadingProcessSettings;
-			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_counterpartyEdoAccountController =
 				counterpartyEdoAccountController ?? throw new ArgumentNullException(nameof(counterpartyEdoAccountController));
@@ -115,7 +116,7 @@ namespace WarehouseApi.Library.Errors
 			return Result.Success();
 		}
 
-		public Result IsEmployeeCanPickUpCarLoadDocument(int documentId, EmployeeEntity employee)
+		public Result IsEmployeeCanPickUpCarLoadDocument(int documentId, EmployeeWithLogin employee)
 		{
 			var lastDocumentLoadingProcessAction =
 				_carLoadDocumentRepository.GetLastLoadingProcessActionByDocumentId(_uow, documentId);
@@ -131,8 +132,8 @@ namespace WarehouseApi.Library.Errors
 			{
 				var leftToEndNoLoadingActionsTimeout = lastDocumentLoadingProcessAction.ActionTime.Add(noLoadingActionsTimeout) - DateTime.Now;
 				var pickerEmployee =
-					_employeeRepository
-					.GetFirstOrDefault(_uow, x => x.Id == lastDocumentLoadingProcessAction.PickerEmployeeId);
+					_employeeWithLoginRepository
+					.GetEmployeeWithLoginById(_uow, lastDocumentLoadingProcessAction.PickerEmployeeId);
 
 				var error = CarLoadDocumentErrors.CreateCarLoadDocumentAlreadyHasPickerError(
 					documentId,
@@ -182,7 +183,7 @@ namespace WarehouseApi.Library.Errors
 				OrderStatus.DeliveryCanceled,
 				OrderStatus.Canceled
 			};
-			
+
 			var cancelledOrders =
 				_orderRepository.Get(_uow, o => ordersInDocument.Contains(o.Id) && undeliveredStatuses.Contains(o.OrderStatus));
 

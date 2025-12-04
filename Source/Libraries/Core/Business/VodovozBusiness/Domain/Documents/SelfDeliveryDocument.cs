@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -188,7 +188,7 @@ namespace Vodovoz.Domain.Documents
 		{
 			if(orderItem == null)
 			{
-				return Vodovoz.Errors.Orders.OrderItem.NotFound;
+				return Vodovoz.Errors.Orders.OrderItemErrors.NotFound;
 			}
 
 			Items.Add(new SelfDeliveryDocumentItem
