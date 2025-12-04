@@ -1,5 +1,8 @@
 ﻿namespace Vodovoz.Application.Orders.Services.OrderCancellation
 {
+	/// <summary>
+	/// Тип разрешения на отмену заказа
+	/// </summary>
 	public enum OrderCancellationPermitType
 	{
 		/// <summary>
