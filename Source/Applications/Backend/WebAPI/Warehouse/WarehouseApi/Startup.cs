@@ -47,7 +47,6 @@ namespace WarehouseApi
 					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 					typeof(QS.Attachments.Domain.Attachment).Assembly,
 					typeof(EmployeeWithLoginMap).Assembly,
-					typeof(Vodovoz.Core.Data.NHibernate.DependencyInjection).Assembly,
 					typeof(QS.BusinessCommon.HMap.MeasurementUnitsMap).Assembly
 				)
 				.AddDatabaseConnection()

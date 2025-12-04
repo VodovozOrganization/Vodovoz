@@ -44,7 +44,6 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Employees
 			Map(x => x.DriverType).Column("driver_type");
 			Map(x => x.SkillLevel).Column("skill_level");
 			Map(x => x.Comment).Column("comment");
-			Map(x => x.UserId).Column("user_id");
 
 			References(x => x.DefaultAccount).Column("default_account_id");
 		}

@@ -41,8 +41,10 @@ namespace WarehouseApi.Controllers.V1
 
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly ICarLoadService _carLoadService;
-		
+
+		/// <summary>
 		/// Конструктор
+		/// </summary>
 		/// <param name="logger"></param>
 		/// <param name="userManager"></param>
 		/// <param name="carLoadService"></param>
