@@ -18,5 +18,11 @@ namespace Vodovoz.Core.Domain.Edo
 		/// </summary>
 		[Display(Name = "Счет")]
 		Bill,
+
+		/// <summary>
+		/// Неформализованный документ заказа
+		/// </summary>
+		[Display(Name = "Неформализованный документ заказа")]
+		InformalOrderDocument,
 	}
 }

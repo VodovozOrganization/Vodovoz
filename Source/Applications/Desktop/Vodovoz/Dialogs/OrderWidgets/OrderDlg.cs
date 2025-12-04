@@ -53,6 +53,7 @@ using Vodovoz.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Permissions;
@@ -187,7 +188,6 @@ namespace Vodovoz
 		private readonly IRouteListService _routeListService = ScopeProvider.Scope.Resolve<IRouteListService>();
 		private readonly INomenclatureSettings _nomenclatureSettings = ScopeProvider.Scope.Resolve<INomenclatureSettings>();
 		private readonly INomenclatureRepository _nomenclatureRepository = ScopeProvider.Scope.Resolve<INomenclatureRepository>();
-		private readonly INomenclatureService _nomenclatureService = ScopeProvider.Scope.Resolve<INomenclatureService>();
 
 		private IFastDeliveryValidator _fastDeliveryValidator;
 
@@ -314,7 +314,9 @@ namespace Vodovoz
 		private bool _allowLoadSelfDelivery;
 		private bool _acceptCashlessPaidSelfDelivery;
 		private bool _canEditGoodsInRouteList;
-		public bool IsStatusForEditGoodsInRouteList => _orderRepository.GetStatusesForEditGoodsInOrderInRouteList().Contains(Entity.OrderStatus);
+		public bool IsStatusForEditGoodsInRouteList => 
+			_orderRepository.GetStatusesForEditGoodsInOrderInRouteList().Contains(Entity.OrderStatus);
+
 		private UndeliveryViewModel _undeliveryViewModel;
 
 		private SendDocumentByEmailViewModel SendDocumentByEmailViewModel { get; set; }
@@ -1480,6 +1482,13 @@ namespace Vodovoz
 				return;
 			}
 
+			if(SelectedEdoDocumentDataNode.EdoDocumentType == EdoDocumentType.InformalOrderDocument)
+			{
+				ybuttonSendDocumentAgain.Sensitive = true;
+				ybuttonSendDocumentAgain.Label = "Переотправить неформализованный документ";
+				return;
+			}
+
 			if(SelectedEdoDocumentDataNode.IsNewDockflow || SelectedEdoDocumentDataNode.OldEdoDocumentType is null)
 			{
 				ybuttonSendDocumentAgain.Label = "Документы по новому документообороту недоступны для повторной отправки";
@@ -1542,8 +1551,42 @@ namespace Vodovoz
 
 		private void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
 		{
+			if(SelectedEdoDocumentDataNode?.EdoDocumentType == EdoDocumentType.InformalOrderDocument)
+			{
+				ResendEquipmentTransferEdoRequest();
+				CustomizeSendDocumentAgainButton();
+				return;
+			}
+
 			ResendUpd();
 			CustomizeSendDocumentAgainButton();
+		}
+
+		private void ResendEquipmentTransferEdoRequest()
+		{
+			if(!SelectedEdoDocumentDataNode.OrderDocumentType.HasValue)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, $"Документ {SelectedEdoDocumentDataNode.OrderDocumentType} не найден для переотправки.");
+				return;
+			}
+
+			if(!SelectedEdoDocumentDataNode.EdoDocFlowStatus.HasValue)
+			{
+				return;
+			}
+
+			var edoValidateResult = _edoService.ValidateOrderForOrderDocument(SelectedEdoDocumentDataNode.EdoDocFlowStatus.Value);
+
+			if(edoValidateResult.IsFailure)
+			{
+				if(!_interactiveService.Question(
+				"Вы уверены, что хотите отправить повторно?"))
+				{
+					return;
+				}
+			}
+
+			_edoService.ResendEdoOrderDocumentForOrder(Entity, SelectedEdoDocumentDataNode.OrderDocumentType.Value);
 		}
 
 		private void ResendUpd()
@@ -3585,6 +3628,25 @@ namespace Vodovoz
 				return;
 			}
 
+			if(PaymentType == PaymentType.Cashless)
+			{
+				if(nomenclature.Category == NomenclatureCategory.deposit
+					&& !Order.HasDepositItems()
+					&& Order.HasNonPaidDeliveryItems())
+				{
+					MessageDialogHelper.RunWarningDialog("Нельзя добавить залоговую позицию, если в заказе уже есть незалоговые позиции.");
+					return;
+				}
+
+				if(nomenclature.Category != NomenclatureCategory.deposit 
+					&& Order.HasDepositItems()
+					&& Order.HasNonPaidDeliveryItems())
+				{
+					MessageDialogHelper.RunWarningDialog("Нельзя добавить незалоговую позицию, если в заказе уже есть залоговые позиции.");
+					return;
+				}
+			}
+
 			if(Entity.OrderItems.Any(x => !Nomenclature.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
 			   && nomenclature.Category == NomenclatureCategory.master)
 			{
@@ -4643,6 +4705,7 @@ namespace Vodovoz
 			treeItems.ExposeEvent += TreeItemsOnExposeEvent;
 
 			UpdateClientSecondOrderDiscount();
+			UpdateUIState();
 		}
 
 		private void TreeItemsOnExposeEvent(object o, ExposeEventArgs args)
@@ -4674,6 +4737,7 @@ namespace Vodovoz
 			Entity.UpdateMasterCallNomenclatureIfNeeded(UoW, _orderContractUpdater);
 
 			UpdateClientSecondOrderDiscount();
+			UpdateUIState();
 		}
 
 		private void ObservableOrderDocuments_ListChanged(object aList)
@@ -4881,10 +4945,8 @@ namespace Vodovoz
 			ChangeGoodsSensitive(val
 				|| (IsStatusForEditGoodsInRouteList && _canEditGoodsInRouteList));
 
-			enumAddRentButton.Sensitive = val && !Entity.IsLoadedFrom1C;
-
 			checkPayAfterLoad.Sensitive = _canSetPaymentAfterLoad && checkSelfDelivery.Active && val;
-			buttonAddForSale.Sensitive = !Entity.IsLoadedFrom1C;
+
 			UpdateButtonState();
 			ControlsActionBottleAccessibility();
 			chkContractCloser.Sensitive = _canSetContractCloser && val && !Entity.SelfDelivery;
@@ -4901,6 +4963,19 @@ namespace Vodovoz
 			ylabelGeoGroup.Sensitive = canChangeSelfDeliveryGeoGroup;
 			specialListCmbSelfDeliveryGeoGroup.Sensitive = canChangeSelfDeliveryGeoGroup;
 			ybuttonSaveWaitUntil.Visible = Entity.Id != 0;
+
+			if(PaymentType == PaymentType.Cashless 
+				&& Order.HasNonPaidDeliveryItems())
+			{
+				enumAddRentButton.Sensitive = val && !Entity.IsLoadedFrom1C && Order.HasDepositItems();
+
+				buttonAddForSale.Sensitive = !Entity.IsLoadedFrom1C && !Order.HasDepositItems();
+			}
+			else
+			{
+				enumAddRentButton.Sensitive = val && !Entity.IsLoadedFrom1C;
+				buttonAddForSale.Sensitive = !Entity.IsLoadedFrom1C;
+			}
 		}
 
 		private void ChangeOrderEditable(bool val)
@@ -5616,17 +5691,17 @@ namespace Vodovoz
 			{
 				throw new InvalidOperationException($"Не правильный тип аренды {RentType.FreeRent}, возможен только {RentType.NonfreeRent} или {RentType.DailyRent}");
 			}
-			var interactiveService = ServicesConfig.InteractiveService;
+
 			if(equipmentNomenclature == null)
 			{
-				interactiveService.ShowMessage(ImportanceLevel.Error, "Для выбранного типа оборудования нет оборудования в справочнике номенклатур.");
+				_interactiveService.ShowMessage(ImportanceLevel.Error, "Для выбранного типа оборудования нет оборудования в справочнике номенклатур.");
 				return;
 			}
 
 			var stock = _stockRepository.GetStockForNomenclature(UoW, equipmentNomenclature.Id);
 			if(stock <= 0)
 			{
-				if(!interactiveService.Question($"На складах не найдено свободного оборудования\n({equipmentNomenclature.Name})\nДобавить принудительно?"))
+				if(!_interactiveService.Question($"На складах не найдено свободного оборудования\n({equipmentNomenclature.Name})\nДобавить принудительно?"))
 				{
 					return;
 				}
@@ -5706,17 +5781,16 @@ namespace Vodovoz
 
 		private void AddFreeRent(FreeRentPackage freeRentPackage, Nomenclature equipmentNomenclature)
 		{
-			var interactiveService = ServicesConfig.InteractiveService;
 			if(equipmentNomenclature == null)
 			{
-				interactiveService.ShowMessage(ImportanceLevel.Error, "Для выбранного типа оборудования нет оборудования в справочнике номенклатур.");
+				_interactiveService.ShowMessage(ImportanceLevel.Error, "Для выбранного типа оборудования нет оборудования в справочнике номенклатур.");
 				return;
 			}
 
 			var stock = _stockRepository.GetStockForNomenclature(UoW, equipmentNomenclature.Id);
 			if(stock <= 0)
 			{
-				if(!interactiveService.Question($"На складах не найдено свободного оборудования\n({equipmentNomenclature.Name})\nДобавить принудительно?"))
+				if(!_interactiveService.Question($"На складах не найдено свободного оборудования\n({equipmentNomenclature.Name})\nДобавить принудительно?"))
 				{
 					return;
 				}

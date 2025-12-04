@@ -24,10 +24,9 @@ using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
-using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Core.Domain.Orders.Documents;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents;
@@ -52,6 +51,7 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Extensions;
 using Vodovoz.Services;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
@@ -567,12 +567,12 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		private IList<OrderDocument> orderDocuments = new List<OrderDocument>();
-
+		private IList<OrderDocument> _orderDocuments = new List<OrderDocument>();
 		[Display(Name = "Документы заказа")]
-		public virtual IList<OrderDocument> OrderDocuments {
-			get => orderDocuments;
-			set => SetField(ref orderDocuments, value, () => OrderDocuments);
+		public virtual new IList<OrderDocument> OrderDocuments
+		{
+			get => _orderDocuments;
+			set => SetField(ref _orderDocuments, value, () => OrderDocuments);
 		}
 
 		private GenericObservableList<OrderDocument> _observableOrderDocuments;
@@ -2368,6 +2368,23 @@ namespace Vodovoz.Domain.Orders
 				PromotionalSets.Remove(ps);
 			}
 		}
+
+		/// <summary>
+		/// Проверка, есть ли в заказе товары типа "Залог"
+		/// </summary>
+		/// <returns></returns>
+		public virtual bool HasDepositItems() =>
+			OrderItems.Any(x =>
+				x.Nomenclature.Category == NomenclatureCategory.deposit);
+
+		/// <summary>
+		/// Проверка, есть ли в заказе товары с бесплатной доставкой
+		/// </summary>
+		/// <returns></returns>
+		public virtual bool HasNonPaidDeliveryItems() =>
+			OrderItems.Any(x =>
+				_nomenclatureSettings.PaidDeliveryNomenclatureId != x.Nomenclature.Id);
+
 
 		/// <summary>
 		/// Проверка на возможность добавления промонабора в заказ

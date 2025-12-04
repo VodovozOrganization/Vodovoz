@@ -806,6 +806,7 @@ namespace Vodovoz
 				_discountReasonRepository,
 				_wageParameterService,
 				_orderSettings,
+				_nomenclatureSettings,
 				_nomenclatureOnlineSettings,
 				_deliveryRulesSettings,
 				_flyerRepository,

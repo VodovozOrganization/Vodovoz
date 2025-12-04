@@ -35,5 +35,29 @@ namespace Edo.Transport
 					ex.Message);
 			}
 		}
+
+		/// <summary>
+		/// Опубликовать событие о создании неформальной заявки по ЭДО
+		/// </summary>
+		/// <param name="informalRequestId"></param>
+		/// <returns></returns>
+		public async Task PublishInformalEdoRequestCreatedEvent(int informalRequestId)
+		{
+			_logger.LogInformation("Отправляем событие на создание новой заявки по ЭДО, запрос: {RequestId}.", informalRequestId);
+
+			try
+			{
+				await _bus.Publish(new InformalEdoRequestCreatedEvent { InformalRequestId = informalRequestId });
+				_logger.LogInformation("Событие на создание новой заявки по ЭДО отправлено успешно");
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(
+					ex,
+					"Ошибка при отправке события на создание новой заявки по ЭДО. Id запроса: {RequestId}. Exception: {ExceptionMessage}",
+					informalRequestId,
+					ex.Message);
+			}
+		}
 	}
 }

@@ -349,6 +349,12 @@ namespace Edo.Docflow.Factories
 			{
 				var orderItem = inventPosition.AssignedOrderItem;
 				var nomenclature = orderItem.Nomenclature;
+
+				if(nomenclature.Category == NomenclatureCategory.deposit)
+				{
+					continue;
+				}
+
 				var isService = nomenclature.Category == NomenclatureCategory.master
 					|| nomenclature.Category == NomenclatureCategory.service;
 
