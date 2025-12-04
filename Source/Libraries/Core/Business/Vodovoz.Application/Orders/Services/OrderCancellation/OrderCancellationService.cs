@@ -33,6 +33,14 @@ namespace Vodovoz.Application.Orders.Services.OrderCancellation
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
+		/// <summary>
+		/// Проверка возможности отмены заказа
+		/// Данный метод может потребовать взаимодействия с пользователем
+		/// </summary>
+		/// <param name="order">Отменяемый заказ</param>
+		/// <param name="inputPermit">Ранее проверенное разрешение, 
+		/// используемое при повторном вызове в связанных диалогах</param>
+		/// <returns></returns>
 		public OrderCancellationPermit CanCancelOrder(
 			IUnitOfWork uow,
 			Order order, 
@@ -225,6 +233,11 @@ namespace Vodovoz.Application.Orders.Services.OrderCancellation
 			return answer == buttonYes;
 		}
 
+		/// <summary>
+		/// Запускает отмену документооборота по инициативе пользователя
+		/// </summary>
+		/// <param name="order">Заказ</param>
+		/// <param name="edoTaskId">Id ЭДО задачи</param>
 		public void CancelDocflowByUser(Order order, int edoTaskId)
 		{
 			CancelDocflow(order, edoTaskId);
@@ -239,6 +252,11 @@ namespace Vodovoz.Application.Orders.Services.OrderCancellation
 			);
 		}
 
+		/// <summary>
+		/// Запускает автоматическую отмену документооборота
+		/// </summary>
+		/// <param name="order">Заказ</param>
+		/// <param name="edoTaskId">Id ЭДО задачи</param>
 		public void AutomaticCancelDocflow(IUnitOfWork uow, Order order, int edoTaskId)
 		{
 			var edoTask = uow.GetById<EdoTask>(edoTaskId);
@@ -249,6 +267,7 @@ namespace Vodovoz.Application.Orders.Services.OrderCancellation
 			{
 				return;
 			}
+
 			CancelDocflow(order,edoTaskId);
 		}
 
