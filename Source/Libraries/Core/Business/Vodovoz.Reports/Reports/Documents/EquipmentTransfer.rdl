@@ -224,7 +224,7 @@ WHERE
 у фирмы во временное пользование.</Value>
         <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
-        <Top>723.5pt</Top>
+        <Top>739.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -878,102 +878,140 @@ WHERE
           </TableRows>
         </Footer>
       </fyi:Grid>
-      <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>16.50pt</Height>
-        <Width>255.27pt</Width>
-        <Value>Оборудование принято, претензий не имею</Value>
-        <ZIndex>0</ZIndex>
+      <Table Name="SignatureTable" KeepTogether="true">
+        <DataSetName>Order</DataSetName>
+        <TableColumns>
+          <TableColumn>
+            <Width>356.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>126.27pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <!-- Первая строка подписи -->
+            <TableRow>
+              <Height>16.50pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>Оборудование принято, претензий не имею</Value>
+                      <Style>
+                        <FontFamily>Times New Roman</FontFamily>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>/                                      /</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Bottom>Solid</Bottom>
+                        </BorderStyle>
+                        <FontFamily>Times New Roman</FontFamily>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12.00pt</Height>
+              <TableCells>
+                <TableCell>
+                  <!-- Пустая ячейка -->
+                  <ReportItems>
+                    <Textbox Name="Empty1">
+                      <Value></Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Value>Подпись клиента</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <FontFamily>Times New Roman</FontFamily>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <!-- Вторая строка подписи -->
+            <TableRow>
+              <Height>15.75pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>Оборудование передано клиенту</Value>
+                      <Style>
+                        <FontFamily>Times New Roman</FontFamily>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>/                                      /</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Bottom>Solid</Bottom>
+                        </BorderStyle>
+                        <FontFamily>Times New Roman</FontFamily>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12.00pt</Height>
+              <TableCells>
+                <TableCell>
+                  <!-- Пустая ячейка -->
+                  <ReportItems>
+                    <Textbox Name="Empty2">
+                      <Value></Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>Подпись водителя</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <FontFamily>Times New Roman</FontFamily>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
         <Left>12.5pt</Left>
-        <Top>659.4pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox12" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>15.75pt</Height>
-        <Width>229.77pt</Width>
-        <Value>Оборудование передано клиенту</Value>
-        <ZIndex>0</ZIndex>
-        <Left>12.5pt</Left>
-        <Top>692.2pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox13" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>12.00pt</Height>
-        <Width>126.27pt</Width>
-        <Value>/                                      /</Value>
-        <ZIndex>0</ZIndex>
-        <Left>345.5pt</Left>
-        <Top>659.4pt</Top>
+        <Top>675.4pt</Top>
         <Style>
           <BorderStyle>
-            <Bottom>Solid</Bottom>
+            <Default>None</Default>
           </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
         </Style>
-      </Textbox>
-      <Textbox Name="Textbox14" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>12.00pt</Height>
-        <Width>113.52pt</Width>
-        <Value>Подпись клиента</Value>
-        <ZIndex>0</ZIndex>
-        <Left>350.3pt</Left>
-        <Top>671.2pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Center</TextAlign>
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox15" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>12.00pt</Height>
-        <Width>126.27pt</Width>
-        <Value>/                                      /</Value>
-        <ZIndex>0</ZIndex>
-        <Left>345.5pt</Left>
-        <Top>692.2pt</Top>
-        <Style>
-          <BorderStyle>
-            <Bottom>Solid</Bottom>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox16" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>12.00pt</Height>
-        <Width>115.02pt</Width>
-        <Value>Подпись водителя</Value>
-        <ZIndex>0</ZIndex>
-        <Left>350.3pt</Left>
-        <Top>704.0pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Center</TextAlign>
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
-        </Style>
-      </Textbox>
+      </Table>
       <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Type>QR Code</Type>
         <Height>90.00pt</Height>
@@ -1339,7 +1377,7 @@ WHERE
                         </BorderStyle>
                         <FontSize>10pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
