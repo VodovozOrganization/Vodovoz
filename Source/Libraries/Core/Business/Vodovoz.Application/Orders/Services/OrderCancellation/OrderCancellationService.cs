@@ -41,10 +41,7 @@ namespace Vodovoz.Application.Orders.Services.OrderCancellation
 		{
 			var permit = inputPermit ?? new OrderCancellationPermit();
 
-			var edoTasks = _edoRepository.GetEdoTaskByOrderAsync(uow, order.Id, default)
-				.ConfigureAwait(false)
-				.GetAwaiter()
-				.GetResult();
+			var edoTasks = _edoRepository.GetEdoTaskByOrderAsync(uow, order.Id);
 
 			var hasMarkedProducts = order.OrderItems.Any(x => x.Nomenclature.IsAccountableInTrueMark);
 			if(!hasMarkedProducts)

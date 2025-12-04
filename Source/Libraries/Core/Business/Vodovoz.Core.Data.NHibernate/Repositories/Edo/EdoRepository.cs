@@ -79,20 +79,19 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 			}
 		}
 
-		public async Task<IEnumerable<OrderEdoTask>> GetEdoTaskByOrderAsync(
+		public IEnumerable<OrderEdoTask> GetEdoTaskByOrderAsync(
 			IUnitOfWork uow,
-			int orderId,
-			CancellationToken cancellationToken
+			int orderId
 			)
 		{
 			OrderEdoRequest orderEdoRequestAlias = null;
 			OrderEdoTask orderEdoTaskAlias = null;
 
-			var edoTasks = await uow.Session.QueryOver(() => orderEdoTaskAlias)
+			var edoTasks = uow.Session.QueryOver(() => orderEdoTaskAlias)
 				.Left.JoinAlias(() => orderEdoTaskAlias.OrderEdoRequest, () => orderEdoRequestAlias)
 				.Where(() => orderEdoRequestAlias.Order.Id == orderId)
 				.Where(() => orderEdoRequestAlias.DocumentType == EdoDocumentType.UPD)
-				.ListAsync()
+				.List()
 				;
 			return edoTasks;
 		}
