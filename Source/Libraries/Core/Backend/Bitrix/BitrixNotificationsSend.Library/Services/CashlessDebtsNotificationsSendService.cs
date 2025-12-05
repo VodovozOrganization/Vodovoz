@@ -14,8 +14,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
-using Vodovoz.Settings.Counterparty;
-using Vodovoz.Settings.Organizations;
+using Vodovoz.Settings.Notifications;
 using VodovozBusiness.EntityRepositories.Nodes;
 
 namespace BitrixNotificationsSend.Library.Services
@@ -39,7 +38,7 @@ namespace BitrixNotificationsSend.Library.Services
 		private readonly ILogger<CashlessDebtsNotificationsSendService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IBitrixNotificationsSendClient _bitrixNotificationsSendClient;
-		private readonly IOrganizationSettings _organizationSettings;
+		private readonly IBitrixNotificationsSendSettings _bitrixNotificationsSendSettings;
 		private readonly ICounterpartyRepository _counterpartyRepository;
 		private readonly IBottlesRepository _bottlesRepository;
 		private readonly IOrderRepository _orderRepository;
@@ -49,7 +48,7 @@ namespace BitrixNotificationsSend.Library.Services
 			ILogger<CashlessDebtsNotificationsSendService> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IBitrixNotificationsSendClient bitrixNotificationsSendClient,
-			IOrganizationSettings organizationSettings,
+			IBitrixNotificationsSendSettings bitrixNotificationsSendSettings,
 			ICounterpartyRepository counterpartyRepository,
 			IBottlesRepository bottlesRepository,
 			IOrderRepository orderRepository,
@@ -58,7 +57,7 @@ namespace BitrixNotificationsSend.Library.Services
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_bitrixNotificationsSendClient = bitrixNotificationsSendClient ?? throw new ArgumentNullException(nameof(bitrixNotificationsSendClient));
-			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
+			_bitrixNotificationsSendSettings = bitrixNotificationsSendSettings ?? throw new ArgumentNullException(nameof(bitrixNotificationsSendSettings));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 			_bottlesRepository = bottlesRepository ?? throw new ArgumentNullException(nameof(bottlesRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -73,7 +72,7 @@ namespace BitrixNotificationsSend.Library.Services
 				await GetCashlessDebts(cancellationToken);
 
 			_logger.LogInformation(
-				"Окончание формирования данных по компаниям с долгом по безналу. Количество компаний: {0}",
+				"Окончание формирования данных по компаниям с долгом по безналу. Количество компаний: {DebstCount}",
 				cashlessDebts.Count());
 
 			_logger.LogInformation("Начало отправки уведомлений по долгам по безналу в Битрикс24");
@@ -96,9 +95,38 @@ namespace BitrixNotificationsSend.Library.Services
 
 		private async Task<IEnumerable<CounterpartyCashlessDebtDto>> GetCashlessDebts(CancellationToken cancellationToken)
 		{
+			var debtsData = new List<CounterpartyCashlessDebtDto>();
+
+			var organizationsToSendNotifications =
+				_bitrixNotificationsSendSettings.CashlessDebtsOrganizations;
+
+			if(!organizationsToSendNotifications.Any())
+			{
+				_logger.LogInformation("Список организаций для формирования данных по долгам по безналу пуст");
+				return debtsData;
+			}
+
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(CashlessDebtsNotificationsSendService)))
 			{
-				return await GetGetCashlessDebtsByOrganization(uow, _organizationSettings.VodovozOrganizationId, cancellationToken);
+				foreach(var organizationId in organizationsToSendNotifications)
+				{
+					_logger.LogInformation(
+						"Формирование данных по компаниям с долгом по безналу для организации (Id={OrganizationId})",
+						organizationId);
+
+					var debts =
+						await GetGetCashlessDebtsByOrganization(uow, organizationId, cancellationToken);
+
+					debtsData.AddRange(debts);
+
+					_logger.LogInformation(
+						"Окончание формирования данных по компаниям с долгом по безналу для организации (Id={OrganizationId}). " +
+						"Количество компаний: {DebstCount}",
+						organizationId,
+						debts.Count());
+				}
+
+				return debtsData;
 			}
 		}
 
