@@ -111,7 +111,7 @@ namespace Edo.Common
 				transferRequest.Iteration = transferIteration;
 				transferIteration.TransferEdoRequests.Add(transferRequest);
 			}
-			
+
 			await _uow.SaveAsync(transferIteration, cancellationToken: cancellationToken);
 
 			return transferIteration;

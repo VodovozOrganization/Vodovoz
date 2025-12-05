@@ -183,8 +183,32 @@ namespace Edo.Transport
 				x.AutoDelete = false;
 			});
 
-			cfg.Message<ReceiptTaskCreatedEvent>(x => x.SetEntityName("edo.receipt-task-created.publish"));
-			cfg.Publish<ReceiptTaskCreatedEvent>(x =>
+			cfg.Message<InformalOrderDocumenTaskCreatedEvent>(x => x.SetEntityName("edo.informal-order-document-task-created.publish"));
+			cfg.Publish<InformalOrderDocumenTaskCreatedEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Message<InformalOrderDocumentAcceptedEvent>(x => x.SetEntityName("edo.informal-order-document-accepted.publish"));
+			cfg.Publish<InformalOrderDocumentAcceptedEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Message<InformalOrderDocumentCancelledEvent>(x => x.SetEntityName("edo.informal-order-document-cancelled.publish"));
+			cfg.Publish<InformalOrderDocumentCancelledEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Message<InformalOrderDocumentProblemEvent>(x => x.SetEntityName("edo.informal-order-document-problem.publish"));
+			cfg.Publish<InformalOrderDocumentProblemEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
 				x.Durable = true;
@@ -253,7 +277,7 @@ namespace Edo.Transport
 					rabbitCfg.UseMessageRetry(r => 
 					{
 						r.Interval(5, TimeSpan.FromSeconds(5));
-
+						
 						// Если не ставить ничего, то все будут обрабатываться
 						// Если установить Handle, то остальные будут игнорироваться
 						// Если установить Ignore, то будут обрабатываться все кроме игнорируемых
