@@ -1,6 +1,6 @@
-{
+﻿{
   "profiles": {
-    "Edo.Scheduler.Worker": {
+    "Edo.InformalOrderDocuments.Worker": {
       "commandName": "Project",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"
