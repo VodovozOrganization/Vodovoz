@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz.Presentation.WebApi.Security.OnlyOneSession
@@ -38,7 +39,7 @@ namespace Vodovoz.Presentation.WebApi.Security.OnlyOneSession
 
 			var allowedApplicationTypes = _optionsMonitor.CurrentValue.Authorization?.ApplicationUserTypes ?? Enumerable.Empty<ExternalApplicationType>();
 
-			var applicationUser = unitOfWork.Session.Query<ExternalApplicationUser>()
+			var applicationUser = unitOfWork.Session.Query<ExternalApplicationUserForApi>()
 				.Where(eau => eau.Login == username
 					&& allowedApplicationTypes.Contains(eau.ExternalApplicationType))
 				.FirstOrDefault();

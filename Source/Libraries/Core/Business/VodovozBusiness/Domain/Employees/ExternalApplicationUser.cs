@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Employees;
 
-namespace Vodovoz.Core.Domain.Employees
+namespace Vodovoz.Domain.Employees
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "пользователи внешних приложений",
@@ -14,7 +15,7 @@ namespace Vodovoz.Core.Domain.Employees
 		private string _password;
 		private string _androidSessionKey;
 		private string _token;
-		private EmployeeEntity _employee;
+		private Employee _employee;
 		
 		public virtual int Id { get; set; }
 
@@ -47,7 +48,7 @@ namespace Vodovoz.Core.Domain.Employees
 		}
 
 		[Display(Name = "Сотрудник")]
-		public virtual EmployeeEntity Employee
+		public virtual Employee Employee
 		{
 			get => _employee;
 			set => SetField(ref _employee, value);

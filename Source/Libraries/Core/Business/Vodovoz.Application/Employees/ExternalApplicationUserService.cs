@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Domain.Employees;
 using VodovozBusiness.Employees;
 
 namespace Vodovoz.Application.Employees
