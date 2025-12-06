@@ -63,6 +63,7 @@ namespace WarehouseApi.Controllers.V1
 		/// Начало погрузки по талону погрузки погрузки
 		/// </summary>
 		/// <param name="documentId"></param>
+		/// <param name="cancellationToken"></param>
 		/// <returns><see cref="StartLoadResponse"/></returns>
 		[HttpPost]
 		[Produces(MediaTypeNames.Application.Json)]
@@ -180,6 +181,8 @@ namespace WarehouseApi.Controllers.V1
 		/// <summary>
 		/// Замена отсканированного кода ЧЗ номенклатуры в заказе
 		/// </summary>
+		/// <param name="requestData"></param>
+		/// <param name="cancellationToken"></param>
 		/// <returns><see cref="ChangeOrderCodeResponse"/></returns>
 		[HttpPost]
 		[Produces(MediaTypeNames.Application.Json)]
@@ -230,6 +233,8 @@ namespace WarehouseApi.Controllers.V1
 		/// <summary>
 		/// Завершение погрузки по талону погрузки
 		/// </summary>
+		/// <param name="documentId"></param>
+		/// <param name="cancellationToken"></param>
 		/// <returns><see cref="EndLoadResponse"/></returns>
 		[HttpPost]
 		[Produces(MediaTypeNames.Application.Json)]

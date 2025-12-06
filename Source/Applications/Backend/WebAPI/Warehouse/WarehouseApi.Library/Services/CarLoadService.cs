@@ -364,7 +364,7 @@ namespace WarehouseApi.Library.Services
 					PopulateGroupCode(trueMarkAnyCodes),
 					PopulateWaterCode(trueMarkAnyCodes)));
 			}
-			
+
 			var waterCodes =
 				trueMarkAnyCodes
 				.Where(x => x.IsTrueMarkWaterIdentificationCode)
@@ -399,7 +399,7 @@ namespace WarehouseApi.Library.Services
 			{
 				_uow.Commit();
 			}
-			catch(MySqlException mysqlException) when (mysqlException.ErrorCode == MySqlErrorCode.DuplicateKey)
+			catch(MySqlException mysqlException) when(mysqlException.ErrorCode == MySqlErrorCode.DuplicateKey)
 			{
 				_logger.LogError(mysqlException, "DuplicateEntry: {ExceptionMessage}", mysqlException.Message);
 
@@ -711,7 +711,7 @@ namespace WarehouseApi.Library.Services
 
 			CarLoadDocumentItemEntity documentItemToEdit = null;
 
-			var codesToAdd = 
+			var codesToAdd =
 				newTrueMarkAnyCodes
 				.Where(x => x.IsTrueMarkWaterIdentificationCode)
 				.Select(x => x.TrueMarkWaterIdentificationCode)

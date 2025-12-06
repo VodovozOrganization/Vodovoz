@@ -23,6 +23,7 @@
 
 	<ItemGroup>
 	  <Folder Include="Options\" />
+	  <Folder Include="Repositories\Employees\" />
 	  <Folder Include="BasicHandbooks\" />
 	</ItemGroup>
 </Project>

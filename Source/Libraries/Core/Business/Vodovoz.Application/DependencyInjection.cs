@@ -32,6 +32,8 @@ using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.Receipts;
 using VodovozBusiness.Services.Subdivisions;
 using VodovozBusiness.Services.TrueMark;
+using VodovozBusiness.Employees;
+using Vodovoz.Application.Employees;
 
 namespace Vodovoz.Application
 {
@@ -64,13 +66,14 @@ namespace Vodovoz.Application
 			.AddScoped<ITrueMarkTransportCodeFactory, TrueMarkTransportCodeFactory>()
 			.AddScoped<ITrueMarkWaterGroupCodeFactory, TrueMarkWaterGroupCodeFactory>()
 			.AddScoped<ITrueMarkWaterIdentificationCodeFactory, TrueMarkWaterIdentificationCodeFactory>()
+			.AddScoped<IExternalApplicationUserService, ExternalApplicationUserService>()
 			.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>()
 			.AddScoped<OurCodesChecker>()
 			.AddScoped<OrderCancellationService>()
 			.AddTrueMarkApiClient()
 			.AddApplicationOrderServices()
 		;
-		
+
 		public static IServiceCollection AddApplicationOrderServices(this IServiceCollection services) => services
 			.AddScoped<IOrderService, OrderService>()
 			.AddScoped<IPaymentService, PaymentService>()

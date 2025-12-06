@@ -10,7 +10,7 @@ namespace Vodovoz.Core.Data.Logistics
 	{
 		//Нужен для Nhibernate
 		protected CompletedDriverWarehouseEventProxy() { }
-		
+
 		private CompletedDriverWarehouseEventProxy(
 			decimal? latitude,
 			decimal? longitude,
@@ -29,18 +29,18 @@ namespace Vodovoz.Core.Data.Logistics
 			DocumentId = documentId;
 			CompletedDate = DateTime.Now;
 		}
-		
+
 		public virtual int Id { get; }
 
 		[Display(Name = "Время события")]
 		public virtual DateTime CompletedDate { get; }
-		
+
 		[Display(Name = "Широта")]
 		public virtual decimal? Latitude { get; }
-		
+
 		[Display(Name = "Долгота")]
 		public virtual decimal? Longitude { get; }
-		
+
 		[Display(Name = "Расстояние от места сканирования (м)")]
 		public virtual decimal? DistanceMetersFromScanningLocation { get; }
 
@@ -52,7 +52,7 @@ namespace Vodovoz.Core.Data.Logistics
 
 		[Display(Name = "Автомобиль")]
 		public virtual int? CarId { get; }
-		
+
 		[Display(Name = "Номер документа")]
 		public virtual int? DocumentId { get; }
 

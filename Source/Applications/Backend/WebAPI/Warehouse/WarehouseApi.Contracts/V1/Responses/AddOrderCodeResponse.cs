@@ -1,4 +1,4 @@
-﻿using WarehouseApi.Contracts.V1.Dto;
+﻿﻿using WarehouseApi.Contracts.V1.Dto;
 
 namespace WarehouseApi.Contracts.V1.Responses
 {

@@ -183,7 +183,7 @@ namespace WarehouseApi.Library.Errors
 				OrderStatus.DeliveryCanceled,
 				OrderStatus.Canceled
 			};
-			
+
 			var cancelledOrders =
 				_orderRepository.Get(_uow, o => ordersInDocument.Contains(o.Id) && undeliveredStatuses.Contains(o.OrderStatus));
 
