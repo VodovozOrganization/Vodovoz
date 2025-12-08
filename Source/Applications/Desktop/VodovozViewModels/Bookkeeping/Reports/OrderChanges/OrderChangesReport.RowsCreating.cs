@@ -192,7 +192,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 					 select (DateTime?)subChangedEntity.ChangeTime)
 					.Max()
 
-				let compareTime = lastTimeDeliveredChange ?? order.TimeDelivered
+				let timeDelivered = lastTimeDeliveredChange ?? order.TimeDelivered
 
 				where
 					changedEntity.EntityClassName == "Order"
@@ -206,7 +206,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 					&& fieldChange.Path == "PaymentType"
 					&& (_selectedIssueTypes.Any() || _isPaymentTypeChangeTypeSelected)
 
-					&& changedEntity.ChangeTime > compareTime
+					&& changedEntity.ChangeTime > timeDelivered
 
 					&& (((_cashAndCashlessPaymentTypesValues.Contains(fieldChangePayType.NewValue)
 								|| _cashAndCashlessPaymentTypesValues.Contains(fieldChangePayType.OldValue))
