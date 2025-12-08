@@ -1375,6 +1375,21 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.List();
 		}
 
+		public OrderEntity GetOrderByOrderEdoDocumentId(IUnitOfWork uow, int outgoingOrderEdoDocumentId)
+		{
+			var order = (
+				from outgoing in uow.Session.Query<OrderEdoDocument>()
+				join task in uow.Session.Query<EdoTask>() on outgoing.DocumentTaskId equals task.Id into taskJoin
+				from task in taskJoin.DefaultIfEmpty()
+				join req in uow.Session.Query<PrimaryEdoRequest>() on task.Id equals req.Task.Id into reqJoin
+				from req in reqJoin.DefaultIfEmpty()
+				where outgoing.Id == outgoingOrderEdoDocumentId
+				select req.Order
+			).FirstOrDefault();
+
+			return order;
+		}
+
 		public IEnumerable<Payment> GetOrderPayments(IUnitOfWork uow, int orderId)
 		{
 			Payment paymentAlias = null;

@@ -36,6 +36,25 @@ namespace Edo.Transport
 			}
 		}
 
+		public async Task PublishEdoOrderDocumentSendEvent(int documentId)
+		{
+			_logger.LogInformation("Отправляем событие на отправку УПД по ЭДО, запрос: {documentId}.", documentId);
+
+			try
+			{
+				await _bus.Publish(new OrderDocumentSendEvent { OrderDocumentId = documentId });
+				_logger.LogInformation("Событие отправки УПД по ЭДО отправлено успешно");
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(
+					ex,
+					"Ошибка при отправке события на отправку УПД по ЭДО. Id запроса: {documentId}. Exception: {ExceptionMessage}",
+					documentId,
+					ex.Message);
+			}
+		}
+
 		/// <summary>
 		/// Опубликовать событие о создании неформальной заявки по ЭДО
 		/// </summary>

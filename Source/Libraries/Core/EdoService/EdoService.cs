@@ -1,7 +1,7 @@
 ﻿using Core.Infrastructure;
-using DocumentFormat.OpenXml.Office2010.Excel;
+using Edo.Transport;
+using EdoService.Library.Factories;
 using FluentNHibernate.Data;
-using Microsoft.Extensions.DependencyInjection;
 using NHibernate.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -9,8 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
@@ -19,12 +19,11 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Extensions;
+using VodovozBusiness.Nodes;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using EdoContainer = Vodovoz.Domain.Orders.Documents.EdoContainer;
+using IOrderRepository = Vodovoz.EntityRepositories.Orders.IOrderRepository;
 using Order = Vodovoz.Domain.Orders.Order;
-using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
-using Edo.Transport;
-using EdoService.Library.Factories;
 
 namespace EdoService.Library
 {
@@ -32,22 +31,75 @@ namespace EdoService.Library
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IOrderRepository _orderRepository;
+		private readonly IEdoRepository _edoRepository;
 		private readonly MessageService _messageService;
 		private readonly IEnumerable<IInformalEdoRequestFactory> _requestFactories;
 
-		private static EdoDocFlowStatus[] _successfulEdoStatuses => new[] { EdoDocFlowStatus.Succeed, EdoDocFlowStatus.InProgress };
+		private static EdoDocFlowStatus[] _successfulEdoStatuses => new[]
+		{
+			EdoDocFlowStatus.Succeed,
+			EdoDocFlowStatus.InProgress
+		};
+		private static EdoDocumentStatus[] _successfulEdoDocumenhtStatuses => new[]
+		{
+			EdoDocumentStatus.Succeed,
+			EdoDocumentStatus.InProgress
+		};
+
+		private static EdoDocumentStatus[] _resendableEdoDocumentStatuses => new[]
+		{
+			EdoDocumentStatus.Cancelled,
+			EdoDocumentStatus.Error
+		};
+
 
 		public EdoService(
 			IUnitOfWorkFactory uowFactory,
 			IOrderRepository orderRepository,
+			IEdoRepository edoRepository,
 			MessageService messageService,
 			IEnumerable<IInformalEdoRequestFactory> requestFactories
 			)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 			_messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
 			_requestFactories = requestFactories ?? throw new ArgumentNullException(nameof(requestFactories));
+		}
+
+		public virtual void ResendEdoDocumentForOrder(OrderEntity order, Guid docflowId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot("Ставим документ в очередь на переотправку в ЭДО"))
+			{
+				var document = _edoRepository.GetOrderEdoDocumentByDocflowId(uow, docflowId);
+
+				if(document == null)
+				{
+					return;
+				}
+
+				if(!_resendableEdoDocumentStatuses.Contains(document.Status))
+				{
+					return;
+				}
+
+				if(!(document.Type == OutgoingEdoDocumentType.Order))
+				{
+					return;
+				}
+
+				/*Переотправка УПД с ЧЗ доступна в течение 3 - х дней с момента первой отправки.По истечению 3 - х дней не давать переотправлять.
+				На УПД без ЧЗ нет ограничения на дни, в течение которых доступна переотправка.
+				Не давать переотправлять УПД в случаях, когда:
+				1) Были изменения состава и кол - ва номенклатур
+				2) Были изменения в стоимости
+				3) Были изменения в организации(договор)
+				4) Были изменения, связанные с кодами маркировки*/
+
+				_messageService.PublishEdoOrderDocumentSendEvent(document.Id)
+					.GetAwaiter().GetResult();
+			}
 		}
 
 		public virtual void SetNeedToResendEdoDocumentForOrder<T>(T entity, DocumentContainerType type) where T : IDomainObject
@@ -175,6 +227,19 @@ namespace EdoService.Library
 			return Result.Success();
 		}
 
+		public Result ValidateEdoOrderDocument(IUnitOfWork uow, OutgoingEdoDocument document)
+		{
+			var order = _orderRepository.GetOrderByOrderEdoDocumentId(uow, document.Id);
+
+			if(_successfulEdoDocumenhtStatuses.Contains(document.Status))
+			{
+				var error = Vodovoz.Errors.Edo.EdoErrors.CreateAlreadySuccefullSended(document, order.Id);
+				return Result.Failure(error);
+			}
+
+			return Result.Success();
+		}
+
 		public Result ValidateOrderForDocument(OrderEntity order, DocumentContainerType type)
 		{
 			var errors = new List<Error>();
@@ -187,6 +252,59 @@ namespace EdoService.Library
 			if(errors.Any())
 			{
 				return Result.Failure(errors);
+			}
+
+			return Result.Success();
+		}
+
+		public Result ValidateOrderForDocument(OrderEntity order, EdoDocumentType type)
+		{
+			var errors = new List<Error>();
+
+			if(order.OrderPaymentStatus == OrderPaymentStatus.Paid)
+			{
+				errors.Add(Vodovoz.Errors.Edo.EdoErrors.CreateAlreadyPaidUpd(order.Id, type));
+			}
+
+			if(errors.Any())
+			{
+				return Result.Failure(errors);
+			}
+
+			return Result.Success();
+		}
+
+		public Result ValidateOutgoingDocument(IUnitOfWork uow, EdoDockflowData dockflowData)
+		{
+			var type = dockflowData.EdoDocumentType.Value;
+
+			if(dockflowData.OrderId.HasValue == false)
+			{
+				return Result.Failure(Error.NullValue);
+			}
+
+			if(dockflowData.DocFlowId.HasValue == false)
+			{
+				return Result.Failure(Error.NullValue);
+			}
+
+			var order = _orderRepository.GetOrder(uow, dockflowData.OrderId.Value);
+
+			var validateOrderResult = ValidateOrderForDocument(order, type);
+
+			if(validateOrderResult.IsFailure)
+			{
+				return validateOrderResult;
+			}
+
+			var outgoingEdoDocument = _edoRepository
+				.GetOrderEdoDocumentByDocflowId(uow, dockflowData.DocFlowId.Value);
+
+			var edoValidateDocumentResult = ValidateEdoOrderDocument(uow, outgoingEdoDocument);
+
+			if(edoValidateDocumentResult.IsFailure)
+			{
+				return edoValidateDocumentResult;
 			}
 
 			return Result.Success();
@@ -257,47 +375,6 @@ namespace EdoService.Library
 				_messageService.PublishInformalEdoRequestCreatedEvent(informalRequest.Id)
 					.GetAwaiter().GetResult();
 			}
-		}
-
-		public async Task<bool> CanManuallyResendEdoDocument(IUnitOfWork uow, int orderId, EdoDocumentType type)
-		{
-			var requests = await uow.Session.Query<PrimaryEdoRequest>()
-				.Where(r =>
-					r.Order.Id == orderId &&
-					(r.DocumentRequestType == EdoRequestType.Manual 
-					|| r.DocumentRequestType == EdoRequestType.Primary)
-				).FirstOrDefaultAsync();
-			if(requests == null)
-			{
-				return false;
-			}
-
-			var edoTask = requests.Task;
-			if(edoTask == null)
-			{
-				return false;
-			}
-
-			var outgoingEdoDocuments = await uow.Session.Query<OrderEdoDocument>()
-				.Where(d =>
-					d.DocumentTaskId == edoTask.Id &&
-					d.DocumentType == EdoDocumentType.UPD
-				).FirstOrDefaultAsync();
-
-			var EdoDocumentStatuses = new EdoDocumentStatus[]
-			{
-				EdoDocumentStatus.Cancelled,
-				EdoDocumentStatus.CompletedWithDivergences,
-				EdoDocumentStatus.Error,
-				EdoDocumentStatus.Warning
-			};
-
-			if(!outgoingEdoDocuments.Status.IsIn(EdoDocumentStatuses))
-			{
-				return false;
-			}
-
-			return true;
 		}
 	}
 }

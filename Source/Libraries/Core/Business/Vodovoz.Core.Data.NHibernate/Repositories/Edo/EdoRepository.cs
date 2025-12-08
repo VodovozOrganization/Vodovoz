@@ -1,6 +1,7 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
+using NPOI.SS.Formula.Functions;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Organizations;
@@ -78,6 +80,16 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 				var count = await query.SingleOrDefaultAsync<int>(cancellationToken);
 				return count > 0;
 			}
+		}
+
+		public OutgoingEdoDocument GetOrderEdoDocumentByDocflowId(IUnitOfWork uow, Guid docflowId)
+		{
+			var document = (from tax in uow.Session.Query<TaxcomDocflow>()
+							join outgoing in uow.Session.Query<OutgoingEdoDocument>() on tax.EdoDocumentId equals outgoing.Id
+							where tax.DocflowId == docflowId
+							select outgoing).FirstOrDefault();
+
+			return document;
 		}
 	}
 }

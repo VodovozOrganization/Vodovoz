@@ -1643,15 +1643,29 @@ namespace Vodovoz
 
 		private void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
 		{
-			if(SelectedEdoDocumentDataNode?.EdoDocumentType == EdoDocumentType.InformalOrderDocument)
+			if(SelectedEdoDocumentDataNode is null)
 			{
-				ResendEquipmentTransferEdoRequest();
-				CustomizeSendDocumentAgainButton();
 				return;
 			}
 
-			ResendUpd();
-			CustomizeSendDocumentAgainButton();
+			if(!(SelectedEdoDocumentDataNode.EdoDocumentType is null))
+			{
+				switch(SelectedEdoDocumentDataNode?.EdoDocumentType)
+				{
+					case EdoDocumentType.UPD:
+						ResendUpdOnNewEdo();
+						break;
+					case EdoDocumentType.InformalOrderDocument:
+						ResendEquipmentTransferEdoRequest();
+						break;
+				}
+				CustomizeSendDocumentAgainButton();
+			}
+			else if(!(SelectedEdoDocumentDataNode.OldEdoDocumentType is null))
+			{
+				ResendUpd();
+				CustomizeSendDocumentAgainButton();
+			}
 		}
 
 		private void ResendEquipmentTransferEdoRequest()
@@ -1718,6 +1732,39 @@ namespace Vodovoz
 			}
 
 			_edoService.SetNeedToResendEdoDocumentForOrder(Entity, type);
+		}
+
+		private void ResendUpdOnNewEdo()
+		{
+			var type = SelectedEdoDocumentDataNode.EdoDocumentType.Value;
+
+			var document = SelectedEdoDocumentDataNode.DocFlowId;
+
+            if(!document.HasValue)
+            {
+                _interactiveService.ShowMessage(ImportanceLevel.Warning,
+					$"Документ {type.GetEnumTitle()} не найден для переотправки.");
+            }
+
+			var result = _edoService.ValidateOutgoingDocument(UoW, SelectedEdoDocumentDataNode);
+
+            var errors = result.Errors.ToArray();
+
+            var errorMessages = result.Errors.Select(x => x.Message).ToArray();
+
+            if(result.IsFailure)
+            {
+                if(errors.Any(error => error.Code == EdoErrors.AlreadyPaidUpd || error.Code == EdoErrors.AlreadySuccefullSended)
+                    && !_interactiveService.Question(
+                        "Вы уверены, что хотите отправить повторно?\n" +
+                        string.Join("\n - ", errorMessages),
+                        "Требуется подтверждение!"))
+                {
+                    return;
+                }
+            }
+
+            _edoService.ResendEdoDocumentForOrder(Entity, document.Value);
 		}
 
 		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)
