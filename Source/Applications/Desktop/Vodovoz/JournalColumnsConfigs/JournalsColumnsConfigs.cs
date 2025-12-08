@@ -8,6 +8,7 @@ using System.Linq;
 using Gamma.Utilities;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Organizations;
@@ -158,7 +159,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				FluentColumnsConfig<CallCenterMotivationCoefficientJournalNode>.Create()
 					.SetTreeModel(ViewModel.CreateAndSaveTreeModel)
 					.AddColumn("Код")
-						.AddNumericRenderer(node => node.Id )
+						.AddNumericRenderer(node => node.Id)
 						.AddPixbufRenderer(node => node.JournalNodeType == typeof(ProductGroup) ? _folderImg : _emptyImg)
 					.AddColumn("Название")
 						.AddTextRenderer(node => node.Name)
@@ -171,7 +172,10 @@ namespace Vodovoz.JournalColumnsConfigs
 						.EditedEvent((o, args) =>
 						{
 							var node = ViewModel.TreeModel.NodeAtPath(new TreePath(args.Path)) as CallCenterMotivationCoefficientJournalNode;
-							Gtk.Application.Invoke((s, e) => ViewModel.OnMotivationUnitTypeEdited(node));
+							if(args.NewText != node.MotivationUnitType?.GetEnumTitle())
+							{
+								Gtk.Application.Invoke((s, e) => ViewModel.OnMotivationUnitTypeEdited(node));
+							}
 						})
 					.AddColumn("Значение коэффициента")
 						.AddTextRenderer(node => node.MotivationCoefficientText)
@@ -185,6 +189,13 @@ namespace Vodovoz.JournalColumnsConfigs
 						{
 							var node = ViewModel.TreeModel.NodeAtPath(new TreePath(args.Path)) as  CallCenterMotivationCoefficientJournalNode;
 							ViewModel.OnMotivationCoefficientEdited(node);
+						})
+						.EditingStartedEvent((editable, args) =>
+						{
+							if(args.Editable is Entry entry)
+							{
+								entry.SetNumericValidation( 999999.99m);
+							}
 						})
 					.AddColumn("")
 					.Finish()

@@ -54,6 +54,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotiva
 			/// Денежный формат?
 			/// </summary>
 			public bool IsMoneyFormat => MotivationUnitType == NomenclatureMotivationUnitType.Percent;
+
+			/// <summary>
+			/// Не показывать продажи?
+			/// </summary>
+			public bool HideSold { get; set; }
 		}
 	}
 }

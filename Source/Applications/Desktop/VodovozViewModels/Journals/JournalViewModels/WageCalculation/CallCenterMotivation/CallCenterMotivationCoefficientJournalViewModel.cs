@@ -342,8 +342,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.WageCalculation
 			{
 				return false;
 			}
-
-
+			
 			if(node.MotivationCoefficient is null)
 			{
 				return true;

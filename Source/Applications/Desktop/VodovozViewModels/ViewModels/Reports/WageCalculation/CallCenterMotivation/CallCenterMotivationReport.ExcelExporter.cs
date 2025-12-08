@@ -318,8 +318,10 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotiva
 					var index = i;
 
 					var sliceColumn = node.SliceColumnValues[index];
+					
+					var soldSliceCell = node.HideSold ? GetStringCell(string.Empty) : GetFloatingPointCell(sliceColumn.Sold, node.IsMoneyFormat);
 
-					row.AppendChild(GetFloatingPointCell(sliceColumn.Sold, node.IsMoneyFormat));
+					row.AppendChild(soldSliceCell);
 					row.AppendChild(GetFloatingPointCell(sliceColumn.Premium, true));
 
 					if(_report.ShowDynamics)
@@ -332,13 +334,18 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotiva
 						else
 						{
 							var dynamicColumn = node.DynamicColumns[index - 1];
-							row.AppendChild(GetFloatingPointCell(dynamicColumn.Sold, node.IsMoneyFormat));
+							var soldDynamicCell = node.HideSold ? GetStringCell("") : GetFloatingPointCell(dynamicColumn.Sold, node.IsMoneyFormat);
+							row.AppendChild(soldDynamicCell);
 							row.AppendChild(GetFloatingPointCell(dynamicColumn.Premium, true));
 						}
 					}
 				}
 
-				row.AppendChild(GetFloatingPointCell(node.SliceColumnValues.Sum(x => x.Sold), node.IsMoneyFormat));
+				var totalSliceCell = node.HideSold
+					? GetStringCell(string.Empty)
+					: GetFloatingPointCell(node.SliceColumnValues.Sum(x => x.Sold), node.IsMoneyFormat);
+				
+				row.AppendChild(totalSliceCell);
 				row.AppendChild(GetFloatingPointCell(node.SliceColumnValues.Sum(x => x.Premium), true));
 
 				return row;

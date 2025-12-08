@@ -630,7 +630,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotiva
 				query.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(includedOrderStatuses);
 			}
 
-			if(excludedPromotionalSets.Any())
+			if(excludedOrderStatuses.Any())
 			{
 				query.WhereRestrictionOn(() => orderAlias.OrderStatus).Not.IsIn(excludedOrderStatuses);
 			}
@@ -714,6 +714,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotiva
 			   || EndDate == default(DateTime))
 			{
 				yield return "Заполните дату.";
+			}
+
+			if(StartDate > EndDate)
+			{
+				yield return "Начальная дата не может быть больше конечной";
 			}
 
 			var deltaTime = EndDate - StartDate;

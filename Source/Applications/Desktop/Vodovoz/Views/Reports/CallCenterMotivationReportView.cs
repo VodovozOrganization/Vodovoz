@@ -95,13 +95,13 @@ namespace Vodovoz.Views.Reports
 					var index = i;
 
 					AddDateSliceColumn(columnsConfig, ViewModel.Report.Slices[index].ToString(), "Продано")
-						.AddTextRenderer(row => row.IsSubheaderRow ? "" : $"{row.SliceColumnValues[index].Sold.ToFormattedUnitString(row.IsMoneyFormat)}");
+						.AddTextRenderer(row => row.IsSubheaderRow || row.HideSold  ? "" : $"{row.SliceColumnValues[index].Sold.ToFormattedUnitString(row.IsMoneyFormat)}");
 
 					AddSimpleColumn(columnsConfig, "Премия")
 						.AddTextRenderer(row => row.IsSubheaderRow ? "" : $"{row.SliceColumnValues[index].Premium.ToFormattedUnitString(true)}");
 
 					AddSimpleColumn(columnsConfig, "Продано\nдинамика")
-						.AddTextRenderer(row => row.IsSubheaderRow || index == 0 ? "-" : $"{row.DynamicColumns[index - 1].Sold.ToFormattedUnitString(row.IsMoneyFormat)}");
+						.AddTextRenderer(row => row.IsSubheaderRow || index == 0 || row.HideSold ? "" : $"{row.DynamicColumns[index - 1].Sold.ToFormattedUnitString(row.IsMoneyFormat)}");
 
 					AddSimpleColumn(columnsConfig, "Премия\nдинамика").
 						AddTextRenderer(row => row.IsSubheaderRow || index == 0 ? "" : $"{row.DynamicColumns[index - 1].Premium.ToFormattedUnitString(true)}");
@@ -116,7 +116,7 @@ namespace Vodovoz.Views.Reports
 					var index = i;
 
 					AddDateSliceColumn(columnsConfig, ViewModel.Report.Slices[index].ToString(), "Продано")
-						.AddTextRenderer(row => row.IsSubheaderRow ? "" : $"{row.SliceColumnValues[index].Sold.ToFormattedUnitString(row.IsMoneyFormat)}");
+						.AddTextRenderer(row => row.IsSubheaderRow || row.HideSold  ? $"" : $"{row.SliceColumnValues[index].Sold.ToFormattedUnitString(row.IsMoneyFormat)}");
 
 					AddSimpleColumn(columnsConfig, "Премия")
 						.AddTextRenderer(row => row.IsSubheaderRow ? "" : $"{row.SliceColumnValues[index].Premium.ToFormattedUnitString(true)}");
@@ -126,7 +126,7 @@ namespace Vodovoz.Views.Reports
 			}
 
 			AddDateSliceColumn(columnsConfig, "Всего за период", "Продано")
-				.AddNumericRenderer(row => row.IsSubheaderRow ? "" : $"{row.SliceColumnValues.Sum(x => x.Sold).ToFormattedUnitString(row.IsMoneyFormat)}");
+				.AddNumericRenderer(row => row.IsSubheaderRow || row.HideSold  ?  "" : $"{row.SliceColumnValues.Sum(x => x.Sold).ToFormattedUnitString(row.IsMoneyFormat)}");
 
 			AddSimpleColumn(columnsConfig, "Премия")
 				.AddNumericRenderer(row => row.IsSubheaderRow ? "" : $"{row.SliceColumnValues.Sum(x => x.Premium).ToFormattedUnitString(true)}");

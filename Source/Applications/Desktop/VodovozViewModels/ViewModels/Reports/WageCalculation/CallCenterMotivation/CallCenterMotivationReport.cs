@@ -57,7 +57,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotiva
 			
 			private string GroupingTitle => string.Join(" | ", GroupingBy.Select(x => x.GetEnumTitle()));
 			
-			private string ReportTitle => $"Отчет по оборачиваемости с {_startDate:dd.MM.yyyy} по {_endDate:dd.MM.yyyy}";
+			private string ReportTitle => $"Отчет по мотивации КЦ с {_startDate:dd.MM.yyyy} по {_endDate:dd.MM.yyyy}";
 			
 			public IEnumerable<GroupingType> GroupingBy { get; }
 			
@@ -84,7 +84,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotiva
 					case 3:
 						var result3 = Process3rdLevelGroups(ordersItemsList, cancellationToken);
 
-						var group3Total = AddGroupTotals("Сводные данные по отчету", result3.Totals);
+						var group3Total = AddGroupTotals("Сводные данные по отчету", result3.Totals, true);
 
 						_reportTotal = group3Total;
 
@@ -94,7 +94,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotiva
 					case 2:
 						var result2nd = Process2ndLevelGroups(ordersItemsList, cancellationToken);
 
-						var group2Total = AddGroupTotals("Сводные данные по отчету", result2nd.Totals);
+						var group2Total = AddGroupTotals("Сводные данные по отчету", result2nd.Totals, true);
 
 						_reportTotal = group2Total;
 
@@ -286,8 +286,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotiva
 								.Items
 								.First());
 
-						var secondLevelGroupRows =
-							new List<CallCenterMotivationReportRow>();
+						var secondLevelGroupRows = new List<CallCenterMotivationReportRow>();
 
 						while(true)
 						{
@@ -315,7 +314,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotiva
 						groupRows.AddRange(secondLevelGroupRows);
 					}
 
-					var groupTotal = AddGroupTotals("", secondLevelGroupTotals);
+					var groupTotal = AddGroupTotals("", secondLevelGroupTotals, true);
 					groupTotal.Title = groupTitle;
 					totalsRows.Add(groupTotal);
 
@@ -392,19 +391,21 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotiva
 				return dynamics;
 			}
 
-			private CallCenterMotivationReportRow AddGroupTotals(string title, IList<CallCenterMotivationReportRow> nomenclatureGroupRows)
+			private CallCenterMotivationReportRow AddGroupTotals(string title, IList<CallCenterMotivationReportRow> nomenclatureGroupRows, bool hideSold = false)
 			{
 				var row = new CallCenterMotivationReportRow
 				{
 					Title = title,
 					RowType = ReportRowType.Totals,
+					HideSold = hideSold,
+					MotivationUnitType = nomenclatureGroupRows.First().MotivationUnitType
 				};
 
 				for(var i = 0; i < Slices.Count; i++)
 				{
 					row.SliceColumnValues.Add(new ValueColumn
 					{
-						Sold = nomenclatureGroupRows.Sum(x => x.SliceColumnValues[i].Sold),
+						Sold = hideSold ? 0 : nomenclatureGroupRows.Sum(x => x.SliceColumnValues[i].Sold),
 						Premium = nomenclatureGroupRows.Sum(x => x.SliceColumnValues[i].Premium)
 					});
 				}
@@ -475,8 +476,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotiva
 				IEnumerable<GroupingType> groupingBy,
 				DateTimeSliceType slicingType,
 				bool showDynamics,
-				Func<CallCenterMotivationReport, IList<CallCenterMotivationReportOrderItemNode>>
-					dataFetchCallback,
+				Func<CallCenterMotivationReport, IList<CallCenterMotivationReportOrderItemNode>> dataFetchCallback,
 				CancellationToken cancellationToken)
 			{
 				return new CallCenterMotivationReport(
