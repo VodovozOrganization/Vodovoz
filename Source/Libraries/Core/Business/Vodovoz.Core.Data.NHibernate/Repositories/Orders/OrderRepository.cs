@@ -1,16 +1,16 @@
-﻿using QS.DomainModel.UoW;
+﻿using NHibernate.Linq;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NHibernate.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Core.Data.NHibernate.Repositories.Orders
 {
@@ -47,9 +47,14 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Orders
 						   && !client.IsNotSendEquipmentTransferByEdo
 						   && edoRequest == null
 					   select order)
+				.Distinct()
 				.ToListAsync(cancellationToken);
 
-			return orders;
+			var ordersWithEquipmentTransfer = orders
+				.Where(order => order.OrderDocuments.Any(doc => doc.Type == OrderDocumentType.EquipmentTransfer))
+				.ToList();
+
+			return ordersWithEquipmentTransfer;
 		}
 	}
 }
