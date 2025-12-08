@@ -28,7 +28,12 @@ namespace Edo.Transfer.Routine.Services
 		private readonly MessageService _edoMessageService;
 
 		private readonly IEnumerable<OrderStatus> _orderStatusesToSendUpd =
-			new[] { OrderStatus.Shipped, OrderStatus.Closed, OrderStatus.UnloadingOnStock };
+			new[]
+			{
+				OrderStatus.Shipped,
+				OrderStatus.Closed,
+				OrderStatus.UnloadingOnStock
+			};
 
 		public ClosingDocumentsOrdersEquipmentTransferSendService(
 			ILogger<ClosingDocumentsOrdersEquipmentTransferSendService> logger,
@@ -72,7 +77,9 @@ namespace Edo.Transfer.Routine.Services
 				_orderStatusesToSendUpd,
 				cancellationToken);
 
-			_logger.LogInformation($"Найдено {orders.Count()} заказов для отправки ЭДО акта приёма-передачи оборудования");
+			_logger.LogInformation(
+				"Найдено {OrdersCount} заказов для отправки ЭДО акта приёма-передачи оборудования",
+				orders.Count());
 
 			return orders;
 		}
@@ -90,6 +97,18 @@ namespace Edo.Transfer.Routine.Services
 					continue;
 				}
 
+				var orderDocument = order.OrderDocuments
+					.Where(doc => doc.Type == OrderDocumentType.EquipmentTransfer).FirstOrDefault();
+
+				if(orderDocument == null)
+				{
+					_logger.LogWarning(
+						"Документ типа {DocumentType} для заказа №{OrderId} не найден.",
+						OrderDocumentType.EquipmentTransfer,
+						order.Id);
+					continue;
+				}
+
 				var edoRequest = CreateEquipmentTransferEdoRequests(order);
 
 				await uow.SaveAsync(edoRequest, cancellationToken: cancellationToken);
@@ -102,7 +121,7 @@ namespace Edo.Transfer.Routine.Services
 				await uow.CommitAsync(cancellationToken);
 			}
 
-			_logger.LogInformation($"Создано {edoRequests.Count} заявок");
+			_logger.LogInformation("Создано {EdoRequestsCount} заявок", edoRequests.Count);
 
 			return edoRequests;
 		}
@@ -136,17 +155,19 @@ namespace Edo.Transfer.Routine.Services
 			{
 				try
 				{
-					_logger.LogInformation($"Отправляем событие о создании новой заявки по ЭДО. RequestId: {edoRequest.Id}.");
+					_logger.LogInformation(
+						"Отправляем событие о создании новой заявки по ЭДО. RequestId: {RequestId}.",
+						edoRequest.Id);
 
 					await _edoMessageService.PublishEdoRequestCreatedEvent(edoRequest.Id);
 
-					_logger.LogInformation($"Событие о создании новой заявки по ЭДО отправлено успешно");
+					_logger.LogInformation("Событие о создании новой заявки по ЭДО отправлено успешно");
 				}
 				catch(Exception ex)
 				{
-					_logger.LogError(
-						ex,
-						$"Ошибка при отправке события на создание новой заявки по ЭДО. RequestId: {edoRequest.Id}.");
+					_logger.LogError(ex,
+						"Ошибка при отправке события на создание новой заявки по ЭДО. RequestId: {RequestId}.",
+						edoRequest.Id);
 
 					continue;
 				}
