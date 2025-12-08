@@ -4,7 +4,7 @@ using Vodovoz.Core.Domain.Goods;
 namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotivation
 {
 	/// <summary>
-	/// Нода заказа
+	/// Нода отчёта по мотивации
 	/// </summary>
 	public class CallCenterMotivationReportOrderItemNode
 	{

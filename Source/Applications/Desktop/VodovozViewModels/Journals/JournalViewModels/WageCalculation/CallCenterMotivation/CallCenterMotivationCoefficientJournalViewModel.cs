@@ -66,6 +66,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.WageCalculation
 
 			CreateActions();
 		}
+		
+		public RecursiveTreeModel<CallCenterMotivationCoefficientJournalNode> TreeModel { get; private set; }
+
+		public IList<NomenclatureMotivationUnitType?> MotivationUnitTypeList { get; }
 
 		private void PostLoadProcessingFunc(IList items, uint addedSince)
 		{
@@ -282,11 +286,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.WageCalculation
 
 			_interactiveService.ShowMessage(ImportanceLevel.Info, "Сохранено");
 		}
-
-		public RecursiveTreeModel<CallCenterMotivationCoefficientJournalNode> TreeModel { get; private set; }
-
-		public IList<NomenclatureMotivationUnitType?> MotivationUnitTypeList { get; }
-
+		
 		public RecursiveTreeModel<CallCenterMotivationCoefficientJournalNode> CreateAndSaveTreeModel()
 		{
 			TreeModel = new RecursiveTreeModel<CallCenterMotivationCoefficientJournalNode>(

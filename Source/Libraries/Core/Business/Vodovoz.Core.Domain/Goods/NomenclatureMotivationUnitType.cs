@@ -7,7 +7,9 @@ namespace Vodovoz.Core.Domain.Goods
 	/// </summary>
 	public enum NomenclatureMotivationUnitType
 	{
-		[Display(Name = "Руб. за шт.")] Item,
-		[Display(Name = "% от стоимости")] Percent
+		[Display(Name = "Руб. за шт.")]
+		Item,
+		[Display(Name = "% от стоимости")]
+		Percent
 	}
 }

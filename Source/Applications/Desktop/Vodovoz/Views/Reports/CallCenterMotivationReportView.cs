@@ -63,8 +63,6 @@ namespace Vodovoz.Views.Reports
 			ViewModel.ShowReportAction = ShowReport;
 			
 			eventboxArrow.ButtonPressEvent += OnEventboxArrowButtonPressEvent;
-
-			hpaned1.Position = 640;
 		}
 		
 		private void ShowReport()
@@ -228,9 +226,7 @@ namespace Vodovoz.Views.Reports
 		private void OnEventboxArrowButtonPressEvent(object o, ButtonPressEventArgs args)
 		{
 			scrolledwindow2.Visible = !scrolledwindow2.Visible;
-
 			hpaned1.PositionSet = false;
-
 			UpdateSliderArrow();
 		}
 

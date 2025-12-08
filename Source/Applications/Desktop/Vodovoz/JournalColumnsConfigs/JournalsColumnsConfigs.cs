@@ -156,8 +156,7 @@ namespace Vodovoz.JournalColumnsConfigs
 			
 			 TreeViewColumnsConfigFactory.Register<CallCenterMotivationCoefficientJournalViewModel>(ViewModel =>
 				FluentColumnsConfig<CallCenterMotivationCoefficientJournalNode>.Create()
-					.SetTreeModel(ViewModel.CreateAndSaveTreeModel
-					)
+					.SetTreeModel(ViewModel.CreateAndSaveTreeModel)
 					.AddColumn("Код")
 						.AddNumericRenderer(node => node.Id )
 						.AddPixbufRenderer(node => node.JournalNodeType == typeof(ProductGroup) ? _folderImg : _emptyImg)
@@ -166,7 +165,7 @@ namespace Vodovoz.JournalColumnsConfigs
 					.AddColumn("Тип коэффициента")
 						.AddComboRenderer(x => x.MotivationUnitType)
 						.SetDisplayFunc(x => x.GetEnumTitle())
-						.FillItems( ViewModel.MotivationUnitTypeList, "✗ Очистить")
+						.FillItems(ViewModel.MotivationUnitTypeList, "✗ Очистить")
 						.XAlign(0.5f)
 						.Editing()
 						.EditedEvent((o, args) =>

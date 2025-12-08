@@ -191,7 +191,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotiva
 			}
 		}
 
-
 		private void SaveReport()
 		{
 			var dialogSettings = new DialogSettings
@@ -603,7 +602,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotiva
 				Projections.Property(() => authorAlias.Id));
 
 			#endregion
-
 
 			#region PromotionalSets
 

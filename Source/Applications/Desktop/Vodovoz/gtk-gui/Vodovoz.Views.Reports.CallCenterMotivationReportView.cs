@@ -66,7 +66,7 @@ namespace Vodovoz.Views.Reports
 			this.hpaned1 = new global::Gtk.HPaned();
 			this.hpaned1.CanFocus = true;
 			this.hpaned1.Name = "hpaned1";
-			this.hpaned1.Position = 450;
+			this.hpaned1.Position = 500;
 			// Container child hpaned1.Gtk.Paned+PanedChild
 			this.hboxMain = new global::Gtk.HBox();
 			this.hboxMain.Name = "hboxMain";
