@@ -1,8 +1,10 @@
-﻿using System;
+﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
+using Vodovoz.Core.Domain.BasicHandbooks;
+using Vodovoz.Core.Domain.Goods.Rent;
 using Vodovoz.EntityRepositories.RentPackages;
 
 namespace Vodovoz.Domain.Goods.Rent
@@ -11,17 +13,12 @@ namespace Vodovoz.Domain.Goods.Rent
 		NominativePlural = "пакеты бесплатной аренды",
 		Nominative = "пакет бесплатной аренды")]
 	[EntityPermission]
-	public class FreeRentPackage : BusinessObjectBase<FreeRentPackage>, IDomainObject, IValidatableObject
+	public class FreeRentPackage : FreeRentPackageEntity, IValidatableObject
 	{
 		private const int _nameLimit = 45;
 		private const int _onlineNameLimit = 45;
 		private const int _minWaterCount = 1;
 		private const int _maxWaterCount = 200;
-		private int _minWaterAmount;
-		private string _name;
-		private string _onlineName;
-		private decimal _deposit;
-		private bool _isArchive;
 		private EquipmentKind _equipmentKind;
 		private Nomenclature _depositService;
 		private IList<FreeRentPackageOnlineParameters> _onlineParameters = new List<FreeRentPackageOnlineParameters>();
@@ -33,62 +30,34 @@ namespace Vodovoz.Domain.Goods.Rent
 
 		#region Свойства
 
-		public virtual int Id { get; set; }
-
-		[Display(Name = "Минимальное количество")]
-		public virtual int MinWaterAmount
-		{
-			get => _minWaterAmount;
-			set => SetField(ref _minWaterAmount, value);
-		}
-
-		[Display(Name = "Название")]
-		public virtual string Name
-		{
-			get => _name;
-			set => SetField(ref _name, value);
-		}
-		
-		[Display(Name = "Название в ИПЗ")]
-		public virtual string OnlineName
-		{
-			get => _onlineName;
-			set => SetField(ref _onlineName, value);
-		}
-
-		[Display(Name = "Залог")]
-		public virtual decimal Deposit
-		{
-			get => _deposit;
-			set => SetField(ref _deposit, value);
-		}
-
+		/// <summary>
+		/// Вид оборудования
+		/// </summary>
 		[Display(Name = "Вид оборудования")]
-		public virtual EquipmentKind EquipmentKind
+		public virtual new EquipmentKind EquipmentKind
 		{
 			get => _equipmentKind;
 			set => SetField(ref _equipmentKind, value);
 		}
 
+		/// <summary>
+		/// Услуга залога
+		/// </summary>
 		[Display(Name = "Услуга залога")]
-		public virtual Nomenclature DepositService
+		public virtual new Nomenclature DepositService
 		{
 			get => _depositService;
 			set => SetField(ref _depositService, value);
 		}
-		
+
+		/// <summary>
+		/// Онлайн параметры
+		/// </summary>
 		[Display(Name = "Онлайн параметры")]
-		public virtual IList<FreeRentPackageOnlineParameters> OnlineParameters
+		public virtual new IList<FreeRentPackageOnlineParameters> OnlineParameters
 		{
 			get => _onlineParameters;
 			set => SetField(ref _onlineParameters, value);
-		}
-		
-		[Display(Name = "Архив")]
-		public virtual bool IsArchive
-		{
-			get => _isArchive;
-			set => SetField(ref _isArchive, value);
 		}
 
 		#endregion

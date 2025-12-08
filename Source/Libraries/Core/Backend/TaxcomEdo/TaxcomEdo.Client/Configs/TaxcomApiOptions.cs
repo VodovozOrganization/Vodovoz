@@ -22,6 +22,10 @@
 		/// </summary>
 		public string SendIndividualAccountingUpdEndpoint { get; set; }
 		/// <summary>
+		/// Эндпойнт отправки документа заказа
+		/// </summary>
+		public string SendInformalOrderDocumentEndpoint { get; set; }
+		/// <summary>
 		/// Эндпойнт отправки счета
 		/// </summary>
 		public string SendBillEndpoint { get; set; }

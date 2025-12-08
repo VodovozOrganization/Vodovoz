@@ -397,6 +397,7 @@ namespace Vodovoz.ViewModels.TrueMark
 				{
 					SourceCode = x.SourceCode,
 					ResultCode = x.ResultCode,
+					Status = x.SourceCodeStatus,
 					ReplacedFromPool = x.SourceCodeStatus == SourceProductCodeStatus.Changed,
 					Problem = x.Problem,
 					SourceDocumentId = x.RouteListItem.RouteList.Id,
@@ -475,6 +476,7 @@ namespace Vodovoz.ViewModels.TrueMark
 				{
 					SourceCode = x.SourceCode,
 					ResultCode = x.ResultCode,
+					Status = x.SourceCodeStatus,
 					ReplacedFromPool = x.SourceCodeStatus == SourceProductCodeStatus.Changed,
 					Problem = x.Problem,
 					SourceDocumentId = x.CarLoadDocumentItem.Document.Id
@@ -553,6 +555,7 @@ namespace Vodovoz.ViewModels.TrueMark
 				{
 					SourceCode = x.SourceCode,
 					ResultCode = x.ResultCode,
+					Status = x.SourceCodeStatus,
 					ReplacedFromPool = x.SourceCodeStatus == SourceProductCodeStatus.Changed,
 					Problem = x.Problem,
 					SourceDocumentId = x.SelfDeliveryDocumentItem.SelfDeliveryDocument.Id,
@@ -591,7 +594,8 @@ namespace Vodovoz.ViewModels.TrueMark
 				_addedFromPoolCodesOrigin = poolCodes.Select(x => new OrderCodeItemViewModel
 				{
 					SourceCode = x.SourceCode,
-					ResultCode = x.ResultCode,
+					ResultCode = x.ResultCode,					
+					Status = x.SourceCodeStatus,
 					ReplacedFromPool = true,
 					Problem = x.Problem,
 					UnscannedCodesReason = unscannedReason

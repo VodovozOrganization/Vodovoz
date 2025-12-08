@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
+using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 
 namespace Vodovoz.Domain.Goods
 {
