@@ -181,9 +181,21 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 						   select ((oi.ActualCount == null ? oi.Count : oi.ActualCount.Value) * oi.Price - oi.DiscountMoney))
 						   .Sum()
 
+				let lastTimeDeliveredChange =
+					(from subChangedEntity in uow.Session.Query<ChangedEntity>()
+					 join subFieldChange in uow.Session.Query<FieldChange>()
+						on subChangedEntity.Id equals subFieldChange.Entity.Id
+					 where subChangedEntity.EntityId == order.Id
+						&& subChangedEntity.EntityClassName == "Order"
+						&& subFieldChange.Path == "TimeDelivered"
+						&& subFieldChange.NewValue != null
+					 select (DateTime?)subChangedEntity.ChangeTime)
+					.Max()
+
+				let compareTime = lastTimeDeliveredChange ?? order.TimeDelivered
+
 				where
-					changedEntity.ChangeTime > order.TimeDelivered
-					&& changedEntity.EntityClassName == "Order"
+					changedEntity.EntityClassName == "Order"
 					&& changedEntity.ChangeTime >= _startDate
 					&& changedEntity.ChangeTime <= _endDate.LatestDayTime()
 					&& changedEntity.Operation == EntityChangeOperation.Change
@@ -193,6 +205,8 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 					&& fieldChange.Type == FieldChangeType.Changed
 					&& fieldChange.Path == "PaymentType"
 					&& (_selectedIssueTypes.Any() || _isPaymentTypeChangeTypeSelected)
+
+					&& changedEntity.ChangeTime > compareTime
 
 					&& (((_cashAndCashlessPaymentTypesValues.Contains(fieldChangePayType.NewValue)
 								|| _cashAndCashlessPaymentTypesValues.Contains(fieldChangePayType.OldValue))
