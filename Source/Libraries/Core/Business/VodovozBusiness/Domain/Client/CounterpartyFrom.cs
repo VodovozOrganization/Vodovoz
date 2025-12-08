@@ -21,6 +21,6 @@ namespace Vodovoz.Domain.Client
 		/// ИИ Бот
 		/// </summary>
 		[Display(Name = "ИИ Бот")]
-		AiBot = 60
+		AiBot = 61
 	}
 }

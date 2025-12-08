@@ -47,6 +47,6 @@ namespace Vodovoz.Core.Domain.Clients
 			Genitive = "ИИ Бота"
 		)]
 		[Display(Name = "ИИ Бот")]
-		AiBot = 57
+		AiBot = 61
 	}
 }
