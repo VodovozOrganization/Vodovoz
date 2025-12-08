@@ -1041,6 +1041,14 @@
     <Compile Include="ViewModels\Reports\TrueMark\ProductCodesScanningReport.ScannedCodeData.cs" />
     <Compile Include="ViewModels\Reports\TrueMark\ProductCodesScanningReport.ScannedCodeInfo.cs" />
     <Compile Include="ViewModels\Reports\UndeliveredOrdersJournalReport\UndeliveredOrdersClassificationSummaryReport.cs" />
+    <Compile Include="ViewModels\Reports\WageCalculation\CallCenterMotivation\CallCenterMotivationReportExtensions.cs" />
+    <Compile Include="ViewModels\Reports\WageCalculation\CallCenterMotivation\CallCenterMotivationReport.CallCenterMotivationReportRow.cs" />
+    <Compile Include="ViewModels\Reports\WageCalculation\CallCenterMotivation\CallCenterMotivationReportOrderItemNode.cs" />
+    <Compile Include="ViewModels\Reports\WageCalculation\CallCenterMotivation\CallCenterMotivationReport.ValueColumn.cs" />
+    <Compile Include="ViewModels\Reports\WageCalculation\CallCenterMotivation\CallCenterMotivationReport.ReportRowType.cs" />
+    <Compile Include="ViewModels\Reports\WageCalculation\CallCenterMotivation\CallCenterMotivationReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\WageCalculation\CallCenterMotivation\CallCenterMotivationReport.cs" />
+    <Compile Include="ViewModels\Reports\WageCalculation\CallCenterMotivation\CallCenterMotivationReport.ExcelExporter.cs" />
     <Compile Include="ViewModels\Sale\DeliveryPriceRuleViewModel.cs" />
     <Compile Include="ViewModels\Security\RegisteredRMViewModel.cs" />
     <Compile Include="ViewModels\Retail\SalesChannelViewModel.cs" />

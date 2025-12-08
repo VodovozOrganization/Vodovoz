@@ -219,7 +219,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.WageCalculation
 			Refresh();
 		}
 
-		private static List<CallCenterMotivationCoefficientJournalNode> GetNodesWithChildren(
+		private static List<CallCenterMotivationCoefficientJournalNode> GetNodeWithChilds(
 			CallCenterMotivationCoefficientJournalNode node,
 			Type targetType = null)
 		{
@@ -232,7 +232,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.WageCalculation
 
 			foreach(var child in node.Children)
 			{
-				result.AddRange(GetNodesWithChildren(child, targetType));
+				result.AddRange(GetNodeWithChilds(child, targetType));
 			}
 
 			return result;
@@ -296,17 +296,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.WageCalculation
 			return TreeModel;
 		}
 
-		public void OnMotivationUnitTypeEdited(CallCenterMotivationCoefficientJournalNode sourceNode,
-			NomenclatureMotivationUnitType? newMotivationUnitType)
+		public void OnMotivationUnitTypeEdited(CallCenterMotivationCoefficientJournalNode sourceNode)
 		{
-			var nodes = GetNodesWithChildren(sourceNode);
+			var childNodes = GetNodeWithChilds(sourceNode);
 
-			foreach(var node in nodes)
+			foreach(var childNode in childNodes)
 			{
-				node.MotivationUnitType = newMotivationUnitType;
-				node.MotivationCoefficientText = null;
+				childNode.MotivationUnitType = sourceNode.MotivationUnitType;
+				childNode.MotivationCoefficientText = null;
 
-				_modifiedNodes.Add(node);
+				_modifiedNodes.Add(childNode);
 			}
 		}
 
@@ -317,14 +316,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.WageCalculation
 				return;
 			}
 
-			var nodes = GetNodesWithChildren(sourceNode);
+			var childNodes = GetNodeWithChilds(sourceNode);
 
-			foreach(var node in nodes)
+			foreach(var childNode in childNodes)
 			{
-				node.MotivationCoefficientText = sourceNode.MotivationCoefficientText;
-				node.MotivationUnitType = sourceNode.MotivationUnitType;
+				childNode.MotivationCoefficientText = sourceNode.MotivationCoefficientText;
+				childNode.MotivationUnitType = sourceNode.MotivationUnitType;
 
-				_modifiedNodes.Add(node);
+				_modifiedNodes.Add(childNode);
 			}
 		}
 

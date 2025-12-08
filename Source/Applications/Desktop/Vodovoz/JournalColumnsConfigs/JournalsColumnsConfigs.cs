@@ -1,4 +1,4 @@
-﻿using Gamma.Binding;
+using Gamma.Binding;
 using Gamma.ColumnConfig;
 using Gdk;
 using Gtk;
@@ -171,9 +171,8 @@ namespace Vodovoz.JournalColumnsConfigs
 						.Editing()
 						.EditedEvent((o, args) =>
 						{
-							var newMotivationType = ViewModel.MotivationUnitTypeList.SingleOrDefault(x => x.GetEnumTitle() == args.NewText);
 							var node = ViewModel.TreeModel.NodeAtPath(new TreePath(args.Path)) as CallCenterMotivationCoefficientJournalNode;
-							ViewModel.OnMotivationUnitTypeEdited(node, newMotivationType);
+							Gtk.Application.Invoke((s, e) => ViewModel.OnMotivationUnitTypeEdited(node));
 						})
 					.AddColumn("Значение коэффициента")
 						.AddTextRenderer(node => node.MotivationCoefficientText)
