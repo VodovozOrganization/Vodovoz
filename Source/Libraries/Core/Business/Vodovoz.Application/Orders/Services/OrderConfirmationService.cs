@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using QS.DomainModel.UoW;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Tools.CallTasks;
 using VodovozBusiness.Services.Orders;
 
@@ -34,20 +37,33 @@ namespace Vodovoz.Application.Orders.Services
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 		}
 
-		public Result TryAcceptOrderCreatedByOnlineOrder(IUnitOfWork uow, Employee employee, Order order)
+		public async Task<Result> TryAcceptOrderCreatedByOnlineOrderAsync(
+			IUnitOfWork uow,
+			Employee employee,
+			Order order,
+			IRouteListService routeListService,
+			CancellationToken cancellationToken
+		)
 		{
 			if(!order.SelfDelivery)
 			{
-				var fastDeliveryResult = _fastDeliveryHandler.CheckFastDelivery(uow, order);
+				var fastDeliveryResult = await _fastDeliveryHandler.CheckFastDeliveryAsync(uow, order, cancellationToken);
 
 				if(fastDeliveryResult.IsFailure)
 				{
 					return fastDeliveryResult;
 				}
 
-				_fastDeliveryHandler.TryAddOrderToRouteListAndNotifyDriver(uow, order, _callTaskWorker);
+				// Необходимо сделать асинхронным
+				var addingToRouteListResult = _fastDeliveryHandler.TryAddOrderToRouteListAndNotifyDriver(uow, order, routeListService, _callTaskWorker);
+				
+				if(addingToRouteListResult.IsFailure)
+				{
+					return addingToRouteListResult;
+				}
 			}
 
+			// Необходимо сделать асинхронным
 			AcceptOrder(uow, employee, order);
 
 			return Result.Success();
@@ -57,7 +73,13 @@ namespace Vodovoz.Application.Orders.Services
 		{
 			order.AcceptOrder(employee, _callTaskWorker);
 			order.SaveEntity(
-				uow, _orderContractUpdater, employee, _orderDailyNumberController, _paymentFromBankClientController, needUpdateContract);
+				uow, 
+				_orderContractUpdater, 
+				employee, 
+				_orderDailyNumberController, 
+				_paymentFromBankClientController, 
+				needUpdateContract
+			);
 		}
 	}
 }

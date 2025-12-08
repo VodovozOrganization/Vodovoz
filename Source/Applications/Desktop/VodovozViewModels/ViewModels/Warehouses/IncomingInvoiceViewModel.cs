@@ -118,7 +118,7 @@ namespace Vodovoz.ViewModels.Warehouses
 
 			ValidationContext.ServiceContainer.AddService(typeof(IWarehouseRepository), warehouseRepository);
 			UserHasOnlyAccessToWarehouseAndComplaints =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.UserHaveAccessOnlyToWarehouseAndComplaints)
 				&& !CurrentUser.IsAdmin;
 
 			var instancePermissionResult =

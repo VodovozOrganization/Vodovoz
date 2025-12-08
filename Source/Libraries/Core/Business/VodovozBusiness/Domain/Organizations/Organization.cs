@@ -14,7 +14,8 @@ namespace Vodovoz.Domain.Organizations
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "организации",
-		Nominative = "организация")]
+		Nominative = "организация",
+		GenitivePlural = "организаций")]
 	[EntityPermission]
 	[HistoryTrace]
 	public class Organization : OrganizationEntity
@@ -23,6 +24,7 @@ namespace Vodovoz.Domain.Organizations
 		private IList<Phone> _phones = new List<Phone>();
 		private IList<OrganizationVersion> _organizationVersions = new List<OrganizationVersion>();
 		private GenericObservableList<OrganizationVersion> _observableOrganizationVersions;
+		private string _suffix;
 
 		[Display(Name = "Телефоны")]
 		public virtual new IList<Phone> Phones {
@@ -34,6 +36,13 @@ namespace Vodovoz.Domain.Organizations
 		{
 			get => _organizationVersions;
 			set => SetField(ref _organizationVersions, value);
+		}
+
+		[Display(Name = "Суфикс организации")]
+		public virtual string Suffix
+		{
+			get => _suffix;
+			set => SetField(ref _suffix, value);
 		}
 
 		public virtual GenericObservableList<OrganizationVersion> ObservableOrganizationVersions => _observableOrganizationVersions

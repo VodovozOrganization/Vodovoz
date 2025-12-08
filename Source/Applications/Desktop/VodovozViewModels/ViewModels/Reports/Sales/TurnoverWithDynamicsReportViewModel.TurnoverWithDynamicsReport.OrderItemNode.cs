@@ -67,6 +67,15 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				public int PromotionalSetId { get; set; }
 				
 				public string PromotionalSetName { get; set; }
+				
+				public int SalesManagerId { get; set; }
+				
+				public string SalesManagerName { get; set; }
+				
+				public int OrderAuthorId { get; set; }
+				
+				public string OrderAuthorName { get; set; }
+				
 			}
 		}
 	}

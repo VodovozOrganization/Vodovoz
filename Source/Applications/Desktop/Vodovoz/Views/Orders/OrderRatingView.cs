@@ -25,6 +25,9 @@ namespace Vodovoz.Views.Orders
 				.InitializeFromSource();
 			
 			btnOpenOnlineOrder.BindCommand(ViewModel.OpenOnlineOrderCommand);
+			btnOpenOnlineOrder.Binding
+				.AddBinding(ViewModel, vm => vm.OnlineOrderIsNotNull, w => w.Visible)
+				.InitializeFromSource();
 			btnProcess.BindCommand(ViewModel.ProcessCommand);
 			
 			btnCreateComplaint.BindCommand(ViewModel.CreateComplaintCommand);
@@ -54,9 +57,14 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(vm => vm.OrderIsNotNull, w => w.Visible)
 				.InitializeFromSource();
 			
+			lblOnlineOrderlIdTitle.Binding
+				.AddBinding(ViewModel, vm => vm.OnlineOrderIsNotNull, w => w.Visible)
+				.InitializeFromSource();
+			
 			lblOnlineOrderId.Selectable = true;
 			lblOnlineOrderId.Binding
 				.AddBinding(ViewModel, o => o.OnlineOrderIdString, w => w.LabelProp)
+				.AddBinding(ViewModel, o => o.OnlineOrderIsNotNull, w => w.Visible)
 				.InitializeFromSource();
 			
 			lblRating.Binding

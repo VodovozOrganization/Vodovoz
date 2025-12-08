@@ -6,6 +6,7 @@ using Edo.Problems.Exception.EdoExceptions;
 using Edo.Problems.Validation;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using NHibernate;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using System;
@@ -14,8 +15,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Library;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Extensions;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
@@ -40,6 +43,7 @@ namespace Edo.Receipt.Dispatcher
 		private readonly IEdoOrderContactProvider _edoOrderContactProvider;
 		private readonly ISaveCodesService _saveCodesService;
 		private readonly IOrganizationSettings _organizationSettings;
+		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly IBus _messageBus;
 		private readonly int _maxCodesInReceipt;
 
@@ -57,6 +61,7 @@ namespace Edo.Receipt.Dispatcher
 			IEdoOrderContactProvider edoOrderContactProvider,
 			ISaveCodesService saveCodesService,
 			IOrganizationSettings organizationSettings,
+			ITrueMarkCodeRepository trueMarkCodeRepository,
 			IBus messageBus
 			)
 		{
@@ -73,6 +78,7 @@ namespace Edo.Receipt.Dispatcher
 			_edoOrderContactProvider = edoOrderContactProvider ?? throw new ArgumentNullException(nameof(edoOrderContactProvider));
 			_saveCodesService = saveCodesService ?? throw new ArgumentNullException(nameof(saveCodesService));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
+			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 
 			_maxCodesInReceipt = _edoReceiptSettings.MaxCodesInReceiptCount;
@@ -87,20 +93,57 @@ namespace Edo.Receipt.Dispatcher
 					$"{order.Client.ReasonForLeaving} обработчиком для {ReasonForLeaving.ForOwnNeeds}.");
 			}
 
+			// предзагрузка для ускорения
+			var productCodes = await _uow.Session.QueryOver<TrueMarkProductCode>()
+				.Fetch(SelectMode.Fetch, x => x.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
+				.Where(x => x.CustomerEdoRequest.Id == receiptEdoTask.OrderEdoRequest.Id)
+				.ListAsync();
+
+			var taskCodes = await _uow.Session.QueryOver<EdoTaskItem>()
+				.Fetch(SelectMode.Fetch, x => x.ProductCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode.Tag1260CodeCheckResult)
+				.Where(x => x.CustomerEdoTask.Id == receiptEdoTask.Id)
+				.ListAsync(cancellationToken);
+
+			var totalProductCodes = productCodes
+				.Union(taskCodes.Select(x => x.ProductCode));
+
+			var sourceCodes = totalProductCodes
+				.Where(x => x.SourceCode != null)
+				.Select(x => x.SourceCode);
+
+			var resultCodes = totalProductCodes
+				.Where(x => x.ResultCode != null)
+				.Select(x => x.ResultCode);
+
+			var codesToPreload = sourceCodes.Union(resultCodes).Distinct();
+			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
+
+			if(productCodes.Any(x => x.SourceCodeStatus == SourceProductCodeStatus.Rejected))
+			{
+				_logger.LogInformation("Задача Id {DocumentEdoTaskId} имеет отклоненные коды, " +
+					"значит отправка будет производиться другой задачей", receiptEdoTask.Id);
+				return;
+			}
+
+
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(receiptEdoTask);
+
 			var isValid = await _edoTaskValidator.Validate(receiptEdoTask, cancellationToken, trueMarkCodesChecker);
 			if(!isValid)
 			{
 				return;
 			}
 			
-			var cashPaymentKulerService =
-				order.PaymentType == PaymentType.Cash
-				&& order.Contract?.Organization?.Id == _organizationSettings.KulerServiceOrganizationId;
-			
 			var hasManualSend = receiptEdoTask.OrderEdoRequest.Source == CustomerEdoRequestSource.Manual;
 
-			if(cashPaymentKulerService && !hasManualSend)
+			if(!hasManualSend)
 			{
 				await SaveCodesToPool(receiptEdoTask, cancellationToken);
 				receiptEdoTask.Status = EdoTaskStatus.Completed;
@@ -165,6 +208,45 @@ namespace Edo.Receipt.Dispatcher
 
 		public async Task HandleTransferComplete(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
 		{
+			// предзагрузка для ускорения
+			var productCodes = await _uow.Session.QueryOver<TrueMarkProductCode>()
+				.Fetch(SelectMode.Fetch, x => x.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
+				.Where(x => x.CustomerEdoRequest.Id == receiptEdoTask.OrderEdoRequest.Id)
+				.ListAsync();
+
+			var taskCodes = await _uow.Session.QueryOver<EdoTaskItem>()
+				.Fetch(SelectMode.Fetch, x => x.ProductCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode.Tag1260CodeCheckResult)
+				.Where(x => x.CustomerEdoTask.Id == receiptEdoTask.Id)
+				.ListAsync(cancellationToken);
+
+			var totalProductCodes = productCodes
+				.Union(taskCodes.Select(x => x.ProductCode));
+
+			var sourceCodes = totalProductCodes
+				.Where(x => x.SourceCode != null)
+				.Select(x => x.SourceCode);
+
+			var resultCodes = totalProductCodes
+				.Where(x => x.ResultCode != null)
+				.Select(x => x.ResultCode);
+
+			var codesToPreload = sourceCodes.Union(resultCodes).Distinct();
+			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
+
+			if(productCodes.Any(x => x.SourceCodeStatus == SourceProductCodeStatus.Rejected))
+			{
+				_logger.LogInformation("Задача Id {DocumentEdoTaskId} имеет отклоненные коды, " +
+					"значит отправка будет производиться другой задачей", receiptEdoTask.Id);
+				return;
+			}
+
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(receiptEdoTask);
 			var isValid = await _edoTaskValidator.Validate(receiptEdoTask, cancellationToken, trueMarkCodesChecker);
 			if(!isValid)
@@ -244,7 +326,7 @@ namespace Edo.Receipt.Dispatcher
 			await _saveCodesService.SaveCodesToPool(receiptEdoTask, cancellationToken);
 		}
 
-		public EdoFiscalDocument CreateUnmarkedFiscalDocument(ReceiptEdoTask receiptEdoTask)
+		private EdoFiscalDocument CreateUnmarkedFiscalDocument(ReceiptEdoTask receiptEdoTask)
 		{
 			var order = receiptEdoTask.OrderEdoRequest.Order;
 			var unmarkedOrderItems = order.OrderItems
@@ -406,7 +488,7 @@ namespace Edo.Receipt.Dispatcher
 			foreach(var gtin in orderItem.Nomenclature.Gtins)
 			{
 				var matchEdoTaskItem = resultCodes
-					.Where(x => x.ProductCode.ResultCode.GTIN == gtin.GtinNumber)
+					.Where(x => x.ProductCode.ResultCode.Gtin == gtin.GtinNumber)
 					.FirstOrDefault();
 				if(matchEdoTaskItem != null)
 				{
@@ -457,7 +539,7 @@ namespace Edo.Receipt.Dispatcher
 			}
 			else
 			{
-				inventPosition.Vat = FiscalVat.Vat20;
+				inventPosition.Vat = orderItem.Nomenclature.VAT.ToFiscalVat();
 			}
 
 			return inventPosition;
@@ -467,24 +549,8 @@ namespace Edo.Receipt.Dispatcher
 		{
 			var seller = receiptEdoTask.OrderEdoRequest.Order.Contract.Organization;
 			var cashBoxToken = seller.CashBoxTokenFromTrueMark;
-			if(cashBoxToken == null)
-			{
-				await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteMissingOrganizationToken>(
-					receiptEdoTask, 
-					cancellationToken,
-					$"Отсутствует токен для организации Id {seller.Id}");
-				return false;
-			}
-
 			var regulatoryDocument = _uow.GetById<FiscalIndustryRequisiteRegulatoryDocument>(
 				_edoReceiptSettings.IndustryRequisiteRegulatoryDocumentId);
-			if(regulatoryDocument == null)
-			{
-				await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteRegualtoryDocumentIsMissing>(
-					receiptEdoTask,
-					cancellationToken);
-				return false;
-			}
 
 			bool isValid = true;
 			var invalidTaskItems = new List<EdoTaskItem>();
@@ -498,6 +564,23 @@ namespace Edo.Receipt.Dispatcher
 				if(!codesToCheck1260.Any())
 				{
 					continue;
+				}
+				
+				if(cashBoxToken == null)
+				{
+					await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteMissingOrganizationToken>(
+						receiptEdoTask, 
+						cancellationToken,
+						$"Отсутствует токен для организации Id {seller.Id}");
+					return false;
+				}
+
+				if(regulatoryDocument == null)
+				{
+					await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteRegualtoryDocumentIsMissing>(
+						receiptEdoTask,
+						cancellationToken);
+					return false;
 				}
 
 				var result = await _tag1260Checker.CheckCodesForTag1260Async(

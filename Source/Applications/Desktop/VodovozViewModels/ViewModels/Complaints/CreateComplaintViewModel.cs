@@ -100,7 +100,7 @@ namespace Vodovoz.ViewModels.Complaints
 			_complaintKinds = _complaintKindSource = UoW.GetAll<ComplaintKind>().Where(k => !k.IsArchive).ToList();
 
 			UserHasOnlyAccessToWarehouseAndComplaints =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.UserHaveAccessOnlyToWarehouseAndComplaints)
 				&& !CommonServices.UserService.GetCurrentUser().IsAdmin;
 
 			TabName = "Новая клиентская рекламация";
@@ -109,7 +109,7 @@ namespace Vodovoz.ViewModels.Complaints
 			Entity.PropertyChanged += EntityPropertyChanged;
 
 			CanEditComplaintClassification =
-				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Complaint.CanEditComplaintClassification);
+				CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ComplaintPermissions.CanEditComplaintClassification);
 
 			AttachedFileInformationsViewModel = attachedFileInformationsViewModelFactory.CreateAndInitialize<Complaint, ComplaintFileInformation>(
 				UoW,
@@ -141,7 +141,7 @@ namespace Vodovoz.ViewModels.Complaints
 			{
 				SetOrder(orderRating.Order);
 			}
-			else
+			else if(orderRating.OnlineOrder != null)
 			{
 				Entity.Counterparty = orderRating.OnlineOrder.Counterparty;
 			}

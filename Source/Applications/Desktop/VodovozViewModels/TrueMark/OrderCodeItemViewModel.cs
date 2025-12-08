@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Office2010.ExcelAc;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
@@ -22,6 +21,7 @@ namespace Vodovoz.ViewModels.TrueMark
 		private int? _sourceDocumentId;
 		private int? _codeAuthorId;
 		private string _codeAuthor;
+		private string _unscannedCodesReason;
 
 		public virtual OrderCodeItemViewModel Parent
 		{
@@ -76,6 +76,8 @@ namespace Vodovoz.ViewModels.TrueMark
 				}
 			}
 		}
+
+		public SourceProductCodeStatus Status { get; set; }
 
 		public virtual string Type
 		{
@@ -136,6 +138,15 @@ namespace Vodovoz.ViewModels.TrueMark
 		{
 			get => _codeAuthor;
 			set => SetField(ref _codeAuthor, value);
+		}
+
+		/// <summary>
+		/// Причина не отсканированных кодов
+		/// </summary>
+		public string UnscannedCodesReason
+		{
+			get => _unscannedCodesReason;
+			set => SetField(ref _unscannedCodesReason, value);
 		}
 	}
 }

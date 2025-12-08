@@ -80,6 +80,7 @@ namespace Edo.Docflow.Factories
 				Customer = GetCustomerInfo(order, edoAccount),
 				Consignee = GetConsigneeInfo(order.Client, edoAccount, order.DeliveryPoint),
 				DocumentConfirmingShipment = GetDocumentConfirmingShipmentInfo(order),
+				GovContract = string.IsNullOrWhiteSpace(order.Client.GovContract) ? null : order.Client.GovContract,
 				BasisShipment = GetBasisShipmentInfo(order.Client, order.Contract),
 				Payments = GetPayments(payments),
 				Products = products,
@@ -237,7 +238,7 @@ namespace Edo.Docflow.Factories
 				},
 				Inn = organization.INN,
 				Kpp = organization.KPP,
-				EdoAccountId = organization.TaxcomEdoAccountId,
+				EdoAccountId = organization.TaxcomEdoSettings.EdoAccount,
 			};
 
 			return organizationInfo;
@@ -348,6 +349,12 @@ namespace Edo.Docflow.Factories
 			{
 				var orderItem = inventPosition.AssignedOrderItem;
 				var nomenclature = orderItem.Nomenclature;
+
+				if(nomenclature.Category == NomenclatureCategory.deposit)
+				{
+					continue;
+				}
+
 				var isService = nomenclature.Category == NomenclatureCategory.master
 					|| nomenclature.Category == NomenclatureCategory.service;
 

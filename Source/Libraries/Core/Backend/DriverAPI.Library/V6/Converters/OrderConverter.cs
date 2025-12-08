@@ -352,7 +352,7 @@ namespace DriverAPI.Library.V6.Converters
 			var nomenclatureGtins = saleItem.Nomenclature.Gtins.Select(x => x.GtinNumber).ToList();
 
 			var waterCodes = _orderRepository.GetTrueMarkCodesAddedInWarehouseToOrderByOrderId(_uow, saleItem.Order.Id)
-				.Where(x => nomenclatureGtins.Contains(x.GTIN));
+				.Where(x => nomenclatureGtins.Contains(x.Gtin));
 
 			var codes = waterCodes
 				.Skip(skipCodesCount)

@@ -51,6 +51,11 @@ namespace Edo.Common
 						$"Эта проблема должна обрабатываться валидацией, необходимо проверить работу валидатора.");
 				}
 
+				if(itemStatus.ItemCodeType == EdoTaskItemCodeType.Source)
+				{
+					continue;
+				}
+
 				var edoOrganizationFrom = edoOrganizations.FirstOrDefault(x => x.INN == itemStatus.ProductInstanceStatus.OwnerInn);
 				if(edoOrganizationFrom == null)
 				{
@@ -106,7 +111,7 @@ namespace Edo.Common
 				transferRequest.Iteration = transferIteration;
 				transferIteration.TransferEdoRequests.Add(transferRequest);
 			}
-			
+
 			await _uow.SaveAsync(transferIteration, cancellationToken: cancellationToken);
 
 			return transferIteration;

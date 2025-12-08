@@ -7,6 +7,7 @@ using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
+using TemplateType = Vodovoz.Core.Domain.Clients.TemplateType;
 
 namespace Vodovoz.Infrastructure.Persistance.Counterparties
 {
@@ -67,7 +68,7 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 
 			if(result is null)
 			{
-				return Result.Failure<IDocTemplate>(Errors.Documents.DocumentTemplate.NotFound);
+				return Result.Failure<IDocTemplate>(Errors.Documents.DocumentTemplateErrors.NotFound);
 			}
 
 			return result;

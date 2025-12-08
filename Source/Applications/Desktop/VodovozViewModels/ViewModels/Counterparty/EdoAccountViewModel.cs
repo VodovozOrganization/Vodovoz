@@ -1,9 +1,9 @@
 using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Windows.Input;
 using Autofac;
-using EdoService.Library;
 using EdoService.Library.Dto;
 using EdoService.Library.Services;
 using Microsoft.Extensions.Logging;
@@ -31,12 +31,13 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 	public class EdoAccountViewModel : EntityWidgetViewModelBase<CounterpartyEdoAccount>, IDisposable
 	{
 		private readonly ILogger<EdoAccountViewModel> _logger;
-		private readonly ContactListParser _contactListParser;
 		private readonly IContactListService _contactListService;
 		private readonly IEdoSettings _edoSettings;
 		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IValidator _validator;
 		private readonly ValidationContext _counterpartyValidationContext;
+
+		private int _organizationId => Entity.OrganizationId ?? 0;
 
 		public EdoAccountViewModel(
 			ILogger<EdoAccountViewModel> logger,
@@ -44,7 +45,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			ILifetimeScope scope,
 			Domain.Client.Counterparty counterparty,
 			CounterpartyEdoAccount edoAccount,
-			ContactListParser contactListParser,
 			IContactListService contactListService,
 			ITdiTab parentTab,
 			ICommonServices commonServices,
@@ -55,7 +55,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			IValidationContextFactory validationContextFactory) : base(edoAccount, commonServices)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_contactListParser = contactListParser ?? throw new ArgumentNullException(nameof(contactListParser));
 			_contactListService = contactListService ?? throw new ArgumentNullException(nameof(contactListService));
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
@@ -70,10 +69,12 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				.CreateNewValidationContext(Counterparty);
 
 			Initialize();
+			Entity.Counterparty.PropertyChanged += OnCounterpartyPropertyChanged;
 		}
 
 		public event Action RefreshEdoLightsMatrixAction;
 		public event Action<CounterpartyEdoAccount> RemovedEdoAccountAction;
+		public Action UpdateOperators { get; set; }
 		public Domain.Client.Counterparty Counterparty { get; private set; }
 		public ITdiTab ParentTab { get; private set; }
 		public ILifetimeScope Scope { get; private set; }
@@ -170,6 +171,17 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 
 			SetPropertyChangeRelations();
 		}
+		
+		private void OnCounterpartyPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Counterparty.PersonType) || e.PropertyName == nameof(Counterparty.ReasonForLeaving))
+			{
+				OnPropertyChanged(nameof(CanCheckClientInTaxcom));
+				OnPropertyChanged(nameof(CanEditPersonalAccountCodeInEdo));
+				OnPropertyChanged(nameof(CanSelectRegisteredEdoAccount));
+				OnPropertyChanged(nameof(CanChangeOperatorEdo));
+			}
+		}
 
 		private void SetPropertyChangeRelations()
 		{
@@ -191,22 +203,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				() => CanCheckConsentForEdo,
 				() => CanCopyFromEdoOperatorWithAccount
 			);
-			
-			SetPropertyChangeRelation(
-				e => e.Counterparty.PersonType,
-				() => CanCheckClientInTaxcom,
-				() => CanEditPersonalAccountCodeInEdo,
-				() => CanSelectRegisteredEdoAccount,
-				() => CanChangeOperatorEdo
-			);
-			
-			SetPropertyChangeRelation(
-				e => e.Counterparty.ReasonForLeaving,
-				() => CanCheckClientInTaxcom,
-				() => CanEditPersonalAccountCodeInEdo,
-				() => CanSelectRegisteredEdoAccount,
-				() => CanChangeOperatorEdo
-			);
 		}
 
 		private void CheckClientInTaxcom()
@@ -215,7 +211,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 
 			try
 			{
-				contactResult = _contactListService.CheckContragentAsync(Counterparty.INN, Counterparty.KPP).Result;
+				contactResult = _contactListService.CheckContragentAsync(UoW, _organizationId, Counterparty.INN, Counterparty.KPP).Result;
 			}
 			catch(Exception ex)
 			{
@@ -259,24 +255,37 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 
 			foreach(var edoOperator in contactResult.Contacts)
 			{
-				var isNotExists = Counterparty.CounterpartyEdoAccounts
+				var isNotExistsCounterpartyEdoAccount = Counterparty.CounterpartyEdoAccounts
 					.FirstOrDefault(x => x.PersonalAccountIdInEdo == edoOperator.EdxClientId) == null;
 
-				if(isNotExists)
+				if(isNotExistsCounterpartyEdoAccount)
 				{
 					Counterparty.CounterpartyEdoAccounts.Add(new CounterpartyEdoAccount
 					{
 						PersonalAccountIdInEdo = edoOperator.EdxClientId,
 						EdoOperator = GetEdoOperatorByEdoAccountId(edoOperator.EdxClientId),
-						Counterparty = Counterparty
+						Counterparty = Counterparty,
+						OrganizationId = _organizationId
 					});
+				}
 
-					//specialListCmbAllOperators.SetRenderTextFunc<CounterpartyEdoOperator>(x => x.Title);
+				var isNotExistsCounterpartyEdoOperator = Counterparty.CounterpartyEdoOperators
+						.FirstOrDefault(x => x.PersonalAccountIdInEdo == edoOperator.EdxClientId) == null;
+
+				if(isNotExistsCounterpartyEdoOperator)
+				{
+					Counterparty.CounterpartyEdoOperators.Add(new CounterpartyEdoOperator
+					{
+						PersonalAccountIdInEdo = edoOperator.EdxClientId,
+						EdoOperator = GetEdoOperatorByEdoAccountId(edoOperator.EdxClientId),
+						Counterparty = Counterparty
+					});										
 				}
 			}
 
 			Entity.EdoOperator = null;
 			Entity.PersonalAccountIdInEdo = null;
+			UpdateOperators?.Invoke();
 
 			CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 				"У контрагента найдено несколько операторов, выберите нужный из списка");
@@ -310,8 +319,8 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 
 			try
 			{
-				contactListItem = _contactListParser
-					.GetLastChangeOnDate(_contactListService, checkDate, Counterparty.INN, Counterparty.KPP)
+				contactListItem = _contactListService
+					.GetLastChangeOnDate(UoW, _organizationId, checkDate, Counterparty.INN, Counterparty.KPP)
 					.Result;
 			}
 			catch(Exception ex)
@@ -366,8 +375,14 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				return;
 			}
 
+			UoW.Save(Entity.Counterparty);
+			UoW.Save(Entity);
+			UoW.Commit();
+
 			try
 			{
+				var organization = UoW.GetById<Organization>(Entity.OrganizationId ?? _organizationSettings.VodovozOrganizationId);
+				
 				if(isManual)
 				{
 					if(!CommonServices.InteractiveService.Question("Время обработки заявки без кода личного кабинета может составлять до 10 дней.\nПродолжить отправку?"))
@@ -376,10 +391,11 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 					}
 
 					var document = UoW.GetById<Attachment>(_edoSettings.TaxcomManualInvitationFileId);
-					var organization = UoW.GetById<Organization>(_organizationSettings.VodovozOrganizationId);
 
 					resultMessage = _contactListService
 						.SendContactsForManualInvitationAsync(
+							UoW,
+							_organizationId,
 							Counterparty.INN,
 							Counterparty.KPP,
 							organization.Name,
@@ -392,7 +408,14 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				else
 				{
 					resultMessage = _contactListService
-						.SendContactsAsync(Counterparty.INN, Counterparty.KPP, email.Address, Entity.PersonalAccountIdInEdo)
+						.SendContactsAsync(
+							UoW,
+							_organizationId,
+							Counterparty.INN,
+							Counterparty.KPP,
+							email.Address,
+							Entity.PersonalAccountIdInEdo,
+							organization.Name)
 						.Result;
 				}
 			}
@@ -472,6 +495,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		{
 			Scope = null;
 			ParentTab = null;
+			Entity.Counterparty.PropertyChanged -= OnCounterpartyPropertyChanged;
 		}
 	}
 }

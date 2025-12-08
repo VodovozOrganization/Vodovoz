@@ -272,6 +272,8 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 
 		private void HandleAppeared(NotificationMessage message)
 		{
+			_logger.LogInformation("Обработка callId: {CallId} {CallState}", message.CallId, CallState.Appeared);
+
 			AddNewMessage(message);
 			//Не показывам информацию о новом входящем звонке в момент разговора.
 			if(CurrentTalk != null)
@@ -281,6 +283,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			}
 			if(_currentPage?.ViewModel is IncomingCallViewModel)
 			{
+				_logger.LogInformation("Уже отображается окно входящих/исходящих звонков");
 				return;
 			}
 
@@ -297,6 +300,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 
 		private void OpenRingDlg()
 		{
+			_logger.LogInformation("Открываем окно входящих/исходящих звонков");
 			_currentPage = _navigation.OpenViewModel<IncomingCallViewModel, MangoManager>(null, this);
 			_currentPage.PageClosed += CurrentPage_PageClosed;
 			ConnectionState = ConnectionState.Ring;
@@ -310,6 +314,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			{
 				if(_currentPage.ViewModel is TalkViewModelBase talkViewModel && talkViewModel.ActiveCall.CallId == message.CallId)
 				{
+					_logger.LogInformation("Уже открыт этот звонок...");
 					return;
 				}
 				else
@@ -326,16 +331,19 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 
 			if(openCall.Message.CallFrom.Type == CallerType.Internal)
 			{
+				_logger.LogInformation("Открываем диалог внутреннего звонка");
 				_currentPage = _navigation.OpenViewModel<InternalTalkViewModel, MangoManager>(null, this);
 				_currentPage.PageClosed += CurrentPage_PageClosed;
 			}
 			else if(openCall.CounterpartyIds != null && openCall.CounterpartyIds.Any())
 			{
+				_logger.LogInformation("Открываем диалог звонка клиента");
                 _currentPage = _mangoViewModelNavigator.OpenCounterpartyTalkViewModel();
 				_currentPage.PageClosed += CurrentPage_PageClosed;
 			}
 			else
 			{
+				_logger.LogInformation("Открываем диалог неизвестного звонка");
 				_currentPage = _mangoViewModelNavigator.OpenUnknowTalkViewModel();
                 _currentPage.PageClosed += CurrentPage_PageClosed;
 			}
@@ -344,7 +352,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 
 		private void HandleDisconnected(NotificationMessage message)
 		{
-			var currentState = ConnectionState;
+			_logger.LogInformation("Обработка callId: {CallId} {CallState}", message.CallId, CallState.Disconnected);
 
 			if(_currentPage != null && (CurrentCall?.CallId == message.CallId || ConnectionState == ConnectionState.Ring))
 			{
@@ -352,7 +360,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			}
 			TryRemoveCall(message);
 
-			//Если есть какие то другие текущие звонки, создаем соответсвующие диалоги в порядке приоритета.
+			//Если есть какие-то другие текущие звонки, создаем соответсвующие диалоги в порядке приоритета.
 			if(CurrentTalk != null)
 			{
 				OpenTalkDlg();
@@ -373,11 +381,14 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 
 		private void HandleOnHold(NotificationMessage message)
 		{
+			_logger.LogInformation("Обработка callId: {CallId} {CallState}", message.CallId, CallState.OnHold);
+			
 			AddNewMessage(message);
 			if(_currentPage != null)
 			{
 				if(_currentPage.ViewModel is TalkViewModelBase talkViewModel && talkViewModel.ActiveCall.CallId == message.CallId)
 				{
+					_logger.LogInformation("Уже открыт этот звонок...");
 					return;
 				}
 				else
@@ -471,16 +482,27 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			{
 				_mangoController.MakeCall(Convert.ToString(this._extensionNumber), to_extension);
 			}
-			catch(HttpException e)
+			catch(Exception e)
 			{
-				if(e.HttpStatusCode == HttpStatusCode.TooManyRequests || e.HttpStatusCode == HttpStatusCode.ServiceUnavailable)
+				var httpException = e.FindExceptionTypeInInner<HttpException>();
+				
+				if(httpException != null)
 				{
-					_interactiveService.ShowMessage(ImportanceLevel.Warning, "Все линии заняты.\nПопробуйте позвонить позже");
+					if(httpException.HttpStatusCode == HttpStatusCode.TooManyRequests || httpException.HttpStatusCode == HttpStatusCode.ServiceUnavailable)
+					{
+						_interactiveService.ShowMessage(ImportanceLevel.Warning, "Все линии заняты.\nПопробуйте позвонить позже");
+						return;
+					}
+
+					if(httpException.HttpStatusCode == HttpStatusCode.BadGateway)
+					{
+						_interactiveService.ShowMessage(ImportanceLevel.Warning, "Не удалось подключиться к серверу Манго, попробуйте позднее");
+						return;
+					}
 				}
-				else
-				{
-					throw;
-				}
+
+				_interactiveService.ShowMessage(ImportanceLevel.Error, "Произошла ошибка, попробуйте позднее или обратитесь отдел разработки");
+				_logger.LogError(e, "Произошла ошибка при звонке из ДВ");
 			}
 		}
 

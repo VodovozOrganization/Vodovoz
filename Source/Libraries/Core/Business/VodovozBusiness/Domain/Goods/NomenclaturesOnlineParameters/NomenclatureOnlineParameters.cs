@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 
 namespace Vodovoz.Domain.Goods.NomenclaturesOnlineParameters
 {
@@ -56,5 +58,27 @@ namespace Vodovoz.Domain.Goods.NomenclaturesOnlineParameters
 		}
 		
 		public abstract GoodsOnlineParameterType Type { get; }
+
+		/// <summary>
+		/// Получение онлайн цены по количеству
+		/// </summary>
+		/// <param name="count">Количество номенклатуры</param>
+		/// <returns></returns>
+		public virtual NomenclatureOnlinePrice GetOnlinePrice(decimal count)
+		{
+			if(!NomenclatureOnlinePrices.Any())
+			{
+				return null;
+			}
+
+			if(count <= 1)
+			{
+				return NomenclatureOnlinePrices.FirstOrDefault(x => x.NomenclaturePrice.MinCount == 1);
+			}
+			
+			return NomenclatureOnlinePrices
+				.OrderByDescending(x => x.NomenclaturePrice.MinCount)
+				.FirstOrDefault(x => x.NomenclaturePrice.MinCount <= count);
+		}
 	}
 }

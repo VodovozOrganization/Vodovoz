@@ -9,7 +9,6 @@ using QS.ViewModels;
 using Autofac;
 using QS.Navigation;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Goods.PromotionalSetsOnlineParameters;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -18,6 +17,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using VodovozInfrastructure.StringHandlers;
 using QS.ViewModels.Extension;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 
 namespace Vodovoz.ViewModels.Orders
 {
@@ -44,7 +44,7 @@ namespace Vodovoz.ViewModels.Orders
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			CanChangeType =
 				commonServices.CurrentPermissionService.ValidatePresetPermission(
-					Vodovoz.Core.Domain.Permissions.Order.PromotionalSet.CanChangeTypePromoSet) && CanUpdate;
+					Vodovoz.Core.Domain.Permissions.OrderPermissions.PromotionalSet.CanChangeTypePromoSet) && CanUpdate;
 
 			if(!CanRead)
 			{

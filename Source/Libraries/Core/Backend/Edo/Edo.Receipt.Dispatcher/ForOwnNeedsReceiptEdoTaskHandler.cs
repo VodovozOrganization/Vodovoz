@@ -19,6 +19,7 @@ using TrueMark.Library;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Extensions;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
@@ -38,7 +39,7 @@ namespace Edo.Receipt.Dispatcher
 		private readonly IEdoRepository _edoRepository;
 		private readonly IEdoReceiptSettings _edoReceiptSettings;
 		private readonly ITrueMarkCodesValidator _localCodesValidator;
-		private readonly TrueMarkCodesPool _trueMarkCodesPool;
+		private readonly ReceiptTrueMarkCodesPool _trueMarkCodesPool;
 		private readonly Tag1260Checker _tag1260Checker;
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly IGenericRepository<TrueMarkProductCode> _productCodeRepository;
@@ -63,7 +64,7 @@ namespace Edo.Receipt.Dispatcher
 			IEdoRepository edoRepository,
 			IEdoReceiptSettings edoReceiptSettings,
 			ITrueMarkCodesValidator localCodesValidator,
-			TrueMarkCodesPool trueMarkCodesPool,
+			ReceiptTrueMarkCodesPool trueMarkCodesPool,
 			Tag1260Checker tag1260Checker,
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			IGenericRepository<TrueMarkProductCode> productCodeRepository,
@@ -135,16 +136,20 @@ namespace Edo.Receipt.Dispatcher
 			var codesToPreload = sourceCodes.Union(resultCodes).Distinct();
 			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
 
+			if(productCodes.Any(x => x.SourceCodeStatus == SourceProductCodeStatus.Rejected))
+			{
+				_logger.LogInformation("Задача Id {EdoTaskId} имеет отклоненные коды, " +
+					"значит отправка будет производиться другой задачей", receiptEdoTask.Id);
+				return;
+			}
+
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(receiptEdoTask);
+
 			var isValid = await _edoTaskValidator.Validate(receiptEdoTask, cancellationToken, trueMarkCodesChecker);
 			if(!isValid)
 			{
 				return;
 			}
-
-			var cashPaymentKulerService =
-				order.PaymentType == PaymentType.Cash
-				&& order.Contract?.Organization?.Id == _organizationSettings.KulerServiceOrganizationId;
 
 			// принудительная отправка чека
 			var hasManualSend = receiptEdoTask.OrderEdoRequest.Source == CustomerEdoRequestSource.Manual;
@@ -156,7 +161,7 @@ namespace Edo.Receipt.Dispatcher
 
 			// всегда отправлять чек клиенту
 			var hasAlwaysSend = receiptEdoTask.OrderEdoRequest.Order.Client.AlwaysSendReceipts;
-			if(hasAlwaysSend && !cashPaymentKulerService)
+			if(hasAlwaysSend)
 			{
 				await PrepareReceipt(receiptEdoTask, trueMarkCodesChecker, cancellationToken);
 				return;
@@ -164,7 +169,7 @@ namespace Edo.Receipt.Dispatcher
 
 			// проверка на наличие чека на сумму за сегодня
 			var hasReceiptOnSumToday = await HasReceiptOnSumToday(receiptEdoTask, cancellationToken);
-			if(!hasReceiptOnSumToday && !cashPaymentKulerService)
+			if(!hasReceiptOnSumToday)
 			{
 				await PrepareReceipt(receiptEdoTask, trueMarkCodesChecker, cancellationToken);
 				return;
@@ -183,6 +188,45 @@ namespace Edo.Receipt.Dispatcher
 
 		public async Task HandleTransferComplete(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
 		{
+			// предзагрузка для ускорения
+			var productCodes = await _uow.Session.QueryOver<TrueMarkProductCode>()
+				.Fetch(SelectMode.Fetch, x => x.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
+				.Where(x => x.CustomerEdoRequest.Id == receiptEdoTask.OrderEdoRequest.Id)
+				.ListAsync();
+
+			var taskCodes = await _uow.Session.QueryOver<EdoTaskItem>()
+				.Fetch(SelectMode.Fetch, x => x.ProductCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode.Tag1260CodeCheckResult)
+				.Where(x => x.CustomerEdoTask.Id == receiptEdoTask.Id)
+				.ListAsync(cancellationToken);
+
+			var totalProductCodes = productCodes
+				.Union(taskCodes.Select(x => x.ProductCode));
+
+			var sourceCodes = totalProductCodes
+				.Where(x => x.SourceCode != null)
+				.Select(x => x.SourceCode);
+
+			var resultCodes = totalProductCodes
+				.Where(x => x.ResultCode != null)
+				.Select(x => x.ResultCode);
+
+			var codesToPreload = sourceCodes.Union(resultCodes).Distinct();
+			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
+
+			if(productCodes.Any(x => x.SourceCodeStatus == SourceProductCodeStatus.Rejected))
+			{
+				_logger.LogInformation("Задача Id {EdoTaskId} имеет отклоненные коды, " +
+					"значит отправка будет производиться другой задачей", receiptEdoTask.Id);
+				return;
+			}
+
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(receiptEdoTask);
 
 			if(!receiptEdoTask.FiscalDocuments.Any())
@@ -331,7 +375,7 @@ namespace Edo.Receipt.Dispatcher
 						{
 							var gtin = (
 									from gtinEntity in _uow.Session.Query<GtinEntity>()
-									where gtinEntity.GtinNumber == codeResult.EdoTaskItem.ProductCode.ResultCode.GTIN
+									where gtinEntity.GtinNumber == codeResult.EdoTaskItem.ProductCode.ResultCode.Gtin
 									select gtinEntity
 								)
 								.FirstOrDefault();
@@ -931,7 +975,7 @@ namespace Edo.Receipt.Dispatcher
 			foreach(var gtin in orderItem.Nomenclature.Gtins)
 			{
 				matchEdoTaskItem = resultCodes
-					.Where(x => x.ProductCode.ResultCode.GTIN == gtin.GtinNumber)
+					.Where(x => x.ProductCode.ResultCode.Gtin == gtin.GtinNumber)
 					.FirstOrDefault();
 				if(matchEdoTaskItem != null)
 				{
@@ -952,7 +996,7 @@ namespace Edo.Receipt.Dispatcher
 			foreach(var gtin in orderItem.Nomenclature.Gtins)
 			{
 				matchEdoTaskItem = sourceCodes
-					.Where(x => x.ProductCode.SourceCode.GTIN == gtin.GtinNumber)
+					.Where(x => x.ProductCode.SourceCode.Gtin == gtin.GtinNumber)
 					.FirstOrDefault();
 				if(matchEdoTaskItem != null)
 				{
@@ -979,7 +1023,7 @@ namespace Edo.Receipt.Dispatcher
 			foreach(var gtin in orderItem.Nomenclature.Gtins)
 			{
 				matchEdoTaskItem = ddCodes
-					.Where(x => x.ProductCode.SourceCode.GTIN == gtin.GtinNumber)
+					.Where(x => x.ProductCode.SourceCode.Gtin == gtin.GtinNumber)
 					.FirstOrDefault();
 				if(matchEdoTaskItem != null)
 				{
@@ -1130,23 +1174,8 @@ namespace Edo.Receipt.Dispatcher
 		{
 			var seller = receiptEdoTask.OrderEdoRequest.Order.Contract.Organization;
 			var cashBoxToken = seller.CashBoxTokenFromTrueMark;
-			if(cashBoxToken == null)
-			{
-				await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteMissingOrganizationToken>(
-					receiptEdoTask,
-					cancellationToken,
-					$"Отсутствует токен для организации Id {seller.Id}");
-				return IndustryRequisitePrepareResult.Problem;
-			}
-
-			var regulatoryDocument = _uow.GetById<FiscalIndustryRequisiteRegulatoryDocument>(_edoReceiptSettings.IndustryRequisiteRegulatoryDocumentId);
-			if(regulatoryDocument == null)
-			{
-				await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteRegualtoryDocumentIsMissing>(
-					receiptEdoTask,
-					cancellationToken);
-				return IndustryRequisitePrepareResult.Problem;
-			}
+			var regulatoryDocument =
+				_uow.GetById<FiscalIndustryRequisiteRegulatoryDocument>(_edoReceiptSettings.IndustryRequisiteRegulatoryDocumentId);
 
 			bool isValid = true;
 
@@ -1167,6 +1196,23 @@ namespace Edo.Receipt.Dispatcher
 				if(!codesToCheck1260.Any())
 				{
 					continue;
+				}
+
+				if(cashBoxToken == null)
+				{
+					await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteMissingOrganizationToken>(
+						receiptEdoTask,
+						cancellationToken,
+						$"Отсутствует токен для организации Id {seller.Id}");
+					return IndustryRequisitePrepareResult.Problem;
+				}
+
+				if(regulatoryDocument == null)
+				{
+					await _edoProblemRegistrar.RegisterCustomProblem<IndustryRequisiteRegualtoryDocumentIsMissing>(
+						receiptEdoTask,
+						cancellationToken);
+					return IndustryRequisitePrepareResult.Problem;
 				}
 
 				var result = await _tag1260Checker.CheckCodesForTag1260Async(
@@ -1220,10 +1266,8 @@ namespace Edo.Receipt.Dispatcher
 				_edoProblemRegistrar.SolveCustomProblem<IndustryRequisiteCheckApiError>(receiptEdoTask);
 				return IndustryRequisitePrepareResult.Succeeded;
 			}
-			else
-			{
-				return IndustryRequisitePrepareResult.NeedToChange;
-			}
+
+			return IndustryRequisitePrepareResult.NeedToChange;
 		}
 
 		private EdoFiscalDocument PrepareFiscalDocument(ReceiptEdoTask receiptEdoTask, int documentIndex)
@@ -1303,7 +1347,7 @@ namespace Edo.Receipt.Dispatcher
 			}
 			else
 			{
-				inventPosition.Vat = FiscalVat.Vat20;
+				inventPosition.Vat = nomenclature.VAT.ToFiscalVat();
 			}
 
 			return inventPosition;

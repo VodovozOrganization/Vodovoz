@@ -1,4 +1,4 @@
-using Edo.Common;
+﻿using Edo.Common;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
 using MassTransit;
@@ -318,7 +318,7 @@ namespace Edo.Transfer.Sender
 
 			if(nomenclature == null)
 			{
-				nomenclature = gtins.Where(x => x.GtinNumber == individualCode.GTIN)
+				nomenclature = gtins.Where(x => x.GtinNumber == individualCode.Gtin)
 					.Select(x => x.Nomenclature)
 					.FirstOrDefault();
 			}
@@ -405,7 +405,7 @@ namespace Edo.Transfer.Sender
 			if(nomenclature == null)
 			{
 				var individualCode = edoTaskItem.ProductCode.ResultCode;
-				nomenclature = gtins.Where(x => x.GtinNumber == individualCode.GTIN)
+				nomenclature = gtins.Where(x => x.GtinNumber == individualCode.Gtin)
 					.Select(x => x.Nomenclature)
 					.SingleOrDefault();
 			}

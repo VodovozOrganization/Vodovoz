@@ -12,7 +12,7 @@
 		/// <summary>
 		/// Основной адрес
 		/// </summary>
-		public string BaseAddress { get; set; }
+		public string MainEdoAccountBaseAddress { get; set; }
 		/// <summary>
 		/// Эндпойнт отправки УПД по объемно-сортовому учету(контейнеров)
 		/// </summary>
@@ -21,6 +21,10 @@
 		/// Эндпойнт отправки новых УПД(поэкземплярный учет)
 		/// </summary>
 		public string SendIndividualAccountingUpdEndpoint { get; set; }
+		/// <summary>
+		/// Эндпойнт отправки документа заказа
+		/// </summary>
+		public string SendInformalOrderDocumentEndpoint { get; set; }
 		/// <summary>
 		/// Эндпойнт отправки счета
 		/// </summary>
@@ -69,5 +73,25 @@
 		/// Эндпойнт получения статуса документооборота
 		/// </summary>
 		public string GetDocflowStatusEndpoint { get; set; }
+
+		/// <summary>
+		/// Основные адреса наших организаций
+		/// </summary>
+		public EdoAccountBaseAddress[] EdoAccountBaseAddresses { get; set; }
+	}
+
+	/// <summary>
+	/// Основной адрес нашей организации
+	/// </summary>
+	public class EdoAccountBaseAddress
+	{
+		/// <summary>
+		/// 
+		/// </summary>
+		public string EdoAccountId { get; set; }
+		/// <summary>
+		/// 
+		/// </summary>
+		public string BaseAddress { get; set; }
 	}
 }

@@ -1,13 +1,15 @@
-﻿using System;
+﻿using Core.Infrastructure;
+using Edo.Contracts.Messages.Dto;
+using Edo.Contracts.Xml;
+using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Core.Infrastructure;
-using Edo.Contracts.Messages.Dto;
-using Edo.Contracts.Xml;
 using TaxcomEdo.Client.Configs;
 using TaxcomEdo.Contracts.Contacts;
 using TaxcomEdo.Contracts.Counterparties;
@@ -44,25 +46,34 @@ namespace TaxcomEdo.Client
 		
 		public async Task SendDataForCreateBillByEdo(InfoForCreatingEdoBill data, CancellationToken cancellationToken = default)
 		{
-			await SendDocument(_taxcomApiOptions.SendBillEndpoint, data);
+			var ourEdxId = data.OrderInfoForEdo.ContractInfoForEdo.OrganizationInfoForEdo.TaxcomEdoAccountId;
+			await SendDocument(_taxcomApiOptions.SendBillEndpoint, data, ourEdxId);
 		}
-		
+
+		public async Task<bool> SendDataForCreateInformalOrderDocumentByEdo(InfoForCreatingEdoInformalOrderDocument data, CancellationToken cancellationToken = default)
+		{
+			return await SendDocument(_taxcomApiOptions.SendInformalOrderDocumentEndpoint, data);
+		}
+
 		public async Task SendDataForCreateBillWithoutShipmentForDebtByEdo(
 			InfoForCreatingBillWithoutShipmentForDebtEdo data, CancellationToken cancellationToken = default)
 		{
-			await SendDocument(_taxcomApiOptions.SendBillWithoutShipmentForDebtEndpoint, data);
+			var ourEdxId = data.OrderWithoutShipmentForDebtInfo.OrganizationInfoForEdo.TaxcomEdoAccountId;
+			await SendDocument(_taxcomApiOptions.SendBillWithoutShipmentForDebtEndpoint, data, ourEdxId);
 		}
 		
 		public async Task SendDataForCreateBillWithoutShipmentForPaymentByEdo(
 			InfoForCreatingBillWithoutShipmentForPaymentEdo data, CancellationToken cancellationToken = default)
 		{
-			await SendDocument(_taxcomApiOptions.SendBillWithoutShipmentForPaymentEndpoint, data);
+			var ourEdxId = data.OrderWithoutShipmentForPaymentInfo.OrganizationInfoForEdo.TaxcomEdoAccountId;
+			await SendDocument(_taxcomApiOptions.SendBillWithoutShipmentForPaymentEndpoint, data, ourEdxId);
 		}
 		
 		public async Task SendDataForCreateBillWithoutShipmentForAdvancePaymentByEdo(
 			InfoForCreatingBillWithoutShipmentForAdvancePaymentEdo data, CancellationToken cancellationToken = default)
 		{
-			await SendDocument(_taxcomApiOptions.SendBillWithoutShipmentForAdvancePaymentEndpoint, data);
+			var ourEdxId = data.OrderWithoutShipmentForAdvancePaymentInfo.OrganizationInfoForEdo.TaxcomEdoAccountId;
+			await SendDocument(_taxcomApiOptions.SendBillWithoutShipmentForAdvancePaymentEndpoint, data, ourEdxId);
 		}
 
 		public async Task<EdoContactList> GetContactListUpdates(
@@ -161,12 +172,12 @@ namespace TaxcomEdo.Client
 			return result.IsSuccessStatusCode;
 		}
 
-		private async Task<bool> SendDocument<T>(string endPoint, T data)
+		private async Task<bool> SendDocument<T>(string endPoint, T data, string ourEdxId = null)
 		{
-			var result = await CreateClient().PostAsJsonAsync(endPoint, data);
+			var result = await CreateClient(ourEdxId).PostAsJsonAsync(endPoint, data);
 			return result.IsSuccessStatusCode;
 		}
-		
+
 		private async Task<ContainerDescription> GetDocflowStatus(string docflowId)
 		{
 			var query = HttpQueryBuilder
@@ -180,11 +191,31 @@ namespace TaxcomEdo.Client
 			return response.DeserializeXmlString<ContainerDescription>();
 		}
 
-		private HttpClient CreateClient()
+		private HttpClient CreateClient(string ourEdoAccountId = null)
 		{
 			var client = _httpClientFactory.CreateClient(nameof(TaxcomApiClient));
-			client.BaseAddress = new Uri(_taxcomApiOptions.BaseAddress);
-			
+
+			if(ourEdoAccountId is null)
+			{
+				if(string.IsNullOrEmpty(_taxcomApiOptions.MainEdoAccountBaseAddress))
+				{
+					throw new ConfigurationErrorsException($"В конфигурации не настроен основной адрес организации");
+				}
+
+				client.BaseAddress = new Uri(_taxcomApiOptions.MainEdoAccountBaseAddress);
+			}
+			else
+			{
+				var ourEdoAccount = _taxcomApiOptions.EdoAccountBaseAddresses.SingleOrDefault(x => x.EdoAccountId == ourEdoAccountId);
+
+				if(ourEdoAccount is null)
+				{
+					throw new ConfigurationErrorsException($"В конфигурации не настроен адрес апи для организации с аккаунтом {ourEdoAccountId}");
+				}
+
+				client.BaseAddress = new Uri(ourEdoAccount.BaseAddress);
+			}
+
 			return client;
 		}
 

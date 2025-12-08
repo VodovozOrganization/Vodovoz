@@ -19,6 +19,7 @@ namespace VodovozBusinessTests.Domain.Logistic
 		{
 			var generalSettingsSettingsMock = Substitute.For<IGeneralSettings>();
 			generalSettingsSettingsMock.GetCanAddForwardersToLargus.Returns(true);
+			generalSettingsSettingsMock.GetCanAddForwardersToMinivan.Returns(true);
 
 			RouteList.SetGeneralSettingsSettingsGap(generalSettingsSettingsMock);
 		}

@@ -8,6 +8,8 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using System;
+using NHibernate.SqlCommand;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.ViewModels.Organizations
@@ -43,9 +45,14 @@ namespace Vodovoz.ViewModels.Organizations
 		protected override IQueryOver<Organization> ItemsQuery(IUnitOfWork uow)
 		{
 			Organization organizationAlias = null;
+			TaxcomEdoSettings taxcomEdoSettingsAlias = null;
 			OrganizationJournalNode resultAlias = null;
 
-			var query = uow.Session.QueryOver(() => organizationAlias);
+			var query = uow.Session.QueryOver(() => organizationAlias)
+				.JoinEntityAlias(
+					() => taxcomEdoSettingsAlias,
+					() => organizationAlias.Id == taxcomEdoSettingsAlias.OrganizationId,
+					JoinType.LeftOuterJoin);
 
 			if(_filterViewModel.HasAvangardShopId)
 			{
@@ -59,7 +66,7 @@ namespace Vodovoz.ViewModels.Organizations
 
 			if(_filterViewModel.HasTaxcomEdoAccountId)
 			{
-				query.Where(x => x.TaxcomEdoAccountId != null);
+				query.Where(x => taxcomEdoSettingsAlias.EdoAccount != null);
 			}
 
 			var hasAvangardShopIdProjection = Projections.Conditional(
@@ -68,7 +75,7 @@ namespace Vodovoz.ViewModels.Organizations
 				Projections.Constant(true));
 			
 			var hasTaxcomEdoAccountIdProjection = Projections.Conditional(
-				Restrictions.Where(() => organizationAlias.TaxcomEdoAccountId == null),
+				Restrictions.Where(() => taxcomEdoSettingsAlias.EdoAccount == null),
 				Projections.Constant(false),
 				Projections.Constant(true));
 			

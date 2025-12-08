@@ -1,9 +1,10 @@
-﻿using Autofac;
+﻿using System;
+using System.Linq;
+using Autofac;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using NHibernate.Util;
 using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
@@ -13,8 +14,6 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Services;
-using System;
-using System.Linq;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Employees;
@@ -27,18 +26,15 @@ using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Infrastructure;
 using Vodovoz.Services;
 using Vodovoz.Services.Fuel;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Cash;
-using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Fuel;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.TempAdapters;
-using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
 using Vodovoz.ViewModels.Cash;
@@ -54,14 +50,12 @@ namespace Vodovoz.JournalViewModels
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IFuelRepository _fuelRepository;
-		private readonly ICallTaskRepository _callTaskRepository;
 		private readonly ICallTaskWorker _callTaskWorker;
-		private readonly IExpenseSettings _expenseSettings;
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IAccountableDebtsRepository _accountableDebtsRepository;
-		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IOrganizationRepository _organizationRepository;
+		private readonly IRouteListService _routeListService;
 		private readonly decimal _routeListProfitabilityIndicator;
 
 		public RouteListWorkingJournalViewModel(
@@ -81,6 +75,7 @@ namespace Vodovoz.JournalViewModels
 			IRouteListProfitabilitySettings routeListProfitabilitySettings,
 			IOrganizationRepository organizationRepository,
 			INavigationManager navigationManager,
+			IRouteListService routeListService,
 			Action<RouteListJournalFilterViewModel> filterParams = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigation: navigationManager)
 		{
@@ -88,14 +83,12 @@ namespace Vodovoz.JournalViewModels
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
-			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
-			_expenseSettings = expenseSettings ?? throw new ArgumentNullException(nameof(expenseSettings));
 			_financialCategoriesGroupsSettings = financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_accountableDebtsRepository = accountableDebtsRepository ?? throw new ArgumentNullException(nameof(accountableDebtsRepository));
-			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_routeListProfitabilityIndicator = FilterViewModel.RouteListProfitabilityIndicator =
 				(routeListProfitabilitySettings ?? throw new ArgumentNullException(nameof(routeListProfitabilitySettings)))
 				.GetRouteListProfitabilityIndicatorInPercents;
@@ -130,6 +123,7 @@ namespace Vodovoz.JournalViewModels
 			GeoGroupVersion geoGroupVersionAlias = null;
 			RouteListProfitability routeListProfitabilityAlias = null;
 			RouteListDebt routeListDebtAlias = null;
+			RouteListItem routeListAddressAlias = null;
 
 			var query = uow.Session.QueryOver(() => routeListAlias)
 				.Left.JoinAlias(o => o.Shift, () => shiftAlias)
@@ -274,6 +268,16 @@ namespace Vodovoz.JournalViewModels
 				.Select(r => r.Debt)
 				.Take(1);
 
+			var anyAddressSubquery = QueryOver.Of(() => routeListAddressAlias)
+				.Where(() => routeListAddressAlias.RouteList.Id == routeListAlias.Id)
+				.Select(a => a.Id)
+				.Take(1);
+			
+			var hasAddressesProjection = Projections.Conditional(
+				Restrictions.IsNull(Projections.SubQuery(anyAddressSubquery)), 
+				Projections.Constant(false),
+				Projections.Constant(true));
+
 			var result = query
 				.SelectList(list => list
 					.SelectGroup(() => routeListAlias.Id).WithAlias(() => routeListJournalNodeAlias.Id)
@@ -297,6 +301,7 @@ namespace Vodovoz.JournalViewModels
 						.WithAlias(() => routeListJournalNodeAlias.GrossMarginPercents)
 					.Select(Projections.Constant(_routeListProfitabilityIndicator))
 						.WithAlias(() => routeListJournalNodeAlias.RouteListProfitabilityIndicator)
+					.Select(hasAddressesProjection).WithAlias(() => routeListJournalNodeAlias.HasAddresses)
 				).OrderBy(rl => rl.Date).Desc
 				.TransformUsing(Transformers.AliasToBean<RouteListJournalNode>());
 
@@ -441,7 +446,8 @@ namespace Vodovoz.JournalViewModels
 
 			PopupActionsList.Add(new JournalAction(
 				"Выдать топливо",
-				(selectedItems) => selectedItems.Any(x => _fuelIssuingStatuses.Contains((x as RouteListJournalNode).StatusEnum)),
+				(selectedItems) => selectedItems.Any(x => _fuelIssuingStatuses.Contains((x as RouteListJournalNode).StatusEnum))
+					&& selectedItems.All(x => (x as RouteListJournalNode).HasAddresses),
 				(selectedItems) => selectedItems.Any(x => _fuelIssuingStatuses.Contains((x as RouteListJournalNode).StatusEnum)),
 				(selectedItems) =>
 				{
@@ -497,7 +503,7 @@ namespace Vodovoz.JournalViewModels
 									isSlaveTabActive = true;
 									return;
 								}
-								routeList.ChangeStatusAndCreateTask(RouteListStatus.OnClosing, _callTaskWorker);
+								_routeListService.ChangeStatusAndCreateTask(uowLocal, routeList, RouteListStatus.OnClosing, _callTaskWorker);
 								uowLocal.Save(routeList);
 								if(isSlaveTabActive)
 								{
@@ -531,7 +537,7 @@ namespace Vodovoz.JournalViewModels
 							   _financialCategoriesGroupsSettings.ChangeFinancialExpenseCategoryId,
 							   null).Count() > 0)
 						{
-							commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Error,
+							commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
 								"Закройте сначала прошлые авансовые со статусом \"Сдача клиенту\"", "Нельзя выдать сдачу");
 							return;
 						}
@@ -540,7 +546,7 @@ namespace Vodovoz.JournalViewModels
 
 						if(!changesToOrders.Any())
 						{
-							commonServices.InteractiveService.ShowMessage(QS.Dialog.ImportanceLevel.Info,
+							commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
 								"Для данного МЛ нет наличных заказов требующих сдачи");
 							return;
 						}

@@ -21,6 +21,7 @@
 		</None>
 	</ItemGroup>
 	<ItemGroup>
+		<PackageReference Include="MassTransit" Version="8.0.12" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
 		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />

@@ -22,7 +22,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.Comment).Column("comment");
 			Map(x => x.INN).Column("inn");
 			Map(x => x.KPP).Column("kpp");
-			Map(x => x.IsLiquidating).Column("is_liquidating");
+			Map(x => x.RevenueStatus).Column("revenue_status");
+			Map(x => x.RevenueStatusDate).Column("revenue_status_date");
 			Map(x => x.OGRN).Column("ogrn");
 			Map(x => x.JurAddress).Column("jur_address");
 			Map(x => x.Address).Column("address");
@@ -73,6 +74,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.OrderStatusForSendingUpd).Column("order_status_for_sending_upd");
 			Map(x => x.IsPaperlessWorkflow).Column("is_paperless_workflow");
 			Map(x => x.IsNotSendDocumentsByEdo).Column("is_not_send_documents_by_edo");
+			Map(x => x.IsNotSendEquipmentTransferByEdo).Column("is_not_send_equipment_transfer_by_edo");
 			Map(x => x.CanSendUpdInAdvance).Column("can_send_upd_in_advance");
 			Map(x => x.SpecialContractNumber).Column("special_contract_number");
 			Map(x => x.SpecialContractDate).Column("special_contract_date");

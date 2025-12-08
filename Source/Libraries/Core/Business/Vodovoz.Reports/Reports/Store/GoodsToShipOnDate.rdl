@@ -579,7 +579,7 @@
 			#WHEN 'service' THEN 'Услуга'
 			WHEN 'bottle' THEN 'Тара'
 			WHEN 'material' THEN 'Сырьё'
-			#WHEN 'master' THEN 'Выезд мастера'
+			#WHEN 'master' THEN 'Сервисное обслуживание'
 			WHEN 'fuel' THEN 'Топливо'
 			ELSE n.category
 		END

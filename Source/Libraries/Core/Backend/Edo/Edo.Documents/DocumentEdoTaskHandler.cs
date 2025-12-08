@@ -83,14 +83,6 @@ namespace Edo.Documents
 				return;
 			}
 
-			if(edoTask.OrderEdoRequest.Order.Contract.Organization.WithoutVAT
-				&& edoTask.DocumentType == EdoDocumentType.UPD)
-			{
-				await _edoProblemRegistrar.RegisterCustomProblem<NotAvailableSentUpdForNotVatOrganization>(
-					edoTask, cancellationToken, "Запрос отправки УПД для организации без НДС");
-				return;
-			}
-
 			// предзагрузка для ускорения
 			var productCodes = await _uow.Session.QueryOver<TrueMarkProductCode>()
 				.Fetch(SelectMode.Fetch, x => x.SourceCode)
@@ -122,6 +114,13 @@ namespace Edo.Documents
 
 			var codesToPreload = sourceCodes.Union(resultCodes).Distinct();
 			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
+
+			if(productCodes.Any(x => x.SourceCodeStatus == SourceProductCodeStatus.Rejected))
+			{
+				_logger.LogInformation("Задача Id {EdoTaskId} имеет отклоненные коды, " +
+					"значит отправка будет производиться другой задачей", documentEdoTaskId);
+				return;
+			}
 
 			try
 			{
@@ -160,6 +159,10 @@ namespace Edo.Documents
 					{
 						throw;
 					}
+				}
+				else
+				{
+					throw;
 				}
 			}
 			catch(Exception ex)
@@ -305,6 +308,13 @@ namespace Edo.Documents
 			var codesToPreload = sourceCodes.Union(resultCodes).Distinct();
 			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
 
+			if(productCodes.Any(x => x.SourceCodeStatus == SourceProductCodeStatus.Rejected))
+			{
+				_logger.LogInformation("Задача Id {EdoTaskId} имеет отклоненные коды, " +
+					"значит отправка будет производиться другой задачей", edoTask.Id);
+				return;
+			}
+
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
 
 			try
@@ -415,23 +425,6 @@ namespace Edo.Documents
 		private void AcceptDocument(DocumentEdoTask edoTask, CancellationToken cancellationToken)
 		{
 			edoTask.Stage = DocumentEdoTaskStage.Completed;
-		}
-
-		public async Task HandleCancelled(int documentId, CancellationToken cancellationToken)
-		{
-			_uow.OpenTransaction();
-
-			var document = await _uow.Session.GetAsync<OrderEdoDocument>(documentId, cancellationToken);
-
-			if(document == null)
-			{
-				_logger.LogError("При обработке отмены документа №{DocumentId} не найден документ.", documentId);
-			}
-
-			var documentTask = await _uow.Session.GetAsync<DocumentEdoTask>(document.DocumentTaskId, cancellationToken);
-
-			await _edoProblemRegistrar.RegisterCustomProblem<DocflowCouldNotBeCompleted>(
-				documentTask, cancellationToken, "Документооборот был отменен");
 		}
 
 		public async Task HandleProblem(int documentId, CancellationToken cancellationToken)

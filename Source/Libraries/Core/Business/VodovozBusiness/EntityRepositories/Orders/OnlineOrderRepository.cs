@@ -71,5 +71,22 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			return onlineOrders.FirstOrDefault();
 		}
+
+		public IEnumerable<OnlineOrder> GetOnlineOrdersDuplicates(
+			IUnitOfWork uow, OnlineOrder currentOnlineOrder, DateTime? createdAt = null)
+		{
+			var onlineOrders = from onlineOrder in uow.Session.Query<OnlineOrder>()
+				where onlineOrder.CounterpartyId != null
+					&& onlineOrder.CounterpartyId == currentOnlineOrder.CounterpartyId
+					&& onlineOrder.DeliveryPointId == currentOnlineOrder.DeliveryPointId
+					&& onlineOrder.DeliveryDate == currentOnlineOrder.DeliveryDate
+					&& onlineOrder.DeliveryScheduleId == currentOnlineOrder.DeliveryScheduleId
+					&& onlineOrder.OnlineOrderSum == currentOnlineOrder.OnlineOrderSum
+				select onlineOrder;
+
+			return createdAt.HasValue
+				? onlineOrders.Where(o => o.Created.Date >= createdAt.Value.Date).ToList()
+				: onlineOrders.ToList();
+		}
 	}
 }

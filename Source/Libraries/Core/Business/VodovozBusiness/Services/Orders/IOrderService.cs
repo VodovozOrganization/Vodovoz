@@ -1,9 +1,11 @@
 ﻿using QS.DomainModel.UoW;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Services.Logistics;
 
 namespace VodovozBusiness.Services.Orders
 {
@@ -20,7 +22,6 @@ namespace VodovozBusiness.Services.Orders
 		/// </summary>
 		decimal GetOrderPrice(CreateOrderRequest roboatsOrderArgs);
 		void UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order);
-		int TryCreateOrderFromOnlineOrderAndAccept(IUnitOfWork uow, OnlineOrder onlineOrder);
 		(int OrderId, int AuthorId, OrderStatus OrderStatus) AcceptOrder(int orderId, int roboatsEmployeeId);
 		bool NeedResendByEdo(IUnitOfWork unitOfWork, Order entity);
 		void AutoCancelAutoTransfer(IUnitOfWork uow, Order order);
@@ -51,5 +52,8 @@ namespace VodovozBusiness.Services.Orders
 		[Obsolete("Метод использовался в RobotMiaApi, должен быть удален")]
 		Task<Result<(int OrderId, int AuthorId, OrderStatus OrderStatus)>> CreateIncompleteOrderAsync(CreateOrderRequest createOrderRequest);
 		void AddLogisticsRequirements(Order order);
+		void UpdatePaymentStatus(IUnitOfWork uow, Order order);
+		Task<int> TryCreateOrderFromOnlineOrderAndAcceptAsync(IUnitOfWork uow, OnlineOrder onlineOrder, IRouteListService routeListService, CancellationToken cancellationToken);
+		void RejectOrderTrueMarkCodes(IUnitOfWork uow, int orderId);
 	}
 }

@@ -64,6 +64,14 @@ namespace Vodovoz.Store.Reports
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewSummary;
 
+		private global::Gamma.GtkWidgets.yLabel ylabelOldSummaryBySource;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewOldSummaryBySource;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelOldSummary;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewOldBySummary;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -296,7 +304,7 @@ namespace Vodovoz.Store.Reports
 			// Container child GtkViewport.Gtk.Container+ContainerChild
 			this.vbox1 = new global::Gtk.VBox();
 			this.vbox1.Name = "vbox1";
-			this.vbox1.Spacing = 6;
+			this.vbox1.Spacing = 10;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.ylabelMain = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelMain.Name = "ylabelMain";
@@ -345,6 +353,38 @@ namespace Vodovoz.Store.Reports
 			this.vbox1.Add(this.ytreeviewSummary);
 			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ytreeviewSummary]));
 			w30.Position = 5;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.ylabelOldSummaryBySource = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelOldSummaryBySource.Name = "ylabelOldSummaryBySource";
+			this.ylabelOldSummaryBySource.LabelProp = global::Mono.Unix.Catalog.GetString("Для старой номенклатуры по источнику брака");
+			this.vbox1.Add(this.ylabelOldSummaryBySource);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelOldSummaryBySource]));
+			w31.Position = 6;
+			w31.Expand = false;
+			w31.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.ytreeviewOldSummaryBySource = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewOldSummaryBySource.CanFocus = true;
+			this.ytreeviewOldSummaryBySource.Name = "ytreeviewOldSummaryBySource";
+			this.vbox1.Add(this.ytreeviewOldSummaryBySource);
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ytreeviewOldSummaryBySource]));
+			w32.Position = 7;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.ylabelOldSummary = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelOldSummary.Name = "ylabelOldSummary";
+			this.ylabelOldSummary.LabelProp = global::Mono.Unix.Catalog.GetString("Для старой номенклатуры по типу брака");
+			this.vbox1.Add(this.ylabelOldSummary);
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ylabelOldSummary]));
+			w33.Position = 8;
+			w33.Expand = false;
+			w33.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.ytreeviewOldBySummary = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewOldBySummary.CanFocus = true;
+			this.ytreeviewOldBySummary.Name = "ytreeviewOldBySummary";
+			this.vbox1.Add(this.ytreeviewOldBySummary);
+			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.ytreeviewOldBySummary]));
+			w34.Position = 9;
 			w24.Add(this.vbox1);
 			this.scrolledwindow1.Add(w24);
 			this.hpaned1.Add(this.scrolledwindow1);

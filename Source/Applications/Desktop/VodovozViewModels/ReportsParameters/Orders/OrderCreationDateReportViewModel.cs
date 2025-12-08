@@ -35,7 +35,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			Identifier = "Sales.OrderCreationDateReport";
 
 			LoadReportCommand = new DelegateCommand(LoadReport);
-			CanEditEmployee = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.CanEditEmployeeInOrderCreationDateReport);
+			CanEditEmployee = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.CanEditEmployeeInOrderCreationDateReport);
 
 			var officeFilter = new EmployeeFilterViewModel();
 			officeFilter.SetAndRefilterAtOnce(

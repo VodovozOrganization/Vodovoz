@@ -61,7 +61,7 @@ namespace Vodovoz.Application.Contacts
 
 				if(!counterpartyPhoneIds.Any())
 				{
-					return Result.Failure<string>(Vodovoz.Errors.Contacts.Phone.NotFound);
+					return Result.Failure<string>(Vodovoz.Errors.Contacts.PhoneErrors.NotFound);
 				}
 
 				var orderId = _orderRepository
@@ -74,7 +74,7 @@ namespace Vodovoz.Application.Contacts
 
 				if(orderId == 0)
 				{
-					return Result.Failure<string>(Vodovoz.Errors.Orders.Order.NotFound);
+					return Result.Failure<string>(Vodovoz.Errors.Orders.OrderErrors.NotFound);
 				}
 
 				var routeList = _routeListRepository
@@ -87,7 +87,7 @@ namespace Vodovoz.Application.Contacts
 
 				if(routeList is null)
 				{
-					return Result.Failure<string>(Vodovoz.Errors.Logistics.RouteList.NotFound);
+					return Result.Failure<string>(Vodovoz.Errors.Logistics.RouteListErrors.NotFound);
 				}
 
 				var driver = _employeeRepository
@@ -96,19 +96,19 @@ namespace Vodovoz.Application.Contacts
 
 				if(driver is null)
 				{
-					return Result.Failure<string>(Vodovoz.Errors.Employees.Driver.NotFound);
+					return Result.Failure<string>(Vodovoz.Errors.Employees.DriverErrors.NotFound);
 				}
 
 				if(!driver.CanRecieveCounterpartyCalls)
 				{
-					return Result.Failure<string>(Vodovoz.Errors.Employees.Driver.CantRecieveCounterpartyCalls);
+					return Result.Failure<string>(Vodovoz.Errors.Employees.DriverErrors.CantRecieveCounterpartyCalls);
 				}
 
 				var phone = driver.PhoneForCounterpartyCalls;
 
 				if(phone is null)
 				{
-					return Result.Failure<string>(Vodovoz.Errors.Contacts.Phone.NotFound);
+					return Result.Failure<string>(Vodovoz.Errors.Contacts.PhoneErrors.NotFound);
 				}
 
 				return Result.Success(phone.DigitsNumber);

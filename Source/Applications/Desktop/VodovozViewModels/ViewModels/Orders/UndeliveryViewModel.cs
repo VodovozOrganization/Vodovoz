@@ -22,11 +22,13 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Factories;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Widgets;
+using Vodovoz.Application.Orders.Services.OrderCancellation;
 
 namespace Vodovoz.ViewModels.Orders
 {
@@ -48,13 +50,15 @@ namespace Vodovoz.ViewModels.Orders
 		private readonly IValidationContextFactory _validationContextFactory;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IUndeliveryDiscussionCommentFileStorageService _undeliveryDiscussionCommentFileStorageService;
+		private readonly IRouteListService _routeListService;
+		private readonly OrderCancellationService _orderCancellationService;
 		private ValidationContext _validationContext;
 		private bool _addedCommentToOldUndelivery;
 		private bool _forceSave;
 		private bool _isExternalUoW;
 		private bool _isNewUndelivery;
 		private bool _isFromRouteListClosing;
-
+		private OrderCancellationPermit _orderCancellationPermit;
 		private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
 		public UndeliveryViewModel(
@@ -73,7 +77,10 @@ namespace Vodovoz.ViewModels.Orders
 			IUndeliveryDiscussionsViewModelFactory undeliveryDiscussionsViewModelFactory,
 			IValidationContextFactory validationContextFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IUndeliveryDiscussionCommentFileStorageService undeliveryDiscussionCommentFileStorageService)
+			IUndeliveryDiscussionCommentFileStorageService undeliveryDiscussionCommentFileStorageService,
+			IRouteListService routeListService,
+			OrderCancellationService orderCancellationService
+			)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -92,10 +99,24 @@ namespace Vodovoz.ViewModels.Orders
 			_validationContextFactory = validationContextFactory ?? throw new ArgumentNullException(nameof(validationContextFactory));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_undeliveryDiscussionCommentFileStorageService = undeliveryDiscussionCommentFileStorageService ?? throw new ArgumentNullException(nameof(undeliveryDiscussionCommentFileStorageService));
+			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
+			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
+			_orderCancellationPermit = OrderCancellationPermit.Default();
 		}
 
-		public void Initialize(IUnitOfWork extrenalUoW = null, int oldOrderId = 0, bool isForSalesDepartment = false, bool isFromRouteListClosing = false)
+		public void Initialize(
+			IUnitOfWork extrenalUoW = null, 
+			int oldOrderId = 0, 
+			bool isForSalesDepartment = false, 
+			bool isFromRouteListClosing = false,
+			OrderCancellationPermit cancellationPermit = null
+			)
 		{
+			if(cancellationPermit != null)
+			{
+				_orderCancellationPermit = cancellationPermit;
+			}
+
 			_isFromRouteListClosing = isFromRouteListClosing;
 
 			if(extrenalUoW != null)
@@ -244,9 +265,23 @@ namespace Vodovoz.ViewModels.Orders
 				return false;
 			}
 
-			if(Entity.Id == 0)
+			if(Entity.Id == 0 && !_isExternalUoW)
 			{
-				Entity.OldOrder.SetUndeliveredStatus(UoW, _nomenclatureSettings, _callTaskWorker, needCreateDeliveryFreeBalanceOperation: !_isFromRouteListClosing);
+				_orderCancellationPermit = _orderCancellationService.CanCancelOrder(UoW, Entity.OldOrder, _orderCancellationPermit);
+
+				if(_orderCancellationPermit.Type == OrderCancellationPermitType.AllowCancelDocflow)
+				{
+					_orderCancellationService.CancelDocflowByUser(Entity.OldOrder, _orderCancellationPermit.EdoTaskToCancellationId.Value);
+					Close(false, CloseSource.Self);
+					return false;
+				}
+
+				if(_orderCancellationPermit.Type != OrderCancellationPermitType.AllowCancelOrder)
+				{
+					return false;
+				}
+
+				Entity.OldOrder.SetUndeliveredStatus(UoW, _routeListService, _nomenclatureSettings, _callTaskWorker, needCreateDeliveryFreeBalanceOperation: !_isFromRouteListClosing);
 			}
 
 			UndeliveredOrderViewModel.BeforeSaveCommand.Execute();
@@ -268,7 +303,7 @@ namespace Vodovoz.ViewModels.Orders
 
 				if(_addedCommentToOldUndelivery)
 				{
-					Saved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(Entity, !_isExternalUoW || needClose));
+					Saved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(Entity, _orderCancellationPermit, !_isExternalUoW || needClose));
 				}
 
 				Close(false, CloseSource.Self);
@@ -281,6 +316,15 @@ namespace Vodovoz.ViewModels.Orders
 			if(!_isExternalUoW)
 			{
 				UoW.Commit();
+
+				if(_orderCancellationPermit.EdoTaskToCancellationId != null)
+				{
+					_orderCancellationService.AutomaticCancelDocflow(
+						UoW,
+						Entity.OldOrder, 
+						_orderCancellationPermit.EdoTaskToCancellationId.Value
+					);
+				}
 			}
 
 			AddDiscussionsCommentFilesIfNeeded();
@@ -294,7 +338,7 @@ namespace Vodovoz.ViewModels.Orders
 
 			var needCloseParrentTab = !_isExternalUoW || (needClose && !_isFromRouteListClosing);
 
-			Saved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(Entity, needCloseParrentTab));
+			Saved?.Invoke(this, new UndeliveryOnOrderCloseEventArgs(Entity, _orderCancellationPermit, needCloseParrentTab));
 
 			if(needClose)
 			{

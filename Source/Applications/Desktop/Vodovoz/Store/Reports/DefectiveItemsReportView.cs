@@ -126,7 +126,7 @@ namespace Vodovoz.Store.Reports
 					.AddColumn("Номеклатура")
 					.AddTextRenderer(x => x.NomeclatureNameForSourceRow);
 				
-				for(var i = 0; i < dynamicSourceNameColumns.Count; i++)
+				for(var i = 0; i < dynamicSourceNameColumns.Count(); i++)
 				{
 					var currentId = i;
 					
@@ -146,7 +146,7 @@ namespace Vodovoz.Store.Reports
 					.AddColumn("Номеклатура")
 					.AddTextRenderer(x => x.NomeclatureNameForDefectRow);
 				
-				for(var i = 0; i < dynamicDefectNameColumns.Count; i++)
+				for(var i = 0; i < dynamicDefectNameColumns.Count(); i++)
 				{
 					var currentId = i;
 
@@ -194,6 +194,45 @@ namespace Vodovoz.Store.Reports
 					ytreeviewSummary.ItemsDataSource = ViewModel.Report.SummaryDisplayRows;
 				}
 			}
+			
+			// Разбивка виновных в разрезе старых номенклатур
+			var dynamicSourceOldNameColumns = ViewModel.Report.SourceOldNames;
+			var summaryByOldNomenclatureConfig = new FluentColumnsConfig<DefectiveItemsReport.SummaryByOldNomenclatureRow>()
+				.AddColumn("Старая номеклатура")
+				.AddTextRenderer(x => x.NomeclatureNameForSourceRow);
+				
+			for(var i = 0; i < dynamicSourceOldNameColumns.Count(); i++)
+			{
+				var currentId = i;
+					
+					
+				summaryByOldNomenclatureConfig
+					.AddColumn(dynamicSourceOldNameColumns.ElementAt(currentId))
+					.AddTextRenderer(x => x.DynamicColumnsByOldNomenclatureRow.ElementAt(currentId).ToString());
+			}
+				
+			ytreeviewOldSummaryBySource.ColumnsConfig = summaryByOldNomenclatureConfig.Finish();
+			ytreeviewOldSummaryBySource.ItemsDataSource = ViewModel.Report.SummaryByOldNomenclatureRows;
+				
+				
+			// Разбивка по видам брака в разрезе старых номенклатур
+			var dynamicDefectOldNameColumns = ViewModel.Report.DefectNames;
+			var summaryByOldNomenclatureWithTypeDefectConfig = new FluentColumnsConfig<DefectiveItemsReport.SummaryByOldNomenclatureWithTypeDefectRow>()
+				.AddColumn("Старая номеклатура")
+				.AddTextRenderer(x => x.NomeclatureNameForDefectRow);
+				
+			for(var i = 0; i < dynamicDefectOldNameColumns.Count(); i++)
+			{
+				var currentId = i;
+
+				summaryByOldNomenclatureWithTypeDefectConfig
+					.AddColumn(dynamicDefectOldNameColumns.ElementAt(currentId))
+					.AddTextRenderer(x => x.DynamicColumnsByOldNomenclatureWithTypeDefectRow.ElementAt(currentId).ToString());
+			}
+				
+				
+			ytreeviewOldBySummary.ColumnsConfig = summaryByOldNomenclatureWithTypeDefectConfig.Finish();
+			ytreeviewOldBySummary.ItemsDataSource = ViewModel.Report.SummaryByOldNomenclatureWithTypeDefectRows;
 		}
 
 		protected void OnEventboxArrowButtonPressEvent(object o, ButtonPressEventArgs args)

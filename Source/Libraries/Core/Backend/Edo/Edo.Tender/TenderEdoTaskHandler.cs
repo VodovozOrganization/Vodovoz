@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -123,6 +123,13 @@ namespace Edo.Tender
 
 			var codesToPreload = sourceCodes.Union(resultCodes).Distinct();
 			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
+
+			if(productCodes.Any(x => x.SourceCodeStatus == SourceProductCodeStatus.Rejected))
+			{
+				_logger.LogInformation("Задача Id {EdoTaskId} имеет отклоненные коды, " +
+					"значит отправка будет производиться другой задачей", tenderEdoTaskId);
+				return;
+			}
 
 			try
 			{

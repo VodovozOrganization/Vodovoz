@@ -4,11 +4,13 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Domain.Client;
 using VodovozInfrastructure.Attributes;
@@ -24,7 +26,8 @@ namespace Vodovoz.Core.Domain.Clients
 			NominativePlural = "контрагенты",
 			Nominative = "контрагент",
 			Accusative = "контрагента",
-			Genitive = "контрагента"
+			Genitive = "контрагента",
+			GenitivePlural = "контрагентов"
 		)
 	]
 	[HistoryTrace]
@@ -40,6 +43,7 @@ namespace Vodovoz.Core.Domain.Clients
 		private ReasonForLeaving _reasonForLeaving;
 		private bool _isPaperlessWorkflow;
 		private bool _isNotSendDocumentsByEdo;
+		private bool _isNotSendEquipmentTransferByEdo;
 		private bool _canSendUpdInAdvance;
 		private RegistrationInChestnyZnakStatus _registrationInChestnyZnakStatus;
 		private string _specialContractName;
@@ -105,12 +109,14 @@ namespace Vodovoz.Core.Domain.Clients
 		private int _technicalProcessingDelay;
 		private CounterpartyType _counterpartyType;
 		private bool _alwaysSendReceipts;
-		private bool _isLiquidating;
 		private bool _sendBillByEdo;
 		private bool _excludeFromAutoCalls;
 		private bool _hideDeliveryPointForBill;
+		private RevenueStatus? _revenueStatus;
+		private DateTime? _revenueStatusDate;
 
 		private OrganizationEntity _worksThroughOrganization;
+		private IList<NomenclatureFixedPriceEntity> _nomenclatureFixedPrices = new List<NomenclatureFixedPriceEntity>();
 		private IObservableList<CounterpartyFileInformation> _attachedFileInformations = new ObservableList<CounterpartyFileInformation>();
 		private IObservableList<EmailEntity> _emails = new ObservableList<EmailEntity>();
 		private IObservableList<PhoneEntity> _phones = new ObservableList<PhoneEntity>();
@@ -153,6 +159,16 @@ namespace Vodovoz.Core.Domain.Clients
 		{
 			get => _isNewEdoProcessing;
 			set => SetField(ref _isNewEdoProcessing, value);
+		}
+
+		/// <summary>
+		/// Фиксированные цены
+		/// </summary>
+		[Display(Name = "Фиксированные цены")]
+		public virtual IList<NomenclatureFixedPriceEntity> NomenclatureFixedPrices
+		{
+			get => _nomenclatureFixedPrices;
+			set => SetField(ref _nomenclatureFixedPrices, value);
 		}
 
 		/// <summary>
@@ -288,15 +304,25 @@ namespace Vodovoz.Core.Domain.Clients
 			get => _kPP;
 			set => SetField(ref _kPP, value);
 		}
-
+		
 		/// <summary>
-		/// Контрагент в статусе ликвидации
+		/// Статус в налоговой
 		/// </summary>
-		[Display(Name = "Контрагент в статусе ликвидации")]
-		public virtual bool IsLiquidating
+		[Display(Name = "Статус в налоговой")]
+		public virtual RevenueStatus? RevenueStatus
 		{
-			get => _isLiquidating;
-			set => SetField(ref _isLiquidating, value);
+			get => _revenueStatus;
+			set => SetField(ref _revenueStatus, value);
+		}
+		
+		/// <summary>
+		/// Дата статуса в налоговой
+		/// </summary>
+		[Display(Name = "Дата статуса в налоговой")]
+		public virtual DateTime? RevenueStatusDate
+		{
+			get => _revenueStatusDate;
+			set => SetField(ref _revenueStatusDate, value);
 		}
 
 		/// <summary>
@@ -725,6 +751,16 @@ namespace Vodovoz.Core.Domain.Clients
 		{
 			get => _isNotSendDocumentsByEdo;
 			set => SetField(ref _isNotSendDocumentsByEdo, value);
+		}
+
+		/// <summary>
+		/// Не отправлять акт приёма-передачи по ЭДО
+		/// </summary>
+		[Display(Name = "Не отправлять акт приёма-передачи по ЭДО")]
+		public virtual bool IsNotSendEquipmentTransferByEdo
+		{
+			get => _isNotSendEquipmentTransferByEdo;
+			set => SetField(ref _isNotSendEquipmentTransferByEdo, value);
 		}
 
 		/// <summary>

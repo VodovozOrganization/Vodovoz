@@ -2,6 +2,7 @@
 using System;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
@@ -19,7 +20,7 @@ namespace VodovozBusiness.Nodes
 				throw new ArgumentNullException(nameof(edoContainer));
 			}
 
-			OrderId = edoContainer.Order.Id;
+			OrderId = edoContainer.Order?.Id;
 			DocFlowId = edoContainer.DocFlowId;
 			OldEdoDocumentType = edoContainer.Type;
 			EdoDocFlowStatus = edoContainer.EdoDocFlowStatus;
@@ -105,6 +106,11 @@ namespace VodovozBusiness.Nodes
 		public EdoDocumentStatus? EdoDocumentStatus { get; set; }
 
 		/// <summary>
+		/// Тип документа заказа
+		/// </summary>
+		public OrderDocumentType? OrderDocumentType { get; set; }
+
+		/// <summary>
 		/// Дата создания запроса ЭДО
 		/// </summary>
 		public DateTime? EdoRequestCreationTime { get; set; }
@@ -114,8 +120,10 @@ namespace VodovozBusiness.Nodes
 		/// </summary>
 		public string DocumentType =>
 			IsNewDockflow
-			? EdoDocumentType?.GetEnumTitle()
-			: OldEdoDocumentType?.GetEnumTitle();
+				? (EdoDocumentType != null && EdoDocumentType == Vodovoz.Core.Domain.Edo.EdoDocumentType.InformalOrderDocument
+					? OrderDocumentType?.GetEnumTitle()
+					: EdoDocumentType?.GetEnumTitle())
+				: OldEdoDocumentType?.GetEnumTitle();
 
 		/// <summary>
 		/// Статус задачи ЭДО

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
 

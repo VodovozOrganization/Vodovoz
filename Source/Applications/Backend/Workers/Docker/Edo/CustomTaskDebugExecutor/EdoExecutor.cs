@@ -2,11 +2,14 @@
 using Edo.Contracts.Messages.Events;
 using Edo.Docflow;
 using Edo.Documents;
+using Edo.InformalOrderDocuments.Handlers;
 using Edo.Receipt.Dispatcher;
 using Edo.Receipt.Sender;
 using Edo.Scheduler.Service;
+using Edo.Tender;
 using Edo.Transfer.Dispatcher;
 using Edo.Transfer.Sender;
+using Edo.Withdrawal;
 using MassTransit;
 using MassTransit.Initializers;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,8 +19,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Edo.Tender;
-using Edo.Withdrawal;
 using Taxcom.Docflow.Utility;
 
 namespace CustomTaskDebugExecutor
@@ -113,6 +114,14 @@ namespace CustomTaskDebugExecutor
 			Console.WriteLine("    Первичная подготовка данных в задаче на отправку документа вывода из оборота");
 			Console.WriteLine();
 
+			Console.WriteLine("21. InformalEdoRequestCreatedEvent (создание задачи на отправку неформализованного документа заказа) - [Edo.InformalOrderDocuments]");
+			Console.WriteLine("    Первичная подготовка данных в задаче на отправку");
+			Console.WriteLine();
+
+			Console.WriteLine("22. InformalOrderDocumenTaskCreatedEvent (отправка неформализованного документа заказа) - [Edo.InformalOrderDocuments]");
+			Console.WriteLine("    Событие создания задачи на отправку ЭДО неформализованного документа клиенту");
+			Console.WriteLine();
+
 			Console.Write("Выберите действие: ");
 			var messageNumber = int.Parse(Console.ReadLine());
 
@@ -178,6 +187,12 @@ namespace CustomTaskDebugExecutor
 				case 20:
 					await ReceiveWithdrawalCreateEvent(cancellationToken);
 					break;
+				case 21:
+					await ReceiveInformalEdoRequestCreatedEvent(cancellationToken);
+					break;
+				case 22:
+					await ReceiveInformalDocumentTaskCreatedEvent(cancellationToken);
+					break;
 				default:
 					break;
 			}
@@ -237,6 +252,24 @@ namespace CustomTaskDebugExecutor
 			await service.CreateTask(id, cancellationToken);
 		}
 
+		private async Task ReceiveInformalEdoRequestCreatedEvent(CancellationToken cancellationToken)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Необходимо ввести Id ЭДО заявки (informal_edo_requests)");
+			Console.Write("Введите Id (0 - выход): ");
+
+			var id = int.Parse(Console.ReadLine());
+
+			if(id <= 0)
+			{
+				Console.WriteLine("Выход");
+				return;
+			}
+
+			var service = _serviceProvider.GetRequiredService<EdoTaskScheduler>();
+			await service.CreateOrderDocumentTask(id, cancellationToken);
+		}
+
 		private async Task ReceiveDocumentTaskCreatedEvent(CancellationToken cancellationToken)
 		{
 			Console.WriteLine();
@@ -252,6 +285,24 @@ namespace CustomTaskDebugExecutor
 			}
 
 			var service = _serviceProvider.GetRequiredService<DocumentEdoTaskHandler>();
+			await service.HandleNew(id, cancellationToken);
+		}
+
+		private async Task ReceiveInformalDocumentTaskCreatedEvent(CancellationToken cancellationToken)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Необходимо ввести Id задачи с типом InformalOrderDocument (edo_tasks)");
+			Console.Write("Введите Id (0 - выход): ");
+
+			var id = int.Parse(Console.ReadLine());
+
+			if(id <= 0)
+			{
+				Console.WriteLine("Выход");
+				return;
+			}
+
+			var service = _serviceProvider.GetRequiredService<OrderDocumentEdoTaskHandler>();
 			await service.HandleNew(id, cancellationToken);
 		}
 
@@ -531,7 +582,6 @@ and ecr.source != 'Manual'
 			var service = _serviceProvider.GetRequiredService<WithdrawalTaskCreatedHandler>();
 			await service.HandleWithdrawal(id, cancellationToken);
 		}
-		
 
 		private async Task RehandleTaxcomAcceptDocuments(CancellationToken cancellationToken)
 		{

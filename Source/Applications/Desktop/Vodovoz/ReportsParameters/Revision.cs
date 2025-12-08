@@ -1,7 +1,6 @@
 ﻿using QS.ViewModels.Control.EEVM;
 using QS.Views;
-using QSReport;
-using System;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.ReportsParameters;
 
@@ -13,56 +12,59 @@ namespace Vodovoz.Reports
 			: base(viewModel)
 		{
 			Build();
+			Configure();
+		}
 
+		private void Configure()
+		{
 			dateperiodpicker1.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
 				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
-			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
-		}
+			entryCounterparty.ViewModel = new LegacyEEVMBuilderFactory<RevisionReportViewModel>(
+					ViewModel.RdlViewerViewModel,
+					ViewModel.TdiTab,
+					ViewModel,
+					ViewModel.UnitOfWork,
+					ViewModel.NavigationManager,
+					ViewModel.LifetimeScope)
+			.ForProperty(x => x.Counterparty)
+			.UseTdiDialog<CounterpartyDlg>()
+			.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
+			.Finish();
 
-		private void OnViewModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-		{
-			if(e.PropertyName == nameof(ViewModel.TdiTab))
-			{
-				entryCounterparty.ViewModel = new LegacyEEVMBuilderFactory<RevisionReportViewModel>(ViewModel.RdlViewerViewModel, ViewModel.TdiTab, ViewModel, ViewModel.UnitOfWork, ViewModel.NavigationManager, ViewModel.LifetimeScope)
-					.ForProperty(x => x.Counterparty)
-					.UseTdiEntityDialog()
-					.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel>()
-					.Finish();
+			entryOrganization.ViewModel = ViewModel.OrganizationViewModel;
 
-				entryCounterparty.ViewModel.PropertyChanged += OnReferenceCounterpartyChanged;
-			}
-		}
+			speciallistcomboboxEmail.SetRenderTextFunc<Email>(s => s.Address);
+			speciallistcomboboxEmail.Binding
+				.AddBinding(ViewModel, vm => vm.Emails, w => w.ItemsList)
+				.AddBinding(ViewModel, vm => vm.SelectedEmail, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.CanRunReport, w => w.Sensitive)
+				.InitializeFromSource();
 
-		public event EventHandler<LoadReportEventArgs> LoadReport;
+			ycheckbuttonRevision.Binding
+				.AddBinding(ViewModel, vm => vm.IsSendRevision, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanRunReport, w => w.Sensitive)
+				.InitializeFromSource();
 
-		protected void OnButtonRunClicked(object sender, EventArgs e)
-		{
-			ViewModel.LoadReport();
-		}
+			ycheckbuttonBillsForNotPaidOrders.Binding
+				.AddBinding(ViewModel, vm => vm.IsSendBillsForNotPaidOrder, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanRunReport, w => w.Sensitive)
+				.InitializeFromSource();
 
-		protected void OnDateperiodpicker1PeriodChanged(object sender, EventArgs e)
-		{
-			ValidateParameters();
-		}
+			ycheckbuttonGeneralBill.Binding
+				.AddBinding(ViewModel, vm => vm.IsSendGeneralBill, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanRunReport, w => w.Sensitive)
+				.InitializeFromSource();
 
-		private void ValidateParameters()
-		{
-			var datePeriodSelected = ViewModel.EndDate.HasValue && ViewModel.StartDate.HasValue;
-			var counterpartySelected = ViewModel.Counterparty != null;
-			buttonRun.Sensitive = datePeriodSelected && counterpartySelected;
-		}
-
-		protected void OnReferenceCounterpartyChanged(object sender, EventArgs e)
-		{
-			ValidateParameters();
+			buttonInfo.BindCommand(ViewModel.ShowInfoCommand);
+			ybuttonSendByEmail.BindCommand(ViewModel.SendByEmailCommand);
+			buttonRun.BindCommand(ViewModel.RunCommand);
 		}
 
 		public override void Destroy()
 		{
-			entryCounterparty.ViewModel.PropertyChanged -= OnReferenceCounterpartyChanged;
 			ViewModel.TdiTab = null;
 			base.Destroy();
 		}

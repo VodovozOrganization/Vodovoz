@@ -1,6 +1,8 @@
 ﻿using NLog;
 using QS.DomainModel.UoW;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Settings.Delivery;
 
@@ -24,6 +26,25 @@ namespace Vodovoz.Models
 				{
 					uow.Save(fastDeliveryAvailabilityHistory);
 					uow.Commit();
+				}
+				catch(Exception e)
+				{
+					_logger.Error(e, "Не удалось сохранить историю проверки экспресс-доставки.");
+				}
+			}
+		}
+
+		public async Task SaveFastDeliveryAvailabilityHistoryAsync(
+			FastDeliveryAvailabilityHistory fastDeliveryAvailabilityHistory,
+			CancellationToken cancellationToken
+			)
+		{
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot("SaveFastDeliveryAvailabilityHistory"))
+			{
+				try
+				{
+					await uow.SaveAsync(fastDeliveryAvailabilityHistory, cancellationToken: cancellationToken);
+					await uow.CommitAsync(cancellationToken);
 				}
 				catch(Exception e)
 				{

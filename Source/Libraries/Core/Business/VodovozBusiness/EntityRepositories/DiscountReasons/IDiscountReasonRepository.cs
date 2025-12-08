@@ -16,5 +16,8 @@ namespace Vodovoz.EntityRepositories.DiscountReasons
 		IList<DiscountReason> GetActiveDiscountReasons(IUnitOfWork uow);
 		IList<DiscountReason> GetActiveDiscountReasonsWithoutPremiums(IUnitOfWork uow);
 		bool ExistsActiveDiscountReasonWithName(IUnitOfWork uow, int discountReasonId, string name, out DiscountReason discountReason);
+		DiscountReason GetActivePromoCode(IUnitOfWork uow, string promoCode);
+		bool HasBeenUsagePromoCode(IUnitOfWork uow, int counterpartyId, int discountReasonId);
+		bool ExistsPromoCodeWithName(IUnitOfWork uow, int discountReasonId, string promoCode, out DiscountReason discountReason);
 	}
 }

@@ -7,5 +7,6 @@ namespace Edo.Common
 	{
 		public EdoTaskItem EdoTaskItem { get; set; }
 		public ProductInstanceStatus ProductInstanceStatus { get; set; }
+		public EdoTaskItemCodeType ItemCodeType { get; set; }
 	}
 }

@@ -119,7 +119,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public bool CanEditCancellationReason => OrderIsNullAndOnlineOrderNotCanceledStatus;
 		public bool CanShowSelfDeliveryGeoGroup => Entity.IsSelfDelivery;
 		public bool CanShowEmployeeWorkWith => Entity.EmployeeWorkWith != null;
-		public bool CanShowOrder => !Entity.Orders.Any();
+		public bool CanShowOrder => Entity.Orders.Any();
 		public bool CanShowOnlinePayment => Entity.OnlinePayment.HasValue;
 		public bool CanShowOnlinePaymentSource => Entity.OnlinePaymentSource.HasValue;
 		public bool CanShowContactPhone => !string.IsNullOrWhiteSpace(Entity.ContactPhone);
@@ -164,9 +164,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
 				var sb = new StringBuilder();
 
-				foreach(var orderId in Entity.Orders)
+				foreach(var order in Entity.Orders)
 				{
-					sb.Append(orderId);
+					sb.Append(order.Id);
 					sb.Append(", ");
 				}
 					
@@ -244,7 +244,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			var permissionService = CommonServices.PermissionService;
 			
 			_canCancelAnyOnlineOrder =
-				permissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.OnlineOrder.CanCancelAnyOnlineOrder, CurrentUser.Id);
+				permissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.OnlineOrderPermissions.CanCancelAnyOnlineOrder, CurrentUser.Id);
 		}
 		
 		private void CreateCommands()

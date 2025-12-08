@@ -1,0 +1,6 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>truemark.api</ContainerRepository>
+	<ContainerBaseImage>docker.vod.qsolution.ru:5100/vodovoz-truemark-base:latest</ContainerBaseImage>
+  </PropertyGroup>
+</Project>

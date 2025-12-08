@@ -2,7 +2,6 @@
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gtk;
-using QS.Navigation;
 using QS.Views.GtkUI;
 using QS.Widgets;
 using Vodovoz.Core.Domain.Users;
@@ -21,15 +20,16 @@ namespace Vodovoz.Views.Users
 
 		private void Configure()
 		{
-			btnSave.Clicked += (sender, args) => ViewModel.SaveAndClose();
-			btnCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
-			btnAddToRoleAvailableDataBase.Clicked += (sender, args) => ViewModel.AddAvailableDatabaseCommand.Execute();
-			btnRemoveFromRoleAvailableDatabase.Clicked += (sender, args) => ViewModel.RemoveAvailableDatabaseCommand.Execute();
+			btnSave.BindCommand(ViewModel.SaveCommand);
+			btnCancel.BindCommand(ViewModel.CancelCommand);
+			btnAddToRoleAvailableDataBase.BindCommand(ViewModel.AddAvailableDatabaseCommand);
+			btnRemoveFromRoleAvailableDatabase.BindCommand(ViewModel.RemoveAvailableDatabaseCommand);
 			enumMenuBtnAddPrivilege.EnumItemClicked += OnEnumMenuBtnAddPrivilegeEnumItemClicked; 
-			btnRemovePrivilege.Clicked += (sender, args) => ViewModel.RemovePrivilegeCommand.Execute();
+			btnRemovePrivilege.BindCommand(ViewModel.RemovePrivilegeCommand);
 
 			entryName.Binding
 				.AddBinding(ViewModel.Entity, e => e.Name, w => w.Text)
+				.AddBinding(ViewModel, e => e.CanEditRoleName, w => w.IsEditable)
 				.InitializeFromSource();
 			
 			btnAddToRoleAvailableDataBase.Binding
@@ -48,7 +48,7 @@ namespace Vodovoz.Views.Users
 
 			var copyPrivilegesBtn = new yButton();
 			copyPrivilegesBtn.Label = "Скопировать привилегии";
-			copyPrivilegesBtn.Clicked += (sender, args) => ViewModel.CopyPrivilegesCommand.Execute();
+			copyPrivilegesBtn.BindCommand(ViewModel.CopyPrivilegesCommand);
 			copyPrivilegesBtn.Binding
 				.AddBinding(ViewModel, vm => vm.HasSelectedPrivileges, w => w.Sensitive)
 				.InitializeFromSource();

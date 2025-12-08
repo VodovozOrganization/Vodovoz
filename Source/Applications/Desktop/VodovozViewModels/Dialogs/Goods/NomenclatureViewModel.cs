@@ -22,6 +22,7 @@ using System.Threading;
 using System.Windows.Input;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
@@ -777,16 +778,16 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		{
 			CanCreateAndArcNomenclatures =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission(
-					Vodovoz.Core.Domain.Permissions.Nomenclature.CanCreateAndArcNomenclatures);
+					Vodovoz.Core.Domain.Permissions.NomenclaturePermissions.CanCreateAndArcNomenclatures);
 			CanCreateNomenclaturesWithInventoryAccountingPermission =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission(
-					Vodovoz.Core.Domain.Permissions.Nomenclature.CanCreateNomenclaturesWithInventoryAccounting);
+					Vodovoz.Core.Domain.Permissions.NomenclaturePermissions.CanCreateNomenclaturesWithInventoryAccounting);
 			CanEditAlternativeNomenclaturePrices =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission(
-					Vodovoz.Core.Domain.Permissions.Nomenclature.CanEditAlternativeNomenclaturePrices);
+					Vodovoz.Core.Domain.Permissions.NomenclaturePermissions.CanEditAlternativeNomenclaturePrices);
 			HasAccessToSitesAndAppsTab =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission(
-					Vodovoz.Core.Domain.Permissions.Nomenclature.HasAccessToSitesAndAppsTab);
+					Vodovoz.Core.Domain.Permissions.NomenclaturePermissions.HasAccessToSitesAndAppsTab);
 
 			CanEditNeedSanitisation = !Entity.IsNeedSanitisation || !_nomenclatureRepository.CheckAnyOrderWithNomenclature(UoW, Entity.Id);
 		}

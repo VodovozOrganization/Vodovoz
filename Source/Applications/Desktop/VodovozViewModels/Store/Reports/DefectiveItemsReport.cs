@@ -32,12 +32,14 @@ namespace Vodovoz.ViewModels.Store.Reports
 			DefectSource? defectSource,
 			IEnumerable<DefectiveItemsReportRow> defectiveItemsReportRows,
 			IEnumerable<SummaryDisplayRow> summaryDisplayRows,
-			List<string> warehouseNames,
-			List<SummaryBySourceRow> summaryBySourceRows,
-			List<string> sourceNames,
-			List<string> defectNames,
+			IEnumerable<string> warehouseNames,
+			IEnumerable<SummaryBySourceRow> summaryBySourceRows,
+			IEnumerable<string> sourceNames,
+			IEnumerable<string> defectNames,
 			IEnumerable<SummaryByNomenclatureRow> summaryByNomenclatureRow,
-			IEnumerable<SummaryByNomenclatureWithTypeDefectRow> summaryByNomenclatureWithTypeDefectRow)
+			IEnumerable<SummaryByNomenclatureWithTypeDefectRow> summaryByNomenclatureWithTypeDefectRow,
+			IEnumerable<SummaryByOldNomenclatureRow> summaryByOldNomenclatureRow,
+			IEnumerable<SummaryByOldNomenclatureWithTypeDefectRow> summaryByOldNomenclatureWithTypeDefectRow)
 		{
 			StartDate = startDate;
 			EndDate = endDate.LatestDayTime();
@@ -48,9 +50,13 @@ namespace Vodovoz.ViewModels.Store.Reports
 			WarehouseNames = warehouseNames;
 			SummaryBySourceRows = summaryBySourceRows;
 			SourceNames = sourceNames;
+			SourceOldNames = sourceNames;
 			DefectNames = defectNames;
+			DefectOldNames = defectNames;
 			SummaryByNomenclatureRows = summaryByNomenclatureRow;
 			SummaryByNomenclatureWithTypeDefectRows = summaryByNomenclatureWithTypeDefectRow;
+			SummaryByOldNomenclatureRows = summaryByOldNomenclatureRow;
+			SummaryByOldNomenclatureWithTypeDefectRows = summaryByOldNomenclatureWithTypeDefectRow;
 			CreatedAt = DateTime.Now;
 
 			TemplatePath = summaryDisplayRows == null 
@@ -61,19 +67,29 @@ namespace Vodovoz.ViewModels.Store.Reports
 		public string TemplatePath { get; set; }
 		public DateTime StartDate { get; }
 		public DateTime EndDate { get; }
+		
 		public int? DriverId { get; }
 		public DefectSource? DefectSource { get; }
 		public DateTime CreatedAt { get; }
 
+		public string StartDateString => StartDate.ToString("dd.MM.yyyy");
+		public string EndDateString => EndDate.ToString("dd.MM.yyyy");
+		public string CreatedAtString => CreatedAt.ToString("dd.MM.yyyy");
+		
 		public IEnumerable<DefectiveItemsReportRow> Rows { get; }
 		public IEnumerable<SummaryByNomenclatureRow> SummaryByNomenclatureRows { get; }
 		public IEnumerable<SummaryByNomenclatureWithTypeDefectRow> SummaryByNomenclatureWithTypeDefectRows { get; }
+		public IEnumerable<SummaryByOldNomenclatureRow> SummaryByOldNomenclatureRows { get; }
+		public IEnumerable<SummaryByOldNomenclatureWithTypeDefectRow> SummaryByOldNomenclatureWithTypeDefectRows { get; }
 		public IEnumerable<SummaryDisplayRow> SummaryDisplayRows { get; }
 		public IEnumerable<SummaryBySourceRow> SummaryBySourceRows { get; }
 		
-		public List<string> WarehouseNames { get; }
-		public List<string> SourceNames { get; }
-		public List<string> DefectNames { get; }
+		public IEnumerable<string> WarehouseNames { get; }
+		public IEnumerable<string> SourceNames { get; }
+		public IEnumerable<string> DefectNames { get; }
+		
+		public IEnumerable<string> SourceOldNames { get; }
+		public IEnumerable<string> DefectOldNames { get; }
 
 
 		public static async Task<Result<DefectiveItemsReport>> Create(
@@ -105,7 +121,8 @@ namespace Vodovoz.ViewModels.Store.Reports
 							WarehouseId = rogd.Warehouse.Id,
 							rogdi.Amount,
 							TypeOfDefectId = rogdi.TypeOfDefect.Id,
-							NomenclatureId = rogdi.NomenclatureNew.Id,
+							NewNomenclatureId = rogdi.NomenclatureNew.Id,
+							OldNomenclatureId = rogdi.NomenclatureOld.Id,
 							DefectSource = rogdi.Source,
 							DocumentType = typeof(RegradingOfGoodsDocument),
 							AuthorId = rogd.AuthorId.Value,
@@ -162,6 +179,38 @@ namespace Vodovoz.ViewModels.Store.Reports
 						})
 					.ToDictionary(x => x.Id);
 
+				var newNomenclatureIds = regradingOfGoodsRows
+					.Select(x => x.NewNomenclatureId)
+					.Concat(carUnloadDocumentRows.Select(x => x.NomenclatureId))
+					.Distinct()
+					.ToArray();
+				
+				var oldNomenclatureIds = regradingOfGoodsRows
+					.Select(x => x.OldNomenclatureId)
+					.Concat(carUnloadDocumentRows.Select(x => x.NomenclatureId))
+					.Distinct()
+					.ToArray();
+
+				var newNomenclatureIdsNames =
+					(from nomenclature in unitOfWork.Session.Query<Nomenclature>()
+						where newNomenclatureIds.Contains(nomenclature.Id)
+						select new EntityIdToNameNode
+						{
+							Id = nomenclature.Id,
+							Name = nomenclature.Name,
+						})
+					.ToDictionary(x => x.Id);
+				
+				var oldNomenclatureIdsNames =
+					(from nomenclature in unitOfWork.Session.Query<Nomenclature>()
+						where oldNomenclatureIds.Contains(nomenclature.Id)
+						select new EntityIdToNameNode
+						{
+							Id = nomenclature.Id,
+							Name = nomenclature.Name,
+						})
+					.ToDictionary(x => x.Id);
+				
 				var warehousesIds = regradingOfGoodsRows
 					.Select(x => x.WarehouseId)
 					.Concat(carUnloadDocumentRows.Select(x => x.WarehouseId))
@@ -178,23 +227,7 @@ namespace Vodovoz.ViewModels.Store.Reports
 							Name = warehouse.Name,
 						})
 					.ToDictionary(x => x.Id);
-
-				var nomenclatureIds = regradingOfGoodsRows
-					.Select(x => x.NomenclatureId)
-					.Concat(carUnloadDocumentRows.Select(x => x.NomenclatureId))
-					.Distinct()
-					.ToArray();
-
-				var nomenclatureIdsNames =
-					(from nomenclature in unitOfWork.Session.Query<Nomenclature>()
-						where nomenclatureIds.Contains(nomenclature.Id)
-						select new EntityIdToNameNode
-						{
-							Id = nomenclature.Id,
-							Name = nomenclature.Name,
-						})
-					.ToDictionary(x => x.Id);
-
+				
 				var defectTypesIds = regradingOfGoodsRows
 					.Select(x => x.TypeOfDefectId)
 					.Concat(carUnloadDocumentRows.Select(x => x.TypeOfDefectId))
@@ -213,6 +246,7 @@ namespace Vodovoz.ViewModels.Store.Reports
 
 				var rows = new List<DefectiveItemsReportRow>();
 
+
 				foreach(var regradingOfGoodsRow in regradingOfGoodsRows)
 				{
 					rows.Add(new DefectiveItemsReportRow
@@ -222,8 +256,10 @@ namespace Vodovoz.ViewModels.Store.Reports
 						Amount = regradingOfGoodsRow.Amount,
 						WarehouseId = regradingOfGoodsRow.WarehouseId,
 						AuthorLastName = employeesIdToFio[regradingOfGoodsRow.AuthorId].LastName,
-						NomenclatureId = regradingOfGoodsRow.NomenclatureId,
-						DefectiveItemName = nomenclatureIdsNames[regradingOfGoodsRow.NomenclatureId].Name,
+						NomenclatureId = regradingOfGoodsRow.NewNomenclatureId,
+						OldNomenclatureId = regradingOfGoodsRow.OldNomenclatureId,
+						DefectiveItemName = newNomenclatureIdsNames[regradingOfGoodsRow.NewNomenclatureId].Name,
+						DefectiveItemOldName = oldNomenclatureIdsNames[regradingOfGoodsRow.OldNomenclatureId].Name,
 						DefectSource = regradingOfGoodsRow.DefectSource,
 						DriverLastName = "",
 						DocumentType = regradingOfGoodsRow.DocumentType,
@@ -245,7 +281,9 @@ namespace Vodovoz.ViewModels.Store.Reports
 						WarehouseId = carUnloadDucomentRow.WarehouseId,
 						AuthorLastName = employeesIdToFio[carUnloadDucomentRow.AuthorId].LastName,
 						NomenclatureId = carUnloadDucomentRow.NomenclatureId,
-						DefectiveItemName = nomenclatureIdsNames[carUnloadDucomentRow.NomenclatureId].Name,
+						OldNomenclatureId = carUnloadDucomentRow.NomenclatureId,
+						DefectiveItemName = newNomenclatureIdsNames[carUnloadDucomentRow.NomenclatureId].Name,
+						DefectiveItemOldName = oldNomenclatureIdsNames[carUnloadDucomentRow.NomenclatureId].Name,
 						DefectSource = carUnloadDucomentRow.DefectSource,
 						DriverLastName = employeesIdToFio[carUnloadDucomentRow.DriverId].LastName,
 						DocumentType = carUnloadDucomentRow.DocumentType,
@@ -335,8 +373,74 @@ namespace Vodovoz.ViewModels.Store.Reports
 
 				summaryBySourceRows.RemoveAll(x => x.Value.Trim() == "0");
 
+				var defectNames = defectTypesIdsNames.Values
+					.OrderBy(x => x.Id)
+					.Select(x => x.Name)
+					.ToArray();
+
+				var sourceNamesEnum =  new[]
+				{
+					Domain.Documents.DefectSource.Driver, 
+					Domain.Documents.DefectSource.Client, 
+					Domain.Documents.DefectSource.Production,
+					Domain.Documents.DefectSource.Warehouse
+				};
+				
+				var sourceNames = sourceNamesEnum
+					.Select(e => e.GetEnumDisplayName())
+					.ToArray();
+				
+				var summaryByOldNomenclatureRows = oldNomenclatureIds
+					.Select(nomenclatureId => new
+					{
+						nomenclatureId,
+						amountBySource =
+							(sourceNamesEnum
+								.Select(source =>
+									sortedRows.Where(x =>
+											x.DefectSource == source && x.OldNomenclatureId == nomenclatureId &&
+											!string.IsNullOrEmpty(x.DefectiveItemOldName))
+										.Sum(x => x.Amount))).ToArray()
+					})
+					.Select(t => new SummaryByOldNomenclatureRow()
+					{
+						NomeclatureNameForSourceRow = oldNomenclatureIdsNames[t.nomenclatureId].Name,
+						DynamicColumnsByOldNomenclatureRow = t.amountBySource.Select(x => x.ToString("# ##0")),
+					})
+					.ToList();
+				
+				var summaryByOldColumn = new List<decimal>();
+				for(var i = 0; i <  Enum.GetValues(typeof(DefectSource)).Length - 1; i++)
+				{
+					var currentSum = summaryByOldNomenclatureRows.Sum(row => decimal.Parse(row.DynamicColumnsByOldNomenclatureRow.ElementAt(i)));
+					summaryByOldColumn.Add(currentSum);
+				}
+				summaryByOldNomenclatureRows.Add(new SummaryByOldNomenclatureRow()
+				{
+					NomeclatureNameForSourceRow = "Итог",
+					DynamicColumnsByOldNomenclatureRow = summaryByOldColumn.Select(x => x.ToString("# ##0")),
+				});
+				
+				var summaryByOldNomenclatureWithTypeDefectRows = oldNomenclatureIds
+					.Select(nomenclatureId => new
+					{
+						nomenclatureId,
+						amountByDefect =
+							defectTypesIds.Select(defectTypesId =>
+									sortedRows.Where(x => x.DefectTypeId == defectTypesId && x.OldNomenclatureId == nomenclatureId && !string.IsNullOrEmpty(x.DefectiveItemOldName))
+										.Sum(x => x.Amount))
+								.ToList()
+					})
+					.Select(t => new SummaryByOldNomenclatureWithTypeDefectRow()
+					{
+						NomeclatureNameForDefectRow = oldNomenclatureIdsNames[t.nomenclatureId].Name,
+						DynamicColumnsByOldNomenclatureWithTypeDefectRow = t.amountByDefect.Select(x => x.ToString("# ##0")),
+					})
+					.ToList();
+				
 				return new DefectiveItemsReport(startDate, endDate, driverId, defectSource, sortedRows, summaryDisplayRows,
-					warehouseNames, summaryBySourceRows, null, null, null, null);
+					warehouseNames, summaryBySourceRows, sourceNames, defectNames, null, null,
+					summaryByOldNomenclatureRows, summaryByOldNomenclatureWithTypeDefectRows);
 
 			}
 			else
@@ -358,7 +462,8 @@ namespace Vodovoz.ViewModels.Store.Reports
 							WarehouseId = rogd.Warehouse.Id,
 							rogdi.Amount,
 							TypeOfDefectId = rogdi.TypeOfDefect.Id,
-							NomenclatureId = rogdi.NomenclatureNew.Id,
+							NewNomenclatureId = rogdi.NomenclatureNew.Id,
+							OldNomenclatureId = rogdi.NomenclatureOld.Id,
 							DefectSource = rogdi.Source,
 							DocumentType = typeof(RegradingOfGoodsDocument),
 							AuthorId = rogd.AuthorId.Value,
@@ -428,15 +533,31 @@ namespace Vodovoz.ViewModels.Store.Reports
 						})
 					.ToDictionary(x => x.Id);
 
-				var nomenclatureIds = regradingOfGoodsRows
-					.Select(x => x.NomenclatureId)
+				var newNomenclatureIds = regradingOfGoodsRows
+					.Select(x => x.NewNomenclatureId)
+					.Concat(carUnloadDocumentRows.Select(x => x.NomenclatureId))
+					.Distinct()
+					.ToArray();
+				
+				var oldNomenclatureIds = regradingOfGoodsRows
+					.Select(x => x.OldNomenclatureId)
 					.Concat(carUnloadDocumentRows.Select(x => x.NomenclatureId))
 					.Distinct()
 					.ToArray();
 
-				var nomenclatureIdsNames =
+				var newNomenclatureIdsNames =
 					(from nomenclature in unitOfWork.Session.Query<Nomenclature>()
-						where nomenclatureIds.Contains(nomenclature.Id)
+						where newNomenclatureIds.Contains(nomenclature.Id)
+						select new EntityIdToNameNode
+						{
+							Id = nomenclature.Id,
+							Name = nomenclature.Name,
+						})
+					.ToDictionary(x => x.Id);
+				
+				var oldNomenclatureIdsNames =
+					(from nomenclature in unitOfWork.Session.Query<Nomenclature>()
+						where oldNomenclatureIds.Contains(nomenclature.Id)
 						select new EntityIdToNameNode
 						{
 							Id = nomenclature.Id,
@@ -472,8 +593,10 @@ namespace Vodovoz.ViewModels.Store.Reports
 						Amount = regradingOfGoodsRow.Amount,
 						WarehouseId = regradingOfGoodsRow.WarehouseId,
 						AuthorLastName = employeesIdToFio[regradingOfGoodsRow.AuthorId].LastName,
-						NomenclatureId = regradingOfGoodsRow.NomenclatureId,
-						DefectiveItemName = nomenclatureIdsNames[regradingOfGoodsRow.NomenclatureId].Name,
+						NomenclatureId = regradingOfGoodsRow.NewNomenclatureId,
+						OldNomenclatureId = regradingOfGoodsRow.OldNomenclatureId,
+						DefectiveItemName = newNomenclatureIdsNames[regradingOfGoodsRow.NewNomenclatureId].Name,
+						DefectiveItemOldName = oldNomenclatureIdsNames[regradingOfGoodsRow.OldNomenclatureId].Name,
 						DefectSource = regradingOfGoodsRow.DefectSource,
 						DriverLastName = "",
 						DocumentType = regradingOfGoodsRow.DocumentType,
@@ -495,7 +618,9 @@ namespace Vodovoz.ViewModels.Store.Reports
 						WarehouseId = carUnloadDucomentRow.WarehouseId,
 						AuthorLastName = employeesIdToFio[carUnloadDucomentRow.AuthorId].LastName,
 						NomenclatureId = carUnloadDucomentRow.NomenclatureId,
-						DefectiveItemName = nomenclatureIdsNames[carUnloadDucomentRow.NomenclatureId].Name,
+						OldNomenclatureId = carUnloadDucomentRow.NomenclatureId,
+						DefectiveItemName = newNomenclatureIdsNames[carUnloadDucomentRow.NomenclatureId].Name,
+						DefectiveItemOldName = oldNomenclatureIdsNames[carUnloadDucomentRow.NomenclatureId].Name,
 						DefectSource = carUnloadDucomentRow.DefectSource,
 						DriverLastName = employeesIdToFio[carUnloadDucomentRow.DriverId].LastName,
 						DocumentType = carUnloadDucomentRow.DocumentType,
@@ -518,8 +643,53 @@ namespace Vodovoz.ViewModels.Store.Reports
 					.ToList();
 				sourceNames.RemoveAt(0);
 				
+				var summaryByOldNomenclatureRows = oldNomenclatureIds
+					.Select(nomenclatureId => new
+					{
+						nomenclatureId,
+						amountBySource =
+							(from DefectSource source in Enum.GetValues(typeof(DefectSource))
+								where source != Vodovoz.Domain.Documents.DefectSource.None
+								select sortedRows.Where(x => x.DefectSource == source && x.OldNomenclatureId == nomenclatureId && !string.IsNullOrEmpty(x.DefectiveItemOldName))
+									.Sum(x => x.Amount)).ToList()
+					})
+					.Select(t => new SummaryByOldNomenclatureRow()
+					{
+						NomeclatureNameForSourceRow = oldNomenclatureIdsNames[t.nomenclatureId].Name,
+						DynamicColumnsByOldNomenclatureRow = t.amountBySource.Select(x => x.ToString("# ##0")),
+					})
+					.ToList();
 				
-				var summaryByNomenclatureRows = nomenclatureIds
+				var summaryByOldColumn = new List<decimal>();
+				for(var i = 0; i <  Enum.GetValues(typeof(DefectSource)).Length - 1; i++)
+				{
+					var currentSum = summaryByOldNomenclatureRows.Sum(row => decimal.Parse(row.DynamicColumnsByOldNomenclatureRow.ElementAt(i)));
+					summaryByOldColumn.Add(currentSum);
+				}
+				summaryByOldNomenclatureRows.Add(new SummaryByOldNomenclatureRow()
+				{
+					NomeclatureNameForSourceRow = "Итог",
+					DynamicColumnsByOldNomenclatureRow = summaryByOldColumn.Select(x => x.ToString("# ##0")),
+				});
+				
+				var summaryByOldNomenclatureWithTypeDefectRows = oldNomenclatureIds
+					.Select(nomenclatureId => new
+					{
+						nomenclatureId,
+						amountByDefect =
+							defectTypesIds.Select(defectTypesId =>
+									sortedRows.Where(x => x.DefectTypeId == defectTypesId && x.OldNomenclatureId == nomenclatureId && !string.IsNullOrEmpty(x.DefectiveItemOldName))
+										.Sum(x => x.Amount))
+								.ToList()
+					})
+					.Select(t => new SummaryByOldNomenclatureWithTypeDefectRow()
+					{
+						NomeclatureNameForDefectRow = oldNomenclatureIdsNames[t.nomenclatureId].Name,
+						DynamicColumnsByOldNomenclatureWithTypeDefectRow = t.amountByDefect.Select(x => x.ToString("# ##0")),
+					})
+					.ToList();
+				
+				var summaryByNomenclatureRows = newNomenclatureIds
 					.Select(nomenclatureId => new
 					{
 						nomenclatureId,
@@ -531,7 +701,7 @@ namespace Vodovoz.ViewModels.Store.Reports
 					})
 					.Select(t => new SummaryByNomenclatureRow()
 					{
-						NomeclatureNameForSourceRow = nomenclatureIdsNames[t.nomenclatureId].Name,
+						NomeclatureNameForSourceRow = newNomenclatureIdsNames[t.nomenclatureId].Name,
 						DynamicColumnsByNomenclatureRow = t.amountBySource.Select(x => x.ToString("# ##0")),
 					})
 					.ToList();
@@ -553,7 +723,7 @@ namespace Vodovoz.ViewModels.Store.Reports
 					.Select(x => x.Name)
 					.ToList();
 				
-				var summaryByNomenclatureWithTypeDefectRows = nomenclatureIds
+				var summaryByNomenclatureWithTypeDefectRows = newNomenclatureIds
 					.Select(nomenclatureId => new
 					{
 						nomenclatureId,
@@ -565,13 +735,14 @@ namespace Vodovoz.ViewModels.Store.Reports
 					})
 					.Select(t => new SummaryByNomenclatureWithTypeDefectRow()
 					{
-						NomeclatureNameForDefectRow = nomenclatureIdsNames[t.nomenclatureId].Name,
+						NomeclatureNameForDefectRow = newNomenclatureIdsNames[t.nomenclatureId].Name,
 						DynamicColumnsByNomenclatureWithTypeDefectRow = t.amountByDefect.Select(x => x.ToString("# ##0")),
 					})
 					.ToList();
 
 				return new DefectiveItemsReport(startDate, endDate, driverId, defectSource, sortedRows, null, null,
-					null, sourceNames, defectNames, summaryByNomenclatureRows, summaryByNomenclatureWithTypeDefectRows);
+					null, sourceNames, defectNames, summaryByNomenclatureRows, summaryByNomenclatureWithTypeDefectRows
+					,summaryByOldNomenclatureRows, summaryByOldNomenclatureWithTypeDefectRows);
 			}
 		}
 	}

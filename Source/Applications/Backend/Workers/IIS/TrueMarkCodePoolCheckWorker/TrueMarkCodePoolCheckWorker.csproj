@@ -5,15 +5,12 @@
 		<RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<DockerfileContext>.</DockerfileContext>
+		<UserSecretsId>b5f501fd-59a6-4c9c-96c9-0c94b3499ce2</UserSecretsId>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<Content Remove="appsettings.Development.json" />
 		<Content Remove="appsettings.Production.json" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <_WebToolingArtifacts Remove="Properties\PublishProfiles\FolderProfile.pubxml" />
 	</ItemGroup>
 
 	<ItemGroup>

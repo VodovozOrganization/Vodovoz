@@ -4,6 +4,8 @@ using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Services;
@@ -29,6 +31,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
 			ValidationContext.Items.Add(nameof(IRouteListItemRepository), routeListItemRepository);
+			//Для возможности изменения пустых МЛ
+			ValidationContext.Items.Add(
+				Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders,
+				true);
 
 			TabName = $"Изменение радиуса быстрой доставки для маршрутного листа №{Entity.Id}";
 		}

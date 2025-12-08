@@ -20,6 +20,12 @@ namespace Vodovoz.Views.ReportsParameters.Production
 
 		private global::Gamma.Widgets.yEnumComboBox yenumcomboboxReportType;
 
+		private global::Gamma.GtkWidgets.yHBox yhboxMeasurementUnit;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelMeasurementUnit;
+
+		private global::Gamma.Widgets.yEnumComboBox yenumcomboboxMeasurementUnit;
+
 		private global::Gtk.VBox vboxParameters;
 
 		private global::Gamma.GtkWidgets.yButton buttonCreateReport;
@@ -110,25 +116,54 @@ namespace Vodovoz.Views.ReportsParameters.Production
 			w7.Expand = false;
 			w7.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.yhboxMeasurementUnit = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxMeasurementUnit.Name = "yhboxAmount";
+			this.yhboxMeasurementUnit.Spacing = 6;
+			// Container child yhboxAmount.Gtk.Box+BoxChild
+			this.ylabelMeasurementUnit = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelMeasurementUnit.Name = "ylabelAmount";
+			this.ylabelMeasurementUnit.LabelProp = global::Mono.Unix.Catalog.GetString("Отображать значение в:");
+			this.yhboxMeasurementUnit.Add(this.ylabelMeasurementUnit);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yhboxMeasurementUnit[this.ylabelMeasurementUnit]));
+			w8.Position = 0;
+			w8.Expand = false;
+			w8.Fill = false;
+			// Container child yhboxAmount.Gtk.Box+BoxChild
+			this.yenumcomboboxMeasurementUnit = new global::Gamma.Widgets.yEnumComboBox();
+			this.yenumcomboboxMeasurementUnit.Name = "yenumcomboboxAmount";
+			this.yenumcomboboxMeasurementUnit.ShowSpecialStateAll = false;
+			this.yenumcomboboxMeasurementUnit.ShowSpecialStateNot = false;
+			this.yenumcomboboxMeasurementUnit.UseShortTitle = false;
+			this.yenumcomboboxMeasurementUnit.DefaultFirst = false;
+			this.yhboxMeasurementUnit.Add(this.yenumcomboboxMeasurementUnit);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yhboxMeasurementUnit[this.yenumcomboboxMeasurementUnit]));
+			w9.Position = 1;
+			w9.Expand = false;
+			w9.Fill = false;
+			this.vbox1.Add(this.yhboxMeasurementUnit);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.yhboxMeasurementUnit]));
+			w10.Position = 1;
+			w10.Expand = false;
+			w10.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.vboxParameters = new global::Gtk.VBox();
 			this.vboxParameters.Name = "vboxParameters";
 			this.vboxParameters.Spacing = 6;
 			this.vbox1.Add(this.vboxParameters);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.vboxParameters]));
-			w8.Position = 1;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.vboxParameters]));
+			w11.Position = 2;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gamma.GtkWidgets.yButton();
-			this.buttonCreateReport.Sensitive = true;
 			this.buttonCreateReport.CanFocus = true;
 			this.buttonCreateReport.Name = "buttonCreateReport";
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
-			w9.PackType = ((global::Gtk.PackType)(1));
-			w9.Position = 2;
-			w9.Expand = false;
-			w9.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
+			w12.PackType = ((global::Gtk.PackType)(1));
+			w12.Position = 3;
+			w12.Expand = false;
+			w12.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

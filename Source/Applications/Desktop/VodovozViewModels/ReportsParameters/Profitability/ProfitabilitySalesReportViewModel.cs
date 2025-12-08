@@ -1,4 +1,5 @@
 ﻿using Gamma.Utilities;
+using MassTransit;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -13,12 +14,16 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
 using Vodovoz.Reports.Editing;
 using Vodovoz.Reports.Editing.Modifiers;
+using Vodovoz.Tools;
 using Vodovoz.ViewModels.Factories;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Profitability
@@ -34,6 +39,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 		private LeftRightListViewModel<GroupingNode> _groupViewModel;
 		private readonly bool _userIsSalesRepresentative;
 		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IGenericRepository<CarModel> _carModelsRepository;
 		private readonly IIncludeExcludeSalesFilterFactory _includeExcludeSalesFilterFactory;
 		private readonly ILeftRightListViewModelFactory _leftRightListViewModelFactory;
 		private readonly IInteractiveService _interactiveService;
@@ -50,6 +56,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			RdlViewerViewModel rdlViewerViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeRepository employeeRepository,
+			IGenericRepository<CarModel> carModelsRepository,
 			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory,
 			ILeftRightListViewModelFactory leftRightListViewModelFactory,
 			IReportInfoFactory reportInfoFactory,
@@ -73,12 +80,13 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 				throw new ArgumentNullException(nameof(currentPermissionService));
 			}
 
-			if(!currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Report.Sales.CanAccessSalesReports))
+			if(!currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanAccessSalesReports))
 			{
 				throw new AbortCreatingPageException("У вас нет разрешения на доступ в этот отчет", "Доступ запрещен");
 			}
 
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_carModelsRepository = carModelsRepository ?? throw new ArgumentNullException(nameof(carModelsRepository));
 			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));
 			_leftRightListViewModelFactory = leftRightListViewModelFactory ?? throw new ArgumentNullException(nameof(leftRightListViewModelFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
@@ -88,7 +96,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot();
 
 			_userIsSalesRepresentative =
-				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.User.IsSalesRepresentative)
+				currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.IsSalesRepresentative)
 				&& !userService.GetCurrentUser().IsAdmin;
 
 			StartDate = DateTime.Today;
@@ -136,7 +144,6 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			set => SetField(ref _groupViewModel, value);
 		}
 
-
 		private IEnumerable<GroupingType> SelectedGroupings =>
 			GetGroupingParameters().Select(x => (GroupingType)x.Value);
 
@@ -145,14 +152,51 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 
 		private void SetupFilter()
 		{
-			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(_unitOfWork, !_userIsSalesRepresentative);
+			_filterViewModel = _includeExcludeSalesFilterFactory.CreateSalesReportIncludeExcludeFilter(
+				_unitOfWork,
+				_userIsSalesRepresentative ? (int?)_employeeRepository.GetEmployeeForCurrentUser(_unitOfWork).Id : null);
 
 			var additionalParams = new Dictionary<string, string>
 			{
 				{ "Самовывоз", "is_self_delivery" },
+				{ "Только заказы в МЛ", "only_orders_from_route_lists" }
 			};
 
 			_filterViewModel.AddFilter("Дополнительные фильтры", additionalParams);
+
+			_filterViewModel.AddFilter<CarTypeOfUse>(filter =>
+			{
+				filter.HideElements.Add(CarTypeOfUse.Loader);
+				filter.GetReportParametersFunc = (f, sb, withCounts) =>
+				{
+					var includedTypes = filter.GetIncluded().Select(x => x.ToString()).ToArray();
+					var excludedTypes = filter.GetExcluded().Select(x => x.ToString()).ToArray();
+
+					var parameters = new Dictionary<string, object>();
+
+					if(includedTypes.Length > 0)
+					{
+						parameters.Add($"{nameof(CarTypeOfUse)}{IncludeExcludeFilter.defaultIncludePrefix}", includedTypes);
+						sb.AppendLine($"Вкл. {typeof(CarTypeOfUse).GetClassUserFriendlyName().GenitivePlural.ToLower()}: {includedTypes.Length}");
+					}
+					else
+					{
+						parameters.Add($"{nameof(CarTypeOfUse)}{IncludeExcludeFilter.defaultIncludePrefix}", new[] { "0" });
+					}
+					
+					if(excludedTypes.Length > 0)
+					{
+						parameters.Add($"{nameof(CarTypeOfUse)}{IncludeExcludeFilter.defaultExcludePrefix}", excludedTypes);
+						sb.AppendLine($"Искл. {typeof(CarTypeOfUse).GetClassUserFriendlyName().GenitivePlural.ToLower()}: {excludedTypes.Length}");
+					}
+					else
+					{
+						parameters.Add($"{nameof(CarTypeOfUse)}{IncludeExcludeFilter.defaultExcludePrefix}", new[] { "0" });
+					}
+
+					return parameters;
+				};
+			});
 		}
 
 		private void SetupGroupings()
@@ -179,18 +223,11 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Заполните дату.");
 			}
 
-			_parameters = FilterViewModel.GetReportParametersSet();
+			_parameters = FilterViewModel.GetReportParametersSet(out var sb);
 			_parameters.Add("start_date", StartDate);
 			_parameters.Add("end_date", EndDate);
 			_parameters.Add("creation_date", DateTime.Now);
-
-			if(_userIsSalesRepresentative)
-			{
-				var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(_unitOfWork);
-
-				_parameters.Add("Employee_include", new[] { currentEmployee.Id.ToString() });
-				_parameters.Add("Employee_exclude", new[] { "0" });
-			}
+			_parameters.Add("filters", sb.Length > 0 ? sb.ToString() : "Не выбраны");
 
 			var groupParameters = GetGroupingParameters();
 
@@ -292,7 +329,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 				var modifier = new ProfitabilityDetailReportModifier();
 				modifier.Setup(groupParameters.Select(x => (GroupingType)x.Value));
 				result = modifier;
-				
+
 			}
 			else
 			{
@@ -355,10 +392,10 @@ $@"
 {OrderStatus.UnloadingOnStock.GetEnumTitle()}
 {OrderStatus.Closed.GetEnumTitle()}
 {OrderStatus.WaitForPayment.GetEnumTitle()}
-Если выбран статус {OrderStatus.WaitForPayment.GetEnumTitle()}, то выбираются только заказы самовывозы с оплатой после отгрузки.
 
 В отчет <b>не попадают</b> заказы, являющиеся закрывашками по контракту.
 Фильтр по дате отсекает заказы, если дата доставки не входит в выбранный период.
+«Только заказы в МЛ» - выбираются заказы только в МЛ где авто не фура, для получения схожих данных с отчетом по статистике по дням недели
 
 Детальный отчет отличается от обычного тем, что у него подробно разбиты затраты и всегда есть группировка по товарам.
 
@@ -366,7 +403,7 @@ $@"
 Сумма продажи - Сумма продажи фактического количества товара с учетом скидки
 
 Затраты:
-	Производство или закупка - Если товар учавствует в групповой установке себестоимости, то это затраты на себестоимость, 
+	Производство или закупка - Если товар участвует в групповой установке себестоимости, то это затраты на себестоимость, 
 		а если нет, то это затраты на закупку.
 	Фура - Стоимость доставки единицы товара с производства на склад
 	Доставка - Стоимость доставки товара на адрес в пересчете на вес единицы товара

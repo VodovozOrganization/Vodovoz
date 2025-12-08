@@ -451,7 +451,7 @@
                         <BackgroundColor>=Iif({income} = 0, "#FFFFFF", "#EEEEEE")</BackgroundColor>
                         <Format>#,##0.00</Format>
                       </Style>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -475,7 +475,7 @@
                         <BackgroundColor>=Iif({income} = 0, "#FFFFFF", "#EEEEEE")</BackgroundColor>
                         <Format>#,##0.00</Format>
                       </Style>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -484,7 +484,7 @@
                     <Textbox Name="Textbox14">
                       <Value>=Iif({sorting_rank_by_entities} = 1
   or {sorting_rank_by_entities} = 3, '', {payment_number})</Value>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -522,7 +522,7 @@
                         <PaddingBottom>0pt</PaddingBottom>
                         <BackgroundColor>=Iif({income} = 0, "#FFFFFF", "#EEEEEE")</BackgroundColor>
                       </Style>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -545,7 +545,7 @@
                         <PaddingBottom>0pt</PaddingBottom>
                         <BackgroundColor>=Iif({income} = 0, "#FFFFFF", "#EEEEEE")</BackgroundColor>
                       </Style>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -568,6 +568,7 @@
                         <BackgroundColor>=Iif({income} = 0, "#FFFFFF", "#EEEEEE")</BackgroundColor>
                         <FontSize>10pt</FontSize>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -712,7 +713,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor >Lightgrey</BackgroundColor>
+                        <BackgroundColor>Lightgrey</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -729,7 +730,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor >Lightgrey</BackgroundColor>
+                        <BackgroundColor>Lightgrey</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -746,7 +747,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor >Lightgrey</BackgroundColor>
+                        <BackgroundColor>Lightgrey</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -763,7 +764,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor >Lightgrey</BackgroundColor>
+                        <BackgroundColor>Lightgrey</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -780,7 +781,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor >Lightgrey</BackgroundColor>
+                        <BackgroundColor>Lightgrey</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -797,7 +798,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor >Lightgrey</BackgroundColor>
+                        <BackgroundColor>Lightgrey</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -814,7 +815,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor >Lightgrey</BackgroundColor>
+                        <BackgroundColor>Lightgrey</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -982,6 +983,10 @@
 FROM orders o
          INNER JOIN payment_items pi ON o.id = pi.order_id
          INNER JOIN payments_from_bank_client p ON pi.payment_id = p.id
+         INNER JOIN organizations org ON p.organization_id = org.id
+         LEFT JOIN counterparty c on c.id = o.client_id
+         LEFT JOIN counterparty_camefrom ccf ON ccf.id = c.counterparty_camefrom_id
+
 WHERE
         o.client_id = @counterparty_id
   AND pi.payment_item_status != 'Cancelled'
@@ -994,6 +999,11 @@ WHERE
       	OR (@is_closing_documents = FALSE AND (o.delivery_schedule_id != @closing_document_delivery_schedule_id OR o.delivery_schedule_id IS NULL)) 
       	OR (@is_closing_documents = TRUE AND o.delivery_schedule_id = @closing_document_delivery_schedule_id)
       )
+  AND (
+              (0 IN (@Organization_include) OR (org.id IN (@Organization_include)))
+        AND (NOT (org.id IN (@Organization_exclude)) OR org.id IS NULL)
+          )
+  AND (@is_tender IS NULL OR (@is_tender = TRUE AND ccf.name = 'Тендер') OR (@is_tender = FALSE AND ccf.name != 'Тендер'))
   AND (@start_date = '' OR o.delivery_date &gt;= @start_date)
   AND (@end_date = '' OR o.delivery_date &lt;= @end_date)
 
@@ -1016,12 +1026,20 @@ SELECT
     2 AS sorting_rank_by_entities,
     1 AS sorting_rank_payment_docs
 FROM payments_from_bank_client p
-         LEFT JOIN cashless_movement_operations cmo ON p.cashless_movement_operation_id = cmo.id
+  LEFT JOIN cashless_movement_operations cmo ON p.cashless_movement_operation_id = cmo.id
+  LEFT JOIN counterparty c on c.id = p.counterparty_id
+  LEFT JOIN counterparty_camefrom ccf ON ccf.id = c.counterparty_camefrom_id
+  INNER JOIN organizations org ON p.organization_id = org.id
 WHERE
         p.counterparty_id = @counterparty_id
   AND p.status != 'Cancelled'
+  AND (@is_tender IS NULL OR (@is_tender = TRUE AND ccf.name = 'Тендер') OR (@is_tender = FALSE AND ccf.name != 'Тендер'))
   AND (@start_date = '' OR IFNULL(cmo.operation_time, p.payment_date) &gt;= @start_date)
   AND (@end_date = '' OR IFNULL(cmo.operation_time, p.payment_date) &lt;= @end_date)
+  AND (
+              (0 IN (@Organization_include) OR (org.id IN (@Organization_include)))
+        AND (NOT (org.id IN (@Organization_exclude)) OR org.id IS NULL)
+          )
 
 UNION ALL
 
@@ -1066,6 +1084,9 @@ SELECT
     0 AS sorting_rank_payment_docs
 FROM orders o
 INNER JOIN counterparty c on c.id = o.client_id 
+INNER JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
+INNER JOIN organizations org ON cc.organization_id = org.id
+LEFT JOIN counterparty_camefrom ccf ON ccf.id = c.counterparty_camefrom_id
 WHERE
         o.client_id = @counterparty_id
   AND o.order_payment_status != 'Paid'
@@ -1075,10 +1096,15 @@ WHERE
 				AND (NOT (o.order_status IN (@OrderStatus_exclude)) OR o.order_status IS NULL)
          )
   AND (
+              (0 IN (@Organization_include) OR (org.id IN (@Organization_include)))
+        AND (NOT (org.id IN (@Organization_exclude)) OR org.id IS NULL)
+          )
+  AND (
       	@is_closing_documents IS NULL 
       	OR (@is_closing_documents = FALSE AND (o.delivery_schedule_id != @closing_document_delivery_schedule_id OR o.delivery_schedule_id IS NULL)) 
       	OR (@is_closing_documents = TRUE AND o.delivery_schedule_id = @closing_document_delivery_schedule_id)
       )
+  AND (@is_tender IS NULL OR (@is_tender = TRUE AND ccf.name = 'Тендер') OR (@is_tender = FALSE AND ccf.name != 'Тендер'))
   AND (@start_date = '' OR o.delivery_date &gt;= @start_date)
   AND (@end_date = '' OR o.delivery_date &lt;= @end_date)
 HAVING expense &gt; 0
@@ -1113,6 +1139,10 @@ SELECT
     3 AS sorting_rank_by_entities,
     0 AS sorting_rank_payment_docs
 FROM orders o
+INNER JOIN counterparty c on c.id = o.client_id 
+INNER JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
+INNER JOIN organizations org ON cc.organization_id = org.id
+LEFT JOIN counterparty_camefrom ccf ON ccf.id = c.counterparty_camefrom_id
 WHERE
         o.client_id = @counterparty_id
   AND o.order_payment_status = 'Paid'
@@ -1122,10 +1152,15 @@ WHERE
 				AND (NOT (o.order_status IN (@OrderStatus_exclude)) OR o.order_status IS NULL)
          )
   AND (
+              (0 IN (@Organization_include) OR (org.id IN (@Organization_include)))
+        AND (NOT (org.id IN (@Organization_exclude)) OR org.id IS NULL)
+          )
+  AND (
       	@is_closing_documents IS NULL 
       	OR (@is_closing_documents = FALSE AND (o.delivery_schedule_id != @closing_document_delivery_schedule_id OR o.delivery_schedule_id IS NULL)) 
       	OR (@is_closing_documents = TRUE AND o.delivery_schedule_id = @closing_document_delivery_schedule_id)
       )
+  AND (@is_tender IS NULL OR (@is_tender = TRUE AND ccf.name = 'Тендер') OR (@is_tender = FALSE AND ccf.name != 'Тендер'))
   AND (@start_date = '' OR o.delivery_date &gt;= @start_date)
   AND (@end_date = '' OR o.delivery_date &lt;= @end_date)
   AND NOT EXISTS (
@@ -1153,11 +1188,20 @@ ORDER BY date DESC;</CommandText>
           <QueryParameter Name="OrderStatus_exclude">
             <Value>={?OrderStatus_exclude}</Value>
           </QueryParameter>
+          <QueryParameter Name="Organization_include">
+            <Value>={?Organization_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="Organization_exclude">
+            <Value>={?Organization_exclude}</Value>
+          </QueryParameter>
           <QueryParameter Name="is_closing_documents">
             <Value>={?is_closing_documents}</Value>
           </QueryParameter>
           <QueryParameter Name="closing_document_delivery_schedule_id">
             <Value>={?closing_document_delivery_schedule_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="is_tender">
+            <Value>={?is_tender}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1238,7 +1282,14 @@ FROM payment_write_offs pwo
 INNER JOIN cashless_movement_operations cmo ON cmo.id = pwo.cashless_movement_operation_id 
 INNER JOIN organizations o ON o.id = pwo.organization_id 
 INNER JOIN financial_categories_groups fcg ON pwo.financial_expense_category_id = fcg.id
+LEFT JOIN counterparty c ON c.id = pwo.counterparty_id
+LEFT JOIN counterparty_camefrom ccf ON ccf.id = c.counterparty_camefrom_id
 WHERE pwo.counterparty_id = @counterparty_id
+  AND (
+                  (0 IN (@Organization_include) OR (o.id IN (@Organization_include)))
+            AND (NOT (o.id IN (@Organization_exclude)) OR o.id IS NULL)
+              )
+  AND (@is_tender IS NULL OR (@is_tender = TRUE AND ccf.name = 'Тендер') OR (@is_tender = FALSE AND ccf.name != 'Тендер'))
   AND (@start_date = '' OR cmo.operation_time &gt;= @start_date)
   AND (@end_date = '' OR cmo.operation_time &lt;= @end_date)
 ORDER BY `date` DESC;</CommandText>
@@ -1251,6 +1302,15 @@ ORDER BY `date` DESC;</CommandText>
           </QueryParameter>
           <QueryParameter Name="end_date">
             <Value>={?end_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="Organization_include">
+            <Value>={?Organization_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="Organization_exclude">
+            <Value>={?Organization_exclude}</Value>
+          </QueryParameter>
+          <QueryParameter Name="is_tender">
+            <Value>={?is_tender}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1297,7 +1357,7 @@ ORDER BY `date` DESC;</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
@@ -1342,6 +1402,20 @@ ORDER BY `date` DESC;</CommandText>
     </ReportParameter>
     <ReportParameter Name="Counterparty_exclude">
       <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Organization_include">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Organization_exclude">
+      <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
@@ -1424,7 +1498,7 @@ ORDER BY `date` DESC;</CommandText>
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="is_liquidated">
+    <ReportParameter Name="is_tender">
       <DataType>Boolean</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>false</AllowBlank>

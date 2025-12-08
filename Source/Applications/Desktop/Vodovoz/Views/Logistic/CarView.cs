@@ -23,6 +23,8 @@ namespace Vodovoz.Views.Logistic
 		{
 			notebook1.Page = 0;
 			notebook1.ShowTabs = false;
+			
+			buttonSave.Sensitive = ViewModel.AskSaveOnClose;
 
 			vehicleNumberEntry.Binding.AddBinding(ViewModel.Entity, e => e.RegistrationNumber, w => w.Number).InitializeFromSource();
 
@@ -51,7 +53,9 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(e => e.IsArchive, w => w.Visible)
 				.InitializeFromSource();
 
-			ylabelArchivingReason.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Visible).InitializeFromSource();
+			ylabelArchivingReason.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Visible)
+				.InitializeFromSource();
 
 			yentryPTSNum.Binding.AddBinding(ViewModel.Entity, e => e.DocPTSNumber, w => w.Text).InitializeFromSource();
 			yentryPTSSeries.Binding.AddBinding(ViewModel.Entity, e => e.DocPTSSeries, w => w.Text).InitializeFromSource();
@@ -76,7 +80,13 @@ namespace Vodovoz.Views.Logistic
 
 			attachedfileinformationsview1.InitializeViewModel(ViewModel.AttachedFileInformationsViewModel);
 
-			checkIsArchive.Binding.AddBinding(ViewModel.Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
+			checkIsArchive.Binding
+				.AddBinding(ViewModel, e => e.IsArchive, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckbuttonUsedInDelivery.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsUsedInDelivery, w => w.Active)
+				.InitializeFromSource();
 
 			ylabelArchivingDate.Binding
 				.AddFuncBinding(ViewModel.Entity, e => e.ArchivingDate != null, w => w.Visible)
@@ -143,6 +153,13 @@ namespace Vodovoz.Views.Logistic
 			speciallistcomboboxIncomeChannel.Binding
 				.AddBinding(ViewModel.Entity, e => e.IncomeChannel, w => w.SelectedItem)
 				.InitializeFromSource();
+			
+			if(!ViewModel.CanEdit)
+			{
+				vboxMain.Sensitive = false;
+				vboxGeographicGroups.Sensitive = false;
+				attachedfileinformationsview1.Sensitive = false;
+			}
 
 			ybuttonOpenCarAcceptanceCertificate.BindCommand(ViewModel.CreateCarAcceptanceCertificateCommand);
 			ybuttonCreateRentalContract.BindCommand(ViewModel.CreateRentalContractCommand);

@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using NetTopologySuite.Geometries;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -20,7 +20,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Delivery;
-using Vodovoz.Factories;
 using Vodovoz.Settings.Common;
 
 namespace Vodovoz.Domain.Client
@@ -36,7 +35,7 @@ namespace Vodovoz.Domain.Client
 		public const int IntercomMaxLength = 100;
 
 		private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-		private IGlobalSettings _globalSettings;
+		private IOsrmSettings _globalSettings;
 		private IList<DeliveryPointResponsiblePerson> _responsiblePersons = new List<DeliveryPointResponsiblePerson>();
 		private GenericObservableList<DeliveryPointResponsiblePerson> _observableResponsiblePersons;
 		private District _district;
@@ -91,7 +90,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		[Display(Name = "Контрагент")]
-		public virtual Counterparty Counterparty
+		public virtual new Counterparty Counterparty
 		{
 			get => _counterparty;
 			set => SetField(ref _counterparty, value);
@@ -133,7 +132,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		[Display(Name = "Фиксированные цены")]
-		public virtual IList<NomenclatureFixedPrice> NomenclatureFixedPrices
+		public virtual new IList<NomenclatureFixedPrice> NomenclatureFixedPrices
 		{
 			get => _nomenclatureFixedPrices;
 			set => SetField(ref _nomenclatureFixedPrices, value);
@@ -252,7 +251,8 @@ namespace Vodovoz.Domain.Client
 			decimal? latitude, 
 			decimal? longitude, 
 			IDeliveryRepository deliveryRepository, 
-			IGlobalSettings globalSettings, 
+			IOsrmSettings globalSettings,
+			IOsrmClient osrmClient,
 			IUnitOfWork uow = null)
 		{
 			Latitude = latitude;
@@ -277,7 +277,7 @@ namespace Vodovoz.Domain.Client
 				new PointOnEarth(Latitude.Value, Longitude.Value)
 			};
 
-			RouteResponse result = OsrmClientFactory.Instance.GetRoute(route, false, GeometryOverview.False, globalSettings.ExcludeToll);
+			var result = osrmClient.GetRoute(route, false, GeometryOverview.False, globalSettings.ExcludeToll);
 
 			if(result == null)
 			{

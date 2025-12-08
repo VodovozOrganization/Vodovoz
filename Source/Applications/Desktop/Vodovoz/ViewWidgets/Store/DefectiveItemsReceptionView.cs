@@ -17,6 +17,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Infrastructure;
+using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
@@ -47,7 +48,7 @@ namespace Vodovoz.ViewWidgets.Store
 
 			ytreeReturns.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<DefectiveItemNode>()
 				.AddColumn("Номенклатура").AddTextRenderer(node => node.Name)
-				.AddColumn("Кол-во").AddNumericRenderer(node => node.Amount)
+				.AddColumn("Кол-во").AddNumericRenderer(node => node.Amount, new RoundedDecimalToStringConverter())
 				.Adjustment(new Adjustment(0, 0, 9999, 1, 100, 0))
 				.Editing(true)
 				.AddColumn("Тип брака")
@@ -186,7 +187,7 @@ namespace Vodovoz.ViewWidgets.Store
 			{
 				_userHasOnlyAccessToWarehouseAndComplaints =
 					ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
-						Vodovoz.Core.Domain.Permissions.User.UserHaveAccessOnlyToWarehouseAndComplaints)
+						Vodovoz.Core.Domain.Permissions.UserPermissions.UserHaveAccessOnlyToWarehouseAndComplaints)
 					&& !ServicesConfig.CommonServices.UserService.GetCurrentUser().IsAdmin;
 			}
 

@@ -10,6 +10,7 @@ using QS.Project.Services;
 using Autofac;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.Settings.Common;
+using QS.Osrm;
 
 namespace Vodovoz.ServiceDialogs.Database
 {
@@ -18,8 +19,12 @@ namespace Vodovoz.ServiceDialogs.Database
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		int SaveBy = 300;
 
-		IUnitOfWork uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+		IUnitOfWorkFactory _uowFactory = ScopeProvider.Scope.Resolve<IUnitOfWorkFactory>();
+		IDeliveryRepository _deliveryRepository = ScopeProvider.Scope.Resolve<IDeliveryRepository>();
+		IOsrmSettings _globalSettings = ScopeProvider.Scope.Resolve<IOsrmSettings>();
+		IOsrmClient _osrmClient = ScopeProvider.Scope.Resolve<IOsrmClient>();
 
+		IUnitOfWork _uow;
 		IList<DeliveryPoint> points;
 
 		public CalculateDistanceToPointsDlg()
@@ -36,13 +41,14 @@ namespace Vodovoz.ServiceDialogs.Database
 
 			this.Build();
 			TabName = "Расчет расстояний до точек";
-			uow.Session.SetBatchSize(SaveBy);
+			_uow = _uowFactory.CreateWithoutRoot();
+			_uow.Session.SetBatchSize(SaveBy);
 		}
 
 		protected void OnButtonLoadClicked(object sender, EventArgs e)
 		{
 			logger.Info("Загружаем все точки доставки...");
-			points = uow.Session.QueryOver<DeliveryPoint>()
+			points = _uow.Session.QueryOver<DeliveryPoint>()
 			            //.Where(x => x.DistanceFromBaseMeters == null && x.Latitude != null && x.Longitude != null)
 			            .Fetch(x => x.DeliverySchedule).Lazy
 						.List();
@@ -57,8 +63,7 @@ namespace Vodovoz.ServiceDialogs.Database
 
 		protected void OnButtonCalculateClicked(object sender, EventArgs e)
 		{
-			var deliveryRepository = ScopeProvider.Scope.Resolve<IDeliveryRepository>();
-			var globalSettings = ScopeProvider.Scope.Resolve<IGlobalSettings>();
+
 			progressbar1.Adjustment.Value = 0;
 			progressbar1.Adjustment.Upper = points.Count;
 			logger.Info("Рассчитываем расстояния от склада...");
@@ -67,16 +72,16 @@ namespace Vodovoz.ServiceDialogs.Database
 			int saved = 0;
 			foreach(var point in points)
 			{
-				point.SetСoordinates(point.Latitude, point.Longitude, deliveryRepository, globalSettings);
+				point.SetСoordinates(point.Latitude, point.Longitude, _deliveryRepository, _globalSettings, _osrmClient);
 				notSaved++;
 				calculated++;
 				labelCalculated.LabelProp = calculated.ToString();
 				progressbar1.Adjustment.Value++;
-				uow.Save(point);
+				_uow.Save(point);
 				if(notSaved >= SaveBy || calculated == points.Count)
 				{
 					logger.Info("Сохраняем {0} точек в базу...", notSaved);
-					uow.Commit();
+					_uow.Commit();
 					saved += notSaved;
 					labelSaved.LabelProp = saved.ToString();
 					notSaved = 0;

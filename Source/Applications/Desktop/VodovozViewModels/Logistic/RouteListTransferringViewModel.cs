@@ -1,7 +1,12 @@
-﻿using Autofac;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using DriverApi.Contracts.V6;
+using DriverApi.Contracts.V6.Requests;
 using Microsoft.Extensions.Logging;
 using NHibernate;
-using NPOI.HSSF.Record;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -11,12 +16,6 @@ using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using System.Linq.Dynamic.Core;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
@@ -24,16 +23,21 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
+using Vodovoz.Errors.Common;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.NotificationSenders;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
+using Vodovoz.ViewModelBased;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Widgets;
+using VodovozBusiness.NotificationSenders;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -41,22 +45,21 @@ namespace Vodovoz.ViewModels.Logistic
 	{
 		public delegate IPage OpenLegacyOrderForRouteListJournalViewModel(Action<OrderJournalFilterViewModel> filterConfig);
 
-		public OpenLegacyOrderForRouteListJournalViewModel OpenLegacyOrderForRouteListJournalViewModelHandler { get; set; }
-
 		private readonly ILogger<RouteListTransferringViewModel> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IEmployeeNomenclatureMovementRepository _employeeNomenclatureMovementRepository;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IRouteListRepository _routeListRepository;
-		private readonly IRouteListService _routeListService;
+		private readonly IRouteListTransferService _routeListTransferService;
 		private readonly IUserService _userService;
 		private readonly IEmployeeService _employeeService;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private int? _sourceRouteListId;
 		private RouteList _sourceRouteList;
 		private readonly IRouteListItemRepository _routeListItemRepository;
-		private readonly IRouteListTransferHandByHandNotificationSender _routeListTransferHandByHandNotificationSender;
+		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender;
+		private readonly IWageParameterService _wageParameterService;
 
 		private readonly RouteListStatus[] _defaultSourceRouteListStatuses =
 		{
@@ -103,7 +106,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IEmployeeNomenclatureMovementRepository employeeNomenclatureMovementRepository,
 			INomenclatureSettings nomenclatureSettings,
 			IRouteListRepository routeListRepository,
-			IRouteListService routeListService,
+			IRouteListTransferService routeListTransferService,
 			IUserService userService,
 			IEmployeeService employeeService,
 			IGtkTabsOpener gtkTabsOpener,
@@ -114,7 +117,8 @@ namespace Vodovoz.ViewModels.Logistic
 			DeliveryFreeBalanceViewModel targetDeliveryFreeBalanceViewModel,
 			ViewModelEEVMBuilder<RouteList> sourceRouteListEEVMBuilder,
 			ViewModelEEVMBuilder<RouteList> targetRouteListEEVMBuilder,
-			IRouteListTransferHandByHandNotificationSender routeListTransferHandByHandNotificationSender)
+			IRouteListChangesNotificationSender routeListChangesNotificationSender,
+			IWageParameterService wageParameterService)
 			: base(unitOfWorkFactory, interactiveService, navigation)
 		{
 			_logger = logger
@@ -129,8 +133,8 @@ namespace Vodovoz.ViewModels.Logistic
 				?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_routeListRepository = routeListRepository
 				?? throw new ArgumentNullException(nameof(routeListRepository));
-			_routeListService = routeListService
-				?? throw new ArgumentNullException(nameof(routeListService));
+			_routeListTransferService = routeListTransferService
+				?? throw new ArgumentNullException(nameof(routeListTransferService));
 			_userService = userService
 				?? throw new ArgumentNullException(nameof(userService));
 			_employeeService = employeeService
@@ -147,8 +151,9 @@ namespace Vodovoz.ViewModels.Logistic
 				?? throw new ArgumentNullException(nameof(sourceDeliveryFreeBalanceViewModel));
 			TargetRouteListDeliveryFreeBalanceViewModel = targetDeliveryFreeBalanceViewModel
 				?? throw new ArgumentNullException(nameof(targetDeliveryFreeBalanceViewModel));
-			_routeListTransferHandByHandNotificationSender = routeListTransferHandByHandNotificationSender
-				?? throw new ArgumentNullException(nameof(routeListTransferHandByHandNotificationSender));
+			_routeListChangesNotificationSender = routeListChangesNotificationSender
+				?? throw new ArgumentNullException(nameof(routeListChangesNotificationSender));
+			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 
 			SourceRouteListJournalFilterViewModel.SetAndRefilterAtOnce(filter =>
 			{
@@ -174,8 +179,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 			TabName = "Перенос адресов маршрутных листов";
 
-			AddOrderToRouteListEnRouteCommand =
-				new DelegateCommand(() => SelectNewOrdersForRouteListEnRoute());
+			AddOrderToRouteListEnRouteCommand = new DelegateCommand(SelectNewOrdersForRouteListEnRoute);
 
 			TransferAddressesCommand = new DelegateCommand(TransferAddresses);
 			RevertTransferAddressesCommand = new DelegateCommand(RevertTransferAddresses, () => CanRevertTransferAddresses);
@@ -505,20 +509,33 @@ namespace Vodovoz.ViewModels.Logistic
 						.Select(addressNode => addressNode.OrderId))
 					.ToArray();
 
-			var ordersForRouteListJournalPage = OpenLegacyOrderForRouteListJournalViewModelHandler(filter =>
-			{
-				filter.RestrictFilterDateType = OrdersDateFilterType.DeliveryDate;
-				filter.RestrictStatus = OrderStatus.Accepted;
-				filter.RestrictWithoutSelfDelivery = true;
-				filter.RestrictOnlySelfDelivery = false;
-				filter.RestrictHideService = true;
-				filter.FilterClosingDocumentDeliverySchedule = false;
-				filter.ExceptIds = excludeOrdersIds;
-			});
+			NavigationManager.OpenViewModel<OrderForRouteListJournalViewModel, Action<OrderJournalFilterViewModel>>(
+				this,
+				filter =>
+				{
+					filter.RestrictFilterDateType = OrdersDateFilterType.DeliveryDate;
+					filter.RestrictStatus = OrderStatus.Accepted;
+					filter.RestrictWithoutSelfDelivery = true;
+					filter.RestrictOnlySelfDelivery = false;
+					filter.RestrictHideService = true;
+					filter.FilterClosingDocumentDeliverySchedule = false;
+					filter.ExceptIds = excludeOrdersIds;
+				},
+				OpenPageOptions.AsSlave,
+				vm =>
+				{
+					vm.SelectionMode = JournalSelectionMode.Multiple;
+					vm.OnEntitySelectedResult += OnOrderSelectedResult;
+				});
 		}
 
 		public void OnOrderSelectedResult(object sender, JournalSelectedNodesEventArgs e)
 		{
+			if(sender is OrderForRouteListJournalViewModel journal)
+			{
+				journal.OnEntitySelectedResult -= OnOrderSelectedResult;
+			}
+			
 			foreach(var selectedNode in e.SelectedNodes)
 			{
 				AddOrderToSourceAddresses(selectedNode.Id);
@@ -570,15 +587,18 @@ namespace Vodovoz.ViewModels.Logistic
 				{
 					#region Добавляемые принятые заказы (не переносимые из какого-либо МЛ)
 
-					var ordersIdsWithTransferTypesWithoutRouteList = SelectedSourceRouteListAddresses
+					var ordersWithTransferTypesWithoutRouteList = SelectedSourceRouteListAddresses
 						.Cast<RouteListItemNode>()
-						.Where(x => x.Order != null)
+						.Where(x => x.Order != null);
+
+					var ordersIdsWithTransferTypesWithoutRouteList = ordersWithTransferTypesWithoutRouteList
 						.ToDictionary(
 							x => x.OrderId,
 							x => x.AddressTransferType);
 
-					Result<IEnumerable<string>> ordersTransferResult = _routeListService.TransferOrdersTo(
+					Result<IEnumerable<string>> ordersTransferResult = _routeListTransferService.TransferOrdersTo(
 						unitOfWork,
+						_wageParameterService,
 						TargetRouteListId.Value,
 						ordersIdsWithTransferTypesWithoutRouteList);
 
@@ -599,8 +619,9 @@ namespace Vodovoz.ViewModels.Logistic
 					if(IsSourceRouteListSelected)
 					{
 						addressesTransferResult =
-							_routeListService.TransferAddressesFrom(
+							_routeListTransferService.TransferAddressesFrom(
 								unitOfWork,
+								_wageParameterService,
 								SourceRouteListId.Value,
 								TargetRouteListId.Value,
 								routeListAddressesWithTransferTypes);
@@ -638,10 +659,11 @@ namespace Vodovoz.ViewModels.Logistic
 							ShowTransferInformation(addressesTransferResult.Value);
 						}
 
-						var selectedHandToHandNodes = selectedToTransferNodesWithRouteListAddresses
-							.Where(x => x.AddressTransferType == AddressTransferType.FromHandToHand);
+						var selectedToTransferNodes =
+							ordersWithTransferTypesWithoutRouteList
+							.Concat(selectedToTransferNodesWithRouteListAddresses);
 
-						NotifyOfHandToHandTransferTransfered(selectedHandToHandNodes);
+						NotifyOfTransferTransfered(selectedToTransferNodes);
 
 						return;
 					}
@@ -674,51 +696,34 @@ namespace Vodovoz.ViewModels.Logistic
 
 		private void ShowTransferErrors(IEnumerable<Error> errors)
 		{
-			var routeListNotFound = errors
-				.Where(x => x.Code == Errors.Logistics.RouteList.NotFound)
+			var errorCodes = new[]
+			{
+				Errors.Logistics.RouteListErrors.NotFound.Code,
+				Errors.Logistics.RouteListErrors.RouteListItem.TransferTypeNotSet.Code,
+				Errors.Logistics.RouteListErrors.RouteListItem.TransferRequiresLoadingWhenRouteListEnRoute.Code,
+				Errors.Logistics.RouteListErrors.RouteListItem.TransferNotEnoughtFreeBalance.Code,
+				Errors.Logistics.RouteListErrors.RouteListItem.OrdersWithCreatedUpdNeedToReload.Code,
+				Errors.Logistics.RouteListErrors.RouteListItem.OrderRecentlyCanceled.Code
+			};
+
+			var errorMessages = errors
+				.Where(x => errorCodes.Contains(x.Code))
 				.Select(x => x.Message)
 				.ToList();
 
-			var transferTypeNotSet = errors
-				.Where(x => x.Code == Errors.Logistics.RouteList.RouteListItem.TransferTypeNotSet)
-				.Select(x => x.Message)
-				.ToList();
+			var driverApiErrors = errors
+				.Where(x => x.Code == DriverApiClientErrors.RequestIsNotSuccess(x.Message))
+				.Select(x => x.Message);
 
-			var transferRequiresLoadingWhenRouteListEnRoute = errors
-				.Where(x => x.Code == Errors.Logistics.RouteList.RouteListItem.TransferRequiresLoadingWhenRouteListEnRoute)
-				.Select(x => x.Message)
-				.ToList();
+			var allMessages = errorMessages.Concat(driverApiErrors).ToList();
 
-			var transferNotEnoughFreeBalance = errors
-				.Where(x => x.Code == Errors.Logistics.RouteList.RouteListItem.TransferNotEnoughtFreeBalance)
-				.Select(x => x.Message)
-				.ToList();
+			if(!allMessages.Any())
+			{
+				return;
+			}
 
-			var driverApiClientRequestIsNotSuccess = errors
-				.Where(x => x.Code == Errors.Common.DriverApiClient.RequestIsNotSuccess(x.Message))
-				.Select(x => x.Message)
-				.ToList();
-
-			var ordersWithCreatedUpdNeedToReload = errors
-				.Where(x => x.Code == Errors.Logistics.RouteList.RouteListItem.OrdersWithCreatedUpdNeedToReload)
-				.Select(x => x.Message)
-				.ToList();
-
-			_interactiveService.ShowMessage(ImportanceLevel.Error,
-				"Перенос не был осуществлен:\n" +
-				string.Join(",\n",
-					routeListNotFound) +
-				string.Join(",\n",
-					transferTypeNotSet) +
-				string.Join(",\n",
-					transferRequiresLoadingWhenRouteListEnRoute) +
-				string.Join(",\n",
-					transferNotEnoughFreeBalance) +
-				string.Join(",\n",
-					driverApiClientRequestIsNotSuccess) +
-				string.Join(",\n",
-					ordersWithCreatedUpdNeedToReload),
-				"Ошибка при переносе адресов");
+			var errorText = "Перенос не был осуществлен:\n" + string.Join(",\n", allMessages);
+			_interactiveService.ShowMessage(ImportanceLevel.Error, errorText, "Ошибка при переносе адресов");
 		}
 
 		private void ShowTransferWarnings(IEnumerable<Error> errors)
@@ -756,15 +761,16 @@ namespace Vodovoz.ViewModels.Logistic
 				.Select(x => x.OrderId)
 				.ToList();
 
-			var selectedHandToHandNodes = SelectedTargetRouteListAddresses
-				.Cast<RouteListItemNode>()
-				.Where(x => x.AddressTransferType == AddressTransferType.FromHandToHand);
+			var selectedTargetAddresses = SelectedTargetRouteListAddresses
+				.Cast<RouteListItemNode>();
+
 
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot(Title + " > возврат переноса адресов"))
 			{
 				try
 				{
-					var result = _routeListService.RevertTransferedAddressesFrom(unitOfWork, TargetRouteListId.Value, SourceRouteListId, addressesToRevertIds);
+					var result = _routeListTransferService.RevertTransferedAddressesFrom(unitOfWork, TargetRouteListId.Value, SourceRouteListId, 
+						addressesToRevertIds, _wageParameterService);
 
 					if(result.IsSuccess)
 					{
@@ -795,7 +801,7 @@ namespace Vodovoz.ViewModels.Logistic
 							}
 						}
 
-						NotifyOfHandToHandTransferTransfered(selectedHandToHandNodes);
+						NotifyOfTransferTransfered(selectedTargetAddresses);
 					}
 
 					result.Match(
@@ -818,7 +824,7 @@ namespace Vodovoz.ViewModels.Logistic
 			}
 		}
 
-		private void NotifyOfHandToHandTransferTransfered(IEnumerable<RouteListItemNode> selectedHandToHandNodes)
+		private void NotifyOfTransferTransfered(IEnumerable<RouteListItemNode> selectedHandToHandNodes)
 		{
 			if(!selectedHandToHandNodes.Any())
 			{
@@ -827,13 +833,21 @@ namespace Vodovoz.ViewModels.Logistic
 
 			var notifyingErrors = new List<Error>();
 
-			var notifyingWarnings = new List<Error>();
-
-			foreach(var orderId in selectedHandToHandNodes.Select(x => x.OrderId))
+			foreach(var node in selectedHandToHandNodes)
 			{
 				try
 				{
-					var result = _routeListTransferHandByHandNotificationSender.NotifyOfOrderWithGoodsTransferingIsTransfered(orderId).GetAwaiter().GetResult();
+					var isTransfer = node.RouteListItem != null;
+
+					var notificationRequest = new NotificationRouteListChangesRequest
+					{
+						OrderId = node.OrderId,
+						PushNotificationDataEventType = isTransfer && node.AddressTransferType == AddressTransferType.FromHandToHand
+							? PushNotificationDataEventType.TransferAddressFromHandToHand
+							: PushNotificationDataEventType.RouteListContentChanged
+					};
+
+					var result = _routeListChangesNotificationSender.NotifyOfRouteListChanged(notificationRequest).GetAwaiter().GetResult();
 
 					if(result.IsSuccess)
 					{
@@ -841,12 +855,15 @@ namespace Vodovoz.ViewModels.Logistic
 					}
 					else
 					{
-						notifyingErrors.AddRange(result.Errors.Where(x => x.Code != $"{typeof(Errors.Common.DriverApiClient).Namespace}.{typeof(Errors.Common.DriverApiClient).Name}.{nameof(Errors.Common.DriverApiClient.OrderWithGoodsTransferingIsTransferedNotNotified)}"));
+						notifyingErrors.AddRange(result.Errors.Where(x => x.Code != 
+                          $"{typeof(Errors.Common.DriverApiClientErrors).Namespace}" +
+                          $".{typeof(Errors.Common.DriverApiClientErrors).Name}" +
+                          $".{nameof(Errors.Common.DriverApiClientErrors.OrderWithGoodsTransferingIsTransferedNotNotified)}"));
 					}
 				}
 				catch(Exception ex)
 				{
-					notifyingErrors.Add(Errors.Common.DriverApiClient.RequestIsNotSuccess(ex.Message));
+					notifyingErrors.Add(DriverApiClientErrors.RequestIsNotSuccess(ex.Message));
 				}
 			}
 
@@ -1019,7 +1036,6 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			SourceRouteListJournalFilterViewModel?.Dispose();
 			TargetRouteListJournalFilterViewModel?.Dispose();
-			OpenLegacyOrderForRouteListJournalViewModelHandler = null;
 			base.Dispose();
 		}
 	}

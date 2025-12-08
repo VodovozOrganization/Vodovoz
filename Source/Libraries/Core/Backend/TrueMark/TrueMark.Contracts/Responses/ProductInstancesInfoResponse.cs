@@ -19,5 +19,11 @@ namespace TrueMark.Contracts.Responses
 		/// </summary>
 		[JsonPropertyName("errorMessage")]
 		public string ErrorMessage { get; set; }
+
+		/// <summary>
+		/// В ЧЗ нет информации ни по одному из переданных идентификационных кодов
+		/// </summary>
+		[JsonPropertyName("noCodesFound")]
+		public bool NoCodesFound { get; set; }
 	}
 }

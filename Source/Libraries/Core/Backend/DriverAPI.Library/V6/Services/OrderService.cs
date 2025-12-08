@@ -37,12 +37,14 @@ using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.TrueMark;
 using Error = Vodovoz.Core.Domain.Results.Error;
 using Order = Vodovoz.Domain.Orders.Order;
-using OrderErrors = Vodovoz.Errors.Orders.Order;
+using OrderErrors = Vodovoz.Errors.Orders.OrderErrors;
 using OrderItem = Vodovoz.Domain.Orders.OrderItem;
-using OrderItemErrors = Vodovoz.Errors.Orders.OrderItem;
-using RouteListErrors = Vodovoz.Errors.Logistics.RouteList;
-using RouteListItemErrors = Vodovoz.Errors.Logistics.RouteList.RouteListItem;
-using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCode;
+using OrderItemErrors = Vodovoz.Errors.Orders.OrderItemErrors;
+using RouteListErrors = Vodovoz.Errors.Logistics.RouteListErrors;
+using RouteListItemErrors = Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem;
+using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
+using IDomainRouteListService = Vodovoz.Services.Logistics.IRouteListService;
+using Vodovoz.Tools.CallTasks;
 
 namespace DriverAPI.Library.V6.Services
 {
@@ -68,6 +70,8 @@ namespace DriverAPI.Library.V6.Services
 		private readonly IGenericRepository<CarLoadDocument> _carLoadDocumentRepository;
 		private readonly IOrderContractUpdater _contractUpdater;
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
+		private readonly IDomainRouteListService _domainRouteListService;
+		private readonly ICallTaskWorker _callTaskWorker;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -87,7 +91,9 @@ namespace DriverAPI.Library.V6.Services
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
 			IGenericRepository<CarLoadDocument> carLoadDocumentRepository,
 			IOrderContractUpdater contractUpdater,
-			ICounterpartyEdoAccountController edoAccountController
+			ICounterpartyEdoAccountController edoAccountController,
+			IDomainRouteListService domainRouteListService,
+			ICallTaskWorker callTaskWorker
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -108,6 +114,8 @@ namespace DriverAPI.Library.V6.Services
 			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
 			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
 			_edoAccountController = edoAccountController ?? throw new ArgumentNullException(nameof(edoAccountController));
+			_domainRouteListService = domainRouteListService ?? throw new ArgumentNullException(nameof(domainRouteListService));
+			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 		}
 
 		/// <summary>
@@ -280,7 +288,7 @@ namespace DriverAPI.Library.V6.Services
 			{
 				_logger.LogWarning("Заказ не найден: {OrderId}", orderId);
 
-				return Result.Failure(Vodovoz.Errors.Orders.Order.NotFound);
+				return Result.Failure(Vodovoz.Errors.Orders.OrderErrors.NotFound);
 			}
 
 			if(vodovozOrder.OrderStatus != OrderStatus.OnTheWay)
@@ -298,7 +306,7 @@ namespace DriverAPI.Library.V6.Services
 			{
 				_logger.LogWarning("МЛ для заказа: {OrderId} не найден", orderId);
 
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.NotFoundAssociatedWithOrder);
 			}
 
 			if(routeList.Driver.Id != driver.Id)
@@ -320,7 +328,11 @@ namespace DriverAPI.Library.V6.Services
 			return Result.Success();
 		}
 
-		public async Task<Result> CompleteOrderDelivery(DateTime actionTime, Employee driver, IDriverOrderShipmentInfo completeOrderInfo, IDriverComplaintInfo driverComplaintInfo)
+		public async Task<Result> CompleteOrderDelivery(
+			DateTime actionTime,
+			Employee driver,
+			IDriverOrderShipmentInfo completeOrderInfo,
+			IDriverComplaintInfo driverComplaintInfo)
 		{
 			var orderId = completeOrderInfo.OrderId;
 			var vodovozOrder = _orderRepository.GetOrder(_uow, orderId);
@@ -374,8 +386,8 @@ namespace DriverAPI.Library.V6.Services
 			}
 
 			routeListAddress.DriverBottlesReturned = completeOrderInfo.BottlesReturnCount;
-
-			routeList.ChangeAddressStatus(_uow, routeListAddress.Id, RouteListItemStatus.Completed);
+			
+			_domainRouteListService.ChangeAddressStatus(_uow, routeList, routeListAddress.Id, RouteListItemStatus.Completed, _callTaskWorker);
 
 			CreateComplaintIfNeeded(driverComplaintInfo, vodovozOrder, driver, actionTime);
 
@@ -389,11 +401,11 @@ namespace DriverAPI.Library.V6.Services
 
 				vodovozOrder.DriverCallType = DriverCallType.CommentFromMobileApp;
 
-				_uow.Save(vodovozOrder);
+				await _uow.SaveAsync(vodovozOrder);
 			}
 
-			_uow.Save(routeListAddress);
-			_uow.Save(routeList);
+			await _uow.SaveAsync(routeListAddress);
+			await _uow.SaveAsync(routeList);
 
 			var edoRequest = _uow.Session.Query<OrderEdoRequest>()
 				.Where(x => x.Order.Id == vodovozOrder.Id)
@@ -510,13 +522,13 @@ namespace DriverAPI.Library.V6.Services
 
 				vodovozOrder.DriverCallType = DriverCallType.CommentFromMobileApp;
 
-				_uow.Save(vodovozOrder);
+				await _uow.SaveAsync(vodovozOrder);
 			}
 
-			_uow.Save(routeListAddress);
-			_uow.Save(routeList);
+			await _uow.SaveAsync(routeListAddress);
+			await _uow.SaveAsync(routeList);
 
-			_uow.Commit();
+			await _uow.CommitAsync();
 
 			return Result.Success();
 		}
@@ -931,7 +943,7 @@ namespace DriverAPI.Library.V6.Services
 				vodovozOrderItem,
 				oldScannedCode,
 				newScannedCode,
-				SourceProductCodeStatus.Accepted,
+				SourceProductCodeStatus.Changed,
 				cancellationToken);
 		}
 
@@ -1156,8 +1168,11 @@ namespace DriverAPI.Library.V6.Services
 			CancellationToken cancellationToken,
 			bool isCheckForCodeChange = false)
 		{
-			var trueMarkCodeResult =
-				await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(uow, scannedCode, cancellationToken);
+			var trueMarkCodeResult = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(
+				uow,
+				scannedCode,
+				cancellationToken
+			);
 
 			if(trueMarkCodeResult.IsFailure)
 			{
@@ -1173,7 +1188,8 @@ namespace DriverAPI.Library.V6.Services
 				});
 			}
 
-			var aggregationValidationResult = _routeListItemTrueMarkProductCodesProcessingService.ValidateTrueMarkCodeIsInAggregationCode(trueMarkCodeResult.Value);
+			var aggregationValidationResult = _routeListItemTrueMarkProductCodesProcessingService
+				.ValidateTrueMarkCodeIsInAggregationCode(trueMarkCodeResult.Value);
 
 			if(aggregationValidationResult.IsFailure)
 			{
@@ -1274,6 +1290,36 @@ namespace DriverAPI.Library.V6.Services
 				});
 			}
 
+			var instanceCodes = trueMarkAnyCodes
+				.Where(x => x.IsTrueMarkWaterIdentificationCode)
+				.Select(x => x.TrueMarkWaterIdentificationCode);
+
+			var codeCheckingResult = await _routeListItemTrueMarkProductCodesProcessingService
+				.IsTrueMarkCodeCanBeAddedToRouteListItem(
+					uow,
+					instanceCodes,
+					routeListAddress,
+					vodovozOrderItem,
+					cancellationToken,
+					isCheckForCodeChange
+				);
+
+			if(codeCheckingResult.IsFailure)
+			{
+				uow.Session?.GetCurrentTransaction()?.Rollback();
+
+				var error = codeCheckingResult.Errors.FirstOrDefault();
+
+				var result = Result.Failure<TrueMarkCodeProcessingResultResponse>(error);
+
+				return RequestProcessingResult.CreateFailure(result, new TrueMarkCodeProcessingResultResponse
+				{
+					Nomenclature = null,
+					Result = RequestProcessingResultTypeDto.Error,
+					Error = error.Message
+				});
+			}
+
 			NomenclatureTrueMarkCodesDto nomenclatureDto = null;
 
 			var trueMarkCodes = new List<TrueMarkCodeDto>();
@@ -1288,31 +1334,6 @@ namespace DriverAPI.Library.V6.Services
 				if(!trueMarkAnyCode.IsTrueMarkWaterIdentificationCode)
 				{
 					continue;
-				}
-
-				var codeCheckingResult = await _routeListItemTrueMarkProductCodesProcessingService.IsTrueMarkCodeCanBeAddedToRouteListItem(
-					uow,
-					trueMarkAnyCode.TrueMarkWaterIdentificationCode,
-					routeListAddress,
-					vodovozOrderItem,
-					cancellationToken,
-					isCheckForCodeChange,
-					true);
-
-				if(codeCheckingResult.IsFailure)
-				{
-					uow.Session?.GetCurrentTransaction()?.Rollback();
-
-					var error = codeCheckingResult.Errors.FirstOrDefault();
-
-					var result = Result.Failure<TrueMarkCodeProcessingResultResponse>(error);
-
-					return RequestProcessingResult.CreateFailure(result, new TrueMarkCodeProcessingResultResponse
-					{
-						Nomenclature = null,
-						Result = RequestProcessingResultTypeDto.Error,
-						Error = error.Message
-					});
 				}
 
 				_routeListItemTrueMarkProductCodesProcessingService

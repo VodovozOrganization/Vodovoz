@@ -1,4 +1,4 @@
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using Gtk;
 using QS.Views.GtkUI;
 using System;
@@ -42,7 +42,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 				.InitializeFromSource();
 
 			entityViewModelEntryCounterparty.SetEntityAutocompleteSelectorFactory(ViewModel.CounterpartyAutocompleteSelectorFactory);
-			entityViewModelEntryCounterparty.Changed += ViewModel.OnEntityViewModelEntryChanged;
+			entityViewModelEntryCounterparty.Changed += ViewModel.OnCounterpartyEntityViewModelEntryChanged;
 
 			entityViewModelEntryCounterparty.Binding
 				.AddBinding(ViewModel.Entity, e => e.Client, w => w.Subject)
@@ -69,6 +69,11 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 			daterangepickerOrdersDate.PeriodChangedByUser += UpdateAvailableOrders;
 
+			organizationEntry.ViewModel = ViewModel.OrganizationViewModel;
+			organizationEntry.Binding
+				.AddBinding(ViewModel, vm => vm.CanSetOrganization, w => w.Sensitive)
+				.InitializeFromSource();
+			
 			ytreeviewOrders.ColumnsConfig = FluentColumnsConfig<OrderWithoutShipmentForPaymentNode>.Create()
 				.AddColumn("Выбрать").AddToggleRenderer(node => node.IsSelected).ToggledEvent(UseFine_Toggled)
 				.AddColumn("Номер").AddTextRenderer(node => node.OrderId.ToString())
@@ -76,7 +81,9 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 				.AddColumn("Статус").AddEnumRenderer(node => node.OrderStatus)
 				.AddColumn("Бутыли").AddTextRenderer(node => $"{node.Bottles:N0}")
 				.AddColumn("Сумма").AddTextRenderer(node => node.OrderSum.ToString())
+				.AddColumn("Статус\nоплаты").AddEnumRenderer(node => node.OrderPaymentStatus)
 				.AddColumn("Адрес").AddTextRenderer(node => node.DeliveryAddress)
+				.AddColumn("Название организации").AddTextRenderer(node => node.OrganizationName)
 				.Finish();
 
 			ytreeviewOrders.ItemsDataSource = ViewModel.ObservableAvailableOrders;
@@ -170,7 +177,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 		public override void Destroy()
 		{
-			entityViewModelEntryCounterparty.Changed -= ViewModel.OnEntityViewModelEntryChanged;
+			entityViewModelEntryCounterparty.Changed -= ViewModel.OnCounterpartyEntityViewModelEntryChanged;
 			ViewModel.OpenCounterpartyJournal -= entityViewModelEntryCounterparty.OpenSelectDialog;
 
 			base.Destroy();
