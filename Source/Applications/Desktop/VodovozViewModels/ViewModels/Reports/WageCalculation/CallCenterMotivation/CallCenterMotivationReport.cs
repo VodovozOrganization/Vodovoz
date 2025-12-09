@@ -455,8 +455,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotiva
 				{
 					return oi.ActualSum;
 				}
-				
-				throw new InvalidOperationException($"Unknown {nameof(NomenclatureMotivationUnitType)} value {oi.MotivationUnitType}");
+
+				return oi.ActualCount ?? oi.Count; // Пока запускаем так, потом будут обсуждения
 			}
 
 			private decimal? MeasurementCoefficientSelector(CallCenterMotivationReportOrderItemNode oi)
@@ -470,9 +470,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotiva
 				{
 					return oi.ActualSum / 100 * (oi.MotivationCoefficient ?? 0);
 				}
-				
-				throw new InvalidOperationException($"Unknown {nameof(NomenclatureMotivationUnitType)} value {oi.MotivationUnitType}");
-			}
+
+				return (oi.ActualCount ?? oi.Count) * 1; // Пока запускаем так, потом будут обсуждения
+		}
 
 			public static CallCenterMotivationReport Create(
 				DateTime startDate,

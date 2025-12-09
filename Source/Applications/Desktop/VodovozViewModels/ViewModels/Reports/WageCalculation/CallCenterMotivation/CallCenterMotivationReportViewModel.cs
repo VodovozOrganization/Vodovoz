@@ -723,28 +723,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotiva
 
 			var deltaTime = EndDate - StartDate;
 
-			if(DateSlicingType == DateTimeSliceType.Day && deltaTime?.TotalDays >= 62)
+			if(deltaTime?.TotalDays >= 62)
 			{
-				yield return "Для разреза день нельзя выбрать интервал более 62х дней";
-			}
-
-			if((DateSlicingType == DateTimeSliceType.Week)
-			   && (StartDate?.DayOfWeek == DayOfWeek.Monday ? deltaTime?.TotalDays / 7 >= 54 : deltaTime?.TotalDays / 7 > 54))
-			{
-				yield return "Для разреза неделя нельзя выбрать интервал более 54х недель";
-			}
-
-			var monthBetweenDates = 0;
-
-			for(DateTime monthDate = StartDate.Value; monthDate < EndDate; monthDate = monthDate.AddMonths(1))
-			{
-				monthBetweenDates++;
-			}
-
-			if((DateSlicingType == DateTimeSliceType.Month)
-			   && (StartDate?.Day == 1 ? monthBetweenDates >= 60 : monthBetweenDates > 60))
-			{
-				yield return "Для разреза месяц нельзя выбрать интервал более 60х месяцев";
+				yield return "Нельзя выбрать интервал более 62х дней";
 			}
 		}
 	}

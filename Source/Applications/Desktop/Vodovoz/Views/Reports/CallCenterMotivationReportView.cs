@@ -46,6 +46,7 @@ namespace Vodovoz.Views.Reports
 				.InitializeFromSource();
 
 			yenumSlice.ItemsEnum = typeof(DateTimeSliceType);
+			yenumSlice.AddEnumToHideList(DateTimeSliceType.Quarter, DateTimeSliceType.Year);
 			yenumSlice.ShowSpecialStateAll = false;
 			yenumSlice.Binding
 				.AddBinding(ViewModel, vm => vm.DateSlicingType, w => w.SelectedItem)
