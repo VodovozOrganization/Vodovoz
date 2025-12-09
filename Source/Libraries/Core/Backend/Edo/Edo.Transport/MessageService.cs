@@ -78,5 +78,28 @@ namespace Edo.Transport
 					ex.Message);
 			}
 		}
+		/// <summary>
+		/// Опубликовать событие о создании ручной заявки по ЭДО
+		/// </summary>
+		/// <param name="manualRequestId"></param>
+		/// <returns></returns>
+		public async Task PublishManualEdoRequestCreatedEvent(int manualRequestId)
+		{
+			_logger.LogInformation("Отправляем событие на создание новой заявки по ЭДО, запрос: {RequestId}.", manualRequestId);
+
+			try
+			{
+				await _bus.Publish(new ManualEdoRequestCreatedEvent { ManualRequestId = manualRequestId });
+				_logger.LogInformation("Событие на создание новой заявки по ЭДО отправлено успешно");
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(
+					ex,
+					"Ошибка при отправке события на создание новой заявки по ЭДО. Id запроса: {RequestId}. Exception: {ExceptionMessage}",
+					manualRequestId,
+					ex.Message);
+			}
+		}
 	}
 }

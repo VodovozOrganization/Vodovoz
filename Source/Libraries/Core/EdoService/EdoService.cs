@@ -1,15 +1,11 @@
-﻿using Core.Infrastructure;
-using Edo.Transport;
+﻿using Edo.Transport;
 using EdoService.Library.Factories;
-using FluentNHibernate.Data;
-using NHibernate.Linq;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
@@ -17,7 +13,6 @@ using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
-using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Extensions;
 using VodovozBusiness.Nodes;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
@@ -68,6 +63,11 @@ namespace EdoService.Library
 			_requestFactories = requestFactories ?? throw new ArgumentNullException(nameof(requestFactories));
 		}
 
+		/// <summary>
+		/// Переотправка документа ЭДО по заказу
+		/// </summary>
+		/// <param name="order"></param>
+		/// <param name="docflowId"></param>
 		public virtual void ResendEdoDocumentForOrder(OrderEntity order, Guid docflowId)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot("Ставим документ в очередь на переотправку в ЭДО"))
@@ -89,17 +89,27 @@ namespace EdoService.Library
 					return;
 				}
 
-				/*Переотправка УПД с ЧЗ доступна в течение 3 - х дней с момента первой отправки.По истечению 3 - х дней не давать переотправлять.
-				На УПД без ЧЗ нет ограничения на дни, в течение которых доступна переотправка.
-				Не давать переотправлять УПД в случаях, когда:
-				1) Были изменения состава и кол - ва номенклатур
-				2) Были изменения в стоимости
-				3) Были изменения в организации(договор)
-				4) Были изменения, связанные с кодами маркировки*/
+				var request = CreateEquipmentTransferEdoRequests(order);
 
-				_messageService.PublishEdoOrderDocumentSendEvent(document.Id)
+				uow.Save(request);
+				uow.Commit();
+
+				_messageService.PublishManualEdoRequestCreatedEvent(request.Id)
 					.GetAwaiter().GetResult();
 			}
+		}
+
+		private ManualEdoRequest CreateEquipmentTransferEdoRequests(OrderEntity order)
+		{
+			var edoRequest = new ManualEdoRequest
+			{
+				Time = DateTime.Now,
+				Source = CustomerEdoRequestSource.Manual,
+				DocumentType = EdoDocumentType.InformalOrderDocument,
+				Order = order,
+			};
+
+			return edoRequest;
 		}
 
 		public virtual void SetNeedToResendEdoDocumentForOrder<T>(T entity, DocumentContainerType type) where T : IDomainObject
