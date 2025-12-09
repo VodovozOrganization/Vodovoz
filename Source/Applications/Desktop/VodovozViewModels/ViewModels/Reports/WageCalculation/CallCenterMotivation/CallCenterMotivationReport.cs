@@ -77,6 +77,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotiva
 				IList<CallCenterMotivationReportOrderItemNode> ordersItemsList,
 				CancellationToken cancellationToken)
 			{
+				if(!ordersItemsList.Any())
+				{
+					return new List<CallCenterMotivationReportRow>();
+				}
+
 				var groupingCount = GroupingBy.Count();
 
 				switch(groupingCount)

@@ -1,4 +1,4 @@
-using Gamma.Binding;
+﻿using Gamma.Binding;
 using Gamma.ColumnConfig;
 using Gdk;
 using Gtk;
@@ -194,7 +194,7 @@ namespace Vodovoz.JournalColumnsConfigs
 						{
 							if(args.Editable is Entry entry)
 							{
-								entry.SetNumericValidation( 999999.99m);
+								entry.SetNumericValidation(999999.99m);
 							}
 						})
 					.AddColumn("")

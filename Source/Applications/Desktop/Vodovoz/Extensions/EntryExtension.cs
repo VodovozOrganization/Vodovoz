@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Gtk;
+using System;
 using System.Linq;
-using Gtk;
 
 namespace Vodovoz.Extensions
 {
@@ -55,11 +55,6 @@ namespace Vodovoz.Extensions
 				{
 					// Для целых чисел
 					sanitized = sanitized.TrimStart('0');
-					
-					if(string.IsNullOrEmpty(sanitized))
-					{
-						sanitized = "0";
-					}
 				}
 
 				// Ограничение длины по maxValue
@@ -70,10 +65,18 @@ namespace Vodovoz.Extensions
 					sanitized = sanitized.Substring(0, maxLength);
 				}
 
-				// Проверка превышения максимального значения
-				if(decimal.TryParse(sanitized.Replace(',', '.'), out var value) && value > maxValue)
+				//Отсекаем целочисленную часть если значение больше максимального
+				var intCommaPos = sanitized.IndexOf(',');
+
+				if(intCommaPos >= 0 && sanitized.Length - intCommaPos - 1 > 2)
 				{
-					sanitized = maxValue.ToString("F2").Replace('.', ',');
+					sanitized = sanitized.Substring(0, intCommaPos);
+				}
+
+				if(decimal.TryParse(sanitized, out var value) && value > maxValue)
+				{
+					var valueString = value.ToString();
+					sanitized = valueString.Substring(0, valueString.Length - 1);
 				}
 
 				// Применяем изменения только если текст изменился
@@ -83,7 +86,7 @@ namespace Vodovoz.Extensions
 				}
 			};
 
-			// Отписка от событий при потере фокуса (FocusOut)
+			// Отписка от событий при потере фокуса
 			focusOutHandler = (o, ev) =>
 			{
 				entry.Changed -= changedHandler;
