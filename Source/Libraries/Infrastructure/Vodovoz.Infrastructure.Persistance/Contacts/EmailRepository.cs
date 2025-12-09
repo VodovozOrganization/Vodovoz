@@ -21,6 +21,8 @@ using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Settings.Organizations;
 using VodovozBusiness.Domain.Client;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace Vodovoz.Infrastructure.Persistance.Contacts
 {
@@ -417,6 +419,21 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				.Where(e => e.Counterparty.Id == counterpartyId)
 				.And(() => emailTypeAlias.Id == null)
 				.Take(1);
+		}
+
+		public Task<int> GetPendingEmailsCountAsync(IUnitOfWork uow, DateTime cutoffDate)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task MarkOrdersAsSentAsync(IUnitOfWork uow, List<int> orderIds, DateTime sentDate, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task<Dictionary<Counterparty, List<Order>>> GetAllOverdueOrdersForDebtNotificationAsync(IUnitOfWork uow, int maxClients)
+		{
+			throw new NotImplementedException();
 		}
 
 		public IList<BulkEmailEventReason> GetUnsubscribingReasons(IUnitOfWork uow, IEmailSettings emailSettings, bool isForUnsubscribePage = false)

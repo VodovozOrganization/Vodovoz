@@ -1,6 +1,8 @@
 ﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
@@ -28,6 +30,32 @@ namespace Vodovoz.EntityRepositories
 		BulkEmailEventReason GetBulkEmailEventOtherReason(IUnitOfWork uoW, IEmailSettings emailSettings);
 		BulkEmailEventReason GetBulkEmailEventOperatorReason(IUnitOfWork uoW, IEmailSettings emailSettings);
 		Email GetEmailForExternalCounterparty(IUnitOfWork uow, int counterpartyId);
+
+		/// <summary>
+		/// Получение количества писем, ожидающих отправки до указанной даты включительно
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="cutoffDate"></param>
+		/// <returns></returns>
+		Task<int> GetPendingEmailsCountAsync(IUnitOfWork uow, DateTime cutoffDate);
+
+		/// <summary>
+		/// Отметка заказов как отправленных
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="orderIds"></param>
+		/// <param name="sentDate"></param>
+		/// <param name="cancellationToken"></param>
+		/// <returns></returns>
+		Task MarkOrdersAsSentAsync(IUnitOfWork uow, List<int> orderIds, DateTime sentDate, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получение всех просроченных заказов, сгруппированных по клиентам, для рассылки уведомлений о задолженности
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="maxClients">Максимальное количество клиентов для обработки</param>
+		/// <returns>Словарь: клиент → список его просроченных заказов</returns>
+		Task<Dictionary<Counterparty, List<Order>>> GetAllOverdueOrdersForDebtNotificationAsync(IUnitOfWork uow, int maxClients);
 
 		#region EmailType
 
