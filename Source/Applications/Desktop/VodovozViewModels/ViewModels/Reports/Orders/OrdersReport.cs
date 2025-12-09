@@ -18,6 +18,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Orders
 		private uint _defaultCellFormatId;
 		private uint _tableHeadersCellFormatId;
 		private uint _tableTitleCellFormatId;
+		private uint _currencyCellFormatId;
 
 		private readonly IEnumerable<OrderJournalNode> _orderJournalNodes;
 
@@ -194,7 +195,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Orders
 			row.AppendChild(GetNumericCell((int)node.SanitisationAmount));
 			row.AppendChild(GetStringCell(node.Counterparty));
 			row.AppendChild(GetStringCell(node.Inn));
-			row.AppendChild(GetStringCurrencyFormatCell(node.Sum));
+			row.AppendChild(GetCurrencyFormatCell(node.Sum));
 			row.AppendChild(GetStringCell(((node.OrderPaymentStatus != OrderPaymentStatus.None) ? node.OrderPaymentStatus.GetEnumDisplayName() : "")));
 			row.AppendChild(GetStringCell(node.EdoDocFlowStatus?.GetEnumDisplayName()));
 			row.AppendChild(GetStringCell(node.IsSelfDelivery ? "-" : node.DistrictName));
@@ -237,6 +238,15 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Orders
 			var defaultCellFormat = new CellFormat { FormatId = 0, FontId = 0, BorderId = 1 };
 			defaultCellFormat.Alignment = new Alignment { WrapText = true };
 
+			var currencyCellFormat = new CellFormat
+			{
+				FormatId = 0,
+				FontId = 0,
+				BorderId = 1,
+				NumberFormatId = 44
+			};
+			currencyCellFormat.Alignment = new Alignment { WrapText = true };
+
 			var tableHeadersCellFormat = new CellFormat { FormatId = 0, FontId = 1, BorderId = 1 };
 			tableHeadersCellFormat.Alignment = new Alignment { WrapText = true };
 
@@ -249,14 +259,17 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Orders
 
 			stylesheet.CellFormats.AppendChild(defaultCellFormat);
 			_defaultCellFormatId = 1;
-
+			
+			stylesheet.CellFormats.AppendChild(currencyCellFormat);
+			_currencyCellFormatId = 2;
+			
 			stylesheet.CellFormats.AppendChild(tableHeadersCellFormat);
-			_tableHeadersCellFormatId = 2;
+			_tableHeadersCellFormatId = 3;
 
 			stylesheet.CellFormats.AppendChild(tableTitleCellFormat);
-			_tableTitleCellFormatId = 3;
+			_tableTitleCellFormatId = 4;
 
-			stylesheet.CellFormats.Count = 4;
+			stylesheet.CellFormats.Count = 5;
 
 			return stylesheet;
 		}
@@ -352,13 +365,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Orders
 			return cell;
 		}
 
-		private Cell GetStringCurrencyFormatCell(decimal value)
+		private Cell GetCurrencyFormatCell(decimal value)
 		{
 			var cell = new Cell
 			{
-				CellValue = new CellValue(value.ToString("### ### ##0.00 ₽")),
-				DataType = CellValues.String,
-				StyleIndex = _defaultCellFormatId
+				CellValue = new CellValue(value),
+				StyleIndex = _currencyCellFormatId
 			};
 
 			return cell;
