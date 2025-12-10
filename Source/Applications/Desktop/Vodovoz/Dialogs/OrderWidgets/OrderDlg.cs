@@ -2306,8 +2306,15 @@ namespace Vodovoz
 
 		private void OnSpinPriceEdited(object o, EditedArgs args)
 		{
-			decimal.TryParse(args.NewText, NumberStyles.Any, CultureInfo.InvariantCulture, out var newPrice);
+			var stringPrice = args.NewText.Replace(',', '.');
+			decimal.TryParse(stringPrice, NumberStyles.Any, CultureInfo.InvariantCulture, out var newPrice);
 			var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
+
+			if(newPrice < 0)
+			{
+				newPrice = 0;
+			}
+
 			if(!(node is OrderItem orderItem))
 			{
 				return;
@@ -2318,7 +2325,8 @@ namespace Vodovoz
 
 		private void OnCountEdited(object o, EditedArgs args)
 		{
-			decimal.TryParse(args.NewText, NumberStyles.Any, CultureInfo.InvariantCulture, out var newCount);
+			var stringCount = args.NewText.Replace(',', '.');
+			decimal.TryParse(stringCount, NumberStyles.Any, CultureInfo.InvariantCulture, out var newCount);
 			var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
 
 			if(!(node is OrderItem orderItem))
