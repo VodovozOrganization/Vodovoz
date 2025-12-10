@@ -238,7 +238,7 @@ namespace Vodovoz.Views.Settings
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.NewVatRate, w => w.ValueAsDecimal)
 				.InitializeFromSource();
-			buttonCalculateNewVatRate.BindCommand(ViewModel.CalculateVatRateCommand);
+			buttonCalculateNewVatRateForNomenclature.BindCommand(ViewModel.CalculateVatRateCommand);
 			
 			yspinbuttonDefaultVatRate.Binding
 				.AddSource(ViewModel)

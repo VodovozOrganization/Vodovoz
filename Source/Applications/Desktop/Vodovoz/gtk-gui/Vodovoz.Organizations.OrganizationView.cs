@@ -78,7 +78,7 @@ namespace Vodovoz.Organizations
 
 		private global::QS.Widgets.ValidatedEntry validatedentryOkpo;
 
-		private global::Vodovoz.Views.Cash.VatRateVersionView vatrateversionview1;
+		private global::Vodovoz.Views.Cash.VatRateVersionForOrganizationView vatRateVersionForOrganizationView;
 
 		private global::Gamma.GtkWidgets.yEntry yentrySuffix;
 
@@ -507,14 +507,11 @@ namespace Vodovoz.Organizations
 			w36.XOptions = ((global::Gtk.AttachOptions)(4));
 			w36.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
-			this.vatrateversionview1 = new global::Vodovoz.Views.Cash.VatRateVersionView();
-			this.vatrateversionview1.WidthRequest = 0;
-			this.vatrateversionview1.HeightRequest = 0;
-			this.vatrateversionview1.Sensitive = false;
-			this.vatrateversionview1.Events = ((global::Gdk.EventMask)(256));
-			this.vatrateversionview1.Name = "vatrateversionview1";
-			this.datatableMain.Add(this.vatrateversionview1);
-			global::Gtk.Table.TableChild w37 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.vatrateversionview1]));
+			this.vatRateVersionForOrganizationView = new global::Vodovoz.Views.Cash.VatRateVersionForOrganizationView();
+			this.vatRateVersionForOrganizationView.Events = ((global::Gdk.EventMask)(256));
+			this.vatRateVersionForOrganizationView.Name = "vatRateVersionForOrganizationView";
+			this.datatableMain.Add(this.vatRateVersionForOrganizationView);
+			global::Gtk.Table.TableChild w37 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.vatRateVersionForOrganizationView]));
 			w37.TopAttach = ((uint)(12));
 			w37.BottomAttach = ((uint)(13));
 			w37.LeftAttach = ((uint)(1));
