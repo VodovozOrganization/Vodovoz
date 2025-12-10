@@ -101,7 +101,7 @@ namespace CustomerAppsApi.Library.Models
 				codeToEmailDto.EmailAddress,
 				out var mailSubject);
 
-			var sendEmailMessage = new SendEmailMessage
+			var sendEmailMessage = new AuthorizationCodesSendEmailMessage
 			{
 				From = new EmailContact
 				{
@@ -130,7 +130,7 @@ namespace CustomerAppsApi.Library.Models
 				}
 			};
 
-			_publishEndpoint.Publish<SendEmailMessage>(sendEmailMessage);
+			_publishEndpoint.Publish(sendEmailMessage);
 			return Result.Success();
 		}
 

@@ -1,14 +1,16 @@
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.DeliveryPoints;
 using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Logistics;
+using Vodovoz.Core.Domain.Orders.Documents;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
@@ -97,6 +99,7 @@ namespace Vodovoz.Core.Domain.Orders
 		private string _orderPartsIds;
 		
 		private IObservableList<OrderItemEntity> _orderItems = new ObservableList<OrderItemEntity>();
+		private IList<OrderDocumentEntity> _orderDocuments = new List<OrderDocumentEntity>();
 		private IObservableList<OrderDepositItemEntity> _orderDepositItems = new ObservableList<OrderDepositItemEntity>();
 
 		public virtual IUnitOfWork UoW { set; get; }
@@ -596,6 +599,13 @@ namespace Vodovoz.Core.Domain.Orders
 			set => SetField(ref _orderItems, value);
 		}
 
+		[Display(Name = "Документы заказа")]
+		public virtual IList<OrderDocumentEntity> OrderDocuments
+		{
+			get => _orderDocuments;
+			set => SetField(ref _orderDocuments, value);
+		}
+
 		[Display(Name = "Залоги заказа")]
 		public virtual IObservableList<OrderDepositItemEntity> OrderDepositItems
 		{
@@ -756,6 +766,12 @@ namespace Vodovoz.Core.Domain.Orders
 				&& Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute
 				&& edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
 		}
+
+		/// <summary>
+		/// Является ли заказ безналичным и организация по договору без НДС
+		/// </summary>
+		public virtual bool IsCashlessPaymentTypeAndOrganizationWithoutVAT => PaymentType == PaymentType.Cashless
+			&& (Contract?.Organization?.WithoutVAT ?? false);
 
 		public override string ToString()
 		{

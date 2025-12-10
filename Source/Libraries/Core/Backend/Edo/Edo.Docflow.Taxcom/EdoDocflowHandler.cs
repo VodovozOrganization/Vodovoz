@@ -1,13 +1,15 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Core.Infrastructure;
+using Edo.Contracts.Messages.Events;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Core.Infrastructure;
-using Edo.Contracts.Messages.Events;
 using TaxcomEdo.Client;
+using TaxcomEdo.Contracts.Documents;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Docflow.Taxcom
 {
@@ -60,6 +62,44 @@ namespace Edo.Docflow.Taxcom
 					ErrorMessage = "Не удалось отправить УПД на сервер Такском"
 				};
 				
+				await _uow.SaveAsync(newAction);
+				await _uow.CommitAsync();
+			}
+		}
+
+		public async Task CreateTaxcomDocflowInformalDocument(TaxcomDocflowInformalDocumentSendEvent @event)
+		{
+			var now = DateTime.Now;
+			
+			var taxcomDocflow = new TaxcomDocflow
+			{
+				CreationTime = now,
+				MainDocumentId = @event.DocumentInfo.MainDocumentId.ToString(),
+				DocflowId = null,
+				EdoDocumentId = @event.EdoOutgoingDocumentId,
+			};
+			
+			taxcomDocflow.Actions.Add(new TaxcomDocflowAction
+			{
+				DocFlowState = EdoDocFlowStatus.NotStarted,
+				Time = now
+			});
+			
+			await _uow.SaveAsync(taxcomDocflow);
+			await _uow.CommitAsync();
+
+			var result = await _taxcomApiClient.SendDataForCreateInformalOrderDocumentByEdo(@event.DocumentInfo);
+
+			if(!result)
+			{
+				var newAction = new TaxcomDocflowAction
+				{
+					DocFlowState = EdoDocFlowStatus.Error,
+					Time = DateTime.Now,
+					TaxcomDocflowId = taxcomDocflow.Id,
+					ErrorMessage = "Не удалось отправить неформализованный документ заказа на сервер Такском"
+				};
+
 				await _uow.SaveAsync(newAction);
 				await _uow.CommitAsync();
 			}

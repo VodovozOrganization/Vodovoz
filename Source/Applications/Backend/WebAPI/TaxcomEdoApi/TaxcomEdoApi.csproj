@@ -24,6 +24,9 @@
         <PackageReference Include="DotNetZip" Version="1.16.0" />
         <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="2.2.0" />
         <PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
+		<PackageReference Include="NLog.Targets.Seq" Version="2.1.0">
+			<TreatAsUsed>true</TreatAsUsed>
+		</PackageReference>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
     </ItemGroup>
 

@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+	  <ProjectReference Include="..\Backend\Edo\Edo.Transport\Edo.Transport.csproj" />
 	  <ProjectReference Include="..\Backend\TaxcomEdo\TaxcomEdo.Contracts\TaxcomEdo.Contracts.csproj" />
 	  <ProjectReference Include="..\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
 	  <ProjectReference Include="..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />

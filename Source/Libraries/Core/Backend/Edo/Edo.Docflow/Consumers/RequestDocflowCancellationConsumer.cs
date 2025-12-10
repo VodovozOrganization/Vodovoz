@@ -22,7 +22,7 @@ namespace Edo.Docflow.Consumers
 
 		public async Task Consume(ConsumeContext<RequestDocflowCancellationEvent> context)
 		{
-			await _docflowHandler.HandleTransferDocumentCancellation(
+			await _docflowHandler.HandleDocflowCancellation(
 				context.Message.TaskId, 
 				context.Message.Reason,
 				context.CancellationToken

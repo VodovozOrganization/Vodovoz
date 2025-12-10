@@ -8,6 +8,13 @@ namespace Edo.Docflow.Taxcom
 	{
 		Task CreateTaxcomDocFlowAndSendDocument(TaxcomDocflowSendEvent @event);
 
+		/// <summary>
+		/// Создание и отправка неформализованного документа в документооборот Такском
+		/// </summary>
+		/// <param name="event"></param>
+		/// <returns></returns>
+		Task CreateTaxcomDocflowInformalDocument(TaxcomDocflowInformalDocumentSendEvent @event);
+
 		Task<EdoDocflowUpdatedEvent> UpdateOutgoingTaxcomDocFlow(
 			OutgoingTaxcomDocflowUpdatedEvent @event, 
 			CancellationToken cancellationToken = default

@@ -9,8 +9,13 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.TrueMark.TrueMarkProductCodes
 		{
 			Table("true_mark_product_codes");
 
-			Id(x => x.Id).Column("id")
+			Id(x => x.Id)
+				.Column("id")
 				.GeneratedBy.Native();
+
+			OptimisticLock.Version();
+			Version(x => x.LastModified)
+				.Column("last_modified");
 
 			DiscriminateSubClassesOnColumn("code_owner");
 

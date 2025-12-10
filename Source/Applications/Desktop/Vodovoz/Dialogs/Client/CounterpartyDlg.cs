@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -1284,12 +1284,18 @@ namespace Vodovoz
 				}
 
 				Entity.IsNotSendDocumentsByEdo = Entity.ReasonForLeaving == ReasonForLeaving.Other;
+				Entity.IsNotSendEquipmentTransferByEdo = Entity.ReasonForLeaving == ReasonForLeaving.Other;
 				_counterpartyEdoAccountsViewModel.RefreshEdoLightsMatrices();
 			};
 
 			yChkBtnIsNotSendDocumentsByEdo.Sensitive = false;
 			yChkBtnIsNotSendDocumentsByEdo.Binding
 				.AddBinding(Entity, e => e.IsNotSendDocumentsByEdo, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckbuttonIsNotSendEquipmentTransferByEdo.Sensitive = false;
+			ycheckbuttonIsNotSendEquipmentTransferByEdo.Binding
+				.AddBinding(Entity, e => e.IsNotSendEquipmentTransferByEdo, w => w.Active)
 				.InitializeFromSource();
 
 			yChkBtnNeedSendBillByEdo.Binding

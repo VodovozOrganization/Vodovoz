@@ -1,8 +1,10 @@
-﻿using System;
-using Gtk;
+﻿using Gtk;
 using QS.Navigation;
+using System;
+using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Journals.JournalViewModels.WageCalculation;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.WageCalculation;
 
 namespace Vodovoz.MainMenu.JournalsMenu.Organization
 {
@@ -15,6 +17,7 @@ namespace Vodovoz.MainMenu.JournalsMenu.Organization
 		private MenuItem _wageDistricts;
 		private MenuItem _rates;
 		private MenuItem _salesPlans;
+		private MenuItem _callCenterMotivationCoefficient;
 
 		public WageMenuItemCreator(ConcreteMenuItemCreator concreteMenuItemCreator)
 		{
@@ -38,11 +41,15 @@ namespace Vodovoz.MainMenu.JournalsMenu.Organization
 			wageMenu.Add(_salesPlans);
 			
 			wageMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Виды оформления", OnEmployeeRegistrationsPressed));
+
+			_callCenterMotivationCoefficient = _concreteMenuItemCreator.CreateMenuItem("Коэф. для мотивации КЦ", OnCallCenterMotivationCoefficientPressed);
+			wageMenu.Add(_callCenterMotivationCoefficient);
 			
 			Configure();
 
 			return wageMenuItem;
 		}
+		
 
 		private void Configure()
 		{
@@ -52,6 +59,9 @@ namespace Vodovoz.MainMenu.JournalsMenu.Organization
 
 			var canEditWageBySelfSubdivision = Startup.MainWin.CurrentPermissionService.ValidatePresetPermission("can_edit_wage_by_self_subdivision");
 			_salesPlans.Sensitive = canEditWageBySelfSubdivision;
+			
+			var canEditCallCenterMotivationCoefficient = Startup.MainWin.CurrentPermissionService.ValidatePresetPermission(WageCalculationPermissions.CanEditCallCenterMotivationCoefficient);
+			_callCenterMotivationCoefficient.Sensitive = canEditCallCenterMotivationCoefficient;
 		}
 
 		/// <summary>
@@ -92,6 +102,16 @@ namespace Vodovoz.MainMenu.JournalsMenu.Organization
 		private void OnEmployeeRegistrationsPressed(object sender, ButtonPressEventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<EmployeeRegistrationsJournalViewModel>(null);
+		}
+		
+		/// <summary>
+		/// Коэффициенты для мотивации КЦ
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void OnCallCenterMotivationCoefficientPressed(object sender, ButtonPressEventArgs e)
+		{
+			Startup.MainWin.NavigationManager.OpenTdiTab<CallCenterMotivationCoefficientJournalViewModel>(null);
 		}
 	}
 }
