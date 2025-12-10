@@ -1482,165 +1482,68 @@ namespace Vodovoz
 				return;
 			}
 
-			if(SelectedEdoDocumentDataNode.EdoDocumentType == EdoDocumentType.InformalOrderDocument)
+			if(SelectedEdoDocumentDataNode.EdoDocumentType is null && SelectedEdoDocumentDataNode.OldEdoDocumentType is null)
 			{
-				ybuttonSendDocumentAgain.Sensitive = true;
-				ybuttonSendDocumentAgain.Label = "Переотправить неформализованный документ";
-				return;
-			}
-
-			if(SelectedEdoDocumentDataNode.IsNewDockflow || SelectedEdoDocumentDataNode.OldEdoDocumentType is null)
-			{
-				ybuttonSendDocumentAgain.Label = "Документы по новому документообороту недоступны для повторной отправки";
-				ybuttonSendDocumentAgain.Sensitive = true;
+				ybuttonSendDocumentAgain.Label = "Отсутствуют документы для повторной отправки";
+				ybuttonSendDocumentAgain.Sensitive = false;
 
 				return;
 			}
 
-			var selectedType = SelectedEdoDocumentDataNode.OldEdoDocumentType.Value;
-
-			OrderEdoTrueMarkDocumentsActions resendAction;
-
-			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
+			if(!SelectedEdoDocumentDataNode.IsNewDockflow && SelectedEdoDocumentDataNode.OldEdoDocumentType != null)
 			{
-				var resendActionQuery = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
-						.Where(x => x.Order.Id == Entity.Id);
+				var selectedType = SelectedEdoDocumentDataNode.OldEdoDocumentType.Value;
 
-				switch(selectedType)
+				OrderEdoTrueMarkDocumentsActions resendAction;
+
+				using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 				{
-					case DocumentContainerType.Upd:
-						resendActionQuery.Where(x => x.IsNeedToResendEdoUpd);
-						break;
-					case DocumentContainerType.Bill:
-						resendActionQuery.Where(x => x.IsNeedToResendEdoBill);
-						break;
+					var resendActionQuery = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
+							.Where(x => x.Order.Id == Entity.Id);
+
+					switch(selectedType)
+					{
+						case DocumentContainerType.Bill:
+							resendActionQuery.Where(x => x.IsNeedToResendEdoBill);
+							break;
+					}
+
+					resendAction = resendActionQuery.FirstOrDefault();
 				}
 
-				resendAction = resendActionQuery.FirstOrDefault();
-			}
+				var alreadyInProcess = resendAction != null
+					&& (resendAction.IsNeedToResendEdoBill && selectedType == DocumentContainerType.Bill);
 
-			var alreadyInProcess = resendAction != null
-				&& (
-						(resendAction.IsNeedToResendEdoUpd && selectedType == DocumentContainerType.Upd)
-						|| (resendAction.IsNeedToResendEdoBill && selectedType == DocumentContainerType.Bill)
-					);
-
-			if(alreadyInProcess)
-			{
-				ybuttonSendDocumentAgain.Sensitive = false;
-				ybuttonSendDocumentAgain.Label = $"Идет подготовка {selectedType.GetEnumTitle()}";
-
-				return;
-			}
-
-			var outgoingEdoDocuments = GetEdoOutgoingDocuments();
-			var canResendUpd = selectedType is DocumentContainerType.Upd && outgoingEdoDocuments.Any(x => !x.IsNewDockflow && x.OldEdoDocumentType == DocumentContainerType.Upd);
-			var canResendBill = selectedType is DocumentContainerType.Bill && outgoingEdoDocuments.Any(x => !x.IsNewDockflow && x.OldEdoDocumentType == DocumentContainerType.Bill);
-
-			if(canResendUpd || canResendBill)
-			{
-				ybuttonSendDocumentAgain.Sensitive = true;
-				ybuttonSendDocumentAgain.Label = $"Отправить повторно {selectedType.GetEnumDisplayName()}";
-
-				return;
-			}
-
-			ybuttonSendDocumentAgain.Sensitive = false;
-			ybuttonSendDocumentAgain.Label = "Отправить повторно";
-		}
-
-		private void SendDocumentAgainButton()
-		{
-			if(!_canResendDocumentsToEdo)
-			{
-				ybuttonSendDocumentAgain.Sensitive = false;
-				ybuttonSendDocumentAgain.Label = "Отсутствуют права для повторной отправки";
-
-				return;
-			}
-
-			if(SelectedEdoDocumentDataNode is null)
-			{
-				ybuttonSendDocumentAgain.Label = "Не выбран документ для повторной отправки";
-				ybuttonSendDocumentAgain.Sensitive = false;
-
-				return;
-			}
-
-			if(SelectedEdoDocumentDataNode.IsNewDockflow || SelectedEdoDocumentDataNode.OldEdoDocumentType is null)
-			{
-				ybuttonSendDocumentAgain.Label = "Документы по новому документообороту недоступны для повторной отправки";
-				ybuttonSendDocumentAgain.Sensitive = false;
-
-				return;
-			}
-
-			EdoDocumentType selectedType;
-			if(!SelectedEdoDocumentDataNode.IsNewDockflow)
-			{
-				return;
-			}
-
-			if(!SelectedEdoDocumentDataNode.EdoDocumentType.HasValue)
-			{
-				return;
-			}
-
-			selectedType = SelectedEdoDocumentDataNode.EdoDocumentType.Value;
-
-			OrderEdoTrueMarkDocumentsActions resendAction;
-
-			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
-			{
-				var resendActionQuery = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
-						.Where(x => x.Order.Id == Entity.Id);
-
-				switch(selectedType)
+				if(alreadyInProcess)
 				{
-					case EdoDocumentType.UPD:
-						resendActionQuery.Where(x => x.IsNeedToResendEdoUpd);
-						break;
-					case EdoDocumentType.Bill:
-						resendActionQuery.Where(x => x.IsNeedToResendEdoBill);
-						break;
-					case EdoDocumentType.InformalOrderDocument:
-						resendActionQuery.Where(x => x.IsNeedToResendEdoUpd);
-						break;
+					ybuttonSendDocumentAgain.Sensitive = false;
+					ybuttonSendDocumentAgain.Label = $"Идет подготовка {selectedType.GetEnumTitle()}";
+
+					return;
 				}
 
-				resendAction = resendActionQuery.FirstOrDefault();
+				var outgoingEdoDocuments = GetEdoOutgoingDocuments();
+				var canResendBill = selectedType is DocumentContainerType.Bill && outgoingEdoDocuments.Any(x => !x.IsNewDockflow && x.OldEdoDocumentType == DocumentContainerType.Bill);
+
+				if(canResendBill)
+				{
+					ybuttonSendDocumentAgain.Sensitive = true;
+					ybuttonSendDocumentAgain.Label = $"Отправить повторно {selectedType.GetEnumDisplayName()}";
+
+					return;
+				}
 			}
-
-			var alreadyInProcess = resendAction != null
-				&& (
-						(resendAction.IsNeedToResendEdoUpd && selectedType == EdoDocumentType.UPD)
-						|| (resendAction.IsNeedToResendEdoBill && selectedType == EdoDocumentType.Bill)
-						|| (resendAction.IsNeedToResendEdoUpd && selectedType == EdoDocumentType.InformalOrderDocument)
-					);
-
-			if(alreadyInProcess)
-			{
-				ybuttonSendDocumentAgain.Sensitive = false;
-				ybuttonSendDocumentAgain.Label = $"Идет подготовка {selectedType.GetEnumTitle()}";
-
-				return;
-			}
-
-			var outgoingEdoDocuments = GetEdoOutgoingDocuments();
-			var canResendUpd = selectedType is EdoDocumentType.UPD && outgoingEdoDocuments.Any(x => x.IsNewDockflow && x.EdoDocumentType == EdoDocumentType.UPD);
-			var canResendBill = selectedType is EdoDocumentType.Bill && outgoingEdoDocuments.Any(x => x.IsNewDockflow && x.EdoDocumentType == EdoDocumentType.Bill);
-			var canResendInformalDocuments = selectedType is EdoDocumentType.InformalOrderDocument && outgoingEdoDocuments.Any(x => x.IsNewDockflow && x.EdoDocumentType == EdoDocumentType.InformalOrderDocument);
-
-			if(canResendUpd || canResendBill || canResendInformalDocuments)
+			else if(SelectedEdoDocumentDataNode.IsNewDockflow && SelectedEdoDocumentDataNode.EdoDocumentType != null)
 			{
 				ybuttonSendDocumentAgain.Sensitive = true;
-				ybuttonSendDocumentAgain.Label = $"Отправить повторно {selectedType.GetEnumDisplayName()}";
-
-				return;
+				ybuttonSendDocumentAgain.Label = "Отправить повторно";
+			}
+			else
+			{
+				ybuttonSendDocumentAgain.Sensitive = false;
+				ybuttonSendDocumentAgain.Label = "Отправить повторно";
 			}
 
-			ybuttonSendDocumentAgain.Sensitive = false;
-			ybuttonSendDocumentAgain.Label = "Отправить повторно";
 		}
 
 		private void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
@@ -1743,7 +1646,7 @@ namespace Vodovoz
 
             if(result.IsFailure)
             {
-                if(errors.Any(error => error.Code == EdoErrors.AlreadyPaidUpd || error.Code == EdoErrors.AlreadySuccefullSended)
+                if(errors.Any(error => error.Code == EdoErrors.AlreadyPaidUpd || error.Code == EdoErrors.ResendableEdoDocumentStatuses)
                     && !_interactiveService.Question(
                         "Вы уверены, что хотите отправить повторно?\n" +
                         string.Join("\n - ", errorMessages),
@@ -1753,7 +1656,17 @@ namespace Vodovoz
                 }
             }
 
-            _edoService.ResendEdoDocumentForOrder(Entity, document.Value);
+			var resendResult = _edoService.ResendEdoDocumentForOrder(Entity, document.Value);
+
+			var resendErrors = resendResult.Errors.ToArray();
+
+			if(resendResult.IsFailure)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error,
+					$"Не удалось переотправить документ {type.GetEnumTitle()}.\nПричины:\n - " +
+					string.Join("\n - ", resendErrors.Select(x => x.Message)));
+				return;
+			}
 		}
 
 		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)

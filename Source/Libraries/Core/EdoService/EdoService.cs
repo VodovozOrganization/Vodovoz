@@ -1,7 +1,9 @@
-﻿using Edo.Transport;
+﻿using Core.Infrastructure;
+using Edo.Transport;
 using EdoService.Library.Factories;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +13,7 @@ using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Extensions;
@@ -19,7 +22,6 @@ using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerTyp
 using EdoContainer = Vodovoz.Domain.Orders.Documents.EdoContainer;
 using IOrderRepository = Vodovoz.EntityRepositories.Orders.IOrderRepository;
 using Order = Vodovoz.Domain.Orders.Order;
-using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
 namespace EdoService.Library
 {
@@ -35,11 +37,6 @@ namespace EdoService.Library
 		{
 			EdoDocFlowStatus.Succeed,
 			EdoDocFlowStatus.InProgress
-		};
-		private static EdoDocumentStatus[] _successfulEdoDocumenhtStatuses => new[]
-		{
-			EdoDocumentStatus.Succeed,
-			EdoDocumentStatus.InProgress
 		};
 
 		private static EdoDocumentStatus[] _resendableEdoDocumentStatuses => new[]
@@ -69,46 +66,126 @@ namespace EdoService.Library
 		/// </summary>
 		/// <param name="order"></param>
 		/// <param name="docflowId"></param>
-		public virtual void ResendEdoDocumentForOrder(OrderEntity order, Guid docflowId)
+		public Result ResendEdoDocumentForOrder(OrderEntity order, Guid docflowId)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot("Ставим документ в очередь на переотправку в ЭДО"))
 			{
+				var errors = new List<Error>();
 				var document = _edoRepository.GetOrderEdoDocumentByDocflowId(uow, docflowId);
 
 				if(document == null)
 				{
-					return;
-				}
-
-				if(!_resendableEdoDocumentStatuses.Contains(document.Status))
-				{
-					return;
+					return Result.Failure(Error.NullValue);
 				}
 
 				if(!(document.Type == OutgoingEdoDocumentType.Order))
 				{
-					return;
+					errors.Add(Vodovoz.Errors.Edo.EdoErrors.CreateInvalidOutgoingDocumentType(order.Id, document.Type));
 				}
 
-				var request = CreateEquipmentTransferEdoRequests(order);
+				var edoValidateDocumentResult = ValidateEdoOrderDocument(uow, document);
+
+				if(edoValidateDocumentResult.IsFailure)
+				{
+					return edoValidateDocumentResult;
+				}
+
+				var hasMarkedProducts = order.OrderItems.Any(x => x.Nomenclature.IsAccountableInTrueMark);
+
+				if(hasMarkedProducts && document.SendTime.HasValue)
+				{
+					var threeDaysAgo = DateTime.Now.AddDays(-3);
+					if(document.SendTime.Value < threeDaysAgo)
+					{
+						errors.Add(Vodovoz.Errors.Edo.EdoErrors.CreateResendTimeLimitExceeded(document, order.Id));
+					}
+				}
+
+				var edoTask = GetActiveEdoTaskForResend(uow, order);
+
+				if(edoTask == null)
+				{
+					return Result.Failure(Error.NullValue);
+				}
+
+				var productCodes = new ObservableList<TrueMarkProductCode>(
+					edoTask.Items.Select(x => x.ProductCode)
+				);
+
+				var request = CreateManualEdoRequests(order, productCodes);
 
 				uow.Save(request);
 				uow.Commit();
 
-				_messageService.PublishManualEdoRequestCreatedEvent(request.Id)
+				_messageService.PublishEdoRequestCreatedEvent(request.Id)
 					.GetAwaiter().GetResult();
+
+				return Result.Success();
 			}
 		}
 
-		private ManualEdoRequest CreateEquipmentTransferEdoRequests(OrderEntity order)
+		/// <summary>
+		/// Получает активную ЭДО задачу для переотправки документа
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="order">Заказ</param>
+		/// <returns>Активная ЭДО задача или null, если нет подходящей</returns>
+		private OrderEdoTask GetActiveEdoTaskForResend(IUnitOfWork uow, OrderEntity order)
+		{
+			var edoTasks = _edoRepository.GetEdoTaskByOrderAsync(uow, order.Id);
+
+			if(!edoTasks.Any())
+			{
+				return null;
+			}
+
+			var hasMarkedProducts = order.OrderItems.Any(x => x.Nomenclature.IsAccountableInTrueMark);
+			if(!hasMarkedProducts)
+			{
+				return edoTasks.FirstOrDefault(x => x.Status != EdoTaskStatus.Cancelled);
+			}
+
+			var activeTasksWithAcceptedCodes = edoTasks
+				.Where(x => x.Status != EdoTaskStatus.Cancelled)
+				.Where(x => x.OrderEdoRequest.ProductCodes.Any(c =>
+					c.SourceCodeStatus.IsIn(
+						SourceProductCodeStatus.Accepted,
+						SourceProductCodeStatus.Changed
+					)))
+				.ToList();
+
+			if(activeTasksWithAcceptedCodes.Count > 1)
+			{
+				return null;
+			}
+
+			return activeTasksWithAcceptedCodes.SingleOrDefault();
+		}
+
+		/// <summary>
+		/// Создание ручной заявки ЭДО для переотправки документа
+		/// </summary>
+		/// <param name="order"></param>
+		/// <param name="productCodes"></param>
+		/// <returns></returns>
+		private ManualEdoRequest CreateManualEdoRequests(OrderEntity order, ObservableList<TrueMarkProductCode> productCodes)
 		{
 			var edoRequest = new ManualEdoRequest
 			{
+				Type = CustomerEdoRequestType.Order,
 				Time = DateTime.Now,
 				Source = CustomerEdoRequestSource.Manual,
-				DocumentType = EdoDocumentType.InformalOrderDocument,
-				Order = order,
+				DocumentType = EdoDocumentType.UPD,
+				Order = order
 			};
+
+			if(edoRequest.ProductCodes != null && productCodes != null)
+			{
+				foreach(var code in productCodes)
+				{
+					edoRequest.ProductCodes.Add(code);
+				}
+			}
 
 			return edoRequest;
 		}
@@ -242,13 +319,14 @@ namespace EdoService.Library
 		{
 			var order = _orderRepository.GetOrderByOrderEdoDocumentId(uow, document.Id);
 
-			if(_successfulEdoDocumenhtStatuses.Contains(document.Status))
+			var errors = new List<Error>();
+
+			if(!_resendableEdoDocumentStatuses.Contains(document.Status))
 			{
-				var error = Vodovoz.Errors.Edo.EdoErrors.CreateAlreadySuccefullSended(document, order.Id);
-				return Result.Failure(error);
+				errors.Add(Vodovoz.Errors.Edo.EdoErrors.CreateResendableEdoDocumentStatuses(order.Id, _resendableEdoDocumentStatuses));
 			}
 
-			return Result.Success();
+			return errors.Any() ? Result.Failure(errors) : Result.Success();
 		}
 
 		public Result ValidateOrderForDocument(OrderEntity order, DocumentContainerType type)
@@ -268,7 +346,7 @@ namespace EdoService.Library
 			return Result.Success();
 		}
 
-		public Result ValidateOrderForDocument(OrderEntity order, EdoDocumentType type)
+		public Result ValidateOrderForDocumentType(OrderEntity order, EdoDocumentType type)
 		{
 			var errors = new List<Error>();
 
@@ -301,21 +379,11 @@ namespace EdoService.Library
 
 			var order = _orderRepository.GetOrder(uow, dockflowData.OrderId.Value);
 
-			var validateOrderResult = ValidateOrderForDocument(order, type);
+			var ValidateOrderForDocumentTypeResult = ValidateOrderForDocumentType(order, type);
 
-			if(validateOrderResult.IsFailure)
+			if(ValidateOrderForDocumentTypeResult.IsFailure)
 			{
-				return validateOrderResult;
-			}
-
-			var outgoingEdoDocument = _edoRepository
-				.GetOrderEdoDocumentByDocflowId(uow, dockflowData.DocFlowId.Value);
-
-			var edoValidateDocumentResult = ValidateEdoOrderDocument(uow, outgoingEdoDocument);
-
-			if(edoValidateDocumentResult.IsFailure)
-			{
-				return edoValidateDocumentResult;
+				return ValidateOrderForDocumentTypeResult;
 			}
 
 			return Result.Success();

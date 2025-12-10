@@ -1,4 +1,7 @@
-﻿using Vodovoz.Core.Domain.Documents;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders.Documents;
@@ -30,6 +33,21 @@ namespace Vodovoz.Errors.Edo
 				nameof(AlreadySuccefullSended),
 				"Документы уже успешно отправлены");
 
+		public static Error ResendTimeLimitExceeded =>
+			new Error(typeof(EdoErrors),
+				nameof(ResendTimeLimitExceeded),
+				"Истек срок переотправки документа");
+
+		public static Error ResendableEdoDocumentStatuses =>
+			new Error(typeof(EdoErrors),
+				nameof(ResendableEdoDocumentStatuses),
+				"Документ ещё действителен");
+
+		public static Error InvalidOutgoingDocumentType =>
+			new Error(typeof(EdoErrors),
+				nameof(InvalidOutgoingDocumentType),
+				"Некорректный тип документа");
+
 		public static Error CreateAlreadySuccefullSended(EdoContainer edoContainer) =>
 			 new Error(
 				typeof(EdoErrors),
@@ -38,11 +56,26 @@ namespace Vodovoz.Errors.Edo
 				 $"{edoContainer.Order?.Id ?? edoContainer.OrderWithoutShipmentForDebt?.Id ?? edoContainer.OrderWithoutShipmentForPayment?.Id ?? edoContainer.OrderWithoutShipmentForAdvancePayment?.Id} " +
 				 $"имеется документ со статусом \"{edoContainer.EdoDocFlowStatus.GetEnumDisplayName()}\"");
 
-		public static Error CreateAlreadySuccefullSended(OutgoingEdoDocument edoDocument, int orderId) =>
+		public static Error CreateResendableEdoDocumentStatuses(int orderId, IEnumerable<EdoDocumentStatus> statuses) =>
 			 new Error(
 				typeof(EdoErrors),
-				nameof(AlreadySuccefullSended),
-				$"Для заказа №{orderId} " +
-				 $"имеется документ со статусом \"{edoDocument.Status.GetEnumDisplayName()}\"");
+				nameof(ResendableEdoDocumentStatuses),
+				$"Заказ {orderId} можно переотправить только в статусах: " +
+				 $"{string.Join(", ", statuses.Select(s => s.GetEnumDisplayName()))}");
+
+		public static Error CreateInvalidOutgoingDocumentType(int orderId, OutgoingEdoDocumentType documentType) =>
+			 new Error(
+				typeof(EdoErrors),
+				nameof(InvalidOutgoingDocumentType),
+				$"У заказа {orderId} некорректный тип исходящего документа {documentType.GetEnumDisplayName()}");
+
+		public static Error CreateResendTimeLimitExceeded(OutgoingEdoDocument edoDocument, int orderId) =>
+		new Error(
+			typeof(EdoErrors),
+			nameof(ResendTimeLimitExceeded),
+			$"Для заказа №{orderId} " +
+			$"истек срок переотправки документа. " +
+			$"Документ был отправлен {edoDocument.SendTime?.ToString("dd.MM.yyyy HH:mm")}, " +
+			$"переотправка возможна в течение 3 дней");
 	}
 }

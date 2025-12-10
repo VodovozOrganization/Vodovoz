@@ -16,12 +16,12 @@ namespace EdoService.Library
 	{
 		void CancelOldEdoOffers(IUnitOfWork unitOfWork, Order order);
 		void SetNeedToResendEdoDocumentForOrder<T>(T entity, DocumentContainerType type) where T : IDomainObject;
-		void ResendEdoDocumentForOrder(OrderEntity order, Guid docflowId);
 		void ResendEdoOrderDocumentForOrder(Order order, OrderDocumentType type);
+		Result ResendEdoDocumentForOrder(OrderEntity order, Guid docflowId);
 		Result ValidateEdoContainers(IList<EdoContainer> edoContainers);
 		Result ValidateEdoOrderDocument(IUnitOfWork uow, OutgoingEdoDocument orderDocument);
 		Result ValidateOrderForDocument(OrderEntity order, DocumentContainerType type);
-		Result ValidateOrderForDocument(OrderEntity order, EdoDocumentType type);
+		Result ValidateOrderForDocumentType(OrderEntity order, EdoDocumentType type);
 		Result ValidateOrderForOrderDocument(EdoDocFlowStatus status);
 		Result ValidateOutgoingDocument(IUnitOfWork uow, EdoDockflowData dockflowData);
 	}
