@@ -2141,6 +2141,9 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.OnlineOrderNotificationSettingView.cs" />
     <Compile Include="Views\Cash\VatRateView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Cash.VatRateView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Cash.VatRateVersionsView.cs" />
+    <Compile Include="Views\Cash\VatRateVersionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Cash.VatRateVersionView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
