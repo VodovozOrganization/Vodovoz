@@ -6,6 +6,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Edo.Transport
 {
+	/// <summary>
+	/// Сервис для отправки сообщений в шину сообщений
+	/// </summary>
 	public class MessageService
 	{
 		private readonly ILogger<MessageService> _logger;
@@ -16,7 +19,12 @@ namespace Edo.Transport
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 		}
-		
+
+		/// <summary>
+		/// Опубликовать событие о создании заявки по ЭДО
+		/// </summary>
+		/// <param name="requestId"></param>
+		/// <returns></returns>
 		public async Task PublishEdoRequestCreatedEvent(int requestId)
 		{
 			_logger.LogInformation("Отправляем событие на создание новой заявки по ЭДО, запрос: {RequestId}.", requestId);
@@ -32,25 +40,6 @@ namespace Edo.Transport
 					ex,
 					"Ошибка при отправке события на создание новой заявки по ЭДО. Id запроса: {RequestId}. Exception: {ExceptionMessage}",
 					requestId,
-					ex.Message);
-			}
-		}
-
-		public async Task PublishEdoOrderDocumentSendEvent(int documentId)
-		{
-			_logger.LogInformation("Отправляем событие на отправку УПД по ЭДО, запрос: {documentId}.", documentId);
-
-			try
-			{
-				await _bus.Publish(new OrderDocumentSendEvent { OrderDocumentId = documentId });
-				_logger.LogInformation("Событие отправки УПД по ЭДО отправлено успешно");
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(
-					ex,
-					"Ошибка при отправке события на отправку УПД по ЭДО. Id запроса: {documentId}. Exception: {ExceptionMessage}",
-					documentId,
 					ex.Message);
 			}
 		}
@@ -75,29 +64,6 @@ namespace Edo.Transport
 					ex,
 					"Ошибка при отправке события на создание новой заявки по ЭДО. Id запроса: {RequestId}. Exception: {ExceptionMessage}",
 					informalRequestId,
-					ex.Message);
-			}
-		}
-		/// <summary>
-		/// Опубликовать событие о создании ручной заявки по ЭДО
-		/// </summary>
-		/// <param name="manualRequestId"></param>
-		/// <returns></returns>
-		public async Task PublishManualEdoRequestCreatedEvent(int manualRequestId)
-		{
-			_logger.LogInformation("Отправляем событие на создание новой заявки по ЭДО, запрос: {RequestId}.", manualRequestId);
-
-			try
-			{
-				await _bus.Publish(new ManualEdoRequestCreatedEvent { ManualRequestId = manualRequestId });
-				_logger.LogInformation("Событие на создание новой заявки по ЭДО отправлено успешно");
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(
-					ex,
-					"Ошибка при отправке события на создание новой заявки по ЭДО. Id запроса: {RequestId}. Exception: {ExceptionMessage}",
-					manualRequestId,
 					ex.Message);
 			}
 		}

@@ -3,7 +3,7 @@
 namespace Vodovoz.Core.Domain.Edo
 {
 	/// <summary>
-	/// Ручная на отправку документов заказа по ЭДО
+	/// Ручная заявка на отправку документов заказа по ЭДО
 	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		Nominative = "заявка на отправку документов заказа по ЭДО",

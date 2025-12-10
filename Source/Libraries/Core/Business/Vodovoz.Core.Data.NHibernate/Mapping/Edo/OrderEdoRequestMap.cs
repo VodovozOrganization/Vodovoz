@@ -10,12 +10,4 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 			DiscriminatorValue(nameof(EdoRequestType.Primary));
 		}
 	}
-
-	public class ManualEdoRequestMap : SubclassMap<ManualEdoRequest>
-	{
-		public ManualEdoRequestMap()
-		{
-			DiscriminatorValue(nameof(EdoRequestType.Manual));
-		}
-	}
 }
