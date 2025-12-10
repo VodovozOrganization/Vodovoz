@@ -62,9 +62,7 @@ namespace Edo.Scheduler.Service
 			switch(request.Type)
 			{
 				case CustomerEdoRequestType.Order:
-					edoTask = request is ManualEdoRequest manual
-						? _manualTaskScheduler.CreateTask(manual)
-						: _orderTaskScheduler.CreateTask((PrimaryEdoRequest)request);
+					edoTask = _orderTaskScheduler.CreateTask(request);
 					break;
 				case CustomerEdoRequestType.OrderWithoutShipmentForAdvancePayment:
 					edoTask = _billForAdvanceEdoRequestTaskScheduler.CreateTask((BillForAdvanceEdoRequest)request);
@@ -88,14 +86,7 @@ namespace Edo.Scheduler.Service
 			switch(edoTask.TaskType)
 			{
 				case EdoTaskType.Document:
-					if(edoTask is ManualEdoTask)
-					{
-						message = new ManualTaskCreatedEvent { Id = edoTask.Id };
-					}
-					else
-					{
-						message = new DocumentTaskCreatedEvent { Id = edoTask.Id };
-					}
+					message = new DocumentTaskCreatedEvent { Id = edoTask.Id };
 					break;
 				case EdoTaskType.Tender:
 					message = new TenderTaskCreatedEvent { TenderEdoTaskId = edoTask.Id };
