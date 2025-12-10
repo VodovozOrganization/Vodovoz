@@ -37,14 +37,6 @@ namespace Edo.Transport
 				x.AutoDelete = false;
 			});
 
-			cfg.Message<ManualTaskCreatedEvent>(x => x.SetEntityName("edo.manual-task-created.publish"));
-			cfg.Publish<ManualTaskCreatedEvent>(x =>
-			{
-				x.ExchangeType = ExchangeType.Fanout;
-				x.Durable = true;
-				x.AutoDelete = false;
-			});
-			
 			cfg.Message<TenderTaskCreatedEvent>(x => x.SetEntityName("edo.tender-task-created.publish"));
 			cfg.Publish<TenderTaskCreatedEvent>(x =>
 			{

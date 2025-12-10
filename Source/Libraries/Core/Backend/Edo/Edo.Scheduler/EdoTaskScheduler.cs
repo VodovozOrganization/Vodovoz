@@ -15,7 +15,6 @@ namespace Edo.Scheduler.Service
 		private readonly ILogger<EdoTaskScheduler> _logger;
 		private readonly IUnitOfWork _uow;
 		private readonly OrderTaskScheduler _orderTaskScheduler;
-		private readonly ManualTaskScheduler _manualTaskScheduler;
 		private readonly BillForAdvanceEdoRequestTaskScheduler _billForAdvanceEdoRequestTaskScheduler;
 		private readonly BillForDebtEdoRequestTaskScheduler _billForDebtEdoRequestTaskScheduler;
 		private readonly BillForPaymentEdoRequestTaskScheduler _billForPaymentEdoRequestTaskScheduler;
