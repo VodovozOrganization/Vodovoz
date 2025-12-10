@@ -78,7 +78,13 @@ namespace Vodovoz.Organizations
 
 		private global::QS.Widgets.ValidatedEntry validatedentryOkpo;
 
+		private global::Gamma.GtkWidgets.yHBox yhbox1;
+
 		private global::Gamma.GtkWidgets.yEntry yentrySuffix;
+
+		private global::Gtk.Label label21;
+
+		private global::Gamma.GtkWidgets.yEntry yentryPrefix;
 
 		private global::Gtk.Label label1;
 
@@ -505,20 +511,45 @@ namespace Vodovoz.Organizations
 			w36.XOptions = ((global::Gtk.AttachOptions)(4));
 			w36.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
+			this.yhbox1 = new global::Gamma.GtkWidgets.yHBox();
+			this.yhbox1.Name = "yhbox1";
+			this.yhbox1.Spacing = 6;
+			// Container child yhbox1.Gtk.Box+BoxChild
 			this.yentrySuffix = new global::Gamma.GtkWidgets.yEntry();
 			this.yentrySuffix.CanFocus = true;
 			this.yentrySuffix.Name = "yentrySuffix";
 			this.yentrySuffix.IsEditable = true;
 			this.yentrySuffix.MaxLength = 3;
 			this.yentrySuffix.InvisibleChar = '•';
-			this.datatableMain.Add(this.yentrySuffix);
-			global::Gtk.Table.TableChild w37 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.yentrySuffix]));
-			w37.TopAttach = ((uint)(2));
-			w37.BottomAttach = ((uint)(3));
-			w37.LeftAttach = ((uint)(1));
-			w37.RightAttach = ((uint)(2));
-			w37.XOptions = ((global::Gtk.AttachOptions)(4));
-			w37.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.yhbox1.Add(this.yentrySuffix);
+			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.yentrySuffix]));
+			w37.Position = 0;
+			// Container child yhbox1.Gtk.Box+BoxChild
+			this.label21 = new global::Gtk.Label();
+			this.label21.Name = "label21";
+			this.label21.Xalign = 1F;
+			this.label21.LabelProp = global::Mono.Unix.Catalog.GetString("Префикс организации:");
+			this.yhbox1.Add(this.label21);
+			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.label21]));
+			w38.Position = 1;
+			// Container child yhbox1.Gtk.Box+BoxChild
+			this.yentryPrefix = new global::Gamma.GtkWidgets.yEntry();
+			this.yentryPrefix.CanFocus = true;
+			this.yentryPrefix.Name = "yentryPrefix";
+			this.yentryPrefix.IsEditable = true;
+			this.yentryPrefix.MaxLength = 3;
+			this.yentryPrefix.InvisibleChar = '•';
+			this.yhbox1.Add(this.yentryPrefix);
+			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.yentryPrefix]));
+			w39.Position = 2;
+			this.datatableMain.Add(this.yhbox1);
+			global::Gtk.Table.TableChild w40 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.yhbox1]));
+			w40.TopAttach = ((uint)(2));
+			w40.BottomAttach = ((uint)(3));
+			w40.LeftAttach = ((uint)(1));
+			w40.RightAttach = ((uint)(2));
+			w40.XOptions = ((global::Gtk.AttachOptions)(4));
+			w40.YOptions = ((global::Gtk.AttachOptions)(4));
 			w9.Add(this.datatableMain);
 			this.scrolledwindow1.Add(w9);
 			this.notebookMain.Add(this.scrolledwindow1);
@@ -534,8 +565,8 @@ namespace Vodovoz.Organizations
 			this.accountsview1.Name = "accountsview1";
 			this.accountsview1.CanEdit = true;
 			this.notebookMain.Add(this.accountsview1);
-			global::Gtk.Notebook.NotebookChild w41 = ((global::Gtk.Notebook.NotebookChild)(this.notebookMain[this.accountsview1]));
-			w41.Position = 1;
+			global::Gtk.Notebook.NotebookChild w44 = ((global::Gtk.Notebook.NotebookChild)(this.notebookMain[this.accountsview1]));
+			w44.Position = 1;
 			// Notebook tab
 			this.label12 = new global::Gtk.Label();
 			this.label12.Name = "label12";
@@ -543,8 +574,8 @@ namespace Vodovoz.Organizations
 			this.notebookMain.SetTabLabel(this.accountsview1, this.label12);
 			this.label12.ShowAll();
 			this.vbox1.Add(this.notebookMain);
-			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebookMain]));
-			w42.Position = 1;
+			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebookMain]));
+			w45.Position = 1;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
