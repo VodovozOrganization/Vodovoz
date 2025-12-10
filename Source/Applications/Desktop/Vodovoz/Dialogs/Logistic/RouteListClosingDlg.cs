@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -28,6 +28,11 @@ using QSOrmProject.UpdateNotification;
 using QSProjectsLib;
 using QSReport;
 using Vodovoz.Additions.Logistic;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Permissions;
@@ -81,6 +86,7 @@ using Vodovoz.ViewWidgets.Logistics;
 using VodovozBusiness.Services.Orders;
 using EnumItemClickedEventArgs = QS.Widgets.EnumItemClickedEventArgs;
 using Order = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Application.Orders.Services.OrderCancellation;
 
 namespace Vodovoz
 {
@@ -118,6 +124,7 @@ namespace Vodovoz
 		private IPermissionRepository _permissionRepository;
 		private IFlyerRepository _flyerRepository;
 		private IOrderContractUpdater _contractUpdater;
+		private OrderCancellationService _orderCancellationService;
 
 		private readonly bool _isOpenFromCash;
 		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(CashPermissions.PresetPermissionsRoles.Cashier);
@@ -154,6 +161,8 @@ namespace Vodovoz
 		public virtual ICallTaskWorker CallTaskWorker { get; private set; }
 
 		public ITdiCompatibilityNavigation NavigationManager => Startup.MainWin.NavigationManager;
+
+		private readonly List<System.Action> _cancellationRequestActions = new List<System.Action>();
 
 		#endregion
 
@@ -227,6 +236,7 @@ namespace Vodovoz
 			_contractUpdater = _lifetimeScope.Resolve<IOrderContractUpdater>();
 			
 			_routeListService = _lifetimeScope.Resolve<IRouteListService>();
+			_orderCancellationService = _lifetimeScope.Resolve<OrderCancellationService>();
 		}
 
 		private void ConfigureDlg()
@@ -828,6 +838,17 @@ namespace Vodovoz
 						_ignoreReceiptsForOrderIds.Remove(orderReturnsView.OrderId.Value);
 					}
 				}
+
+				var allowCancellation = orderReturnsView.CancellationPermit.Type == OrderCancellationPermitType.AllowCancelOrder;
+				var hasEdoTaskToCancellationId = orderReturnsView.CancellationPermit.EdoTaskToCancellationId != null;
+				if(allowCancellation && hasEdoTaskToCancellationId)
+				{
+					_cancellationRequestActions.Add(() => _orderCancellationService.AutomaticCancelDocflow(
+						UoW,
+						orderReturnsView.Order,
+						orderReturnsView.CancellationPermit.EdoTaskToCancellationId.Value
+					));
+				}
 			}
 
 			var node = routeListAddressesView.GetSelectedRouteListItem();
@@ -1130,7 +1151,17 @@ namespace Vodovoz
 			_routeListProfitabilityController.ReCalculateRouteListProfitability(UoW, Entity);
 			UoW.Save(Entity.RouteListProfitability);
 			UoW.Commit();
-			
+
+			if(_cancellationRequestActions.Any())
+			{
+				foreach(var cancellationAction in _cancellationRequestActions)
+				{
+					cancellationAction.Invoke();
+				}
+
+				_cancellationRequestActions.Clear();
+			}
+
 			return true;
 		}
 

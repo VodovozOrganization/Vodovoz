@@ -16,5 +16,6 @@ namespace Vodovoz.Core.Data.Repositories
 		Task<IEnumerable<GroupGtinEntity>> GetGroupGtinsAsync(CancellationToken cancellationToken);
 		Task<bool> HasReceiptOnSumToday(decimal sum, CancellationToken cancellationToken);
 		OutgoingEdoDocument GetOrderEdoDocumentByDocflowId(IUnitOfWork uow, Guid docflowId);
+		IEnumerable<OrderEdoTask> GetEdoTaskByOrderAsync(IUnitOfWork uow, int orderId);
 	}
 }

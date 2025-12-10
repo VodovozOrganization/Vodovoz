@@ -19,6 +19,7 @@ using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerTyp
 using EdoContainer = Vodovoz.Domain.Orders.Documents.EdoContainer;
 using IOrderRepository = Vodovoz.EntityRepositories.Orders.IOrderRepository;
 using Order = Vodovoz.Domain.Orders.Order;
+using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
 namespace EdoService.Library
 {

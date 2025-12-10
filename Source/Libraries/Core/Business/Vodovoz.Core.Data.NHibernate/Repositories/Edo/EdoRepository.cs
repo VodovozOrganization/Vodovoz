@@ -82,14 +82,37 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 			}
 		}
 
+		public IEnumerable<OrderEdoTask> GetEdoTaskByOrderAsync(
+			IUnitOfWork uow,
+			int orderId
+			)
+		{
+			PrimaryEdoRequest orderEdoRequestAlias = null;
+			OrderEdoTask orderEdoTaskAlias = null;
+
+			var edoTasks = uow.Session.QueryOver(() => orderEdoTaskAlias)
+				.Left.JoinAlias(() => orderEdoTaskAlias.OrderEdoRequest, () => orderEdoRequestAlias)
+				.Where(() => orderEdoRequestAlias.Order.Id == orderId)
+				.Where(() => orderEdoRequestAlias.DocumentType == EdoDocumentType.UPD)
+				.List()
+				;
+			return edoTasks;
+		}
+
 		public OutgoingEdoDocument GetOrderEdoDocumentByDocflowId(IUnitOfWork uow, Guid docflowId)
 		{
-			var document = (from tax in uow.Session.Query<TaxcomDocflow>()
-							join outgoing in uow.Session.Query<OutgoingEdoDocument>() on tax.EdoDocumentId equals outgoing.Id
-							where tax.DocflowId == docflowId
-							select outgoing).FirstOrDefault();
+			var edoDocumentId = uow.Session.Query<TaxcomDocflow>()
+				.Where(x => x.DocflowId == docflowId)
+				.Select(x => x.EdoDocumentId)
+				.FirstOrDefault();
 
-			return document;
+			if(edoDocumentId == 0)
+			{
+				return null;
+			}
+
+			return uow.Session.Query<OutgoingEdoDocument>()
+				.FirstOrDefault(x => x.Id == edoDocumentId);
 		}
 	}
 }

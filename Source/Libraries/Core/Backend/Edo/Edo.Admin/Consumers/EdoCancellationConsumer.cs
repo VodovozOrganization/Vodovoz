@@ -23,7 +23,12 @@ namespace Edo.Admin.Consumers
 		public async Task Consume(ConsumeContext<RequestTaskCancellationEvent> context)
 		{
 			var message = context.Message;
-			await _edoCancellationService.CancelTask(message.TaskId, message.Reason, context.CancellationToken);
+
+			await _edoCancellationService.CancelTask(
+				message.TaskId, 
+				message.Reason,
+				context.CancellationToken
+			);
 		}
 	}
 }

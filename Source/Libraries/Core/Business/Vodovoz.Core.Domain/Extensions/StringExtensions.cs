@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Users;
 
 namespace Vodovoz.Core.Domain.Extensions
 {
@@ -44,6 +45,38 @@ namespace Vodovoz.Core.Domain.Extensions
 			}
 
 			return null;
+		}
+
+		public static PrivilegeType ToPrivilegeType(this string source)
+		{
+			if(string.IsNullOrWhiteSpace(source) || !source.Contains('.'))
+			{
+				throw new ArgumentException($"'{source}' is not a valid schema and table for role privilege");
+			}
+			
+			var schemaAndTable = source.Split('.');
+
+			if(schemaAndTable[0] == "*")
+			{
+				return PrivilegeType.GlobalPrivilege;
+			}
+
+			if(schemaAndTable[0] == "mysql")
+			{
+				return PrivilegeType.SpecialPrivilege;
+			}
+
+			if(schemaAndTable[1] != "*")
+			{
+				return PrivilegeType.TablePrivilege;
+			}
+
+			if(schemaAndTable[0] != "*")
+			{
+				return PrivilegeType.DatabasePrivilege;
+			}
+			
+			throw new ArgumentOutOfRangeException(nameof(source), @"Нельзя подобрать тип привилегии для роли");
 		}
 	}
 }

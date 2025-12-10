@@ -13,9 +13,12 @@ namespace Vodovoz.EntityRepositories.Permissions
 		UserRole GetUserRoleById(IUnitOfWork uow, int id);
 		void CreateUserRoleIfNotExists(IUnitOfWork uow, string role);
 		IEnumerable<string> ShowGrantsForUser(IUnitOfWork uow, string login);
+		IEnumerable<string> ShowGrantsForRole(IUnitOfWork uow, string role);
 		void SetDefaultRoleToUser(IUnitOfWork uow, UserRole role, string login);
 		void SetDefaultRoleToUser(IUnitOfWork uow, string role, string login);
 		void GrantPrivilegeToRole(IUnitOfWork uow, string privilege, string role);
+		void RevokePrivilegeFromRole(IUnitOfWork uow, string privilege, string role);
+		void RevokeAllPrivilegesFromRole(IUnitOfWork uow, string role);
 		void GrantRoleToUser(IUnitOfWork uow, string role, string login, bool withAdminOption = false);
 		void RevokeRoleFromUser(IUnitOfWork uow, string role, string login);
 	}

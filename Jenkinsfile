@@ -237,7 +237,7 @@ stage('Desktop'){
 		if(CAN_BUILD_DESKTOP)
 		{
 			stage('Desktop.Restore'){
-				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=DebugWin /p:Platform=x86 /maxcpucount:2"
+				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=DebugWin /p:Platform=x86 /maxcpucount:1 /nodeReuse:false"
 			}
 
 			stage('Desktop.Build'){
@@ -259,7 +259,7 @@ stage('Web'){
 		if(CAN_PUBLISH_BUILD_WEB)
 		{
 			stage('Web.Restore'){
-				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=Release /p:Platform=x86 /maxcpucount:2"
+				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=Release /p:Platform=x86 /maxcpucount:1 /nodeReuse:false"
 			}
 			stage('Web.Build'){
 				// Docker
@@ -344,7 +344,6 @@ stage('Web'){
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj", "registry-prod-deshic")
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentFlowUpdater/EdoDocumentFlowUpdater.csproj", "registry-prod-vasileva")
 
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj")
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj", "registry-prod-beverages-world")
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj", "registry-prod-kuler-service")
 				DockerPublishBuildWithCustomProfileName("${APP_PATH}/Backend/Workers/Docker/EdoServices/TaxcomEdoConsumer/TaxcomEdoConsumer.csproj", "registry-prod-non-alcoholic-beverages-world")
@@ -360,7 +359,7 @@ stage('Web'){
 		else if(CAN_BUILD_WEB)
 		{
 			stage('Web.Restore'){
-				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=Web /p:Platform=x86 /maxcpucount:2"
+				bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Restore /p:Configuration=Web /p:Platform=x86 /maxcpucount:1 /nodeReuse:false"
 			}
 			stage('Web.Build'){
 				//Сборка для проверки что нет ошибок, собранные проекты выкладывать не нужно
@@ -422,11 +421,14 @@ stage('CleanUp'){
 		"Desktop ${NODE_VOD7}" : { DeleteCompressedArtifactAtNode(NODE_VOD7, "VodovozDesktop") },
 		"Desktop ${NODE_VOD13}" : { DeleteCompressedArtifactAtNode(NODE_VOD13, "VodovozDesktop") },
 		"Desktop ${NODE_WIN_BUILD}" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "VodovozDesktop") },
-		"Desktop ${NODE_WIN_BUILD}" : { DeleteCompressedArtifactAtNode(NODE_WIN_BUILD, "VodovozDesktop") },
 	)
 
 	if(IS_RELEASE){
 		WinRemoveOldJenkinsTempFiles();
+	}
+
+	node(NODE_WIN_BUILD){
+		deleteDir()
 	}
 }
 
@@ -496,7 +498,8 @@ def PrepareSources() {
 		extensions: scm.extensions
 		+ [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'Vodovoz']]
 		+ [[$class: 'CloneOption', reference: "${REFERENCE_REPOSITORY_PATH}"]]
-		+ [[$class: 'SubmoduleOption', disableSubmodules: false, recursiveSubmodules: true, parentCredentials: true]],
+		+ [[$class: 'SubmoduleOption', disableSubmodules: false, recursiveSubmodules: true, parentCredentials: true]]
+		+ [[$class: 'CleanBeforeCheckout']], 
 		userRemoteConfigs: scm.userRemoteConfigs
 	])
 }
@@ -508,16 +511,16 @@ def PrepareSources() {
 // 303	Фукнции. Сборка
 
 def PublishBuild(projectPath){
-	bat "\"${WIN_BUILD_TOOL}\" ${projectPath} /t:Publish /p:Configuration=Release /p:PublishProfile=FolderProfile /maxcpucount:2"
+	bat "\"${WIN_BUILD_TOOL}\" ${projectPath} /t:Publish /p:Configuration=Release /p:PublishProfile=FolderProfile /maxcpucount:1 /nodeReuse:false"
 }
 
 def DockerPublishBuild(projectPath){
 	def workspacePath = GetWorkspacePath()
-	bat "\"${WIN_BUILD_TOOL}\" ${workspacePath}/${projectPath} -restore:True /t:Publish /p:Configuration=Release /p:PublishProfile=registry-prod /maxcpucount:2"
+	bat "\"${WIN_BUILD_TOOL}\" ${workspacePath}/${projectPath} -restore:True /t:Publish /p:Configuration=Release /p:PublishProfile=registry-prod /maxcpucount:1 /nodeReuse:false"
 }
 
 def Build(config){
-	bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Build /p:Configuration=${config} /p:Platform=x86 /maxcpucount:2 /nodeReuse:false"
+	bat "\"${WIN_BUILD_TOOL}\" Vodovoz/Source/Vodovoz.sln /t:Build /p:Configuration=${config} /p:Platform=x86 /maxcpucount:1 /nodeReuse:false"
 }
 
 def DockerFileBuild(projectPath, containerRepository){
@@ -532,7 +535,7 @@ def DockerPushAs(fromContainerRepository, toRemoteContainerRepository) {
 
 def DockerPublishBuildWithCustomProfileName(projectPath, profileName){
 	def workspacePath = GetWorkspacePath()
-	bat "\"${WIN_BUILD_TOOL}\" ${workspacePath}/${projectPath} -restore:True /t:Publish /p:Configuration=Release /p:PublishProfile=${profileName} /maxcpucount:2"
+	bat "\"${WIN_BUILD_TOOL}\" ${workspacePath}/${projectPath} -restore:True /t:Publish /p:Configuration=Release /p:PublishProfile=${profileName} /maxcpucount:1 /nodeReuse:false"
 }
 
 // 304	Фукнции. Запаковка

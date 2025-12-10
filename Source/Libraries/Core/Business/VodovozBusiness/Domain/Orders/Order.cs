@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Core.Infrastructure;
 using fyiReporting.RDL;
 using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -113,6 +114,7 @@ namespace Vodovoz.Domain.Orders
 		private ICashRepository _cashRepository => ScopeProvider.Scope.Resolve<ICashRepository>();
 
 		private ISelfDeliveryRepository _selfDeliveryRepository => ScopeProvider.Scope.Resolve<ISelfDeliveryRepository>();
+		private IOrderService _orderService => ScopeProvider.Scope.Resolve<IOrderService>();
 
 		private readonly double _futureDeliveryDaysLimit = 30;
 
@@ -921,6 +923,7 @@ namespace Vodovoz.Domain.Orders
 
 			var isCashOrderClose = validationContext.Items.ContainsKey("cash_order_close") && (bool)validationContext.Items["cash_order_close"];
 			var isTransferedAddress = validationContext.Items.ContainsKey("AddressStatus") && (RouteListItemStatus)validationContext.Items["AddressStatus"] == RouteListItemStatus.Transfered;
+			var isCancellingOrder = newStatus.HasValue && newStatus.Value.IsIn(_orderRepository.GetUndeliveryStatuses());
 
 			if(isCashOrderClose
 				&& !isTransferedAddress
@@ -1025,12 +1028,6 @@ namespace Vodovoz.Domain.Orders
 					new[] { this.GetPropertyName(o => o.SelfDeliveryGeoGroup) }
 				);
 			}
-
-			//TODO: убрать из валидации
-			/*if(IsFastDelivery)
-			{
-				AddFastDeliveryNomenclatureIfNeeded();
-			}*/
 
 			if(!PaymentTypesFastDeliveryAvailableFor.Contains(PaymentType) && IsFastDelivery)
 			{
@@ -1175,7 +1172,7 @@ namespace Vodovoz.Domain.Orders
 			#region Проверка кол-ва бутылей по акции Приведи друга
 
 			// Отменять заказ с акцией можно
-			if((newStatus == null || !_orderRepository.GetUndeliveryStatuses().Contains(newStatus.Value))
+			if((newStatus == null || !isCancellingOrder)
 				&& OrderItems.Where(oi => oi.DiscountReason?.Id == _orderSettings.ReferFriendDiscountReasonId).Sum(oi => oi.CurrentCount) is decimal referPromoBottlesInOrderCount
 				&& referPromoBottlesInOrderCount > 0)
 			{
@@ -1205,6 +1202,15 @@ namespace Vodovoz.Domain.Orders
 						new[] { nameof(OrderItems) });
 				}
 			}
+
+			#region Отмена заказа с кодами маркировки
+
+			if(isCancellingOrder && hasReceipts)
+			{
+				yield return new ValidationResult($"По данному заказу уже оформлен и отправлен чек клиенту и отменить его нельзя");
+			}
+
+			#endregion Отмена заказа с кодами маркировки
 		}
 
 		private void CopiedOrderItemsPriceValidation(OrderItem[] currentCopiedItems, List<string> incorrectPriceItems)
@@ -2877,6 +2883,20 @@ namespace Vodovoz.Domain.Orders
 					break;
 			}
 			UpdateBottleMovementOperation(uow, nomenclatureSettings, 0);
+
+			_orderService.RejectOrderTrueMarkCodes(uow, this.Id);
+		}
+
+		public virtual void CancelDelivery(IUnitOfWork uow, ICallTaskWorker callTaskWorker)
+		{
+			ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
+			_orderService.RejectOrderTrueMarkCodes(uow, this.Id);
+		}
+
+		public virtual void OverdueDelivery(IUnitOfWork uow, ICallTaskWorker callTaskWorker)
+		{
+			ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
+			_orderService.RejectOrderTrueMarkCodes(uow, this.Id);
 		}
 
 		public virtual void ChangeStatusAndCreateTasks(OrderStatus newStatus, ICallTaskWorker callTaskWorker)

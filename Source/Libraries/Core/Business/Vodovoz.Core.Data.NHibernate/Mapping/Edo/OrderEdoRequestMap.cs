@@ -7,10 +7,15 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 	{
 		public OrderEdoRequestMap()
 		{
-			DiscriminatorValue(nameof(CustomerEdoRequestType.Order));
+			DiscriminatorValue(nameof(EdoRequestType.Primary));
+		}
+	}
 
-			References(x => x.Order)
-				.Column("order_id");
+	public class ManualEdoRequestMap : SubclassMap<ManualEdoRequest>
+	{
+		public ManualEdoRequestMap()
+		{
+			DiscriminatorValue(nameof(EdoRequestType.Manual));
 		}
 	}
 }

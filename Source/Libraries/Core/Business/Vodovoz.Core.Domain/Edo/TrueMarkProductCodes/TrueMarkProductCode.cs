@@ -17,6 +17,7 @@ namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 	public abstract class TrueMarkProductCode : PropertyChangedBase, IDomainObject
 	{
 		private DateTime _creationTime;
+		private DateTime _lastModified;
 		private SourceProductCodeStatus _sourceCodeStatus;
 		private TrueMarkWaterIdentificationCode _sourceCode;
 		private TrueMarkWaterIdentificationCode _resultCode;
@@ -34,10 +35,17 @@ namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 			set => SetField(ref _creationTime, value);
 		}
 
+		[Display(Name = "Время изменения")]
+		public virtual DateTime LastModified
+		{
+			get => _lastModified;
+			set => SetField(ref _lastModified, value);
+		}
+
 		/// <summary>
-		/// Стадия
+		/// Статус
 		/// </summary>
-		[Display(Name = "Стадия")]
+		[Display(Name = "Статус")]
 		public virtual SourceProductCodeStatus SourceCodeStatus
 		{
 			get => _sourceCodeStatus;

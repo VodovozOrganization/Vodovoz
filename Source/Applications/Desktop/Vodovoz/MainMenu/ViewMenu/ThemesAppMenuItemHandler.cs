@@ -82,7 +82,7 @@ namespace Vodovoz.MainMenu.ViewMenu
     
         		foreach(RadioAction menuItem in themeAction.Group)
         		{
-        			menuItem.Active = _themes[themeAction.Label] == currentTheme;
+        			menuItem.Active = _themes[menuItem.Label] == currentTheme;
         		}
     
         		_themeResetInProcess = false;
