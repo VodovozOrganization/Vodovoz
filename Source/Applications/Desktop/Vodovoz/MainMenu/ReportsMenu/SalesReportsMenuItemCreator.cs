@@ -11,6 +11,7 @@ using Vodovoz.ViewModels.Reports.Sales;
 using Vodovoz.ViewModels.ReportsParameters;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
 using Vodovoz.ViewModels.ViewModels.Reports.Sales;
+using Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotivation;
 
 namespace Vodovoz.MainMenu.ReportsMenu
 {
@@ -63,6 +64,8 @@ namespace Vodovoz.MainMenu.ReportsMenu
 				"Отчет по оборачиваемости с динамикой", OnTurnoverWithDynamicsReportPressed));
 			salesReportsMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
 				"Аналитика продаж КБ", OnSalesBySubdivisionsAnalyticsPressed));
+			salesReportsMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
+				"Отчет по мотивации КЦ", OnCallCenterMotivationPressed));
 
 			return salesReportsMenuItem;
 		}
@@ -138,6 +141,16 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		private void OnSalesBySubdivisionsAnalyticsPressed(object sender, ButtonPressEventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<SalesBySubdivisionsAnalitycsReportViewModel>(null, OpenPageOptions.IgnoreHash);
+		}
+		
+		/// <summary>
+		/// Отчет по мотивации КЦ
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void OnCallCenterMotivationPressed(object sender, ButtonPressEventArgs e)
+		{
+			Startup.MainWin.NavigationManager.OpenViewModel<CallCenterMotivationReportViewModel>(null, OpenPageOptions.IgnoreHash);
 		}
 	}
 }

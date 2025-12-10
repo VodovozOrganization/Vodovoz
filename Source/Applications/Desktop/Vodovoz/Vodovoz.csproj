@@ -428,6 +428,7 @@
     <Compile Include="Commons\DeprecatedObservableListTreeModel.cs" />
     <Compile Include="Commons\GtkClipboard.cs" />
     <Compile Include="Commons\VodovozTreeModelProvider.cs" />
+    <Compile Include="Extensions\EntryExtension.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Common.AddOrRemoveIDomainObjectView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PACS.PacsMissingCallsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.FineCategoryView.cs" />
@@ -2136,6 +2137,10 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.NotAllocatedCounterpartiesJournalFilterView.cs" />
     <Compile Include="Views\Orders\OnlineOrderNotificaionSettingView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.OnlineOrderNotificationSettingView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.СallCenterMotivationCoefficientJournalFilterView.cs" />
+    <Compile Include="Filters\GtkViews\СallCenterMotivationCoefficientJournalFilterView.cs" />
+    <Compile Include="Views\Reports\CallCenterMotivationReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.CallCenterMotivationReportView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
