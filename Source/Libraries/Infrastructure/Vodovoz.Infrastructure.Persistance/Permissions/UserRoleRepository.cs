@@ -39,10 +39,28 @@ namespace Vodovoz.Infrastructure.Persistance.Permissions
 			uow.Session.CreateSQLQuery(sql).ExecuteUpdate();
 		}
 
+		public void RevokePrivilegeFromRole(IUnitOfWork uow, string privilege, string role)
+		{
+			var sql = $"REVOKE {privilege} FROM '{role}'";
+			uow.Session.CreateSQLQuery(sql).ExecuteUpdate();
+		}
+
+		public void RevokeAllPrivilegesFromRole(IUnitOfWork uow, string role)
+		{
+			var sql = $"REVOKE ALL PRIVILEGES, GRANT OPTION FROM '{role}'";
+			uow.Session.CreateSQLQuery(sql).ExecuteUpdate();
+		}
+
 		public IEnumerable<string> ShowGrantsForUser(IUnitOfWork uow, string login)
 		{
 			return uow.Session.CreateSQLQuery($"Show Grants For '{login}'")
 				.AddScalar($"Grants for {login}@%", NHibernateUtil.String)
+				.List<string>();
+		}
+
+		public IEnumerable<string> ShowGrantsForRole(IUnitOfWork uow, string role)
+		{
+			return uow.Session.CreateSQLQuery($"Show Grants For {role}")
 				.List<string>();
 		}
 

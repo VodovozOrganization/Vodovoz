@@ -1,5 +1,5 @@
-﻿using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Domain;
+﻿using Vodovoz.Core.Domain.BasicHandbooks;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 

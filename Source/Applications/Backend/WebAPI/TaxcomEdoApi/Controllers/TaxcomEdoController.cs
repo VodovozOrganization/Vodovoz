@@ -128,6 +128,30 @@ namespace TaxcomEdoApi.Controllers
 			return CreateAndSendBillWithoutShipment(data);
 		}
 
+		[HttpPost]
+		public IActionResult CreateAndSendInformalOrderDocument(InfoForCreatingEdoInformalOrderDocument data)
+		{
+			var orderId = data.FileData.OrderId;
+			_logger.LogInformation("Поступил запрос на отправку неформализованного документа по заказу №{OrderId}", orderId);
+
+			try
+			{
+				var container = _taxcomEdoService.CreateContainerWithInformalOrderDocument(data);
+
+				_logger.LogInformation("Отправляем контейнер с неформализованным документом по заказу №{OrderId}", orderId);
+				_taxcomApi.Send(container);
+				return Ok();
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(
+					e,
+					"Ошибка в процессе формирования контейнера по заказу №{OrderId} для отправки документа заказа",
+					orderId);
+				return Problem();
+			}
+		}
+
 		[HttpGet]
 		public IActionResult GetContactListUpdates(DateTime? lastCheckContactsUpdates, EdoContactStateCode? contactState)
 		{

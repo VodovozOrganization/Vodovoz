@@ -238,6 +238,11 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 				.Cascade.AllDeleteOrphan()
 				.Inverse()
 				.LazyLoad();
+			HasMany(x => x.OrderDocuments)
+				.KeyColumn("attached_to_order_id")
+				.Cascade.AllDeleteOrphan()
+				.Inverse()
+				.LazyLoad();
 		}
 	}
 }

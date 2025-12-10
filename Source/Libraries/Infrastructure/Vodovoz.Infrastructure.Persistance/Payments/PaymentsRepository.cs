@@ -76,7 +76,7 @@ namespace Vodovoz.Infrastructure.Persistance.Payments
 				.Where(p => p.Date == date)
 				.And(p => p.PaymentNum == number)
 				.And(p => p.CounterpartyInn == counterpartyInn)
-				.And(p => p.CounterpartyCurrentAcc == accountNumber)
+				.And(p => p.CounterpartyAcc == accountNumber)
 				.And(p => p.Total == sum)
 				.And(() => organizationAlias.INN == organisationInn)
 				.And(p => !p.IsManuallyCreated)

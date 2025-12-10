@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain;
+using Vodovoz.Core.Domain.BasicHandbooks;
 
 namespace Vodovoz.EntityRepositories.Equipments
 {

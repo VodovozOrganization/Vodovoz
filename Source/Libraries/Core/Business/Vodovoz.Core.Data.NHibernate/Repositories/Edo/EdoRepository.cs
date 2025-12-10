@@ -4,7 +4,6 @@ using NHibernate.SqlCommand;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
@@ -78,6 +77,23 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 				var count = await query.SingleOrDefaultAsync<int>(cancellationToken);
 				return count > 0;
 			}
+		}
+
+		public IEnumerable<OrderEdoTask> GetEdoTaskByOrderAsync(
+			IUnitOfWork uow,
+			int orderId
+			)
+		{
+			OrderEdoRequest orderEdoRequestAlias = null;
+			OrderEdoTask orderEdoTaskAlias = null;
+
+			var edoTasks = uow.Session.QueryOver(() => orderEdoTaskAlias)
+				.Left.JoinAlias(() => orderEdoTaskAlias.OrderEdoRequest, () => orderEdoRequestAlias)
+				.Where(() => orderEdoRequestAlias.Order.Id == orderId)
+				.Where(() => orderEdoRequestAlias.DocumentType == EdoDocumentType.UPD)
+				.List()
+				;
+			return edoTasks;
 		}
 	}
 }

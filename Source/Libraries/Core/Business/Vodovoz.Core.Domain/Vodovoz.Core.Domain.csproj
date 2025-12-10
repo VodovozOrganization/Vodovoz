@@ -10,6 +10,7 @@
     <ProjectReference Include="..\..\..\External\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj" />
     <ProjectReference Include="..\..\..\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
     <ProjectReference Include="..\..\..\External\QSProjects\Modules\QS.BusinessCommon\QS.BusinessCommon.csproj" />
+    <ProjectReference Include="..\..\..\External\QSProjects\QS.DocTemplates\QS.DocTemplates.csproj" />
     <ProjectReference Include="..\..\..\External\QSProjects\QS.Extensions.Observable\QS.Extensions.Observable.csproj" />
     <ProjectReference Include="..\..\..\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />
     <ProjectReference Include="..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
