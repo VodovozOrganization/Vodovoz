@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using FastPaymentsApi.Contracts;
@@ -16,6 +18,7 @@ using Vodovoz.Core.Data.Orders;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.FastPayments;
+using ZXing;
 
 namespace FastPaymentsAPI.Controllers
 {
@@ -287,7 +290,7 @@ namespace FastPaymentsAPI.Controllers
 		}
 		
 		/// <summary>
-		/// Эндпойнт для регистрации онлайн-заказа мобильного приложения и получения ссылки на платежную страницу
+		/// Эндпойнт для регистрации онлайн-заказа мобильного приложения и получения QR в виде base64 строки
 		/// </summary>
 		/// <param name="requestRegisterOnlineOrderDto">Dto для регистрации онлайн-заказа</param>
 		/// <returns></returns>
@@ -296,6 +299,18 @@ namespace FastPaymentsAPI.Controllers
 			[FromBody] RequestRegisterOnlineOrderDTO requestRegisterOnlineOrderDto)
 		{
 			return await RegisterNewOnlineOrder(requestRegisterOnlineOrderDto, FastPaymentRequestFromType.FromMobileAppByQr);
+		}
+		
+		/// <summary>
+		/// Эндпойнт для регистрации онлайн-заказа с ИИ Бота
+		/// </summary>
+		/// <param name="requestRegisterOnlineOrderDto">Dto для регистрации онлайн-заказа</param>
+		/// <returns></returns>
+		[HttpPost]
+		public async Task<ResponseRegisterOnlineOrder> RegisterOnlineOrderFromAiBot(
+			[FromBody] RequestRegisterOnlineOrderDTO requestRegisterOnlineOrderDto)
+		{
+			return await RegisterNewOnlineOrder(requestRegisterOnlineOrderDto, FastPaymentRequestFromType.FromAiBotByQr);
 		}
 		
 		private async Task<ResponseRegisterOnlineOrder> RegisterNewOnlineOrder(
@@ -604,6 +619,16 @@ namespace FastPaymentsAPI.Controllers
 			if(fastPaymentRequestFromType == FastPaymentRequestFromType.FromMobileAppByQr)
 			{
 				response.QrCode = qrPngBase64;
+			}
+			else if(fastPaymentRequestFromType == FastPaymentRequestFromType.FromAiBotByQr)
+			{
+				using var stream = new MemoryStream(Convert.FromBase64String(qrPngBase64));
+				using var bitmap = new Bitmap(stream);
+				var reader = new BarcodeReader();
+				var result = reader.Decode(bitmap);
+				
+				response.QrCode = qrPngBase64;
+				response.PayUrl = result.Text;
 			}
 			else
 			{

@@ -126,7 +126,7 @@ namespace FastPaymentsAPI.Library.Managers
 			
 			orderRegistrationRequestDto.QRTtl = _fastPaymentSettings.GetOnlinePayByQRLifetime;
 
-			if(fastPaymentRequestFromType == FastPaymentRequestFromType.FromMobileAppByQr)
+			if(fastPaymentRequestFromType is FastPaymentRequestFromType.FromMobileAppByQr or FastPaymentRequestFromType.FromAiBotByQr)
 			{
 				orderRegistrationRequestDto.ReturnQRImage = 1;
 			}

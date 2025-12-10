@@ -34,6 +34,9 @@ namespace FastPaymentsAPI.Library.Converters
 				case FastPaymentRequestFromType.FromMobileAppByQr:
 					return uow.GetAll<PaymentFrom>()
 						.SingleOrDefault(x => x.Id == _orderSettings.GetPaymentByCardFromMobileAppByQrCodeId);
+				case FastPaymentRequestFromType.FromAiBotByQr:
+					return uow.GetAll<PaymentFrom>()
+						.SingleOrDefault(x => x.Id == _orderSettings.GetPaymentByCardFromAiBotByQrCodeId);
 				default:
 					throw new ArgumentOutOfRangeException(nameof(fastPaymentRequestFromType), fastPaymentRequestFromType, null);
 			}

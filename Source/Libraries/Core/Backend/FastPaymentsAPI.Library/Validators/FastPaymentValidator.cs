@@ -30,20 +30,29 @@ namespace FastPaymentsAPI.Library.Validators
 			}
 			else
 			{
+				const string wrongOrderNumber = "Неверное значение номера заказа";
+				
 				switch(requestFromType)
 				{
 					case FastPaymentRequestFromType.FromSiteByQr:
 						if(orderId < 100_000_000)
 						{
 							_logger.LogError("Запрос на отправку платежа пришёл с неверным значением номера заказа {OrderId}", orderId);
-							return "Неверное значение номера заказа";
+							return wrongOrderNumber;
 						}
 						break;
 					case FastPaymentRequestFromType.FromMobileAppByQr:
 						if(orderId < 200_000_000)
 						{
 							_logger.LogError("Запрос на отправку платежа пришёл с неверным значением номера заказа {OrderId}", orderId);
-							return "Неверное значение номера заказа";
+							return wrongOrderNumber;
+						}
+						break;
+					case FastPaymentRequestFromType.FromAiBotByQr:
+						if(orderId < 300_000_000)
+						{
+							_logger.LogError("Запрос на отправку платежа пришёл с неверным значением номера заказа {OrderId}", orderId);
+							return wrongOrderNumber;
 						}
 						break;
 				}
@@ -62,7 +71,7 @@ namespace FastPaymentsAPI.Library.Validators
 				result.AppendLine(orderIdValidationResult);
 			}
 
-			if(fastPaymentRequestFromType == FastPaymentRequestFromType.FromMobileAppByQr)
+			if(fastPaymentRequestFromType is FastPaymentRequestFromType.FromMobileAppByQr or FastPaymentRequestFromType.FromAiBotByQr)
 			{
 				return result.ToString();
 			}

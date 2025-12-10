@@ -234,27 +234,5 @@ namespace FastPaymentsAPI.Library.Models
 			_uow.Save(entity);
 			_uow.Commit();
 		}
-		
-		private IOrganizations GetOrganizationsSettings(FastPaymentRequestFromType fastPaymentRequestFromType)
-		{
-			switch(fastPaymentRequestFromType)
-			{
-				case FastPaymentRequestFromType.FromDesktopByQr:
-					return _uow.GetAll<SmsQrPaymentTypeOrganizationSettings>().SingleOrDefault();
-				case FastPaymentRequestFromType.FromDriverAppByQr:
-					return _uow.GetAll<DriverAppQrPaymentTypeOrganizationSettings>().SingleOrDefault();
-				case FastPaymentRequestFromType.FromSiteByQr:
-					return _uow.GetAll<OnlinePaymentTypeOrganizationSettings>()
-						.SingleOrDefault(x => x.PaymentFrom.Id == _orderSettings.GetPaymentByCardFromSiteByQrCodeId);
-				case FastPaymentRequestFromType.FromDesktopByCard:
-					return _uow.GetAll<OnlinePaymentTypeOrganizationSettings>()
-						.SingleOrDefault(x => x.PaymentFrom.Id == _orderSettings.GetPaymentByCardFromAvangardId);
-				case FastPaymentRequestFromType.FromMobileAppByQr:
-					return _uow.GetAll<OnlinePaymentTypeOrganizationSettings>()
-						.SingleOrDefault(x => x.PaymentFrom.Id == _orderSettings.GetPaymentByCardFromMobileAppByQrCodeId);
-				default:
-					throw new ArgumentOutOfRangeException(nameof(fastPaymentRequestFromType), fastPaymentRequestFromType, null);
-			}
-		}
 	}
 }
