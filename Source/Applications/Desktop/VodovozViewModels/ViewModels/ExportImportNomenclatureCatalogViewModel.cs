@@ -26,6 +26,7 @@ using QS.Navigation;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using Vodovoz.Core.Data.Repositories.Cash;
 using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
@@ -36,6 +37,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Goods;
+using VodovozBusiness.Controllers.Cash;
 
 namespace Vodovoz.ViewModels
 {
@@ -46,11 +48,11 @@ namespace Vodovoz.ViewModels
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigation,
-			IGenericRepository<VatRate> vatRateRepository)
+			IVatRateVersionRepository vatRateVersionRepository)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
 		{
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			_vatRateRepository = vatRateRepository ?? throw new ArgumentNullException(nameof(vatRateRepository));
+			_vatRateVersionRepository = vatRateVersionRepository?? throw new ArgumentNullException(nameof(vatRateVersionRepository));
 			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 
 			TabName = "Выгрузка/Загрузка каталога номенклатур";
@@ -78,7 +80,7 @@ namespace Vodovoz.ViewModels
 		#region Properties
 
 		private ICommonServices commonServices;
-		private readonly IGenericRepository<VatRate> _vatRateRepository;
+		private readonly IVatRateVersionRepository _vatRateVersionRepository;
 		private INomenclatureRepository nomenclatureRepository;
 		private bool needReload = false;
 		private Dictionary<string, NomenclatureCategory> nomenclatureCategories;
@@ -341,7 +343,6 @@ namespace Vodovoz.ViewModels
 				SetProgressBar(cnt / 50, itemsToSave.Count());
 				foreach(NomenclatureCatalogNode node in itemsToSave) {
 					var newNomenclature = new Nomenclature();
-					newNomenclature.VatRate = _vatRateRepository.GetFirstOrDefault(UoW, x => x.VatRateValue == 20m);
 					newNomenclature.Code1c = nomenclatureRepository.GetNextCode1c(UoW);
 					newNomenclature.Name = node.Name;
 					newNomenclature.OfficialName = node.Name;

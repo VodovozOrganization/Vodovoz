@@ -1147,14 +1147,7 @@ namespace Vodovoz.Core.Domain.Goods
 		}
 
 		#endregion Онлайн характеристики для ИПЗ
-
-		/// <summary>
-		/// Числовое значение НДС
-		/// </summary>
-		/// <returns></returns>
-		[Display(Name = "Числовое значение НДС")]
-		public virtual decimal VatNumericValue => VatRate.VatRateValue / 100;
-
+		
 		/// <summary>
 		/// Добавление информации о файле
 		/// </summary>

@@ -511,7 +511,14 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 			
-			ValueAddedTax =  CanUseVAT() ? Nomenclature.VatNumericValue : 0;
+			var vatRateVersion = Nomenclature.VatRateVersions.FirstOrDefault(x => x.StartDate <= Order.DeliveryDate 
+			                                                                      && (x.EndDate == null || x.EndDate >= Order.DeliveryDate));
+			if(vatRateVersion == null)
+			{
+				throw new InvalidOperationException($"У товара #{Nomenclature.Id} отсутствует версия НДС на дату доставки заказа #{Order.DeliveryDate}");
+			}
+			
+			ValueAddedTax =  CanUseVAT() ? vatRateVersion.VatRate.VatNumericValue : 0;
 			
 			RecalculateVAT();
 		}

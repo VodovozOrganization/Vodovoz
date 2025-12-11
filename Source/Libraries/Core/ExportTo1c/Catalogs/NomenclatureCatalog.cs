@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ExportTo1c.Library.ExportDefaults;
 using ExportTo1c.Library.ExportNodes;
@@ -93,11 +94,21 @@ namespace ExportTo1c.Library.Catalogs
 				properties.Add(new PropertyNode("НомерГТД", "СправочникСсылка.НомераГТД"));
 			}
 
+			var vatRateVersion = nomenclature.VatRateVersions.FirstOrDefault(x =>
+				x.StartDate <= DateTime.Now && (x.EndDate == null || x.EndDate >= DateTime.Now));
+
+			if(vatRateVersion == null)
+			{
+				throw new InvalidOperationException($"У номенклатуры #{nomenclature.Id} отсутствует версия НДС на {DateTime.Now}");
+			}
+			
 			if(exportData.ExportMode == Export1cMode.ComplexAutomation)
 			{
+				
+				
 				var vatCatalog = new VatCatalog(exportData)
 				{
-					Vat = nomenclature.VatRate
+					Vat = vatRateVersion.VatRate
 				};
 
 				var vatReference = vatCatalog.CreateReferenceTo(vatCatalog);
@@ -111,7 +122,7 @@ namespace ExportTo1c.Library.Catalogs
 			}
 			else
 			{
-				var vat = nomenclature.VatRate.GetValue1c();
+				var vat = vatRateVersion.VatRate.GetValue1c();
 
 				properties.Add(
 					new PropertyNode("ВидСтавкиНДС",

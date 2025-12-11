@@ -72,6 +72,7 @@ namespace Vodovoz.Core.Domain.Cash
 		}
 
 		public virtual string Name  => VatRateValue == 0 ? "Без НДС" : VatRateValue + "%";
+		public virtual decimal VatNumericValue => VatRateValue / 100;
 		
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{

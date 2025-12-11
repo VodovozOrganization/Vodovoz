@@ -1295,13 +1295,21 @@ namespace Edo.Receipt.Dispatcher
 
 			var organization = order.Contract?.Organization;
 
-			if(organization is null || organization.WithoutVAT || nomenclature.VatRate.VatRateValue == 0)
+			var vatRateVersion = nomenclature.VatRateVersions.FirstOrDefault(x =>
+				x.StartDate <= order.DeliveryDate && (x.EndDate == null || x.EndDate > order.DeliveryDate));
+			
+			if(vatRateVersion == null)
+			{
+				throw new InvalidOperationException($"У товара #{nomenclature.Id} отсутствует версия НДС на дату доставки заказа #{order.Id}");
+			}
+			
+			if(organization is null || organization.WithoutVAT || vatRateVersion.VatRate.VatRateValue == 0)
 			{
 				inventPosition.Vat = FiscalVat.VatFree;
 			}
 			else
 			{
-				inventPosition.Vat = nomenclature.VatRate.ToFiscalVat();
+				inventPosition.Vat = vatRateVersion.VatRate.ToFiscalVat();
 			}
 
 			return inventPosition;

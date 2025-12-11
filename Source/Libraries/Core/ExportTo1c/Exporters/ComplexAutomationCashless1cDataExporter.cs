@@ -76,8 +76,18 @@ namespace ExportTo1c.Library.Exporters
 
 				var items = order.OrderItems;
 
+				
+				
 				foreach(var item in items)
 				{
+					var vatRateVersion = item.Nomenclature.VatRateVersions.FirstOrDefault(x =>
+						x.StartDate <= DateTime.Now && (x.EndDate == null || x.EndDate >= DateTime.Now));
+
+					if(vatRateVersion == null)
+					{
+						throw new InvalidOperationException($"У номенклатуры #{item.Id} отсутствует версия НДС на {DateTime.Now}");
+					}
+					
 					var rowElement = new XElement
 					(
 						"Строка",
@@ -89,7 +99,7 @@ namespace ExportTo1c.Library.Exporters
 						new XAttribute("Цена", item.Price.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("Сумма", item.Sum.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("СуммаНДС", item.CurrentNDS.ToString("F2", CultureInfo.InvariantCulture)),
-						new XAttribute("СтавкаНДС", item.Nomenclature.VatRate.GetValue1cComplexAutomation()),
+						new XAttribute("СтавкаНДС", vatRateVersion.VatRate.GetValue1cComplexAutomation()),
 						new XAttribute("Безнал", item.Order.PaymentType != PaymentType.Cash),
 						new XAttribute("КатегорияНоменклатуры", item.Nomenclature.Category.GetEnumTitle()),
 						new XAttribute("ОдноразоваяТара", item.Nomenclature.IsDisposableTare)

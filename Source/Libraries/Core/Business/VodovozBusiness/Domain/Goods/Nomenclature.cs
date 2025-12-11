@@ -705,15 +705,7 @@ namespace Vodovoz.Domain.Goods
 						new[] { nameof(Code1c) });
 				}
 			}
-
-			if(DateTime.Now >= new DateTime(2019, 01, 01) && VatRate.VatRateValue == 18m)
-			{
-				yield return new ValidationResult(
-					"С 01.01.2019 ставка НДС 20%",
-					new[] { nameof(VatRate) }
-				);
-			}
-
+			
 			foreach(var purchasePrice in PurchasePrices)
 			{
 				foreach(var validationResult in purchasePrice.Validate(validationContext))

@@ -169,18 +169,7 @@ namespace Vodovoz.ViewModels.Widgets.Cash
 
 		private void Initialize()
 		{
-			CreateVatRateEEVM();
-		}
-
-		private void CreateVatRateEEVM()
-		{
-			VatRateEntryViewModel = _vatRateEEVMBuilder
-					.SetViewModel(_parentDialog)
-					.SetUnitOfWork(UoW)
-					.ForProperty(Entity, x => x.VatRate)
-					.UseViewModelJournalAndAutocompleter<VatRateJournalViewModel>()
-					.UseViewModelDialog<VatRateViewModel>()
-					.Finish();
+			
 		}
 	}
 }

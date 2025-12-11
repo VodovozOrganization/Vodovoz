@@ -449,13 +449,21 @@ namespace Edo.Receipt.Dispatcher
 
 			var organization = orderItem.Order.Contract?.Organization;
 
-			if(organization is null || organization.WithoutVAT || orderItem.Nomenclature.VatRate.VatRateValue == 0)
+			var vatRateVersion = orderItem.Nomenclature.VatRateVersions.FirstOrDefault(x =>
+				x.StartDate <= orderItem.Order.DeliveryDate && (x.EndDate == null || x.EndDate > orderItem.Order.DeliveryDate));
+			
+			if(vatRateVersion == null)
+			{
+				throw new InvalidOperationException($"У товара #{orderItem.Nomenclature.Id} отсутствует версия НДС на дату доставки заказа #{orderItem.Order.Id}");
+			}
+			
+			if(organization is null || organization.WithoutVAT || vatRateVersion.VatRate.VatRateValue == 0)
 			{
 				inventPosition.Vat = FiscalVat.VatFree;
 			}
 			else
 			{
-				inventPosition.Vat = orderItem.Nomenclature.VatRate.ToFiscalVat();
+				inventPosition.Vat = vatRateVersion.VatRate.ToFiscalVat();
 			}
 
 			return inventPosition;

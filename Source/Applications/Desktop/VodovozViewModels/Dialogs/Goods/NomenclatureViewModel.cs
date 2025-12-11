@@ -138,7 +138,6 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 			RouteColumnViewModel = BuildRouteColumnEntryViewModel();
 			ProductGroupEntityEntryViewModel = CreateProductGroupEEVM();
-			VatRateEntityEntryViewModel = CreateVatRateEEVM();
 
 			ConfigureEntryViewModels();
 			ConfigureOnlineParameters();
@@ -190,7 +189,6 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEntityEntryViewModel RouteColumnViewModel { get; }
 		public IEntityEntryViewModel ProductGroupEntityEntryViewModel { get; }
-		public IEntityEntryViewModel VatRateEntityEntryViewModel { get; }
 
 		public GenericObservableList<NomenclatureOnlinePricesNode> NomenclatureOnlinePrices { get; }
 			= new GenericObservableList<NomenclatureOnlinePricesNode>();
@@ -680,25 +678,6 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			return viewModel;
 		}
 		
-		private IEntityEntryViewModel CreateVatRateEEVM()
-		{
-			var viewModel =
-				_vatRateEEVMBuilder
-					.SetViewModel(this)
-					.SetUnitOfWork(UoW)
-					.ForProperty(Entity, x => x.VatRate)
-					.UseViewModelJournalAndAutocompleter<VatRateJournalViewModel>()
-					.UseViewModelDialog<VatRateViewModel>()
-					.Finish();
-
-
-			viewModel.IsEditable = CanEdit;
-
-			viewModel.CanViewEntity = true;
-
-			return viewModel;
-		}
-
 		private void ConfigureEntityPropertyChanges()
 		{
 			SetPropertyChangeRelation(

@@ -272,7 +272,14 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				NHibernateUtil.Initialize(OrderWithoutDeliveryForAdvancePayment);
 			}
 			
-			ValueAddedTax = CanUseVAT() ? Nomenclature.VatNumericValue : 0;
+			var vatRateVersion = Nomenclature.VatRateVersions.FirstOrDefault(x => x.StartDate <= OrderWithoutDeliveryForAdvancePayment.CreateDate 
+			                                                                      && (x.EndDate == null || x.EndDate >= OrderWithoutDeliveryForAdvancePayment.CreateDate));
+			if(vatRateVersion == null)
+			{
+				throw new InvalidOperationException($"У товара #{Nomenclature.Id} отсутствует версия НДС на дату доставки счета #{OrderWithoutDeliveryForAdvancePayment.CreateDate}");
+			}
+			
+			ValueAddedTax = CanUseVAT() ? vatRateVersion.VatRate.VatNumericValue : 0;
 		}
 		
 		private void RecalculateVAT()
