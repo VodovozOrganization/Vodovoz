@@ -32,9 +32,7 @@ namespace Vodovoz.Views.Cash
 
 		private global::Gtk.Table datatableMain;
 
-		private global::Gtk.CheckButton checkbutton1;
-
-		private global::QS.Widgets.GtkUI.EntityViewModelEntry evmeLeader;
+		private global::QS.Views.Control.EntityEntry entryVatRate;
 
 		private global::Gtk.Label label13;
 
@@ -162,46 +160,28 @@ namespace Vodovoz.Views.Cash
 			this.datatableMain.ColumnSpacing = ((uint)(6));
 			this.datatableMain.BorderWidth = ((uint)(2));
 			// Container child datatableMain.Gtk.Table+TableChild
-			this.checkbutton1 = new global::Gtk.CheckButton();
-			this.checkbutton1.Sensitive = false;
-			this.checkbutton1.CanFocus = true;
-			this.checkbutton1.Name = "checkbutton1";
-			this.checkbutton1.Label = global::Mono.Unix.Catalog.GetString("checkbutton1");
-			this.checkbutton1.Active = true;
-			this.checkbutton1.DrawIndicator = true;
-			this.checkbutton1.UseUnderline = true;
-			this.datatableMain.Add(this.checkbutton1);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.checkbutton1]));
-			w11.TopAttach = ((uint)(1));
-			w11.BottomAttach = ((uint)(2));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			this.entryVatRate = new global::QS.Views.Control.EntityEntry();
+			this.entryVatRate.Events = ((global::Gdk.EventMask)(256));
+			this.entryVatRate.Name = "entryVatRate";
+			this.datatableMain.Add(this.entryVatRate);
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.entryVatRate]));
+			w11.LeftAttach = ((uint)(1));
+			w11.RightAttach = ((uint)(2));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child datatableMain.Gtk.Table+TableChild
-			this.evmeLeader = new global::QS.Widgets.GtkUI.EntityViewModelEntry();
-			this.evmeLeader.Events = ((global::Gdk.EventMask)(256));
-			this.evmeLeader.Name = "evmeLeader";
-			this.evmeLeader.CanEditReference = true;
-			this.evmeLeader.CanDisposeEntitySelectorFactory = false;
-			this.evmeLeader.CanOpenWithoutTabParent = false;
-			this.datatableMain.Add(this.evmeLeader);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.evmeLeader]));
-			w12.LeftAttach = ((uint)(1));
-			w12.RightAttach = ((uint)(2));
-			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
 			this.label13 = new global::Gtk.Label();
 			this.label13.Name = "label13";
 			this.label13.Xalign = 1F;
 			this.label13.LabelProp = global::Mono.Unix.Catalog.GetString("Ставка НДС:");
 			this.datatableMain.Add(this.label13);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.label13]));
-			w13.XOptions = ((global::Gtk.AttachOptions)(4));
-			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.label13]));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			w10.Add(this.datatableMain);
 			this.scrolledwindow1.Add(w10);
 			this.yvbox7.Add(this.scrolledwindow1);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.yvbox7[this.scrolledwindow1]));
-			w16.Position = 0;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.yvbox7[this.scrolledwindow1]));
+			w15.Position = 0;
 			// Container child yvbox7.Gtk.Box+BoxChild
 			this.yhbox6 = new global::Gamma.GtkWidgets.yHBox();
 			this.yhbox6.Name = "yhbox6";
@@ -212,45 +192,44 @@ namespace Vodovoz.Views.Cash
 			this.buttonSave.Name = "buttonSave";
 			this.buttonSave.UseUnderline = true;
 			this.buttonSave.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
-			global::Gtk.Image w17 = new global::Gtk.Image();
-			w17.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-save", global::Gtk.IconSize.Menu);
-			this.buttonSave.Image = w17;
+			global::Gtk.Image w16 = new global::Gtk.Image();
+			w16.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-save", global::Gtk.IconSize.Menu);
+			this.buttonSave.Image = w16;
 			this.yhbox6.Add(this.buttonSave);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.yhbox6[this.buttonSave]));
-			w18.Position = 4;
-			w18.Expand = false;
-			w18.Fill = false;
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.yhbox6[this.buttonSave]));
+			w17.Position = 4;
+			w17.Expand = false;
+			w17.Fill = false;
 			// Container child yhbox6.Gtk.Box+BoxChild
 			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
 			this.buttonCancel.Label = global::Mono.Unix.Catalog.GetString("Отменить");
-			global::Gtk.Image w19 = new global::Gtk.Image();
-			w19.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-revert-to-saved", global::Gtk.IconSize.Menu);
-			this.buttonCancel.Image = w19;
+			global::Gtk.Image w18 = new global::Gtk.Image();
+			w18.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-revert-to-saved", global::Gtk.IconSize.Menu);
+			this.buttonCancel.Image = w18;
 			this.yhbox6.Add(this.buttonCancel);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.yhbox6[this.buttonCancel]));
-			w20.Position = 5;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.yhbox6[this.buttonCancel]));
+			w19.Position = 5;
+			w19.Expand = false;
+			w19.Fill = false;
+			this.yvbox7.Add(this.yhbox6);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.yvbox7[this.yhbox6]));
+			w20.Position = 1;
 			w20.Expand = false;
 			w20.Fill = false;
-			this.yvbox7.Add(this.yhbox6);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.yvbox7[this.yhbox6]));
-			w21.Position = 1;
-			w21.Expand = false;
-			w21.Fill = false;
 			this.yhbox3.Add(this.yvbox7);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.yhbox3[this.yvbox7]));
-			w22.Position = 1;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.yhbox3[this.yvbox7]));
+			w21.Position = 1;
 			this.yvbox5.Add(this.yhbox3);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.yvbox5[this.yhbox3]));
-			w23.Position = 0;
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.yvbox5[this.yhbox3]));
+			w22.Position = 0;
 			this.Add(this.yvbox5);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
 			}
-			this.checkbutton1.Hide();
 			this.Hide();
 		}
 	}
