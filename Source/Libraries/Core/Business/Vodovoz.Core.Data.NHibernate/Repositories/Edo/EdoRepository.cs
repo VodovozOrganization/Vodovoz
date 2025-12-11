@@ -1,7 +1,6 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.SqlCommand;
-using NPOI.SS.Formula.Functions;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;

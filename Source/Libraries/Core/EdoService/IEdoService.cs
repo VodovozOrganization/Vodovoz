@@ -14,15 +14,64 @@ namespace EdoService.Library
 {
 	public interface IEdoService
 	{
+		/// <summary>
+		/// Аннулирует старые офферы ЭДО для заказа
+		/// </summary>
+		/// <param name="unitOfWork"></param>
+		/// <param name="order"></param>
 		void CancelOldEdoOffers(IUnitOfWork unitOfWork, Order order);
+
+		/// <summary>
+		/// Устанавливает флаг необходимости повторной отправки документа ЭДО для заказа
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="entity"></param>
+		/// <param name="type"></param>
 		void SetNeedToResendEdoDocumentForOrder<T>(T entity, DocumentContainerType type) where T : IDomainObject;
+
+		/// <summary>
+		/// Переотправка документа заказа по ЭДО
+		/// </summary>
+		/// <param name="order"></param>
+		/// <param name="type"></param>
 		void ResendEdoOrderDocumentForOrder(Order order, OrderDocumentType type);
+
+		/// <summary>
+		/// Переотправка документа по ЭДО по идентификатору документооборота
+		/// </summary>
+		/// <param name="order"></param>
+		/// <param name="docflowId"></param>
+		/// <returns></returns>
 		Result ResendEdoDocumentForOrder(OrderEntity order, Guid docflowId);
+
 		Result ValidateEdoContainers(IList<EdoContainer> edoContainers);
+
+		/// <summary>
+		/// Проверяет возможность отправки документа ЭДО заказа
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="orderDocument"></param>
+		/// <returns></returns>
 		Result ValidateEdoOrderDocument(IUnitOfWork uow, OutgoingEdoDocument orderDocument);
+
 		Result ValidateOrderForDocument(OrderEntity order, DocumentContainerType type);
+
+		/// <summary>
+		/// Проверяет возможность отправки документа ЭДО заказа определенного типа
+		/// </summary>
+		/// <param name="order"></param>
+		/// <param name="type"></param>
+		/// <returns></returns>
 		Result ValidateOrderForDocumentType(OrderEntity order, EdoDocumentType type);
+
 		Result ValidateOrderForOrderDocument(EdoDocFlowStatus status);
+
+		/// <summary>
+		/// Проверка исходящего документа ЭДО
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="dockflowData"></param>
+		/// <returns></returns>
 		Result ValidateOutgoingDocument(IUnitOfWork uow, EdoDockflowData dockflowData);
 	}
 }
