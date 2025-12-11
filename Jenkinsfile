@@ -851,12 +851,12 @@ def WinRemoveBinObjFolders() {
     	RunPowerShell("""
         Get-ChildItem -Path . -Directory -Recurse -Force |
 		Where-Object { 
-			$_.Name -in @('bin','obj') -and 
-			($_.FullName -notlike '*My-FyiReporting\\WinInstall*') 
+			\$_.Name -in @('bin','obj') -and 
+			(\$_.FullName -notlike '*My-FyiReporting\\WinInstall*') 
 		} |
 		ForEach-Object {
-			Write-Host "Удаляю каталог: $($_.FullName)"
-			Remove-Item -Path $_.FullName -Recurse -Force
+			Write-Host "Удаляю каталог: $(\$_.FullName)"
+			Remove-Item -Path \$_.FullName -Recurse -Force
 		}
         """)
     }
