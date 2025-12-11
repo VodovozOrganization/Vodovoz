@@ -855,7 +855,7 @@ def WinRemoveBinObjFolders() {
 			(\$_.FullName -notlike '*My-FyiReporting\\WinInstall*') 
 		} |
 		ForEach-Object {
-			Write-Host "Удаляю каталог: $(\$_.FullName)"
+			Write-Host "Удаляю каталог: \$(\$_.FullName)"
 			Remove-Item -Path \$_.FullName -Recurse -Force
 		}
         """)
