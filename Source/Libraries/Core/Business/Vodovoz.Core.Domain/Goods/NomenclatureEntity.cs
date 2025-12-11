@@ -130,7 +130,6 @@ namespace Vodovoz.Core.Domain.Goods
 		private IObservableList<GtinEntity> _gtins = new ObservableList<GtinEntity>();
 		private IObservableList<GroupGtinEntity> _groupGtins = new ObservableList<GroupGtinEntity>();
 		private IObservableList<NomenclaturePurchasePrice> _purchasePrices = new ObservableList<NomenclaturePurchasePrice>();
-		private VatRate _vatRate;
 		private IObservableList<VatRateVersion> _vatRateVersions = new ObservableList<VatRateVersion>();
 
 		public NomenclatureEntity() 
@@ -218,15 +217,6 @@ namespace Vodovoz.Core.Domain.Goods
 			set => SetField(ref _unit, value);
 		}
 		
-		/// <summary>
-		/// Новая НДС
-		/// </summary>
-		public virtual VatRate VatRate
-		{
-			get => _vatRate;
-			set => SetField(ref _vatRate, value);
-		}
-
 		/// <summary>
 		/// Версии ставок НДС
 		/// </summary>

@@ -18,7 +18,7 @@ namespace Vodovoz.ViewModels.Widgets.Cash
 	public class VatRateNomenclatureVersionViewModel : EntityWidgetViewModelBase<Nomenclature>
 	{
 		private readonly IVatRateVersionController _vatRateVersionController;
-		private readonly ViewModelEEVMBuilder<VatRate> _vatRateEEVMBuilder;
+		private readonly ViewModelEEVMBuilder<VatRate> _vatRateEevmBuilder;
 		private readonly DialogViewModelBase _parentDialog;
 		private readonly bool _isEditable;
 
@@ -30,7 +30,8 @@ namespace Vodovoz.ViewModels.Widgets.Cash
 		private DelegateCommand _editVersionCommand;
 		private DelegateCommand _addNewVersioCommand;
 		private DelegateCommand _changeVersionStartDateCommand;
-		
+		private VatRate _selectedVatRate;
+
 		public VatRateNomenclatureVersionViewModel(
 			Nomenclature entity, 
 			IVatRateVersionController  vatRateVersionController,
@@ -40,18 +41,18 @@ namespace Vodovoz.ViewModels.Widgets.Cash
 			bool isEditable = true) : base(entity, commonServices)
 		{
 			_vatRateVersionController = vatRateVersionController;
-			_vatRateEEVMBuilder = vatRateEevmBuilder;
+			_vatRateEevmBuilder = vatRateEevmBuilder;
 			_parentDialog = parentDialog;
 			_isEditable = isEditable;
 
 			Initialize();
 		}
-
-		public IEntityEntryViewModel VatRateEntryViewModel { get; private set; }
-
+		
 		public bool IsEditAvailable => SelectedVatRateVersion != null;
 		public bool IsNewOrganization => Entity.Id == 0;
 		public bool IsButtonsAvailable { get; }
+		
+		public IEntityEntryViewModel VatRateEntryViewModel { get; private set; }
 		
 		public bool IsEditVisible
 		{
@@ -84,15 +85,21 @@ namespace Vodovoz.ViewModels.Widgets.Cash
 				}
 			}
 		}
-		
+
+		public virtual VatRate SelectedVatRate
+		{
+			get => _selectedVatRate;
+			set => SetField(ref _selectedVatRate, value);
+		}
+
 		public bool CanAddNewVersion =>
 			SelectedDate.HasValue
 			&& Entity.VatRateVersions.All(x => x.Id != 0)
-			&& _vatRateVersionController.IsValidDateForNewVatRateVersion(SelectedDate.Value);
+			&& _vatRateVersionController.IsValidDateForNewVatRateVersion(SelectedDate.Value, VatRateVersionType.Nomenclature);
 		
 		public bool CanChangeVersionDate =>
 			SelectedDate.HasValue
-			&& _vatRateVersionController.IsValidDateForVersionStartDateChange(SelectedVatRateVersion, SelectedDate.Value);
+			&& _vatRateVersionController.IsValidDateForVersionStartDateChange(SelectedVatRateVersion, SelectedDate.Value, VatRateVersionType.Nomenclature);
 		
 		#region Commands
 
@@ -118,6 +125,7 @@ namespace Vodovoz.ViewModels.Widgets.Cash
 		public DelegateCommand CancelEditingVersionCommand =>
 			_cancelEditingVersionCommand ?? (_cancelEditingVersionCommand = new DelegateCommand(() =>
 			{
+				ClearProperties();
 				IsEditVisible = false;
 			},
 				() => true
@@ -140,7 +148,7 @@ namespace Vodovoz.ViewModels.Widgets.Cash
 					return;
 				}
 
-				SelectedVatRateVersion = _vatRateVersionController.CreateAndAddVersion(SelectedDate);
+				SelectedVatRateVersion = _vatRateVersionController.CreateAndAddVersion(VatRateVersionType.Nomenclature, SelectedDate);
 
 				EditVersionCommand.Execute();
 
@@ -157,7 +165,7 @@ namespace Vodovoz.ViewModels.Widgets.Cash
 				{
 					return;
 				}
-				_vatRateVersionController.ChangeVersionStartDate(SelectedVatRateVersion, SelectedDate.Value);
+				_vatRateVersionController.ChangeVersionStartDate(SelectedVatRateVersion, SelectedDate.Value, VatRateVersionType.Nomenclature);
 
 				OnPropertyChanged(nameof(CanAddNewVersion));
 				OnPropertyChanged(nameof(CanChangeVersionDate));
@@ -169,7 +177,24 @@ namespace Vodovoz.ViewModels.Widgets.Cash
 
 		private void Initialize()
 		{
-			
+			CreateVatRateEEVM();
+		}
+
+		private void CreateVatRateEEVM()
+		{
+			VatRateEntryViewModel = _vatRateEevmBuilder
+				.SetViewModel(_parentDialog)
+				.SetUnitOfWork(UoW)
+				.ForProperty(SelectedVatRate, x => x)
+				.UseViewModelJournalAndAutocompleter<VatRateJournalViewModel>()
+				.UseViewModelDialog<VatRateViewModel>()
+				.Finish();
+		}
+
+		private void ClearProperties()
+		{
+			SelectedVatRateVersion = null;
+			SelectedVatRate = null;
 		}
 	}
 }

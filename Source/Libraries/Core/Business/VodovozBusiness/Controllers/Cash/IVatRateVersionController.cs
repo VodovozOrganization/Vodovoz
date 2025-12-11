@@ -5,12 +5,12 @@ namespace VodovozBusiness.Controllers.Cash
 {
 	public interface IVatRateVersionController
 	{
-		VatRateVersion CreateAndAddVersion(DateTime? startDate = null);
+		VatRateVersion CreateAndAddVersion(VatRateVersionType vatRateVersionType, DateTime? startDate = null);
 		
-		void ChangeVersionStartDate(VatRateVersion version, DateTime newStartDate);
+		void ChangeVersionStartDate(VatRateVersion version, DateTime newStartDate, VatRateVersionType vatRateVersionType);
 		
-		bool IsValidDateForNewVatRateVersion(DateTime dateTime);
+		bool IsValidDateForNewVatRateVersion(DateTime dateTime, VatRateVersionType vatRateVersionType);
 		
-		bool IsValidDateForVersionStartDateChange(VatRateVersion version, DateTime newStartDate);
+		bool IsValidDateForVersionStartDateChange(VatRateVersion version, DateTime newStartDate, VatRateVersionType vatRateVersionType);
 	}
 }
