@@ -238,7 +238,15 @@ namespace Vodovoz.Views.Settings
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.NewVatRate, w => w.ValueAsDecimal)
 				.InitializeFromSource();
-			buttonCalculateNewVatRateForNomenclature.BindCommand(ViewModel.CalculateVatRateCommand);
+			buttonCalculateNewVatRateForNomenclature.BindCommand(ViewModel.CalculateVatRateNomenclatureCommand);
+			buttonCalculateNewVatRateForOrganization.BindCommand(ViewModel.CalculateVatRateOrganizationCommand);
+
+			datepickerVersionStartDate.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.StartDateTimeForVatRate, w => w.Date);
+			datepickerVersionEndDate1.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.EndDateTimeForVatRate, w => w.Date);
 			
 			yspinbuttonDefaultVatRate.Binding
 				.AddSource(ViewModel)

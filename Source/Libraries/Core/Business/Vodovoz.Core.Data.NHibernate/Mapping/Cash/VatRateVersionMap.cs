@@ -14,7 +14,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Cash
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			
 			Map(x => x.StartDate).Column("start_date");
-			Map(x => x.EndDate).Column("end_date");
+			Map(x => x.EndDate).Column("end_date").Nullable();
 			
 			References(x => x.Organization).Column("organization_id");
 			References(x => x.Nomenclature).Column("nomenclature_id");

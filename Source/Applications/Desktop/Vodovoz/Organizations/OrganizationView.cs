@@ -98,6 +98,8 @@ namespace Vodovoz.Organizations
 			
 			radioTabInfo.Toggled += OnRadioTabInfoToggled;
 			radioTabAccounts.Toggled += OnRadioTabAccountsToggled;
+
+			vatRateVersionForOrganizationView.ViewModel = ViewModel.VatRateOrganizationVersionViewModel;
 		}
 
 		private void OnSaveButtonClicked(object sender, EventArgs e)

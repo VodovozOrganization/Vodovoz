@@ -50,7 +50,7 @@ namespace VodovozBusiness.Controllers.Cash
 		/// 	Дата начала действия новой версии. Должна быть минимум на день позже, чем дата начала действия предыдущей версии.
 		/// 	Время должно равняться 00:00:00
 		///  </param>
-		private VatRateVersion AddNewVersion(VatRateVersionType vatRateVersionType, VatRateVersion newVatRateVersion, DateTime startDate)
+		public VatRateVersion AddNewVersion(VatRateVersionType vatRateVersionType, VatRateVersion newVatRateVersion, DateTime startDate)
 		{
 			if(newVatRateVersion == null)
 			{
@@ -81,9 +81,11 @@ namespace VodovozBusiness.Controllers.Cash
 
 						currentLatestVersion.EndDate = startDate.AddMilliseconds(-1);
 				
-						newVatRateVersion.StartDate = startDate;
-						_organization.VatRateVersions.Insert(0, newVatRateVersion);
+						
 					}
+					
+					newVatRateVersion.StartDate = startDate;
+					_organization.ObservableVatRateVersions.Insert(0, newVatRateVersion);
 					
 					break;
 				case VatRateVersionType.Nomenclature:
@@ -104,10 +106,11 @@ namespace VodovozBusiness.Controllers.Cash
 						}
 
 						currentLatestVersion.EndDate = startDate.AddMilliseconds(-1);
-				
-						newVatRateVersion.StartDate = startDate;
-						_nomenclature.VatRateVersions.Insert(0, newVatRateVersion);
 					}
+					
+					newVatRateVersion.StartDate = startDate;
+					_nomenclature.ObservableVatRateVersions.Insert(0, newVatRateVersion);
+					
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(vatRateVersionType), vatRateVersionType, null);
@@ -141,8 +144,19 @@ namespace VodovozBusiness.Controllers.Cash
 			version.StartDate = newStartDate;
 		}
 
-		public bool IsValidDateForNewVatRateVersion(DateTime dateTime, VatRateVersionType vatRateVersionType) 
-			=> _organization.OrganizationVersions.All(x => x.StartDate < dateTime);
+		public bool IsValidDateForNewVatRateVersion(DateTime dateTime, VatRateVersionType vatRateVersionType)
+		{
+			switch(vatRateVersionType)
+			{
+				case VatRateVersionType.Organization:
+					return _organization.VatRateVersions.All(x => x.StartDate < dateTime);
+				case VatRateVersionType.Nomenclature:
+					return _nomenclature.VatRateVersions.All(x => x.StartDate < dateTime);
+				default:
+					throw new ArgumentOutOfRangeException(nameof(vatRateVersionType), vatRateVersionType, null);
+			}
+			
+		}
 
 		/// <summary>
 		/// Валидность даты для версии

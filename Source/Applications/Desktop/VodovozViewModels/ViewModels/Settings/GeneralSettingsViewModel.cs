@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using QS.DomainModel.Entity;
 using QS.Validation;
 using QS.ViewModels.Control.EEVM;
+using Vodovoz.Core.Data.Repositories.Cash;
 using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Repositories;
@@ -27,10 +28,12 @@ using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Fuel;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.ViewModels.Accounting.Payments;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Organizations;
 using Vodovoz.ViewModels.Services;
 using Vodovoz.ViewModels.ViewModels.Cash;
+using VodovozBusiness.Controllers.Cash;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Settings;
 
@@ -783,7 +786,9 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private decimal _targetVatRate;
 		private decimal _newVatRate;
 		private decimal _defaultVatRate;
-		
+		private DateTime? _startDateTimeForVatRate;
+		private DateTime? _endDateTimeForVatRate;
+
 		public IEnumerable<Subdivision> AuthorsSubdivisions { get; private set; }
 		public IEnumerable<short> AuthorsSets { get; private set; }
 		public IReadOnlyDictionary<short, OrganizationBasedOrderContentSettings> OrganizationsByOrderContent { get; private set; }
@@ -802,7 +807,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			SaveOrderOrganizationSettingsCommand = new DelegateCommand(SaveOrderOrganizationsSettings);
 			CalculatePaymentDefermentCommand = new DelegateCommand(CalculatePaymentDefermentCommandHandler);
 			SaveDefaultPaymentDefermentCommand = new DelegateCommand(SaveDefaultPaymentDefermentCommandHandler);
-			CalculateVatRateCommand = new DelegateCommand(CalculateVatRateCommandHandler);
+			CalculateVatRateNomenclatureCommand = new DelegateCommand(CalculateVatRateNomenclatureCommandHandler);
+			CalculateVatRateOrganizationCommand = new DelegateCommand(CalculateVatRateOrganizationCommandHandler);
 			SaveDefaultVatRateCommand = new DelegateCommand(SaveDefaultVatRateCommandHandler);
 		}
 
@@ -1039,38 +1045,159 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			get => _defaultVatRate;
 			set => SetField(ref _defaultVatRate, value);
 		}
-		
-		public DelegateCommand CalculateVatRateCommand { get; set; }
-		private void CalculateVatRateCommandHandler()
+
+		public DateTime? StartDateTimeForVatRate
 		{
-			var vatRateRepository = _lifetimeScope.Resolve<IGenericRepository<VatRate>>();
-			var oldVatRate = vatRateRepository.GetFirstOrDefault(_unitOfWorkFactory.CreateWithoutRoot(), x => x.VatRateValue == TargetVatRate);
-			var newVatRate = vatRateRepository.GetFirstOrDefault(_unitOfWorkFactory.CreateWithoutRoot(), x => x.VatRateValue == NewVatRate);
-			
-			if(newVatRate == null)
-			{
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"В справочнике НДС отсутствует выбранная ставка {NewVatRate}%!");
-				return;
-			}
-			
-			if(oldVatRate == null)
-			{
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"В справочнике НДС отсутствует выбранная ставка {TargetVatRate}%!");
-				return;
-			}
-			
+			get => _startDateTimeForVatRate;
+			set => SetField(ref _startDateTimeForVatRate, value);
+		}
+
+		public DateTime? EndDateTimeForVatRate
+		{
+			get => _endDateTimeForVatRate;
+			set => SetField(ref _endDateTimeForVatRate, value);
+		}
+
+		public DelegateCommand CalculateVatRateNomenclatureCommand { get; set; }
+		private void CalculateVatRateNomenclatureCommandHandler()
+		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
-				uow.Session
-					.CreateSQLQuery(@"UPDATE nomenclature SET vat_rate_id = :newValue WHERE vat_rate_id = :oldValue")
-					.SetParameter("oldValue", oldVatRate.Id)
-					.SetParameter("newValue", newVatRate.Id)
-					.ExecuteUpdate();
+				var vatRateRepository = _lifetimeScope.Resolve<IGenericRepository<VatRate>>();
+				var vatRateVersionRepository = _lifetimeScope.Resolve<IVatRateVersionRepository>();
+				var oldVatRate = vatRateRepository.GetFirstOrDefault(uow, x => x.VatRateValue == TargetVatRate);
+				var newVatRate = vatRateRepository.GetFirstOrDefault(uow, x => x.VatRateValue == NewVatRate);
+			
+				if(newVatRate == null)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"В справочнике НДС отсутствует выбранная ставка {NewVatRate}%!");
+					return;
+				}
+			
+				if(oldVatRate == null)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"В справочнике НДС отсутствует выбранная ставка {TargetVatRate}%!");
+					return;
+				}
+
+				if(StartDateTimeForVatRate == null)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Не выбрана начальная дата для выборки версий!");
+					return;
+				}
+
+				if(EndDateTimeForVatRate == null)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Не выбрана конечная дата для выборки версий!");
+					return;
+				}
+
+				if(StartDateTimeForVatRate > EndDateTimeForVatRate)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Начальная дата позже конечной!");
+					return;
+				}
+			
+				var vatRateVersions = vatRateVersionRepository.GetVatRateVersionsForNomenclature(uow, (DateTime)StartDateTimeForVatRate, (DateTime)EndDateTimeForVatRate, TargetVatRate);
+
+				if (!vatRateVersions.Any())
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Не найдено версий для обновления.");
+					return;
+				}
+			
+				foreach(var vatRateVersion in vatRateVersions)
+				{
+					vatRateVersion.EndDate = DateTime.Now.Date.AddDays(1).AddTicks(-1);
+					
+					uow.Save(vatRateVersion);
+					
+					var newVatRateVersion = new VatRateVersion
+					{
+						StartDate = DateTime.Now.Date.AddDays(1),
+						VatRate = newVatRate,
+						Organization = vatRateVersion.Organization,
+						Nomenclature = null
+					};
+					
+					uow.Session.Save(newVatRateVersion);
+				}
 				
 				uow.Commit();
 			}
 			
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Пересчет для номенклатур произведен!");
+		}
+		
+		public DelegateCommand CalculateVatRateOrganizationCommand { get; set; }
+		private void CalculateVatRateOrganizationCommandHandler()
+		{
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				var vatRateRepository = _lifetimeScope.Resolve<IGenericRepository<VatRate>>();
+				var vatRateVersionRepository = _lifetimeScope.Resolve<IVatRateVersionRepository>();
+				var oldVatRate = vatRateRepository.GetFirstOrDefault(uow, x => x.VatRateValue == TargetVatRate);
+				var newVatRate = vatRateRepository.GetFirstOrDefault(uow, x => x.VatRateValue == NewVatRate);
+			
+				if(newVatRate == null)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"В справочнике НДС отсутствует выбранная ставка {NewVatRate}%!");
+					return;
+				}
+			
+				if(oldVatRate == null)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"В справочнике НДС отсутствует выбранная ставка {TargetVatRate}%!");
+					return;
+				}
+
+				if(StartDateTimeForVatRate == null)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Не выбрана начальная дата для выборки версий!");
+					return;
+				}
+
+				if(EndDateTimeForVatRate == null)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Не выбрана конечная дата для выборки версий!");
+					return;
+				}
+
+				if(StartDateTimeForVatRate > EndDateTimeForVatRate)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Начальная дата позже конечной!");
+					return;
+				}
+			
+				var vatRateVersions = vatRateVersionRepository.GetVatRateVersionsForNomenclature(uow, (DateTime)StartDateTimeForVatRate, (DateTime)EndDateTimeForVatRate, TargetVatRate);
+
+				if (!vatRateVersions.Any())
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Не найдено версий для обновления.");
+					return;
+				}
+			
+				foreach(var vatRateVersion in vatRateVersions)
+				{
+					vatRateVersion.EndDate = DateTime.Now.Date.AddDays(1).AddTicks(-1);
+					
+					uow.Save(vatRateVersion);
+					
+					var newVatRateVersion = new VatRateVersion
+					{
+						StartDate = DateTime.Now.Date.AddDays(1),
+						VatRate = newVatRate,
+						Organization = vatRateVersion.Organization,
+						Nomenclature = null
+					};
+					
+					uow.Session.Save(newVatRateVersion);
+				}
+				
+				uow.Commit();
+			}
+			
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Пересчет для организаций произведен!");
 		}
 		
 		public DelegateCommand SaveDefaultVatRateCommand { get; set; }

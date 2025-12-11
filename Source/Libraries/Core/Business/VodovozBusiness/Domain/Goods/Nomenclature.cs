@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Users;
@@ -38,6 +39,7 @@ namespace Vodovoz.Domain.Goods
 			new ObservableList<AlternativeNomenclaturePrice>();
 		private GenericObservableList<NomenclatureCostPrice> _observableCostPrices;
 		private GenericObservableList<NomenclatureInnerDeliveryPrice> _observableInnerDeliveryPrices;
+		private GenericObservableList<VatRateVersion> _observableVatRateVersions;
 		private MobileAppNomenclatureOnlineCatalog _mobileAppNomenclatureOnlineCatalog;
 		private VodovozWebSiteNomenclatureOnlineCatalog _vodovozWebSiteNomenclatureOnlineCatalog;
 		private KulerSaleWebSiteNomenclatureOnlineCatalog _kulerSaleWebSiteNomenclatureOnlineCatalog;
@@ -408,6 +410,9 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
+		public virtual GenericObservableList<VatRateVersion> ObservableVatRateVersions 
+			=> _observableVatRateVersions ?? (_observableVatRateVersions = new GenericObservableList<VatRateVersion>(VatRateVersions));
+		
 		#endregion Свойства
 
 		#region Свойства товаров для магазина

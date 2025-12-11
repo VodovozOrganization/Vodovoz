@@ -6,6 +6,7 @@ using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Vodovoz.Core.Domain.Cash;
@@ -47,7 +48,7 @@ namespace Vodovoz.Core.Domain.Organizations
 
 		private IObservableList<PhoneEntity> _phones = new ObservableList<PhoneEntity>();
 		private IObservableList<OrganizationVersionEntity> _organizationVersions = new ObservableList<OrganizationVersionEntity>();
-		private IObservableList<VatRateVersion> _vatRateVersions = new ObservableList<VatRateVersion>();
+		private IList<VatRateVersion> _vatRateVersions = new ObservableList<VatRateVersion>();
 
 		public OrganizationEntity()
 		{
@@ -260,12 +261,12 @@ namespace Vodovoz.Core.Domain.Organizations
 		/// Версии ставок НДС
 		/// </summary>
 		[Display(Name = "Версии ставок НДС")]
-		public virtual IObservableList<VatRateVersion> VatRateVersions
+		public virtual IList<VatRateVersion> VatRateVersions
 		{
 			get => _vatRateVersions;
 			set => SetField(ref _vatRateVersions, value);
 		}
-
+		
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			var duplicatedBankAccountNames = GetDuplicatedBankAccountNames();

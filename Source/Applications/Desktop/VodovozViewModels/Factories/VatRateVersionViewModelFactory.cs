@@ -1,4 +1,5 @@
-﻿using QS.Services;
+﻿using QS.DomainModel.UoW;
+using QS.Services;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
 using Vodovoz.Core.Domain.Cash;
@@ -18,7 +19,11 @@ namespace Vodovoz.ViewModels.Factories
 			_commonServices = commonServices;
 		}
 		
-		public VatRateNomenclatureVersionViewModel CreateVatRateVersionViewModel(Nomenclature nomenclature, DialogViewModelBase parentDialog, ViewModelEEVMBuilder<VatRate> vatRateEevmBuilder, bool isEditable = true)
+		public VatRateNomenclatureVersionViewModel CreateVatRateVersionViewModel(Nomenclature nomenclature, 
+			DialogViewModelBase parentDialog, 
+			ViewModelEEVMBuilder<VatRate> vatRateEevmBuilder,
+			IUnitOfWorkFactory uowFactory,
+			bool isEditable = true)
 		{
 			return new VatRateNomenclatureVersionViewModel(
 				nomenclature,
@@ -26,10 +31,15 @@ namespace Vodovoz.ViewModels.Factories
 				_commonServices,
 				vatRateEevmBuilder,
 				parentDialog,
+				uowFactory,
 				isEditable);
 		}
 
-		public VatRateOrganizationVersionViewModel CreateVatRateVersionViewModel(Organization organization, DialogViewModelBase parentDialog, ViewModelEEVMBuilder<VatRate> vatRateEevmBuilder, bool isEditable = true)
+		public VatRateOrganizationVersionViewModel CreateVatRateVersionViewModel(Organization organization,
+			DialogViewModelBase parentDialog,
+			ViewModelEEVMBuilder<VatRate> vatRateEevmBuilder,
+			IUnitOfWorkFactory uowFactory,
+			bool isEditable = true)
 		{
 			return new VatRateOrganizationVersionViewModel(
 				organization,
@@ -37,6 +47,7 @@ namespace Vodovoz.ViewModels.Factories
 				_commonServices,
 				vatRateEevmBuilder,
 				parentDialog,
+				uowFactory,
 				isEditable);
 		}
 	}

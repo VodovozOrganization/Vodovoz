@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QS.Commands;
+using QS.DomainModel.UoW;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
@@ -20,6 +21,7 @@ namespace Vodovoz.ViewModels.Widgets.Cash
 		private readonly IVatRateVersionController _vatRateVersionController;
 		private readonly ViewModelEEVMBuilder<VatRate> _vatRateEevmBuilder;
 		private readonly DialogViewModelBase _parentDialog;
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly bool _isEditable;
 
 		private DateTime? _selectedDate;
@@ -38,14 +40,18 @@ namespace Vodovoz.ViewModels.Widgets.Cash
 			ICommonServices commonServices, 
 			ViewModelEEVMBuilder<VatRate> vatRateEevmBuilder,
 			DialogViewModelBase parentDialog,
+			IUnitOfWorkFactory uowFactory,
 			bool isEditable = true) : base(entity, commonServices)
 		{
 			_vatRateVersionController = vatRateVersionController;
 			_vatRateEevmBuilder = vatRateEevmBuilder;
 			_parentDialog = parentDialog;
+			_uowFactory = uowFactory;
 			_isEditable = isEditable;
 
 			Initialize();
+			
+			IsButtonsAvailable = isEditable;
 		}
 		
 		public bool IsEditAvailable => SelectedVatRateVersion != null;
@@ -108,7 +114,7 @@ namespace Vodovoz.ViewModels.Widgets.Cash
 				{
 					var version = new VatRateVersion()
 					{
-
+						VatRate = SelectedVatRate,
 					};
 
 					var validationContext = new ValidationContext(version);
@@ -116,6 +122,10 @@ namespace Vodovoz.ViewModels.Widgets.Cash
 					{
 						return;
 					}
+					
+					SelectedVatRateVersion.VatRate = SelectedVatRate;
+					
+					ClearProperties();
 					
 					IsEditVisible = false;
 				},
@@ -134,7 +144,6 @@ namespace Vodovoz.ViewModels.Widgets.Cash
 		public DelegateCommand EditVersionCommand =>
 			_editVersionCommand ?? (_editVersionCommand = new DelegateCommand(() =>
 			{
-				
 				IsEditVisible = true;
 			},
 				() => IsEditAvailable
@@ -184,8 +193,8 @@ namespace Vodovoz.ViewModels.Widgets.Cash
 		{
 			VatRateEntryViewModel = _vatRateEevmBuilder
 				.SetViewModel(_parentDialog)
-				.SetUnitOfWork(UoW)
-				.ForProperty(SelectedVatRate, x => x)
+				.SetUnitOfWork(_uowFactory.CreateWithoutRoot())
+				.ForProperty(this, x => x.SelectedVatRate)
 				.UseViewModelJournalAndAutocompleter<VatRateJournalViewModel>()
 				.UseViewModelDialog<VatRateViewModel>()
 				.Finish();
@@ -193,7 +202,6 @@ namespace Vodovoz.ViewModels.Widgets.Cash
 
 		private void ClearProperties()
 		{
-			SelectedVatRateVersion = null;
 			SelectedVatRate = null;
 		}
 	}

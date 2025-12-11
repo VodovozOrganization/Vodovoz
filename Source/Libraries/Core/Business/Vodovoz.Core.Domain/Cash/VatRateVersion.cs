@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
@@ -64,6 +65,14 @@ namespace Vodovoz.Core.Domain.Cash
 		{
 			get => _nomenclature;
 			set => SetField(ref _nomenclature, value);
+		}
+		
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(VatRate == null)
+			{
+				yield return new ValidationResult("Ставка НДС не выбрана", new[] { nameof(VatRate) });
+			}
 		}
 	}
 }

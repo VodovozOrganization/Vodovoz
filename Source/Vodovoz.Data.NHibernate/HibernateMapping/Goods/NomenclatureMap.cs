@@ -22,9 +22,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 			Map(x => x.Width).Column("width");
 			Map(x => x.Height).Column("height");
 			
-			//References(x => x.VatRate)
-			//	.Column("vat_rate_id");
-			
 			Map(x => x.DoNotReserve).Column("reserve");
 			Map(x => x.RentPriority).Column("rent_priority");
 			Map(x => x.IsDuty).Column("is_duty");
@@ -155,6 +152,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 			HasMany(x => x.PurchasePrices).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 			HasMany(x => x.InnerDeliveryPrices).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 			HasMany(x => x.NomenclatureOnlineParameters)
+				.Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
+			HasMany(x => x.VatRateVersions)
 				.Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 			HasMany(x => x.NomenclatureMinimumBalancesByWarehouse).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 

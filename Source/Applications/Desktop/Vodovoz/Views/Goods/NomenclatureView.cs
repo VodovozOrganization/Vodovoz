@@ -73,6 +73,8 @@ namespace Vodovoz.Views.Goods
 			ylabelCreatedBy.Binding
 				.AddFuncBinding(ViewModel.Entity, e => ViewModel.GetUserEmployeeName(), w => w.LabelProp)
 				.InitializeFromSource();
+
+			vatRateVersionForNomenclatureView.ViewModel = ViewModel.VatRateNomenclatureVersionViewModel;
 			
 			enumCategory.Changed += ViewModel.OnEnumCategoryChanged;
 			enumCategory.ChangedByUser += ViewModel.OnEnumCategoryChangedByUser;
