@@ -74,7 +74,7 @@ namespace Edo.Scheduler.Service
 					break;
 				default:
 					throw new InvalidOperationException($"Неизвестный тип заявки " +
-						$"{nameof(InformalEdoRequest)} {request.Type}");
+						$"{nameof(FormalEdoRequest)} {request.Type}");
 			}
 
 			await _uow.SaveAsync(request, cancellationToken: cancellationToken);
