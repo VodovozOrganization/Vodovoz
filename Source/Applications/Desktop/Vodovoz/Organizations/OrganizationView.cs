@@ -95,7 +95,7 @@ namespace Vodovoz.Organizations
 			phonesview1.Phones = ViewModel.Entity.Phones;
 
 			versionsView.ViewModel = ViewModel.OrganizationVersionsViewModel;
-
+			
 			radioTabInfo.Toggled += OnRadioTabInfoToggled;
 			radioTabAccounts.Toggled += OnRadioTabAccountsToggled;
 		}

@@ -29,7 +29,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Organizations
 
 			References(x => x.Stamp).Column("stamp_id");
 			References(x => x.DefaultAccount).Column("default_account_id");
-			References(x => x.VatRate).Column("vat_rate_id");
 			
 			HasOne(x => x.TaxcomEdoSettings)
 				.PropertyRef(x => x.OrganizationId);
@@ -37,6 +36,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Organizations
 			HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("org_id");
 			HasMany(x => x.Phones).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("org_id");
 			HasMany(x => x.OrganizationVersions).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("organization_id");
+			HasMany(x => x.VatRateVersions).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("organization_id").OrderBy("start_date DESC");
 		}
 	}
 }

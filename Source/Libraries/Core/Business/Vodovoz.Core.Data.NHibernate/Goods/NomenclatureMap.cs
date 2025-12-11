@@ -19,8 +19,8 @@ namespace Vodovoz.Core.Data.NHibernate.Goods
 			Map(x => x.Category)
 				.Column("category");
 
-			References(x => x.VatRate)
-				.Column("vat_rate_id");
+			//References(x => x.VatRate)
+			//	.Column("vat_rate_id");
 
 			Map(x => x.CreateDate)
 				.Column("create_date");
@@ -298,6 +298,12 @@ namespace Vodovoz.Core.Data.NHibernate.Goods
 				.Inverse()
 				.KeyColumn("nomenclature_id");
 
+			HasMany(x => x.VatRateVersions)
+				.Cascade.AllDeleteOrphan()
+				.Inverse()
+				.KeyColumn("nomenclature_id")
+				.OrderBy("start_date DESC");
+			
 			HasMany(x => x.NomenclaturePrice)
 				.Where($"type='{NomenclaturePriceGeneralBase.NomenclaturePriceType.General}'")
 				.Inverse()

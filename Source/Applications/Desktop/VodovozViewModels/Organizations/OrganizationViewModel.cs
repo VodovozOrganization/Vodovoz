@@ -14,6 +14,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Cash;
+using Vodovoz.ViewModels.Widgets.Cash;
 using Vodovoz.ViewModels.Widgets.Organizations;
 
 namespace Vodovoz.ViewModels.Organizations
@@ -24,7 +25,7 @@ namespace Vodovoz.ViewModels.Organizations
 	{
 		private readonly ILogger<OrganizationViewModel> _logger;
 		private readonly IOrganizationVersionsViewModelFactory _organizationVersionsViewModelFactory;
-		private readonly ViewModelEEVMBuilder<VatRate> _vatRateEEVMBuilder;
+		private readonly IVatRateVersionViewModelFactory _vatRateVersionViewModelFactory;
 
 		public OrganizationViewModel(
 			ILogger<OrganizationViewModel> logger,
@@ -32,17 +33,19 @@ namespace Vodovoz.ViewModels.Organizations
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			INavigationManager navigation, ViewModelEEVMBuilder<VatRate> vatRateEevmBuilder)
+			INavigationManager navigation, 
+			IVatRateVersionViewModelFactory vatRateVersionViewModelFactory,
+			ViewModelEEVMBuilder<VatRate> vatRateEevmBuilder)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));
 			_organizationVersionsViewModelFactory = organizationVersionsViewModelFactory
 				?? throw new ArgumentNullException(nameof(organizationVersionsViewModelFactory));
-			_vatRateEEVMBuilder = vatRateEevmBuilder
-			    ?? throw new ArgumentNullException(nameof(vatRateEevmBuilder));
+			_vatRateVersionViewModelFactory = vatRateVersionViewModelFactory ?? throw new ArgumentNullException(nameof(vatRateVersionViewModelFactory));
 
 			OrganizationVersionsViewModel = _organizationVersionsViewModelFactory.CreateOrganizationVersionsViewModel(Entity, CanEdit);
+			VatRateOrganizationVersionViewModel = _vatRateVersionViewModelFactory.CreateVatRateVersionViewModel(Entity,this, vatRateEevmBuilder, CanEdit);
 
 			SaveCommand = new DelegateCommand(
 				() => Save(true),
@@ -53,15 +56,12 @@ namespace Vodovoz.ViewModels.Organizations
 				() => Close(CanEdit, CloseSource.Cancel),
 				() => CanEdit
 			);
-
-			VatRateEntityEntryViewModel = CreateVatRateEEVM();
 			
 			RegexForEmailForMailing = @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@vodovoz-spb\.ru\z";
 		}
 
 		public OrganizationVersionsViewModel OrganizationVersionsViewModel { get; }
-		public IEntityEntryViewModel VatRateEntityEntryViewModel { get; }
-		
+		public VatRateOrganizationVersionViewModel VatRateOrganizationVersionViewModel { get; }
 		public DelegateCommand SaveCommand { get; }
 		public DelegateCommand CancelCommand { get; }
 
@@ -95,23 +95,6 @@ namespace Vodovoz.ViewModels.Organizations
 			}
 		}
 		
-		private IEntityEntryViewModel CreateVatRateEEVM()
-		{
-			var viewModel =
-				_vatRateEEVMBuilder
-					.SetViewModel(this)
-					.SetUnitOfWork(UoW)
-					.ForProperty(Entity, x => x.VatRate)
-					.UseViewModelJournalAndAutocompleter<VatRateJournalViewModel>()
-					.UseViewModelDialog<VatRateViewModel>()
-					.Finish();
 
-
-			viewModel.IsEditable = CanEdit;
-
-			viewModel.CanViewEntity = true;
-
-			return viewModel;
-		}
 	}
 }

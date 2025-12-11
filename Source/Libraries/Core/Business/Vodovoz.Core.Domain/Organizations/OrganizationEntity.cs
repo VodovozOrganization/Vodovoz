@@ -47,7 +47,7 @@ namespace Vodovoz.Core.Domain.Organizations
 
 		private IObservableList<PhoneEntity> _phones = new ObservableList<PhoneEntity>();
 		private IObservableList<OrganizationVersionEntity> _organizationVersions = new ObservableList<OrganizationVersionEntity>();
-		private VatRate _vatRate;
+		private IObservableList<VatRateVersion> _vatRateVersions = new ObservableList<VatRateVersion>();
 
 		public OrganizationEntity()
 		{
@@ -181,16 +181,6 @@ namespace Vodovoz.Core.Domain.Organizations
 		}
 		
 		/// <summary>
-		/// НДС
-		/// </summary>
-		[Display(Name = "Ставка НДС")]
-		public virtual VatRate VatRate
-		{
-			get => _vatRate;
-			set => SetField(ref _vatRate, value);
-		}
-
-		/// <summary>
 		/// Требуется контроль движения средств по безналу
 		/// </summary>
 		[Display(Name = "Требуется контроль движения средств по безналу")]
@@ -264,6 +254,16 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _organizationVersions;
 			set => SetField(ref _organizationVersions, value);
+		}
+
+		/// <summary>
+		/// Версии ставок НДС
+		/// </summary>
+		[Display(Name = "Версии ставок НДС")]
+		public virtual IObservableList<VatRateVersion> VatRateVersions
+		{
+			get => _vatRateVersions;
+			set => SetField(ref _vatRateVersions, value);
 		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

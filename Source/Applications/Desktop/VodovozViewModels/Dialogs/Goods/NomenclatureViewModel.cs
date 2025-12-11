@@ -104,7 +104,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			INomenclatureFileStorageService nomenclatureFileStorageService,
 			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
 			IGenericRepository<RobotMiaParameters> robotMiaParametersRepository,
-			ViewModelEEVMBuilder<ProductGroup> productGroupEEVMBuilder, ViewModelEEVMBuilder<VatRate> vatRateEevmBuilder)
+			ViewModelEEVMBuilder<ProductGroup> productGroupEEVMBuilder,
+			ViewModelEEVMBuilder<VatRate> vatRateEevmBuilder)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
 			if(nomenclatureSettings is null)
