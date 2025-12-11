@@ -456,7 +456,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotiva
 					return oi.ActualSum;
 				}
 
-				return oi.ActualCount ?? oi.Count; // Пока запускаем так, потом будут обсуждения
+				return 0;
 			}
 
 			private decimal? MeasurementCoefficientSelector(CallCenterMotivationReportOrderItemNode oi)
@@ -471,7 +471,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotiva
 					return oi.ActualSum / 100 * (oi.MotivationCoefficient ?? 0);
 				}
 
-				return (oi.ActualCount ?? oi.Count) * 1; // Пока запускаем так, потом будут обсуждения
+				return 0;
 		}
 
 			public static CallCenterMotivationReport Create(
