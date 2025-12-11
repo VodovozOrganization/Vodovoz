@@ -270,24 +270,6 @@ namespace CustomTaskDebugExecutor
 			await service.CreateOrderDocumentTask(id, cancellationToken);
 		}
 
-		private async Task ReceiveManualEdoRequestCreatedEvent(CancellationToken cancellationToken)
-		{
-			Console.WriteLine();
-			Console.WriteLine("Необходимо ввести Id ЭДО заявки (manual_edo_requests)");
-			Console.Write("Введите Id (0 - выход): ");
-
-			var id = int.Parse(Console.ReadLine());
-
-			if(id <= 0)
-			{
-				Console.WriteLine("Выход");
-				return;
-			}
-
-			var service = _serviceProvider.GetRequiredService<EdoTaskScheduler>();
-			await service.CreateOrderDocumentTask(id, cancellationToken);
-		}
-
 		private async Task ReceiveDocumentTaskCreatedEvent(CancellationToken cancellationToken)
 		{
 			Console.WriteLine();
