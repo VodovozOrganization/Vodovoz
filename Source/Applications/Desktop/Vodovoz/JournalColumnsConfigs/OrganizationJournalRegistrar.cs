@@ -16,6 +16,10 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddToggleRenderer(node => node.HasAvangardShopId).Editing(false)
 			.AddColumn("Есть регистрация в Такскоме(ЭДО)")
 				.AddToggleRenderer(node => node.HasTaxcomEdoAccountId).Editing(false)
+			.AddColumn("Рассылка писем о задолженности")
+				.AddToggleRenderer(node => node.SendDebtLetters).Editing(false)
+			.AddColumn("Письма о задолженности с подписью и печатью")
+				.AddToggleRenderer(node => node.SendDebtLettersWithASignatureAndSeal).Editing(false)
 			.AddColumn("")
 			.Finish();
 	}

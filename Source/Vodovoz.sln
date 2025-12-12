@@ -611,6 +611,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Edo.InformalOrderDocuments"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSend.Library", "Libraries\Core\Backend\Email\EmailSend.Library\EmailSend.Library.csproj", "{ABCB7550-71AC-408B-B890-4B41E4995159}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSchedulerWorker", "Applications\Backend\Workers\Docker\EmailWorkers\EmailSchedulerWorker\EmailSchedulerWorker.csproj", "{E5C6EBC2-4157-48E2-BC44-4BAF4DA7CDAB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
