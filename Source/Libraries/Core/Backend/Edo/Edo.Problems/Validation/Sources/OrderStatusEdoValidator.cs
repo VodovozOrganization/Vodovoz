@@ -45,6 +45,12 @@ namespace Edo.Problems.Validation.Sources
 		public override Task<EdoValidationResult> ValidateAsync(EdoTask edoTask, IServiceProvider serviceProvider, CancellationToken cancellationToken)
 		{
 			var orderEdoRequest = GetOrderEdoRequest(edoTask);
+
+			if(orderEdoRequest.Order.PayAfterShipment && edoTask.TaskType == EdoTaskType.Document)
+			{
+				return Task.FromResult(EdoValidationResult.Valid(this));
+			}
+
 			var invalid = orderEdoRequest.Order.OrderStatus < OrderStatus.OnTheWay;
 
 			if(orderEdoRequest.Order.SelfDelivery && orderEdoRequest.Order.IsOrderForResale)
