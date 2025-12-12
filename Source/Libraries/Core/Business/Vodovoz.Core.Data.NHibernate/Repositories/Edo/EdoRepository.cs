@@ -4,9 +4,11 @@ using NHibernate.SqlCommand;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Organizations;
@@ -84,7 +86,7 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 			int orderId
 			)
 		{
-			OrderEdoRequest orderEdoRequestAlias = null;
+			PrimaryEdoRequest orderEdoRequestAlias = null;
 			OrderEdoTask orderEdoTaskAlias = null;
 
 			var edoTasks = uow.Session.QueryOver(() => orderEdoTaskAlias)
@@ -94,6 +96,22 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 				.List()
 				;
 			return edoTasks;
+		}
+
+		public OutgoingEdoDocument GetOrderEdoDocumentByDocflowId(IUnitOfWork uow, Guid docflowId)
+		{
+			var edoDocumentId = uow.Session.Query<TaxcomDocflow>()
+				.Where(x => x.DocflowId == docflowId)
+				.Select(x => x.EdoDocumentId)
+				.FirstOrDefault();
+
+			if(edoDocumentId == 0)
+			{
+				return null;
+			}
+
+			return uow.Session.Query<OutgoingEdoDocument>()
+				.FirstOrDefault(x => x.Id == edoDocumentId);
 		}
 	}
 }

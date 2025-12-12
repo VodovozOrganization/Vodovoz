@@ -124,7 +124,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		{
 			EdoTaskProblem problemAlias = null;
 			ExceptionEdoTaskProblem exceptionEdoTaskProblemAlias = null;
-			OrderEdoRequest orderEdoRequestAlias = null;
+			PrimaryEdoRequest orderEdoRequestAlias = null;
 			Order orderAlias = null;
 			EdoTask edoTaskAlias = null;
 			EdoTaskProblemDescriptionSourceEntity problemDescriptionSourceAlias = null;

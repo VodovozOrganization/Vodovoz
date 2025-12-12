@@ -486,7 +486,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 						   .FirstOrDefault()
 
 				let edoDocumentStatus =
-					(EdoDocumentStatus?)(from orderEdoRequest in uow.Session.Query<OrderEdoRequest>()
+					(EdoDocumentStatus?)(from orderEdoRequest in uow.Session.Query<PrimaryEdoRequest>()
 										 join orderEdoDocument in uow.Session.Query<OrderEdoDocument>()
 										 on orderEdoRequest.Task.Id equals orderEdoDocument.DocumentTaskId
 										 where orderEdoRequest.Order.Id == order.Id

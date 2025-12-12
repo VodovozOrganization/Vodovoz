@@ -485,13 +485,13 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			.Distinct()
 			.ToList();
 
-		private async Task<IEnumerable<OrderEdoRequest>> CreateEdoRequests(
+		private async Task<IEnumerable<PrimaryEdoRequest>> CreateEdoRequests(
 			IUnitOfWork uow,
 			RouteListItemEntity routeListAddress,
 			IEnumerable<DriversScannedTrueMarkCode> orderDriversScannedCodes,
 			CancellationToken cancellationToken)
 		{
-			var newEdoRequests = new List<OrderEdoRequest>();
+			var newEdoRequests = new List<PrimaryEdoRequest>();
 			var order = routeListAddress.Order;
 
 			var isAllDriversScannedCodesInOrderProcessed =
@@ -522,9 +522,9 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			return newEdoRequests;
 		}
 
-		private OrderEdoRequest CreateEdoRequest(IUnitOfWork uow, RouteListItemEntity routeListAddress)
+		private PrimaryEdoRequest CreateEdoRequest(IUnitOfWork uow, RouteListItemEntity routeListAddress)
 		{
-			var edoRequest = new OrderEdoRequest
+			var edoRequest = new PrimaryEdoRequest
 			{
 				Time = DateTime.Now,
 				Source = CustomerEdoRequestSource.Driver,

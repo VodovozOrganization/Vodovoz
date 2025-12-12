@@ -407,7 +407,7 @@ namespace DriverAPI.Library.V6.Services
 			await _uow.SaveAsync(routeListAddress);
 			await _uow.SaveAsync(routeList);
 
-			var edoRequest = _uow.Session.Query<OrderEdoRequest>()
+			var edoRequest = _uow.Session.Query<PrimaryEdoRequest>()
 				.Where(x => x.Order.Id == vodovozOrder.Id)
 				.Take(1)
 				.SingleOrDefault();
@@ -433,9 +433,9 @@ namespace DriverAPI.Library.V6.Services
 			return Result.Success();
 		}
 
-		private OrderEdoRequest CreateEdoRequests(Order vodovozOrder, RouteListItem routeListAddress)
+		private PrimaryEdoRequest CreateEdoRequests(Order vodovozOrder, RouteListItem routeListAddress)
 		{
-			var edoRequest = new OrderEdoRequest
+			var edoRequest = new PrimaryEdoRequest
 			{
 				Time = DateTime.Now,
 				Source = CustomerEdoRequestSource.Driver,

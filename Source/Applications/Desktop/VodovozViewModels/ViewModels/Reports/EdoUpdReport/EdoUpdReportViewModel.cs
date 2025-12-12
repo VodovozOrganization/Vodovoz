@@ -68,8 +68,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 			EdoContainer edoContainerAlias = null;
 			EdoUpdReportRow resultAlias = null;
 			Gtin gtinAlias = null;
-			OrderEdoRequest orderEdoRequestAlias = null;
-			OrderEdoRequest orderEdoRequestAlias2 = null;
+			PrimaryEdoRequest orderEdoRequestAlias = null;
+			PrimaryEdoRequest orderEdoRequestAlias2 = null;
 			OrderEdoDocument orderEdoDocumentAlias = null;
 			OrderEdoDocument orderEdoDocumentAlias2 = null;
 

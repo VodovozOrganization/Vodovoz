@@ -174,7 +174,7 @@ namespace Edo.Documents
 				}
 			}
 		}
-
+		
 		private async Task HandleFormalDocument(
 			DocumentEdoTask edoTask,
 			EdoTaskItemTrueMarkStatusProvider trueMarkCodesChecker,

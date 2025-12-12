@@ -38,7 +38,7 @@ namespace Edo.Problems.Validation.Sources
 			return Task.FromResult(invalid ? EdoValidationResult.Invalid(this) : EdoValidationResult.Valid(this));
 		}
 
-		private OrderEdoRequest GetOrderEdoRequest(EdoTask edoTask)
+		private PrimaryEdoRequest GetOrderEdoRequest(EdoTask edoTask)
 		{
 			return ((OrderEdoTask)edoTask).OrderEdoRequest;
 		}

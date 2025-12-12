@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -256,7 +256,7 @@ namespace Vodovoz.Domain.Documents
 				}
 
 				var hasOrderEdoRequest = unitOfWork
-					.GetAll<OrderEdoRequest>()
+					.GetAll<PrimaryEdoRequest>()
 					.Any(x => x.Order.Id == Order.Id && x.Id != Id);
 
 				if(hasOrderEdoRequest)

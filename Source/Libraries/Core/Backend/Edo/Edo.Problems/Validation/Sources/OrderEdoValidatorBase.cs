@@ -9,7 +9,7 @@ namespace Edo.Problems.Validation.Sources
 			return edoTask is OrderEdoTask;
 		}
 
-		protected virtual OrderEdoRequest GetOrderEdoRequest(EdoTask edoTask)
+		protected virtual PrimaryEdoRequest GetOrderEdoRequest(EdoTask edoTask)
 		{
 			return ((OrderEdoTask)edoTask).OrderEdoRequest;
 		}

@@ -137,7 +137,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			Gtin gtinAlias = null;
 			EdoProblemGtinItem problemItemAlias = null;
 			EdoTaskProblem problemAlias = null;
-			OrderEdoRequest orderRequestAlias = null;
+			PrimaryEdoRequest orderRequestAlias = null;
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
 
@@ -289,7 +289,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 		public IEnumerable<AutoTrueMarkProductCode> GetCodesFromPoolByOrder(IUnitOfWork uow, int orderId)
 		{
 			AutoTrueMarkProductCode autoProductCodeAlias = null;
-			OrderEdoRequest customerEdoRequestAlias = null;
+			PrimaryEdoRequest customerEdoRequestAlias = null;
 			EdoTaskItem edoTaskItemAlias = null;	
 
 			var poolCodes = uow.Session.QueryOver(() => autoProductCodeAlias)
