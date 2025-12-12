@@ -979,6 +979,11 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 					{
 						NomenclaturePrice = nomenclaturePrice
 					};
+				case GoodsOnlineParameterType.ForAiBot:
+					return new AiBotNomenclatureOnlinePrice
+					{
+						NomenclaturePrice = nomenclaturePrice
+					};
 				default:
 					throw new ArgumentOutOfRangeException(nameof(type), type, null);
 			}
