@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -50,6 +50,12 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Print.Store;
 using Order = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Settings.Logistics;
+using Vodovoz.ViewModels.Infrastructure;
+using Vodovoz.ViewModels.Infrastructure.Print;
+using Vodovoz.ViewModels.Print.Store;
+using Vodovoz.Core.Domain.Warehouses;
+using IWarehousePermissionService = Vodovoz.Infrastructure.Services.IWarehousePermissionService;
 
 namespace Vodovoz.ViewModels.Logistic
 {
