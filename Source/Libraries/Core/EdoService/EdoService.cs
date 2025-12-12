@@ -118,7 +118,9 @@ namespace EdoService.Library
 				uow.Commit();
 
 				_messageService.PublishEdoRequestCreatedEvent(request.Id)
-					.GetAwaiter().GetResult();
+					.ConfigureAwait(false)
+					.GetAwaiter()
+					.GetResult();
 
 				return Result.Success();
 			}
