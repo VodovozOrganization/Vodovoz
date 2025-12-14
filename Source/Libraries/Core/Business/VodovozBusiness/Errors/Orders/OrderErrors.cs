@@ -98,7 +98,7 @@ namespace Vodovoz.Errors.Orders
 
 		public static Error IsNotSelfDelivery =>
 			new Error(
-				typeof(Order),
+				typeof(OrderErrors),
 				nameof(IsNotSelfDelivery),
 				"Заказ не является самовывозом");
 		

@@ -110,7 +110,7 @@ namespace WarehouseApi.Library.Services
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, $"Ошибка получения документа самовывоза по id заказа {orderId}");
-				return Result.Failure<SelfDeliveryDocument>(Vodovoz.Errors.Common.Repository.DataRetrievalError);
+				return Result.Failure<SelfDeliveryDocument>(Vodovoz.Errors.Common.RepositoryErrors.DataRetrievalError);
 			}
 		}
 
@@ -130,7 +130,7 @@ namespace WarehouseApi.Library.Services
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, $"Ошибка получения документа самовывоза по id {selfDeliveryDocumentId}");
-				return Result.Failure<SelfDeliveryDocument>(Vodovoz.Errors.Common.Repository.DataRetrievalError);
+				return Result.Failure<SelfDeliveryDocument>(Vodovoz.Errors.Common.RepositoryErrors.DataRetrievalError);
 			}
 		}
 
@@ -143,13 +143,13 @@ namespace WarehouseApi.Library.Services
 			if(order is null)
 			{
 				_logger.LogWarning($"Заказ с id {orderId} не найден.");
-				return Vodovoz.Errors.Orders.Order.NotFound;
+				return Vodovoz.Errors.Orders.OrderErrors.NotFound;
 			}
 
 			if(!order.SelfDelivery)
 			{
 				_logger.LogWarning($"Заказ с id {order.Id} не является самовывозом.");
-				return Vodovoz.Errors.Orders.Order.IsNotSelfDelivery;
+				return Vodovoz.Errors.Orders.OrderErrors.IsNotSelfDelivery;
 			}
 
 			var warehouse = _warehouseRepository
@@ -353,7 +353,7 @@ namespace WarehouseApi.Library.Services
 			var documentItem = selfDeliveryDocument.Items?
 				.Where(x => x.Nomenclature.IsAccountableInTrueMark)
 				.FirstOrDefault(s =>
-					s.Nomenclature.Gtins.Select(g => g.GtinNumber).Contains(code.GTIN)
+					s.Nomenclature.Gtins.Select(g => g.GtinNumber).Contains(code.Gtin)
 					&& s.TrueMarkProductCodes.Count < s.Amount
 					&& s.TrueMarkProductCodes.All(c =>
 						!c.SourceCode.RawCode.Contains(code.RawCode)
