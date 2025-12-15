@@ -50,6 +50,14 @@ namespace Vodovoz.ViewModels.Factories
 				new GroupingNode { Name = "Менеджер КА", GroupType = GroupingType.CounterpartyManager },
 				new GroupingNode { Name = "Автор заказа", GroupType = GroupingType.OrderAuthor },
 			}.AsReadOnly();
+		
+		private static ReadOnlyCollection<GroupingNode> _defaultCallCenterMotivationReportGroupingNodes =>
+			new List<GroupingNode>
+			{
+				new GroupingNode { Name = "Автор заказа", GroupType = GroupingType.OrderAuthor },
+				new GroupingNode { Name = "Группа товаров", GroupType = GroupingType.NomenclatureGroup },
+				new GroupingNode { Name = "Номенклатура", GroupType = GroupingType.Nomenclature }
+			}.AsReadOnly();
 
 		private readonly IEnumerable<GroupingNode> _defaultCompletedDriverEventsSortingNodes =
 			new[]
@@ -96,10 +104,29 @@ namespace Vodovoz.ViewModels.Factories
 
 			return leftRightListViewModel;
 		}
+		
+		public LeftRightListViewModel<GroupingNode> CreateCallCenterMotivationReportGroupingsConstructor()
+		{
+			var leftRightListViewModel = new LeftRightListViewModel<GroupingNode>
+			{
+				LeftLabel = "Доступные группировки",
+				RightLabel = "Выбранные группировки (макс. 3)",
+				RightItemsMaximum = 3
+			};
+
+			SetDefaultLeftItemsForCallCenterMotivationReportGroupings(leftRightListViewModel);
+
+			return leftRightListViewModel;
+		}
 
 		public void SetDefaultLeftItemsForSalesWithDynamicsReportGroupings(LeftRightListViewModel<GroupingNode> leftRightListViewModel)
 		{
 			leftRightListViewModel.SetLeftItems(_defaultSalesWithDynamicsReportsGroupingNodes, x => x.Name);
+		}
+		
+		public void SetDefaultLeftItemsForCallCenterMotivationReportGroupings(LeftRightListViewModel<GroupingNode> leftRightListViewModel)
+		{
+			leftRightListViewModel.SetRightItems(_defaultCallCenterMotivationReportGroupingNodes, x => x.Name);
 		}
 
 		public LeftRightListViewModel<GroupingNode> CreateCompletedDriverEventsSortingConstructor()

@@ -4676,13 +4676,9 @@ namespace Vodovoz.Domain.Orders
 		#region Статические
 
 		public static OrderStatus[] StatusesToExport1c => new[] {
-			OrderStatus.Accepted,
-			OrderStatus.Closed,
-			OrderStatus.InTravelList,
-			OrderStatus.OnLoading,
-			OrderStatus.OnTheWay,
 			OrderStatus.Shipped,
-			OrderStatus.UnloadingOnStock
+			OrderStatus.UnloadingOnStock,			
+			OrderStatus.Closed,					
 		};
 
 		public static PaymentType[] PaymentTypesFastDeliveryAvailableFor => new[]

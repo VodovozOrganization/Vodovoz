@@ -427,9 +427,7 @@ stage('CleanUp'){
 		WinRemoveOldJenkinsTempFiles();
 	}
 
-	node(NODE_WIN_BUILD){
-		deleteDir()
-	}
+	WinRemoveBinObjFolders()
 }
 
 //-----------------------------------------------------------------------
@@ -844,6 +842,22 @@ def WinRemoveOldJenkinsTempFiles() {
         Get-ChildItem 'C:\\Users\\jenkins\\AppData\\Local\\Temp\\Containers\\Content' -File |
         Where-Object { \$file = \$_; \$file.LastWriteTime -lt (Get-Date).AddDays(-7) } |
         ForEach-Object { Remove-Item \$file.FullName -Force }
+        """)
+    }
+}
+
+def WinRemoveBinObjFolders() {
+    node(NODE_WIN_BUILD){
+    	RunPowerShell("""
+        Get-ChildItem -Path . -Directory -Recurse -Force |
+		Where-Object { 
+			\$_.Name -in @('bin','obj') -and 
+			(\$_.FullName -notlike '*My-FyiReporting\\WinInstall*') 
+		} |
+		ForEach-Object {
+			Write-Host "Удаляю каталог: \$(\$_.FullName)"
+			Remove-Item -Path \$_.FullName -Recurse -Force
+		}
         """)
     }
 }
