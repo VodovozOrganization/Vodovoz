@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Repositories;
@@ -26,6 +27,7 @@ using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
 using VodovozBusiness.Domain.Goods;
 using VodovozBusiness.Services.TrueMark;
+using WarehouseApi.Contracts.V1.Responses;
 
 namespace WarehouseApi.Library.Services
 {
@@ -36,6 +38,7 @@ namespace WarehouseApi.Library.Services
 		private readonly IGenericRepository<Order> _orderRepository;
 		private readonly IGenericRepository<Warehouse> _warehouseRepository;
 		private readonly IGenericRepository<SelfDeliveryDocument> _selfDeliveryDocumentRepository;
+		private readonly IGenericRepository<Subdivision> _subdivisionRepository;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly INomenclatureRepository _nomenclatureRepository;
@@ -54,6 +57,7 @@ namespace WarehouseApi.Library.Services
 			IGenericRepository<SelfDeliveryDocument> selfDeliveryDocumentRepository,
 			IGenericRepository<GroupGtin> groupGtinrepository,
 			IGenericRepository<Gtin> gtinRepository,
+			IGenericRepository<Subdivision> subdivisionRepository,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			INomenclatureSettings nomenclatureSettings,
 			INomenclatureRepository nomenclatureRepository,
@@ -74,6 +78,8 @@ namespace WarehouseApi.Library.Services
 				?? throw new ArgumentNullException(nameof(warehouseRepository));
 			_selfDeliveryDocumentRepository = selfDeliveryDocumentRepository
 				?? throw new ArgumentNullException(nameof(selfDeliveryDocumentRepository));
+			_subdivisionRepository = subdivisionRepository
+				?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_trueMarkWaterCodeService = trueMarkWaterCodeService
 				?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_nomenclatureSettings = nomenclatureSettings
@@ -291,6 +297,39 @@ namespace WarehouseApi.Library.Services
 				_callTaskWorker);
 
 			return await Task.FromResult(selfDeliveryDocument);
+		}
+
+		public async Task<Result<IEnumerable<Order>>> GetSelfDeliveryOrders(int warehouseId, CancellationToken cancellationToken)
+		{
+			var warehouse = _warehouseRepository
+				.Get(_unitOfWork, w => w.Id == warehouseId, 1)
+				.FirstOrDefault();
+
+			if(warehouse is null)
+			{
+				return VodovozBusiness.Errors.Warehouses.Warehouse.NotFound;
+			}
+
+			Subdivision warehouseOwnerSubdivision = null;
+
+			if(warehouse.OwningSubdivisionId.HasValue)
+			{
+				warehouseOwnerSubdivision = _subdivisionRepository
+					.GetFirstOrDefault(_unitOfWork, s => s.Id == warehouse.OwningSubdivisionId);
+			}
+
+			var warehouseGeoGroupId = warehouseOwnerSubdivision?.GeographicGroup?.Id;
+
+			var orders = _orderRepository
+				.Get(
+					_unitOfWork,
+					o =>
+						o.SelfDelivery
+						&& (warehouseGeoGroupId == null || o.SelfDeliveryGeoGroup.Id == warehouseGeoGroupId) 
+						&& o.OrderStatus == OrderStatus.OnLoading)
+				.ToList();
+
+			return orders;
 		}
 
 		private async Task AddCodeToSelfDeliveryDocumentItemAsync(

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Orders;
 
 namespace WarehouseApi.Library.Services
 {
@@ -59,5 +60,6 @@ namespace WarehouseApi.Library.Services
 		/// <param name="selfDeliveryDocument"></param>
 		/// <returns></returns>
 		Task<Result<SelfDeliveryDocument>> EndLoad(SelfDeliveryDocument selfDeliveryDocument, CancellationToken cancellationToken);
+		Task<Result<IEnumerable<Order>>> GetSelfDeliveryOrders(int warehouseId, CancellationToken cancellationToken);
 	}
 }

@@ -14,5 +14,10 @@
         /// Название склада
         /// </summary>
         public string Name { get; set; }
-    }
+
+		/// <summary>
+		/// Склад по умолчанию
+		/// </summary>
+		public bool IsDefault { get; set; }
+	}
 }

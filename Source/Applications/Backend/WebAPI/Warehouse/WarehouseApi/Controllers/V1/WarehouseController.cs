@@ -18,6 +18,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Presentation.WebApi.Common;
 using Vodovoz.Presentation.WebApi.Security.OnlyOneSession;
 using WarehouseApi.Contracts.V1.Dto;
+using WarehouseApi.Contracts.V1.Requests;
 
 namespace WarehouseApi.Controllers.V1
 {
@@ -106,11 +107,16 @@ namespace WarehouseApi.Controllers.V1
 			var accessibleWarehouses = _warehousePermissionService
 				.GetAvailableWarehousesForUser(unitOfWork, employee.User.Id);
 
+			var defaultWarehouseId = (_userSettingsRepository
+				.GetFirstOrDefault(unitOfWork, x => x.User.Id == employee.User.Id))
+				?.DefaultWarehouse?.Id;
+
 			var result = accessibleWarehouses
 				.Select(warehouse => new WarehouseDto
 				{
 					Id = warehouse.Id,
-					Name = warehouse.Name
+					Name = warehouse.Name,
+					IsDefault = warehouse.Id == defaultWarehouseId
 				})
 				.ToList();
 
@@ -121,13 +127,13 @@ namespace WarehouseApi.Controllers.V1
 		/// Изменение склада по умолчанию в настройках сотрудника
 		/// </summary>
 		/// <param name="unitOfWork">Единица работы для взаимодействия с базой данных</param>
-		/// <param name="warehouseId">Идентификатор склада</param>
+		/// <param name="warehouse">Склад</param>
 		/// <returns>Результат изменения склада</returns>
 		[HttpPost("ChangeDefaultWarehouse")]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		public async Task<IActionResult> ChangeDefaultWarehouseAsync(
 			[FromServices] IUnitOfWork unitOfWork,
-			[FromBody] int warehouseId)
+			ChangeDefaultWarehouseRequest warehouse)
 		{
 			AuthenticationHeaderValue.TryParse(Request.Headers[HeaderNames.Authorization], out var accessTokenValue);
 			var accessToken = accessTokenValue?.Parameter ?? string.Empty;
@@ -159,7 +165,7 @@ namespace WarehouseApi.Controllers.V1
 			var accessibleWarehouses = _warehousePermissionService
 				.GetAvailableWarehousesForUser(unitOfWork, employee.User.Id);
 
-			if(!accessibleWarehouses.Any(x => x.Id == warehouseId))
+			if(!accessibleWarehouses.Any(x => x.Id == warehouse.WarehouseId))
 			{
 				return Problem("У вас нет прав на доступ к этому складу", statusCode: StatusCodes.Status403Forbidden);
 			}
@@ -172,7 +178,7 @@ namespace WarehouseApi.Controllers.V1
 				return Problem("Настройки пользователя не найдены", statusCode: StatusCodes.Status500InternalServerError);
 			}
 
-			userSettings.DefaultWarehouse = new Warehouse { Id = warehouseId };
+			userSettings.DefaultWarehouse = new Warehouse { Id = warehouse.WarehouseId };
 
 			await unitOfWork.SaveAsync(userSettings);
 			await unitOfWork.CommitAsync();

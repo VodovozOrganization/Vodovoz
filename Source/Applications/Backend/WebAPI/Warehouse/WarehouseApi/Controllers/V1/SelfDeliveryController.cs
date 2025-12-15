@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using MoreLinq;
 using QS.DomainModel.UoW;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
 using System.Security.Claims;
@@ -19,6 +20,8 @@ using VodovozBusiness.Employees;
 using VodovozBusiness.Services.TrueMark;
 using WarehouseApi.Contracts.Requests.V1;
 using WarehouseApi.Contracts.Responses.V1;
+using WarehouseApi.Contracts.V1.Dto;
+using WarehouseApi.Contracts.V1.Responses;
 using WarehouseApi.Library.Extensions;
 using WarehouseApi.Library.Services;
 
@@ -46,6 +49,7 @@ namespace WarehouseApi.Controllers.V1
 		/// <param name="userManager"></param>
 		/// <param name="externalApplicationUserService"></param>
 		/// <param name="selfDeliveryService"></param>
+		/// <param name="trueMarkWaterCodeService"></param>
 		/// <exception cref="ArgumentNullException"></exception>
 		public SelfDeliveryController(
 			ILogger<SelfDeliveryController> logger,
@@ -67,6 +71,7 @@ namespace WarehouseApi.Controllers.V1
 		/// <summary>
 		/// Получение информацию о заказе самовывоза по идентификатору документа отпуска самовывоза
 		/// </summary>
+		/// <param name="unitOfWork"></param>
 		/// <param name="orderId"></param>
 		/// <param name="selfDeliveryDocumentId"></param>
 		/// <param name="cancellationToken"></param>
@@ -181,6 +186,24 @@ namespace WarehouseApi.Controllers.V1
 						string.Join(", ", errors.Select(x => x.Message)),
 						statusCode: StatusCodes.Status400BadRequest));
 
+		/// <summary>
+		/// Список заказов самовывоза для склада
+		/// </summary>
+		/// <param name="warehouseId"></param>
+		/// <param name="cancellationToken"></param>
+		/// <returns></returns>
+		[HttpGet]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(typeof(IEnumerable<GetSelfDeliveryOrderResponse>), StatusCodes.Status200OK)]
+		public async Task<IActionResult> GetOrders(
+			[FromQuery] int warehouseId,
+			CancellationToken cancellationToken) =>
+			await _selfDeliveryService.GetSelfDeliveryOrders(warehouseId, cancellationToken)
+			.MatchAsync(
+				orders => Ok(orders.Select(o => o.ToGetSelfDeliveryOrderResponseDto()).ToArray()),
+				errors => Problem(
+					string.Join(", ", errors.Select(e => e.Message)),
+					statusCode: StatusCodes.Status400BadRequest));
 
 		private async Task<Result<SelfDeliveryDocument>> GetDocumentByOrderIdOrSelfDeliveryDocumentId(int? orderId, int? selfDeliveryDocumentId, CancellationToken cancellationToken)
 		{

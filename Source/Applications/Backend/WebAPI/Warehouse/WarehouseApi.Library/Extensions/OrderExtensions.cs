@@ -4,6 +4,7 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using WarehouseApi.Contracts.V1.Dto;
+using WarehouseApi.Contracts.V1.Responses;
 
 namespace WarehouseApi.Library.Extensions
 {
@@ -21,6 +22,21 @@ namespace WarehouseApi.Library.Extensions
 				Id = order.Id,
 				State = LoadOperationStateEnumDto.NotStarted,
 				Items = order.OrderItems.ToApiDtoV1(nomenclatures, selfDeliveryDocument)
+			};
+		}
+
+		public static GetSelfDeliveryOrderResponse ToGetSelfDeliveryOrderResponseDto(this Order order)
+		{
+			if(order is null)
+			{
+				throw new ArgumentNullException(nameof(order));
+			}
+
+			return new GetSelfDeliveryOrderResponse
+			{
+				OrderId = order.Id,
+				Client = order.Client?.FullName ?? string.Empty,
+				Sum = order.OrderSum
 			};
 		}
 	}
