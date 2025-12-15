@@ -61,43 +61,48 @@ namespace EdoService.Library
 			_requestFactories = requestFactories ?? throw new ArgumentNullException(nameof(requestFactories));
 		}
 
-		/// <summary>
-		/// Переотправка документа ЭДО по заказу
-		/// </summary>
-		/// <param name="order"></param>
-		/// <param name="docflowId"></param>
-		public Result ResendEdoDocumentForOrder(OrderEntity order, Guid docflowId)
+		public Result ResendEdoDocumentForOrder(OrderEntity order)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot("Ставим документ в очередь на переотправку в ЭДО"))
 			{
-				var errors = new List<Error>();
-				var document = _edoRepository.GetOrderEdoDocumentByDocflowId(uow, docflowId);
+				var documents = _edoRepository.GetOrderEdoDocumentsByOrderId(uow, order.Id);
 
-				if(document == null)
+				if(documents == null || documents.Count() == 0)
 				{
-					return Result.Failure(Error.NullValue);
+					return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.HasProblem);
 				}
+
+				foreach(var doc in documents)
+				{
+					if(!_resendableEdoDocumentStatuses.Contains(doc.Status))
+					{
+						return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.CreateAlreadySuccefullSended(order, doc));
+					}
+
+					var edoValidateDocumentResult = ValidateEdoOrderDocument(uow, doc);
+
+					if(edoValidateDocumentResult.IsFailure)
+					{
+						return edoValidateDocumentResult;
+					}
+				}
+
+				var orderItems = _orderRepository.GetOrderItems(uow, order.Id);
+				var hasMarkedProducts = orderItems.Any(x => x.Nomenclature.IsAccountableInTrueMark);
+
+				var document = documents.First();
 
 				if(!(document.Type == OutgoingEdoDocumentType.Order))
 				{
-					errors.Add(Vodovoz.Errors.Edo.EdoErrors.CreateInvalidOutgoingDocumentType(order.Id, document.Type));
+					return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.CreateInvalidOutgoingDocumentType(order.Id, document.Type));
 				}
 
-				var edoValidateDocumentResult = ValidateEdoOrderDocument(uow, document);
-
-				if(edoValidateDocumentResult.IsFailure)
+				if(hasMarkedProducts && document.CreationTime != null)
 				{
-					return edoValidateDocumentResult;
-				}
-
-				var hasMarkedProducts = order.OrderItems.Any(x => x.Nomenclature.IsAccountableInTrueMark);
-
-				if(hasMarkedProducts && document.SendTime.HasValue)
-				{
-					var threeDaysAgo = DateTime.Now.AddDays(-3);
-					if(document.SendTime.Value < threeDaysAgo)
+					var threeDaysAgo = DateTime.Now.AddDays(3);
+					if(document.CreationTime < threeDaysAgo)
 					{
-						errors.Add(Vodovoz.Errors.Edo.EdoErrors.CreateResendTimeLimitExceeded(document, order.Id));
+						return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.CreateResendTimeLimitExceeded(document, order.Id));
 					}
 				}
 
@@ -105,7 +110,7 @@ namespace EdoService.Library
 
 				if(edoTask == null)
 				{
-					return Result.Failure(Error.NullValue);
+					return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.NoActiveEdoTaskForResend);
 				}
 
 				var productCodes = new ObservableList<TrueMarkProductCode>(
@@ -134,14 +139,19 @@ namespace EdoService.Library
 		/// <returns>Активная ЭДО задача или null, если нет подходящей</returns>
 		private OrderEdoTask GetActiveEdoTaskForResend(IUnitOfWork uow, OrderEntity order)
 		{
-			var edoTasks = _edoRepository.GetEdoTaskByOrderAsync(uow, order.Id);
+			if(order == null)
+			{
+				return null;
+			}
 
+			var edoTasks = _edoRepository.GetEdoTaskByOrderAsync(uow, order.Id);
 			if(!edoTasks.Any())
 			{
 				return null;
 			}
 
-			var hasMarkedProducts = order.OrderItems.Any(x => x.Nomenclature.IsAccountableInTrueMark);
+			var orderItems = _orderRepository.GetOrderItems(uow, order.Id);
+			var hasMarkedProducts = orderItems.Any(x => x.Nomenclature.IsAccountableInTrueMark);
 			if(!hasMarkedProducts)
 			{
 				return edoTasks.FirstOrDefault(x => x.Status != EdoTaskStatus.Cancelled);
@@ -156,12 +166,7 @@ namespace EdoService.Library
 					)))
 				.ToList();
 
-			if(activeTasksWithAcceptedCodes.Count > 1)
-			{
-				return null;
-			}
-
-			return activeTasksWithAcceptedCodes.SingleOrDefault();
+			return activeTasksWithAcceptedCodes.FirstOrDefault();
 		}
 
 		/// <summary>
@@ -317,9 +322,19 @@ namespace EdoService.Library
 			return Result.Success();
 		}
 
-		public Result ValidateEdoOrderDocument(IUnitOfWork uow, OutgoingEdoDocument document)
+		public Result ValidateEdoOrderDocument(IUnitOfWork uow, OrderEdoDocument document)
 		{
+			if(document == null)
+			{
+				return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.HasProblem);
+			}
+
 			var order = _orderRepository.GetOrderByOrderEdoDocumentId(uow, document.Id);
+
+			if(order == null)
+			{
+				return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.HasProblem);
+			}
 
 			var errors = new List<Error>();
 
@@ -371,12 +386,12 @@ namespace EdoService.Library
 
 			if(dockflowData.OrderId.HasValue == false)
 			{
-				return Result.Failure(Error.NullValue);
+				return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.HasProblem);
 			}
 
 			if(dockflowData.DocFlowId.HasValue == false)
 			{
-				return Result.Failure(Error.NullValue);
+				return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.HasProblem);
 			}
 
 			var order = _orderRepository.GetOrder(uow, dockflowData.OrderId.Value);

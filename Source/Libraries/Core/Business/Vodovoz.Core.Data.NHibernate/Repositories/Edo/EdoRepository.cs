@@ -98,20 +98,17 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 			return edoTasks;
 		}
 
-		public OutgoingEdoDocument GetOrderEdoDocumentByDocflowId(IUnitOfWork uow, Guid docflowId)
+		public IEnumerable<OrderEdoDocument> GetOrderEdoDocumentsByOrderId(IUnitOfWork uow, int orderId)
 		{
-			var edoDocumentId = uow.Session.Query<TaxcomDocflow>()
-				.Where(x => x.DocflowId == docflowId)
-				.Select(x => x.EdoDocumentId)
-				.FirstOrDefault();
+			var edoDocuments = from doc in uow.Session.Query<OrderEdoDocument>()
+							   join task in uow.Session.Query<DocumentEdoTask>()
+								   on doc.DocumentTaskId equals task.Id
+							   join request in uow.Session.Query<FormalEdoRequest>()
+								   on task.Id equals request.Task.Id
+							   where request.Order.Id == orderId
+							   select doc;
 
-			if(edoDocumentId == 0)
-			{
-				return null;
-			}
-
-			return uow.Session.Query<OutgoingEdoDocument>()
-				.FirstOrDefault(x => x.Id == edoDocumentId);
+			return edoDocuments.ToList();
 		}
 	}
 }

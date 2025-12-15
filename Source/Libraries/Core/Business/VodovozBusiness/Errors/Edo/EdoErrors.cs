@@ -1,8 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Extensions;
@@ -48,6 +48,16 @@ namespace Vodovoz.Errors.Edo
 				nameof(InvalidOutgoingDocumentType),
 				"Некорректный тип документа");
 
+		public static Error NoActiveEdoTaskForResend =>
+			new Error(typeof(EdoErrors),
+				nameof(NoActiveEdoTaskForResend),
+				"Нет активной ЭДО задачи для переотправки");
+
+		public static Error HasProblem =>
+			new Error(typeof(EdoErrors),
+				nameof(HasProblem),
+				"Произошла ошибка во время переотправки документа");
+
 		public static Error CreateAlreadySuccefullSended(EdoContainer edoContainer) =>
 			 new Error(
 				typeof(EdoErrors),
@@ -56,11 +66,18 @@ namespace Vodovoz.Errors.Edo
 				 $"{edoContainer.Order?.Id ?? edoContainer.OrderWithoutShipmentForDebt?.Id ?? edoContainer.OrderWithoutShipmentForPayment?.Id ?? edoContainer.OrderWithoutShipmentForAdvancePayment?.Id} " +
 				 $"имеется документ со статусом \"{edoContainer.EdoDocFlowStatus.GetEnumDisplayName()}\"");
 
+		public static Error CreateAlreadySuccefullSended(OrderEntity order, OrderEdoDocument edoDocument) =>
+			 new Error(
+				typeof(EdoErrors),
+				nameof(AlreadySuccefullSended),
+				$"Для заказа № {order?.Id} " +
+				 $"имеется документ со статусом \"{edoDocument.Status.GetEnumDisplayName()}\"");
+
 		public static Error CreateResendableEdoDocumentStatuses(int orderId, IEnumerable<EdoDocumentStatus> statuses) =>
 			 new Error(
 				typeof(EdoErrors),
 				nameof(ResendableEdoDocumentStatuses),
-				$"Заказ {orderId} можно переотправить только в статусах: " +
+				$"Документ по заказу {orderId} можно переотправить только в статусах: " +
 				 $"{string.Join(", ", statuses.Select(s => s.GetEnumDisplayName()))}");
 
 		public static Error CreateInvalidOutgoingDocumentType(int orderId, OutgoingEdoDocumentType documentType) =>

@@ -1375,15 +1375,15 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.List();
 		}
 
-		public OrderEntity GetOrderByOrderEdoDocumentId(IUnitOfWork uow, int outgoingOrderEdoDocumentId)
+		public OrderEntity GetOrderByOrderEdoDocumentId(IUnitOfWork uow, int orderEdoDocumentId)
 		{
 			var order = (
 				from outgoing in uow.Session.Query<OrderEdoDocument>()
 				join task in uow.Session.Query<EdoTask>() on outgoing.DocumentTaskId equals task.Id into taskJoin
 				from task in taskJoin.DefaultIfEmpty()
-				join req in uow.Session.Query<PrimaryEdoRequest>() on task.Id equals req.Task.Id into reqJoin
+				join req in uow.Session.Query<FormalEdoRequest>() on task.Id equals req.Task.Id into reqJoin
 				from req in reqJoin.DefaultIfEmpty()
-				where outgoing.Id == outgoingOrderEdoDocumentId
+				where outgoing.Id == orderEdoDocumentId
 				select req.Order
 			).FirstOrDefault();
 

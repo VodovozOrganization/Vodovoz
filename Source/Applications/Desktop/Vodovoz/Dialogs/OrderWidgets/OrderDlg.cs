@@ -1669,7 +1669,7 @@ namespace Vodovoz
                 }
             }
 
-			var resendResult = _edoService.ResendEdoDocumentForOrder(Entity, document.Value);
+			var resendResult = _edoService.ResendEdoDocumentForOrder(Entity);
 
 			var resendErrors = resendResult.Errors.ToArray();
 
@@ -1680,6 +1680,8 @@ namespace Vodovoz
 					string.Join("\n - ", resendErrors.Select(x => x.Message)));
 				return;
 			}
+
+			_interactiveService.ShowMessage(ImportanceLevel.Info, "Документ успешно отправлен");
 		}
 
 		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)

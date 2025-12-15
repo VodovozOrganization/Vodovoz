@@ -37,12 +37,11 @@ namespace EdoService.Library
 		void ResendEdoOrderDocumentForOrder(Order order, OrderDocumentType type);
 
 		/// <summary>
-		/// Переотправка документа по ЭДО по идентификатору документооборота
+		/// Переотправка документа по ЭДО
 		/// </summary>
 		/// <param name="order"></param>
-		/// <param name="docflowId"></param>
 		/// <returns></returns>
-		Result ResendEdoDocumentForOrder(OrderEntity order, Guid docflowId);
+		Result ResendEdoDocumentForOrder(OrderEntity order);
 
 		Result ValidateEdoContainers(IList<EdoContainer> edoContainers);
 
@@ -52,7 +51,7 @@ namespace EdoService.Library
 		/// <param name="uow"></param>
 		/// <param name="orderDocument"></param>
 		/// <returns></returns>
-		Result ValidateEdoOrderDocument(IUnitOfWork uow, OutgoingEdoDocument orderDocument);
+		Result ValidateEdoOrderDocument(IUnitOfWork uow, OrderEdoDocument orderDocument);
 
 		Result ValidateOrderForDocument(OrderEntity order, DocumentContainerType type);
 
