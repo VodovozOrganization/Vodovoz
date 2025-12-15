@@ -1080,25 +1080,25 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 					return;
 				}
 
+				if(oldVatRate.Vat1cTypeValue == Vat1cType.Reduced)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Пониженную НДС  {TargetVatRate}% нельзя массово изменять!");
+					return;
+				}
+				
 				if(StartDateTimeForVatRate == null)
 				{
 					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Не выбрана начальная дата для выборки версий!");
 					return;
 				}
-
-				if(EndDateTimeForVatRate == null)
-				{
-					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Не выбрана конечная дата для выборки версий!");
-					return;
-				}
-
-				if(StartDateTimeForVatRate > EndDateTimeForVatRate)
+				
+				if(EndDateTimeForVatRate != null && StartDateTimeForVatRate > EndDateTimeForVatRate)
 				{
 					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Начальная дата позже конечной!");
 					return;
 				}
 			
-				var vatRateVersions = vatRateVersionRepository.GetVatRateVersionsForNomenclature(uow, (DateTime)StartDateTimeForVatRate, (DateTime)EndDateTimeForVatRate, TargetVatRate);
+				var vatRateVersions = vatRateVersionRepository.GetVatRateVersionsForNomenclature(uow, TargetVatRate);
 
 				if (!vatRateVersions.Any())
 				{
@@ -1108,16 +1108,16 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			
 				foreach(var vatRateVersion in vatRateVersions)
 				{
-					vatRateVersion.EndDate = DateTime.Now.Date.AddDays(1).AddTicks(-1);
+					vatRateVersion.EndDate = StartDateTimeForVatRate.Value.Date.AddTicks(-1);
 					
 					uow.Save(vatRateVersion);
 					
 					var newVatRateVersion = new VatRateVersion
 					{
-						StartDate = DateTime.Now.Date.AddDays(1),
+						StartDate = StartDateTimeForVatRate.Value.Date,
+						EndDate = EndDateTimeForVatRate?.Date.AddTicks(-1),
 						VatRate = newVatRate,
-						Organization = vatRateVersion.Organization,
-						Nomenclature = null
+						Nomenclature = vatRateVersion.Nomenclature
 					};
 					
 					uow.Session.Save(newVatRateVersion);
@@ -1151,25 +1151,25 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 					return;
 				}
 
+				if(oldVatRate.Vat1cTypeValue == Vat1cType.IndividualEntrepreneur)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Нельзя массово изменять ставку НДС {TargetVatRate}% для ИП!");
+					return;
+				}
+				
 				if(StartDateTimeForVatRate == null)
 				{
 					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Не выбрана начальная дата для выборки версий!");
 					return;
 				}
-
-				if(EndDateTimeForVatRate == null)
-				{
-					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Не выбрана конечная дата для выборки версий!");
-					return;
-				}
-
-				if(StartDateTimeForVatRate > EndDateTimeForVatRate)
+				
+				if(EndDateTimeForVatRate != null && StartDateTimeForVatRate > EndDateTimeForVatRate)
 				{
 					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Начальная дата позже конечной!");
 					return;
 				}
 			
-				var vatRateVersions = vatRateVersionRepository.GetVatRateVersionsForNomenclature(uow, (DateTime)StartDateTimeForVatRate, (DateTime)EndDateTimeForVatRate, TargetVatRate);
+				var vatRateVersions = vatRateVersionRepository.GetVatRateVersionsForOrganization(uow, TargetVatRate);
 
 				if (!vatRateVersions.Any())
 				{
@@ -1179,16 +1179,16 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			
 				foreach(var vatRateVersion in vatRateVersions)
 				{
-					vatRateVersion.EndDate = DateTime.Now.Date.AddDays(1).AddTicks(-1);
+					vatRateVersion.EndDate = StartDateTimeForVatRate.Value.Date.AddTicks(-1);
 					
 					uow.Save(vatRateVersion);
 					
 					var newVatRateVersion = new VatRateVersion
 					{
-						StartDate = DateTime.Now.Date.AddDays(1),
+						StartDate = StartDateTimeForVatRate.Value.Date,
+						EndDate = EndDateTimeForVatRate?.Date.AddTicks(-1),
 						VatRate = newVatRate,
 						Organization = vatRateVersion.Organization,
-						Nomenclature = null
 					};
 					
 					uow.Session.Save(newVatRateVersion);

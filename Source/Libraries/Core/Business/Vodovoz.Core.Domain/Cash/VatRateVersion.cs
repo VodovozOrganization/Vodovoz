@@ -13,7 +13,7 @@ namespace Vodovoz.Core.Domain.Cash
 		Nominative = "версия ставки НДС",
 		NominativePlural = "версии ставок НДС")]
 	[HistoryTrace]
-	public class VatRateVersion : PropertyChangedBase, IDomainObject
+	public class VatRateVersion : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private DateTime _startDate;
 		private DateTime? _endDate;

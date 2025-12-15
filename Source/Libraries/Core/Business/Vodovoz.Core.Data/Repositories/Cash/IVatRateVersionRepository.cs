@@ -11,8 +11,8 @@ namespace Vodovoz.Core.Data.Repositories.Cash
 		VatRateVersion GetActualVatRateVersionForOrganization(IUnitOfWork unitOfWork, int id);
 		VatRateVersion GetVatRateVersionForNomenclature(IUnitOfWork unitOfWork, int id, DateTime date);
 		VatRateVersion GetVatRateVersionForOrganization(IUnitOfWork unitOfWork, int id, DateTime date);
-		IEnumerable<VatRateVersion> GetVatRateVersionsForOrganization(IUnitOfWork unitOfWork, DateTime startDate, DateTime endDate, decimal targetVatRate);
-		IEnumerable<VatRateVersion> GetVatRateVersionsForNomenclature(IUnitOfWork unitOfWork, DateTime startDate, DateTime endDate, decimal targetVatRate);
+		IEnumerable<VatRateVersion> GetVatRateVersionsForOrganization(IUnitOfWork unitOfWork, decimal targetVatRate);
+		IEnumerable<VatRateVersion> GetVatRateVersionsForNomenclature(IUnitOfWork unitOfWork, decimal targetVatRate);
 		
 	}
 }

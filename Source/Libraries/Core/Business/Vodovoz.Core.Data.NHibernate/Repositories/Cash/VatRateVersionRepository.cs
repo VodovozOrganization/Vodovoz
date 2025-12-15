@@ -38,30 +38,20 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Cash
 			                                                                      && (x.EndDate > date || x.EndDate == null));
 		}
 		
-		public IEnumerable<VatRateVersion> GetVatRateVersionsForOrganization(IUnitOfWork unitOfWork, DateTime startDate, DateTime endDate, decimal targetVatRate)
+		public IEnumerable<VatRateVersion> GetVatRateVersionsForOrganization(IUnitOfWork unitOfWork, decimal targetVatRate)
 		{
-			var start = startDate.Date;                    
-			var end = endDate.Date.AddDays(1).AddTicks(-1); 
-			
 			return unitOfWork.Session.Query<VatRateVersion>()
-				.Where(x =>  x.StartDate >= start 
-				             && x.StartDate <= end 
-				             && x.EndDate == null
+				.Where(x =>  x.EndDate == null
 				             && x.VatRate.VatRateValue == targetVatRate
 				             && x.Nomenclature == null
 				             && x.VatRate.Vat1cTypeValue != Vat1cType.IndividualEntrepreneur
 				             && x.Organization != null);
 		}
 		
-		public IEnumerable<VatRateVersion> GetVatRateVersionsForNomenclature(IUnitOfWork unitOfWork, DateTime startDate, DateTime endDate, decimal targetVatRate)
+		public IEnumerable<VatRateVersion> GetVatRateVersionsForNomenclature(IUnitOfWork unitOfWork, decimal targetVatRate)
 		{
-			var start = startDate.Date;                    
-			var end = endDate.Date.AddDays(1).AddTicks(-1); 
-			
 			return unitOfWork.Session.Query<VatRateVersion>()
-				.Where(x =>  x.StartDate >= start 
-				             && x.StartDate <= end 
-				             && x.EndDate == null
+				.Where(x => x.EndDate == null
 				             && x.VatRate.VatRateValue == targetVatRate
 				             && x.Nomenclature != null
 				             && x.VatRate.Vat1cTypeValue != Vat1cType.Reduced
