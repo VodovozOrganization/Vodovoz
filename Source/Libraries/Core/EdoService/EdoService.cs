@@ -99,7 +99,7 @@ namespace EdoService.Library
 
 				if(hasMarkedProducts && document.CreationTime != null)
 				{
-					var threeDaysAgo = DateTime.Now.AddDays(3);
+					var threeDaysAgo = DateTime.Now.AddDays(-3);
 					if(document.CreationTime < threeDaysAgo)
 					{
 						return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.CreateResendTimeLimitExceeded(document, order.Id));
@@ -159,12 +159,12 @@ namespace EdoService.Library
 
 			var activeTasksWithAcceptedCodes = edoTasks
 				.Where(x => x.Status != EdoTaskStatus.Cancelled)
-				.Where(x => x.OrderEdoRequest.ProductCodes.Any(c =>
-					c.SourceCodeStatus.IsIn(
+				.Where(x => x.Items.Any(c =>
+					c.ProductCode.SourceCodeStatus.IsIn(
 						SourceProductCodeStatus.Accepted,
 						SourceProductCodeStatus.Changed
 					)))
-				.ToList();
+				.ToList(); 
 
 			return activeTasksWithAcceptedCodes.FirstOrDefault();
 		}
