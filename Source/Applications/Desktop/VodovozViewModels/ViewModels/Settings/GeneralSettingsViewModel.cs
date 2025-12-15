@@ -1082,7 +1082,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 				if(oldVatRate.Vat1cTypeValue == Vat1cType.Reduced)
 				{
-					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Пониженную НДС  {TargetVatRate}% нельзя массово изменять!");
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Пониженную НДС {TargetVatRate}% нельзя массово изменять!");
 					return;
 				}
 				
@@ -1108,6 +1108,11 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			
 				foreach(var vatRateVersion in vatRateVersions)
 				{
+					if(vatRateVersion.StartDate == StartDateTimeForVatRate)
+					{
+						continue;
+					}
+					
 					vatRateVersion.EndDate = StartDateTimeForVatRate.Value.Date.AddTicks(-1);
 					
 					uow.Save(vatRateVersion);
