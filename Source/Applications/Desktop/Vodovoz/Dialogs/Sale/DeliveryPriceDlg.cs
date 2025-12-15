@@ -260,5 +260,11 @@ namespace Vodovoz.Dialogs.Sale
 		{
 			deliverypriceview.DeliveryPrice = _deliveryPriceCalculator.Calculate(_latitude, _longitude, yspinBottles.ValueAsInt);
 		}
+
+		public override void Destroy()
+		{
+			_unitOfWork?.Dispose();
+			base.Destroy();
+		}
 	}
 }
