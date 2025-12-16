@@ -1,5 +1,4 @@
 using FastPaymentsApi.Contracts;
-using FastPaymentsAPI.Library.Notifications;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -21,8 +20,6 @@ namespace FastPaymentsAPI.Library.Managers
 		private readonly IFastPaymentRepository _fastPaymentRepository;
 		private readonly IFastPaymentManager _fastPaymentManager;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
-		private readonly SiteNotifier _siteNotifier;
-		private readonly MobileAppNotifier _mobileAppNotifier;
 		private readonly IErrorHandler _errorHandler;
 		private bool _isFirstLaunch = true;
 		private int _updatedCount;
@@ -33,8 +30,6 @@ namespace FastPaymentsAPI.Library.Managers
 			IFastPaymentRepository fastPaymentRepository,
 			IFastPaymentManager fastPaymentManager,
 			IServiceScopeFactory serviceScopeFactory,
-			SiteNotifier siteNotifier,
-			MobileAppNotifier mobileAppNotifier,
 			IErrorHandler errorHandler)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -42,8 +37,6 @@ namespace FastPaymentsAPI.Library.Managers
 			_fastPaymentRepository = fastPaymentRepository ?? throw new ArgumentNullException(nameof(fastPaymentRepository));
 			_fastPaymentManager = fastPaymentManager ?? throw new ArgumentNullException(nameof(fastPaymentManager));
 			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
-			_siteNotifier = siteNotifier;
-			_mobileAppNotifier = mobileAppNotifier;
 			_errorHandler = errorHandler ?? throw new ArgumentNullException(nameof(errorHandler));
 		}
 
@@ -61,7 +54,7 @@ namespace FastPaymentsAPI.Library.Managers
 
 				try
 				{
-					_logger.LogInformation($"Обновление статуса обрабатывающихся платежей...");
+					_logger.LogInformation("Обновление статуса обрабатывающихся платежей...");
 
 					using(var uow = _uowFactory.CreateWithoutRoot())
 					{
@@ -73,9 +66,14 @@ namespace FastPaymentsAPI.Library.Managers
 						}
 					}
 
-					_logger.LogInformation(_updatedCount > 0
-						? $"{_updatedCount} платежей поменяли свой статус"
-						: "Не обнаружено обрабатывающихся платежей");
+					if(_updatedCount > 0)
+					{
+						_logger.LogInformation("{UpdatedFastPayments} платежей поменяли свой статус", _updatedCount);
+					}
+					else
+					{
+						_logger.LogInformation("Не обнаружено обрабатывающихся платежей");
+					}
 				}
 				catch(Exception e)
 				{
@@ -107,7 +105,7 @@ namespace FastPaymentsAPI.Library.Managers
 				}
 
 				//Обновляем сущность, т.к. колбэк может поменять статус быстрого платежа
-				uow.Session.Refresh(payment);
+				await uow.Session.RefreshAsync(payment);
 
 				if((payment.FastPaymentStatus == FastPaymentStatus.Rejected && response.Status == FastPaymentDTOStatus.Processing)
 					|| (payment.FastPaymentStatus == FastPaymentStatus.Performed && response.Status == FastPaymentDTOStatus.Performed))
@@ -124,23 +122,29 @@ namespace FastPaymentsAPI.Library.Managers
 						continue;
 					}
 
-					_logger.LogInformation($"Отменяем платеж с сессией: {ticket}");
+					_logger.LogInformation("Отменяем платеж с сессией: {Ticket}", ticket);
 					_fastPaymentManager.UpdateFastPaymentStatus(uow, payment, FastPaymentDTOStatus.Rejected, DateTime.Now);
 				}
 				else
 				{
 					var newStatus = response.Status;
 					_logger.LogInformation(
-						$"Обновляем статус платежа с сессией: {ticket} новый статус: {newStatus}");
+						"Обновляем статус платежа с сессией: {Ticket} новый статус: {NewStatus}",
+						ticket,
+						newStatus);
 					_fastPaymentManager.UpdateFastPaymentStatus(uow, payment, newStatus, response.StatusDate);
 				}
 
-				uow.Save(payment);
-				uow.Commit();
-				_updatedCount++;
+				await uow.SaveAsync(payment);
 
-				await _siteNotifier.NotifyPaymentStatusChangeAsync(payment);
-				await _mobileAppNotifier.NotifyPaymentStatusChangeAsync(payment);
+				if(payment.Order is null)
+				{
+					var @event = FastPaymentStatusUpdatedEvent.Create(payment, payment.FastPaymentStatus);
+					await uow.SaveAsync(@event);
+				}
+
+				await uow.CommitAsync();
+				_updatedCount++;
 			}
 		}
 

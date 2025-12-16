@@ -479,14 +479,14 @@ namespace FastPaymentsAPI.Controllers
 
 					try
 					{
-						await _fastPaymentOrderService.NotifyEmployee(orderNumber, bankSignature, shopId, paymentSignature);
+						_fastPaymentService.CreateWrongFastPaymentEvent(orderNumber, bankSignature, (int)shopId, paymentSignature);
 					}
 					catch(Exception e)
 					{
 						_logger.LogError(e, "Не удалось уведомить пользователя о неверной подписи оплаты с сессией {Ticket}", ticket);
 					}
 
-					return BadRequest();
+					return Accepted();
 				}
 
 				_logger.LogInformation("Обновляем статус оплаты платежа с ticket: {Ticket}", ticket);

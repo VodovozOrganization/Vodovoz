@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using FastPaymentsApi.Contracts;
 using FastPaymentsApi.Contracts.Responses;
 using FastPaymentsAPI.Library.Converters;
@@ -18,7 +17,6 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Orders;
-using VodovozBusiness.Domain.Settings;
 using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Cryptography;
 
@@ -110,7 +108,7 @@ namespace FastPaymentsAPI.Library.Models
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e, $"При загрузке заказа№ {orderId} произошла ошибка, записываю в файл...");
+				_logger.LogError(e, "При загрузке заказа№ {OrderId} произошла ошибка, записываю в файл...", orderId);
 				CacheData(orderRegistrationResponseDto, orderId, creationDate, fastPaymentGuid, payType, organization, phoneNumber,
 					paymentByCardFrom);
 				return;
@@ -197,8 +195,29 @@ namespace FastPaymentsAPI.Library.Models
 		{
 			var oldStatus = fastPayment.FastPaymentStatus;
 			_fastPaymentManager.UpdateFastPaymentStatus(_uow, fastPayment, newStatus, statusDate);
-			Save(fastPayment);
-			_logger.LogInformation($"Статус платежа с externalId: {fastPayment.ExternalId} изменён c {oldStatus} на {newStatus}");
+
+			_uow.Save(fastPayment);
+			
+			if(fastPayment.Order is null)
+			{
+				var @event = FastPaymentStatusUpdatedEvent.Create(fastPayment, fastPayment.FastPaymentStatus);
+				_uow.Save(@event);
+			}
+			
+			_uow.Commit();
+			
+			_logger.LogInformation(
+				"Статус платежа с externalId: {ExternalId} изменён c {OldStatus} на {NewStatus}",
+				fastPayment.ExternalId,
+				oldStatus,
+				newStatus);
+		}
+
+		/// <inheritdoc/>
+		public void CreateWrongFastPaymentEvent(string orderNumber, string bankSignature, int shopId, string paymentSignature)
+		{
+			var @event = WrongSignatureFromReceivedFastPaymentEvent.Create(orderNumber, bankSignature, shopId, paymentSignature);
+			Save(@event);
 		}
 
 		private void CacheData(
