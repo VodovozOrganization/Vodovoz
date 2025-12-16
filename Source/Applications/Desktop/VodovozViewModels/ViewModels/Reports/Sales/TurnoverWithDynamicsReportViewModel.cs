@@ -817,7 +817,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						{
 							EdoFiscalDocument edoFiscalDocumentAlias = null;
 							EdoTask edoTaskAlias = null;
-							PrimaryEdoRequest edoRequestAlias = null;
+							FormalEdoRequest edoRequestAlias = null;
 
 							var subQueryWithCashReceipts = QueryOver.Of(() => edoFiscalDocumentAlias)
 								.JoinAlias(() => edoFiscalDocumentAlias.ReceiptEdoTask, () => edoTaskAlias)
@@ -1437,7 +1437,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					{
 						EdoFiscalDocument edoFiscalDocumentAlias = null;
 						EdoTask edoTaskAlias = null;
-						PrimaryEdoRequest edoRequestAlias = null;
+						FormalEdoRequest edoRequestAlias = null;
 
 						var subQueryWithCashReceipts = QueryOver.Of(() => edoFiscalDocumentAlias)
 							.JoinAlias(() => edoFiscalDocumentAlias.ReceiptEdoTask, () => edoTaskAlias)

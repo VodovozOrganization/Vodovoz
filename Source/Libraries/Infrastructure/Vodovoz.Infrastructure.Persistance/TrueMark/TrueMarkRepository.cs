@@ -137,7 +137,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			Gtin gtinAlias = null;
 			EdoProblemGtinItem problemItemAlias = null;
 			EdoTaskProblem problemAlias = null;
-			PrimaryEdoRequest orderRequestAlias = null;
+			FormalEdoRequest requestAlias = null;
 			OrderItem orderItemAlias = null;
 			Nomenclature nomenclatureAlias = null;
 
@@ -153,12 +153,12 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 						&& problemAlias.State == TaskProblemState.Active
 				)
 				.JoinEntityAlias(
-					() => orderRequestAlias,
-					() => orderRequestAlias.Task.Id == problemAlias.EdoTask.Id,
+					() => requestAlias,
+					() => requestAlias.Task.Id == problemAlias.EdoTask.Id,
 					JoinType.LeftOuterJoin)
 				.JoinEntityAlias(
 					() => orderItemAlias,
-					() => orderItemAlias.Order.Id == orderRequestAlias.Order.Id,
+					() => orderItemAlias.Order.Id == requestAlias.Order.Id,
 					JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias,
 					() => orderItemAlias.Nomenclature.Id == nomenclatureAlias.Id
@@ -289,7 +289,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 		public IEnumerable<AutoTrueMarkProductCode> GetCodesFromPoolByOrder(IUnitOfWork uow, int orderId)
 		{
 			AutoTrueMarkProductCode autoProductCodeAlias = null;
-			PrimaryEdoRequest customerEdoRequestAlias = null;
+			FormalEdoRequest edoRequestAlias = null;
 			EdoTaskItem edoTaskItemAlias = null;	
 
 			var poolCodes = uow.Session.QueryOver(() => autoProductCodeAlias)
@@ -304,10 +304,10 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				)
 				.Left.JoinAlias(
 					() => autoProductCodeAlias.CustomerEdoRequest,
-					() => customerEdoRequestAlias
+					() => edoRequestAlias
 				)
-				.Where(() => edoTaskItemAlias.CustomerEdoTask.Id == customerEdoRequestAlias.Task.Id)
-				.Where(() => customerEdoRequestAlias.Order.Id == orderId)
+				.Where(() => edoTaskItemAlias.CustomerEdoTask.Id == edoRequestAlias.Task.Id)
+				.Where(() => edoRequestAlias.Order.Id == orderId)
 				.List();
 
 			return poolCodes;

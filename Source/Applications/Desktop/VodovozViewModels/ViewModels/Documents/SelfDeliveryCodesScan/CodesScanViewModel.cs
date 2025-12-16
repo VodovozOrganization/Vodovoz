@@ -196,11 +196,11 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 						return;
 					}
 
-					var hasOrderEdoRequest = _unitOfWork
-						.GetAll<PrimaryEdoRequest>()
+					var hasEdoRequest = _unitOfWork
+						.GetAll<FormalEdoRequest>()
 						.Any(x => x.Order.Id == _selfDeliveryDocument.Order.Id);
 
-					if(hasOrderEdoRequest)
+					if(hasEdoRequest)
 					{
 						_interactiveService.ShowMessage(ImportanceLevel.Error, $"По данному заказу уже создана заявка");
 

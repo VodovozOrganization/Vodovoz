@@ -219,7 +219,7 @@ namespace EdoService.Library
 					var edoTask =
 						uow
 							.GetAll<BulkAccountingEdoTask>()
-							.FirstOrDefault(x => x.OrderEdoRequest.Order.Id == entity.Id);
+							.FirstOrDefault(x => x.FormalEdoRequest.Order.Id == entity.Id);
 					
 					if(edoTask != null)
 					{

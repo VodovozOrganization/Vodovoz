@@ -158,7 +158,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 
 							var tasks = _receiptRepository.Get(
 									uow,
-									f => f.OrderEdoRequest.Order.Id == orderId && f.Id != selectedNode.OrderTaskId)
+									f => f.FormalEdoRequest.Order.Id == orderId && f.Id != selectedNode.OrderTaskId)
 								.ToList();
 
 							if(tasks.Any(x => x.ReceiptStatus != EdoReceiptStatus.SavedToPool))
@@ -216,7 +216,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 
 							var tasks = _documentRepository.Get(
 									uow,
-									t => t.OrderEdoRequest.Order.Id == orderId && t.Id != selectedNode.OrderTaskId)
+									t => t.FormalEdoRequest.Order.Id == orderId && t.Id != selectedNode.OrderTaskId)
 								.ToList();
 
 							if(tasks.Any(x => x.TaskType != EdoTaskType.SaveCode))

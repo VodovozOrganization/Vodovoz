@@ -71,7 +71,7 @@ namespace Edo.Transfer.Routine.Services
 						on order.Contract.Id equals contract.Id
 					join organization in uow.Session.Query<CounterpartyEntity>()
 						on contract.Organization.Id equals organization.Id
-					join er in uow.Session.Query<PrimaryEdoRequest>() on order.Id equals er.Order.Id into edoRequests
+					join er in uow.Session.Query<FormalEdoRequest>() on order.Id equals er.Order.Id into edoRequests
 					from edoRequest in edoRequests.DefaultIfEmpty()
 					join ec in uow.Session.Query<EdoContainerEntity>()
 					   on new { OrderId = order.Id, DocType = DocumentContainerType.Upd } equals new { OrderId = ec.Order.Id, DocType = ec.Type } into edoContainers

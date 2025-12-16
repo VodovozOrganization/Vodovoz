@@ -961,7 +961,7 @@ namespace Vodovoz
 
 		private bool HasEdoRequest(int orderId)
 		{
-			return UoW.GetAll<PrimaryEdoRequest>()
+			return UoW.GetAll<FormalEdoRequest>()
 				.FirstOrDefault(x => x.Order.Id == orderId) != null;
 		}
 

@@ -288,7 +288,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			
 			EdoFiscalDocument edoFiscalDocumentAlias = null;
 			EdoTask edoTaskAlias = null;
-			PrimaryEdoRequest edoRequestAlias = null;
+			FormalEdoRequest edoRequestAlias = null;
 					
 			var subQueryWithCashReceipts = QueryOver.Of(() => edoFiscalDocumentAlias)
 				.JoinAlias(() => edoFiscalDocumentAlias.ReceiptEdoTask, () => edoTaskAlias)
@@ -1007,7 +1007,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		{
 			var upds =
 			(from et in uow.Session.Query<EdoTask>()
-			 join er in uow.Session.Query<PrimaryEdoRequest>() on et.Id equals er.Task.Id
+			 join er in uow.Session.Query<FormalEdoRequest>() on et.Id equals er.Task.Id
 			 join tri in uow.Session.Query<TransferEdoRequestIteration>() on et.Id equals tri.OrderEdoTask.Id into transferEdoRequestIterations
 			 from transferEdoRequestIteration in transferEdoRequestIterations.DefaultIfEmpty()
 			 join ter in uow.Session.Query<TransferEdoRequest>() on transferEdoRequestIteration.Id equals ter.Iteration.Id into transferEdoRequests
@@ -1059,7 +1059,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 			var receipts =
 				(from edoTask in uow.Session.Query<ReceiptEdoTask>()
-				 join edoRequest in uow.Session.Query<PrimaryEdoRequest>() on edoTask.Id equals edoRequest.Task.Id
+				 join edoRequest in uow.Session.Query<FormalEdoRequest>() on edoTask.Id equals edoRequest.Task.Id
 				 join efd in uow.Session.Query<EdoFiscalDocument>() on edoTask.Id equals efd.ReceiptEdoTask.Id into fiscalDocuments
 				 from fiscalDocument in fiscalDocuments.DefaultIfEmpty()
 				 join tri in uow.Session.Query<TransferEdoRequestIteration>() on edoTask.Id equals tri.OrderEdoTask.Id into transferEdoRequestIterations
@@ -1277,7 +1277,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				join nomenclature in uow.Session.Query<Nomenclature>() on carLoadDocumentItem.Nomenclature.Id equals nomenclature.Id
 				join order in uow.Session.Query<Order>() on carLoadDocumentItem.OrderId equals order.Id
 				join client in uow.Session.Query<Counterparty>() on order.Client.Id equals client.Id
-				join oer in uow.Session.Query<PrimaryEdoRequest>() on order.Id equals oer.Order.Id into orderEdoRequests
+				join er in uow.Session.Query<FormalEdoRequest>() on order.Id equals er.Order.Id into orderEdoRequests
 				from orderEdoRequest in orderEdoRequests.DefaultIfEmpty()
 				where
 					orderIds.Contains((int)carLoadDocumentItem.OrderId)

@@ -86,13 +86,13 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 			int orderId
 			)
 		{
-			PrimaryEdoRequest orderEdoRequestAlias = null;
+			FormalEdoRequest edoRequestAlias = null;
 			OrderEdoTask orderEdoTaskAlias = null;
 
 			var edoTasks = uow.Session.QueryOver(() => orderEdoTaskAlias)
-				.Left.JoinAlias(() => orderEdoTaskAlias.OrderEdoRequest, () => orderEdoRequestAlias)
-				.Where(() => orderEdoRequestAlias.Order.Id == orderId)
-				.Where(() => orderEdoRequestAlias.DocumentType == EdoDocumentType.UPD)
+				.Left.JoinAlias(() => orderEdoTaskAlias.FormalEdoRequest, () => edoRequestAlias)
+				.Where(() => edoRequestAlias.Order.Id == orderId)
+				.Where(() => edoRequestAlias.DocumentType == EdoDocumentType.UPD)
 				.List()
 				;
 			return edoTasks;

@@ -9,7 +9,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 		{
 			Abstract();
 
-			HasOne(x => x.OrderEdoRequest)
+			HasOne(x => x.FormalEdoRequest)
 				.PropertyRef(nameof(FormalEdoRequest.Task))
 				.Cascade.All();
 

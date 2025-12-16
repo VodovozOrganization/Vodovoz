@@ -124,7 +124,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		{
 			EdoTaskProblem problemAlias = null;
 			ExceptionEdoTaskProblem exceptionEdoTaskProblemAlias = null;
-			PrimaryEdoRequest orderEdoRequestAlias = null;
+			FormalEdoRequest edoRequestAlias = null;
 			Order orderAlias = null;
 			EdoTask edoTaskAlias = null;
 			EdoTaskProblemDescriptionSourceEntity problemDescriptionSourceAlias = null;
@@ -136,8 +136,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 				.JoinEntityAlias(() => exceptionEdoTaskProblemAlias, () => exceptionEdoTaskProblemAlias.Id == problemAlias.Id,
 					JoinType.LeftOuterJoin)
 				.JoinAlias(() => problemAlias.EdoTask, () => edoTaskAlias)
-				.JoinEntityAlias(() => orderEdoRequestAlias, () => orderEdoRequestAlias.Task.Id == edoTaskAlias.Id)
-				.JoinAlias(() => orderEdoRequestAlias.Order, () => orderAlias)
+				.JoinEntityAlias(() => edoRequestAlias, () => edoRequestAlias.Task.Id == edoTaskAlias.Id)
+				.JoinAlias(() => edoRequestAlias.Order, () => orderAlias)
 				.JoinEntityAlias(() => problemDescriptionSourceAlias,
 					() => problemDescriptionSourceAlias.Name == problemAlias.SourceName)
 				.JoinEntityAlias(() => customProblemDescriptionSourceAlias,

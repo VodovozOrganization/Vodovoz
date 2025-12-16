@@ -217,9 +217,9 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 		}
 
 		/// <inheritdoc/>
-		public async Task<IEnumerable<PrimaryEdoRequest>> GetOrderEdoRequestsByOrderId(IUnitOfWork uow, int orderId, CancellationToken cancellationToken)
+		public async Task<IEnumerable<FormalEdoRequest>> GetOrderEdoRequestsByOrderId(IUnitOfWork uow, int orderId, CancellationToken cancellationToken)
 		{
-			var orderEdoRequests = await uow.Session.Query<PrimaryEdoRequest>()
+			var orderEdoRequests = await uow.Session.Query<FormalEdoRequest>()
 				.Where(x => x.Order.Id == orderId)
 				.ToListAsync(cancellationToken);
 

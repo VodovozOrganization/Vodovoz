@@ -486,11 +486,11 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.EdoControl
 						   .FirstOrDefault()
 
 				let edoDocumentStatus =
-					(EdoDocumentStatus?)(from orderEdoRequest in uow.Session.Query<PrimaryEdoRequest>()
+					(EdoDocumentStatus?)(from edoRequest in uow.Session.Query<FormalEdoRequest>()
 										 join orderEdoDocument in uow.Session.Query<OrderEdoDocument>()
-										 on orderEdoRequest.Task.Id equals orderEdoDocument.DocumentTaskId
-										 where orderEdoRequest.Order.Id == order.Id
-										 orderby orderEdoRequest.Id descending, orderEdoDocument.Id descending
+										 on edoRequest.Task.Id equals orderEdoDocument.DocumentTaskId
+										 where edoRequest.Order.Id == order.Id
+										 orderby edoRequest.Id descending, orderEdoDocument.Id descending
 										 select orderEdoDocument.Status)
 										.FirstOrDefault()
 
