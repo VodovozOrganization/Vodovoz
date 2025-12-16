@@ -1,16 +1,13 @@
-using FastPaymentsApi.Contracts;
-using FastPaymentsApi.Contracts.Requests;
-using FastPaymentsAPI.Library.ApiClients;
-using FastPaymentsAPI.Library.Factories;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
-using Vodovoz.Core.Data.Orders;
+using FastPaymentsAPI.Library.ApiClients;
+using FastPaymentsAPI.Library.Notifications;
+using Microsoft.Extensions.Logging;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Settings.Orders;
 
-namespace FastPaymentsAPI.Library.Notifications
+namespace FastPaymentEventsSender.Notifications
 {
 	public class SiteNotifier
 	{
@@ -18,20 +15,17 @@ namespace FastPaymentsAPI.Library.Notifications
 		private readonly SiteClient _siteClient;
 		private readonly NotificationModel _notificationModel;
 		private readonly IOrderSettings _orderSettings;
-		private readonly IFastPaymentFactory _fastPaymentFactory;
 
 		public SiteNotifier(
 			ILogger<SiteNotifier> logger,
 			SiteClient siteClient,
 			NotificationModel notificationModel,
-			IOrderSettings orderSettings,
-			IFastPaymentFactory fastPaymentFactory)
+			IOrderSettings orderSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_siteClient = siteClient ?? throw new ArgumentNullException(nameof(siteClient));
 			_notificationModel = notificationModel ?? throw new ArgumentNullException(nameof(notificationModel));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
-			_fastPaymentFactory = fastPaymentFactory ?? throw new ArgumentNullException(nameof(fastPaymentFactory));
 		}
 
 		public async Task NotifyPaymentStatusChangeAsync(FastPayment payment)

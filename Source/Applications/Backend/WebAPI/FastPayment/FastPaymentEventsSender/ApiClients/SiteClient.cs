@@ -1,9 +1,9 @@
-﻿using FastPaymentsApi.Contracts.Requests;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using FastPaymentsApi.Contracts.Requests;
 using Vodovoz.Settings.FastPayments;
 
 namespace FastPaymentsAPI.Library.ApiClients

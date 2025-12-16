@@ -1,16 +1,14 @@
-using FastPaymentsApi.Contracts;
-using FastPaymentsApi.Contracts.Requests;
-using FastPaymentsAPI.Library.ApiClients;
-using FastPaymentsAPI.Library.Factories;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
-using Vodovoz.Core.Data.Orders;
+using FastPaymentsApi.Contracts.Requests;
+using FastPaymentsAPI.Library.ApiClients;
+using FastPaymentsAPI.Library.Notifications;
+using Microsoft.Extensions.Logging;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Settings.Orders;
 
-namespace FastPaymentsAPI.Library.Notifications
+namespace FastPaymentEventsSender.Notifications
 {
 	public class MobileAppNotifier
 	{
@@ -18,20 +16,17 @@ namespace FastPaymentsAPI.Library.Notifications
 		private readonly MobileAppClient _mobileAppClient;
 		private readonly NotificationModel _notificationModel;
 		private readonly IOrderSettings _orderSettings;
-		private readonly IFastPaymentFactory _fastPaymentFactory;
 
 		public MobileAppNotifier(
 			ILogger<MobileAppNotifier> logger,
 			MobileAppClient mobileAppClient,
 			NotificationModel notificationModel,
-			IOrderSettings orderSettings,
-			IFastPaymentFactory fastPaymentFactory)
+			IOrderSettings orderSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_mobileAppClient = mobileAppClient ?? throw new ArgumentNullException(nameof(mobileAppClient));
 			_notificationModel = notificationModel ?? throw new ArgumentNullException(nameof(notificationModel));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
-			_fastPaymentFactory = fastPaymentFactory ?? throw new ArgumentNullException(nameof(fastPaymentFactory));
 		}
 
 		public async Task NotifyPaymentStatusChangeAsync(FastPayment payment)
