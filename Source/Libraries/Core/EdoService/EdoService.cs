@@ -159,8 +159,8 @@ namespace EdoService.Library
 
 			var activeTasksWithAcceptedCodes = edoTasks
 				.Where(x => x.Status != EdoTaskStatus.Cancelled)
-				.Where(x => x.Items.Any(c =>
-					c.ProductCode.SourceCodeStatus.IsIn(
+				.Where(x => x.FormalEdoRequest.ProductCodes.Any(c =>
+					c.SourceCodeStatus.IsIn(
 						SourceProductCodeStatus.Accepted,
 						SourceProductCodeStatus.Changed
 					)))
