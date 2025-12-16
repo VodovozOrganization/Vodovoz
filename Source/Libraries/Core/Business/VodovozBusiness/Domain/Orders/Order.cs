@@ -2683,6 +2683,17 @@ namespace Vodovoz.Domain.Orders
 							);
 						}
 						break;
+					case OrderDocumentType.LetterOfDebt:
+						if(ObservableOrderDocuments
+						   .OfType<LetterOfDebtDocument>()
+						   .FirstOrDefault(x => x.Order == item.Order)
+						   == null) {
+							ObservableOrderDocuments.Add(new LetterOfDebtDocument {
+								Order = item.Order,
+								AttachedToOrder = this
+							});
+						}
+						break;
 					default:
 						break;
 				}
@@ -3850,6 +3861,9 @@ namespace Vodovoz.Domain.Orders
 					break;
 				case OrderDocumentType.AssemblyList:
 					newDoc = new AssemblyListDocument();
+					break;
+				case OrderDocumentType.LetterOfDebt:
+					newDoc = new LetterOfDebtDocument();
 					break;
 				default:
 					throw new NotSupportedException("Не поддерживаемый тип документа");

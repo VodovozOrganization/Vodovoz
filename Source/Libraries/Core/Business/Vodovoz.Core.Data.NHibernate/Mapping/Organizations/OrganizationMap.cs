@@ -45,6 +45,12 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Organizations
 			Map(x => x.WithoutVAT)
 				.Column("without_vat")
 				.ReadOnly();
+
+			Map(x => x.DisableDebtMailing)
+				.Column("disable_debt_mailing");
+
+			Map(x => x.DebtMailingWithSignature)
+				.Column("debt_mailing_with_signature");
 			
 			Map(x => x.IsNeedCashlessMovementControl)
 				.Column("is_need_cashless_movement_control");

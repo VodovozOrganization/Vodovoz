@@ -186,6 +186,19 @@ namespace Vodovoz.Additions
 
 									break;
 
+								case CounterpartyEmailType.Bulk:
+									var bulkDocumentEmail = new BulkDocumentEmail
+									{
+										StoredEmail = storedEmail,
+										Counterparty = sendedEmail.Counterparty,
+										OrderDocument = ((BulkDocumentEmail)sendedEmail).OrderDocument
+									};
+
+									unitOfWork.Save(bulkDocumentEmail);
+
+									break;
+
+
 								case CounterpartyEmailType.UpdDocument:
 									var updDocumentEmail = new UpdDocumentEmail()
 									{

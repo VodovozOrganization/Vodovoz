@@ -1,4 +1,5 @@
-﻿using QS.Views.GtkUI;
+﻿using QS.Project.Services;
+using QS.Views.GtkUI;
 using QS.Widgets;
 using ReactiveUI.Validation.Extensions;
 using System;
@@ -77,7 +78,15 @@ namespace Vodovoz.Organizations
 			chkWithoutVat.Binding
 				.AddBinding(ViewModel.Entity, e => e.WithoutVAT, w => w.Active)
 				.InitializeFromSource();
-			
+
+			ycheckbuttonDisableDebtMailing.Binding
+				.AddBinding(ViewModel.Entity, e => e.DisableDebtMailing, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckbuttonDebtMailingWithSignature.Binding
+				.AddBinding(ViewModel.Entity, e => e.DebtMailingWithSignature, w => w.Active)
+				.InitializeFromSource();
+
 			chkIsNeedCashlessMovementControl.Binding
 				.AddBinding(ViewModel.Entity, e => e.IsNeedCashlessMovementControl, w => w.Active)
 				.InitializeFromSource();

@@ -1,4 +1,4 @@
-using QS.Banks;
+﻿using QS.Banks;
 using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
 using QS.Deletion;
@@ -832,6 +832,8 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<DoneWorkDocument>();
 
 			DeleteConfig.AddHibernateDeleteInfo<EquipmentTransferDocument>();
+
+			DeleteConfig.AddHibernateDeleteInfo<LetterOfDebtDocument>();
 
 			DeleteConfig.AddHibernateDeleteInfo<InvoiceBarterDocument>();
 

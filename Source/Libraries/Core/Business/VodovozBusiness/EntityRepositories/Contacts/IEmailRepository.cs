@@ -32,30 +32,13 @@ namespace Vodovoz.EntityRepositories
 		Email GetEmailForExternalCounterparty(IUnitOfWork uow, int counterpartyId);
 
 		/// <summary>
-		/// Получение количества писем, ожидающих отправки до указанной даты включительно
-		/// </summary>
-		/// <param name="uow"></param>
-		/// <param name="cutoffDate"></param>
-		/// <returns></returns>
-		Task<int> GetPendingEmailsCountAsync(IUnitOfWork uow, DateTime cutoffDate);
-
-		/// <summary>
-		/// Отметка заказов как отправленных
-		/// </summary>
-		/// <param name="uow"></param>
-		/// <param name="orderIds"></param>
-		/// <param name="sentDate"></param>
-		/// <param name="cancellationToken"></param>
-		/// <returns></returns>
-		Task MarkOrdersAsSentAsync(IUnitOfWork uow, List<int> orderIds, DateTime sentDate, CancellationToken cancellationToken);
-
-		/// <summary>
 		/// Получение всех просроченных заказов, сгруппированных по клиентам, для рассылки уведомлений о задолженности
 		/// </summary>
 		/// <param name="uow"></param>
 		/// <param name="maxClients">Максимальное количество клиентов для обработки</param>
-		/// <returns>Словарь: клиент → список его просроченных заказов</returns>
-		Task<Dictionary<Counterparty, List<Order>>> GetAllOverdueOrdersForDebtNotificationAsync(IUnitOfWork uow, int maxClients);
+		/// <param name="cancellationToken"></param>
+		/// <returns>Словарь: клиент - список его просроченных заказов</returns>
+		Task<Dictionary<Counterparty, List<Order>>> GetAllOverdueOrdersForDebtNotificationAsync(IUnitOfWork uow, int maxClients, CancellationToken cancellationToken);
 
 		#region EmailType
 

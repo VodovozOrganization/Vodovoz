@@ -36,6 +36,8 @@ namespace Vodovoz.Core.Domain.Organizations
 		private string _emailForMailing;
 		private int? _cashBoxId;
 		private bool _withoutVAT;
+		private bool _disableDebtMailing;
+		private bool _debtMailingWithSignature;
 		private int? _avangardShopId;
 		private bool _isNeedCashlessMovementControl;
 		private OrganizationEdoType _organizationEdoType;
@@ -176,6 +178,26 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _withoutVAT;
 			set => SetField(ref _withoutVAT, value);
+		}
+
+		/// <summary>
+		/// Запретить рассылку писем о задолженности
+		/// </summary>
+		[Display(Name = "Запретить рассылку писем о задолженности")]
+		public virtual bool DisableDebtMailing
+		{
+			get => _disableDebtMailing;
+			set => SetField(ref _disableDebtMailing, value);
+		}
+
+		/// <summary>
+		/// Рассылка писем о задолженности с печатью и подписью
+		/// </summary>
+		[Display(Name = "Рассылка писем о задолженности с печатью и подписью")]
+		public virtual bool DebtMailingWithSignature
+		{
+			get => _debtMailingWithSignature;
+			set => SetField(ref _debtMailingWithSignature, value);
 		}
 		
 		/// <summary>

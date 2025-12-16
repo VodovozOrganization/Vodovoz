@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -223,6 +223,16 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type)
 						    && ((OrderWithoutShipmentForPayment)Document).Organization != null;
 						break;
+					case OrderDocumentType.LetterOfDebt:
+						listEmails = uow.Session.QueryOver<BulkDocumentEmail>()
+							.Where(o => o.OrderDocument.Id == Document.Id)
+							.Select(o => o.StoredEmail)
+							.List<StoredEmail>();
+
+						BtnSendEmailSensitive = _emailRepository
+							.CanSendByTimeout(EmailString, Document.Id, Document.Type)
+								&& Document.Order.Id > 0;
+						break;
 					case OrderDocumentType.UPD:
 					case OrderDocumentType.SpecialUPD:
 						listEmails = uow.Session.QueryOver<UpdDocumentEmail>()
@@ -389,6 +399,15 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 								OrderWithoutShipmentForPayment = (OrderWithoutShipmentForPayment)Document
 							};
 							unitOfWork.Save(orderWithoutShipmentForPaymentEmail);
+							break;
+						case OrderDocumentType.LetterOfDebt:
+							var bulkDocumentEmail = new BillDocumentEmail
+							{
+								StoredEmail = storedEmail,
+								Counterparty = client,
+								OrderDocument = (OrderDocument)Document
+							};
+							unitOfWork.Save(bulkDocumentEmail);
 							break;
 						case OrderDocumentType.UPD:
 						case OrderDocumentType.SpecialUPD:
