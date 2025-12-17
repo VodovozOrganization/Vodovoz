@@ -568,19 +568,7 @@ namespace Vodovoz.Domain.Goods
 		{
 			return ProductGroup != null && ProductGroup.IsBelongsOf(productGroup);
 		}
-
-		/// <summary>
-		/// Получить актуальную версию НДС на выбранную дату
-		/// </summary>
-		/// <param name="date">Дата. Если не передается, то используется DateTime.Now</param>
-		/// <returns>Версия ставки НДС</returns>
-		public virtual VatRateVersion GetActualVatRateVersion(DateTime? date = null)
-		{
-			var targetDate = date ?? DateTime.Now;
-			return VatRateVersions.FirstOrDefault(x => 
-				x.StartDate <= targetDate && (x.EndDate == null || x.EndDate > targetDate));
-		}
-
+		
 		#endregion Методы
 
 		#region IValidatableObject implementation

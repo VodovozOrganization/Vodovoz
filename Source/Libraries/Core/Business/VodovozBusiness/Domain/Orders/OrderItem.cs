@@ -511,8 +511,8 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 			
-			var vatRateVersion = Nomenclature.VatRateVersions.FirstOrDefault(x => x.StartDate <= Order.BillDate 
-			                                                                      && (x.EndDate == null || x.EndDate > Order.BillDate));
+			var vatRateVersion = Nomenclature.GetActualVatRateVersion(Order.BillDate);
+			
 			if(vatRateVersion == null)
 			{
 				throw new InvalidOperationException($"У товара #{Nomenclature.Id} отсутствует версия НДС на дату счета заказа #{Order.DeliveryDate}");

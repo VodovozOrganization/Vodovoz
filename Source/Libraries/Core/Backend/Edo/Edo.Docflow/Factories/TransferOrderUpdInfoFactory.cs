@@ -218,11 +218,10 @@ namespace Edo.Docflow.Factories
 
 				var sum = price * quantity;
 				
-				var vatRateVersion = nomenclature.VatRateVersions.FirstOrDefault(x => x.StartDate <= transferOrder.Date 
-				                                                                      && (x.EndDate == null || x.EndDate >= transferOrder.Date ));
+				var vatRateVersion = nomenclature.GetActualVatRateVersion(transferOrder.Date);
 				if(vatRateVersion == null)
 				{
-					throw new InvalidOperationException($"У товара #{nomenclature.Id} отсутствует версия НДС на дату трансфера заказа #{transferOrder.Date }");
+					throw new InvalidOperationException($"У товара #{nomenclature.Id} отсутствует версия НДС на дату трансфера заказа #{transferOrder.Date}");
 				}
 				
 				var includeVat = !transferOrder.Seller.WithoutVAT 

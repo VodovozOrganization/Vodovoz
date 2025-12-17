@@ -304,7 +304,7 @@ namespace Vodovoz.Models.CashReceipts
 		{
 			var organization = orderItem.Order.Contract?.Organization;
 
-			if(organization is null || organization.WithoutVAT || orderItem.Nomenclature.VatRateVersions.FirstOrDefault(x => x.StartDate <= DateTime.Now && (x.EndDate > DateTime.Now || x.EndDate == null))?.VatRate.VatRateValue == 0)
+			if(organization is null || organization.WithoutVAT || orderItem.Nomenclature.GetActualVatRateVersion(orderItem.Order.BillDate)?.VatRate.VatRateValue == 0)
 			{
 				inventPosition.VatTag = (int)VatTag.VatFree;
 				return;

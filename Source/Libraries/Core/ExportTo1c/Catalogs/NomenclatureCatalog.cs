@@ -94,8 +94,7 @@ namespace ExportTo1c.Library.Catalogs
 				properties.Add(new PropertyNode("НомерГТД", "СправочникСсылка.НомераГТД"));
 			}
 
-			var vatRateVersion = nomenclature.VatRateVersions.FirstOrDefault(x =>
-				x.StartDate <= DateTime.Now && (x.EndDate == null || x.EndDate >= DateTime.Now));
+			var vatRateVersion = nomenclature.GetActualVatRateVersion(DateTime.Now);
 
 			if(vatRateVersion == null)
 			{

@@ -533,12 +533,11 @@ namespace Edo.Receipt.Dispatcher
 
 			var organization = orderItem.Order.Contract?.Organization;
 
-			var vatRateVersion = orderItem.Nomenclature.VatRateVersions.FirstOrDefault(x =>
-				x.StartDate <= orderItem.Order.BillDate && (x.EndDate == null || x.EndDate > orderItem.Order.BillDate));
+			var vatRateVersion = orderItem.Nomenclature.GetActualVatRateVersion(orderItem.Order.BillDate);
 			
 			if(vatRateVersion == null)
 			{
-				throw new InvalidOperationException($"У товара #{orderItem.Nomenclature.Id} отсутствует версия НДС на дату счета заказа #{orderItem.Order.Id}");
+				throw new InvalidOperationException($"У товара #{orderItem.Nomenclature.Id} отсутствует версия НДС на дату счета заказа #{orderItem.Order.BillDate}");
 			}
 			
 			if(organization is null || organization.WithoutVAT || vatRateVersion.VatRate.VatRateValue == 0)

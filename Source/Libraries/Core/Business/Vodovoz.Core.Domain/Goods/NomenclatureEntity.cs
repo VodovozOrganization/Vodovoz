@@ -1249,6 +1249,18 @@ namespace Vodovoz.Core.Domain.Goods
 			return purchasePrice;
 		}
 		
+		/// <summary>
+		/// Получить актуальную версию НДС на выбранную дату
+		/// </summary>
+		/// <param name="date">Дата. Если не передается, то используется DateTime.Now</param>
+		/// <returns>Версия ставки НДС</returns>
+		public virtual VatRateVersion GetActualVatRateVersion(DateTime? date = null)
+		{
+			var targetDate = date ?? DateTime.Now;
+			return VatRateVersions.FirstOrDefault(x => 
+				x.StartDate <= targetDate && (x.EndDate == null || x.EndDate > targetDate));
+		}
+		
 		public override string ToString() => $"id = {Id} Name = {Name}";
 	}
 }

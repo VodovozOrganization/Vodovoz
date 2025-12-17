@@ -1341,8 +1341,7 @@ namespace Edo.Receipt.Dispatcher
 
 			var organization = order.Contract?.Organization;
 
-			var vatRateVersion = nomenclature.VatRateVersions.FirstOrDefault(x =>
-				x.StartDate <= order.DeliveryDate && (x.EndDate == null || x.EndDate > order.DeliveryDate));
+			var vatRateVersion = nomenclature.GetActualVatRateVersion(order.BillDate);
 			
 			if(vatRateVersion == null)
 			{
