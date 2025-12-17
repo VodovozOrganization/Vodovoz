@@ -122,7 +122,7 @@ namespace ExportTo1c.Library.Catalogs
 			}
 			else
 			{
-				var vat = vatRateVersion.VatRate.GetValue1c();
+				var vat = vatRateVersion.VatRate.GetValue1cType();
 
 				properties.Add(
 					new PropertyNode("ВидСтавкиНДС",

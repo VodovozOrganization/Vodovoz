@@ -32,6 +32,9 @@ namespace Vodovoz.Core.Domain.Cash
 			set => SetField(ref _id, value);
 		}
 
+		/// <summary>
+		/// Дата начала версии
+		/// </summary>
 		[Display(Name = "Дата начала")]
 		public virtual DateTime StartDate
 		{
@@ -39,6 +42,9 @@ namespace Vodovoz.Core.Domain.Cash
 			set => SetField(ref _startDate, value);
 		}
 
+		/// <summary>
+		/// Дата окончания версии
+		/// </summary>
 		[Display(Name = "Дата окончания")]
 		public virtual DateTime? EndDate
 		{
@@ -46,6 +52,9 @@ namespace Vodovoz.Core.Domain.Cash
 			set => SetField(ref _endDate, value);
 		}
 		
+		/// <summary>
+		/// Ставка НДС
+		/// </summary>
 		[Display(Name = "Ставка НДС")]
 		public virtual VatRate VatRate
 		{
@@ -53,6 +62,9 @@ namespace Vodovoz.Core.Domain.Cash
 			set => SetField(ref _vatRate, value);
 		}
 		
+		/// <summary>
+		/// Организация
+		/// </summary>
 		[Display(Name = "Организация")]
 		public virtual OrganizationEntity Organization
 		{
@@ -60,6 +72,9 @@ namespace Vodovoz.Core.Domain.Cash
 			set => SetField(ref _organization, value);
 		}
 		
+		/// <summary>
+		/// Номенклатура
+		/// </summary>
 		[Display(Name = "Номенклатура")]
 		public virtual NomenclatureEntity Nomenclature
 		{

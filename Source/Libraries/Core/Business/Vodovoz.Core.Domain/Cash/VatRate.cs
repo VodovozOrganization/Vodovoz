@@ -26,6 +26,8 @@ namespace Vodovoz.Core.Domain.Cash
 	[HistoryTrace]
 	public class VatRate: PropertyChangedBase, IDomainObject, IArchivable, IValidatableObject
 	{
+		private readonly string _noVatRateFor1C = "БезНДС";
+		
 		private int _id;
 		private bool _isArchive;
 		private decimal _vatRateValue;
@@ -100,9 +102,9 @@ namespace Vodovoz.Core.Domain.Cash
 			}
 		}
 		
-		public virtual string GetValue1c() => VatRateValue == 0 ? "БезНДС" : "НДС" + (int)VatRateValue;
+		public virtual string GetValue1c() => VatRateValue == 0 ? _noVatRateFor1C : "НДС" + (int)VatRateValue;
 
-		public virtual string GetValue1cComplexAutomation() => VatRateValue == 0 ? "БезНДС" : (int)VatRateValue + "%";
+		public virtual string GetValue1cComplexAutomation() => VatRateValue == 0 ? _noVatRateFor1C : (int)VatRateValue + "%";
 
 		public virtual string GetValue1cType() => Vat1cTypeValue.GetAttribute<Value1cType>().Value;
 	}

@@ -18,10 +18,7 @@ namespace Vodovoz.Core.Data.NHibernate.Goods
 
 			Map(x => x.Category)
 				.Column("category");
-
-			//References(x => x.VatRate)
-			//	.Column("vat_rate_id");
-
+			
 			Map(x => x.CreateDate)
 				.Column("create_date");
 

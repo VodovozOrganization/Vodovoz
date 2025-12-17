@@ -682,20 +682,7 @@ public partial class MainWindow : Window
 
 	void ActionExportImportNomenclatureCatalog_Activated(object sender, System.EventArgs e)
 	{
-		var nomenclatureRepository = _autofacScope.Resolve<INomenclatureRepository>();
-		var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
-		var vatRateVersionRepository = _autofacScope.Resolve<IVatRateVersionRepository>();
-		
-		tdiMain.OpenTab(
-			"ExportImportNomenclatureCatalog",
-			() => new ExportImportNomenclatureCatalogViewModel(
-				nomenclatureRepository,
-				uowFactory,
-				ServicesConfig.CommonServices,
-				NavigationManagerProvider.NavigationManager,
-				vatRateVersionRepository
-			)
-		);
+		NavigationManager.OpenViewModel<ExportImportNomenclatureCatalogViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	void ActionUnclosedAdvances_Activated(object sender, System.EventArgs e)

@@ -26,7 +26,6 @@ using QS.Navigation;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
-using Vodovoz.Core.Data.Repositories.Cash;
 using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.BasicHandbooks;
 using Vodovoz.Core.Domain.Goods;
@@ -47,12 +46,10 @@ namespace Vodovoz.ViewModels
 			INomenclatureRepository nomenclatureRepository,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
-			INavigationManager navigation,
-			IVatRateVersionRepository vatRateVersionRepository)
+			INavigationManager navigation)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
 		{
 			this.commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			_vatRateVersionRepository = vatRateVersionRepository?? throw new ArgumentNullException(nameof(vatRateVersionRepository));
 			this.nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 
 			TabName = "Выгрузка/Загрузка каталога номенклатур";
@@ -80,7 +77,6 @@ namespace Vodovoz.ViewModels
 		#region Properties
 
 		private ICommonServices commonServices;
-		private readonly IVatRateVersionRepository _vatRateVersionRepository;
 		private INomenclatureRepository nomenclatureRepository;
 		private bool needReload = false;
 		private Dictionary<string, NomenclatureCategory> nomenclatureCategories;

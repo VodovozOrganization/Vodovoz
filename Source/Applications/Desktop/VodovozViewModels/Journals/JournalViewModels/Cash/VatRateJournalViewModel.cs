@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using NHibernate;
 using NHibernate.Transform;
 using QS.Dialog;
@@ -19,16 +20,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 		VatRateViewModel,
 		VatRateJournalNode>
 	{
+		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly IPermissionResult _permissionResult;
 		
 		public VatRateJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory, 
 			IInteractiveService interactiveService, 
 			INavigationManager navigationManager, 
-			IDeleteEntityService deleteEntityService = null, 
-			ICurrentPermissionService currentPermissionService = null) : base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
+			ICurrentPermissionService currentPermissionService,
+			IDeleteEntityService deleteEntityService = null 
+			) : base(unitOfWorkFactory, interactiveService, navigationManager, deleteEntityService, currentPermissionService)
 		{
-			_permissionResult = currentPermissionService.ValidateEntityPermission(typeof(VatRate));
+			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
+			_permissionResult = _currentPermissionService.ValidateEntityPermission(typeof(VatRate));
 
 			TabName = $"Журнал {typeof(VatRate).GetClassUserFriendlyName().GenitivePlural}";
 		}
@@ -69,14 +73,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Cash
 
 		protected override IQueryOver<VatRate> ItemsQuery(IUnitOfWork uow)
 		{
-			VatRate fineCategoryAlias = null;
+			VatRate vatRateAlias = null;
 			VatRateJournalNode resultAlias = null;
 
-			var query = uow.Session.QueryOver(() => fineCategoryAlias);
+			var query = uow.Session.QueryOver(() => vatRateAlias);
 			return query
 				.SelectList(list => list
-					.Select(() => fineCategoryAlias.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => fineCategoryAlias.VatRateValue).WithAlias(() => resultAlias.VatRateValue)
+					.Select(() => vatRateAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => vatRateAlias.VatRateValue).WithAlias(() => resultAlias.VatRateValue)
 				)
 				.TransformUsing(Transformers.AliasToBean<VatRateJournalNode>());
 		}

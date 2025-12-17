@@ -762,7 +762,7 @@ namespace Vodovoz.Views.Settings
 			this.ynotebookData = new global::Gamma.GtkWidgets.yNotebook();
 			this.ynotebookData.CanFocus = true;
 			this.ynotebookData.Name = "ynotebookData";
-			this.ynotebookData.CurrentPage = 2;
+			this.ynotebookData.CurrentPage = 0;
 			// Container child ynotebookData.Gtk.Notebook+NotebookChild
 			this.yhboxLogistics = new global::Gamma.GtkWidgets.yHBox();
 			this.yhboxLogistics.Name = "yhboxLogistics";

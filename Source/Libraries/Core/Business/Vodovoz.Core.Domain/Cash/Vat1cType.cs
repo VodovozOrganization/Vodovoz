@@ -33,7 +33,5 @@ namespace Vodovoz.Core.Domain.Cash
 		[Value1cType("ИП")]
 		[Display(Name = "ИП")]
 		IndividualEntrepreneur
-		
-		
 	}
 }
