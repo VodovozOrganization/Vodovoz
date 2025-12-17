@@ -44,7 +44,7 @@ namespace Vodovoz.Views.Organization
 				.AddColumn("")
 				.Finish();
 
-			ytreeVersions.ItemsDataSource = ViewModel.Entity.OrganizationVersions;
+			ytreeVersions.ItemsDataSource = ViewModel.Entity.ObservableOrganizationVersions;
 			ytreeVersions.Binding.AddBinding(ViewModel, vm => vm.SelectedOrganizationVersion, w => w.SelectedRow).InitializeFromSource();
 			ytreeVersions.RowActivated += (sender, args) => ViewModel.EditVersionCommand.Execute();
 
