@@ -130,7 +130,7 @@ namespace Vodovoz.Core.Domain.Goods
 		private IObservableList<GtinEntity> _gtins = new ObservableList<GtinEntity>();
 		private IObservableList<GroupGtinEntity> _groupGtins = new ObservableList<GroupGtinEntity>();
 		private IObservableList<NomenclaturePurchasePrice> _purchasePrices = new ObservableList<NomenclaturePurchasePrice>();
-		private IList<VatRateVersion> _vatRateVersions = new ObservableList<VatRateVersion>();
+		private IObservableList<VatRateVersion> _vatRateVersions = new ObservableList<VatRateVersion>();
 		private decimal? _motivationCoefficient;
 		private NomenclatureMotivationUnitType? _motivationUnitType;
 
@@ -223,7 +223,7 @@ namespace Vodovoz.Core.Domain.Goods
 		/// Версии ставок НДС
 		/// </summary>
 		[Display(Name = "Версии ставок НДС")]
-		public virtual IList<VatRateVersion> VatRateVersions
+		public virtual IObservableList<VatRateVersion> VatRateVersions
 		{
 			get => _vatRateVersions;
 			set => SetField(ref _vatRateVersions, value);

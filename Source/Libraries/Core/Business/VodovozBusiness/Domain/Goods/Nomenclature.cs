@@ -40,7 +40,6 @@ namespace Vodovoz.Domain.Goods
 			new ObservableList<AlternativeNomenclaturePrice>();
 		private GenericObservableList<NomenclatureCostPrice> _observableCostPrices;
 		private GenericObservableList<NomenclatureInnerDeliveryPrice> _observableInnerDeliveryPrices;
-		private IObservableList<VatRateVersion> _observableVatRateVersions = new ObservableList<VatRateVersion>();
 		private MobileAppNomenclatureOnlineCatalog _mobileAppNomenclatureOnlineCatalog;
 		private VodovozWebSiteNomenclatureOnlineCatalog _vodovozWebSiteNomenclatureOnlineCatalog;
 		private KulerSaleWebSiteNomenclatureOnlineCatalog _kulerSaleWebSiteNomenclatureOnlineCatalog;
@@ -410,9 +409,6 @@ namespace Vodovoz.Domain.Goods
 				}
 			}
 		}
-
-		public virtual IObservableList<VatRateVersion> ObservableVatRateVersions 
-			=> _observableVatRateVersions ?? (_observableVatRateVersions = new ObservableList<VatRateVersion>(VatRateVersions));
 		
 		#endregion Свойства
 

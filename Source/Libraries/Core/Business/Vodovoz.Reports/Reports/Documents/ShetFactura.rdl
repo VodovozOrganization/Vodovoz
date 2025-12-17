@@ -24,7 +24,6 @@
 	IFNULL(order_items.include_nds, 0) as include_nds,
 	order_items.discount AS item_discount,
 	order_items.discount_money AS item_discount_money,
-	стя какое-то время не будет проблем с отображением НДС
     vat_rates.vat_rate_value / 100 + 1 AS vat
 FROM
 	order_items

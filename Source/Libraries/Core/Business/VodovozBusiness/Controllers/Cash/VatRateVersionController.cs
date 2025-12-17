@@ -109,7 +109,7 @@ namespace VodovozBusiness.Controllers.Cash
 					}
 					
 					newVatRateVersion.StartDate = startDate;
-					_nomenclature?.ObservableVatRateVersions.Insert(0, newVatRateVersion);
+					_nomenclature?.VatRateVersions.Insert(0, newVatRateVersion);
 
 					break;
 				default:

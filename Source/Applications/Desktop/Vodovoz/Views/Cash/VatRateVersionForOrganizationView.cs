@@ -89,11 +89,5 @@ namespace Vodovoz.Views.Cash
 		{
 			ViewModel.EditVersionCommand.Execute();
 		}
-
-		public override void Dispose()
-		{
-			ytreeVersions.RowActivated -= OnYtreeVersionsOnRowActivated;
-			buttonNewVersion.Clicked -= OnButtonNewVersionOnClicked;
-		}
 	}
 }

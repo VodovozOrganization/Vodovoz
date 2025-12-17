@@ -75,7 +75,7 @@ namespace Vodovoz.Controllers
 			}
 
 			newOrganizationVersion.StartDate = startDate;
-			Organization.ObservableOrganizationVersions.Insert(0, newOrganizationVersion);
+			Organization.OrganizationVersions.Insert(0, newOrganizationVersion);
 			return newOrganizationVersion;
 		}
 

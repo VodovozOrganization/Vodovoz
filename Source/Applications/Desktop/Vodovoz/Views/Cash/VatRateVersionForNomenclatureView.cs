@@ -50,7 +50,7 @@ namespace Vodovoz.Views.Cash
 				.AddColumn("")
 				.Finish();
 
-			ytreeVersions.ItemsDataSource = ViewModel.Entity.ObservableVatRateVersions;
+			ytreeVersions.ItemsDataSource = ViewModel.Entity.VatRateVersions;
 			ytreeVersions.Binding.AddBinding(ViewModel, vm => vm.SelectedVatRateVersion, w => w.SelectedRow).InitializeFromSource();
 			ytreeVersions.RowActivated += OnYtreeVersionsOnRowActivated;
 
@@ -87,12 +87,6 @@ namespace Vodovoz.Views.Cash
 		private void OnYtreeVersionsOnRowActivated(object sender, RowActivatedArgs args)
 		{
 			ViewModel.EditVersionCommand.Execute();
-		}
-
-		public override void Dispose()
-		{
-			ytreeVersions.RowActivated -= OnYtreeVersionsOnRowActivated;
-			buttonNewVersion.Clicked -= OnButtonNewVersionOnClicked;
 		}
 	}
 }

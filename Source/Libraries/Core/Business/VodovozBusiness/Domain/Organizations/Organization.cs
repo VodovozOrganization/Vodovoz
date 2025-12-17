@@ -25,7 +25,6 @@ namespace Vodovoz.Domain.Organizations
 		private OrganizationVersion _activeOrganizationVersion;
 		private IList<Phone> _phones = new List<Phone>();
 		private IList<OrganizationVersion> _organizationVersions = new List<OrganizationVersion>();
-		private GenericObservableList<OrganizationVersion> _observableOrganizationVersions;
 		private IObservableList<VatRateVersion> _observableVatRateVersions = new ObservableList<VatRateVersion>();
 		private string _suffix;
 
@@ -47,15 +46,12 @@ namespace Vodovoz.Domain.Organizations
 			get => _suffix;
 			set => SetField(ref _suffix, value);
 		}
-
-		public virtual GenericObservableList<OrganizationVersion> ObservableOrganizationVersions => _observableOrganizationVersions
-			?? (_observableOrganizationVersions = new GenericObservableList<OrganizationVersion>(OrganizationVersions));
 		
 		public virtual IObservableList<VatRateVersion> ObservableVatRateVersions 
 			=> _observableVatRateVersions ?? (_observableVatRateVersions = new ObservableList<VatRateVersion>(VatRateVersions));
 
 		public virtual new OrganizationVersion OrganizationVersionOnDate(DateTime dateTime) =>
-			ObservableOrganizationVersions.LastOrDefault(x =>
+			OrganizationVersions.LastOrDefault(x =>
 				x.StartDate <= dateTime && (x.EndDate == null || x.EndDate >= dateTime));
 
 		[Display(Name = "Активная версия")]

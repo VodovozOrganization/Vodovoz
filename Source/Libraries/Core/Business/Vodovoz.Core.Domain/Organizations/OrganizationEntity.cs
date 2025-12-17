@@ -48,7 +48,7 @@ namespace Vodovoz.Core.Domain.Organizations
 
 		private IObservableList<PhoneEntity> _phones = new ObservableList<PhoneEntity>();
 		private IObservableList<OrganizationVersionEntity> _organizationVersions = new ObservableList<OrganizationVersionEntity>();
-		private IList<VatRateVersion> _vatRateVersions = new ObservableList<VatRateVersion>();
+		private IObservableList<VatRateVersion> _vatRateVersions = new ObservableList<VatRateVersion>();
 
 		public OrganizationEntity()
 		{
@@ -261,7 +261,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		/// Версии ставок НДС
 		/// </summary>
 		[Display(Name = "Версии ставок НДС")]
-		public virtual IList<VatRateVersion> VatRateVersions
+		public virtual IObservableList<VatRateVersion> VatRateVersions
 		{
 			get => _vatRateVersions;
 			set => SetField(ref _vatRateVersions, value);
