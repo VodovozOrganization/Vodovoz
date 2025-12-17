@@ -1,6 +1,6 @@
 ﻿using System;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
+using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 
 namespace VodovozBusiness.Extensions
 {

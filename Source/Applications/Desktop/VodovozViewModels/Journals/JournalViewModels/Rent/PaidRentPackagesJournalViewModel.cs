@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -6,7 +6,7 @@ using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
-using Vodovoz.Domain;
+using Vodovoz.Core.Domain.BasicHandbooks;
 using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.Journals.Nodes.Rent;
 using Vodovoz.ViewModels.ViewModels.Rent;

@@ -58,6 +58,7 @@ using VodovozBusiness.Domain.Operations;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Payments;
 using VodovozBusiness.Domain.Service;
+using Vodovoz.Core.Domain.BasicHandbooks;
 
 namespace Vodovoz
 {

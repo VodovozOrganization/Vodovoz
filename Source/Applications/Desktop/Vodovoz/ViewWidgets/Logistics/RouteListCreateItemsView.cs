@@ -27,6 +27,7 @@ using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Services.Logistics;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz

@@ -19,13 +19,16 @@ using System.Linq;
 using System.Reflection;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Reports.Editing;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.ViewModels.Organizations;
+using StoredEmails = Vodovoz.Domain.StoredEmails;
 
 namespace Vodovoz.ViewModels.ReportsParameters
 {
@@ -52,6 +55,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly IOrganizationSettings _organizationSettings;
+		private readonly Employee _author;
 
 		public RevisionReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -64,7 +68,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			EmailDirectSender emailDirectSender,
 			IOrderRepository orderRepository,
 			IOrganizationRepository organizationRepository,
-			IOrganizationSettings organizationSettings
+			IOrganizationSettings organizationSettings,
+			IEmployeeRepository employeeRepository
 			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
 			UnitOfWork = unitOfWorkFactory.CreateWithoutRoot(Title);
@@ -77,6 +82,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
+			_author = (employeeRepository ?? throw new ArgumentNullException(nameof(organizationSettings)))
+				.GetEmployeeForCurrentUser(UnitOfWork);
 
 			OrganizationViewModel = new CommonEEVMBuilderFactory<RevisionReportViewModel>(
 				RdlViewerViewModel,
@@ -298,62 +305,84 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 			var attachments = GetSelectedAttachments();
 
+			if (attachments.Count == 0)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Нет документов для отправки.");
+				return;
+			}
+
+			var email = !string.IsNullOrEmpty(Organization.EmailForMailing) 
+				? Organization.EmailForMailing 
+				: Organization.Email;
+
+			string messageText = string.IsNullOrEmpty(Organization.EmailForMailing) || 
+									string.Equals(email, Organization.Email, StringComparison.OrdinalIgnoreCase) 
+				? "Акт сверки."
+				: $"Пожалуйста, не отвечайте на это письмо. Для ответа используйте адрес: {Organization.Email}.";
+
+			var subject = "Акт сверки";
+
+			var instanceId = Convert.ToInt32(UnitOfWork.Session
+				.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
+				.List<object>()
+				.FirstOrDefault());
+
+			var storedEmail = new StoredEmails.StoredEmail
+			{
+				State = StoredEmails.StoredEmailStates.PreparingToSend,
+				Author = _author,
+				ManualSending = true,
+				SendDate = DateTime.Now,
+				StateChangeDate = DateTime.Now,
+				Subject = subject,
+				RecipientAddress = SelectedEmail.Address,
+				Guid = Guid.NewGuid()
+			};
+
+			UnitOfWork.Save(storedEmail);
+
+			var emailMessage = new SendEmailMessage
+			{
+				From = new EmailContact
+				{
+					Name = Organization.FullName,
+					Email = email
+				},
+				To = new List<EmailContact>
+				{
+					new EmailContact
+					{
+						Name = SelectedEmail != null ? SelectedEmail.Counterparty.FullName : "Уважаемый пользователь",
+						Email = SelectedEmail.Address
+					}
+				},
+				Subject = subject,
+				TextPart = messageText,
+				HTMLPart = messageText,
+				Payload = new EmailPayload
+				{
+					Id = storedEmail.Id,
+					Trackable = false,
+					InstanceId = instanceId
+				},
+				Attachments = attachments
+			};
+
 			try
 			{
-				if (attachments.Count == 0)
-				{
-					_interactiveService.ShowMessage(ImportanceLevel.Warning, "Нет документов для отправки.");
-					return;
-				}
-
-				var email = !string.IsNullOrEmpty(Organization.EmailForMailing) 
-					? Organization.EmailForMailing 
-					: Organization.Email;
-
-				string messageText = string.IsNullOrEmpty(Organization.EmailForMailing) || 
-									 string.Equals(email, Organization.Email, StringComparison.OrdinalIgnoreCase) 
-					? "Акт сверки."
-					: $"Пожалуйста, не отвечайте на это письмо. Для ответа используйте адрес: {Organization.Email}.";
-
-				var instanceId = Convert.ToInt32(UnitOfWork.Session
-					.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
-					.List<object>()
-					.FirstOrDefault());
-
-				var emailMessage = new SendEmailMessage
-				{
-					From = new EmailContact
-					{
-						Name = Organization.FullName,
-						Email = email
-					},
-					To = new List<EmailContact>
-					{
-						new EmailContact
-						{
-							Name = SelectedEmail != null ? SelectedEmail.Counterparty.FullName : "Уважаемый пользователь",
-							Email = SelectedEmail.Address
-						}
-					},
-					Subject = "Акт сверки",
-					TextPart = messageText,
-					HTMLPart = messageText,
-					Payload = new EmailPayload
-					{
-						Id = 0,
-						Trackable = false,
-						InstanceId = instanceId
-					},
-					Attachments = attachments
-				};
-
-				_emailDirectSender.SendAsync(emailMessage);
-
+				_emailDirectSender.SendAsync(emailMessage).GetAwaiter().GetResult();
+				storedEmail.State = StoredEmails.StoredEmailStates.SendingComplete;
 				_interactiveService.ShowMessage(ImportanceLevel.Info, "Письмо успешно отправлено.");
 			}
 			catch(Exception ex)
 			{
+				storedEmail.State = StoredEmails.StoredEmailStates.SendingError;
 				_interactiveService.ShowMessage(ImportanceLevel.Error, $"Ошибка при отправке письма: {ex.Message}");
+			}
+			finally
+			{
+				UnitOfWork.Save(storedEmail);
+				UnitOfWork.Commit();
 			}
 		}
 

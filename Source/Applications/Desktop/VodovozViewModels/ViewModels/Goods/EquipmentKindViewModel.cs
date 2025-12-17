@@ -3,7 +3,7 @@ using QS.DomainModel.UoW;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
-using Vodovoz.Domain;
+using Vodovoz.Core.Domain.BasicHandbooks;
 
 namespace Vodovoz.ViewModels.ViewModels.Goods
 {

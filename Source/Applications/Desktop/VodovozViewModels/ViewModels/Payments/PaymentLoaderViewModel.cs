@@ -232,7 +232,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 						&& x.PaymentNum == int.Parse(doc.DocNum)
 						&& x.Organization.INN == doc.RecipientInn
 						&& x.CounterpartyInn == doc.PayerInn
-						&& x.CounterpartyCurrentAcc == doc.PayerCurrentAccount
+						&& x.CounterpartyAcc == doc.PayerAccount
 						&& x.Total == doc.Total);
 
 				if(_paymentsRepository.NotManuallyPaymentFromBankClientExists(
@@ -241,7 +241,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					int.Parse(doc.DocNum),
 					doc.RecipientInn,
 					doc.PayerInn,
-					doc.PayerCurrentAccount,
+					doc.PayerAccount,
 					doc.Total) || curDoc != null)
 				{
 					count++;
@@ -257,9 +257,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				{
 					curPayment.OtherIncome(otherProfitCategory);
 				}
-				else if(_allVodOrganisations.ContainsKey(doc.RecipientInn) && _allNotAllocatedCounterparties.ContainsKey(doc.PayerInn))
+				else if(_allVodOrganisations.ContainsKey(doc.RecipientInn)
+					&& _allNotAllocatedCounterparties.TryGetValue(doc.PayerInn, out var notAllocatedCounterparty))
 				{
-					var notAllocatedCounterparty = _allNotAllocatedCounterparties[doc.RecipientInn];
 					curPayment.OtherIncome(notAllocatedCounterparty.ProfitCategory);
 				}
 				else

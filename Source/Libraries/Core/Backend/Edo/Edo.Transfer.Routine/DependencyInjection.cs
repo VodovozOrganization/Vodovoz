@@ -7,6 +7,8 @@ using Edo.Transport;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Data.NHibernate.Repositories.Orders;
+using Vodovoz.Core.Data.Repositories;
 
 namespace Edo.Transfer.Dispatcher
 {
@@ -23,6 +25,9 @@ namespace Edo.Transfer.Dispatcher
 			services.TryAddScoped<TransferEdoHandler>();
 			services.TryAddScoped<WaitingTransfersUpdateService>();
 			services.TryAddScoped<ClosingDocumentsOrdersUpdSendService>();
+			services.TryAddScoped<ClosingDocumentsOrdersEquipmentTransferSendService>();
+
+			services.AddScoped<IOrderRepository, OrderRepository>();
 
 			services
 				.AddEdo()
@@ -45,6 +50,7 @@ namespace Edo.Transfer.Dispatcher
 				.AddHostedService<TransferTimeoutWorker>()
 				.AddHostedService<WaitingTransfersUpdateWorker>()
 				.AddHostedService<ClosingDocumentsOrdersUpdSendWorker>()
+				.AddHostedService<ClosingDocumentsOrdersEquipmentTransferSendWorker>()
 				;
 
 			return services;

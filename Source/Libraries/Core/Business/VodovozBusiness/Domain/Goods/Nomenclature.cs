@@ -10,6 +10,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Cash;
+using Vodovoz.Core.Domain.BasicHandbooks;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Users;

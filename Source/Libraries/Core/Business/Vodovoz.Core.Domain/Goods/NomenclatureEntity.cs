@@ -131,6 +131,8 @@ namespace Vodovoz.Core.Domain.Goods
 		private IObservableList<GroupGtinEntity> _groupGtins = new ObservableList<GroupGtinEntity>();
 		private IObservableList<NomenclaturePurchasePrice> _purchasePrices = new ObservableList<NomenclaturePurchasePrice>();
 		private IList<VatRateVersion> _vatRateVersions = new ObservableList<VatRateVersion>();
+		private decimal? _motivationCoefficient;
+		private NomenclatureMotivationUnitType? _motivationUnitType;
 
 		public NomenclatureEntity() 
 		{
@@ -586,6 +588,26 @@ namespace Vodovoz.Core.Domain.Goods
 		{
 			get => _purchasePrices;
 			set => SetField(ref _purchasePrices, value);
+		}
+
+		/// <summary>
+		/// Коэффициент мотивации
+		/// </summary>
+		[Display(Name = "Коэффициент мотивации")]
+		public virtual decimal? MotivationCoefficient
+		{
+			get => _motivationCoefficient;
+			set => SetField(ref _motivationCoefficient, value);
+		}
+
+		/// <summary>
+		/// Единица измерения мотивации
+		/// </summary>
+		[Display(Name = "Единица измерения мотивации")]
+		public virtual NomenclatureMotivationUnitType? MotivationUnitType
+		{
+			get => _motivationUnitType;
+			set => SetField(ref _motivationUnitType, value);
 		}
 		
 

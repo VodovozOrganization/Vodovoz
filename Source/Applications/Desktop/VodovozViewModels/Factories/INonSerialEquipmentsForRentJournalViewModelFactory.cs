@@ -1,4 +1,4 @@
-using Vodovoz.Domain;
+﻿using Vodovoz.Core.Domain.BasicHandbooks;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 
 namespace Vodovoz.Factories

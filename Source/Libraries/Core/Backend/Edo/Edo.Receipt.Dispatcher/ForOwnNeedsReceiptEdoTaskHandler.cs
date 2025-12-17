@@ -136,6 +136,13 @@ namespace Edo.Receipt.Dispatcher
 			var codesToPreload = sourceCodes.Union(resultCodes).Distinct();
 			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
 
+			if(productCodes.Any(x => x.SourceCodeStatus == SourceProductCodeStatus.Rejected))
+			{
+				_logger.LogInformation("Задача Id {EdoTaskId} имеет отклоненные коды, " +
+					"значит отправка будет производиться другой задачей", receiptEdoTask.Id);
+				return;
+			}
+
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(receiptEdoTask);
 
 			var isValid = await _edoTaskValidator.Validate(receiptEdoTask, cancellationToken, trueMarkCodesChecker);
@@ -181,6 +188,45 @@ namespace Edo.Receipt.Dispatcher
 
 		public async Task HandleTransferComplete(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
 		{
+			// предзагрузка для ускорения
+			var productCodes = await _uow.Session.QueryOver<TrueMarkProductCode>()
+				.Fetch(SelectMode.Fetch, x => x.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
+				.Where(x => x.CustomerEdoRequest.Id == receiptEdoTask.OrderEdoRequest.Id)
+				.ListAsync();
+
+			var taskCodes = await _uow.Session.QueryOver<EdoTaskItem>()
+				.Fetch(SelectMode.Fetch, x => x.ProductCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.SourceCode.Tag1260CodeCheckResult)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode)
+				.Fetch(SelectMode.Fetch, x => x.ProductCode.ResultCode.Tag1260CodeCheckResult)
+				.Where(x => x.CustomerEdoTask.Id == receiptEdoTask.Id)
+				.ListAsync(cancellationToken);
+
+			var totalProductCodes = productCodes
+				.Union(taskCodes.Select(x => x.ProductCode));
+
+			var sourceCodes = totalProductCodes
+				.Where(x => x.SourceCode != null)
+				.Select(x => x.SourceCode);
+
+			var resultCodes = totalProductCodes
+				.Where(x => x.ResultCode != null)
+				.Select(x => x.ResultCode);
+
+			var codesToPreload = sourceCodes.Union(resultCodes).Distinct();
+			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
+
+			if(productCodes.Any(x => x.SourceCodeStatus == SourceProductCodeStatus.Rejected))
+			{
+				_logger.LogInformation("Задача Id {EdoTaskId} имеет отклоненные коды, " +
+					"значит отправка будет производиться другой задачей", receiptEdoTask.Id);
+				return;
+			}
+
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(receiptEdoTask);
 
 			if(!receiptEdoTask.FiscalDocuments.Any())

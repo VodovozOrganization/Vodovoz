@@ -23,6 +23,7 @@ using System.Windows.Input;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;

@@ -2,6 +2,7 @@
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.BasicHandbooks;
 
 namespace Vodovoz.Domain.WageCalculation
 {

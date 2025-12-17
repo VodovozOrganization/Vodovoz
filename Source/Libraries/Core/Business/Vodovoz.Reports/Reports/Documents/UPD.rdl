@@ -48,7 +48,9 @@ FROM
         LEFT JOIN
     vat_rates ON vat_rates.id = vat_rate_versions.vat_rate_id
 WHERE
-    order_items.order_id = @order_id;</CommandText>
+	order_items.order_id = @order_id
+	AND nomenclature.category != 'deposit';
+        </CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>

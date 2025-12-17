@@ -26,7 +26,7 @@ namespace FastPaymentsAPI.Library.Models
 			FastPaymentRequestFromType fastPaymentRequestFromType);
 		Task<OrderInfoResponseDTO> GetOrderInfo(string ticket, Organization organization);
 		Task<CancelPaymentResponseDTO> CancelPayment(string ticket, Organization organization);
-		void NotifyEmployee(string orderNumber, string bankSignature, long shopId, string paymentSignature);
+		Task NotifyEmployee(string orderNumber, string bankSignature, long shopId, string paymentSignature);
 		PaidOrderInfoDTO GetPaidOrderInfo(string data);
 	}
 }

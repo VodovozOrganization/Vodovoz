@@ -1,16 +1,13 @@
 ﻿using Mailjet.Api.Abstractions;
+using MassTransit;
 using Microsoft.Extensions.Logging;
-using NLog.Extensions.Logging;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
-using RabbitMQ.Infrastructure;
 using RabbitMQ.MailSending;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Text.Json;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories;
@@ -27,6 +24,7 @@ namespace Vodovoz.Additions
 	public class AuthorizationService : IAuthorizationService
 	{
 		private readonly ILogger<AuthorizationService> _logger;
+		private readonly IBus _messageBus;
 		private readonly IPasswordGenerator _passwordGenerator;
 		private readonly IUserRoleSettings _userRoleSettings;
 		private readonly IUserRoleRepository _userRoleRepository;
@@ -43,7 +41,8 @@ namespace Vodovoz.Additions
 			IUserRepository userRepository,
 			IEmailSettings emailSettings,
 			ISubdivisionSettings subdivisionSettings,
-			ILogger<AuthorizationService> logger)
+			ILogger<AuthorizationService> logger,
+			IBus messageBus)
 		{
 			_passwordGenerator = passwordGenerator ?? throw new ArgumentNullException(nameof(passwordGenerator));
 			_userRoleSettings = userRoleSettings ?? throw new ArgumentNullException(nameof(userRoleSettings));
@@ -58,6 +57,7 @@ namespace Vodovoz.Additions
 			_humanResourcesSubdivisionId = subdivisionSettings.GetHumanResourcesSubdivisionId;
 			_developersSubdivisionId = subdivisionSettings.GetDevelopersSubdivisionId;
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
 		public bool ResetPassword(string userLogin, string password, string email, string fullName)
@@ -186,8 +186,6 @@ namespace Vodovoz.Additions
 				.List<object>()
 				.FirstOrDefault());
 
-			var configuration = unitOfWork.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
-
 			string messageText =
 				$"Логин: { login }\n" +
 				$"Пароль: { password }";
@@ -223,20 +221,7 @@ namespace Vodovoz.Additions
 
 			try
 			{
-				var serializedMessage = JsonSerializer.Serialize(sendEmailMessage);
-				var sendingBody = Encoding.UTF8.GetBytes(serializedMessage);
-
-				var Logger = new Logger<RabbitMQConnectionFactory>(new NLogLoggerFactory());
-
-				var connectionFactory = new RabbitMQConnectionFactory(Logger);
-				var connection = connectionFactory.CreateConnection(configuration.MessageBrokerHost, configuration.MessageBrokerUsername, configuration.MessageBrokerPassword, configuration.MessageBrokerVirtualHost, configuration.Port, true);
-				var channel = connection.CreateModel();
-
-				var properties = channel.CreateBasicProperties();
-				properties.Persistent = true;
-
-				channel.BasicPublish(configuration.EmailSendExchange, configuration.EmailSendKey, false, properties, sendingBody);
-
+				_messageBus.Publish(sendEmailMessage).GetAwaiter().GetResult();
 				return true;
 			}
 			catch(Exception e)

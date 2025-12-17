@@ -1,5 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
+using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Goods.PromotionalSetsOnlineParameters;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods

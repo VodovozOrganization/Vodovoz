@@ -4,7 +4,7 @@ using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
 using System.Linq;
-using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
+using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 
 namespace VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters
 {

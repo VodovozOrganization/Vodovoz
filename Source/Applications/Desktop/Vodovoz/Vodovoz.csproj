@@ -428,6 +428,7 @@
     <Compile Include="Commons\DeprecatedObservableListTreeModel.cs" />
     <Compile Include="Commons\GtkClipboard.cs" />
     <Compile Include="Commons\VodovozTreeModelProvider.cs" />
+    <Compile Include="Extensions\EntryExtension.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Common.AddOrRemoveIDomainObjectView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PACS.PacsMissingCallsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.FineCategoryView.cs" />
@@ -642,10 +643,8 @@
     <Compile Include="JournalColumnsConfigs\OrdersWithReceiptsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\WaterJournalRegistrar.cs" />
     <Compile Include="JournalNodes\RetailCounterpartyJournalNode.cs" />
-    <Compile Include="JournalNodes\OrderForRouteListJournalNode.cs" />
     <Compile Include="JournalNodes\RetailOrderJournalNode.cs" />
     <Compile Include="JournalViewModels\RetailCounterpartyJournalViewModel.cs" />
-    <Compile Include="JournalViewModels\OrderForRouteListJournalViewModel.cs" />
     <Compile Include="gtk-gui\generated.cs" />
     <Compile Include="Infrastructure\Converters\IntToStringConverter.cs" />
     <Compile Include="Infrastructure\Converters\NullValueToZeroConverter.cs" />
@@ -2139,6 +2138,10 @@
     <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.NotAllocatedCounterpartiesJournalFilterView.cs" />
     <Compile Include="Views\Orders\OnlineOrderNotificaionSettingView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.OnlineOrderNotificationSettingView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.СallCenterMotivationCoefficientJournalFilterView.cs" />
+    <Compile Include="Filters\GtkViews\СallCenterMotivationCoefficientJournalFilterView.cs" />
+    <Compile Include="Views\Reports\CallCenterMotivationReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Reports.CallCenterMotivationReportView.cs" />
     <Compile Include="Views\Cash\VatRateView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Cash.VatRateView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Cash.VatRateVersionsView.cs" />

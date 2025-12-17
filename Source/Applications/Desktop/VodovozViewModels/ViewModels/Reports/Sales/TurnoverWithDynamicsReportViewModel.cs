@@ -1329,7 +1329,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				query.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(includedOrderStatuses);
 			}
 
-			if(excludedPromotionalSets.Any())
+			if(excludedOrderStatuses.Any())
 			{
 				query.WhereRestrictionOn(() => orderAlias.OrderStatus).Not.IsIn(excludedOrderStatuses);
 			}
