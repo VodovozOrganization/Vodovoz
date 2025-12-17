@@ -22,7 +22,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 
 			References(x => x.NomenclatureToBuy).Column("nomenclature_id");
 			References(x => x.Supplier).Column("supplier_id");
-			References(x => x.VatRate).Column("vat_rate_id");
 		}
 	}
 }

@@ -6,7 +6,6 @@ using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using QS.Project.Repositories;
 using QS.Utilities.Text;
-using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 
@@ -47,13 +46,6 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref price, value);
 		}
 		
-		[Display(Name = "НДС")]
-		public virtual VatRate VatRate
-		{
-			get => _vatRate;
-			set => SetField(ref _vatRate, value);
-		}
-
 		PaymentCondition paymentCondition;
 		[Display(Name = "Условие оплаты")]
 		public virtual PaymentCondition PaymentCondition {
@@ -90,7 +82,6 @@ namespace Vodovoz.Domain.Client
 		}
 
 		Counterparty supplier;
-		private VatRate _vatRate;
 
 		[Display(Name = "Поставщик")]
 		public virtual Counterparty Supplier {

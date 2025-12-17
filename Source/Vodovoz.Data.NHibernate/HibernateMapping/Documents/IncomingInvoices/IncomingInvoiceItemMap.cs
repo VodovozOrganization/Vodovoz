@@ -18,7 +18,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents.IncomingInvoices
 			References(x => x.Document).Column("incoming_invoice_id").Not.Nullable();
 			References(x => x.Nomenclature).Column("nomenclature_id").Not.Nullable();
 			References(x => x.GoodsAccountingOperation).Column("good_move_operation_id").Not.Nullable().Cascade.All();
-			References(x => x.VatRate).Column("vat_rate_id").Not.Nullable();
 		}
 	}
 }
