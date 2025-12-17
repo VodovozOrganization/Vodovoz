@@ -192,7 +192,7 @@ namespace WarehouseApi.Controllers.V1
 		/// <param name="warehouseId"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
-		[HttpGet]
+		[HttpGet("GetOrders")]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(typeof(IEnumerable<GetSelfDeliveryOrderResponse>), StatusCodes.Status200OK)]
 		public async Task<IActionResult> GetOrders(
