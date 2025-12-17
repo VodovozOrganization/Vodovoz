@@ -216,19 +216,69 @@ namespace Vodovoz.Views.Settings
 			
 			yspinbuttonTargetPaymentDeferent.Binding
 				.AddSource(ViewModel)
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangePaymentDeferment, w => w.Sensitive)
 				.AddBinding(vm => vm.TargetPaymentDeferment, w => w.ValueAsInt)
 				.InitializeFromSource();
 			yspinbuttonNewPaymentDeferent.Binding
 				.AddSource(ViewModel)
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangePaymentDeferment, w => w.Sensitive)
 				.AddBinding(vm => vm.NewPaymentDeferment, w => w.ValueAsInt)
 				.InitializeFromSource();
-			buttonCalculatePaymentDeferent.BindCommand(ViewModel.CalculatePaymentDefermentCommand);
+			buttonCalculatePaymentDeferent
+				.BindCommand(ViewModel.CalculatePaymentDefermentCommand);
+			buttonCalculatePaymentDeferent.Binding
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangePaymentDeferment, w => w.Sensitive)
+				.InitializeFromSource();
 			
 			yspinbuttonDefaultPaymentDeferent.Binding
 				.AddSource(ViewModel)
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangePaymentDeferment, w => w.Sensitive)
 				.AddBinding(vm => vm.DefaultPaymentDeferment, w => w.ValueAsInt)
 				.InitializeFromSource();
 			buttonSaveDefaultPaymentDeferent.BindCommand(ViewModel.SaveDefaultPaymentDefermentCommand);
+			buttonSaveDefaultPaymentDeferent.Binding
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangePaymentDeferment, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			yspinbuttonTargetVatRate.Binding
+				.AddSource(ViewModel)
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangeVatRate, w => w.Sensitive)
+				.AddBinding(vm => vm.TargetVatRate, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+			yspinbuttonNewVatRate.Binding
+				.AddSource(ViewModel)
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangeVatRate, w => w.Sensitive)
+				.AddBinding(vm => vm.NewVatRate, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+			buttonCalculateNewVatRateForNomenclature.BindCommand(ViewModel.CalculateVatRateNomenclatureCommand);
+			buttonCalculateNewVatRateForNomenclature.Binding
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangeVatRate, w => w.Sensitive)
+				.InitializeFromSource();
+			buttonCalculateNewVatRateForOrganization.BindCommand(ViewModel.CalculateVatRateOrganizationCommand);
+			buttonCalculateNewVatRateForOrganization.Binding
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangeVatRate, w => w.Sensitive)
+				.InitializeFromSource();
+
+			datepickerVersionStartDate.Binding
+				.AddSource(ViewModel)
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangeVatRate, w => w.Sensitive)
+				.AddBinding(vm => vm.StartDateTimeForVatRate, w => w.Date)
+				.InitializeFromSource();
+			datepickerVersionEndDate1.Binding
+				.AddSource(ViewModel)
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangeVatRate, w => w.Sensitive)
+				.AddBinding(vm => vm.EndDateTimeForVatRate, w => w.Date)
+				.InitializeFromSource();
+			
+			yspinbuttonDefaultVatRate.Binding
+				.AddSource(ViewModel)
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangeVatRate, w => w.Sensitive)
+				.AddBinding(vm => vm.DefaultVatRate, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+			buttonSaveDefaulVatRate.BindCommand(ViewModel.SaveDefaultVatRateCommand);
+			buttonSaveDefaulVatRate.Binding
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangeVatRate, w => w.Sensitive)
+				.InitializeFromSource();
 		}
 		
 		private void ConfigureEmployeesFixedPrices()

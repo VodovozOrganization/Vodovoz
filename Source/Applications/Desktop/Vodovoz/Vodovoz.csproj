@@ -464,6 +464,7 @@
     <Compile Include="JournalColumnsConfigs\OrdersRatingReasonsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\OrdersRatingsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\RequestsForCallClosedReasonsJournalRegistrar.cs" />
+    <Compile Include="JournalColumnsConfigs\VatRateJournalRegistars.cs" />
     <Compile Include="JournalColumnsConfigs\WarehouseDocumentsJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\AcceptBeforeJournalRegistrar.cs" />
     <Compile Include="JournalColumnsConfigs\OnlineOrderNotificationSettingJournalRegistrar.cs" />
@@ -2141,6 +2142,15 @@
     <Compile Include="Filters\GtkViews\СallCenterMotivationCoefficientJournalFilterView.cs" />
     <Compile Include="Views\Reports\CallCenterMotivationReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.CallCenterMotivationReportView.cs" />
+    <Compile Include="Views\Cash\VatRateView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Cash.VatRateView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Cash.VatRateVersionsView.cs" />
+    <Compile Include="Views\Cash\VatRateVersionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Cash.VatRateVersionView.cs" />
+    <Compile Include="Views\Cash\VatRateVersionForNomenclatureView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Cash.VatRateVersionForNomenclatureView.cs" />
+    <Compile Include="Views\Cash\VatRateVersionForOrganizationView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Cash.VatRateVersionForOrganizationView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2443,7 +2453,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\GeoCoderApi.Client\GeoCoderApi.Client.csproj">
-      <Project>{08476744-5B1E-4140-A351-8EF107183230}</Project>
+      <Project>{08476744-5b1e-4140-a351-8ef107183230}</Project>
       <Name>GeoCoderApi.Client</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\CashReceipt\CashReceiptApi.Client.Framework\CashReceiptApi.Client.Framework.csproj">

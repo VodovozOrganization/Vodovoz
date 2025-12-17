@@ -1,12 +1,14 @@
-using QS.BusinessCommon.Domain;
+﻿using QS.BusinessCommon.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Common;
 
 namespace Vodovoz.Core.Domain.Goods
@@ -32,7 +34,6 @@ namespace Vodovoz.Core.Domain.Goods
 		private NomenclatureCategory _category;
 		private bool _isAccountableInTrueMark;
 		private string _gtin;
-		private VAT _vAT = VAT.Vat18;
 
 		private bool _usingInGroupPriceSet;
 		private bool _hasInventoryAccounting;
@@ -129,6 +130,7 @@ namespace Vodovoz.Core.Domain.Goods
 		private IObservableList<GtinEntity> _gtins = new ObservableList<GtinEntity>();
 		private IObservableList<GroupGtinEntity> _groupGtins = new ObservableList<GroupGtinEntity>();
 		private IObservableList<NomenclaturePurchasePrice> _purchasePrices = new ObservableList<NomenclaturePurchasePrice>();
+		private IObservableList<VatRateVersion> _vatRateVersions = new ObservableList<VatRateVersion>();
 		private decimal? _motivationCoefficient;
 		private NomenclatureMotivationUnitType? _motivationUnitType;
 
@@ -216,15 +218,15 @@ namespace Vodovoz.Core.Domain.Goods
 			get => _unit;
 			set => SetField(ref _unit, value);
 		}
-
+		
 		/// <summary>
-		/// НДС
+		/// Версии ставок НДС
 		/// </summary>
-		[Display(Name = "НДС")]
-		public virtual VAT VAT
+		[Display(Name = "Версии ставок НДС")]
+		public virtual IObservableList<VatRateVersion> VatRateVersions
 		{
-			get => _vAT;
-			set => SetField(ref _vAT, value);
+			get => _vatRateVersions;
+			set => SetField(ref _vatRateVersions, value);
 		}
 
 		/// <summary>
@@ -1157,32 +1159,7 @@ namespace Vodovoz.Core.Domain.Goods
 		}
 
 		#endregion Онлайн характеристики для ИПЗ
-
-		/// <summary>
-		/// Числовое значение НДС
-		/// </summary>
-		/// <returns></returns>
-		[Display(Name = "Числовое значение НДС")]
-		public virtual decimal VatNumericValue
-		{
-			get
-			{
-				switch(VAT)
-				{
-					case VAT.No:
-						return 0m;
-					case VAT.Vat10:
-						return 0.10m;
-					case VAT.Vat18:
-						return 0.18m;
-					case VAT.Vat20:
-						return 0.20m;
-					default:
-						return 0m;
-				}
-			}
-		}
-
+		
 		/// <summary>
 		/// Добавление информации о файле
 		/// </summary>
@@ -1270,6 +1247,18 @@ namespace Vodovoz.Core.Domain.Goods
 				.FirstOrDefault();
 
 			return purchasePrice;
+		}
+		
+		/// <summary>
+		/// Получить актуальную версию НДС на выбранную дату
+		/// </summary>
+		/// <param name="date">Дата. Если не передается, то используется DateTime.Now</param>
+		/// <returns>Версия ставки НДС</returns>
+		public virtual VatRateVersion GetActualVatRateVersion(DateTime? date = null)
+		{
+			var targetDate = date ?? DateTime.Now;
+			return VatRateVersions.FirstOrDefault(x => 
+				x.StartDate <= targetDate && (x.EndDate == null || x.EndDate > targetDate));
 		}
 		
 		public override string ToString() => $"id = {Id} Name = {Name}";
