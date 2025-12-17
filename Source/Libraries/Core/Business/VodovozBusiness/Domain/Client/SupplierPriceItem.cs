@@ -47,13 +47,6 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref price, value);
 		}
 		
-		[Display(Name = "НДС")]
-		public virtual VatRate VatRate
-		{
-			get => _vatRate;
-			set => SetField(ref _vatRate, value);
-		}
-
 		PaymentCondition paymentCondition;
 		[Display(Name = "Условие оплаты")]
 		public virtual PaymentCondition PaymentCondition {
