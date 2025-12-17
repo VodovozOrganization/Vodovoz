@@ -2,19 +2,20 @@
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using FastPaymentEventsSender.Services;
 using FastPaymentsApi.Contracts.Requests;
 using Microsoft.Extensions.Logging;
 
-namespace FastPaymentEventsSender.Services
+namespace FastPaymentEventsSender.ApiClients
 {
 	/// <inheritdoc/>
-	public class MobileAppNotifier : IMobileAppNotifier
+	public class AiBotClient : IAiBotClient
 	{
-		private readonly ILogger<MobileAppNotifier> _logger;
+		private readonly ILogger<AiBotClient> _logger;
 		private readonly HttpClient _httpClient;
 
-		public MobileAppNotifier(
-			ILogger<MobileAppNotifier> logger,
+		public AiBotClient(
+			ILogger<AiBotClient> logger,
 			HttpClient httpClient)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -30,9 +31,9 @@ namespace FastPaymentEventsSender.Services
 			}
 
 			_logger.LogInformation(
-				"Отправка уведомления о быстрой оплате на мобильное приложение для онлайн заказа {OnlineOrderId}",
+				"Отправка уведомления о быстрой оплате для ИИ бота по онлайн заказу {OnlineOrderId}",
 				notification.PaymentDetails.OnlineOrderId);
-
+			
 			var content = JsonSerializer.Serialize(notification);
 			var response = await _httpClient.PostAsJsonAsync(url, content);
 

@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 namespace FastPaymentEventsSender.ApiClients
 {
 	/// <inheritdoc/>
-	public class MobileAppClient : IAiBotNotifier
+	public class MobileAppClient : IMobileAppClient
 	{
 		private readonly ILogger<MobileAppClient> _logger;
 		private readonly HttpClient _httpClient;
@@ -31,9 +31,9 @@ namespace FastPaymentEventsSender.ApiClients
 			}
 
 			_logger.LogInformation(
-				"Отправка уведомления о быстрой оплате для ИИ бота по онлайн заказу {OnlineOrderId}",
+				"Отправка уведомления о быстрой оплате на мобильное приложение для онлайн заказа {OnlineOrderId}",
 				notification.PaymentDetails.OnlineOrderId);
-			
+
 			var content = JsonSerializer.Serialize(notification);
 			var response = await _httpClient.PostAsJsonAsync(url, content);
 

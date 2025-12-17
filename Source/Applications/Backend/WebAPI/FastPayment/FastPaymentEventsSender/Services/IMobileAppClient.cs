@@ -4,9 +4,9 @@ using FastPaymentsApi.Contracts.Requests;
 namespace FastPaymentEventsSender.Services
 {
 	/// <summary>
-	/// Отправитель уведомлений для ИИ бота
+	/// Отправитель уведомлений для МП
 	/// </summary>
-	public interface IAiBotNotifier
+	public interface IMobileAppClient
 	{
 		/// <summary>
 		/// Отправка уведомления

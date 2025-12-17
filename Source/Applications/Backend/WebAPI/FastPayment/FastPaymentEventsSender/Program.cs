@@ -68,19 +68,19 @@ namespace FastPaymentEventsSender
 								});
 						});
 						
-						services.AddHttpClient<IWebSiteNotifier, SiteClient>((sp, client) =>
+						services.AddHttpClient<IWebSiteClient, WebSiteClient>((sp, client) =>
 						{
 							var siteSettings = sp.GetRequiredService<ISiteSettings>();
 							client.BaseAddress = new Uri(siteSettings.BaseUrl);
 							client.DefaultRequestHeaders.Add("Accept", "application/json");
 						});
 						
-						services.AddHttpClient<IMobileAppNotifier, Services.MobileAppNotifier>(client =>
+						services.AddHttpClient<IMobileAppClient, MobileAppClient>(client =>
 						{
 							client.DefaultRequestHeaders.Add("Accept", "application/json");
 						});
 						
-						services.AddHttpClient<IAiBotNotifier, MobileAppClient>(client =>
+						services.AddHttpClient<IAiBotClient, AiBotClient>(client =>
 						{
 							client.DefaultRequestHeaders.Add("Accept", "application/json");
 						});

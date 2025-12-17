@@ -6,7 +6,7 @@ namespace FastPaymentEventsSender.Services
 	/// <summary>
 	/// Отправитель уведомлений для сайта
 	/// </summary>
-	public interface IWebSiteNotifier
+	public interface IWebSiteClient
 	{
 		/// <summary>
 		/// Отправка уведомления

@@ -10,14 +10,14 @@ using Vodovoz.Settings.FastPayments;
 namespace FastPaymentEventsSender.ApiClients
 {
 	/// <inheritdoc/>
-	public class SiteClient : IWebSiteNotifier
+	public class WebSiteClient : IWebSiteClient
 	{
-		private readonly ILogger<SiteClient> _logger;
+		private readonly ILogger<WebSiteClient> _logger;
 		private readonly ISiteSettings _siteSettings;
 		private readonly HttpClient _httpClient;
 
-		public SiteClient(
-			ILogger<SiteClient> logger,
+		public WebSiteClient(
+			ILogger<WebSiteClient> logger,
 			HttpClient httpClient,
 			ISiteSettings siteSettings)
 		{

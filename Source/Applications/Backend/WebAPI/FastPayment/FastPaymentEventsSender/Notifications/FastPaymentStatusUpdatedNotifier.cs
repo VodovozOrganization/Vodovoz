@@ -14,26 +14,26 @@ namespace FastPaymentEventsSender.Notifications
 	public class FastPaymentStatusUpdatedNotifier : IFastPaymentStatusUpdatedNotifier
 	{
 		private readonly ILogger<FastPaymentStatusUpdatedNotifier> _logger;
-		private readonly IMobileAppNotifier _mobileAppNotifier;
-		private readonly IWebSiteNotifier _webSiteNotifier;
-		private readonly IAiBotNotifier _aiBotNotifier;
+		private readonly IMobileAppClient _mobileAppClient;
+		private readonly IWebSiteClient _webSiteClient;
+		private readonly IAiBotClient _aiBotClient;
 		private readonly IDriverAPIService _driverApiService;
 		private readonly IOrderSettings _orderSettings;
 		private readonly IFastPaymentFactory _fastPaymentFactory;
 
 		public FastPaymentStatusUpdatedNotifier(
 			ILogger<FastPaymentStatusUpdatedNotifier> logger,
-			IMobileAppNotifier mobileAppNotifier,
-			IWebSiteNotifier webSiteNotifier,
-			IAiBotNotifier aiBotNotifier,
+			IMobileAppClient mobileAppClient,
+			IWebSiteClient webSiteClient,
+			IAiBotClient aiBotClient,
 			IDriverAPIService driverApiService,
 			IOrderSettings orderSettings,
 			IFastPaymentFactory fastPaymentFactory)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_mobileAppNotifier = mobileAppNotifier ?? throw new ArgumentNullException(nameof(mobileAppNotifier));
-			_webSiteNotifier = webSiteNotifier ?? throw new ArgumentNullException(nameof(webSiteNotifier));
-			_aiBotNotifier = aiBotNotifier ?? throw new ArgumentNullException(nameof(aiBotNotifier));
+			_mobileAppClient = mobileAppClient ?? throw new ArgumentNullException(nameof(mobileAppClient));
+			_webSiteClient = webSiteClient ?? throw new ArgumentNullException(nameof(webSiteClient));
+			_aiBotClient = aiBotClient ?? throw new ArgumentNullException(nameof(aiBotClient));
 			_driverApiService = driverApiService ?? throw new ArgumentNullException(nameof(driverApiService));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_fastPaymentFactory = fastPaymentFactory ?? throw new ArgumentNullException(nameof(fastPaymentFactory));
@@ -100,17 +100,17 @@ namespace FastPaymentEventsSender.Notifications
 
 				if(paymentFromId == _orderSettings.GetPaymentByCardFromMobileAppByQrCodeId)
 				{
-					return await _mobileAppNotifier.NotifyPaymentStatusChangedAsync(notification, payment.CallbackUrlForMobileApp);
+					return await _mobileAppClient.NotifyPaymentStatusChangedAsync(notification, payment.CallbackUrlForMobileApp);
 				}
 
 				if(paymentFromId == _orderSettings.GetPaymentByCardFromSiteByQrCodeId)
 				{
-					return await _webSiteNotifier.NotifyPaymentStatusChangedAsync(notification);
+					return await _webSiteClient.NotifyPaymentStatusChangedAsync(notification);
 				}
 
 				if(paymentFromId == _orderSettings.GetPaymentByCardFromAiBotByQrCodeId)
 				{
-					return await _aiBotNotifier.NotifyPaymentStatusChangedAsync(notification, payment.CallbackUrlForMobileApp);
+					return await _aiBotClient.NotifyPaymentStatusChangedAsync(notification, payment.CallbackUrlForMobileApp);
 				}
 
 				_logger.LogWarning(
