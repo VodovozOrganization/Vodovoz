@@ -52,7 +52,7 @@ namespace Edo.Receipt.Dispatcher
 
 			try
 			{
-				if(edoTask.OrderEdoRequest.Order.Client.ReasonForLeaving == ReasonForLeaving.Resale)
+				if(edoTask.FormalEdoRequest.Order.Client.ReasonForLeaving == ReasonForLeaving.Resale)
 				{
 					await _resaleReceiptEdoTaskHandler.HandleNewReceipt(edoTask, cancellationToken);
 				}
@@ -140,7 +140,7 @@ namespace Edo.Receipt.Dispatcher
 				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
-				.Where(x => x.CustomerEdoRequest.Id == edoTask.OrderEdoRequest.Id)
+				.Where(x => x.CustomerEdoRequest.Id == edoTask.FormalEdoRequest.Id)
 				.ListAsync();
 
 			var sourceCodes = productCodes
@@ -156,7 +156,7 @@ namespace Edo.Receipt.Dispatcher
 
 			try
 			{
-				if(edoTask.OrderEdoRequest.Order.Client.ReasonForLeaving == ReasonForLeaving.Resale)
+				if(edoTask.FormalEdoRequest.Order.Client.ReasonForLeaving == ReasonForLeaving.Resale)
 				{
 					await _resaleReceiptEdoTaskHandler.HandleTransferComplete(edoTask, cancellationToken);
 				}

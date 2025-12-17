@@ -77,7 +77,7 @@ namespace Edo.Documents
 				return;
 			}
 
-			if(edoTask.OrderEdoRequest == null)
+			if(edoTask.FormalEdoRequest == null)
 			{
 				_logger.LogInformation("Задача Id {DocumentEdoTaskId} не имеет связи с ЭДО заявкой", documentEdoTaskId);
 				return;
@@ -89,7 +89,7 @@ namespace Edo.Documents
 				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
-				.Where(x => x.CustomerEdoRequest.Id == edoTask.OrderEdoRequest.Id)
+				.Where(x => x.CustomerEdoRequest.Id == edoTask.FormalEdoRequest.Id)
 				.ListAsync(cancellationToken);
 
 			var taskCodes = await _uow.Session.QueryOver<EdoTaskItem>()
@@ -174,13 +174,13 @@ namespace Edo.Documents
 				}
 			}
 		}
-
+		
 		private async Task HandleFormalDocument(
 			DocumentEdoTask edoTask,
 			EdoTaskItemTrueMarkStatusProvider trueMarkCodesChecker,
 			CancellationToken cancellationToken)
 		{
-			var reasonForLeaving = edoTask.OrderEdoRequest.Order.Client.ReasonForLeaving;
+			var reasonForLeaving = edoTask.FormalEdoRequest.Order.Client.ReasonForLeaving;
 			if(reasonForLeaving == ReasonForLeaving.Resale)
 			{
 				await _forResaleDocumentEdoTaskHandler.HandleNewForResaleFormalDocument(
@@ -265,7 +265,7 @@ namespace Edo.Documents
 				return;
 			}
 
-			if(edoTask.OrderEdoRequest == null)
+			if(edoTask.FormalEdoRequest == null)
 			{
 				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
 					"так как задача Id {DocumentEdoTaskId} не связана ни с одной клиенсткой заявкой", 
@@ -294,7 +294,7 @@ namespace Edo.Documents
 				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
-				.Where(x => x.CustomerEdoRequest.Id == edoTask.OrderEdoRequest.Id)
+				.Where(x => x.CustomerEdoRequest.Id == edoTask.FormalEdoRequest.Id)
 				.ListAsync();
 
 			var sourceCodes = productCodes
@@ -319,7 +319,7 @@ namespace Edo.Documents
 
 			try
 			{
-				var reasonForLeaving = edoTask.OrderEdoRequest.Order.Client.ReasonForLeaving;
+				var reasonForLeaving = edoTask.FormalEdoRequest.Order.Client.ReasonForLeaving;
 				if(reasonForLeaving == ReasonForLeaving.Resale)
 				{
 					await _forResaleDocumentEdoTaskHandler.HandleTransferedForResaleFormalDocument(

@@ -907,7 +907,7 @@ namespace Vodovoz.Application.Orders.Services
 
 		public void RejectOrderTrueMarkCodes(IUnitOfWork uow, int orderId)
 		{
-			var requests = uow.Session.QueryOver<OrderEdoRequest>()
+			var requests = uow.Session.QueryOver<FormalEdoRequest>()
 				.Where(x => x.Order.Id == orderId)
 				.List();
 
