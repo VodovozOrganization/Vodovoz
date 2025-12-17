@@ -21,7 +21,7 @@ namespace Vodovoz.ViewModels.Widgets.Cash
 		private readonly IVatRateVersionController _vatRateVersionController;
 		private readonly ViewModelEEVMBuilder<VatRate> _vatRateEevmBuilder;
 		private readonly DialogViewModelBase _parentDialog;
-		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly IUnitOfWork _uow;
 		private readonly bool _isEditable;
 
 		private DateTime? _selectedDate;
@@ -40,13 +40,13 @@ namespace Vodovoz.ViewModels.Widgets.Cash
 			ICommonServices commonServices, 
 			ViewModelEEVMBuilder<VatRate> vatRateEevmBuilder,
 			DialogViewModelBase parentDialog,
-			IUnitOfWorkFactory uowFactory,
+			IUnitOfWork uow,
 			bool isEditable = true) : base(entity, commonServices)
 		{
 			_vatRateVersionController = vatRateVersionController;
 			_vatRateEevmBuilder = vatRateEevmBuilder;
 			_parentDialog = parentDialog;
-			_uowFactory = uowFactory;
+			_uow = uow;
 			_isEditable = isEditable;
 
 			Initialize();
@@ -193,7 +193,7 @@ namespace Vodovoz.ViewModels.Widgets.Cash
 		{
 			VatRateEntryViewModel = _vatRateEevmBuilder
 				.SetViewModel(_parentDialog)
-				.SetUnitOfWork(_uowFactory.CreateWithoutRoot())
+				.SetUnitOfWork(_uow)
 				.ForProperty(this, x => x.SelectedVatRate)
 				.UseViewModelJournalAndAutocompleter<VatRateJournalViewModel>()
 				.UseViewModelDialog<VatRateViewModel>()

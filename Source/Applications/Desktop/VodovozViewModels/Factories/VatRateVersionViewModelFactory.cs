@@ -22,7 +22,7 @@ namespace Vodovoz.ViewModels.Factories
 		public VatRateNomenclatureVersionViewModel CreateVatRateVersionViewModel(Nomenclature nomenclature, 
 			DialogViewModelBase parentDialog, 
 			ViewModelEEVMBuilder<VatRate> vatRateEevmBuilder,
-			IUnitOfWorkFactory uowFactory,
+			IUnitOfWork uow,
 			bool isEditable = true)
 		{
 			return new VatRateNomenclatureVersionViewModel(
@@ -31,14 +31,14 @@ namespace Vodovoz.ViewModels.Factories
 				_commonServices,
 				vatRateEevmBuilder,
 				parentDialog,
-				uowFactory,
+				uow,
 				isEditable);
 		}
 
 		public VatRateOrganizationVersionViewModel CreateVatRateVersionViewModel(Organization organization,
 			DialogViewModelBase parentDialog,
 			ViewModelEEVMBuilder<VatRate> vatRateEevmBuilder,
-			IUnitOfWorkFactory uowFactory,
+			IUnitOfWork uow,
 			bool isEditable = true)
 		{
 			return new VatRateOrganizationVersionViewModel(
@@ -47,7 +47,7 @@ namespace Vodovoz.ViewModels.Factories
 				_commonServices,
 				vatRateEevmBuilder,
 				parentDialog,
-				uowFactory,
+				uow,
 				isEditable);
 		}
 	}

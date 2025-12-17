@@ -511,11 +511,11 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 			
-			var vatRateVersion = Nomenclature.VatRateVersions.FirstOrDefault(x => x.StartDate <= Order.DeliveryDate 
-			                                                                      && (x.EndDate == null || x.EndDate >= Order.DeliveryDate));
+			var vatRateVersion = Nomenclature.VatRateVersions.FirstOrDefault(x => x.StartDate <= Order.BillDate 
+			                                                                      && (x.EndDate == null || x.EndDate > Order.BillDate));
 			if(vatRateVersion == null)
 			{
-				throw new InvalidOperationException($"У товара #{Nomenclature.Id} отсутствует версия НДС на дату доставки заказа #{Order.DeliveryDate}");
+				throw new InvalidOperationException($"У товара #{Nomenclature.Id} отсутствует версия НДС на дату счета заказа #{Order.DeliveryDate}");
 			}
 			
 			ValueAddedTax =  CanUseVAT() ? vatRateVersion.VatRate.VatNumericValue : 0;

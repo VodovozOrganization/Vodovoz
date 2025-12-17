@@ -80,12 +80,11 @@ namespace ExportTo1c.Library.Exporters
 				
 				foreach(var item in items)
 				{
-					var vatRateVersion = item.Nomenclature.VatRateVersions.FirstOrDefault(x =>
-						x.StartDate <= endDate && (x.EndDate == null || x.EndDate >= endDate));
+					var vatRateVersion = item.Nomenclature.GetActualVatRateVersion(order.BillDate);
 
 					if(vatRateVersion == null)
 					{
-						throw new InvalidOperationException($"У номенклатуры #{item.Id} отсутствует версия НДС c {startDate:d} по {endDate:d}");
+						throw new InvalidOperationException($"У номенклатуры #{item.Id} отсутствует версия НДС на дату счета {order.BillDate}");
 					}
 					
 					var rowElement = new XElement

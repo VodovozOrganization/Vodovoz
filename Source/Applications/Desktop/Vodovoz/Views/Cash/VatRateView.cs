@@ -55,5 +55,10 @@ namespace Vodovoz.Views.Cash
 				GetClipboard(Gdk.Selection.Clipboard).Text = ViewModel.Entity.Id.ToString();
 			}
 		}
+
+		public override void Dispose()
+		{
+			buttonCopy.Clicked -= OnBtnCopyEntityIdClicked;
+		}
 	}
 }

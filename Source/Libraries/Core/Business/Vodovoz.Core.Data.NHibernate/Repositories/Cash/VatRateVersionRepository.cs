@@ -13,29 +13,29 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Cash
 		public VatRateVersion GetActualVatRateVersionForNomenclature(IUnitOfWork unitOfWork, int id)
 		{
 			return unitOfWork.Session.Query<VatRateVersion>().FirstOrDefault(x => x.Nomenclature.Id == id 
-			                                                                       && x.StartDate.Date < DateTime.Now
-			                                                                       && (x.EndDate > DateTime.Now || x.EndDate == null));
+			                                                                       && x.StartDate.Date <= DateTime.Now
+			                                                                       && (x.EndDate == null || x.EndDate > DateTime.Now));
 		}
 		
 		public VatRateVersion GetActualVatRateVersionForOrganization(IUnitOfWork unitOfWork, int id)
 		{
 			return unitOfWork.Session.Query<VatRateVersion>().FirstOrDefault(x => x.Organization.Id == id 
-			                                                                      && x.StartDate.Date < DateTime.Now
-			                                                                      && (x.EndDate > DateTime.Now || x.EndDate == null));
+			                                                                      && x.StartDate.Date <= DateTime.Now
+			                                                                      && (x.EndDate == null || x.EndDate > DateTime.Now));
 		}
 		
 		public VatRateVersion GetVatRateVersionForNomenclature(IUnitOfWork unitOfWork, int id, DateTime date)
 		{
 			return unitOfWork.Session.Query<VatRateVersion>().FirstOrDefault(x => x.Nomenclature.Id == id 
-			                                                                      && x.StartDate.Date < date
-			                                                                      && (x.EndDate > date || x.EndDate == null));
+			                                                                      && x.StartDate.Date <= date
+			                                                                      && (x.EndDate == null || x.EndDate > date));
 		}
 		
 		public VatRateVersion GetVatRateVersionForOrganization(IUnitOfWork unitOfWork, int id, DateTime date)
 		{
 			return unitOfWork.Session.Query<VatRateVersion>().FirstOrDefault(x => x.Organization.Id == id 
-			                                                                      && x.StartDate.Date < date
-			                                                                      && (x.EndDate > date || x.EndDate == null));
+			                                                                      && x.StartDate.Date <= date
+			                                                                      && (x.EndDate == null || x.EndDate > date));
 		}
 		
 		public IEnumerable<VatRateVersion> GetVatRateVersionsForOrganization(IUnitOfWork unitOfWork, decimal targetVatRate)

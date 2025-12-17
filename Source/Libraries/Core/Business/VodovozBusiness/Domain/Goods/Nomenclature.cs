@@ -40,7 +40,7 @@ namespace Vodovoz.Domain.Goods
 			new ObservableList<AlternativeNomenclaturePrice>();
 		private GenericObservableList<NomenclatureCostPrice> _observableCostPrices;
 		private GenericObservableList<NomenclatureInnerDeliveryPrice> _observableInnerDeliveryPrices;
-		private GenericObservableList<VatRateVersion> _observableVatRateVersions;
+		private IObservableList<VatRateVersion> _observableVatRateVersions = new ObservableList<VatRateVersion>();
 		private MobileAppNomenclatureOnlineCatalog _mobileAppNomenclatureOnlineCatalog;
 		private VodovozWebSiteNomenclatureOnlineCatalog _vodovozWebSiteNomenclatureOnlineCatalog;
 		private KulerSaleWebSiteNomenclatureOnlineCatalog _kulerSaleWebSiteNomenclatureOnlineCatalog;
@@ -411,8 +411,8 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
-		public virtual GenericObservableList<VatRateVersion> ObservableVatRateVersions 
-			=> _observableVatRateVersions ?? (_observableVatRateVersions = new GenericObservableList<VatRateVersion>(VatRateVersions));
+		public virtual IObservableList<VatRateVersion> ObservableVatRateVersions 
+			=> _observableVatRateVersions ?? (_observableVatRateVersions = new ObservableList<VatRateVersion>(VatRateVersions));
 		
 		#endregion Свойства
 
@@ -567,6 +567,18 @@ namespace Vodovoz.Domain.Goods
 		public virtual bool IsBelongsProductGroup(ProductGroup productGroup)
 		{
 			return ProductGroup != null && ProductGroup.IsBelongsOf(productGroup);
+		}
+
+		/// <summary>
+		/// Получить актуальную версию НДС на выбранную дату
+		/// </summary>
+		/// <param name="date">Дата. Если не передается, то используется DateTime.Now</param>
+		/// <returns>Версия ставки НДС</returns>
+		public virtual VatRateVersion GetActualVatRateVersion(DateTime? date = null)
+		{
+			var targetDate = date ?? DateTime.Now;
+			return VatRateVersions.FirstOrDefault(x => 
+				x.StartDate <= targetDate && (x.EndDate == null || x.EndDate > targetDate));
 		}
 
 		#endregion Методы

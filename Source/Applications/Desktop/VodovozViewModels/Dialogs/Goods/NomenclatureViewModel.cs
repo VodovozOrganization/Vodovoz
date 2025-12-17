@@ -143,7 +143,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			_vatRateEevmBuilder = vatRateEevmBuilder ?? throw new ArgumentNullException(nameof(vatRateEevmBuilder));
 
 			VatRateNomenclatureVersionViewModel =
-				_vatRateVersionViewModelFactory.CreateVatRateVersionViewModel(Entity, this, _vatRateEevmBuilder, uowFactory,CanEdit);
+				_vatRateVersionViewModelFactory.CreateVatRateVersionViewModel(Entity, this, _vatRateEevmBuilder, UoW,CanEdit);
 			
 			RouteColumnViewModel = BuildRouteColumnEntryViewModel();
 			ProductGroupEntityEntryViewModel = CreateProductGroupEEVM();
