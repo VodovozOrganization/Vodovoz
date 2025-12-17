@@ -1148,7 +1148,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 						Nomenclature = vatRateVersion.Nomenclature
 					};
 					
-					uow.Session.Save(newVatRateVersion);
+					uow.Save(newVatRateVersion);
 				}
 				
 				uow.Commit();
@@ -1228,7 +1228,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 						Organization = vatRateVersion.Organization,
 					};
 					
-					uow.Session.Save(newVatRateVersion);
+					uow.Save(newVatRateVersion);
 				}
 				
 				uow.Commit();
