@@ -6,7 +6,6 @@ using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using QS.Project.Repositories;
 using QS.Utilities.Text;
-using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 
@@ -83,7 +82,6 @@ namespace Vodovoz.Domain.Client
 		}
 
 		Counterparty supplier;
-		private VatRate _vatRate;
 
 		[Display(Name = "Поставщик")]
 		public virtual Counterparty Supplier {
