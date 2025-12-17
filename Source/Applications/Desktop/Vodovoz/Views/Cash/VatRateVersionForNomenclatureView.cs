@@ -75,6 +75,9 @@ namespace Vodovoz.Views.Cash
 				.InitializeFromSource();
 			
 			buttonSave.BindCommand(ViewModel.SaveEditingVersionCommand);
+			buttonSave.Binding
+				.AddBinding(ViewModel, vm => vm.CanSaveSelectedVatRate, w => w.Sensitive)
+				.InitializeFromSource();
 		}
 
 		private void OnButtonNewVersionOnClicked(object sender, EventArgs args)

@@ -51,7 +51,7 @@ namespace Vodovoz.Views.Cash
 				.AddColumn("")
 				.Finish();
 
-			ytreeVersions.ItemsDataSource = ViewModel.Entity.ObservableVatRateVersions;
+			ytreeVersions.ItemsDataSource = ViewModel.Entity.VatRateVersions;
 			ytreeVersions.Binding.AddBinding(ViewModel, vm => vm.SelectedVatRateVersion, w => w.SelectedRow).InitializeFromSource();
 			ytreeVersions.RowActivated += OnYtreeVersionsOnRowActivated;
 
@@ -69,13 +69,16 @@ namespace Vodovoz.Views.Cash
 			buttonChangeVersionDate.BindCommand(ViewModel.ChangeVersionStartDateCommand); 
 
 			buttonCancel.BindCommand(ViewModel.CancelEditingVersionCommand);
-
+			
 			buttonEditVersion.BindCommand(ViewModel.EditVersionCommand);
 			buttonEditVersion.Binding
 				.AddBinding(ViewModel, vm => vm.IsEditAvailable, w => w.Sensitive)
 				.InitializeFromSource();
 			
 			buttonSave.BindCommand(ViewModel.SaveEditingVersionCommand);
+			buttonSave.Binding
+				.AddBinding(ViewModel, vm => vm.CanSaveSelectedVatRate, w => w.Sensitive)
+				.InitializeFromSource();
 		}
 
 		private void OnButtonNewVersionOnClicked(object sender, EventArgs args)

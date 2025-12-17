@@ -25,7 +25,6 @@ namespace Vodovoz.Domain.Organizations
 		private OrganizationVersion _activeOrganizationVersion;
 		private IList<Phone> _phones = new List<Phone>();
 		private IList<OrganizationVersion> _organizationVersions = new List<OrganizationVersion>();
-		private IObservableList<VatRateVersion> _observableVatRateVersions = new ObservableList<VatRateVersion>();
 		private string _suffix;
 
 		[Display(Name = "Телефоны")]
@@ -47,9 +46,6 @@ namespace Vodovoz.Domain.Organizations
 			set => SetField(ref _suffix, value);
 		}
 		
-		public virtual IObservableList<VatRateVersion> ObservableVatRateVersions 
-			=> _observableVatRateVersions ?? (_observableVatRateVersions = new ObservableList<VatRateVersion>(VatRateVersions));
-
 		public virtual new OrganizationVersion OrganizationVersionOnDate(DateTime dateTime) =>
 			OrganizationVersions.LastOrDefault(x =>
 				x.StartDate <= dateTime && (x.EndDate == null || x.EndDate >= dateTime));

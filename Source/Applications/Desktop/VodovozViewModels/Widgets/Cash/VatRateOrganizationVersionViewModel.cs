@@ -95,7 +95,12 @@ namespace Vodovoz.ViewModels.Widgets.Cash
 		public virtual VatRate SelectedVatRate
 		{
 			get => _selectedVatRate;
-			set => SetField(ref _selectedVatRate, value);
+			set {
+				if(SetField(ref _selectedVatRate, value))
+				{
+					OnPropertyChanged(nameof(CanSaveSelectedVatRate));
+				} 
+			}
 		}
 
 		public bool CanAddNewVersion =>
@@ -106,6 +111,8 @@ namespace Vodovoz.ViewModels.Widgets.Cash
 		public bool CanChangeVersionDate =>
 			SelectedDate.HasValue
 			&& _vatRateVersionController.IsValidDateForVersionStartDateChange(SelectedVatRateVersion, SelectedDate.Value, VatRateVersionType.Organization);
+		
+		public bool CanSaveSelectedVatRate => SelectedVatRate != null;
 		
 		#region Commands
 
