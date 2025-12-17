@@ -45,7 +45,8 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Cash
 				             && x.VatRate.VatRateValue == targetVatRate
 				             && x.Nomenclature == null
 				             && x.VatRate.Vat1cTypeValue != Vat1cType.IndividualEntrepreneur
-				             && x.Organization != null);
+				             && x.Organization != null)
+				.ToList();
 		}
 		
 		public IEnumerable<VatRateVersion> GetVatRateVersionsForNomenclature(IUnitOfWork unitOfWork, decimal targetVatRate)
@@ -55,7 +56,8 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Cash
 				             && x.VatRate.VatRateValue == targetVatRate
 				             && x.Nomenclature != null
 				             && x.VatRate.Vat1cTypeValue != Vat1cType.Reduced
-				             && x.Organization == null);
+				             && x.Organization == null)
+				.ToList();
 		}
 	}
 }
