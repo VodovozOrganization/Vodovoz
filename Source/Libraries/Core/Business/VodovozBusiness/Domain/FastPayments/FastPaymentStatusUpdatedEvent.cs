@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.Entity;
+﻿using System;
+using QS.DomainModel.Entity;
 using Vodovoz.Core.Domain.FastPayments;
 
 namespace Vodovoz.Domain.FastPayments
@@ -9,6 +10,10 @@ namespace Vodovoz.Domain.FastPayments
 	public class FastPaymentStatusUpdatedEvent : IDomainObject
 	{
 		public virtual int Id { get; set; }
+		/// <summary>
+		/// Дата создания
+		/// </summary>
+		public DateTime CreateAt { get; protected set; }
 		/// <summary>
 		/// Быстрый платеж
 		/// </summary>
@@ -21,12 +26,17 @@ namespace Vodovoz.Domain.FastPayments
 		/// Код ответа принимающей стороны
 		/// </summary>
 		public virtual int? HttpCode { get; set; }
+		/// <summary>
+		/// Код ответа принимающей стороны
+		/// </summary>
+		public virtual bool DriverNotified { get; set; }
 
 		public static FastPaymentStatusUpdatedEvent Create(FastPayment fastPayment, FastPaymentStatus fastPaymentStatus) =>
 			new FastPaymentStatusUpdatedEvent
 			{
 				FastPayment = fastPayment,
-				FastPaymentStatus = fastPaymentStatus
+				FastPaymentStatus = fastPaymentStatus,
+				CreateAt = DateTime.Now
 			};
 	}
 }

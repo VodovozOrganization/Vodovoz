@@ -10,7 +10,6 @@ using FastPaymentsApi.Contracts.Responses.OnlineOrderRegistration;
 using FastPaymentsAPI.Library.Converters;
 using FastPaymentsAPI.Library.Managers;
 using FastPaymentsAPI.Library.Models;
-using FastPaymentsAPI.Library.Notifications;
 using FastPaymentsAPI.Library.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -33,11 +32,9 @@ namespace FastPaymentsAPI.Controllers
 		private readonly IDriverAPIService _driverApiService;
 		private readonly IResponseCodeConverter _responseCodeConverter;
 		private readonly IErrorHandler _errorHandler;
-		private readonly SiteNotifier _siteNotifier;
 		private readonly FastPaymentStatusManagerFromDesktop _fastPaymentStatusManagerFromDesktop;
 		private readonly FastPaymentStatusManagerFromDriverApp _fastPaymentStatusManagerFromDriverApp;
 		private readonly FastPaymentStatusManagerFromOnline _fastPaymentStatusManagerFromOnline;
-		private readonly MobileAppNotifier _mobileAppNotifier;
 
 		public FastPaymentsController(
 			ILogger<FastPaymentsController> logger,
@@ -46,8 +43,6 @@ namespace FastPaymentsAPI.Controllers
 			IDriverAPIService driverApiService,
 			IResponseCodeConverter responseCodeConverter,
 			IErrorHandler errorHandler,
-			SiteNotifier siteNotifier,
-			MobileAppNotifier mobileAppNotifier,
 			FastPaymentStatusManagerFromDesktop fastPaymentStatusManagerFromDesktop,
 			FastPaymentStatusManagerFromDriverApp fastPaymentStatusManagerFromDriverApp,
 			FastPaymentStatusManagerFromOnline fastPaymentStatusManagerFromOnline)
@@ -58,8 +53,6 @@ namespace FastPaymentsAPI.Controllers
 			_driverApiService = driverApiService ?? throw new ArgumentNullException(nameof(driverApiService));
 			_responseCodeConverter = responseCodeConverter ?? throw new ArgumentNullException(nameof(responseCodeConverter));
 			_errorHandler = errorHandler ?? throw new ArgumentNullException(nameof(errorHandler));
-			_siteNotifier = siteNotifier ?? throw new ArgumentNullException(nameof(siteNotifier));
-			_mobileAppNotifier = mobileAppNotifier ?? throw new ArgumentNullException(nameof(mobileAppNotifier));
 			_fastPaymentStatusManagerFromDesktop =
 				fastPaymentStatusManagerFromDesktop ?? throw new ArgumentNullException(nameof(fastPaymentStatusManagerFromDesktop));
 			_fastPaymentStatusManagerFromDriverApp =
@@ -460,7 +453,6 @@ namespace FastPaymentsAPI.Controllers
 				return Problem();
 			}
 
-			bool fastPaymentUpdated;
 			try
 			{
 				_logger.LogInformation("Проверяем подпись");
@@ -490,7 +482,7 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				_logger.LogInformation("Обновляем статус оплаты платежа с ticket: {Ticket}", ticket);
-				fastPaymentUpdated = _fastPaymentService.UpdateFastPaymentStatus(paidOrderInfoDto, fastPayment);
+				_fastPaymentService.UpdateFastPaymentStatus(paidOrderInfoDto, fastPayment);
 			}
 			catch(Exception e)
 			{
@@ -502,14 +494,6 @@ namespace FastPaymentsAPI.Controllers
 				return Problem();
 			}
 
-			NotifyDriver(fastPayment, paidOrderInfoDto.OrderNumber);
-			
-			if(fastPaymentUpdated)
-			{
-				await _siteNotifier.NotifyPaymentStatusChangeAsync(fastPayment);
-				await _mobileAppNotifier.NotifyPaymentStatusChangeAsync(fastPayment);
-			}
-			
 			return Accepted();
 		}
 
@@ -633,25 +617,6 @@ namespace FastPaymentsAPI.Controllers
 			else
 			{
 				response.PayUrl = _fastPaymentOrderService.GetPayUrlForOnlineOrder(fastPaymentGuid);
-			}
-		}
-		
-		private void NotifyDriver(FastPayment fastPayment, string orderNumber)
-		{
-			if(fastPayment?.Order != null)
-			{
-				try
-				{
-					_logger.LogInformation("Уведомляем водителя о изменении статуса оплаты заказа: {OrderNumber}", orderNumber);
-					_driverApiService.NotifyOfFastPaymentStatusChangedAsync(int.Parse(orderNumber));
-				}
-				catch(Exception e)
-				{
-					_logger.LogError(
-						e,
-						"Не удалось уведомить службу DriverApi об изменении статуса оплаты заказа {OrderNumber}",
-						orderNumber);
-				}
 			}
 		}
 	}

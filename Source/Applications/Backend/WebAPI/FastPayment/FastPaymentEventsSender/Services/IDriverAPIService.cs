@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace FastPaymentsAPI.Library.Services
+namespace FastPaymentEventsSender.Services
 {
 	public interface IDriverAPIService
 	{

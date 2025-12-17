@@ -197,13 +197,10 @@ namespace FastPaymentsAPI.Library.Models
 			_fastPaymentManager.UpdateFastPaymentStatus(_uow, fastPayment, newStatus, statusDate);
 
 			_uow.Save(fastPayment);
-			
-			if(fastPayment.Order is null)
-			{
-				var @event = FastPaymentStatusUpdatedEvent.Create(fastPayment, fastPayment.FastPaymentStatus);
-				_uow.Save(@event);
-			}
-			
+
+			var @event = FastPaymentStatusUpdatedEvent.Create(fastPayment, fastPayment.FastPaymentStatus);
+			_uow.Save(@event);
+
 			_uow.Commit();
 			
 			_logger.LogInformation(

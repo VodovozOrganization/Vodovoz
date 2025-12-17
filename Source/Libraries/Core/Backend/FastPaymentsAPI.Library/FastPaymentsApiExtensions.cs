@@ -1,26 +1,14 @@
-﻿using FastPaymentsAPI.Library.ApiClients;
-using FastPaymentsAPI.Library.Converters;
+﻿using FastPaymentsAPI.Library.Converters;
 using FastPaymentsAPI.Library.Factories;
 using FastPaymentsAPI.Library.Managers;
 using FastPaymentsAPI.Library.Models;
-using FastPaymentsAPI.Library.Notifications;
+using FastPaymentsAPI.Library.Settings;
 using FastPaymentsAPI.Library.Validators;
 using Microsoft.Extensions.DependencyInjection;
 using Vodovoz.Application;
-using Vodovoz.Application.Orders.Services;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.EntityRepositories.FastPayments;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Organizations;
-using Vodovoz.EntityRepositories.Store;
-using Vodovoz.Models;
 using Vodovoz.Services;
 using Vodovoz.Settings.FastPayments;
 using Vodovoz.Tools.Orders;
-using VodovozBusiness.Domain.Settings;
-using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Cryptography;
 
 namespace FastPaymentsAPI.Library
@@ -32,11 +20,6 @@ namespace FastPaymentsAPI.Library
 			services
 				.AddApplication()
 				.AddScoped<ISiteSettings, SiteSettings>()
-				.AddScoped<SiteClient>()
-				.AddScoped<MobileAppClient>()
-				.AddScoped<SiteNotifier>()
-				.AddScoped<MobileAppNotifier>()
-				.AddScoped<NotificationModel>()
 				.AddScoped<OrderStateKey>()
 				.AddScoped<FastPaymentStatusManagerFromDesktop>()
 				.AddScoped<FastPaymentStatusManagerFromDriverApp>()

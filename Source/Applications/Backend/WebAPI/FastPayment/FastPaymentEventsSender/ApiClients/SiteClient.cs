@@ -1,47 +1,43 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using FastPaymentEventsSender.Services;
 using FastPaymentsApi.Contracts.Requests;
+using Microsoft.Extensions.Logging;
 using Vodovoz.Settings.FastPayments;
 
-namespace FastPaymentsAPI.Library.ApiClients
+namespace FastPaymentEventsSender.ApiClients
 {
-	public class SiteClient : IDisposable
+	/// <inheritdoc/>
+	public class SiteClient : IWebSiteNotifier
 	{
 		private readonly ILogger<SiteClient> _logger;
 		private readonly ISiteSettings _siteSettings;
 		private readonly HttpClient _httpClient;
 
-		public SiteClient(ILogger<SiteClient> logger, ISiteSettings siteSettings)
+		public SiteClient(
+			ILogger<SiteClient> logger,
+			HttpClient httpClient,
+			ISiteSettings siteSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 			_siteSettings = siteSettings ?? throw new ArgumentNullException(nameof(siteSettings));
-
-			_httpClient = new HttpClient();
-			_httpClient.BaseAddress = new Uri(_siteSettings.BaseUrl);
-			_httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
 		}
 
-		public async Task<bool> NotifyPaymentStatusChangedAsync(FastPaymentStatusChangeNotificationDto paymentNotificationDto)
+		/// <inheritdoc/>
+		public async Task<int> NotifyPaymentStatusChangedAsync(FastPaymentStatusChangeNotificationDto notification)
 		{
+			_logger.LogInformation(
+				"Отправка уведомления о быстрой оплате на сайт для онлайн заказа {OnlineOrderId}",
+				notification.PaymentDetails.OnlineOrderId);
+			
 			var uri = _siteSettings.NotifyOfFastPaymentStatusChangedUri;
-			var content = JsonSerializer.Serialize(paymentNotificationDto);
+			var content = JsonSerializer.Serialize(notification);
 			var response = await _httpClient.PostAsJsonAsync(uri, content);
 
-			if(response.IsSuccessStatusCode)
-			{
-				return true;
-			}
-
-			_logger.LogInformation(response.ReasonPhrase);
-			return false;
-		}
-
-		public void Dispose()
-		{
-			_httpClient?.Dispose();
+			return (int)response.StatusCode;
 		}
 	}
 }

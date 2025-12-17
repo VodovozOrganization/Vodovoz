@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.Entity;
+﻿using System;
+using QS.DomainModel.Entity;
 
 namespace Vodovoz.Domain.FastPayments
 {
@@ -29,9 +30,9 @@ namespace Vodovoz.Domain.FastPayments
 		/// </summary>
 		public virtual string GeneratedSignature { get; set; }
 		/// <summary>
-		/// Код ответа принимающей стороны
+		/// Дата отправки
 		/// </summary>
-		public virtual int? HttpCode { get; set; }
+		public virtual DateTime? Sent { get; set; }
 
 		public static WrongSignatureFromReceivedFastPaymentEvent Create(string orderNumber, string bankSignature, int shopId, string paymentSignature)
 			=> new WrongSignatureFromReceivedFastPaymentEvent

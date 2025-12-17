@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.Configuration;
-using System;
+﻿using System;
+using Microsoft.Extensions.Configuration;
 using Vodovoz.Settings.FastPayments;
 
-namespace FastPaymentsAPI.Library.ApiClients
+namespace FastPaymentsAPI.Library.Settings
 {
 	public class SiteSettings : ISiteSettings
 	{

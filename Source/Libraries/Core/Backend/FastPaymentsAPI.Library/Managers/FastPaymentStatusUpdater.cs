@@ -137,11 +137,8 @@ namespace FastPaymentsAPI.Library.Managers
 
 				await uow.SaveAsync(payment);
 
-				if(payment.Order is null)
-				{
-					var @event = FastPaymentStatusUpdatedEvent.Create(payment, payment.FastPaymentStatus);
-					await uow.SaveAsync(@event);
-				}
+				var @event = FastPaymentStatusUpdatedEvent.Create(payment, payment.FastPaymentStatus);
+				await uow.SaveAsync(@event);
 
 				await uow.CommitAsync();
 				_updatedCount++;
