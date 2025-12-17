@@ -7,7 +7,6 @@ using Vodovoz.ViewModels.ViewModels.Cash;
 
 namespace Vodovoz.Views.Cash
 {
-	[ToolboxItem(true)]
 	public partial class VatRateView : EntityTabViewBase<VatRateViewModel, VatRate>
 	{
 		public VatRateView(VatRateViewModel viewModel) : base(viewModel)
@@ -39,15 +38,14 @@ namespace Vodovoz.Views.Cash
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
 			buttonSave.BindCommand(ViewModel.SaveCommand);
-
-			buttonCancel.Clicked += (sender, e) => ViewModel.Close(ViewModel.AskSaveOnClose, QS.Navigation.CloseSource.Cancel);
+			
 			buttonCancel.BindCommand(ViewModel.CancelCommand);
 
 			buttonCopy.Binding
 				.AddFuncBinding(ViewModel, vm => !vm.IsNew, w => w.Visible)
 				.InitializeFromSource();
 
-			buttonCopy.Clicked += (sender, e) => OnBtnCopyEntityIdClicked(sender, e);
+			buttonCopy.Clicked += OnBtnCopyEntityIdClicked;
 		}
 
 		protected void OnBtnCopyEntityIdClicked(object sender, EventArgs e)

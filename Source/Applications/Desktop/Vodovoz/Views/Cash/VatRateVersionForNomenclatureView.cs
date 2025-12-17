@@ -1,13 +1,11 @@
-﻿using Gamma.ColumnConfig;
-using Pango;
+﻿using System;
+using Gamma.ColumnConfig;
 using QS.Utilities;
 using QS.Views.GtkUI;
-using System.ComponentModel;
+using Gtk;
 using Vodovoz.Core.Domain.Cash;
-using Vodovoz.Domain.Logistic.Organizations;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Widgets.Cash;
-using Vodovoz.ViewModels.Widgets.Organizations;
 using Color = Gdk.Color;
 
 namespace Vodovoz.Views.Cash
@@ -54,27 +52,47 @@ namespace Vodovoz.Views.Cash
 
 			ytreeVersions.ItemsDataSource = ViewModel.Entity.ObservableVatRateVersions;
 			ytreeVersions.Binding.AddBinding(ViewModel, vm => vm.SelectedVatRateVersion, w => w.SelectedRow).InitializeFromSource();
-			ytreeVersions.RowActivated += (sender, args) => ViewModel.EditVersionCommand.Execute();
+			ytreeVersions.RowActivated += OnYtreeVersionsOnRowActivated;
 
 			entryVatRate.ViewModel = ViewModel.VatRateEntryViewModel;
 			
-			buttonNewVersion.Binding.AddBinding(ViewModel, vm => vm.CanAddNewVersion, w => w.Sensitive).InitializeFromSource();
-			buttonNewVersion.Clicked += (sender, args) =>
-			{
-				ViewModel.AddNewVersionCommand.Execute();
-				GtkHelper.WaitRedraw();
-				ytreeVersions.Vadjustment.Value = 0;
-			};
+			buttonNewVersion.Binding
+				.AddBinding(ViewModel, vm => vm.CanAddNewVersion, w => w.Sensitive)
+				.InitializeFromSource();
 
-			buttonChangeVersionDate.Binding.AddBinding(ViewModel, vm => vm.CanChangeVersionDate, w => w.Sensitive).InitializeFromSource();
-			buttonChangeVersionDate.Clicked += (sender, args) => ViewModel.ChangeVersionStartDateCommand.Execute();
+			buttonNewVersion.Clicked += OnButtonNewVersionOnClicked;
 
-			buttonCancel.Clicked += (sender, args) => ViewModel.CancelEditingVersionCommand.Execute();
+			buttonChangeVersionDate.Binding
+				.AddBinding(ViewModel, vm => vm.CanChangeVersionDate, w => w.Sensitive)
+				.InitializeFromSource();
+			buttonChangeVersionDate.BindCommand(ViewModel.ChangeVersionStartDateCommand); 
 
-			buttonEditVersion.Binding.AddBinding(ViewModel, vm => vm.IsEditAvailable, w => w.Sensitive).InitializeFromSource();
-			buttonEditVersion.Clicked += (sender, args) => ViewModel.EditVersionCommand.Execute();
+			buttonCancel.BindCommand(ViewModel.CancelEditingVersionCommand);
 
-			buttonSave.Clicked += (sender, args) => ViewModel.SaveEditingVersionCommand.Execute();
+			buttonEditVersion.BindCommand(ViewModel.EditVersionCommand);
+			buttonEditVersion.Binding
+				.AddBinding(ViewModel, vm => vm.IsEditAvailable, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			buttonSave.BindCommand(ViewModel.SaveEditingVersionCommand);
+		}
+
+		private void OnButtonNewVersionOnClicked(object sender, EventArgs args)
+		{
+			ViewModel.AddNewVersionCommand.Execute();
+			GtkHelper.WaitRedraw();
+			ytreeVersions.Vadjustment.Value = 0;
+		}
+
+		private void OnYtreeVersionsOnRowActivated(object sender, RowActivatedArgs args)
+		{
+			ViewModel.EditVersionCommand.Execute();
+		}
+
+		public override void Dispose()
+		{
+			ytreeVersions.RowActivated -= OnYtreeVersionsOnRowActivated;
+			buttonNewVersion.Clicked -= OnButtonNewVersionOnClicked;
 		}
 	}
 }

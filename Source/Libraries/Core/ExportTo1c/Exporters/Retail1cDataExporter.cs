@@ -95,13 +95,13 @@ namespace ExportTo1c.Library.Exporters
 				{
 					var isService = item.Nomenclature.Category == NomenclatureCategory.master
 					                || item.Nomenclature.Category == NomenclatureCategory.service;
-
+					
 					var vatRateVersion = item.Nomenclature.VatRateVersions.FirstOrDefault(x =>
-						x.StartDate <= DateTime.Now && (x.EndDate == null || x.EndDate >= DateTime.Now));
+						x.StartDate <= date && (x.EndDate == null || x.EndDate >= date));
 
 					if(vatRateVersion == null)
 					{
-						throw new InvalidOperationException($"У номенклатуры #{item.Nomenclature.Id} отсутствует версия НДС на {DateTime.Now}");
+						throw new InvalidOperationException($"У номенклатуры #{item.Nomenclature.Id} отсутствует версия НДС на {date}");
 					}
 					
 					var rowItem = new XElement("Строка",
