@@ -25,7 +25,7 @@ namespace WarehouseApi.Controllers.V1
 	/// <summary>
 	/// Контроллер для работы со складами
 	/// </summary>
-	//[Authorize(Roles = _rolesToAccess)]
+	[Authorize(Roles = _rolesToAccess)]
 	[OnlyOneSession]
 	[Route("api/[controller]")]
 	public partial class WarehouseController : VersionedController
