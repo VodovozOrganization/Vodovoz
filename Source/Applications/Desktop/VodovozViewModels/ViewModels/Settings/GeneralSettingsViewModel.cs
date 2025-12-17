@@ -215,6 +215,11 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_defaultPaymentDeferment = generalSettings.DefaultPaymentDeferment;
 			_defaultVatRate = generalSettings.DefaultVatRate;
 			
+			CanMassiveChangePaymentDeferment = _commonServices.CurrentPermissionService
+				.ValidatePresetPermission(Core.Domain.Permissions.CounterpartyPermissions.CanMassiveChangePaymentDeferment);
+			CanMassiveChangeVatRate = _commonServices.CurrentPermissionService
+				.ValidatePresetPermission(Core.Domain.Permissions.CashPermissions.CanMassiveChangeVatRate);
+			
 			InitializeAccountingSettingsViewModels();
 			ConfigureOrderOrganizationsSettings();
 		}
@@ -788,6 +793,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private decimal _defaultVatRate;
 		private DateTime? _startDateTimeForVatRate;
 		private DateTime? _endDateTimeForVatRate;
+		private bool _canMassiveChangeVatRate;
+		private bool _canMassiveChangePaymentDeferment;
 
 		public IEnumerable<Subdivision> AuthorsSubdivisions { get; private set; }
 		public IEnumerable<short> AuthorsSets { get; private set; }
@@ -981,6 +988,12 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		#region Массовое изменение отсрочки платежа задолженности
 
+		public bool CanMassiveChangePaymentDeferment
+		{
+			get => _canMassiveChangePaymentDeferment;
+			set => SetField(ref _canMassiveChangePaymentDeferment, value);
+		}
+
 		public int TargetPaymentDeferment
 		{
 			get => _targetPaymentDeferment;
@@ -1029,6 +1042,12 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		#endregion
 
 		#region Массовое изменение ставки НДС
+
+		public bool CanMassiveChangeVatRate
+		{
+			get => _canMassiveChangeVatRate;
+			set => SetField(ref _canMassiveChangeVatRate, value);
+		}
 
 		public decimal TargetVatRate
 		{
@@ -1108,8 +1127,12 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			
 				foreach(var vatRateVersion in vatRateVersions)
 				{
-					if(vatRateVersion.StartDate == StartDateTimeForVatRate)
+					if(vatRateVersion.StartDate.Date == StartDateTimeForVatRate.Value.Date)
 					{
+						vatRateVersion.VatRate = newVatRate;
+						
+					    uow.Save(vatRateVersion);
+						
 						continue;
 					}
 					
@@ -1184,6 +1207,15 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			
 				foreach(var vatRateVersion in vatRateVersions)
 				{
+					if(vatRateVersion.StartDate.Date == StartDateTimeForVatRate.Value.Date)
+					{
+						vatRateVersion.VatRate = newVatRate;
+						
+						uow.Save(vatRateVersion);
+						
+						continue;
+					}
+					
 					vatRateVersion.EndDate = StartDateTimeForVatRate.Value.Date.AddTicks(-1);
 					
 					uow.Save(vatRateVersion);
