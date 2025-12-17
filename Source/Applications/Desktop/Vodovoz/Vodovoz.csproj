@@ -2452,6 +2452,10 @@
     <EmbeddedResource Include="icons\map\points\overduetriangle\yellow_stripes.png" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\GeoCoderApi.Client\GeoCoderApi.Client.csproj">
+      <Project>{08476744-5b1e-4140-a351-8ef107183230}</Project>
+      <Name>GeoCoderApi.Client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\CashReceipt\CashReceiptApi.Client.Framework\CashReceiptApi.Client.Framework.csproj">
       <Project>{D3B6592D-6DCF-40F7-8627-3B4A6CBB040C}</Project>
       <Name>CashReceiptApi.Client.Framework</Name>
