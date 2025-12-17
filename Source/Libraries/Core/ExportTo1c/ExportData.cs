@@ -578,7 +578,7 @@ namespace ExportTo1c.Library
 			{
 				var vatCatalog = new VatCatalog(this)
 				{
-					Vat = orderItem.Nomenclature.GetActualVatRateVersion(DateTime.Now)?.VatRate
+					Vat = orderItem.Nomenclature.GetActualVatRateVersion(orderItem.Order.BillDate)?.VatRate
 				};
 
 				var vatReference = vatCatalog.CreateReferenceTo(vatCatalog);
@@ -592,7 +592,7 @@ namespace ExportTo1c.Library
 			}
 			else
 			{
-				var vat = orderItem.Nomenclature.GetActualVatRateVersion(DateTime.Now)?.VatRate.GetValue1c();
+				var vat = orderItem.Nomenclature.GetActualVatRateVersion(orderItem.Order.BillDate)?.VatRate.GetValue1c();
 
 				record.Properties.Add(
 					new PropertyNode("СтавкаНДС",
@@ -602,7 +602,7 @@ namespace ExportTo1c.Library
 			}
 
 
-			if(orderItem.Nomenclature.GetActualVatRateVersion(DateTime.Now)?.VatRate.VatRateValue != 0)
+			if(orderItem.Nomenclature.GetActualVatRateVersion(orderItem.Order.BillDate)?.VatRate.VatRateValue != 0)
 			{
 				record.Properties.Add(
 					new PropertyNode(
@@ -682,7 +682,7 @@ namespace ExportTo1c.Library
 			{
 				var vatCatalog = new VatCatalog(this)
 				{
-					Vat = orderItem.Nomenclature.GetActualVatRateVersion(DateTime.Now)?.VatRate
+					Vat = orderItem.Nomenclature.GetActualVatRateVersion(orderItem.Order.BillDate)?.VatRate
 				};
 
 				var vatReference = vatCatalog.CreateReferenceTo(vatCatalog);
