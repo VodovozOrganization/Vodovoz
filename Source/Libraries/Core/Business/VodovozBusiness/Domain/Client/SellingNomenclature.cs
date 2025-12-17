@@ -13,8 +13,7 @@ namespace Vodovoz.Domain.Client
 		public Nomenclature NomenclatureToBuy { get; set; }
 		public SupplierPaymentType PaymentType { get; set; }
 		public decimal Price { get; set; }
-		
-		public VatRate VatRate { get; set; }
+
 		public PaymentCondition PaymentCondition { get; set; }
 		public DeliveryType DeliveryType { get; set; }
 		public string Comment { get; set; }

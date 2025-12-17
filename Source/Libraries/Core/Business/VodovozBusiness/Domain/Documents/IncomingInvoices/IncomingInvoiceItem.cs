@@ -18,7 +18,6 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 		private decimal _amount;
 		private decimal _primeCost;
 		private Nomenclature _nomenclature;
-		private VatRate _vatRate;
 
 		public virtual int Id { get; set; }
 
@@ -60,12 +59,6 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 			set => SetField(ref _primeCost, value);
 		}
 		
-		public virtual VatRate VatRate
-		{
-			get => _vatRate;
-			set => SetField(ref _vatRate, value);
-		}
-
 		public virtual decimal Sum => PrimeCost * Amount;
 
 		public abstract string Name { get; }
