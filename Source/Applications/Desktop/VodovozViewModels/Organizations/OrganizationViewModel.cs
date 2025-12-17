@@ -45,7 +45,7 @@ namespace Vodovoz.ViewModels.Organizations
 			_vatRateVersionViewModelFactory = vatRateVersionViewModelFactory ?? throw new ArgumentNullException(nameof(vatRateVersionViewModelFactory));
 
 			OrganizationVersionsViewModel = _organizationVersionsViewModelFactory.CreateOrganizationVersionsViewModel(Entity, CanEdit);
-			VatRateOrganizationVersionViewModel = _vatRateVersionViewModelFactory.CreateVatRateVersionViewModel(Entity,this, vatRateEevmBuilder, unitOfWorkFactory, CanEdit);
+			VatRateOrganizationVersionViewModel = _vatRateVersionViewModelFactory.CreateVatRateVersionViewModel(Entity,this, vatRateEevmBuilder, UoW, CanEdit);
 
 			SaveCommand = new DelegateCommand(
 				() => Save(true),
