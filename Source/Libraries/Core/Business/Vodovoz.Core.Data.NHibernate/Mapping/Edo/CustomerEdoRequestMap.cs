@@ -3,7 +3,7 @@ using Vodovoz.Core.Domain.Edo;
 
 namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 {
-	public class CustomerEdoRequestMap : ClassMap<CustomerEdoRequest>
+	public class CustomerEdoRequestMap : ClassMap<FormalEdoRequest>
 	{
 		public CustomerEdoRequestMap()
 		{
@@ -15,7 +15,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 				.Column("id")
 				.GeneratedBy.Native();
 
-			DiscriminateSubClassesOnColumn("type");
+			DiscriminateSubClassesOnColumn("request_type");
 
 			Map(x => x.Type)
 				.Column("type")
@@ -28,17 +28,20 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 			Map(x => x.Source)
 				.Column("source");
 
+			Map(x => x.DocumentType)
+				.Column("document_type");
+
 			HasMany(x => x.ProductCodes)
 				.KeyColumn("customer_request_id")
 				.Cascade.AllDeleteOrphan();
+
+			References(x => x.Order)
+				.Column("order_id");
 
 			References(x => x.Task)
 				.Column("order_task_id")
 				.Cascade.All()
 				.Unique();
-
-			Map(x => x.DocumentType)
-				.Column("document_type");
 		}
 	}
 }

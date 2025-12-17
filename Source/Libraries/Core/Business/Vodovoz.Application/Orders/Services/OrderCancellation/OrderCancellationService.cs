@@ -65,7 +65,7 @@ namespace Vodovoz.Application.Orders.Services.OrderCancellation
 				return permit;
 			}
 
-			bool hasCodes = edoTasks.Any(x => x.OrderEdoRequest.ProductCodes.Any());
+			bool hasCodes = edoTasks.Any(x => x.FormalEdoRequest.ProductCodes.Any());
 			if(!hasCodes)
 			{
 				// разрешено отменять заказ так как еще не сканировали коды маркировки
@@ -75,7 +75,7 @@ namespace Vodovoz.Application.Orders.Services.OrderCancellation
 
 
 			var edoTasksWithCodes = edoTasks
-				.Where(x => x.OrderEdoRequest.ProductCodes.Any(c => c.SourceCodeStatus.IsIn(
+				.Where(x => x.FormalEdoRequest.ProductCodes.Any(c => c.SourceCodeStatus.IsIn(
 					SourceProductCodeStatus.Accepted,
 					SourceProductCodeStatus.Changed
 				)));
@@ -101,7 +101,7 @@ namespace Vodovoz.Application.Orders.Services.OrderCancellation
 				if(edoTask == null)
 				{
 					lastCancelledEdoTask = edoTasks
-						.Where(x => x.OrderEdoRequest.ProductCodes.Any(c => c.SourceCodeStatus == SourceProductCodeStatus.Rejected))
+						.Where(x => x.Items.Any(y => y.ProductCode.SourceCodeStatus == SourceProductCodeStatus.Rejected))
 						.Where(x => x.Status == EdoTaskStatus.Cancelled)
 						.OrderBy(x => x.CreationTime)
 						.LastOrDefault();
