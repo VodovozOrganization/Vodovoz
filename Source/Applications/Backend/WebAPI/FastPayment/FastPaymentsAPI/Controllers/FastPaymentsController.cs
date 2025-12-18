@@ -10,7 +10,6 @@ using FastPaymentsApi.Contracts.Responses.OnlineOrderRegistration;
 using FastPaymentsAPI.Library.Converters;
 using FastPaymentsAPI.Library.Managers;
 using FastPaymentsAPI.Library.Models;
-using FastPaymentsAPI.Library.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Vodovoz.Core.Data.Orders;
@@ -29,7 +28,6 @@ namespace FastPaymentsAPI.Controllers
 		private readonly ILogger<FastPaymentsController> _logger;
 		private readonly IFastPaymentOrderService _fastPaymentOrderService;
 		private readonly IFastPaymentService _fastPaymentService;
-		private readonly IDriverAPIService _driverApiService;
 		private readonly IResponseCodeConverter _responseCodeConverter;
 		private readonly IErrorHandler _errorHandler;
 		private readonly FastPaymentStatusManagerFromDesktop _fastPaymentStatusManagerFromDesktop;
@@ -40,7 +38,6 @@ namespace FastPaymentsAPI.Controllers
 			ILogger<FastPaymentsController> logger,
 			IFastPaymentOrderService fastPaymentOrderService,
 			IFastPaymentService fastPaymentService,
-			IDriverAPIService driverApiService,
 			IResponseCodeConverter responseCodeConverter,
 			IErrorHandler errorHandler,
 			FastPaymentStatusManagerFromDesktop fastPaymentStatusManagerFromDesktop,
@@ -50,7 +47,6 @@ namespace FastPaymentsAPI.Controllers
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_fastPaymentOrderService = fastPaymentOrderService ?? throw new ArgumentNullException(nameof(fastPaymentOrderService));
 			_fastPaymentService = fastPaymentService ?? throw new ArgumentNullException(nameof(fastPaymentService));
-			_driverApiService = driverApiService ?? throw new ArgumentNullException(nameof(driverApiService));
 			_responseCodeConverter = responseCodeConverter ?? throw new ArgumentNullException(nameof(responseCodeConverter));
 			_errorHandler = errorHandler ?? throw new ArgumentNullException(nameof(errorHandler));
 			_fastPaymentStatusManagerFromDesktop =

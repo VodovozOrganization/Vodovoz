@@ -5,6 +5,8 @@ using FastPaymentEventsSender.ApiClients;
 using FastPaymentEventsSender.Notifications;
 using FastPaymentEventsSender.Options;
 using FastPaymentEventsSender.Services;
+using FastPaymentsAPI.Library.Converters;
+using FastPaymentsAPI.Library.Factories;
 using FastPaymentsAPI.Library.Settings;
 using MassTransit;
 using MessageTransport;
@@ -59,6 +61,8 @@ namespace FastPaymentEventsSender
 						.AddInfrastructure()
 						.AddScoped<ISiteSettings, SiteSettings>()
 						.AddScoped<IFastPaymentStatusUpdatedNotifier, FastPaymentStatusUpdatedNotifier>()
+						.AddScoped<IFastPaymentFactory, FastPaymentFactory>()
+						.AddScoped<IOrderSumConverter, OrderSumConverter>()
 						.AddHostedService<FastPaymentEventsProcessor>()
 						.AddMessageTransportSettings()
 						

@@ -13,7 +13,7 @@ namespace Vodovoz.Domain.FastPayments
 		/// <summary>
 		/// Дата создания
 		/// </summary>
-		public DateTime CreateAt { get; protected set; }
+		public virtual DateTime CreateAt { get; protected set; }
 		/// <summary>
 		/// Быстрый платеж
 		/// </summary>

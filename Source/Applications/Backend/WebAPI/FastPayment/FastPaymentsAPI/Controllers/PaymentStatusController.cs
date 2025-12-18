@@ -1,12 +1,9 @@
 ﻿using FastPaymentsApi.Contracts.Requests;
 using FastPaymentsAPI.Library.Factories;
-using FastPaymentsAPI.Library.Notifications;
 using Microsoft.AspNetCore.Mvc;
-using NHibernate.Util;
 using QS.DomainModel.UoW;
 using System.Linq;
 using System.Net.Http;
-using Vodovoz.Domain.FastPayments;
 using Vodovoz.EntityRepositories.FastPayments;
 
 namespace FastPaymentsAPI.Controllers
@@ -17,20 +14,17 @@ namespace FastPaymentsAPI.Controllers
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly IFastPaymentRepository _fastPaymentRepository;
-		private readonly IFastPaymentFactory _fastPaymentAPIFactory;
-		private readonly NotificationModel _notificationModel;
+		private readonly IFastPaymentFactory _fastPaymentApiFactory;
 
 		public PaymentStatusController(
 			IUnitOfWork uow, 
 			IFastPaymentRepository fastPaymentRepository, 
-			IFastPaymentFactory fastPaymentAPIFactory,
-			NotificationModel notificationModel
+			IFastPaymentFactory fastPaymentApiFactory
 			)
 		{
 			_uow = uow ?? throw new System.ArgumentNullException(nameof(uow));
 			_fastPaymentRepository = fastPaymentRepository ?? throw new System.ArgumentNullException(nameof(fastPaymentRepository));
-			_fastPaymentAPIFactory = fastPaymentAPIFactory ?? throw new System.ArgumentNullException(nameof(fastPaymentAPIFactory));
-			_notificationModel = notificationModel ?? throw new System.ArgumentNullException(nameof(notificationModel));
+			_fastPaymentApiFactory = fastPaymentApiFactory ?? throw new System.ArgumentNullException(nameof(fastPaymentApiFactory));
 		}
 
 		/// <summary>
@@ -59,10 +53,9 @@ namespace FastPaymentsAPI.Controllers
 
 			var payment = payments.First();
 			result.PaymentStatus = (RequestPaymentStatus)payment.FastPaymentStatus;
-			result.PaymentDetails = _fastPaymentAPIFactory.GetNewOnlinePaymentDetailsDto(orderId, payment.Amount);
+			result.PaymentDetails = _fastPaymentApiFactory.GetNewOnlinePaymentDetailsDto(orderId, payment.Amount);
 
-			_notificationModel.SaveNotification(payment, FastPaymentNotificationType.Site, true);
-			_notificationModel.SaveNotification(payment, FastPaymentNotificationType.MobileApp, true);
+			//сделать сохранение события
 
 			return result;
 		}
@@ -93,7 +86,7 @@ namespace FastPaymentsAPI.Controllers
 
 			var payment = payments.First();
 			result.PaymentStatus = (RequestPaymentStatus)payment.FastPaymentStatus;
-			result.PaymentDetails = _fastPaymentAPIFactory.GetNewOnlinePaymentDetailsDto(orderId, payment.Amount);
+			result.PaymentDetails = _fastPaymentApiFactory.GetNewOnlinePaymentDetailsDto(orderId, payment.Amount);
 
 			return result;
 		}

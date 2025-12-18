@@ -21,6 +21,9 @@ namespace FastPaymentEventsSender
 {
 	public class FastPaymentEventsProcessor : BackgroundService
 	{
+		private const string _changedStatusEventsProcessTitle = "Обработка событий изменения статуса оплаты";
+		private const string _wrongSignatureEventsProcessTitle = "Обработка событий неправильной подписи";
+
 		private readonly ILogger<FastPaymentEventsProcessor> _logger;
 		private readonly IOptionsMonitor<SenderOptions> _senderOptionsMonitor;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
@@ -67,14 +70,18 @@ namespace FastPaymentEventsSender
 		{
 			try
 			{
-				using var uow = _unitOfWorkFactory.CreateWithoutRoot("Обработка событий изменения статуса оплаты");
+				_logger.LogInformation(_changedStatusEventsProcessTitle);
+				using var uow = _unitOfWorkFactory.CreateWithoutRoot(_changedStatusEventsProcessTitle);
 				using var scope = _serviceScopeFactory.CreateScope();
 				
 				var groupedEvents = _statusUpdatedEventRepository.Get(uow, x => x.HttpCode == null)
 					.ToLookup(x => x.FastPayment.Id);
 				
+				var eventsCount = groupedEvents.Count;
 				var notifier = scope.ServiceProvider.GetRequiredService<IFastPaymentStatusUpdatedNotifier>();
 
+				_logger.LogInformation("Всего событий смены статуса: {ChangedStatusEventsCount}", eventsCount);
+				
 				foreach(var eventsGroup in groupedEvents)
 				{
 					var i = 0;
@@ -110,12 +117,16 @@ namespace FastPaymentEventsSender
 		{
 			try
 			{
-				using var uow = _unitOfWorkFactory.CreateWithoutRoot("Обработка событий неправильной подписи");
+				_logger.LogInformation(_wrongSignatureEventsProcessTitle);
+				using var uow = _unitOfWorkFactory.CreateWithoutRoot(_wrongSignatureEventsProcessTitle);
 				using var scope = _serviceScopeFactory.CreateScope();
 				
 				var events = _wrongSignatureEventRepository.Get(uow, x => x.SentDate == null).ToList();
 				var publishEndpoint = scope.ServiceProvider.GetRequiredService<IPublishEndpoint>();
+				var eventsCount = events.Count;
 
+				_logger.LogInformation("Всего событий смены статуса: {WrongSignatureEventsCount}", eventsCount);
+				
 				foreach(var @event in events)
 				{
 					var message = CreateSendEmailMessage(@event);
