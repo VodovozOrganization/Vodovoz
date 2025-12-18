@@ -27,22 +27,19 @@ namespace FastPaymentsAPI.Library.Models
 		private readonly IFastPaymentValidator _fastPaymentValidator;
 		private readonly IEmailSettings _emailSettings;
 		private readonly IOrderRequestManager _orderRequestManager;
-		private readonly IPublishEndpoint _publishEndpoint;
 
 		public FastPaymentOrderService(
 			IUnitOfWork uow,
 			IOrderRepository orderRepository,
 			IFastPaymentValidator fastPaymentValidator,
 			IEmailSettings emailSettings,
-			IOrderRequestManager orderRequestManager,
-			IPublishEndpoint publishEndpoint)
+			IOrderRequestManager orderRequestManager)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_fastPaymentValidator = fastPaymentValidator ?? throw new ArgumentNullException(nameof(fastPaymentValidator));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_orderRequestManager = orderRequestManager ?? throw new ArgumentNullException(nameof(orderRequestManager));
-			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
 		public Order GetOrder(int orderId)
@@ -86,42 +83,6 @@ namespace FastPaymentsAPI.Library.Models
 		{
 			using TextReader reader = new StringReader(data);
 			return (PaidOrderInfoDTO)new XmlSerializer(typeof(PaidOrderInfoDTO)).Deserialize(reader);
-		}
-
-		public async Task NotifyEmployee(string orderNumber, string bankSignature, long shopId, string paymentSignature)
-		{
-			string messageText = $"Оповещение о пришедшей оплате с неверной подписью: {bankSignature}" +
-				$" для платежа по заказу №{orderNumber}, shopId {shopId}, рассчитанная подпись {paymentSignature}";
-
-			var sendEmailMessage = new SendEmailMessage
-			{
-				From = new EmailContact
-				{
-					Name = _emailSettings.DocumentEmailSenderName,
-					Email = _emailSettings.DocumentEmailSenderAddress
-				},
-
-				To = new List<EmailContact>
-				{
-					new EmailContact
-					{
-						Name = "Уважаемый пользователь",
-						Email = _emailSettings.InvalidSignatureNotificationEmailAddress
-					}
-				},
-
-				Subject = $"Неккоректная подпись успешной оплаты заказа №{orderNumber}",
-
-				TextPart = messageText,
-				HTMLPart = messageText,
-				Payload = new EmailPayload
-				{
-					Id = 0,
-					Trackable = false
-				}
-			};
-
-			await _publishEndpoint.Publish(sendEmailMessage);
 		}
 	}
 }
