@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
@@ -27,7 +27,6 @@ using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
 using VodovozBusiness.Domain.Goods;
 using VodovozBusiness.Services.TrueMark;
-using WarehouseApi.Contracts.V1.Responses;
 
 namespace WarehouseApi.Library.Services
 {
@@ -35,10 +34,10 @@ namespace WarehouseApi.Library.Services
 	{
 		private ILogger<SelfDeliveryService> _logger;
 		private readonly IUnitOfWork _unitOfWork;
-		private readonly IGenericRepository<Order> _orderRepository;
+		private readonly IGenericRepository<OrderEntity> _orderRepository;
 		private readonly IGenericRepository<Warehouse> _warehouseRepository;
 		private readonly IGenericRepository<SelfDeliveryDocument> _selfDeliveryDocumentRepository;
-		private readonly IGenericRepository<Subdivision> _subdivisionRepository;
+		private readonly IGenericRepository<SubdivisionEntity> _subdivisionRepository;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly INomenclatureRepository _nomenclatureRepository;
@@ -52,12 +51,12 @@ namespace WarehouseApi.Library.Services
 		public SelfDeliveryService(
 			ILogger<SelfDeliveryService> logger,
 			IUnitOfWork unitOfWork,
-			IGenericRepository<Order> orderRepository,
+			IGenericRepository<OrderEntity> orderRepository,
 			IGenericRepository<Warehouse> warehouseRepository,
 			IGenericRepository<SelfDeliveryDocument> selfDeliveryDocumentRepository,
 			IGenericRepository<GroupGtin> groupGtinrepository,
 			IGenericRepository<Gtin> gtinRepository,
-			IGenericRepository<Subdivision> subdivisionRepository,
+			IGenericRepository<SubdivisionEntity> subdivisionRepository,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			INomenclatureSettings nomenclatureSettings,
 			INomenclatureRepository nomenclatureRepository,
@@ -299,7 +298,7 @@ namespace WarehouseApi.Library.Services
 			return await Task.FromResult(selfDeliveryDocument);
 		}
 
-		public async Task<Result<IEnumerable<Order>>> GetSelfDeliveryOrders(int warehouseId, CancellationToken cancellationToken)
+		public async Task<Result<IEnumerable<OrderEntity>>> GetSelfDeliveryOrders(int warehouseId, CancellationToken cancellationToken)
 		{
 			var warehouse = _warehouseRepository
 				.Get(_unitOfWork, w => w.Id == warehouseId, 1)
@@ -310,7 +309,7 @@ namespace WarehouseApi.Library.Services
 				return VodovozBusiness.Errors.Warehouses.Warehouse.NotFound;
 			}
 
-			Subdivision warehouseOwnerSubdivision = null;
+			SubdivisionEntity warehouseOwnerSubdivision = null;
 
 			if(warehouse.OwningSubdivisionId.HasValue)
 			{
@@ -325,7 +324,7 @@ namespace WarehouseApi.Library.Services
 					_unitOfWork,
 					o =>
 						o.SelfDelivery
-						&& (warehouseGeoGroupId == null || o.SelfDeliveryGeoGroup.Id == warehouseGeoGroupId) 
+						&& (warehouseGeoGroupId == null || o.SelfDeliveryGeoGroup.Id == warehouseGeoGroupId)
 						&& o.OrderStatus == OrderStatus.OnLoading)
 				.ToList();
 

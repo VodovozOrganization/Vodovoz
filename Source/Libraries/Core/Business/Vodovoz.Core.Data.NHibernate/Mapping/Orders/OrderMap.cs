@@ -227,6 +227,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 			References(x => x.DeliverySchedule)
 				.Column("delivery_schedule_id");
 
+			References(x => x.SelfDeliveryGeoGroup)
+				.Column("self_delivery_geo_group_id");
+
 			HasMany(x => x.OrderItems)
 				.KeyColumn("order_id")
 				.Cascade.AllDeleteOrphan()

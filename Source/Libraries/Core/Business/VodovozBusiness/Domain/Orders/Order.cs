@@ -387,7 +387,7 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		[Display(Name = "Район города склада самовывоза")]
-		public virtual GeoGroup SelfDeliveryGeoGroup
+		public virtual new GeoGroup SelfDeliveryGeoGroup
 		{
 			get => _selfDeliveryGeoGroup;
 			set => SetField(ref _selfDeliveryGeoGroup, value);

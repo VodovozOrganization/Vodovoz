@@ -11,6 +11,7 @@ using Vodovoz.Core.Domain.Clients.DeliveryPoints;
 using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.Orders.Documents;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
@@ -97,7 +98,8 @@ namespace Vodovoz.Core.Domain.Orders
 		private CounterpartyContractEntity _contract;
 		private DeliveryScheduleEntity _deliverySchedule;
 		private string _orderPartsIds;
-		
+		private GeoGroupEntity _selfDeliveryGeoGroup;
+
 		private IObservableList<OrderItemEntity> _orderItems = new ObservableList<OrderItemEntity>();
 		private IList<OrderDocumentEntity> _orderDocuments = new List<OrderDocumentEntity>();
 		private IObservableList<OrderDepositItemEntity> _orderDepositItems = new ObservableList<OrderDepositItemEntity>();
@@ -655,6 +657,13 @@ namespace Vodovoz.Core.Domain.Orders
 		{
 			get => _orderPartsIds;
 			set => SetField(ref _orderPartsIds, value);
+		}
+
+		[Display(Name = "Район города склада самовывоза")]
+		public virtual GeoGroupEntity SelfDeliveryGeoGroup
+		{
+			get => _selfDeliveryGeoGroup;
+			set => SetField(ref _selfDeliveryGeoGroup, value);
 		}
 
 		#region Вычисляемые свойства
