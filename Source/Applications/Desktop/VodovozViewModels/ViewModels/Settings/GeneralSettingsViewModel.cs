@@ -15,7 +15,10 @@ using Microsoft.Extensions.Logging;
 using QS.DomainModel.Entity;
 using QS.Validation;
 using QS.ViewModels.Control.EEVM;
+using Vodovoz.Core.Data.Repositories.Cash;
+using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -25,8 +28,12 @@ using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Fuel;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.ViewModels.Accounting.Payments;
+using Vodovoz.ViewModels.Factories;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Organizations;
 using Vodovoz.ViewModels.Services;
+using Vodovoz.ViewModels.ViewModels.Cash;
+using VodovozBusiness.Controllers.Cash;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Settings;
 
@@ -48,6 +55,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IValidator _validator;
 		private const int _routeListPrintedFormPhonesLimitSymbols = 500;
+		private readonly ViewModelEEVMBuilder<VatRate> _vatRateEEVMBuilder;
 
 		private string _routeListPrintedFormPhones;
 		private bool _canAddForwardersToLargus;
@@ -106,7 +114,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			EntityJournalOpener entityJournalOpener,
 			IOrganizationForOrderFromSet organizationForOrderFromSet,
 			IOrganizationSettings organizationSettings,
-			IValidator validator) : base(commonServices?.InteractiveService, navigation)
+			IValidator validator, ViewModelEEVMBuilder<VatRate> vatRateEevmBuilder) : base(commonServices?.InteractiveService, navigation)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -120,6 +128,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			OrganizationForOrderFromSet = 
 				organizationForOrderFromSet ?? throw new ArgumentNullException(nameof(organizationForOrderFromSet));
 			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
+			_vatRateEEVMBuilder = vatRateEevmBuilder ?? throw new ArgumentNullException(nameof(vatRateEevmBuilder));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 			_carInsuranceSettings = carInsuranceSettings ?? throw new ArgumentNullException(nameof(carInsuranceSettings));
@@ -204,6 +213,12 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			SaveDailyFuelLimitsCommand = new DelegateCommand(SaveDailyFuelLimits, () => CanEditDailyFuelLimitsSetting);
 
 			_defaultPaymentDeferment = generalSettings.DefaultPaymentDeferment;
+			_defaultVatRate = generalSettings.DefaultVatRate;
+			
+			CanMassiveChangePaymentDeferment = _commonServices.CurrentPermissionService
+				.ValidatePresetPermission(Core.Domain.Permissions.CounterpartyPermissions.CanMassiveChangePaymentDeferment);
+			CanMassiveChangeVatRate = _commonServices.CurrentPermissionService
+				.ValidatePresetPermission(Core.Domain.Permissions.CashPermissions.CanMassiveChangeVatRate);
 			
 			InitializeAccountingSettingsViewModels();
 			ConfigureOrderOrganizationsSettings();
@@ -773,6 +788,14 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private int _targetPaymentDeferment;
 		private int _newPaymentDeferment;
 		private int _defaultPaymentDeferment;
+		private decimal _targetVatRate;
+		private decimal _newVatRate;
+		private decimal _defaultVatRate;
+		private DateTime? _startDateTimeForVatRate;
+		private DateTime? _endDateTimeForVatRate;
+		private bool _canMassiveChangeVatRate;
+		private bool _canMassiveChangePaymentDeferment;
+
 		public IEnumerable<Subdivision> AuthorsSubdivisions { get; private set; }
 		public IEnumerable<short> AuthorsSets { get; private set; }
 		public IReadOnlyDictionary<short, OrganizationBasedOrderContentSettings> OrganizationsByOrderContent { get; private set; }
@@ -791,6 +814,9 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			SaveOrderOrganizationSettingsCommand = new DelegateCommand(SaveOrderOrganizationsSettings);
 			CalculatePaymentDefermentCommand = new DelegateCommand(CalculatePaymentDefermentCommandHandler);
 			SaveDefaultPaymentDefermentCommand = new DelegateCommand(SaveDefaultPaymentDefermentCommandHandler);
+			CalculateVatRateNomenclatureCommand = new DelegateCommand(CalculateVatRateNomenclatureCommandHandler);
+			CalculateVatRateOrganizationCommand = new DelegateCommand(CalculateVatRateOrganizationCommandHandler);
+			SaveDefaultVatRateCommand = new DelegateCommand(SaveDefaultVatRateCommandHandler);
 		}
 
 		private void SaveOrderOrganizationsSettings()
@@ -962,6 +988,12 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		#region Массовое изменение отсрочки платежа задолженности
 
+		public bool CanMassiveChangePaymentDeferment
+		{
+			get => _canMassiveChangePaymentDeferment;
+			set => SetField(ref _canMassiveChangePaymentDeferment, value);
+		}
+
 		public int TargetPaymentDeferment
 		{
 			get => _targetPaymentDeferment;
@@ -1008,6 +1040,220 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		
 
 		#endregion
+
+		#region Массовое изменение ставки НДС
+
+		public bool CanMassiveChangeVatRate
+		{
+			get => _canMassiveChangeVatRate;
+			set => SetField(ref _canMassiveChangeVatRate, value);
+		}
+
+		public decimal TargetVatRate
+		{
+			get => _targetVatRate;
+			set => SetField(ref _targetVatRate, value);
+		}
+		public decimal NewVatRate
+		{
+			get => _newVatRate;
+			set => SetField(ref _newVatRate, value);
+		}
+		public decimal DefaultVatRate
+		{
+			get => _defaultVatRate;
+			set => SetField(ref _defaultVatRate, value);
+		}
+
+		public DateTime? StartDateTimeForVatRate
+		{
+			get => _startDateTimeForVatRate;
+			set => SetField(ref _startDateTimeForVatRate, value);
+		}
+
+		public DateTime? EndDateTimeForVatRate
+		{
+			get => _endDateTimeForVatRate;
+			set => SetField(ref _endDateTimeForVatRate, value);
+		}
+
+		public DelegateCommand CalculateVatRateNomenclatureCommand { get; set; }
+		private void CalculateVatRateNomenclatureCommandHandler()
+		{
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				var vatRateRepository = _lifetimeScope.Resolve<IGenericRepository<VatRate>>();
+				var vatRateVersionRepository = _lifetimeScope.Resolve<IVatRateVersionRepository>();
+				var oldVatRate = vatRateRepository.GetFirstOrDefault(uow, x => x.VatRateValue == TargetVatRate);
+				var newVatRate = vatRateRepository.GetFirstOrDefault(uow, x => x.VatRateValue == NewVatRate);
+			
+				if(newVatRate == null)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"В справочнике НДС отсутствует выбранная ставка {NewVatRate}%!");
+					return;
+				}
+			
+				if(oldVatRate == null)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"В справочнике НДС отсутствует выбранная ставка {TargetVatRate}%!");
+					return;
+				}
+
+				if(oldVatRate.Vat1cTypeValue == Vat1cType.Reduced)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Пониженную НДС {TargetVatRate}% нельзя массово изменять!");
+					return;
+				}
+				
+				if(StartDateTimeForVatRate == null)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Не выбрана начальная дата для выборки версий!");
+					return;
+				}
+				
+				if(EndDateTimeForVatRate != null && StartDateTimeForVatRate > EndDateTimeForVatRate)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Начальная дата позже конечной!");
+					return;
+				}
+			
+				var vatRateVersions = vatRateVersionRepository.GetVatRateVersionsForNomenclature(uow, TargetVatRate);
+
+				if (!vatRateVersions.Any())
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Не найдено версий для обновления.");
+					return;
+				}
+			
+				foreach(var vatRateVersion in vatRateVersions)
+				{
+					if(vatRateVersion.StartDate.Date == StartDateTimeForVatRate.Value.Date)
+					{
+						vatRateVersion.VatRate = newVatRate;
+						
+					    uow.Save(vatRateVersion);
+						
+						continue;
+					}
+					
+					vatRateVersion.EndDate = StartDateTimeForVatRate.Value.Date.AddTicks(-1);
+					
+					uow.Save(vatRateVersion);
+					
+					var newVatRateVersion = new VatRateVersion
+					{
+						StartDate = StartDateTimeForVatRate.Value.Date,
+						EndDate = EndDateTimeForVatRate?.Date.AddTicks(-1),
+						VatRate = newVatRate,
+						Nomenclature = vatRateVersion.Nomenclature
+					};
+					
+					uow.Save(newVatRateVersion);
+				}
+				
+				uow.Commit();
+			}
+			
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Пересчет для номенклатур произведен!");
+		}
+		
+		public DelegateCommand CalculateVatRateOrganizationCommand { get; set; }
+		private void CalculateVatRateOrganizationCommandHandler()
+		{
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				var vatRateRepository = _lifetimeScope.Resolve<IGenericRepository<VatRate>>();
+				var vatRateVersionRepository = _lifetimeScope.Resolve<IVatRateVersionRepository>();
+				var oldVatRate = vatRateRepository.GetFirstOrDefault(uow, x => x.VatRateValue == TargetVatRate);
+				var newVatRate = vatRateRepository.GetFirstOrDefault(uow, x => x.VatRateValue == NewVatRate);
+			
+				if(newVatRate == null)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"В справочнике НДС отсутствует выбранная ставка {NewVatRate}%!");
+					return;
+				}
+			
+				if(oldVatRate == null)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"В справочнике НДС отсутствует выбранная ставка {TargetVatRate}%!");
+					return;
+				}
+
+				if(oldVatRate.Vat1cTypeValue == Vat1cType.IndividualEntrepreneur)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Нельзя массово изменять ставку НДС {TargetVatRate}% для ИП!");
+					return;
+				}
+				
+				if(StartDateTimeForVatRate == null)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Не выбрана начальная дата для выборки версий!");
+					return;
+				}
+				
+				if(EndDateTimeForVatRate != null && StartDateTimeForVatRate > EndDateTimeForVatRate)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Начальная дата позже конечной!");
+					return;
+				}
+			
+				var vatRateVersions = vatRateVersionRepository.GetVatRateVersionsForOrganization(uow, TargetVatRate);
+
+				if (!vatRateVersions.Any())
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Не найдено версий для обновления.");
+					return;
+				}
+			
+				foreach(var vatRateVersion in vatRateVersions)
+				{
+					if(vatRateVersion.StartDate.Date == StartDateTimeForVatRate.Value.Date)
+					{
+						vatRateVersion.VatRate = newVatRate;
+						
+						uow.Save(vatRateVersion);
+						
+						continue;
+					}
+					
+					vatRateVersion.EndDate = StartDateTimeForVatRate.Value.Date.AddTicks(-1);
+					
+					uow.Save(vatRateVersion);
+					
+					var newVatRateVersion = new VatRateVersion
+					{
+						StartDate = StartDateTimeForVatRate.Value.Date,
+						EndDate = EndDateTimeForVatRate?.Date.AddTicks(-1),
+						VatRate = newVatRate,
+						Organization = vatRateVersion.Organization,
+					};
+					
+					uow.Save(newVatRateVersion);
+				}
+				
+				uow.Commit();
+			}
+			
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Пересчет для организаций произведен!");
+		}
+		
+		public DelegateCommand SaveDefaultVatRateCommand { get; set; }
+		private void SaveDefaultVatRateCommandHandler()
+		{
+			var vatRateRepository = _lifetimeScope.Resolve<IGenericRepository<VatRate>>();
+			var vatRate = vatRateRepository.GetFirstOrDefault(_unitOfWorkFactory.CreateWithoutRoot(), x => x.VatRateValue == DefaultVatRate);
+			
+			if(vatRate == null)
+			{
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"В справочнике НДС отсутствует выбранная ставка {DefaultVatRate}%!");
+				return;
+			}
+			
+			_generalSettings.SaveDefaultVatRate(DefaultVatRate);
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+		}
+		
+		#endregion
 		public EntityJournalOpener EntityJournalOpener { get; }
 
 		private void InitializeSettingsViewModels()
@@ -1043,7 +1289,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 					DetailTitle = "Использовать следующие склады при подсчете остатков для ИПЗ:",
 					Info = "Подсчет остатков при отправке в ИПЗ будет производиться только по выбранным складам."
 				};
-
+			
 			FillItemSources();
 		}
 

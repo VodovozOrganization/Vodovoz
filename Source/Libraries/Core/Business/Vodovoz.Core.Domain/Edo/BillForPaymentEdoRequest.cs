@@ -6,7 +6,7 @@ namespace Vodovoz.Core.Domain.Edo
 	/// <summary>
 	/// Заявка на отправку счета без отгруки на постоплату по ЭДО
 	/// </summary>
-	public class BillForPaymentEdoRequest : OrderEdoRequest
+	public class BillForPaymentEdoRequest : PrimaryEdoRequest
 	{
 		private int _orderWithoutShipmentForPaymentId;
 

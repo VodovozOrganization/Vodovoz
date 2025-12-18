@@ -1,4 +1,5 @@
-﻿using Gamma.Binding;
+﻿using System;
+using Gamma.Binding;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
@@ -63,16 +64,7 @@ namespace Vodovoz.Views.Client
 					.AddTextRenderer(n => n.IsEditable ? CurrencyWorks.CurrencyShortName : string.Empty)
 				.AddColumn("НДС")
 					.HeaderAlignment(0.5f)
-					.AddEnumRenderer(n => n.VAT, true)
-					.AddSetter(
-						(c, n) => {
-							c.Editable = false;
-							if(n.IsEditable)
-								c.Editable = true;
-							else
-								c.Text = string.Empty;
-						}
-					)
+					.AddTextRenderer(n => n.NomenclatureToBuy.GetActualVatRateVersion(DateTime.Now).VatRate.Name)
 				.AddColumn("Условия")
 					.HeaderAlignment(0.5f)
 					.AddEnumRenderer(n => n.PaymentCondition, true)

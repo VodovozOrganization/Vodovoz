@@ -33,6 +33,7 @@ namespace Vodovoz.Settings.Database.Common
 		private const string _fastDeliveryIntervalFrom = nameof(FastDeliveryIntervalFrom);
 		private const string _fastDeliveryMaximumPermissibleLateMinutes = nameof(FastDeliveryMaximumPermissibleLateMinutes);
 		private const string _defaultPaymentDeferment = "default_payment_deferment";
+		private const string _defaultVatRate = "default_vat_rate";
 
 		public GeneralSettings(ISettingsController settingsController)
 		{
@@ -216,6 +217,12 @@ namespace Vodovoz.Settings.Database.Common
 		public void SaveDefaultPaymentDeferment(int defaultPaymentDeferment)
 		{
 			_settingsController.CreateOrUpdateSetting(_defaultPaymentDeferment, defaultPaymentDeferment.ToString());
+		}
+
+		public decimal DefaultVatRate => _settingsController.GetValue<decimal>(_defaultVatRate);
+		public void SaveDefaultVatRate(decimal defaultVatRate)
+		{
+			_settingsController.CreateOrUpdateSetting(_defaultVatRate, defaultVatRate.ToString());
 		}
 	}
 }

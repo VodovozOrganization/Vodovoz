@@ -404,8 +404,8 @@ namespace Vodovoz.JournalViewModels
 			GeoGroup selfDeliveryGeographicalGroupAlias = null;
 			EdoContainer edoContainerAlias = null;
 			EdoContainer innerEdoContainerAlias = null;
-			OrderEdoRequest orderEdoRequestAlias = null;
-			OrderEdoRequest orderEdoRequestAlias2 = null;
+			FormalEdoRequest edoRequestAlias = null;
+			FormalEdoRequest edoRequestAlias2 = null;
 			OrderEdoDocument orderEdoDocumentAlias = null;
 			OrderEdoDocument orderEdoDocumentAlias2 = null;
 			Employee salesManagerAlias = null;
@@ -655,21 +655,21 @@ namespace Vodovoz.JournalViewModels
 					.WithSubquery.WhereProperty(() => edoContainerAlias.Id).Eq(edoUpdLastRecordIdByOrderSubquery)
 					.Select(Projections.Property(() => edoContainerAlias.EdoDocFlowStatus));
 
-			var edoUpdLastStatusNewDocflowSubquery = QueryOver.Of(() => orderEdoRequestAlias)
+			var edoUpdLastStatusNewDocflowSubquery = QueryOver.Of(() => edoRequestAlias)
 				.JoinEntityAlias(
-					() => orderEdoRequestAlias2,
-					() => orderEdoRequestAlias2.Order.Id == orderEdoRequestAlias.Order.Id
-						&& orderEdoRequestAlias2.Id > orderEdoRequestAlias.Id,
+					() => edoRequestAlias2,
+					() => edoRequestAlias2.Order.Id == edoRequestAlias.Order.Id
+						&& edoRequestAlias2.Id > edoRequestAlias.Id,
 					NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => orderEdoDocumentAlias, () => orderEdoRequestAlias.Task.Id == orderEdoDocumentAlias.DocumentTaskId)
+				.JoinEntityAlias(() => orderEdoDocumentAlias, () => edoRequestAlias.Task.Id == orderEdoDocumentAlias.DocumentTaskId)
 				.JoinEntityAlias(
 					() => orderEdoDocumentAlias2,
 					() => orderEdoDocumentAlias2.DocumentTaskId == orderEdoDocumentAlias.DocumentTaskId
 						&& orderEdoDocumentAlias2.Id > orderEdoDocumentAlias.Id,
 					NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.Where(() => orderEdoRequestAlias.Order.Id == orderAlias.Id)
-				.And(() => orderEdoRequestAlias.DocumentType == EdoDocumentType.UPD)
-				.And(() => orderEdoRequestAlias2.Id == null)
+				.Where(() => edoRequestAlias.Order.Id == orderAlias.Id)
+				.And(() => edoRequestAlias.DocumentType == EdoDocumentType.UPD)
+				.And(() => edoRequestAlias2.Id == null)
 				.And(() => orderEdoDocumentAlias2.Id == null)
 				.Select(Projections.Property(() => orderEdoDocumentAlias.Status))
 				.Take(1);

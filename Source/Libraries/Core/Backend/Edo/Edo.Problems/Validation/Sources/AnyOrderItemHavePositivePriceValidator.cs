@@ -21,10 +21,10 @@ namespace Edo.Problems.Validation.Sources
 
 		public override string GetTemplatedMessage(EdoTask edoTask)
 		{
-			var orderEdoRequest = GetOrderEdoRequest(edoTask);
-			return orderEdoRequest == null ?
+			var edoRequest = GetEdoRequest(edoTask);
+			return edoRequest == null ?
 				Message
-				: $"Хотя бы один из товаров заказа №{orderEdoRequest.Order.Id} должен быть с ценой больше 0";
+				: $"Хотя бы один из товаров заказа №{edoRequest.Order.Id} должен быть с ценой больше 0";
 		}
 
 		public override Task<EdoValidationResult> ValidateAsync(
@@ -32,15 +32,15 @@ namespace Edo.Problems.Validation.Sources
 			IServiceProvider serviceProvider,
 			CancellationToken cancellationToken)
 		{
-			var orderEdoRequest = GetOrderEdoRequest(edoTask);
-			var invalid = orderEdoRequest.Order.OrderItems.All(x => x.Price <= 0);
+			var edoRequest = GetEdoRequest(edoTask);
+			var invalid = edoRequest.Order.OrderItems.All(x => x.Price <= 0);
 
 			return Task.FromResult(invalid ? EdoValidationResult.Invalid(this) : EdoValidationResult.Valid(this));
 		}
 
-		private OrderEdoRequest GetOrderEdoRequest(EdoTask edoTask)
+		private FormalEdoRequest GetEdoRequest(EdoTask edoTask)
 		{
-			return ((OrderEdoTask)edoTask).OrderEdoRequest;
+			return ((OrderEdoTask)edoTask).FormalEdoRequest;
 		}
 	}
 }
