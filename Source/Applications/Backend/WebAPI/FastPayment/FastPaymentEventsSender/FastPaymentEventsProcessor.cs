@@ -77,14 +77,26 @@ namespace FastPaymentEventsSender
 
 				foreach(var eventsGroup in groupedEvents)
 				{
-					if(eventsGroup.Count() == 1)
+					var i = 0;
+					var groupedCount = eventsGroup.Count();
+
+					foreach(var @event in eventsGroup)
 					{
-						var firstEvent = eventsGroup.First();
+						/*т.к. теоретически может быть несколько событий по одному быстрому платежу,
+						 то отправляем последнее, а всем остальным проставляем не отправку*/
+						if(i == groupedCount - 1)
+						{
+							await notifier.NotifyPaymentStatusChangeAsync(@event);
+						}
+						else
+						{
+							@event.DriverNotified = false;
+							@event.HttpCode = 0;
+						}
 						
-						await notifier.NotifyPaymentStatusChangeAsync(firstEvent);
-						
-						await uow.SaveAsync(firstEvent);
+						await uow.SaveAsync(@event);
 						await uow.CommitAsync();
+						i++;
 					}
 				}
 			}
@@ -101,7 +113,7 @@ namespace FastPaymentEventsSender
 				using var uow = _unitOfWorkFactory.CreateWithoutRoot("Обработка событий неправильной подписи");
 				using var scope = _serviceScopeFactory.CreateScope();
 				
-				var events = _wrongSignatureEventRepository.Get(uow, x => x.Sent == null).ToList();
+				var events = _wrongSignatureEventRepository.Get(uow, x => x.SentDate == null).ToList();
 				var publishEndpoint = scope.ServiceProvider.GetRequiredService<IPublishEndpoint>();
 
 				foreach(var @event in events)
@@ -109,7 +121,7 @@ namespace FastPaymentEventsSender
 					var message = CreateSendEmailMessage(@event);
 					await publishEndpoint.Publish(message);
 
-					@event.Sent = DateTime.Now;
+					@event.SentDate = DateTime.Now;
 					await uow.SaveAsync(@event);
 					await uow.CommitAsync();
 				}

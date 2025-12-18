@@ -32,7 +32,7 @@ namespace Vodovoz.Domain.FastPayments
 		/// <summary>
 		/// Дата отправки
 		/// </summary>
-		public virtual DateTime? Sent { get; set; }
+		public virtual DateTime? SentDate { get; set; }
 
 		public static WrongSignatureFromReceivedFastPaymentEvent Create(string orderNumber, string bankSignature, int shopId, string paymentSignature)
 			=> new WrongSignatureFromReceivedFastPaymentEvent

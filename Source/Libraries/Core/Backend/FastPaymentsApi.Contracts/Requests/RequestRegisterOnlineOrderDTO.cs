@@ -6,7 +6,7 @@
 	public class RequestRegisterOnlineOrderDTO
 	{
 		/// <summary>
-		/// Id заказа (Мобильное приложение: номер от 200_000_000, сайт: от 100_000_000)
+		/// Id заказа (Мобильное приложение: номер от 200_000_000, сайт: от 100_000_000, ИИ бот от 300_000_000)
 		/// </summary>
 		public int OrderId { get; set; }
 		/// <summary>

@@ -124,6 +124,7 @@ namespace FastPaymentsAPI.Library.Models
 				organization,
 				paymentByCardFrom,
 				paymentType,
+				fastPaymentRequestFromType,
 				order,
 				phoneNumber);
 			fastPayment.SetProcessingStatus();
@@ -163,6 +164,7 @@ namespace FastPaymentsAPI.Library.Models
 				organization,
 				paymentByCardFrom,
 				PaymentType.PaidOnline,
+				fastPaymentRequestFromType,
 				null,
 				null,
 				onlineOrderId,

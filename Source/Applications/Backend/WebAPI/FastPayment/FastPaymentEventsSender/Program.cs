@@ -2,6 +2,7 @@ using System;
 using Microsoft.Extensions.Hosting;
 using Autofac.Extensions.DependencyInjection;
 using FastPaymentEventsSender.ApiClients;
+using FastPaymentEventsSender.Notifications;
 using FastPaymentEventsSender.Options;
 using FastPaymentEventsSender.Services;
 using FastPaymentsAPI.Library.Settings;
@@ -57,6 +58,7 @@ namespace FastPaymentEventsSender
 						.Configure<DriverApiOptions>(hostContext.Configuration.GetSection(DriverApiOptions.Path))
 						.AddInfrastructure()
 						.AddScoped<ISiteSettings, SiteSettings>()
+						.AddScoped<IFastPaymentStatusUpdatedNotifier, FastPaymentStatusUpdatedNotifier>()
 						.AddHostedService<FastPaymentEventsProcessor>()
 						.AddMessageTransportSettings()
 						

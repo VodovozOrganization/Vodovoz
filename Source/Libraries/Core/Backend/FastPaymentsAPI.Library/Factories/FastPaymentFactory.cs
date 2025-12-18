@@ -3,14 +3,13 @@ using FastPaymentsApi.Contracts;
 using FastPaymentsApi.Contracts.Requests;
 using FastPaymentsApi.Contracts.Responses;
 using FastPaymentsAPI.Library.Converters;
-using FastPaymentsAPI.Library.Managers;
 using Microsoft.Extensions.Configuration;
+using Vodovoz.Core.Data.Orders;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
-using VodovozInfrastructure;
 using VodovozInfrastructure.Cryptography;
 
 namespace FastPaymentsAPI.Library.Factories
@@ -127,12 +126,13 @@ namespace FastPaymentsAPI.Library.Factories
 			Organization organization,
 			PaymentFrom paymentByCardFrom,
 			PaymentType paymentType,
+			FastPaymentRequestFromType fastPaymentRequestFromType,
 			Order order = null,
 			string phoneNumber = null,
 			int? onlineOrderId = null,
 			string callbackUrl = null)
 		{
-			return new FastPayment
+			var fastPayment = new FastPayment
 			{
 				Amount = orderSum,
 				CreationDate = creationDate,
@@ -147,8 +147,19 @@ namespace FastPaymentsAPI.Library.Factories
 				FastPaymentGuid = fastPaymentGuid,
 				OnlineOrderId = onlineOrderId,
 				FastPaymentPayType = payType,
-				CallbackUrlForMobileApp = callbackUrl
 			};
+
+			switch(fastPaymentRequestFromType)
+			{
+				case FastPaymentRequestFromType.FromAiBotByQr:
+					fastPayment.CallbackUrlForAiBot = callbackUrl;
+					break;
+				case FastPaymentRequestFromType.FromMobileAppByQr:
+					fastPayment.CallbackUrlForMobileApp = callbackUrl;
+					break;
+			}
+			
+			return fastPayment;
 		}
 
 		public FastPayment GetFastPayment(Order order, FastPaymentDTO paymentDto)
@@ -194,7 +205,7 @@ namespace FastPaymentsAPI.Library.Factories
 					break;
 				case FastPaymentStatus.Processing:
 				default:
-					throw new InvalidOperationException($"Платеж находится в обработке или имеет неизвестный статус");
+					throw new InvalidOperationException("Платеж находится в обработке или имеет неизвестный статус");
 			}
 
 			var result = new FastPaymentStatusChangeNotificationDto
