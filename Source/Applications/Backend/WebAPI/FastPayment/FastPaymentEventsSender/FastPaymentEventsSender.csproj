@@ -16,8 +16,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\FastPaymentsApi.Contracts\FastPaymentsApi.Contracts.csproj" />
-    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\FastPaymentsAPI.Library\FastPaymentsAPI.Library.csproj" />
+    <ProjectReference Include="..\FastPaymentsApi.Contracts\FastPaymentsApi.Contracts.csproj" />
+    <ProjectReference Include="..\FastPaymentsAPI.Library\FastPaymentsAPI.Library.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\External\QSProjects\QS.Attachments\QS.Attachments.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />

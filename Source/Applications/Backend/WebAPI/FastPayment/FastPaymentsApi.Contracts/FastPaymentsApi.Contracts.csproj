@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
   </ItemGroup>
 
 </Project>
