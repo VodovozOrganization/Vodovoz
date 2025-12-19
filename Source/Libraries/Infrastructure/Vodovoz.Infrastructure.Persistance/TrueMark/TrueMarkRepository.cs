@@ -277,7 +277,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 					() => selfDeliveryDocumentItemAlias
 				)
 				.Left.JoinAlias(
-					() => selfDeliveryDocumentItemAlias.SelfDeliveryDocument,
+					() => selfDeliveryDocumentItemAlias.Document,
 					() => selfDeliveryDocumentAlias
 				)
 				.Where(() => selfDeliveryDocumentAlias.Order.Id == orderId)

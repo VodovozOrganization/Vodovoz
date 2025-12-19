@@ -1,8 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
+using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
+using System;
+using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.Core.Domain.Documents
 {
@@ -13,21 +17,16 @@ namespace Vodovoz.Core.Domain.Documents
 		NominativePlural = "документы самовывоза",
 		Nominative = "документ самовывоза")]
 	[HistoryTrace]
-	public class SelfDeliveryDocumentEntity : PropertyChangedBase, IDomainObject
+	public class SelfDeliveryDocumentEntity : Document, IDomainObject
 	{
-		private int _id;
+		private Warehouse _warehouse;
 		private OrderEntity _order;
-		EmployeeEntity _author;
+		private EmployeeEntity _author;
+		private IObservableList<SelfDeliveryDocumentItemEntity> _items = new ObservableList<SelfDeliveryDocumentItemEntity>();
 
 		/// <summary>
-		/// Идентификатор
+		/// Автор
 		/// </summary>
-		public virtual int Id
-		{
-			get => _id;
-			set => SetField(ref _id, value);
-		}
-
 		[Display(Name = "Автор")]
 		public virtual EmployeeEntity Author
 		{
@@ -43,6 +42,26 @@ namespace Vodovoz.Core.Domain.Documents
 		{
 			get => _order;
 			set => SetField(ref _order, value);
+		}
+
+		/// <summary>
+		/// Склад, на который оформляется самовывоз
+		/// </summary>
+		[Required(ErrorMessage = "Склад должен быть указан.")]
+		public virtual Warehouse Warehouse
+		{
+			get => _warehouse;
+			set => SetField(ref _warehouse, value);
+		}
+
+		/// <summary>
+		/// Строки самовывоза
+		/// </summary>
+		[Display(Name = "Строки самовывоза")]
+		public virtual IObservableList<SelfDeliveryDocumentItemEntity> Items
+		{
+			get => _items;
+			set => SetField(ref _items, value);
 		}
 	}
 }

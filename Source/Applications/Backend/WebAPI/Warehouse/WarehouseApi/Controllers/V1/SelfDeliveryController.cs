@@ -12,6 +12,7 @@ using System.Net.Mime;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Documents;
@@ -84,7 +85,7 @@ namespace WarehouseApi.Controllers.V1
 			int? selfDeliveryDocumentId,
 			CancellationToken cancellationToken)
 			=> await GetDocumentByOrderIdOrSelfDeliveryDocumentId(orderId, selfDeliveryDocumentId, cancellationToken)
-				.MatchAsync<SelfDeliveryDocument, IActionResult>(
+				.MatchAsync<SelfDeliveryDocumentEntity, IActionResult>(
 					selfDeliveryDocument =>
 					{
 						var nomenclatures = selfDeliveryDocument.Order.OrderItems
@@ -179,7 +180,7 @@ namespace WarehouseApi.Controllers.V1
 					await unitOfWork.CommitAsync(cancellationToken);
 					return Result.Success(selfDeliveryDocument);
 				})
-				.MatchAsync<SelfDeliveryDocument, IActionResult>(
+				.MatchAsync<SelfDeliveryDocumentEntity, IActionResult>(
 					selfDeliveryDocument => NoContent(),
 					errors => Problem(
 						string.Join(", ", errors.Select(x => x.Message)),
@@ -204,11 +205,11 @@ namespace WarehouseApi.Controllers.V1
 					string.Join(", ", errors.Select(e => e.Message)),
 					statusCode: StatusCodes.Status400BadRequest));
 
-		private async Task<Result<SelfDeliveryDocument>> GetDocumentByOrderIdOrSelfDeliveryDocumentId(int? orderId, int? selfDeliveryDocumentId, CancellationToken cancellationToken)
+		private async Task<Result<SelfDeliveryDocumentEntity>> GetDocumentByOrderIdOrSelfDeliveryDocumentId(int? orderId, int? selfDeliveryDocumentId, CancellationToken cancellationToken)
 		{
 			if(selfDeliveryDocumentId is null && orderId is null)
 			{
-				return Result.Failure<SelfDeliveryDocument>(new Error("Temp.Error", "Не указан идентификатор документа самовывоза или идентификатор заказа самовывоза"));
+				return Result.Failure<SelfDeliveryDocumentEntity>(new Error("Temp.Error", "Не указан идентификатор документа самовывоза или идентификатор заказа самовывоза"));
 			}
 
 			if(selfDeliveryDocumentId != null)
@@ -221,7 +222,7 @@ namespace WarehouseApi.Controllers.V1
 			}
 		}
 
-		private async Task<Result<SelfDeliveryDocument>> EndLoadIfNeededAsync(bool endLoadNeeded, SelfDeliveryDocument selfDeliveryDocument, CancellationToken cancellationToken)
+		private async Task<Result<SelfDeliveryDocumentEntity>> EndLoadIfNeededAsync(bool endLoadNeeded, SelfDeliveryDocument selfDeliveryDocument, CancellationToken cancellationToken)
 		{
 			if(endLoadNeeded)
 			{

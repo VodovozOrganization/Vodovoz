@@ -10,104 +10,99 @@ namespace Vodovoz.Domain.Documents
 {
 	public class SelfDeliveryDocumentItem: SelfDeliveryDocumentItemEntity
 	{
-		SelfDeliveryDocument document;
+		private SelfDeliveryDocument _document;
+		private Nomenclature _nomenclature;
+		private Equipment _equipment;
+		private OrderItem _orderItem;
+		private OrderEquipment _orderEquipment;
+		private WarehouseBulkGoodsAccountingOperation _goodsAccountingOperation;
+		private CounterpartyMovementOperation _counterpartyMovementOperation;
 
-		public virtual SelfDeliveryDocument Document {
-			get { return document; }
-			set { SetField (ref document, value, () => Document); }
+		/// <summary>
+		/// Документ самовывоза
+		/// </summary>
+		[Display (Name = "Документ самовывоза")]
+		public virtual new SelfDeliveryDocument Document
+		{
+			get => _document;
+			set => SetField(ref _document, value);
 		}
 
-		Nomenclature nomenclature;
-
+		/// <summary>
+		/// Номенклатура
+		/// </summary>
 		[Display (Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature {
-			get { return nomenclature; }
-			set {
-				SetField (ref nomenclature, value, () => Nomenclature);
+		public virtual new Nomenclature Nomenclature
+		{
+			get => _nomenclature;
+			set
+			{
+				SetField (ref _nomenclature, value);
 
-				if (GoodsAccountingOperation != null && GoodsAccountingOperation.Nomenclature != nomenclature)
-					GoodsAccountingOperation.Nomenclature = nomenclature;
-			}
-		}
-
-		Equipment equipment;
-
-		[Display (Name = "Оборудование")]
-		public virtual Equipment Equipment {
-			get { return equipment; }
-			set {
-				SetField (ref equipment, value, () => Equipment);
-
-				if(CounterpartyMovementOperation != null && CounterpartyMovementOperation.Equipment != equipment)
+				if(GoodsAccountingOperation != null && GoodsAccountingOperation.Nomenclature != _nomenclature)
 				{
-					CounterpartyMovementOperation.Equipment = equipment;
+					GoodsAccountingOperation.Nomenclature = _nomenclature;
 				}
 			}
 		}
 
-		decimal amount;
+		/// <summary>
+		/// Оборудование
+		/// </summary>
+		[Display (Name = "Оборудование")]
+		public virtual Equipment Equipment
+		{
+			get => _equipment;
+			set
+			{
+				SetField (ref _equipment, value, () => Equipment);
 
-		[Display (Name = "Количество")]
-		public virtual decimal Amount {
-			get { return amount; }
-			set {
-				SetField (ref amount, value, () => Amount);
+				if(CounterpartyMovementOperation != null && CounterpartyMovementOperation.Equipment != _equipment)
+				{
+					CounterpartyMovementOperation.Equipment = _equipment;
+				}
 			}
 		}
 
-		OrderItem orderItem;
-
+		/// <summary>
+		/// Связанный товар
+		/// </summary>
 		[Display (Name = "Связанный товар")]
-		public virtual OrderItem OrderItem {
-			get { return orderItem; }
-			set { SetField (ref orderItem, value, () => OrderItem); }
+		public virtual OrderItem OrderItem
+		{
+			get => _orderItem;
+			set => SetField (ref _orderItem, value);
 		}
 
-		OrderEquipment orderEquipment;
-
+		/// <summary>
+		/// Связанное оборудование
+		/// </summary>
 		[Display(Name = "Связанное оборудование")]
-		public virtual OrderEquipment OrderEquipment {
-			get { return orderEquipment; }
-			set { SetField(ref orderEquipment, value, () => OrderEquipment); }
+		public virtual OrderEquipment OrderEquipment
+		{
+			get => _orderEquipment;
+			set => SetField(ref _orderEquipment, value, () => OrderEquipment);
 		}
 
-		WarehouseBulkGoodsAccountingOperation _goodsAccountingOperation;
-
-		public virtual WarehouseBulkGoodsAccountingOperation GoodsAccountingOperation { 
+		/// <summary>
+		/// Операция передвижения товаров по складу
+		/// </summary>
+		[Display(Name = "Операция передвижения товаров по складу")]
+		public virtual WarehouseBulkGoodsAccountingOperation GoodsAccountingOperation
+		{ 
 			get => _goodsAccountingOperation;
 			set => SetField (ref _goodsAccountingOperation, value);
 		}
 
-		CounterpartyMovementOperation counterpartyMovementOperation;
-
-		public virtual CounterpartyMovementOperation CounterpartyMovementOperation {
-			get { return counterpartyMovementOperation; }
-			set { SetField (ref counterpartyMovementOperation, value, () => CounterpartyMovementOperation); }
+		/// <summary>
+		/// Операция передвижения товара контрагента
+		/// </summary>
+		[Display(Name = "Операция передвижения товара контрагента")]
+		public virtual CounterpartyMovementOperation CounterpartyMovementOperation
+		{
+			get => _counterpartyMovementOperation;
+			set => SetField (ref _counterpartyMovementOperation, value);
 		}
-
-		#region Не сохраняемые
-
-		decimal amountInStock;
-
-		[Display (Name = "Количество на складе")]
-		public virtual decimal AmountInStock {
-			get { return amountInStock; }
-			set {
-				SetField (ref amountInStock, value, () => AmountInStock);
-			}
-		}
-
-		decimal amountUnloaded;
-
-		[Display (Name = "Уже отгружено")]
-		public virtual decimal AmountUnloaded {
-			get { return amountUnloaded; }
-			set {
-				SetField (ref amountUnloaded, value, () => AmountUnloaded);
-			}
-		}
-
-		#endregion
 
 		#region Функции
 

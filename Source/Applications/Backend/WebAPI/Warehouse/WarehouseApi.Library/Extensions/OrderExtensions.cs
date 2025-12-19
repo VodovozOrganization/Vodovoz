@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -25,7 +26,7 @@ namespace WarehouseApi.Library.Extensions
 			};
 		}
 
-		public static GetSelfDeliveryOrderResponse ToGetSelfDeliveryOrderResponseDto(this Order order)
+		public static GetSelfDeliveryOrderResponse ToGetSelfDeliveryOrderResponseDto(this OrderEntity order)
 		{
 			if(order is null)
 			{

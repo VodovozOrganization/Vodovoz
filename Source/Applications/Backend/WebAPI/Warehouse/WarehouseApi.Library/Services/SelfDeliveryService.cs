@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
@@ -36,7 +37,7 @@ namespace WarehouseApi.Library.Services
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IGenericRepository<OrderEntity> _orderRepository;
 		private readonly IGenericRepository<Warehouse> _warehouseRepository;
-		private readonly IGenericRepository<SelfDeliveryDocument> _selfDeliveryDocumentRepository;
+		private readonly IGenericRepository<SelfDeliveryDocumentEntity> _selfDeliveryDocumentRepository;
 		private readonly IGenericRepository<SubdivisionEntity> _subdivisionRepository;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly INomenclatureSettings _nomenclatureSettings;
@@ -53,7 +54,7 @@ namespace WarehouseApi.Library.Services
 			IUnitOfWork unitOfWork,
 			IGenericRepository<OrderEntity> orderRepository,
 			IGenericRepository<Warehouse> warehouseRepository,
-			IGenericRepository<SelfDeliveryDocument> selfDeliveryDocumentRepository,
+			IGenericRepository<SelfDeliveryDocumentEntity> selfDeliveryDocumentRepository,
 			IGenericRepository<GroupGtin> groupGtinrepository,
 			IGenericRepository<Gtin> gtinRepository,
 			IGenericRepository<SubdivisionEntity> subdivisionRepository,
@@ -99,13 +100,13 @@ namespace WarehouseApi.Library.Services
 				?? throw new ArgumentNullException(nameof(bottlesRepository));
 		}
 
-		public async Task<Result<SelfDeliveryDocument>> GetSelfDeliveryDocumentByOrderId(int orderId, CancellationToken cancellationToken)
+		public async Task<Result<SelfDeliveryDocumentEntity>> GetSelfDeliveryDocumentByOrderId(int orderId, CancellationToken cancellationToken)
 		{
 			try
 			{
 				if(_selfDeliveryDocumentRepository
 					.Get(_unitOfWork, x => x.Order.Id == orderId)
-					.FirstOrDefault() is SelfDeliveryDocument selfDeliveryDocument)
+					.FirstOrDefault() is SelfDeliveryDocumentEntity selfDeliveryDocument)
 				{
 					return await Task.FromResult(selfDeliveryDocument);
 				}
@@ -115,17 +116,17 @@ namespace WarehouseApi.Library.Services
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, $"Ошибка получения документа самовывоза по id заказа {orderId}");
-				return Result.Failure<SelfDeliveryDocument>(Vodovoz.Errors.Common.RepositoryErrors.DataRetrievalError);
+				return Result.Failure<SelfDeliveryDocumentEntity>(Vodovoz.Errors.Common.RepositoryErrors.DataRetrievalError);
 			}
 		}
 
-		public async Task<Result<SelfDeliveryDocument>> GetSelfDeliveryDocumentById(int selfDeliveryDocumentId, CancellationToken cancellationToken)
+		public async Task<Result<SelfDeliveryDocumentEntity>> GetSelfDeliveryDocumentById(int selfDeliveryDocumentId, CancellationToken cancellationToken)
 		{
 			try
 			{
 				if(_selfDeliveryDocumentRepository
 					.Get(_unitOfWork, x => x.Id == selfDeliveryDocumentId)
-					.FirstOrDefault() is SelfDeliveryDocument selfDeliveryDocument)
+					.FirstOrDefault() is SelfDeliveryDocumentEntity selfDeliveryDocument)
 				{
 					return await Task.FromResult(selfDeliveryDocument);
 				}
@@ -135,11 +136,11 @@ namespace WarehouseApi.Library.Services
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, $"Ошибка получения документа самовывоза по id {selfDeliveryDocumentId}");
-				return Result.Failure<SelfDeliveryDocument>(Vodovoz.Errors.Common.RepositoryErrors.DataRetrievalError);
+				return Result.Failure<SelfDeliveryDocumentEntity>(Vodovoz.Errors.Common.RepositoryErrors.DataRetrievalError);
 			}
 		}
 
-		public async Task<Result<SelfDeliveryDocument>> CreateDocument(Employee author, int orderId, int warehouseId, CancellationToken cancellationToken)
+		public async Task<Result<SelfDeliveryDocumentEntity>> CreateDocument(Employee author, int orderId, int warehouseId, CancellationToken cancellationToken)
 		{
 			var order = _orderRepository
 				.Get(_unitOfWork, x => x.Id == orderId, 1)
@@ -167,26 +168,27 @@ namespace WarehouseApi.Library.Services
 				return VodovozBusiness.Errors.Warehouses.Warehouse.NotFound;
 			}
 
-			var selfDeliveryDocument = new SelfDeliveryDocument
+			var selfDeliveryDocument = new SelfDeliveryDocumentEntity
 			{
 				AuthorId = author.Id,
 				Order = order,
 				Warehouse = warehouse,
 			};
 
-			selfDeliveryDocument.InitializeDefaultValues(_unitOfWork, _nomenclatureRepository);
+			var defaultBottleNomenclatureId =
+				_nomenclatureRepository.GetDefaultBottleNomenclatureId(_unitOfWork, cancellationToken);
 
-			selfDeliveryDocument.FillByOrder();
-			selfDeliveryDocument.UpdateStockAmount(_unitOfWork, _stockRepository);
-			selfDeliveryDocument.UpdateAlreadyUnloaded(_unitOfWork, _nomenclatureRepository, _bottlesRepository);
+			//selfDeliveryDocument.FillByOrder();
+			//selfDeliveryDocument.UpdateStockAmount(_unitOfWork, _stockRepository);
+			//selfDeliveryDocument.UpdateAlreadyUnloaded(_unitOfWork, _nomenclatureRepository, _bottlesRepository);
 
-			UpdateAmounts(selfDeliveryDocument);
+			//UpdateAmounts(selfDeliveryDocument);
 
 			return await Task.FromResult(selfDeliveryDocument);
 		}
 
-		public async Task<Result<SelfDeliveryDocument>> AddCodes(
-			SelfDeliveryDocument selfDeliveryDocument,
+		public async Task<Result<SelfDeliveryDocumentEntity>> AddCodes(
+			SelfDeliveryDocumentEntity selfDeliveryDocument,
 			IEnumerable<string> codesToAdd,
 			CancellationToken cancellationToken)
 		{
@@ -195,9 +197,9 @@ namespace WarehouseApi.Library.Services
 				.BindAsync(anyCodes => DistributeCodesAsync(anyCodes.Select(x => x.Value).ToList(), selfDeliveryDocument, cancellationToken));
 		}
 
-		private async Task<Result<SelfDeliveryDocument>> DistributeCodesAsync(
+		private async Task<Result<SelfDeliveryDocumentEntity>> DistributeCodesAsync(
 			IList<TrueMarkAnyCode> trueMarkAnyCodes,
-			SelfDeliveryDocument selfDeliveryDocument,
+			SelfDeliveryDocumentEntity selfDeliveryDocument,
 			CancellationToken cancellationToken)
 		{
 			var identificationCodes = trueMarkAnyCodes
@@ -212,7 +214,7 @@ namespace WarehouseApi.Library.Services
 			foreach(var code in identificationCodes)
 			{
 
-				SelfDeliveryDocumentItem nextSelfDeliveryItemToDistributeByGtin;
+				SelfDeliveryDocumentItemEntity nextSelfDeliveryItemToDistributeByGtin;
 
 				nextSelfDeliveryItemToDistributeByGtin = GetNextNotScannedDocumentItem(selfDeliveryDocument, code);
 
@@ -227,8 +229,8 @@ namespace WarehouseApi.Library.Services
 			return await Task.FromResult(selfDeliveryDocument);
 		}
 
-		public async Task<Result<SelfDeliveryDocument>> ChangeCodes(
-			SelfDeliveryDocument selfDeliveryDocument,
+		public async Task<Result<SelfDeliveryDocumentEntity>> ChangeCodes(
+			SelfDeliveryDocumentEntity selfDeliveryDocument,
 			IDictionary<string, string> codesToChange,
 			CancellationToken cancellationToken)
 		{
@@ -239,7 +241,7 @@ namespace WarehouseApi.Library.Services
 
 			if(allCodesResult.IsFailure)
 			{
-				return Result.Failure<SelfDeliveryDocument>(allCodesResult.Errors);
+				return Result.Failure<SelfDeliveryDocumentEntity>(allCodesResult.Errors);
 			}
 
 			var allCodes = allCodesResult.Value.Select(x => x.Value);
@@ -277,7 +279,7 @@ namespace WarehouseApi.Library.Services
 			return selfDeliveryDocument;
 		}
 
-		public async Task<Result<SelfDeliveryDocument>> RemoveCodes(SelfDeliveryDocument selfDeliveryDocument, IEnumerable<string> codesToDelete, CancellationToken cancellationToken)
+		public async Task<Result<SelfDeliveryDocumentEntity>> RemoveCodes(SelfDeliveryDocumentEntity selfDeliveryDocument, IEnumerable<string> codesToDelete, CancellationToken cancellationToken)
 		{
 			return await _trueMarkWaterCodeService
 				.GetTrueMarkAnyCodesByScannedCodes(codesToDelete)
@@ -285,15 +287,15 @@ namespace WarehouseApi.Library.Services
 		}
 
 
-		public async Task<Result<SelfDeliveryDocument>> EndLoad(SelfDeliveryDocument selfDeliveryDocument, CancellationToken cancellationToken)
+		public async Task<Result<SelfDeliveryDocumentEntity>> EndLoad(SelfDeliveryDocumentEntity selfDeliveryDocument, CancellationToken cancellationToken)
 		{
-			selfDeliveryDocument.FullyShiped(
-				_unitOfWork,
-				_nomenclatureSettings,
-				_routeListItemRepository,
-				_selfDeliveryRepository,
-				_cashRepository,
-				_callTaskWorker);
+			//selfDeliveryDocument.FullyShiped(
+			//	_unitOfWork,
+			//	_nomenclatureSettings,
+			//	_routeListItemRepository,
+			//	_selfDeliveryRepository,
+			//	_cashRepository,
+			//	_callTaskWorker);
 
 			return await Task.FromResult(selfDeliveryDocument);
 		}
@@ -332,7 +334,7 @@ namespace WarehouseApi.Library.Services
 		}
 
 		private async Task AddCodeToSelfDeliveryDocumentItemAsync(
-			SelfDeliveryDocumentItem selfDeliveryDocumentItem,
+			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem,
 			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
 			CancellationToken cancellationToken)
 		{
@@ -361,9 +363,9 @@ namespace WarehouseApi.Library.Services
 			}
 		}
 
-		private Result<SelfDeliveryDocument> RemoveDistributedCodes(
+		private Result<SelfDeliveryDocumentEntity> RemoveDistributedCodes(
 			IList<TrueMarkAnyCode> anyCodes,
-			SelfDeliveryDocument selfDeliveryDocument,
+			SelfDeliveryDocumentEntity selfDeliveryDocument,
 			CancellationToken cancellationToken)
 		{
 			var codesToRemove = anyCodes
@@ -386,7 +388,7 @@ namespace WarehouseApi.Library.Services
 			return selfDeliveryDocument;
 		}
 
-		private SelfDeliveryDocumentItem GetNextNotScannedDocumentItem(SelfDeliveryDocument selfDeliveryDocument, TrueMarkWaterIdentificationCode code)
+		private SelfDeliveryDocumentItemEntity GetNextNotScannedDocumentItem(SelfDeliveryDocumentEntity selfDeliveryDocument, TrueMarkWaterIdentificationCode code)
 		{
 			var documentItem = selfDeliveryDocument.Items?
 				.Where(x => x.Nomenclature.IsAccountableInTrueMark)

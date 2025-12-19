@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -35,10 +35,9 @@ namespace Vodovoz.Domain.Documents
 		Nominative = "отпуск самовывоза")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class SelfDeliveryDocument : Document, IValidatableObject, IWarehouseBoundedDocument
+	public class SelfDeliveryDocument : SelfDeliveryDocumentEntity, IValidatableObject, IWarehouseBoundedDocument
 	{
 		private Order _order;
-		private Warehouse _warehouse;
 		private string _comment;
 		private IList<SelfDeliveryDocumentItem> _items
 			= new List<SelfDeliveryDocumentItem>();
@@ -86,16 +85,6 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		/// <summary>
-		/// Склад, на который оформляется самовывоз
-		/// </summary>
-		[Required(ErrorMessage = "Склад должен быть указан.")]
-		public virtual Warehouse Warehouse
-		{
-			get => _warehouse;
-			set => SetField(ref _warehouse, value);
-		}
-
-		/// <summary>
 		/// Комментарий к самовывозу
 		/// </summary>
 		[Display(Name = "Комментарий")]
@@ -109,7 +98,7 @@ namespace Vodovoz.Domain.Documents
 		/// Строки самовывоза
 		/// </summary>
 		[Display(Name = "Строки")]
-		public virtual IList<SelfDeliveryDocumentItem> Items
+		public virtual new IList<SelfDeliveryDocumentItem> Items
 		{
 			get => _items;
 			set

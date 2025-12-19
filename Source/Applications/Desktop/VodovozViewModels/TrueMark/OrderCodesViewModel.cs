@@ -558,9 +558,9 @@ namespace Vodovoz.ViewModels.TrueMark
 					Status = x.SourceCodeStatus,
 					ReplacedFromPool = x.SourceCodeStatus == SourceProductCodeStatus.Changed,
 					Problem = x.Problem,
-					SourceDocumentId = x.SelfDeliveryDocumentItem.SelfDeliveryDocument.Id,
-					CodeAuthorId = x.SelfDeliveryDocumentItem.SelfDeliveryDocument.Author.Id,
-					CodeAuthor = x.SelfDeliveryDocumentItem.SelfDeliveryDocument.Author.FullName
+					SourceDocumentId = x.SelfDeliveryDocumentItem.Document.Id,
+					CodeAuthorId = x.SelfDeliveryDocumentItem.Document.Author.Id,
+					CodeAuthor = x.SelfDeliveryDocumentItem.Document.Author.FullName
 				};
 
 				if(x.SourceCode != null && x.SourceCode.ParentTransportCodeId.HasValue)

@@ -1,6 +1,7 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Criterion.Lambda;
+using NHibernate.Linq;
 using NHibernate.Transform;
 using QS.BusinessCommon.Domain;
 using QS.DomainModel.Entity;
@@ -373,6 +374,17 @@ namespace Vodovoz.Infrastructure.Persistance.Goods
 		public Nomenclature GetDefaultBottleNomenclature(IUnitOfWork uow)
 		{
 			return uow.GetById<Nomenclature>(_nomenclatureSettings.DefaultBottleNomenclatureId);
+		}
+
+		public async Task<int?> GetDefaultBottleNomenclatureId(IUnitOfWork uow, CancellationToken cancellationToken)
+		{
+			var defaultBottleNomenclatures =
+				await uow.Session.Query<NomenclatureEntity>()
+				.Where(x => x.Id == _nomenclatureSettings.DefaultBottleNomenclatureId)
+				.Select(x => x.Id)
+				.ToListAsync(cancellationToken);
+
+			return defaultBottleNomenclatures.FirstOrDefault();
 		}
 
 		public Nomenclature GetNomenclatureToAddWithMaster(IUnitOfWork uow)
