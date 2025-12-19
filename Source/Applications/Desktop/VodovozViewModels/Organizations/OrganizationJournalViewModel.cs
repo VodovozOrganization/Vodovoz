@@ -84,6 +84,12 @@ namespace Vodovoz.ViewModels.Organizations
 				Projections.Constant(false),
 				Projections.Constant(true));
 
+			var invertedDisableDebtMailing = Projections.Conditional(
+				Restrictions.Eq(Projections.Property<Organization>(x => x.DisableDebtMailing), true),
+				Projections.Constant(false),
+				Projections.Constant(true)
+			);
+
 			query.Where(
 				GetSearchCriterion(
 				() => organizationAlias.Name,
@@ -95,6 +101,8 @@ namespace Vodovoz.ViewModels.Organizations
 				.Select(hasAvangardShopIdProjection).WithAlias(() => resultAlias.HasAvangardShopId)
 				.Select(hasTaxcomEdoAccountIdProjection).WithAlias(() => resultAlias.HasTaxcomEdoAccountId)
 				.Select(hasCashBoxIdProjection).WithAlias(() => resultAlias.HasCashBoxId)
+				.Select(invertedDisableDebtMailing).WithAlias(() => resultAlias.SendDebtLetters)
+				.Select(x => x.DebtMailingWithSignature).WithAlias(() => resultAlias.SendDebtLettersWithASignatureAndSeal)
 				)
 				.TransformUsing(Transformers.AliasToBean<OrganizationJournalNode>())
 				.OrderBy(x => x.Id).Asc;

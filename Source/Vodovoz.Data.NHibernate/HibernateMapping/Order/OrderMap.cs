@@ -91,7 +91,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			References(x => x.Author).Column("author_employee_id");
 			References(x => x.AcceptedOrderEmployee).Column("accepted_order_employee");
 			References(x => x.DeliveryPoint).Column("delivery_point_id");
-			References(x => x.DeliverySchedule).Column("delivery_schedule_id");
+			References(x => x.DeliverySchedule).Column("delivery_schedule_id").Access.CamelCaseField(Prefix.Underscore);
 			References(x => x.PreviousOrder).Column("previous_order_id");
 			References(x => x.BottlesMovementOperation).Column("bottles_movement_operation_id");
 			References(x => x.MoneyMovementOperation).Column("money_movement_operation_id");

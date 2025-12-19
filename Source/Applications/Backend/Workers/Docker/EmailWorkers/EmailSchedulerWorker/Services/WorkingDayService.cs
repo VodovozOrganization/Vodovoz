@@ -1,4 +1,4 @@
-﻿namespace EmailSchedulerWorker.Services
+﻿namespace EmailDebtNotificationWorker.Services
 {
 	/// <summary>
 	/// Сервис для работы с рабочими днями и временем

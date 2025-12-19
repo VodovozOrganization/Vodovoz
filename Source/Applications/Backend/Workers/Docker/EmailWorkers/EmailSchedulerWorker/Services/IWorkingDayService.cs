@@ -1,4 +1,4 @@
-﻿namespace EmailSchedulerWorker.Services
+﻿namespace EmailDebtNotificationWorker.Services
 {
 	public interface IWorkingDayService
 	{

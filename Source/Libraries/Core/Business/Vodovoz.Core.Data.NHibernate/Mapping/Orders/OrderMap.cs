@@ -225,7 +225,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 				.Cascade.SaveUpdate();
 
 			References(x => x.DeliverySchedule)
-				.Column("delivery_schedule_id");
+				.Column("delivery_schedule_id").Access.CamelCaseField(Prefix.Underscore); ;
 
 			HasMany(x => x.OrderItems)
 				.KeyColumn("order_id")

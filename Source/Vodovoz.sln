@@ -8755,6 +8755,7 @@ Global
 		SolutionGuid = {5C28294A-BE19-449D-A626-5F2CC748368D}
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{0614a374-5164-8ff2-0cd0-f1d60474bfa2}*SharedItemsImports = 5
 		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{18104221-2774-43d3-b6c1-986af5ea15d5}*SharedItemsImports = 5
 		Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems*{2c663185-31b7-4254-a74c-2a468681f1ee}*SharedItemsImports = 5
 		Libraries\Core\Backend\Mango\Mango.Grpc\Mango.Grpc.projitems*{43ae78d9-23bd-4f1e-acee-b492d111da9f}*SharedItemsImports = 5

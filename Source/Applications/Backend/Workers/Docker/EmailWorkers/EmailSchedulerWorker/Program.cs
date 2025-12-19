@@ -1,21 +1,27 @@
 ﻿using Autofac.Extensions.DependencyInjection;
-using EmailSchedulerWorker.Consumers;
-using EmailSchedulerWorker.Services;
+using EdoDocumentsPreparer;
+using EmailDebtNotificationWorker.Services;
 using MassTransit;
-using MassTransit.Middleware;
 using MessageTransport;
 using NLog.Extensions.Logging;
+using QS.DomainModel.UoW;
 using QS.Project.Core;
+using QS.Report;
+using RabbitMQ.MailSending;
 using System.Text;
 using Vodovoz.Core.Data.NHibernate;
-using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
-using static EmailSchedulerWorker.Services.EmailSchedulingService;
+using Vodovoz.Settings;
+using Vodovoz.Settings.Counterparty;
+using Vodovoz.Settings.Database.Counterparty;
 
-namespace EmailSchedulerWorker
+namespace EmailDebtNotificationWorker
 {
 	public class Program
 	{
+
+		private const string _nLogSectionName = nameof(NLog);
+
 		public static void Main(string[] args)
 		{
 			Console.OutputEncoding = Encoding.UTF8;
@@ -24,9 +30,11 @@ namespace EmailSchedulerWorker
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
-				.ConfigureLogging((ctx, builder) => {
-					builder.AddNLog();
-					builder.AddConfiguration(ctx.Configuration.GetSection("NLog"));
+				.ConfigureLogging((hostBuilderContext, loggingBuilder) =>
+				{
+					loggingBuilder.ClearProviders();
+					loggingBuilder.AddNLog();
+					loggingBuilder.AddConfiguration(hostBuilderContext.Configuration.GetSection(_nLogSectionName));
 				})
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureServices((hostContext, services) =>
@@ -38,49 +46,40 @@ namespace EmailSchedulerWorker
 							typeof(QS.HistoryLog.HistoryMain).Assembly,
 							typeof(QS.Project.Domain.TypeOfEntity).Assembly,
 							typeof(AssemblyFinder).Assembly,
-							typeof(QS.BusinessCommon.HMap.MeasurementUnitsMap).Assembly
-						)
-						.AddDatabaseConnection()
-						.AddNHibernateConventions()
-						.AddCore()
-						.AddTrackedUoW()
-						.AddMessageTransportSettings()
+							typeof(QS.BusinessCommon.HMap.MeasurementUnitsMap).Assembly,
+							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
+							typeof(Vodovoz.Data.NHibernate.HibernateMapping.Counterparty.BulkEmailEventMap).Assembly
+						);
 
-						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
-						;
+					services.AddDatabaseConnection();
+					services.AddCore();
+					services.AddInfrastructure();
+					services.AddRepositories();
+					services.AddTrackedUoW();
+					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
-					services.AddMassTransit(x =>
-					{
-						x.AddConsumer<ProcessClientEmailConsumer>()
-							.Endpoint(e =>
-							{
-								e.Name = "process-client-email";
-								e.PrefetchCount = 1;
-								e.ConcurrentMessageLimit = 1;
-							});
+					services.AddScoped((sp) => sp.GetRequiredService<IUnitOfWorkFactory>()
+											   .CreateWithoutRoot("Воркер по рассылке писем о задолженности"));
 
-						x.UsingRabbitMq((context, cfg) =>
+					services
+						.AddMassTransit(busConf =>
 						{
-							cfg.Host(hostContext.Configuration["RabbitMQ:Host"], h =>
+							var transportSettings = new ConfigTransportSettings();
+							hostContext.Configuration.Bind("MessageBroker", transportSettings);
+
+							busConf.ConfigureRabbitMq((rabbitMq, context) =>
 							{
-								h.Username(hostContext.Configuration["RabbitMQ:Username"]);
-								h.Password(hostContext.Configuration["RabbitMQ:Password"]);
-							});
-
-							cfg.ReceiveEndpoint("process-client-email", e =>
-							{
-								e.ConfigureConsumer<ProcessClientEmailConsumer>(context);
-
-								e.UseRateLimit(10, TimeSpan.FromMinutes(1));
-
-								e.UseConsumeFilter(typeof(RateLimitFilter<>), context);
-							});
+								rabbitMq.AddSendEmailMessageTopology(context);
+							},
+							transportSettings);
 						});
-					});
 
 					services.AddScoped<IWorkingDayService, WorkingDayService>();
-					services.AddScoped<IEmailSchedulingService, EmailSchedulingService>();
-					services.AddHostedService<EmailSchedulerWorker>();
+					services.AddScoped<IDebtorsSettings, DebtorsSettings>();
+					services.AddScoped<PrintableDocumentSaver>();
+					services.AddScoped<IReportInfoFactory, DefaultReportInfoFactory>();
+					services.AddScoped<IEmailDebtNotificationService, EmailDebtNotificationService>();
+					services.AddHostedService<EmailDebtNotificationWorker>();
 				});
 	}
 }

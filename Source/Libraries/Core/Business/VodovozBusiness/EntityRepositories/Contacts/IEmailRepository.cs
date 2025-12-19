@@ -3,11 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
@@ -32,13 +34,13 @@ namespace Vodovoz.EntityRepositories
 		Email GetEmailForExternalCounterparty(IUnitOfWork uow, int counterpartyId);
 
 		/// <summary>
-		/// Получение всех просроченных заказов, сгруппированных по клиентам, для рассылки уведомлений о задолженности
+		/// Получение всех просроченных заказов, сгруппированных по клиентам и организациям, для рассылки уведомлений о задолженности
 		/// </summary>
 		/// <param name="uow"></param>
 		/// <param name="maxClients">Максимальное количество клиентов для обработки</param>
 		/// <param name="cancellationToken"></param>
 		/// <returns>Словарь: клиент - список его просроченных заказов</returns>
-		Task<Dictionary<Counterparty, List<Order>>> GetAllOverdueOrdersForDebtNotificationAsync(IUnitOfWork uow, int maxClients, CancellationToken cancellationToken);
+		Task<Dictionary<Order, (Counterparty, Organization)>> GetAllOverdueOrderForDebtNotificationAsync(IUnitOfWork uow, int maxClients, CancellationToken cancellationToken);
 
 		#region EmailType
 

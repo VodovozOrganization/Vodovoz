@@ -1,28 +1,33 @@
-﻿using NHibernate;
+﻿using ClosedXML.Excel;
+using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
+using NHibernate.Linq;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
+using NPOI.SS.Formula.Functions;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Domain.Orders;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
-using Order = Vodovoz.Domain.Orders.Order;
-using Vodovoz.Core.Domain.Contacts;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.Settings.Organizations;
 using VodovozBusiness.Domain.Client;
-using System.Threading.Tasks;
-using System.Threading;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Contacts
 {
@@ -431,9 +436,81 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 			throw new NotImplementedException();
 		}
 
-		public Task<Dictionary<Counterparty, List<Order>>> GetAllOverdueOrdersForDebtNotificationAsync(IUnitOfWork uow, int maxClients)
+		public async Task<Dictionary<Order, (Counterparty, Organization)>> GetAllOverdueOrderForDebtNotificationAsync(
+			IUnitOfWork uow,
+			int maxClients,
+			CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException();
+			var currentDate = DateTime.UtcNow.Date;
+
+			var deliveredOrderStatuses = new[]
+			{
+				OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed
+			};
+
+			Counterparty counterpartyAlias = null;
+			CounterpartyContract contractAlias = null;
+			Order orderAlias = null;
+			Organization organizationAlias = null;
+			BulkEmailEvent bulkEmailEventAlias = null;
+			BulkEmailOrder bulkEmailOrderAlias = null;
+
+			var lastUnsubscribeSubQuery = QueryOver.Of<BulkEmailEvent>()
+				.Where(bee2 => bee2.Type == BulkEmailEvent.BulkEmailEventType.Unsubscribing)
+				.Select(Projections.Max<BulkEmailEvent>(bee2 => bee2.ActionTime));
+
+			var isClientUnsubscribedSubQuery = QueryOver.Of(() => bulkEmailEventAlias)
+				.Where(() => bulkEmailEventAlias.Counterparty.Id == counterpartyAlias.Id)
+				.Where(() => bulkEmailEventAlias.Type == BulkEmailEvent.BulkEmailEventType.Unsubscribing)
+				.WithSubquery.WhereProperty(() => bulkEmailEventAlias.ActionTime).Eq(lastUnsubscribeSubQuery)
+				.Select(bee => bee.Id);
+
+			var alreadySentOrdersSubQuery = QueryOver.Of(() => bulkEmailOrderAlias)
+				.Where(() => bulkEmailOrderAlias.Order.Id == orderAlias.Id)
+				.Select(beo => beo.Id);
+
+			var dateAddExpression = Projections.SqlFunction(
+				new SQLFunctionTemplate(
+					NHibernateUtil.DateTime,
+					"DATE_ADD(?1, INTERVAL ?2 + 1 DAY)"
+				),
+				NHibernateUtil.DateTime,
+				Projections.Property(() => orderAlias.DeliveryDate),
+				Projections.Property(() => counterpartyAlias.DelayDaysForBuyers)
+			);
+
+			var query = uow.Session.QueryOver(() => orderAlias)
+				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.JoinAlias(() => orderAlias.Contract, () => contractAlias)
+				.JoinAlias(() => contractAlias.Organization, () => organizationAlias)
+				.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
+				.Where(() => orderAlias.DeliveryDate != null)
+				.Where(() => orderAlias.OrderStatus.IsIn(deliveredOrderStatuses))
+				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
+				.Where(() => counterpartyAlias.PersonType == PersonType.legal)
+				.WhereNot(() => organizationAlias.DisableDebtMailing)
+				.WhereNot(() => counterpartyAlias.DisableDebtMailing)
+				 .WithSubquery.WhereExists(
+					QueryOver.Of<Email>()
+				 		.Where(email => email.Counterparty.Id == counterpartyAlias.Id)
+				 		.Select(email => email.Id)
+					)
+				.Where(Restrictions.Lt(dateAddExpression, currentDate))
+				.WithSubquery.WhereNotExists(isClientUnsubscribedSubQuery)
+				.WithSubquery.WhereNotExists(alreadySentOrdersSubQuery)
+				.Take(maxClients); 
+
+			var orders = await query.ListAsync(cancellationToken);
+
+			var result = orders
+				.Where(order => order.Client != null && order.Contract?.Organization != null)
+				.Take(maxClients)
+				.ToDictionary(
+					order => order,
+					order => (order.Client, order.Contract.Organization)
+				);
+
+			return result;
 		}
 
 		public IList<BulkEmailEventReason> GetUnsubscribingReasons(IUnitOfWork uow, IEmailSettings emailSettings, bool isForUnsubscribePage = false)
