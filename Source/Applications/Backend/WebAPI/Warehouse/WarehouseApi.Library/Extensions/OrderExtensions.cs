@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Orders;
 using WarehouseApi.Contracts.V1.Dto;
 using WarehouseApi.Contracts.V1.Responses;
 
@@ -11,7 +10,7 @@ namespace WarehouseApi.Library.Extensions
 {
 	public static class OrderExtensions
 	{
-		public static OrderDto ToApiDtoV1(this Order order, IEnumerable<Nomenclature> nomenclatures, SelfDeliveryDocument selfDeliveryDocument)
+		public static OrderDto ToApiDtoV1(this OrderEntity order, IEnumerable<NomenclatureEntity> nomenclatures, SelfDeliveryDocumentEntity selfDeliveryDocument)
 		{
 			if(order is null)
 			{

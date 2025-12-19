@@ -222,7 +222,7 @@ namespace WarehouseApi.Controllers.V1
 			}
 		}
 
-		private async Task<Result<SelfDeliveryDocumentEntity>> EndLoadIfNeededAsync(bool endLoadNeeded, SelfDeliveryDocument selfDeliveryDocument, CancellationToken cancellationToken)
+		private async Task<Result<SelfDeliveryDocumentEntity>> EndLoadIfNeededAsync(bool endLoadNeeded, SelfDeliveryDocumentEntity selfDeliveryDocument, CancellationToken cancellationToken)
 		{
 			if(endLoadNeeded)
 			{

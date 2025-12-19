@@ -3,6 +3,7 @@ using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Vodovoz.Core.Domain.Documents
@@ -20,6 +21,7 @@ namespace Vodovoz.Core.Domain.Documents
 		private IObservableList<SelfDeliveryDocumentItemTrueMarkProductCode> _trueMarkProductCodes = new ObservableList<SelfDeliveryDocumentItemTrueMarkProductCode>();
 		private SelfDeliveryDocumentEntity _document;
 		private NomenclatureEntity _nomenclature;
+		private OrderItemEntity _orderItem;
 		private decimal _amountInStock;
 		private decimal _amountUnloaded;
 
@@ -67,6 +69,16 @@ namespace Vodovoz.Core.Domain.Documents
 			get => _nomenclature;
 			//Нельзя устанавливать, см. логику в SelfDeliveryDocumentItem.cs
 			protected set => SetField(ref _nomenclature, value);
+		}
+
+		/// <summary>
+		/// Связанный товар
+		/// </summary>
+		[Display(Name = "Связанный товар")]
+		public virtual OrderItemEntity OrderItem
+		{
+			get => _orderItem;
+			set => SetField(ref _orderItem, value);
 		}
 
 		#region Не сохраняемые

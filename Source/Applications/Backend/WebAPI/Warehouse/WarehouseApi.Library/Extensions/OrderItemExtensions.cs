@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
@@ -16,7 +18,7 @@ namespace WarehouseApi.Library.Extensions
 {
 	public static class OrderItemExtensions
 	{
-		public static OrderItemDto ToApiDtoV1(this OrderItem orderItem, Nomenclature nomenclature, SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem)
+		public static OrderItemDto ToApiDtoV1(this OrderItemEntity orderItem, NomenclatureEntity nomenclature, SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem)
 		{
 			if(orderItem is null)
 			{
@@ -51,7 +53,7 @@ namespace WarehouseApi.Library.Extensions
 			return orderItemDto;
 		}
 
-		public static IEnumerable<OrderItemDto> ToApiDtoV1(this IEnumerable<OrderItem> orderItems, IEnumerable<Nomenclature> nomenclatures, SelfDeliveryDocument selfDeliveryDocument)
+		public static IEnumerable<OrderItemDto> ToApiDtoV1(this IEnumerable<OrderItemEntity> orderItems, IEnumerable<NomenclatureEntity> nomenclatures, SelfDeliveryDocumentEntity selfDeliveryDocument)
 		{
 			if(orderItems is null)
 			{

@@ -68,7 +68,7 @@ namespace Vodovoz.Domain.Documents
 		/// Связанный товар
 		/// </summary>
 		[Display (Name = "Связанный товар")]
-		public virtual OrderItem OrderItem
+		public virtual new OrderItem OrderItem
 		{
 			get => _orderItem;
 			set => SetField (ref _orderItem, value);
@@ -108,16 +108,16 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual string Title {
 			get {
-				string res = String.Empty;
+				string res = string.Empty;
 				if(GoodsAccountingOperation != null)
-					res = String.Format(
+					res = string.Format(
 						"[{2}] {0} - {1}",
 						GoodsAccountingOperation.Nomenclature.Name,
 						GoodsAccountingOperation.Nomenclature.Unit.MakeAmountShortStr(GoodsAccountingOperation.Amount),
 						Document.Title
 					);
 				else if(Nomenclature != null)
-					res = String.Format(
+					res = string.Format(
 						"[{2}] {0} - {1}",
 						Nomenclature.Name,
 						Nomenclature.Unit.MakeAmountShortStr(Amount),
