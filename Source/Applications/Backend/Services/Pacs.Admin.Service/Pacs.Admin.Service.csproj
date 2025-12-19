@@ -1,10 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
 		<UserSecretsId>8ed0432d-e022-495a-9c66-7a74497ad021</UserSecretsId>
-		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-		<DockerfileContext>..\..\..\..</DockerfileContext>
 	</PropertyGroup>
 
 	<ItemGroup>
