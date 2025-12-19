@@ -1625,7 +1625,7 @@ WHERE
       <Textbox Name="Textbox15" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>18.02pt</Height>
         <Width>499.29pt</Width>
-        <Value>='Счет № Ф-' + First({bwsfp_id}, 'Order') + ' от ' + First({bill_date}, 'Order') + ' ' +{?special_contract_number}</Value>
+        <Value>='Счет № Ф-' + First({bwsfp_id}, 'Order') + ' от ' + First({bill_date}, 'Order')</Value>
         <ZIndex>0</ZIndex>
         <Left>39.20pt</Left>
         <Top>216.10pt</Top>
