@@ -5,5 +5,7 @@
 		int GetSuspendedCounterpartyId { get; }
 
 		int GetCancellationCounterpartyId { get; }
+
+		bool DebtNotificationWorkerIsDisabled { get; set; }
 	}
 }

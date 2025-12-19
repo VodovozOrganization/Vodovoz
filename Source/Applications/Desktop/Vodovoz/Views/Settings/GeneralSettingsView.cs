@@ -229,6 +229,12 @@ namespace Vodovoz.Views.Settings
 				.AddBinding(vm => vm.DefaultPaymentDeferment, w => w.ValueAsInt)
 				.InitializeFromSource();
 			buttonSaveDefaultPaymentDeferent.BindCommand(ViewModel.SaveDefaultPaymentDefermentCommand);
+
+			ycheckbuttonDisableDebtMailing.Binding
+				.AddSource(ViewModel)
+				.AddFuncBinding(vm => vm.DebtNotificationWorkerIsEnabled, w => w.Active)
+				.AddFuncBinding(vm => vm.CanEditDebtNotification, w => w.Sensitive)
+				.InitializeFromSource();
 		}
 		
 		private void ConfigureEmployeesFixedPrices()
