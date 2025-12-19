@@ -110,7 +110,7 @@ namespace FastPaymentEventsSender.Notifications
 
 				if(paymentFromId == _orderSettings.GetPaymentByCardFromAiBotByQrCodeId)
 				{
-					return await _aiBotClient.NotifyPaymentStatusChangedAsync(notification, payment.CallbackUrlForMobileApp);
+					return await _aiBotClient.NotifyPaymentStatusChangedAsync(notification, payment.CallbackUrlForAiBot);
 				}
 
 				_logger.LogWarning(

@@ -33,9 +33,8 @@ namespace FastPaymentEventsSender.ApiClients
 			_logger.LogInformation(
 				"Отправка уведомления о быстрой оплате для ИИ бота по онлайн заказу {OnlineOrderId}",
 				notification.PaymentDetails.OnlineOrderId);
-			
-			var content = JsonSerializer.Serialize(notification);
-			var response = await _httpClient.PostAsJsonAsync(url, content);
+
+			var response = await _httpClient.PostAsJsonAsync(url, notification);
 
 			return (int)response.StatusCode;
 		}
