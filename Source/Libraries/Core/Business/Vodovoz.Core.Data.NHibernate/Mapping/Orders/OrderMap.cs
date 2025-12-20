@@ -236,6 +236,12 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 				.Inverse()
 				.LazyLoad();
 
+			HasMany(x => x.OrderEquipments)
+				.KeyColumn("order_id")
+				.Cascade.AllDeleteOrphan()
+				.Inverse()
+				.LazyLoad();
+
 			HasMany(x => x.OrderDepositItems)
 				.KeyColumn("order_id")
 				.Cascade.AllDeleteOrphan()

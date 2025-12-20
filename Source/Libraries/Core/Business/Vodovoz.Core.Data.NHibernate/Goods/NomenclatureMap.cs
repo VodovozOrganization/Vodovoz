@@ -18,7 +18,10 @@ namespace Vodovoz.Core.Data.NHibernate.Goods
 
 			Map(x => x.Category)
 				.Column("category");
-			
+
+			Map(x => x.MasterServiceType)
+				.Column("master_service_type");
+
 			Map(x => x.CreateDate)
 				.Column("create_date");
 

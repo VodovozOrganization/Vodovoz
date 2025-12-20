@@ -18,10 +18,10 @@ using QS.Project.Services;
 using QS.Services;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
@@ -327,7 +327,7 @@ namespace Vodovoz
 			foreach(var item in Entity.ReturnedItems) {
 				if((item.Nomenclature.Category != NomenclatureCategory.bottle) 
 					&& ((item.Nomenclature.Category != NomenclatureCategory.equipment) 
-						|| ( item.Direction == Domain.Orders.Direction.PickUp)))
+						|| ( item.Direction == Core.Domain.Orders.Direction.PickUp)))
 					GoodsReceptionList.Add(new GoodsReceptionVMNode {
 						NomenclatureId = item.Nomenclature.Id,
 						Name = item.Nomenclature.Name,
@@ -509,7 +509,7 @@ namespace Vodovoz
 
 			if(node.Category == NomenclatureCategory.equipment)
 			{
-				node.Direction = Domain.Orders.Direction.PickUp;
+				node.Direction = Core.Domain.Orders.Direction.PickUp;
 			}
 
 			if(!GoodsReceptionList.Any(n => n.NomenclatureId == node.NomenclatureId))

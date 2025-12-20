@@ -101,6 +101,7 @@ namespace Vodovoz.Core.Domain.Orders
 		private GeoGroupEntity _selfDeliveryGeoGroup;
 
 		private IObservableList<OrderItemEntity> _orderItems = new ObservableList<OrderItemEntity>();
+		private IObservableList<OrderEquipmentEntity> _orderEquipments = new ObservableList<OrderEquipmentEntity>();
 		private IList<OrderDocumentEntity> _orderDocuments = new List<OrderDocumentEntity>();
 		private IObservableList<OrderDepositItemEntity> _orderDepositItems = new ObservableList<OrderDepositItemEntity>();
 
@@ -599,6 +600,16 @@ namespace Vodovoz.Core.Domain.Orders
 		{
 			get => _orderItems;
 			set => SetField(ref _orderItems, value);
+		}
+
+		/// <summary>
+		/// Список оборудования
+		/// </summary>
+		[Display(Name = "Список оборудования")]
+		public virtual IObservableList<OrderEquipmentEntity> OrderEquipments
+		{
+			get => _orderEquipments;
+			set => SetField(ref _orderEquipments, value);
 		}
 
 		[Display(Name = "Документы заказа")]

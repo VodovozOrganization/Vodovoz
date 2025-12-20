@@ -3,7 +3,6 @@ using QS.DomainModel.Entity;
 using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Operations;
 
 namespace Vodovoz
 {
