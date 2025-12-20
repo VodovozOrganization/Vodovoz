@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Core.Domain.Operations;
 
-namespace Vodovoz.Data.NHibernate.HibernateMapping.Operations
+namespace Vodovoz.Core.Data.NHibernate.Operations
 {
 	public class CounterpartyMovementOperationMap : ClassMap<CounterpartyMovementOperation>
 	{
@@ -22,4 +22,3 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Operations
 		}
 	}
 }
-

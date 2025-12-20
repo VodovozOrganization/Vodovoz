@@ -1,6 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Service;
