@@ -141,7 +141,7 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual void AddItem(
 			ReciveTypes reciveType, 
-			Nomenclature nomenclature, 
+			NomenclatureEntity nomenclature, 
 			Equipment equipment, 
 			decimal amount, 
 			ServiceClaim serviceClaim,

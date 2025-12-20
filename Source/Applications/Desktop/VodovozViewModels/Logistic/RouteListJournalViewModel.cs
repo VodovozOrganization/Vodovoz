@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,7 +24,6 @@ using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Permissions.Warehouses;
 using Vodovoz.Domain.Profitability;
@@ -56,6 +55,7 @@ using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Print.Store;
 using Vodovoz.Core.Domain.Warehouses;
 using IWarehousePermissionService = Vodovoz.Infrastructure.Services.IWarehousePermissionService;
+using Vodovoz.Core.Domain.Operations;
 
 namespace Vodovoz.ViewModels.Logistic
 {

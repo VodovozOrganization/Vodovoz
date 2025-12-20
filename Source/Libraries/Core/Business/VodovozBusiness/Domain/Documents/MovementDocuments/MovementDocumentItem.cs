@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Domain.Documents.IncomingInvoices;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Operations;
 using InvalidOperationException = System.InvalidOperationException;
 
 namespace Vodovoz.Domain.Documents.MovementDocuments

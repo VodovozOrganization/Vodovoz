@@ -40,6 +40,15 @@ namespace Vodovoz.Core.Data.NHibernate.Goods
 			Map(x => x.Weight)
 				.Column("weight");
 
+			Map(x => x.Length)
+				.Column("length");
+
+			Map(x => x.Width)
+				.Column("width");
+
+			Map(x => x.Height)
+				.Column("height");
+
 			Map(x => x.DoNotReserve)
 				.Column("reserve");
 
@@ -268,7 +277,16 @@ namespace Vodovoz.Core.Data.NHibernate.Goods
 			
 			Map(x => x.IsNeedSanitisation)
 				.Column("is_need_sanitisation");
-			
+
+			Map(x => x.IsNewBottle)
+				.Column("is_new_bottle");
+
+			Map(x => x.IsDefectiveBottle)
+				.Column("is_defective_bottle");
+
+			Map(x => x.IsShabbyBottle)
+				.Column("is_shabby_bottle");
+
 			//Планирование продаж для КЦ
 			Map(x => x.PlanDay)
 				.Column("plan_day");

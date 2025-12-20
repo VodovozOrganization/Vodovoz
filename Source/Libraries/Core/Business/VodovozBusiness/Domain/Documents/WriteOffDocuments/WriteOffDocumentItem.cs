@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Domain.Documents.IncomingInvoices;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Documents.WriteOffDocuments
 {
