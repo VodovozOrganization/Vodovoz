@@ -1,6 +1,6 @@
 ﻿using NHibernate.Criterion;
 using QS.Project.DB;
-using Vodovoz.Domain.Goods;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.NHibernateProjections.Goods
 {

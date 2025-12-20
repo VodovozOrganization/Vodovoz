@@ -445,7 +445,7 @@ namespace Vodovoz.ViewModels.Warehouses
 						return;
 					}
 
-					var page = NavigationManager.OpenViewModel<InventoryInstanceViewModel, IEntityUoWBuilder, Nomenclature>(
+					var page = NavigationManager.OpenViewModel<InventoryInstanceViewModel, IEntityUoWBuilder, NomenclatureEntity>(
 						this,
 						EntityUoWBuilder.ForCreate(),
 						inventoryInstanceItem.Nomenclature,

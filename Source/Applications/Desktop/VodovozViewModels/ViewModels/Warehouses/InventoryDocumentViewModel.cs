@@ -49,7 +49,6 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Warehouses;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using QS.Report;
-using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.ViewModels.ViewModels.Warehouses

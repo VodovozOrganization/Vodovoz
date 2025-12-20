@@ -2,15 +2,14 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using Vodovoz.Core.Domain.Goods;
 
-namespace Vodovoz.Domain.Goods
+namespace Vodovoz.Core.Domain.Goods
 {
 	public abstract class NomenclatureInstance : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private decimal _purchasePrice;
 		private DateTime _creationDate;
-		private Nomenclature _nomenclature;
+		private NomenclatureEntity _nomenclature;
 		
 		public virtual int Id { get; set; }
 
@@ -22,7 +21,7 @@ namespace Vodovoz.Domain.Goods
 		}
 		
 		[Display(Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature
+		public virtual NomenclatureEntity Nomenclature
 		{
 			get => _nomenclature;
 			set => SetField(ref _nomenclature, value);

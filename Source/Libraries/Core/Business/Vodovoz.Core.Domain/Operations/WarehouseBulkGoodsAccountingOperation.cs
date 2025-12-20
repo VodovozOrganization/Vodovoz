@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using Vodovoz.Core.Domain.Operations;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Warehouses;
-using Vodovoz.Domain.Goods;
 
-namespace Vodovoz.Domain.Operations
+namespace Vodovoz.Core.Domain.Operations
 {
 	[Appellative (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "операции передвижения товаров по складу(объемный учет)",
