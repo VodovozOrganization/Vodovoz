@@ -5,6 +5,9 @@ using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.Core.Domain.Operations
 {
+	/// <summary>
+	/// Операция передвижения товаров по складу(объемный учет)
+	/// </summary>
 	[Appellative (Gender = GrammaticalGender.Neuter,
 		NominativePlural = "операции передвижения товаров по складу(объемный учет)",
 		Nominative = "операция передвижения товаров по складу(объемный учет)")]

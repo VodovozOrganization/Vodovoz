@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Core.Domain.Goods;
 
-namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
+namespace Vodovoz.Core.Data.NHibernate.Goods
 {
 	public class ProductGroupMap : ClassMap<ProductGroup>
 	{
@@ -26,4 +26,3 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 		}
 	}
 }
-

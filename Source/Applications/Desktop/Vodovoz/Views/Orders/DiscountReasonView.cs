@@ -1,6 +1,7 @@
 ﻿using Gamma.Utilities;
 using Gtk;
 using QS.Views.GtkUI;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.ViewModels.Orders;

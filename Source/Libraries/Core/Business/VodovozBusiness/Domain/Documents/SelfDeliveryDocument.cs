@@ -39,41 +39,12 @@ namespace Vodovoz.Domain.Documents
 	public class SelfDeliveryDocument : SelfDeliveryDocumentEntity, IValidatableObject, IWarehouseBoundedDocument
 	{
 		private Order _order;
-		private string _comment;
 		private IList<SelfDeliveryDocumentItem> _items
 			= new List<SelfDeliveryDocumentItem>();
 		private GenericObservableList<SelfDeliveryDocumentItem> _observableItems;
-		private IList<SelfDeliveryDocumentReturned> _returnedItems
-			= new List<SelfDeliveryDocumentReturned>();
 		private int _defBottleId;
 		private int _returnedTareBefore;
 		private int _tareToReturn;
-
-		/// <summary>
-		/// <inheritdoc/>
-		/// </summary>
-		public override DateTime TimeStamp
-		{
-			get => base.TimeStamp;
-			set
-			{
-				base.TimeStamp = value;
-
-				if(!NHibernate.NHibernateUtil.IsInitialized(Items))
-				{
-					return;
-				}
-
-				foreach(var item in Items)
-				{
-					if(item.GoodsAccountingOperation != null
-						&& item.GoodsAccountingOperation.OperationTime != TimeStamp)
-					{
-						item.GoodsAccountingOperation.OperationTime = TimeStamp;
-					}
-				}
-			}
-		}
 
 		/// <summary>
 		/// Заказ, по которому оформляется самовывоз
@@ -83,16 +54,6 @@ namespace Vodovoz.Domain.Documents
 		{
 			get => _order;
 			set => SetField(ref _order, value);
-		}
-
-		/// <summary>
-		/// Комментарий к самовывозу
-		/// </summary>
-		[Display(Name = "Комментарий")]
-		public virtual string Comment
-		{
-			get => _comment;
-			set => SetField(ref _comment, value);
 		}
 
 		/// <summary>
@@ -124,16 +85,6 @@ namespace Vodovoz.Domain.Documents
 
 				return _observableItems;
 			}
-		}
-
-		/// <summary>
-		/// Строки возврата
-		/// </summary>
-		[Display(Name = "Строки возврата")]
-		public virtual IList<SelfDeliveryDocumentReturned> ReturnedItems
-		{
-			get => _returnedItems;
-			set => SetField(ref _returnedItems, value);
 		}
 
 		#region Не сохраняемые

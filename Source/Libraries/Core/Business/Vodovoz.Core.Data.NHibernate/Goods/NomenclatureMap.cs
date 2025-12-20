@@ -316,6 +316,12 @@ namespace Vodovoz.Core.Data.NHibernate.Goods
 			References(x => x.DependsOnNomenclature)
 				.Column("depends_on_nomenclature");
 
+			References(x => x.OnlineStore)
+				.Column("online_store_id");
+
+			References(x => x.ProductGroup)
+				.Column("group_id");
+
 
 			HasMany(x => x.AttachedFileInformations)
 				.Cascade.AllDeleteOrphan()

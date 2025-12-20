@@ -9,6 +9,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Common;
+using Vodovoz.Core.Domain.Orders;
 
 namespace Vodovoz.Core.Domain.Goods
 {
@@ -130,6 +131,8 @@ namespace Vodovoz.Core.Domain.Goods
 
 		private MeasurementUnits _unit;
 		private NomenclatureEntity _dependsOnNomenclature;
+		private OnlineStore _onlineStore;
+		private ProductGroup _productGroup;
 		private IObservableList<NomenclatureFileInformation> _attachedFileInformations = new ObservableList<NomenclatureFileInformation>();
 		private IObservableList<NomenclaturePriceEntity> _nomenclaturePrice = new ObservableList<NomenclaturePriceEntity>();
 		private IObservableList<AlternativeNomenclaturePriceEntity> _alternativeNomenclaturePrices = new ObservableList<AlternativeNomenclaturePriceEntity>();
@@ -295,6 +298,28 @@ namespace Vodovoz.Core.Domain.Goods
 		{
 			get => _dependsOnNomenclature;
 			set => SetField(ref _dependsOnNomenclature, value);
+		}
+
+
+		/// <summary>
+		/// Группа товаров
+		/// </summary>
+		[Display(Name = "Группа товаров")]
+		public virtual ProductGroup ProductGroup
+		{
+			get => _productGroup;
+			set => SetField(ref _productGroup, value);
+		}
+
+
+		/// <summary>
+		/// Интернет-магазин
+		/// </summary>
+		[Display(Name = "Интернет-магазин")]
+		public virtual OnlineStore OnlineStore
+		{
+			get => _onlineStore;
+			set => SetField(ref _onlineStore, value);
 		}
 
 		/// <summary>

@@ -60,6 +60,7 @@ using VodovozBusiness.Domain.Payments;
 using VodovozBusiness.Domain.Service;
 using Vodovoz.Core.Domain.BasicHandbooks;
 using Vodovoz.Core.Domain.Operations;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz
 {

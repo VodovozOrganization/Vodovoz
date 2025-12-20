@@ -26,6 +26,8 @@ namespace Vodovoz.Core.Data.NHibernate.Documents
 				.Column("last_editor_id");
 			Map(x => x.LastEditedTime)
 				.Column("last_edit_time");
+			Map(x => x.Comment)
+				.Column("comment");
 
 			References(x => x.Order)
 				.Column("order_id");
@@ -34,6 +36,12 @@ namespace Vodovoz.Core.Data.NHibernate.Documents
 				.Column("warehouse_id");
 
 			HasMany(x => x.Items)
+				.Cascade
+				.AllDeleteOrphan()
+				.Inverse()
+				.KeyColumn("store_self_delivery_document_id");
+
+			HasMany(x => x.ReturnedItems)
 				.Cascade
 				.AllDeleteOrphan()
 				.Inverse()

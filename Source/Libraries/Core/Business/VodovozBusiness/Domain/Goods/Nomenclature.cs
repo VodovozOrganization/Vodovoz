@@ -11,12 +11,12 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.BasicHandbooks;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using VodovozBusiness.Domain.Goods;
@@ -47,8 +47,6 @@ namespace Vodovoz.Domain.Goods
 		private RouteColumn _routeListColumn;
 		private FuelType _fuelType;
 		private Nomenclature _dependsOnNomenclature;
-		private OnlineStore _onlineStore;
-		private ProductGroup _productGroup;
 		private Counterparty _shipperCounterparty;
 		private IObservableList<NomenclatureMinimumBalanceByWarehouse> _nomenclatureMinimumBalancesByWarehouse =
 			new ObservableList<NomenclatureMinimumBalanceByWarehouse>();
@@ -156,28 +154,6 @@ namespace Vodovoz.Domain.Goods
 		{
 			get => _dependsOnNomenclature;
 			set => SetField(ref _dependsOnNomenclature, value);
-		}
-
-
-		/// <summary>
-		/// Группа товаров
-		/// </summary>
-		[Display(Name = "Группа товаров")]
-		public virtual ProductGroup ProductGroup
-		{
-			get => _productGroup;
-			set => SetField(ref _productGroup, value);
-		}
-
-
-		/// <summary>
-		/// Интернет-магазин
-		/// </summary>
-		[Display(Name = "Интернет-магазин")]
-		public virtual OnlineStore OnlineStore
-		{
-			get => _onlineStore;
-			set => SetField(ref _onlineStore, value);
 		}
 
 

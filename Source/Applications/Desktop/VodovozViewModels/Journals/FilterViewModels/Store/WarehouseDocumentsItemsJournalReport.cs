@@ -8,6 +8,7 @@ using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Core.Domain.Warehouses.Documents;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 {

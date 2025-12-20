@@ -7,7 +7,6 @@ using System;
 using System.Linq;
 using Gamma.Utilities;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.Journals.JournalNodes;
@@ -18,6 +17,7 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 using Vodovoz.ViewModels.Journals.JournalNodes.WageCalculation;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Roboats;
 using Vodovoz.ViewModels.Journals.JournalViewModels.WageCalculation;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.JournalColumnsConfigs
 {

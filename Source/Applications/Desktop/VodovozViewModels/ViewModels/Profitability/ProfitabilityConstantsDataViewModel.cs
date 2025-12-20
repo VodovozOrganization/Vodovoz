@@ -7,9 +7,9 @@ using NHibernate;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Widgets;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.ViewModels.ViewModels.Profitability
 {

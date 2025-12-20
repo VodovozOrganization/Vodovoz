@@ -1,5 +1,6 @@
 ﻿using Gamma.Widgets.Additions;
 using QS.Views;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.ReportsParameters.Orders;
 
