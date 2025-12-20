@@ -45,14 +45,7 @@ namespace Vodovoz.Domain.Client
 			get => price;
 			set => SetField(ref price, value);
 		}
-
-		VAT vAT = VAT.Vat20;
-		[Display(Name = "НДС")]
-		public virtual VAT VAT {
-			get { return vAT; }
-			set { SetField(ref vAT, value); }
-		}
-
+		
 		PaymentCondition paymentCondition;
 		[Display(Name = "Условие оплаты")]
 		public virtual PaymentCondition PaymentCondition {
@@ -89,6 +82,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		Counterparty supplier;
+
 		[Display(Name = "Поставщик")]
 		public virtual Counterparty Supplier {
 			get => supplier;

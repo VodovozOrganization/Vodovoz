@@ -1,16 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk.Worker">
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
 		<UserSecretsId>dotnet-Pacs.Calls.Service-36722125-5263-45d7-912f-fd5a9ef4aba0</UserSecretsId>
-		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-		<DockerfileContext>..\..\..\..</DockerfileContext>
-	</PropertyGroup>
-
-	<PropertyGroup>
-		<ContainerRepository>pacs.calls.service</ContainerRepository>
-		<ContainerRegistry>docker.vod.qsolution.ru:5100</ContainerRegistry>
-		<ContainerImageTag>latest</ContainerImageTag>
 	</PropertyGroup>
 
 	<ItemGroup>

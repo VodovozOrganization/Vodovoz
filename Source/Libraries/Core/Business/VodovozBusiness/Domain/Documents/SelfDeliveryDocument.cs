@@ -244,11 +244,11 @@ namespace Vodovoz.Domain.Documents
 						new[] { nameof(item) });
 				}
 
-				var hasOrderEdoRequest = unitOfWork
-					.GetAll<OrderEdoRequest>()
+				var hasEdoRequest = unitOfWork
+					.GetAll<FormalEdoRequest>()
 					.Any(x => x.Order.Id == Order.Id && x.Id != Id);
 
-				if(hasOrderEdoRequest)
+				if(hasEdoRequest)
 				{
 					yield return new ValidationResult(
 						"Нельзя изменять документ самовывоза, по которому уже есть заявка на отправку документов заказа по ЭДО.",

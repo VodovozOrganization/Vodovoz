@@ -63,7 +63,7 @@ namespace Edo.Problems.Validation.Sources
 				return false;
 			}
 			
-			var orderEdoRequest = orderEdoTask.OrderEdoRequest;
+			var orderEdoRequest = orderEdoTask.FormalEdoRequest;
 
 			return (orderEdoRequest.Order.IsOrderForResale && !orderEdoRequest.Order.IsNeedIndividualSetOnLoad(_edoAccountEntityController))
 				|| orderEdoRequest.Order.IsOrderForTender;
@@ -85,7 +85,7 @@ namespace Edo.Problems.Validation.Sources
 			using(var uow = uowFactory.CreateWithoutRoot(nameof(AllResaleCodesScannedEdoValidator)))
 			{
 				return await IsAllTrueMarkProductCodesAddedToOrder(uow, trueMarkTaskCodesValidator, trueMarkCodesChecker,
-					orderEdoTask.OrderEdoRequest, cancellationToken)
+					orderEdoTask.FormalEdoRequest, cancellationToken)
 					? EdoValidationResult.Valid(this)
 					: EdoValidationResult.Invalid(this);
 			}
@@ -95,7 +95,7 @@ namespace Edo.Problems.Validation.Sources
 			IUnitOfWork unitOfWork,
 			ITrueMarkCodesValidator trueMarkTaskCodesValidator,
 			EdoTaskItemTrueMarkStatusProvider trueMarkCodesChecker,
-			OrderEdoRequest orderEdoRequest,
+			FormalEdoRequest orderEdoRequest,
 			CancellationToken cancellationToken)
 		{
 			#region Запросы в БД
