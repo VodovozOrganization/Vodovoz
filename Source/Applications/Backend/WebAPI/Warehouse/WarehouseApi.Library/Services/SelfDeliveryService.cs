@@ -358,7 +358,7 @@ namespace WarehouseApi.Library.Services
 			foreach(var item in selfDeliveryDocument.Items)
 			{
 				item.Amount = Math.Min(
-					selfDeliveryDocument.GetNomenclaturesCountInOrder(item.Nomenclature) - item.AmountUnloaded,
+					selfDeliveryDocument.GetNomenclaturesCountInOrder(item.Nomenclature.Id) - item.AmountUnloaded,
 					item.AmountInStock);
 			}
 		}

@@ -213,7 +213,7 @@ namespace Vodovoz.Domain.Documents
 						new[] { this.GetPropertyName(o => o.Items) });
 				}
 
-				var count =  decimal.ToInt32(item.Document.GetNomenclaturesCountInOrder(item.Nomenclature));
+				var count =  decimal.ToInt32(item.Document.GetNomenclaturesCountInOrder(item.Nomenclature.Id));
 				if(item.Amount != count)
 				{
 					yield return new ValidationResult(
@@ -289,7 +289,7 @@ namespace Vodovoz.Domain.Documents
 							Nomenclature = orderItem.Nomenclature,
 							OrderItem = orderItem,
 							OrderEquipment = null,
-							Amount = GetNomenclaturesCountInOrder(orderItem.Nomenclature)
+							Amount = GetNomenclaturesCountInOrder(orderItem.Nomenclature.Id)
 						});
 				}
 
@@ -307,7 +307,7 @@ namespace Vodovoz.Domain.Documents
 							Nomenclature = orderEquipment.Nomenclature,
 							OrderItem = null,
 							OrderEquipment = orderEquipment,
-							Amount = GetNomenclaturesCountInOrder(orderEquipment.Nomenclature)
+							Amount = GetNomenclaturesCountInOrder(orderEquipment.Nomenclature.Id)
 						});
 				}
 			}
@@ -332,24 +332,24 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		/// <summary>
-		/// Получение количества номенклатуры в заказе
-		/// </summary>
-		/// <param name="item"></param>
-		/// <returns></returns>
-		public virtual decimal GetNomenclaturesCountInOrder(Nomenclature item)
-		{
-			decimal count = Order.OrderItems
-				.Where(i => i.Nomenclature == item)
-				.Sum(i => i.Count);
+		///// <summary>
+		///// Получение количества номенклатуры в заказе
+		///// </summary>
+		///// <param name="item"></param>
+		///// <returns></returns>
+		//public virtual decimal GetNomenclaturesCountInOrder(Nomenclature item)
+		//{
+		//	decimal count = Order.OrderItems
+		//		.Where(i => i.Nomenclature == item)
+		//		.Sum(i => i.Count);
 
-			count += Order.OrderEquipments
-				.Where(e => e.Nomenclature == item
-					&& e.Direction == Direction.Deliver)
-				.Sum(e => e.Count);
+		//	count += Order.OrderEquipments
+		//		.Where(e => e.Nomenclature == item
+		//			&& e.Direction == Direction.Deliver)
+		//		.Sum(e => e.Count);
 
-			return count;
-		}
+		//	return count;
+		//}
 
 		/// <summary>
 		/// Получение количества возвратов оборудования в заказе

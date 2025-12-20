@@ -462,7 +462,7 @@ namespace Vodovoz
 		private void UpdateAmounts()
 		{
 			foreach(var item in Entity.Items)
-				item.Amount = Math.Min(Entity.GetNomenclaturesCountInOrder(item.Nomenclature) - item.AmountUnloaded, item.AmountInStock);
+				item.Amount = Math.Min(Entity.GetNomenclaturesCountInOrder(item.Nomenclature.Id) - item.AmountUnloaded, item.AmountInStock);
 		}
 
 		private void UpdateWidgets()

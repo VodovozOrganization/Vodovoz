@@ -3,6 +3,7 @@ using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
@@ -24,6 +25,8 @@ namespace Vodovoz.Core.Domain.Documents
 		private OrderItemEntity _orderItem;
 		private decimal _amountInStock;
 		private decimal _amountUnloaded;
+		private WarehouseBulkGoodsAccountingOperation _goodsAccountingOperation;
+		private CounterpartyMovementOperation _counterpartyMovementOperation;
 
 		/// <summary>
 		/// Идентификатор
@@ -67,8 +70,15 @@ namespace Vodovoz.Core.Domain.Documents
 		public virtual NomenclatureEntity Nomenclature
 		{
 			get => _nomenclature;
-			//Нельзя устанавливать, см. логику в SelfDeliveryDocumentItem.cs
-			protected set => SetField(ref _nomenclature, value);
+			set
+			{
+				SetField(ref _nomenclature, value);
+
+				if(GoodsAccountingOperation != null && GoodsAccountingOperation.Nomenclature != _nomenclature)
+				{
+					GoodsAccountingOperation.Nomenclature = _nomenclature;
+				}
+			}
 		}
 
 		/// <summary>
@@ -101,6 +111,26 @@ namespace Vodovoz.Core.Domain.Documents
 		{
 			get => _amountUnloaded;
 			set => SetField(ref _amountUnloaded, value);
+		}
+
+		/// <summary>
+		/// Операция передвижения товаров по складу
+		/// </summary>
+		[Display(Name = "Операция передвижения товаров по складу")]
+		public virtual WarehouseBulkGoodsAccountingOperation GoodsAccountingOperation
+		{
+			get => _goodsAccountingOperation;
+			set => SetField(ref _goodsAccountingOperation, value);
+		}
+
+		/// <summary>
+		/// Операция передвижения товара контрагента
+		/// </summary>
+		[Display(Name = "Операция передвижения товара контрагента")]
+		public virtual CounterpartyMovementOperation CounterpartyMovementOperation
+		{
+			get => _counterpartyMovementOperation;
+			set => SetField(ref _counterpartyMovementOperation, value);
 		}
 
 		#endregion

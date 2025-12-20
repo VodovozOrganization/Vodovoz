@@ -11,12 +11,9 @@ namespace Vodovoz.Domain.Documents
 	public class SelfDeliveryDocumentItem: SelfDeliveryDocumentItemEntity
 	{
 		private SelfDeliveryDocument _document;
-		private Nomenclature _nomenclature;
 		private Equipment _equipment;
 		private OrderItem _orderItem;
 		private OrderEquipment _orderEquipment;
-		private WarehouseBulkGoodsAccountingOperation _goodsAccountingOperation;
-		private CounterpartyMovementOperation _counterpartyMovementOperation;
 
 		/// <summary>
 		/// Документ самовывоза
@@ -26,24 +23,6 @@ namespace Vodovoz.Domain.Documents
 		{
 			get => _document;
 			set => SetField(ref _document, value);
-		}
-
-		/// <summary>
-		/// Номенклатура
-		/// </summary>
-		[Display (Name = "Номенклатура")]
-		public virtual new Nomenclature Nomenclature
-		{
-			get => _nomenclature;
-			set
-			{
-				SetField (ref _nomenclature, value);
-
-				if(GoodsAccountingOperation != null && GoodsAccountingOperation.Nomenclature != _nomenclature)
-				{
-					GoodsAccountingOperation.Nomenclature = _nomenclature;
-				}
-			}
 		}
 
 		/// <summary>
@@ -82,26 +61,6 @@ namespace Vodovoz.Domain.Documents
 		{
 			get => _orderEquipment;
 			set => SetField(ref _orderEquipment, value, () => OrderEquipment);
-		}
-
-		/// <summary>
-		/// Операция передвижения товаров по складу
-		/// </summary>
-		[Display(Name = "Операция передвижения товаров по складу")]
-		public virtual WarehouseBulkGoodsAccountingOperation GoodsAccountingOperation
-		{ 
-			get => _goodsAccountingOperation;
-			set => SetField (ref _goodsAccountingOperation, value);
-		}
-
-		/// <summary>
-		/// Операция передвижения товара контрагента
-		/// </summary>
-		[Display(Name = "Операция передвижения товара контрагента")]
-		public virtual CounterpartyMovementOperation CounterpartyMovementOperation
-		{
-			get => _counterpartyMovementOperation;
-			set => SetField (ref _counterpartyMovementOperation, value);
 		}
 
 		#region Функции
