@@ -75,9 +75,9 @@ namespace Vodovoz.Core.Domain.Operations
 		}
 
 		/// <summary>
-		/// Контрагент (источник)
+		/// Контрагент (отправитель)
 		/// </summary>
-		[Display(Name = "Контрагент (источник)")]
+		[Display(Name = "Контрагент (отправитель)")]
 		public virtual CounterpartyEntity WriteoffCounterparty
 		{
 			get => _writeoffCounterparty;
@@ -85,9 +85,9 @@ namespace Vodovoz.Core.Domain.Operations
 		}
 
 		/// <summary>
-		/// Точка доставки (источник)
+		/// Точка доставки (отправитель)
 		/// </summary>
-		[Display(Name = "Точка доставки (источник)")]
+		[Display(Name = "Точка доставки (отправитель)")]
 		public virtual DeliveryPointEntity WriteoffDeliveryPoint
 		{
 			get => _writeoffDeliveryPoint;
