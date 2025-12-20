@@ -12,8 +12,10 @@ using Vodovoz.Core.Data.Logistics;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Interfaces.TrueMark;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Models.TrueMark;
@@ -30,6 +32,7 @@ namespace Vodovoz.ViewModels.TrueMark
 		private readonly IClipboard _clipboard;
 		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
 		private readonly IRouteListItemRepository _routeListItemRepository;
+		private readonly IGenericRepository<Employee> _employeeRepository;
 		private int _codesRequired;
 		private int _codesProvided;
 		private int _codesProvidedFromScan;
@@ -61,7 +64,8 @@ namespace Vodovoz.ViewModels.TrueMark
 			IClipboard clipboard,
 			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
 			INavigationManager navigation,
-			IRouteListItemRepository routeListItemRepository
+			IRouteListItemRepository routeListItemRepository,
+			IGenericRepository<Employee> employeeRepository
 			) : base(navigation)
 		{
 			OrderId = orderId;
@@ -71,7 +75,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			_clipboard = clipboard ?? throw new ArgumentNullException(nameof(clipboard));
 			_trueMarkWaterCodeParser = trueMarkWaterCodeParser ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeParser));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
-
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_scannedByDriverCodes = new List<OrderCodeItemViewModel>();
 			_scannedByDriverCodesSelected = Enumerable.Empty<OrderCodeItemViewModel>();
 			_scannedByWarehouseCodes = new List<OrderCodeItemViewModel>();
@@ -548,6 +552,11 @@ namespace Vodovoz.ViewModels.TrueMark
 				})
 				.ToDictionary(x => x.GroupCode.Id);
 
+			var authorId = instanceCodes.FirstOrDefault()?.SelfDeliveryDocumentItem?.Document?.AuthorId;
+			var author = authorId.HasValue
+				? _employeeRepository.GetFirstOrDefault(uow, e => e.Id == authorId.Value)
+				: null;
+
 			_totalScannedBySelfdelivery = instanceCodes.Count();
 			_scannedBySelfdeliveryCodesOrigin = instanceCodes.Select(x =>
 			{
@@ -559,8 +568,8 @@ namespace Vodovoz.ViewModels.TrueMark
 					ReplacedFromPool = x.SourceCodeStatus == SourceProductCodeStatus.Changed,
 					Problem = x.Problem,
 					SourceDocumentId = x.SelfDeliveryDocumentItem.Document.Id,
-					CodeAuthorId = x.SelfDeliveryDocumentItem.Document.Author.Id,
-					CodeAuthor = x.SelfDeliveryDocumentItem.Document.Author.FullName
+					CodeAuthorId = authorId,
+					CodeAuthor = author?.FullName
 				};
 
 				if(x.SourceCode != null && x.SourceCode.ParentTransportCodeId.HasValue)

@@ -21,18 +21,7 @@ namespace Vodovoz.Core.Domain.Documents
 	{
 		private Warehouse _warehouse;
 		private OrderEntity _order;
-		private EmployeeEntity _author;
 		private IObservableList<SelfDeliveryDocumentItemEntity> _items = new ObservableList<SelfDeliveryDocumentItemEntity>();
-
-		/// <summary>
-		/// Автор
-		/// </summary>
-		[Display(Name = "Автор")]
-		public virtual EmployeeEntity Author
-		{
-			get => _author;
-			set => SetField(ref _author, value);
-		}
 
 		/// <summary>
 		/// Заказ, к которому относится документ самовывоза

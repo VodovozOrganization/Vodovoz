@@ -33,9 +33,6 @@ namespace Vodovoz.Core.Data.NHibernate.Documents
 			References(x => x.Warehouse)
 				.Column("warehouse_id");
 
-			References(x => x.Author)
-				.Column("author_id");
-
 			HasMany(x => x.Items)
 				.Cascade
 				.AllDeleteOrphan()
