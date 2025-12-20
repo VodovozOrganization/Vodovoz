@@ -1,11 +1,10 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Core.Domain.Operations;
 
-namespace Vodovoz.Data.NHibernate.HibernateMapping.Operations
+namespace Vodovoz.Core.Data.NHibernate.Operations
 {
 	public class EmployeeNomenclatureMovementOperationMap : ClassMap<EmployeeNomenclatureMovementOperation>
 	{
-
 		public EmployeeNomenclatureMovementOperationMap()
 		{
 			Table("employee_nomenclature_movement_operations");
