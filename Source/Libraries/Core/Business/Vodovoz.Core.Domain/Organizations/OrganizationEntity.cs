@@ -398,6 +398,29 @@ namespace Vodovoz.Core.Domain.Organizations
 					"E-mail для рассылки должен быть в домене @vodovoz-spb.ru.",
 					new[] { nameof(Email) });
 			}
+
+			if(IsUsnMode == IsOsnoMode)
+			{
+				yield return new ValidationResult(
+					"У организации нельзя выбрать несколько или не выбрать ниодной режимов работы с НДС",
+					new[] { nameof(VatRateVersions) });
+			}
+			if(IsUsnMode)
+			{
+				if(!VatRateVersions.Any())
+				{
+					yield return new ValidationResult(
+						"У организации нет ниодной версии НДС!",
+						new[] { nameof(VatRateVersions) });
+				}
+
+				if(GetActualVatRateVersion(DateTime.Now) == null)
+				{
+					yield return new ValidationResult(
+						"У организации нет актуальной версии НДС!",
+						new[] { nameof(VatRateVersions) });
+				}
+			}
 		}
 
 		/// <summary>

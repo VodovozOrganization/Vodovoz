@@ -838,6 +838,22 @@ namespace Vodovoz.Domain.Goods
 					$"{string.Join(", ", groupGtinDuplicatesInGtins.Select(x => $"{x.Nomenclature.Name} : {x.GtinNumber}"))}",
 					new[] { nameof(Gtins) });
 			}
+			
+
+			if(!VatRateVersions.Any())
+			{
+				yield return new ValidationResult(
+						"У номенклатуры нет ниодной версии НДС!",
+						new[] { nameof(VatRateVersions) });
+			}
+
+			if(GetActualVatRateVersion(DateTime.Now) == null)
+			{
+				yield return new ValidationResult(
+					"У номенклатуры нет актуальной версии НДС!",
+					new[] { nameof(VatRateVersions) });
+			}
+
 		}
 
 		#endregion IValidatableObject implementation
