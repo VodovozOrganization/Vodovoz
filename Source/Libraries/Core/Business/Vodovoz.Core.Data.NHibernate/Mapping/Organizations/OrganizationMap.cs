@@ -41,10 +41,6 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Organizations
 
 			Map(x => x.EmailForMailing)
 				.Column("email_for_mailing");
-
-			Map(x => x.WithoutVAT)
-				.Column("without_vat")
-				.ReadOnly();
 			
 			Map(x => x.IsOsnoMode)
 				.Column("is_osno_mode");

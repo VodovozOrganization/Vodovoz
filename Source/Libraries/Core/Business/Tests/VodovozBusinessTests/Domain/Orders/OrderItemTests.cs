@@ -164,7 +164,6 @@ namespace VodovozBusinessTests.Domain.Orders
 			// Case2
 
 			Organization organization2 = new Organization();
-			organization2.WithoutVAT = true;
 
 			CounterpartyContract counterpartyContract2 = new CounterpartyContract()
 			{
@@ -181,7 +180,6 @@ namespace VodovozBusinessTests.Domain.Orders
 			// Case3
 
 			Organization organization3 = new Organization();
-			organization3.WithoutVAT = false;
 
 			CounterpartyContract counterpartyContract3 = new CounterpartyContract()
 			{

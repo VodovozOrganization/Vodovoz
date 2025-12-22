@@ -173,15 +173,6 @@ namespace Vodovoz.Core.Domain.Organizations
 			set => SetField(ref _cashBoxId, value);
 		}
 
-		/// <summary>
-		/// Без НДС
-		/// </summary>
-		[Display(Name = "Без НДС")]
-		public virtual bool WithoutVAT
-		{
-			get => _withoutVAT;
-			set => SetField(ref _withoutVAT, value);
-		}
 		
 		/// <summary>
 		/// Требуется контроль движения средств по безналу
@@ -288,6 +279,22 @@ namespace Vodovoz.Core.Domain.Organizations
 			get => _isUsnMode;
 			set => SetField(ref _isUsnMode, value);
 		}
+
+		#region Methods
+
+		/// <summary>
+		/// Получить актуальную версию НДС на выбранную дату
+		/// </summary>
+		/// <param name="date">Дата. Если не передается, то используется DateTime.Now</param>
+		/// <returns>Версия ставки НДС</returns>
+		public virtual VatRateVersion GetActualVatRateVersion(DateTime? date = null)
+		{
+			var targetDate = date ?? DateTime.Now;
+			return VatRateVersions.FirstOrDefault(x => 
+				x.StartDate <= targetDate && (x.EndDate == null || x.EndDate > targetDate));
+		}
+
+		#endregion
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
