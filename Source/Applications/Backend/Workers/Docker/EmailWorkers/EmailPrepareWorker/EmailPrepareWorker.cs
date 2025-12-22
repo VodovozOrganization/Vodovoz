@@ -152,7 +152,6 @@ namespace EmailPrepareWorker
 
 					switch(counterpartyEmail.Type)
 					{
-						case CounterpartyEmailType.Bulk:
 						case CounterpartyEmailType.BillDocument:
 						case CounterpartyEmailType.OrderWithoutShipmentForPayment:
 						case CounterpartyEmailType.OrderWithoutShipmentForDebt:

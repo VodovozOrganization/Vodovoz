@@ -2147,6 +2147,10 @@ namespace Vodovoz
 					{
 						toggle.Activatable = CanEditByPermission && _canEditSealAndSignatureUpd;
 					}
+                    if(document.Type == OrderDocumentType.LetterOfDebt)
+                    {
+                        toggle.Activatable = false;
+                    }
 					else
 					{
 						toggle.Activatable = CanEditByPermission;

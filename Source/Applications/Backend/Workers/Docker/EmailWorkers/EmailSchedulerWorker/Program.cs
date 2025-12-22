@@ -12,7 +12,9 @@ using System.Text;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Settings;
+using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Counterparty;
+using Vodovoz.Settings.Database.Common;
 using Vodovoz.Settings.Database.Counterparty;
 
 namespace EmailDebtNotificationWorker
@@ -76,6 +78,7 @@ namespace EmailDebtNotificationWorker
 
 					services.AddScoped<IWorkingDayService, WorkingDayService>();
 					services.AddScoped<IDebtorsSettings, DebtorsSettings>();
+					services.AddScoped<IEmailSettings, EmailSettings>();
 					services.AddScoped<PrintableDocumentSaver>();
 					services.AddScoped<IReportInfoFactory, DefaultReportInfoFactory>();
 					services.AddScoped<IEmailDebtNotificationService, EmailDebtNotificationService>();

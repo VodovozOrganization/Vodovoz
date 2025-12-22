@@ -1,17 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
-using NLog.Extensions.Logging;
-using QS.DomainModel.UoW;
 using QS.Project.Services;
-using RabbitMQ.Infrastructure;
-using RabbitMQ.MailSending;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Text.Json;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
@@ -185,19 +177,6 @@ namespace Vodovoz.Additions
 									unitOfWork.Save(orderDocumentEmail);
 
 									break;
-
-								case CounterpartyEmailType.Bulk:
-									var bulkDocumentEmail = new BulkDocumentEmail
-									{
-										StoredEmail = storedEmail,
-										Counterparty = sendedEmail.Counterparty,
-										OrderDocument = ((BulkDocumentEmail)sendedEmail).OrderDocument
-									};
-
-									unitOfWork.Save(bulkDocumentEmail);
-
-									break;
-
 
 								case CounterpartyEmailType.UpdDocument:
 									var updDocumentEmail = new UpdDocumentEmail()

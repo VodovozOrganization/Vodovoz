@@ -198,6 +198,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 		public LetterOfDebtDocumentMap()
 		{
 			DiscriminatorValue(nameof(OrderDocumentType.LetterOfDebt));
+			Map(x => x.HideSignature).Column("hide_signature");
 		}
 	}
 }

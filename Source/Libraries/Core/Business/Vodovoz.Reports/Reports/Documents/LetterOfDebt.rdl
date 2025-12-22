@@ -551,7 +551,7 @@ WHERE o.id = @order_id
           <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>24.03pt</Height>
             <Width>552.36pt</Width>
-            <Value>="      В соответствии с актом сверки расчетов по состоянию на " + First({bill_date}, 'Order') + " за " + First({client_name}, 'Order') + " ИНН " + First({INN}, 'Organization') + " числится задолженность в размере " + First({order_debt_formatted}, 'Order') + ". " + "Просим перечислить указанную сумму на расчетный счет по следующим реквизитам:"</Value>
+            <Value>="      В соответствии с актом сверки расчетов по состоянию на " + First({bill_date}, 'Order') + " за " + First({client_name}, 'Order') + " ИНН " + First({INN}, 'Organization') + " числится задолженность по заказу № " + First({order_id}, 'Order') + " в размере " + First({order_debt_formatted}, 'Order') + ". " + "Просим перечислить указанную сумму на расчетный счет по следующим реквизитам:"</Value>
             <ZIndex>1</ZIndex>
             <Left>0.00pt</Left>
             <Top>21.30pt</Top>

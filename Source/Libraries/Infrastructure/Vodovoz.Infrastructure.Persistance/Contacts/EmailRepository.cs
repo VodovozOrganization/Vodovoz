@@ -462,6 +462,7 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 			var isClientUnsubscribedSubQuery = QueryOver.Of(() => bulkEmailEventAlias)
 				.Where(() => bulkEmailEventAlias.Counterparty.Id == counterpartyAlias.Id)
 				.Where(() => bulkEmailEventAlias.Type == BulkEmailEvent.BulkEmailEventType.Unsubscribing)
+				.WhereNot(() => counterpartyAlias.IsArchive)
 				.WithSubquery.WhereProperty(() => bulkEmailEventAlias.ActionTime).Eq(lastUnsubscribeSubQuery)
 				.Select(bee => bee.Id);
 
@@ -490,6 +491,7 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				.Where(() => counterpartyAlias.PersonType == PersonType.legal)
 				.WhereNot(() => organizationAlias.DisableDebtMailing)
 				.WhereNot(() => counterpartyAlias.DisableDebtMailing)
+				.WhereNot(() => counterpartyAlias.IsArchive)
 				 .WithSubquery.WhereExists(
 					QueryOver.Of<Email>()
 				 		.Where(email => email.Counterparty.Id == counterpartyAlias.Id)

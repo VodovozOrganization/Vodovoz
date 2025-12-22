@@ -1,10 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk.Worker">
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>dotnet-EmailSchedulerWorker-e0874d5a-2e26-4ba6-af21-cf18d8b28ad6</UserSecretsId>
+    <UserSecretsId>dotnet-EmailDebtNotificationWorker-e0874d5a-2e26-4ba6-af21-cf18d8b28ad6</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..\..\..\..\..</DockerfileContext>
   </PropertyGroup>
