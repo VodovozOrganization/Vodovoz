@@ -184,7 +184,7 @@ namespace Vodovoz.Organizations
 			global::Gtk.Viewport w9 = new global::Gtk.Viewport();
 			w9.ShadowType = ((global::Gtk.ShadowType)(0));
 			// Container child GtkViewport.Gtk.Container+ContainerChild
-			this.datatableMain = new global::Gtk.Table(((uint)(10)), ((uint)(6)), false);
+			this.datatableMain = new global::Gtk.Table(((uint)(11)), ((uint)(6)), false);
 			this.datatableMain.Name = "datatableMain";
 			this.datatableMain.RowSpacing = ((uint)(6));
 			this.datatableMain.ColumnSpacing = ((uint)(6));
@@ -258,8 +258,8 @@ namespace Vodovoz.Organizations
 			w14.Position = 0;
 			this.datatableMain.Add(this.hbox6);
 			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.hbox6]));
-			w15.TopAttach = ((uint)(9));
-			w15.BottomAttach = ((uint)(10));
+			w15.TopAttach = ((uint)(7));
+			w15.BottomAttach = ((uint)(8));
 			w15.LeftAttach = ((uint)(1));
 			w15.RightAttach = ((uint)(6));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -317,8 +317,8 @@ namespace Vodovoz.Organizations
 			this.label17.LabelProp = global::Mono.Unix.Catalog.GetString("Версии:");
 			this.datatableMain.Add(this.label17);
 			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.label17]));
-			w20.TopAttach = ((uint)(9));
-			w20.BottomAttach = ((uint)(10));
+			w20.TopAttach = ((uint)(7));
+			w20.BottomAttach = ((uint)(8));
 			w20.XOptions = ((global::Gtk.AttachOptions)(4));
 			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
@@ -499,8 +499,8 @@ namespace Vodovoz.Organizations
 			this.vatRateVersionForOrganizationView.Name = "vatRateVersionForOrganizationView";
 			this.datatableMain.Add(this.vatRateVersionForOrganizationView);
 			global::Gtk.Table.TableChild w35 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.vatRateVersionForOrganizationView]));
-			w35.TopAttach = ((uint)(8));
-			w35.BottomAttach = ((uint)(9));
+			w35.TopAttach = ((uint)(9));
+			w35.BottomAttach = ((uint)(10));
 			w35.LeftAttach = ((uint)(1));
 			w35.RightAttach = ((uint)(6));
 			w35.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -511,8 +511,8 @@ namespace Vodovoz.Organizations
 			this.vatRateVersionLabel.LabelProp = global::Mono.Unix.Catalog.GetString("Версии НДС:");
 			this.datatableMain.Add(this.vatRateVersionLabel);
 			global::Gtk.Table.TableChild w36 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.vatRateVersionLabel]));
-			w36.TopAttach = ((uint)(8));
-			w36.BottomAttach = ((uint)(9));
+			w36.TopAttach = ((uint)(9));
+			w36.BottomAttach = ((uint)(10));
 			w36.XOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
 			this.yentryPrefix = new global::Gamma.GtkWidgets.yEntry();
@@ -565,8 +565,8 @@ namespace Vodovoz.Organizations
 			this.yradiobuttonOsno.Group = this.radioTabInfo.Group;
 			this.datatableMain.Add(this.yradiobuttonOsno);
 			global::Gtk.Table.TableChild w40 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.yradiobuttonOsno]));
-			w40.TopAttach = ((uint)(7));
-			w40.BottomAttach = ((uint)(8));
+			w40.TopAttach = ((uint)(8));
+			w40.BottomAttach = ((uint)(9));
 			w40.LeftAttach = ((uint)(1));
 			w40.RightAttach = ((uint)(3));
 			w40.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -580,8 +580,8 @@ namespace Vodovoz.Organizations
 			this.yradiobuttonUsn.Group = this.radioTabInfo.Group;
 			this.datatableMain.Add(this.yradiobuttonUsn);
 			global::Gtk.Table.TableChild w41 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.yradiobuttonUsn]));
-			w41.TopAttach = ((uint)(7));
-			w41.BottomAttach = ((uint)(8));
+			w41.TopAttach = ((uint)(8));
+			w41.BottomAttach = ((uint)(9));
 			w41.LeftAttach = ((uint)(3));
 			w41.RightAttach = ((uint)(6));
 			w41.YOptions = ((global::Gtk.AttachOptions)(4));
