@@ -73,10 +73,6 @@ namespace Vodovoz.Organizations
 			dataentryOKVED.Binding
 				.AddBinding(ViewModel.Entity, e => e.OKVED, w => w.Text)
 				.InitializeFromSource();
-
-			chkWithoutVat.Binding
-				.AddBinding(ViewModel.Entity, e => e.WithoutVAT, w => w.Active)
-				.InitializeFromSource();
 			
 			chkIsNeedCashlessMovementControl.Binding
 				.AddBinding(ViewModel.Entity, e => e.IsNeedCashlessMovementControl, w => w.Active)

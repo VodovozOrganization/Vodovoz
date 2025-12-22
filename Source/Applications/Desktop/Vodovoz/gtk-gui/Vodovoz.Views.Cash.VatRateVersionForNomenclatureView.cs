@@ -99,6 +99,7 @@ namespace Vodovoz.Views.Cash
 			this.yhbox4.Add(this.datepickerVersionDate);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yhbox4[this.datepickerVersionDate]));
 			w4.Position = 1;
+			w4.Expand = false;
 			// Container child yhbox4.Gtk.Box+BoxChild
 			this.buttonNewVersion = new global::Gamma.GtkWidgets.yButton();
 			this.buttonNewVersion.CanFocus = true;
@@ -197,7 +198,7 @@ namespace Vodovoz.Views.Cash
 			this.buttonSave.Image = w16;
 			this.yhbox6.Add(this.buttonSave);
 			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.yhbox6[this.buttonSave]));
-			w17.Position = 4;
+			w17.Position = 6;
 			w17.Expand = false;
 			w17.Fill = false;
 			// Container child yhbox6.Gtk.Box+BoxChild
@@ -211,7 +212,7 @@ namespace Vodovoz.Views.Cash
 			this.buttonCancel.Image = w18;
 			this.yhbox6.Add(this.buttonCancel);
 			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.yhbox6[this.buttonCancel]));
-			w19.Position = 5;
+			w19.Position = 7;
 			w19.Expand = false;
 			w19.Fill = false;
 			this.yvbox7.Add(this.yhbox6);
