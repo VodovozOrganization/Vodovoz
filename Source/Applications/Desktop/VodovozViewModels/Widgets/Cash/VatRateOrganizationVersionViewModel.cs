@@ -33,6 +33,7 @@ namespace Vodovoz.ViewModels.Widgets.Cash
 		private DelegateCommand _addNewVersioCommand;
 		private DelegateCommand _changeVersionStartDateCommand;
 		private VatRate _selectedVatRate;
+		private bool _isWidgetVisible;
 
 		public VatRateOrganizationVersionViewModel(
 			Organization entity, 
@@ -57,7 +58,13 @@ namespace Vodovoz.ViewModels.Widgets.Cash
 		public bool IsEditAvailable => SelectedVatRateVersion != null;
 		public bool IsNewOrganization => Entity.Id == 0;
 		public bool IsButtonsAvailable { get; }
-		
+
+		public bool IsWidgetVisible
+		{
+			get => _isWidgetVisible;
+			set => SetField(ref _isWidgetVisible, value);
+		}
+
 		public IEntityEntryViewModel VatRateEntryViewModel { get; private set; }
 		
 		public bool IsEditVisible

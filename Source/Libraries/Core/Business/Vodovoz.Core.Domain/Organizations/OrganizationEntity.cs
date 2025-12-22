@@ -49,7 +49,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		private IObservableList<PhoneEntity> _phones = new ObservableList<PhoneEntity>();
 		private IObservableList<OrganizationVersionEntity> _organizationVersions = new ObservableList<OrganizationVersionEntity>();
 		private IObservableList<VatRateVersion> _vatRateVersions = new ObservableList<VatRateVersion>();
-		private bool _isOsnoMode;
+		private bool _isOsnoMode = true;
 		private bool _isUsnMode;
 
 		public OrganizationEntity()

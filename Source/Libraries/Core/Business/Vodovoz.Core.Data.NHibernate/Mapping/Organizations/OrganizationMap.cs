@@ -46,6 +46,12 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Organizations
 				.Column("without_vat")
 				.ReadOnly();
 			
+			Map(x => x.IsOsnoMode)
+				.Column("is_osno_mode");
+			
+			Map(x => x.IsUsnMode)
+				.Column("is_usn_mode");
+			
 			Map(x => x.IsNeedCashlessMovementControl)
 				.Column("is_need_cashless_movement_control");
 

@@ -46,6 +46,7 @@ namespace Vodovoz.ViewModels.Organizations
 
 			OrganizationVersionsViewModel = _organizationVersionsViewModelFactory.CreateOrganizationVersionsViewModel(Entity, CanEdit);
 			VatRateOrganizationVersionViewModel = _vatRateVersionViewModelFactory.CreateVatRateVersionViewModel(Entity,this, vatRateEevmBuilder, UoW, CanEdit);
+			VatRateOrganizationVersionViewModel.IsWidgetVisible = !Entity.IsOsnoMode;
 
 			SaveCommand = new DelegateCommand(
 				() => Save(true),

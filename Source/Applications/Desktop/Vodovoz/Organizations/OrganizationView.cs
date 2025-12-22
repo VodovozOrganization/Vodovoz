@@ -95,7 +95,31 @@ namespace Vodovoz.Organizations
 			radioTabInfo.Toggled += OnRadioTabInfoToggled;
 			radioTabAccounts.Toggled += OnRadioTabAccountsToggled;
 
+
+			yradiobuttonOsno.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsOsnoMode, w => w.Active)
+				.InitializeFromSource();
+			yradiobuttonOsno.Toggled += OnRadioButtonOsnoToggled;
+			
+			yradiobuttonUsn.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsUsnMode, w => w.Active)
+				.InitializeFromSource();
+			yradiobuttonUsn.Toggled += OnRadioButtonUsnToggled;
+			
 			vatRateVersionForOrganizationView.ViewModel = ViewModel.VatRateOrganizationVersionViewModel;
+			vatRateVersionLabel.Visible = !ViewModel.Entity.IsOsnoMode;
+		}
+
+		private void OnRadioButtonOsnoToggled(object sender, EventArgs e)
+		{
+			vatRateVersionForOrganizationView.ViewModel.IsWidgetVisible = !yradiobuttonOsno.Active;
+			vatRateVersionLabel.Visible = !yradiobuttonOsno.Active;
+		}
+		
+		private void OnRadioButtonUsnToggled(object sender, EventArgs e)
+		{
+			vatRateVersionForOrganizationView.ViewModel.IsWidgetVisible = yradiobuttonUsn.Active;
+			vatRateVersionLabel.Visible = yradiobuttonUsn.Active;
 		}
 
 		private void OnSaveButtonClicked(object sender, EventArgs e)
