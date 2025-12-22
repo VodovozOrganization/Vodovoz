@@ -32,6 +32,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		private string _iNN;
 		private string _kPP;
 		private string _oGRN;
+		private DateTime? _ogrnDate;
 		private string _oKPO;
 		private string _oKVED;
 		private string _email;
@@ -119,6 +120,16 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _oGRN;
 			set => SetField(ref _oGRN, value);
+		}
+		
+		/// <summary>
+		/// Дата ОГРН/ОГРНИП
+		/// </summary>
+		[Display(Name = "Дата внесения ОГРН/ОГРНИП")]
+		public virtual DateTime? OGRNDate
+		{
+			get => _ogrnDate;
+			set => SetField(ref _ogrnDate, value);
 		}
 
 		/// <summary>

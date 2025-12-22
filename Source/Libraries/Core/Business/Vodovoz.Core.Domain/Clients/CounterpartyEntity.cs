@@ -34,6 +34,9 @@ namespace Vodovoz.Core.Domain.Clients
 	[EntityPermission]
 	public class CounterpartyEntity : AccountOwnerBase, IDomainObject, IHasAttachedFilesInformations<CounterpartyFileInformation>
 	{
+		public const int PrivateBusinessmanOgrnLength = 15;
+		public const int NotPrivateBusinessmanOgrnLength = 13;
+		
 		private int _id;
 		private OrderStatusForSendingUpd _orderStatusForSendingUpd;
 		private bool _isNewEdoProcessing = true;
@@ -68,6 +71,7 @@ namespace Vodovoz.Core.Domain.Clients
 		private string _iNN;
 		private string _kPP;
 		private string _oGRN;
+		private DateTime? _ogrnDate;
 		private string _jurAddress;
 		private string _address;
 		private PaymentType _paymentMethod;
@@ -326,13 +330,23 @@ namespace Vodovoz.Core.Domain.Clients
 		}
 
 		/// <summary>
-		/// ОГРН
+		/// ОГРН/ОГРНИП
 		/// </summary>
-		[Display(Name = "ОГРН")]
+		[Display(Name = "ОГРН/ОГРНИП")]
 		public virtual string OGRN
 		{
 			get => _oGRN;
 			set => SetField(ref _oGRN, value);
+		}
+		
+		/// <summary>
+		/// Дата ОГРН/ОГРНИП
+		/// </summary>
+		[Display(Name = "Дата внесения ОГРН/ОГРНИП")]
+		public virtual DateTime? OGRNDate
+		{
+			get => _ogrnDate;
+			set => SetField(ref _ogrnDate, value);
 		}
 
 		/// <summary>
