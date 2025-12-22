@@ -49,6 +49,8 @@ namespace Vodovoz.Core.Domain.Organizations
 		private IObservableList<PhoneEntity> _phones = new ObservableList<PhoneEntity>();
 		private IObservableList<OrganizationVersionEntity> _organizationVersions = new ObservableList<OrganizationVersionEntity>();
 		private IObservableList<VatRateVersion> _vatRateVersions = new ObservableList<VatRateVersion>();
+		private bool _isOsnoMode;
+		private bool _isUsnMode;
 
 		public OrganizationEntity()
 		{
@@ -266,7 +268,27 @@ namespace Vodovoz.Core.Domain.Organizations
 			get => _vatRateVersions;
 			set => SetField(ref _vatRateVersions, value);
 		}
-		
+
+		/// <summary>
+		/// ОСНО. Использовать НДС номенклатур
+		/// </summary>
+		[Display(Name = "Режим ОСНО")]
+		public virtual bool IsOsnoMode
+		{
+			get => _isOsnoMode;
+			set => SetField(ref _isOsnoMode, value);
+		}
+
+		/// <summary>
+		/// УСН. Использовать НДС организации
+		/// </summary>
+		[Display(Name = "Режим УСН")]
+		public virtual bool IsUsnMode
+		{
+			get => _isUsnMode;
+			set => SetField(ref _isUsnMode, value);
+		}
+
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			var duplicatedBankAccountNames = GetDuplicatedBankAccountNames();
