@@ -27,7 +27,7 @@ namespace EmailDebtNotificationWorker.Services
 		private readonly PrintableDocumentSaver _printableDocumentSaver;
 		private readonly IBus _bus;
 
-		private const int _maxEmailsPerMinute = 1;
+		private const int _maxEmailsPerMinute = 5;
 
 		public EmailDebtNotificationService(
 			ILogger<EmailDebtNotificationService> logger,
@@ -152,7 +152,7 @@ namespace EmailDebtNotificationWorker.Services
 
 				await _uow.CommitAsync(cancellationToken);
 
-				var emailMessage = CreateDebtEmailMessage(storedEmail, client, organization, order, letterOfDebtDocument, emailSubject);
+				var emailMessage = CreateDebtEmailMessage(storedEmail, client, organization, order, letterOfDebtDocument, emailAddress, emailSubject);
 
 				await _bus.Publish(emailMessage, cancellationToken);
 			}
@@ -187,17 +187,11 @@ namespace EmailDebtNotificationWorker.Services
 			Organization organization,
 			Order order,
 			LetterOfDebtDocument letterOfDebt,
+			string emailAddress,
 			string emailSubject
 			)
 		{
 			var instanceId = GetCurrentDatabaseId();
-			var emailAddress = SelectEmailForDebtNotification(client);
-
-			if(string.IsNullOrWhiteSpace(emailAddress))
-			{
-				_logger.LogWarning("Клиент {ClientId} {ClientName} не имеет подходящего email для уведомления о задолженности", client.Id, client.FullName);
-				throw new InvalidOperationException($"No suitable email address for client {client.Id}");
-			}
 
 			var unsubscribeUrl = storedEmail.Guid.HasValue
 				? GetUnsubscribeLink(storedEmail.Guid.Value)
@@ -223,9 +217,7 @@ namespace EmailDebtNotificationWorker.Services
 				{
 					new() {
 						Name = client.FullName,
-						//Email = emailAddress
-						//Email = "work.semen.sd@gmail.com"
-						Email = "vodovoz.test@mail.ru"
+						Email = emailAddress
 					}
 				},
 
@@ -272,7 +264,7 @@ namespace EmailDebtNotificationWorker.Services
 			}
 
 			var billEmail = client.Emails
-				.FirstOrDefault(x => x.EmailType?.EmailPurpose == EmailPurpose.ForBills)
+				.LastOrDefault(x => x.EmailType?.EmailPurpose == EmailPurpose.ForBills)
 				?.Address;
 
 			if(!string.IsNullOrWhiteSpace(billEmail))

@@ -481,7 +481,6 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
 				.Where(() => counterpartyAlias.PersonType == PersonType.legal)
 				.WhereNot(() => organizationAlias.DisableDebtMailing)
-				.Where(() => counterpartyAlias.Id == 2)
 				.WhereNot(() => counterpartyAlias.DisableDebtMailing)
 				.WhereNot(() => counterpartyAlias.IsArchive)
 				 .WithSubquery.WhereExists(
@@ -489,7 +488,7 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				 		.Where(email => email.Counterparty.Id == counterpartyAlias.Id)
 				 		.Select(email => email.Id)
 					)
-				.Where(Restrictions.Lt(dateAddExpression, currentDate))
+				.Where(Restrictions.Le(dateAddExpression, currentDate))
 				.WithSubquery.WhereNotExists(isClientUnsubscribedSubQuery)
 				.WithSubquery.WhereNotExists(alreadySentOrdersSubQuery)
 				.Take(maxClients); 
