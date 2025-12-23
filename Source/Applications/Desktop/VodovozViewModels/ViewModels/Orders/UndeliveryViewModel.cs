@@ -271,7 +271,10 @@ namespace Vodovoz.ViewModels.Orders
 
 				if(_orderCancellationPermit.Type == OrderCancellationPermitType.AllowCancelDocflow)
 				{
-					_orderCancellationService.CancelDocflowByUser(Entity.OldOrder, _orderCancellationPermit.EdoTaskToCancellationId.Value);
+					_orderCancellationService.CancelDocflowByUser(
+						$"Отмена заказа №{Entity.OldOrder.Id}", 
+						_orderCancellationPermit.EdoTaskToCancellationId.Value
+					);
 					Close(false, CloseSource.Self);
 					return false;
 				}
@@ -321,7 +324,7 @@ namespace Vodovoz.ViewModels.Orders
 				{
 					_orderCancellationService.AutomaticCancelDocflow(
 						UoW,
-						Entity.OldOrder, 
+						$"Отмена заказа №{Entity.OldOrder.Id}", 
 						_orderCancellationPermit.EdoTaskToCancellationId.Value
 					);
 				}
