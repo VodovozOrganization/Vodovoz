@@ -232,7 +232,7 @@ namespace Vodovoz.Views.Settings
 
 			ycheckbuttonDisableDebtMailing.Binding
 				.AddSource(ViewModel)
-				.AddFuncBinding(vm => vm.DebtNotificationWorkerIsEnabled, w => w.Active)
+				.AddBinding(vm => vm.DebtNotificationWorkerIsEnabled, w => w.Active)
 				.AddFuncBinding(vm => vm.CanEditDebtNotification, w => w.Sensitive)
 				.InitializeFromSource();
 		}

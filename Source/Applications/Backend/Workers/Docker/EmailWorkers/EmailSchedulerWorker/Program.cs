@@ -1,5 +1,5 @@
 ﻿using Autofac.Extensions.DependencyInjection;
-using EdoDocumentsPreparer;
+using EdoService.Library.Services;
 using EmailDebtNotificationWorker.Services;
 using MassTransit;
 using MessageTransport;
@@ -11,7 +11,6 @@ using RabbitMQ.MailSending;
 using System.Text;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
-using Vodovoz.Settings;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Database.Common;

@@ -189,17 +189,17 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport
 
 		private string GenerateSelectedFiltersString()
 		{
-			var selectedFilters = new StringBuilder().AppendLine("Выбранные фильтры:");
+			var selectedFilters = new StringBuilder("Выбранные фильтры:");
 			
 			if(EventActionTimeFrom != null && EventActionTimeTo != null)
 			{
-				selectedFilters.AppendLine(
+				selectedFilters.Append(
 					$"Время события: с {EventActionTimeFrom.Value.ToShortDateString()} по {EventActionTimeTo.Value.ToShortDateString()}; ");
 			}
 
 			if(Counterparty != null)
 			{
-				selectedFilters.AppendLine($"Контрагент: {Counterparty.Name}; ");
+				selectedFilters.Append($"Контрагент: {Counterparty.Name}; ");
 			}
 
 			return selectedFilters.ToString();

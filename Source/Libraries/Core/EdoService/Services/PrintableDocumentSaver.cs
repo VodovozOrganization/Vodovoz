@@ -3,7 +3,7 @@ using MySqlConnector;
 using QS.Report;
 using RdlEngine;
 
-namespace EdoDocumentsPreparer
+namespace EdoService.Library.Services
 {
 	public class PrintableDocumentSaver
 	{
@@ -19,14 +19,15 @@ namespace EdoDocumentsPreparer
 		{
 			var ri = document.GetReportInfo(_connectionString);
 
-			using var stream = ReportExporter.ExportToMemoryStream(
+			using(var stream = ReportExporter.ExportToMemoryStream(
 				ri.GetReportUri(),
 				ri.GetParametersString(),
 				_connectionString,
 				OutputPresentationType.PDF,
-				true);
-			
-			return stream.GetBuffer();
+				true))
+			{
+				return stream.GetBuffer();
+			}
 		}
 	}
 }

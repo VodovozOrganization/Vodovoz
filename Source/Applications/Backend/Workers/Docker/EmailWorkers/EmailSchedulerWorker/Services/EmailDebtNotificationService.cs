@@ -1,4 +1,4 @@
-﻿using EdoDocumentsPreparer;
+﻿using EdoService.Library.Services;
 using Mailjet.Api.Abstractions;
 using MassTransit;
 using QS.DomainModel.UoW;
@@ -161,11 +161,7 @@ namespace EmailDebtNotificationWorker.Services
 				_logger.LogError(ex, "Ошибка при обработке письма для клиента {ClientId}", client.Id);
 				throw;
 			}
-			finally
-			{
-				await _uow.CommitAsync();
 			}
-		}
 
 		private static StoredEmail CreateStoredEmail(string subject, string email, int orderId)
 		{
@@ -357,7 +353,7 @@ namespace EmailDebtNotificationWorker.Services
 			var attachment = new EmailAttachment
 			{
 				ContentType = "application/pdf",
-				Filename = $"Письмо_о_задолженности_{order.Id}.pdf",
+				Filename = $"Задолженность_{order.Id}.pdf",
 				Base64Content = Convert.ToBase64String(pdfBytes)
 			};
 			return attachment;

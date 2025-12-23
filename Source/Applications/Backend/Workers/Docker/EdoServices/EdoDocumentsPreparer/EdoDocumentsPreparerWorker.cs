@@ -1,4 +1,5 @@
-using EdoDocumentsPreparer.Factories;
+﻿using EdoDocumentsPreparer.Factories;
+using EdoService.Library.Services;
 using MassTransit;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

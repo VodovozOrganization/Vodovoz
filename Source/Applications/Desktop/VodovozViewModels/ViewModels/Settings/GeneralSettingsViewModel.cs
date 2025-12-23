@@ -311,8 +311,6 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		public bool CanEditOrderAutoComment { get; }
 
-		public bool CanEditDebtNotification { get; }
-
 		public DelegateCommand SaveOrderAutoCommentCommand =>
 			_saveOrderAutoCommentCommand ?? (_saveOrderAutoCommentCommand = new DelegateCommand(() =>
 			{
@@ -377,12 +375,6 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			set => SetField(ref _isClientsSecondOrderDiscountActive, value);
 		}
 
-		public bool DebtNotificationWorkerIsEnabled
-		{
-			get => _debtorsSettings.DebtNotificationWorkerIsDisabled;
-			set => _debtorsSettings.DebtNotificationWorkerIsDisabled = value;
-		}
-
 		public DelegateCommand SaveSecondOrderDiscountAvailabilityCommand
 		{
 			get
@@ -403,6 +395,17 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_generalSettings.UpdateIsClientsSecondOrderDiscountActive(IsClientsSecondOrderDiscountActive);
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
+
+		#endregion
+
+		#region Массовая рассылка писем о задолженности
+		public bool DebtNotificationWorkerIsEnabled
+		{
+			get => _debtorsSettings.DebtNotificationWorkerIsDisabled;
+			set => _debtorsSettings.DebtNotificationWorkerIsDisabled = value;
+		}
+
+		public bool CanEditDebtNotification { get; }
 
 		#endregion
 
