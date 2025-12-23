@@ -413,6 +413,13 @@ namespace Vodovoz.Core.Domain.Organizations
 						"У организации нет ниодной версии НДС!",
 						new[] { nameof(VatRateVersions) });
 				}
+				
+				if(VatRateVersions.Any(v => v.VatRate == null))
+				{
+					yield return new ValidationResult(
+						"У одной из версий НДС не выбрана ставка НДС!",
+						new[] { nameof(VatRateVersions) });
+				}
 
 				if(GetActualVatRateVersion(DateTime.Now) == null)
 				{
