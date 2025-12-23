@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using QS.Tdi;
 using QSOrmProject;
 using QSOrmProject.UpdateNotification;
+using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModel;
 

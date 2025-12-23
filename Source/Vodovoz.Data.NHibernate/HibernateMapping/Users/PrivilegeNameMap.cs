@@ -16,6 +16,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Users
 			Map(x => x.PrivilegeType).Column("privilege_type");
 
 			HasManyToMany(x => x.UnavailableDatabases)
+				.Schema("Vodovoz_admin_parameters")
 				.Table("unavailable_databases_for_privilege_names")
 				.ParentKeyColumn("privilege_name_id")
 				.ChildKeyColumn("available_database_id")

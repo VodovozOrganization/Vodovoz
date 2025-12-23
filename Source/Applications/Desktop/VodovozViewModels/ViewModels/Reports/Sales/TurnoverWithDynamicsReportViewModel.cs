@@ -817,7 +817,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 						{
 							EdoFiscalDocument edoFiscalDocumentAlias = null;
 							EdoTask edoTaskAlias = null;
-							OrderEdoRequest edoRequestAlias = null;
+							FormalEdoRequest edoRequestAlias = null;
 
 							var subQueryWithCashReceipts = QueryOver.Of(() => edoFiscalDocumentAlias)
 								.JoinAlias(() => edoFiscalDocumentAlias.ReceiptEdoTask, () => edoTaskAlias)
@@ -1329,7 +1329,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 				query.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(includedOrderStatuses);
 			}
 
-			if(excludedPromotionalSets.Any())
+			if(excludedOrderStatuses.Any())
 			{
 				query.WhereRestrictionOn(() => orderAlias.OrderStatus).Not.IsIn(excludedOrderStatuses);
 			}
@@ -1437,7 +1437,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 					{
 						EdoFiscalDocument edoFiscalDocumentAlias = null;
 						EdoTask edoTaskAlias = null;
-						OrderEdoRequest edoRequestAlias = null;
+						FormalEdoRequest edoRequestAlias = null;
 
 						var subQueryWithCashReceipts = QueryOver.Of(() => edoFiscalDocumentAlias)
 							.JoinAlias(() => edoFiscalDocumentAlias.ReceiptEdoTask, () => edoTaskAlias)

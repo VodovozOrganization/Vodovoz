@@ -126,6 +126,45 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 
 			return includeExludeFiltersViewModel;
 		}
+		
+		public IncludeExludeFiltersViewModel CreateCallCenterMotivationReportIncludeExcludeFilter(IUnitOfWork unitOfWork)
+		{
+			var includeExludeFiltersViewModel = CreateDefaultIncludeExludeFiltersViewModel();
+
+			AddNomenclatureCategoryFilter(includeExludeFiltersViewModel);
+			AddNomenclatureFilter(unitOfWork, includeExludeFiltersViewModel);
+			AddProductGroupFilter(unitOfWork, includeExludeFiltersViewModel);
+			AddCounterpartyTypeFilter(unitOfWork, includeExludeFiltersViewModel);
+			AddCounterpartyFilter(unitOfWork, includeExludeFiltersViewModel);
+			AddOrganizationFilter(unitOfWork, includeExludeFiltersViewModel);
+			AddDiscountReasonFilter(unitOfWork, includeExludeFiltersViewModel);
+			AddSubdivisionFilter(unitOfWork, includeExludeFiltersViewModel);
+			AddEmployeeFilter(unitOfWork, includeExludeFiltersViewModel);
+			AddPromotionalSetFilter(unitOfWork, includeExludeFiltersViewModel);
+			
+			var statusesToSelect = new[]
+			{
+				OrderStatus.Accepted,
+				OrderStatus.InTravelList,
+				OrderStatus.OnLoading,
+				OrderStatus.OnTheWay,
+				OrderStatus.Shipped,
+				OrderStatus.UnloadingOnStock,
+				OrderStatus.Closed
+			};
+
+			AddOrderStatusFilter(includeExludeFiltersViewModel, statusesToSelect);
+			
+			var additionalParams = new Dictionary<string, string>
+			{
+				{ "Самовывоз", "is_self_delivery" },
+				{ "Первичные клиенты", "is_first_client" },
+			};
+			
+			includeExludeFiltersViewModel.AddFilter("Дополнительные фильтры", additionalParams);
+			
+			return includeExludeFiltersViewModel;
+		}
 
 		private void AddWarehouseFilter(IUnitOfWork unitOfWork, IncludeExludeFiltersViewModel includeExludeFiltersViewModel)
 		{

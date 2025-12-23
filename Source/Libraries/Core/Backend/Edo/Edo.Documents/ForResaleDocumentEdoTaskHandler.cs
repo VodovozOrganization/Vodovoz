@@ -2,9 +2,7 @@
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
 using Edo.Problems.Custom.Sources;
-using Edo.Problems.Exception;
 using Edo.Problems.Exception.EdoExceptions;
-using Edo.Problems.Exception.Sources;
 using MassTransit;
 using QS.DomainModel.UoW;
 using System;
@@ -28,7 +26,7 @@ namespace Edo.Documents
 		private readonly TransferRequestCreator _transferRequestCreator;
 		private readonly ITrueMarkCodesPool _trueMarkCodesPool;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
-		private readonly IBus _messageBus;
+		private readonly IBus _publishEndpoint;
 
 		public ForResaleDocumentEdoTaskHandler(
 			IUnitOfWork uow,
@@ -37,7 +35,7 @@ namespace Edo.Documents
 			TransferRequestCreator transferRequestCreator,
 			ITrueMarkCodesPool trueMarkCodesPool,
 			EdoProblemRegistrar edoProblemRegistrar,
-			IBus messageBus
+			IBus publishEndpoint
 			)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
@@ -46,7 +44,7 @@ namespace Edo.Documents
 			_transferRequestCreator = transferRequestCreator ?? throw new ArgumentNullException(nameof(transferRequestCreator));
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
 		public async Task HandleNewForResaleFormalDocument(
@@ -57,7 +55,7 @@ namespace Edo.Documents
 		{
 			object message = null;
 
-			var order = documentEdoTask.OrderEdoRequest.Order;
+			var order = documentEdoTask.FormalEdoRequest.Order;
 
 			foreach(var taskItem in documentEdoTask.Items)
 			{
@@ -109,7 +107,7 @@ namespace Edo.Documents
 			await _uow.SaveAsync(documentEdoTask, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
 
-			await _messageBus.Publish(message, cancellationToken);
+			await _publishEndpoint.Publish(message, cancellationToken);
 		}
 
 		public async Task HandleTransferedForResaleFormalDocument(
@@ -159,7 +157,7 @@ namespace Edo.Documents
 			await _uow.SaveAsync(documentEdoTask, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
 
-			await _messageBus.Publish(message, cancellationToken);
+			await _publishEndpoint.Publish(message, cancellationToken);
 		}
 
 		private async Task<OrderEdoDocument> SendDocument(DocumentEdoTask edoTask, CancellationToken cancellationToken)
@@ -182,7 +180,7 @@ namespace Edo.Documents
 
 		private async Task CreateUpdDocument(DocumentEdoTask documentEdoTask, CancellationToken cancellationToken)
 		{
-			var order = documentEdoTask.OrderEdoRequest.Order;
+			var order = documentEdoTask.FormalEdoRequest.Order;
 
 			var unprocessedCodes = documentEdoTask.Items.ToList();
 			var groupCodesWithTaskItems = await TakeGroupCodesWithTaskItems(unprocessedCodes, cancellationToken);

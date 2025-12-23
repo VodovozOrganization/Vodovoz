@@ -9,6 +9,7 @@ using QS.Project.DB;
 using QS.Project.Domain;
 using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Pacs;
@@ -57,6 +58,7 @@ using VodovozBusiness.Domain.Operations;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Payments;
 using VodovozBusiness.Domain.Service;
+using Vodovoz.Core.Domain.BasicHandbooks;
 
 namespace Vodovoz
 {
@@ -389,6 +391,8 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<FineCategory>()
 				.AddClearDependence<Fine>(x => x.FineCategory);
+			
+			DeleteConfig.AddHibernateDeleteInfo<VatRate>();
 
 			DeleteConfig.AddHibernateDeleteInfo<FineItem>()
 				.AddDeleteCascadeDependence(item => item.WageOperation)

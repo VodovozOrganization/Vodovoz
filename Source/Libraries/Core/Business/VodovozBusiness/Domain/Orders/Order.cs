@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Core.Infrastructure;
 using fyiReporting.RDL;
 using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,9 +22,11 @@ using System.Reflection;
 using System.Text;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.Documents;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents;
@@ -109,6 +112,7 @@ namespace Vodovoz.Domain.Orders
 		private ICashRepository _cashRepository => ScopeProvider.Scope.Resolve<ICashRepository>();
 
 		private ISelfDeliveryRepository _selfDeliveryRepository => ScopeProvider.Scope.Resolve<ISelfDeliveryRepository>();
+		private IOrderService _orderService => ScopeProvider.Scope.Resolve<IOrderService>();
 
 		private readonly double _futureDeliveryDaysLimit = 30;
 
@@ -561,12 +565,12 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		private IList<OrderDocument> orderDocuments = new List<OrderDocument>();
-
+		private IList<OrderDocument> _orderDocuments = new List<OrderDocument>();
 		[Display(Name = "Документы заказа")]
-		public virtual IList<OrderDocument> OrderDocuments {
-			get => orderDocuments;
-			set => SetField(ref orderDocuments, value, () => OrderDocuments);
+		public virtual new IList<OrderDocument> OrderDocuments
+		{
+			get => _orderDocuments;
+			set => SetField(ref _orderDocuments, value, () => OrderDocuments);
 		}
 
 		private GenericObservableList<OrderDocument> _observableOrderDocuments;
@@ -917,6 +921,7 @@ namespace Vodovoz.Domain.Orders
 
 			var isCashOrderClose = validationContext.Items.ContainsKey("cash_order_close") && (bool)validationContext.Items["cash_order_close"];
 			var isTransferedAddress = validationContext.Items.ContainsKey("AddressStatus") && (RouteListItemStatus)validationContext.Items["AddressStatus"] == RouteListItemStatus.Transfered;
+			var isCancellingOrder = newStatus.HasValue && newStatus.Value.IsIn(_orderRepository.GetUndeliveryStatuses());
 
 			if(isCashOrderClose
 				&& !isTransferedAddress
@@ -1021,12 +1026,6 @@ namespace Vodovoz.Domain.Orders
 					new[] { this.GetPropertyName(o => o.SelfDeliveryGeoGroup) }
 				);
 			}
-
-			//TODO: убрать из валидации
-			/*if(IsFastDelivery)
-			{
-				AddFastDeliveryNomenclatureIfNeeded();
-			}*/
 
 			if(!PaymentTypesFastDeliveryAvailableFor.Contains(PaymentType) && IsFastDelivery)
 			{
@@ -1171,7 +1170,7 @@ namespace Vodovoz.Domain.Orders
 			#region Проверка кол-ва бутылей по акции Приведи друга
 
 			// Отменять заказ с акцией можно
-			if((newStatus == null || !_orderRepository.GetUndeliveryStatuses().Contains(newStatus.Value))
+			if((newStatus == null || !isCancellingOrder)
 				&& OrderItems.Where(oi => oi.DiscountReason?.Id == _orderSettings.ReferFriendDiscountReasonId).Sum(oi => oi.CurrentCount) is decimal referPromoBottlesInOrderCount
 				&& referPromoBottlesInOrderCount > 0)
 			{
@@ -1201,6 +1200,15 @@ namespace Vodovoz.Domain.Orders
 						new[] { nameof(OrderItems) });
 				}
 			}
+
+			#region Отмена заказа с кодами маркировки
+
+			if(isCancellingOrder && hasReceipts)
+			{
+				yield return new ValidationResult($"По данному заказу уже оформлен и отправлен чек клиенту и отменить его нельзя");
+			}
+
+			#endregion Отмена заказа с кодами маркировки
 		}
 
 		private void CopiedOrderItemsPriceValidation(OrderItem[] currentCopiedItems, List<string> incorrectPriceItems)
@@ -2360,6 +2368,23 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
+		/// Проверка, есть ли в заказе товары типа "Залог"
+		/// </summary>
+		/// <returns></returns>
+		public virtual bool HasDepositItems() =>
+			OrderItems.Any(x =>
+				x.Nomenclature.Category == NomenclatureCategory.deposit);
+
+		/// <summary>
+		/// Проверка, есть ли в заказе товары с бесплатной доставкой
+		/// </summary>
+		/// <returns></returns>
+		public virtual bool HasNonPaidDeliveryItems() =>
+			OrderItems.Any(x =>
+				_nomenclatureSettings.PaidDeliveryNomenclatureId != x.Nomenclature.Id);
+
+
+		/// <summary>
 		/// Проверка на возможность добавления промонабора в заказ
 		/// </summary>
 		/// <returns><c>true</c>, если можно добавить промонабор,
@@ -2867,6 +2892,20 @@ namespace Vodovoz.Domain.Orders
 					break;
 			}
 			UpdateBottleMovementOperation(uow, nomenclatureSettings, 0);
+
+			_orderService.RejectOrderTrueMarkCodes(uow, this.Id);
+		}
+
+		public virtual void CancelDelivery(IUnitOfWork uow, ICallTaskWorker callTaskWorker)
+		{
+			ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
+			_orderService.RejectOrderTrueMarkCodes(uow, this.Id);
+		}
+
+		public virtual void OverdueDelivery(IUnitOfWork uow, ICallTaskWorker callTaskWorker)
+		{
+			ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
+			_orderService.RejectOrderTrueMarkCodes(uow, this.Id);
 		}
 
 		public virtual void ChangeStatusAndCreateTasks(OrderStatus newStatus, ICallTaskWorker callTaskWorker)
@@ -4649,13 +4688,9 @@ namespace Vodovoz.Domain.Orders
 		#region Статические
 
 		public static OrderStatus[] StatusesToExport1c => new[] {
-			OrderStatus.Accepted,
-			OrderStatus.Closed,
-			OrderStatus.InTravelList,
-			OrderStatus.OnLoading,
-			OrderStatus.OnTheWay,
 			OrderStatus.Shipped,
-			OrderStatus.UnloadingOnStock
+			OrderStatus.UnloadingOnStock,			
+			OrderStatus.Closed,					
 		};
 
 		public static PaymentType[] PaymentTypesFastDeliveryAvailableFor => new[]

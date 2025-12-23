@@ -1,6 +1,6 @@
 ﻿using QS.Navigation;
 using QS.Views.GtkUI;
-using Vodovoz.Domain;
+using Vodovoz.Core.Domain.BasicHandbooks;
 using Vodovoz.ViewModels.ViewModels.Rent;
 
 namespace Vodovoz.Views.Rent

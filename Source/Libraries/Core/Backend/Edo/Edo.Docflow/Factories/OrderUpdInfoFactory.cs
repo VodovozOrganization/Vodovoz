@@ -44,7 +44,7 @@ namespace Edo.Docflow.Factories
 			CancellationToken cancellationToken
 			)
 		{
-			var order = documentEdoTask.OrderEdoRequest.Order;
+			var order = documentEdoTask.FormalEdoRequest.Order;
 
 			// предзагрузка для ускорения
 			var productCodes = await _uow.Session.QueryOver<TrueMarkProductCode>()
@@ -52,7 +52,7 @@ namespace Edo.Docflow.Factories
 				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
-				.Where(x => x.CustomerEdoRequest.Id == documentEdoTask.OrderEdoRequest.Id)
+				.Where(x => x.CustomerEdoRequest.Id == documentEdoTask.FormalEdoRequest.Id)
 				.ListAsync();
 
 			var sourceCodes = productCodes
@@ -342,13 +342,19 @@ namespace Edo.Docflow.Factories
 		{
 			var inventPositions = documentEdoTask.UpdInventPositions;
 
-			var client = documentEdoTask.OrderEdoRequest.Order.Client;
+			var client = documentEdoTask.FormalEdoRequest.Order.Client;
 			var products = new List<ProductInfo>();
 
 			foreach(var inventPosition in inventPositions)
 			{
 				var orderItem = inventPosition.AssignedOrderItem;
 				var nomenclature = orderItem.Nomenclature;
+
+				if(nomenclature.Category == NomenclatureCategory.deposit)
+				{
+					continue;
+				}
+
 				var isService = nomenclature.Category == NomenclatureCategory.master
 					|| nomenclature.Category == NomenclatureCategory.service;
 

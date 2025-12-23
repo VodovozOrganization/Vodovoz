@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -996,7 +996,7 @@ SELECT
     afo.reg_number as reg_number,
     afo.car_id as car_id,
     afo.is_fine as is_fine,
-	#Устанавливаем порядоквый номер МЛ за день для сопоставления с транзакциями
+	#Устанавливаем порядковый номер МЛ за день для сопоставления с транзакциями
 	(SELECT COUNT(*)+1 FROM all_fuel_operations WHERE NOT route_list_date IS NULL AND afo.route_list_date = route_list_date AND afo.route_list_id &gt; route_list_id) as daily_rl_number
 FROM
 	all_fuel_operations afo    
@@ -1012,6 +1012,7 @@ SELECT
 	fuel_transactions.quantity as fuel_transactions_quantity,
 	fuel_transactions.total_sum  as fuel_transactions_total_sum,
 	cars.reg_number as reg_number,
+	cars.id as car_id,
 	CONCAT_WS(' ', employees.last_name, employees.name) as driver,
 	gfp.gazprom_product_name as gazprom_product_name
 FROM 
@@ -1039,13 +1040,9 @@ ORDER BY fuel_transactions.transaction_date
 transactions_data AS
 (
 SELECT at.*,
-##Устанавливаем порядоквый номер транзакции за день для сопоставления с МЛ
-(SELECT COUNT(*)+1 FROM all_transactions WHERE at.transaction_date &gt; transaction_date AND transaction_date &gt;= DATE(at.transaction_date)) as daily_transaction_number,
-cars.id AS car_id
+##Устанавливаем порядковый номер транзакции за день для сопоставления с МЛ
+(SELECT COUNT(*)+1 FROM all_transactions WHERE at.transaction_date &gt; transaction_date AND transaction_date &gt;= DATE(at.transaction_date)) as daily_transaction_number
 FROM all_transactions at
-LEFT JOIN fuel_cards ON fuel_cards.card_id = at.card_id
-LEFT JOIN fuel_card_versions ON fuel_cards.id = fuel_card_versions.fuel_card_id
-LEFT JOIN cars ON fuel_card_versions.car_id = cars.id
 ),
 
 #Совмещаем данные по МЛ и данные по транзакциям. Выполняем LEFT JOIN, поэтому часть транзакций в выборку не попадет

@@ -23,6 +23,12 @@ namespace Vodovoz.Core.Domain.Edo
 		Receipt,
 
 		/// <summary>
+		/// Задача отправки неформализованного документа заказа
+		/// </summary>
+		[Display(Name = "Неформализованный документ заказа")]
+		InformalOrderDocument,
+
+		/// <summary>
 		/// Задача сохранения кодов
 		/// </summary>
 		[Display(Name = "Сохранение кодов")]

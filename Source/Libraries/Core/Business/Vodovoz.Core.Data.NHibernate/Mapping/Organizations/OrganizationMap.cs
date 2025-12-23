@@ -73,6 +73,12 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Organizations
 			References(x => x.DefaultAccount)
 				.Column("default_account_id")
 				.Access.CamelCaseField(Prefix.None);
+			
+			HasMany(x => x.VatRateVersions)
+				.Cascade.AllDeleteOrphan()
+				.LazyLoad()
+				.KeyColumn("organization_id")
+				.OrderBy("start_date DESC");
 
 			HasOne(x => x.TaxcomEdoSettings)
 				.PropertyRef(x => x.OrganizationId);

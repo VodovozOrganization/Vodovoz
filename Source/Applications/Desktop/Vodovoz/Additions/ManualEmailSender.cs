@@ -7,6 +7,7 @@ using System.Linq;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
+using VodovozBusiness.Domain.StoredEmails;
 using VodovozInfrastructure.Configuration;
 
 namespace Vodovoz.Additions
@@ -175,6 +176,18 @@ namespace Vodovoz.Additions
 									};
 
 									unitOfWork.Save(orderDocumentEmail);
+
+									break;
+
+								case CounterpartyEmailType.EquipmentTransfer:
+									var equipmentTransferDocumentEmail = new EquipmentTransferDocumentEmail
+									{
+										StoredEmail = storedEmail,
+										Counterparty = sendedEmail.Counterparty,
+										OrderDocument = ((EquipmentTransferDocumentEmail)sendedEmail).OrderDocument
+									};
+
+									unitOfWork.Save(equipmentTransferDocumentEmail);
 
 									break;
 

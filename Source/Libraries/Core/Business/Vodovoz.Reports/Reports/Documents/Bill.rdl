@@ -1705,7 +1705,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
       <Textbox Name="Textbox15" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>17.26pt</Height>
         <Width>500.69pt</Width>
-        <Value>='Счет № ' + First({order_id}, 'Order') + ' от ' + First({bill_date}, 'Order') + ' ' + Iif(String.IsNullOrEmpty({?special_contract_number}), '', {?special_contract_number})</Value>
+        <Value>='Счет № ' + First({order_id}, 'Order') + ' от ' + First({bill_date}, 'Order')</Value>
         <ZIndex>0</ZIndex>
         <Left>39.2pt</Left>
         <Top>230.3pt</Top>

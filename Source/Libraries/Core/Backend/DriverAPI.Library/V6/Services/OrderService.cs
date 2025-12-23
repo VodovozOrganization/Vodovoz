@@ -407,7 +407,7 @@ namespace DriverAPI.Library.V6.Services
 			await _uow.SaveAsync(routeListAddress);
 			await _uow.SaveAsync(routeList);
 
-			var edoRequest = _uow.Session.Query<OrderEdoRequest>()
+			var edoRequest = _uow.Session.Query<PrimaryEdoRequest>()
 				.Where(x => x.Order.Id == vodovozOrder.Id)
 				.Take(1)
 				.SingleOrDefault();
@@ -433,9 +433,9 @@ namespace DriverAPI.Library.V6.Services
 			return Result.Success();
 		}
 
-		private OrderEdoRequest CreateEdoRequests(Order vodovozOrder, RouteListItem routeListAddress)
+		private PrimaryEdoRequest CreateEdoRequests(Order vodovozOrder, RouteListItem routeListAddress)
 		{
-			var edoRequest = new OrderEdoRequest
+			var edoRequest = new PrimaryEdoRequest
 			{
 				Time = DateTime.Now,
 				Source = CustomerEdoRequestSource.Driver,
@@ -1168,8 +1168,11 @@ namespace DriverAPI.Library.V6.Services
 			CancellationToken cancellationToken,
 			bool isCheckForCodeChange = false)
 		{
-			var trueMarkCodeResult =
-				await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(uow, scannedCode, cancellationToken);
+			var trueMarkCodeResult = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(
+				uow,
+				scannedCode,
+				cancellationToken
+			);
 
 			if(trueMarkCodeResult.IsFailure)
 			{
@@ -1185,7 +1188,8 @@ namespace DriverAPI.Library.V6.Services
 				});
 			}
 
-			var aggregationValidationResult = _routeListItemTrueMarkProductCodesProcessingService.ValidateTrueMarkCodeIsInAggregationCode(trueMarkCodeResult.Value);
+			var aggregationValidationResult = _routeListItemTrueMarkProductCodesProcessingService
+				.ValidateTrueMarkCodeIsInAggregationCode(trueMarkCodeResult.Value);
 
 			if(aggregationValidationResult.IsFailure)
 			{
@@ -1290,14 +1294,15 @@ namespace DriverAPI.Library.V6.Services
 				.Where(x => x.IsTrueMarkWaterIdentificationCode)
 				.Select(x => x.TrueMarkWaterIdentificationCode);
 
-			var codeCheckingResult = await _routeListItemTrueMarkProductCodesProcessingService.IsTrueMarkCodeCanBeAddedToRouteListItem(
-				uow,
-				instanceCodes,
-				routeListAddress,
-				vodovozOrderItem,
-				cancellationToken,
-				isCheckForCodeChange
-			);
+			var codeCheckingResult = await _routeListItemTrueMarkProductCodesProcessingService
+				.IsTrueMarkCodeCanBeAddedToRouteListItem(
+					uow,
+					instanceCodes,
+					routeListAddress,
+					vodovozOrderItem,
+					cancellationToken,
+					isCheckForCodeChange
+				);
 
 			if(codeCheckingResult.IsFailure)
 			{

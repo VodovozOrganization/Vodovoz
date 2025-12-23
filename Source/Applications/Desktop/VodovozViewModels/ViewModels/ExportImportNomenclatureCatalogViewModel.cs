@@ -26,14 +26,17 @@ using QS.Navigation;
 using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
+using Vodovoz.Core.Domain.Cash;
+using Vodovoz.Core.Domain.BasicHandbooks;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Users;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Goods;
+using VodovozBusiness.Controllers.Cash;
 
 namespace Vodovoz.ViewModels
 {
@@ -336,7 +339,6 @@ namespace Vodovoz.ViewModels
 				SetProgressBar(cnt / 50, itemsToSave.Count());
 				foreach(NomenclatureCatalogNode node in itemsToSave) {
 					var newNomenclature = new Nomenclature();
-					newNomenclature.VAT = VAT.Vat20;
 					newNomenclature.Code1c = nomenclatureRepository.GetNextCode1c(UoW);
 					newNomenclature.Name = node.Name;
 					newNomenclature.OfficialName = node.Name;

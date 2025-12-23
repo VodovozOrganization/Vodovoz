@@ -1,11 +1,13 @@
-﻿using System;
-using System.Globalization;
+﻿using Fias.Client.Loaders;
+using GeoCoderApi.Client;
 using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
 using GMap.NET.MapProviders;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.UoW;
+using System;
+using System.Globalization;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
@@ -18,14 +20,42 @@ namespace Vodovoz.Dialogs.Sale
 		private Gtk.Clipboard _clipboard = Gtk.Clipboard.Get(Gdk.Atom.Intern("CLIPBOARD", false));
 		private readonly GMapOverlay _addressOverlay = new GMapOverlay();
 		private readonly IDeliveryPriceCalculator _deliveryPriceCalculator;
+		private readonly IGeoCoderApiClient _geoCoderApiClient;
 		private GMapMarker _addressMarker;
 		private decimal? _latitude;
 		private decimal? _longitude;
 		private IUnitOfWork _unitOfWork;
 
-		public DeliveryPriceDlg(IUnitOfWorkFactory unitOfWorkFactory, IDeliveryPriceCalculator deliveryPriceCalculator)
+		public DeliveryPriceDlg(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IDeliveryPriceCalculator deliveryPriceCalculator,
+			ICitiesDataLoader citiesDataLoader,
+			IStreetsDataLoader streetsDataLoader,
+			IHousesDataLoader housesDataLoader,
+			IGeoCoderApiClient geoCoderApiClient)
 		{
+			if(unitOfWorkFactory is null)
+			{
+				throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			}
+
+			if(citiesDataLoader is null)
+			{
+				throw new ArgumentNullException(nameof(citiesDataLoader));
+			}
+
+			if(streetsDataLoader is null)
+			{
+				throw new ArgumentNullException(nameof(streetsDataLoader));
+			}
+
+			if(housesDataLoader is null)
+			{
+				throw new ArgumentNullException(nameof(housesDataLoader));
+			}
+
 			_deliveryPriceCalculator = deliveryPriceCalculator ?? throw new ArgumentNullException(nameof(deliveryPriceCalculator));
+			_geoCoderApiClient = geoCoderApiClient ?? throw new ArgumentNullException(nameof(geoCoderApiClient));
 
 			Build();
 
@@ -34,25 +64,13 @@ namespace Vodovoz.Dialogs.Sale
 			_unitOfWork = unitOfWorkFactory.CreateWithoutRoot(TabName);
 			_unitOfWork.Session.DefaultReadOnly = true;
 
-			entryCity.CitySelected += (sender, e) => {
-				entryStreet.CityGuid = entryCity.FiasGuid;
-				entryStreet.StreetTypeName = string.Empty;
-				entryStreet.StreetTypeNameShort = string.Empty;
-				entryStreet.StreetName = string.Empty;
-				entryStreet.StreetDistrict = string.Empty;
-				entryStreet.FireStreetChange();
-				entryBuilding.StreetGuid = null;
-				entryBuilding.CityGuid = entryCity.FiasGuid;
-				entryBuilding.BuildingName = string.Empty;
-			};
+			entryCity.CitiesDataLoader = citiesDataLoader;
+			entryStreet.StreetsDataLoader = streetsDataLoader;
+			entryBuilding.HousesDataLoader = housesDataLoader;
 
-			entryStreet.StreetSelected += (sender, e) =>
-			{
-				entryBuilding.StreetGuid = entryStreet.FiasGuid;
-			};
-
-			entryBuilding.CompletionLoaded += EntryBuilding_Changed;
-			entryBuilding.Changed += EntryBuilding_Changed;
+			entryCity.CitySelected += EntryCityOnCitySelected;
+			entryStreet.StreetSelected += EntryStreetOnStreetSelected;
+			entryBuilding.FocusOutEvent += EntryBuildingOnFocusOutEvent;
 
 			//Configure map
 			MapWidget.MapProvider = GMapProviders.GoogleMap;
@@ -69,37 +87,127 @@ namespace Vodovoz.Dialogs.Sale
 				MapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)args.SelectedItem);
 		}
 
-		public DeliveryPriceDlg(IUnitOfWorkFactory unitOfWorkFactory, IDeliveryPriceCalculator deliveryPriceCalculator, DeliveryPoint deliveryPoint) : this(unitOfWorkFactory, deliveryPriceCalculator)
+		public DeliveryPriceDlg(
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IDeliveryPriceCalculator deliveryPriceCalculator,
+			DeliveryPoint deliveryPoint,
+			ICitiesDataLoader citiesDataLoader,
+			IStreetsDataLoader streetsDataLoader,
+			IHousesDataLoader housesDataLoader,
+			IGeoCoderApiClient geoCoderApiClient)
+			: this(unitOfWorkFactory, deliveryPriceCalculator, citiesDataLoader, streetsDataLoader, housesDataLoader, geoCoderApiClient)
 		{
 			SetCoordinates(deliveryPoint.Latitude, deliveryPoint.Longitude);
-			deliverypriceview.DeliveryPrice = _deliveryPriceCalculator.Calculate(_latitude, _longitude, yspinBottles.ValueAsInt);
+			UpdatePriceData();
 		}
 
-		private void EntryBuilding_Changed(object sender, EventArgs e)
+		private void EntryStreetOnStreetSelected(object sender, EventArgs e)
 		{
-			if(entryBuilding.FiasCompletion.HasValue && entryBuilding.FiasCompletion.Value) {
+			entryBuilding.StreetGuid = entryStreet.FiasGuid;
+			entryBuilding.BuildingName = string.Empty;
+		}
+
+		private void EntryCityOnCitySelected(object sender, EventArgs e)
+		{
+			ClearStreet();
+			ClearBuilding();
+
+			entryStreet.CityGuid = entryCity.FiasGuid;
+			entryStreet.FireStreetChange();
+			entryBuilding.CityGuid = entryCity.FiasGuid;
+		}
+
+		private void ClearCity()
+		{
+			entryCity.FiasGuid = null;
+			entryCity.CityName = string.Empty;
+			entryCity.Text = string.Empty;
+		}
+
+		private void ClearBuilding()
+		{
+			entryStreet.CityGuid = null;
+			entryStreet.StreetTypeName = string.Empty;
+			entryStreet.StreetTypeNameShort = string.Empty;
+			entryStreet.StreetName = string.Empty;
+			entryStreet.StreetDistrict = string.Empty;
+			entryStreet.FireStreetChange();
+		}
+
+		private void ClearStreet()
+		{
+			entryBuilding.StreetGuid = null;
+			entryBuilding.CityGuid = null;
+			entryBuilding.BuildingName = string.Empty;
+		}
+
+		private void EntryBuildingOnFocusOutEvent(object sender, EventArgs e)
+		{
+			if(entryBuilding.FiasCompletion.HasValue && entryBuilding.FiasCompletion.Value)
+			{
 				entryBuilding.GetCoordinates(out decimal? lng, out decimal? lat);
+
+				if(!string.IsNullOrWhiteSpace(entryBuilding.BuildingName)
+					|| lng == null
+					|| lat == null)
+				{
+					var (Latitude, Longitude) = UpdateCoordinatesFromGeoCoder();
+					lat = Latitude;
+					lng = Longitude;
+				}
+
 				SetCoordinates(lat, lng);
-				deliverypriceview.DeliveryPrice = _deliveryPriceCalculator.Calculate(_latitude, _longitude, yspinBottles.ValueAsInt);
+				UpdatePriceData();
 			}
+		}
+
+		public (decimal? Latitude, decimal? Longitude) UpdateCoordinatesFromGeoCoder()
+		{
+			decimal? latitude = null;
+			decimal? longitude = null;
+
+			var address =
+				$"{entryCity.CityName}, {entryStreet.StreetName} {entryStreet.StreetTypeNameShort}, {entryBuilding.BuildingName}";
+
+			try
+			{
+				var findedByGeoCoder = _geoCoderApiClient.GetCoordinateAtAddressAsync(address).GetAwaiter().GetResult();
+
+				if(findedByGeoCoder != null)
+				{
+					latitude = findedByGeoCoder.Latitude;
+					longitude = findedByGeoCoder.Longitude;
+				}
+			}
+			catch(Exception ex)
+			{
+				MessageDialogHelper.RunErrorDialog(
+					"Произошла ошибка при запросе координат в геокодере");
+			}
+
+			return (latitude, longitude);
 		}
 
 		protected void OnButtonInsertFromBufferClicked(object sender, EventArgs e)
 		{
+			ClearCity();
+			ClearStreet();
+			ClearBuilding();
+
 			bool error = true;
 
 			string booferCoordinates = _clipboard.WaitForText();
 
 			string[] coordinates = booferCoordinates?.Split(',');
-			if(coordinates?.Length == 2) {
+			if(coordinates?.Length == 2)
+			{
 				bool goodLat = decimal.TryParse(coordinates[0].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out decimal lat);
 				bool goodLon = decimal.TryParse(coordinates[1].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out decimal lng);
 				SetCoordinates(lat, lng);
 
-				if(goodLat && goodLon) {
-					var price = _deliveryPriceCalculator.Calculate(_latitude, _longitude, yspinBottles.ValueAsInt);
-					deliverypriceview.District = _unitOfWork.GetById<District>(price.DistrictId);
-					deliverypriceview.DeliveryPrice = price;
+				if(goodLat && goodLon)
+				{
+					UpdatePriceData();
 					error = false;
 				}
 			}
@@ -110,17 +218,26 @@ namespace Vodovoz.Dialogs.Sale
 			}
 		}
 
+		private void UpdatePriceData()
+		{
+			var price = _deliveryPriceCalculator.Calculate(_latitude, _longitude, yspinBottles.ValueAsInt);
+			deliverypriceview.District = _unitOfWork.GetById<District>(price.DistrictId);
+			deliverypriceview.DeliveryPrice = price;
+		}
+
 		private void SetCoordinates(decimal? lat, decimal? lng)
 		{
 			_latitude = lat;
 			_longitude = lng;
 
-			if(_addressMarker != null) {
+			if(_addressMarker != null)
+			{
 				_addressOverlay.Markers.Clear();
 				_addressMarker = null;
 			}
 
-			if(_latitude.HasValue && _longitude.HasValue) {
+			if(_latitude.HasValue && _longitude.HasValue)
+			{
 				_addressMarker = new GMarkerGoogle(new PointLatLng((double)_latitude.Value, (double)_longitude.Value),
 					GMarkerGoogleType.arrow);
 				_addressOverlay.Markers.Add(_addressMarker);
@@ -142,6 +259,12 @@ namespace Vodovoz.Dialogs.Sale
 		protected void OnYspinBottlesValueChanged(object sender, EventArgs e)
 		{
 			deliverypriceview.DeliveryPrice = _deliveryPriceCalculator.Calculate(_latitude, _longitude, yspinBottles.ValueAsInt);
+		}
+
+		public override void Destroy()
+		{
+			_unitOfWork?.Dispose();
+			base.Destroy();
 		}
 	}
 }

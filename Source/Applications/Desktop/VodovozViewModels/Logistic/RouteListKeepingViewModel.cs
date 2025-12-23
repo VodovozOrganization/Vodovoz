@@ -1,4 +1,4 @@
-using DriverApi.Contracts.V6;
+﻿using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Requests;
 using Edo.Transport;
 using Gamma.Utilities;
@@ -24,6 +24,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Vodovoz.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
@@ -83,12 +84,14 @@ namespace Vodovoz
 		private readonly ViewModelEEVMBuilder<Employee> _driverViewModelEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Employee> _forwarderViewModelEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Employee> _logisticianViewModelEEVMBuilder;
-		private readonly IDictionary<int, (bool Pushed, OrderEdoRequest Request)> _createdOrderEdoRequests =
-			new Dictionary<int, (bool Pushed, OrderEdoRequest Request)>();
+		private readonly IDictionary<int, (bool Pushed, PrimaryEdoRequest Request)> _createdOrderEdoRequests =
+			new Dictionary<int, (bool Pushed, PrimaryEdoRequest Request)>();
+		private readonly List<Action> _cancellationRequestActions = new List<Action>();
 		private readonly IEdoSettings _edoSettings;
 		private readonly MessageService _edoMessageService;
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender;
+		private readonly OrderCancellationService _orderCancellationService;
 		private bool _canClose = true;
 		private IEnumerable<object> _selectedRouteListAddressesObjects = Enumerable.Empty<object>();
 		private RouteListItemStatus _routeListItemStatusToChange;
@@ -121,7 +124,9 @@ namespace Vodovoz
 			ICounterpartyEdoAccountController edoAccountController,
 			IRouteListChangesNotificationSender routeListChangesNotificationSender,
 			IOrderContractUpdater orderContractUpdater,
-			IRouteListService routeListService)
+			IRouteListService routeListService,
+			OrderCancellationService orderCancellationService
+			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -148,6 +153,8 @@ namespace Vodovoz
 			_routeListChangesNotificationSender = routeListChangesNotificationSender ?? throw new ArgumentNullException(nameof(routeListChangesNotificationSender));
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
+			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
+
 			TabName = $"Ведение МЛ №{Entity.Id}";
 
 			_permissionResult = _currentPermissionService.ValidateEntityPermission(typeof(RouteList));
@@ -521,13 +528,30 @@ namespace Vodovoz
 					return;
 				}
 
+				var permit = _orderCancellationService.CanCancelOrder(UoW, rli.RouteListItem.Order);
+				switch(permit.Type)
+				{
+					case OrderCancellationPermitType.AllowCancelDocflow:
+						if(permit.EdoTaskToCancellationId == null)
+						{
+							throw new InvalidOperationException("Для аннулирования документооборота должен быть указан идентификатор ЭДО задачи.");
+						}
+						_orderCancellationService.CancelDocflowByUser(rli.RouteListItem.Order, permit.EdoTaskToCancellationId.Value);
+						return;
+					case OrderCancellationPermitType.AllowCancelOrder:
+						break;
+					case OrderCancellationPermitType.Deny:
+					default:
+						return;
+				}
+
 				_undeliveryViewModel = NavigationManager.OpenViewModel<UndeliveryViewModel>(
 					this,
 					OpenPageOptions.AsSlave,
 					vm =>
 					{
 						vm.Saved += OnUndeliveryViewModelSaved;
-						vm.Initialize(rli.RouteListItem.RouteList.UoW, rli.RouteListItem.Order.Id);
+						vm.Initialize(rli.RouteListItem.RouteList.UoW, rli.RouteListItem.Order.Id, cancellationPermit: permit);
 					}
 					).ViewModel;
 
@@ -662,6 +686,17 @@ namespace Vodovoz
 					.Where(x => x.Code == Errors.Logistics.RouteListErrors.RouteListItem.TransferTypeNotSet)
 					.Select(x => x.Message))
 					);
+			}
+
+			var allowCancellation = e.CancellationPermit.Type == OrderCancellationPermitType.AllowCancelOrder;
+			var hasEdoTaskToCancellationId = e.CancellationPermit.EdoTaskToCancellationId != null;
+			if(allowCancellation && hasEdoTaskToCancellationId)
+			{
+				_cancellationRequestActions.Add(() => _orderCancellationService.AutomaticCancelDocflow(
+					UoW,
+					e.UndeliveredOrder.OldOrder,
+					e.CancellationPermit.EdoTaskToCancellationId.Value
+				));
 			}
 		}
 
@@ -801,6 +836,16 @@ namespace Vodovoz
 					}
 				});
 			}
+
+			if(_cancellationRequestActions.Any())
+			{
+				foreach(var cancellationAction in _cancellationRequestActions)
+				{
+					cancellationAction.Invoke();
+				}
+
+				_cancellationRequestActions.Clear();
+			}
 		}
 
 		#endregion
@@ -880,7 +925,7 @@ namespace Vodovoz
 		}
 		
 		private void UpdateCreatedEdoRequests(
-			OrderEdoRequest request,
+			PrimaryEdoRequest request,
 			RouteListItemStatus addressStatus = RouteListItemStatus.Completed)
 		{
 			var hasRequest = _createdOrderEdoRequests.ContainsKey(request.Order.Id);
@@ -899,11 +944,11 @@ namespace Vodovoz
 			}
 		}
 
-		private static OrderEdoRequest CreateOrderRequest(
+		private static PrimaryEdoRequest CreateOrderRequest(
 			RouteListKeepingItemNode item,
 			IObservableList<RouteListItemTrueMarkProductCode> codes)
 		{
-			return new OrderEdoRequest
+			return new PrimaryEdoRequest
 			{
 				Order = item.RouteListItem.Order,
 				Source = CustomerEdoRequestSource.Manual,
@@ -916,7 +961,7 @@ namespace Vodovoz
 
 		private bool HasEdoRequest(int orderId)
 		{
-			return UoW.GetAll<OrderEdoRequest>()
+			return UoW.GetAll<FormalEdoRequest>()
 				.FirstOrDefault(x => x.Order.Id == orderId) != null;
 		}
 

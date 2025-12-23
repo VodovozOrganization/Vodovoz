@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using CustomerOnlineOrdersRegistrar.Factories;
 using CustomerOrdersApi.Library.Dto.Orders;
 using Gamma.Utilities;
@@ -14,6 +13,7 @@ using Vodovoz.Settings.Orders;
 using System.Threading.Tasks;
 using System.Threading;
 using Vodovoz.Services.Logistics;
+using Vodovoz.Services.Orders;
 
 namespace CustomerOnlineOrdersRegistrar.Consumers
 {
@@ -27,6 +27,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 		private readonly IOnlineOrderCancellationReasonSettings _onlineOrderCancellationReasonSettings;
 		private readonly IOrderService _orderService;
 		private readonly IRouteListService _routeListService;
+		private readonly IOrderFromOnlineOrderValidator _onlineOrderValidator;
 
 		protected ILogger<OnlineOrderConsumer> Logger { get; }
 
@@ -39,7 +40,8 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IOnlineOrderRepository onlineOrderRepository,
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
 			IOrderService orderService,
-			IRouteListService routeListService
+			IRouteListService routeListService,
+			IOrderFromOnlineOrderValidator onlineOrderValidator
 			)
 		{
 			Logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -52,6 +54,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 				onlineOrderCancellationReasonSettings ?? throw new ArgumentNullException(nameof(onlineOrderCancellationReasonSettings));
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
+			_onlineOrderValidator = onlineOrderValidator ?? throw new ArgumentNullException(nameof(onlineOrderValidator));
 		}
 		
 		protected virtual async Task TryRegisterOnlineOrderAsync(OnlineOrderInfoDto message, CancellationToken cancellationToken)
@@ -66,25 +69,33 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 					_discountReasonSettings.GetSelfDeliveryDiscountReasonId
 				);
 				
+				var validationResult = _onlineOrderValidator.ValidateOnlineOrder(uow, onlineOrder);
 				var externalOrderId = message.ExternalOrderId;
-				var needCancelOnlineOrder = NeedCancelOnlineOrder(uow, onlineOrder);
+				var needSpecialProcessingDuplicate = NeedSpecialProcessingDuplicate(uow, onlineOrder);
 
-				if(needCancelOnlineOrder)
+				if(needSpecialProcessingDuplicate != null)
 				{
-					Logger.LogInformation("Пришел возможный дубль {ExternalOrderId} отменяем", externalOrderId);
-					onlineOrder.OnlineOrderStatus = OnlineOrderStatus.Canceled;
-					var cancellationReasonId = _onlineOrderCancellationReasonSettings.GetDuplicateOnlineOrderCancellationReasonId;
-					onlineOrder.OnlineOrderCancellationReason = await uow.Session
-						.GetAsync<OnlineOrderCancellationReason>(cancellationReasonId, cancellationToken);
+					if(needSpecialProcessingDuplicate == OnlineOrderDuplicateProcess.NeedCancel)
+					{
+						Logger.LogInformation("Пришел возможный дубль {ExternalOrderId} отменяем", externalOrderId);
+						onlineOrder.OnlineOrderStatus = OnlineOrderStatus.Canceled;
+						var cancellationReasonId = _onlineOrderCancellationReasonSettings.GetDuplicateOnlineOrderCancellationReasonId;
+						onlineOrder.OnlineOrderCancellationReason = await uow.Session
+							.GetAsync<OnlineOrderCancellationReason>(cancellationReasonId, cancellationToken);
 					
-					var notification = OnlineOrderStatusUpdatedNotification.Create(onlineOrder);
-					await uow.SaveAsync(notification, cancellationToken: cancellationToken);
+						var notification = OnlineOrderStatusUpdatedNotification.Create(onlineOrder);
+						await uow.SaveAsync(notification, cancellationToken: cancellationToken);
+					}
+					else
+					{
+						Logger.LogInformation("Пришел возможный дубль {ExternalOrderId} отправляем на ручное", externalOrderId);
+					}
 				}
 
 				await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
 				await uow.CommitAsync(cancellationToken);
 
-				if(needCancelOnlineOrder)
+				if(needSpecialProcessingDuplicate != null)
 				{
 					return;
 				}
@@ -100,12 +111,15 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 				
 				try
 				{
-					orderId = await _orderService.TryCreateOrderFromOnlineOrderAndAcceptAsync(
-						uow,
-						onlineOrder,
-						_routeListService,
-						cancellationToken
-					);
+					if(validationResult.IsSuccess)
+					{
+						orderId = await _orderService.TryCreateOrderFromOnlineOrderAndAcceptAsync(
+							uow,
+							onlineOrder,
+							_routeListService,
+							cancellationToken
+						);
+					}
 				}
 				catch(Exception e)
 				{
@@ -145,7 +159,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			}
 		}
 
-		private bool NeedCancelOnlineOrder(IUnitOfWork uow, OnlineOrder onlineOrder)
+		private OnlineOrderDuplicateProcess? NeedSpecialProcessingDuplicate(IUnitOfWork uow, OnlineOrder onlineOrder)
 		{
 			// Необходимо сделать асинхронным
 			var clientOnlineOrdersDuplicates = _onlineOrderRepository.GetOnlineOrdersDuplicates(
@@ -154,8 +168,40 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 				DateTime.Today
 			);
 
-			return clientOnlineOrdersDuplicates.Any(duplicate =>
-				duplicate.OnlineOrderStatus is OnlineOrderStatus.New or OnlineOrderStatus.OrderPerformed);
+			var needCancel = false;
+			var toManualProcessing = false;
+
+			foreach(var duplicateOrder in clientOnlineOrdersDuplicates)
+			{
+				if(duplicateOrder.OnlineOrderStatus is not (OnlineOrderStatus.New or OnlineOrderStatus.OrderPerformed))
+				{
+					continue;
+				}
+
+				if(duplicateOrder.OnlineOrderPaymentType == onlineOrder.OnlineOrderPaymentType
+					&& duplicateOrder.OnlinePayment == onlineOrder.OnlinePayment)
+				{
+					needCancel = true;
+				}
+				
+				if(duplicateOrder.OnlineOrderPaymentType != onlineOrder.OnlineOrderPaymentType
+					|| duplicateOrder.OnlinePayment != onlineOrder.OnlinePayment)
+				{
+					toManualProcessing = true;
+				}
+			}
+
+			if(needCancel)
+			{
+				return OnlineOrderDuplicateProcess.NeedCancel;
+			}
+			
+			if(toManualProcessing)
+			{
+				return OnlineOrderDuplicateProcess.ToManualProcessing;
+			}
+
+			return null;
 		}
 	}
 }

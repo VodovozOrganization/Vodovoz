@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 {
@@ -38,6 +38,13 @@ namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 		/// Код сохранен в пул
 		/// </summary>
 		[Display(Name = "Сохранен в пул")]
-		SavedToPool
+		SavedToPool,
+
+		/// <summary>
+		/// Код отклонен <br/>
+		/// Использование кода невозможно, так как заказ был отменен
+		/// </summary>
+		[Display(Name = "Отклонен")]
+		Rejected
 	}
 }

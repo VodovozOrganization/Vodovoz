@@ -104,9 +104,11 @@ namespace Vodovoz.Organizations
 			phonesview1.Phones = ViewModel.Entity.Phones;
 
 			versionsView.ViewModel = ViewModel.OrganizationVersionsViewModel;
-
+			
 			radioTabInfo.Toggled += OnRadioTabInfoToggled;
 			radioTabAccounts.Toggled += OnRadioTabAccountsToggled;
+
+			vatRateVersionForOrganizationView.ViewModel = ViewModel.VatRateOrganizationVersionViewModel;
 		}
 
 		private void OnSaveButtonClicked(object sender, EventArgs e)

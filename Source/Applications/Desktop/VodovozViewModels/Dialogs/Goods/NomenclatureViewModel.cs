@@ -21,7 +21,9 @@ using System.Text;
 using System.Threading;
 using System.Windows.Input;
 using Vodovoz.Application.FileStorage;
+using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
@@ -36,11 +38,15 @@ using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModelBased;
 using Vodovoz.ViewModels.Dialogs.Nodes;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Goods.ProductGroups;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.Widgets.Cash;
 using Vodovoz.ViewModels.Widgets.Goods;
 using VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters;
 using VodovozBusiness.Services;
@@ -60,6 +66,9 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private readonly INomenclatureService _nomenclatureService;
 		private readonly INomenclatureFileStorageService _nomenclatureFileStorageService;
 		private readonly ViewModelEEVMBuilder<ProductGroup> _productGroupEEVMBuilder;
+		private readonly IVatRateVersionViewModelFactory _vatRateVersionViewModelFactory;
+		private readonly ViewModelEEVMBuilder<VatRate> _vatRateEevmBuilder;
+
 		private ILifetimeScope _lifetimeScope;
 		private readonly IInteractiveService _interactiveService;
 		private NomenclatureOnlineParameters _mobileAppNomenclatureOnlineParameters;
@@ -99,7 +108,9 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			INomenclatureFileStorageService nomenclatureFileStorageService,
 			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
 			IGenericRepository<RobotMiaParameters> robotMiaParametersRepository,
-			ViewModelEEVMBuilder<ProductGroup> productGroupEEVMBuilder)
+			ViewModelEEVMBuilder<ProductGroup> productGroupEEVMBuilder, 
+			IVatRateVersionViewModelFactory vatRateVersionViewModelFactory,
+			ViewModelEEVMBuilder<VatRate> vatRateEevmBuilder)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
 			if(nomenclatureSettings is null)
@@ -128,7 +139,12 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			_nomenclatureFileStorageService = nomenclatureFileStorageService ?? throw new ArgumentNullException(nameof(nomenclatureFileStorageService));
 			_robotMiaParametersRepository = robotMiaParametersRepository ?? throw new ArgumentNullException(nameof(robotMiaParametersRepository));
 			_productGroupEEVMBuilder = productGroupEEVMBuilder ?? throw new ArgumentNullException(nameof(productGroupEEVMBuilder));
+			_vatRateVersionViewModelFactory = vatRateVersionViewModelFactory ?? throw new ArgumentNullException(nameof(vatRateVersionViewModelFactory));
+			_vatRateEevmBuilder = vatRateEevmBuilder ?? throw new ArgumentNullException(nameof(vatRateEevmBuilder));
 
+			VatRateNomenclatureVersionViewModel =
+				_vatRateVersionViewModelFactory.CreateVatRateVersionViewModel(Entity, this, _vatRateEevmBuilder, UoW,CanEdit);
+			
 			RouteColumnViewModel = BuildRouteColumnEntryViewModel();
 			ProductGroupEntityEntryViewModel = CreateProductGroupEEVM();
 
@@ -182,6 +198,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEntityEntryViewModel RouteColumnViewModel { get; }
 		public IEntityEntryViewModel ProductGroupEntityEntryViewModel { get; }
+		
+		public VatRateNomenclatureVersionViewModel VatRateNomenclatureVersionViewModel { get; }
 
 		public GenericObservableList<NomenclatureOnlinePricesNode> NomenclatureOnlinePrices { get; }
 			= new GenericObservableList<NomenclatureOnlinePricesNode>();
@@ -670,7 +688,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 			return viewModel;
 		}
-
+		
 		private void ConfigureEntityPropertyChanges()
 		{
 			SetPropertyChangeRelation(
