@@ -5,7 +5,6 @@
 	/// </summary>
 	public class WorkingDayService : IWorkingDayService
 	{
-
 		private static readonly TimeSpan _workDayStart = TimeSpan.FromHours(9);
 		private static readonly TimeSpan _workDayEnd = TimeSpan.FromHours(18);
 

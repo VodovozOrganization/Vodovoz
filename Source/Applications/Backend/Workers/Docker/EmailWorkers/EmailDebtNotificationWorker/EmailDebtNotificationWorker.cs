@@ -13,7 +13,7 @@ namespace EmailDebtNotificationWorker
 		private readonly IWorkingDayService _workingDayService;
 
 		private bool _initialized = false;
-		protected override TimeSpan Interval { get; } = TimeSpan.FromSeconds(120);
+		protected override TimeSpan Interval { get; } = TimeSpan.FromSeconds(5);
 
 		public EmailDebtNotificationWorker(
 			ILogger<EmailDebtNotificationWorker> logger,

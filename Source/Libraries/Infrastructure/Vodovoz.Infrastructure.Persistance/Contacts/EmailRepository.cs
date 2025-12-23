@@ -1,11 +1,8 @@
-﻿using ClosedXML.Excel;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
-using NHibernate.Linq;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
-using NPOI.SS.Formula.Functions;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -25,8 +22,6 @@ using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
-using Vodovoz.Settings.Organizations;
-using VodovozBusiness.Domain.Client;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Contacts
@@ -34,14 +29,11 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 	internal sealed class EmailRepository : IEmailRepository
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly IOrganizationSettings _organizationSettings;
 
 		public EmailRepository(
-			IUnitOfWorkFactory uowFactory,
-			IOrganizationSettings organizationSettings)
+			IUnitOfWorkFactory uowFactory)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 		}
 
 		public StoredEmail GetById(IUnitOfWork unitOfWork, int id)
@@ -455,15 +447,14 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 			BulkEmailEvent bulkEmailEventAlias = null;
 			BulkEmailOrder bulkEmailOrderAlias = null;
 
-			var lastUnsubscribeSubQuery = QueryOver.Of<BulkEmailEvent>()
-				.Where(bee2 => bee2.Type == BulkEmailEvent.BulkEmailEventType.Unsubscribing)
-				.Select(Projections.Max<BulkEmailEvent>(bee2 => bee2.ActionTime));
+			var lastEventIdSubQuery = QueryOver.Of<BulkEmailEvent>()
+				.Where(bee2 => bee2.Counterparty.Id == counterpartyAlias.Id)
+				.Select(Projections.Max<BulkEmailEvent>(bee2 => bee2.Id));
 
 			var isClientUnsubscribedSubQuery = QueryOver.Of(() => bulkEmailEventAlias)
 				.Where(() => bulkEmailEventAlias.Counterparty.Id == counterpartyAlias.Id)
 				.Where(() => bulkEmailEventAlias.Type == BulkEmailEvent.BulkEmailEventType.Unsubscribing)
-				.WhereNot(() => counterpartyAlias.IsArchive)
-				.WithSubquery.WhereProperty(() => bulkEmailEventAlias.ActionTime).Eq(lastUnsubscribeSubQuery)
+				.WithSubquery.WhereProperty(() => bulkEmailEventAlias.Id).Eq(lastEventIdSubQuery)
 				.Select(bee => bee.Id);
 
 			var alreadySentOrdersSubQuery = QueryOver.Of(() => bulkEmailOrderAlias)
@@ -490,6 +481,7 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
 				.Where(() => counterpartyAlias.PersonType == PersonType.legal)
 				.WhereNot(() => organizationAlias.DisableDebtMailing)
+				.Where(() => counterpartyAlias.Id == 2)
 				.WhereNot(() => counterpartyAlias.DisableDebtMailing)
 				.WhereNot(() => counterpartyAlias.IsArchive)
 				 .WithSubquery.WhereExists(

@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -770,6 +770,8 @@ namespace Vodovoz
 			ycheckbuttonDisableDebtMailing.Binding
 				.AddBinding(Entity, e => e.DisableDebtMailing, w => w.Active)
 				.InitializeFromSource();
+			ycheckbuttonDisableDebtMailing.Sensitive = 
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CounterpartyPermissions.CanEditDebtNotification);
 
 			// Настройка каналов сбыта
 			if(Entity.IsForRetail)

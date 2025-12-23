@@ -9,8 +9,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.EmailSending.Masstransit;
 using RabbitMQ.MailSending;
-using Vodovoz.Core.Data.NHibernate.Repositories.Organizations;
-using Vodovoz.Core.Data.Repositories;
 
 namespace EmailSend.Library
 {
@@ -23,7 +21,6 @@ namespace EmailSend.Library
 				.AddMailganerApiClient();
 
 			services
-				.AddScoped<IOrganizationRepository, OrganizationRepository>()
 				.AddTransient<IEmailSendService, EmailSendService>()
 				.AddTransient<IEmailMessageFactory, EmailMessageFactory>()
 				.AddTransient<SendEmailMessageHandler>();

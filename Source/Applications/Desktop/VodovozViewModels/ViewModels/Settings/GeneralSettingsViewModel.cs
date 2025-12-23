@@ -14,6 +14,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Windows.Input;
+using Vodovoz.Core.Data.Repositories.Cash;
+using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
@@ -101,6 +103,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			ILifetimeScope lifetimeScope,
 			INavigationManager navigation,
 			ViewModelEEVMBuilder<Organization> organizationViewModelBuilder,
+			ViewModelEEVMBuilder<VatRate> vatRateEevmBuilder,
 			EntityJournalOpener entityJournalOpener,
 			IOrganizationForOrderFromSet organizationForOrderFromSet,
 			IOrganizationSettings organizationSettings,

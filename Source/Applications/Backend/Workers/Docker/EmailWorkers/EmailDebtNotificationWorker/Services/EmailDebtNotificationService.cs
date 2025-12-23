@@ -27,7 +27,7 @@ namespace EmailDebtNotificationWorker.Services
 		private readonly PrintableDocumentSaver _printableDocumentSaver;
 		private readonly IBus _bus;
 
-		private const int _maxEmailsPerMinute = 10;
+		private const int _maxEmailsPerMinute = 1;
 
 		public EmailDebtNotificationService(
 			ILogger<EmailDebtNotificationService> logger,
@@ -175,7 +175,7 @@ namespace EmailDebtNotificationWorker.Services
 				Subject = subject,
 				RecipientAddress = email,
 				Guid = Guid.NewGuid(),
-				Description = $"Уведомление о задолженности по заказам: {string.Join(", ", orderId)}",
+				Description = $"Уведомление о задолженности по заказу: {string.Join(", ", orderId)}",
 			};
 
 			return storedEmail;
@@ -224,7 +224,8 @@ namespace EmailDebtNotificationWorker.Services
 					new() {
 						Name = client.FullName,
 						//Email = emailAddress
-						Email = "work.semen.sd@gmail.com"
+						//Email = "work.semen.sd@gmail.com"
+						Email = "vodovoz.test@mail.ru"
 					}
 				},
 
