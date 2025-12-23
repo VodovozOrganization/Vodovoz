@@ -511,7 +511,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			var organization = Order.Contract.Organization;
+			var organization = Order.Contract?.Organization;
 			
 			var vatRateVersion =  organization != null && organization.IsUsnMode 
 				? Order.Contract.Organization.GetActualVatRateVersion(Order.BillDate)
