@@ -4,7 +4,7 @@ namespace Vodovoz.Views.Cash
 {
 	public partial class VatRateVersionForOrganizationView
 	{
-		private global::Gamma.GtkWidgets.yVBox yvbox5;
+		private global::Gamma.GtkWidgets.yVBox mainBox;
 
 		private global::Gamma.GtkWidgets.yHBox yhbox3;
 
@@ -49,10 +49,10 @@ namespace Vodovoz.Views.Cash
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Views.Cash.VatRateVersionForOrganizationView";
 			// Container child Vodovoz.Views.Cash.VatRateVersionForOrganizationView.Gtk.Container+ContainerChild
-			this.yvbox5 = new global::Gamma.GtkWidgets.yVBox();
-			this.yvbox5.Name = "yvbox5";
-			this.yvbox5.Spacing = 6;
-			// Container child yvbox5.Gtk.Box+BoxChild
+			this.mainBox = new global::Gamma.GtkWidgets.yVBox();
+			this.mainBox.Name = "mainBox";
+			this.mainBox.Spacing = 6;
+			// Container child mainBox.Gtk.Box+BoxChild
 			this.yhbox3 = new global::Gamma.GtkWidgets.yHBox();
 			this.yhbox3.Name = "yhbox3";
 			this.yhbox3.Spacing = 6;
@@ -99,6 +99,7 @@ namespace Vodovoz.Views.Cash
 			this.yhbox4.Add(this.datepickerVersionDate);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yhbox4[this.datepickerVersionDate]));
 			w4.Position = 1;
+			w4.Expand = false;
 			// Container child yhbox4.Gtk.Box+BoxChild
 			this.buttonNewVersion = new global::Gamma.GtkWidgets.yButton();
 			this.buttonNewVersion.CanFocus = true;
@@ -197,7 +198,7 @@ namespace Vodovoz.Views.Cash
 			this.buttonSave.Image = w16;
 			this.yhbox6.Add(this.buttonSave);
 			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.yhbox6[this.buttonSave]));
-			w17.Position = 4;
+			w17.Position = 6;
 			w17.Expand = false;
 			w17.Fill = false;
 			// Container child yhbox6.Gtk.Box+BoxChild
@@ -211,7 +212,7 @@ namespace Vodovoz.Views.Cash
 			this.buttonCancel.Image = w18;
 			this.yhbox6.Add(this.buttonCancel);
 			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.yhbox6[this.buttonCancel]));
-			w19.Position = 5;
+			w19.Position = 7;
 			w19.Expand = false;
 			w19.Fill = false;
 			this.yvbox7.Add(this.yhbox6);
@@ -222,10 +223,10 @@ namespace Vodovoz.Views.Cash
 			this.yhbox3.Add(this.yvbox7);
 			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.yhbox3[this.yvbox7]));
 			w21.Position = 1;
-			this.yvbox5.Add(this.yhbox3);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.yvbox5[this.yhbox3]));
+			this.mainBox.Add(this.yhbox3);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.mainBox[this.yhbox3]));
 			w22.Position = 0;
-			this.Add(this.yvbox5);
+			this.Add(this.mainBox);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();

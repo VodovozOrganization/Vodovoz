@@ -1258,7 +1258,7 @@ namespace Vodovoz.Core.Domain.Goods
 		{
 			var targetDate = date ?? DateTime.Now;
 			return VatRateVersions.FirstOrDefault(x => 
-				x.StartDate <= targetDate && (x.EndDate == null || x.EndDate > targetDate));
+				x.StartDate <= targetDate && (x.EndDate == null || x.EndDate >= targetDate));
 		}
 		
 		public override string ToString() => $"id = {Id} Name = {Name}";
