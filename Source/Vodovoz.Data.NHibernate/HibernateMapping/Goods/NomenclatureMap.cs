@@ -158,7 +158,10 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 			HasMany(x => x.NomenclatureOnlineParameters)
 				.Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 			HasMany(x => x.VatRateVersions)
-				.Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
+				.Cascade.AllDeleteOrphan()
+				.Inverse()
+				.KeyColumn("nomenclature_id")
+				.OrderBy("start_date DESC");
 			HasMany(x => x.NomenclatureMinimumBalancesByWarehouse).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 
 			HasMany(x => x.Gtins)
