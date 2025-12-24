@@ -201,7 +201,6 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			{
 				AddDefaultVatRateVersions();
 			}
-			
 		}
 
 
