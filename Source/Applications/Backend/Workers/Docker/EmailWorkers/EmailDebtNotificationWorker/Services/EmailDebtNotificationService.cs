@@ -67,8 +67,8 @@ namespace EmailDebtNotificationWorker.Services
 						break;
 					}
 
-					var client = clientOrders.Value.Item1;
-					var organization = clientOrders.Value.Item2;
+					var client = clientOrders.Value.Counterparty;
+					var organization = clientOrders.Value.Organization;
 					var order = clientOrders.Key;
 
 					await ProcessSingleClientEmailAsync(client, organization, order, cancellationToken);
@@ -88,6 +88,7 @@ namespace EmailDebtNotificationWorker.Services
 			CancellationToken cancellationToken
 			)
 		{
+			int? clientId = client?.Id;
 			try
 			{
 				if(client == null)
@@ -158,10 +159,10 @@ namespace EmailDebtNotificationWorker.Services
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex, "Ошибка при обработке письма для клиента {ClientId}", client.Id);
+				_logger.LogError(ex, "Ошибка при обработке письма для клиента {ClientId}", clientId);
 				throw;
 			}
-			}
+		}
 
 		private static StoredEmail CreateStoredEmail(string subject, string email, int orderId)
 		{

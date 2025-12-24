@@ -2,6 +2,7 @@
 using System.Text;
 using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Counterparty;
+using Vodovoz.Zabbix.Sender;
 
 namespace EmailDebtNotificationWorker
 {
@@ -42,6 +43,7 @@ namespace EmailDebtNotificationWorker
 				using var scope = _scopeFactory.CreateScope();
 				var emailSchedulingService = scope.ServiceProvider.GetRequiredService<IEmailDebtNotificationService>();
 				var workingDayService = scope.ServiceProvider.GetRequiredService<IWorkingDayService>();
+				var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
 
 				if(!CanSendNow(workingDayService))
 				{
@@ -50,6 +52,7 @@ namespace EmailDebtNotificationWorker
 				}
 
 				await emailSchedulingService.ScheduleDebtNotificationsAsync(cancellationToken);
+				await zabbixSender.SendIsHealthyAsync(cancellationToken);
 			}
 			catch(Exception ex)
 			{
@@ -57,7 +60,7 @@ namespace EmailDebtNotificationWorker
 			}
 		}
 
-		private bool CanSendNow(IWorkingDayService workingDayService)
+		private static bool CanSendNow(IWorkingDayService workingDayService)
 		{
 			var now = DateTime.Now;
 
@@ -70,6 +73,8 @@ namespace EmailDebtNotificationWorker
 		public override async Task StartAsync(CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Запуск воркера рассылки писем о задолженности...");
+
+			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
 			await base.StartAsync(cancellationToken);
 

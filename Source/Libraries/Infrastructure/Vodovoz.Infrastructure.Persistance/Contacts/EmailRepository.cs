@@ -433,7 +433,7 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 			throw new NotImplementedException();
 		}
 
-		public async Task<Dictionary<Order, (Counterparty, Organization)>> GetAllOverdueOrderForDebtNotificationAsync(
+		public async Task<Dictionary<Order, (Counterparty Counterparty, Organization Organization)>> GetAllOverdueOrderForDebtNotificationAsync(
 			IUnitOfWork uow,
 			int maxClients,
 			CancellationToken cancellationToken)
@@ -506,7 +506,7 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				.Take(maxClients)
 				.ToDictionary(
 					order => order,
-					order => (order.Client, order.Contract.Organization)
+					order => (Counterparty: order.Client, Organization: order.Contract.Organization)
 				);
 
 			return result;

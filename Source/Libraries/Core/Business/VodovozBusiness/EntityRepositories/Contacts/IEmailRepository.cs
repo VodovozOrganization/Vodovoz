@@ -40,7 +40,7 @@ namespace Vodovoz.EntityRepositories
 		/// <param name="maxClients">Максимальное количество клиентов для обработки</param>
 		/// <param name="cancellationToken"></param>
 		/// <returns>Словарь: клиент - список его просроченных заказов</returns>
-		Task<Dictionary<Order, (Counterparty, Organization)>> GetAllOverdueOrderForDebtNotificationAsync(IUnitOfWork uow, int maxClients, CancellationToken cancellationToken);
+		Task<Dictionary<Order, (Counterparty Counterparty, Organization Organization)>> GetAllOverdueOrderForDebtNotificationAsync(IUnitOfWork uow, int maxClients, CancellationToken cancellationToken);
 
 		#region EmailType
 

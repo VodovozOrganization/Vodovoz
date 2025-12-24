@@ -25,7 +25,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport
 		private readonly IFileDialogService _fileDialogService;
 		private bool _isReportSelected;
 		private bool _isSummaryReportSelected;
-		private ILifetimeScope _lifetimeScope;
 		private DelegateCommand _generateCommand;
 		private DelegateCommand _exportCommand;
 		private DelegateCommand _generateSummaryCommand;
@@ -40,12 +39,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport
 			ICounterpartyJournalFactory counterpartyJournalFactory
 			): base(unitOfWorkFactory, interactiveService, navigation)
 		{
-			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			var _ = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 
 			CounterpartySelectorFactory =
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
-				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope);
+				.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
 
 			Title = "Отчет о рассылке писем о задолженности";
 
@@ -293,12 +292,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport
 			);
 
 		#endregion
-
-		public override void Dispose()
-		{
-			_lifetimeScope.Dispose();
-			base.Dispose();
-		}
 	}
 }
 

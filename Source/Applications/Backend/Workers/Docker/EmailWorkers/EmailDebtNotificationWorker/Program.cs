@@ -15,6 +15,8 @@ using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Database.Common;
 using Vodovoz.Settings.Database.Counterparty;
+using Vodovoz.Zabbix.Sender;
+using AssemblyFinder = Vodovoz.Data.NHibernate.AssemblyFinder;
 
 namespace EmailDebtNotificationWorker
 {
@@ -57,6 +59,7 @@ namespace EmailDebtNotificationWorker
 					services.AddInfrastructure();
 					services.AddRepositories();
 					services.AddTrackedUoW();
+					services.ConfigureZabbixSenderFromDataBase(nameof(EmailDebtNotificationWorker));
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
 					services.AddScoped((sp) => sp.GetRequiredService<IUnitOfWorkFactory>()
