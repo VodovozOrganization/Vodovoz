@@ -291,7 +291,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			var targetDate = date ?? DateTime.Now;
 			return VatRateVersions.FirstOrDefault(x => 
-				x.StartDate <= targetDate && (x.EndDate == null || x.EndDate > targetDate));
+				x.StartDate <= targetDate && (x.EndDate == null || x.EndDate >= targetDate));
 		}
 
 		#endregion
@@ -402,7 +402,7 @@ namespace Vodovoz.Core.Domain.Organizations
 			if(IsUsnMode == IsOsnoMode)
 			{
 				yield return new ValidationResult(
-					"У организации нельзя выбрать несколько или не выбрать ниодной режимов работы с НДС",
+					"У организации нельзя выбрать несколько или не выбрать ни одного режима работы с НДС",
 					new[] { nameof(VatRateVersions) });
 			}
 			if(IsUsnMode)
