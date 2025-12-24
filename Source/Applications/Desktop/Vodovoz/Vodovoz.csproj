@@ -2151,6 +2151,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Cash.VatRateVersionForNomenclatureView.cs" />
     <Compile Include="Views\Cash\VatRateVersionForOrganizationView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Cash.VatRateVersionForOrganizationView.cs" />
+    <Compile Include="Views\WageCalculation\WageDistrictLevelRatesAssigningView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.WageDistrictLevelRatesAssigningView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
