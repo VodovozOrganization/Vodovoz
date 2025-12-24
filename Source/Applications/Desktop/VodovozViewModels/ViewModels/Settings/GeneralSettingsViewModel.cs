@@ -1082,10 +1082,10 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
-				var vatRateRepository = _lifetimeScope.Resolve<IGenericRepository<VatRate>>();
+				var vatRateRepository = _lifetimeScope.Resolve<IVatRateRepository>();
 				var vatRateVersionRepository = _lifetimeScope.Resolve<IVatRateVersionRepository>();
-				var oldVatRate = vatRateRepository.GetFirstOrDefault(uow, x => x.VatRateValue == TargetVatRate);
-				var newVatRate = vatRateRepository.GetFirstOrDefault(uow, x => x.VatRateValue == NewVatRate);
+				var oldVatRate = vatRateRepository.GetVatRateByValue(uow, TargetVatRate);
+				var newVatRate = vatRateRepository.GetVatRateByValue(uow, NewVatRate);
 			
 				if(newVatRate == null)
 				{
@@ -1162,10 +1162,10 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
-				var vatRateRepository = _lifetimeScope.Resolve<IGenericRepository<VatRate>>();
+				var vatRateRepository = _lifetimeScope.Resolve<IVatRateRepository>();
 				var vatRateVersionRepository = _lifetimeScope.Resolve<IVatRateVersionRepository>();
-				var oldVatRate = vatRateRepository.GetFirstOrDefault(uow, x => x.VatRateValue == TargetVatRate);
-				var newVatRate = vatRateRepository.GetFirstOrDefault(uow, x => x.VatRateValue == NewVatRate);
+				var oldVatRate = vatRateRepository.GetVatRateByValue(uow, TargetVatRate);
+				var newVatRate = vatRateRepository.GetVatRateByValue(uow, NewVatRate);
 			
 				if(newVatRate == null)
 				{
@@ -1240,17 +1240,21 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		public DelegateCommand SaveDefaultVatRateCommand { get; set; }
 		private void SaveDefaultVatRateCommandHandler()
 		{
-			var vatRateRepository = _lifetimeScope.Resolve<IGenericRepository<VatRate>>();
-			var vatRate = vatRateRepository.GetFirstOrDefault(_unitOfWorkFactory.CreateWithoutRoot(), x => x.VatRateValue == DefaultVatRate);
-			
-			if(vatRate == null)
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"В справочнике НДС отсутствует выбранная ставка {DefaultVatRate}%!");
-				return;
+				var vatRateRepository = _lifetimeScope.Resolve<IVatRateRepository>();
+				var vatRate = vatRateRepository.GetVatRateByValue(uow, DefaultVatRate);
+
+				if(vatRate == null)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
+						$"В справочнике НДС отсутствует выбранная ставка {DefaultVatRate}%!");
+					return;
+				}
+
+				_generalSettings.SaveDefaultVatRate(DefaultVatRate);
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 			}
-			
-			_generalSettings.SaveDefaultVatRate(DefaultVatRate);
-			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
 		
 		#endregion

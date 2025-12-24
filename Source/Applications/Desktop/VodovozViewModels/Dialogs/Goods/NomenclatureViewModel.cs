@@ -21,6 +21,7 @@ using System.Text;
 using System.Threading;
 using System.Windows.Input;
 using Vodovoz.Application.FileStorage;
+using Vodovoz.Core.Data.Repositories.Cash;
 using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
@@ -68,6 +69,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private readonly ViewModelEEVMBuilder<ProductGroup> _productGroupEEVMBuilder;
 		private readonly IVatRateVersionViewModelFactory _vatRateVersionViewModelFactory;
 		private readonly ViewModelEEVMBuilder<VatRate> _vatRateEevmBuilder;
+		private readonly IVatRateRepository _vatRateRepository;
 
 		private ILifetimeScope _lifetimeScope;
 		private readonly IInteractiveService _interactiveService;
@@ -110,7 +112,8 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			IGenericRepository<RobotMiaParameters> robotMiaParametersRepository,
 			ViewModelEEVMBuilder<ProductGroup> productGroupEEVMBuilder, 
 			IVatRateVersionViewModelFactory vatRateVersionViewModelFactory,
-			ViewModelEEVMBuilder<VatRate> vatRateEevmBuilder)
+			ViewModelEEVMBuilder<VatRate> vatRateEevmBuilder,
+			IVatRateRepository vatRateRepository)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
 			if(nomenclatureSettings is null)
@@ -141,6 +144,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			_productGroupEEVMBuilder = productGroupEEVMBuilder ?? throw new ArgumentNullException(nameof(productGroupEEVMBuilder));
 			_vatRateVersionViewModelFactory = vatRateVersionViewModelFactory ?? throw new ArgumentNullException(nameof(vatRateVersionViewModelFactory));
 			_vatRateEevmBuilder = vatRateEevmBuilder ?? throw new ArgumentNullException(nameof(vatRateEevmBuilder));
+			_vatRateRepository = vatRateRepository ?? throw new ArgumentNullException(nameof(vatRateRepository));
 
 			VatRateNomenclatureVersionViewModel =
 				_vatRateVersionViewModelFactory.CreateVatRateVersionViewModel(Entity, this, _vatRateEevmBuilder, UoW,CanEdit);
@@ -159,7 +163,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			SetGlassHolderCheckboxesSelection();
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
-
+			
 			SaveCommand = new DelegateCommand(SaveHandler, () => CanEdit);
 			CopyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand = new DelegateCommand(
 				CopyPricesWithoutDiscountFromMobileAppToVodovozWebSite,
@@ -192,7 +196,15 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			EditSlangWordCommand.CanExecuteChangedWith(this, x => x.CanEdit);
 			RemoveSlangWordCommand = new DelegateCommand(RemoveSlangWord, () => CanEdit);
 			RemoveSlangWordCommand.CanExecuteChangedWith(this, x => x.CanEdit);
+
+			if(IsNewEntity)
+			{
+				AddDefaultVatRateVersions();
+			}
+			
 		}
+
+
 
 		public IStringHandler StringHandler { get; }
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
@@ -1270,6 +1282,37 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private void CloseHandler()
 		{
 			Close(AskSaveOnClose, CloseSource.Cancel);
+		}
+		
+		private void AddDefaultVatRateVersions()
+		{
+			var vatRateVersion18 = _vatRateRepository.GetVatRateByValue(UoW, 18);
+			var vatRateVersion20 = _vatRateRepository.GetVatRateByValue(UoW,20);
+			var vatRateVersion22 = _vatRateRepository.GetVatRateByValue(UoW,22);
+			
+			Entity.VatRateVersions.Add(new VatRateVersion()
+			{
+				Nomenclature = Entity,
+				VatRate = vatRateVersion18,
+				StartDate = new DateTime(2004, 1, 1),
+				EndDate = new DateTime(2019, 1,1).AddTicks(-1)
+			});
+			
+			Entity.VatRateVersions.Add(new VatRateVersion()
+			{
+				Nomenclature = Entity,
+				VatRate = vatRateVersion20,
+				StartDate = new DateTime(2019, 1, 1),
+				EndDate = new DateTime(2026, 1,1).AddTicks(-1)
+			});
+			
+			Entity.VatRateVersions.Add(new VatRateVersion()
+			{
+				Nomenclature = Entity,
+				VatRate = vatRateVersion22,
+				StartDate = new DateTime(2026, 1, 1),
+			});
+				
 		}
 	}
 }
