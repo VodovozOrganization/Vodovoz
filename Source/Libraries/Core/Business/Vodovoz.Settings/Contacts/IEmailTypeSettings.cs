@@ -1,9 +1,9 @@
 ﻿namespace Vodovoz.Settings.Contacts
 {
-	public interface IPhoneTypeSettings
+	public interface IEmailTypeSettings
 	{
 		/// <summary>
-		/// Архивный тип телефона
+		/// Архивный тип электронной почты
 		/// </summary>
 		int ArchiveId { get; }
 	}

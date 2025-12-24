@@ -65,7 +65,6 @@ using Vodovoz.Extensions;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
-using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
@@ -126,6 +125,7 @@ namespace Vodovoz
 		private readonly IContactSettings _contactsSettings = ScopeProvider.Scope.Resolve<IContactSettings>();
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
+		private readonly IEmailTypeSettings _emailTypeSettings = ScopeProvider.Scope.Resolve<IEmailTypeSettings>();
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
 		private IEdoOperatorsJournalFactory _edoOperatorsJournalFactory;
 		private IEmailSettings _emailSettings;
@@ -880,8 +880,9 @@ namespace Vodovoz
 				Entity.Emails,
 				_emailSettings,
 				_externalCounterpartyRepository,
-				_commonServices.InteractiveService,
-				Entity.PersonType);
+				_commonServices,
+				Entity.PersonType,
+				_emailTypeSettings);
 			emailsView.ViewModel = emailsViewModel;
 			emailsView.Sensitive = CanEdit;
 

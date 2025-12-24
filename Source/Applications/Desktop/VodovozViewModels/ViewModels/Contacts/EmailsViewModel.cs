@@ -1,24 +1,28 @@
-﻿using System;
+﻿using QS.Commands;
+using QS.Dialog;
+using QS.DomainModel.UoW;
+using QS.Services;
+using QS.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using QS.Commands;
-using QS.Dialog;
-using QS.DomainModel.UoW;
-using QS.ViewModels;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Contacts;
 
 namespace Vodovoz.ViewModels.ViewModels.Contacts
 {
 	public class EmailsViewModel : WidgetViewModelBase
 	{
-		private IUnitOfWork _uow;
+		private readonly IUnitOfWork _uow;
 		private readonly IEmailSettings _emailSettings;
 		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository;
+		private readonly IEmailTypeSettings _emailTypeSettings;
+		private readonly ICommonServices _commonServices;
 
 		private PersonType _personType;
 		private DelegateCommand _addEmailCommand;
@@ -31,15 +35,20 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			IList<Email> emailList,
 			IEmailSettings emailSettings,
 			IExternalCounterpartyRepository externalCounterpartyRepository,
-			IInteractiveService interactiveService,
-			PersonType personType)
+			ICommonServices commonServices,
+			PersonType personType,
+			IEmailTypeSettings emailTypeSettings
+			)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_externalCounterpartyRepository =
 				externalCounterpartyRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyRepository));
-			InteractiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_emailTypeSettings = emailTypeSettings ?? throw new ArgumentNullException(nameof(emailTypeSettings));
 			_personType = personType;
+
+			InteractiveService = _commonServices.InteractiveService;
 			EmailTypes = _uow.GetAll<EmailType>();
 
 			if(emailList is null)
@@ -48,11 +57,24 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			}
 
 			EmailsList = new GenericObservableList<Email>(emailList);
+			ActiveEmails = new List<Email>(emailList.Where(x => x.EmailType == null || x.EmailType.Id != _emailTypeSettings.ArchiveId));
 		}
-		
-		public IInteractiveService InteractiveService { get; }
+
+		public readonly IInteractiveService InteractiveService;
 		public GenericObservableList<Email> EmailsList { get; }
+		public List<Email> ActiveEmails { get; }
 		public IEnumerable<EmailType> EmailTypes { get; }
+
+		public void OnEmailTypeChanged(Email email)
+		{
+			if(email.EmailType != null && email.EmailType.Id == _emailTypeSettings.ArchiveId)
+			{
+				_commonServices.InteractiveService.ShowMessage(
+						ImportanceLevel.Info,
+						"Email будет переведен в архив и пропадет в списке активных");
+			}
+		}
+
 
 		public DelegateCommand AddEmailCommand => _addEmailCommand ?? (_addEmailCommand = new DelegateCommand(
 			() =>

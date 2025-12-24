@@ -21,6 +21,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Contacts;
 using Vodovoz.Settings.Delivery;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -29,11 +30,15 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 	internal sealed class EmailRepository : IEmailRepository
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly IEmailTypeSettings _emailTypeSettings;
 
 		public EmailRepository(
-			IUnitOfWorkFactory uowFactory)
+			IUnitOfWorkFactory uowFactory,
+			IEmailTypeSettings emailTypeSettings
+			)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_emailTypeSettings = emailTypeSettings ?? throw new ArgumentNullException(nameof(emailTypeSettings));
 		}
 
 		public StoredEmail GetById(IUnitOfWork unitOfWork, int id)
@@ -483,9 +488,10 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				.WhereNot(() => organizationAlias.DisableDebtMailing)
 				.WhereNot(() => counterpartyAlias.DisableDebtMailing)
 				.WhereNot(() => counterpartyAlias.IsArchive)
-				 .WithSubquery.WhereExists(
+				.WithSubquery.WhereExists(
 					QueryOver.Of<Email>()
 				 		.Where(email => email.Counterparty.Id == counterpartyAlias.Id)
+						.And(email => email.EmailType == null || email.EmailType != null && email.EmailType.Id != _emailTypeSettings.ArchiveId)
 				 		.Select(email => email.Id)
 					)
 				.Where(Restrictions.Le(dateAddExpression, currentDate))
