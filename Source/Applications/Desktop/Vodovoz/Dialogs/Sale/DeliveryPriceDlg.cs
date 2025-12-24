@@ -220,7 +220,7 @@ namespace Vodovoz.Dialogs.Sale
 
 		private void UpdatePriceData()
 		{
-			var price = _deliveryPriceCalculator.Calculate(_latitude, _longitude, yspinBottles.ValueAsInt);
+			var price = _deliveryPriceCalculator.Calculate(_latitude, _longitude, yspinBottles.ValueAsInt, false);
 			deliverypriceview.District = _unitOfWork.GetById<District>(price.DistrictId);
 			deliverypriceview.DeliveryPrice = price;
 		}
@@ -258,7 +258,7 @@ namespace Vodovoz.Dialogs.Sale
 
 		protected void OnYspinBottlesValueChanged(object sender, EventArgs e)
 		{
-			deliverypriceview.DeliveryPrice = _deliveryPriceCalculator.Calculate(_latitude, _longitude, yspinBottles.ValueAsInt);
+			deliverypriceview.DeliveryPrice = _deliveryPriceCalculator.Calculate(_latitude, _longitude, yspinBottles.ValueAsInt, false);
 		}
 
 		public override void Destroy()
