@@ -202,9 +202,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 				AddDefaultVatRateVersions();
 			}
 		}
-
-
-
+		
 		public IStringHandler StringHandler { get; }
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEntityEntryViewModel RouteColumnViewModel { get; }
