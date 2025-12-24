@@ -9,50 +9,47 @@ namespace EmailDebtNotificationWorker
 	{
 		private readonly ILogger<EmailDebtNotificationWorker> _logger;
 		private readonly IDebtorsSettings _debtorsParameters;
-		private readonly IEmailDebtNotificationService _emailSchedulingService;
-		private readonly IWorkingDayService _workingDayService;
+		private readonly IServiceScopeFactory _scopeFactory;
+		private readonly TimeSpan _interval;
 
-		private bool _initialized = false;
-		protected override TimeSpan Interval { get; } = TimeSpan.FromSeconds(60);
+		protected override TimeSpan Interval => _interval;
 
 		public EmailDebtNotificationWorker(
 			ILogger<EmailDebtNotificationWorker> logger,
 			IDebtorsSettings debtorsParameters,
-			IEmailDebtNotificationService emailSchedulingService,
-			IWorkingDayService workingDayService
+			IServiceScopeFactory scopeFactory
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_debtorsParameters = debtorsParameters ?? throw new ArgumentNullException(nameof(debtorsParameters));
-			_emailSchedulingService = emailSchedulingService ?? throw new ArgumentNullException(nameof(emailSchedulingService));
-			_workingDayService = workingDayService ?? throw new ArgumentNullException(nameof(workingDayService));
+			_scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
+
+			_interval = TimeSpan.FromSeconds(Math.Max(1, _debtorsParameters.DebtNotificationWorkerIntervalSeconds));
 
 			Console.OutputEncoding = Encoding.UTF8;
 		}
 
-		protected override async Task DoWork(CancellationToken stoppingToken)
+		protected override async Task DoWork(CancellationToken cancellationToken)
 		{
 			try
 			{
-				if(!_initialized)
-				{
-					_logger.LogInformation("Воркер ещё не инициализирован, пропуск цикла");
-					return;
-				}
-
 				if(!IsEnabled())
 				{
 					_logger.LogInformation("Рассылка писем отключена настройками, пропуск цикла");
 					return;
 				}
 
-				if(!CanSendNow())
+				using var scope = _scopeFactory.CreateScope();
+				var emailSchedulingService = scope.ServiceProvider.GetRequiredService<IEmailDebtNotificationService>();
+				var workingDayService = scope.ServiceProvider.GetRequiredService<IWorkingDayService>();
+
+				if(!CanSendNow(workingDayService))
 				{
 					_logger.LogDebug("Невозможно отправить сейчас — вне рабочего времени/дня");
 					return;
 				}
 
-				await _emailSchedulingService.ProcessEmailQueueAsync(stoppingToken);
+				await emailSchedulingService.ScheduleDebtNotificationsAsync(cancellationToken);
 			}
 			catch(Exception ex)
 			{
@@ -60,33 +57,28 @@ namespace EmailDebtNotificationWorker
 			}
 		}
 
-		private bool CanSendNow()
+		private bool CanSendNow(IWorkingDayService workingDayService)
 		{
-			var now = DateTime.UtcNow;
+			var now = DateTime.Now;
 
-			return _workingDayService.IsWorkingDay(now) &&
-				   _workingDayService.IsWithinWorkingHours(now);
+			return workingDayService.IsWorkingDay(now) &&
+				   workingDayService.IsWithinWorkingHours(now);
 		}
 
 		private bool IsEnabled() => !_debtorsParameters.DebtNotificationWorkerIsDisabled;
 
 		public override async Task StartAsync(CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Запуск воркера рассылки писем...");
-
-			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+			_logger.LogInformation("Запуск воркера рассылки писем о задолженности...");
 
 			await base.StartAsync(cancellationToken);
 
-			_initialized = true;
 			_logger.LogInformation("Воркер рассылки писем успешно запущен.");
 		}
 
 		public override async Task StopAsync(CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Остановка воркера рассылки писем...");
-
-			_initialized = false;
+			_logger.LogInformation("Остановка воркера рассылки писем о задолженности...");
 
 			await base.StopAsync(cancellationToken);
 

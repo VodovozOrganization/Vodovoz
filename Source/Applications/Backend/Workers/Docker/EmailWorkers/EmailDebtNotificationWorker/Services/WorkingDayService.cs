@@ -10,25 +10,19 @@
 
 		public bool IsWorkingDay(DateTime date)
 		{
-			var moscowTime = ConvertToMoscowTime(date);
-
-			return moscowTime.DayOfWeek >= DayOfWeek.Monday &&
-				   moscowTime.DayOfWeek <= DayOfWeek.Friday;
+			return date.DayOfWeek >= DayOfWeek.Monday &&
+				   date.DayOfWeek <= DayOfWeek.Friday;
 		}
 
 		public bool IsWithinWorkingHours(DateTime dateTime)
 		{
-			var moscowTime = ConvertToMoscowTime(dateTime);
-			var timeOfDay = moscowTime.TimeOfDay;
-
+			TimeSpan timeOfDay = dateTime.TimeOfDay;
 			return timeOfDay >= _workDayStart && timeOfDay < _workDayEnd;
 		}
 
 		public DateTime GetOptimalSendingTime(DateTime desiredTime)
 		{
-			var moscowDesiredTime = ConvertToMoscowTime(desiredTime);
-
-			if(IsWorkingDay(moscowDesiredTime) && IsWithinWorkingHours(moscowDesiredTime))
+			if(IsWorkingDay(desiredTime) && IsWithinWorkingHours(desiredTime))
 			{
 				return desiredTime;
 			}
@@ -38,47 +32,39 @@
 
 		public DateTime GetNextWorkingDay(DateTime fromDate)
 		{
-			var moscowDate = ConvertToMoscowTime(fromDate).Date;
-			var candidate = moscowDate.AddDays(1);
+			DateTime candidate = fromDate.Date.AddDays(1);
 
 			while(candidate.DayOfWeek == DayOfWeek.Saturday ||
-				   candidate.DayOfWeek == DayOfWeek.Sunday)
+				  candidate.DayOfWeek == DayOfWeek.Sunday)
 			{
 				candidate = candidate.AddDays(1);
 			}
 
-			return ConvertFromMoscowTime(candidate);
+			return candidate;
 		}
 
 		public DateTime GetNextWorkingTime(DateTime fromDateTime)
 		{
-			var moscowTime = ConvertToMoscowTime(fromDateTime);
-
-			if(!IsWorkingDay(moscowTime))
+			if(!IsWorkingDay(fromDateTime))
 			{
-				var nextWorkingDay = GetNextWorkingDay(fromDateTime);
-
-				return ConvertToMoscowTime(nextWorkingDay).Date.Add(_workDayStart);
+				DateTime nextWorkingDay = GetNextWorkingDay(fromDateTime);
+				return nextWorkingDay.Date.Add(_workDayStart);
 			}
 
-			var timeOfDay = moscowTime.TimeOfDay;
+			TimeSpan timeOfDay = fromDateTime.TimeOfDay;
 
 			if(timeOfDay < _workDayStart)
 			{
-				return moscowTime.Date.Add(_workDayStart);
+				return fromDateTime.Date.Add(_workDayStart);
 			}
 
 			if(timeOfDay >= _workDayEnd)
 			{
-				var nextDay = GetNextWorkingDay(ConvertFromMoscowTime(moscowTime));
-				return ConvertToMoscowTime(nextDay).Date.Add(_workDayStart);
+				DateTime nextDay = GetNextWorkingDay(fromDateTime);
+				return nextDay.Date.Add(_workDayStart);
 			}
 
-			return moscowTime;
+			return fromDateTime;
 		}
-
-		private static DateTime ConvertToMoscowTime(DateTime utcTime) => utcTime.AddHours(3);
-
-		private static DateTime ConvertFromMoscowTime(DateTime moscowTime) => moscowTime.AddHours(-3);
 	}
 }

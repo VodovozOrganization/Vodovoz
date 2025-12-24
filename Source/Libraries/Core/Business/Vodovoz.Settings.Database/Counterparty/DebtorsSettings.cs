@@ -21,5 +21,7 @@ namespace Vodovoz.Settings.Database.Counterparty
 
 			set => _settingsController.CreateOrUpdateSetting(_debtNotificationWorkerIsDisabledName, value.ToString(), TimeSpan.FromSeconds(5));
 		}
+
+		public int DebtNotificationWorkerIntervalSeconds => _settingsController.GetIntValue("DebtNotificationWorkerIntervalSeconds");
 	}
 }

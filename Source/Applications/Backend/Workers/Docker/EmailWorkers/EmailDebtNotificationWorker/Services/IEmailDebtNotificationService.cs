@@ -3,10 +3,10 @@
 	public interface IEmailDebtNotificationService
 	{
 		/// <summary>
-		/// Обработать очередь отправки писем
+		/// Запланировать рассылку писем о задолженности
 		/// </summary>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
-		Task ProcessEmailQueueAsync(CancellationToken cancellationToken);
+		Task ScheduleDebtNotificationsAsync(CancellationToken cancellationToken);
 	}
 }

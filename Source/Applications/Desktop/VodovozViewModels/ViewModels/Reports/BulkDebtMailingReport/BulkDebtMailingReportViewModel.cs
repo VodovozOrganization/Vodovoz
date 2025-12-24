@@ -1,6 +1,5 @@
 ﻿using Autofac;
 using ClosedXML.Report;
-using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Commands;
@@ -12,7 +11,6 @@ using QS.Project.Services.FileDialog;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.StoredEmails;
@@ -298,7 +296,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport
 
 		public override void Dispose()
 		{
-			_lifetimeScope = null;
+			_lifetimeScope.Dispose();
 			base.Dispose();
 		}
 	}

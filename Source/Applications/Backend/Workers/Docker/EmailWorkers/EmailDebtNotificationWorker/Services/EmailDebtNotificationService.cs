@@ -46,7 +46,7 @@ namespace EmailDebtNotificationWorker.Services
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 		}
 
-		public async Task ProcessEmailQueueAsync(CancellationToken cancellationToken)
+		public async Task ScheduleDebtNotificationsAsync(CancellationToken cancellationToken)
 		{
 			try
 			{
