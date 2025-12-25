@@ -25,6 +25,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.RevenueStatus).Column("revenue_status");
 			Map(x => x.RevenueStatusDate).Column("revenue_status_date");
 			Map(x => x.OGRN).Column("ogrn");
+			Map(x => x.OGRNDate).Column("ogrn_date");
 			Map(x => x.JurAddress).Column("jur_address");
 			Map(x => x.Address).Column("address");
 			Map(x => x.SignatoryFIO).Column("signatory_FIO");

@@ -149,6 +149,8 @@ namespace Edo.Docflow.Factories
 				},
 				Inn = organization.INN,
 				Kpp = organization.KPP,
+				OGRN = organization.OGRN,
+				OGRNDate = organization.OGRNDate,
 				EdoAccountId = organization.TaxcomEdoSettings.EdoAccount,
 			};
 

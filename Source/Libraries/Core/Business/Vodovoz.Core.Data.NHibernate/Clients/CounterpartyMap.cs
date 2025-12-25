@@ -63,6 +63,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.OGRN)
 				.Column("ogrn");
 
+			Map(x => x.OGRNDate)
+				.Column("ogrn_date");
+
 			Map(x => x.JurAddress)
 				.Column("jur_address");
 

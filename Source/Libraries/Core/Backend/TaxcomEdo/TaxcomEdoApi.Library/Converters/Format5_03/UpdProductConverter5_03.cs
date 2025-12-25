@@ -225,6 +225,8 @@ namespace TaxcomEdoApi.Library.Converters.Format5_03
 					throw new InvalidOperationException("Не должно быть НДС 18% в УПД формата 5.03");
 				case 0.20m:
 					return FajlDokumentTablSchFaktSvedTovNalSt.Item20;
+				case 0.22m:
+					return FajlDokumentTablSchFaktSvedTovNalSt.Item22;
 				default:
 					return FajlDokumentTablSchFaktSvedTovNalSt.bezNDS;
 			}
