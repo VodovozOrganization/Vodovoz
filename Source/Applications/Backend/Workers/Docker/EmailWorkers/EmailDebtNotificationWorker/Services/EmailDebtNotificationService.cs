@@ -107,7 +107,7 @@ namespace EmailDebtNotificationWorker.Services
 				throw new ArgumentNullException(nameof(order));
 			}
 
-			var emailSubject = $"Информационное письмо о задолженности {client.Name} от {DateTime.Now:dd.MM.yyyy}";
+			var emailSubject = $"Информационное письмо о задолженности {client.FullName} от {order.DeliveryDate?.ToString("dd.MM.yyyy")}";
 
 			var emailAddress = SelectEmailForDebtNotification(client);
 			if(string.IsNullOrWhiteSpace(emailAddress))
@@ -198,6 +198,7 @@ namespace EmailDebtNotificationWorker.Services
 			if(!storedEmail.Guid.HasValue)
 			{
 				_logger.LogError("StoredEmail.Guid пустой для письма о задолженности клиенту {ClientId}", client.Id);
+				throw new ArgumentNullException(nameof(storedEmail.Guid));
 			}
 
 			var messageText = GenerateDebtEmailBody(client, order, unsubscribeUrl);

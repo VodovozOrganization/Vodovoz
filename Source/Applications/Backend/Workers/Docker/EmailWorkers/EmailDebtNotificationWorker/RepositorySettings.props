@@ -1,5 +1,6 @@
 ﻿<Project>
   <PropertyGroup>
     <ContainerRepository>email-debt-notification-worker</ContainerRepository>
+	<ContainerBaseImage>docker.vod.qsolution.ru:5100/vodovoz-reporting-base:latest</ContainerBaseImage>
   </PropertyGroup>
 </Project>
