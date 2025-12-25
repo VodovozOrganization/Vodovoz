@@ -90,11 +90,13 @@ namespace EmailDebtNotificationWorker.Services
 			if(client == null)
 			{
 				_logger.LogWarning("Попытка отправить письмо несуществующему клиенту");
+				throw new ArgumentNullException(nameof(client));
 			}
 
 			if(organization == null)
 			{
 				_logger.LogWarning("Попытка отправить письмо клиенту {ClientId} от несуществующей организации", client.Id);
+				throw new ArgumentNullException(nameof(organization));
 			}
 
 			if(order == null)
@@ -102,6 +104,7 @@ namespace EmailDebtNotificationWorker.Services
 				_logger.LogWarning("Попытка отправить письмо клиенту {ClientId} от организации {OrganizationId} по несуществующему заказу",
 					client.Id,
 					organization.Id);
+				throw new ArgumentNullException(nameof(order));
 			}
 
 			var emailSubject = $"Информационное письмо о задолженности {client.Name} от {DateTime.Now:dd.MM.yyyy}";
@@ -110,11 +113,13 @@ namespace EmailDebtNotificationWorker.Services
 			if(string.IsNullOrWhiteSpace(emailAddress))
 			{
 				_logger.LogWarning("Клиент {ClientId} {ClientName} не имеет подходящего email для уведомления о задолженности", client.Id, client.FullName);
+				throw new InvalidOperationException($"Клиент {client.Id} не имеет подходящего email для уведомления о задолженности");
 			}
 			var storedEmail = CreateStoredEmail(emailSubject, emailAddress, order.Id);
 			if(storedEmail == null)
 			{
 				_logger.LogError("Не удалось создать запись о письме с уведомлением о задолженности для клиента {ClientId}", client.Id);
+				throw new ArgumentNullException(nameof(storedEmail));
 			}
 
 			var letterOfDebtDocument = new LetterOfDebtDocument
