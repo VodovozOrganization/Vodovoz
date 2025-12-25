@@ -1395,7 +1395,7 @@ namespace Vodovoz.Domain.Orders
 				!Nomenclature.GetCategoriesNotNeededToLoad().Contains(orderEquipment.Nomenclature.Category) && !orderEquipment.Nomenclature.NoDelivery);
 
 		public virtual bool IsCashlessPaymentTypeAndOrganizationWithoutVAT => PaymentType == PaymentType.Cashless
-			&& (Contract?.Organization?.WithoutVAT ?? false);
+			&& Contract?.Organization?.GetActualVatRateVersion(BillDate)?.VatRate.VatRateValue == 0;
 
 		public virtual void RefreshContactPhone()
 		{

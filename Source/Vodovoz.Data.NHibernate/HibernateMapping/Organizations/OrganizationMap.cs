@@ -19,7 +19,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Organizations
 			Map(x => x.OKVED).Column("OKVED");
 			Map(x => x.Email).Column("email");
 			Map(x => x.EmailForMailing).Column("email_for_mailing");
-			Map(x => x.WithoutVAT).Column("without_vat");
 			Map(x => x.DisableDebtMailing).Column("disable_debt_mailing");
 			Map(x => x.DebtMailingWithSignature).Column("debt_mailing_with_signature");
 			Map(x => x.IsNeedCashlessMovementControl).Column("is_need_cashless_movement_control");
@@ -28,6 +27,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Organizations
 			Map(x => x.CashBoxTokenFromTrueMark).Column("edo_key");
 			Map(x => x.OrganizationEdoType).Column("edo_type");
 			Map(x => x.Suffix).Column("suffix");
+			Map(x => x.IsOsnoMode).Column("is_osno_mode");
+			Map(x => x.IsUsnMode).Column("is_usn_mode");
 
 			References(x => x.Stamp).Column("stamp_id");
 			References(x => x.DefaultAccount).Column("default_account_id");

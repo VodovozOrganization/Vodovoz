@@ -533,22 +533,17 @@ namespace Edo.Receipt.Dispatcher
 
 			var organization = orderItem.Order.Contract?.Organization;
 
-			var vatRateVersion = orderItem.Nomenclature.GetActualVatRateVersion(orderItem.Order.BillDate);
+			var vatRateVersion = organization != null && organization.IsUsnMode 
+				? organization.GetActualVatRateVersion(orderItem.Order.BillDate)
+				: orderItem.Nomenclature.GetActualVatRateVersion(orderItem.Order.BillDate);
 			
 			if(vatRateVersion == null)
 			{
 				throw new InvalidOperationException($"У товара #{orderItem.Nomenclature.Id} отсутствует версия НДС на дату счета заказа #{orderItem.Order.BillDate}");
 			}
 			
-			if(organization is null || organization.WithoutVAT || vatRateVersion.VatRate.VatRateValue == 0)
-			{
-				inventPosition.Vat = FiscalVat.VatFree;
-			}
-			else
-			{
-				inventPosition.Vat = vatRateVersion.VatRate.ToFiscalVat();
-			}
-
+			inventPosition.Vat = vatRateVersion.VatRate.ToFiscalVat();
+			
 			return inventPosition;
 		}
 
