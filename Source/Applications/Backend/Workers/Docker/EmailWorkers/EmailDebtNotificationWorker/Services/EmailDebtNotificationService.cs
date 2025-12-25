@@ -1,4 +1,4 @@
-﻿using EdoService.Library.Services;
+using EdoService.Library.Services;
 using Mailjet.Api.Abstractions;
 using MassTransit;
 using QS.DomainModel.UoW;
@@ -303,6 +303,7 @@ namespace EmailDebtNotificationWorker.Services
 						.order-list {{ margin: 15px 0; padding-left: 20px; }}
 						.footer {{ margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 12px; color: #666; }}
 						.unsubscribe {{ color: #007bff; text-decoration: none; }}
+						.phone {{ white-space: nowrap; }}
 					</style>
 				</head>
 				<body>
@@ -316,7 +317,7 @@ namespace EmailDebtNotificationWorker.Services
 							срок оплаты по которому истёк <strong>{dueDateFormatted}.</strong></p>
             
 							<p>Мы ценим ваше сотрудничество и надеемся на оперативное урегулирование задолженности. 
-							Для уточнения деталей Вы можете связаться с нами по телефону <strong>8 812-317-00-00 доб. 900</strong> 
+							Для уточнения деталей Вы можете связаться с нами по телефону <strong><span class='phone'>8&nbsp;812-317-00-00&nbsp;доб.&nbsp;700</span></strong>
 							или электронной почте <strong>client.buh@vodovoz-spb.ru</strong>.</p>
             
 							<p>Просим вас принять меры к погашению задолженности в ближайшее время, чтобы избежать возможных последствий, 
