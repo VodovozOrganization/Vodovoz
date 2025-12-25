@@ -209,8 +209,7 @@ namespace EmailDebtNotificationWorker.Services
 				{
 					new() {
 						Name = client.FullName,
-						//Email = emailAddress
-						Email = "work.semen.sd@gmail.com"
+						Email = emailAddress
 					}
 				},
 
