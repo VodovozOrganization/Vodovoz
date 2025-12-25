@@ -51,6 +51,8 @@ namespace Vodovoz.Core.Domain.Organizations
 		private IObservableList<PhoneEntity> _phones = new ObservableList<PhoneEntity>();
 		private IObservableList<OrganizationVersionEntity> _organizationVersions = new ObservableList<OrganizationVersionEntity>();
 		private IObservableList<VatRateVersion> _vatRateVersions = new ObservableList<VatRateVersion>();
+		private bool _isOsnoMode = true;
+		private bool _isUsnMode;
 
 		public OrganizationEntity()
 		{
@@ -183,15 +185,6 @@ namespace Vodovoz.Core.Domain.Organizations
 			set => SetField(ref _cashBoxId, value);
 		}
 
-		/// <summary>
-		/// Без НДС
-		/// </summary>
-		[Display(Name = "Без НДС")]
-		public virtual bool WithoutVAT
-		{
-			get => _withoutVAT;
-			set => SetField(ref _withoutVAT, value);
-		}
 		
 		/// <summary>
 		/// Требуется контроль движения средств по безналу
@@ -278,7 +271,43 @@ namespace Vodovoz.Core.Domain.Organizations
 			get => _vatRateVersions;
 			set => SetField(ref _vatRateVersions, value);
 		}
-		
+
+		/// <summary>
+		/// ОСНО. Использовать НДС номенклатур
+		/// </summary>
+		[Display(Name = "Режим ОСНО")]
+		public virtual bool IsOsnoMode
+		{
+			get => _isOsnoMode;
+			set => SetField(ref _isOsnoMode, value);
+		}
+
+		/// <summary>
+		/// УСН. Использовать НДС организации
+		/// </summary>
+		[Display(Name = "Режим УСН")]
+		public virtual bool IsUsnMode
+		{
+			get => _isUsnMode;
+			set => SetField(ref _isUsnMode, value);
+		}
+
+		#region Methods
+
+		/// <summary>
+		/// Получить актуальную версию НДС на выбранную дату
+		/// </summary>
+		/// <param name="date">Дата. Если не передается, то используется DateTime.Now</param>
+		/// <returns>Версия ставки НДС</returns>
+		public virtual VatRateVersion GetActualVatRateVersion(DateTime? date = null)
+		{
+			var targetDate = date ?? DateTime.Now;
+			return VatRateVersions.FirstOrDefault(x => 
+				x.StartDate <= targetDate && (x.EndDate == null || x.EndDate >= targetDate));
+		}
+
+		#endregion
+
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			var duplicatedBankAccountNames = GetDuplicatedBankAccountNames();
@@ -400,6 +429,36 @@ namespace Vodovoz.Core.Domain.Organizations
 				yield return new ValidationResult(
 					"E-mail для рассылки должен быть в домене @vodovoz-spb.ru.",
 					new[] { nameof(Email) });
+			}
+
+			if(IsUsnMode == IsOsnoMode)
+			{
+				yield return new ValidationResult(
+					"У организации нельзя выбрать несколько или не выбрать ни одного режима работы с НДС",
+					new[] { nameof(VatRateVersions) });
+			}
+			if(IsUsnMode)
+			{
+				if(!VatRateVersions.Any())
+				{
+					yield return new ValidationResult(
+						"У организации нет ниодной версии НДС!",
+						new[] { nameof(VatRateVersions) });
+				}
+				
+				if(VatRateVersions.Any(v => v.VatRate == null))
+				{
+					yield return new ValidationResult(
+						"У одной из версий НДС не выбрана ставка НДС!",
+						new[] { nameof(VatRateVersions) });
+				}
+
+				if(GetActualVatRateVersion(DateTime.Now) == null)
+				{
+					yield return new ValidationResult(
+						"У организации нет актуальной версии НДС!",
+						new[] { nameof(VatRateVersions) });
+				}
 			}
 		}
 
