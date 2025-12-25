@@ -224,8 +224,6 @@ namespace Vodovoz
 
 		public Counterparty Counterparty => UoWGeneric.Root;
 
-		public bool HasOgrn => Counterparty.CounterpartyType == CounterpartyType.Dealer;
-
 		private bool CanEdit => permissionResult.CanUpdate || permissionResult.CanCreate && Entity.Id == 0;
 
 		public override bool HasChanges
@@ -967,6 +965,7 @@ namespace Vodovoz
 			dateOGRNPicker.Binding
 				.AddBinding(Entity, e => e.OGRNDate, w => w.DateOrNull)
 				.InitializeFromSource();
+			dateOGRNPicker.IsEditable = CanEdit;
 
 			validatedINN.Binding
 				.AddBinding(Entity, e => e.INN, w => w.Text)
@@ -1864,7 +1863,6 @@ namespace Vodovoz
 		private void OnEnumCounterpartyTypeChanged(object sender, EventArgs e)
 		{
 			rbnPrices.Visible = Entity.CounterpartyType == CounterpartyType.Supplier;
-			validatedOGRN.Visible = labelOGRN.Visible = HasOgrn;
 			if(Entity.CounterpartyType == CounterpartyType.Dealer)
 			{
 				Entity.PersonType = PersonType.legal;

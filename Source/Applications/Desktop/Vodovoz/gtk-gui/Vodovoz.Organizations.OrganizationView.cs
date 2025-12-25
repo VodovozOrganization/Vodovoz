@@ -32,7 +32,7 @@ namespace Vodovoz.Organizations
 
 		private global::Gamma.GtkWidgets.yEntry dataentryOKVED;
 
-		private global::QS.Widgets.GtkUI.DatePicker dateOGRNpicker;
+		private global::QS.Widgets.GtkUI.DatePicker dateOGRNPicker;
 
 		private global::Gamma.GtkWidgets.yHBox hbox6;
 
@@ -250,17 +250,16 @@ namespace Vodovoz.Organizations
 			w13.RightAttach = ((uint)(6));
 			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
-			this.dateOGRNpicker = new global::QS.Widgets.GtkUI.DatePicker();
-			this.dateOGRNpicker.Events = ((global::Gdk.EventMask)(256));
-			this.dateOGRNpicker.Name = "dateOGRNpicker";
-			this.dateOGRNpicker.WithTime = false;
-			this.dateOGRNpicker.HideCalendarButton = false;
-			this.dateOGRNpicker.Date = new global::System.DateTime(0);
-			this.dateOGRNpicker.IsEditable = false;
-			this.dateOGRNpicker.AutoSeparation = false;
-			this.dateOGRNpicker.HideButtonClearDate = false;
-			this.datatableMain.Add(this.dateOGRNpicker);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.dateOGRNpicker]));
+			this.dateOGRNPicker = new global::QS.Widgets.GtkUI.DatePicker();
+			this.dateOGRNPicker.Events = ((global::Gdk.EventMask)(256));
+			this.dateOGRNPicker.Name = "dateOGRNPicker";
+			this.dateOGRNPicker.WithTime = false;
+			this.dateOGRNPicker.HideCalendarButton = false;
+			this.dateOGRNPicker.Date = new global::System.DateTime(0);
+			this.dateOGRNPicker.AutoSeparation = false;
+			this.dateOGRNPicker.HideButtonClearDate = false;
+			this.datatableMain.Add(this.dateOGRNPicker);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.dateOGRNPicker]));
 			w14.TopAttach = ((uint)(7));
 			w14.BottomAttach = ((uint)(8));
 			w14.LeftAttach = ((uint)(1));

@@ -33,7 +33,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		private string _iNN;
 		private string _kPP;
 		private string _oGRN;
-		private DateTime? _ogrnDate;
+		private DateTime? _oGRNDate;
 		private string _oKPO;
 		private string _oKVED;
 		private string _email;
@@ -131,8 +131,8 @@ namespace Vodovoz.Core.Domain.Organizations
 		[Display(Name = "Дата внесения ОГРН/ОГРНИП")]
 		public virtual DateTime? OGRNDate
 		{
-			get => _ogrnDate;
-			set => SetField(ref _ogrnDate, value);
+			get => _oGRNDate;
+			set => SetField(ref _oGRNDate, value);
 		}
 
 		/// <summary>
@@ -487,7 +487,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		public virtual bool IsPrivateBusinessmanWithoutOgrnOrOgrnDate() =>
 			_iNN != null
 			&& _iNN.Length == 12
-			&& (!string.IsNullOrWhiteSpace(_oGRN) || !_ogrnDate.HasValue);
+			&& (!string.IsNullOrWhiteSpace(_oGRN) || !_oGRNDate.HasValue);
 	}
 }
 
