@@ -48,19 +48,19 @@ namespace EmailDebtNotificationWorker.Services
 
 		public async Task ScheduleDebtNotificationsAsync(CancellationToken cancellationToken)
 		{
-			try
+			var overdueOrdersByClient = await _emailRepository.GetAllOverdueOrderForDebtNotificationAsync(_uow, _maxEmailsPerMinute, cancellationToken);
+			if(!overdueOrdersByClient.Any())
 			{
-				var overdueOrdersByClient = await _emailRepository.GetAllOverdueOrderForDebtNotificationAsync(_uow, _maxEmailsPerMinute, cancellationToken);
-				if(!overdueOrdersByClient.Any())
-				{
-					_logger.LogDebug("Нет писем для массовой рассылки");
-					return;
-				}
+				_logger.LogDebug("Нет писем для массовой рассылки");
+				return;
+			}
 
-				_logger.LogInformation("В процессе {Count} писем для рассылки",
-					overdueOrdersByClient.Keys.Count);
+			_logger.LogInformation("В процессе {Count} писем для рассылки",
+				overdueOrdersByClient.Keys.Count);
 
-				foreach(var clientOrders in overdueOrdersByClient)
+			foreach(var clientOrders in overdueOrdersByClient)
+			{
+				try
 				{
 					if(cancellationToken.IsCancellationRequested)
 					{
@@ -73,11 +73,10 @@ namespace EmailDebtNotificationWorker.Services
 
 					await ProcessSingleClientEmailAsync(client, organization, order, cancellationToken);
 				}
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex, "Ошибка в процессе формирования очереди");
-				throw;
+				catch(Exception ex)
+				{
+					_logger.LogError(ex, "Ошибка при обработке письма о задолженности");
+				}
 			}
 		}
 
@@ -88,80 +87,72 @@ namespace EmailDebtNotificationWorker.Services
 			CancellationToken cancellationToken
 			)
 		{
-			int? clientId = client?.Id;
-			try
+			if(client == null)
 			{
-				if(client == null)
-				{
-					_logger.LogWarning("Попытка отправить письмо несуществующему клиенту");
-					return;
-				}
-
-				if(organization == null)
-				{
-					_logger.LogWarning("Попытка отправить письмо клиенту {ClientId} от несуществующей организации", client.Id);
-					return;
-				}
-
-				if(order == null)
-				{
-					_logger.LogWarning("Попытка отправить письмо клиенту {ClientId} от организации {OrganizationId} по несуществующему заказу",
-						client.Id,
-						organization.Id);
-					return;
-				}
-
-				var emailSubject = $"Информационное письмо о задолженности {client.Name} от {DateTime.Now:dd.MM.yyyy}";
-
-				var emailAddress = SelectEmailForDebtNotification(client);
-				if(string.IsNullOrWhiteSpace(emailAddress))
-				{
-					_logger.LogWarning("Клиент {ClientId} {ClientName} не имеет подходящего email для уведомления о задолженности", client.Id, client.FullName);
-					return;
-				}
-				var storedEmail = CreateStoredEmail(emailSubject, emailAddress, order.Id);
-				if(storedEmail == null)
-				{
-					_logger.LogError("Не удалось создать запись о письме с уведомлением о задолженности для клиента {ClientId}", client.Id);
-					return;
-				}
-
-				var letterOfDebtDocument = new LetterOfDebtDocument
-				{
-					Order = order,
-					HideSignature = !organization.DebtMailingWithSignature,
-					AttachedToOrder = order
-				};
-
-				var bulkEmail = new BulkEmail
-				{
-					StoredEmail = storedEmail,
-					Counterparty = client,
-					OrderDocument = letterOfDebtDocument
-				};
-
-				var bulkEmailOrder = new BulkEmailOrder
-				{
-					BulkEmail = bulkEmail,
-					Order = order
-				};
-
-				await _uow.SaveAsync(letterOfDebtDocument, cancellationToken: cancellationToken);
-				await _uow.SaveAsync(storedEmail, cancellationToken: cancellationToken);
-				await _uow.SaveAsync(bulkEmail, cancellationToken: cancellationToken);
-				await _uow.SaveAsync(bulkEmailOrder, cancellationToken: cancellationToken);
-
-				await _uow.CommitAsync(cancellationToken);
-
-				var emailMessage = CreateDebtEmailMessage(storedEmail, client, organization, order, letterOfDebtDocument, emailAddress, emailSubject);
-
-				await _bus.Publish(emailMessage, cancellationToken);
+				_logger.LogWarning("Попытка отправить письмо несуществующему клиенту");
 			}
-			catch(Exception ex)
+
+			if(organization == null)
 			{
-				_logger.LogError(ex, "Ошибка при обработке письма для клиента {ClientId}", clientId);
-				throw;
+				_logger.LogWarning("Попытка отправить письмо клиенту {ClientId} от несуществующей организации", client.Id);
 			}
+
+			if(order == null)
+			{
+				_logger.LogWarning("Попытка отправить письмо клиенту {ClientId} от организации {OrganizationId} по несуществующему заказу",
+					client.Id,
+					organization.Id);
+			}
+
+			var emailSubject = $"Информационное письмо о задолженности {client.Name} от {DateTime.Now:dd.MM.yyyy}";
+
+			var emailAddress = SelectEmailForDebtNotification(client);
+			if(string.IsNullOrWhiteSpace(emailAddress))
+			{
+				_logger.LogWarning("Клиент {ClientId} {ClientName} не имеет подходящего email для уведомления о задолженности", client.Id, client.FullName);
+			}
+			var storedEmail = CreateStoredEmail(emailSubject, emailAddress, order.Id);
+			if(storedEmail == null)
+			{
+				_logger.LogError("Не удалось создать запись о письме с уведомлением о задолженности для клиента {ClientId}", client.Id);
+			}
+
+			var letterOfDebtDocument = new LetterOfDebtDocument
+			{
+				Order = order,
+				HideSignature = !organization.DebtMailingWithSignature,
+				AttachedToOrder = order
+			};
+
+			var bulkEmail = new BulkEmail
+			{
+				StoredEmail = storedEmail,
+				Counterparty = client,
+				OrderDocument = letterOfDebtDocument
+			};
+
+			var bulkEmailOrder = new BulkEmailOrder
+			{
+				BulkEmail = bulkEmail,
+				Order = order
+			};
+
+			await _uow.SaveAsync(letterOfDebtDocument, cancellationToken: cancellationToken);
+			await _uow.SaveAsync(storedEmail, cancellationToken: cancellationToken);
+			await _uow.SaveAsync(bulkEmail, cancellationToken: cancellationToken);
+			await _uow.SaveAsync(bulkEmailOrder, cancellationToken: cancellationToken);
+
+			await _uow.CommitAsync(cancellationToken);
+
+			await PublishDebtEmailMessageAsync(
+				storedEmail,
+				client,
+				organization,
+				order,
+				letterOfDebtDocument,
+				emailAddress,
+				emailSubject,
+				cancellationToken);
 		}
 
 		private static StoredEmail CreateStoredEmail(string subject, string email, int orderId)
@@ -218,7 +209,8 @@ namespace EmailDebtNotificationWorker.Services
 				{
 					new() {
 						Name = client.FullName,
-						Email = emailAddress
+						//Email = emailAddress
+						Email = "work.semen.sd@gmail.com"
 					}
 				},
 
@@ -351,6 +343,21 @@ namespace EmailDebtNotificationWorker.Services
 				Base64Content = Convert.ToBase64String(pdfBytes)
 			};
 			return attachment;
+		}
+
+		private async Task PublishDebtEmailMessageAsync(
+			StoredEmail storedEmail,
+			Counterparty client,
+			Organization organization,
+			Order order,
+			LetterOfDebtDocument letterOfDebtDocument,
+			string emailAddress,
+			string emailSubject,
+			CancellationToken cancellationToken
+			)
+		{
+			var emailMessage = CreateDebtEmailMessage(storedEmail, client, organization, order, letterOfDebtDocument, emailAddress, emailSubject);
+			await _bus.Publish(emailMessage, cancellationToken);
 		}
 	}
 }
