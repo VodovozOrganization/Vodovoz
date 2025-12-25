@@ -41,6 +41,12 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Organizations
 
 			Map(x => x.EmailForMailing)
 				.Column("email_for_mailing");
+
+			Map(x => x.DisableDebtMailing)
+				.Column("disable_debt_mailing");
+
+			Map(x => x.DebtMailingWithSignature)
+				.Column("debt_mailing_with_signature");
 			
 			Map(x => x.IsOsnoMode)
 				.Column("is_osno_mode");

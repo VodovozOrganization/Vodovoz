@@ -78,6 +78,10 @@ namespace Vodovoz.Organizations
 
 		private global::Gtk.Label vatRateVersionLabel;
 
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonDebtMailingWithSignature;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonDisableDebtMailing;
+
 		private global::Gamma.GtkWidgets.yEntry yentryPrefix;
 
 		private global::Gamma.GtkWidgets.yEntry yentrySuffix;
@@ -184,7 +188,7 @@ namespace Vodovoz.Organizations
 			global::Gtk.Viewport w9 = new global::Gtk.Viewport();
 			w9.ShadowType = ((global::Gtk.ShadowType)(0));
 			// Container child GtkViewport.Gtk.Container+ContainerChild
-			this.datatableMain = new global::Gtk.Table(((uint)(11)), ((uint)(6)), false);
+			this.datatableMain = new global::Gtk.Table(((uint)(12)), ((uint)(6)), false);
 			this.datatableMain.Name = "datatableMain";
 			this.datatableMain.RowSpacing = ((uint)(6));
 			this.datatableMain.ColumnSpacing = ((uint)(6));
@@ -258,8 +262,8 @@ namespace Vodovoz.Organizations
 			w14.Position = 0;
 			this.datatableMain.Add(this.hbox6);
 			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.hbox6]));
-			w15.TopAttach = ((uint)(7));
-			w15.BottomAttach = ((uint)(8));
+			w15.TopAttach = ((uint)(8));
+			w15.BottomAttach = ((uint)(9));
 			w15.LeftAttach = ((uint)(1));
 			w15.RightAttach = ((uint)(6));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -317,8 +321,8 @@ namespace Vodovoz.Organizations
 			this.label17.LabelProp = global::Mono.Unix.Catalog.GetString("Версии:");
 			this.datatableMain.Add(this.label17);
 			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.label17]));
-			w20.TopAttach = ((uint)(7));
-			w20.BottomAttach = ((uint)(8));
+			w20.TopAttach = ((uint)(8));
+			w20.BottomAttach = ((uint)(9));
 			w20.XOptions = ((global::Gtk.AttachOptions)(4));
 			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
@@ -499,8 +503,8 @@ namespace Vodovoz.Organizations
 			this.vatRateVersionForOrganizationView.Name = "vatRateVersionForOrganizationView";
 			this.datatableMain.Add(this.vatRateVersionForOrganizationView);
 			global::Gtk.Table.TableChild w35 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.vatRateVersionForOrganizationView]));
-			w35.TopAttach = ((uint)(9));
-			w35.BottomAttach = ((uint)(10));
+			w35.TopAttach = ((uint)(10));
+			w35.BottomAttach = ((uint)(11));
 			w35.LeftAttach = ((uint)(1));
 			w35.RightAttach = ((uint)(6));
 			w35.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -511,9 +515,39 @@ namespace Vodovoz.Organizations
 			this.vatRateVersionLabel.LabelProp = global::Mono.Unix.Catalog.GetString("Версии НДС:");
 			this.datatableMain.Add(this.vatRateVersionLabel);
 			global::Gtk.Table.TableChild w36 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.vatRateVersionLabel]));
-			w36.TopAttach = ((uint)(9));
-			w36.BottomAttach = ((uint)(10));
+			w36.TopAttach = ((uint)(10));
+			w36.BottomAttach = ((uint)(11));
 			w36.XOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatableMain.Gtk.Table+TableChild
+			this.ycheckbuttonDebtMailingWithSignature = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonDebtMailingWithSignature.CanFocus = true;
+			this.ycheckbuttonDebtMailingWithSignature.Name = "ycheckbuttonDebtMailingWithSignature";
+			this.ycheckbuttonDebtMailingWithSignature.Label = global::Mono.Unix.Catalog.GetString("Рассылка писем о задолженности с печатью и подписью");
+			this.ycheckbuttonDebtMailingWithSignature.DrawIndicator = true;
+			this.ycheckbuttonDebtMailingWithSignature.UseUnderline = true;
+			this.datatableMain.Add(this.ycheckbuttonDebtMailingWithSignature);
+			global::Gtk.Table.TableChild w37 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.ycheckbuttonDebtMailingWithSignature]));
+			w37.TopAttach = ((uint)(7));
+			w37.BottomAttach = ((uint)(8));
+			w37.LeftAttach = ((uint)(2));
+			w37.RightAttach = ((uint)(3));
+			w37.XOptions = ((global::Gtk.AttachOptions)(4));
+			w37.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatableMain.Gtk.Table+TableChild
+			this.ycheckbuttonDisableDebtMailing = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonDisableDebtMailing.CanFocus = true;
+			this.ycheckbuttonDisableDebtMailing.Name = "ycheckbuttonDisableDebtMailing";
+			this.ycheckbuttonDisableDebtMailing.Label = global::Mono.Unix.Catalog.GetString("Запретить рассылку писем о задолженности");
+			this.ycheckbuttonDisableDebtMailing.DrawIndicator = true;
+			this.ycheckbuttonDisableDebtMailing.UseUnderline = true;
+			this.datatableMain.Add(this.ycheckbuttonDisableDebtMailing);
+			global::Gtk.Table.TableChild w38 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.ycheckbuttonDisableDebtMailing]));
+			w38.TopAttach = ((uint)(7));
+			w38.BottomAttach = ((uint)(8));
+			w38.LeftAttach = ((uint)(1));
+			w38.RightAttach = ((uint)(2));
+			w38.XOptions = ((global::Gtk.AttachOptions)(4));
+			w38.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
 			this.yentryPrefix = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryPrefix.CanFocus = true;
@@ -522,13 +556,13 @@ namespace Vodovoz.Organizations
 			this.yentryPrefix.MaxLength = 3;
 			this.yentryPrefix.InvisibleChar = '•';
 			this.datatableMain.Add(this.yentryPrefix);
-			global::Gtk.Table.TableChild w37 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.yentryPrefix]));
-			w37.TopAttach = ((uint)(2));
-			w37.BottomAttach = ((uint)(3));
-			w37.LeftAttach = ((uint)(4));
-			w37.RightAttach = ((uint)(6));
-			w37.XOptions = ((global::Gtk.AttachOptions)(4));
-			w37.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w39 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.yentryPrefix]));
+			w39.TopAttach = ((uint)(2));
+			w39.BottomAttach = ((uint)(3));
+			w39.LeftAttach = ((uint)(4));
+			w39.RightAttach = ((uint)(6));
+			w39.XOptions = ((global::Gtk.AttachOptions)(4));
+			w39.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
 			this.yentrySuffix = new global::Gamma.GtkWidgets.yEntry();
 			this.yentrySuffix.CanFocus = true;
@@ -537,24 +571,24 @@ namespace Vodovoz.Organizations
 			this.yentrySuffix.MaxLength = 3;
 			this.yentrySuffix.InvisibleChar = '•';
 			this.datatableMain.Add(this.yentrySuffix);
-			global::Gtk.Table.TableChild w38 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.yentrySuffix]));
-			w38.TopAttach = ((uint)(2));
-			w38.BottomAttach = ((uint)(3));
-			w38.LeftAttach = ((uint)(1));
-			w38.RightAttach = ((uint)(3));
-			w38.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w40 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.yentrySuffix]));
+			w40.TopAttach = ((uint)(2));
+			w40.BottomAttach = ((uint)(3));
+			w40.LeftAttach = ((uint)(1));
+			w40.RightAttach = ((uint)(3));
+			w40.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
 			this.ylabelEmailForMailing = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelEmailForMailing.Name = "ylabelEmailForMailing";
 			this.ylabelEmailForMailing.Xalign = 1F;
 			this.ylabelEmailForMailing.LabelProp = global::Mono.Unix.Catalog.GetString("E-mail для рассылки:");
 			this.datatableMain.Add(this.ylabelEmailForMailing);
-			global::Gtk.Table.TableChild w39 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.ylabelEmailForMailing]));
-			w39.TopAttach = ((uint)(4));
-			w39.BottomAttach = ((uint)(5));
-			w39.LeftAttach = ((uint)(2));
-			w39.RightAttach = ((uint)(3));
-			w39.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w41 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.ylabelEmailForMailing]));
+			w41.TopAttach = ((uint)(4));
+			w41.BottomAttach = ((uint)(5));
+			w41.LeftAttach = ((uint)(2));
+			w41.RightAttach = ((uint)(3));
+			w41.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
 			this.yradiobuttonOsno = new global::Gamma.GtkWidgets.yRadioButton();
 			this.yradiobuttonOsno.CanFocus = true;
@@ -564,12 +598,12 @@ namespace Vodovoz.Organizations
 			this.yradiobuttonOsno.UseUnderline = true;
 			this.yradiobuttonOsno.Group = this.radioTabInfo.Group;
 			this.datatableMain.Add(this.yradiobuttonOsno);
-			global::Gtk.Table.TableChild w40 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.yradiobuttonOsno]));
-			w40.TopAttach = ((uint)(8));
-			w40.BottomAttach = ((uint)(9));
-			w40.LeftAttach = ((uint)(1));
-			w40.RightAttach = ((uint)(3));
-			w40.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w42 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.yradiobuttonOsno]));
+			w42.TopAttach = ((uint)(9));
+			w42.BottomAttach = ((uint)(10));
+			w42.LeftAttach = ((uint)(1));
+			w42.RightAttach = ((uint)(3));
+			w42.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
 			this.yradiobuttonUsn = new global::Gamma.GtkWidgets.yRadioButton();
 			this.yradiobuttonUsn.CanFocus = true;
@@ -579,12 +613,12 @@ namespace Vodovoz.Organizations
 			this.yradiobuttonUsn.UseUnderline = true;
 			this.yradiobuttonUsn.Group = this.radioTabInfo.Group;
 			this.datatableMain.Add(this.yradiobuttonUsn);
-			global::Gtk.Table.TableChild w41 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.yradiobuttonUsn]));
-			w41.TopAttach = ((uint)(8));
-			w41.BottomAttach = ((uint)(9));
-			w41.LeftAttach = ((uint)(3));
-			w41.RightAttach = ((uint)(6));
-			w41.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w43 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.yradiobuttonUsn]));
+			w43.TopAttach = ((uint)(9));
+			w43.BottomAttach = ((uint)(10));
+			w43.LeftAttach = ((uint)(3));
+			w43.RightAttach = ((uint)(6));
+			w43.YOptions = ((global::Gtk.AttachOptions)(4));
 			w9.Add(this.datatableMain);
 			this.scrolledwindow1.Add(w9);
 			this.notebookMain.Add(this.scrolledwindow1);
@@ -600,8 +634,8 @@ namespace Vodovoz.Organizations
 			this.accountsview1.Name = "accountsview1";
 			this.accountsview1.CanEdit = true;
 			this.notebookMain.Add(this.accountsview1);
-			global::Gtk.Notebook.NotebookChild w45 = ((global::Gtk.Notebook.NotebookChild)(this.notebookMain[this.accountsview1]));
-			w45.Position = 1;
+			global::Gtk.Notebook.NotebookChild w47 = ((global::Gtk.Notebook.NotebookChild)(this.notebookMain[this.accountsview1]));
+			w47.Position = 1;
 			// Notebook tab
 			this.label12 = new global::Gtk.Label();
 			this.label12.Name = "label12";
@@ -609,8 +643,8 @@ namespace Vodovoz.Organizations
 			this.notebookMain.SetTabLabel(this.accountsview1, this.label12);
 			this.label12.ShowAll();
 			this.vbox1.Add(this.notebookMain);
-			global::Gtk.Box.BoxChild w46 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebookMain]));
-			w46.Position = 1;
+			global::Gtk.Box.BoxChild w48 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebookMain]));
+			w48.Position = 1;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

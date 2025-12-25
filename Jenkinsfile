@@ -277,6 +277,7 @@ stage('Web'){
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EmailWorkers/EmailPrepareWorker/EmailPrepareWorker.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EmailWorkers/EmailSendWorker/EmailSendWorker.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EmailWorkers/EmailStatusUpdateWorker/EmailStatusUpdateWorker.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EmailWorkers/EmailDebtNotificationWorker/EmailDebtNotificationWorker.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/ExternalCounterpartyAssignNotifier/ExternalCounterpartyAssignNotifier.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/FastDeliveryLateWorker/FastDeliveryLateWorker.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/LogisticsEventsApi/LogisticsEventsApi.csproj")

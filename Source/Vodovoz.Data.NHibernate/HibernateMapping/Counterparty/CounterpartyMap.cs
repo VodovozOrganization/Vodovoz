@@ -86,6 +86,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.DefaultExpenseCategoryId).Column("default_financial_expense_category_id");
 			Map(x => x.CloseDeliveryDebtType).Column("close_delivery_debt_type");
 			Map(x => x.HideDeliveryPointForBill).Column("hide_delivery_point_for_bill");
+			Map(x => x.DisableDebtMailing).Column("disable_debt_mailing");
 			Map(x => x.IsNewEdoProcessing).Column("is_new_edo_processing");
 
 			References(x => x.MainCounterparty).Column("maincounterparty_id");

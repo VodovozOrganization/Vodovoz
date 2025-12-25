@@ -429,6 +429,7 @@
     <Compile Include="Commons\GtkClipboard.cs" />
     <Compile Include="Commons\VodovozTreeModelProvider.cs" />
     <Compile Include="Extensions\EntryExtension.cs" />
+    <Compile Include="gtk-gui\BulkDebtMailingReportView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Common.AddOrRemoveIDomainObjectView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PACS.PacsMissingCallsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.FineCategoryView.cs" />
@@ -780,6 +781,7 @@
     <Compile Include="Views\Employees\PremiumView.cs" />
     <Compile Include="Views\Goods\NomenclaturePurchasePricesView.cs" />
     <Compile Include="Views\Orders\NomenclaturePlanView.cs" />
+    <Compile Include="Views\Reports\BulkDebtMailingReportView.cs" />
     <Compile Include="Views\Reports\ChangingPaymentTypeByDriversReportView.cs" />
     <Compile Include="Views\Users\UserRoleView.cs" />
     <Compile Include="ViewWidgets\DeliveryPointsManagementView.cs" />
