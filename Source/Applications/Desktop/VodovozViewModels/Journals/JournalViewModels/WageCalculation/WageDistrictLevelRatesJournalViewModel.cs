@@ -2,15 +2,18 @@
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
+using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Services;
 using System;
 using System.Linq;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Journals.JournalNodes;
+using Vodovoz.ViewModels.ViewModels.WageCalculation;
 using Vodovoz.ViewModels.WageCalculation;
 
 namespace Vodovoz.Journals.JournalViewModels.WageCalculation
@@ -18,18 +21,22 @@ namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 	public class WageDistrictLevelRatesJournalViewModel : SingleEntityJournalViewModelBase<WageDistrictLevelRates, WageDistrictLevelRatesViewModel, WageDistrictLevelRatesJournalNode>
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly INavigationManager _navigationManager;
 		private readonly IWageCalculationRepository _wageCalculationRepository;
 		private readonly IInteractiveService _interactiveService;
 		private readonly bool _canUpdate;
 		private readonly bool _canCreate;
+		private readonly bool _canAssignWageDistrictLevelRates;
 
 		public WageDistrictLevelRatesJournalViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
+			INavigationManager navigationManager,
 			IWageCalculationRepository wageCalculationRepository)
 			: base(unitOfWorkFactory, commonServices)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_navigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_wageCalculationRepository = wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
 			_interactiveService = commonServices.InteractiveService;
 
@@ -44,6 +51,13 @@ namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 			var permissionResult = commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(WageDistrictLevelRates));
 			_canCreate = permissionResult.CanCreate;
 			_canUpdate = permissionResult.CanUpdate;
+
+			var canEditEmployee =
+				commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Employee)).CanUpdate;
+			var canEditWage =
+				commonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.EmployeePermissions.CanEditWage);
+
+			_canAssignWageDistrictLevelRates = canEditEmployee && canEditWage;
 		}
 
 		protected override Func<IUnitOfWork, IQueryOver<WageDistrictLevelRates>> ItemsSourceQueryFunction => (uow) => {
@@ -90,11 +104,31 @@ namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 			_wageCalculationRepository
 	   );
 
+		protected override void CreateNodeActions()
+		{
+			base.CreateNodeActions();
+			CreateWageDistrictLevelRatesAssigningAction();
+		}
+
 		protected override void CreatePopupActions()
 		{
 			CreateCopyAction();
 		}
-		
+
+		private void CreateWageDistrictLevelRatesAssigningAction()
+		{
+			var createExportToExcelAction = new JournalAction(
+				"Привязка ставок",
+				(selected) => _canAssignWageDistrictLevelRates,
+				(selected) => _canAssignWageDistrictLevelRates,
+				async (selected) =>
+				{
+					_navigationManager.OpenViewModel<WageDistrictLevelRatesAssigningViewModel>(null);
+				}
+			);
+			NodeActionsList.Add(createExportToExcelAction);
+		}
+
 		private void CreateCopyAction()
 		{
 			var copyAction = new JournalAction("Копировать",

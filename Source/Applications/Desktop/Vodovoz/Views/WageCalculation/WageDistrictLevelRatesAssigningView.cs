@@ -1,12 +1,12 @@
-﻿using System;
+﻿using QS.Views.GtkUI;
+using Vodovoz.ViewModels.ViewModels.WageCalculation;
 namespace Vodovoz.Views.WageCalculation
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class WageDistrictLevelRatesAssigningView : Gtk.Bin
+	public partial class WageDistrictLevelRatesAssigningView : TabViewBase<WageDistrictLevelRatesAssigningViewModel>
 	{
-		public WageDistrictLevelRatesAssigningView()
+		public WageDistrictLevelRatesAssigningView(WageDistrictLevelRatesAssigningViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 		}
 	}
 }
