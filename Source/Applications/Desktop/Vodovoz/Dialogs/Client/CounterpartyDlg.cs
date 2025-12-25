@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -65,7 +65,6 @@ using Vodovoz.Extensions;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
-using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
@@ -126,6 +125,7 @@ namespace Vodovoz
 		private readonly IContactSettings _contactsSettings = ScopeProvider.Scope.Resolve<IContactSettings>();
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
+		private readonly IEmailTypeSettings _emailTypeSettings = ScopeProvider.Scope.Resolve<IEmailTypeSettings>();
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
 		private IEdoOperatorsJournalFactory _edoOperatorsJournalFactory;
 		private IEmailSettings _emailSettings;
@@ -767,6 +767,12 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.HideDeliveryPointForBill, w => w.Active)
 				.InitializeFromSource();
 
+			ycheckbuttonDisableDebtMailing.Binding
+				.AddBinding(Entity, e => e.DisableDebtMailing, w => w.Active)
+				.InitializeFromSource();
+			ycheckbuttonDisableDebtMailing.Sensitive = 
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CounterpartyPermissions.CanEditDebtNotification);
+
 			// Настройка каналов сбыта
 			if(Entity.IsForRetail)
 			{
@@ -874,8 +880,9 @@ namespace Vodovoz
 				Entity.Emails,
 				_emailSettings,
 				_externalCounterpartyRepository,
-				_commonServices.InteractiveService,
-				Entity.PersonType);
+				_commonServices,
+				Entity.PersonType,
+				_emailTypeSettings);
 			emailsView.ViewModel = emailsViewModel;
 			emailsView.Sensitive = CanEdit;
 

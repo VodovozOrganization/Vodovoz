@@ -46,12 +46,10 @@ using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Extensions;
 using Vodovoz.Services;
-using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
@@ -2707,6 +2705,17 @@ namespace Vodovoz.Domain.Orders
 							);
 						}
 						break;
+					case OrderDocumentType.LetterOfDebt:
+						if(ObservableOrderDocuments
+						   .OfType<LetterOfDebtDocument>()
+						   .FirstOrDefault(x => x.Order == item.Order)
+						   == null) {
+							ObservableOrderDocuments.Add(new LetterOfDebtDocument {
+								Order = item.Order,
+								AttachedToOrder = this
+							});
+						}
+						break;
 					default:
 						break;
 				}
@@ -3888,6 +3897,9 @@ namespace Vodovoz.Domain.Orders
 					break;
 				case OrderDocumentType.AssemblyList:
 					newDoc = new AssemblyListDocument();
+					break;
+				case OrderDocumentType.LetterOfDebt:
+					newDoc = new LetterOfDebtDocument();
 					break;
 				default:
 					throw new NotSupportedException("Не поддерживаемый тип документа");

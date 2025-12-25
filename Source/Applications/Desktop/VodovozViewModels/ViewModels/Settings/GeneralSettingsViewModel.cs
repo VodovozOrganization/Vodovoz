@@ -1,40 +1,31 @@
 ﻿using Autofac;
+using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
+using QS.Validation;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Windows.Input;
-using Microsoft.Extensions.Logging;
-using QS.DomainModel.Entity;
-using QS.Validation;
-using QS.ViewModels.Control.EEVM;
 using Vodovoz.Core.Data.Repositories.Cash;
 using Vodovoz.Core.Domain.Cash;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Settings.Car;
 using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Fuel;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.ViewModels.Accounting.Payments;
-using Vodovoz.ViewModels.Factories;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
-using Vodovoz.ViewModels.Organizations;
 using Vodovoz.ViewModels.Services;
-using Vodovoz.ViewModels.ViewModels.Cash;
-using VodovozBusiness.Controllers.Cash;
-using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Settings;
 
 namespace Vodovoz.ViewModels.ViewModels.Settings
@@ -53,6 +44,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private ILifetimeScope _lifetimeScope;
 		private readonly ViewModelEEVMBuilder<Organization> _organizationViewModelBuilder;
 		private readonly IOrganizationSettings _organizationSettings;
+		private readonly IDebtorsSettings _debtorsSettings;
 		private readonly IValidator _validator;
 		private const int _routeListPrintedFormPhonesLimitSymbols = 500;
 		private readonly ViewModelEEVMBuilder<VatRate> _vatRateEEVMBuilder;
@@ -111,10 +103,12 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			ILifetimeScope lifetimeScope,
 			INavigationManager navigation,
 			ViewModelEEVMBuilder<Organization> organizationViewModelBuilder,
+			ViewModelEEVMBuilder<VatRate> vatRateEevmBuilder,
 			EntityJournalOpener entityJournalOpener,
 			IOrganizationForOrderFromSet organizationForOrderFromSet,
 			IOrganizationSettings organizationSettings,
-			IValidator validator, ViewModelEEVMBuilder<VatRate> vatRateEevmBuilder) : base(commonServices?.InteractiveService, navigation)
+			IDebtorsSettings debtorsSettings,
+			IValidator validator) : base(commonServices?.InteractiveService, navigation)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -125,6 +119,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_organizationViewModelBuilder =
 				organizationViewModelBuilder ?? throw new ArgumentNullException(nameof(organizationViewModelBuilder));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
+			_debtorsSettings = debtorsSettings ?? throw new ArgumentNullException(nameof(debtorsSettings));
 			OrganizationForOrderFromSet = 
 				organizationForOrderFromSet ?? throw new ArgumentNullException(nameof(organizationForOrderFromSet));
 			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
@@ -145,6 +140,10 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_can_add_forwarders_to_minivan");
 			CanEditOrderAutoComment =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_order_auto_comment_setting");
+			CanEditDebtNotification =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_debt_notification_setting");
+			CanEditDebtNotification =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.CounterpartyPermissions.CanEditDebtNotification);
 			OrderAutoComment = _generalSettings.OrderAutoComment;
 
 			InitializeSettingsViewModels();
@@ -408,6 +407,17 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_generalSettings.UpdateIsClientsSecondOrderDiscountActive(IsClientsSecondOrderDiscountActive);
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
+
+		#endregion
+
+		#region Массовая рассылка писем о задолженности
+		public bool DebtNotificationWorkerIsEnabled
+		{
+			get => _debtorsSettings.DebtNotificationWorkerIsDisabled;
+			set => _debtorsSettings.DebtNotificationWorkerIsDisabled = value;
+		}
+
+		public bool CanEditDebtNotification { get; }
 
 		#endregion
 
