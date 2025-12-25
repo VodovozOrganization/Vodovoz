@@ -115,6 +115,7 @@ namespace EmailDebtNotificationWorker.Services
 				_logger.LogWarning("Клиент {ClientId} {ClientName} не имеет подходящего email для уведомления о задолженности", client.Id, client.FullName);
 				throw new InvalidOperationException($"Клиент {client.Id} не имеет подходящего email для уведомления о задолженности");
 			}
+
 			var storedEmail = CreateStoredEmail(emailSubject, emailAddress, order.Id);
 			if(storedEmail == null)
 			{
@@ -209,17 +210,15 @@ namespace EmailDebtNotificationWorker.Services
 					Name = organization.FullName,
 					Email = organization.EmailForMailing,
 				},
-
 				To = new List<EmailContact>
 				{
-					new() {
+					new()
+					{
 						Name = client.FullName,
 						Email = emailAddress
 					}
 				},
-
 				Subject = emailSubject,
-
 				TextPart = messageText,
 				HTMLPart = messageText,
 				Payload = new EmailPayload
@@ -228,13 +227,13 @@ namespace EmailDebtNotificationWorker.Services
 					Trackable = true,
 					InstanceId = instanceId
 				},
-				Attachments = new List<EmailAttachment>() 
-				{ 
-					attachment 
+				Attachments = new List<EmailAttachment>()
+				{
+					attachment
 				},
 				Headers = new Dictionary<string, string>
 				{
-					{ "List-Unsubscribe" , unsubscribeUrl }
+					{ "List-Unsubscribe", unsubscribeUrl }
 				}
 			};
 

@@ -3,38 +3,39 @@
 	public interface IWorkingDayService
 	{
 		/// <summary>
-		/// Рабочий ли день (Пн-Пт)
-		/// </summary>
-		/// <param name="date"></param>
-		/// <returns></returns>
-		bool IsWorkingDay(DateTime date);
-
-		/// <summary>
-		/// Рабочее ли время (9:00-18:00)
+		/// Проверяет, является ли дата рабочим днём (Пн-Пт) по московскому времени
 		/// </summary>
 		/// <param name="dateTime"></param>
-		/// <returns></returns>
+		/// <returns>True если рабочий день (Пн-Пт) по московскому времени</returns>
+		bool IsWorkingDay(DateTime dateTime);
+
+		/// <summary>
+		/// Проверяет, находится ли время в рабочих часах (9:00-18:00) по московскому времени
+		/// </summary>
+		/// <param name="dateTime"></param>
+		/// <returns>True если время в рабочем интервале по московскому времени</returns>
 		bool IsWithinWorkingHours(DateTime dateTime);
 
 		/// <summary>
-		/// Получить оптимальное время отправки
+		/// Возвращает оптимальное время отправки
+		/// Если текущее время рабочее - возвращает его, иначе следующее рабочее время
 		/// </summary>
-		/// <param name="currentTime"></param>
-		/// <returns></returns>
-		DateTime GetOptimalSendingTime(DateTime currentTime);
+		/// <param name="dateTime">Желаемое время отправки</param>
+		/// <returns>Оптимальное время отправки в московском времени (UTC+3)</returns>
+		DateTime GetOptimalSendingTime(DateTime dateTime);
 
 		/// <summary>
-		/// Получить следующий рабочий день (Пн-Пт)
+		/// Возвращает следующий рабочий день (Пн-Пт) по московскому времени
 		/// </summary>
-		/// <param name="fromDate"></param>
-		/// <returns></returns>
-		DateTime GetNextWorkingDay(DateTime fromDate);
+		/// <param name="dateTime">Начальная дата</param>
+		/// <returns>Следующий рабочий день в московском времени (UTC+3)</returns>
+		DateTime GetNextWorkingDay(DateTime dateTime);
 
 		/// <summary>
-		/// Получить следующее рабочее время (следующий Пн-Пт 9:00-18:00)
+		/// Возвращает следующее рабочее время (следующий Пн-Пт 9:00-18:00) по московскому времени
 		/// </summary>
-		/// <param name="fromDateTime"></param>
-		/// <returns></returns>
-		DateTime GetNextWorkingTime(DateTime fromDateTime);
+		/// <param name="dateTime">Начальное время</param>
+		/// <returns>Следующее рабочее время в московском времени (UTC+3)</returns>
+		DateTime GetNextWorkingTime(DateTime dateTime);
 	}
 }
