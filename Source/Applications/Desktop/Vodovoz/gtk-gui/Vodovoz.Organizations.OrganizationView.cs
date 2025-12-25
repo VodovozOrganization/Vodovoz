@@ -86,8 +86,6 @@ namespace Vodovoz.Organizations
 
 		private global::Gamma.GtkWidgets.yRadioButton yradiobuttonOsno;
 
-		private global::Gamma.GtkWidgets.yRadioButton yradiobuttonUsn;
-
 		private global::Gtk.Label label1;
 
 		private global::QSBanks.AccountsView accountsview1;
@@ -544,47 +542,30 @@ namespace Vodovoz.Organizations
 			w38.RightAttach = ((uint)(3));
 			w38.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
-			this.ylabelEmailForMailing = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelEmailForMailing.Name = "ylabelEmailForMailing";
-			this.ylabelEmailForMailing.Xalign = 1F;
-			this.ylabelEmailForMailing.LabelProp = global::Mono.Unix.Catalog.GetString("E-mail для рассылки:");
-			this.datatableMain.Add(this.ylabelEmailForMailing);
-			global::Gtk.Table.TableChild w39 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.ylabelEmailForMailing]));
-			w39.TopAttach = ((uint)(4));
-			w39.BottomAttach = ((uint)(5));
-			w39.LeftAttach = ((uint)(2));
-			w39.RightAttach = ((uint)(3));
-			w39.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child datatableMain.Gtk.Table+TableChild
-			this.yradiobuttonOsno = new global::Gamma.GtkWidgets.yRadioButton();
-			this.yradiobuttonOsno.CanFocus = true;
-			this.yradiobuttonOsno.Name = "yradiobuttonOsno";
-			this.yradiobuttonOsno.Label = global::Mono.Unix.Catalog.GetString("Режим ОСНО: Использовать НДС из номенклатуры");
-			this.yradiobuttonOsno.DrawIndicator = true;
-			this.yradiobuttonOsno.UseUnderline = true;
-			this.yradiobuttonOsno.Group = this.radioTabInfo.Group;
-			this.datatableMain.Add(this.yradiobuttonOsno);
-			global::Gtk.Table.TableChild w40 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.yradiobuttonOsno]));
-			w40.TopAttach = ((uint)(8));
-			w40.BottomAttach = ((uint)(9));
+			this.yhbox1 = new global::Gamma.GtkWidgets.yHBox();
+			this.yhbox1.Name = "yhbox1";
+			this.yhbox1.Spacing = 6;
+			// Container child yhbox1.Gtk.Box+BoxChild
+			this.chkWithoutVat = new global::Gamma.GtkWidgets.yCheckButton();
+			this.chkWithoutVat.CanFocus = true;
+			this.chkWithoutVat.Name = "chkWithoutVat";
+			this.chkWithoutVat.Label = global::Mono.Unix.Catalog.GetString("Без НДС");
+			this.chkWithoutVat.Active = true;
+			this.chkWithoutVat.DrawIndicator = true;
+			this.chkWithoutVat.UseUnderline = true;
+			this.yhbox1.Add(this.chkWithoutVat);
+			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.yhbox1[this.chkWithoutVat]));
+			w39.Position = 0;
+			w39.Expand = false;
+			w39.Fill = false;
+			this.datatableMain.Add(this.yhbox1);
+			global::Gtk.Table.TableChild w40 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.yhbox1]));
+			w40.TopAttach = ((uint)(10));
+			w40.BottomAttach = ((uint)(11));
 			w40.LeftAttach = ((uint)(1));
-			w40.RightAttach = ((uint)(3));
+			w40.RightAttach = ((uint)(2));
+			w40.XOptions = ((global::Gtk.AttachOptions)(4));
 			w40.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child datatableMain.Gtk.Table+TableChild
-			this.yradiobuttonUsn = new global::Gamma.GtkWidgets.yRadioButton();
-			this.yradiobuttonUsn.CanFocus = true;
-			this.yradiobuttonUsn.Name = "yradiobuttonUsn";
-			this.yradiobuttonUsn.Label = global::Mono.Unix.Catalog.GetString("Режим УСН: Использовать версии НДС");
-			this.yradiobuttonUsn.DrawIndicator = true;
-			this.yradiobuttonUsn.UseUnderline = true;
-			this.yradiobuttonUsn.Group = this.radioTabInfo.Group;
-			this.datatableMain.Add(this.yradiobuttonUsn);
-			global::Gtk.Table.TableChild w41 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.yradiobuttonUsn]));
-			w41.TopAttach = ((uint)(8));
-			w41.BottomAttach = ((uint)(9));
-			w41.LeftAttach = ((uint)(3));
-			w41.RightAttach = ((uint)(6));
-			w41.YOptions = ((global::Gtk.AttachOptions)(4));
 			w9.Add(this.datatableMain);
 			this.scrolledwindow1.Add(w9);
 			this.notebookMain.Add(this.scrolledwindow1);
@@ -600,8 +581,8 @@ namespace Vodovoz.Organizations
 			this.accountsview1.Name = "accountsview1";
 			this.accountsview1.CanEdit = true;
 			this.notebookMain.Add(this.accountsview1);
-			global::Gtk.Notebook.NotebookChild w45 = ((global::Gtk.Notebook.NotebookChild)(this.notebookMain[this.accountsview1]));
-			w45.Position = 1;
+			global::Gtk.Notebook.NotebookChild w44 = ((global::Gtk.Notebook.NotebookChild)(this.notebookMain[this.accountsview1]));
+			w44.Position = 1;
 			// Notebook tab
 			this.label12 = new global::Gtk.Label();
 			this.label12.Name = "label12";
@@ -609,8 +590,8 @@ namespace Vodovoz.Organizations
 			this.notebookMain.SetTabLabel(this.accountsview1, this.label12);
 			this.label12.ShowAll();
 			this.vbox1.Add(this.notebookMain);
-			global::Gtk.Box.BoxChild w46 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebookMain]));
-			w46.Position = 1;
+			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebookMain]));
+			w45.Position = 1;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
