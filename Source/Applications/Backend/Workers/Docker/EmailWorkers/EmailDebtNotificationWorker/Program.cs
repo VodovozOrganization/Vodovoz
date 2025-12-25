@@ -42,6 +42,8 @@ namespace EmailDebtNotificationWorker
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureServices((hostContext, services) =>
 				{
+					Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
 					services
 						.AddMappingAssemblies(
 							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,

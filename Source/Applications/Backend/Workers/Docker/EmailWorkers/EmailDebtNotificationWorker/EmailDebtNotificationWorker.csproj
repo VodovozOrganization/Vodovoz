@@ -13,10 +13,12 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
     <PackageReference Include="NLog.Extensions.Logging" Version="5.3.14" />
+	<PackageReference Include="NLog.Targets.Seq" Version="4.0.2" />
     <PackageReference Include="RabbitMQ.Client" Version="6.4.0" />
   </ItemGroup>
 
   <ItemGroup>
+	<PackageReference Include="System.Text.Encoding.CodePages" Version="7.0.0" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Email\EmailSend.Library\EmailSend.Library.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Email\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\BackendInfrastructure\BackendInfrastructure.csproj" />

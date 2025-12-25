@@ -423,16 +423,6 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				.Take(1);
 		}
 
-		public Task<int> GetPendingEmailsCountAsync(IUnitOfWork uow, DateTime cutoffDate)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task MarkOrdersAsSentAsync(IUnitOfWork uow, List<int> orderIds, DateTime sentDate, CancellationToken cancellationToken)
-		{
-			throw new NotImplementedException();
-		}
-
 		public async Task<Dictionary<Order, (Counterparty Counterparty, Organization Organization)>> GetAllOverdueOrderForDebtNotificationAsync(
 			IUnitOfWork uow,
 			int maxClients,

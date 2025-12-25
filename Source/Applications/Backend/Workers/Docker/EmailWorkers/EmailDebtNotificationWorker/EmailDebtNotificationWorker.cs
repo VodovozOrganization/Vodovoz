@@ -74,8 +74,6 @@ namespace EmailDebtNotificationWorker
 		{
 			_logger.LogInformation("Запуск воркера рассылки писем о задолженности...");
 
-			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
 			await base.StartAsync(cancellationToken);
 
 			_logger.LogInformation("Воркер рассылки писем успешно запущен.");
