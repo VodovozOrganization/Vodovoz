@@ -955,11 +955,11 @@ namespace Vodovoz
 				.InitializeFromSource();
 
 			validatedOGRN.ValidationMode = validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			validatedOGRN.MaxLength = CompanyConstants.PrivateBusinessmanOgrnLength;
 
 			validatedOGRN.Binding
 				.AddBinding(Entity, e => e.OGRN, w => w.Text)
 				.InitializeFromSource();
-			validatedOGRN.MaxLength = 13;
 			validatedOGRN.IsEditable = CanEdit;
 			
 			dateOGRNPicker.Binding

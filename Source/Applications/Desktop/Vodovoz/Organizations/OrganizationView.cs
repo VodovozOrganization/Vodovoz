@@ -3,6 +3,7 @@ using QS.Widgets;
 using ReactiveUI.Validation.Extensions;
 using System;
 using System.ComponentModel;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.ViewModels.Organizations;
 
 namespace Vodovoz.Organizations
@@ -61,6 +62,7 @@ namespace Vodovoz.Organizations
 				.InitializeFromSource();
 
 			validatedentryOgrn.ValidationMode = ValidationType.Numeric;
+			validatedentryOgrn.MaxLength = CompanyConstants.PrivateBusinessmanOgrnLength;
 			validatedentryOgrn.Binding
 				.AddBinding(ViewModel.Entity, e => e.OGRN, w => w.Text)
 				.InitializeFromSource();
