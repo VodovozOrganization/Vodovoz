@@ -58,6 +58,8 @@ namespace RevenueService.Client
 				{
 					Inn = suggestion.data.inn,
 					Kpp = suggestion.data.kpp,
+					OGRN = suggestion.data.ogrn,
+					OGRNDate = suggestion.data.ogrn_date,
 					ShortName = suggestion.data.name?.@short,
 					FullName = suggestion.data.name?.full,
 					Address = suggestion.data.address?.value,

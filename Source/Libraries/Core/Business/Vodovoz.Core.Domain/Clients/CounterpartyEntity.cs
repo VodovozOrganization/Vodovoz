@@ -34,9 +34,6 @@ namespace Vodovoz.Core.Domain.Clients
 	[EntityPermission]
 	public class CounterpartyEntity : AccountOwnerBase, IDomainObject, IHasAttachedFilesInformations<CounterpartyFileInformation>
 	{
-		public const int PrivateBusinessmanOgrnLength = 15;
-		public const int NotPrivateBusinessmanOgrnLength = 13;
-		
 		private int _id;
 		private OrderStatusForSendingUpd _orderStatusForSendingUpd;
 		private bool _isNewEdoProcessing = true;
@@ -1045,6 +1042,15 @@ namespace Vodovoz.Core.Domain.Clients
 			PersonType == PersonType.legal
 			&& CounterpartyEdoAccounts.Any(
 				x => x.IsDefault && x.ConsentForEdoStatus == ConsentForEdoStatus.Agree);
+		
+		/// <summary>
+		/// Является ли клиент ИП с незаполненными ОГРНИП или датой ОГРНИП
+		/// </summary>
+		/// <returns></returns>
+		public virtual bool IsPrivateBusinessmanWithoutOgrnOrOgrnDate() =>
+			_iNN != null
+			&& _iNN.Length == CompanyConstants.PrivateBusinessmanInnLength
+			&& (!string.IsNullOrWhiteSpace(_oGRN) || !_ogrnDate.HasValue);
 
 		/// <summary>
 		/// Обновление информации о прикрепленных файлах

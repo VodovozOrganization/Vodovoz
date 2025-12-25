@@ -318,7 +318,6 @@ namespace Vodovoz.Organizations
 			this.dateOGRNPicker.WithTime = false;
 			this.dateOGRNPicker.HideCalendarButton = false;
 			this.dateOGRNPicker.Date = new global::System.DateTime(0);
-			this.dateOGRNPicker.IsEditable = false;
 			this.dateOGRNPicker.AutoSeparation = false;
 			this.dateOGRNPicker.HideButtonClearDate = false;
 			this.hboxOGRNDate.Add(this.dateOGRNPicker);

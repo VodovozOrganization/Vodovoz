@@ -238,6 +238,8 @@ namespace Edo.Docflow.Factories
 				},
 				Inn = organization.INN,
 				Kpp = organization.KPP,
+				OGRN = organization.OGRN,
+				OGRNDate = organization.OGRNDate,
 				EdoAccountId = organization.TaxcomEdoSettings.EdoAccount,
 			};
 
@@ -271,7 +273,9 @@ namespace Edo.Docflow.Factories
 				counterparty.INN,
 				clientKpp,
 				counterparty.JurAddress,
-				edoAccount.PersonalAccountIdInEdo);
+				edoAccount.PersonalAccountIdInEdo,
+				counterparty.OGRN,
+				counterparty.OGRNDate);
 
 			return organizationInfo;
 		}
@@ -295,7 +299,9 @@ namespace Edo.Docflow.Factories
 						counterparty.INN,
 						kpp,
 						address,
-						edoAccount.PersonalAccountIdInEdo);
+						edoAccount.PersonalAccountIdInEdo,
+						counterparty.OGRN,
+						counterparty.OGRNDate);
 				case CargoReceiverSource.Special:
 					if(!string.IsNullOrWhiteSpace(counterparty.CargoReceiver) && counterparty.UseSpecialDocFields)
 					{
@@ -307,7 +313,9 @@ namespace Edo.Docflow.Factories
 							counterparty.INN,
 							kpp,
 							address,
-							edoAccount.PersonalAccountIdInEdo);
+							edoAccount.PersonalAccountIdInEdo,
+							counterparty.OGRN,
+							counterparty.OGRNDate);
 					}
 					return GetCustomerOrganizationInfo(counterparty, edoAccount);
 				default:
@@ -320,7 +328,9 @@ namespace Edo.Docflow.Factories
 			string inn,
 			string kpp,
 			string address,
-			string accountEdo)
+			string accountEdo,
+			string ogrn,
+			DateTime? ogrnDate)
 		{
 			return new OrganizationInfo
 			{
@@ -332,6 +342,8 @@ namespace Edo.Docflow.Factories
 				Inn = inn,
 				Kpp = kpp,
 				EdoAccountId = accountEdo,
+				OGRN = ogrn,
+				OGRNDate = ogrnDate
 			};
 		}
 

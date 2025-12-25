@@ -65,6 +65,11 @@ namespace Vodovoz.Organizations
 				.AddBinding(ViewModel.Entity, e => e.OGRN, w => w.Text)
 				.InitializeFromSource();
 
+			dateOGRNPicker.WidthRequest = 200;
+			dateOGRNPicker.Binding
+				.AddBinding(ViewModel.Entity, e => e.OGRNDate, w => w.DateOrNull)
+				.InitializeFromSource();
+
 			validatedentryOkpo.ValidationMode = ValidationType.Numeric;
 			validatedentryOkpo.Binding
 				.AddBinding(ViewModel.Entity, e => e.OKPO, w => w.Text)

@@ -16,6 +16,14 @@ namespace RevenueService.Client.Dto
 
 		[Display(Name = "КПП")]
 		public string Kpp { get; set; }
+		
+		[ReportExportIgnore]
+		[Display(Name = "ОГРН")]
+		public string OGRN { get; set; }
+
+		[ReportExportIgnore]
+		[Display(Name = "Дата ОГРН")]
+		public DateTime? OGRNDate { get; set; }
 
 		[Display(Name = "Короткое название")]
 		public string ShortName { get; set; }

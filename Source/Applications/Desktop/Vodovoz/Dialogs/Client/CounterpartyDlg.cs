@@ -963,6 +963,10 @@ namespace Vodovoz
 				.InitializeFromSource();
 			validatedOGRN.MaxLength = 13;
 			validatedOGRN.IsEditable = CanEdit;
+			
+			dateOGRNPicker.Binding
+				.AddBinding(Entity, e => e.OGRNDate, w => w.DateOrNull)
+				.InitializeFromSource();
 
 			validatedINN.Binding
 				.AddBinding(Entity, e => e.INN, w => w.Text)

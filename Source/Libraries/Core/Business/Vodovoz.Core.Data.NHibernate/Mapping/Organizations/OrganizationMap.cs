@@ -30,6 +30,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Organizations
 			Map(x => x.OGRN)
 				.Column("OGRN");
 
+			Map(x => x.OGRNDate)
+				.Column("ogrn_date");
+
 			Map(x => x.OKPO)
 				.Column("OKPO");
 
