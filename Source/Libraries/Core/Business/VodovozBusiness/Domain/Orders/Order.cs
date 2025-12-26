@@ -21,9 +21,11 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Data.Repositories.Document;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.Documents;
@@ -85,6 +87,8 @@ namespace Vodovoz.Domain.Orders
 			.Resolve<IPaymentFromBankClientController>();
 		private INomenclatureRepository _nomenclatureRepository => ScopeProvider.Scope
 			.Resolve<INomenclatureRepository>();
+		private IDocumentOrganizationCounterRepository _documentOrganizationCounterRepository => ScopeProvider.Scope
+			.Resolve<IDocumentOrganizationCounterRepository>();
 		private INomenclatureSettings _nomenclatureSettings => ScopeProvider.Scope
 			.Resolve<INomenclatureSettings>();
 		private IEmailRepository _emailRepository => ScopeProvider.Scope
@@ -3840,6 +3844,7 @@ namespace Vodovoz.Domain.Orders
 
 		private OrderDocument CreateDocumentOfOrder(OrderDocumentType type)
 		{
+			
 			OrderDocument newDoc;
 			switch(type) {
 				case OrderDocumentType.Bill:
@@ -3849,14 +3854,37 @@ namespace Vodovoz.Domain.Orders
 					newDoc = new SpecialBillDocument();
 					break;
 				case OrderDocumentType.UPD:
-					var updDocument = new UPDDocument();
+					var updCounter = _documentOrganizationCounterRepository.GetMaxDocumentOrganizationCounterOnYear(UoW, DeliveryDate.Value, Contract?.Organization);
+					var updCounterValue = updCounter == null ? 1 : ++updCounter.Counter;
+					var updDocument = new UPDDocument()
+					{
+						DocumentOrganizationCounter = new DocumentOrganizationCounter()
+						{
+							Organization = Contract?.Organization,
+							CounterDateYear = DeliveryDate?.Year,
+							Counter = updCounterValue,
+							DocumentNumber = $"{Contract?.Organization.Prefix}{DeliveryDate?.ToString("yy")}-{updCounterValue}"
+						}
+					};
 					if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel")) {
 						updDocument.RestrictedOutputPresentationTypes = new[] { OutputPresentationType.ExcelTableOnly, OutputPresentationType.Excel2007 };
 					}
 					newDoc = updDocument;
 					break;
 				case OrderDocumentType.SpecialUPD:
-					var specialUpdDocument = new SpecialUPDDocument();
+					
+					var specialUpdCounter = _documentOrganizationCounterRepository.GetMaxDocumentOrganizationCounterOnYear(UoW, DeliveryDate.Value, Contract?.Organization);
+					var specialUpdCounterValue = specialUpdCounter == null ? 1 : ++specialUpdCounter.Counter;
+					var specialUpdDocument = new SpecialUPDDocument()
+					{
+						DocumentOrganizationCounter = new DocumentOrganizationCounter()
+						{
+							Organization = Contract?.Organization,
+							CounterDateYear = DeliveryDate?.Year,
+							Counter = specialUpdCounterValue,
+							DocumentNumber = $"{Contract?.Organization.Prefix}{DeliveryDate?.ToString("yy")}-{specialUpdCounterValue}"
+						}
+					};
 					if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel")) {
 						specialUpdDocument.RestrictedOutputPresentationTypes = new[] { OutputPresentationType.ExcelTableOnly, OutputPresentationType.Excel2007 };
 					}

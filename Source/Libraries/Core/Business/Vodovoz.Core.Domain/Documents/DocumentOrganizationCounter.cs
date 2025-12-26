@@ -11,9 +11,8 @@ namespace Vodovoz.Core.Domain.Documents
 	{
 		private int _id;
 		private OrganizationEntity _organization;
-		private OrderDocumentEntity _orderDocument;
 		private int _counter;
-		private DateTime _counterDate;
+		private int? _counterDateYear;
 		private string _documentNumber;
 
 		/// <summary>
@@ -35,17 +34,7 @@ namespace Vodovoz.Core.Domain.Documents
 			get => _organization;
 			set => SetField(ref _organization, value);
 		}
-
-		/// <summary>
-		/// Документ из заказа
-		/// </summary>
-		[Display(Name = "Документ из заказа")]
-		public virtual OrderDocumentEntity OrderDocument
-		{
-			get => _orderDocument;
-			set => SetField(ref _orderDocument, value);
-		}
-
+		
 		/// <summary>
 		/// Счетчик документов УПД
 		/// </summary>
@@ -60,10 +49,10 @@ namespace Vodovoz.Core.Domain.Documents
 		/// Дата создания счетчика
 		/// </summary>
 		[Display(Name = "Дата создания счетчика")]
-		public virtual DateTime CounterDate
+		public virtual int? CounterDateYear
 		{
-			get => _counterDate;
-			set => SetField(ref _counterDate, value);
+			get => _counterDateYear;
+			set => SetField(ref _counterDateYear, value);
 		}
 		
 		/// <summary>

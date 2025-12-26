@@ -165,7 +165,9 @@ namespace Vodovoz.Domain.Orders.Documents
 			return template;
 		}
 
-		public override string Name => String.Format("Особый УПД №{0}", Order.Id);
+		public override string Name => Order?.DeliveryDate >= new DateTime(2026,1,1) 
+			?  $"Специальный УПД №{DocumentOrganizationCounter.DocumentNumber}"
+			:  $"Специальный УПД №{Order?.Id}";
 
 		public override DateTime? DocumentDate => Order?.DeliveryDate;
 
