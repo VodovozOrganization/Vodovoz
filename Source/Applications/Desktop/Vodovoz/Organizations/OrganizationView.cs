@@ -81,6 +81,10 @@ namespace Vodovoz.Organizations
 			yentrySuffix.Binding
 				.AddBinding(ViewModel.Entity, e => e.Suffix, w => w.Text)
 				.InitializeFromSource();
+			
+			yentryPrefix.Binding
+				.AddBinding(ViewModel.Entity, e => e.Prefix, w => w.Text)
+				.InitializeFromSource();
 
 			notebookMain.Page = 0;
 			notebookMain.ShowTabs = false;
