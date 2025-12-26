@@ -441,6 +441,7 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 			Organization organizationAlias = null;
 			BulkEmailEvent bulkEmailEventAlias = null;
 			BulkEmailOrder bulkEmailOrderAlias = null;
+			OrderItem orderItemAlias = null;
 
 			var lastEventIdSubQuery = QueryOver.Of<BulkEmailEvent>()
 				.Where(bee2 => bee2.Counterparty.Id == counterpartyAlias.Id)
@@ -455,6 +456,17 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 			var alreadySentOrdersSubQuery = QueryOver.Of(() => bulkEmailOrderAlias)
 				.Where(() => bulkEmailOrderAlias.Order.Id == orderAlias.Id)
 				.Select(beo => beo.Id);
+
+			var orderItemsSumSubquery = QueryOver.Of(() => orderItemAlias)
+			   .Where(() => orderItemAlias.Order.Id == orderAlias.Id)
+			   .Select(Projections.SqlFunction(
+				   new SQLFunctionTemplate(NHibernateUtil.Decimal, "COALESCE(SUM(?1 * IFNULL(?2, ?3) - ?4), 0)"),
+				   NHibernateUtil.Decimal,
+				   Projections.Property(() => orderItemAlias.Price),
+				   Projections.Property(() => orderItemAlias.ActualCount),
+				   Projections.Property(() => orderItemAlias.Count),
+				   Projections.Property(() => orderItemAlias.DiscountMoney)
+			   ));
 
 			var dateAddExpression = Projections.SqlFunction(
 				new SQLFunctionTemplate(
@@ -475,6 +487,7 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				.Where(() => orderAlias.OrderStatus.IsIn(deliveredOrderStatuses))
 				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
 				.Where(() => counterpartyAlias.PersonType == PersonType.legal)
+				.Where(() => counterpartyAlias.CloseDeliveryDebtType == null)
 				.WhereNot(() => organizationAlias.DisableDebtMailing)
 				.WhereNot(() => counterpartyAlias.DisableDebtMailing)
 				.WhereNot(() => counterpartyAlias.IsArchive)
@@ -487,6 +500,10 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				.Where(Restrictions.Le(dateAddExpression, currentDate))
 				.WithSubquery.WhereNotExists(isClientUnsubscribedSubQuery)
 				.WithSubquery.WhereNotExists(alreadySentOrdersSubQuery)
+				.Where(Restrictions.Gt(
+					Projections.SubQuery(orderItemsSumSubquery),
+					0m
+				))
 				.Take(maxClients); 
 
 			var orders = await query.ListAsync(cancellationToken);
@@ -496,7 +513,7 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				.Take(maxClients)
 				.ToDictionary(
 					order => order,
-					order => (Counterparty: order.Client, Organization: order.Contract.Organization)
+					order => (Counterparty: order.Client, order.Contract.Organization)
 				);
 
 			return result;
