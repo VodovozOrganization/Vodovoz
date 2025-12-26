@@ -14,7 +14,6 @@ namespace Vodovoz.Core.Domain.Documents
 		private OrderDocumentEntity _orderDocument;
 		private int _counter;
 		private DateTime _counterDate;
-		private DocumentType _documentType;
 		private string _documentNumber;
 
 		/// <summary>
