@@ -53,6 +53,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		private IObservableList<VatRateVersion> _vatRateVersions = new ObservableList<VatRateVersion>();
 		private bool _isOsnoMode = true;
 		private bool _isUsnMode;
+		private string _prefix;
 
 		public OrganizationEntity()
 		{
@@ -300,6 +301,16 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _isUsnMode;
 			set => SetField(ref _isUsnMode, value);
+		}
+		
+		/// <summary>
+		/// Префик оргонизации
+		/// </summary>
+		[Display(Name = "Префикс организации")]
+		public virtual string Prefix
+		{
+			get => _prefix;
+			set => SetField(ref _prefix, value);
 		}
 
 		#region Methods

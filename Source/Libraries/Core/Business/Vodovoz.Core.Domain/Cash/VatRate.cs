@@ -97,6 +97,8 @@ namespace Vodovoz.Core.Domain.Cash
 					throw new InvalidOperationException("В чеках нет возможности устанавливать НДС 18%. Скорее всего ошибка в заполнении карточки товара");
 				case 20:
 					return FiscalVat.Vat20;
+				case 22:
+					return FiscalVat.Vat22;
 				default:
 					throw new InvalidOperationException("Нет соответствия между НДС товара и FiscalVat, проверьте карточку товара");
 			}
