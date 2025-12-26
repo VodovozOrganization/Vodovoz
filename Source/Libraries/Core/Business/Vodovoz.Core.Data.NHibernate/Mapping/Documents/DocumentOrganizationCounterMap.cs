@@ -14,12 +14,11 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Documents
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 			
 			Map(x => x.DocumentNumber).Column("document_number");
-			Map(x => x.DocumentType).Column("document_type");
 			Map(x => x.Counter).Column("counter");
 			Map(x => x.CounterDate).Column("counter_date");
 			
 			References(x => x.Organization).Column("organization_id");
-			References(x => x.Order).Column("order_id");
+			References(x => x.OrderDocument).Column("order_document_id");
 		}
 	}
 }

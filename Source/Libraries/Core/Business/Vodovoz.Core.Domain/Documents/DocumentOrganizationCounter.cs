@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.Documents;
 using Vodovoz.Core.Domain.Organizations;
 
 namespace Vodovoz.Core.Domain.Documents
@@ -10,7 +11,7 @@ namespace Vodovoz.Core.Domain.Documents
 	{
 		private int _id;
 		private OrganizationEntity _organization;
-		private OrderEntity _order;
+		private OrderDocumentEntity _orderDocument;
 		private int _counter;
 		private DateTime _counterDate;
 		private DocumentType _documentType;
@@ -37,13 +38,13 @@ namespace Vodovoz.Core.Domain.Documents
 		}
 
 		/// <summary>
-		/// Заказ
+		/// Документ из заказа
 		/// </summary>
-		[Display(Name = "Заказ")]
-		public virtual OrderEntity Order
+		[Display(Name = "Документ из заказа")]
+		public virtual OrderDocumentEntity OrderDocument
 		{
-			get => _order;
-			set => SetField(ref _order, value);
+			get => _orderDocument;
+			set => SetField(ref _orderDocument, value);
 		}
 
 		/// <summary>
@@ -65,17 +66,7 @@ namespace Vodovoz.Core.Domain.Documents
 			get => _counterDate;
 			set => SetField(ref _counterDate, value);
 		}
-
-		/// <summary>
-		/// Тип документа
-		/// </summary>
-		[Display(Name = "Тип документа")]
-		public virtual DocumentType DocumentType
-		{
-			get => _documentType;
-			set => SetField(ref _documentType, value);
-		}
-
+		
 		/// <summary>
 		/// Номер документа подготовленный
 		/// </summary>
