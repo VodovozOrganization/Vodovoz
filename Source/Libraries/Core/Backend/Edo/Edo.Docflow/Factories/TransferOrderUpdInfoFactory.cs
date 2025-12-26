@@ -94,6 +94,7 @@ namespace Edo.Docflow.Factories
 			{
 				DocumentId = Guid.NewGuid(),
 				Number = transferOrder.Id,
+				StringNumber = transferOrder.Id.ToString(),
 				Sum = products.Sum(x => x.Sum),
 				Date = transferOrder.Date,
 				Seller = GetSellerInfo(transferOrder),

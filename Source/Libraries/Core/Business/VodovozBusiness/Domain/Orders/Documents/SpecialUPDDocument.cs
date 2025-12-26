@@ -117,7 +117,7 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		#region implemented abstract members of IEmailableDocument
 
-		public virtual string Title => String.Format($"Особый УПД №{Order.Id} от {Order.DeliveryDate:d}");
+		public virtual string Title => String.Format($"{Name} от {Order.DeliveryDate:d}");
 		public virtual Counterparty Counterparty => Order?.Client;
 
 		public virtual EmailTemplate GetEmailTemplate(ICounterpartyEdoAccountController edoAccountController = null)

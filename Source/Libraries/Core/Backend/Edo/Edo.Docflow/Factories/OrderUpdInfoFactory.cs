@@ -74,6 +74,7 @@ namespace Edo.Docflow.Factories
 			{
 				DocumentId = Guid.NewGuid(),
 				Number = order.Id,
+				StringNumber = order.OrderDocuments.First(x => x.Type == OrderDocumentType.UPD || x.Type == OrderDocumentType.SpecialUPD).DocumentOrganizationCounter.DocumentNumber,
 				Sum = products.Sum(x => x.Sum),
 				Date = order.DeliveryDate.Value,
 				Seller = GetSellerInfo(order),

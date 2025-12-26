@@ -12,6 +12,12 @@ namespace Edo.Contracts.Messages.Dto
 		/// Номер документа
 		/// </summary>
 		public int Number { get; set; }
+		
+		/// <summary>
+		/// Номер документа строкой (для использования новой нумерации документов)
+		/// </summary>
+		public string StringNumber { get; set; }
+		
 		/// <summary>
 		/// Сумма документа
 		/// </summary>
