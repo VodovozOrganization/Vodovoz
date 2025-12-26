@@ -3844,8 +3844,8 @@ namespace Vodovoz.Domain.Orders
 
 		private OrderDocument CreateDocumentOfOrder(OrderDocumentType type)
 		{
-			
 			OrderDocument newDoc;
+			
 			switch(type) {
 				case OrderDocumentType.Bill:
 					newDoc = new BillDocument();

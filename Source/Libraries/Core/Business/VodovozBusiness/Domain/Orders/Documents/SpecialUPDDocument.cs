@@ -104,7 +104,7 @@ namespace Vodovoz.Domain.Orders.Documents
 			var reportInfoFactory = ScopeProvider.Scope.Resolve<IReportInfoFactory>();
 			var reportInfo = reportInfoFactory.Create();
 			reportInfo.Identifier = Order.DeliveryDate <= _edition2017LastDate ? "Documents.UPD2017Edition" : "Documents.UPD";
-			reportInfo.Title = $"Особый УПД {Order.Id} от {Order.DeliveryDate:d}";
+			reportInfo.Title = $"{Name} от {Order.DeliveryDate:d}";
 			reportInfo.Parameters = new Dictionary<string, object> {
 				{ "order_id", Order.Id },
 				{ "special", true },
