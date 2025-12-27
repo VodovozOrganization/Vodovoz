@@ -73,7 +73,7 @@ namespace Vodovoz
 
 		string GetItemsCount(SelfDeliveryDocumentItem item)
 		{
-			decimal cnt = item.Document.GetNomenclaturesCountInOrder(item.Nomenclature);
+			decimal cnt = item.Document.GetNomenclaturesCountInOrder(item.Nomenclature.Id);
 			return item.Nomenclature.Unit.MakeAmountShortStr(cnt);
 		}
 
@@ -99,7 +99,7 @@ namespace Vodovoz
 				return GdkColors.DangerText;
 			}
 
-			var cnt = item.Document.GetNomenclaturesCountInOrder(item.Nomenclature);
+			var cnt = item.Document.GetNomenclaturesCountInOrder(item.Nomenclature.Id);
 			if(cnt < item.AmountUnloaded + item.Amount)
 			{
 				return GdkColors.Orange;

@@ -188,8 +188,6 @@ namespace Vodovoz.Domain.Client
 		#endregion Временные поля для хранения фиксированных цен из 1с
 
 		#region Расчетные
-
-		public virtual string Title => string.IsNullOrWhiteSpace(CompiledAddress) ? "АДРЕС ПУСТОЙ" : CompiledAddress;
 		
 		public virtual bool CoordinatesExist => Latitude.HasValue && Longitude.HasValue;
 
