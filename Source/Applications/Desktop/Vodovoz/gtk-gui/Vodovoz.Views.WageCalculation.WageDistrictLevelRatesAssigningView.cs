@@ -18,9 +18,9 @@ namespace Vodovoz.Views.WageCalculation
 
 		private global::Gamma.GtkWidgets.yLabel ylabelEmployees;
 
-		private global::Gtk.ScrolledWindow GtkScrolledWindow;
+		private global::Gtk.ScrolledWindow GtkScrolledWindowEmployees;
 
-		private global::Gamma.GtkWidgets.yTreeView ytreeview2;
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewEmployees;
 
 		private global::Gamma.GtkWidgets.yHBox yhboxEmployeesSelectionButtons;
 
@@ -28,9 +28,9 @@ namespace Vodovoz.Views.WageCalculation
 
 		private global::Gamma.GtkWidgets.yButton ybuttonClearSelected;
 
-		private global::Gamma.GtkWidgets.yLabel ylabelWageLevelRates;
+		private global::Gamma.GtkWidgets.yLabel ylabelWageLevelRatesFilter;
 
-		private global::QS.Views.Control.EntityEntry entityentryWageLevelRates;
+		private global::QS.Widgets.GtkUI.SpecialListComboBox speciallistcomboboxWageLevelRatesFilter;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonExcludeSelectedLevelRate;
 
@@ -40,7 +40,17 @@ namespace Vodovoz.Views.WageCalculation
 
 		private global::QS.Widgets.GtkUI.DatePicker datepickerStartDate;
 
-		private global::Gamma.GtkWidgets.yVBox yvboxWageLevelRates;
+		private global::Gamma.GtkWidgets.yLabel ylabelDriverCarWageLivelRate;
+
+		private global::QS.Widgets.GtkUI.SpecialListComboBox speciallistcomboboxDriverCarWageLivelRate;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelCompanyCarWageLivelRate;
+
+		private global::QS.Widgets.GtkUI.SpecialListComboBox speciallistcomboboxCompanyCarWageLivelRate;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelRaskatCarWageLivelRate;
+
+		private global::QS.Widgets.GtkUI.SpecialListComboBox speciallistcomboboxRaskatCarWageLivelRate;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonUpdateEmployeesWageLevelRates;
 
@@ -115,16 +125,16 @@ namespace Vodovoz.Views.WageCalculation
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child yvboxEmployeesFilterContainer.Gtk.Box+BoxChild
-			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
-			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.ytreeview2 = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreeview2.CanFocus = true;
-			this.ytreeview2.Name = "ytreeview2";
-			this.GtkScrolledWindow.Add(this.ytreeview2);
-			this.yvboxEmployeesFilterContainer.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yvboxEmployeesFilterContainer[this.GtkScrolledWindow]));
+			this.GtkScrolledWindowEmployees = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindowEmployees.Name = "GtkScrolledWindowEmployees";
+			this.GtkScrolledWindowEmployees.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindowEmployees.Gtk.Container+ContainerChild
+			this.ytreeviewEmployees = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewEmployees.CanFocus = true;
+			this.ytreeviewEmployees.Name = "ytreeviewEmployees";
+			this.GtkScrolledWindowEmployees.Add(this.ytreeviewEmployees);
+			this.yvboxEmployeesFilterContainer.Add(this.GtkScrolledWindowEmployees);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yvboxEmployeesFilterContainer[this.GtkScrolledWindowEmployees]));
 			w8.Position = 3;
 			// Container child yvboxEmployeesFilterContainer.Gtk.Box+BoxChild
 			this.yhboxEmployeesSelectionButtons = new global::Gamma.GtkWidgets.yHBox();
@@ -159,21 +169,24 @@ namespace Vodovoz.Views.WageCalculation
 			w11.Expand = false;
 			w11.Fill = false;
 			// Container child yvboxEmployeesFilterContainer.Gtk.Box+BoxChild
-			this.ylabelWageLevelRates = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelWageLevelRates.Name = "ylabelWageLevelRates";
-			this.ylabelWageLevelRates.Xalign = 0F;
-			this.ylabelWageLevelRates.LabelProp = global::Mono.Unix.Catalog.GetString("Активный уровень з/п ставок:");
-			this.yvboxEmployeesFilterContainer.Add(this.ylabelWageLevelRates);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yvboxEmployeesFilterContainer[this.ylabelWageLevelRates]));
+			this.ylabelWageLevelRatesFilter = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelWageLevelRatesFilter.Name = "ylabelWageLevelRatesFilter";
+			this.ylabelWageLevelRatesFilter.Xalign = 0F;
+			this.ylabelWageLevelRatesFilter.LabelProp = global::Mono.Unix.Catalog.GetString("Уровень з/п ставок:");
+			this.yvboxEmployeesFilterContainer.Add(this.ylabelWageLevelRatesFilter);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yvboxEmployeesFilterContainer[this.ylabelWageLevelRatesFilter]));
 			w12.Position = 5;
 			w12.Expand = false;
 			w12.Fill = false;
 			// Container child yvboxEmployeesFilterContainer.Gtk.Box+BoxChild
-			this.entityentryWageLevelRates = new global::QS.Views.Control.EntityEntry();
-			this.entityentryWageLevelRates.Events = ((global::Gdk.EventMask)(256));
-			this.entityentryWageLevelRates.Name = "entityentryWageLevelRates";
-			this.yvboxEmployeesFilterContainer.Add(this.entityentryWageLevelRates);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yvboxEmployeesFilterContainer[this.entityentryWageLevelRates]));
+			this.speciallistcomboboxWageLevelRatesFilter = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.speciallistcomboboxWageLevelRatesFilter.Name = "speciallistcomboboxWageLevelRatesFilter";
+			this.speciallistcomboboxWageLevelRatesFilter.AddIfNotExist = false;
+			this.speciallistcomboboxWageLevelRatesFilter.DefaultFirst = false;
+			this.speciallistcomboboxWageLevelRatesFilter.ShowSpecialStateAll = false;
+			this.speciallistcomboboxWageLevelRatesFilter.ShowSpecialStateNot = false;
+			this.yvboxEmployeesFilterContainer.Add(this.speciallistcomboboxWageLevelRatesFilter);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yvboxEmployeesFilterContainer[this.speciallistcomboboxWageLevelRatesFilter]));
 			w13.Position = 6;
 			w13.Expand = false;
 			w13.Fill = false;
@@ -181,7 +194,7 @@ namespace Vodovoz.Views.WageCalculation
 			this.ycheckbuttonExcludeSelectedLevelRate = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckbuttonExcludeSelectedLevelRate.CanFocus = true;
 			this.ycheckbuttonExcludeSelectedLevelRate.Name = "ycheckbuttonExcludeSelectedLevelRate";
-			this.ycheckbuttonExcludeSelectedLevelRate.Label = global::Mono.Unix.Catalog.GetString("Исключить выбранный активный уровень з/п ставок");
+			this.ycheckbuttonExcludeSelectedLevelRate.Label = global::Mono.Unix.Catalog.GetString("Исключить выбранный уровень з/п ставок");
 			this.ycheckbuttonExcludeSelectedLevelRate.DrawIndicator = true;
 			this.ycheckbuttonExcludeSelectedLevelRate.UseUnderline = true;
 			this.yvboxEmployeesFilterContainer.Add(this.ycheckbuttonExcludeSelectedLevelRate);
@@ -224,12 +237,71 @@ namespace Vodovoz.Views.WageCalculation
 			w17.Expand = false;
 			w17.Fill = false;
 			// Container child yvboxWageLevelRatesFilterContainer.Gtk.Box+BoxChild
-			this.yvboxWageLevelRates = new global::Gamma.GtkWidgets.yVBox();
-			this.yvboxWageLevelRates.Name = "yvboxWageLevelRates";
-			this.yvboxWageLevelRates.Spacing = 6;
-			this.yvboxWageLevelRatesFilterContainer.Add(this.yvboxWageLevelRates);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.yvboxWageLevelRatesFilterContainer[this.yvboxWageLevelRates]));
+			this.ylabelDriverCarWageLivelRate = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelDriverCarWageLivelRate.Name = "ylabelDriverCarWageLivelRate";
+			this.ylabelDriverCarWageLivelRate.Xalign = 0F;
+			this.ylabelDriverCarWageLivelRate.LabelProp = global::Mono.Unix.Catalog.GetString("Уровень ставок для ТС водителей:");
+			this.yvboxWageLevelRatesFilterContainer.Add(this.ylabelDriverCarWageLivelRate);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.yvboxWageLevelRatesFilterContainer[this.ylabelDriverCarWageLivelRate]));
 			w18.Position = 2;
+			w18.Expand = false;
+			w18.Fill = false;
+			// Container child yvboxWageLevelRatesFilterContainer.Gtk.Box+BoxChild
+			this.speciallistcomboboxDriverCarWageLivelRate = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.speciallistcomboboxDriverCarWageLivelRate.Name = "speciallistcomboboxDriverCarWageLivelRate";
+			this.speciallistcomboboxDriverCarWageLivelRate.AddIfNotExist = false;
+			this.speciallistcomboboxDriverCarWageLivelRate.DefaultFirst = false;
+			this.speciallistcomboboxDriverCarWageLivelRate.ShowSpecialStateAll = false;
+			this.speciallistcomboboxDriverCarWageLivelRate.ShowSpecialStateNot = false;
+			this.yvboxWageLevelRatesFilterContainer.Add(this.speciallistcomboboxDriverCarWageLivelRate);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.yvboxWageLevelRatesFilterContainer[this.speciallistcomboboxDriverCarWageLivelRate]));
+			w19.Position = 3;
+			w19.Expand = false;
+			w19.Fill = false;
+			// Container child yvboxWageLevelRatesFilterContainer.Gtk.Box+BoxChild
+			this.ylabelCompanyCarWageLivelRate = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelCompanyCarWageLivelRate.Name = "ylabelCompanyCarWageLivelRate";
+			this.ylabelCompanyCarWageLivelRate.Xalign = 0F;
+			this.ylabelCompanyCarWageLivelRate.LabelProp = global::Mono.Unix.Catalog.GetString("Уровень ставок для ТС компании:");
+			this.yvboxWageLevelRatesFilterContainer.Add(this.ylabelCompanyCarWageLivelRate);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.yvboxWageLevelRatesFilterContainer[this.ylabelCompanyCarWageLivelRate]));
+			w20.Position = 4;
+			w20.Expand = false;
+			w20.Fill = false;
+			// Container child yvboxWageLevelRatesFilterContainer.Gtk.Box+BoxChild
+			this.speciallistcomboboxCompanyCarWageLivelRate = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.speciallistcomboboxCompanyCarWageLivelRate.Name = "speciallistcomboboxCompanyCarWageLivelRate";
+			this.speciallistcomboboxCompanyCarWageLivelRate.AddIfNotExist = false;
+			this.speciallistcomboboxCompanyCarWageLivelRate.DefaultFirst = false;
+			this.speciallistcomboboxCompanyCarWageLivelRate.ShowSpecialStateAll = false;
+			this.speciallistcomboboxCompanyCarWageLivelRate.ShowSpecialStateNot = false;
+			this.yvboxWageLevelRatesFilterContainer.Add(this.speciallistcomboboxCompanyCarWageLivelRate);
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.yvboxWageLevelRatesFilterContainer[this.speciallistcomboboxCompanyCarWageLivelRate]));
+			w21.Position = 5;
+			w21.Expand = false;
+			w21.Fill = false;
+			// Container child yvboxWageLevelRatesFilterContainer.Gtk.Box+BoxChild
+			this.ylabelRaskatCarWageLivelRate = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelRaskatCarWageLivelRate.Name = "ylabelRaskatCarWageLivelRate";
+			this.ylabelRaskatCarWageLivelRate.Xalign = 0F;
+			this.ylabelRaskatCarWageLivelRate.LabelProp = global::Mono.Unix.Catalog.GetString("Уровень ставок для ТС в раскате:");
+			this.yvboxWageLevelRatesFilterContainer.Add(this.ylabelRaskatCarWageLivelRate);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.yvboxWageLevelRatesFilterContainer[this.ylabelRaskatCarWageLivelRate]));
+			w22.Position = 6;
+			w22.Expand = false;
+			w22.Fill = false;
+			// Container child yvboxWageLevelRatesFilterContainer.Gtk.Box+BoxChild
+			this.speciallistcomboboxRaskatCarWageLivelRate = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.speciallistcomboboxRaskatCarWageLivelRate.Name = "speciallistcomboboxRaskatCarWageLivelRate";
+			this.speciallistcomboboxRaskatCarWageLivelRate.AddIfNotExist = false;
+			this.speciallistcomboboxRaskatCarWageLivelRate.DefaultFirst = false;
+			this.speciallistcomboboxRaskatCarWageLivelRate.ShowSpecialStateAll = false;
+			this.speciallistcomboboxRaskatCarWageLivelRate.ShowSpecialStateNot = false;
+			this.yvboxWageLevelRatesFilterContainer.Add(this.speciallistcomboboxRaskatCarWageLivelRate);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.yvboxWageLevelRatesFilterContainer[this.speciallistcomboboxRaskatCarWageLivelRate]));
+			w23.Position = 7;
+			w23.Expand = false;
+			w23.Fill = false;
 			// Container child yvboxWageLevelRatesFilterContainer.Gtk.Box+BoxChild
 			this.ybuttonUpdateEmployeesWageLevelRates = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonUpdateEmployeesWageLevelRates.CanFocus = true;
@@ -237,14 +309,14 @@ namespace Vodovoz.Views.WageCalculation
 			this.ybuttonUpdateEmployeesWageLevelRates.UseUnderline = true;
 			this.ybuttonUpdateEmployeesWageLevelRates.Label = global::Mono.Unix.Catalog.GetString("Обновить уровни ставок");
 			this.yvboxWageLevelRatesFilterContainer.Add(this.ybuttonUpdateEmployeesWageLevelRates);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.yvboxWageLevelRatesFilterContainer[this.ybuttonUpdateEmployeesWageLevelRates]));
-			w19.Position = 3;
-			w19.Expand = false;
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.yvboxWageLevelRatesFilterContainer[this.ybuttonUpdateEmployeesWageLevelRates]));
+			w24.Position = 8;
+			w24.Expand = false;
 			this.yhboxMainContainer.Add(this.yvboxWageLevelRatesFilterContainer);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.yhboxMainContainer[this.yvboxWageLevelRatesFilterContainer]));
-			w20.Position = 1;
-			w20.Expand = false;
-			w20.Fill = false;
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.yhboxMainContainer[this.yvboxWageLevelRatesFilterContainer]));
+			w25.Position = 1;
+			w25.Expand = false;
+			w25.Fill = false;
 			this.Add(this.yhboxMainContainer);
 			if ((this.Child != null))
 			{
