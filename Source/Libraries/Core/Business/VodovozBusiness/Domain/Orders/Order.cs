@@ -3845,8 +3845,9 @@ namespace Vodovoz.Domain.Orders
 		private OrderDocument CreateDocumentOfOrder(OrderDocumentType type)
 		{
 			OrderDocument newDoc;
-			
-			switch(type) {
+
+			switch(type)
+			{
 				case OrderDocumentType.Bill:
 					newDoc = new BillDocument();
 					break;
@@ -3854,54 +3855,67 @@ namespace Vodovoz.Domain.Orders
 					newDoc = new SpecialBillDocument();
 					break;
 				case OrderDocumentType.UPD:
+				{
 					var updCounter = _documentOrganizationCounterRepository
 						.GetMaxDocumentOrganizationCounterOnYear(UoW, DeliveryDate.Value, Contract?.Organization);
 					
-					var updCounterValue = updCounter == null 
+					var updCounterValue = updCounter == null
 						? 1
-						: ++updCounter.Counter;
-					
-					var updDocument = new UPDDocument()
+						: updCounter.Counter + 1;
+
+					var documentOrganizationCounter = new DocumentOrganizationCounter()
 					{
-						DocumentOrganizationCounter = new DocumentOrganizationCounter()
-						{
-							Organization = Contract?.Organization,
-							CounterDateYear = DeliveryDate?.Year,
-							Counter = updCounterValue,
-							DocumentNumber = UPDNumberBuilder.BuildDocumentNumber(Contract?.Organization, DeliveryDate.Value, updCounterValue)
-						}
+						Organization = Contract?.Organization,
+						CounterDateYear = DeliveryDate?.Year,
+						Counter = updCounterValue,
+						DocumentNumber = UPDNumberBuilder.BuildDocumentNumber(Contract?.Organization, DeliveryDate.Value, updCounterValue)
 					};
-					
-					if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel")) 
-						updDocument.RestrictedOutputPresentationTypes = new[] { OutputPresentationType.ExcelTableOnly, OutputPresentationType.Excel2007 };
-					
+
+					UoW.Save(documentOrganizationCounter);
+
+					var updDocument = new SpecialUPDDocument()
+					{
+						DocumentOrganizationCounter = documentOrganizationCounter
+					};
+
+					if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel"))
+						updDocument.RestrictedOutputPresentationTypes =
+							new[] { OutputPresentationType.ExcelTableOnly, OutputPresentationType.Excel2007 };
+
 					newDoc = updDocument;
-					
-					break;
+			}
+
+			break;
 				case OrderDocumentType.SpecialUPD:
+				{
 					var specialUpdCounter = _documentOrganizationCounterRepository
 						.GetMaxDocumentOrganizationCounterOnYear(UoW, DeliveryDate.Value, Contract?.Organization);
-					
-					var specialUpdCounterValue = specialUpdCounter == null 
+
+					var specialUpdCounterValue = specialUpdCounter == null
 						? 1
-						: ++specialUpdCounter.Counter;
-					
+						: specialUpdCounter.Counter + 1;
+
+					var documentOrganizationCounter = new DocumentOrganizationCounter()
+					{
+						Organization = Contract?.Organization,
+						CounterDateYear = DeliveryDate?.Year,
+						Counter = specialUpdCounterValue,
+						DocumentNumber = UPDNumberBuilder.BuildDocumentNumber(Contract?.Organization, DeliveryDate.Value, specialUpdCounterValue)
+					};
+
+					UoW.Save(documentOrganizationCounter);
+
 					var specialUpdDocument = new SpecialUPDDocument()
 					{
-						DocumentOrganizationCounter = new DocumentOrganizationCounter()
-						{
-							Organization = Contract?.Organization,
-							CounterDateYear = DeliveryDate?.Year,
-							Counter = specialUpdCounterValue,
-							DocumentNumber = UPDNumberBuilder.BuildDocumentNumber(Contract?.Organization, DeliveryDate.Value, specialUpdCounterValue)
-						}
+						DocumentOrganizationCounter = documentOrganizationCounter
 					};
-					
-					if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel")) 
-						specialUpdDocument.RestrictedOutputPresentationTypes = new[] { OutputPresentationType.ExcelTableOnly, OutputPresentationType.Excel2007 };
-					
+
+					if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel"))
+						specialUpdDocument.RestrictedOutputPresentationTypes = new[]
+							{ OutputPresentationType.ExcelTableOnly, OutputPresentationType.Excel2007 };
+
 					newDoc = specialUpdDocument;
-					
+				}
 					break;
 				case OrderDocumentType.Invoice:
 					newDoc = new InvoiceDocument();

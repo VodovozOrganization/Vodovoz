@@ -24,9 +24,7 @@ namespace Vodovoz.Core.Domain.Documents
 			}
 
 			var document = order.OrderDocuments
-				.Where(x => x.Type == OrderDocumentType.UPD || x.Type == OrderDocumentType.SpecialUPD)
-				.OrderByDescending(x => x.DocumentDate)
-				.FirstOrDefault();
+				.FirstOrDefault(x => (x.Type == OrderDocumentType.UPD || x.Type == OrderDocumentType.SpecialUPD) && x.Order.Id == order.Id);
 
 			if (document == null)
 			{

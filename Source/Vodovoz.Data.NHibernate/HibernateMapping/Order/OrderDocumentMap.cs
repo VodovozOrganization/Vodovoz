@@ -15,8 +15,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			DiscriminateSubClassesOnColumn("type");
 			References(x => x.Order).Column("order_id");
 			References(x => x.AttachedToOrder).Column("attached_to_order_id");
-			References(x => x.DocumentOrganizationCounter).Column("document_organization_counter_id")
-				.Cascade.SaveUpdate();;
+			References(x => x.DocumentOrganizationCounter).Column("document_organization_counter_id");
+			//	.Cascade.SaveUpdate();
 		}
 	}
 
