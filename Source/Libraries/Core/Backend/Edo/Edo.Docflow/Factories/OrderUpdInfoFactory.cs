@@ -56,7 +56,7 @@ namespace Edo.Docflow.Factories
 				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
 				.Where(x => x.CustomerEdoRequest.Id == documentEdoTask.FormalEdoRequest.Id)
 				.ListAsync();
-
+			
 			var sourceCodes = productCodes
 				.Where(x => x.SourceCode != null)
 				.Select(x => x.SourceCode);
@@ -71,6 +71,8 @@ namespace Edo.Docflow.Factories
 			var products = await GetProducts(documentEdoTask, cancellationToken);
 			var edoAccount =
 				_edoAccountEntityController.GetDefaultCounterpartyEdoAccountByOrganizationId(order.Client, order.Contract.Organization.Id);
+
+			await InitOrderDocuments(order, cancellationToken);
 			
 			var document = new UniversalTransferDocumentInfo
 			{
@@ -90,6 +92,22 @@ namespace Edo.Docflow.Factories
 			};
 
 			return document;
+		}
+
+		private async Task InitOrderDocuments(OrderEntity order, CancellationToken cancellationToken)
+		{
+			if (!NHibernateUtil.IsInitialized(order.OrderDocuments))
+			{
+				await NHibernateUtil.InitializeAsync(order.OrderDocuments, cancellationToken);
+			}
+			
+			foreach (var doc in order.OrderDocuments)
+			{
+				if (!NHibernateUtil.IsInitialized(doc.DocumentOrganizationCounter))
+				{
+					await NHibernateUtil.InitializeAsync(doc.DocumentOrganizationCounter, cancellationToken);
+				}
+			}
 		}
 
 		private SellerInfo GetSellerInfo(OrderEntity order) =>

@@ -14,6 +14,8 @@ namespace Vodovoz.Core.Domain.Orders.Documents
 		public override PrinterType PrintType => PrinterType.RDL;
 
 		public override DocumentOrientation Orientation => DocumentOrientation.Landscape;
+		
+		public override OrderDocumentType Type => OrderDocumentType.SpecialUPD;
 
 		/// <summary>
 		/// Без подписей и печати

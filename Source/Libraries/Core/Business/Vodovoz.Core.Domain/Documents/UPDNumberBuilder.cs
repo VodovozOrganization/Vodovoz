@@ -28,7 +28,7 @@ namespace Vodovoz.Core.Domain.Documents
 
 			if (document == null)
 			{
-				throw new InvalidOperationException("Нет документа для заказа");
+				throw new InvalidOperationException($"Нет документа для заказа #{order.Id}, кол-во документов {order.OrderDocuments.Count}");
 			}
 
 			return document.DocumentOrganizationCounter?.DocumentNumber 
