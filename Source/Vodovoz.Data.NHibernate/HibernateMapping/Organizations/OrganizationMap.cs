@@ -28,6 +28,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Organizations
 			Map(x => x.CashBoxTokenFromTrueMark).Column("edo_key");
 			Map(x => x.OrganizationEdoType).Column("edo_type");
 			Map(x => x.Suffix).Column("suffix");
+			Map(x => x.Prefix).Column("prefix");
 			Map(x => x.IsOsnoMode).Column("is_osno_mode");
 			Map(x => x.IsUsnMode).Column("is_usn_mode");
 

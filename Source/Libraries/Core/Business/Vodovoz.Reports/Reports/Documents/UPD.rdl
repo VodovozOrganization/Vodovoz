@@ -116,6 +116,7 @@ WHERE
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     orders.id AS order_id,
+    document_organization_counters.document_number AS document_number,
     orders.delivery_date AS order_date,
     orders.counterparty_external_order_id,
     counterparty_contract.number AS contract_number,
@@ -218,6 +219,10 @@ FROM orders
      employees leader ON leader.id = ov.leader_id
          LEFT JOIN
      employees buhgalter ON buhgalter.id = ov.accountant_id
+         LEFT JOIN 
+     order_documents ON order_documents.order_id = orders.id AND order_documents.type IN ('SpecialUPD', 'UPD') AND order_documents.document_organization_counter_id IS NOT NULL
+         LEFT JOIN 
+     document_organization_counters ON document_organization_counters.id = order_documents.document_organization_counter_id
 WHERE
     orders.id = @order_id;</CommandText>
         <QueryParameters>
@@ -233,6 +238,10 @@ WHERE
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="document_number">
+          <DataField>document_number</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
         <Field Name="order_date">
           <DataField>order_date</DataField>
@@ -558,7 +567,7 @@ WHERE o.id = @order_id
           <Textbox Name="Textbox37">
             <Height>12pt</Height>
             <Width>1in</Width>
-            <Value>=Fields!order_id.Value</Value>
+            <Value>=IIf(Fields!order_date.Value &gt;= CDate("2026-01-01"), Fields!document_number.Value, Fields!order_id.Value)</Value>
             <ZIndex>0</ZIndex>
             <Left>97.1pt</Left>
             <Top>0.7pt</Top>
@@ -3660,7 +3669,7 @@ WHERE o.id = @order_id
           <Textbox Name="Textbox191">
             <Height>12pt</Height>
             <Width>1in</Width>
-            <Value>=Fields!order_id.Value</Value>
+            <Value>=IIf(Fields!order_date.Value &gt;= CDate("2026-01-01"), Fields!document_number.Value, CStr(Fields!order_id.Value))</Value>
             <ZIndex>0</ZIndex>
             <Left>629.5pt</Left>
             <Top>238.1pt</Top>
@@ -4355,7 +4364,9 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox221">
-                      <Value>='Универсальный передаточный документ,' + ' №' + {order_id} + ' от ' + Format({order_date}, 'dd.MM.yyyy') + ' г.'</Value>
+                      <Value>='Универсальный передаточный документ,' + ' №' + 
+                      IIf(Fields!order_date.Value &gt;= CDate("2026-01-01"), Fields!document_number.Value, CStr(Fields!order_id.Value))
+                      + ' от ' + Format({order_date}, 'dd.MM.yyyy') + ' г.'</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>

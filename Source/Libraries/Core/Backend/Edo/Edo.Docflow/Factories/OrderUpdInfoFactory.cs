@@ -10,12 +10,14 @@ using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.DeliveryPoints;
 using Vodovoz.Core.Domain.Controllers;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+
 
 namespace Edo.Docflow.Factories
 {
@@ -54,7 +56,7 @@ namespace Edo.Docflow.Factories
 				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
 				.Where(x => x.CustomerEdoRequest.Id == documentEdoTask.FormalEdoRequest.Id)
 				.ListAsync();
-
+			
 			var sourceCodes = productCodes
 				.Where(x => x.SourceCode != null)
 				.Select(x => x.SourceCode);
@@ -70,10 +72,12 @@ namespace Edo.Docflow.Factories
 			var edoAccount =
 				_edoAccountEntityController.GetDefaultCounterpartyEdoAccountByOrganizationId(order.Client, order.Contract.Organization.Id);
 
+			await InitOrderDocuments(order, cancellationToken);
+			
 			var document = new UniversalTransferDocumentInfo
 			{
 				DocumentId = Guid.NewGuid(),
-				Number = order.Id,
+				StringNumber = UPDNumberBuilder.Build(order),
 				Sum = products.Sum(x => x.Sum),
 				Date = order.DeliveryDate.Value,
 				Seller = GetSellerInfo(order),
@@ -88,6 +92,22 @@ namespace Edo.Docflow.Factories
 			};
 
 			return document;
+		}
+
+		private async Task InitOrderDocuments(OrderEntity order, CancellationToken cancellationToken)
+		{
+			if (!NHibernateUtil.IsInitialized(order.OrderDocuments))
+			{
+				await NHibernateUtil.InitializeAsync(order.OrderDocuments, cancellationToken);
+			}
+			
+			foreach (var doc in order.OrderDocuments)
+			{
+				if (!NHibernateUtil.IsInitialized(doc.DocumentOrganizationCounter))
+				{
+					await NHibernateUtil.InitializeAsync(doc.DocumentOrganizationCounter, cancellationToken);
+				}
+			}
 		}
 
 		private SellerInfo GetSellerInfo(OrderEntity order) =>
