@@ -14,6 +14,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.Infrastructure.Persistance.Employees
@@ -242,6 +243,32 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 			return subdivisionsResponsibleByFinancialResponsibilityCentersIds
 				.Concat(subdivisionChiefIds)
 				.Distinct();
+		}
+
+		public IEnumerable<EmployeeLastWageParameterStartDateNode> GetSelectedEmployeesWageParametersStartDate(
+			IUnitOfWork uow, IEnumerable<int> employeeIds)
+		{
+			var employees =
+				from employee in uow.Session.Query<Employee>()
+
+				let lastWageParameterStartDate =
+					(from wageParameter in uow.Session.Query<EmployeeWageParameter>()
+					 where
+						 wageParameter.Employee.Id == employee.Id
+					 orderby wageParameter.Id descending
+					 select wageParameter.StartDate)
+					.FirstOrDefault()
+
+				where
+					employeeIds.Contains(employee.Id)
+
+				select new EmployeeLastWageParameterStartDateNode
+				{
+					Employee = employee,
+					LastWageParameterStartDate = lastWageParameterStartDate
+				};
+
+			return employees.ToList();
 		}
 	}
 }

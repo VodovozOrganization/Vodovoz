@@ -14,20 +14,25 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.WageCalculation;
 
 namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 {
-	public class WageDistrictLevelRatesAssigningViewModel : DialogTabViewModelBase, ITDICloseControlTab
+	public partial class WageDistrictLevelRatesAssigningViewModel : DialogTabViewModelBase, ITDICloseControlTab, IAskSaveOnCloseViewModel
 	{
 		private readonly ILogger<WageDistrictLevelRatesAssigningViewModel> _logger;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IWageCalculationRepository _wageCalculationRepository;
-		private readonly IGenericRepository<Employee> _employeeRepository;
+		private readonly IEmployeeRepository _employeeRepository;
+		private readonly IGenericRepository<RouteList> _routeListRepository;
+		private readonly IRouteListsWageController _routeListsWageController;
 		private readonly IGuiDispatcher _guiDispatcher;
 		private EmployeeCategory? _category;
 		private IObservableList<EmployeeSelectableNode> _employeeNodes = new ObservableList<EmployeeSelectableNode>();
@@ -38,6 +43,7 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 		private WageDistrictLevelRates _wageDistrictLevelRatesForRaskatCars;
 		private bool _isExcludeSelectedInFilterWageDistrictLevelRates;
 		private bool _isUpdating;
+		private CancellationTokenSource _cancellationTokenSource;
 
 		public WageDistrictLevelRatesAssigningViewModel(
 			ILogger<WageDistrictLevelRatesAssigningViewModel> logger,
@@ -45,7 +51,9 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			IWageCalculationRepository wageCalculationRepository,
-			IGenericRepository<Employee> employeeRepository,
+			IEmployeeRepository employeeRepository,
+			IGenericRepository<RouteList> routeListRepository,
+			IRouteListsWageController routeListsWageController,
 			IGuiDispatcher guiDispatcher
 			) : base(unitOfWorkFactory, interactiveService, navigation)
 		{
@@ -57,6 +65,9 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 				wageCalculationRepository ?? throw new ArgumentNullException(nameof(wageCalculationRepository));
 			_employeeRepository =
 				employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			_routeListsWageController =
+				routeListsWageController ?? throw new ArgumentNullException(nameof(routeListsWageController));
 			_guiDispatcher =
 				guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 
@@ -67,7 +78,7 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 
 			SelectAllEmployeesCommand = new DelegateCommand(SelectAllEmployees);
 			UnselectAllEmployeesCommand = new DelegateCommand(UnselectAllEmployees);
-			UpdateWageDistrictLevelRatesCommand = new AsyncCommand(_guiDispatcher, UpdateWageDistrictLevelRates, () => CanUpdateWageDistrictLevelRates);
+			UpdateWageDistrictLevelRatesCommand = new DelegateCommand(async () => UpdateWageDistrictLevelRates(), () => CanUpdateWageDistrictLevelRates);
 			UpdateWageDistrictLevelRatesCommand.CanExecuteChangedWith(this, x => x.CanUpdateWageDistrictLevelRates);
 
 			UpdateEmployeeNodes();
@@ -75,7 +86,7 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 
 		public DelegateCommand SelectAllEmployeesCommand { get; }
 		public DelegateCommand UnselectAllEmployeesCommand { get; }
-		public AsyncCommand UpdateWageDistrictLevelRatesCommand { get; }
+		public DelegateCommand UpdateWageDistrictLevelRatesCommand { get; }
 
 		public IList<WageDistrictLevelRates> WageLevels { get; }
 
@@ -134,12 +145,22 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 			set => SetField(ref _wageDistrictLevelRatesForRaskatCars, value);
 		}
 
+		[PropertyChangedAlso(nameof(CanUpdateWageDistrictLevelRates))]
+		public bool IsUpdating
+		{
+			get => _isUpdating;
+			set => SetField(ref _isUpdating, value);
+		}
+
 		public bool CanUpdateWageDistrictLevelRates =>
 			EmployeeNodes.Any(e => e.IsSelected)
 			&& StartDate != null
-			&& (WageDistrictLevelRatesForDriverCars != null
-				|| WageDistrictLevelRatesForCompanyCars != null
-				|| WageDistrictLevelRatesForRaskatCars != null);
+			&& WageDistrictLevelRatesForDriverCars != null
+			&& WageDistrictLevelRatesForCompanyCars != null
+			&& WageDistrictLevelRatesForRaskatCars != null
+			&& !IsUpdating;
+
+		public bool AskSaveOnClose => false;
 
 		private void UpdateEmployeeNodes()
 		{
@@ -177,18 +198,6 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 			return query.ToList();
 		}
 
-		private async Task<IEnumerable<Employee>> GetSelectedEmployees(CancellationToken cancellationToken = default)
-		{
-			var selectedNodeIds = EmployeeNodes.Where(x => x.IsSelected).Select(x => x.Id).ToList();
-
-			var employeesResult = await _employeeRepository.GetAsync(
-				UoW,
-				e => selectedNodeIds.Contains(e.Id),
-				cancellationToken: cancellationToken);
-
-			return employeesResult.Value;
-		}
-
 		private void SelectAllEmployees()
 		{
 			foreach(var emp in EmployeeNodes)
@@ -214,21 +223,9 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 			base.OnPropertyChanged(propertyName);
 		}
 
-		private async Task UpdateWageDistrictLevelRates(CancellationToken cancellationToken)
+		private async Task UpdateWageDistrictLevelRates()
 		{
-			_logger.LogInformation(
-				"Начало обновления расчета з/п сотрудникам" +
-				"Дата начала: {StartDate}, " +
-				"Уровни ставок: " +
-				"Авто водителя: Id={WageDistrictLevelRatesForDriverCarsId}, " +
-				"Авто компании: Id={WageDistrictLevelRatesForCompanyCarsId}, " +
-				"Авто в раскате: Id={WageDistrictLevelRatesForRaskatCarsId}",
-				StartDate.Value,
-				WageDistrictLevelRatesForDriverCars.Id,
-				WageDistrictLevelRatesForCompanyCars.Id,
-				WageDistrictLevelRatesForRaskatCars.Id);
-
-			if(_isUpdating)
+			if(IsUpdating || _cancellationTokenSource != null)
 			{
 				_logger.LogWarning("Обновление отменено. В данный момент уже выполняется обновление расчета з/п");
 
@@ -237,61 +234,59 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 					"В данный момент уже выполняется обновление расчета з/п");
 			}
 
-			//if(!_interactiveService.Question(
-			//	"Будет обновлен расчет з/п" +
-			//	"\nУказанным сотрудникам будут установлены выбранные уровни ставок" +
-			//	"\nПродолжить?"))
-			//{
-			//	_logger.LogWarning("Обновление отменено по запросу сотрудника");
-			//	return;
-			//}
+			if(!CanUpdateWageDistrictLevelRates)
+			{
+				_logger.LogWarning("Обновление отменено. Не все параметры нового расчета з/п были выбраны");
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Не все параметры нового расчета з/п были выбраны");
+				return;
+			}
 
-			_isUpdating = true;
-			var employees = await GetSelectedEmployees(cancellationToken);
+			if(!_interactiveService.Question(
+				"Будет обновлен расчет з/п" +
+				"\nУказанным сотрудникам будут установлены выбранные уровни ставок" +
+				"\nПродолжить?"))
+			{
+				_logger.LogWarning("Обновление отменено по запросу сотрудника");
+				return;
+			}
+
+			IsUpdating = true;
+			_cancellationTokenSource = new CancellationTokenSource();
+			var cancellationToken = _cancellationTokenSource.Token;
+
+			var employeesRouteListsToUpdateWage = GetEmployeesRouteListsToUpdateWage();
+
+			_logger.LogInformation(
+				"Обновления расчета з/п сотрудникам" +
+				"Дата начала: {StartDate}, " +
+				"Количество выбранных сотрудников: {SelectedEmployeesCount}" +
+				"Уровни ставок: " +
+				"Авто водителя: Id={WageDistrictLevelRatesForDriverCarsId}, " +
+				"Авто компании: Id={WageDistrictLevelRatesForCompanyCarsId}, " +
+				"Авто в раскате: Id={WageDistrictLevelRatesForRaskatCarsId}",
+				StartDate.Value,
+				employeesRouteListsToUpdateWage.Count(),
+				WageDistrictLevelRatesForDriverCars.Id,
+				WageDistrictLevelRatesForCompanyCars.Id,
+				WageDistrictLevelRatesForRaskatCars.Id);
 
 			try
 			{
-				foreach(var employee in employees)
+				foreach(var employee in employeesRouteListsToUpdateWage)
 				{
-					_logger.LogInformation(
-						"Обновление отменено. В данный момент уже выполняется обновление расчета з/п");
-					var lastWageParameter = employee.WageParameters.LastOrDefault();
-					if(lastWageParameter.StartDate >= StartDate)
+					await ChangeEmployeeWageParameter(employee.Employee, cancellationToken);
+
+					if(employee.RouteLists.Any())
 					{
-						_interactiveService.ShowMessage(
-							ImportanceLevel.Warning,
-							$"Существующий расчет з/п сотрудника {employee.Title} имеет дату начала действия {lastWageParameter.StartDate}" +
-							$"\nНовый расчет с указанными ставками не может быть установлен" +
-							$"\nДанный сотрудник будет пропущен");
+						await RecalculateEmployeeRouteListsWage(employee.RouteLists, cancellationToken);
 					}
-
-					lastWageParameter.EndDate = StartDate.Value.AddDays(-1);
-
-					var newWageParameter = new EmployeeWageParameter
-					{
-						Employee = employee,
-						StartDate = StartDate.Value,
-						WageParameterItem = new RatesLevelWageParameterItem
-						{
-							WageDistrictLevelRates = WageDistrictLevelRatesForDriverCars
-						},
-						WageParameterItemForOurCars = new RatesLevelWageParameterItem
-						{
-							WageDistrictLevelRates = WageDistrictLevelRatesForCompanyCars
-						},
-						WageParameterItemForRaskatCars = new RatesLevelWageParameterItem
-						{
-							WageDistrictLevelRates = WageDistrictLevelRatesForRaskatCars
-						}
-					};
-
-					await UoW.SaveAsync(lastWageParameter, cancellationToken: cancellationToken);
-					await UoW.SaveAsync(newWageParameter, cancellationToken: cancellationToken);
 				}
 
 				await UoW.CommitAsync();
 
-				_logger.LogInformation("Обновление расчета з/п выполнено успешно");
+				_logger.LogInformation("Обновление расчета з/п выбранных сотрудников выполнено успешно");
 			}
 			catch(Exception ex)
 			{
@@ -299,8 +294,131 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 			}
 			finally
 			{
-				_isUpdating = false;
+				IsUpdating = false;
+				_cancellationTokenSource?.Dispose();
+				_cancellationTokenSource = null;
 			}
+		}
+
+		private IList<(Employee Employee, IEnumerable<RouteList> RouteLists)> GetEmployeesRouteListsToUpdateWage()
+		{
+			var employeesToRecalculateWage = new List<(Employee Employee, IEnumerable<RouteList> RouteLists)>();
+			var selectedEmployeesWageStartDate = GetSelectedEmployeesWageParametersStartDate();
+			var selectedEmployeeIds = selectedEmployeesWageStartDate.Select(x => x.Employee.Id).ToList();
+			var routeListsByEmployeesAfterStartDate = GetRouteListsAfterStartDateByEmployees(selectedEmployeeIds);
+
+			foreach(var employeeWageStartDate in selectedEmployeesWageStartDate)
+			{
+				if(employeeWageStartDate.LastWageParameterStartDate >= StartDate)
+				{
+					_interactiveService.ShowMessage(
+						ImportanceLevel.Warning,
+						$"Существующий расчет з/п сотрудника {employeeWageStartDate.Employee.Title} имеет дату начала действия {employeeWageStartDate.LastWageParameterStartDate}" +
+						$"\nНовый расчет с указанными ставками не может быть установлен" +
+						$"\nДанный сотрудник будет пропущен");
+
+					continue;
+				}
+
+				var routeListsAfterStartDate = routeListsByEmployeesAfterStartDate[employeeWageStartDate.Employee.Id];
+
+				if(routeListsAfterStartDate.Any())
+				{
+					var buttonYes = "Да, пересчитать з/п";
+					var buttonNo = "Нет, пропустить сотрудника";
+
+					var answer = _interactiveService.Question(
+						new[] { buttonYes, buttonNo },
+						$"Сотрудник {employeeWageStartDate.Employee.Title} имеет {routeListsAfterStartDate.Count()} закрытых МЛ после {StartDate.Value:d}." +
+						$"\nВ случае обновления расчета з/п сотруднику, его зарплата в этих МЛ будет пересчитана" +
+						$"\nОбновить расчет з/п сотруднику?");
+
+					if(answer == buttonNo)
+					{
+						_logger.LogInformation(
+							"Обновление расчета з/п сотруднику Id={EmployeeId} пропущено по запросу пользователя",
+							employeeWageStartDate.Employee.Id);
+						continue;
+					}
+				}
+
+				employeesToRecalculateWage.Add((employeeWageStartDate.Employee, routeListsAfterStartDate));
+			}
+
+			return employeesToRecalculateWage;
+		}
+
+		private IEnumerable<EmployeeLastWageParameterStartDateNode> GetSelectedEmployeesWageParametersStartDate()
+		{
+			var selectedNodeIds = EmployeeNodes.Where(x => x.IsSelected).Select(x => x.Id).ToList();
+			var employees = _employeeRepository.GetSelectedEmployeesWageParametersStartDate(UoW, selectedNodeIds);
+			return employees;
+		}
+
+		private ILookup<int, RouteList> GetRouteListsAfterStartDateByEmployees(
+			IEnumerable<int> employeeIds) =>
+			_routeListRepository.Get(
+				UoW,
+				rl => employeeIds.Contains(rl.Driver.Id) && rl.Date >= StartDate.Value)
+			.ToLookup(x => x.Driver.Id, x => x);
+
+		private async Task ChangeEmployeeWageParameter(Employee employee, CancellationToken cancellationToken)
+		{
+			_logger.LogInformation(
+					"Выполняем обновление расчета з/п сотрудника Id={EmployeeId}",
+					employee.Id);
+
+			var lastWageParameter = employee.WageParameters.LastOrDefault();
+
+			if(lastWageParameter.StartDate >= StartDate)
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					$"Существующий расчет з/п сотрудника {employee.Title} имеет дату начала действия {lastWageParameter.StartDate}" +
+					$"\nНовый расчет с указанными ставками не может быть установлен" +
+					$"\nДанный сотрудник будет пропущен");
+			}
+
+			var newWageParameter = new EmployeeWageParameter
+			{
+				Employee = employee,
+				StartDate = StartDate.Value,
+				WageParameterItem = new RatesLevelWageParameterItem
+				{
+					WageDistrictLevelRates = WageDistrictLevelRatesForDriverCars
+				},
+				WageParameterItemForOurCars = new RatesLevelWageParameterItem
+				{
+					WageDistrictLevelRates = WageDistrictLevelRatesForCompanyCars
+				},
+				WageParameterItemForRaskatCars = new RatesLevelWageParameterItem
+				{
+					WageDistrictLevelRates = WageDistrictLevelRatesForRaskatCars
+				}
+			};
+
+			employee.ChangeWageParameter(newWageParameter, StartDate.Value);
+			await UoW.SaveAsync(employee, cancellationToken: cancellationToken);
+
+			_logger.LogInformation(
+				"Обновление расчета з/п сотрудника Id={EmployeeId} выполнено успешно",
+				employee.Id);
+		}
+
+		private async Task RecalculateEmployeeRouteListsWage(IEnumerable<RouteList> routeLists, CancellationToken cancellationToken)
+		{
+			await Task.Run(() =>
+			{
+				_routeListsWageController.RecalculateRouteListsWage(
+					UoW,
+					routeLists.ToList(),
+					cancellationToken);
+
+				foreach(var routeList in routeLists)
+				{
+					UoW.SaveAsync(routeList, cancellationToken: cancellationToken);
+				}
+			});
 		}
 
 		public bool CanClose()
@@ -311,24 +429,5 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 			}
 			return _isUpdating;
 		}
-	}
-
-	public class EmployeeSelectableNode : PropertyChangedBase
-	{
-		private bool _isSelected;
-
-		public int Id { get; set; }
-		public string LastName { get; set; }
-		public string Name { get; set; }
-		public string Patronymic { get; set; }
-
-		public bool IsSelected
-		{
-			get => _isSelected;
-			set => SetField(ref _isSelected, value);
-		}
-
-		public string FullName =>
-			LastName + " " + Name + (string.IsNullOrWhiteSpace(Patronymic) ? "" : " " + Patronymic);
 	}
 }

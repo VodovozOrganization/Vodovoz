@@ -33,5 +33,13 @@ namespace Vodovoz.EntityRepositories.Employees
 		NamedDomainObjectNode GetOtherEmployeeInfoWithSameCounterparty(
 			IUnitOfWorkFactory uowFactory, int employeeId, int counterpartyId);
 		IEnumerable<int> GetControlledByEmployeeSubdivisionIds(IUnitOfWork uow, int employeeId);
+
+		/// <summary>
+		/// Возвращает список сотрудников с датами начала действия их последних параметров оплаты
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="employeeIds">Список Id сотрудников</param>
+		/// <returns></returns>
+		IEnumerable<EmployeeLastWageParameterStartDateNode> GetSelectedEmployeesWageParametersStartDate(IUnitOfWork uow, IEnumerable<int> employeeIds);
 	}
 }

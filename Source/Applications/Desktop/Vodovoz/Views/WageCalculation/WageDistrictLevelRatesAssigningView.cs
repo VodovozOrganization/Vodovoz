@@ -1,10 +1,8 @@
 ﻿using Gamma.GtkWidgets;
-using Gtk;
 using QS.Views.GtkUI;
 using Vodovoz.Core.Domain.Employees;
-using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.WageCalculation;
-using static Vodovoz.ViewModels.ReportsParameters.Cash.DayOfSalaryGiveoutReportViewModel;
+using static Vodovoz.ViewModels.ViewModels.WageCalculation.WageDistrictLevelRatesAssigningViewModel;
 namespace Vodovoz.Views.WageCalculation
 {
 	public partial class WageDistrictLevelRatesAssigningView : TabViewBase<WageDistrictLevelRatesAssigningViewModel>
