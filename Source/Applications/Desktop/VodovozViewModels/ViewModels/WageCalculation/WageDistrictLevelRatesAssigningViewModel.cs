@@ -449,11 +449,12 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 
 		public bool CanClose()
 		{
-			if(_isUpdating)
+			if(IsUpdating)
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Идет обновление ставок, дождитесь окончания операции");
+				return false;
 			}
-			return _isUpdating;
+			return true;
 		}
 	}
 }
