@@ -16,7 +16,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			References(x => x.Order).Column("order_id");
 			References(x => x.AttachedToOrder).Column("attached_to_order_id");
 			References(x => x.DocumentOrganizationCounter).Column("document_organization_counter_id");
-			//	.Cascade.SaveUpdate();
 		}
 	}
 
