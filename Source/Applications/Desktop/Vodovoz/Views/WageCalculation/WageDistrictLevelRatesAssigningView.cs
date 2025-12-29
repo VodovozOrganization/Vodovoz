@@ -14,6 +14,10 @@ namespace Vodovoz.Views.WageCalculation
 		}
 		private void Configure()
 		{
+			yvboxWageLevelRatesFilterContainer.Binding
+				.AddFuncBinding(ViewModel, vm => !vm.IsUpdating, w => w.Sensitive)
+				.InitializeFromSource();
+
 			yenumcomboboxEmployeeCategory.ItemsEnum = typeof(EmployeeCategory);
 			yenumcomboboxEmployeeCategory.HiddenItems = new object[] { EmployeeCategory.office };
 			yenumcomboboxEmployeeCategory.ShowSpecialStateAll = true;
