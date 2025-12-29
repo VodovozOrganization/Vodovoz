@@ -61,6 +61,11 @@ namespace Edo.Docflow.Factories
 				throw new InvalidOperationException("В заказе перемещения товаров не указан покупатель");
 			}
 
+			if(transferOrder.TransferDocument is null)
+			{
+				throw new InvalidOperationException("В заказе перемещения товаров не указан счетчик документов УПД");
+			}
+
 			if(transferOrder.Date == default)
 			{
 				throw new InvalidOperationException("В заказе перемещения товаров не указана дата");
@@ -94,14 +99,11 @@ namespace Edo.Docflow.Factories
 			)
 		{
 			var products = await GetProducts(transferOrder, cancellationToken);
-
-			var transferDocument = await CreateTransferDocumentOrganizationCounterAsync(transferOrder, cancellationToken);
-			await _uow.CommitAsync(cancellationToken);
 			
 			var document = new UniversalTransferDocumentInfo
 			{
 				DocumentId = Guid.NewGuid(),
-				StringNumber = UPDNumberBuilder.Build(transferOrder, transferDocument),
+				StringNumber = UPDNumberBuilder.Build(transferOrder, transferOrder.TransferDocument),
 				Sum = products.Sum(x => x.Sum),
 				Date = transferOrder.Date,
 				Seller = GetSellerInfo(transferOrder),
@@ -117,24 +119,7 @@ namespace Edo.Docflow.Factories
 			return document;
 		}
 
-		private async Task<DocumentOrganizationCounter> CreateTransferDocumentOrganizationCounterAsync(TransferOrder transferOrder, CancellationToken cancellationToken)
-		{
-			var lastDocument = await _documentOrganizationCounterRepository
-				.GetMaxDocumentOrganizationCounterOnYearAsync(_uow, transferOrder.Date, transferOrder.Seller, cancellationToken);
-			var documentCounter = (lastDocument?.Counter ?? 0) + 1;
-			
-			var transferDocumentOrganization = new DocumentOrganizationCounter
-			{
-				Organization = transferOrder.Seller,
-				Counter = documentCounter,
-				CounterDateYear = transferOrder.Date.Year,
-				DocumentNumber = UPDNumberBuilder.BuildDocumentNumber(transferOrder.Seller, transferOrder.Date, documentCounter),
-			};
-
-			await _uow.SaveAsync(transferDocumentOrganization, cancellationToken: cancellationToken);
-			
-			return transferDocumentOrganization;
-		}
+		
 
 		private SellerInfo GetSellerInfo(TransferOrder transferOrder) =>
 			new SellerInfo { Organization = GetOrganizationInfo(transferOrder.Seller) };

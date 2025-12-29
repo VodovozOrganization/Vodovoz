@@ -220,7 +220,7 @@ FROM orders
          LEFT JOIN
      employees buhgalter ON buhgalter.id = ov.accountant_id
          LEFT JOIN 
-     order_documents ON order_documents.attached_to_order_id = orders.id AND order_documents.type IN ('SpecialUPD', 'UPD') AND order_documents.document_organization_counter_id IS NOT NULL
+     order_documents ON order_documents.order_id = orders.id AND order_documents.type IN ('SpecialUPD', 'UPD') AND order_documents.document_organization_counter_id IS NOT NULL
          LEFT JOIN 
      document_organization_counters ON document_organization_counters.id = order_documents.document_organization_counter_id
 WHERE
