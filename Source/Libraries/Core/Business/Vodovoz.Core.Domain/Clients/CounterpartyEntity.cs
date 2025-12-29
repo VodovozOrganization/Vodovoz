@@ -68,6 +68,7 @@ namespace Vodovoz.Core.Domain.Clients
 		private string _iNN;
 		private string _kPP;
 		private string _oGRN;
+		private DateTime? _oGRNDate;
 		private string _jurAddress;
 		private string _address;
 		private PaymentType _paymentMethod;
@@ -327,13 +328,23 @@ namespace Vodovoz.Core.Domain.Clients
 		}
 
 		/// <summary>
-		/// ОГРН
+		/// ОГРН/ОГРНИП
 		/// </summary>
-		[Display(Name = "ОГРН")]
+		[Display(Name = "ОГРН/ОГРНИП")]
 		public virtual string OGRN
 		{
 			get => _oGRN;
 			set => SetField(ref _oGRN, value);
+		}
+		
+		/// <summary>
+		/// Дата ОГРН/ОГРНИП
+		/// </summary>
+		[Display(Name = "Дата внесения ОГРН/ОГРНИП")]
+		public virtual DateTime? OGRNDate
+		{
+			get => _oGRNDate;
+			set => SetField(ref _oGRNDate, value);
 		}
 
 		/// <summary>
@@ -1042,6 +1053,15 @@ namespace Vodovoz.Core.Domain.Clients
 			PersonType == PersonType.legal
 			&& CounterpartyEdoAccounts.Any(
 				x => x.IsDefault && x.ConsentForEdoStatus == ConsentForEdoStatus.Agree);
+		
+		/// <summary>
+		/// Является ли клиент ИП с незаполненными ОГРНИП или датой ОГРНИП
+		/// </summary>
+		/// <returns></returns>
+		public virtual bool IsPrivateBusinessmanWithoutOgrnOrOgrnDate() =>
+			_iNN != null
+			&& _iNN.Length == CompanyConstants.PrivateBusinessmanInnLength
+			&& (!string.IsNullOrWhiteSpace(_oGRN) || !_oGRNDate.HasValue);
 
 		/// <summary>
 		/// Обновление информации о прикрепленных файлах
