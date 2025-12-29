@@ -81,6 +81,8 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 			UpdateWageDistrictLevelRatesCommand = new DelegateCommand(async () => await UpdateWageDistrictLevelRates(), () => CanUpdateWageDistrictLevelRates);
 			UpdateWageDistrictLevelRatesCommand.CanExecuteChangedWith(this, x => x.CanUpdateWageDistrictLevelRates);
 
+			EmployeeNodes.ContentChanged += OnEmployeeNodesContentChanged;
+
 			UpdateEmployeeNodes();
 		}
 
@@ -473,6 +475,20 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 				return false;
 			}
 			return true;
+		}
+
+		private void OnEmployeeNodesContentChanged(object sender, EventArgs e)
+		{
+			OnPropertyChanged(nameof(CanUpdateWageDistrictLevelRates));
+		}
+
+		public override void Dispose()
+		{
+			if(EmployeeNodes != null)
+			{
+				EmployeeNodes.ContentChanged -= OnEmployeeNodesContentChanged;
+			}
+			base.Dispose();
 		}
 	}
 }
