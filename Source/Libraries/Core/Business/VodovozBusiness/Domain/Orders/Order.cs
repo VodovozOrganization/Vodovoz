@@ -3854,8 +3854,13 @@ namespace Vodovoz.Domain.Orders
 					newDoc = new SpecialBillDocument();
 					break;
 				case OrderDocumentType.UPD:
-					var updCounter = _documentOrganizationCounterRepository.GetMaxDocumentOrganizationCounterOnYear(UoW, DeliveryDate.Value, Contract?.Organization);
-					var updCounterValue = updCounter == null ? 1 : ++updCounter.Counter;
+					var updCounter = _documentOrganizationCounterRepository
+						.GetMaxDocumentOrganizationCounterOnYear(UoW, DeliveryDate.Value, Contract?.Organization);
+					
+					var updCounterValue = updCounter == null 
+						? 1
+						: ++updCounter.Counter;
+					
 					var updDocument = new UPDDocument()
 					{
 						DocumentOrganizationCounter = new DocumentOrganizationCounter()
@@ -3863,18 +3868,24 @@ namespace Vodovoz.Domain.Orders
 							Organization = Contract?.Organization,
 							CounterDateYear = DeliveryDate?.Year,
 							Counter = updCounterValue,
-							DocumentNumber = $"{Contract?.Organization.Prefix}{DeliveryDate?.ToString("yy")}-{updCounterValue}"
+							DocumentNumber = UPDNumberBuilder.BuildDocumentNumber(Contract?.Organization, DeliveryDate.Value, updCounterValue)
 						}
 					};
-					if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel")) {
+					
+					if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel")) 
 						updDocument.RestrictedOutputPresentationTypes = new[] { OutputPresentationType.ExcelTableOnly, OutputPresentationType.Excel2007 };
-					}
+					
 					newDoc = updDocument;
+					
 					break;
 				case OrderDocumentType.SpecialUPD:
+					var specialUpdCounter = _documentOrganizationCounterRepository
+						.GetMaxDocumentOrganizationCounterOnYear(UoW, DeliveryDate.Value, Contract?.Organization);
 					
-					var specialUpdCounter = _documentOrganizationCounterRepository.GetMaxDocumentOrganizationCounterOnYear(UoW, DeliveryDate.Value, Contract?.Organization);
-					var specialUpdCounterValue = specialUpdCounter == null ? 1 : ++specialUpdCounter.Counter;
+					var specialUpdCounterValue = specialUpdCounter == null 
+						? 1
+						: ++specialUpdCounter.Counter;
+					
 					var specialUpdDocument = new SpecialUPDDocument()
 					{
 						DocumentOrganizationCounter = new DocumentOrganizationCounter()
@@ -3882,13 +3893,15 @@ namespace Vodovoz.Domain.Orders
 							Organization = Contract?.Organization,
 							CounterDateYear = DeliveryDate?.Year,
 							Counter = specialUpdCounterValue,
-							DocumentNumber = $"{Contract?.Organization.Prefix}{DeliveryDate?.ToString("yy")}-{specialUpdCounterValue}"
+							DocumentNumber = UPDNumberBuilder.BuildDocumentNumber(Contract?.Organization, DeliveryDate.Value, specialUpdCounterValue)
 						}
 					};
-					if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel")) {
+					
+					if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel")) 
 						specialUpdDocument.RestrictedOutputPresentationTypes = new[] { OutputPresentationType.ExcelTableOnly, OutputPresentationType.Excel2007 };
-					}
+					
 					newDoc = specialUpdDocument;
+					
 					break;
 				case OrderDocumentType.Invoice:
 					newDoc = new InvoiceDocument();

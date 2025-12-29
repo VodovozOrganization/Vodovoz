@@ -16,9 +16,9 @@ namespace Vodovoz.Core.Domain.Documents
 		private string _documentNumber;
 
 		/// <summary>
-		/// ID
+		/// Код
 		/// </summary>
-		[Display(Name = "ID")]
+		[Display(Name = "Код")]
 		public virtual int Id
 		{
 			get => _id;

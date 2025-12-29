@@ -304,7 +304,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		}
 		
 		/// <summary>
-		/// Префик оргонизации
+		/// Префикс организации
 		/// </summary>
 		[Display(Name = "Префикс организации")]
 		public virtual string Prefix

@@ -44,7 +44,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		}
 
 		/// <summary>
-		/// Счетчик документов (используется не для всех)
+		/// Счетчик документов
 		/// </summary>
 		[Display(Name = "Счетчик документов")]
 		public virtual DocumentOrganizationCounter DocumentOrganizationCounter

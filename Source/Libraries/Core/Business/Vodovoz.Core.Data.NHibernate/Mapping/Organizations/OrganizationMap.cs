@@ -68,6 +68,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Organizations
 
 			Map(x => x.CashBoxTokenFromTrueMark)
 				.Column("edo_key");
+			
+			Map(x => x.Prefix)
+				.Column("prefix");
 
 			References(x => x.Stamp)
 				.Column("stamp_id");

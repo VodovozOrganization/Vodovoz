@@ -10,12 +10,14 @@ using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.DeliveryPoints;
 using Vodovoz.Core.Domain.Controllers;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+
 
 namespace Edo.Docflow.Factories
 {
@@ -69,12 +71,11 @@ namespace Edo.Docflow.Factories
 			var products = await GetProducts(documentEdoTask, cancellationToken);
 			var edoAccount =
 				_edoAccountEntityController.GetDefaultCounterpartyEdoAccountByOrganizationId(order.Client, order.Contract.Organization.Id);
-
+			
 			var document = new UniversalTransferDocumentInfo
 			{
 				DocumentId = Guid.NewGuid(),
-				Number = order.Id,
-				StringNumber = order.OrderDocuments.First(x => x.Type == OrderDocumentType.UPD || x.Type == OrderDocumentType.SpecialUPD).DocumentOrganizationCounter.DocumentNumber,
+				StringNumber = UPDNumberBuilder.Build(order),
 				Sum = products.Sum(x => x.Sum),
 				Date = order.DeliveryDate.Value,
 				Seller = GetSellerInfo(order),

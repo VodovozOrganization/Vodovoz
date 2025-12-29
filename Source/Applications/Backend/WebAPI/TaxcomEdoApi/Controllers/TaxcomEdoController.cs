@@ -60,7 +60,7 @@ namespace TaxcomEdoApi.Controllers
 			var documentId = updInfo.DocumentId;
 			_logger.LogInformation(
 				"Поступил запрос отправки УПД {UpdNumber} {DocumentId}",
-				updInfo.Date >= new DateTime(2026,1,1) ? updInfo.StringNumber : updInfo.Number,
+				updInfo.StringNumber,
 				documentId);
 			
 			try
@@ -69,7 +69,7 @@ namespace TaxcomEdoApi.Controllers
 				
 				_logger.LogInformation(
 					"Отправляем контейнер с УПД {UpdNumber} {DocumentId}",
-					updInfo.Date >= new DateTime(2026,1,1) ? updInfo.StringNumber : updInfo.Number,
+					updInfo.StringNumber,
 					documentId);
 				
 				_taxcomApi.Send(container);
@@ -80,7 +80,7 @@ namespace TaxcomEdoApi.Controllers
 				_logger.LogError(
 					e,
 					"Ошибка в процессе формирования УПД №{UpdNumber} {DocumentId} и ее отправки",
-					updInfo.Date >= new DateTime(2026,1,1) ? updInfo.StringNumber : updInfo.Number,
+					updInfo.StringNumber,
 					documentId);
 				return Problem();
 			}

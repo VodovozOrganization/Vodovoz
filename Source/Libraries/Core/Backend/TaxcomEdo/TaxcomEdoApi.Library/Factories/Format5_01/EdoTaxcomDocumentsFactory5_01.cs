@@ -301,7 +301,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_01
 				NaimJekonSubSost = $"{org.Name}, ИНН/КПП {org.Inn}/{org.Kpp}",
 				SvSchFakt = new FajlDokumentSvSchFakt
 				{
-					NomerSchF = updInfo.Date >= new DateTime(2026,1,1) ? updInfo.StringNumber : updInfo.Number.ToString(),
+					NomerSchF = updInfo.StringNumber,
 					DataSchF = updInfo.Date.ToShortDateString(),
 					KodOKV = "643",
 					IsprSchF = new FajlDokumentSvSchFaktIsprSchF
@@ -358,7 +358,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_01
 				new FajlDokumentSvSchFaktDokPodtvOtgr
 				{
 					NaimDokOtgr = "Универсальный передаточный документ,",
-					NomDokOtgr = updInfo.Date >= new DateTime(2026,1,1) ? updInfo.StringNumber : updInfo.Number.ToString(),
+					NomDokOtgr = updInfo.StringNumber,
 					DataDokOtgr = updInfo.Date.ToShortDateString()
 				}
 			};

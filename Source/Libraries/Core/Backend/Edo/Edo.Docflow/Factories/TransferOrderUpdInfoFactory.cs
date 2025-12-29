@@ -7,6 +7,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
+using Vodovoz.Core.Data.Repositories.Document;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Organizations;
@@ -23,17 +25,20 @@ namespace Edo.Docflow.Factories
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly IEdoTransferSettings _edoTransferSettings;
 		private readonly INomenclatureSettings _nomenclatureSettings;
+		private readonly IDocumentOrganizationCounterRepository _documentOrganizationCounterRepository;
 
 		public TransferOrderUpdInfoFactory(
 			IUnitOfWork uow,
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			IEdoTransferSettings edoTransferSettings,
-			INomenclatureSettings nomenclatureSettings)
+			INomenclatureSettings nomenclatureSettings,
+			IDocumentOrganizationCounterRepository documentOrganizationCounterRepository)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_edoTransferSettings = edoTransferSettings ?? throw new ArgumentNullException(nameof(edoTransferSettings));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
+			_documentOrganizationCounterRepository = documentOrganizationCounterRepository ?? throw new ArgumentNullException(nameof(documentOrganizationCounterRepository));
 		}
 
 		public async Task<UniversalTransferDocumentInfo> CreateUniversalTransferDocumentInfo(
@@ -90,11 +95,13 @@ namespace Edo.Docflow.Factories
 		{
 			var products = await GetProducts(transferOrder, cancellationToken);
 
+			var transferDocument = await CreateTransferDocumentOrganizationCounterAsync(transferOrder, cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
+			
 			var document = new UniversalTransferDocumentInfo
 			{
 				DocumentId = Guid.NewGuid(),
-				Number = transferOrder.Id,
-				StringNumber = transferOrder.Id.ToString(),
+				StringNumber = UPDNumberBuilder.Build(transferOrder, transferDocument),
 				Sum = products.Sum(x => x.Sum),
 				Date = transferOrder.Date,
 				Seller = GetSellerInfo(transferOrder),
@@ -108,6 +115,25 @@ namespace Edo.Docflow.Factories
 			};
 
 			return document;
+		}
+
+		private async Task<DocumentOrganizationCounter> CreateTransferDocumentOrganizationCounterAsync(TransferOrder transferOrder, CancellationToken cancellationToken)
+		{
+			var lastDocument = await _documentOrganizationCounterRepository
+				.GetMaxDocumentOrganizationCounterOnYearAsync(_uow, transferOrder.Date, transferOrder.Seller, cancellationToken);
+			var documentCounter = (lastDocument?.Counter ?? 0) + 1;
+			
+			var transferDocumentOrganization = new DocumentOrganizationCounter
+			{
+				Organization = transferOrder.Seller,
+				Counter = documentCounter,
+				CounterDateYear = transferOrder.Date.Year,
+				DocumentNumber = UPDNumberBuilder.BuildDocumentNumber(transferOrder.Seller, transferOrder.Date, documentCounter),
+			};
+
+			await _uow.SaveAsync(transferDocumentOrganization, cancellationToken: cancellationToken);
+			
+			return transferDocumentOrganization;
 		}
 
 		private SellerInfo GetSellerInfo(TransferOrder transferOrder) =>
