@@ -18,7 +18,7 @@ namespace Vodovoz.Views.Cash
 		
 		public VatRateVersionForOrganizationView()
 		{
-			this.Build();
+			Build();
 		}
 
 		protected override void ConfigureWidget()
@@ -78,6 +78,10 @@ namespace Vodovoz.Views.Cash
 			buttonSave.BindCommand(ViewModel.SaveEditingVersionCommand);
 			buttonSave.Binding
 				.AddBinding(ViewModel, vm => vm.CanSaveSelectedVatRate, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			mainBox.Binding
+				.AddBinding(ViewModel, vm => vm.IsWidgetVisible, w => w.Visible)
 				.InitializeFromSource();
 		}
 

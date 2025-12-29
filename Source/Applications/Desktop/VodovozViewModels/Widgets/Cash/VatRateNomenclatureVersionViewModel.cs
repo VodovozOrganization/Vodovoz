@@ -52,6 +52,11 @@ namespace Vodovoz.ViewModels.Widgets.Cash
 			Initialize();
 			
 			IsButtonsAvailable = isEditable;
+
+			if(IsNewOrganization)
+			{
+				SelectedDate = DateTime.Now.Date;
+			}
 		}
 		
 		public bool IsEditAvailable => SelectedVatRateVersion != null;

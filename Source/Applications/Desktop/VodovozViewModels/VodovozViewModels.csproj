@@ -928,6 +928,11 @@
     <Compile Include="ViewModels\Profitability\ProfitabilityConstantsDataViewModel.cs" />
     <Compile Include="ViewModels\Profitability\ProfitabilityConstantsViewModel.cs" />
     <Compile Include="ViewModels\Proposal\ApplicationDevelopmentProposalViewModel.cs" />
+    <Compile Include="ViewModels\Reports\BulkDebtMailingReport\BulkDebtMailingReportRow.cs" />
+    <Compile Include="ViewModels\Reports\BulkDebtMailingReport\BulkDebtMailingReportViewModel.cs" />
+    <Compile Include="ViewModels\Reports\BulkDebtMailingReport\BulkDebtMailingReport.cs" />
+    <Compile Include="ViewModels\Reports\BulkDebtMailingReport\BulkDebtMailingSummaryReport.cs" />
+    <Compile Include="ViewModels\Reports\BulkDebtMailingReport\BulkDebtMailingSummaryReportRow.cs" />
     <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReport.cs" />
     <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReportRow.cs" />
     <Compile Include="ViewModels\Reports\BulkEmailEventReport\BulkEmailEventReportViewModel.cs" />

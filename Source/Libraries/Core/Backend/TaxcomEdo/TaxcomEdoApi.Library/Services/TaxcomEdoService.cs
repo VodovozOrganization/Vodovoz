@@ -140,11 +140,11 @@ namespace TaxcomEdoApi.Library.Services
 				var errorsString = string.Join(", ", errors);
 				_logger.LogError(
 					"УПД {UpdNumber} {DocumentId} не прошла валидацию\nОшибки: {ErrorsString}",
-					updInfo.Number,
+					updInfo.StringNumber,
 					updInfo.DocumentId,
 					errorsString);
 
-				throw new InvalidOperationException($"УПД {updInfo.Number} {updInfo.DocumentId} не прошла валидацию, отправка не возможна");
+				throw new InvalidOperationException($"УПД {updInfo.StringNumber} {updInfo.DocumentId} не прошла валидацию, отправка не возможна");
 				//подумать, что делаем в таких случаях
 			}
 			

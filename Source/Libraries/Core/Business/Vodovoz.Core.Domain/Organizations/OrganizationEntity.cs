@@ -10,6 +10,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Vodovoz.Core.Domain.Cash;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.StoredResources;
@@ -32,12 +33,15 @@ namespace Vodovoz.Core.Domain.Organizations
 		private string _iNN;
 		private string _kPP;
 		private string _oGRN;
+		private DateTime? _oGRNDate;
 		private string _oKPO;
 		private string _oKVED;
 		private string _email;
 		private string _emailForMailing;
 		private int? _cashBoxId;
 		private bool _withoutVAT;
+		private bool _disableDebtMailing;
+		private bool _debtMailingWithSignature;
 		private int? _avangardShopId;
 		private bool _isNeedCashlessMovementControl;
 		private OrganizationEdoType _organizationEdoType;
@@ -49,6 +53,9 @@ namespace Vodovoz.Core.Domain.Organizations
 		private IObservableList<PhoneEntity> _phones = new ObservableList<PhoneEntity>();
 		private IObservableList<OrganizationVersionEntity> _organizationVersions = new ObservableList<OrganizationVersionEntity>();
 		private IObservableList<VatRateVersion> _vatRateVersions = new ObservableList<VatRateVersion>();
+		private bool _isOsnoMode = true;
+		private bool _isUsnMode;
+		private string _prefix;
 
 		public OrganizationEntity()
 		{
@@ -120,6 +127,16 @@ namespace Vodovoz.Core.Domain.Organizations
 			get => _oGRN;
 			set => SetField(ref _oGRN, value);
 		}
+		
+		/// <summary>
+		/// Дата ОГРН/ОГРНИП
+		/// </summary>
+		[Display(Name = "Дата внесения ОГРН/ОГРНИП")]
+		public virtual DateTime? OGRNDate
+		{
+			get => _oGRNDate;
+			set => SetField(ref _oGRNDate, value);
+		}
 
 		/// <summary>
 		/// ОКПО
@@ -171,14 +188,25 @@ namespace Vodovoz.Core.Domain.Organizations
 			set => SetField(ref _cashBoxId, value);
 		}
 
+		
 		/// <summary>
-		/// Без НДС
+		/// Запретить рассылку писем о задолженности
 		/// </summary>
-		[Display(Name = "Без НДС")]
-		public virtual bool WithoutVAT
+		[Display(Name = "Запретить рассылку писем о задолженности")]
+		public virtual bool DisableDebtMailing
 		{
-			get => _withoutVAT;
-			set => SetField(ref _withoutVAT, value);
+			get => _disableDebtMailing;
+			set => SetField(ref _disableDebtMailing, value);
+		}
+
+		/// <summary>
+		/// Рассылка писем о задолженности с печатью и подписью
+		/// </summary>
+		[Display(Name = "Рассылка писем о задолженности с печатью и подписью")]
+		public virtual bool DebtMailingWithSignature
+		{
+			get => _debtMailingWithSignature;
+			set => SetField(ref _debtMailingWithSignature, value);
 		}
 		
 		/// <summary>
@@ -266,7 +294,53 @@ namespace Vodovoz.Core.Domain.Organizations
 			get => _vatRateVersions;
 			set => SetField(ref _vatRateVersions, value);
 		}
+
+		/// <summary>
+		/// ОСНО. Использовать НДС номенклатур
+		/// </summary>
+		[Display(Name = "Режим ОСНО")]
+		public virtual bool IsOsnoMode
+		{
+			get => _isOsnoMode;
+			set => SetField(ref _isOsnoMode, value);
+		}
+
+		/// <summary>
+		/// УСН. Использовать НДС организации
+		/// </summary>
+		[Display(Name = "Режим УСН")]
+		public virtual bool IsUsnMode
+		{
+			get => _isUsnMode;
+			set => SetField(ref _isUsnMode, value);
+		}
 		
+		/// <summary>
+		/// Префикс организации
+		/// </summary>
+		[Display(Name = "Префикс организации")]
+		public virtual string Prefix
+		{
+			get => _prefix;
+			set => SetField(ref _prefix, value);
+		}
+
+		#region Methods
+
+		/// <summary>
+		/// Получить актуальную версию НДС на выбранную дату
+		/// </summary>
+		/// <param name="date">Дата. Если не передается, то используется DateTime.Now</param>
+		/// <returns>Версия ставки НДС</returns>
+		public virtual VatRateVersion GetActualVatRateVersion(DateTime? date = null)
+		{
+			var targetDate = date ?? DateTime.Now;
+			return VatRateVersions.FirstOrDefault(x => 
+				x.StartDate <= targetDate && (x.EndDate == null || x.EndDate >= targetDate));
+		}
+
+		#endregion
+
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			var duplicatedBankAccountNames = GetDuplicatedBankAccountNames();
@@ -292,10 +366,10 @@ namespace Vodovoz.Core.Domain.Organizations
 					new[] { nameof(INN) });
 			}
 
-			if(INN.Length > 12)
+			if(INN.Length > CompanyConstants.PrivateBusinessmanInnLength)
 			{
 				yield return new ValidationResult(
-					"Номер ИНН не должен превышать 12.",
+					$"Номер ИНН не должен превышать {CompanyConstants.PrivateBusinessmanInnLength}.",
 					new[] { nameof(INN) });
 			}
 
@@ -315,16 +389,36 @@ namespace Vodovoz.Core.Domain.Organizations
 
 			if(!Regex.IsMatch(OGRN, @"^\d+$"))
 			{
-				yield return new ValidationResult(
-					"ОГРН/ОГРНИП может содержать только цифры.",
+				yield return new ValidationResult("ОГРН/ОГРНИП может содержать только цифры.",
 					new[] { nameof(OGRN) });
 			}
 
-			if(OGRN.Length > 15)
+			if(!string.IsNullOrWhiteSpace(OGRN))
 			{
-				yield return new ValidationResult(
-					"Номер ОГРНИП не должен превышать 15 цифр.",
-					new[] { nameof(OGRN) });
+				if(OGRN.Length > 15)
+				{
+					yield return new ValidationResult(
+						"Номер ОГРН/ОГРНИП не должен превышать 15 цифр.",
+						new[] { nameof(OGRN) });
+				}
+
+				if(!string.IsNullOrWhiteSpace(_iNN)
+					&& _iNN.Length == CompanyConstants.PrivateBusinessmanInnLength
+					&& OGRN.Length != CompanyConstants.PrivateBusinessmanOgrnLength)
+				{
+					yield return new ValidationResult(
+						$"У ИП ОГРНИП состоит из {CompanyConstants.PrivateBusinessmanOgrnLength} символов",
+						new[] { nameof(KPP) });
+				}
+
+				if(!string.IsNullOrWhiteSpace(_iNN)
+					&& _iNN.Length == CompanyConstants.NotPrivateBusinessmanInnLength
+					&& OGRN.Length != CompanyConstants.NotPrivateBusinessmanOgrnLength)
+				{
+					yield return new ValidationResult(
+						$"ОГРН должен содержать {CompanyConstants.NotPrivateBusinessmanOgrnLength} символов",
+						new[] { nameof(KPP) });
+				}
 			}
 
 			if(!Regex.IsMatch(OKPO, @"^\d+$"))
@@ -369,6 +463,36 @@ namespace Vodovoz.Core.Domain.Organizations
 					"E-mail для рассылки должен быть в домене @vodovoz-spb.ru.",
 					new[] { nameof(Email) });
 			}
+
+			if(IsUsnMode == IsOsnoMode)
+			{
+				yield return new ValidationResult(
+					"У организации нельзя выбрать несколько или не выбрать ни одного режима работы с НДС",
+					new[] { nameof(VatRateVersions) });
+			}
+			if(IsUsnMode)
+			{
+				if(!VatRateVersions.Any())
+				{
+					yield return new ValidationResult(
+						"У организации нет ниодной версии НДС!",
+						new[] { nameof(VatRateVersions) });
+				}
+				
+				if(VatRateVersions.Any(v => v.VatRate == null))
+				{
+					yield return new ValidationResult(
+						"У одной из версий НДС не выбрана ставка НДС!",
+						new[] { nameof(VatRateVersions) });
+				}
+
+				if(GetActualVatRateVersion(DateTime.Now) == null)
+				{
+					yield return new ValidationResult(
+						"У организации нет актуальной версии НДС!",
+						new[] { nameof(VatRateVersions) });
+				}
+			}
 		}
 
 		/// <summary>
@@ -388,6 +512,15 @@ namespace Vodovoz.Core.Domain.Organizations
 		[Display(Name = "Активная версия")]
 		public virtual OrganizationVersionEntity ActiveOrganizationVersion =>
 			_activeOrganizationVersion ?? OrganizationVersionOnDate(DateTime.Now);
+		
+		/// <summary>
+		/// Является ли организация ИП с незаполненными ОГРНИП или датой ОГРНИП
+		/// </summary>
+		/// <returns></returns>
+		public virtual bool IsPrivateBusinessmanWithoutOgrnOrOgrnDate() =>
+			_iNN != null
+			&& _iNN.Length == 12
+			&& (!string.IsNullOrWhiteSpace(_oGRN) || !_oGRNDate.HasValue);
 	}
 }
 
