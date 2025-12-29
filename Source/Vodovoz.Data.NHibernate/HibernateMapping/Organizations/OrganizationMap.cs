@@ -15,6 +15,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Organizations
 			Map(x => x.INN).Column("INN");
 			Map(x => x.KPP).Column("KPP");
 			Map(x => x.OGRN).Column("OGRN");
+			Map(x => x.OGRNDate).Column("ogrn_date");
 			Map(x => x.OKPO).Column("OKPO");
 			Map(x => x.OKVED).Column("OKVED");
 			Map(x => x.Email).Column("email");
@@ -27,6 +28,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Organizations
 			Map(x => x.CashBoxTokenFromTrueMark).Column("edo_key");
 			Map(x => x.OrganizationEdoType).Column("edo_type");
 			Map(x => x.Suffix).Column("suffix");
+			Map(x => x.Prefix).Column("prefix");
 			Map(x => x.IsOsnoMode).Column("is_osno_mode");
 			Map(x => x.IsUsnMode).Column("is_usn_mode");
 

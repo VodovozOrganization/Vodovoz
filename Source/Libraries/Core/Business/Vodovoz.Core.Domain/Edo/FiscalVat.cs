@@ -36,5 +36,11 @@ namespace Vodovoz.Core.Domain.Edo
 
 		[Display(Name = "НДС с рассч. Ставкой 7%")]
 		VatEstimatedRate7 = 1112,
+		
+		[Display(Name = "НДС 22%")]
+		Vat22 = 1113,
+		
+		[Display(Name = "НДС с рассч. ставкой 20%")]
+		VatEstimatedRate22 = 1114,
 	}
 }

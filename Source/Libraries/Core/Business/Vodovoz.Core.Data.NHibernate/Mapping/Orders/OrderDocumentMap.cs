@@ -23,6 +23,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 			
 			References(x => x.AttachedToOrder)
 				.Column("attached_to_order_id");
+			
+			References(x => x.DocumentOrganizationCounter)
+				.Column("document_organization_counter_id");
 		}
 	}
 
