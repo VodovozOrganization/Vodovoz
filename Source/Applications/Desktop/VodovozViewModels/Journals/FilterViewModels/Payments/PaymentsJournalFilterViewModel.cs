@@ -38,8 +38,7 @@ namespace Vodovoz.Filters.ViewModels
 		private Counterparty _counterparty;
 		private Organization _organization;
 		private Bank _organizationBank;
-		private Account _organizationAccount;
-		private IObservableList<SelectableNode<ProfitCategory>> _profitCategories;
+		private Account _organizationAccount;		
 		private PaymentJournalSortType _sortType;
 		private Type _documentType;
 		private bool _canChangeDocumentType = true;
@@ -69,6 +68,7 @@ namespace Vodovoz.Filters.ViewModels
 
 		private void Initialize()
 		{
+			InitializeProfitCategories();
 			ConfigureEntryViewModels();
 		}
 
@@ -76,19 +76,7 @@ namespace Vodovoz.Filters.ViewModels
 		public INavigationManager NavigationManager { get; }
 		public ITdiTab JournalTab { get; private set; }
 
-		public IObservableList<SelectableNode<ProfitCategory>> ProfitCategories
-		{
-			get
-			{
-				if(!(_profitCategories is null))
-				{
-					return _profitCategories;
-				}
-
-				InitializeProfitCategories();
-				return _profitCategories;
-			}
-		}
+		public IObservableList<SelectableNode<ProfitCategory>> ProfitCategories { get; private set; }
 
 		public DateTime? StartDate
 		{
@@ -254,10 +242,18 @@ namespace Vodovoz.Filters.ViewModels
 				{
 					node.Selected = true;
 				}
+
+				node.SelectChanged += OnProfitCategorySelectChanged;
+
 				list.Add(node);
 			}
 
-			_profitCategories = list;
+			ProfitCategories = list;
+		}
+
+		private void OnProfitCategorySelectChanged(object sender, SelectionChanged<ProfitCategory> e)
+		{
+			Update();
 		}
 
 		private void ConfigureEntryViewModels()
@@ -299,6 +295,11 @@ namespace Vodovoz.Filters.ViewModels
 
 		public override void Dispose()
 		{
+			foreach(var profitCategory in ProfitCategories)
+			{
+				profitCategory.SelectChanged -= OnProfitCategorySelectChanged;
+			}
+
 			base.Dispose();
 			JournalTab = null;
 		}
