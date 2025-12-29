@@ -82,6 +82,10 @@ namespace Vodovoz.Organizations
 
 		private global::Gtk.Label vatRateVersionLabel;
 
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonDebtMailingWithSignature;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonDisableDebtMailing;
+
 		private global::Gamma.GtkWidgets.yEntry yentryPrefix;
 
 		private global::Gamma.GtkWidgets.yEntry yentrySuffix;
@@ -550,6 +554,36 @@ namespace Vodovoz.Organizations
 			w38.TopAttach = ((uint)(11));
 			w38.BottomAttach = ((uint)(12));
 			w38.XOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatableMain.Gtk.Table+TableChild
+			this.ycheckbuttonDebtMailingWithSignature = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonDebtMailingWithSignature.CanFocus = true;
+			this.ycheckbuttonDebtMailingWithSignature.Name = "ycheckbuttonDebtMailingWithSignature";
+			this.ycheckbuttonDebtMailingWithSignature.Label = global::Mono.Unix.Catalog.GetString("Рассылка писем о задолженности с печатью и подписью");
+			this.ycheckbuttonDebtMailingWithSignature.DrawIndicator = true;
+			this.ycheckbuttonDebtMailingWithSignature.UseUnderline = true;
+			this.datatableMain.Add(this.ycheckbuttonDebtMailingWithSignature);
+			global::Gtk.Table.TableChild w37 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.ycheckbuttonDebtMailingWithSignature]));
+			w37.TopAttach = ((uint)(7));
+			w37.BottomAttach = ((uint)(8));
+			w37.LeftAttach = ((uint)(2));
+			w37.RightAttach = ((uint)(3));
+			w37.XOptions = ((global::Gtk.AttachOptions)(4));
+			w37.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatableMain.Gtk.Table+TableChild
+			this.ycheckbuttonDisableDebtMailing = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckbuttonDisableDebtMailing.CanFocus = true;
+			this.ycheckbuttonDisableDebtMailing.Name = "ycheckbuttonDisableDebtMailing";
+			this.ycheckbuttonDisableDebtMailing.Label = global::Mono.Unix.Catalog.GetString("Запретить рассылку писем о задолженности");
+			this.ycheckbuttonDisableDebtMailing.DrawIndicator = true;
+			this.ycheckbuttonDisableDebtMailing.UseUnderline = true;
+			this.datatableMain.Add(this.ycheckbuttonDisableDebtMailing);
+			global::Gtk.Table.TableChild w38 = ((global::Gtk.Table.TableChild)(this.datatableMain[this.ycheckbuttonDisableDebtMailing]));
+			w38.TopAttach = ((uint)(7));
+			w38.BottomAttach = ((uint)(8));
+			w38.LeftAttach = ((uint)(1));
+			w38.RightAttach = ((uint)(2));
+			w38.XOptions = ((global::Gtk.AttachOptions)(4));
+			w38.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
 			this.yentryPrefix = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryPrefix.CanFocus = true;

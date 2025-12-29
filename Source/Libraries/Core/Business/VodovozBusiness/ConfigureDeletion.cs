@@ -837,6 +837,8 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<EquipmentTransferDocument>();
 
+			DeleteConfig.AddHibernateDeleteInfo<LetterOfDebtDocument>();
+
 			DeleteConfig.AddHibernateDeleteInfo<InvoiceBarterDocument>();
 
 			DeleteConfig.AddHibernateDeleteInfo<InvoiceDocument>();
