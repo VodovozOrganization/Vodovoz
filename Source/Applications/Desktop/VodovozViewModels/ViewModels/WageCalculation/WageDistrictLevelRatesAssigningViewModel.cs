@@ -298,19 +298,27 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 				WageDistrictLevelRatesForCompanyCars.Id,
 				WageDistrictLevelRatesForRaskatCars.Id);
 
+			var isSuccsessful = false;
+
 			try
 			{
-				foreach(var employee in employeesRouteListsToUpdateWage)
+				await Task.Run(async () =>
 				{
-					await ChangeEmployeeWageParameter(employee.Employee, cancellationToken);
-
-					if(employee.RouteLists.Any())
+					foreach(var employee in employeesRouteListsToUpdateWage)
 					{
-						await RecalculateEmployeeRouteListsWage(employee.RouteLists, cancellationToken);
+						await ChangeEmployeeWageParameter(employee.Employee, cancellationToken);
+
+						if(employee.RouteLists.Any())
+						{
+							await RecalculateEmployeeRouteListsWage(employee.RouteLists, cancellationToken);
+						}
 					}
-				}
+				},
+				cancellationToken);
 
 				await UoW.CommitAsync();
+
+				isSuccsessful = true;
 
 				_logger.LogInformation("Обновление расчета з/п выбранных сотрудников выполнено успешно");
 			}
@@ -320,7 +328,20 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 			}
 			finally
 			{
-				IsUpdating = false;
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					IsUpdating = false;
+
+					var message = 
+						isSuccsessful
+						? "Обновление расчета з/п выбранных сотрудников выполнено успешно"
+						: "Обновление расчета з/п выбранных сотрудников завершилось с ошибкой";
+
+					_interactiveService.ShowMessage(
+						ImportanceLevel.Info,
+						message);
+				});
+
 				_cancellationTokenSource?.Dispose();
 				_cancellationTokenSource = null;
 			}
@@ -355,9 +376,9 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 
 					var answer = _interactiveService.Question(
 						new[] { buttonYes, buttonNo },
-						$"Сотрудник {employeeWageStartDate.Employee.Title} имеет {routeListsAfterStartDate.Count()} закрытых МЛ после {StartDate.Value:d}." +
-						$"\nВ случае обновления расчета з/п сотруднику, его зарплата в этих МЛ будет пересчитана" +
-						$"\nОбновить расчет з/п сотруднику?");
+						$"Сотрудник {employeeWageStartDate.Employee.Title} имеет {routeListsAfterStartDate.Count()} МЛ после {StartDate.Value:d}." +
+						$"\nВ случае обновления ставок з/п сотрудника, его зарплата в этих МЛ будет пересчитана" +
+						$"\nОбновить ставки и расчет з/п в МЛ сотрудника?");
 
 					if(answer == buttonNo)
 					{
@@ -433,18 +454,15 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 
 		private async Task RecalculateEmployeeRouteListsWage(IEnumerable<RouteList> routeLists, CancellationToken cancellationToken)
 		{
-			await Task.Run(() =>
-			{
-				_routeListsWageController.RecalculateRouteListsWage(
-					UoW,
-					routeLists.ToList(),
-					cancellationToken);
+			_routeListsWageController.RecalculateRouteListsWage(
+				UoW,
+				routeLists.ToList(),
+				cancellationToken);
 
-				foreach(var routeList in routeLists)
-				{
-					UoW.SaveAsync(routeList, cancellationToken: cancellationToken);
-				}
-			});
+			foreach(var routeList in routeLists)
+			{
+				await UoW.SaveAsync(routeList, cancellationToken: cancellationToken);
+			}
 		}
 
 		public bool CanClose()
