@@ -194,7 +194,6 @@ namespace Edo.Transfer.Sender
 
 			var codesToPreload = sourceCodes.Union(resultCodes).Distinct();
 			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
-
 			
 			await _uow.SaveAsync(transferOrder, cancellationToken: cancellationToken);
 

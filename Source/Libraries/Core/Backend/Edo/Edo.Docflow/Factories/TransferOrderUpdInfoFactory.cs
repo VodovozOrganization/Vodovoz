@@ -61,7 +61,7 @@ namespace Edo.Docflow.Factories
 				throw new InvalidOperationException("В заказе перемещения товаров не указан покупатель");
 			}
 
-			if(transferOrder.TransferDocument is null && transferOrder.Date >= new DateTime(2026,1,1))
+			if(transferOrder.TransferDocument is null && transferOrder.Date >= new DateTime(2026, 1, 1))
 			{
 				throw new InvalidOperationException("В заказе перемещения товаров не указан счетчик документов УПД для 2026 года и позже");
 			}
@@ -118,9 +118,7 @@ namespace Edo.Docflow.Factories
 
 			return document;
 		}
-
 		
-
 		private SellerInfo GetSellerInfo(TransferOrder transferOrder) =>
 			new SellerInfo { Organization = GetOrganizationInfo(transferOrder.Seller) };
 
