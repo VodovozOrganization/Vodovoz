@@ -73,12 +73,12 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 
 			Title = "Привязка ставок";
 
-			WageLevels = _wageCalculationRepository.AllLevelRates(UoW).ToList();
+			WageLevels = _wageCalculationRepository.AllLevelRates(UoW).OrderByDescending(x => x.Id).ToList();
 			AvailableCategories = new[] { EmployeeCategory.driver, EmployeeCategory.forwarder };
 
 			SelectAllEmployeesCommand = new DelegateCommand(SelectAllEmployees);
 			UnselectAllEmployeesCommand = new DelegateCommand(UnselectAllEmployees);
-			UpdateWageDistrictLevelRatesCommand = new DelegateCommand(async () => UpdateWageDistrictLevelRates(), () => CanUpdateWageDistrictLevelRates);
+			UpdateWageDistrictLevelRatesCommand = new DelegateCommand(async () => await UpdateWageDistrictLevelRates(), () => CanUpdateWageDistrictLevelRates);
 			UpdateWageDistrictLevelRatesCommand.CanExecuteChangedWith(this, x => x.CanUpdateWageDistrictLevelRates);
 
 			UpdateEmployeeNodes();
@@ -176,11 +176,35 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 
 		private IList<EmployeeSelectableNode> GetEmployeeNodes()
 		{
+			var wageDistrictLevelRatesIdFilter = WageDistrictLevelRatesFilter?.Id;
+
 			var query =
 				from employee in UoW.Session.Query<Employee>()
 
+				let lastWageLevelRatesIdHavingRequiredParameterItem =
+					(int?)(from wageParameter in UoW.Session.Query<EmployeeWageParameter>()
+						   join wpi in UoW.Session.Query<RatesLevelWageParameterItem>() on wageParameter.WageParameterItem.Id equals wpi.Id into wpis
+						   from wageParameterItem in wpis.DefaultIfEmpty()
+						   join wpicc in UoW.Session.Query<RatesLevelWageParameterItem>() on wageParameter.WageParameterItemForOurCars.Id equals wpicc.Id into wpiccs
+						   from wageParameterItemCompanyCar in wpiccs.DefaultIfEmpty()
+						   join wpirc in UoW.Session.Query<RatesLevelWageParameterItem>() on wageParameter.WageParameterItemForRaskatCars.Id equals wpirc.Id into wpircs
+						   from wageParameterItemRaskatCar in wpircs.DefaultIfEmpty()
+						   where
+						   wageParameter.Employee.Id == employee.Id
+						   && wageParameter.EndDate == null
+						   && (wageParameterItem.WageDistrictLevelRates.Id == wageDistrictLevelRatesIdFilter
+								|| wageParameterItemCompanyCar.WageDistrictLevelRates.Id == wageDistrictLevelRatesIdFilter
+								|| wageParameterItemRaskatCar.WageDistrictLevelRates.Id == wageDistrictLevelRatesIdFilter)
+						   orderby wageParameter.Id descending
+						   select wageParameter.Id)
+					.FirstOrDefault()
+
 				where
-					((Category != null && employee.Category == Category) || (Category == null && AvailableCategories.Contains(employee.Category)))
+					AvailableCategories.Contains(employee.Category)
+					&& (Category == null || employee.Category == Category)
+					&& (wageDistrictLevelRatesIdFilter == null
+						|| (IsExcludeSelectedInFilterWageDistrictLevelRates && lastWageLevelRatesIdHavingRequiredParameterItem == null)
+						|| (!IsExcludeSelectedInFilterWageDistrictLevelRates && lastWageLevelRatesIdHavingRequiredParameterItem != null))
 
 				orderby employee.LastName
 				orderby employee.Name
@@ -216,7 +240,9 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 
 		protected override void OnPropertyChanged([CallerMemberName] string propertyName = "")
 		{
-			if(propertyName == nameof(Category))
+			if(propertyName == nameof(Category)
+				|| propertyName == nameof(WageDistrictLevelRatesFilter)
+				|| propertyName == nameof(IsExcludeSelectedInFilterWageDistrictLevelRates))
 			{
 				UpdateEmployeeNodes();
 			}
