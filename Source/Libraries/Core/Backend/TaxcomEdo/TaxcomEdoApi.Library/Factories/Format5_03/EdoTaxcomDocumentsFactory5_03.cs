@@ -300,7 +300,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 				NaimJekonSubSost = $"{org.Name}, ИНН/КПП {org.Inn}/{org.Kpp}",
 				SvSchFakt = new FajlDokumentSvSchFakt
 				{
-					NomerDoc = updInfo.Number.ToString(),
+					NomerDoc = updInfo.StringNumber,
 					DataDoc = updDate,
 
 					DenIzm = new FajlDokumentSvSchFaktDenIzm
@@ -362,7 +362,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 				new RekvDocTip
 				{
 					RekvNaimDoc = _upd,
-					RekvNomDoc = updInfo.Number.ToString(),
+					RekvNomDoc = updInfo.StringNumber,
 					RekvDataDoc = updDate
 				}
 			};

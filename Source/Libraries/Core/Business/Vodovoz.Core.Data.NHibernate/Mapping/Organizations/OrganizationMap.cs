@@ -30,6 +30,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Organizations
 			Map(x => x.OGRN)
 				.Column("OGRN");
 
+			Map(x => x.OGRNDate)
+				.Column("ogrn_date");
+
 			Map(x => x.OKPO)
 				.Column("OKPO");
 
@@ -68,6 +71,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Organizations
 
 			Map(x => x.CashBoxTokenFromTrueMark)
 				.Column("edo_key");
+			
+			Map(x => x.Prefix)
+				.Column("prefix");
 
 			References(x => x.Stamp)
 				.Column("stamp_id");

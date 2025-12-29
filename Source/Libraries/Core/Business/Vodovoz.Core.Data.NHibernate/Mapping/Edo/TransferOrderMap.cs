@@ -23,6 +23,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 
 			References(x => x.Customer)
 				.Column("customer_organization_id");
+			
+			References(x => x.TransferDocument)
+				.Column("transfer_document_id");
 
 			HasMany(x => x.Items)
 				.Cascade.AllDeleteOrphan()

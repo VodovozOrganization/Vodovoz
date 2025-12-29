@@ -105,7 +105,7 @@ namespace Vodovoz.Domain.Orders.Documents
 			var reportInfoFactory = ScopeProvider.Scope.Resolve<IReportInfoFactory>();
 			var reportInfo = reportInfoFactory.Create();
 			reportInfo.Identifier = Order.DeliveryDate <= _edition2017LastDate ? "Documents.UPD2017Edition" : "Documents.UPD";
-			reportInfo.Title = $"УПД {Order.Id} от {Order.DeliveryDate:d}";
+			reportInfo.Title = $"{Name} от {Order.DeliveryDate:d}";
 			reportInfo.Parameters = new Dictionary<string, object> {
 				{ "order_id", Order.Id },
 				{ "special", false },
@@ -119,7 +119,7 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		#region implemented abstract members of IEmailableDocument
 
-		public virtual string Title => $"УПД №{Order.Id} от {Order.DeliveryDate:d}";
+		public virtual string Title => $"{Name} от {Order.DeliveryDate:d}";
 		public virtual Counterparty Counterparty => Order?.Client;
 
 		public virtual EmailTemplate GetEmailTemplate(ICounterpartyEdoAccountController edoAccountController = null)
@@ -165,7 +165,9 @@ namespace Vodovoz.Domain.Orders.Documents
 			return template;
 		}
 
-		public override string Name => $"УПД №{Order.Id}";
+		public override string Name => Order?.DeliveryDate >= new DateTime(2026, 1, 1) 
+			?  $"УПД №{DocumentOrganizationCounter.DocumentNumber}"
+			:  $"УПД №{Order?.Id}";
 
 		public override DateTime? DocumentDate => Order?.DeliveryDate;
 

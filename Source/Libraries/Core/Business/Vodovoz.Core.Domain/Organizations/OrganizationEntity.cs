@@ -10,6 +10,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Vodovoz.Core.Domain.Cash;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.StoredResources;
@@ -32,6 +33,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		private string _iNN;
 		private string _kPP;
 		private string _oGRN;
+		private DateTime? _oGRNDate;
 		private string _oKPO;
 		private string _oKVED;
 		private string _email;
@@ -53,6 +55,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		private IObservableList<VatRateVersion> _vatRateVersions = new ObservableList<VatRateVersion>();
 		private bool _isOsnoMode = true;
 		private bool _isUsnMode;
+		private string _prefix;
 
 		public OrganizationEntity()
 		{
@@ -123,6 +126,16 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _oGRN;
 			set => SetField(ref _oGRN, value);
+		}
+		
+		/// <summary>
+		/// Дата ОГРН/ОГРНИП
+		/// </summary>
+		[Display(Name = "Дата внесения ОГРН/ОГРНИП")]
+		public virtual DateTime? OGRNDate
+		{
+			get => _oGRNDate;
+			set => SetField(ref _oGRNDate, value);
 		}
 
 		/// <summary>
@@ -301,6 +314,16 @@ namespace Vodovoz.Core.Domain.Organizations
 			get => _isUsnMode;
 			set => SetField(ref _isUsnMode, value);
 		}
+		
+		/// <summary>
+		/// Префикс организации
+		/// </summary>
+		[Display(Name = "Префикс организации")]
+		public virtual string Prefix
+		{
+			get => _prefix;
+			set => SetField(ref _prefix, value);
+		}
 
 		#region Methods
 
@@ -343,10 +366,10 @@ namespace Vodovoz.Core.Domain.Organizations
 					new[] { nameof(INN) });
 			}
 
-			if(INN.Length > 12)
+			if(INN.Length > CompanyConstants.PrivateBusinessmanInnLength)
 			{
 				yield return new ValidationResult(
-					"Номер ИНН не должен превышать 12.",
+					$"Номер ИНН не должен превышать {CompanyConstants.PrivateBusinessmanInnLength}.",
 					new[] { nameof(INN) });
 			}
 
@@ -366,16 +389,36 @@ namespace Vodovoz.Core.Domain.Organizations
 
 			if(!Regex.IsMatch(OGRN, @"^\d+$"))
 			{
-				yield return new ValidationResult(
-					"ОГРН/ОГРНИП может содержать только цифры.",
+				yield return new ValidationResult("ОГРН/ОГРНИП может содержать только цифры.",
 					new[] { nameof(OGRN) });
 			}
 
-			if(OGRN.Length > 15)
+			if(!string.IsNullOrWhiteSpace(OGRN))
 			{
-				yield return new ValidationResult(
-					"Номер ОГРНИП не должен превышать 15 цифр.",
-					new[] { nameof(OGRN) });
+				if(OGRN.Length > 15)
+				{
+					yield return new ValidationResult(
+						"Номер ОГРН/ОГРНИП не должен превышать 15 цифр.",
+						new[] { nameof(OGRN) });
+				}
+
+				if(!string.IsNullOrWhiteSpace(_iNN)
+					&& _iNN.Length == CompanyConstants.PrivateBusinessmanInnLength
+					&& OGRN.Length != CompanyConstants.PrivateBusinessmanOgrnLength)
+				{
+					yield return new ValidationResult(
+						$"У ИП ОГРНИП состоит из {CompanyConstants.PrivateBusinessmanOgrnLength} символов",
+						new[] { nameof(KPP) });
+				}
+
+				if(!string.IsNullOrWhiteSpace(_iNN)
+					&& _iNN.Length == CompanyConstants.NotPrivateBusinessmanInnLength
+					&& OGRN.Length != CompanyConstants.NotPrivateBusinessmanOgrnLength)
+				{
+					yield return new ValidationResult(
+						$"ОГРН должен содержать {CompanyConstants.NotPrivateBusinessmanOgrnLength} символов",
+						new[] { nameof(KPP) });
+				}
 			}
 
 			if(!Regex.IsMatch(OKPO, @"^\d+$"))
@@ -469,6 +512,15 @@ namespace Vodovoz.Core.Domain.Organizations
 		[Display(Name = "Активная версия")]
 		public virtual OrganizationVersionEntity ActiveOrganizationVersion =>
 			_activeOrganizationVersion ?? OrganizationVersionOnDate(DateTime.Now);
+		
+		/// <summary>
+		/// Является ли организация ИП с незаполненными ОГРНИП или датой ОГРНИП
+		/// </summary>
+		/// <returns></returns>
+		public virtual bool IsPrivateBusinessmanWithoutOgrnOrOgrnDate() =>
+			_iNN != null
+			&& _iNN.Length == 12
+			&& (!string.IsNullOrWhiteSpace(_oGRN) || !_oGRNDate.HasValue);
 	}
 }
 
