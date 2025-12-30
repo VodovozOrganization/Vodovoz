@@ -91,41 +91,5 @@ namespace Vodovoz.Infrastructure.Persistance.WageCalculation
 			uow.Session.Query<WageDistrictLevelRates>()
 			.Where(x => x.IsDefaultLevelForRaskatCars)
 			.ToList();
-
-		/// <inheritdoc/>
-		public void ResetExistinDefaultLevelsForNewEmployees(IUnitOfWork uow)
-		{
-			var defaultLevelForNewEmployees = AllDefaultLevelForNewEmployees(uow);
-
-			foreach(var defaultLevel in defaultLevelForNewEmployees)
-			{
-				defaultLevel.IsDefaultLevel = false;
-				uow.Save(defaultLevel);
-			}
-		}
-
-		/// <inheritdoc/>
-		public void ResetExistinDefaultLevelsForNewEmployeesOnOurCars(IUnitOfWork uow)
-		{
-			var defaultLevelForOurCars = AllDefaultLevelForNewEmployeesOnOurCars(uow);
-
-			foreach(var defaultLevel in defaultLevelForOurCars)
-			{
-				defaultLevel.IsDefaultLevelForOurCars = false;
-				uow.Save(defaultLevel);
-			}
-		}
-
-		/// <inheritdoc/>
-		public void ResetExistinDefaultLevelsForNewEmployeesOnRaskatCars(IUnitOfWork uow)
-		{
-			var defaultLevelForRaskatCars = AllDefaultLevelForNewEmployeesOnRaskatCars(uow);
-
-			foreach(var defaultLevel in defaultLevelForRaskatCars)
-			{
-				defaultLevel.IsDefaultLevelForRaskatCars = false;
-				uow.Save(defaultLevel);
-			}
-		}
 	}
 }

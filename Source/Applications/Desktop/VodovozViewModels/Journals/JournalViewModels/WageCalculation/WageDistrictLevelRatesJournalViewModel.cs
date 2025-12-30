@@ -154,17 +154,17 @@ namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 
 					if(copy.IsDefaultLevel)
 					{
-						_wageCalculationRepository.ResetExistinDefaultLevelsForNewEmployees(UoW);
+						ResetExistinDefaultLevelsForNewEmployees(UoW);
 					}
 
 					if(copy.IsDefaultLevelForOurCars)
 					{
-						_wageCalculationRepository.ResetExistinDefaultLevelsForNewEmployeesOnOurCars(UoW);
+						ResetExistinDefaultLevelsForNewEmployeesOnOurCars(UoW);
 					}
 
 					if(copy.IsDefaultLevelForRaskatCars)
 					{
-						_wageCalculationRepository.ResetExistinDefaultLevelsForNewEmployeesOnRaskatCars(UoW);
+						ResetExistinDefaultLevelsForNewEmployeesOnRaskatCars(UoW);
 					}
 
 					UoW.Save(copy);
@@ -176,6 +176,39 @@ namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 				}
 			);
 			PopupActionsList.Add(copyAction);
+		}
+
+		public void ResetExistinDefaultLevelsForNewEmployees(IUnitOfWork uow)
+		{
+			var defaultLevelForNewEmployees = _wageCalculationRepository.AllDefaultLevelForNewEmployees(uow);
+
+			foreach(var defaultLevel in defaultLevelForNewEmployees)
+			{
+				defaultLevel.IsDefaultLevel = false;
+				uow.Save(defaultLevel);
+			}
+		}
+
+		public void ResetExistinDefaultLevelsForNewEmployeesOnOurCars(IUnitOfWork uow)
+		{
+			var defaultLevelForOurCars = _wageCalculationRepository.AllDefaultLevelForNewEmployeesOnOurCars(uow);
+
+			foreach(var defaultLevel in defaultLevelForOurCars)
+			{
+				defaultLevel.IsDefaultLevelForOurCars = false;
+				uow.Save(defaultLevel);
+			}
+		}
+
+		public void ResetExistinDefaultLevelsForNewEmployeesOnRaskatCars(IUnitOfWork uow)
+		{
+			var defaultLevelForRaskatCars = _wageCalculationRepository.AllDefaultLevelForNewEmployeesOnRaskatCars(uow);
+
+			foreach(var defaultLevel in defaultLevelForRaskatCars)
+			{
+				defaultLevel.IsDefaultLevelForRaskatCars = false;
+				uow.Save(defaultLevel);
+			}
 		}
 
 		private WageDistrictLevelRates CreateCopy(WageDistrictLevelRates source)

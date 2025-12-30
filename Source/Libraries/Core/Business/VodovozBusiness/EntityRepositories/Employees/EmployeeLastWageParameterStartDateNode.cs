@@ -7,6 +7,5 @@ namespace Vodovoz.EntityRepositories.Employees
 	{
 		public Employee Employee { get; set; }
 		public DateTime LastWageParameterStartDate { get; set; }
-
 	}
 }
