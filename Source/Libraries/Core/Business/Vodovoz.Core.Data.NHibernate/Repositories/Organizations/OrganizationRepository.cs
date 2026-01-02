@@ -1,5 +1,7 @@
-﻿using QS.DomainModel.UoW;
+﻿using System;
+using QS.DomainModel.UoW;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Organizations;
 
@@ -23,6 +25,22 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Organizations
 				.Select(o => o.EmailForMailing).List<string>();
 
 				return result;
+			}
+		}
+
+		public OrganizationEntity GetOrganizationById(int id)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				return uow.Session.Get<OrganizationEntity>(id);
+			}
+		}
+
+		public async Task<OrganizationEntity> GetOrganizationByIdAsync(int id)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				return await uow.Session.GetAsync<OrganizationEntity>(id);
 			}
 		}
 	}

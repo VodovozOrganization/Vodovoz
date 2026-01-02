@@ -31,6 +31,7 @@ namespace Edo.Transfer.Sender
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly IBus _messageBus;
 		private readonly IDocumentOrganizationCounterRepository _documentOrganizationCounterRepository;
+		private readonly IOrganizationRepository _organizationRepository;
 
 		public TransferSendPreparer(
 			ILogger<TransferSendPreparer> logger,
@@ -39,7 +40,8 @@ namespace Edo.Transfer.Sender
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			EdoProblemRegistrar edoProblemRegistrar,
 			IBus messageBus,
-			IDocumentOrganizationCounterRepository documentOrganizationCounterRepository
+			IDocumentOrganizationCounterRepository documentOrganizationCounterRepository,
+			IOrganizationRepository organizationRepository
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -49,6 +51,7 @@ namespace Edo.Transfer.Sender
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 			_documentOrganizationCounterRepository = documentOrganizationCounterRepository ?? throw new ArgumentNullException(nameof(documentOrganizationCounterRepository));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 		}
 
 		public async Task PrepareSendAsync(
@@ -134,14 +137,9 @@ namespace Edo.Transfer.Sender
 				return;
 			}
 
-			var seller = new OrganizationEntity
-			{
-				Id = transferEdoTask.FromOrganizationId
-			};
-			var customer = new OrganizationEntity
-			{
-				Id = transferEdoTask.ToOrganizationId
-			};
+			var seller = await _organizationRepository.GetOrganizationByIdAsync(transferEdoTask.FromOrganizationId);
+			var customer = await _organizationRepository.GetOrganizationByIdAsync(transferEdoTask.ToOrganizationId);
+
 			var transferDocument = await CreateTransferDocumentOrganizationCounterAsync(transferEdoTask.StartTime.Value, seller, cancellationToken);
 			
 			var transferOrderResult = TransferOrder.Create(
