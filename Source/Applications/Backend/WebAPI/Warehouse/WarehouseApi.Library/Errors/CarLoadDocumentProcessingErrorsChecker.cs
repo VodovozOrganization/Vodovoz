@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentNHibernate.Utils;
 using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Domain.Clients;
@@ -306,6 +307,35 @@ namespace WarehouseApi.Library.Errors
 			return await _trueMarkWaterCodeService.IsAllTrueMarkCodesValid(trueMarkWaterCodes, cancellationToken);
 		}
 
+		public async Task<Result> IsTrueMarkCodesCanBeDeleted(
+			int orderId,
+			CarLoadDocumentItemEntity documentItemToEdit
+		)
+		{
+			var result = IsDocumentItemToEditNotNull(documentItemToEdit, orderId);
+
+			if(result.IsFailure)
+			{
+				return result;
+			}
+			
+			result = IsCarLoadDocumentLoadOperationStateInProgress(documentItemToEdit.Document, documentItemToEdit.Document.Id);
+
+			if(result.IsFailure)
+			{
+				return result;
+			}
+
+			result = IsOrderStatusBeforeOnTheWay(orderId);
+			
+			if (result.IsFailure)
+			{
+				return result;
+			}
+			
+			return Result.Success();
+		}
+
 		public async Task<Result> IsTrueMarkCodeCanBeChanged(
 			int orderId,
 			int nomenclatureId,
@@ -432,6 +462,27 @@ namespace WarehouseApi.Library.Errors
 			return Result.Success();
 		}
 
+		public Result IsOrderStatusBeforeOnTheWay(int orderId)
+		{
+			var order = _orderRepository.Get(_uow, o => o.Id == orderId).FirstOrDefault();
+
+			if(order is null)
+			{
+				_logger.LogWarning("Заказ {OrderId} не найден", orderId);
+				return CarLoadDocumentErrors.CreateOrderNotFound(orderId);
+			}
+
+			var banStatuses = new[] { OrderStatus.OnTheWay, OrderStatus.DeliveryCanceled,  OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.NotDelivered, OrderStatus.Closed};
+
+			if(banStatuses.Any(status => status == order.OrderStatus))
+			{
+				_logger.LogWarning("Заказ {OrderId} имеет статус в котором нельзя изменять коды", orderId);
+				return CarLoadDocumentErrors.CreateOrderBadStatus(orderId, order.OrderStatus);
+			}
+			
+			return Result.Success();
+		}
+		
 		private Result IsDocumentItemToEditNotNull(CarLoadDocumentItemEntity documentItemToEdit, int orderId)
 		{
 			if(documentItemToEdit is null)
