@@ -243,7 +243,7 @@ namespace Vodovoz
 		private readonly ICurrentPermissionService _currentPermissionService = ScopeProvider.Scope.Resolve<ICurrentPermissionService>();
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory = ScopeProvider.Scope.Resolve<IUnitOfWorkFactory>();
 		private readonly OrderCancellationService _orderCancellationService = ScopeProvider.Scope.Resolve<OrderCancellationService>();
-
+		
 		private IOrderService _orderService => ScopeProvider.Scope
 			.Resolve<IOrderService>();
 		private IPaymentService _paymentService => ScopeProvider.Scope
@@ -4443,7 +4443,10 @@ namespace Vodovoz
 					{
 						throw new InvalidOperationException("Для аннулирования документооборота должен быть указан идентификатор ЭДО задачи.");
 					}
-					_orderCancellationService.CancelDocflowByUser(Entity, permit.EdoTaskToCancellationId.Value);
+					_orderCancellationService.CancelDocflowByUser(
+						$"Отмена заказа №{Entity.Id}", 
+						permit.EdoTaskToCancellationId.Value
+					);
 					return;
 				case OrderCancellationPermitType.AllowCancelOrder:
 					OpenUndelivery(permit);
@@ -4514,7 +4517,11 @@ namespace Vodovoz
 			var hasEdoTaskToCancellationId = e.CancellationPermit.EdoTaskToCancellationId != null;
 			if(saved && allowCancellation && hasEdoTaskToCancellationId)
 			{
-				_orderCancellationService.AutomaticCancelDocflow(UoW, Entity, e.CancellationPermit.EdoTaskToCancellationId.Value);
+				_orderCancellationService.AutomaticCancelDocflow(
+					UoW, 
+					$"Отмена заказа №{Entity.Id}", 
+					e.CancellationPermit.EdoTaskToCancellationId.Value
+				);
 			}
 
 			if(saved && e.NeedClose)

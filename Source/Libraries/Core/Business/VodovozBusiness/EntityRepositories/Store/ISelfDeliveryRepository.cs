@@ -17,13 +17,5 @@ namespace Vodovoz.EntityRepositories.Store
 		/// <param name="order">Заказ по которому необходимо найти отгрузку товаров</param>
 		/// <param name="notSavedDoc">Не сохранённый документ для включения в расчёт</param>
 		Dictionary<int, decimal> OrderNomenclaturesUnloaded(IUnitOfWork uow, Order order, SelfDeliveryDocument notSavedDoc);
-
-		/// <summary>
-		/// Проверяет, есть ли в задачах ЭДО номенклатура, которая была отгружена по документу
-		/// </summary>
-		/// <param name="uow">UnitOfWork</param>
-		/// <param name="selfDeliveryDocumentId">Номер документа отпуска самовывоза</param>
-		/// <returns>True если номенклатура используется в задачах ЭДО, иначе false</returns>
-		bool IsSelfDeliveryDocumentItemsUsedInEdoTasks(IUnitOfWork uow, int selfDeliveryDocumentId);
 	}
 }

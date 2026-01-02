@@ -845,7 +845,7 @@ namespace Vodovoz
 				{
 					_cancellationRequestActions.Add(() => _orderCancellationService.AutomaticCancelDocflow(
 						UoW,
-						orderReturnsView.Order,
+						$"Отмена заказа №{orderReturnsView.Order.Id}",
 						orderReturnsView.CancellationPermit.EdoTaskToCancellationId.Value
 					));
 				}
