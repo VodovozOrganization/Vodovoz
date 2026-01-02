@@ -20,6 +20,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Core.Domain.Warehouses.Documents;
 using Vodovoz.Domain;
@@ -34,7 +37,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.NHibernateProjections.Documents;
@@ -1271,7 +1273,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Counterparty counterpartyAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
-			Nomenclature nomenclatureAlias = null;
+			NomenclatureEntity nomenclatureAlias = null;
 			ProductGroup productGroupAlias = null;
 
 			var selfDeliveryReturnedQuery = unitOfWork.Session.QueryOver(() => selfDeliveryDocumentReturnedAlias)
@@ -2634,7 +2636,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
-		private Conjunction GetIncludeExcludeNomenclatureRestriction(Nomenclature nomenclatureAlias)
+		private Conjunction GetIncludeExcludeNomenclatureRestriction(NomenclatureEntity nomenclatureAlias)
 		{
 			var restriction = Restrictions.Conjunction();
 

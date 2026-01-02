@@ -19,6 +19,6 @@ namespace Vodovoz.EntityRepositories.Equipments
 		QueryOver<Equipment> GetEquipmentAtDeliveryPointQuery(Counterparty client, DeliveryPoint deliveryPoint);
 		IList<Equipment> GetEquipmentAtDeliveryPoint(IUnitOfWork uow, DeliveryPoint deliveryPoint);
 		IList<Equipment> GetEquipmentForClient(IUnitOfWork uow, Counterparty counterparty);
-		EquipmentLocation GetLocation(IUnitOfWork uow, Equipment equ);
+		EquipmentLocation GetLocation(IUnitOfWork uow, int equipmentId);
 	}
 }

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Documents.MovementDocuments;

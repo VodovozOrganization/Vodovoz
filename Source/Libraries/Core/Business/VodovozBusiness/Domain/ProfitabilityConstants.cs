@@ -9,13 +9,13 @@ using Gamma.Utilities;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Profitability;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Core.Domain.Warehouses;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.Domain
 {

@@ -6,6 +6,7 @@ using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Settings.Organizations;

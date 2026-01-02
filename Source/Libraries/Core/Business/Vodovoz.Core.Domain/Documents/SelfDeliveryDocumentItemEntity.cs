@@ -2,6 +2,9 @@
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Operations;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Vodovoz.Core.Domain.Documents
@@ -15,8 +18,15 @@ namespace Vodovoz.Core.Domain.Documents
 	[HistoryTrace]
 	public class SelfDeliveryDocumentItemEntity : PropertyChangedBase, IDomainObject
 	{
+		private decimal _amount;
 		private IObservableList<SelfDeliveryDocumentItemTrueMarkProductCode> _trueMarkProductCodes = new ObservableList<SelfDeliveryDocumentItemTrueMarkProductCode>();
-		private SelfDeliveryDocumentEntity _selfDeliveryDocument;
+		private SelfDeliveryDocumentEntity _document;
+		private NomenclatureEntity _nomenclature;
+		private OrderItemEntity _orderItem;
+		private decimal _amountInStock;
+		private decimal _amountUnloaded;
+		private WarehouseBulkGoodsAccountingOperation _goodsAccountingOperation;
+		private CounterpartyMovementOperation _counterpartyMovementOperation;
 
 		/// <summary>
 		/// Идентификатор
@@ -24,13 +34,23 @@ namespace Vodovoz.Core.Domain.Documents
 		public virtual int Id { get; set; }
 
 		/// <summary>
+		/// Количество
+		/// </summary>
+		[Display(Name = "Количество")]
+		public virtual decimal Amount
+		{
+			get => _amount;
+			set => SetField(ref _amount, value);
+		}
+
+		/// <summary>
 		/// Документ самовывоза, к которому относится строка
 		/// </summary>
 		[Display(Name = "Документ самовывоза")]
-		public virtual SelfDeliveryDocumentEntity SelfDeliveryDocument
+		public virtual SelfDeliveryDocumentEntity Document
 		{
-			get => _selfDeliveryDocument;
-			set => SetField(ref _selfDeliveryDocument, value);
+			get => _document;
+			set => SetField(ref _document, value);
 		}
 
 		/// <summary>
@@ -42,5 +62,77 @@ namespace Vodovoz.Core.Domain.Documents
 			get => _trueMarkProductCodes;
 			set => SetField(ref _trueMarkProductCodes, value);
 		}
+
+		/// <summary>
+		/// Номенклатура
+		/// </summary>
+		[Display(Name = "Номенклатура")]
+		public virtual NomenclatureEntity Nomenclature
+		{
+			get => _nomenclature;
+			set
+			{
+				SetField(ref _nomenclature, value);
+
+				if(GoodsAccountingOperation != null && GoodsAccountingOperation.Nomenclature != _nomenclature)
+				{
+					GoodsAccountingOperation.Nomenclature = _nomenclature;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Связанный товар
+		/// </summary>
+		[Display(Name = "Связанный товар")]
+		public virtual OrderItemEntity OrderItem
+		{
+			get => _orderItem;
+			set => SetField(ref _orderItem, value);
+		}
+
+		#region Не сохраняемые
+
+		/// <summary>
+		/// Количество на складе
+		/// </summary>
+		[Display(Name = "Количество на складе")]
+		public virtual decimal AmountInStock
+		{
+			get => _amountInStock;
+			set => SetField(ref _amountInStock, value);
+		}
+
+		/// <summary>
+		/// Уже отгружено
+		/// </summary>
+		[Display(Name = "Уже отгружено")]
+		public virtual decimal AmountUnloaded
+		{
+			get => _amountUnloaded;
+			set => SetField(ref _amountUnloaded, value);
+		}
+
+		/// <summary>
+		/// Операция передвижения товаров по складу
+		/// </summary>
+		[Display(Name = "Операция передвижения товаров по складу")]
+		public virtual WarehouseBulkGoodsAccountingOperation GoodsAccountingOperation
+		{
+			get => _goodsAccountingOperation;
+			set => SetField(ref _goodsAccountingOperation, value);
+		}
+
+		/// <summary>
+		/// Операция передвижения товара контрагента
+		/// </summary>
+		[Display(Name = "Операция передвижения товара контрагента")]
+		public virtual CounterpartyMovementOperation CounterpartyMovementOperation
+		{
+			get => _counterpartyMovementOperation;
+			set => SetField(ref _counterpartyMovementOperation, value);
+		}
+
+		#endregion
 	}
 }

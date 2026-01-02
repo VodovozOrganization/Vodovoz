@@ -433,7 +433,7 @@ namespace Vodovoz
 			//Оборудование не из товаров
 			var equipList = item.Order.OrderEquipments
 					.Where(x => //x.Nomenclature.Category != NomenclatureCategory.water && 
-			               x.Direction == Domain.Orders.Direction.Deliver);
+			               x.Direction == Core.Domain.Orders.Direction.Deliver);
 			foreach(OrderEquipment orderEquip in equipList) {
 				stringParts.Add(orderEquip.IsFullyDelivered
 									? string.Format("{0}:{1} ", orderEquip.NameString, orderEquip.ActualCount ?? 0)
@@ -478,7 +478,7 @@ namespace Vodovoz
 			var equipList = item.Order.OrderEquipments
 			                    .Where(x => x.OrderItem == null
 			                           //&& x.Nomenclature.Category != NomenclatureCategory.water
-			                           && x.Direction == Domain.Orders.Direction.PickUp);
+			                           && x.Direction == Core.Domain.Orders.Direction.PickUp);
 			foreach(var orderEquip in equipList) {
 				stringParts.Add(orderEquip.IsFullyDelivered
 									? string.Format("{0}:{1} ", orderEquip.NameString, orderEquip.ActualCount ?? 0)

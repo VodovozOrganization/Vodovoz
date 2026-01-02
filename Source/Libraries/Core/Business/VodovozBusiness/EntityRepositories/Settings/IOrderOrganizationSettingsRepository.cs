@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Goods;
+using Vodovoz.Core.Domain.Goods;
 using VodovozBusiness.Domain.Settings;
 
 namespace Vodovoz.EntityRepositories.Settings
