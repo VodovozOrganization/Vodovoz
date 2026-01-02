@@ -32,9 +32,7 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Organizations
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				return uow.Session.QueryOver<OrganizationEntity>()
-					.Where(o => o.Id == id)
-					.SingleOrDefault();
+				return uow.Session.Get<OrganizationEntity>(id);
 			}
 		}
 
@@ -42,9 +40,7 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Organizations
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				return await uow.Session.QueryOver<OrganizationEntity>()
-					.Where(o => o.Id == id)
-					.SingleOrDefaultAsync();
+				return await uow.Session.GetAsync<OrganizationEntity>(id);
 			}
 		}
 	}
