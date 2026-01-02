@@ -15,5 +15,26 @@ namespace Vodovoz.EntityRepositories.WageCalculation
 		WageDistrictLevelRates DefaultLevelForNewEmployeesOnOurCars(IUnitOfWork uow);
 		WageDistrictLevelRates DefaultLevelForNewEmployeesOnRaskatCars(IUnitOfWork uow);
 		IEnumerable<DateTime> GetDaysWorkedWithRouteLists(IUnitOfWork uow, Employee employee);
+
+		/// <summary>
+		/// Все ставки по умолчанию для новых сотрудников (найм)
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <returns></returns>
+		IEnumerable<WageDistrictLevelRates> AllDefaultLevelForNewEmployees(IUnitOfWork uow);
+
+		/// <summary>
+		/// Все ставки по умолчанию для новых сотрудников (наши авто)
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <returns></returns>
+		IEnumerable<WageDistrictLevelRates> AllDefaultLevelForNewEmployeesOnOurCars(IUnitOfWork uow);
+
+		/// <summary>
+		/// Все ставки по умолчанию для новых сотрудников (раскат)
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <returns></returns>
+		IEnumerable<WageDistrictLevelRates> AllDefaultLevelForNewEmployeesOnRaskatCars(IUnitOfWork uow);
 	}
 }

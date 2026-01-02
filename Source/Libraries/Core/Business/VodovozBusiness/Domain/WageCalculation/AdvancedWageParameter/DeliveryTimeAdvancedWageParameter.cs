@@ -67,6 +67,30 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 				   && scr.DeliverySchedule.Item1<= EndTime;
 		}
 
+		public override object Clone()
+		{
+			var parameter = new DeliveryTimeAdvancedWageParameter
+			{
+				ForDriverWithForwarder = ForDriverWithForwarder,
+				ForDriverWithoutForwarder = ForDriverWithoutForwarder,
+				ForForwarder = ForForwarder,
+				StartTime = StartTime,
+				EndTime = EndTime
+			};
 
+			foreach(var child in Children)
+			{
+				if(child.Clone() is AdvancedWageParameter childParameter)
+				{
+					childParameter.ParentParameter = parameter;
+					parameter.ChildrenParameters.Add(childParameter);
+					continue;
+				}
+
+				throw new InvalidOperationException("Дочерний узел не является дополнительным параметром расчета зарплаты");
+			}
+
+			return parameter;
+		}
 	}
 }

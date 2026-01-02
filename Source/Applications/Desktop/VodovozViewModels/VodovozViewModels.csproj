@@ -1086,6 +1086,8 @@
     <Compile Include="ViewModels\Suppliers\WarehousesBalanceSummaryReportParameters.cs" />
     <Compile Include="ViewModels\Suppliers\WarehousesBalanceSummaryViewModel.cs" />
     <Compile Include="ViewModels\Users\UserRoleViewModel.cs" />
+    <Compile Include="ViewModels\WageCalculation\WageDistrictLevelRatesAssigningViewModel.cs" />
+    <Compile Include="ViewModels\WageCalculation\WageDistrictLevelRatesAssigningViewModel.EmployeeSelectableNode.cs" />
     <Compile Include="ViewModels\WageCalculation\WageDistrictLevelRateViewModel.cs" />
     <Compile Include="ViewModels\WageCalculation\EmployeeWageParameterViewModel.cs" />
     <Compile Include="ViewModels\WageCalculation\FixedWageParameterItemViewModel.cs" />

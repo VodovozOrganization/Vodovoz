@@ -22,7 +22,7 @@ namespace Vodovoz.Domain.WageCalculation
 	]
 	[HistoryTrace]
 	[EntityPermission]
-	public class WageDistrictLevelRate : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class WageDistrictLevelRate : PropertyChangedBase, IDomainObject, IValidatableObject, ICloneable
 	{
 		#region Свойства
 
@@ -101,5 +101,24 @@ namespace Vodovoz.Domain.WageCalculation
 		}
 
 		#endregion Вычисляемые
+
+		public virtual object Clone()
+		{
+			var wageDistrictLevelRate = new WageDistrictLevelRate
+			{
+				WageDistrict = WageDistrict,
+				CarTypeOfUse = CarTypeOfUse,
+				WageRates = new List<WageRate>()
+			};
+
+			foreach(var wageRate in WageRates)
+			{
+				var clonedWageRate = (WageRate)wageRate.Clone();
+				clonedWageRate.WageDistrictLevelRate = wageDistrictLevelRate;
+				wageDistrictLevelRate.WageRates.Add(clonedWageRate);
+			}
+
+			return wageDistrictLevelRate;
+		}
 	}
 }
