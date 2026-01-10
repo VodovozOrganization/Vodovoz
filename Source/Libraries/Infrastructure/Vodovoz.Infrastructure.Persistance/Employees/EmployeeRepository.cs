@@ -270,5 +270,57 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 
 			return employees.ToList();
 		}
+
+		/// <inheritdoc/>
+		public IList<EmployeeNode> GetDriverForwarderEmployeesHavingWageDistrictLevelRates(
+			IUnitOfWork uow,
+			EmployeeCategory? category,
+			int? wageDistrictLevelRatesIdFilter,
+			bool isExcludeSelectedInFilterWageDistrictLevelRates)
+		{
+			var availableCategories = new[] { EmployeeCategory.driver, EmployeeCategory.forwarder };
+
+			var query =
+				from employee in uow.Session.Query<Employee>()
+
+				let lastWageLevelRatesIdHavingRequiredParameterItem =
+					(int?)(from wageParameter in uow.Session.Query<EmployeeWageParameter>()
+						   join wpi in uow.Session.Query<RatesLevelWageParameterItem>() on wageParameter.WageParameterItem.Id equals wpi.Id into wpis
+						   from wageParameterItem in wpis.DefaultIfEmpty()
+						   join wpicc in uow.Session.Query<RatesLevelWageParameterItem>() on wageParameter.WageParameterItemForOurCars.Id equals wpicc.Id into wpiccs
+						   from wageParameterItemCompanyCar in wpiccs.DefaultIfEmpty()
+						   join wpirc in uow.Session.Query<RatesLevelWageParameterItem>() on wageParameter.WageParameterItemForRaskatCars.Id equals wpirc.Id into wpircs
+						   from wageParameterItemRaskatCar in wpircs.DefaultIfEmpty()
+						   where
+						   wageParameter.Employee.Id == employee.Id
+						   && wageParameter.EndDate == null
+						   && (wageParameterItem.WageDistrictLevelRates.Id == wageDistrictLevelRatesIdFilter
+								|| wageParameterItemCompanyCar.WageDistrictLevelRates.Id == wageDistrictLevelRatesIdFilter
+								|| wageParameterItemRaskatCar.WageDistrictLevelRates.Id == wageDistrictLevelRatesIdFilter)
+						   orderby wageParameter.Id descending
+						   select wageParameter.Id)
+					.FirstOrDefault()
+
+				where
+					availableCategories.Contains(employee.Category)
+					&& (category == null || employee.Category == category)
+					&& (wageDistrictLevelRatesIdFilter == null
+						|| (isExcludeSelectedInFilterWageDistrictLevelRates && lastWageLevelRatesIdHavingRequiredParameterItem == null)
+						|| (!isExcludeSelectedInFilterWageDistrictLevelRates && lastWageLevelRatesIdHavingRequiredParameterItem != null))
+
+				orderby employee.LastName
+				orderby employee.Name
+				orderby employee.Patronymic
+
+				select new EmployeeNode
+				{
+					Id = employee.Id,
+					LastName = employee.LastName,
+					Name = employee.Name,
+					Patronymic = employee.Patronymic
+				};
+
+			return query.ToList();
+		}
 	}
 }

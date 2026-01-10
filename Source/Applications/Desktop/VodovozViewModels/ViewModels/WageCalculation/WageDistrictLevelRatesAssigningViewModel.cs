@@ -91,7 +91,6 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 			}
 
 			WageLevels = _wageCalculationRepository.AllLevelRates(UoW).OrderByDescending(x => x.Id).ToList();
-			AvailableCategories = new[] { EmployeeCategory.driver, EmployeeCategory.forwarder };
 
 			SelectAllEmployeesCommand = new DelegateCommand(SelectAllEmployees);
 			UnselectAllEmployeesCommand = new DelegateCommand(UnselectAllEmployees);
@@ -108,8 +107,6 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 		public DelegateCommand UpdateWageDistrictLevelRatesCommand { get; }
 
 		public IList<WageDistrictLevelRates> WageLevels { get; }
-
-		public IEnumerable<EmployeeCategory> AvailableCategories { get; }
 
 		public EmployeeCategory? Category
 		{
@@ -189,57 +186,25 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 
 			foreach(var node in employeeNodes)
 			{
-				EmployeeNodes.Add(node);
-			}
-		}
-
-		private IList<EmployeeSelectableNode> GetEmployeeNodes()
-		{
-			var wageDistrictLevelRatesIdFilter = WageDistrictLevelRatesFilter?.Id;
-
-			var query =
-				from employee in UoW.Session.Query<Employee>()
-
-				let lastWageLevelRatesIdHavingRequiredParameterItem =
-					(int?)(from wageParameter in UoW.Session.Query<EmployeeWageParameter>()
-						   join wpi in UoW.Session.Query<RatesLevelWageParameterItem>() on wageParameter.WageParameterItem.Id equals wpi.Id into wpis
-						   from wageParameterItem in wpis.DefaultIfEmpty()
-						   join wpicc in UoW.Session.Query<RatesLevelWageParameterItem>() on wageParameter.WageParameterItemForOurCars.Id equals wpicc.Id into wpiccs
-						   from wageParameterItemCompanyCar in wpiccs.DefaultIfEmpty()
-						   join wpirc in UoW.Session.Query<RatesLevelWageParameterItem>() on wageParameter.WageParameterItemForRaskatCars.Id equals wpirc.Id into wpircs
-						   from wageParameterItemRaskatCar in wpircs.DefaultIfEmpty()
-						   where
-						   wageParameter.Employee.Id == employee.Id
-						   && wageParameter.EndDate == null
-						   && (wageParameterItem.WageDistrictLevelRates.Id == wageDistrictLevelRatesIdFilter
-								|| wageParameterItemCompanyCar.WageDistrictLevelRates.Id == wageDistrictLevelRatesIdFilter
-								|| wageParameterItemRaskatCar.WageDistrictLevelRates.Id == wageDistrictLevelRatesIdFilter)
-						   orderby wageParameter.Id descending
-						   select wageParameter.Id)
-					.FirstOrDefault()
-
-				where
-					AvailableCategories.Contains(employee.Category)
-					&& (Category == null || employee.Category == Category)
-					&& (wageDistrictLevelRatesIdFilter == null
-						|| (IsExcludeSelectedInFilterWageDistrictLevelRates && lastWageLevelRatesIdHavingRequiredParameterItem == null)
-						|| (!IsExcludeSelectedInFilterWageDistrictLevelRates && lastWageLevelRatesIdHavingRequiredParameterItem != null))
-
-				orderby employee.LastName
-				orderby employee.Name
-				orderby employee.Patronymic
-
-				select new EmployeeSelectableNode
+				var employeeSelectableNode = new EmployeeSelectableNode
 				{
-					Id = employee.Id,
-					LastName = employee.LastName,
-					Name = employee.Name,
-					Patronymic = employee.Patronymic,
+					Id = node.Id,
+					LastName = node.LastName,
+					Name = node.Name,
+					Patronymic = node.Patronymic,
 					IsSelected = false
 				};
 
-			return query.ToList();
+				EmployeeNodes.Add(employeeSelectableNode);
+			}
 		}
+
+		private IList<EmployeeNode> GetEmployeeNodes() =>
+			_employeeRepository.GetDriverForwarderEmployeesHavingWageDistrictLevelRates(
+				UoW,
+				Category,
+				WageDistrictLevelRatesFilter?.Id,
+				IsExcludeSelectedInFilterWageDistrictLevelRates);
 
 		private void SelectAllEmployees()
 		{
