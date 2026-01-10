@@ -1,8 +1,6 @@
-﻿using QS.DomainModel.Entity;
-
-namespace Vodovoz.EntityRepositories.Employees
+﻿namespace Vodovoz.EntityRepositories.Employees
 {
-	public class EmployeeNode : PropertyChangedBase
+	public class EmployeeNode
 	{
 		public int Id { get; set; }
 		public string LastName { get; set; }
