@@ -5,6 +5,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using QS.Navigation;
+using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
 using QS.ViewModels.Extension;
@@ -48,6 +49,7 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 		public WageDistrictLevelRatesAssigningViewModel(
 			ILogger<WageDistrictLevelRatesAssigningViewModel> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
+			ICommonServices commonServices,
 			IInteractiveService interactiveService,
 			INavigationManager navigation,
 			IWageCalculationRepository wageCalculationRepository,
@@ -57,6 +59,11 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 			IGuiDispatcher guiDispatcher
 			) : base(unitOfWorkFactory, interactiveService, navigation)
 		{
+			if(commonServices is null)
+			{
+				throw new ArgumentNullException(nameof(commonServices));
+			}
+
 			_logger =
 				logger ?? throw new ArgumentNullException(nameof(logger));
 			_interactiveService =
@@ -72,6 +79,16 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 				guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 
 			Title = "Привязка ставок";
+
+			var canEditEmployee =
+				commonServices.CurrentPermissionService.ValidateEntityPermission(typeof(Employee)).CanUpdate;
+			var canEditWage =
+				commonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.EmployeePermissions.CanEditWage);
+
+			if(!(canEditEmployee && canEditWage))
+			{
+				AbortOpening("У вас недостаточно прав редактирования ставок");
+			}
 
 			WageLevels = _wageCalculationRepository.AllLevelRates(UoW).OrderByDescending(x => x.Id).ToList();
 			AvailableCategories = new[] { EmployeeCategory.driver, EmployeeCategory.forwarder };
