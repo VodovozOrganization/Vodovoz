@@ -121,7 +121,7 @@ namespace Vodovoz.Journals.JournalViewModels.WageCalculation
 				"Привязка ставок",
 				(selected) => _canAssignWageDistrictLevelRates,
 				(selected) => _canAssignWageDistrictLevelRates,
-				async (selected) =>
+				(selected) =>
 				{
 					_navigationManager.OpenViewModel<WageDistrictLevelRatesAssigningViewModel>(null);
 				}
