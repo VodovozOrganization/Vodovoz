@@ -44,7 +44,7 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Document
 		public DocumentOrganizationCounter GetDocumentOrganizationCounterByOrder(IUnitOfWork unitOfWork, OrderEntity order)
 		{
 			return unitOfWork.Session.Query<DocumentOrganizationCounter>()
-				.FirstOrDefault(d => d.Order == order);
+				.FirstOrDefault(d => d.Order.Id == order.Id);
 		}
 	}
 }

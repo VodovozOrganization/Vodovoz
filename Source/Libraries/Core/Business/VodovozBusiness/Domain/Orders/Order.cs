@@ -3865,12 +3865,13 @@ namespace Vodovoz.Domain.Orders
 						? 1
 						: updCounter.Counter + 1);
 
-					var documentOrganizationCounter = new DocumentOrganizationCounter()
+					var documentOrganizationCounter = updOrderCounter ?? new DocumentOrganizationCounter()
 					{
 						Organization = Contract?.Organization,
 						CounterDateYear = DeliveryDate?.Year,
 						Counter = updCounterValue,
-						DocumentNumber = UPDNumberBuilder.BuildDocumentNumber(Contract?.Organization, DeliveryDate.Value, updCounterValue)
+						DocumentNumber = UPDNumberBuilder.BuildDocumentNumber(Contract?.Organization, DeliveryDate.Value, updCounterValue),
+						Order = this
 					};
 
 					UoW.Save(documentOrganizationCounter);
@@ -3899,12 +3900,13 @@ namespace Vodovoz.Domain.Orders
 						? 1
 						: updCounter.Counter + 1);
 
-					var documentOrganizationCounter = new DocumentOrganizationCounter()
+					var documentOrganizationCounter = updOrderCounter ?? new DocumentOrganizationCounter()
 					{
 						Organization = Contract?.Organization,
 						CounterDateYear = DeliveryDate?.Year,
 						Counter = specialUpdCounterValue,
-						DocumentNumber = UPDNumberBuilder.BuildDocumentNumber(Contract?.Organization, DeliveryDate.Value, specialUpdCounterValue)
+						DocumentNumber = UPDNumberBuilder.BuildDocumentNumber(Contract?.Organization, DeliveryDate.Value, specialUpdCounterValue),
+						Order = this
 					};
 
 					UoW.Save(documentOrganizationCounter);
