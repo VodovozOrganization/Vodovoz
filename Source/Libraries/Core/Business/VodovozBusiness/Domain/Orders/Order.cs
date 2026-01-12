@@ -3856,19 +3856,22 @@ namespace Vodovoz.Domain.Orders
 					break;
 				case OrderDocumentType.UPD:
 				{
+					var updOrderCounter = _documentOrganizationCounterRepository.GetDocumentOrganizationCounterByOrder(UoW, this);
+					
 					var updCounter = _documentOrganizationCounterRepository
 						.GetMaxDocumentOrganizationCounterOnYear(UoW, DeliveryDate.Value, Contract?.Organization);
 					
-					var updCounterValue = updCounter == null
+					var updCounterValue = updOrderCounter?.Counter ?? (updCounter == null
 						? 1
-						: updCounter.Counter + 1;
+						: updCounter.Counter + 1);
 
-					var documentOrganizationCounter = new DocumentOrganizationCounter()
+					var documentOrganizationCounter = updOrderCounter ?? new DocumentOrganizationCounter()
 					{
 						Organization = Contract?.Organization,
 						CounterDateYear = DeliveryDate?.Year,
 						Counter = updCounterValue,
-						DocumentNumber = UPDNumberBuilder.BuildDocumentNumber(Contract?.Organization, DeliveryDate.Value, updCounterValue)
+						DocumentNumber = UPDNumberBuilder.BuildDocumentNumber(Contract?.Organization, DeliveryDate.Value, updCounterValue),
+						Order = this
 					};
 
 					UoW.Save(documentOrganizationCounter);
@@ -3888,19 +3891,22 @@ namespace Vodovoz.Domain.Orders
 			break;
 				case OrderDocumentType.SpecialUPD:
 				{
-					var specialUpdCounter = _documentOrganizationCounterRepository
+					var updOrderCounter = _documentOrganizationCounterRepository.GetDocumentOrganizationCounterByOrder(UoW, this);
+					
+					var updCounter = _documentOrganizationCounterRepository
 						.GetMaxDocumentOrganizationCounterOnYear(UoW, DeliveryDate.Value, Contract?.Organization);
-
-					var specialUpdCounterValue = specialUpdCounter == null
+					
+					var specialUpdCounterValue = updOrderCounter?.Counter ?? (updCounter == null
 						? 1
-						: specialUpdCounter.Counter + 1;
+						: updCounter.Counter + 1);
 
-					var documentOrganizationCounter = new DocumentOrganizationCounter()
+					var documentOrganizationCounter = updOrderCounter ?? new DocumentOrganizationCounter()
 					{
 						Organization = Contract?.Organization,
 						CounterDateYear = DeliveryDate?.Year,
 						Counter = specialUpdCounterValue,
-						DocumentNumber = UPDNumberBuilder.BuildDocumentNumber(Contract?.Organization, DeliveryDate.Value, specialUpdCounterValue)
+						DocumentNumber = UPDNumberBuilder.BuildDocumentNumber(Contract?.Organization, DeliveryDate.Value, specialUpdCounterValue),
+						Order = this
 					};
 
 					UoW.Save(documentOrganizationCounter);

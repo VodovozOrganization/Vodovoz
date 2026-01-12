@@ -18,6 +18,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Documents
 			Map(x => x.CounterDateYear).Column("counter_date_year");
 			
 			References(x => x.Organization).Column("organization_id");
+			References(x => x.Order).Column("order_id");
 		}
 	}
 }

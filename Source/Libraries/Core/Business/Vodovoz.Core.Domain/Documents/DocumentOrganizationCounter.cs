@@ -14,6 +14,7 @@ namespace Vodovoz.Core.Domain.Documents
 		private int _counter;
 		private int? _counterDateYear;
 		private string _documentNumber;
+		private OrderEntity _order;
 
 		/// <summary>
 		/// Код
@@ -35,6 +36,16 @@ namespace Vodovoz.Core.Domain.Documents
 			set => SetField(ref _organization, value);
 		}
 		
+		/// <summary>
+		/// Заказ 
+		/// </summary>
+		[Display(Name = "Заказ")]
+		public virtual OrderEntity Order
+		{
+			get => _order;
+			set => SetField(ref _order, value);
+		}
+
 		/// <summary>
 		/// Счетчик документов УПД
 		/// </summary>
