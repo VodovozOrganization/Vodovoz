@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Orders;
@@ -35,5 +36,15 @@ namespace Vodovoz.Core.Data.Repositories.Document
 			DateTime date,
 			OrganizationEntity organizationEntity,
 			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получить счетчик привязанный к заказу
+		/// </summary>
+		/// <param name="unitOfWork">UoW</param>
+		/// <param name="order">Заказ</param>
+		/// <returns>Сущность (null если записи нет)</returns>
+		DocumentOrganizationCounter GetDocumentOrganizationCounterByOrder(
+			IUnitOfWork unitOfWork,
+			OrderEntity order);
 	}
 }
