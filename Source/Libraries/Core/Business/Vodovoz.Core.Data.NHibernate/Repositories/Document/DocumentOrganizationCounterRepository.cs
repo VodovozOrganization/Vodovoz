@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NHibernate.Criterion;
 using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Data.Repositories.Document;
@@ -38,6 +39,12 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Document
 				.Where(d => d.CounterDateYear == year && d.Organization == organizationEntity)
 				.OrderByDescending(d => d.Counter)
 				.FirstOrDefaultAsync(cancellationToken);
+		}
+
+		public DocumentOrganizationCounter GetDocumentOrganizationCounterByOrder(IUnitOfWork unitOfWork, OrderEntity order)
+		{
+			return unitOfWork.Session.Query<DocumentOrganizationCounter>()
+				.FirstOrDefault(d => d.Order == order);
 		}
 	}
 }

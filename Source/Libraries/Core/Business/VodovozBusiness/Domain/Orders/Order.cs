@@ -3856,12 +3856,14 @@ namespace Vodovoz.Domain.Orders
 					break;
 				case OrderDocumentType.UPD:
 				{
+					var updOrderCounter = _documentOrganizationCounterRepository.GetDocumentOrganizationCounterByOrder(UoW, this);
+					
 					var updCounter = _documentOrganizationCounterRepository
 						.GetMaxDocumentOrganizationCounterOnYear(UoW, DeliveryDate.Value, Contract?.Organization);
 					
-					var updCounterValue = updCounter == null
+					var updCounterValue = updOrderCounter?.Counter ?? (updCounter == null
 						? 1
-						: updCounter.Counter + 1;
+						: updCounter.Counter + 1);
 
 					var documentOrganizationCounter = new DocumentOrganizationCounter()
 					{
@@ -3888,12 +3890,14 @@ namespace Vodovoz.Domain.Orders
 			break;
 				case OrderDocumentType.SpecialUPD:
 				{
-					var specialUpdCounter = _documentOrganizationCounterRepository
+					var updOrderCounter = _documentOrganizationCounterRepository.GetDocumentOrganizationCounterByOrder(UoW, this);
+					
+					var updCounter = _documentOrganizationCounterRepository
 						.GetMaxDocumentOrganizationCounterOnYear(UoW, DeliveryDate.Value, Contract?.Organization);
-
-					var specialUpdCounterValue = specialUpdCounter == null
+					
+					var specialUpdCounterValue = updOrderCounter?.Counter ?? (updCounter == null
 						? 1
-						: specialUpdCounter.Counter + 1;
+						: updCounter.Counter + 1);
 
 					var documentOrganizationCounter = new DocumentOrganizationCounter()
 					{
