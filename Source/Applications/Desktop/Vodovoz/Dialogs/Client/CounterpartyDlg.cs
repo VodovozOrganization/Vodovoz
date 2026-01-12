@@ -45,6 +45,7 @@ using QS.Commands;
 using TrueMark.Contracts;
 using TrueMarkApi.Client;
 using Vodovoz.Application.FileStorage;
+using Vodovoz.Application.TrueMark;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.Nodes;
@@ -104,6 +105,7 @@ using Vodovoz.Views.Client;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.EntityRepositories.Counterparties;
 using VodovozBusiness.EntityRepositories.Edo;
+using VodovozBusiness.Errors.TrueMark;
 using VodovozBusiness.Nodes;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 
@@ -162,6 +164,7 @@ namespace Vodovoz
 		private IObservableList<ConnectedCustomerInfoNode> _connectedCustomers = new ObservableList<ConnectedCustomerInfoNode>();
 		private IConnectedCustomerRepository _connectedCustomerRepository;
 		private IPhoneTypeSettings _phoneTypeSettings;
+		private TrueMarkRegistrationCheckService _trueMarkRegistrationCheckService;
 
 		private bool _currentUserCanEditCounterpartyDetails = false;
 		private bool _deliveryPointsConfigured = false;
@@ -347,6 +350,7 @@ namespace Vodovoz
 			_counterpartyFileStorageService = _lifetimeScope.Resolve<ICounterpartyFileStorageService>();
 			_counterpartyEdoAccountController = _lifetimeScope.Resolve<ICounterpartyEdoAccountController>();
 			_generalSettings = _lifetimeScope.Resolve<IGeneralSettings>();
+			_trueMarkRegistrationCheckService = _lifetimeScope.Resolve<TrueMarkRegistrationCheckService>();
 
 			var roboatsFileStorageFactory = new RoboatsFileStorageFactory(roboatsSettings, ServicesConfig.CommonServices.InteractiveService, ErrorReporter.Instance);
 			var fileDialogService = new FileDialogService();
@@ -2328,53 +2332,26 @@ namespace Vodovoz
 				return;
 			}
 
-			TrueMarkRegistrationResultDto trueMarkResponse;
+			var result = _trueMarkRegistrationCheckService.CheckRegistrationFromTrueMark(Entity.INN, _cancellationTokenSource.Token);
 
-			try
+			if(result.IsFailure)
 			{
-				trueMarkResponse = _trueMarkApiClient.GetParticipantRegistrationForWaterStatusAsync(
-					_edoSettings.TrueMarkApiParticipantRegistrationForWaterUri, Entity.INN, _cancellationTokenSource.Token)
-					.Result;
-			}
-			catch(Exception ex)
-			{
-				_logger.Error(ex);
+				var error = result.Errors.First();
 
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
-					$"Ошибка при проверке в Честном Знаке.\n{ex.Message}");
-
+				if(error.Code == nameof(TrueMarkServiceErrors.UnknownRegistrationStatusError))
+				{
+					Entity.RegistrationInChestnyZnakStatus = RegistrationInChestnyZnakStatus.Unknown;
+				}
+				
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, error.Message);
 				return;
 			}
 
-			if(!string.IsNullOrWhiteSpace(trueMarkResponse.ErrorMessage))
-			{
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
-					$"Результат проверки в Честном Знаке:\n{trueMarkResponse.ErrorMessage}");
-
-				Entity.RegistrationInChestnyZnakStatus = RegistrationInChestnyZnakStatus.Unknown;
-
-				return;
-			}
-
-			var statusConverter = new TrueMarkApiRegistrationStatusConverter();
-			var status = statusConverter.ConvertToChestnyZnakStatus(trueMarkResponse.RegistrationStatusString);
-
-			if(status == null)
-			{
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
-					$"Такой статус участника в Честном Знаке у нас не используется:\n{trueMarkResponse.RegistrationStatusString}");
-
-				Entity.RegistrationInChestnyZnakStatus = RegistrationInChestnyZnakStatus.Unknown;
-
-				return;
-			}
-
-			Entity.RegistrationInChestnyZnakStatus = status.Value;
-
+			Entity.RegistrationInChestnyZnakStatus = result.Value.RegistrationStatus.Value;
 			_counterpartyEdoAccountsViewModel.RefreshEdoLightsMatrices();
 
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
-				$"Статус регистрации в Честном Знаке:\n{trueMarkResponse.RegistrationStatusString}");
+				$"Статус регистрации в Честном Знаке:\n{result.Value.RegistrationStatusMessage}");
 		}
 
 		public override void Dispose()

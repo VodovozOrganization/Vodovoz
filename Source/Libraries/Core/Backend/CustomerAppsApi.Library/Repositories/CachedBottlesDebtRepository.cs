@@ -47,11 +47,11 @@ namespace CustomerAppsApi.Library.Repositories
 				_logger.LogError(
 					"Не удалось получить данные из кэша по клиенту {CounterpartyId}, отправляем данные из БД",
 					counterpartyId);
-				return _bottlesRepository.GetBottlesDebtAtCounterparty(uow, counterparty);
+				return _bottlesRepository.GetBottlesDebtAtCounterparty(uow, counterpartyId);
 			}
 
 			_logger.LogInformation("Получаем данные по клиенту {CounterpartyId} из БД", counterpartyId);
-			bottlesDebt = _bottlesRepository.GetBottlesDebtAtCounterparty(uow, counterparty);
+			bottlesDebt = _bottlesRepository.GetBottlesDebtAtCounterparty(uow, counterpartyId);
 
 			_logger.LogInformation("Обновляем кэш по клиенту {CounterpartyId}", counterpartyId);
 			_memoryCache.Set(

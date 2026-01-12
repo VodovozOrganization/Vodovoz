@@ -41,8 +41,8 @@ namespace CustomerAppsApi.Library.Models
 		private readonly IConfigurationSection _cacheExpirationSection;
 		private readonly ICounterpartyServiceDataHandler _counterpartyServiceDataHandler;
 		private readonly IEmailRepository _emailRepository;
-		private readonly ILinkedLegalCounterpartyEmailToExternalUserRepository _linkedLegalCounterpartyEmailsRepository;
-		private readonly ICounterpartyRepository _counterpartyRepository;
+		private readonly IExternalLegalCounterpartyAccountRepository _externalLegalCounterpartyEmailsRepository;
+		private readonly ICustomerAppCounterpartyRepository _customerAppCounterpartyRepository;
 		private readonly IContactsRepository _contactsRepository;
 
 		public CounterpartyModel(
@@ -58,8 +58,8 @@ namespace CustomerAppsApi.Library.Models
 			IConfiguration configuration,
 			ICounterpartyServiceDataHandler counterpartyServiceDataHandler,
 			IEmailRepository emailRepository,
-			ILinkedLegalCounterpartyEmailToExternalUserRepository linkedLegalCounterpartyEmailsRepository,
-			ICounterpartyRepository counterpartyRepository,
+			IExternalLegalCounterpartyAccountRepository externalLegalCounterpartyEmailsRepository,
+			ICustomerAppCounterpartyRepository customerAppCounterpartyRepository,
 			IContactsRepository contactsRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -79,9 +79,9 @@ namespace CustomerAppsApi.Library.Models
 			_counterpartyServiceDataHandler =
 				counterpartyServiceDataHandler ?? throw new ArgumentNullException(nameof(counterpartyServiceDataHandler));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
-			_linkedLegalCounterpartyEmailsRepository =
-				linkedLegalCounterpartyEmailsRepository ?? throw new ArgumentNullException(nameof(linkedLegalCounterpartyEmailsRepository));
-			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
+			_externalLegalCounterpartyEmailsRepository =
+				externalLegalCounterpartyEmailsRepository ?? throw new ArgumentNullException(nameof(externalLegalCounterpartyEmailsRepository));
+			_customerAppCounterpartyRepository = customerAppCounterpartyRepository ?? throw new ArgumentNullException(nameof(customerAppCounterpartyRepository));
 			_contactsRepository = contactsRepository ?? throw new ArgumentNullException(nameof(contactsRepository));
 		}
 
@@ -327,7 +327,7 @@ namespace CustomerAppsApi.Library.Models
 		public CounterpartyBottlesDebtDto GetCounterpartyBottlesDebt(int counterpartyId)
 		{
 			_logger.LogInformation("Поступил запрос на выборку долга по бутылям клиента {CounterpartyId}", counterpartyId);
-			var debt = _cachedBottlesDebtRepository.GetCounterpartyBottlesDebt(
+			var debt = _counterpartyServiceDataHandler.GetCounterpartyBottlesDebt(
 				_uow, counterpartyId, _cacheExpirationSection.GetValue<int>("CounterpartyDebtCacheMinutes"));
 			return _counterpartyFactory.CounterpartyBottlesDebtDto(counterpartyId, debt);
 		}

@@ -33,5 +33,25 @@ namespace VodovozBusiness.Errors.TrueMark
 				typeof(TrueMarkServiceErrors),
 				nameof(MissingTrueMarkCodeToDelete),
 				"Код запрашиваемый для удаления - отсутствует");
+		
+		/// <summary>
+		/// Неожиданная ошибка
+		/// </summary>
+		public static Error UnexpectedError(string message) =>
+			new Error(
+				nameof(UnexpectedError),
+				string.IsNullOrWhiteSpace(message) ? "Неожиданная ошибка" : message,
+				typeof(TrueMarkServiceErrors)
+				);
+		
+		/// <summary>
+		/// Неизвестный статус регистрации в ЧЗ
+		/// </summary>
+		public static Error UnknownRegistrationStatusError(string message) =>
+			new Error(
+				nameof(UnknownRegistrationStatusError),
+				string.IsNullOrWhiteSpace(message) ? "Неизвестный статус регистрации в ЧЗ" : message,
+				typeof(TrueMarkServiceErrors)
+				);
 	}
 }

@@ -1,32 +1,32 @@
 namespace CustomerAppsApi.Library.Dto.Counterparties
 {
 	/// <summary>
-	/// Информация об активации юр лица
+	/// Информация об активации аккаунта юр лица
 	/// </summary>
-	public class ActivationLinkCompany
+	public class ActivationCompanyAccountInfo
 	{
 		/// <summary>
 		/// Статус добавления номера телефона
 		/// </summary>
-		public string PhoneNumber { get; set; }
+		public string AddingPhoneNumberState { get; set; }
 		/// <summary>
 		/// Статус указания цели покупки воды
 		/// </summary>
-		public string PurposeOfPurchase { get; set; }
+		public string AddingReasonForLeavingState { get; set; }
 		/// <summary>
 		/// Статус подключения ЭДО
 		/// </summary>
-		public string EDocumentSystem { get; set; }
+		public string AddingEdoAccountState { get; set; }
 		/// <summary>
 		/// Статус проверки в ФНС
 		/// </summary>
-		public string TaxServiceCheck { get; set; }
+		public string TaxServiceCheckState { get; set; }
 		/// <summary>
 		/// Статус проверки в ЧЗ
 		/// </summary>
-		public string MarkingSystemCheck { get; set; }
+		public string TrueMarkCheckState { get; set; }
 		
-		public static ActivationLinkCompany Create() =>
-			new ActivationLinkCompany();
+		public static ActivationCompanyAccountInfo Create() =>
+			new ActivationCompanyAccountInfo();
 	}
 }

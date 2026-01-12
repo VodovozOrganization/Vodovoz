@@ -95,6 +95,24 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 			return result.ToList();
 		}
 
+		public bool PhoneNumberExists(IUnitOfWork unitOfWork, string phoneNumber, int? counterpartyId = null, int? deliveryPointId = null)
+		{
+			var phones = unitOfWork.Session.Query<Phone>()
+				.Where(p => p.DigitsNumber == phoneNumber);
+
+			if(counterpartyId.HasValue)
+			{
+				phones = phones.Where(p => p.Counterparty.Id == counterpartyId.Value);
+			}
+
+			if (deliveryPointId.HasValue)
+			{
+				phones = phones.Where(p => p.DeliveryPoint.Id == deliveryPointId.Value);
+			}
+			
+			return phones.Any();
+		}
+
 		public IList<IncomingCallsAnalysisReportNode> GetLastOrderIdAndDeliveryDateByPhone(
 			IUnitOfWork uow, IEnumerable<string> incomingCallsNumbers)
 		{

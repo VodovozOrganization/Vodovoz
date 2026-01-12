@@ -22,6 +22,7 @@ using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Cryptography;
 using DriverApi.Notifications.Client;
 using Vodovoz.Application.Clients;
+using Vodovoz.Security;
 using VodovozBusiness.Controllers;
 
 namespace CustomerAppsApi.Library
@@ -85,7 +86,9 @@ namespace CustomerAppsApi.Library
 				.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
 				.AddScoped<IDeliveryPointBuildingNumberParser, DeliveryPointBuildingNumberParser>()
 				.AddScoped<IDeliveryPointBuildingNumberHandler, DeliveryPointBuildingNumberHandler>()
-				.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>();
+				.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>()
+				.AddScoped<IPasswordHasher, PasswordHasher>()
+				;
 
 			return services;
 		}

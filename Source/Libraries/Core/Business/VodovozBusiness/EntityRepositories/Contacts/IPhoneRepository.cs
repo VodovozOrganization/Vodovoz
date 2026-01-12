@@ -21,5 +21,14 @@ namespace Vodovoz.EntityRepositories
 			IUnitOfWork uow, IEnumerable<string> incomingCallsNumbers);
 		IList<Phone> GetPhonesByNumber(IUnitOfWork uow, string digitsPhone);
 		IEnumerable<PhoneInfo> GetPhoneInfoByCounterpartiesIds(IUnitOfWork uow, IEnumerable<int> counterpartiesIds);
+		/// <summary>
+		/// Проверка наличия номера телефона
+		/// </summary>
+		/// <param name="unitOfWork">unitOfWork</param>
+		/// <param name="counterpartyId">Идентификатор клиента</param>
+		/// <param name="deliveryPointId">Идентификатор точки доставки</param>
+		/// <param name="phoneNumber">Номер телефона в формате XXXXXXXXXX</param>
+		/// <returns><c>true</c> - есть телефон, <c>false</c> - нет</returns>
+		bool PhoneNumberExists(IUnitOfWork unitOfWork, string phoneNumber, int? counterpartyId = null, int? deliveryPointId = null);
 	}
 }

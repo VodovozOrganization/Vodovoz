@@ -29,7 +29,6 @@
 		/// Отсрочка платежа
 		/// </summary>
 		public int DelayOfPayment { get; set; }
-		public string ActivateStatus { get; set; }
-		public ActivationLinkCompany ActivationLinkCompany { get; set; }
+		public ActivationCompanyAccountInfo ActivationCompanyAccountInfo { get; set; } = ActivationCompanyAccountInfo.Create();
 	}
 }

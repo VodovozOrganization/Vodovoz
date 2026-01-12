@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CustomerAppsApi.Library.Dto.Counterparties;
+using CustomerAppsApi.Library.Dto.Edo;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Data.Counterparties;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Clients.Accounts;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Organizations;
@@ -24,10 +25,12 @@ namespace CustomerAppsApi.Library.Repositories
 		private readonly IRoboatsRepository _roboatsRepository;
 		private readonly IPhoneRepository _phoneRepository;
 		private readonly IEmailRepository _emailRepository;
+		private readonly ICustomerAppCounterpartyRepository _customerAppCounterpartyRepository;
 		private readonly ICounterpartyRepository _counterpartyRepository;
 		private readonly ICachedBottlesDebtRepository _cachedBottlesDebtRepository;
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly IConnectedCustomerRepository _connectedCustomerRepository;
+		private readonly IExternalLegalCounterpartyAccountRepository _legalCounterpartyAccountRepository;
 
 		public CounterpartyServiceDataHandler(
 			IExternalCounterpartyRepository externalCounterpartyRepository,
@@ -35,10 +38,12 @@ namespace CustomerAppsApi.Library.Repositories
 			IRoboatsRepository roboatsRepository,
 			IPhoneRepository phoneRepository,
 			IEmailRepository emailRepository,
+			ICustomerAppCounterpartyRepository customerAppCounterpartyRepository,
 			ICounterpartyRepository counterpartyRepository,
 			ICachedBottlesDebtRepository cachedBottlesDebtRepository,
 			IOrganizationRepository organizationRepository,
-			IConnectedCustomerRepository connectedCustomerRepository
+			IConnectedCustomerRepository connectedCustomerRepository,
+			IExternalLegalCounterpartyAccountRepository legalCounterpartyAccountRepository
 			)
 		{
 			_externalCounterpartyRepository =
@@ -48,12 +53,15 @@ namespace CustomerAppsApi.Library.Repositories
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
 			_phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
+			_customerAppCounterpartyRepository = customerAppCounterpartyRepository ?? throw new ArgumentNullException(nameof(customerAppCounterpartyRepository));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 			_cachedBottlesDebtRepository =
 				cachedBottlesDebtRepository ?? throw new ArgumentNullException(nameof(cachedBottlesDebtRepository));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_connectedCustomerRepository =
 				connectedCustomerRepository ?? throw new ArgumentNullException(nameof(connectedCustomerRepository));
+			_legalCounterpartyAccountRepository =
+				legalCounterpartyAccountRepository ?? throw new ArgumentNullException(nameof(legalCounterpartyAccountRepository));
 		}
 
 		public ExternalCounterparty GetExternalCounterparty(
@@ -139,9 +147,9 @@ namespace CustomerAppsApi.Library.Repositories
 			return _roboatsRepository.GetCounterpartyPatronymic(uow, counterpartyPatronymic);
 		}
 		
-		public async Task<int> GetCounterpartyBottlesDebt(IUnitOfWork uow, int counterpartyId)
+		public int GetCounterpartyBottlesDebt(IUnitOfWork uow, int counterpartyId, int counterpartyDebtCacheMinutes)
 		{
-			return await _cachedBottlesDebtRepository.GetCounterpartyBottlesDebt(uow, counterpartyId);
+			return _cachedBottlesDebtRepository.GetCounterpartyBottlesDebt(uow, counterpartyId, counterpartyDebtCacheMinutes);
 		}
 		
 		public Email GetEmailForExternalCounterparty(IUnitOfWork uow, int counterpartyId)
@@ -184,9 +192,23 @@ namespace CustomerAppsApi.Library.Repositories
 			return _connectedCustomerRepository.GetConnectedCustomerPhones(uow, legalCounterpartyId, naturalCounterpartyId);
 		}
 
-		public IEnumerable<Email> GetEmailForLinking(IUnitOfWork uow, int legalCounterpartyId, string dtoEmail)
+		public IEnumerable<Email> GetEmailForLinking(IUnitOfWork uow, int legalCounterpartyId, string email)
 		{
-			return _emailRepository.GetEmailForLinkingLegalCounterparty(uow, legalCounterpartyId, dtoEmail);
+			return _emailRepository.GetEmailForLinkingLegalCounterparty(uow, legalCounterpartyId, email);
+		}
+
+		/// <inheritdoc/>
+		public bool PhoneExists(IUnitOfWork unitOfWork, int counterpartyId, string phoneNumber)
+		{
+			return _phoneRepository.PhoneNumberExists(unitOfWork, phoneNumber, counterpartyId);
+		}
+
+		/// <inheritdoc/>
+		public IEnumerable<ExternalLegalCounterpartyAccountActivation> GetOnlineLegalCounterpartyActivations(
+			IUnitOfWork unitOfWork, IFindExternalLegalCounterpartyAccountDto dto)
+		{
+			return _legalCounterpartyAccountRepository.GetExternalLegalCounterpartyAccountsActivations(
+				unitOfWork, dto.Source, dto.ExternalCounterpartyId, dto.CounterpartyErpId);
 		}
 	}
 }

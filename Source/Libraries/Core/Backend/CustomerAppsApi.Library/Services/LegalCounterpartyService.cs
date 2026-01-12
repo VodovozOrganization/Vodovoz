@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Threading;
+using System.Threading.Tasks;
 using CustomerAppsApi.Library.Converters;
 using CustomerAppsApi.Library.Dto.Contacts;
 using CustomerAppsApi.Library.Dto.Counterparties;
@@ -8,15 +11,19 @@ using CustomerAppsApi.Library.Errors;
 using CustomerAppsApi.Library.Repositories;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using Vodovoz.Application.TrueMark;
 using Vodovoz.Core.Data.Counterparties;
-using Vodovoz.Core.Domain;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Clients.Accounts;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories;
+using Vodovoz.Security;
+using Vodovoz.Services;
 using VodovozBusiness.EntityRepositories.Counterparties;
+using VodovozBusiness.Errors.TrueMark;
 
 namespace CustomerAppsApi.Library.Services
 {
@@ -27,19 +34,25 @@ namespace CustomerAppsApi.Library.Services
 		private readonly ICameFromConverter _cameFromConverter;
 		private readonly ICounterpartyServiceDataHandler _counterpartyServiceDataHandler;
 		private readonly IEmailRepository _emailRepository;
-		private readonly ILinkedLegalCounterpartyEmailToExternalUserRepository _linkedLegalCounterpartyEmailsRepository;
-		private readonly ICounterpartyRepository _counterpartyRepository;
+		private readonly IExternalLegalCounterpartyAccountRepository _externalLegalCounterpartyEmailsRepository;
+		private readonly ICustomerAppCounterpartyRepository _customerAppCounterpartyRepository;
 		private readonly IContactsRepository _contactsRepository;
-		
+		private readonly ICounterpartyService _counterpartyService;
+		private readonly TrueMarkRegistrationCheckService _trueMarkRegistrationCheckService;
+		private readonly IPasswordHasher _passwordHasher;
+
 		public LegalCounterpartyService(
 			ILogger<LegalCounterpartyService> logger,
 			IUnitOfWork uow,
 			ICameFromConverter cameFromConverter,
 			ICounterpartyServiceDataHandler counterpartyServiceDataHandler,
 			IEmailRepository emailRepository,
-			ILinkedLegalCounterpartyEmailToExternalUserRepository linkedLegalCounterpartyEmailsRepository,
-			ICounterpartyRepository counterpartyRepository,
-			IContactsRepository contactsRepository)
+			IExternalLegalCounterpartyAccountRepository externalLegalCounterpartyEmailsRepository,
+			ICustomerAppCounterpartyRepository customerAppCounterpartyRepository,
+			IContactsRepository contactsRepository,
+			ICounterpartyService counterpartyService,
+			TrueMarkRegistrationCheckService trueMarkRegistrationCheckService,
+			IPasswordHasher passwordHasher)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
@@ -47,10 +60,15 @@ namespace CustomerAppsApi.Library.Services
 			_counterpartyServiceDataHandler =
 				counterpartyServiceDataHandler ?? throw new ArgumentNullException(nameof(counterpartyServiceDataHandler));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
-			_linkedLegalCounterpartyEmailsRepository =
-				linkedLegalCounterpartyEmailsRepository ?? throw new ArgumentNullException(nameof(linkedLegalCounterpartyEmailsRepository));
-			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
+			_externalLegalCounterpartyEmailsRepository =
+				externalLegalCounterpartyEmailsRepository ?? throw new ArgumentNullException(nameof(externalLegalCounterpartyEmailsRepository));
+			_customerAppCounterpartyRepository =
+				customerAppCounterpartyRepository ?? throw new ArgumentNullException(nameof(customerAppCounterpartyRepository));
 			_contactsRepository = contactsRepository ?? throw new ArgumentNullException(nameof(contactsRepository));
+			_counterpartyService = counterpartyService ?? throw new ArgumentNullException(nameof(counterpartyService));
+			_trueMarkRegistrationCheckService =
+				trueMarkRegistrationCheckService ?? throw new ArgumentNullException(nameof(trueMarkRegistrationCheckService));
+			_passwordHasher = passwordHasher ?? throw new ArgumentNullException(nameof(passwordHasher));
 		}
 		
 		public Result<IEnumerable<LegalCustomersByInnResponse>> GetLegalCustomersByInn(LegalCustomersByInnRequest dto)
@@ -59,53 +77,27 @@ namespace CustomerAppsApi.Library.Services
 
 			if(counterpartyFrom.IsFailure)
 			{
+				_logger.LogWarning("Ошибка при получении данных откуда клиент");
 				return Result.Failure<IEnumerable<LegalCustomersByInnResponse>>(counterpartyFrom.Errors.First());
 			}
-			
-			var counterparties = _counterpartyRepository.GetLegalCustomersByInn(_uow, dto.Inn, dto.Email);
+
+			var counterparties = _customerAppCounterpartyRepository.GetLegalCustomersByInn(_uow, dto.Inn, dto.Email);
 
 			if(counterparties.Any() && counterparties.Count() > 1)
 			{
-				return Result.Failure<IEnumerable<LegalCustomersByInnResponse>>(CounterpartyError.MoreThanOneCounterpartyWithInn());
+				_logger.LogWarning("Найдены несколько клиентов с ИНН {INN}", dto.Inn);
+				return Result.Failure<IEnumerable<LegalCustomersByInnResponse>>(CounterpartyErrors.MoreThanOneCounterpartyWithInn());
 			}
 
 			if(!counterparties.Any())
 			{
+				_logger.LogInformation("Не нашли клиентов с ИНН {INN}, должен прийти запрос на регистрацию", dto.Inn);
 				return Result.Success<IEnumerable<LegalCustomersByInnResponse>>(new []{ LegalCustomersByInnResponse.CreateEmpty() });
 			}
 
 			counterparties.First().UpdateNextStep();
-			
+
 			return Result.Success(counterparties);
-		}
-		
-		public (string Message, IEnumerable<LegalCounterpartyInfo> Data) GetNaturalCounterpartyLegalCustomers(
-			GetNaturalCounterpartyLegalCustomersDto dto)
-		{
-			var externalCounterparty = _counterpartyServiceDataHandler.GetExternalCounterparty(
-				_uow, dto.ExternalCounterpartyId, _cameFromConverter.ConvertSourceToCounterpartyFrom(dto.Source));
-
-			if(externalCounterparty is null)
-			{
-				return ("Неизвестный пользователь", null);
-			}
-			
-			var naturalCounterpartyExists = _counterpartyServiceDataHandler.CounterpartyExists(_uow, dto.ErpCounterpartyId);
-
-			if(!naturalCounterpartyExists)
-			{
-				return ("Не найден клиент с таким Id", null);
-			}
-			
-			if(externalCounterparty.Phone.DigitsNumber != dto.PhoneNumber)
-			{
-				return ("Не совпадает номер телефона у пользователя и который пришел в запросе", null);
-			}
-			
-			var counterparties =
-				_counterpartyServiceDataHandler.GetNaturalCounterpartyLegalCustomers(_uow, dto.ErpCounterpartyId, dto.PhoneNumber);
-			
-			return (null, counterparties);
 		}
 		
 		public (string Message, RegisteredLegalCustomerDto Data) RegisterLegalCustomer(RegisteringLegalCustomerDto dto)
@@ -166,7 +158,7 @@ namespace CustomerAppsApi.Library.Services
 			_uow.Save(newLegalCounterparty);
 			_uow.Commit();
 
-			//TODO 5417: Согласовать формат
+			//TODO 5606: Согласовать формат
 			var registered = RegisteredLegalCustomerDto.Create(
 				newLegalCounterparty.Id,
 				email.Address,
@@ -181,7 +173,8 @@ namespace CustomerAppsApi.Library.Services
 		
 		public Result<CompanyWithActiveEmailResponse> GetCompanyWithActiveEmail(CompanyWithActiveEmailRequest dto)
 		{
-			var linkedEmails = _linkedLegalCounterpartyEmailsRepository.GetLinkedLegalCounterpartyEmails(_uow, dto.Email);
+			var linkedEmails =
+				_externalLegalCounterpartyEmailsRepository.GetLinkedLegalCounterpartyEmails(_uow, dto.Email);
 
 			if(!linkedEmails.Any())
 			{
@@ -201,109 +194,156 @@ namespace CustomerAppsApi.Library.Services
 		
 		public Result CheckPassword(CheckPasswordRequest dto)
 		{
-			var linkedEmails = _linkedLegalCounterpartyEmailsRepository.GetLinkedLegalCounterpartyEmails(_uow, dto.Email);
+			var legalCounterpartyId = dto.ErpCounterpartyId;
+			var linkedEmails =
+				_externalLegalCounterpartyEmailsRepository.GetLinkedLegalCounterpartyEmails(_uow, legalCounterpartyId, dto.Email);
 
 			if(!linkedEmails.Any())
 			{
+				_logger.LogWarning("Нет активных почт у {LegalCounterpartyId}", legalCounterpartyId);
 				return Result.Failure(LegalCounterpartyControllerError.NotExistsActiveEmail());
 			}
 
 			var emailsCount = linkedEmails.Count();
-			
+
 			if(emailsCount > 1)
 			{
+				_logger.LogWarning("У {LegalCounterpartyId} найдено больше одной активной почты", legalCounterpartyId);
 				return Result.Failure(
 					LegalCounterpartyControllerError.ActiveEmailCountGreater1($"Найдено {emailsCount} активных почт. Обратитесь в тех поддержку"));
 			}
-			
+
 			var linkedEmail = linkedEmails.First();
 
-			return linkedEmail.AccountPassword != dto.Password
+			return !_passwordHasher.VerifyHashedPassword(linkedEmail.AccountPasswordSalt, linkedEmail.AccountPasswordHash, dto.Password)
 				? Result.Failure(LegalCounterpartyControllerError.WrongAccountPassword())
 				: Result.Success();
 		}
 
 		public Result<string> LinkLegalCounterpartyEmailToExternalUser(LinkingLegalCounterpartyEmailToExternalUser dto)
 		{
-			var externalCounterparty = _counterpartyServiceDataHandler.GetExternalCounterparty(
-				_uow, dto.ExternalCounterpartyId, _cameFromConverter.ConvertSourceToCounterpartyFrom(dto.Source));
-
 			var legalCounterpartyId = dto.ErpCounterpartyId;
-
-			if(externalCounterparty is null)
-			{
-				return Result.Failure<string>(
-					new Error(nameof(LinkLegalCounterpartyEmailToExternalUser),"Не найден зарегистрированный пользователь"));
-			}
-
 			var legalCounterpartyExists = _counterpartyServiceDataHandler.CounterpartyExists(_uow, legalCounterpartyId);
 
 			if(!legalCounterpartyExists)
 			{
+				_logger.LogWarning("Не нашли юр лица с таким Id {LegalCounterpartyId}", legalCounterpartyId);
 				return Result.Failure<string>(
 					new Error(nameof(LinkLegalCounterpartyEmailToExternalUser),"Не найдено юридическое лицо с таким Id"));
 			}
-			
+
 			//Проверка пароля
 			
-			//TODO 5417: проверка без регистра?
-			var emailsForLinking = _counterpartyServiceDataHandler.GetEmailForLinking(_uow, legalCounterpartyId, dto.Email);
-			
+			//TODO 5606: проверка без регистра?
+			//TODO 5606: а что если уже есть такая или другая активные почты у этого клиента?
+			var email = dto.Email;
+			var emailsForLinking = _counterpartyServiceDataHandler.GetEmailForLinking(_uow, legalCounterpartyId, email);
+
 			Email emailForLinking = null;
 
 			if(!emailsForLinking.Any())
 			{
-				emailForLinking = CreateNewEmail(dto.Email, dto.ErpCounterpartyId);
-				_uow.Save(emailForLinking); 
+				emailForLinking = CreateNewEmail(email, dto.ErpCounterpartyId);
+				_uow.Save(emailForLinking);
 			}
 			else if(emailsForLinking.Count() > 1)
 			{
+				_logger.LogWarning("Найдено несколько почт с таким адресом {Email} у {LegalCounterpartyId}", email, legalCounterpartyId);
 				return Result.Failure<string>(new Error(
 					nameof(LinkLegalCounterpartyEmailToExternalUser),
 					"Найдено несколько почт с таким адресом у этого клиента. Обратитесь в техподдержку"));
 			}
-			
-			emailForLinking = emailsForLinking.First();
 
-			var link = LinkedLegalCounterpartyEmailToExternalUser.Create(
+			emailForLinking = emailsForLinking.First();
+			var passwordData = _passwordHasher.HashPassword(dto.Password);
+
+			var account = ExternalLegalCounterpartyAccount.Create(
+				dto.Source,
 				dto.ErpCounterpartyId,
 				emailForLinking.Id,
-				externalCounterparty.Id,
-				dto.Password);
+				dto.ExternalCounterpartyId,
+				passwordData);
 
-			_uow.Save(link);
+			_uow.Save(account);
 			_uow.Commit();
 
 			return Result.Success(emailForLinking.Address);
 		}
 
-		public Result<CompanyInfoResponse> GetCompanyInfo(CompanyInfoRequest dto)
+		public async Task<Result<CompanyInfoResponse>> GetCompanyInfo(CompanyInfoRequest dto, CancellationToken cancellationToken)
 		{
 			var legalCounterpartyExists = _counterpartyServiceDataHandler.CounterpartyExists(_uow, dto.ErpCounterpartyId);
 
 			if(!legalCounterpartyExists)
 			{
-				return Result.Failure<CompanyInfoResponse>(CounterpartyError.CounterpartyNotExists());
+				return Result.Failure<CompanyInfoResponse>(CounterpartyErrors.CounterpartyNotExists());
+			}
+
+			var companyInfo = _customerAppCounterpartyRepository.GetLinkedCompany(_uow, dto.Source, dto.ExternalCounterpartyId, dto.ErpCounterpartyId);
+
+			if(companyInfo is null)
+			{
+				return Result.Failure<CompanyInfoResponse>(LegalCounterpartyActivationErrors.ActivationNotExists());
+			}
+
+			if(companyInfo.ActivationCompanyAccountInfo.TaxServiceCheckState != nameof(TaxServiceCheckState.Done))
+			{
+				try
+				{
+					//TODO 5606: обговорить возвращаемые статусы и сделать обновление статуса в ФНС
+					_counterpartyService.StopShipmentsIfNeeded();
+				}
+				catch(Exception e)
+				{
+					_logger.LogWarning(e, "Ошибка при получении статуса компании с ИНН {INN} в ФНС", companyInfo.Inn);
+					companyInfo.ActivationCompanyAccountInfo.TaxServiceCheckState = nameof(TaxServiceCheckState.Error);
+				}
 			}
 			
-			//TODO 5417: решить, как будет выглядеть система аккаунтов
-			var company = _counterpartyRepository.GetLinkedCompany(_uow, externalCounterparty.Id);
-
-			if(company is null)
+			if(companyInfo.ActivationCompanyAccountInfo.TrueMarkCheckState != nameof(TrueMarkCheckState.Done))
 			{
-				return Result.Failure<CompanyInfoResponse>(CounterpartyError.CounterpartyNotExists());
+				try
+				{
+					var trueMarkRegistrationResult = await _trueMarkRegistrationCheckService.CheckRegistrationFromTrueMarkAsync(
+						companyInfo.Inn, cancellationToken);
+
+					if(trueMarkRegistrationResult.IsFailure)
+					{
+						var error = trueMarkRegistrationResult.Errors.First();
+						if(error.Code == nameof(TrueMarkServiceErrors.UnexpectedError))
+						{
+							companyInfo.ActivationCompanyAccountInfo.TrueMarkCheckState = nameof(TrueMarkCheckState.Error);
+						}
+						else if(error.Code == nameof(TrueMarkServiceErrors.UnknownRegistrationStatusError))
+						{
+							//TODO 5606: добавить еще статусов
+							companyInfo.ActivationCompanyAccountInfo.TrueMarkCheckState = ;
+						}
+					}
+					else
+					{
+						//TODO 5606: добавить еще статусов
+						companyInfo.ActivationCompanyAccountInfo.TrueMarkCheckState = ;
+					}
+				}
+				catch(Exception e)
+				{
+					_logger.LogWarning(e, "Ошибка при получении статуса компании с ИНН {INN} в ЧЗ", companyInfo.Inn);
+					companyInfo.ActivationCompanyAccountInfo.TrueMarkCheckState = nameof(TrueMarkCheckState.Error);
+				}
 			}
 
-			return company;
+			return companyInfo;
 		}
 
 		public Result<LegalCounterpartyContacts> GetLegalCustomerContacts(LegalCounterpartyContactListRequest dto)
 		{
+			//TODO 5606: как ищем контрагентов? Только не архивных, а если он заархивирован?
 			var legalCounterpartyExists = _counterpartyServiceDataHandler.CounterpartyExists(_uow, dto.ErpCounterpartyId);
 
 			if(!legalCounterpartyExists)
 			{
-				return Result.Failure<LegalCounterpartyContacts>(CounterpartyError.CounterpartyNotExists());
+				return Result.Failure<LegalCounterpartyContacts>(CounterpartyErrors.CounterpartyNotExists());
 			}
 
 			var phones = _contactsRepository.GetLegalCounterpartyPhones(_uow, dto.ErpCounterpartyId);
@@ -314,7 +354,7 @@ namespace CustomerAppsApi.Library.Services
 
 		private Email CreateNewEmail(string emailAddress, int legalCounterpartyId)
 		{
-			//TODO 5417: какой тип почты по умолчанию для связки
+			//TODO 5606: какой тип почты по умолчанию для связки
 			var emailType = _emailRepository.GetEmailTypeForReceipts(_uow);
 
 			var email = Email.Create(
@@ -332,7 +372,7 @@ namespace CustomerAppsApi.Library.Services
 		
 		private Email CreateNewEmail(string emailAddress, Counterparty legalCounterparty)
 		{
-			//TODO 5417: какой тип почты по умолчанию для связки
+			//TODO 5606: какой тип почты по умолчанию для связки
 			var emailType = _emailRepository.GetEmailTypeForReceipts(_uow);
 
 			var email = Email.Create(

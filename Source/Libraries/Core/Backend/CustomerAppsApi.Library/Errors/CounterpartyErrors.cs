@@ -2,7 +2,7 @@
 
 namespace CustomerAppsApi.Library.Errors
 {
-	public static class CounterpartyError
+	public static class CounterpartyErrors
 	{
 		/// <summary>
 		/// Не найден клиент с таким идентификатором
@@ -12,7 +12,7 @@ namespace CustomerAppsApi.Library.Errors
 			=> new Error(
 				"404",
 				"Не найден контрагент с таким идентификатором",
-				typeof(CounterpartyError)
+				typeof(CounterpartyErrors)
 			);
 		
 		/// <summary>
@@ -23,7 +23,7 @@ namespace CustomerAppsApi.Library.Errors
 			=> new Error(
 				"404",
 				"Не найден зарегистрированный пользователь",
-				typeof(CounterpartyError)
+				typeof(CounterpartyErrors)
 			);
 		
 		/// <summary>
@@ -34,7 +34,7 @@ namespace CustomerAppsApi.Library.Errors
 			=> new Error(
 				"500",
 				"Найдено несколько действующих контрагентов с таким ИНН, обратитесь в техподдержку",
-				typeof(CounterpartyError)
+				typeof(CounterpartyErrors)
 			);
 	}
 }

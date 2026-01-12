@@ -48,6 +48,13 @@ namespace Vodovoz.EntityRepositories
 		#endregion
 
 		IEnumerable<EmailInfo> GetEmailInfoByCounterpatiesIds(IUnitOfWork uow, int[] counterpartiesIds);
-		IEnumerable<Email> GetEmailForLinkingLegalCounterparty(IUnitOfWork uow, int legalCounterpartyId, string dtoEmail);
+		/// <summary>
+		/// Получение адреса почты для связки с аккаунтом юр лица в ИПЗ
+		/// </summary>
+		/// <param name="uow">Unit Of Work</param>
+		/// <param name="legalCounterpartyId">Идентификатор юр лица</param>
+		/// <param name="email">Адрес электронной почты</param>
+		/// <returns></returns>
+		IEnumerable<Email> GetEmailForLinkingLegalCounterparty(IUnitOfWork uow, int legalCounterpartyId, string email);
 	}
 }

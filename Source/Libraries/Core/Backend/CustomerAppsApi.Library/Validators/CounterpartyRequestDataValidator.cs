@@ -4,6 +4,8 @@ using System;
 using System.Text;
 using Vodovoz.Core.Domain.Clients;
 using System.Text.RegularExpressions;
+using CustomerAppsApi.Library.Dto.Edo;
+using CustomerAppsApi.Library.Dto.Phones;
 using Vodovoz.Domain.Client;
 using Vodovoz.Settings.Counterparty;
 
@@ -194,6 +196,56 @@ namespace CustomerAppsApi.Library.Validators
 			ValidatePassword(dto.Password);
 			
 			return ValidationResult();
+		}
+
+		/// <inheritdoc/>
+		public string AddPhoneToCounterpartyValidate(AddingPhoneNumberDto dto)
+		{
+			ValidateSource(dto.Source);
+			ValidateLegalCounterpartyId(dto.CounterpartyErpId);
+			ValidatePhoneNumber(dto.PhoneNumber);
+			
+			return ValidationResult();
+		}
+
+		private void ValidatePhoneNumber(string phoneNumber)
+		{
+			CheckOnlyNumbers(phoneNumber, "Номер телефона");
+		}
+
+		/// <inheritdoc/>
+		public string UpdateCounterpartyPurposeOfPurchaseValidate(UpdatingCounterpartyPurposeOfPurchase dto)
+		{
+			ValidateSource(dto.Source);
+			ValidateLegalCounterpartyId(dto.CounterpartyErpId);
+			
+			return ValidationResult();
+		}
+
+		/// <inheritdoc/>
+		public string AddEdoAccountValidate(AddingEdoAccount dto)
+		{
+			ValidateSource(dto.Source);
+			ValidateLegalCounterpartyId(dto.CounterpartyErpId);
+			ValidateEdoAccount(dto.EdoAccount);
+			
+			return ValidationResult();
+		}
+
+		/// <inheritdoc/>
+		public string GetOperatorsValidate(GetEdoOperatorsRequest request)
+		{
+			ValidateSource(request.Source);
+			
+			return ValidationResult();
+		}
+
+		private void ValidateEdoAccount(string edoAccount)
+		{
+			if(string.IsNullOrWhiteSpace(edoAccount))
+			{
+				_sb.AppendLine("Не заполнен ЭДО аккаунт");
+			}
 		}
 
 		private void ValidatePassword(string password)

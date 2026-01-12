@@ -111,7 +111,7 @@ namespace CustomerAppsApi.Library.Dto.Counterparties
 					Warning = Warning.CreateAnotherAccountExists();
 					break;
 				case CounterpartyEmailState.HasEmailAndActive:
-					//TODO 5417: дописать после обновления Костей
+					//TODO 5606: дописать после обновления Костей
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(EmailState), "Неизвестное состояние электронной почты и аккаунта!");
@@ -124,7 +124,7 @@ namespace CustomerAppsApi.Library.Dto.Counterparties
 			{
 				EmailState = CounterpartyEmailState.EmailNotExistsAndNotExistsActiveEmails;
 			}
-			else if(!emailId.HasValue && activeEmailId.HasValue
+			else if((!emailId.HasValue && activeEmailId.HasValue)
 				|| emailId.HasValue && activeEmailId.HasValue && activeEmailId != emailId)
 			{
 				EmailState = CounterpartyEmailState.HasAnotherActiveEmail;

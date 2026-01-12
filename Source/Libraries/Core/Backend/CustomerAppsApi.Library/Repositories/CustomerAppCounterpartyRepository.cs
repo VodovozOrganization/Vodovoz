@@ -1,51 +1,59 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using CustomerAppsApi.Library.Dto.Counterparties;
 using NHibernate;
 using NHibernate.Transform;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Domain;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Clients.Accounts;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 
 namespace CustomerAppsApi.Library.Repositories
 {
-	public class CounterpartyRepository : ICounterpartyRepository
+	public class CustomerAppCounterpartyRepository : ICustomerAppCounterpartyRepository
 	{
-		public CompanyInfoResponse GetLinkedCompany(IUnitOfWork uow, int externalCounterpartyId)
+		public CompanyInfoResponse GetLinkedCompany(IUnitOfWork uow, Source source, Guid externalCounterpartyId, int legalCounterpartyId)
 		{
-			LinkedLegalCounterpartyEmailToExternalUser linkedDataAlias = null;
+			ExternalLegalCounterpartyAccount externalLegalAccountAlias = null;
+			ExternalLegalCounterpartyAccountActivation externalLegalAccountActivationAlias = null;
 			Counterparty counterpartyAlias = null;
 			Account accountAlias = null;
 			CompanyInfoResponse resultAlias = null;
 			
-			var linkedCompany = uow.Session.QueryOver(() => linkedDataAlias)
-				.JoinEntityAlias(() => counterpartyAlias, () => linkedDataAlias.LegalCounterpartyId == counterpartyAlias.Id)
+			var linkedCompany = uow.Session.QueryOver(() => externalLegalAccountAlias)
+				.JoinEntityAlias(() => counterpartyAlias, () => externalLegalAccountAlias.LegalCounterpartyId == counterpartyAlias.Id)
 				.Left.JoinAlias(
 					() => counterpartyAlias.Accounts,
 					() => accountAlias,
 					() => accountAlias.IsDefault)
-				.Where(() => linkedDataAlias.ExternalCounterpartyId == externalCounterpartyId)
+				.Left.JoinAlias(() => externalLegalAccountAlias.AccountActivation, () => externalLegalAccountActivationAlias)
+				.Where(() => externalLegalAccountAlias.ExternalUserId == externalCounterpartyId)
+				.And(() => externalLegalAccountAlias.Source == source)
+				.And(() => externalLegalAccountAlias.LegalCounterpartyId == legalCounterpartyId)
 				.SelectList(list => list
-					//.SelectGroup(() => counterpartyAlias.Id).WithAlias(() => resultAlias.)
 					.Select(() => counterpartyAlias.Address).WithAlias(() => resultAlias.Address)
 					.Select(() => counterpartyAlias.INN).WithAlias(() => resultAlias.Inn)
 					.Select(() => counterpartyAlias.KPP).WithAlias(() => resultAlias.Kpp)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Name)
 					.Select(() => accountAlias.Number).WithAlias(() => resultAlias.AccountNumber)
 					.Select(() => counterpartyAlias.DelayDaysForBuyers).WithAlias(() => resultAlias.DelayOfPayment)
+					.Select(() => externalLegalAccountActivationAlias.AddingPhoneNumberState)
+						.WithAlias(() => resultAlias.ActivationCompanyAccountInfo.AddingPhoneNumberState)
+					.Select(() => externalLegalAccountActivationAlias.AddingReasonForLeavingState)
+						.WithAlias(() => resultAlias.ActivationCompanyAccountInfo.AddingReasonForLeavingState)
+					.Select(() => externalLegalAccountActivationAlias.AddingEdoAccountState)
+						.WithAlias(() => resultAlias.ActivationCompanyAccountInfo.AddingEdoAccountState)
+					.Select(() => externalLegalAccountActivationAlias.TaxServiceCheckState)
+						.WithAlias(() => resultAlias.ActivationCompanyAccountInfo.TaxServiceCheckState)
+					.Select(() => externalLegalAccountActivationAlias.TrueMarkCheckState)
+						.WithAlias(() => resultAlias.ActivationCompanyAccountInfo.TrueMarkCheckState)
 				)
 				.TransformUsing(Transformers.AliasToBean<CompanyInfoResponse>())
 				.List<CompanyInfoResponse>()
 				.FirstOrDefault();
-
-			if(linkedCompany is null)
-			{
-				return null;
-			}
-			
-			linkedCompany.ActivationLinkCompany = ActivationLinkCompany.Create();
 			
 			return linkedCompany;
 		}
@@ -65,7 +73,7 @@ namespace CustomerAppsApi.Library.Repositories
 
 				let activeEmailId =
 					(int?)(from email in uow.Session.Query<Email>()
-					join linkedData in uow.Session.Query<LinkedLegalCounterpartyEmailToExternalUser>()
+					join linkedData in uow.Session.Query<ExternalLegalCounterpartyAccount>()
 						on email.Id equals linkedData.LegalCounterpartyEmailId
 					where linkedData.LegalCounterpartyId == counterparty.Id
 					select email.Id)
@@ -84,19 +92,6 @@ namespace CustomerAppsApi.Library.Repositories
 					counterparty.Patronymic,
 					emailId,
 					activeEmailId)
-				/*select new LegalCustomersByInnResponse
-				{
-					ErpCounterpartyId = counterparty.Id,
-					Name = counterparty.Name,
-					JurAddress = counterparty.JurAddress,
-					Inn = counterparty.INN,
-					Kpp = counterparty.KPP,
-					FullName = counterparty.FullName,
-					ShortTypeOfOwnership = counterparty.TypeOfOwnership,
-					FirstName = counterparty.FirstName,
-					Surname = counterparty.Surname,
-					Patronymic = counterparty.Patronymic
-				}*/
 				).ToList();
 		}
 	}

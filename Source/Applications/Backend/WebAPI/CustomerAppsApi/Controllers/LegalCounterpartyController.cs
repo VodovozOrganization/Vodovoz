@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using CustomerAppsApi.Library.Dto.Counterparties;
 using CustomerAppsApi.Library.Services;
 using CustomerAppsApi.Library.Validators;
@@ -40,7 +42,7 @@ namespace CustomerAppsApi.Controllers
 			var source = dto.Source.GetEnumDisplayName();
 			
 			_logger.LogInformation(
-				"Поступил запрос на проверку пароля почты {Email} от {ExternalCounterpartyId} {Source}",
+				"Поступил запрос на проверку пароля почты {Email} от {ExternalUserId} {Source}",
 				dto.Email,
 				dto.ExternalCounterpartyId,
 				source);
@@ -52,7 +54,7 @@ namespace CustomerAppsApi.Controllers
 				if(!string.IsNullOrWhiteSpace(validationResult))
 				{
 					_logger.LogInformation(
-						"Не прошли валидацию при проверке пароля от {ExternalCounterpartyId}:\n{ValidationResult}",
+						"Не прошли валидацию при проверке пароля от {ExternalUserId}:\n{ValidationResult}",
 						dto.ExternalCounterpartyId,
 						validationResult);
 					return ValidationProblem(validationResult);
@@ -78,7 +80,7 @@ namespace CustomerAppsApi.Controllers
 			{
 				_logger.LogError(
 					e,
-					"Ошибка при при проверке пароля почты {Email} от {ExternalCounterpartyId} {Source}",
+					"Ошибка при проверке пароля почты {Email} от {ExternalUserId} {Source}",
 					dto.Email,
 					dto.ExternalCounterpartyId,
 					source);
@@ -97,7 +99,7 @@ namespace CustomerAppsApi.Controllers
 			var source = dto.Source.GetEnumDisplayName();
 			
 			_logger.LogInformation(
-				"Поступил запрос на получение юр лиц по ИНН {INN} от {ExternalCounterpartyId} {Source}",
+				"Поступил запрос на получение юр лиц по ИНН {INN} от {ExternalUserId} {Source}",
 				dto.Inn,
 				dto.ExternalCounterpartyId,
 				source);
@@ -109,7 +111,7 @@ namespace CustomerAppsApi.Controllers
 				if(!string.IsNullOrWhiteSpace(validationResult))
 				{
 					_logger.LogInformation(
-						"Не прошли валидацию при получении юр лиц по ИНН {INN} от {ExternalCounterpartyId}:\n{ValidationResult}",
+						"Не прошли валидацию при получении юр лиц по ИНН {INN} от {ExternalUserId}:\n{ValidationResult}",
 						dto.Inn,
 						dto.ExternalCounterpartyId,
 						validationResult);
@@ -135,7 +137,7 @@ namespace CustomerAppsApi.Controllers
 			{
 				_logger.LogError(
 					e,
-					"Ошибка при получении юр лиц по ИНН {INN} для {ExternalCounterpartyId}", dto.Inn, dto.ExternalCounterpartyId);
+					"Ошибка при получении юр лиц по ИНН {INN} для {ExternalUserId}", dto.Inn, dto.ExternalCounterpartyId);
 				return Problem();
 			}
 		}
@@ -151,7 +153,7 @@ namespace CustomerAppsApi.Controllers
 			var source = dto.Source.GetEnumDisplayName();
 			
 			_logger.LogInformation(
-				"Поступил запрос на получение идентификатора юр лица с активной почтой {Email} от пользователя {ExternalCounterpartyId} {Source}",
+				"Поступил запрос на получение идентификатора юр лица с активной почтой {Email} от пользователя {ExternalUserId} {Source}",
 				dto.Email,
 				dto.ExternalCounterpartyId,
 				source);
@@ -164,7 +166,7 @@ namespace CustomerAppsApi.Controllers
 				{
 					_logger.LogInformation(
 						"Не прошли валидацию при получении идентификатора юр лица с активной почтой {Email}" +
-						" от пользователя {ExternalCounterpartyId}:\n{ValidationResult}",
+						" от пользователя {ExternalUserId}:\n{ValidationResult}",
 						dto.Email,
 						dto.ExternalCounterpartyId,
 						validationResult);
@@ -190,7 +192,7 @@ namespace CustomerAppsApi.Controllers
 			{
 				_logger.LogError(
 					e,
-					"Ошибка при получении идентификатора юр лиц с активной почтой {Email} от пользователя {ExternalCounterpartyId} {Source}",
+					"Ошибка при получении идентификатора юр лиц с активной почтой {Email} от пользователя {ExternalUserId} {Source}",
 					dto.Email,
 					dto.ExternalCounterpartyId,
 					source);
@@ -198,19 +200,20 @@ namespace CustomerAppsApi.Controllers
 				return Problem();
 			}
 		}
-		
+
 		/// <summary>
 		/// Получение основной информации об учетной записи юр. лица или ИП
 		/// </summary>
 		/// <param name="dto">Детали запроса <see cref="CompanyInfoRequest"/></param>
+		/// <param name="cancellationToken">Токен для отмены опреации</param>
 		/// <returns></returns>
 		[HttpGet]
-		public IActionResult GetCompanyInfo(CompanyInfoRequest dto)
+		public async Task<IActionResult> GetCompanyInfo(CompanyInfoRequest dto, CancellationToken cancellationToken)
 		{
 			var source = dto.Source.GetEnumDisplayName();
 			
 			_logger.LogInformation(
-				"Поступил запрос на получение данных о юр лице от пользователя {ExternalCounterpartyId} {Source}",
+				"Поступил запрос на получение данных о юр лице от пользователя {ExternalUserId} {Source}",
 				dto.ExternalCounterpartyId,
 				source);
 			
@@ -221,13 +224,13 @@ namespace CustomerAppsApi.Controllers
 				if(!string.IsNullOrWhiteSpace(validationResult))
 				{
 					_logger.LogInformation(
-						"Не прошли валидацию при получении данных о юр лице от пользователя {ExternalCounterpartyId}:\n{ValidationResult}",
+						"Не прошли валидацию при получении данных о юр лице от пользователя {ExternalUserId}:\n{ValidationResult}",
 						dto.ExternalCounterpartyId,
 						validationResult);
 					return ValidationProblem(validationResult);
 				}
 				
-				var result = _legalCounterpartyService.GetCompanyInfo(dto);
+				var result = await _legalCounterpartyService.GetCompanyInfo(dto, cancellationToken);
 
 				if(result.IsSuccess)
 				{
@@ -246,61 +249,10 @@ namespace CustomerAppsApi.Controllers
 			{
 				_logger.LogError(
 					e,
-					"Ошибка при получении данных о юр лице от пользователя {ExternalCounterpartyId} {Source}",
+					"Ошибка при получении данных о юр лице от пользователя {ExternalUserId} {Source}",
 					dto.ExternalCounterpartyId,
 					source);
 				
-				return Problem();
-			}
-		}
-		
-		/// <summary>
-		/// Получение списка юр лиц доступных физику для заказа
-		/// </summary>
-		/// <param name="dto">Детали запроса <see cref="GetNaturalCounterpartyLegalCustomersDto"/></param>
-		/// <returns></returns>
-		[HttpGet]
-		public IActionResult GetLegalCustomers(GetNaturalCounterpartyLegalCustomersDto dto)
-		{
-			_logger.LogInformation(
-				"Поступил запрос на получение юр лиц клиента Id: {CounterpartyId} от {ExternalCounterpartyId}",
-				dto.ErpCounterpartyId,
-				dto.ExternalCounterpartyId);
-			
-			try
-			{
-				var validationResult = _requestDataValidator.GetNaturalCounterpartyLegalCustomersDtoValidate(dto);
-				
-				if(!string.IsNullOrWhiteSpace(validationResult))
-				{
-					_logger.LogInformation(
-						"Не прошли валидацию при получении юр лиц клиента Id: {CounterpartyId} от {ExternalCounterpartyId}:\n{ValidationResult}",
-						dto.ErpCounterpartyId,
-						dto.ExternalCounterpartyId,
-						validationResult);
-					return ValidationProblem(validationResult);
-				}
-				
-				var result = _legalCounterpartyService.GetNaturalCounterpartyLegalCustomers(dto);
-
-				if(!string.IsNullOrWhiteSpace(result.Message))
-				{
-					_logger.LogInformation(
-						result.Message + "при получении юр лиц клиента Id: {CounterpartyId} от {ExternalCounterpartyId}",
-						dto.ErpCounterpartyId,
-						dto.ExternalCounterpartyId);
-					return BadRequest(result.Message);
-				}
-				
-				return Ok(result.Data);
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(
-					e,
-					"Ошибка при получении юр лиц клиента Id: {CounterpartyId} от {ExternalCounterpartyId}",
-					dto.ErpCounterpartyId,
-					dto.ExternalCounterpartyId);
 				return Problem();
 			}
 		}
@@ -316,7 +268,8 @@ namespace CustomerAppsApi.Controllers
 			var source = dto.Source.GetEnumDisplayName();
 			
 			_logger.LogInformation(
-				"Поступил запрос на регистрацию нового юр лица от пользователя: {ExternalCounterpartyId} с {Source}",
+				"Поступил запрос на регистрацию нового юр лица с ИНН {INN} от пользователя: {ExternalUserId} с {Source}",
+				dto.Inn,
 				dto.ExternalCounterpartyId,
 				source);
 			
@@ -327,7 +280,7 @@ namespace CustomerAppsApi.Controllers
 				if(!string.IsNullOrWhiteSpace(validationResult))
 				{
 					_logger.LogInformation(
-						"Не прошли валидацию при регистрации нового юр лица от: {ExternalCounterpartyId}:\n{ValidationResult}",
+						"Не прошли валидацию при регистрации нового юр лица от: {ExternalUserId}:\n{ValidationResult}",
 						dto.ExternalCounterpartyId,
 						validationResult);
 					return ValidationProblem(validationResult);
@@ -346,7 +299,8 @@ namespace CustomerAppsApi.Controllers
 			{
 				_logger.LogError(
 					e,
-					"Ошибка при регистрации нового юр лица от: {ExternalCounterpartyId} с {Source}",
+					"Ошибка при регистрации нового юр лица с ИНН {INN} от: {ExternalUserId} с {Source}",
+					dto.Inn,
 					dto.ExternalCounterpartyId,
 					source);
 				return Problem();
@@ -363,7 +317,7 @@ namespace CustomerAppsApi.Controllers
 		public IActionResult LinkEmailToLegalCounterparty(LinkingLegalCounterpartyEmailToExternalUser dto)
 		{
 			_logger.LogInformation(
-				"Поступил запрос на прикрепление электронки {Email}, к юрику с Id: {LegalId} от {NaturalUserId}",
+				"Поступил запрос на прикрепление электронки {Email}, к юрику с Id: {LegalId} от {ExternalUserId}",
 				dto.Email,
 				dto.ErpCounterpartyId,
 				dto.ExternalCounterpartyId
@@ -376,7 +330,7 @@ namespace CustomerAppsApi.Controllers
 				if(!string.IsNullOrWhiteSpace(validationResult))
 				{
 					_logger.LogInformation(
-						"Не прошли валидацию при прикреплении почты {Email}, к юрику с Id: {LegalId} от {NaturalUserId}:\n{ValidationResult}",
+						"Не прошли валидацию при прикреплении почты {Email}, к юрику с Id: {LegalId} от {ExternalUserId}:\n{ValidationResult}",
 						dto.Email,
 						dto.ErpCounterpartyId,
 						dto.ExternalCounterpartyId,
@@ -397,7 +351,7 @@ namespace CustomerAppsApi.Controllers
 			{
 				_logger.LogError(
 					e,
-					"Ошибка при ри прикреплении телефона {Email}, к юрику с Id: {LegalId} от {NaturalUserId} с {Source}",
+					"Ошибка при ри прикреплении телефона {Email}, к юрику с Id: {LegalId} от {ExternalUserId} с {Source}",
 					dto.Email,
 					dto.ErpCounterpartyId,
 					dto.ExternalCounterpartyId,
@@ -416,7 +370,7 @@ namespace CustomerAppsApi.Controllers
 		{
 			var source = dto.Source.GetEnumDisplayName();
 			_logger.LogInformation(
-				"Поступил запрос на получение контактов, прикрепленных к юрику с Id: {LegalId} от пользователя {ExternalCounterpartyId} {Source}",
+				"Поступил запрос на получение контактов, прикрепленных к юрику с Id: {LegalId} от пользователя {ExternalUserId} {Source}",
 				dto.ErpCounterpartyId,
 				dto.ExternalCounterpartyId,
 				source
@@ -429,7 +383,7 @@ namespace CustomerAppsApi.Controllers
 				if(!string.IsNullOrWhiteSpace(validationResult))
 				{
 					_logger.LogInformation(
-						"Не прошли валидацию при получении контактов, прикрепленных к юрику с Id: {LegalId} от пользователя {ExternalCounterpartyId}:\n{ValidationResult}",
+						"Не прошли валидацию при получении контактов, прикрепленных к юрику с Id: {LegalId} от пользователя {ExternalUserId}:\n{ValidationResult}",
 						dto.ErpCounterpartyId,
 						dto.ExternalCounterpartyId,
 						validationResult);
@@ -449,7 +403,7 @@ namespace CustomerAppsApi.Controllers
 			{
 				_logger.LogError(
 					e, 
-					"Ошибка при получении контактов, прикрепленных к юрику с Id: {LegalId} от пользователя {ExternalCounterpartyId} {Source}",
+					"Ошибка при получении контактов, прикрепленных к юрику с Id: {LegalId} от пользователя {ExternalUserId} {Source}",
 					dto.ErpCounterpartyId,
 					dto.ExternalCounterpartyId,
 					source);
