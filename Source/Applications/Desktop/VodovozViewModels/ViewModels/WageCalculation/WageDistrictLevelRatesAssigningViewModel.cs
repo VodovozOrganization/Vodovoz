@@ -92,6 +92,7 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 
 			WageLevels = _wageCalculationRepository.AllLevelRates(UoW).OrderByDescending(x => x.Id).ToList();
 
+			HelpCommand = new DelegateCommand(ShowHelpInfo);
 			SelectAllEmployeesCommand = new DelegateCommand(SelectAllEmployees);
 			UnselectAllEmployeesCommand = new DelegateCommand(UnselectAllEmployees);
 			UpdateWageDistrictLevelRatesCommand = new DelegateCommand(async () => await UpdateWageDistrictLevelRates(), () => CanUpdateWageDistrictLevelRates);
@@ -102,6 +103,7 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 			UpdateEmployeeNodes();
 		}
 
+		public DelegateCommand HelpCommand { get; }
 		public DelegateCommand SelectAllEmployeesCommand { get; }
 		public DelegateCommand UnselectAllEmployeesCommand { get; }
 		public DelegateCommand UpdateWageDistrictLevelRatesCommand { get; }
@@ -462,6 +464,21 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 		private void OnEmployeeNodesContentChanged(object sender, EventArgs e)
 		{
 			OnPropertyChanged(nameof(CanUpdateWageDistrictLevelRates));
+		}
+
+		private void ShowHelpInfo()
+		{
+			_interactiveService.ShowMessage(ImportanceLevel.Info,
+				"При установленном значении \"Все\" категории сотрудника, в списке сотрудников отображаются водители и экспедиторы\n" +
+				"По нажатию на кнопку \"Выбрать всех\" выделяется все сотрудники в списке\n" +
+				"По нажатию на кнопку \"Снять выделение\" снимается выделение всех сотрудников в списке\n" +
+				"При выбранном значении \"Уровень з/п ставок\" и снятой галочке \"Исключить выбранный уровень з/п ставок\"\n" +
+				"в списке отображаются только сотрудники с указанным уровнем ставок в последнем типе расчета з/п сотрудника\n" +
+				"При выбранном значении \"Уровень з/п ставок\" и включенной галочке \"Исключить выбранный уровень з/п ставок\"\n" +
+				"в списке отображаются только сотрудники у которых указанный уровень ставок отсутсвует в последнем типе расчета з/п сотрудника\n" +
+				"Для запуска обновления уровней ставок должен быть выбран хотя бы один сотрудник, а также установлена\n" +
+				"дата начала действия ставки и указаны уровни ставок для всех типов ТС",
+				"Справка");
 		}
 
 		public override void Dispose()

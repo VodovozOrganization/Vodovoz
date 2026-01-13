@@ -65,6 +65,7 @@ namespace Vodovoz.Views.WageCalculation
 				.AddBinding(ViewModel, vm => vm.WageDistrictLevelRatesForRaskatCars, w => w.SelectedItem)
 				.InitializeFromSource();
 
+			ybuttonHelp.BindCommand(ViewModel.HelpCommand);
 			ybuttonSelectAll.BindCommand(ViewModel.SelectAllEmployeesCommand);
 			ybuttonClearSelected.BindCommand(ViewModel.UnselectAllEmployeesCommand);
 			ybuttonUpdateEmployeesWageLevelRates.BindCommand(ViewModel.UpdateWageDistrictLevelRatesCommand);
