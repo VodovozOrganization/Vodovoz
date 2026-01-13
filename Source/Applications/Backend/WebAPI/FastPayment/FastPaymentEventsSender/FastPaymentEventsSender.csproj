@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Vodovoz.Zabbix.Sender\Vodovoz.Zabbix.Sender.csproj" />
     <ProjectReference Include="..\FastPaymentsApi.Contracts\FastPaymentsApi.Contracts.csproj" />
     <ProjectReference Include="..\FastPaymentsAPI.Library\FastPaymentsAPI.Library.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj" />

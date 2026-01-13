@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.Extensions.Hosting;
 using Autofac.Extensions.DependencyInjection;
 using FastPaymentEventsSender.ApiClients;
@@ -23,6 +23,7 @@ using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Settings.FastPayments;
+using Vodovoz.Zabbix.Sender;
 
 namespace FastPaymentEventsSender
 {
@@ -65,7 +66,9 @@ namespace FastPaymentEventsSender
 						.AddScoped<IOrderSumConverter, OrderSumConverter>()
 						.AddHostedService<FastPaymentEventsProcessor>()
 						.AddMessageTransportSettings()
-						
+
+						.ConfigureZabbixSenderFromDataBase(nameof(FastPaymentEventsProcessor))
+
 						.AddMassTransit(busConf =>
 						{
 							busConf.ConfigureRabbitMq((rabbitMq, context) =>

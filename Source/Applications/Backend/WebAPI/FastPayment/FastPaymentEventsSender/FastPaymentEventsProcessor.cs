@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using FastPaymentEventsSender.Notifications;
+﻿using FastPaymentEventsSender.Notifications;
 using FastPaymentEventsSender.Options;
 using Mailjet.Api.Abstractions;
 using MassTransit;
@@ -13,9 +8,15 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using RabbitMQ.MailSending;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Settings.Common;
+using Vodovoz.Zabbix.Sender;
 
 namespace FastPaymentEventsSender
 {
@@ -23,6 +24,7 @@ namespace FastPaymentEventsSender
 	{
 		private const string _changedStatusEventsProcessTitle = "Обработка событий изменения статуса оплаты";
 		private const string _wrongSignatureEventsProcessTitle = "Обработка событий неправильной подписи";
+		private const int _criticalEventsCountThreshold = 100;
 
 		private readonly ILogger<FastPaymentEventsProcessor> _logger;
 		private readonly IOptionsMonitor<SenderOptions> _senderOptionsMonitor;
@@ -31,6 +33,7 @@ namespace FastPaymentEventsSender
 		private readonly IGenericRepository<FastPaymentStatusUpdatedEvent> _statusUpdatedEventRepository;
 		private readonly IGenericRepository<WrongSignatureFromReceivedFastPaymentEvent> _wrongSignatureEventRepository;
 		private readonly IEmailSettings _emailSettings;
+		private readonly IZabbixSender _zabbixSender;
 
 		public FastPaymentEventsProcessor(
 			ILogger<FastPaymentEventsProcessor> logger,
@@ -39,7 +42,8 @@ namespace FastPaymentEventsSender
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IGenericRepository<FastPaymentStatusUpdatedEvent> statusUpdatedEventRepository,
 			IGenericRepository<WrongSignatureFromReceivedFastPaymentEvent> wrongSignatureEventRepository,
-			IEmailSettings emailSettings
+			IEmailSettings emailSettings,
+			IZabbixSender zabbixSender
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -49,6 +53,7 @@ namespace FastPaymentEventsSender
 			_statusUpdatedEventRepository = statusUpdatedEventRepository ?? throw new ArgumentNullException(nameof(statusUpdatedEventRepository));
 			_wrongSignatureEventRepository = wrongSignatureEventRepository ?? throw new ArgumentNullException(nameof(wrongSignatureEventRepository));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
+			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 		}
 		
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -57,7 +62,7 @@ namespace FastPaymentEventsSender
 			{
 				_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 
-				await ProcessFastPaymentStatusUpdatedEvent();
+				await ProcessFastPaymentStatusUpdatedEvent(stoppingToken);
 				await ProcessWrongSignatureFromReceivedFastPaymentEvent();
 
 				var delay = _senderOptionsMonitor.CurrentValue.DelayInSeconds;
@@ -66,7 +71,7 @@ namespace FastPaymentEventsSender
 			}
 		}
 
-		private async Task ProcessFastPaymentStatusUpdatedEvent()
+		private async Task ProcessFastPaymentStatusUpdatedEvent(CancellationToken stoppingToken)
 		{
 			try
 			{
@@ -78,6 +83,16 @@ namespace FastPaymentEventsSender
 					.ToLookup(x => x.FastPayment.Id);
 				
 				var eventsCount = groupedEvents.Count;
+				var totalRecords = groupedEvents.Sum(g => g.Count());
+
+				if(totalRecords >= _criticalEventsCountThreshold)
+				{
+					await _zabbixSender.SendProblemMessageAsync(
+						ZabixSenderMessageType.Problem,
+						"Не обрабатываются события изменения статуса оплаты",
+						stoppingToken);
+				}
+
 				var notifier = scope.ServiceProvider.GetRequiredService<IFastPaymentStatusUpdatedNotifier>();
 
 				_logger.LogInformation("Всего событий смены статуса: {ChangedStatusEventsCount}", eventsCount);
@@ -106,10 +121,20 @@ namespace FastPaymentEventsSender
 						i++;
 					}
 				}
+
+				if(totalRecords < _criticalEventsCountThreshold)
+				{
+					await _zabbixSender.SendIsHealthyAsync(stoppingToken);
+				}
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Произошла ошибка при обработке событий изменения статуса оплаты");
+
+				await _zabbixSender.SendProblemMessageAsync(
+					ZabixSenderMessageType.Problem,
+					$"Произошла ошибка при обработке событий изменения статуса оплат {ex}",
+					stoppingToken);
 			}
 		}
 		
