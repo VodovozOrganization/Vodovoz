@@ -1,4 +1,4 @@
-﻿using Autofac.Extensions.DependencyInjection;
+using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using NLog.Web;
 using RoboatsService.Workers;
 using System.Threading.Tasks;
+using Vodovoz.Zabbix.Sender;
 
 namespace RoboatsCallsWorker
 {
@@ -22,7 +23,9 @@ namespace RoboatsCallsWorker
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureServices(services =>
 				{
-					services.AddHostedService<CloseStaleCallsWorker>();
+					services
+						.AddHostedService<CloseStaleCallsWorker>()
+						.ConfigureZabbixSenderFromDataBase(nameof(RoboatsCallsWorker));
 				})
 				.ConfigureWebHostDefaults(webBuilder =>
 				{
@@ -34,7 +37,6 @@ namespace RoboatsCallsWorker
 					logging.SetMinimumLevel(LogLevel.Trace);
 				})
 				.UseNLog()
-;
 		}
 	}
 }

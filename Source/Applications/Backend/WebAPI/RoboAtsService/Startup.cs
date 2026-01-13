@@ -29,6 +29,8 @@ using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using DriverApi.Notifications.Client;
 using Osrm;
+using RoboatsService.HealthCheck;
+using VodovozHealthCheck;
 
 namespace RoboatsService
 {
@@ -86,6 +88,8 @@ namespace RoboatsService
 				.AddInfrastructure()
 				.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot(nameof(RoboAtsService)))
 				.AddOsrm();
+
+			services.ConfigureHealthCheckService<RoboatsApiHealthCheck>();
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
@@ -164,6 +168,8 @@ namespace RoboatsService
 			{
 				endpoints.MapControllers();
 			});
+			
+			app.UseVodovozHealthCheck();
 		}
 
 	}

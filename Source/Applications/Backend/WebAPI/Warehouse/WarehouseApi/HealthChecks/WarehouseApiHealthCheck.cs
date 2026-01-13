@@ -4,10 +4,12 @@ using QS.DomainModel.UoW;
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Presentation.WebApi.Authentication.Contracts;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
+using VodovozHealthCheck.Extensions;
 using VodovozHealthCheck.Helpers;
 
 namespace WarehouseApi.HealthChecks
@@ -29,9 +31,9 @@ namespace WarehouseApi.HealthChecks
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 		}
 
-		protected override async Task<VodovozHealthResultDto> GetHealthResult()
+		protected override async Task<VodovozHealthResultDto> CheckServiceHealthAsync(CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Проверка здоровья: в WarehouseApi...");
+			_logger.LogInformation("Проверка работоспособности: в WarehouseApi...");
 
 			var healthSection = _configuration.GetSection("Health");
 
@@ -49,29 +51,32 @@ namespace WarehouseApi.HealthChecks
 				Password = password
 			};
 
-			_logger.LogInformation($"Проверка здоровья: post-запрос в {baseAddress}/api/Authenticate");
+			_logger.LogInformation($"Проверка работоспособности: post-запрос в {baseAddress}/api/Authenticate");
 
-			var tokenResponse = await ResponseHelper.PostJsonByUri<LoginRequest, TokenResponse>(
+			var tokenResponse = await HttpResponseHelper.SendRequestAsync<TokenResponse>(
+				HttpMethod.Post,
 				$"{baseAddress}/api/Authenticate",
 				_httpClientFactory,
-				loginRequestDto);
+				loginRequestDto.ToJsonContent(),
+				cancellationToken);
 
-			_logger.LogInformation($"Проверка здоровья: Результа post-запроса в {baseAddress}/api/Authenticate, UserName = {tokenResponse.UserName}");
+			_logger.LogInformation($"Проверка работоспособности: Результа post-запроса в {baseAddress}/api/Authenticate, UserName = {tokenResponse.Data?.UserName}");
 
-			_logger.LogInformation($"Проверка здоровья: get-запрос в {baseAddress}/api/GetOrder?orderId={orderId}");
+			_logger.LogInformation($"Проверка работоспособности: get-запрос в {baseAddress}/api/GetOrder?orderId={orderId}");
 
-			var orderData = await ResponseHelper.GetByUri(
+			var orderData = await HttpResponseHelper.GetByUriAsync(
 				$"{baseAddress}/api/GetOrder?orderId={orderId}",
 				_httpClientFactory,
-				tokenResponse.AccessToken);
+				tokenResponse.Data?.AccessToken,
+				cancellationToken: cancellationToken);
 
 			var statusCode = ((HttpResponseMessage)orderData).StatusCode;
 
-			_logger.LogInformation($"Проверка здоровья: Результат get-запроса в {baseAddress}/api/GetOrder?orderId={orderId}: {statusCode}. {((HttpResponseMessage)orderData)}");
+			_logger.LogInformation($"Проверка работоспособности: Результат get-запроса в {baseAddress}/api/GetOrder?orderId={orderId}: {statusCode}. {((HttpResponseMessage)orderData)}");
 
 			var isHealthy = statusCode == HttpStatusCode.OK;
 
-			_logger.LogInformation($"Проверка здоровья: Результат проверки в WarehouseApi: isHealthy = {isHealthy}");
+			_logger.LogInformation($"Проверка работоспособности: Результат проверки в WarehouseApi: isHealthy = {isHealthy}");
 
 			if(!isHealthy)
 			{

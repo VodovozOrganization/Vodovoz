@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using DriverApi.Contracts.V5;
 using DriverApi.Contracts.V5.Responses;
@@ -9,6 +10,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Presentation.WebApi.Authentication.Contracts;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
+using VodovozHealthCheck.Extensions;
 using VodovozHealthCheck.Helpers;
 
 namespace DriverAPI.HealthChecks
@@ -25,7 +27,7 @@ namespace DriverAPI.HealthChecks
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 		}
 
-		protected override async Task<VodovozHealthResultDto> GetHealthResult()
+		protected override async Task<VodovozHealthResultDto> CheckServiceHealthAsync(CancellationToken cancellationToken)
 		{
 			var healthSection = _configuration.GetSection("Health");
 
@@ -45,15 +47,17 @@ namespace DriverAPI.HealthChecks
 				Password = password
 			};
 
-			var tokenResponse = await ResponseHelper.PostJsonByUri<LoginRequest, TokenResponse>(
+			var tokenResponse = await HttpResponseHelper.SendRequestAsync<TokenResponse>(
+				HttpMethod.Post,
 				$"{baseAddress}/api/v5/Authenticate",
 				_httpClientFactory,
-				loginRequestDto);
+				loginRequestDto.ToJsonContent(),
+				cancellationToken);
 
-			var orderQrPaymentStatus = await ResponseHelper.GetJsonByUri<OrderQrPaymentStatusResponse>(
+			var orderQrPaymentStatus = await HttpResponseHelper.GetJsonByUri<OrderQrPaymentStatusResponse>(
 				$"{baseAddress}/api/v5/GetOrderQRPaymentStatus?orderId={orderId}",
 				_httpClientFactory,
-				tokenResponse.AccessToken);
+				tokenResponse.Data?.AccessToken);
 
 			var orderQrPaymentStatusIsHealthy = orderQrPaymentStatus.QRPaymentStatus == QrPaymentDtoStatus.Paid;
 
@@ -62,10 +66,10 @@ namespace DriverAPI.HealthChecks
 				healthResult.AdditionalUnhealthyResults.Add("GetOrderQRPaymentStatus не прошёл проверку.");
 			}
 
-			var routeList = await ResponseHelper.GetJsonByUri<RouteListDto>(
+			var routeList = await HttpResponseHelper.GetJsonByUri<RouteListDto>(
 				$"{baseAddress}/api/v5/GetRouteList?routeListId={routeListId}",
 				_httpClientFactory,
-				tokenResponse.AccessToken);
+				tokenResponse.Data?.AccessToken);
 
 			var getRouteListIsHealthy = routeList != null;
 

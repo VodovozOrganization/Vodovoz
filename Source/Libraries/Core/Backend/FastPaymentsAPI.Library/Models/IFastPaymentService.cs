@@ -24,7 +24,8 @@ namespace FastPaymentsAPI.Library.Models
 			Organization organization,
 			FastPaymentRequestFromType fastPaymentRequestFromType,
 			PaymentType paymentType,
-			string phoneNumber = null);
+			string phoneNumber = null,
+			bool isDryRun = false);
 		void SaveNewTicketForOnlineOrder(
 			OrderRegistrationResponseDTO orderRegistrationResponseDto,
 			Guid fastPaymentGuid,

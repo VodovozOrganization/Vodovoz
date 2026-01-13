@@ -198,7 +198,7 @@ namespace CustomerAppsApi.Library.Models
 			}
 		}
 
-		public CounterpartyRegistrationDto RegisterCounterparty(CounterpartyDto counterpartyDto)
+		public CounterpartyRegistrationDto RegisterCounterparty(CounterpartyDto counterpartyDto, bool isDryRun = false)
 		{
 			_logger.LogInformation("Запрос на регистрацию {ExternalId}", counterpartyDto.ExternalCounterpartyId);
 			var validationResult = _counterpartyModelValidator.CounterpartyDtoValidate(counterpartyDto);
@@ -252,10 +252,13 @@ namespace CustomerAppsApi.Library.Models
 			externalCounterparty.Email = email;
 			externalCounterparty.ExternalCounterpartyId = counterpartyDto.ExternalCounterpartyId;
 			externalCounterparty.Phone = phone;
-			
-			_uow.Save(counterparty);
-			_uow.Save(externalCounterparty);
-			_uow.Commit();
+
+			if(!isDryRun)
+			{
+				_uow.Save(counterparty);
+				_uow.Save(externalCounterparty);
+				_uow.Commit();
+			}
 
 			_logger.LogInformation(
 				"Создали нового пользователя {ExternalId} {PhoneNumber}, код пользователя {ErpCounterpartyId}",
@@ -266,7 +269,7 @@ namespace CustomerAppsApi.Library.Models
 			return _counterpartyModelFactory.CreateRegisteredCounterpartyRegistrationDto(counterparty.Id);
 		}
 
-		public CounterpartyUpdateDto UpdateCounterpartyInfo(CounterpartyDto counterpartyDto)
+		public CounterpartyUpdateDto UpdateCounterpartyInfo(CounterpartyDto counterpartyDto, bool isDryRun = false)
 		{
 			_logger.LogInformation("Запрос на обновление данных {ExternalId}", counterpartyDto.ExternalCounterpartyId);
 			var validationResult = _counterpartyModelValidator.CounterpartyDtoValidate(counterpartyDto);
@@ -314,10 +317,13 @@ namespace CustomerAppsApi.Library.Models
 				externalCounterparty.Email = CreateNewEmail(counterpartyDto.Email, counterparty);
 			}
 
-			_uow.Save(counterparty);
-			_uow.Save(externalCounterparty);
-			_uow.Commit();
-			
+			if(!isDryRun)
+			{
+				_uow.Save(counterparty);
+				_uow.Save(externalCounterparty);
+				_uow.Commit();
+			}
+
 			_logger.LogInformation("Успешно обновили данные {ExternalId}", counterpartyDto.ExternalCounterpartyId);
 			return new CounterpartyUpdateDto
 			{
