@@ -142,6 +142,8 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 					yield return new ValidationResult($"Конфликт {this.ToString()} с {param.ToString()}");
 			}
 		}
+
+		public abstract object Clone();
 	}
 
 	public class RouteListWageNode

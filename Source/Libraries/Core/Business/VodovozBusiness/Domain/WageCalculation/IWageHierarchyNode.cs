@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Vodovoz.Domain.WageCalculation
 {
-	public interface IWageHierarchyNode
+	public interface IWageHierarchyNode: ICloneable
 	{
 		IWageHierarchyNode Parent { get; set; }
 		IList<IWageHierarchyNode> Children { get; }
