@@ -75,7 +75,7 @@ namespace CustomerAppsApi.HealthChecks
 
 			const string getStatusEndpoint = "GetStatus";
 
-			var response = await HttpResponseHelper.GetByUri(
+			var response = await HttpResponseHelper.GetByUriAsync(
 				$"{baseAddress}/api/{getStatusEndpoint}",
 				_httpClientFactory);
 

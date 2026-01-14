@@ -1,4 +1,4 @@
-using Autofac.Extensions.DependencyInjection;
+﻿using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -36,7 +36,7 @@ namespace RoboatsCallsWorker
 					logging.ClearProviders();
 					logging.SetMinimumLevel(LogLevel.Trace);
 				})
-				.UseNLog()
+				.UseNLog();
 		}
 	}
 }

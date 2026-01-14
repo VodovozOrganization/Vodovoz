@@ -54,7 +54,7 @@ namespace DriverAPI.HealthChecks
 				loginRequestDto.ToJsonContent(),
 				cancellationToken);
 
-			var orderQrPaymentStatus = await HttpResponseHelper.GetJsonByUri<OrderQrPaymentStatusResponse>(
+			var orderQrPaymentStatus = await HttpResponseHelper.GetJsonByUriAsync<OrderQrPaymentStatusResponse>(
 				$"{baseAddress}/api/v5/GetOrderQRPaymentStatus?orderId={orderId}",
 				_httpClientFactory,
 				tokenResponse.Data?.AccessToken);
@@ -66,7 +66,7 @@ namespace DriverAPI.HealthChecks
 				healthResult.AdditionalUnhealthyResults.Add("GetOrderQRPaymentStatus не прошёл проверку.");
 			}
 
-			var routeList = await HttpResponseHelper.GetJsonByUri<RouteListDto>(
+			var routeList = await HttpResponseHelper.GetJsonByUriAsync<RouteListDto>(
 				$"{baseAddress}/api/v5/GetRouteList?routeListId={routeListId}",
 				_httpClientFactory,
 				tokenResponse.Data?.AccessToken);
