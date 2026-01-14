@@ -31,6 +31,8 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))
 				.AddColumn("Статус оплаты").AddTextRenderer(x =>
 					(x.OrderPaymentStatus != OrderPaymentStatus.None) ? x.OrderPaymentStatus.GetEnumTitle() : "")
+				.AddColumn("Номер УПД")
+					.AddTextRenderer(node => node.UpdDocumentName)
 				.AddColumn("Статус документооборота").AddTextRenderer(node => node.EdoDocFlowStatusString)
 				.AddColumn("Район доставки").AddTextRenderer(node => node.IsSelfDelivery ? "-" : node.DistrictName)
 				.AddColumn("Адрес").AddTextRenderer(node => node.Address)

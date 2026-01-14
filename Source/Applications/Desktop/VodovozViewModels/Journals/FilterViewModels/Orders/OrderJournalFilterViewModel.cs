@@ -433,7 +433,7 @@ namespace Vodovoz.Filters.ViewModels
 		private GeoGroup _geographicGroup;
 		private string _counterpartyNameLike;
 		private DialogViewModelBase _journal;
-		private string _documentName;
+		private string _updDocumentNumber;
 
 		/// <summary>
 		/// Часть города
@@ -514,10 +514,10 @@ namespace Vodovoz.Filters.ViewModels
 			set => SetField(ref _orderId, value);
 		}
 
-		public string DocumentName
+		public string UpdDocumentNumber
 		{
-			get => _documentName;
-			set => SetField(ref _documentName, value);
+			get => _updDocumentNumber;
+			set => SetField(ref _updDocumentNumber, value);
 		}
 
 		public int? OnlineOrderId
