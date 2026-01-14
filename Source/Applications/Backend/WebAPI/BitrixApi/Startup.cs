@@ -107,7 +107,7 @@ namespace BitrixApi
 				endpoints.MapControllers();
 			});
 
-			app.ConfigureHealthCheckApplicationBuilder();
+			app.UseVodovozHealthCheck();
 		}
 	}
 }

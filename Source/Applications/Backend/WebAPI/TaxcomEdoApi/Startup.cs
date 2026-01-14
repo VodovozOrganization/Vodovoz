@@ -84,7 +84,7 @@ namespace TaxcomEdoApi
 				endpoints.MapControllers();
 			});
 			
-			app.ConfigureHealthCheckApplicationBuilder();
+			app.UseVodovozHealthCheck();
 		}
 	}
 }

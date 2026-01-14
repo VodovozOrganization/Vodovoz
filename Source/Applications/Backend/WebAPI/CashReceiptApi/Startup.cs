@@ -133,7 +133,7 @@ namespace CashReceiptApi
 				endpoints.MapGrpcService<CashReceiptService>().EnableGrpcWeb();
 			});
 
-			app.ConfigureHealthCheckApplicationBuilder();
+			app.UseVodovozHealthCheck();
 		}
 
 		private IConfigurationSection GetCashboxesConfiguration()

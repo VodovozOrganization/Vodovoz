@@ -78,7 +78,7 @@ namespace CustomerAppsApi.Library.Models
 			}
 		}
 
-		public CreatedDeliveryPointDto AddDeliveryPoint(NewDeliveryPointInfoDto newDeliveryPointInfoDto, out int statusCode)
+		public CreatedDeliveryPointDto AddDeliveryPoint(NewDeliveryPointInfoDto newDeliveryPointInfoDto, out int statusCode, bool isDryRun = false)
 		{
 			_logger.LogInformation("Поступил запрос добавления ТД клиенту {CounterpartyId} от {Source}",
 				newDeliveryPointInfoDto.CounterpartyErpId,
@@ -135,8 +135,12 @@ namespace CustomerAppsApi.Library.Models
 
 						var creatingDeliveryPointDto =
 							_deliveryPointFactory.CreateNewExternalCreatingDeliveryPoint(newDeliveryPointInfoDto.Source, uniqueKey);
-						_uow.Save(creatingDeliveryPointDto);
-						_uow.Commit();
+
+						if(!isDryRun)
+						{
+							_uow.Save(creatingDeliveryPointDto);
+							_uow.Commit();
+						}
 					}
 					catch(Exception e)
 					{
@@ -159,9 +163,12 @@ namespace CustomerAppsApi.Library.Models
 					_globalSettings,
 					_osrmClient,
 					_uow);
-				
-				_uow.Save(deliveryPoint);
-				_uow.Commit();
+
+				if(!isDryRun)
+				{
+					_uow.Save(deliveryPoint);
+					_uow.Commit();
+				}
 
 				statusCode = StatusCodes.Status201Created;
 				return _deliveryPointFactory.CreateDeliveryPointDto(newDeliveryPointInfoDto, deliveryPoint.Id);
@@ -179,7 +186,7 @@ namespace CustomerAppsApi.Library.Models
 			}
 		}
 
-		public int UpdateDeliveryPointOnlineComment(UpdatingDeliveryPointCommentDto updatingComment)
+		public int UpdateDeliveryPointOnlineComment(UpdatingDeliveryPointCommentDto updatingComment, bool isDryRun = false)
 		{
 			_logger.LogInformation("Поступил запрос обновления комментрия ТД {DeliveryPointId} от {Source}",
 				updatingComment.DeliveryPointErpId,
@@ -200,9 +207,13 @@ namespace CustomerAppsApi.Library.Models
 				}
 				
 				deliveryPoint.OnlineComment = updatingComment.Comment;
-				_uow.Save(deliveryPoint);
-				_uow.Commit();
-				
+
+				if(!isDryRun)
+				{
+					_uow.Save(deliveryPoint);
+					_uow.Commit();
+				}
+
 				return StatusCodes.Status200OK;
 			}
 			catch(Exception e)

@@ -103,7 +103,7 @@ namespace CustomerAppsApi
 
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
-			app.ConfigureHealthCheckApplicationBuilder();
+			app.UseVodovozHealthCheck();
 		}
 	}
 }

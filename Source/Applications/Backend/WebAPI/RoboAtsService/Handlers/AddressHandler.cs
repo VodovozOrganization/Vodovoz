@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using RoboatsService.Monitoring;
 using RoboatsService.OrderValidation;
 using RoboAtsService.Contracts.Requests;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.EntityRepositories.Roboats;
+using VodovozHealthCheck.Helpers;
 
 namespace RoboatsService.Handlers
 {
@@ -19,15 +21,22 @@ namespace RoboatsService.Handlers
 		private readonly IRoboatsRepository _roboatsRepository;
 		private readonly RoboatsCallRegistrator _callRegistrator;
 		private readonly ValidOrdersProvider _validOrdersProvider;
+		private readonly IHttpContextAccessor _httpContextAccessor;
 
 		public override string Request => RoboatsRequestType.Address;
 
-		public AddressHandler(ILogger<AddressHandler> logger, IRoboatsRepository roboatsRepository, RequestDto requestDto, RoboatsCallRegistrator callRegistrator, ValidOrdersProvider validOrdersProvider) : base(requestDto)
+		public AddressHandler(
+			ILogger<AddressHandler> logger,
+			IRoboatsRepository roboatsRepository,
+			RequestDto requestDto, RoboatsCallRegistrator callRegistrator,
+			ValidOrdersProvider validOrdersProvider,
+			IHttpContextAccessor httpContextAccessor) : base(requestDto)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
 			_callRegistrator = callRegistrator ?? throw new ArgumentNullException(nameof(callRegistrator));
 			_validOrdersProvider = validOrdersProvider ?? throw new ArgumentNullException(nameof(validOrdersProvider));
+			_httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
 		}
 
 		public override string Execute()
@@ -49,17 +58,24 @@ namespace RoboatsService.Handlers
 		{
 			var counterpartyIds = _roboatsRepository.GetCounterpartyIdsByPhone(ClientPhone);
 			var counterpartyCount = counterpartyIds.Count();
+
 			if(counterpartyCount != 1)
 			{
-				if(counterpartyCount > 1)
+				var httpRequest = _httpContextAccessor.HttpContext?.Request;
+				var isDryRun = HttpResponseHelper.IsHealthCheckRequest(httpRequest);
+
+				if(!isDryRun)
 				{
-					_callRegistrator.RegisterTerminatingFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.ClientDuplicate, RoboatsCallOperation.ClientCheck,
-						$"Найдены несколько контрагентов: {string.Join(", ", counterpartyIds)}.");
-				}
-				else
-				{
-					_callRegistrator.RegisterTerminatingFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.ClientCheck,
-						$"Не найден контрагент.");
+					if(counterpartyCount > 1)
+					{
+						_callRegistrator.RegisterTerminatingFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.ClientDuplicate, RoboatsCallOperation.ClientCheck,
+							$"Найдены несколько контрагентов: {string.Join(", ", counterpartyIds)}.");
+					}
+					else
+					{
+						_callRegistrator.RegisterTerminatingFail(ClientPhone, RequestDto.CallGuid, RoboatsCallFailType.ClientNotFound, RoboatsCallOperation.ClientCheck,
+							$"Не найден контрагент.");
+					}
 				}
 
 				return ErrorMessage;
