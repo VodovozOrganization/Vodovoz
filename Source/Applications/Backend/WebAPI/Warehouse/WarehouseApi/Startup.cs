@@ -95,7 +95,7 @@ namespace WarehouseApi
 				endpoints.MapControllers();
 			});
 
-			app.ConfigureHealthCheckApplicationBuilder();
+			app.UseVodovozHealthCheck();
 		}
 	}
 }
