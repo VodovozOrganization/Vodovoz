@@ -117,7 +117,7 @@ WHERE
         <CommandText>SELECT
     orders.id AS order_id,
     document_organization_counters.document_number AS document_number,
-    orders.delivery_date AS order_date,
+    DATE_FORMAT(orders.delivery_date,'%d.%m.%y') AS order_date,
     orders.counterparty_external_order_id,
     counterparty_contract.number AS contract_number,
     DATE_FORMAT(counterparty_contract.issue_date,
@@ -3496,7 +3496,7 @@ WHERE o.id = @order_id
           <Textbox Name="Textbox128">
             <Height>9.75pt</Height>
             <Width>562.15pt</Width>
-            <Value>=Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({special_contract_number}) = false,{special_contract_number},Fields!contract_number.Value + ' от ' + Fields!contract_date.Value)</Value>
+            <Value>=Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({special_contract_number}) = false,{special_contract_number},Fields!contract_number.Value + ' от ' + Fields!contract_date.Value + '; Заказ №' + Fields!order_id.Value + ' от ' + Fields!order_date.Value)</Value>
             <ZIndex>0</ZIndex>
             <Left>213.59pt</Left>
             <Top>45.70pt</Top>

@@ -14,6 +14,11 @@ namespace Edo.Contracts.Messages.Dto
 		public string StringNumber { get; set; }
 		
 		/// <summary>
+		/// Номер заказа
+		/// </summary>
+		public string OrderNumber { get; set; }
+		
+		/// <summary>
 		/// Сумма документа
 		/// </summary>
 		public decimal Sum { get; set; }

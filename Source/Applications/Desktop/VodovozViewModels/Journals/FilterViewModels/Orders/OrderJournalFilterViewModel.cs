@@ -72,7 +72,7 @@ namespace Vodovoz.Filters.ViewModels
 		private readonly CompositeSearchViewModel _searchByAddressViewModel;
 		private ILifetimeScope _lifetimeScope;
 		private object _edoDocFlowStatus;
-
+			
 		#endregion
 
 		public OrderJournalFilterViewModel(
@@ -433,6 +433,7 @@ namespace Vodovoz.Filters.ViewModels
 		private GeoGroup _geographicGroup;
 		private string _counterpartyNameLike;
 		private DialogViewModelBase _journal;
+		private string _documentName;
 
 		/// <summary>
 		/// Часть города
@@ -511,6 +512,12 @@ namespace Vodovoz.Filters.ViewModels
 		{
 			get => _orderId;
 			set => SetField(ref _orderId, value);
+		}
+
+		public string DocumentName
+		{
+			get => _documentName;
+			set => SetField(ref _documentName, value);
 		}
 
 		public int? OnlineOrderId
