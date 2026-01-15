@@ -1236,7 +1236,7 @@ namespace WarehouseApi.Library.Services
 			}
 		}
 
-		private IEnumerable<OrderEdoRequest> CreateEdoRequests(CarLoadDocumentEntity carLoadDocument)
+		private IEnumerable<PrimaryEdoRequest> CreateEdoRequests(CarLoadDocumentEntity carLoadDocument)
 		{
 			var ordersNeedsRequest =
 				carLoadDocument.Items
@@ -1246,7 +1246,7 @@ namespace WarehouseApi.Library.Services
 
 			var orders = _orderRepository.Get(_uow, x => ordersNeedsRequest.Keys.Contains(x.Id));
 
-			var edoRequests = new List<OrderEdoRequest>();
+			var edoRequests = new List<PrimaryEdoRequest>();
 
 			foreach(var item in ordersNeedsRequest)
 			{
@@ -1260,7 +1260,7 @@ namespace WarehouseApi.Library.Services
 					continue;
 				}
 
-				var edoRequest = new OrderEdoRequest
+				var edoRequest = new PrimaryEdoRequest
 				{
 					Time = DateTime.Now,
 					Source = CustomerEdoRequestSource.Warehouse,
@@ -1284,7 +1284,7 @@ namespace WarehouseApi.Library.Services
 			return edoRequests;
 		}
 
-		private async Task PublishEdoRequestCreatedEvents(IEnumerable<OrderEdoRequest> edoRequests)
+		private async Task PublishEdoRequestCreatedEvents(IEnumerable<PrimaryEdoRequest> edoRequests)
 		{
 			foreach(var edoRequest in edoRequests)
 			{

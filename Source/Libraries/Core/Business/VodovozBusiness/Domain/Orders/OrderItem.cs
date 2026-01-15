@@ -511,27 +511,19 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			VAT vat = CanUseVAT() ? Nomenclature.VAT : VAT.No;
-
-			switch(vat)
+			var organization = Order.Contract?.Organization;
+			
+			var vatRateVersion =  organization != null && organization.IsUsnMode 
+				? Order.Contract.Organization.GetActualVatRateVersion(Order.BillDate)
+				: Nomenclature.GetActualVatRateVersion(Order.BillDate);
+			
+			if(vatRateVersion == null)
 			{
-				case VAT.No:
-					ValueAddedTax = 0m;
-					break;
-				case VAT.Vat10:
-					ValueAddedTax = 0.10m;
-					break;
-				case VAT.Vat18:
-					ValueAddedTax = 0.18m;
-					break;
-				case VAT.Vat20:
-					ValueAddedTax = 0.20m;
-					break;
-				default:
-					ValueAddedTax = 0m;
-					break;
+				throw new InvalidOperationException($"У товара #{Nomenclature.Id} отсутствует версия НДС на дату счета заказа #{Order.BillDate}");
 			}
-
+			
+			ValueAddedTax =  CanUseVAT() ? vatRateVersion.VatRate.VatNumericValue : 0;
+			
 			RecalculateVAT();
 		}
 
@@ -565,7 +557,9 @@ namespace Vodovoz.Domain.Orders
 
 			if(Order.Contract?.Organization != null)
 			{
-				canUseVAT = !Order.Contract.Organization.WithoutVAT;
+				canUseVAT = Order.Contract.Organization.IsUsnMode 
+					? Order.Contract.Organization.GetActualVatRateVersion(Order.BillDate)?.VatRate.VatNumericValue != 0
+					: Nomenclature.GetActualVatRateVersion(Order.BillDate)?.VatRate.VatNumericValue != 0;
 			}
 
 			return canUseVAT;

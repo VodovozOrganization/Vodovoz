@@ -84,8 +84,8 @@ namespace Vodovoz
 		private readonly ViewModelEEVMBuilder<Employee> _driverViewModelEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Employee> _forwarderViewModelEEVMBuilder;
 		private readonly ViewModelEEVMBuilder<Employee> _logisticianViewModelEEVMBuilder;
-		private readonly IDictionary<int, (bool Pushed, OrderEdoRequest Request)> _createdOrderEdoRequests =
-			new Dictionary<int, (bool Pushed, OrderEdoRequest Request)>();
+		private readonly IDictionary<int, (bool Pushed, PrimaryEdoRequest Request)> _createdOrderEdoRequests =
+			new Dictionary<int, (bool Pushed, PrimaryEdoRequest Request)>();
 		private readonly List<Action> _cancellationRequestActions = new List<Action>();
 		private readonly IEdoSettings _edoSettings;
 		private readonly MessageService _edoMessageService;
@@ -231,15 +231,6 @@ namespace Vodovoz
 				}
 			}
 		}
-
-        public Enum[] ExcludedPaymentTypes =
-        {
-            PaymentType.Barter,
-            PaymentType.Cashless,
-            PaymentType.ContractDocumentation,
-            PaymentType.PaidOnline,
-            PaymentType.SmsQR
-        };
 
         public string BottlesInfo { get; private set; }
 		public GenericObservableList<RouteListKeepingItemNode> Items { get; private set; } = new GenericObservableList<RouteListKeepingItemNode>();
@@ -925,7 +916,7 @@ namespace Vodovoz
 		}
 		
 		private void UpdateCreatedEdoRequests(
-			OrderEdoRequest request,
+			PrimaryEdoRequest request,
 			RouteListItemStatus addressStatus = RouteListItemStatus.Completed)
 		{
 			var hasRequest = _createdOrderEdoRequests.ContainsKey(request.Order.Id);
@@ -944,11 +935,11 @@ namespace Vodovoz
 			}
 		}
 
-		private static OrderEdoRequest CreateOrderRequest(
+		private static PrimaryEdoRequest CreateOrderRequest(
 			RouteListKeepingItemNode item,
 			IObservableList<RouteListItemTrueMarkProductCode> codes)
 		{
-			return new OrderEdoRequest
+			return new PrimaryEdoRequest
 			{
 				Order = item.RouteListItem.Order,
 				Source = CustomerEdoRequestSource.Manual,
@@ -961,7 +952,7 @@ namespace Vodovoz
 
 		private bool HasEdoRequest(int orderId)
 		{
-			return UoW.GetAll<OrderEdoRequest>()
+			return UoW.GetAll<FormalEdoRequest>()
 				.FirstOrDefault(x => x.Order.Id == orderId) != null;
 		}
 

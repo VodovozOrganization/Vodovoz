@@ -20,7 +20,7 @@ namespace EarchiveApi.HealthChecks
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 		}
 
-		protected override async Task<VodovozHealthResultDto> GetHealthResult()
+		protected override async Task<VodovozHealthResultDto> CheckServiceHealthAsync(CancellationToken cancellationToken)
 		{
 			var healthSection = _configuration.GetSection("Health");
 			var serviceAddress = healthSection.GetValue<string>("BaseAddress");

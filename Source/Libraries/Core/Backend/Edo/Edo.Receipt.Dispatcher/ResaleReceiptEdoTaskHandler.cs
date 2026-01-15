@@ -86,7 +86,7 @@ namespace Edo.Receipt.Dispatcher
 
 		public async Task HandleNewReceipt(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
 		{
-			var order = receiptEdoTask.OrderEdoRequest.Order;
+			var order = receiptEdoTask.FormalEdoRequest.Order;
 			if(order.Client.ReasonForLeaving != ReasonForLeaving.Resale)
 			{
 				throw new InvalidOperationException($"Попытка обработать чек с причиной выбытия " +
@@ -99,7 +99,7 @@ namespace Edo.Receipt.Dispatcher
 				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
-				.Where(x => x.CustomerEdoRequest.Id == receiptEdoTask.OrderEdoRequest.Id)
+				.Where(x => x.CustomerEdoRequest.Id == receiptEdoTask.FormalEdoRequest.Id)
 				.ListAsync();
 
 			var taskCodes = await _uow.Session.QueryOver<EdoTaskItem>()
@@ -141,7 +141,7 @@ namespace Edo.Receipt.Dispatcher
 				return;
 			}
 			
-			var hasManualSend = receiptEdoTask.OrderEdoRequest.Source == CustomerEdoRequestSource.Manual;
+			var hasManualSend = receiptEdoTask.FormalEdoRequest.Source == CustomerEdoRequestSource.Manual;
 
 			if(!hasManualSend)
 			{
@@ -198,7 +198,7 @@ namespace Edo.Receipt.Dispatcher
 			receiptEdoTask.Status = EdoTaskStatus.InProgress;
 			receiptEdoTask.ReceiptStatus = EdoReceiptStatus.Sending;
 			receiptEdoTask.StartTime = DateTime.Now;
-			receiptEdoTask.CashboxId = receiptEdoTask.OrderEdoRequest.Order.Contract.Organization.CashBoxId;
+			receiptEdoTask.CashboxId = receiptEdoTask.FormalEdoRequest.Order.Contract.Organization.CashBoxId;
 			await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
 
@@ -214,7 +214,7 @@ namespace Edo.Receipt.Dispatcher
 				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
-				.Where(x => x.CustomerEdoRequest.Id == receiptEdoTask.OrderEdoRequest.Id)
+				.Where(x => x.CustomerEdoRequest.Id == receiptEdoTask.FormalEdoRequest.Id)
 				.ListAsync();
 
 			var taskCodes = await _uow.Session.QueryOver<EdoTaskItem>()
@@ -291,7 +291,7 @@ namespace Edo.Receipt.Dispatcher
 			receiptEdoTask.Status = EdoTaskStatus.InProgress;
 			receiptEdoTask.ReceiptStatus = EdoReceiptStatus.Sending;
 			receiptEdoTask.StartTime = DateTime.Now;
-			receiptEdoTask.CashboxId = receiptEdoTask.OrderEdoRequest.Order.Contract.Organization.CashBoxId;
+			receiptEdoTask.CashboxId = receiptEdoTask.FormalEdoRequest.Order.Contract.Organization.CashBoxId;
 			await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
 
@@ -328,7 +328,7 @@ namespace Edo.Receipt.Dispatcher
 
 		private EdoFiscalDocument CreateUnmarkedFiscalDocument(ReceiptEdoTask receiptEdoTask)
 		{
-			var order = receiptEdoTask.OrderEdoRequest.Order;
+			var order = receiptEdoTask.FormalEdoRequest.Order;
 			var unmarkedOrderItems = order.OrderItems
 				.Where(x => x.Price != 0m)
 				.Where(x => x.Count > 0m)
@@ -357,7 +357,7 @@ namespace Edo.Receipt.Dispatcher
 			CancellationToken cancellationToken
 			)
 		{
-			var order = receiptEdoTask.OrderEdoRequest.Order;
+			var order = receiptEdoTask.FormalEdoRequest.Order;
 
 			var markedOrderItems = order.OrderItems
 				.Where(x => x.Price != 0m)
@@ -435,7 +435,7 @@ namespace Edo.Receipt.Dispatcher
 
 		private void CreateReceiptMoneyPositions(EdoFiscalDocument currentFiscalDocument)
 		{
-			var order = currentFiscalDocument.ReceiptEdoTask.OrderEdoRequest.Order;
+			var order = currentFiscalDocument.ReceiptEdoTask.FormalEdoRequest.Order;
 
 			var receiptSum = currentFiscalDocument.InventPositions
 				.Sum(x => x.OrderItems.First().Price * x.Quantity - x.DiscountSum);
@@ -503,7 +503,7 @@ namespace Edo.Receipt.Dispatcher
 
 		private EdoFiscalDocument CreateFiscalDocument(ReceiptEdoTask receiptEdoTask)
 		{
-			var order = receiptEdoTask.OrderEdoRequest.Order;
+			var order = receiptEdoTask.FormalEdoRequest.Order;
 			var mainFiscalDocument = new EdoFiscalDocument
 			{
 				ReceiptEdoTask = receiptEdoTask,
@@ -533,21 +533,23 @@ namespace Edo.Receipt.Dispatcher
 
 			var organization = orderItem.Order.Contract?.Organization;
 
-			if(organization is null || organization.WithoutVAT || orderItem.Nomenclature.VAT == VAT.No)
+			var vatRateVersion = organization != null && organization.IsUsnMode 
+				? organization.GetActualVatRateVersion(orderItem.Order.BillDate)
+				: orderItem.Nomenclature.GetActualVatRateVersion(orderItem.Order.BillDate);
+			
+			if(vatRateVersion == null)
 			{
-				inventPosition.Vat = FiscalVat.VatFree;
+				throw new InvalidOperationException($"У товара #{orderItem.Nomenclature.Id} отсутствует версия НДС на дату счета заказа #{orderItem.Order.BillDate}");
 			}
-			else
-			{
-				inventPosition.Vat = orderItem.Nomenclature.VAT.ToFiscalVat();
-			}
-
+			
+			inventPosition.Vat = vatRateVersion.VatRate.ToFiscalVat();
+			
 			return inventPosition;
 		}
 
 		private async Task<bool> PrepareIndustryRequisite(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
 		{
-			var seller = receiptEdoTask.OrderEdoRequest.Order.Contract.Organization;
+			var seller = receiptEdoTask.FormalEdoRequest.Order.Contract.Organization;
 			var cashBoxToken = seller.CashBoxTokenFromTrueMark;
 			var regulatoryDocument = _uow.GetById<FiscalIndustryRequisiteRegulatoryDocument>(
 				_edoReceiptSettings.IndustryRequisiteRegulatoryDocumentId);

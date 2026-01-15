@@ -7,8 +7,8 @@ namespace CustomerAppsApi.Library.Models
 	public interface ICounterpartyModel
 	{
 		CounterpartyIdentificationDto GetCounterparty(CounterpartyContactInfoDto counterpartyContactInfoDto);
-		CounterpartyRegistrationDto RegisterCounterparty(CounterpartyDto counterpartyDto);
-		CounterpartyUpdateDto UpdateCounterpartyInfo(CounterpartyDto counterpartyDto);
+		CounterpartyRegistrationDto RegisterCounterparty(CounterpartyDto counterpartyDto, bool isDryRun = false);
+		CounterpartyUpdateDto UpdateCounterpartyInfo(CounterpartyDto counterpartyDto, bool isDryRun  = false);
 		CounterpartyBottlesDebtDto GetCounterpartyBottlesDebt(int counterpartyId);
 	}
 }

@@ -304,7 +304,19 @@ namespace Vodovoz.Models.CashReceipts
 		{
 			var organization = orderItem.Order.Contract?.Organization;
 
-			if(organization is null || organization.WithoutVAT || orderItem.Nomenclature.VAT == VAT.No)
+			if(organization != null)
+			{
+				var actualVatVersion = organization.IsUsnMode
+					? organization.GetActualVatRateVersion(orderItem.Order.BillDate)
+					: orderItem.Nomenclature.GetActualVatRateVersion(orderItem.Order.BillDate);
+
+				if(actualVatVersion?.VatRate.VatRateValue == 0)
+				{
+					inventPosition.VatTag = (int)VatTag.VatFree;
+					return;
+				}
+			}
+			else if(orderItem.Nomenclature.GetActualVatRateVersion(orderItem.Order.BillDate)?.VatRate.VatRateValue == 0)
 			{
 				inventPosition.VatTag = (int)VatTag.VatFree;
 				return;

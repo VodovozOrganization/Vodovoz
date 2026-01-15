@@ -1,4 +1,4 @@
-using CustomerOrdersApi.Library.Config;
+﻿using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.Dto.Orders;
 using CustomerOrdersApi.Library.Services;
 using Gamma.Utilities;
@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using Vodovoz.Core.Domain.Clients;
+using VodovozHealthCheck.Helpers;
 
 namespace CustomerOrdersApi.Controllers
 {
@@ -53,8 +54,14 @@ namespace CustomerOrdersApi.Controllers
 					Logger.LogWarning("Пришла оценка неизвестного заказа с {Source}", sourceName);
 					return Problem("Произошла ошибка, пожалуйста, попробуйте позже");
 				}
+				
+				var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
 
-				_customerOrdersService.CreateOrderRating(orderRatingInfo);
+				if(!isDryRun)
+				{
+					_customerOrdersService.CreateOrderRating(orderRatingInfo);
+				}
+				
 				return Ok();
 			}
 			catch(Exception e)

@@ -9,8 +9,8 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 		{
 			Abstract();
 
-			HasOne(x => x.OrderEdoRequest)
-				.PropertyRef(nameof(CustomerEdoRequest.Task))
+			HasOne(x => x.FormalEdoRequest)
+				.PropertyRef(nameof(FormalEdoRequest.Task))
 				.Cascade.All();
 
 			HasMany(x => x.Items)

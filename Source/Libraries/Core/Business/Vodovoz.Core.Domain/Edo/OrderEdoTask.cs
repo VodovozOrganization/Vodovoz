@@ -1,12 +1,11 @@
-﻿using FluentNHibernate.Data;
-using QS.Extensions.Observable.Collections.List;
+﻿using QS.Extensions.Observable.Collections.List;
 using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Edo
 {
 	public abstract class OrderEdoTask : EdoTask
 	{
-		private OrderEdoRequest _orderEdoRequest;
+		private FormalEdoRequest _formalEdoRequest;
 
 		private IObservableList<EdoTaskItem> _items =
 			new ObservableList<EdoTaskItem>();
@@ -19,10 +18,10 @@ namespace Vodovoz.Core.Domain.Edo
 
 
 		[Display(Name = "Заявка ЭДО отправки клиенту")]
-		public virtual OrderEdoRequest OrderEdoRequest
+		public virtual FormalEdoRequest FormalEdoRequest
 		{
-			get => _orderEdoRequest;
-			set => SetField(ref _orderEdoRequest, value);
+			get => _formalEdoRequest;
+			set => SetField(ref _formalEdoRequest, value);
 		}
 
 		[Display(Name = "Строки с кодами")]

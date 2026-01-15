@@ -63,6 +63,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.OGRN)
 				.Column("ogrn");
 
+			Map(x => x.OGRNDate)
+				.Column("ogrn_date");
+
 			Map(x => x.JurAddress)
 				.Column("jur_address");
 
@@ -239,6 +242,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 
 			Map(x => x.HideDeliveryPointForBill)
 				.Column("hide_delivery_point_for_bill");
+
+			Map(x => x.DisableDebtMailing)
+				.Column("disable_debt_mailing");
 
 			Map(x => x.IsNewEdoProcessing)
 				.Column("is_new_edo_processing");

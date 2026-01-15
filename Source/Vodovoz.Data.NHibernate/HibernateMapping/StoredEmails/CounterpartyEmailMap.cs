@@ -79,6 +79,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.StoredEmails
 			public BulkEmailMap()
 			{
 				DiscriminatorValue(nameof(CounterpartyEmailType.Bulk));
+
+				References(x => x.OrderDocument).Column("order_document_id");
 			}
 		}
 	}

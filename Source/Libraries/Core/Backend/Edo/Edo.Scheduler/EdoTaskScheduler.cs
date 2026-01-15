@@ -44,7 +44,7 @@ namespace Edo.Scheduler.Service
 
 		public async Task CreateTask(int requestId, CancellationToken cancellationToken)
 		{
-			var request = await _uow.Session.GetAsync<CustomerEdoRequest>(requestId, cancellationToken);
+			var request = await _uow.Session.GetAsync<FormalEdoRequest>(requestId, cancellationToken);
 			if(request == null)
 			{
 				_logger.LogWarning("Не найдена клиентская ЭДО заявка Id {CustomerEdoRequestId}", requestId);
@@ -61,7 +61,7 @@ namespace Edo.Scheduler.Service
 			switch(request.Type)
 			{
 				case CustomerEdoRequestType.Order:
-					edoTask = _orderTaskScheduler.CreateTask((OrderEdoRequest)request);
+					edoTask = _orderTaskScheduler.CreateTask(request);
 					break;
 				case CustomerEdoRequestType.OrderWithoutShipmentForAdvancePayment:
 					edoTask = _billForAdvanceEdoRequestTaskScheduler.CreateTask((BillForAdvanceEdoRequest)request);
@@ -74,7 +74,7 @@ namespace Edo.Scheduler.Service
 					break;
 				default:
 					throw new InvalidOperationException($"Неизвестный тип заявки " +
-						$"{nameof(CustomerEdoRequest)} {request.Type}");
+						$"{nameof(FormalEdoRequest)} {request.Type}");
 			}
 
 			await _uow.SaveAsync(request, cancellationToken: cancellationToken);
@@ -144,7 +144,7 @@ namespace Edo.Scheduler.Service
 					break;
 				default:
 					throw new InvalidOperationException($"Неизвестный тип заявки " +
-						$"{nameof(CustomerEdoRequest)} {request.Type}");
+						$"{nameof(InformalEdoRequest)} {request.Type}");
 			}
 
 			await _uow.SaveAsync(request, cancellationToken: cancellationToken);

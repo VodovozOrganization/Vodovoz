@@ -13,7 +13,10 @@ using QSReport;
 using System;
 using QS.Report;
 using Vodovoz;
+using Vodovoz.Core.Data.Repositories.Cash;
+using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Orders;
@@ -679,18 +682,7 @@ public partial class MainWindow : Window
 
 	void ActionExportImportNomenclatureCatalog_Activated(object sender, System.EventArgs e)
 	{
-		var nomenclatureRepository = _autofacScope.Resolve<INomenclatureRepository>();
-		var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
-
-		tdiMain.OpenTab(
-			"ExportImportNomenclatureCatalog",
-			() => new ExportImportNomenclatureCatalogViewModel(
-				nomenclatureRepository,
-				uowFactory,
-				ServicesConfig.CommonServices,
-				NavigationManagerProvider.NavigationManager
-			)
-		);
+		NavigationManager.OpenViewModel<ExportImportNomenclatureCatalogViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	void ActionUnclosedAdvances_Activated(object sender, System.EventArgs e)

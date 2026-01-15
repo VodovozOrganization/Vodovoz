@@ -14,6 +14,7 @@ using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewWidgets.Logistics;
 using Vodovoz.ViewWidgets.Mango;
@@ -289,15 +290,51 @@ namespace Vodovoz.Logistic
 				.AddColumn("Время")
 					.AddTextRenderer(node => node.RouteListItem.Order.DeliverySchedule == null ? "" : node.RouteListItem.Order.DeliverySchedule.Name)
 				.AddColumn("Форма оплаты")
-					.AddEnumRenderer(node => 
-						node.PaymentType,
-						excludeItems: ViewModel.ExcludedPaymentTypes
-					)
+					.AddComboRenderer(node => node.PaymentType)
+					.SetDisplayFunc(x => x.GetEnumDisplayName())
+					.DynamicFillListFunc(node =>
+					{
+						if(node.PaymentType == PaymentType.Cash)
+						{
+							return new List<PaymentType>
+							{
+								PaymentType.Terminal,
+								PaymentType.DriverApplicationQR
+							};
+						}
+
+						if(node.PaymentType == PaymentType.Terminal)
+						{
+							return new List<PaymentType>
+							{
+								PaymentType.Terminal,
+								PaymentType.Cash,
+								PaymentType.DriverApplicationQR
+							};
+						}
+
+						if((node.PaymentType == PaymentType.DriverApplicationQR
+							|| node.PaymentType == PaymentType.SmsQR) && !node.RouteListItem.Order.OnlinePaymentNumber.HasValue)
+						{
+							return new List<PaymentType>
+							{
+								PaymentType.Cash,
+								PaymentType.Terminal,
+							};
+						}
+
+						return new List<PaymentType>();
+					})
 					.AddSetter((c, n) =>
 					{
 						c.Editable = ViewModel.AllEditing 
 						&& n.RouteListItem.Status == RouteListItemStatus.EnRoute 
-						&& Order.EditablePaymentTypes.Contains(n.RouteListItem.Order.PaymentType);
+						&& (n.PaymentType == PaymentType.Cash
+							|| n.PaymentType == PaymentType.Terminal
+							|| (
+								(n.PaymentType == PaymentType.DriverApplicationQR || n.PaymentType == PaymentType.SmsQR)
+								&& !n.RouteListItem.Order.OnlinePaymentNumber.HasValue)
+							);
 					})
 				.AddColumn("Статус")
 					.AddPixbufRenderer(x => _statusIcons[x.Status])
