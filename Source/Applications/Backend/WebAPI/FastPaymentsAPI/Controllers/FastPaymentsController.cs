@@ -240,12 +240,13 @@ namespace FastPaymentsAPI.Controllers
 				
 				var organization = organizationResult.Value;
 				OrderRegistrationResponseDTO orderRegistrationResponseDto = null;
+				var isDryRun = false;
 				
 				try
 				{
 					_logger.LogInformation("Регистрируем заказ в системе эквайринга");
 
-					var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
+					isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
 
 					if(isDryRun)
 					{
@@ -283,7 +284,7 @@ namespace FastPaymentsAPI.Controllers
 					requestType,
 					paymentType,
 					phoneNumber,
-					true);
+					isDryRun);
 
 				response.Ticket = orderRegistrationResponseDto.Ticket;
 				response.FastPaymentGuid = fastPaymentGuid;
