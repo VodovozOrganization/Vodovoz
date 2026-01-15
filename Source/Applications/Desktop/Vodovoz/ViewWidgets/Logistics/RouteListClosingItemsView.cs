@@ -182,7 +182,7 @@ namespace Vodovoz
 					.AddTextRenderer(node => node.Order.DailyNumber.ToString())
 				.AddColumn("Заказ").HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.Order.Id.ToString())
-				.AddColumn("Заказ")
+				.AddColumn("УПД")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.Order.
 						OrderDocuments.Any(d => (d.Type == OrderDocumentType.UPD 
