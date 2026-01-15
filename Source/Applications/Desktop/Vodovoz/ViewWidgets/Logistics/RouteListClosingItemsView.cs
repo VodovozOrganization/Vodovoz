@@ -184,13 +184,15 @@ namespace Vodovoz
 					.AddTextRenderer(node => node.Order.Id.ToString())
 				.AddColumn("УПД")
 					.HeaderAlignment(0.5f)
-					.AddTextRenderer(node => node.Order.
-						OrderDocuments.Any(d => (d.Type == OrderDocumentType.UPD 
-						                         || d.Type == OrderDocumentType.SpecialUPD)
-						                        && node.Order.Id == d.Order.Id) 
+					.AddTextRenderer(node => node.Order
+						.OrderDocuments.FirstOrDefault(d => (d.Type == OrderDocumentType.UPD 
+					                                     || d.Type == OrderDocumentType.SpecialUPD)
+					                                    && node.Order.Id == d.Order.Id
+					                                    && d.DocumentOrganizationCounter != null) != null 
 						? node.Order.OrderDocuments.FirstOrDefault(d => (d.Type == OrderDocumentType.UPD 
 						                                                 || d.Type == OrderDocumentType.SpecialUPD)
-						                                                && node.Order.Id == d.Order.Id).DocumentOrganizationCounter.DocumentNumber ?? ""
+						                                                 && node.Order.Id == d.Order.Id
+						                                                 && d.DocumentOrganizationCounter != null).DocumentOrganizationCounter.DocumentNumber
 						: "")
 					.AddPixbufRenderer(x => GetRowIcon(x))
 				.AddColumn("Адрес").HeaderAlignment(0.5f).AddTextRenderer(node =>
