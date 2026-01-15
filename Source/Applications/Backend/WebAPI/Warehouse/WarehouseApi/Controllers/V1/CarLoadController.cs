@@ -228,6 +228,58 @@ namespace WarehouseApi.Controllers.V1
 		}
 
 		/// <summary>
+		/// Удаление отсканированного кода ЧЗ номенклатуры в заказе
+		/// </summary>
+		/// <returns><see cref="DeleteOrderCodeResponse"/></returns>
+		[HttpPost]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DeleteOrderCodeResponse))]
+		public async Task<IActionResult> DeleteOrderCode(DeleteOrderCodeRequest requestData, CancellationToken cancellationToken)
+		{
+			_logger.LogInformation("Запрос удаления кода ЧЗ в заказе." +
+			                       " OrderId: {OrderId}, NomenclatureId: {NomenclatureId}, DeletedCode: {DeletedCode}. User token: {AccessToken}",
+				requestData.OrderId,
+				requestData.OrderSaleItemId,
+				requestData.DeletedCode,
+				Request.Headers[HeaderNames.Authorization]);
+
+			var user = await _userManager.GetUserAsync(User);
+
+			try
+			{
+				var requestProcessingResult =
+					await _carLoadService.DeleteOrderCode(
+						requestData.OrderId,
+						requestData.OrderSaleItemId,
+						requestData.DeletedCode,
+						user.UserName,
+						cancellationToken);
+
+				if(requestProcessingResult.Result.IsSuccess)
+				{
+					var maxIndex = requestProcessingResult.Result.Value.Nomenclature?.Codes.Count() ?? 0;
+					
+					for(var i = 0; i < maxIndex; i++)
+					{
+						if(requestProcessingResult.Result.Value.Nomenclature != null)
+						{
+							requestProcessingResult.Result.Value.Nomenclature.Codes.ElementAt(i).SequenceNumber = i;
+						}
+					}
+				}
+
+				return MapRequestProcessingResult(
+					requestProcessingResult,
+					result => GetStatusCode(result));
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Произошла ошибка на стороне сервера: {ExceptionMessage}", ex.Message);
+				return GetProblemResult();
+			}
+		}
+		
+		/// <summary>
 		/// Завершение погрузки по талону погрузки
 		/// </summary>
 		/// <returns><see cref="EndLoadResponse"/></returns>
