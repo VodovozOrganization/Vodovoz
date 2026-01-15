@@ -3876,7 +3876,7 @@ namespace Vodovoz.Domain.Orders
 
 					UoW.Save(documentOrganizationCounter);
 
-					var updDocument = new SpecialUPDDocument()
+					var updDocument = new UPDDocument
 					{
 						DocumentOrganizationCounter = documentOrganizationCounter
 					};
@@ -3911,7 +3911,7 @@ namespace Vodovoz.Domain.Orders
 
 					UoW.Save(documentOrganizationCounter);
 
-					var specialUpdDocument = new SpecialUPDDocument()
+					var specialUpdDocument = new SpecialUPDDocument
 					{
 						DocumentOrganizationCounter = documentOrganizationCounter
 					};

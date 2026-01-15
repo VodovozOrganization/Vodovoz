@@ -61,6 +61,8 @@ namespace UnsubscribePage
 
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 			services.AddStaticHistoryTracker();
+			
+			services.AddHttpClient();
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
@@ -98,7 +100,7 @@ namespace UnsubscribePage
 					pattern: "{controller=Unsubscribe}/{action=Index}/{id?}");
 			});
 
-			app.ConfigureHealthCheckApplicationBuilder();
+			app.UseVodovozHealthCheck();
 		}
 	}
 }

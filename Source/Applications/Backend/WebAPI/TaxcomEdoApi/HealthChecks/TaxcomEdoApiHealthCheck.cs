@@ -32,7 +32,7 @@ namespace CustomerAppsApi.HealthChecks
 			HealthCheckContext context,
 			CancellationToken cancellationToken = new CancellationToken())
 		{
-			_logger.LogInformation("Поступил запрос на информацию о здоровье.");
+			_logger.LogInformation("Поступил запрос на информацию о работоспособности.");
 			VodovozHealthResultDto healthResult;
 			
 			try
@@ -41,7 +41,7 @@ namespace CustomerAppsApi.HealthChecks
 			}
 			catch(Exception e)
 			{
-				return HealthCheckResult.Unhealthy("Возникло исключение во время проверки здоровья.", e);
+				return HealthCheckResult.Unhealthy("Возникло исключение во время проверки работоспособности.", e);
 			}
 
 			if(healthResult == null)
@@ -75,7 +75,7 @@ namespace CustomerAppsApi.HealthChecks
 
 			const string getStatusEndpoint = "GetStatus";
 
-			var response = await ResponseHelper.GetByUri(
+			var response = await HttpResponseHelper.GetByUriAsync(
 				$"{baseAddress}/api/{getStatusEndpoint}",
 				_httpClientFactory);
 

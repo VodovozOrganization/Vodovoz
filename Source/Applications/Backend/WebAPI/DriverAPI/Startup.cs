@@ -82,7 +82,7 @@ namespace DriverAPI
 				endpoints.MapRazorPages();
 			});
 
-			app.ConfigureHealthCheckApplicationBuilder();
+			app.UseVodovozHealthCheck();
 		}
 	}
 }

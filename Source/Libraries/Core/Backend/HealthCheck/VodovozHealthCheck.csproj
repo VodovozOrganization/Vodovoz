@@ -9,5 +9,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MassTransit.Abstractions" Version="8.0.12" />
+  </ItemGroup>
 
 </Project>

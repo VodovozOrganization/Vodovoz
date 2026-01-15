@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -2153,6 +2153,8 @@
     <Compile Include="Views\Cash\VatRateVersionForOrganizationView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Cash.VatRateVersionForOrganizationView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.BulkDebtMailingReportView.cs" />
+    <Compile Include="Views\WageCalculation\WageDistrictLevelRatesAssigningView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.WageDistrictLevelRatesAssigningView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

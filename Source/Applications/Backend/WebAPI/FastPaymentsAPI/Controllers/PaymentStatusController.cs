@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net.Http;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.EntityRepositories.FastPayments;
+using VodovozHealthCheck.Helpers;
 
 namespace FastPaymentsAPI.Controllers
 {
@@ -61,8 +62,13 @@ namespace FastPaymentsAPI.Controllers
 			result.PaymentStatus = (RequestPaymentStatus)payment.FastPaymentStatus;
 			result.PaymentDetails = _fastPaymentAPIFactory.GetNewOnlinePaymentDetailsDto(orderId, payment.Amount);
 
-			_notificationModel.SaveNotification(payment, FastPaymentNotificationType.Site, true);
-			_notificationModel.SaveNotification(payment, FastPaymentNotificationType.MobileApp, true);
+			var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
+
+			if(!isDryRun)
+			{
+				_notificationModel.SaveNotification(payment, FastPaymentNotificationType.Site, true);
+				_notificationModel.SaveNotification(payment, FastPaymentNotificationType.MobileApp, true);
+			}
 
 			return result;
 		}

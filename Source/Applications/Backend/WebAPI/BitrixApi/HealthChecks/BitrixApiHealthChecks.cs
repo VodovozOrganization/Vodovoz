@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
@@ -32,9 +33,9 @@ namespace BitrixApi.HealthChecks
 			_configuration = configuration;
 		}
 
-		protected override async Task<VodovozHealthResultDto> GetHealthResult()
+		protected override async Task<VodovozHealthResultDto> CheckServiceHealthAsync(CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Проверяем здоровье Bitrix API.");
+			_logger.LogInformation("Проверяем работоспособность Bitrix API.");
 
 			var healthSection = _configuration.GetSection("Health");
 

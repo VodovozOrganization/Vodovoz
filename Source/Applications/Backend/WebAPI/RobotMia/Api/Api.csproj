@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+	<ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\HealthCheck\VodovozHealthCheck.csproj" />
 	<ProjectReference Include="..\Contracts\Contracts.csproj" />
 	<ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Vodovoz.Presentation.WebApi.Authentication.Contracts\Vodovoz.Presentation.WebApi.Authentication.Contracts.csproj" />
 	<ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />

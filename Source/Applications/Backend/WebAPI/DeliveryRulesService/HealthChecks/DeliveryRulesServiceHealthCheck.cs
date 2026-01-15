@@ -1,12 +1,14 @@
 ﻿using DeliveryRulesService.DTO;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using QS.DomainModel.UoW;
 using System;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
-using QS.DomainModel.UoW;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
+using VodovozHealthCheck.Extensions;
 using VodovozHealthCheck.Helpers;
 
 namespace DeliveryRulesService.HealthChecks
@@ -27,15 +29,16 @@ namespace DeliveryRulesService.HealthChecks
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 		}
 
-		protected override async Task<VodovozHealthResultDto> GetHealthResult()
+		protected override async Task<VodovozHealthResultDto> CheckServiceHealthAsync(CancellationToken cancellationToken)
 		{
 			var healthSection = _configuration.GetSection("Health");
 			var baseAddress = healthSection.GetValue<string>("BaseAddress");
 			var healthResult = new VodovozHealthResultDto();
 
-			var deliveryInfo = await ResponseHelper.GetJsonByUri<DeliveryInfoDTO>(
-				$"{baseAddress}/DeliveryRules/GetDeliveryInfo?latitude=59.886134&longitude=30.394007", 
-				_httpClientFactory);
+			var deliveryInfo = await HttpResponseHelper.GetJsonByUriAsync<DeliveryInfoDTO>(
+				$"{baseAddress}/DeliveryRules/GetDeliveryInfo?latitude=59.886134&longitude=30.394007",
+				_httpClientFactory,
+				cancellationToken: cancellationToken);
 
 			var deliveryInfoIsHealthy = deliveryInfo?.StatusEnum != DeliveryRulesResponseStatus.Error;
 
@@ -44,9 +47,10 @@ namespace DeliveryRulesService.HealthChecks
 				healthResult.AdditionalUnhealthyResults.Add("Не пройдена проверка GetDeliveryInfo.");
 			}
 
-			var rulesByDistrict = await ResponseHelper.GetJsonByUri<DeliveryInfoDTO>(
+			var rulesByDistrict = await HttpResponseHelper.GetJsonByUriAsync<DeliveryInfoDTO>(
 				$"{baseAddress}/DeliveryRules/GetRulesByDistrict?latitude=59.886134&longitude=30.394007",
-				_httpClientFactory);
+				_httpClientFactory,
+				cancellationToken: cancellationToken);
 
 			var rulesByDistrictIsHealthy = rulesByDistrict?.StatusEnum != DeliveryRulesResponseStatus.Error;
 
@@ -55,7 +59,32 @@ namespace DeliveryRulesService.HealthChecks
 				healthResult.AdditionalUnhealthyResults.Add("Не пройдена проверка GetRulesByDistrict.");
 			}
 
-			healthResult.IsHealthy = deliveryInfoIsHealthy && rulesByDistrictIsHealthy;
+			var getRulesByDistrictAndNomenclaturesRequest = healthSection.GetSection("GetRulesByDistrictAndNomenclatures").Get<DeliveryRulesRequest>();
+
+			var getRulesByDistrictAndNomenclaturesResult = await HttpResponseHelper.SendRequestAsync<DeliveryRulesDTO>(
+				HttpMethod.Post,
+				$"{baseAddress}/DeliveryRules/GetRulesByDistrictAndNomenclatures",
+				_httpClientFactory,
+				getRulesByDistrictAndNomenclaturesRequest.ToJsonContent(),
+				cancellationToken: cancellationToken);
+
+			var getRulesByDistrictAndNomenclaturesIsHealthy = getRulesByDistrictAndNomenclaturesResult.Data?.StatusEnum == DeliveryRulesResponseStatus.Ok;
+
+			var getExtendedRulesByDistrictAndNomenclaturesRequest = healthSection.GetSection("GetExtendedRulesByDistrictAndNomenclatures").Get<DeliveryRulesRequest>();
+
+			var getExtendedRulesByDistrictAndNomenclaturesResult = await HttpResponseHelper.SendRequestAsync<ExtendedDeliveryRulesDto>(
+				HttpMethod.Post,
+				$"{baseAddress}/DeliveryRules/GetExtendedRulesByDistrictAndNomenclatures",
+				_httpClientFactory,
+				getExtendedRulesByDistrictAndNomenclaturesRequest.ToJsonContent(),
+				cancellationToken: cancellationToken);
+
+			var geExtendedRulesByDistrictAndNomenclaturesIsHealthy = getExtendedRulesByDistrictAndNomenclaturesResult.Data?.StatusEnum == DeliveryRulesResponseStatus.Ok;
+
+			healthResult.IsHealthy = deliveryInfoIsHealthy
+									 && rulesByDistrictIsHealthy
+									 && getRulesByDistrictAndNomenclaturesIsHealthy
+									 && geExtendedRulesByDistrictAndNomenclaturesIsHealthy;
 
 			return healthResult;
 		}
