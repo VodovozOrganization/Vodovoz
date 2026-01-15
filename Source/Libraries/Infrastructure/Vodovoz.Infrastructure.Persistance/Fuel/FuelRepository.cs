@@ -1,11 +1,10 @@
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Linq;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
-using QS.Utilities.Dates;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -159,8 +158,21 @@ namespace Vodovoz.Infrastructure.Persistance.Fuel
 
 		public decimal GetFuelBalance(IUnitOfWork uow, Employee driver, Car car, int fuelBalanceCalibrationCarEventTypeId, DateTime? before = null, params int[] excludeOperationsIds)
 		{
+			if(before.HasValue)
+			{
+				before = before.Value.Date.AddDays(1).AddSeconds(-1);
+			}
+
 			var lastFuelBalanceCalibrationCarEvent =
 				GetLastFuelCalibrationCarEvent(uow, car, fuelBalanceCalibrationCarEventTypeId, before);
+
+			if(lastFuelBalanceCalibrationCarEvent?.CalibrationFuelOperation != null)
+			{
+				excludeOperationsIds =
+					excludeOperationsIds is null
+					? new int[] { lastFuelBalanceCalibrationCarEvent.CalibrationFuelOperation.Id }
+					: excludeOperationsIds.Append(lastFuelBalanceCalibrationCarEvent.CalibrationFuelOperation.Id).ToArray();
+			}
 
 			var outlayedFuelOperationsSum =
 				GetCarFuelOperationsSums(uow, driver, car, lastFuelBalanceCalibrationCarEvent?.StartDate, before, excludeOperationsIds)
@@ -230,7 +242,7 @@ namespace Vodovoz.Infrastructure.Persistance.Fuel
 
 			if(endDate.HasValue)
 			{
-				fuelOperationsQuery.Where(() => operationAlias.OperationTime < endDate.Value);
+				fuelOperationsQuery.Where(() => operationAlias.OperationTime <= endDate.Value);
 			}
 
 			if(excludeOperationsIds != null)
@@ -270,7 +282,7 @@ namespace Vodovoz.Infrastructure.Persistance.Fuel
 
 			if(endDate.HasValue)
 			{
-				givedFuelTransactionsQuery.Where(() => fuelTransactionAlias.TransactionDate < endDate.Value);
+				givedFuelTransactionsQuery.Where(() => fuelTransactionAlias.TransactionDate <= endDate.Value);
 			}
 
 			var givedFuelTransactionsSum =
@@ -286,10 +298,10 @@ namespace Vodovoz.Infrastructure.Persistance.Fuel
 				.SelectList(list => list
 					.SelectSum(() => fuelTransactionAlias.Quantity))
 				.Where(() => fuelCardVersionAlias.Car.Id == car.Id)
-				.List<decimal>()
+				.List<decimal?>()
 				.FirstOrDefault();
 
-			return givedFuelTransactionsSum;
+			return givedFuelTransactionsSum ?? 0;
 		}
 
 		private decimal GetCarMileageWriteOffFuelSum(IUnitOfWork uow, Car car, Employee driver, DateTime? startDate = null, DateTime? endDate = null)
@@ -314,7 +326,7 @@ namespace Vodovoz.Infrastructure.Persistance.Fuel
 
 			if(endDate.HasValue)
 			{
-				mileageWriteOffQuery.Where(() => mileageWriteOffAlias.WriteOffDate < endDate.Value);
+				mileageWriteOffQuery.Where(() => mileageWriteOffAlias.WriteOffDate <= endDate.Value);
 			}
 
 			var mileageWriteOffFuelSum =
