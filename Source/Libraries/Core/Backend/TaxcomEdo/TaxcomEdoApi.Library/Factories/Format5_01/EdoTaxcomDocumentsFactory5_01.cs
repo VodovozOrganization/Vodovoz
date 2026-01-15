@@ -214,7 +214,16 @@ namespace TaxcomEdoApi.Library.Factories.Format5_01
 				SvPer = new FajlDokumentSvProdPerSvPer
 				{
 					SodOper = GetOperationName(orderItems),
-					OsnPer = new []{ GetBasis(orderInfoForEdo) },
+					OsnPer = new []
+					{
+						GetBasis(orderInfoForEdo),
+						new OsnovanieTip()
+						{
+							NaimOsn = "Заказ",
+							NomOsn = orderInfoForEdo.Id.ToString(),
+							DataOsn = $"{orderInfoForEdo.DeliveryDate:dd.MM.yyyy}",
+						}
+					},
 					SvLicPer = new FajlDokumentSvProdPerSvPerSvLicPer
 					{
 						Item = new FajlDokumentSvProdPerSvPerSvLicPerRabOrgProd
@@ -413,7 +422,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_01
 							NaimOsn = updInfo.DocumentConfirmingShipment.Document,
 							NomOsn = updInfo.DocumentConfirmingShipment.Number,
 							DataOsn = updInfo.DocumentConfirmingShipment.Date
-						}
+						},
 					},
 					SvLicPer = new FajlDokumentSvProdPerSvPerSvLicPer
 					{

@@ -3832,6 +3832,7 @@ namespace Vodovoz.Domain.Orders
 				ObservableOrderDocuments.Add(CreateDocumentOfOrder(type));
 			}
 			CheckDocumentCount(this);
+			UpdateIfUpdUsing(this);
 		}
 
 		private void CheckDocumentCount(Order order)
@@ -3839,6 +3840,33 @@ namespace Vodovoz.Domain.Orders
 			var torg12document = order.ObservableOrderDocuments.FirstOrDefault(x => x is Torg12Document && x.Type == OrderDocumentType.Torg12);
 			if(torg12document != null && IsCashlessPaymentTypeAndOrganizationWithoutVAT) {
 				((Torg12Document)torg12document).CopiesToPrint = 2;
+			}
+		}
+
+		private void UpdateIfUpdUsing(Order order)
+		{
+			if(!order.OrderDocuments.Any(d => d.Order.Id == order.Id && (d.Type == OrderDocumentType.UPD || d.Type == OrderDocumentType.SpecialUPD)))
+			{
+				return;
+			}
+			
+			var targetTypesForUpdReference = new List<OrderDocumentType>()
+			{
+				OrderDocumentType.Bill, 
+				OrderDocumentType.SpecialBill, 
+				OrderDocumentType.DoneWorkReport, 
+				OrderDocumentType.EquipmentTransfer,
+				OrderDocumentType.DriverTicket
+			};
+			
+			var upd = order.OrderDocuments.First(d => d.Order.Id == order.Id && (d.Type == OrderDocumentType.UPD || d.Type == OrderDocumentType.SpecialUPD));
+				
+			foreach(var orderDocument in order.OrderDocuments)
+			{
+				if(targetTypesForUpdReference.Any(t => t == orderDocument.Type))
+				{
+					orderDocument.DocumentOrganizationCounter = upd.DocumentOrganizationCounter;
+				}
 			}
 		}
 

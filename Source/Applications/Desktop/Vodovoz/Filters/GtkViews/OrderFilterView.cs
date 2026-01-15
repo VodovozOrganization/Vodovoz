@@ -151,6 +151,11 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, vm => vm.CounterpartyNameLike, w => w.Text)
 				.InitializeFromSource();
 			entryCounteragentNameLike.KeyReleaseEvent += OnKeyReleased;
+			
+			entryUpdNumber.Binding
+				.AddBinding(ViewModel, vm => vm.UpdDocumentNumber, w => w.Text)
+				.InitializeFromSource();
+			entryUpdNumber.KeyReleaseEvent += OnKeyReleased;
 
 			entryInn.Binding.AddBinding(ViewModel, vm => vm.CounterpartyInn, w => w.Text).InitializeFromSource();
 			entryInn.KeyReleaseEvent += OnKeyReleased;
