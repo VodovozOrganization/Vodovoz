@@ -190,7 +190,7 @@ namespace Vodovoz
 						                        && node.Order.Id == d.Order.Id) 
 						? node.Order.OrderDocuments.FirstOrDefault(d => (d.Type == OrderDocumentType.UPD 
 						                                                 || d.Type == OrderDocumentType.SpecialUPD)
-						                                                && node.Order.Id == d.Order.Id).DocumentOrganizationCounter.DocumentNumber
+						                                                && node.Order.Id == d.Order.Id).DocumentOrganizationCounter.DocumentNumber ?? ""
 						: "")
 					.AddPixbufRenderer(x => GetRowIcon(x))
 				.AddColumn("Адрес").HeaderAlignment(0.5f).AddTextRenderer(node =>
