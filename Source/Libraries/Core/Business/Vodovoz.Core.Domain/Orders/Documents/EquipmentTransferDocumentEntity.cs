@@ -34,7 +34,9 @@ namespace Vodovoz.Core.Domain.Orders.Documents
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
-		public override string Name => "Акт приемо-передачи оборудования";
+		public override string Name => Order?.DeliveryDate >= new DateTime(2026, 1, 1) 
+			?  $"АКТ приема-передаточных работ №{DocumentOrganizationCounter.DocumentNumber}"
+			:  $"АКТ приема-передаточных работ";
 
 		public override DateTime? DocumentDate => Order?.DeliveryDate;
 
