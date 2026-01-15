@@ -1,4 +1,4 @@
-﻿using DateTimeHelpers;
+using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -173,7 +173,7 @@ namespace Vodovoz.Infrastructure.Persistance.Fuel
 				GetCarMileageWriteOffFuelSum(uow, car, driver, lastFuelBalanceCalibrationCarEvent?.StartDate, before);
 
 			var balance =
-				lastFuelBalanceCalibrationCarEvent?.ActualFuelBalance ?? 0 + givedFuelTransactionsSum - outlayedFuelOperationsSum - mileageWriteOffFuelSum;
+				(lastFuelBalanceCalibrationCarEvent?.ActualFuelBalance ?? 0) + givedFuelTransactionsSum - outlayedFuelOperationsSum - mileageWriteOffFuelSum;
 
 			return balance;
 		}
