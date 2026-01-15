@@ -16,6 +16,8 @@ namespace Vodovoz.JournalColumnsConfigs
 	{
 		public override IColumnsConfig Configure(FluentColumnsConfig<OrderJournalNode> config) =>
 			config.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
+				.AddColumn("Номер УПД")
+					.AddTextRenderer(node => node.UpdDocumentName)
 				.AddColumn("Дата").AddTextRenderer(node => node.Date != null ? ((DateTime)node.Date).ToString("d") : string.Empty)
 				.AddColumn("Автор").AddTextRenderer(node => node.Author)
 				.AddColumn("Время").AddTextRenderer(node => node.IsSelfDelivery ? "-" : node.DeliveryTime)

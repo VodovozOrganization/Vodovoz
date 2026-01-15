@@ -54,7 +54,7 @@ namespace Vodovoz.Additions.Logistic
 			{
 				documentName = "ClosedRouteList";
 				isClosed = true;
-				commentColSpanCount = 9;
+				commentColSpanCount = 10;
 			}
 
 			string RdlText = string.Empty;

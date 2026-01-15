@@ -31,7 +31,9 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
-		public override string Name => String.Format("Талон водителю №{0}", Order.Id);
+		public override string Name => Order?.DeliveryDate >= new DateTime(2026, 1, 1) 
+			?  $"Талон водителя №{DocumentOrganizationCounter?.DocumentNumber ?? "-"}"
+			:  $"Талон водителя №{Order?.Id}";
 
 		public override DateTime? DocumentDate => Order?.DeliveryDate;
 

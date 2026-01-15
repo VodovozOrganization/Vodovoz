@@ -48,14 +48,14 @@ FROM
     special_nomenclature ON special_nomenclature.counterparty_id = orders.client_id AND special_nomenclature.nomenclature_id = nomenclature.id
         LEFT JOIN
     vat_rate_versions vrv_nomenclature ON vrv_nomenclature.nomenclature_id = nomenclature.id 
-    AND ((vrv_nomenclature.start_date &lt;= orders.bill_date AND vrv_nomenclature.end_date IS NULL )
-     OR (vrv_nomenclature.start_date &lt;= orders.bill_date AND vrv_nomenclature.end_date &gt;= orders.bill_date))
+    AND ((vrv_nomenclature.start_date &lt;= orders.delivery_date AND vrv_nomenclature.end_date IS NULL )
+     OR (vrv_nomenclature.start_date &lt;= orders.delivery_date AND vrv_nomenclature.end_date &gt;= orders.delivery_date))
         LEFT JOIN
     vat_rates vr_nomenclature ON vr_nomenclature.id = vrv_nomenclature.vat_rate_id
         LEFT JOIN
     vat_rate_versions vrv_organization ON vrv_organization.organization_id = organizations.id 
-        AND ((vrv_organization.start_date &lt;= orders.bill_date AND vrv_organization.end_date IS NULL )
-         OR (vrv_organization.start_date &lt;= orders.bill_date AND vrv_organization.end_date &gt;= orders.bill_date))
+        AND ((vrv_organization.start_date &lt;= orders.delivery_date AND vrv_organization.end_date IS NULL )
+         OR (vrv_organization.start_date &lt;= orders.delivery_date AND vrv_organization.end_date &gt;= orders.delivery_date))
         LEFT JOIN
     vat_rates vr_organization ON vr_organization.id = vrv_organization.vat_rate_id
 WHERE
@@ -117,7 +117,7 @@ WHERE
         <CommandText>SELECT
     orders.id AS order_id,
     document_organization_counters.document_number AS document_number,
-    orders.delivery_date AS order_date,
+    DATE_FORMAT(orders.delivery_date,'%d.%m.%y') AS order_date,
     orders.counterparty_external_order_id,
     counterparty_contract.number AS contract_number,
     DATE_FORMAT(counterparty_contract.issue_date,

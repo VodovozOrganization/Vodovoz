@@ -449,7 +449,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
-                      <Value>№ Заказа /</Value>
+                      <Value>№ Заказа / УПД /</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -2268,7 +2268,7 @@ LIMIT 1
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId,
-    CONCAT_WS('\n', orders.id, CONCAT((SELECT rcnc.name FROM roboats_counterparty_name_codes rcnc WHERE rcnc.id = 
+    CONCAT_WS('\n', orders.id, GROUP_CONCAT(DISTINCT document_organization_counters.document_number SEPARATOR ', '), CONCAT((SELECT rcnc.name FROM roboats_counterparty_name_codes rcnc WHERE rcnc.id = 
          COALESCE (contact_phone.roboats_counterparty_name_id, delivery_point_phone_work.roboats_counterparty_name_id, delivery_point_phone_general.roboats_counterparty_name_id,
              delivery_point_phone_all.roboats_counterparty_name_id, counterparty_phone_work.roboats_counterparty_name_id, counterparty_phone_general.roboats_counterparty_name_id, counterparty_phone_all.roboats_counterparty_name_id)), ' ',
 	     (SELECT rcpc.patronymic FROM roboats_counterparty_patronymic_codes rcpc WHERE rcpc.id =
@@ -2377,6 +2377,8 @@ FROM route_list_addresses
          LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
          LEFT JOIN delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
          LEFT JOIN counterparty ON counterparty.id = orders.client_id
+         LEFT JOIN order_documents ON order_documents.order_id = orders.id
+         LEFT JOIN document_organization_counters ON document_organization_counters.id = order_documents.document_organization_counter_id
          LEFT JOIN (
               SELECT p.id, p.roboats_counterparty_name_id, p.roboats_counterparty_patronymic_id,  p.`number`, ~0 as sort_index
               FROM phones p WHERE p.is_archive = 0)

@@ -47,6 +47,8 @@ using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.Documents;
 
 namespace Vodovoz.JournalViewModels
 {
@@ -409,6 +411,8 @@ namespace Vodovoz.JournalViewModels
 			OrderEdoDocument orderEdoDocumentAlias = null;
 			OrderEdoDocument orderEdoDocumentAlias2 = null;
 			Employee salesManagerAlias = null;
+			OrderDocument orderDocumentAlias = null;
+			DocumentOrganizationCounter documentOrganizationCounterAlias = null;
 			
 			var query = uow.Session.QueryOver<VodovozOrder>(() => orderAlias)
 				.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
@@ -416,7 +420,20 @@ namespace Vodovoz.JournalViewModels
 				.Left.JoinAlias(() => counterpartyAlias.SalesManager, () => salesManagerAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
 				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geographicalGroupAlias)
-				.Left.JoinAlias(() => orderAlias.SelfDeliveryGeoGroup, () => selfDeliveryGeographicalGroupAlias);
+				.Left.JoinAlias(() => orderAlias.SelfDeliveryGeoGroup, () => selfDeliveryGeographicalGroupAlias)
+				.Left.JoinAlias(
+					o => o.OrderDocuments,
+					() => orderDocumentAlias, 
+					Restrictions.And(
+						Restrictions.Or(
+							Restrictions.Where(() => orderDocumentAlias.GetType() == typeof(UPDDocument)),
+							Restrictions.Where(() => orderDocumentAlias.GetType() == typeof(SpecialUPDDocument))
+							),
+							Restrictions.Where(() => orderDocumentAlias.Order.Id == orderAlias.Id)))
+				.Left.JoinAlias(
+					() => orderDocumentAlias.DocumentOrganizationCounter,
+					() => documentOrganizationCounterAlias
+				);
 
 			if (FilterViewModel.SalesManager != null)
 			{
@@ -614,6 +631,16 @@ namespace Vodovoz.JournalViewModels
 				query.Where(() => counterpartyAlias.INN == FilterViewModel.CounterpartyInn);
 			}
 
+			if(!string.IsNullOrWhiteSpace(FilterViewModel?.UpdDocumentNumber))
+			{
+				query.Where(Restrictions.Like(
+						Projections.Property(() => documentOrganizationCounterAlias.DocumentNumber), 
+						FilterViewModel.UpdDocumentNumber, 
+						MatchMode.Anywhere))
+					.And(Restrictions.IsNotNull(
+						Projections.Property(() => orderDocumentAlias.Id)));
+			}
+
 			query.Where(FilterViewModel?.SearchByAddressViewModel?.GetSearchCriterion(
 				() => deliveryPointAlias.CompiledAddress
 			));
@@ -736,6 +763,7 @@ namespace Vodovoz.JournalViewModels
 					.Select(() => deliveryPointAlias.Building).WithAlias(() => resultAlias.Building)
 					.Select(() => orderAlias.EShopOrder).WithAlias(() => resultAlias.EShopOrder)
 					.Select(() => orderAlias.OrderPaymentStatus).WithAlias(() => resultAlias.OrderPaymentStatus)
+					.Select(() => documentOrganizationCounterAlias.DocumentNumber).WithAlias(() => resultAlias.UpdDocumentName)
 					.Select(
 						Projections.Conditional(
 							Restrictions.Or(
