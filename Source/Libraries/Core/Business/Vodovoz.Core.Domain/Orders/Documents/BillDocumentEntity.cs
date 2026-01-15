@@ -17,7 +17,7 @@ namespace Vodovoz.Core.Domain.Orders.Documents
 		#endregion
 
 		public override string Name => Order?.DeliveryDate >= new DateTime(2026, 1, 1) 
-			?  $"Счет №{DocumentOrganizationCounter.DocumentNumber}"
+			?  $"Счет №{DocumentOrganizationCounter?.DocumentNumber ?? "-"}"
 			:  $"Счет №{Order?.Id}";
 
 		public override DateTime? DocumentDate => Order?.BillDate;

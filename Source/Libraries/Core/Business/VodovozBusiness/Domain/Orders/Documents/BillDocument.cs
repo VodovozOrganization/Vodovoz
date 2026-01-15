@@ -46,7 +46,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual string SpecialContractNumber => Order.Client.IsForRetail ? Order.Client.GetSpecialContractString() : string.Empty;
 
 		public override string Name => Order?.DeliveryDate >= new DateTime(2026, 1, 1) 
-			?  $"Счет №{DocumentOrganizationCounter.DocumentNumber}"
+			?  $"Счет №{DocumentOrganizationCounter?.DocumentNumber ?? "-"}"
 			:  $"Счет №{Order?.Id}";
 
 		public override DateTime? DocumentDate => Order?.BillDate;
