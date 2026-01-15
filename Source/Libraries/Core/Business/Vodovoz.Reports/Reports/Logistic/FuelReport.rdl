@@ -874,7 +874,7 @@
 	FROM car_events
 	WHERE
 		car_id = @car_id
-		AND car_event_type_id = 48
+		AND car_event_type_id = GET_PARAMETER('FuelBalanceCalibrationCarEventTypeId')
 	    AND start_date &lt; @start_date
 	ORDER BY id DESC
 	LIMIT 1
@@ -885,7 +885,7 @@ SET @fuel_calibration_actual_balance := (
 	FROM car_events
 	WHERE
 		car_id = @car_id
-		AND car_event_type_id = 48
+		AND car_event_type_id = GET_PARAMETER('FuelBalanceCalibrationCarEventTypeId')
 	    AND start_date &lt; @start_date
 	ORDER BY id DESC
 	LIMIT 1
