@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -833,7 +833,7 @@
       <Textbox Name="Textbox21">
         <Height>12.76pt</Height>
         <Width>560.97pt</Width>
-        <Value>="Баланс до " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + ": " + First({balance}, "StartBalance")</Value>
+        <Value>="Баланс до " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + ": " + Format(First({balance}, "StartBalance"), '#,##0.00')</Value>
         <ZIndex>0</ZIndex>
         <Left>0.80pt</Left>
         <Top>37.20pt</Top>
@@ -1271,35 +1271,49 @@ SELECT * FROM route_lists_transactions_balance
       </Fields>
     </DataSet>
     <DataSet Name="StartBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
+        <CommandText>SET @fuel_calibration_date := (
+	SELECT start_date
+	FROM car_events
+	WHERE
+		car_id = @car_id
+		AND car_event_type_id = 48
+	    AND start_date &lt; @start_date
+	ORDER BY id DESC
+	LIMIT 1
+);
+
+SET @fuel_calibration_actual_balance := (
+	SELECT actual_fuel_balance
+	FROM car_events
+	WHERE
+		car_id = @car_id
+		AND car_event_type_id = 48
+	    AND start_date &lt; @start_date
+	ORDER BY id DESC
+	LIMIT 1
+);
+
+SELECT
+	IFNULL(@fuel_calibration_actual_balance, 0) + gived_to_fuel_card.liters_gived - fuel_operations_outlayed.liters_outlayed - written_off_without_rl.liters_outlayed as balance
+FROM
 (
-# Выдано:
+# Выдано на топливную карту:
 	(SELECT
-		IFNULL(SUM(fuel_operations_in.liters_gived), 0)
-	FROM
-		(    
-			SELECT 
-				fuel_operations.id,
-				fuel_operations.date,
-				fuel_operations.driver_id,
-				fuel_operations.liters_gived,
-				fuel_operations.car_id,
-				route_lists.id as route_listID,
-				route_lists.date as route_listDate,
-				route_lists.driver_id as rl_driver
-			FROM fuel_operations
-			LEFT JOIN fuel_documents ON fuel_operations.id = fuel_documents.fuel_operation_id
-			LEFT JOIN route_lists ON fuel_documents.route_list_id = route_lists.id        
-		) as fuel_operations_in
-	WHERE	
-		DATE(fuel_operations_in.date) &lt; @start_date	
-		AND ((fuel_operations_in.driver_id = @driver_id) OR (@car_id &lt;&gt; -1 AND fuel_operations_in.car_id = @car_id)))
--
+		IFNULL(SUM(ft.quantity), 0) as liters_gived
+	FROM fuel_transactions ft
+	JOIN fuel_cards fc ON ft.card_id = fc.card_id 
+	JOIN fuel_card_versions fcv ON fc.id = fcv.fuel_card_id AND fcv.start_date &lt;= ft.transaction_date  AND (fcv.end_date &gt; ft.transaction_date OR fcv.end_date is null)
+	WHERE
+		fcv.car_id  = @car_id
+		AND (@fuel_calibration_date is null OR ft.transaction_date &gt;= @fuel_calibration_date)
+		AND ft.transaction_date &lt; @start_date
+	) as gived_to_fuel_card,
+
 # Потрачено
 	(SELECT
-		IFNULL(SUM(fuel_operations_out.liters_outlayed),0)
+		IFNULL(SUM(fuel_operations_out.liters_outlayed),0) AS liters_outlayed
 	FROM
 		(    
 			SELECT 
@@ -1316,9 +1330,10 @@ SELECT * FROM route_lists_transactions_balance
 			WHERE fuel_operations.is_fine = 0
 		) as fuel_operations_out
 	WHERE	
-		DATE(fuel_operations_out.date) &lt; @start_date	
-		AND ((fuel_operations_out.driver_id = @driver_id) OR (@car_id &lt;&gt; -1 AND fuel_operations_out.car_id = @car_id)))
--
+		DATE(fuel_operations_out.date) &lt; @start_date
+		AND (@fuel_calibration_date is null OR fuel_operations_out.date &gt;= @fuel_calibration_date)
+		AND ((fuel_operations_out.driver_id = @driver_id) OR (@car_id &lt;&gt; -1 AND fuel_operations_out.car_id = @car_id))) as fuel_operations_outlayed,
+
 # Списание километража без МЛ
 	(SELECT
 	        IFNULL(SUM(mwo.liters_outlayed),0) AS liters_outlayed
@@ -1328,9 +1343,11 @@ SELECT * FROM route_lists_transactions_balance
 			LEFT JOIN cars c on mwo.car_id = c.id 
 		WHERE
 			mwo.write_off_date &lt; @start_date
+			AND (@fuel_calibration_date is null OR mwo.write_off_date &gt;= @fuel_calibration_date)
 	        AND ((@driver_id &lt;&gt; -1 AND mwo.driver_id = @driver_id) OR (@car_id &lt;&gt; -1 AND mwo.car_id = @car_id))
-	    )
-) as balance</CommandText>
+	    ) as written_off_without_rl
+)
+;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -1343,7 +1360,7 @@ SELECT * FROM route_lists_transactions_balance
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="balance">
           <DataField>balance</DataField>
           <TypeName>System.Decimal</TypeName>
