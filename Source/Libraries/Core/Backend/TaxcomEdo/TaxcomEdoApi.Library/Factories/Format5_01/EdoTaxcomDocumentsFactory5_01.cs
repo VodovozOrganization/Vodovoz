@@ -423,12 +423,6 @@ namespace TaxcomEdoApi.Library.Factories.Format5_01
 							NomOsn = updInfo.DocumentConfirmingShipment.Number,
 							DataOsn = updInfo.DocumentConfirmingShipment.Date
 						},
-						new()
-						{
-							NaimOsn = "Заказ",
-							NomOsn = updInfo.OrderNumber,
-							DataOsn = $"{updInfo.Date:dd.MM.yyyy}",
-						}
 					},
 					SvLicPer = new FajlDokumentSvProdPerSvPerSvLicPer
 					{

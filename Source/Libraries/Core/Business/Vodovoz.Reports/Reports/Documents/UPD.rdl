@@ -3496,7 +3496,7 @@ WHERE o.id = @order_id
           <Textbox Name="Textbox128">
             <Height>9.75pt</Height>
             <Width>562.15pt</Width>
-            <Value>=Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({special_contract_number}) = false,{special_contract_number},Fields!contract_number.Value + ' от ' + Fields!contract_date.Value + '; Заказ №' + Fields!order_id.Value + ' от ' + Fields!order_date.Value)</Value>
+            <Value>=Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({special_contract_number}) = false,{special_contract_number},Fields!contract_number.Value + ' от ' + Fields!contract_date.Value)</Value>
             <ZIndex>0</ZIndex>
             <Left>213.59pt</Left>
             <Top>45.70pt</Top>
