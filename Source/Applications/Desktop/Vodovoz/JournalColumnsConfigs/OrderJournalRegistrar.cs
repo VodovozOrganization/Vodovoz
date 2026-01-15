@@ -16,6 +16,8 @@ namespace Vodovoz.JournalColumnsConfigs
 	{
 		public override IColumnsConfig Configure(FluentColumnsConfig<OrderJournalNode> config) =>
 			config.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
+				.AddColumn("Номер УПД")
+					.AddTextRenderer(node => node.UpdDocumentName)
 				.AddColumn("Дата").AddTextRenderer(node => node.Date != null ? ((DateTime)node.Date).ToString("d") : string.Empty)
 				.AddColumn("Автор").AddTextRenderer(node => node.Author)
 				.AddColumn("Время").AddTextRenderer(node => node.IsSelfDelivery ? "-" : node.DeliveryTime)
@@ -31,8 +33,6 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Сумма").AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.Sum))
 				.AddColumn("Статус оплаты").AddTextRenderer(x =>
 					(x.OrderPaymentStatus != OrderPaymentStatus.None) ? x.OrderPaymentStatus.GetEnumTitle() : "")
-				.AddColumn("Номер УПД")
-					.AddTextRenderer(node => node.UpdDocumentName)
 				.AddColumn("Статус документооборота").AddTextRenderer(node => node.EdoDocFlowStatusString)
 				.AddColumn("Район доставки").AddTextRenderer(node => node.IsSelfDelivery ? "-" : node.DistrictName)
 				.AddColumn("Адрес").AddTextRenderer(node => node.Address)

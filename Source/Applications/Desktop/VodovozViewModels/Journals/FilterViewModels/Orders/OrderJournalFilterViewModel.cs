@@ -517,7 +517,12 @@ namespace Vodovoz.Filters.ViewModels
 		public string UpdDocumentNumber
 		{
 			get => _updDocumentNumber;
-			set => SetField(ref _updDocumentNumber, value);
+			set
+			{
+				SetField(ref _updDocumentNumber, value);
+
+				ViewTypes = string.IsNullOrWhiteSpace(_updDocumentNumber) ? ViewTypes.All : ViewTypes.Order;
+			}
 		}
 
 		public int? OnlineOrderId

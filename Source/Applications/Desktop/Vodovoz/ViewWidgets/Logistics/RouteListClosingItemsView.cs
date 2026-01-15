@@ -13,6 +13,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -181,6 +182,16 @@ namespace Vodovoz
 					.AddTextRenderer(node => node.Order.DailyNumber.ToString())
 				.AddColumn("Заказ").HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.Order.Id.ToString())
+				.AddColumn("Заказ")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(node => node.Order.
+						OrderDocuments.Any(d => (d.Type == OrderDocumentType.UPD 
+						                         || d.Type == OrderDocumentType.SpecialUPD)
+						                        && node.Order.Id == d.Order.Id) 
+						? node.Order.OrderDocuments.FirstOrDefault(d => (d.Type == OrderDocumentType.UPD 
+						                                                 || d.Type == OrderDocumentType.SpecialUPD)
+						                                                && node.Order.Id == d.Order.Id).DocumentOrganizationCounter.DocumentNumber
+						: "")
 					.AddPixbufRenderer(x => GetRowIcon(x))
 				.AddColumn("Адрес").HeaderAlignment(0.5f).AddTextRenderer(node =>
 					node.Order.DeliveryPoint == null

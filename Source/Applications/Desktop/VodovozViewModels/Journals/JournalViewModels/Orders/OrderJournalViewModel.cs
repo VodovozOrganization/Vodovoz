@@ -423,11 +423,13 @@ namespace Vodovoz.JournalViewModels
 				.Left.JoinAlias(() => orderAlias.SelfDeliveryGeoGroup, () => selfDeliveryGeographicalGroupAlias)
 				.Left.JoinAlias(
 					o => o.OrderDocuments,
-					() => orderDocumentAlias,
-					Restrictions.Or(
-						Restrictions.Where(() => orderDocumentAlias.GetType() == typeof(UPDDocument)),
-						Restrictions.Where(() => orderDocumentAlias.GetType() == typeof(SpecialUPDDocument))
-					))
+					() => orderDocumentAlias, 
+					Restrictions.And(
+						Restrictions.Or(
+							Restrictions.Where(() => orderDocumentAlias.GetType() == typeof(UPDDocument)),
+							Restrictions.Where(() => orderDocumentAlias.GetType() == typeof(SpecialUPDDocument))
+							),
+							Restrictions.Where(() => orderDocumentAlias.Order.Id == orderAlias.Id)))
 				.Left.JoinAlias(
 					() => orderDocumentAlias.DocumentOrganizationCounter,
 					() => documentOrganizationCounterAlias
