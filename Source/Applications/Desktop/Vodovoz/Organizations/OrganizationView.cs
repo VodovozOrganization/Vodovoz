@@ -1,6 +1,5 @@
 ﻿using QS.Views.GtkUI;
 using QS.Widgets;
-using ReactiveUI.Validation.Extensions;
 using System;
 using System.ComponentModel;
 using Vodovoz.ViewModels.Organizations;
@@ -72,10 +71,6 @@ namespace Vodovoz.Organizations
 
 			dataentryOKVED.Binding
 				.AddBinding(ViewModel.Entity, e => e.OKVED, w => w.Text)
-				.InitializeFromSource();
-
-			chkWithoutVat.Binding
-				.AddBinding(ViewModel.Entity, e => e.WithoutVAT, w => w.Active)
 				.InitializeFromSource();
 			
 			chkIsNeedCashlessMovementControl.Binding
