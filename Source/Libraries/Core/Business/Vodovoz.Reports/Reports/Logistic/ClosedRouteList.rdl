@@ -931,7 +931,7 @@
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
-                          <Bottom>None</Bottom>
+                          <Top>None</Top>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />

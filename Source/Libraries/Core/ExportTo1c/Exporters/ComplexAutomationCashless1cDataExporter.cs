@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.Dialog;
 using System;
 using System.Collections.Generic;
@@ -67,9 +67,9 @@ namespace ExportTo1c.Library.Exporters
 
 				var updNum = order.OrderDocuments
 					.FirstOrDefault(od => counterDocumentsTypes.Contains(od.Type) && od.DocumentOrganizationCounter != null)
-					.DocumentOrganizationCounter
-					.DocumentNumber
-					?? "Без номера";
+					?.DocumentOrganizationCounter
+					?.DocumentNumber
+					?? order.Id.ToString();
 
 				var orderElement = new XElement
 				(

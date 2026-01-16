@@ -41,10 +41,10 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public virtual string SpecialContractNumber => Order.Client.IsForRetail ? Order.Client.GetSpecialContractString() : string.Empty;
 
-		public virtual string Title => $"Особый счет № { Order.Id } от { Order.BillDate.ToShortDateString() } { SpecialContractNumber }";
+		public virtual string Title => $"{ Name } от { Order.BillDate.ToShortDateString() } { SpecialContractNumber }";
 
 		public override string Name => Order?.DeliveryDate >= new DateTime(2026, 1, 1) 
-			?  $"Особый счет №{DocumentOrganizationCounter?.DocumentNumber ?? "-"}"
+			?  $"Особый счет №{DocumentOrganizationCounter?.DocumentNumber ?? Order?.Id.ToString()}"
 			:  $"Особый счет №{Order?.Id}";
 
 		public override DateTime? DocumentDate => Order?.BillDate;
