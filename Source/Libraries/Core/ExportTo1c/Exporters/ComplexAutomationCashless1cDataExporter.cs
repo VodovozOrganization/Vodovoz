@@ -69,7 +69,7 @@ namespace ExportTo1c.Library.Exporters
 					.FirstOrDefault(od => counterDocumentsTypes.Contains(od.Type) && od.DocumentOrganizationCounter != null)
 					?.DocumentOrganizationCounter
 					?.DocumentNumber
-					?? "Без номера";
+					?? order.Id.ToString();
 
 				var orderElement = new XElement
 				(
