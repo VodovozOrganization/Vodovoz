@@ -472,7 +472,14 @@ namespace WarehouseApi.Library.Errors
 				return CarLoadDocumentErrors.CreateOrderNotFound(orderId);
 			}
 
-			var banStatuses = new[] { OrderStatus.OnTheWay, OrderStatus.DeliveryCanceled,  OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.NotDelivered, OrderStatus.Closed};
+			var banStatuses = new[] { 
+				OrderStatus.DeliveryCanceled, 
+				OrderStatus.Shipped,
+				OrderStatus.UnloadingOnStock,
+				OrderStatus.NotDelivered, 
+				OrderStatus.Closed
+				
+			};
 
 			if(banStatuses.Any(status => status == order.OrderStatus))
 			{
