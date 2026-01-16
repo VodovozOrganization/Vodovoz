@@ -16,9 +16,5 @@ namespace CustomerAppsApi.Library.Dto.Edo
 		/// Идентификатор пользователя
 		/// </summary>
 		public Guid ExternalCounterpartyId { get; set; }
-		/// <summary>
-		/// Идентификатор клиента в Erp
-		/// </summary>
-		public int CounterpartyErpId { get; set; }
 	}
 }

@@ -1,8 +1,11 @@
-﻿namespace CustomerAppsApi.Library.Dto.Counterparties
+﻿using System.Text.Json.Serialization;
+
+namespace CustomerAppsApi.Library.Dto.Counterparties
 {
 	/// <summary>
 	/// Следующий шаг после получения юр лиц по ИНН
 	/// </summary>
+	[JsonConverter(typeof(JsonStringEnumConverter))]
 	public enum NextStepGetLegalCounterpartiesByInnRequest
 	{
 		/// <summary>

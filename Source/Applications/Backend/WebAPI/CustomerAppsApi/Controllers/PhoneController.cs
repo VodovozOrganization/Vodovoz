@@ -44,7 +44,7 @@ namespace CustomerAppsApi.Controllers
 			_logger.LogInformation(
 				"Поступил запрос на добавление телефона {PhoneNumber} к клиенту {CounterpartyId} от пользователя: {ExternalCounterpartyId} с {Source}",
 				dto.PhoneNumber,
-				dto.CounterpartyErpId,
+				dto.ErpCounterpartyId,
 				dto.ExternalCounterpartyId,
 				source);
 			
@@ -58,7 +58,7 @@ namespace CustomerAppsApi.Controllers
 						"Не прошли валидацию при добавлении телефона {PhoneNumber} к клиенту " +
 						"{CounterpartyId} от пользователя: {ExternalCounterpartyId}:\n{ValidationResult}",
 						dto.PhoneNumber,
-						dto.CounterpartyErpId,
+						dto.ErpCounterpartyId,
 						dto.ExternalCounterpartyId,
 						validationResult);
 					return ValidationProblem(validationResult);
@@ -88,7 +88,7 @@ namespace CustomerAppsApi.Controllers
 					"Ошибка при добавлении телефона {PhoneNumber} к клиенту " +
 					"{CounterpartyId} от пользователя: {ExternalCounterpartyId} с {Source}",
 					dto.PhoneNumber,
-					dto.CounterpartyErpId,
+					dto.ErpCounterpartyId,
 					dto.ExternalCounterpartyId,
 					source);
 				return Problem();

@@ -11,7 +11,6 @@ namespace CustomerAppsApi.Library.Dto.Counterparties
 		private LegalCustomersByInnResponse(
 			int id,
 			string name,
-			string fullName,
 			string firstName,
 			string surname,
 			string patronymic,
@@ -24,11 +23,10 @@ namespace CustomerAppsApi.Library.Dto.Counterparties
 			)
 		{
 			ErpCounterpartyId = id;
-			Name = name;
 			JurAddress = jurAddress;
 			Inn = inn;
 			Kpp = kpp;
-			FullName = fullName;
+			FullName = name;
 			ShortTypeOfOwnership = shortTypeOfOwnership;
 			FirstName = firstName;
 			Surname = surname;
@@ -46,10 +44,6 @@ namespace CustomerAppsApi.Library.Dto.Counterparties
 		/// Идентификатор клиента
 		/// </summary>
 		public int ErpCounterpartyId { get; }
-		/// <summary>
-		/// Наименование
-		/// </summary>
-		public string Name { get; }
 		/// <summary>
 		/// Полное наименование
 		/// </summary>
@@ -142,7 +136,6 @@ namespace CustomerAppsApi.Library.Dto.Counterparties
 		public static LegalCustomersByInnResponse Create(
 			int id,
 			string name,
-			string fullName,
 			string firstName,
 			string surname,
 			string patronymic,
@@ -153,7 +146,7 @@ namespace CustomerAppsApi.Library.Dto.Counterparties
 			int? emailId,
 			int? activeEmailId) =>
 			new LegalCustomersByInnResponse(
-				id, name, fullName, firstName, surname, patronymic, inn, kpp, jurAddress, shortTypeOfOwnership, emailId, activeEmailId);
+				id, name, firstName, surname, patronymic, inn, kpp, jurAddress, shortTypeOfOwnership, emailId, activeEmailId);
 		
 		public static LegalCustomersByInnResponse CreateEmpty() =>
 			new LegalCustomersByInnResponse(NextStepGetLegalCounterpartiesByInnRequest.CounterpartiesNotExists);

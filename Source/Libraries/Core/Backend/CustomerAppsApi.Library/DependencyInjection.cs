@@ -46,6 +46,7 @@ namespace CustomerAppsApi.Library
 		{
 			services
 				.AddTrueMarkApiClient()
+				.AddRevenueServiceClient()
 				.AddScoped<ISendingService, SendingService>()
 				.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen))
 				.AddScoped<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>()
@@ -97,8 +98,9 @@ namespace CustomerAppsApi.Library
 				.AddScoped<ICustomerAppCounterpartyRepository, CustomerAppCounterpartyRepository>()
 				.AddScoped<IContactsRepository, ContactsRepository>()
 				.AddScoped<ICounterpartyService, CounterpartyService>()
-				.AddScoped<IRevenueServiceClient, RevenueServiceClient>()
 				.AddScoped<TrueMarkRegistrationCheckService>()
+				.AddScoped<CustomerAppEdoService>()
+				.AddScoped<ICustomerAppEdoOperatorRepository, CustomerAppEdoOperatorRepository>()
 				;
 
 			return services;

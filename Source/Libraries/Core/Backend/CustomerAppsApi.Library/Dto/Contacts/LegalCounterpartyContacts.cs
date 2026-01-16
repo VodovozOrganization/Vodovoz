@@ -16,11 +16,11 @@ namespace CustomerAppsApi.Library.Dto.Contacts
 		/// <summary>
 		/// Список телефонов
 		/// </summary>
-		IEnumerable<PhoneDto> Phones { get; }
+		public IEnumerable<PhoneDto> Phones { get; }
 		/// <summary>
 		/// Список электронных почт
 		/// </summary>
-		IEnumerable<EmailDto> Emails { get; }
+		public IEnumerable<EmailDto> Emails { get; }
 
 		public static LegalCounterpartyContacts Create(IEnumerable<PhoneDto> phones, IEnumerable<EmailDto> emails) =>
 			new LegalCounterpartyContacts(phones, emails);

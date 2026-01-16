@@ -140,7 +140,7 @@ namespace CustomerAppsApi.Library.Repositories
 			IUnitOfWork unitOfWork, IFindExternalLegalCounterpartyAccountDto dto)
 		{
 			return _legalCounterpartyAccountRepository.GetExternalLegalCounterpartyAccountsActivations(
-				unitOfWork, dto.Source, dto.ExternalCounterpartyId, dto.CounterpartyErpId);
+				unitOfWork, dto.Source, dto.ExternalCounterpartyId, dto.ErpCounterpartyId);
 		}
 	}
 }

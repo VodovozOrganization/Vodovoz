@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using CustomerAppsApi.Library.Dto.Edo;
 using CustomerAppsApi.Library.Errors;
@@ -74,7 +75,7 @@ namespace CustomerAppsApi.Library.Services
 				return Result.Failure(LegalCounterpartyActivationErrors.ActivationInWrongState());
 			}
 			
-			var counterparty = _unitOfWork.GetById<Counterparty>(dto.CounterpartyErpId);
+			var counterparty = _unitOfWork.GetById<Counterparty>(dto.ErpCounterpartyId);
 
 			if(counterparty is null)
 			{
@@ -118,7 +119,7 @@ namespace CustomerAppsApi.Library.Services
 				return Result.Failure(LegalCounterpartyActivationErrors.ActivationInWrongState());
 			}
 
-			var counterparty = _unitOfWork.GetById<Counterparty>(dto.CounterpartyErpId);
+			var counterparty = _unitOfWork.GetById<Counterparty>(dto.ErpCounterpartyId);
 
 			if(counterparty is null)
 			{
@@ -128,7 +129,7 @@ namespace CustomerAppsApi.Library.Services
 			var edoAccount = _counterpartyEdoAccountRepository
 				.GetFirstOrDefault(
 					_unitOfWork,
-					x => x.Counterparty.Id == dto.CounterpartyErpId
+					x => x.Counterparty.Id == dto.ErpCounterpartyId
 						&& string.Equals(x.PersonalAccountIdInEdo, dto.EdoAccount, StringComparison.OrdinalIgnoreCase));
 
 			var upperProvidedEdoAccount = dto.EdoAccount.ToUpper();
@@ -183,9 +184,9 @@ namespace CustomerAppsApi.Library.Services
 		}
 
 		/// <inheritdoc/>
-		public Result GetEdoOperators()
+		public IEnumerable<EdoOperatorDto> GetEdoOperators()
 		{
-			return Result.Success(_customerAppEdoOperatorRepository.GetAllEdoOperators(_unitOfWork));
+			return _customerAppEdoOperatorRepository.GetAllEdoOperators(_unitOfWork);
 		}
 	}
 }

@@ -16,12 +16,12 @@ namespace Vodovoz.Application.TrueMark
 	{
 		private readonly ILogger<TrueMarkRegistrationCheckService> _logger;
 		private readonly IEdoSettings _edoSettings;
-		private readonly TrueMarkApiClient _client;
+		private readonly ITrueMarkApiClient _client;
 
 		public TrueMarkRegistrationCheckService(
 			ILogger<TrueMarkRegistrationCheckService> logger,
 			IEdoSettings edoSettings,
-			TrueMarkApiClient client)
+			ITrueMarkApiClient client)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));

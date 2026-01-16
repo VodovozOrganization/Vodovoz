@@ -209,7 +209,7 @@ namespace CustomerAppsApi.Library.Validators
 		public string AddPhoneToCounterpartyValidate(AddingPhoneNumberDto dto)
 		{
 			ValidateSource(dto.Source);
-			ValidateLegalCounterpartyId(dto.CounterpartyErpId);
+			ValidateLegalCounterpartyId(dto.ErpCounterpartyId);
 			ValidatePhoneNumber(dto.PhoneNumber);
 			
 			return ValidationResult();
@@ -233,7 +233,7 @@ namespace CustomerAppsApi.Library.Validators
 		public string UpdateCounterpartyPurposeOfPurchaseValidate(UpdatingCounterpartyPurposeOfPurchase dto)
 		{
 			ValidateSource(dto.Source);
-			ValidateLegalCounterpartyId(dto.CounterpartyErpId);
+			ValidateLegalCounterpartyId(dto.ErpCounterpartyId);
 			
 			return ValidationResult();
 		}
@@ -242,7 +242,7 @@ namespace CustomerAppsApi.Library.Validators
 		public string AddEdoAccountValidate(AddingEdoAccount dto)
 		{
 			ValidateSource(dto.Source);
-			ValidateLegalCounterpartyId(dto.CounterpartyErpId);
+			ValidateLegalCounterpartyId(dto.ErpCounterpartyId);
 			ValidateEdoAccount(dto.EdoAccount);
 			
 			return ValidationResult();
@@ -292,7 +292,7 @@ namespace CustomerAppsApi.Library.Validators
 		{
 			if(legalCounterpartyId <= 0)
 			{
-				_sb.AppendLine("Передан неверный Id юридического лица");
+				_sb.AppendLine("Передан неверный идентификатор юридического лица");
 			}
 		}
 		
@@ -386,10 +386,6 @@ namespace CustomerAppsApi.Library.Validators
 				if(typeOfOwnership == "ИП" && kpp != null)
 				{
 					_sb.AppendLine("У ИП не заполняется КПП");
-				}
-				else
-				{
-					ValidateCompanyKpp(kpp);
 				}
 			}
 		}

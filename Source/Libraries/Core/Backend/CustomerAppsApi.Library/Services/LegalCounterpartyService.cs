@@ -360,7 +360,7 @@ namespace CustomerAppsApi.Library.Services
 			var phones = _contactsRepository.GetLegalCounterpartyPhones(_uow, dto.ErpCounterpartyId);
 			var emails = _contactsRepository.GetLegalCounterpartyEmails(_uow, dto.ErpCounterpartyId);
 
-			return LegalCounterpartyContacts.Create(phones, emails);
+			return Result.Success(LegalCounterpartyContacts.Create(phones, emails));
 		}
 
 		private Email CreateNewEmail(string emailAddress, int legalCounterpartyId)

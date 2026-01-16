@@ -49,7 +49,7 @@ namespace CustomerAppsApi.Library.Services
 			}
 
 			var activationState = activationStates.First();
-			var counterpartyExists = _counterpartyServiceDataHandler.CounterpartyExists(_unitOfWork, dto.CounterpartyErpId);
+			var counterpartyExists = _counterpartyServiceDataHandler.CounterpartyExists(_unitOfWork, dto.ErpCounterpartyId);
 
 			if(activationState.AddingPhoneNumberState == AddingPhoneNumberState.Done)
 			{
@@ -59,12 +59,12 @@ namespace CustomerAppsApi.Library.Services
 			
 			if(!counterpartyExists)
 			{
-				_logger.LogWarning("Не найдено юр лицо с Id {LegalCounterpartyId}", dto.CounterpartyErpId);
+				_logger.LogWarning("Не найдено юр лицо с Id {LegalCounterpartyId}", dto.ErpCounterpartyId);
 				return Result.Failure(CounterpartyErrors.CounterpartyNotExists());
 			}
 
 			var digitsNumber = dto.PhoneNumber.TrimStart('7');
-			var phoneExists = _counterpartyServiceDataHandler.PhoneExists(_unitOfWork, dto.CounterpartyErpId, digitsNumber);
+			var phoneExists = _counterpartyServiceDataHandler.PhoneExists(_unitOfWork, dto.ErpCounterpartyId, digitsNumber);
 			
 			if(phoneExists)
 			{
@@ -73,7 +73,7 @@ namespace CustomerAppsApi.Library.Services
 			}
 
 			activationState.AddingPhoneNumberState = AddingPhoneNumberState.Done;
-			var phone = Phone.Create(dto.CounterpartyErpId, dto.PhoneNumber);
+			var phone = Phone.Create(dto.ErpCounterpartyId, dto.PhoneNumber);
 			_unitOfWork.Save(phone);
 			_unitOfWork.Save(activationState);
 			_unitOfWork.Commit();

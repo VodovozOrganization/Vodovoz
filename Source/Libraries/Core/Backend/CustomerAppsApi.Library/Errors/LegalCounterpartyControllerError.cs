@@ -11,7 +11,7 @@ namespace CustomerAppsApi.Library.Errors
 		public static Error NotExistsActiveEmail()
 			=> new Error(
 				"404",
-				string.Empty,
+				"Нет юр лиц с указанной активной электронной почтой",
 				typeof(LegalCounterpartyControllerError)
 				);
 		

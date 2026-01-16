@@ -32,6 +32,10 @@ namespace CustomerAppsApi.Library.Dto.Counterparties
 		/// </summary>
 		public string Email { get; set; }
 		/// <summary>
+		/// Номер телефона в формате XXXXXXXXXX
+		/// </summary>
+		public string PhoneNumber { get; set; }
+		/// <summary>
 		/// ИНН
 		/// </summary>
 		public string Inn { get; set; }

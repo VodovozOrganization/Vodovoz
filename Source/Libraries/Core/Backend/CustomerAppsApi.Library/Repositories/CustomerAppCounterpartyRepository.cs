@@ -82,14 +82,13 @@ namespace CustomerAppsApi.Library.Repositories
 				select LegalCustomersByInnResponse.Create(
 					counterparty.Id,
 					counterparty.Name,
-					counterparty.JurAddress,
-					counterparty.INN,
-					counterparty.KPP,
-					counterparty.FullName,
-					counterparty.TypeOfOwnership,
 					counterparty.FirstName,
 					counterparty.Surname,
 					counterparty.Patronymic,
+					counterparty.INN,
+					counterparty.KPP,
+					counterparty.JurAddress,
+					counterparty.TypeOfOwnership,
 					emailId,
 					activeEmailId)
 				).ToList();

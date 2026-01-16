@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,7 +37,7 @@ namespace CustomerAppsApi.Controllers
 		/// <param name="dto">Детали запроса <see cref="CheckPasswordRequest"/></param>
 		/// <returns></returns>
 		[HttpGet]
-		public IActionResult CheckPassword(CheckPasswordRequest dto)
+		public IActionResult CheckPassword([FromBody] CheckPasswordRequest dto)
 		{
 			var source = dto.Source.GetEnumDisplayName();
 			
@@ -94,7 +94,7 @@ namespace CustomerAppsApi.Controllers
 		/// <param name="dto">Детали запроса <see cref="LegalCustomersByInnRequest"/></param>
 		/// <returns></returns>
 		[HttpGet]
-		public IActionResult GetLegalCustomersByInn(LegalCustomersByInnRequest dto)
+		public IActionResult GetLegalCustomersByInn([FromBody] LegalCustomersByInnRequest dto)
 		{
 			var source = dto.Source.GetEnumDisplayName();
 			
@@ -148,7 +148,7 @@ namespace CustomerAppsApi.Controllers
 		/// <param name="dto">Детали запроса <see cref="CompanyWithActiveEmailRequest"/></param>
 		/// <returns></returns>
 		[HttpGet]
-		public IActionResult GetCompanyList(CompanyWithActiveEmailRequest dto)
+		public IActionResult GetCompanyList([FromBody] CompanyWithActiveEmailRequest dto)
 		{
 			var source = dto.Source.GetEnumDisplayName();
 			
@@ -184,7 +184,7 @@ namespace CustomerAppsApi.Controllers
 
 				return error.Code switch
 				{
-					"404" => NotFound(),
+					"404" => Problem(error.Message, statusCode: int.Parse(error.Code)),
 					_ => Problem(error.Message)
 				};
 			}
@@ -208,7 +208,7 @@ namespace CustomerAppsApi.Controllers
 		/// <param name="cancellationToken">Токен для отмены опреации</param>
 		/// <returns></returns>
 		[HttpGet]
-		public async Task<IActionResult> GetCompanyInfo(CompanyInfoRequest dto, CancellationToken cancellationToken)
+		public async Task<IActionResult> GetCompanyInfo([FromBody] CompanyInfoRequest dto, CancellationToken cancellationToken)
 		{
 			var source = dto.Source.GetEnumDisplayName();
 			
@@ -241,7 +241,7 @@ namespace CustomerAppsApi.Controllers
 
 				return error.Code switch
 				{
-					"404" => NotFound(),
+					"404" => Problem(error.Message, statusCode: int.Parse(error.Code)),
 					_ => Problem(error.Message)
 				};
 			}
@@ -366,7 +366,7 @@ namespace CustomerAppsApi.Controllers
 		/// <param name="dto">Детали запроса <see cref="LegalCounterpartyContactListRequest"/></param>
 		/// <returns></returns>
 		[HttpGet]
-		public IActionResult GetLegalCounterpartyContactList(LegalCounterpartyContactListRequest dto)
+		public IActionResult GetLegalCounterpartyContactList([FromBody] LegalCounterpartyContactListRequest dto)
 		{
 			var source = dto.Source.GetEnumDisplayName();
 			_logger.LogInformation(

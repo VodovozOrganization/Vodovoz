@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using CustomerAppsApi.Library.Dto.Edo;
 using CustomerAppsApi.Library.Services;
@@ -45,7 +45,7 @@ namespace CustomerAppsApi.Controllers
 			_logger.LogInformation(
 				"Поступил запрос на обновление цели покупки воды {PurposeOfPurchase} у клиента {CounterpartyId} от пользователя: {ExternalCounterpartyId} с {Source}",
 				dto.WaterPurposeOfPurchase,
-				dto.CounterpartyErpId,
+				dto.ErpCounterpartyId,
 				dto.ExternalCounterpartyId,
 				source);
 			
@@ -58,7 +58,7 @@ namespace CustomerAppsApi.Controllers
 					_logger.LogInformation(
 						"Не прошли валидацию при обновлении цели покупки воды у клиента " +
 						"{CounterpartyId} от пользователя: {ExternalCounterpartyId}:\n{ValidationResult}",
-						dto.CounterpartyErpId,
+						dto.ErpCounterpartyId,
 						dto.ExternalCounterpartyId,
 						validationResult);
 					return ValidationProblem(validationResult);
@@ -87,7 +87,7 @@ namespace CustomerAppsApi.Controllers
 					e,
 					"Ошибка при обновлении цели покупки воды у клиента " +
 					"{CounterpartyId} от пользователя: {ExternalCounterpartyId} с {Source}",
-					dto.CounterpartyErpId,
+					dto.ErpCounterpartyId,
 					dto.ExternalCounterpartyId,
 					source);
 				return Problem();
@@ -107,7 +107,7 @@ namespace CustomerAppsApi.Controllers
 			_logger.LogInformation(
 				"Поступил запрос на добавление ЭДО аккаунта {EdoAccount} клиенту {CounterpartyId} от пользователя: {ExternalCounterpartyId} с {Source}",
 				dto.EdoAccount,
-				dto.CounterpartyErpId,
+				dto.ErpCounterpartyId,
 				dto.ExternalCounterpartyId,
 				source);
 			
@@ -120,7 +120,7 @@ namespace CustomerAppsApi.Controllers
 					_logger.LogInformation(
 						"Не прошли валидацию при добавлении ЭДО аккаунта у клиента " +
 						"{CounterpartyId} от пользователя: {ExternalCounterpartyId}:\n{ValidationResult}",
-						dto.CounterpartyErpId,
+						dto.ErpCounterpartyId,
 						dto.ExternalCounterpartyId,
 						validationResult);
 					return ValidationProblem(validationResult);
@@ -149,7 +149,7 @@ namespace CustomerAppsApi.Controllers
 					e,
 					"Ошибка при добавлении ЭДО аккаунта клиенту " +
 					"{CounterpartyId} от пользователя: {ExternalCounterpartyId} с {Source}",
-					dto.CounterpartyErpId,
+					dto.ErpCounterpartyId,
 					dto.ExternalCounterpartyId,
 					source);
 				return Problem();
@@ -162,7 +162,7 @@ namespace CustomerAppsApi.Controllers
 		/// <param name="request">Детали запроса <see cref="GetEdoOperatorsRequest"/></param>
 		/// <returns></returns>
 		[HttpGet]
-		public IActionResult GetEdoOperators(GetEdoOperatorsRequest request)
+		public IActionResult GetEdoOperators([FromBody] GetEdoOperatorsRequest request)
 		{
 			var source = request.Source.GetEnumDisplayName();
 			
@@ -184,8 +184,7 @@ namespace CustomerAppsApi.Controllers
 					return ValidationProblem(validationResult);
 				}
 				
-				var result = _customerAppEdoService.GetEdoOperators();
-				return Ok(result);
+				return Ok(_customerAppEdoService.GetEdoOperators());
 			}
 			catch(Exception e)
 			{

@@ -20,7 +20,7 @@ namespace CustomerAppsApi.Library.Dto.Phones
 		/// <summary>
 		/// Идентификатор клиента в Erp
 		/// </summary>
-		public int CounterpartyErpId { get; set; }
+		public int ErpCounterpartyId { get; set; }
 		/// <summary>
 		/// Номер телефона в формате 7XXXXXXXXXX
 		/// </summary>
