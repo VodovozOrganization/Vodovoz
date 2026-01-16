@@ -24,7 +24,6 @@ namespace CustomerAppsApi.Library.Repositories
 			CounterpartyFrom counterpartyFrom);
 		ExternalCounterparty GetExternalCounterparty(IUnitOfWork uow, string phoneNumber, CounterpartyFrom counterpartyFrom);
 		bool ExternalCounterpartyMatchingExists(IUnitOfWork uow, Guid externalCounterpartyId, string phoneNumber);
-		IEnumerable<LegalCounterpartyInfo> GetNaturalCounterpartyLegalCustomers(IUnitOfWork uow, int counterpartyId, string phone);
 		RoboAtsCounterpartyName GetRoboatsCounterpartyName(IUnitOfWork uow, string counterpartyName);
 		RoboAtsCounterpartyPatronymic GetRoboatsCounterpartyPatronymic(IUnitOfWork uow, string counterpartyPatronymic);
 		int GetCounterpartyBottlesDebt(IUnitOfWork uow, int counterpartyId, int counterpartyDebtCacheMinutes);
@@ -32,10 +31,7 @@ namespace CustomerAppsApi.Library.Repositories
 		EmailType GetEmailTypeForReceipts(IUnitOfWork uow);
 		OrganizationOwnershipType GetOrganizationOwnershipTypeByCode(IUnitOfWork uow, string code);
 		bool CounterpartyExists(IUnitOfWork uow, int counterpartyId);
-		ConnectedCustomer GetConnectedCustomer(IUnitOfWork uow, int legalCounterpartyId, int naturalCounterpartyId, string phone);
-		ConnectedCustomer GetConnectedCustomer(IUnitOfWork uow, int legalCounterpartyId, int phoneId);
 		bool CounterpartyExists(IUnitOfWork uow, string inn);
-		IEnumerable<PhoneInfo> GetConnectedCustomerPhones(IUnitOfWork uow, int legalCounterpartyId, int naturalCounterpartyId);
 		/// <summary>
 		/// Получение адреса почты для связки с аккаунтом юр лица в ИПЗ
 		/// </summary>

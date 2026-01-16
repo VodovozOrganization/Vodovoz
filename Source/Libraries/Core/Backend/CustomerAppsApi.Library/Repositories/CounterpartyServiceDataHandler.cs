@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using CustomerAppsApi.Library.Dto.Edo;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Data.Counterparties;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.Accounts;
 using Vodovoz.Domain.Client;
@@ -28,7 +25,6 @@ namespace CustomerAppsApi.Library.Repositories
 		private readonly ICounterpartyRepository _counterpartyRepository;
 		private readonly ICachedBottlesDebtRepository _cachedBottlesDebtRepository;
 		private readonly IOrganizationRepository _organizationRepository;
-		private readonly IConnectedCustomerRepository _connectedCustomerRepository;
 		private readonly IExternalLegalCounterpartyAccountRepository _legalCounterpartyAccountRepository;
 
 		public CounterpartyServiceDataHandler(
@@ -40,7 +36,6 @@ namespace CustomerAppsApi.Library.Repositories
 			ICounterpartyRepository counterpartyRepository,
 			ICachedBottlesDebtRepository cachedBottlesDebtRepository,
 			IOrganizationRepository organizationRepository,
-			IConnectedCustomerRepository connectedCustomerRepository,
 			IExternalLegalCounterpartyAccountRepository legalCounterpartyAccountRepository
 			)
 		{
@@ -55,8 +50,6 @@ namespace CustomerAppsApi.Library.Repositories
 			_cachedBottlesDebtRepository =
 				cachedBottlesDebtRepository ?? throw new ArgumentNullException(nameof(cachedBottlesDebtRepository));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
-			_connectedCustomerRepository =
-				connectedCustomerRepository ?? throw new ArgumentNullException(nameof(connectedCustomerRepository));
 			_legalCounterpartyAccountRepository =
 				legalCounterpartyAccountRepository ?? throw new ArgumentNullException(nameof(legalCounterpartyAccountRepository));
 		}
@@ -89,49 +82,6 @@ namespace CustomerAppsApi.Library.Repositories
 		public bool ExternalCounterpartyMatchingExists(IUnitOfWork uow, Guid externalCounterpartyId, string phoneNumber)
 		{
 			return _externalCounterpartyMatchingRepository.ExternalCounterpartyMatchingExists(uow, externalCounterpartyId, phoneNumber);
-		}
-		
-		public IEnumerable<LegalCounterpartyInfo> GetNaturalCounterpartyLegalCustomers(IUnitOfWork uow, int counterpartyId, string phone)
-		{
-			var counterparties = _connectedCustomerRepository.GetConnectedCustomers(uow, counterpartyId, phone);
-
-			var counterpartiesIds = counterparties
-				.Select(x => x.ErpCounterpartyId)
-				.Distinct()
-				.ToArray();
-
-			var phones =
-				_phoneRepository
-					.GetPhoneInfoByCounterpartiesIds(uow, counterpartiesIds)
-					.ToLookup(x => x.ErpCounterpartyId);
-			
-			var emails =
-				_emailRepository
-					.GetEmailInfoByCounterpatiesIds(uow, counterpartiesIds)
-					.ToLookup(x => x.ErpCounterpartyId);
-
-			foreach(var counterpartyInfo in counterparties)
-			{
-				var currentCounterpartyId = counterpartyInfo.ErpCounterpartyId;
-				var counterpartyPhones = new List<PhoneInfo>();
-				var counterpartyEmails = new List<EmailInfo>();
-
-				if(phones.Contains(currentCounterpartyId))
-				{
-					counterpartyPhones.AddRange(phones[currentCounterpartyId]);
-				}
-
-				counterpartyInfo.Phones = counterpartyPhones;
-				
-				if(emails.Contains(currentCounterpartyId))
-				{
-					counterpartyEmails.AddRange(emails[currentCounterpartyId]);
-				}
-				
-				counterpartyInfo.Emails = counterpartyEmails;
-			}
-			
-			return counterparties;
 		}
 		
 		public RoboAtsCounterpartyName GetRoboatsCounterpartyName(IUnitOfWork uow, string counterpartyName)
@@ -169,24 +119,9 @@ namespace CustomerAppsApi.Library.Repositories
 			return _counterpartyRepository.CounterpartyByIdExists(uow, counterpartyId);
 		}
 
-		public ConnectedCustomer GetConnectedCustomer(IUnitOfWork uow, int legalCounterpartyId, int naturalCounterpartyId, string phone)
-		{
-			return _connectedCustomerRepository.GetConnectedCustomer(uow, legalCounterpartyId, naturalCounterpartyId, phone);
-		}
-
-		public ConnectedCustomer GetConnectedCustomer(IUnitOfWork uow, int legalCounterpartyId, int phoneId)
-		{
-			return _connectedCustomerRepository.GetConnectedCustomer(uow, legalCounterpartyId, phoneId);
-		}
-
 		public bool CounterpartyExists(IUnitOfWork uow, string inn)
 		{
 			return _counterpartyRepository.CounterpartyByInnExists(uow, inn);
-		}
-
-		public IEnumerable<PhoneInfo> GetConnectedCustomerPhones(IUnitOfWork uow, int legalCounterpartyId, int naturalCounterpartyId)
-		{			
-			return _connectedCustomerRepository.GetConnectedCustomerPhones(uow, legalCounterpartyId, naturalCounterpartyId);
 		}
 
 		public IEnumerable<Email> GetEmailForLinking(IUnitOfWork uow, int legalCounterpartyId, string email)
