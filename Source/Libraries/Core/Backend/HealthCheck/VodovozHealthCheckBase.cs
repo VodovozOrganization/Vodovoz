@@ -1,5 +1,4 @@
-﻿using MassTransit;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
+﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -16,7 +15,6 @@ namespace VodovozHealthCheck
 	{
 		private readonly ILogger<VodovozHealthCheckBase> _logger;
 		protected readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly IBusControl _busControl;
 
 		/// <summary>
 		/// Конструктор HealthCheck
@@ -27,12 +25,10 @@ namespace VodovozHealthCheck
 		/// <exception cref="ArgumentNullException"></exception>
 		protected VodovozHealthCheckBase(
 			ILogger<VodovozHealthCheckBase> logger,
-			IUnitOfWorkFactory unitOfWorkFactory = null,
-			IBusControl busControl = null)
+			IUnitOfWorkFactory unitOfWorkFactory = null)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory;
-			_busControl = busControl;
 		}
 
 		/// <summary>
@@ -65,15 +61,6 @@ namespace VodovozHealthCheck
 					}
 				}
 
-				if(_busControl != null)
-				{
-					var busHealth = CheckBusHealth();
-
-					if(!busHealth.IsHealthy)
-					{
-						return HealthCheckResult.Unhealthy("Проблема с брокером сообщений.", data: busHealth.ToUnhealthyDataInfoResponse());
-					}
-				}
 
 				_logger.LogInformation("{CheckMessage}: Вызываем проверку из сервиса.", checkMessage);
 
@@ -129,41 +116,6 @@ namespace VodovozHealthCheck
 			}
 		}
 
-		/// <summary>
-		/// Проверка состояния брокера сообщений
-		/// </summary>
-		/// <returns></returns>
-		private VodovozHealthResultDto CheckBusHealth()
-		{
-			try
-			{
-				var health = _busControl.CheckHealth();
-
-				if(health.Status == BusHealthStatus.Healthy)
-				{
-					return new VodovozHealthResultDto { IsHealthy = true };
-				}
-
-				var failureVodovozHealthResult = new VodovozHealthResultDto
-				{
-					IsHealthy = false,
-					AdditionalUnhealthyResults = new HashSet<string> { "Проблема связи с брокером сообщений" }
-				};
-
-				failureVodovozHealthResult.AdditionalUnhealthyResults.UnionWith(
-					health.Endpoints?.Select(e => $"{e.Key}: {e.Value}"));
-
-				return failureVodovozHealthResult;
-			}
-			catch(Exception ex)
-			{
-				return new VodovozHealthResultDto
-				{
-					IsHealthy = false,
-					AdditionalUnhealthyResults = new HashSet<string> { $"Проблема при проверке брокера сообщений: {ex.Message}" }
-				};
-			}
-		}
 
 		/// <summary>
 		/// Выполняет специфичную для службы проверку работоспособности. Реализуется на стороне службы.

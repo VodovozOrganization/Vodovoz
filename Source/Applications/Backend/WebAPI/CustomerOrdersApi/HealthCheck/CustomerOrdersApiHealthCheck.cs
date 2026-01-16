@@ -25,7 +25,7 @@ namespace CustomerOrdersApi.HealthCheck
 			IHttpClientFactory httpClientFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IBusControl busControl)
-			: base(logger, unitOfWorkFactory, busControl)
+			: base(logger, unitOfWorkFactory)
 		{
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
