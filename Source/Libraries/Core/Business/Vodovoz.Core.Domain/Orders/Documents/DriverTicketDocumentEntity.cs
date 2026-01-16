@@ -11,7 +11,7 @@ namespace Vodovoz.Core.Domain.Orders.Documents
 		public override OrderDocumentType Type => OrderDocumentType.DriverTicket;
 		#endregion
 		public override string Name => Order?.DeliveryDate >= new DateTime(2026, 1, 1) 
-			?  $"Талон водителю №{DocumentOrganizationCounter?.DocumentNumber ?? "-"}"
+			?  $"Талон водителю №{Order?.Id + (DocumentOrganizationCounter == null ? "" : "/") + (DocumentOrganizationCounter?.DocumentNumber ?? "")}"
 			:  $"Талон водителю №{Order?.Id}";
 
 		public override DateTime? DocumentDate => Order?.DeliveryDate;
