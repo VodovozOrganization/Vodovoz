@@ -470,6 +470,7 @@ namespace Vodovoz.JournalViewModels
 								_organizationRepository,
 								_lifetimeScope.Resolve<IFuelApiService>(),
 								_lifetimeScope.Resolve<IFuelControlSettings>(),
+								_lifetimeScope.Resolve<ICarEventSettings>(),
 								_lifetimeScope.Resolve<IGuiDispatcher>(),
 								_lifetimeScope.Resolve<IUserSettingsService>(),
 								_lifetimeScope.Resolve<IYesNoCancelQuestionInteractive>(),
