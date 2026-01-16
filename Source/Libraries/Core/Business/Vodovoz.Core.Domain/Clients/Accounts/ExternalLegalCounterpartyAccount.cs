@@ -41,6 +41,10 @@ namespace Vodovoz.Core.Domain.Clients.Accounts
 			ExternalUserId = externalUserId;
 			AccountPasswordSalt = passwordData.Salt;
 			AccountPasswordHash = passwordData.PasswordHash;
+			AccountActivation = new ExternalLegalCounterpartyAccountActivation
+			{
+				ExternalAccount = this
+			};
 		}
 
 		/// <summary>

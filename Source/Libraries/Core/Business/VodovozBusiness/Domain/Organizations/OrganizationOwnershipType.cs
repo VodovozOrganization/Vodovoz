@@ -21,7 +21,6 @@ namespace Vodovoz.Domain.Organizations
 		private string _code;
 		private bool _isArchive;
 		
-		
 		public OrganizationOwnershipType()
 		{
 			Abbreviation = string.Empty;

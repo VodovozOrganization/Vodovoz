@@ -13,6 +13,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Organizations
 			Map(x => x.Abbreviation).Column("abbreviation");
 			Map(x => x.FullName).Column("full_name");
 			Map(x => x.IsArchive).Column("is_archive");
+			Map(x => x.Code).Column("code");
 		}
 	}
 }

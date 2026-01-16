@@ -351,7 +351,7 @@ namespace CustomerAppsApi.Controllers
 			{
 				_logger.LogError(
 					e,
-					"Ошибка при ри прикреплении телефона {Email}, к юрику с Id: {LegalId} от {ExternalUserId} с {Source}",
+					"Ошибка при прикреплении телефона {Email}, к юрику с Id: {LegalId} от {ExternalUserId} с {Source}",
 					dto.Email,
 					dto.ErpCounterpartyId,
 					dto.ExternalCounterpartyId,

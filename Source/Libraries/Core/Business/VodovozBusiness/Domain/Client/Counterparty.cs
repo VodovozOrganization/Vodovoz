@@ -631,6 +631,7 @@ namespace Vodovoz.Domain.Client
 			INN = legalCounterpartyInfo.Inn;
 			KPP = legalCounterpartyInfo.Kpp;
 			JurAddress = legalCounterpartyInfo.JurAddress;
+			DelayDaysForBuyers = 7;
 		}
 
 		#region IValidatableObject implementation

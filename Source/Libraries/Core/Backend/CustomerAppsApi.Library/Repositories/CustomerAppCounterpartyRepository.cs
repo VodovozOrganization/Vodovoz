@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CustomerAppsApi.Library.Dto.Counterparties;
 using NHibernate;
+using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
@@ -10,6 +11,7 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.Accounts;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.Extensions;
 
 namespace CustomerAppsApi.Library.Repositories
 {
@@ -34,22 +36,37 @@ namespace CustomerAppsApi.Library.Repositories
 				.And(() => externalLegalAccountAlias.Source == source)
 				.And(() => externalLegalAccountAlias.LegalCounterpartyId == legalCounterpartyId)
 				.SelectList(list => list
-					.Select(() => counterpartyAlias.Address).WithAlias(() => resultAlias.Address)
+					.Select(() => counterpartyAlias.JurAddress).WithAlias(() => resultAlias.Address)
 					.Select(() => counterpartyAlias.INN).WithAlias(() => resultAlias.Inn)
 					.Select(() => counterpartyAlias.KPP).WithAlias(() => resultAlias.Kpp)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Name)
 					.Select(() => accountAlias.Number).WithAlias(() => resultAlias.AccountNumber)
 					.Select(() => counterpartyAlias.DelayDaysForBuyers).WithAlias(() => resultAlias.DelayOfPayment)
-					.Select(() => externalLegalAccountActivationAlias.AddingPhoneNumberState)
-						.WithAlias(() => resultAlias.ActivationCompanyAccountInfo.AddingPhoneNumberState)
-					.Select(() => externalLegalAccountActivationAlias.AddingReasonForLeavingState)
-						.WithAlias(() => resultAlias.ActivationCompanyAccountInfo.AddingReasonForLeavingState)
-					.Select(() => externalLegalAccountActivationAlias.AddingEdoAccountState)
-						.WithAlias(() => resultAlias.ActivationCompanyAccountInfo.AddingEdoAccountState)
-					.Select(() => externalLegalAccountActivationAlias.TaxServiceCheckState)
-						.WithAlias(() => resultAlias.ActivationCompanyAccountInfo.TaxServiceCheckState)
-					.Select(() => externalLegalAccountActivationAlias.TrueMarkCheckState)
-						.WithAlias(() => resultAlias.ActivationCompanyAccountInfo.TrueMarkCheckState)
+					.Select(
+						Projections.Cast(
+							NHibernateUtil.String,
+							Projections.Property(() => externalLegalAccountActivationAlias.AddingPhoneNumberState)))
+						.WithAlias(() => resultAlias.AddingPhoneNumberState)
+					.Select(
+						Projections.Cast(
+							NHibernateUtil.String,
+							Projections.Property(() => externalLegalAccountActivationAlias.AddingReasonForLeavingState)))
+						.WithAlias(() => resultAlias.AddingReasonForLeavingState)
+					.Select(
+						Projections.Cast(
+							NHibernateUtil.String,
+							Projections.Property(() => externalLegalAccountActivationAlias.AddingEdoAccountState)))
+						.WithAlias(() => resultAlias.AddingEdoAccountState)
+					.Select(
+						Projections.Cast(
+							NHibernateUtil.String,
+							Projections.Property(() => externalLegalAccountActivationAlias.TaxServiceCheckState)))
+						.WithAlias(() => resultAlias.TaxServiceCheckState)
+					.Select(
+						Projections.Cast(
+							NHibernateUtil.String,
+							Projections.Property(() => externalLegalAccountActivationAlias.TrueMarkCheckState)))
+						.WithAlias(() => resultAlias.TrueMarkCheckState)
 				)
 				.TransformUsing(Transformers.AliasToBean<CompanyInfoResponse>())
 				.List<CompanyInfoResponse>()

@@ -264,8 +264,11 @@ namespace CustomerAppsApi.Library.Services
 					nameof(LinkLegalCounterpartyEmailToExternalUser),
 					"Найдено несколько почт с таким адресом у этого клиента. Обратитесь в техподдержку"));
 			}
+			else
+			{
+				emailForLinking = emailsForLinking.First();
+			}
 
-			emailForLinking = emailsForLinking.First();
 			var passwordData = _passwordHasher.HashPassword(dto.Password);
 
 			var account = ExternalLegalCounterpartyAccount.Create(
@@ -275,6 +278,7 @@ namespace CustomerAppsApi.Library.Services
 				dto.ExternalCounterpartyId,
 				passwordData);
 
+			_uow.Save(account.AccountActivation);
 			_uow.Save(account);
 			_uow.Commit();
 
