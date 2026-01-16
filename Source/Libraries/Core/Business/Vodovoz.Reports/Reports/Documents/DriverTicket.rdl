@@ -1438,10 +1438,11 @@ WHERE stored_resource.id = @id1</CommandText>
                   <ReportItems>
                     <Textbox Name="Textbox61">
                       <Value>="Талон доставки № " + 
+                          CStr(First(Fields!order_id.Value, "Order")) + 
                           IIf(
                               Len(Trim(CStr(First(Fields!document_number.Value, "Order")))) = 0,
-                              CStr(First(Fields!order_id.Value, "Order")),
-                              CStr(First(Fields!document_number.Value, "Order"))
+                              "",
+                              "/" + CStr(First(Fields!document_number.Value, "Order"))
                           ) + 
                           " от " + 
                           Format(First(Fields!order_date.Value, "Order"), "dd.MM.yy") + 
