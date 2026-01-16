@@ -2200,7 +2200,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox61">
-                      <Value>=Iif(Fields!vat.Value = 1, "Без НДС", (Fields!vat.Value - 1) * 100 &amp; "%")</Value>
+                      <Value>=Iif(Fields!vat.Value = 1, "Без НДС", Round((Fields!vat.Value - 1) * 100, 2) &amp; "%")</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
