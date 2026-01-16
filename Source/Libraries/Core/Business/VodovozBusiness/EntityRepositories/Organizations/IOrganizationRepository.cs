@@ -16,6 +16,13 @@ namespace Vodovoz.EntityRepositories.Organizations
 		Organization GetOrganizationByTaxcomEdoAccountId(IUnitOfWork uow, string edoAccountId);
 		IList<OrganizationOwnershipType> GetOrganizationOwnershipTypeByAbbreviation(IUnitOfWork uow, string abbreviation);
 		IList<OrganizationOwnershipType> GetAllOrganizationOwnershipTypes(IUnitOfWork uow);
+		/// <summary>
+		/// Получения ОПФ по коду классификатора
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="code">Код</param>
+		/// <returns></returns>
+		OrganizationOwnershipType GetOrganizationOwnershipTypeByCode(IUnitOfWork uow, string code);
 		Organization GetCommonOrganisation(IUnitOfWork uow);
 		Task<IList<Organization>> GetOrganizationsByTaxcomEdoAccountIds(IUnitOfWork uow, string[] edoAccountIds, CancellationToken cancellationToken);
 

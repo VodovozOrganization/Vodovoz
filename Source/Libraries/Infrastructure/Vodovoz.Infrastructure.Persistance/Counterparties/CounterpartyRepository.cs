@@ -503,6 +503,24 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 
 			return query;
 		}
+		
+		/// <inheritdoc/>
+		public bool CounterpartyByIdExists(IUnitOfWork uow, int counterpartyId)
+		{
+			return (from counterparty in uow.Session.Query<Counterparty>()
+					where counterparty.Id == counterpartyId && !counterparty.IsArchive
+					select counterparty.Id)
+				.Any();
+		}
+		
+		/// <inheritdoc/>
+		public bool CounterpartyByInnExists(IUnitOfWork uow, string inn)
+		{
+			return (from counterparty in uow.Session.Query<Counterparty>()
+					where counterparty.INN == inn && !counterparty.IsArchive
+					select counterparty.Id)
+				.Any();
+		}
 
 		public decimal GetTotalDebt(IUnitOfWork unitOfWork, int counterpartyId)
 		{

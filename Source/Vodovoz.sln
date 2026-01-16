@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34009.444
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -612,6 +612,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSend.Library", "Libraries\Core\Backend\Email\EmailSend.Library\EmailSend.Library.csproj", "{ABCB7550-71AC-408B-B890-4B41E4995159}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailDebtNotificationWorker", "Applications\Backend\Workers\Docker\EmailWorkers\EmailDebtNotificationWorker\EmailDebtNotificationWorker.csproj", "{8DDB3937-326E-D020-8F68-0B5C4134E30D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vodovoz.Security", "Libraries\Core\Business\Vodovoz.Security\Vodovoz.Security.csproj", "{D256C233-700A-4365-A118-2EA6693FBB93}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -8529,6 +8531,42 @@ Global
 		{8DDB3937-326E-D020-8F68-0B5C4134E30D}.Web|x86.Build.0 = Debug|Any CPU
 		{8DDB3937-326E-D020-8F68-0B5C4134E30D}.WinDesktop|Any CPU.ActiveCfg = Debug|Any CPU
 		{8DDB3937-326E-D020-8F68-0B5C4134E30D}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.Debug|x86.Build.0 = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.DebugWin|Any CPU.ActiveCfg = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.DebugWin|Any CPU.Build.0 = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.DebugWin|x86.ActiveCfg = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.DebugWin|x86.Build.0 = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.Docker|Any CPU.ActiveCfg = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.Docker|Any CPU.Build.0 = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.Docker|x86.ActiveCfg = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.Docker|x86.Build.0 = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.LinuxDesktop|Any CPU.ActiveCfg = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.LinuxDesktop|Any CPU.Build.0 = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.LinuxDesktop|x86.ActiveCfg = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.LinuxDesktop|x86.Build.0 = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.Release|x86.ActiveCfg = Release|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.Release|x86.Build.0 = Release|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.ReleaseWin|Any CPU.ActiveCfg = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.ReleaseWin|Any CPU.Build.0 = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.ReleaseWin|x86.ActiveCfg = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.ReleaseWin|x86.Build.0 = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.WCF|Any CPU.ActiveCfg = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.WCF|Any CPU.Build.0 = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.WCF|x86.ActiveCfg = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.WCF|x86.Build.0 = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.Web|Any CPU.ActiveCfg = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.Web|Any CPU.Build.0 = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.Web|x86.ActiveCfg = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.Web|x86.Build.0 = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.WinDesktop|Any CPU.ActiveCfg = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.WinDesktop|Any CPU.Build.0 = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
+		{D256C233-700A-4365-A118-2EA6693FBB93}.WinDesktop|x86.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -8824,6 +8862,7 @@ Global
 		{2D1792AD-FD6C-BFF5-0825-7B8D0663F978} = {23BCCF8C-B42C-46C7-92BA-78F7D0C57FFD}
 		{ABCB7550-71AC-408B-B890-4B41E4995159} = {FA21E6E5-6DF3-44AD-BBEB-CC957E32EF42}
 		{8DDB3937-326E-D020-8F68-0B5C4134E30D} = {A7560EA7-A582-44DB-A9AB-F466D2D98987}
+		{D256C233-700A-4365-A118-2EA6693FBB93} = {5EC9456D-B8A6-4F42-9E8F-986C72904161}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5C28294A-BE19-449D-A626-5F2CC748368D}

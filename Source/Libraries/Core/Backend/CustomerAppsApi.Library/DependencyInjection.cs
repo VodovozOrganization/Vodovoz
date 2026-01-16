@@ -21,7 +21,12 @@ using VodovozBusiness.Services.Clients.DeliveryPoints;
 using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Cryptography;
 using DriverApi.Notifications.Client;
+using RevenueService.Client;
+using TrueMarkApi.Client;
 using Vodovoz.Application.Clients;
+using Vodovoz.Application.TrueMark;
+using Vodovoz.Security;
+using Vodovoz.Services;
 using VodovozBusiness.Controllers;
 
 namespace CustomerAppsApi.Library
@@ -40,6 +45,8 @@ namespace CustomerAppsApi.Library
 		public static IServiceCollection AddCustomerApiLibrary(this IServiceCollection services)
 		{
 			services
+				.AddTrueMarkApiClient()
+				.AddRevenueServiceClient()
 				.AddScoped<ISendingService, SendingService>()
 				.AddSingleton<PhoneFormatter>(_ => new PhoneFormatter(PhoneFormat.DigitsTen))
 				.AddScoped<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>()
@@ -73,10 +80,11 @@ namespace CustomerAppsApi.Library
 				.AddScoped<IWarehouseModel, WarehouseModel>()
 				.AddScoped<IRentPackageModel, RentPackageModel>()
 				.AddScoped<IDeliveryPointService, DeliveryPointService>()
-				.AddScoped<ICounterpartyModelValidator, CounterpartyModelValidator>()
+				.AddScoped<ICounterpartyRequestDataValidator, CounterpartyRequestDataValidator>()
 				.AddScoped<IDeliveryPointModelValidator, DeliveryPointModelValidator>()
 				.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>()
 				.AddScoped<INomenclatureOnlineCharacteristicsConverter, NomenclatureOnlineCharacteristicsConverter>()
+				.AddScoped<ICounterpartyServiceDataHandler, CounterpartyServiceDataHandler>()
 				.AddSingleton<SelfDeliveriesAddressesFrequencyRequestsHandler>()
 				.AddSingleton<PricesFrequencyRequestsHandler>()
 				.AddSingleton<NomenclaturesFrequencyRequestsHandler>()
@@ -85,7 +93,15 @@ namespace CustomerAppsApi.Library
 				.AddScoped<IDeliveryPointBuildingNumberParser, DeliveryPointBuildingNumberParser>()
 				.AddScoped<IDeliveryPointBuildingNumberHandler, DeliveryPointBuildingNumberHandler>()
 				.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>()
-				.AddScoped<IOnlineOrderService, OnlineOrderService>();
+				.AddScoped<IPasswordHasher, PasswordHasher>()
+				.AddScoped<LegalCounterpartyService>()
+				.AddScoped<ICustomerAppCounterpartyRepository, CustomerAppCounterpartyRepository>()
+				.AddScoped<IContactsRepository, ContactsRepository>()
+				.AddScoped<ICounterpartyService, CounterpartyService>()
+				.AddScoped<TrueMarkRegistrationCheckService>()
+				.AddScoped<CustomerAppEdoService>()
+				.AddScoped<ICustomerAppEdoOperatorRepository, CustomerAppEdoOperatorRepository>()
+				;
 
 			return services;
 		}

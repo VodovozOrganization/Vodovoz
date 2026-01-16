@@ -549,6 +549,14 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				.Where(et => et.EmailPurpose == EmailPurpose.ForReceipts)
 				.SingleOrDefault();
 		}
+		
+		/// <inheritdoc/>
+		public EmailType GetEmailTypeForExternalAccount(IUnitOfWork uow)
+		{
+			return uow.Session.QueryOver<EmailType>()
+				.Where(et => et.EmailPurpose == EmailPurpose.ExternalAccount)
+				.SingleOrDefault();
+		}
 
 		public EmailType EmailTypeWithPurposeExists(IUnitOfWork uow, EmailPurpose emailPurpose)
 		{
@@ -558,5 +566,21 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 		}
 
 		#endregion
+		
+		/// <inheritdoc/>
+		public IEnumerable<Email> GetEmailForLinkingLegalCounterparty(IUnitOfWork uow, int legalCounterpartyId, string dtoEmail)
+		{
+			return
+				(
+					from email in uow.Session.Query<Email>()
+					join legalCounterparty in uow.Session.Query<Counterparty>()
+						on email.Counterparty.Id equals legalCounterparty.Id
+					where legalCounterparty.Id == legalCounterpartyId
+						&& legalCounterparty.PersonType == PersonType.legal
+						&& email.Address == dtoEmail
+					select email
+				)
+				.ToList();
+		}
 	}
 }

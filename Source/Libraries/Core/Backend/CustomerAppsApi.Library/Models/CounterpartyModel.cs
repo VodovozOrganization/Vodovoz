@@ -35,7 +35,7 @@ namespace CustomerAppsApi.Library.Models
 		private readonly IRoboatsSettings _roboatsSettings;
 		private readonly ICameFromConverter _cameFromConverter;
 		private readonly ICounterpartyModelFactory _counterpartyModelFactory;
-		private readonly ICounterpartyModelValidator _counterpartyModelValidator;
+		private readonly ICounterpartyRequestDataValidator _counterpartyRequestDataValidator;
 		private readonly IContactManagerForExternalCounterparty _contactManagerForExternalCounterparty;
 		private readonly ICounterpartyFactory _counterpartyFactory;
 		private readonly ICounterpartyEdoAccountController _counterpartyEdoAccountController;
@@ -52,7 +52,7 @@ namespace CustomerAppsApi.Library.Models
 			IRoboatsSettings roboatsSettings,
 			ICameFromConverter cameFromConverter,
 			ICounterpartyModelFactory counterpartyModelFactory,
-			ICounterpartyModelValidator counterpartyModelValidator,
+			ICounterpartyRequestDataValidator counterpartyRequestDataValidator,
 			IContactManagerForExternalCounterparty contactManagerForExternalCounterparty,
 			ICounterpartyFactory counterpartyFactory,
 			ICounterpartyEdoAccountController counterpartyEdoAccountController,
@@ -70,7 +70,7 @@ namespace CustomerAppsApi.Library.Models
 			_roboatsSettings = roboatsSettings ?? throw new ArgumentNullException(nameof(roboatsSettings));
 			_cameFromConverter = cameFromConverter ?? throw new ArgumentNullException(nameof(cameFromConverter));
 			_counterpartyModelFactory = counterpartyModelFactory ?? throw new ArgumentNullException(nameof(counterpartyModelFactory));
-			_counterpartyModelValidator = counterpartyModelValidator ?? throw new ArgumentNullException(nameof(counterpartyModelValidator));
+			_counterpartyRequestDataValidator = counterpartyRequestDataValidator ?? throw new ArgumentNullException(nameof(counterpartyRequestDataValidator));
 			_contactManagerForExternalCounterparty =
 				contactManagerForExternalCounterparty ?? throw new ArgumentNullException(nameof(contactManagerForExternalCounterparty));
 			_counterpartyFactory = counterpartyFactory ?? throw new ArgumentNullException(nameof(counterpartyFactory));
@@ -88,7 +88,7 @@ namespace CustomerAppsApi.Library.Models
 				counterpartyContactInfoDto.PhoneNumber,
 				counterpartyContactInfoDto.ExternalCounterpartyId);
 			
-			var validationResult = _counterpartyModelValidator.CounterpartyContactInfoDtoValidate(counterpartyContactInfoDto);
+			var validationResult = _counterpartyRequestDataValidator.CounterpartyContactInfoDtoValidate(counterpartyContactInfoDto);
 			if(!string.IsNullOrWhiteSpace(validationResult))
 			{
 				_logger.LogInformation("Не прошли валидацию при авторизации {ValidationResult}", validationResult);
@@ -201,7 +201,7 @@ namespace CustomerAppsApi.Library.Models
 		public CounterpartyRegistrationDto RegisterCounterparty(CounterpartyDto counterpartyDto, bool isDryRun = false)
 		{
 			_logger.LogInformation("Запрос на регистрацию {ExternalId}", counterpartyDto.ExternalCounterpartyId);
-			var validationResult = _counterpartyModelValidator.CounterpartyDtoValidate(counterpartyDto);
+			var validationResult = _counterpartyRequestDataValidator.CounterpartyDtoValidate(counterpartyDto);
 			if(!string.IsNullOrWhiteSpace(validationResult))
 			{
 				_logger.LogInformation("Не прошли валидацию при регистрации {ValidationResult}", validationResult);
@@ -272,7 +272,7 @@ namespace CustomerAppsApi.Library.Models
 		public CounterpartyUpdateDto UpdateCounterpartyInfo(CounterpartyDto counterpartyDto, bool isDryRun = false)
 		{
 			_logger.LogInformation("Запрос на обновление данных {ExternalId}", counterpartyDto.ExternalCounterpartyId);
-			var validationResult = _counterpartyModelValidator.CounterpartyDtoValidate(counterpartyDto);
+			var validationResult = _counterpartyRequestDataValidator.CounterpartyDtoValidate(counterpartyDto);
 			if(!string.IsNullOrWhiteSpace(validationResult))
 			{
 				_logger.LogInformation("Не прошли валидацию при обновлении {ValidationResult}", validationResult);

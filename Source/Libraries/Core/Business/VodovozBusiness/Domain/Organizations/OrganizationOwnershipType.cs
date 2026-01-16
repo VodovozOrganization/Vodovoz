@@ -16,16 +16,20 @@ namespace Vodovoz.Domain.Organizations
 	[EntityPermission]
 	public class OrganizationOwnershipType : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
+		private string _abbreviation;
+		private string _fullName;
+		private string _code;
+		private bool _isArchive;
+		
+		
 		public OrganizationOwnershipType()
 		{
 			Abbreviation = string.Empty;
 			FullName = string.Empty;
 		}
 
-		#region Свойства
 		public virtual int Id { get; set; }
 
-		string _abbreviation;
 		[Display(Name = "Аббревиатура")]
 		public virtual string Abbreviation
 		{
@@ -33,22 +37,26 @@ namespace Vodovoz.Domain.Organizations
 			set => SetField(ref _abbreviation, value);
 		}
 
-		string _fullName;
 		[Display(Name = "Полное название")]
 		public virtual string FullName
 		{
 			get => _fullName;
 			set => SetField(ref _fullName, value);
 		}
+		
+		[Display(Name = "Код ОПФ")]
+		public virtual string Code
+		{
+			get => _code;
+			set => SetField(ref _code, value);
+		}
 
-		bool _isArchive;
 		[Display(Name = "Архивный")]
 		public virtual bool IsArchive
 		{
 			get => _isArchive;
 			set => SetField(ref _isArchive, value);
 		}
-		#endregion
 
 		public virtual string Title => Abbreviation;
 

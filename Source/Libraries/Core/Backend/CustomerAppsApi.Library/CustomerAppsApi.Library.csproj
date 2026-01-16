@@ -6,6 +6,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\Business\Vodovoz.Application\Vodovoz.Application.csproj" />
+      <ProjectReference Include="..\..\Business\Vodovoz.Security\Vodovoz.Security.csproj" />
       <ProjectReference Include="..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
       <ProjectReference Include="..\DriverApi.Notifications.Client\DriverApi.Notifications.Client.csproj" />
       <ProjectReference Include="..\Email\Mailjet.Api.Abstractions\Mailjet.Api.Abstractions.csproj" />
@@ -17,6 +18,15 @@
       <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
       <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="5.0.1" />
       <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="Vodovoz.Application">
+        <HintPath>..\..\..\..\Applications\Desktop\Vodovoz\bin\DebugWin\Vodovoz.Application.dll</HintPath>
+      </Reference>
+      <Reference Include="VodovozBusiness">
+        <HintPath>..\..\..\..\Applications\Desktop\Vodovoz\bin\DebugWin\VodovozBusiness.dll</HintPath>
+      </Reference>
     </ItemGroup>
 
 </Project>

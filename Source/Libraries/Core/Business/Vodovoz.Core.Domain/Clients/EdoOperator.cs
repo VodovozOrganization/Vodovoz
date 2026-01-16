@@ -86,5 +86,15 @@ namespace Vodovoz.Core.Domain.Clients
 		}
 
 		#endregion
+		
+		public static EdoOperator Create(string code, string name, string brandName)
+		{
+			return new EdoOperator
+			{
+				Code = code,
+				Name = name,
+				BrandName = brandName
+			};
+		}
 	}
 }

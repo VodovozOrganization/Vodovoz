@@ -55,6 +55,20 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		IQueryable<decimal> GetCounterpartyOrdersActuaSums(IUnitOfWork unitOfWork, int counterpartyId, OrderStatus[] orderStatuses, bool isExcludePaidOrders = false, DateTime maxDeliveryDate = default);
 		IQueryable<CounterpartyCashlessBalanceNode> GetCounterpartiesCashlessBalance(IUnitOfWork unitOfWork, OrderStatus[] orderStatuses, int counterpartyId = default, DateTime maxDeliveryDate = default);
 		IQueryable<CounterpartyInnName> GetCounterpartyNamesByInn(IUnitOfWork unitOfWork, IList<string> inns);
+		/// <summary>
+		/// Проверка на существование клиента с таким идентификатором
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="counterpartyId">Идентификатор клиента</param>
+		/// <returns></returns>
+		bool CounterpartyByIdExists(IUnitOfWork uow, int counterpartyId);
+		/// <summary>
+		/// Проверка на существование клиента с таким ИНН
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="inn">ИНН клиента</param>
+		/// <returns></returns>
+		bool CounterpartyByInnExists(IUnitOfWork uow, string inn);
 
 		/// <summary>
 		/// Возвращает email контрагентов по их Id

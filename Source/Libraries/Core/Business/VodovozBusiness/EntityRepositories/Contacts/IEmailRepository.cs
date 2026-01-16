@@ -46,6 +46,12 @@ namespace Vodovoz.EntityRepositories
 
 		IList<EmailType> GetEmailTypes(IUnitOfWork uow);
 		EmailType GetEmailTypeForReceipts(IUnitOfWork uow);
+		/// <summary>
+		/// Получение типа электронной почты Аккаунт юр лица в ИПЗ
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <returns></returns>
+		EmailType GetEmailTypeForExternalAccount(IUnitOfWork uow);
 		EmailType EmailTypeWithPurposeExists(IUnitOfWork uow, EmailPurpose emailPurpose);
 		StoredEmail GetById(IUnitOfWork unitOfWork, int id);
 
@@ -58,5 +64,14 @@ namespace Vodovoz.EntityRepositories
 		bool HasSendedEmailsForBillExceptOf(int orderId, int emailId);
 
 		#endregion
+		
+		/// <summary>
+		/// Получение адреса почты для связки с аккаунтом юр лица в ИПЗ
+		/// </summary>
+		/// <param name="uow">Unit Of Work</param>
+		/// <param name="legalCounterpartyId">Идентификатор юр лица</param>
+		/// <param name="email">Адрес электронной почты</param>
+		/// <returns></returns>
+		IEnumerable<Email> GetEmailForLinkingLegalCounterparty(IUnitOfWork uow, int legalCounterpartyId, string email);
 	}
 }

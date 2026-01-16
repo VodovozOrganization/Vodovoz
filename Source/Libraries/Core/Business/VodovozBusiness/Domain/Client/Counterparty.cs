@@ -13,6 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using QS.Extensions.Observable.Collections.List;
+using Vodovoz.Core.Data.Interfaces.Counterparties;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Contacts;
@@ -35,6 +36,10 @@ namespace Vodovoz.Domain.Client
 		//Используется для валидации, не получается истолльзовать бизнес объект так как наследуемся от AccountOwnerBase
 		private const int _specialContractNameLimit = 800;
 		private const int _cargoReceiverLimitSymbols = 500;
+		public const int InnPrivateBusinessmanLength = 12;
+		public const int InnOtherLegalPersonLength = 10;
+		public const int KppLength = 9;
+		public const int NameMaxSymbols = 500;
 
 		private int? _defaultExpenseCategoryId;
 
@@ -615,6 +620,17 @@ namespace Vodovoz.Domain.Client
 			OGRN = string.Empty;
 			JurAddress = string.Empty;
 			PhoneFrom1c = string.Empty;
+		}
+		
+		public virtual void FillLegalProperties(ILegalCounterpartyInfo legalCounterpartyInfo)
+		{
+			Name = legalCounterpartyInfo.Name;
+			FullName = legalCounterpartyInfo.FullName ?? legalCounterpartyInfo.Name;
+			TypeOfOwnership = legalCounterpartyInfo.ShortTypeOfOwnership;
+			TaxType = legalCounterpartyInfo.TaxType.Value;
+			INN = legalCounterpartyInfo.Inn;
+			KPP = legalCounterpartyInfo.Kpp;
+			JurAddress = legalCounterpartyInfo.JurAddress;
 		}
 
 		#region IValidatableObject implementation

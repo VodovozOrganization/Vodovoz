@@ -111,6 +111,14 @@ namespace Vodovoz.Domain.Contacts
 
 			_comment = comment;
 		}
+		
+		protected Phone(int counterpartyId, string number) : this(number)
+		{
+			Counterparty = new Counterparty
+			{
+				Id = counterpartyId
+			};
+		}
 
 		public virtual Phone Init(IContactSettings contactsParameters)
 		{
@@ -125,5 +133,6 @@ namespace Vodovoz.Domain.Contacts
 		}
 
 		public virtual string Title => $"{ ToString() }, { DeliveryPoint?.Title ?? Counterparty?.Name }";
+		public static Phone Create(int counterpartyId, string number) => new Phone(counterpartyId, number);
 	}
 }

@@ -94,6 +94,16 @@ namespace Vodovoz.Infrastructure.Persistance.Organizations
 			return uow.Session.QueryOver<OrganizationOwnershipType>()
 				.List<OrganizationOwnershipType>();
 		}
+		
+		/// <inheritdoc/>
+		public OrganizationOwnershipType GetOrganizationOwnershipTypeByCode(IUnitOfWork uow, string code)
+		{
+			var query = from ownershipType in uow.Session.Query<OrganizationOwnershipType>()
+				where ownershipType.Code == code
+				select ownershipType;
+			
+			return query.SingleOrDefault();
+		}
 
 		public Organization GetCommonOrganisation(IUnitOfWork uow)
 		{

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Dapper;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -131,6 +132,25 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 						Projections.SubQuery(lastOrderDeliveryDateForCounterparty))).WithAlias(() => resultAlias.LastOrderDeliveryDate))
 				.TransformUsing(Transformers.AliasToBean<IncomingCallsAnalysisReportNode>())
 				.List<IncomingCallsAnalysisReportNode>();
+		}
+		
+		/// <inheritdoc/>
+		public bool PhoneNumberExists(IUnitOfWork unitOfWork, string phoneNumber, int? counterpartyId = null, int? deliveryPointId = null)
+		{
+			var phones = unitOfWork.Session.Query<Phone>()
+				.Where(p => p.DigitsNumber == phoneNumber);
+
+			if(counterpartyId.HasValue)
+			{
+				phones = phones.Where(p => p.Counterparty.Id == counterpartyId.Value);
+			}
+
+			if (deliveryPointId.HasValue)
+			{
+				phones = phones.Where(p => p.DeliveryPoint.Id == deliveryPointId.Value);
+			}
+			
+			return phones.Any();
 		}
 	}
 }
