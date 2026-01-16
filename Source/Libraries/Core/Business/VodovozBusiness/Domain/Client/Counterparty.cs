@@ -982,7 +982,7 @@ namespace Vodovoz.Domain.Client
 
 		#endregion
 
-		public Dictionary<ReasonForLeaving, Dictionary<CounterpartyOrderPaymentType, PossibleAccessState>> GetCanCounterpartyOrderMatrix(
+		public virtual Dictionary<ReasonForLeaving, Dictionary<CounterpartyOrderPaymentType, PossibleAccessState>> GetCanCounterpartyOrderMatrix(
 			CounterpartyEdoAccount edoAccount)
 		{
 			var matrix = new Dictionary<ReasonForLeaving, Dictionary<CounterpartyOrderPaymentType, PossibleAccessState>>();
@@ -1050,7 +1050,7 @@ namespace Vodovoz.Domain.Client
 			return matrix;
 		}
 		
-		public bool CanOrder(CounterpartyOrderPaymentType paymentKind, CounterpartyEdoAccount edoAccount)
+		public virtual bool CanOrder(CounterpartyOrderPaymentType paymentKind, CounterpartyEdoAccount edoAccount)
 		{
 			var matrix = GetCanCounterpartyOrderMatrix(edoAccount);
 

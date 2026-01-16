@@ -4,6 +4,7 @@ using System;
 using System.Text;
 using Vodovoz.Core.Domain.Clients;
 using System.Text.RegularExpressions;
+using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Library.Dto.Edo;
 using CustomerAppsApi.Library.Dto.Phones;
 using Vodovoz.Domain.Client;
@@ -33,6 +34,12 @@ namespace CustomerAppsApi.Library.Validators
 			ValidateCameFromProperty(counterpartyContactInfoDto.CameFromId);
 
 			return ValidationResult();
+		}
+		
+		public string SendingCodeToEmailDtoValidate(SendingCodeToEmailDto codeToEmailDto)
+		{
+			// реализация будет позже, после слития интеграции юриков
+			return string.Empty;
 		}
 		
 		public string CounterpartyDtoValidate(CounterpartyDto counterpartyDto)

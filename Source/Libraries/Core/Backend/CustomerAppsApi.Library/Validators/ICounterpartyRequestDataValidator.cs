@@ -1,3 +1,4 @@
+using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Library.Dto.Counterparties;
 using CustomerAppsApi.Library.Dto.Edo;
 using CustomerAppsApi.Library.Dto.Phones;
@@ -7,6 +8,7 @@ namespace CustomerAppsApi.Library.Validators
 	public interface ICounterpartyRequestDataValidator
 	{
 		string CounterpartyContactInfoDtoValidate(CounterpartyContactInfoDto counterpartyContactInfoDto);
+		string SendingCodeToEmailDtoValidate(SendingCodeToEmailDto codeToEmailDto);
 		string CounterpartyDtoValidate(CounterpartyDto counterpartyDto);
 		/// <summary>
 		/// Проверка данных запроса получения компаний по ИНН
