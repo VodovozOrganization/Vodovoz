@@ -41,7 +41,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
-		public virtual string Title => String.Format("Счет №{0} от {1:d} {2}", Order.Id, Order.BillDate, SpecialContractNumber);
+		public virtual string Title => $"{Name} от {Order.BillDate:d} {SpecialContractNumber}";
 
 		public virtual string SpecialContractNumber => Order.Client.IsForRetail ? Order.Client.GetSpecialContractString() : string.Empty;
 
