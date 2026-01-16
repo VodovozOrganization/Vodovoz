@@ -220,9 +220,9 @@ namespace VodovozHealthCheck.Helpers
 				var httpClient = httpClientFactory.CreateClient();
 				httpClient.Timeout = TimeSpan.FromSeconds(10);
 
-				var response = await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Head, uri));
+				using var request = new HttpRequestMessage(HttpMethod.Get, uri);
+				using var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
-				// Только 200-299 = страница точно есть
 				return response.IsSuccessStatusCode;
 			}
 			catch
