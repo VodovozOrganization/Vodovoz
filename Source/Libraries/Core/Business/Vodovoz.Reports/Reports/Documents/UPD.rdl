@@ -117,7 +117,7 @@ WHERE
         <CommandText>SELECT
     orders.id AS order_id,
     document_organization_counters.document_number AS document_number,
-    DATE_FORMAT(orders.delivery_date,'%d.%m.%y') AS order_date,
+    orders.delivery_date AS order_date,
     orders.counterparty_external_order_id,
     counterparty_contract.number AS contract_number,
     DATE_FORMAT(counterparty_contract.issue_date,
@@ -608,7 +608,7 @@ WHERE o.id = @order_id
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <Format>d</Format>
+              <Format>dd.MM.yy</Format>
               <TextAlign>Center</TextAlign>
               <FontSize>8pt</FontSize>
             </Style>
@@ -2705,7 +2705,7 @@ WHERE o.id = @order_id
               <BorderColor />
               <BorderWidth />
               <FontSize>8pt</FontSize>
-              <Format>d</Format>
+              <Format>dd.MM.yy</Format>
               <TextAlign>Center</TextAlign>
               <VerticalAlign>Middle</VerticalAlign>
             </Style>
@@ -3709,7 +3709,7 @@ WHERE o.id = @order_id
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <Format>d</Format>
+              <Format>dd.MM.yy</Format>
               <TextAlign>Center</TextAlign>
             </Style>
           </Textbox>
@@ -4364,9 +4364,13 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox221">
-                      <Value>='Универсальный передаточный документ,' + ' №' + 
-                      IIf(Fields!order_date.Value &gt;= CDate("2026-01-01"), Fields!document_number.Value, CStr(Fields!order_id.Value))
-                      + ' от ' + Format({order_date}, 'dd.MM.yyyy') + ' г.'</Value>
+                      <Value>='Универсальный передаточный документ,'
+                       + ' №'
+                       + 
+                       IIf(Fields!order_date.Value &gt;= CDate("2026-01-01"), Fields!document_number.Value, CStr(Fields!order_id.Value))
+                       + ' от ' 
+                       + Format({order_date}, 'dd.MM.yy')
+                       + ' г.'</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
