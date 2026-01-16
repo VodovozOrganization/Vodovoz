@@ -26,6 +26,21 @@ namespace Vodovoz.Core.Domain.Clients.Accounts
 		/// Ликвидирована
 		/// </summary>
 		[Display(Name = "Юр лицо ликвидировано")]
-		IsLiquidated
+		IsLiquidated,
+		/// <summary>
+		/// На ликвидации
+		/// </summary>
+		[Display(Name = "Юр лицо в процессе ликвидации")]
+		IsLiquidating,
+		/// <summary>
+		/// Реорганизация
+		/// </summary>
+		[Display(Name = "Юр лицо в процессе реорганизации")]
+		IsReorganizing,
+		/// <summary>
+		/// Банкрот
+		/// </summary>
+		[Display(Name = "Банкрот")]
+		IsBankrupt
 	}
 }

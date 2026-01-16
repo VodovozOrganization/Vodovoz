@@ -1,10 +1,12 @@
 ﻿using QS.ViewModels;
 using System;
+using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Client;
+using Vodovoz.ViewModels.Extensions;
 using VodovozBusiness.Domain.Client;
 
 namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
@@ -29,6 +31,26 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 			}
 
 			row.Colorize(column, edoLightsColorizeType);
+		}
+		
+		private void Colorize(Dictionary<ReasonForLeaving, Dictionary<CounterpartyOrderPaymentType, PossibleAccessState>> matrix)
+		{
+			foreach(var reasonForLeavingKeyPairValue in matrix)
+			{
+				foreach(var counterpartyOrderPaymentTypeKeyPairValue in reasonForLeavingKeyPairValue.Value)
+				{
+					var paymentKind = counterpartyOrderPaymentTypeKeyPairValue.Key.ToEdoLightsMatrixPaymentType();
+					var row = ObservableLightsMatrixRows.FirstOrDefault(c => c.ReasonForLeaving == reasonForLeavingKeyPairValue.Key);
+					var column = row?.Columns?.FirstOrDefault(r => r.PaymentKind == paymentKind);
+					
+					if(column == null)
+					{
+						return;
+					}
+
+					row.Colorize(column, counterpartyOrderPaymentTypeKeyPairValue.Value);
+				}
+			}
 		}
 
 		private void CreateRow(ReasonForLeaving reasonForLeaving)
@@ -69,6 +91,22 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 			}
 		}
 
+		//TODO 5606 восстановить после всех уточнений, при необходимости. Чтобы можно было хранить все условия в модели а не вью модели
+		/*public void RefreshLightsMatrix(CounterpartyEdoAccount edoAccount)
+		{
+			UnLightAll();
+
+			if(edoAccount is null)
+			{
+				return;
+			}
+
+			var counterparty = edoAccount.Counterparty;
+			var matrix = counterparty.GetCanCounterpartyOrderMatrix(edoAccount);
+
+			Colorize(matrix);
+		}*/
+		
 		public void RefreshLightsMatrix(CounterpartyEdoAccount edoAccount)
 		{
 			UnLightAll();

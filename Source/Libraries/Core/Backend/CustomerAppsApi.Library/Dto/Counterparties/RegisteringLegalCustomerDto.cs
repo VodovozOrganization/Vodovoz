@@ -56,7 +56,7 @@ namespace CustomerAppsApi.Library.Dto.Counterparties
 		/// </summary>
 		public string CodeTypeOfOwnership { get; set; }
 		/// <summary>
-		/// Налогооблажение
+		/// Налогообложение
 		/// </summary>
 		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public TaxType? TaxType { get; set; }

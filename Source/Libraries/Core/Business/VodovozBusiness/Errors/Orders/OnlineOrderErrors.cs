@@ -27,7 +27,7 @@ namespace Vodovoz.Errors.Orders
 			new Error(
 				typeof(OnlineOrderErrors),
 				nameof(DeliveryPointNotBelongCounterparty),
-				$"Точка доставки не принадлежит клиенту");
+				"Точка доставки не принадлежит клиенту");
 		
 		public static Error IncorrectDeliveryDate =>
 			new Error(

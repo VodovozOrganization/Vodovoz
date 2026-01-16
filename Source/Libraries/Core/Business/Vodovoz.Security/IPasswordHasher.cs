@@ -4,6 +4,6 @@
 	{
 		(string Salt, string PasswordHash) HashPassword(string password);
 		string HashPassword(string password, byte[] salt);
-		bool VerifyHashedPassword(byte[] salt, string hash, string providedPassword);
+		bool VerifyHashedPassword(string salt, string hash, string providedPassword);
 	}
 }

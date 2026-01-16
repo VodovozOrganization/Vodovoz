@@ -11,7 +11,7 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 {
 	public class ExternalLegalCounterpartyAccountRepository : IExternalLegalCounterpartyAccountRepository
 	{
-		public IEnumerable<ExternalLegalCounterpartyAccount> GetLinkedLegalCounterpartyEmails(
+		public IEnumerable<ExternalLegalCounterpartyAccount> GetExternalLegalCounterpartyAccounts(
 			IUnitOfWork uow, int legalCounterpartyId, string emailAddress)
 		{
 			return (
@@ -21,6 +21,33 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				where email.Address == emailAddress
 					&& linkedData.LegalCounterpartyId == legalCounterpartyId 
 				select linkedData
+				)
+				.ToList();
+		}
+
+		public IEnumerable<ExternalLegalCounterpartyAccount> GetExternalLegalCounterpartyAccounts(
+			IUnitOfWork uow, Source source, Guid externalUserId, string emailAddress)
+		{
+			return (
+					from linkedData in uow.Session.Query<ExternalLegalCounterpartyAccount>()
+					join email in uow.Session.Query<Email>()
+						on linkedData.LegalCounterpartyEmailId equals email.Id
+					where email.Address == emailAddress
+						&& linkedData.Source == source
+						&& linkedData.ExternalUserId == externalUserId
+					select linkedData
+				)
+				.ToList();
+		}
+		
+		public IEnumerable<Email> GetExternalLegalCounterpartyAccountsEmails(IUnitOfWork uow, int legalCounterpartyId)
+		{
+			return (
+					from linkedData in uow.Session.Query<ExternalLegalCounterpartyAccount>()
+					join email in uow.Session.Query<Email>()
+						on linkedData.LegalCounterpartyEmailId equals email.Id
+					where linkedData.LegalCounterpartyId == legalCounterpartyId 
+					select email
 				)
 				.ToList();
 		}

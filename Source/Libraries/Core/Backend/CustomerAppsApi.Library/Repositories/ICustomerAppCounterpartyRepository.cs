@@ -8,7 +8,7 @@ namespace CustomerAppsApi.Library.Repositories
 {
 	public interface ICustomerAppCounterpartyRepository
 	{
-		CompanyInfoResponse GetLinkedCompany(IUnitOfWork uow, Source source, Guid externalCounterpartyId, int legalCounterpartyId);
+		CompanyInfoResponse GetLinkedCompanyInfo(IUnitOfWork uow, Source source, Guid externalCounterpartyId, int legalCounterpartyId);
 		IEnumerable<LegalCustomersByInnResponse> GetLegalCustomersByInn(IUnitOfWork uow, string inn, string emailAddress);
 	}
 }

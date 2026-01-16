@@ -100,6 +100,7 @@
     <Compile Include="Cash\TransferExpenseViewModel.cs" />
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
     <Compile Include="Employees\FineCategoryViewModel.cs" />
+    <Compile Include="Extensions\CounterpartyOrderPaymentTypeExtensions.cs" />
     <Compile Include="Journals\FilterViewModels\Banks\BanksJournalFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Edo\EdoProblemFilterViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Edo\EdoProcessFilterViewModel.cs" />

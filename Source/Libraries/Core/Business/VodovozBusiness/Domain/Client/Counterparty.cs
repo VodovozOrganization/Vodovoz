@@ -15,6 +15,7 @@ using System.Text.RegularExpressions;
 using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Data.Interfaces.Counterparties;
+using Vodovoz.Core.Domain.Common;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -980,5 +981,110 @@ namespace Vodovoz.Domain.Client
 		}
 
 		#endregion
+
+		public Dictionary<ReasonForLeaving, Dictionary<CounterpartyOrderPaymentType, PossibleAccessState>> GetCanCounterpartyOrderMatrix(
+			CounterpartyEdoAccount edoAccount)
+		{
+			var matrix = new Dictionary<ReasonForLeaving, Dictionary<CounterpartyOrderPaymentType, PossibleAccessState>>();
+			var ownNeeds = InitializeCounterpartyOrderPaymentTypeDefaultValues();
+			var resaleNeeds = InitializeCounterpartyOrderPaymentTypeDefaultValues();
+			
+			matrix.Add(ReasonForLeaving.ForOwnNeeds, ownNeeds);
+			matrix.Add(ReasonForLeaving.Resale, resaleNeeds);
+			
+			if(ReasonForLeaving == ReasonForLeaving.ForOwnNeeds || ReasonForLeaving == ReasonForLeaving.Other)
+			{
+				ownNeeds[CounterpartyOrderPaymentType.Cash] = PossibleAccessState.Allowed;
+			}
+
+			if(ReasonForLeaving == ReasonForLeaving.Other && PersonType == PersonType.legal)
+			{
+				if(!string.IsNullOrWhiteSpace(INN))
+				{
+					resaleNeeds[CounterpartyOrderPaymentType.Cash] = PossibleAccessState.Allowed;
+					resaleNeeds[CounterpartyOrderPaymentType.Cashless] = PossibleAccessState.Allowed;
+				}
+
+				ownNeeds[CounterpartyOrderPaymentType.Cash] = PossibleAccessState.Allowed;
+				ownNeeds[CounterpartyOrderPaymentType.Cashless] = PossibleAccessState.Allowed;
+			}
+
+			if(ReasonForLeaving == ReasonForLeaving.Resale)
+			{
+				if((RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess
+				    || RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
+				   && !string.IsNullOrWhiteSpace(INN)
+				   && PersonType == PersonType.legal)
+				{
+					resaleNeeds[CounterpartyOrderPaymentType.Cash] = PossibleAccessState.Allowed;
+				}
+
+				if(edoAccount != null
+					&& (RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess
+						|| RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
+				   && !string.IsNullOrWhiteSpace(INN)
+				   && PersonType == PersonType.legal
+				   && edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
+				{
+					resaleNeeds[CounterpartyOrderPaymentType.Cash] = PossibleAccessState.Allowed;
+					resaleNeeds[CounterpartyOrderPaymentType.Cashless] = PossibleAccessState.Allowed;
+				}
+
+				if((RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess
+				    || RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
+				   && !string.IsNullOrWhiteSpace(INN)
+				   && PersonType == PersonType.natural)
+				{
+					resaleNeeds[CounterpartyOrderPaymentType.Cash] = PossibleAccessState.Allowed;
+				}
+			}
+
+			if(ReasonForLeaving == ReasonForLeaving.ForOwnNeeds && PersonType == PersonType.legal && edoAccount != null)
+			{
+				ownNeeds[CounterpartyOrderPaymentType.Cashless] =
+					edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree
+						? PossibleAccessState.Allowed
+						: PossibleAccessState.Unknown;
+			}
+			
+			return matrix;
+		}
+		
+		public bool CanOrder(CounterpartyOrderPaymentType paymentKind, CounterpartyEdoAccount edoAccount)
+		{
+			var matrix = GetCanCounterpartyOrderMatrix(edoAccount);
+
+			var row = matrix[ReasonForLeaving];
+			var columnValue =  row[paymentKind];
+
+			return columnValue == PossibleAccessState.Allowed
+				|| columnValue == PossibleAccessState.Unknown;
+
+			/*if(counterparty.ReasonForLeaving == ReasonForLeaving.Unknown)
+			{
+				return false;
+			}
+
+			if(counterparty.ReasonForLeaving == ReasonForLeaving.Other)
+			{
+				if(counterparty.PersonType == PersonType.legal)
+				{
+					return true;
+				}
+
+				return paymentKind == EdoLightsMatrixPaymentType.Receipt;
+			}
+
+			return false;*/
+		}
+
+		private Dictionary<CounterpartyOrderPaymentType, PossibleAccessState> InitializeCounterpartyOrderPaymentTypeDefaultValues()
+		{
+			return new Dictionary<CounterpartyOrderPaymentType, PossibleAccessState>
+			{
+				{ CounterpartyOrderPaymentType.Cash, PossibleAccessState.Forbidden },
+				{ CounterpartyOrderPaymentType.Cashless, PossibleAccessState.Forbidden }
+			};
+		}
 	}
 }

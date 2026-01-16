@@ -1988,7 +1988,7 @@ namespace Vodovoz
 			this.emailsView.Events = ((global::Gdk.EventMask)(256));
 			this.emailsView.Name = "emailsView";
 			this.datatable2.Add(this.emailsView);
-			global::Gtk.Table.TableChild w126 = ((global::Gtk.Table.TableChild)(this.datatable2[this.emailsView]));
+			/*global::Gtk.Table.TableChild w126 = ((global::Gtk.Table.TableChild)(this.datatable2[this.emailsView]));
 			w126.TopAttach = ((uint)(1));
 			w126.BottomAttach = ((uint)(2));
 			w126.LeftAttach = ((uint)(1));
@@ -3835,7 +3835,7 @@ namespace Vodovoz
 			w283.XOptions = ((global::Gtk.AttachOptions)(4));
 			w283.YOptions = ((global::Gtk.AttachOptions)(4));
 			w252.Add(this.ytableEdo);
-			this.scrolledWindowEdo.Add(w252);
+			this.scrolledWindowEdo.Add(w252);*/
 			this.notebook1.Add(this.scrolledWindowEdo);
 			global::Gtk.Notebook.NotebookChild w286 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.scrolledWindowEdo]));
 			w286.Position = 12;

@@ -34,6 +34,12 @@ namespace Vodovoz.EntityRepositories
 
 		IList<EmailType> GetEmailTypes(IUnitOfWork uow);
 		EmailType GetEmailTypeForReceipts(IUnitOfWork uow);
+		/// <summary>
+		/// Получение типа электронной почты Аккаунт юр лица в ИПЗ
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <returns></returns>
+		EmailType GetEmailTypeForExternalAccount(IUnitOfWork uow);
 		EmailType EmailTypeWithPurposeExists(IUnitOfWork uow, EmailPurpose emailPurpose);
 		StoredEmail GetById(IUnitOfWork unitOfWork, int id);
 

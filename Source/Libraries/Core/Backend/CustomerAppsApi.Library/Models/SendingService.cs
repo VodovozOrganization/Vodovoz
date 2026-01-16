@@ -54,7 +54,6 @@ namespace CustomerAppsApi.Library.Models
 				.List<object>()
 				.FirstOrDefault());
 
-			//TODO сделать отдельный обработчик для проверок
 			var counterparty = _unitOfWork.GetById<Counterparty>(codeToEmailDto.CounterpartyId);
 
 			if(counterparty is null)

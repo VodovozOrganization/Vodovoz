@@ -39,6 +39,7 @@ namespace CustomerAppsApi.Controllers
 		[HttpPost]
 		public IActionResult UpdateCounterpartyPurposeOfPurchase(UpdatingCounterpartyPurposeOfPurchase dto)
 		{
+			return Problem("Эндпойнт не доступен");
 			var source = dto.Source.GetEnumDisplayName();
 			
 			_logger.LogInformation(

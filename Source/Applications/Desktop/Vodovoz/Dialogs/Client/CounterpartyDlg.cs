@@ -162,7 +162,6 @@ namespace Vodovoz
 		private IObservableList<EdoContainer> _edoContainers = new ObservableList<EdoContainer>();
 		private GenericObservableList<ExternalCounterpartyNode> _externalCounterparties;
 		private IObservableList<ConnectedCustomerInfoNode> _connectedCustomers = new ObservableList<ConnectedCustomerInfoNode>();
-		private IConnectedCustomerRepository _connectedCustomerRepository;
 		private IPhoneTypeSettings _phoneTypeSettings;
 		private TrueMarkRegistrationCheckService _trueMarkRegistrationCheckService;
 
@@ -1067,22 +1066,11 @@ namespace Vodovoz
 					.Editable()
 				.Finish();
 			
-			GetConnectedCustomers();
 			treeViewConnectedCustomers.ItemsDataSource = _connectedCustomers;
 			
 			treeViewConnectedCustomers.Binding
 				.AddBinding(this, dlg => dlg.SelectedConnectedCustomer, w => w.SelectedRow)
 				.InitializeFromSource();
-		}
-
-		private void GetConnectedCustomers()
-		{
-			var connectedCustomers = _connectedCustomerRepository.GetConnectedCustomersInfo(UoW, Entity.Id, Entity.PersonType);
-
-			foreach(var connectedCustomer in connectedCustomers)
-			{
-				_connectedCustomers.Add(connectedCustomer);
-			}
 		}
 
 		private bool SetSensitivityByPermission(string permission, Widget widget)

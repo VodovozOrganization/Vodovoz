@@ -33,10 +33,9 @@ namespace CustomerAppsApi.Library.Services
 		
 		public Result AddPhoneToCounterparty(AddingPhoneNumberDto dto)
 		{
-			var activationStates = 
+			var activationStates =
 				_counterpartyServiceDataHandler.GetOnlineLegalCounterpartyActivations(_unitOfWork, dto);
 
-			//TODO 5608: нужно ли делать такие проверки для добавления телефона?
 			if(!activationStates.Any())
 			{
 				_logger.LogWarning("Попытка добавить телефон юр лицу без онлайн активации");

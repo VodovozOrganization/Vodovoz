@@ -31,6 +31,11 @@ namespace Vodovoz.Core.Domain.Contacts
 		/// Личный
 		/// </summary>
 		[Display(Name = "Личный")]
-		Personal
+		Personal,
+		/// <summary>
+		/// К этой почте привязан аккаунт юр лица в ИПЗ
+		/// </summary>
+		[Display(Name = "Аккаунт юр лица в ИПЗ")]
+		ExternalAccount
 	}
 }

@@ -15,7 +15,7 @@ namespace CustomerAppsApi.Library.Repositories
 {
 	public class CustomerAppCounterpartyRepository : ICustomerAppCounterpartyRepository
 	{
-		public CompanyInfoResponse GetLinkedCompany(IUnitOfWork uow, Source source, Guid externalCounterpartyId, int legalCounterpartyId)
+		public CompanyInfoResponse GetLinkedCompanyInfo(IUnitOfWork uow, Source source, Guid externalCounterpartyId, int legalCounterpartyId)
 		{
 			ExternalLegalCounterpartyAccount externalLegalAccountAlias = null;
 			ExternalLegalCounterpartyAccountActivation externalLegalAccountActivationAlias = null;

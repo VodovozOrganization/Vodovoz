@@ -210,7 +210,16 @@ namespace CustomerAppsApi.Library.Validators
 
 		private void ValidatePhoneNumber(string phoneNumber)
 		{
-			CheckOnlyNumbers(phoneNumber, "Номер телефона");
+			const string phoneString = "Номер телефона";
+			
+			if(string.IsNullOrWhiteSpace(phoneNumber))
+			{
+				_sb.AppendLine($"{phoneString} должен быть заполнен");
+			}
+			else
+			{
+				CheckOnlyNumbers(phoneNumber, phoneString);
+			}
 		}
 
 		/// <inheritdoc/>
@@ -262,8 +271,6 @@ namespace CustomerAppsApi.Library.Validators
 			{
 				_sb.AppendLine("Не заполнена электронная почта");
 			}
-			
-			//TODO 5417: добавить проверку шаблона
 		}
 
 		private void ValidateNaturalCounterpartyId(int naturalCounterpartyId)
@@ -361,7 +368,6 @@ namespace CustomerAppsApi.Library.Validators
 			}
 		}
 		
-		//TODO 5417: обговорить все условия
 		private void ValidateKpp(string kpp, string typeOfOwnership)
 		{
 			if(string.IsNullOrWhiteSpace(typeOfOwnership))

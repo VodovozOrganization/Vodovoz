@@ -480,6 +480,13 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				.Where(et => et.EmailPurpose == EmailPurpose.ForReceipts)
 				.SingleOrDefault();
 		}
+		
+		public EmailType GetEmailTypeForExternalAccount(IUnitOfWork uow)
+		{
+			return uow.Session.QueryOver<EmailType>()
+				.Where(et => et.EmailPurpose == EmailPurpose.ExternalAccount)
+				.SingleOrDefault();
+		}
 
 		public EmailType EmailTypeWithPurposeExists(IUnitOfWork uow, EmailPurpose emailPurpose)
 		{

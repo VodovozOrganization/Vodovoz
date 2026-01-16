@@ -90,9 +90,8 @@ namespace Vodovoz.Organizations
 			notebookMain.ShowTabs = false;
 			accountsview1.SetAccountOwner(ViewModel.UoW, ViewModel.Entity);
 
-			phonesview1.UoW = ViewModel.UoWGeneric;
-
-			phonesview1.Phones = ViewModel.Entity.Phones;
+			//phonesView.UoW = ViewModel.UoWGeneric;
+			//phonesView.Phones = ViewModel.Entity.Phones;
 
 			versionsView.ViewModel = ViewModel.OrganizationVersionsViewModel;
 
@@ -102,7 +101,7 @@ namespace Vodovoz.Organizations
 
 		private void OnSaveButtonClicked(object sender, EventArgs e)
 		{
-			phonesview1.RemoveEmpty();
+			//phonesView.RemoveEmpty();
 			ViewModel.SaveCommand.Execute();
 		}
 

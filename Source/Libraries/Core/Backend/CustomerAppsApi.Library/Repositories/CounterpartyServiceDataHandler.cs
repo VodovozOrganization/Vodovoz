@@ -25,7 +25,6 @@ namespace CustomerAppsApi.Library.Repositories
 		private readonly IRoboatsRepository _roboatsRepository;
 		private readonly IPhoneRepository _phoneRepository;
 		private readonly IEmailRepository _emailRepository;
-		private readonly ICustomerAppCounterpartyRepository _customerAppCounterpartyRepository;
 		private readonly ICounterpartyRepository _counterpartyRepository;
 		private readonly ICachedBottlesDebtRepository _cachedBottlesDebtRepository;
 		private readonly IOrganizationRepository _organizationRepository;
@@ -38,7 +37,6 @@ namespace CustomerAppsApi.Library.Repositories
 			IRoboatsRepository roboatsRepository,
 			IPhoneRepository phoneRepository,
 			IEmailRepository emailRepository,
-			ICustomerAppCounterpartyRepository customerAppCounterpartyRepository,
 			ICounterpartyRepository counterpartyRepository,
 			ICachedBottlesDebtRepository cachedBottlesDebtRepository,
 			IOrganizationRepository organizationRepository,
@@ -53,7 +51,6 @@ namespace CustomerAppsApi.Library.Repositories
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
 			_phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
-			_customerAppCounterpartyRepository = customerAppCounterpartyRepository ?? throw new ArgumentNullException(nameof(customerAppCounterpartyRepository));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 			_cachedBottlesDebtRepository =
 				cachedBottlesDebtRepository ?? throw new ArgumentNullException(nameof(cachedBottlesDebtRepository));

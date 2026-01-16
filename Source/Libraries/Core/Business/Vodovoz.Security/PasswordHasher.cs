@@ -29,9 +29,9 @@ namespace Vodovoz.Security
 			return (Convert.ToBase64String(salt), hash);
 		}
 
-		public bool VerifyHashedPassword(byte[] salt, string hash, string providedPassword)
+		public bool VerifyHashedPassword(string salt, string hash, string providedPassword)
 		{
-			var generatedHash = HashPassword(providedPassword, salt);
+			var generatedHash = HashPassword(providedPassword, Convert.FromBase64String(salt));
 			return generatedHash == hash;
 		}
 		

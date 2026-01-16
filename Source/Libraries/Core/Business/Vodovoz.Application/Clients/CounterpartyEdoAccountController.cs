@@ -29,6 +29,12 @@ namespace Vodovoz.Application.Clients
 			return counterpartyEdoAccount ?? GetDefaultEmptyEdoAccount(client);
 		}
 		
+		public CounterpartyEdoAccount GetDefaultCounterpartyEdoAccountByVodovozOrganizationId(Counterparty client)
+		{
+			var counterpartyEdoAccount = client.DefaultEdoAccount(_organizationSettings.VodovozOrganizationId);
+			return counterpartyEdoAccount ?? GetDefaultEmptyEdoAccount(client);
+		}
+		
 		public void AddDefaultEdoAccountsToCounterparty(Counterparty client)
 		{
 			if(client.CounterpartyEdoAccounts.Any())

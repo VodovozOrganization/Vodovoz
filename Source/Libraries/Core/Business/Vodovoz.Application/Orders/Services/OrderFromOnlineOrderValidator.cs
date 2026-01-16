@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
@@ -9,6 +10,7 @@ using Vodovoz.Domain.Service;
 using Vodovoz.Services.Orders;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
+using Vodovoz.Settings.Organizations;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Models.Orders;
@@ -25,6 +27,7 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly IDiscountController _discountController;
 		private readonly IFreeLoaderChecker _freeLoaderChecker;
 		private readonly IOrderOrganizationManager _orderOrganizationManager;
+		private readonly ICounterpartyEdoAccountController _counterpartyEdoAccountController;
 		private readonly IOrderSettings _orderSettings;
 		private OnlineOrder _onlineOrder;
 
@@ -36,6 +39,7 @@ namespace Vodovoz.Application.Orders.Services
 			IDiscountController discountController,
 			IFreeLoaderChecker freeLoaderChecker,
 			IOrderOrganizationManager orderOrganizationManager,
+			ICounterpartyEdoAccountController counterpartyEdoAccountController,
 			IOrderSettings orderSettings)
 		{
 			_priceCalculator = goodsPriceCalculator ?? throw new ArgumentNullException(nameof(goodsPriceCalculator));
@@ -45,6 +49,8 @@ namespace Vodovoz.Application.Orders.Services
 			_discountController = discountController ?? throw new ArgumentNullException(nameof(discountController));
 			_freeLoaderChecker = freeLoaderChecker ?? throw new ArgumentNullException(nameof(freeLoaderChecker));
 			_orderOrganizationManager = orderOrganizationManager ?? throw new ArgumentNullException(nameof(orderOrganizationManager));
+			_counterpartyEdoAccountController =
+				counterpartyEdoAccountController ?? throw new ArgumentNullException(nameof(counterpartyEdoAccountController));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 		}
 
@@ -68,11 +74,11 @@ namespace Vodovoz.Application.Orders.Services
 				}
 				else
 				{
+					var counterparty = _onlineOrder.Counterparty;
+					
 					if(_onlineOrder.DeliveryPoint != null)
 					{
-						var result =
-							_clientDeliveryPointsChecker.ClientDeliveryPointExists(
-								_onlineOrder.Counterparty.Id, _onlineOrder.DeliveryPoint.Id);
+						var result = _clientDeliveryPointsChecker.ClientDeliveryPointExists(counterparty.Id, _onlineOrder.DeliveryPoint.Id);
 						
 						if(!result)
 						{
@@ -81,6 +87,16 @@ namespace Vodovoz.Application.Orders.Services
 						
 						_onlineOrder.SetDeliveryPointNotBelongCounterparty(!result);
 					}
+
+					/*if(counterparty.PersonType == PersonType.legal)
+					{
+						var edoAccount = _counterpartyEdoAccountController.GetDefaultCounterpartyEdoAccountByVodovozOrganizationId(counterparty);
+						var counterpartyOrderMatrix = counterparty.GetCanCounterpartyOrderMatrix(edoAccount);
+						
+						
+						
+						//TODO 5606 добавить проверку возможности заказа товара(если перепродажа и не все данные заполнены)
+					}*/
 				}
 				
 				if(_onlineOrder.DeliveryPoint is null)
