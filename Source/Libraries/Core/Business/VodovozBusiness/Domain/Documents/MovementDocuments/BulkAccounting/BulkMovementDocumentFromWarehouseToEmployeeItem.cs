@@ -1,5 +1,5 @@
 ﻿using QS.DomainModel.Entity;
-using Vodovoz.Domain.Operations;
+using Vodovoz.Core.Domain.Operations;
 
 namespace Vodovoz.Domain.Documents.MovementDocuments.BulkAccounting
 {

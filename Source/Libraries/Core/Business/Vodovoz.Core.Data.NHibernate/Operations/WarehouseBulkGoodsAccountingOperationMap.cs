@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Operations;
+using Vodovoz.Core.Domain.Operations;
 
-namespace Vodovoz.Data.NHibernate.HibernateMapping.Operations
+namespace Vodovoz.Core.Data.NHibernate.Operations
 {
 	public class WarehouseBulkGoodsAccountingOperationMap : SubclassMap<WarehouseBulkGoodsAccountingOperation>
 	{

@@ -1,128 +1,82 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Documents
 {
 	public class SelfDeliveryDocumentItem: SelfDeliveryDocumentItemEntity
 	{
-		SelfDeliveryDocument document;
+		private SelfDeliveryDocument _document;
+		private Equipment _equipment;
+		private OrderItem _orderItem;
+		private OrderEquipment _orderEquipment;
 
-		public virtual SelfDeliveryDocument Document {
-			get { return document; }
-			set { SetField (ref document, value, () => Document); }
+		/// <summary>
+		/// Документ самовывоза
+		/// </summary>
+		[Display (Name = "Документ самовывоза")]
+		public virtual new SelfDeliveryDocument Document
+		{
+			get => _document;
+			set => SetField(ref _document, value);
 		}
 
-		Nomenclature nomenclature;
-
-		[Display (Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature {
-			get { return nomenclature; }
-			set {
-				SetField (ref nomenclature, value, () => Nomenclature);
-
-				if (GoodsAccountingOperation != null && GoodsAccountingOperation.Nomenclature != nomenclature)
-					GoodsAccountingOperation.Nomenclature = nomenclature;
-			}
-		}
-
-		Equipment equipment;
-
+		/// <summary>
+		/// Оборудование
+		/// </summary>
 		[Display (Name = "Оборудование")]
-		public virtual Equipment Equipment {
-			get { return equipment; }
-			set {
-				SetField (ref equipment, value, () => Equipment);
+		public virtual Equipment Equipment
+		{
+			get => _equipment;
+			set
+			{
+				SetField (ref _equipment, value, () => Equipment);
 
-				if(CounterpartyMovementOperation != null && CounterpartyMovementOperation.Equipment != equipment)
+				if(CounterpartyMovementOperation != null && CounterpartyMovementOperation.Equipment != _equipment)
 				{
-					CounterpartyMovementOperation.Equipment = equipment;
+					CounterpartyMovementOperation.Equipment = _equipment;
 				}
 			}
 		}
 
-		decimal amount;
-
-		[Display (Name = "Количество")]
-		public virtual decimal Amount {
-			get { return amount; }
-			set {
-				SetField (ref amount, value, () => Amount);
-			}
-		}
-
-		OrderItem orderItem;
-
+		/// <summary>
+		/// Связанный товар
+		/// </summary>
 		[Display (Name = "Связанный товар")]
-		public virtual OrderItem OrderItem {
-			get { return orderItem; }
-			set { SetField (ref orderItem, value, () => OrderItem); }
+		public virtual new OrderItem OrderItem
+		{
+			get => _orderItem;
+			set => SetField (ref _orderItem, value);
 		}
 
-		OrderEquipment orderEquipment;
-
+		/// <summary>
+		/// Связанное оборудование
+		/// </summary>
 		[Display(Name = "Связанное оборудование")]
-		public virtual OrderEquipment OrderEquipment {
-			get { return orderEquipment; }
-			set { SetField(ref orderEquipment, value, () => OrderEquipment); }
+		public virtual OrderEquipment OrderEquipment
+		{
+			get => _orderEquipment;
+			set => SetField(ref _orderEquipment, value, () => OrderEquipment);
 		}
-
-		WarehouseBulkGoodsAccountingOperation _goodsAccountingOperation;
-
-		public virtual WarehouseBulkGoodsAccountingOperation GoodsAccountingOperation { 
-			get => _goodsAccountingOperation;
-			set => SetField (ref _goodsAccountingOperation, value);
-		}
-
-		CounterpartyMovementOperation counterpartyMovementOperation;
-
-		public virtual CounterpartyMovementOperation CounterpartyMovementOperation {
-			get { return counterpartyMovementOperation; }
-			set { SetField (ref counterpartyMovementOperation, value, () => CounterpartyMovementOperation); }
-		}
-
-		#region Не сохраняемые
-
-		decimal amountInStock;
-
-		[Display (Name = "Количество на складе")]
-		public virtual decimal AmountInStock {
-			get { return amountInStock; }
-			set {
-				SetField (ref amountInStock, value, () => AmountInStock);
-			}
-		}
-
-		decimal amountUnloaded;
-
-		[Display (Name = "Уже отгружено")]
-		public virtual decimal AmountUnloaded {
-			get { return amountUnloaded; }
-			set {
-				SetField (ref amountUnloaded, value, () => AmountUnloaded);
-			}
-		}
-
-		#endregion
 
 		#region Функции
 
 		public virtual string Title {
 			get {
-				string res = String.Empty;
+				string res = string.Empty;
 				if(GoodsAccountingOperation != null)
-					res = String.Format(
+					res = string.Format(
 						"[{2}] {0} - {1}",
 						GoodsAccountingOperation.Nomenclature.Name,
 						GoodsAccountingOperation.Nomenclature.Unit.MakeAmountShortStr(GoodsAccountingOperation.Amount),
 						Document.Title
 					);
 				else if(Nomenclature != null)
-					res = String.Format(
+					res = string.Format(
 						"[{2}] {0} - {1}",
 						Nomenclature.Name,
 						Nomenclature.Unit.MakeAmountShortStr(Amount),

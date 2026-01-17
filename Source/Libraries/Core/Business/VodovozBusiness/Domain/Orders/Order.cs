@@ -389,7 +389,7 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		[Display(Name = "Район города склада самовывоза")]
-		public virtual GeoGroup SelfDeliveryGeoGroup
+		public virtual new GeoGroup SelfDeliveryGeoGroup
 		{
 			get => _selfDeliveryGeoGroup;
 			set => SetField(ref _selfDeliveryGeoGroup, value);
@@ -606,7 +606,7 @@ namespace Vodovoz.Domain.Orders
 		private IList<OrderEquipment> orderEquipments = new List<OrderEquipment>();
 
 		[Display(Name = "Список оборудования")]
-		public virtual IList<OrderEquipment> OrderEquipments {
+		public virtual new IList<OrderEquipment> OrderEquipments {
 			get => orderEquipments;
 			set => SetField(ref orderEquipments, value, () => OrderEquipments);
 		}
