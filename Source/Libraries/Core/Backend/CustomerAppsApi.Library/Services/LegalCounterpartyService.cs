@@ -69,14 +69,14 @@ namespace CustomerAppsApi.Library.Services
 			_passwordHasher = passwordHasher ?? throw new ArgumentNullException(nameof(passwordHasher));
 		}
 		
-		public Result<IEnumerable<LegalCustomersByInnResponse>> GetLegalCustomersByInn(LegalCustomersByInnRequest dto)
+		public Result<LegalCustomersByInnResponse> GetLegalCustomersByInn(LegalCustomersByInnRequest dto)
 		{
 			var counterpartyFrom = _cameFromConverter.ConvertSourceToCounterpartyFrom(dto.Source);
 
 			if(counterpartyFrom.IsFailure)
 			{
 				_logger.LogWarning("Ошибка при получении данных откуда клиент");
-				return Result.Failure<IEnumerable<LegalCustomersByInnResponse>>(counterpartyFrom.Errors.First());
+				return Result.Failure<LegalCustomersByInnResponse>(counterpartyFrom.Errors.First());
 			}
 
 			var counterparties = _customerAppCounterpartyRepository.GetLegalCustomersByInn(_uow, dto.Inn, dto.Email);
@@ -84,18 +84,19 @@ namespace CustomerAppsApi.Library.Services
 			if(counterparties.Any() && counterparties.Count() > 1)
 			{
 				_logger.LogWarning("Найдены несколько клиентов с ИНН {INN}", dto.Inn);
-				return Result.Failure<IEnumerable<LegalCustomersByInnResponse>>(CounterpartyErrors.MoreThanOneCounterpartyWithInn());
+				return Result.Failure<LegalCustomersByInnResponse>(CounterpartyErrors.MoreThanOneCounterpartyWithInn());
 			}
 
 			if(!counterparties.Any())
 			{
 				_logger.LogInformation("Не нашли клиентов с ИНН {INN}, должен прийти запрос на регистрацию", dto.Inn);
-				return Result.Success<IEnumerable<LegalCustomersByInnResponse>>(new []{ LegalCustomersByInnResponse.CreateEmpty() });
+				return Result.Success<LegalCustomersByInnResponse>(LegalCustomersByInnResponse.CreateEmpty());
 			}
 
-			counterparties.First().UpdateNextStep();
+			var counterpartyInfo = counterparties.First();
+			counterpartyInfo.UpdateNextStep();
 
-			return Result.Success(counterparties);
+			return Result.Success(counterpartyInfo);
 		}
 		
 		public (string Message, RegisteredLegalCustomerDto Data) RegisterLegalCustomer(RegisteringLegalCustomerDto dto)

@@ -1,8 +1,10 @@
 using System;
 using System.Linq;
+using System.Net.Mime;
 using CustomerAppsApi.Library.Dto.Edo;
 using CustomerAppsApi.Library.Services;
 using CustomerAppsApi.Library.Validators;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Vodovoz.Extensions;
@@ -37,6 +39,12 @@ namespace CustomerAppsApi.Controllers
 		/// <param name="dto">Детали запроса <see cref="UpdatingCounterpartyPurposeOfPurchase"/></param>
 		/// <returns></returns>
 		[HttpPost]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		[ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		public IActionResult UpdateCounterpartyPurposeOfPurchase(UpdatingCounterpartyPurposeOfPurchase dto)
 		{
 			return Problem("Эндпойнт не доступен");
@@ -100,6 +108,12 @@ namespace CustomerAppsApi.Controllers
 		/// <param name="dto">Детали запроса <see cref="AddingEdoAccount"/></param>
 		/// <returns></returns>
 		[HttpPost]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		[ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		public IActionResult AddEdoAccount(AddingEdoAccount dto)
 		{
 			var source = dto.Source.GetEnumDisplayName();
@@ -162,6 +176,10 @@ namespace CustomerAppsApi.Controllers
 		/// <param name="request">Детали запроса <see cref="GetEdoOperatorsRequest"/></param>
 		/// <returns></returns>
 		[HttpGet]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		public IActionResult GetEdoOperators([FromBody] GetEdoOperatorsRequest request)
 		{
 			var source = request.Source.GetEnumDisplayName();

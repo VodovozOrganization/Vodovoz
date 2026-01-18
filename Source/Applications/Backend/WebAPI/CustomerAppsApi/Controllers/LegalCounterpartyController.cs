@@ -1,10 +1,12 @@
 using System;
 using System.Linq;
+using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
 using CustomerAppsApi.Library.Dto.Counterparties;
 using CustomerAppsApi.Library.Services;
 using CustomerAppsApi.Library.Validators;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Vodovoz.Extensions;
@@ -37,6 +39,12 @@ namespace CustomerAppsApi.Controllers
 		/// <param name="dto">Детали запроса <see cref="CheckPasswordRequest"/></param>
 		/// <returns></returns>
 		[HttpGet]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		public IActionResult CheckPassword([FromBody] CheckPasswordRequest dto)
 		{
 			var source = dto.Source.GetEnumDisplayName();
@@ -94,6 +102,11 @@ namespace CustomerAppsApi.Controllers
 		/// <param name="dto">Детали запроса <see cref="LegalCustomersByInnRequest"/></param>
 		/// <returns></returns>
 		[HttpGet]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		public IActionResult GetLegalCustomersByInn([FromBody] LegalCustomersByInnRequest dto)
 		{
 			var source = dto.Source.GetEnumDisplayName();
@@ -148,6 +161,11 @@ namespace CustomerAppsApi.Controllers
 		/// <param name="dto">Детали запроса <see cref="CompanyWithActiveEmailRequest"/></param>
 		/// <returns></returns>
 		[HttpGet]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		public IActionResult GetCompanyList([FromBody] CompanyWithActiveEmailRequest dto)
 		{
 			var source = dto.Source.GetEnumDisplayName();
@@ -208,6 +226,11 @@ namespace CustomerAppsApi.Controllers
 		/// <param name="cancellationToken">Токен для отмены опреации</param>
 		/// <returns></returns>
 		[HttpGet]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		public async Task<IActionResult> GetCompanyInfo([FromBody] CompanyInfoRequest dto, CancellationToken cancellationToken)
 		{
 			var source = dto.Source.GetEnumDisplayName();
@@ -263,6 +286,10 @@ namespace CustomerAppsApi.Controllers
 		/// <param name="dto">Детали запроса <see cref="RegisteringLegalCustomerDto"/></param>
 		/// <returns></returns>
 		[HttpPost]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		public IActionResult RegisterLegalCustomer(RegisteringLegalCustomerDto dto)
 		{
 			var source = dto.Source.GetEnumDisplayName();
@@ -314,6 +341,10 @@ namespace CustomerAppsApi.Controllers
 		/// <param name="dto">Детали запроса <see cref="ConnectingNewPhoneToLegalCustomerDto"/></param>
 		/// <returns></returns>
 		[HttpPost]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		public IActionResult LinkEmailToLegalCounterparty(LinkingLegalCounterpartyEmailToExternalUser dto)
 		{
 			_logger.LogInformation(
@@ -366,6 +397,10 @@ namespace CustomerAppsApi.Controllers
 		/// <param name="dto">Детали запроса <see cref="LegalCounterpartyContactListRequest"/></param>
 		/// <returns></returns>
 		[HttpGet]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		public IActionResult GetLegalCounterpartyContactList([FromBody] LegalCounterpartyContactListRequest dto)
 		{
 			var source = dto.Source.GetEnumDisplayName();

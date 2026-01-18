@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Linq;
+using System.Net.Mime;
 using CustomerAppsApi.Library.Dto.Contacts;
 using CustomerAppsApi.Library.Services;
 using CustomerAppsApi.Library.Validators;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Vodovoz.Extensions;
@@ -37,6 +39,12 @@ namespace CustomerAppsApi.Controllers
 		/// <param name="dto">Детали запроса <see cref="AddingPhoneNumberDto"/></param>
 		/// <returns></returns>
 		[HttpPost]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		[ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		public IActionResult AddPhoneNumber(AddingPhoneNumberDto dto)
 		{
 			var source = dto.Source.GetEnumDisplayName();
