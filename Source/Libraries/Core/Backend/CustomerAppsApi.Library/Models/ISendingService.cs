@@ -5,6 +5,6 @@ namespace CustomerAppsApi.Library.Models
 {
 	public interface ISendingService
 	{
-		Result SendCodeToEmail(SendingCodeToEmailDto codeToEmailDto);
+		Result SendCodeToEmail(SendingCodeToEmailDto codeToEmailDto, bool isDryRun = false);
 	}
 }

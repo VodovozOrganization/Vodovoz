@@ -7,6 +7,8 @@ using Microsoft.Extensions.Hosting;
 using QS.Services;
 using System;
 using Vodovoz.Presentation.WebApi.ErrorHandling;
+using Vodovoz.RobotMia.Api.HealthCheck;
+using VodovozHealthCheck;
 
 namespace Vodovoz.RobotMia.Api
 {
@@ -33,6 +35,7 @@ namespace Vodovoz.RobotMia.Api
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddRobotMiaApi(_configuration);
+			services.ConfigureHealthCheckService<RobotMiaApiHealthCheck>();
 		}
 
 		/// <summary>
@@ -78,6 +81,8 @@ namespace Vodovoz.RobotMia.Api
 			{
 				endpoints.MapControllers();
 			});
+			
+			app.UseVodovozHealthCheck();
 		}
 	}
 }

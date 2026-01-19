@@ -53,6 +53,7 @@ namespace Vodovoz.Domain.Client
 		private Counterparty _previousCounterparty;
 		private IList<Phone> _phones = new List<Phone>();
 		private GenericObservableList<Phone> _observablePhones;
+		private string _ogrnip;
 		private IList<Email> _emails = new List<Email>();
 		private Employee _accountant;
 		private Employee _salesManager;
@@ -688,19 +689,19 @@ namespace Vodovoz.Domain.Client
 
 					if(KPP?.Length != 9 && KPP?.Length != 0 && TypeOfOwnership != "ИП")
 					{
-						yield return new ValidationResult("Длина КПП должна равнятся 9-ти.",
+						yield return new ValidationResult("Длина КПП должна равняться 9-ти.",
 							new[] { nameof(KPP) });
 					}
 
-					if(INN.Length != 10 && INN.Length != 0 && TypeOfOwnership != "ИП")
+					if(INN.Length != CompanyConstants.NotPrivateBusinessmanInnLength && INN.Length != 0 && TypeOfOwnership != "ИП")
 					{
-						yield return new ValidationResult("Длина ИНН должна равнятся 10-ти.",
+						yield return new ValidationResult("Длина ИНН должна равняться 10-ти.",
 							new[] { nameof(INN) });
 					}
 
-					if(INN.Length != 12 && INN.Length != 0 && TypeOfOwnership == "ИП")
+					if(INN.Length != CompanyConstants.PrivateBusinessmanInnLength && INN.Length != 0 && TypeOfOwnership == "ИП")
 					{
-						yield return new ValidationResult("Длина ИНН для ИП должна равнятся 12-ти.",
+						yield return new ValidationResult($"Длина ИНН для ИП должна равняться {CompanyConstants.PrivateBusinessmanInnLength}-ти.",
 							new[] { nameof(INN) });
 					}
 
@@ -726,6 +727,29 @@ namespace Vodovoz.Domain.Client
 					{
 						yield return new ValidationResult("ИНН может содержать только цифры.",
 							new[] { nameof(INN) });
+					}
+
+					if(!string.IsNullOrWhiteSpace(OGRN))
+					{
+						if(!Regex.IsMatch(OGRN, "^[0-9]*$"))
+						{
+							yield return new ValidationResult("ОГРН может содержать только цифры.",
+								new[] { nameof(OGRN) });
+						}
+
+						if(TypeOfOwnership == "ИП" && OGRN.Length != CompanyConstants.PrivateBusinessmanOgrnLength)
+						{
+							yield return new ValidationResult(
+								$"У ИП ОГРНИП состоит из {CompanyConstants.PrivateBusinessmanOgrnLength} символов",
+								new[] { nameof(KPP) });
+						}
+						
+						if(TypeOfOwnership != "ИП" && OGRN.Length != CompanyConstants.NotPrivateBusinessmanOgrnLength)
+						{
+							yield return new ValidationResult(
+								$"ОГРН должен содержать {CompanyConstants.NotPrivateBusinessmanOgrnLength} символов",
+								new[] { nameof(KPP) });
+						}
 					}
 				}
 

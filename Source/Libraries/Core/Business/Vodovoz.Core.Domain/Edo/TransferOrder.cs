@@ -2,6 +2,7 @@
 using QS.Extensions.Observable.Collections.List;
 using System;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Results;
 
@@ -20,16 +21,18 @@ namespace Vodovoz.Core.Domain.Edo
 		private OrganizationEntity _seller;
 		private OrganizationEntity _customer;
 		private IObservableList<TransferOrderTrueMarkCode> _items = new ObservableList<TransferOrderTrueMarkCode>();
+		private DocumentOrganizationCounter _transferDocument;
 
 		protected TransferOrder()
 		{
 		}
 
-		protected TransferOrder(DateTime date, OrganizationEntity seller, OrganizationEntity customer)
+		protected TransferOrder(DateTime date, OrganizationEntity seller, OrganizationEntity customer, DocumentOrganizationCounter transferDocument)
 		{
 			Date = date;
 			Seller = seller;
 			Customer = customer;
+			TransferDocument = transferDocument;
 		}
 
 		/// <summary>
@@ -78,8 +81,18 @@ namespace Vodovoz.Core.Domain.Edo
 			get => _items;
 			set => SetField(ref _items, value);
 		}
+		
+		/// <summary>
+		/// Счетчик документа трансфера
+		/// </summary>
+		[Display(Name = "Счетчик документа трансфера")]
+		public virtual DocumentOrganizationCounter TransferDocument
+		{
+			get => _transferDocument;
+			set => SetField(ref _transferDocument, value);
+		}
 
-		public static Result<TransferOrder> Create(DateTime date, OrganizationEntity seller, OrganizationEntity customer)
+		public static Result<TransferOrder> Create(DateTime date, OrganizationEntity seller, OrganizationEntity customer, DocumentOrganizationCounter transferDocument)
 		{
 			if(date == default)
 			{
@@ -95,8 +108,13 @@ namespace Vodovoz.Core.Domain.Edo
 			{
 				return Errors.Edo.TransferOrder.TransferOrderCreateCustomerMissing;
 			}
+			
+			if(transferDocument == null)
+			{
+				return Errors.Edo.TransferOrder.TransferOrderDocumentOrganizationCounterMissing;
+			}
 
-			return new TransferOrder(date, seller, customer);
+			return new TransferOrder(date, seller, customer, transferDocument);
 		}
 	}
 }

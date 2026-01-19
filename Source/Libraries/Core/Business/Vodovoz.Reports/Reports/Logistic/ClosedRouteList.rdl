@@ -106,10 +106,10 @@
           </TableColumn>
           <!--table_column-->
           <TableColumn>
-            <Width>75pt</Width>
+            <Width>60pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>75pt</Width>
+            <Width>60pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>31.3pt</Width>
@@ -119,6 +119,9 @@
           </TableColumn>
           <TableColumn>
             <Width>31.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>35pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>35pt</Width>
@@ -250,6 +253,24 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox73">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="EmptyTextBox1">
                       <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
@@ -424,6 +445,24 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox74">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="EmptyTextBox2">
                       <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
@@ -670,6 +709,24 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="UPD_number_Textbox1">
+                      <Value>№</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox34">
                       <Value>№</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -861,6 +918,24 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <FontWeight>Bold</FontWeight>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="UPD_number_Textbox2">
+                      <Value>УПД</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
                         <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
@@ -1102,6 +1177,30 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="UPD_number_textBox_value">
+                      <Value>={UPDNumber}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Left>Solid</Left>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <BackgroundColor>=Iif(({Status} = "EnRoute") or ({Status} = "Completed"), White, Lightgrey)</BackgroundColor>
+                        <FontWeight>=Iif({payment_type} = 'courier_card', 'Bold', 'Normal')</FontWeight>
+                        <PaddingBottom>1pt</PaddingBottom>
+                        <FontSize>8pt</FontSize>
+                        <PaddingTop>1pt</PaddingTop>
+                        <TextAlign>Left</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox79">
                       <Value />
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1321,6 +1420,22 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="EmptyTextbox5">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox72">
                       <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1430,7 +1545,7 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>4</ColSpan>
+                  <ColSpan>5</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -1493,7 +1608,7 @@
                   </ReportItems>
                 </TableCell>
                 <TableCell>
-                  <ColSpan>4</ColSpan>
+                  <ColSpan>5</ColSpan>
                   <ReportItems>
                     <Textbox Name="Textbox98" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                       <Value>=Sum({terminals_sum})</Value>
@@ -1730,6 +1845,7 @@ WHERE route_lists.id = @route_list_id;</CommandText>
 SELECT
     route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId, orders.daily_number_1c,
     CONCAT(HOUR(delivery_schedule.from_time),'-', HOUR(delivery_schedule.to_time)) AS DeliveryTime,
+    GROUP_CONCAT(DISTINCT document_organization_counters.document_number SEPARATOR ', ') AS UPDNumber,
 #SHORT В сокращенной версии без комментариев.
 #orders.comment AS Comment, 
     NULL AS Comment,
@@ -1793,6 +1909,9 @@ FROM route_list_addresses
          LEFT JOIN orders ON orders.id = route_list_addresses.order_id
          LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
          LEFT JOIN delivery_schedule ON delivery_schedule.id = orders.delivery_schedule_id
+         LEFT JOIN order_documents ON order_documents.order_id = orders.id
+         LEFT JOIN document_organization_counters 
+             ON document_organization_counters.id = order_documents.document_organization_counter_id
          LEFT JOIN
      (SELECT
           route_list_addresses.id,
@@ -1900,6 +2019,10 @@ ORDER BY route_list_addresses.order_in_route;
       <Fields>
         <Field Name="DeliveryTime">
           <DataField>DeliveryTime</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="UPDNumber">
+          <DataField>UPDNumber</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="Comment">

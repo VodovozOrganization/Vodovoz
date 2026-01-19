@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Employees;
@@ -72,5 +73,23 @@ namespace Vodovoz.Infrastructure.Persistance.WageCalculation
 				.Select(Projections.Distinct(Projections.Property<RouteList>(x => x.Date)))
 				.List<DateTime>();
 		}
+
+		/// <inheritdoc/>
+		public IEnumerable<WageDistrictLevelRates> AllDefaultLevelForNewEmployees(IUnitOfWork uow) =>
+			uow.Session.Query<WageDistrictLevelRates>()
+			.Where(x => x.IsDefaultLevel)
+			.ToList();
+
+		/// <inheritdoc/>
+		public IEnumerable<WageDistrictLevelRates> AllDefaultLevelForNewEmployeesOnOurCars(IUnitOfWork uow) =>
+			uow.Session.Query<WageDistrictLevelRates>()
+			.Where(x => x.IsDefaultLevelForOurCars)
+			.ToList();
+
+		/// <inheritdoc/>
+		public IEnumerable<WageDistrictLevelRates> AllDefaultLevelForNewEmployeesOnRaskatCars(IUnitOfWork uow) =>
+			uow.Session.Query<WageDistrictLevelRates>()
+			.Where(x => x.IsDefaultLevelForRaskatCars)
+			.ToList();
 	}
 }

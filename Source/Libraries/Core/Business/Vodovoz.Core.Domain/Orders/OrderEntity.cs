@@ -791,7 +791,7 @@ namespace Vodovoz.Core.Domain.Orders
 		/// Является ли заказ безналичным и организация по договору без НДС
 		/// </summary>
 		public virtual bool IsCashlessPaymentTypeAndOrganizationWithoutVAT => PaymentType == PaymentType.Cashless
-			&& (Contract?.Organization?.WithoutVAT ?? false);
+			&& Contract?.Organization?.GetActualVatRateVersion(BillDate)?.VatRate.VatRateValue == 0;
 
 		public override string ToString()
 		{

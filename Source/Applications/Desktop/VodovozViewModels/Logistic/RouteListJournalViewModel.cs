@@ -183,9 +183,10 @@ namespace Vodovoz.ViewModels.Logistic
 				query.Where(o => o.Shift == FilterViewModel.DeliveryShift);
 			}
 
-			if(FilterViewModel.StartDate != null)
+			var startDate = FilterViewModel.StartDate;
+			if(startDate != null)
 			{
-				query.Where(o => o.Date >= FilterViewModel.StartDate);
+				query.Where(o => o.Date >= startDate);
 			}
 
 			var endDate = FilterViewModel.EndDate;

@@ -1,4 +1,4 @@
-﻿using Gamma.ColumnConfig;
+using Gamma.ColumnConfig;
 using QS.DomainModel.Entity;
 using QS.Views;
 using System;
@@ -279,6 +279,12 @@ namespace Vodovoz.Views.Settings
 			buttonSaveDefaulVatRate.BindCommand(ViewModel.SaveDefaultVatRateCommand);
 			buttonSaveDefaulVatRate.Binding
 				.AddBinding(ViewModel, vm => vm.CanMassiveChangeVatRate, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ycheckbuttonDisableDebtMailing.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.DebtNotificationWorkerIsEnabled, w => w.Active)
+				.AddFuncBinding(vm => vm.CanEditDebtNotification, w => w.Sensitive)
 				.InitializeFromSource();
 		}
 		

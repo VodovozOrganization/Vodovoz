@@ -88,6 +88,8 @@ namespace PayPageAPI
 			
 			//models
 			services.AddScoped<IAvangardFastPaymentModel, AvangardFastPaymentModel>();
+			
+			services.AddHttpClient();
 
 			services.ConfigureHealthCheckService<PayPageHealthCheck>();
 		}
@@ -123,7 +125,7 @@ namespace PayPageAPI
 					pattern: "{controller=Home}/{action=Index}/{id?}");
 			});
 
-			app.ConfigureHealthCheckApplicationBuilder();
+			app.UseVodovozHealthCheck();
 		}
 	}
 }

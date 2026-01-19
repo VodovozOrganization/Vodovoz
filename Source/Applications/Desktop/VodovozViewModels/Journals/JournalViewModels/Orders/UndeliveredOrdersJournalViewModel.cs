@@ -104,14 +104,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			(_currentEmployee = _employeeService.GetEmployeeForUser(UoW, _commonServices.UserService.CurrentUserId));
 
 		private void RegisterUndeliveredOrders()
-		{			
+		{
 			var isFosSalesDepartment = FilterViewModel.IsForSalesDepartment.HasValue && FilterViewModel.IsForSalesDepartment.Value;
 			var undeliveredrdersConfig = RegisterEntity<UndeliveredOrder>(GetUndeliveredOrdersQuery, GetItemsCount)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа					
 					() => NavigationManager.OpenViewModel<UndeliveryViewModel>(this, OpenPageOptions.AsSlave, vm => vm.Initialize(isForSalesDepartment: isFosSalesDepartment)).ViewModel,
 					//функция диалога открытия документа					
-					(UndeliveredOrderJournalNode node) => NavigationManager.OpenViewModel<UndeliveryViewModel>(this, OpenPageOptions.AsSlave, vm => vm.Initialize(oldOrderId: node.OldOrderId)).ViewModel,
+					(UndeliveredOrderJournalNode node) => NavigationManager.OpenViewModel<UndeliveryViewModel>(this, OpenPageOptions.AsSlave, vm => vm.Initialize(undeliveredOrderId: node.Id)).ViewModel,
 					//функция идентификации документа 
 					(UndeliveredOrderJournalNode node) => node.EntityType == typeof(UndeliveredOrder),
 					"Недовоз"

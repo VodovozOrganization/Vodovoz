@@ -61,6 +61,8 @@ namespace MailjetEventsDistributorAPI
 			{
 				c.SwaggerDoc("v1", new OpenApiInfo { Title = "MailjetEventMessagesDistributorAPI", Version = "v1" });
 			});
+			
+			services.AddHttpClient();
 
 			services.ConfigureHealthCheckService<MailjetEventsDistributeHealthCheck>();
 		}
@@ -86,7 +88,7 @@ namespace MailjetEventsDistributorAPI
 				endpoints.MapControllers();
 			});
 
-			app.ConfigureHealthCheckApplicationBuilder();
+			app.UseVodovozHealthCheck();
 		}
 	}
 }

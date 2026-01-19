@@ -21,9 +21,11 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Data.Repositories.Document;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.Documents;
@@ -46,12 +48,10 @@ using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Extensions;
 using Vodovoz.Services;
-using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
@@ -87,6 +87,8 @@ namespace Vodovoz.Domain.Orders
 			.Resolve<IPaymentFromBankClientController>();
 		private INomenclatureRepository _nomenclatureRepository => ScopeProvider.Scope
 			.Resolve<INomenclatureRepository>();
+		private IDocumentOrganizationCounterRepository _documentOrganizationCounterRepository => ScopeProvider.Scope
+			.Resolve<IDocumentOrganizationCounterRepository>();
 		private INomenclatureSettings _nomenclatureSettings => ScopeProvider.Scope
 			.Resolve<INomenclatureSettings>();
 		private IEmailRepository _emailRepository => ScopeProvider.Scope
@@ -1397,7 +1399,7 @@ namespace Vodovoz.Domain.Orders
 				!Nomenclature.GetCategoriesNotNeededToLoad().Contains(orderEquipment.Nomenclature.Category) && !orderEquipment.Nomenclature.NoDelivery);
 
 		public virtual bool IsCashlessPaymentTypeAndOrganizationWithoutVAT => PaymentType == PaymentType.Cashless
-			&& (Contract?.Organization?.WithoutVAT ?? false);
+			&& Contract?.Organization?.GetActualVatRateVersion(BillDate)?.VatRate.VatRateValue == 0;
 
 		public virtual void RefreshContactPhone()
 		{
@@ -2707,6 +2709,17 @@ namespace Vodovoz.Domain.Orders
 							);
 						}
 						break;
+					case OrderDocumentType.LetterOfDebt:
+						if(ObservableOrderDocuments
+						   .OfType<LetterOfDebtDocument>()
+						   .FirstOrDefault(x => x.Order == item.Order)
+						   == null) {
+							ObservableOrderDocuments.Add(new LetterOfDebtDocument {
+								Order = item.Order,
+								AttachedToOrder = this
+							});
+						}
+						break;
 					default:
 						break;
 				}
@@ -3819,6 +3832,7 @@ namespace Vodovoz.Domain.Orders
 				ObservableOrderDocuments.Add(CreateDocumentOfOrder(type));
 			}
 			CheckDocumentCount(this);
+			UpdateIfUpdUsing(this);
 		}
 
 		private void CheckDocumentCount(Order order)
@@ -3829,10 +3843,39 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		private void UpdateIfUpdUsing(Order order)
+		{
+			if(!order.OrderDocuments.Any(d => d.Order.Id == order.Id && (d.Type == OrderDocumentType.UPD || d.Type == OrderDocumentType.SpecialUPD)))
+			{
+				return;
+			}
+			
+			var targetTypesForUpdReference = new List<OrderDocumentType>()
+			{
+				OrderDocumentType.Bill, 
+				OrderDocumentType.SpecialBill, 
+				OrderDocumentType.DoneWorkReport, 
+				OrderDocumentType.EquipmentTransfer,
+				OrderDocumentType.DriverTicket
+			};
+			
+			var upd = order.OrderDocuments.First(d => d.Order.Id == order.Id && (d.Type == OrderDocumentType.UPD || d.Type == OrderDocumentType.SpecialUPD));
+				
+			foreach(var orderDocument in order.OrderDocuments)
+			{
+				if(targetTypesForUpdReference.Any(t => t == orderDocument.Type))
+				{
+					orderDocument.DocumentOrganizationCounter = upd.DocumentOrganizationCounter;
+				}
+			}
+		}
+
 		private OrderDocument CreateDocumentOfOrder(OrderDocumentType type)
 		{
 			OrderDocument newDoc;
-			switch(type) {
+
+			switch(type)
+			{
 				case OrderDocumentType.Bill:
 					newDoc = new BillDocument();
 					break;
@@ -3840,18 +3883,73 @@ namespace Vodovoz.Domain.Orders
 					newDoc = new SpecialBillDocument();
 					break;
 				case OrderDocumentType.UPD:
-					var updDocument = new UPDDocument();
-					if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel")) {
-						updDocument.RestrictedOutputPresentationTypes = new[] { OutputPresentationType.ExcelTableOnly, OutputPresentationType.Excel2007 };
-					}
+				{
+					var updOrderCounter = _documentOrganizationCounterRepository.GetDocumentOrganizationCounterByOrder(UoW, this);
+					
+					var updCounter = _documentOrganizationCounterRepository
+						.GetMaxDocumentOrganizationCounterOnYear(UoW, DeliveryDate.Value, Contract?.Organization);
+					
+					var updCounterValue = updOrderCounter?.Counter ?? (updCounter == null
+						? 1
+						: updCounter.Counter + 1);
+
+					var documentOrganizationCounter = updOrderCounter ?? new DocumentOrganizationCounter()
+					{
+						Organization = Contract?.Organization,
+						CounterDateYear = DeliveryDate?.Year,
+						Counter = updCounterValue,
+						DocumentNumber = UPDNumberBuilder.BuildDocumentNumber(Contract?.Organization, DeliveryDate.Value, updCounterValue),
+						Order = this
+					};
+
+					UoW.Save(documentOrganizationCounter);
+
+					var updDocument = new UPDDocument
+					{
+						DocumentOrganizationCounter = documentOrganizationCounter
+					};
+
+					if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel"))
+						updDocument.RestrictedOutputPresentationTypes =
+							new[] { OutputPresentationType.ExcelTableOnly, OutputPresentationType.Excel2007 };
+
 					newDoc = updDocument;
-					break;
+			}
+
+			break;
 				case OrderDocumentType.SpecialUPD:
-					var specialUpdDocument = new SpecialUPDDocument();
-					if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel")) {
-						specialUpdDocument.RestrictedOutputPresentationTypes = new[] { OutputPresentationType.ExcelTableOnly, OutputPresentationType.Excel2007 };
-					}
+				{
+					var updOrderCounter = _documentOrganizationCounterRepository.GetDocumentOrganizationCounterByOrder(UoW, this);
+					
+					var updCounter = _documentOrganizationCounterRepository
+						.GetMaxDocumentOrganizationCounterOnYear(UoW, DeliveryDate.Value, Contract?.Organization);
+					
+					var specialUpdCounterValue = updOrderCounter?.Counter ?? (updCounter == null
+						? 1
+						: updCounter.Counter + 1);
+
+					var documentOrganizationCounter = updOrderCounter ?? new DocumentOrganizationCounter()
+					{
+						Organization = Contract?.Organization,
+						CounterDateYear = DeliveryDate?.Year,
+						Counter = specialUpdCounterValue,
+						DocumentNumber = UPDNumberBuilder.BuildDocumentNumber(Contract?.Organization, DeliveryDate.Value, specialUpdCounterValue),
+						Order = this
+					};
+
+					UoW.Save(documentOrganizationCounter);
+
+					var specialUpdDocument = new SpecialUPDDocument
+					{
+						DocumentOrganizationCounter = documentOrganizationCounter
+					};
+
+					if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel"))
+						specialUpdDocument.RestrictedOutputPresentationTypes = new[]
+							{ OutputPresentationType.ExcelTableOnly, OutputPresentationType.Excel2007 };
+
 					newDoc = specialUpdDocument;
+				}
 					break;
 				case OrderDocumentType.Invoice:
 					newDoc = new InvoiceDocument();
@@ -3888,6 +3986,9 @@ namespace Vodovoz.Domain.Orders
 					break;
 				case OrderDocumentType.AssemblyList:
 					newDoc = new AssemblyListDocument();
+					break;
+				case OrderDocumentType.LetterOfDebt:
+					newDoc = new LetterOfDebtDocument();
 					break;
 				default:
 					throw new NotSupportedException("Не поддерживаемый тип документа");

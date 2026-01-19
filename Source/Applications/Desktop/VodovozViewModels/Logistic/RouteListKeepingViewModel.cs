@@ -232,15 +232,6 @@ namespace Vodovoz
 			}
 		}
 
-        public Enum[] ExcludedPaymentTypes =
-        {
-            PaymentType.Barter,
-            PaymentType.Cashless,
-            PaymentType.ContractDocumentation,
-            PaymentType.PaidOnline,
-            PaymentType.SmsQR
-        };
-
         public string BottlesInfo { get; private set; }
 		public GenericObservableList<RouteListKeepingItemNode> Items { get; private set; } = new GenericObservableList<RouteListKeepingItemNode>();
 
