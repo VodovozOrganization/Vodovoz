@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using MoreLinq;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Client;
@@ -81,6 +82,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 									&& order.Contract.Organization.INN == payment.Organization.INN));
 					}
 				}
+
+				orders = orders.DistinctBy(o => o.Id).ToList();
 
 				if(!orders.Any())
 				{
