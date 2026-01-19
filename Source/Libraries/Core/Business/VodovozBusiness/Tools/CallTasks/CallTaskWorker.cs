@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using NLog;
 using QS.DomainModel.UoW;
 using QS.Services;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;

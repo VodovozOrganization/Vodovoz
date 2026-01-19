@@ -1,4 +1,4 @@
-﻿using Vodovoz.Domain.Goods;
+﻿using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.ViewModels.ViewModels.Suppliers
 {

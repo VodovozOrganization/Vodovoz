@@ -13,6 +13,7 @@ using System.Linq;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -35,45 +36,12 @@ namespace Vodovoz.Domain.Documents
 		Nominative = "отпуск самовывоза")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class SelfDeliveryDocument : Document, IValidatableObject, IWarehouseBoundedDocument
+	public class SelfDeliveryDocument : SelfDeliveryDocumentEntity, IValidatableObject, IWarehouseBoundedDocument
 	{
 		private Order _order;
-		private Warehouse _warehouse;
-		private string _comment;
-		private IList<SelfDeliveryDocumentItem> _items
-			= new List<SelfDeliveryDocumentItem>();
-		private GenericObservableList<SelfDeliveryDocumentItem> _observableItems;
-		private IList<SelfDeliveryDocumentReturned> _returnedItems
-			= new List<SelfDeliveryDocumentReturned>();
 		private int _defBottleId;
 		private int _returnedTareBefore;
 		private int _tareToReturn;
-
-		/// <summary>
-		/// <inheritdoc/>
-		/// </summary>
-		public override DateTime TimeStamp
-		{
-			get => base.TimeStamp;
-			set
-			{
-				base.TimeStamp = value;
-
-				if(!NHibernate.NHibernateUtil.IsInitialized(Items))
-				{
-					return;
-				}
-
-				foreach(var item in Items)
-				{
-					if(item.GoodsAccountingOperation != null
-						&& item.GoodsAccountingOperation.OperationTime != TimeStamp)
-					{
-						item.GoodsAccountingOperation.OperationTime = TimeStamp;
-					}
-				}
-			}
-		}
 
 		/// <summary>
 		/// Заказ, по которому оформляется самовывоз
@@ -85,73 +53,7 @@ namespace Vodovoz.Domain.Documents
 			set => SetField(ref _order, value);
 		}
 
-		/// <summary>
-		/// Склад, на который оформляется самовывоз
-		/// </summary>
-		[Required(ErrorMessage = "Склад должен быть указан.")]
-		public virtual Warehouse Warehouse
-		{
-			get => _warehouse;
-			set => SetField(ref _warehouse, value);
-		}
-
-		/// <summary>
-		/// Комментарий к самовывозу
-		/// </summary>
-		[Display(Name = "Комментарий")]
-		public virtual string Comment
-		{
-			get => _comment;
-			set => SetField(ref _comment, value);
-		}
-
-		/// <summary>
-		/// Строки самовывоза
-		/// </summary>
-		[Display(Name = "Строки")]
-		public virtual IList<SelfDeliveryDocumentItem> Items
-		{
-			get => _items;
-			set
-			{
-				SetField(ref _items, value);
-				_observableItems = null;
-			}
-		}
-
-		/// <summary>
-		/// Строки самовывоза
-		/// </summary>
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<SelfDeliveryDocumentItem> ObservableItems
-		{
-			get
-			{
-				if(_observableItems == null)
-				{
-					_observableItems = new GenericObservableList<SelfDeliveryDocumentItem>(Items);
-				}
-
-				return _observableItems;
-			}
-		}
-
-		/// <summary>
-		/// Строки возврата
-		/// </summary>
-		[Display(Name = "Строки возврата")]
-		public virtual IList<SelfDeliveryDocumentReturned> ReturnedItems
-		{
-			get => _returnedItems;
-			set => SetField(ref _returnedItems, value);
-		}
-
 		#region Не сохраняемые
-
-		/// <summary>
-		/// <inheritdoc/>
-		/// </summary>
-		public virtual string Title => $"Самовывоз №{Id} от {TimeStamp:d}";
 
 		/// <summary>
 		/// Количество возвратов, которые были оформлены до оформления текущего самовывоза
@@ -223,7 +125,7 @@ namespace Vodovoz.Domain.Documents
 						new[] { this.GetPropertyName(o => o.Items) });
 				}
 
-				var count =  decimal.ToInt32(item.Document.GetNomenclaturesCountInOrder(item.Nomenclature));
+				var count =  decimal.ToInt32(item.Document.GetNomenclaturesCountInOrder(item.Nomenclature.Id));
 				if(item.Amount != count)
 				{
 					yield return new ValidationResult(
@@ -275,7 +177,7 @@ namespace Vodovoz.Domain.Documents
 		/// </summary>
 		public virtual void FillByOrder()
 		{
-			ObservableItems.Clear();
+			Items.Clear();
 			if(Order == null)
 			{
 				return;
@@ -290,16 +192,16 @@ namespace Vodovoz.Domain.Documents
 					continue;
 				}
 
-				if(!ObservableItems.Any(i => i.Nomenclature == orderItem.Nomenclature))
+				if(!Items.Any(i => i.Nomenclature == orderItem.Nomenclature))
 				{
-					ObservableItems.Add(
+					Items.Add(
 						new SelfDeliveryDocumentItem
 						{
 							Document = this,
 							Nomenclature = orderItem.Nomenclature,
 							OrderItem = orderItem,
 							OrderEquipment = null,
-							Amount = GetNomenclaturesCountInOrder(orderItem.Nomenclature)
+							Amount = GetNomenclaturesCountInOrder(orderItem.Nomenclature.Id)
 						});
 				}
 
@@ -308,16 +210,16 @@ namespace Vodovoz.Domain.Documents
 			foreach(var orderEquipment in Order.OrderEquipments
 				.Where(x => x.Direction == Direction.Deliver))
 			{
-				if(!ObservableItems.Any(i => i.Nomenclature == orderEquipment.Nomenclature))
+				if(!Items.Any(i => i.Nomenclature == orderEquipment.Nomenclature))
 				{
-					ObservableItems.Add(
+					Items.Add(
 						new SelfDeliveryDocumentItem
 						{
 							Document = this,
 							Nomenclature = orderEquipment.Nomenclature,
 							OrderItem = null,
 							OrderEquipment = orderEquipment,
-							Amount = GetNomenclaturesCountInOrder(orderEquipment.Nomenclature)
+							Amount = GetNomenclaturesCountInOrder(orderEquipment.Nomenclature.Id)
 						});
 				}
 			}
@@ -342,24 +244,24 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		/// <summary>
-		/// Получение количества номенклатуры в заказе
-		/// </summary>
-		/// <param name="item"></param>
-		/// <returns></returns>
-		public virtual decimal GetNomenclaturesCountInOrder(Nomenclature item)
-		{
-			decimal count = Order.OrderItems
-				.Where(i => i.Nomenclature == item)
-				.Sum(i => i.Count);
+		///// <summary>
+		///// Получение количества номенклатуры в заказе
+		///// </summary>
+		///// <param name="item"></param>
+		///// <returns></returns>
+		//public virtual decimal GetNomenclaturesCountInOrder(Nomenclature item)
+		//{
+		//	decimal count = Order.OrderItems
+		//		.Where(i => i.Nomenclature == item)
+		//		.Sum(i => i.Count);
 
-			count += Order.OrderEquipments
-				.Where(e => e.Nomenclature == item
-					&& e.Direction == Direction.Deliver)
-				.Sum(e => e.Count);
+		//	count += Order.OrderEquipments
+		//		.Where(e => e.Nomenclature == item
+		//			&& e.Direction == Direction.Deliver)
+		//		.Sum(e => e.Count);
 
-			return count;
-		}
+		//	return count;
+		//}
 
 		/// <summary>
 		/// Получение количества возвратов оборудования в заказе

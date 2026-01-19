@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Operations;
 using Vodovoz.EntityRepositories.Operations;
 
 namespace Vodovoz.Infrastructure.Persistance.Operations

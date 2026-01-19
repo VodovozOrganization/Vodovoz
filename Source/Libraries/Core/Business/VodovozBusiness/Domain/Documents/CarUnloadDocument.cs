@@ -10,6 +10,7 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -140,7 +141,7 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual void AddItem(
 			ReciveTypes reciveType, 
-			Nomenclature nomenclature, 
+			NomenclatureEntity nomenclature, 
 			Equipment equipment, 
 			decimal amount, 
 			ServiceClaim serviceClaim,

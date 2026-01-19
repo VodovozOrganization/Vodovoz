@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Sale;
 using VodovozInfrastructure.Versions;
 
 namespace Vodovoz.Domain.Sale
@@ -16,35 +17,16 @@ namespace Vodovoz.Domain.Sale
 		GenitivePlural = "Частей города")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class GeoGroup : PropertyChangedBase, IDomainObject, IValidatableObject, INamed
+	public class GeoGroup : GeoGroupEntity, IValidatableObject
 	{
-		private string _name;
-		private bool _isArchived;
 		private IList<GeoGroupVersion> _versions = new List<GeoGroupVersion>();
 		private GenericObservableList<GeoGroupVersion> _observableVersions;
-
-		public virtual int Id { get; set; }
-
-		[Display(Name = "Название")]
-		[Required(ErrorMessage = "Название части города должно быть заполнено")]
-		public virtual string Name
-		{
-			get => _name;
-			set => SetField(ref _name, value, () => Name);
-		}
 
 		[Display(Name = "Версии")]
 		public virtual IList<GeoGroupVersion> Versions
 		{
 			get => _versions;
 			set => SetField(ref _versions, value);
-		}
-
-		[Display(Name = "В архиве")]
-		public virtual bool IsArchived
-		{
-			get => _isArchived;
-			set => SetField(ref _isArchived, value);
 		}
 
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.

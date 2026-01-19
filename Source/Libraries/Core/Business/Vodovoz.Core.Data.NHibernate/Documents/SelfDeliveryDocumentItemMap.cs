@@ -3,7 +3,7 @@ using Vodovoz.Core.Domain.Documents;
 
 namespace Vodovoz.Core.Data.NHibernate.Documents
 {
-	public class SelfDeliveryDocumentItemMap : ClassMap<SelfDeliveryDocumentItemEntity>
+	public class SelfDeliveryDocumentItemMap : ClassMap<SelfDeliveryDocumentItem>
 	{
 		public SelfDeliveryDocumentItemMap()
 		{
@@ -11,7 +11,13 @@ namespace Vodovoz.Core.Data.NHibernate.Documents
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
-			References(x => x.SelfDeliveryDocument).Column("store_self_delivery_document_id");
+			Map(x => x.Amount).Column("amount");
+
+			References(x => x.Document).Column("store_self_delivery_document_id");
+			References(x => x.OrderItem).Column("order_item_id");
+			References(x => x.OrderEquipment).Column("order_equipment_id");
+			References(x => x.Nomenclature).Column("nomenclature_id");
+			References(x => x.GoodsAccountingOperation).Column("warehouse_movement_operation_id").Cascade.All();
 
 			HasMany(x => x.TrueMarkProductCodes).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("self_delivery_document_item_id");
 		}

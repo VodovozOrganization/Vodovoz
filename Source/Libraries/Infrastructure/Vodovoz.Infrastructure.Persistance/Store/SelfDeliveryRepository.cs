@@ -2,6 +2,7 @@
 using System.Linq;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
