@@ -1,8 +1,14 @@
-using EdoService.Library.Services;
+﻿using EdoService.Library.Services;
 using Mailjet.Api.Abstractions;
 using MassTransit;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using RabbitMQ.MailSending;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;

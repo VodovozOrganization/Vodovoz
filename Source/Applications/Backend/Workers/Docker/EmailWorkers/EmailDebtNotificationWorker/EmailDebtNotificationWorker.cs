@@ -1,5 +1,10 @@
 ﻿using EmailDebtNotificationWorker.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Counterparty;
 using Vodovoz.Zabbix.Sender;
