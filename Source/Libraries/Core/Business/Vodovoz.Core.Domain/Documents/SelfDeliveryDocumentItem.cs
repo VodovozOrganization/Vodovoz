@@ -1,11 +1,13 @@
 ﻿using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
+using System;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.Core.Domain.Documents
 {
@@ -16,13 +18,15 @@ namespace Vodovoz.Core.Domain.Documents
 		NominativePlural = "строки документа самовывоза",
 		Nominative = "строка документа самовывоза")]
 	[HistoryTrace]
-	public class SelfDeliveryDocumentItemEntity : PropertyChangedBase, IDomainObject
+	public class SelfDeliveryDocumentItem : PropertyChangedBase, IDomainObject
 	{
 		private decimal _amount;
 		private IObservableList<SelfDeliveryDocumentItemTrueMarkProductCode> _trueMarkProductCodes = new ObservableList<SelfDeliveryDocumentItemTrueMarkProductCode>();
 		private SelfDeliveryDocumentEntity _document;
 		private NomenclatureEntity _nomenclature;
+		private EquipmentEntity _equipment;
 		private OrderItemEntity _orderItem;
+		private OrderEquipmentEntity _orderEquipment;
 		private decimal _amountInStock;
 		private decimal _amountUnloaded;
 		private WarehouseBulkGoodsAccountingOperation _goodsAccountingOperation;
@@ -82,6 +86,24 @@ namespace Vodovoz.Core.Domain.Documents
 		}
 
 		/// <summary>
+		/// Оборудование
+		/// </summary>
+		[Display(Name = "Оборудование")]
+		public virtual EquipmentEntity Equipment
+		{
+			get => _equipment;
+			set
+			{
+				SetField(ref _equipment, value);
+
+				if(CounterpartyMovementOperation != null && CounterpartyMovementOperation.Equipment != _equipment)
+				{
+					CounterpartyMovementOperation.Equipment = _equipment;
+				}
+			}
+		}
+
+		/// <summary>
 		/// Связанный товар
 		/// </summary>
 		[Display(Name = "Связанный товар")]
@@ -89,6 +111,16 @@ namespace Vodovoz.Core.Domain.Documents
 		{
 			get => _orderItem;
 			set => SetField(ref _orderItem, value);
+		}
+
+		/// <summary>
+		/// Связанное оборудование
+		/// </summary>
+		[Display(Name = "Связанное оборудование")]
+		public virtual OrderEquipmentEntity OrderEquipment
+		{
+			get => _orderEquipment;
+			set => SetField(ref _orderEquipment, value);
 		}
 
 		#region Не сохраняемые
@@ -131,6 +163,55 @@ namespace Vodovoz.Core.Domain.Documents
 		{
 			get => _counterpartyMovementOperation;
 			set => SetField(ref _counterpartyMovementOperation, value);
+		}
+
+		#endregion
+
+		#region Функции
+
+		public virtual string Title
+		{
+			get
+			{
+				string res = string.Empty;
+				if(GoodsAccountingOperation != null)
+				{
+					res = string.Format(
+						"[{2}] {0} - {1}",
+						GoodsAccountingOperation.Nomenclature.Name,
+						GoodsAccountingOperation.Nomenclature.Unit.MakeAmountShortStr(GoodsAccountingOperation.Amount),
+						Document.Title
+					);
+				}
+				else if(Nomenclature != null)
+				{
+					res = string.Format(
+						"[{2}] {0} - {1}",
+						Nomenclature.Name,
+						Nomenclature.Unit.MakeAmountShortStr(Amount),
+						Document.Title
+					);
+				}
+
+				return res;
+			}
+		}
+
+		public virtual void CreateOperation(Warehouse warehouse, DateTime time)
+		{
+			GoodsAccountingOperation = new WarehouseBulkGoodsAccountingOperation
+			{
+				Warehouse = warehouse,
+				Amount = -Amount,
+				OperationTime = time,
+				Nomenclature = Nomenclature,
+			};
+		}
+
+		public virtual void UpdateOperation(Warehouse warehouse)
+		{
+			GoodsAccountingOperation.Warehouse = warehouse;
+			GoodsAccountingOperation.Amount = -Amount;
 		}
 
 		#endregion

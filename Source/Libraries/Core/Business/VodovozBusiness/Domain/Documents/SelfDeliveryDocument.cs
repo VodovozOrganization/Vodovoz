@@ -39,9 +39,6 @@ namespace Vodovoz.Domain.Documents
 	public class SelfDeliveryDocument : SelfDeliveryDocumentEntity, IValidatableObject, IWarehouseBoundedDocument
 	{
 		private Order _order;
-		private IList<SelfDeliveryDocumentItem> _items
-			= new List<SelfDeliveryDocumentItem>();
-		private GenericObservableList<SelfDeliveryDocumentItem> _observableItems;
 		private int _defBottleId;
 		private int _returnedTareBefore;
 		private int _tareToReturn;
@@ -56,43 +53,7 @@ namespace Vodovoz.Domain.Documents
 			set => SetField(ref _order, value);
 		}
 
-		/// <summary>
-		/// Строки самовывоза
-		/// </summary>
-		[Display(Name = "Строки")]
-		public virtual new IList<SelfDeliveryDocumentItem> Items
-		{
-			get => _items;
-			set
-			{
-				SetField(ref _items, value);
-				_observableItems = null;
-			}
-		}
-
-		/// <summary>
-		/// Строки самовывоза
-		/// </summary>
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<SelfDeliveryDocumentItem> ObservableItems
-		{
-			get
-			{
-				if(_observableItems == null)
-				{
-					_observableItems = new GenericObservableList<SelfDeliveryDocumentItem>(Items);
-				}
-
-				return _observableItems;
-			}
-		}
-
 		#region Не сохраняемые
-
-		/// <summary>
-		/// <inheritdoc/>
-		/// </summary>
-		public virtual string Title => $"Самовывоз №{Id} от {TimeStamp:d}";
 
 		/// <summary>
 		/// Количество возвратов, которые были оформлены до оформления текущего самовывоза
@@ -216,7 +177,7 @@ namespace Vodovoz.Domain.Documents
 		/// </summary>
 		public virtual void FillByOrder()
 		{
-			ObservableItems.Clear();
+			Items.Clear();
 			if(Order == null)
 			{
 				return;
@@ -231,9 +192,9 @@ namespace Vodovoz.Domain.Documents
 					continue;
 				}
 
-				if(!ObservableItems.Any(i => i.Nomenclature == orderItem.Nomenclature))
+				if(!Items.Any(i => i.Nomenclature == orderItem.Nomenclature))
 				{
-					ObservableItems.Add(
+					Items.Add(
 						new SelfDeliveryDocumentItem
 						{
 							Document = this,
@@ -249,9 +210,9 @@ namespace Vodovoz.Domain.Documents
 			foreach(var orderEquipment in Order.OrderEquipments
 				.Where(x => x.Direction == Direction.Deliver))
 			{
-				if(!ObservableItems.Any(i => i.Nomenclature == orderEquipment.Nomenclature))
+				if(!Items.Any(i => i.Nomenclature == orderEquipment.Nomenclature))
 				{
-					ObservableItems.Add(
+					Items.Add(
 						new SelfDeliveryDocumentItem
 						{
 							Document = this,

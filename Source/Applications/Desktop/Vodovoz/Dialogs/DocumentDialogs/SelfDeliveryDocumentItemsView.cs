@@ -1,10 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Gamma.GtkWidgets;
 using Gdk;
-using Gamma.GtkWidgets;
 using Gtk;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
+using System;
+using System.Collections.Generic;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Infrastructure;
 
@@ -83,12 +85,17 @@ namespace Vodovoz
 			get { return documentUoW; }
 			set {
 				if(documentUoW == value)
+				{
 					return;
+				}
+
 				documentUoW = value;
 				if(DocumentUoW.Root.Items == null)
-					DocumentUoW.Root.Items = new List<SelfDeliveryDocumentItem>();
+				{
+					DocumentUoW.Root.Items = new ObservableList<SelfDeliveryDocumentItem>();
+				}
 
-				ytreeviewItems.ItemsDataSource = DocumentUoW.Root.ObservableItems;
+				ytreeviewItems.ItemsDataSource = DocumentUoW.Root.Items;
 			}
 		}
 
@@ -120,7 +127,7 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteClicked(object sender, EventArgs e)
 		{
-			DocumentUoW.Root.ObservableItems.Remove(ytreeviewItems.GetSelectedObject<SelfDeliveryDocumentItem>());
+			DocumentUoW.Root.Items.Remove(ytreeviewItems.GetSelectedObject<SelfDeliveryDocumentItem>());
 		}
 	}
 }

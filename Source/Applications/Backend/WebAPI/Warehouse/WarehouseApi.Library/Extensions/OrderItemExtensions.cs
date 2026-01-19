@@ -8,9 +8,6 @@ using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Orders;
 using VodovozBusiness.Services.TrueMark;
 using WarehouseApi.Contracts.V1.Dto;
 
@@ -18,7 +15,7 @@ namespace WarehouseApi.Library.Extensions
 {
 	public static class OrderItemExtensions
 	{
-		public static OrderItemDto ToApiDtoV1(this OrderItemEntity orderItem, NomenclatureEntity nomenclature, SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem)
+		public static OrderItemDto ToApiDtoV1(this OrderItemEntity orderItem, NomenclatureEntity nomenclature, SelfDeliveryDocumentItem selfDeliveryDocumentItem)
 		{
 			if(orderItem is null)
 			{

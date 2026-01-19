@@ -10,10 +10,10 @@ namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 			Nominative = "код ЧЗ товара строки документа самовывоза")]
 	public class SelfDeliveryDocumentItemTrueMarkProductCode : TrueMarkProductCode
 	{
-		private SelfDeliveryDocumentItemEntity _selfDeliveryDocumentItem;
+		private SelfDeliveryDocumentItem _selfDeliveryDocumentItem;
 
 		[Display(Name = "Строка документа самовывоза")]
-		public virtual SelfDeliveryDocumentItemEntity SelfDeliveryDocumentItem
+		public virtual SelfDeliveryDocumentItem SelfDeliveryDocumentItem
 		{
 			get => _selfDeliveryDocumentItem;
 			set => SetField(ref _selfDeliveryDocumentItem, value);

@@ -139,7 +139,7 @@ namespace Vodovoz
 					}
 				}.FillFromMetaInfo()
 			);
-			
+
 			DeleteConfig.AddHibernateDeleteInfo<Equipment>()
 				.AddDeleteDependence<OrderEquipment>(item => item.Equipment)
 				.AddDeleteDependence<OrderItem>(item => item.Equipment)
@@ -1002,7 +1002,7 @@ namespace Vodovoz
 				.AddDeleteDependence<RegradingOfGoodsDocumentItem>(x => x.WarehouseWriteOffOperation)
 				.AddDeleteDependence<SelfDeliveryDocumentItem>(x => x.GoodsAccountingOperation)
 				.AddDeleteDependence<SelfDeliveryDocumentReturned>(x => x.GoodsAccountingOperation);
-			
+
 			DeleteConfig.AddHibernateDeleteInfo<WarehouseBulkGoodsAccountingOperation>()
 				.RequiredCascadeDeletion()
 				.AddDeleteDependence<CarLoadDocumentItem>(x => x.GoodsAccountingOperation)

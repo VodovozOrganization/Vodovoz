@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Warehouses;
 
@@ -22,7 +23,7 @@ namespace Vodovoz.Core.Domain.Documents
 		private Warehouse _warehouse;
 		private OrderEntity _order;
 		private string _comment;
-		private IObservableList<SelfDeliveryDocumentItemEntity> _items = new ObservableList<SelfDeliveryDocumentItemEntity>();
+		private IObservableList<SelfDeliveryDocumentItem> _items = new ObservableList<SelfDeliveryDocumentItem>();
 		private IList<SelfDeliveryDocumentReturned> _returnedItems = new List<SelfDeliveryDocumentReturned>();
 
 		/// <summary>
@@ -85,7 +86,7 @@ namespace Vodovoz.Core.Domain.Documents
 		/// Строки самовывоза
 		/// </summary>
 		[Display(Name = "Строки самовывоза")]
-		public virtual IObservableList<SelfDeliveryDocumentItemEntity> Items
+		public virtual IObservableList<SelfDeliveryDocumentItem> Items
 		{
 			get => _items;
 			set => SetField(ref _items, value);
@@ -101,77 +102,86 @@ namespace Vodovoz.Core.Domain.Documents
 			set => SetField(ref _returnedItems, value);
 		}
 
+		#region Не сохраняемые
+
+		/// <summary>
+		/// <inheritdoc/>
+		/// </summary>
+		public virtual string Title => $"Самовывоз №{Id} от {TimeStamp:d}";
+
+		#endregion
+
 		/// <summary>
 		/// Заполнение строк самовывоза по заказу
 		/// </summary>
-		//public virtual void FillByOrder()
-		//{
-		//	Items.Clear();
-		//	if(Order == null)
-		//	{
-		//		return;
-		//	}
+		public virtual void FillByOrder()
+		{
+			Items.Clear();
+			if(Order == null)
+			{
+				return;
+			}
 
-		//	foreach(var orderItem in Order.OrderItems)
-		//	{
-		//		if(!Nomenclature
-		//			.GetCategoriesForShipment()
-		//			.Contains(orderItem.Nomenclature.Category))
-		//		{
-		//			continue;
-		//		}
+			foreach(var orderItem in Order.OrderItems)
+			{
+				if(!NomenclatureEntity
+					.GetCategoriesForShipment()
+					.Contains(orderItem.Nomenclature.Category))
+				{
+					continue;
+				}
 
-		//		if(!Items.Any(i => i.Nomenclature == orderItem.Nomenclature))
-		//		{
-		//			Items.Add(
-		//				new SelfDeliveryDocumentItemEntity
-		//				{
-		//					Document = this,
-		//					Nomenclature = orderItem.Nomenclature,
-		//					OrderItem = orderItem,
-		//					OrderEquipment = null,
-		//					Amount = GetNomenclaturesCountInOrder(orderItem.Nomenclature)
-		//				});
-		//		}
+				if(!Items.Any(i => i.Nomenclature == orderItem.Nomenclature))
+				{
+					Items.Add(
+						new SelfDeliveryDocumentItem
+						{
+							Document = this,
+							Nomenclature = orderItem.Nomenclature,
+							OrderItem = orderItem,
+							OrderEquipment = null,
+							Amount = GetNomenclaturesCountInOrder(orderItem.Nomenclature.Id)
+						});
+				}
 
-		//	}
+			}
 
-		//	foreach(var orderEquipment in Order.OrderEquipments
-		//		.Where(x => x.Direction == Direction.Deliver))
-		//	{
-		//		if(!Items.Any(i => i.Nomenclature == orderEquipment.Nomenclature))
-		//		{
-		//			Items.Add(
-		//				new SelfDeliveryDocumentItemEntity
-		//				{
-		//					Document = this,
-		//					Nomenclature = orderEquipment.Nomenclature,
-		//					OrderItem = null,
-		//					OrderEquipment = orderEquipment,
-		//					Amount = GetNomenclaturesCountInOrder(orderEquipment.Nomenclature)
-		//				});
-		//		}
-		//	}
+			foreach(var orderEquipment in Order.OrderEquipments
+				.Where(x => x.Direction == Direction.Deliver))
+			{
+				if(!Items.Any(i => i.Nomenclature == orderEquipment.Nomenclature))
+				{
+					Items.Add(
+						new SelfDeliveryDocumentItem
+						{
+							Document = this,
+							Nomenclature = orderEquipment.Nomenclature,
+							OrderItem = null,
+							OrderEquipment = orderEquipment,
+							Amount = GetNomenclaturesCountInOrder(orderEquipment.Nomenclature.Id)
+						});
+				}
+			}
 
-		//	if(!ReturnedItems.Any(x => x.Id != 0))
-		//	{
-		//		ReturnedItems = Order.OrderEquipments
-		//			.Where(x => x.Direction == Direction.PickUp)
-		//			.GroupBy(x => (x.Nomenclature, x.DirectionReason, x.OwnType))
-		//			.ToDictionary(x => x.Key, x => x.ToList())
-		//			.Select(x => new SelfDeliveryDocumentReturned
-		//			{
-		//				Document = this,
-		//				Nomenclature = x.Key.Nomenclature,
-		//				ActualCount = 0,
-		//				Amount = x.Value.Sum(e => e.Count),
-		//				Direction = Direction.PickUp,
-		//				DirectionReason = x.Key.DirectionReason,
-		//				OwnType = x.Key.OwnType
-		//			})
-		//			.ToList();
-		//	}
-		//}
+			if(!ReturnedItems.Any(x => x.Id != 0))
+			{
+				ReturnedItems = Order.OrderEquipments
+					.Where(x => x.Direction == Direction.PickUp)
+					.GroupBy(x => (x.Nomenclature, x.DirectionReason, x.OwnType))
+					.ToDictionary(x => x.Key, x => x.ToList())
+					.Select(x => new SelfDeliveryDocumentReturned
+					{
+						Document = this,
+						Nomenclature = x.Key.Nomenclature,
+						ActualCount = 0,
+						Amount = x.Value.Sum(e => e.Count),
+						Direction = Direction.PickUp,
+						DirectionReason = x.Key.DirectionReason,
+						OwnType = x.Key.OwnType
+					})
+					.ToList();
+			}
+		}
 
 		/// <summary>
 		/// Получение количества номенклатуры в заказе

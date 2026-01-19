@@ -24,8 +24,6 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Organizations;
-using Vodovoz.Domain.Suppliers;
 using Vodovoz.EntityRepositories.TrueMark;
 using VodovozBusiness.Domain.Goods;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -264,7 +262,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 		public IEnumerable<SelfDeliveryDocumentItemTrueMarkProductCode> GetCodesFromSelfdeliveryByOrder(IUnitOfWork uow, int orderId)
 		{
 			SelfDeliveryDocumentItemTrueMarkProductCode selfdeliveryTrueMarkProductCodeAlias = null;
-			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItemAlias = null;
+			SelfDeliveryDocumentItem selfDeliveryDocumentItemAlias = null;
 			SelfDeliveryDocumentEntity selfDeliveryDocumentAlias = null;
 
 			var selfdeliveryCodes = uow.Session.QueryOver(() => selfdeliveryTrueMarkProductCodeAlias)

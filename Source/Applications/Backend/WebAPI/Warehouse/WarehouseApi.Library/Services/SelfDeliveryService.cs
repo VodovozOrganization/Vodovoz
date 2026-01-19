@@ -214,7 +214,7 @@ namespace WarehouseApi.Library.Services
 			foreach(var code in identificationCodes)
 			{
 
-				SelfDeliveryDocumentItemEntity nextSelfDeliveryItemToDistributeByGtin;
+				SelfDeliveryDocumentItem nextSelfDeliveryItemToDistributeByGtin;
 
 				nextSelfDeliveryItemToDistributeByGtin = GetNextNotScannedDocumentItem(selfDeliveryDocument, code);
 
@@ -334,7 +334,7 @@ namespace WarehouseApi.Library.Services
 		}
 
 		private async Task AddCodeToSelfDeliveryDocumentItemAsync(
-			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem,
+			SelfDeliveryDocumentItem selfDeliveryDocumentItem,
 			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
 			CancellationToken cancellationToken)
 		{
@@ -388,7 +388,7 @@ namespace WarehouseApi.Library.Services
 			return selfDeliveryDocument;
 		}
 
-		private SelfDeliveryDocumentItemEntity GetNextNotScannedDocumentItem(SelfDeliveryDocumentEntity selfDeliveryDocument, TrueMarkWaterIdentificationCode code)
+		private SelfDeliveryDocumentItem GetNextNotScannedDocumentItem(SelfDeliveryDocumentEntity selfDeliveryDocument, TrueMarkWaterIdentificationCode code)
 		{
 			var documentItem = selfDeliveryDocument.Items?
 				.Where(x => x.Nomenclature.IsAccountableInTrueMark)
