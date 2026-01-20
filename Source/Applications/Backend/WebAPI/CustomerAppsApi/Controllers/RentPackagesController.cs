@@ -37,7 +37,9 @@ namespace CustomerAppsApi.Controllers
 			{
 				var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
 
-				if(!isDryRun && !_rentPackagesFrequencyRequestsHandler.CanRequest(source, sourceName))
+				var canRequest = isDryRun || _rentPackagesFrequencyRequestsHandler.CanRequest(source, sourceName);
+
+				if(!canRequest)
 				{
 					return new FreeRentPackagesDto
 					{

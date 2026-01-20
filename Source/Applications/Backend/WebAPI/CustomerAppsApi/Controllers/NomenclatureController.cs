@@ -43,7 +43,9 @@ namespace CustomerAppsApi.Controllers
 
 				var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
 
-				if(!isDryRun && !_pricesFrequencyRequestsHandler.CanRequest(source, sourceName))
+				var canRequest = isDryRun || _pricesFrequencyRequestsHandler.CanRequest(source, sourceName);
+
+				if(!canRequest)
 				{
 					return new NomenclaturesPricesAndStockDto
 					{
@@ -80,7 +82,9 @@ namespace CustomerAppsApi.Controllers
 
 				var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
 
-				if(!isDryRun && !_nomenclaturesFrequencyRequestsHandler.CanRequest(source, sourceName))
+				var canRequest = isDryRun || _nomenclaturesFrequencyRequestsHandler.CanRequest(source, sourceName);
+
+				if(!canRequest)
 				{
 					return new NomenclaturesDto
 					{

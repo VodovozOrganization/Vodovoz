@@ -45,9 +45,11 @@ namespace CustomerAppsApi.Controllers
 
 				var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
 
-				if(!isDryRun
-					&& passedTimeMinutes > 0
-					&& passedTimeMinutes < _requestsLimitsSection.GetValue<int>("PromotionalSetsRequestFrequencyLimit"))
+				var canRequest = isDryRun
+					|| passedTimeMinutes == 0
+					|| passedTimeMinutes >= _requestsLimitsSection.GetValue<int>("PromotionalSetsRequestFrequencyLimit");
+
+				if(!canRequest)
 				{
 					_logger.LogInformation("Превышен интервал обращений для источника {Source}", sourceName);
 					return new PromotionalSetsDto

@@ -39,7 +39,9 @@ namespace CustomerAppsApi.Controllers
 			{
 				var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
 
-				if(!isDryRun && !_selfDeliveriesAddressesFrequencyRequestsHandler.CanRequest(source, sourceName))
+				var canRequest = isDryRun || _selfDeliveriesAddressesFrequencyRequestsHandler.CanRequest(source, sourceName);
+
+				if(!canRequest)
 				{
 					return BadRequest("Превышен интервал обращений");
 				}

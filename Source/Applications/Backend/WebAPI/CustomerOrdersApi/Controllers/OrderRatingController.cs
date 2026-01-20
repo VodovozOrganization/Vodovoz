@@ -86,7 +86,9 @@ namespace CustomerOrdersApi.Controllers
 
 				var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
 
-				if(!isDryRun && _memoryCache.TryGetValue(source, out var value))
+				var canRequest = isDryRun || !_memoryCache.TryGetValue(source, out var value);
+
+				if(!canRequest)
 				{
 					return BadRequest("Превышен интервал обращений");
 				}
