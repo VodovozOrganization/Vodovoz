@@ -145,7 +145,7 @@ namespace VodovozHealthCheck.Helpers
 
 			if(isHealthCheck)
 			{
-				request.Headers.Add(HealthCheckHeader, "true");
+				request.Headers.Add(HealthCheckHeader, true.ToString());
 			}
 
 			var httpClient = httpClientFactory.CreateClient();
@@ -238,7 +238,12 @@ namespace VodovozHealthCheck.Helpers
 		/// <returns>true, если запрос содержит заголовок X-Health-Check.</returns>
 		public static bool IsHealthCheckRequest(HttpRequest request)
 		{
-			return request.Headers.ContainsKey(HealthCheckHeader);
+			if(request.Headers.TryGetValue(HealthCheckHeader, out var headerValue))
+			{
+				return bool.TryParse(headerValue, out var result) && result;
+			}
+
+			return false;
 		}
 	}
 }

@@ -1,4 +1,4 @@
-using CustomerAppsApi.Library.Dto.Goods;
+﻿using CustomerAppsApi.Library.Dto.Goods;
 using CustomerAppsApi.Library.Models;
 using Gamma.Utilities;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using Vodovoz.Core.Domain.Clients;
+using VodovozHealthCheck.Helpers;
 
 namespace CustomerAppsApi.Controllers
 {
@@ -42,7 +43,10 @@ namespace CustomerAppsApi.Controllers
 				var lastRequestTime = _requestTimes.GetOrAdd(source, now);
 				var passedTimeMinutes = lastRequestTime == now ? 0d : (now - lastRequestTime).TotalMinutes;
 
-				if(passedTimeMinutes > 0
+				var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
+
+				if(!isDryRun
+					&& passedTimeMinutes > 0
 					&& passedTimeMinutes < _requestsLimitsSection.GetValue<int>("PromotionalSetsRequestFrequencyLimit"))
 				{
 					_logger.LogInformation("Превышен интервал обращений для источника {Source}", sourceName);
@@ -53,7 +57,12 @@ namespace CustomerAppsApi.Controllers
 				}
 
 				var promotionalSets = _promotionalSetModel.GetPromotionalSets(source);
-				_requestTimes.TryUpdate(source, DateTime.Now, lastRequestTime);
+
+				if(!isDryRun)
+				{
+					_requestTimes.TryUpdate(source, DateTime.Now, lastRequestTime);
+				}
+
 				return promotionalSets;
 			}
 			catch(Exception e)

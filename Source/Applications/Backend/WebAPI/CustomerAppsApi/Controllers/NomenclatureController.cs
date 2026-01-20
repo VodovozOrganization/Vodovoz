@@ -1,4 +1,4 @@
-using CustomerAppsApi.Library.Dto.Goods;
+﻿using CustomerAppsApi.Library.Dto.Goods;
 using CustomerAppsApi.Library.Models;
 using CustomerAppsApi.Library.Services;
 using Gamma.Utilities;
@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using Vodovoz.Core.Domain.Clients;
+using VodovozHealthCheck.Helpers;
 
 namespace CustomerAppsApi.Controllers
 {
@@ -39,8 +40,10 @@ namespace CustomerAppsApi.Controllers
 			try
 			{
 				_logger.LogInformation("Поступил запрос на выборку цен и остатков от источника {Source}", sourceName);
-				
-				if(!_pricesFrequencyRequestsHandler.CanRequest(source, sourceName))
+
+				var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
+
+				if(!isDryRun && !_pricesFrequencyRequestsHandler.CanRequest(source, sourceName))
 				{
 					return new NomenclaturesPricesAndStockDto
 					{
@@ -49,7 +52,12 @@ namespace CustomerAppsApi.Controllers
 				}
 
 				var pricesAndStocks = _nomenclatureModel.GetNomenclaturesPricesAndStocks(source);
-				_pricesFrequencyRequestsHandler.TryUpdate(source);
+
+				if(!isDryRun)
+				{
+					_pricesFrequencyRequestsHandler.TryUpdate(source);
+				}
+
 				return pricesAndStocks;
 			}
 			catch(Exception e)
@@ -69,8 +77,10 @@ namespace CustomerAppsApi.Controllers
 			try
 			{
 				_logger.LogInformation("Поступил запрос на выборку номенклатур от источника {Source}", sourceName);
-				
-				if(!_nomenclaturesFrequencyRequestsHandler.CanRequest(source, sourceName))
+
+				var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
+
+				if(!isDryRun && !_nomenclaturesFrequencyRequestsHandler.CanRequest(source, sourceName))
 				{
 					return new NomenclaturesDto
 					{
@@ -79,7 +89,12 @@ namespace CustomerAppsApi.Controllers
 				}
 
 				var nomenclatures = _nomenclatureModel.GetNomenclatures(source);
-				_nomenclaturesFrequencyRequestsHandler.TryUpdate(source);
+
+				if(!isDryRun)
+				{
+					_nomenclaturesFrequencyRequestsHandler.TryUpdate(source);
+				}
+
 				return nomenclatures;
 			}
 			catch(Exception e)
