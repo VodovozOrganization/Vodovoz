@@ -35,9 +35,7 @@ namespace SecureCodeSenderApi.Controllers.V1
 		/// <param name="sendSecureCodeDto">Информация для отправки</param>
 		/// <returns>
 		/// 200 - в случае успеха с временем до следующего запроса <see cref="SecureCodeSent"/>
-		/// 404 - неверный код доступа
-		/// 408 - истекший код
-		/// 500 - ошибка
+		/// 500 - ошибка/неудача
 		/// </returns>
 		[HttpPost("Send")]
 		[Consumes(MediaTypeNames.Application.Json)]
@@ -86,7 +84,9 @@ namespace SecureCodeSenderApi.Controllers.V1
 		/// <param name="checkSecureCodeDto">Данные для проверки</param>
 		/// <returns>
 		/// 200 - в случае успеха
-		/// 500 - ошибка/неудача
+		/// 404 - неверный код доступа
+		/// 408 - истекший код
+		/// 500 - ошибка
 		/// </returns>
 		[HttpGet("Check")]
 		[Consumes(MediaTypeNames.Application.Json)]
