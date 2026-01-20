@@ -54,6 +54,11 @@ namespace CustomerOrdersApi.Library.Dto.Orders.OrderItem
 			{
 				if(Discount > 0)
 				{
+					if(Count == 0)
+					{
+						return 0;
+					}
+
 					return !IsDiscountInMoney
 						? Math.Round(Price * (100 - Discount) / 100, 2)
 						: Math.Round((Price * Count - Discount) / Count, 2);
