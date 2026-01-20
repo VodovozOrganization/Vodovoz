@@ -163,7 +163,7 @@ namespace Vodovoz.Application.Orders.Services
 				foreach(var onlineOrderItem in onlineOrderItemGroup)
 				{
 					ValidateNomenclatureByArchive(archivedNomenclatures, onlineOrderItem, errors);
-					ValidateCount(onlineOrderItem, i, errors);
+					ValidateCountFromPromoSet(onlineOrderItem, i, errors);
 					ValidatePrice(onlineOrderItem, errors);
 					ValidateDiscountFromPromoSet(onlineOrderItem, i, errors);
 					i++;
@@ -265,7 +265,7 @@ namespace Vodovoz.Application.Orders.Services
 			errors.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IsArchivedNomenclatureInOnlineOrder(nomenclature.ToString()));
 		}
 
-		private void ValidateCount(OnlineOrderItem onlineOrderItem, int index, ICollection<Error> errors)
+		private void ValidateCountFromPromoSet(OnlineOrderItem onlineOrderItem, int index, ICollection<Error> errors)
 		{
 			var promoSetItem = onlineOrderItem.PromoSet.PromotionalSetItems[index];
 			var countFromPromoSetItem = promoSetItem.Count;
@@ -438,8 +438,18 @@ namespace Vodovoz.Application.Orders.Services
 				}
 				
 				ValidateNomenclatureByArchive(archivedNomenclatures, onlineOrderItem, errors);
+				ValidateCount(onlineOrderItem, errors);
 				ValidatePrice(onlineOrderItem, errors);
 				ValidateDiscountProperties(onlineOrderItem, errors);
+			}
+		}
+
+		private void ValidateCount(OnlineOrderItem onlineOrderItem, ICollection<Error> errors)
+		{
+			if(onlineOrderItem.Count <= 0)
+			{
+				errors.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IncorrectCountNomenclatureInOnlineOrder(
+					onlineOrderItem.Nomenclature.ToString(), onlineOrderItem.Count));
 			}
 		}
 
