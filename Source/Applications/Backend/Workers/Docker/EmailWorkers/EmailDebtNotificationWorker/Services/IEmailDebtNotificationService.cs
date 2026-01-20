@@ -1,4 +1,7 @@
-﻿namespace EmailDebtNotificationWorker.Services
+﻿using System.Threading;
+using System.Threading.Tasks;
+
+namespace EmailDebtNotificationWorker.Services
 {
 	public interface IEmailDebtNotificationService
 	{
