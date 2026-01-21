@@ -98,7 +98,6 @@ namespace CustomerAppsApi.Library
 				.AddScoped<ICustomerAppCounterpartyRepository, CustomerAppCounterpartyRepository>()
 				.AddScoped<IContactsRepository, ContactsRepository>()
 				.AddScoped<ICounterpartyService, CounterpartyService>()
-				.AddScoped<TrueMarkRegistrationCheckService>()
 				.AddScoped<CustomerAppEdoService>()
 				.AddScoped<ICustomerAppEdoOperatorRepository, CustomerAppEdoOperatorRepository>()
 				;

@@ -30,14 +30,6 @@
 		/// </summary>
 		public int DelayOfPayment { get; set; }
 		/// <summary>
-		/// Статус добавления номера телефона
-		/// </summary>
-		public string AddingPhoneNumberState { get; set; }
-		/// <summary>
-		/// Статус указания цели покупки воды
-		/// </summary>
-		public string AddingReasonForLeavingState { get; set; }
-		/// <summary>
 		/// Статус подключения ЭДО
 		/// </summary>
 		public string AddingEdoAccountState { get; set; }
@@ -45,9 +37,5 @@
 		/// Статус проверки в ФНС
 		/// </summary>
 		public string TaxServiceCheckState { get; set; }
-		/// <summary>
-		/// Статус проверки в ЧЗ
-		/// </summary>
-		public string TrueMarkCheckState { get; set; }
 	}
 }

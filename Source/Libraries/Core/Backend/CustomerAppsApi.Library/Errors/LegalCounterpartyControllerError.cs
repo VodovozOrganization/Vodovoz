@@ -37,5 +37,16 @@ namespace CustomerAppsApi.Library.Errors
 				"Неверный пароль. Попробуйте еще раз.",
 				typeof(LegalCounterpartyControllerError)
 				);
+		
+		/// <summary>
+		/// Неверный старый пароль аккаунта
+		/// </summary>
+		/// <returns></returns>
+		public static Error WrongOldAccountPassword()
+			=> new Error(
+				"401",
+				"Вы ввели неверный старый пароль. Попробуйте еще раз.",
+				typeof(LegalCounterpartyControllerError)
+			);
 	}
 }

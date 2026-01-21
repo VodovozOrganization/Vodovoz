@@ -105,7 +105,7 @@ namespace CustomerAppsApi.Library.Dto.Counterparties
 					Warning = Warning.CreateAnotherAccountExists();
 					break;
 				case CounterpartyEmailState.HasEmailAndActive:
-					//TODO 5606: дописать после обновления Костей
+					NextStep = NextStepGetLegalCounterpartiesByInnRequest.Authenticate;
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(EmailState), "Неизвестное состояние электронной почты и аккаунта!");

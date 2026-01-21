@@ -18,12 +18,12 @@ namespace CustomerAppsApi.Controllers
 	[Route("/api/[action]")]
 	public class EdoController : ControllerBase
 	{
-		private readonly ILogger<PhoneController> _logger;
+		private readonly ILogger<EdoController> _logger;
 		private readonly ICounterpartyRequestDataValidator _requestDataValidator;
 		private readonly CustomerAppEdoService _customerAppEdoService;
 
 		public EdoController(
-			ILogger<PhoneController> logger,
+			ILogger<EdoController> logger,
 			ICounterpartyRequestDataValidator requestDataValidator,
 			CustomerAppEdoService customerAppEdoService
 		)
@@ -31,75 +31,6 @@ namespace CustomerAppsApi.Controllers
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_requestDataValidator = requestDataValidator ?? throw new ArgumentNullException(nameof(requestDataValidator));
 			_customerAppEdoService = customerAppEdoService ?? throw new ArgumentNullException(nameof(customerAppEdoService));
-		}
-		
-		/// <summary>
-		/// Обновление информации о целях покупки воды
-		/// </summary>
-		/// <param name="dto">Детали запроса <see cref="UpdatingCounterpartyPurposeOfPurchase"/></param>
-		/// <returns></returns>
-		[HttpPost]
-		[Produces(MediaTypeNames.Application.Json)]
-		[ProducesResponseType(StatusCodes.Status200OK)]
-		[ProducesResponseType(StatusCodes.Status400BadRequest)]
-		[ProducesResponseType(StatusCodes.Status404NotFound)]
-		[ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-		public IActionResult UpdateCounterpartyPurposeOfPurchase(UpdatingCounterpartyPurposeOfPurchase dto)
-		{
-			return Problem("Эндпойнт не доступен");
-			var source = dto.Source.GetEnumDisplayName();
-			
-			_logger.LogInformation(
-				"Поступил запрос на обновление цели покупки воды {PurposeOfPurchase} у клиента {CounterpartyId} от пользователя: {ExternalCounterpartyId} с {Source}",
-				dto.WaterPurposeOfPurchase,
-				dto.ErpCounterpartyId,
-				dto.ExternalCounterpartyId,
-				source);
-			
-			try
-			{
-				var validationResult = _requestDataValidator.UpdateCounterpartyPurposeOfPurchaseValidate(dto);
-				
-				if(!string.IsNullOrWhiteSpace(validationResult))
-				{
-					_logger.LogInformation(
-						"Не прошли валидацию при обновлении цели покупки воды у клиента " +
-						"{CounterpartyId} от пользователя: {ExternalCounterpartyId}:\n{ValidationResult}",
-						dto.ErpCounterpartyId,
-						dto.ExternalCounterpartyId,
-						validationResult);
-					return ValidationProblem(validationResult);
-				}
-
-				var result = _customerAppEdoService.UpdateCounterpartyPurposeOfPurchase(dto);
-				
-				if(result.IsFailure)
-				{
-					var error = result.Errors.First();
-
-					return error.Code switch
-					{
-						"400" => BadRequest(error.Message),
-						"404" => NotFound(error.Message),
-						"422" => UnprocessableEntity(error.Message),
-						_ => Problem(error.Message)
-					};
-				}
-				
-				return Ok();
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(
-					e,
-					"Ошибка при обновлении цели покупки воды у клиента " +
-					"{CounterpartyId} от пользователя: {ExternalCounterpartyId} с {Source}",
-					dto.ErpCounterpartyId,
-					dto.ExternalCounterpartyId,
-					source);
-				return Problem();
-			}
 		}
 		
 		/// <summary>

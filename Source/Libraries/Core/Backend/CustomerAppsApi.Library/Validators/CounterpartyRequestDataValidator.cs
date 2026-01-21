@@ -4,7 +4,7 @@ using QS.Utilities.Numeric;
 using System;
 using System.Text;
 using System.Text.RegularExpressions;
-using CustomerAppsApi.Library.Dto.Contacts;
+using CustomerAppsApi.Library.Dto.Counterparties.Password;
 using CustomerAppsApi.Library.Dto.Edo;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
@@ -85,6 +85,7 @@ namespace CustomerAppsApi.Library.Validators
 			ValidateKpp(dto.Kpp, dto.ShortTypeOfOwnership);
 			ValidateJurAddress(dto.JurAddress);
 			ValidateTaxType(dto.TaxType);
+			ValidatePhoneNumber(dto.PhoneNumber);
 			
 			return ValidationResult();
 		}
@@ -143,25 +144,6 @@ namespace CustomerAppsApi.Library.Validators
 		}
 
 		/// <inheritdoc/>
-		public string AddPhoneToCounterpartyValidate(AddingPhoneNumberDto dto)
-		{
-			ValidateSource(dto.Source);
-			ValidateLegalCounterpartyId(dto.ErpCounterpartyId);
-			ValidatePhoneNumber(dto.PhoneNumber);
-			
-			return ValidationResult();
-		}
-
-		/// <inheritdoc/>
-		public string UpdateCounterpartyPurposeOfPurchaseValidate(UpdatingCounterpartyPurposeOfPurchase dto)
-		{
-			ValidateSource(dto.Source);
-			ValidateLegalCounterpartyId(dto.ErpCounterpartyId);
-			
-			return ValidationResult();
-		}
-
-		/// <inheritdoc/>
 		public string AddEdoAccountValidate(AddingEdoAccount dto)
 		{
 			ValidateSource(dto.Source);
@@ -178,7 +160,29 @@ namespace CustomerAppsApi.Library.Validators
 			
 			return ValidationResult();
 		}
-		
+
+		/// <inheritdoc/>
+		public string ChangePasswordValidate(ChangePasswordRequest dto)
+		{
+			ValidateSource(dto.Source);
+			ValidateLegalCounterpartyId(dto.ErpCounterpartyId);
+			ValidateEmail(dto.Email);
+			ValidatePassword(dto.OldPassword);
+			ValidatePassword(dto.NewPassword);
+			
+			return ValidationResult();
+		}
+
+		public string DeleteLegalCounterpartyAccountValidate(DeleteLegalCounterpartyAccountRequest dto)
+		{
+			ValidateSource(dto.Source);
+			ValidateLegalCounterpartyId(dto.ErpCounterpartyId);
+			ValidateEmail(dto.Email);
+			ValidatePassword(dto.Password);
+			
+			return ValidationResult();
+		}
+
 		private string ValidationResult()
 		{
 			return _sb.ToString().Trim('\r', '\n');

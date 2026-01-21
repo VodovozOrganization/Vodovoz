@@ -14,5 +14,15 @@ namespace CustomerAppsApi.Library.Errors
 				"У клиента уже есть такой ЭДО аккаунт",
 				typeof(EdoAccountErrors)
 			);
+		/// <summary>
+		/// У клиента уже есть ЭДО аккаунт
+		/// </summary>
+		/// <returns></returns>
+		public static Error CounterpartyHasEdoAccount()
+			=> new Error(
+				"400",
+				"У клиента уже есть ЭДО аккаунт",
+				typeof(EdoAccountErrors)
+			);
 	}
 }

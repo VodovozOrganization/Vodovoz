@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 
@@ -18,39 +17,34 @@ namespace Vodovoz.Core.Domain.Clients.Accounts
 	[HistoryTrace]
 	public class ExternalLegalCounterpartyAccount : PropertyChangedBase, IDomainObject
 	{
-		private Source _source;
 		private int _legalCounterpartyId;
 		private int _legalCounterpartyEmailId;
-		private Guid _externalUserId;
 		private string _accountPasswordHash;
 		private string _accountPasswordSalt;
-		private ExternalLegalCounterpartyAccountActivation _accountActivation;
 
 		protected ExternalLegalCounterpartyAccount() { }
 		
 		private ExternalLegalCounterpartyAccount(
-			Source source,
 			int legalCounterpartyId,
 			int legalCounterpartyEmailId,
-			Guid externalUserId,
 			(string Salt, string PasswordHash) passwordData)
 		{
-			Source = source;
 			LegalCounterpartyId = legalCounterpartyId;
 			LegalCounterpartyEmailId = legalCounterpartyEmailId;
-			ExternalUserId = externalUserId;
-			AccountPasswordSalt = passwordData.Salt;
-			AccountPasswordHash = passwordData.PasswordHash;
-			AccountActivation = new ExternalLegalCounterpartyAccountActivation
-			{
-				ExternalAccount = this
-			};
+			
+			UpdatePasswordData(passwordData);
 		}
 
 		/// <summary>
 		/// Идентификатор
 		/// </summary>
 		public virtual int Id { get; set; }
+		
+		/// <summary>
+		/// Статус проверки в ФНС
+		/// </summary>
+		[IgnoreHistoryTrace]
+		public virtual TaxServiceCheckState? TaxServiceCheckState { get; set; }
 
 		/// <summary>
 		/// Идентификатор юридического лица, от которого сможет заказывать в ИПЗ физик
@@ -60,26 +54,6 @@ namespace Vodovoz.Core.Domain.Clients.Accounts
 		{
 			get => _legalCounterpartyId;
 			set => SetField(ref _legalCounterpartyId, value);
-		}
-		
-		/// <summary>
-		/// ИПЗ
-		/// </summary>
-		[Display(Name = "Источник")]
-		public virtual Source Source
-		{
-			get => _source;
-			set => SetField(ref _source, value);
-		}
-		
-		/// <summary>
-		/// Идентификатор внешнего пользователя
-		/// </summary>
-		[Display(Name = "Идентификатор внешнего пользователя")]
-		public virtual Guid ExternalUserId
-		{
-			get => _externalUserId;
-			set => SetField(ref _externalUserId, value);
 		}
 
 		/// <summary>
@@ -114,27 +88,19 @@ namespace Vodovoz.Core.Domain.Clients.Accounts
 			set => SetField(ref _accountPasswordSalt, value);
 		}
 
-		/// <summary>
-		/// Состояние активации
-		/// </summary>
-		[Display(Name = "Состояние активации")]
-		public virtual ExternalLegalCounterpartyAccountActivation AccountActivation
-		{
-			get => _accountActivation;
-			set => SetField(ref _accountActivation, value);
-		}
-
 		public static ExternalLegalCounterpartyAccount Create(
-			Source source,
 			int legalCounterpartyId,
 			int legalCounterpartyEmailId,
-			Guid externalCounterpartyId,
 			(string Salt, string PasswordHash) passwordData) =>
 			new ExternalLegalCounterpartyAccount(
-				source,
 				legalCounterpartyId,
 				legalCounterpartyEmailId,
-				externalCounterpartyId,
 				passwordData);
+
+		public virtual void UpdatePasswordData((string Salt, string PasswordHash) passwordData)
+		{
+			AccountPasswordHash = passwordData.PasswordHash;
+			AccountPasswordSalt = passwordData.Salt;
+		}
 	}
 }

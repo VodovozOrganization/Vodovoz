@@ -20,13 +20,4 @@
       <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Reference Include="Vodovoz.Application">
-        <HintPath>..\..\..\..\Applications\Desktop\Vodovoz\bin\DebugWin\Vodovoz.Application.dll</HintPath>
-      </Reference>
-      <Reference Include="VodovozBusiness">
-        <HintPath>..\..\..\..\Applications\Desktop\Vodovoz\bin\DebugWin\VodovozBusiness.dll</HintPath>
-      </Reference>
-    </ItemGroup>
-
 </Project>

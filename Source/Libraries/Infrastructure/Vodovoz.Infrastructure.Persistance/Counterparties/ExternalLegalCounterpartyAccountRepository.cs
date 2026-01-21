@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.Accounts;
 using Vodovoz.Domain.Contacts;
 using VodovozBusiness.EntityRepositories.Counterparties;
@@ -25,16 +23,25 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				.ToList();
 		}
 
-		public IEnumerable<ExternalLegalCounterpartyAccount> GetExternalLegalCounterpartyAccounts(
-			IUnitOfWork uow, Source source, Guid externalUserId, string emailAddress)
+		public IEnumerable<ExternalLegalCounterpartyAccount> GetExternalLegalCounterpartyAccounts(IUnitOfWork uow, string emailAddress)
 		{
 			return (
 					from linkedData in uow.Session.Query<ExternalLegalCounterpartyAccount>()
 					join email in uow.Session.Query<Email>()
 						on linkedData.LegalCounterpartyEmailId equals email.Id
 					where email.Address == emailAddress
-						&& linkedData.Source == source
-						&& linkedData.ExternalUserId == externalUserId
+					select linkedData
+				)
+				.ToList();
+		}
+		
+		public IEnumerable<ExternalLegalCounterpartyAccount> GetExternalLegalCounterpartyAccounts(IUnitOfWork uow, int legalCounterpartyId)
+		{
+			return (
+					from linkedData in uow.Session.Query<ExternalLegalCounterpartyAccount>()
+					join email in uow.Session.Query<Email>()
+						on linkedData.LegalCounterpartyEmailId equals email.Id
+					where linkedData.LegalCounterpartyId == legalCounterpartyId 
 					select linkedData
 				)
 				.ToList();
@@ -48,21 +55,6 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 						on linkedData.LegalCounterpartyEmailId equals email.Id
 					where linkedData.LegalCounterpartyId == legalCounterpartyId 
 					select email
-				)
-				.ToList();
-		}
-		
-		public IEnumerable<ExternalLegalCounterpartyAccountActivation> GetExternalLegalCounterpartyAccountsActivations(
-			IUnitOfWork uow, Source source, Guid externalUserId, int legalCounterpartyId)
-		{
-			return (
-					from accountActivation in uow.Session.Query<ExternalLegalCounterpartyAccountActivation>()
-					join account in uow.Session.Query<ExternalLegalCounterpartyAccount>()
-						on accountActivation.ExternalAccount.Id equals account.Id
-					where account.Source == source
-						&& account.ExternalUserId == externalUserId
-						&& account.LegalCounterpartyId == legalCounterpartyId 
-					select accountActivation
 				)
 				.ToList();
 		}

@@ -13,11 +13,6 @@ namespace Vodovoz.Core.Domain.Clients.Accounts
 		[Display(Name = "Ожидает добавления")]
 		NeedAdd,
 		/// <summary>
-		/// В процессе
-		/// </summary>
-		[Display(Name = "В процессе")]
-		InProgress,
-		/// <summary>
 		/// Готово
 		/// </summary>
 		[Display(Name = "Готово")]

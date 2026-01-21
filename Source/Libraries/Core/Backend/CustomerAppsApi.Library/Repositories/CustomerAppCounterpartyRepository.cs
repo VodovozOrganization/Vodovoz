@@ -7,23 +7,35 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.Accounts;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
-using Vodovoz.Extensions;
+using Vodovoz.Settings.Organizations;
+using VodovozBusiness.Domain.Client;
 
 namespace CustomerAppsApi.Library.Repositories
 {
 	public class CustomerAppCounterpartyRepository : ICustomerAppCounterpartyRepository
 	{
-		public CompanyInfoResponse GetLinkedCompanyInfo(IUnitOfWork uow, Source source, Guid externalCounterpartyId, int legalCounterpartyId)
+		private readonly IOrganizationSettings _organizationSettings;
+
+		public CustomerAppCounterpartyRepository(IOrganizationSettings organizationSettings)
+		{
+			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
+		}
+		
+		public CompanyInfoResponse GetLinkedCompanyInfo(IUnitOfWork uow, int legalCounterpartyId)
 		{
 			ExternalLegalCounterpartyAccount externalLegalAccountAlias = null;
-			ExternalLegalCounterpartyAccountActivation externalLegalAccountActivationAlias = null;
 			Counterparty counterpartyAlias = null;
 			Account accountAlias = null;
 			CompanyInfoResponse resultAlias = null;
+
+			var edoAccountSubQuery = QueryOver.Of<CounterpartyEdoAccount>()
+				.Where(a => a.Counterparty.Id == counterpartyAlias.Id)
+				.And(a => a.OrganizationId == _organizationSettings.VodovozOrganizationId)
+				.Select(a => a.Id)
+				.Take(1);
 			
 			var linkedCompany = uow.Session.QueryOver(() => externalLegalAccountAlias)
 				.JoinEntityAlias(() => counterpartyAlias, () => externalLegalAccountAlias.LegalCounterpartyId == counterpartyAlias.Id)
@@ -31,47 +43,29 @@ namespace CustomerAppsApi.Library.Repositories
 					() => counterpartyAlias.Accounts,
 					() => accountAlias,
 					() => accountAlias.IsDefault)
-				.Left.JoinAlias(() => externalLegalAccountAlias.AccountActivation, () => externalLegalAccountActivationAlias)
-				.Where(() => externalLegalAccountAlias.ExternalUserId == externalCounterpartyId)
-				.And(() => externalLegalAccountAlias.Source == source)
-				.And(() => externalLegalAccountAlias.LegalCounterpartyId == legalCounterpartyId)
+				.Where(() => externalLegalAccountAlias.LegalCounterpartyId == legalCounterpartyId)
 				.SelectList(list => list
 					.Select(() => counterpartyAlias.JurAddress).WithAlias(() => resultAlias.Address)
 					.Select(() => counterpartyAlias.INN).WithAlias(() => resultAlias.Inn)
 					.Select(() => counterpartyAlias.KPP).WithAlias(() => resultAlias.Kpp)
-					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Name)
+					.Select(() => counterpartyAlias.FullName).WithAlias(() => resultAlias.Name)
 					.Select(() => accountAlias.Number).WithAlias(() => resultAlias.AccountNumber)
 					.Select(() => counterpartyAlias.DelayDaysForBuyers).WithAlias(() => resultAlias.DelayOfPayment)
 					.Select(
 						Projections.Cast(
 							NHibernateUtil.String,
-							Projections.Property(() => externalLegalAccountActivationAlias.AddingPhoneNumberState)))
-						.WithAlias(() => resultAlias.AddingPhoneNumberState)
-					.Select(
-						Projections.Cast(
-							NHibernateUtil.String,
-							Projections.Property(() => externalLegalAccountActivationAlias.AddingReasonForLeavingState)))
-						.WithAlias(() => resultAlias.AddingReasonForLeavingState)
-					.Select(
-						Projections.Cast(
-							NHibernateUtil.String,
-							Projections.Property(() => externalLegalAccountActivationAlias.AddingEdoAccountState)))
-						.WithAlias(() => resultAlias.AddingEdoAccountState)
-					.Select(
-						Projections.Cast(
-							NHibernateUtil.String,
-							Projections.Property(() => externalLegalAccountActivationAlias.TaxServiceCheckState)))
+							Projections.Property(() => externalLegalAccountAlias.TaxServiceCheckState)))
 						.WithAlias(() => resultAlias.TaxServiceCheckState)
-					.Select(
-						Projections.Cast(
-							NHibernateUtil.String,
-							Projections.Property(() => externalLegalAccountActivationAlias.TrueMarkCheckState)))
-						.WithAlias(() => resultAlias.TrueMarkCheckState)
+					.Select(Projections.Conditional(
+							Restrictions.IsNotNull(Projections.SubQuery(edoAccountSubQuery)),
+							Projections.Cast(NHibernateUtil.String, Projections.Constant(AddingEdoAccountState.Done)),
+							Projections.Cast(NHibernateUtil.String, Projections.Constant(AddingEdoAccountState.NeedAdd))))
+						.WithAlias(() => resultAlias.AddingEdoAccountState)
 				)
 				.TransformUsing(Transformers.AliasToBean<CompanyInfoResponse>())
 				.List<CompanyInfoResponse>()
 				.FirstOrDefault();
-			
+
 			return linkedCompany;
 		}
 
@@ -98,7 +92,7 @@ namespace CustomerAppsApi.Library.Repositories
 
 				select LegalCustomersByInnResponse.Create(
 					counterparty.Id,
-					counterparty.Name,
+					counterparty.FullName,
 					counterparty.FirstName,
 					counterparty.Surname,
 					counterparty.Patronymic,

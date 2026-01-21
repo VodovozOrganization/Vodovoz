@@ -46,13 +46,5 @@ namespace CustomerAppsApi.Library.Repositories
 		/// <param name="phoneNumber">Номер телефона в формате XXXXXXXXXX</param>
 		/// <returns><c>true</c> - есть телефон, <c>false</c> - нет</returns>
 		bool PhoneExists(IUnitOfWork unitOfWork, int counterpartyId, string phoneNumber);
-		/// <summary>
-		/// Получения информации о состоянии активации онлайн профиля юр лица
-		/// </summary>
-		/// <param name="unitOfWork">unitOfWork</param>
-		/// <param name="dto">Данные для проверки</param>
-		/// <returns></returns>
-		IEnumerable<ExternalLegalCounterpartyAccountActivation> GetOnlineLegalCounterpartyActivations(
-			IUnitOfWork unitOfWork, IFindExternalLegalCounterpartyAccountDto dto);
 	}
 }

@@ -9,6 +9,10 @@ namespace CustomerAppsApi.Library.Dto.Counterparties
 	public enum NextStepGetLegalCounterpartiesByInnRequest
 	{
 		/// <summary>
+		/// У юр лица уже активна эта почта, вызвать запрос авторизации
+		/// </summary>
+		Authenticate,
+		/// <summary>
 		/// Почты из запроса НЕТ у юр лица и у К/А нет активной учетной записи
 		/// </summary>
 		ConfirmAccess,

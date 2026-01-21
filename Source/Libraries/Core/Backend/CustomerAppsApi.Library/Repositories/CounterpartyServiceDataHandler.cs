@@ -134,13 +134,5 @@ namespace CustomerAppsApi.Library.Repositories
 		{
 			return _phoneRepository.PhoneNumberExists(unitOfWork, phoneNumber, counterpartyId);
 		}
-
-		/// <inheritdoc/>
-		public IEnumerable<ExternalLegalCounterpartyAccountActivation> GetOnlineLegalCounterpartyActivations(
-			IUnitOfWork unitOfWork, IFindExternalLegalCounterpartyAccountDto dto)
-		{
-			return _legalCounterpartyAccountRepository.GetExternalLegalCounterpartyAccountsActivations(
-				unitOfWork, dto.Source, dto.ExternalCounterpartyId, dto.ErpCounterpartyId);
-		}
 	}
 }

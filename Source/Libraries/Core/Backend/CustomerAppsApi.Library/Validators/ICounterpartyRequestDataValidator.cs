@@ -1,6 +1,7 @@
 ﻿using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Library.Dto.Contacts;
 using CustomerAppsApi.Library.Dto.Counterparties;
+using CustomerAppsApi.Library.Dto.Counterparties.Password;
 using CustomerAppsApi.Library.Dto.Edo;
 
 namespace CustomerAppsApi.Library.Validators
@@ -53,18 +54,6 @@ namespace CustomerAppsApi.Library.Validators
 		/// <returns></returns>
 		string CheckPasswordValidate(CheckPasswordRequest dto);
 		/// <summary>
-		/// Проверка данных по добавлению телефона
-		/// </summary>
-		/// <param name="dto">Данные запроса</param>
-		/// <returns>Найденные ошибки</returns>
-		string AddPhoneToCounterpartyValidate(AddingPhoneNumberDto dto);
-		/// <summary>
-		/// Проверка данных по обновлению цели покупки воды
-		/// </summary>
-		/// <param name="dto">Данные запроса</param>
-		/// <returns>Найденные ошибки</returns>
-		string UpdateCounterpartyPurposeOfPurchaseValidate(UpdatingCounterpartyPurposeOfPurchase dto);
-		/// <summary>
 		/// Проверка данных при добавлении ЭДО аккаунта
 		/// </summary>
 		/// <param name="dto">Данные запроса</param>
@@ -76,5 +65,17 @@ namespace CustomerAppsApi.Library.Validators
 		/// <param name="request">Данные запроса</param>
 		/// <returns>Найденные ошибки</returns>
 		string GetOperatorsValidate(GetEdoOperatorsRequest request);
+		/// <summary>
+		/// Проверка данных по смене пароля
+		/// </summary>
+		/// <param name="dto">Данные запроса</param>
+		/// <returns></returns>
+		string ChangePasswordValidate(ChangePasswordRequest dto);
+		/// <summary>
+		/// Проверка данных по удалении аккаунта юр лица
+		/// </summary>
+		/// <param name="dto">Данные запроса</param>
+		/// <returns></returns>
+		string DeleteLegalCounterpartyAccountValidate(DeleteLegalCounterpartyAccountRequest dto);
 	}
 }
