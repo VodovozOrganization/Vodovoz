@@ -93,14 +93,14 @@ namespace VodovozHealthCheck
 			{
 				_logger.LogInformation("{CheckMessage}: Возвращаем итоговый результат IsHealthy: {IsHealthy}", checkMessage, healthResult.IsHealthy);
 
-				return HealthCheckResult.Healthy("Проверка пройдена успешно");
+				return HealthCheckResult.Healthy("Проверка пройдена успешно.");
 			}
 
-			const string failedMessage = "Проверка не пройдена";
+			const string failedMessage = "Проверка не пройдена!";
 
 			_logger.LogWarning("{CheckMessage}: {FailedMessage}", checkMessage, failedMessage);
 
-			return HealthCheckResult.Unhealthy(failedMessage, null, healthResult.ToUnhealthyDataInfoResponse());
+			return HealthCheckResult.Unhealthy($"{failedMessage} {healthResult.DescriptionString}", data: healthResult.ToUnhealthyDataInfoResponse());
 		}
 
 		/// <summary>
