@@ -206,7 +206,6 @@ namespace VodovozHealthCheck.Helpers
 
 		/// <summary>
 		///		Проверяет существование ресурса по указанному URI, выполняя HEAD-запрос.
-		///		Таймаут установлен в 10 секунд.
 		/// </summary>
 		/// <param name="uri">URI ресурса для проверки.</param>
 		/// <param name="httpClientFactory">Фабрика для получения <see cref="HttpClient"/>.</param>
@@ -218,7 +217,6 @@ namespace VodovozHealthCheck.Helpers
 			try
 			{
 				var httpClient = httpClientFactory.CreateClient();
-				httpClient.Timeout = TimeSpan.FromSeconds(10);
 
 				using var request = new HttpRequestMessage(HttpMethod.Get, uri);
 				using var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
