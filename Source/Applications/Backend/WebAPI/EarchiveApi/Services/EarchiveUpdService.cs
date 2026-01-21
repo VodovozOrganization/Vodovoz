@@ -159,6 +159,55 @@ namespace EarchiveApi.Services
 			}
 		}
 
+		public override async Task GetUpdNumbers(OrderIdsInfo request, IServerStreamWriter<UpdNumberResponseInfo> responseStream, ServerCallContext context)
+		{
+			if(request is null || request.OrderIds.Count == 0)
+			{
+				_logger.LogInformation(
+					"Запрос поиска номеров УПД не выполнен. Получен пустой запрос или массив ID заказов пуст");
+
+				return;
+			}
+
+			var orderIds = request.OrderIds.ToArray();
+
+			_logger.LogInformation(
+				"Поступил запрос поиска номеров УПД. Заказов в запросе: {OrdersCount}",
+				orderIds.Length);
+
+			try
+			{
+				var retryPolicy = Policy
+					.Handle<MySqlException>()
+					.Or<TimeoutException>()
+					.WaitAndRetryAsync(1, (_) => TimeSpan.FromSeconds(_defaultTimeout));
+
+				var updNumbers =
+					(await _mySqlConnection.QueryAsyncWithRetry<UpdNumberResponseInfo>(
+						SelectUpdNumbersSqlQuery,
+						retryPolicy,
+						new { orderIds }))
+					.ToList();
+
+				foreach(var updNumberInfo in updNumbers)
+				{
+					await responseStream.WriteAsync(updNumberInfo);
+				}
+
+				_logger.LogInformation(
+					"Запрос поиска номеров УПД выполнен успешно. Найдено {FoundCount} номеров УПД",
+					updNumbers.Count);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(
+					ex, 
+					"Ошибка при выполнении поиска номеров УПД. Параметры запроса: {Request}.", 
+					string.Join(" ,", request?.OrderIds ?? Enumerable.Empty<long>()));
+				return;
+			}
+		}
+
 		#region SQL queries
 		private static string SelectCounterpartiesSqlQuery =>
 			@"SELECT c.id as id, c.full_name as name
@@ -224,6 +273,17 @@ namespace EarchiveApi.Services
 					AND (@endDate = '' OR transfer_operations.operation_time <= @endDate)
 				) AS docs
 			ORDER BY docs.doc_date";
+
+		private static string SelectUpdNumbersSqlQuery =>
+			$@"SELECT DISTINCT
+				doc.order_id as orderId,
+				MAX(doc.document_number) as updNumber
+			FROM orders o
+			JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id 
+			JOIN document_organization_counters doc ON o.id = doc.order_id AND cc.organization_id = doc.organization_id 
+			WHERE 
+				o.id IN @orderIds
+			GROUP BY doc.order_id";
 		#endregion
 	}
 }
