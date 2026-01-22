@@ -33,7 +33,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 		/// Полезный Пробег в процентах
 		/// </summary>
 		public string UsefulMileagePercent =>
-			ConfirmedDistance.HasValue && RecalculatedDistance.HasValue
+			ConfirmedDistance.HasValue && RecalculatedDistance.HasValue && ConfirmedDistance != 0
 				? $"{(100 * RecalculatedDistance / ConfirmedDistance): # ##0.00}"
 				: string.Empty;
 
