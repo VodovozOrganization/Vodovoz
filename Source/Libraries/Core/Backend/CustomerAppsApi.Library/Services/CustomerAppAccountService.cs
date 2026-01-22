@@ -8,6 +8,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Security;
 using VodovozBusiness.EntityRepositories.Counterparties;
+using VodovozBusiness.Services.Clients;
 
 namespace CustomerAppsApi.Library.Services
 {
@@ -16,12 +17,14 @@ namespace CustomerAppsApi.Library.Services
 		private readonly ILogger<CustomerAppAccountService> _logger;
 		private readonly IUnitOfWork _uow;
 		private readonly IExternalLegalCounterpartyAccountRepository _externalLegalCounterpartyEmailsRepository;
+		private readonly ILegalCounterpartyAccountHandler _accountHandler;
 		private readonly IPasswordHasher _passwordHasher;
 
 		public CustomerAppAccountService(
 			ILogger<CustomerAppAccountService> logger,
 			IUnitOfWork uow,
 			IExternalLegalCounterpartyAccountRepository externalLegalCounterpartyEmailsRepository,
+			ILegalCounterpartyAccountHandler accountHandler,
 			IPasswordHasher passwordHasher
 			)
 		{
@@ -29,6 +32,7 @@ namespace CustomerAppsApi.Library.Services
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_externalLegalCounterpartyEmailsRepository =
 				externalLegalCounterpartyEmailsRepository ?? throw new ArgumentNullException(nameof(externalLegalCounterpartyEmailsRepository));
+			_accountHandler = accountHandler ?? throw new ArgumentNullException(nameof(accountHandler));
 			_passwordHasher = passwordHasher ?? throw new ArgumentNullException(nameof(passwordHasher));
 		}
 		
@@ -101,7 +105,13 @@ namespace CustomerAppsApi.Library.Services
 				Result.Failure(LegalCounterpartyControllerError.WrongAccountPassword());
 			}
 
-			_uow.Delete(account);
+			var result = _accountHandler.DeleteAccount(_uow, account);
+
+			if(result.IsFailure)
+			{
+				return result;
+			}
+			
 			_uow.Commit();
 
 			return Result.Success();

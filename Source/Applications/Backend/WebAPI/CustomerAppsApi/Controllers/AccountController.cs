@@ -44,7 +44,6 @@ namespace CustomerAppsApi.Controllers
 		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		public IActionResult ChangePassword([FromBody] ChangePasswordRequest dto)
 		{
-			return Problem("Не работает");
 			var source = dto.Source.GetEnumDisplayName();
 			
 			_logger.LogInformation(
@@ -110,8 +109,6 @@ namespace CustomerAppsApi.Controllers
 		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		public IActionResult DeleteLegalCounterpartyAccount([FromBody] DeleteLegalCounterpartyAccountRequest dto)
 		{
-			return Problem("Не работает");
-			
 			var source = dto.Source.GetEnumDisplayName();
 			
 			_logger.LogInformation(

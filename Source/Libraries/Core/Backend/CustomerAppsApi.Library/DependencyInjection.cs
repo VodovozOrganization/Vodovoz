@@ -28,6 +28,7 @@ using Vodovoz.Application.TrueMark;
 using Vodovoz.Security;
 using Vodovoz.Services;
 using VodovozBusiness.Controllers;
+using VodovozBusiness.Services.Clients;
 
 namespace CustomerAppsApi.Library
 {
@@ -100,6 +101,7 @@ namespace CustomerAppsApi.Library
 				.AddScoped<ICounterpartyService, CounterpartyService>()
 				.AddScoped<CustomerAppEdoService>()
 				.AddScoped<ICustomerAppEdoOperatorRepository, CustomerAppEdoOperatorRepository>()
+				.AddScoped<ILegalCounterpartyAccountHandler, LegalCounterpartyAccountHandler>()
 				;
 
 			return services;

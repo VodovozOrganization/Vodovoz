@@ -5,8 +5,7 @@ using QS.HistoryLog;
 namespace Vodovoz.Core.Domain.Clients.Accounts
 {
 	/// <summary>
-	/// Информация о связи юридического лица и пользователя ИПЗ, через почту первого,
-	/// для возможности заказа под указанным юриком в ИПЗ
+	/// Аккаунт юр лица в ИПЗ
 	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "Аккаунты юр лиц в ИПЗ",
