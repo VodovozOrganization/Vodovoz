@@ -35,10 +35,17 @@ namespace PayPageAPI.HealthChecks
 
 			var isHealthy = await HttpResponseHelper.CheckUriExistsAsync($"{baseAddress}/{guid}", _httpClientFactory);
 
-			return new VodovozHealthResultDto
+			var result = new VodovozHealthResultDto
 			{
-				IsHealthy = isHealthy
+				IsHealthy = isHealthy,				 
 			};
+
+			if(!isHealthy)
+			{
+				result.AdditionalUnhealthyResults.Add("Платёжная страница недоступна");
+			}
+
+			return result;
 		}
 	}
 }
