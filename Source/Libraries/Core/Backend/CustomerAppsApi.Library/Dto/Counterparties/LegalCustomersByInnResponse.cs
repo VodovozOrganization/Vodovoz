@@ -18,6 +18,7 @@ namespace CustomerAppsApi.Library.Dto.Counterparties
 			string kpp,
 			string jurAddress,
 			string shortTypeOfOwnership,
+			bool isArchived,
 			int? emailId,
 			int? activeEmailId
 			)
@@ -31,6 +32,7 @@ namespace CustomerAppsApi.Library.Dto.Counterparties
 			FirstName = firstName;
 			Surname = surname;
 			Patronymic = patronymic;
+			IsArchived = isArchived;
 
 			UpdateEmailState(emailId, activeEmailId);
 		}
@@ -89,9 +91,21 @@ namespace CustomerAppsApi.Library.Dto.Counterparties
 		/// Следующий шаг после запроса юр лиц по ИНН
 		/// </summary>
 		public NextStepGetLegalCounterpartiesByInnRequest NextStep { get; set; }
+		/// <summary>
+		/// Архивирован или нет
+		/// </summary>
+		[JsonIgnore]
+		private bool IsArchived { get; }
 		
 		public void UpdateNextStep()
 		{
+			if(IsArchived)
+			{
+				NextStep = NextStepGetLegalCounterpartiesByInnRequest.CounterpartyArchived;
+				Warning = Warning.CreateCounterpartyArchived();
+				return;
+			}
+			
 			switch(EmailState)
 			{
 				case CounterpartyEmailState.EmailNotExistsAndNotExistsActiveEmails:
@@ -143,58 +157,13 @@ namespace CustomerAppsApi.Library.Dto.Counterparties
 			string kpp,
 			string jurAddress,
 			string shortTypeOfOwnership,
+			bool isArchive,
 			int? emailId,
 			int? activeEmailId) =>
 			new LegalCustomersByInnResponse(
-				id, name, firstName, surname, patronymic, inn, kpp, jurAddress, shortTypeOfOwnership, emailId, activeEmailId);
+				id, name, firstName, surname, patronymic, inn, kpp, jurAddress, shortTypeOfOwnership, isArchive, emailId, activeEmailId);
 		
 		public static LegalCustomersByInnResponse CreateEmpty() =>
 			new LegalCustomersByInnResponse(NextStepGetLegalCounterpartiesByInnRequest.CounterpartiesNotExists);
-	}
-
-	public enum CounterpartyEmailState
-	{
-		/// <summary>
-		/// У клиента нет указанной почты и нет активной учетной записи
-		/// </summary>
-		EmailNotExistsAndNotExistsActiveEmails,
-		/// <summary>
-		/// У клиента есть указанная почта и нет активной учетной записи
-		/// </summary>
-		EmailExistsAndNotExistsActiveEmails,
-		/// <summary>
-		/// У клиента уже есть другая активная учетная запись
-		/// </summary>
-		HasAnotherActiveEmail,
-		/// <summary>
-		/// У клиента уже есть почта и она активна
-		/// </summary>
-		HasEmailAndActive
-	}
-
-	/// <summary>
-	/// Класс для размещения спец виджета предупреждения
-	/// </summary>
-	public class Warning
-	{
-		/// <summary>
-		/// Заголовок
-		/// </summary>
-		public string Title { get; set; }
-		/// <summary>
-		/// Описание
-		/// </summary>
-		public string Description { get; set; }
-		/// <summary>
-		/// Название кнопки
-		/// </summary>
-		public string Button { get; set; }
-
-		public static Warning CreateAnotherAccountExists() => new Warning
-		{
-			Title = "У этой компании уже есть учетная запись",
-			Description = "Зайдите в профиль компании через другую почту или обратитесь в поддержку",
-			Button = "support"
-		};
 	}
 }

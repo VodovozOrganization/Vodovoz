@@ -58,8 +58,8 @@ namespace CustomerAppsApi.Library.Repositories
 						.WithAlias(() => resultAlias.TaxServiceCheckState)
 					.Select(Projections.Conditional(
 							Restrictions.IsNotNull(Projections.SubQuery(edoAccountSubQuery)),
-							Projections.Cast(NHibernateUtil.String, Projections.Constant(AddingEdoAccountState.Done)),
-							Projections.Cast(NHibernateUtil.String, Projections.Constant(AddingEdoAccountState.NeedAdd))))
+							Projections.Constant(nameof(AddingEdoAccountState.Done)),
+							Projections.Constant(nameof(AddingEdoAccountState.NeedAdd))))
 						.WithAlias(() => resultAlias.AddingEdoAccountState)
 				)
 				.TransformUsing(Transformers.AliasToBean<CompanyInfoResponse>())
@@ -100,6 +100,7 @@ namespace CustomerAppsApi.Library.Repositories
 					counterparty.KPP,
 					counterparty.JurAddress,
 					counterparty.TypeOfOwnership,
+					counterparty.IsArchive,
 					emailId,
 					activeEmailId)
 				).ToList();

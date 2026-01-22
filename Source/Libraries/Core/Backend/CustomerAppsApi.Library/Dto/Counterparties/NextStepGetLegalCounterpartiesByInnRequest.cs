@@ -27,6 +27,10 @@ namespace CustomerAppsApi.Library.Dto.Counterparties
 		/// <summary>
 		/// В БД нет юр лиц с таким ИНН
 		/// </summary>
-		CounterpartiesNotExists
+		CounterpartiesNotExists,
+		/// <summary>
+		/// Юр лицо заархивировано
+		/// </summary>
+		CounterpartyArchived
 	}
 }
