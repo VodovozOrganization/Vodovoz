@@ -70,7 +70,9 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 		/// </summary>
 		public decimal Consumption100KmFact => ConfirmedDistance.HasValue && ConfirmedDistance != 0
 			? (ConsumptionFact ?? 0) / ((ConfirmedDistance ?? 0) / 100)
-			: 0;
+			: RecalculatedDistance.HasValue && RecalculatedDistance != 0
+				? (ConsumptionFact ?? 0) / ((RecalculatedDistance ?? 0) / 100)
+				: 0;
 
 		/// <summary>
 		/// План. расход на 100 км
