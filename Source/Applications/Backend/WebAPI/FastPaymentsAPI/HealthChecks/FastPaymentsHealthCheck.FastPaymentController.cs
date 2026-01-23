@@ -148,7 +148,7 @@ namespace FastPaymentsAPI.HealthChecks
 
 			var isHealthy = result.Data is { Status: FastPaymentDTOStatus.Performed, Id: 28515187 };
 
-			return VodovozHealthResultDto.FromCondition(checkMethodName, isHealthy, result.Data.ResponseMessage ?? result.ErrorMessage);
+			return VodovozHealthResultDto.FromCondition(checkMethodName, isHealthy, result.Data?.ResponseMessage ?? result.ErrorMessage);
 		}
 
 		private async Task<VodovozHealthResultDto> CheckGetOrderId(string checkMethodName, CancellationToken cancellationToken)
