@@ -799,19 +799,21 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		public void GetCounterpartyDebt()
 		{
 			CounterpartyTotalDebt = Entity.Counterparty != null
-				? _orderRepository.GetCounterpartyDebt(UoW, Entity.Counterparty.Id)
+				? _orderRepository.GetCounterpartyDebt(UoW, Entity.Counterparty.Id, Entity.Organization.Id)
 				: default;
 
 			CounterpartyOtherOrdersDebt = Entity.Counterparty != null
-				? _orderRepository.GetCounterpartyNotWaitingForPaymentAndNotClosingDocumentsOrdersDebt(UoW, Entity.Counterparty.Id, _deliveryScheduleSettings)
+				? _orderRepository.GetCounterpartyNotWaitingForPaymentAndNotClosingDocumentsOrdersDebt(
+					UoW, Entity.Counterparty.Id, _deliveryScheduleSettings, Entity.Organization.Id)
 				: default;
 
 			CounterpartyWaitingForPaymentOrdersDebt = Entity.Counterparty != null
-				? _orderRepository.GetCounterpartyWaitingForPaymentOrdersDebt(UoW, Entity.Counterparty.Id)
+				? _orderRepository.GetCounterpartyWaitingForPaymentOrdersDebt(UoW, Entity.Counterparty.Id, Entity.Organization.Id)
 				: default;
 
 			CounterpartyClosingDocumentsOrdersDebt = Entity.Counterparty != null
-				? _orderRepository.GetCounterpartyClosingDocumentsOrdersDebtAndNotWaitingForPayment(UoW, Entity.Counterparty.Id, _deliveryScheduleSettings)
+				? _orderRepository.GetCounterpartyClosingDocumentsOrdersDebtAndNotWaitingForPayment(
+					UoW, Entity.Counterparty.Id, _deliveryScheduleSettings, Entity.Organization.Id)
 				: default;
 		}
 		
