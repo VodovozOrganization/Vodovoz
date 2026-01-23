@@ -46,7 +46,7 @@ namespace EarchiveApi
 					logging.AddConfiguration(Configuration.GetSection("NLog"));
 				});
 
-			services.ConfigureHealthCheckService<EarchiveApiHealthCheck>();
+			services.ConfigureHealthCheckService<EarchiveApiHealthCheck, ServiceInfoProvider>();
 
 			services
 				.AddCore()

@@ -10,6 +10,7 @@ using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Extensions;
 using VodovozHealthCheck.Helpers;
+using VodovozHealthCheck.Providers;
 
 namespace DeliveryRulesService.HealthChecks
 {
@@ -24,8 +25,9 @@ namespace DeliveryRulesService.HealthChecks
 			ILogger<DeliveryRulesServiceHealthCheck> logger,
 			IHttpClientFactory httpClientFactory,
 			IConfiguration configuration,
-			IUnitOfWorkFactory unitOfWorkFactory)
-			: base(logger, unitOfWorkFactory)
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IHealthCheckServiceInfoProvider serviceInfoProvider)
+			: base(logger, serviceInfoProvider, unitOfWorkFactory)
 		{
 			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));

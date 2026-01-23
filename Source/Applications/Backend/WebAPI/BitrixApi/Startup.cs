@@ -37,7 +37,7 @@ namespace BitrixApi
 		{
 			services
 				.AddFeatureManagement()
-				.ConfigureHealthCheckService<BitrixApiHealthChecks>();
+				.ConfigureHealthCheckService<BitrixApiHealthChecks, ServiceInfoProvider>();
 
 			services
 				.AddMappingAssemblies(

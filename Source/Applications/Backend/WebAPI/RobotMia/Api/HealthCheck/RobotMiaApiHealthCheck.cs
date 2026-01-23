@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
+using VodovozHealthCheck.Providers;
 
 namespace Vodovoz.RobotMia.Api.HealthCheck
 {
@@ -22,8 +23,9 @@ namespace Vodovoz.RobotMia.Api.HealthCheck
 		public RobotMiaApiHealthCheck(ILogger<VodovozHealthCheckBase> logger,
 			IConfiguration configuration,
 			IHttpClientFactory httpClientFactory,
-			IUnitOfWorkFactory unitOfWorkFactory)
-			: base(logger, unitOfWorkFactory)
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IHealthCheckServiceInfoProvider serviceInfoProvider)
+			: base(logger, serviceInfoProvider, unitOfWorkFactory)
 		{
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));

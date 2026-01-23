@@ -35,7 +35,7 @@ namespace Vodovoz.RobotMia.Api
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddRobotMiaApi(_configuration);
-			services.ConfigureHealthCheckService<RobotMiaApiHealthCheck>();
+			services.ConfigureHealthCheckService<RobotMiaApiHealthCheck, ServiceInfoProvider>();
 		}
 
 		/// <summary>
