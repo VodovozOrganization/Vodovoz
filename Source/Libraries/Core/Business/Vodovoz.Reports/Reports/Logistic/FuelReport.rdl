@@ -938,7 +938,7 @@ FROM
 		) as fuel_operations_out
 	WHERE	
 		DATE(fuel_operations_out.date) &lt; @start_date
-		AND NOT (fuel_operations_out.id = @fuel_calibration_operation_id)
+		AND (@fuel_calibration_operation_id IS NULL OR NOT (fuel_operations_out.id = @fuel_calibration_operation_id))
 		AND (@fuel_calibration_date is null OR fuel_operations_out.date &gt;= @fuel_calibration_date)
 		AND ((fuel_operations_out.driver_id = @driver_id) OR (@car_id &lt;&gt; -1 AND fuel_operations_out.car_id = @car_id))) as fuel_operations_outlayed,
 
