@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
+using VodovozHealthCheck.Providers;
 
 namespace BitrixApi.HealthChecks
 {
@@ -24,8 +25,9 @@ namespace BitrixApi.HealthChecks
 			ILogger<VodovozHealthCheckBase> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IHttpClientFactory httpClientFactory,
-			IConfiguration configuration)
-			: base(logger, unitOfWorkFactory)
+			IConfiguration configuration,
+			IHealthCheckServiceInfoProvider serviceInfoProvider)
+			: base(logger, serviceInfoProvider, unitOfWorkFactory)
 		{
 			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
 			_httpClient = (httpClientFactory ?? throw new System.ArgumentNullException(nameof(httpClientFactory)))

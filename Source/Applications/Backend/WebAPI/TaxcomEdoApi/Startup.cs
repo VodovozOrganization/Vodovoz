@@ -11,6 +11,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using CustomerAppsApi.HealthChecks;
 using VodovozHealthCheck;
+using TaxcomEdoApi.HealthChecks;
 
 namespace TaxcomEdoApi
 {
@@ -64,7 +65,7 @@ namespace TaxcomEdoApi
 				.AddConfig(Configuration)
 				.AddDependencyGroup()
 				.AddHttpClient()
-				.ConfigureHealthCheckService<TaxcomEdoApiHealthCheck>(true);
+				.ConfigureHealthCheckService<TaxcomEdoApiHealthCheck, ServiceInfoProvider>(true);
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

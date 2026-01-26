@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -56,7 +56,7 @@ namespace UnsubscribePage
 				.AddCore()
 				.AddInfrastructure()
 				.AddTrackedUoW()
-				.ConfigureHealthCheckService<UnsubscribePageHealthCheck>()
+				.ConfigureHealthCheckService<UnsubscribePageHealthCheck, ServiceInfoProvider>()
 				;
 
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
