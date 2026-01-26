@@ -68,26 +68,46 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 				_discountReasonSettings.GetSelfDeliveryDiscountReasonId
 			);
 
+			var validationResult = _onlineOrderValidator.ValidateOnlineOrder(uow, onlineOrder);
 			var externalOrderId = message.ExternalOrderId;
-			var needCancelOnlineOrder = NeedCancelOnlineOrder(uow, onlineOrder);
+			var needSpecialProcessingDuplicate = NeedSpecialProcessingDuplicate(uow, onlineOrder);
 
-			if(needCancelOnlineOrder)
+			if(needSpecialProcessingDuplicate != null)
 			{
-				Logger.LogInformation("Пришел возможный дубль {ExternalOrderId} отменяем", externalOrderId);
-				onlineOrder.OnlineOrderStatus = OnlineOrderStatus.Canceled;
-				var cancellationReasonId = _onlineOrderCancellationReasonSettings.GetDuplicateOnlineOrderCancellationReasonId;
-				onlineOrder.OnlineOrderCancellationReason = await uow.Session
-					.GetAsync<OnlineOrderCancellationReason>(cancellationReasonId, cancellationToken);
-
-				var notification = OnlineOrderStatusUpdatedNotification.Create(onlineOrder);
-				await uow.SaveAsync(notification, cancellationToken: cancellationToken);
+				if(needSpecialProcessingDuplicate == OnlineOrderDuplicateProcess.NeedCancel)
+				{
+					Logger.LogInformation("Пришел возможный дубль {ExternalOrderId} отменяем", externalOrderId);
+					onlineOrder.OnlineOrderStatus = OnlineOrderStatus.Canceled;
+					var cancellationReasonId = _onlineOrderCancellationReasonSettings.GetDuplicateOnlineOrderCancellationReasonId;
+					onlineOrder.OnlineOrderCancellationReason = await uow.Session
+						.GetAsync<OnlineOrderCancellationReason>(cancellationReasonId, cancellationToken);
+					
+					var notification = OnlineOrderStatusUpdatedNotification.Create(onlineOrder);
+					await uow.SaveAsync(notification, cancellationToken: cancellationToken);
+				}
+				else
+				{
+					Logger.LogInformation("Пришел возможный дубль {ExternalOrderId} отправляем на ручное", externalOrderId);
+				}
 			}
 
 			await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
 			await uow.CommitAsync(cancellationToken);
 
-			if(needCancelOnlineOrder)
+			if(needSpecialProcessingDuplicate != null)
 			{
+				return onlineOrder.Id;
+			}
+
+			if(onlineOrder.IsNeedConfirmationByCall || validationResult.IsFailure)
+			{
+				Logger.LogInformation("Отправляем онлайн заказ {ExternalOrderId} на ручное...", externalOrderId);
+				return onlineOrder.Id;
+			}
+			
+			if(onlineOrder.OnlineOrderStatus == OnlineOrderStatus.WaitingForPayment)
+			{
+				Logger.LogInformation("Пришел онлайн заказ {ExternalOrderId} в ожидании оплаты...", externalOrderId);
 				return onlineOrder.Id;
 			}
 
@@ -154,7 +174,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 
 			foreach(var duplicateOrder in clientOnlineOrdersDuplicates)
 			{
-				if(duplicateOrder.OnlineOrderStatus is not (OnlineOrderStatus.New or OnlineOrderStatus.OrderPerformed))
+				if(duplicateOrder.OnlineOrderStatus == OnlineOrderStatus.Canceled)
 				{
 					continue;
 				}
@@ -164,7 +184,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 				{
 					needCancel = true;
 				}
-				
+
 				if(duplicateOrder.OnlineOrderPaymentType != onlineOrder.OnlineOrderPaymentType
 					|| duplicateOrder.OnlinePayment != onlineOrder.OnlinePayment)
 				{

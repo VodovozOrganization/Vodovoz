@@ -610,23 +610,6 @@ namespace Vodovoz.Application.Orders.Services
 			CancellationToken cancellationToken
 		)
 		{
-			if(onlineOrder.IsNeedConfirmationByCall)
-			{
-				return 0;
-			}
-
-			var validationResult = _onlineOrderValidator.ValidateOnlineOrder(uow, onlineOrder);
-
-			if(validationResult.IsFailure)
-			{
-				return 0;
-			}
-
-			if(onlineOrder.OnlineOrderStatus == OnlineOrderStatus.WaitingForPayment)
-			{
-				return 0;
-			}
-
 			Employee employee = null;
 			switch(onlineOrder.Source)
 			{

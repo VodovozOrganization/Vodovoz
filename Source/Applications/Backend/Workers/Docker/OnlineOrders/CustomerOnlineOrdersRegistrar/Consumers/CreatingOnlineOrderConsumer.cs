@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Services.Logistics;
+using Vodovoz.Services.Orders;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.OnlineOrders;
 using Vodovoz.Settings.Orders;
@@ -25,7 +26,8 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IOnlineOrderRepository onlineOrderRepository,
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
 			IOrderService orderService,
-			IRouteListService routeListService)
+			IRouteListService routeListService,
+			IOrderFromOnlineOrderValidator onlineOrderValidator)
 			: base(
 				logger,
 				unitOfWorkFactory,
@@ -35,7 +37,8 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 				onlineOrderRepository,
 				onlineOrderCancellationReasonSettings,
 				orderService,
-				routeListService)
+				routeListService,
+				onlineOrderValidator)
 		{
 		}
 		
