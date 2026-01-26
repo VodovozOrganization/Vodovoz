@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+using System;
 using CustomerOnlineOrdersRegistrar.Factories;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using Gamma.Utilities;
@@ -14,6 +13,7 @@ using Vodovoz.Settings.Orders;
 using System.Threading.Tasks;
 using System.Threading;
 using Vodovoz.Services.Logistics;
+using Vodovoz.Services.Orders;
 
 namespace CustomerOnlineOrdersRegistrar.Consumers
 {
@@ -27,6 +27,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 		private readonly IOnlineOrderCancellationReasonSettings _onlineOrderCancellationReasonSettings;
 		private readonly IOrderService _orderService;
 		private readonly IRouteListService _routeListService;
+		private readonly IOrderFromOnlineOrderValidator _onlineOrderValidator;
 
 		protected ILogger<OnlineOrderConsumer> Logger { get; }
 
@@ -39,7 +40,8 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IOnlineOrderRepository onlineOrderRepository,
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
 			IOrderService orderService,
-			IRouteListService routeListService
+			IRouteListService routeListService,
+			IOrderFromOnlineOrderValidator onlineOrderValidator
 			)
 		{
 			Logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -52,6 +54,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 				onlineOrderCancellationReasonSettings ?? throw new ArgumentNullException(nameof(onlineOrderCancellationReasonSettings));
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
+			_onlineOrderValidator = onlineOrderValidator ?? throw new ArgumentNullException(nameof(onlineOrderValidator));
 		}
 		
 		protected virtual async Task<int> TryRegisterOnlineOrderAsync(ICreatingOnlineOrder message, CancellationToken cancellationToken)
@@ -137,7 +140,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			return onlineOrder.Id;
 		}
 
-		private bool NeedCancelOnlineOrder(IUnitOfWork uow, OnlineOrder onlineOrder)
+		private OnlineOrderDuplicateProcess? NeedSpecialProcessingDuplicate(IUnitOfWork uow, OnlineOrder onlineOrder)
 		{
 			// Необходимо сделать асинхронным
 			var clientOnlineOrdersDuplicates = _onlineOrderRepository.GetOnlineOrdersDuplicates(
@@ -146,8 +149,40 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 				DateTime.Today
 			);
 
-			return clientOnlineOrdersDuplicates.Any(duplicate =>
-				duplicate.OnlineOrderStatus is OnlineOrderStatus.New or OnlineOrderStatus.OrderPerformed);
+			var needCancel = false;
+			var toManualProcessing = false;
+
+			foreach(var duplicateOrder in clientOnlineOrdersDuplicates)
+			{
+				if(duplicateOrder.OnlineOrderStatus is not (OnlineOrderStatus.New or OnlineOrderStatus.OrderPerformed))
+				{
+					continue;
+				}
+
+				if(duplicateOrder.OnlineOrderPaymentType == onlineOrder.OnlineOrderPaymentType
+					&& duplicateOrder.OnlinePayment == onlineOrder.OnlinePayment)
+				{
+					needCancel = true;
+				}
+				
+				if(duplicateOrder.OnlineOrderPaymentType != onlineOrder.OnlineOrderPaymentType
+					|| duplicateOrder.OnlinePayment != onlineOrder.OnlinePayment)
+				{
+					toManualProcessing = true;
+				}
+			}
+
+			if(needCancel)
+			{
+				return OnlineOrderDuplicateProcess.NeedCancel;
+			}
+			
+			if(toManualProcessing)
+			{
+				return OnlineOrderDuplicateProcess.ToManualProcessing;
+			}
+
+			return null;
 		}
 	}
 }

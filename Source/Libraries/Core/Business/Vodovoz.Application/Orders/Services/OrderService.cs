@@ -1,4 +1,4 @@
-﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -9,14 +9,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
@@ -53,7 +55,6 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly IOrderDailyNumberController _orderDailyNumberController;
 		private readonly IPaymentFromBankClientController _paymentFromBankClientController;
 		private readonly IOrderFromOnlineOrderCreator _orderFromOnlineOrderCreator;
-		private readonly IOrderFromOnlineOrderValidator _onlineOrderValidator;
 		private readonly IEmployeeSettings _employeeSettings;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IGenericRepository<DiscountReason> _discountReasonRepository;
@@ -80,7 +81,6 @@ namespace Vodovoz.Application.Orders.Services
 			IOrderDailyNumberController orderDailyNumberController,
 			IPaymentFromBankClientController paymentFromBankClientController,
 			IOrderFromOnlineOrderCreator orderFromOnlineOrderCreator,
-			IOrderFromOnlineOrderValidator onlineOrderValidator,
 			IEmployeeSettings employeeSettings,
 			INomenclatureRepository nomenclatureRepository,
 			IGenericRepository<DiscountReason> discountReasonRepository,
@@ -111,7 +111,6 @@ namespace Vodovoz.Application.Orders.Services
 			_orderDailyNumberController = orderDailyNumberController ?? throw new ArgumentNullException(nameof(orderDailyNumberController));
 			_paymentFromBankClientController = paymentFromBankClientController ?? throw new ArgumentNullException(nameof(paymentFromBankClientController));
 			_orderFromOnlineOrderCreator = orderFromOnlineOrderCreator ?? throw new ArgumentNullException(nameof(orderFromOnlineOrderCreator));
-			_onlineOrderValidator = onlineOrderValidator ?? throw new ArgumentNullException(nameof(onlineOrderValidator));
 			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
@@ -640,6 +639,9 @@ namespace Vodovoz.Application.Orders.Services
 				case Source.KulerSaleWebSite:
 					employee = await uow.Session.GetAsync<Employee>(_employeeSettings.KulerSaleWebSiteEmployee, cancellationToken);
 					break;
+				case Source.AiBot:
+					employee = await uow.Session.GetAsync<Employee>(_employeeSettings.AiBotEmployee, cancellationToken);
+					break;
 			}
 
 			// Необходимо сделать асинхронным
@@ -915,6 +917,31 @@ namespace Vodovoz.Application.Orders.Services
 			else
 			{
 				order.OrderPaymentStatus = OrderPaymentStatus.PartiallyPaid;
+			}
+		}
+
+		public void RejectOrderTrueMarkCodes(IUnitOfWork uow, int orderId)
+		{
+			var requests = uow.Session.QueryOver<OrderEdoRequest>()
+				.Where(x => x.Order.Id == orderId)
+				.List();
+
+			var requestWithCodes = requests.Where(x => x.ProductCodes.Any()).FirstOrDefault();
+			if(requestWithCodes == null)
+			{
+				return;
+			}
+
+			if(requestWithCodes.Task == null || requestWithCodes.Task.Status != EdoTaskStatus.Cancelled)
+			{
+				throw new InvalidOperationException("Отклонить коды можно только у отмененной ЭДО задачи");
+			}
+
+			foreach(var productCode in requestWithCodes.ProductCodes)
+			{
+				productCode.SourceCodeStatus = SourceProductCodeStatus.Rejected;
+				productCode.ResultCode = null;
+				uow.Save(productCode);
 			}
 		}
 	}

@@ -50,6 +50,8 @@ namespace Vodovoz.Settings.Database.Orders
 			_settingsController.GetIntValue(nameof(GetOrderRatingForMandatoryProcessing));
 		public DateTime GetDateAvailabilityRatingOrder =>
 			_settingsController.GetValue<DateTime>(nameof(GetDateAvailabilityRatingOrder));
+		///<inheritdoc/>
+		public int GetPaymentByCardFromAiBotByQrCodeId => _settingsController.GetIntValue("PaymentByCardFrom.AiBotByQrCodeId");
 
 		public int[] PaymentsByCardFromAvangard =>
 			new[]

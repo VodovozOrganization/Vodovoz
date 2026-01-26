@@ -56,6 +56,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Production
 
 			ReportModes = typeof(ProducedProductionReportMode);
 			SelectedReportMode = ProducedProductionReportMode.Month;
+
+			MeasurementUnits = typeof(MeasurementUnit);
+			SelectedMeasurementUnit = MeasurementUnit.Item;
 		}
 
 		private IncludeExludeFiltersViewModel CreateReportIncludeExcludeFilter(IUnitOfWork unitOfWork)
@@ -201,6 +204,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Production
 					parameters.Add("month_minus_2_end", MonthEnd(reportDate.AddMonths(-2)));
 				}
 
+				parameters.Add("measurement_unit", SelectedMeasurementUnit);
+
 				return parameters;
 			}
 		}
@@ -224,6 +229,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Production
 		public Month SelectedMonth { get; set; }
 		public Type ReportModes { get; set; }
 		public ProducedProductionReportMode SelectedReportMode { get; set; }
+		public Type MeasurementUnits { get; set; }
+		public MeasurementUnit SelectedMeasurementUnit { get; set; }
 
 		public void Dispose()
 		{

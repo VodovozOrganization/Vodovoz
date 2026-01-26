@@ -23,5 +23,7 @@ namespace Vodovoz.Settings.Database.Employee
 		public int MobileAppEmployee => _settingsController.GetIntValue(nameof(MobileAppEmployee));
 		public int VodovozWebSiteEmployee => _settingsController.GetIntValue(nameof(VodovozWebSiteEmployee));
 		public int KulerSaleWebSiteEmployee => _settingsController.GetIntValue(nameof(KulerSaleWebSiteEmployee));
+		/// <inheritdoc/>
+		public int AiBotEmployee => _settingsController.GetIntValue(nameof(AiBotEmployee));
 	}
 }

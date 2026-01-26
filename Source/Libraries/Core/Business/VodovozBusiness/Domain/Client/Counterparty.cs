@@ -345,7 +345,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		[Display(Name = "Фиксированные цены")]
-		public virtual IList<NomenclatureFixedPrice> NomenclatureFixedPrices
+		public virtual new IList<NomenclatureFixedPrice> NomenclatureFixedPrices
 		{
 			get => _nomenclatureFixedPrices;
 			set => SetField(ref _nomenclatureFixedPrices, value);
@@ -923,6 +923,12 @@ namespace Vodovoz.Domain.Client
 				{
 					yield return new ValidationResult(
 						"При выборе \"Не отправлять документы по EDO\" должен быть отключен \"Отказ от печатных документов\"");
+				}
+
+				if(IsNotSendEquipmentTransferByEdo && IsPaperlessWorkflow)
+				{
+					yield return new ValidationResult(
+						"При выборе \"Не отправлять акты приёма-передачи по EDO\" должен быть отключен \"Отказ от печатных документов\"");
 				}
 
 				foreach(var email in Emails)

@@ -476,6 +476,12 @@ namespace Vodovoz.Domain.Employees
 					new[] { nameof(DateHired) });
 			}
 
+			if(Status == EmployeeStatus.IsWorking && DateFired.HasValue)
+			{
+				yield return new ValidationResult("У работающего сотрудника не должно быть даты увольнения",
+					new[] { nameof(DateFired) });
+			}
+
 			var emailRegEx = @"^[a-zA-Z0-9]+([\._-]?[a-zA-Z0-9]+)*@[a-zA-Z0-9]+([\.-]?[a-zA-Z0-9]+)*(\.[a-zA-Z]{2,10})+$";
 
 			if(!string.IsNullOrWhiteSpace(Email) && !Regex.IsMatch(Email, emailRegEx))

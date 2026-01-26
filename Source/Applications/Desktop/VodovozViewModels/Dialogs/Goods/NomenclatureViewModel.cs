@@ -22,6 +22,7 @@ using System.Threading;
 using System.Windows.Input;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
@@ -975,6 +976,11 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 					};
 				case GoodsOnlineParameterType.ForKulerSaleWebSite:
 					return new KulerSaleWebSiteNomenclatureOnlinePrice
+					{
+						NomenclaturePrice = nomenclaturePrice
+					};
+				case GoodsOnlineParameterType.ForAiBot:
+					return new AiBotNomenclatureOnlinePrice
 					{
 						NomenclaturePrice = nomenclaturePrice
 					};

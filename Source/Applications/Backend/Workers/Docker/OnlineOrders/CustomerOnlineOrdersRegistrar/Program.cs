@@ -21,6 +21,7 @@ using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Services.Logistics;
+using Vodovoz.Services.Orders;
 using VodovozBusiness.Services.Orders;
 
 namespace CustomerOnlineOrdersRegistrar

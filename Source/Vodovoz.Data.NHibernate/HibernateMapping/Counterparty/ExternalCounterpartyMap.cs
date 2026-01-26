@@ -21,20 +21,4 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			References(x => x.Email).Column("email_id").Cascade.AllDeleteOrphan();
 		}
 	}
-
-	public class MobileAppCounterpartyMap : SubclassMap<MobileAppCounterparty>
-	{
-		public MobileAppCounterpartyMap()
-		{
-			DiscriminatorValue(nameof(CounterpartyFrom.MobileApp));
-		}
-	}
-
-	public class WebSiteCounterpartyMap : SubclassMap<WebSiteCounterparty>
-	{
-		public WebSiteCounterpartyMap()
-		{
-			DiscriminatorValue(nameof(CounterpartyFrom.WebSite));
-		}
-	}
 }

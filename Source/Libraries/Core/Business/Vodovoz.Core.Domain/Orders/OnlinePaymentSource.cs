@@ -38,6 +38,11 @@ namespace Vodovoz.Core.Domain.Orders
 		/// МП Яндекс Сплит
 		/// </summary>
 		[Display(Name = "МП Я.Сплит")]
-		FromMobileAppByYandexSplit
+		FromMobileAppByYandexSplit,
+		/// <summary>
+		/// ИИ Бот по QR
+		/// </summary>
+		[Display(Name = "ИИ Бот по QR")]
+		FromAiBotByQr
 	}
 }

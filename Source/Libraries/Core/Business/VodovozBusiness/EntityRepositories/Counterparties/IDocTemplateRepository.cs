@@ -5,6 +5,7 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
+using TemplateType = Vodovoz.Core.Domain.Clients.TemplateType;
 
 namespace Vodovoz.EntityRepositories.Counterparties
 {

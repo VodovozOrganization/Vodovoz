@@ -77,6 +77,8 @@ namespace Vodovoz.ViewModels.TrueMark
 			}
 		}
 
+		public SourceProductCodeStatus Status { get; set; }
+
 		public virtual string Type
 		{
 			get => _type;

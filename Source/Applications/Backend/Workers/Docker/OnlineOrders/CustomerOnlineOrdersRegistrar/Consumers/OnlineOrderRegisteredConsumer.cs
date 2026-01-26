@@ -9,6 +9,7 @@ using QS.DomainModel.UoW;
 using QS.Utilities.Debug;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Services.Logistics;
+using Vodovoz.Services.Orders;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.OnlineOrders;
 using Vodovoz.Settings.Orders;
@@ -30,6 +31,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IOnlineOrderRepository onlineOrderRepository,
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
 			IRouteListService routeListService,
+			IOrderFromOnlineOrderValidator onlineOrderValidator,
 			IBus bus)
 				: base(
 					logger,
@@ -40,7 +42,8 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 					onlineOrderRepository,
 					onlineOrderCancellationReasonSettings,
 					orderService,
-					routeListService)
+					routeListService,
+					onlineOrderValidator)
 		{
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 		}
