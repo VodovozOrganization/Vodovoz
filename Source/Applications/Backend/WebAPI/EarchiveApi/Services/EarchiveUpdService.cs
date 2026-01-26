@@ -275,15 +275,18 @@ namespace EarchiveApi.Services
 			ORDER BY docs.doc_date";
 
 		private static string SelectUpdNumbersSqlQuery =>
-			$@"SELECT DISTINCT
-				doc.order_id as orderId,
-				MAX(doc.document_number) as updNumber
-			FROM orders o
-			JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id 
-			JOIN document_organization_counters doc ON o.id = doc.order_id AND cc.organization_id = doc.organization_id 
-			WHERE 
-				o.id IN @orderIds
-			GROUP BY doc.order_id";
+			$@"SELECT orderId, updNumber
+			FROM (
+				SELECT 
+					doc.order_id as orderId,
+					doc.document_number as updNumber,
+					ROW_NUMBER() OVER (PARTITION BY doc.order_id ORDER BY doc.counter DESC) as rn
+				FROM orders o
+				JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id 
+				JOIN document_organization_counters doc ON o.id = doc.order_id AND cc.organization_id = doc.organization_id 
+				WHERE o.id IN @orderIds
+			) t
+			WHERE rn = 1";
 		#endregion
 	}
 }
