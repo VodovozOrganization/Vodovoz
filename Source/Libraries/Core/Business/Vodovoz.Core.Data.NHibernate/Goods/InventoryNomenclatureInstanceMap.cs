@@ -1,0 +1,17 @@
+﻿using FluentNHibernate.Mapping;
+using Vodovoz.Core.Domain.Goods;
+
+namespace Vodovoz.Core.Data.NHibernate.Goods
+{
+	public class InventoryNomenclatureInstanceMap : SubclassMap<InventoryNomenclatureInstance>
+	{
+		public InventoryNomenclatureInstanceMap()
+		{
+			DiscriminatorValue("InventoryNomenclatureInstance");
+
+			Map(x => x.InventoryNumber).Column("inventory_number");
+			Map(x => x.IsArchive).Column("is_archive");
+			Map(x => x.IsUsed).Column("is_used");
+		}
+	}
+}
