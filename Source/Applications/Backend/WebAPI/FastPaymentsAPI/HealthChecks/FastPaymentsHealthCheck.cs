@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
+using VodovozHealthCheck.Providers;
 
 namespace FastPaymentsAPI.HealthChecks
 {
@@ -23,8 +24,9 @@ namespace FastPaymentsAPI.HealthChecks
 				IConfiguration configuration,
 				IHttpClientFactory httpClientFactory,
 				IUnitOfWorkFactory unitOfWorkFactory,
-				IBusControl busControl)
-			: base(logger, unitOfWorkFactory, busControl)
+				IBusControl busControl,
+				IHealthCheckServiceInfoProvider serviceInfoProvider)
+			: base(logger, serviceInfoProvider, unitOfWorkFactory, busControl)
 		{
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));

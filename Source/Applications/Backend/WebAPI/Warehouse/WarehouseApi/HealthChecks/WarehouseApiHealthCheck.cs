@@ -11,6 +11,7 @@ using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Extensions;
 using VodovozHealthCheck.Helpers;
+using VodovozHealthCheck.Providers;
 
 namespace WarehouseApi.HealthChecks
 {
@@ -24,7 +25,8 @@ namespace WarehouseApi.HealthChecks
 			ILogger<WarehouseApiHealthCheck> logger,
 			IHttpClientFactory httpClientFactory,
 			IConfiguration configuration,
-			IUnitOfWorkFactory unitOfWorkFactory) : base(logger, unitOfWorkFactory)
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IHealthCheckServiceInfoProvider serviceInfoProvider) : base(logger, serviceInfoProvider, unitOfWorkFactory)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));

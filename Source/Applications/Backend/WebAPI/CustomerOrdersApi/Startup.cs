@@ -1,4 +1,4 @@
-using CustomerOrdersApi.HealthCheck;
+﻿using CustomerOrdersApi.HealthCheck;
 using CustomerOrdersApi.Library;
 using DriverApi.Notifications.Client;
 using MassTransit;
@@ -67,7 +67,7 @@ namespace CustomerOrdersApi
 				.AddMassTransit(busConf => busConf.ConfigureRabbitMq())
 				.AddHttpClient();
 			
-			services.ConfigureHealthCheckService<CustomerOrdersApiHealthCheck>();
+			services.ConfigureHealthCheckService<CustomerOrdersApiHealthCheck, ServiceInfoProvider>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
