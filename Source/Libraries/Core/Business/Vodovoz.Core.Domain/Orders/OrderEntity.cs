@@ -513,6 +513,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		[Display(Name = "Статус заказа")]
+		[OrderTracker1c]
 		public virtual OrderStatus OrderStatus
 		{
 			get => _orderStatus;
