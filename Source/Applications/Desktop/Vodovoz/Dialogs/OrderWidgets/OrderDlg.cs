@@ -2502,7 +2502,7 @@ namespace Vodovoz
 					_currentEmployee,
 					ServicesConfig.CommonServices);
 			var sendEmailView = new SendDocumentByEmailView(SendDocumentByEmailViewModel);
-			hbox20.Add(sendEmailView);
+			yhboxEmails.Add(sendEmailView);
 			sendEmailView.Show();
 		}
 
