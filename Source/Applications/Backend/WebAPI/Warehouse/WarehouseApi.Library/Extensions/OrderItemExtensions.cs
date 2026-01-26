@@ -2,12 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Orders;
+using VodovozBusiness.Domain.Documents;
 using VodovozBusiness.Services.TrueMark;
 using WarehouseApi.Contracts.V1.Dto;
 
@@ -15,7 +16,7 @@ namespace WarehouseApi.Library.Extensions
 {
 	public static class OrderItemExtensions
 	{
-		public static OrderItemDto ToApiDtoV1(this OrderItemEntity orderItem, NomenclatureEntity nomenclature, SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem)
+		public static OrderItemDto ToApiDtoV1(this OrderItem orderItem, Nomenclature nomenclature, SelfDeliveryDocumentItem selfDeliveryDocumentItem)
 		{
 			if(orderItem is null)
 			{
@@ -33,7 +34,7 @@ namespace WarehouseApi.Library.Extensions
 						Gtin = gg.GtinNumber,
 						Count = gg.CodesCount
 					}),
-				Quantity = (int)orderItem.ActualCount				
+				Quantity = (int)orderItem.ActualCount
 			};
 
 			var codes = selfDeliveryDocumentItem.TrueMarkProductCodes
@@ -50,7 +51,7 @@ namespace WarehouseApi.Library.Extensions
 			return orderItemDto;
 		}
 
-		public static IEnumerable<OrderItemDto> ToApiDtoV1(this IEnumerable<OrderItemEntity> orderItems, IEnumerable<NomenclatureEntity> nomenclatures, SelfDeliveryDocumentEntity selfDeliveryDocument)
+		public static IEnumerable<OrderItemDto> ToApiDtoV1(this IEnumerable<OrderItem> orderItems, IEnumerable<Nomenclature> nomenclatures, SelfDeliveryDocument selfDeliveryDocument)
 		{
 			if(orderItems is null)
 			{

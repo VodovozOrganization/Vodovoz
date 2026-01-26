@@ -40,7 +40,7 @@ namespace WarehouseApi
 			services
 				.AddMappingAssemblies(
 					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
-					typeof(AssemblyFinder).Assembly,
+					typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
 					typeof(QS.Banks.Domain.Bank).Assembly,
 					typeof(QS.HistoryLog.HistoryMain).Assembly,
 					typeof(QS.Project.Domain.TypeOfEntity).Assembly,

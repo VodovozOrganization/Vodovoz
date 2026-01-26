@@ -1,4 +1,4 @@
-﻿using ClosedXML.Report;
+using ClosedXML.Report;
 using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;

@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Operations;

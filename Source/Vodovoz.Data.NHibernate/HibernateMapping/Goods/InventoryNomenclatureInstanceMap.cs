@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Core.Domain.Goods;
 
-namespace Vodovoz.Core.Data.NHibernate.Goods
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 {
 	public class InventoryNomenclatureInstanceMap : SubclassMap<InventoryNomenclatureInstance>
 	{
