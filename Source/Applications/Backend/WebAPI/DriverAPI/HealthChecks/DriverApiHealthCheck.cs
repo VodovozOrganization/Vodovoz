@@ -21,7 +21,11 @@ namespace DriverAPI.HealthChecks
 		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly IConfiguration _configuration;
 
-		public DriverApiHealthCheck(ILogger<DriverApiHealthCheck> logger, IHttpClientFactory httpClientFactory, IConfiguration configuration, IUnitOfWorkFactory unitOfWorkFactory,
+		public DriverApiHealthCheck(
+			ILogger<DriverApiHealthCheck> logger,
+			IHttpClientFactory httpClientFactory,
+			IConfiguration configuration,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			IHealthCheckServiceInfoProvider serviceInfoProvider)
 			: base(logger, serviceInfoProvider, unitOfWorkFactory)
 		{
