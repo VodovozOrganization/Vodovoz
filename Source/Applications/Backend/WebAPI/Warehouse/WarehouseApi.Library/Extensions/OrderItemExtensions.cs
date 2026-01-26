@@ -15,7 +15,7 @@ namespace WarehouseApi.Library.Extensions
 {
 	public static class OrderItemExtensions
 	{
-		public static OrderItemDto ToApiDtoV1(this OrderItemEntity orderItem, NomenclatureEntity nomenclature, SelfDeliveryDocumentItem selfDeliveryDocumentItem)
+		public static OrderItemDto ToApiDtoV1(this OrderItemEntity orderItem, NomenclatureEntity nomenclature, SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem)
 		{
 			if(orderItem is null)
 			{

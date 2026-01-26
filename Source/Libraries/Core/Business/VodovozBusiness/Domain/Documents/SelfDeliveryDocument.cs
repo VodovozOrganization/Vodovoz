@@ -3,12 +3,12 @@ using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using QS.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
@@ -25,6 +25,7 @@ using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
+using VodovozBusiness.Domain.Documents;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -42,15 +43,26 @@ namespace Vodovoz.Domain.Documents
 		private int _defBottleId;
 		private int _returnedTareBefore;
 		private int _tareToReturn;
+		private IObservableList<SelfDeliveryDocumentItem> _items = new ObservableList<SelfDeliveryDocumentItem>();
 
 		/// <summary>
 		/// Заказ, по которому оформляется самовывоз
 		/// </summary>
 		[Required(ErrorMessage = "Заказ должен быть указан.")]
-		public virtual Order Order
+		public virtual new Order Order
 		{
 			get => _order;
 			set => SetField(ref _order, value);
+		}
+
+		/// <summary>
+		/// Строки самовывоза
+		/// </summary>
+		[Display(Name = "Строки самовывоза")]
+		public virtual new IObservableList<SelfDeliveryDocumentItem> Items
+		{
+			get => _items;
+			set => SetField(ref _items, value);
 		}
 
 		#region Не сохраняемые
@@ -244,24 +256,24 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		///// <summary>
-		///// Получение количества номенклатуры в заказе
-		///// </summary>
-		///// <param name="item"></param>
-		///// <returns></returns>
-		//public virtual decimal GetNomenclaturesCountInOrder(Nomenclature item)
-		//{
-		//	decimal count = Order.OrderItems
-		//		.Where(i => i.Nomenclature == item)
-		//		.Sum(i => i.Count);
+		/// <summary>
+		/// Получение количества номенклатуры в заказе
+		/// </summary>
+		/// <param name="item"></param>
+		/// <returns></returns>
+		public virtual decimal GetNomenclaturesCountInOrder(int nomenclatureId)
+		{
+			decimal count = Order.OrderItems
+				.Where(i => i.Nomenclature.Id == nomenclatureId)
+				.Sum(i => i.Count);
 
-		//	count += Order.OrderEquipments
-		//		.Where(e => e.Nomenclature == item
-		//			&& e.Direction == Direction.Deliver)
-		//		.Sum(e => e.Count);
+			count += Order.OrderEquipments
+				.Where(e => e.Nomenclature.Id == nomenclatureId
+					&& e.Direction == Direction.Deliver)
+				.Sum(e => e.Count);
 
-		//	return count;
-		//}
+			return count;
+		}
 
 		/// <summary>
 		/// Получение количества возвратов оборудования в заказе

@@ -16,7 +16,7 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 		public Dictionary<int, decimal> NomenclatureUnloaded(IUnitOfWork uow, Order order, SelfDeliveryDocument excludeDoc)
 		{
 			SelfDeliveryDocument docAlias = null;
-			SelfDeliveryDocumentItem docItemsAlias = null;
+			SelfDeliveryDocumentItemEntity docItemsAlias = null;
 
 			ItemInStock inUnload = null;
 			var unloadedlist = uow.Session.QueryOver(() => docAlias)
@@ -38,7 +38,7 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 		public Dictionary<int, decimal> OrderNomenclaturesLoaded(IUnitOfWork uow, Order order)
 		{
 			SelfDeliveryDocument docAlias = null;
-			SelfDeliveryDocumentItem docItemsAlias = null;
+			SelfDeliveryDocumentItemEntity docItemsAlias = null;
 
 			ItemInStock inLoaded = null;
 			var loadedlist = uow.Session.QueryOver(() => docAlias)
@@ -58,7 +58,7 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 
 		public Dictionary<int, decimal> OrderNomenclaturesUnloaded(IUnitOfWork uow, Order order, SelfDeliveryDocument notSavedDoc = null)
 		{
-			SelfDeliveryDocumentItem docItemsAlias = null;
+			SelfDeliveryDocumentItemEntity docItemsAlias = null;
 			ItemInStock inUnload = null;
 
 			var unloadedQuery = uow.Session.QueryOver<SelfDeliveryDocument>()
@@ -92,7 +92,7 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 		{
 			var edoTasks =
 				(from selfDeliveryDocument in uow.Session.Query<SelfDeliveryDocument>()
-				 join selfDeliveryDocumentItem in uow.Session.Query<SelfDeliveryDocumentItem>()
+				 join selfDeliveryDocumentItem in uow.Session.Query<SelfDeliveryDocumentItemEntity>()
 				 on selfDeliveryDocument.Id equals selfDeliveryDocumentItem.Document.Id
 				 join trueMarkProductCode in uow.Session.Query<SelfDeliveryDocumentItemTrueMarkProductCode>()
 				 on selfDeliveryDocumentItem.Id equals trueMarkProductCode.SelfDeliveryDocumentItem.Id

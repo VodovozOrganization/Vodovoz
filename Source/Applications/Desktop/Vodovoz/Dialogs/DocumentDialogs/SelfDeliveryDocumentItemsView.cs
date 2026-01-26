@@ -4,11 +4,10 @@ using Gtk;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using System;
-using System.Collections.Generic;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Infrastructure;
+using VodovozBusiness.Domain.Documents;
 
 namespace Vodovoz
 {

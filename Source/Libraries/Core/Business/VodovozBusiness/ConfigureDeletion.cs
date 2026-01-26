@@ -12,7 +12,6 @@ using System.Collections.Generic;
 using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.StoredResources;
 using Vodovoz.Core.Domain.Users;

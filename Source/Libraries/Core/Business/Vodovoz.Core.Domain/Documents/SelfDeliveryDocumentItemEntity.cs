@@ -18,7 +18,7 @@ namespace Vodovoz.Core.Domain.Documents
 		NominativePlural = "строки документа самовывоза",
 		Nominative = "строка документа самовывоза")]
 	[HistoryTrace]
-	public class SelfDeliveryDocumentItem : PropertyChangedBase, IDomainObject
+	public class SelfDeliveryDocumentItemEntity : PropertyChangedBase, IDomainObject
 	{
 		private decimal _amount;
 		private IObservableList<SelfDeliveryDocumentItemTrueMarkProductCode> _trueMarkProductCodes = new ObservableList<SelfDeliveryDocumentItemTrueMarkProductCode>();
@@ -54,7 +54,7 @@ namespace Vodovoz.Core.Domain.Documents
 		public virtual SelfDeliveryDocumentEntity Document
 		{
 			get => _document;
-			set => SetField(ref _document, value);
+			protected set => SetField(ref _document, value);
 		}
 
 		/// <summary>

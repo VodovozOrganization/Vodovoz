@@ -95,7 +95,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				typeof(IncomingWaterMaterial),
 				typeof(MovementDocumentItem),
 				typeof(WriteOffDocumentItem),
-				typeof(SelfDeliveryDocumentItem),
+				typeof(SelfDeliveryDocumentItemEntity),
 				typeof(CarLoadDocumentItem),
 				typeof(CarUnloadDocumentItem),
 				typeof(InventoryDocumentItem),
@@ -257,7 +257,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.AddDocumentConfiguration<ITdiTab>(
 					() => null,
 					(node) => _gtkTabsOpener.OpenSelfDeliveryDocumentDlg(node.DocumentId),
-					(node) => node.EntityType == typeof(SelfDeliveryDocumentItem))
+					(node) => node.EntityType == typeof(SelfDeliveryDocumentItemEntity))
 					.FinishConfiguration();
 
 			RegisterEntity(GetQuerySelfDeliveryReturnedDocumentItem)
@@ -1140,12 +1140,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
-		private IQueryOver<SelfDeliveryDocumentItem> GetQuerySelfDeliveryDocumentItem(IUnitOfWork unitOfWork)
+		private IQueryOver<SelfDeliveryDocumentItemEntity> GetQuerySelfDeliveryDocumentItem(IUnitOfWork unitOfWork)
 		{
 			WarehouseDocumentsItemsJournalNode resultAlias = null;
 
 			SelfDeliveryDocument selfDeliveryDocumentAlias = null;
-			SelfDeliveryDocumentItem selfDeliveryDocumentItemAlias = null;
+			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItemAlias = null;
 
 			Warehouse warehouseAlias = null;
 			Domain.Orders.Order orderAlias = null;
@@ -1242,7 +1242,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => selfDeliveryDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.Source)
 					.Select(() => DocumentType.SelfDeliveryDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
-					.Select(() => typeof(SelfDeliveryDocumentItem)).WithAlias(() => resultAlias.EntityType)
+					.Select(() => typeof(SelfDeliveryDocumentItemEntity)).WithAlias(() => resultAlias.EntityType)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromStorage)
 					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.FromStorageId)

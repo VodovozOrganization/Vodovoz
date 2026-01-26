@@ -262,7 +262,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 		public IEnumerable<SelfDeliveryDocumentItemTrueMarkProductCode> GetCodesFromSelfdeliveryByOrder(IUnitOfWork uow, int orderId)
 		{
 			SelfDeliveryDocumentItemTrueMarkProductCode selfdeliveryTrueMarkProductCodeAlias = null;
-			SelfDeliveryDocumentItem selfDeliveryDocumentItemAlias = null;
+			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItemAlias = null;
 			SelfDeliveryDocumentEntity selfDeliveryDocumentAlias = null;
 
 			var selfdeliveryCodes = uow.Session.QueryOver(() => selfdeliveryTrueMarkProductCodeAlias)
