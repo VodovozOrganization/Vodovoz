@@ -6,6 +6,7 @@ using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Attributes;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.DeliveryPoints;
 using Vodovoz.Core.Domain.Controllers;
@@ -569,6 +570,7 @@ namespace Vodovoz.Core.Domain.Orders
 
 		[Display(Name = "Дата доставки")]
 		[HistoryDateOnly]
+		[OrderTracker1c]
 		public virtual DateTime? DeliveryDate
 		{
 			get => _deliveryDate;
@@ -593,6 +595,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		[Display(Name = "Строки заказа")]
+		[OrderTracker1c]
 		public virtual IObservableList<OrderItemEntity> OrderItems
 		{
 			get => _orderItems;
@@ -612,8 +615,9 @@ namespace Vodovoz.Core.Domain.Orders
 			get => _orderDepositItems;
 			set => SetField(ref _orderDepositItems, value);
 		}
-
+		
 		[Display(Name = "Клиент")]
+		[OrderTracker1c]
 		public virtual CounterpartyEntity Client
 		{
 			get => _client;
@@ -630,6 +634,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		[Display(Name = "Договор")]
+		[OrderTracker1c]
 		public virtual CounterpartyContractEntity Contract
 		{
 			get => _contract;

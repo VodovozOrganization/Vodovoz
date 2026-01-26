@@ -109,6 +109,7 @@ using Vodovoz.MainMenu.ReportsMenu;
 using Vodovoz.MainMenu.ViewMenu;
 using Vodovoz.ViewModels.ViewModels.Reports.Payments;
 using RabbitMQ.MailSending;
+using Vodovoz.Trackers;
 
 namespace Vodovoz
 {
@@ -265,6 +266,7 @@ namespace Vodovoz
 			services.AddStaticHistoryTracker();
 			services.AddStaticScopeForEntity();
 			services.AddStaticServicesConfig();
+			services.AddOrderTrackerFor1c();
 
 			return services;
 		}
