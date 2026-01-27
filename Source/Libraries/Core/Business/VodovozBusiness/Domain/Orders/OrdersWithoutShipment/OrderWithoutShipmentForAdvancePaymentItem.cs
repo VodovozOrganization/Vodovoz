@@ -275,13 +275,13 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			var organization = OrderWithoutDeliveryForAdvancePayment.Organization;
 			
 			var vatRateVersion = organization != null && organization.IsUsnMode
-				? organization.GetActualVatRateVersion(OrderWithoutDeliveryForAdvancePayment.Order.DeliveryDate)
-				: Nomenclature.GetActualVatRateVersion(OrderWithoutDeliveryForAdvancePayment.Order.DeliveryDate);
+				? organization.GetActualVatRateVersion(OrderWithoutDeliveryForAdvancePayment.DocumentDate)
+				: Nomenclature.GetActualVatRateVersion(OrderWithoutDeliveryForAdvancePayment.DocumentDate);
 
 			if (vatRateVersion == null)
 			{
 				throw new InvalidOperationException(
-					$"У товара #{Nomenclature.Id} отсутствует версия НДС на дату доставки заказа #{OrderWithoutDeliveryForAdvancePayment.Order}");
+					$"У товара #{Nomenclature.Id} отсутствует версия НДС на дату доставки счета #{OrderWithoutDeliveryForAdvancePayment.DocumentDate}");
 			}
 
 			ValueAddedTax = CanUseVAT() ? vatRateVersion.VatRate.VatNumericValue : 0;
