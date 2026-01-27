@@ -12,6 +12,8 @@ using VodovozBusiness.Services.Orders;
 using Vodovoz.Settings.Orders;
 using System.Threading.Tasks;
 using System.Threading;
+using MySqlConnector;
+using QS.Utilities.Debug;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Orders;
 
@@ -57,7 +59,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			_onlineOrderValidator = onlineOrderValidator ?? throw new ArgumentNullException(nameof(onlineOrderValidator));
 		}
 		
-		protected virtual async Task<int> TryRegisterOnlineOrderAsync(ICreatingOnlineOrder message, CancellationToken cancellationToken)
+		protected virtual async Task<(int OnlineOrderId, int Code)> TryRegisterOnlineOrderAsync(ICreatingOnlineOrder message, CancellationToken cancellationToken)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot($"Создание онлайн заказа из ИПЗ {message.Source.GetEnumTitle()}");
 			// Необходимо сделать асинхронным
@@ -91,24 +93,37 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 				}
 			}
 
-			await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
-			await uow.CommitAsync(cancellationToken);
+			try
+			{
+				await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
+				await uow.CommitAsync(cancellationToken);
+			}
+			catch(Exception e)
+			{
+				if(e.FindExceptionTypeInInner<MySqlException>() is { ErrorCode: MySqlErrorCode.DuplicateKeyEntry })
+				{
+					Logger.LogInformation("Пришел дубль уже зарегистрированного заказа {ExternalOrderId}, пропускаем", message.ExternalOrderId);
+					return (0, 409);
+				}
+				
+				return (0, 500);
+			}
 
 			if(needSpecialProcessingDuplicate != null)
 			{
-				return onlineOrder.Id;
+				return (onlineOrder.Id, 200);
 			}
 
 			if(onlineOrder.IsNeedConfirmationByCall || validationResult.IsFailure)
 			{
 				Logger.LogInformation("Отправляем онлайн заказ {ExternalOrderId} на ручное...", externalOrderId);
-				return onlineOrder.Id;
+				return (onlineOrder.Id, 200);
 			}
 			
 			if(onlineOrder.OnlineOrderStatus == OnlineOrderStatus.WaitingForPayment)
 			{
 				Logger.LogInformation("Пришел онлайн заказ {ExternalOrderId} в ожидании оплаты...", externalOrderId);
-				return onlineOrder.Id;
+				return (onlineOrder.Id, 200);
 			}
 
 			Logger.LogInformation("Проводим заказ на основе онлайн заказа {ExternalOrderId} от пользователя {ExternalCounterpartyId}" +
@@ -157,7 +172,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 				}
 			}
 
-			return onlineOrder.Id;
+			return (onlineOrder.Id, 200);
 		}
 
 		private OnlineOrderDuplicateProcess? NeedSpecialProcessingDuplicate(IUnitOfWork uow, OnlineOrder onlineOrder)
