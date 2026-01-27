@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Helpers;
+using VodovozHealthCheck.Providers;
 
 namespace UnsubscribePage.HealthChecks
 {
@@ -20,8 +21,9 @@ namespace UnsubscribePage.HealthChecks
 			ILogger<UnsubscribePageHealthCheck> logger,
 			IConfiguration configuration,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IHttpClientFactory httpClientFactory)
-			: base(logger, unitOfWorkFactory)
+			IHttpClientFactory httpClientFactory,
+			IHealthCheckServiceInfoProvider serviceInfoProvider)
+			: base(logger, serviceInfoProvider, unitOfWorkFactory)
 		{
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));

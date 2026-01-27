@@ -41,9 +41,9 @@ namespace Vodovoz.Application.Orders.Services.OrderCancellation
 		/// <param name="inputPermit">Ранее проверенное разрешение, 
 		/// используемое при повторном вызове в связанных диалогах</param>
 		/// <returns></returns>
-		public OrderCancellationPermit CanCancelOrder(
+		public virtual OrderCancellationPermit CanCancelOrder(
 			IUnitOfWork uow,
-			Order order, 
+			Order order,
 			OrderCancellationPermit inputPermit = null
 			)
 		{
@@ -82,11 +82,7 @@ namespace Vodovoz.Application.Orders.Services.OrderCancellation
 
 			if(edoTasksWithCodes.Count() > 1)
 			{
-				_interactiveService.ShowMessage(
-					ImportanceLevel.Error,
-					"По текущему заказу невозможно автоматически определить правильный документооборот.\n" +
-					"Обратитесь за технической поддержкой для помощи в отмене заказа"
-				);
+				CantDetermineSingleDocflowMessage();
 
 				permit.Type = OrderCancellationPermitType.Deny;
 				return permit;
@@ -113,17 +109,11 @@ namespace Vodovoz.Application.Orders.Services.OrderCancellation
 					return permit;
 				}
 
-				bool updCancellationOfferAcceptedByClient =  lastCancelledEdoTask.Status == EdoTaskStatus.Cancelled;
+				bool updCancellationOfferAcceptedByClient = lastCancelledEdoTask.Status == EdoTaskStatus.Cancelled;
 
 				if(!updCancellationOfferAcceptedByClient)
 				{
-					_interactiveService.ShowMessage(
-						ImportanceLevel.Warning,
-						"Для отмены заказа необходимо аннулировать документооброт с клиентом.\n" +
-						"Предложение об аннулировании уже было отправлено, необходимо дождаться завершения процесса.\n" +
-						"Проверить состояние документооборота можно проверить в журнале Маркировка - Документооборот с клиентом.\n" +
-						"Если клиент еще не принял предложение, ему необходимо сообщить об этом."
-					);
+					WaitDocflowCancellationMessage();
 
 					permit.Type = OrderCancellationPermitType.Deny;
 					return permit;
@@ -139,17 +129,14 @@ namespace Vodovoz.Application.Orders.Services.OrderCancellation
 				var receiptTask = edoTask.As<ReceiptEdoTask>();
 				if(receiptTask.ReceiptStatus != EdoReceiptStatus.Transfering)
 				{
-					_interactiveService.ShowMessage(
-						ImportanceLevel.Warning,
-						"По данному заказу уже оформлен и отправлен чек клиенту и отменить его нельзя"
-					);
+					CantCancelReceiptDocflowMessage();
 
 					// запрещено отменять заказ так как уже есть в работе задача на отправку чека
 					permit.Type = OrderCancellationPermitType.Deny;
 					return permit;
 				}
 
-				if(!permit.DocflowCancellationOfferConfirmation && !ConfirmOrderCancellation())
+				if(!permit.DocflowCancellationOfferConfirmation && !ConfirmOrderCancellationQuestion())
 				{
 					permit.Type = OrderCancellationPermitType.Deny;
 					return permit;
@@ -164,7 +151,7 @@ namespace Vodovoz.Application.Orders.Services.OrderCancellation
 			// Есть ли уже отправленный УПД
 			if(edoTask.TaskType == EdoTaskType.Document)
 			{
-				if(!permit.OrderCancellationConfirmation && !ConfirmOrderCancellation())
+				if(!permit.OrderCancellationConfirmation && !ConfirmOrderCancellationQuestion())
 				{
 					permit.Type = OrderCancellationPermitType.Deny;
 					return permit;
@@ -181,17 +168,8 @@ namespace Vodovoz.Application.Orders.Services.OrderCancellation
 
 				if(updSentToClient)
 				{
-					var buttonYes = "Аннулировать УПД";
-					var buttonNo = "Отмена";
-					var answer = _interactiveService.Question(
-						new[] { buttonYes, buttonNo },
-						"В текущем состоянии отменить заказ невозможно, так как УПД уже отправлено клиенту.\n" +
-						"Для отмены заказа необходимо отправить предложение об аннулировании УПД.\n" +
-						"После полной отмены документооброта с клиентом будет доступна отмена заказа.\n" +
-						"Если продолжите, предложение об аннулировании будет отправлено автоматически, но нужно будет связаться с клиентом для подтверждением аннулирования.\n" +
-						"Уверены что хотите отправить предложение об аннулировании УПД клиенту?"
-					);
-					if(answer == buttonNo)
+					var cancelUpd = UpdCancellationConfirmationQuestion();
+					if(!cancelUpd)
 					{
 						permit.Type = OrderCancellationPermitType.Deny;
 						return permit;
@@ -211,45 +189,21 @@ namespace Vodovoz.Application.Orders.Services.OrderCancellation
 			}
 
 			// Все прочие типы ЭДО задач нельзя отменять
-			_interactiveService.ShowMessage(
-				ImportanceLevel.Warning,
-				"Для заказов с маркированной продукцией предусмотрена отмена только заказов с чеком или УПД.\n" +
-				"Для отмены остальных заказов обратитесь за технической поддержкой."
-			);
+			CantCancelOtherDocflowsMessage();
 			permit.Type = OrderCancellationPermitType.Deny;
 			return permit;
 		}
 
-		private bool ConfirmOrderCancellation()
+        /// <summary>
+        /// Запускает отмену документооборота по инициативе пользователя
+        /// </summary>
+        /// <param name="order">Заказ</param>
+        /// <param name="edoTaskId">Id ЭДО задачи</param>
+        public virtual void CancelDocflowByUser(string reason, int edoTaskId)
 		{
-			var buttonYes = "Отменить заказ";
-			var buttonNo = "Не отменять";
-			var answer = _interactiveService.Question(
-				new[] { buttonYes, buttonNo },
-				"В заказе есть маркированная продукция по которой уже отсканированы и получены коды маркировки.\n" +
-				"Заказ не получиться вернуть обратно в работу, необходимо будет создать новый заказ и сканировать коды заново.\n" +
-				"Уверены что хотите отменить заказ?"
-			);
-			return answer == buttonYes;
-		}
+			CancelDocflow(reason, edoTaskId);
 
-		/// <summary>
-		/// Запускает отмену документооборота по инициативе пользователя
-		/// </summary>
-		/// <param name="order">Заказ</param>
-		/// <param name="edoTaskId">Id ЭДО задачи</param>
-		public void CancelDocflowByUser(Order order, int edoTaskId)
-		{
-			CancelDocflow(order, edoTaskId);
-
-			_interactiveService.ShowMessage(
-				ImportanceLevel.Warning,
-				"Процесс аннулирования документооборота с клиентом запущен.\n" +
-				"Проверить состояние можно\n" +
-				"в журнале Маркировка -  Документооборот с клиентом,\n" +
-				"а также в личном кабинете оператора ЭДО.\n" +
-				"Отменить заказ можно будет после подтверждения клиентом."
-			);
+			DocflowCancellationStartedMessage();
 		}
 
 		/// <summary>
@@ -257,7 +211,7 @@ namespace Vodovoz.Application.Orders.Services.OrderCancellation
 		/// </summary>
 		/// <param name="order">Заказ</param>
 		/// <param name="edoTaskId">Id ЭДО задачи</param>
-		public void AutomaticCancelDocflow(IUnitOfWork uow, Order order, int edoTaskId)
+		public virtual void AutomaticCancelDocflow(IUnitOfWork uow, string reason, int edoTaskId)
 		{
 			var edoTask = uow.GetById<EdoTask>(edoTaskId);
 			if(edoTask.Status.IsIn(
@@ -268,21 +222,97 @@ namespace Vodovoz.Application.Orders.Services.OrderCancellation
 				return;
 			}
 
-			CancelDocflow(order,edoTaskId);
+			CancelDocflow(reason, edoTaskId);
 		}
 
-		private void CancelDocflow(Order order, int edoTaskId)
+		private void CancelDocflow(string reason, int edoTaskId)
 		{
 			if(edoTaskId == 0)
 			{
 				throw new ArgumentException("Не указана задача ЭДО для отмены");
 			}
 
-			_messageBus.Publish(new RequestTaskCancellationEvent
-			{
-				TaskId = edoTaskId,
-				Reason = $"Отмена заказа №{order.Id}"
-			});
+            _messageBus.Publish(new RequestTaskCancellationEvent
+            {
+                TaskId = edoTaskId,
+                Reason = reason
+            });
 		}
-	}
+
+        protected virtual void WaitDocflowCancellationMessage()
+        {
+            _interactiveService.ShowMessage(
+                ImportanceLevel.Warning,
+                "Для отмены заказа необходимо аннулировать документооброт с клиентом.\n" +
+                "Предложение об аннулировании уже было отправлено, необходимо дождаться завершения процесса.\n" +
+                "Проверить состояние документооборота можно в журнале Маркировка - Документооборот с клиентом.\n" +
+                "Если клиент еще не принял предложение, ему необходимо сообщить об этом."
+            );
+        }
+
+        protected virtual bool UpdCancellationConfirmationQuestion()
+        {
+            var buttonYes = "Аннулировать УПД";
+            var buttonNo = "Отмена";
+            var answer = _interactiveService.Question(
+                new[] { buttonYes, buttonNo },
+                "В текущем состоянии отменить заказ невозможно, так как УПД уже отправлен клиенту.\n" +
+				"Чтобы была возможность отмены, необходимо отправить предложение об аннулировании УПД.\n" +
+				"Только после полной отмены документооброта с клиентом будет доступна возможность отмены.\n" +
+                "Если продолжите, предложение об аннулировании будет отправлено автоматически, но нужно будет связаться с клиентом для подтверждением аннулирования.\n" +
+                "Уверены что хотите отправить предложение об аннулировании УПД клиенту?"
+            );
+            return answer == buttonYes;
+        }
+
+        protected virtual void CantDetermineSingleDocflowMessage()
+        {
+            _interactiveService.ShowMessage(
+                ImportanceLevel.Error,
+                "По текущему заказу невозможно автоматически определить правильный документооборот.\n" +
+				"Обратитесь за технической поддержкой"
+			);
+        }
+
+        protected virtual bool ConfirmOrderCancellationQuestion()
+        {
+            var buttonYes = "Отменить заказ";
+            var buttonNo = "Не отменять";
+            var answer = _interactiveService.Question(
+                new[] { buttonYes, buttonNo },
+                "В заказе есть маркированная продукция по которой уже отсканированы и получены коды маркировки.\n" +
+                "Заказ не получиться вернуть обратно в работу, необходимо будет создать новый заказ и сканировать коды заново.\n" +
+                "Уверены что хотите отменить заказ?"
+            );
+            return answer == buttonYes;
+        }
+		protected virtual void CantCancelOtherDocflowsMessage()
+        {
+            _interactiveService.ShowMessage(
+                ImportanceLevel.Warning,
+                "Для заказов с маркированной продукцией предусмотрена отмена только заказов с чеком или УПД.\n" +
+                "Для отмены остальных заказов обратитесь за технической поддержкой."
+            );
+        }
+
+        protected virtual void CantCancelReceiptDocflowMessage()
+        {
+            _interactiveService.ShowMessage(
+                ImportanceLevel.Warning,
+                "По данному заказу уже оформлен и отправлен чек клиенту и отменить его нельзя"
+            );
+        }
+
+        protected virtual void DocflowCancellationStartedMessage()
+        {
+            _interactiveService.ShowMessage(
+                ImportanceLevel.Warning,
+                "Процесс аннулирования документооборота с клиентом запущен.\n" +
+                "Проверить состояние можно\n" +
+                "в журнале Маркировка -  Документооборот с клиентом,\n" +
+                "а также в личном кабинете оператора ЭДО.\n" +
+                "Отменить заказ можно будет после подтверждения клиентом."
+            );
+        }
+    }
 }

@@ -47,7 +47,7 @@ namespace LogisticsEventsApi
 			services.AddWarehouseEventsDependencies(Configuration);
 
 			//закомментил пока нет зарегистрированных пользователей
-			services.ConfigureHealthCheckService<LogisticsEventsApiHealthCheck>();
+			services.ConfigureHealthCheckService<LogisticsEventsApiHealthCheck, ServiceInfoProvider>();
 			services.AddHttpClient();
 
 			services

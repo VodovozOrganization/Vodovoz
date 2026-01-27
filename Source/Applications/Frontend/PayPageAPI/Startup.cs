@@ -91,7 +91,7 @@ namespace PayPageAPI
 			
 			services.AddHttpClient();
 
-			services.ConfigureHealthCheckService<PayPageHealthCheck>();
+			services.ConfigureHealthCheckService<PayPageHealthCheck, ServiceInfoProvider>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

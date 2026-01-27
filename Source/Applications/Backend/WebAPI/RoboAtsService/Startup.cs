@@ -89,7 +89,7 @@ namespace RoboatsService
 				.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot(nameof(RoboAtsService)))
 				.AddOsrm();
 
-			services.ConfigureHealthCheckService<RoboatsApiHealthCheck>();
+			services.ConfigureHealthCheckService<RoboatsApiHealthCheck, ServiceInfoProvider>();
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)

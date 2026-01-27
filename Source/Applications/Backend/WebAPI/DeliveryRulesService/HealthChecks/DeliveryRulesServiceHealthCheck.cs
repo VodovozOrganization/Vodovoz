@@ -10,6 +10,7 @@ using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Extensions;
 using VodovozHealthCheck.Helpers;
+using VodovozHealthCheck.Providers;
 
 namespace DeliveryRulesService.HealthChecks
 {
@@ -17,76 +18,99 @@ namespace DeliveryRulesService.HealthChecks
 	{
 		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly IConfiguration _configuration;
+		private readonly IConfigurationSection _healthSection;
+		private readonly string _baseAddress;
 
 		public DeliveryRulesServiceHealthCheck(
 			ILogger<DeliveryRulesServiceHealthCheck> logger,
 			IHttpClientFactory httpClientFactory,
 			IConfiguration configuration,
-			IUnitOfWorkFactory unitOfWorkFactory)
-			: base(logger, unitOfWorkFactory)
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IHealthCheckServiceInfoProvider serviceInfoProvider)
+			: base(logger, serviceInfoProvider, unitOfWorkFactory)
 		{
 			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+			_healthSection = _configuration.GetSection("Health");
+			_baseAddress = _healthSection.GetValue<string>("BaseAddress");
 		}
 
 		protected override async Task<VodovozHealthResultDto> CheckServiceHealthAsync(CancellationToken cancellationToken)
 		{
-			var healthSection = _configuration.GetSection("Health");
-			var baseAddress = healthSection.GetValue<string>("BaseAddress");
-			var healthResult = new VodovozHealthResultDto();
+			var checks = new[]
+{
+				ExecuteHealthCheckSafelyAsync("Получение графиков доставки по координатам",
+					checkMethodName => GetDeliveryInfo(checkMethodName, cancellationToken)),
+				ExecuteHealthCheckSafelyAsync("Получение правил доставки с графиками и ценами по координатам",
+					checkMethodName => GetRulesByDistrict(checkMethodName, cancellationToken)),
+				ExecuteHealthCheckSafelyAsync("Получение правил доставки по координатам и номенклатурам",
+					checkMethodName => GetRulesByDistrictAndNomenclatures(checkMethodName, cancellationToken)),
+				ExecuteHealthCheckSafelyAsync("Получение правил доставки с ДЗЧ по координатам и номенклатурам",
+					checkMethodName => GetExtendedRulesByDistrictAndNomenclatures(checkMethodName, cancellationToken))
+			};
 
-			var deliveryInfo = await HttpResponseHelper.GetJsonByUriAsync<DeliveryInfoDTO>(
-				$"{baseAddress}/DeliveryRules/GetDeliveryInfo?latitude=59.886134&longitude=30.394007",
-				_httpClientFactory,
-				cancellationToken: cancellationToken);
+			return await ConcatHealthCheckResultsAsync(checks);
+		}
 
-			var deliveryInfoIsHealthy = deliveryInfo?.StatusEnum != DeliveryRulesResponseStatus.Error;
+		private async Task<VodovozHealthResultDto> GetExtendedRulesByDistrictAndNomenclatures(string checkMethodName, CancellationToken cancellationToken)
+		{
+			var getExtendedRulesByDistrictAndNomenclaturesRequest = _healthSection.GetSection("GetExtendedRulesByDistrictAndNomenclatures").Get<DeliveryRulesRequest>();
 
-			if(!deliveryInfoIsHealthy)
-			{
-				healthResult.AdditionalUnhealthyResults.Add("Не пройдена проверка GetDeliveryInfo.");
-			}
-
-			var rulesByDistrict = await HttpResponseHelper.GetJsonByUriAsync<DeliveryInfoDTO>(
-				$"{baseAddress}/DeliveryRules/GetRulesByDistrict?latitude=59.886134&longitude=30.394007",
-				_httpClientFactory,
-				cancellationToken: cancellationToken);
-
-			var rulesByDistrictIsHealthy = rulesByDistrict?.StatusEnum != DeliveryRulesResponseStatus.Error;
-
-			if(!rulesByDistrictIsHealthy)
-			{
-				healthResult.AdditionalUnhealthyResults.Add("Не пройдена проверка GetRulesByDistrict.");
-			}
-
-			var getRulesByDistrictAndNomenclaturesRequest = healthSection.GetSection("GetRulesByDistrictAndNomenclatures").Get<DeliveryRulesRequest>();
-
-			var getRulesByDistrictAndNomenclaturesResult = await HttpResponseHelper.SendRequestAsync<DeliveryRulesDTO>(
+			var result = await HttpResponseHelper.SendRequestAsync<ExtendedDeliveryRulesDto>(
 				HttpMethod.Post,
-				$"{baseAddress}/DeliveryRules/GetRulesByDistrictAndNomenclatures",
-				_httpClientFactory,
-				getRulesByDistrictAndNomenclaturesRequest.ToJsonContent(),
-				cancellationToken: cancellationToken);
-
-			var getRulesByDistrictAndNomenclaturesIsHealthy = getRulesByDistrictAndNomenclaturesResult.Data?.StatusEnum == DeliveryRulesResponseStatus.Ok;
-
-			var getExtendedRulesByDistrictAndNomenclaturesRequest = healthSection.GetSection("GetExtendedRulesByDistrictAndNomenclatures").Get<DeliveryRulesRequest>();
-
-			var getExtendedRulesByDistrictAndNomenclaturesResult = await HttpResponseHelper.SendRequestAsync<ExtendedDeliveryRulesDto>(
-				HttpMethod.Post,
-				$"{baseAddress}/DeliveryRules/GetExtendedRulesByDistrictAndNomenclatures",
+				$"{_baseAddress}/DeliveryRules/GetExtendedRulesByDistrictAndNomenclatures",
 				_httpClientFactory,
 				getExtendedRulesByDistrictAndNomenclaturesRequest.ToJsonContent(),
 				cancellationToken: cancellationToken);
 
-			var geExtendedRulesByDistrictAndNomenclaturesIsHealthy = getExtendedRulesByDistrictAndNomenclaturesResult.Data?.StatusEnum == DeliveryRulesResponseStatus.Ok;
+			var isHealthy = result.Data?.StatusEnum == DeliveryRulesResponseStatus.Ok;
 
-			healthResult.IsHealthy = deliveryInfoIsHealthy
-									 && rulesByDistrictIsHealthy
-									 && getRulesByDistrictAndNomenclaturesIsHealthy
-									 && geExtendedRulesByDistrictAndNomenclaturesIsHealthy;
+			return VodovozHealthResultDto.FromCondition(checkMethodName, isHealthy, result.ErrorMessage);
+		}
 
-			return healthResult;
+		private async Task<VodovozHealthResultDto> GetRulesByDistrictAndNomenclatures(string checkMethodName, CancellationToken cancellationToken)
+		{
+			var getRulesByDistrictAndNomenclaturesRequest = _healthSection.GetSection("GetRulesByDistrictAndNomenclatures").Get<DeliveryRulesRequest>();
+
+			var result = await HttpResponseHelper.SendRequestAsync<DeliveryRulesDTO>(
+				HttpMethod.Post,
+				$"{_baseAddress}/DeliveryRules/GetRulesByDistrictAndNomenclatures",
+				_httpClientFactory,
+				getRulesByDistrictAndNomenclaturesRequest.ToJsonContent(),
+				cancellationToken: cancellationToken);
+
+			var isHealthy = result.Data?.StatusEnum == DeliveryRulesResponseStatus.Ok;
+
+			return VodovozHealthResultDto.FromCondition(checkMethodName, isHealthy, result.ErrorMessage);
+		}
+
+		private async Task<VodovozHealthResultDto> GetRulesByDistrict(string checkMethodName, CancellationToken cancellationToken)
+		{
+			var result = await HttpResponseHelper.SendRequestAsync<(int? TariffZoneId, DeliveryRulesDTO DeliveryInfo)>(
+				HttpMethod.Get,
+				$"{_baseAddress}/DeliveryRules/GetRulesByDistrict?latitude=59.886134&longitude=30.394007",
+				_httpClientFactory,
+				cancellationToken: cancellationToken);
+
+			var isHealthy = result.IsSuccess;
+
+			return VodovozHealthResultDto.FromCondition(checkMethodName, isHealthy, result.ErrorMessage);
+		}
+
+		private async Task<VodovozHealthResultDto> GetDeliveryInfo(string checkMethodName, CancellationToken cancellationToken)
+		{
+
+			var healthResult = new VodovozHealthResultDto();
+
+			var result = await HttpResponseHelper.SendRequestAsync<DeliveryInfoDTO>(
+				HttpMethod.Get,
+				$"{_baseAddress}/DeliveryRules/GetDeliveryInfo?latitude=59.886134&longitude=30.394007",
+				_httpClientFactory,
+				cancellationToken: cancellationToken);
+
+			var isHealthy = result?.Data.StatusEnum != DeliveryRulesResponseStatus.Error;
+
+			return VodovozHealthResultDto.FromCondition(checkMethodName, isHealthy, result.ErrorMessage);
 		}
 	}
 }

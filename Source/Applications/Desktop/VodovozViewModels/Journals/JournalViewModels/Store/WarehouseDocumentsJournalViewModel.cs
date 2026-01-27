@@ -14,6 +14,7 @@ using QS.Services;
 using QS.Tdi;
 using System;
 using System.Linq;
+using Vodovoz.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Operations;
@@ -59,6 +60,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 		private readonly IGenericRepository<CarEvent> _carEventRepository;
 		private readonly IInteractiveService _interactiveService;
 		private readonly ISelfDeliveryRepository _selfDeliveryRepository;
+		private readonly SelfdeliveryCancellationService _selfdeliveryCancellationService;
 
 		public WarehouseDocumentsJournalViewModel(
 			WarehouseDocumentsJournalFilterViewModel filterViewModel,
@@ -69,13 +71,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			IGenericRepository<CarEvent> carEventRepository,
 			IInteractiveService interactiveService,
 			ISelfDeliveryRepository selfDeliveryRepository,
-			Action<WarehouseDocumentsJournalFilterViewModel> filterConfiguration = null)
+			SelfdeliveryCancellationService selfdeliveryCancellationService,
+			Action<WarehouseDocumentsJournalFilterViewModel> filterConfiguration = null
+		)
 			: base(filterViewModel, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_carEventRepository = carEventRepository ?? throw new ArgumentNullException(nameof(carEventRepository));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_selfDeliveryRepository = selfDeliveryRepository ?? throw new ArgumentNullException(nameof(selfDeliveryRepository));
+			_selfdeliveryCancellationService = selfdeliveryCancellationService ?? throw new ArgumentNullException(nameof(selfdeliveryCancellationService));
 			UseSlider = false;
 			SearchEnabled = true;
 			TabName = "Журнал складских документов";
@@ -1343,16 +1348,25 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 
 					if(selectedNode.DocTypeEnum == DocumentType.SelfDeliveryDocument)
 					{
-						var isSelfDeliveryDocumentUsedInEdoTasks =
-						_selfDeliveryRepository.IsSelfDeliveryDocumentItemsUsedInEdoTasks(UoW, selectedNode.Id);
+						var selfdeliveryDocument = UoW.Session.Get<SelfDeliveryDocument>(selectedNode.Id);
+						var permit = _selfdeliveryCancellationService.CanDeleteSelfdeliveryDocument(UoW, selfdeliveryDocument);
 
-						if(isSelfDeliveryDocumentUsedInEdoTasks)
+						switch(permit.Type)
 						{
-							_interactiveService.ShowMessage(
-								ImportanceLevel.Warning,
-								$"Невозможно удалить документ.\nВ данный документ отпуска самовывоза включены маркированные товары, участвующие в ЭДО.");
-
-							return;
+							case OrderCancellationPermitType.AllowCancelDocflow:
+								_selfdeliveryCancellationService.CancelDocflowByUser(
+									$"Удаление отпуска самовывоза №{selectedNode.Id} по заказу №{selfdeliveryDocument.Order.Id}", 
+									permit.EdoTaskToCancellationId.Value
+								);
+								return;
+							case OrderCancellationPermitType.AllowCancelOrder:
+								// Разрешение на удаление самовывоза
+								break;
+							case OrderCancellationPermitType.None:
+							case OrderCancellationPermitType.Deny:
+							default:
+								// Запрет удаления
+								return;
 						}
 					}
 

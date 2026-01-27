@@ -515,8 +515,8 @@ namespace Vodovoz.Domain.Orders
 			var organization = Order.Contract?.Organization;
 			
 			var vatRateVersion =  organization != null && organization.IsUsnMode 
-				? Order.Contract.Organization.GetActualVatRateVersion(Order.BillDate)
-				: Nomenclature.GetActualVatRateVersion(Order.BillDate);
+				? Order.Contract.Organization.GetActualVatRateVersion(Order.DeliveryDate)
+				: Nomenclature.GetActualVatRateVersion(Order.DeliveryDate);
 			
 			if(vatRateVersion == null)
 			{
@@ -559,8 +559,8 @@ namespace Vodovoz.Domain.Orders
 			if(Order.Contract?.Organization != null)
 			{
 				canUseVAT = Order.Contract.Organization.IsUsnMode 
-					? Order.Contract.Organization.GetActualVatRateVersion(Order.BillDate)?.VatRate.VatNumericValue != 0
-					: Nomenclature.GetActualVatRateVersion(Order.BillDate)?.VatRate.VatNumericValue != 0;
+					? Order.Contract.Organization.GetActualVatRateVersion(Order.DeliveryDate)?.VatRate.VatNumericValue != 0
+					: Nomenclature.GetActualVatRateVersion(Order.DeliveryDate)?.VatRate.VatNumericValue != 0;
 			}
 
 			return canUseVAT;

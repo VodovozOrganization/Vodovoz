@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Vodovoz.Settings.CashReceipt;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
+using VodovozHealthCheck.Providers;
 
 namespace CashReceiptApi.HealthChecks
 {
@@ -24,8 +25,9 @@ namespace CashReceiptApi.HealthChecks
 			ILogger<VodovozHealthCheckBase> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOptions<ServiceOptions> serviceOptions,
-			ICashReceiptSettings cashReceiptSettings)
-			: base(logger, unitOfWorkFactory)
+			ICashReceiptSettings cashReceiptSettings,
+			IHealthCheckServiceInfoProvider serviceInfoProvider)
+			: base(logger, serviceInfoProvider, unitOfWorkFactory)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_serviceOptions = serviceOptions ?? throw new ArgumentNullException(nameof(serviceOptions));

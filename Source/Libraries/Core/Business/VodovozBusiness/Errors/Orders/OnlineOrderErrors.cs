@@ -132,6 +132,13 @@ namespace Vodovoz.Errors.Orders
 				$"Номенклатура {nomenclature} пришла с неправильно установленной скидкой" +
 				$"\nДолжно быть {discount}, а передано {onlineOrderItemDiscount}");
 		
+		public static Error IncorrectCountNomenclatureInOnlineOrder(string nomenclature, decimal count) =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(IncorrectDiscountNomenclatureInOnlineOrder),
+				$"Номенклатура {nomenclature} пришла с неправильно установленным количеством" +
+				$"\nДолжно быть больше 0, а передано {count}");
+		
 		public static Error IncorrectDiscountTypeInOnlineOrder(
 			string nomenclature, bool needsValue, bool onlineOrderItemDiscountInMoney) =>
 			new Error(

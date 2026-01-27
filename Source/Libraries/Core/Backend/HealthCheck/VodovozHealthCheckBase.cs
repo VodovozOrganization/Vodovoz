@@ -5,16 +5,19 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Extensions;
+using VodovozHealthCheck.Providers;
 
 namespace VodovozHealthCheck
 {
 	public abstract class VodovozHealthCheckBase : IHealthCheck
 	{
 		private readonly ILogger<VodovozHealthCheckBase> _logger;
+		private readonly IHealthCheckServiceInfoProvider _serviceInfoProvider;
 		protected readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IBusControl _busControl;
 
@@ -27,10 +30,12 @@ namespace VodovozHealthCheck
 		/// <exception cref="ArgumentNullException"></exception>
 		protected VodovozHealthCheckBase(
 			ILogger<VodovozHealthCheckBase> logger,
+			IHealthCheckServiceInfoProvider serviceInfoProvider,
 			IUnitOfWorkFactory unitOfWorkFactory = null,
 			IBusControl busControl = null)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_serviceInfoProvider = serviceInfoProvider ?? throw new ArgumentNullException(nameof(serviceInfoProvider));
 			_unitOfWorkFactory = unitOfWorkFactory;
 			_busControl = busControl;
 		}
@@ -47,10 +52,12 @@ namespace VodovozHealthCheck
 
 			const string checkMessage = "Проверяем работоспособность";
 
+			var _unhealthyMessage = $"Обнаружены проблемы в сервисе <{_serviceInfoProvider.Name}>. Могут быть недоступны: {_serviceInfoProvider.DetailedDescription}";
+
 			var healthResult = new VodovozHealthResultDto { IsHealthy = false };
 
 			try
-			{
+			{				
 				if(_unitOfWorkFactory != null)
 				{
 					_logger.LogInformation("{CheckMessage}: Соединение с БД.", checkMessage);
@@ -93,14 +100,14 @@ namespace VodovozHealthCheck
 			{
 				_logger.LogInformation("{CheckMessage}: Возвращаем итоговый результат IsHealthy: {IsHealthy}", checkMessage, healthResult.IsHealthy);
 
-				return HealthCheckResult.Healthy("Проверка пройдена успешно");
+				return HealthCheckResult.Healthy("Проверка пройдена успешно.");
 			}
 
-			const string failedMessage = "Проверка не пройдена";
+			const string failedMessage = "Проверка не пройдена!";
 
 			_logger.LogWarning("{CheckMessage}: {FailedMessage}", checkMessage, failedMessage);
 
-			return HealthCheckResult.Unhealthy(failedMessage, null, healthResult.ToUnhealthyDataInfoResponse());
+			return HealthCheckResult.Unhealthy(_unhealthyMessage, data: healthResult.ToUnhealthyDataInfoResponse());
 		}
 
 		/// <summary>

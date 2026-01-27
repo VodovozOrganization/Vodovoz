@@ -73,6 +73,7 @@ namespace Vodovoz.Application
 			.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>()
 			.AddScoped<OurCodesChecker>()
 			.AddScoped<OrderCancellationService>()
+			.AddScoped<SelfdeliveryCancellationService>()
 			.AddTrueMarkApiClient()
 			.AddApplicationOrderServices()
 		;

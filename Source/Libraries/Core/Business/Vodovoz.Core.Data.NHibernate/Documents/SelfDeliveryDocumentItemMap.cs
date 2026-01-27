@@ -20,7 +20,11 @@ namespace Vodovoz.Core.Data.NHibernate.Documents
 			References(x => x.Nomenclature).Column("nomenclature_id");
 			References(x => x.GoodsAccountingOperation).Column("warehouse_movement_operation_id").Cascade.All();
 
-			HasMany(x => x.TrueMarkProductCodes).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("self_delivery_document_item_id");
+			HasMany(x => x.TrueMarkProductCodes)
+				.Cascade.SaveUpdate()
+				.Inverse()
+				.LazyLoad()
+				.KeyColumn("self_delivery_document_item_id");
 		}
 	}
 }

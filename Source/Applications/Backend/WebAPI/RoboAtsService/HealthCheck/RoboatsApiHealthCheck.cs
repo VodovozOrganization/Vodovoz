@@ -15,6 +15,7 @@ using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Extensions;
 using VodovozHealthCheck.Helpers;
+using VodovozHealthCheck.Providers;
 
 namespace RoboatsService.HealthCheck
 {
@@ -31,8 +32,9 @@ namespace RoboatsService.HealthCheck
 			ILogger<VodovozHealthCheckBase> logger,
 			IConfiguration configuration,
 			IHttpClientFactory httpClientFactory,
-			IUnitOfWorkFactory unitOfWorkFactory)
-			: base(logger, unitOfWorkFactory)
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IHealthCheckServiceInfoProvider serviceInfoProvider)
+			: base(logger, serviceInfoProvider, unitOfWorkFactory)
 		{
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));

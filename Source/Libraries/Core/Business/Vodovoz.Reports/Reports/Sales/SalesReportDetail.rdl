@@ -1170,8 +1170,7 @@ FROM
         )
        AND (
              (0 IN (@Organization_include) OR (counterparty_contract.organization_id IN (@Organization_include)))
-				AND NOT (counterparty_contract.organization_id IN (@Organization_exclude))
-         )
+                AND (counterparty_contract.organization_id IS NULL OR NOT (counterparty_contract.organization_id IN (@Organization_exclude))))
        AND (
              (0 IN (@DiscountReason_include) OR (order_items.discount_reason_id IN (@DiscountReason_include)))
 				AND (order_items.discount_reason_id IS NULL OR NOT (order_items.discount_reason_id IN (@DiscountReason_exclude)))

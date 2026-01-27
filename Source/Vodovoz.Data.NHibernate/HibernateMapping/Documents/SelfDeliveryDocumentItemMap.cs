@@ -1,4 +1,4 @@
-﻿using FluentNHibernate.Mapping;
+using FluentNHibernate.Mapping;
 using VodovozBusiness.Domain.Documents;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents
@@ -18,7 +18,11 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Documents
 			References(x => x.OrderItem).Column("order_item_id");
 			References(x => x.OrderEquipment).Column("order_equipment_id");
 			References(x => x.GoodsAccountingOperation).Column("warehouse_movement_operation_id").Cascade.All();
-			HasMany(x => x.TrueMarkProductCodes).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("self_delivery_document_item_id");
+			HasMany(x => x.TrueMarkProductCodes)
+				.Cascade.SaveUpdate()
+				.Inverse()
+				.LazyLoad()
+				.KeyColumn("self_delivery_document_item_id");
 		}
 	}
 }

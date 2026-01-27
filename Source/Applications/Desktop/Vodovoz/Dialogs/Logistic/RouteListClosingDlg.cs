@@ -125,6 +125,7 @@ namespace Vodovoz
 		private IFlyerRepository _flyerRepository;
 		private IOrderContractUpdater _contractUpdater;
 		private OrderCancellationService _orderCancellationService;
+		private ICarEventSettings _carEventSettings;
 
 		private readonly bool _isOpenFromCash;
 		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(CashPermissions.PresetPermissionsRoles.Cashier);
@@ -237,6 +238,8 @@ namespace Vodovoz
 			
 			_routeListService = _lifetimeScope.Resolve<IRouteListService>();
 			_orderCancellationService = _lifetimeScope.Resolve<OrderCancellationService>();
+
+			_carEventSettings = _lifetimeScope.Resolve<ICarEventSettings>();
 		}
 
 		private void ConfigureDlg()
@@ -845,7 +848,7 @@ namespace Vodovoz
 				{
 					_cancellationRequestActions.Add(() => _orderCancellationService.AutomaticCancelDocflow(
 						UoW,
-						orderReturnsView.Order,
+						$"Отмена заказа №{orderReturnsView.Order.Id}",
 						orderReturnsView.CancellationPermit.EdoTaskToCancellationId.Value
 					));
 				}
@@ -1453,7 +1456,8 @@ namespace Vodovoz
 				Employee driver = Entity.Driver;
 				var car = Entity.Car;
 
-				if(car.GetActiveCarVersionOnDate(Entity.Date).IsCompanyCar)
+				if(car.GetActiveCarVersionOnDate(Entity.Date).IsCompanyCar
+					|| car.GetCurrentActiveFuelCardVersion() != null)
 				{
 					driver = null;
 				}
@@ -1463,7 +1467,7 @@ namespace Vodovoz
 				}
 
 				balanceBeforeOp = _fuelRepository.GetFuelBalance(
-					UoW, driver, car, Entity.ClosingDate ?? DateTime.Now, exclude?.ToArray());
+					UoW, driver, car, _carEventSettings.FuelBalanceCalibrationCarEventTypeId, Entity.ClosingDate ?? DateTime.Now, exclude?.ToArray());
 			}
 		}
 
@@ -1751,6 +1755,7 @@ namespace Vodovoz
 				_lifetimeScope.Resolve<IOrganizationRepository>(),
 				_lifetimeScope.Resolve<IFuelApiService>(),
 				_lifetimeScope.Resolve<IFuelControlSettings>(),
+				_carEventSettings,
 				_lifetimeScope.Resolve<IGuiDispatcher>(),
 				_lifetimeScope.Resolve<IUserSettingsService>(),
 				_lifetimeScope.Resolve<IYesNoCancelQuestionInteractive>(),
@@ -1776,6 +1781,7 @@ namespace Vodovoz
 				_lifetimeScope.Resolve<IOrganizationRepository>(),
 				_lifetimeScope.Resolve<IFuelApiService>(),
 				_lifetimeScope.Resolve<IFuelControlSettings>(),
+				_carEventSettings,
 				_lifetimeScope.Resolve<IGuiDispatcher>(),
 				_lifetimeScope.Resolve<IUserSettingsService>(),
 				_lifetimeScope.Resolve<IYesNoCancelQuestionInteractive>(),

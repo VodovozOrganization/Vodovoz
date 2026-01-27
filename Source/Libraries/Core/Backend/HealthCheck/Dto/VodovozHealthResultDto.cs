@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace VodovozHealthCheck.Dto
 {
@@ -19,6 +20,11 @@ namespace VodovozHealthCheck.Dto
 		///		Инициализируется пустым набором по умолчанию.
 		/// </summary>
 		public HashSet<string> AdditionalUnhealthyResults { get; set; } = new();
+
+		/// <summary>
+		/// Результаты в виде строки
+		/// </summary>
+		public string DescriptionString => string.Join(". ", AdditionalUnhealthyResults);
 
 		/// <summary>
 		///		Создаёт и возвращает успешный результат проверки.

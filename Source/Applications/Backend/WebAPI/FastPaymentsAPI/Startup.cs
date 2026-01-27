@@ -128,7 +128,7 @@ namespace FastPaymentsAPI
 					transportSettings);
 				});
 
-			services.ConfigureHealthCheckService<FastPaymentsHealthCheck>();
+			services.ConfigureHealthCheckService<FastPaymentsHealthCheck, ServiceInfoProvider>();
 		}
 		
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

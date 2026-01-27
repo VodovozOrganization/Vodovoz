@@ -32,7 +32,7 @@ namespace WarehouseApi
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddControllers();
-			services.ConfigureHealthCheckService<WarehouseApiHealthCheck>();
+			services.ConfigureHealthCheckService<WarehouseApiHealthCheck, ServiceInfoProvider>();
 			services.AddHttpClient();
 
 			services.AddVersioning();

@@ -64,7 +64,7 @@ namespace MailjetEventsDistributorAPI
 			
 			services.AddHttpClient();
 
-			services.ConfigureHealthCheckService<MailjetEventsDistributeHealthCheck>();
+			services.ConfigureHealthCheckService<MailjetEventsDistributeHealthCheck, ServiceInfoProvider>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -527,7 +527,10 @@ namespace Vodovoz
 						{
 							throw new InvalidOperationException("Для аннулирования документооборота должен быть указан идентификатор ЭДО задачи.");
 						}
-						_orderCancellationService.CancelDocflowByUser(rli.RouteListItem.Order, permit.EdoTaskToCancellationId.Value);
+						_orderCancellationService.CancelDocflowByUser(
+							$"Отмена заказа №{rli.RouteListItem.Order.Id}",
+							permit.EdoTaskToCancellationId.Value
+						);
 						return;
 					case OrderCancellationPermitType.AllowCancelOrder:
 						break;
@@ -685,7 +688,7 @@ namespace Vodovoz
 			{
 				_cancellationRequestActions.Add(() => _orderCancellationService.AutomaticCancelDocflow(
 					UoW,
-					e.UndeliveredOrder.OldOrder,
+					$"Отмена заказа №{e.UndeliveredOrder.OldOrder.Id}",
 					e.CancellationPermit.EdoTaskToCancellationId.Value
 				));
 			}

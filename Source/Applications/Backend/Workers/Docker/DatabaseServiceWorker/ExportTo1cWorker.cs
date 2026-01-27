@@ -121,7 +121,7 @@ namespace DatabaseServiceWorker
 
 			await ExportOrders(Export1cMode.ComplexAutomation, yesterdayStartOfDayDate, smbPath, auth, cancellationToken);
 
-			await ExportOrders(Export1cMode.Retail, yesterdayStartOfDayDate, smbPath, auth, cancellationToken);
+			//await ExportOrders(Export1cMode.Retail, yesterdayStartOfDayDate, smbPath, auth, cancellationToken);
 
 			await ExportCounterpartyChanges(yesterdayStartOfDayDate, smbPath, auth, cancellationToken);
 		}
