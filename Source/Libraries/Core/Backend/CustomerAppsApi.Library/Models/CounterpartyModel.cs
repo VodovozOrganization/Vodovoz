@@ -99,7 +99,6 @@ namespace CustomerAppsApi.Library.Models
 			var counterpartyFrom = _cameFromConverter.ConvertCameFromToCounterpartyFrom(counterpartyContactInfoDto.CameFromId);
 			var phoneNumber = new PhoneFormatter(PhoneFormat.DigitsTen).FormatString(counterpartyContactInfoDto.PhoneNumber);
 
-			
 			_logger.LogInformation(
 				"Ищем зарегистрированного клиента по ExternalId {ExternalCounterpartyId} и по телефону {PhoneNumber}",
 				counterpartyContactInfoDto.ExternalCounterpartyId,
@@ -380,7 +379,7 @@ namespace CustomerAppsApi.Library.Models
 		private CounterpartyRegistrationDto CheckExternalCounterpartyWithSamePhoneNumber(
 			CounterpartyDto counterpartyDto, CounterpartyFrom counterpartyFrom)
 		{
-			var phoneNumber = new PhoneFormatter(PhoneFormat.RussiaOnlyShort).FormatString(counterpartyDto.PhoneNumber);
+			var phoneNumber = new PhoneFormatter(PhoneFormat.DigitsTen).FormatString(counterpartyDto.PhoneNumber);
 			var externalCounterparty = 
 				_externalCounterpartyRepository.GetExternalCounterparty(_uow, phoneNumber, counterpartyFrom);
 
