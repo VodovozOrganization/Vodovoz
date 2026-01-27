@@ -46,11 +46,11 @@ namespace CustomerOrdersApi.Controllers.V4
 				}
 
 				_logger.LogInformation("Подпись валидна, отправляем в очередь");
-				var response = await _requestClient.GetResponse<CreatedOnlineOrder>(creatingOnlineOrder);
+				var response = await _requestClient.GetResponse<CreatedOnlineOrderResult>(creatingOnlineOrder);
 
 				return response.Message.Code switch
 				{
-					200 => Ok(response.Message.OnlineOrderId),
+					200 => Ok(CreatedOnlineOrder.Create(response.Message)),
 					409 => Problem(Messages.DuplicatOrderMessage(creatingOnlineOrder.ExternalOrderId), statusCode: response.Message.Code),
 					500 => Problem(Messages.ErrorMessage)
 				};

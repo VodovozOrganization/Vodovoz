@@ -6,20 +6,14 @@
 	public class CreatedOnlineOrder
 	{
 		public CreatedOnlineOrder() { }
-		private CreatedOnlineOrder((int OnlineOrderId, int Code) data)
+		private CreatedOnlineOrder(int onlineOrderId)
 		{
-			OnlineOrderId = data.OnlineOrderId;
-			Code = data.Code;
+			OnlineOrderId = onlineOrderId;
 		}
 		/// <summary>
 		/// Id онлайн заказа
 		/// </summary>
 		public int OnlineOrderId { get; set; }
-		/// <summary>
-		/// Http код
-		/// </summary>
-		public int Code { get; set; } = 500;
-		
-		public static CreatedOnlineOrder Create((int OnlineOrderId, int Code) data) => new CreatedOnlineOrder(data);
+		public static CreatedOnlineOrder Create(CreatedOnlineOrderResult data) => new CreatedOnlineOrder(data.OnlineOrderId);
 	}
 }

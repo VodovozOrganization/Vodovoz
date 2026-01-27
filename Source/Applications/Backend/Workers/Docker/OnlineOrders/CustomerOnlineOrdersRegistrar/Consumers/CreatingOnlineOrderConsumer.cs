@@ -50,7 +50,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			try
 			{
 				var onlineOrderIdWithCode = await TryRegisterOnlineOrderAsync(message, context.CancellationToken);
-				await context.RespondAsync(CreatedOnlineOrder.Create(onlineOrderIdWithCode));
+				await context.RespondAsync(CreatedOnlineOrderResult.Create(onlineOrderIdWithCode));
 			}
 			catch(Exception e)
 			{
