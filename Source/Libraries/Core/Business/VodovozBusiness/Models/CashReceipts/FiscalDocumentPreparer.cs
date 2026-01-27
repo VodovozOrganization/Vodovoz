@@ -307,8 +307,8 @@ namespace Vodovoz.Models.CashReceipts
 			if(organization != null)
 			{
 				var actualVatVersion = organization.IsUsnMode
-					? organization.GetActualVatRateVersion(orderItem.Order.BillDate)
-					: orderItem.Nomenclature.GetActualVatRateVersion(orderItem.Order.BillDate);
+					? organization.GetActualVatRateVersion(orderItem.Order.DeliveryDate)
+					: orderItem.Nomenclature.GetActualVatRateVersion(orderItem.Order.DeliveryDate);
 
 				if(actualVatVersion?.VatRate.VatRateValue == 0)
 				{
@@ -316,7 +316,7 @@ namespace Vodovoz.Models.CashReceipts
 					return;
 				}
 			}
-			else if(orderItem.Nomenclature.GetActualVatRateVersion(orderItem.Order.BillDate)?.VatRate.VatRateValue == 0)
+			else if(orderItem.Nomenclature.GetActualVatRateVersion(orderItem.Order.DeliveryDate)?.VatRate.VatRateValue == 0)
 			{
 				inventPosition.VatTag = (int)VatTag.VatFree;
 				return;
