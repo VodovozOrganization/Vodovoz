@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Core.Infrastructure;
 using fyiReporting.RDL;
 using Gamma.Utilities;
@@ -3872,6 +3872,8 @@ namespace Vodovoz.Domain.Orders
 
 		private OrderDocument CreateDocumentOfOrder(OrderDocumentType type)
 		{
+			var contractOrganizationId = Contract?.Organization?.Id ?? 0;
+
 			OrderDocument newDoc;
 
 			switch(type)
@@ -3884,7 +3886,7 @@ namespace Vodovoz.Domain.Orders
 					break;
 				case OrderDocumentType.UPD:
 				{
-					var updOrderCounter = _documentOrganizationCounterRepository.GetDocumentOrganizationCounterByOrder(UoW, this);
+					var updOrderCounter = _documentOrganizationCounterRepository.GetDocumentOrganizationCounterByOrder(UoW, this, contractOrganizationId);
 					
 					var updCounter = _documentOrganizationCounterRepository
 						.GetMaxDocumentOrganizationCounterOnYear(UoW, DeliveryDate.Value, Contract?.Organization);
@@ -3919,7 +3921,7 @@ namespace Vodovoz.Domain.Orders
 			break;
 				case OrderDocumentType.SpecialUPD:
 				{
-					var updOrderCounter = _documentOrganizationCounterRepository.GetDocumentOrganizationCounterByOrder(UoW, this);
+					var updOrderCounter = _documentOrganizationCounterRepository.GetDocumentOrganizationCounterByOrder(UoW, this, contractOrganizationId);
 					
 					var updCounter = _documentOrganizationCounterRepository
 						.GetMaxDocumentOrganizationCounterOnYear(UoW, DeliveryDate.Value, Contract?.Organization);
