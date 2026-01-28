@@ -13,6 +13,7 @@ using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using System;
+using System.IO;
 using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -34,6 +35,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 	public class CarJournalViewModel : EntityJournalViewModelBase<Car, CarViewModel, CarJournalNode>
 	{
 		private readonly CarJournalFilterViewModel _filterViewModel;
+		private readonly IInteractiveService _interactiveService;
 		private readonly IGeneralSettings _generalSettings;
 		private readonly ICarEventSettings _carEventSettings;
 		private readonly IFileDialogService _fileDialogService;
@@ -58,6 +60,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		{
 			_filterViewModel = filterViewModel
 				?? throw new ArgumentNullException(nameof(filterViewModel));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
@@ -528,7 +531,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				return;
 			}
 
-			CarJournalItemsReport.ExportToExcel(result.Path, journalItems);
+			try
+			{
+				CarJournalItemsReport.ExportToExcel(result.Path, journalItems);
+			}
+			catch(IOException ex)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error,
+					"Не удалось сохранить файл выгрузки. Возможно не закрыт предыдущий файл выгрузки", "Ошибка");
+			}
 		}
 
 		private DialogSettings GetSaveExcelReportDialogSettings(string fileName)

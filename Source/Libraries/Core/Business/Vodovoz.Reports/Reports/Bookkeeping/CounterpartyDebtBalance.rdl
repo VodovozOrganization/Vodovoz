@@ -1159,6 +1159,7 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT * FROM
     (SELECT
+    	c.id AS counterparty_id,
         c.inn AS inn,
         c.name AS counterparty_name,
         IF
@@ -1172,13 +1173,17 @@
             (SELECT IFNULL(SUM(cmo.income), 0)
                 FROM cashless_movement_operations cmo
                 WHERE cmo.counterparty_id = c.id
-                  AND cmo.cashless_movement_operation_status != 'Cancelled')
+                  AND cmo.cashless_movement_operation_status != 'Cancelled'
+                  AND cmo.organization_id = org.id)
             -
             (SELECT IFNULL(SUM(pi.sum), 0)
                 FROM payment_items pi
                 INNER JOIN payments_from_bank_client pfbc ON pi.payment_id = pfbc.id
+                INNER JOIN orders o2 ON pi.order_id = o2.id
+                INNER JOIN counterparty_contract cc2 on o2.counterparty_contract_id = cc2.id
                 WHERE pfbc.counterparty_id = c.id
-                  AND pi.payment_item_status != 'Cancelled')
+                  AND pi.payment_item_status != 'Cancelled'
+                  AND cc2.organization_id = org.id)
         ) AS unallocated_balance,
         (
             SELECT IFNULL(SUM(cmo.expense), 0)
@@ -1244,13 +1249,17 @@
                     (SELECT IFNULL(SUM(cmo.income), 0)
                         FROM cashless_movement_operations cmo
                         WHERE cmo.counterparty_id = c.id
-                          AND cmo.cashless_movement_operation_status != 'Cancelled')
+                          AND cmo.cashless_movement_operation_status != 'Cancelled'
+                          AND cmo.organization_id = org.id)
                     -
                     (SELECT IFNULL(SUM(pi.sum), 0)
                         FROM payment_items pi
                         INNER JOIN payments_from_bank_client pfbc ON pi.payment_id = pfbc.id
-                        WHERE pfbc.counterparty_id = c.id
-                          AND pi.payment_item_status != 'Cancelled')
+                        INNER JOIN orders o2 ON pi.order_id = o2.id
+		                INNER JOIN counterparty_contract cc2 on o2.counterparty_contract_id = cc2.id
+		                WHERE pfbc.counterparty_id = c.id
+		                  AND pi.payment_item_status != 'Cancelled'
+		                  AND cc2.organization_id = org.id)
                 ) - IFNULL(
                     SUM(
                     (SELECT SUM(cmo.expense)
