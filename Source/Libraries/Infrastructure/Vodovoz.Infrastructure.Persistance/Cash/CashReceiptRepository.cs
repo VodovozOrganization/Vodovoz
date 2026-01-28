@@ -484,5 +484,23 @@ namespace Vodovoz.Infrastructure.Persistance.Cash
 
 			return result;
 		}
+
+		public EdoFiscalDocument GetLastEdoFiscalDocumentByOrderId(IUnitOfWork uow, int orderId)
+		{
+			EdoFiscalDocument fiscalDocumentAlias = null;
+			ReceiptEdoTask receiptEdoTaskAlias = null;
+			FormalEdoRequest formalEdoRequestAlias = null;
+
+			var fiscalDocument = uow.Session.QueryOver(() => fiscalDocumentAlias)
+				.JoinAlias(() => fiscalDocumentAlias.ReceiptEdoTask, () => receiptEdoTaskAlias)
+				.JoinAlias(() => receiptEdoTaskAlias.FormalEdoRequest, () => formalEdoRequestAlias)
+				.Where(() => formalEdoRequestAlias.Order.Id == orderId)
+				.OrderByAlias(() => fiscalDocumentAlias.CreationTime)
+				.Desc
+				.Take(1)
+				.SingleOrDefault();
+
+			return fiscalDocument;
+		}
 	}
 }

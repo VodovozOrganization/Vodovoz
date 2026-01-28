@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using VodovozBusiness.Nodes;
 
@@ -50,5 +51,13 @@ namespace VodovozBusiness.EntityRepositories.Edo
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Список адресов МЛ</returns>
 		Task<IEnumerable<int>> GetNotProcessedDriversScannedCodesRouteListAddressIds(IUnitOfWork uow, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Возвращает информацию о последнем документообороте в Такскоме
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="orderId"></param>
+		/// <returns></returns>
+		TaxcomDocflow GetLastTaxcomDocflowByOrderId(IUnitOfWork uow, int orderId);
 	}
 }
