@@ -136,11 +136,31 @@ namespace Vodovoz.Trackers
 			}
 		}
 
-		private int? GetOrderId(object entity) =>
-			(entity as OrderEntity)?.Id
-			?? (entity as Order)?.Id
-			?? (entity as OrderItemEntity)?.Order?.Id
-			?? (entity as OrderItem)?.Order?.Id;
+		private int? GetOrderId(object entity)
+		{
+			var order =
+				(entity as OrderEntity)
+				?? (entity as Order)
+				?? (entity as OrderItemEntity)?.Order
+				?? (entity as OrderItem)?.Order;
+
+			if(order == null)
+			{
+				return null;
+			}
+
+			var date = (order as OrderEntity)?.DeliveryDate ?? (order as Order)?.DeliveryDate;
+
+			if(date is null)
+			{
+				throw new InvalidOperationException("Заказ не может быть обработан: отсутствует дата доставки");
+			}
+
+			var canChangeToday = IsOrderInAllowedDepth(date.Value);
+
+			return canChangeToday ? (int?)order.Id : null;
+		}
+
 
 		private static HashSet<string> GetTrackedProperties(Type entityType)
 		{
@@ -152,6 +172,37 @@ namespace Vodovoz.Trackers
 
 				return new HashSet<string>(props, StringComparer.Ordinal);
 			});
+		}
+
+		private static bool IsOrderInAllowedDepth(DateTime orderDate)
+		{
+			var today = DateTime.Today;
+
+			var todayQuarterStart = GetQuarterStart(today);
+
+			var previousQuarterStart = todayQuarterStart.AddMonths(-3);
+
+			var previousQuarterEnd = todayQuarterStart.AddDays(-1);
+
+			var lastAllowedDate = previousQuarterEnd.AddDays(15);
+
+			if(orderDate >= todayQuarterStart)
+			{
+				return true;
+			}
+
+			var canChangeOrder = orderDate >= previousQuarterStart && orderDate <= previousQuarterEnd
+				? today <= lastAllowedDate
+				: false;
+
+			return canChangeOrder;
+		}
+
+		private static DateTime GetQuarterStart(DateTime date)
+		{
+			var quarter = (date.Month - 1) / 3 + 1;
+			var month = (quarter - 1) * 3 + 1;
+			return new DateTime(date.Year, month, 1);
 		}
 	}
 }

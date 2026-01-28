@@ -15,7 +15,15 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 			Map(x => x.ExportDate).Column("export_date");
 			Map(x => x.Error).Column("export_error");
 
-			References(x => x.Order).Column("order_id");
+			Map(x => x.OrderId)
+				.Column("order_id")
+				.Not.Nullable()
+				.ReadOnly();
+
+			References(x => x.Order)
+				.Column("order_id")
+				.NotFound.Ignore()
+				.LazyLoad();
 		}
 	}
 }

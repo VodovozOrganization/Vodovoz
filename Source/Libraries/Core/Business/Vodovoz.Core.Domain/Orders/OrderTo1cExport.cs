@@ -36,6 +36,10 @@ namespace Vodovoz.Core.Domain.Orders
 			set => SetField(ref _order, value);
 		}
 
+		[Display(Name = "Код заказа (для удалённого заказа)")]
+		public virtual int OrderId { get; set; }
+
+
 		[Display(Name = "Экспортирован?")]
 		public virtual bool IsExported
 		{
