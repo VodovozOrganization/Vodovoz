@@ -169,6 +169,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		private void OnOrganizationViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
+			Entity.RecalculateNDS();
 			UpdateEmails();
 		}
 
