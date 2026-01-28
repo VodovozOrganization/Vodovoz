@@ -83,15 +83,15 @@ namespace Vodovoz.Views
 				.InitializeFromSource();
 
 			ylabelWaitForPaymentValue.Binding
-				.AddFuncBinding(ViewModel, vm => vm.CounterpartyWaitingForPaymentOrdersDebt > 0 ? vm.CounterpartyWaitingForPaymentOrdersDebt.ToString("N2") : "0.00", w => w.Text)
+				.AddFuncBinding(ViewModel, vm => vm.CounterpartyWaitingForPaymentOrdersDebt > 0 ? vm.CounterpartyWaitingForPaymentOrdersDebt.ToString("N2") : "0,00", w => w.Text)
 				.InitializeFromSource();
 
 			ylabelCloseDocumentsValue.Binding
-				.AddFuncBinding(ViewModel, vm => vm.CounterpartyClosingDocumentsOrdersDebt > 0 ? vm.CounterpartyClosingDocumentsOrdersDebt.ToString("N2") : "0.00", w => w.Text)
+				.AddFuncBinding(ViewModel, vm => vm.CounterpartyClosingDocumentsOrdersDebt > 0 ? vm.CounterpartyClosingDocumentsOrdersDebt.ToString("N2") : "0,00", w => w.Text)
 				.InitializeFromSource();
 
 			ylabelOtherOrdersDebtValue.Binding
-				.AddFuncBinding(ViewModel, vm => vm.CounterpartyOtherOrdersDebt > 0 ? vm.CounterpartyOtherOrdersDebt.ToString("N2") : "0.00", w => w.Text)
+				.AddFuncBinding(ViewModel, vm => vm.CounterpartyOtherOrdersDebt > 0 ? vm.CounterpartyOtherOrdersDebt.ToString("N2") : "0,00", w => w.Text)
 				.InitializeFromSource();
 
 			labelPayer.Text = ViewModel.Entity.CounterpartyName;
