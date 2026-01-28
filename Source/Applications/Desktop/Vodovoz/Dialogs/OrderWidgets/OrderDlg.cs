@@ -214,6 +214,8 @@ namespace Vodovoz
 		private IOrderSettings _orderSettings;
 		private IOrganizationSettings _organizationSettings;
 		private IPaymentFromBankClientController _paymentFromBankClientController;
+		private IGenericRepository<OrderTo1cExport> _exportsOrderTo1cReporitory;
+		private ICashReceiptRepository _cashReceiptRepository;
 		private RouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 
 		private IGenericRepository<EdoContainer> _edoContainerRepository;
@@ -689,6 +691,8 @@ namespace Vodovoz
 			_counterpartyEdoAccountController = _lifetimeScope.Resolve<ICounterpartyEdoAccountController>();
 			_organizationSettings = _lifetimeScope.Resolve<IOrganizationSettings>();
 			_paymentFromBankClientController = _lifetimeScope.Resolve<IPaymentFromBankClientController>();
+			_exportsOrderTo1cReporitory = _lifetimeScope.Resolve<IGenericRepository<OrderTo1cExport>>();
+			_cashReceiptRepository = _lifetimeScope.Resolve<ICashReceiptRepository>();
 
 			_justCreated = UoWGeneric.IsNew;
 
@@ -1221,6 +1225,8 @@ namespace Vodovoz
 			RefreshBottlesDebtNotifier();
 
 			RefreshDebtorDebtNotifier();
+
+			UpdateDocumentsDescription();
 		}
 
 		private void OnYbuttonSaveWaitUntilClicked(object sender, EventArgs e)
@@ -2502,7 +2508,7 @@ namespace Vodovoz
 					_currentEmployee,
 					ServicesConfig.CommonServices);
 			var sendEmailView = new SendDocumentByEmailView(SendDocumentByEmailViewModel);
-			hbox20.Add(sendEmailView);
+			yhboxEmails.Add(sendEmailView);
 			sendEmailView.Show();
 		}
 
@@ -2669,6 +2675,7 @@ namespace Vodovoz
 
 				_logger.Info("Ok.");
 				UpdateUIState();
+				UpdateDocumentsDescription();
 				btnCopyEntityId.Sensitive = true;
 				TabName = typeof(Order).GetCustomAttribute<DisplayNameAttribute>(true)?.DisplayName;
 
@@ -3397,6 +3404,44 @@ namespace Vodovoz
 				return MessageDialogHelper.RunWarningDialog("Сертификаты не добавлены", msg, btns);
 			}
 			return true;
+		}
+
+		private void UpdateDocumentsDescription()
+		{
+			if(Entity.Id == 0)
+			{
+				ylabelDocumentsDescription.LabelProp = string.Empty;
+			}
+
+			var lastExport = _exportsOrderTo1cReporitory.Get(UoW, e => e.Order.Id == Entity.Id).SingleOrDefault();
+			var lastExportDate = lastExport?.ExportDate;
+			var lastChangeDate = lastExport?.LastOrderChangeDate;
+			var lastFiscalDocumentDate = _cashReceiptRepository.GetLastEdoFiscalDocumentByOrderId(UoW, Entity.Id)?.CreationTime;
+			var lastTaxcomDocflowDate = _edoDocflowRepository.GetLastTaxcomDocflowByOrderId(UoW, Entity.Id)?.CreationTime;
+
+			var result = new StringBuilder();
+
+			if(lastExportDate.HasValue)
+			{
+				result.AppendLine($"\n - Дата последней выгрузки в 1С: {lastExportDate.Value:g}");
+			}
+
+			if(lastChangeDate.HasValue)
+			{
+				result.AppendLine($"\n - Дата последнего изменения значимых полей для выгрузки: {lastChangeDate.Value:g}");
+			}
+
+			if(lastFiscalDocumentDate.HasValue)
+			{
+				result.AppendLine($"\n -Дата формирования чека: {lastFiscalDocumentDate.Value:g}");
+			}
+
+			if(lastTaxcomDocflowDate.HasValue)
+			{
+				result.AppendLine($"\n - Дата формирования УПД: {lastTaxcomDocflowDate.Value:g}");
+			}
+
+			ylabelDocumentsDescription.LabelProp = result.ToString();		
 		}
 
 		#endregion
