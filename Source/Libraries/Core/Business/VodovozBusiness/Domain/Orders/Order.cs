@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Core.Infrastructure;
 using fyiReporting.RDL;
 using Gamma.Utilities;
@@ -3813,7 +3813,10 @@ namespace Vodovoz.Domain.Orders
 
 			var needCreate = needed.ToList();
 			foreach(var doc in OrderDocuments.Where(d => d.Order?.Id == Id && docsOfOrder.Contains(d.Type)).ToList()) {
-				if(needed.Contains(doc.Type))
+				var needUpdateUpdNumber =
+					(doc.Type == OrderDocumentType.UPD || doc.Type == OrderDocumentType.SpecialUPD)
+					&& doc.DocumentOrganizationCounter?.Organization?.Id != Contract?.Organization?.Id;
+				if(needed.Contains(doc.Type) && !needUpdateUpdNumber)
 					needCreate.Remove(doc.Type);
 				else
 					ObservableOrderDocuments.Remove(doc);
