@@ -215,12 +215,12 @@ namespace Vodovoz
 
 			PerformanceHelper.StartPointsGroup("Главное окно");
 
-			var baseVersionChecker = new CheckBaseVersion(_applicationInfo, new ParametersService(Connection.ConnectionDB));
+			/*var baseVersionChecker = new CheckBaseVersion(_applicationInfo, new ParametersService(Connection.ConnectionDB));
 			if(baseVersionChecker.Check())
 			{
 				ServicesConfig.CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, baseVersionChecker.TextMessage, "Несовпадение версии");
 				return;
-			}
+			}*/
 			QSMain.CheckServer(null); // Проверяем настройки сервера
 
 			PerformanceHelper.AddTimePoint("Закончена загрузка параметров базы и проверка версии.");

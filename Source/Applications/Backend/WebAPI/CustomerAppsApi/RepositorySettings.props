@@ -1,5 +1,5 @@
 ﻿<Project>
   <PropertyGroup>
-    <ContainerRepository>customer-app.api</ContainerRepository>
+    <ContainerRepository>customer-app.api_5606</ContainerRepository>
   </PropertyGroup>
 </Project>

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
-		<UserSecretsId>dotnet-ExternalCounterpartyAssignNotifier-1631426C-332E-4A81-8DB4-360AE596EB2A</UserSecretsId>
+		<UserSecretsId>dotnet-CustomerAppNotifier-1631426C-332E-4A81-8DB4-360AE596EB2A</UserSecretsId>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<DockerfileContext>.</DockerfileContext>
 		<RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>

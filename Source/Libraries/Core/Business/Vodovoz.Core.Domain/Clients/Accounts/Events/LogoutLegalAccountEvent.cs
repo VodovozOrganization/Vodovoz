@@ -1,7 +1,8 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using QS.DomainModel.Entity;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 
 namespace Vodovoz.Core.Domain.Clients.Accounts.Events
@@ -20,10 +21,16 @@ namespace Vodovoz.Core.Domain.Clients.Accounts.Events
 	{
 		protected LogoutLegalAccountEvent() { }
 
-		private LogoutLegalAccountEvent(int counterpartyId, string email)
+		private LogoutLegalAccountEvent(int counterpartyId, string email, IEnumerable<Source> sources)
 		{
 			ErpCounterpartyId = counterpartyId;
-			Email = email;	
+			Email = email;
+
+			foreach(var source in sources)
+			{
+				var sentData = LogoutLegalAccountEventSourceSentData.Create(this, source);
+				SentData.Add(sentData);
+			}
 		}
 		
 		/// <summary>
@@ -42,25 +49,14 @@ namespace Vodovoz.Core.Domain.Clients.Accounts.Events
 		[Display(Name = "Электронная почта")]
 		public virtual string Email { get; set; }
 		/// <summary>
-		/// Доставлено
+		/// Данные по отправкам
 		/// </summary>
+		[Display(Name = "Данные по отправкам")]
 		[JsonIgnore]
-		[Display(Name = "Доставлено")]
-		public virtual bool Delivered { get; set; }
-		/// <summary>
-		/// Дата и время последней отправки
-		/// </summary>
-		[JsonIgnore]
-		[Display(Name = "Дата и время последней отправки")]
-		public virtual DateTime? LastSentDateTime { get; set; }
-		/// <summary>
-		/// Количество совершенных попыток
-		/// </summary>
-		[JsonIgnore]
-		[Display(Name = "Количество отправленных уведомлений")]
-		public virtual int SentEventsCount { get; set; }
+		public virtual IObservableList<LogoutLegalAccountEventSourceSentData> SentData { get; set; }
+			= new ObservableList<LogoutLegalAccountEventSourceSentData>();
 
-		public static LogoutLegalAccountEvent Create(int counterpartyId, string email) =>
-			new LogoutLegalAccountEvent(counterpartyId, email);
+		public static LogoutLegalAccountEvent Create(int counterpartyId, string email, IEnumerable<Source> sources) =>
+			new LogoutLegalAccountEvent(counterpartyId, email, sources);
 	}
 }

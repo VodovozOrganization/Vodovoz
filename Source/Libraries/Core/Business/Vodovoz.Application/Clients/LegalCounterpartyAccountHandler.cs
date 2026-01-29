@@ -1,4 +1,5 @@
 ﻿using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.Accounts;
 using Vodovoz.Core.Domain.Clients.Accounts.Events;
 using Vodovoz.Core.Domain.Contacts;
@@ -21,7 +22,7 @@ namespace Vodovoz.Application.Clients
 				return resultCheckEmail;
 			}
 
-			var @event = LogoutLegalAccountEvent.Create(account.LegalCounterpartyId, email.Address);
+			var @event = LogoutLegalAccountEvent.Create(account.LegalCounterpartyId, email.Address, WorkableSources.SourcesToSendLogoutEvents);
 			
 			uow.Save(@event);
 			uow.Delete(account);

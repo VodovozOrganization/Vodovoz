@@ -18,17 +18,11 @@ namespace Vodovoz.Core.Data.NHibernate.Clients.Accounts.Events
 			Map(x => x.Email)
 				.Column("email")
 				.Not.Nullable();
-			
-			Map(x => x.Delivered)
-				.Column("delivered")
-				.Not.Nullable();
-			
-			Map(x => x.LastSentDateTime)
-				.Column("last_sent_datetime");
-			
-			Map(x => x.SentEventsCount)
-				.Column("sent_events_count")
-				.Not.Nullable();
+
+			HasMany(x => x.SentData)
+				.KeyColumn("event_id")
+				.Cascade.AllDeleteOrphan()
+				.Inverse();
 		}
 	}
 }

@@ -281,7 +281,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomerAppsApi", "Applicat
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomerAppsApi.Library", "Libraries\Core\Backend\CustomerAppsApi.Library\CustomerAppsApi.Library.csproj", "{CBB51FD5-8455-4F8E-AE3A-42996B4E29C3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExternalCounterpartyAssignNotifier", "Applications\Backend\Workers\Docker\ExternalCounterpartyAssignNotifier\ExternalCounterpartyAssignNotifier.csproj", "{105DC24B-9955-4D68-8B1C-C2CD9F687DE8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomerAppNotifier", "Applications\Backend\Workers\Docker\CustomerAppNotifier\CustomerAppNotifier.csproj", "{105DC24B-9955-4D68-8B1C-C2CD9F687DE8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vodovoz.Presentation.ViewModels", "Applications\Desktop\Vodovoz.Presentation.ViewModels\Vodovoz.Presentation.ViewModels.csproj", "{396CC0BB-294B-44E0-8428-31677419B8BE}"
 EndProject

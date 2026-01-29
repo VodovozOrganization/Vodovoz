@@ -1,6 +1,4 @@
 ﻿using Autofac.Extensions.DependencyInjection;
-using ExternalCounterpartyAssignNotifier.Services;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -9,13 +7,15 @@ using QS.HistoryLog;
 using QS.Project.Core;
 using System;
 using System.Text.Json;
+using CustomerAppNotifier.Options;
+using CustomerAppNotifier.Services;
+using Microsoft.Extensions.Configuration;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Zabbix.Sender;
-using Notifier = ExternalCounterpartyAssignNotifier.Services.NotificationService;
 
-namespace ExternalCounterpartyAssignNotifier
+namespace CustomerAppNotifier
 {
 	public class Program
 	{
@@ -37,7 +37,7 @@ namespace ExternalCounterpartyAssignNotifier
 						logging.AddConfiguration(hostContext.Configuration.GetSection("NLog"));
 					})
 
-					.ConfigureZabbixSenderFromDataBase(nameof(ExternalCounterpartyAssignNotifier))
+					.ConfigureZabbixSenderFromDataBase(nameof(CustomerAppEventsSender))
 
 					.AddMappingAssemblies(
 						typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
@@ -54,15 +54,30 @@ namespace ExternalCounterpartyAssignNotifier
 					.AddInfrastructure()
 					.AddTrackedUoW()
 
-					.AddHostedService<ExternalCounterpartyAssignNotifier>()
+					.AddHostedService<CustomerAppEventsSender>()
 
 					.AddSingleton(provider => new JsonSerializerOptions
 					{
 						PropertyNamingPolicy = JsonNamingPolicy.CamelCase
 					})
-					.AddHttpClient<INotificationService, Notifier>(client =>
+					.AddHttpClient<INotificationService, Services.NotificationService>(client =>
 					{
 						client.Timeout = TimeSpan.FromSeconds(15);
+					});
+					
+					services.Configure<LogoutEventSendScheduleOptions>(settings =>
+					{
+						hostContext.Configuration.GetSection(LogoutEventSendScheduleOptions.Section).Bind(settings);
+					});
+					
+					services.Configure<MobileAppOptions>(settings =>
+					{
+						hostContext.Configuration.GetSection(MobileAppOptions.Section).Bind(settings);
+					});
+					
+					services.Configure<VodovozWebSiteOptions>(settings =>
+					{
+						hostContext.Configuration.GetSection(VodovozWebSiteOptions.Section).Bind(settings);
 					});
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);

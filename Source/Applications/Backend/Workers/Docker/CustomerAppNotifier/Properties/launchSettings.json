@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "ExternalCounterpartyAssignNotifier": {
+    "CustomerAppNotifier": {
       "commandName": "Project",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"
