@@ -59,6 +59,7 @@ using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Payments;
 using VodovozBusiness.Domain.Service;
 using Vodovoz.Core.Domain.BasicHandbooks;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Vodovoz
 {
@@ -934,12 +935,15 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<InventoryDocumentItem>()
 				.AddDeleteCascadeDependence(x => x.GoodsAccountingOperation);
 
+			DeleteConfig.AddHibernateDeleteInfo<SelfDeliveryDocumentItemTrueMarkProductCode>();
+
 			DeleteConfig.AddHibernateDeleteInfo<SelfDeliveryDocument>()
 				.AddDeleteDependence<SelfDeliveryDocumentItem>(x => x.Document)
 				.AddDeleteDependence<SelfDeliveryDocumentReturned>(x => x.Document);
 
 			DeleteConfig.AddHibernateDeleteInfo<SelfDeliveryDocumentItem>()
-				.AddDeleteCascadeDependence(x => x.GoodsAccountingOperation);
+				.AddDeleteCascadeDependence(x => x.GoodsAccountingOperation)
+				.AddClearDependence<SelfDeliveryDocumentItemTrueMarkProductCode>(x => x.SelfDeliveryDocumentItem);
 
 			DeleteConfig.AddHibernateDeleteInfo<SelfDeliveryDocumentReturned>()
 				.AddDeleteCascadeDependence(x => x.GoodsAccountingOperation);
