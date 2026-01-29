@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -164,9 +164,33 @@ namespace EdoDocumentFlowUpdater
 
 							if(item.Documents.Any())
 							{
-								mainDocument = item.Documents.First();
+								mainDocument = item.Documents.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.ExternalIdentifier));
+
+								if(mainDocument is null)
+								{
+									_logger.LogWarning(
+										"Исходящий ДО {DocflowId} со статусом {DocflowStatus} пришел без главного документа или с неизвестным документом. Возможно ручная отправка...",
+										item.Id,
+										item.Status);
+									continue;
+								}
+
 								container = _orderRepository.GetEdoContainerByMainDocumentId(uow, mainDocument.ExternalIdentifier);
 							}
+							else
+							{
+								_logger.LogWarning(
+									"Исходящий ДО {DocflowId} со статусом {DocflowStatus} пришел без документов",
+									item.Id,
+									item.Status);
+								continue;
+							}
+
+							_logger.LogInformation(
+								"Обрабатываем полученные изменения исходящего ДО {DocflowId} со статусом {DocflowStatus} транзакция {Transaction}",
+								item.Id,
+								item.Status,
+								mainDocument.TransactionCode);
 
 							if(container != null)
 							{
