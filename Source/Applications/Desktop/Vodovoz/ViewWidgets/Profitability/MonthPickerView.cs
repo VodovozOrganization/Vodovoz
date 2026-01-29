@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using Gtk;
 using Pango;
@@ -38,8 +38,8 @@ namespace Vodovoz.ViewWidgets.Profitability
 				.AddBinding(ViewModel, vm => vm.CanEditDateFromCalendar, w => w.Sensitive)
 				.InitializeFromSource();
 
-			entryDate.WidthRequest = 100;
 			entryDate.Binding
+				.AddBinding(ViewModel, vm => vm.DateEntryWidthRequest, w => w.WidthRequest)
 				.AddBinding(ViewModel, vm => vm.SelectedDateTitle, w => w.Text)
 				.InitializeFromSource();
 			entryDate.IsEditable = false;
