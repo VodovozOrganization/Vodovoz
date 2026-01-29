@@ -100,6 +100,7 @@ namespace CustomerAppsApi.Library
 				.AddScoped<IContactsRepository, ContactsRepository>()
 				.AddScoped<ICounterpartyService, CounterpartyService>()
 				.AddScoped<CustomerAppEdoService>()
+				.AddScoped<CustomerAppAccountService>()
 				.AddScoped<ICustomerAppEdoOperatorRepository, CustomerAppEdoOperatorRepository>()
 				.AddScoped<ILegalCounterpartyAccountHandler, LegalCounterpartyAccountHandler>()
 				;
