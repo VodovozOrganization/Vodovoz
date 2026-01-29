@@ -69,9 +69,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 						.ToHashSet();
 
 					var orderIdsByDocNumber = _uow.Session.Query<DocumentOrganizationCounter>()
-						.Where(d => d.Order != null)
-						.AsEnumerable()
-						.Where(d => normalizedDocumentNumbers.Contains(NormalizeDocumentNumber(d.DocumentNumber)))
+						.Where(d => normalizedDocumentNumbers.Contains(d.DocumentNumber) && d.Order != null)
 						.Select(d => d.Order.Id)
 						.ToList();
 
@@ -145,26 +143,26 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 		private string NormalizeDocumentNumber(string docNumber)
 		{
-			var russianToLatin = new Dictionary<char, char>
+			var latinToRussian = new Dictionary<char, char>
 			{
-				{ 'А', 'A' }, { 'а', 'a' },
-				{ 'В', 'B' }, { 'в', 'b' },
-				{ 'Е', 'E' }, { 'е', 'e' },
-				{ 'К', 'K' }, { 'к', 'k' },
-				{ 'М', 'M' }, { 'м', 'm' },
-				{ 'Н', 'H' }, { 'н', 'h' },
-				{ 'О', 'O' }, { 'о', 'o' },
-				{ 'Р', 'P' }, { 'р', 'p' },
-				{ 'С', 'C' }, { 'с', 'c' },
-				{ 'Т', 'T' }, { 'т', 't' },
-				{ 'У', 'Y' }, { 'у', 'y' },
-				{ 'Х', 'X' }, { 'х', 'x' }
+				{ 'A', 'А' }, { 'a', 'а' },
+				{ 'B', 'В' }, { 'b', 'в' },
+				{ 'E', 'Е' }, { 'e', 'е' },
+				{ 'K', 'К' }, { 'k', 'к' },
+				{ 'M', 'М' }, { 'm', 'м' },
+				{ 'H', 'Н' }, { 'h', 'н' },
+				{ 'O', 'О' }, { 'o', 'о' },
+				{ 'P', 'Р' }, { 'p', 'р' },
+				{ 'C', 'С' }, { 'c', 'с' },
+				{ 'T', 'Т' }, { 't', 'т' },
+				{ 'Y', 'У' }, { 'y', 'у' },
+				{ 'X', 'Х' }, { 'x', 'х' }
 			};
 
 			var result = new StringBuilder();
 			foreach(var c in docNumber)
 			{
-				result.Append(russianToLatin.ContainsKey(c) ? russianToLatin[c] : c);
+				result.Append(latinToRussian.ContainsKey(c) ? latinToRussian[c] : c);
 			}
 			return result.ToString().ToUpperInvariant();
 		}
