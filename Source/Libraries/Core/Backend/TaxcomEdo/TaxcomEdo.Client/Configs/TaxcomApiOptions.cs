@@ -54,7 +54,7 @@
 		/// </summary>
 		public string GetDocFlowRawDataEndPoint { get; set; }
 		/// <summary>
-		/// Эндпойнт плучениявсех изменений документооборотов
+		/// Эндпойнт получения всех изменений документооборотов
 		/// </summary>
 		public string GetDocFlowsUpdatesEndPoint { get; set; }
 		/// <summary>
