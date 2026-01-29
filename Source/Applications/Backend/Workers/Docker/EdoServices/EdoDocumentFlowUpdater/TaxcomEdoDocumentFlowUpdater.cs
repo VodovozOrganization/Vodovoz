@@ -389,11 +389,15 @@ namespace EdoDocumentFlowUpdater
 		private async Task SendAcceptingIngoingTaxcomDocflowWaitingForSignatureEvent(
 			EdoDocFlow docflow, string organization, CancellationToken cancellationToken)
 		{
+			var mainDocumentId = docflow.Documents
+				.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.ExternalIdentifier))?
+				.ExternalIdentifier;
+			
 			var @event = new AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent
 			{
 				DocFlowId = docflow.Id,
 				Organization = organization,
-				MainDocumentId = docflow.Documents.First().ExternalIdentifier,
+				MainDocumentId = mainDocumentId,
 				EdoAccount = _documentFlowUpdaterOptions.EdoAccount,
 			};
 			
