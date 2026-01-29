@@ -64,8 +64,12 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 				if(formattedDocumentNumbers.Any())
 				{
+					var normalizedDocumentNumbers = formattedDocumentNumbers
+						.Select(NormalizeDocumentNumber)
+						.ToHashSet();
+
 					var orderIdsByDocNumber = _uow.Session.Query<DocumentOrganizationCounter>()
-						.Where(d => formattedDocumentNumbers.Contains(d.DocumentNumber) && d.Order != null)
+						.Where(d => normalizedDocumentNumbers.Contains(d.DocumentNumber) && d.Order != null)
 						.Select(d => d.Order.Id)
 						.ToList();
 
@@ -125,7 +129,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 		private ISet<string> ParsePaymentPurpose(string paymentPurpose)
 		{
-			var pattern = @"([А-Я]{2,3}\d{2}-\d+|\d{6,7})";
+			var pattern = @"([А-ЯA-Za-zа-я]{2,3}\d{2}-\d+|\d{6,7})";
 			var uniqueDocumentNumbers = new HashSet<string>();
 			var matches = Regex.Matches(paymentPurpose, pattern);
 
@@ -135,6 +139,32 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			}
 
 			return uniqueDocumentNumbers;
+		}
+
+		private string NormalizeDocumentNumber(string docNumber)
+		{
+			var latinToRussian = new Dictionary<char, char>
+			{
+				{ 'A', 'А' }, { 'a', 'а' },
+				{ 'B', 'В' }, { 'b', 'в' },
+				{ 'E', 'Е' }, { 'e', 'е' },
+				{ 'K', 'К' }, { 'k', 'к' },
+				{ 'M', 'М' }, { 'm', 'м' },
+				{ 'H', 'Н' }, { 'h', 'н' },
+				{ 'O', 'О' }, { 'o', 'о' },
+				{ 'P', 'Р' }, { 'p', 'р' },
+				{ 'C', 'С' }, { 'c', 'с' },
+				{ 'T', 'Т' }, { 't', 'т' },
+				{ 'Y', 'У' }, { 'y', 'у' },
+				{ 'X', 'Х' }, { 'x', 'х' }
+			};
+
+			var result = new StringBuilder();
+			foreach(var c in docNumber)
+			{
+				result.Append(latinToRussian.ContainsKey(c) ? latinToRussian[c] : c);
+			}
+			return result.ToString().ToUpperInvariant();
 		}
 	}
 }
