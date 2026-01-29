@@ -77,7 +77,7 @@ namespace CustomerAppsApi.Controllers
 
 				return error.Code switch
 				{
-					"404" => NotFound(),
+					"404" => Problem(error.Message, statusCode: int.Parse(error.Code), title: "Not Found"),
 					"401" => Problem(error.Message, statusCode: int.Parse(error.Code), title: "Password is not correct"),
 					_ => Problem(error.Message)
 				};
@@ -142,7 +142,7 @@ namespace CustomerAppsApi.Controllers
 
 				return error.Code switch
 				{
-					"404" => NotFound(),
+					"404" => Problem(error.Message, statusCode: int.Parse(error.Code), title: "Not Found"),
 					"401" => Problem(error.Message, statusCode: int.Parse(error.Code), title: "Password is not correct"),
 					_ => Problem(error.Message)
 				};
