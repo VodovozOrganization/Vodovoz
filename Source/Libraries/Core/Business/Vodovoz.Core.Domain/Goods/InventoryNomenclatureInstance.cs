@@ -6,9 +6,8 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using Vodovoz.Core.Domain.Goods;
 
-namespace Vodovoz.Domain.Goods
+namespace Vodovoz.Core.Domain.Goods
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "экземпляры инвентарной номенклатуры",

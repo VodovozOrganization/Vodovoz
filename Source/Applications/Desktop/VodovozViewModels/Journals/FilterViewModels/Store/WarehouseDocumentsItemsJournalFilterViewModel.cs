@@ -32,6 +32,7 @@ using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.NHibernateProjections.Employees;
 using Vodovoz.Core.Domain.Warehouses.Documents;
 using Vodovoz.Core.Domain.Warehouses;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Store
 {

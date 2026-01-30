@@ -1,8 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
-using Vodovoz.Core.Domain.Employees;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.Core.Domain.Documents
 {
@@ -13,26 +18,38 @@ namespace Vodovoz.Core.Domain.Documents
 		NominativePlural = "документы самовывоза",
 		Nominative = "документ самовывоза")]
 	[HistoryTrace]
-	public class SelfDeliveryDocumentEntity : PropertyChangedBase, IDomainObject
+	public class SelfDeliveryDocumentEntity : Document, IDomainObject
 	{
-		private int _id;
+		private Warehouse _warehouse;
 		private OrderEntity _order;
-		EmployeeEntity _author;
+		private string _comment;
+		private IObservableList<SelfDeliveryDocumentItemEntity> _items = new ObservableList<SelfDeliveryDocumentItemEntity>();
+		private IList<SelfDeliveryDocumentReturned> _returnedItems = new List<SelfDeliveryDocumentReturned>();
 
 		/// <summary>
-		/// Идентификатор
+		/// <inheritdoc/>
 		/// </summary>
-		public virtual int Id
+		public override DateTime TimeStamp
 		{
-			get => _id;
-			set => SetField(ref _id, value);
-		}
+			get => base.TimeStamp;
+			set
+			{
+				base.TimeStamp = value;
 
-		[Display(Name = "Автор")]
-		public virtual EmployeeEntity Author
-		{
-			get => _author;
-			set => SetField(ref _author, value);
+				if(!NHibernate.NHibernateUtil.IsInitialized(Items))
+				{
+					return;
+				}
+
+				foreach(var item in Items)
+				{
+					if(item.GoodsAccountingOperation != null
+						&& item.GoodsAccountingOperation.OperationTime != TimeStamp)
+					{
+						item.GoodsAccountingOperation.OperationTime = TimeStamp;
+					}
+				}
+			}
 		}
 
 		/// <summary>
@@ -42,7 +59,56 @@ namespace Vodovoz.Core.Domain.Documents
 		public virtual OrderEntity Order
 		{
 			get => _order;
-			set => SetField(ref _order, value);
+			protected set => SetField(ref _order, value);
 		}
+
+		/// <summary>
+		/// Склад, на который оформляется самовывоз
+		/// </summary>
+		[Required(ErrorMessage = "Склад должен быть указан.")]
+		public virtual Warehouse Warehouse
+		{
+			get => _warehouse;
+			set => SetField(ref _warehouse, value);
+		}
+
+		/// <summary>
+		/// Комментарий к самовывозу
+		/// </summary>
+		[Display(Name = "Комментарий")]
+		public virtual string Comment
+		{
+			get => _comment;
+			set => SetField(ref _comment, value);
+		}
+
+		/// <summary>
+		/// Строки самовывоза
+		/// </summary>
+		[Display(Name = "Строки самовывоза")]
+		public virtual IObservableList<SelfDeliveryDocumentItemEntity> Items
+		{
+			get => _items;
+			set => SetField(ref _items, value);
+		}
+
+		/// <summary>
+		/// Строки возврата
+		/// </summary>
+		[Display(Name = "Строки возврата")]
+		public virtual IList<SelfDeliveryDocumentReturned> ReturnedItems
+		{
+			get => _returnedItems;
+			set => SetField(ref _returnedItems, value);
+		}
+
+		#region Не сохраняемые
+
+		/// <summary>
+		/// <inheritdoc/>
+		/// </summary>
+		public virtual string Title => $"Самовывоз №{Id} от {TimeStamp:d}";
+
+		#endregion
 	}
 }

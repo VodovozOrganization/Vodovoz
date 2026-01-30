@@ -24,8 +24,6 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Organizations;
-using Vodovoz.Domain.Suppliers;
 using Vodovoz.EntityRepositories.TrueMark;
 using VodovozBusiness.Domain.Goods;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -277,7 +275,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 					() => selfDeliveryDocumentItemAlias
 				)
 				.Left.JoinAlias(
-					() => selfDeliveryDocumentItemAlias.SelfDeliveryDocument,
+					() => selfDeliveryDocumentItemAlias.Document,
 					() => selfDeliveryDocumentAlias
 				)
 				.Where(() => selfDeliveryDocumentAlias.Order.Id == orderId)

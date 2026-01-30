@@ -14,6 +14,7 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.ViewModels.Dialog;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
@@ -529,7 +530,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		}
 
 		private async Task AddCodeToSelfDeliveryDocumentItemAsync(
-			SelfDeliveryDocumentItem selfDeliveryDocumentItem,
+			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem,
 			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
 			CancellationToken cancellationToken)
 		{
@@ -827,7 +828,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		private async Task DistributeCodeOnNextSelfDeliveryItemAsync(TrueMarkWaterIdentificationCode code,
 			CancellationToken cancellationToken)
 		{
-			SelfDeliveryDocumentItem nextSelfDeliveryItemToDistributeByGtin;
+			SelfDeliveryDocumentItemEntity nextSelfDeliveryItemToDistributeByGtin;
 
 			nextSelfDeliveryItemToDistributeByGtin = GetNextNotScannedDocumentItem(code);
 
@@ -843,7 +844,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			CodesScanProgressRows.First(x => x.NomenclatureName == nomenclatureName && x.LeftToScan > 0).LeftToScan--;
 		}
 
-		private SelfDeliveryDocumentItem GetNextNotScannedDocumentItem(TrueMarkWaterIdentificationCode code)
+		private SelfDeliveryDocumentItemEntity GetNextNotScannedDocumentItem(TrueMarkWaterIdentificationCode code)
 		{
 			var documentItem = _selfDeliveryDocument.Items?
 				.Where(x => x.Nomenclature.IsAccountableInTrueMark)

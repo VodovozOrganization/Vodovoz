@@ -1,4 +1,4 @@
-﻿using ClosedXML.Report;
+using ClosedXML.Report;
 using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
@@ -20,6 +20,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Core.Domain.Warehouses.Documents;
 using Vodovoz.Domain;
@@ -34,7 +37,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.NHibernateProjections.Documents;
@@ -93,7 +95,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				typeof(IncomingWaterMaterial),
 				typeof(MovementDocumentItem),
 				typeof(WriteOffDocumentItem),
-				typeof(SelfDeliveryDocumentItem),
+				typeof(SelfDeliveryDocumentItemEntity),
 				typeof(CarLoadDocumentItem),
 				typeof(CarUnloadDocumentItem),
 				typeof(InventoryDocumentItem),
@@ -255,7 +257,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.AddDocumentConfiguration<ITdiTab>(
 					() => null,
 					(node) => _gtkTabsOpener.OpenSelfDeliveryDocumentDlg(node.DocumentId),
-					(node) => node.EntityType == typeof(SelfDeliveryDocumentItem))
+					(node) => node.EntityType == typeof(SelfDeliveryDocumentItemEntity))
 					.FinishConfiguration();
 
 			RegisterEntity(GetQuerySelfDeliveryReturnedDocumentItem)
@@ -1138,12 +1140,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
-		private IQueryOver<SelfDeliveryDocumentItem> GetQuerySelfDeliveryDocumentItem(IUnitOfWork unitOfWork)
+		private IQueryOver<SelfDeliveryDocumentItemEntity> GetQuerySelfDeliveryDocumentItem(IUnitOfWork unitOfWork)
 		{
 			WarehouseDocumentsItemsJournalNode resultAlias = null;
 
 			SelfDeliveryDocument selfDeliveryDocumentAlias = null;
-			SelfDeliveryDocumentItem selfDeliveryDocumentItemAlias = null;
+			SelfDeliveryDocumentItemEntity selfDeliveryDocumentItemAlias = null;
 
 			Warehouse warehouseAlias = null;
 			Domain.Orders.Order orderAlias = null;
@@ -1240,7 +1242,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 					.Select(() => selfDeliveryDocumentAlias.TimeStamp).WithAlias(() => resultAlias.Date)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.Source)
 					.Select(() => DocumentType.SelfDeliveryDocument).WithAlias(() => resultAlias.DocumentTypeEnum)
-					.Select(() => typeof(SelfDeliveryDocumentItem)).WithAlias(() => resultAlias.EntityType)
+					.Select(() => typeof(SelfDeliveryDocumentItemEntity)).WithAlias(() => resultAlias.EntityType)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
 					.Select(() => warehouseAlias.Name).WithAlias(() => resultAlias.FromStorage)
 					.Select(() => warehouseAlias.Id).WithAlias(() => resultAlias.FromStorageId)
@@ -1271,7 +1273,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 			Counterparty counterpartyAlias = null;
 			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
-			Nomenclature nomenclatureAlias = null;
+			NomenclatureEntity nomenclatureAlias = null;
 			ProductGroup productGroupAlias = null;
 
 			var selfDeliveryReturnedQuery = unitOfWork.Session.QueryOver(() => selfDeliveryDocumentReturnedAlias)
@@ -2634,7 +2636,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Store
 				.TransformUsing(Transformers.AliasToBean<WarehouseDocumentsItemsJournalNode>());
 		}
 
-		private Conjunction GetIncludeExcludeNomenclatureRestriction(Nomenclature nomenclatureAlias)
+		private Conjunction GetIncludeExcludeNomenclatureRestriction(NomenclatureEntity nomenclatureAlias)
 		{
 			var restriction = Restrictions.Conjunction();
 
