@@ -1,4 +1,5 @@
-﻿using NHibernate.Linq;
+﻿using NHibernate;
+using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -224,6 +225,25 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 				.ToListAsync(cancellationToken);
 
 			return orderEdoRequests;
+		}
+
+		public TaxcomDocflow GetLastTaxcomDocflowByOrderId(IUnitOfWork uow, int orderId)
+		{
+			TaxcomDocflow taxcomDocflowAlias = null;
+			OrderEdoDocument outgoingEdoDocumentAlias = null;
+			EdoTask edoTaskAlias = null;
+			FormalEdoRequest formalEdoRequestAlias = null;
+
+			var taxcomDocflow = uow.Session.QueryOver(() => taxcomDocflowAlias)
+				.JoinEntityAlias(() => outgoingEdoDocumentAlias, () => outgoingEdoDocumentAlias.Id == taxcomDocflowAlias.EdoDocumentId)
+				.JoinEntityAlias(() => edoTaskAlias, () => edoTaskAlias.Id == outgoingEdoDocumentAlias.DocumentTaskId)
+				.JoinEntityAlias(() => formalEdoRequestAlias, () => formalEdoRequestAlias.Task.Id == edoTaskAlias.Id)
+				.Where(() => formalEdoRequestAlias.Order.Id == orderId)
+				.OrderByAlias(() => taxcomDocflowAlias.CreationTime).Desc
+				.Take(1)
+				.SingleOrDefault();
+
+			return taxcomDocflow;
 		}
 	}
 }

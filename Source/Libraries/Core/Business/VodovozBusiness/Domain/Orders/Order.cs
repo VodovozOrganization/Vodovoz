@@ -22,6 +22,7 @@ using System.Reflection;
 using System.Text;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Data.Repositories.Document;
+using Vodovoz.Core.Domain.Attributes;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
@@ -173,6 +174,7 @@ namespace Vodovoz.Domain.Orders
 
 		private Counterparty _client;
 		[Display(Name = "Клиент")]
+		[OrderTracker1c]
 		public virtual new Counterparty Client {
 			get => _client;
 			protected set => SetField(ref _client, value);
@@ -190,6 +192,7 @@ namespace Vodovoz.Domain.Orders
 
 		[Display(Name = "Дата доставки")]
 		[HistoryDateOnly]
+		[OrderTracker1c]
 		public virtual DateTime? DeliveryDate {
 			get => _deliveryDate;
 			protected set => SetField(ref _deliveryDate, value);
@@ -267,6 +270,7 @@ namespace Vodovoz.Domain.Orders
 		private CounterpartyContract contract;
 
 		[Display(Name = "Договор")]
+		[OrderTracker1c]
 		public virtual new CounterpartyContract Contract {
 			get => contract;
 			set => SetField(ref contract, value, () => Contract);
@@ -585,6 +589,7 @@ namespace Vodovoz.Domain.Orders
 		private IList<OrderItem> orderItems = new List<OrderItem>();
 
 		[Display(Name = "Строки заказа")]
+		[OrderTracker1c]
 		public virtual new IList<OrderItem> OrderItems {
 			get => orderItems;
 			set => SetField(ref orderItems, value, () => OrderItems);

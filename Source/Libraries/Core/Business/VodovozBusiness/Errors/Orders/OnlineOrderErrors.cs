@@ -81,7 +81,7 @@ namespace Vodovoz.Errors.Orders
 			new Error(
 				typeof(OnlineOrderErrors),
 				nameof(IsIncorrectOnlineOrderPromoSetItemsCount),
-				$"Переданный промонабор {promoSetTitle} содержит неверное количестов товаров");
+				$"Переданный промонабор {promoSetTitle} содержит неверное количество товаров");
 		
 		public static Error IsIncorrectOnlineOrderPromoSetForNewClientsCount() =>
 			new Error(
@@ -196,5 +196,11 @@ namespace Vodovoz.Errors.Orders
 				typeof(OnlineOrderErrors),
 				nameof(OnlineOrderContainsGoodsSoldFromSeveralOrganizations),
 				"Данный заказ содержит товары, продаваемые от нескольких организаций");
+		
+		public static Error IncorrectOrderSum(decimal producedOrderSum, decimal currentOrderSum) =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(IncorrectOrderSum),
+				$"Некорректная сумма заказа! Пришло {producedOrderSum}, а должно быть {currentOrderSum}");
 	}
 }
