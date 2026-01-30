@@ -2155,6 +2155,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Reports.BulkDebtMailingReportView.cs" />
     <Compile Include="Views\WageCalculation\WageDistrictLevelRatesAssigningView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.WageDistrictLevelRatesAssigningView.cs" />
+    <Compile Include="ViewWidgets\Reports\OrderDateFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Reports.OrderDateFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
