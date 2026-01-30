@@ -38,6 +38,7 @@
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\ExportTo1c\ExportTo1c.Library.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\FuelControl\FuelControl.Library\FuelControl.Library.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Vodovoz.Trackers\Vodovoz.Trackers.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\External\QSProjects\QS.Attachments\QS.Attachments.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj" />

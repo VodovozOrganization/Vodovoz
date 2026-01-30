@@ -3414,7 +3414,7 @@ namespace Vodovoz
 			}
 
 			var lastExport = _exportsOrderTo1cReporitory.Get(UoW, e => e.Order.Id == Entity.Id).SingleOrDefault();
-			var lastExportDate = lastExport?.ExportDate;
+			var lastExportDate = lastExport?.LastExportDate;
 			var lastChangeDate = lastExport?.LastOrderChangeDate;
 			var lastFiscalDocumentDate = _cashReceiptRepository.GetLastEdoFiscalDocumentByOrderId(UoW, Entity.Id)?.CreationTime;
 			var lastTaxcomDocflowDate = _edoDocflowRepository.GetLastTaxcomDocflowByOrderId(UoW, Entity.Id)?.CreationTime;
