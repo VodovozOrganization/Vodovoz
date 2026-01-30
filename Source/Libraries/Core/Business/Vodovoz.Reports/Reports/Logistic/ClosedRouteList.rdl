@@ -1653,7 +1653,7 @@
           <Textbox Name="Textbox6">
             <Height>10.00pt</Height>
             <Width>296.62pt</Width>
-            <Value>="Зарплата водителя: " + {driver_wage}</Value>
+            <Value>="Вознаграждение водителя: " + {driver_wage}</Value>
             <ZIndex>0</ZIndex>
             <Left>0.8pt</Left>
             <Top>4.00pt</Top>
@@ -1670,7 +1670,7 @@
           <Textbox Name="Textbox7">
             <Height>10.00pt</Height>
             <Width>183.63pt</Width>
-            <Value>="Зарплата экспедитора :" + {forwarder_wage}</Value>
+            <Value>="Вознаграждение экспедитора :" + {forwarder_wage}</Value>
             <ZIndex>0</ZIndex>
             <Left>0.8pt</Left>
             <Top>28.3pt</Top>
