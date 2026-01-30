@@ -45,6 +45,7 @@ namespace Vodovoz.Core.Data.Repositories.Document
 		/// <returns>Сущность (null если записи нет)</returns>
 		DocumentOrganizationCounter GetDocumentOrganizationCounterByOrder(
 			IUnitOfWork unitOfWork,
-			OrderEntity order);
+			OrderEntity order,
+			int organizationId);
 	}
 }

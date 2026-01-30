@@ -41,10 +41,10 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Document
 				.FirstOrDefaultAsync(cancellationToken);
 		}
 
-		public DocumentOrganizationCounter GetDocumentOrganizationCounterByOrder(IUnitOfWork unitOfWork, OrderEntity order)
+		public DocumentOrganizationCounter GetDocumentOrganizationCounterByOrder(IUnitOfWork unitOfWork, OrderEntity order, int organizationId)
 		{
 			return unitOfWork.Session.Query<DocumentOrganizationCounter>()
-				.FirstOrDefault(d => d.Order.Id == order.Id);
+				.FirstOrDefault(d => d.Order.Id == order.Id && d.Organization.Id == organizationId);
 		}
 	}
 }

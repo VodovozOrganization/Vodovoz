@@ -3818,7 +3818,10 @@ namespace Vodovoz.Domain.Orders
 
 			var needCreate = needed.ToList();
 			foreach(var doc in OrderDocuments.Where(d => d.Order?.Id == Id && docsOfOrder.Contains(d.Type)).ToList()) {
-				if(needed.Contains(doc.Type))
+				var needUpdateUpdNumber =
+					(doc.Type == OrderDocumentType.UPD || doc.Type == OrderDocumentType.SpecialUPD)
+					&& doc.DocumentOrganizationCounter?.Organization?.Id != Contract?.Organization?.Id;
+				if(needed.Contains(doc.Type) && !needUpdateUpdNumber)
 					needCreate.Remove(doc.Type);
 				else
 					ObservableOrderDocuments.Remove(doc);
@@ -3877,6 +3880,8 @@ namespace Vodovoz.Domain.Orders
 
 		private OrderDocument CreateDocumentOfOrder(OrderDocumentType type)
 		{
+			var contractOrganizationId = Contract?.Organization?.Id ?? 0;
+
 			OrderDocument newDoc;
 
 			switch(type)
@@ -3889,7 +3894,7 @@ namespace Vodovoz.Domain.Orders
 					break;
 				case OrderDocumentType.UPD:
 				{
-					var updOrderCounter = _documentOrganizationCounterRepository.GetDocumentOrganizationCounterByOrder(UoW, this);
+					var updOrderCounter = _documentOrganizationCounterRepository.GetDocumentOrganizationCounterByOrder(UoW, this, contractOrganizationId);
 					
 					var updCounter = _documentOrganizationCounterRepository
 						.GetMaxDocumentOrganizationCounterOnYear(UoW, DeliveryDate.Value, Contract?.Organization);
@@ -3924,7 +3929,7 @@ namespace Vodovoz.Domain.Orders
 			break;
 				case OrderDocumentType.SpecialUPD:
 				{
-					var updOrderCounter = _documentOrganizationCounterRepository.GetDocumentOrganizationCounterByOrder(UoW, this);
+					var updOrderCounter = _documentOrganizationCounterRepository.GetDocumentOrganizationCounterByOrder(UoW, this, contractOrganizationId);
 					
 					var updCounter = _documentOrganizationCounterRepository
 						.GetMaxDocumentOrganizationCounterOnYear(UoW, DeliveryDate.Value, Contract?.Organization);
