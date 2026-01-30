@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -196,7 +196,7 @@ FROM
 WHERE
         bwsfpi.bill_ws_for_payment_id = @bill_ws_for_payment_id
 Group By
-    nomenclature.id;</CommandText>
+    nomenclature.id, order_items.price;</CommandText>
         <QueryParameters>
           <QueryParameter Name="bill_ws_for_payment_id">
             <Value>=Parameters!bill_ws_for_payment_id</Value>
