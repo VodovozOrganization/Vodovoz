@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
 using NHibernate.Criterion;
 using QS.Dialog;
@@ -667,6 +667,9 @@ namespace Vodovoz.Domain.Logistic
 		#region readonly Свойства
 
 		public virtual string Title => string.Format("МЛ №{0}", Id);
+
+		public virtual bool HasAddressesOrAdditionalLoading =>
+			Addresses.Any() || AdditionalLoadingDocument != null;
 
 		public virtual decimal UniqueAddressCount => Addresses.Where(item => item.IsDelivered())
 			.Select(item => item.Order.DeliveryPoint.Id)
