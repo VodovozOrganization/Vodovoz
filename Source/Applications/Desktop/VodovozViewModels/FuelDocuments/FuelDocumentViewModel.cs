@@ -328,9 +328,9 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				return;
 			}
 
-            if(RouteList != null && !RouteList.Addresses.Any())
+            if(RouteList != null && !RouteList.HasAddressesOrAdditionalLoading)
             {
-                AbortOpening("Запрещено выдавать топливо для МЛ без адресов.");
+                AbortOpening("Запрещено выдавать топливо для МЛ без адресов или без погруженного запаса");
                 return;
             }
 
