@@ -36,5 +36,6 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Logistic
 				return string.Join(", ", insurersNames);
 			}
 		}
+		public string VIN { get; set; }
 	}
 }
