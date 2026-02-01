@@ -320,6 +320,14 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				query.Where(isUsedInDeliveryRestirctions);
 			}
 
+			if(!string.IsNullOrWhiteSpace(_filterViewModel.VinFilter))
+			{
+				query.Where(Restrictions.InsensitiveLike(
+					Projections.Property(() => carAlias.VIN), 
+					_filterViewModel.VinFilter, 
+					MatchMode.Anywhere));
+			}
+
 			query.Where(GetSearchCriterion(
 				() => carAlias.Id,
 				() => carManufacturerAlias.Name,
