@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.FilterViewModels.Employees;

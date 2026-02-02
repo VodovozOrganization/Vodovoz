@@ -1,7 +1,7 @@
 ﻿using QS.DomainModel.UoW;
 using QS.Project.Journal.EntitySelector;
 using QS.Project.Services;
-using Vodovoz.Domain.Logistic;
+using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 

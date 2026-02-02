@@ -130,6 +130,9 @@
     <Compile Include="Journals\JournalViewModels\Payments\BankAccountsMovementsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Payments\NotAllocatedCounterpartiesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Payments\ProfitCategoriesJournalViewModel.cs" />
+    <Compile Include="Logistic\DriverSchedule\DayScheduleNode.cs" />
+    <Compile Include="Logistic\DriverSchedule\DriverScheduleDatasetNode.cs" />
+    <Compile Include="Logistic\DriverSchedule\DriverScheduleViewModel.cs" />
     <Compile Include="Logistic\Reports\CarIsNotAtLineReport.UiRow.cs" />
     <Compile Include="Logistic\Reports\CarIsNotAtLineReport.UiRowType.cs" />
     <Compile Include="Logistic\SelfDeliveringOrderEditViewModel.cs" />
@@ -590,8 +593,6 @@
     <Compile Include="ViewModels\Counterparty\EdoOperatorViewModel.cs" />
     <Compile Include="Journals\FilterViewModels\Users\UsersJournalFilterViewModel.cs" />
     <Compile Include="ViewModels\Goods\NonReturnReasonViewModel.cs" />
-    <Compile Include="ViewModels\Logistic\DriverScheduleNode.cs" />
-    <Compile Include="ViewModels\Logistic\DriverScheduleViewModel.cs" />
     <Compile Include="ViewModels\Logistic\FastDeliveryOrderTransferFilterViewModel.cs" />
     <Compile Include="ViewModels\Logistic\FastDeliveryOrderTransferFilterViewModel.FastDeliveryOrderTransferMode.cs" />
     <Compile Include="ViewModels\Logistic\RegradingOfGoodsReasonViewModel.cs" />
