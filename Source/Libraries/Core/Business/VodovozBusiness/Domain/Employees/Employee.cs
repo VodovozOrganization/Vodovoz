@@ -25,6 +25,7 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
@@ -78,6 +79,7 @@ namespace Vodovoz.Domain.Employees
 		private IWageCalculationRepository _wageCalculationRepository;
 		private bool _canRecieveCounterpartyCalls;
 		private Phone _phoneForCounterpartyCalls;
+		private District _areaOfResidence;
 
 		public virtual IUnitOfWork UoW { set; get; }
 
@@ -184,6 +186,13 @@ namespace Vodovoz.Domain.Employees
 		{
 			get => _phoneForCounterpartyCalls;
 			set => SetField(ref _phoneForCounterpartyCalls, value);
+		}
+
+		[Display(Name = "Район проживания")]
+		public virtual District District
+		{
+			get => _areaOfResidence;
+			set => SetField(ref _areaOfResidence, value);
 		}
 
 		[Display(Name = "Документы")]
@@ -487,6 +496,12 @@ namespace Vodovoz.Domain.Employees
 			if(!string.IsNullOrWhiteSpace(Email) && !Regex.IsMatch(Email, emailRegEx))
 			{
 				yield return new ValidationResult($"Неверно указан email", new[] { nameof(Email) });
+			}
+
+			if(District != null && District.DistrictsSet.Status != DistrictsSetStatus.Active)
+			{
+				yield return new ValidationResult("Район проживания должен быть из активного набора районов",
+					new[] { nameof(District.Title) });
 			}
 		}
 

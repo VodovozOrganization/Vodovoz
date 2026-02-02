@@ -38,6 +38,8 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.FilterViewModels;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Services;
@@ -225,6 +227,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			SetPermissions();
 			CreateCommands();
 			InitializeSubdivisionEntryViewModel();
+			InitializeDistrictsSetEntryViewModel();
 
 			if(Entity.Id != 0 && !string.IsNullOrWhiteSpace(Entity.PhotoFileName))
 			{
@@ -292,6 +295,22 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			SubdivisionViewModel.IsEditable = CanEditEmployee && (CanManageOfficeWorkers || CanManageDriversAndForwarders);
 		}
 
+		private void InitializeDistrictsSetEntryViewModel()
+		{
+			var districtsSetsEntryViewModelBuilder =
+				new CommonEEVMBuilderFactory<Employee>(this, Entity, UoW, NavigationManager, LifetimeScope);
+
+			DistictsSetViewModel = districtsSetsEntryViewModelBuilder
+				.ForProperty(x => x.District)
+				.UseViewModelDialog<DistrictViewModel>()
+				.UseViewModelJournalAndAutocompleter<DistrictJournalViewModel, DistrictJournalFilterViewModel>(
+					filter =>
+					{
+						filter.Status = DistrictsSetStatus.Active;
+					})
+				.Finish();
+		}
+
 		private Employee EmployeeForCurrentUser => 
 			_employeeForCurrentUser ?? (_employeeForCurrentUser = _employeeRepository.GetEmployeeForCurrentUser(UoW));
 
@@ -321,6 +340,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
 		public IEmployeePostsJournalFactory EmployeePostsJournalFactory { get; }
 		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
+		public IEntityEntryViewModel DistictsSetViewModel { get; private set; }
 
 		public bool HasChanges
 		{
