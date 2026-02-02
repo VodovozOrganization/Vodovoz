@@ -1101,7 +1101,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox110">
-                      <Value>Страна происхожде-ния товара</Value>
+                      <Value>Страна происхожде-
+ния товара</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1373,7 +1374,9 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox101">
-                      <Value>имуществен-ных прав без налога - всего</Value>
+                      <Value>имуществен-
+ных прав без
+налога - всего</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1580,7 +1583,10 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox196">
-                      <Value>прослежива-емости, в коли-чественной еди-нице измерения товара</Value>
+                      <Value>прослежива-
+емости, в коли-
+чественной еди-
+нице измерения товара</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
