@@ -15,6 +15,7 @@ using Vodovoz;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Trackers;
 using VodovozHealthCheck;
 
 namespace CustomerOrdersApi
@@ -53,6 +54,7 @@ namespace CustomerOrdersApi
 				.AddDatabaseConnection()
 				.AddCore()
 				.AddTrackedUoW()
+				.AddOrderTrackerFor1c()
 				.AddBusiness(Configuration)
 				.AddDriverApiNotificationsSenders()
 				.AddInfrastructure()

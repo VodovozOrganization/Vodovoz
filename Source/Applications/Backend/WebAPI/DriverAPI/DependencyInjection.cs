@@ -27,6 +27,7 @@ using Vodovoz.Presentation.WebApi;
 using Vodovoz.Presentation.WebApi.BuildVersion;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.Trackers;
 using VodovozHealthCheck;
 
 namespace DriverAPI
@@ -69,6 +70,7 @@ namespace DriverAPI
 				.AddCore()
 				.AddInfrastructure()
 				.AddTrackedUoW()
+				.AddOrderTrackerFor1c()
 				;
 
 
