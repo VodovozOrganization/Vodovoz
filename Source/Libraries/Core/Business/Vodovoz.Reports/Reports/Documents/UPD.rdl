@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -2156,7 +2156,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox59">
-                      <Value>=Fields!item_price.Value * Fields!count.Value - Iif({count}&gt;0,{include_nds},0) - Fields!item_discount_money.Value</Value>
+                      <Value>=(Fields!item_price.Value * Fields!count.Value - Fields!item_discount_money.Value) / Fields!vat.Value</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2220,7 +2220,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox62">
-                      <Value>=Iif({count}&gt;0 AND {vat}&gt;1,{include_nds},0)</Value>
+                      <Value>=Iif({count}&gt;0 AND {vat}&gt;1, (Fields!item_price.Value * Fields!count.Value - Fields!item_discount_money.Value) * ({vat} - 1) / {vat}, 0)</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2422,7 +2422,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox68">
-                      <Value>=Sum(Fields!item_price.Value * Fields!count.Value - Iif({count}&gt;0,{include_nds},0) - Fields!item_discount_money.Value)</Value>
+                      <Value>=Sum((Fields!item_price.Value * Fields!count.Value - Fields!item_discount_money.Value) / Fields!vat.Value)</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2463,7 +2463,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox71">
-                      <Value>=Sum(Iif({count}&gt;0 AND {vat}&gt;1,{include_nds},0))</Value>
+                      <Value>=Sum(Iif({count}&gt;0 AND {vat}&gt;1, (Fields!item_price.Value * Fields!count.Value - Fields!item_discount_money.Value) * ({vat} - 1) / {vat}, 0))</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
