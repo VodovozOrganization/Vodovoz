@@ -362,7 +362,7 @@ namespace Vodovoz.Domain.Logistic
 					new[] { nameof(RouteList) });
 			}
 
-			if(Id == 0 && RouteList?.HasAddressesOrAdditionalLoading == false)
+			if(Id == 0 && RouteList?.HasAddressesOrAdditionalLoading != true)
 			{
 				yield return new ValidationResult(
 					"Запрещено выдавать топливо для МЛ без адресов или без погруженного запаса",
