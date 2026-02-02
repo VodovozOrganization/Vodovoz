@@ -1,6 +1,6 @@
 ﻿using QS.DomainModel.Entity;
-using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents.IncomingInvoices;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Documents.MovementDocuments.InstanceAccounting
 {

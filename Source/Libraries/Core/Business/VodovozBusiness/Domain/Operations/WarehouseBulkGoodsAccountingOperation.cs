@@ -1,8 +1,8 @@
 ﻿using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Warehouses;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Operations
 {
