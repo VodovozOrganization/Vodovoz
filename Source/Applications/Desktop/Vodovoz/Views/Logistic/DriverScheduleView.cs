@@ -1,7 +1,15 @@
 ﻿using Gamma.ColumnConfig;
+using Gamma.GtkWidgets;
+using Gamma.Widgets.Additions;
 using Gtk;
 using QS.Views.GtkUI;
+using System;
+using System.Linq.Expressions;
+using Vodovoz.Core.Domain.Logistics.Cars;
+using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule;
+using Vodovoz.ViewWidgets.Profitability;
+using VodovozBusiness.Nodes;
 
 namespace Vodovoz.Views.Logistic
 {
@@ -15,7 +23,51 @@ namespace Vodovoz.Views.Logistic
 
 		private void Configure()
 		{
-			ConfigureFixedColumnsTreeView();
+			leftsidepanel5.Panel = yvboxFilters;
+
+			var weekPicker = new MonthPickerView(ViewModel.WeekPickerViewModel);
+			weekPicker.Show();
+			ViewModel.WeekPickerViewModel.DateEntryWidthRequest = -1;
+			yhboxWeek.Add(weekPicker);
+
+			buttonSave.Binding
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.InitializeFromSource();
+			buttonSave.BindCommand(ViewModel.SaveCommand);
+
+			buttonCancel.Clicked += (sender, e) => ViewModel.Close(ViewModel.AskSaveOnClose, QS.Navigation.CloseSource.Cancel);
+			buttonCancel.BindCommand(ViewModel.CancelCommand);
+
+			ybuttonExport.BindCommand(ViewModel.ExportlCommand);
+			ybuttonInfo.BindCommand(ViewModel.InfoCommand);
+
+			enumcheckCarTypeOfUse.EnumType = typeof(CarTypeOfUse);
+			enumcheckCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Loader);
+			enumcheckCarTypeOfUse.AddEnumToHideList(CarTypeOfUse.Truck);
+			enumcheckCarTypeOfUse.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.SelectedCarTypeOfUse, w => w.SelectedValuesList, new EnumsListConverter<CarTypeOfUse>())
+				.InitializeFromSource();
+			enumcheckCarTypeOfUse.SelectAll();
+
+			enumcheckCarOwnType.EnumType = typeof(CarOwnType);
+			enumcheckCarOwnType.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.SelectedCarOwnTypes, w => w.SelectedValuesList, new EnumsListConverter<CarOwnType>())
+				.InitializeFromSource();
+			enumcheckCarOwnType.SelectAll();
+
+			ytreeviewSubdivison.ColumnsConfig = FluentColumnsConfig<DriverScheduleNode>.Create()
+				.AddColumn("Подразделение").AddTextRenderer(x => x.SubdivisionName)
+				.AddColumn("").AddToggleRenderer((x => x.Selected))
+				.Finish();
+
+			ytreeviewSubdivison.Binding
+				.AddBinding(ViewModel, x => x.Subdivisions, x => x.ItemsDataSource)
+				.InitializeFromSource();
+
+			ybuttonApplyFilters.BindCommand(ViewModel.ApplyFiltersCommand);
+
+			ConfigureFixedTreeView();
+			ConfigureDynamicTreeView();
 		}
 
 		private void ConfigureFixedColumnsTreeView()

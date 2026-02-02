@@ -43,6 +43,9 @@ namespace Vodovoz.Presentation.ViewModels.Widgets.Profitability
 			}
 		}
 
+		/// <summary>
+		/// Ширина виджета, по умолчанию 100
+		/// </summary>
 		public int DateEntryWidthRequest
 		{
 			get => _dateEntryWidthRequest;
