@@ -2,30 +2,29 @@
 using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
-using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Warehouses;
-using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 
-namespace VodovozBusiness.Domain.Documents
+namespace Vodovoz.Domain.Documents
 {
-	/// <summary>
-	/// Строка документа самовывоза
-	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки документа самовывоза",
 		Nominative = "строка документа самовывоза")]
 	[HistoryTrace]
-	public class SelfDeliveryDocumentItem : SelfDeliveryDocumentItemEntity
+	public class SelfDeliveryDocumentReturned : SelfDeliveryDocumentReturnedEntity
 	{
 		private SelfDeliveryDocument _document;
 		private Nomenclature _nomenclature;
 		private WarehouseBulkGoodsAccountingOperation _goodsAccountingOperation;
 
+		decimal _amountUnloaded;
+
 		/// <summary>
-		/// Документ самовывоза, к которому относится строка
+		/// Документ самовывоза
 		/// </summary>
 		[Display(Name = "Документ самовывоза")]
 		public virtual new SelfDeliveryDocument Document
@@ -53,62 +52,62 @@ namespace VodovozBusiness.Domain.Documents
 		}
 
 		/// <summary>
-		/// Операция передвижения товаров по складу
+		/// Операция передвижения товаров по складу (объемный учет)
 		/// </summary>
-		[Display(Name = "Операция передвижения товаров по складу")]
+		[Display(Name = "Операция передвижения товаров по складу (объемный учет)")]
 		public virtual WarehouseBulkGoodsAccountingOperation GoodsAccountingOperation
 		{
 			get => _goodsAccountingOperation;
 			set => SetField(ref _goodsAccountingOperation, value);
 		}
 
-		#region Функции
+		#region Не сохраняемые
 
 		public virtual string Title
 		{
 			get
 			{
-				string res = string.Empty;
-				if(GoodsAccountingOperation != null)
-				{
-					res = string.Format(
-						"[{2}] {0} - {1}",
-						GoodsAccountingOperation.Nomenclature.Name,
-						GoodsAccountingOperation.Nomenclature.Unit.MakeAmountShortStr(GoodsAccountingOperation.Amount),
-						Document.Title
-					);
-				}
-				else if(Nomenclature != null)
-				{
-					res = string.Format(
-						"[{2}] {0} - {1}",
-						Nomenclature.Name,
-						Nomenclature.Unit.MakeAmountShortStr(Amount),
-						Document.Title
-					);
-				}
-
-				return res;
+				return string.Format(
+					"{0} - {1}",
+					GoodsAccountingOperation.Nomenclature.Name,
+					GoodsAccountingOperation.Nomenclature.Unit.MakeAmountShortStr(GoodsAccountingOperation.Amount)
+				);
 			}
 		}
 
-		public virtual void CreateOperation(Warehouse warehouse, DateTime time)
+		#endregion
+
+		#region Функции
+
+		public virtual void CreateOperation(Warehouse warehouse, CounterpartyEntity counterparty, DateTime time)
 		{
 			GoodsAccountingOperation = new WarehouseBulkGoodsAccountingOperation
 			{
 				Warehouse = warehouse,
-				Amount = -Amount,
+				Amount = Amount,
+				OperationTime = time,
+				Nomenclature = Nomenclature,
+			};
+
+			CounterpartyMovementOperation = new CounterpartyMovementOperation
+			{
+				WriteoffCounterparty = counterparty,
+				Amount = Amount,
 				OperationTime = time,
 				Nomenclature = Nomenclature,
 			};
 		}
 
-		public virtual void UpdateOperation(Warehouse warehouse)
+		public virtual void UpdateOperation(Warehouse warehouse, CounterpartyEntity counterparty)
 		{
 			GoodsAccountingOperation.Warehouse = warehouse;
-			GoodsAccountingOperation.Amount = -Amount;
+			GoodsAccountingOperation.Amount = Amount;
+
+			CounterpartyMovementOperation.WriteoffCounterparty = counterparty;
+			CounterpartyMovementOperation.Amount = Amount;
 		}
 
 		#endregion
 	}
 }
+

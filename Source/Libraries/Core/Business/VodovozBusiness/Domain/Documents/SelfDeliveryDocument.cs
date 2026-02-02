@@ -44,6 +44,33 @@ namespace Vodovoz.Domain.Documents
 		private int _returnedTareBefore;
 		private int _tareToReturn;
 		private IObservableList<SelfDeliveryDocumentItem> _items = new ObservableList<SelfDeliveryDocumentItem>();
+		private IList<SelfDeliveryDocumentReturned> _returnedItems = new List<SelfDeliveryDocumentReturned>();
+
+		/// <summary>
+		/// <inheritdoc/>
+		/// </summary>
+		public override DateTime TimeStamp
+		{
+			get => base.TimeStamp;
+			set
+			{
+				base.TimeStamp = value;
+
+				if(!NHibernate.NHibernateUtil.IsInitialized(Items))
+				{
+					return;
+				}
+
+				foreach(var item in Items)
+				{
+					if(item.GoodsAccountingOperation != null
+						&& item.GoodsAccountingOperation.OperationTime != TimeStamp)
+					{
+						item.GoodsAccountingOperation.OperationTime = TimeStamp;
+					}
+				}
+			}
+		}
 
 		/// <summary>
 		/// Заказ, по которому оформляется самовывоз
@@ -63,6 +90,16 @@ namespace Vodovoz.Domain.Documents
 		{
 			get => _items;
 			set => SetField(ref _items, value);
+		}
+
+		/// <summary>
+		/// Строки возврата
+		/// </summary>
+		[Display(Name = "Строки возврата")]
+		public virtual IList<SelfDeliveryDocumentReturned> ReturnedItems
+		{
+			get => _returnedItems;
+			set => SetField(ref _returnedItems, value);
 		}
 
 		#region Не сохраняемые

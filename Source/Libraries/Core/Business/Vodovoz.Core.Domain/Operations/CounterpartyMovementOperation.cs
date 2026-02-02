@@ -20,7 +20,7 @@ namespace Vodovoz.Core.Domain.Operations
 		private CounterpartyEntity _incomingCounterparty;
 		private DeliveryPointEntity _incomingDeliveryPoint;
 		private CounterpartyEntity _writeoffCounterparty;
-		DeliveryPointEntity _writeoffDeliveryPoint;
+		private DeliveryPointEntity _writeoffDeliveryPoint;
 		private bool _forRent;
 
 		/// <summary>

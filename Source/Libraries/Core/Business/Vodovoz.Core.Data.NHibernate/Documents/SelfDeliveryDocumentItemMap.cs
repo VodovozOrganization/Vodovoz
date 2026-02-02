@@ -18,7 +18,6 @@ namespace Vodovoz.Core.Data.NHibernate.Documents
 			References(x => x.OrderItem).Column("order_item_id");
 			References(x => x.OrderEquipment).Column("order_equipment_id");
 			References(x => x.Nomenclature).Column("nomenclature_id");
-			References(x => x.GoodsAccountingOperation).Column("warehouse_movement_operation_id").Cascade.All();
 
 			HasMany(x => x.TrueMarkProductCodes)
 				.Cascade.SaveUpdate()

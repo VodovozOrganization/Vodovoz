@@ -1,11 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Warehouses;
 
@@ -24,33 +20,6 @@ namespace Vodovoz.Core.Domain.Documents
 		private OrderEntity _order;
 		private string _comment;
 		private IObservableList<SelfDeliveryDocumentItemEntity> _items = new ObservableList<SelfDeliveryDocumentItemEntity>();
-		private IList<SelfDeliveryDocumentReturned> _returnedItems = new List<SelfDeliveryDocumentReturned>();
-
-		/// <summary>
-		/// <inheritdoc/>
-		/// </summary>
-		public override DateTime TimeStamp
-		{
-			get => base.TimeStamp;
-			set
-			{
-				base.TimeStamp = value;
-
-				if(!NHibernate.NHibernateUtil.IsInitialized(Items))
-				{
-					return;
-				}
-
-				foreach(var item in Items)
-				{
-					if(item.GoodsAccountingOperation != null
-						&& item.GoodsAccountingOperation.OperationTime != TimeStamp)
-					{
-						item.GoodsAccountingOperation.OperationTime = TimeStamp;
-					}
-				}
-			}
-		}
 
 		/// <summary>
 		/// Заказ, к которому относится документ самовывоза
@@ -90,16 +59,6 @@ namespace Vodovoz.Core.Domain.Documents
 		{
 			get => _items;
 			set => SetField(ref _items, value);
-		}
-
-		/// <summary>
-		/// Строки возврата
-		/// </summary>
-		[Display(Name = "Строки возврата")]
-		public virtual IList<SelfDeliveryDocumentReturned> ReturnedItems
-		{
-			get => _returnedItems;
-			set => SetField(ref _returnedItems, value);
 		}
 
 		#region Не сохраняемые

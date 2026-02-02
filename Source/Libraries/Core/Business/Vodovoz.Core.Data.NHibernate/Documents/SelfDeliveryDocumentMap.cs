@@ -40,12 +40,6 @@ namespace Vodovoz.Core.Data.NHibernate.Documents
 				.AllDeleteOrphan()
 				.Inverse()
 				.KeyColumn("store_self_delivery_document_id");
-
-			HasMany(x => x.ReturnedItems)
-				.Cascade
-				.AllDeleteOrphan()
-				.Inverse()
-				.KeyColumn("store_self_delivery_document_id");
 		}
 	}
 }

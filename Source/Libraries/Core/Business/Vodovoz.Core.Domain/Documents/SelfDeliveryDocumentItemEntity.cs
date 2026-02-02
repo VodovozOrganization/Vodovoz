@@ -29,7 +29,6 @@ namespace Vodovoz.Core.Domain.Documents
 		private OrderEquipmentEntity _orderEquipment;
 		private decimal _amountInStock;
 		private decimal _amountUnloaded;
-		private WarehouseBulkGoodsAccountingOperation _goodsAccountingOperation;
 		private CounterpartyMovementOperation _counterpartyMovementOperation;
 
 		/// <summary>
@@ -74,15 +73,7 @@ namespace Vodovoz.Core.Domain.Documents
 		public virtual NomenclatureEntity Nomenclature
 		{
 			get => _nomenclature;
-			set
-			{
-				SetField(ref _nomenclature, value);
-
-				if(GoodsAccountingOperation != null && GoodsAccountingOperation.Nomenclature != _nomenclature)
-				{
-					GoodsAccountingOperation.Nomenclature = _nomenclature;
-				}
-			}
+			protected set => SetField(ref _nomenclature, value);
 		}
 
 		/// <summary>
@@ -146,16 +137,6 @@ namespace Vodovoz.Core.Domain.Documents
 		}
 
 		/// <summary>
-		/// Операция передвижения товаров по складу
-		/// </summary>
-		[Display(Name = "Операция передвижения товаров по складу")]
-		public virtual WarehouseBulkGoodsAccountingOperation GoodsAccountingOperation
-		{
-			get => _goodsAccountingOperation;
-			set => SetField(ref _goodsAccountingOperation, value);
-		}
-
-		/// <summary>
 		/// Операция передвижения товара контрагента
 		/// </summary>
 		[Display(Name = "Операция передвижения товара контрагента")]
@@ -163,55 +144,6 @@ namespace Vodovoz.Core.Domain.Documents
 		{
 			get => _counterpartyMovementOperation;
 			set => SetField(ref _counterpartyMovementOperation, value);
-		}
-
-		#endregion
-
-		#region Функции
-
-		public virtual string Title
-		{
-			get
-			{
-				string res = string.Empty;
-				if(GoodsAccountingOperation != null)
-				{
-					res = string.Format(
-						"[{2}] {0} - {1}",
-						GoodsAccountingOperation.Nomenclature.Name,
-						GoodsAccountingOperation.Nomenclature.Unit.MakeAmountShortStr(GoodsAccountingOperation.Amount),
-						Document.Title
-					);
-				}
-				else if(Nomenclature != null)
-				{
-					res = string.Format(
-						"[{2}] {0} - {1}",
-						Nomenclature.Name,
-						Nomenclature.Unit.MakeAmountShortStr(Amount),
-						Document.Title
-					);
-				}
-
-				return res;
-			}
-		}
-
-		public virtual void CreateOperation(Warehouse warehouse, DateTime time)
-		{
-			GoodsAccountingOperation = new WarehouseBulkGoodsAccountingOperation
-			{
-				Warehouse = warehouse,
-				Amount = -Amount,
-				OperationTime = time,
-				Nomenclature = Nomenclature,
-			};
-		}
-
-		public virtual void UpdateOperation(Warehouse warehouse)
-		{
-			GoodsAccountingOperation.Warehouse = warehouse;
-			GoodsAccountingOperation.Amount = -Amount;
 		}
 
 		#endregion

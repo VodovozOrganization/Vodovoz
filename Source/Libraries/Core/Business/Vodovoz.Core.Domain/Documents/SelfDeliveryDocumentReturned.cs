@@ -1,12 +1,9 @@
 ﻿using QS.DomainModel.Entity;
 using QS.HistoryLog;
-using System;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.Core.Domain.Documents
 {
@@ -14,7 +11,7 @@ namespace Vodovoz.Core.Domain.Documents
 		NominativePlural = "строки документа самовывоза",
 		Nominative = "строка документа самовывоза")]
 	[HistoryTrace]
-	public class SelfDeliveryDocumentReturned : PropertyChangedBase, IDomainObject
+	public class SelfDeliveryDocumentReturnedEntity : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
 		private SelfDeliveryDocumentEntity _document;
@@ -22,7 +19,6 @@ namespace Vodovoz.Core.Domain.Documents
 		private EquipmentEntity _equipment;
 		private decimal _amount;
 		private int? _actualCount;
-		private WarehouseBulkGoodsAccountingOperation _goodsAccountingOperation;
 		private CounterpartyMovementOperation _counterpartyMovementOperation;
 		private Direction? _direction;
 		private DirectionReason _directionReason;
@@ -47,7 +43,7 @@ namespace Vodovoz.Core.Domain.Documents
 		public virtual SelfDeliveryDocumentEntity Document
 		{
 			get => _document;
-			set => SetField(ref _document, value);
+			protected set => SetField(ref _document, value);
 		}
 
 		/// <summary>
@@ -57,15 +53,7 @@ namespace Vodovoz.Core.Domain.Documents
 		public virtual NomenclatureEntity Nomenclature
 		{
 			get => _nomenclature;
-			set
-			{
-				SetField(ref _nomenclature, value);
-
-				if(GoodsAccountingOperation != null && GoodsAccountingOperation.Nomenclature != _nomenclature)
-				{
-					GoodsAccountingOperation.Nomenclature = _nomenclature;
-				}
-			}
+			protected set => SetField(ref _nomenclature, value);
 		}
 
 		/// <summary>
@@ -104,16 +92,6 @@ namespace Vodovoz.Core.Domain.Documents
 		{
 			get => _actualCount;
 			set => SetField(ref _actualCount, value);
-		}
-
-		/// <summary>
-		/// Операция передвижения товаров по складу (объемный учет)
-		/// </summary>
-		[Display(Name = "Операция передвижения товаров по складу (объемный учет)")]
-		public virtual WarehouseBulkGoodsAccountingOperation GoodsAccountingOperation
-		{
-			get => _goodsAccountingOperation;
-			set => SetField(ref _goodsAccountingOperation, value);
 		}
 
 		/// <summary>
@@ -166,50 +144,6 @@ namespace Vodovoz.Core.Domain.Documents
 		{
 			get => _amountUnloaded;
 			set => SetField(ref _amountUnloaded, value);
-		}
-
-		public virtual string Title
-		{
-			get
-			{
-				return string.Format(
-					"{0} - {1}",
-					GoodsAccountingOperation.Nomenclature.Name,
-					GoodsAccountingOperation.Nomenclature.Unit.MakeAmountShortStr(GoodsAccountingOperation.Amount)
-				);
-			}
-		}
-
-		#endregion
-
-		#region Функции
-
-		public virtual void CreateOperation(Warehouse warehouse, CounterpartyEntity counterparty, DateTime time)
-		{
-			GoodsAccountingOperation = new WarehouseBulkGoodsAccountingOperation
-			{
-				Warehouse = warehouse,
-				Amount = Amount,
-				OperationTime = time,
-				Nomenclature = Nomenclature,
-			};
-
-			CounterpartyMovementOperation = new CounterpartyMovementOperation
-			{
-				WriteoffCounterparty = counterparty,
-				Amount = Amount,
-				OperationTime = time,
-				Nomenclature = Nomenclature,
-			};
-		}
-
-		public virtual void UpdateOperation(Warehouse warehouse, CounterpartyEntity counterparty)
-		{
-			GoodsAccountingOperation.Warehouse = warehouse;
-			GoodsAccountingOperation.Amount = Amount;
-
-			CounterpartyMovementOperation.WriteoffCounterparty = counterparty;
-			CounterpartyMovementOperation.Amount = Amount;
 		}
 
 		#endregion
