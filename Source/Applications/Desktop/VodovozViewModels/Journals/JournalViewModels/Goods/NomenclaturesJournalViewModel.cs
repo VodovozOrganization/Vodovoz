@@ -20,6 +20,7 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using NHibernate.Dialect.Function;
 using Vodovoz.Core.Domain.Operations;
+using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 {
