@@ -1,15 +1,23 @@
 ﻿using QS.DomainModel.Entity;
 using System;
+using Vodovoz.Core.Domain.Logistics.Cars;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 {
 	public class DayScheduleNode : PropertyChangedBase
 	{
 		private DateTime _date;
-		private string _morningAddress;
+		private CarEventType _carEventType;
+		private int _morningAddress;
 		private int _morningBottles;
-		private string _eveningAddress;
+		private int _eveningAddress;
 		private int _eveningBottles;
+
+		public virtual CarEventType CarEventType
+		{
+			get => _carEventType;
+			set => SetField(ref _carEventType, value);
+		}
 
 		public virtual DateTime Date
 		{
@@ -17,7 +25,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			set => SetField(ref _date, value);
 		}
 
-		public virtual string MorningAddress
+		public virtual int MorningAddress
 		{
 			get => _morningAddress;
 			set => SetField(ref _morningAddress, value);
@@ -29,7 +37,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			set => SetField(ref _morningBottles, value);
 		}
 
-		public virtual string EveningAddress
+		public virtual int EveningAddress
 		{
 			get => _eveningAddress;
 			set => SetField(ref _eveningAddress, value);

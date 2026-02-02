@@ -4,9 +4,73 @@ namespace Vodovoz.Views.Logistic
 {
 	public partial class DriverScheduleView
 	{
+		private global::Gamma.GtkWidgets.yVBox yvbox1;
+
+		private global::Gamma.GtkWidgets.yHBox yhboxHeader;
+
+		private global::Gamma.GtkWidgets.yHBox yhbox2;
+
+		private global::Gamma.GtkWidgets.yButton buttonSave;
+
+		private global::Gamma.GtkWidgets.yButton buttonCancel;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonExport;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonInfo;
+
+		private global::Gamma.GtkWidgets.yHBox yhboxBody;
+
+		private global::Gamma.GtkWidgets.yHBox yhbox4;
+
+		private global::Gamma.GtkWidgets.yVBox yvboxFilters;
+
+		private global::Gamma.GtkWidgets.yVBox yvbox2;
+
+		private global::Gamma.GtkWidgets.yHBox yhbox3;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelDatePicker;
+
+		private global::Gamma.GtkWidgets.yHBox yhboxWeek;
+
+		private global::Gamma.GtkWidgets.yVBox yvboxCarTypeOfUse;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelTypeOfUse;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow2;
+
+		private global::Gamma.Widgets.EnumCheckList enumcheckCarTypeOfUse;
+
+		private global::Gamma.GtkWidgets.yVBox yvboxCarOwnType;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelOwnType;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindowOwnType;
+
+		private global::Gamma.Widgets.EnumCheckList enumcheckCarOwnType;
+
+		private global::Gamma.GtkWidgets.yVBox yvboxSubdivison;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelSubdivision;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow3;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewSubdivison;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonApplyFilters;
+
+		private global::Gamma.Widgets.SidePanels.LeftSidePanel leftsidepanel5;
+
+		private global::Gtk.ScrolledWindow scrolledwindowDriverSchedule;
+
+		private global::Gtk.HBox hboxDriverSchedule;
+
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
-		private global::Gamma.GtkWidgets.yTreeView ytreeview1;
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewFixedPart;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewDynamicPart;
 
 		protected virtual void Build()
 		{
@@ -15,15 +79,306 @@ namespace Vodovoz.Views.Logistic
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Views.Logistic.DriverScheduleView";
 			// Container child Vodovoz.Views.Logistic.DriverScheduleView.Gtk.Container+ContainerChild
+			this.yvbox1 = new global::Gamma.GtkWidgets.yVBox();
+			this.yvbox1.Name = "yvbox1";
+			this.yvbox1.Spacing = 6;
+			// Container child yvbox1.Gtk.Box+BoxChild
+			this.yhboxHeader = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxHeader.Name = "yhboxHeader";
+			this.yhboxHeader.Spacing = 6;
+			// Container child yhboxHeader.Gtk.Box+BoxChild
+			this.yhbox2 = new global::Gamma.GtkWidgets.yHBox();
+			this.yhbox2.Name = "yhbox2";
+			this.yhbox2.Spacing = 6;
+			// Container child yhbox2.Gtk.Box+BoxChild
+			this.buttonSave = new global::Gamma.GtkWidgets.yButton();
+			this.buttonSave.CanFocus = true;
+			this.buttonSave.Name = "buttonSave";
+			this.buttonSave.UseUnderline = true;
+			this.buttonSave.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
+			global::Gtk.Image w1 = new global::Gtk.Image();
+			w1.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-save", global::Gtk.IconSize.Menu);
+			this.buttonSave.Image = w1;
+			this.yhbox2.Add(this.buttonSave);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.buttonSave]));
+			w2.Position = 0;
+			w2.Expand = false;
+			w2.Fill = false;
+			// Container child yhbox2.Gtk.Box+BoxChild
+			this.buttonCancel = new global::Gamma.GtkWidgets.yButton();
+			this.buttonCancel.CanFocus = true;
+			this.buttonCancel.Name = "buttonCancel";
+			this.buttonCancel.UseUnderline = true;
+			this.buttonCancel.Label = global::Mono.Unix.Catalog.GetString("Отменить");
+			global::Gtk.Image w3 = new global::Gtk.Image();
+			w3.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-revert-to-saved", global::Gtk.IconSize.Menu);
+			this.buttonCancel.Image = w3;
+			this.yhbox2.Add(this.buttonCancel);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.buttonCancel]));
+			w4.Position = 1;
+			w4.Expand = false;
+			w4.Fill = false;
+			// Container child yhbox2.Gtk.Box+BoxChild
+			this.ybuttonExport = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonExport.CanFocus = true;
+			this.ybuttonExport.Name = "ybuttonExport";
+			this.ybuttonExport.UseUnderline = true;
+			this.ybuttonExport.Label = global::Mono.Unix.Catalog.GetString("Экспорт в Excel");
+			this.yhbox2.Add(this.ybuttonExport);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.ybuttonExport]));
+			w5.Position = 2;
+			w5.Expand = false;
+			w5.Fill = false;
+			// Container child yhbox2.Gtk.Box+BoxChild
+			this.ybuttonInfo = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonInfo.TooltipMarkup = "Справка по работе с отчётом";
+			this.ybuttonInfo.CanFocus = true;
+			this.ybuttonInfo.Name = "ybuttonInfo";
+			this.ybuttonInfo.UseUnderline = true;
+			this.ybuttonInfo.Relief = ((global::Gtk.ReliefStyle)(1));
+			global::Gtk.Image w6 = new global::Gtk.Image();
+			w6.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-help", global::Gtk.IconSize.Menu);
+			this.ybuttonInfo.Image = w6;
+			this.yhbox2.Add(this.ybuttonInfo);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.ybuttonInfo]));
+			w7.PackType = ((global::Gtk.PackType)(1));
+			w7.Position = 3;
+			w7.Expand = false;
+			w7.Fill = false;
+			this.yhboxHeader.Add(this.yhbox2);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yhboxHeader[this.yhbox2]));
+			w8.Position = 0;
+			w8.Expand = false;
+			w8.Fill = false;
+			this.yvbox1.Add(this.yhboxHeader);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yvbox1[this.yhboxHeader]));
+			w9.Position = 0;
+			w9.Expand = false;
+			w9.Fill = false;
+			// Container child yvbox1.Gtk.Box+BoxChild
+			this.yhboxBody = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxBody.Name = "yhboxBody";
+			this.yhboxBody.Spacing = 6;
+			// Container child yhboxBody.Gtk.Box+BoxChild
+			this.yhbox4 = new global::Gamma.GtkWidgets.yHBox();
+			this.yhbox4.Name = "yhbox4";
+			this.yhbox4.Spacing = 6;
+			// Container child yhbox4.Gtk.Box+BoxChild
+			this.yvboxFilters = new global::Gamma.GtkWidgets.yVBox();
+			this.yvboxFilters.Name = "yvboxFilters";
+			this.yvboxFilters.Spacing = 6;
+			// Container child yvboxFilters.Gtk.Box+BoxChild
+			this.yvbox2 = new global::Gamma.GtkWidgets.yVBox();
+			this.yvbox2.Name = "yvbox2";
+			this.yvbox2.Spacing = 6;
+			// Container child yvbox2.Gtk.Box+BoxChild
+			this.yhbox3 = new global::Gamma.GtkWidgets.yHBox();
+			this.yhbox3.Name = "yhbox3";
+			this.yhbox3.Spacing = 6;
+			// Container child yhbox3.Gtk.Box+BoxChild
+			this.ylabelDatePicker = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelDatePicker.Name = "ylabelDatePicker";
+			this.ylabelDatePicker.LabelProp = global::Mono.Unix.Catalog.GetString("Период:");
+			this.yhbox3.Add(this.ylabelDatePicker);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yhbox3[this.ylabelDatePicker]));
+			w10.Position = 0;
+			w10.Expand = false;
+			w10.Fill = false;
+			// Container child yhbox3.Gtk.Box+BoxChild
+			this.yhboxWeek = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxWeek.Name = "yhboxWeek";
+			this.yhboxWeek.Spacing = 6;
+			this.yhbox3.Add(this.yhboxWeek);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.yhbox3[this.yhboxWeek]));
+			w11.Position = 1;
+			this.yvbox2.Add(this.yhbox3);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yvbox2[this.yhbox3]));
+			w12.Position = 0;
+			w12.Expand = false;
+			w12.Fill = false;
+			// Container child yvbox2.Gtk.Box+BoxChild
+			this.yvboxCarTypeOfUse = new global::Gamma.GtkWidgets.yVBox();
+			this.yvboxCarTypeOfUse.HeightRequest = 100;
+			this.yvboxCarTypeOfUse.Name = "yvboxCarTypeOfUse";
+			this.yvboxCarTypeOfUse.Spacing = 6;
+			// Container child yvboxCarTypeOfUse.Gtk.Box+BoxChild
+			this.ylabelTypeOfUse = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelTypeOfUse.Name = "ylabelTypeOfUse";
+			this.ylabelTypeOfUse.Xalign = 0F;
+			this.ylabelTypeOfUse.LabelProp = global::Mono.Unix.Catalog.GetString("Тип авто:");
+			this.yvboxCarTypeOfUse.Add(this.ylabelTypeOfUse);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yvboxCarTypeOfUse[this.ylabelTypeOfUse]));
+			w13.Position = 0;
+			w13.Expand = false;
+			w13.Fill = false;
+			// Container child yvboxCarTypeOfUse.Gtk.Box+BoxChild
+			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow2.WidthRequest = 235;
+			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
+			this.GtkScrolledWindow2.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow2.Gtk.Container+ContainerChild
+			global::Gtk.Viewport w14 = new global::Gtk.Viewport();
+			w14.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child GtkViewport2.Gtk.Container+ContainerChild
+			this.enumcheckCarTypeOfUse = new global::Gamma.Widgets.EnumCheckList();
+			this.enumcheckCarTypeOfUse.Name = "enumcheckCarTypeOfUse";
+			w14.Add(this.enumcheckCarTypeOfUse);
+			this.GtkScrolledWindow2.Add(w14);
+			this.yvboxCarTypeOfUse.Add(this.GtkScrolledWindow2);
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.yvboxCarTypeOfUse[this.GtkScrolledWindow2]));
+			w17.PackType = ((global::Gtk.PackType)(1));
+			w17.Position = 1;
+			this.yvbox2.Add(this.yvboxCarTypeOfUse);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.yvbox2[this.yvboxCarTypeOfUse]));
+			w18.Position = 1;
+			w18.Expand = false;
+			// Container child yvbox2.Gtk.Box+BoxChild
+			this.yvboxCarOwnType = new global::Gamma.GtkWidgets.yVBox();
+			this.yvboxCarOwnType.HeightRequest = 120;
+			this.yvboxCarOwnType.Name = "yvboxCarOwnType";
+			this.yvboxCarOwnType.Spacing = 6;
+			// Container child yvboxCarOwnType.Gtk.Box+BoxChild
+			this.ylabelOwnType = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelOwnType.Name = "ylabelOwnType";
+			this.ylabelOwnType.Xalign = 0F;
+			this.ylabelOwnType.LabelProp = global::Mono.Unix.Catalog.GetString("Принадлежность авто:");
+			this.yvboxCarOwnType.Add(this.ylabelOwnType);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.yvboxCarOwnType[this.ylabelOwnType]));
+			w19.Position = 0;
+			w19.Expand = false;
+			w19.Fill = false;
+			// Container child yvboxCarOwnType.Gtk.Box+BoxChild
+			this.GtkScrolledWindowOwnType = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindowOwnType.WidthRequest = 235;
+			this.GtkScrolledWindowOwnType.Name = "GtkScrolledWindowOwnType";
+			this.GtkScrolledWindowOwnType.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindowOwnType.Gtk.Container+ContainerChild
+			global::Gtk.Viewport w20 = new global::Gtk.Viewport();
+			w20.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child GtkViewport4.Gtk.Container+ContainerChild
+			this.enumcheckCarOwnType = new global::Gamma.Widgets.EnumCheckList();
+			this.enumcheckCarOwnType.Name = "enumcheckCarOwnType";
+			w20.Add(this.enumcheckCarOwnType);
+			this.GtkScrolledWindowOwnType.Add(w20);
+			this.yvboxCarOwnType.Add(this.GtkScrolledWindowOwnType);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.yvboxCarOwnType[this.GtkScrolledWindowOwnType]));
+			w23.Position = 1;
+			this.yvbox2.Add(this.yvboxCarOwnType);
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.yvbox2[this.yvboxCarOwnType]));
+			w24.Position = 2;
+			w24.Expand = false;
+			// Container child yvbox2.Gtk.Box+BoxChild
+			this.yvboxSubdivison = new global::Gamma.GtkWidgets.yVBox();
+			this.yvboxSubdivison.Name = "yvboxSubdivison";
+			this.yvboxSubdivison.Spacing = 6;
+			// Container child yvboxSubdivison.Gtk.Box+BoxChild
+			this.ylabelSubdivision = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelSubdivision.Name = "ylabelSubdivision";
+			this.ylabelSubdivision.Xalign = 0F;
+			this.ylabelSubdivision.LabelProp = global::Mono.Unix.Catalog.GetString("Подразделения:");
+			this.yvboxSubdivison.Add(this.ylabelSubdivision);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.yvboxSubdivison[this.ylabelSubdivision]));
+			w25.Position = 0;
+			w25.Expand = false;
+			w25.Fill = false;
+			// Container child yvboxSubdivison.Gtk.Box+BoxChild
+			this.GtkScrolledWindow3 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow3.Name = "GtkScrolledWindow3";
+			this.GtkScrolledWindow3.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
+			this.GtkScrolledWindow3.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow3.Gtk.Container+ContainerChild
+			this.ytreeviewSubdivison = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewSubdivison.CanFocus = true;
+			this.ytreeviewSubdivison.Name = "ytreeviewSubdivison";
+			this.ytreeviewSubdivison.HeadersVisible = false;
+			this.GtkScrolledWindow3.Add(this.ytreeviewSubdivison);
+			this.yvboxSubdivison.Add(this.GtkScrolledWindow3);
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.yvboxSubdivison[this.GtkScrolledWindow3]));
+			w27.Position = 1;
+			this.yvbox2.Add(this.yvboxSubdivison);
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.yvbox2[this.yvboxSubdivison]));
+			w28.Position = 3;
+			this.yvboxFilters.Add(this.yvbox2);
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.yvboxFilters[this.yvbox2]));
+			w29.Position = 0;
+			// Container child yvboxFilters.Gtk.Box+BoxChild
+			this.ybuttonApplyFilters = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonApplyFilters.CanFocus = true;
+			this.ybuttonApplyFilters.Name = "ybuttonApplyFilters";
+			this.ybuttonApplyFilters.UseUnderline = true;
+			this.ybuttonApplyFilters.Label = global::Mono.Unix.Catalog.GetString("Применить фильтры");
+			this.yvboxFilters.Add(this.ybuttonApplyFilters);
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.yvboxFilters[this.ybuttonApplyFilters]));
+			w30.Position = 2;
+			w30.Expand = false;
+			w30.Fill = false;
+			this.yhbox4.Add(this.yvboxFilters);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.yhbox4[this.yvboxFilters]));
+			w31.Position = 0;
+			w31.Expand = false;
+			w31.Fill = false;
+			// Container child yhbox4.Gtk.Box+BoxChild
+			this.leftsidepanel5 = new global::Gamma.Widgets.SidePanels.LeftSidePanel();
+			this.leftsidepanel5.Events = ((global::Gdk.EventMask)(256));
+			this.leftsidepanel5.Name = "leftsidepanel5";
+			this.leftsidepanel5.IsHided = false;
+			this.yhbox4.Add(this.leftsidepanel5);
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.yhbox4[this.leftsidepanel5]));
+			w32.Position = 1;
+			w32.Expand = false;
+			this.yhboxBody.Add(this.yhbox4);
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.yhboxBody[this.yhbox4]));
+			w33.Position = 0;
+			w33.Expand = false;
+			// Container child yhboxBody.Gtk.Box+BoxChild
+			this.scrolledwindowDriverSchedule = new global::Gtk.ScrolledWindow();
+			this.scrolledwindowDriverSchedule.CanFocus = true;
+			this.scrolledwindowDriverSchedule.Name = "scrolledwindowDriverSchedule";
+			this.scrolledwindowDriverSchedule.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
+			this.scrolledwindowDriverSchedule.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child scrolledwindowDriverSchedule.Gtk.Container+ContainerChild
+			global::Gtk.Viewport w34 = new global::Gtk.Viewport();
+			w34.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child GtkViewport.Gtk.Container+ContainerChild
+			this.hboxDriverSchedule = new global::Gtk.HBox();
+			this.hboxDriverSchedule.Name = "hboxDriverSchedule";
+			// Container child hboxDriverSchedule.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
+			this.GtkScrolledWindow.VscrollbarPolicy = ((global::Gtk.PolicyType)(2));
+			this.GtkScrolledWindow.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.ytreeview1 = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreeview1.CanFocus = true;
-			this.ytreeview1.Name = "ytreeview1";
-			this.GtkScrolledWindow.Add(this.ytreeview1);
-			this.Add(this.GtkScrolledWindow);
+			this.ytreeviewFixedPart = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewFixedPart.CanFocus = true;
+			this.ytreeviewFixedPart.Name = "ytreeviewFixedPart";
+			this.GtkScrolledWindow.Add(this.ytreeviewFixedPart);
+			this.hboxDriverSchedule.Add(this.GtkScrolledWindow);
+			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.hboxDriverSchedule[this.GtkScrolledWindow]));
+			w36.Position = 0;
+			w36.Expand = false;
+			// Container child hboxDriverSchedule.Gtk.Box+BoxChild
+			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
+			this.GtkScrolledWindow1.VscrollbarPolicy = ((global::Gtk.PolicyType)(2));
+			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
+			this.ytreeviewDynamicPart = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewDynamicPart.CanFocus = true;
+			this.ytreeviewDynamicPart.Name = "ytreeviewDynamicPart";
+			this.GtkScrolledWindow1.Add(this.ytreeviewDynamicPart);
+			this.hboxDriverSchedule.Add(this.GtkScrolledWindow1);
+			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.hboxDriverSchedule[this.GtkScrolledWindow1]));
+			w38.Position = 1;
+			w34.Add(this.hboxDriverSchedule);
+			this.scrolledwindowDriverSchedule.Add(w34);
+			this.yhboxBody.Add(this.scrolledwindowDriverSchedule);
+			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.yhboxBody[this.scrolledwindowDriverSchedule]));
+			w41.Position = 1;
+			this.yvbox1.Add(this.yhboxBody);
+			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.yvbox1[this.yhboxBody]));
+			w42.Position = 1;
+			this.Add(this.yvbox1);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
