@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.EntityRepositories.Orders;
 
 namespace ExportTo1c.Library.Repositories
 {
@@ -19,6 +20,7 @@ namespace ExportTo1c.Library.Repositories
 		/// <returns></returns>
 		Task<IList<OrderTo1cExport>> GetNewChangedOrdersForExportTo1cApi(
 		   IUnitOfWork unitOfWork,
+		   Export1cMode mode,
 		   CancellationToken cancellationToken);
 	}
 }

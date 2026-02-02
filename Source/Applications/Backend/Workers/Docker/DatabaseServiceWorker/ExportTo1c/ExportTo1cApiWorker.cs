@@ -1,16 +1,17 @@
-﻿using DatabaseServiceWorker.Options;
+using System;
+using System.Net.Http;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using DatabaseServiceWorker.Options;
 using ExportTo1c.Library.Factories;
 using ExportTo1c.Library.Repositories;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
-using System;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Infrastructure;
 using Vodovoz.Zabbix.Sender;
-
 
 namespace DatabaseServiceWorker.ExportTo1c
 {
@@ -18,7 +19,7 @@ namespace DatabaseServiceWorker.ExportTo1c
 	{
 		private readonly ILogger<ExportTo1cApiWorker> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly IApi1cChangesExporterFactory _api1cChangesExporterFactory;
+		private readonly IDataExporterFor1cFactory _dataExporterFor1cFactory;
 		private readonly IOrderTo1cExportRepository _orderTo1CExportRepository;
 		private readonly IZabbixSender _zabbixSender;
 		private readonly IHttpClientFactory _httpClientFactory;
@@ -27,7 +28,7 @@ namespace DatabaseServiceWorker.ExportTo1c
 		public ExportTo1cApiWorker(
 			ILogger<ExportTo1cApiWorker> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IApi1cChangesExporterFactory api1cChangesExporterFactory,
+			IDataExporterFor1cFactory dataExporterFor1cFactory,
 			IOrderTo1cExportRepository orderTo1CExportRepository,
 			IZabbixSender zabbixSender,
 			IHttpClientFactory httpClientFactory,
@@ -35,7 +36,7 @@ namespace DatabaseServiceWorker.ExportTo1c
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_api1cChangesExporterFactory = api1cChangesExporterFactory ?? throw new ArgumentNullException(nameof(api1cChangesExporterFactory));
+			_dataExporterFor1cFactory = dataExporterFor1cFactory ?? throw new ArgumentNullException(nameof(dataExporterFor1cFactory));
 			_orderTo1CExportRepository = orderTo1CExportRepository ?? throw new ArgumentNullException(nameof(orderTo1CExportRepository));
 			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
@@ -78,21 +79,22 @@ namespace DatabaseServiceWorker.ExportTo1c
 				return;
 			}
 
-			var changedOrders = await _orderTo1CExportRepository.GetNewChangedOrdersForExportTo1cApi(unitOfWork, cancellationToken);
+			var changedOrders = await _orderTo1CExportRepository
+				.GetNewChangedOrdersForExportTo1cApi(unitOfWork, Export1cMode.ComplexAutomation, cancellationToken);
 
 			if(changedOrders.Count == 0)
 			{
 				return;
 			}
 
-			var exporter = _api1cChangesExporterFactory.CreateApi1cDataExporter(nowExportDate);
+			var exporter = _dataExporterFor1cFactory.CreateApi1cChangesExporter(nowExportDate);
 
 			var xml = exporter.CreateXml(changedOrders, cancellationToken);
 
 			using var content = new StringContent(
-					xml.ToString(),
-					System.Text.Encoding.UTF8,
-					"application/xml");
+				xml.ToString(),
+				Encoding.UTF8,
+				"application/xml");
 
 			var httpClient = _httpClientFactory.CreateClient();
 
@@ -110,16 +112,14 @@ namespace DatabaseServiceWorker.ExportTo1c
 				return;
 			}
 
-			foreach(var changerOrder in changedOrders)
+			foreach(var changedOrder in changedOrders)
 			{
-				changerOrder.LastExportDate = nowExportDate;
-				changerOrder.Error = null;
-				await unitOfWork.SaveAsync(changerOrder, cancellationToken: cancellationToken);
+				changedOrder.LastExportDate = nowExportDate;
+				changedOrder.Error = null;
+				await unitOfWork.SaveAsync(changedOrder, cancellationToken: cancellationToken);
 			}
 
 			await unitOfWork.CommitAsync(cancellationToken);
-
-			return;
 		}
 
 		protected override TimeSpan Interval { get; }

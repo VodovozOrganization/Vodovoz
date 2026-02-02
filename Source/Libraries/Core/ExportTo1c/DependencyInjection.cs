@@ -10,13 +10,6 @@ namespace ExportTo1c.Library
 		public static IServiceCollection AddExportTo1c(this IServiceCollection services)
 		{
 			services.TryAddScoped<IDataExporterFor1cFactory, DataExporterFor1cFactory>();
-
-			return services;
-		}
-
-		public static IServiceCollection AddExportTo1cApi(this IServiceCollection services)
-		{
-			services.TryAddScoped<IApi1cChangesExporterFactory, Api1cChangesExporterFactory>();
 			services.TryAddScoped<IOrderTo1cExportRepository, OrderTo1cExportRepository>();
 			services.AddHttpClient();
 

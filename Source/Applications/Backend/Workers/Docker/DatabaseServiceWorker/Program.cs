@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using DatabaseServiceWorker.ExportTo1c;
 using DatabaseServiceWorker.PowerBiWorker;
@@ -76,14 +76,14 @@ namespace DatabaseServiceWorker
 						.AddHostedService<FuelTransactionsControlWorker>()
 						.AddFuelTransactionsControlWorker(hostContext)
 						.ConfigureZabbixSenderFromDataBase(nameof(FuelTransactionsControlWorker))
-
-						.AddHostedService<ExportTo1cWorker>()
+						
 						.AddExportTo1c()
+						
+						.AddHostedService<ExportTo1cWorker>()
 						.ConfigureExportTo1cWorker(hostContext)
 						.ConfigureZabbixSenderFromDataBase(nameof(ExportTo1cWorker))
 
 						.AddHostedService<ExportTo1cApiWorker>()
-						.AddExportTo1cApi()
 						.ConfigureExportTo1cApiWorker(hostContext)
 						.ConfigureZabbixSenderFromDataBase(nameof(ExportTo1cApiWorker))						
 																	

@@ -33,23 +33,23 @@ namespace ExportTo1c.Library.Exporters
 		}
 
 		private static IList<XElement> CreateCashlessExportRows(
-			IList<OrderTo1cExport> cnahgedOrders,
+			IList<OrderTo1cExport> ordersForExport,
 			CancellationToken cancellationToken)
 		{
 			var counterDocumentsTypes = new[] { OrderDocumentType.UPD, OrderDocumentType.SpecialUPD };
 
 			var ordersElements = new List<XElement>();
 
-			foreach(var cnahgedOrder in cnahgedOrders)
+			foreach(var orderForExport in ordersForExport)
 			{
-				var order = cnahgedOrder.Order;
+				var order = orderForExport.Order;
 
 				if(order == null)
 				{
 					var deletedOrderElement = new XElement
 					(
 						"Заказ",
-						new XAttribute("Номер", cnahgedOrder.OrderId),
+						new XAttribute("Номер", orderForExport.OrderId),
 						new XAttribute("Удалён", true)
 					);
 
