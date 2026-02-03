@@ -1,5 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Domain.Logistic;
@@ -27,6 +29,33 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		private int _eveningBottles;
 		private DateTime _lastModifiedDateTime;
 		private string _comment;
+
+		private IList<DayScheduleNode> _days = new List<DayScheduleNode>();
+
+		[Display(Name = "Дни расписания")]
+		public virtual IList<DayScheduleNode> Days
+		{
+			get => _days;
+			set => SetField(ref _days, value);
+		}
+
+		private Dictionary<int, DayScheduleNode> _daysByIndex = new Dictionary<int, DayScheduleNode>();
+
+		[Display(Name = "Дни расписания")]
+		public virtual Dictionary<int, DayScheduleNode> DaysByIndex
+		{
+			get => _daysByIndex;
+			set => SetField(ref _daysByIndex, value);
+		}
+
+		public void InitializeDays(List<DateTime> weekDays)
+		{
+			DaysByIndex = new Dictionary<int, DayScheduleNode>();
+			for(int i = 0; i < weekDays.Count && i < 7; i++)
+			{
+				DaysByIndex[i] = new DayScheduleNode { Date = weekDays[i], ParentNode = this };
+			}
+		}
 
 		#region Weekdays
 		// Monday
@@ -296,6 +325,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		}
 
 		#endregion
+
 
 		public virtual CarTypeOfUse CarTypeOfUse
 		{

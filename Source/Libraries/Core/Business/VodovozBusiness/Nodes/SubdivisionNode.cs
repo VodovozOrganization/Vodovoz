@@ -6,9 +6,9 @@ namespace VodovozBusiness.Nodes
 	/// <summary>
 	/// Переместить ноду во Views
 	/// </summary>
-	public class DriverScheduleNode : PropertyChangedBase
+	public class SubdivisionNode : PropertyChangedBase
 	{
-		public DriverScheduleNode(Subdivision subdivison)
+		public SubdivisionNode(Subdivision subdivison)
 		{
 			Subdivision = subdivison;
 		}

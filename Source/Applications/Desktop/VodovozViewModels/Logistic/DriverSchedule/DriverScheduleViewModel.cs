@@ -31,7 +31,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		private readonly IInteractiveService _interactiveService;
 		private readonly ICarEventSettings _carEventSettings;
 
-		private ObservableList<DriverScheduleNode> _subdivisions;
+		private ObservableList<SubdivisionNode> _subdivisions;
 		private IList<CarTypeOfUse> _selectedCarTypeOfUse;
 		private IList<CarOwnType> _selectedCarOwnTypes;
 		private IList<int> _selectedSubdivisionIds;
@@ -83,6 +83,47 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			});
 		}
 
+		public CarEventType GetDayCarEventType(object obj, int dayIndex)
+		{
+			if(obj is DriverScheduleDatasetNode node)
+			{
+
+				return node.DaysByIndex?.ContainsKey(dayIndex) == true
+					? node.DaysByIndex[dayIndex].CarEventType
+					: null;
+			}
+
+			return null;
+		}
+
+		/*public int? GetDayMorningAddress(object node, int dayIndex)
+		{
+			return node.DaysByIndex?.ContainsKey(dayIndex) == true
+				? node.DaysByIndex[dayIndex].MorningAddress
+				: 0;
+		}
+
+		public int? GetDayMorningBottles(object node, int dayIndex)
+		{
+			return node.DaysByIndex?.ContainsKey(dayIndex) == true
+				? node.DaysByIndex[dayIndex].MorningBottles
+				: 0;
+		}
+
+		public int? GetDayEveningAddress(object node, int dayIndex)
+		{
+			return node.DaysByIndex?.ContainsKey(dayIndex) == true
+				? node.DaysByIndex[dayIndex].EveningAddress
+				: 0;
+		}
+
+		public int? GetDayEveningBottles(object node, int dayIndex)
+		{
+			return node.DaysByIndex?.ContainsKey(dayIndex) == true
+				? node.DaysByIndex[dayIndex].EveningBottles
+				: 0;
+		}*/
+
 		public DatePickerViewModel WeekPickerViewModel { get; private set; }
 
 		public bool IsIdleState
@@ -121,7 +162,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			private set => SetField(ref _endDate, value);
 		}
 
-		public ObservableList<DriverScheduleNode> Subdivisions
+		public ObservableList<SubdivisionNode> Subdivisions
 		{
 			get => _subdivisions;
 			private set => SetField(ref _subdivisions, value);
@@ -182,8 +223,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 					.ToList()
 				: new List<Subdivision>();
 
-			Subdivisions = new ObservableList<DriverScheduleNode>(
-				subdivisions.Select(subdivision => new DriverScheduleNode(subdivision) { Selected = true })
+			Subdivisions = new ObservableList<SubdivisionNode>(
+				subdivisions.Select(subdivision => new SubdivisionNode(subdivision) { Selected = true })
 			);
 		}
 
