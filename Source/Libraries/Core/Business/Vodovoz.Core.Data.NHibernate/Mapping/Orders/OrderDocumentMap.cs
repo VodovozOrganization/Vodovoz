@@ -220,4 +220,14 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 			DiscriminatorValue("AssemblyList");
 		}
 	}
+
+	public class LetterOfDebtDocumentMap : SubclassMap<LetterOfDebtDocumentEntity>
+	{
+		public LetterOfDebtDocumentMap()
+		{
+			DiscriminatorValue("LetterOfDebt");
+			Map(x => x.HideSignature)
+				.Column("hide_signature");
+		}
+	}
 }
