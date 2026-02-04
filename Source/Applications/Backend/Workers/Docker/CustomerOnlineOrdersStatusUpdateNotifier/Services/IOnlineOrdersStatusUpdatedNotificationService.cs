@@ -5,6 +5,7 @@ using CustomerOnlineOrdersStatusUpdateNotifier.Contracts;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 
 namespace CustomerOnlineOrdersStatusUpdateNotifier.Services
@@ -14,7 +15,7 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier.Services
 		Task<int> NotifyOfOnlineOrderStatusUpdatedAsync(
 			OnlineOrderStatusUpdatedDto statusUpdatedDto, Source source, CancellationToken cancellationToken = default);
 
-		string GetPushText(IUnitOfWork unitOfWork, IOnlineOrderStatusUpdatedNotificationRepository notificationRepository,
-			ExternalOrderStatus externalOrderStatus, int orderId, TimeSpan? deliveryScheduleFrom);
+		string GetPushText(IUnitOfWork unitOfWork, IOnlineOrderStatusUpdatedNotificationRepository notificationRepository, ExternalOrderStatus externalOrderStatus,
+			int orderId, DeliverySchedule deliverySchedule);
 	}
 }

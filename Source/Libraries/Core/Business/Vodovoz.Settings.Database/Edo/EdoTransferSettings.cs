@@ -20,6 +20,9 @@ namespace Vodovoz.Settings.Database.Edo
 
 		public TimeSpan WaitingTransfersUpdateInterval => _settingsController
 			.GetValue<TimeSpan>("edo.transfer.waiting_transfers_update_interval");
+		
+		public int WaitingTransfersCountToProcess => _settingsController
+			.GetValue<int>("edo.transfer.waiting_transfers_count_to_process");
 
 		public TimeSpan ClosingDocumentsOrdersUpdSendInterval => _settingsController
 			.GetValue<TimeSpan>("edo.transfer.closing_documents_orders_upd_send_interval");

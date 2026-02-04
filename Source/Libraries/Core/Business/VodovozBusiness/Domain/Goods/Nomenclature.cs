@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Cash;
+using Vodovoz.Core.Domain.BasicHandbooks;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Users;
@@ -407,7 +409,7 @@ namespace Vodovoz.Domain.Goods
 				}
 			}
 		}
-
+		
 		#endregion Свойства
 
 		#region Свойства товаров для магазина
@@ -562,7 +564,7 @@ namespace Vodovoz.Domain.Goods
 		{
 			return ProductGroup != null && ProductGroup.IsBelongsOf(productGroup);
 		}
-
+		
 		#endregion Методы
 
 		#region IValidatableObject implementation
@@ -705,15 +707,7 @@ namespace Vodovoz.Domain.Goods
 						new[] { nameof(Code1c) });
 				}
 			}
-
-			if(DateTime.Now >= new DateTime(2019, 01, 01) && VAT == VAT.Vat18)
-			{
-				yield return new ValidationResult(
-					"С 01.01.2019 ставка НДС 20%",
-					new[] { nameof(VAT) }
-				);
-			}
-
+			
 			foreach(var purchasePrice in PurchasePrices)
 			{
 				foreach(var validationResult in purchasePrice.Validate(validationContext))
@@ -844,7 +838,31 @@ namespace Vodovoz.Domain.Goods
 					$"{string.Join(", ", groupGtinDuplicatesInGtins.Select(x => $"{x.Nomenclature.Name} : {x.GtinNumber}"))}",
 					new[] { nameof(Gtins) });
 			}
+			
+
+			if(!VatRateVersions.Any())
+			{
+				yield return new ValidationResult(
+						"У номенклатуры нет ниодной версии НДС!",
+						new[] { nameof(VatRateVersions) });
+			}
+			
+			if(VatRateVersions.Any(v => v.VatRate == null))
+			{
+				yield return new ValidationResult(
+					"У одной из версий НДС не выбрана ставка НДС!",
+					new[] { nameof(VatRateVersions) });
+			}
+
+			if(GetActualVatRateVersion(DateTime.Now) == null)
+			{
+				yield return new ValidationResult(
+					"У номенклатуры нет актуальной версии НДС!",
+					new[] { nameof(VatRateVersions) });
+			}
+
 		}
+		
 
 		#endregion IValidatableObject implementation
 

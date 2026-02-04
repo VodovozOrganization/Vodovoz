@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.UoW;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -81,6 +81,72 @@ namespace VodovozBusiness.Services.TrueMark
 			uow.Save(trueMarkCodeOrderItem);
 		}
 
+		public async Task<Result> IsTrueMarkCodeCanBeAddedToRouteListItem(
+			IUnitOfWork uow,
+			IEnumerable<TrueMarkWaterIdentificationCode> trueMarkWaterIdentificationCodes,
+			RouteListItem routeListAddress,
+			OrderItem orderItem,
+			CancellationToken cancellationToken,
+			bool isCheckForCodeChange = false
+		)
+		{
+			Result codeCheckingProcessResult;
+
+			foreach(var trueMarkWaterIdentificationCode in trueMarkWaterIdentificationCodes)
+			{
+				codeCheckingProcessResult = IsTrueMarkWaterIdentificationCodeValid(trueMarkWaterIdentificationCode);
+
+				if(codeCheckingProcessResult.IsFailure)
+				{
+					return codeCheckingProcessResult;
+				}
+
+				codeCheckingProcessResult = IsNomeclatureGtinContainsCodeGtin(trueMarkWaterIdentificationCode, orderItem.Nomenclature);
+
+				if(codeCheckingProcessResult.IsFailure)
+				{
+					return codeCheckingProcessResult;
+				}
+
+				if(!isCheckForCodeChange)
+				{
+					codeCheckingProcessResult = IsNotAllTrueMarkCodesAdded(uow, orderItem);
+
+					if(codeCheckingProcessResult.IsFailure)
+					{
+						return codeCheckingProcessResult;
+					}
+				}
+
+				codeCheckingProcessResult = IsCodeAlreadyAddedToRouteListItem(trueMarkWaterIdentificationCode, routeListAddress);
+
+				if(codeCheckingProcessResult.IsFailure)
+				{
+					return codeCheckingProcessResult;
+				}
+
+				codeCheckingProcessResult = _trueMarkWaterCodeService
+					.IsTrueMarkWaterIdentificationCodeNotUsed(trueMarkWaterIdentificationCode);
+
+				if(codeCheckingProcessResult.IsFailure)
+				{
+					return codeCheckingProcessResult;
+				}
+			}
+
+			codeCheckingProcessResult = await _trueMarkWaterCodeService.IsAllTrueMarkCodesValid(
+				trueMarkWaterIdentificationCodes, 
+				cancellationToken
+			);
+
+			if(codeCheckingProcessResult.IsFailure)
+			{
+				return codeCheckingProcessResult;
+			}
+
+			return Result.Success();
+		}
+
 		/// <inheritdoc/>
 		public async Task AddTrueMarkAnyCodeToRouteListItemNoCodeStatusCheck(
 			IUnitOfWork uow,
@@ -89,7 +155,8 @@ namespace VodovozBusiness.Services.TrueMark
 			TrueMarkAnyCode trueMarkAnyCode,
 			SourceProductCodeStatus status,
 			ProductCodeProblem problem,
-			CancellationToken cancellationToken = default)
+			CancellationToken cancellationToken = default
+		)
 		{
 			IEnumerable<TrueMarkAnyCode> trueMarkAnyCodes = trueMarkAnyCode.Match(
 				transportCode => trueMarkAnyCodes = transportCode.GetAllCodes(),

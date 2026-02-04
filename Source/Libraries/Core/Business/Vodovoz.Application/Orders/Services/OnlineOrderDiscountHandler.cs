@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.Errors;
@@ -11,6 +13,7 @@ using Vodovoz.Handlers;
 using Vodovoz.Nodes;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Extensions;
 
 namespace Vodovoz.Application.Orders.Services
 {
@@ -79,19 +82,21 @@ namespace Vodovoz.Application.Orders.Services
 					Vodovoz.Errors.Orders.DiscountErrors.PromoCode.UsageLimitHasBeenExceeded);
 			}
 
-			return TryApplyPromoCode(uow, discountPromoCode, onlineOrderPromoCode.Products);
+			return TryApplyPromoCode(uow, onlineOrderPromoCode.Source, discountPromoCode, onlineOrderPromoCode.Products);
 		}
 
 		private Result<IEnumerable<IOnlineOrderedProduct>> TryApplyPromoCode(
-			IUnitOfWork uow, DiscountReason discountPromoCode, IEnumerable<IOnlineOrderedProduct> products)
+			IUnitOfWork uow,
+			Source source,
+			DiscountReason discountPromoCode,
+			IEnumerable<IOnlineOrderedProduct> products)
 		{
 			var promoCodeApplied = false;
 			
 			foreach(var product in products)
 			{
-				product.ClearDiscount();
 				var nomenclature = uow.GetById<Nomenclature>(product.NomenclatureId);
-				promoCodeApplied |= TryApplyPromoCode(discountPromoCode, nomenclature, product);
+				promoCodeApplied |= TryApplyPromoCode(source, discountPromoCode, nomenclature, product);
 			}
 
 			return promoCodeApplied
@@ -100,16 +105,17 @@ namespace Vodovoz.Application.Orders.Services
 		}
 
 		private bool TryApplyPromoCode(
+			Source source,
 			DiscountReason discountPromoCode,
 			Nomenclature nomenclature,
 			IOnlineOrderedProduct product)
 		{
-			if(!CanApplicableDiscount(discountPromoCode, nomenclature, product))
+			if(!CanApplicableDiscount(source, discountPromoCode, nomenclature, product))
 			{
 				return false;
 			}
 
-			ApplyPromoCode(discountPromoCode, nomenclature, product);
+			ApplyPromoCode(discountPromoCode, product);
 
 			return true;
 		}
@@ -118,16 +124,23 @@ namespace Vodovoz.Application.Orders.Services
 		/// Применима ли скидка к позиции онлайн заказа
 		/// 1. Если номенклатура не известна - <c>false</c>
 		/// 2. Если это промо набор - <c>false</c>
-		/// 3. Если скидка не применима к данной позиции - <c>false</c>
-		/// 4. Если установлена большая скидка - <c>false</c>
-		/// 4. Если цена или количество товара 0 - <c>false</c>
+		/// 3. Если есть фикса - <c>false</c>
+		/// 4. Если у товара уже есть скидка - <c>false</c>
+		/// 5. Если скидка не применима к данной позиции - <c>false</c>
+		/// 6. Если товар имеет скидку для продажи онлайн - <c>false</c>
+		/// 7. Если цена или количество товара 0 - <c>false</c>
 		/// Иначе - <c>true</c>
 		/// </summary>
+		/// <param name="source">источник</param>
 		/// <param name="discountPromoCode"></param>
 		/// <param name="nomenclature"></param>
 		/// <param name="product"></param>
 		/// <returns></returns>
-		private bool CanApplicableDiscount(DiscountReason discountPromoCode, Nomenclature nomenclature, IOnlineOrderedProduct product)
+		private bool CanApplicableDiscount(
+			Source source,
+			DiscountReason discountPromoCode,
+			Nomenclature nomenclature,
+			IOnlineOrderedProduct product)
 		{
 			if(nomenclature is null)
 			{
@@ -141,24 +154,26 @@ namespace Vodovoz.Application.Orders.Services
 
 			if(product.IsFixedPrice)
 			{
-				var nomenclaturePrice = nomenclature.GetPrice(product.Count);
+				return false;
+			}
 
-				if(nomenclaturePrice == 0)
-				{
-					return false;
-				}
-				
-				var withDiscountPromoCode = discountPromoCode.ValueType == DiscountUnits.money
-					? Math.Round(nomenclaturePrice * product.Count - discountPromoCode.Value / product.Count, 2)
-					: Math.Round(nomenclaturePrice * (100 - discountPromoCode.Value) / 100, 2);
-
-				if(product.PriceWithDiscount < withDiscountPromoCode)
-				{
-					return false;
-				}
+			if(product.Discount > 0)
+			{
+				return false;
 			}
 
 			if(!IsApplicableDiscount(discountPromoCode, nomenclature))
+			{
+				return false;
+			}
+
+			var onlineParameters = nomenclature.NomenclatureOnlineParameters
+				.FirstOrDefault(x => x.Type == source.ToGoodsOnlineParameterType());
+
+			var onlinePrice = onlineParameters?.GetOnlinePrice(product.Count);
+
+			if(onlineParameters?.NomenclatureOnlineDiscount != null
+				|| onlinePrice?.PriceWithoutDiscount != null)
 			{
 				return false;
 			}
@@ -166,16 +181,10 @@ namespace Vodovoz.Application.Orders.Services
 			return product.Count * product.Price != 0;
 		}
 
-		private void ApplyPromoCode(DiscountReason discountPromoCode, Nomenclature nomenclature, IOnlineOrderedProduct product)
+		private void ApplyPromoCode(DiscountReason discountPromoCode, IOnlineOrderedProduct product)
 		{
 			product.DiscountReasonId = discountPromoCode.Id;
 			product.IsDiscountInMoney = discountPromoCode.ValueType == DiscountUnits.money;
-
-			if(product.IsFixedPrice)
-			{
-				product.Price = nomenclature.GetPrice(product.Count);
-				product.IsFixedPrice = false;
-			}
 
 			if(!product.IsDiscountInMoney)
 			{

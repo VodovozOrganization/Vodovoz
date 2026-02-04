@@ -47,7 +47,7 @@ namespace VodovozBusiness.Models.TrueMark
 					using(var uow = UowFactory.CreateWithoutRoot($"Создание чека(ов) по заказу {orderId}"))
 					{
 						task = uow.GetAll<BulkAccountingEdoTask>()
-							.FirstOrDefault(x => x.OrderEdoRequest.Order.Id == orderId
+							.FirstOrDefault(x => x.FormalEdoRequest.Order.Id == orderId
 								&& x.Status == EdoTaskStatus.New);
 
 						if(task is null)

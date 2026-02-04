@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
+using Vodovoz.Core.Domain.BasicHandbooks;
 using Vodovoz.EntityRepositories.RentPackages;
 
 namespace Vodovoz.Domain.Goods.Rent

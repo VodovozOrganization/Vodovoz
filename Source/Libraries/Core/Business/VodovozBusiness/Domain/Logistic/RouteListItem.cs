@@ -9,6 +9,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.BasicHandbooks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Logistics;
@@ -654,7 +655,7 @@ namespace Vodovoz.Domain.Logistic
 			switch(status)
 			{
 				case RouteListItemStatus.Canceled:
-					Order.ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
+					Order.CancelDelivery(uow, callTaskWorker);
 					SetOrderActualCountsToZeroOnCanceled();
 					break;
 				case RouteListItemStatus.Completed:
@@ -674,7 +675,7 @@ namespace Vodovoz.Domain.Logistic
 					onlineOrderService.NotifyClientOfOnlineOrderStatusChange(uow, Order.OnlineOrder);
 					break;
 				case RouteListItemStatus.Overdue:
-					Order.ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
+					Order.OverdueDelivery(uow, callTaskWorker);
 					SetOrderActualCountsToZeroOnCanceled();
 					break;
 			}

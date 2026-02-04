@@ -776,7 +776,7 @@
                         <PaddingTop>0pt</PaddingTop>
                         <PaddingBottom>0pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -957,7 +957,7 @@
                         <PaddingRight>1pt</PaddingRight>
                         <Format>#,##0.00</Format>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1026,7 +1026,7 @@
                         <Format>0</Format>
                         <PaddingLeft>0pt</PaddingLeft>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1049,7 +1049,7 @@
                         <Format>0</Format>
                         <PaddingLeft>0pt</PaddingLeft>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1072,7 +1072,7 @@
                         <Format>0</Format>
                         <PaddingLeft>0pt</PaddingLeft>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1110,7 +1110,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     o.id AS order_id,
@@ -1160,6 +1160,7 @@ WHERE
       o.order_payment_status != 'Paid'
   AND o.payment_type = 'Cashless'
   AND c.person_type = 'legal'
+  AND (SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money) FROM order_items oi WHERE oi.order_id = o.id) &gt; 0
   
   AND (@start_date = '' OR o.delivery_date &gt;= @start_date)
       AND (@end_date = '' OR o.delivery_date &lt;= @end_date)
@@ -1199,7 +1200,12 @@ WHERE
       AND (
              (0 IN (@SalesManager_include) OR (c.sales_manager_id IN (@SalesManager_include)))
                 AND (c.sales_manager_id IS NULL OR NOT (c.sales_manager_id IN (@SalesManager_exclude)))
-      )  
+      )
+      AND
+      (
+          ('0' IN (@RevenueStatus_include) OR (c.revenue_status IN (@RevenueStatus_include)))
+          AND (NOT (c.revenue_status IN (@RevenueStatus_exclude)) OR c.revenue_status IS NULL)
+      )      
       AND (
       	@is_closing_documents IS NULL 
       	OR (@is_closing_documents = FALSE AND (o.delivery_schedule_id != @closing_document_delivery_schedule_id OR o.delivery_schedule_id IS NULL)) 
@@ -1211,10 +1217,7 @@ WHERE
       	OR (@is_expired = FALSE AND DATEDIFF(NOW(), o.delivery_date) - CAST(c.delay_days_for_buyers AS INT) &lt;= 0)
       	OR (@is_expired = TRUE AND DATEDIFF(NOW(), o.delivery_date) - CAST(c.delay_days_for_buyers AS INT) &gt; 0)
       )
-      AND (@is_liquidated IS NULL OR c.is_liquidating = @is_liquidated)
-      AND (@is_tender IS NULL OR (@is_tender = TRUE AND ccf.name = 'Тендер') OR (@is_tender = FALSE AND ccf.name != 'Тендер'))
-  
-  AND (SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money) FROM order_items oi WHERE oi.order_id = o.id) &gt; 0
+      AND (@is_tender IS NULL OR (@is_tender = TRUE AND ccf.id = GET_PARAMETER('counterparty_from_tender_id')) OR (@is_tender = FALSE AND (ccf.id IS NULL OR ccf.id != GET_PARAMETER('counterparty_from_tender_id'))))
 ORDER BY IF(@order_by_date, o.delivery_date, true) DESC,
          IF(!@order_by_date, order_sum - partial_order_sum, false) DESC
 ;</CommandText>
@@ -1279,18 +1282,21 @@ ORDER BY IF(@order_by_date, o.delivery_date, true) DESC,
           <QueryParameter Name="is_expired">
             <Value>={?is_expired}</Value>
           </QueryParameter>
-          <QueryParameter Name="is_liquidated">
-            <Value>={?is_liquidated}</Value>
-          </QueryParameter>
           <QueryParameter Name="order_by_date">
             <Value>={?order_by_date}</Value>
           </QueryParameter>
           <QueryParameter Name="is_tender">
             <Value>={?is_tender}</Value>
           </QueryParameter>
+          <QueryParameter Name="RevenueStatus_include">
+            <Value>={?RevenueStatus_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="RevenueStatus_exclude">
+            <Value>={?RevenueStatus_exclude}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.Int32</TypeName>
@@ -1353,7 +1359,7 @@ ORDER BY IF(@order_by_date, o.delivery_date, true) DESC,
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
@@ -1494,13 +1500,6 @@ ORDER BY IF(@order_by_date, o.delivery_date, true) DESC,
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="is_liquidated">
-      <DataType>Boolean</DataType>
-      <Nullable>true</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
-    </ReportParameter>
     <ReportParameter Name="is_tender">
       <DataType>Boolean</DataType>
       <Nullable>true</Nullable>
@@ -1517,6 +1516,20 @@ ORDER BY IF(@order_by_date, o.delivery_date, true) DESC,
     </ReportParameter>
     <ReportParameter Name="SalesManager_exclude">
       <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RevenueStatus_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RevenueStatus_exclude">
+      <DataType>String</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>

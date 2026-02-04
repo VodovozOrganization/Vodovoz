@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.Utilities;
 using QS.Commands;
@@ -298,18 +298,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			return base.Save(close);
 		}
 
-		protected override bool BeforeSave()
-		{
-			if(Entity.Organization != null)
-			{
-				return true;
-			}
-
-			ShowErrorMessage("Необходимо выбрать организацию для сохранения счета");
-				
-			return false;
-		}
-
 		private void InitializeCommands()
 		{
 			AddForSaleCommand = new DelegateCommand(
@@ -375,12 +363,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				() =>
 				{
 					var whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
-
-					if(Entity.Organization == null)
-					{
-						ShowErrorMessage("Необходимо выбрать организацию для сохранения счета");
-						return;
-					}
 					
 					if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(OrderWithoutShipmentForAdvancePayment), whatToPrint))
 					{

@@ -1,3 +1,4 @@
+﻿using CustomerOrdersApi.HealthCheck;
 using CustomerOrdersApi.Library;
 using DriverApi.Notifications.Client;
 using MassTransit;
@@ -14,6 +15,7 @@ using Vodovoz;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
+using VodovozHealthCheck;
 
 namespace CustomerOrdersApi
 {
@@ -64,6 +66,8 @@ namespace CustomerOrdersApi
 				.AddMessageTransportSettings()
 				.AddMassTransit(busConf => busConf.ConfigureRabbitMq())
 				.AddHttpClient();
+			
+			services.ConfigureHealthCheckService<CustomerOrdersApiHealthCheck, ServiceInfoProvider>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -84,6 +88,8 @@ namespace CustomerOrdersApi
 			app.UseAuthorization();
 
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+			
+			app.UseVodovozHealthCheck();
 		}
 	}
 }

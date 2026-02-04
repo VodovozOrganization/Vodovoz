@@ -1,6 +1,6 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
+using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Nodes;
 
 namespace Vodovoz.Controllers

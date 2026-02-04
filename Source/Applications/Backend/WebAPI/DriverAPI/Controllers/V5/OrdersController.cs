@@ -200,6 +200,9 @@ namespace DriverAPI.Controllers.V5
 				HttpContext.User.Identity?.Name ?? "Unknown",
 				Request.Headers[HeaderNames.Authorization]);
 
+			//Не понятно зачем этот эндпойнт, только блочит другие транзакции. Пока просто возвращаем 204
+			return NoContent();
+
 			var recievedTime = DateTime.Now;
 
 			var user = await _userManager.GetUserAsync(User);

@@ -1,10 +1,11 @@
-﻿using System;
-using System.Linq;
-using Gamma.Widgets;
+﻿using Gamma.Widgets;
 using Gtk;
 using NLog;
 using QS.Views.GtkUI;
 using QSWidgetLib;
+using System;
+using System.ComponentModel;
+using System.Linq;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 
@@ -28,7 +29,7 @@ namespace Vodovoz.Views.Contacts
 
 			if(ViewModel.EmailsList.Any())
 			{
-				foreach(Email email in ViewModel.EmailsList)
+				foreach(Email email in ViewModel.ActiveEmails)
 				{
 					AddEmailRow(email);
 				}
@@ -43,6 +44,8 @@ namespace Vodovoz.Views.Contacts
 		private void AddEmailRow(Email newEmail)
 		{
 			datatableEmails.NRows = _rowNum + 1;
+
+			newEmail.PropertyChanged += OnEmailPropertyChanged;
 
 			var emailDataCombo = new yListComboBox();
 			emailDataCombo.WidthRequest = 100;
@@ -153,6 +156,11 @@ namespace Vodovoz.Views.Contacts
 		
 		private void OnEmailListElementRemoved(object aList, int[] aIdx, object aObject)
 		{
+			if(aObject is Email email)
+			{
+				email.PropertyChanged -= OnEmailPropertyChanged;
+			}
+
 			Widget foundWidget = null;
 			foreach(Widget wid in datatableEmails.AllChildren)
 			{
@@ -170,6 +178,18 @@ namespace Vodovoz.Views.Contacts
 
 			var child = (Table.TableChild)datatableEmails[foundWidget];
 			RemoveRow(child.TopAttach);
+		}
+
+		private void OnEmailPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(Email.EmailType))
+			{
+				var email = sender as Email;
+				if(email?.EmailType != null && ViewModel != null)
+				{
+					ViewModel.OnEmailTypeChanged(email);
+				}
+			}
 		}
 	}
 }

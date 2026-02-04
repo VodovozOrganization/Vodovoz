@@ -49,7 +49,12 @@ namespace TaxcomEdo.Client
 			var ourEdxId = data.OrderInfoForEdo.ContractInfoForEdo.OrganizationInfoForEdo.TaxcomEdoAccountId;
 			await SendDocument(_taxcomApiOptions.SendBillEndpoint, data, ourEdxId);
 		}
-		
+
+		public async Task<bool> SendDataForCreateInformalOrderDocumentByEdo(InfoForCreatingEdoInformalOrderDocument data, CancellationToken cancellationToken = default)
+		{
+			return await SendDocument(_taxcomApiOptions.SendInformalOrderDocumentEndpoint, data);
+		}
+
 		public async Task SendDataForCreateBillWithoutShipmentForDebtByEdo(
 			InfoForCreatingBillWithoutShipmentForDebtEdo data, CancellationToken cancellationToken = default)
 		{
@@ -166,24 +171,24 @@ namespace TaxcomEdo.Client
 			
 			return result.IsSuccessStatusCode;
 		}
-
-		private async Task<bool> SendDocument<T>(string endPoint, T data, string ourEdxId = null)
-		{
-			var result = await CreateClient(ourEdxId).PostAsJsonAsync(endPoint, data);
-			return result.IsSuccessStatusCode;
-		}
-
-		private async Task<ContainerDescription> GetDocflowStatus(string docflowId)
+		
+		public async Task<ContainerDescription> GetDocflowStatus(string docflowId, string ourEdoAccountId = null)
 		{
 			var query = HttpQueryBuilder
 				.Create()
 				.AddParameter(docflowId, nameof(docflowId))
 				.ToString();
 
-			var response = await CreateClient()
+			var response = await CreateClient(ourEdoAccountId)
 				.GetStringAsync(_taxcomApiOptions.GetDocflowStatusEndpoint + query);
 
 			return response.DeserializeXmlString<ContainerDescription>();
+		}
+
+		private async Task<bool> SendDocument<T>(string endPoint, T data, string ourEdxId = null)
+		{
+			var result = await CreateClient(ourEdxId).PostAsJsonAsync(endPoint, data);
+			return result.IsSuccessStatusCode;
 		}
 
 		private HttpClient CreateClient(string ourEdoAccountId = null)

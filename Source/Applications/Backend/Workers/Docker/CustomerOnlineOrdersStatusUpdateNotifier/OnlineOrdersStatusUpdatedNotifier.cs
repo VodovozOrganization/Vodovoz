@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using CustomerOnlineOrdersStatusUpdateNotifier.Configs;
 using CustomerOnlineOrdersStatusUpdateNotifier.Contracts;
-using CustomerOnlineOrdersStatusUpdateNotifier.Converters;
 using CustomerOnlineOrdersStatusUpdateNotifier.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,6 +15,7 @@ using QS.Services;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Zabbix.Sender;
+using VodovozBusiness.Extensions;
 
 namespace CustomerOnlineOrdersStatusUpdateNotifier
 {
@@ -25,7 +25,6 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 		private readonly IConfiguration _configuration;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOnlineOrderStatusUpdatedNotificationRepository _notificationRepository;
-		private readonly IExternalOrderStatusConverter _externalOrderStatusConverter;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
 		private readonly IOptionsMonitor<NotifierOptions> _options;
 		private readonly IZabbixSender _zabbixSender;
@@ -36,7 +35,6 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 			IConfiguration configuration,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOnlineOrderStatusUpdatedNotificationRepository notificationRepository,
-			IExternalOrderStatusConverter externalOrderStatusConverter,
 			IServiceScopeFactory serviceScopeFactory,
 			IOptionsMonitor<NotifierOptions> options,
 			IZabbixSender zabbixSender
@@ -46,8 +44,6 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_notificationRepository = notificationRepository ?? throw new ArgumentNullException(nameof(notificationRepository));
-			_externalOrderStatusConverter =
-				externalOrderStatusConverter ?? throw new ArgumentNullException(nameof(externalOrderStatusConverter));
 			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
 			_options = options ?? throw new ArgumentNullException(nameof(options));
 			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
@@ -92,7 +88,7 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 					return;
 				}
 
-				_logger.LogInformation("Подготовка к отправке");
+				_logger.LogInformation("Подготовка к отправке. Всего {NotificationsCount}", notificationsToSend.Count());
 
 				using(var scope = _serviceScopeFactory.CreateScope())
 				{
@@ -141,9 +137,9 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 			var notificationText = notificationService.GetPushText(
 				uow,
 				_notificationRepository,
-				_externalOrderStatusConverter.GetExternalOrderStatus(onlineOrder),
+				onlineOrder.GetExternalOrderStatus(),
 				onlineOrder.Id,
-				onlineOrder.DeliverySchedule?.From);
+				onlineOrder.DeliverySchedule);
 
 			return new OnlineOrderStatusUpdatedDto
 			{
@@ -151,7 +147,7 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 				OnlineOrderId = onlineOrder.Id,
 				DeliveryDate = onlineOrder.OnlineOrderStatus != OnlineOrderStatus.Canceled ? onlineOrder.DeliveryDate : null,
 				DeliveryScheduleId = onlineOrder.OnlineOrderStatus != OnlineOrderStatus.Canceled ? onlineOrder.DeliveryScheduleId : null,
-				OrderStatus = _externalOrderStatusConverter.GetExternalOrderStatus(onlineOrder),
+				OrderStatus = onlineOrder.GetExternalOrderStatus(),
 				PushText = notificationText
 			};
 		}

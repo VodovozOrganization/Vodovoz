@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Organizations;
@@ -78,6 +79,36 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 				var count = await query.SingleOrDefaultAsync<int>(cancellationToken);
 				return count > 0;
 			}
+		}
+
+		public IEnumerable<OrderEdoTask> GetEdoTaskByOrderAsync(
+			IUnitOfWork uow,
+			int orderId
+			)
+		{
+			FormalEdoRequest edoRequestAlias = null;
+			OrderEdoTask orderEdoTaskAlias = null;
+
+			var edoTasks = uow.Session.QueryOver(() => orderEdoTaskAlias)
+				.Left.JoinAlias(() => orderEdoTaskAlias.FormalEdoRequest, () => edoRequestAlias)
+				.Where(() => edoRequestAlias.Order.Id == orderId)
+				.Where(() => edoRequestAlias.DocumentType == EdoDocumentType.UPD)
+				.List()
+				;
+			return edoTasks;
+		}
+
+		public IEnumerable<OrderEdoDocument> GetOrderEdoDocumentsByOrderId(IUnitOfWork uow, int orderId)
+		{
+			var edoDocuments = from doc in uow.Session.Query<OrderEdoDocument>()
+							   join task in uow.Session.Query<DocumentEdoTask>()
+								   on doc.DocumentTaskId equals task.Id
+							   join request in uow.Session.Query<FormalEdoRequest>()
+								   on task.Id equals request.Task.Id
+							   where request.Order.Id == orderId
+							   select doc;
+
+			return edoDocuments.ToList();
 		}
 	}
 }

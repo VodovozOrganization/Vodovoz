@@ -1,4 +1,4 @@
-﻿using DriverApi.Contracts.V6;
+using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Responses;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V6.Converters;
@@ -401,13 +401,13 @@ namespace DriverAPI.Library.V6.Services
 
 				vodovozOrder.DriverCallType = DriverCallType.CommentFromMobileApp;
 
-				_uow.Save(vodovozOrder);
+				await _uow.SaveAsync(vodovozOrder);
 			}
 
-			_uow.Save(routeListAddress);
-			_uow.Save(routeList);
+			await _uow.SaveAsync(routeListAddress);
+			await _uow.SaveAsync(routeList);
 
-			var edoRequest = _uow.Session.Query<OrderEdoRequest>()
+			var edoRequest = _uow.Session.Query<PrimaryEdoRequest>()
 				.Where(x => x.Order.Id == vodovozOrder.Id)
 				.Take(1)
 				.SingleOrDefault();
@@ -433,9 +433,9 @@ namespace DriverAPI.Library.V6.Services
 			return Result.Success();
 		}
 
-		private OrderEdoRequest CreateEdoRequests(Order vodovozOrder, RouteListItem routeListAddress)
+		private PrimaryEdoRequest CreateEdoRequests(Order vodovozOrder, RouteListItem routeListAddress)
 		{
-			var edoRequest = new OrderEdoRequest
+			var edoRequest = new PrimaryEdoRequest
 			{
 				Time = DateTime.Now,
 				Source = CustomerEdoRequestSource.Driver,
@@ -523,13 +523,13 @@ namespace DriverAPI.Library.V6.Services
 
 				vodovozOrder.DriverCallType = DriverCallType.CommentFromMobileApp;
 
-				_uow.Save(vodovozOrder);
+				await _uow.SaveAsync(vodovozOrder);
 			}
 
-			_uow.Save(routeListAddress);
-			_uow.Save(routeList);
+			await _uow.SaveAsync(routeListAddress);
+			await _uow.SaveAsync(routeList);
 
-			_uow.Commit();
+			await _uow.CommitAsync();
 
 			return Result.Success();
 		}
@@ -933,6 +933,7 @@ namespace DriverAPI.Library.V6.Services
 				vodovozOrderItem,
 				oldScannedCode,
 				newScannedCode,
+				SourceProductCodeStatus.Changed,
 				cancellationToken);
 
 			if(changeCodeResult.Result.IsSuccess)

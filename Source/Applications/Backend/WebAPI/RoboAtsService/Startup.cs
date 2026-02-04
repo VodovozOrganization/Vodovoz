@@ -28,6 +28,9 @@ using Vodovoz.Settings.Roboats;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using DriverApi.Notifications.Client;
+using Osrm;
+using RoboatsService.HealthCheck;
+using VodovozHealthCheck;
 
 namespace RoboatsService
 {
@@ -78,11 +81,15 @@ namespace RoboatsService
 			services.AddStaticHistoryTracker();
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
-			services.AddApplication();
-			services.AddBusiness(Configuration)
+			services
+				.AddApplication()
+				.AddBusiness(Configuration)
 				.AddDriverApiNotificationsSenders()
 				.AddInfrastructure()
-				.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot(nameof(RoboAtsService)));
+				.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot(nameof(RoboAtsService)))
+				.AddOsrm();
+
+			services.ConfigureHealthCheckService<RoboatsApiHealthCheck, ServiceInfoProvider>();
 		}
 
 		public void ConfigureContainer(ContainerBuilder builder)
@@ -161,6 +168,8 @@ namespace RoboatsService
 			{
 				endpoints.MapControllers();
 			});
+			
+			app.UseVodovozHealthCheck();
 		}
 
 	}

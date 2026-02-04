@@ -22,6 +22,10 @@
 		/// </summary>
 		public string SendIndividualAccountingUpdEndpoint { get; set; }
 		/// <summary>
+		/// Эндпойнт отправки документа заказа
+		/// </summary>
+		public string SendInformalOrderDocumentEndpoint { get; set; }
+		/// <summary>
 		/// Эндпойнт отправки счета
 		/// </summary>
 		public string SendBillEndpoint { get; set; }
@@ -50,7 +54,7 @@
 		/// </summary>
 		public string GetDocFlowRawDataEndPoint { get; set; }
 		/// <summary>
-		/// Эндпойнт плучениявсех изменений документооборотов
+		/// Эндпойнт получения всех изменений документооборотов
 		/// </summary>
 		public string GetDocFlowsUpdatesEndPoint { get; set; }
 		/// <summary>

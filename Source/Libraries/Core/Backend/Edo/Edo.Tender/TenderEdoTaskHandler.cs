@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -78,13 +78,13 @@ namespace Edo.Tender
 				return;
 			}
 
-			if(edoTask.OrderEdoRequest == null)
+			if(edoTask.FormalEdoRequest == null)
 			{
 				_logger.LogInformation("Задача Id {TenderEdoTaskId} не имеет связи с ЭДО заявкой", tenderEdoTaskId);
 				return;
 			}
 
-			var reasonForLeaving = edoTask.OrderEdoRequest.Order.Client.ReasonForLeaving;
+			var reasonForLeaving = edoTask.FormalEdoRequest.Order.Client.ReasonForLeaving;
 
 			if(reasonForLeaving != ReasonForLeaving.Tender)
 			{
@@ -98,7 +98,7 @@ namespace Edo.Tender
 				.Fetch(SelectMode.Fetch, x => x.SourceCode.Tag1260CodeCheckResult)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode)
 				.Fetch(SelectMode.Fetch, x => x.ResultCode.Tag1260CodeCheckResult)
-				.Where(x => x.CustomerEdoRequest.Id == edoTask.OrderEdoRequest.Id)
+				.Where(x => x.CustomerEdoRequest.Id == edoTask.FormalEdoRequest.Id)
 				.ListAsync(cancellationToken);
 
 			var taskCodes = await _uow.Session.QueryOver<EdoTaskItem>()
@@ -123,6 +123,13 @@ namespace Edo.Tender
 
 			var codesToPreload = sourceCodes.Union(resultCodes).Distinct();
 			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
+
+			if(productCodes.Any(x => x.SourceCodeStatus == SourceProductCodeStatus.Rejected))
+			{
+				_logger.LogInformation("Задача Id {EdoTaskId} имеет отклоненные коды, " +
+					"значит отправка будет производиться другой задачей", tenderEdoTaskId);
+				return;
+			}
 
 			try
 			{
@@ -240,7 +247,7 @@ namespace Edo.Tender
 				return;
 			}
 
-			if(edoTask.OrderEdoRequest == null)
+			if(edoTask.FormalEdoRequest == null)
 			{
 				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
 				                       "так как задача Id {TenderEdoTaskId} не связана ни с одной клиенсткой заявкой",

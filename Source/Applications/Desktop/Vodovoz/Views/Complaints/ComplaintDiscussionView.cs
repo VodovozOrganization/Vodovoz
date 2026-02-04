@@ -1,21 +1,25 @@
-﻿using QS.Views.GtkUI;
-using Vodovoz.Domain.Complaints;
-using Vodovoz.ViewModels.Complaints;
-using Gamma.ColumnConfig;
-using Gamma.Binding;
-using System.Linq;
-using Gtk;
+﻿using Gamma.Binding;
 using Gamma.Binding.Core.LevelTreeConfig;
-using Vodovoz.Infrastructure;
-using VodovozBusiness.Domain.Complaints;
+using Gamma.ColumnConfig;
+using Gdk;
+using Gtk;
+using QS.Views.GtkUI;
 using System.ComponentModel;
+using System.Linq;
+using Vodovoz.Domain.Complaints;
 using Vodovoz.Extensions;
+using Vodovoz.Infrastructure;
+using Vodovoz.ViewModels.Complaints;
+using VodovozBusiness.Domain.Complaints;
 
 namespace Vodovoz.Views.Complaints
 {
 	[ToolboxItem(true)]
 	public partial class ComplaintDiscussionView : WidgetViewBase<ComplaintDiscussionViewModel>, INotifyPropertyChanged
 	{
+		private static readonly Pixbuf _emptyImg = new Pixbuf(System.Reflection.Assembly.GetEntryAssembly(), "Vodovoz.icons.common.empty16.png");
+		private static readonly Pixbuf _fire = new Pixbuf(System.Reflection.Assembly.GetEntryAssembly(), "Vodovoz.icons.common.fire16.png");
+
 		public ComplaintDiscussionView(ComplaintDiscussionViewModel viewModel) : base(viewModel)
 		{
 			Build();
@@ -46,6 +50,13 @@ namespace Vodovoz.Views.Complaints
 				.AddColumn("Автор")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => GetAuthor(x))
+				.AddColumn("")
+					.AddPixbufRenderer((node) =>
+					(node != null
+						&& node is ComplaintDiscussionCommentFileInformation
+						&& ViewModel.FilesMissingOnStorage.Contains(((ComplaintDiscussionCommentFileInformation)node).FileName))
+						? _fire
+						: _emptyImg)
 				.AddColumn("Комментарий")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => GetNodeName(x))

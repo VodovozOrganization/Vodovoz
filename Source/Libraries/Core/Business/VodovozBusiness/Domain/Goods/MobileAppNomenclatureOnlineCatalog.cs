@@ -1,6 +1,6 @@
 ﻿using QS.DomainModel.Entity;
 using QS.HistoryLog;
-using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
+using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 
 namespace Vodovoz.Domain.Goods
 {

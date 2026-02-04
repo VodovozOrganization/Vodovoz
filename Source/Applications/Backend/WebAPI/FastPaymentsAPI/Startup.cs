@@ -1,6 +1,8 @@
 ﻿using FastPaymentsAPI.HealthChecks;
 using FastPaymentsAPI.Library;
 using FastPaymentsAPI.Library.Services;
+using MassTransit;
+using MessageTransport;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -20,6 +22,7 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;
 using VodovozHealthCheck;
+using RabbitMQ.MailSending;
 
 namespace FastPaymentsAPI
 {
@@ -111,7 +114,21 @@ namespace FastPaymentsAPI
 			});
 
 			services.AddDependencyGroup();
-			services.ConfigureHealthCheckService<FastPaymentsHealthCheck>();
+
+			services
+				.AddMassTransit(busConf =>
+				{
+					var transportSettings = new ConfigTransportSettings();
+					Configuration.Bind("MessageBroker", transportSettings);
+
+					busConf.ConfigureRabbitMq((rabbitMq, context) =>
+					{
+						rabbitMq.AddSendEmailMessageTopology(context);
+					},
+					transportSettings);
+				});
+
+			services.ConfigureHealthCheckService<FastPaymentsHealthCheck, ServiceInfoProvider>();
 		}
 		
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -144,7 +161,7 @@ namespace FastPaymentsAPI
 				pattern: "{controller=Home}/{action=Index}/{id?}");
 			});
 
-			app.ConfigureHealthCheckApplicationBuilder();
+			app.UseVodovozHealthCheck();
 		}
 	}
 }

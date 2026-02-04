@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Data.Orders;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -135,10 +136,12 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		SmsPaymentStatus? GetOrderSmsPaymentStatus(IUnitOfWork uow, int orderId);
 
-		decimal GetCounterpartyDebt(IUnitOfWork uow, int counterpartyId);
-		decimal GetCounterpartyWaitingForPaymentOrdersDebt(IUnitOfWork uow, int counterpartyId);
-		decimal GetCounterpartyClosingDocumentsOrdersDebtAndNotWaitingForPayment(IUnitOfWork uow, int counterpartyId, IDeliveryScheduleSettings deliveryScheduleSettings);
-		decimal GetCounterpartyNotWaitingForPaymentAndNotClosingDocumentsOrdersDebt(IUnitOfWork uow, int counterpartyId, IDeliveryScheduleSettings deliveryScheduleSettings);
+		decimal GetCounterpartyDebt(IUnitOfWork uow, int counterpartyId, int? organizationId = null);
+		decimal GetCounterpartyWaitingForPaymentOrdersDebt(IUnitOfWork uow, int counterpartyId, int? organizationId = null);
+		decimal GetCounterpartyClosingDocumentsOrdersDebtAndNotWaitingForPayment(
+			IUnitOfWork uow, int counterpartyId, IDeliveryScheduleSettings deliveryScheduleSettings, int? organizationId = null);
+		decimal GetCounterpartyNotWaitingForPaymentAndNotClosingDocumentsOrdersDebt(
+			IUnitOfWork uow, int counterpartyId, IDeliveryScheduleSettings deliveryScheduleSettings, int? organizationId = null);
 		bool IsSelfDeliveryOrderWithoutShipment(IUnitOfWork uow, int orderId);
 		bool OrderHasSentReceipt(IUnitOfWork uow, int orderId);
 		bool OrderHasSentUPD(IUnitOfWork uow, int orderId);
@@ -175,6 +178,15 @@ namespace Vodovoz.EntityRepositories.Orders
 		EdoContainer GetEdoContainerByMainDocumentId(IUnitOfWork uow, string mainDocId);
 		EdoContainer GetEdoContainerByDocFlowId(IUnitOfWork uow, Guid? docFlowId);
 		IList<EdoContainer> GetEdoContainersByOrderId(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Получение заказа по идентификатору исходящего ЭДО документа
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="orderEdoDocumentId"></param>
+		/// <returns></returns>
+		OrderEntity GetOrderByOrderEdoDocumentId(IUnitOfWork uow, int orderEdoDocumentId);
+
 		IEnumerable<Payment> GetOrderPayments(IUnitOfWork uow, int orderId);
 		/// <summary>
 		/// Получение списка связанных строк заказа
@@ -269,9 +281,8 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="organizationId">Id организации</param>
 		/// <param name="orderStatuses">Статусы заказов</param>
 		/// <param name="counterpartyTypes">Типы контагентов</param>
-		/// <param name="tenderCameFromId">Id источника клиента Тендер</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Данные по неоплаченным заказам</returns>
-		Task<IDictionary<int, OrderPaymentsDataNode[]>> GetNotPaidCashlessOrdersData(IUnitOfWork uow, int organizationId, IEnumerable<OrderStatus> orderStatuses, IEnumerable<CounterpartyType> counterpartyTypes, int tenderCameFromId, CancellationToken cancellationToken);
+		Task<IDictionary<int, OrderPaymentsDataNode[]>> GetNotPaidCashlessOrdersData(IUnitOfWork uow, int organizationId, IEnumerable<OrderStatus> orderStatuses, IEnumerable<CounterpartyType> counterpartyTypes, CancellationToken cancellationToken);
 	}
 }

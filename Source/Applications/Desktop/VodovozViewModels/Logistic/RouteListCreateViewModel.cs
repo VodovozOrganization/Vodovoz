@@ -906,7 +906,7 @@ namespace Vodovoz.ViewModels.Logistic
 				}
 			}
 
-			_logger.LogInformation("Операции по свободным остаткакам МЛ {RouteListId} созданы.", routeList.Id);
+			_logger.LogInformation("Операции по свободным остаткам МЛ {RouteListId} созданы.", routeList.Id);
 
 			if(routeList.GetCarVersion.IsCompanyCar && routeList.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck && !routeList.NeedToLoad)
 			{

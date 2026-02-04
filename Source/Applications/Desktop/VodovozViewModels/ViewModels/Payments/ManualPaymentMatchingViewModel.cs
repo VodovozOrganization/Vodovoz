@@ -3,6 +3,7 @@ using Gamma.Utilities;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -13,6 +14,9 @@ using QS.Project.Search;
 using QS.Services;
 using QS.Utilities.Enums;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
+using ResourceLocker.Library;
+using ResourceLocker.Library.Factories;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -21,14 +25,12 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using System.Windows.Input;
-using QS.Dialog;
-using QS.ViewModels.Control.EEVM;
-using ResourceLocker.Library;
-using ResourceLocker.Library.Factories;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Orders;
@@ -38,8 +40,8 @@ using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
 using Vodovoz.ViewModels.TempAdapters;
-using VodOrder = Vodovoz.Domain.Orders.Order;
 using VodovozBusiness.Services;
+using VodOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments
 {
@@ -661,10 +663,25 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			PaymentItem paymentItemAlias = null;
 			Domain.Organizations.Organization organisationAlias = null;
 			CounterpartyContract contractAlias = null;
+			OrderDocument orderDocumentAlias = null;
+			DocumentOrganizationCounter documentOrganizationCounterAlias = null;
 
 			var incomePaymentQuery = UoW.Session.QueryOver(() => orderAlias)
 				.Left.JoinAlias(o => o.Contract, () => contractAlias)
 				.Left.JoinAlias(() => contractAlias.Organization, () => organisationAlias)
+				.Left.JoinAlias(
+					o => o.OrderDocuments,
+					() => orderDocumentAlias,
+					Restrictions.And(
+						Restrictions.Or(
+							Restrictions.Where(() => orderDocumentAlias.GetType() == typeof(UPDDocument)),
+							Restrictions.Where(() => orderDocumentAlias.GetType() == typeof(SpecialUPDDocument))
+							),
+							Restrictions.Where(() => orderDocumentAlias.Order.Id == orderAlias.Id)))
+				.Left.JoinAlias(
+					() => orderDocumentAlias.DocumentOrganizationCounter,
+					() => documentOrganizationCounterAlias
+				)
 				.WhereRestrictionOn(o => o.OrderStatus).Not.IsIn(_orderRepository.GetUndeliveryStatuses())
 				.And(o => o.PaymentType == PaymentType.Cashless)
 				.And(() => organisationAlias.Id == Entity.Organization.Id);
@@ -717,6 +734,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			var resultQuery = incomePaymentQuery
 				.SelectList(list => list
 					.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => documentOrganizationCounterAlias.DocumentNumber).WithAlias(() => resultAlias.UpdDocumentName)
 					.Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
 					.Select(() => orderAlias.OrderPaymentStatus).WithAlias(() => resultAlias.OrderPaymentStatus)
 					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.OrderDate)
@@ -781,19 +799,21 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		public void GetCounterpartyDebt()
 		{
 			CounterpartyTotalDebt = Entity.Counterparty != null
-				? _orderRepository.GetCounterpartyDebt(UoW, Entity.Counterparty.Id)
+				? _orderRepository.GetCounterpartyDebt(UoW, Entity.Counterparty.Id, Entity.Organization.Id)
 				: default;
 
 			CounterpartyOtherOrdersDebt = Entity.Counterparty != null
-				? _orderRepository.GetCounterpartyNotWaitingForPaymentAndNotClosingDocumentsOrdersDebt(UoW, Entity.Counterparty.Id, _deliveryScheduleSettings)
+				? _orderRepository.GetCounterpartyNotWaitingForPaymentAndNotClosingDocumentsOrdersDebt(
+					UoW, Entity.Counterparty.Id, _deliveryScheduleSettings, Entity.Organization.Id)
 				: default;
 
 			CounterpartyWaitingForPaymentOrdersDebt = Entity.Counterparty != null
-				? _orderRepository.GetCounterpartyWaitingForPaymentOrdersDebt(UoW, Entity.Counterparty.Id)
+				? _orderRepository.GetCounterpartyWaitingForPaymentOrdersDebt(UoW, Entity.Counterparty.Id, Entity.Organization.Id)
 				: default;
 
 			CounterpartyClosingDocumentsOrdersDebt = Entity.Counterparty != null
-				? _orderRepository.GetCounterpartyClosingDocumentsOrdersDebtAndNotWaitingForPayment(UoW, Entity.Counterparty.Id, _deliveryScheduleSettings)
+				? _orderRepository.GetCounterpartyClosingDocumentsOrdersDebtAndNotWaitingForPayment(
+					UoW, Entity.Counterparty.Id, _deliveryScheduleSettings, Entity.Organization.Id)
 				: default;
 		}
 		
@@ -903,6 +923,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 	public class ManualPaymentMatchingViewModelNode : JournalEntityNodeBase<VodOrder>
 	{
 		public override string Title => $"{EntityType.GetSubjectNames()} №{Id}";
+		public string UpdDocumentName { get; set; }
 		public OrderStatus OrderStatus { get; set; }
 		public DateTime OrderDate { get; set; }
 		public decimal ActualOrderSum { get; set; }

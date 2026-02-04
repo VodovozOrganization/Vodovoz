@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -40,7 +40,7 @@
             <Width>89.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>80.0pt</Width>
+            <Width>70.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>65.0pt</Width>
@@ -67,13 +67,13 @@
             <Width>28.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>27.3pt</Width>
+            <Width>24.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>40.9pt</Width>
+            <Width>35.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>20.5pt</Width>
+            <Width>40.1pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -386,7 +386,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox1">
-                      <Value>Max дней прос-рочки</Value>
+                      <Value>Max дней про-сро-чки</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -422,7 +422,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox31">
-                      <Value>Лик-ви-ди-ро-ван</Value>
+                      <Value>Статус в ФНС</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -527,7 +527,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox21">
-                      <Value>=Sum({unallocated_balance})-Sum({writeoffs_sum})</Value>
+                      <Value>=Sum({unallocated_balance})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -619,7 +619,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
-                      <Value>=Sum({not_paid_orders_sum} - {unallocated_balance} - {partial_paid_orders_sum})</Value>
+                      <Value>=Sum({not_paid_orders_sum} - {unallocated_balance} - {partial_paid_orders_sum} + {writeoffs_sum})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -642,7 +642,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="TotalDebtorDebt">
-                      <Value>=Sum({debtor_debt})</Value>
+                      <Value>=Sum({debtor_debt} + {writeoffs_sum})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Right</TextAlign>
                         <BorderStyle>
@@ -869,7 +869,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox37">
-                      <Value>={unallocated_balance}-{writeoffs_sum}</Value>
+                      <Value>={unallocated_balance}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -962,7 +962,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
-                      <Value>={not_paid_orders_sum} - {unallocated_balance} - {partial_paid_orders_sum}</Value>
+                      <Value>= {not_paid_orders_sum} - {unallocated_balance} - {partial_paid_orders_sum} + {writeoffs_sum}
+</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -985,7 +986,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="DebtorDebtValue">
-                      <Value>={debtor_debt}</Value>
+                      <Value>={debtor_debt} + {writeoffs_sum}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1100,7 +1101,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox36">
-                      <Value>={liquidating_info}</Value>
+                      <Value>={revenue_status}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1125,7 +1126,7 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>9.7pt</Top>
+        <Top>8.2pt</Top>
         <PageBreakAtStart>false</PageBreakAtStart>
       </Table>
     </ReportItems>
@@ -1158,6 +1159,7 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT * FROM
     (SELECT
+    	c.id AS counterparty_id,
         c.inn AS inn,
         c.name AS counterparty_name,
         IF
@@ -1171,13 +1173,17 @@
             (SELECT IFNULL(SUM(cmo.income), 0)
                 FROM cashless_movement_operations cmo
                 WHERE cmo.counterparty_id = c.id
-                  AND cmo.cashless_movement_operation_status != 'Cancelled')
+                  AND cmo.cashless_movement_operation_status != 'Cancelled'
+                  AND cmo.organization_id = org.id)
             -
             (SELECT IFNULL(SUM(pi.sum), 0)
                 FROM payment_items pi
                 INNER JOIN payments_from_bank_client pfbc ON pi.payment_id = pfbc.id
+                INNER JOIN orders o2 ON pi.order_id = o2.id
+                INNER JOIN counterparty_contract cc2 on o2.counterparty_contract_id = cc2.id
                 WHERE pfbc.counterparty_id = c.id
-                  AND pi.payment_item_status != 'Cancelled')
+                  AND pi.payment_item_status != 'Cancelled'
+                  AND cc2.organization_id = org.id)
         ) AS unallocated_balance,
         (
             SELECT IFNULL(SUM(cmo.expense), 0)
@@ -1205,18 +1211,31 @@
                   AND cmo.cashless_movement_operation_status != 'Cancelled')),
             0
         ) AS partial_paid_orders_sum,
-        -- Просроченная дебиторская задолженность (сумма долгов с превышением отсрочки)
-                IFNULL(
-                    ROUND(
-                        SUM(
-                            CASE WHEN DATEDIFF(NOW(), o.delivery_date) &gt; c.delay_days_for_buyers THEN
-                                (SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money)
-                                 FROM order_items oi
-                                 WHERE oi.order_id = o.id)
-                            ELSE 0 END),
-                        2),
-                    0
-                ) AS overdue_debtor_debt,
+        -- Просроченная дебиторская задолженность (сумма заказов с превышением отсрочки минус сумма частичных оплат по этим заказам)
+            (IFNULL(
+                ROUND(
+                    SUM(
+                        CASE WHEN DATEDIFF(NOW(), o.delivery_date) &gt; c.delay_days_for_buyers THEN
+                            (SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money)
+                             FROM order_items oi
+                             WHERE oi.order_id = o.id)
+                        ELSE 0 END),
+                    2),
+                0
+            ) - IFNULL(
+                ROUND(
+                    SUM(
+                        CASE WHEN DATEDIFF(NOW(), o.delivery_date) &gt; c.delay_days_for_buyers THEN
+                            (SELECT SUM(cmo.expense)
+			                FROM payment_items pi
+			                INNER JOIN cashless_movement_operations cmo ON pi.cashless_movement_operation_id = cmo.id
+			                WHERE pi.order_id = o.id
+			                  AND cmo.cashless_movement_operation_status != 'Cancelled')
+                        ELSE 0 END),
+                    2),
+                0
+            )
+            )AS overdue_debtor_debt,
                 -- Дебиторская задолженность (непросроченная, т.е. общий долг минус просроченная)
                 (IFNULL(
                     ROUND(
@@ -1230,13 +1249,17 @@
                     (SELECT IFNULL(SUM(cmo.income), 0)
                         FROM cashless_movement_operations cmo
                         WHERE cmo.counterparty_id = c.id
-                          AND cmo.cashless_movement_operation_status != 'Cancelled')
+                          AND cmo.cashless_movement_operation_status != 'Cancelled'
+                          AND cmo.organization_id = org.id)
                     -
                     (SELECT IFNULL(SUM(pi.sum), 0)
                         FROM payment_items pi
                         INNER JOIN payments_from_bank_client pfbc ON pi.payment_id = pfbc.id
-                        WHERE pfbc.counterparty_id = c.id
-                          AND pi.payment_item_status != 'Cancelled')
+                        INNER JOIN orders o2 ON pi.order_id = o2.id
+		                INNER JOIN counterparty_contract cc2 on o2.counterparty_contract_id = cc2.id
+		                WHERE pfbc.counterparty_id = c.id
+		                  AND pi.payment_item_status != 'Cancelled'
+		                  AND cc2.organization_id = org.id)
                 ) - IFNULL(
                     SUM(
                     (SELECT SUM(cmo.expense)
@@ -1246,27 +1269,45 @@
                           AND cmo.cashless_movement_operation_status != 'Cancelled')),
                     0
                 )) - 
-                IFNULL(
-                    ROUND(
-                        SUM(
-                            CASE WHEN DATEDIFF(NOW(), o.delivery_date) &gt; c.delay_days_for_buyers THEN
-                                (SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money)
-                                 FROM order_items oi
-                                 WHERE oi.order_id = o.id)
-                            ELSE 0 END),
-                        2),
-                    0
-                ) AS debtor_debt,
+                (IFNULL(
+	                ROUND(
+	                    SUM(
+	                        CASE WHEN DATEDIFF(NOW(), o.delivery_date) &gt; c.delay_days_for_buyers THEN
+	                            (SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money)
+	                             FROM order_items oi
+	                             WHERE oi.order_id = o.id)
+	                        ELSE 0 END),
+	                    2),
+	                0
+	            ) - IFNULL(
+	                ROUND(
+	                    SUM(
+	                        CASE WHEN DATEDIFF(NOW(), o.delivery_date) &gt; c.delay_days_for_buyers THEN
+	                            (SELECT SUM(cmo.expense)
+				                FROM payment_items pi
+				                INNER JOIN cashless_movement_operations cmo ON pi.cashless_movement_operation_id = cmo.id
+				                WHERE pi.order_id = o.id
+				                  AND cmo.cashless_movement_operation_status != 'Cancelled')
+	                        ELSE 0 END),
+	                    2),
+	                0
+	            )
+            ) AS debtor_debt,
         c.delay_days_for_buyers,
         DATEDIFF(NOW(), o.delivery_date) AS max_delay_days_fact,
         CASE WHEN c.close_delivery_debt_type = 'Judicial' THEN "Судеб-ный"
-              WHEN c.close_delivery_debt_type = 'WriteOff' THEN "Списание"
+              WHEN c.close_delivery_debt_type = 'WriteOff' THEN "Списа-ние"
               WHEN c.close_delivery_debt_type = 'ShortTerm' THEN "Кратко-срочный"
          	  ELSE ""
-         	  END as counterparty_debt_type,
-        CASE WHEN c.is_liquidating = 0 THEN "Нет"
-        	 WHEN c.is_liquidating = 1 THEN "Да"
-        END as liquidating_info
+         	  END as counterparty_debt_type,        
+        CASE c.revenue_status
+              WHEN 'Active' THEN "Дейст-вующий"
+              WHEN 'Liquidating' THEN "Ликвиди-руется"
+              WHEN 'Liquidated' THEN "Ликвиди-рован"
+              WHEN 'Reorganizing' THEN "В проце-ссе присо-единения"
+              WHEN 'Bankrupt' THEN "Банкро-тство"
+              ELSE "Неизвес-тно"
+        END as revenue_status
     FROM orders o
     INNER JOIN counterparty c ON o.client_id = c.id
     LEFT JOIN counterparty_camefrom ccf ON c.counterparty_camefrom_id = ccf.id
@@ -1314,6 +1355,11 @@
       AND (('0' IN (@DebtType_include) OR c.close_delivery_debt_type IN (@DebtType_include))
       		AND (NOT c.close_delivery_debt_type IN (@DebtType_exclude) OR c.close_delivery_debt_type IS NULL)
       )
+      AND
+      (
+          ('0' IN (@RevenueStatus_include) OR (c.revenue_status IN (@RevenueStatus_include)))
+          AND (NOT (c.revenue_status IN (@RevenueStatus_exclude)) OR c.revenue_status IS NULL)
+      )
       AND (
       	@is_closing_documents IS NULL 
       	OR (@is_closing_documents = FALSE AND (o.delivery_schedule_id != @closing_document_delivery_schedule_id OR o.delivery_schedule_id IS NULL)) 
@@ -1325,7 +1371,6 @@
       	OR (@is_expired = FALSE AND DATEDIFF(NOW(), o.delivery_date) - CAST(c.delay_days_for_buyers AS INT) &lt;= 0)
       	OR (@is_expired = TRUE AND DATEDIFF(NOW(), o.delivery_date) - CAST(c.delay_days_for_buyers AS INT) &gt; 0)
       )
-      AND (@is_liquidated IS NULL OR c.is_liquidating = @is_liquidated)
       AND (@is_tender IS NULL OR (@is_tender = TRUE AND ccf.id = GET_PARAMETER('counterparty_from_tender_id')) OR (@is_tender = FALSE AND (ccf.id IS NULL OR ccf.id != GET_PARAMETER('counterparty_from_tender_id'))))
       AND (SELECT SUM(oi.price * IFNULL(oi.actual_count, oi.count) - oi.discount_money) FROM order_items oi WHERE oi.order_id = o.id) &gt; 0
     GROUP BY org.id, c.id
@@ -1393,11 +1438,14 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
           <QueryParameter Name="is_expired">
             <Value>={?is_expired}</Value>
           </QueryParameter>
-          <QueryParameter Name="is_liquidated">
-            <Value>={?is_liquidated}</Value>
-          </QueryParameter>
           <QueryParameter Name="is_tender">
             <Value>={?is_tender}</Value>
+          </QueryParameter>
+          <QueryParameter Name="RevenueStatus_include">
+            <Value>={?RevenueStatus_include}</Value>
+          </QueryParameter>
+          <QueryParameter Name="RevenueStatus_exclude">
+            <Value>={?RevenueStatus_exclude}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1438,8 +1486,8 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
           <DataField>counterparty_debt_type</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="liquidating_info">
-          <DataField>liquidating_info</DataField>
+        <Field Name="revenue_status">
+          <DataField>revenue_status</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="writeoffs_sum">
@@ -1627,13 +1675,6 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
       <MultiValue>false</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
-    <ReportParameter Name="is_liquidated">
-      <DataType>Boolean</DataType>
-      <Nullable>true</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
-    </ReportParameter>
     <ReportParameter Name="is_tender">
       <DataType>Boolean</DataType>
       <Nullable>true</Nullable>
@@ -1646,7 +1687,21 @@ ORDER BY (T.not_paid_orders_sum - T.unallocated_balance - T.partial_paid_orders_
       <Nullable>true</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RevenueStatus_include">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="RevenueStatus_exclude">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

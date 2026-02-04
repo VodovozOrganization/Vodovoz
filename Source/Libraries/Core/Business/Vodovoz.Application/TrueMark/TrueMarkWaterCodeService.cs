@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -69,7 +69,8 @@ namespace Vodovoz.Application.TrueMark
 			IGenericRepository<StagingTrueMarkCode> stagingTrueMarkCodeRepository,
 			IGenericRepository<OrganizationEntity> organizationRepository,
 			ITrueMarkRepository trueMarkRepository,
-			IEdoSettings edoSettings)
+			IEdoSettings edoSettings
+			)
 		{
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));
@@ -310,9 +311,11 @@ namespace Vodovoz.Application.TrueMark
 				throw new ArgumentNullException(nameof(trueMarkWaterIdentificationCode));
 			}
 
-			var isCodeAlreadyUsed =
-				TrueMarkProductCodesHavingRequiredResultCode(trueMarkWaterIdentificationCode.Id, exceptProductCodeId)
-				.Any();
+			var sameCodes = TrueMarkProductCodesHavingRequiredResultCode(
+				trueMarkWaterIdentificationCode.Id,
+				exceptProductCodeId
+			);
+			var isCodeAlreadyUsed = sameCodes.Any();
 
 			if(isCodeAlreadyUsed)
 			{
@@ -323,12 +326,18 @@ namespace Vodovoz.Application.TrueMark
 			return Result.Success();
 		}
 
-		private IEnumerable<TrueMarkProductCode> TrueMarkProductCodesHavingRequiredResultCode(int resultCodeId, int exceptProductCodeId = 0) =>
-			_trueMarkProductCodeRepository.Get(
+		private IEnumerable<TrueMarkProductCode> TrueMarkProductCodesHavingRequiredResultCode(
+			int resultCodeId, 
+			int exceptProductCodeId = 0
+			)
+		{
+			return _trueMarkProductCodeRepository.Get(
 				_uow,
 				x => x.ResultCode.Id == resultCodeId
 					&& _successfullyUsedProductCodesStatuses.Contains(x.SourceCodeStatus)
-				&& (exceptProductCodeId == 0 || x.Id != exceptProductCodeId));
+					&& (exceptProductCodeId == 0 || x.Id != exceptProductCodeId)
+			);
+		}
 
 		public Result<TrueMarkAnyCode> TryGetSavedTrueMarkCodeByScannedCode(string scannedCode)
 			=> TryGetSavedTrueMarkCodeByScannedCode(_uow, scannedCode);

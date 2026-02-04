@@ -1,15 +1,16 @@
-﻿using System;
+﻿using CustomerOnlineOrdersStatusUpdateNotifier.Configs;
+using CustomerOnlineOrdersStatusUpdateNotifier.Contracts;
+using Microsoft.Extensions.Options;
+using QS.DomainModel.UoW;
+using System;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using CustomerOnlineOrdersStatusUpdateNotifier.Configs;
-using CustomerOnlineOrdersStatusUpdateNotifier.Contracts;
-using Microsoft.Extensions.Options;
-using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 
 namespace CustomerOnlineOrdersStatusUpdateNotifier.Services
@@ -54,7 +55,7 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier.Services
 		}
 
 		public string GetPushText(IUnitOfWork unitOfWork, IOnlineOrderStatusUpdatedNotificationRepository notificationRepository,
-			ExternalOrderStatus externalOrderStatus, int orderId, TimeSpan? deliveryScheduleFrom)
+			ExternalOrderStatus externalOrderStatus, int orderId, DeliverySchedule deliverySchedule)
 		{
 			var onlineOrderNotificationSetting = notificationRepository.GetNotificationSetting(unitOfWork, externalOrderStatus);
 
@@ -66,7 +67,7 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier.Services
 			
 			return onlineOrderNotificationSetting.NotificationText
 				.Replace(_orderIdTemplate, orderId.ToString())
-				.Replace(_deliveryScheduleFromTemplate, deliveryScheduleFrom?.ToString(@"hh\:mm")?? "[интервал в заказе не выбран]");
+				.Replace(_deliveryScheduleFromTemplate, deliverySchedule?.DeliveryTime ?? "[интервал в заказе не выбран]");
 		}
 	}
 }

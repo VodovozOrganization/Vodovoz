@@ -3,19 +3,22 @@ using DeliveryRulesService.HealthChecks;
 using DeliveryRulesService.Workers;
 using Fias.Client;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.OpenApi.Models;
+using Osrm;
+using QS.DomainModel.UoW;
 using QS.Project.Core;
 using QS.Services;
 using System.Linq;
 using System.Reflection;
-using Microsoft.OpenApi.Models;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models;
+using Vodovoz.Settings.Common;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using VodovozHealthCheck;
-using Osrm;
 
 namespace DeliveryRulesService
 {
@@ -54,11 +57,13 @@ namespace DeliveryRulesService
 				.AddCore()
 				.AddTrackedUoW()
 
-				.ConfigureHealthCheckService<DeliveryRulesServiceHealthCheck>()
+				.ConfigureHealthCheckService<DeliveryRulesServiceHealthCheck, ServiceInfoProvider>()
 				.AddHttpClient()
 				.AddFiasClient()
 				.AddOsrm()
 				;
+
+			services.Replace(ServiceDescriptor.Scoped(typeof(IOsrmSettings), typeof(DeliveryRulesOsrmSettings)));
 
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 

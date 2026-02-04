@@ -1,4 +1,8 @@
-﻿using FluentNHibernate.Conventions;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -12,17 +16,12 @@ using QS.Project.Journal;
 using QS.Report;
 using QS.Services;
 using QS.Tdi;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using DateTimeHelpers;
-using Vodovoz.Core.Domain.Logistics.Drivers;
+using Vodovoz.Core.Domain.Permissions;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Operations;
@@ -39,18 +38,18 @@ using Vodovoz.Infrastructure.Services;
 using Vodovoz.Models;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
+using Vodovoz.Settings.Logistics;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.FuelDocuments;
-using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
-using Vodovoz.ViewModels.Journals.JournalNodes;
-using Order = Vodovoz.Domain.Orders.Order;
-using Vodovoz.Settings.Logistics;
 using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Infrastructure.Print;
+using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
+using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Print.Store;
-using Vodovoz.Core.Domain.Warehouses;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -68,7 +67,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IStockRepository _stockRepository;
-		private readonly Settings.Nomenclature.INomenclatureSettings _nomenclatureSettings;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IRouteListDailyNumberProvider _routeListDailyNumberProvider;
 		private readonly IUserSettingsService _userSettings;
 		private readonly IStoreDocumentHelper _storeDocumentHelper;
@@ -90,7 +89,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IEmployeeRepository employeeRepository,
 			IGtkTabsOpener gtkTabsOpener,
 			IStockRepository stockRepository,
-			Settings.Nomenclature.INomenclatureSettings nomenclatureSettings,
+			INomenclatureSettings nomenclatureSettings,
 			ICommonServices commonServices,
 			IRouteListProfitabilitySettings routeListProfitabilitySettings,
 			IWarehousePermissionService warehousePermissionService,
@@ -126,7 +125,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_warehousePermissionValidator =
 				(warehousePermissionService ?? throw new ArgumentNullException(nameof(warehousePermissionService))).GetValidator();
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
-			_canReturnFromMileageCheckToOnClosing = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.PresetPermissionsRoles.Cashier);
+			_canReturnFromMileageCheckToOnClosing = commonServices.CurrentPermissionService.ValidatePresetPermission(CashPermissions.PresetPermissionsRoles.Cashier);
 
 			TabName = "Журнал МЛ";
 
@@ -154,6 +153,7 @@ namespace Vodovoz.ViewModels.Logistic
 			GeoGroupVersion geoGroupVersionAlias = null;
 			RouteListProfitability routeListProfitabilityAlias = null;
 			RouteListDebt routeListDebtAlias = null;
+			RouteListItem routeListAddressAlias = null;
 
 			var query = uow.Session.QueryOver(() => routeListAlias)
 				.Left.JoinAlias(rl => rl.Shift, () => shiftAlias)
@@ -177,9 +177,10 @@ namespace Vodovoz.ViewModels.Logistic
 				query.Where(o => o.Shift == FilterViewModel.DeliveryShift);
 			}
 
-			if(FilterViewModel.StartDate != null)
+			var startDate = FilterViewModel.StartDate;
+			if(startDate != null)
 			{
-				query.Where(o => o.Date >= FilterViewModel.StartDate);
+				query.Where(o => o.Date >= startDate);
 			}
 
 			var endDate = FilterViewModel.EndDate;
@@ -297,6 +298,16 @@ namespace Vodovoz.ViewModels.Logistic
 				.Where(() => routeListAlias.Id == routeListDebtAlias.RouteList.Id)
 				.Select(r => r.Debt)
 				.Take(1);
+			
+			var anyAddressSubquery = QueryOver.Of(() => routeListAddressAlias)
+				.Where(() => routeListAddressAlias.RouteList.Id == routeListAlias.Id)
+				.Select(a => a.Id)
+				.Take(1);
+			
+			var hasAddressesProjection = Projections.Conditional(
+				Restrictions.IsNull(Projections.SubQuery(anyAddressSubquery)), 
+				Projections.Constant(false),
+				Projections.Constant(true));
 
 			var result = query
 				.SelectList(list => list
@@ -321,6 +332,7 @@ namespace Vodovoz.ViewModels.Logistic
 						.WithAlias(() => routeListJournalNodeAlias.GrossMarginPercents)
 					.Select(Projections.Constant(_routeListProfitabilityIndicator))
 						.WithAlias(() => routeListJournalNodeAlias.RouteListProfitabilityIndicator)
+					.Select(hasAddressesProjection).WithAlias(() => routeListJournalNodeAlias.HasAddresses)
 				).OrderBy(rl => rl.Date).Desc
 				.TransformUsing(Transformers.AliasToBean<RouteListJournalNode>());
 
@@ -706,6 +718,7 @@ namespace Vodovoz.ViewModels.Logistic
 				"Выдать топливо",
 				selectedItems => selectedItems.FirstOrDefault() is RouteListJournalNode node
 					&& _fuelIssuingStatuses.Contains(node.StatusEnum)
+					&& node.HasAddresses
 					&& node.Date >= DateTime.Today,
 				selectedItems => true,
 				selectedItems =>
@@ -745,7 +758,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		private bool UserHasOnlyAccessToWarehouseAndComplaints => _userHasOnlyAccessToWarehouseAndComplaints
 			?? (_userHasOnlyAccessToWarehouseAndComplaints =
-				commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.UserPermissions.UserHaveAccessOnlyToWarehouseAndComplaints)
+				commonServices.CurrentPermissionService.ValidatePresetPermission(UserPermissions.UserHaveAccessOnlyToWarehouseAndComplaints)
 				&& !commonServices.UserService.GetCurrentUser().IsAdmin).Value;
 
 		private void SendToLoadingAndPrint(RouteListJournalNode selectedNode, Warehouse warehouse)

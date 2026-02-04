@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Core.Infrastructure;
 using fyiReporting.RDL;
 using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,10 +21,15 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Data.Repositories.Document;
+using Vodovoz.Core.Domain.Attributes;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Orders.Documents;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents;
@@ -43,24 +49,21 @@ using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Extensions;
 using Vodovoz.Services;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
+using VodovozBusiness.Controllers;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using Nomenclature = Vodovoz.Domain.Goods.Nomenclature;
-using Vodovoz.Core.Domain.Contacts;
-using Vodovoz.Services.Logistics;
-using VodovozBusiness.Controllers;
-using Vodovoz.Services.Logistics;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -85,6 +88,8 @@ namespace Vodovoz.Domain.Orders
 			.Resolve<IPaymentFromBankClientController>();
 		private INomenclatureRepository _nomenclatureRepository => ScopeProvider.Scope
 			.Resolve<INomenclatureRepository>();
+		private IDocumentOrganizationCounterRepository _documentOrganizationCounterRepository => ScopeProvider.Scope
+			.Resolve<IDocumentOrganizationCounterRepository>();
 		private INomenclatureSettings _nomenclatureSettings => ScopeProvider.Scope
 			.Resolve<INomenclatureSettings>();
 		private IEmailRepository _emailRepository => ScopeProvider.Scope
@@ -112,6 +117,7 @@ namespace Vodovoz.Domain.Orders
 		private ICashRepository _cashRepository => ScopeProvider.Scope.Resolve<ICashRepository>();
 
 		private ISelfDeliveryRepository _selfDeliveryRepository => ScopeProvider.Scope.Resolve<ISelfDeliveryRepository>();
+		private IOrderService _orderService => ScopeProvider.Scope.Resolve<IOrderService>();
 
 		private readonly double _futureDeliveryDaysLimit = 30;
 
@@ -168,6 +174,7 @@ namespace Vodovoz.Domain.Orders
 
 		private Counterparty _client;
 		[Display(Name = "Клиент")]
+		[OrderTracker1c]
 		public virtual new Counterparty Client {
 			get => _client;
 			protected set => SetField(ref _client, value);
@@ -185,6 +192,7 @@ namespace Vodovoz.Domain.Orders
 
 		[Display(Name = "Дата доставки")]
 		[HistoryDateOnly]
+		[OrderTracker1c]
 		public virtual DateTime? DeliveryDate {
 			get => _deliveryDate;
 			protected set => SetField(ref _deliveryDate, value);
@@ -262,6 +270,7 @@ namespace Vodovoz.Domain.Orders
 		private CounterpartyContract contract;
 
 		[Display(Name = "Договор")]
+		[OrderTracker1c]
 		public virtual new CounterpartyContract Contract {
 			get => contract;
 			set => SetField(ref contract, value, () => Contract);
@@ -564,12 +573,12 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		private IList<OrderDocument> orderDocuments = new List<OrderDocument>();
-
+		private IList<OrderDocument> _orderDocuments = new List<OrderDocument>();
 		[Display(Name = "Документы заказа")]
-		public virtual IList<OrderDocument> OrderDocuments {
-			get => orderDocuments;
-			set => SetField(ref orderDocuments, value, () => OrderDocuments);
+		public virtual new IList<OrderDocument> OrderDocuments
+		{
+			get => _orderDocuments;
+			set => SetField(ref _orderDocuments, value, () => OrderDocuments);
 		}
 
 		private GenericObservableList<OrderDocument> _observableOrderDocuments;
@@ -580,6 +589,7 @@ namespace Vodovoz.Domain.Orders
 		private IList<OrderItem> orderItems = new List<OrderItem>();
 
 		[Display(Name = "Строки заказа")]
+		[OrderTracker1c]
 		public virtual new IList<OrderItem> OrderItems {
 			get => orderItems;
 			set => SetField(ref orderItems, value, () => OrderItems);
@@ -920,6 +930,7 @@ namespace Vodovoz.Domain.Orders
 
 			var isCashOrderClose = validationContext.Items.ContainsKey("cash_order_close") && (bool)validationContext.Items["cash_order_close"];
 			var isTransferedAddress = validationContext.Items.ContainsKey("AddressStatus") && (RouteListItemStatus)validationContext.Items["AddressStatus"] == RouteListItemStatus.Transfered;
+			var isCancellingOrder = newStatus.HasValue && newStatus.Value.IsIn(_orderRepository.GetUndeliveryStatuses());
 
 			if(isCashOrderClose
 				&& !isTransferedAddress
@@ -1024,12 +1035,6 @@ namespace Vodovoz.Domain.Orders
 					new[] { this.GetPropertyName(o => o.SelfDeliveryGeoGroup) }
 				);
 			}
-
-			//TODO: убрать из валидации
-			/*if(IsFastDelivery)
-			{
-				AddFastDeliveryNomenclatureIfNeeded();
-			}*/
 
 			if(!PaymentTypesFastDeliveryAvailableFor.Contains(PaymentType) && IsFastDelivery)
 			{
@@ -1174,7 +1179,7 @@ namespace Vodovoz.Domain.Orders
 			#region Проверка кол-ва бутылей по акции Приведи друга
 
 			// Отменять заказ с акцией можно
-			if((newStatus == null || !_orderRepository.GetUndeliveryStatuses().Contains(newStatus.Value))
+			if((newStatus == null || !isCancellingOrder)
 				&& OrderItems.Where(oi => oi.DiscountReason?.Id == _orderSettings.ReferFriendDiscountReasonId).Sum(oi => oi.CurrentCount) is decimal referPromoBottlesInOrderCount
 				&& referPromoBottlesInOrderCount > 0)
 			{
@@ -1204,6 +1209,15 @@ namespace Vodovoz.Domain.Orders
 						new[] { nameof(OrderItems) });
 				}
 			}
+
+			#region Отмена заказа с кодами маркировки
+
+			if(isCancellingOrder && hasReceipts)
+			{
+				yield return new ValidationResult($"По данному заказу уже оформлен и отправлен чек клиенту и отменить его нельзя");
+			}
+
+			#endregion Отмена заказа с кодами маркировки
 		}
 
 		private void CopiedOrderItemsPriceValidation(OrderItem[] currentCopiedItems, List<string> incorrectPriceItems)
@@ -1390,7 +1404,7 @@ namespace Vodovoz.Domain.Orders
 				!Nomenclature.GetCategoriesNotNeededToLoad().Contains(orderEquipment.Nomenclature.Category) && !orderEquipment.Nomenclature.NoDelivery);
 
 		public virtual bool IsCashlessPaymentTypeAndOrganizationWithoutVAT => PaymentType == PaymentType.Cashless
-			&& (Contract?.Organization?.WithoutVAT ?? false);
+			&& Contract?.Organization?.GetActualVatRateVersion(DeliveryDate)?.VatRate.VatRateValue == 0;
 
 		public virtual void RefreshContactPhone()
 		{
@@ -2032,11 +2046,11 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
-		/// Добавление в заказ номенклатуры типа "Выезд мастера"
+		/// Добавление в заказ номенклатуры типа "Сервисное обслуживание"
 		/// </summary>
 		/// <param name="uow">unit of work"</param>
 		/// <param name="contractUpdater">Сервис обновления договора заказа</param>
-		/// <param name="nomenclature">Номенклатура типа "Выезд мастера"</param>
+		/// <param name="nomenclature">Номенклатура типа "Сервисное обслуживание"</param>
 		/// <param name="count">Количество</param>
 		/// <param name="quantityOfFollowingNomenclatures">Колличество номенклатуры, указанной в параметрах БД,
 		/// которые будут добавлены в заказ вместе с мастером</param>
@@ -2363,6 +2377,23 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
+		/// Проверка, есть ли в заказе товары типа "Залог"
+		/// </summary>
+		/// <returns></returns>
+		public virtual bool HasDepositItems() =>
+			OrderItems.Any(x =>
+				x.Nomenclature.Category == NomenclatureCategory.deposit);
+
+		/// <summary>
+		/// Проверка, есть ли в заказе товары с бесплатной доставкой
+		/// </summary>
+		/// <returns></returns>
+		public virtual bool HasNonPaidDeliveryItems() =>
+			OrderItems.Any(x =>
+				_nomenclatureSettings.PaidDeliveryNomenclatureId != x.Nomenclature.Id);
+
+
+		/// <summary>
 		/// Проверка на возможность добавления промонабора в заказ
 		/// </summary>
 		/// <returns><c>true</c>, если можно добавить промонабор,
@@ -2683,6 +2714,17 @@ namespace Vodovoz.Domain.Orders
 							);
 						}
 						break;
+					case OrderDocumentType.LetterOfDebt:
+						if(ObservableOrderDocuments
+						   .OfType<LetterOfDebtDocument>()
+						   .FirstOrDefault(x => x.Order == item.Order)
+						   == null) {
+							ObservableOrderDocuments.Add(new LetterOfDebtDocument {
+								Order = item.Order,
+								AttachedToOrder = this
+							});
+						}
+						break;
 					default:
 						break;
 				}
@@ -2859,6 +2901,20 @@ namespace Vodovoz.Domain.Orders
 					break;
 			}
 			UpdateBottleMovementOperation(uow, nomenclatureSettings, 0);
+
+			_orderService.RejectOrderTrueMarkCodes(uow, this.Id);
+		}
+
+		public virtual void CancelDelivery(IUnitOfWork uow, ICallTaskWorker callTaskWorker)
+		{
+			ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
+			_orderService.RejectOrderTrueMarkCodes(uow, this.Id);
+		}
+
+		public virtual void OverdueDelivery(IUnitOfWork uow, ICallTaskWorker callTaskWorker)
+		{
+			ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
+			_orderService.RejectOrderTrueMarkCodes(uow, this.Id);
 		}
 
 		public virtual void ChangeStatusAndCreateTasks(OrderStatus newStatus, ICallTaskWorker callTaskWorker)
@@ -3762,7 +3818,10 @@ namespace Vodovoz.Domain.Orders
 
 			var needCreate = needed.ToList();
 			foreach(var doc in OrderDocuments.Where(d => d.Order?.Id == Id && docsOfOrder.Contains(d.Type)).ToList()) {
-				if(needed.Contains(doc.Type))
+				var needUpdateUpdNumber =
+					(doc.Type == OrderDocumentType.UPD || doc.Type == OrderDocumentType.SpecialUPD)
+					&& doc.DocumentOrganizationCounter?.Organization?.Id != Contract?.Organization?.Id;
+				if(needed.Contains(doc.Type) && !needUpdateUpdNumber)
 					needCreate.Remove(doc.Type);
 				else
 					ObservableOrderDocuments.Remove(doc);
@@ -3781,6 +3840,7 @@ namespace Vodovoz.Domain.Orders
 				ObservableOrderDocuments.Add(CreateDocumentOfOrder(type));
 			}
 			CheckDocumentCount(this);
+			UpdateIfUpdUsing(this);
 		}
 
 		private void CheckDocumentCount(Order order)
@@ -3791,10 +3851,41 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		private void UpdateIfUpdUsing(Order order)
+		{
+			if(!order.OrderDocuments.Any(d => d.Order.Id == order.Id && (d.Type == OrderDocumentType.UPD || d.Type == OrderDocumentType.SpecialUPD)))
+			{
+				return;
+			}
+			
+			var targetTypesForUpdReference = new List<OrderDocumentType>()
+			{
+				OrderDocumentType.Bill, 
+				OrderDocumentType.SpecialBill, 
+				OrderDocumentType.DoneWorkReport, 
+				OrderDocumentType.EquipmentTransfer,
+				OrderDocumentType.DriverTicket
+			};
+			
+			var upd = order.OrderDocuments.First(d => d.Order.Id == order.Id && (d.Type == OrderDocumentType.UPD || d.Type == OrderDocumentType.SpecialUPD));
+				
+			foreach(var orderDocument in order.OrderDocuments)
+			{
+				if(targetTypesForUpdReference.Any(t => t == orderDocument.Type))
+				{
+					orderDocument.DocumentOrganizationCounter = upd.DocumentOrganizationCounter;
+				}
+			}
+		}
+
 		private OrderDocument CreateDocumentOfOrder(OrderDocumentType type)
 		{
+			var contractOrganizationId = Contract?.Organization?.Id ?? 0;
+
 			OrderDocument newDoc;
-			switch(type) {
+
+			switch(type)
+			{
 				case OrderDocumentType.Bill:
 					newDoc = new BillDocument();
 					break;
@@ -3802,18 +3893,73 @@ namespace Vodovoz.Domain.Orders
 					newDoc = new SpecialBillDocument();
 					break;
 				case OrderDocumentType.UPD:
-					var updDocument = new UPDDocument();
-					if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel")) {
-						updDocument.RestrictedOutputPresentationTypes = new[] { OutputPresentationType.ExcelTableOnly, OutputPresentationType.Excel2007 };
-					}
+				{
+					var updOrderCounter = _documentOrganizationCounterRepository.GetDocumentOrganizationCounterByOrder(UoW, this, contractOrganizationId);
+					
+					var updCounter = _documentOrganizationCounterRepository
+						.GetMaxDocumentOrganizationCounterOnYear(UoW, DeliveryDate.Value, Contract?.Organization);
+					
+					var updCounterValue = updOrderCounter?.Counter ?? (updCounter == null
+						? 1
+						: updCounter.Counter + 1);
+
+					var documentOrganizationCounter = updOrderCounter ?? new DocumentOrganizationCounter()
+					{
+						Organization = Contract?.Organization,
+						CounterDateYear = DeliveryDate?.Year,
+						Counter = updCounterValue,
+						DocumentNumber = UPDNumberBuilder.BuildDocumentNumber(Contract?.Organization, DeliveryDate.Value, updCounterValue),
+						Order = this
+					};
+
+					UoW.Save(documentOrganizationCounter);
+
+					var updDocument = new UPDDocument
+					{
+						DocumentOrganizationCounter = documentOrganizationCounter
+					};
+
+					if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel"))
+						updDocument.RestrictedOutputPresentationTypes =
+							new[] { OutputPresentationType.ExcelTableOnly, OutputPresentationType.Excel2007 };
+
 					newDoc = updDocument;
-					break;
+			}
+
+			break;
 				case OrderDocumentType.SpecialUPD:
-					var specialUpdDocument = new SpecialUPDDocument();
-					if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel")) {
-						specialUpdDocument.RestrictedOutputPresentationTypes = new[] { OutputPresentationType.ExcelTableOnly, OutputPresentationType.Excel2007 };
-					}
+				{
+					var updOrderCounter = _documentOrganizationCounterRepository.GetDocumentOrganizationCounterByOrder(UoW, this, contractOrganizationId);
+					
+					var updCounter = _documentOrganizationCounterRepository
+						.GetMaxDocumentOrganizationCounterOnYear(UoW, DeliveryDate.Value, Contract?.Organization);
+					
+					var specialUpdCounterValue = updOrderCounter?.Counter ?? (updCounter == null
+						? 1
+						: updCounter.Counter + 1);
+
+					var documentOrganizationCounter = updOrderCounter ?? new DocumentOrganizationCounter()
+					{
+						Organization = Contract?.Organization,
+						CounterDateYear = DeliveryDate?.Year,
+						Counter = specialUpdCounterValue,
+						DocumentNumber = UPDNumberBuilder.BuildDocumentNumber(Contract?.Organization, DeliveryDate.Value, specialUpdCounterValue),
+						Order = this
+					};
+
+					UoW.Save(documentOrganizationCounter);
+
+					var specialUpdDocument = new SpecialUPDDocument
+					{
+						DocumentOrganizationCounter = documentOrganizationCounter
+					};
+
+					if(!ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_export_UPD_to_excel"))
+						specialUpdDocument.RestrictedOutputPresentationTypes = new[]
+							{ OutputPresentationType.ExcelTableOnly, OutputPresentationType.Excel2007 };
+
 					newDoc = specialUpdDocument;
+				}
 					break;
 				case OrderDocumentType.Invoice:
 					newDoc = new InvoiceDocument();
@@ -3850,6 +3996,9 @@ namespace Vodovoz.Domain.Orders
 					break;
 				case OrderDocumentType.AssemblyList:
 					newDoc = new AssemblyListDocument();
+					break;
+				case OrderDocumentType.LetterOfDebt:
+					newDoc = new LetterOfDebtDocument();
 					break;
 				default:
 					throw new NotSupportedException("Не поддерживаемый тип документа");
@@ -4638,13 +4787,9 @@ namespace Vodovoz.Domain.Orders
 		#region Статические
 
 		public static OrderStatus[] StatusesToExport1c => new[] {
-			OrderStatus.Accepted,
-			OrderStatus.Closed,
-			OrderStatus.InTravelList,
-			OrderStatus.OnLoading,
-			OrderStatus.OnTheWay,
 			OrderStatus.Shipped,
-			OrderStatus.UnloadingOnStock
+			OrderStatus.UnloadingOnStock,			
+			OrderStatus.Closed,					
 		};
 
 		public static PaymentType[] PaymentTypesFastDeliveryAvailableFor => new[]

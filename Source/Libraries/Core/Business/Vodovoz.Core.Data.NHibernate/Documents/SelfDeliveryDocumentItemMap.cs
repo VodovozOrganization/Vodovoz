@@ -16,7 +16,11 @@ namespace Vodovoz.Core.Data.NHibernate.Documents
 			References(x => x.SelfDeliveryDocument).Column("store_self_delivery_document_id");
 			References(x => x.Nomenclature).Column("nomenclature_id");
 
-			HasMany(x => x.TrueMarkProductCodes).Cascade.AllDeleteOrphan().Inverse().LazyLoad().KeyColumn("self_delivery_document_item_id");
+			HasMany(x => x.TrueMarkProductCodes)
+				.Cascade.SaveUpdate()
+				.Inverse()
+				.LazyLoad()
+				.KeyColumn("self_delivery_document_item_id");
 		}
 	}
 }

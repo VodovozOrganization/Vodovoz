@@ -15,7 +15,7 @@ namespace Edo.Problems.Validation.Sources
 
 		public override string GetTemplatedMessage(EdoTask edoTask)
 		{
-			var orderEdoRequest = GetOrderEdoRequest(edoTask);
+			var orderEdoRequest = GetEdoRequest(edoTask);
 			if(orderEdoRequest == null)
 			{
 				return Message;
@@ -25,7 +25,7 @@ namespace Edo.Problems.Validation.Sources
 
 		public override Task<EdoValidationResult> ValidateAsync(EdoTask edoTask, IServiceProvider serviceProvider, CancellationToken cancellationToken)
 		{
-			var orderEdoRequest = GetOrderEdoRequest(edoTask);
+			var orderEdoRequest = GetEdoRequest(edoTask);
 			var invalid = orderEdoRequest.Order.OrderSum <= 0;
 
 			if(invalid)

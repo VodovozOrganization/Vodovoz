@@ -18,10 +18,7 @@ namespace Vodovoz.Core.Data.NHibernate.Goods
 
 			Map(x => x.Category)
 				.Column("category");
-
-			Map(x => x.VAT)
-				.Column("vat");
-
+			
 			Map(x => x.CreateDate)
 				.Column("create_date");
 
@@ -282,7 +279,13 @@ namespace Vodovoz.Core.Data.NHibernate.Goods
 
 			Map(x => x.Gtin)
 				.Column("gtin");
-
+			
+			//Мотивация
+			Map(x => x.MotivationUnitType)
+				.Column("motivation_unit_type");
+			
+			Map(x => x.MotivationCoefficient)
+				.Column("motivation_coefficient");
 
 			References(x => x.Unit)
 				.Column("unit_id")
@@ -298,6 +301,12 @@ namespace Vodovoz.Core.Data.NHibernate.Goods
 				.Inverse()
 				.KeyColumn("nomenclature_id");
 
+			HasMany(x => x.VatRateVersions)
+				.Cascade.AllDeleteOrphan()
+				.Inverse()
+				.KeyColumn("nomenclature_id")
+				.OrderBy("start_date DESC");
+			
 			HasMany(x => x.NomenclaturePrice)
 				.Where($"type='{NomenclaturePriceGeneralBase.NomenclaturePriceType.General}'")
 				.Inverse()

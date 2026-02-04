@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Edo.Contracts.Messages.Dto;
+using Edo.Contracts.Xml;
 using TaxcomEdo.Contracts.Contacts;
 using TaxcomEdo.Contracts.Counterparties;
 using TaxcomEdo.Contracts.Documents;
@@ -32,6 +33,13 @@ namespace TaxcomEdo.Client
 		/// <param name="cancellationToken">Токен для остановки выполнения задачи</param>
 		/// <returns></returns>
 		Task SendDataForCreateBillByEdo(InfoForCreatingEdoBill data, CancellationToken cancellationToken = default);
+		/// <summary>
+		/// Передача данных по неформализованному документу заказа в TaxcomApi для его формирования и отправки по ЭДО в Такском
+		/// </summary>
+		/// <param name="data">Данные для формирования неформализованного документ заказа</param>
+		/// <param name="cancellationToken">Токен для остановки выполнения задачи</param>
+		/// <returns></returns>
+		Task<bool> SendDataForCreateInformalOrderDocumentByEdo(InfoForCreatingEdoInformalOrderDocument data, CancellationToken cancellationToken = default);
 		/// <summary>
 		/// Передача данных по Счету без отгрузки на долг в TaxcomApi для его формирования и отправки по ЭДО в Такском
 		/// </summary>
@@ -134,5 +142,12 @@ namespace TaxcomEdo.Client
 		/// <param name="cancellationToken">Токен для остановки выполнения задачи</param>
 		/// <returns></returns>
 		Task RejectOfferCancellation(string docFlowId, string comment, CancellationToken cancellationToken = default);
+		/// <summary>
+		/// Получение текущего статуса ДО
+		/// </summary>
+		/// <param name="docflowId">Идентификатор ДО</param>
+		/// <param name="ourEdoAccountId">Аккаунт ЭДО по которому проверяем(чаще всего это отправитель)</param>
+		/// <returns></returns>
+		Task<ContainerDescription> GetDocflowStatus(string docflowId, string ourEdoAccountId = null);
 	}
 }

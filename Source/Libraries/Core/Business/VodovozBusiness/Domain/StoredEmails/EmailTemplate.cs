@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Vodovoz.Core.Domain.StoredEmails;
 
 namespace Vodovoz.Domain.StoredEmails
 {

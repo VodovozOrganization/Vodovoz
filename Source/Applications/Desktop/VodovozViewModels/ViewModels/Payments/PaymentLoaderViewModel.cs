@@ -232,7 +232,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 						&& x.PaymentNum == int.Parse(doc.DocNum)
 						&& x.Organization.INN == doc.RecipientInn
 						&& x.CounterpartyInn == doc.PayerInn
-						&& x.CounterpartyCurrentAcc == doc.PayerCurrentAccount
+						&& x.CounterpartyAcc == doc.PayerAccount
 						&& x.Total == doc.Total);
 
 				if(_paymentsRepository.NotManuallyPaymentFromBankClientExists(
@@ -241,7 +241,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					int.Parse(doc.DocNum),
 					doc.RecipientInn,
 					doc.PayerInn,
-					doc.PayerCurrentAccount,
+					doc.PayerAccount,
 					doc.Total) || curDoc != null)
 				{
 					count++;
@@ -257,9 +257,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				{
 					curPayment.OtherIncome(otherProfitCategory);
 				}
-				else if(_allVodOrganisations.ContainsKey(doc.RecipientInn) && _allNotAllocatedCounterparties.ContainsKey(doc.PayerInn))
+				else if(_allVodOrganisations.ContainsKey(doc.RecipientInn)
+					&& _allNotAllocatedCounterparties.TryGetValue(doc.PayerInn, out var notAllocatedCounterparty))
 				{
-					var notAllocatedCounterparty = _allNotAllocatedCounterparties[doc.RecipientInn];
 					curPayment.OtherIncome(notAllocatedCounterparty.ProfitCategory);
 				}
 				else
@@ -298,20 +298,13 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				}
 			}
 
-			UpdateProgress?.Invoke("Обрабатываем данные по расчетным счетам...", _progress);
-			var resultProcessBankAccountMovement = ProcessBankAccountMovement();
-			
-			if(resultProcessBankAccountMovement.IsFailure)
+			if(!HandleBankAccountMovements())
 			{
-				IsNotProcessingMode = true;
-				UpdateProgress?.Invoke(resultProcessBankAccountMovement.Errors.First().Message, 1);
 				return;
 			}
-			
+
 			UpdateProgress?.Invoke("Сопоставляем полученные платежи...", _progress);
 			MatchPayments();
-			UpdateProgress?.Invoke("Сопоставляем данные по расчетным счетам...", _progress);
-			MatchBankAccountMovement();
 			
 			var paymentsSum = ObservablePayments.Sum(x => x.Total);
 			UpdateProgress?.Invoke(
@@ -322,6 +315,51 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IsNotProcessingMode = true;
 		}
 
+		private void MatchPayments()
+		{
+			_processedPayments = 0;
+			_paymentDuplicates = 0;
+			_paymentsWithNotOurOrganizationReceiver = 0;
+			
+			var autoPaymentMatching = new AutoPaymentMatching(UoW, _orderRepository);
+			var totalCount = Parser.TransferDocuments.Count;
+
+			_progress = 1d / totalCount;
+			
+			Match(
+				ref _processedPayments,
+				ref _paymentDuplicates,
+				ref _paymentsWithNotOurOrganizationReceiver,
+				totalCount,
+				autoPaymentMatching,
+				Parser.TransferDocuments);
+		}
+		
+		private bool HandleBankAccountMovements()
+		{
+			UpdateProgress?.Invoke("Обрабатываем данные по расчетным счетам...", _progress);
+			var resultProcessBankAccountMovement = ProcessBankAccountMovement();
+			
+			if(resultProcessBankAccountMovement.IsFailure)
+			{
+				IsNotProcessingMode = true;
+				UpdateProgress?.Invoke(resultProcessBankAccountMovement.Errors.First().Message, 1);
+				return false;
+			}
+			
+			UpdateProgress?.Invoke("Сопоставляем данные по расчетным счетам...", _progress);
+			var matchBankAccountMovementResult = MatchBankAccountMovement();
+			
+			if(matchBankAccountMovementResult.IsFailure)
+			{
+				IsNotProcessingMode = true;
+				UpdateProgress?.Invoke(matchBankAccountMovementResult.Errors.First().Message, 1);
+				return false;
+			}
+
+			return true;
+		}
+		
 		private Result ProcessBankAccountMovement()
 		{
 			BankAccountMovements.Clear();
@@ -355,27 +393,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			
 			return Result.Success();
 		}
-
-		private void MatchPayments()
-		{
-			_processedPayments = 0;
-			_paymentDuplicates = 0;
-			_paymentsWithNotOurOrganizationReceiver = 0;
-			
-			var autoPaymentMatching = new AutoPaymentMatching(UoW, _orderRepository);
-			var totalCount = Parser.TransferDocuments.Count;
-
-			_progress = 1d / totalCount;
-			Match(
-				ref _processedPayments,
-				ref _paymentDuplicates,
-				ref _paymentsWithNotOurOrganizationReceiver,
-				totalCount,
-				autoPaymentMatching,
-				Parser.TransferDocuments);
-		}
 		
-		private void MatchBankAccountMovement()
+		private Result MatchBankAccountMovement()
 		{
 			var i = 0;
 			while(i < BankAccountMovements.Count)
@@ -389,16 +408,46 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 							&& x.Account.Number == bankAccountMovement.Account.Number)
 					.FirstOrDefault();
 
-				if(accountMovementFromBase is null)
+				if(accountMovementFromBase != null)
 				{
+					accountMovementFromBase.UpdateData(bankAccountMovement.BankAccountMovements);
+					BankAccountMovements[i] = accountMovementFromBase;
 					i++;
 					continue;
 				}
+				
+				accountMovementFromBase = _accountMovementRepository.Get(
+						UoW,
+						x => x.StartDate <= bankAccountMovement.StartDate
+							&& x.EndDate >= bankAccountMovement.StartDate
+							&& x.Account.Number == bankAccountMovement.Account.Number)
+					.FirstOrDefault();
 
-				accountMovementFromBase.UpdateData(bankAccountMovement.BankAccountMovements);
-				BankAccountMovements[i] = accountMovementFromBase;
-				i++;
+				if(accountMovementFromBase is null)
+				{
+					accountMovementFromBase = _accountMovementRepository.Get(
+							UoW,
+							x => x.StartDate <= bankAccountMovement.EndDate
+								&& x.EndDate >= bankAccountMovement.EndDate
+								&& x.Account.Number == bankAccountMovement.Account.Number)
+						.FirstOrDefault();
+
+					if(accountMovementFromBase is null)
+					{
+						i++;
+						continue;
+					}
+				}
+				
+				return Result.Failure(new Error(
+					"DuplicateAccountMovementFound",
+					$"В базе уже есть загруженная выписка по расчетному счету {accountMovementFromBase.AccountNumber}" +
+					$" с {accountMovementFromBase.StartDate} по {accountMovementFromBase.EndDate}" +
+					"Нельзя загружать выписки за день, если есть интервальная выписка, включающая этот день и наоборот, " +
+					"нельзя загружать интервальные выписки, если уже есть выписка за один день, входящий в интервал"));
 			}
+
+			return Result.Success();
 		}
 		
 		public override void Dispose()

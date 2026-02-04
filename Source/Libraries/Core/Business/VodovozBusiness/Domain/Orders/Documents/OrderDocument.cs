@@ -3,9 +3,10 @@ using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories.Counterparties;
+using IDocument = Vodovoz.Domain.Orders.OrdersWithoutShipment.IDocument;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -29,6 +30,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		}
 
 		Order attachedToOrder;
+		private DocumentOrganizationCounter _documentOrganizationCounter;
 
 		/// <summary>
 		/// Заказ в котором будет отображатся этот документ. 
@@ -40,6 +42,17 @@ namespace Vodovoz.Domain.Orders.Documents
 			get => attachedToOrder;
 			set => SetField(ref attachedToOrder, value, () => AttachedToOrder);
 		}
+
+		/// <summary>
+		/// Счетчик документов
+		/// </summary>
+		[Display(Name = "Счетчик документов")]
+		public virtual DocumentOrganizationCounter DocumentOrganizationCounter
+		{
+			get => _documentOrganizationCounter;
+			set => SetField(ref _documentOrganizationCounter, value);
+		}
+
 		public abstract string Name { get; }
 
 		public abstract OrderDocumentType Type { get; }

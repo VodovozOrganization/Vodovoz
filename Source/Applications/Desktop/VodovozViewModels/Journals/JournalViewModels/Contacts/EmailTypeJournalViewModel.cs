@@ -8,27 +8,30 @@ using QS.Services;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories;
+using Vodovoz.Settings.Contacts;
 using Vodovoz.ViewModels;
 
 namespace Vodovoz.Journals.JournalViewModels
 {
 	public class EmailTypeJournalViewModel : SingleEntityJournalViewModelBase<EmailType, EmailTypeViewModel, EmailTypeJournalNode>
 	{
+		private readonly IEmailRepository _emailRepository;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+
 		public EmailTypeJournalViewModel
 		(
 			IEmailRepository emailRepository,
-			IUnitOfWorkFactory unitOfWorkFactory, ICommonServices commonServices)
+			IUnitOfWorkFactory unitOfWorkFactory, 
+			ICommonServices commonServices
+			)
 			: base(unitOfWorkFactory, commonServices)
 		{
-			this.emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
-			this.unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 
 			TabName = "Типы e-mail адресов";
 			UpdateOnChanges(typeof(EmailType));
 		}
-
-		IEmailRepository emailRepository;
-		IUnitOfWorkFactory unitOfWorkFactory;
 
 		protected override Func<IUnitOfWork, IQueryOver<EmailType>> ItemsSourceQueryFunction => (uow) => {
 
@@ -53,16 +56,16 @@ namespace Vodovoz.Journals.JournalViewModels
 		};
 
 		protected override Func<EmailTypeViewModel> CreateDialogFunction => () => new EmailTypeViewModel(
-			emailRepository,
+			_emailRepository,
 			EntityUoWBuilder.ForCreate(),
-			unitOfWorkFactory,
+			_unitOfWorkFactory,
 			commonServices
 		);
 
 		protected override Func<EmailTypeJournalNode, EmailTypeViewModel> OpenDialogFunction => node => new EmailTypeViewModel(
-			emailRepository,
+			_emailRepository,
 			EntityUoWBuilder.ForOpen(node.Id),
-			unitOfWorkFactory,
+			_unitOfWorkFactory,
 			commonServices
 		);
 

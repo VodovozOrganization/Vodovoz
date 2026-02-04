@@ -1,4 +1,4 @@
-using QS.Banks;
+﻿using QS.Banks;
 using QS.Banks.Domain;
 using QS.BusinessCommon.Domain;
 using QS.Deletion;
@@ -9,6 +9,7 @@ using QS.Project.DB;
 using QS.Project.Domain;
 using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Pacs;
@@ -57,6 +58,8 @@ using VodovozBusiness.Domain.Operations;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Payments;
 using VodovozBusiness.Domain.Service;
+using Vodovoz.Core.Domain.BasicHandbooks;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Vodovoz
 {
@@ -389,6 +392,8 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<FineCategory>()
 				.AddClearDependence<Fine>(x => x.FineCategory);
+			
+			DeleteConfig.AddHibernateDeleteInfo<VatRate>();
 
 			DeleteConfig.AddHibernateDeleteInfo<FineItem>()
 				.AddDeleteCascadeDependence(item => item.WageOperation)
@@ -833,6 +838,8 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<EquipmentTransferDocument>();
 
+			DeleteConfig.AddHibernateDeleteInfo<LetterOfDebtDocument>();
+
 			DeleteConfig.AddHibernateDeleteInfo<InvoiceBarterDocument>();
 
 			DeleteConfig.AddHibernateDeleteInfo<InvoiceDocument>();
@@ -928,12 +935,15 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<InventoryDocumentItem>()
 				.AddDeleteCascadeDependence(x => x.GoodsAccountingOperation);
 
+			DeleteConfig.AddHibernateDeleteInfo<SelfDeliveryDocumentItemTrueMarkProductCode>();
+
 			DeleteConfig.AddHibernateDeleteInfo<SelfDeliveryDocument>()
 				.AddDeleteDependence<SelfDeliveryDocumentItem>(x => x.Document)
 				.AddDeleteDependence<SelfDeliveryDocumentReturned>(x => x.Document);
 
 			DeleteConfig.AddHibernateDeleteInfo<SelfDeliveryDocumentItem>()
-				.AddDeleteCascadeDependence(x => x.GoodsAccountingOperation);
+				.AddDeleteCascadeDependence(x => x.GoodsAccountingOperation)
+				.AddClearDependence<SelfDeliveryDocumentItemTrueMarkProductCode>(x => x.SelfDeliveryDocumentItem);
 
 			DeleteConfig.AddHibernateDeleteInfo<SelfDeliveryDocumentReturned>()
 				.AddDeleteCascadeDependence(x => x.GoodsAccountingOperation);

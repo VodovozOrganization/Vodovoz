@@ -1,4 +1,4 @@
-using DatabaseServiceWorker.Options;
+﻿using DatabaseServiceWorker.Options;
 using ExportTo1c.Library.Factories;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
@@ -28,6 +29,7 @@ namespace DatabaseServiceWorker
 		private readonly IZabbixSender _zabbixSender;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOrderRepository _orderRepository;
+		private readonly ICounterpartyRepository _counterpartyRepository;
 		private readonly IOrderSettings _orderSettings;
 		private readonly IDataExporterFor1cFactory _dataExporterFor1cFactory;
 		private const string _leftPartNameOfExportFile = "ДВ-1с-обмен";
@@ -38,6 +40,7 @@ namespace DatabaseServiceWorker
 			IZabbixSender zabbixSender,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOrderRepository orderRepository,
+			ICounterpartyRepository counterpartyRepository,
 			IOrderSettings orderSettings,
 			IDataExporterFor1cFactory dataExporterFor1CFactory)
 		{
@@ -46,6 +49,7 @@ namespace DatabaseServiceWorker
 			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_dataExporterFor1cFactory = dataExporterFor1CFactory ?? throw new ArgumentNullException(nameof(dataExporterFor1CFactory));
 			Interval = options.Value.ExportInterval;
@@ -109,23 +113,54 @@ namespace DatabaseServiceWorker
 		private async Task ExportIfNeeded(CancellationToken cancellationToken)
 		{
 			var today = DateTime.Today;
-			var yesterday = today.AddDays(-1);
+			var yesterdayStartOfDayDate = today.AddDays(-1);
 			var auth = new NtlmPasswordAuthentication("", _options.Value.Login, _options.Value.Password);
 			var smbPath = $"smb://{_options.Value.ExportPath}/";
 
 			await DeleteFilesOlderThanOneMonth(smbPath, auth, cancellationToken);
 
-			await Export(Export1cMode.ComplexAutomation, yesterday, smbPath, auth, cancellationToken);
+			await ExportOrders(Export1cMode.ComplexAutomation, yesterdayStartOfDayDate, smbPath, auth, cancellationToken);
 
-			await Export(Export1cMode.Retail, yesterday, smbPath, auth, cancellationToken);
+			//await ExportOrders(Export1cMode.Retail, yesterdayStartOfDayDate, smbPath, auth, cancellationToken);
+
+			await ExportCounterpartyChanges(yesterdayStartOfDayDate, smbPath, auth, cancellationToken);
 		}
 
-		private async Task Export(Export1cMode exportMode, DateTime yesterday, string smbPath, NtlmPasswordAuthentication auth, CancellationToken cancellationToken)
+		private async Task ExportCounterpartyChanges(DateTime startOfDayDate, string smbPath, NtlmPasswordAuthentication auth, CancellationToken cancellationToken)
+		{
+			var fileName = $"{_leftPartNameOfExportFile}-ИзмененияКонтрагентов-{startOfDayDate:yyyyMMdd}.xml";
+
+			var smbFile = new SmbFile($"{smbPath}{fileName}", auth);
+
+			if(smbFile.Exists())
+			{
+				return;
+			}
+			
+			using var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Экспорт контрагентов для 1С");
+
+			var endOfDayDate = startOfDayDate.AddDays(1).AddTicks(-1);
+
+			var counterpartyChanges = _counterpartyRepository.GetCounterpartyChanges(unitOfWork, startOfDayDate, endOfDayDate);
+
+			if(!counterpartyChanges.Any())
+			{
+				return;
+			}
+			
+			var exporter = _dataExporterFor1cFactory.CreateCounterpartyChanges1cDataExporter();
+			
+			var xml = exporter.CreateXml(counterpartyChanges, cancellationToken);
+
+			await ExportToFile(smbFile, xml, cancellationToken);
+		}
+
+		private async Task ExportOrders(Export1cMode exportMode, DateTime yesterday, string smbPath, NtlmPasswordAuthentication auth, CancellationToken cancellationToken)
 		{
 			var startOfYesterday = yesterday;
 			var endOfYesterday = yesterday.AddDays(1).AddTicks(-1);
 
-			using var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Экспорт данных в 1С");
+			using var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Экспорт заказов для 1С");
 
 			var orders = _orderRepository.GetOrdersToExport1c8(
 				unitOfWork,
@@ -147,14 +182,9 @@ namespace DatabaseServiceWorker
 
 				var organizaionOrders = groupedOrder.ToArray();
 
-				var exporter = _dataExporterFor1cFactory.Create1cDataExporter(exportMode);
+				var exporter = _dataExporterFor1cFactory.CreateOrders1cDataExporter(exportMode, groupedOrder.Key, startOfYesterday,endOfYesterday);
 
-				var xml = exporter.CreateXml(
-					organizaionOrders,
-					startOfYesterday,
-					endOfYesterday,
-					groupedOrder.Key,
-					cancellationToken);
+				var xml = exporter.CreateXml(organizaionOrders, cancellationToken);
 
 				await ExportToFile(smbFile, xml, cancellationToken);
 			}

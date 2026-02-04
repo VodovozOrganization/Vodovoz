@@ -1,16 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using System.Text;
-using QS.Commands;
+﻿using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
 using QS.Report;
 using QS.Services;
 using QS.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using System.Text;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
@@ -19,6 +19,7 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
+using VodovozBusiness.Domain.StoredEmails;
 
 namespace Vodovoz.ViewModels.Dialogs.Email
 {
@@ -98,6 +99,7 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 						case OrderDocumentType.SpecialBill:
 						case OrderDocumentType.UPD:
 						case OrderDocumentType.SpecialUPD:
+						case OrderDocumentType.EquipmentTransfer:
 							SendDocument();
 							break;
 						case OrderDocumentType.BillWSForDebt:
@@ -222,6 +224,24 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 
 						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type)
 						    && ((OrderWithoutShipmentForPayment)Document).Organization != null;
+						break;
+					case OrderDocumentType.EquipmentTransfer:
+						listEmails = uow.Session.QueryOver<EquipmentTransferDocumentEmail>()
+							.Where(o => o.OrderDocument.Id == Document.Id)
+							.Select(o => o.StoredEmail)
+							.List<StoredEmail>();
+
+						BtnSendEmailSensitive = _emailRepository
+							.CanSendByTimeout(EmailString, Document.Id, Document.Type) 
+								&& Document.Order.Id > 0;
+						break;
+					case OrderDocumentType.LetterOfDebt:
+						listEmails = uow.Session.QueryOver<BulkEmail>()
+							.Where(o => o.OrderDocument.Id == Document.Id)
+							.Select(o => o.StoredEmail)
+							.List<StoredEmail>();
+
+						BtnSendEmailSensitive = false;
 						break;
 					case OrderDocumentType.UPD:
 					case OrderDocumentType.SpecialUPD:
@@ -389,6 +409,15 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 								OrderWithoutShipmentForPayment = (OrderWithoutShipmentForPayment)Document
 							};
 							unitOfWork.Save(orderWithoutShipmentForPaymentEmail);
+							break;
+						case OrderDocumentType.EquipmentTransfer:
+							var equipmentTransfertEmail = new EquipmentTransferDocumentEmail
+							{
+								StoredEmail = storedEmail,
+								Counterparty = client,
+								OrderDocument = (OrderDocument)Document
+							};
+							unitOfWork.Save(equipmentTransfertEmail);
 							break;
 						case OrderDocumentType.UPD:
 						case OrderDocumentType.SpecialUPD:

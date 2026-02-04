@@ -247,6 +247,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Payments
 
 			query.Where(() => calendarAlias.Date >= startDate)
 				.And(() => calendarAlias.Date <= endDate)
+				.And(() => !accountAlias.Inactive)
 				.WithSubquery.WhereNotExists(loadedAccountMovements);
 
 			if(_filterViewModel.OrganizationAccount != null)

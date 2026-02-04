@@ -1,4 +1,5 @@
 using EdoDocumentsPreparer.Factories;
+using EdoService.Library.Services;
 using MassTransit;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -19,6 +20,7 @@ using Vodovoz.Converters;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -186,7 +188,7 @@ namespace EdoDocumentsPreparer
 				var bulkAccountingEdoTasks =
 					uow.GetAll<BulkAccountingEdoTask>()
 						.Where(x => x.Status == EdoTaskStatus.New
-							&& x.OrderEdoRequest.Order.PaymentType == PaymentType.Cashless)
+							&& x.FormalEdoRequest.Order.PaymentType == PaymentType.Cashless)
 						.ToList();
 
 				//Фильтруем заказы в которых есть УПД и они не в пути, если у клиента стоит выборка по статусу доставлен
@@ -211,7 +213,7 @@ namespace EdoDocumentsPreparer
 				_logger.LogInformation("Обрабатываем новые отправки по таскам");
 				while(i < bulkAccountingEdoTasks.Count)
 				{
-					var orderEntity = bulkAccountingEdoTasks[i].OrderEdoRequest.Order;
+					var orderEntity = bulkAccountingEdoTasks[i].FormalEdoRequest.Order;
 
 					if(!filteredOrdersDictionary.TryGetValue(orderEntity.Id, out var order))
 					{

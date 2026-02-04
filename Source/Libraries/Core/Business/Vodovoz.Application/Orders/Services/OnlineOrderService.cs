@@ -24,9 +24,9 @@ namespace Vodovoz.Application.Orders.Services
 				return;
 			}
 
-			var hasBeenSent = _onlineOrderStatusUpdatedNotificationRepository.HasNotificationSentByOnlineOrder(unitOfWork, onlineOrder.Id);
+			var needSend = _onlineOrderStatusUpdatedNotificationRepository.NeedCreateSendNotificationOfOnlineOrderStatusChanged(unitOfWork, onlineOrder);
 
-			if(hasBeenSent)
+			if(!needSend)
 			{
 				return;
 			}

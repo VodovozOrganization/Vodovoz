@@ -39,6 +39,12 @@ namespace Vodovoz.Errors.Logistics
 					nameof(NotFoundAssociatedWithOrder),
 					$"Не найден адрес маршрутного листа с указанным заказом");
 
+			public static Error OrderRecentlyCanceled =>
+				new Error(
+					typeof(RouteListItem),
+					nameof(OrderRecentlyCanceled),
+					$"Заказ по данному адресу недавно был отменен");
+
 			public static Error CreateTransferTypeNotSet(
 				int routeListItemId,
 				string shortAddress) =>
@@ -78,6 +84,11 @@ namespace Vodovoz.Errors.Logistics
 				typeof(RouteListItem),
 				nameof(TransferNotEnoughtFreeBalance),
 				$"Для переноса заказа #{orderId} недостаточно свободных остатков в маршрутном листе #{routeListId}");
+
+			public static Error CreateOrderRecentlyCanceled(int orderId) => new Error(
+				typeof(RouteListItem),
+				nameof(OrderRecentlyCanceled),
+				$"Заказ #{orderId} по данному адресу недавно был отменен");
 
 			public static Error AlreadyTransfered => new Error(
 				typeof(RouteListItem),

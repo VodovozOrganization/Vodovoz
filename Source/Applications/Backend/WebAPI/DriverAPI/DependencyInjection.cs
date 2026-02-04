@@ -159,7 +159,7 @@ namespace DriverAPI
 				c.DefaultRequestHeaders.Add("Accept", "application/json");
 			});
 
-			services.ConfigureHealthCheckService<DriverApiHealthCheck>();
+			services.ConfigureHealthCheckService<DriverApiHealthCheck, ServiceInfoProvider>();
 
 			services.AddHttpClient();
 

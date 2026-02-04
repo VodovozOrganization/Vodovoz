@@ -63,7 +63,7 @@ namespace Edo.Documents
 
 			object message = null;
 
-			var order = documentEdoTask.OrderEdoRequest.Order;
+			var order = documentEdoTask.FormalEdoRequest.Order;
 			var reasonForLeaving = order.Client.ReasonForLeaving;
 
 			if(reasonForLeaving == ReasonForLeaving.Resale)
@@ -223,7 +223,7 @@ namespace Edo.Documents
 			CancellationToken cancellationToken
 			)
 		{
-			var order = documentEdoTask.OrderEdoRequest.Order;
+			var order = documentEdoTask.FormalEdoRequest.Order;
 
 			var unprocessedCodes = documentEdoTask.Items.ToList();
 			var groupCodesWithTaskItems = await TakeGroupCodesWithTaskItems(unprocessedCodes, cancellationToken);
@@ -421,7 +421,7 @@ namespace Edo.Documents
 							SourceCode = forNewCode,
 							SourceCodeStatus = SourceProductCodeStatus.Accepted,
 							Problem = ProductCodeProblem.None,
-							CustomerEdoRequest = documentEdoTask.OrderEdoRequest
+							CustomerEdoRequest = documentEdoTask.FormalEdoRequest
 						};
 
 						await _uow.SaveAsync(newAutoTrueMarkProductCode, cancellationToken: cancellationToken);

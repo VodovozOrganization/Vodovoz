@@ -252,7 +252,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return;
 			}
 
-			Entity.CurrentFuelBalance = _fuelRepository.GetFuelBalance(UoW, null, Entity.Car, Entity.CreateDate);
+			Entity.CurrentFuelBalance = _fuelRepository.GetFuelBalance(UoW, null, Entity.Car, _carEventSettings.FuelBalanceCalibrationCarEventTypeId, Entity.CreateDate);
 		}
 
 		private void UpdateSubstractionFuelBalance()
@@ -599,7 +599,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private void CreateAddFineCommand()
 		{
 			AddFineCommand = new DelegateCommand(
-				() => CreateAddFine(),
+				CreateAddFine,
 				() => CanAddFine
 			);
 			AddFineCommand.CanExecuteChangedWith(this, x => CanAddFine);
@@ -611,7 +611,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private void CreateAttachFineCommand()
 		{
 			AttachFineCommand = new DelegateCommand(
-				() => CreateAttachFine(),
+				CreateAttachFine,
 				() => CanAttachFine
 			);
 			AttachFineCommand.CanExecuteChangedWith(this, x => CanAttachFine);
@@ -619,36 +619,47 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private void CreateAttachFine()
 		{
-			var page = NavigationManager.OpenViewModel<FinesJournalViewModel, Action<FineFilterViewModel>>(this, filter =>
-			{
-				filter.ExcludedIds = Entity.Fines.Select(x => x.Id).ToArray();
-			});
-
-			page.ViewModel.SelectionMode = JournalSelectionMode.Single;
-
-			page.ViewModel.OnSelectResult += (sender, e) =>
-			{
-				var selectedObject = e.SelectedObjects.FirstOrDefault();
-
-				if(!(selectedObject is FineJournalNode selectedNode))
+			NavigationManager.OpenViewModel<FinesJournalViewModel, Action<FineFilterViewModel>>(
+				this,
+				filter =>
 				{
-					return;
-				}
-
-				var carEvents = _carEventRepository.GetCarEventsByFine(UoW, selectedNode.Id);
-
-				if(carEvents.Any())
+					filter.ExcludedIds = Entity.Fines.Select(x => x.Id).ToArray();
+				},
+				OpenPageOptions.AsSlave,
+				vm =>
 				{
-					CommonServices.InteractiveService.ShowMessage(
-						ImportanceLevel.Warning,
-						$"Невозможно прикрепить данный штраф, так как он уже закреплён за другим событием:\n" +
-						$"{string.Join(", ", carEvents.Select(ce => $"{ce.Id} - {ce.CarEventType.ShortName}"))}");
+					vm.SelectionMode = JournalSelectionMode.Single;
+					vm.OnSelectResult += AttachFine;
+				});
+		}
 
-					return;
-				}
+		private void AttachFine(object sender, JournalSelectedEventArgs e)
+		{
+			if(sender is JournalViewModelBase journal)
+			{
+				journal.OnSelectResult -= AttachFine;
+			}
+			
+			var selectedObject = e.SelectedObjects.FirstOrDefault();
 
-				Entity.AddFine(UoW.GetById<Fine>(selectedNode.Id));
-			};
+			if(!(selectedObject is FineJournalNode selectedNode))
+			{
+				return;
+			}
+
+			var carEvents = _carEventRepository.GetCarEventsByFine(UoW, selectedNode.Id);
+
+			if(carEvents.Any())
+			{
+				CommonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					$"Невозможно прикрепить данный штраф, так как он уже закреплён за другим событием:\n" +
+					$"{string.Join(", ", carEvents.Select(ce => $"{ce.Id} - {ce.CarEventType.ShortName}"))}");
+
+				return;
+			}
+
+			Entity.AddFine(UoW.GetById<Fine>(selectedNode.Id));
 		}
 
 		private void CreateAddFine()

@@ -1,7 +1,9 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using Edo.CodesSaver;
 using Edo.Common;
+using Edo.Docflow;
 using Edo.Documents;
+using Edo.InformalOrderDocuments;
 using Edo.Problems;
 using Edo.Receipt.Dispatcher;
 using Edo.Receipt.Sender;
@@ -9,6 +11,7 @@ using Edo.Scheduler;
 using Edo.Transfer;
 using Edo.Transfer.Dispatcher;
 using Edo.Transport;
+using Edo.Withdrawal;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,14 +24,15 @@ using QS.Project.Core;
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Taxcom.Docflow.Utility;
+using TaxcomEdo.Client;
 using TrueMark.Codes.Pool;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
-using Taxcom.Docflow.Utility;
-using Edo.Withdrawal;
 
 namespace CustomTaskDebugExecutor
 {
@@ -37,6 +41,7 @@ namespace CustomTaskDebugExecutor
 		static async Task Main(string[] args)
 		{
 			Console.OutputEncoding = System.Text.Encoding.UTF8;
+			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
 			ServiceCollection services = new ServiceCollection();
 
@@ -105,6 +110,8 @@ namespace CustomTaskDebugExecutor
 				.AddEdoTransferRoutineServices()
 				.AddEdoTransferSenderServices()
 				.AddEdoWithdrawalService()
+				.AddInformalOrderDocumentEdoServices()
+				.AddTaxcomClient()
 				;
 
 			services.AddScoped<EdoExecutor>();

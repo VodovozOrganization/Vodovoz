@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -196,7 +196,7 @@ FROM
 WHERE
         bwsfpi.bill_ws_for_payment_id = @bill_ws_for_payment_id
 Group By
-    nomenclature.id;</CommandText>
+    nomenclature.id, order_items.price;</CommandText>
         <QueryParameters>
           <QueryParameter Name="bill_ws_for_payment_id">
             <Value>=Parameters!bill_ws_for_payment_id</Value>
@@ -1625,7 +1625,7 @@ WHERE
       <Textbox Name="Textbox15" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>18.02pt</Height>
         <Width>499.29pt</Width>
-        <Value>='Счет № Ф-' + First({bwsfp_id}, 'Order') + ' от ' + First({bill_date}, 'Order') + ' ' +{?special_contract_number}</Value>
+        <Value>='Счет № Ф-' + First({bwsfp_id}, 'Order') + ' от ' + First({bill_date}, 'Order')</Value>
         <ZIndex>0</ZIndex>
         <Left>39.20pt</Left>
         <Top>216.10pt</Top>

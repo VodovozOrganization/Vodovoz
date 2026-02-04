@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using FluentNHibernate.Data;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -10,6 +11,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Vodovoz.Application.Orders;
+using Vodovoz.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Logistic;
@@ -51,6 +54,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 		private readonly ICallTaskRepository _callTaskRepository;
 		private readonly IRouteListService _routeListService;
 
+		private readonly OrderCancellationService _orderCancellationService;
 		private IUnitOfWork UoW;
 		
 		private List<DeliveryPoint> _deliveryPoints = new List<DeliveryPoint>();
@@ -98,6 +102,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			IRouteListItemRepository routeListItemRepository,
 			ICallTaskRepository callTaskRepository,
 			IRouteListService routeListService,
+			OrderCancellationService orderCancellationService,
 			int count = 5)
 		{
 			Client = client;
@@ -114,6 +119,8 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
+			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
+
 			UoW = _unitOfWorkFactory.CreateWithoutRoot();
 			LatestOrder = _orderRepository.GetLatestOrdersForCounterparty(UoW, client, count).ToList();
 
@@ -270,7 +277,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			if(order.OrderStatus == OrderStatus.InTravelList)
 			{
 
-				ValidationContext validationContext = new ValidationContext(order, null, new Dictionary<object, object> {
+				var validationContext = new ValidationContext(order, null, new Dictionary<object, object> {
 					{ "NewStatus", OrderStatus.Canceled },
 				});
 				validationContext.ServiceContainer.AddService(_orderSettings);
@@ -280,13 +287,33 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 					return;
 				}
 
+				var permit = _orderCancellationService.CanCancelOrder(UoW, order);
+				switch(permit.Type)
+				{
+					case OrderCancellationPermitType.AllowCancelDocflow:
+						if(permit.EdoTaskToCancellationId == null)
+						{
+							throw new InvalidOperationException("Для аннулирования документооборота должен быть указан идентификатор ЭДО задачи.");
+						}
+						_orderCancellationService.CancelDocflowByUser(
+							$"Отмена заказа №{order.Id}", 
+							permit.EdoTaskToCancellationId.Value
+						);
+						return;
+					case OrderCancellationPermitType.AllowCancelOrder:
+						break;
+					case OrderCancellationPermitType.Deny:
+					default:
+						return;
+				}
+
 				_undeliveryViewModel = _tdiNavigation.OpenViewModel<UndeliveryViewModel>(
 					null,
 					OpenPageOptions.None,
 					vm =>
 					{
 						vm.Saved += OnUndeliveryViewModelSaved;
-						vm.Initialize(UoW, order.Id);
+						vm.Initialize(UoW, order.Id, cancellationPermit: permit);
 					}
 				).ViewModel;
 			}
@@ -298,11 +325,11 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			}
 		}
 
-		private void OnUndeliveryViewModelSaved(object sender, EventArgs e)
+		private void OnUndeliveryViewModelSaved(object sender, UndeliveryOnOrderCloseEventArgs e)
 		{
 			SelectedOrder.SetUndeliveredStatus(UoW, _routeListService, _nomenclatureSettings, _callTaskWorker);
 
-			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, SelectedOrder/*order*/);
+			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(UoW, SelectedOrder);
 			if(routeListItem != null && routeListItem.Status != RouteListItemStatus.Canceled)
 			{
 				_routeListService.SetAddressStatusWithoutOrderChange(UoW,  routeListItem.RouteList, routeListItem, RouteListItemStatus.Canceled);
@@ -313,6 +340,17 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			}
 
 			UoW.Commit();
+
+			var allowCancellation = e.CancellationPermit.Type == OrderCancellationPermitType.AllowCancelOrder;
+			var hasEdoTaskToCancellationId = e.CancellationPermit.EdoTaskToCancellationId != null;
+			if(allowCancellation && hasEdoTaskToCancellationId)
+			{
+				_orderCancellationService.AutomaticCancelDocflow(
+					UoW, 
+					$"Отмена заказа №{SelectedOrder.Id}", 
+					e.CancellationPermit.EdoTaskToCancellationId.Value
+				);
+			}
 		}
 
 		public void CreateComplaint(Order order)
@@ -341,7 +379,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 		{
 			if(_undeliveryViewModel != null)
 			{
-				_undeliveryViewModel.TabClosed -= OnUndeliveryViewModelSaved;
+				_undeliveryViewModel.Saved -= OnUndeliveryViewModelSaved;
 			}
 
 			NotifyConfiguration.Instance.UnsubscribeAll(this);

@@ -66,6 +66,8 @@ namespace Vodovoz.Domain.StoredEmails
 		[Display(Name = "Счёт без отгрузки на постоплату")]
 		OrderWithoutShipmentForPayment,
 		[Display(Name = "Счёт без отгрузки на предоплату")]
-		OrderWithoutShipmentForAdvancePayment
+		OrderWithoutShipmentForAdvancePayment,
+		[Display(Name = "Акт приёма-передачи оборудования")]
+		EquipmentTransfer
 	}
 }

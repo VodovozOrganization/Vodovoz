@@ -10,6 +10,7 @@ using Vodovoz.Application.FileStorage;
 using Vodovoz.Application.Goods;
 using Vodovoz.Application.Logistics;
 using Vodovoz.Application.Orders.Services;
+using Vodovoz.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Application.Pacs;
 using Vodovoz.Application.Payments;
 using Vodovoz.Application.Receipts;
@@ -43,7 +44,8 @@ namespace Vodovoz.Application
 			.AddRevenueServiceClient();
 
 		public static IServiceCollection AddSecurityServices(this IServiceCollection services) => services
-			.AddScoped<IUserRoleService, UserRoleService>();
+			.AddScoped<IUserRoleService, UserRoleService>()
+			.AddScoped<GrantsRoleParser>();
 
 		public static IServiceCollection AddApplicationServices(this IServiceCollection services) => services
 			.AddSingleton<OperatorService>()
@@ -64,6 +66,8 @@ namespace Vodovoz.Application
 			.AddScoped<ITrueMarkWaterIdentificationCodeFactory, TrueMarkWaterIdentificationCodeFactory>()
 			.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>()
 			.AddScoped<OurCodesChecker>()
+			.AddScoped<OrderCancellationService>()
+			.AddScoped<SelfdeliveryCancellationService>()
 			.AddScoped<IStagingTrueMarkCodeFactory, StagingTrueMarkCodeFactory>()
 			.AddTrueMarkApiClient()
 			.AddApplicationOrderServices()
