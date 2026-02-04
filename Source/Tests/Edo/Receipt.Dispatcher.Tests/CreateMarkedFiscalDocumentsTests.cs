@@ -102,11 +102,11 @@ namespace Receipt.Dispatcher.Tests
 			// Assert
 
 			Assert.Equal(receiptEdoTask.FiscalDocuments.Sum(x => x.InventPositions.Sum(x => x.Quantity)),
-				receiptEdoTask.OrderEdoRequest.Order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark).Sum(x => x.Count));
+				receiptEdoTask.FormalEdoRequest.Order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark).Sum(x => x.Count));
 
 			Assert.Equal(
 				receiptEdoTask.FiscalDocuments.Sum(x => x.InventPositions.Sum(x => x.Price * x.Quantity - x.DiscountSum)),
-				receiptEdoTask.OrderEdoRequest.Order.OrderItems
+				receiptEdoTask.FormalEdoRequest.Order.OrderItems
 					.Where(x =>
 						x.Nomenclature.IsAccountableInTrueMark
 						&& x.Count > 0)
@@ -174,11 +174,11 @@ namespace Receipt.Dispatcher.Tests
 			Assert.Equal(4, receiptEdoTask.FiscalDocuments.SelectMany(x => x.InventPositions).Count());
 
 			Assert.Equal(receiptEdoTask.FiscalDocuments.Sum(x => x.InventPositions.Sum(x => x.Quantity)),
-				receiptEdoTask.OrderEdoRequest.Order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark).Sum(x => x.Count));
+				receiptEdoTask.FormalEdoRequest.Order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark).Sum(x => x.Count));
 
 			Assert.Equal(
 				receiptEdoTask.FiscalDocuments.Sum(x => x.InventPositions.Sum(x => x.Price * x.Quantity - x.DiscountSum)),
-				receiptEdoTask.OrderEdoRequest.Order.OrderItems
+				receiptEdoTask.FormalEdoRequest.Order.OrderItems
 					.Where(x =>
 						x.Nomenclature.IsAccountableInTrueMark
 						&& x.Count > 0)
@@ -242,11 +242,11 @@ namespace Receipt.Dispatcher.Tests
 			// Assert
 
 			Assert.Equal(receiptEdoTask.FiscalDocuments.Sum(x => x.InventPositions.Sum(x => x.Quantity)),
-				receiptEdoTask.OrderEdoRequest.Order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark).Sum(x => x.Count));
+				receiptEdoTask.FormalEdoRequest.Order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark).Sum(x => x.Count));
 
 			Assert.Equal(
 				receiptEdoTask.FiscalDocuments.Sum(x => x.InventPositions.Sum(x => x.Price * x.Quantity - x.DiscountSum)),
-				receiptEdoTask.OrderEdoRequest.Order.OrderItems
+				receiptEdoTask.FormalEdoRequest.Order.OrderItems
 					.Where(x =>
 						x.Nomenclature.IsAccountableInTrueMark
 						&& x.Count > 0)
@@ -255,10 +255,10 @@ namespace Receipt.Dispatcher.Tests
 			Assert.All(
 				receiptEdoTask.Items
 					.Where(x => x.ProductCode.SourceCode != null)
-					.Select(x => x.ProductCode.SourceCode.GTIN),
+					.Select(x => x.ProductCode.SourceCode.Gtin),
 				x => Assert
 					.DoesNotContain(x, receiptEdoTask.FiscalDocuments
-					.SelectMany(x => x.InventPositions.Select(x => x.EdoTaskItem.ProductCode.ResultCode.GTIN))));
+					.SelectMany(x => x.InventPositions.Select(x => x.EdoTaskItem.ProductCode.ResultCode.Gtin))));
 		}
 
 		private ReceiptEdoTask CreateTestReceiptEdoTaskForTest(
@@ -318,7 +318,7 @@ namespace Receipt.Dispatcher.Tests
 
 			var receiptEdoTask = new ReceiptEdoTask
 			{
-				OrderEdoRequest = new OrderEdoRequest
+				FormalEdoRequest = new PrimaryEdoRequest
 				{
 					Order = order
 				},
@@ -365,7 +365,7 @@ namespace Receipt.Dispatcher.Tests
 
 					if(groupCode.GTIN == null)
 					{
-						groupCode.GTIN = currentWaterIdentificationCode.GTIN;
+						groupCode.GTIN = currentWaterIdentificationCode.Gtin;
 					}
 
 					groupCode.RawCode ??= $"{groupCode.GTIN}Raw{groupCodesCounter++}";
@@ -428,7 +428,7 @@ namespace Receipt.Dispatcher.Tests
 			return new TrueMarkWaterIdentificationCode
 			{
 				Id = id,
-				GTIN = gtin,
+				Gtin = gtin,
 				SerialNumber = CreateNewGtinSerial(id),
 				CheckCode = CreateNewGtinCheckCode(id),
 				IsInvalid = isInvalid
@@ -513,7 +513,6 @@ namespace Receipt.Dispatcher.Tests
 			var transferRequestCreator = CreateTransferRequestCreatorFixture(edoRepository);
 			var edoReceiptSettings = Substitute.For<IEdoReceiptSettings>();
 			var localCodesValidator = CreateTrueMarkTaskCodesValidatorFixture(edoRepository, Substitute.For<TrueMarkApiClient>());
-			var trueMarkCodesPool = CreateTrueMarkCodesPoolFixture(unitOfWork);
 			var tag1260Checker = CreateTag1260CheckerFixture(httpClientFactory);
 			var trueMarkCodeRepository = Substitute.For<ITrueMarkCodeRepository>();
 			var saveCodesService = Substitute.For<ISaveCodesService>();
@@ -529,7 +528,7 @@ namespace Receipt.Dispatcher.Tests
 				edoRepository,
 				edoReceiptSettings,
 				localCodesValidator,
-				trueMarkCodesPool,
+				Substitute.For<ITrueMarkCodesPool>() as ReceiptTrueMarkCodesPool, 
 				tag1260Checker,
 				trueMarkCodeRepository,
 				productCodeRepository ?? Substitute.For<IGenericRepository<TrueMarkProductCode>>(),

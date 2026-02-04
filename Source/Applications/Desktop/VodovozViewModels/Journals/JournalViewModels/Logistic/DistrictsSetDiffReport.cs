@@ -45,7 +45,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			if(sourceDistrictSet is null)
 			{
-				return Result.Failure<DistrictsSetDiffReport>(Errors.Logistics.DistrictSet.NotFound(diffSourceDistrictSetVersionId.Value));
+				return Result.Failure<DistrictsSetDiffReport>(Errors.Logistics.DistrictSetErrors.NotFound(diffSourceDistrictSetVersionId.Value));
 			}
 
 			var targetDistrictSet =
@@ -56,7 +56,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 			if(targetDistrictSet is null)
 			{
-				return Result.Failure<DistrictsSetDiffReport>(Errors.Logistics.DistrictSet.NotFound(diffTargetDistrictSetVersionId.Value));
+				return Result.Failure<DistrictsSetDiffReport>(Errors.Logistics.DistrictSetErrors.NotFound(diffTargetDistrictSetVersionId.Value));
 			}
 
 			var oldDistricts = sourceDistrictSet.Districts.ToDictionary(x => x.DistrictName, x => x);

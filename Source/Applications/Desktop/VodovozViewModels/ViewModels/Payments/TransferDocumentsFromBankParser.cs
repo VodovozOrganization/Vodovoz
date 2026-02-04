@@ -15,7 +15,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		public string DocPath { get; private set; }
 
 		private Dictionary<string, string> documentProperties;
-		private List<Dictionary<string, string>> accounts;
+		private readonly List<Dictionary<string, string>> _accounts;
 
 		private string[] tags = { "СекцияРасчСчет", "СекцияДокумент", "КонецДокумента", "КонецФайла" };
 		private readonly decimal[] curVersion = { 1.02M, 1.03M };
@@ -24,8 +24,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		{
 			DocPath = docPath;
 			documentProperties = new Dictionary<string, string>();
-			accounts = new List<Dictionary<string, string>>();
+			_accounts = new List<Dictionary<string, string>>();
 		}
+		
+		public IReadOnlyList<IReadOnlyDictionary<string, string>> Accounts => _accounts;
 
 		public void Parse()
 		{
@@ -77,7 +79,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 						line = reader.ReadLine();
 					}
 
-					//Читаем рассчетные счета
+					//Читаем расчетные счета
 					i = -1;
 					while(line != null && !line.StartsWith(tags[1]))
 					{
@@ -88,15 +90,15 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 								i++;
 							}
 
-							if(accounts.Count <= i)
+							if(_accounts.Count <= i)
 							{
-								accounts.Add(new Dictionary<string, string>());
+								_accounts.Add(new Dictionary<string, string>());
 							}
 
 							var dataArray = line.Split(new char[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
 
 							if(dataArray.Length == 2) {
-								accounts[i].Add(dataArray[0], dataArray[1]);
+								_accounts[i].Add(dataArray[0], dataArray[1]);
 							}
 						}
 						line = reader.ReadLine();
@@ -146,11 +148,14 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				case "Сумма":
 					doc.Total = decimal.Parse(data[1], culture);
 					break;
+				case "КвитанцияДата":
+					doc.ReceiptDate = string.IsNullOrWhiteSpace(data[1]) ? (DateTime?)null : DateTime.Parse(data[1], culture);
+					break;
 				case "ПлательщикСчет":
 					doc.PayerAccount = data[1];
 					break;
 				case "ДатаСписано":
-					doc.WriteOffDate = DateTime.Parse(data[1], culture);
+					doc.WriteOffDate = string.IsNullOrWhiteSpace(data[1]) ? (DateTime?)null : DateTime.Parse(data[1], culture);
 					break;
 				case "Плательщик1":
 					if(data[1].Contains("р/с") && !string.IsNullOrWhiteSpace(data[1].Substring(0, data[1].IndexOf("р/с"))))
@@ -192,7 +197,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					doc.RecipientAccount = data[1];
 					break;
 				case "ДатаПоступило":
-					doc.ReceiptDate = DateTime.Parse(data[1], culture);
+					doc.ReceivedDate = string.IsNullOrWhiteSpace(data[1]) ? (DateTime?)null : DateTime.Parse(data[1], culture);
 					break;
 				case "Получатель1":
 					if(data[1].Contains("р/с") && !string.IsNullOrWhiteSpace(data[1].Substring(0, data[1].IndexOf("р/с"))))

@@ -10,6 +10,15 @@ namespace VodovozBusiness.Controllers
 {
 	public class DiscountController : IDiscountController
 	{
+		/// <summary>
+		/// Проверка применимости скидки к номенклатуре, т.е. если выбранное основание скидки содержит номенклатуру,
+		/// которая указана в основании скидки, либо основание содержит категорию номенклатуры, либо основание содержит товарную группу
+		/// с такой номенклатурой, то возвращаем true
+		/// Иначе false
+		/// </summary>
+		/// <param name="reason">Основание скидки</param>
+		/// <param name="nomenclature">Номенклатура</param>
+		/// <returns>true/false</returns>
 		public bool IsApplicableDiscount(DiscountReason reason, Nomenclature nomenclature)
 		{
 			if(reason == null)
@@ -18,8 +27,8 @@ namespace VodovozBusiness.Controllers
 			}
 
 			return ContainsNomenclature(nomenclature.Id, reason.Nomenclatures)
-			       || ContainsNomenclatureCategory(nomenclature.Category, reason.NomenclatureCategories)
-			       || ContainsProductGroup(nomenclature.ProductGroup, reason.ProductGroups);
+				|| ContainsNomenclatureCategory(nomenclature.Category, reason.NomenclatureCategories)
+				|| ContainsProductGroup(nomenclature.ProductGroup, reason.ProductGroups);
 		}
 
 		/// <summary>

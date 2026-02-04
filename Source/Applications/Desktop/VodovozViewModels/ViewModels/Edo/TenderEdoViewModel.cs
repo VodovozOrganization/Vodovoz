@@ -31,7 +31,7 @@ namespace Vodovoz.ViewModels.ViewModels.Edo
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 
-			TabName = $"Задача по госзаказу {Entity.OrderEdoRequest.Order.Id}";
+			TabName = $"Задача по госзаказу {Entity.FormalEdoRequest.Order.Id}";
 
 			ExportCodesCommand = new DelegateCommand(ExportCodes, () => CanCloseTenderEdoTask);
 			ExportCodesCommand.CanExecuteChangedWith(this, vm => vm.CanCloseTenderEdoTask);
@@ -50,7 +50,7 @@ namespace Vodovoz.ViewModels.ViewModels.Edo
 			var dialogSettings = new DialogSettings
 			{
 				Title = "Сохранить",
-				FileName = $"Коды по госзаказу {Entity.OrderEdoRequest.Order.Id}",
+				FileName = $"Коды по госзаказу {Entity.FormalEdoRequest.Order.Id}",
 				DefaultFileExtention = ".txt"
 			};
 			dialogSettings.FileFilters.Clear();
@@ -84,15 +84,15 @@ namespace Vodovoz.ViewModels.ViewModels.Edo
 				$"Задача переведена в следующий стадию {Entity.Stage.GetEnumDisplayName()}");
 		}
 
-		public string Info => $"Заказ: {Entity.OrderEdoRequest.Order.Id}.\r\n" +
+		public string Info => $"Заказ: {Entity.FormalEdoRequest.Order.Id}.\r\n" +
 		                      $"Статус отправки: {Entity.Stage.GetEnumDisplayName()}";
 
 		public IList<string> Codes => Entity.Items.Select(x =>
-			string.Concat("\"01", x.ProductCode.ResultCode.GTIN, "21", x.ProductCode.ResultCode.SerialNumber, "\"")).ToList();
+			string.Concat("\"01", x.ProductCode.ResultCode.Gtin, "21", x.ProductCode.ResultCode.SerialNumber, "\"")).ToList();
 
 		public DelegateCommand ExportCodesCommand { get; }
 
 		public bool CanCloseTenderEdoTask =>
-			CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.Edo.CanCloseTenderEdoTask, CurrentUser.Id);
+			CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.EdoPermissions.CanCloseTenderEdoTask, CurrentUser.Id);
 	}
 }

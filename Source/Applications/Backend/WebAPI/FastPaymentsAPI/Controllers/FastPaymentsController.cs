@@ -16,6 +16,7 @@ using Vodovoz.Core.Data.Orders;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.FastPayments;
+using VodovozHealthCheck.Helpers;
 
 namespace FastPaymentsAPI.Controllers
 {
@@ -122,15 +123,25 @@ namespace FastPaymentsAPI.Controllers
 				var organization = organizationResult.Value;
 				OrderRegistrationResponseDTO orderRegistrationResponseDto = null;
 				
+				var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
+				
 				try
 				{
 					_logger.LogInformation("Регистрируем заказ в системе эквайринга");
-					orderRegistrationResponseDto = await _fastPaymentOrderService.RegisterOrder(order, fastPaymentGuid, organization);
-
-					if(orderRegistrationResponseDto.ResponseCode != 0)
+					
+					if(isDryRun)
 					{
-						return _errorHandler.LogAndReturnErrorMessageFromRegistrationOrder(
-							response, orderRegistrationResponseDto, orderId, false, _logger);
+						orderRegistrationResponseDto = new OrderRegistrationResponseDTO { QRPngBase64 = "HealthCheck", };
+					}
+					else
+					{
+						orderRegistrationResponseDto = await _fastPaymentOrderService.RegisterOrder(order, fastPaymentGuid, organization);
+
+						if(orderRegistrationResponseDto.ResponseCode != 0)
+						{
+							return _errorHandler.LogAndReturnErrorMessageFromRegistrationOrder(
+								response, orderRegistrationResponseDto, orderId, false, _logger);
+						}	
 					}
 				}
 				catch(Exception e)
@@ -149,10 +160,12 @@ namespace FastPaymentsAPI.Controllers
 					FastPaymentPayType.ByQrCode,
 					organization,
 					requestType,
-					PaymentType.DriverApplicationQR);
-
+					PaymentType.DriverApplicationQR,
+					isDryRun: isDryRun);
+				
 				response.QRCode = orderRegistrationResponseDto.QRPngBase64;
-				response.FastPaymentStatus = FastPaymentStatus.Processing;
+				response.FastPaymentStatus = FastPaymentStatus.Processing;	
+				
 				return response;
 			}
 			catch(Exception e)
@@ -227,12 +240,23 @@ namespace FastPaymentsAPI.Controllers
 				
 				var organization = organizationResult.Value;
 				OrderRegistrationResponseDTO orderRegistrationResponseDto = null;
+				var isDryRun = false;
 				
 				try
 				{
 					_logger.LogInformation("Регистрируем заказ в системе эквайринга");
-					orderRegistrationResponseDto =
-						await _fastPaymentOrderService.RegisterOrder(order, fastPaymentGuid, organization, phoneNumber, isQr);
+
+					isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
+
+					if(isDryRun)
+					{
+						orderRegistrationResponseDto = new OrderRegistrationResponseDTO { Ticket = "HealthCheck"};
+					}
+					else
+					{
+						orderRegistrationResponseDto =
+							await _fastPaymentOrderService.RegisterOrder(order, fastPaymentGuid, organization, phoneNumber, isQr);
+					}
 
 					if(orderRegistrationResponseDto.ResponseCode != 0)
 					{
@@ -259,7 +283,8 @@ namespace FastPaymentsAPI.Controllers
 					organization,
 					requestType,
 					paymentType,
-					phoneNumber);
+					phoneNumber,
+					isDryRun);
 
 				response.Ticket = orderRegistrationResponseDto.Ticket;
 				response.FastPaymentGuid = fastPaymentGuid;
@@ -365,12 +390,21 @@ namespace FastPaymentsAPI.Controllers
 				var organization = organizationResult.Value;
 				OrderRegistrationResponseDTO orderRegistrationResponseDto = null;
 				var callBackUrl = requestRegisterOnlineOrderDto.CallbackUrl;
-
+				var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
+				
 				try
 				{
 					_logger.LogInformation("Регистрируем онлайн-заказ {OnlineOrderId} в системе эквайринга", onlineOrderId);
-					orderRegistrationResponseDto = await _fastPaymentOrderService.RegisterOnlineOrder(
-						requestRegisterOnlineOrderDto, organization, fastPaymentRequestType);
+
+					if(isDryRun)
+					{
+						orderRegistrationResponseDto = new OrderRegistrationResponseDTO { QRPngBase64 = "HealthCheck"};
+					}
+					else
+					{
+						orderRegistrationResponseDto = await _fastPaymentOrderService.RegisterOnlineOrder(
+							requestRegisterOnlineOrderDto, organization, fastPaymentRequestType);	
+					}
 
 					if(orderRegistrationResponseDto.ResponseCode != 0)
 					{
@@ -389,9 +423,12 @@ namespace FastPaymentsAPI.Controllers
 				_logger.LogInformation("Сохраняем новую сессию оплаты для онлайн-заказа №{OnlineOrderId}", onlineOrderId);
 				try
 				{
-					_fastPaymentService.SaveNewTicketForOnlineOrder(
-						orderRegistrationResponseDto, fastPaymentGuid, onlineOrderId, onlineOrderSum, FastPaymentPayType.ByQrCode,
-						organization, fastPaymentRequestType, callBackUrl);
+					if(!isDryRun)
+					{
+						_fastPaymentService.SaveNewTicketForOnlineOrder(
+							orderRegistrationResponseDto, fastPaymentGuid, onlineOrderId, onlineOrderSum, FastPaymentPayType.ByQrCode,
+							organization, fastPaymentRequestType, callBackUrl);
+					}
 				}
 				catch(Exception e)
 				{
@@ -446,6 +483,8 @@ namespace FastPaymentsAPI.Controllers
 			}
 
 			bool fastPaymentUpdated;
+			var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
+			
 			try
 			{
 				_logger.LogInformation("Проверяем подпись");
@@ -464,7 +503,7 @@ namespace FastPaymentsAPI.Controllers
 
 					try
 					{
-						_fastPaymentOrderService.NotifyEmployee(orderNumber, bankSignature, shopId, paymentSignature);
+						await _fastPaymentOrderService.NotifyEmployee(orderNumber, bankSignature, shopId, paymentSignature);
 					}
 					catch(Exception e)
 					{
@@ -475,7 +514,15 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				_logger.LogInformation("Обновляем статус оплаты платежа с ticket: {Ticket}", ticket);
-				fastPaymentUpdated = _fastPaymentService.UpdateFastPaymentStatus(paidOrderInfoDto, fastPayment);
+				
+				if(isDryRun)
+				{
+					fastPaymentUpdated = true;
+				}
+				else
+				{
+					fastPaymentUpdated = _fastPaymentService.UpdateFastPaymentStatus(paidOrderInfoDto, fastPayment);	
+				}
 			}
 			catch(Exception e)
 			{
@@ -487,14 +534,17 @@ namespace FastPaymentsAPI.Controllers
 				return Problem();
 			}
 
-			NotifyDriver(fastPayment, paidOrderInfoDto.OrderNumber);
-			
-			if(fastPaymentUpdated)
+			if(!isDryRun)
 			{
-				await _siteNotifier.NotifyPaymentStatusChangeAsync(fastPayment);
-				await _mobileAppNotifier.NotifyPaymentStatusChangeAsync(fastPayment);
+				NotifyDriver(fastPayment, paidOrderInfoDto.OrderNumber);
+
+				if(fastPaymentUpdated)
+				{
+					await _siteNotifier.NotifyPaymentStatusChangeAsync(fastPayment);
+					await _mobileAppNotifier.NotifyPaymentStatusChangeAsync(fastPayment);
+				}
 			}
-			
+
 			return Accepted();
 		}
 
@@ -520,9 +570,21 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				_logger.LogInformation("Посылаем запрос в банк на отмену сессии оплаты: {Ticket}", ticket);
-				var cancelPaymentResponse = await _fastPaymentOrderService.CancelPayment(ticket, fastPayment.Organization);
+				
+				var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
 
-				if(cancelPaymentResponse.ResponseCode == 0)
+				CancelPaymentResponseDTO cancelPaymentResponse;
+				
+				if(isDryRun)
+				{
+					cancelPaymentResponse = new CancelPaymentResponseDTO { ResponseCode = 0 };
+				}
+				else
+				{
+					cancelPaymentResponse = await _fastPaymentOrderService.CancelPayment(ticket, fastPayment.Organization);
+				}
+
+				if(!isDryRun && cancelPaymentResponse.ResponseCode == 0)
 				{
 					_logger.LogInformation("Обновляем статус платежа");
 					_fastPaymentService.UpdateFastPaymentStatus(fastPayment, FastPaymentDTOStatus.Rejected, DateTime.Now);

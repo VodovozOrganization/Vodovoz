@@ -130,6 +130,7 @@ namespace Vodovoz.Reports
 			var carTypesOfUse = new List<CarTypeOfUse>
 			{
 				CarTypeOfUse.GAZelle,
+				CarTypeOfUse.Minivan,
 				CarTypeOfUse.Largus,
 				CarTypeOfUse.Truck
 			};
@@ -155,8 +156,6 @@ namespace Vodovoz.Reports
 			if(radioCar.Active) {
 				parameters.Add("car_id", Car?.Id);
 				parameters.Add("driver_id", -1);
-				parameters.Add("include_car_models", new int[] { 0 });
-				parameters.Add("exclude_car_models", new int[] { 0 });
 			}
 
 			string reportName = "Logistic.FuelReport";

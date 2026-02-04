@@ -36,6 +36,8 @@ namespace EdoManualEventSender
 			Console.WriteLine("14. ReceiptReadyToSendEvent:");
 			Console.WriteLine("15. TransferCompleteEvent (Tender):");
 			Console.WriteLine("16. WithdrawalTaskCreatedEvent:");
+			Console.WriteLine("17. RequestTaskCancellationEvent:");
+			Console.WriteLine("18. OrderDocumentCancelledEvent:");
 			Console.WriteLine();
 
 			Console.Write("Выберите тип сообщения: ");
@@ -90,6 +92,12 @@ namespace EdoManualEventSender
 					break;
 				case 16:
 					SendWithdrawalTaskCreatedEvent();
+					break;
+				case 17:
+					SendRequestTaskCancellationEvent();
+					break;
+				case 18:
+					SendOrderDocumentCancelledEvent();
 					break;
 				default:
 					break;
@@ -342,6 +350,51 @@ namespace EdoManualEventSender
 				return;
 			}
 			_messageBus.Publish(new WithdrawalTaskCreatedEvent { WithdrawalEdoTaskId = id });
+		}
+
+		private void SendRequestTaskCancellationEvent()
+		{
+			Console.WriteLine();
+			Console.WriteLine("Внимание! Этот ивент может запустить аннулирование документа Taxcom");
+			Console.WriteLine("Необходимо ввести Id ЭДО задачи (edo_tasks)");
+			Console.Write("Введите Id (0 - выход): ");
+			var id = int.Parse(Console.ReadLine());
+			if(id <= 0)
+			{
+				Console.WriteLine("Выход");
+				return;
+			}
+
+			Console.Write("Введите основание для аннулирования (комментарий): ");
+			var reason = Console.ReadLine();
+			if(string.IsNullOrWhiteSpace(reason))
+			{
+				Console.WriteLine("Основание обязательно");
+				Console.WriteLine("Выход");
+				return;
+			}
+			_messageBus.Publish(new RequestTaskCancellationEvent { 
+				TaskId = id,
+				Reason = reason
+			});
+		}
+
+		private void SendOrderDocumentCancelledEvent()
+		{
+			Console.WriteLine();
+			Console.WriteLine("Необходимо ввести Id ЭДО документа с типом Order (edo_outgoing_documents)");
+			Console.Write("Введите Id (0 - выход): ");
+			var id = int.Parse(Console.ReadLine());
+			if(id <= 0)
+			{
+				Console.WriteLine("Выход");
+				return;
+			}
+
+			_messageBus.Publish(new OrderDocumentCancelledEvent
+			{ 
+				DocumentId = id
+			});
 		}
 	}
 }

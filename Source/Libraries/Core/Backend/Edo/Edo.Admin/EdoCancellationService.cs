@@ -1,6 +1,10 @@
-﻿using Edo.Contracts.Messages.Events;
+﻿using Core.Infrastructure;
+using Edo.Contracts.Messages.Events;
+using Edo.Problems;
+using Edo.Problems.Custom.Sources;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
@@ -15,22 +19,29 @@ namespace Edo.Admin
 		private readonly ILogger<EdoCancellationService> _logger;
 		private readonly IUnitOfWork _uow;
 		private readonly IEdoCancellationValidator _edoCancellationValidator;
-		private readonly IBus _messageBus;
+		private readonly EdoProblemRegistrar _edoProblemRegistrar;
+		private readonly IPublishEndpoint _publishEndpoint;
 
 		public EdoCancellationService(
 			ILogger<EdoCancellationService> logger,
 			IUnitOfWork uow,
 			IEdoCancellationValidator edoCancellationValidator,
-			IBus messageBus
+			EdoProblemRegistrar edoProblemRegistrar,
+			IPublishEndpoint publishEndpoint
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_edoCancellationValidator = edoCancellationValidator ?? throw new ArgumentNullException(nameof(edoCancellationValidator));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
-		public async Task CancelTask(int taskId, string reason, CancellationToken cancellationToken)
+		public async Task CancelTask(
+			int taskId, 
+			string reason,
+			CancellationToken cancellationToken
+		)
 		{
 			var edoTask = await _uow.Session.GetAsync<EdoTask>(taskId, cancellationToken);
 			if(edoTask == null)
@@ -57,28 +68,71 @@ namespace Edo.Admin
 			await _uow.CommitAsync(cancellationToken);
 		}
 
-		private async Task CancelOrderTask(OrderEdoTask edoTask, string reason, CancellationToken cancellationToken)
+		private async Task CancelOrderTask(
+			OrderEdoTask edoTask, 
+			string reason,
+			CancellationToken cancellationToken
+			)
 		{
-			var relatedTransfers = edoTask.TransferIterations
-				.SelectMany(x => x.TransferEdoRequests.Select(t => t.TransferEdoTask));
+			var orderDocument = await _uow.Session.QueryOver<OrderEdoDocument>()
+				.Where(x => x.DocumentTaskId == edoTask.Id)
+				.SingleOrDefaultAsync(cancellationToken);
 
-			foreach(var transfer in relatedTransfers)
+			if(orderDocument == null || orderDocument.Status == EdoDocumentStatus.Cancelled)
 			{
-				await CancelTransferTask(transfer, reason, cancellationToken);
+				edoTask.Status = EdoTaskStatus.Cancelled;
+				edoTask.CancellationReason = reason;
+
+				await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
+				return;
 			}
 
 			edoTask.Status = EdoTaskStatus.InCancellation;
 			edoTask.CancellationReason = reason;
-		}
 
+			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
+
+			var message = new RequestDocflowCancellationEvent
+			{
+				TaskId = edoTask.Id,
+				Reason = reason
+			};
+
+			await _publishEndpoint.Publish(message, cancellationToken);
+		}
+		
 		private async Task CancelTransferTask(
 			TransferEdoTask transferEdoTask,
 			string reason,
 			CancellationToken cancellationToken
 			)
 		{
+			if(transferEdoTask.Status.IsIn(
+				EdoTaskStatus.Completed,
+				EdoTaskStatus.Cancelled,
+				EdoTaskStatus.InCancellation
+				))
+			{
+				return;
+			}
+
+			var transferDocument = await _uow.Session.QueryOver<TransferEdoDocument>()
+				.Where(x => x.TransferTaskId == transferEdoTask.Id)
+				.SingleOrDefaultAsync(cancellationToken);
+
+			if(transferDocument == null || transferDocument.Status == EdoDocumentStatus.Cancelled)
+			{
+				transferEdoTask.Status = EdoTaskStatus.Cancelled;
+				transferEdoTask.CancellationReason = reason;
+
+				await _uow.SaveAsync(transferEdoTask, cancellationToken: cancellationToken);
+				return;
+			}
+
 			transferEdoTask.Status = EdoTaskStatus.InCancellation;
 			transferEdoTask.CancellationReason = reason;
+
+			await _uow.SaveAsync(transferEdoTask, cancellationToken: cancellationToken);
 
 			var message = new RequestDocflowCancellationEvent
 			{
@@ -86,7 +140,7 @@ namespace Edo.Admin
 				Reason = reason
 			};
 
-			await _messageBus.Publish(message, cancellationToken);
+			await _publishEndpoint.Publish(message, cancellationToken);
 		}
 
 		public async Task AcceptTransferTaskCancellation(int transferDocumentId, CancellationToken cancellationToken)
@@ -114,39 +168,45 @@ namespace Edo.Admin
 			transferTask.Status = EdoTaskStatus.Cancelled;
 			transferTask.EndTime = DateTime.Now;
 
-			await UpdateInCancellationOrderTasks(transferTask, cancellationToken);
-
 			await _uow.SaveAsync(transferTask, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
 		}
 
-		private async Task UpdateInCancellationOrderTasks(TransferEdoTask transferTask, CancellationToken cancellationToken)
+		public async Task AcceptOrderTaskCancellation(int orderDocumentId, CancellationToken cancellationToken)
 		{
-			var orderTasks = transferTask.TransferEdoRequests
-				.SelectMany(x => x.TransferedItems.Select(t => t.CustomerEdoTask));
-
-			var inCancellationTasks = orderTasks.Where(x => x.Status == EdoTaskStatus.InCancellation);
-			foreach(var inCancellationTask in inCancellationTasks)
+			var orderDocument = await _uow.Session.GetAsync<OrderEdoDocument>(orderDocumentId, cancellationToken);
+			if(orderDocument == null)
 			{
-				await TryAcceptCancellationOrderTask(inCancellationTask, cancellationToken);
+				_logger.LogWarning("Документ №{OrderDocumentId} не найден.", orderDocumentId);
+				return;
 			}
-		}
 
-		private async Task TryAcceptCancellationOrderTask(
-			OrderEdoTask edoTask,
-			CancellationToken cancellationToken
-			)
-		{
-			var relatedTransfers = edoTask.TransferIterations
-				.SelectMany(x => x.TransferEdoRequests.Select(t => t.TransferEdoTask));
-
-			if(relatedTransfers.All(x => x.Status == EdoTaskStatus.Cancelled))
+			var orderTask = await _uow.Session.GetAsync<OrderEdoTask>(orderDocument.DocumentTaskId, cancellationToken);
+			if(orderTask == null)
 			{
-				edoTask.Status = EdoTaskStatus.Cancelled;
-				edoTask.EndTime = DateTime.Now;
-
-				await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
+				_logger.LogWarning("Задача №{TaskId} не найдена.", orderDocument.DocumentTaskId);
+				return;
 			}
+
+			if(orderTask.Status == EdoTaskStatus.Cancelled)
+			{
+				_logger.LogWarning("Задача №{TaskId} уже отменена.", orderDocument.DocumentTaskId);
+				return;
+			}
+
+			if(orderTask.Status != EdoTaskStatus.InCancellation)
+			{
+				_logger.LogWarning("Задача №{TaskId} не находится в процессе отмены.", orderDocument.DocumentTaskId);
+				await _edoProblemRegistrar.RegisterCustomProblem<DocflowCouldNotBeCompleted>(
+					orderTask, cancellationToken, "Документооборот был отменен");
+				return;
+			}
+
+			orderTask.Status = EdoTaskStatus.Cancelled;
+			orderTask.EndTime = DateTime.Now;
+
+			await _uow.SaveAsync(orderTask, cancellationToken: cancellationToken);
+			await _uow.CommitAsync(cancellationToken);
 		}
 	}
 }

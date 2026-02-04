@@ -1,6 +1,5 @@
 ﻿using Core.Infrastructure;
 using System;
-using System.Linq;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Settings.Edo;
 
@@ -66,43 +65,31 @@ namespace Edo.Admin
 
 		private bool CanCancelDocumentEdoTask(DocumentEdoTask edoTask)
 		{
-			var canCancelTransfers = CanCancelRelatedTransfers(edoTask);
-
 			var canCancel = edoTask.Stage.IsIn(
 				DocumentEdoTaskStage.New,
-				DocumentEdoTaskStage.Transfering
+				DocumentEdoTaskStage.Transfering,
+				DocumentEdoTaskStage.Sending,
+				DocumentEdoTaskStage.Sent
 			);
-			return canCancel && canCancelTransfers;
+			return canCancel;
 		}
 
 		private bool CanCancelReceiptEdoTask(ReceiptEdoTask edoTask)
 		{
-			var canCancelTransfers = CanCancelRelatedTransfers(edoTask);
-
 			var canCancel = edoTask.ReceiptStatus.IsIn(
 				EdoReceiptStatus.New,
 				EdoReceiptStatus.Transfering
 			);
-			return canCancel && canCancelTransfers;
+			return canCancel;
 		}
 
 		private bool CanCancelTenderEdoTask(TenderEdoTask edoTask)
 		{
-			var canCancelTransfers = CanCancelRelatedTransfers(edoTask);
-
 			var canCancel = edoTask.Stage.IsIn(
 				TenderEdoTaskStage.New,
 				TenderEdoTaskStage.Transfering
 			);
-			return canCancel && canCancelTransfers;
-		}
-
-		private bool CanCancelRelatedTransfers(OrderEdoTask edoTask)
-		{
-			var transferTasks = edoTask.TransferIterations
-				.SelectMany(x => x.TransferEdoRequests.Select(t => t.TransferEdoTask));
-			var canCancelTransfers = transferTasks.All(x => CanCancelTransferEdoTask(x));
-			return canCancelTransfers;
+			return canCancel;
 		}
 	}
 }

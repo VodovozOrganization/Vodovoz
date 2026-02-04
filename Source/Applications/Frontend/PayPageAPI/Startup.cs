@@ -1,10 +1,11 @@
-using AspNetCoreRateLimit;
+﻿using AspNetCoreRateLimit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 using NLog.Web;
 using PayPageAPI.Controllers;
 using PayPageAPI.HealthChecks;
@@ -31,13 +32,18 @@ namespace PayPageAPI
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddLogging(
-				logging =>
+			services
+				.AddSwaggerGen(c =>
 				{
-					logging.ClearProviders();
-					logging.AddNLogWeb();
-					logging.AddConfiguration(Configuration.GetSection("NLog"));
-				});
+					c.SwaggerDoc("v1", new OpenApiInfo { Title = "PayPageAPI", Version = "v1" });
+				})
+				.AddLogging(
+					logging =>
+					{
+						logging.ClearProviders();
+						logging.AddNLogWeb();
+						logging.AddConfiguration(Configuration.GetSection("NLog"));
+					});
 
 			services
 				.AddMappingAssemblies(
@@ -82,8 +88,10 @@ namespace PayPageAPI
 			
 			//models
 			services.AddScoped<IAvangardFastPaymentModel, AvangardFastPaymentModel>();
+			
+			services.AddHttpClient();
 
-			services.ConfigureHealthCheckService<PayPageHealthCheck>();
+			services.ConfigureHealthCheckService<PayPageHealthCheck, ServiceInfoProvider>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -94,6 +102,8 @@ namespace PayPageAPI
 			if(env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
+				app.UseSwagger();
+				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "PayPageAPI v1"));
 			}
 			else
 			{
@@ -115,7 +125,7 @@ namespace PayPageAPI
 					pattern: "{controller=Home}/{action=Index}/{id?}");
 			});
 
-			app.ConfigureHealthCheckApplicationBuilder();
+			app.UseVodovozHealthCheck();
 		}
 	}
 }

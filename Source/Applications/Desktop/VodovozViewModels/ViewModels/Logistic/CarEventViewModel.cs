@@ -14,11 +14,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Warehouses.Documents;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.FilterViewModels.Employees;
@@ -91,7 +89,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			CanChangeWithClosedPeriod =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_edit_car_events_in_closed_period");
 			_canCreateFuelBalanceCalibrationCarEvent = commonServices.CurrentPermissionService.ValidatePresetPermission(
-				Vodovoz.Core.Domain.Permissions.Logistic.Car.CanCreateFuelBalanceCalibrationCarEvent);
+				Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.CanCreateFuelBalanceCalibrationCarEvent);
 			_startNewPeriodDay = _carEventSettings.CarEventStartNewPeriodDay;
 			UpdateFileItems();
 
@@ -254,7 +252,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return;
 			}
 
-			Entity.CurrentFuelBalance = _fuelRepository.GetFuelBalance(UoW, null, Entity.Car, Entity.CreateDate);
+			Entity.CurrentFuelBalance = _fuelRepository.GetFuelBalance(UoW, null, Entity.Car, _carEventSettings.FuelBalanceCalibrationCarEventTypeId, Entity.CreateDate);
 		}
 
 		private void UpdateSubstractionFuelBalance()
@@ -584,7 +582,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			_interactiveService.ShowMessage(
 				ImportanceLevel.Info,
-				"Калибровку можно делать только утром до первого рейса на дату"
+				"Ограничения при проведении калибровки:\n" +
+				"1. Калибровку можно делать только утром до первого рейса на дату\n" +
+				"2. На автомобиль не должно быть выдано топливо на текущую дату\n" +
+				"3. У автомобиля не должно быть завершенных заказов по МЛ на текущую дату"
 			);
 		}
 
@@ -598,7 +599,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private void CreateAddFineCommand()
 		{
 			AddFineCommand = new DelegateCommand(
-				() => CreateAddFine(),
+				CreateAddFine,
 				() => CanAddFine
 			);
 			AddFineCommand.CanExecuteChangedWith(this, x => CanAddFine);
@@ -610,7 +611,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private void CreateAttachFineCommand()
 		{
 			AttachFineCommand = new DelegateCommand(
-				() => CreateAttachFine(),
+				CreateAttachFine,
 				() => CanAttachFine
 			);
 			AttachFineCommand.CanExecuteChangedWith(this, x => CanAttachFine);
@@ -618,36 +619,47 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		private void CreateAttachFine()
 		{
-			var page = NavigationManager.OpenViewModel<FinesJournalViewModel, Action<FineFilterViewModel>>(this, filter =>
-			{
-				filter.ExcludedIds = Entity.Fines.Select(x => x.Id).ToArray();
-			});
-
-			page.ViewModel.SelectionMode = JournalSelectionMode.Single;
-
-			page.ViewModel.OnSelectResult += (sender, e) =>
-			{
-				var selectedObject = e.SelectedObjects.FirstOrDefault();
-
-				if(!(selectedObject is FineJournalNode selectedNode))
+			NavigationManager.OpenViewModel<FinesJournalViewModel, Action<FineFilterViewModel>>(
+				this,
+				filter =>
 				{
-					return;
-				}
-
-				var carEvents = _carEventRepository.GetCarEventsByFine(UoW, selectedNode.Id);
-
-				if(carEvents.Any())
+					filter.ExcludedIds = Entity.Fines.Select(x => x.Id).ToArray();
+				},
+				OpenPageOptions.AsSlave,
+				vm =>
 				{
-					CommonServices.InteractiveService.ShowMessage(
-						ImportanceLevel.Warning,
-						$"Невозможно прикрепить данный штраф, так как он уже закреплён за другим событием:\n" +
-						$"{string.Join(", ", carEvents.Select(ce => $"{ce.Id} - {ce.CarEventType.ShortName}"))}");
+					vm.SelectionMode = JournalSelectionMode.Single;
+					vm.OnSelectResult += AttachFine;
+				});
+		}
 
-					return;
-				}
+		private void AttachFine(object sender, JournalSelectedEventArgs e)
+		{
+			if(sender is JournalViewModelBase journal)
+			{
+				journal.OnSelectResult -= AttachFine;
+			}
+			
+			var selectedObject = e.SelectedObjects.FirstOrDefault();
 
-				Entity.AddFine(UoW.GetById<Fine>(selectedNode.Id));
-			};
+			if(!(selectedObject is FineJournalNode selectedNode))
+			{
+				return;
+			}
+
+			var carEvents = _carEventRepository.GetCarEventsByFine(UoW, selectedNode.Id);
+
+			if(carEvents.Any())
+			{
+				CommonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					$"Невозможно прикрепить данный штраф, так как он уже закреплён за другим событием:\n" +
+					$"{string.Join(", ", carEvents.Select(ce => $"{ce.Id} - {ce.CarEventType.ShortName}"))}");
+
+				return;
+			}
+
+			Entity.AddFine(UoW.GetById<Fine>(selectedNode.Id));
 		}
 
 		private void CreateAddFine()

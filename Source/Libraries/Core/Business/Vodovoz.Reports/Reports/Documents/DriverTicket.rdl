@@ -15,6 +15,7 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     orders.id AS order_id,
+    document_organization_counters.document_number AS document_number,
     orders.delivery_date AS order_date,
     orders.self_delivery AS self_delivery,
     delivery_points.organization AS organization,
@@ -125,6 +126,10 @@ FROM
         LEFT JOIN
     employees ON employees.id = orders.author_employee_id
         LEFT JOIN
+    order_documents ON order_documents.order_id = orders.id AND order_documents.type IN ('SpecialUPD', 'UPD') AND order_documents.document_organization_counter_id IS NOT NULL
+        LEFT JOIN 
+    document_organization_counters ON document_organization_counters.id = order_documents.document_organization_counter_id
+        LEFT JOIN
     phones as delivery_points_phones ON delivery_points_phones.delivery_point_id = delivery_points.id AND delivery_points_phones.is_archive = 0
         LEFT JOIN
     phones as counterparty_phones ON counterparty_phones.counterparty_id = counterparty.id AND counterparty_phones.is_archive = 0
@@ -141,6 +146,10 @@ WHERE
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
         </Field>
+        <Field Name="document_number">
+          <DataField>document_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field> 
         <Field Name="order_date">
           <DataField>order_date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -1428,7 +1437,17 @@ WHERE stored_resource.id = @id1</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox61">
-                      <Value>='Талон доставки № ' + {order_id} + ' от ' + Format({order_date}, "dd.MM.yy") + ' БезНал'</Value>
+                      <Value>="Талон доставки № " + 
+                          CStr(First(Fields!order_id.Value, "Order")) + 
+                          IIf(
+                              Len(Trim(CStr(First(Fields!document_number.Value, "Order")))) = 0,
+                              "",
+                              "/" + CStr(First(Fields!document_number.Value, "Order"))
+                          ) + 
+                          " от " + 
+                          Format(First(Fields!order_date.Value, "Order"), "dd.MM.yy") + 
+                          " БезНал"
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>

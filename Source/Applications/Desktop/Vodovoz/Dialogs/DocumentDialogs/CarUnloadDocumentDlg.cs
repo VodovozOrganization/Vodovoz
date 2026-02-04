@@ -1,8 +1,10 @@
 ﻿using Autofac;
 using Microsoft.Extensions.Logging;
 using QS.Dialog.GtkUI;
+using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.Navigation;
+using QS.Project.DB;
 using QS.Project.Services;
 using QS.ViewModels.Control.EEVM;
 using QSOrmProject;
@@ -10,7 +12,6 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Vodovoz.Additions;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Core.Domain.Warehouses;
@@ -20,11 +21,12 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Equipments;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Infrastructure.Converters;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Repository.Store;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Store;
@@ -36,6 +38,7 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.Warehouses;
 using Vodovoz.ViewWidgets.Store;
 
+
 namespace Vodovoz
 {
 	public partial class CarUnloadDocumentDlg : QS.Dialog.Gtk.EntityDialogBase<CarUnloadDocument>
@@ -45,18 +48,18 @@ namespace Vodovoz
 		private INomenclatureSettings _nomenclatureSettings;
 
 		private IEmployeeRepository _employeeRepository;
-		private ITrackRepository _trackRepository;
-		private IEquipmentRepository _equipmentRepository;
 		private ICarUnloadRepository _carUnloadRepository;
 		private IRouteListRepository _routeListRepository;
 		private INomenclatureRepository _nomenclatureRepository;
-
+		
 		private IWageParameterService _wageParameterService;
 		private ICallTaskWorker _callTaskWorker;
 		private ILifetimeScope _lifetimeScope;
+		private IOrmConfig _ormConfig;
 		private IEventsQrPlacer _eventsQrPlacer;
 
 		private IStoreDocumentHelper _storeDocumentHelper;
+		private IRouteListService _routeListService;
 
 		#region Конструкторы
 		public CarUnloadDocumentDlg()
@@ -106,23 +109,24 @@ namespace Vodovoz
 		private void ResolveDependencies()
 		{
 			_lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+			_ormConfig = _lifetimeScope.Resolve<IOrmConfig>();
 			_logger = _lifetimeScope.Resolve<ILogger<CarUnloadDocumentDlg>>();
 			NavigationManager = _lifetimeScope.Resolve<INavigationManager>();
 
 			_nomenclatureSettings = _lifetimeScope.Resolve<INomenclatureSettings>();
 
 			_employeeRepository = _lifetimeScope.Resolve<IEmployeeRepository>();
-			_trackRepository = _lifetimeScope.Resolve<ITrackRepository>();
-			_equipmentRepository = _lifetimeScope.Resolve<IEquipmentRepository>();
 			_carUnloadRepository = _lifetimeScope.Resolve<ICarUnloadRepository>();
 			_routeListRepository = _lifetimeScope.Resolve<IRouteListRepository>();
 			_nomenclatureRepository = _lifetimeScope.Resolve<INomenclatureRepository>();
-
+			
 			_wageParameterService = _lifetimeScope.Resolve<IWageParameterService>();
 			_callTaskWorker = _lifetimeScope.Resolve<ICallTaskWorker>();
 
 			_storeDocumentHelper = _lifetimeScope.Resolve<IStoreDocumentHelper>();
 			_eventsQrPlacer = _lifetimeScope.Resolve<IEventsQrPlacer>();
+			
+			_routeListService = _lifetimeScope.Resolve<IRouteListService>();
 		}
 
 		private void ConfigureNewDoc()
@@ -297,12 +301,43 @@ namespace Vodovoz
 
 			if(Entity.RouteList.Status == RouteListStatus.Delivered)
 			{
-				Entity.RouteList.CompleteRouteAndCreateTask(_wageParameterService, _callTaskWorker, _trackRepository);
+				 _routeListService.CompleteRouteAndCreateTask(UoW, Entity.RouteList, _wageParameterService, _callTaskWorker);
 			}
 
-			_logger.LogInformation("Сохраняем разгрузочный талон...");
-			UoWGeneric.Save();
-			_logger.LogInformation("Ok.");
+			try
+			{
+				_logger.LogInformation("Сохраняем талон разгрузки авто по МЛ {RouteListId}", Entity.RouteList?.Id);
+				UoWGeneric.Save();
+				_logger.LogInformation("Талон разгрузки авто успешно сохранен");
+			}
+			catch(NHibernate.StaleObjectStateException ex)
+			{
+				var type = _ormConfig.FindMappingByFullClassName(ex.EntityName).MappedClass;
+				var objectName = DomainHelper.GetSubjectNames(type)?.Nominative ?? type.Name;
+
+				_logger.LogError(
+					ex,
+					"Ошибка при сохранении талона разгрузки. Версия документа {DocumentTypeName} №{DocumentId} устарела",
+					objectName,
+					ex.Identifier);
+
+				MessageDialogHelper.RunErrorDialog(
+					$"Ошибка при сохранении талона разгрузки" +
+					$"\nВерсия документа {objectName} №{ex.Identifier} устарела" +
+					$"\nВаши изменения не будут записаны, чтобы не потерять чужие изменения" +
+					$"\nПереоткройте вкладку");
+				
+				return false;
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при сохранении талона разгрузки");
+				MessageDialogHelper.RunErrorDialog(
+					"Ошибка при сохранении талона разгрузки" +
+					"\nПереоткройте вкладку");
+				return false;
+			}
+
 			return true;
 		}
 
@@ -336,7 +371,7 @@ namespace Vodovoz
 
 			treeOtherReturns.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<Nomenclature>()
 				.AddColumn("Название").AddTextRenderer(x => x.Name)
-				.AddColumn("Количество").AddTextRenderer(x => ((int)returns[x.Id]).ToString())
+				.AddColumn("Количество").AddNumericRenderer(x => returns[x.Id], new RoundedDecimalToStringConverter())
 				.Finish();
 
 			Nomenclature nomenclatureAlias = null;
@@ -615,6 +650,15 @@ namespace Vodovoz
 
 				if(!exist)
 				{
+					var freeBalanceOperation = item.DeliveryFreeBalanceOperation;
+
+					//т.к. при удалении строки разгрузки, пытается удалиться связанная строка свободных остатков,
+					//то ее нужно убрать из всех связанных коллекций, чтобы она по каскаду не стала вновь сохраняться
+					if(freeBalanceOperation != null)
+					{
+						Entity.RouteList.ObservableDeliveryFreeBalanceOperations.Remove(freeBalanceOperation);
+					}
+					
 					UoW.Delete(item.GoodsAccountingOperation);
 					Entity.ObservableItems.Remove(item);
 				}

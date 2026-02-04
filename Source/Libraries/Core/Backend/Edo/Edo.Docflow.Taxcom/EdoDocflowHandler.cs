@@ -1,13 +1,15 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Core.Infrastructure;
+using Edo.Contracts.Messages.Events;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Core.Infrastructure;
-using Edo.Contracts.Messages.Events;
 using TaxcomEdo.Client;
+using TaxcomEdo.Contracts.Documents;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Docflow.Taxcom
 {
@@ -60,6 +62,44 @@ namespace Edo.Docflow.Taxcom
 					ErrorMessage = "Не удалось отправить УПД на сервер Такском"
 				};
 				
+				await _uow.SaveAsync(newAction);
+				await _uow.CommitAsync();
+			}
+		}
+
+		public async Task CreateTaxcomDocflowInformalDocument(TaxcomDocflowInformalDocumentSendEvent @event)
+		{
+			var now = DateTime.Now;
+			
+			var taxcomDocflow = new TaxcomDocflow
+			{
+				CreationTime = now,
+				MainDocumentId = @event.DocumentInfo.MainDocumentId.ToString(),
+				DocflowId = null,
+				EdoDocumentId = @event.EdoOutgoingDocumentId,
+			};
+			
+			taxcomDocflow.Actions.Add(new TaxcomDocflowAction
+			{
+				DocFlowState = EdoDocFlowStatus.NotStarted,
+				Time = now
+			});
+			
+			await _uow.SaveAsync(taxcomDocflow);
+			await _uow.CommitAsync();
+
+			var result = await _taxcomApiClient.SendDataForCreateInformalOrderDocumentByEdo(@event.DocumentInfo);
+
+			if(!result)
+			{
+				var newAction = new TaxcomDocflowAction
+				{
+					DocFlowState = EdoDocFlowStatus.Error,
+					Time = DateTime.Now,
+					TaxcomDocflowId = taxcomDocflow.Id,
+					ErrorMessage = "Не удалось отправить неформализованный документ заказа на сервер Такском"
+				};
+
 				await _uow.SaveAsync(newAction);
 				await _uow.CommitAsync();
 			}
@@ -178,17 +218,6 @@ namespace Edo.Docflow.Taxcom
 			return edoDocflowUpdatedEvent;
 		}
 
-		private async Task SaveTaxcomDocflow(TaxcomDocflow taxcomDocflow)
-		{
-			_logger.LogInformation(
-				"Сохраняем изменения документооборота {DocflowId} по документу {DocumentId}",
-				taxcomDocflow.DocflowId,
-				taxcomDocflow.MainDocumentId);
-			
-			await _uow.SaveAsync(taxcomDocflow);
-			await _uow.CommitAsync();
-		}
-
 		public async Task AcceptIngoingTaxcomEdoDocFlowWaitingForSignature(
 			AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent @event, CancellationToken cancellationToken = default)
 		{
@@ -197,7 +226,26 @@ namespace Edo.Docflow.Taxcom
 
 			if(taxcomDocflow is null)
 			{
-				_logger.LogWarning("Не нашли отправку с таким документом {ExternalIdentifier}", @event.MainDocumentId);
+				_logger.LogWarning("Не нашли отправку с таким документом {ExternalIdentifier}. Попробуем найти по ДО {DocflowId}",
+					@event.MainDocumentId,
+					@event.DocFlowId);
+				
+				taxcomDocflow = _uow.Session.Query<TaxcomDocflow>()
+					.SingleOrDefault(x => x.DocflowId == @event.DocFlowId);
+
+				if(taxcomDocflow is null)
+				{
+					_logger.LogWarning("Не нашли отправку с таким ДО {DocflowId}", @event.DocFlowId);
+					return;
+				}
+			}
+			
+			if(taxcomDocflow.AcceptingIngoingDocflowTime.HasValue
+				&& (DateTime.Now - taxcomDocflow.AcceptingIngoingDocflowTime.Value).TotalHours < 1)
+			{
+				_logger.LogWarning("По ДО {DocflowId} была уже отправка титула покупателя {SendTime}, ждем час",
+					taxcomDocflow.DocflowId,
+					taxcomDocflow.AcceptingIngoingDocflowTime.Value.ToShortDateString());
 				return;
 			}
 
@@ -210,10 +258,26 @@ namespace Edo.Docflow.Taxcom
 			if(!result)
 			{
 				_logger.LogError(
-					"Не удалось подписать входящий документ {ExternalIdentifier} документооборота {Docflow}",
+					"Не удалось подписать входящий документ {ExternalIdentifier} документооборота {DocflowId}",
 					taxcomDocflow.MainDocumentId,
 					@event.DocFlowId);
 			}
+			else
+			{
+				taxcomDocflow.AcceptingIngoingDocflowTime = DateTime.Now;
+				await SaveTaxcomDocflow(taxcomDocflow);
+			}
+		}
+		
+		private async Task SaveTaxcomDocflow(TaxcomDocflow taxcomDocflow)
+		{
+			_logger.LogInformation(
+				"Сохраняем изменения документооборота {DocflowId} по документу {DocumentId}",
+				taxcomDocflow.DocflowId,
+				taxcomDocflow.MainDocumentId);
+			
+			await _uow.SaveAsync(taxcomDocflow);
+			await _uow.CommitAsync();
 		}
 	}
 }

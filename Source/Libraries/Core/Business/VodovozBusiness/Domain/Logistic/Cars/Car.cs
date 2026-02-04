@@ -4,8 +4,12 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
+using QS.DomainModel.UoW;
+using QS.Services;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Logistics.Cars;
+using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Sale;
 
@@ -357,10 +361,14 @@ namespace Vodovoz.Domain.Logistic.Cars
 				x.StartDate <= date && (x.EndDate == null || x.EndDate >= date));
 		}
 
-		public static CarTypeOfUse[] GetCarTypesOfUseForRatesLevelWageCalculation() => new[] { CarTypeOfUse.Largus, CarTypeOfUse.GAZelle };
+		public static CarTypeOfUse[] GetCarTypesOfUseForRatesLevelWageCalculation() => new[] { CarTypeOfUse.Largus, CarTypeOfUse.Minivan, CarTypeOfUse.GAZelle };
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
+			var currentPermissionService = validationContext.GetRequiredService<ICurrentPermissionService>();
+			var canChangeCompositionCompanyTransportPark =
+				currentPermissionService.ValidatePresetPermission(CarPermissions.CanChangeCompositionCompanyTransportPark);
+			
 			if(string.IsNullOrWhiteSpace(RegistrationNumber))
 			{
 				yield return new ValidationResult("Гос. номер автомобиля должен быть заполнен", new[] { nameof(RegistrationNumber) });
@@ -399,6 +407,70 @@ namespace Vodovoz.Domain.Logistic.Cars
 			if(!CarVersions.Any())
 			{
 				yield return new ValidationResult("Должна быть создана хотя бы одна версия", new[] { nameof(CarVersions) });
+			}
+
+			if(!canChangeCompositionCompanyTransportPark)
+			{
+				var activeVersion = GetActiveCarVersionOnDate();
+
+				if(Id == 0)
+				{
+					if(activeVersion != null && (activeVersion.IsCompanyCar || activeVersion.IsRaskat))
+					{
+						yield return new ValidationResult(
+							"Невозможно сохранить авто в выбранной принадлежности. У Вас нет права менять состав автопарка компании",
+							new[] { nameof(CarVersions) });
+					}
+				}
+				else
+				{
+					using(var uow = validationContext.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot("Получение данных авто из БД"))
+					{
+						var carDataFromBase = uow.GetById<Car>(Id);
+						var activeVersionFromBase = carDataFromBase.GetActiveCarVersionOnDate();
+
+						if(carDataFromBase.IsArchive != IsArchive && (activeVersion.IsCompanyCar || activeVersion.IsRaskat))
+						{
+							yield return new ValidationResult(
+								"Невозможно поменять архивность авто. У Вас нет права менять состав автопарка компании",
+								new[] { nameof(CarVersions) });
+						}
+						
+						bool error = false;
+
+						if(activeVersionFromBase != null)
+						{
+							switch(activeVersionFromBase.CarOwnType)
+							{
+								case CarOwnType.Company:
+									if(activeVersion != null && activeVersion.CarOwnType != CarOwnType.Company)
+									{
+										error =  true;
+									}
+									break;
+								case CarOwnType.Raskat:
+									if(activeVersion != null && activeVersion.CarOwnType != CarOwnType.Raskat)
+									{
+										error =  true;
+									}
+									break;
+								case CarOwnType.Driver:
+									if(activeVersion != null && (activeVersion.IsCompanyCar || activeVersion.IsRaskat))
+									{
+										error =  true;
+									}
+									break;
+							}
+						}
+						
+						if(error)
+						{
+							yield return new ValidationResult(
+								"Невозможно сохранить авто в выбранной принадлежности. У Вас нет права менять состав автопарка компании",
+								new[] { nameof(CarVersions) });
+						}
+					}
+				}
 			}
 
 			if(Driver != null)

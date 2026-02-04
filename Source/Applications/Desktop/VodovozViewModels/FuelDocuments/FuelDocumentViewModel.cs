@@ -30,6 +30,7 @@ using Vodovoz.Services;
 using Vodovoz.Services.Fuel;
 using Vodovoz.Settings.Cash;
 using Vodovoz.Settings.Fuel;
+using Vodovoz.Settings.Logistics;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
 using Vodovoz.ViewModels.Cash;
@@ -54,6 +55,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly IFuelApiService _fuelApiService;
 		private readonly IFuelControlSettings _fuelControlSettings;
+		private readonly ICarEventSettings _carEventSettings;
 		private readonly IGuiDispatcher _guiDispatcher;
 		private readonly IUserSettingsService _userSettingsService;
 		private readonly IYesNoCancelQuestionInteractive _yesNoCancelQuestionInteractive;
@@ -96,6 +98,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			IOrganizationRepository organizationRepository,
 			IFuelApiService fuelApiService,
 			IFuelControlSettings fuelControlSettings,
+			ICarEventSettings carEventSettings,
 			IGuiDispatcher guiDispatcher,
 			IUserSettingsService userSettingsService,
 			IYesNoCancelQuestionInteractive yesNoCancelQuestionInteractive,
@@ -115,6 +118,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
+			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
 			_yesNoCancelQuestionInteractive = yesNoCancelQuestionInteractive ?? throw new ArgumentNullException(nameof(yesNoCancelQuestionInteractive));
@@ -153,6 +157,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			IOrganizationRepository organizationRepository,
 			IFuelApiService fuelApiService,
 			IFuelControlSettings fuelControlSettings,
+			ICarEventSettings carEventSettings,
 			IGuiDispatcher guiDispatcher,
 			IUserSettingsService userSettingsService,
 			IYesNoCancelQuestionInteractive yesNoCancelQuestionInteractive,
@@ -172,6 +177,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
+			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
 			_yesNoCancelQuestionInteractive = yesNoCancelQuestionInteractive ?? throw new ArgumentNullException(nameof(yesNoCancelQuestionInteractive));
@@ -181,7 +187,8 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				.CreateWorkingDriverEmployeeAutocompleteSelectorFactory();
 
 			UoW = uow;
-			FuelDocument = uow.GetById<FuelDocument>(fuelDocument.Id);
+			FuelDocument = uow.GetById<FuelDocument>(fuelDocument.Id);		
+			
 			FuelDocument.UoW = UoW;
 			_autoCommit = false;
 			RouteList = FuelDocument.RouteList;
@@ -211,6 +218,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			IOrganizationRepository organizationRepository,
 			IFuelApiService fuelApiService,
 			IFuelControlSettings fuelControlSettings,
+			ICarEventSettings carEventSettings,
 			IGuiDispatcher guiDispatcher,
 			IUserSettingsService userSettingsService,
 			IYesNoCancelQuestionInteractive yesNoCancelQuestionInteractive,
@@ -230,6 +238,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
+			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
 			_yesNoCancelQuestionInteractive = yesNoCancelQuestionInteractive ?? throw new ArgumentNullException(nameof(yesNoCancelQuestionInteractive));
@@ -270,6 +279,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			IOrganizationRepository organizationRepository,
 			IFuelApiService fuelApiService,
 			IFuelControlSettings fuelControlSettings,
+			ICarEventSettings carEventSettings,
 			IGuiDispatcher guiDispatcher,
 			IUserSettingsService userSettingsService,
 			IYesNoCancelQuestionInteractive yesNoCancelQuestionInteractive,
@@ -289,6 +299,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_fuelApiService = fuelApiService ?? throw new ArgumentNullException(nameof(fuelApiService));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
+			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			_userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
 			_yesNoCancelQuestionInteractive = yesNoCancelQuestionInteractive ?? throw new ArgumentNullException(nameof(yesNoCancelQuestionInteractive));
@@ -317,7 +328,13 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				return;
 			}
 
-			if(FuelDocument.Id == 0 && RouteList != null)
+            if(RouteList != null && !RouteList.Addresses.Any())
+            {
+                AbortOpening("Запрещено выдавать топливо для МЛ без адресов.");
+                return;
+            }
+
+            if(FuelDocument.Id == 0 && RouteList != null)
 			{
 				FuelDocument.FillEntity(RouteList);
 			}
@@ -445,7 +462,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 
 		public virtual bool CanChangeDate =>
 			IsDocumentCanBeEdited
-			&& _commonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.Car.CanChangeFuelCardNumber,
+			&& _commonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.CanChangeFuelCardNumber,
 				_commonServices.UserService.CurrentUserId)
 			&& IsGiveFuelInMoneySelected;
 
@@ -567,30 +584,31 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			int maxTransactionsCount;
 			decimal maxDailyFuelLimit;
 
-			if(FuelDocument.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.Largus)
+			switch (FuelDocument.Car?.CarModel?.CarTypeOfUse)
 			{
-				maxTransactionsCount = _fuelControlSettings.LargusFuelLimitMaxTransactionsCount;
-				maxDailyFuelLimit = _fuelControlSettings.LargusMaxDailyFuelLimit;
-			}
-			else if(FuelDocument.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.GAZelle)
-			{
-				maxTransactionsCount = _fuelControlSettings.GAZelleFuelLimitMaxTransactionsCount;
-				maxDailyFuelLimit = _fuelControlSettings.GAZelleMaxDailyFuelLimit;
-			}
-			else if(FuelDocument.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.Truck)
-			{
-				maxTransactionsCount = _fuelControlSettings.TruckFuelLimitMaxTransactionsCount;
-				maxDailyFuelLimit = _fuelControlSettings.TruckMaxDailyFuelLimit;
-			}
-			else if(FuelDocument.Car?.CarModel?.CarTypeOfUse == CarTypeOfUse.Loader)
-			{
-				maxTransactionsCount = _fuelControlSettings.LoaderFuelLimitMaxTransactionsCount;
-				maxDailyFuelLimit = _fuelControlSettings.LoaderMaxDailyFuelLimit;
-			}
-			else
-			{
-				throw new InvalidOperationException("Невозможно определить максимальное допустимое значение количества транзакций. " +
-					"Возможные причины: не выбран авто, не указан модель авто, у модели авто не указан тип использования");
+				case CarTypeOfUse.Largus:
+					maxTransactionsCount = _fuelControlSettings.LargusFuelLimitMaxTransactionsCount;
+					maxDailyFuelLimit = _fuelControlSettings.LargusMaxDailyFuelLimit;
+					break;
+				case CarTypeOfUse.GAZelle:
+					maxTransactionsCount = _fuelControlSettings.GAZelleFuelLimitMaxTransactionsCount;
+					maxDailyFuelLimit = _fuelControlSettings.GAZelleMaxDailyFuelLimit;
+					break;
+				case CarTypeOfUse.Truck:
+					maxTransactionsCount = _fuelControlSettings.TruckFuelLimitMaxTransactionsCount;
+					maxDailyFuelLimit = _fuelControlSettings.TruckMaxDailyFuelLimit;
+					break;
+				case CarTypeOfUse.Loader:
+					maxTransactionsCount = _fuelControlSettings.LoaderFuelLimitMaxTransactionsCount;
+					maxDailyFuelLimit = _fuelControlSettings.LoaderMaxDailyFuelLimit;
+					break;
+				case CarTypeOfUse.Minivan:
+					maxTransactionsCount = _fuelControlSettings.MinivanFuelLimitMaxTransactionsCount;
+					maxDailyFuelLimit = _fuelControlSettings.MinivanMaxDailyFuelLimit;
+					break;
+				default:
+					throw new InvalidOperationException("Невозможно определить максимальное допустимое значение количества транзакций. " +
+					                                    "Возможные причины: не выбран авто, не указан модель авто, у модели авто не указан тип использования");
 			}
 
 			_fuelLimitMaxTransactionsCount = maxTransactionsCount;
@@ -604,7 +622,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 			CashSubdivisions?.Contains(Cashier.Subdivision) ?? false;
 
 		private bool IsCurrentUserHasPermissonToGiveFuelLimit =>
-			_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.Fuel.CanGiveFuelLimits);
+			_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Fuel.CanGiveFuelLimits);
 
 		private bool CarHasFuelType()
 		{
@@ -1039,7 +1057,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 				var carVersion = car.GetActiveCarVersionOnDate(RouteList.Date);
 				var driver = RouteList.Driver;
 
-				if(carVersion.IsCompanyCar)
+				if(carVersion.IsCompanyCar || car.GetCurrentActiveFuelCardVersion() != null)
 				{
 					driver = null;
 				}
@@ -1048,7 +1066,7 @@ namespace Vodovoz.ViewModels.FuelDocuments
 					car = null;
 				}
 
-				_fuelBalance = _fuelRepository.GetFuelBalance(UoW, driver, car, null, exclude?.ToArray());
+				_fuelBalance = _fuelRepository.GetFuelBalance(UoW, driver, car, _carEventSettings.FuelBalanceCalibrationCarEventTypeId, null, exclude?.ToArray());
 
 				text.Add($"Остаток без документа {_fuelBalance:F2} л.");
 			}

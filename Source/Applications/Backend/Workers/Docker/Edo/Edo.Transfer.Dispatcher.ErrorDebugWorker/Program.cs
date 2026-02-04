@@ -1,6 +1,7 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using Edo.CodesSaver;
 using Edo.Common;
+using Edo.Docflow;
 using Edo.Docflow.Consumers;
 using Edo.Documents;
 using Edo.ErrorDebugWorker.Consumers;

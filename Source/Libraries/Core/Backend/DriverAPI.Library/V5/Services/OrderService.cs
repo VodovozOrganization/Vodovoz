@@ -26,7 +26,9 @@ using Vodovoz.Extensions;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
+using Vodovoz.Tools.CallTasks;
 using VodovozBusiness.Services.Orders;
+using IDomainRouteListService = Vodovoz.Services.Logistics.IRouteListService;
 
 namespace DriverAPI.Library.V5.Services
 {
@@ -49,6 +51,8 @@ namespace DriverAPI.Library.V5.Services
 		private readonly PaymentType[] _smsAndQRNotPayable = new PaymentType[] { PaymentType.PaidOnline, PaymentType.Barter, PaymentType.ContractDocumentation };
 		private readonly IOrderSettings _orderSettings;
 		private readonly IOrderContractUpdater _contractUpdater;
+		private readonly IDomainRouteListService _domainRouteListService;
+		private readonly ICallTaskWorker _callTaskWorker;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -65,7 +69,9 @@ namespace DriverAPI.Library.V5.Services
 			QrPaymentConverter qrPaymentConverter,
 			IFastPaymentService fastPaymentModel,
 			IOrderSettings orderSettings,
-			IOrderContractUpdater contractUpdater)
+			IOrderContractUpdater contractUpdater,
+			IDomainRouteListService domainRouteListService,
+			ICallTaskWorker callTaskWorker)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -82,6 +88,8 @@ namespace DriverAPI.Library.V5.Services
 			_fastPaymentModel = fastPaymentModel ?? throw new ArgumentNullException(nameof(fastPaymentModel));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
+			_domainRouteListService = domainRouteListService ?? throw new ArgumentNullException(nameof(domainRouteListService));
+			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 		}
 
 		/// <summary>
@@ -95,14 +103,14 @@ namespace DriverAPI.Library.V5.Services
 
 			if(vodovozOrder is null)
 			{
-				return Result.Failure<OrderDto>(Vodovoz.Errors.Orders.Order.NotFound);
+				return Result.Failure<OrderDto>(Vodovoz.Errors.Orders.OrderErrors.NotFound);
 			}
 
 			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(_uow, vodovozOrder);
 
 			if(routeListItem is null)
 			{
-				return Result.Failure<OrderDto>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFoundAssociatedWithOrder);
+				return Result.Failure<OrderDto>(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotFoundAssociatedWithOrder);
 			}
 
 			var order = _orderConverter.ConvertToAPIOrder(
@@ -157,7 +165,7 @@ namespace DriverAPI.Library.V5.Services
 
 			if(vodovozOrder is null)
 			{
-				return Result.Failure<IEnumerable<PaymentDtoType>>(Vodovoz.Errors.Orders.Order.NotFound);
+				return Result.Failure<IEnumerable<PaymentDtoType>>(Vodovoz.Errors.Orders.OrderErrors.NotFound);
 			}
 
 			return Result.Success(GetAvailableToChangePaymentTypes(vodovozOrder));
@@ -218,7 +226,7 @@ namespace DriverAPI.Library.V5.Services
 
 			if(vodovozOrder is null)
 			{
-				return Result.Failure<OrderAdditionalInfoDto>(Vodovoz.Errors.Orders.Order.NotFound);
+				return Result.Failure<OrderAdditionalInfoDto>(Vodovoz.Errors.Orders.OrderErrors.NotFound);
 			}
 
 			return GetAdditionalInfo(vodovozOrder);
@@ -252,7 +260,7 @@ namespace DriverAPI.Library.V5.Services
 			{
 				_logger.LogWarning("Заказ не найден: {OrderId}", orderId);
 
-				return Result.Failure(Vodovoz.Errors.Orders.Order.NotFound);
+				return Result.Failure(Vodovoz.Errors.Orders.OrderErrors.NotFound);
 			}
 
 			if(vodovozOrder.OrderStatus != OrderStatus.OnTheWay)
@@ -261,7 +269,7 @@ namespace DriverAPI.Library.V5.Services
 					orderId,
 					OrderStatus.OnTheWay.GetEnumDisplayName());
 
-				return Result.Failure(Vodovoz.Errors.Orders.Order.NotInOnTheWayStatus);
+				return Result.Failure(Vodovoz.Errors.Orders.OrderErrors.NotInOnTheWayStatus);
 			}
 
 			var routeList = _routeListRepository.GetActualRouteListByOrder(_uow, vodovozOrder);
@@ -270,7 +278,7 @@ namespace DriverAPI.Library.V5.Services
 			{
 				_logger.LogWarning("МЛ для заказа: {OrderId} не найден", orderId);
 
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.NotFoundAssociatedWithOrder);
 			}
 
 			if(routeList.Driver.Id != driver.Id)
@@ -302,19 +310,19 @@ namespace DriverAPI.Library.V5.Services
 			if(vodovozOrder is null)
 			{
 				_logger.LogWarning("Заказ не найден: {OrderId}", orderId);
-				return Result.Failure(Vodovoz.Errors.Orders.Order.NotFound);
+				return Result.Failure(Vodovoz.Errors.Orders.OrderErrors.NotFound);
 			}
 
 			if(routeList is null)
 			{
 				_logger.LogWarning("МЛ для заказа: {OrderId} не найден", orderId);
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.NotFoundAssociatedWithOrder);
 			}
 
 			if(routeListAddress is null)
 			{
 				_logger.LogWarning("Адрес МЛ для заказа: {OrderId} не найден", orderId);
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFoundAssociatedWithOrder);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotFoundAssociatedWithOrder);
 			}
 
 			if(routeList.Driver.Id != driver.Id)
@@ -327,20 +335,20 @@ namespace DriverAPI.Library.V5.Services
 			if(routeList.Status != RouteListStatus.EnRoute)
 			{
 				_logger.LogWarning("Нельзя завершить заказ: {OrderId}, МЛ не в пути", orderId);
-				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.NotEnRouteState);
+				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteListErrors.NotEnRouteState);
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
 			{
 				_logger.LogWarning("Нельзя завершить заказ: {OrderId}, адрес МЛ {RouteListAddressId} не в пути", orderId, routeListAddress.Id);
-				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState);
+				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotEnRouteState);
 			}
 
 			SaveScannedCodes(actionTime, completeOrderInfo);
 
 			routeListAddress.DriverBottlesReturned = completeOrderInfo.BottlesReturnCount;
-
-			routeList.ChangeAddressStatus(_uow, routeListAddress.Id, RouteListItemStatus.Completed);
+			
+			_domainRouteListService.ChangeAddressStatus(_uow, routeList, routeListAddress.Id, RouteListItemStatus.Completed, _callTaskWorker);
 
 			CreateComplaintIfNeeded(driverComplaintInfo, vodovozOrder, driver, actionTime);
 
@@ -378,19 +386,19 @@ namespace DriverAPI.Library.V5.Services
 			if(vodovozOrder is null)
 			{
 				_logger.LogWarning("Заказ не найден: {OrderId}", orderId);
-				return Result.Failure(Vodovoz.Errors.Orders.Order.NotFound);
+				return Result.Failure(Vodovoz.Errors.Orders.OrderErrors.NotFound);
 			}
 
 			if(routeList is null)
 			{
 				_logger.LogWarning("МЛ для заказа: {OrderId} не найден", orderId);
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.NotFoundAssociatedWithOrder);
 			}
 
 			if(routeListAddress is null)
 			{
 				_logger.LogWarning("Адрес МЛ для заказа: {OrderId} не найден", orderId);
-				return Result.Failure(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFoundAssociatedWithOrder);
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotFoundAssociatedWithOrder);
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
@@ -403,13 +411,13 @@ namespace DriverAPI.Library.V5.Services
 			if(routeList.Status != RouteListStatus.EnRoute)
 			{
 				_logger.LogWarning("Нельзя завершить заказ: {OrderId}, МЛ не в пути", orderId);
-				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.NotEnRouteState);
+				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteListErrors.NotEnRouteState);
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
 			{
 				_logger.LogWarning("Нельзя завершить заказ: {OrderId}, адрес МЛ {RouteListAddressId} не в пути", orderId, routeListAddress.Id);
-				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState);
+				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotEnRouteState);
 			}
 
 			SaveScannedCodes(actionTime, completeOrderInfo);
@@ -445,27 +453,27 @@ namespace DriverAPI.Library.V5.Services
 
 			if(vodovozOrder is null)
 			{
-				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Orders.Order.NotFound);
+				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Orders.OrderErrors.NotFound);
 			}
 
 			if(routeList is null)
 			{
-				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.NotFoundAssociatedWithOrder);
+				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteListErrors.NotFoundAssociatedWithOrder);
 			}
 
 			if(routeListAddress is null)
 			{
-				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotFoundAssociatedWithOrder);
+				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotFoundAssociatedWithOrder);
 			}
 
 			if(routeList.Status != RouteListStatus.EnRoute)
 			{
-				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.NotEnRouteState);
+				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteListErrors.NotEnRouteState);
 			}
 
 			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
 			{
-				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteList.RouteListItem.NotEnRouteState);
+				return Result.Failure<PayByQrResponse>(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotEnRouteState);
 			}
 
 			if(routeList.Driver.Id != driverId)
@@ -507,7 +515,7 @@ namespace DriverAPI.Library.V5.Services
 			if(vodovozOrder is null)
 			{
 				_logger.LogWarning("Заказ не найден: {OrderId}", orderId);
-				return Result.Failure(Vodovoz.Errors.Orders.Order.NotFound);
+				return Result.Failure(Vodovoz.Errors.Orders.OrderErrors.NotFound);
 			}
 
 			if(!vodovozOrder.IsBottleStock)
@@ -661,7 +669,7 @@ namespace DriverAPI.Library.V5.Services
 					{
 						IsInvalid = false,
 						RawCode = parsedCode.SourceCode.Substring(0, Math.Min(255, parsedCode.SourceCode.Length)),
-						GTIN = parsedCode.GTIN,
+						Gtin = parsedCode.Gtin,
 						SerialNumber = parsedCode.SerialNumber,
 						CheckCode = parsedCode.CheckCode
 					};

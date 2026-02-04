@@ -288,7 +288,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 			}
 				
 			upd.IdFajl = updNameBuilder.ToString();
-			
+
 			upd.Dokument = new FajlDokument
 			{
 				Funkcija = FajlDokumentFunkcija.SChFDOP,
@@ -300,21 +300,21 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 				NaimJekonSubSost = $"{org.Name}, ИНН/КПП {org.Inn}/{org.Kpp}",
 				SvSchFakt = new FajlDokumentSvSchFakt
 				{
-					NomerDoc = updInfo.Number.ToString(),
+					NomerDoc = updInfo.StringNumber,
 					DataDoc = updDate,
-					
+
 					DenIzm = new FajlDokumentSvSchFaktDenIzm
 					{
 						KodOKV = "643",
 						NaimОКВ = "Российский рубль"
 					},
-					
+
 					//Сведения о продавце
 					SvProd = new[]
 					{
 						_erpDocumentInfoConverter.ConvertOrganizationToSellerInfo(org)
 					},
-					
+
 					//Грузоотправитель
 					GruzOt = new[]
 					{
@@ -323,18 +323,25 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 							Item = FajlDokumentSvSchFaktGruzOtOnZhe.onzhe
 						}
 					},
-					
+
 					//Сведения о покупателе
 					SvPokup = new[]
 					{
 						_erpDocumentInfoConverter.ConvertCounterpartyToCustomerInfo(updInfo.Customer)
 					},
-					
+
 					//Грузополучатель
 					GruzPoluch = new[]
 					{
 						_erpDocumentInfoConverter.ConvertCounterpartyToConsigneeInfo(updInfo.Consignee)
+					},
+
+					// Идентификатор государственного контракта, договора
+					DopSvFHZh1 = new FajlDokumentSvSchFaktDopSvFHZh1
+					{
+						IdGosKon = updInfo.GovContract
 					}
+
 				}
 			};
 
@@ -355,7 +362,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 				new RekvDocTip
 				{
 					RekvNaimDoc = _upd,
-					RekvNomDoc = updInfo.Number.ToString(),
+					RekvNomDoc = updInfo.StringNumber,
 					RekvDataDoc = updDate
 				}
 			};

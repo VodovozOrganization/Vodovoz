@@ -8,7 +8,11 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Vodovoz.Core.Domain.BasicHandbooks;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
@@ -398,14 +402,18 @@ namespace Vodovoz.Infrastructure.Persistance.Goods
 
 		public Nomenclature GetNomenclature(IUnitOfWork uow, int nomenclatureId) => uow.GetById<Nomenclature>(nomenclatureId);
 
-		public IList<int> Get19LWaterNomenclatureIds(IUnitOfWork uow, int[] siteNomenclaturesIds)
+		public async Task<IList<int>> Get19LWaterNomenclatureIds(
+			IUnitOfWork uow, 
+			int[] siteNomenclaturesIds,
+			CancellationToken cancellationToken
+			)
 		{
-			return uow.Session.QueryOver<Nomenclature>()
+			return await uow.Session.QueryOver<Nomenclature>()
 				.WhereRestrictionOn(n => n.Id).IsIn(siteNomenclaturesIds)
 				.And(n => n.Category == NomenclatureCategory.water)
 				.And(n => n.TareVolume == TareVolume.Vol19L)
 				.Select(n => n.Id)
-				.List<int>();
+				.ListAsync<int>(cancellationToken);
 		}
 
 		public IList<NomenclatureOnlineParametersNode> GetActiveNomenclaturesOnlineParametersForSend(

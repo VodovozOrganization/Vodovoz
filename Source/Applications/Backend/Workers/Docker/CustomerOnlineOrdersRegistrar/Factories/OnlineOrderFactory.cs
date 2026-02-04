@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using CustomerOrdersApi.Library.Dto.Orders;
+using CustomerOrdersApi.Library.Dto.Orders.OrderItem;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
@@ -43,7 +44,6 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 				BottlesReturn = orderInfoDto.BottlesReturn,
 				Trifle = orderInfoDto.Trifle,
 				ContactPhone = orderInfoDto.ContactPhone,
-				OnlineOrderComment = orderInfoDto.OnlineOrderComment,
 				OnlineOrderPaymentType = orderInfoDto.OnlineOrderPaymentType,
 				OnlineOrderStatus = OnlineOrderStatus.New,
 				OnlineOrderPaymentStatus = orderInfoDto.OnlineOrderPaymentStatus,
@@ -60,12 +60,25 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 				onlineOrder.IsFastDelivery = true;
 			}
 
+			UpdateOnlineComment(onlineOrder, orderInfoDto.OnlineOrderComment);
 			InitializeOnlineOrderReferences(uow, onlineOrder, orderInfoDto);
 			AddOrderItems(uow, onlineOrder, selfDeliveryDiscountReasonId, orderInfoDto.OnlineOrderItems);
 			AddRentPackages(uow, onlineOrder, orderInfoDto.OnlineRentPackages);
 			onlineOrder.Created = DateTime.Now;
 
 			return onlineOrder;
+		}
+
+		private void UpdateOnlineComment(OnlineOrder onlineOrder, string onlineOrderComment)
+		{
+			if(!string.IsNullOrWhiteSpace(onlineOrderComment)
+				&& onlineOrderComment.Length > OnlineOrder.CommentMaxLength)
+			{
+				const int maxLength = OnlineOrder.CommentMaxLength - 3;
+				onlineOrderComment = onlineOrderComment[..maxLength] + "...";
+			}
+			
+			onlineOrder.OnlineOrderComment = onlineOrderComment;
 		}
 
 		private void AddOrderItems(
@@ -112,6 +125,7 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 					onlineOrderItemDto.NomenclatureId,
 					onlineOrderItemDto.Count,
 					onlineOrderItemDto.IsDiscountInMoney,
+					onlineOrderItemDto.IsFixedPrice,
 					onlineOrderItemDto.Discount,
 					onlineOrderItemDto.Price,
 					onlineOrderItemDto.PromoSetId,

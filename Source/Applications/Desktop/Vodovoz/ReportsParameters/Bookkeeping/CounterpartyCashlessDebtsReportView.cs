@@ -28,6 +28,11 @@ namespace Vodovoz.ReportsParameters.Bookkeeping
 				.AddBinding(ViewModel, vm => vm.IsCanCreateCounterpartyDebtDetailsReport, w => w.Sensitive)
 				.InitializeFromSource();
 
+			ycheckbuttonShowPhones.Binding
+				.AddBinding(ViewModel, vm => vm.ShowPhones, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanShowPhones, w => w.Sensitive)
+				.InitializeFromSource();
+
 			var filterView = new IncludeExludeFiltersView(ViewModel.FilterViewModel);
 
 			yvboxFilter.Add(filterView);

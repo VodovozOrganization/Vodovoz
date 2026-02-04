@@ -107,11 +107,11 @@ namespace Vodovoz.Domain.Orders
 				{
 					return $"Оценка №{Id} заказа {Order.Id}";
 				}
-				
-				return $"Оценка №{Id} онлайн заказа {OnlineOrder.Id}";
+
+				return OnlineOrder != null ? $"Оценка №{Id} онлайн заказа {OnlineOrder.Id}" : "Оценка неизвестного заказа";
 			}
 			
-			return "Новя оценка";
+			return "Новая оценка";
 		}
 
 		public static OrderRating Create(

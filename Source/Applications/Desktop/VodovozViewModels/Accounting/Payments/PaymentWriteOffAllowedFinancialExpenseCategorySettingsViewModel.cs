@@ -42,7 +42,7 @@ namespace Vodovoz.ViewModels.Accounting.Payments
 				?? throw new ArgumentNullException(nameof(navigationManager));
 			_containerViewModel = containerViewModel
 				?? throw new ArgumentNullException(nameof(containerViewModel));
-			CanEdit = permissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Bookkeepping.CanEditPaymentWriteOffAvailableFinancialExpenseCategories);
+			CanEdit = permissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.BookkeeppingPermissions.CanEditPaymentWriteOffAvailableFinancialExpenseCategories);
 
 			Info = "Выбранные статьи могут быть использованы для создания документов списания.";
 		}

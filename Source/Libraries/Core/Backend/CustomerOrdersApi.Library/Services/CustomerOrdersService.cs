@@ -221,93 +221,56 @@ namespace CustomerOrdersApi.Library.Services
 		{
 			var onlineOrdersInfo = new List<OrderDto>();
 			var ordersFromOnlineOrders =
-				_orderRepository.GetCounterpartyOrdersFromOnlineOrders(uow, getOrdersDto.CounterpartyErpId, dateAvailabilityRating);
-			
-			var onlineOrderInfo = new OrderDto();
-			var i = 0;
+				_orderRepository.GetCounterpartyOrdersFromOnlineOrders(uow, getOrdersDto.CounterpartyErpId, dateAvailabilityRating)
+					.ToLookup(x => x.OnlineOrderId);
 
-			foreach(var orderFromOnlineOrder in ordersFromOnlineOrders)
+			foreach(var ordersFromOnlineOrdersGroup in ordersFromOnlineOrders)
 			{
-				if(i == 0 || orderFromOnlineOrder.OnlineOrderId == onlineOrderInfo.OnlineOrderId)
+				OrderDto onlineOrderInfo;
+				if(ordersFromOnlineOrdersGroup.Count() == 1)
 				{
-					UpdateOnlineOrderInfo(onlineOrderInfo, orderFromOnlineOrder);
-					i++;
-					continue;
+					var orderDto = ordersFromOnlineOrdersGroup.First();
+					onlineOrderInfo = new OrderDto
+					{
+						OnlineOrderId = orderDto.OnlineOrderId,
+						DeliveryDate = orderDto.DeliveryDate,
+						CreationDate = orderDto.CreationDate,
+						DeliveryAddress = orderDto.DeliveryAddress,
+						DeliverySchedule = orderDto.DeliverySchedule,
+						RatingValue = orderDto.RatingValue,
+						IsRatingAvailable = orderDto.IsRatingAvailable,
+						IsNeedPayment = false,
+						DeliveryPointId = orderDto.DeliveryPointId,
+						OrderSum = orderDto.OrderSum,
+						OrderStatus = orderDto.OrderStatus
+					};
+
+					onlineOrdersInfo.Add(onlineOrderInfo);
 				}
-				
-				onlineOrdersInfo.Add(onlineOrderInfo);
-				onlineOrderInfo = new OrderDto();
-				UpdateOnlineOrderInfo(onlineOrderInfo, orderFromOnlineOrder);
-				i++;
+				else
+				{
+					foreach(var orderDto in ordersFromOnlineOrdersGroup)
+					{
+						onlineOrderInfo = new OrderDto
+						{
+							OrderId = orderDto.OrderId,
+							DeliveryDate = orderDto.DeliveryDate,
+							CreationDate = orderDto.CreationDate,
+							DeliveryAddress = orderDto.DeliveryAddress,
+							DeliverySchedule = orderDto.DeliverySchedule,
+							RatingValue = orderDto.RatingValue,
+							IsRatingAvailable = orderDto.IsRatingAvailable,
+							IsNeedPayment = false,
+							DeliveryPointId = orderDto.DeliveryPointId,
+							OrderSum = orderDto.OrderSum,
+							OrderStatus = orderDto.OrderStatus
+						};
+						onlineOrdersInfo.Add(onlineOrderInfo);
+					}
+				}
 			}
 			
 			return onlineOrdersInfo;
-		}
-
-		private void UpdateOnlineOrderInfo(OrderDto onlineOrderInfo, OrderDto orderFromOnlineOrder)
-		{
-			onlineOrderInfo.OnlineOrderId = orderFromOnlineOrder.OnlineOrderId;
-			onlineOrderInfo.DeliveryDate = orderFromOnlineOrder.DeliveryDate;
-			onlineOrderInfo.CreationDate = orderFromOnlineOrder.CreationDate;
-			onlineOrderInfo.DeliveryAddress = orderFromOnlineOrder.DeliveryAddress;
-			onlineOrderInfo.DeliverySchedule = orderFromOnlineOrder.DeliverySchedule;
-			onlineOrderInfo.RatingValue = orderFromOnlineOrder.RatingValue;
-			onlineOrderInfo.IsRatingAvailable = orderFromOnlineOrder.IsRatingAvailable;
-			onlineOrderInfo.IsNeedPayment = false;
-			onlineOrderInfo.DeliveryPointId = orderFromOnlineOrder.DeliveryPointId;
-
-			UpdateOnlineOrderStatusAndSumInfo(onlineOrderInfo, orderFromOnlineOrder);
-		}
-
-		private void UpdateOnlineOrderStatusAndSumInfo(OrderDto onlineOrderInfo, OrderDto orderFromOnlineOrder)
-		{
-			switch(orderFromOnlineOrder.OrderStatus)
-			{
-				case ExternalOrderStatus.WaitingForPayment:
-				case ExternalOrderStatus.OrderProcessing:
-				case ExternalOrderStatus.OrderPerformed:
-				case ExternalOrderStatus.OrderDelivering:
-					onlineOrderInfo.OrderStatus = orderFromOnlineOrder.OrderStatus;
-					break;
-				case ExternalOrderStatus.OrderCollecting:
-					switch(onlineOrderInfo.OrderStatus)
-					{
-						case ExternalOrderStatus.OrderCompleted:
-							onlineOrderInfo.OrderStatus = ExternalOrderStatus.OrderDelivering;
-							break;
-						default:
-							onlineOrderInfo.OrderStatus = orderFromOnlineOrder.OrderStatus;
-							break;
-					}
-					break;
-				case ExternalOrderStatus.OrderCompleted:
-					switch(onlineOrderInfo.OrderStatus)
-					{
-						case ExternalOrderStatus.WaitingForPayment:
-						case ExternalOrderStatus.OrderProcessing:
-						case ExternalOrderStatus.OrderPerformed:
-						case ExternalOrderStatus.OrderCollecting:
-							onlineOrderInfo.OrderStatus = ExternalOrderStatus.OrderDelivering;
-							break;
-						default:
-							onlineOrderInfo.OrderStatus = orderFromOnlineOrder.OrderStatus;
-							break;
-					}
-					break;
-				case ExternalOrderStatus.Canceled:
-					switch(onlineOrderInfo.OrderStatus)
-					{
-						case ExternalOrderStatus.Canceled:
-							onlineOrderInfo.OrderStatus = orderFromOnlineOrder.OrderStatus;
-							break;
-					}
-					break;
-			}
-			
-			if(orderFromOnlineOrder.OrderStatus != ExternalOrderStatus.Canceled)
-			{
-				onlineOrderInfo.OrderSum += orderFromOnlineOrder.OrderSum;
-			}
 		}
 
 		public IEnumerable<OrderRatingReasonDto> GetOrderRatingReasons()

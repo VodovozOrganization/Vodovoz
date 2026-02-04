@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Extensions;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.Specifications;
@@ -14,7 +15,6 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -385,8 +385,14 @@ namespace Vodovoz.RobotMia.Api.Services
 			Order order = unitOfWork.Root;
 			order.Author = author;
 			order.UpdateClient(counterparty, _contractUpdater, out var updateClientMessage);
-			order.UpdateDeliveryPoint(deliveryPoint, _contractUpdater);
-			order.Comment = createOrderRequest.DriverAppComment;
+			order.UpdateDeliveryPoint(deliveryPoint, _contractUpdater);			
+
+			if(!string.IsNullOrWhiteSpace(createOrderRequest.DriverAppComment))
+			{
+				order.Comment = createOrderRequest.DriverAppComment;
+				order.HasCommentForDriver = true;
+			}
+			
 			order.CallBeforeArrivalMinutes = createOrderRequest.CallBeforeArrivalMinutes;
 
 			if(createOrderRequest.PaymentType == PaymentType.Cash)

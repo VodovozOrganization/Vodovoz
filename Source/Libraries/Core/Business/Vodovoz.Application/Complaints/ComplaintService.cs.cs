@@ -27,7 +27,7 @@ namespace Vodovoz.Application.Complaints
 
 		public bool CheckForDuplicateComplaint(IUnitOfWork uow, Complaint complaint, DateTime checkDuplicatesFromDate, DateTime checkDuplicatesToDate)
 		{
-			var canCreateDuplicateComplaints = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Complaint.CanCreateDuplicateComplaints);
+			var canCreateDuplicateComplaints = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ComplaintPermissions.CanCreateDuplicateComplaints);
 			var hasСounterpartyDuplicateToday = HasOrderDuplicatesBetweenDates(uow, complaint, checkDuplicatesFromDate, checkDuplicatesToDate);
 
 			if(hasСounterpartyDuplicateToday && !canCreateDuplicateComplaints)

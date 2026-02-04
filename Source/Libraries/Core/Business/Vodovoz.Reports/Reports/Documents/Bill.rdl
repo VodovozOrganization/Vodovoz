@@ -15,6 +15,7 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     o.id AS order_id,
+    document_organization_counters.document_number AS document_number,
     DATE_FORMAT(o.delivery_date,'%d.%m.%y') AS order_date,
     DATE_FORMAT(o.bill_date,'%d.%m.%Y') AS bill_date,
     c.full_name AS client_name,
@@ -84,6 +85,10 @@ FROM
     employees ON employees.id = o.author_employee_id
     	LEFT JOIN
     phones p ON o.contact_phone_id = p.id
+        LEFT JOIN
+    order_documents ON order_documents.order_id = o.id AND order_documents.type IN ('SpecialUPD', 'UPD') AND order_documents.document_organization_counter_id IS NOT NULL
+        LEFT JOIN 
+    document_organization_counters ON document_organization_counters.id = order_documents.document_organization_counter_id
 WHERE
         o.id = @order_id;</CommandText>
         <QueryParameters>
@@ -97,6 +102,10 @@ WHERE
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
         </Field>
+        <Field Name="document_number">
+          <DataField>document_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field> 
         <Field Name="order_date">
           <DataField>order_date</DataField>
           <TypeName>System.String</TypeName>
@@ -315,7 +324,7 @@ FROM
         LEFT JOIN
     phones ON organizations.id = phones.org_id AND phones.is_archive = 0
 WHERE
-    orders.id = @order_id;</CommandText>
+    orders.id = @order_id LIMIT 1;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>={?order_id}</Value>
@@ -1705,7 +1714,15 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
       <Textbox Name="Textbox15" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>17.26pt</Height>
         <Width>500.69pt</Width>
-        <Value>='Счет № ' + First({order_id}, 'Order') + ' от ' + First({bill_date}, 'Order') + ' ' + Iif(String.IsNullOrEmpty({?special_contract_number}), '', {?special_contract_number})</Value>
+        <Value>="Счет № " + 
+            IIf(
+                Len(Trim(CStr(First(Fields!document_number.Value, "Order")))) = 0,
+                CStr(First(Fields!order_id.Value, "Order")),
+                CStr(First(Fields!document_number.Value, "Order"))
+            ) + 
+            " от " + 
+            First(Fields!bill_date.Value, "Order")
+        </Value>
         <ZIndex>0</ZIndex>
         <Left>39.2pt</Left>
         <Top>230.3pt</Top>
@@ -1825,10 +1842,9 @@ Iif(First({email}, 'Organization') = null, '', ' E-mail: ') + First({email}, 'Or
 + ', ИНН ' 
 + {inn} 
 + ', КПП ' 
-+ Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({payer_special_kpp}) = false,{payer_special_kpp},{kpp}) 
++ Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({payer_special_kpp}) = false,{payer_special_kpp},{kpp})
 + '\n' 
-+ Iif({use_special_doc_fields}  and {?special} and String.IsNullOrWhiteSpace({special_delivery_address}) = false,{special_delivery_address},{client_address} )
-+ ', ' 
++ Iif({use_special_doc_fields} and {?special} and String.IsNullOrWhiteSpace({special_delivery_address}) = false, {special_delivery_address}, {client_address})
 +
 Iif(
     Iif(
@@ -1839,8 +1855,8 @@ Iif(
     '',
     Iif(
         {client_contact} = null,
-        {delivery_point_contact},
-        {client_contact}
+        ', ' + {delivery_point_contact},
+        ', ' + {client_contact}
     )
 )</Value>
                       <Style>

@@ -40,23 +40,39 @@ namespace Vodovoz.Views
 			fileChooserBtn.AddFilter(txtFilter);
 			fileChooserBtn.AddFilter(allFilter);
 
-			btnUpload.Clicked += (sender, e) => Save();
+			btnUpload.Clicked += OnUploadClicked;
 			btnUpload.Binding
 				.AddBinding(ViewModel, v => v.CanSave, w => w.Sensitive)
 				.InitializeFromSource();
-			btnCancel.Clicked += (sender, e) => ViewModel.Close(false, CloseSource.Cancel);
+			
+			btnCancel.Clicked += OnCancelClicked;
 			btnCancel.Binding
 				.AddBinding(ViewModel, v => v.CanCancel, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ViewModel.UpdateProgress += UpdateProgress;
 
-			btnReadFile.Clicked += (sender, e) => ViewModel.ParseCommand.Execute(fileChooserBtn.Filename);
+			btnReadFile.Clicked += OnReadFileClicked;
 			btnReadFile.Binding
 				.AddBinding(ViewModel, vm => vm.CanReadFile, v => v.Sensitive)
 				.InitializeFromSource();
 
 			ConfigureTree();
+		}
+		
+		private void OnUploadClicked(object sender, EventArgs e)
+		{
+			Save();
+		}
+
+		private void OnCancelClicked(object sender, EventArgs e)
+		{
+			ViewModel.Close(false, CloseSource.Cancel);
+		}
+
+		private void OnReadFileClicked(object sender, EventArgs e)
+		{
+			ViewModel.ProcessBankDocumentCommand.Execute(fileChooserBtn.Filename);
 		}
 
 		private void ConfigureTree()
@@ -124,7 +140,7 @@ namespace Vodovoz.Views
 
 		private void Save()
 		{
-			if(!ViewModel.ObservablePayments.Any())
+			if(!ViewModel.BankAccountMovements.Any())
 			{
 				return;
 			}
@@ -138,11 +154,18 @@ namespace Vodovoz.Views
 			var totalPayments = ViewModel.ObservablePayments.Count;
 			var progress = 1d / totalPayments;
 
+			foreach(var accountMovement in ViewModel.BankAccountMovements)
+			{
+				ViewModel.UoW.Save(accountMovement);
+			}
+			
+			ViewModel.UoW.Commit();
+
 			foreach(var payment in ViewModel.ObservablePayments)
 			{
 				try
 				{
-					using(var uow = ViewModel.UnitOfWorkFactory.CreateWithoutRoot())
+					using(var uow = ViewModel.UnitOfWorkFactory.CreateWithoutRoot("Загрузка выписки"))
 					{
 						if(payment.Status == PaymentState.distributed)
 						{
@@ -200,6 +223,9 @@ namespace Vodovoz.Views
 
 		public override void Destroy()
 		{
+			btnUpload.Clicked -= OnUploadClicked;
+			btnCancel.Clicked -= OnCancelClicked;
+			btnReadFile.Clicked -= OnReadFileClicked;
 			ViewModel.UpdateProgress -= UpdateProgress;
 			base.Destroy();
 		}

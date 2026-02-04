@@ -31,7 +31,7 @@ using Vodovoz.Tools;
 using Vodovoz.ViewModels.Journals.FilterViewModels.TrueMark;
 using Vodovoz.ViewModels.Journals.JournalNodes.Roboats;
 using Vodovoz.ViewModels.ViewModels.Reports.TrueMark;
-using CashReceiptPermissions = Vodovoz.Core.Domain.Permissions.Order.CashReceipt;
+using CashReceiptPermissions = Vodovoz.Core.Domain.Permissions.OrderPermissions.CashReceipt;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 {
@@ -312,11 +312,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Roboats
 					.Select(Projections.Constant(CashReceiptNodeType.Code)).WithAlias(() => resultAlias.NodeType)
 					.Select(() => productCodeAlias.CashReceipt.Id).WithAlias(() => resultAlias.ParentId)
 					.Select(() => productCodeAlias.OrderItem.Id).WithAlias(() => resultAlias.OrderAndItemId)
-					.Select(() => sourceCodeAlias.GTIN).WithAlias(() => resultAlias.SourceGtin)
+					.Select(() => sourceCodeAlias.Gtin).WithAlias(() => resultAlias.SourceGtin)
 					.Select(() => productCodeAlias.IsUnscannedSourceCode).WithAlias(() => resultAlias.IsUnscannedProductCode)
 					.Select(() => productCodeAlias.IsDuplicateSourceCode).WithAlias(() => resultAlias.IsDuplicateProductCode)
 					.Select(() => sourceCodeAlias.SerialNumber).WithAlias(() => resultAlias.SourceCodeSerialNumber)
-					.Select(() => resultCodeAlias.GTIN).WithAlias(() => resultAlias.ResultGtin)
+					.Select(() => resultCodeAlias.Gtin).WithAlias(() => resultAlias.ResultGtin)
 					.Select(() => resultCodeAlias.SerialNumber).WithAlias(() => resultAlias.ResultSerialnumber)
 					.Select(() => productCodeAlias.IsDefectiveSourceCode).WithAlias(() => resultAlias.IsManualSentOrIsDefectiveCode)
 				)

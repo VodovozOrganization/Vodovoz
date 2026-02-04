@@ -14,6 +14,8 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IConsumerConfigurator<OnlineOrderRegisteredConsumer> consumerConfigurator)
 		{
 			endpointConfigurator.ConfigureConsumeTopology = false;
+			endpointConfigurator.ConcurrentMessageLimit = 1;
+			endpointConfigurator.PrefetchCount = 1;
 		}
 	}
 }

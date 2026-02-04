@@ -26,21 +26,25 @@ namespace Vodovoz.Reports
 		public RevisionBottlesAndDeposits(
 			IReportInfoFactory reportInfoFactory,
 			IOrderRepository orderRepository,
-			ICounterpartyJournalFactory counterpartyJournalFactory,
-			IDeliveryPointJournalFactory deliveryPointJournalFactory)
+			ICounterpartyJournalFactory counterpartyJournalFactory)
 		{
 			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			
 			Build();
+			
 			var uowFactory = _lifetimeScope.Resolve<IUnitOfWorkFactory>();
 			UoW = uowFactory.CreateWithoutRoot();
+			
 			entityViewModelEntryCounterparty
 				.SetEntityAutocompleteSelectorFactory(
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(_lifetimeScope));
+			
+			var deliveryPointJournalFactory = _lifetimeScope.Resolve<IDeliveryPointJournalFactory>();
 			(deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory)))
 				.SetDeliveryPointJournalFilterViewModel(_deliveryPointJournalFilter);
+			
 			evmeDeliveryPoint
 				.SetEntityAutocompleteSelectorFactory(deliveryPointJournalFactory.CreateDeliveryPointByClientAutocompleteSelectorFactory());
 		}

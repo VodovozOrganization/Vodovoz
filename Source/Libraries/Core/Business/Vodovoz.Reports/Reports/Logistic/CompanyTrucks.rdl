@@ -11,133 +11,136 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
-    CASE
-        WHEN cv.car_own_type = 'Raskat' THEN 'ТС в раскате'
-        WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'GAZelle' THEN 'Грузовые (ГАЗели) компании'
-        WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Largus' THEN 'Фургоны (Ларгусы) компании'
-        ELSE CONCAT(cv.car_own_type, ' ', cm.car_type_of_use)
-    END AS type_of_use,
-    route_lists.id,
-    route_lists.driver_id,
-    CASE route_lists.status
-        WHEN 'New' THEN 'Новый'
-        WHEN 'Confirmed' THEN 'Подтверждён'
-        WHEN 'InLoading' THEN 'На погрузке'
-        WHEN 'EnRoute' THEN 'В пути'
-        WHEN 'OnClosing' THEN 'Сдаётся'
-        WHEN 'NotDelivered' THEN 'Не сдан'
-        WHEN 'MileageCheck' THEN 'Проверка километража'
-        WHEN 'Closed' THEN 'Закрыт'
-    END AS status,
-    reg_number,
-    CONCAT_WS(' ',
-              employees.last_name,
-              IF(employees.name = '',
-                 NULL,
-                 employees.name),
-              IF(employees.patronymic = '',
-                 NULL,
-                 employees.patronymic)) AS driver_name,
+        <CommandText>
+                    SELECT
+                    CASE
+                    WHEN cv.car_own_type = 'Raskat' THEN 'ТС в раскате'
+                    WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'GAZelle' THEN 'Грузовые (ГАЗели) компании'
+                    WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Minivan' THEN 'Фургоны (Transit Mini) компании'
+                    WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Largus' THEN 'Легковые (Ларгусы) компании'
+                    ELSE CONCAT(cv.car_own_type, ' ', cm.car_type_of_use)
+                    END AS type_of_use,
+                    route_lists.id,
+                    route_lists.driver_id,
+                    CASE route_lists.status
+                    WHEN 'New' THEN 'Новый'
+                    WHEN 'Confirmed' THEN 'Подтверждён'
+                    WHEN 'InLoading' THEN 'На погрузке'
+                    WHEN 'EnRoute' THEN 'В пути'
+                    WHEN 'OnClosing' THEN 'Сдаётся'
+                    WHEN 'NotDelivered' THEN 'Не сдан'
+                    WHEN 'MileageCheck' THEN 'Проверка километража'
+                    WHEN 'Closed' THEN 'Закрыт'
+                    END AS status,
+                    reg_number,
+                    CONCAT_WS(' ',
+                    employees.last_name,
+                    IF(employees.name = '',
+                    NULL,
+                    employees.name),
+                    IF(employees.patronymic = '',
+                    NULL,
+                    employees.patronymic)) AS driver_name,
 
-    (SELECT
-        SUM(IF(ods.order_status NOT IN ('NotDelivered','DeliveryCanceled'), items.price
-            * IFNULL(items.actual_count, items.count) - items.discount_money, 0))
-    FROM
-        order_items as items
-        LEFT JOIN
-            orders as ods ON items.order_id = ods.id
-    WHERE EXISTS
-              (SELECT * FROM route_lists rl
-        LEFT JOIN route_list_addresses as rla ON rla.route_list_id = rl.id
-        LEFT JOIN cars as crs ON rl.car_id = crs.id
-        INNER JOIN car_models cm_sub ON crs.model_id = cm_sub.id
-        INNER JOIN
-            car_versions cv_sub ON crs.id = cv_sub.car_id
-                AND cv_sub.start_date &lt;= rl.date
-                AND (cv_sub.end_date IS NULL OR cv_sub.end_date &gt;= rl.date)
-        WHERE
-              rl.id = route_lists.id
-          AND (rl.date BETWEEN @start_date AND @end_date)
-          AND rla.order_id = ods.id
-          AND (cv_sub.car_own_type = 'Raskat' OR (cv_sub.car_own_type = 'Company' AND cm_sub.car_type_of_use IN ('Largus', 'GAZelle')))
-              )) AS route_list_sum,
+                    (SELECT
+                    SUM(IF(ods.order_status NOT IN ('NotDelivered','DeliveryCanceled'), items.price
+                    * IFNULL(items.actual_count, items.count) - items.discount_money, 0))
+                    FROM
+                    order_items as items
+                    LEFT JOIN
+                    orders as ods ON items.order_id = ods.id
+                    WHERE EXISTS
+                    (SELECT * FROM route_lists rl
+                    LEFT JOIN route_list_addresses as rla ON rla.route_list_id = rl.id
+                    LEFT JOIN cars as crs ON rl.car_id = crs.id
+                    INNER JOIN car_models cm_sub ON crs.model_id = cm_sub.id
+                    INNER JOIN
+                    car_versions cv_sub ON crs.id = cv_sub.car_id
+                    AND cv_sub.start_date &lt;= rl.date
+                    AND (cv_sub.end_date IS NULL OR cv_sub.end_date &gt;= rl.date)
+                    WHERE
+                    rl.id = route_lists.id
+                    AND (rl.date BETWEEN @start_date AND @end_date)
+                    AND rla.order_id = ods.id
+                    AND (cv_sub.car_own_type = 'Raskat' OR (cv_sub.car_own_type = 'Company' AND cm_sub.car_type_of_use IN ('Largus', 'Minivan', 'GAZelle')))
+                    )) AS route_list_sum,
 
-    COUNT(route_list_addresses.id) AS address_count,
-    (SELECT
-        COUNT(route_list_addresses.id)
-    FROM
-        route_list_addresses
-    WHERE
-          route_list_addresses.route_list_id = route_lists.id
-      AND (route_list_addresses.status = 'Canceled'
-        OR route_list_addresses.status = 'Transfered')) AS not_delivered,
-    IFNULL(SUM((SELECT
-        SUM(order_items.count)
-    FROM
-        order_items
-        LEFT JOIN
-            nomenclature ON nomenclature.id = order_items.nomenclature_id
-    WHERE
-          order_items.order_id = route_list_addresses.order_id
-      AND nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol19L')),
-           0) AS water19_amount,
-    IFNULL(SUM((SELECT
-        SUM(order_items.count)
-    FROM
-        order_items
-        LEFT JOIN
-            nomenclature ON nomenclature.id = order_items.nomenclature_id
-    WHERE
-          order_items.order_id = route_list_addresses.order_id
-      AND nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol6L')
-               ),
-           0) AS water6_amount,
-    SUM(IF((SELECT
-        SUM(order_items.count)
-    FROM
-        order_items
-        LEFT JOIN
-            nomenclature ON nomenclature.id = order_items.nomenclature_id
-    WHERE
-          order_items.order_id = route_list_addresses.order_id
-      AND nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol19L') IS NULL,
-           2,
-           0)) AS water19_absent,
-    IFNULL((SELECT
-        wages_movement_operations.money
-    FROM
-        wages_movement_operations
-    WHERE
-          route_lists.driver_wages_movement_operations_id = wages_movement_operations.id
-      AND (route_lists.status = 'OnClosing'
-        OR route_lists.status = 'MileageCheck'
-        OR route_lists.status = 'Closed')),
-           0) AS wages
-FROM
-    route_lists
-    LEFT JOIN
-        employees ON employees.id = route_lists.driver_id
-    LEFT JOIN
-        route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
-    LEFT JOIN
-        orders ON route_list_addresses.order_id = orders.id
-    LEFT JOIN
-        delivery_points ON orders.delivery_point_id = delivery_points.id
-    LEFT JOIN
-        cars ON route_lists.car_id = cars.id
-    INNER JOIN car_models cm ON cars.model_id = cm.id
-    INNER JOIN
-        car_versions cv ON cars.id = cv.car_id
-            AND cv.start_date &lt;= route_lists.date
-            AND (cv.end_date IS NULL OR cv.end_date &gt;= route_lists.date)
-WHERE (route_lists.date BETWEEN @start_date AND @end_date)
-  AND (cv.car_own_type = 'Raskat' OR (cv.car_own_type = 'Company' AND cm.car_type_of_use IN ('Largus', 'GAZelle')))
-GROUP BY route_lists.id
-ORDER BY driver_name
-;</CommandText>
+                    COUNT(route_list_addresses.id) AS address_count,
+                    (SELECT
+                    COUNT(route_list_addresses.id)
+                    FROM
+                    route_list_addresses
+                    WHERE
+                    route_list_addresses.route_list_id = route_lists.id
+                    AND (route_list_addresses.status = 'Canceled'
+                    OR route_list_addresses.status = 'Transfered')) AS not_delivered,
+                    IFNULL(SUM((SELECT
+                    SUM(order_items.count)
+                    FROM
+                    order_items
+                    LEFT JOIN
+                    nomenclature ON nomenclature.id = order_items.nomenclature_id
+                    WHERE
+                    order_items.order_id = route_list_addresses.order_id
+                    AND nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol19L')),
+                    0) AS water19_amount,
+                    IFNULL(SUM((SELECT
+                    SUM(order_items.count)
+                    FROM
+                    order_items
+                    LEFT JOIN
+                    nomenclature ON nomenclature.id = order_items.nomenclature_id
+                    WHERE
+                    order_items.order_id = route_list_addresses.order_id
+                    AND nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol6L')
+                    ),
+                    0) AS water6_amount,
+                    SUM(IF((SELECT
+                    SUM(order_items.count)
+                    FROM
+                    order_items
+                    LEFT JOIN
+                    nomenclature ON nomenclature.id = order_items.nomenclature_id
+                    WHERE
+                    order_items.order_id = route_list_addresses.order_id
+                    AND nomenclature.category = 'water' AND nomenclature.tare_volume = 'Vol19L') IS NULL,
+                    2,
+                    0)) AS water19_absent,
+                    IFNULL((SELECT
+                    wages_movement_operations.money
+                    FROM
+                    wages_movement_operations
+                    WHERE
+                    route_lists.driver_wages_movement_operations_id = wages_movement_operations.id
+                    AND (route_lists.status = 'OnClosing'
+                    OR route_lists.status = 'MileageCheck'
+                    OR route_lists.status = 'Closed')),
+                    0) AS wages
+                    FROM
+                    route_lists
+                    LEFT JOIN
+                    employees ON employees.id = route_lists.driver_id
+                    LEFT JOIN
+                    route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+                    LEFT JOIN
+                    orders ON route_list_addresses.order_id = orders.id
+                    LEFT JOIN
+                    delivery_points ON orders.delivery_point_id = delivery_points.id
+                    LEFT JOIN
+                    cars ON route_lists.car_id = cars.id
+                    INNER JOIN car_models cm ON cars.model_id = cm.id
+                    INNER JOIN
+                    car_versions cv ON cars.id = cv.car_id
+                    AND cv.start_date &lt;= route_lists.date
+                    AND (cv.end_date IS NULL OR cv.end_date &gt;= route_lists.date)
+                    WHERE (route_lists.date BETWEEN @start_date AND @end_date)
+                    AND (cv.car_own_type = 'Raskat' OR (cv.car_own_type = 'Company' AND cm.car_type_of_use IN ('Largus', 'Minivan', 'GAZelle')))
+                    GROUP BY route_lists.id
+                    ORDER BY driver_name
+                    ;
+                </CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -147,7 +150,7 @@ ORDER BY driver_name
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -203,79 +206,109 @@ ORDER BY driver_name
       </Fields>
     </DataSet>
     <DataSet Name="Counting">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>(SELECT
-    COUNT(route_list_addresses.id) AS counting,
-    CASE
-        WHEN cv.car_own_type = 'Raskat' THEN 'ТС в раскате'
-        WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'GAZelle' THEN 'Грузовые (ГАЗели) компании'
-        WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Largus' THEN 'Фургоны (Ларгусы) компании'
-        ELSE CONCAT(cv.car_own_type, ' ', cm.car_type_of_use)
-    END AS type_of_use
-FROM route_lists
-LEFT JOIN
-    route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
-LEFT JOIN
-    cars ON route_lists.car_id = cars.id
-INNER JOIN car_models cm ON cars.model_id = cm.id
-INNER JOIN
-    car_versions cv ON cars.id = cv.car_id
-        AND cv.start_date &lt;= route_lists.date
-        AND (cv.end_date IS NULL OR cv.end_date &gt;= route_lists.date)
-WHERE (route_lists.date BETWEEN @start_date AND @end_date)
-  AND (route_list_addresses.route_list_id = route_lists.id)
-  AND (route_list_addresses.status = 'Completed')
-  AND cm.car_type_of_use = 'Largus'
-  AND cv.car_own_type = 'Company')
-UNION ALL
-(SELECT	
-    COUNT(route_list_addresses.id),
-    CASE
-        WHEN cv.car_own_type = 'Raskat' THEN 'ТС в раскате'
-        WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'GAZelle' THEN 'Грузовые (ГАЗели) компании'
-        WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Largus' THEN 'Фургоны (Ларгусы) компании'
-        ELSE CONCAT(cv.car_own_type, ' ', cm.car_type_of_use)
-    END AS type_of_use
-FROM route_lists
-LEFT JOIN
-    route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
-LEFT JOIN
-    cars ON route_lists.car_id = cars.id
-INNER JOIN car_models cm ON cars.model_id = cm.id
-INNER JOIN
-    car_versions cv ON cars.id = cv.car_id
-        AND cv.start_date &lt;= route_lists.date
-        AND (cv.end_date IS NULL OR cv.end_date &gt;= route_lists.date)
-WHERE (route_lists.date BETWEEN @start_date AND @end_date)
-  AND (route_list_addresses.route_list_id = route_lists.id)
-  AND (route_list_addresses.status = 'Completed')
-  AND cm.car_type_of_use = 'GAZelle'
-  AND cv.car_own_type = 'Company')
-UNION ALL
-(SELECT 
-    COUNT(route_list_addresses.id),
-    CASE
-        WHEN cv.car_own_type = 'Raskat' THEN 'ТС в раскате'
-        WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'GAZelle' THEN 'Грузовые (ГАЗели) компании'
-        WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Largus' THEN 'Фургоны (Ларгусы) компании'
-        ELSE CONCAT(cv.car_own_type, ' ', cm.car_type_of_use)
-    END AS type_of_use
-FROM route_lists
-LEFT JOIN
-    route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
-LEFT JOIN
-    cars ON route_lists.car_id = cars.id
-INNER JOIN car_models cm ON cars.model_id = cm.id
-INNER JOIN
-    car_versions cv ON cars.id = cv.car_id
-        AND cv.start_date &lt;= route_lists.date
-        AND (cv.end_date IS NULL OR cv.end_date &gt;= route_lists.date)
-WHERE (route_lists.date BETWEEN @start_date AND @end_date)
-  AND (route_list_addresses.route_list_id = route_lists.id)
-  AND (route_list_addresses.status = 'Completed')
-  AND cv.car_own_type = 'Raskat')
-;</CommandText>
+        <CommandText>
+                    (SELECT
+                    COUNT(route_list_addresses.id) AS counting,
+                    CASE
+                    WHEN cv.car_own_type = 'Raskat' THEN 'ТС в раскате'
+                    WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'GAZelle' THEN 'Грузовые (ГАЗели) компании'
+                    WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Minivan' THEN 'Фургоны (Transit Mini) компании'
+                    WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Largus' THEN 'Легковые (Ларгусы) компании'
+                    ELSE CONCAT(cv.car_own_type, ' ', cm.car_type_of_use)
+                    END AS type_of_use
+                    FROM route_lists
+                    LEFT JOIN
+                    route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+                    LEFT JOIN
+                    cars ON route_lists.car_id = cars.id
+                    INNER JOIN car_models cm ON cars.model_id = cm.id
+                    INNER JOIN
+                    car_versions cv ON cars.id = cv.car_id
+                    AND cv.start_date &lt;= route_lists.date
+                    AND (cv.end_date IS NULL OR cv.end_date &gt;= route_lists.date)
+                    WHERE (route_lists.date BETWEEN @start_date AND @end_date)
+                    AND (route_list_addresses.route_list_id = route_lists.id)
+                    AND (route_list_addresses.status = 'Completed')
+                    AND cm.car_type_of_use = 'Largus'
+                    AND cv.car_own_type = 'Company')
+                    UNION ALL
+                    (SELECT
+                    COUNT(route_list_addresses.id),
+                    CASE
+                    WHEN cv.car_own_type = 'Raskat' THEN 'ТС в раскате'
+                    WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'GAZelle' THEN 'Грузовые (ГАЗели) компании'
+                    WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Minivan' THEN 'Фургоны (Transit Mini) компании'
+                    WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Largus' THEN 'Фургоны (Ларгусы) компании'
+                    ELSE CONCAT(cv.car_own_type, ' ', cm.car_type_of_use)
+                    END AS type_of_use
+                    FROM route_lists
+                    LEFT JOIN
+                    route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+                    LEFT JOIN
+                    cars ON route_lists.car_id = cars.id
+                    INNER JOIN car_models cm ON cars.model_id = cm.id
+                    INNER JOIN
+                    car_versions cv ON cars.id = cv.car_id
+                    AND cv.start_date &lt;= route_lists.date
+                    AND (cv.end_date IS NULL OR cv.end_date &gt;= route_lists.date)
+                    WHERE (route_lists.date BETWEEN @start_date AND @end_date)
+                    AND (route_list_addresses.route_list_id = route_lists.id)
+                    AND (route_list_addresses.status = 'Completed')
+                    AND cm.car_type_of_use = 'GAZelle'
+                    AND cv.car_own_type = 'Company')
+                    UNION ALL
+                    (SELECT
+                    COUNT(route_list_addresses.id),
+                    CASE
+                    WHEN cv.car_own_type = 'Raskat' THEN 'ТС в раскате'
+                    WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'GAZelle' THEN 'Грузовые (ГАЗели) компании'
+                    WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Minivan' THEN 'Фургоны (Transit Mini) компании'
+                    WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Largus' THEN 'Фургоны (Ларгусы) компании'
+                    ELSE CONCAT(cv.car_own_type, ' ', cm.car_type_of_use)
+                    END AS type_of_use
+                    FROM route_lists
+                    LEFT JOIN
+                    route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+                    LEFT JOIN
+                    cars ON route_lists.car_id = cars.id
+                    INNER JOIN car_models cm ON cars.model_id = cm.id
+                    INNER JOIN
+                    car_versions cv ON cars.id = cv.car_id
+                    AND cv.start_date &lt;= route_lists.date
+                    AND (cv.end_date IS NULL OR cv.end_date &gt;= route_lists.date)
+                    WHERE (route_lists.date BETWEEN @start_date AND @end_date)
+                    AND (route_list_addresses.route_list_id = route_lists.id)
+                    AND (route_list_addresses.status = 'Completed')
+                    AND cm.car_type_of_use = 'Minivan'
+                    AND cv.car_own_type = 'Company')
+                    UNION ALL
+                    (SELECT
+                    COUNT(route_list_addresses.id),
+                    CASE
+                    WHEN cv.car_own_type = 'Raskat' THEN 'ТС в раскате'
+                    WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'GAZelle' THEN 'Грузовые (ГАЗели) компании'
+                    WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Minivan' THEN 'Фургоны (Transit Mini) компании'
+                    WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Largus' THEN 'Фургоны (Ларгусы) компании'
+                    ELSE CONCAT(cv.car_own_type, ' ', cm.car_type_of_use)
+                    END AS type_of_use
+                    FROM route_lists
+                    LEFT JOIN
+                    route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+                    LEFT JOIN
+                    cars ON route_lists.car_id = cars.id
+                    INNER JOIN car_models cm ON cars.model_id = cm.id
+                    INNER JOIN
+                    car_versions cv ON cars.id = cv.car_id
+                    AND cv.start_date &lt;= route_lists.date
+                    AND (cv.end_date IS NULL OR cv.end_date &gt;= route_lists.date)
+                    WHERE (route_lists.date BETWEEN @start_date AND @end_date)
+                    AND (route_list_addresses.route_list_id = route_lists.id)
+                    AND (route_list_addresses.status = 'Completed')
+                    AND cv.car_own_type = 'Raskat')
+                    ;
+                </CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -285,7 +318,7 @@ WHERE (route_lists.date BETWEEN @start_date AND @end_date)
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="counting">
           <DataField>counting</DataField>
           <TypeName>System.Int32</TypeName>
@@ -559,8 +592,10 @@ WHERE (route_lists.date BETWEEN @start_date AND @end_date)
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
-                      <Value>Кол-во
-адр.</Value>
+                      <Value>
+                                                Кол-во
+                                                адр.
+                                            </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -596,8 +631,10 @@ WHERE (route_lists.date BETWEEN @start_date AND @end_date)
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox33">
-                      <Value>Кол-во
-19 л.</Value>
+                      <Value>
+                                                Кол-во
+                                                19 л.
+                                            </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -615,8 +652,10 @@ WHERE (route_lists.date BETWEEN @start_date AND @end_date)
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
-                      <Value>Кол-во
-6 л.</Value>
+                      <Value>
+                                                Кол-во
+                                                6 л.
+                                            </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -780,7 +819,7 @@ WHERE (route_lists.date BETWEEN @start_date AND @end_date)
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingRight >0pt</PaddingRight>
+                        <PaddingRight>0pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -798,7 +837,7 @@ WHERE (route_lists.date BETWEEN @start_date AND @end_date)
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingLeft >0pt</PaddingLeft>
+                        <PaddingLeft>0pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -818,7 +857,7 @@ WHERE (route_lists.date BETWEEN @start_date AND @end_date)
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>0</Format>
-                        <PaddingLeft >0pt</PaddingLeft>
+                        <PaddingLeft>0pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -837,7 +876,7 @@ WHERE (route_lists.date BETWEEN @start_date AND @end_date)
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>0</Format>
-                        <PaddingLeft >0pt</PaddingLeft>
+                        <PaddingLeft>0pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -857,7 +896,7 @@ WHERE (route_lists.date BETWEEN @start_date AND @end_date)
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>0</Format>
-                        <PaddingLeft >0pt</PaddingLeft>
+                        <PaddingLeft>0pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -876,7 +915,7 @@ WHERE (route_lists.date BETWEEN @start_date AND @end_date)
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
                         <Format>0</Format>
-                        <PaddingLeft >0pt</PaddingLeft>
+                        <PaddingLeft>0pt</PaddingLeft>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -913,7 +952,7 @@ WHERE (route_lists.date BETWEEN @start_date AND @end_date)
               <PageBreakAtStart>false</PageBreakAtStart>
               <PageBreakAtEnd>false</PageBreakAtEnd>
               <GroupExpressions>
-                <GroupExpression >={type_of_use}</GroupExpression>
+                <GroupExpression>={type_of_use}</GroupExpression>
               </GroupExpressions>
             </Grouping>
             <Header>
@@ -934,7 +973,7 @@ WHERE (route_lists.date BETWEEN @start_date AND @end_date)
                             <FontWeight>Bold</FontWeight>
                             <TextAlign>Center</TextAlign>
                             <VerticalAlign>Middle</VerticalAlign>
-                            <FontSize >12pt</FontSize>
+                            <FontSize>12pt</FontSize>
                           </Style>
                           <Value>={type_of_use} </Value>
                         </Textbox>
@@ -945,7 +984,7 @@ WHERE (route_lists.date BETWEEN @start_date AND @end_date)
                 </TableRow>
               </TableRows>
             </Header>
-            <Sorting >
+            <Sorting>
               <SortBy>
                 <SortExpression>={type_of_use} = 'ТС в раскате'</SortExpression>
                 <Direction>Ascending</Direction>
@@ -1018,9 +1057,9 @@ WHERE (route_lists.date BETWEEN @start_date AND @end_date)
                             <BorderWidth />
                             <FontWeight>Normal</FontWeight>
                             <TextAlign>Center</TextAlign>
-                            <PaddingLeft >0pt</PaddingLeft>
-                            <VerticalAlign >Middle</VerticalAlign>
-                            <PaddingRight >0pt</PaddingRight>
+                            <PaddingLeft>0pt</PaddingLeft>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingRight>0pt</PaddingRight>
                           </Style>
                           <Value>=Sum(Fields!address_count.Value)</Value>
                         </Textbox>
@@ -1038,9 +1077,9 @@ WHERE (route_lists.date BETWEEN @start_date AND @end_date)
                             <BorderWidth />
                             <FontWeight>Normal</FontWeight>
                             <TextAlign>Center</TextAlign>
-                            <PaddingLeft >0pt</PaddingLeft>
-                            <VerticalAlign >Middle</VerticalAlign>
-                            <PaddingRight >0pt</PaddingRight>
+                            <PaddingLeft>0pt</PaddingLeft>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingRight>0pt</PaddingRight>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1057,9 +1096,9 @@ WHERE (route_lists.date BETWEEN @start_date AND @end_date)
                             <FontWeight>Normal</FontWeight>
                             <TextAlign>Center</TextAlign>
                             <Format>0</Format>
-                            <PaddingLeft >0pt</PaddingLeft>
-                            <VerticalAlign >Middle</VerticalAlign>
-                            <PaddingRight >0pt</PaddingRight>
+                            <PaddingLeft>0pt</PaddingLeft>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingRight>0pt</PaddingRight>
                           </Style>
                           <Value>=Sum(Fields!water19_amount.Value)</Value>
                         </Textbox>
@@ -1078,9 +1117,9 @@ WHERE (route_lists.date BETWEEN @start_date AND @end_date)
                             <FontWeight>Normal</FontWeight>
                             <TextAlign>Center</TextAlign>
                             <Format>0</Format>
-                            <PaddingLeft >0pt</PaddingLeft>
-                            <VerticalAlign >Middle</VerticalAlign>
-                            <PaddingRight >0pt</PaddingRight>
+                            <PaddingLeft>0pt</PaddingLeft>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingRight>0pt</PaddingRight>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1097,9 +1136,9 @@ WHERE (route_lists.date BETWEEN @start_date AND @end_date)
                             <FontWeight>Normal</FontWeight>
                             <TextAlign>Center</TextAlign>
                             <Format>0</Format>
-                            <PaddingLeft >0pt</PaddingLeft>
-                            <VerticalAlign >Middle</VerticalAlign>
-                            <PaddingRight >0pt</PaddingRight>
+                            <PaddingLeft>0pt</PaddingLeft>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingRight>0pt</PaddingRight>
                           </Style>
                           <Value>=Sum(Fields!water19_absent.Value)</Value>
                         </Textbox>
@@ -1118,9 +1157,9 @@ WHERE (route_lists.date BETWEEN @start_date AND @end_date)
                             <FontWeight>Normal</FontWeight>
                             <TextAlign>Center</TextAlign>
                             <Format>0</Format>
-                            <PaddingLeft >0pt</PaddingLeft>
-                            <VerticalAlign >Middle</VerticalAlign>
-                            <PaddingRight >0pt</PaddingRight>
+                            <PaddingLeft>0pt</PaddingLeft>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingRight>0pt</PaddingRight>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1138,7 +1177,7 @@ WHERE (route_lists.date BETWEEN @start_date AND @end_date)
                             <FontWeight>=Iif ( Iif({status} = 'Закрыт' OR {status} = 'Проверка километража', {wages},   Iif((({address_count} * 30) + ({water19_amount} + {water19_absent}) * 7 + Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5)) * 5) &lt; 0, 0, ({address_count} * 30) + ({water19_amount} + {water19_absent}) * 7 +  Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5)) * 5)) &lt; 1625,  'Bold', 'Normal')</FontWeight>
                             <TextAlign>Right</TextAlign>
                             <Format>#,##0.00</Format>
-                            <PaddingRight >2pt</PaddingRight>
+                            <PaddingRight>2pt</PaddingRight>
                           </Style>
                           <CanGrow>true</CanGrow>
                         </Textbox>

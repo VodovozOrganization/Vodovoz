@@ -1,11 +1,14 @@
-﻿using System.Collections.Generic;
-using NHibernate.Criterion;
+﻿using NHibernate.Criterion;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Vodovoz.Core.Domain.BasicHandbooks;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.EntityRepositories.Nodes;
 using Vodovoz.Nodes;
 
@@ -82,7 +85,11 @@ namespace Vodovoz.EntityRepositories.Goods
 		int GetIdentifierOfOnlineShopGroup();
 		decimal GetWaterPriceIncrement { get; }
 		Nomenclature GetNomenclature(IUnitOfWork uow, int nomenclatureId);
-		IList<int> Get19LWaterNomenclatureIds(IUnitOfWork uow, int[] nomenclaturesIds);
+		Task<IList<int>> Get19LWaterNomenclatureIds(
+			IUnitOfWork uow,
+			int[] siteNomenclaturesIds,
+			CancellationToken cancellationToken
+		);
 		IList<NomenclatureOnlineParametersNode> GetActiveNomenclaturesOnlineParametersForSend(
 			IUnitOfWork uow, GoodsOnlineParameterType parameterType);
 		IList<NomenclatureOnlinePriceNode> GetNomenclaturesOnlinePricesByOnlineParameters(

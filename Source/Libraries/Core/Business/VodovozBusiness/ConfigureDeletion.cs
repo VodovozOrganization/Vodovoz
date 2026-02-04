@@ -9,7 +9,15 @@ using QS.Project.DB;
 using QS.Project.Domain;
 using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Cash;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Pacs;
+using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.StoredResources;
+using Vodovoz.Core.Domain.Users;
+using Vodovoz.Core.Domain.Users.Settings;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.CashTransfer;
@@ -44,16 +52,14 @@ using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Suppliers;
 using Vodovoz.Domain.WageCalculation;
-using VodovozBusiness.Domain.Payments;
-using VodovozBusiness.Domain.Orders;
-using VodovozBusiness.Domain.Service;
-using VodovozBusiness.Domain.Documents;
-using Vodovoz.Core.Domain.StoredResources;
 using VodovozBusiness.Domain.Contacts;
+using VodovozBusiness.Domain.Documents;
 using VodovozBusiness.Domain.Operations;
-using Vodovoz.Core.Domain.Users;
-using Vodovoz.Core.Domain.Warehouses;
-using Vodovoz.Core.Domain.Users.Settings;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Payments;
+using VodovozBusiness.Domain.Service;
+using Vodovoz.Core.Domain.BasicHandbooks;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Vodovoz
 {
@@ -384,6 +390,11 @@ namespace Vodovoz
 				.AddRemoveFromDependence<Complaint>(x => x.Fines)
 				;
 
+			DeleteConfig.AddHibernateDeleteInfo<FineCategory>()
+				.AddClearDependence<Fine>(x => x.FineCategory);
+			
+			DeleteConfig.AddHibernateDeleteInfo<VatRate>();
+
 			DeleteConfig.AddHibernateDeleteInfo<FineItem>()
 				.AddDeleteCascadeDependence(item => item.WageOperation)
 				.AddDeleteCascadeDependence(item => item.FuelOutlayedOperation);
@@ -578,6 +589,7 @@ namespace Vodovoz
 				.AddDeleteDependence<RouteListFastDeliveryMaxDistance>(x => x.RouteList)
 				.AddDeleteDependence<RouteListMaxFastDeliveryOrders>(x => x.RouteList)
 				.AddDeleteDependence<RouteListDebt>(x => x.RouteList)
+				.AddDeleteDependence<CarLoadingDailyQueue>(x => x.RouteList)
 				.AddClearDependence<Fine>(x => x.RouteList)
 				.AddDeleteCascadeDependence(x => x.FuelOutlayedOperation)
 				.AddDeleteCascadeDependence(x => x.DriverWageOperation)
@@ -786,6 +798,8 @@ namespace Vodovoz
 						;
 
 			DeleteConfig.AddHibernateDeleteInfo<UndeliveryTransferAbsenceReason>();
+			
+			DeleteConfig.AddHibernateDeleteInfo<OnlineOrderNotificationSetting>();
 
 			#endregion
 
@@ -823,6 +837,8 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<DoneWorkDocument>();
 
 			DeleteConfig.AddHibernateDeleteInfo<EquipmentTransferDocument>();
+
+			DeleteConfig.AddHibernateDeleteInfo<LetterOfDebtDocument>();
 
 			DeleteConfig.AddHibernateDeleteInfo<InvoiceBarterDocument>();
 
@@ -898,6 +914,8 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<ProductSpecificationMaterial>();
 
+			DeleteConfig.AddHibernateDeleteInfo<CarLoadingDailyQueue>();
+
 			DeleteConfig.AddHibernateDeleteInfo<CarLoadDocument>()
 				.AddDeleteDependence<CarLoadDocumentItem>(x => x.Document);
 
@@ -917,12 +935,15 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<InventoryDocumentItem>()
 				.AddDeleteCascadeDependence(x => x.GoodsAccountingOperation);
 
+			DeleteConfig.AddHibernateDeleteInfo<SelfDeliveryDocumentItemTrueMarkProductCode>();
+
 			DeleteConfig.AddHibernateDeleteInfo<SelfDeliveryDocument>()
 				.AddDeleteDependence<SelfDeliveryDocumentItem>(x => x.Document)
 				.AddDeleteDependence<SelfDeliveryDocumentReturned>(x => x.Document);
 
 			DeleteConfig.AddHibernateDeleteInfo<SelfDeliveryDocumentItem>()
-				.AddDeleteCascadeDependence(x => x.GoodsAccountingOperation);
+				.AddDeleteCascadeDependence(x => x.GoodsAccountingOperation)
+				.AddClearDependence<SelfDeliveryDocumentItemTrueMarkProductCode>(x => x.SelfDeliveryDocumentItem);
 
 			DeleteConfig.AddHibernateDeleteInfo<SelfDeliveryDocumentReturned>()
 				.AddDeleteCascadeDependence(x => x.GoodsAccountingOperation);
@@ -1309,6 +1330,12 @@ namespace Vodovoz
 
 			#endregion
 
+			#region Car
+
+			DeleteConfig.AddHibernateDeleteInfo<CarModel>();
+
+			#endregion
+			
 			logger.Info("Ок");
 		}
 

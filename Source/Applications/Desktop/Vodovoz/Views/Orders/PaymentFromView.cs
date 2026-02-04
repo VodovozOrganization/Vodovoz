@@ -35,6 +35,7 @@ namespace Vodovoz.Views.Orders
 			
 			organizationsWidget.WidthRequest = 400;
 			organizationsWidget.HeightRequest = 150;
+			organizationsWidget.Visible = ViewModel.CanShowOrganizations;
 
 			txtViewOrganizationCriterion.Binding
 				.AddBinding(ViewModel, vm => vm.OrganizationsCriterion, w => w.Buffer.Text)

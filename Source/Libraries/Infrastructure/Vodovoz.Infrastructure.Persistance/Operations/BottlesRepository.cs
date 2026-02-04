@@ -1,8 +1,9 @@
-﻿using System;
-using System.Linq;
-using NHibernate.Criterion;
+﻿using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
@@ -156,5 +157,19 @@ namespace Vodovoz.Infrastructure.Persistance.Operations
 							 .SingleOrDefault<decimal>();
 			return (int)bttls;
 		}
+
+		public IDictionary<int, BottlesBalanceQueryResult> GetCounterpartiesBottlesDebtData(
+			IUnitOfWork uow,
+			IEnumerable<int> counterpartiesIds) =>
+			uow.Session.Query<BottlesMovementOperation>()
+			.Where(x => counterpartiesIds.Contains(x.Counterparty.Id))
+			.GroupBy(x => x.Counterparty.Id)
+			.ToDictionary(
+				x => x.Key,
+				x => new BottlesBalanceQueryResult
+				{
+					Delivered = x.Sum(b => b.Delivered),
+					Returned = x.Sum(b => b.Returned)
+				});
 	}
 }

@@ -21,7 +21,10 @@ using System.Text;
 using System.Threading;
 using System.Windows.Input;
 using Vodovoz.Application.FileStorage;
+using Vodovoz.Core.Data.Repositories.Cash;
+using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
@@ -36,11 +39,15 @@ using Vodovoz.Settings.Nomenclature;
 using Vodovoz.TempAdapters;
 using Vodovoz.ViewModelBased;
 using Vodovoz.ViewModels.Dialogs.Nodes;
+using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Goods.ProductGroups;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
+using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using Vodovoz.ViewModels.Widgets.Cash;
 using Vodovoz.ViewModels.Widgets.Goods;
 using VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters;
 using VodovozBusiness.Services;
@@ -60,6 +67,10 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private readonly INomenclatureService _nomenclatureService;
 		private readonly INomenclatureFileStorageService _nomenclatureFileStorageService;
 		private readonly ViewModelEEVMBuilder<ProductGroup> _productGroupEEVMBuilder;
+		private readonly IVatRateVersionViewModelFactory _vatRateVersionViewModelFactory;
+		private readonly ViewModelEEVMBuilder<VatRate> _vatRateEevmBuilder;
+		private readonly IVatRateRepository _vatRateRepository;
+
 		private ILifetimeScope _lifetimeScope;
 		private readonly IInteractiveService _interactiveService;
 		private NomenclatureOnlineParameters _mobileAppNomenclatureOnlineParameters;
@@ -99,7 +110,10 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			INomenclatureFileStorageService nomenclatureFileStorageService,
 			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory,
 			IGenericRepository<RobotMiaParameters> robotMiaParametersRepository,
-			ViewModelEEVMBuilder<ProductGroup> productGroupEEVMBuilder)
+			ViewModelEEVMBuilder<ProductGroup> productGroupEEVMBuilder, 
+			IVatRateVersionViewModelFactory vatRateVersionViewModelFactory,
+			ViewModelEEVMBuilder<VatRate> vatRateEevmBuilder,
+			IVatRateRepository vatRateRepository)
 			: base(uowBuilder, uowFactory, commonServices, navigationManager)
 		{
 			if(nomenclatureSettings is null)
@@ -128,7 +142,13 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			_nomenclatureFileStorageService = nomenclatureFileStorageService ?? throw new ArgumentNullException(nameof(nomenclatureFileStorageService));
 			_robotMiaParametersRepository = robotMiaParametersRepository ?? throw new ArgumentNullException(nameof(robotMiaParametersRepository));
 			_productGroupEEVMBuilder = productGroupEEVMBuilder ?? throw new ArgumentNullException(nameof(productGroupEEVMBuilder));
+			_vatRateVersionViewModelFactory = vatRateVersionViewModelFactory ?? throw new ArgumentNullException(nameof(vatRateVersionViewModelFactory));
+			_vatRateEevmBuilder = vatRateEevmBuilder ?? throw new ArgumentNullException(nameof(vatRateEevmBuilder));
+			_vatRateRepository = vatRateRepository ?? throw new ArgumentNullException(nameof(vatRateRepository));
 
+			VatRateNomenclatureVersionViewModel =
+				_vatRateVersionViewModelFactory.CreateVatRateVersionViewModel(Entity, this, _vatRateEevmBuilder, UoW,CanEdit);
+			
 			RouteColumnViewModel = BuildRouteColumnEntryViewModel();
 			ProductGroupEntityEntryViewModel = CreateProductGroupEEVM();
 
@@ -143,7 +163,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			SetGlassHolderCheckboxesSelection();
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
-
+			
 			SaveCommand = new DelegateCommand(SaveHandler, () => CanEdit);
 			CopyPricesWithoutDiscountFromMobileAppToVodovozWebSiteCommand = new DelegateCommand(
 				CopyPricesWithoutDiscountFromMobileAppToVodovozWebSite,
@@ -176,12 +196,19 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			EditSlangWordCommand.CanExecuteChangedWith(this, x => x.CanEdit);
 			RemoveSlangWordCommand = new DelegateCommand(RemoveSlangWord, () => CanEdit);
 			RemoveSlangWordCommand.CanExecuteChangedWith(this, x => x.CanEdit);
-		}
 
+			if(IsNewEntity)
+			{
+				AddDefaultVatRateVersions();
+			}
+		}
+		
 		public IStringHandler StringHandler { get; }
 		public IEntityAutocompleteSelectorFactory CounterpartySelectorFactory { get; }
 		public IEntityEntryViewModel RouteColumnViewModel { get; }
 		public IEntityEntryViewModel ProductGroupEntityEntryViewModel { get; }
+		
+		public VatRateNomenclatureVersionViewModel VatRateNomenclatureVersionViewModel { get; }
 
 		public GenericObservableList<NomenclatureOnlinePricesNode> NomenclatureOnlinePrices { get; }
 			= new GenericObservableList<NomenclatureOnlinePricesNode>();
@@ -670,7 +697,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 
 			return viewModel;
 		}
-
+		
 		private void ConfigureEntityPropertyChanges()
 		{
 			SetPropertyChangeRelation(
@@ -777,16 +804,16 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		{
 			CanCreateAndArcNomenclatures =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission(
-					Vodovoz.Core.Domain.Permissions.Nomenclature.CanCreateAndArcNomenclatures);
+					Vodovoz.Core.Domain.Permissions.NomenclaturePermissions.CanCreateAndArcNomenclatures);
 			CanCreateNomenclaturesWithInventoryAccountingPermission =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission(
-					Vodovoz.Core.Domain.Permissions.Nomenclature.CanCreateNomenclaturesWithInventoryAccounting);
+					Vodovoz.Core.Domain.Permissions.NomenclaturePermissions.CanCreateNomenclaturesWithInventoryAccounting);
 			CanEditAlternativeNomenclaturePrices =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission(
-					Vodovoz.Core.Domain.Permissions.Nomenclature.CanEditAlternativeNomenclaturePrices);
+					Vodovoz.Core.Domain.Permissions.NomenclaturePermissions.CanEditAlternativeNomenclaturePrices);
 			HasAccessToSitesAndAppsTab =
 				CommonServices.CurrentPermissionService.ValidatePresetPermission(
-					Vodovoz.Core.Domain.Permissions.Nomenclature.HasAccessToSitesAndAppsTab);
+					Vodovoz.Core.Domain.Permissions.NomenclaturePermissions.HasAccessToSitesAndAppsTab);
 
 			CanEditNeedSanitisation = !Entity.IsNeedSanitisation || !_nomenclatureRepository.CheckAnyOrderWithNomenclature(UoW, Entity.Id);
 		}
@@ -1252,6 +1279,37 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 		private void CloseHandler()
 		{
 			Close(AskSaveOnClose, CloseSource.Cancel);
+		}
+		
+		private void AddDefaultVatRateVersions()
+		{
+			var vatRateVersion18 = _vatRateRepository.GetVatRateByValue(UoW, 18);
+			var vatRateVersion20 = _vatRateRepository.GetVatRateByValue(UoW,20);
+			var vatRateVersion22 = _vatRateRepository.GetVatRateByValue(UoW,22);
+			
+			Entity.VatRateVersions.Add(new VatRateVersion()
+			{
+				Nomenclature = Entity,
+				VatRate = vatRateVersion18,
+				StartDate = new DateTime(2004, 1, 1),
+				EndDate = new DateTime(2019, 1,1).AddTicks(-1)
+			});
+			
+			Entity.VatRateVersions.Add(new VatRateVersion()
+			{
+				Nomenclature = Entity,
+				VatRate = vatRateVersion20,
+				StartDate = new DateTime(2019, 1, 1),
+				EndDate = new DateTime(2026, 1,1).AddTicks(-1)
+			});
+			
+			Entity.VatRateVersions.Add(new VatRateVersion()
+			{
+				Nomenclature = Entity,
+				VatRate = vatRateVersion22,
+				StartDate = new DateTime(2026, 1, 1),
+			});
+				
 		}
 	}
 }

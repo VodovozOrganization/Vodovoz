@@ -10,18 +10,27 @@ namespace Vodovoz.Core.Domain.Results
 		public static readonly Error None =
 			new Error(string.Empty, string.Empty);
 		public static readonly Error NullValue =
-			new Error(typeof(Error), nameof(NullValue), "The specified result value is null.");
+			new Error(typeof(Error), nameof(NullValue), "Результирующее значение равно нулю.");
 
 		public Error(string code, string message)
 		{
 			Code = code;
 			Message = message;
 		}
+		
+		public Error(string code, string message, Type type)
+		{
+			Code = code;
+			Message = message;
+			Type = type;
+		}
 
 		public Error(Type type, string fieldName, string message)
-			: this(GenerateCode(type, fieldName), message) { }
+			: this(GenerateCode(type, fieldName), message, type) { }
 
 		public string Code { get; set; }
+		
+		public Type Type { get; }
 
 		public string Message { get; set; }
 

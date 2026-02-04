@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
@@ -42,7 +42,7 @@ namespace Vodovoz.Domain.Payments
 		public Payment(TransferDocument doc, Organization org, Counterparty counterparty)
 		{
 			PaymentNum = int.Parse(doc.DocNum);
-			Date = doc.Date;
+			Date = doc.ReceivedDate ?? doc.Date;
 			Total = doc.Total;
 			CounterpartyInn = doc.PayerInn;
 			CounterpartyKpp = doc.PayerKpp;
@@ -56,14 +56,15 @@ namespace Vodovoz.Domain.Payments
 
 			if(org != null)
 			{
+				var account = string.IsNullOrWhiteSpace(doc.RecipientCurrentAccount) ? doc.RecipientAccount : doc.RecipientCurrentAccount;
 				Organization = org;
-				OrganizationAccount = org.Accounts.FirstOrDefault(acc => acc.Number == doc.RecipientCurrentAccount);
+				OrganizationAccount = org.Accounts.FirstOrDefault(acc => acc.Number == account);
 			}
 
 			if(counterparty != null)
 			{
 				Counterparty = counterparty;
-				CounterpartyAccount = counterparty.Accounts.FirstOrDefault(acc => acc.Number == doc.PayerCurrentAccount);
+				CounterpartyAccount = counterparty.Accounts.FirstOrDefault(acc => acc.Number == doc.PayerAccount);
 			}
 		}
 
@@ -205,18 +206,20 @@ namespace Vodovoz.Domain.Payments
 		/// <param name="paymentSum">Сумма возврата</param>
 		/// <param name="orderId">Id заказа</param>
 		/// <param name="refundPaymentReason">Причина возврата</param>
+		/// <param name="profitCategory">Категория прихода для возвратного платежа</param>
 		/// <returns>Созданный платеж</returns>
 		public virtual Payment CreatePaymentForReturnAllocatedSumToClientBalance(
 			decimal paymentSum,
 			int orderId,
-			RefundPaymentReason refundPaymentReason)
+			RefundPaymentReason refundPaymentReason,
+			ProfitCategory profitCategory)
 		{
 			return new Payment
 			{
 				PaymentNum = PaymentNum,
 				Date = DateTime.Now,
 				Total = paymentSum,
-				ProfitCategory = ProfitCategory,
+				ProfitCategory = profitCategory,
 				PaymentPurpose = $"Возврат суммы оплаты заказа №{orderId} на баланс клиента. Причина: {refundPaymentReason.GetEnumTitle()}",
 				Organization = Organization,
 				Counterparty = Counterparty,
@@ -236,30 +239,14 @@ namespace Vodovoz.Domain.Payments
 			CounterpartyKpp = Counterparty.KPP;
 			CounterpartyName = Counterparty.Name;
 		}
-
+		
 		/// <summary>
-		/// Отмена распределения
+		/// Платеж не для распределения(платежи межу нашими компаниями, приходы от физ лиц)
 		/// </summary>
-		/// <param name="cancellationReason">Причина отмены</param>
-		/// <param name="needUpdateOrderPaymentStatus">Необходимость обновления статуса оплаты заказа</param>
-		/// <param name="isByUserRequest">Пользовательский запрос или автоматика</param>
-		public virtual void CancelAllocation(string cancellationReason, bool needUpdateOrderPaymentStatus = false, bool isByUserRequest = false)
+		public virtual void OtherIncome(ProfitCategory profitCategory)
 		{
-			if(IsRefundPayment || isByUserRequest)
-			{
-				Status = PaymentState.Cancelled;
-				Comment += string.IsNullOrWhiteSpace(Comment) ? $"{cancellationReason}" : $"\n{cancellationReason}";
-
-				if(Comment.Length > _commentLimit)
-				{
-					Comment = Comment.Remove(_commentLimit);
-				}
-			}
-
-			foreach(var paymentItem in Items)
-			{
-				paymentItem.CancelAllocation(needUpdateOrderPaymentStatus);
-			}
+			ProfitCategory = profitCategory;
+			Status = PaymentState.undistributed;
 		}
 
 		/// <summary>

@@ -10,8 +10,10 @@ namespace Vodovoz.Settings.Common
 		void UpdateRouteListPrintedFormPhones(string text);
 
 		bool GetCanAddForwardersToLargus { get; }
+		bool GetCanAddForwardersToMinivan { get; }
 		string OrderAutoComment { get; }
 		void UpdateCanAddForwardersToLargus(bool value);
+		void UpdateCanAddForwardersToMinivan(bool value);
 		void UpdateOrderAutoComment(string value);
 
 		int[] SubdivisionsToInformComplaintHasNoDriver { get; }
@@ -61,5 +63,12 @@ namespace Vodovoz.Settings.Common
 		int FastDeliveryMaximumPermissibleLateMinutes { get; }
 		void UpdateFastDeliveryMaximumPermissibleLateMinutes(int value);
 		void UpdatePaymentWriteOffAllowedFinancialExpenseCategoriesParameter(int[] ids, string parameterName);
+		
+		int DefaultPaymentDeferment { get; }
+		void SaveDefaultPaymentDeferment(int defaultPaymentDeferment);
+		
+		decimal DefaultVatRate { get; }
+		void SaveDefaultVatRate(decimal defaultVatRate);
+		
 	}
 }

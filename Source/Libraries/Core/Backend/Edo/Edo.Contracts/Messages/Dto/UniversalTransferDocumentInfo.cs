@@ -9,9 +9,10 @@ namespace Edo.Contracts.Messages.Dto
 	public class UniversalTransferDocumentInfo : DocumentInfo
 	{
 		/// <summary>
-		/// Номер документа
+		/// Номер документа строкой (для использования новой нумерации документов)
 		/// </summary>
-		public int Number { get; set; }
+		public string StringNumber { get; set; }
+		
 		/// <summary>
 		/// Сумма документа
 		/// </summary>
@@ -45,6 +46,10 @@ namespace Edo.Contracts.Messages.Dto
 		/// Основание отгрузки <see cref="BasisShipmentInfo"/>
 		/// </summary>
 		public BasisShipmentInfo BasisShipment { get; set; }
+		/// <summary>
+		/// Идентификатор государственного контракта, договора
+		/// </summary>
+		public string GovContract { get; set; }
 		/// <summary>
 		/// Информация об оплатах <see cref="PaymentInfo"/>
 		/// </summary>

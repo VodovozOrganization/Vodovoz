@@ -12,8 +12,8 @@ namespace Edo.Common
 	public class EdoTaskItemTrueMarkStatusProvider
 	{
 		private readonly ITrueMarkApiClient _trueMarkApiClient;
-		private readonly Dictionary<string, EdoTaskItemTrueMarkStatus> _codesStatuses = new Dictionary<string, EdoTaskItemTrueMarkStatus>();
 		private readonly EdoTask _edoTask;
+		private Dictionary<TrueMarkWaterIdentificationCode, EdoTaskItemTrueMarkStatus> _codesStatuses;
 		private IEnumerable<EdoTaskItem> _codeItems;
 		private bool _codesChecked;
 
@@ -21,29 +21,40 @@ namespace Edo.Common
 		{
 			_edoTask = edoTask ?? throw new ArgumentNullException(nameof(edoTask));
 			_trueMarkApiClient = trueMarkApiClient ?? throw new ArgumentNullException(nameof(trueMarkApiClient));
+
 			ClearCache();
 		}
 
 		public void ClearCache()
 		{
 			_codeItems = GetCodeItems();
-			_codesStatuses.Clear();
-			var preparedCodes = _codeItems.Where(x => x.ProductCode.ResultCode != null);
-			var duplicates = preparedCodes.GroupBy(x => x.ProductCode.ResultCode.IdentificationCode)
-				.Where(x => x.Count() > 1)
-				.Select(x => x.First());
-			if(duplicates.Any())
+
+			_codesStatuses = _codeItems.SelectMany(AggregateAllTaskItemCodes)
+				.GroupBy(x => x.Key)
+				.ToDictionary(x => x.Key, x => x.First().Value);
+
+			_codesChecked = false;
+		}
+
+		private IEnumerable<KeyValuePair<TrueMarkWaterIdentificationCode, EdoTaskItemTrueMarkStatus>> AggregateAllTaskItemCodes(
+			EdoTaskItem edoTaskItem
+			)
+		{
+			if(edoTaskItem.ProductCode.ResultCode != null)
 			{
-				throw new EdoProblemException(new ResultCodesDuplicatesException(), duplicates);
-			}
-			foreach(var preparedCode in preparedCodes)
-			{
-				_codesStatuses.Add(
-					preparedCode.ProductCode.ResultCode.IdentificationCode,
-					new EdoTaskItemTrueMarkStatus { EdoTaskItem = preparedCode }
+				yield return new KeyValuePair<TrueMarkWaterIdentificationCode, EdoTaskItemTrueMarkStatus>(
+					edoTaskItem.ProductCode.ResultCode,
+					new EdoTaskItemTrueMarkStatus { EdoTaskItem = edoTaskItem, ItemCodeType = EdoTaskItemCodeType.Result }
 				);
 			}
-			_codesChecked = false;
+
+			if(edoTaskItem.ProductCode.SourceCode != null)
+			{
+				yield return new KeyValuePair<TrueMarkWaterIdentificationCode, EdoTaskItemTrueMarkStatus>(
+					edoTaskItem.ProductCode.SourceCode,
+					new EdoTaskItemTrueMarkStatus { EdoTaskItem = edoTaskItem, ItemCodeType = EdoTaskItemCodeType.Source }
+				);
+			}
 		}
 
 		public async Task<IDictionary<string, EdoTaskItemTrueMarkStatus>> GetItemsStatusesAsync(CancellationToken cancellationToken)
@@ -58,12 +69,30 @@ namespace Edo.Common
 				await Check(cancellationToken);
 			}
 
+			return _codesStatuses.ToDictionary(x => x.Key.IdentificationCode, x => x.Value);
+		}
+
+		public async Task<IDictionary<TrueMarkWaterIdentificationCode, EdoTaskItemTrueMarkStatus>> GetCodeItemsStatusesAsync(CancellationToken cancellationToken)
+		{
+			if(!_codeItems.Any())
+			{
+				return new Dictionary<TrueMarkWaterIdentificationCode, EdoTaskItemTrueMarkStatus>();
+			}
+
+			if(!_codesChecked)
+			{
+				await Check(cancellationToken);
+			}
+
 			return _codesStatuses;
 		}
 
 		private async Task Check(CancellationToken cancellationToken)
 		{
-			var response = await _trueMarkApiClient.GetProductInstanceInfoAsync(_codesStatuses.Keys, cancellationToken);
+			var identificationCodesDic = _codesStatuses.Keys
+				.ToDictionary(x => x.IdentificationCode);
+
+			var response = await _trueMarkApiClient.GetProductInstanceInfoAsync(identificationCodesDic.Keys, cancellationToken);
 			if(!response.ErrorMessage.IsNullOrWhiteSpace())
 			{
 				throw new EdoException($"Не удалось получить данные о кодах из честного знака для ЭДО задачи №{_edoTask.Id}. " +
@@ -72,7 +101,8 @@ namespace Edo.Common
 
 			foreach(var instanceStatus in response.InstanceStatuses)
 			{
-				_codesStatuses[instanceStatus.IdentificationCode].ProductInstanceStatus = instanceStatus;
+				var domainCode = identificationCodesDic[instanceStatus.IdentificationCode];
+				_codesStatuses[domainCode].ProductInstanceStatus = instanceStatus;
 			}
 
 			_codesChecked = true;

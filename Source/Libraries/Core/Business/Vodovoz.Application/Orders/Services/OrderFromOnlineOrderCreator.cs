@@ -99,7 +99,6 @@ namespace Vodovoz.Application.Orders.Services
 				order.SelfDeliveryGeoGroup = onlineOrder.SelfDeliveryGeoGroup;
 			}
 			
-			//TODO: скорее всего этот метод здесь избыточен, т.к. при заполнении других полей договор обновится
 			_contractUpdater.UpdateOrCreateContract(uow, order);
 
 			if(order.Client is null)
@@ -254,6 +253,7 @@ namespace Vodovoz.Application.Orders.Services
 							proSetItem.Count,
 							proSetItem.IsDiscountInMoney ? proSetItem.DiscountMoney : proSetItem.Discount,
 							proSetItem.IsDiscountInMoney,
+							true,
 							null,
 							proSetItem.PromoSet);
 					}
@@ -294,7 +294,12 @@ namespace Vodovoz.Application.Orders.Services
 				{
 					if(product.DiscountReason is null)
 					{
-						order.AddNomenclature(uow, _contractUpdater, product.Nomenclature, product.Count);
+						order.AddNomenclature(
+							uow,
+							_contractUpdater,
+							product.Nomenclature,
+							product.Count,
+							needGetFixedPrice: product.IsFixedPrice);
 					}
 					else
 					{
@@ -305,7 +310,8 @@ namespace Vodovoz.Application.Orders.Services
 							product.Count,
 							product.GetDiscount,
 							product.IsDiscountInMoney,
-							product.DiscountReason);
+							product.IsFixedPrice,
+							discountReason: product.DiscountReason);
 					}
 				}
 			}
@@ -327,6 +333,7 @@ namespace Vodovoz.Application.Orders.Services
 					onlineOrderItem.Count,
 					onlineOrderItem.GetDiscount,
 					onlineOrderItem.IsDiscountInMoney,
+					onlineOrderItem.IsFixedPrice,
 					onlineOrderItem.DiscountReason);
 			}
 		}

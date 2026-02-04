@@ -10,7 +10,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Vodovoz.Core.Domain.BasicHandbooks;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
@@ -74,12 +76,8 @@ namespace Vodovoz.Views.Goods
 				.AddFuncBinding(ViewModel.Entity, e => ViewModel.GetUserEmployeeName(), w => w.LabelProp)
 				.InitializeFromSource();
 
-			enumVAT.ItemsEnum = typeof(VAT);
-			enumVAT.Binding
-				.AddBinding(ViewModel.Entity, e => e.VAT, w => w.SelectedItem)
-				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
-				.InitializeFromSource();
-
+			vatRateVersionForNomenclatureView.ViewModel = ViewModel.VatRateNomenclatureVersionViewModel;
+			
 			enumCategory.Changed += ViewModel.OnEnumCategoryChanged;
 			enumCategory.ChangedByUser += ViewModel.OnEnumCategoryChangedByUser;
 			enumCategory.ItemsEnum = typeof(NomenclatureCategory);
@@ -183,6 +181,8 @@ namespace Vodovoz.Views.Goods
 				.AddBinding(ViewModel.Entity, e => e.Hide, w => w.Active)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
+
+			entryCode1c.IsEditable = false;
 			entryCode1c.Binding
 				.AddBinding(ViewModel.Entity, e => e.Code1c, w => w.Text)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)

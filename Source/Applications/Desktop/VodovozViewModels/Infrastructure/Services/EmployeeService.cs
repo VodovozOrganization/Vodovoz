@@ -1,22 +1,18 @@
 ﻿using Mailjet.Api.Abstractions;
-using Microsoft.Extensions.Logging;
-using NLog.Extensions.Logging;
 using QS.Attachments.Domain;
 using QS.DomainModel.UoW;
-using RabbitMQ.Infrastructure;
 using RabbitMQ.MailSending;
 using QS.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Text.Json;
 using System.Web;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Services;
-using VodovozInfrastructure.Configuration;
 using Vodovoz.Settings.Common;
 using Vodovoz.Core.Domain.Users;
+using MassTransit;
+using System.Threading.Tasks;
 
 namespace Vodovoz.Infrastructure.Services
 {
@@ -24,11 +20,13 @@ namespace Vodovoz.Infrastructure.Services
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IUserService _userService;
+		private readonly IBus _messageBus;
 
-		public EmployeeService(IUnitOfWorkFactory uowFactory, IUserService userService)
+		public EmployeeService(IUnitOfWorkFactory uowFactory, IUserService userService, IBus messageBus)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
+			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
 		public Employee GetEmployee(int employeeId)
@@ -128,34 +126,12 @@ namespace Vodovoz.Infrastructure.Services
 				}
 			};
 
-			SendMessageToEmail(uow, message);
+			SendMessageToEmail(message).GetAwaiter().GetResult();
 		}
 
-		private void SendMessageToEmail(IUnitOfWork uow, SendEmailMessage message)
+		private async Task SendMessageToEmail(SendEmailMessage message)
 		{
-			var configuration = uow.GetAll<InstanceMailingConfiguration>().FirstOrDefault();
-
-			var serializedMessage = JsonSerializer.Serialize(message);
-			var sendingBody = Encoding.UTF8.GetBytes(serializedMessage);
-
-			var Logger = new Logger<RabbitMQConnectionFactory>(new NLogLoggerFactory());
-
-			var connectionFactory = new RabbitMQConnectionFactory(Logger);
-
-			var connection = connectionFactory.CreateConnection(
-				configuration.MessageBrokerHost,
-				configuration.MessageBrokerUsername,
-				configuration.MessageBrokerPassword,
-				configuration.MessageBrokerVirtualHost,
-				configuration.Port,
-				true);
-
-			var channel = connection.CreateModel();
-
-			var properties = channel.CreateBasicProperties();
-			properties.Persistent = true;
-
-			channel.BasicPublish(configuration.EmailSendExchange, configuration.EmailSendKey, false, properties, sendingBody);
+			await _messageBus.Publish(message);
 		}
 	}
 }

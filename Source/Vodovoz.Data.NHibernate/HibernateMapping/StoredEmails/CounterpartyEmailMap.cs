@@ -1,5 +1,6 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.StoredEmails;
+using VodovozBusiness.Domain.StoredEmails;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.StoredEmails
 {
@@ -64,11 +65,22 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.StoredEmails
 			}
 		}
 
+		public class EquipmentTransferDocumentEmailMap : SubclassMap<EquipmentTransferDocumentEmail>
+		{
+			public EquipmentTransferDocumentEmailMap()
+			{
+				DiscriminatorValue(nameof(CounterpartyEmailType.EquipmentTransfer));
+				References(x => x.OrderDocument).Column("order_document_id");
+			}
+		}
+
 		public class BulkEmailMap : SubclassMap<BulkEmail>
 		{
 			public BulkEmailMap()
 			{
 				DiscriminatorValue(nameof(CounterpartyEmailType.Bulk));
+
+				References(x => x.OrderDocument).Column("order_document_id");
 			}
 		}
 	}

@@ -1,7 +1,6 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
 using QS.Views.GtkUI;
-using Vodovoz.ViewModels.ViewModels.Reports;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
 using WrapMode = Pango.WrapMode;
 

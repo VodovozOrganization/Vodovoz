@@ -34,7 +34,7 @@ namespace Edo.Common
 			var itemStatuses = await taskItemStatusProvider.GetItemsStatusesAsync(cancellationToken);
 
 			var edoOrganizations = await _edoRepository.GetEdoOrganizationsAsync(cancellationToken);
-			var organizationTo = edoTask.OrderEdoRequest.Order.Contract.Organization;
+			var organizationTo = edoTask.FormalEdoRequest.Order.Contract.Organization;
 
 			var transferRequests = new Dictionary<string, TransferEdoRequest>();
 			foreach(var itemStatus in itemStatuses.Values)
@@ -49,6 +49,11 @@ namespace Edo.Common
 					throw new EdoException($"Строка №{itemStatus.EdoTaskItem.Id} в задаче " +
 						$"№{itemStatus.EdoTaskItem.CustomerEdoTask.Id} не была проверена в честном знаке." +
 						$"Эта проблема должна обрабатываться валидацией, необходимо проверить работу валидатора.");
+				}
+
+				if(itemStatus.ItemCodeType == EdoTaskItemCodeType.Source)
+				{
+					continue;
 				}
 
 				var edoOrganizationFrom = edoOrganizations.FirstOrDefault(x => x.INN == itemStatus.ProductInstanceStatus.OwnerInn);
@@ -106,7 +111,7 @@ namespace Edo.Common
 				transferRequest.Iteration = transferIteration;
 				transferIteration.TransferEdoRequests.Add(transferRequest);
 			}
-			
+
 			await _uow.SaveAsync(transferIteration, cancellationToken: cancellationToken);
 
 			return transferIteration;

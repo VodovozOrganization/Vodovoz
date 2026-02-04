@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using FluentNHibernate.Data;
 using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate.Criterion;
@@ -21,6 +22,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading;
 using Vodovoz.Application.Orders;
+using Vodovoz.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
@@ -41,6 +43,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Services;
+using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
@@ -61,6 +64,7 @@ namespace Vodovoz
 
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IOrderContractUpdater _contractUpdater;
+		private readonly IRouteListService _routeListService;
 		private readonly ICounterpartyService _counterpartyService;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IEmployeeService _employeeService;
@@ -70,12 +74,14 @@ namespace Vodovoz
 		private readonly ITdiCompatibilityNavigation _tdiNavigationManager;
 		private readonly IOrderSettings _orderSettings;
 		private readonly IOrderRepository _orderRepository;
+		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IDiscountReasonRepository _discountReasonRepository;
 		private readonly IWageParameterService _wageParameterService;
-		private readonly INomenclatureOnlineSettings _nomenclatureOnlineSettings;
 		private readonly IOrderDiscountsController _discountsController;
+		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly INomenclatureFixedPriceController _nomenclatureFixedPriceController;
+		private readonly OrderCancellationService _orderCancellationService;
 
 		private List<OrderItemReturnsNode> _itemsToClient;
 
@@ -97,14 +103,14 @@ namespace Vodovoz
 		
 		public ICallTaskWorker CallTaskWorker { get; }
 		
-		private Order BaseOrder { get; set; }
+		public Order Order { get; private set; }
 		
 		public Counterparty Client
 		{
-			get => BaseOrder.Client;
+			get => Order.Client;
 			private set
 			{
-				BaseOrder.UpdateClient(value, _contractUpdater, out var message);
+				Order.UpdateClient(value, _contractUpdater, out var message);
 
 				if(!string.IsNullOrWhiteSpace(message))
 				{
@@ -115,8 +121,20 @@ namespace Vodovoz
 
 		public DeliveryPoint DeliveryPoint
 		{
-			get => BaseOrder.DeliveryPoint;
-			private set => BaseOrder.UpdateDeliveryPoint(value, _contractUpdater);
+			get => Order.DeliveryPoint;
+			private set => Order.UpdateDeliveryPoint(value, _contractUpdater);
+		}
+		
+		public PaymentType PaymentType
+		{
+			get => Order.PaymentType;
+			private set => Order.UpdatePaymentType(value, _contractUpdater);
+		}
+		
+		public PaymentFrom PaymentByCardFrom
+		{
+			get => Order.PaymentByCardFrom;
+			private set => Order.UpdatePaymentByCardFrom(value, _contractUpdater);
 		}
 		
 		public ChangedType CompletedChange
@@ -142,6 +160,8 @@ namespace Vodovoz
 			}
 		}
 
+		public OrderCancellationPermit CancellationPermit { get; private set; }
+
 		#endregion
 
 		public OrderReturnsView(
@@ -157,12 +177,15 @@ namespace Vodovoz
 			IDiscountReasonRepository discountReasonRepository,
 			IWageParameterService wageParameterService,
 			IOrderSettings orderSettings,
+			INomenclatureSettings nomenclatureSettings,
 			INomenclatureOnlineSettings nomenclatureOnlineSettings,
 			IDeliveryRulesSettings deliveryRulesSettings,
 			IFlyerRepository flyerRepository,
 			ITdiCompatibilityNavigation tdiNavigationManager,
 			ILifetimeScope lifetimeScope,
-			IOrderContractUpdater orderContractUpdater)
+			IOrderContractUpdater orderContractUpdater,
+			IRouteListService routeListService
+			)
 		{
 			if(currentPermissionService is null)
 			{
@@ -170,19 +193,19 @@ namespace Vodovoz
 			}
 
 			CanFormOrderWithLiquidatedCounterparty = currentPermissionService
-				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.CanFormOrderWithLiquidatedCounterparty);
+				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.CanFormOrderWithLiquidatedCounterparty);
 
 			_canEditPrices = currentPermissionService
-				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.CanEditPriceDiscountFromRouteList);
+				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.CanEditPriceDiscountFromRouteListAndSelfDelivery);
 
 			_canEditOrderAfterRecieptCreated = currentPermissionService
-				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.CanChangeOrderAfterRecieptCreated);
+				.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.CanChangeOrderAfterRecieptCreated);
 
 			Build();
 
 			UoW = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_discountsController = orderDiscountsController ?? throw new ArgumentNullException(nameof(orderDiscountsController));
-			CallTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_counterpartyService = counterpartyService ?? throw new ArgumentNullException(nameof(counterpartyService));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
@@ -191,12 +214,15 @@ namespace Vodovoz
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
-			_nomenclatureOnlineSettings = nomenclatureOnlineSettings ?? throw new ArgumentNullException(nameof(nomenclatureOnlineSettings));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 			_tdiNavigationManager = tdiNavigationManager ?? throw new ArgumentNullException(nameof(tdiNavigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_contractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
+			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));;
+			_orderCancellationService = _lifetimeScope.Resolve<OrderCancellationService>();
+			CancellationPermit = OrderCancellationPermit.Default();
 		}
 
 		public bool CanFormOrderWithLiquidatedCounterparty { get; }
@@ -283,6 +309,25 @@ namespace Vodovoz
 				|| contract is null)
 			{
 				return;
+			}
+
+			if(PaymentType == PaymentType.Cashless)
+			{
+				if(nomenclature.Category == NomenclatureCategory.deposit
+					&& !Order.HasDepositItems()
+					&& Order.HasNonPaidDeliveryItems())
+				{
+					MessageDialogHelper.RunWarningDialog("Нельзя добавить залоговую позицию, если в заказе уже есть незалоговые позиции.");
+					return;
+				}
+
+				if(nomenclature.Category != NomenclatureCategory.deposit
+					&& Order.HasDepositItems()
+					&& Order.HasNonPaidDeliveryItems())
+				{
+					MessageDialogHelper.RunWarningDialog("Нельзя добавить незалоговую позицию, если в заказе уже есть залоговые позиции.");
+					return;
+				}
 			}
 
 			if(_routeListItem.Order.OrderItems.Any(x => !Nomenclature.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
@@ -408,15 +453,18 @@ namespace Vodovoz
 				.Finish();
 
 			yenumcomboOrderPayment.ItemsEnum = typeof(PaymentType);
-			yenumcomboOrderPayment.Binding.AddBinding(_routeListItem.Order, o => o.PaymentType, w => w.SelectedItem).InitializeFromSource();
+			yenumcomboOrderPayment.Binding
+				.AddBinding(this, o => o.PaymentType, w => w.SelectedItem)
+				.InitializeFromSource();
 
 			ySpecPaymentFrom.ItemsList =
-				_routeListItem.Order.PaymentType == PaymentType.PaidOnline
-					? GetActivePaymentFromWithSelected(_routeListItem.Order.PaymentByCardFrom)
+				PaymentType == PaymentType.PaidOnline
+					? GetActivePaymentFromWithSelected(PaymentByCardFrom)
 					: UoW.Session.QueryOver<PaymentFrom>().Where(p => !p.IsArchive).List();
 
-			ySpecPaymentFrom.Binding.AddBinding(_routeListItem.Order, e => e.PaymentByCardFrom, w => w.SelectedItem).InitializeFromSource();
-			ySpecPaymentFrom.Binding.AddFuncBinding(_routeListItem.Order, e => e.PaymentType == PaymentType.PaidOnline, w => w.Visible)
+			ySpecPaymentFrom.Binding
+				.AddFuncBinding(this, e => e.PaymentType == PaymentType.PaidOnline, w => w.Visible)
+				.AddBinding(this, e => e.PaymentByCardFrom, w => w.SelectedItem)
 				.InitializeFromSource();
 
 			yenumcomboboxTerminalSubtype.ItemsEnum = typeof(PaymentByTerminalSource);
@@ -449,13 +497,13 @@ namespace Vodovoz
 
 		private void Initialize(Order order)
 		{
-			if(BaseOrder != null)
+			if(Order != null)
 			{
 				UnsubscribeBaseOrder();
 			}
 			
-			BaseOrder = order;
-			BaseOrder.PropertyChanged += OnOrderPropertyChanged;
+			Order = order;
+			Order.PropertyChanged += OnOrderPropertyChanged;
 
 			_oldDeliveryPointId = order.DeliveryPoint?.Id;
 			_oldCounterpartyId = order.Client?.Id;
@@ -604,6 +652,27 @@ namespace Vodovoz
 
 		private void OpenOrCreateUndelivery(RouteListItemStatus routeListItemStatusToChange)
 		{
+			var permit = _orderCancellationService.CanCancelOrder(UoW, _routeListItem.Order);
+			switch(permit.Type)
+			{
+				case OrderCancellationPermitType.AllowCancelDocflow:
+					if(permit.EdoTaskToCancellationId == null)
+					{
+						throw new InvalidOperationException("Для аннулирования документооборота должен быть указан идентификатор ЭДО задачи.");
+					}
+					// документооборот может отмениться сразу же, потому что не зависит от изменений заказа
+					_orderCancellationService.CancelDocflowByUser(
+						$"Отмена заказа №{_routeListItem.Order.Id}", 
+						permit.EdoTaskToCancellationId.Value
+					);
+					return;
+				case OrderCancellationPermitType.AllowCancelOrder:
+					break;
+				case OrderCancellationPermitType.Deny:
+				default:
+					return;
+			}
+
 			_routeListItemStatusToChange = routeListItemStatusToChange;
 			_undeliveryViewModel = _tdiNavigationManager.OpenViewModelOnTdi<UndeliveryViewModel>(
 				this,			
@@ -618,7 +687,13 @@ namespace Vodovoz
 
 		private void OnUndeliveryViewModelSaved(object sender, UndeliveryOnOrderCloseEventArgs e)
 		{
-			_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, _routeListItemStatusToChange, CallTaskWorker, true);
+			_routeListService.ChangeAddressStatusAndCreateTask(UoW,
+				_routeListItem.RouteList,
+				_routeListItem.Id,
+				_routeListItemStatusToChange,
+				_callTaskWorker,
+				true
+			);
 			_routeListItem.SetOrderActualCountsToZeroOnCanceled();
 			_routeListItem.BottlesReturned = 0;
 			UpdateButtonsState();
@@ -629,11 +704,13 @@ namespace Vodovoz
 			}
 
 			UoW.Save(_routeListItem);
+			CancellationPermit = e.CancellationPermit;
 		}
 
 		protected void OnButtonDeliveredClicked(object sender, EventArgs e)
 		{
-			_routeListItem.RouteList.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.Id, RouteListItemStatus.Completed, CallTaskWorker, true);
+			_routeListService.ChangeAddressStatusAndCreateTask(UoW, _routeListItem.RouteList, _routeListItem.Id, RouteListItemStatus.Completed, 
+				_callTaskWorker, true);
 			_routeListItem.RestoreOrder();
 			_routeListItem.FirstFillClosing(_wageParameterService);
 			UpdateListsSentivity();
@@ -686,7 +763,7 @@ namespace Vodovoz
 			{
 				ServicesConfig.InteractiveService.ShowMessage(
 					ImportanceLevel.Warning,
-					Errors.Orders.Order.PaidCashlessOrderClientReplacementError.Message);
+					Errors.Orders.OrderErrors.PaidCashlessOrderClientReplacementError.Message);
 
 				e.CanChange = false;
 				return;
@@ -711,7 +788,7 @@ namespace Vodovoz
 			{
 			}
 
-			if(counterparty.IsLiquidating)
+			if(counterparty.RevenueStatus.HasValue && counterparty.RevenueStatus != RevenueStatus.Active)
 			{
 				if(!CanFormOrderWithLiquidatedCounterparty)
 				{
@@ -728,6 +805,7 @@ namespace Vodovoz
 
 			ConfigureDeliveryPointRefference(clientEntry.ViewModel.Entity as Counterparty);
 			DeliveryPoint = null;
+			Order.ContactPhone = null;
 
 			if(clientEntry.ViewModel.Entity != null)
 			{
@@ -857,7 +935,7 @@ namespace Vodovoz
 
 		private void UnsubscribeBaseOrder()
 		{
-			BaseOrder.PropertyChanged -= OnOrderPropertyChanged;
+			Order.PropertyChanged -= OnOrderPropertyChanged;
 		}
 	}
 }

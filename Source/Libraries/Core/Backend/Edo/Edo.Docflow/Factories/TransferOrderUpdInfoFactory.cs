@@ -7,6 +7,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
+using Vodovoz.Core.Data.Repositories.Document;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Organizations;
@@ -23,17 +25,20 @@ namespace Edo.Docflow.Factories
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly IEdoTransferSettings _edoTransferSettings;
 		private readonly INomenclatureSettings _nomenclatureSettings;
+		private readonly IDocumentOrganizationCounterRepository _documentOrganizationCounterRepository;
 
 		public TransferOrderUpdInfoFactory(
 			IUnitOfWork uow,
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			IEdoTransferSettings edoTransferSettings,
-			INomenclatureSettings nomenclatureSettings)
+			INomenclatureSettings nomenclatureSettings,
+			IDocumentOrganizationCounterRepository documentOrganizationCounterRepository)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_edoTransferSettings = edoTransferSettings ?? throw new ArgumentNullException(nameof(edoTransferSettings));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
+			_documentOrganizationCounterRepository = documentOrganizationCounterRepository ?? throw new ArgumentNullException(nameof(documentOrganizationCounterRepository));
 		}
 
 		public async Task<UniversalTransferDocumentInfo> CreateUniversalTransferDocumentInfo(
@@ -54,6 +59,11 @@ namespace Edo.Docflow.Factories
 			if(transferOrder.Customer is null)
 			{
 				throw new InvalidOperationException("В заказе перемещения товаров не указан покупатель");
+			}
+
+			if(transferOrder.TransferDocument is null && transferOrder.Date >= new DateTime(2026, 1, 1))
+			{
+				throw new InvalidOperationException("В заказе перемещения товаров не указан счетчик документов УПД для 2026 года и позже");
 			}
 
 			if(transferOrder.Date == default)
@@ -89,11 +99,11 @@ namespace Edo.Docflow.Factories
 			)
 		{
 			var products = await GetProducts(transferOrder, cancellationToken);
-
+			
 			var document = new UniversalTransferDocumentInfo
 			{
 				DocumentId = Guid.NewGuid(),
-				Number = transferOrder.Id,
+				StringNumber = UPDNumberBuilder.Build(transferOrder, transferOrder.TransferDocument),
 				Sum = products.Sum(x => x.Sum),
 				Date = transferOrder.Date,
 				Seller = GetSellerInfo(transferOrder),
@@ -108,7 +118,7 @@ namespace Edo.Docflow.Factories
 
 			return document;
 		}
-
+		
 		private SellerInfo GetSellerInfo(TransferOrder transferOrder) =>
 			new SellerInfo { Organization = GetOrganizationInfo(transferOrder.Seller) };
 
@@ -149,7 +159,9 @@ namespace Edo.Docflow.Factories
 				},
 				Inn = organization.INN,
 				Kpp = organization.KPP,
-				EdoAccountId = organization.TaxcomEdoAccountId,
+				OGRN = organization.OGRN,
+				OGRNDate = organization.OGRNDate,
+				EdoAccountId = organization.TaxcomEdoSettings.EdoAccount,
 			};
 
 			return oganizationInfo;
@@ -217,7 +229,22 @@ namespace Edo.Docflow.Factories
 				}
 
 				var sum = price * quantity;
-				var includeVat = Math.Round(sum * nomenclature.VatNumericValue / (1 + nomenclature.VatNumericValue), 2);
+				
+				var vatRateVersion = transferOrder.Seller != null && transferOrder.Seller.IsUsnMode 
+					? transferOrder.Seller.GetActualVatRateVersion(transferOrder.Date)
+					: nomenclature.GetActualVatRateVersion(transferOrder.Date);
+				
+				if(vatRateVersion == null)
+				{
+					throw new InvalidOperationException($"У товара #{nomenclature.Id} отсутствует версия НДС на дату трансфера заказа #{transferOrder.Date}");
+				}
+				
+				var includeVat = vatRateVersion.VatRate.VatRateValue != 0 
+					? Math.Round(sum * vatRateVersion.VatRate.VatNumericValue / (1 + vatRateVersion.VatRate.VatNumericValue), 2) 
+					: 0;
+				var valueAddedTax = vatRateVersion.VatRate.VatRateValue != 0 
+					? vatRateVersion.VatRate.VatNumericValue 
+					: (decimal?)null;
 
 				var product = new ProductInfo
 				{
@@ -229,7 +256,7 @@ namespace Edo.Docflow.Factories
 					Count = quantity,
 					Price = price,
 					IncludeVat = includeVat,
-					ValueAddedTax = nomenclature.VatNumericValue,
+					ValueAddedTax = valueAddedTax,
 					DiscountMoney = 0,
 					TrueMarkCodes = productCodes
 				};

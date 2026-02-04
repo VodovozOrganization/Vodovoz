@@ -15,6 +15,7 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	orders.id AS order_id, 
+	document_organization_counters.document_number AS document_number,
 	orders.delivery_date AS order_date, 
 	counterparty.full_name AS client_name, 
 	counterparty.jur_address AS client_address, 
@@ -30,6 +31,8 @@ FROM orders
     LEFT JOIN counterparty_contract ON counterparty_contract.id = orders.counterparty_contract_id
 	LEFT JOIN delivery_points on delivery_points.id = orders.delivery_point_id
 	LEFT JOIN phones ON delivery_points.id = phones.delivery_point_id AND phones.is_archive = 0
+	LEFT JOIN order_documents ON order_documents.order_id = orders.id AND order_documents.type IN ('SpecialUPD', 'UPD') AND order_documents.document_organization_counter_id IS NOT NULL
+    LEFT JOIN document_organization_counters ON document_organization_counters.id = order_documents.document_organization_counter_id
 WHERE orders.id = @order_id</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
@@ -42,6 +45,10 @@ WHERE orders.id = @order_id</CommandText>
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
         </Field>
+        <Field Name="document_number">
+          <DataField>document_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field> 
         <Field Name="order_date">
           <DataField>order_date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -117,6 +124,62 @@ WHERE
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="deposits">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>
+          SELECT
+            n.official_name AS deposit_name,
+            ROUND(COALESCE(oi.actual_count, oi.count), 2) AS deposit_count,
+            mu.name AS deposit_unit,
+            oi.include_nds as deposit_vat,
+            ROUND(oi.price - oi.include_nds, 2) AS deposit_price,
+            ROUND(oi.count * oi.price * (1 - oi.discount / 100), 2) AS deposit_sum
+          FROM
+            orders o
+          LEFT JOIN order_items oi ON
+            oi.order_id = o.id
+          LEFT JOIN nomenclature n ON
+            n.id = oi.nomenclature_id
+          LEFT JOIN measurement_units mu ON
+            mu.id = n.unit_id
+          WHERE
+            o.id = @order_id
+            AND n.category = 'deposit'
+        </CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="deposit_name">
+          <DataField>deposit_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="deposit_count">
+          <DataField>deposit_count</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="deposit_unit">
+          <DataField>deposit_unit</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="deposit_price">
+          <DataField>deposit_price</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="deposit_vat">
+          <DataField>deposit_vat</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="deposit_sum">
+          <DataField>deposit_sum</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
   </DataSets>
   <PageHeader>
     <Height>0.0pt</Height>
@@ -149,8 +212,8 @@ WHERE
         <Width>510.55pt</Width>
         <Value>Оборудование с согласия Клиента, принято без разборки и проверки неисправностей, без проверки внутренних повреждений. Клиент согласен, что все неисправности и внутренние повреждения, которые могут быть обнаружены в оборудовании при его техническом обслуживании, возникли до приема оборудования по этому акту. В случае отказа Клиента от ремонта после проведения диагностических работ и установления причины неисправности сданного оборудования по вине Клиента, Клиент обязуется оплатить диагностику. Гарантия распространяется ТОЛЬКО на выполненные работы и замененные запчасти. Гарантия не распространяется на оборудование, которое подвергалось механическому воздействию, а также в случае неквалифицированного ремонта сторонними ремонтными организациями.</Value>
         <ZIndex>0</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>494.90pt</Top>
+        <Left>0.0pt</Left>
+        <Top>546.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -168,7 +231,7 @@ WHERE
 у фирмы во временное пользование.</Value>
         <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
-        <Top>672.3pt</Top>
+        <Top>739.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -197,8 +260,8 @@ WHERE
       <Textbox Name="Textbox2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>20.25pt</Height>
         <Width>152.63pt</Width>
-        <Value>="г.Санкт-Петербург
-"+Format(Max({order_date}, "Order"), "dd.MM.yy")</Value>
+        <Value>="Санкт-Петербург
+              "+Format(Max({order_date}, "Order"), "dd.MM.yy")</Value>
         <ZIndex>0</ZIndex>
         <Left>357.2pt</Left>
         <Top>140.7pt</Top>
@@ -216,8 +279,8 @@ WHERE
         <Width>509.99pt</Width>
         <Value>Поля необходимые для заполнения</Value>
         <ZIndex>0</ZIndex>
-        <Left>1.40pt</Left>
-        <Top>229.50pt</Top>
+        <Left>1.4pt</Left>
+        <Top>280.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -313,7 +376,7 @@ WHERE
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
         <Left>3.2pt</Left>
-        <Top>322.9pt</Top>
+        <Top>374.1pt</Top>
         <PageBreakAtEnd>false</PageBreakAtEnd>
         <PageBreakAtStart>false</PageBreakAtStart>
         <DataElementOutput>Output</DataElementOutput>
@@ -379,7 +442,7 @@ WHERE
         <Value>Итого сдано в ремонт</Value>
         <ZIndex>0</ZIndex>
         <Left>0.7pt</Left>
-        <Top>252.7pt</Top>
+        <Top>303.9pt</Top>
         <Style>
           <FontFamily>Times New Roman</FontFamily>
           <FontSize>10pt</FontSize>
@@ -393,7 +456,7 @@ WHERE
         <Value></Value>
         <ZIndex>0</ZIndex>
         <Left>131.9pt</Left>
-        <Top>252.8pt</Top>
+        <Top>304.0pt</Top>
         <Style>
           <FontFamily>Times New Roman</FontFamily>
           <FontSize>10pt</FontSize>
@@ -410,7 +473,7 @@ WHERE
         <Value>единиц</Value>
         <ZIndex>0</ZIndex>
         <Left>236.0pt</Left>
-        <Top>253.1pt</Top>
+        <Top>304.3pt</Top>
         <Style>
           <FontFamily>Times New Roman</FontFamily>
           <FontSize>10pt</FontSize>
@@ -422,7 +485,7 @@ WHERE
         <Value>Клиент принял временный кулер (нужное подчеркнуть)      Да,      Нет</Value>
         <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
-        <Top>272.3pt</Top>
+        <Top>323.5pt</Top>
         <Style>
           <FontFamily>Times New Roman</FontFamily>
           <FontSize>10pt</FontSize>
@@ -435,7 +498,7 @@ WHERE
         <Value>Заполняется клиентом</Value>
         <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
-        <Top>303.6pt</Top>
+        <Top>354.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -453,7 +516,7 @@ WHERE
         <Value>Заполняется водителем-экспедитором</Value>
         <ZIndex>0</ZIndex>
         <Left>0.0pt</Left>
-        <Top>377.9pt</Top>
+        <Top>429.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -640,7 +703,7 @@ WHERE
           </TableRows>
         </Details>
         <Left xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">0.0pt</Left>
-        <Top xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">393.8pt</Top>
+        <Top xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">445.0pt</Top>
         <Footer xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
           <TableRows>
             <TableRow>
@@ -822,102 +885,140 @@ WHERE
           </TableRows>
         </Footer>
       </fyi:Grid>
-      <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>16.50pt</Height>
-        <Width>255.27pt</Width>
-        <Value>Оборудование принято, претензий не имею</Value>
-        <ZIndex>0</ZIndex>
+      <Table Name="SignatureTable" KeepTogether="true">
+        <DataSetName>Order</DataSetName>
+        <TableColumns>
+          <TableColumn>
+            <Width>356.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>126.27pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <!-- Первая строка подписи -->
+            <TableRow>
+              <Height>16.50pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>Оборудование принято, претензий не имею</Value>
+                      <Style>
+                        <FontFamily>Times New Roman</FontFamily>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>/                                      /</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Bottom>Solid</Bottom>
+                        </BorderStyle>
+                        <FontFamily>Times New Roman</FontFamily>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12.00pt</Height>
+              <TableCells>
+                <TableCell>
+                  <!-- Пустая ячейка -->
+                  <ReportItems>
+                    <Textbox Name="Empty1">
+                      <Value></Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Value>Подпись клиента</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <FontFamily>Times New Roman</FontFamily>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <!-- Вторая строка подписи -->
+            <TableRow>
+              <Height>15.75pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>Оборудование передано клиенту</Value>
+                      <Style>
+                        <FontFamily>Times New Roman</FontFamily>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>/                                      /</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Bottom>Solid</Bottom>
+                        </BorderStyle>
+                        <FontFamily>Times New Roman</FontFamily>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12.00pt</Height>
+              <TableCells>
+                <TableCell>
+                  <!-- Пустая ячейка -->
+                  <ReportItems>
+                    <Textbox Name="Empty2">
+                      <Value></Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>Подпись водителя</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <FontFamily>Times New Roman</FontFamily>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
         <Left>12.5pt</Left>
-        <Top>608.2pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox12" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>15.75pt</Height>
-        <Width>229.77pt</Width>
-        <Value>Оборудование передано клиенту</Value>
-        <ZIndex>0</ZIndex>
-        <Left>12.5pt</Left>
-        <Top>641.0pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox13" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>12.00pt</Height>
-        <Width>126.27pt</Width>
-        <Value>/                                      /</Value>
-        <ZIndex>0</ZIndex>
-        <Left>345.5pt</Left>
-        <Top>608.2pt</Top>
+        <Top>675.4pt</Top>
         <Style>
           <BorderStyle>
-            <Bottom>Solid</Bottom>
+            <Default>None</Default>
           </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
         </Style>
-      </Textbox>
-      <Textbox Name="Textbox14" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>12.00pt</Height>
-        <Width>113.52pt</Width>
-        <Value>Подпись клиента</Value>
-        <ZIndex>0</ZIndex>
-        <Left>350.3pt</Left>
-        <Top>620.0pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Center</TextAlign>
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox15" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>12.00pt</Height>
-        <Width>126.27pt</Width>
-        <Value>/                                      /</Value>
-        <ZIndex>0</ZIndex>
-        <Left>345.5pt</Left>
-        <Top>641.0pt</Top>
-        <Style>
-          <BorderStyle>
-            <Bottom>Solid</Bottom>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox16" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>12.00pt</Height>
-        <Width>115.02pt</Width>
-        <Value>Подпись водителя</Value>
-        <ZIndex>0</ZIndex>
-        <Left>350.3pt</Left>
-        <Top>652.8pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Center</TextAlign>
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
-        </Style>
-      </Textbox>
+      </Table>
       <CustomReportItem Name="CustomReportItem1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Type>QR Code</Type>
         <Height>90.00pt</Height>
@@ -1102,12 +1203,273 @@ WHERE
         <Left>10.1pt</Left>
         <Top>175.3pt</Top>
       </Table>
+      <Table Name="DepositTable">
+        <DataSetName>deposits</DataSetName>
+        <NoRows>Нет данных</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>22.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>170.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>60pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>36.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>53.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>80pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>75.2pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>22.1pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="DepositRowNumberHeader">
+                      <Value>№</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                        <FontFamily>Times New Roman</FontFamily>
+                        <FontSize>10pt</FontSize>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="DepositNameHeader">
+                      <Value>Наименование предмета залога</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                        <FontFamily>Times New Roman</FontFamily>
+                        <FontSize>10pt</FontSize>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="DepositCountHeader">
+                      <Value>Кол-во</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                        <FontFamily>Times New Roman</FontFamily>
+                        <FontSize>10pt</FontSize>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="DepositUnitHeader">
+                      <Value>Ед.</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                        <FontFamily>Times New Roman</FontFamily>
+                        <FontSize>10pt</FontSize>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="DepositPriceHeader">
+                      <Value>Цена</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                        <FontFamily>Times New Roman</FontFamily>
+                        <FontSize>10pt</FontSize>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="DepositVATHeader">
+                      <Value>Сумма НДС</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                        <FontFamily>Times New Roman</FontFamily>
+                        <FontSize>10pt</FontSize>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="DepositSumHeader">
+                      <Value>Сумма</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                        <FontFamily>Times New Roman</FontFamily>
+                        <FontSize>10pt</FontSize>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="DepositRowNumber">
+                      <Value>=RowNumber()</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="DepositName">
+                      <Value>={deposit_name}</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="DepositCount">
+                      <Value>={deposit_count}</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="DepositUnit">
+                      <Value>={deposit_unit}</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="DepositPrice">
+                      <Value>={deposit_price}</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="DepositVAT">
+                      <Value>={deposit_vat}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="DepositSum">
+                      <Value>={deposit_sum}</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>10.0pt</Left>
+        <Top>233.2pt</Top>
+      </Table>
       <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>42.00pt</Height>
         <Width>315.70pt</Width>
-        <Value>="АКТ
-приема-передачи оборудования 
-№"+{?order_id}</Value>
+        <Value>="АКТ приема-передачи оборудования" + 
+            IIf(
+                Len(Trim(CStr(First(Fields!document_number.Value, "Order")))) = 0,
+                CStr(First(Fields!order_id.Value, "Order")),
+                CStr(First(Fields!document_number.Value, "Order"))
+            )
+        </Value>
         <ZIndex>0</ZIndex>
         <Left>88.5pt</Left>
         <Top>72.0pt</Top>

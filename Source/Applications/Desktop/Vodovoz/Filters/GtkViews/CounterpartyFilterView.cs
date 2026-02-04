@@ -1,4 +1,5 @@
 ﻿using Gamma.GtkWidgets;
+using Gamma.Widgets.Additions;
 using Gtk;
 using QS.Views.GtkUI;
 using QS.Widgets;
@@ -64,8 +65,19 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, vm => vm.RestrictIncludeArchive, w => w.Active)
 				.InitializeFromSource();
 
-			ycheckbuttonShowLiquidated.Binding
-				.AddBinding(ViewModel, vm => vm.ShowLiquidating, w => w.Active)
+			yhboxRevenueStatus.Binding
+				.AddFuncBinding(ViewModel, vm => vm.PersonType == PersonType.legal, w => w.Visible)
+				.InitializeFromSource();
+
+			enumcheckRevenueStatus.EnumType = typeof(RevenueStatus);
+			enumcheckRevenueStatus.Binding
+				.AddBinding(ViewModel, vm => vm.RestrictedRevenueStatuses, w => w.SelectedValuesList, new EnumsListConverter<RevenueStatus>())
+				.InitializeFromSource();
+			enumcheckRevenueStatus.OnlySelectValue(RevenueStatus.Active);
+
+			yenumcomboboxPersonType.ItemsEnum = typeof(PersonType);
+			yenumcomboboxPersonType.Binding
+				.AddBinding(ViewModel, vm => vm.PersonType, w => w.SelectedItemOrNull)
 				.InitializeFromSource();
 
 			checkNeedSendEdo.Binding

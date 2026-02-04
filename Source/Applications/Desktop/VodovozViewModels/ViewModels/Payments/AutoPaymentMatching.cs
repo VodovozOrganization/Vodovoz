@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using MoreLinq;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
@@ -15,7 +17,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly OrderStatus[] _orderUndeliveredStatuses;
-		private readonly HashSet<int> addedOrderIdsToAllocate = new HashSet<int>();
+		private readonly HashSet<int> _addedOrderIdsToAllocate = new HashSet<int>();
 
 		public AutoPaymentMatching(IUnitOfWork uow, IOrderRepository orderRepository)
 		{
@@ -34,18 +36,58 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				return false;
 			}
 
-			var uniqueOrderNumbers = ParsePaymentPurpose(payment.PaymentPurpose);
+			var documentNumbers = ParsePaymentPurpose(payment.PaymentPurpose);
 
-			if(uniqueOrderNumbers.Any())
+			if(documentNumbers.Any())
 			{
-				orders.AddRange(
-					uniqueOrderNumbers.Select(orderNumber => _uow.GetById<Order>(orderNumber))
-						.Where(order => order != null
-							&& !_orderUndeliveredStatuses.Contains(order.OrderStatus)
-							&& order.Client.Id == payment.Counterparty.Id
-							&& order.PaymentType == PaymentType.Cashless
-							&& (order.OrderPaymentStatus == OrderPaymentStatus.UnPaid || order.OrderPaymentStatus == OrderPaymentStatus.None)
-							&& order.OrderSum > 0));
+				var numericOrderIds = documentNumbers
+					.Where(d => int.TryParse(d, out _))
+					.Select(int.Parse)
+					.ToList();
+
+				if(numericOrderIds.Any())
+				{
+					orders.AddRange(
+						numericOrderIds.Select(orderId => _uow.GetById<Order>(orderId))
+							.Where(order => order != null
+								&& !_orderUndeliveredStatuses.Contains(order.OrderStatus)
+								&& order.Client.Id == payment.Counterparty.Id
+								&& order.PaymentType == PaymentType.Cashless
+								&& (order.OrderPaymentStatus == OrderPaymentStatus.UnPaid || order.OrderPaymentStatus == OrderPaymentStatus.None)
+								&& order.OrderSum > 0
+								&& order.Contract.Organization.INN == payment.Organization.INN));
+				}
+
+				var formattedDocumentNumbers = documentNumbers
+					.Where(d => !int.TryParse(d, out _))
+					.ToList();
+
+				if(formattedDocumentNumbers.Any())
+				{
+					var normalizedDocumentNumbers = formattedDocumentNumbers
+						.Select(NormalizeDocumentNumber)
+						.ToHashSet();
+
+					var orderIdsByDocNumber = _uow.Session.Query<DocumentOrganizationCounter>()
+						.Where(d => normalizedDocumentNumbers.Contains(d.DocumentNumber) && d.Order != null)
+						.Select(d => d.Order.Id)
+						.ToList();
+
+					if(orderIdsByDocNumber.Any())
+					{
+						orders.AddRange(
+							orderIdsByDocNumber.Select(orderId => _uow.GetById<Order>(orderId))
+								.Where(order => order != null
+									&& !_orderUndeliveredStatuses.Contains(order.OrderStatus)
+									&& order.Client.Id == payment.Counterparty.Id
+									&& order.PaymentType == PaymentType.Cashless
+									&& (order.OrderPaymentStatus == OrderPaymentStatus.UnPaid || order.OrderPaymentStatus == OrderPaymentStatus.None)
+									&& order.OrderSum > 0
+									&& order.Contract.Organization.INN == payment.Organization.INN));
+					}
+				}
+
+				orders = orders.DistinctBy(o => o.Id).ToList();
 
 				if(!orders.Any())
 				{
@@ -56,7 +98,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 				foreach(var order in orders)
 				{
-					if(addedOrderIdsToAllocate.Contains(order.Id))
+					if(_addedOrderIdsToAllocate.Contains(order.Id))
 					{
 						return false;
 					}
@@ -64,7 +106,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					if(paymentSum >= order.OrderSum)
 					{
 						payment.AddPaymentItem(order);
-						addedOrderIdsToAllocate.Add(order.Id);
+						_addedOrderIdsToAllocate.Add(order.Id);
 						sb.AppendLine(order.Id.ToString());
 						paymentSum -= order.OrderSum;
 					}
@@ -81,23 +123,48 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				return false;
 			}
 
-			payment.NumOrders = sb.ToString().TrimEnd(new[] { '\r', '\n' });
+			payment.NumOrders = sb.ToString().TrimEnd('\r', '\n');
 			return true;
 		}
 
-		private ISet<int> ParsePaymentPurpose(string paymentPurpose)
+		private ISet<string> ParsePaymentPurpose(string paymentPurpose)
 		{
-			string pattern = @"([0-9]{6,7})";
-
-			HashSet<int> uniqueOrderNumbers = new HashSet<int>();
+			var pattern = @"([А-ЯA-Za-zа-я]{2,3}\d{2}-\d+|\d{6,7})";
+			var uniqueDocumentNumbers = new HashSet<string>();
 			var matches = Regex.Matches(paymentPurpose, pattern);
 
-			for(int i = 0; i < matches.Count; i++)
+			for(var i = 0; i < matches.Count; i++)
 			{
-				uniqueOrderNumbers.Add(int.Parse(matches[i].Groups[1].Value));
+				uniqueDocumentNumbers.Add(matches[i].Groups[1].Value);
 			}
 
-			return uniqueOrderNumbers;
+			return uniqueDocumentNumbers;
+		}
+
+		private string NormalizeDocumentNumber(string docNumber)
+		{
+			var latinToRussian = new Dictionary<char, char>
+			{
+				{ 'A', 'А' }, { 'a', 'а' },
+				{ 'B', 'В' }, { 'b', 'в' },
+				{ 'E', 'Е' }, { 'e', 'е' },
+				{ 'K', 'К' }, { 'k', 'к' },
+				{ 'M', 'М' }, { 'm', 'м' },
+				{ 'H', 'Н' }, { 'h', 'н' },
+				{ 'O', 'О' }, { 'o', 'о' },
+				{ 'P', 'Р' }, { 'p', 'р' },
+				{ 'C', 'С' }, { 'c', 'с' },
+				{ 'T', 'Т' }, { 't', 'т' },
+				{ 'Y', 'У' }, { 'y', 'у' },
+				{ 'X', 'Х' }, { 'x', 'х' }
+			};
+
+			var result = new StringBuilder();
+			foreach(var c in docNumber)
+			{
+				result.Append(latinToRussian.ContainsKey(c) ? latinToRussian[c] : c);
+			}
+			return result.ToString().ToUpperInvariant();
 		}
 	}
 }

@@ -12,6 +12,7 @@ using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewWidgets.Logistics;
 using static Vodovoz.ViewModels.Logistic.RouteListTransferringViewModel;
@@ -27,17 +28,6 @@ namespace Vodovoz.Logistic
 			: base(viewModel)
 		{
 			Build();
-
-			viewModel.OpenLegacyOrderForRouteListJournalViewModelHandler = (filterConfig) =>
-			{
-				var page = ViewModel.NavigationManager.OpenViewModel<OrderForRouteListJournalViewModel, Action<OrderJournalFilterViewModel>>(ViewModel, filterConfig);
-
-				page.ViewModel.SelectionMode = JournalSelectionMode.Multiple;
-				page.ViewModel.OnEntitySelectedResult += ViewModel.OnOrderSelectedResult;
-
-				return page;
-			};
-
 			Initialize();
 		}
 

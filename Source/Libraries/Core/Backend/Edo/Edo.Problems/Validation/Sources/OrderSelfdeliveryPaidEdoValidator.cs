@@ -2,6 +2,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders;
 
 namespace Edo.Problems.Validation.Sources
 {
@@ -33,7 +35,7 @@ namespace Edo.Problems.Validation.Sources
 
 		public string GetTemplateMessage(EdoTask edoTask)
 		{
-			var orderEdoRequest = GetOrderEdoRequest(edoTask);
+			var orderEdoRequest = GetEdoRequest(edoTask);
 			if(orderEdoRequest == null)
 			{
 				return Message;
@@ -50,24 +52,41 @@ namespace Edo.Problems.Validation.Sources
 			}
 			
 			var orderEdoTask = (OrderEdoTask)edoTask;
-			var orderEdoRequest = orderEdoTask.OrderEdoRequest;
+			var orderEdoRequest = orderEdoTask.FormalEdoRequest;
 			var order = orderEdoRequest.Order;
 			return isOrder && order.SelfDelivery && !order.IsOrderForResale;
 		}
 
 		public override Task<EdoValidationResult> ValidateAsync(EdoTask edoTask, IServiceProvider serviceProvider, CancellationToken cancellationToken)
 		{
-			var orderEdoRequest = GetOrderEdoRequest(edoTask);
+			var orderEdoRequest = GetEdoRequest(edoTask);
 			if(!orderEdoRequest.Order.SelfDelivery)
 			{
 				return Task.FromResult(EdoValidationResult.Valid(this));
 			}
 
-			var invalid = !orderEdoRequest.Order.IsSelfDeliveryPaid;
-
-			if(invalid)
+			switch(orderEdoRequest.Order.PaymentType)
 			{
-				return Task.FromResult(EdoValidationResult.Invalid(this));
+				case PaymentType.Cash:
+				case PaymentType.Terminal:
+				case PaymentType.DriverApplicationQR:
+				case PaymentType.SmsQR:
+				case PaymentType.PaidOnline:
+				case PaymentType.Barter:
+				case PaymentType.ContractDocumentation:
+					if(!orderEdoRequest.Order.IsSelfDeliveryPaid)
+					{
+						return Task.FromResult(EdoValidationResult.Invalid(this));
+					}
+					break;
+				case PaymentType.Cashless:
+					if(orderEdoRequest.Order.OrderPaymentStatus != OrderPaymentStatus.Paid)
+					{
+						return Task.FromResult(EdoValidationResult.Invalid(this));
+					}
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(orderEdoRequest.Order.PaymentType));
 			}
 
 			return Task.FromResult(EdoValidationResult.Valid(this));

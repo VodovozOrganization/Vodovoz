@@ -6,6 +6,7 @@ using CustomerAppsApi.Library.Dto.Counterparties;
 using CustomerAppsApi.Library.Factories;
 using CustomerAppsApi.Library.Repositories;
 using CustomerAppsApi.Library.Validators;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using QS.Utilities.Numeric;
@@ -38,6 +39,7 @@ namespace CustomerAppsApi.Library.Models
 		private readonly IContactManagerForExternalCounterparty _contactManagerForExternalCounterparty;
 		private readonly ICounterpartyFactory _counterpartyFactory;
 		private readonly ICounterpartyEdoAccountController _counterpartyEdoAccountController;
+		private readonly IConfigurationSection _cacheExpirationSection;
 
 		public CounterpartyModel(
 			ILogger<CounterpartyModel> logger,
@@ -53,7 +55,8 @@ namespace CustomerAppsApi.Library.Models
 			ICounterpartyModelValidator counterpartyModelValidator,
 			IContactManagerForExternalCounterparty contactManagerForExternalCounterparty,
 			ICounterpartyFactory counterpartyFactory,
-			ICounterpartyEdoAccountController counterpartyEdoAccountController)
+			ICounterpartyEdoAccountController counterpartyEdoAccountController,
+			IConfiguration configuration)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
@@ -73,6 +76,9 @@ namespace CustomerAppsApi.Library.Models
 			_counterpartyFactory = counterpartyFactory ?? throw new ArgumentNullException(nameof(counterpartyFactory));
 			_counterpartyEdoAccountController =
 				counterpartyEdoAccountController ?? throw new ArgumentNullException(nameof(counterpartyEdoAccountController));
+			_cacheExpirationSection =
+				(configuration ?? throw new ArgumentNullException(nameof(configuration)))
+				.GetSection("CacheExpirationTime");
 		}
 
 		public CounterpartyIdentificationDto GetCounterparty(CounterpartyContactInfoDto counterpartyContactInfoDto)
@@ -184,12 +190,15 @@ namespace CustomerAppsApi.Library.Models
 						"Контрагент не найден с телефоном {PhoneNumber}, должен прийти запрос на регистрацию", phoneNumber);
 					return _counterpartyModelFactory.CreateNotFoundCounterpartyIdentificationDto();
 				default:
-					_logger.LogInformation("Отправляем на ручное сопоставление {PhoneNumber}", phoneNumber);
+					_logger.LogInformation(
+						"Отправляем на ручное сопоставление {PhoneNumber}, найденный контакт {Contact}",
+						phoneNumber,
+						contact.Phone?.Id);
 					return SendToManualHandling(counterpartyContactInfoDto, counterpartyFrom);
 			}
 		}
 
-		public CounterpartyRegistrationDto RegisterCounterparty(CounterpartyDto counterpartyDto)
+		public CounterpartyRegistrationDto RegisterCounterparty(CounterpartyDto counterpartyDto, bool isDryRun = false)
 		{
 			_logger.LogInformation("Запрос на регистрацию {ExternalId}", counterpartyDto.ExternalCounterpartyId);
 			var validationResult = _counterpartyModelValidator.CounterpartyDtoValidate(counterpartyDto);
@@ -223,7 +232,7 @@ namespace CustomerAppsApi.Library.Models
 			
 			//Создаем нового контрагента и валидируем полученную сущность
 			var counterparty = _counterpartyFactory.CreateCounterpartyFromExternalSource(counterpartyDto);
-			_counterpartyEdoAccountController.AddDefaultEdoAccountsToNewCounterparty(counterparty);
+			_counterpartyEdoAccountController.AddDefaultEdoAccountsToCounterparty(counterparty);
 			counterparty.CameFrom = _uow.GetById<ClientCameFrom>(counterpartyDto.CameFromId);
 
 			//Создаем новый контакт для клиента
@@ -243,10 +252,13 @@ namespace CustomerAppsApi.Library.Models
 			externalCounterparty.Email = email;
 			externalCounterparty.ExternalCounterpartyId = counterpartyDto.ExternalCounterpartyId;
 			externalCounterparty.Phone = phone;
-			
-			_uow.Save(counterparty);
-			_uow.Save(externalCounterparty);
-			_uow.Commit();
+
+			if(!isDryRun)
+			{
+				_uow.Save(counterparty);
+				_uow.Save(externalCounterparty);
+				_uow.Commit();
+			}
 
 			_logger.LogInformation(
 				"Создали нового пользователя {ExternalId} {PhoneNumber}, код пользователя {ErpCounterpartyId}",
@@ -257,7 +269,7 @@ namespace CustomerAppsApi.Library.Models
 			return _counterpartyModelFactory.CreateRegisteredCounterpartyRegistrationDto(counterparty.Id);
 		}
 
-		public CounterpartyUpdateDto UpdateCounterpartyInfo(CounterpartyDto counterpartyDto)
+		public CounterpartyUpdateDto UpdateCounterpartyInfo(CounterpartyDto counterpartyDto, bool isDryRun = false)
 		{
 			_logger.LogInformation("Запрос на обновление данных {ExternalId}", counterpartyDto.ExternalCounterpartyId);
 			var validationResult = _counterpartyModelValidator.CounterpartyDtoValidate(counterpartyDto);
@@ -305,10 +317,13 @@ namespace CustomerAppsApi.Library.Models
 				externalCounterparty.Email = CreateNewEmail(counterpartyDto.Email, counterparty);
 			}
 
-			_uow.Save(counterparty);
-			_uow.Save(externalCounterparty);
-			_uow.Commit();
-			
+			if(!isDryRun)
+			{
+				_uow.Save(counterparty);
+				_uow.Save(externalCounterparty);
+				_uow.Commit();
+			}
+
 			_logger.LogInformation("Успешно обновили данные {ExternalId}", counterpartyDto.ExternalCounterpartyId);
 			return new CounterpartyUpdateDto
 			{
@@ -316,10 +331,11 @@ namespace CustomerAppsApi.Library.Models
 			};
 		}
 
-		public async Task<CounterpartyBottlesDebtDto> GetCounterpartyBottlesDebt(int counterpartyId)
+		public CounterpartyBottlesDebtDto GetCounterpartyBottlesDebt(int counterpartyId)
 		{
 			_logger.LogInformation("Поступил запрос на выборку долга по бутылям клиента {CounterpartyId}", counterpartyId);
-			var debt = await _cachedBottlesDebtRepository.GetCounterpartyBottlesDebt(_uow, counterpartyId);
+			var debt = _cachedBottlesDebtRepository.GetCounterpartyBottlesDebt(
+				_uow, counterpartyId, _cacheExpirationSection.GetValue<int>("CounterpartyDebtCacheMinutes"));
 			return _counterpartyFactory.CounterpartyBottlesDebtDto(counterpartyId, debt);
 		}
 		

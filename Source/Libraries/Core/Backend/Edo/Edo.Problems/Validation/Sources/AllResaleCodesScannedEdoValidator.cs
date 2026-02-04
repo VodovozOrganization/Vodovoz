@@ -63,7 +63,7 @@ namespace Edo.Problems.Validation.Sources
 				return false;
 			}
 			
-			var orderEdoRequest = orderEdoTask.OrderEdoRequest;
+			var orderEdoRequest = orderEdoTask.FormalEdoRequest;
 
 			return (orderEdoRequest.Order.IsOrderForResale && !orderEdoRequest.Order.IsNeedIndividualSetOnLoad(_edoAccountEntityController))
 				|| orderEdoRequest.Order.IsOrderForTender;
@@ -85,7 +85,7 @@ namespace Edo.Problems.Validation.Sources
 			using(var uow = uowFactory.CreateWithoutRoot(nameof(AllResaleCodesScannedEdoValidator)))
 			{
 				return await IsAllTrueMarkProductCodesAddedToOrder(uow, trueMarkTaskCodesValidator, trueMarkCodesChecker,
-					orderEdoTask.OrderEdoRequest, cancellationToken)
+					orderEdoTask.FormalEdoRequest, cancellationToken)
 					? EdoValidationResult.Valid(this)
 					: EdoValidationResult.Invalid(this);
 			}
@@ -95,7 +95,7 @@ namespace Edo.Problems.Validation.Sources
 			IUnitOfWork unitOfWork,
 			ITrueMarkCodesValidator trueMarkTaskCodesValidator,
 			EdoTaskItemTrueMarkStatusProvider trueMarkCodesChecker,
-			OrderEdoRequest orderEdoRequest,
+			FormalEdoRequest orderEdoRequest,
 			CancellationToken cancellationToken)
 		{
 			#region Запросы в БД
@@ -122,7 +122,7 @@ namespace Edo.Problems.Validation.Sources
 						on routeListItem.Id equals productCode.RouteListItem.Id
 					where routeListItem.Order.Id == orderEdoRequest.Order.Id
 					      && productCode.SourceCodeStatus == SourceProductCodeStatus.Accepted
-					group productCode by productCode.ResultCode.GTIN
+					group productCode by productCode.ResultCode.Gtin
 					into grouped
 					select new ScannedNomenclatureGtinDto
 					{
@@ -138,7 +138,7 @@ namespace Edo.Problems.Validation.Sources
 					where document.Order.Id == orderEdoRequest.Order.Id
 					join productCode in unitOfWork.Session.Query<SelfDeliveryDocumentItemTrueMarkProductCode>()
 						on item.Id equals productCode.SelfDeliveryDocumentItem.Id
-					group productCode by productCode.ResultCode.GTIN
+					group productCode by productCode.ResultCode.Gtin
 					into grouped
 					select new ScannedNomenclatureGtinDto
 					{

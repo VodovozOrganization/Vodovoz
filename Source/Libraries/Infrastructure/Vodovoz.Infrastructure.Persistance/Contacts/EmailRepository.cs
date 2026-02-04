@@ -1,40 +1,44 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Domain.Orders;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Contacts;
 using Vodovoz.Settings.Delivery;
 using Order = Vodovoz.Domain.Orders.Order;
-using Vodovoz.Core.Domain.Contacts;
-using Vodovoz.Domain.Organizations;
-using Vodovoz.Settings.Organizations;
-using VodovozBusiness.Domain.Client;
 
 namespace Vodovoz.Infrastructure.Persistance.Contacts
 {
 	internal sealed class EmailRepository : IEmailRepository
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly IOrganizationSettings _organizationSettings;
+		private readonly IEmailTypeSettings _emailTypeSettings;
 
 		public EmailRepository(
 			IUnitOfWorkFactory uowFactory,
-			IOrganizationSettings organizationSettings)
+			IEmailTypeSettings emailTypeSettings
+			)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
+			_emailTypeSettings = emailTypeSettings ?? throw new ArgumentNullException(nameof(emailTypeSettings));
 		}
 
 		public StoredEmail GetById(IUnitOfWork unitOfWork, int id)
@@ -164,24 +168,23 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 					equals new { a = defaultEdoAccount.Counterparty.Id, b = defaultEdoAccount.OrganizationId, c = defaultEdoAccount.IsDefault }
 					into edoAccountsByOrder
 				from edoAccountByOrder in edoAccountsByOrder.DefaultIfEmpty()
-				join defaultVodovozEdoAccount in uow.Session.Query<CounterpartyEdoAccountEntity>()
-					on new { a = order.Client.Id, b = (int?)_organizationSettings.VodovozOrganizationId, c = true }
-					equals new { a = defaultVodovozEdoAccount.Counterparty.Id, b = defaultVodovozEdoAccount.OrganizationId, c = defaultVodovozEdoAccount.IsDefault }
 				where
 					order.Id == currentOrder.Id
-					&& (
+					&&
+					(
 						order.IsFastDelivery
 						||
 						address.Status != RouteListItemStatus.Transfered
 							&& address.AddressTransferType == AddressTransferType.FromFreeBalance
 						||
 						(
-							isForBill && (!order.Client.NeedSendBillByEdo
+							(
+								(isForBill && !order.Client.NeedSendBillByEdo)
 								|| edoAccountByOrder.ConsentForEdoStatus != ConsentForEdoStatus.Agree
-								|| defaultVodovozEdoAccount.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
+							)
+							&& order.DeliverySchedule.Id == deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId
 						)
-						&& order.DeliverySchedule.Id == deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId
-						)
+					)
 				select order.Id)
 			.Any();
 
@@ -418,6 +421,102 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				.Where(e => e.Counterparty.Id == counterpartyId)
 				.And(() => emailTypeAlias.Id == null)
 				.Take(1);
+		}
+
+		public async Task<Dictionary<Order, (Counterparty Counterparty, Organization Organization)>> GetAllOverdueOrderForDebtNotificationAsync(
+			IUnitOfWork uow,
+			int maxClients,
+			CancellationToken cancellationToken)
+		{
+			var currentDate = DateTime.UtcNow.Date;
+
+			var deliveredOrderStatuses = new[]
+			{
+				OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed
+			};
+
+			Counterparty counterpartyAlias = null;
+			CounterpartyContract contractAlias = null;
+			Order orderAlias = null;
+			Organization organizationAlias = null;
+			BulkEmailEvent bulkEmailEventAlias = null;
+			BulkEmailOrder bulkEmailOrderAlias = null;
+			OrderItem orderItemAlias = null;
+
+			var lastEventIdSubQuery = QueryOver.Of<BulkEmailEvent>()
+				.Where(bee2 => bee2.Counterparty.Id == counterpartyAlias.Id)
+				.Select(Projections.Max<BulkEmailEvent>(bee2 => bee2.Id));
+
+			var isClientUnsubscribedSubQuery = QueryOver.Of(() => bulkEmailEventAlias)
+				.Where(() => bulkEmailEventAlias.Counterparty.Id == counterpartyAlias.Id)
+				.Where(() => bulkEmailEventAlias.Type == BulkEmailEvent.BulkEmailEventType.Unsubscribing)
+				.WithSubquery.WhereProperty(() => bulkEmailEventAlias.Id).Eq(lastEventIdSubQuery)
+				.Select(bee => bee.Id);
+
+			var alreadySentOrdersSubQuery = QueryOver.Of(() => bulkEmailOrderAlias)
+				.Where(() => bulkEmailOrderAlias.Order.Id == orderAlias.Id)
+				.Select(beo => beo.Id);
+
+			var orderItemsSumSubquery = QueryOver.Of(() => orderItemAlias)
+			   .Where(() => orderItemAlias.Order.Id == orderAlias.Id)
+			   .Select(Projections.SqlFunction(
+				   new SQLFunctionTemplate(NHibernateUtil.Decimal, "COALESCE(SUM(?1 * IFNULL(?2, ?3) - ?4), 0)"),
+				   NHibernateUtil.Decimal,
+				   Projections.Property(() => orderItemAlias.Price),
+				   Projections.Property(() => orderItemAlias.ActualCount),
+				   Projections.Property(() => orderItemAlias.Count),
+				   Projections.Property(() => orderItemAlias.DiscountMoney)
+			   ));
+
+			var dateAddExpression = Projections.SqlFunction(
+				new SQLFunctionTemplate(
+					NHibernateUtil.DateTime,
+					"DATE_ADD(?1, INTERVAL ?2 + 1 DAY)"
+				),
+				NHibernateUtil.DateTime,
+				Projections.Property(() => orderAlias.DeliveryDate),
+				Projections.Property(() => counterpartyAlias.DelayDaysForBuyers)
+			);
+
+			var query = uow.Session.QueryOver(() => orderAlias)
+				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.JoinAlias(() => orderAlias.Contract, () => contractAlias)
+				.JoinAlias(() => contractAlias.Organization, () => organizationAlias)
+				.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
+				.Where(() => orderAlias.DeliveryDate != null)
+				.Where(() => orderAlias.OrderStatus.IsIn(deliveredOrderStatuses))
+				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
+				.Where(() => counterpartyAlias.PersonType == PersonType.legal)
+				.Where(() => counterpartyAlias.CloseDeliveryDebtType == null)
+				.WhereNot(() => organizationAlias.DisableDebtMailing)
+				.WhereNot(() => counterpartyAlias.DisableDebtMailing)
+				.WhereNot(() => counterpartyAlias.IsArchive)
+				.WithSubquery.WhereExists(
+					QueryOver.Of<Email>()
+				 		.Where(email => email.Counterparty.Id == counterpartyAlias.Id)
+						.And(email => email.EmailType == null || email.EmailType != null && email.EmailType.Id != _emailTypeSettings.ArchiveId)
+				 		.Select(email => email.Id)
+					)
+				.Where(Restrictions.Le(dateAddExpression, currentDate))
+				.WithSubquery.WhereNotExists(isClientUnsubscribedSubQuery)
+				.WithSubquery.WhereNotExists(alreadySentOrdersSubQuery)
+				.Where(Restrictions.Gt(
+					Projections.SubQuery(orderItemsSumSubquery),
+					0m
+				))
+				.Take(maxClients); 
+
+			var orders = await query.ListAsync(cancellationToken);
+
+			var result = orders
+				.Where(order => order.Client != null && order.Contract?.Organization != null)
+				.Take(maxClients)
+				.ToDictionary(
+					order => order,
+					order => (Counterparty: order.Client, order.Contract.Organization)
+				);
+
+			return result;
 		}
 
 		public IList<BulkEmailEventReason> GetUnsubscribingReasons(IUnitOfWork uow, IEmailSettings emailSettings, bool isForUnsubscribePage = false)

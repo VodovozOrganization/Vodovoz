@@ -47,7 +47,7 @@ namespace CustomerAppsApi.Library.Models
 			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
-		public Result SendCodeToEmail(SendingCodeToEmailDto codeToEmailDto)
+		public Result SendCodeToEmail(SendingCodeToEmailDto codeToEmailDto, bool isDryRun = false)
 		{
 			var instanceId = Convert.ToInt32(_unitOfWork.Session
 				.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
@@ -59,7 +59,7 @@ namespace CustomerAppsApi.Library.Models
 
 			if(counterparty is null)
 			{
-				return Result.Failure(Vodovoz.Errors.Common.CustomerAppsApiClient.UnknownCounterparty);
+				return Result.Failure(Vodovoz.Errors.Common.CustomerAppsApiClientErrors.UnknownCounterparty);
 			}
 
 			var externalCounterparty = _externalCounterpartyRepository.GetExternalCounterparty(
@@ -67,7 +67,7 @@ namespace CustomerAppsApi.Library.Models
 			
 			if(externalCounterparty is null)
 			{
-				return Result.Failure(Vodovoz.Errors.Common.CustomerAppsApiClient.UnknownUser);
+				return Result.Failure(Vodovoz.Errors.Common.CustomerAppsApiClientErrors.UnknownUser);
 			}
 			
 			Employee employee = null;
@@ -87,18 +87,19 @@ namespace CustomerAppsApi.Library.Models
 
 			if(employee is null)
 			{
-				return Result.Failure(Vodovoz.Errors.Common.CustomerAppsApiClient.UnsupportedSource);
+				return Result.Failure(Vodovoz.Errors.Common.CustomerAppsApiClientErrors.UnsupportedSource);
 			}
-
+			
 			CreateAuthorizationCodeEmail(
 				employee,
 				counterparty,
 				codeToEmailDto.Source,
 				externalCounterparty.Id,
 				codeToEmailDto.EmailAddress,
-				out var mailSubject);
+				out var mailSubject,
+				isDryRun);
 
-			var sendEmailMessage = new SendEmailMessage
+			var sendEmailMessage = new AuthorizationCodesSendEmailMessage
 			{
 				From = new EmailContact
 				{
@@ -127,17 +128,20 @@ namespace CustomerAppsApi.Library.Models
 				}
 			};
 
-			_publishEndpoint.Publish<SendEmailMessage>(sendEmailMessage);
+			if(!isDryRun)
+			{
+				_publishEndpoint.Publish(sendEmailMessage);
+			}
+
 			return Result.Success();
 		}
 
-		private void CreateAuthorizationCodeEmail(
-			Employee employee,
+		private void CreateAuthorizationCodeEmail(Employee employee,
 			Counterparty counterparty,
 			Source source,
 			int externalCounterpartyId,
 			string emailAddress,
-			out string mailSubject)
+			out string mailSubject, bool isDryRun)
 		{
 			mailSubject = $"{_authorizationCodeFor} {source.GetAttribute<AppellativeAttribute>()?.Genitive}";
 			
@@ -147,10 +151,13 @@ namespace CustomerAppsApi.Library.Models
 				externalCounterpartyId,
 				mailSubject,
 				emailAddress);
-			
-			_unitOfWork.Save(authorizationCodeEmail.StoredEmail);
-			_unitOfWork.Save(authorizationCodeEmail);
-			_unitOfWork.Commit();
+
+			if(!isDryRun)
+			{
+				_unitOfWork.Save(authorizationCodeEmail.StoredEmail);
+				_unitOfWork.Save(authorizationCodeEmail);
+				_unitOfWork.Commit();
+			}
 		}
 	}
 }

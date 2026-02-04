@@ -1,4 +1,4 @@
-using CustomerAppsApi.HealthChecks;
+﻿using CustomerAppsApi.HealthChecks;
 using CustomerAppsApi.Library;
 using CustomerAppsApi.Middleware;
 using MassTransit;
@@ -11,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using NLog.Web;
+using Osrm;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Core;
@@ -49,11 +50,7 @@ namespace CustomerAppsApi
 					logging.AddConfiguration(Configuration.GetSection("NLog"));
 				})
 
-				.AddStackExchangeRedisCache(redisOptions =>
-				{
-					var connection = Configuration.GetConnectionString("Redis");
-					redisOptions.Configuration = connection;
-				})
+				.AddMemoryCache()
 
 				.AddMappingAssemblies(
 					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
@@ -69,12 +66,16 @@ namespace CustomerAppsApi
 				.AddTrackedUoW()
 				.AddInfrastructure()
 				.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot())
-				.ConfigureHealthCheckService<CustomerAppsApiHealthCheck>()
+				.ConfigureHealthCheckService<CustomerAppsApiHealthCheck, ServiceInfoProvider>()
 				.AddHttpClient()
 				.AddCustomerApiLibrary()
+				.AddOsrm()
 				.AddRabbitConfig(Configuration)
 				.AddMessageTransportSettings()
-				.AddMassTransit(busConf => busConf.ConfigureRabbitMq())
+				.AddMassTransit(busConf =>
+				{
+					busConf.ConfigureRabbitMq((rabbitMq, context) => rabbitMq.AddSendAuthorizationCodesByEmailTopology(context));
+				})
 				.AddControllers()
 				;
 
@@ -102,7 +103,7 @@ namespace CustomerAppsApi
 
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
-			app.ConfigureHealthCheckApplicationBuilder();
+			app.UseVodovozHealthCheck();
 		}
 	}
 }

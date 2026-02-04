@@ -1,7 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description></Description>
-  <Author></Author>
+  <Description>
+  </Description>
+  <Author>
+  </Author>
   <PageHeight>210mm</PageHeight>
   <PageWidth>297mm</PageWidth>
   <Width>286.405mm</Width>
@@ -24,13 +26,12 @@
 	IFNULL(order_items.include_nds, 0) as include_nds,
 	order_items.discount AS item_discount,
 	order_items.discount_money AS item_discount_money,
-	CASE nomenclature.vat
-		WHEN 'No' THEN 1
-		WHEN 'Vat10' THEN 1.1
-		WHEN 'Vat18' THEN 1.18
-		WHEN 'Vat20' THEN 1.2
-	END AS vat_old,#удалить, если спустя какое-то время не будет проблем с отображением НДС
-	order_items.value_added_tax + 1 AS vat
+    CASE
+        WHEN organizations.is_usn_mode = 1 THEN
+            COALESCE(vr_organization.vat_rate_value, 0)
+        ELSE
+            COALESCE(vr_nomenclature.vat_rate_value, 0)
+    END / 100.0 + 1 AS vat
 FROM
     order_items
         LEFT JOIN
@@ -40,9 +41,27 @@ FROM
         LEFT JOIN
     orders ON orders.id = order_items.order_id
         LEFT JOIN
+    counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
+        LEFT JOIN
+    organizations ON organizations.id = counterparty_contract.organization_id
+        LEFT JOIN
     special_nomenclature ON special_nomenclature.counterparty_id = orders.client_id AND special_nomenclature.nomenclature_id = nomenclature.id
+        LEFT JOIN
+    vat_rate_versions vrv_nomenclature ON vrv_nomenclature.nomenclature_id = nomenclature.id 
+    AND ((vrv_nomenclature.start_date &lt;= orders.delivery_date AND vrv_nomenclature.end_date IS NULL )
+     OR (vrv_nomenclature.start_date &lt;= orders.delivery_date AND vrv_nomenclature.end_date &gt;= orders.delivery_date))
+        LEFT JOIN
+    vat_rates vr_nomenclature ON vr_nomenclature.id = vrv_nomenclature.vat_rate_id
+        LEFT JOIN
+    vat_rate_versions vrv_organization ON vrv_organization.organization_id = organizations.id 
+        AND ((vrv_organization.start_date &lt;= orders.delivery_date AND vrv_organization.end_date IS NULL )
+         OR (vrv_organization.start_date &lt;= orders.delivery_date AND vrv_organization.end_date &gt;= orders.delivery_date))
+        LEFT JOIN
+    vat_rates vr_organization ON vr_organization.id = vrv_organization.vat_rate_id
 WHERE
-    order_items.order_id = @order_id;</CommandText>
+	order_items.order_id = @order_id
+	AND nomenclature.category != 'deposit';
+        </CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
@@ -93,10 +112,11 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     orders.id AS order_id,
+    document_organization_counters.document_number AS document_number,
     orders.delivery_date AS order_date,
     orders.counterparty_external_order_id,
     counterparty_contract.number AS contract_number,
@@ -111,16 +131,27 @@ WHERE
     counterparty.special_customer,
     (
         IF(orders.order_payment_status = 'Paid',
-            (SELECT GROUP_CONCAT(CONCAT("№ ", pfbc.payment_num, " от ", DATE_FORMAT(pfbc.payment_date, '%d.%m.%Y')) SEPARATOR ", ")
-            FROM
-                payments_from_bank_client pfbc
-            INNER JOIN
-                payment_items pitms
-            ON pfbc.id = pitms.payment_id
-            WHERE pitms.order_id = @order_id and pitms.payment_item_status != 'Cancelled'
-            AND pfbc.payment_date &lt; ADDDATE(orders.delivery_date, INTERVAL 1 DAY)),
+            (
+                with recursive PaymentsHierarchy AS (
+                    select pfbc.id, pfbc.payment_num, pfbc.payment_date, pfbc.refunded_payment_id
+                    from payments_from_bank_client pfbc
+                             join payment_items pi on pfbc.id = pi.payment_id
+                             join orders o on pi.order_id = o.id
+                    where o.id = @order_id
+                      and pi.payment_item_status != 'Cancelled'
+                      and pfbc.payment_date &lt; ADDDATE(o.delivery_date, INTERVAL 1 DAY)
+
+                    UNION ALL
+
+                    select pfbc.id, pfbc.payment_num, pfbc.payment_date, pfbc.refunded_payment_id
+                    from payments_from_bank_client pfbc, PaymentsHierarchy as a
+                    where pfbc.Id = a.refunded_payment_id
+                )
+                select GROUP_CONCAT(CONCAT("№ ", payment_num, " от ", DATE_FORMAT(payment_date, '%d.%m.%Y')) SEPARATOR ", ") from PaymentsHierarchy
+                where refunded_payment_id is null
+            ),
             "")
-    ) AS payments_info,
+        ) AS payments_info,
     IF(!IS_NULL_OR_WHITESPACE(counterparty.special_contract_number) and counterparty.special_contract_date is not null,
        CONCAT(counterparty.special_contract_name, ' №', counterparty.special_contract_number, ' от ', DATE_FORMAT(counterparty.special_contract_date, '%d.%m.%y')),
        counterparty.special_contract_name) AS special_contract_number,
@@ -130,9 +161,9 @@ WHERE
     CONCAT(
             IFNULL(counterparty.inn, ''),
             '/',
-             IFNULL(IF(counterparty.use_special_doc_fields AND @special_fields AND !IS_NULL_OR_WHITESPACE(counterparty.payer_special_kpp),
-               counterparty.payer_special_kpp, counterparty.kpp), '')
-        ) AS inn_kpp,
+            IFNULL(IF(counterparty.use_special_doc_fields AND @special_fields AND !IS_NULL_OR_WHITESPACE(counterparty.payer_special_kpp),
+                      counterparty.payer_special_kpp, counterparty.kpp), '')
+    ) AS inn_kpp,
     CASE
         WHEN counterparty.cargo_receiver_source = 'FromDeliveryPoint' THEN CONCAT(counterparty.full_name, ', ', counterparty.inn, '/',
                                                                                   IFNULL(delivery_points.KPP, counterparty.kpp), ', ',
@@ -148,7 +179,7 @@ WHERE
             delivery_points.city,
             delivery_points.street,
             delivery_points.building
-        ) AS del_point_address_composite,
+    ) AS del_point_address_composite,
     organizations.INN AS org_inn,
     organizations.KPP AS org_kpp,
     buhgalter.last_name AS buh_last_name,
@@ -158,13 +189,13 @@ WHERE
     LEFT(leader.name, 1) AS leader_name,
     LEFT(leader.patronymic, 1) AS leader_patronymic,
     IF(
-                orders.order_status = 'Closed',
-                MAX(route_list_addresses.bottles_returned),
-                '    '
-        ) AS bottles_in_fact,
+            orders.order_status = 'Closed',
+            MAX(route_list_addresses.bottles_returned),
+            '    '
+    ) AS bottles_in_fact,
     orders.self_delivery AS is_self_delivery,
     counterparty.inn,
-    counterparty.kpp 
+    counterparty.kpp
 FROM orders
          LEFT JOIN
      counterparty ON orders.client_id = counterparty.id
@@ -177,19 +208,23 @@ FROM orders
          LEFT JOIN
      organization_versions ov
      ON
-                 organizations.id = ov.organization_id
+         organizations.id = ov.organization_id
              AND
-                 ov.start_date &lt;= orders.bill_date
+         ov.start_date &lt;= orders.bill_date
              AND
-                 (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
+         (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
          LEFT JOIN
      delivery_points ON orders.delivery_point_id = delivery_points.id
          LEFT JOIN
      employees leader ON leader.id = ov.leader_id
          LEFT JOIN
      employees buhgalter ON buhgalter.id = ov.accountant_id
+         LEFT JOIN 
+     order_documents ON order_documents.order_id = orders.id AND order_documents.type IN ('SpecialUPD', 'UPD') AND order_documents.document_organization_counter_id IS NOT NULL
+         LEFT JOIN 
+     document_organization_counters ON document_organization_counters.id = order_documents.document_organization_counter_id
 WHERE
-        orders.id = @order_id;</CommandText>
+    orders.id = @order_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
@@ -199,10 +234,14 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="document_number">
+          <DataField>document_number</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
         <Field Name="order_date">
           <DataField>order_date</DataField>
@@ -528,7 +567,7 @@ WHERE o.id = @order_id
           <Textbox Name="Textbox37">
             <Height>12pt</Height>
             <Width>1in</Width>
-            <Value>=Fields!order_id.Value</Value>
+            <Value>=IIf(Fields!order_date.Value &gt;= CDate("2026-01-01"), Fields!document_number.Value, Fields!order_id.Value)</Value>
             <ZIndex>0</ZIndex>
             <Left>97.1pt</Left>
             <Top>0.7pt</Top>
@@ -569,7 +608,7 @@ WHERE o.id = @order_id
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <Format>d</Format>
+              <Format>dd.MM.yy</Format>
               <TextAlign>Center</TextAlign>
               <FontSize>8pt</FontSize>
             </Style>
@@ -672,7 +711,8 @@ WHERE o.id = @order_id
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <BackgroundColor></BackgroundColor>
+              <BackgroundColor>
+              </BackgroundColor>
               <BackgroundGradientType>None</BackgroundGradientType>
               <BackgroundGradientEndColor>White</BackgroundGradientEndColor>
               <TextAlign>Left</TextAlign>
@@ -1209,7 +1249,8 @@ WHERE o.id = @order_id
                         <FontSize>7pt</FontSize>
                         <PaddingLeft>0pt</PaddingLeft>
                       </Style>
-                      <Visibility></Visibility>
+                      <Visibility>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -2017,7 +2058,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox184">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2114,7 +2156,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox59">
-                      <Value>=Fields!item_price.Value * Fields!count.Value - Iif({count}&gt;0,{include_nds},0) - Fields!item_discount_money.Value</Value>
+                      <Value>=(Fields!item_price.Value * Fields!count.Value - Fields!item_discount_money.Value) / Fields!vat.Value</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2158,7 +2200,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox61">
-                      <Value>=Switch(Fields!vat.Value = 1, 'Без НДС', Fields!vat.Value = 1.1, '10%', Fields!vat.Value = 1.18,'18%', Fields!vat.Value = 1.2,'20%')</Value>
+                      <Value>=Iif(Fields!vat.Value = 1, "Без НДС", Round((Fields!vat.Value - 1) * 100, 2) &amp; "%")</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2178,7 +2220,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox62">
-                      <Value>=Iif({count}&gt;0,{include_nds},0)</Value>
+                      <Value>=Iif({count}&gt;0 AND {vat}&gt;1, (Fields!item_price.Value * Fields!count.Value - Fields!item_discount_money.Value) * ({vat} - 1) / {vat}, 0)</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2198,7 +2240,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox63">
-                      <Value>={item_price} * {count} - {item_discount_money}</Value>
+                      <Value>=Iif({vat}&gt;1, {item_price} * {count} - {item_discount_money}, Fields!item_price.Value * Fields!count.Value - Iif({count}&gt;0,{include_nds},0) - Fields!item_discount_money.Value)</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2341,7 +2383,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox64">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2379,7 +2422,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox68">
-                      <Value>=Sum(Fields!item_price.Value * Fields!count.Value - Iif({count}&gt;0,{include_nds},0) - Fields!item_discount_money.Value)</Value>
+                      <Value>=Sum((Fields!item_price.Value * Fields!count.Value - Fields!item_discount_money.Value) / Fields!vat.Value)</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2420,7 +2463,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox71">
-                      <Value>=Sum(Iif({count}&gt;0,{include_nds},0))</Value>
+                      <Value>=Sum(Iif({count}&gt;0 AND {vat}&gt;1, (Fields!item_price.Value * Fields!count.Value - Fields!item_discount_money.Value) * ({vat} - 1) / {vat}, 0))</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2440,7 +2483,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox72">
-                      <Value>=Sum({item_price} * {count} - {item_discount_money})</Value>
+                      <Value>=Sum({item_price} * {count} - {item_discount_money} - Iif({vat}&gt;1, 0, {include_nds}))</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2460,7 +2503,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox114">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -2661,7 +2705,7 @@ WHERE o.id = @order_id
               <BorderColor />
               <BorderWidth />
               <FontSize>8pt</FontSize>
-              <Format>d</Format>
+              <Format>dd.MM.yy</Format>
               <TextAlign>Center</TextAlign>
               <VerticalAlign>Middle</VerticalAlign>
             </Style>
@@ -3625,7 +3669,7 @@ WHERE o.id = @order_id
           <Textbox Name="Textbox191">
             <Height>12pt</Height>
             <Width>1in</Width>
-            <Value>=Fields!order_id.Value</Value>
+            <Value>=IIf(Fields!order_date.Value &gt;= CDate("2026-01-01"), Fields!document_number.Value, CStr(Fields!order_id.Value))</Value>
             <ZIndex>0</ZIndex>
             <Left>629.5pt</Left>
             <Top>238.1pt</Top>
@@ -3665,7 +3709,7 @@ WHERE o.id = @order_id
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <Format>d</Format>
+              <Format>dd.MM.yy</Format>
               <TextAlign>Center</TextAlign>
             </Style>
           </Textbox>
@@ -3949,7 +3993,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox76">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -4013,7 +4058,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox80">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -4077,7 +4123,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox177">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -4141,7 +4188,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox214">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -4206,7 +4254,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox216">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -4270,7 +4319,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox218">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -4314,7 +4364,13 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox221">
-                      <Value>='Универсальный передаточный документ,' + ' №' + {order_id} + ' от ' + Format({order_date}, 'dd.MM.yyyy') + ' г.'</Value>
+                      <Value>='Универсальный передаточный документ,'
+                       + ' №'
+                       + 
+                       IIf(Fields!order_date.Value &gt;= CDate("2026-01-01"), Fields!document_number.Value, CStr(Fields!order_id.Value))
+                       + ' от ' 
+                       + Format({order_date}, 'dd.MM.yy')
+                       + ' г.'</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -4334,7 +4390,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox220">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -4401,7 +4458,8 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox222">
-                      <Value></Value>
+                      <Value>
+                      </Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -4671,14 +4729,16 @@ WHERE o.id = @order_id
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="special">
       <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="hide_signature">
       <DataType>Boolean</DataType>
@@ -4690,7 +4750,8 @@ WHERE o.id = @order_id
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

@@ -32,5 +32,6 @@
 		int ForfeitId { get; }
 		int FastDeliveryNomenclatureId { get; }
 		int MasterCallNomenclatureId { get; }
+		int DocumentsNomenclatureId { get; }
 	}
 }

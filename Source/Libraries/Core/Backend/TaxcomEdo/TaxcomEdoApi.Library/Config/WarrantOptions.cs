@@ -8,7 +8,11 @@ namespace TaxcomEdoApi.Library.Config
 	public sealed class WarrantOptions
 	{
 		public const string Path = "WarrantOptions";
-		
+
+		/// <summary>
+		/// ИНН доверенного лица
+		/// </summary>
+		public string RepresentativeInn { get; set; }
 		/// <summary>
 		/// Начало действия доверенности
 		/// </summary>

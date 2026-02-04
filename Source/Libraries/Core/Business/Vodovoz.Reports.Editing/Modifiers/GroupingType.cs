@@ -47,6 +47,10 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		[Display(Name = "Тип доставки")]
 		OrderDeliveryType,
 		[Display(Name = "Тип переноса")]
-		OrderTransferType
+		OrderTransferType,
+		[Display(Name = "Менеджер КА")]
+		CounterpartyManager,
+		[Display(Name = "Автор заказа")]
+		OrderAuthor,
 	}
 }

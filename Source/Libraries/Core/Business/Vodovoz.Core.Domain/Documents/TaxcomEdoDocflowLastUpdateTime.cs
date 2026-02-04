@@ -28,6 +28,11 @@ namespace Vodovoz.Core.Domain.Documents
 		/// ожидающих аннулирования(сохраняется дата изменения статуса из Такском)
 		/// </summary>
 		public virtual DateTime LastProcessedEventWaitingForCancellationDocuments { get; set; }
+		
+		/// <summary>
+		/// Отметка последнего обработанного события обновления списка контактов(сохраняется дата изменения статуса из Такском)
+		/// </summary>
+		public virtual DateTime LastProcessedContactsUpdates { get; set; }
 
 		/// <summary>
 		/// Id организации

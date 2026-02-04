@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
@@ -9,6 +9,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.BasicHandbooks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Logistics;
@@ -121,7 +122,7 @@ namespace Vodovoz.Domain.Logistic
 		public virtual RouteListItemStatus Status
 		{
 			get => _status;
-			protected set => SetField(ref _status, value);
+			set => SetField(ref _status, value);
 		}
 
 		[Display(Name = "Время изменения статуса")]
@@ -634,10 +635,11 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Функции
 
-		protected internal virtual void UpdateStatusAndCreateTask(
+		public virtual void UpdateStatusAndCreateTask(
 			IUnitOfWork uow,
 			RouteListItemStatus status,
 			ICallTaskWorker callTaskWorker,
+			IOnlineOrderService onlineOrderService,
 			bool isEditAtCashier = false)
 		{
 			if(Status == status)
@@ -653,7 +655,7 @@ namespace Vodovoz.Domain.Logistic
 			switch(status)
 			{
 				case RouteListItemStatus.Canceled:
-					Order.ChangeStatusAndCreateTasks(OrderStatus.DeliveryCanceled, callTaskWorker);
+					Order.CancelDelivery(uow, callTaskWorker);
 					SetOrderActualCountsToZeroOnCanceled();
 					break;
 				case RouteListItemStatus.Completed:
@@ -670,9 +672,10 @@ namespace Vodovoz.Domain.Logistic
 				case RouteListItemStatus.EnRoute:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, callTaskWorker);
 					RestoreOrder(status);
+					onlineOrderService.NotifyClientOfOnlineOrderStatusChange(uow, Order.OnlineOrder);
 					break;
 				case RouteListItemStatus.Overdue:
-					Order.ChangeStatusAndCreateTasks(OrderStatus.NotDelivered, callTaskWorker);
+					Order.OverdueDelivery(uow, callTaskWorker);
 					SetOrderActualCountsToZeroOnCanceled();
 					break;
 			}
@@ -685,7 +688,7 @@ namespace Vodovoz.Domain.Logistic
 			UpdateRouteListDebt();			
 		}
 
-		private void UpdateRouteListDebt()
+		public virtual void UpdateRouteListDebt()
 		{
 			if(Order.PaymentType == PaymentType.Cash)
 			{
@@ -694,63 +697,18 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		protected internal virtual void UpdateStatus(IUnitOfWork uow, RouteListItemStatus status)
-		{
-			if(Status == status)
-			{
-				return;
-			}
-
-			var oldStatus = Status;
-			Status = status;
-			StatusLastUpdate = DateTime.Now;
-
-			switch(Status)
-			{
-				case RouteListItemStatus.Canceled:
-					Order.ChangeStatus(OrderStatus.DeliveryCanceled);
-					SetOrderActualCountsToZeroOnCanceled();
-					break;
-				case RouteListItemStatus.Completed:
-					Order.ChangeStatus(OrderStatus.Shipped);
-
-					if(Order.TimeDelivered == null)
-					{
-						Order.TimeDelivered = DateTime.Now;
-					}
-
-					RestoreOrder();
-					_orderService.AutoCancelAutoTransfer(uow, Order);
-					break;
-				case RouteListItemStatus.EnRoute:
-					Order.ChangeStatus(OrderStatus.OnTheWay);
-					RestoreOrder();
-					break;
-				case RouteListItemStatus.Overdue:
-					Order.ChangeStatus(OrderStatus.NotDelivered);
-					SetOrderActualCountsToZeroOnCanceled();
-					break;
-			}
-
-			uow.Save(Order);
-
-			CreateDeliveryFreeBalanceOperation(uow, oldStatus, status);
-
-			UpdateRouteListDebt();
-		}
-
 		public virtual void SetTransferTo(RouteListItem targetAddress)
 		{
 			TransferedTo = targetAddress;
 		}
 
-		protected internal virtual void TransferTo(IUnitOfWork uow, RouteListItem targetAddress)
+		public virtual void TransferTo(IUnitOfWork uow, RouteListItem targetAddress)
 		{
 			SetTransferTo(targetAddress);
 			SetStatusWithoutOrderChange(uow, RouteListItemStatus.Transfered);
 		}
 
-		protected internal virtual void RevertTransferAddress(
+		public virtual void RevertTransferAddress(
 			IUnitOfWork uow,
 			IWageParameterService wageParameterService,
 			RouteListItem revertedAddress)
@@ -889,7 +847,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void ChangeOrderStatus(OrderStatus orderStatus) => Order.OrderStatus = orderStatus;
 
-		protected internal virtual void SetStatusWithoutOrderChange(IUnitOfWork uow, RouteListItemStatus status, bool needCreateDeliveryFreeBalanceOperation = true)
+		public virtual void SetStatusWithoutOrderChange(IUnitOfWork uow, RouteListItemStatus status, bool needCreateDeliveryFreeBalanceOperation = true)
 		{
 			if(needCreateDeliveryFreeBalanceOperation)
 			{

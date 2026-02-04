@@ -11,6 +11,14 @@ namespace Vodovoz.Settings.Orders
 		int PaymentFromTerminalId { get; }
 		int PaymentFromSmsYuKassaId { get; }
 		int OldInternalOnlineStoreId { get; }
+		/// <summary>
+		/// Id источника оплаты Яндекс Сплит Сайт
+		/// </summary>
+		int PaymentByCardFromYandexSplitFromSiteId { get; }
+		/// <summary>
+		/// Id источника оплаты Яндекс Сплит МП
+		/// </summary>
+		int PaymentByCardFromYandexSplitFromMobileAppId { get; }
 		int GetPaymentByCardFromMarketplaceId { get; }
 		int GetPaymentByCardFromFastPaymentServiceId { get; }
 		int GetPaymentByCardFromAvangardId { get; }

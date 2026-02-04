@@ -103,7 +103,7 @@ namespace Vodovoz.ViewModels.Cash.FinancialCategoriesGroups
 			DataLoader.DynamicLoadingEnabled = false;
 
 			_domainObjectsPermissions = new Dictionary<Type, IPermissionResult>();
-			_hasAccessToHiddenFinancialCategories = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Cash.FinancialCategory.HasAccessToHiddenFinancialCategories);
+			_hasAccessToHiddenFinancialCategories = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CashPermissions.FinancialCategory.HasAccessToHiddenFinancialCategories);
 
 			InitializePermissionsMatrix();
 			CreateNodeActions();

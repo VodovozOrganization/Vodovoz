@@ -60,7 +60,7 @@ namespace TaxcomEdoApi.Controllers
 			var documentId = updInfo.DocumentId;
 			_logger.LogInformation(
 				"Поступил запрос отправки УПД {UpdNumber} {DocumentId}",
-				updInfo.Number,
+				updInfo.StringNumber,
 				documentId);
 			
 			try
@@ -69,7 +69,7 @@ namespace TaxcomEdoApi.Controllers
 				
 				_logger.LogInformation(
 					"Отправляем контейнер с УПД {UpdNumber} {DocumentId}",
-					updInfo.Number,
+					updInfo.StringNumber,
 					documentId);
 				
 				_taxcomApi.Send(container);
@@ -80,7 +80,7 @@ namespace TaxcomEdoApi.Controllers
 				_logger.LogError(
 					e,
 					"Ошибка в процессе формирования УПД №{UpdNumber} {DocumentId} и ее отправки",
-					updInfo.Number,
+					updInfo.StringNumber,
 					documentId);
 				return Problem();
 			}
@@ -126,6 +126,30 @@ namespace TaxcomEdoApi.Controllers
 		public IActionResult CreateAndSendBillWithoutShipmentForAdvancePayment(InfoForCreatingBillWithoutShipmentForAdvancePaymentEdo data)
 		{
 			return CreateAndSendBillWithoutShipment(data);
+		}
+
+		[HttpPost]
+		public IActionResult CreateAndSendInformalOrderDocument(InfoForCreatingEdoInformalOrderDocument data)
+		{
+			var orderId = data.FileData.OrderId;
+			_logger.LogInformation("Поступил запрос на отправку неформализованного документа по заказу №{OrderId}", orderId);
+
+			try
+			{
+				var container = _taxcomEdoService.CreateContainerWithInformalOrderDocument(data);
+
+				_logger.LogInformation("Отправляем контейнер с неформализованным документом по заказу №{OrderId}", orderId);
+				_taxcomApi.Send(container);
+				return Ok();
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(
+					e,
+					"Ошибка в процессе формирования контейнера по заказу №{OrderId} для отправки документа заказа",
+					orderId);
+				return Problem();
+			}
 		}
 
 		[HttpGet]

@@ -1,12 +1,13 @@
-﻿using System;
-using Grpc.Net.Client;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using Grpc.Net.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
+using VodovozHealthCheck.Providers;
 
 namespace EarchiveApi.HealthChecks
 {
@@ -14,13 +15,14 @@ namespace EarchiveApi.HealthChecks
 	{
 		private readonly IConfiguration _configuration;
 
-		public EarchiveApiHealthCheck(ILogger<EarchiveApiHealthCheck> logger,  IConfiguration configuration, IUnitOfWorkFactory unitOfWorkFactory)
-			: base(logger, unitOfWorkFactory)
+		public EarchiveApiHealthCheck(ILogger<EarchiveApiHealthCheck> logger,  IConfiguration configuration, IUnitOfWorkFactory unitOfWorkFactory,
+			IHealthCheckServiceInfoProvider serviceInfoProvider)
+			: base(logger, serviceInfoProvider, unitOfWorkFactory)
 		{
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 		}
 
-		protected override async Task<VodovozHealthResultDto> GetHealthResult()
+		protected override async Task<VodovozHealthResultDto> CheckServiceHealthAsync(CancellationToken cancellationToken)
 		{
 			var healthSection = _configuration.GetSection("Health");
 			var serviceAddress = healthSection.GetValue<string>("BaseAddress");

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -55,6 +55,14 @@ namespace Edo.Common
 				codeValidationResult.ReadyToSell = false;
 			}
 
+			// проверка на то что продукт не просрочен
+			if(productInstanceStatus.ExpirationDate < DateTime.Today)
+			{
+				codeValidationResult.IsExpired = true;
+				codeValidationResult.IsValid = false;
+				codeValidationResult.ReadyToSell = false;
+			}
+
 			// проверка на то что код на балансе продавца
 			if(productInstanceStatus.OwnerInn != sellerInn)
 			{
@@ -76,7 +84,7 @@ namespace Edo.Common
 
 			var edoOrganizations = await _edoRepository.GetEdoOrganizationsAsync(cancellationToken);
 			var ourOrganizationInns = edoOrganizations.Select(x => x.INN);
-			var sellerInn = edoTask.OrderEdoRequest.Order.Contract.Organization.INN;
+			var sellerInn = edoTask.FormalEdoRequest.Order.Contract.Organization.INN;
 
 			var checkResults = await edoTaskItemTrueMarkStatusProvider.GetItemsStatusesAsync(cancellationToken);
 			var codeResults = new List<TrueMarkCodeValidationResult>();

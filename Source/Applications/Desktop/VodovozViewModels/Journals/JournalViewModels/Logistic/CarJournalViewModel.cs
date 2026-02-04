@@ -13,6 +13,7 @@ using QS.Project.Services;
 using QS.Project.Services.FileDialog;
 using QS.Services;
 using System;
+using System.IO;
 using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -34,6 +35,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 	public class CarJournalViewModel : EntityJournalViewModelBase<Car, CarViewModel, CarJournalNode>
 	{
 		private readonly CarJournalFilterViewModel _filterViewModel;
+		private readonly IInteractiveService _interactiveService;
 		private readonly IGeneralSettings _generalSettings;
 		private readonly ICarEventSettings _carEventSettings;
 		private readonly IFileDialogService _fileDialogService;
@@ -58,6 +60,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 		{
 			_filterViewModel = filterViewModel
 				?? throw new ArgumentNullException(nameof(filterViewModel));
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
@@ -301,6 +304,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				query.Where(Restrictions.IsNull(Projections.Property(() => currentCarVersion.CarOwnerOrganization.Id)));
 			}
 
+			if(!(_filterViewModel.IsUsedInDelivery && _filterViewModel.IsNotUsedInDelivery))
+			{
+				var isUsedInDeliveryRestirctions = Restrictions.Disjunction();
+
+				if(_filterViewModel.IsUsedInDelivery)
+				{
+					isUsedInDeliveryRestirctions.Add(Restrictions.Eq(Projections.Property(() => carAlias.IsUsedInDelivery), true));
+				}
+
+				if(_filterViewModel.IsNotUsedInDelivery)
+				{
+					isUsedInDeliveryRestirctions.Add(Restrictions.Eq(Projections.Property(() => carAlias.IsUsedInDelivery), false));
+				}
+				query.Where(isUsedInDeliveryRestirctions);
+			}
+
 			query.Where(GetSearchCriterion(
 				() => carAlias.Id,
 				() => carManufacturerAlias.Name,
@@ -338,7 +357,38 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 
 		protected override void CreateNodeActions()
 		{
-			base.CreateNodeActions();
+			NodeActionsList.Clear();
+			CreateDefaultSelectAction();
+
+			var canCreate = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanCreate;
+			var canEdit = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanRead;
+			var canDelete = CurrentPermissionService == null || CurrentPermissionService.ValidateEntityPermission(typeof(Car)).CanDelete;
+
+			var addAction = new JournalAction("Добавить",
+				(selected) => canCreate,
+				(selected) => VisibleCreateAction,
+				(selected) => CreateEntityDialog(),
+				"Insert"
+			);
+			NodeActionsList.Add(addAction);
+
+			var editAction = new JournalAction("Изменить",
+				(selected) => canEdit && selected.Any(),
+				(selected) => VisibleEditAction,
+				(selected) => selected.Cast<CarJournalNode>().ToList().ForEach(EditEntityDialog)
+			);
+			NodeActionsList.Add(editAction);
+
+			if(SelectionMode == JournalSelectionMode.None)
+				RowActivatedAction = editAction;
+
+			var deleteAction = new JournalAction("Удалить",
+				(selected) => canDelete && selected.Any(),
+				(selected) => VisibleDeleteAction,
+				(selected) => DeleteEntities(selected.Cast<CarJournalNode>().ToArray()),
+				"Delete"
+			);
+			NodeActionsList.Add(deleteAction);
 
 			var reportActions = new JournalAction("Отчёты",
 				(selected) => true,
@@ -481,7 +531,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Logistic
 				return;
 			}
 
-			CarJournalItemsReport.ExportToExcel(result.Path, journalItems);
+			try
+			{
+				CarJournalItemsReport.ExportToExcel(result.Path, journalItems);
+			}
+			catch(IOException ex)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error,
+					"Не удалось сохранить файл выгрузки. Возможно не закрыт предыдущий файл выгрузки", "Ошибка");
+			}
 		}
 
 		private DialogSettings GetSaveExcelReportDialogSettings(string fileName)

@@ -8,7 +8,8 @@ namespace Vodovoz.Domain.Client
 	/// </summary>
 	[Appellative(
 		Nominative = "Вид оплаты",
-		NominativePlural = "Виды оплаты")]
+		NominativePlural = "Виды оплат",
+		GenitivePlural = "Видов оплат")]
 	public enum PaymentType
 	{
 		/// <summary>

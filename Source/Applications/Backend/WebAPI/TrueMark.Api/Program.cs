@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Web;
+using System;
 
 namespace TrueMark.Api;
 
@@ -14,6 +15,8 @@ public class Program
 
 	public static void Main(string[] args)
 	{
+		Console.OutputEncoding = System.Text.Encoding.UTF8;
+
 		var builder = WebApplication.CreateBuilder(args);
 
 		builder.Host.ConfigureLogging((context, logging) =>

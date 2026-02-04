@@ -24,11 +24,11 @@ namespace CustomerAppsApi.Controllers
 		
 		[HttpGet]
 		[Route("GetCounterpartyBottlesDebt")]
-		public async Task<CounterpartyBottlesDebtDto> GetCounterpartyBottlesDebt([FromQuery] int erpCounterpartyId)
+		public CounterpartyBottlesDebtDto GetCounterpartyBottlesDebt([FromQuery] int erpCounterpartyId)
 		{
 			try
 			{
-				return await _counterpartyModel.GetCounterpartyBottlesDebt(erpCounterpartyId);
+				return _counterpartyModel.GetCounterpartyBottlesDebt(erpCounterpartyId);
 			}
 			catch(Exception e)
 			{

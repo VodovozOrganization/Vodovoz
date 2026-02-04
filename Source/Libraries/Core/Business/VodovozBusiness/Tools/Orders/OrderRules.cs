@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -284,16 +285,17 @@ namespace Vodovoz.Tools.Orders
 		}
 
 		static bool GetConditionForUPD(OrderStateKey key) =>
-		(
-			!key.Order.IsCashlessPaymentTypeAndOrganizationWithoutVAT
-			&& ConditionForUPD(key)
+		(	
+			ConditionForUPD(key)
 			&& !key.HaveSpecialFields
+			&& !key.Order.OrderItems.Any(x => x.RentType == OrderRentType.FreeRent)
 		);
 
 		static bool GetConditionForSpecialUPD(OrderStateKey key) =>
 		(
 			ConditionForUPD(key)
 			&& key.HaveSpecialFields
+			&& !key.Order.OrderItems.Any(x => x.RentType == OrderRentType.FreeRent)
 		);
 
 		static bool GetConditionForBill(OrderStateKey key) =>
@@ -312,8 +314,8 @@ namespace Vodovoz.Tools.Orders
 
 		static bool GetConditionForTorg12(OrderStateKey key) =>
 		(
-			key.Order.IsCashlessPaymentTypeAndOrganizationWithoutVAT
-			|| ConditionForUPD(key)
+			(key.Order.IsCashlessPaymentTypeAndOrganizationWithoutVAT
+			|| ConditionForUPD(key))
 			&& key.DefaultDocumentType == DefaultDocumentType.torg12
 		);
 		

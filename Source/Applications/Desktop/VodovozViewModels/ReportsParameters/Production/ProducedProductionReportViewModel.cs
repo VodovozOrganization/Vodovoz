@@ -56,6 +56,9 @@ namespace Vodovoz.ViewModels.ReportsParameters.Production
 
 			ReportModes = typeof(ProducedProductionReportMode);
 			SelectedReportMode = ProducedProductionReportMode.Month;
+
+			MeasurementUnits = typeof(MeasurementUnit);
+			SelectedMeasurementUnit = MeasurementUnit.Item;
 		}
 
 		private IncludeExludeFiltersViewModel CreateReportIncludeExcludeFilter(IUnitOfWork unitOfWork)
@@ -65,6 +68,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Production
 			includeExcludeFiltersViewModel.AddFilter(unitOfWork, _nomenclatureRepository, config =>
 			{
 				config.Title = "Номенклатура";
+				config.GenitivePluralTitle = "Номенклатур";
 
 				config.RefreshFunc = (IncludeExcludeEntityFilter<Nomenclature> filter) =>
 				{
@@ -100,6 +104,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Production
 			includeExcludeFiltersViewModel.AddFilter(unitOfWork, _warehouseRepository, config =>
 			{
 				config.Title = "Производство";
+				config.GenitivePluralTitle = "Производств";
 
 				config.RefreshFunc = (IncludeExcludeEntityFilter<Warehouse> filter) =>
 				{
@@ -169,7 +174,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Production
 				var monthNumMinus1 = reportDate.AddMonths(-1).Month;
 				string strMonthNameMinus1 = mfi.GetMonthName(monthNumMinus1).ToString();
 
-				var parameters = FilterViewModel.GetReportParametersSet();
+				var parameters = FilterViewModel.GetReportParametersSet(out var sb);
 
 				parameters.Add("month_start", MonthStart(reportDate));
 				parameters.Add("month_end", MonthEnd(reportDate));
@@ -199,6 +204,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Production
 					parameters.Add("month_minus_2_end", MonthEnd(reportDate.AddMonths(-2)));
 				}
 
+				parameters.Add("measurement_unit", SelectedMeasurementUnit);
+
 				return parameters;
 			}
 		}
@@ -222,6 +229,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Production
 		public Month SelectedMonth { get; set; }
 		public Type ReportModes { get; set; }
 		public ProducedProductionReportMode SelectedReportMode { get; set; }
+		public Type MeasurementUnits { get; set; }
+		public MeasurementUnit SelectedMeasurementUnit { get; set; }
 
 		public void Dispose()
 		{

@@ -1,35 +1,37 @@
-using DriverApi.Notifications.Client;
+﻿using DriverApi.Notifications.Client;
 using Microsoft.Extensions.DependencyInjection;
 using RevenueService.Client;
 using TrueMarkApi.Client;
+using Vodovoz.Application.Clients;
+using Vodovoz.Application.Clients.Services;
 using Vodovoz.Application.Complaints;
 using Vodovoz.Application.Contacts;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Application.Goods;
 using Vodovoz.Application.Logistics;
 using Vodovoz.Application.Orders.Services;
+using Vodovoz.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Application.Pacs;
 using Vodovoz.Application.Payments;
-using Vodovoz.Application.Services;
+using Vodovoz.Application.Receipts;
 using Vodovoz.Application.Services.Subdivisions;
 using Vodovoz.Application.TrueMark;
 using Vodovoz.Application.Users;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Service;
+using Vodovoz.Handlers;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Orders;
+using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Settings;
+using VodovozBusiness.Models.TrueMark;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
+using VodovozBusiness.Services.Receipts;
 using VodovozBusiness.Services.Subdivisions;
 using VodovozBusiness.Services.TrueMark;
-using TrueMarkApi.Client;
-using Vodovoz.Application.Clients;
-using Vodovoz.Application.Receipts;
-using VodovozBusiness.Controllers;
-using VodovozBusiness.Services.Receipts;
 
 namespace Vodovoz.Application
 {
@@ -42,13 +44,18 @@ namespace Vodovoz.Application
 			.AddRevenueServiceClient();
 
 		public static IServiceCollection AddSecurityServices(this IServiceCollection services) => services
-			.AddScoped<IUserRoleService, UserRoleService>();
+			.AddScoped<IUserRoleService, UserRoleService>()
+			.AddScoped<GrantsRoleParser>();
 
 		public static IServiceCollection AddApplicationServices(this IServiceCollection services) => services
 			.AddSingleton<OperatorService>()
 			.AddScoped<ICounterpartyService, CounterpartyService>()
 			.AddScoped<IRouteListService, RouteListService>()
-			.AddScoped<IPaymentService, PaymentService>()
+			.AddScoped<IRouteListTransferService, RouteListTransferService>()
+			.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
+			.AddScoped<IOnlineOrderService, OnlineOrderService>()
+			.AddScoped<IRouteListTransferService, RouteListTransferService>()
+			.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
 			.AddScoped<IPhoneService, PhoneService>()
 			.AddScoped<INomenclatureService, NomenclatureService>()
 			.AddScoped<IComplaintService, ComplaintService>()
@@ -58,12 +65,16 @@ namespace Vodovoz.Application
 			.AddScoped<ITrueMarkWaterGroupCodeFactory, TrueMarkWaterGroupCodeFactory>()
 			.AddScoped<ITrueMarkWaterIdentificationCodeFactory, TrueMarkWaterIdentificationCodeFactory>()
 			.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>()
+			.AddScoped<OurCodesChecker>()
+			.AddScoped<OrderCancellationService>()
+			.AddScoped<SelfdeliveryCancellationService>()
 			.AddTrueMarkApiClient()
 			.AddApplicationOrderServices()
 		;
 		
 		public static IServiceCollection AddApplicationOrderServices(this IServiceCollection services) => services
 			.AddScoped<IOrderService, OrderService>()
+			.AddScoped<IPaymentService, PaymentService>()
 			.AddOrderServicesDependencies()
 			;
 
@@ -75,6 +86,8 @@ namespace Vodovoz.Application
 			.AddScoped<IOrderDeliveryPriceGetter, OrderDeliveryPriceGetter>()
 			.AddScoped<IClientDeliveryPointsChecker, ClientDeliveryPointsChecker>()
 			.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
+			.AddScoped<IOnlineOrderDiscountHandler, OnlineOrderDiscountHandler>()
+			.AddScoped<IOnlineOrderFixedPriceHandler, OnlineOrderFixedPriceHandler>()
 			.AddDriverApiNotificationsSenders()
 			.AddScoped<IOrderOrganizationManager, OrderOrganizationManager>()
 			.AddScoped<IOrderReceiptHandler, OrderReceiptHandler>()

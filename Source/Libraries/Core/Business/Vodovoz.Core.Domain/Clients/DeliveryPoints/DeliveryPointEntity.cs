@@ -1,11 +1,13 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 {
@@ -46,6 +48,7 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 		private string _comment;
 		private decimal? _latitude;
 		private decimal? _longitude;
+		private CounterpartyEntity _counterparty;
 		private bool _isActive = true;
 		private bool _foundOnOsm;
 		private bool _manualCoordinates;
@@ -68,7 +71,9 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 		private bool _addCertificatesAlways;
 		private string _onlineComment;
 		private string _intercom;
+		private string _buildingFromOnline;
 
+		private IList<NomenclatureFixedPriceEntity> _nomenclatureFixedPrices = new List<NomenclatureFixedPriceEntity>();
 		private IObservableList<PhoneEntity> _phones = new ObservableList<PhoneEntity>();
 		private IObservableList<EmailEntity> _emails;
 
@@ -318,6 +323,16 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 		}
 
 		/// <summary>
+		/// Контрагент
+		/// </summary>
+		[Display(Name = "Контрагент")]
+		public virtual CounterpartyEntity Counterparty
+		{
+			get => _counterparty;
+			set => SetField(ref _counterparty, value);
+		}
+
+		/// <summary>
 		/// Активный
 		/// </summary>
 		[Display(Name = "Активный")]
@@ -550,6 +565,16 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 			set => SetField(ref _phones, value);
 		}
 
+		/// <summary>
+		/// Фиксированные цены
+		/// </summary>
+		[Display(Name = "Фиксированные цены")]
+		public virtual IList<NomenclatureFixedPriceEntity> NomenclatureFixedPrices
+		{
+			get => _nomenclatureFixedPrices;
+			set => SetField(ref _nomenclatureFixedPrices, value);
+		}
+
 		#region Свойства для интеграции
 
 		/// <summary>
@@ -570,6 +595,17 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 		{
 			get => _intercom;
 			set => SetField(ref _intercom, value);
+		}
+		
+		/// <summary>
+		/// Номер дома из ИПЗ, как есть(без форматирования)
+		/// </summary>
+		[Display(Name = "Номер дома из ИПЗ, как есть(без форматирования)")]
+		[IgnoreHistoryTrace]
+		public virtual string BuildingFromOnline
+		{
+			get => _buildingFromOnline;
+			set => SetField(ref _buildingFromOnline, value);
 		}
 
 		#endregion

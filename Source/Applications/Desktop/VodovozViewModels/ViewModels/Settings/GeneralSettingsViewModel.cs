@@ -1,32 +1,31 @@
 ﻿using Autofac;
+using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
+using QS.Validation;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Windows.Input;
-using Microsoft.Extensions.Logging;
-using QS.DomainModel.Entity;
-using QS.Validation;
-using QS.ViewModels.Control.EEVM;
+using Vodovoz.Core.Data.Repositories.Cash;
+using Vodovoz.Core.Domain.Cash;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Settings.Car;
 using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Fuel;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.ViewModels.Accounting.Payments;
-using Vodovoz.ViewModels.Organizations;
 using Vodovoz.ViewModels.Services;
-using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Settings;
 
 namespace Vodovoz.ViewModels.ViewModels.Settings
@@ -45,13 +44,17 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private ILifetimeScope _lifetimeScope;
 		private readonly ViewModelEEVMBuilder<Organization> _organizationViewModelBuilder;
 		private readonly IOrganizationSettings _organizationSettings;
+		private readonly IDebtorsSettings _debtorsSettings;
 		private readonly IValidator _validator;
 		private const int _routeListPrintedFormPhonesLimitSymbols = 500;
+		private readonly ViewModelEEVMBuilder<VatRate> _vatRateEEVMBuilder;
 
 		private string _routeListPrintedFormPhones;
 		private bool _canAddForwardersToLargus;
+		private bool _canAddForwardersToMinivan;
 		private DelegateCommand _saveRouteListPrintedFormPhonesCommand;
 		private DelegateCommand _saveCanAddForwardersToLargusCommand;
+		private DelegateCommand _saveCanAddForwardersToMinivanCommand;
 		private DelegateCommand _saveOrderAutoCommentCommand;
 		private DelegateCommand _showAutoCommentInfoCommand;
 		private string _orderAutoComment;
@@ -84,7 +87,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private int _truckMaxDailyFuelLimit;
 		private int _gazelleMaxDailyFuelLimit;
 		private int _loaderMaxDailyFuelLimit;
-
+		private int _minivanMaxDailyFuelLimit;
 		private int _osagoEndingNotifyDaysBefore;
 		private int _kaskoEndingNotifyDaysBefore;
 		private int _carTechnicalCheckupEndingNotifyDaysBefore;
@@ -100,9 +103,11 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			ILifetimeScope lifetimeScope,
 			INavigationManager navigation,
 			ViewModelEEVMBuilder<Organization> organizationViewModelBuilder,
+			ViewModelEEVMBuilder<VatRate> vatRateEevmBuilder,
 			EntityJournalOpener entityJournalOpener,
 			IOrganizationForOrderFromSet organizationForOrderFromSet,
 			IOrganizationSettings organizationSettings,
+			IDebtorsSettings debtorsSettings,
 			IValidator validator) : base(commonServices?.InteractiveService, navigation)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -114,9 +119,11 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_organizationViewModelBuilder =
 				organizationViewModelBuilder ?? throw new ArgumentNullException(nameof(organizationViewModelBuilder));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
+			_debtorsSettings = debtorsSettings ?? throw new ArgumentNullException(nameof(debtorsSettings));
 			OrganizationForOrderFromSet = 
 				organizationForOrderFromSet ?? throw new ArgumentNullException(nameof(organizationForOrderFromSet));
 			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
+			_vatRateEEVMBuilder = vatRateEevmBuilder ?? throw new ArgumentNullException(nameof(vatRateEevmBuilder));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 			_carInsuranceSettings = carInsuranceSettings ?? throw new ArgumentNullException(nameof(carInsuranceSettings));
@@ -124,12 +131,19 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 			RouteListPrintedFormPhones = _generalSettings.GetRouteListPrintedFormPhones;
 			CanAddForwardersToLargus = _generalSettings.GetCanAddForwardersToLargus;
+			CanAddForwardersToMinivan = _generalSettings.GetCanAddForwardersToMinivan;
 			CanEditRouteListPrintedFormPhones =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_route_List_printed_form_phones");
 			CanEditCanAddForwardersToLargus =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_can_add_forwarders_to_largus");
+			CanEditCanAddForwardersToMinivan =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_can_add_forwarders_to_minivan");
 			CanEditOrderAutoComment =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_order_auto_comment_setting");
+			CanEditDebtNotification =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_debt_notification_setting");
+			CanEditDebtNotification =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.CounterpartyPermissions.CanEditDebtNotification);
 			OrderAutoComment = _generalSettings.OrderAutoComment;
 
 			InitializeSettingsViewModels();
@@ -139,46 +153,46 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_driversRouteListsDebtMaxSum = _generalSettings.DriversRouteListsMaxDebtSum;
 
 			_canActivateClientsSecondOrderDiscount =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.CanActivateClientsSecondOrderDiscount);
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.CanActivateClientsSecondOrderDiscount);
 			_isClientsSecondOrderDiscountActive = _generalSettings.GetIsClientsSecondOrderDiscountActive;
 
 			_isOrderWaitUntilActive = _generalSettings.GetIsOrderWaitUntilActive;
-			CanEditOrderWaitUntilSetting = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.CanEditOrderWaitUntil);
+			CanEditOrderWaitUntilSetting = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.CanEditOrderWaitUntil);
 			SaveOrderWaitUntilActiveCommand = new DelegateCommand(SaveIsEditOrderWaitUntilActive, () => CanEditOrderWaitUntilSetting);
 
 			_isFastDelivery19LBottlesLimitActive = _generalSettings.IsFastDelivery19LBottlesLimitActive;
 			_fastDelivery19LBottlesLimitCount = _generalSettings.FastDelivery19LBottlesLimitCount;
-			CanEditFastDelivery19LBottlesLimitSetting = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.CanEditFastDelivery19LBottlesLimit);
+			CanEditFastDelivery19LBottlesLimitSetting = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.CanEditFastDelivery19LBottlesLimit);
 			SaveFastDelivery19LBottlesLimitActiveCommand = new DelegateCommand(SaveIsFastDelivery19LBottlesLimitActive, () => CanEditFastDelivery19LBottlesLimitSetting);
 
 			_billAdditionalInfo = _generalSettings.GetBillAdditionalInfo;
-			CanSaveBillAdditionalInfo = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Order.Documents.CanEditBillAdditionalInfo);
+			CanSaveBillAdditionalInfo = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.Documents.CanEditBillAdditionalInfo);
 			SaveBillAdditionalInfoCommand = new DelegateCommand(SaveBillAdditionalInfo, () => CanSaveBillAdditionalInfo);
 
 			InitializeEmployeesFixedPricesViewModel();
 
 			_carLoadDocumentInfoString = _generalSettings.GetCarLoadDocumentInfoString;
-			CanSaveCarLoadDocumentInfoString = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Store.Documents.CanEditCarLoadDocumentInfoString);
+			CanSaveCarLoadDocumentInfoString = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.StorePermissions.Documents.CanEditCarLoadDocumentInfoString);
 			SaveCarLoadDocumentInfoStringCommand = new DelegateCommand(SaveCarLoadDocumentInfoString, () => CanSaveCarLoadDocumentInfoString);
 
 			_upcomingTechInspectForOurCars = _generalSettings.UpcomingTechInspectForOurCars;
 			_upcomingTechInspectForRaskatCars = _generalSettings.UpcomingTechInspectForRaskatCars;
-			CanEditUpcomingTechInspectSetting = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.Car.CanEditTechInspectSetting);
+			CanEditUpcomingTechInspectSetting = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.CanEditTechInspectSetting);
 			SaveUpcomingTechInspectCommand = new DelegateCommand(SaveUpcomingTechInspect, () => CanEditUpcomingTechInspectSetting);
 
 			_osagoEndingNotifyDaysBefore = _carInsuranceSettings.OsagoEndingNotifyDaysBefore;
 			_kaskoEndingNotifyDaysBefore = _carInsuranceSettings.KaskoEndingNotifyDaysBefore;
 			CanEditInsuranceNotificationsSettings =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.Car.CanEditInsuranceNotificationsSettings);
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.CanEditInsuranceNotificationsSettings);
 			SaveInsuranceNotificationsSettingsCommand = new DelegateCommand(SaveInsuranceNotificationsSettings, () => CanEditInsuranceNotificationsSettings);
 
 			_carTechnicalCheckupEndingNotifyDaysBefore = _generalSettings.CarTechnicalCheckupEndingNotificationDaysBefore;
 			CanEditCarTechnicalCheckupNotificationsSettings =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.Car.CanEditCarTechnicalCheckupNotificationsSettings);
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Car.CanEditCarTechnicalCheckupNotificationsSettings);
 			SaveCarTechnicalCheckupSettingsCommand = new DelegateCommand(SaveCarTechnicalCheckupSettings, () => CanEditCarTechnicalCheckupNotificationsSettings);
 
 			SetFastDeliveryIntervalFrom(_generalSettings.FastDeliveryIntervalFrom);
-			CanEditFastDeliveryIntervalFromSetting = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.CanEditFastDeliveryIntervalFromSetting);
+			CanEditFastDeliveryIntervalFromSetting = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.CanEditFastDeliveryIntervalFromSetting);
 			SaveFastDeliveryIntervalFromCommand = new DelegateCommand(SaveFastDeliveryIntervalFrom, () => CanEditFastDeliveryIntervalFromSetting);
 
 			_fastDeliveryMaximumPermissibleLateMinutes = _generalSettings.FastDeliveryMaximumPermissibleLateMinutes;
@@ -188,13 +202,23 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_truckMaxDailyFuelLimit = _fuelControlSettings.TruckMaxDailyFuelLimit;
 			_gazelleMaxDailyFuelLimit = _fuelControlSettings.GAZelleMaxDailyFuelLimit;
 			_loaderMaxDailyFuelLimit = _fuelControlSettings.LoaderMaxDailyFuelLimit;
+			_minivanMaxDailyFuelLimit = fuelControlSettings.MinivanMaxDailyFuelLimit;
+			
 			CanEditOrderOrganizationsSettings = 
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(
-					Vodovoz.Permissions.GeneralSettings.CanEditOrderOrganizationsSettings);
+					Vodovoz.Core.Domain.Permissions.SettingsPermissions.CanEditOrderOrganizationsSettings);
 			CanEditDailyFuelLimitsSetting =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.Logistic.Fuel.CanEditMaxDailyFuelLimit);
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.Fuel.CanEditMaxDailyFuelLimit);
 			SaveDailyFuelLimitsCommand = new DelegateCommand(SaveDailyFuelLimits, () => CanEditDailyFuelLimitsSetting);
 
+			_defaultPaymentDeferment = generalSettings.DefaultPaymentDeferment;
+			_defaultVatRate = generalSettings.DefaultVatRate;
+			
+			CanMassiveChangePaymentDeferment = _commonServices.CurrentPermissionService
+				.ValidatePresetPermission(Core.Domain.Permissions.CounterpartyPermissions.CanMassiveChangePaymentDeferment);
+			CanMassiveChangeVatRate = _commonServices.CurrentPermissionService
+				.ValidatePresetPermission(Core.Domain.Permissions.CashPermissions.CanMassiveChangeVatRate);
+			
 			InitializeAccountingSettingsViewModels();
 			ConfigureOrderOrganizationsSettings();
 		}
@@ -255,10 +279,18 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		public bool CanEditCanAddForwardersToLargus { get; }
 
+		public bool CanEditCanAddForwardersToMinivan { get; }
+
 		public bool CanAddForwardersToLargus
 		{
 			get => _canAddForwardersToLargus;
 			set => SetField(ref _canAddForwardersToLargus, value);
+		}
+
+		public bool CanAddForwardersToMinivan
+		{
+			get => _canAddForwardersToMinivan;
+			set => SetField(ref _canAddForwardersToMinivan, value);
 		}
 
 		public DelegateCommand SaveCanAddForwardersToLargusCommand => _saveCanAddForwardersToLargusCommand
@@ -267,6 +299,14 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 					_generalSettings.UpdateCanAddForwardersToLargus(CanAddForwardersToLargus);
 					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 				})
+			);
+
+		public DelegateCommand SaveCanAddForwardersToMinivanCommand => _saveCanAddForwardersToMinivanCommand
+			?? (_saveCanAddForwardersToMinivanCommand = new DelegateCommand(() =>
+			{
+				_generalSettings.UpdateCanAddForwardersToMinivan(CanAddForwardersToMinivan);
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+			})
 			);
 
 		public RoboatsSettingsViewModel RoboatsSettingsViewModel { get; }
@@ -367,6 +407,17 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_generalSettings.UpdateIsClientsSecondOrderDiscountActive(IsClientsSecondOrderDiscountActive);
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
+
+		#endregion
+
+		#region Массовая рассылка писем о задолженности
+		public bool DebtNotificationWorkerIsEnabled
+		{
+			get => _debtorsSettings.DebtNotificationWorkerIsDisabled;
+			set => _debtorsSettings.DebtNotificationWorkerIsDisabled = value;
+		}
+
+		public bool CanEditDebtNotification { get; }
 
 		#endregion
 
@@ -549,6 +600,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
 
+		
 		#endregion
 
 		#region FastDeliveryLates
@@ -644,6 +696,12 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			set => SetField(ref _loaderMaxDailyFuelLimit, value);
 		}
 
+		public int MinivanMaxDailyFuelLimit
+		{
+			get => _minivanMaxDailyFuelLimit;
+			set => SetField(ref _minivanMaxDailyFuelLimit, value);
+		}
+
 		public DelegateCommand SaveDailyFuelLimitsCommand { get; }
 		public bool CanEditDailyFuelLimitsSetting { get; }
 		public PaymentWriteOffAllowedFinancialExpenseCategorySettingsViewModel PaymentWriteOffAllowedFinancialExpenseCategoriesViewModel { get; private set; }
@@ -654,7 +712,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_fuelControlSettings.SetTruckMaxDailyFuelLimit(TruckMaxDailyFuelLimit);
 			_fuelControlSettings.SetGAZelleMaxDailyFuelLimit(GazelleMaxDailyFuelLimit);
 			_fuelControlSettings.SetLoaderMaxDailyFuelLimit(LoaderMaxDailyFuelLimit);
-
+			_fuelControlSettings.SetMinivanMaxDailyFuelLimit(MinivanMaxDailyFuelLimit);
+			
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
 		#endregion
@@ -736,6 +795,17 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		public IUnitOfWork UowOrderOrganizationSettings { get; private set; }
 		private OrganizationByOrderAuthorSettings _organizationByOrderAuthorSettings;
+		private int _targetPaymentDeferment;
+		private int _newPaymentDeferment;
+		private int _defaultPaymentDeferment;
+		private decimal _targetVatRate;
+		private decimal _newVatRate;
+		private decimal _defaultVatRate;
+		private DateTime? _startDateTimeForVatRate;
+		private DateTime? _endDateTimeForVatRate;
+		private bool _canMassiveChangeVatRate;
+		private bool _canMassiveChangePaymentDeferment;
+
 		public IEnumerable<Subdivision> AuthorsSubdivisions { get; private set; }
 		public IEnumerable<short> AuthorsSets { get; private set; }
 		public IReadOnlyDictionary<short, OrganizationBasedOrderContentSettings> OrganizationsByOrderContent { get; private set; }
@@ -752,6 +822,11 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private void InitializeOrderOrganizationsSettingsCommands()
 		{
 			SaveOrderOrganizationSettingsCommand = new DelegateCommand(SaveOrderOrganizationsSettings);
+			CalculatePaymentDefermentCommand = new DelegateCommand(CalculatePaymentDefermentCommandHandler);
+			SaveDefaultPaymentDefermentCommand = new DelegateCommand(SaveDefaultPaymentDefermentCommandHandler);
+			CalculateVatRateNomenclatureCommand = new DelegateCommand(CalculateVatRateNomenclatureCommandHandler);
+			CalculateVatRateOrganizationCommand = new DelegateCommand(CalculateVatRateOrganizationCommandHandler);
+			SaveDefaultVatRateCommand = new DelegateCommand(SaveDefaultVatRateCommandHandler);
 		}
 
 		private void SaveOrderOrganizationsSettings()
@@ -920,7 +995,279 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		}
 
 		#endregion
+
+		#region Массовое изменение отсрочки платежа задолженности
+
+		public bool CanMassiveChangePaymentDeferment
+		{
+			get => _canMassiveChangePaymentDeferment;
+			set => SetField(ref _canMassiveChangePaymentDeferment, value);
+		}
+
+		public int TargetPaymentDeferment
+		{
+			get => _targetPaymentDeferment;
+			set => SetField(ref _targetPaymentDeferment, value);
+		}
+
+		public int NewPaymentDeferment
+		{
+			get => _newPaymentDeferment;
+			set => SetField(ref _newPaymentDeferment, value);
+		}
+
+		public int DefaultPaymentDeferment
+		{
+			get => _defaultPaymentDeferment;
+			set => SetField(ref _defaultPaymentDeferment, value);
+		}
+
+		public DelegateCommand CalculatePaymentDefermentCommand { get; set; }
+
+		private void CalculatePaymentDefermentCommandHandler()
+		{
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				uow.Session
+					.CreateSQLQuery(@"UPDATE counterparty SET delay_days_for_buyers = :newValue WHERE delay_days_for_buyers = :oldValue")
+					.SetParameter("oldValue", TargetPaymentDeferment)
+					.SetParameter("newValue", NewPaymentDeferment)
+					.ExecuteUpdate();
+				
+				uow.Commit();
+			}
+			
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Пересчет произведен!");
+		}
 		
+		public DelegateCommand SaveDefaultPaymentDefermentCommand { get; set; }
+
+		private void SaveDefaultPaymentDefermentCommandHandler()
+		{
+			_generalSettings.SaveDefaultPaymentDeferment(DefaultPaymentDeferment);
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+		}
+		
+
+		#endregion
+
+		#region Массовое изменение ставки НДС
+
+		public bool CanMassiveChangeVatRate
+		{
+			get => _canMassiveChangeVatRate;
+			set => SetField(ref _canMassiveChangeVatRate, value);
+		}
+
+		public decimal TargetVatRate
+		{
+			get => _targetVatRate;
+			set => SetField(ref _targetVatRate, value);
+		}
+		public decimal NewVatRate
+		{
+			get => _newVatRate;
+			set => SetField(ref _newVatRate, value);
+		}
+		public decimal DefaultVatRate
+		{
+			get => _defaultVatRate;
+			set => SetField(ref _defaultVatRate, value);
+		}
+
+		public DateTime? StartDateTimeForVatRate
+		{
+			get => _startDateTimeForVatRate;
+			set => SetField(ref _startDateTimeForVatRate, value);
+		}
+
+		public DateTime? EndDateTimeForVatRate
+		{
+			get => _endDateTimeForVatRate;
+			set => SetField(ref _endDateTimeForVatRate, value);
+		}
+
+		public DelegateCommand CalculateVatRateNomenclatureCommand { get; set; }
+		private void CalculateVatRateNomenclatureCommandHandler()
+		{
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				var vatRateRepository = _lifetimeScope.Resolve<IVatRateRepository>();
+				var vatRateVersionRepository = _lifetimeScope.Resolve<IVatRateVersionRepository>();
+				var oldVatRate = vatRateRepository.GetVatRateByValue(uow, TargetVatRate);
+				var newVatRate = vatRateRepository.GetVatRateByValue(uow, NewVatRate);
+			
+				if(newVatRate == null)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"В справочнике НДС отсутствует выбранная ставка {NewVatRate}%!");
+					return;
+				}
+			
+				if(oldVatRate == null)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"В справочнике НДС отсутствует выбранная ставка {TargetVatRate}%!");
+					return;
+				}
+
+				if(oldVatRate.Vat1cTypeValue == Vat1cType.Reduced)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Пониженную НДС {TargetVatRate}% нельзя массово изменять!");
+					return;
+				}
+				
+				if(StartDateTimeForVatRate == null)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Не выбрана начальная дата для выборки версий!");
+					return;
+				}
+				
+				if(EndDateTimeForVatRate != null && StartDateTimeForVatRate > EndDateTimeForVatRate)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Начальная дата позже конечной!");
+					return;
+				}
+			
+				var vatRateVersions = vatRateVersionRepository.GetVatRateVersionsForNomenclature(uow, TargetVatRate);
+
+				if (!vatRateVersions.Any())
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Не найдено версий для обновления.");
+					return;
+				}
+			
+				foreach(var vatRateVersion in vatRateVersions)
+				{
+					if(vatRateVersion.StartDate.Date == StartDateTimeForVatRate.Value.Date)
+					{
+						vatRateVersion.VatRate = newVatRate;
+						
+					    uow.Save(vatRateVersion);
+						
+						continue;
+					}
+					
+					vatRateVersion.EndDate = StartDateTimeForVatRate.Value.Date.AddTicks(-1);
+					
+					uow.Save(vatRateVersion);
+					
+					var newVatRateVersion = new VatRateVersion
+					{
+						StartDate = StartDateTimeForVatRate.Value.Date,
+						EndDate = EndDateTimeForVatRate?.Date.AddTicks(-1),
+						VatRate = newVatRate,
+						Nomenclature = vatRateVersion.Nomenclature
+					};
+					
+					uow.Save(newVatRateVersion);
+				}
+				
+				uow.Commit();
+			}
+			
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Пересчет для номенклатур произведен!");
+		}
+		
+		public DelegateCommand CalculateVatRateOrganizationCommand { get; set; }
+		private void CalculateVatRateOrganizationCommandHandler()
+		{
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				var vatRateRepository = _lifetimeScope.Resolve<IVatRateRepository>();
+				var vatRateVersionRepository = _lifetimeScope.Resolve<IVatRateVersionRepository>();
+				var oldVatRate = vatRateRepository.GetVatRateByValue(uow, TargetVatRate);
+				var newVatRate = vatRateRepository.GetVatRateByValue(uow, NewVatRate);
+			
+				if(newVatRate == null)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"В справочнике НДС отсутствует выбранная ставка {NewVatRate}%!");
+					return;
+				}
+			
+				if(oldVatRate == null)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"В справочнике НДС отсутствует выбранная ставка {TargetVatRate}%!");
+					return;
+				}
+
+				if(oldVatRate.Vat1cTypeValue == Vat1cType.IndividualEntrepreneur)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Нельзя массово изменять ставку НДС {TargetVatRate}% для ИП!");
+					return;
+				}
+				
+				if(StartDateTimeForVatRate == null)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Не выбрана начальная дата для выборки версий!");
+					return;
+				}
+				
+				if(EndDateTimeForVatRate != null && StartDateTimeForVatRate > EndDateTimeForVatRate)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, $"Начальная дата позже конечной!");
+					return;
+				}
+			
+				var vatRateVersions = vatRateVersionRepository.GetVatRateVersionsForOrganization(uow, TargetVatRate);
+
+				if (!vatRateVersions.Any())
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Не найдено версий для обновления.");
+					return;
+				}
+			
+				foreach(var vatRateVersion in vatRateVersions)
+				{
+					if(vatRateVersion.StartDate.Date == StartDateTimeForVatRate.Value.Date)
+					{
+						vatRateVersion.VatRate = newVatRate;
+						
+						uow.Save(vatRateVersion);
+						
+						continue;
+					}
+					
+					vatRateVersion.EndDate = StartDateTimeForVatRate.Value.Date.AddTicks(-1);
+					
+					uow.Save(vatRateVersion);
+					
+					var newVatRateVersion = new VatRateVersion
+					{
+						StartDate = StartDateTimeForVatRate.Value.Date,
+						EndDate = EndDateTimeForVatRate?.Date.AddTicks(-1),
+						VatRate = newVatRate,
+						Organization = vatRateVersion.Organization,
+					};
+					
+					uow.Save(newVatRateVersion);
+				}
+				
+				uow.Commit();
+			}
+			
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Пересчет для организаций произведен!");
+		}
+		
+		public DelegateCommand SaveDefaultVatRateCommand { get; set; }
+		private void SaveDefaultVatRateCommandHandler()
+		{
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				var vatRateRepository = _lifetimeScope.Resolve<IVatRateRepository>();
+				var vatRate = vatRateRepository.GetVatRateByValue(uow, DefaultVatRate);
+
+				if(vatRate == null)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
+						$"В справочнике НДС отсутствует выбранная ставка {DefaultVatRate}%!");
+					return;
+				}
+
+				_generalSettings.SaveDefaultVatRate(DefaultVatRate);
+				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+			}
+		}
+		
+		#endregion
 		public EntityJournalOpener EntityJournalOpener { get; }
 
 		private void InitializeSettingsViewModels()
@@ -951,12 +1298,12 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				_generalSettings, _generalSettings.WarehousesForPricesAndStocksIntegrationName)
 				{
 					CanEdit = _commonServices.CurrentPermissionService.ValidatePresetPermission(
-						Vodovoz.Core.Domain.Permissions.Nomenclature.HasAccessToSitesAndAppsTab),
+						Vodovoz.Core.Domain.Permissions.NomenclaturePermissions.HasAccessToSitesAndAppsTab),
 					MainTitle = "<b>Настройки складов для интеграции остатков и цен</b>",
 					DetailTitle = "Использовать следующие склады при подсчете остатков для ИПЗ:",
 					Info = "Подсчет остатков при отправке в ИПЗ будет производиться только по выбранным складам."
 				};
-
+			
 			FillItemSources();
 		}
 

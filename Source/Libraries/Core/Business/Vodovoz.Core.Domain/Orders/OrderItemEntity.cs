@@ -2,6 +2,7 @@
 using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Attributes;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Orders;
 
@@ -52,6 +53,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		[Display(Name = "Цена")]
+		[OrderTracker1c]
 		public virtual decimal Price
 		{
 			get => _price;
@@ -72,6 +74,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		[Display(Name = "Включая НДС")]
+		[OrderTracker1c]
 		public virtual decimal? IncludeNDS
 		{
 			get => _includeNDS;
@@ -142,6 +145,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		[Display(Name = "Количество")]
+		[OrderTracker1c]
 		public virtual decimal Count
 		{
 			get => _count;

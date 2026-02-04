@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -18,7 +18,8 @@
     CASE
         WHEN cv.car_own_type = 'Raskat' THEN 'ТС в раскате'
         WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'GAZelle' THEN 'Грузовые (ГАЗели) компании'
-        WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Largus' THEN 'Фургоны (Ларгусы) компании'
+        WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Minivan' THEN 'Фургоны (Transit Mini) компании'
+        WHEN cv.car_own_type = 'Company' AND cm.car_type_of_use = 'Largus' THEN 'Легковые (Ларгусы) компании'
         ELSE CONCAT(cv.car_own_type, ' ', cm.car_type_of_use)
     END AS type_of_use,
     route_lists.id AS id,
@@ -78,7 +79,7 @@ FROM
             AND (cv.end_date IS NULL OR cv.end_date &gt;= route_lists.date)
 WHERE
       (route_lists.date BETWEEN @start_date AND @end_date)
-  AND (cv.car_own_type = 'Raskat' OR (cv.car_own_type = 'Company' AND cm.car_type_of_use IN ('Largus', 'GAZelle')))
+  AND (cv.car_own_type = 'Raskat' OR (cv.car_own_type = 'Company' AND cm.car_type_of_use IN ('Largus', 'Minivan', 'GAZelle')))
 GROUP BY route_lists.id
 HAVING NOT @only_different_districts OR actual_district &lt;&gt; planned_district
 ORDER BY driver_name

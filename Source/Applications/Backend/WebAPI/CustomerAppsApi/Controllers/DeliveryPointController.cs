@@ -1,9 +1,10 @@
-using CustomerAppsApi.Library.Dto;
+﻿using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Library.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using Vodovoz.Core.Domain.Clients;
+using VodovozHealthCheck.Helpers;
 
 namespace CustomerAppsApi.Controllers
 {
@@ -31,7 +32,9 @@ namespace CustomerAppsApi.Controllers
 		[HttpPost("AddDeliveryPoint")]
 		public IActionResult AddDeliveryPoint(NewDeliveryPointInfoDto newDeliveryPointInfoDto)
 		{
-			var deliveryPointDto = _deliveryPointService.AddDeliveryPoint(newDeliveryPointInfoDto, out var statusCode);
+			var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
+			
+			var deliveryPointDto = _deliveryPointService.AddDeliveryPoint(newDeliveryPointInfoDto, out var statusCode, isDryRun);
 
 			if(deliveryPointDto is null)
 			{
@@ -50,7 +53,9 @@ namespace CustomerAppsApi.Controllers
 		[HttpPost("UpdateOnlineComment")]
 		public IActionResult UpdateOnlineComment(UpdatingDeliveryPointCommentDto updatingComment)
 		{
-			var code = _deliveryPointService.UpdateDeliveryPointOnlineComment(updatingComment);
+			var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
+			
+			var code = _deliveryPointService.UpdateDeliveryPointOnlineComment(updatingComment, isDryRun);
 			
 			switch(code)
 			{

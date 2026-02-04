@@ -11,9 +11,10 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Dialogs;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewWidgets.Logistics;
 using Vodovoz.ViewWidgets.Mango;
@@ -266,6 +267,18 @@ namespace Vodovoz.Logistic
 		{
 			ytreeviewAddresses.ColumnsConfig = ColumnsConfigFactory.Create<RouteListKeepingItemNode>()
 				.AddColumn("№ п/п").AddNumericRenderer(x => x.RouteListItem.IndexInRoute + 1)
+				.AddColumn("Клиент")
+					.AddTextRenderer(node => node.RouteListItem.Order.Client != null
+						? node.RouteListItem.Order.Client.Name
+						: "")
+				.AddColumn("Телефон")
+					.AddTextRenderer(node => node.RouteListItem.Order.ContactPhone != null
+						? node.RouteListItem.Order.ContactPhone.Additional + node.RouteListItem.Order.ContactPhone
+						: "")
+				.AddColumn("Отзвон за")
+					.AddTextRenderer(node => node.RouteListItem.Order.CallBeforeArrivalMinutes.HasValue
+						? $"{node.RouteListItem.Order.CallBeforeArrivalMinutes.Value} мин."
+						: "")
 				.AddColumn("Заказ")
 					.AddTextRenderer(node => node.RouteListItem.Order.Id.ToString())
 				.AddColumn("Адрес")
@@ -276,6 +289,53 @@ namespace Vodovoz.Logistic
 					.WidthChars(5)
 				.AddColumn("Время")
 					.AddTextRenderer(node => node.RouteListItem.Order.DeliverySchedule == null ? "" : node.RouteListItem.Order.DeliverySchedule.Name)
+				.AddColumn("Форма оплаты")
+					.AddComboRenderer(node => node.PaymentType)
+					.SetDisplayFunc(x => x.GetEnumDisplayName())
+					.DynamicFillListFunc(node =>
+					{
+						if(node.PaymentType == PaymentType.Cash)
+						{
+							return new List<PaymentType>
+							{
+								PaymentType.Terminal,
+								PaymentType.DriverApplicationQR
+							};
+						}
+
+						if(node.PaymentType == PaymentType.Terminal)
+						{
+							return new List<PaymentType>
+							{
+								PaymentType.Terminal,
+								PaymentType.Cash,
+								PaymentType.DriverApplicationQR
+							};
+						}
+
+						if((node.PaymentType == PaymentType.DriverApplicationQR
+							|| node.PaymentType == PaymentType.SmsQR) && !node.RouteListItem.Order.OnlinePaymentNumber.HasValue)
+						{
+							return new List<PaymentType>
+							{
+								PaymentType.Cash,
+								PaymentType.Terminal,
+							};
+						}
+
+						return new List<PaymentType>();
+					})
+					.AddSetter((c, n) =>
+					{
+						c.Editable = ViewModel.AllEditing 
+						&& n.RouteListItem.Status == RouteListItemStatus.EnRoute 
+						&& (n.PaymentType == PaymentType.Cash
+							|| n.PaymentType == PaymentType.Terminal
+							|| (
+								(n.PaymentType == PaymentType.DriverApplicationQR || n.PaymentType == PaymentType.SmsQR)
+								&& !n.RouteListItem.Order.OnlinePaymentNumber.HasValue)
+							);
+					})
 				.AddColumn("Статус")
 					.AddPixbufRenderer(x => _statusIcons[x.Status])
 					.AddEnumRenderer(node => node.Status, excludeItems: new Enum[] { RouteListItemStatus.Transfered })

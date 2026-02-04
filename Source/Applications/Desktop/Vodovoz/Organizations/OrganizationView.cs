@@ -1,7 +1,9 @@
 ﻿using QS.Views.GtkUI;
 using QS.Widgets;
+using ReactiveUI.Validation.Extensions;
 using System;
 using System.ComponentModel;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.ViewModels.Organizations;
 
 namespace Vodovoz.Organizations
@@ -44,6 +46,11 @@ namespace Vodovoz.Organizations
 				.AddBinding(ViewModel.Entity, e => e.Email, w => w.Text)
 				.InitializeFromSource();
 
+			validatedentryEmailForMailing.CustomRegex = ViewModel.RegexForEmailForMailing;
+			validatedentryEmailForMailing.Binding
+				.AddBinding(ViewModel.Entity, e => e.EmailForMailing, w => w.Text)
+				.InitializeFromSource();
+
 			validatedentryInn.ValidationMode = ValidationType.Numeric;
 			validatedentryInn.Binding
 				.AddBinding(ViewModel.Entity, e => e.INN, w => w.Text)
@@ -55,8 +62,14 @@ namespace Vodovoz.Organizations
 				.InitializeFromSource();
 
 			validatedentryOgrn.ValidationMode = ValidationType.Numeric;
+			validatedentryOgrn.MaxLength = CompanyConstants.PrivateBusinessmanOgrnLength;
 			validatedentryOgrn.Binding
 				.AddBinding(ViewModel.Entity, e => e.OGRN, w => w.Text)
+				.InitializeFromSource();
+
+			dateOGRNPicker.WidthRequest = 200;
+			dateOGRNPicker.Binding
+				.AddBinding(ViewModel.Entity, e => e.OGRNDate, w => w.DateOrNull)
 				.InitializeFromSource();
 
 			validatedentryOkpo.ValidationMode = ValidationType.Numeric;
@@ -66,6 +79,18 @@ namespace Vodovoz.Organizations
 
 			dataentryOKVED.Binding
 				.AddBinding(ViewModel.Entity, e => e.OKVED, w => w.Text)
+				.InitializeFromSource();
+			
+			chkIsNeedCashlessMovementControl.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsNeedCashlessMovementControl, w => w.Active)
+				.InitializeFromSource();
+
+			yentrySuffix.Binding
+				.AddBinding(ViewModel.Entity, e => e.Suffix, w => w.Text)
+				.InitializeFromSource();
+			
+			yentryPrefix.Binding
+				.AddBinding(ViewModel.Entity, e => e.Prefix, w => w.Text)
 				.InitializeFromSource();
 
 			notebookMain.Page = 0;
@@ -77,9 +102,35 @@ namespace Vodovoz.Organizations
 			phonesview1.Phones = ViewModel.Entity.Phones;
 
 			versionsView.ViewModel = ViewModel.OrganizationVersionsViewModel;
-
+			
 			radioTabInfo.Toggled += OnRadioTabInfoToggled;
 			radioTabAccounts.Toggled += OnRadioTabAccountsToggled;
+
+
+			yradiobuttonOsno.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsOsnoMode, w => w.Active)
+				.InitializeFromSource();
+			yradiobuttonOsno.Toggled += OnRadioButtonOsnoToggled;
+			
+			yradiobuttonUsn.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsUsnMode, w => w.Active)
+				.InitializeFromSource();
+			yradiobuttonUsn.Toggled += OnRadioButtonUsnToggled;
+			
+			vatRateVersionForOrganizationView.ViewModel = ViewModel.VatRateOrganizationVersionViewModel;
+			vatRateVersionLabel.Visible = !ViewModel.Entity.IsOsnoMode;
+		}
+
+		private void OnRadioButtonOsnoToggled(object sender, EventArgs e)
+		{
+			vatRateVersionForOrganizationView.ViewModel.IsWidgetVisible = !yradiobuttonOsno.Active;
+			vatRateVersionLabel.Visible = !yradiobuttonOsno.Active;
+		}
+		
+		private void OnRadioButtonUsnToggled(object sender, EventArgs e)
+		{
+			vatRateVersionForOrganizationView.ViewModel.IsWidgetVisible = yradiobuttonUsn.Active;
+			vatRateVersionLabel.Visible = yradiobuttonUsn.Active;
 		}
 
 		private void OnSaveButtonClicked(object sender, EventArgs e)

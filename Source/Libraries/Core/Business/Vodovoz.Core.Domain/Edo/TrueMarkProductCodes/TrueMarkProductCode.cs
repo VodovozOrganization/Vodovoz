@@ -17,12 +17,13 @@ namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 	public abstract class TrueMarkProductCode : PropertyChangedBase, IDomainObject
 	{
 		private DateTime _creationTime;
+		private DateTime _lastModified;
 		private SourceProductCodeStatus _sourceCodeStatus;
 		private TrueMarkWaterIdentificationCode _sourceCode;
 		private TrueMarkWaterIdentificationCode _resultCode;
 		private ProductCodeProblem _problem;
 		private int _duplicatesCount;
-		private CustomerEdoRequest _customerEdoRequst;
+		private FormalEdoRequest _customerEdoRequst;
 
 		/// <summary>
 		/// Время создания
@@ -34,10 +35,17 @@ namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 			set => SetField(ref _creationTime, value);
 		}
 
+		[Display(Name = "Время изменения")]
+		public virtual DateTime LastModified
+		{
+			get => _lastModified;
+			set => SetField(ref _lastModified, value);
+		}
+
 		/// <summary>
-		/// Стадия
+		/// Статус
 		/// </summary>
-		[Display(Name = "Стадия")]
+		[Display(Name = "Статус")]
 		public virtual SourceProductCodeStatus SourceCodeStatus
 		{
 			get => _sourceCodeStatus;
@@ -93,7 +101,7 @@ namespace Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes
 		/// Заявка на отправку документов клиенту
 		/// </summary>
 		[Display(Name = "Заявка на отправку документов клиенту")]
-		public virtual CustomerEdoRequest CustomerEdoRequest
+		public virtual FormalEdoRequest CustomerEdoRequest
 		{
 			get => _customerEdoRequst;
 			set => SetField(ref _customerEdoRequst, value);

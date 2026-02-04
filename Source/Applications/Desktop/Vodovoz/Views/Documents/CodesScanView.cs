@@ -1,12 +1,14 @@
-using System;
-using System.Linq;
-using Gamma.Binding;
+﻿using Gamma.Binding;
 using Gamma.ColumnConfig;
 using Gdk;
 using Gtk;
+using QS.Utilities;
 using QS.Views.Dialog;
+using System;
+using System.Linq;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan;
+using VodovozInfrastructure.Extensions;
 using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.Views.Documents
@@ -19,6 +21,7 @@ namespace Vodovoz.Views.Documents
 		private readonly Color _colorBase = GdkColors.PrimaryBase;
 		private readonly Color _colorAggregate = GdkColors.InsensitiveBase;
 		private readonly Color _colorCurrencCodeInProcess = GdkColors.LightYellow2;
+		private readonly Color _colorDuplicate = GdkColors.Red2;
 
 		public CodesScanView(CodesScanViewModel viewModel) : base(viewModel)
 		{
@@ -49,10 +52,8 @@ namespace Vodovoz.Views.Documents
 				.AddTextRenderer(n => n.NomenclatureName)
 				.WrapMode(WrapMode.Word).WrapWidth(400)
 				.AddColumn("Наличие в заказе")
-				.AddTextRenderer(n => n.HasInOrder.HasValue ? (n.HasInOrder.Value ? "Да" : "Нет") : "")
-				.AddSetter((c, n) =>
-					c.CellBackgroundGdk = n.Children.Any() ? _colorAggregate :
-						n.HasInOrder.HasValue ? n.HasInOrder.Value ? _colorGreen : _colorLightRed : _colorBase)
+				.AddTextRenderer(n => n.HasInOrder.ConvertToNullOrYesOrNo())
+				.AddSetter((c, n) => c.CellBackgroundGdk = GetHasInOrderColor(n))
 				.AddColumn("Валиден в ЧЗ")
 				.AddTextRenderer(n => n.IsTrueMarkValid.HasValue ? (n.IsTrueMarkValid.Value ? "Да" : "Нет") : "")
 				.AddSetter((c, n) =>
@@ -65,8 +66,6 @@ namespace Vodovoz.Views.Documents
 				.AddTextRenderer(n => n.AdditionalInformation)
 				.AddSetter((c, n) =>
 					c.CellBackgroundGdk = n.RawCode == ViewModel.CurrentCodeInProcess ? _colorCurrencCodeInProcess : _colorBase)
-				.WrapMode(WrapMode.Word).WrapWidth(400)
-				.AddColumn("")
 				.Finish();
 
 			treeViewCodes.YTreeModel =
@@ -98,6 +97,51 @@ namespace Vodovoz.Views.Documents
 			ybuttonCopyCodes.Clicked += OnYbuttonCopyCodesClicked;
 
 			ViewModel.RefreshScanningNomenclaturesAction = OnRefreshScanningNomenclatures;
+
+			ybuttonPasteCodesFromClipboard.Clicked += OnYProcessCodesFromClipboardButtonClicked;
+		}
+
+		private void OnYProcessCodesFromClipboardButtonClicked(object sender, EventArgs e)
+		{
+			var clipboard = GetClipboard(Gdk.Selection.Clipboard);
+			var clipboardText = clipboard.WaitForText();
+
+			if(string.IsNullOrWhiteSpace(clipboardText))
+			{
+				return;
+			}
+
+			var codes = clipboardText
+				.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
+
+			foreach(var code in codes)
+			{
+				yentryCode.Text = code;
+
+				GtkHelper.WaitRedraw();
+
+				yentryCode.Activate();
+			}
+		}
+
+		private Color GetHasInOrderColor(CodesScanViewModel.CodeScanRow n)
+		{
+			if(n.IsDuplicate)
+			{
+				return _colorDuplicate;
+			}
+
+			if(n.Children.Any())
+			{
+				return _colorAggregate;
+			}
+
+			if(n.HasInOrder.HasValue)
+			{
+				return n.HasInOrder.Value ? _colorGreen : _colorLightRed;
+			}
+
+			return _colorBase;
 		}
 
 		private void OnYbuttonCopyCodesClicked(object sender, EventArgs e)
@@ -132,6 +176,7 @@ namespace Vodovoz.Views.Documents
 			yentryCode.FocusOutEvent -= OnYentryCodeOnFocusOutEvent;
 			yentryCode.Activated -= OnYentryCodeOnActivated;
 			ybuttonCopyCodes.Clicked -= OnYbuttonCopyCodesClicked;
+			ybuttonPasteCodesFromClipboard.Clicked -= OnYProcessCodesFromClipboardButtonClicked;
 
 			base.Destroy();
 		}

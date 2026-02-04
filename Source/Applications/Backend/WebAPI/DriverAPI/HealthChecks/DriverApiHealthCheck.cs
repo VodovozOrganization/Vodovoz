@@ -1,15 +1,18 @@
-﻿using System;
-using System.Net.Http;
-using System.Threading.Tasks;
-using DriverApi.Contracts.V5;
+﻿using DriverApi.Contracts.V5;
 using DriverApi.Contracts.V5.Responses;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using System;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Presentation.WebApi.Authentication.Contracts;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
+using VodovozHealthCheck.Extensions;
 using VodovozHealthCheck.Helpers;
+using VodovozHealthCheck.Providers;
 
 namespace DriverAPI.HealthChecks
 {
@@ -18,14 +21,19 @@ namespace DriverAPI.HealthChecks
 		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly IConfiguration _configuration;
 
-		public DriverApiHealthCheck(ILogger<DriverApiHealthCheck> logger, IHttpClientFactory httpClientFactory, IConfiguration configuration, IUnitOfWorkFactory unitOfWorkFactory)
-			: base(logger, unitOfWorkFactory)
+		public DriverApiHealthCheck(
+			ILogger<DriverApiHealthCheck> logger,
+			IHttpClientFactory httpClientFactory,
+			IConfiguration configuration,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IHealthCheckServiceInfoProvider serviceInfoProvider)
+			: base(logger, serviceInfoProvider, unitOfWorkFactory)
 		{
 			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 		}
 
-		protected override async Task<VodovozHealthResultDto> GetHealthResult()
+		protected override async Task<VodovozHealthResultDto> CheckServiceHealthAsync(CancellationToken cancellationToken)
 		{
 			var healthSection = _configuration.GetSection("Health");
 
@@ -45,15 +53,17 @@ namespace DriverAPI.HealthChecks
 				Password = password
 			};
 
-			var tokenResponse = await ResponseHelper.PostJsonByUri<LoginRequest, TokenResponse>(
+			var tokenResponse = await HttpResponseHelper.SendRequestAsync<TokenResponse>(
+				HttpMethod.Post,
 				$"{baseAddress}/api/v5/Authenticate",
 				_httpClientFactory,
-				loginRequestDto);
+				loginRequestDto.ToJsonContent(),
+				cancellationToken);
 
-			var orderQrPaymentStatus = await ResponseHelper.GetJsonByUri<OrderQrPaymentStatusResponse>(
+			var orderQrPaymentStatus = await HttpResponseHelper.GetJsonByUriAsync<OrderQrPaymentStatusResponse>(
 				$"{baseAddress}/api/v5/GetOrderQRPaymentStatus?orderId={orderId}",
 				_httpClientFactory,
-				tokenResponse.AccessToken);
+				tokenResponse.Data?.AccessToken);
 
 			var orderQrPaymentStatusIsHealthy = orderQrPaymentStatus.QRPaymentStatus == QrPaymentDtoStatus.Paid;
 
@@ -62,10 +72,10 @@ namespace DriverAPI.HealthChecks
 				healthResult.AdditionalUnhealthyResults.Add("GetOrderQRPaymentStatus не прошёл проверку.");
 			}
 
-			var routeList = await ResponseHelper.GetJsonByUri<RouteListDto>(
+			var routeList = await HttpResponseHelper.GetJsonByUriAsync<RouteListDto>(
 				$"{baseAddress}/api/v5/GetRouteList?routeListId={routeListId}",
 				_httpClientFactory,
-				tokenResponse.AccessToken);
+				tokenResponse.Data?.AccessToken);
 
 			var getRouteListIsHealthy = routeList != null;
 

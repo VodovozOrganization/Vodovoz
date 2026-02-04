@@ -30,14 +30,12 @@ namespace Vodovoz.ViewModels.Orders
 			OrganizationsViewModel =
 				addOrRemoveIDomainObjectViewModel ?? throw new ArgumentNullException(nameof(addOrRemoveIDomainObjectViewModel));
 
-			CanShowOrganizations = Entity.Id == 0;
-			InitializePaymentTypeOrganizationSettings();
-			SetDefaultOrganizationCriterion();
+			Configure();
 		}
 
 		public bool CanEdit => PermissionResult.CanUpdate || (PermissionResult.CanCreate && Entity.Id == 0);
 		public bool AskSaveOnClose => CanEdit;
-		public bool CanShowOrganizations { get; }
+		public bool CanShowOrganizations { get; private set; }
 		public AddOrRemoveIDomainObjectViewModel OrganizationsViewModel { get; }
 
 		public string OrganizationsCriterion
@@ -92,6 +90,21 @@ namespace Vodovoz.ViewModels.Orders
 				UoW,
 				parentViewModel: this,
 				_onlinePaymentTypeOrganizationSettings.Organizations);
+		}
+
+		private void Configure()
+		{
+			if(Entity.Id == 0)
+			{
+				CanShowOrganizations = true;
+				SetDefaultOrganizationCriterion();
+			}
+			else
+			{
+				OrganizationsCriterion = Entity.OrganizationSettingsCriterion;
+			}
+			
+			InitializePaymentTypeOrganizationSettings();
 		}
 
 		private void SetDefaultOrganizationCriterion()

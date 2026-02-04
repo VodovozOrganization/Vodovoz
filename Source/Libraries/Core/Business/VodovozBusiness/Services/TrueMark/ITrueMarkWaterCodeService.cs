@@ -27,7 +27,7 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="trueMarkWaterIdentificationCodes">Код ЧЗ</param>
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>Результат проверки</returns>
-		Task<Result> IsAllTrueMarkCodesIntroducedAndHasCorrectInns(IEnumerable<TrueMarkWaterIdentificationCode> trueMarkWaterIdentificationCodes, CancellationToken cancellationToken);
+		Task<Result> IsAllTrueMarkCodesValid(IEnumerable<TrueMarkWaterIdentificationCode> trueMarkWaterIdentificationCodes, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Проверяет, что код ЧЗ в обороте и содержит корректный ИНН владельца
@@ -35,7 +35,7 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="trueMarkWaterIdentificationCode">Коды ЧЗ</param>
 		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>Результат проверки</returns>
-		Task<Result> IsTrueMarkCodeIntroducedAndHasCorrectInn(TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode, CancellationToken cancellationToken);
+		Task<Result> IsTrueMarkCodeValid(TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Проверяет, что код ЧЗ не использован
@@ -65,11 +65,11 @@ namespace VodovozBusiness.Services.TrueMark
 		Task<Result<IDictionary<string, TrueMarkAnyCode>>> GetTrueMarkAnyCodesByScannedCodes(IEnumerable<string> scannedCodes, CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// Получает сохраненные коды ЧЗ по отсканированным кодам
+		/// Получает сохраненный код ЧЗ по коду
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
-		/// <param name="scannedCode">Отсканированный код</param>
-		/// <returns>Результат</returns>
-		Result<TrueMarkAnyCode> GetSavedTrueMarkAnyCodesByScannedCodes(IUnitOfWork uow, string scannedCode);
+		/// <param name="trueMarkAnyCode">Код ЧЗ</param>
+		/// <returns>Результат поиска сохраненного кода ЧЗ</returns>
+		Result<TrueMarkAnyCode> TryGetSavedTrueMarkAnyCode(IUnitOfWork uow, TrueMarkAnyCode trueMarkAnyCode);
 	}
 }

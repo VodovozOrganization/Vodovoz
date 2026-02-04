@@ -23,6 +23,7 @@ namespace PayPageAPI.Controllers
 		}
 
 		[Route("~/{fastPaymentGuid:guid}")]
+		[HttpGet]
 		public IActionResult Index(Guid fastPaymentGuid)
 		{
 			_logger.LogInformation("Поступил запрос на открытие главной страницы");

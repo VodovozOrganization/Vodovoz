@@ -1,4 +1,4 @@
-﻿using Gamma.ColumnConfig;
+using Gamma.ColumnConfig;
 using QS.DomainModel.Entity;
 using QS.Views;
 using System;
@@ -10,6 +10,7 @@ using Gtk;
 using QS.Extensions.Observable.Collections.List;
 using QS.ViewModels.Control.EEVM;
 using QS.Views.Control;
+using ReactiveUI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Journals.JournalViewModels.Organizations;
@@ -58,6 +59,15 @@ namespace Vodovoz.Views.Settings
 			ycheckCanAddForwardersToLargus.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanAddForwardersToLargus, w => w.Active)
 				.AddBinding(vm => vm.CanEditCanAddForwardersToLargus, w => w.Sensitive)
+				.InitializeFromSource();
+
+			btnSaveCanAddForwardersToMinivan.Clicked += (sender, args) => ViewModel.SaveCanAddForwardersToMinivanCommand.Execute();
+			btnSaveCanAddForwardersToMinivan.Binding.AddBinding(ViewModel, vm => vm.CanEditCanAddForwardersToMinivan, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ycheckCanAddForwardersToMinivan.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.CanAddForwardersToMinivan, w => w.Active)
+				.AddBinding(vm => vm.CanEditCanAddForwardersToMinivan, w => w.Sensitive)
 				.InitializeFromSource();
 
 			yspinbuttonRouteListsCount.Binding
@@ -134,6 +144,7 @@ namespace Vodovoz.Views.Settings
 			ConfigureOrdersSettings();
 
 			#region Вкладка Склад
+			
 			warehousesForPricesAndStocksIntegrationsView.ViewModel = ViewModel.WarehousesForPricesAndStocksIntegrationViewModel;
 
 			yentryCarLoadDocumentInfoString.Binding
@@ -144,6 +155,7 @@ namespace Vodovoz.Views.Settings
 
 			ybuttonSaveCarLoadDocumentInfoString.Sensitive = ViewModel.CanSaveCarLoadDocumentInfoString;
 			ybuttonSaveCarLoadDocumentInfoString.Clicked += (s, e) => ViewModel.SaveCarLoadDocumentInfoStringCommand.Execute();
+			
 			#endregion Вкладка Склад
 
 			#region Вкладка Бухгалтерия
@@ -201,6 +213,78 @@ namespace Vodovoz.Views.Settings
 			ybuttonSaveIsSecondOrderDiscountAvailable.Clicked += (sender, args) => ViewModel.SaveSecondOrderDiscountAvailabilityCommand.Execute();
 
 			ConfigureEmployeesFixedPrices();
+			
+			yspinbuttonTargetPaymentDeferent.Binding
+				.AddSource(ViewModel)
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangePaymentDeferment, w => w.Sensitive)
+				.AddBinding(vm => vm.TargetPaymentDeferment, w => w.ValueAsInt)
+				.InitializeFromSource();
+			yspinbuttonNewPaymentDeferent.Binding
+				.AddSource(ViewModel)
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangePaymentDeferment, w => w.Sensitive)
+				.AddBinding(vm => vm.NewPaymentDeferment, w => w.ValueAsInt)
+				.InitializeFromSource();
+			buttonCalculatePaymentDeferent
+				.BindCommand(ViewModel.CalculatePaymentDefermentCommand);
+			buttonCalculatePaymentDeferent.Binding
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangePaymentDeferment, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			yspinbuttonDefaultPaymentDeferent.Binding
+				.AddSource(ViewModel)
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangePaymentDeferment, w => w.Sensitive)
+				.AddBinding(vm => vm.DefaultPaymentDeferment, w => w.ValueAsInt)
+				.InitializeFromSource();
+			buttonSaveDefaultPaymentDeferent.BindCommand(ViewModel.SaveDefaultPaymentDefermentCommand);
+			buttonSaveDefaultPaymentDeferent.Binding
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangePaymentDeferment, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			yspinbuttonTargetVatRate.Binding
+				.AddSource(ViewModel)
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangeVatRate, w => w.Sensitive)
+				.AddBinding(vm => vm.TargetVatRate, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+			yspinbuttonNewVatRate.Binding
+				.AddSource(ViewModel)
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangeVatRate, w => w.Sensitive)
+				.AddBinding(vm => vm.NewVatRate, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+			buttonCalculateNewVatRateForNomenclature.BindCommand(ViewModel.CalculateVatRateNomenclatureCommand);
+			buttonCalculateNewVatRateForNomenclature.Binding
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangeVatRate, w => w.Sensitive)
+				.InitializeFromSource();
+			buttonCalculateNewVatRateForOrganization.BindCommand(ViewModel.CalculateVatRateOrganizationCommand);
+			buttonCalculateNewVatRateForOrganization.Binding
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangeVatRate, w => w.Sensitive)
+				.InitializeFromSource();
+
+			datepickerVersionStartDate.Binding
+				.AddSource(ViewModel)
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangeVatRate, w => w.Sensitive)
+				.AddBinding(vm => vm.StartDateTimeForVatRate, w => w.Date)
+				.InitializeFromSource();
+			datepickerVersionEndDate1.Binding
+				.AddSource(ViewModel)
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangeVatRate, w => w.Sensitive)
+				.AddBinding(vm => vm.EndDateTimeForVatRate, w => w.Date)
+				.InitializeFromSource();
+			
+			yspinbuttonDefaultVatRate.Binding
+				.AddSource(ViewModel)
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangeVatRate, w => w.Sensitive)
+				.AddBinding(vm => vm.DefaultVatRate, w => w.ValueAsDecimal)
+				.InitializeFromSource();
+			buttonSaveDefaulVatRate.BindCommand(ViewModel.SaveDefaultVatRateCommand);
+			buttonSaveDefaulVatRate.Binding
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangeVatRate, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ycheckbuttonDisableDebtMailing.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.DebtNotificationWorkerIsEnabled, w => w.Active)
+				.AddFuncBinding(vm => vm.CanEditDebtNotification, w => w.Sensitive)
+				.InitializeFromSource();
 		}
 		
 		private void ConfigureEmployeesFixedPrices()
@@ -551,6 +635,10 @@ namespace Vodovoz.Views.Settings
 				.AddBinding(ViewModel, vm => vm.LoaderMaxDailyFuelLimit, w => w.ValueAsInt)
 				.InitializeFromSource();
 
+			yspinbuttonMinivanMaxDailyFuelLimit.Binding
+				.AddBinding(ViewModel, vm => vm.MinivanMaxDailyFuelLimit, w => w.ValueAsInt)
+				.InitializeFromSource();
+			
 			ybuttonSaveMaxDailyFuelLimits.BindCommand(ViewModel.SaveDailyFuelLimitsCommand);
 		}
 
@@ -617,7 +705,6 @@ namespace Vodovoz.Views.Settings
 				return;
 			}
 		}
-
 		public override void Destroy()
 		{
 			treeNomenclatures.Selection.Changed -= OnNomenclaturesSelectionChanged;
