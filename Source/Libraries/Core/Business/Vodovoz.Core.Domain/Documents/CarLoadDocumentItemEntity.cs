@@ -2,7 +2,11 @@
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
@@ -116,7 +120,7 @@ namespace Vodovoz.Core.Domain.Documents
 		/// </summary>
 		/// <returns></returns>
 		/// <exception cref="InvalidOperationException"></exception>
-		public virtual CarLoadDocumentLoadOperationState GetDocumentItemLoadOperationState()
+		public virtual CarLoadDocumentLoadOperationState GetDocumentItemLoadOperationState(IEnumerable<StagingTrueMarkCode> stagingTrueMarkCodes)
 		{
 			if(OrderId is null)
 			{
@@ -131,7 +135,7 @@ namespace Vodovoz.Core.Domain.Documents
 			var loadedItemsCount = TrueMarkCodes.Count;
 
 			var state =
-				loadedItemsCount == 0
+				loadedItemsCount == 0 && stagingTrueMarkCodes.Count() == 0
 				? CarLoadDocumentLoadOperationState.NotStarted
 				: loadedItemsCount < Amount
 					? CarLoadDocumentLoadOperationState.InProgress

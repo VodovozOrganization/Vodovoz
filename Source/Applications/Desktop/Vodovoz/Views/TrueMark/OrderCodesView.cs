@@ -39,6 +39,10 @@ namespace Vodovoz.Views.TrueMark
 		private Menu _poolPopup = new Menu();
 		private MenuItem _poolCopyCodes = new MenuItem("Копировать коды");
 
+		//staging popup
+		private Menu _stagingPopup = new Menu();
+		private MenuItem _stagingCopyCodes = new MenuItem("Копировать коды");
+
 		public OrderCodesView(OrderCodesViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
@@ -80,6 +84,10 @@ namespace Vodovoz.Views.TrueMark
 
 			labelPagePool.Binding.AddSource(ViewModel)
 				.AddFuncBinding(vm => $"Из пула ({vm.TotalAddedFromPool})", w => w.LabelProp)
+				.InitializeFromSource();
+
+			labelPageStaging.Binding.AddSource(ViewModel)
+				.AddFuncBinding(vm => $"Промежуточные ({vm.TotalScannedStagingCodes})", w => w.LabelProp)
 				.InitializeFromSource();
 
 			entrySearch.Binding.AddSource(ViewModel)
@@ -326,6 +334,42 @@ namespace Vodovoz.Views.TrueMark
 			ytreeviewPool.ButtonReleaseEvent += OnTablePoolRightClick;
 			ytreeviewPool.WidgetEvent += SuppressRightClickWithManyRowsSelected;
 
+			// staging table
+			var stagingRecursiveConfig = new RecursiveConfig<OrderCodeItemViewModel>(
+				x => x.Parent,
+				x => x.Children);
+			ytreeviewStaging.AfterModelChanged += TreeViewAfterModelChanged;
+			ytreeviewStaging.Binding.AddSource(ViewModel)
+				.AddFuncBinding(
+					vm => new RecursiveTreeModel<OrderCodeItemViewModel>(vm.ScannedStagingCodes, selfdeliveryRecursiveConfig),
+					w => w.YTreeModel)
+				.AddBinding(vm => vm.ScannedByDriverCodesSelected, w => w.SelectedRows,
+					new ArrayToEnumerableConverter<OrderCodeItemViewModel>())
+				.InitializeFromSource();
+			ytreeviewStaging.Selection.Mode = SelectionMode.Multiple;
+			ytreeviewStaging.ColumnsConfig = FluentColumnsConfig<OrderCodeItemViewModel>.Create()
+				.AddColumn("Тип")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.Type)
+					.Editable(false)
+				.AddColumn("Код")
+					.AddTextRenderer(x => x.SourceIdentificationCode)
+					.Editable(false)
+					.SearchHighlight()
+				.AddColumn("Источник")
+					.AddTextRenderer(x => x.StagingCodeSource)
+					.Editable(false)
+					.SearchHighlight()
+				.AddColumn("")
+				.Finish();
+			ytreeviewStaging.Add(_stagingPopup);
+			_stagingPopup.Add(_stagingCopyCodes);
+			_stagingCopyCodes.Show();
+			_stagingPopup.Show();
+			_stagingCopyCodes.Activated += (sender, e) => ViewModel.CopyStagingCodesCommand.Execute(null);
+			ytreeviewStaging.ButtonReleaseEvent += OnTableStagingRightClick;
+			ytreeviewStaging.WidgetEvent += SuppressRightClickWithManyRowsSelected;
+
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;
 		}
 
@@ -448,6 +492,17 @@ namespace Vodovoz.Views.TrueMark
 
 			_poolCopyCodes.Sensitive = ViewModel.CopyPoolCodesCommand.CanExecute(null);
 			_poolPopup.Popup();
+		}
+
+		private void OnTableStagingRightClick(object o, ButtonReleaseEventArgs args)
+		{
+			if(args.Event.Button != (uint)GtkMouseButton.Right)
+			{
+				return;
+			}
+
+			_stagingCopyCodes.Sensitive = ViewModel.CopyStagingCodesCommand.CanExecute(null);
+			_stagingPopup.Popup();
 		}
 
 		protected override void OnDestroyed()

@@ -1,5 +1,4 @@
-﻿using Core.Infrastructure;
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using MoreLinq;
 using NHibernate;
 using NHibernate.Criterion;
@@ -17,6 +16,7 @@ using TrueMark.Codes.Pool;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
@@ -26,7 +26,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.TrueMark;
 using VodovozBusiness.Domain.Goods;
-using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.TrueMark
 {
@@ -332,6 +331,127 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				.SingleOrDefault<decimal>();
 
 			return (int)codesRequired;
+		}
+
+		public async Task<IEnumerable<TrueMarkProductCode>> GetUsedTrueMarkProductCodeByStagingTrueMarkCode(
+			IUnitOfWork uow,
+			StagingTrueMarkCode stagingTrueMarkCode,
+			CancellationToken cancellationToken)
+		{
+			var usedCodes = new List<TrueMarkProductCode>();
+
+			var allIdentificationCodes = stagingTrueMarkCode.AllIdentificationCodes;
+
+			if(allIdentificationCodes is null || !allIdentificationCodes.Any())
+			{
+				return usedCodes;
+			}
+
+			var serialNumbers = allIdentificationCodes.Select(x => x.SerialNumber).Distinct().ToList();
+			var gtin = allIdentificationCodes.First().Gtin;
+
+			var query =
+				from identificationCode in uow.Session.Query<TrueMarkWaterIdentificationCode>()
+				join tmpc in uow.Session.Query<TrueMarkProductCode>() on identificationCode.Id equals tmpc.ResultCode.Id into productCodes
+				from productCode in productCodes.DefaultIfEmpty()
+				where
+				productCode.Id != null
+				&& serialNumbers.Contains(identificationCode.SerialNumber)
+				select productCode;
+
+			var existingCodesHavingReuqiredSerialNumbers = await query.ToListAsync(cancellationToken);
+
+			foreach(var identificationCode in allIdentificationCodes)
+			{
+				var existingTrueMarkProductCode = existingCodesHavingReuqiredSerialNumbers
+					.FirstOrDefault(x => x.SourceCode.Gtin == gtin && x.SourceCode.SerialNumber == identificationCode.SerialNumber);
+
+				if(existingTrueMarkProductCode is null)
+				{
+					continue;
+				}
+
+				usedCodes.Add(existingTrueMarkProductCode);
+			}
+
+			return usedCodes;
+		}
+
+		public async Task<int?> GetOrderIdByTrueMarkProductCode(IUnitOfWork uow, TrueMarkProductCode trueMarkProductCode, CancellationToken cancellationToken)
+		{
+			switch(trueMarkProductCode)
+			{
+				case CarLoadDocumentItemTrueMarkProductCode carLoadDocumentItemTrueMarkProduct:
+					{
+						var query =
+							from carLoadDocumentItem in uow.Session.Query<CarLoadDocumentItemEntity>()
+							where carLoadDocumentItem.Id == carLoadDocumentItemTrueMarkProduct.CarLoadDocumentItem.Id
+							select carLoadDocumentItem.OrderId;
+
+						return await query.FirstOrDefaultAsync(cancellationToken);
+					}
+				case RouteListItemTrueMarkProductCode routeListItemTrueMarkProductCode:
+					{
+						var query =
+							from routeListItem in uow.Session.Query<RouteListItemEntity>()
+							where routeListItem.Id == routeListItemTrueMarkProductCode.RouteListItem.Id
+							select routeListItem.Order.Id;
+
+						return await query.FirstOrDefaultAsync(cancellationToken);
+					}
+				case SelfDeliveryDocumentItemTrueMarkProductCode selfDeliveryDocumentItemTrueMarkProductCode:
+					{
+						var query =
+							from selfDeliveryDocumentItem in uow.Session.Query<SelfDeliveryDocumentItemEntity>()
+							join selfDeliveryDocument in uow.Session.Query<SelfDeliveryDocumentEntity>()
+								on selfDeliveryDocumentItem.SelfDeliveryDocument.Id equals selfDeliveryDocument.Id
+							where selfDeliveryDocumentItem.Id == selfDeliveryDocumentItemTrueMarkProductCode.SelfDeliveryDocumentItem.Id
+							select selfDeliveryDocument.Order.Id;
+
+						return await query.FirstOrDefaultAsync(cancellationToken);
+					}
+				case AutoTrueMarkProductCode autoTrueMarkProductCode:
+					{
+						var query =
+							from orderEdoReques in uow.Session.Query<FormalEdoRequest>()
+							where orderEdoReques.Id == autoTrueMarkProductCode.CustomerEdoRequest.Id
+							select orderEdoReques.Order.Id;
+
+						return await query.FirstOrDefaultAsync(cancellationToken);
+					}
+				default:
+					throw new InvalidOperationException("Неизвестный тип кода ЧЗ товара");
+			}
+		}
+
+		public IList<StagingTrueMarkCode> GetAllStagingCodesByOrderId(IUnitOfWork uow, int orderId)
+		{
+			var codes =
+				from code in uow.Session.Query<StagingTrueMarkCode>()
+
+				join cldi in uow.Session.Query<CarLoadDocumentItem>()
+				on new { Id = code.RelatedDocumentId, Type = code.RelatedDocumentType }
+				equals new { Id = cldi.Id, Type = StagingTrueMarkCodeRelatedDocumentType.CarLoadDocumentItem } into cldis
+				from carLoadDocumentItem in cldis.DefaultIfEmpty()
+
+				join rli in uow.Session.Query<RouteListItemEntity>()
+				on new { Id = code.RelatedDocumentId, Type = code.RelatedDocumentType }
+				equals new { Id = rli.Id, Type = StagingTrueMarkCodeRelatedDocumentType.RouteListItem } into rlis
+				from routeListItem in rlis.DefaultIfEmpty()
+
+				join sdi in uow.Session.Query<SelfDeliveryDocumentItemEntity>()
+				on new { Id = code.RelatedDocumentId, Type = code.RelatedDocumentType }
+				equals new { Id = sdi.Id, Type = StagingTrueMarkCodeRelatedDocumentType.SelfDeliveryDocumentItem } into sdis
+				from selfDeliveryItem in sdis.DefaultIfEmpty()
+
+				where
+				(carLoadDocumentItem != null && carLoadDocumentItem.OrderId == orderId)
+				|| (routeListItem != null && routeListItem.Order.Id == orderId)
+				|| (selfDeliveryItem != null && selfDeliveryItem.SelfDeliveryDocument.Order.Id == orderId)
+
+				select code;
+
+			return codes.ToList();
 		}
 	}
 }

@@ -57,6 +57,7 @@ using Vodovoz.ViewModels.Widgets;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.NotificationSenders;
 using VodovozBusiness.Services.Orders;
+using VodovozBusiness.Services.TrueMark;
 using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
 
 namespace Vodovoz
@@ -92,6 +93,7 @@ namespace Vodovoz
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender;
 		private readonly OrderCancellationService _orderCancellationService;
+		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
 		private bool _canClose = true;
 		private IEnumerable<object> _selectedRouteListAddressesObjects = Enumerable.Empty<object>();
 		private RouteListItemStatus _routeListItemStatusToChange;
@@ -125,6 +127,7 @@ namespace Vodovoz
 			IRouteListChangesNotificationSender routeListChangesNotificationSender,
 			IOrderContractUpdater orderContractUpdater,
 			IRouteListService routeListService,
+			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
 			OrderCancellationService orderCancellationService
 			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
@@ -151,6 +154,7 @@ namespace Vodovoz
 			_edoMessageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
 			_edoAccountController = edoAccountController ?? throw new ArgumentNullException(nameof(edoAccountController));
 			_routeListChangesNotificationSender = routeListChangesNotificationSender ?? throw new ArgumentNullException(nameof(routeListChangesNotificationSender));
+			_routeListItemTrueMarkProductCodesProcessingService = routeListItemTrueMarkProductCodesProcessingService ?? throw new ArgumentNullException(nameof(routeListItemTrueMarkProductCodesProcessingService));
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
@@ -629,24 +633,36 @@ namespace Vodovoz
 				}
 
 				if(order.IsOrderForResale
-				   && !order.IsNeedIndividualSetOnLoad(_edoAccountController)
-				   && !_orderRepository.IsAllRouteListItemTrueMarkProductCodesAddedToOrder(UoW, order.Id))
+				   && !order.IsNeedIndividualSetOnLoad(_edoAccountController))
 				{
-					message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
+					var addCodesResult = _routeListItemTrueMarkProductCodesProcessingService
+						.AddProductCodesToRouteListItemAndDeleteStagingCodes(UoW, rli.RouteListItem)
+						.GetAwaiter().GetResult();
+
+					if(addCodesResult.IsFailure)
+					{
+						message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
 							  "т.к. данный заказ на перепродажу, но не все коды ЧЗ были добавлены";
 
-					return false;
+						return false;
+					}
 				}
 
 				if(order.IsOrderForTender
 				   && order.Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.Delivered
-				   && !order.IsNeedIndividualSetOnLoad(_edoAccountController)
-				   && !_orderRepository.IsAllRouteListItemTrueMarkProductCodesAddedToOrder(UoW, order.Id))
+				   && !order.IsNeedIndividualSetOnLoad(_edoAccountController))
 				{
-					message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
+					var addCodesResult = _routeListItemTrueMarkProductCodesProcessingService
+						.AddProductCodesToRouteListItemAndDeleteStagingCodes(UoW, rli.RouteListItem)
+						.GetAwaiter().GetResult();
+
+					if(addCodesResult.IsFailure)
+					{
+						message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
 							  "т.к. данный заказ на госзакупку, но не все коды ЧЗ были добавлены";
 
-					return false;
+						return false;
+					}
 				}
 			}
 

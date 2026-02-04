@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;

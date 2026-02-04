@@ -74,6 +74,7 @@ namespace Vodovoz.Application
 			.AddScoped<OurCodesChecker>()
 			.AddScoped<OrderCancellationService>()
 			.AddScoped<SelfdeliveryCancellationService>()
+			.AddScoped<IStagingTrueMarkCodeFactory, StagingTrueMarkCodeFactory>()
 			.AddTrueMarkApiClient()
 			.AddApplicationOrderServices()
 		;

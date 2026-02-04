@@ -48,6 +48,7 @@ namespace WarehouseApi.Library
 				.AddScoped<TrueMarkWaterCodeParser>()
 				.AddScoped<CarLoadDocumentProcessingErrorsChecker>()
 				.AddScoped<TrueMarkCodesChecker>()
+				.AddScoped<ICarLoadDocumentTrueMarkCodesProcessingService, CarLoadDocumentTrueMarkCodesProcessingService>()
 				.AddScoped<ILogisticsEventsCreationService, LogisticsEventsCreationService>()
 				.AddScoped<ISelfDeliveryService, SelfDeliveryService>()
 				.AddScoped<ICallTaskWorker, CallTaskWorker>()

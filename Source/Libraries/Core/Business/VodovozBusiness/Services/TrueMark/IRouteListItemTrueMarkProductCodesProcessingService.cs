@@ -1,5 +1,4 @@
-﻿using QS.DomainModel.UoW;
-using System.Collections.Generic;
+using QS.DomainModel.UoW;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
@@ -29,15 +28,6 @@ namespace VodovozBusiness.Services.TrueMark
 		void AddTrueMarkCodeToRouteListItem(IUnitOfWork uow, RouteListItemEntity routeListAddress, int vodovozOrderItemId,
 			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode, SourceProductCodeStatus status, ProductCodeProblem problem);
 
-		Task<Result> IsTrueMarkCodeCanBeAddedToRouteListItem(
-			IUnitOfWork uow,
-			IEnumerable<TrueMarkWaterIdentificationCode> trueMarkWaterIdentificationCodes,
-			RouteListItem routeListAddress,
-			OrderItem orderItem,
-			CancellationToken cancellationToken,
-			bool isCheckForCodeChange = false
-		);
-
 		Result ValidateTrueMarkCodeIsInAggregationCode(TrueMarkAnyCode trueMarkCodeResult);
 
 		/// <summary>
@@ -52,5 +42,37 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <returns>Результат операции</returns>
 		Task AddTrueMarkAnyCodeToRouteListItemNoCodeStatusCheck(IUnitOfWork uow, RouteListItemEntity routeListAddress, int orderSaleItemId,
 			TrueMarkAnyCode trueMarkAnyCode, SourceProductCodeStatus status, ProductCodeProblem problem, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Добавляет код Честного Знака для промежуточного хранения с привязкой к строке маршрутного листа
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="scannedCode">Отсканированный код ЧЗ</param>
+		/// <param name="routeListItemId">Id строки МЛ</param>
+		/// <param name="orderItem">Строка заказа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Результат добавления кода</returns>
+		Task<Result<StagingTrueMarkCode>> AddStagingTrueMarkCode(IUnitOfWork uow, string scannedCode, int routeListItemId, OrderItem orderItem, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Удаляет код Честного Знака из промежуточного хранения с привязкой к строке маршрутного листа
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="scannedCode">Отсканированный код ЧЗ</param>
+		/// <param name="routeListItemId">Id строки МЛ</param>
+		/// <param name="orderItemId">Id строки заказа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Результат удаления кода</returns>
+		Task<Result> RemoveStagingTrueMarkCode(IUnitOfWork uow, string scannedCode, int routeListItemId, int orderItemId, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Добавляет коды Честного Знака из промежуточного хранения к строке маршрутного листа и удаляет их
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="order">Заказ</param>
+		/// <param name="orderItemId">Id строки заказа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Результат добавления кодов к строке МЛ</returns>
+		Task<Result> AddProductCodesToRouteListItemAndDeleteStagingCodes(IUnitOfWork uow, RouteListItem routeListItem, CancellationToken cancellationToken = default);
 	}
 }

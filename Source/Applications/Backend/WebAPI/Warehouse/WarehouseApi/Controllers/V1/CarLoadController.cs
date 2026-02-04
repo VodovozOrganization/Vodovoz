@@ -100,7 +100,7 @@ namespace WarehouseApi.Controllers.V1
 		[HttpGet]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetOrderResponse))]
-		public async Task<IActionResult> GetOrder([FromQuery] int orderId)
+		public async Task<IActionResult> GetOrder([FromQuery] int orderId, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Запрос получения информации о заказе. OrderId: {OrderId}. User token: {AccessToken}",
 				orderId,
@@ -108,7 +108,7 @@ namespace WarehouseApi.Controllers.V1
 
 			try
 			{
-				var requestProcessingResult = await _carLoadService.GetOrder(orderId);
+				var requestProcessingResult = await _carLoadService.GetOrder(orderId, cancellationToken);
 
 				if(requestProcessingResult.Result.IsSuccess)
 				{

@@ -1,4 +1,4 @@
-﻿using Core.Infrastructure;
+using Core.Infrastructure;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -9,8 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
 using Vodovoz.Core.Data.Logistics;
-using Vodovoz.Core.Data.Repositories;
-using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Interfaces.TrueMark;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark;
@@ -52,6 +50,10 @@ namespace Vodovoz.ViewModels.TrueMark
 		private IList<OrderCodeItemViewModel> _addedFromPoolCodesOrigin;
 		private IList<OrderCodeItemViewModel> _addedFromPoolCodes;
 		private IEnumerable<OrderCodeItemViewModel> _addedFromPoolCodesSelected;
+		private int _totalScannedStagingCodes;
+		private IList<OrderCodeItemViewModel> _scannedStagingCodesOrigin;
+		private IList<OrderCodeItemViewModel> _scannedStagingCodes;
+		private IEnumerable<OrderCodeItemViewModel> _scannedStagingCodesSelected;
 		private string _searchText;
 		private bool? _isValidSearchCodeText;
 		private string _parsedSearchCodeSerialNumber;
@@ -84,6 +86,8 @@ namespace Vodovoz.ViewModels.TrueMark
 			_scannedBySelfdeliveryCodesSelected = Enumerable.Empty<OrderCodeItemViewModel>();
 			_addedFromPoolCodes = new List<OrderCodeItemViewModel>();
 			_addedFromPoolCodesSelected = Enumerable.Empty<OrderCodeItemViewModel>();
+			_scannedStagingCodes = new List<OrderCodeItemViewModel>();
+			_scannedStagingCodesSelected = Enumerable.Empty<OrderCodeItemViewModel>();
 
 			Title = $"Коды ЧЗ для заказа {orderId}";
 
@@ -99,6 +103,7 @@ namespace Vodovoz.ViewModels.TrueMark
 		public ICommand CopySelfdeliverySourceCodesCommand { get; private set; }
 		public ICommand CopySelfdeliveryResultCodesCommand { get; private set; }
 		public ICommand CopyPoolCodesCommand { get; private set; }
+		public ICommand CopyStagingCodesCommand { get; private set; }
 		public ICommand OpenRouteListCommand { get; private set; }
 		public ICommand OpenCarLoadDocumentCommand { get; private set; }
 		public ICommand OpenSelfdeliveryDocumentCommand { get; private set; }
@@ -198,6 +203,24 @@ namespace Vodovoz.ViewModels.TrueMark
 			set => SetField(ref _addedFromPoolCodesSelected, value);
 		}
 
+		public virtual int TotalScannedStagingCodes
+		{
+			get => _totalScannedStagingCodes;
+			set => SetField(ref _totalScannedStagingCodes, value);
+		}
+
+		public virtual IList<OrderCodeItemViewModel> ScannedStagingCodes
+		{
+			get => _scannedStagingCodes;
+			set => SetField(ref _scannedStagingCodes, value);
+		}
+
+		public virtual IEnumerable<OrderCodeItemViewModel> ScannedStagingCodesSelected
+		{
+			get => _scannedStagingCodesSelected;
+			set => SetField(ref _scannedStagingCodesSelected, value);
+		}
+
 		public virtual string SearchText
 		{
 			get => _searchText;
@@ -239,7 +262,6 @@ namespace Vodovoz.ViewModels.TrueMark
 			copyDriverSourceCodesCommand.CanExecuteChangedWith(this, x => x.ScannedByDriverCodesSelected);
 			CopyDriverResultCodesCommand = copyDriverResultCodesCommand;
 
-
 			//Copy warehouse codes
 			var copyWarehouseSourceCodesCommand = new DelegateCommand(
 				() => CopySourceCodesToClipboard(ScannedByWarehouseCodesSelected),
@@ -254,7 +276,6 @@ namespace Vodovoz.ViewModels.TrueMark
 			);
 			copyWarehouseResultCodesCommand.CanExecuteChangedWith(this, x => x.ScannedByWarehouseCodesSelected);
 			CopyWarehouseResultCodesCommand = copyWarehouseResultCodesCommand;
-
 
 			//Copy selfdelivery codes
 			var copySelfdeliverySourceCodesCommand = new DelegateCommand(
@@ -271,7 +292,6 @@ namespace Vodovoz.ViewModels.TrueMark
 			copySelfdeliveryResultCodesCommand.CanExecuteChangedWith(this, x => x.ScannedBySelfdeliveryCodesSelected);
 			CopySelfdeliveryResultCodesCommand = copySelfdeliveryResultCodesCommand;
 
-
 			//Copy pool codes
 			var copyPoolCodesCommand = new DelegateCommand(
 				() => CopyResultCodesToClipboard(AddedFromPoolCodesSelected),
@@ -280,10 +300,17 @@ namespace Vodovoz.ViewModels.TrueMark
 			copyPoolCodesCommand.CanExecuteChangedWith(this, x => x.AddedFromPoolCodesSelected);
 			CopyPoolCodesCommand = copyPoolCodesCommand;
 
+			//Copy staging codes
+			var copyStagingCodesCommand = new DelegateCommand(
+				() => CopyResultCodesToClipboard(ScannedStagingCodesSelected),
+				() => ScannedStagingCodesSelected.Any()
+			);
+			copyStagingCodesCommand.CanExecuteChangedWith(this, x => x.ScannedStagingCodesSelected);
+			CopyStagingCodesCommand = copyStagingCodesCommand;
 
 			//Open documents
 			var openRouteListCommand = new DelegateCommand(
-				() => OpenRouteList(), 
+				() => OpenRouteList(),
 				() => OnlyOneSelected(ScannedByDriverCodesSelected)
 			);
 			openRouteListCommand.CanExecuteChangedWith(this, x => x.ScannedByDriverCodesSelected);
@@ -302,7 +329,6 @@ namespace Vodovoz.ViewModels.TrueMark
 			);
 			openSelfdeliveryDocumentCommand.CanExecuteChangedWith(this, x => x.ScannedBySelfdeliveryCodesSelected);
 			OpenSelfdeliveryDocumentCommand = openSelfdeliveryDocumentCommand;
-
 
 			//Open authors
 			var openFromDriverAuthorCommand = new DelegateCommand(
@@ -336,6 +362,7 @@ namespace Vodovoz.ViewModels.TrueMark
 				ReloadCodesFromWarehouse(uow);
 				ReloadCodesFromSelfdelivery(uow);
 				ReloadCodesFromPool(uow);
+				ReloadScanndedStagingCodes(uow);
 
 				_codesRequired = _trueMarkRepository.GetCodesRequiredByOrder(uow, OrderId);
 				_codesProvidedFromScan = TotalScannedByDriver
@@ -379,7 +406,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			var transportCodes = _trueMarkRepository.GetTransportCodes(uow, transportCodesIds);
 
 			var transportItemViewModels = transportCodes
-				.Select(x => new OrderCodeItemViewModel{ TransportCode = x })
+				.Select(x => new OrderCodeItemViewModel { TransportCode = x })
 				.ToDictionary(x => x.TransportCode.Id);
 			var groupItemViewModels = groupCodes
 				.Select(x =>
@@ -397,7 +424,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			_totalScannedByDriver = instanceCodes.Count();
 			_scannedByDriverCodesOrigin = instanceCodes.Select(x =>
 			{
-				var vm =  new OrderCodeItemViewModel
+				var vm = new OrderCodeItemViewModel
 				{
 					SourceCode = x.SourceCode,
 					ResultCode = x.ResultCode,
@@ -629,7 +656,34 @@ namespace Vodovoz.ViewModels.TrueMark
 			}
 		}
 
-		private  void FilterCodes()
+		private void ReloadScanndedStagingCodes(IUnitOfWork uow)
+		{
+			var stagingTrueMarkCodes = _trueMarkRepository.GetAllStagingCodesByOrderId(uow, OrderId);
+			_totalScannedStagingCodes = stagingTrueMarkCodes.Where(x => x.IsIdentification).Count();
+			var allCodes =
+				stagingTrueMarkCodes
+				.Select(x => new OrderCodeItemViewModel
+				{
+					StagingTrueMarkCode = x
+				}).ToList();
+
+			foreach(var code in allCodes)
+			{
+				if(code.StagingTrueMarkCode.ParentCodeId.HasValue)
+				{
+					code.Parent = allCodes.FirstOrDefault(x => x.StagingTrueMarkCode.Id == code.StagingTrueMarkCode.ParentCodeId.Value);
+				}
+
+				var children = allCodes
+					.Where(x => x.StagingTrueMarkCode.ParentCodeId != null && x.StagingTrueMarkCode.ParentCodeId == code.StagingTrueMarkCode.Id);
+
+				code.Children = children.ToList();
+			}
+
+			_scannedStagingCodesOrigin = allCodes.Where(x => x.Parent == null).ToList();
+		}
+
+		private void FilterCodes()
 		{
 			if(SearchText.IsNullOrWhiteSpace())
 			{
@@ -640,6 +694,7 @@ namespace Vodovoz.ViewModels.TrueMark
 				_scannedByWarehouseCodes = _scannedByWarehouseCodesOrigin;
 				_scannedByDriverCodes = _scannedByDriverCodesOrigin;
 				_addedFromPoolCodes = _addedFromPoolCodesOrigin;
+				_scannedStagingCodes = _scannedStagingCodesOrigin;
 			}
 			else if(_trueMarkWaterCodeParser.FuzzyParse(SearchText, out var parsedCode))
 			{
@@ -649,6 +704,7 @@ namespace Vodovoz.ViewModels.TrueMark
 				FilterWarehouseCodes(parsedCode);
 				FilterSelfdeliveryCodes(parsedCode);
 				FilterPoolCodes(parsedCode);
+				FilterStagingCodes(parsedCode);
 			}
 			else if(_trueMarkWaterCodeParser.IsTransportCode(SearchText))
 			{
@@ -669,6 +725,7 @@ namespace Vodovoz.ViewModels.TrueMark
 				_scannedByWarehouseCodes = _scannedByWarehouseCodesOrigin;
 				_scannedByDriverCodes = _scannedByDriverCodesOrigin;
 				_addedFromPoolCodes = _addedFromPoolCodesOrigin;
+				_scannedStagingCodes = _scannedStagingCodesOrigin;
 			}
 
 			OnPropertyChanged(nameof(TotalScannedByDriver));
@@ -679,6 +736,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			OnPropertyChanged(nameof(ScannedBySelfdeliveryCodes));
 			OnPropertyChanged(nameof(TotalAddedFromPool));
 			OnPropertyChanged(nameof(AddedFromPoolCodes));
+			OnPropertyChanged(nameof(ScannedStagingCodes));
 		}
 
 		private void FilterDriverCodes(ITrueMarkWaterCode code)
@@ -723,6 +781,12 @@ namespace Vodovoz.ViewModels.TrueMark
 			_addedFromPoolCodes = filteredCodes.ToList();
 		}
 
+		private void FilterStagingCodes(ITrueMarkWaterCode code)
+		{
+			var filteredCodes = _scannedStagingCodesOrigin.Where(x => CodeMatched(x, code));
+			_scannedStagingCodes = filteredCodes.ToList();
+		}
+
 		private void FilterPoolCodes(string transportCode)
 		{
 			var filteredCodes = _addedFromPoolCodesOrigin.Where(x => CodeMatched(x, transportCode));
@@ -742,6 +806,11 @@ namespace Vodovoz.ViewModels.TrueMark
 			}
 
 			if(codeItem.GroupCode != null && codeItem.GroupCode.SerialNumber == desiredCode.SerialNumber)
+			{
+				return true;
+			}
+
+			if(codeItem.StagingTrueMarkCode != null && codeItem.StagingTrueMarkCode.SerialNumber == desiredCode.SerialNumber)
 			{
 				return true;
 			}
@@ -787,6 +856,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			_scannedByWarehouseCodes = _scannedByWarehouseCodesOrigin;
 			_scannedBySelfdeliveryCodes = _scannedBySelfdeliveryCodesOrigin;
 			_addedFromPoolCodes = _addedFromPoolCodesOrigin;
+			_scannedStagingCodes = _scannedStagingCodesOrigin;
 		}
 
 		private void CopySourceCodesToClipboard(IEnumerable<OrderCodeItemViewModel> codes)

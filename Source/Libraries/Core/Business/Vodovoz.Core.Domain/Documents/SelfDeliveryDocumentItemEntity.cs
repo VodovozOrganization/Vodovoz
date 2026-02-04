@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
@@ -30,6 +30,7 @@ namespace Vodovoz.Core.Domain.Documents
 		private decimal _amountInStock;
 		private decimal _amountUnloaded;
 		private CounterpartyMovementOperation _counterpartyMovementOperation;
+		private decimal _amount;
 
 		/// <summary>
 		/// Идентификатор
@@ -54,6 +55,27 @@ namespace Vodovoz.Core.Domain.Documents
 		{
 			get => _document;
 			protected set => SetField(ref _document, value);
+		}
+
+		/// <summary>
+		/// Номенклатура
+		/// </summary>
+		[Display(Name = "Номенклатура")]
+		public virtual NomenclatureEntity Nomenclature
+		{
+			get => _nomenclature;
+			//Нельзя устанавливать, см. логику в SelfDeliveryDocumentItem.cs
+			protected set => SetField(ref _nomenclature, value);
+		}
+
+		/// <summary>
+		/// Количество
+		/// </summary>
+		[Display(Name = "Количество")]
+		public virtual decimal Amount
+		{
+			get => _amount;
+			set => SetField(ref _amount, value);
 		}
 
 		/// <summary>

@@ -1,4 +1,5 @@
 ﻿using Vodovoz.Core.Domain.Results;
+using VodovozBusiness.Domain.Goods;
 
 namespace Vodovoz.Errors.TrueMark
 {
@@ -45,6 +46,12 @@ namespace Vodovoz.Errors.TrueMark
 				typeof(TrueMarkCodeErrors),
 				nameof(TrueMarkCodeIsAlreadyUsed),
 				$"Код ЧЗ (Id = {waterCodeId}) уже был использован. Добавляемый код является дублем");
+
+		public static Error CreateTrueMarkCodeIsAlreadyUsedInOrder(int orderId) =>
+			new Error(
+				typeof(TrueMarkCodeErrors),
+				nameof(TrueMarkCodeIsAlreadyUsed),
+				$"Код ЧЗ уже был использован в заказе {orderId}");
 
 		public static Error TrueMarkCodeGtinIsNotEqualsNomenclatureGtin =>
 			new Error(
@@ -173,5 +180,50 @@ namespace Vodovoz.Errors.TrueMark
 				typeof(TrueMarkCodeErrors),
 				nameof(CodeExpired),
 				"Истек срок годности товара");
+
+		/// <summary>
+		/// Код ЧЗ уже был добавлен
+		/// </summary>
+		public static Error StagingTrueMarkCodeDuplicate =>
+			new Error(
+				typeof(TrueMarkCodeErrors),
+				nameof(StagingTrueMarkCodeDuplicate),
+				"Код ЧЗ уже был добавлен");
+
+		/// <summary>
+		/// В связанный документ уже были добавлены коды ЧЗ. Добавление кода для промежуточного хранения невозможно
+		/// </summary>
+		public static Error RelatedDocumentHasTrueMarkCodes =>
+			new Error(
+				typeof(TrueMarkCodeErrors),
+				nameof(RelatedDocumentHasTrueMarkCodes),
+				"В связанный документ уже были добавлены коды ЧЗ. Добавление кода для промежуточного хранения невозможно");
+
+		/// <summary>
+		/// Суммарное количество кодов превышает необходимое для строки заказа
+		/// </summary>
+		public static Error TrueMarkCodesCountMoreThenInOrderItem =>
+			new Error(
+				typeof(TrueMarkCodeErrors),
+				nameof(TrueMarkCodesCountMoreThenInOrderItem),
+				"Суммарное количество кодов превышает необходимое для строки заказа");
+
+		/// <summary>
+		/// Номенклатура с Gtin полученного кода отсутствует в заказе
+		/// </summary>
+		public static Error GtinNomenclatureNotFoundInOrder =>
+			new Error(
+				typeof(TrueMarkCodeErrors),
+				nameof(GtinNomenclatureNotFoundInOrder),
+				"Номенклатура с Gtin полученного кода отсутствует в заказе");
+
+		/// <summary>
+		/// Номенклатура с Gtin полученного кода отсутствует в заказе
+		/// </summary>
+		public static Error CreateGtinNomenclatureNotFoundInOrder(string nomenclatureName, string gtin) =>
+			new Error(
+				typeof(TrueMarkCodeErrors),
+				nameof(GtinNomenclatureNotFoundInOrder),
+				$"Номенклатура {nomenclatureName} с данным Gtin {gtin} отсутствует в заказе.");
 	}
 }
