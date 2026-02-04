@@ -2577,9 +2577,12 @@ namespace Vodovoz.Domain.Logistic
 					recalculatedTrackResponse = _osrmClient.GetRoute(pointsToRecalculate, false, GeometryOverview.Full);
 				}
 				
-				var recalculatedTrack = recalculatedTrackResponse.Routes.First();
+				var recalculatedTrack = recalculatedTrackResponse.Routes?.FirstOrDefault();
 
-				totalDistanceTrack = recalculatedTrack.TotalDistanceKm;
+				if(recalculatedTrack != null)
+				{
+					totalDistanceTrack = recalculatedTrack.TotalDistanceKm;
+				}
 			}
 			else
 			{
@@ -2603,9 +2606,13 @@ namespace Vodovoz.Domain.Logistic
 			pointsToBase.Add(pointsToRecalculate.First());
 
 			var recalculatedToBaseResponse = _osrmClient.GetRoute(pointsToBase, false, GeometryOverview.Full, _osrmSettings.ExcludeToll);
-			var recalculatedToBase = recalculatedToBaseResponse.Routes.First();
 
-			RecalculatedDistance = decimal.Round(totalDistanceTrack + recalculatedToBase.TotalDistanceKm);
+			if(recalculatedToBaseResponse.Routes is null)
+			{
+				recalculatedToBaseResponse = _osrmClient.GetRoute(pointsToRecalculate, false, GeometryOverview.Full);
+			}
+
+			RecalculatedDistance = decimal.Round(totalDistanceTrack + (recalculatedToBaseResponse.Routes?.FirstOrDefault()?.TotalDistanceKm ?? 0));
 			return true;
 		}
 
