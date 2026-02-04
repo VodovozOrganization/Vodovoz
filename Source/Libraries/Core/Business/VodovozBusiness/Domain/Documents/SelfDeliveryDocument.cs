@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -26,8 +26,6 @@ using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
-using VodovozBusiness.Domain.Client.Specifications;
-using VodovozBusiness.Domain.Documents;
 
 namespace Vodovoz.Domain.Documents
 {

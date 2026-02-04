@@ -7,7 +7,6 @@ using System;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Infrastructure;
-using VodovozBusiness.Domain.Documents;
 
 namespace Vodovoz
 {

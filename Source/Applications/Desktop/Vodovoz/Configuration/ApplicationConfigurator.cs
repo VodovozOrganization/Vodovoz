@@ -1,4 +1,4 @@
-using Gamma.Binding;
+﻿using Gamma.Binding;
 using Gamma.Utilities;
 using NLog;
 using QS.BusinessCommon.Domain;
@@ -53,7 +53,6 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Store;
 using Vodovoz.Views.Users;
 using Vodovoz.Views.Warehouse;
-using VodovozBusiness.Domain.Documents;
 using VodovozInfrastructure.Configuration;
 using InventoryDocumentViewModel = Vodovoz.ViewModels.ViewModels.Warehouses.InventoryDocumentViewModel;
 

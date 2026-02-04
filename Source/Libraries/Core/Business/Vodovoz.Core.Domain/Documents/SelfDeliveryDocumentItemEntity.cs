@@ -1,13 +1,11 @@
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
-using System;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.Core.Domain.Documents
 {
@@ -30,7 +28,6 @@ namespace Vodovoz.Core.Domain.Documents
 		private decimal _amountInStock;
 		private decimal _amountUnloaded;
 		private CounterpartyMovementOperation _counterpartyMovementOperation;
-		private decimal _amount;
 
 		/// <summary>
 		/// Идентификатор
@@ -69,16 +66,6 @@ namespace Vodovoz.Core.Domain.Documents
 		}
 
 		/// <summary>
-		/// Количество
-		/// </summary>
-		[Display(Name = "Количество")]
-		public virtual decimal Amount
-		{
-			get => _amount;
-			set => SetField(ref _amount, value);
-		}
-
-		/// <summary>
 		/// Коды ЧЗ товаров, которые были отсканированы в строке документа самовывоза
 		/// </summary>
 		[Display(Name = "Коды ЧЗ товаров")]
@@ -86,16 +73,6 @@ namespace Vodovoz.Core.Domain.Documents
 		{
 			get => _trueMarkProductCodes;
 			set => SetField(ref _trueMarkProductCodes, value);
-		}
-
-		/// <summary>
-		/// Номенклатура
-		/// </summary>
-		[Display(Name = "Номенклатура")]
-		public virtual NomenclatureEntity Nomenclature
-		{
-			get => _nomenclature;
-			protected set => SetField(ref _nomenclature, value);
 		}
 
 		/// <summary>

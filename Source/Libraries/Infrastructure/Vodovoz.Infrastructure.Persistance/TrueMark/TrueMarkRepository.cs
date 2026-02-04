@@ -404,7 +404,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 						var query =
 							from selfDeliveryDocumentItem in uow.Session.Query<SelfDeliveryDocumentItemEntity>()
 							join selfDeliveryDocument in uow.Session.Query<SelfDeliveryDocumentEntity>()
-								on selfDeliveryDocumentItem.SelfDeliveryDocument.Id equals selfDeliveryDocument.Id
+								on selfDeliveryDocumentItem.Document.Id equals selfDeliveryDocument.Id
 							where selfDeliveryDocumentItem.Id == selfDeliveryDocumentItemTrueMarkProductCode.SelfDeliveryDocumentItem.Id
 							select selfDeliveryDocument.Order.Id;
 
@@ -447,7 +447,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				where
 				(carLoadDocumentItem != null && carLoadDocumentItem.OrderId == orderId)
 				|| (routeListItem != null && routeListItem.Order.Id == orderId)
-				|| (selfDeliveryItem != null && selfDeliveryItem.SelfDeliveryDocument.Order.Id == orderId)
+				|| (selfDeliveryItem != null && selfDeliveryItem.Document.Order.Id == orderId)
 
 				select code;
 

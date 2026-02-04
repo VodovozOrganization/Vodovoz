@@ -1,15 +1,13 @@
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Documents;
-using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Warehouses;
-using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 
-namespace VodovozBusiness.Domain.Documents
+namespace Vodovoz.Domain.Documents
 {
 	/// <summary>
 	/// Строка документа самовывоза

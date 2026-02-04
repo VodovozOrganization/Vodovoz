@@ -18,7 +18,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Extensions;
 using Vodovoz.Presentation.ViewModels.Reports;
-using VodovozBusiness.Domain.Documents;
 
 namespace Vodovoz.ViewModels.Store.Reports
 {
