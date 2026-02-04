@@ -285,6 +285,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 			foreach(var row in result)
 			{
+				row.StartDate = StartDate;
+
 				for(int dayIndex = 0; dayIndex < 7; dayIndex++)
 				{
 					if(row.Days[dayIndex].Date == default)

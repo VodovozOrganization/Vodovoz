@@ -22,12 +22,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		private string _driverPhone;
 		private District _district;
 		private DeliverySchedule _deliverySchedule;
-		private int _morningAddress;
+		private int _morningAddresses;
 		private int _morningBottles;
-		private int _eveningAddress;
+		private int _eveningAddresses;
 		private int _eveningBottles;
 		private DateTime _lastModifiedDateTime;
 		private string _comment;
+		private DateTime _startDate;
 
 		public DriverScheduleNode()
 		{
@@ -40,6 +41,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		[Display(Name = "Дни расписания")]
 		public DriverScheduleDayNode[] Days;
+
+		public DateTime StartDate
+		{
+			get => _startDate;
+			set => SetField(ref _startDate, value);
+		}
 
 		#region Weekdays
 
@@ -433,26 +440,50 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public virtual int MorningAddresses
 		{
-			get => _morningAddress;
-			set => SetField(ref _morningAddress, value);
+			get => _morningAddresses;
+			set
+			{
+				if(SetField(ref _morningAddresses, value))
+				{
+					UpdateDayValuesFromPotential();
+				}
+			}
 		}
 
 		public virtual int MorningBottles
 		{
 			get => _morningBottles;
-			set => SetField(ref _morningBottles, value);
+			set
+			{
+				if(SetField(ref _morningBottles, value))
+				{
+					UpdateDayValuesFromPotential();
+				}
+			}
 		}
 
 		public virtual int EveningAddresses
 		{
-			get => _eveningAddress;
-			set => SetField(ref _eveningAddress, value);
+			get => _eveningAddresses;
+			set
+			{
+				if(SetField(ref _eveningAddresses, value))
+				{
+					UpdateDayValuesFromPotential();
+				}
+			}
 		}
 
 		public virtual int EveningBottles
 		{
 			get => _eveningBottles;
-			set => SetField(ref _eveningBottles, value);
+			set
+			{
+				if(SetField(ref _eveningBottles, value))
+				{
+					UpdateDayValuesFromPotential();
+				}
+			}
 		}
 
 		public virtual DateTime LastModifiedDateTime
@@ -498,6 +529,38 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 				if(day != null)
 				{
 					day.CarEventType = noneEventType;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Обновляет дневные значения на основе потенциалов начиная с текущего дня
+		/// </summary>
+		private void UpdateDayValuesFromPotential()
+		{
+			if(StartDate == default)
+			{
+				return;
+			}
+
+			int todayIndex = (int)(DateTime.Today - StartDate).TotalDays;
+
+			if(todayIndex < 0 || todayIndex >= 7)
+			{
+				return;
+			}
+
+			for(int i = todayIndex; i < 7; i++)
+			{
+				if(Days[i] != null)
+				{
+					if(Days[i].CarEventType == null || Days[i].CarEventType.Id == 0)
+					{
+						Days[i].MorningAddresses = _morningAddresses;
+						Days[i].MorningBottles = _morningBottles;
+						Days[i].EveningAddresses = _eveningAddresses;
+						Days[i].EveningBottles = _eveningBottles;
+					}
 				}
 			}
 		}
