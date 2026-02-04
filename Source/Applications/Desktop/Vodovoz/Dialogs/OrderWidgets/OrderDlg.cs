@@ -2800,6 +2800,7 @@ namespace Vodovoz
 
 					TabParent.OpenTab(() => new OrderDlg(Entity.Id));
 
+					_logger.Error(e, "Ошибка при попытке подтверждения заказа");
 					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 						"Возникла ошибка при подтверждении заказа, заказ был сохранён в виде черновика, вкладка переоткрыта.");
 
