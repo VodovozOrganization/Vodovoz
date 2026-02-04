@@ -1,4 +1,4 @@
-using DriverApi.Contracts.V6;
+﻿using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Responses;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V6.Converters;
@@ -27,7 +27,6 @@ using Vodovoz.EntityRepositories.Complaints;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Errors;
-using Vodovoz.Errors.Orders;
 using Vodovoz.Extensions;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
@@ -933,7 +932,6 @@ namespace DriverAPI.Library.V6.Services
 				vodovozOrderItem,
 				oldScannedCode,
 				newScannedCode,
-				SourceProductCodeStatus.Changed,
 				cancellationToken);
 
 			if(changeCodeResult.Result.IsSuccess)

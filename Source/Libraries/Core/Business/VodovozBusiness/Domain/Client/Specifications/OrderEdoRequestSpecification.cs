@@ -5,8 +5,7 @@ namespace VodovozBusiness.Domain.Client.Specifications
 {
 	public static class OrderEdoRequestSpecification
 	{
-		public static ExpressionSpecification<OrderEdoRequest> CreateForOrderId(int orderId)
-			=> new ExpressionSpecification<OrderEdoRequest>(
-				x => x.Order.Id == orderId);
+		public static ExpressionSpecification<FormalEdoRequest> CreateForOrderId(int orderId)
+			=> new ExpressionSpecification<FormalEdoRequest>(x => x.Order.Id == orderId);
 	}
 }

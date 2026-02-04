@@ -1,4 +1,4 @@
-using DriverApi.Contracts.V6;
+﻿using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Requests;
 using Edo.Transport;
 using Gamma.Utilities;
@@ -129,6 +129,7 @@ namespace Vodovoz
 			IRouteListService routeListService,
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
 			OrderCancellationService orderCancellationService
+			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));

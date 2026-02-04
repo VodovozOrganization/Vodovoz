@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -209,7 +209,7 @@ namespace Vodovoz.Domain.Documents
 				throw new ArgumentNullException(nameof(commonServices));
 			}
 
-			if(!(validationContext.GetService(typeof(IGenericRepository<OrderEdoRequest>)) is IGenericRepository<OrderEdoRequest> orderEdoRequestRepository))
+			if(!(validationContext.GetService(typeof(IGenericRepository<FormalEdoRequest>)) is IGenericRepository<FormalEdoRequest> orderEdoRequestRepository))
 			{
 				throw new ArgumentNullException(nameof(orderEdoRequestRepository));
 			}

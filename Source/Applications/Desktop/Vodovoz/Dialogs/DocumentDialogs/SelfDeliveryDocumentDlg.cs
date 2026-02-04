@@ -65,7 +65,7 @@ namespace Vodovoz
 		private INomenclatureRepository _nomenclatureRepository;
 		private readonly IValidationContextFactory _validationContextFactory =  ScopeProvider.Scope.Resolve<IValidationContextFactory>();
 		private ITrueMarkWaterCodeService _trueMarkWaterCodeService;
-		private IGenericRepository<OrderEdoRequest> _orderEdoRequestRepository;
+		private IGenericRepository<FormalEdoRequest> _orderEdoRequestRepository;
 		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
 		private CodesScanViewModel _codesScanViewModel;
 		private ValidationContext _validationContext;
@@ -137,7 +137,7 @@ namespace Vodovoz
 			_nomenclatureRepository = _lifetimeScope.Resolve<INomenclatureRepository>();
 			_trueMarkWaterCodeService = _lifetimeScope.Resolve<ITrueMarkWaterCodeService>
 				(new TypedParameter(typeof(IUnitOfWork), UoW));
-			_orderEdoRequestRepository = _lifetimeScope.Resolve<IGenericRepository<OrderEdoRequest>>();
+			_orderEdoRequestRepository = _lifetimeScope.Resolve<IGenericRepository<FormalEdoRequest>>();
 			_edoAccountController = _lifetimeScope.Resolve<ICounterpartyEdoAccountController>();
 		}
 		

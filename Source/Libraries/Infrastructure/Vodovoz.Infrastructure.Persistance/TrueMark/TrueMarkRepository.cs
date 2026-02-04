@@ -1,4 +1,4 @@
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using MoreLinq;
 using NHibernate;
 using NHibernate.Criterion;
@@ -413,7 +413,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				case AutoTrueMarkProductCode autoTrueMarkProductCode:
 					{
 						var query =
-							from orderEdoReques in uow.Session.Query<OrderEdoRequest>()
+							from orderEdoReques in uow.Session.Query<FormalEdoRequest>()
 							where orderEdoReques.Id == autoTrueMarkProductCode.CustomerEdoRequest.Id
 							select orderEdoReques.Order.Id;
 
