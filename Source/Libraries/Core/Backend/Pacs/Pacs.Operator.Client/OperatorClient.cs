@@ -96,7 +96,8 @@ namespace Pacs.Operators.Client
 			var payload = new EndWorkShift
 			{
 				EventId = Guid.NewGuid(),
-				OperatorId = _operatorId.Value
+				OperatorId = _operatorId.Value,
+				Reason = reason
 			};
 
 			var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
