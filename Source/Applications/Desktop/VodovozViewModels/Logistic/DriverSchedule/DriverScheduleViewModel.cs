@@ -1,5 +1,6 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -10,7 +11,6 @@ using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Input;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Core.Domain.Logistics.Drivers;
@@ -37,7 +37,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		private IList<int> _selectedSubdivisionIds;
 		private DateTime _startDate;
 		private DateTime _endDate;
-		private bool _isIdleState = true;
 
 		public DriverScheduleViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -72,7 +71,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			LoadAvailableCarEventTypes();
 			LoadAvailableDeliverySchedules();
 
-			SaveCommand = new DelegateCommand(() => SaveAndClose());
+			SaveCommand = new DelegateCommand(SaveDriverSchedule, () => CanEdit);
+			SaveCommand.CanExecuteChangedWith(this, x => x.CanEdit);
 			CancelCommand = new DelegateCommand(() => Close(AskSaveOnClose, CloseSource.Cancel));
 			ExportlCommand = new DelegateCommand(() => ExportCommand());
 			InfoCommand = new DelegateCommand(() => ShowInfoMessage());
@@ -84,12 +84,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		}
 
 		public DatePickerViewModel WeekPickerViewModel { get; private set; }
-
-		public bool IsIdleState
-		{
-			get => _isIdleState;
-			set => SetField(ref _isIdleState, value);
-		}
 
 		public IList<CarTypeOfUse> SelectedCarTypeOfUse
 		{
@@ -130,18 +124,17 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		public bool CanEdit => true;
 		public bool AskSaveOnClose => CanEdit;
 
-
 		public ObservableList<DriverScheduleNode> DriverScheduleRows { get; private set; }
 		public List<CarEventType> AvailableCarEventTypes { get; } = new List<CarEventType>();
 		public List<DeliverySchedule> AvailableDeliverySchedules { get; } = new List<DeliverySchedule>();
 
 		public IStringHandler StringHandler { get; }
 
-		public ICommand SaveCommand { get; }
-		public ICommand CancelCommand { get; }
-		public ICommand ExportlCommand { get; }
-		public ICommand InfoCommand { get; }
-		public ICommand ApplyFiltersCommand { get; }
+		public DelegateCommand SaveCommand { get; }
+		public DelegateCommand CancelCommand { get; }
+		public DelegateCommand ExportlCommand { get; }
+		public DelegateCommand InfoCommand { get; }
+		public DelegateCommand ApplyFiltersCommand { get; }
 
 		private void InitializeWeekPicker(IDatePickerViewModelFactory weekPickerViewModelFactory)
 		{
@@ -196,7 +189,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			DriverScheduleNode resultAlias = null;
 			CarVersion carVersionAlias = null;
 			VodovozBusiness.Domain.Logistic.Drivers.DriverSchedule driverScheduleAlias = null;
-			DriverScheduleItem driverScheduleItemAlias = null;
 
 			var selectedSubdivisionIds = Subdivisions
 				.Where(s => s.Selected)
@@ -247,18 +239,22 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 					.Select(() => driverScheduleAlias.EveningAddressesPotential).WithAlias(() => resultAlias.EveningAddresses)
 					.Select(() => driverScheduleAlias.EveningBottlesPotential).WithAlias(() => resultAlias.EveningBottles)
 					.Select(() => driverScheduleAlias.LastChangeTime).WithAlias(() => resultAlias.LastModifiedDateTime)
+					.Select(() => driverScheduleAlias.Comment).WithAlias(() => resultAlias.Comment)
 					.SelectSubQuery(phoneSubquery).WithAlias(() => resultAlias.DriverPhone)
 				)
 				.OrderBy(e => e.LastName).Asc
 				.TransformUsing(NHibernate.Transform.Transformers.AliasToBean<DriverScheduleNode>())
-				.List<DriverScheduleNode>();
+				.List<DriverScheduleNode>()
+				.GroupBy(x => x.DriverId)
+				.Select(g => g.First())
+				.ToList();
 
 			var driverIds = result.Select(r => r.DriverId).ToList();
 			if(driverIds.Any())
 			{
 				var scheduleItems = UoW.Session.QueryOver<DriverScheduleItem>()
-					.JoinAlias(i => i.DriverSchedule, () => driverScheduleAlias)
-					.JoinAlias(() => driverScheduleAlias.Driver, () => employeeAlias)
+					.Left.JoinAlias(i => i.DriverSchedule, () => driverScheduleAlias)
+					.Left.JoinAlias(() => driverScheduleAlias.Driver, () => employeeAlias)
 					.WhereRestrictionOn(() => employeeAlias.Id).IsIn(driverIds.ToArray())
 					.Where(i => i.Date >= StartDate && i.Date <= EndDate)
 					.List();
@@ -289,6 +285,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 			foreach(var row in result)
 			{
+				for(int dayIndex = 0; dayIndex < 7; dayIndex++)
+				{
+					if(row.Days[dayIndex].Date == default)
+					{
+						row.Days[dayIndex].Date = StartDate.AddDays(dayIndex);
+					}
+					row.Days[dayIndex].ParentNode = row;
+				}
+
 				row.InitializeEmptyCarEventTypes();
 			}
 
@@ -333,6 +338,237 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			AvailableDeliverySchedules.AddRange(UoW.GetAll<DeliverySchedule>()
 				.Where(x => !x.IsArchive)
 				.ToList());
+		}
+
+		private void SaveDriverSchedule()
+		{
+			try
+			{
+				var driverIds = DriverScheduleRows.Select(r => r.DriverId).Distinct().ToArray();
+				if(driverIds.Length == 0)
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Info, "Нет данных для сохранения");
+					return;
+				}
+
+				Employee employeeAlias = null;
+				VodovozBusiness.Domain.Logistic.Drivers.DriverSchedule driverScheduleAlias = null;
+				DriverScheduleItem driverScheduleItemAlias = null;
+
+
+				var existingSchedules = UoW.Session.QueryOver<VodovozBusiness.Domain.Logistic.Drivers.DriverSchedule>()
+					.Left.JoinAlias(ds => ds.Driver, () => employeeAlias)
+					.Left.JoinAlias(ds => ds.Days, () => driverScheduleItemAlias,
+						() => driverScheduleItemAlias.Date >= StartDate && driverScheduleItemAlias.Date <= EndDate)
+					.WhereRestrictionOn(() => employeeAlias.Id).IsIn(driverIds)
+					.TransformUsing(Transformers.DistinctRootEntity)
+					.List()
+					.ToList();
+
+				var schedulesByDriverId = existingSchedules
+					.Where(s => s.Driver != null)
+					.ToDictionary(s => s.Driver.Id, s => s);
+
+				var existingItemsByKey = new Dictionary<(int ScheduleId, DateTime Date), DriverScheduleItem>();
+
+				foreach(var schedule in existingSchedules)
+				{
+					if(schedule.Days != null)
+					{
+						foreach(var item in schedule.Days)
+						{
+							if(item.Date != default)
+							{
+								existingItemsByKey[(schedule.Id, item.Date)] = item;
+							}
+						}
+					}
+				}
+
+
+				foreach(var driverNode in DriverScheduleRows)
+				{
+					VodovozBusiness.Domain.Logistic.Drivers.DriverSchedule driverSchedule;
+
+					if(schedulesByDriverId.TryGetValue(driverNode.DriverId, out driverSchedule))
+					{
+						if(driverSchedule.Days == null)
+						{
+							driverSchedule.Days = new List<DriverScheduleItem>();
+						}
+
+						bool hasChanges = driverSchedule.MorningAddressesPotential != driverNode.MorningAddresses ||
+										  driverSchedule.MorningBottlesPotential != driverNode.MorningBottles ||
+										  driverSchedule.EveningAddressesPotential != driverNode.EveningAddresses ||
+										  driverSchedule.EveningBottlesPotential != driverNode.EveningBottles;
+
+						if(hasChanges)
+						{
+							driverSchedule.MorningAddressesPotential = driverNode.MorningAddresses;
+							driverSchedule.MorningBottlesPotential = driverNode.MorningBottles;
+							driverSchedule.EveningAddressesPotential = driverNode.EveningAddresses;
+							driverSchedule.EveningBottlesPotential = driverNode.EveningBottles;
+
+							bool hasNonZeroValues = driverNode.MorningAddresses != 0 ||
+													driverNode.MorningBottles != 0 ||
+													driverNode.EveningAddresses != 0 ||
+													driverNode.EveningBottles != 0;
+
+							if(hasNonZeroValues)
+							{
+								driverSchedule.LastChangeTime = DateTime.Now;
+							}
+						}
+
+						driverSchedule.Comment = driverNode.Comment;
+					}
+					else
+					{
+						bool hasNonZeroValues = driverNode.MorningAddresses != 0 ||
+												driverNode.MorningBottles != 0 ||
+												driverNode.EveningAddresses != 0 ||
+												driverNode.EveningBottles != 0;
+
+						driverSchedule = new VodovozBusiness.Domain.Logistic.Drivers.DriverSchedule
+						{
+							Driver = UoW.GetById<Employee>(driverNode.DriverId),
+							MorningAddressesPotential = driverNode.MorningAddresses,
+							MorningBottlesPotential = driverNode.MorningBottles,
+							EveningAddressesPotential = driverNode.EveningAddresses,
+							EveningBottlesPotential = driverNode.EveningBottles,
+							Comment = driverNode.Comment,
+							LastChangeTime = hasNonZeroValues ? (DateTime?)DateTime.Now : null,
+							Days = new List<DriverScheduleItem>()
+						};
+
+						UoW.Session.Save(driverSchedule);
+
+						schedulesByDriverId[driverNode.DriverId] = driverSchedule;
+					}
+
+					FillDayScheduleItems(driverSchedule, driverNode);
+
+					UoW.Save(driverSchedule);
+
+					UpdateDriverNodeFromSchedule(driverNode, driverSchedule);
+
+					OnPropertyChanged(nameof(DriverScheduleRows));
+				}
+
+				_interactiveService.ShowMessage(ImportanceLevel.Info, "График водителей успешно сохранен");
+				UoW.Commit();
+			}
+			catch(Exception ex)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error,
+					$"Ошибка при сохранении графика водителей:\n{ex.Message}\n{ex.InnerException?.Message}");
+			}
+		}
+
+		private void FillDayScheduleItems(VodovozBusiness.Domain.Logistic.Drivers.DriverSchedule driverSchedule, DriverScheduleNode driverNode)
+		{
+			driverSchedule.Days = driverSchedule.Days ?? new List<DriverScheduleItem>();
+
+			for(int dayIndex = 0; dayIndex < driverNode.Days.Length; dayIndex++)
+			{
+				var dayScheduleNode = driverNode.Days[dayIndex];
+
+				if(dayScheduleNode == null || dayScheduleNode.Date == default)
+				{
+					continue;
+				}
+
+				var scheduleItem = driverSchedule.Days.FirstOrDefault(si => si.Date == dayScheduleNode.Date);
+
+				if(scheduleItem == null)
+				{
+					scheduleItem = new DriverScheduleItem
+					{
+						DriverSchedule = driverSchedule,
+						Date = dayScheduleNode.Date
+					};
+					driverSchedule.Days.Add(scheduleItem);
+					UoW.Session.Save(scheduleItem);
+				}
+
+				scheduleItem.CarEventType = (dayScheduleNode.CarEventType?.Id ?? 0) != 0
+					? dayScheduleNode.CarEventType 
+					: null;
+
+				if(scheduleItem.CarEventType != null)
+				{
+					scheduleItem.MorningAddresses = 0;
+					scheduleItem.MorningBottles = 0;
+					scheduleItem.EveningAddresses = 0;
+					scheduleItem.EveningBottles = 0;
+				}
+				else
+				{
+					scheduleItem.MorningAddresses = dayScheduleNode.MorningAddresses;
+					scheduleItem.MorningBottles = dayScheduleNode.MorningBottles;
+					scheduleItem.EveningAddresses = dayScheduleNode.EveningAddresses;
+					scheduleItem.EveningBottles = dayScheduleNode.EveningBottles;
+				}
+			}
+		}
+
+		private void UpdateDriverNodeFromSchedule(DriverScheduleNode driverNode, VodovozBusiness.Domain.Logistic.Drivers.DriverSchedule driverSchedule)
+		{
+			if(driverSchedule.Days != null)
+			{
+				foreach(var scheduleItem in driverSchedule.Days)
+				{
+					int dayIndex = (int)(scheduleItem.Date - StartDate).TotalDays;
+					if(dayIndex >= 0 && dayIndex < 7)
+					{
+						switch(dayIndex)
+						{
+							case 0:
+								driverNode.MondayMorningAddress = scheduleItem.MorningAddresses;
+								driverNode.MondayMorningBottles = scheduleItem.MorningBottles;
+								driverNode.MondayEveningAddress = scheduleItem.EveningAddresses;
+								driverNode.MondayEveningBottles = scheduleItem.EveningBottles;
+								break;
+							case 1:
+								driverNode.TuesdayMorningAddress = scheduleItem.MorningAddresses;
+								driverNode.TuesdayMorningBottles = scheduleItem.MorningBottles;
+								driverNode.TuesdayEveningAddress = scheduleItem.EveningAddresses;
+								driverNode.TuesdayEveningBottles = scheduleItem.EveningBottles;
+								break;
+							case 2:
+								driverNode.WednesdayMorningAddress = scheduleItem.MorningAddresses;
+								driverNode.WednesdayMorningBottles = scheduleItem.MorningBottles;
+								driverNode.WednesdayEveningAddress = scheduleItem.EveningAddresses;
+								driverNode.WednesdayEveningBottles = scheduleItem.EveningBottles;
+								break;
+							case 3:
+								driverNode.ThursdayMorningAddress = scheduleItem.MorningAddresses;
+								driverNode.ThursdayMorningBottles = scheduleItem.MorningBottles;
+								driverNode.ThursdayEveningAddress = scheduleItem.EveningAddresses;
+								driverNode.ThursdayEveningBottles = scheduleItem.EveningBottles;
+								break;
+							case 4:
+								driverNode.FridayMorningAddress = scheduleItem.MorningAddresses;
+								driverNode.FridayMorningBottles = scheduleItem.MorningBottles;
+								driverNode.FridayEveningAddress = scheduleItem.EveningAddresses;
+								driverNode.FridayEveningBottles = scheduleItem.EveningBottles;
+								break;
+							case 5:
+								driverNode.SaturdayMorningAddress = scheduleItem.MorningAddresses;
+								driverNode.SaturdayMorningBottles = scheduleItem.MorningBottles;
+								driverNode.SaturdayEveningAddress = scheduleItem.EveningAddresses;
+								driverNode.SaturdayEveningBottles = scheduleItem.EveningBottles;
+								break;
+							case 6:
+								driverNode.SundayMorningAddress = scheduleItem.MorningAddresses;
+								driverNode.SundayMorningBottles = scheduleItem.MorningBottles;
+								driverNode.SundayEveningAddress = scheduleItem.EveningAddresses;
+								driverNode.SundayEveningBottles = scheduleItem.EveningBottles;
+								break;
+						}
+					}
+				}
+			}
 		}
 
 		private void ExportCommand()

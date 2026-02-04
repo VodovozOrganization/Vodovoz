@@ -169,6 +169,7 @@ namespace Vodovoz.Views.Logistic
 			{
 				var date = weekStart.AddDays(dayIndex);
 				var dayName = dayNames[dayIndex];
+				int capturedDayIndex = dayIndex;
 
 				columnsConfig.AddColumn($"{GetShortDayString(date)}")
 					.HeaderAlignment(0.5f)

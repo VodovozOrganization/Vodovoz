@@ -55,21 +55,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			get => _eveningBottles;
 			set => SetField(ref _eveningBottles, value);
 		}
-
-		private string GetDayOfWeekShort(DayOfWeek dayOfWeek)
-		{
-			switch(dayOfWeek)
-			{
-				case DayOfWeek.Monday: return "Пн";
-				case DayOfWeek.Tuesday: return "Вт";
-				case DayOfWeek.Wednesday: return "Ср";
-				case DayOfWeek.Thursday: return "Чт";
-				case DayOfWeek.Friday: return "Пт";
-				case DayOfWeek.Saturday: return "Сб";
-				case DayOfWeek.Sunday: return "Вс";
-				default: return "";
-			}
-		}
 	}
 }
 

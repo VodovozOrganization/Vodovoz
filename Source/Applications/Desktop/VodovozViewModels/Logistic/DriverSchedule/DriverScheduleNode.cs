@@ -52,8 +52,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public virtual int MondayMorningAddress
 		{
-			get => GetDayMorningAddress(0);
-			set => SetDayMorningAddress(0, value);
+			get => GetDayMorningAddresses(0);
+			set => SetDayMorningAddresses(0, value);
 		}
 
 		public virtual int MondayMorningBottles
@@ -64,8 +64,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public virtual int MondayEveningAddress
 		{
-			get => GetDayEveningAddress(0);
-			set => SetDayEveningAddress(0, value);
+			get => GetDayEveningAddresses(0);
+			set => SetDayEveningAddresses(0, value);
 		}
 
 		public virtual int MondayEveningBottles
@@ -84,8 +84,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public virtual int TuesdayMorningAddress
 		{
-			get => GetDayMorningAddress(1);
-			set => SetDayMorningAddress(1, value);
+			get => GetDayMorningAddresses(1);
+			set => SetDayMorningAddresses(1, value);
 		}
 
 		public virtual int TuesdayMorningBottles
@@ -96,8 +96,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public virtual int TuesdayEveningAddress
 		{
-			get => GetDayEveningAddress(1);
-			set => SetDayEveningAddress(1, value);
+			get => GetDayEveningAddresses(1);
+			set => SetDayEveningAddresses(1, value);
 		}
 
 		public virtual int TuesdayEveningBottles
@@ -116,8 +116,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public virtual int WednesdayMorningAddress
 		{
-			get => GetDayMorningAddress(2);
-			set => SetDayMorningAddress(2, value);
+			get => GetDayMorningAddresses(2);
+			set => SetDayMorningAddresses(2, value);
 		}
 
 		public virtual int WednesdayMorningBottles
@@ -128,8 +128,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public virtual int WednesdayEveningAddress
 		{
-			get => GetDayEveningAddress(2);
-			set => SetDayEveningAddress(2, value);
+			get => GetDayEveningAddresses(2);
+			set => SetDayEveningAddresses(2, value);
 		}
 
 		public virtual int WednesdayEveningBottles
@@ -148,8 +148,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public virtual int ThursdayMorningAddress
 		{
-			get => GetDayMorningAddress(3);
-			set => SetDayMorningAddress(3, value);
+			get => GetDayMorningAddresses(3);
+			set => SetDayMorningAddresses(3, value);
 		}
 
 		public virtual int ThursdayMorningBottles
@@ -160,8 +160,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public virtual int ThursdayEveningAddress
 		{
-			get => GetDayEveningAddress(3);
-			set => SetDayEveningAddress(3, value);
+			get => GetDayEveningAddresses(3);
+			set => SetDayEveningAddresses(3, value);
 		}
 
 		public virtual int ThursdayEveningBottles
@@ -180,8 +180,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public virtual int FridayMorningAddress
 		{
-			get => GetDayMorningAddress(4);
-			set => SetDayMorningAddress(4, value);
+			get => GetDayMorningAddresses(4);
+			set => SetDayMorningAddresses(4, value);
 		}
 
 		public virtual int FridayMorningBottles
@@ -192,8 +192,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public virtual int FridayEveningAddress
 		{
-			get => GetDayEveningAddress(4);
-			set => SetDayEveningAddress(4, value);
+			get => GetDayEveningAddresses(4);
+			set => SetDayEveningAddresses(4, value);
 		}
 
 		public virtual int FridayEveningBottles
@@ -212,8 +212,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public virtual int SaturdayMorningAddress
 		{
-			get => GetDayMorningAddress(5);
-			set => SetDayMorningAddress(5, value);
+			get => GetDayMorningAddresses(5);
+			set => SetDayMorningAddresses(5, value);
 		}
 
 		public virtual int SaturdayMorningBottles
@@ -224,8 +224,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public virtual int SaturdayEveningAddress
 		{
-			get => GetDayEveningAddress(5);
-			set => SetDayEveningAddress(5, value);
+			get => GetDayEveningAddresses(5);
+			set => SetDayEveningAddresses(5, value);
 		}
 
 		public virtual int SaturdayEveningBottles
@@ -244,8 +244,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public virtual int SundayMorningAddress
 		{
-			get => GetDayMorningAddress(6);
-			set => SetDayMorningAddress(6, value);
+			get => GetDayMorningAddresses(6);
+			set => SetDayMorningAddresses(6, value);
 		}
 
 		public virtual int SundayMorningBottles
@@ -256,8 +256,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public virtual int SundayEveningAddress
 		{
-			get => GetDayEveningAddress(6);
-			set => SetDayEveningAddress(6, value);
+			get => GetDayEveningAddresses(6);
+			set => SetDayEveningAddresses(6, value);
 		}
 
 		public virtual int SundayEveningBottles
@@ -271,62 +271,94 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		#region Helper Methods
 
-		private CarEventType GetDayCarEventType(int dayIndex)
+		public CarEventType GetDayCarEventType(int dayIndex)
 		{
 			return IsValidDayIndex(dayIndex) ? Days[dayIndex]?.CarEventType : null;
 		}
 
-		private void SetDayCarEventType(int dayIndex, CarEventType value)
+		public void SetDayCarEventType(int dayIndex, CarEventType value)
 		{
 			if(IsValidDayIndex(dayIndex))
 				Days[dayIndex].CarEventType = value;
 		}
 
-		private int GetDayMorningAddress(int dayIndex)
+		public int GetDayMorningAddresses(int dayIndex)
 		{
 			return IsValidDayIndex(dayIndex) ? Days[dayIndex]?.MorningAddresses ?? 0 : 0;
 		}
 
-		private void SetDayMorningAddress(int dayIndex, int value)
+		public void SetDayMorningAddresses(int dayIndex, int value)
 		{
 			if(IsValidDayIndex(dayIndex))
+			{
+				var dayEventType = GetDayCarEventType(dayIndex);
+				if(dayEventType != null && dayEventType.Id != 0)
+				{
+					Days[dayIndex].MorningAddresses = 0;
+					return;
+				}
 				Days[dayIndex].MorningAddresses = value;
+			}
 		}
 
-		private int GetDayMorningBottles(int dayIndex)
+		public int GetDayMorningBottles(int dayIndex)
 		{
 			return IsValidDayIndex(dayIndex) ? Days[dayIndex]?.MorningBottles ?? 0 : 0;
 		}
 
-		private void SetDayMorningBottles(int dayIndex, int value)
+		public void SetDayMorningBottles(int dayIndex, int value)
 		{
 			if(IsValidDayIndex(dayIndex))
+			{
+				var dayEventType = GetDayCarEventType(dayIndex);
+				if(dayEventType != null && dayEventType.Id != 0)
+				{
+					Days[dayIndex].MorningBottles = 0;
+					return;
+				}
 				Days[dayIndex].MorningBottles = value;
+			}
 		}
 
-		private int GetDayEveningAddress(int dayIndex)
+		public int GetDayEveningAddresses(int dayIndex)
 		{
 			return IsValidDayIndex(dayIndex) ? Days[dayIndex]?.EveningAddresses ?? 0 : 0;
 		}
 
-		private void SetDayEveningAddress(int dayIndex, int value)
+		public void SetDayEveningAddresses(int dayIndex, int value)
 		{
 			if(IsValidDayIndex(dayIndex))
+			{
+				var dayEventType = GetDayCarEventType(dayIndex);
+				if(dayEventType != null && dayEventType.Id != 0)
+				{
+					Days[dayIndex].EveningAddresses = 0;
+					return;
+				}
 				Days[dayIndex].EveningAddresses = value;
+			}
 		}
 
-		private int GetDayEveningBottles(int dayIndex)
+		public int GetDayEveningBottles(int dayIndex)
 		{
 			return IsValidDayIndex(dayIndex) ? Days[dayIndex]?.EveningBottles ?? 0 : 0;
 		}
 
-		private void SetDayEveningBottles(int dayIndex, int value)
+		public void SetDayEveningBottles(int dayIndex, int value)
 		{
 			if(IsValidDayIndex(dayIndex))
+			{
+				var dayEventType = GetDayCarEventType(dayIndex);
+				if(dayEventType != null && dayEventType.Id != 0)
+				{
+					Days[dayIndex].EveningBottles = 0;
+					return;
+				}
 				Days[dayIndex].EveningBottles = value;
+			}
 		}
 
-		private bool IsValidDayIndex(int dayIndex)
+		public bool IsValidDayIndex(int dayIndex)
 		{
 			return Days != null && dayIndex >= 0 && dayIndex < Days.Length;
 		}
