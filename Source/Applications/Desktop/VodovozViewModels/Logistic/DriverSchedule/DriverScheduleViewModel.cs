@@ -83,47 +83,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			});
 		}
 
-		public CarEventType GetDayCarEventType(object obj, int dayIndex)
-		{
-			if(obj is DriverScheduleDatasetNode node)
-			{
-
-				return node.DaysByIndex?.ContainsKey(dayIndex) == true
-					? node.DaysByIndex[dayIndex].CarEventType
-					: null;
-			}
-
-			return null;
-		}
-
-		/*public int? GetDayMorningAddress(object node, int dayIndex)
-		{
-			return node.DaysByIndex?.ContainsKey(dayIndex) == true
-				? node.DaysByIndex[dayIndex].MorningAddress
-				: 0;
-		}
-
-		public int? GetDayMorningBottles(object node, int dayIndex)
-		{
-			return node.DaysByIndex?.ContainsKey(dayIndex) == true
-				? node.DaysByIndex[dayIndex].MorningBottles
-				: 0;
-		}
-
-		public int? GetDayEveningAddress(object node, int dayIndex)
-		{
-			return node.DaysByIndex?.ContainsKey(dayIndex) == true
-				? node.DaysByIndex[dayIndex].EveningAddress
-				: 0;
-		}
-
-		public int? GetDayEveningBottles(object node, int dayIndex)
-		{
-			return node.DaysByIndex?.ContainsKey(dayIndex) == true
-				? node.DaysByIndex[dayIndex].EveningBottles
-				: 0;
-		}*/
-
 		public DatePickerViewModel WeekPickerViewModel { get; private set; }
 
 		public bool IsIdleState
@@ -172,7 +131,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		public bool AskSaveOnClose => CanEdit;
 
 
-		public ObservableList<DriverScheduleDatasetNode> DriverScheduleRows { get; private set; }
+		public ObservableList<DriverScheduleNode> DriverScheduleRows { get; private set; }
 		public List<CarEventType> AvailableCarEventTypes { get; } = new List<CarEventType>();
 		public List<DeliverySchedule> AvailableDeliverySchedules { get; } = new List<DeliverySchedule>();
 
@@ -228,13 +187,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			);
 		}
 
-		private ObservableList<DriverScheduleDatasetNode> GenerateDriverRows()
+		private ObservableList<DriverScheduleNode> GenerateDriverRows()
 		{
 			Employee employeeAlias = null;
 			Car carAlias = null;
 			CarModel carModelAlias = null;
 			Phone phoneAlias = null;
-			DriverScheduleDatasetNode resultAlias = null;
+			DriverScheduleNode resultAlias = null;
 			CarVersion carVersionAlias = null;
 			VodovozBusiness.Domain.Logistic.Drivers.DriverSchedule driverScheduleAlias = null;
 			DriverScheduleItem driverScheduleItemAlias = null;
@@ -253,13 +212,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 				.JoinEntityAlias(
 					() => driverScheduleAlias,
 					() => driverScheduleAlias.Driver.Id == employeeAlias.Id,
-					NHibernate.SqlCommand.JoinType.LeftOuterJoin
-				)
-				.JoinEntityAlias(
-					() => driverScheduleItemAlias,
-					() => driverScheduleItemAlias.DriverSchedule.Id == driverScheduleAlias.Id &&
-						  driverScheduleItemAlias.Date >= StartDate &&
-						  driverScheduleItemAlias.Date <= EndDate,
 					NHibernate.SqlCommand.JoinType.LeftOuterJoin
 				)
 				.WhereRestrictionOn(e => e.Subdivision.Id).IsIn(selectedSubdivisionIds);
@@ -281,6 +233,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 			var result = driversQuery
 				.SelectList(list => list
+					.Select(e => e.Id).WithAlias(() => resultAlias.DriverId)
 					.Select(() => carModelAlias.CarTypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
 					.Select(() => carVersionAlias.CarOwnType).WithAlias(() => resultAlias.CarOwnType)
 					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.RegNumber)
@@ -289,18 +242,57 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 					.Select(e => e.Patronymic).WithAlias(() => resultAlias.Patronymic)
 					.Select(e => e.DriverOfCarOwnType).WithAlias(() => resultAlias.DriverCarOwnType)
 					.Select(e => e.District).WithAlias(() => resultAlias.District)
+					.Select(() => driverScheduleAlias.MorningAddressesPotential).WithAlias(() => resultAlias.MorningAddresses)
+					.Select(() => driverScheduleAlias.MorningBottlesPotential).WithAlias(() => resultAlias.MorningBottles)
+					.Select(() => driverScheduleAlias.EveningAddressesPotential).WithAlias(() => resultAlias.EveningAddresses)
+					.Select(() => driverScheduleAlias.EveningBottlesPotential).WithAlias(() => resultAlias.EveningBottles)
+					.Select(() => driverScheduleAlias.LastChangeTime).WithAlias(() => resultAlias.LastModifiedDateTime)
 					.SelectSubQuery(phoneSubquery).WithAlias(() => resultAlias.DriverPhone)
 				)
 				.OrderBy(e => e.LastName).Asc
-				.TransformUsing(NHibernate.Transform.Transformers.AliasToBean<DriverScheduleDatasetNode>())
-				.List<DriverScheduleDatasetNode>();
+				.TransformUsing(NHibernate.Transform.Transformers.AliasToBean<DriverScheduleNode>())
+				.List<DriverScheduleNode>();
+
+			var driverIds = result.Select(r => r.DriverId).ToList();
+			if(driverIds.Any())
+			{
+				var scheduleItems = UoW.Session.QueryOver<DriverScheduleItem>()
+					.JoinAlias(i => i.DriverSchedule, () => driverScheduleAlias)
+					.JoinAlias(() => driverScheduleAlias.Driver, () => employeeAlias)
+					.WhereRestrictionOn(() => employeeAlias.Id).IsIn(driverIds.ToArray())
+					.Where(i => i.Date >= StartDate && i.Date <= EndDate)
+					.List();
+
+				foreach(var node in result)
+				{
+					var driverScheduleItems = scheduleItems
+						.Where(si => si.DriverSchedule.Driver.Id == node.DriverId)
+						.ToList();
+
+					foreach(var item in driverScheduleItems)
+					{
+						int dayIndex = (int)(item.Date - StartDate).TotalDays;
+						if(dayIndex >= 0 && dayIndex < 7)
+						{
+							node.Days[dayIndex].Date = item.Date;
+							node.Days[dayIndex].CarEventType = item.CarEventType;
+							node.Days[dayIndex].MorningAddresses = item.MorningAddresses;
+							node.Days[dayIndex].MorningBottles = item.MorningBottles;
+							node.Days[dayIndex].EveningAddresses = item.EveningAddresses;
+							node.Days[dayIndex].EveningBottles = item.EveningBottles;
+							node.Days[dayIndex].ParentNode = node;
+						}
+					}
+				}
+			}
+
 
 			foreach(var row in result)
 			{
 				row.InitializeEmptyCarEventTypes();
 			}
 
-			return new ObservableList<DriverScheduleDatasetNode>(result);
+			return new ObservableList<DriverScheduleNode>(result);
 		}
 
 		private IQueryOver<Employee, Employee> GetFilteredDriversQuery()

@@ -4,7 +4,7 @@ using Vodovoz.Core.Domain.Logistics.Cars;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 {
-	public class DayScheduleNode : PropertyChangedBase
+	public class DriverScheduleDayNode : PropertyChangedBase
 	{
 		private DateTime? _date;
 		private CarEventType _carEventType;
@@ -12,9 +12,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		private int? _morningBottles;
 		private int? _eveningAddress;
 		private int? _eveningBottles;
-		private DriverScheduleDatasetNode _parentNode;
+		private DriverScheduleNode _parentNode;
 
-		public virtual DriverScheduleDatasetNode ParentNode
+		public virtual DriverScheduleNode ParentNode
 		{
 			get => _parentNode;
 			set => SetField(ref _parentNode, value);
@@ -32,7 +32,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			set => SetField(ref _date, value);
 		}
 
-		public virtual int? MorningAddress
+		public virtual int? MorningAddresses
 		{
 			get => _morningAddress;
 			set => SetField(ref _morningAddress, value);
@@ -44,7 +44,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			set => SetField(ref _morningBottles, value);
 		}
 
-		public virtual int? EveningAddress
+		public virtual int? EveningAddresses
 		{
 			get => _eveningAddress;
 			set => SetField(ref _eveningAddress, value);

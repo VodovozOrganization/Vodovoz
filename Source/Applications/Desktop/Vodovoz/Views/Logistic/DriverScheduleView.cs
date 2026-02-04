@@ -82,7 +82,7 @@ namespace Vodovoz.Views.Logistic
 
 		private void ConfigureFixedTreeView()
 		{
-			var columnsConfig = FluentColumnsConfig<DriverScheduleDatasetNode>.Create()
+			var columnsConfig = FluentColumnsConfig<DriverScheduleNode>.Create()
 				.AddColumn("Т")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.CarTypeOfUseString)
@@ -120,7 +120,7 @@ namespace Vodovoz.Views.Logistic
 					.XAlign(0.5f)
 				.AddColumn(" Адр У ")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(node => node.MorningAddress)
+					.AddNumericRenderer(node => node.MorningAddresses)
 					.Adjustment(new Adjustment(0, 0, 1000, 1, 1, 1))
 					.Editing()
 					.XAlign(0.5f)
@@ -132,7 +132,7 @@ namespace Vodovoz.Views.Logistic
 					.XAlign(0.5f)
 				.AddColumn(" Адр В ")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(node => node.EveningAddress)
+					.AddNumericRenderer(node => node.EveningAddresses)
 					.Adjustment(new Adjustment(0, 0, 1000, 1, 1, 1))
 					.Editing()
 					.XAlign(0.5f)
@@ -162,66 +162,61 @@ namespace Vodovoz.Views.Logistic
 		private void ConfigureDynamicTreeView()
 		{
 			var weekStart = GetStartOfWeek(DateTime.Today);
-			var columnsConfig = FluentColumnsConfig<DriverScheduleDatasetNode>.Create();
+			var columnsConfig = FluentColumnsConfig<DriverScheduleNode>.Create();
+
+			var dayNames = new[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
 
 			for(int dayIndex = 0; dayIndex < 7; dayIndex++)
 			{
 				var date = weekStart.AddDays(dayIndex);
+				var dayName = dayNames[dayIndex];
 
 				columnsConfig.AddColumn($"{GetShortDayString(date)}")
 					.HeaderAlignment(0.5f)
-					.AddComboRenderer(GetDayCarEventTypeExpression(dayIndex))
-					//.AddComboRenderer(node => node.DaysByIndex[dayIndex].CarEventType) // Такая же ошибка, как и с выражением выше
+					.AddComboRenderer(CreatePropertyExpression<DriverScheduleNode, CarEventType>($"{dayName}CarEventType"))
 					.SetDisplayFunc(x => x == null ? "Нет" : x.ShortName)
 					.FillItems(ViewModel.AvailableCarEventTypes)
 					.Editing()
 					.XAlign(0.5f);
 
-				/*columnsConfig.AddColumn(" Адр У ")
+				columnsConfig.AddColumn(" Адр У ")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(node => (object)(ViewModel.GetDayMorningAddress(node, dayIndex) ?? 0))
+					.AddNumericRenderer(ConvertToObjectExpression<DriverScheduleNode, int>($"{dayName}MorningAddress"))
 					.Adjustment(new Adjustment(0, 0, 1000, 1, 10, 0))
 					.Editing()
 					.XAlign(0.5f);
 
 				columnsConfig.AddColumn(" Бут У ")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(node => (object)(ViewModel.GetDayMorningBottles(node, dayIndex) ?? 0))
+					.AddNumericRenderer(ConvertToObjectExpression<DriverScheduleNode, int>($"{dayName}MorningBottles"))
 					.Adjustment(new Adjustment(0, 0, 1000, 1, 10, 0))
 					.Editing()
 					.XAlign(0.5f);
 
 				columnsConfig.AddColumn(" Адр В ")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(node => (object)(ViewModel.GetDayEveningAddress(node, dayIndex) ?? 0))
+					.AddNumericRenderer(ConvertToObjectExpression<DriverScheduleNode, int>($"{dayName}EveningAddress"))
 					.Adjustment(new Adjustment(0, 0, 1000, 1, 10, 0))
 					.Editing()
 					.XAlign(0.5f);
 
 				columnsConfig.AddColumn(" Бут В ")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(node => (object)(ViewModel.GetDayEveningBottles(node, dayIndex) ?? 0))
+					.AddNumericRenderer(ConvertToObjectExpression<DriverScheduleNode, int>($"{dayName}EveningBottles"))
 					.Adjustment(new Adjustment(0, 0, 1000, 1, 10, 0))
 					.Editing()
-					.XAlign(0.5f);*/
+					.XAlign(0.5f);
 			}
 
-			columnsConfig.AddColumn("").Finish();
+			columnsConfig.AddColumn("Комментарий")
+				.HeaderAlignment(0.5f)
+				.AddTextRenderer(node => node.Comment)
+				.Editable()
+				.XAlign(0.5f)
+				.AddColumn("")
+				.Finish();
 
 			ytreeviewDynamicPart.ColumnsConfig = columnsConfig;
-
-			foreach(var driver in ViewModel.DriverScheduleRows)
-			{
-				if(driver.DaysByIndex == null || driver.DaysByIndex.Count == 0)
-				{
-					var weekDays = new List<DateTime>();
-					for(int i = 0; i < 7; i++)
-					{
-						weekDays.Add(weekStart.AddDays(i));
-					}
-					driver.InitializeDays(weekDays);
-				}
-			}
 
 			ytreeviewDynamicPart.SetItemsSource(ViewModel.DriverScheduleRows);
 
@@ -232,33 +227,25 @@ namespace Vodovoz.Views.Logistic
 			ytreeviewDynamicPart.KeyPressEvent += OnDynamicTreeViewKeyPress;
 		}
 
-		private Expression<Func<DriverScheduleDatasetNode, CarEventType>> GetDayCarEventTypeExpression(int dayIndex)
+		/// <summary>
+		/// Создаёт expression для доступа к свойству по имени
+		/// </summary>
+		private Expression<Func<T, TProperty>> CreatePropertyExpression<T, TProperty>(string propertyName)
 		{
-			var param = Expression.Parameter(typeof(DriverScheduleDatasetNode), "x");
+			var param = Expression.Parameter(typeof(T), "x");
+			var property = Expression.PropertyOrField(param, propertyName);
+			return Expression.Lambda<Func<T, TProperty>>(property, param);
+		}
 
-			// x.DaysByIndex
-			var daysByIndex = Expression.PropertyOrField(param, nameof(DriverScheduleDatasetNode.DaysByIndex));
-
-			// индекс (константа)
-			var index = Expression.Constant(dayIndex, typeof(int));
-
-			// indexer property "Item" у Dictionary<int, DayScheduleNode>
-			var dictType = typeof(Dictionary<int, DayScheduleNode>);
-			var indexer = dictType.GetProperty("Item", new Type[] { typeof(int) });
-			if(indexer == null)
-				throw new InvalidOperationException("Indexer property not found on Dictionary<int, DayScheduleNode>.");
-
-			// x.DaysByIndex[dayIndex]
-			var indexedAccess = Expression.Property(daysByIndex, indexer, index);
-
-			// .CarEventType
-			var carEventProp = typeof(DayScheduleNode).GetProperty(nameof(DayScheduleNode.CarEventType));
-			if(carEventProp == null)
-				throw new InvalidOperationException("Property CarEventType not found on DayScheduleNode.");
-
-			var final = Expression.Property(indexedAccess, carEventProp);
-
-			return Expression.Lambda<Func<DriverScheduleDatasetNode, CarEventType>>(final, param);
+		/// <summary>
+		/// Создаёт expression для доступа к свойству по имени с возвращаемым типом object
+		/// </summary>
+		private Expression<Func<T, object>> ConvertToObjectExpression<T, TProperty>(string propertyName)
+		{
+			var param = Expression.Parameter(typeof(T), "x");
+			var property = Expression.PropertyOrField(param, propertyName);
+			var converted = Expression.Convert(property, typeof(object));
+			return Expression.Lambda<Func<T, object>>(converted, param);
 		}
 
 		private DateTime GetStartOfWeek(DateTime date)

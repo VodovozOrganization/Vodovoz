@@ -130,8 +130,8 @@
     <Compile Include="Journals\JournalViewModels\Payments\BankAccountsMovementsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Payments\NotAllocatedCounterpartiesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Payments\ProfitCategoriesJournalViewModel.cs" />
-    <Compile Include="Logistic\DriverSchedule\DayScheduleNode.cs" />
-    <Compile Include="Logistic\DriverSchedule\DriverScheduleDatasetNode.cs" />
+    <Compile Include="Logistic\DriverSchedule\DriverScheduleDayNode.cs" />
+    <Compile Include="Logistic\DriverSchedule\DriverScheduleNode.cs" />
     <Compile Include="Logistic\DriverSchedule\DriverScheduleViewModel.cs" />
     <Compile Include="Logistic\Reports\CarIsNotAtLineReport.UiRow.cs" />
     <Compile Include="Logistic\Reports\CarIsNotAtLineReport.UiRowType.cs" />
