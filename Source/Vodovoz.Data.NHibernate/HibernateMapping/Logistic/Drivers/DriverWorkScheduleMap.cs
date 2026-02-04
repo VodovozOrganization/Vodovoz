@@ -1,6 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Logistic;
-using VodovozBusiness.Domain.Logistic.Drivers;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Drivers
 {
@@ -20,41 +19,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Drivers
 			References(x => x.Driver).Column("employee_id");
 
 			References(x => x.DaySchedule).Column("delivery_day_schedule_id");
-		}
-	}
-
-	public class DriverScheduleMap : ClassMap<DriverSchedule>
-	{
-		public DriverScheduleMap()
-		{
-			Table("driver_schedules");
-
-			Id(x => x.Id)
-				.Column("id")
-				.GeneratedBy.Native();
-
-			Map(x => x.MorningAddressesPotential)
-				.Column("morning_addresses_potential");
-			Map(x => x.MorningBottlesPotential)
-				.Column("morning_bottles_potential");
-			Map(x => x.EveningAddressesPotential)
-				.Column("evening_addresses_potential");
-			Map(x => x.EveningBottlesPotential)
-				.Column("evening_bottles_potential");
-			Map(x => x.LastChangeTime)
-				.Column("last_change_time");
-			Map(x => x.Comment)
-				.Column("comment");
-
-			References(x => x.Driver)
-				.Column("driver_id");
-
-			HasMany(x => x.Days)
-				.Table("driver_schedule_item")
-				.KeyColumn("driver_schedule_id")
-				.Cascade.AllDeleteOrphan()
-				.Inverse()
-				.LazyLoad();
 		}
 	}
 }

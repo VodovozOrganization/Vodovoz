@@ -22,7 +22,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		private string _driverPhone;
 		private District _district;
 		private DeliverySchedule _deliverySchedule;
-		private DateTime _deliveryDate;
 		private int _morningAddress;
 		private int _morningBottles;
 		private int _eveningAddress;
@@ -398,12 +397,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		{
 			get => _deliverySchedule;
 			set => SetField(ref _deliverySchedule, value);
-		}
-
-		public virtual DateTime DeliveryDate
-		{
-			get => _deliveryDate;
-			set => SetField(ref _deliveryDate, value);
 		}
 
 		public virtual int MorningAddresses

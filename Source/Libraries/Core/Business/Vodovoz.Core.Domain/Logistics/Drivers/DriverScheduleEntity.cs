@@ -14,7 +14,7 @@ namespace Vodovoz.Core.Domain.Logistics.Drivers
 		private int _morningBottlesPotential;
 		private int _eveningAddressesPotential;
 		private int _eveningBottlesPotential;
-		private DateTime _lastChangeTime;
+		private DateTime? _lastChangeTime;
 		private IList<DriverScheduleItem> _days;
 		private string _comment;
 
@@ -82,7 +82,7 @@ namespace Vodovoz.Core.Domain.Logistics.Drivers
 		/// Последнее время изменения
 		/// </summary>
 		[Display(Name = "Последнее время изменения")]
-		public virtual DateTime LastChangeTime
+		public virtual DateTime? LastChangeTime
 		{
 			get => _lastChangeTime;
 			set => SetField(ref _lastChangeTime, value);

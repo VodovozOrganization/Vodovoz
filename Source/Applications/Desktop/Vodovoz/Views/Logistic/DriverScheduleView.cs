@@ -147,7 +147,6 @@ namespace Vodovoz.Views.Logistic
 					.AddTextRenderer(node => node.LastModifiedDateTimeString)
 					.Editable()
 					.XAlign(0.5f)
-				//.AddColumn("")
 				.Finish();
 
 			ytreeviewFixedPart.ColumnsConfig = columnsConfig;

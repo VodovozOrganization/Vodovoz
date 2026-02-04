@@ -1,9 +1,9 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Core.Domain.Logistics.Drivers;
+using VodovozBusiness.Domain.Logistic.Drivers;
 
-namespace Vodovoz.Core.Data.NHibernate.Logistic.Cars
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Drivers
 {
-	public class DriverScheduleMap : ClassMap<DriverScheduleEntity>
+	public class DriverScheduleMap : ClassMap<DriverSchedule>
 	{
 		public DriverScheduleMap()
 		{
