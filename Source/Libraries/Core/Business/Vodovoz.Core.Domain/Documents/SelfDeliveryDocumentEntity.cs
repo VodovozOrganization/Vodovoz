@@ -1,8 +1,8 @@
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
+using System;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Warehouses;
 
@@ -70,5 +70,10 @@ namespace Vodovoz.Core.Domain.Documents
 		public virtual string Title => $"Самовывоз №{Id} от {TimeStamp:d}";
 
 		#endregion
+
+		public override void SetTimeStamp(DateTime value)
+		{
+			throw new NotImplementedException("Нельзя установить дату документа");
+		}
 	}
 }

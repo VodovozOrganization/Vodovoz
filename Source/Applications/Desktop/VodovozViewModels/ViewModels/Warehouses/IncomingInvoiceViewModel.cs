@@ -512,7 +512,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			if(UoW.IsNew)
 			{
 				Entity.AuthorId = CurrentEmployee?.Id;
-				Entity.TimeStamp = DateTime.Now;
+				Entity.SetTimeStamp(DateTime.Now);
 			}
 			else
 			{

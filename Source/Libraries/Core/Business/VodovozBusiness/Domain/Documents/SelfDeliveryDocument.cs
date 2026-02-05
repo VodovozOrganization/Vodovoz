@@ -47,32 +47,6 @@ namespace Vodovoz.Domain.Documents
 		private IList<SelfDeliveryDocumentReturned> _returnedItems = new List<SelfDeliveryDocumentReturned>();
 
 		/// <summary>
-		/// <inheritdoc/>
-		/// </summary>
-		public override DateTime TimeStamp
-		{
-			get => base.TimeStamp;
-			set
-			{
-				base.TimeStamp = value;
-
-				if(!NHibernate.NHibernateUtil.IsInitialized(Items))
-				{
-					return;
-				}
-
-				foreach(var item in Items)
-				{
-					if(item.GoodsAccountingOperation != null
-						&& item.GoodsAccountingOperation.OperationTime != TimeStamp)
-					{
-						item.GoodsAccountingOperation.OperationTime = TimeStamp;
-					}
-				}
-			}
-		}
-
-		/// <summary>
 		/// Заказ, по которому оформляется самовывоз
 		/// </summary>
 		[Required(ErrorMessage = "Заказ должен быть указан.")]
@@ -132,6 +106,25 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		#endregion
+
+		public override void SetTimeStamp(DateTime value)
+		{
+			base.TimeStamp = value;
+
+			if(!NHibernate.NHibernateUtil.IsInitialized(Items))
+			{
+				return;
+			}
+
+			foreach(var item in Items)
+			{
+				if(item.GoodsAccountingOperation != null
+					&& item.GoodsAccountingOperation.OperationTime != TimeStamp)
+				{
+					item.GoodsAccountingOperation.OperationTime = TimeStamp;
+				}
+			}
+		}
 
 		/// <summary>
 		/// Проверка валидности документа самовывоза

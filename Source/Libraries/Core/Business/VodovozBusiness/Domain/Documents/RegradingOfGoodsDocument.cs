@@ -30,30 +30,6 @@ namespace Vodovoz.Domain.Documents
 		private IObservableList<RegradingOfGoodsDocumentItem> _items = new ObservableList<RegradingOfGoodsDocumentItem>();
 
 		/// <summary>
-		/// Дата пересортицы
-		/// </summary>
-		public override DateTime TimeStamp
-		{
-			get => base.TimeStamp;
-			set
-			{
-				base.TimeStamp = value;
-				foreach(var item in Items)
-				{
-					if(item.WarehouseWriteOffOperation != null && item.WarehouseWriteOffOperation.OperationTime != TimeStamp)
-					{
-						item.WarehouseWriteOffOperation.OperationTime = TimeStamp;
-					}
-
-					if(item.WarehouseIncomeOperation != null && item.WarehouseIncomeOperation.OperationTime != TimeStamp)
-					{
-						item.WarehouseIncomeOperation.OperationTime = TimeStamp;
-					}
-				}
-			}
-		}
-
-		/// <summary>
 		/// Комментарий
 		/// </summary>
 		[Display(Name = "Комментарий")]
@@ -118,6 +94,23 @@ namespace Vodovoz.Domain.Documents
 			item.WarehouseWriteOffOperation.Warehouse = Warehouse;
 
 			Items.Add(item);
+		}
+
+		public override void SetTimeStamp(DateTime value)
+		{
+			base.TimeStamp = value;
+			foreach(var item in Items)
+			{
+				if(item.WarehouseWriteOffOperation != null && item.WarehouseWriteOffOperation.OperationTime != TimeStamp)
+				{
+					item.WarehouseWriteOffOperation.OperationTime = TimeStamp;
+				}
+
+				if(item.WarehouseIncomeOperation != null && item.WarehouseIncomeOperation.OperationTime != TimeStamp)
+				{
+					item.WarehouseIncomeOperation.OperationTime = TimeStamp;
+				}
+			}
 		}
 
 		/// <summary>

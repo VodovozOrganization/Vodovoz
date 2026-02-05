@@ -43,7 +43,7 @@ namespace Vodovoz.Core.Domain.Documents
 		public virtual DateTime TimeStamp
 		{
 			get => _timeStamp;
-			set => SetField (ref _timeStamp, value);
+			protected set => SetField (ref _timeStamp, value);
 		}
 
 		/// <summary>
@@ -83,6 +83,15 @@ namespace Vodovoz.Core.Domain.Documents
 		public virtual string DateString => TimeStamp.ToShortDateString() + " " + TimeStamp.ToShortTimeString();
 
 		public virtual string Number => Id.ToString();
+
+		/// <summary>
+		/// Установка даты документа
+		/// </summary>
+		/// <param name="value">Дата документа</param>
+		public virtual void SetTimeStamp(DateTime value)
+		{
+			TimeStamp = value;
+		}
 	}
 }
 

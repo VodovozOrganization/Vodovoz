@@ -35,20 +35,6 @@ namespace Vodovoz.Domain.Documents
 
 		#region Сохраняемые свойства
 
-		public override DateTime TimeStamp {
-			get => base.TimeStamp;
-			set
-			{
-				base.TimeStamp = value;
-				if(!NHibernate.NHibernateUtil.IsInitialized(Items))
-				{
-					return;
-				}
-
-				UpdateOperationsTime();
-			}
-		}
-
 		public virtual RouteList RouteList
 		{
 			get => _routeList;
@@ -328,6 +314,17 @@ namespace Vodovoz.Domain.Documents
 			foreach(var item in Items.Where(x => x.Amount == 0).ToList()) {
 				ObservableItems.Remove(item);
 			}
+		}
+
+		public override void SetTimeStamp(DateTime value)
+		{
+			base.TimeStamp = value;
+			if(!NHibernate.NHibernateUtil.IsInitialized(Items))
+			{
+				return;
+			}
+
+			UpdateOperationsTime();
 		}
 
 		#endregion

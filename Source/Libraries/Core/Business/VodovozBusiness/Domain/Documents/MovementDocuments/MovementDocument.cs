@@ -31,7 +31,6 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 	public class MovementDocument : Document, IValidatableObject
 	{
 		private MovementDocumentType _documentType;
-		private DateTime timeStamp;
 		private MovementDocumentStatus _status;
 		private bool _hasDiscrepancy;
 		private MovementWagon _movementWagon;
@@ -67,12 +66,6 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 		{
 			get => _documentType;
 			set => SetField(ref _documentType, value);
-		}
-
-		public override DateTime TimeStamp
-		{
-			get => timeStamp;
-			set => SetField(ref timeStamp, value);
 		}
 
 		[Display(Name = "Статус")]
@@ -587,7 +580,7 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 		}
 
 		#endregion
-		
+
 		#endregion
 
 		#region Функции

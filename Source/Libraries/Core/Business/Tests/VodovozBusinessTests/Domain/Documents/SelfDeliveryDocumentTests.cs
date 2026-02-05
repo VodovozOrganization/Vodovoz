@@ -36,7 +36,6 @@ namespace VodovozBusinessTests.Domain.Documents
 			warehouseMock02.CanReceiveEquipment.Returns(true);
 
 			SelfDeliveryDocument selfDelivery01 = new SelfDeliveryDocument {
-				TimeStamp = new DateTime(2000, 01, 01, 12, 00, 00),
 				Order = order,
 				Warehouse = warehouseMock01,
 				ReturnedItems = new List<SelfDeliveryDocumentReturned> {
@@ -50,8 +49,9 @@ namespace VodovozBusinessTests.Domain.Documents
 				}
 			};
 
+			selfDelivery01.SetTimeStamp(new DateTime(2000, 01, 01, 12, 00, 00));
+
 			SelfDeliveryDocument selfDelivery02 = new SelfDeliveryDocument {
-				TimeStamp = new DateTime(2000, 01, 01, 12, 10, 00),
 				Order = order,
 				Warehouse = warehouseMock02,
 				ReturnedItems = new List<SelfDeliveryDocumentReturned> {
@@ -67,6 +67,8 @@ namespace VodovozBusinessTests.Domain.Documents
 					}
 				}
 			};
+
+			selfDelivery02.SetTimeStamp(new DateTime(2000, 01, 01, 12, 10, 00));
 
 			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
 			uow.GetById<Nomenclature>(112).Returns(Substitute.For<Nomenclature>());
@@ -115,7 +117,6 @@ namespace VodovozBusinessTests.Domain.Documents
 			Dictionary<int, decimal> returnedNomenclatures = new Dictionary<int, decimal> { { 10, 6 } };
 
 			SelfDeliveryDocument selfDelivery = new SelfDeliveryDocument {
-				TimeStamp = new DateTime(2000, 01, 01, 12, 00, 00),
 				Order = Substitute.For<Order>(),
 				Warehouse = Substitute.For<Warehouse>(),
 				ReturnedItems = new List<SelfDeliveryDocumentReturned> {
@@ -129,6 +130,8 @@ namespace VodovozBusinessTests.Domain.Documents
 					}
 				}
 			};
+
+			selfDelivery.SetTimeStamp(new DateTime(2000, 01, 01, 12, 00, 00));
 
 			// act
 			selfDelivery.UpdateReturnedOperations(Substitute.For<IUnitOfWork>(), returnedNomenclatures);
@@ -148,11 +151,12 @@ namespace VodovozBusinessTests.Domain.Documents
 			Dictionary<int, decimal> returnedNomenclatures = new Dictionary<int, decimal> { { 15, 4 } };
 
 			SelfDeliveryDocument selfDelivery = new SelfDeliveryDocument {
-				TimeStamp = new DateTime(2000, 01, 01, 12, 00, 00),
 				Order = Substitute.For<Order>(),
 				Warehouse = Substitute.For<Warehouse>(),
 				ReturnedItems = new List<SelfDeliveryDocumentReturned>()
 			};
+
+			selfDelivery.SetTimeStamp(new DateTime(2000, 01, 01, 12, 00, 00));
 
 			IUnitOfWork uow = Substitute.For<IUnitOfWork>();
 			uow.GetById<Nomenclature>(15).Returns(nomenclatureMock);
@@ -176,7 +180,6 @@ namespace VodovozBusinessTests.Domain.Documents
 			Dictionary<int, decimal> returnedNomenclatures = new Dictionary<int, decimal> { { 19, 0 } };
 
 			SelfDeliveryDocument selfDelivery = new SelfDeliveryDocument {
-				TimeStamp = new DateTime(2000, 01, 01, 12, 00, 00),
 				Order = Substitute.For<Order>(),
 				Warehouse = Substitute.For<Warehouse>(),
 				ReturnedItems = new List<SelfDeliveryDocumentReturned> {
@@ -187,6 +190,8 @@ namespace VodovozBusinessTests.Domain.Documents
 					}
 				}
 			};
+
+			selfDelivery.SetTimeStamp(new DateTime(2000, 01, 01, 12, 00, 00));
 
 			// act
 			selfDelivery.UpdateReturnedOperations(Substitute.For<IUnitOfWork>(), returnedNomenclatures);
@@ -204,11 +209,12 @@ namespace VodovozBusinessTests.Domain.Documents
 			Dictionary<int, decimal> returnedNomenclatures = new Dictionary<int, decimal> { { 33, 0 } };
 
 			SelfDeliveryDocument selfDelivery = new SelfDeliveryDocument {
-				TimeStamp = new DateTime(2000, 01, 01, 12, 00, 00),
 				Order = Substitute.For<Order>(),
 				Warehouse = Substitute.For<Warehouse>(),
 				ReturnedItems = new List<SelfDeliveryDocumentReturned>()
 			};
+
+			selfDelivery.SetTimeStamp(new DateTime(2000, 01, 01, 12, 00, 00));
 
 			// act
 			selfDelivery.UpdateReturnedOperations(Substitute.For<IUnitOfWork>(), returnedNomenclatures);

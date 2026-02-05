@@ -95,7 +95,7 @@ namespace Vodovoz.Controllers
 				}
 
 				if(deliveryDocument.TimeStamp == default(DateTime)) {
-                    deliveryDocument.TimeStamp = DateTime.Now;
+                    deliveryDocument.SetTimeStamp(DateTime.Now);
                 }
 
                 deliveryDocument.LastEditorId = employeeForCurrentUser.Id;
@@ -166,7 +166,7 @@ namespace Vodovoz.Controllers
 			}
 
 			if(discrepancyDocument.TimeStamp == default(DateTime)) {
-                discrepancyDocument.TimeStamp = DateTime.Now;
+                discrepancyDocument.SetTimeStamp(DateTime.Now);
             }
 
             discrepancyDocument.LastEditorId = employeeForCurrentUser.Id;
