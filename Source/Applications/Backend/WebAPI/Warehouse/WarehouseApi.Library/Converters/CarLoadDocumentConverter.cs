@@ -5,13 +5,14 @@ using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Domain.Documents;
 using WarehouseApi.Contracts.V1.Dto;
 
 namespace WarehouseApi.Library.Converters
 {
 	public class CarLoadDocumentConverter
 	{
-		public CarLoadDocumentDto ConvertToApiCarLoadDocument(CarLoadDocumentEntity carLoadDocument, int loadPriority)
+		public CarLoadDocumentDto ConvertToApiCarLoadDocument(CarLoadDocument carLoadDocument, int loadPriority)
 		{
 			var carLoadDocumentDto = new CarLoadDocumentDto
 			{
@@ -26,7 +27,7 @@ namespace WarehouseApi.Library.Converters
 		}
 
 		public OrderDto ConvertToApiOrder(
-			IEnumerable<CarLoadDocumentItemEntity> carLoadDocumentItems,
+			IEnumerable<CarLoadDocumentItem> carLoadDocumentItems,
 			IDictionary<int, IEnumerable<StagingTrueMarkCode>> carLoadDocumentItemsStagingCodes)
 		{
 			var waterCarLoadDocumentItems = carLoadDocumentItems
@@ -47,7 +48,7 @@ namespace WarehouseApi.Library.Converters
 		}
 
 		public NomenclatureDto ConvertToApiNomenclature(
-			CarLoadDocumentItemEntity documentItem,
+			CarLoadDocumentItem documentItem,
 			IDictionary<int, IEnumerable<StagingTrueMarkCode>> carLoadDocumentItemsStagingCodes = null)
 		{
 			var apiNomenclature = new NomenclatureDto
@@ -64,7 +65,7 @@ namespace WarehouseApi.Library.Converters
 		}
 
 		private List<OrderItemDto> GetApiOrderItems(
-			List<CarLoadDocumentItemEntity> waterCarLoadDocuemntItems,
+			List<CarLoadDocumentItem> waterCarLoadDocuemntItems,
 			IDictionary<int, IEnumerable<StagingTrueMarkCode>> carLoadDocumentItemsStagingCodes)
 		{
 			var apiOrderItems = new List<OrderItemDto>();
@@ -89,7 +90,7 @@ namespace WarehouseApi.Library.Converters
 		}
 
 		private LoadOperationStateEnumDto GetApiOrderLoadOperationState(
-			IEnumerable<CarLoadDocumentItemEntity> carLoadDocumentItems,
+			IEnumerable<CarLoadDocumentItem> carLoadDocumentItems,
 			IDictionary<int, IEnumerable<StagingTrueMarkCode>> carLoadDocumentItemsStagingCodes)
 		{
 			var itemsLoadState = new List<CarLoadDocumentLoadOperationState>();
@@ -116,7 +117,7 @@ namespace WarehouseApi.Library.Converters
 		}
 
 		private IEnumerable<TrueMarkCodeDto> GetApiTrueMarkCodes(
-			CarLoadDocumentItemEntity documentItem,
+			CarLoadDocumentItem documentItem,
 			IDictionary<int, IEnumerable<StagingTrueMarkCode>> carLoadDocumentItemsStagingCodes = null)
 		{
 			var sequenceNumber = 0;

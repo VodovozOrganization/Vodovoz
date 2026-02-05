@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using MySqlConnector;
 using QS.Project.Core;
 using QS.Services;
+using Vodovoz;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Presentation.WebApi;
@@ -50,6 +51,8 @@ namespace WarehouseApi
 				)
 				.AddDatabaseConnection()
 				.AddWarehouseApiDependencies(Configuration);
+
+			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
 			services.AddDbContext<ApplicationDbContext>((provider, options) =>
 			{

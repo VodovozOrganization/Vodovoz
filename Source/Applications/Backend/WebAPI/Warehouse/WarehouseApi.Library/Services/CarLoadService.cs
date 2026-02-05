@@ -1,4 +1,4 @@
-using Edo.Contracts.Messages.Events;
+﻿using Edo.Contracts.Messages.Events;
 using Gamma.Utilities;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -18,6 +18,7 @@ using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
+using Vodovoz.Domain.Documents;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Errors;
 using Vodovoz.Models;
@@ -174,9 +175,6 @@ namespace WarehouseApi.Library.Services
 				var result = Result.Failure<GetOrderResponse>(error);
 				return RequestProcessingResult.CreateFailure(result, response);
 			}
-
-			response.Order.Items
-				.PopulateRelatedCodes(_uow, _trueMarkWaterCodeService, documentOrderItems.SelectMany(x=>x.TrueMarkCodes));
 			
 			var carLoadDocumentItemsStagingCodes = await GetCarLoadDocumentOrderItemsStagingCodes(
 				documentOrderItems.Select(x => x.Id),
@@ -663,7 +661,7 @@ namespace WarehouseApi.Library.Services
 			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
 		}
 
-		private async Task<IEnumerable<CarLoadDocumentItemEntity>> GetCarLoadDocumentWaterOrderItems(int orderId)
+		private async Task<IEnumerable<CarLoadDocumentItem>> GetCarLoadDocumentWaterOrderItems(int orderId)
 		{
 			_logger.LogInformation("Получаем данные по заказу #{OrderId} из талона погрузки", orderId);
 			var documentOrderItems =
@@ -672,7 +670,7 @@ namespace WarehouseApi.Library.Services
 			return documentOrderItems;
 		}
 
-		private CarLoadDocumentDto GetCarLoadDocumentDto(CarLoadDocumentEntity carLoadDocument)
+		private CarLoadDocumentDto GetCarLoadDocumentDto(CarLoadDocument carLoadDocument)
 		{
 			var loadPriority =
 				_routeListDailyNumberProvider.GetOrCreateDailyNumber(carLoadDocument.RouteList.Id, carLoadDocument.RouteList.Date);
