@@ -4,8 +4,6 @@ using Gamma.Widgets.Additions;
 using Gtk;
 using QS.Views.GtkUI;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Domain.Logistic.Cars;
@@ -27,6 +25,7 @@ namespace Vodovoz.Views.Logistic
 				if(e.PropertyName == nameof(DriverScheduleViewModel.DriverScheduleRows))
 				{
 					RefreshTreeViews();
+					ConfigureDynamicTreeView();
 				}
 			};
 		}
@@ -158,7 +157,7 @@ namespace Vodovoz.Views.Logistic
 
 		private void ConfigureDynamicTreeView()
 		{
-			var weekStart = GetStartOfWeek(DateTime.Today);
+			var weekStart = ViewModel.StartDate;
 			var columnsConfig = FluentColumnsConfig<DriverScheduleNode>.Create();
 
 			var dayNames = new[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
@@ -167,9 +166,8 @@ namespace Vodovoz.Views.Logistic
 			{
 				var date = weekStart.AddDays(dayIndex);
 				var dayName = dayNames[dayIndex];
-				int capturedDayIndex = dayIndex;
 
-				columnsConfig.AddColumn($"{GetShortDayString(date)}")
+				columnsConfig.AddColumn($"{ViewModel.GetShortDayString(date)}")
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(CreatePropertyExpression<DriverScheduleNode, CarEventType>($"{dayName}CarEventType"))
 					.SetDisplayFunc(x => x == null ? "Нет" : x.ShortName)
@@ -228,7 +226,7 @@ namespace Vodovoz.Views.Logistic
 		/// <summary>
 		/// Создаёт expression для доступа к свойству по имени
 		/// </summary>
-		private Expression<Func<T, TProperty>> CreatePropertyExpression<T, TProperty>(string propertyName)
+		private static Expression<Func<T, TProperty>> CreatePropertyExpression<T, TProperty>(string propertyName)
 		{
 			var param = Expression.Parameter(typeof(T), "x");
 			var property = Expression.PropertyOrField(param, propertyName);
@@ -244,46 +242,6 @@ namespace Vodovoz.Views.Logistic
 			var property = Expression.PropertyOrField(param, propertyName);
 			var converted = Expression.Convert(property, typeof(object));
 			return Expression.Lambda<Func<T, object>>(converted, param);
-		}
-
-		private DateTime GetStartOfWeek(DateTime date)
-		{
-			int diff = (7 + (date.DayOfWeek - DayOfWeek.Monday)) % 7;
-			return date.AddDays(-diff).Date;
-		}
-
-		private string GetShortDayString(DateTime date)
-		{
-			string dayOfWeek;
-			switch(date.DayOfWeek)
-			{
-				case DayOfWeek.Monday:
-					dayOfWeek = "Пн";
-					break;
-				case DayOfWeek.Tuesday:
-					dayOfWeek = "Вт";
-					break;
-				case DayOfWeek.Wednesday:
-					dayOfWeek = "Ср";
-					break;
-				case DayOfWeek.Thursday:
-					dayOfWeek = "Чт";
-					break;
-				case DayOfWeek.Friday:
-					dayOfWeek = "Пт";
-					break;
-				case DayOfWeek.Saturday:
-					dayOfWeek = "Сб";
-					break;
-				case DayOfWeek.Sunday:
-					dayOfWeek = "Вс";
-					break;
-				default:
-					dayOfWeek = "";
-					break;
-			}
-
-			return $"{dayOfWeek}, {date:dd.MM.yyyy}";
 		}
 
 		/// <summary>
@@ -404,90 +362,5 @@ namespace Vodovoz.Views.Logistic
 			ytreeviewFixedPart.QueueDraw();
 			ytreeviewDynamicPart.QueueDraw();
 		}
-
-		/*[GLib.ConnectBefore]
-		private void OnFixedTreeViewKeyPress(object o, KeyPressEventArgs args)
-		{
-			if(args.Event.Key == Gdk.Key.Right)
-			{
-				var treeView = (TreeView)o;
-				treeView.GetCursor(out TreePath path, out TreeViewColumn focusedColumn);
-
-				if(path != null && focusedColumn != null)
-				{
-					var columns = treeView.Columns;
-					var currentColumnIndex = Array.IndexOf(columns, focusedColumn);
-
-					if(currentColumnIndex < columns.Length - 1)
-					{
-						args.RetVal = false;
-						return;
-					}
-				}
-
-				if(ytreeviewFixedPart.Selection.CountSelectedRows() > 0)
-				{
-					var selectedPath = ytreeviewFixedPart.Selection.GetSelectedRows()[0];
-					var driverIndex = selectedPath.Indices[0];
-
-					// Переходим на первый день выбранного водителя в динамической части
-					var firstDayPathForDriver = new TreePath(new int[] { driverIndex * 7 });
-
-					ytreeviewDynamicPart.Selection.SelectPath(firstDayPathForDriver);
-					ytreeviewDynamicPart.SetCursor(firstDayPathForDriver, ytreeviewDynamicPart.Columns[0], false);
-					ytreeviewDynamicPart.GrabFocus();
-					args.RetVal = true;
-				}
-			}
-		}
-
-		// Перемещение стрелками между DynamicTreeView и FixedTreeView
-		[GLib.ConnectBefore]
-		private void OnDynamicTreeViewKeyPress(object o, KeyPressEventArgs args)
-		{
-			if(args.Event.Key == Gdk.Key.Left)
-			{
-				var treeView = (TreeView)o;
-				treeView.GetCursor(out TreePath path, out TreeViewColumn focusedColumn);
-
-				if(path != null && focusedColumn != null)
-				{
-					var columns = treeView.Columns;
-					var currentColumnIndex = Array.IndexOf(columns, focusedColumn);
-
-					if(currentColumnIndex > 0)
-					{
-						args.RetVal = false;
-						return;
-					}
-				}
-
-				if(ytreeviewDynamicPart.Selection.CountSelectedRows() > 0)
-				{
-					var selectedPath = ytreeviewDynamicPart.Selection.GetSelectedRows()[0];
-					var dayRowIndex = selectedPath.Indices[0];
-
-					// Вычисляем индекс водителя: дневной индекс / 7 дней в неделе
-					var driverIndex = dayRowIndex / 7;
-					var driverPath = new TreePath(new int[] { driverIndex });
-
-					ytreeviewFixedPart.Selection.SelectPath(driverPath);
-					ytreeviewFixedPart.SetCursor(driverPath, ytreeviewFixedPart.Columns[ytreeviewFixedPart.Columns.Length - 1], false);
-					ytreeviewFixedPart.GrabFocus();
-					args.RetVal = true;
-				}
-			}
-		}
-
-		private void RefreshTreeViews()
-		{
-			ytreeviewFixedPart.SetItemsSource(ViewModel.DriverScheduleRows);
-
-			var rows = ViewModel.DriverScheduleRows.SelectMany(x => x.DaysSchedule).ToList();
-			ytreeviewDynamicPart.SetItemsSource(rows);
-
-			ytreeviewFixedPart.QueueDraw();
-			ytreeviewDynamicPart.QueueDraw();
-		}*/
 	}
 }

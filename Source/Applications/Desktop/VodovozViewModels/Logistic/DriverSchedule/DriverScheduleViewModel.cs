@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
@@ -7,6 +7,7 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using QS.Navigation;
+using QS.Services;
 using QS.Utilities.Enums;
 using QS.ViewModels;
 using System;
@@ -19,9 +20,12 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
+using Vodovoz.Infrastructure.Services;
 using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.Presentation.ViewModels.Widgets.Profitability;
+using Vodovoz.Services;
 using Vodovoz.Settings.Logistics;
+using VodovozBusiness.Domain.Logistic.Drivers;
 using VodovozBusiness.Nodes;
 using VodovozInfrastructure.StringHandlers;
 
@@ -31,6 +35,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 	{
 		private readonly IInteractiveService _interactiveService;
 		private readonly ICarEventSettings _carEventSettings;
+		private readonly IEmployeeService _employeeService;
+		private readonly IUserService _userService;
 
 		private ObservableList<SubdivisionNode> _subdivisions;
 		private IList<CarTypeOfUse> _selectedCarTypeOfUse;
@@ -45,13 +51,17 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			ICarEventSettings carEventSettings,
 			INavigationManager navigation,
 			IStringHandler stringHandler,
-			IDatePickerViewModelFactory weekPickerViewModelFactory
+			IDatePickerViewModelFactory weekPickerViewModelFactory,
+			IEmployeeService employeeService,
+			IUserService userService
 			) : base(unitOfWorkFactory, interactiveService, navigation)
 		{
 
 			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
+			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
 
 			InitializeWeekPicker(weekPickerViewModelFactory);
 
@@ -68,7 +78,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 			InitializeSubdivisions();
 
-			DriverScheduleRows = GenerateDriverRows();
+			DriverScheduleRows = GenerateRows();
 			LoadAvailableCarEventTypes();
 			LoadAvailableDeliverySchedules();
 
@@ -79,7 +89,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			InfoCommand = new DelegateCommand(() => ShowInfoMessage());
 			ApplyFiltersCommand = new DelegateCommand(() =>
 			{
-				DriverScheduleRows = GenerateDriverRows();
+				DriverScheduleRows = GenerateRows();
 				OnPropertyChanged(nameof(DriverScheduleRows));
 			});
 		}
@@ -153,6 +163,40 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			EndDate = WeekPickerViewModel.SelectedDate.AddDays(6);
 		}
 
+		public string GetShortDayString(DateTime date)
+		{
+			string dayOfWeek;
+			switch(date.DayOfWeek)
+			{
+				case DayOfWeek.Monday:
+					dayOfWeek = "Пн";
+					break;
+				case DayOfWeek.Tuesday:
+					dayOfWeek = "Вт";
+					break;
+				case DayOfWeek.Wednesday:
+					dayOfWeek = "Ср";
+					break;
+				case DayOfWeek.Thursday:
+					dayOfWeek = "Чт";
+					break;
+				case DayOfWeek.Friday:
+					dayOfWeek = "Пт";
+					break;
+				case DayOfWeek.Saturday:
+					dayOfWeek = "Сб";
+					break;
+				case DayOfWeek.Sunday:
+					dayOfWeek = "Вс";
+					break;
+				default:
+					dayOfWeek = "";
+					break;
+			}
+
+			return $"{dayOfWeek}, {date:dd.MM.yyyy}";
+		}
+
 		private void InitializeSubdivisions()
 		{
 			Subdivision subdivisionAlias = null;
@@ -181,7 +225,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			);
 		}
 
-		private ObservableList<DriverScheduleNode> GenerateDriverRows()
+		private ObservableList<DriverScheduleNode> GenerateRows()
 		{
 			Employee employeeAlias = null;
 			Car carAlias = null;
@@ -242,6 +286,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 					.Select(() => driverScheduleAlias.EveningBottlesPotential).WithAlias(() => resultAlias.EveningBottles)
 					.Select(() => driverScheduleAlias.LastChangeTime).WithAlias(() => resultAlias.LastModifiedDateTime)
 					.Select(() => driverScheduleAlias.Comment).WithAlias(() => resultAlias.Comment)
+					.Select(() => employeeAlias.DateFired).WithAlias(() => resultAlias.DateFired)
+					.Select(() => employeeAlias.DateCalculated).WithAlias(() => resultAlias.DateCalculated)
 					.Select(Projections.SqlFunction(
 						new SQLFunctionTemplate(NHibernateUtil.Int32,
 							"FLOOR(COALESCE(?1, 0) / 20)"),
@@ -257,7 +303,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 				.Select(g => g.First())
 				.ToList();
 
-			var driverIds = result.Select(r => r.DriverId).ToList();
+			var filteredResult = result
+				.Where(r =>
+				{
+					var dismissalDate = r.GetDismissalDate();
+					return !dismissalDate.HasValue || dismissalDate.Value.Date >= StartDate.Date;
+				})
+				.ToList();
+
+			var driverIds = filteredResult.Select(r => r.DriverId).ToList();
 			if(driverIds.Any())
 			{
 				var scheduleItems = UoW.Session.QueryOver<DriverScheduleItem>()
@@ -271,6 +325,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 				{
 					node.IsCarAssigned = !string.IsNullOrEmpty(node.RegNumber);
 
+					var dismissalDate = node.GetDismissalDate();
+					var isFiredOrCalculated = dismissalDate.HasValue
+						&& dismissalDate.Value.Date >= StartDate
+						&& dismissalDate.Value.Date <= EndDate;
+
+					if(isFiredOrCalculated)
+					{
+						ProcessFiredDriverDays(node, dismissalDate.Value);
+					}
+
 					var driverScheduleItems = scheduleItems
 						.Where(si => si.DriverSchedule.Driver.Id == node.DriverId)
 						.ToList();
@@ -280,8 +344,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 						int dayIndex = (int)(item.Date - StartDate).TotalDays;
 						if(dayIndex >= 0 && dayIndex < 7)
 						{
+							if(!node.Days[dayIndex].IsFromJournal)
+							{
+								node.Days[dayIndex].CarEventType = item.CarEventType;
+							}
 							node.Days[dayIndex].Date = item.Date;
-							node.Days[dayIndex].CarEventType = item.CarEventType;
 							node.Days[dayIndex].MorningAddresses = item.MorningAddresses;
 							node.Days[dayIndex].MorningBottles = item.MorningBottles;
 							node.Days[dayIndex].EveningAddresses = item.EveningAddresses;
@@ -312,24 +379,93 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			return new ObservableList<DriverScheduleNode>(result);
 		}
 
+		private void ProcessFiredDriverDays(DriverScheduleNode driverNode, DateTime dismissalDate)
+		{
+			var eventType = GetDismissalEventType(driverNode);
+			if(eventType == null)
+			{
+				return;
+			}
+
+			int dismissalDayIndex = (int)(dismissalDate - StartDate).TotalDays;
+
+			for(int dayIndex = dismissalDayIndex; dayIndex < 7; dayIndex++)
+			{
+				if(dayIndex >= 0)
+				{
+					driverNode.Days[dayIndex].CarEventType = eventType;
+					driverNode.Days[dayIndex].MorningAddresses = 0;
+					driverNode.Days[dayIndex].MorningBottles = 0;
+					driverNode.Days[dayIndex].EveningAddresses = 0;
+					driverNode.Days[dayIndex].EveningBottles = 0;
+					driverNode.Days[dayIndex].IsFromJournal = true;
+				}
+			}
+		}
+
+		private CarEventType GetDismissalEventType(DriverScheduleNode driverNode)
+		{
+			string eventName = driverNode.DateFired.HasValue && driverNode.DateCalculated.HasValue
+				? (driverNode.DateFired.Value <= driverNode.DateCalculated.Value ? "Уволен" : "На расчете")
+				: driverNode.DateFired.HasValue
+					? "Уволен"
+					: driverNode.DateCalculated.HasValue
+						? "На расчете"
+						: null;
+
+			if(string.IsNullOrEmpty(eventName))
+			{
+				return null;
+			}
+
+			var eventType = AvailableCarEventTypes.FirstOrDefault(x => x.ShortName == eventName) 
+				?? new CarEventType
+				{
+					Id = -1,
+					ShortName = eventName,
+					Name = eventName
+				};
+
+			return eventType;
+		}
+
 		private IQueryOver<Employee, Employee> GetFilteredDriversQuery()
 		{
 			Employee employeeAlias = null;
 			Car carAlias = null;
 			CarModel carModelAlias = null;
 
-			return UoW.Session.QueryOver(() => employeeAlias)
+			var query = UoW.Session.QueryOver(() => employeeAlias)
 				.JoinEntityAlias(
 					() => carAlias,
 					() => carAlias.Driver.Id == employeeAlias.Id,
 					NHibernate.SqlCommand.JoinType.LeftOuterJoin
 				)
 				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
-				.Where(() => employeeAlias.Status != EmployeeStatus.IsFired)
 				.Where(() => employeeAlias.Category == EmployeeCategory.driver)
-				//.WhereRestrictionOn(() => carModelAlias.CarTypeOfUse).IsIn(SelectedCarTypeOfUse.ToArray())
-				.WhereRestrictionOn(() => employeeAlias.DriverOfCarOwnType).IsIn(SelectedCarOwnTypes.ToArray())
-				;
+				.Where(Restrictions.Disjunction()
+					.Add(Restrictions.Not(Restrictions.Eq(Projections.Property(() => employeeAlias.Status), EmployeeStatus.IsFired)))
+					.Add(Restrictions.And(
+						Restrictions.Eq(Projections.Property(() => employeeAlias.Status), EmployeeStatus.IsFired),
+						Restrictions.Ge(Projections.Property(() => employeeAlias.DateFired), StartDate)
+					))
+					.Add(Restrictions.And(
+						Restrictions.Eq(Projections.Property(() => employeeAlias.Status), EmployeeStatus.OnCalculation),
+						Restrictions.Ge(Projections.Property(() => employeeAlias.DateCalculated), StartDate)
+					))
+				);
+
+			if(SelectedCarOwnTypes != null && SelectedCarOwnTypes.Any())
+			{
+				query.WhereRestrictionOn(() => employeeAlias.DriverOfCarOwnType).IsIn(SelectedCarOwnTypes.ToArray());
+			}
+
+			if(SelectedCarTypeOfUse != null && SelectedCarTypeOfUse.Any())
+			{
+				query.WhereRestrictionOn(() => carModelAlias.CarTypeOfUse).IsIn(SelectedCarTypeOfUse.ToArray());
+			}
+
+			return query;
 		}
 
 		private void LoadAvailableCarEventTypes()
@@ -366,7 +502,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 				Employee employeeAlias = null;
 				DriverScheduleItem driverScheduleItemAlias = null;
 
-
 				var existingSchedules = UoW.Session.QueryOver<VodovozBusiness.Domain.Logistic.Drivers.DriverSchedule>()
 					.Left.JoinAlias(ds => ds.Driver, () => employeeAlias)
 					.Left.JoinAlias(ds => ds.Days, () => driverScheduleItemAlias,
@@ -396,12 +531,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 					}
 				}
 
-
 				foreach(var driverNode in DriverScheduleRows)
 				{
-					VodovozBusiness.Domain.Logistic.Drivers.DriverSchedule driverSchedule;
-
-					if(schedulesByDriverId.TryGetValue(driverNode.DriverId, out driverSchedule))
+					if(schedulesByDriverId.TryGetValue(driverNode.DriverId, out VodovozBusiness.Domain.Logistic.Drivers.DriverSchedule driverSchedule))
 					{
 						if(driverSchedule.Days == null)
 						{
@@ -460,6 +592,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 					FillDayScheduleItems(driverSchedule, driverNode);
 
+					ProcessDriverCarEvents(driverNode);
+
 					UoW.Save(driverSchedule);
 
 					UpdateDriverNodeFromSchedule(driverNode, driverSchedule);
@@ -503,7 +637,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 					UoW.Session.Save(scheduleItem);
 				}
 
-				scheduleItem.CarEventType = (dayScheduleNode.CarEventType?.Id ?? 0) != 0
+				scheduleItem.CarEventType = (dayScheduleNode.CarEventType?.Id ?? 0) > 0
 					? dayScheduleNode.CarEventType 
 					: null;
 
@@ -583,8 +717,133 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			}
 		}
 
+		/// <summary>
+		/// Обрабатывает события ТС для водителя - создает/обновляет CarEvent для подряд идущих одинаковых событий
+		/// </summary>
+		private void ProcessDriverCarEvents(DriverScheduleNode driverNode)
+		{
+			if(!driverNode.IsCarAssigned)
+			{
+				return;
+			}
+
+			var car = UoW.Session.QueryOver<Car>()
+				.Where(c => c.Driver.Id == driverNode.DriverId)
+				.SingleOrDefault();
+
+			if(car == null)
+			{
+				return;
+			}
+
+			var eventGroups = GroupConsecutiveCarEvents(driverNode);
+
+			foreach(var group in eventGroups)
+			{
+				if(group.CarEventType == null || group.CarEventType.Id == 0)
+				{
+					continue;
+				}
+
+				CreateOrUpdateCarEvent(car, driverNode, group);
+			}
+		}
+
+		private List<CarEventGroup> GroupConsecutiveCarEvents(DriverScheduleNode driverNode)
+		{
+			var groups = new List<CarEventGroup>();
+			CarEventGroup currentGroup = null;
+
+			for(int dayIndex = 0; dayIndex < 7; dayIndex++)
+			{
+				var day = driverNode.Days[dayIndex];
+				var eventType = day.CarEventType;
+
+				if(eventType == null || eventType.Id == 0)
+				{
+					if(currentGroup != null)
+					{
+						groups.Add(currentGroup);
+						currentGroup = null;
+					}
+				}
+				else
+				{
+					if(currentGroup == null || currentGroup.CarEventType.Id != eventType.Id)
+					{
+						if(currentGroup != null)
+						{
+							groups.Add(currentGroup);
+						}
+
+						currentGroup = new CarEventGroup
+						{
+							CarEventType = eventType,
+							StartDate = day.Date,
+							EndDate = day.Date,
+							Comment = day.ParentNode.Comment,
+							DayIndices = new List<int> { dayIndex }
+						};
+					}
+					else
+					{
+						currentGroup.EndDate = day.Date;
+						currentGroup.DayIndices.Add(dayIndex);
+					}
+				}
+			}
+
+			if(currentGroup != null)
+			{
+				groups.Add(currentGroup);
+			}
+
+			return groups;
+		}
+
+		private void CreateOrUpdateCarEvent(Car car, DriverScheduleNode driverNode, CarEventGroup group)
+		{
+			if(group.CarEventType?.Id <= 0)
+			{
+				return;
+			}
+
+			var endOfDay = new DateTime(group.EndDate.Year, group.EndDate.Month, group.EndDate.Day, 23, 59, 59);
+
+			var existingEvent = UoW.Session.QueryOver<CarEvent>()
+				.Where(e => e.Car.Id == car.Id)
+				.Where(e => e.CarEventType.Id == group.CarEventType.Id)
+				.Where(e => e.StartDate >= group.StartDate.Date && e.StartDate <= endOfDay)
+				.SingleOrDefault();
+
+			if(existingEvent == null)
+			{
+				var newEvent = new CarEvent
+				{
+					Car = car,
+					CarEventType = group.CarEventType,
+					Driver = UoW.GetById<Employee>(driverNode.DriverId),
+					StartDate = group.StartDate,
+					EndDate = group.EndDate.AddHours(23).AddMinutes(59).AddSeconds(59),
+					Comment = group.Comment,
+					Foundation = "Создано из графика водителей",
+					CreateDate = DateTime.Now,
+					Author = _employeeService.GetEmployeeForUser(UoW, _userService.CurrentUserId)
+				};
+
+				UoW.Session.Save(newEvent);
+			}
+			else
+			{
+				existingEvent.EndDate = endOfDay;
+				existingEvent.Comment = group.Comment;
+				UoW.Save(existingEvent);
+			}
+		}
+
 		private void ExportCommand()
 		{
+			var rows = DriverScheduleRows;
 			var i = 228;
 		}
 
@@ -623,5 +882,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 			_interactiveService.ShowMessage(ImportanceLevel.Info, infoMessage);
 		}
+	}
+
+	public class CarEventGroup
+	{
+		public CarEventType CarEventType { get; set; }
+		public DateTime StartDate { get; set; }
+		public DateTime EndDate { get; set; }
+		public string Comment { get; set; }
+		public List<int> DayIndices { get; set; }
 	}
 }

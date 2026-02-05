@@ -1,4 +1,4 @@
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -11,13 +11,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 	public class DriverScheduleNode : PropertyChangedBase
 	{
 		private int _driverId;
-		private CarTypeOfUse _carTypeOfUse;
-		private CarOwnType _carOwnType;
+		private CarTypeOfUse? _carTypeOfUse;
+		private CarOwnType? _carOwnType;
 		private string _regNumber;
 		private string _lastName;
 		private string _name;
 		private string _patronymic;
-		private CarOwnType _driverCarOwnType;
+		private CarOwnType? _driverCarOwnType;
 		private string _driverPhone;
 		private District _district;
 		private TimeSpan? _arrivalTime;
@@ -27,6 +27,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		private int _eveningBottles;
 		private DateTime _lastModifiedDateTime;
 		private string _comment;
+		private DateTime? _dateFired;
+		private DateTime? _dateCalculated;
 		private DateTime _startDate;
 		private bool _isCarAssigned;
 		private int _maxBottles;
@@ -391,13 +393,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			set => SetField(ref _driverId, value);
 		}
 
-		public virtual CarTypeOfUse CarTypeOfUse
+		public virtual CarTypeOfUse? CarTypeOfUse
 		{
 			get => _carTypeOfUse;
 			set => SetField(ref _carTypeOfUse, value);
 		}
 
-		public virtual CarOwnType CarOwnType
+		public virtual CarOwnType? CarOwnType
 		{
 			get => _carOwnType;
 			set => SetField(ref _carOwnType, value);
@@ -427,7 +429,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			set => SetField(ref _patronymic, value);
 		}
 
-		public virtual CarOwnType DriverCarOwnType
+		public virtual CarOwnType? DriverCarOwnType
 		{
 			get => _driverCarOwnType;
 			set => SetField(ref _driverCarOwnType, value);
@@ -516,6 +518,18 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			set => SetField(ref _comment, value);
 		}
 
+		public virtual DateTime? DateFired
+		{
+			get => _dateFired;
+			set => SetField(ref _dateFired, value);
+		}
+
+		public virtual DateTime? DateCalculated
+		{
+			get => _dateCalculated;
+			set => SetField(ref _dateCalculated, value);
+		}
+
 		/// <summary>
 		/// Привязан ли водитель к авто
 		/// </summary>
@@ -536,12 +550,18 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 				? LastModifiedDateTime.ToString("g")
 				: "Нет";
 
-		public string CarTypeOfUseString => Gamma.Utilities.AttributeUtil.GetEnumShortTitle(CarTypeOfUse);
+		public string CarTypeOfUseString => CarTypeOfUse.HasValue
+			? Gamma.Utilities.AttributeUtil.GetEnumShortTitle(CarTypeOfUse.Value)
+			: "";
 
-		public string CarOwnTypeString => Gamma.Utilities.AttributeUtil.GetEnumShortTitle(CarOwnType);
+		public string CarOwnTypeString => CarOwnType.HasValue
+			? Gamma.Utilities.AttributeUtil.GetEnumShortTitle(CarOwnType.Value)
+			: "";
 
-		public string DriverCarOwnTypeString => Gamma.Utilities.AttributeUtil.GetEnumTitle(DriverCarOwnType);
-		
+		public string DriverCarOwnTypeString => DriverCarOwnType.HasValue
+			? Gamma.Utilities.AttributeUtil.GetEnumTitle(DriverCarOwnType.Value)
+			: "";
+
 		public string DistrictString => District?.DistrictName ?? "";
 
 		public string DriverFullName => string.Join(" ",
@@ -556,7 +576,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 			foreach (var day in Days)
 			{
-				if(day?.CarEventType != null)
+				if(day?.IsFromJournal == true || (day?.CarEventType != null && day.CarEventType.Id != 0))
 				{
 					continue;
 				}
@@ -566,6 +586,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 					day.CarEventType = noneEventType;
 				}
 			}
+		}
+
+		public virtual DateTime? GetDismissalDate()
+		{
+			if(_dateFired.HasValue && _dateCalculated.HasValue)
+			{
+				return _dateFired.Value < _dateCalculated.Value ? _dateFired : _dateCalculated;
+			}
+
+			return _dateFired ?? _dateCalculated;
 		}
 
 		/// <summary>
