@@ -280,7 +280,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		private bool CanSetDayValue(int dayIndex, int value)
 		{
 			var dayEventType = GetDayCarEventType(dayIndex);
-			if(dayEventType != null && dayEventType.Id != 0)
+			if(dayEventType != null && dayEventType.Id > 0)
 			{
 				return false;
 			}
@@ -305,8 +305,20 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public void SetDayCarEventType(int dayIndex, CarEventType value)
 		{
-			if(IsValidDayIndex(dayIndex))
-				Days[dayIndex].CarEventType = value;
+			if(!IsValidDayIndex(dayIndex))
+			{
+				return;
+			}
+
+			Days[dayIndex].CarEventType = value;
+
+			if(value != null && value.Id > 0)
+			{
+				Days[dayIndex].MorningAddresses = 0;
+				Days[dayIndex].MorningBottles = 0;
+				Days[dayIndex].EveningAddresses = 0;
+				Days[dayIndex].EveningBottles = 0;
+			}
 		}
 
 		public int GetDayMorningAddresses(int dayIndex)
@@ -572,11 +584,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public void InitializeEmptyCarEventTypes()
 		{
-			var noneEventType = new CarEventType { Id = 0, ShortName = "Нет", Name = "Нет" };
+			var noneEventType = new CarEventType { Id = -1, ShortName = "Нет", Name = "Нет" };
 
 			foreach (var day in Days)
 			{
-				if(day?.IsFromJournal == true || (day?.CarEventType != null && day.CarEventType.Id != 0))
+				if(day?.IsVirtualCarEventType == true || (day?.CarEventType != null && day.CarEventType.Id > 0))
 				{
 					continue;
 				}

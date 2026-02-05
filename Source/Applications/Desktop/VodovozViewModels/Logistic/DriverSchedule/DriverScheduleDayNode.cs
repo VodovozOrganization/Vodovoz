@@ -13,7 +13,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		private int _eveningAddresses;
 		private int _eveningBottles;
 		private DriverScheduleNode _parentNode;
-		private bool _isFromJournal;
+		private bool _isVirtualCarEventType;
 
 		public virtual DriverScheduleNode ParentNode
 		{
@@ -88,12 +88,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		}
 
 		/// <summary>
-		/// Событие создано через Журнал событий (только для чтения в графике)
+		/// Виртуальное событие
 		/// </summary>
-		public virtual bool IsFromJournal
+		public virtual bool IsVirtualCarEventType
 		{
-			get => _isFromJournal;
-			set => SetField(ref _isFromJournal, value);
+			get => _isVirtualCarEventType;
+			set => SetField(ref _isVirtualCarEventType, value);
 		}
 
 		private bool IsPastDay()

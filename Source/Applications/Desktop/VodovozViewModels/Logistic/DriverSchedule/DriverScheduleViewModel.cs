@@ -323,6 +323,19 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 				foreach(var node in result)
 				{
+					node.StartDate = StartDate;
+
+					for(int dayIndex = 0; dayIndex < 7; dayIndex++)
+					{
+						if(node.Days[dayIndex].Date == default)
+						{
+							node.Days[dayIndex].Date = StartDate.AddDays(dayIndex);
+						}
+						node.Days[dayIndex].ParentNode = node;
+					}
+
+					node.InitializeEmptyCarEventTypes();
+
 					node.IsCarAssigned = !string.IsNullOrEmpty(node.RegNumber);
 
 					var dismissalDate = node.GetDismissalDate();
@@ -344,7 +357,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 						int dayIndex = (int)(item.Date - StartDate).TotalDays;
 						if(dayIndex >= 0 && dayIndex < 7)
 						{
-							if(!node.Days[dayIndex].IsFromJournal)
+							if(item.CarEventType != null && !node.Days[dayIndex].IsVirtualCarEventType)
 							{
 								node.Days[dayIndex].CarEventType = item.CarEventType;
 							}
@@ -357,23 +370,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 						}
 					}
 				}
-			}
-
-
-			foreach(var row in result)
-			{
-				row.StartDate = StartDate;
-
-				for(int dayIndex = 0; dayIndex < 7; dayIndex++)
-				{
-					if(row.Days[dayIndex].Date == default)
-					{
-						row.Days[dayIndex].Date = StartDate.AddDays(dayIndex);
-					}
-					row.Days[dayIndex].ParentNode = row;
-				}
-
-				row.InitializeEmptyCarEventTypes();
 			}
 
 			return new ObservableList<DriverScheduleNode>(result);
@@ -398,7 +394,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 					driverNode.Days[dayIndex].MorningBottles = 0;
 					driverNode.Days[dayIndex].EveningAddresses = 0;
 					driverNode.Days[dayIndex].EveningBottles = 0;
-					driverNode.Days[dayIndex].IsFromJournal = true;
+					driverNode.Days[dayIndex].IsVirtualCarEventType = true;
 				}
 			}
 		}
@@ -878,7 +874,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 				"\n" +
 				"Если событие создано через Журнал событий (Например, ремонт) - оно добавляется в график водителей в проставленный период в сокращенном виде и его нельзя изменить.\n" +
 				"\n" +
-				"Вы можете перемещаться с помощью стрелочек на клавиатуре между ячейками для ввода данных.";
+				"Вы можете перемещаться с помощью стрелочек на клавиатуре между ячейками для ввода данных." +
+				"\n" +
+				"Вертикальную прокрутку столбцов с днями недели можно выполнять с зажатой клавишей Shift.";
 
 			_interactiveService.ShowMessage(ImportanceLevel.Info, infoMessage);
 		}
