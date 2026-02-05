@@ -8,10 +8,11 @@ using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Documents;
-using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Settings.Warehouse;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocumentErrors;
@@ -25,7 +26,7 @@ namespace WarehouseApi.Library.Errors
 		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository;
 		private readonly IEmployeeWithLoginRepository _employeeWithLoginRepository;
 		private readonly ICarLoadDocumentLoadingProcessSettings _carLoadDocumentLoadingProcessSettings;
-		private readonly IGenericRepository<OrderEntity> _orderRepository;
+		private readonly IGenericRepository<Order> _orderRepository;
 		private readonly ICounterpartyEdoAccountEntityController _counterpartyEdoAccountController;
 
 		public CarLoadDocumentProcessingErrorsChecker(
@@ -34,7 +35,7 @@ namespace WarehouseApi.Library.Errors
 			ICarLoadDocumentRepository carLoadDocumentRepository,
 			IEmployeeWithLoginRepository employeeWithLoginRepository,
 			ICarLoadDocumentLoadingProcessSettings carLoadDocumentLoadingProcessSettings,
-			IGenericRepository<OrderEntity> orderRepository,
+			IGenericRepository<Order> orderRepository,
 			ICounterpartyEdoAccountEntityController counterpartyEdoAccountController)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -143,7 +144,7 @@ namespace WarehouseApi.Library.Errors
 			return Result.Success();
 		}
 
-		public Result IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(int orderId, IEnumerable<CarLoadDocumentItemEntity> documentOrderItems)
+		public Result IsItemsHavingRequiredOrderExistsAndIncludedInOnlyOneDocument(int orderId, IEnumerable<CarLoadDocumentItem> documentOrderItems)
 		{
 			if(documentOrderItems is null || documentOrderItems.Count() == 0)
 			{
@@ -165,9 +166,9 @@ namespace WarehouseApi.Library.Errors
 		public Result IsTrueMarkCodesCanBeAdded(
 			int orderId,
 			int nomenclatureId,
-			IEnumerable<CarLoadDocumentItemEntity> allWaterOrderItems,
-			IEnumerable<CarLoadDocumentItemEntity> itemsHavingRequiredNomenclature,
-			CarLoadDocumentItemEntity documentItemToEdit
+			IEnumerable<CarLoadDocumentItem> allWaterOrderItems,
+			IEnumerable<CarLoadDocumentItem> itemsHavingRequiredNomenclature,
+			CarLoadDocumentItem documentItemToEdit
 			)
 		{
 			var result = IsOrderNeedIndividualSetOnLoad(orderId);
@@ -206,9 +207,9 @@ namespace WarehouseApi.Library.Errors
 		public Result IsCanChangeTrueMarkCode(
 			int orderId,
 			int nomenclatureId,
-			IEnumerable<CarLoadDocumentItemEntity> allWaterOrderItems,
-			IEnumerable<CarLoadDocumentItemEntity> itemsHavingRequiredNomenclature,
-			CarLoadDocumentItemEntity documentItemToEdit)
+			IEnumerable<CarLoadDocumentItem> allWaterOrderItems,
+			IEnumerable<CarLoadDocumentItem> itemsHavingRequiredNomenclature,
+			CarLoadDocumentItem documentItemToEdit)
 		{
 			var result = IsOrderNeedIndividualSetOnLoad(orderId);
 
@@ -267,10 +268,9 @@ namespace WarehouseApi.Library.Errors
 					return CarLoadDocumentErrors.CreateOrderNoNeedIndividualSetOnLoadClientIsNotSet(orderId);
 				}
 
-				var edoAccount = _counterpartyEdoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(
-					order.Client, order.Contract.Organization.Id);
+				var edoAccount = order.Client.DefaultEdoAccount(order.Contract.Organization.Id);
 
-				if(edoAccount.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
+				if(edoAccount == null || edoAccount.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 				{
 					_logger.LogWarning("В заказе {OrderId} у клиента нет согласия на отправки документов по ЭДО, сканирование не требуется", orderId);
 					return CarLoadDocumentErrors.CreateOrderNoNeedIndividualSetOnLoadConsentForEdoIsNotAgree(orderId);
