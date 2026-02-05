@@ -1,5 +1,6 @@
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
@@ -240,6 +241,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 					.Select(() => driverScheduleAlias.EveningBottlesPotential).WithAlias(() => resultAlias.EveningBottles)
 					.Select(() => driverScheduleAlias.LastChangeTime).WithAlias(() => resultAlias.LastModifiedDateTime)
 					.Select(() => driverScheduleAlias.Comment).WithAlias(() => resultAlias.Comment)
+					.Select(Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.Int32,
+							"FLOOR(COALESCE(?1, 0) / 20)"),
+						NHibernateUtil.Int32,
+						Projections.Property(() => carModelAlias.MaxWeight)))
+					.WithAlias(() => resultAlias.MaxBottles)
 					.SelectSubQuery(phoneSubquery).WithAlias(() => resultAlias.DriverPhone)
 				)
 				.OrderBy(e => e.LastName).Asc

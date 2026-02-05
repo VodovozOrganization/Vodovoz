@@ -1,4 +1,4 @@
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -30,6 +30,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		private string _comment;
 		private DateTime _startDate;
 		private bool _isCarAssigned;
+		private int _maxBottles;
 
 		public DriverScheduleNode()
 		{
@@ -38,15 +39,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			{
 				Days[i] = new DriverScheduleDayNode { };
 			}
-		}
-
-		[Display(Name = "Дни расписания")]
-		public DriverScheduleDayNode[] Days;
-
-		public DateTime StartDate
-		{
-			get => _startDate;
-			set => SetField(ref _startDate, value);
 		}
 
 		#region Weekdays
@@ -295,6 +287,21 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			return _isCarAssigned || value <= 0;
 		}
 
+		private int GetValidatedBottleValue(int dayIndex, int value)
+		{
+			if(!CanSetDayValue(dayIndex, value))
+			{
+				return 0;
+			}
+
+			return ClampBottleValue(value);
+		}
+
+		private int ClampBottleValue(int value)
+		{
+			return _maxBottles > 0 && value > _maxBottles ? _maxBottles : value;
+		}
+
 		public void SetDayCarEventType(int dayIndex, CarEventType value)
 		{
 			if(IsValidDayIndex(dayIndex))
@@ -328,7 +335,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 				return;
 			}
 
-			Days[dayIndex].MorningBottles = CanSetDayValue(dayIndex, value) ? value : 0;
+			Days[dayIndex].MorningBottles = GetValidatedBottleValue(dayIndex, value);
 		}
 
 		public int GetDayEveningAddresses(int dayIndex)
@@ -358,7 +365,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 				return;
 			}
 
-			Days[dayIndex].EveningBottles = CanSetDayValue(dayIndex, value) ? value : 0;
+			Days[dayIndex].EveningBottles = GetValidatedBottleValue(dayIndex, value);
 		}
 
 		public bool IsValidDayIndex(int dayIndex)
@@ -367,6 +374,17 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		}
 
 		#endregion
+
+		#region Properties
+
+		[Display(Name = "Дни расписания")]
+		public DriverScheduleDayNode[] Days;
+
+		public DateTime StartDate
+		{
+			get => _startDate;
+			set => SetField(ref _startDate, value);
+		}
 
 		public virtual int DriverId
 		{
@@ -451,7 +469,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			get => _morningBottles;
 			set
 			{
-				if(SetField(ref _morningBottles, value))
+				int finalValue = ClampBottleValue(value);
+				if(SetField(ref _morningBottles, finalValue))
 				{
 					UpdateDayValuesFromPotential();
 				}
@@ -475,7 +494,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			get => _eveningBottles;
 			set
 			{
-				if(SetField(ref _eveningBottles, value))
+				int finalValue = ClampBottleValue(value);
+				if(SetField(ref _eveningBottles, finalValue))
 				{
 					UpdateDayValuesFromPotential();
 				}
@@ -503,6 +523,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			set => SetField(ref _isCarAssigned, value);
 		}
 
+		public virtual int MaxBottles
+		{
+			get => _maxBottles;
+			set => SetField(ref _maxBottles, value);
+		}
+
 		public string LastModifiedDateTimeString =>
 			LastModifiedDateTime != default
 				? LastModifiedDateTime.ToString("g")
@@ -519,6 +545,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		public string DriverFullName => string.Join(" ",
 			new[] { LastName, Name, Patronymic }
 				.Where(x => !string.IsNullOrWhiteSpace(x)));
+
+		#endregion
 
 		public void InitializeEmptyCarEventTypes()
 		{
