@@ -1,4 +1,4 @@
-﻿using NHibernate;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Commands;
@@ -243,7 +243,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 					.SelectSubQuery(phoneSubquery).WithAlias(() => resultAlias.DriverPhone)
 				)
 				.OrderBy(e => e.LastName).Asc
-				.TransformUsing(NHibernate.Transform.Transformers.AliasToBean<DriverScheduleNode>())
+				.TransformUsing(Transformers.AliasToBean<DriverScheduleNode>())
 				.List<DriverScheduleNode>()
 				.GroupBy(x => x.DriverId)
 				.Select(g => g.First())
@@ -261,6 +261,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 				foreach(var node in result)
 				{
+					node.IsCarAssigned = !string.IsNullOrEmpty(node.RegNumber);
+
 					var driverScheduleItems = scheduleItems
 						.Where(si => si.DriverSchedule.Driver.Id == node.DriverId)
 						.ToList();
@@ -354,7 +356,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 				}
 
 				Employee employeeAlias = null;
-				VodovozBusiness.Domain.Logistic.Drivers.DriverSchedule driverScheduleAlias = null;
 				DriverScheduleItem driverScheduleItemAlias = null;
 
 

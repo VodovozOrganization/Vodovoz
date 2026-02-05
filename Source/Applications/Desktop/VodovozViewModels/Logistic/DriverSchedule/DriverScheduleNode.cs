@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -29,6 +29,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		private DateTime _lastModifiedDateTime;
 		private string _comment;
 		private DateTime _startDate;
+		private bool _isCarAssigned;
 
 		public DriverScheduleNode()
 		{
@@ -283,6 +284,17 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			return IsValidDayIndex(dayIndex) ? Days[dayIndex]?.CarEventType : null;
 		}
 
+		private bool CanSetDayValue(int dayIndex, int value)
+		{
+			var dayEventType = GetDayCarEventType(dayIndex);
+			if(dayEventType != null && dayEventType.Id != 0)
+			{
+				return false;
+			}
+
+			return _isCarAssigned || value <= 0;
+		}
+
 		public void SetDayCarEventType(int dayIndex, CarEventType value)
 		{
 			if(IsValidDayIndex(dayIndex))
@@ -296,16 +308,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public void SetDayMorningAddresses(int dayIndex, int value)
 		{
-			if(IsValidDayIndex(dayIndex))
+			if(!IsValidDayIndex(dayIndex))
 			{
-				var dayEventType = GetDayCarEventType(dayIndex);
-				if(dayEventType != null && dayEventType.Id != 0)
-				{
-					Days[dayIndex].MorningAddresses = 0;
-					return;
-				}
-				Days[dayIndex].MorningAddresses = value;
+				return;
 			}
+
+			Days[dayIndex].MorningAddresses = CanSetDayValue(dayIndex, value) ? value : 0;
 		}
 
 		public int GetDayMorningBottles(int dayIndex)
@@ -315,16 +323,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public void SetDayMorningBottles(int dayIndex, int value)
 		{
-			if(IsValidDayIndex(dayIndex))
+			if(!IsValidDayIndex(dayIndex))
 			{
-				var dayEventType = GetDayCarEventType(dayIndex);
-				if(dayEventType != null && dayEventType.Id != 0)
-				{
-					Days[dayIndex].MorningBottles = 0;
-					return;
-				}
-				Days[dayIndex].MorningBottles = value;
+				return;
 			}
+
+			Days[dayIndex].MorningBottles = CanSetDayValue(dayIndex, value) ? value : 0;
 		}
 
 		public int GetDayEveningAddresses(int dayIndex)
@@ -334,16 +338,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public void SetDayEveningAddresses(int dayIndex, int value)
 		{
-			if(IsValidDayIndex(dayIndex))
+			if(!IsValidDayIndex(dayIndex))
 			{
-				var dayEventType = GetDayCarEventType(dayIndex);
-				if(dayEventType != null && dayEventType.Id != 0)
-				{
-					Days[dayIndex].EveningAddresses = 0;
-					return;
-				}
-				Days[dayIndex].EveningAddresses = value;
+				return;
 			}
+
+			Days[dayIndex].EveningAddresses = CanSetDayValue(dayIndex, value) ? value : 0;
 		}
 
 		public int GetDayEveningBottles(int dayIndex)
@@ -353,16 +353,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public void SetDayEveningBottles(int dayIndex, int value)
 		{
-			if(IsValidDayIndex(dayIndex))
+			if(!IsValidDayIndex(dayIndex))
 			{
-				var dayEventType = GetDayCarEventType(dayIndex);
-				if(dayEventType != null && dayEventType.Id != 0)
-				{
-					Days[dayIndex].EveningBottles = 0;
-					return;
-				}
-				Days[dayIndex].EveningBottles = value;
+				return;
 			}
+
+			Days[dayIndex].EveningBottles = CanSetDayValue(dayIndex, value) ? value : 0;
 		}
 
 		public bool IsValidDayIndex(int dayIndex)
@@ -496,6 +492,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		{
 			get => _comment;
 			set => SetField(ref _comment, value);
+		}
+
+		/// <summary>
+		/// Привязан ли водитель к авто
+		/// </summary>
+		public virtual bool IsCarAssigned
+		{
+			get => _isCarAssigned;
+			set => SetField(ref _isCarAssigned, value);
 		}
 
 		public string LastModifiedDateTimeString =>
