@@ -1,6 +1,7 @@
 ﻿using System;
 using ExportTo1c.Library.Exporters;
 using QS.Dialog;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -18,5 +19,7 @@ namespace ExportTo1c.Library.Factories
 			IProgressBarDisplayable progressBarDisplayable = null);
 		
 		IDataExporterFor1c<CounterpartyChangesDto> CreateCounterpartyChanges1cDataExporter();
+
+		IDataExporterFor1c<OrderTo1cExport> CreateApi1cChangesExporter(DateTime exportDate);
 	}
 }

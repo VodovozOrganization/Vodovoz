@@ -188,16 +188,6 @@ namespace Vodovoz.Domain.Orders
 			protected set => SetField(ref _deliveryPoint, value);
 		}
 
-		private DateTime? _deliveryDate;
-
-		[Display(Name = "Дата доставки")]
-		[HistoryDateOnly]
-		[OrderTracker1c]
-		public virtual DateTime? DeliveryDate {
-			get => _deliveryDate;
-			protected set => SetField(ref _deliveryDate, value);
-		}
-
 		private DeliverySchedule _deliverySchedule;
 
 		[Display(Name = "Время доставки")]

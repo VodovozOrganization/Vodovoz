@@ -19,7 +19,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Zabbix.Sender;
 
-namespace DatabaseServiceWorker
+namespace DatabaseServiceWorker.ExportTo1c
 {
 	internal class ExportTo1cWorker : TimerBackgroundServiceBase
 	{

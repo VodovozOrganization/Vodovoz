@@ -30,6 +30,7 @@ using Vodovoz.Tools.CallTasks;
 using DriverApi.Notifications.Client;
 using Osrm;
 using RoboatsService.HealthCheck;
+using Vodovoz.Trackers;
 using VodovozHealthCheck;
 
 namespace RoboatsService
@@ -77,7 +78,7 @@ namespace RoboatsService
 			services.AddDatabaseConnection();
 			services.AddCore();
 			services.AddTrackedUoW();
-
+			services.AddOrderTrackerFor1c();
 			services.AddStaticHistoryTracker();
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
