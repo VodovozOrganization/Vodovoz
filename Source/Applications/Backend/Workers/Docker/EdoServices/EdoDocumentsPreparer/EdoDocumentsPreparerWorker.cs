@@ -1,4 +1,4 @@
-using EdoDocumentsPreparer.Factories;
+﻿using EdoDocumentsPreparer.Factories;
 using EdoService.Library.Services;
 using MassTransit;
 using Microsoft.Extensions.Hosting;
@@ -357,7 +357,7 @@ namespace EdoDocumentsPreparer
 				.Distinct();
 
 			var updInfo = InfoForCreatingEdoUpd.Create(
-				_orderConverter.ConvertOrderToOrderInfoForEdo(order),
+				_orderConverter.ConvertOrderToOrderInfoForEdo(order, DocumentContainerType.Upd),
 				_paymentConverter.ConvertPaymentToPaymentInfoForEdo(orderPayments));
 
 			var edoContainer = EdoContainerBuilder
@@ -456,10 +456,10 @@ namespace EdoDocumentsPreparer
 					}
 
 					var billAttachment = _printableDocumentSaver.SaveToPdf(printableRdlDocument);
-					var orderInfo = _orderConverter.ConvertOrderToOrderInfoForEdo(order);
+					var orderInfo = _orderConverter.ConvertOrderToOrderInfoForEdo(order, DocumentContainerType.Bill);
 					var infoForCreatingEdoBill = _billInfoFactory.CreateInfoForCreatingEdoBill(
 						orderInfo,
-						_fileDataFactory.CreateBillFileData(orderInfo.Id.ToString(), orderInfo.CreationDate, billAttachment));
+						_fileDataFactory.CreateBillFileData(orderInfo.StringNumber, orderInfo.CreationDate, billAttachment));
 
 					var edoContainer = EdoContainerBuilder
 						.Create()

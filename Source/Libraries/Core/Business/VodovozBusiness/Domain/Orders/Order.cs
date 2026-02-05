@@ -3898,7 +3898,7 @@ namespace Vodovoz.Domain.Orders
 						Organization = Contract?.Organization,
 						CounterDateYear = DeliveryDate?.Year,
 						Counter = updCounterValue,
-						DocumentNumber = UPDNumberBuilder.BuildDocumentNumber(Contract?.Organization, DeliveryDate.Value, updCounterValue),
+						DocumentNumber = DocumentNumberBuilder.BuildDocumentNumber(Contract?.Organization, DeliveryDate.Value, updCounterValue),
 						Order = this
 					};
 
@@ -3933,7 +3933,7 @@ namespace Vodovoz.Domain.Orders
 						Organization = Contract?.Organization,
 						CounterDateYear = DeliveryDate?.Year,
 						Counter = specialUpdCounterValue,
-						DocumentNumber = UPDNumberBuilder.BuildDocumentNumber(Contract?.Organization, DeliveryDate.Value, specialUpdCounterValue),
+						DocumentNumber = DocumentNumberBuilder.BuildDocumentNumber(Contract?.Organization, DeliveryDate.Value, specialUpdCounterValue),
 						Order = this
 					};
 
