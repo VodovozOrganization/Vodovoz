@@ -1,4 +1,4 @@
-﻿using NHibernate;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
@@ -235,6 +235,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 					.Select(e => e.Patronymic).WithAlias(() => resultAlias.Patronymic)
 					.Select(e => e.DriverOfCarOwnType).WithAlias(() => resultAlias.DriverCarOwnType)
 					.Select(e => e.District).WithAlias(() => resultAlias.District)
+					.Select(() => driverScheduleAlias.ArrivalTime).WithAlias(() => resultAlias.ArrivalTime)
 					.Select(() => driverScheduleAlias.MorningAddressesPotential).WithAlias(() => resultAlias.MorningAddresses)
 					.Select(() => driverScheduleAlias.MorningBottlesPotential).WithAlias(() => resultAlias.MorningBottles)
 					.Select(() => driverScheduleAlias.EveningAddressesPotential).WithAlias(() => resultAlias.EveningAddresses)
@@ -430,6 +431,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 							}
 						}
 
+						driverSchedule.ArrivalTime = driverNode.ArrivalTime;
 						driverSchedule.Comment = driverNode.Comment;
 					}
 					else

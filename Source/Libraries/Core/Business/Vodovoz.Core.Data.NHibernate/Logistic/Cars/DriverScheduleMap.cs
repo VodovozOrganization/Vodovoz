@@ -13,6 +13,9 @@ namespace Vodovoz.Core.Data.NHibernate.Logistic.Cars
 				.Column("id")
 				.GeneratedBy.Native();
 
+			Map(x => x.ArrivalTime)
+				.Column("arrival_time")
+				.Nullable();
 			Map(x => x.MorningAddressesPotential)
 				.Column("morning_addresses_potential");
 			Map(x => x.MorningBottlesPotential)

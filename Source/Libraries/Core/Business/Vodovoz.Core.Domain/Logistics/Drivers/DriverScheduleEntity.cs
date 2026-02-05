@@ -10,6 +10,7 @@ namespace Vodovoz.Core.Domain.Logistics.Drivers
 	{
 		private int _id;
 		private EmployeeEntity _driver;
+		private TimeSpan? _arrivalTime;
 		private int _morningAddressesPotential;
 		private int _morningBottlesPotential;
 		private int _eveningAddressesPotential;
@@ -36,6 +37,16 @@ namespace Vodovoz.Core.Domain.Logistics.Drivers
 		{
 			get => _driver;
 			set => SetField(ref _driver, value);
+		}
+
+		/// <summary>
+		/// Время приезда
+		/// </summary>
+		[Display(Name = "Время приезда")]
+		public virtual TimeSpan? ArrivalTime
+		{
+			get => _arrivalTime;
+			set => SetField(ref _arrivalTime, value);
 		}
 
 		/// <summary>

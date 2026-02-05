@@ -1,9 +1,8 @@
-﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Core.Domain.Logistics.Cars;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
 
@@ -21,7 +20,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		private CarOwnType _driverCarOwnType;
 		private string _driverPhone;
 		private District _district;
-		private DeliverySchedule _deliverySchedule;
+		private TimeSpan? _arrivalTime;
 		private int _morningAddresses;
 		private int _morningBottles;
 		private int _eveningAddresses;
@@ -446,10 +445,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			set => SetField(ref _district, value);
 		}
 
-		public virtual DeliverySchedule DeliverySchedule
+		/// <summary>
+		/// Время приезда
+		/// </summary>
+		public virtual TimeSpan? ArrivalTime
 		{
-			get => _deliverySchedule;
-			set => SetField(ref _deliverySchedule, value);
+			get => _arrivalTime;
+			set => SetField(ref _arrivalTime, value);
 		}
 
 		public virtual int MorningAddresses

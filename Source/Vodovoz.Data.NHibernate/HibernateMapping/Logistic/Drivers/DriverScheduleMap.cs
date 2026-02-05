@@ -1,4 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
+using NHibernate.Type;
 using VodovozBusiness.Domain.Logistic.Drivers;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Drivers
@@ -13,6 +14,10 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Drivers
 				.Column("id")
 				.GeneratedBy.Native();
 
+			Map(x => x.ArrivalTime)
+				.Column("arrival_time")
+				.CustomType<TimeAsTimeSpanType>()
+				.Nullable();
 			Map(x => x.MorningAddressesPotential)
 				.Column("morning_addresses_potential");
 			Map(x => x.MorningBottlesPotential)
