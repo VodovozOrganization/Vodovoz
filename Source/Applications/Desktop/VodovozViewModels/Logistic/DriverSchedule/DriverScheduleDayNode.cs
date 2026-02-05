@@ -8,16 +8,46 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 	{
 		private DateTime _date;
 		private CarEventType _carEventType;
-		private int _morningAddress;
+		private int _morningAddresses;
 		private int _morningBottles;
-		private int _eveningAddress;
+		private int _eveningAddresses;
 		private int _eveningBottles;
 		private DriverScheduleNode _parentNode;
 
 		public virtual DriverScheduleNode ParentNode
 		{
 			get => _parentNode;
-			set => SetField(ref _parentNode, value);
+			set
+			{
+				if(SetField(ref _parentNode, value))
+				{
+					if(_parentNode != null)
+					{
+						if(!IsPastDay())
+						{
+							if(_morningAddresses == 0)
+							{
+								MorningAddresses = _parentNode.MorningAddresses;
+							}
+
+							if(_morningBottles == 0)
+							{
+								MorningBottles = _parentNode.MorningBottles;
+							}
+
+							if(_eveningAddresses == 0)
+							{
+								EveningAddresses = _parentNode.EveningAddresses;
+							}
+
+							if(_eveningBottles == 0)
+							{
+								EveningBottles = _parentNode.EveningBottles;
+							}
+						}
+					}
+				}
+			}
 		}
 
 		public virtual CarEventType CarEventType
@@ -34,8 +64,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public virtual int MorningAddresses
 		{
-			get => _morningAddress;
-			set => SetField(ref _morningAddress, value);
+			get => _morningAddresses;
+			set => SetField(ref _morningAddresses, value);
 		}
 
 		public virtual int MorningBottles
@@ -46,14 +76,27 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public virtual int EveningAddresses
 		{
-			get => _eveningAddress;
-			set => SetField(ref _eveningAddress, value);
+			get => _eveningAddresses;
+			set => SetField(ref _eveningAddresses, value);
 		}
 
 		public virtual int EveningBottles
 		{
 			get => _eveningBottles;
 			set => SetField(ref _eveningBottles, value);
+		}
+
+		private bool IsPastDay()
+		{
+			if(_date == default || _parentNode?.StartDate == default)
+			{
+				return false;
+			}
+
+			int dayIndex = (int)(_date - _parentNode.StartDate).TotalDays;
+			int todayIndex = (int)(DateTime.Today - _parentNode.StartDate).TotalDays;
+
+			return dayIndex < todayIndex;
 		}
 	}
 }
