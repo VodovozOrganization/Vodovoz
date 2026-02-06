@@ -13,19 +13,18 @@ using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Infrastructure.Services;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.Presentation.ViewModels.Widgets.Profitability;
 using Vodovoz.Services;
 using Vodovoz.Settings.Logistics;
-using VodovozBusiness.Domain.Logistic.Drivers;
+using VodovozBusiness.EntityRepositories.Logistic;
 using VodovozBusiness.Nodes;
 using VodovozInfrastructure.StringHandlers;
 
@@ -37,6 +36,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		private readonly ICarEventSettings _carEventSettings;
 		private readonly IEmployeeService _employeeService;
 		private readonly IUserService _userService;
+		private readonly ILogisticRepository _logisticRepository;
+		private readonly ICarRepository _carRepository;
 
 		private ObservableList<SubdivisionNode> _subdivisions;
 		private IList<CarTypeOfUse> _selectedCarTypeOfUse;
@@ -53,7 +54,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			IStringHandler stringHandler,
 			IDatePickerViewModelFactory weekPickerViewModelFactory,
 			IEmployeeService employeeService,
-			IUserService userService
+			IUserService userService,
+			ILogisticRepository logisticRepository,
+			ICarRepository carRepository
 			) : base(unitOfWorkFactory, interactiveService, navigation)
 		{
 
@@ -62,6 +65,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
+			_logisticRepository = logisticRepository ?? throw new ArgumentNullException(nameof(logisticRepository));
+			_carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
 
 			InitializeWeekPicker(weekPickerViewModelFactory);
 
@@ -199,26 +204,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		private void InitializeSubdivisions()
 		{
-			Subdivision subdivisionAlias = null;
-			CarModel carModelAlias = null;
+			var carTypeOfUseArray = SelectedCarTypeOfUse.ToArray();
 
-			var subdivisionIds = GetFilteredDriversQuery()
-				.Left.JoinAlias(e => e.Subdivision, () => subdivisionAlias)
-				.WhereRestrictionOn(() => carModelAlias.CarTypeOfUse).IsIn(SelectedCarTypeOfUse.ToArray())
-				.SelectList(list => list
-					.SelectGroup(() => subdivisionAlias.Id)
-				)
-				.List<int>()
-				.Distinct()
-				.ToList();
-
-			var subdivisions = subdivisionIds.Count > 0
-				? UoW.Session.QueryOver<Subdivision>()
-					.WhereRestrictionOn(s => s.Id).IsIn(subdivisionIds.ToArray())
-					.OrderBy(s => s.Name).Asc
-					.List()
-					.ToList()
-				: new List<Subdivision>();
+			var subdivisions = _logisticRepository.GetSubdivisionsForDriverSchedule(UoW, carTypeOfUseArray, StartDate, EndDate);
 
 			Subdivisions = new ObservableList<SubdivisionNode>(
 				subdivisions.Select(subdivision => new SubdivisionNode(subdivision) { Selected = true })
@@ -240,30 +228,28 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 				.Select(s => s.SubdivisionId)
 				.ToArray();
 
-			var driversQuery = GetFilteredDriversQuery()
-				.JoinEntityAlias(
-					() => carVersionAlias,
-					() => carVersionAlias.Car.Id == carAlias.Id,
-					NHibernate.SqlCommand.JoinType.LeftOuterJoin
-				)
-				.JoinEntityAlias(
-					() => driverScheduleAlias,
-					() => driverScheduleAlias.Driver.Id == employeeAlias.Id,
-					NHibernate.SqlCommand.JoinType.LeftOuterJoin
-				)
-				.WhereRestrictionOn(e => e.Subdivision.Id).IsIn(selectedSubdivisionIds);
+			var driversQuery = _logisticRepository.GetDriversQueryWithJoins(UoW, selectedSubdivisionIds, StartDate, EndDate);
+
+			if(SelectedCarOwnTypes != null && SelectedCarOwnTypes.Any())
+			{
+				driversQuery.WhereRestrictionOn(() => employeeAlias.DriverOfCarOwnType).IsIn(SelectedCarOwnTypes.ToArray());
+			}
+			else
+			{
+				driversQuery.Where(Restrictions.IsNull(Projections.Property(() => employeeAlias.DriverOfCarOwnType)));
+			}
 
 			if(SelectedCarTypeOfUse != null && SelectedCarTypeOfUse.Any())
 			{
-				driversQuery.Where(Restrictions.Disjunction()
-					.Add(Restrictions.IsNull(Projections.Property(() => carModelAlias.CarTypeOfUse)))
-					.Add(Restrictions.In(Projections.Property(() => carModelAlias.CarTypeOfUse),
-						SelectedCarTypeOfUse.ToArray()))
-				);
+				driversQuery.WhereRestrictionOn(() => carModelAlias.CarTypeOfUse).IsIn(SelectedCarTypeOfUse.ToArray());
+			}
+			else
+			{
+				driversQuery.Where(Restrictions.IsNull(Projections.Property(() => carModelAlias.CarTypeOfUse)));
 			}
 
 			var phoneSubquery = QueryOver.Of(() => phoneAlias)
-				.Where(() => phoneAlias.Employee.Id == ((Employee)null).Id)
+				.Where(() => phoneAlias.Employee.Id == employeeAlias.Id)
 				.OrderBy(() => phoneAlias.Id).Asc
 				.Select(Projections.Property(() => phoneAlias.Number))
 				.Take(1);
@@ -314,12 +300,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			var driverIds = filteredResult.Select(r => r.DriverId).ToList();
 			if(driverIds.Any())
 			{
-				var scheduleItems = UoW.Session.QueryOver<DriverScheduleItem>()
-					.Left.JoinAlias(i => i.DriverSchedule, () => driverScheduleAlias)
-					.Left.JoinAlias(() => driverScheduleAlias.Driver, () => employeeAlias)
-					.WhereRestrictionOn(() => employeeAlias.Id).IsIn(driverIds.ToArray())
-					.Where(i => i.Date >= StartDate && i.Date <= EndDate)
-					.List();
+				var carEvents = _logisticRepository.GetCarEventsByDriverIds(UoW, driverIds.ToArray(), StartDate, EndDate);
+				var scheduleItems = _logisticRepository.GetDriverScheduleItemsByDriverIds(UoW, driverIds.ToArray(), StartDate, EndDate);
 
 				foreach(var node in result)
 				{
@@ -425,45 +407,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			return eventType;
 		}
 
-		private IQueryOver<Employee, Employee> GetFilteredDriversQuery()
-		{
-			Employee employeeAlias = null;
-			Car carAlias = null;
-			CarModel carModelAlias = null;
-
-			var query = UoW.Session.QueryOver(() => employeeAlias)
-				.JoinEntityAlias(
-					() => carAlias,
-					() => carAlias.Driver.Id == employeeAlias.Id,
-					NHibernate.SqlCommand.JoinType.LeftOuterJoin
-				)
-				.Left.JoinAlias(() => carAlias.CarModel, () => carModelAlias)
-				.Where(() => employeeAlias.Category == EmployeeCategory.driver)
-				.Where(Restrictions.Disjunction()
-					.Add(Restrictions.Not(Restrictions.Eq(Projections.Property(() => employeeAlias.Status), EmployeeStatus.IsFired)))
-					.Add(Restrictions.And(
-						Restrictions.Eq(Projections.Property(() => employeeAlias.Status), EmployeeStatus.IsFired),
-						Restrictions.Ge(Projections.Property(() => employeeAlias.DateFired), StartDate)
-					))
-					.Add(Restrictions.And(
-						Restrictions.Eq(Projections.Property(() => employeeAlias.Status), EmployeeStatus.OnCalculation),
-						Restrictions.Ge(Projections.Property(() => employeeAlias.DateCalculated), StartDate)
-					))
-				);
-
-			if(SelectedCarOwnTypes != null && SelectedCarOwnTypes.Any())
-			{
-				query.WhereRestrictionOn(() => employeeAlias.DriverOfCarOwnType).IsIn(SelectedCarOwnTypes.ToArray());
-			}
-
-			if(SelectedCarTypeOfUse != null && SelectedCarTypeOfUse.Any())
-			{
-				query.WhereRestrictionOn(() => carModelAlias.CarTypeOfUse).IsIn(SelectedCarTypeOfUse.ToArray());
-			}
-
-			return query;
-		}
-
 		private void LoadAvailableCarEventTypes()
 		{
 			var noneEventType = new CarEventType { Id = 0, ShortName = "Нет", Name = "Нет" };
@@ -495,17 +438,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 					return;
 				}
 
-				Employee employeeAlias = null;
-				DriverScheduleItem driverScheduleItemAlias = null;
-
-				var existingSchedules = UoW.Session.QueryOver<VodovozBusiness.Domain.Logistic.Drivers.DriverSchedule>()
-					.Left.JoinAlias(ds => ds.Driver, () => employeeAlias)
-					.Left.JoinAlias(ds => ds.Days, () => driverScheduleItemAlias,
-						() => driverScheduleItemAlias.Date >= StartDate && driverScheduleItemAlias.Date <= EndDate)
-					.WhereRestrictionOn(() => employeeAlias.Id).IsIn(driverIds)
-					.TransformUsing(Transformers.DistinctRootEntity)
-					.List()
-					.ToList();
+				var existingSchedules = _logisticRepository.GetDriverSchedules(UoW, driverIds, StartDate, EndDate);
 
 				var schedulesByDriverId = existingSchedules
 					.Where(s => s.Driver != null)
@@ -723,9 +656,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 				return;
 			}
 
-			var car = UoW.Session.QueryOver<Car>()
-				.Where(c => c.Driver.Id == driverNode.DriverId)
-				.SingleOrDefault();
+			var car = _carRepository.GetCarByDriverId(UoW, driverNode.DriverId);
 
 			if(car == null)
 			{
@@ -806,11 +737,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 			var endOfDay = new DateTime(group.EndDate.Year, group.EndDate.Month, group.EndDate.Day, 23, 59, 59);
 
-			var existingEvent = UoW.Session.QueryOver<CarEvent>()
-				.Where(e => e.Car.Id == car.Id)
-				.Where(e => e.CarEventType.Id == group.CarEventType.Id)
-				.Where(e => e.StartDate >= group.StartDate.Date && e.StartDate <= endOfDay)
-				.SingleOrDefault();
+			var existingEvent = _logisticRepository.GetCarEventByCarId(UoW, car.Id, group, endOfDay);
 
 			if(existingEvent == null)
 			{
@@ -880,14 +807,5 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 			_interactiveService.ShowMessage(ImportanceLevel.Info, infoMessage);
 		}
-	}
-
-	public class CarEventGroup
-	{
-		public CarEventType CarEventType { get; set; }
-		public DateTime StartDate { get; set; }
-		public DateTime EndDate { get; set; }
-		public string Comment { get; set; }
-		public List<int> DayIndices { get; set; }
 	}
 }

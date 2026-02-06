@@ -28,6 +28,14 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 					  .SingleOrDefault();
 		}
 
+		public Car GetCarByDriverId(IUnitOfWork uow, int driverId)
+		{
+			return uow.Session.QueryOver<Car>()
+					  .Where(x => x.Driver.Id == driverId)
+					  .Take(1)
+					  .SingleOrDefault();
+		}
+
 		public IList<Car> GetCarsByDrivers(IUnitOfWork uow, int[] driversIds)
 		{
 			return uow.Session.QueryOver<Car>()
