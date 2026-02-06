@@ -33,6 +33,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 	public class DriverScheduleViewModel : DialogTabViewModelBase
 	{
 		private readonly IInteractiveService _interactiveService;
+		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly ICarEventSettings _carEventSettings;
 		private readonly IEmployeeService _employeeService;
 		private readonly IUserService _userService;
@@ -49,6 +50,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		public DriverScheduleViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
+			ICurrentPermissionService currentPermissionService,
 			ICarEventSettings carEventSettings,
 			INavigationManager navigation,
 			IStringHandler stringHandler,
@@ -62,6 +64,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
@@ -72,6 +75,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 			Title = "График водителей";
 
+			SetPermissions();
 			var typesOfUse = EnumHelper.GetValuesList<CarTypeOfUse>().ToList();
 			typesOfUse.Remove(CarTypeOfUse.Loader);
 			typesOfUse.Remove(CarTypeOfUse.Truck);
@@ -85,7 +89,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 			DriverScheduleRows = GenerateRows();
 			LoadAvailableCarEventTypes();
-			LoadAvailableDeliverySchedules();
 
 			SaveCommand = new DelegateCommand(SaveDriverSchedule, () => CanEdit);
 			SaveCommand.CanExecuteChangedWith(this, x => x.CanEdit);
@@ -137,12 +140,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			private set => SetField(ref _subdivisions, value);
 		}
 
-		public bool CanEdit => true;
+		public bool CanEdit;
+		public bool CanEditAfter13;
 		public bool AskSaveOnClose => CanEdit;
 
 		public ObservableList<DriverScheduleNode> DriverScheduleRows { get; private set; }
 		public List<CarEventType> AvailableCarEventTypes { get; } = new List<CarEventType>();
-		public List<DeliverySchedule> AvailableDeliverySchedules { get; } = new List<DeliverySchedule>();
 
 		public IStringHandler StringHandler { get; }
 
@@ -200,6 +203,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			}
 
 			return $"{dayOfWeek}, {date:dd.MM.yyyy}";
+		}
+
+		private void SetPermissions()
+		{
+			CanEdit = _currentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.LogisticPermissions.CanWorkWithDriverSchedule);
+			CanEditAfter13 = _currentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.LogisticPermissions.CanEditEventsAndCapacitiesAfter13);
 		}
 
 		private void InitializeSubdivisions()
@@ -306,6 +315,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 				foreach(var node in result)
 				{
 					node.StartDate = StartDate;
+					node.CanEditAfter13 = CanEditAfter13;
 
 					for(int dayIndex = 0; dayIndex < 7; dayIndex++)
 					{
@@ -330,6 +340,23 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 						ProcessFiredDriverDays(node, dismissalDate.Value);
 					}
 
+					var driverCarEvents = carEvents
+						.Where(ce => ce.Driver.Id == node.DriverId)
+						.ToList();
+
+					for(int dayIndex = 0; dayIndex < 7; dayIndex++)
+					{
+						var dayDate = StartDate.AddDays(dayIndex);
+						var applicableEvent = driverCarEvents.FirstOrDefault(ce =>
+							ce.StartDate.Date <= dayDate && ce.EndDate.Date >= dayDate);
+
+						if(applicableEvent != null && !node.Days[dayIndex].IsVirtualCarEventType)
+						{
+							node.Days[dayIndex].CarEventType = applicableEvent.CarEventType;
+							node.Days[dayIndex].IsCarEventTypeFromJournal = true;
+						}
+					}
+
 					var driverScheduleItems = scheduleItems
 						.Where(si => si.DriverSchedule.Driver.Id == node.DriverId)
 						.ToList();
@@ -339,16 +366,26 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 						int dayIndex = (int)(item.Date - StartDate).TotalDays;
 						if(dayIndex >= 0 && dayIndex < 7)
 						{
-							if(item.CarEventType != null && !node.Days[dayIndex].IsVirtualCarEventType)
-							{
-								node.Days[dayIndex].CarEventType = item.CarEventType;
-							}
 							node.Days[dayIndex].Date = item.Date;
-							node.Days[dayIndex].MorningAddresses = item.MorningAddresses;
-							node.Days[dayIndex].MorningBottles = item.MorningBottles;
-							node.Days[dayIndex].EveningAddresses = item.EveningAddresses;
-							node.Days[dayIndex].EveningBottles = item.EveningBottles;
 							node.Days[dayIndex].ParentNode = node;
+
+							if(node.Days[dayIndex].IsCarEventTypeFromJournal
+								|| node.Days[dayIndex].IsVirtualCarEventType
+								|| item.CarEventType != null)
+							{
+								node.Days[dayIndex].MorningAddresses = 0;
+								node.Days[dayIndex].MorningBottles = 0;
+								node.Days[dayIndex].EveningAddresses = 0;
+								node.Days[dayIndex].EveningBottles = 0;
+								continue;
+							}
+							else
+							{
+								node.Days[dayIndex].MorningAddresses = item.MorningAddresses;
+								node.Days[dayIndex].MorningBottles = item.MorningBottles;
+								node.Days[dayIndex].EveningAddresses = item.EveningAddresses;
+								node.Days[dayIndex].EveningBottles = item.EveningBottles;
+							}
 						}
 					}
 				}
@@ -409,7 +446,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		private void LoadAvailableCarEventTypes()
 		{
-			var noneEventType = new CarEventType { Id = 0, ShortName = "Нет", Name = "Нет" };
+			var noneEventType = new CarEventType { Id = -1, ShortName = "Нет", Name = "Нет" };
 
 			AvailableCarEventTypes.Add(noneEventType);
 
@@ -417,13 +454,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 			AvailableCarEventTypes.AddRange(UoW.GetAll<CarEventType>()
 				.Where(x => !x.IsArchive && allowedIds.Contains(x.Id))
-				.ToList());
-		}
-
-		private void LoadAvailableDeliverySchedules()
-		{
-			AvailableDeliverySchedules.AddRange(UoW.GetAll<DeliverySchedule>()
-				.Where(x => !x.IsArchive)
 				.ToList());
 		}
 

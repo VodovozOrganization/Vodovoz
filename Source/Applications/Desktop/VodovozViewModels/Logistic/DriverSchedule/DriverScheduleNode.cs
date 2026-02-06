@@ -32,6 +32,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		private DateTime _startDate;
 		private bool _isCarAssigned;
 		private int _maxBottles;
+		private bool _canEditAfter13 = false;
 
 		public DriverScheduleNode()
 		{
@@ -277,8 +278,45 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			return IsValidDayIndex(dayIndex) ? Days[dayIndex]?.CarEventType : null;
 		}
 
+		private bool CanEditDay(int dayIndex)
+		{
+			if(!IsValidDayIndex(dayIndex))
+			{
+				return false;
+			}
+
+			var dayDate = Days[dayIndex].Date;
+			if(dayDate == default)
+			{
+				return true;
+			}
+
+			if(dayDate.Date < DateTime.Today)
+			{
+				return false;
+			}
+
+			if(dayDate.Date == DateTime.Today)
+			{
+				var now = DateTime.Now;
+				var cutoffTime = new TimeSpan(13, 0, 0);
+
+				if(now.TimeOfDay >= cutoffTime && !_canEditAfter13)
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+
 		private bool CanSetDayValue(int dayIndex, int value)
 		{
+			if(!CanEditDay(dayIndex))
+			{
+				return false;
+			}
+
 			var dayEventType = GetDayCarEventType(dayIndex);
 			if(dayEventType != null && dayEventType.Id > 0)
 			{
@@ -305,7 +343,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public void SetDayCarEventType(int dayIndex, CarEventType value)
 		{
-			if(!IsValidDayIndex(dayIndex))
+			if(!IsValidDayIndex(dayIndex) || !CanEditDay(dayIndex))
 			{
 				return;
 			}
@@ -328,7 +366,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public void SetDayMorningAddresses(int dayIndex, int value)
 		{
-			if(!IsValidDayIndex(dayIndex))
+			if(!IsValidDayIndex(dayIndex) || !CanEditDay(dayIndex))
 			{
 				return;
 			}
@@ -343,7 +381,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public void SetDayMorningBottles(int dayIndex, int value)
 		{
-			if(!IsValidDayIndex(dayIndex))
+			if(!IsValidDayIndex(dayIndex) || !CanEditDay(dayIndex))
 			{
 				return;
 			}
@@ -358,7 +396,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public void SetDayEveningAddresses(int dayIndex, int value)
 		{
-			if(!IsValidDayIndex(dayIndex))
+			if(!IsValidDayIndex(dayIndex) || !CanEditDay(dayIndex))
 			{
 				return;
 			}
@@ -373,7 +411,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public void SetDayEveningBottles(int dayIndex, int value)
 		{
-			if(!IsValidDayIndex(dayIndex))
+			if(!IsValidDayIndex(dayIndex) || !CanEditDay(dayIndex))
 			{
 				return;
 			}
@@ -557,6 +595,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			set => SetField(ref _maxBottles, value);
 		}
 
+		/// <summary>
+		/// Может ли пользователь менять мощности после 13:00
+		/// </summary>
+		public virtual bool CanEditAfter13
+		{
+			get => _canEditAfter13;
+			set => SetField(ref _canEditAfter13, value);
+		}
+
 		public string LastModifiedDateTimeString =>
 			LastModifiedDateTime != default
 				? LastModifiedDateTime.ToString("g")
@@ -631,7 +678,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			{
 				if(Days[i] != null)
 				{
-					if(Days[i].CarEventType == null || Days[i].CarEventType.Id == 0)
+					if(Days[i].CarEventType == null || Days[i].CarEventType.Id <= 0)
 					{
 						Days[i].MorningAddresses = _morningAddresses;
 						Days[i].MorningBottles = _morningBottles;

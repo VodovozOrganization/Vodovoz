@@ -12,8 +12,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using VodovozBusiness.Domain.Logistic.Drivers;
 using VodovozBusiness.EntityRepositories.Logistic;
-using static Vodovoz.Core.Domain.Permissions.LogisticPermissions;
-using Car = Vodovoz.Domain.Logistic.Cars.Car;
 
 namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
