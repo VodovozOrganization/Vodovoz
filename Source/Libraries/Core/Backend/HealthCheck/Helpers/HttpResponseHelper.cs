@@ -1,8 +1,7 @@
-﻿using System;
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,88 +16,15 @@ namespace VodovozHealthCheck.Helpers
 	public static class HttpResponseHelper
 	{
 		// Заголовок для идентификации проверки работоспособности
-		private const string HealthCheckHeader = "X-Health-Check";
+		private const string _healthCheckHeader = "X-Health-Check";
+
+		private const int healthCheckTimeoutSeconds = 14;
 
 		private static readonly JsonSerializerOptions VodovozDefaultJsonOptions = new()
 		{
 			PropertyNameCaseInsensitive = true,
 			PropertyNamingPolicy = JsonNamingPolicy.CamelCase
 		};
-
-		/// <summary>
-		///		Универсальный метод получения <see cref="HttpResponseMessage"/> по URI.
-		///		Поддерживает Bearer авторизацию и передачу API-ключа в заголовке.
-		/// </summary>
-		/// <param name="requestUri">URI запроса.</param>
-		/// <param name="httpClientFactory">Фабрика для получения <see cref="HttpClient"/>.</param>
-		/// <param name="bearerAccessToken">JWT/Bearer токен для авторизации (опционально).</param>
-		/// <param name="apiKey">Имя заголовка API-ключа (опционально).</param>
-		/// <param name="apiKeyValue">Значение API-ключа (опционально).</param>
-		/// <param name="cancellationToken">Токен отмены операции.</param>
-		/// <returns>Экземпляр <see cref="HttpResponseMessage"/>.</returns>
-		public static async Task<HttpResponseMessage> GetByUriAsync(
-			string requestUri,
-			IHttpClientFactory httpClientFactory,
-			string bearerAccessToken = null,
-			string apiKey = null,
-			string apiKeyValue = null,
-			CancellationToken cancellationToken = default)
-		{
-			var httpClient = httpClientFactory.CreateClient();
-
-			if(bearerAccessToken != null)
-			{
-				httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearerAccessToken);
-			}
-
-			if(!string.IsNullOrEmpty(apiKey) && !string.IsNullOrEmpty(apiKeyValue))
-			{
-				httpClient.DefaultRequestHeaders.Add(apiKey, apiKeyValue);
-			}
-
-			var responseMessage = await httpClient.GetAsync(requestUri, cancellationToken);
-
-			return responseMessage;
-		}
-
-		/// <summary>
-		///		Универсальный метод получения JSON-ответа по URI и десериализации в <typeparamref name="TResponse"/>.
-		///		Поддерживает Bearer авторизацию и передачу API-ключа в заголовке.
-		/// </summary>
-		/// <typeparam name="TResponse">Тип, в который будет десериализован ответ.</typeparam>
-		/// <param name="requestUri">URI запроса.</param>
-		/// <param name="httpClientFactory">Фабрика для получения <see cref="HttpClient"/>.</param>
-		/// <param name="bearerAccessToken">JWT/Bearer токен для авторизации (опционально).</param>
-		/// <param name="apiKey">Имя заголовка API-ключа (опционально).</param>
-		/// <param name="apiKeyValue">Значение API-ключа (опционально).</param>
-		/// <param name="cancellationToken">Токен отмены операции.</param>
-		/// <param name="jsonSerializerOptions">Опции JSON-сериализации/десериализации. Если null — используются VodovozDefaultJsonOptions.</param>
-		/// <returns>Десериализованный объект типа <typeparamref name="TResponse"/>.</returns>
-		public static async Task<TResponse> GetJsonByUriAsync<TResponse>(
-			string requestUri,
-			IHttpClientFactory httpClientFactory,
-			string bearerAccessToken = null,
-			string apiKey = null,
-			string apiKeyValue = null,
-			CancellationToken cancellationToken = default,
-			JsonSerializerOptions jsonSerializerOptions = null)
-		{
-			var httpClient = httpClientFactory.CreateClient();
-
-			if(bearerAccessToken != null)
-			{
-				httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearerAccessToken);
-			}
-
-			if(!string.IsNullOrEmpty(apiKey) && !string.IsNullOrEmpty(apiKeyValue))
-			{
-				httpClient.DefaultRequestHeaders.Add(apiKey, apiKeyValue);
-			}
-
-			var options = jsonSerializerOptions ?? VodovozDefaultJsonOptions;
-
-			return await httpClient.GetFromJsonAsync<TResponse>(requestUri, options, cancellationToken);
-		}
 
 		/// <summary>
 		///		Универсальный метод отправки HTTP-запроса с поддержкой:
@@ -145,63 +71,73 @@ namespace VodovozHealthCheck.Helpers
 
 			if(isHealthCheck)
 			{
-				request.Headers.Add(HealthCheckHeader, true.ToString());
+				request.Headers.Add(_healthCheckHeader, true.ToString());
 			}
 
 			var httpClient = httpClientFactory.CreateClient();
+			httpClient.Timeout = TimeSpan.FromSeconds(healthCheckTimeoutSeconds);
 
 			if(!string.IsNullOrEmpty(apiKey) && !string.IsNullOrEmpty(apiKeyValue))
 			{
 				httpClient.DefaultRequestHeaders.Add(apiKey, apiKeyValue);
 			}
 
-			using var response = await httpClient.SendAsync(request, cancellationToken);
-
-			var result = new HttpResponseWrapper<TResponse>
-			{
-				StatusCode = response.StatusCode,
-				IsSuccess = response.IsSuccessStatusCode
-			};
-
-			var content = await response.Content.ReadAsStringAsync(cancellationToken);
-
-			if(!response.IsSuccessStatusCode)
-			{
-				result.ErrorMessage = !string.IsNullOrWhiteSpace(content)
-					? content
-					: response.ReasonPhrase;
-
-				return result;
-			}
-
-			if(string.IsNullOrWhiteSpace(content))
-			{
-				return result;
-			}
-
-			var contentType = response.Content.Headers.ContentType?.MediaType;
-			var isPlainText = contentType?.Contains("text/plain") == true;
-
-			if(typeof(TResponse) == typeof(string) && isPlainText)
-			{
-				result.Data = (TResponse)(object)content;
-
-				return result;
-			}
+			var result = new HttpResponseWrapper<TResponse>();
 
 			try
 			{
-				result.Data = JsonSerializer.Deserialize<TResponse>(
-					content,
-					jsonSerializerOptions ?? VodovozDefaultJsonOptions);
+				using var response = await httpClient.SendAsync(request, cancellationToken);
+
+				var content = await response.Content.ReadAsStringAsync(cancellationToken);
+				
+				result.IsSuccess = response.IsSuccessStatusCode;
+				result.StatusCode = response.StatusCode;
+
+				if(!response.IsSuccessStatusCode)
+				{
+					result.ErrorMessage = !string.IsNullOrWhiteSpace(content)
+						? content
+						: response.ReasonPhrase;
+
+					return result;
+				}
+
+				if(string.IsNullOrWhiteSpace(content))
+				{
+					return result;
+				}
+
+				var contentType = response.Content.Headers.ContentType?.MediaType;
+				var isPlainText = contentType?.Contains("text/plain") == true;
+
+				if(typeof(TResponse) == typeof(string) && isPlainText)
+				{
+					result.Data = (TResponse)(object)content;
+
+					return result;
+				}
+
+				try
+				{
+					result.Data = JsonSerializer.Deserialize<TResponse>(
+						content,
+						jsonSerializerOptions ?? VodovozDefaultJsonOptions);
+				}
+				catch(JsonException e)
+				{
+					result.IsSuccess = false;
+					result.ErrorMessage = $"Ошибка десериализации: {e.Message}";
+				}
+
+				return result;
 			}
-			catch(JsonException e)
+			catch(Exception ex)
 			{
 				result.IsSuccess = false;
-				result.ErrorMessage = $"Ошибка десериализации: {e.Message}";
-			}
+				result.ErrorMessage = $"Ошибка при выполнении запроса {httpMethod} {requestUri}: {ex}";
 
-			return result;
+				return result;
+			}
 		}
 
 		/// <summary>
@@ -210,22 +146,34 @@ namespace VodovozHealthCheck.Helpers
 		/// <param name="uri">URI ресурса для проверки.</param>
 		/// <param name="httpClientFactory">Фабрика для получения <see cref="HttpClient"/>.</param>
 		/// <returns>true, если ответ имеет успешный статус (200-299); иначе false.</returns>
-		public static async Task<bool> CheckUriExistsAsync(
+		public static async Task<HttpResponseWrapper<string>> CheckUriExistsAsync(
 			string uri,
 			IHttpClientFactory httpClientFactory)
 		{
+			var unavailableMessage = "Адрес недоступен";
+
 			try
 			{
 				var httpClient = httpClientFactory.CreateClient();
+				httpClient.Timeout = TimeSpan.FromSeconds(healthCheckTimeoutSeconds);
 
 				using var request = new HttpRequestMessage(HttpMethod.Get, uri);
 				using var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
-				return response.IsSuccessStatusCode;
+				return new HttpResponseWrapper<string>
+				{
+					IsSuccess = response.IsSuccessStatusCode,
+					StatusCode = response.StatusCode,
+					ErrorMessage = response.ReasonPhrase
+				};
 			}
-			catch
+			catch(Exception ex)
 			{
-				return false;
+				return new HttpResponseWrapper<string>
+				{
+					IsSuccess = false,
+					ErrorMessage = ex.ToString()
+				};
 			}
 		}
 
@@ -236,7 +184,7 @@ namespace VodovozHealthCheck.Helpers
 		/// <returns>true, если запрос содержит заголовок X-Health-Check.</returns>
 		public static bool IsHealthCheckRequest(HttpRequest request)
 		{
-			if(request.Headers.TryGetValue(HealthCheckHeader, out var headerValue))
+			if(request.Headers.TryGetValue(_healthCheckHeader, out var headerValue))
 			{
 				return bool.TryParse(headerValue, out var result) && result;
 			}

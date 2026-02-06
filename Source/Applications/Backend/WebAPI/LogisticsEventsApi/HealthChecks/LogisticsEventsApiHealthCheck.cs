@@ -54,14 +54,15 @@ namespace LogisticsEventsApi.HealthChecks
 				_httpClientFactory,
 				loginRequestDto.ToJsonContent(),
 				cancellationToken);
-
-			var todayCompletedEventsResult = await HttpResponseHelper.GetByUriAsync(
+			
+			var todayCompletedEventsResult = await HttpResponseHelper.SendRequestAsync<HttpResponseMessage>(
+				HttpMethod.Get,
 				$"{baseAddress}/api/GetTodayCompletedEvents",
 				_httpClientFactory,
-				tokenResponse.Data?.AccessToken,
+				accessToken: tokenResponse.Data?.AccessToken,
 				cancellationToken: cancellationToken);
 
-			var todayCompletedEventsIsHealthy = ((HttpResponseMessage)todayCompletedEventsResult).StatusCode == HttpStatusCode.OK;
+			var todayCompletedEventsIsHealthy = todayCompletedEventsResult?.Data?.StatusCode == HttpStatusCode.OK;
 
 			if(!todayCompletedEventsIsHealthy)
 			{
