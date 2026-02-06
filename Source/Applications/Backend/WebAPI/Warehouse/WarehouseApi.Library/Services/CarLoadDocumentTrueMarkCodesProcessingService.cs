@@ -4,14 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Errors.Goods;
 using Vodovoz.Errors.Stores;
@@ -25,12 +24,12 @@ namespace WarehouseApi.Library.Services
 	{
 		private readonly IGenericRepository<StagingTrueMarkCode> _stagingTrueMarkCodeRepository;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
-		private readonly IGenericRepository<OrderEntity> _orderRepository;
+		private readonly IGenericRepository<Order> _orderRepository;
 
 		public CarLoadDocumentTrueMarkCodesProcessingService(
 			IGenericRepository<StagingTrueMarkCode> stagingTrueMarkCodeRepository,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
-			IGenericRepository<OrderEntity> orderRepository)
+			IGenericRepository<Order> orderRepository)
 		{
 			_stagingTrueMarkCodeRepository = stagingTrueMarkCodeRepository;
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
@@ -39,7 +38,7 @@ namespace WarehouseApi.Library.Services
 
 		public async Task<Result> AddProductCodesToCarLoadDocumentAndDeleteStagingCodes(
 			IUnitOfWork uow,
-			CarLoadDocumentEntity carLoadDocument,
+			CarLoadDocument carLoadDocument,
 			CancellationToken cancellationToken = default)
 		{
 			foreach(var carLoadDocumentItem in carLoadDocument.Items)
@@ -71,7 +70,7 @@ namespace WarehouseApi.Library.Services
 
 		private async Task<Result> AddProductCodesToCarLoadDocumentItemAndDeleteStagingCodes(
 			IUnitOfWork uow,
-			CarLoadDocumentItemEntity carLoadDocumentItem,
+			CarLoadDocumentItem carLoadDocumentItem,
 			CancellationToken cancellationToken = default)
 		{
 			var stagingCodes =
@@ -110,7 +109,7 @@ namespace WarehouseApi.Library.Services
 			return Result.Success();
 		}
 
-		private Result IsAllTrueMarkCodesInCarLoadDocumentAdded(IUnitOfWork uow, CarLoadDocumentEntity carLoadDocument)
+		private Result IsAllTrueMarkCodesInCarLoadDocumentAdded(IUnitOfWork uow, CarLoadDocument carLoadDocument)
 		{
 			var cancelledOrdersIds = GetCarLoadDocumentCancelledOrders(uow, carLoadDocument);
 
@@ -131,7 +130,7 @@ namespace WarehouseApi.Library.Services
 			return Result.Success();
 		}
 
-		private IEnumerable<int> GetCarLoadDocumentCancelledOrders(IUnitOfWork uow, CarLoadDocumentEntity carLoadDocument)
+		private IEnumerable<int> GetCarLoadDocumentCancelledOrders(IUnitOfWork uow, CarLoadDocument carLoadDocument)
 		{
 			var ordersInDocument = carLoadDocument.Items
 				.Where(x => x.OrderId != null)
@@ -155,7 +154,7 @@ namespace WarehouseApi.Library.Services
 		private async Task<Result> AddProductCodesToCarLoadDocumentItemFromStagingCodes(
 			IUnitOfWork uow,
 			IEnumerable<StagingTrueMarkCode> stagingCodes,
-			CarLoadDocumentItemEntity routeListItem,
+			CarLoadDocumentItem routeListItem,
 			CancellationToken cancellationToken = default)
 		{
 			var trueMarkAnyCodesResult =
@@ -186,7 +185,7 @@ namespace WarehouseApi.Library.Services
 
 		private async Task AddTrueMarkAnyCodeToCarLoadDocumentItemNoCodeStatusCheck(
 			IUnitOfWork uow,
-			CarLoadDocumentItemEntity carLoadDocumentItem,
+			CarLoadDocumentItem carLoadDocumentItem,
 			TrueMarkAnyCode trueMarkAnyCode,
 			SourceProductCodeStatus status,
 			ProductCodeProblem problem,
@@ -251,7 +250,7 @@ namespace WarehouseApi.Library.Services
 
 		private void AddTrueMarkCodeToCarLoadDocumentItem(
 			IUnitOfWork uow,
-			CarLoadDocumentItemEntity carLoadDocumentItem,
+			CarLoadDocumentItem carLoadDocumentItem,
 			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
 			SourceProductCodeStatus status,
 			ProductCodeProblem problem)
@@ -267,7 +266,7 @@ namespace WarehouseApi.Library.Services
 		}
 
 		private CarLoadDocumentItemTrueMarkProductCode CreateCarLoadDocumentItemTrueMarkProductCode(
-			CarLoadDocumentItemEntity carLoadDocumentItem,
+			CarLoadDocumentItem carLoadDocumentItem,
 			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
 			SourceProductCodeStatus status,
 			ProductCodeProblem problem) =>
@@ -284,7 +283,7 @@ namespace WarehouseApi.Library.Services
 		public async Task<Result<StagingTrueMarkCode>> AddStagingTrueMarkCode(
 			IUnitOfWork uow,
 			string scannedCode,
-			CarLoadDocumentItemEntity carLoadDocumentItem,
+			CarLoadDocumentItem carLoadDocumentItem,
 			CancellationToken cancellationToken = default)
 		{
 			var createCodeResult =
@@ -325,7 +324,7 @@ namespace WarehouseApi.Library.Services
 			IUnitOfWork uow,
 			string newScannedCode,
 			string oldScannedCode,
-			CarLoadDocumentItemEntity carLoadDocumentItem,
+			CarLoadDocumentItem carLoadDocumentItem,
 			CancellationToken cancellationToken = default)
 		{
 			var removeCodeResult =
@@ -412,7 +411,7 @@ namespace WarehouseApi.Library.Services
 		private async Task<Result> IsStagingTrueMarkCodeCanBeAdded(
 			IUnitOfWork uow,
 			StagingTrueMarkCode stagingTrueMarkCode,
-			CarLoadDocumentItemEntity carLoadDocumentItem,
+			CarLoadDocumentItem carLoadDocumentItem,
 			CancellationToken cancellationToken)
 		{
 			if(stagingTrueMarkCode.RelatedDocumentType != StagingTrueMarkCodeRelatedDocumentType.CarLoadDocumentItem)
@@ -463,7 +462,7 @@ namespace WarehouseApi.Library.Services
 			IUnitOfWork uow,
 			StagingTrueMarkCode newStagingTrueMarkCode,
 			StagingTrueMarkCode oldStagingTrueMarkCode,
-			CarLoadDocumentItemEntity carLoadDocumentItem,
+			CarLoadDocumentItem carLoadDocumentItem,
 			CancellationToken cancellationToken)
 		{
 			if(newStagingTrueMarkCode.RelatedDocumentType != StagingTrueMarkCodeRelatedDocumentType.CarLoadDocumentItem)
@@ -511,7 +510,7 @@ namespace WarehouseApi.Library.Services
 			return Result.Success();
 		}
 
-		private Result IsCarLoadDocumentItemHaveNoAddedCodes(CarLoadDocumentItemEntity carLoadDocumentItem)
+		private Result IsCarLoadDocumentItemHaveNoAddedCodes(CarLoadDocumentItem carLoadDocumentItem)
 		{
 			if(carLoadDocumentItem?.TrueMarkCodes.Count > 0)
 			{
@@ -525,7 +524,7 @@ namespace WarehouseApi.Library.Services
 		private Result IsStagingTrueMarkCodesCountCanBeAdded(
 			IUnitOfWork uow,
 			StagingTrueMarkCode stagingTrueMarkCode,
-			CarLoadDocumentItemEntity carLoadDocumentItem)
+			CarLoadDocumentItem carLoadDocumentItem)
 		{
 			var carLoadDocumentItemId = stagingTrueMarkCode.RelatedDocumentId;
 
@@ -555,7 +554,7 @@ namespace WarehouseApi.Library.Services
 			IUnitOfWork uow,
 			StagingTrueMarkCode newStagingTrueMarkCode,
 			StagingTrueMarkCode oldStagingTrueMarkCode,
-			CarLoadDocumentItemEntity carLoadDocumentItem)
+			CarLoadDocumentItem carLoadDocumentItem)
 		{
 			var carLoadDocumentItemId = newStagingTrueMarkCode.RelatedDocumentId;
 			var allRemoveingCodes = oldStagingTrueMarkCode.AllIdentificationCodes.Select(c => c.Id).ToList();
@@ -585,7 +584,7 @@ namespace WarehouseApi.Library.Services
 			return Result.Success();
 		}
 
-		private Result IsNomeclatureAccountableInTrueMark(NomenclatureEntity nomenclature)
+		private Result IsNomeclatureAccountableInTrueMark(Nomenclature nomenclature)
 		{
 			if(!nomenclature.IsAccountableInTrueMark)
 			{
@@ -596,7 +595,7 @@ namespace WarehouseApi.Library.Services
 			return Result.Success();
 		}
 
-		private Result IsNomeclatureGtinContainsCodeGtin(StagingTrueMarkCode stagingTrueMarkCode, NomenclatureEntity nomenclature)
+		private Result IsNomeclatureGtinContainsCodeGtin(StagingTrueMarkCode stagingTrueMarkCode, Nomenclature nomenclature)
 		{
 			var nomenclatureGtins = nomenclature.Gtins
 				.Select(x => x.GtinNumber)

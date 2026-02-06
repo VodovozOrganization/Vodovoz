@@ -14,11 +14,11 @@ using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
-using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Errors;
 using Vodovoz.Models;
@@ -39,7 +39,7 @@ namespace WarehouseApi.Library.Services
 		private readonly IUnitOfWork _uow;
 		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository;
 		private readonly IEmployeeWithLoginRepository _employeeWithLoginRepository;
-		private readonly IGenericRepository<OrderEntity> _orderRepository;
+		private readonly IGenericRepository<Order> _orderRepository;
 		private readonly IRouteListDailyNumberProvider _routeListDailyNumberProvider;
 		private readonly ILogisticsEventsCreationService _logisticsEventsCreationService;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
@@ -54,7 +54,7 @@ namespace WarehouseApi.Library.Services
 			IUnitOfWork uow,
 			ICarLoadDocumentRepository carLoadDocumentRepository,
 			IEmployeeWithLoginRepository employeeWithLoginRepository,
-			IGenericRepository<OrderEntity> orderRepository,
+			IGenericRepository<Order> orderRepository,
 			IRouteListDailyNumberProvider routeListDailyNumberProvider,
 			ILogisticsEventsCreationService logisticsEventsCreationService,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
@@ -680,7 +680,7 @@ namespace WarehouseApi.Library.Services
 		}
 
 		private bool SetDocumentLoadOperationState(
-			CarLoadDocumentEntity document,
+			CarLoadDocument document,
 			CarLoadDocumentLoadOperationState newLoadOperationState)
 		{
 			if(newLoadOperationState != CarLoadDocumentLoadOperationState.InProgress
@@ -786,7 +786,7 @@ namespace WarehouseApi.Library.Services
 			}
 		}
 
-		private IEnumerable<PrimaryEdoRequest> CreateEdoRequests(CarLoadDocumentEntity carLoadDocument)
+		private IEnumerable<PrimaryEdoRequest> CreateEdoRequests(CarLoadDocument carLoadDocument)
 		{
 			var ordersNeedsRequest =
 				carLoadDocument.Items

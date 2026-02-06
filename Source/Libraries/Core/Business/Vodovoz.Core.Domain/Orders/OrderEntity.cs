@@ -713,12 +713,6 @@ namespace Vodovoz.Core.Domain.Orders
 			IsOrderForTender
 			&& Client?.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute
 			&& PaymentType == PaymentType.Cashless;
-
-		/// <summary>
-		/// Документооборот по ЭДО с клиентом по заказу осуществляется по новой схеме
-		/// </summary>
-		public virtual bool IsClientWorksWithNewEdoProcessing =>
-			Client?.IsNewEdoProcessing ?? false;
 			
 		/// <summary>
 		/// Полная сумма заказа

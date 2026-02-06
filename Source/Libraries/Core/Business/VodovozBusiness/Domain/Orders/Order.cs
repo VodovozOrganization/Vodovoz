@@ -1794,6 +1794,12 @@ namespace Vodovoz.Domain.Orders
 				&& edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
 		}
 
+		/// <summary>
+		/// Документооборот по ЭДО с клиентом по заказу осуществляется по новой схеме
+		/// </summary>
+		public virtual bool IsClientWorksWithNewEdoProcessing =>
+			Client?.IsNewEdoProcessing ?? false;
+
 		public virtual void AddDeliveryPointCommentToOrder()
 		{
 			if(DeliveryPoint == null)

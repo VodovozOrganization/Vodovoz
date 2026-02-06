@@ -49,7 +49,7 @@ namespace WarehouseApi.Library.Errors
 		}
 
 		public Result IsCarLoadDocumentLoadingCanBeStarted(
-			CarLoadDocumentEntity carLoadDocument,
+			CarLoadDocument carLoadDocument,
 			int documentId)
 		{
 			var result = IsCarLoadDocumentNotNull(carLoadDocument, documentId);
@@ -63,7 +63,7 @@ namespace WarehouseApi.Library.Errors
 		}
 
 		public Result IsCarLoadDocumentLoadingCanBeDone(
-			CarLoadDocumentEntity carLoadDocument,
+			CarLoadDocument carLoadDocument,
 			int documentId)
 		{
 			var result = IsCarLoadDocumentNotNull(carLoadDocument, documentId);
@@ -76,7 +76,7 @@ namespace WarehouseApi.Library.Errors
 			return IsCarLoadDocumentLoadOperationStateInProgress(carLoadDocument, documentId);
 		}
 
-		private Result IsCarLoadDocumentNotNull(CarLoadDocumentEntity carLoadDocument, int documentId)
+		private Result IsCarLoadDocumentNotNull(CarLoadDocument carLoadDocument, int documentId)
 		{
 			if(carLoadDocument is null)
 			{
@@ -119,7 +119,7 @@ namespace WarehouseApi.Library.Errors
 			return Result.Success();
 		}
 
-		private Result IsCarLoadDocumentLoadOperationStateNotStartedOrInProgress(CarLoadDocumentEntity carLoadDocument, int documentId)
+		private Result IsCarLoadDocumentLoadOperationStateNotStartedOrInProgress(CarLoadDocument carLoadDocument, int documentId)
 		{
 			if(!(carLoadDocument.LoadOperationState == CarLoadDocumentLoadOperationState.NotStarted
 				|| carLoadDocument.LoadOperationState == CarLoadDocumentLoadOperationState.InProgress))
@@ -132,7 +132,7 @@ namespace WarehouseApi.Library.Errors
 			return Result.Success();
 		}
 
-		private Result IsCarLoadDocumentLoadOperationStateInProgress(CarLoadDocumentEntity carLoadDocument, int documentId)
+		private Result IsCarLoadDocumentLoadOperationStateInProgress(CarLoadDocument carLoadDocument, int documentId)
 		{
 			if(carLoadDocument.LoadOperationState != CarLoadDocumentLoadOperationState.InProgress)
 			{
@@ -286,7 +286,7 @@ namespace WarehouseApi.Library.Errors
 			return Result.Success();
 		}
 
-		private Result IsDocumentItemToEditNotNull(CarLoadDocumentItemEntity documentItemToEdit, int orderId)
+		private Result IsDocumentItemToEditNotNull(CarLoadDocumentItem documentItemToEdit, int orderId)
 		{
 			if(documentItemToEdit is null)
 			{
@@ -301,7 +301,7 @@ namespace WarehouseApi.Library.Errors
 		private Result IsSingleItemHavingRequiredOrderAndNomenclatureExists(
 			int orderId,
 			int nomenclatureId,
-			IEnumerable<CarLoadDocumentItemEntity> documentNomenclatureOrderItems)
+			IEnumerable<CarLoadDocumentItem> documentNomenclatureOrderItems)
 		{
 			if(documentNomenclatureOrderItems.Count() == 0)
 			{
