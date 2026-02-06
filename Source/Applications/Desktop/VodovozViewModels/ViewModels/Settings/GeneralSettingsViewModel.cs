@@ -141,8 +141,6 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			CanEditOrderAutoComment =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission("сan_edit_order_auto_comment_setting");
 			CanEditDebtNotification =
-				_commonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_debt_notification_setting");
-			CanEditDebtNotification =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.CounterpartyPermissions.CanEditDebtNotification);
 			OrderAutoComment = _generalSettings.OrderAutoComment;
 
