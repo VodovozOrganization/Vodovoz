@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
@@ -49,7 +49,6 @@ using Vodovoz.ViewModels.TrueMark;
 using Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Client.Specifications;
-using VodovozBusiness.Services.TrueMark;
 
 namespace Vodovoz
 {
@@ -64,7 +63,6 @@ namespace Vodovoz
 		private IStoreDocumentHelper _storeDocumentHelper;
 		private INomenclatureRepository _nomenclatureRepository;
 		private readonly IValidationContextFactory _validationContextFactory =  ScopeProvider.Scope.Resolve<IValidationContextFactory>();
-		private ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private IGenericRepository<FormalEdoRequest> _orderEdoRequestRepository;
 		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
 		private CodesScanViewModel _codesScanViewModel;
@@ -135,8 +133,6 @@ namespace Vodovoz
 			_bottlesRepository = _lifetimeScope.Resolve<IBottlesRepository>();
 			_storeDocumentHelper = _lifetimeScope.Resolve<IStoreDocumentHelper>();
 			_nomenclatureRepository = _lifetimeScope.Resolve<INomenclatureRepository>();
-			_trueMarkWaterCodeService = _lifetimeScope.Resolve<ITrueMarkWaterCodeService>
-				(new TypedParameter(typeof(IUnitOfWork), UoW));
 			_orderEdoRequestRepository = _lifetimeScope.Resolve<IGenericRepository<FormalEdoRequest>>();
 			_edoAccountController = _lifetimeScope.Resolve<ICounterpartyEdoAccountController>();
 		}

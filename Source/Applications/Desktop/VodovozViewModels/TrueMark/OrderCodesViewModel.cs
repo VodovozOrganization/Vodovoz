@@ -1,4 +1,4 @@
-using Core.Infrastructure;
+﻿using Core.Infrastructure;
 using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -11,7 +11,6 @@ using System.Windows.Input;
 using Vodovoz.Core.Data.Logistics;
 using Vodovoz.Core.Domain.Interfaces.TrueMark;
 using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Logistic;
