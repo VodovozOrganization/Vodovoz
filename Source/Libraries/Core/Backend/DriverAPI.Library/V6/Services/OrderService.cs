@@ -1702,6 +1702,83 @@ namespace DriverAPI.Library.V6.Services
 			};
 		}
 
+		/// <inheritdoc/>
+		public async Task<RequestProcessingResult<CheckCodeResultResponse>> CheckCode(
+			string code,
+			CancellationToken cancellationToken)
+		{
+			if(string.IsNullOrWhiteSpace(code))
+			{
+				var error = TrueMarkCodeErrors.TrueMarkCodeStringIsNotValid;
+				var result = Result.Failure<CheckCodeResultResponse>(error);
+				return RequestProcessingResult.CreateFailure(result, new CheckCodeResultResponse
+				{
+					Result = RequestProcessingResultTypeDto.Error,
+					Error = error.Message,
+					Codes = null
+				});
+			}
+
+			var trueMarkCodeResult = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(
+				_uow,
+				code,
+				cancellationToken);
+
+			if(trueMarkCodeResult.IsFailure)
+			{
+				var error = trueMarkCodeResult.Errors.FirstOrDefault();
+				var result = Result.Failure<CheckCodeResultResponse>(error);
+				return RequestProcessingResult.CreateFailure(result, new CheckCodeResultResponse
+				{
+					Result = RequestProcessingResultTypeDto.Error,
+					Error = error.Message,
+					Codes = null
+				});
+			}
+
+			IEnumerable<TrueMarkAnyCode> trueMarkAnyCodes = trueMarkCodeResult.Value.Match(
+				transportCode => transportCode.GetAllCodes(),
+				groupCode => groupCode.GetAllCodes(),
+				waterCode => new TrueMarkAnyCode[] { waterCode });
+
+			var trueMarkCodes = trueMarkAnyCodes
+				.Select(code => code.Match(
+					PopulateTransportCode(trueMarkAnyCodes),
+					PopulateGroupCode(trueMarkAnyCodes),
+					PopulateWaterCode(trueMarkAnyCodes)))
+				.ToList();
+			
+			var instanceCodes = trueMarkAnyCodes
+				.Where(x => x.IsTrueMarkWaterIdentificationCode)
+				.Select(x => x.TrueMarkWaterIdentificationCode);
+
+			var codeCheckingProcessResult = await _trueMarkWaterCodeService.IsAllTrueMarkCodesValid(
+				instanceCodes,
+				cancellationToken
+			);
+
+			if(codeCheckingProcessResult.IsFailure)
+			{
+				var error = codeCheckingProcessResult.Errors.FirstOrDefault();
+				var result = Result.Failure<CheckCodeResultResponse>(error);
+				return RequestProcessingResult.CreateFailure(result, new CheckCodeResultResponse
+				{
+					Result = RequestProcessingResultTypeDto.Error,
+					Error = error.Message,
+					Codes = null
+				});
+			}
+
+			var successResponse = new CheckCodeResultResponse
+			{
+				Result = RequestProcessingResultTypeDto.Success,
+				Error = null,
+				Codes = trueMarkCodes
+			};
+
+			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
+		}
+
 		public async Task<Result> SendTrueMarkCodes(
 			DateTime actionTime,
 			Employee driver,
