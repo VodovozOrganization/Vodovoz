@@ -78,7 +78,8 @@ namespace ExportTo1c.Library.Exporters
 					new XAttribute("Номер", order.Id),
 					new XAttribute("НомерУПД", updNum),
 					new XAttribute("КонтрагентИНН", order.Client.INN),
-					new XAttribute("Договор", $"{order.Contract.Number} от {order.Contract.IssueDate:d}")
+					new XAttribute("Договор", $"{order.Contract.Number} от {order.Contract.IssueDate:d}"),
+					new XAttribute("Статус", order.OrderStatus.GetEnumTitle())
 				);
 
 				var salesElement = new XElement("Продажи");

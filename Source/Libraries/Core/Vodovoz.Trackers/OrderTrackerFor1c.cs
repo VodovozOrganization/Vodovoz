@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using Vodovoz.Core.Domain.Attributes;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Trackers
 {
@@ -140,16 +139,14 @@ namespace Vodovoz.Trackers
 		{
 			var order =
 				(entity as OrderEntity)
-				?? (entity as Order)
-				?? (entity as OrderItemEntity)?.Order
-				?? (entity as OrderItem)?.Order;
+				?? (entity as OrderItemEntity)?.Order;
 
 			if(order == null)
 			{
 				return null;
 			}
 
-			var date = (order as OrderEntity)?.DeliveryDate ?? (order as Order)?.DeliveryDate;
+			var date = order.DeliveryDate;
 
 			if(date is null)
 			{

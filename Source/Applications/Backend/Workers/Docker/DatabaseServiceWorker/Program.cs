@@ -1,8 +1,10 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using DatabaseServiceWorker.ExportTo1c;
 using DatabaseServiceWorker.PowerBiWorker;
 using DatabaseServiceWorker.PowerBiWorker.Exporters;
 using DatabaseServiceWorker.PowerBiWorker.Factories;
+using ExportTo1c.Library;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -16,7 +18,6 @@ using Vodovoz.Models;
 using Vodovoz.Settings.Database.Delivery;
 using Vodovoz.Tools;
 using Vodovoz.Zabbix.Sender;
-using ExportTo1c.Library;
 
 namespace DatabaseServiceWorker
 {
@@ -75,11 +76,17 @@ namespace DatabaseServiceWorker
 						.AddHostedService<FuelTransactionsControlWorker>()
 						.AddFuelTransactionsControlWorker(hostContext)
 						.ConfigureZabbixSenderFromDataBase(nameof(FuelTransactionsControlWorker))
-
-						.AddHostedService<ExportTo1cWorker>()
+						
 						.AddExportTo1c()
+						
+						.AddHostedService<ExportTo1cWorker>()
 						.ConfigureExportTo1cWorker(hostContext)
 						.ConfigureZabbixSenderFromDataBase(nameof(ExportTo1cWorker))
+
+						.AddHostedService<ExportTo1cApiWorker>()
+						.ConfigureExportTo1cApiWorker(hostContext)
+						.ConfigureZabbixSenderFromDataBase(nameof(ExportTo1cApiWorker))						
+																	
 
 						// Пока отключаем воркер экпорта в PowerBi
 						// .AddHostedService<PowerBiExportWorker>()

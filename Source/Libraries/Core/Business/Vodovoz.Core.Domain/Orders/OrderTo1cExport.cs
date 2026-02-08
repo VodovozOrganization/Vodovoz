@@ -5,19 +5,18 @@ using System.ComponentModel.DataAnnotations;
 namespace Vodovoz.Core.Domain.Orders
 {
 	/// <summary>
-	/// Экспорт заказа в 1С
+	/// Заказы, в которых изменялись значимые для 1с поля
 	/// </summary>
 
 	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "экспорт заказов в 1С",
-		Nominative = "экспорт заказа в 1С"
+		NominativePlural = "изменённые заказы для экспорта в 1с",
+		Nominative = "изменённый заказ для экспорта в 1с"
 	)]
 
 	public class OrderTo1cExport : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
 		private OrderEntity _order;
-		private bool _isExported;
 		private DateTime _lastOrderChangeDate;
 		private DateTime? _exportDate;
 		private string _error;
@@ -40,13 +39,6 @@ namespace Vodovoz.Core.Domain.Orders
 		public virtual int OrderId { get; set; }
 
 
-		[Display(Name = "Экспортирован?")]
-		public virtual bool IsExported
-		{
-			get => _isExported;
-			set => SetField(ref _isExported, value);
-		}
-
 		[Display(Name = "Дата изменения заказа")]
 		public virtual DateTime LastOrderChangeDate
 		{
@@ -55,7 +47,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		[Display(Name = "Дата экспорта")]
-		public virtual DateTime? ExportDate
+		public virtual DateTime? LastExportDate
 		{
 			get => _exportDate;
 			set => SetField(ref _exportDate, value);

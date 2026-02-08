@@ -67,6 +67,7 @@ namespace Vodovoz.Core.Domain.Orders
 			set => SetField(ref _isUserPrice, value);
 		}
 
+		[OrderTracker1c]
 		public virtual decimal? ActualCount
 		{
 			get => _actualCount;

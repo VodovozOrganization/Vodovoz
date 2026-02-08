@@ -91,7 +91,7 @@ namespace Vodovoz.Core.Domain.Orders
 		private DriverCallType _driverCallType;
 		private OrderSource _orderSource = OrderSource.VodovozApp;
 		private DefaultDocumentType? _documentType;
-		private DateTime? _deliveryDate;
+		protected DateTime? _deliveryDate;
 		private PaymentFromEntity _paymentByCardFrom;
 		private PaymentType _paymentType;
 		private CounterpartyEntity _client;

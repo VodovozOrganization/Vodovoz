@@ -21,6 +21,9 @@ namespace DatabaseServiceWorker
 		public static IServiceCollection ConfigureExportTo1cWorker(this IServiceCollection services, HostBuilderContext context) =>
 			services.Configure<ExportTo1cOptions>(context.Configuration.GetSection(nameof(ExportTo1cOptions)));
 
+		public static IServiceCollection ConfigureExportTo1cApiWorker(this IServiceCollection services, HostBuilderContext context) =>
+			services.Configure<ExportTo1cApiOptions>(context.Configuration.GetSection(nameof(ExportTo1cApiOptions)));
+
 		public static IServiceCollection ConfigureTechInspectWorker(this IServiceCollection services, HostBuilderContext context) =>
 			services.Configure<TechInspectOptions>(context.Configuration.GetSection(nameof(TechInspectOptions)));
 
