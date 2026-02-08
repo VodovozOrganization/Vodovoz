@@ -44,6 +44,12 @@ namespace WarehouseApi.Library.Services
 		/// <param name="selfDeliveryDocument"></param>
 		/// <returns></returns>
 		Task<Result<SelfDeliveryDocument>> EndLoad(SelfDeliveryDocument selfDeliveryDocument, CancellationToken cancellationToken);
+		/// <summary>
+		/// Получение списка заказов самовывоза для склада
+		/// </summary>
+		/// <param name="warehouseId">Id склада</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
 		Task<Result<IEnumerable<Order>>> GetSelfDeliveryOrders(int warehouseId, CancellationToken cancellationToken);
 	}
 }

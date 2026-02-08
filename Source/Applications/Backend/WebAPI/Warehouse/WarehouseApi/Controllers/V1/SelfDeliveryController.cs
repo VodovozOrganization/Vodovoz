@@ -65,7 +65,8 @@ namespace WarehouseApi.Controllers.V1
 				?? throw new ArgumentNullException(nameof(externalApplicationUserService));
 			_selfDeliveryService = selfDeliveryService
 				?? throw new ArgumentNullException(nameof(selfDeliveryService));
-			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_trueMarkWaterCodeService = trueMarkWaterCodeService
+				?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 		}
 
 		/// <summary>
