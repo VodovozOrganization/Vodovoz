@@ -39,22 +39,6 @@ namespace WarehouseApi.Library.Services
 		Task<Result<SelfDeliveryDocument>> AddCodes(SelfDeliveryDocument selfDeliveryDocument, IEnumerable<string> codesToAdd, CancellationToken cancellationToken);
 
 		/// <summary>
-		/// Изменение кодов маркировки честного знака самовывоза в документе самовывоза
-		/// </summary>
-		/// <param name="selfDeliveryDocument"></param>
-		/// <param name="codesToChange"></param>
-		/// <returns></returns>
-		Task<Result<SelfDeliveryDocument>> ChangeCodes(SelfDeliveryDocument selfDeliveryDocument, IDictionary<string, string> codesToChange, CancellationToken cancellationToken);
-
-		/// <summary>
-		/// Удаление кодов маркировки честного знака самовывоза в документе самовывоза
-		/// </summary>
-		/// <param name="selfDeliveryDocument"></param>
-		/// <param name="codesToDelete"></param>
-		/// <returns></returns>
-		Task<Result<SelfDeliveryDocument>> RemoveCodes(SelfDeliveryDocument selfDeliveryDocument, IEnumerable<string> codesToDelete, CancellationToken cancellationToken);
-
-		/// <summary>
 		/// Завершение отгрузки документа самовывоза
 		/// </summary>
 		/// <param name="selfDeliveryDocument"></param>

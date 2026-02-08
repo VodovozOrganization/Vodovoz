@@ -136,7 +136,7 @@ namespace WarehouseApi.Controllers.V1
 					_selfDeliveryService.CreateDocument(employee, request.OrderId, request.WarehouseId, cancellationToken))
 				.BindAsync(selfDeliveryDocument =>
 					_selfDeliveryService.AddCodes(selfDeliveryDocument, request.CodesToAdd, cancellationToken))
-				.BindAsync(selfDeliveryDocument => EndLoadIfNeededAsync(request.EndLoad, selfDeliveryDocument, cancellationToken))
+				.BindAsync(selfDeliveryDocument => EndLoadIfNeededAsync(true, selfDeliveryDocument, cancellationToken))
 				.BindAsync(async selfDeliveryDocument =>
 				{
 					await unitOfWork.SaveAsync(selfDeliveryDocument, cancellationToken: cancellationToken);
@@ -150,38 +150,6 @@ namespace WarehouseApi.Controllers.V1
 							controller: nameof(SelfDeliveryController),
 							new { SelfDeliveryDocumentId = selfDeliveryDocument.Id })
 						, selfDeliveryDocument),
-					errors => Problem(
-						string.Join(", ", errors.Select(x => x.Message)),
-						statusCode: StatusCodes.Status400BadRequest));
-
-
-		/// <summary>
-		/// Изменение документа отпуска самовывоза
-		/// </summary>
-		/// <param name="unitOfWork"></param>
-		/// <param name="request"></param>
-		/// <param name="cancellationToken"></param>
-		/// <returns></returns>
-		[HttpPatch]
-		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		public async Task<IActionResult> Patch(
-			[FromServices] IUnitOfWork unitOfWork,
-			PatchSelfDeliveryRequest request,
-			CancellationToken cancellationToken)
-			=> await _selfDeliveryService
-				.GetSelfDeliveryDocumentById(request.SelfDeliveryDocumentId, cancellationToken)
-				.BindAsync(selfDeliveryDocument => _selfDeliveryService.RemoveCodes(selfDeliveryDocument, request.CodesToDelete, cancellationToken))
-				.BindAsync(selfDeliveryDocument => _selfDeliveryService.ChangeCodes(selfDeliveryDocument, request.CodesToChange, cancellationToken))
-				.BindAsync(selfDeliveryDocument => _selfDeliveryService.AddCodes(selfDeliveryDocument, request.CodesToAdd, cancellationToken))
-				.BindAsync(selfDeliveryDocument => EndLoadIfNeededAsync(request.EndLoad, selfDeliveryDocument, cancellationToken))
-				.BindAsync(async selfDeliveryDocument =>
-				{
-					await unitOfWork.SaveAsync(selfDeliveryDocument, cancellationToken: cancellationToken);
-					await unitOfWork.CommitAsync(cancellationToken);
-					return Result.Success(selfDeliveryDocument);
-				})
-				.MatchAsync<SelfDeliveryDocumentEntity, IActionResult>(
-					selfDeliveryDocument => NoContent(),
 					errors => Problem(
 						string.Join(", ", errors.Select(x => x.Message)),
 						statusCode: StatusCodes.Status400BadRequest));

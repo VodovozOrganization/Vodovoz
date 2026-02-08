@@ -212,7 +212,7 @@ namespace WarehouseApi.Library.Services
 			{
 				return Result.Failure<SelfDeliveryDocument>(addCodesResult.Errors);
 			}
-			
+
 			if(isCheckAllCodesScanned)
 			{
 				var isAllCodesAddedResult = _codesProcessingService.IsAllTrueMarkProductCodesAdded(selfDeliveryDocument);
@@ -321,7 +321,7 @@ namespace WarehouseApi.Library.Services
 			return existingCodes;
 		}
 
-		public async Task<Result> AddProductCodesToSelfDeliveryDocumentItemAndDeleteStagingCodes(
+		private async Task<Result> AddProductCodesToSelfDeliveryDocumentItemAndDeleteStagingCodes(
 			SelfDeliveryDocument document,
 			IEnumerable<StagingTrueMarkCode> stagingCodes,
 			bool isCheckAllCodesScanned)
@@ -363,96 +363,6 @@ namespace WarehouseApi.Library.Services
 
 			return Result.Success();
 		}
-
-		private async Task<Result<SelfDeliveryDocument>> DistributeCodesAsync(
-			IList<TrueMarkAnyCode> trueMarkAnyCodes,
-			SelfDeliveryDocument selfDeliveryDocument,
-			CancellationToken cancellationToken)
-		{
-			var identificationCodes = trueMarkAnyCodes
-				.Where(x => x.IsTrueMarkWaterIdentificationCode)
-				.Select(x => x.TrueMarkWaterIdentificationCode)
-				.ToArray();
-
-			var nomenclatureGroupedItems = selfDeliveryDocument.Items
-				.Where(x => x.Nomenclature.IsAccountableInTrueMark)
-				.GroupBy(x => x.Nomenclature);
-
-			foreach(var code in identificationCodes)
-			{
-
-				SelfDeliveryDocumentItem nextSelfDeliveryItemToDistributeByGtin;
-
-				nextSelfDeliveryItemToDistributeByGtin = GetNextNotScannedDocumentItem(selfDeliveryDocument, code);
-
-				if(nextSelfDeliveryItemToDistributeByGtin == null)
-				{
-					return Errors.TrueMarkErrors.TooMuchCodesGiven;
-				}
-
-				await AddCodeToSelfDeliveryDocumentItemAsync(nextSelfDeliveryItemToDistributeByGtin, code, cancellationToken);
-			}
-
-			return await Task.FromResult(selfDeliveryDocument);
-		}
-
-		public async Task<Result<SelfDeliveryDocument>> ChangeCodes(
-			SelfDeliveryDocument selfDeliveryDocument,
-			IDictionary<string, string> codesToChange,
-			CancellationToken cancellationToken)
-		{
-			var allCodesResult = await _trueMarkWaterCodeService
-				.GetTrueMarkAnyCodesByScannedCodes(
-					codesToChange.Keys.Concat(codesToChange.Values),
-					cancellationToken);
-
-			if(allCodesResult.IsFailure)
-			{
-				return Result.Failure<SelfDeliveryDocument>(allCodesResult.Errors);
-			}
-
-			var allCodes = allCodesResult.Value.Select(x => x.Value);
-
-			var keys = allCodes
-				.Where(x => x.IsTrueMarkWaterIdentificationCode)
-				.Select(x => x.TrueMarkWaterIdentificationCode)
-				.Where(x => codesToChange.ContainsKey(x.RawCode));
-
-			var values = allCodes
-				.Where(x => x.IsTrueMarkWaterIdentificationCode)
-				.Select(x => x.TrueMarkWaterIdentificationCode)
-				.Where(x => codesToChange.Values.Contains(x.RawCode));
-
-			var pairsToChange = codesToChange.ToDictionary(
-				kv => keys.FirstOrDefault(x => x.RawCode == kv.Key),
-				kv => values.FirstOrDefault(x => x.RawCode == kv.Value));
-
-			foreach(var pair in pairsToChange)
-			{
-				var documentItem = selfDeliveryDocument.Items
-					.FirstOrDefault(di => di.TrueMarkProductCodes
-						.Any(pc => pc.SourceCode.Id == pair.Key.Id));
-
-				if(documentItem != null)
-				{
-					var productCode = documentItem.TrueMarkProductCodes
-						.FirstOrDefault(x => x.SourceCode.Id == pair.Key.Id);
-
-					productCode.SourceCode = pair.Value;
-					productCode.ResultCode = pair.Value;
-				}
-			}
-
-			return selfDeliveryDocument;
-		}
-
-		public async Task<Result<SelfDeliveryDocument>> RemoveCodes(SelfDeliveryDocument selfDeliveryDocument, IEnumerable<string> codesToDelete, CancellationToken cancellationToken)
-		{
-			return await _trueMarkWaterCodeService
-				.GetTrueMarkAnyCodesByScannedCodes(codesToDelete)
-				.BindAsync(anyCodes => RemoveDistributedCodes(anyCodes.Select(x => x.Value).ToList(), selfDeliveryDocument, cancellationToken));
-		}
-
 
 		public async Task<Result<SelfDeliveryDocument>> EndLoad(SelfDeliveryDocument selfDeliveryDocument, CancellationToken cancellationToken)
 		{
