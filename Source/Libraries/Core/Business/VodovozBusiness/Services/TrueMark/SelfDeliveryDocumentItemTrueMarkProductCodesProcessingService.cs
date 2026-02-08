@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.UoW;
+﻿using FluentNHibernate.Data;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,8 @@ using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Goods;
+using VodovozBusiness.Controllers;
 using NomenclatureErrors = Vodovoz.Errors.Goods.NomenclatureErrors;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
 
@@ -220,10 +223,34 @@ namespace VodovozBusiness.Services.TrueMark
 				null,
 				cancellationToken);
 
-		public async Task<Result> IsStagingTrueMarkCodeCanBeAddedToItemOfNomenclature(
+		public async Task<Result> IsStagingTrueMarkCodeCanBeAddedToDocument(
+			IUnitOfWork uow,
+			SelfDeliveryDocument document,
+			StagingTrueMarkCode stagingTrueMarkCode,
+			CancellationToken cancellationToken)
+		{
+			var checkCodeResult = await IsStagingTrueMarkCodeCanBeAddedToDocumentNomenclatures(uow, document, stagingTrueMarkCode, cancellationToken);
+
+			if(checkCodeResult.IsFailure)
+			{
+				return checkCodeResult;
+			}
+
+			checkCodeResult = await IsStagingTrueMarkCodeAlreadyUsedInProductCodes(uow, stagingTrueMarkCode, cancellationToken);
+
+			return checkCodeResult;
+		}
+
+		private async Task<Result> IsStagingTrueMarkCodeAlreadyUsedInProductCodes(
 			IUnitOfWork uow,
 			StagingTrueMarkCode stagingTrueMarkCode,
-			int nomeclatureId,
+			CancellationToken cancellationToken) =>
+			await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsedInProductCodes(uow, stagingTrueMarkCode, cancellationToken);
+
+		private async Task<Result> IsStagingTrueMarkCodeCanBeAddedToDocumentNomenclatures(
+			IUnitOfWork uow,
+			SelfDeliveryDocument document,
+			StagingTrueMarkCode stagingTrueMarkCode,
 			CancellationToken cancellationToken)
 		{
 			if(stagingTrueMarkCode.RelatedDocumentType != StagingTrueMarkCodeRelatedDocumentType.SelfDeliveryDocumentItem)
@@ -231,16 +258,15 @@ namespace VodovozBusiness.Services.TrueMark
 				throw new InvalidOperationException("Только коды ЧЗ, отсканированные при отпуске самовывоза, могут быть добавлены");
 			}
 
-			var nomeclature = _nomenclatureRepository.GetFirstOrDefault(uow, x => x.Id == nomeclatureId);
+			var nomenclatures = document.Items.Select(x => x.Nomenclature).ToList();
 
-			var codeCheckingProcessResult = IsNomeclatureAccountableInTrueMark(nomeclature);
-
-			if(codeCheckingProcessResult.IsFailure)
+			if(nomenclatures.Count == 0
+				|| nomenclatures.All(x => !x.IsAccountableInTrueMark))
 			{
-				return codeCheckingProcessResult;
+				return Result.Failure(NomenclatureErrors.IsNotAccountableInTrueMark);
 			}
 
-			codeCheckingProcessResult = await IsNomeclatureGtinContainsCodeGtin(uow, stagingTrueMarkCode, nomeclatureId, cancellationToken);
+			var codeCheckingProcessResult = await IsNomeclaturesGtinContainsCodeGtin(uow, stagingTrueMarkCode, nomenclatures, cancellationToken);
 
 			if(codeCheckingProcessResult.IsFailure)
 			{
@@ -250,33 +276,16 @@ namespace VodovozBusiness.Services.TrueMark
 			return Result.Success();
 		}
 
-		public async Task<Result> IsStagingTrueMarkCodeAlreadyUsedInProductCodes(
+		private async Task<Result> IsNomeclaturesGtinContainsCodeGtin(
 			IUnitOfWork uow,
 			StagingTrueMarkCode stagingTrueMarkCode,
-			CancellationToken cancellationToken) =>
-			await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsedInProductCodes(uow, stagingTrueMarkCode, cancellationToken);
-
-		private Result IsNomeclatureAccountableInTrueMark(NomenclatureEntity nomenclature)
-		{
-			if(!nomenclature.IsAccountableInTrueMark)
-			{
-				var error = NomenclatureErrors.CreateIsNotAccountableInTrueMark(nomenclature.Name);
-				return Result.Failure(error);
-			}
-
-			return Result.Success();
-		}
-
-		private async Task<Result> IsNomeclatureGtinContainsCodeGtin(
-			IUnitOfWork uow,
-			StagingTrueMarkCode stagingTrueMarkCode,
-			int nomenclatureId,
+			IEnumerable<Nomenclature> nomenclatures,
 			CancellationToken cancellationToken = default)
 		{
-			var nomenclatureGtins =
-				(await _gtinRepository.GetAsync(uow, x => x.Nomenclature.Id == nomenclatureId, cancellationToken: cancellationToken))
-				.Value
-				.Select(x => x.GtinNumber);
+			var nomenclatureGtins = nomenclatures
+				.SelectMany(x => x.Gtins)
+				.Select(x => x.GtinNumber)
+				.ToList();
 
 			var codesGtin = stagingTrueMarkCode.AllIdentificationCodes
 				.Select(x => x.Gtin)
@@ -292,8 +301,24 @@ namespace VodovozBusiness.Services.TrueMark
 
 			return Result.Success();
 		}
+		
+		public Result IsAllTrueMarkProductCodesAdded(SelfDeliveryDocument document)
+		{
+			foreach(var item in document.Items)
+			{
+				var checkResult =
+					IsAllSelfDeliveryDocumentItemTrueMarkProductCodesAdded(item);
 
-		public Result IsAllSelfDeliveryDocumentItemTrueMarkProductCodesAdded(SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem)
+				if(checkResult.IsFailure)
+				{
+					return checkResult;
+				}
+			}
+
+			return Result.Success();
+		}
+
+		private Result IsAllSelfDeliveryDocumentItemTrueMarkProductCodesAdded(SelfDeliveryDocumentItem selfDeliveryDocumentItem)
 		{
 			var isAllTrueMarkCodesAdded = selfDeliveryDocumentItem.Amount == selfDeliveryDocumentItem.TrueMarkProductCodes.Count();
 
@@ -314,5 +339,48 @@ namespace VodovozBusiness.Services.TrueMark
 				.FirstOrDefault() ?? string.Empty;
 			return nomenclatureName;
 		}
+
+
+		public IDictionary<SelfDeliveryDocumentItem, IEnumerable<StagingTrueMarkCode>> GetSelfDeliveryDocumentItemStagingTrueMarkCodes(
+			SelfDeliveryDocument document,
+			IEnumerable<StagingTrueMarkCode> stagingCodes)
+		{
+			var result = new Dictionary<SelfDeliveryDocumentItem, IEnumerable<StagingTrueMarkCode>>();
+
+			if(document is null)
+			{
+				return result;
+			}
+
+			foreach(var item in document.Items)
+			{
+				var itemGtins = item.Nomenclature.Gtins.Select(x => x.GtinNumber).ToList();
+				var itemCodes = new List<StagingTrueMarkCode>();
+
+				foreach(var code in stagingCodes)
+				{
+					var codeGtin = code.AllIdentificationCodes.First().Gtin;
+					if(itemGtins.Contains(codeGtin))
+					{
+						itemCodes.Add(code);
+					}
+				}
+
+				result.Add(item, itemCodes);
+			}
+
+			return result;
+		}
+		
+		public bool IsAllCodesScanned(
+			SelfDeliveryDocument document,
+			IEnumerable<StagingTrueMarkCode> stagingCodes) =>
+			!GetSelfDeliveryDocumentItemStagingTrueMarkCodes(document, stagingCodes)
+			.Any(x => x.Key.Amount > x.Value.SelectMany(c => c.AllIdentificationCodes).Count());
+
+		public bool IsAllTrueMarkProductCodesMustBeAdded(SelfDeliveryDocument document, ICounterpartyEdoAccountController edoAccountController) =>
+			document.Order.IsNeedIndividualSetOnLoad(edoAccountController)
+			|| document.Order.IsOrderForResale
+			|| document.Order.IsOrderForTender;
 	}
 }

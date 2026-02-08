@@ -22,8 +22,11 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.Errors.TrueMark;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
+using VodovozBusiness.Controllers;
+using VodovozBusiness.Domain.Client.Specifications;
 using VodovozBusiness.Domain.Goods;
 using VodovozBusiness.Services.TrueMark;
 
@@ -38,6 +41,8 @@ namespace WarehouseApi.Library.Services
 		private readonly IGenericRepository<SelfDeliveryDocument> _selfDeliveryDocumentRepository;
 		private readonly IGenericRepository<SubdivisionEntity> _subdivisionRepository;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService _codesProcessingService;
+		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IRouteListItemRepository _routeListItemRepository;
@@ -57,6 +62,8 @@ namespace WarehouseApi.Library.Services
 			IGenericRepository<Gtin> gtinRepository,
 			IGenericRepository<SubdivisionEntity> subdivisionRepository,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
+			ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService codesProcessingService,
+			ICounterpartyEdoAccountController edoAccountController,
 			INomenclatureSettings nomenclatureSettings,
 			INomenclatureRepository nomenclatureRepository,
 			IRouteListItemRepository routeListItemRepository,
@@ -80,6 +87,10 @@ namespace WarehouseApi.Library.Services
 				?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_trueMarkWaterCodeService = trueMarkWaterCodeService
 				?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_codesProcessingService = codesProcessingService
+				?? throw new ArgumentNullException(nameof(codesProcessingService));
+			_edoAccountController = edoAccountController
+				?? throw new ArgumentNullException(nameof(edoAccountController));
 			_nomenclatureSettings = nomenclatureSettings
 				?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_nomenclatureRepository = nomenclatureRepository
@@ -190,9 +201,167 @@ namespace WarehouseApi.Library.Services
 			IEnumerable<string> codesToAdd,
 			CancellationToken cancellationToken)
 		{
-			return await _trueMarkWaterCodeService
-				.GetTrueMarkAnyCodesByScannedCodes(codesToAdd)
-				.BindAsync(anyCodes => DistributeCodesAsync(anyCodes.Select(x => x.Value).ToList(), selfDeliveryDocument, cancellationToken));
+			var stagingCodes = await CreateStagingTrueMarkCodes(selfDeliveryDocument, codesToAdd, cancellationToken);
+
+			var isCheckAllCodesScanned = _codesProcessingService.IsAllTrueMarkProductCodesMustBeAdded(selfDeliveryDocument, _edoAccountController);
+
+			var addCodesResult =
+				await AddProductCodesToSelfDeliveryDocumentItemAndDeleteStagingCodes(selfDeliveryDocument, stagingCodes, isCheckAllCodesScanned);
+
+			if(addCodesResult.IsFailure)
+			{
+				return Result.Failure<SelfDeliveryDocument>(addCodesResult.Errors);
+			}
+			
+			if(isCheckAllCodesScanned)
+			{
+				var isAllCodesAddedResult = _codesProcessingService.IsAllTrueMarkProductCodesAdded(selfDeliveryDocument);
+				if(isAllCodesAddedResult.IsFailure)
+				{
+					return Result.Failure<SelfDeliveryDocument>(isAllCodesAddedResult.Errors);
+				}
+			}
+
+			return selfDeliveryDocument;
+		}
+
+		private async Task<IEnumerable<StagingTrueMarkCode>> CreateStagingTrueMarkCodes(
+			SelfDeliveryDocument document,
+			IEnumerable<string> codes,
+			CancellationToken cancellationToken)
+		{
+			var stagingCodes = new List<StagingTrueMarkCode>();
+
+			foreach(var code in codes)
+			{
+				var createStagingCodeResult = await CreateStagingTrueMarkCode(code, cancellationToken);
+				if(createStagingCodeResult.IsFailure)
+				{
+					_logger.LogError(
+						"Ошибка создания кода для промежуточного хранения {Code}: {ErrorMessage}",
+						code,
+						string.Join(", ", createStagingCodeResult.Errors.Select(e => e.Message)));
+				}
+
+				var stagingCode = createStagingCodeResult.Value;
+
+				var isCodeCanBeAddedResult =
+					await _codesProcessingService.IsStagingTrueMarkCodeCanBeAddedToDocument(_unitOfWork, document, stagingCode, cancellationToken);
+
+				if(isCodeCanBeAddedResult.IsFailure)
+				{
+					_logger.LogError(
+						"Код для промежуточного хранения не может быть добавлен к документу {Code}: {ErrorMessage}",
+						code,
+						string.Join(", ", isCodeCanBeAddedResult.Errors.Select(e => e.Message)));
+				}
+
+				AddStagingTrueMarkCode(stagingCode, ref stagingCodes);
+			}
+
+			return stagingCodes;
+		}
+
+		private async Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCode(string code, CancellationToken cancellationToken)
+		{
+			var createStagingTrueMarkCodeResult = await _codesProcessingService
+				.CreateStagingTrueMarkCode(_unitOfWork, code, 0, cancellationToken);
+
+			if(createStagingTrueMarkCodeResult.IsFailure)
+			{
+				return Result.Failure<StagingTrueMarkCode>(createStagingTrueMarkCodeResult.Errors);
+
+			}
+
+			return createStagingTrueMarkCodeResult.Value;
+		}
+
+		private void AddStagingTrueMarkCode(StagingTrueMarkCode newStagingCode, ref List<StagingTrueMarkCode> stagingCodes)
+		{
+			var alreadyAddedRootCode =
+				GetStagingTrueMarkCodesAddedDuplicates(new[] { newStagingCode }, stagingCodes);
+
+			if(alreadyAddedRootCode.Any())
+			{
+				return;
+			}
+
+			var alreadyAddedInnerCodes =
+				GetStagingTrueMarkCodesAddedDuplicates(newStagingCode.AllCodes, stagingCodes);
+
+			foreach(var code in alreadyAddedInnerCodes)
+			{
+				if(!stagingCodes.Contains(code))
+				{
+					continue;
+				}
+
+				stagingCodes.Remove(code);
+			}
+
+			stagingCodes.Add(newStagingCode);
+		}
+
+		private IEnumerable<StagingTrueMarkCode> GetStagingTrueMarkCodesAddedDuplicates(
+			IEnumerable<StagingTrueMarkCode> newCodes,
+			IEnumerable<StagingTrueMarkCode> addedCodes)
+		{
+			var existingCodes = new List<StagingTrueMarkCode>();
+			var allScannedCodes = addedCodes.SelectMany(x => x.AllCodes).ToList();
+
+			foreach(var code in newCodes)
+			{
+				var existingCodesPredicate = StagingTrueMarkCodeSpecification.CreateForEqualStagingCodes(code).Expression.Compile();
+
+				existingCodes.AddRange(allScannedCodes
+					.Where(existingCodesPredicate)
+					.ToList());
+			}
+
+			return existingCodes;
+		}
+
+		public async Task<Result> AddProductCodesToSelfDeliveryDocumentItemAndDeleteStagingCodes(
+			SelfDeliveryDocument document,
+			IEnumerable<StagingTrueMarkCode> stagingCodes,
+			bool isCheckAllCodesScanned)
+		{
+			if(isCheckAllCodesScanned)
+			{
+				var isAllCodesScanned = _codesProcessingService.IsAllCodesScanned(document, stagingCodes);
+
+				if(!isAllCodesScanned)
+				{
+					return Result.Failure(TrueMarkCodeErrors.NotAllCodesAdded);
+				}
+			}
+
+			var documentItemsScannedStagingCodes =
+				_codesProcessingService.GetSelfDeliveryDocumentItemStagingTrueMarkCodes(document, stagingCodes);
+
+			foreach(var item in document.Items)
+			{
+				var itemStagingCodes = documentItemsScannedStagingCodes.TryGetValue(item, out var itemCodes)
+					? itemCodes
+					: Enumerable.Empty<StagingTrueMarkCode>();
+
+				if(!itemStagingCodes.Any())
+				{
+					continue;
+				}
+
+				var addingCodesResult = await _codesProcessingService.AddProductCodesToSelfDeliveryDocumentItem(
+					_unitOfWork,
+					item,
+					itemStagingCodes);
+
+				if(addingCodesResult.IsFailure)
+				{
+					return addingCodesResult;
+				}
+			}
+
+			return Result.Success();
 		}
 
 		private async Task<Result<SelfDeliveryDocument>> DistributeCodesAsync(

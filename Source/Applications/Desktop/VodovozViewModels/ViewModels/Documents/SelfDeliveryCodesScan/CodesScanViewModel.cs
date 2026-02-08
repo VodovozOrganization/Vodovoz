@@ -505,9 +505,10 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 				var stagingCode = createStagingTrueMarkCodeResult.Value;
 
-				var isCodeCanBeAddedResult = await IsTrueMarkStagingCodeCanBeAdded(
+				var isCodeCanBeAddedResult = await _codesProcessingService.IsStagingTrueMarkCodeCanBeAddedToDocument(
+					_unitOfWork,
+					_selfDeliveryDocument,
 					stagingCode,
-					_selfDeliveryDocument.Items.First().Nomenclature.Id,
 					cancellationToken);
 
 				if(isCodeCanBeAddedResult.IsFailure)
@@ -621,35 +622,6 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			}
 
 			return existingCodes;
-		}
-
-		private async Task<Result> IsTrueMarkStagingCodeCanBeAdded(
-			StagingTrueMarkCode stagingCode,
-			int nomenclatureId,
-			CancellationToken cancellationToken)
-		{
-			var isCodeCanBeAddedToItemOfNomenclature = await _codesProcessingService.IsStagingTrueMarkCodeCanBeAddedToItemOfNomenclature(
-				_unitOfWork,
-				stagingCode,
-				nomenclatureId,
-				cancellationToken);
-
-			if(isCodeCanBeAddedToItemOfNomenclature.IsFailure)
-			{
-				return isCodeCanBeAddedToItemOfNomenclature;
-			}
-
-			var isCodeAlreadyUsedInProductCodes = await _codesProcessingService.IsStagingTrueMarkCodeAlreadyUsedInProductCodes(
-				_unitOfWork,
-				stagingCode,
-				cancellationToken);
-
-			if(isCodeAlreadyUsedInProductCodes.IsFailure)
-			{
-				return isCodeAlreadyUsedInProductCodes;
-			}
-
-			return Result.Success();
 		}
 
 		private IEnumerable<CodeScanRow> GetExistingScanRowsToRemove(IEnumerable<StagingTrueMarkCode> stagingTrueMarkCodes)
@@ -1083,21 +1055,8 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			return Result.Success();
 		}
 
-		public Result IsAllTrueMarkProductCodesAdded()
-		{
-			foreach(var item in _selfDeliveryDocument.Items)
-			{
-				var checkResult =
-					_codesProcessingService.IsAllSelfDeliveryDocumentItemTrueMarkProductCodesAdded(item);
-
-				if(checkResult.IsFailure)
-				{
-					return checkResult;
-				}
-			}
-
-			return Result.Success();
-		}
+		public Result IsAllTrueMarkProductCodesAdded() =>
+			_codesProcessingService.IsAllTrueMarkProductCodesAdded(_selfDeliveryDocument);
 
 		public PrimaryEdoRequest CreateEdoRequest(IUnitOfWork unitOfWork, Order order)
 		{

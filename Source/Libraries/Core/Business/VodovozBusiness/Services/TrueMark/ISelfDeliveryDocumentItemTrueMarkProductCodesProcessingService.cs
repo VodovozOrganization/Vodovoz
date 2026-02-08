@@ -8,6 +8,7 @@ using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
+using VodovozBusiness.Controllers;
 
 namespace VodovozBusiness.Services.TrueMark
 {
@@ -52,29 +53,41 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="problem">Проблема с кодом продукта</param>
 		/// <param name="cancellationToken">Токен отмены операции</param>
 		Task AddTrueMarkAnyCodeToSelfDeliveryDocumentItemNoCodeStatusCheck(IUnitOfWork uow, SelfDeliveryDocumentItem selfDeliveryDocumentItem, TrueMarkAnyCode trueMarkAnyCode, SourceProductCodeStatus status, ProductCodeProblem problem, CancellationToken cancellationToken = default);
-
 		/// <summary>
-		/// Проверяет, можно ли добавить промежуточный код Честного Знака к строке документа самовывоза
+		/// Проверка, что все коды продуктов Честного Знака добавлены для строк документа самовывоза
 		/// </summary>
-		/// <param name="uow">UnitOfWork</param>
-		/// <param name="stagingTrueMarkCode">Код ЧЗ промежуточного хранения</param>
-		/// <param name="nomeclatureId">Номенклатура</param>
-		/// <param name="cancellationToken">Токен отмены операции</param>
-		/// <returns>Результат выполнения проверки</returns>
-		Task<Result> IsStagingTrueMarkCodeCanBeAddedToItemOfNomenclature(IUnitOfWork uow, StagingTrueMarkCode stagingTrueMarkCode, int nomeclatureId, CancellationToken cancellationToken);
+		/// <param name="document">Документ отпуска самовывоза</param>
+		/// <returns></returns>
+		Result IsAllTrueMarkProductCodesAdded(SelfDeliveryDocument document);
 		/// <summary>
-		/// Проверяет, что промежуточный код Честного Знака не был ранее использован в других кодах продуктов
+		/// Получает промежуточные коды Честного Знака, привязанные к строкам документа самовывоза
 		/// </summary>
-		/// <param name="uow">UnitOfWork</param>
-		/// <param name="stagingTrueMarkCode">Код ЧЗ промежуточного хранения</param>
-		/// <param name="cancellationToken">Токен отмены операции</param>
-		/// <returns>Результат выполнения проверки</returns>
-		Task<Result> IsStagingTrueMarkCodeAlreadyUsedInProductCodes(IUnitOfWork uow, StagingTrueMarkCode stagingTrueMarkCode, CancellationToken cancellationToken);
+		/// <param name="document">Документ отпуска самовывоза</param>
+		/// <param name="stagingCodes">Промежуточные коды</param>
+		/// <returns></returns>
+		IDictionary<SelfDeliveryDocumentItem, IEnumerable<StagingTrueMarkCode>> GetSelfDeliveryDocumentItemStagingTrueMarkCodes(SelfDeliveryDocument document, IEnumerable<StagingTrueMarkCode> stagingCodes);
 		/// <summary>
-		/// Проверяет, что все коды продуктов Честного Знака добавлены к строке документа самовывоза
+		/// Проверка, что все коды продуктов Честного Знака отсканированы для строк документа самовывоза
 		/// </summary>
-		/// <param name="selfDeliveryDocumentItem">Строка документа самовывоза</param>
-		/// <returns>Результат выполнения проверки</returns>
-		Result IsAllSelfDeliveryDocumentItemTrueMarkProductCodesAdded(SelfDeliveryDocumentItemEntity selfDeliveryDocumentItem);
+		/// <param name="document">Документ отпуска самовывоза</param>
+		/// <param name="stagingCodes">Промежуточные коды</param>
+		/// <returns></returns>
+		bool IsAllCodesScanned(SelfDeliveryDocument document, IEnumerable<StagingTrueMarkCode> stagingCodes);
+		/// <summary>
+		/// Проверка, что промежуточный код Честного Знака может быть добавлен к строке документа самовывоза
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="document">Документ отпуска самовывоза</param>
+		/// <param name="stagingTrueMarkCode"></param>
+		/// <param name="cancellationToken"></param>
+		/// <returns></returns>
+		Task<Result> IsStagingTrueMarkCodeCanBeAddedToDocument(IUnitOfWork uow, SelfDeliveryDocument document, StagingTrueMarkCode stagingTrueMarkCode, CancellationToken cancellationToken);
+		/// <summary>
+		/// Проверка, что для данного документа самовывоза все коды продуктов Честного Знака должны быть добавлены, чтобы завершить документ
+		/// </summary>
+		/// <param name="document">Документ отпуска самовывоза</param>
+		/// <param name="edoAccountController">Контракт контроллера работы с ЭДО аккаунтами</param>
+		/// <returns></returns>
+		bool IsAllTrueMarkProductCodesMustBeAdded(SelfDeliveryDocument document, ICounterpartyEdoAccountController edoAccountController);
 	}
 }
