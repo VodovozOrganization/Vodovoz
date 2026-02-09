@@ -129,12 +129,15 @@ namespace EmailDebtNotificationWorker.Services
 				throw new ArgumentNullException(nameof(storedEmail));
 			}
 
+			await _uow.SaveAsync(storedEmail, cancellationToken: cancellationToken);
+
 			var letterOfDebtDocument = new LetterOfDebtDocument
 			{
 				Order = order,
 				HideSignature = !organization.DebtMailingWithSignature,
 				AttachedToOrder = order
 			};
+			await _uow.SaveAsync(letterOfDebtDocument, cancellationToken: cancellationToken);
 
 			var bulkEmail = new BulkEmail
 			{
@@ -142,16 +145,13 @@ namespace EmailDebtNotificationWorker.Services
 				Counterparty = client,
 				OrderDocument = letterOfDebtDocument
 			};
+			await _uow.SaveAsync(bulkEmail, cancellationToken: cancellationToken);
 
 			var bulkEmailOrder = new BulkEmailOrder
 			{
 				BulkEmail = bulkEmail,
 				Order = order
 			};
-
-			await _uow.SaveAsync(letterOfDebtDocument, cancellationToken: cancellationToken);
-			await _uow.SaveAsync(storedEmail, cancellationToken: cancellationToken);
-			await _uow.SaveAsync(bulkEmail, cancellationToken: cancellationToken);
 			await _uow.SaveAsync(bulkEmailOrder, cancellationToken: cancellationToken);
 
 			await _uow.CommitAsync(cancellationToken);
