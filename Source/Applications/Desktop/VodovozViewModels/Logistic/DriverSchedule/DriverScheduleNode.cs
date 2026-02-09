@@ -617,7 +617,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			set => SetField(ref _hasActiveRouteList, value);
 		}
 
-		public string LastModifiedDateTimeString =>
+		public virtual string LastModifiedDateTimeString =>
 			LastModifiedDateTime != default
 				? LastModifiedDateTime.ToString("g")
 				: "Нет";

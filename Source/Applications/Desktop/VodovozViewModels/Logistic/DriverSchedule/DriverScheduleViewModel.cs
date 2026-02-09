@@ -106,9 +106,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 			SaveCommand = new DelegateCommand(SaveDriverSchedule, () => CanSave);
 			SaveCommand.CanExecuteChangedWith(this, x => x.CanSave);
+
 			CancelCommand = new DelegateCommand(() => Close(AskSaveOnClose, CloseSource.Cancel));
-			ExportCommand = new DelegateCommand(() => Export());
+
+			ExportCommand = new DelegateCommand(Export, () => CanSave);
+			ExportCommand.CanExecuteChangedWith(this, x => x.CanSave);
+
 			InfoCommand = new DelegateCommand(() => ShowInfoMessage());
+
 			ApplyFiltersCommand = new DelegateCommand(() =>
 			{
 				DriverScheduleRows = GenerateRows();
@@ -366,6 +371,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 						.Where(ce => ce.Driver.Id == node.DriverId)
 						.ToList();
 
+					var eventWithComment = driverCarEvents.FirstOrDefault(carEvent => !string.IsNullOrEmpty(carEvent.Comment));
+					if(eventWithComment != null)
+					{
+						node.Comment = eventWithComment.Comment;
+					}
+
 					for(int dayIndex = 0; dayIndex < 7; dayIndex++)
 					{
 						var dayDate = StartDate.AddDays(dayIndex);
@@ -413,7 +424,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 				}
 			}
 
-			return new ObservableList<DriverScheduleNode>(filteredResult);
+			var resultWithTotals = new List<DriverScheduleNode>(filteredResult);
+			resultWithTotals.AddRange(CalculateTotalRows(filteredResult));
+
+			return new ObservableList<DriverScheduleNode>(resultWithTotals);
 		}
 
 		private void ProcessFiredDriverDays(DriverScheduleNode driverNode, DateTime dismissalDate)
@@ -479,11 +493,77 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 				.ToList());
 		}
 
+		private List<DriverScheduleNode> CalculateTotalRows(IEnumerable<DriverScheduleNode> driverRows)
+		{
+			var totalAddresses = new DriverScheduleTotalAddressesRow();
+			var totalBottles = new DriverScheduleTotalBottlesRow();
+
+			totalAddresses.Days = new DriverScheduleDayNode[7];
+			totalBottles.Days = new DriverScheduleDayNode[7];
+
+			for(int dayIndex = 0; dayIndex < 7; dayIndex++)
+			{
+				totalAddresses.Days[dayIndex] = new DriverScheduleDayNode();
+				totalBottles.Days[dayIndex] = new DriverScheduleDayNode();
+			}
+
+			var filteredRows = driverRows.Where(n => !(n is DriverScheduleTotalAddressesRow) && !(n is DriverScheduleTotalBottlesRow));
+
+			foreach(var node in filteredRows)
+			{
+				totalAddresses.MorningAddresses += node.MorningAddresses;
+				totalAddresses.EveningAddresses += node.EveningAddresses;
+
+				totalBottles.MorningBottles += node.MorningBottles;
+				totalBottles.EveningBottles += node.EveningBottles;
+
+				for(int dayIndex = 0; dayIndex < 7; dayIndex++)
+				{
+					var day = node.Days[dayIndex];
+					if(day != null)
+					{
+						totalAddresses.Days[dayIndex].MorningAddresses += day.MorningAddresses;
+						totalAddresses.Days[dayIndex].EveningAddresses += day.EveningAddresses;
+
+						totalBottles.Days[dayIndex].MorningBottles += day.MorningBottles;
+						totalBottles.Days[dayIndex].EveningBottles += day.EveningBottles;
+					}
+				}
+			}
+
+			for(int dayIndex = 0; dayIndex < 7; dayIndex++)
+			{
+				int totalAddressesForDay = totalAddresses.Days[dayIndex].MorningAddresses +
+										   totalAddresses.Days[dayIndex].EveningAddresses;
+				totalAddresses.Days[dayIndex].CarEventType = new CarEventType
+				{
+					ShortName = totalAddressesForDay.ToString()
+				};
+
+				int totalBottlesForDay = totalBottles.Days[dayIndex].MorningBottles +
+										 totalBottles.Days[dayIndex].EveningBottles;
+				totalBottles.Days[dayIndex].CarEventType = new CarEventType
+				{
+					ShortName = totalBottlesForDay.ToString()
+				};
+			}
+
+			totalAddresses.StartDate = StartDate;
+			totalBottles.StartDate = StartDate;
+
+			return new List<DriverScheduleNode> { totalAddresses, totalBottles };
+		}
+
 		private void SaveDriverSchedule()
 		{
 			try
 			{
-				var driverIds = DriverScheduleRows.Select(r => r.DriverId).Distinct().ToArray();
+				var driverRows = DriverScheduleRows
+					.Where(r => !(r is DriverScheduleTotalAddressesRow || r is DriverScheduleTotalBottlesRow))
+					.ToList();
+
+				var driverIds = driverRows.Select(r => r.DriverId).Distinct().ToArray();
+
 				if(driverIds.Length == 0)
 				{
 					_interactiveService.ShowMessage(ImportanceLevel.Info, "Нет данных для сохранения");
@@ -512,7 +592,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 					}
 				}
 
-				foreach(var driverNode in DriverScheduleRows)
+				foreach(var driverNode in driverRows)
 				{
 					if(schedulesByDriverId.TryGetValue(driverNode.DriverId, out VodovozBusiness.Domain.Logistic.Drivers.DriverSchedule driverSchedule))
 					{
@@ -881,10 +961,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 							int dayColumn = _firstDayColumn + dayIndex * _columnsPerDay;
 
 							worksheet.Cell(row, dayColumn).Value = "'" + GetShortDayString(date);
-							worksheet.Cell(row, dayColumn + 1).Value = "Адр У";
-							worksheet.Cell(row, dayColumn + 2).Value = "Бут У";
-							worksheet.Cell(row, dayColumn + 3).Value = "Адр В";
-							worksheet.Cell(row, dayColumn + 4).Value = "Бут В";
+							worksheet.Cell(row, ++dayColumn).Value = "Адр У";
+							worksheet.Cell(row, ++dayColumn).Value = "Бут У";
+							worksheet.Cell(row, ++dayColumn).Value = "Адр В";
+							worksheet.Cell(row, ++dayColumn).Value = "Бут В";
 						}
 
 						worksheet.Cell(row, _commentColumn).Value = "Комментарий";

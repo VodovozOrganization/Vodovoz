@@ -255,6 +255,13 @@ namespace Vodovoz.Views.Logistic
 				return;
 			}
 
+			if(driverScheduleNode is DriverScheduleTotalAddressesRow ||
+			   driverScheduleNode is DriverScheduleTotalBottlesRow)
+			{
+				args.RetVal = false;
+				return;
+			}
+
 			if(driverScheduleNode.HasActiveRouteList)
 			{
 				ViewModel.InteractiveService.ShowMessage(
