@@ -320,6 +320,11 @@ namespace VodovozBusiness.Services.TrueMark
 
 		private Result IsAllSelfDeliveryDocumentItemTrueMarkProductCodesAdded(SelfDeliveryDocumentItem selfDeliveryDocumentItem)
 		{
+			if(!selfDeliveryDocumentItem.Nomenclature.IsAccountableInTrueMark)
+			{
+				return Result.Success();
+			}
+
 			var isAllTrueMarkCodesAdded = selfDeliveryDocumentItem.Amount == selfDeliveryDocumentItem.TrueMarkProductCodes.Count();
 
 			if(!isAllTrueMarkCodesAdded)
@@ -354,6 +359,11 @@ namespace VodovozBusiness.Services.TrueMark
 
 			foreach(var item in document.Items)
 			{
+				if(!item.Nomenclature.IsAccountableInTrueMark)
+				{
+					continue;
+				}
+
 				var itemGtins = item.Nomenclature.Gtins.Select(x => x.GtinNumber).ToList();
 				var itemCodes = new List<StagingTrueMarkCode>();
 

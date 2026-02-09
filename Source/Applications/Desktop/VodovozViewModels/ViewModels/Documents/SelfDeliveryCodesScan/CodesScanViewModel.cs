@@ -96,7 +96,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		public string CurrentCodeInProcess { get; private set; }
 
 		public bool IsAllCodesScanned =>
-			!_documentItemsScannedStagingCodes.Any(x => x.Key.Amount > x.Value.SelectMany(c => c.AllIdentificationCodes).Count());
+			_codesProcessingService.IsAllCodesScanned(_selfDeliveryDocument, _allScannedStagingCodes);
 
 		public CodeScanRow SelectedRow
 		{
@@ -105,7 +105,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		}
 
 		private IDictionary<SelfDeliveryDocumentItem, IEnumerable<StagingTrueMarkCode>> _documentItemsScannedStagingCodes =>
-			GetSelfDeliveryDocumentItemStagingTrueMarkCodes();
+			_codesProcessingService.GetSelfDeliveryDocumentItemStagingTrueMarkCodes(_selfDeliveryDocument, _allScannedStagingCodes);
 
 		public void Initialize(IUnitOfWork uow, SelfDeliveryDocument selfDeliveryDocument, IList<StagingTrueMarkCode> allScannedStagingCodes)
 		{
@@ -267,35 +267,6 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 					}
 				);
 			}
-		}
-
-		private IDictionary<SelfDeliveryDocumentItem, IEnumerable<StagingTrueMarkCode>> GetSelfDeliveryDocumentItemStagingTrueMarkCodes()
-		{
-			var result = new Dictionary<SelfDeliveryDocumentItem, IEnumerable<StagingTrueMarkCode>>();
-
-			if(_selfDeliveryDocument is null)
-			{
-				return result;
-			}
-
-			foreach(var item in _selfDeliveryDocument.Items)
-			{
-				var itemGtins = item.Nomenclature.Gtins.Select(x => x.GtinNumber).ToList();
-				var itemCodes = new List<StagingTrueMarkCode>();
-
-				foreach(var code in _allScannedStagingCodes)
-				{
-					var codeGtin = code.AllIdentificationCodes.First().Gtin;
-					if(itemGtins.Contains(codeGtin))
-					{
-						itemCodes.Add(code);
-					}
-				}
-
-				result.Add(item, itemCodes);
-			}
-
-			return result;
 		}
 
 		private void StartUpdater()

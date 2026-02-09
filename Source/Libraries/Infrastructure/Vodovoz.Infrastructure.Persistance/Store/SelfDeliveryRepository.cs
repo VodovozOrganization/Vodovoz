@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
@@ -16,7 +16,7 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 		public Dictionary<int, decimal> NomenclatureUnloaded(IUnitOfWork uow, Order order, SelfDeliveryDocument excludeDoc)
 		{
 			SelfDeliveryDocument docAlias = null;
-			SelfDeliveryDocumentItemEntity docItemsAlias = null;
+			SelfDeliveryDocumentItem docItemsAlias = null;
 
 			ItemInStock inUnload = null;
 			var unloadedlist = uow.Session.QueryOver(() => docAlias)
@@ -38,7 +38,7 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 		public Dictionary<int, decimal> OrderNomenclaturesLoaded(IUnitOfWork uow, Order order)
 		{
 			SelfDeliveryDocument docAlias = null;
-			SelfDeliveryDocumentItemEntity docItemsAlias = null;
+			SelfDeliveryDocumentItem docItemsAlias = null;
 
 			ItemInStock inLoaded = null;
 			var loadedlist = uow.Session.QueryOver(() => docAlias)
@@ -58,7 +58,7 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 
 		public Dictionary<int, decimal> OrderNomenclaturesUnloaded(IUnitOfWork uow, Order order, SelfDeliveryDocument notSavedDoc = null)
 		{
-			SelfDeliveryDocumentItemEntity docItemsAlias = null;
+			SelfDeliveryDocumentItem docItemsAlias = null;
 			ItemInStock inUnload = null;
 
 			var unloadedQuery = uow.Session.QueryOver<SelfDeliveryDocument>()
