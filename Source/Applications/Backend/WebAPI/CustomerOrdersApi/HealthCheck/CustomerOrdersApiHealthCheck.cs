@@ -18,7 +18,6 @@ namespace CustomerOrdersApi.HealthCheck
 		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly IConfigurationSection _healthSection;
 		private readonly string _baseAddress;
-		private const string _serviceName = "Сервис регистрации онлайн заказов, заявок на звонок";
 
 		public CustomerOrdersApiHealthCheck(
 			ILogger<VodovozHealthCheckBase> logger,
@@ -48,7 +47,7 @@ namespace CustomerOrdersApi.HealthCheck
 					CheckRequestForCallController(cancellationToken),
 				};
 
-				return await ConcatHealthCheckResultsAsync(checks, _serviceName);
+				return await ConcatHealthCheckResultsAsync(checks);
 			}
 			catch(Exception e)
 			{

@@ -75,11 +75,12 @@ namespace CustomerAppsApi.HealthChecks
 
 			const string getStatusEndpoint = "GetStatus";
 
-			var response = await HttpResponseHelper.GetByUriAsync(
+			var response = await HttpResponseHelper.SendRequestAsync<HttpResponseMessage>(
+				HttpMethod.Get,
 				$"{baseAddress}/api/{getStatusEndpoint}",
 				_httpClientFactory);
 
-			var isHealthy = ((HttpResponseMessage)response).StatusCode == HttpStatusCode.OK;
+			var isHealthy = response?.StatusCode == HttpStatusCode.OK;
 
 			if(!isHealthy)
 			{

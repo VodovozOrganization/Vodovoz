@@ -14,7 +14,6 @@ namespace CustomerAppsApi.HealthChecks
 {
 	public partial class CustomerAppsApiHealthCheck : VodovozHealthCheckBase
 	{
-		private const string _serviceName = "Сервис регистрации/авторизации пользователей";
 		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly IConfiguration _configuration;
 		private readonly IConfigurationSection _healthSection;
@@ -51,12 +50,12 @@ namespace CustomerAppsApi.HealthChecks
 						CheckWarehouseController(cancellationToken)
 					};
 
-				return await ConcatHealthCheckResultsAsync(checks, _serviceName);
+				return await ConcatHealthCheckResultsAsync(checks);
 			}
 			catch(Exception e)
 			{
 				return VodovozHealthResultDto.UnhealthyResult(
-					$"Не удалось осуществить проверку работоспособности сервиса: {_serviceName}. Ошибка: {e}"
+					$"Не удалось осуществить проверку работоспособности сервиса: {ServiceInfoProvider.Name}. Ошибка: {e}"
 				);
 			}
 		}

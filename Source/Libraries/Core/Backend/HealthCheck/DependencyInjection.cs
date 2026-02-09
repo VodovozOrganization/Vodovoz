@@ -1,8 +1,8 @@
-﻿using Autofac.Core;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Logging;
 using VodovozHealthCheck.Providers;
 using VodovozHealthCheck.ResponseWriter;
 
@@ -19,7 +19,11 @@ namespace VodovozHealthCheck
 		{
 			var options = new HealthCheckOptions
 			{
-				ResponseWriter = (responseWriter ?? new JsonResponseWriter()).WriteResponse,
+				ResponseWriter = async (ctx, report) =>
+				{
+					var writer = responseWriter ?? ctx.RequestServices.GetRequiredService<JsonResponseWriter>();
+					await writer.WriteResponse(ctx, report);
+				},
 				AllowCachingResponses = false,
 				Predicate = check => check.Tags.Contains(TagName)
 			};
@@ -28,7 +32,6 @@ namespace VodovozHealthCheck
 
 			return app;
 		}
-
 		public static IServiceCollection ConfigureHealthCheckService<THealthCheck, TServiceInfoProvider>(
 			this IServiceCollection serviceCollection,
 			bool needRegisterAsSingleton = false)
@@ -43,8 +46,10 @@ namespace VodovozHealthCheck
 			{
 				serviceCollection.AddSingleton<THealthCheck>();
 			}
-
-			serviceCollection.AddSingleton<IHealthCheckServiceInfoProvider, TServiceInfoProvider>();
+			
+			serviceCollection
+				.AddSingleton<JsonResponseWriter>() 
+				.AddSingleton<IHealthCheckServiceInfoProvider, TServiceInfoProvider>();
 
 			return serviceCollection;
 		}

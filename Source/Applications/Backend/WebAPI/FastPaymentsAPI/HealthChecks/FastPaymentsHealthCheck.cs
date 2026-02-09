@@ -18,7 +18,6 @@ namespace FastPaymentsAPI.HealthChecks
 		private readonly IConfiguration _configuration;
 		private readonly IConfigurationSection _healthSection;
 		private readonly string _baseAddress;
-		private const string _serviceName = "Сервис СБП Авангарда, для оплаты по QR.";
 
 		public FastPaymentsHealthCheck(ILogger<FastPaymentsHealthCheck> logger,
 				IConfiguration configuration,
@@ -44,7 +43,7 @@ namespace FastPaymentsAPI.HealthChecks
 					CheckPaymentStatusController(cancellationToken)
 				};
 
-				return await ConcatHealthCheckResultsAsync(checks, _serviceName);
+				return await ConcatHealthCheckResultsAsync(checks);
 			}
 			catch(Exception e)
 			{
