@@ -294,17 +294,15 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 							case nameof(Nomenclature):
 								if(parameterSet.FilterType == SelectableFilterType.Include)
 								{
-									foreach(SelectableEntityParameter<Nomenclature> value in parameterSet.OutputParameters.Where(x => x.Selected))
-									{
-										nomenclaturesToInclude.Add(value.EntityId);
-									}
+									nomenclaturesToInclude.AddRange(parameterSet.OutputParameters.Where(x => x.Selected)
+										.Cast<SelectableEntityParameter<Nomenclature>>()
+										.Select(value => value.EntityId));
 								}
 								else
 								{
-									foreach(SelectableEntityParameter<Nomenclature> value in parameterSet.OutputParameters.Where(x => x.Selected))
-									{
-										nomenclaturesToExclude.Add(value.EntityId);
-									}
+									nomenclaturesToExclude.AddRange(parameterSet.OutputParameters.Where(x => x.Selected)
+										.Cast<SelectableEntityParameter<Nomenclature>>()
+										.Select(value => value.EntityId));
 								}
 								break;
 							case nameof(NomenclatureCategory):
@@ -324,22 +322,19 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 								}
 								break;
 							case nameof(ProductGroup):
-								var selectedProductGroupIds = new List<int>();
-								CollectSelectedProductGroupIds(parameterSet.OutputParameters, selectedProductGroupIds);
-
 								if(parameterSet.FilterType == SelectableFilterType.Include)
 								{
-									foreach(var groupId in selectedProductGroupIds)
-									{
-										AddProductGroupWithChildren(groupId, productGroupToInclude);
-									}
+									productGroupToInclude.AddRange(parameterSet.GetSelectedParameters()
+										.Where(x => x.Selected)
+										.Cast<SelectableEntityParameter<ProductGroup>>()
+										.Select(value => value.EntityId));
 								}
 								else
 								{
-									foreach(var groupId in selectedProductGroupIds)
-									{
-										AddProductGroupWithChildren(groupId, productGroupToExclude);
-									}
+									productGroupToExclude.AddRange(parameterSet.GetSelectedParameters()
+										.Where(x => x.Selected)
+										.Cast<SelectableEntityParameter<ProductGroup>>()
+										.Select(value => value.EntityId));
 								}
 								break;
 						}
@@ -375,38 +370,6 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					OnPropertyChanged(nameof(FillNomenclaturesByStorageTitle));
 				}
 			));
-
-		private void CollectSelectedProductGroupIds(IEnumerable<SelectableParameter> parameters, List<int> result)
-		{
-			foreach(var parameter in parameters)
-			{
-				if(parameter.Selected && parameter is SelectableEntityParameter<ProductGroup> groupParam)
-				{
-					result.Add(groupParam.EntityId);
-				}
-
-				if(parameter.Children != null && parameter.Children.Any())
-				{
-					CollectSelectedProductGroupIds(parameter.Children, result);
-				}
-			}
-		}
-
-		private void AddProductGroupWithChildren(int productGroupId, List<int> targetList)
-		{
-			targetList.Add(productGroupId);
-
-			var productGroup = UoW.GetById<ProductGroup>(productGroupId);
-			if(productGroup == null)
-			{
-				return;
-			}
-
-			foreach(var childGroup in productGroup.Childs.Where(x => !x.IsArchive))
-			{
-				AddProductGroupWithChildren(childGroup.Id, targetList);
-			}
-		}
 
 		public DelegateCommand AddMissingNomenclatureCommand => _addMissingNomenclatureCommand ?? (
 			_addMissingNomenclatureCommand = new DelegateCommand(
