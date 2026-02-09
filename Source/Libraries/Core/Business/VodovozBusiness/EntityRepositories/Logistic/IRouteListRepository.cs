@@ -107,5 +107,13 @@ namespace Vodovoz.EntityRepositories.Logistic
 		/// <param name="carId">Id автомобиля</param>
 		/// <returns>Список идентификаторов заказов</returns>
 		IEnumerable<int> GetCompletedOrdersInTodayRouteListsByCarId(IUnitOfWork uow, int carId);
+
+		/// <summary>
+		/// Получить идентификаторы водителей с активными МЛ
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="driverIds"></param>
+		/// <returns></returns>
+		HashSet<int> GetDriverIdsWithActiveRouteList(IUnitOfWork uow, int[] driverIds);
 	}
 }

@@ -144,5 +144,19 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				.Where(e => e.StartDate >= group.StartDate.Date && e.StartDate <= endDate)
 				.SingleOrDefault();
 		}
+
+		public DriverScheduleItem GetDriverScheduleItemByDriverId(IUnitOfWork uow, int driverId, DateTime date)
+		{
+			DriverScheduleItem itemAlias = null;
+			DriverSchedule scheduleAlias = null;
+
+			var scheduleItem = uow.Session.QueryOver(() => itemAlias)
+				.Where(() => itemAlias.Date == date)
+				.JoinAlias(() => itemAlias.DriverSchedule, () => scheduleAlias)
+				.Where(() => scheduleAlias.Driver.Id == driverId)
+				.SingleOrDefault();
+
+			return scheduleItem;
+		}
 	}
 }

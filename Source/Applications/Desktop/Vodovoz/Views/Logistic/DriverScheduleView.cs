@@ -2,6 +2,7 @@
 using Gamma.GtkWidgets;
 using Gamma.Widgets.Additions;
 using Gtk;
+using QS.Dialog;
 using QS.Views.GtkUI;
 using System;
 using System.Linq.Expressions;
@@ -40,14 +41,14 @@ namespace Vodovoz.Views.Logistic
 			yhboxWeek.Add(weekPicker);
 
 			buttonSave.Binding
-				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
+				.AddBinding(ViewModel, vm => vm.CanSave, w => w.Sensitive)
 				.InitializeFromSource();
 			buttonSave.BindCommand(ViewModel.SaveCommand);
 
 			buttonCancel.Clicked += (sender, e) => ViewModel.Close(ViewModel.AskSaveOnClose, QS.Navigation.CloseSource.Cancel);
 			buttonCancel.BindCommand(ViewModel.CancelCommand);
 
-			ybuttonExport.BindCommand(ViewModel.ExportlCommand);
+			ybuttonExport.BindCommand(ViewModel.ExportCommand);
 			ybuttonInfo.BindCommand(ViewModel.InfoCommand);
 
 			enumcheckCarTypeOfUse.EnumType = typeof(CarTypeOfUse);
@@ -173,6 +174,7 @@ namespace Vodovoz.Views.Logistic
 					.SetDisplayFunc(x => x == null ? "Нет" : x.ShortName)
 					.FillItems(ViewModel.AvailableCarEventTypes)
 					.Editing()
+					.EditedEvent(OnDayComboEdited)
 					.XAlign(0.5f);
 
 				columnsConfig.AddColumn(" Адр У ")
@@ -242,6 +244,26 @@ namespace Vodovoz.Views.Logistic
 			var property = Expression.PropertyOrField(param, propertyName);
 			var converted = Expression.Convert(property, typeof(object));
 			return Expression.Lambda<Func<T, object>>(converted, param);
+		}
+
+		private void OnDayComboEdited(object sender, EditedArgs args)
+		{
+			var node = ytreeviewDynamicPart.YTreeModel.NodeAtPath(new TreePath(args.Path));
+
+			if(!(node is DriverScheduleNode driverScheduleNode))
+			{
+				return;
+			}
+
+			if(driverScheduleNode.HasActiveRouteList)
+			{
+				ViewModel.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					$"За водителем {driverScheduleNode.DriverFullName} " +
+					$"уже закреплен маршрутный лист");
+
+				args.RetVal = false;
+			}
 		}
 
 		/// <summary>

@@ -1,4 +1,5 @@
-﻿using NHibernate;
+﻿using MoreLinq;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
@@ -1832,6 +1833,17 @@ FROM
 				select routeListAddress.Order.Id;
 
 			return query.ToList();
+		}
+
+		public HashSet<int> GetDriverIdsWithActiveRouteList(IUnitOfWork uow, int[] driverIds)
+		{
+			return uow.Session.QueryOver<RouteList>()
+				.Where(rl => rl.ClosingDate == null)
+				.Where(rl => rl.Driver.Id.IsIn(driverIds.ToArray()))
+				.Select(rl => rl.Driver.Id)
+				.List<int>()
+				.Distinct()
+				.ToHashSet();
 		}
 	}
 }

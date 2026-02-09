@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Microsoft.Extensions.Logging;
 using NHibernate;
 using QS.Commands;
@@ -20,8 +20,9 @@ using System.Data;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Controllers;
-using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
@@ -48,7 +49,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Services.RouteOptimization;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
-using Vodovoz.Core.Domain.Results;
+using VodovozBusiness.EntityRepositories.Logistic;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -75,6 +76,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly RouteGeometryCalculator _routeGeometryCalculator;
 		private readonly IWageParameterService _wageParameterService;
 		private readonly IDeliveryRepository _deliveryRepository;
+		private readonly ILogisticRepository _logisticRepository;
 		private bool _canClose = true;
 		private Employee _oldDriver;
 		private DateTime _previousSelectedDate;
@@ -106,7 +108,8 @@ namespace Vodovoz.ViewModels.Logistic
 			IRouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController,
 			RouteGeometryCalculator routeGeometryCalculator,
 			IWageParameterService wageParameterService,
-			IDeliveryRepository deliveryRepository
+			IDeliveryRepository deliveryRepository,
+			ILogisticRepository logisticRepository
 			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
@@ -132,6 +135,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_routeGeometryCalculator = routeGeometryCalculator ?? throw new ArgumentNullException(nameof(routeGeometryCalculator));
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
+			_logisticRepository = logisticRepository ?? throw new ArgumentNullException(nameof(logisticRepository));
 
 			if(uowBuilder.IsNewEntity)
 			{
@@ -455,6 +459,18 @@ namespace Vodovoz.ViewModels.Logistic
 
 			DriverViewModel.IsEditable = Entity.Driver == null || isCompanyCar;
 
+			if(Entity.Driver != null && Entity.Date != default && HasDriverScheduleMarkOnDate(Entity.Driver, Entity.Date))
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					$"Нельзя добавить автомобиль в МЛ. У водителя {Entity.Driver.FullName} есть отметка в графике водителей на {Entity.Date:dd.MM.yyyy}",
+					"Предупреждение");
+
+				Entity.Car = null;
+				Entity.Driver = null;
+				return;
+			}
+
 			if(!CanChangeDriver 
 				&& Entity.Car != null 
 				&& Entity.Car.Driver == null)
@@ -477,6 +493,45 @@ namespace Vodovoz.ViewModels.Logistic
 			else
 			{
 				Entity.Forwarder = null;
+			}
+		}
+
+		public void OnDriverChangedByUser(object sender, EventArgs e)
+		{
+			if(Entity.Driver == null || Entity.Date == default)
+			{
+				return;
+			}
+
+			if(HasDriverScheduleMarkOnDate(Entity.Driver, Entity.Date))
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					$"Нельзя добавить сотрудника в МЛ. У данного сотрудника есть отметка в графике водителей",
+					"Предупреждение");
+
+				Entity.Driver = null;
+			}
+		}
+
+		private bool HasDriverScheduleMarkOnDate(Employee driver, DateTime date)
+		{
+			if(driver?.Id == 0)
+			{
+				return false;
+			}
+
+			try
+			{
+				var scheduleItem = _logisticRepository.GetDriverScheduleItemByDriverId(UoW, driver.Id, date);
+
+				return scheduleItem != null
+					&& scheduleItem.CarEventType != null
+					&& scheduleItem.CarEventType.Id > 0;
+			}
+			catch
+			{
+				return false;
 			}
 		}
 

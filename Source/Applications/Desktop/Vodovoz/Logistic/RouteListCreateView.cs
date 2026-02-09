@@ -70,6 +70,8 @@ namespace Vodovoz.Logistic
 				.AddBinding(ViewModel, vm => vm.CanChangeDriver, w => w.Sensitive)
 				.InitializeFromSource();
 
+			entryCar.ViewModel.ChangedByUser += ViewModel.OnDriverChangedByUser;
+
 			lblDriverComment.Binding
 				.AddSource(ViewModel.Entity)
 				.AddFuncBinding(

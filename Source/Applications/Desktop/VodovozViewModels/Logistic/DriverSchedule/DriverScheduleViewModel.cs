@@ -1,4 +1,6 @@
-﻿using NHibernate;
+﻿using ClosedXML.Excel;
+using MoreLinq;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
@@ -7,6 +9,7 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using QS.Navigation;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.Utilities.Enums;
 using QS.ViewModels;
@@ -32,13 +35,20 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 {
 	public class DriverScheduleViewModel : DialogTabViewModelBase
 	{
+		private const int _firstDayColumn = 14;
+		private const int _columnsPerDay = 5;
+		private const int _daysInWeek = 7;
+		private const int _commentColumn = _firstDayColumn + _daysInWeek * _columnsPerDay;
+
 		private readonly IInteractiveService _interactiveService;
 		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly ICarEventSettings _carEventSettings;
 		private readonly IEmployeeService _employeeService;
 		private readonly IUserService _userService;
+		private readonly IFileDialogService _fileDialogService;
 		private readonly ILogisticRepository _logisticRepository;
 		private readonly ICarRepository _carRepository;
+		private readonly IRouteListRepository _routeListRepository;
 
 		private ObservableList<SubdivisionNode> _subdivisions;
 		private IList<CarTypeOfUse> _selectedCarTypeOfUse;
@@ -57,8 +67,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			IDatePickerViewModelFactory weekPickerViewModelFactory,
 			IEmployeeService employeeService,
 			IUserService userService,
+			IFileDialogService fileDialogService,
 			ILogisticRepository logisticRepository,
-			ICarRepository carRepository
+			ICarRepository carRepository,
+			IRouteListRepository routeListRepository
 			) : base(unitOfWorkFactory, interactiveService, navigation)
 		{
 
@@ -68,8 +80,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			_carEventSettings = carEventSettings ?? throw new ArgumentNullException(nameof(carEventSettings));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_logisticRepository = logisticRepository ?? throw new ArgumentNullException(nameof(logisticRepository));
 			_carRepository = carRepository ?? throw new ArgumentNullException(nameof(carRepository));
+			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 
 			InitializeWeekPicker(weekPickerViewModelFactory);
 
@@ -90,10 +104,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			DriverScheduleRows = GenerateRows();
 			LoadAvailableCarEventTypes();
 
-			SaveCommand = new DelegateCommand(SaveDriverSchedule, () => CanEdit);
-			SaveCommand.CanExecuteChangedWith(this, x => x.CanEdit);
+			SaveCommand = new DelegateCommand(SaveDriverSchedule, () => CanSave);
+			SaveCommand.CanExecuteChangedWith(this, x => x.CanSave);
 			CancelCommand = new DelegateCommand(() => Close(AskSaveOnClose, CloseSource.Cancel));
-			ExportlCommand = new DelegateCommand(() => ExportCommand());
+			ExportCommand = new DelegateCommand(() => Export());
 			InfoCommand = new DelegateCommand(() => ShowInfoMessage());
 			ApplyFiltersCommand = new DelegateCommand(() =>
 			{
@@ -103,6 +117,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		}
 
 		public DatePickerViewModel WeekPickerViewModel { get; private set; }
+
+		public IInteractiveService InteractiveService => _interactiveService;
 
 		public IList<CarTypeOfUse> SelectedCarTypeOfUse
 		{
@@ -142,6 +158,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public bool CanEdit;
 		public bool CanEditAfter13;
+		public bool CanSave => CanEdit;
 		public bool AskSaveOnClose => CanEdit;
 
 		public ObservableList<DriverScheduleNode> DriverScheduleRows { get; private set; }
@@ -151,7 +168,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public DelegateCommand SaveCommand { get; }
 		public DelegateCommand CancelCommand { get; }
-		public DelegateCommand ExportlCommand { get; }
+		public DelegateCommand ExportCommand { get; }
 		public DelegateCommand InfoCommand { get; }
 		public DelegateCommand ApplyFiltersCommand { get; }
 
@@ -302,20 +319,25 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 				.Where(r =>
 				{
 					var dismissalDate = r.GetDismissalDate();
-					return !dismissalDate.HasValue || dismissalDate.Value.Date >= StartDate.Date;
+					return !dismissalDate.HasValue || dismissalDate.Value.Date > StartDate.Date;
 				})
 				.ToList();
 
-			var driverIds = filteredResult.Select(r => r.DriverId).ToList();
+
+			var driverIds = filteredResult.Select(r => r.DriverId).ToArray();
+
+			var driversWithActiveRouteList = _routeListRepository.GetDriverIdsWithActiveRouteList(UoW, driverIds);
+
 			if(driverIds.Any())
 			{
-				var carEvents = _logisticRepository.GetCarEventsByDriverIds(UoW, driverIds.ToArray(), StartDate, EndDate);
-				var scheduleItems = _logisticRepository.GetDriverScheduleItemsByDriverIds(UoW, driverIds.ToArray(), StartDate, EndDate);
+				var carEvents = _logisticRepository.GetCarEventsByDriverIds(UoW, driverIds, StartDate, EndDate);
+				var scheduleItems = _logisticRepository.GetDriverScheduleItemsByDriverIds(UoW, driverIds, StartDate, EndDate);
 
-				foreach(var node in result)
+				foreach(var node in filteredResult)
 				{
 					node.StartDate = StartDate;
 					node.CanEditAfter13 = CanEditAfter13;
+					node.HasActiveRouteList = driversWithActiveRouteList.Contains(node.DriverId);
 
 					for(int dayIndex = 0; dayIndex < 7; dayIndex++)
 					{
@@ -391,7 +413,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 				}
 			}
 
-			return new ObservableList<DriverScheduleNode>(result);
+			return new ObservableList<DriverScheduleNode>(filteredResult);
 		}
 
 		private void ProcessFiredDriverDays(DriverScheduleNode driverNode, DateTime dismissalDate)
@@ -794,10 +816,130 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			}
 		}
 
-		private void ExportCommand()
+		private enum ExportColumn
 		{
-			var rows = DriverScheduleRows;
-			var i = 228;
+			CarTypeOfUse = 1,
+			CarOwnType = 2,
+			RegNumber = 3,
+			DriverFullName = 4,
+			DriverCarOwnType = 5,
+			Phone = 6,
+			District = 7,
+			ArrivalTime = 8,
+			MorningAddressesPotential = 9,
+			MorningBottlesPotential = 10,
+			EveningAddressesPotential = 11,
+			EveningBottlesPotential = 12,
+			LastModifiedDateTime = 13
+		}
+
+		private void Export()
+		{
+			if(DriverScheduleRows == null || DriverScheduleRows.Count == 0)
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Нет данных для экспорта");
+				return;
+			}
+
+			var dialogSettings = new DialogSettings
+			{
+				Title = "Сохранить",
+				DefaultFileExtention = ".xlsx",
+				FileName = $"График_водителей_{StartDate:dd.MM.yyyy}_{EndDate:dd.MM.yyyy}.xlsx"
+			};
+
+			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+			if(result.Successful)
+			{
+				try
+				{
+					using(var workbook = new XLWorkbook())
+					{
+						var worksheet = workbook.Worksheets.Add("График водителей");
+
+						int row = 1;
+						worksheet.Cell(row, (int)ExportColumn.CarTypeOfUse).Value = "Т";
+						worksheet.Cell(row, (int)ExportColumn.CarOwnType).Value = "П";
+						worksheet.Cell(row, (int)ExportColumn.RegNumber).Value = "Гос. номер";
+						worksheet.Cell(row, (int)ExportColumn.DriverFullName).Value = "ФИО водителя";
+						worksheet.Cell(row, (int)ExportColumn.DriverCarOwnType).Value = "Принадлежность";
+						worksheet.Cell(row, (int)ExportColumn.Phone).Value = "Телефон";
+						worksheet.Cell(row, (int)ExportColumn.District).Value = "Район проживания";
+						worksheet.Cell(row, (int)ExportColumn.ArrivalTime).Value = "Время приезда";
+						worksheet.Cell(row, (int)ExportColumn.MorningAddressesPotential).Value = "Потенциал Утро (адр.)";
+						worksheet.Cell(row, (int)ExportColumn.MorningBottlesPotential).Value = "Потенциал Утро (бут.)";
+						worksheet.Cell(row, (int)ExportColumn.EveningAddressesPotential).Value = "Потенциал Вечер (адр.)";
+						worksheet.Cell(row, (int)ExportColumn.EveningBottlesPotential).Value = "Потенциал Вечер (бут.)";
+						worksheet.Cell(row, (int)ExportColumn.LastModifiedDateTime).Value = "Дата посл. изм.";
+
+
+						for(int dayIndex = 0; dayIndex < _daysInWeek; dayIndex++)
+						{
+							var date = StartDate.AddDays(dayIndex);
+							int dayColumn = _firstDayColumn + dayIndex * _columnsPerDay;
+
+							worksheet.Cell(row, dayColumn).Value = "'" + GetShortDayString(date);
+							worksheet.Cell(row, dayColumn + 1).Value = "Адр У";
+							worksheet.Cell(row, dayColumn + 2).Value = "Бут У";
+							worksheet.Cell(row, dayColumn + 3).Value = "Адр В";
+							worksheet.Cell(row, dayColumn + 4).Value = "Бут В";
+						}
+
+						worksheet.Cell(row, _commentColumn).Value = "Комментарий";
+
+						row++;
+						foreach(var node in DriverScheduleRows)
+						{
+							worksheet.Cell(row, (int)ExportColumn.CarTypeOfUse).Value = node.CarTypeOfUseString;
+							worksheet.Cell(row, (int)ExportColumn.CarOwnType).Value = node.CarOwnTypeString;
+							worksheet.Cell(row, (int)ExportColumn.RegNumber).Value = node.RegNumber ?? "";
+							worksheet.Cell(row, (int)ExportColumn.DriverFullName).Value = node.DriverFullName;
+							worksheet.Cell(row, (int)ExportColumn.DriverCarOwnType).Value = node.DriverCarOwnTypeString;
+							worksheet.Cell(row, (int)ExportColumn.Phone).Value = node.DriverPhone ?? "";
+							worksheet.Cell(row, (int)ExportColumn.District).Value = node.DistrictString;
+							worksheet.Cell(row, (int)ExportColumn.ArrivalTime).Value = node.ArrivalTime.HasValue
+								? node.ArrivalTime.Value.ToString(@"hh\:mm")
+								: "";
+							worksheet.Cell(row, (int)ExportColumn.MorningAddressesPotential).Value = node.MorningAddresses;
+							worksheet.Cell(row, (int)ExportColumn.MorningBottlesPotential).Value = node.MorningBottles;
+							worksheet.Cell(row, (int)ExportColumn.EveningAddressesPotential).Value = node.EveningAddresses;
+							worksheet.Cell(row, (int)ExportColumn.EveningBottlesPotential).Value = node.EveningBottles;
+							worksheet.Cell(row, (int)ExportColumn.LastModifiedDateTime).Value = node.LastModifiedDateTimeString;
+
+							for(int dayIndex = 0; dayIndex < _daysInWeek; dayIndex++)
+							{
+								var day = node.Days[dayIndex];
+								int dayColumn = _firstDayColumn + dayIndex * _columnsPerDay;
+
+								worksheet.Cell(row, dayColumn).Value = day.CarEventType?.ShortName ?? "Нет";
+								worksheet.Cell(row, dayColumn + 1).Value = day.MorningAddresses;
+								worksheet.Cell(row, dayColumn + 2).Value = day.MorningBottles;
+								worksheet.Cell(row, dayColumn + 3).Value = day.EveningAddresses;
+								worksheet.Cell(row, dayColumn + 4).Value = day.EveningBottles;
+							}
+
+							worksheet.Cell(row, _commentColumn).Value = node.Comment ?? "";
+
+							row++;
+						}
+
+						worksheet.Columns().AdjustToContents();
+						workbook.SaveAs(result.Path);
+
+						_interactiveService.ShowMessage(
+							ImportanceLevel.Info,
+							"Файл успешно сохранен");
+					}
+				}
+				catch(Exception ex)
+				{
+					_interactiveService.ShowMessage(
+						ImportanceLevel.Error,
+						$"Ошибка при экспорте:\n{ex.Message}");
+				}
+			}
 		}
 
 		private void ShowInfoMessage()

@@ -14,15 +14,6 @@ namespace VodovozBusiness.EntityRepositories.Logistic
 	public interface ILogisticRepository
 	{
 		/// <summary>
-		/// Получить события по автомобилям водителей за указанный период
-		/// </summary>
-		/// <param name="driverIds"></param>
-		/// <param name="startDate"></param>
-		/// <param name="endDate"></param>
-		/// <returns></returns>
-		IList<CarEvent> GetCarEventsByDriverIds(IUnitOfWork uow, int[] driverIds,  DateTime startDate, DateTime endDate);
-
-		/// <summary>
 		/// Получить событие по автомобилю водителя за указанный период и группу событий
 		/// </summary>
 		/// <param name="uow"></param>
@@ -31,6 +22,25 @@ namespace VodovozBusiness.EntityRepositories.Logistic
 		/// <param name="endDate"></param>
 		/// <returns></returns>
 		CarEvent GetCarEventByCarId(IUnitOfWork uow, int carId, CarEventGroup group, DateTime endDate);
+
+		/// <summary>
+		/// Получить день расписания водителя за указанный день.
+		/// На одного водителя может быть только 1 день расписания
+		/// </summary>
+		/// <param name=""></param>
+		/// <param name="driverId"></param>
+		/// <param name="date"></param>
+		/// <returns></returns>
+		DriverScheduleItem GetDriverScheduleItemByDriverId(IUnitOfWork uow, int driverId, DateTime date);
+
+		/// <summary>
+		/// Получить события по автомобилям водителей за указанный период
+		/// </summary>
+		/// <param name="driverIds"></param>
+		/// <param name="startDate"></param>
+		/// <param name="endDate"></param>
+		/// <returns></returns>
+		IList<CarEvent> GetCarEventsByDriverIds(IUnitOfWork uow, int[] driverIds,  DateTime startDate, DateTime endDate);
 
 		/// <summary>
 		/// Получить дни расписания водителей за указанный период

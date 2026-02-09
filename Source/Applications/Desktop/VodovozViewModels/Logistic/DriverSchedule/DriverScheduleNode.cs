@@ -33,6 +33,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		private bool _isCarAssigned;
 		private int _maxBottles;
 		private bool _canEditAfter13 = false;
+		private bool _hasActiveRouteList;
 
 		public DriverScheduleNode()
 		{
@@ -589,6 +590,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			set => SetField(ref _isCarAssigned, value);
 		}
 
+		/// <summary>
+		/// Максимальное количество бутылей для авто
+		/// </summary>
 		public virtual int MaxBottles
 		{
 			get => _maxBottles;
@@ -602,6 +606,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		{
 			get => _canEditAfter13;
 			set => SetField(ref _canEditAfter13, value);
+		}
+
+		/// <summary>
+		/// Имеется активный МЛ
+		/// </summary>
+		public virtual bool HasActiveRouteList
+		{
+			get => _hasActiveRouteList;
+			set => SetField(ref _hasActiveRouteList, value);
 		}
 
 		public string LastModifiedDateTimeString =>
@@ -649,12 +662,22 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public virtual DateTime? GetDismissalDate()
 		{
-			if(_dateFired.HasValue && _dateCalculated.HasValue)
+			if(!_dateFired.HasValue && !_dateCalculated.HasValue)
 			{
-				return _dateFired.Value < _dateCalculated.Value ? _dateFired : _dateCalculated;
+				return null;
 			}
 
-			return _dateFired ?? _dateCalculated;
+			if(!_dateFired.HasValue)
+			{
+				return _dateCalculated;
+			}
+
+			if(!_dateCalculated.HasValue)
+			{
+				return _dateFired;
+			}
+
+			return _dateFired < _dateCalculated ? _dateFired : _dateCalculated;
 		}
 
 		/// <summary>
