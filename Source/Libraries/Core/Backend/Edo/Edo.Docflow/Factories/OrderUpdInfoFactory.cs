@@ -77,7 +77,7 @@ namespace Edo.Docflow.Factories
 			var document = new UniversalTransferDocumentInfo
 			{
 				DocumentId = Guid.NewGuid(),
-				StringNumber = UPDNumberBuilder.Build(order),
+				StringNumber = DocumentNumberBuilder.Build(order, DocumentContainerType.Upd),
 				Sum = products.Sum(x => x.Sum),
 				Date = order.DeliveryDate.Value,
 				Seller = GetSellerInfo(order),
