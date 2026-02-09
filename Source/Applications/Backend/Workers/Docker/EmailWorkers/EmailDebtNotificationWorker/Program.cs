@@ -69,9 +69,6 @@ namespace EmailDebtNotificationWorker
 					services.ConfigureZabbixSenderFromDataBase(nameof(EmailDebtNotificationWorker));
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
-					services.AddScoped((sp) => sp.GetRequiredService<IUnitOfWorkFactory>()
-											   .CreateWithoutRoot("Воркер по рассылке писем о задолженности"));
-
 					services
 						.AddMassTransit(busConf =>
 						{
