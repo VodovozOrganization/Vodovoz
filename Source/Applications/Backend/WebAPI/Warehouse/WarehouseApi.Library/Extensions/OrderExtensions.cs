@@ -20,7 +20,7 @@ namespace WarehouseApi.Library.Extensions
 			return new OrderDto
 			{
 				Id = order.Id,
-				State = LoadOperationStateEnumDto.NotStarted,
+				State = selfDeliveryDocument is null ? LoadOperationStateEnumDto.NotStarted : LoadOperationStateEnumDto.Done,
 				Items = order.OrderItems.ToApiDtoV1(nomenclatures, selfDeliveryDocument)
 			};
 		}

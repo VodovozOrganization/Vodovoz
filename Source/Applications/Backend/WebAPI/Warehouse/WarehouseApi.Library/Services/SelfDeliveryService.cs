@@ -6,12 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
-using Vodovoz.Core.Domain.TrueMark;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
@@ -27,20 +25,17 @@ using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Client.Specifications;
-using VodovozBusiness.Domain.Goods;
 using VodovozBusiness.Services.TrueMark;
 
 namespace WarehouseApi.Library.Services
 {
 	internal sealed class SelfDeliveryService : ISelfDeliveryService
 	{
-		private ILogger<SelfDeliveryService> _logger;
+		private readonly ILogger<SelfDeliveryService> _logger;
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IGenericRepository<Order> _orderRepository;
 		private readonly IGenericRepository<Warehouse> _warehouseRepository;
-		private readonly IGenericRepository<SelfDeliveryDocument> _selfDeliveryDocumentRepository;
-		private readonly IGenericRepository<SubdivisionEntity> _subdivisionRepository;
-		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly IGenericRepository<Subdivision> _subdivisionRepository;
 		private readonly ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService _codesProcessingService;
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly INomenclatureSettings _nomenclatureSettings;
@@ -57,11 +52,7 @@ namespace WarehouseApi.Library.Services
 			IUnitOfWork unitOfWork,
 			IGenericRepository<Order> orderRepository,
 			IGenericRepository<Warehouse> warehouseRepository,
-			IGenericRepository<SelfDeliveryDocument> selfDeliveryDocumentRepository,
-			IGenericRepository<GroupGtin> groupGtinrepository,
-			IGenericRepository<Gtin> gtinRepository,
-			IGenericRepository<SubdivisionEntity> subdivisionRepository,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService,
+			IGenericRepository<Subdivision> subdivisionRepository,
 			ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService codesProcessingService,
 			ICounterpartyEdoAccountController edoAccountController,
 			INomenclatureSettings nomenclatureSettings,
@@ -81,12 +72,8 @@ namespace WarehouseApi.Library.Services
 				?? throw new ArgumentNullException(nameof(orderRepository));
 			_warehouseRepository = warehouseRepository
 				?? throw new ArgumentNullException(nameof(warehouseRepository));
-			_selfDeliveryDocumentRepository = selfDeliveryDocumentRepository
-				?? throw new ArgumentNullException(nameof(selfDeliveryDocumentRepository));
 			_subdivisionRepository = subdivisionRepository
 				?? throw new ArgumentNullException(nameof(subdivisionRepository));
-			_trueMarkWaterCodeService = trueMarkWaterCodeService
-				?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_codesProcessingService = codesProcessingService
 				?? throw new ArgumentNullException(nameof(codesProcessingService));
 			_edoAccountController = edoAccountController
@@ -107,46 +94,6 @@ namespace WarehouseApi.Library.Services
 				?? throw new ArgumentNullException(nameof(stockRepository));
 			_bottlesRepository = bottlesRepository
 				?? throw new ArgumentNullException(nameof(bottlesRepository));
-		}
-
-		public async Task<Result<SelfDeliveryDocument>> GetSelfDeliveryDocumentByOrderId(int orderId, CancellationToken cancellationToken)
-		{
-			try
-			{
-				if(_selfDeliveryDocumentRepository
-					.Get(_unitOfWork, x => x.Order.Id == orderId)
-					.FirstOrDefault() is SelfDeliveryDocument selfDeliveryDocument)
-				{
-					return await Task.FromResult(selfDeliveryDocument);
-				}
-
-				return VodovozBusiness.Errors.Warehouses.Documents.SelfDeliveryDocument.NotFound;
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex, $"Ошибка получения документа самовывоза по id заказа {orderId}");
-				return Result.Failure<SelfDeliveryDocument>(Vodovoz.Errors.Common.RepositoryErrors.DataRetrievalError);
-			}
-		}
-
-		public async Task<Result<SelfDeliveryDocument>> GetSelfDeliveryDocumentById(int selfDeliveryDocumentId, CancellationToken cancellationToken)
-		{
-			try
-			{
-				if(_selfDeliveryDocumentRepository
-					.Get(_unitOfWork, x => x.Id == selfDeliveryDocumentId)
-					.FirstOrDefault() is SelfDeliveryDocument selfDeliveryDocument)
-				{
-					return await Task.FromResult(selfDeliveryDocument);
-				}
-
-				return VodovozBusiness.Errors.Warehouses.Documents.SelfDeliveryDocument.NotFound;
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex, $"Ошибка получения документа самовывоза по id {selfDeliveryDocumentId}");
-				return Result.Failure<SelfDeliveryDocument>(Vodovoz.Errors.Common.RepositoryErrors.DataRetrievalError);
-			}
 		}
 
 		public async Task<Result<SelfDeliveryDocument>> CreateDocument(Employee author, int orderId, int warehouseId, CancellationToken cancellationToken)
@@ -388,46 +335,18 @@ namespace WarehouseApi.Library.Services
 				return VodovozBusiness.Errors.Warehouses.Warehouse.NotFound;
 			}
 
-			SubdivisionEntity warehouseOwnerSubdivision = null;
-
-			if(warehouse.OwningSubdivisionId.HasValue)
-			{
-				warehouseOwnerSubdivision = _subdivisionRepository
-					.GetFirstOrDefault(_unitOfWork, s => s.Id == warehouse.OwningSubdivisionId);
-			}
-
-			var warehouseGeoGroupId = warehouseOwnerSubdivision?.GeographicGroup?.Id;
+			var warehouseGeoGroupId = GetWarehouseGeoGroupId(warehouse);
 
 			var orders = _orderRepository
 				.Get(
 					_unitOfWork,
 					o =>
 						o.SelfDelivery
-						&& (warehouseGeoGroupId == null || o.SelfDeliveryGeoGroup.Id == warehouseGeoGroupId)
+						&& o.SelfDeliveryGeoGroup.Id == warehouseGeoGroupId
 						&& o.OrderStatus == OrderStatus.OnLoading)
 				.ToList();
 
 			return orders;
-		}
-
-		private async Task AddCodeToSelfDeliveryDocumentItemAsync(
-			SelfDeliveryDocumentItem selfDeliveryDocumentItem,
-			TrueMarkWaterIdentificationCode trueMarkWaterIdentificationCode,
-			CancellationToken cancellationToken)
-		{
-			await _unitOfWork.SaveAsync(trueMarkWaterIdentificationCode, cancellationToken: cancellationToken);
-
-			var productCode = new SelfDeliveryDocumentItemTrueMarkProductCode
-			{
-				CreationTime = DateTime.Now,
-				SourceCode = trueMarkWaterIdentificationCode,
-				ResultCode = trueMarkWaterIdentificationCode,
-				Problem = ProductCodeProblem.None,
-				SourceCodeStatus = SourceProductCodeStatus.Accepted,
-				SelfDeliveryDocumentItem = selfDeliveryDocumentItem
-			};
-
-			selfDeliveryDocumentItem.TrueMarkProductCodes.Add(productCode);
 		}
 
 		private void UpdateAmounts(SelfDeliveryDocument selfDeliveryDocument)
@@ -440,43 +359,21 @@ namespace WarehouseApi.Library.Services
 			}
 		}
 
-		private Result<SelfDeliveryDocument> RemoveDistributedCodes(
-			IList<TrueMarkAnyCode> anyCodes,
-			SelfDeliveryDocument selfDeliveryDocument,
-			CancellationToken cancellationToken)
+		private int? GetWarehouseGeoGroupId(Warehouse warehouse)
 		{
-			var codesToRemove = anyCodes
-				.Where(x => x.IsTrueMarkWaterIdentificationCode)
-				.Select(x => x.TrueMarkWaterIdentificationCode)
-				.ToArray();
+			var subdivisionId = warehouse.OwningSubdivisionId;
+			int? warehouseGeoGroupId = null;
 
-			foreach(var unitCode in codesToRemove)
+			while(subdivisionId != null && warehouseGeoGroupId is null)
 			{
-				var documentItem = selfDeliveryDocument.Items
-					.FirstOrDefault(di => di.TrueMarkProductCodes
-						.Any(pc => pc.SourceCode.RawCode == unitCode.RawCode));
+				var subdivision = _subdivisionRepository
+					.GetFirstOrDefault(_unitOfWork, s => s.Id == warehouse.OwningSubdivisionId);
 
-				var toRemoveProducCode = documentItem?.TrueMarkProductCodes?
-					.FirstOrDefault(x => x.SourceCode.RawCode == unitCode.RawCode);
-
-				documentItem?.TrueMarkProductCodes?.Remove(toRemoveProducCode);
+				subdivisionId = subdivision?.ParentSubdivision?.Id;
+				warehouseGeoGroupId = subdivision?.GeographicGroup?.Id;
 			}
 
-			return selfDeliveryDocument;
-		}
-
-		private SelfDeliveryDocumentItem GetNextNotScannedDocumentItem(SelfDeliveryDocument selfDeliveryDocument, TrueMarkWaterIdentificationCode code)
-		{
-			var documentItem = selfDeliveryDocument.Items?
-				.Where(x => x.Nomenclature.IsAccountableInTrueMark)
-				.FirstOrDefault(s =>
-					s.Nomenclature.Gtins.Select(g => g.GtinNumber).Contains(code.Gtin)
-					&& s.TrueMarkProductCodes.Count < s.Amount
-					&& s.TrueMarkProductCodes.All(c =>
-						!c.SourceCode.RawCode.Contains(code.RawCode)
-						&& !code.RawCode.Contains(c.SourceCode.RawCode)));
-
-			return documentItem;
+			return warehouseGeoGroupId;
 		}
 	}
 }

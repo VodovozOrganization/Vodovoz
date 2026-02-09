@@ -11,20 +11,6 @@ namespace WarehouseApi.Library.Services
 	public interface ISelfDeliveryService
 	{
 		/// <summary>
-		/// Получение информацию о документе отпуска самовывоза по идентификатору документа отпуска самовывоза
-		/// </summary>
-		/// <param name="selfDeliveryDocumentId"></param>
-		/// <returns></returns>
-		Task<Result<SelfDeliveryDocument>> GetSelfDeliveryDocumentById(int selfDeliveryDocumentId, CancellationToken cancellationToken);
-
-		/// <summary>
-		/// Получение информацию о документе отпуска самовывоза по идентификатору заказа самовывоза
-		/// </summary>
-		/// <param name="orderId"></param>
-		/// <returns></returns>
-		Task<Result<SelfDeliveryDocument>> GetSelfDeliveryDocumentByOrderId(int orderId, CancellationToken cancellationToken);
-
-		/// <summary>
 		/// Создание документа самовывоза
 		/// </summary>
 		/// <returns></returns>

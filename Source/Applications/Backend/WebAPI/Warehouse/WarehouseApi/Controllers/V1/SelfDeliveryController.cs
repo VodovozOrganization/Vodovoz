@@ -70,51 +70,6 @@ namespace WarehouseApi.Controllers.V1
 		}
 
 		/// <summary>
-		/// Получение информацию о заказе самовывоза по идентификатору документа отпуска самовывоза
-		/// </summary>
-		/// <param name="unitOfWork"></param>
-		/// <param name="orderId"></param>
-		/// <param name="selfDeliveryDocumentId"></param>
-		/// <param name="cancellationToken"></param>
-		/// <returns></returns>
-		[HttpGet]
-		[Produces(MediaTypeNames.Application.Json)]
-		[ProducesResponseType(typeof(GetSelfDeliveryResponse), StatusCodes.Status200OK)]
-		public async Task<IActionResult> GetAsync(
-			[FromServices] IUnitOfWork unitOfWork,
-			int? orderId,
-			int? selfDeliveryDocumentId,
-			CancellationToken cancellationToken)
-			=> await GetDocumentByOrderIdOrSelfDeliveryDocumentId(orderId, selfDeliveryDocumentId, cancellationToken)
-				.MatchAsync<SelfDeliveryDocument, IActionResult>(
-					selfDeliveryDocument =>
-					{
-						var nomenclatures = selfDeliveryDocument.Order.OrderItems
-							.Select(x => x.Nomenclature)
-							.ToArray()
-							.AsEnumerable();
-
-						var response = new GetSelfDeliveryResponse
-						{
-							SelfDeliveryDocumentId = selfDeliveryDocument.Id,
-							Order = selfDeliveryDocument.Order.ToApiDtoV1(nomenclatures, selfDeliveryDocument)
-						};
-
-						response.Order.Items
-							.PopulateRelatedCodes(unitOfWork, _trueMarkWaterCodeService, selfDeliveryDocument.Items.SelectMany(x => x.TrueMarkProductCodes));
-
-						response.Order.Items.ForEach(item =>
-							item.Codes.ForEach((code, i) =>
-								code.SequenceNumber = i));
-
-						return Ok(response);
-					},
-					errors => Problem(
-						string.Join(", ", errors.Select(e => e.Message)),
-						statusCode: StatusCodes.Status400BadRequest));
-
-
-		/// <summary>
 		/// Создание документа отпуска самовывоза
 		/// </summary>
 		/// <param name="unitOfWork"></param>
@@ -144,15 +99,31 @@ namespace WarehouseApi.Controllers.V1
 					await unitOfWork.CommitAsync(cancellationToken);
 					return Result.Success(selfDeliveryDocument);
 				})
-				.MatchAsync(
-					selfDeliveryDocument => Created(
-						Url.Action(
-							nameof(GetAsync),
-							controller: nameof(SelfDeliveryController),
-							new { SelfDeliveryDocumentId = selfDeliveryDocument.Id })
-						, selfDeliveryDocument),
+				.MatchAsync<SelfDeliveryDocument, IActionResult>(
+					selfDeliveryDocument =>
+					{
+						var nomenclatures = selfDeliveryDocument.Order.OrderItems
+							.Select(x => x.Nomenclature)
+							.ToArray()
+							.AsEnumerable();
+
+						var response = new GetSelfDeliveryResponse
+						{
+							SelfDeliveryDocumentId = selfDeliveryDocument.Id,
+							Order = selfDeliveryDocument.Order.ToApiDtoV1(nomenclatures, selfDeliveryDocument)
+						};
+
+						response.Order.Items
+							.PopulateRelatedCodes(unitOfWork, _trueMarkWaterCodeService, selfDeliveryDocument.Items.SelectMany(x => x.TrueMarkProductCodes));
+
+						response.Order.Items.ForEach(item =>
+							item.Codes.ForEach((code, i) =>
+								code.SequenceNumber = i));
+
+						return Ok(response);
+					},
 					errors => Problem(
-						string.Join(", ", errors.Select(x => x.Message)),
+						string.Join(", ", errors.Select(e => e.Message)),
 						statusCode: StatusCodes.Status400BadRequest));
 
 		/// <summary>
@@ -174,24 +145,7 @@ namespace WarehouseApi.Controllers.V1
 					string.Join(", ", errors.Select(e => e.Message)),
 					statusCode: StatusCodes.Status400BadRequest));
 
-		private async Task<Result<SelfDeliveryDocument>> GetDocumentByOrderIdOrSelfDeliveryDocumentId(int? orderId, int? selfDeliveryDocumentId, CancellationToken cancellationToken)
-		{
-			if(selfDeliveryDocumentId is null && orderId is null)
-			{
-				return Result.Failure<SelfDeliveryDocument>(new Error("Temp.Error", "Не указан идентификатор документа самовывоза или идентификатор заказа самовывоза"));
-			}
-
-			if(selfDeliveryDocumentId != null)
-			{
-				return await _selfDeliveryService.GetSelfDeliveryDocumentById(selfDeliveryDocumentId.Value, cancellationToken);
-			}
-			else
-			{
-				return await _selfDeliveryService.GetSelfDeliveryDocumentByOrderId(orderId.Value, cancellationToken);
-			}
-		}
-
-		private async Task<Result<SelfDeliveryDocumentEntity>> EndLoadIfNeededAsync(bool endLoadNeeded, SelfDeliveryDocument selfDeliveryDocument, CancellationToken cancellationToken)
+		private async Task<Result<SelfDeliveryDocument>> EndLoadIfNeededAsync(bool endLoadNeeded, SelfDeliveryDocument selfDeliveryDocument, CancellationToken cancellationToken)
 		{
 			if(endLoadNeeded)
 			{
