@@ -99,6 +99,7 @@ namespace WarehouseApi.Controllers.V1
 					await unitOfWork.CommitAsync(cancellationToken);
 					return Result.Success(selfDeliveryDocument);
 				})
+				.BindAsync(async selfDeliveryDocument => await _selfDeliveryService.SendEdoRequest(selfDeliveryDocument, cancellationToken))
 				.MatchAsync<SelfDeliveryDocument, IActionResult>(
 					selfDeliveryDocument =>
 					{

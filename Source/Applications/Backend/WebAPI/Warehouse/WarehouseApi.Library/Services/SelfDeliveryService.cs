@@ -1,4 +1,5 @@
-﻿using FluentNHibernate.Data;
+﻿using Edo.Contracts.Messages.Events;
+using MassTransit;
 using MassTransit.Initializers;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -47,6 +48,7 @@ namespace WarehouseApi.Library.Services
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IStockRepository _stockRepository;
 		private readonly IBottlesRepository _bottlesRepository;
+		private readonly IBus _messageBus;
 
 		public SelfDeliveryService(
 			ILogger<SelfDeliveryService> logger,
@@ -63,7 +65,8 @@ namespace WarehouseApi.Library.Services
 			ICashRepository cashRepository,
 			ICallTaskWorker callTaskWorker,
 			IStockRepository stockRepository,
-			IBottlesRepository bottlesRepository)
+			IBottlesRepository bottlesRepository,
+			IBus messageBus)
 		{
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));
@@ -95,6 +98,8 @@ namespace WarehouseApi.Library.Services
 				?? throw new ArgumentNullException(nameof(stockRepository));
 			_bottlesRepository = bottlesRepository
 				?? throw new ArgumentNullException(nameof(bottlesRepository));
+			_messageBus = messageBus
+				?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
 		public async Task<Result<SelfDeliveryDocument>> CreateDocument(Employee author, int orderId, int warehouseId, CancellationToken cancellationToken)
@@ -328,6 +333,23 @@ namespace WarehouseApi.Library.Services
 			return await Task.FromResult(selfDeliveryDocument);
 		}
 
+		public async Task<Result<SelfDeliveryDocument>> SendEdoRequest(SelfDeliveryDocument selfDeliveryDocument, CancellationToken cancellationToken)
+		{
+			var edoRequest = CreateEdoRequest(_unitOfWork, selfDeliveryDocument);
+
+			if(edoRequest is null)
+			{
+				return await Task.FromResult(selfDeliveryDocument);
+			}
+
+			await _unitOfWork.SaveAsync(edoRequest, cancellationToken: cancellationToken);
+			await _unitOfWork.CommitAsync(cancellationToken);
+
+			await SendEdoRequestCreatedEvent(edoRequest);
+
+			return await Task.FromResult(selfDeliveryDocument);
+		}
+
 		public async Task<Result<IEnumerable<Order>>> GetSelfDeliveryOrders(int warehouseId, CancellationToken cancellationToken)
 		{
 			var warehouse = _warehouseRepository
@@ -378,6 +400,37 @@ namespace WarehouseApi.Library.Services
 			}
 
 			return warehouseGeoGroupId;
+		}
+
+		private PrimaryEdoRequest CreateEdoRequest(IUnitOfWork unitOfWork, SelfDeliveryDocument selfDeliveryDocument)
+		{
+			var codes = selfDeliveryDocument.Items
+				.SelectMany(x => x.TrueMarkProductCodes)
+				.ToList();
+
+			if(!codes.Any())
+			{
+				return null;
+			}
+
+			var edoRequest = new PrimaryEdoRequest
+			{
+				Time = DateTime.Now,
+				Source = CustomerEdoRequestSource.Selfdelivery,
+				Order = selfDeliveryDocument.Order
+			};
+
+			foreach(var code in codes)
+			{
+				edoRequest.ProductCodes.Add(code);
+			}
+
+			return edoRequest;
+		}
+
+		private async Task SendEdoRequestCreatedEvent(PrimaryEdoRequest orderEdoRequest)
+		{
+			await _messageBus.Publish(new EdoRequestCreatedEvent { Id = orderEdoRequest.Id });
 		}
 	}
 }

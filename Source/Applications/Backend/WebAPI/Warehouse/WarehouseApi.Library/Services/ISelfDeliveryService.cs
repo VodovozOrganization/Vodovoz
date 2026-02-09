@@ -37,5 +37,12 @@ namespace WarehouseApi.Library.Services
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
 		Task<Result<IEnumerable<Order>>> GetSelfDeliveryOrders(int warehouseId, CancellationToken cancellationToken);
+		/// <summary>
+		/// Отправка запроса в ЭДО по заказу с самовывозом
+		/// </summary>
+		/// <param name="selfDeliveryDocument">Документ самовывоза</param>
+		/// <param name="cancellationToken"></param>
+		/// <returns></returns>
+		Task<Result<SelfDeliveryDocument>> SendEdoRequest(SelfDeliveryDocument selfDeliveryDocument, CancellationToken cancellationToken);
 	}
 }
