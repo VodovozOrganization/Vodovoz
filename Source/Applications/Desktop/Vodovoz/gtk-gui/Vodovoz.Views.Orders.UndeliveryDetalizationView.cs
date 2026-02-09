@@ -26,7 +26,11 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gtk.Label labelUndeliveryObject;
 
+		private global::Gamma.GtkWidgets.yEntry yentryClientNotificationText;
+
 		private global::Gamma.GtkWidgets.yEntry yentryName;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelClientNotificationText;
 
 		private global::Gamma.GtkWidgets.yCheckButton chkIsArchive;
 
@@ -78,7 +82,7 @@ namespace Vodovoz.Views.Orders
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
-			this.tableControlsContainer = new global::Gtk.Table(((uint)(4)), ((uint)(2)), false);
+			this.tableControlsContainer = new global::Gtk.Table(((uint)(5)), ((uint)(2)), false);
 			this.tableControlsContainer.Name = "tableControlsContainer";
 			this.tableControlsContainer.RowSpacing = ((uint)(6));
 			this.tableControlsContainer.ColumnSpacing = ((uint)(6));
@@ -117,8 +121,8 @@ namespace Vodovoz.Views.Orders
 			this.hseparator2.Name = "hseparator2";
 			this.tableControlsContainer.Add(this.hseparator2);
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.tableControlsContainer[this.hseparator2]));
-			w8.TopAttach = ((uint)(3));
-			w8.BottomAttach = ((uint)(4));
+			w8.TopAttach = ((uint)(4));
+			w8.BottomAttach = ((uint)(5));
 			w8.RightAttach = ((uint)(2));
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -154,21 +158,45 @@ namespace Vodovoz.Views.Orders
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableControlsContainer.Gtk.Table+TableChild
+			this.yentryClientNotificationText = new global::Gamma.GtkWidgets.yEntry();
+			this.yentryClientNotificationText.CanFocus = true;
+			this.yentryClientNotificationText.Name = "yentryClientNotificationText";
+			this.yentryClientNotificationText.IsEditable = true;
+			this.yentryClientNotificationText.InvisibleChar = '●';
+			this.tableControlsContainer.Add(this.yentryClientNotificationText);
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.tableControlsContainer[this.yentryClientNotificationText]));
+			w12.TopAttach = ((uint)(3));
+			w12.BottomAttach = ((uint)(4));
+			w12.LeftAttach = ((uint)(1));
+			w12.RightAttach = ((uint)(2));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableControlsContainer.Gtk.Table+TableChild
 			this.yentryName = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryName.CanFocus = true;
 			this.yentryName.Name = "yentryName";
 			this.yentryName.IsEditable = true;
 			this.yentryName.InvisibleChar = '•';
 			this.tableControlsContainer.Add(this.yentryName);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.tableControlsContainer[this.yentryName]));
-			w12.LeftAttach = ((uint)(1));
-			w12.RightAttach = ((uint)(2));
-			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.tableControlsContainer[this.yentryName]));
+			w13.LeftAttach = ((uint)(1));
+			w13.RightAttach = ((uint)(2));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableControlsContainer.Gtk.Table+TableChild
+			this.ylabelClientNotificationText = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelClientNotificationText.Name = "ylabelClientNotificationText";
+			this.ylabelClientNotificationText.Xalign = 1F;
+			this.ylabelClientNotificationText.LabelProp = global::Mono.Unix.Catalog.GetString("Текст сообщения клиенту при\nотмене по выбранной причине");
+			this.tableControlsContainer.Add(this.ylabelClientNotificationText);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tableControlsContainer[this.ylabelClientNotificationText]));
+			w14.TopAttach = ((uint)(3));
+			w14.BottomAttach = ((uint)(4));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vboxMain.Add(this.tableControlsContainer);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.tableControlsContainer]));
-			w13.Position = 1;
-			w13.Expand = false;
-			w13.Fill = false;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.tableControlsContainer]));
+			w15.Position = 1;
+			w15.Expand = false;
+			w15.Fill = false;
 			// Container child vboxMain.Gtk.Box+BoxChild
 			this.chkIsArchive = new global::Gamma.GtkWidgets.yCheckButton();
 			this.chkIsArchive.CanFocus = true;
@@ -177,10 +205,10 @@ namespace Vodovoz.Views.Orders
 			this.chkIsArchive.DrawIndicator = true;
 			this.chkIsArchive.UseUnderline = true;
 			this.vboxMain.Add(this.chkIsArchive);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.chkIsArchive]));
-			w14.Position = 2;
-			w14.Expand = false;
-			w14.Fill = false;
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.chkIsArchive]));
+			w16.Position = 2;
+			w16.Expand = false;
+			w16.Fill = false;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{
