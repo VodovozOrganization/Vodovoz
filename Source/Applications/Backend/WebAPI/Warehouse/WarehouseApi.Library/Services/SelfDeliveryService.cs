@@ -335,7 +335,7 @@ namespace WarehouseApi.Library.Services
 
 		public async Task<Result<SelfDeliveryDocument>> SendEdoRequest(SelfDeliveryDocument selfDeliveryDocument, CancellationToken cancellationToken)
 		{
-			var edoRequest = CreateEdoRequest(_unitOfWork, selfDeliveryDocument);
+			var edoRequest = CreateEdoRequest(selfDeliveryDocument);
 
 			if(edoRequest is null)
 			{
@@ -402,7 +402,7 @@ namespace WarehouseApi.Library.Services
 			return warehouseGeoGroupId;
 		}
 
-		private PrimaryEdoRequest CreateEdoRequest(IUnitOfWork unitOfWork, SelfDeliveryDocument selfDeliveryDocument)
+		private PrimaryEdoRequest CreateEdoRequest(SelfDeliveryDocument selfDeliveryDocument)
 		{
 			var codes = selfDeliveryDocument.Items
 				.SelectMany(x => x.TrueMarkProductCodes)

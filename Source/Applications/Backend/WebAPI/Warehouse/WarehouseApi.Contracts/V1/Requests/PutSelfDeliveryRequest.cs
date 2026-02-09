@@ -19,9 +19,5 @@ namespace WarehouseApi.Contracts.Requests.V1
 		/// Коды маркировки честного знака, которые нужно добавить
 		/// </summary>
 		public IEnumerable<string> CodesToAdd { get; set; }
-		/// <summary>
-		/// Требуется ли завершить отгрузку
-		/// </summary>
-		public bool EndLoad { get; internal set; }
 	}
 }
