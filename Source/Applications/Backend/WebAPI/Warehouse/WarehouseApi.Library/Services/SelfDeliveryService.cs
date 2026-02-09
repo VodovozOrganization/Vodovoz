@@ -1,4 +1,5 @@
-﻿using MassTransit.Initializers;
+﻿using FluentNHibernate.Data;
+using MassTransit.Initializers;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -127,6 +128,8 @@ namespace WarehouseApi.Library.Services
 			var selfDeliveryDocument = new SelfDeliveryDocument
 			{
 				AuthorId = author.Id,
+				LastEditorId = author.Id,
+				LastEditedTime = DateTime.Now,
 				Order = order,
 				Warehouse = warehouse,
 			};
@@ -313,6 +316,7 @@ namespace WarehouseApi.Library.Services
 
 		public async Task<Result<SelfDeliveryDocument>> EndLoad(SelfDeliveryDocument selfDeliveryDocument, CancellationToken cancellationToken)
 		{
+			selfDeliveryDocument.UpdateOperations(_unitOfWork);
 			selfDeliveryDocument.FullyShiped(
 				_unitOfWork,
 				_nomenclatureSettings,
