@@ -25,6 +25,10 @@ namespace Vodovoz.Views.Orders
 
 			buttonSave.BindCommand(ViewModel.SaveCommand);
 			buttonCancel.BindCommand(ViewModel.CloseCommand);
+			
+			ylabelNotificationType.Visible = false;
+			yenumcmbNotificationType.Visible = false;
+			ycheckNotificationDisabled.Visible = false;
 		}
 	}
 }
