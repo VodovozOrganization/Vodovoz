@@ -1,6 +1,5 @@
 ﻿using Edo.Contracts.Messages.Events;
 using MassTransit;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ModulKassa;
@@ -24,19 +23,19 @@ namespace Edo.Receipt.Callback.Controllers
 		private readonly CashboxClientProvider _cashboxClientProvider;
 
 		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly IBus _messageBus;
+		private readonly IPublishEndpoint _publishEndpoint;
 
 		public ReceiptCallbackController(
 			ILogger<ReceiptCallbackController> logger,
 			CashboxClientProvider cashboxClientProvider,
 			IUnitOfWorkFactory uowFactory,
-			IBus messageBus
+			IPublishEndpoint publishEndpoint
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_cashboxClientProvider = cashboxClientProvider ?? throw new ArgumentNullException(nameof(cashboxClientProvider));
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
 		[HttpGet()]
@@ -103,8 +102,24 @@ namespace Edo.Receipt.Callback.Controllers
 				await uow.SaveAsync(document, cancellationToken: cancellationToken);
 				await uow.CommitAsync(cancellationToken);
 
-				// сюда надо уведомление о завершении в диспетчер или проверку всех ФД на месте
-				
+				try
+				{
+					if(document.Status is FiscalDocumentStatus.Completed or FiscalDocumentStatus.Printed
+						&& document.Stage == FiscalDocumentStage.Completed)
+					{
+						await _publishEndpoint.Publish(
+							new ReceiptCompleteEvent
+							{
+								ReceiptEdoTaskId =  document.ReceiptEdoTask.Id
+							},
+							cancellationToken);
+					}
+				}
+				catch(Exception e)
+				{
+					_logger.LogError(e, "Не удалось отправить событие завершения задачи по чеку {FiscalDocument}", document.DocumentGuid);
+				}
+
 				HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
 			}
 		}
