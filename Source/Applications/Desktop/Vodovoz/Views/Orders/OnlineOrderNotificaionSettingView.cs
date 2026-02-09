@@ -14,8 +14,8 @@ namespace Vodovoz.Views.Orders
 
 		private void Configure()
 		{
-			yenumcmbExternalOrderStatus.ItemsEnum = typeof(ExternalOrderStatus); 
-			yenumcmbExternalOrderStatus.Binding
+			yenumcmbNotificationEvent.ItemsEnum = typeof(ExternalOrderStatus);
+			yenumcmbNotificationEvent.Binding
 				.AddBinding(ViewModel.Entity, e => e.ExternalOrderStatus, w => w.SelectedItem)
 				.InitializeFromSource();
 
@@ -25,6 +25,10 @@ namespace Vodovoz.Views.Orders
 
 			buttonSave.BindCommand(ViewModel.SaveCommand);
 			buttonCancel.BindCommand(ViewModel.CloseCommand);
+			
+			ylabelNotificationType.Visible = false;
+			yenumcmbNotificationType.Visible = false;
+			ycheckNotificationDisabled.Visible = false;
 		}
 	}
 }
