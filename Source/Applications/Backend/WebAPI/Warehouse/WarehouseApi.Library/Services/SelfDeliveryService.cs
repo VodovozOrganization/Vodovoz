@@ -408,11 +408,6 @@ namespace WarehouseApi.Library.Services
 				.SelectMany(x => x.TrueMarkProductCodes)
 				.ToList();
 
-			if(!codes.Any())
-			{
-				return null;
-			}
-
 			var edoRequest = new PrimaryEdoRequest
 			{
 				Time = DateTime.Now,
