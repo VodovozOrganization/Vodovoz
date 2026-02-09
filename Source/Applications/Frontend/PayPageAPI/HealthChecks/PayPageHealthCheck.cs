@@ -35,19 +35,9 @@ namespace PayPageAPI.HealthChecks
 			var baseAddress = healthSection.GetValue<string>("BaseAddress");
 			var guid = healthSection.GetValue<string>("Variables:Guid");
 
-			var isHealthy = await HttpResponseHelper.CheckUriExistsAsync($"{baseAddress}/{guid}", _httpClientFactory);
-
-			var result = new VodovozHealthResultDto
-			{
-				IsHealthy = isHealthy,				 
-			};
-
-			if(!isHealthy)
-			{
-				result.AdditionalUnhealthyResults.Add("Платёжная страница недоступна");
-			}
-
-			return result;
+			var response = await HttpResponseHelper.CheckUriExistsAsync($"{baseAddress}/{guid}", _httpClientFactory);
+			
+			return VodovozHealthResultDto.FromCondition("Платёжная страница", response.IsSuccess, response.ErrorMessage);
 		}
 	}
 }
