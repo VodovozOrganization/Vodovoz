@@ -4,6 +4,7 @@ using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Fuel;
@@ -358,6 +359,13 @@ namespace Vodovoz.Domain.Logistic
 			{
 				yield return new ValidationResult(
 					"Нельзя выдавать топливо лимитами на маршрутные листы за предыдущие дни",
+					new[] { nameof(RouteList) });
+			}
+
+			if(Id == 0 && RouteList?.HasAddressesOrAdditionalLoading != true)
+			{
+				yield return new ValidationResult(
+					"Запрещено выдавать топливо для МЛ без адресов или без погруженного запаса",
 					new[] { nameof(RouteList) });
 			}
 		}

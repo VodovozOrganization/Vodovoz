@@ -309,6 +309,11 @@ namespace Vodovoz.ViewModels.Logistic
 				Projections.Constant(false),
 				Projections.Constant(true));
 
+			var hasAdditionalLoadingProjection = Projections.Conditional(
+				Restrictions.IsNull(Projections.Property(() => routeListAlias.AdditionalLoadingDocument.Id)),
+				Projections.Constant(false),
+				Projections.Constant(true));
+
 			var result = query
 				.SelectList(list => list
 					.SelectGroup(() => routeListAlias.Id).WithAlias(() => routeListJournalNodeAlias.Id)
@@ -333,6 +338,7 @@ namespace Vodovoz.ViewModels.Logistic
 					.Select(Projections.Constant(_routeListProfitabilityIndicator))
 						.WithAlias(() => routeListJournalNodeAlias.RouteListProfitabilityIndicator)
 					.Select(hasAddressesProjection).WithAlias(() => routeListJournalNodeAlias.HasAddresses)
+					.Select(hasAdditionalLoadingProjection).WithAlias(() => routeListJournalNodeAlias.HasAdditionalLoading)
 				).OrderBy(rl => rl.Date).Desc
 				.TransformUsing(Transformers.AliasToBean<RouteListJournalNode>());
 
@@ -718,7 +724,7 @@ namespace Vodovoz.ViewModels.Logistic
 				"Выдать топливо",
 				selectedItems => selectedItems.FirstOrDefault() is RouteListJournalNode node
 					&& _fuelIssuingStatuses.Contains(node.StatusEnum)
-					&& node.HasAddresses
+					&& node.HasAddressesOrAdditionalLoading
 					&& node.Date >= DateTime.Today,
 				selectedItems => true,
 				selectedItems =>
