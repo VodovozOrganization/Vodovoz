@@ -1014,76 +1014,89 @@ First(Fields!total.Value,'Initial')&lt;0,
         <Left>0.0pt</Left>
         <Top>144.5pt</Top>
       </Table>
-      <Textbox Name="Textbox72">
-        <Height>14.28pt</Height>
-        <Width>671.55pt</Width>
-        <Value>="По данным "+ First(Fields!org_name,'Organization')</Value>
-        <ZIndex>0</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>250.90pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
-     <Textbox Name="Textbox73">
-    <Height>52.66pt</Height>
-    <Width>461.47pt</Width>
-    <Value>="на "+Format(CDate(Parameters!EndDate),"dd.MM.yyyy") + " задолженность в пользу"
-      + " "+
-      Iif(
-      First(Fields!total.Value, 'Initial')
-      + Sum(Fields!debt,'Operations')
-      - Sum(Fields!deposit,'Operations') &gt; 0,
-      First(Fields!org_name,'Organization'),
-      First(Fields!counterparty_name,'Counterparty')
-      )
-      + " составляет " +
-      Format(
-      Math.Abs(
-      First(Fields!total.Value, 'Initial')
-      + Sum(Fields!debt,'Operations')
-      - Sum(Fields!deposit,'Operations')
-      ), "N2")
-      +" руб." + "\n"+
-      "("+
-      Code.NumberToWords(Math.Abs(
-      First(Fields!total.Value, 'Initial')
-      + Sum(Fields!debt,'Operations')
-      - Sum(Fields!deposit,'Operations')
-      ))
-      +")"</Value>
-          <ZIndex>0</ZIndex>
-          <Left>0.00pt</Left>
-          <Top>267.20pt</Top>
-          <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-          </Style>
-      </Textbox>
-      <Textbox Name="TextboxDepositTotal">
-        <Height>14.28pt</Height>
+      <List Name="ConclusionList">
+        <DataSetName>Organization</DataSetName>
+        <Height>85.22pt</Height>
         <Width>461.47pt</Width>
-        <Value>="Всего залогов: " + Format(First(Fields!depositsum.Value, "Payments"), "N2") + " руб."</Value>
-        <ZIndex>0</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>301.3pt</Top>
+        <Left>0.00pt</Left>
+        <Top>267.20pt</Top>
         <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Bold</FontWeight>
+            <BorderStyle />
         </Style>
-      </Textbox>
+        <KeepTogether>true</KeepTogether>
+        <ReportItems>
+            <Textbox Name="Textbox72">
+                <Height>14.28pt</Height>
+                <Width>461.47pt</Width>
+                <Value>="По данным "+ First(Fields!org_name,'Organization')</Value>
+                <ZIndex>0</ZIndex>
+                <Left>0.00pt</Left>
+                <Top>0pt</Top>
+                <Style>
+                    <BorderStyle />
+                    <BorderColor />
+                    <BorderWidth />
+                </Style>
+            </Textbox>
+            <Textbox Name="Textbox73">
+                <Height>52.66pt</Height>
+                <Width>461.47pt</Width>
+                <Value>="на "+Format(CDate(Parameters!EndDate),"dd.MM.yyyy") + " задолженность в пользу"
+                  + " "+
+                  Iif(
+                  First(Fields!total.Value, 'Initial')
+                  + Sum(Fields!debt,'Operations')
+                  - Sum(Fields!deposit,'Operations') &gt; 0,
+                  First(Fields!org_name,'Organization'),
+                  First(Fields!counterparty_name,'Counterparty')
+                  )
+                  + " составляет " +
+                  Format(
+                  Math.Abs(
+                  First(Fields!total.Value, 'Initial')
+                  + Sum(Fields!debt,'Operations')
+                  - Sum(Fields!deposit,'Operations')
+                  ), "N2")
+                  +" руб." + "\n"+
+                  "("+
+                  Code.NumberToWords(Math.Abs(
+                  First(Fields!total.Value, 'Initial')
+                  + Sum(Fields!debt,'Operations')
+                  - Sum(Fields!deposit,'Operations')
+                  ))
+                  +")"</Value>
+                  <ZIndex>0</ZIndex>
+                  <Left>0.00pt</Left>
+                  <Top>16.28pt</Top>
+                  <Style>
+                      <BorderStyle />
+                      <BorderColor />
+                      <BorderWidth />
+                      <FontWeight>Bold</FontWeight>
+                  </Style>
+              </Textbox>
+              <Textbox Name="TextboxDepositTotal">
+                <Height>14.28pt</Height>
+                <Width>461.47pt</Width>
+                <Value>="Всего залогов: " + Format(First(Fields!depositsum.Value, "Payments"), "N2") + " руб."</Value>
+                <ZIndex>0</ZIndex>
+                <Left>0.0pt</Left>
+                <Top>46.94pt</Top>
+                <Style>
+                  <BorderStyle />
+                  <BorderColor />
+                  <BorderWidth />
+                  <FontWeight>Bold</FontWeight>
+                </Style>
+            </Textbox>
+          </ReportItems>
+      </List>
       <List Name="SignaturesList">
         <DataSetName>Organization</DataSetName>
         <Height>78pt</Height>
         <Width>809pt</Width>
         <Left>0.00pt</Left>
-        <Top>325.10pt</Top>
+        <Top>354.42pt</Top>
         <Style>
           <BorderStyle/>
         </Style>
