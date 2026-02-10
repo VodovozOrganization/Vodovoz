@@ -20,7 +20,12 @@
           FROM (
           SELECT # Не оплаченные и частично оплаченные заказы
             0 as num,
-            CONCAT('Продажа (', o.id, ' от ', o.delivery_date , ')' ) as document,
+            CONCAT('Продажа (', 
+                    IFNULL(doc.document_number, o.id), 
+                    ' от ', 
+                    o.delivery_date, 
+                    ')' 
+            ) as document,
               (
                   (
                     SELECT round(sum(IFNULL(oi.actual_count, oi.count) * oi.price - oi.discount_money), 2)
@@ -51,6 +56,10 @@
             o.order_status as order_status
           FROM orders o
           LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
+          LEFT JOIN order_documents od ON od.order_id = o.id 
+            AND od.type IN ('SpecialUPD', 'UPD') 
+            AND od.document_organization_counter_id IS NOT NULL
+          LEFT JOIN document_organization_counters doc ON doc.id = od.document_organization_counter_id
           WHERE
               o.client_id = @counterparty_id
               AND o.order_payment_status != 'Paid'
@@ -62,7 +71,12 @@
           UNION ALL
           SELECT # Оплаченные заказы
               p.payment_num as num,
-              CONCAT('Продажа (', o.id, ' от ', o.delivery_date , ')' ) as document,
+              CONCAT('Продажа (', 
+                    IFNULL(doc.document_number, o.id), 
+                    ' от ', 
+                    o.delivery_date, 
+                    ')' 
+              ) as document,
               pi.sum as debt,
               0 as deposit,
               0 as money,
@@ -76,6 +90,10 @@
           INNER JOIN 
             payments_from_bank_client p ON pi.payment_id = p.id
           LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
+          LEFT JOIN order_documents od ON od.order_id = o.id 
+            AND od.type IN ('SpecialUPD', 'UPD') 
+            AND od.document_organization_counter_id IS NOT NULL
+          LEFT JOIN document_organization_counters doc ON doc.id = od.document_organization_counter_id
           WHERE
             o.client_id = @counterparty_id
             AND pi.payment_item_status != 'Cancelled'
