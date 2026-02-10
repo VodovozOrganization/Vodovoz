@@ -1835,15 +1835,36 @@ FROM
 			return query.ToList();
 		}
 
-		public HashSet<int> GetDriverIdsWithActiveRouteList(IUnitOfWork uow, int[] driverIds)
+		public Dictionary<int, HashSet<DateTime>> GetDriverIdsWithActiveRouteListByDates(
+			IUnitOfWork uow,
+			int[] driverIds,
+			DateTime startDate,
+			DateTime endDate)
 		{
-			return uow.Session.QueryOver<RouteList>()
-				.Where(rl => rl.ClosingDate == null)
-				.Where(rl => rl.Driver.Id.IsIn(driverIds.ToArray()))
-				.Select(rl => rl.Driver.Id)
-				.List<int>()
-				.Distinct()
-				.ToHashSet();
+			if(driverIds == null || driverIds.Length == 0)
+			{
+				return new Dictionary<int, HashSet<DateTime>>();
+			}
+
+			var result = new Dictionary<int, HashSet<DateTime>>();
+
+			var routeLists = uow.Session.QueryOver<RouteList>()
+				.Where(rl => rl.Date >= startDate)
+				.Where(rl => rl.Date <= endDate)
+				.Where(rl => rl.Status != RouteListStatus.Closed)
+				.WhereRestrictionOn(rl => rl.Driver.Id).IsIn(driverIds)
+				.List();
+
+			foreach(var routeList in routeLists)
+			{
+				if(!result.ContainsKey(routeList.Driver.Id))
+				{
+					result[routeList.Driver.Id] = new HashSet<DateTime>();
+				}
+				result[routeList.Driver.Id].Add(routeList.Date);
+			}
+
+			return result;
 		}
 	}
 }

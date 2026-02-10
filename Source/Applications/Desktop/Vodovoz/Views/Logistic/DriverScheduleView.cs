@@ -262,12 +262,29 @@ namespace Vodovoz.Views.Logistic
 				return;
 			}
 
-			if(driverScheduleNode.HasActiveRouteList)
+			ytreeviewDynamicPart.GetCursor(out TreePath path, out TreeViewColumn focusedColumn);
+
+			if(focusedColumn == null)
+			{
+				return;
+			}
+
+			var columnIndex = Array.IndexOf(ytreeviewDynamicPart.Columns, focusedColumn);
+
+			if(columnIndex < 0)
+			{
+				return;
+			}
+
+			int dayIndex = columnIndex / 5;
+
+			if(dayIndex >= 0 && dayIndex < driverScheduleNode.Days.Length &&
+			   driverScheduleNode.Days[dayIndex].HasActiveRouteList)
 			{
 				ViewModel.InteractiveService.ShowMessage(
 					ImportanceLevel.Warning,
 					$"За водителем {driverScheduleNode.DriverFullName} " +
-					$"уже закреплен маршрутный лист");
+					$"уже закреплен маршрутный лист на {ViewModel.GetShortDayString(driverScheduleNode.Days[dayIndex].Date)}");
 
 				args.RetVal = false;
 			}

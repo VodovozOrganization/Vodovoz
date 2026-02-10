@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using Microsoft.VisualBasic;
 using MoreLinq;
 using NHibernate;
 using NHibernate.Criterion;
@@ -331,7 +332,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 			var driverIds = filteredResult.Select(r => r.DriverId).ToArray();
 
-			var driversWithActiveRouteList = _routeListRepository.GetDriverIdsWithActiveRouteList(UoW, driverIds);
+			var driversActiveRouteListDates = _routeListRepository.GetDriverIdsWithActiveRouteListByDates(UoW, driverIds, StartDate, EndDate);
 
 			if(driverIds.Any())
 			{
@@ -342,15 +343,21 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 				{
 					node.StartDate = StartDate;
 					node.CanEditAfter13 = CanEditAfter13;
-					node.HasActiveRouteList = driversWithActiveRouteList.Contains(node.DriverId);
 
 					for(int dayIndex = 0; dayIndex < 7; dayIndex++)
 					{
+						var dayDate = StartDate.AddDays(dayIndex);
+
 						if(node.Days[dayIndex].Date == default)
 						{
-							node.Days[dayIndex].Date = StartDate.AddDays(dayIndex);
+							node.Days[dayIndex].Date = dayDate;
 						}
+
 						node.Days[dayIndex].ParentNode = node;
+
+						node.Days[dayIndex].HasActiveRouteList =
+							driversActiveRouteListDates.ContainsKey(node.DriverId) &&
+							driversActiveRouteListDates[node.DriverId].Contains(dayDate);
 					}
 
 					node.InitializeEmptyCarEventTypes();
@@ -391,7 +398,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 					}
 
 					var driverScheduleItems = scheduleItems
-						.Where(si => si.DriverSchedule.Driver.Id == node.DriverId)
+						.Where(si => si.DriverSchedule.Driver?.Id == node.DriverId)
 						.ToList();
 
 					foreach(var item in driverScheduleItems)
@@ -560,13 +567,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			{
 				var driverRows = DriverScheduleRows
 					.Where(r => !(r is DriverScheduleTotalAddressesRow || r is DriverScheduleTotalBottlesRow))
+					.Where(r => r.HasChanges)
 					.ToList();
 
 				var driverIds = driverRows.Select(r => r.DriverId).Distinct().ToArray();
 
 				if(driverIds.Length == 0)
 				{
-					_interactiveService.ShowMessage(ImportanceLevel.Info, "Нет данных для сохранения");
+					_interactiveService.ShowMessage(ImportanceLevel.Info, "Нет изменений для сохранения");
 					return;
 				}
 
@@ -658,6 +666,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 					UoW.Save(driverSchedule);
 
 					UpdateDriverNodeFromSchedule(driverNode, driverSchedule);
+
+					driverNode.HasChanges = false;
 
 					OnPropertyChanged(nameof(DriverScheduleRows));
 				}
@@ -992,6 +1002,19 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 							{
 								var day = node.Days[dayIndex];
 								int dayColumn = _firstDayColumn + dayIndex * _columnsPerDay;
+
+								if(node is DriverScheduleTotalAddressesRow)
+								{
+									worksheet.Cell(row, dayColumn).Value = day.CarEventType?.ShortName ?? "";
+								}
+								else if(node is DriverScheduleTotalBottlesRow)
+								{
+									worksheet.Cell(row, dayColumn).Value = day.CarEventType?.ShortName ?? "";
+								}
+								else
+								{
+									worksheet.Cell(row, dayColumn).Value = day.CarEventType?.ShortName ?? "Нет";
+								}
 
 								worksheet.Cell(row, dayColumn).Value = day.CarEventType?.ShortName ?? "Нет";
 								worksheet.Cell(row, dayColumn + 1).Value = day.MorningAddresses;

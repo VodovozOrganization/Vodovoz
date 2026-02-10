@@ -33,7 +33,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		private bool _isCarAssigned;
 		private int _maxBottles;
 		private bool _canEditAfter13 = false;
-		private bool _hasActiveRouteList;
+		private bool _hasChanges = false;
 
 		public DriverScheduleNode()
 		{
@@ -327,6 +327,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			return _isCarAssigned || value <= 0;
 		}
 
+		private void UpdateHasChanges()
+		{
+			HasChanges = true;
+		}
+
 		private int GetValidatedBottleValue(int dayIndex, int value)
 		{
 			if(!CanSetDayValue(dayIndex, value))
@@ -344,7 +349,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		public void SetDayCarEventType(int dayIndex, CarEventType value)
 		{
-			if(!IsValidDayIndex(dayIndex) || !CanEditDay(dayIndex))
+			if(!IsValidDayIndex(dayIndex) 
+				|| !CanEditDay(dayIndex) 
+				|| Days[dayIndex].HasActiveRouteList)
 			{
 				return;
 			}
@@ -358,6 +365,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 				Days[dayIndex].EveningAddresses = 0;
 				Days[dayIndex].EveningBottles = 0;
 			}
+
+			UpdateHasChanges();
 		}
 
 		public int GetDayMorningAddresses(int dayIndex)
@@ -373,6 +382,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			}
 
 			Days[dayIndex].MorningAddresses = CanSetDayValue(dayIndex, value) ? value : 0;
+
+			UpdateHasChanges();
 		}
 
 		public int GetDayMorningBottles(int dayIndex)
@@ -388,6 +399,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			}
 
 			Days[dayIndex].MorningBottles = GetValidatedBottleValue(dayIndex, value);
+
+			UpdateHasChanges();
 		}
 
 		public int GetDayEveningAddresses(int dayIndex)
@@ -403,6 +416,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			}
 
 			Days[dayIndex].EveningAddresses = CanSetDayValue(dayIndex, value) ? value : 0;
+
+			UpdateHasChanges();
 		}
 
 		public int GetDayEveningBottles(int dayIndex)
@@ -418,6 +433,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			}
 
 			Days[dayIndex].EveningBottles = GetValidatedBottleValue(dayIndex, value);
+
+			UpdateHasChanges();
 		}
 
 		public bool IsValidDayIndex(int dayIndex)
@@ -504,7 +521,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		public virtual TimeSpan? ArrivalTime
 		{
 			get => _arrivalTime;
-			set => SetField(ref _arrivalTime, value);
+			set
+			{
+				if(SetField(ref _arrivalTime, value))
+				{
+					UpdateHasChanges();
+				}
+				
+			} 
 		}
 
 		public virtual int MorningAddresses
@@ -515,6 +539,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 				if(SetField(ref _morningAddresses, value))
 				{
 					UpdateDayValuesFromPotential();
+					UpdateHasChanges();
 				}
 			}
 		}
@@ -528,6 +553,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 				if(SetField(ref _morningBottles, finalValue))
 				{
 					UpdateDayValuesFromPotential();
+					UpdateHasChanges();
 				}
 			}
 		}
@@ -540,6 +566,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 				if(SetField(ref _eveningAddresses, value))
 				{
 					UpdateDayValuesFromPotential();
+					UpdateHasChanges();
 				}
 			}
 		}
@@ -553,6 +580,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 				if(SetField(ref _eveningBottles, finalValue))
 				{
 					UpdateDayValuesFromPotential();
+					UpdateHasChanges();
 				}
 			}
 		}
@@ -566,7 +594,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		public virtual string Comment
 		{
 			get => _comment;
-			set => SetField(ref _comment, value);
+			set
+			{
+				if(SetField(ref _comment, value))
+				{
+					UpdateHasChanges();
+				}
+			}
 		}
 
 		public virtual DateTime? DateFired
@@ -609,12 +643,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		}
 
 		/// <summary>
-		/// Имеется активный МЛ
+		/// Были ли изменения в ноде
 		/// </summary>
-		public virtual bool HasActiveRouteList
+		public virtual bool HasChanges
 		{
-			get => _hasActiveRouteList;
-			set => SetField(ref _hasActiveRouteList, value);
+			get => _hasChanges;
+			set => SetField(ref _hasChanges, value);
 		}
 
 		public virtual string LastModifiedDateTimeString =>

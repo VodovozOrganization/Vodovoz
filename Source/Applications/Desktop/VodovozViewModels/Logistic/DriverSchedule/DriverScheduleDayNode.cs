@@ -15,6 +15,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		private DriverScheduleNode _parentNode;
 		private bool _isVirtualCarEventType;
 		private bool _isCarEventTypeFromJournal;
+		private bool _hasActiveRouteList;
 
 		public virtual DriverScheduleNode ParentNode
 		{
@@ -86,6 +87,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		{
 			get => _eveningBottles;
 			set => SetField(ref _eveningBottles, value);
+		}
+
+		/// <summary>
+		/// Имеется активный МЛ
+		/// </summary>
+		public virtual bool HasActiveRouteList
+		{
+			get => _hasActiveRouteList;
+			set => SetField(ref _hasActiveRouteList, value);
 		}
 
 		/// <summary>

@@ -109,11 +109,13 @@ namespace Vodovoz.EntityRepositories.Logistic
 		IEnumerable<int> GetCompletedOrdersInTodayRouteListsByCarId(IUnitOfWork uow, int carId);
 
 		/// <summary>
-		/// Получить идентификаторы водителей с активными МЛ
+		/// Получить словарь идентификаторов водителей с датами, когда у них были активные МЛ в указанный период
 		/// </summary>
 		/// <param name="uow"></param>
 		/// <param name="driverIds"></param>
+		/// <param name="startDate"></param>
+		/// <param name="endDate"></param>
 		/// <returns></returns>
-		HashSet<int> GetDriverIdsWithActiveRouteList(IUnitOfWork uow, int[] driverIds);
+		Dictionary<int, HashSet<DateTime>> GetDriverIdsWithActiveRouteListByDates(IUnitOfWork uow, int[] driverIds, DateTime startDate, DateTime endDate);
 	}
 }
