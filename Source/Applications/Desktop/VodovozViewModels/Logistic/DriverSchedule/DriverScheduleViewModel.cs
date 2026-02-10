@@ -31,6 +31,7 @@ using Vodovoz.Settings.Logistics;
 using VodovozBusiness.EntityRepositories.Logistic;
 using VodovozBusiness.Nodes;
 using VodovozInfrastructure.StringHandlers;
+using Schedule = VodovozBusiness.Domain.Logistic.Drivers.DriverSchedule;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 {
@@ -253,7 +254,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			Phone phoneAlias = null;
 			DriverScheduleNode resultAlias = null;
 			CarVersion carVersionAlias = null;
-			VodovozBusiness.Domain.Logistic.Drivers.DriverSchedule driverScheduleAlias = null;
+			Schedule driverScheduleAlias = null;
 
 			var selectedSubdivisionIds = Subdivisions
 				.Where(s => s.Selected)
@@ -602,7 +603,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 				foreach(var driverNode in driverRows)
 				{
-					if(schedulesByDriverId.TryGetValue(driverNode.DriverId, out VodovozBusiness.Domain.Logistic.Drivers.DriverSchedule driverSchedule))
+					if(schedulesByDriverId.TryGetValue(driverNode.DriverId, out Schedule driverSchedule))
 					{
 						if(driverSchedule.Days == null)
 						{
@@ -642,7 +643,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 												driverNode.EveningAddresses != 0 ||
 												driverNode.EveningBottles != 0;
 
-						driverSchedule = new VodovozBusiness.Domain.Logistic.Drivers.DriverSchedule
+						driverSchedule = new Schedule
 						{
 							Driver = UoW.GetById<Employee>(driverNode.DriverId),
 							MorningAddressesPotential = driverNode.MorningAddresses,
@@ -682,7 +683,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			}
 		}
 
-		private void FillDayScheduleItems(VodovozBusiness.Domain.Logistic.Drivers.DriverSchedule driverSchedule, DriverScheduleNode driverNode)
+		private void FillDayScheduleItems(Schedule driverSchedule, DriverScheduleNode driverNode)
 		{
 			driverSchedule.Days = driverSchedule.Days ?? new List<DriverScheduleItem>();
 
@@ -729,7 +730,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			}
 		}
 
-		private void UpdateDriverNodeFromSchedule(DriverScheduleNode driverNode, VodovozBusiness.Domain.Logistic.Drivers.DriverSchedule driverSchedule)
+		private void UpdateDriverNodeFromSchedule(DriverScheduleNode driverNode, Schedule driverSchedule)
 		{
 			if(driverSchedule.Days != null)
 			{
