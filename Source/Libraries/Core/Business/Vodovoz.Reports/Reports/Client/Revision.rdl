@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -105,7 +105,7 @@
           AND 
             t.`date`  &lt; DATE_ADD(@date_end, INTERVAL 1 DAY)
           ORDER BY
-            t.`date` DESC
+            t.`date` ASC
         </CommandText>
         <QueryParameters>
           <QueryParameter Name="counterparty_id">
@@ -222,15 +222,18 @@ WHERE
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>
-        SELECT T.total, NUMBER_TO_STRING_DESCRIPTION(T.total) as total_string
+        SELECT 
+            T.total
         FROM (
-          SELECT
-              IFNULL(SUM(IFNULL(cmo.income, 0)) - SUM(IFNULL(cmo.expense, 0)), 0) as total
-          FROM 
-              cashless_movement_operations cmo 
-          WHERE
-              cmo.counterparty_id = @counterparty_id
-              AND cmo.organization_id = @organization_id) as T
+            SELECT
+                IFNULL(SUM(IFNULL(cmo.income, 0)) - SUM(IFNULL(cmo.expense, 0)), 0) as total
+            FROM 
+                cashless_movement_operations cmo 
+            WHERE
+                cmo.counterparty_id = @counterparty_id
+                AND cmo.organization_id = @organization_id
+                AND cmo.operation_time &lt; @date_start
+        ) as T
         </CommandText>
         <QueryParameters>
           <QueryParameter Name="counterparty_id">
@@ -252,9 +255,42 @@ WHERE
           <DataField>total</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="total_string">
-          <DataField>total_string</DataField>
-          <TypeName>System.String</TypeName>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Payments">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>
+                SELECT
+                IFNULL(SUM(deposit.dep), 0) as depositsum
+                FROM orders o
+                LEFT JOIN (
+                SELECT
+                IF(SUM(count * deposit_sum) &gt; 0, SUM(count * deposit_sum), 0) as dep,
+                order_id
+                FROM order_deposit_items
+                GROUP BY order_id
+                ) deposit ON deposit.order_id = o.id
+                WHERE
+                o.client_id = @counterparty_id
+                AND o.delivery_date BETWEEN @start_date AND @end_date
+            </CommandText>
+        <QueryParameters>
+          <QueryParameter Name="start_date">
+            <Value>=Parameters!StartDate</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>=Parameters!EndDate</Value>
+          </QueryParameter>
+          <QueryParameter Name="counterparty_id">
+            <Value>=Parameters!CounterpartyId</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="depositsum">
+          <DataField>depositsum</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -780,7 +816,7 @@ First(Fields!total.Value,'Initial')&lt;0,
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="TextboxSumOfDebts">
-                      <Value>=Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value))</Value>
+                      <Value>=Sum(Fields!debt)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -877,18 +913,17 @@ First(Fields!total.Value,'Initial')&lt;0,
                   <ReportItems>
                     <Textbox Name="TextboxDebtBalance">
                       <Value>=Iif(
-                        First(Fields!total.Value, 'Initial')
-                        +
-                        Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations')
+                        (Iif(First(Fields!total.Value,'Initial') &lt; 0, Math.Abs(First(Fields!total.Value,'Initial')), 0) 
+                         + Sum(Fields!debt,'Operations'))
                         -
-                        Sum(Iif(Fields!deposit.IsMissing, 0, Fields!deposit.Value),'Operations')&gt;0
-                        ,
-                        First(Fields!total.Value, 'Initial')
-                        +
-                        Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations')
+                        (Iif(First(Fields!total.Value,'Initial') &gt; 0, First(Fields!total.Value,'Initial'), 0)
+                         + Sum(Fields!deposit,'Operations'))
+                        &gt; 0,
+                        (Iif(First(Fields!total.Value,'Initial') &lt; 0, Math.Abs(First(Fields!total.Value,'Initial')), 0) 
+                         + Sum(Fields!debt,'Operations'))
                         -
-                        Sum(Iif(Fields!deposit.IsMissing, 0, Fields!deposit.Value),'Operations')
-                        ,
+                        (Iif(First(Fields!total.Value,'Initial') &gt; 0, First(Fields!total.Value,'Initial'), 0)
+                         + Sum(Fields!deposit,'Operations')),
                         "")
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -906,18 +941,17 @@ First(Fields!total.Value,'Initial')&lt;0,
                   <ReportItems>
                     <Textbox Name="TextboxCreditBalance">
                       <Value>=Iif(
-                        First(Fields!total.Value, 'Initial')
-                        +
-                        Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations')
+                        (Iif(First(Fields!total.Value,'Initial') &gt; 0, First(Fields!total.Value,'Initial'), 0)
+                         + Sum(Fields!deposit,'Operations'))
                         -
-                        Sum(Iif(Fields!deposit.IsMissing, 0, Fields!deposit.Value),'Operations')&lt;0
-                        ,
-                        -First(Fields!total.Value, 'Initial')
-                        +
-                        Sum(Iif(Fields!deposit.IsMissing, 0, Fields!deposit.Value),'Operations')
+                        (Iif(First(Fields!total.Value,'Initial') &lt; 0, Math.Abs(First(Fields!total.Value,'Initial')), 0) 
+                         + Sum(Fields!debt,'Operations'))
+                        &gt; 0,
+                        (Iif(First(Fields!total.Value,'Initial') &gt; 0, First(Fields!total.Value,'Initial'), 0)
+                         + Sum(Fields!deposit,'Operations'))
                         -
-                        Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations')
-                        ,
+                        (Iif(First(Fields!total.Value,'Initial') &lt; 0, Math.Abs(First(Fields!total.Value,'Initial')), 0) 
+                         + Sum(Fields!debt,'Operations')),
                         "")
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -993,27 +1027,50 @@ First(Fields!total.Value,'Initial')&lt;0,
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox73">
-        <Height>52.66pt</Height>
+     <Textbox Name="Textbox73">
+    <Height>52.66pt</Height>
+    <Width>461.47pt</Width>
+    <Value>="на "+Format(CDate(Parameters!EndDate),"dd.MM.yyyy") + " задолженность в пользу"
+      + " "+
+      Iif(
+      First(Fields!total.Value, 'Initial')
+      + Sum(Fields!debt,'Operations')
+      - Sum(Fields!deposit,'Operations') &gt; 0,
+      First(Fields!org_name,'Organization'),
+      First(Fields!counterparty_name,'Counterparty')
+      )
+      + " составляет " +
+      Format(
+      Math.Abs(
+      First(Fields!total.Value, 'Initial')
+      + Sum(Fields!debt,'Operations')
+      - Sum(Fields!deposit,'Operations')
+      ), "N2")
+      +" руб." + "\n"+
+      "("+
+      Code.NumberToWords(Math.Abs(
+      First(Fields!total.Value, 'Initial')
+      + Sum(Fields!debt,'Operations')
+      - Sum(Fields!deposit,'Operations')
+      ))
+      +")"</Value>
+          <ZIndex>0</ZIndex>
+          <Left>0.00pt</Left>
+          <Top>267.20pt</Top>
+          <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontWeight>Bold</FontWeight>
+          </Style>
+      </Textbox>
+      <Textbox Name="TextboxDepositTotal">
+        <Height>14.28pt</Height>
         <Width>461.47pt</Width>
-        <Value>="на "+Format(CDate(Parameters!EndDate),"dd.MM.yyyy") + " задолженность в пользу"
-+ " "+
-Iif(
-First(Fields!total.Value, 'Initial') + Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations') - Sum(Iif(Fields!deposit.IsMissing, 0, Fields!deposit.Value),'Operations')&gt;0
-,
-First(Fields!org_name,'Organization')
-,
-First(Fields!counterparty_name,'Counterparty')
-)
-+ " " +
-Math.Abs(First(Fields!total.Value, 'Initial') + Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations') - Sum(Iif(Fields!deposit.IsMissing, 0, Fields!deposit.Value),'Operations'))
-+" руб." + "\n"+
-"( "+
-First({total_string}, 'Initial')
-+" )"</Value>
+        <Value>="Всего залогов: " + Format(First(Fields!depositsum.Value, "Payments"), "N2") + " руб."</Value>
         <ZIndex>0</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>267.20pt</Top>
+        <Left>0.0pt</Left>
+        <Top>301.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1183,6 +1240,114 @@ First({total_string}, 'Initial')
       </ConnectionProperties>
     </DataSource>
   </DataSources>
+  <Code>
+  <![CDATA[
+  Public Function NumberToWords(ByVal num As Decimal) As String
+      Try
+          Dim rub As Integer = Math.Floor(num)
+          Dim kop As Integer = Math.Round((num - rub) * 100)
+          
+          ' Форматируем копейки как двузначное число
+          Dim kopStr As String = kop.ToString("00")
+          
+          Return RublesToWords(rub) + " рублей " + kopStr + " копеек"
+      Catch
+          Return "ноль рублей 00 копеек"
+      End Try
+  End Function
+
+  Private Function RublesToWords(ByVal rub As Integer) As String
+      If rub = 0 Then Return "ноль"
+      
+      Dim units() As String = {"", "один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять"}
+      Dim teens() As String = {"десять", "одиннадцать", "двенадцать", "тринадцать", "четырнадцать", "пятнадцать", "шестнадцать", "семнадцать", "восемнадцать", "девятнадцать"}
+      Dim tens() As String = {"", "", "двадцать", "тридцать", "сорок", "пятьдесят", "шестьдесят", "семьдесят", "восемьдесят", "девяносто"}
+      Dim hundreds() As String = {"", "сто", "двести", "триста", "четыреста", "пятьсот", "шестьсот", "семьсот", "восемьсот", "девятьсот"}
+      
+      Dim result As String = ""
+      Dim temp As Integer = rub
+      
+      'Тысячи
+      Dim thousands As Integer = Math.Floor(temp / 1000)
+      If thousands > 0 Then
+          Dim thousandsWord As String = GetThousandsWord(thousands)
+          result += HundredsToWords(thousands, True) + " " + thousandsWord + " "
+          temp = temp Mod 1000
+      End If
+      
+      'Сотни
+      Dim hundred As Integer = Math.Floor(temp / 100)
+      If hundred > 0 Then
+          result += hundreds(hundred) + " "
+          temp = temp Mod 100
+      End If
+      
+      'Десятки и единицы
+      If temp >= 20 Then
+          Dim ten As Integer = Math.Floor(temp / 10)
+          result += tens(ten) + " "
+          temp = temp Mod 10
+          If temp > 0 Then
+              result += units(temp) + " "
+          End If
+      ElseIf temp >= 10 Then
+          result += teens(temp - 10) + " "
+      ElseIf temp > 0 Then
+          result += units(temp) + " "
+      End If
+      
+      Return result.Trim()
+  End Function
+
+  Private Function GetThousandsWord(ByVal num As Integer) As String
+      Dim lastDigit As Integer = num Mod 10
+      Dim lastTwoDigits As Integer = num Mod 100
+      
+      If lastTwoDigits >= 11 AndAlso lastTwoDigits <= 19 Then
+          Return "тысяч"
+      ElseIf lastDigit = 1 Then
+          Return "тысяча"
+      ElseIf lastDigit >= 2 AndAlso lastDigit <= 4 Then
+          Return "тысячи"
+      Else
+          Return "тысяч"
+      End If
+  End Function
+
+  Private Function HundredsToWords(ByVal num As Integer, ByVal isThousands As Boolean) As String
+      Dim units() As String = {"", If(isThousands, "одна", "один"), If(isThousands, "две", "два"), "три", "четыре", "пять", "шесть", "семь", "восемь", "девять"}
+      Dim teens() As String = {"десять", "одиннадцать", "двенадцать", "тринадцать", "четырнадцать", "пятнадцать", "шестнадцать", "семнадцать", "восемнадцать", "девятнадцать"}
+      Dim tens() As String = {"", "", "двадцать", "тридцать", "сорок", "пятьдесят", "шестьдесят", "семьдесят", "восемьдесят", "девяносто"}
+      Dim hundreds() As String = {"", "сто", "двести", "триста", "четыреста", "пятьсот", "шестьсот", "семьсот", "восемьсот", "девятьсот"}
+      
+      Dim result As String = ""
+      Dim temp As Integer = num
+      
+      'Сотни
+      Dim hundred As Integer = Math.Floor(temp / 100)
+      If hundred > 0 Then
+          result += hundreds(hundred) + " "
+          temp = temp Mod 100
+      End If
+      
+      'Десятки и единицы
+      If temp >= 20 Then
+          Dim ten As Integer = Math.Floor(temp / 10)
+          result += tens(ten) + " "
+          temp = temp Mod 10
+          If temp > 0 Then
+              result += units(temp) + " "
+          End If
+      ElseIf temp >= 10 Then
+          result += teens(temp - 10) + " "
+      ElseIf temp > 0 Then
+          result += units(temp) + " "
+      End If
+      
+      Return result.Trim()
+  End Function
+  ]]>
+  </Code>
   <ReportParameters>
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
