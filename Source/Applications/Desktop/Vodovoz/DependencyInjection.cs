@@ -9,6 +9,7 @@ using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MySqlConnector;
+using Osrm;
 using Pacs.Admin.Client;
 using Pacs.Admin.Client.Consumers;
 using Pacs.Admin.Client.Consumers.Definitions;
@@ -30,6 +31,8 @@ using QS.Project;
 using QS.Project.Core;
 using QS.Project.DB;
 using QS.Project.GtkSharp;
+using QS.Project.Journal;
+using QS.Project.Repositories;
 using QS.Services;
 using QS.Tdi;
 using QS.Validation;
@@ -37,6 +40,7 @@ using QS.ViewModels.Control.EEVM;
 using QS.Views.Resolve;
 using QSAttachment;
 using QSProjectsLib;
+using RabbitMQ.MailSending;
 using ResourceLocker.Library;
 using System;
 using TrueMark.Codes.Pool;
@@ -60,6 +64,24 @@ using Vodovoz.Factories;
 using Vodovoz.Infrastructure.FileStorage;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Infrastructure.Print;
+using Vodovoz.MainMenu;
+using Vodovoz.MainMenu.AdministrationMenu;
+using Vodovoz.MainMenu.BaseMenu;
+using Vodovoz.MainMenu.HelpMenu;
+using Vodovoz.MainMenu.JournalsMenu;
+using Vodovoz.MainMenu.JournalsMenu.Accounting;
+using Vodovoz.MainMenu.JournalsMenu.Banks;
+using Vodovoz.MainMenu.JournalsMenu.Counterparties;
+using Vodovoz.MainMenu.JournalsMenu.Financies;
+using Vodovoz.MainMenu.JournalsMenu.Helpers;
+using Vodovoz.MainMenu.JournalsMenu.Logistics;
+using Vodovoz.MainMenu.JournalsMenu.Orders;
+using Vodovoz.MainMenu.JournalsMenu.Organization;
+using Vodovoz.MainMenu.JournalsMenu.Products;
+using Vodovoz.MainMenu.JournalsMenu.Transports;
+using Vodovoz.MainMenu.ProposalsMenu;
+using Vodovoz.MainMenu.ReportsMenu;
+using Vodovoz.MainMenu.ViewMenu;
 using Vodovoz.Options;
 using Vodovoz.PermissionExtensions;
 using Vodovoz.Presentation.Reports.Factories;
@@ -81,34 +103,13 @@ using Vodovoz.ViewModels.Infrastructure.Services;
 using Vodovoz.ViewModels.Infrastructure.Services.Fuel;
 using Vodovoz.ViewModels.Journals.Mappings;
 using Vodovoz.ViewModels.Services;
+using Vodovoz.ViewModels.Services.DriverSchedule;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.ViewModels.Reports.Payments;
 using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure;
 using VodovozInfrastructure.Services;
 using DocumentPrinter = Vodovoz.Core.DocumentPrinter;
-using Osrm;
-using QS.Project.Journal;
-using QS.Project.Repositories;
-using Vodovoz.MainMenu;
-using Vodovoz.MainMenu.AdministrationMenu;
-using Vodovoz.MainMenu.BaseMenu;
-using Vodovoz.MainMenu.HelpMenu;
-using Vodovoz.MainMenu.JournalsMenu;
-using Vodovoz.MainMenu.JournalsMenu.Accounting;
-using Vodovoz.MainMenu.JournalsMenu.Banks;
-using Vodovoz.MainMenu.JournalsMenu.Counterparties;
-using Vodovoz.MainMenu.JournalsMenu.Financies;
-using Vodovoz.MainMenu.JournalsMenu.Helpers;
-using Vodovoz.MainMenu.JournalsMenu.Logistics;
-using Vodovoz.MainMenu.JournalsMenu.Orders;
-using Vodovoz.MainMenu.JournalsMenu.Organization;
-using Vodovoz.MainMenu.JournalsMenu.Products;
-using Vodovoz.MainMenu.JournalsMenu.Transports;
-using Vodovoz.MainMenu.ProposalsMenu;
-using Vodovoz.MainMenu.ReportsMenu;
-using Vodovoz.MainMenu.ViewMenu;
-using Vodovoz.ViewModels.ViewModels.Reports.Payments;
-using RabbitMQ.MailSending;
 
 namespace Vodovoz
 {
@@ -260,6 +261,7 @@ namespace Vodovoz
 				.AddScoped<IMySqlPasswordRepository, MySqlPasswordRepository>()
 				.AddScoped<IPasswordValidator, PasswordValidator>()
 				.AddScoped<IPasswordValidationSettings, DefaultPasswordValidationSettings>()
+				.AddScoped<IDriverScheduleService, DriverScheduleService>()
 				;
 
 			services.AddStaticHistoryTracker();
