@@ -16,7 +16,6 @@ using Vodovoz.Presentation.WebApi.Security.OnlyOneSession;
 using VodovozBusiness.Services.TrueMark;
 using WarehouseApi.Contracts.V1.Dto;
 using WarehouseApi.Filters;
-using WarehouseApi.Library.Converters;
 
 namespace WarehouseApi.Controllers.V1
 {
@@ -32,23 +31,19 @@ namespace WarehouseApi.Controllers.V1
 		private const string _rolesToAccess =
 			nameof(ApplicationUserRole.WarehousePicker) + "," + nameof(ApplicationUserRole.WarehouseDriver);
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
-		private readonly CarLoadDocumentConverter _carLoadDocumentConverter;
 
 		/// <summary>
 		/// Контроллер проверки кодов
 		/// </summary>
 		/// <param name="logger"></param>
 		/// <param name="trueMarkWaterCodeService"></param>
-		/// <param name="carLoadDocumentConverter"></param>
 		/// <exception cref="ArgumentNullException"></exception>
 		public CheckCodeController(
 			ILogger<ApiControllerBase> logger,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService,
-			CarLoadDocumentConverter carLoadDocumentConverter
+			ITrueMarkWaterCodeService trueMarkWaterCodeService
 			) : base(logger)
 		{
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
-			_carLoadDocumentConverter = carLoadDocumentConverter ?? throw new ArgumentNullException(nameof(carLoadDocumentConverter));
 		}
 
 
