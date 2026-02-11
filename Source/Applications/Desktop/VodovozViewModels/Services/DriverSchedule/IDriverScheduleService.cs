@@ -22,7 +22,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 		/// <param name="canEditAfter13"></param>
 		/// <param name="availableCarEventTypes"></param>
 		/// <returns></returns>
-		IEnumerable<DriverScheduleNode> LoadScheduleData(
+		IEnumerable<DriverScheduleRow> LoadScheduleData(
 			IUnitOfWork uow,
 			DateTime startDate,
 			DateTime endDate,
@@ -42,7 +42,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 		/// <param name="currentUserId"></param>
 		void SaveScheduleChanges(
 			IUnitOfWork uow,
-			IEnumerable<DriverScheduleNode> changedRows,
+			IEnumerable<DriverScheduleRow> changedRows,
 			DateTime startDate,
 			DateTime endDate,
 			int currentUserId);
@@ -55,7 +55,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 		/// <param name="endDate"></param>
 		/// <returns></returns>
 		byte[] ExportToExcel(
-			IEnumerable<DriverScheduleNode> scheduleRows,
+			IEnumerable<DriverScheduleRow> scheduleRows,
 			DateTime startDate,
 			DateTime endDate);
 

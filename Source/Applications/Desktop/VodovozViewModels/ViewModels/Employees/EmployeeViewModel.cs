@@ -30,6 +30,7 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
@@ -309,6 +310,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 						filter.Status = DistrictsSetStatus.Active;
 					})
 				.Finish();
+
+			DistictsSetViewModel.CanViewEntity = false;
 		}
 
 		private Employee EmployeeForCurrentUser => 
@@ -340,7 +343,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
 		public IEmployeePostsJournalFactory EmployeePostsJournalFactory { get; }
 		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
-		public IEntityEntryViewModel DistictsSetViewModel { get; private set; }
+		public EntityEntryViewModel<District> DistictsSetViewModel { get; private set; }
 
 		public bool HasChanges
 		{

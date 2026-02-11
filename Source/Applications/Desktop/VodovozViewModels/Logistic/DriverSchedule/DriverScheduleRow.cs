@@ -1,6 +1,5 @@
 ﻿using QS.DomainModel.Entity;
 using System;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Domain.Logistic.Cars;
@@ -8,7 +7,7 @@ using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 {
-	public class DriverScheduleNode : PropertyChangedBase
+	public class DriverScheduleRow : PropertyChangedBase
 	{
 		private int _driverId;
 		private CarTypeOfUse? _carTypeOfUse;
@@ -35,12 +34,12 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		private bool _canEditAfter13 = false;
 		private bool _hasChanges = false;
 
-		public DriverScheduleNode()
+		public DriverScheduleRow()
 		{
-			Days = new DriverScheduleDayNode[7];
+			Days = new DriverScheduleDayRow[7];
 			for(int i = 0; i < 7; i++)
 			{
-				Days[i] = new DriverScheduleDayNode { };
+				Days[i] = new DriverScheduleDayRow { };
 			}
 		}
 
@@ -272,8 +271,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		#endregion
 
-		#region Helper Methods
+		#region Methods
 
+		/// <summary>
+		/// Получить событие ТС для дня по индексу
+		/// </summary>
+		/// <param name="dayIndex"></param>
+		/// <returns></returns>
 		public CarEventType GetDayCarEventType(int dayIndex)
 		{
 			return IsValidDayIndex(dayIndex) ? Days[dayIndex]?.CarEventType : null;
@@ -319,12 +323,20 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			}
 
 			var dayEventType = GetDayCarEventType(dayIndex);
-			if(dayEventType != null && dayEventType.Id > 0)
+			if(dayEventType != null)
 			{
-				return false;
+				if(dayEventType.Id > 0 || IsBlockingVirtualEvent(dayEventType))
+				{
+					return false;
+				}
 			}
 
 			return _isCarAssigned || value <= 0;
+		}
+
+		private bool IsBlockingVirtualEvent(CarEventType eventType)
+		{
+			return eventType?.ShortName == "Уволен" || eventType?.ShortName == "На расчете";
 		}
 
 		private void UpdateHasChanges()
@@ -347,6 +359,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			return _maxBottles > 0 && value > _maxBottles ? _maxBottles : value;
 		}
 
+		/// <summary>
+		/// Установить событие ТС для дня по индексу
+		/// </summary>
+		/// <param name="dayIndex"></param>
+		/// <param name="value"></param>
 		public void SetDayCarEventType(int dayIndex, CarEventType value)
 		{
 			if(!IsValidDayIndex(dayIndex) 
@@ -369,11 +386,21 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			UpdateHasChanges();
 		}
 
+		/// <summary>
+		/// Получить количество утренних адресов для дня по индексу
+		/// </summary>
+		/// <param name="dayIndex"></param>
+		/// <returns></returns>
 		public int GetDayMorningAddresses(int dayIndex)
 		{
 			return IsValidDayIndex(dayIndex) ? Days[dayIndex]?.MorningAddresses ?? 0 : 0;
 		}
 
+		/// <summary>
+		/// Установить количество утренних адресов для дня по индексу
+		/// </summary>
+		/// <param name="dayIndex"></param>
+		/// <param name="value"></param>
 		public void SetDayMorningAddresses(int dayIndex, int value)
 		{
 			if(!IsValidDayIndex(dayIndex) || !CanEditDay(dayIndex))
@@ -386,11 +413,21 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			UpdateHasChanges();
 		}
 
+		/// <summary>
+		/// Получить количество утренних бутылей для дня по индексу
+		/// </summary>
+		/// <param name="dayIndex"></param>
+		/// <returns></returns>
 		public int GetDayMorningBottles(int dayIndex)
 		{
 			return IsValidDayIndex(dayIndex) ? Days[dayIndex]?.MorningBottles ?? 0 : 0;
 		}
 
+		/// <summary>
+		/// Установить количество утренних бутылей для дня по индексу
+		/// </summary>
+		/// <param name="dayIndex"></param>
+		/// <param name="value"></param>
 		public void SetDayMorningBottles(int dayIndex, int value)
 		{
 			if(!IsValidDayIndex(dayIndex) || !CanEditDay(dayIndex))
@@ -403,11 +440,21 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			UpdateHasChanges();
 		}
 
+		/// <summary>
+		/// Получить количество вечерних адресов для дня по индексу
+		/// </summary>
+		/// <param name="dayIndex"></param>
+		/// <returns></returns>
 		public int GetDayEveningAddresses(int dayIndex)
 		{
 			return IsValidDayIndex(dayIndex) ? Days[dayIndex]?.EveningAddresses ?? 0 : 0;
 		}
 
+		/// <summary>
+		/// Установить количество вечерних адресов для дня по индексу
+		/// </summary>
+		/// <param name="dayIndex"></param>
+		/// <param name="value"></param>
 		public void SetDayEveningAddresses(int dayIndex, int value)
 		{
 			if(!IsValidDayIndex(dayIndex) || !CanEditDay(dayIndex))
@@ -420,11 +467,21 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			UpdateHasChanges();
 		}
 
+		/// <summary>
+		/// Получить количество вечерних бутылей для дня по индексу
+		/// </summary>
+		/// <param name="dayIndex"></param>
+		/// <returns></returns>
 		public int GetDayEveningBottles(int dayIndex)
 		{
 			return IsValidDayIndex(dayIndex) ? Days[dayIndex]?.EveningBottles ?? 0 : 0;
 		}
 
+		/// <summary>
+		/// Установить количество вечерних бутылей для дня по индексу
+		/// </summary>
+		/// <param name="dayIndex"></param>
+		/// <param name="value"></param>
 		public void SetDayEveningBottles(int dayIndex, int value)
 		{
 			if(!IsValidDayIndex(dayIndex) || !CanEditDay(dayIndex))
@@ -437,7 +494,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			UpdateHasChanges();
 		}
 
-		public bool IsValidDayIndex(int dayIndex)
+		private bool IsValidDayIndex(int dayIndex)
 		{
 			return Days != null && dayIndex >= 0 && dayIndex < Days.Length;
 		}
@@ -446,69 +503,104 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		#region Properties
 
-		[Display(Name = "Дни расписания")]
-		public DriverScheduleDayNode[] Days;
+		/// <summary>
+		/// Дни графика водителей
+		/// </summary>
+		public DriverScheduleDayRow[] Days;
 
+		/// <summary>
+		/// Дата начала недели
+		/// </summary>
 		public DateTime StartDate
 		{
 			get => _startDate;
 			set => SetField(ref _startDate, value);
 		}
 
+		/// <summary>
+		/// Идентификатор водителя
+		/// </summary>
 		public virtual int DriverId
 		{
 			get => _driverId;
 			set => SetField(ref _driverId, value);
 		}
 
+		/// <summary>
+		/// Тип модели авто
+		/// </summary>
 		public virtual CarTypeOfUse? CarTypeOfUse
 		{
 			get => _carTypeOfUse;
 			set => SetField(ref _carTypeOfUse, value);
 		}
 
+		/// <summary>
+		/// Тип принадлежности авто
+		/// </summary>
 		public virtual CarOwnType? CarOwnType
 		{
 			get => _carOwnType;
 			set => SetField(ref _carOwnType, value);
 		}
 
+		/// <summary>
+		/// Регистрационный номер ТС
+		/// </summary>
 		public virtual string RegNumber
 		{
 			get => _regNumber;
 			set => SetField(ref _regNumber, value);
 		}
 
+		/// <summary>
+		/// Фамилия водителя
+		/// </summary>
 		public virtual string LastName
 		{
 			get => _lastName;
 			set => SetField(ref _lastName, value);
 		}
 
+		/// <summary>
+		/// Имя водителя
+		/// </summary>
 		public virtual string Name
 		{
 			get => _name;
 			set => SetField(ref _name, value);
 		}
 
+		/// <summary>
+		/// Отчество водителя
+		/// </summary>
 		public virtual string Patronymic
 		{
 			get => _patronymic;
 			set => SetField(ref _patronymic, value);
 		}
 
+		/// <summary>
+		/// Тип принадлежности авто водителя
+		/// </summary>
 		public virtual CarOwnType? DriverCarOwnType
 		{
 			get => _driverCarOwnType;
 			set => SetField(ref _driverCarOwnType, value);
 		}
 
+		/// <summary>
+		/// Номер телефона водителя
+		/// </summary>
 		public virtual string DriverPhone
 		{
 			get => _driverPhone;
 			set => SetField(ref _driverPhone, value);
 		}
 
+		/// <summary>
+		/// Район проживания водителя
+		/// </summary>
 		public virtual District District
 		{
 			get => _district;
@@ -531,6 +623,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			} 
 		}
 
+		/// <summary>
+		/// Утренние адреса (потенциальные)
+		/// </summary>
 		public virtual int MorningAddresses
 		{
 			get => _morningAddresses;
@@ -544,6 +639,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			}
 		}
 
+		/// <summary>
+		/// Утренние бутыли (потенциальные)
+		/// </summary>
 		public virtual int MorningBottles
 		{
 			get => _morningBottles;
@@ -558,6 +656,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			}
 		}
 
+		/// <summary>
+		/// Вечерние адреса (потенциальные)
+		/// </summary>
 		public virtual int EveningAddresses
 		{
 			get => _eveningAddresses;
@@ -571,6 +672,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			}
 		}
 
+		/// <summary>
+		/// Вечерние бутыли (потенциальные)
+		/// </summary>
 		public virtual int EveningBottles
 		{
 			get => _eveningBottles;
@@ -585,12 +689,18 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			}
 		}
 
+		/// <summary>
+		/// Последняя дата редактирования
+		/// </summary>
 		public virtual DateTime LastModifiedDateTime
 		{
 			get => _lastModifiedDateTime;
 			set => SetField(ref _lastModifiedDateTime, value);
 		}
 
+		/// <summary>
+		/// Комментарий
+		/// </summary>
 		public virtual string Comment
 		{
 			get => _comment;
@@ -603,12 +713,18 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			}
 		}
 
+		/// <summary>
+		/// Дата увольнения водителя
+		/// </summary>
 		public virtual DateTime? DateFired
 		{
 			get => _dateFired;
 			set => SetField(ref _dateFired, value);
 		}
 
+		/// <summary>
+		/// Дата расчета водителя
+		/// </summary>
 		public virtual DateTime? DateCalculated
 		{
 			get => _dateCalculated;
@@ -651,31 +767,52 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			set => SetField(ref _hasChanges, value);
 		}
 
+		/// <summary>
+		/// Последняя дата редактирования в строковом виде
+		/// </summary>
 		public virtual string LastModifiedDateTimeString =>
 			LastModifiedDateTime != default
 				? LastModifiedDateTime.ToString("g")
 				: "Нет";
 
+		/// <summary>
+		/// Тип модели авто в строковом виде
+		/// </summary>
 		public string CarTypeOfUseString => CarTypeOfUse.HasValue
 			? Gamma.Utilities.AttributeUtil.GetEnumShortTitle(CarTypeOfUse.Value)
 			: "";
 
+		/// <summary>
+		/// Тип принадлежности авто в строковом виде
+		/// </summary>
 		public string CarOwnTypeString => CarOwnType.HasValue
 			? Gamma.Utilities.AttributeUtil.GetEnumShortTitle(CarOwnType.Value)
 			: "";
 
+		/// <summary>
+		/// Тип принадлежности авто водителя в строковом виде
+		/// </summary>
 		public string DriverCarOwnTypeString => DriverCarOwnType.HasValue
 			? Gamma.Utilities.AttributeUtil.GetEnumTitle(DriverCarOwnType.Value)
 			: "";
 
+		/// <summary>
+		/// Район проживания водителя в строковом виде
+		/// </summary>
 		public string DistrictString => District?.DistrictName ?? "";
 
+		/// <summary>
+		/// ФИО водителя
+		/// </summary>
 		public string DriverFullName => string.Join(" ",
 			new[] { LastName, Name, Patronymic }
 				.Where(x => !string.IsNullOrWhiteSpace(x)));
 
 		#endregion
 
+		/// <summary>
+		/// Инициализация пустых событий ТС для дней, где не указано событие
+		/// </summary>
 		public void InitializeEmptyCarEventTypes()
 		{
 			var noneEventType = new CarEventType { Id = -1, ShortName = "Нет", Name = "Нет" };
@@ -694,6 +831,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			}
 		}
 
+		/// <summary>
+		/// Получить дату увольнения водителя, учитывая как фактическую дату увольнения, так и дату расчета, если водитель на расчете
+		/// </summary>
+		/// <returns></returns>
 		public virtual DateTime? GetDismissalDate()
 		{
 			if(!_dateFired.HasValue && !_dateCalculated.HasValue)
@@ -731,17 +872,39 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 				return;
 			}
 
+			int startDayIndex = todayIndex;
+
+			if(!_canEditAfter13)
+			{
+				var now = DateTime.Now;
+				var cutoffTime = new TimeSpan(13, 0, 0);
+
+				if(now.TimeOfDay >= cutoffTime)
+				{
+					startDayIndex++;
+				}
+			}
+
+			if(startDayIndex >= 7)
+			{
+				return;
+			}
+
 			for(int i = todayIndex; i < 7; i++)
 			{
 				if(Days[i] != null)
 				{
-					if(Days[i].CarEventType == null || Days[i].CarEventType.Id <= 0)
+					var eventType = Days[i].CarEventType;
+
+					if(eventType != null && (eventType.Id > 0 || IsBlockingVirtualEvent(eventType)))
 					{
-						Days[i].MorningAddresses = _morningAddresses;
-						Days[i].MorningBottles = _morningBottles;
-						Days[i].EveningAddresses = _eveningAddresses;
-						Days[i].EveningBottles = _eveningBottles;
+						continue;
 					}
+
+					Days[i].MorningAddresses = _morningAddresses;
+					Days[i].MorningBottles = _morningBottles;
+					Days[i].EveningAddresses = _eveningAddresses;
+					Days[i].EveningBottles = _eveningBottles;
 				}
 			}
 		}

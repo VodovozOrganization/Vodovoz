@@ -3,7 +3,7 @@
 	/// <summary>
 	/// Базовый класс для итоговых строк расписания водителей
 	/// </summary>
-	public abstract class DriverScheduleTotalRow : DriverScheduleNode
+	public abstract class DriverScheduleTotalRow : DriverScheduleRow
 	{
 		public bool IsTotalRow => true;
 

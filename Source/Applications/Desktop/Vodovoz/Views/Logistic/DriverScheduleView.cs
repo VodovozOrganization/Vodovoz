@@ -34,6 +34,7 @@ namespace Vodovoz.Views.Logistic
 		private void Configure()
 		{
 			leftsidepanel5.Panel = yvboxFilters;
+			leftsidepanel5.Title = "Параметры";
 
 			var weekPicker = new MonthPickerView(ViewModel.WeekPickerViewModel);
 			weekPicker.Show();
@@ -82,7 +83,7 @@ namespace Vodovoz.Views.Logistic
 
 		private void ConfigureFixedTreeView()
 		{
-			var columnsConfig = FluentColumnsConfig<DriverScheduleNode>.Create()
+			var columnsConfig = FluentColumnsConfig<DriverScheduleRow>.Create()
 				.AddColumn("Т")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.CarTypeOfUseString)
@@ -159,7 +160,7 @@ namespace Vodovoz.Views.Logistic
 		private void ConfigureDynamicTreeView()
 		{
 			var weekStart = ViewModel.StartDate;
-			var columnsConfig = FluentColumnsConfig<DriverScheduleNode>.Create();
+			var columnsConfig = FluentColumnsConfig<DriverScheduleRow>.Create();
 
 			var dayNames = new[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
 
@@ -170,7 +171,7 @@ namespace Vodovoz.Views.Logistic
 
 				columnsConfig.AddColumn($"{ViewModel.GetShortDayString(date)}")
 					.HeaderAlignment(0.5f)
-					.AddComboRenderer(CreatePropertyExpression<DriverScheduleNode, CarEventType>($"{dayName}CarEventType"))
+					.AddComboRenderer(CreatePropertyExpression<DriverScheduleRow, CarEventType>($"{dayName}CarEventType"))
 					.SetDisplayFunc(x => x == null ? "Нет" : x.ShortName)
 					.FillItems(ViewModel.AvailableCarEventTypes)
 					.Editing()
@@ -179,39 +180,38 @@ namespace Vodovoz.Views.Logistic
 
 				columnsConfig.AddColumn(" Адр У ")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(ConvertToObjectExpression<DriverScheduleNode, int>($"{dayName}MorningAddress"))
+					.AddNumericRenderer(ConvertToObjectExpression<DriverScheduleRow, int>($"{dayName}MorningAddress"))
 					.Adjustment(new Adjustment(0, 0, 1000, 1, 10, 0))
 					.Editing()
 					.XAlign(0.5f);
 
 				columnsConfig.AddColumn(" Бут У ")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(ConvertToObjectExpression<DriverScheduleNode, int>($"{dayName}MorningBottles"))
+					.AddNumericRenderer(ConvertToObjectExpression<DriverScheduleRow, int>($"{dayName}MorningBottles"))
 					.Adjustment(new Adjustment(0, 0, 1000, 1, 10, 0))
 					.Editing()
 					.XAlign(0.5f);
 
 				columnsConfig.AddColumn(" Адр В ")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(ConvertToObjectExpression<DriverScheduleNode, int>($"{dayName}EveningAddress"))
+					.AddNumericRenderer(ConvertToObjectExpression<DriverScheduleRow, int>($"{dayName}EveningAddress"))
 					.Adjustment(new Adjustment(0, 0, 1000, 1, 10, 0))
 					.Editing()
 					.XAlign(0.5f);
 
 				columnsConfig.AddColumn(" Бут В ")
 					.HeaderAlignment(0.5f)
-					.AddNumericRenderer(ConvertToObjectExpression<DriverScheduleNode, int>($"{dayName}EveningBottles"))
+					.AddNumericRenderer(ConvertToObjectExpression<DriverScheduleRow, int>($"{dayName}EveningBottles"))
 					.Adjustment(new Adjustment(0, 0, 1000, 1, 10, 0))
 					.Editing()
 					.XAlign(0.5f);
 			}
 
-			columnsConfig.AddColumn("Комментарий")
+			columnsConfig.AddColumn(" Комментарий ")
 				.HeaderAlignment(0.5f)
 				.AddTextRenderer(node => node.Comment)
 				.Editable()
 				.XAlign(0.5f)
-				.AddColumn("")
 				.Finish();
 
 			ytreeviewDynamicPart.ColumnsConfig = columnsConfig;
@@ -250,7 +250,7 @@ namespace Vodovoz.Views.Logistic
 		{
 			var node = ytreeviewDynamicPart.YTreeModel.NodeAtPath(new TreePath(args.Path));
 
-			if(!(node is DriverScheduleNode driverScheduleNode))
+			if(!(node is DriverScheduleRow driverScheduleNode))
 			{
 				return;
 			}
@@ -317,7 +317,7 @@ namespace Vodovoz.Views.Logistic
 				{
 					var hadj = scrolledWindow.Hadjustment;
 
-					double step = hadj.StepIncrement;
+					double step = hadj.StepIncrement / 2.5;
 					if(args.Event.Direction == Gdk.ScrollDirection.Up ||
 						args.Event.Direction == Gdk.ScrollDirection.Left)
 					{

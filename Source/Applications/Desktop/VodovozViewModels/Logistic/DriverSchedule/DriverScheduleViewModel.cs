@@ -144,7 +144,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		public bool CanSave => CanEdit;
 		public bool AskSaveOnClose => CanEdit;
 
-		public ObservableList<DriverScheduleNode> DriverScheduleRows { get; private set; }
+		public ObservableList<DriverScheduleRow> DriverScheduleRows { get; private set; }
 		public List<CarEventType> AvailableCarEventTypes { get; } = new List<CarEventType>();
 
 		public IStringHandler StringHandler { get; }
@@ -190,7 +190,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			);
 		}
 
-		private ObservableList<DriverScheduleNode> GenerateRows()
+		private ObservableList<DriverScheduleRow> GenerateRows()
 		{
 			var selectedSubdivisionIds = Subdivisions
 				.Where(s => s.Selected)
@@ -209,13 +209,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 					CanEditAfter13,
 					AvailableCarEventTypes);
 
-				return new ObservableList<DriverScheduleNode>(rows);
+				return new ObservableList<DriverScheduleRow>(rows);
 			}
 			catch(Exception ex)
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Error,
 					$"Ошибка при загрузке данных: {ex.Message}");
-				return new ObservableList<DriverScheduleNode>();
+				return new ObservableList<DriverScheduleRow>();
 			}
 		}
 

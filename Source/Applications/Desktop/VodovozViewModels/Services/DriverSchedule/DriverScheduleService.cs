@@ -65,7 +65,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 		}
 
-		public IEnumerable<DriverScheduleNode> LoadScheduleData(
+		public IEnumerable<DriverScheduleRow> LoadScheduleData(
 			IUnitOfWork uow,
 			DateTime startDate,
 			DateTime endDate,
@@ -110,7 +110,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			return resultWithTotals;
 		}
 
-		private List<DriverScheduleNode> GetDriverRowsFromDatabase(
+		private List<DriverScheduleRow> GetDriverRowsFromDatabase(
 			IUnitOfWork uow,
 			DateTime startDate,
 			DateTime endDate,
@@ -122,7 +122,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			Car carAlias = null;
 			CarModel carModelAlias = null;
 			Phone phoneAlias = null;
-			DriverScheduleNode resultAlias = null;
+			DriverScheduleRow resultAlias = null;
 			CarVersion carVersionAlias = null;
 			Schedule driverScheduleAlias = null;
 
@@ -182,15 +182,15 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 					.WithAlias(() => resultAlias.MaxBottles)
 					.SelectSubQuery(phoneSubquery).WithAlias(() => resultAlias.DriverPhone))
 				.OrderBy(e => e.LastName).Asc
-				.TransformUsing(Transformers.AliasToBean<DriverScheduleNode>())
-				.List<DriverScheduleNode>()
+				.TransformUsing(Transformers.AliasToBean<DriverScheduleRow>())
+				.List<DriverScheduleRow>()
 				.GroupBy(x => x.DriverId)
 				.Select(g => g.First())
 				.ToList();
 		}
 
 		private void ProcessDriverNode(
-			DriverScheduleNode node,
+			DriverScheduleRow node,
 			DateTime startDate,
 			DateTime endDate,
 			bool canEditAfter13,
@@ -212,7 +212,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 					dayNode.Date = dayDate;
 				}
 
-				dayNode.ParentNode = node;
+				dayNode.ParentRow = node;
 				dayNode.HasActiveRouteList = driversActiveRouteListDates.ContainsKey(node.DriverId) &&
 										   driversActiveRouteListDates[node.DriverId].Contains(dayDate);
 			}
@@ -231,7 +231,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 		}
 
 		private void ProcessFiredDriverDays(
-			DriverScheduleNode driverNode,
+			DriverScheduleRow driverNode,
 			DateTime dismissalDate,
 			List<CarEventType> availableCarEventTypes)
 		{
@@ -259,7 +259,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 		}
 
 		private CarEventType GetDismissalEventType(
-			DriverScheduleNode driverNode,
+			DriverScheduleRow driverNode,
 			List<CarEventType> availableCarEventTypes)
 		{
 			string eventName = driverNode.DateFired.HasValue && driverNode.DateCalculated.HasValue
@@ -277,7 +277,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 		}
 
 		private void ApplyCarEventsToNode(
-			DriverScheduleNode node,
+			DriverScheduleRow node,
 			IList<CarEvent> carEvents,
 			DateTime startDate)
 		{
@@ -304,7 +304,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 		}
 
 		private void ApplyScheduleItemsToNode(
-			DriverScheduleNode node,
+			DriverScheduleRow node,
 			IList<DriverScheduleItem> scheduleItems,
 			DateTime startDate)
 		{
@@ -319,7 +319,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 				{
 					var dayNode = node.Days[dayIndex];
 					dayNode.Date = item.Date;
-					dayNode.ParentNode = node;
+					dayNode.ParentRow = node;
 
 					if(dayNode.IsCarEventTypeFromJournal || dayNode.IsVirtualCarEventType || item.CarEventType != null)
 					{
@@ -339,20 +339,20 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			}
 		}
 
-		private List<DriverScheduleNode> AddTotalRows(
-			IEnumerable<DriverScheduleNode> driverRows,
+		private List<DriverScheduleRow> AddTotalRows(
+			IEnumerable<DriverScheduleRow> driverRows,
 			DateTime startDate)
 		{
 			var totalAddresses = new DriverScheduleTotalAddressesRow();
 			var totalBottles = new DriverScheduleTotalBottlesRow();
 
-			totalAddresses.Days = new DriverScheduleDayNode[7];
-			totalBottles.Days = new DriverScheduleDayNode[7];
+			totalAddresses.Days = new DriverScheduleDayRow[7];
+			totalBottles.Days = new DriverScheduleDayRow[7];
 
 			for(int dayIndex = 0; dayIndex < 7; dayIndex++)
 			{
-				totalAddresses.Days[dayIndex] = new DriverScheduleDayNode();
-				totalBottles.Days[dayIndex] = new DriverScheduleDayNode();
+				totalAddresses.Days[dayIndex] = new DriverScheduleDayRow();
+				totalBottles.Days[dayIndex] = new DriverScheduleDayRow();
 			}
 
 			var filteredRows = driverRows.Where(n => !(n is DriverScheduleTotalAddressesRow) && !(n is DriverScheduleTotalBottlesRow));
@@ -393,7 +393,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			totalAddresses.StartDate = startDate;
 			totalBottles.StartDate = startDate;
 
-			var result = new List<DriverScheduleNode>();
+			var result = new List<DriverScheduleRow>();
 			result.AddRange(filteredRows);
 			result.Add(totalAddresses);
 			result.Add(totalBottles);
@@ -403,7 +403,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 
 		public void SaveScheduleChanges(
 			IUnitOfWork uow,
-			IEnumerable<DriverScheduleNode> changedRows,
+			IEnumerable<DriverScheduleRow> changedRows,
 			DateTime startDate,
 			DateTime endDate,
 			int currentUserId)
@@ -443,7 +443,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 
 		private void UpdateExistingSchedule(
 			Schedule schedule,
-			DriverScheduleNode node)
+			DriverScheduleRow node)
 		{
 			if(schedule.Days == null)
 			{
@@ -480,7 +480,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 		/// <summary>
 		/// Обрабатывает события ТС для водителя - создает/обновляет CarEvent для подряд идущих одинаковых событий
 		/// </summary>
-		private void ProcessDriverCarEvents(IUnitOfWork uow, DriverScheduleNode driverNode, int currentUserId)
+		private void ProcessDriverCarEvents(IUnitOfWork uow, DriverScheduleRow driverNode, int currentUserId)
 		{
 			if(!driverNode.IsCarAssigned)
 			{
@@ -507,7 +507,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			}
 		}
 
-		private List<CarEventGroup> GroupConsecutiveCarEvents(DriverScheduleNode driverNode)
+		private List<CarEventGroup> GroupConsecutiveCarEvents(DriverScheduleRow driverNode)
 		{
 			var groups = new List<CarEventGroup>();
 			CarEventGroup currentGroup = null;
@@ -539,7 +539,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 							CarEventType = eventType,
 							StartDate = day.Date,
 							EndDate = day.Date,
-							Comment = day.ParentNode.Comment,
+							Comment = day.ParentRow.Comment,
 							DayIndices = new List<int> { dayIndex }
 						};
 					}
@@ -559,7 +559,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			return groups;
 		}
 
-		private void CreateOrUpdateCarEvent(IUnitOfWork uow, Car car, DriverScheduleNode driverNode, CarEventGroup group, int currentUserId)
+		private void CreateOrUpdateCarEvent(IUnitOfWork uow, Car car, DriverScheduleRow driverNode, CarEventGroup group, int currentUserId)
 		{
 			if(group.CarEventType?.Id <= 0)
 			{
@@ -597,7 +597,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 
 		private Schedule CreateNewSchedule(
 			IUnitOfWork uow,
-			DriverScheduleNode node)
+			DriverScheduleRow node)
 		{
 			bool hasNonZeroValues = node.MorningAddresses != 0 ||
 									node.MorningBottles != 0 ||
@@ -622,7 +622,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 
 		private void FillDayScheduleItems(
 			Schedule driverSchedule,
-			DriverScheduleNode driverNode)
+			DriverScheduleRow driverNode)
 		{
 			driverSchedule.Days = driverSchedule.Days ?? new List<DriverScheduleItem>();
 
@@ -666,7 +666,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 		}
 
 		public byte[] ExportToExcel(
-		   IEnumerable<DriverScheduleNode> scheduleRows,
+		   IEnumerable<DriverScheduleRow> scheduleRows,
 		   DateTime startDate,
 		   DateTime endDate)
 		{
@@ -723,7 +723,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			worksheet.Cell(row, _commentColumn).Value = "Комментарий";
 		}
 
-		private void FillExcelData(IXLWorksheet worksheet, IEnumerable<DriverScheduleNode> scheduleRows, DateTime startDate)
+		private void FillExcelData(IXLWorksheet worksheet, IEnumerable<DriverScheduleRow> scheduleRows, DateTime startDate)
 		{
 			int row = 2;
 
@@ -789,8 +789,8 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 				new SubdivisionNode(subdivision) { Selected = true });
 		}
 
-		private List<DriverScheduleNode> FilterByDismissalDate(
-			List<DriverScheduleNode> driverRows,
+		private List<DriverScheduleRow> FilterByDismissalDate(
+			List<DriverScheduleRow> driverRows,
 			DateTime startDate)
 		{
 			return driverRows.Where(r =>

@@ -4,7 +4,7 @@ using Vodovoz.Core.Domain.Logistics.Cars;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 {
-	public class DriverScheduleDayNode : PropertyChangedBase
+	public class DriverScheduleDayRow : PropertyChangedBase
 	{
 		private DateTime _date;
 		private CarEventType _carEventType;
@@ -12,40 +12,40 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		private int _morningBottles;
 		private int _eveningAddresses;
 		private int _eveningBottles;
-		private DriverScheduleNode _parentNode;
+		private DriverScheduleRow _parentRow;
 		private bool _isVirtualCarEventType;
 		private bool _isCarEventTypeFromJournal;
 		private bool _hasActiveRouteList;
 
-		public virtual DriverScheduleNode ParentNode
+		public virtual DriverScheduleRow ParentRow
 		{
-			get => _parentNode;
+			get => _parentRow;
 			set
 			{
-				if(SetField(ref _parentNode, value))
+				if(SetField(ref _parentRow, value))
 				{
-					if(_parentNode != null)
+					if(_parentRow != null)
 					{
 						if(!IsPastDay())
 						{
 							if(_morningAddresses == 0)
 							{
-								MorningAddresses = _parentNode.MorningAddresses;
+								MorningAddresses = _parentRow.MorningAddresses;
 							}
 
 							if(_morningBottles == 0)
 							{
-								MorningBottles = _parentNode.MorningBottles;
+								MorningBottles = _parentRow.MorningBottles;
 							}
 
 							if(_eveningAddresses == 0)
 							{
-								EveningAddresses = _parentNode.EveningAddresses;
+								EveningAddresses = _parentRow.EveningAddresses;
 							}
 
 							if(_eveningBottles == 0)
 							{
-								EveningBottles = _parentNode.EveningBottles;
+								EveningBottles = _parentRow.EveningBottles;
 							}
 						}
 					}
@@ -118,13 +118,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		private bool IsPastDay()
 		{
-			if(_date == default || _parentNode?.StartDate == default)
+			if(_date == default || _parentRow?.StartDate == default)
 			{
 				return false;
 			}
 
-			int dayIndex = (int)(_date - _parentNode.StartDate).TotalDays;
-			int todayIndex = (int)(DateTime.Today - _parentNode.StartDate).TotalDays;
+			int dayIndex = (int)(_date - _parentRow.StartDate).TotalDays;
+			int todayIndex = (int)(DateTime.Today - _parentRow.StartDate).TotalDays;
 
 			return dayIndex < todayIndex;
 		}

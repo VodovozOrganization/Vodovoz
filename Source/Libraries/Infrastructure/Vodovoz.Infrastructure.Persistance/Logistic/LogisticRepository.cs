@@ -127,11 +127,15 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 						Restrictions.Eq(Projections.Property(() => employeeAlias.Status), EmployeeStatus.IsFired),
 						Restrictions.Ge(Projections.Property(() => employeeAlias.DateFired), startDate)
 					))
+				)
+				.Where(Restrictions.Disjunction()
+					.Add(Restrictions.Not(Restrictions.Eq(Projections.Property(() => employeeAlias.Status), EmployeeStatus.OnCalculation)))
 					.Add(Restrictions.And(
 						Restrictions.Eq(Projections.Property(() => employeeAlias.Status), EmployeeStatus.OnCalculation),
-						Restrictions.Ge(Projections.Property(() => employeeAlias.DateCalculated), endDate)
+						Restrictions.Ge(Projections.Property(() => employeeAlias.DateCalculated), startDate)
 					))
-				);
+				)
+				.Where(() => employeeAlias.Status != EmployeeStatus.OnMaternityLeave);
 
 			return query;
 		}
