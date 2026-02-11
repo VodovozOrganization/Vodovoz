@@ -92,7 +92,9 @@ namespace WarehouseApi.Controllers.V1
 					_selfDeliveryService.CreateDocument(employee, request.OrderId, request.WarehouseId, cancellationToken))
 				.BindAsync(selfDeliveryDocument =>
 					_selfDeliveryService.AddCodes(selfDeliveryDocument, request.CodesToAdd, cancellationToken))
-				.BindAsync(selfDeliveryDocument => EndLoadIfNeededAsync(selfDeliveryDocument, cancellationToken))
+				.BindAsync(employee =>
+					_selfDeliveryService.SetTareToReturn(employee, request.TareToReturn))
+				.BindAsync(selfDeliveryDocument => EndLoad(selfDeliveryDocument, cancellationToken))
 				.BindAsync(async selfDeliveryDocument =>
 				{
 					await unitOfWork.SaveAsync(selfDeliveryDocument, cancellationToken: cancellationToken);
@@ -146,7 +148,7 @@ namespace WarehouseApi.Controllers.V1
 					string.Join(", ", errors.Select(e => e.Message)),
 					statusCode: StatusCodes.Status400BadRequest));
 
-		private async Task<Result<SelfDeliveryDocument>> EndLoadIfNeededAsync(SelfDeliveryDocument selfDeliveryDocument, CancellationToken cancellationToken)
+		private async Task<Result<SelfDeliveryDocument>> EndLoad(SelfDeliveryDocument selfDeliveryDocument, CancellationToken cancellationToken)
 		{
 			await _selfDeliveryService.EndLoad(selfDeliveryDocument, cancellationToken);
 

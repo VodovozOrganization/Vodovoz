@@ -19,5 +19,9 @@ namespace WarehouseApi.Contracts.Requests.V1
 		/// Коды маркировки честного знака, которые нужно добавить
 		/// </summary>
 		public IEnumerable<string> CodesToAdd { get; set; }
+		/// <summary>
+		/// Количество тары, которую нужно вернуть
+		/// </summary>
+		public int TareToReturn { get; set; }
 	}
 }

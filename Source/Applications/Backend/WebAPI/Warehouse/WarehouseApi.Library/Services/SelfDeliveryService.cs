@@ -102,7 +102,11 @@ namespace WarehouseApi.Library.Services
 				?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
-		public async Task<Result<SelfDeliveryDocument>> CreateDocument(Employee author, int orderId, int warehouseId, CancellationToken cancellationToken)
+		public async Task<Result<SelfDeliveryDocument>> CreateDocument(
+			Employee author,
+			int orderId,
+			int warehouseId,
+			CancellationToken cancellationToken)
 		{
 			var order = _orderRepository
 				.Get(_unitOfWork, x => x.Id == orderId, 1)
@@ -136,7 +140,7 @@ namespace WarehouseApi.Library.Services
 				LastEditorId = author.Id,
 				LastEditedTime = DateTime.Now,
 				Order = order,
-				Warehouse = warehouse,
+				Warehouse = warehouse
 			};
 
 			var defaultBottleNomenclatureId =
@@ -319,9 +323,24 @@ namespace WarehouseApi.Library.Services
 			return Result.Success();
 		}
 
+		public async Task<Result<SelfDeliveryDocument>> SetTareToReturn(SelfDeliveryDocument selfDeliveryDocument, int tareToReturn)
+		{
+			selfDeliveryDocument.TareToReturn = tareToReturn;
+
+			return await Task.FromResult(selfDeliveryDocument);
+		}
+
 		public async Task<Result<SelfDeliveryDocument>> EndLoad(SelfDeliveryDocument selfDeliveryDocument, CancellationToken cancellationToken)
 		{
+			selfDeliveryDocument.InitializeDefaultValues(_unitOfWork, _nomenclatureRepository);
 			selfDeliveryDocument.UpdateOperations(_unitOfWork);
+
+			selfDeliveryDocument.UpdateReceptions(
+				_unitOfWork,
+				new List<GoodsReceptionVMNode>(),
+				_nomenclatureRepository,
+				_bottlesRepository);
+
 			selfDeliveryDocument.FullyShiped(
 				_unitOfWork,
 				_nomenclatureSettings,
