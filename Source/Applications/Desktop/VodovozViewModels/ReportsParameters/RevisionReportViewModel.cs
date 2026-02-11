@@ -33,7 +33,7 @@ using StoredEmails = Vodovoz.Domain.StoredEmails;
 
 namespace Vodovoz.ViewModels.ReportsParameters
 {
-	[ToDo ("В RDL файле Revision.rdl используется VB код в секции <Code>, который нужно выпилить." +
+	[ToDo ("В RDL файле Revision.rdl используется VB код в секции <Code>, который создает утечки памяти." +
 		"Функция NUMBER_TO_STRING_DESCRIPTION() не может быть использована в Textbox'е.")]
 	public class RevisionReportViewModel : ReportParametersViewModelBase, IDisposable
 	{
