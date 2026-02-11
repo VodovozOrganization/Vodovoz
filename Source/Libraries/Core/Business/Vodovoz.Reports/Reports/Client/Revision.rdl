@@ -306,8 +306,7 @@ WHERE
         <Width>806.19pt</Width>
         <Value>="взаимных расчетов за период: " + Format(CDate(Parameters!StartDate), "dd.MM.yyyy") +" - "+ Format(CDate(Parameters!EndDate), "dd.MM.yyyy")+"\n"
 +"между " + First(Fields!org_name,'Organization') +"\n"
-+"и " + First(Fields!counterparty_name,'Counterparty')  +"\n"
-+"по договору №"+First(Fields!contract_id,'Counterparty')+" от "+ Format(First(Fields!issue_date,'Counterparty'),"dd.MM.yyyy")</Value>
++"и " + First(Fields!counterparty_name,'Counterparty')</Value>
         <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>31.40pt</Top>
@@ -555,8 +554,8 @@ WHERE
                   <ReportItems>
                     <Textbox Name="Textbox21">
                       <Value>=Iif(
-First(Fields!total.Value,'Initial')&gt;0,
-First(Fields!total.Value,'Initial'),
+First(Fields!total.Value,'Initial')&lt;0,
+-First(Fields!total.Value,'Initial'),
 ""
 )</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -575,8 +574,8 @@ First(Fields!total.Value,'Initial'),
                   <ReportItems>
                     <Textbox Name="Textbox20">
                       <Value>=Iif(
-First(Fields!total.Value,'Initial')&lt;0,
--First(Fields!total.Value,'Initial'),
+First(Fields!total.Value,'Initial')&gt;0,
+First(Fields!total.Value,'Initial'),
 ""
 )</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1022,30 +1021,30 @@ First(Fields!total.Value,'Initial')&lt;0,
             <Textbox Name="Textbox73">
                 <Height>52.66pt</Height>
                 <Width>461.47pt</Width>
-                <Value>="на "+Format(CDate(Parameters!EndDate),"dd.MM.yyyy") + " задолженность в пользу"
-                  + " "+
-                  Iif(
-                  First(Fields!total.Value, 'Initial')
-                  + Sum(Fields!debt,'Operations')
-                  - Sum(Fields!deposit,'Operations') &gt; 0,
-                  First(Fields!org_name,'Organization'),
-                  First(Fields!counterparty_name,'Counterparty')
-                  )
-                  + " составляет " +
-                  Format(
-                  Math.Abs(
-                  First(Fields!total.Value, 'Initial')
-                  + Sum(Fields!debt,'Operations')
-                  - Sum(Fields!deposit,'Operations')
-                  ), "N2")
-                  +" руб." + "\n"+
-                  "("+
-                  Code.NumberToWords(Math.Abs(
-                  First(Fields!total.Value, 'Initial')
-                  + Sum(Fields!debt,'Operations')
-                  - Sum(Fields!deposit,'Operations')
-                  ))
-                  +")"</Value>
+                <Value>="на "+Format(CDate(Parameters!EndDate),"dd.MM.yyyy") + " задолженность в пользу "+
+  Iif(
+    (Iif(First(Fields!total.Value,'Initial') &lt; 0, Math.Abs(First(Fields!total.Value,'Initial')), 0) + Sum(Fields!debt,'Operations'))
+    -
+    (Iif(First(Fields!total.Value,'Initial') &gt; 0, First(Fields!total.Value,'Initial'), 0) + Sum(Fields!deposit,'Operations'))
+    &gt; 0,
+    First(Fields!org_name,'Organization'),     
+    First(Fields!counterparty_name,'Counterparty')
+  )
+  + " составляет " +
+  Format(
+    Math.Abs(
+      (Iif(First(Fields!total.Value,'Initial') &lt; 0, Math.Abs(First(Fields!total.Value,'Initial')), 0) + Sum(Fields!debt,'Operations'))
+      -
+      (Iif(First(Fields!total.Value,'Initial') &gt; 0, First(Fields!total.Value,'Initial'), 0) + Sum(Fields!deposit,'Operations'))
+    ), "N2")
+  +" руб." + "\n"+
+  "("+
+  Code.NumberToWords(Math.Abs(
+    (Iif(First(Fields!total.Value,'Initial') &lt; 0, Math.Abs(First(Fields!total.Value,'Initial')), 0) + Sum(Fields!debt,'Operations'))
+    -
+    (Iif(First(Fields!total.Value,'Initial') &gt; 0, First(Fields!total.Value,'Initial'), 0) + Sum(Fields!deposit,'Operations'))
+  ))
+  +")"</Value>
                   <ZIndex>0</ZIndex>
                   <Left>0.00pt</Left>
                   <Top>16.28pt</Top>
