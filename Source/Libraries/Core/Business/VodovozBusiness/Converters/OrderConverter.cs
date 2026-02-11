@@ -45,7 +45,7 @@ namespace Vodovoz.Converters
 			return new OrderInfoForEdo
 			{
 				Id = order.Id,
-				StringNumber = DocumentNumberBuilder.Build(order, documentContainerType),
+				StringNumber = order.OrderDocumentStringNumber(documentContainerType),
 				CreationDate = order.CreateDate ?? default,
 				DeliveryDate = order.DeliveryDate ?? default,
 				OrderSum = order.OrderSum,
