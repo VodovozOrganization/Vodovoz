@@ -144,10 +144,8 @@ namespace TrueMark.Codes.Pool
 				SELECT pool.id
 				FROM {PoolTableName} pool
 					INNER JOIN true_mark_identification_code code ON code.id = pool.code_id 
-				WHERE pool.promoted 
-					AND code.gtin = :gtin
+				WHERE code.gtin = :gtin
 					AND pool.holded_by = :connection_id
-				ORDER BY pool.adding_time DESC 
 				LIMIT 1
 			)
 			RETURNING code_id";
