@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MoreLinq;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,12 +11,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
-using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Presentation.WebApi.Common;
 using Vodovoz.Presentation.WebApi.Security.OnlyOneSession;
 using VodovozBusiness.Services.TrueMark;
 using WarehouseApi.Contracts.V1.Dto;
 using WarehouseApi.Filters;
+using WarehouseApi.Library.Converters;
 
 namespace WarehouseApi.Controllers.V1
 {
@@ -30,58 +32,79 @@ namespace WarehouseApi.Controllers.V1
 		private const string _rolesToAccess =
 			nameof(ApplicationUserRole.WarehousePicker) + "," + nameof(ApplicationUserRole.WarehouseDriver);
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private readonly CarLoadDocumentConverter _carLoadDocumentConverter;
 
 		/// <summary>
 		/// Контроллер проверки кодов
 		/// </summary>
 		/// <param name="logger"></param>
 		/// <param name="trueMarkWaterCodeService"></param>
+		/// <param name="carLoadDocumentConverter"></param>
 		/// <exception cref="ArgumentNullException"></exception>
 		public CheckCodeController(
 			ILogger<ApiControllerBase> logger,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService
+			ITrueMarkWaterCodeService trueMarkWaterCodeService,
+			CarLoadDocumentConverter carLoadDocumentConverter
 			) : base(logger)
 		{
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
+			_carLoadDocumentConverter = carLoadDocumentConverter ?? throw new ArgumentNullException(nameof(carLoadDocumentConverter));
 		}
 
 
 		/// <summary>
 		/// Получение списка кодов ЧЗ по отсканированному коду
 		/// </summary>
+		/// <param name="unitOfWork"></param>
 		/// <param name="code">Отсканированный код</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Список кодов ЧЗ</returns>
 		[HttpGet]
 		[ProducesResponseType(typeof(IEnumerable<TrueMarkCodeDto>), StatusCodes.Status200OK)]
-		public async Task<IActionResult> Get([FromQuery] string code, CancellationToken cancellationToken)
+		public async Task<IActionResult> Get(
+			[FromServices] IUnitOfWork unitOfWork,
+			[FromQuery] string code,
+			CancellationToken cancellationToken)
 		{
 			try
 			{
-				var trueMarkCodesResult =
-					(await _trueMarkWaterCodeService.GetTrueMarkAnyCodesByScannedCodes(new[] { code }, cancellationToken));
+				var createCodeResult = await _trueMarkWaterCodeService.CreateStagingTrueMarkCode(
+					unitOfWork,
+					code,
+					StagingTrueMarkCodeRelatedDocumentType.SelfDeliveryDocumentItem,
+					0,
+					null,
+					cancellationToken);
 
-				if(trueMarkCodesResult.IsFailure)
+				if(createCodeResult.IsFailure)
 				{
-					var error = trueMarkCodesResult.Errors.FirstOrDefault();
+					var error = createCodeResult.Errors.FirstOrDefault();
+					_logger.LogError("Ошибка при получении кодов ЧЗ. Сообщение: {ErrorMessage}", error.Message);
 					return Problem($"Ошибка при получении кодов ЧЗ: {error?.Message}", statusCode: StatusCodes.Status500InternalServerError);
 				}
 
-				var trueMarkAnyCodes = trueMarkCodesResult.Value
-					.Select(x => x.Value)
-					.ToList();
+				var stagingCode = createCodeResult.Value;
 
-				var trueMarkCodes = new List<TrueMarkCodeDto>();
+				var isCodeUsedResult =
+					await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsedInProductCodes(unitOfWork, stagingCode, cancellationToken);
 
-				foreach(var anyCode in trueMarkAnyCodes)
+				if(isCodeUsedResult.IsFailure)
 				{
-					trueMarkCodes.Add(anyCode.Match(
-						PopulateTransportCode(trueMarkAnyCodes),
-						PopulateGroupCode(trueMarkAnyCodes),
-						PopulateWaterCode(trueMarkAnyCodes)));
+					var error = isCodeUsedResult.Errors.FirstOrDefault();
+					_logger.LogError("Ошибка при проверке использования кода ЧЗ. Сообщение: {ErrorMessage}", error.Message);
+					return Problem($"Ошибка при проверке использования кода ЧЗ: {error?.Message}", statusCode: StatusCodes.Status400BadRequest);
 				}
 
-				return Ok(trueMarkCodes);
+				var codesDto = PopulateStagingTrueMarkCode(stagingCode).ToList();
+
+				var counter = 0;
+				
+				foreach(var codeDto in codesDto)
+				{
+					codeDto.SequenceNumber = counter++;
+				}
+
+				return Ok(codesDto);
 			}
 			catch(Exception ex)
 			{
@@ -90,89 +113,32 @@ namespace WarehouseApi.Controllers.V1
 			}
 		}
 
-		private static Func<TrueMarkWaterIdentificationCode, TrueMarkCodeDto> PopulateWaterCode(IEnumerable<TrueMarkAnyCode> allCodes)
+		private IEnumerable<TrueMarkCodeDto> PopulateStagingTrueMarkCode(StagingTrueMarkCode stagingCode, string parentCode = "")
 		{
-			return waterCode =>
+			var result = new List<TrueMarkCodeDto>();
+			var level = stagingCode.CodeType switch
 			{
-				string parentRawCode = null;
-
-				if(waterCode.ParentTransportCodeId != null)
-				{
-					parentRawCode = allCodes
-						.FirstOrDefault(x => x.IsTrueMarkTransportCode
-							&& x.TrueMarkTransportCode.Id == waterCode.ParentTransportCodeId)
-						?.TrueMarkTransportCode.RawCode;
-				}
-
-				if(waterCode.ParentWaterGroupCodeId != null)
-				{
-					parentRawCode = allCodes
-						.FirstOrDefault(x => x.IsTrueMarkWaterGroupCode
-							&& x.TrueMarkWaterGroupCode.Id == waterCode.ParentWaterGroupCodeId)
-						?.TrueMarkWaterGroupCode.RawCode;
-				}
-
-				return new TrueMarkCodeDto
-				{
-					Code = waterCode.RawCode,
-					Level = WarehouseApiTruemarkCodeLevel.unit,
-					Parent = parentRawCode,
-				};
+				StagingTrueMarkCodeType.Transport => WarehouseApiTruemarkCodeLevel.transport,
+				StagingTrueMarkCodeType.Group => WarehouseApiTruemarkCodeLevel.group,
+				StagingTrueMarkCodeType.Identification => WarehouseApiTruemarkCodeLevel.unit,
+				_ => throw new InvalidOperationException("Unknown StagingTrueMarkCodeLevel"),
 			};
-		}
-
-		private static Func<TrueMarkWaterGroupCode, TrueMarkCodeDto> PopulateGroupCode(IEnumerable<TrueMarkAnyCode> allCodes)
-		{
-			return groupCode =>
+			var codeDto = new TrueMarkCodeDto
 			{
-				string parentRawCode = null;
-
-				if(groupCode.ParentTransportCodeId != null)
-				{
-					parentRawCode = allCodes
-						.FirstOrDefault(x => x.IsTrueMarkTransportCode
-							&& x.TrueMarkTransportCode.Id == groupCode.ParentTransportCodeId)
-						?.TrueMarkTransportCode.RawCode;
-				}
-
-				if(groupCode.ParentWaterGroupCodeId != null)
-				{
-					parentRawCode = allCodes
-						.FirstOrDefault(x => x.IsTrueMarkWaterGroupCode
-							&& x.TrueMarkWaterGroupCode.Id == groupCode.ParentWaterGroupCodeId)
-						?.TrueMarkWaterGroupCode.RawCode;
-				}
-
-				return new TrueMarkCodeDto
-				{
-					Code = groupCode.RawCode,
-					Level = WarehouseApiTruemarkCodeLevel.group,
-					Parent = parentRawCode
-				};
+				Code = stagingCode.RawCode,
+				Level = level,
+				Parent = parentCode
 			};
-		}
 
-		private static Func<TrueMarkTransportCode, TrueMarkCodeDto> PopulateTransportCode(IEnumerable<TrueMarkAnyCode> allCodes)
-		{
-			return transportCode =>
+			result.Add(codeDto);
+
+			foreach(var innerCode in stagingCode.InnerCodes)
 			{
-				string parentRawCode = null;
+				var childDtos = PopulateStagingTrueMarkCode(innerCode, stagingCode.RawCode);
+				result.AddRange(childDtos);
+			}
 
-				if(transportCode.ParentTransportCodeId != null)
-				{
-					parentRawCode = allCodes
-						.FirstOrDefault(x => x.IsTrueMarkTransportCode
-							&& x.TrueMarkTransportCode.Id == transportCode.ParentTransportCodeId)
-						?.TrueMarkTransportCode.RawCode;
-				}
-
-				return new TrueMarkCodeDto
-				{
-					Code = transportCode.RawCode,
-					Level = WarehouseApiTruemarkCodeLevel.transport,
-					Parent = parentRawCode
-				};
-			};
+			return result;
 		}
 	}
 }

@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -860,7 +860,7 @@ namespace Vodovoz.Application.TrueMark
 					{
 						newTransportCodes
 							.FirstOrDefault(ntc => codesInstanseStatuses
-								.FirstOrDefault(iccr => iccr.Childs.Contains(waterIdentificationCode.RawCode))
+								.FirstOrDefault(iccr => iccr.Childs.Contains(waterIdentificationCode.IdentificationCode))
 								?.IdentificationCode == ntc.RawCode)
 							?.AddInnerWaterCode(waterIdentificationCode);
 
