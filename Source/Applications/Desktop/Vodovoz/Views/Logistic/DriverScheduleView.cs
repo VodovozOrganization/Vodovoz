@@ -155,6 +155,7 @@ namespace Vodovoz.Views.Logistic
 			ytreeviewFixedPart.RulesHint = true;
 			ytreeviewFixedPart.EnableGridLines = TreeViewGridLines.Both;
 			ytreeviewFixedPart.KeyPressEvent += OnFixedTreeViewKeyPress;
+			ytreeviewFixedPart.Selection.Changed += (sender, e) => SynchronizeSelection(ytreeviewFixedPart, ytreeviewDynamicPart);
 		}
 
 		private void ConfigureDynamicTreeView()
@@ -223,6 +224,7 @@ namespace Vodovoz.Views.Logistic
 			ytreeviewDynamicPart.EnableGridLines = TreeViewGridLines.Both;
 			ytreeviewDynamicPart.ScrollEvent += OnTreeViewScroll;
 			ytreeviewDynamicPart.KeyPressEvent += OnDynamicTreeViewKeyPress;
+			ytreeviewDynamicPart.Selection.Changed += (sender, e) => SynchronizeSelection(ytreeviewDynamicPart, ytreeviewFixedPart);
 		}
 
 		/// <summary>
@@ -397,6 +399,15 @@ namespace Vodovoz.Views.Logistic
 					ytreeviewFixedPart.GrabFocus();
 					args.RetVal = true;
 				}
+			}
+		}
+
+		private void SynchronizeSelection(TreeView source, TreeView target)
+		{
+			if(source.Selection.CountSelectedRows() > 0)
+			{
+				var selectedPath = source.Selection.GetSelectedRows()[0];
+				target.Selection.SelectPath(selectedPath);
 			}
 		}
 
