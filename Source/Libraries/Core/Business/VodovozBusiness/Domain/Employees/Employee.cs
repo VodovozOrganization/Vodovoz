@@ -79,7 +79,7 @@ namespace Vodovoz.Domain.Employees
 		private IWageCalculationRepository _wageCalculationRepository;
 		private bool _canRecieveCounterpartyCalls;
 		private Phone _phoneForCounterpartyCalls;
-		private District _areaOfResidence;
+		private District _district;
 
 		public virtual IUnitOfWork UoW { set; get; }
 
@@ -191,8 +191,8 @@ namespace Vodovoz.Domain.Employees
 		[Display(Name = "Район проживания")]
 		public virtual District District
 		{
-			get => _areaOfResidence;
-			set => SetField(ref _areaOfResidence, value);
+			get => _district;
+			set => SetField(ref _district, value);
 		}
 
 		[Display(Name = "Документы")]

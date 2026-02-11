@@ -5,11 +5,11 @@
 	/// </summary>
 	public abstract class DriverScheduleTotalRow : DriverScheduleRow
 	{
+		/// <summary>
+		/// Итоговая строка
+		/// </summary>
 		public bool IsTotalRow => true;
 
-		/// <summary>
-		/// Потенциальные значения всегда равны 0 для итоговых строк
-		/// </summary>
 		public override int MorningAddresses
 		{
 			get => 0;

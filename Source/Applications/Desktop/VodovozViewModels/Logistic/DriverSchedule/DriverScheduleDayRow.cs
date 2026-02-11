@@ -17,6 +17,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		private bool _isCarEventTypeFromJournal;
 		private bool _hasActiveRouteList;
 
+		/// <summary>
+		/// Родительская строка
+		/// </summary>
 		public virtual DriverScheduleRow ParentRow
 		{
 			get => _parentRow;
@@ -53,36 +56,54 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			}
 		}
 
+		/// <summary>
+		/// Вид события ТС
+		/// </summary>
 		public virtual CarEventType CarEventType
 		{
 			get => _carEventType;
 			set => SetField(ref _carEventType, value);
 		}
 
+		/// <summary>
+		/// Дата дня
+		/// </summary>
 		public virtual DateTime Date
 		{
 			get => _date;
 			set => SetField(ref _date, value);
 		}
 
+		/// <summary>
+		/// Количество адресов утром
+		/// </summary>
 		public virtual int MorningAddresses
 		{
 			get => _morningAddresses;
 			set => SetField(ref _morningAddresses, value);
 		}
 
+		/// <summary>
+		/// Количество бутылей утром
+		/// </summary>
 		public virtual int MorningBottles
 		{
 			get => _morningBottles;
 			set => SetField(ref _morningBottles, value);
 		}
 
+		/// <summary>
+		/// Количество адресов вечером
+		/// </summary>
 		public virtual int EveningAddresses
 		{
 			get => _eveningAddresses;
 			set => SetField(ref _eveningAddresses, value);
 		}
 
+		/// <summary>
+		/// Количество бутылей вечером
+		/// </summary>
 		public virtual int EveningBottles
 		{
 			get => _eveningBottles;

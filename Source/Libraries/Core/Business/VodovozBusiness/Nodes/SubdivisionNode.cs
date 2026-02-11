@@ -3,9 +3,6 @@ using Vodovoz;
 
 namespace VodovozBusiness.Nodes
 {
-	/// <summary>
-	/// Переместить ноду во Views
-	/// </summary>
 	public class SubdivisionNode : PropertyChangedBase
 	{
 		public SubdivisionNode(Subdivision subdivison)
