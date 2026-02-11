@@ -13,6 +13,13 @@ namespace TrueMark.Codes.Pool
 		
 		public override int TakeCode(string gtin)
 		{
+			using(var uow = UowFactory.CreateWithoutRoot())
+			{
+				var holdCodeQuery = GetHoldCodeQuery(gtin);
+				holdCodeQuery.ExecuteUpdate();
+				uow.Commit();
+			}
+
 			var findCodeQuery = GetTakeCodeQuery(gtin);
 			var codeId = findCodeQuery.UniqueResult<uint>();
 			if(codeId == 0)
@@ -24,6 +31,13 @@ namespace TrueMark.Codes.Pool
 
 		public override async Task<int> TakeCode(string gtin, CancellationToken cancellationToken)
 		{
+			using(var uow = UowFactory.CreateWithoutRoot())
+			{
+				var holdCodeQuery = GetHoldCodeQuery(gtin);
+				await holdCodeQuery.ExecuteUpdateAsync(cancellationToken);
+				await uow.CommitAsync(cancellationToken);
+			}
+
 			var findCodeQuery = GetTakeCodeQuery(gtin);
 			var codeId = await findCodeQuery.UniqueResultAsync<uint>(cancellationToken);
 			if(codeId == 0)

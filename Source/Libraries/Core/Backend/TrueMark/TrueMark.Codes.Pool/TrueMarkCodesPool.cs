@@ -79,8 +79,10 @@ namespace TrueMark.Codes.Pool
 		{
 			using(var uow = UowFactory.CreateWithoutRoot())
 			{
+				uow.OpenTransaction();
 				var holdCodeQuery = GetHoldCodeQuery(gtin);
 				holdCodeQuery.ExecuteUpdate();
+				uow.Commit();
 			}
 
 			var findCodeQuery = GetTakeCodeQuery(gtin);
@@ -97,8 +99,10 @@ namespace TrueMark.Codes.Pool
 		{
 			using(var uow = UowFactory.CreateWithoutRoot())
 			{
+				uow.OpenTransaction();
 				var holdCodeQuery = GetHoldCodeQuery(gtin);
 				await holdCodeQuery.ExecuteUpdateAsync(cancellationToken);
+				await uow.CommitAsync(cancellationToken);
 			}
 
 			var findCodeQuery = GetTakeCodeQuery(gtin);
