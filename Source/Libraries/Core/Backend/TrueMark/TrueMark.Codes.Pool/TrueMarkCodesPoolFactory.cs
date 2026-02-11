@@ -14,12 +14,12 @@ namespace TrueMark.Codes.Pool
 
 		public TrueMarkCodesPool Create()
 		{
-			return new TrueMarkCodesPool(_uowFactory.CreateWithoutRoot());
+			return new TrueMarkCodesPool(_uowFactory.CreateWithoutRoot(), _uowFactory);
 		}
 
 		public TrueMarkCodesPool Create(IUnitOfWork uow)
 		{
-			return new TrueMarkCodesPool(uow);
+			return new TrueMarkCodesPool(uow, _uowFactory);
 		}
 	}
 }

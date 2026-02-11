@@ -7,7 +7,7 @@ namespace TrueMark.Codes.Pool
 {
 	public class ReceiptTrueMarkCodesPool : TrueMarkCodesPool
 	{
-		public ReceiptTrueMarkCodesPool(IUnitOfWork uow) : base(uow)
+		public ReceiptTrueMarkCodesPool(IUnitOfWork uow, IUnitOfWorkFactory uowFactory) : base(uow, uowFactory)
 		{
 		}
 		
@@ -33,25 +33,49 @@ namespace TrueMark.Codes.Pool
 			return (int)codeId;
 		}
 
+		private IQuery GetHoldCodeQuery(string gtin)
+		{
+			var sql = $@"
+			UPDATE {PoolTableName} as pool
+			INNER JOIN true_mark_identification_code code ON code.id = pool.code_id
+			SET 
+				pool.holded_by = :connection_id,
+				pool.holded_until = CURRENT_TIMESTAMP() + INTERVAL :hold_timeout MINUTE
+			WHERE holded_until < CURRENT_TIMESTAMP()
+				AND pool.promoted
+				AND code.gtin = :gtin
+				AND code.check_code is not null
+			ORDER BY pool.adding_time DESC
+			LIMIT 1";
+
+			var query = UoW.Session.CreateSQLQuery(sql)
+				.SetParameter("gtin", gtin)
+				.SetParameter("connection_id", ConnectionId)
+				.SetParameter("hold_timeout", CodeHoldTimeoutMinute)
+				;
+			return query;
+		}
+
 		private IQuery GetTakeCodeQuery(string gtin)
 		{
 			var sql = $@"
-			DELETE FROM {_poolTableName}
+			DELETE FROM {PoolTableName}
 			WHERE id = (
 				SELECT pool.id
-				FROM {_poolTableName} pool
+				FROM {PoolTableName} pool
 					INNER JOIN true_mark_identification_code code ON code.id = pool.code_id 
-				WHERE pool.promoted
+				WHERE pool.promoted 
 					AND code.gtin = :gtin
+					AND pool.holded_by = :connection_id
 					AND code.check_code is not null
-				ORDER BY pool.adding_time DESC
+				ORDER BY pool.adding_time DESC 
 				LIMIT 1
-				FOR UPDATE SKIP LOCKED
 			)
 			RETURNING code_id";
 
 			var query = UoW.Session.CreateSQLQuery(sql)
-				.SetParameter("gtin", gtin);
+				.SetParameter("gtin", gtin)
+				.SetParameter("connection_id", ConnectionId);
 			return query;
 		}
 	}

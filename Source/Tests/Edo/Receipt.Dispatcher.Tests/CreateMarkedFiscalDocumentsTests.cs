@@ -586,11 +586,6 @@ namespace Receipt.Dispatcher.Tests
 			return new TrueMarkTaskCodesValidator(edoRepository, trueMarkApiClient);
 		}
 
-		private TrueMarkCodesPool CreateTrueMarkCodesPoolFixture(IUnitOfWork unitOfWork)
-		{
-			return new TrueMarkCodesPoolFixture(unitOfWork);
-		}
-
 		private Tag1260Checker CreateTag1260CheckerFixture(IHttpClientFactory httpClientFactory)
 		{
 			return new Tag1260Checker(httpClientFactory);
