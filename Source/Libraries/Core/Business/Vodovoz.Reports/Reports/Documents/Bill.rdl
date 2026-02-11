@@ -612,13 +612,13 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
       </Textbox>
       <Textbox Name="Textbox2">
         <Height>42.12pt</Height>
-        <Width>248.60pt</Width>
+        <Width>265.10pt</Width>
         <Value>Внимание! Оплата данного счета означает согласие с условиями
 поставки товара. Уведомление об оплате обязательно, в противном
 случае не гарантируется наличие товара на складе. Товар отпускается
 по факту прихода денег на р/с Поставщика.</Value>
         <ZIndex>0</ZIndex>
-        <Left>292.71pt</Left>
+        <Left>276.21pt</Left>
         <Top>34.60pt</Top>
         <Style>
           <BorderStyle />
@@ -1678,9 +1678,9 @@ P.S. И помни, мы тебя любим ❣</Value>
           <PaddingTop>1pt</PaddingTop>
           <FontFamily>Tahoma</FontFamily>
           <Color>Red</Color>
-          <PaddingBottom >1pt</PaddingBottom>
+          <PaddingBottom>1pt</PaddingBottom>
         </Style>
-        <CanGrow >false</CanGrow>
+        <CanGrow>false</CanGrow>
       </Textbox>
       <List Name="List4">
         <Height>15.81pt</Height>
