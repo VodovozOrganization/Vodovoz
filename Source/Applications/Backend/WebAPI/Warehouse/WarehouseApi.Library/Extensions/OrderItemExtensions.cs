@@ -33,19 +33,22 @@ namespace WarehouseApi.Library.Extensions
 						Gtin = gg.GtinNumber,
 						Count = gg.CodesCount
 					}),
-				Quantity = (int)orderItem.ActualCount
+				Quantity = (int)(orderItem.ActualCount ?? orderItem.Count)
 			};
 
-			var codes = selfDeliveryDocumentItem.TrueMarkProductCodes
-				.Select((code, index) => new TrueMarkCodeDto
-				{
-					SequenceNumber = index,
-					Code = code.SourceCode.RawCode,
-					Level = WarehouseApiTruemarkCodeLevel.unit
-				})
-				.ToList();
+			if(selfDeliveryDocumentItem != null)
+			{
+				var codes = selfDeliveryDocumentItem.TrueMarkProductCodes
+					.Select((code, index) => new TrueMarkCodeDto
+					{
+						SequenceNumber = index,
+						Code = code.SourceCode.RawCode,
+						Level = WarehouseApiTruemarkCodeLevel.unit
+					})
+					.ToList();
 
-			orderItemDto.Codes.AddRange(codes);
+				orderItemDto.Codes.AddRange(codes);
+			}
 
 			return orderItemDto;
 		}
@@ -60,7 +63,7 @@ namespace WarehouseApi.Library.Extensions
 			return orderItems
 				.Select(x => x.ToApiDtoV1(nomenclatures
 					.FirstOrDefault(n => n.Id == x.Nomenclature.Id),
-					selfDeliveryDocument.Items.FirstOrDefault(i => i.OrderItem?.Id == x.Id)))
+					selfDeliveryDocument?.Items?.FirstOrDefault(i => i.OrderItem?.Id == x.Id)))
 				.ToList();
 		}
 

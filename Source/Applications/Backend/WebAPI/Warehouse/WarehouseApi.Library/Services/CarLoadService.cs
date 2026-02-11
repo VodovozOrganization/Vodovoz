@@ -2,6 +2,7 @@
 using Gamma.Utilities;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using MoreLinq;
 using MySqlConnector;
 using QS.DomainModel.UoW;
 using System;
@@ -9,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Ubiety.Dns.Core;
 using Vodovoz.Core.Data.Employees;
 using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Domain.Documents;
@@ -21,13 +23,16 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Errors;
+using Vodovoz.Errors.Orders;
 using Vodovoz.Models;
 using VodovozBusiness.Domain.Client.Specifications;
 using VodovozBusiness.Services.TrueMark;
+using WarehouseApi.Contracts.Responses.V1;
 using WarehouseApi.Contracts.V1.Dto;
 using WarehouseApi.Contracts.V1.Responses;
 using WarehouseApi.Library.Converters;
 using WarehouseApi.Library.Errors;
+using WarehouseApi.Library.Extensions;
 using CarLoadDocumentErrors = Vodovoz.Errors.Stores.CarLoadDocumentErrors;
 using Error = Vodovoz.Core.Domain.Results.Error;
 
@@ -40,6 +45,7 @@ namespace WarehouseApi.Library.Services
 		private readonly ICarLoadDocumentRepository _carLoadDocumentRepository;
 		private readonly IEmployeeWithLoginRepository _employeeWithLoginRepository;
 		private readonly IGenericRepository<Order> _orderRepository;
+		private readonly IGenericRepository<SelfDeliveryDocument> _selfDeliveryRepository;
 		private readonly IRouteListDailyNumberProvider _routeListDailyNumberProvider;
 		private readonly ILogisticsEventsCreationService _logisticsEventsCreationService;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
@@ -55,6 +61,7 @@ namespace WarehouseApi.Library.Services
 			ICarLoadDocumentRepository carLoadDocumentRepository,
 			IEmployeeWithLoginRepository employeeWithLoginRepository,
 			IGenericRepository<Order> orderRepository,
+			IGenericRepository<SelfDeliveryDocument> selfDeliveryRepository,
 			IRouteListDailyNumberProvider routeListDailyNumberProvider,
 			ILogisticsEventsCreationService logisticsEventsCreationService,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
@@ -69,6 +76,7 @@ namespace WarehouseApi.Library.Services
 			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
 			_employeeWithLoginRepository = employeeWithLoginRepository;
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_selfDeliveryRepository = selfDeliveryRepository ?? throw new ArgumentNullException(nameof(selfDeliveryRepository));
 			_routeListDailyNumberProvider = routeListDailyNumberProvider ?? throw new ArgumentNullException(nameof(routeListDailyNumberProvider));
 			_logisticsEventsCreationService = logisticsEventsCreationService ?? throw new ArgumentNullException(nameof(logisticsEventsCreationService));
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
@@ -161,6 +169,65 @@ namespace WarehouseApi.Library.Services
 		}
 
 		public async Task<RequestProcessingResult<GetOrderResponse>> GetOrder(int orderId, CancellationToken cancellationToken)
+		{
+			var order =
+				(await _orderRepository.GetAsync(_uow, x => x.Id == orderId, cancellationToken: cancellationToken))
+				.Value
+				.FirstOrDefault();
+
+			if(order is null)
+			{
+				var error = OrderErrors.NotFound;
+				var result = Result.Failure<GetOrderResponse>(error);
+				return RequestProcessingResult.CreateFailure(
+					result, 
+					new GetOrderResponse
+					{
+						Result = OperationResultEnumDto.Error,
+						Error = error.Message
+					});
+			}
+
+			if(order.SelfDelivery)
+			{
+				return await GetSelfDeliveryDocumentOrder(order, cancellationToken);
+			}
+
+			return await GetCarLoadDocumentOrder(orderId, cancellationToken);
+		}
+
+		private async Task<RequestProcessingResult<GetOrderResponse>> GetSelfDeliveryDocumentOrder(Order order, CancellationToken cancellationToken)
+		{
+			var selfDeliveryDocument =
+				(await _selfDeliveryRepository.GetAsync(_uow, x => x.Order.Id == order.Id, cancellationToken: cancellationToken))
+				.Value
+				.FirstOrDefault();
+
+			var nomenclatures = order.OrderItems
+				.Select(x => x.Nomenclature)
+				.ToArray();
+
+			var orderDto = order.ToApiDtoV1(nomenclatures, selfDeliveryDocument);
+
+			if(selfDeliveryDocument != null)
+			{
+				orderDto.Items
+					.PopulateRelatedCodes(_uow, _trueMarkWaterCodeService, selfDeliveryDocument.Items.SelectMany(x => x.TrueMarkProductCodes));
+			}
+
+			orderDto.Items.ForEach(item =>
+				item.Codes.ForEach((code, i) =>
+					code.SequenceNumber = i));
+
+			var response = new GetOrderResponse
+			{
+				Order = orderDto
+			};
+
+			return RequestProcessingResult.CreateSuccess(Result.Success(response));
+		}
+
+		private async Task<RequestProcessingResult<GetOrderResponse>> GetCarLoadDocumentOrder(int orderId, CancellationToken cancellationToken)
 		{
 			var documentOrderItems = await GetCarLoadDocumentWaterOrderItems(orderId);
 			var carLoadDocument = documentOrderItems.FirstOrDefault().Document;
