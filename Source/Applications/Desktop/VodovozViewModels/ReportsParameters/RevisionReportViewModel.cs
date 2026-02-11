@@ -14,6 +14,7 @@ using QS.ViewModels.Control.EEVM;
 using RabbitMQ.MailSending;
 using System;
 using System.Collections.Generic;
+using System.Data.Bindings;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -32,6 +33,8 @@ using StoredEmails = Vodovoz.Domain.StoredEmails;
 
 namespace Vodovoz.ViewModels.ReportsParameters
 {
+	[ToDo ("В RDL файле Revision.rdl используется VB код в секции <Code>, который нужно выпилить." +
+		"Функция NUMBER_TO_STRING_DESCRIPTION() не может быть использована в Textbox'е.")]
 	public class RevisionReportViewModel : ReportParametersViewModelBase, IDisposable
 	{
 		private readonly int _defaultOurOrganizationId;
