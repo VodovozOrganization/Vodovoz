@@ -22,6 +22,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.EntityRepositories.Store;
+using Vodovoz.Errors.Stores;
 using Vodovoz.Errors.TrueMark;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
@@ -160,7 +161,14 @@ namespace WarehouseApi.Library.Services
 			IEnumerable<string> codesToAdd,
 			CancellationToken cancellationToken)
 		{
-			var stagingCodes = await CreateStagingTrueMarkCodes(selfDeliveryDocument, codesToAdd, cancellationToken);
+			var createStagingCodesResult = await CreateStagingTrueMarkCodes(selfDeliveryDocument, codesToAdd, cancellationToken);
+
+			if(createStagingCodesResult.IsFailure)
+			{
+				return Result.Failure<SelfDeliveryDocument>(createStagingCodesResult.Errors);
+			}
+
+			var stagingCodes = createStagingCodesResult.Value;
 
 			var isCheckAllCodesScanned = _codesProcessingService.IsAllTrueMarkProductCodesMustBeAdded(selfDeliveryDocument, _edoAccountController);
 
@@ -184,7 +192,7 @@ namespace WarehouseApi.Library.Services
 			return selfDeliveryDocument;
 		}
 
-		private async Task<IEnumerable<StagingTrueMarkCode>> CreateStagingTrueMarkCodes(
+		private async Task<Result<IEnumerable<StagingTrueMarkCode>>> CreateStagingTrueMarkCodes(
 			SelfDeliveryDocument document,
 			IEnumerable<string> codes,
 			CancellationToken cancellationToken)
@@ -200,6 +208,8 @@ namespace WarehouseApi.Library.Services
 						"Ошибка создания кода для промежуточного хранения {Code}: {ErrorMessage}",
 						code,
 						string.Join(", ", createStagingCodeResult.Errors.Select(e => e.Message)));
+
+					return Result.Failure<IEnumerable<StagingTrueMarkCode>>(createStagingCodeResult.Errors);
 				}
 
 				var stagingCode = createStagingCodeResult.Value;
@@ -213,12 +223,14 @@ namespace WarehouseApi.Library.Services
 						"Код для промежуточного хранения не может быть добавлен к документу {Code}: {ErrorMessage}",
 						code,
 						string.Join(", ", isCodeCanBeAddedResult.Errors.Select(e => e.Message)));
+
+					return Result.Failure<IEnumerable<StagingTrueMarkCode>>(isCodeCanBeAddedResult.Errors);
 				}
 
 				AddStagingTrueMarkCode(stagingCode, ref stagingCodes);
 			}
 
-			return stagingCodes;
+			return Result.Success<IEnumerable<StagingTrueMarkCode>>(stagingCodes);
 		}
 
 		private async Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCode(string code, CancellationToken cancellationToken)
@@ -341,13 +353,18 @@ namespace WarehouseApi.Library.Services
 				_nomenclatureRepository,
 				_bottlesRepository);
 
-			selfDeliveryDocument.FullyShiped(
+			var isFullyShiped = selfDeliveryDocument.FullyShiped(
 				_unitOfWork,
 				_nomenclatureSettings,
 				_routeListItemRepository,
 				_selfDeliveryRepository,
 				_cashRepository,
 				_callTaskWorker);
+
+			if(!isFullyShiped)
+			{
+				return Result.Failure<SelfDeliveryDocument>(SelfDeliveryDocumentErrors.IsNotFullyShiped);
+			}
 
 			return await Task.FromResult(selfDeliveryDocument);
 		}
