@@ -88,7 +88,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 				NaimJekonSubSost = $"{org.Name}, ИНН/КПП {org.Inn}/{org.Kpp}",
 				SvSchFakt = new FajlDokumentSvSchFakt
 				{
-					NomerDoc = orderInfoForEdo.Id.ToString(),
+					NomerDoc = orderInfoForEdo.StringNumber,
 					DataDoc = updDate,
 					
 					DenIzm = new FajlDokumentSvSchFaktDenIzm
@@ -144,7 +144,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 				new FajlDokumentSvSchFaktDokPodtvOtgr
 				{
 					NaimDokOtgr = _upd,
-					NomDokOtgr = orderInfoForEdo.Id.ToString(),
+					NomDokOtgr = orderInfoForEdo.StringNumber,
 					DataDokOtgr = updDate
 				}
 			};

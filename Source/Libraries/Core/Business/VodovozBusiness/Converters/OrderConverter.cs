@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using TaxcomEdo.Contracts.Orders;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Orders;
 using VodovozBusiness.Controllers;
 
@@ -30,7 +31,7 @@ namespace Vodovoz.Converters
 			_counterpartyEdoAccountController = counterpartyEdoAccountController ?? throw new ArgumentNullException(nameof(counterpartyEdoAccountController));
 		}
 		
-		public OrderInfoForEdo ConvertOrderToOrderInfoForEdo(Order order)
+		public OrderInfoForEdo ConvertOrderToOrderInfoForEdo(Order order, DocumentContainerType documentContainerType)
 		{
 			var counterpartyInfo =
 				_counterpartyConverter.ConvertCounterpartyToCounterpartyInfoForEdo(
@@ -40,10 +41,11 @@ namespace Vodovoz.Converters
 			var contractInfo = _counterpartyContractConverter.ConvertCounterpartyContractToCounterpartyContractInfoForEdo(
 				order.Contract, order.DeliveryDate.Value);
 			var orderItemsInfo = ConvertOrderItems(order.OrderItems);
-			
+
 			return new OrderInfoForEdo
 			{
 				Id = order.Id,
+				StringNumber = DocumentNumberBuilder.Build(order, documentContainerType),
 				CreationDate = order.CreateDate ?? default,
 				DeliveryDate = order.DeliveryDate ?? default,
 				OrderSum = order.OrderSum,
