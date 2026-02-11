@@ -275,43 +275,6 @@ WHERE
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="Payments">
-      <Query>
-        <DataSourceName>DS1</DataSourceName>
-        <CommandText>
-                SELECT
-                IFNULL(SUM(deposit.dep), 0) as depositsum
-                FROM orders o
-                LEFT JOIN (
-                SELECT
-                IF(SUM(count * deposit_sum) &gt; 0, SUM(count * deposit_sum), 0) as dep,
-                order_id
-                FROM order_deposit_items
-                GROUP BY order_id
-                ) deposit ON deposit.order_id = o.id
-                WHERE
-                o.client_id = @counterparty_id
-                AND o.delivery_date BETWEEN @start_date AND @end_date
-            </CommandText>
-        <QueryParameters>
-          <QueryParameter Name="start_date">
-            <Value>=Parameters!StartDate</Value>
-          </QueryParameter>
-          <QueryParameter Name="end_date">
-            <Value>=Parameters!EndDate</Value>
-          </QueryParameter>
-          <QueryParameter Name="counterparty_id">
-            <Value>=Parameters!CounterpartyId</Value>
-          </QueryParameter>
-        </QueryParameters>
-      </Query>
-      <Fields>
-        <Field Name="depositsum">
-          <DataField>depositsum</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-      </Fields>
-    </DataSet>
   </DataSets>
   <PageHeader>
     <Height>46.8pt</Height>
@@ -1093,20 +1056,6 @@ First(Fields!total.Value,'Initial')&lt;0,
                       <FontWeight>Bold</FontWeight>
                   </Style>
               </Textbox>
-              <Textbox Name="TextboxDepositTotal">
-                <Height>14.28pt</Height>
-                <Width>461.47pt</Width>
-                <Value>="Всего залогов: " + Format(First(Fields!depositsum.Value, "Payments"), "N2") + " руб."</Value>
-                <ZIndex>0</ZIndex>
-                <Left>0.0pt</Left>
-                <Top>46.94pt</Top>
-                <Style>
-                  <BorderStyle />
-                  <BorderColor />
-                  <BorderWidth />
-                  <FontWeight>Bold</FontWeight>
-                </Style>
-            </Textbox>
           </ReportItems>
       </List>
       <List Name="SignaturesList">
