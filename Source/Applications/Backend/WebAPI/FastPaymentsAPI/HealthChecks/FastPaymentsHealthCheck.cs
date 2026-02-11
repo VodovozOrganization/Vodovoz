@@ -1,62 +1,56 @@
-﻿using System;
-using System.Net.Http;
-using System.Threading.Tasks;
-using FastPaymentsApi.Contracts;
-using FastPaymentsApi.Contracts.Requests;
+﻿using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using System;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
-using VodovozHealthCheck.Helpers;
+using VodovozHealthCheck.Providers;
 
 namespace FastPaymentsAPI.HealthChecks
 {
-	public class FastPaymentsHealthCheck : VodovozHealthCheckBase
+	public partial class FastPaymentsHealthCheck : VodovozHealthCheckBase
 	{
 		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly IConfiguration _configuration;
+		private readonly IConfigurationSection _healthSection;
+		private readonly string _baseAddress;
 
-		public FastPaymentsHealthCheck(ILogger<FastPaymentsHealthCheck> logger, IHttpClientFactory httpClientFactory, IConfiguration configuration, IUnitOfWorkFactory unitOfWorkFactory)
-			: base(logger, unitOfWorkFactory)
+		public FastPaymentsHealthCheck(ILogger<FastPaymentsHealthCheck> logger,
+				IConfiguration configuration,
+				IHttpClientFactory httpClientFactory,
+				IUnitOfWorkFactory unitOfWorkFactory,
+				IBusControl busControl,
+				IHealthCheckServiceInfoProvider serviceInfoProvider)
+			: base(logger, serviceInfoProvider, unitOfWorkFactory, busControl)
 		{
-			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+			_healthSection = _configuration.GetSection("Health");
+			_baseAddress = _healthSection.GetValue<string>("BaseAddress");
 		}
 
-		protected override async Task<VodovozHealthResultDto> GetHealthResult()
+		protected override async Task<VodovozHealthResultDto> CheckServiceHealthAsync(CancellationToken cancellationToken)
 		{
-			var healthSection = _configuration.GetSection("Health");
-			var baseAddress = healthSection.GetValue<string>("BaseAddress");
-			var orderId = healthSection.GetValue<int>("Variables:OrderId");
-
-			var healthResult = new VodovozHealthResultDto();
-
-			var fastPaymentControllerResult = await ResponseHelper.GetJsonByUri<OrderDTO>(
-				$"{baseAddress}/api/GetOrderId?orderId={orderId}",
-				_httpClientFactory);
-
-			var fastPaymentControllerIsHealthy = fastPaymentControllerResult != null;
-
-			if(!fastPaymentControllerIsHealthy)
+			try
 			{
-				healthResult.AdditionalUnhealthyResults.Add("FastPaymentController не прошёл проверку.");
+				var checks = new[]
+				{
+					CheckFastPaymentsController(cancellationToken),
+					CheckPaymentStatusController(cancellationToken)
+				};
+
+				return await ConcatHealthCheckResultsAsync(checks);
 			}
-
-			var paymentStatusControllerResult = await ResponseHelper.GetJsonByUri<FastPaymentStatusDto>(
-				$"{baseAddress}/api/GetCheckPaymentStatus?orderId={orderId}",
-				_httpClientFactory);
-
-			var paymentStatusControllerIsHealthy = paymentStatusControllerResult?.PaymentStatus == RequestPaymentStatus.Performed;
-
-			if(!paymentStatusControllerIsHealthy)
+			catch(Exception e)
 			{
-				healthResult.AdditionalUnhealthyResults.Add("PaymentStatusController не прошёл проверку.");
+				return VodovozHealthResultDto.UnhealthyResult(
+					$"Не удалось осуществить проверку работоспособности сервиса регистрации онлайн заказов и заявок на звонок. Ошибка: {e}"
+				);
 			}
-
-			healthResult.IsHealthy = fastPaymentControllerIsHealthy && paymentStatusControllerIsHealthy;
-
-			return healthResult;
 		}
 	}
 }

@@ -2618,6 +2618,10 @@
       <Project>{bf89316b-1a47-7797-6a98-7a3fad52b2e0}</Project>
       <Name>ResourceLocker.Library</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Vodovoz.Trackers\Vodovoz.Trackers.csproj">
+      <Project>{7ac1f7e4-7cab-8fea-ae2c-f6e09cb92a69}</Project>
+      <Name>Vodovoz.Trackers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\External\DateTime\DateTimeHelpers\DateTimeHelpers.csproj">
       <Project>{DEE1EE33-C105-4F5A-A50B-70CF5E3C8348}</Project>
       <Name>DateTimeHelpers</Name>

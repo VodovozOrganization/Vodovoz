@@ -3,11 +3,16 @@ using EdoService.Library.Services;
 using EmailDebtNotificationWorker.Services;
 using MassTransit;
 using MessageTransport;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.DomainModel.UoW;
 using QS.Project.Core;
 using QS.Report;
 using RabbitMQ.MailSending;
+using System;
 using System.Text;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
@@ -63,9 +68,6 @@ namespace EmailDebtNotificationWorker
 					services.AddTrackedUoW();
 					services.ConfigureZabbixSenderFromDataBase(nameof(EmailDebtNotificationWorker));
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
-
-					services.AddScoped((sp) => sp.GetRequiredService<IUnitOfWorkFactory>()
-											   .CreateWithoutRoot("Воркер по рассылке писем о задолженности"));
 
 					services
 						.AddMassTransit(busConf =>

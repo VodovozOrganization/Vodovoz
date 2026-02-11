@@ -46,7 +46,7 @@ namespace EarchiveApi
 					logging.AddConfiguration(Configuration.GetSection("NLog"));
 				});
 
-			services.ConfigureHealthCheckService<EarchiveApiHealthCheck>();
+			services.ConfigureHealthCheckService<EarchiveApiHealthCheck, ServiceInfoProvider>();
 
 			services
 				.AddCore()
@@ -75,7 +75,7 @@ namespace EarchiveApi
 					await context.Response.WriteAsync("Use GRPC clietn for connection"));
 			});
 
-			app.ConfigureHealthCheckApplicationBuilder();
+			app.UseVodovozHealthCheck();
 		}
 	}
 }

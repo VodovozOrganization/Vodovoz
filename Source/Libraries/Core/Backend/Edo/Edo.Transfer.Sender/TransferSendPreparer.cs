@@ -438,7 +438,7 @@ namespace Edo.Transfer.Sender
 				Organization = seller,
 				Counter = documentCounter,
 				CounterDateYear = transferDate.Year,
-				DocumentNumber = UPDNumberBuilder.BuildDocumentNumber(seller, transferDate, documentCounter),
+				DocumentNumber = DocumentNumberBuilder.BuildDocumentNumber(seller, transferDate, documentCounter),
 			};
 
 			await _uow.SaveAsync(transferDocumentOrganization, cancellationToken: cancellationToken);

@@ -1,12 +1,12 @@
+﻿using Gamma.Utilities;
+using QS.Dialog;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Xml.Linq;
-using Gamma.Utilities;
-using QS.Dialog;
-using Vodovoz.Core.Domain.Attributes;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
@@ -55,6 +55,8 @@ namespace ExportTo1c.Library.Exporters
 
 			progressBarDisplayable?.Start(ordersCount, 0, $"Выгрузка безнала");
 
+			var counterDocumentsTypes = new[] { OrderDocumentType.UPD, OrderDocumentType.SpecialUPD };
+
 			var ordersElements = new List<XElement>();
 
 			var i = 0;
@@ -63,21 +65,27 @@ namespace ExportTo1c.Library.Exporters
 			{
 				var order = orders[i];
 
+				var updNum = order.OrderDocuments
+					.FirstOrDefault(od => counterDocumentsTypes.Contains(od.Type) && od.DocumentOrganizationCounter != null)
+					?.DocumentOrganizationCounter
+					?.DocumentNumber
+					?? order.Id.ToString();
+
 				var orderElement = new XElement
 				(
 					"Заказ",
 					new XAttribute("Дата", order.DeliveryDate?.ToString("yyyy-MM-ddTHH:mm:ss") ?? ""),
 					new XAttribute("Номер", order.Id),
+					new XAttribute("НомерУПД", updNum),
 					new XAttribute("КонтрагентИНН", order.Client.INN),
-					new XAttribute("Договор", $"{order.Contract.Number} от {order.Contract.IssueDate:d}")
+					new XAttribute("Договор", $"{order.Contract.Number} от {order.Contract.IssueDate:d}"),
+					new XAttribute("Статус", order.OrderStatus.GetEnumTitle())
 				);
 
 				var salesElement = new XElement("Продажи");
 
 				var items = order.OrderItems;
-
-				
-				
+								
 				foreach(var item in items)
 				{
 					var vatRateVersion = item.Nomenclature.GetActualVatRateVersion(order.BillDate);

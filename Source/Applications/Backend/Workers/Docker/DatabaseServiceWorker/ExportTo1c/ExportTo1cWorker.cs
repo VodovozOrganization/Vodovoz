@@ -19,7 +19,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Zabbix.Sender;
 
-namespace DatabaseServiceWorker
+namespace DatabaseServiceWorker.ExportTo1c
 {
 	internal class ExportTo1cWorker : TimerBackgroundServiceBase
 	{
@@ -121,7 +121,7 @@ namespace DatabaseServiceWorker
 
 			await ExportOrders(Export1cMode.ComplexAutomation, yesterdayStartOfDayDate, smbPath, auth, cancellationToken);
 
-			await ExportOrders(Export1cMode.Retail, yesterdayStartOfDayDate, smbPath, auth, cancellationToken);
+			//await ExportOrders(Export1cMode.Retail, yesterdayStartOfDayDate, smbPath, auth, cancellationToken);
 
 			await ExportCounterpartyChanges(yesterdayStartOfDayDate, smbPath, auth, cancellationToken);
 		}

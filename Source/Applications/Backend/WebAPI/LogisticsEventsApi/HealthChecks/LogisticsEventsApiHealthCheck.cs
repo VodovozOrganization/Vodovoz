@@ -4,11 +4,14 @@ using QS.DomainModel.UoW;
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Presentation.WebApi.Authentication.Contracts;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
+using VodovozHealthCheck.Extensions;
 using VodovozHealthCheck.Helpers;
+using VodovozHealthCheck.Providers;
 
 namespace LogisticsEventsApi.HealthChecks
 {
@@ -21,13 +24,14 @@ namespace LogisticsEventsApi.HealthChecks
 			ILogger<LogisticsEventsApiHealthCheck> logger,
 			IHttpClientFactory httpClientFactory,
 			IConfiguration configuration,
-			IUnitOfWorkFactory unitOfWorkFactory) : base(logger, unitOfWorkFactory)
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IHealthCheckServiceInfoProvider serviceInfoProvider) : base(logger, serviceInfoProvider, unitOfWorkFactory)
 		{
 			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 		}
 
-		protected override async Task<VodovozHealthResultDto> GetHealthResult()
+		protected override async Task<VodovozHealthResultDto> CheckServiceHealthAsync(CancellationToken cancellationToken)
 		{
 			var healthSection = _configuration.GetSection("Health");
 
@@ -44,17 +48,21 @@ namespace LogisticsEventsApi.HealthChecks
 				Password = password
 			};
 
-			var tokenResponse = await ResponseHelper.PostJsonByUri<LoginRequest, TokenResponse>(
+			var tokenResponse = await HttpResponseHelper.SendRequestAsync<TokenResponse>(
+				HttpMethod.Post,
 				$"{baseAddress}/api/Authenticate",
 				_httpClientFactory,
-				loginRequestDto);
-
-			var todayCompletedEventsResult = await ResponseHelper.GetByUri(
+				loginRequestDto.ToJsonContent(),
+				cancellationToken);
+			
+			var todayCompletedEventsResult = await HttpResponseHelper.SendRequestAsync<HttpResponseMessage>(
+				HttpMethod.Get,
 				$"{baseAddress}/api/GetTodayCompletedEvents",
 				_httpClientFactory,
-				tokenResponse.AccessToken);
+				accessToken: tokenResponse.Data?.AccessToken,
+				cancellationToken: cancellationToken);
 
-			var todayCompletedEventsIsHealthy = ((HttpResponseMessage)todayCompletedEventsResult).StatusCode == HttpStatusCode.OK;
+			var todayCompletedEventsIsHealthy = todayCompletedEventsResult?.Data?.StatusCode == HttpStatusCode.OK;
 
 			if(!todayCompletedEventsIsHealthy)
 			{

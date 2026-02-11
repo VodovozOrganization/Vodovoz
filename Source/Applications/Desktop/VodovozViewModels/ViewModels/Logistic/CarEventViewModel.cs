@@ -253,7 +253,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return;
 			}
 
-			Entity.CurrentFuelBalance = _fuelRepository.GetFuelBalance(UoW, null, Entity.Car, Entity.CreateDate);
+			Entity.CurrentFuelBalance = _fuelRepository.GetFuelBalance(UoW, null, Entity.Car, _carEventSettings.FuelBalanceCalibrationCarEventTypeId, Entity.CreateDate);
 		}
 
 		private void UpdateSubstractionFuelBalance()

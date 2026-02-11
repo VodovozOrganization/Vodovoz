@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -15,6 +15,7 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     o.id AS order_id,
+    doc.document_number AS document_number,
     DATE_FORMAT(o.delivery_date,'%d.%m.%y') AS order_date,
     DATE_FORMAT(o.bill_date,'%d.%m.%Y') AS bill_date,
     c.full_name AS client_name,
@@ -97,6 +98,10 @@ FROM
     employees ON employees.id = o.author_employee_id
     	LEFT JOIN
     phones p ON o.contact_phone_id = p.id
+      LEFT JOIN 
+    order_documents od ON od.order_id = o.id AND od.type IN ('SpecialUPD', 'UPD') AND od.document_organization_counter_id IS NOT NULL
+      LEFT JOIN 
+    document_organization_counters doc ON doc.id = od.document_organization_counter_id
 WHERE
         o.id = @order_id;</CommandText>
         <QueryParameters>
@@ -109,6 +114,10 @@ WHERE
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="document_number">
+          <DataField>document_number</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
         <Field Name="order_date">
           <DataField>order_date</DataField>
@@ -419,7 +428,7 @@ WHERE o.id = @order_id
       <Textbox Name="Textbox1">
         <Height>12.75pt</Height>
         <Width>214.95pt</Width>
-        <Value>='Исх.  № ' + First({order_id}, 'Order') + ' от ' + First({bill_date}, 'Order') </Value>
+           <Value>='Исх.  № ' + IIF(Len(First({document_number}, 'Order')) = 0, CStr(First({order_id}, 'Order')), First({document_number}, 'Order')) + ' от ' + First({bill_date}, 'Order')</Value>
         <ZIndex>1</ZIndex>
         <Left>28.7pt</Left>
         <Top>108.7pt</Top>
@@ -551,7 +560,7 @@ WHERE o.id = @order_id
           <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>24.03pt</Height>
             <Width>552.36pt</Width>
-            <Value>="      В соответствии с актом сверки расчетов по состоянию на " + First({bill_date}, 'Order') + " за " + First({client_name}, 'Order') + " ИНН " + First({INN}, 'Organization') + " числится задолженность по заказу № " + First({order_id}, 'Order') + " в размере " + First({order_debt_formatted}, 'Order') + ". " + "Просим перечислить указанную сумму на расчетный счет по следующим реквизитам:"</Value>
+            <Value>="      В соответствии с актом сверки расчетов по состоянию на " + First({bill_date}, 'Order') + " за " + First({client_name}, 'Order') + " ИНН " + First({inn}, 'Order') + " числится задолженность по заказу № " + IIF(Len(First({document_number}, 'Order')) = 0, CStr(First({order_id}, 'Order')), First({document_number}, 'Order')) + " в размере " + First({order_debt_formatted}, 'Order') + ". " + "Просим перечислить указанную сумму на расчетный счет по следующим реквизитам:"</Value>
             <ZIndex>1</ZIndex>
             <Left>0.00pt</Left>
             <Top>21.30pt</Top>

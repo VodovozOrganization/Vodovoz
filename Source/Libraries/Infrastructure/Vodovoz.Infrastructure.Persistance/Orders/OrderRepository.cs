@@ -817,30 +817,36 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return null;
 		}
 
-		public decimal GetCounterpartyDebt(IUnitOfWork uow, int counterpartyId)
+		public decimal GetCounterpartyDebt(IUnitOfWork uow, int counterpartyId, int? organizationId = null)
 		{
-			var notPaidOrdersSum = GetCounterpartyNotFullyPaidOrdersSum(uow, counterpartyId);
-			var partiallyPaidOrdersPaymentsSum = GetCounterpartyPartiallyPaidOrdersPaymentsSum(uow, counterpartyId);
+			var notPaidOrdersSum = GetCounterpartyNotFullyPaidOrdersSum(
+				uow, counterpartyId, organizationId: organizationId);
+			
+			var partiallyPaidOrdersPaymentsSum = GetCounterpartyPartiallyPaidOrdersPaymentsSum(
+				uow, counterpartyId, organizationId: organizationId);
 
 			return notPaidOrdersSum - partiallyPaidOrdersPaymentsSum;
 		}
 
-		public decimal GetCounterpartyWaitingForPaymentOrdersDebt(IUnitOfWork uow, int counterpartyId)
+		public decimal GetCounterpartyWaitingForPaymentOrdersDebt(IUnitOfWork uow, int counterpartyId, int? organizationId = null)
 		{
 			var notPaidOrdersSum = GetCounterpartyNotFullyPaidOrdersSum(
 				uow,
 				counterpartyId,
-				includeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment });
+				includeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment },
+				organizationId: organizationId);
 
 			var partiallyPaidOrdersPaymentsSum = GetCounterpartyPartiallyPaidOrdersPaymentsSum(
 				uow,
 				counterpartyId,
-				includeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment });
+				includeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment },
+				organizationId: organizationId);
 
 			return notPaidOrdersSum - partiallyPaidOrdersPaymentsSum;
 		}
 
-		public decimal GetCounterpartyClosingDocumentsOrdersDebtAndNotWaitingForPayment(IUnitOfWork uow, int counterpartyId, IDeliveryScheduleSettings deliveryScheduleSettings)
+		public decimal GetCounterpartyClosingDocumentsOrdersDebtAndNotWaitingForPayment(
+			IUnitOfWork uow, int counterpartyId, IDeliveryScheduleSettings deliveryScheduleSettings, int? organizationId = null)
 		{
 			var closingDocumentDeliveryScheduleId = deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId;
 
@@ -848,19 +854,21 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				uow,
 				counterpartyId,
 				excludeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment },
-				includeDeliveryScheduleIds: new List<int> { closingDocumentDeliveryScheduleId });
+				includeDeliveryScheduleIds: new List<int> { closingDocumentDeliveryScheduleId },
+				organizationId: organizationId);
 
 			var partiallyPaidOrdersPaymentsSum = GetCounterpartyPartiallyPaidOrdersPaymentsSum(
 				uow,
 				counterpartyId,
 				excludeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment },
-				includeDeliveryScheduleIds: new List<int> { closingDocumentDeliveryScheduleId });
+				includeDeliveryScheduleIds: new List<int> { closingDocumentDeliveryScheduleId },
+				organizationId: organizationId);
 
 			return notPaidOrdersSum - partiallyPaidOrdersPaymentsSum;
 		}
 
 		public decimal GetCounterpartyNotWaitingForPaymentAndNotClosingDocumentsOrdersDebt(
-			IUnitOfWork uow, int counterpartyId, IDeliveryScheduleSettings deliveryScheduleSettings)
+			IUnitOfWork uow, int counterpartyId, IDeliveryScheduleSettings deliveryScheduleSettings, int? organizationId = null)
 		{
 			var closingDocumentDeliveryScheduleId = deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId;
 
@@ -868,13 +876,15 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				uow,
 				counterpartyId,
 				excludeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment },
-				excludeDeliveryScheduleIds: new List<int> { closingDocumentDeliveryScheduleId });
+				excludeDeliveryScheduleIds: new List<int> { closingDocumentDeliveryScheduleId },
+				organizationId: organizationId);
 
 			var partiallyPaidOrdersPaymentsSum = GetCounterpartyPartiallyPaidOrdersPaymentsSum(
 				uow,
 				counterpartyId,
 				excludeOrderStatuses: new List<OrderStatus> { OrderStatus.WaitForPayment },
-				excludeDeliveryScheduleIds: new List<int> { closingDocumentDeliveryScheduleId });
+				excludeDeliveryScheduleIds: new List<int> { closingDocumentDeliveryScheduleId },
+				organizationId: organizationId);
 
 			return notPaidOrdersSum - partiallyPaidOrdersPaymentsSum;
 		}
@@ -885,11 +895,13 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			IEnumerable<OrderStatus> includeOrderStatuses = null,
 			IEnumerable<int> includeDeliveryScheduleIds = null,
 			IEnumerable<OrderStatus> excludeOrderStatuses = null,
-			IEnumerable<int> excludeDeliveryScheduleIds = null)
+			IEnumerable<int> excludeDeliveryScheduleIds = null,
+			int? organizationId = null)
 		{
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
 			Counterparty counterpartyAlias = null;
+			CounterpartyContract contractAlias = null;
 
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.Left.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
@@ -927,6 +939,13 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						Projections.Property(() => orderAlias.DeliverySchedule.Id), excludeDeliveryScheduleIds.ToArray()))));
 			}
 
+			if(organizationId != null)
+			{
+				query
+					.Left.JoinAlias(() => orderAlias.Contract, () => contractAlias)
+					.Where(() => contractAlias.Organization.Id == organizationId);
+			}
+
 			var total = query
 				.Select(OrderProjections.GetOrderSumProjection())
 				.SingleOrDefault<decimal>();
@@ -940,12 +959,14 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			IEnumerable<OrderStatus> includeOrderStatuses = null,
 			IEnumerable<int> includeDeliveryScheduleIds = null,
 			IEnumerable<OrderStatus> excludeOrderStatuses = null,
-			IEnumerable<int> excludeDeliveryScheduleIds = null)
+			IEnumerable<int> excludeDeliveryScheduleIds = null,
+			int? organizationId = null)
 		{
 			VodovozOrder orderAlias = null;
 			Counterparty counterpartyAlias = null;
 			PaymentItem paymentItemAlias = null;
 			CashlessMovementOperation cashlessMovOperationAlias = null;
+			CounterpartyContract contractAlias = null;
 
 			var query = uow.Session.QueryOver(() => paymentItemAlias)
 				.Left.JoinAlias(() => paymentItemAlias.CashlessMovementOperation, () => cashlessMovOperationAlias)
@@ -983,6 +1004,13 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					.Add(Restrictions.IsNull(Projections.Property(() => orderAlias.DeliverySchedule.Id)))
 					.Add(Restrictions.Not(Restrictions.In(
 						Projections.Property(() => orderAlias.DeliverySchedule.Id), excludeDeliveryScheduleIds.ToArray()))));
+			}
+			
+			if(organizationId != null)
+			{
+				query
+					.Left.JoinAlias(() => orderAlias.Contract, () => contractAlias)
+					.Where(() => contractAlias.Organization.Id == organizationId);
 			}
 
 			var totalPaymentsSum = query

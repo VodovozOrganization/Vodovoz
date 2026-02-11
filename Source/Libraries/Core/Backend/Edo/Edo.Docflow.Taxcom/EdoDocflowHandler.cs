@@ -226,8 +226,18 @@ namespace Edo.Docflow.Taxcom
 
 			if(taxcomDocflow is null)
 			{
-				_logger.LogWarning("Не нашли отправку с таким документом {ExternalIdentifier}", @event.MainDocumentId);
-				return;
+				_logger.LogWarning("Не нашли отправку с таким документом {ExternalIdentifier}. Попробуем найти по ДО {DocflowId}",
+					@event.MainDocumentId,
+					@event.DocFlowId);
+				
+				taxcomDocflow = _uow.Session.Query<TaxcomDocflow>()
+					.SingleOrDefault(x => x.DocflowId == @event.DocFlowId);
+
+				if(taxcomDocflow is null)
+				{
+					_logger.LogWarning("Не нашли отправку с таким ДО {DocflowId}", @event.DocFlowId);
+					return;
+				}
 			}
 			
 			if(taxcomDocflow.AcceptingIngoingDocflowTime.HasValue
