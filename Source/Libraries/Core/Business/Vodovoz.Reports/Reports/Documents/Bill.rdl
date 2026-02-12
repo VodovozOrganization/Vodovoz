@@ -601,7 +601,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
         <Value>Образец заполнения платежного поручения</Value>
         <ZIndex>0</ZIndex>
         <Left>174.2pt</Left>
-        <Top>86.7pt</Top>
+        <Top>91.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -611,8 +611,8 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
         </Style>
       </Textbox>
       <Textbox Name="Textbox2">
-        <Height>42.12pt</Height>
-        <Width>265.10pt</Width>
+        <Height>41.37pt</Height>
+        <Width>310.10pt</Width>
         <Value>Внимание! Оплата данного счета означает согласие с условиями
 поставки товара. Уведомление об оплате обязательно, в противном
 случае не гарантируется наличие товара на складе. Товар отпускается
@@ -641,7 +641,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
             <Value>={name} + ' г.' + {city}</Value>
             <ZIndex>0</ZIndex>
             <Left>40.0pt</Left>
-            <Top>8.9pt</Top>
+            <Top>13.7pt</Top>
             <Style>
               <BorderStyle>
                 <Left>Double</Left>
@@ -666,7 +666,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
             <Value>='ИНН ' + {INN}</Value>
             <ZIndex>0</ZIndex>
             <Left>40.0pt</Left>
-            <Top>53.9pt</Top>
+            <Top>58.7pt</Top>
             <Style>
               <BorderStyle>
                 <Default>Double</Default>
@@ -688,7 +688,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
             <Value>БИК</Value>
             <ZIndex>0</ZIndex>
             <Left>260.0pt</Left>
-            <Top>8.9pt</Top>
+            <Top>13.7pt</Top>
             <Style>
               <BorderStyle>
                 <Default>Double</Default>
@@ -709,7 +709,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
             <Value>Сч. №</Value>
             <ZIndex>0</ZIndex>
             <Left>260.0pt</Left>
-            <Top>23.9pt</Top>
+            <Top>28.7pt</Top>
             <Style>
               <BorderStyle>
                 <Default>Double</Default>
@@ -730,7 +730,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
             <Value>={cor_account}</Value>
             <ZIndex>0</ZIndex>
             <Left>300.0pt</Left>
-            <Top>23.9pt</Top>
+            <Top>28.7pt</Top>
             <Style>
               <BorderStyle>
                 <Default>Double</Default>
@@ -751,7 +751,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
             <Value>Сч. №</Value>
             <ZIndex>0</ZIndex>
             <Left>260.0pt</Left>
-            <Top>53.9pt</Top>
+            <Top>58.7pt</Top>
             <Style>
               <BorderStyle>
                 <Default>Double</Default>
@@ -772,7 +772,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
             <Value>={full_name}</Value>
             <ZIndex>0</ZIndex>
             <Left>40.0pt</Left>
-            <Top>68.9pt</Top>
+            <Top>73.7pt</Top>
             <Style>
               <BorderStyle>
                 <Default>Double</Default>
@@ -796,7 +796,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
             <Value>={bik}</Value>
             <ZIndex>0</ZIndex>
             <Left>300.0pt</Left>
-            <Top>8.9pt</Top>
+            <Top>13.7pt</Top>
             <Style>
               <BorderStyle>
                 <Default>Double</Default>
@@ -817,7 +817,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
             <Value>='КПП ' + {KPP} </Value>
             <ZIndex>0</ZIndex>
             <Left>150.0pt</Left>
-            <Top>53.9pt</Top>
+            <Top>58.7pt</Top>
             <Style>
               <BorderStyle>
                 <Default>Double</Default>
@@ -840,7 +840,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
             <Value>={number}</Value>
             <ZIndex>0</ZIndex>
             <Left>300.0pt</Left>
-            <Top>53.9pt</Top>
+            <Top>58.7pt</Top>
             <Style>
               <BorderStyle>
                 <Default>Double</Default>
@@ -861,7 +861,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
             <Value>Получатель</Value>
             <ZIndex>0</ZIndex>
             <Left>40.0pt</Left>
-            <Top>98.9pt</Top>
+            <Top>103.7pt</Top>
             <Style>
               <BorderStyle>
                 <Left>Double</Left>
@@ -882,7 +882,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
             <Value>Банк получателя</Value>
             <ZIndex>0</ZIndex>
             <Left>40.0pt</Left>
-            <Top>38.9pt</Top>
+            <Top>43.7pt</Top>
             <Style>
               <BorderStyle>
                 <Left>Double</Left>
@@ -1493,7 +1493,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
           </TableRows>
         </Footer>
         <Left>31.0pt</Left>
-        <Top>439.9pt</Top>
+        <Top>444.7pt</Top>
         <ZIndex>0</ZIndex>
       </Table>
       <List Name="List3">
@@ -1508,7 +1508,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
             <Value>Руководитель________________</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>93.1pt</Top>
+            <Top>97.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1528,7 +1528,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
 + '.)'</Value>
             <ZIndex>0</ZIndex>
             <Left>156.8pt</Left>
-            <Top>93.1pt</Top>
+            <Top>97.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1549,7 +1549,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
 + '.)'</Value>
             <ZIndex>0</ZIndex>
             <Left>407.8pt</Left>
-            <Top>93.9pt</Top>
+            <Top>98.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1565,7 +1565,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
             <Value>Бухгалтер______________</Value>
             <ZIndex>1</ZIndex>
             <Left>283.4pt</Left>
-            <Top>92.4pt</Top>
+            <Top>97.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1579,7 +1579,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
             <Height>60.21pt</Height>
             <Width>80.53pt</Width>
             <Left>72.9pt</Left>
-            <Top>61.6pt</Top>
+            <Top>66.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1599,7 +1599,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
             <Height>60.21pt</Height>
             <Width>80.53pt</Width>
             <Left>323.8pt</Left>
-            <Top>69.6pt</Top>
+            <Top>74.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1619,7 +1619,7 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
             <Height>102.39pt</Height>
             <Width>112.93pt</Width>
             <Left>290.0pt</Left>
-            <Top>16.8pt</Top>
+            <Top>21.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1654,8 +1654,8 @@ WHERE bp.name = 'bill_additional_info';</CommandText>
         <Value>СВОЕВРЕМЕННАЯ ОПЛАТА СЧЕТА УЛУЧШАЕТ КАРМУ И УСКОРЯЕТ РАБОЧИЕ ПРОЦЕССЫ.
 P.S. И помни, мы тебя любим ❣</Value>
         <ZIndex>0</ZIndex>
-        <Left>12.80pt</Left>
-        <Top>700.90pt</Top>
+        <Left>12.8pt</Left>
+        <Top>705.7pt</Top>
         <Style>
           <BorderStyle>
             <Default>None</Default>
@@ -1731,7 +1731,7 @@ P.S. И помни, мы тебя любим ❣</Value>
         </Value>
         <ZIndex>0</ZIndex>
         <Left>39.2pt</Left>
-        <Top>249.5pt</Top>
+        <Top>254.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1755,7 +1755,7 @@ P.S. И помни, мы тебя любим ❣</Value>
           <FontFamily>Calibri</FontFamily>
         </Style>
         <Left>40.7pt</Left>
-        <Top>266.5pt</Top>
+        <Top>271.3pt</Top>
       </Line>
       <Table Name="Table1">
         <DataSetName>Order</DataSetName>
@@ -2055,13 +2055,13 @@ Iif(
           </TableRows>
         </Details>
         <Left>28.9pt</Left>
-        <Top>272.7pt</Top>
+        <Top>277.5pt</Top>
       </Table>
       <Image Name="Image5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>112.04pt</Height>
         <Width>222.99pt</Width>
         <Left>203.0pt</Left>
-        <Top>654.8pt</Top>
+        <Top>659.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2099,7 +2099,7 @@ Iif(
           </CustomProperty>
         </CustomProperties>
         <Left>431.5pt</Left>
-        <Top>73.4pt</Top>
+        <Top>78.2pt</Top>
         <ZIndex>10</ZIndex>
       </CustomReportItem>
       <Textbox Name="Textbox46">
@@ -2107,8 +2107,8 @@ Iif(
         <Width>500.00pt</Width>
         <Value>=First( {info_str} , "AdditionalInfo" )</Value>
         <ZIndex>2</ZIndex>
-        <Left>39.2pt</Left>
-        <Top>216.0pt</Top>
+        <Left>39.20pt</Left>
+        <Top>220.80pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2117,6 +2117,7 @@ Iif(
           <TextAlign>Left</TextAlign>
           <Color>Black</Color>
           <VerticalAlign>Middle</VerticalAlign>
+          <FontSize >9pt</FontSize>
         </Style>
         <CanGrow>false</CanGrow>
         <CanShrink>false</CanShrink>
