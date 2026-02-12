@@ -42,7 +42,7 @@ namespace WarehouseApi.Library.Extensions
 					.Select((code, index) => new TrueMarkCodeDto
 					{
 						SequenceNumber = index,
-						Code = code.SourceCode.RawCode,
+						Code = code.ResultCode?.RawCode ?? code.SourceCode.RawCode,
 						Level = WarehouseApiTruemarkCodeLevel.unit
 					})
 					.ToList();
