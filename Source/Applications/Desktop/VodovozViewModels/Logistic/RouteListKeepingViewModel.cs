@@ -660,9 +660,10 @@ namespace Vodovoz
 
 					if(isAllStagingCodesAddedResult.IsFailure)
 					{
+						var orderPurpose = order.IsOrderForResale ? "на перепродажу" : "на тендер";
 						message =
 							$"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", "
-							+ "т.к. данный заказ на перепродажу, но количество добавленных кодов не соответствует заказу";
+							+ $"т.к. данный заказ на {orderPurpose}, но количество добавленных кодов не соответствует заказу";
 						return false;
 					}
 
@@ -759,8 +760,9 @@ namespace Vodovoz
 
 			if(addCodesResult.IsFailure)
 			{
-				message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
-					"т.к. данный заказ на перепродажу, но количество добавленных кодов не соответствует заказу";
+				var orderPurpose = order.IsOrderForResale ? "на перепродажу" : "на тендер";
+				message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", "
+					+ $"т.к. данный заказ на {orderPurpose}, но количество добавленных кодов не соответствует заказу";
 
 				return false;
 			}
