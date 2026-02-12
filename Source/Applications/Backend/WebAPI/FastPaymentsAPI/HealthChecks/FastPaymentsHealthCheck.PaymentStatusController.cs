@@ -56,9 +56,8 @@ namespace FastPaymentsAPI.HealthChecks
 				_httpClientFactory,
 				cancellationToken: cancellationToken);
 
-			var isHealthy = result.Data != null
-				&& result.Data.PaymentStatus == RequestPaymentStatus.Performed
-				&& result.Data.PaymentDetails?.PaymentSumDetails?.PaymentSum == paymentSum;
+			var isHealthy = result.Data is { PaymentStatus: RequestPaymentStatus.Performed }
+			                && result.Data.PaymentDetails?.PaymentSumDetails?.PaymentSum == paymentSum;
 
 			return VodovozHealthResultDto.FromCondition(checkMethodName, isHealthy, result.ErrorMessage);
 		}

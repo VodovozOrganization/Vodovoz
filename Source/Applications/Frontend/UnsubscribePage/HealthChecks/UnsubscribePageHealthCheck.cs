@@ -35,12 +35,9 @@ namespace UnsubscribePage.HealthChecks
 			var baseAddress = healthSection.GetValue<string>("BaseAddress");
 			var guid = healthSection.GetValue<string>("Variables:Guid");
 
-			var isHealthy = await HttpResponseHelper.CheckUriExistsAsync($"{baseAddress}/{guid}", _httpClientFactory);
-
-			return new VodovozHealthResultDto
-			{
-				IsHealthy = isHealthy
-			};
+			var response = await HttpResponseHelper.CheckUriExistsAsync($"{baseAddress}/{guid}", _httpClientFactory);
+			
+			return VodovozHealthResultDto.FromCondition("Страница отписки", response.IsSuccess, response.ErrorMessage);
 		}
 	}
 }

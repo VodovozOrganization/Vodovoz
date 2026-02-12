@@ -92,6 +92,8 @@ namespace Vodovoz.Views.Reports
 					.AddNumericRenderer(x => x.SecondEventDistance)
 				.AddColumn(DriversWarehousesEventsReportViewModel.EventTimeTitle)
 					.AddTextRenderer(x => x.SecondEventTime.HasValue ? x.SecondEventTime.Value.ToString() : "")
+				.AddColumn(DriversWarehousesEventsReportViewModel.TimeDifferenceTitle)
+					.AddTextRenderer(x => x.TimeDifference.HasValue ? x.TimeDifference.Value.ToString() : "")
 				.AddColumn("")
 				.Finish();
 

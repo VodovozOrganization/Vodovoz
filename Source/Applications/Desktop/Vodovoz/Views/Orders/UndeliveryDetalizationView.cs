@@ -52,6 +52,9 @@ namespace Vodovoz.Views.Orders
 
 			buttonSave.Clicked += OnButtonSaveClicked;
 			buttonCancel.Clicked += OnButtonCancelClicked;
+
+			ylabelClientNotificationText.Visible = false;
+			yentryClientNotificationText.Visible = false;
 		}
 
 		private void OnButtonSaveClicked(object sender, EventArgs e)

@@ -29,6 +29,8 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes
 		public decimal RouteListProfitabilityIndicator { get; set; }
 		public decimal RouteListDebt { get; set; }
 		public bool HasAddresses { get; set; }
+		public bool HasAdditionalLoading { get; set; }
+		public bool HasAddressesOrAdditionalLoading => HasAddresses || HasAdditionalLoading;
 
 		public override string Title => $"Маршрутный лист №{Id}";
 	}

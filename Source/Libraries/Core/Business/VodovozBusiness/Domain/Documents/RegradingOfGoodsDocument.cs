@@ -25,6 +25,7 @@ namespace Vodovoz.Domain.Documents
 	[HistoryTrace]
 	public class RegradingOfGoodsDocument : Document, IValidatableObject, IWarehouseBoundedDocument
 	{
+		private const int _commentLength = 142;
 		private string _comment;
 		private Warehouse _warehouse;
 		private IObservableList<RegradingOfGoodsDocumentItem> _items = new ObservableList<RegradingOfGoodsDocumentItem>();
@@ -188,10 +189,10 @@ namespace Vodovoz.Domain.Documents
 					new[] { nameof(CarEventType) });
 			}
 
-			if(!string.IsNullOrEmpty(Comment) && Comment.Length > 250)
+			if(!string.IsNullOrEmpty(Comment) && Comment.Length > _commentLength)
 			{
 				yield return new ValidationResult(
-					"Длина комментария не должна превышать 250 символов",
+					$"Длина комментария не должна превышать {_commentLength} символов. Сейчас {Comment.Length}",
 					new[] { nameof(Comment) });
 			}
 		}

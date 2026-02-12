@@ -30,29 +30,32 @@ namespace EmailDebtNotificationWorker
 			_debtorsParameters = debtorsParameters ?? throw new ArgumentNullException(nameof(debtorsParameters));
 			_scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
 
-			_interval = TimeSpan.FromSeconds(Math.Max(1, _debtorsParameters.DebtNotificationWorkerIntervalSeconds));
+			_interval = TimeSpan.FromSeconds(Math.Max(30, _debtorsParameters.DebtNotificationWorkerIntervalSeconds));
 
 			Console.OutputEncoding = Encoding.UTF8;
 		}
 
 		protected override async Task DoWork(CancellationToken cancellationToken)
 		{
+			using var scope = _scopeFactory.CreateScope();
+			var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
+
 			try
 			{
 				if(!IsEnabled())
 				{
 					_logger.LogInformation("Рассылка писем отключена настройками, пропуск цикла");
+					await zabbixSender.SendIsHealthyAsync(cancellationToken);
 					return;
 				}
 
-				using var scope = _scopeFactory.CreateScope();
-				var emailSchedulingService = scope.ServiceProvider.GetRequiredService<IEmailDebtNotificationService>();
 				var workingDayService = scope.ServiceProvider.GetRequiredService<IWorkingDayService>();
-				var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
+				var emailSchedulingService = scope.ServiceProvider.GetRequiredService<IEmailDebtNotificationService>();
 
 				if(!CanSendNow(workingDayService))
 				{
 					_logger.LogDebug("Невозможно отправить сейчас — вне рабочего времени/дня");
+					await zabbixSender.SendIsHealthyAsync(cancellationToken);
 					return;
 				}
 

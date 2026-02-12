@@ -17,6 +17,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Гос. номер").AddTextRenderer(x => x.RegistrationNumber)
 				.AddColumn("Водитель").AddTextRenderer(x => x.DriverName)
 				.AddColumn("Страховщик").AddTextRenderer(x => x.InsurersNames).WrapWidth(600).WrapMode(WrapMode.WordChar)
+				.AddColumn("VIN").AddTextRenderer(x => x.VIN)
 				.RowCells()
 					.AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsArchive ? GdkColors.InsensitiveText : GdkColors.PrimaryText)
 			        .AddSetter<CellRenderer>((c, n) => c.CellBackgroundGdk = n.IsShowBackgroundColorNotification ? GdkColors.Pink : GdkColors.PrimaryBase)

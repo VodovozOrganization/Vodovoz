@@ -11,7 +11,7 @@ namespace TaxcomEdoApi.Library.Factories
 			var orderInfo = data.OrderInfoForEdo;
 			var nonformalizedDocument = new NonformalizedDocument
 			{
-				Number = orderInfo.Id.ToString(),
+				Number = orderInfo.StringNumber,
 				Type = DocumentType.Account,
 				Attachment = new Taxcom.Client.Api.Entity.FileData
 				{

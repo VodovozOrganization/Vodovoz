@@ -1443,6 +1443,23 @@ namespace Vodovoz.Domain.Orders
 			&& Client?.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute
 			&& PaymentType == PaymentType.Cashless;
 
+		public virtual string OrderDocumentStringNumber(DocumentContainerType documentContainerType)
+		{
+			if(DeliveryDate.Value.Year < 2026)
+			{
+				return Id.ToString();
+			}
+
+			var documentTypes = documentContainerType == DocumentContainerType.Upd
+				? new[] { OrderDocumentType.UPD, OrderDocumentType.SpecialUPD }
+				: new[] { OrderDocumentType.Bill, OrderDocumentType.SpecialBill };
+
+			var document = OrderDocuments
+				.FirstOrDefault(x => documentTypes.Contains(x.Type) && x.Order.Id == Id);
+
+			return document.DocumentOrganizationCounter?.DocumentNumber ?? Id.ToString();
+		}
+
 		#endregion
 
 		#region Автосоздание договоров, при изменении подтвержденного заказа
@@ -3904,7 +3921,7 @@ namespace Vodovoz.Domain.Orders
 						Organization = Contract?.Organization,
 						CounterDateYear = DeliveryDate?.Year,
 						Counter = updCounterValue,
-						DocumentNumber = UPDNumberBuilder.BuildDocumentNumber(Contract?.Organization, DeliveryDate.Value, updCounterValue),
+						DocumentNumber = DocumentNumberBuilder.BuildDocumentNumber(Contract?.Organization, DeliveryDate.Value, updCounterValue),
 						Order = this
 					};
 
@@ -3939,7 +3956,7 @@ namespace Vodovoz.Domain.Orders
 						Organization = Contract?.Organization,
 						CounterDateYear = DeliveryDate?.Year,
 						Counter = specialUpdCounterValue,
-						DocumentNumber = UPDNumberBuilder.BuildDocumentNumber(Contract?.Organization, DeliveryDate.Value, specialUpdCounterValue),
+						DocumentNumber = DocumentNumberBuilder.BuildDocumentNumber(Contract?.Organization, DeliveryDate.Value, specialUpdCounterValue),
 						Order = this
 					};
 

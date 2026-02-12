@@ -293,39 +293,47 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 							case nameof(Nomenclature):
 								if(parameterSet.FilterType == SelectableFilterType.Include)
 								{
-									foreach(SelectableEntityParameter<Nomenclature> value in parameterSet.OutputParameters.Where(x => x.Selected))
+									nomenclaturesToInclude.AddRange(parameterSet.OutputParameters.Where(x => x.Selected)
+										.Cast<SelectableEntityParameter<Nomenclature>>()
+										.Select(value => value.EntityId));
+								}
+								else
+								{
+									nomenclaturesToExclude.AddRange(parameterSet.OutputParameters.Where(x => x.Selected)
+										.Cast<SelectableEntityParameter<Nomenclature>>()
+										.Select(value => value.EntityId));
+								}
+								break;
+							case nameof(NomenclatureCategory):
+								if(parameterSet.FilterType == SelectableFilterType.Include)
+								{
+									foreach(var value in parameterSet.OutputParameters.Where(x => x.Selected))
 									{
-										nomenclaturesToInclude.Add(value.EntityId);
+										nomenclatureCategoryToInclude.Add((NomenclatureCategory)value.Value);
 									}
 								}
 								else
 								{
-									foreach(SelectableEntityParameter<Nomenclature> value in parameterSet.OutputParameters.Where(x => x.Selected))
+									foreach(var value in parameterSet.OutputParameters.Where(x => x.Selected))
 									{
-										nomenclaturesToExclude.Add(value.EntityId);
-									}
-								}
-								break;
-							case nameof(NomenclatureCategory):
-								if(parameterSet.FilterType == SelectableFilterType.Include) {
-									foreach(var value in parameterSet.OutputParameters.Where(x => x.Selected)) {
-										nomenclatureCategoryToInclude.Add((NomenclatureCategory)value.Value);
-									}
-								} else {
-									foreach(var value in parameterSet.OutputParameters.Where(x => x.Selected)) {
 										nomenclatureCategoryToExclude.Add((NomenclatureCategory)value.Value);
 									}
 								}
 								break;
 							case nameof(ProductGroup):
-								if(parameterSet.FilterType == SelectableFilterType.Include) {
-									foreach(SelectableEntityParameter<ProductGroup> value in parameterSet.OutputParameters.Where(x => x.Selected)) {
-										productGroupToInclude.Add(value.EntityId);
-									}
-								} else {
-									foreach(SelectableEntityParameter<ProductGroup> value in parameterSet.OutputParameters.Where(x => x.Selected)) {
-										productGroupToExclude.Add(value.EntityId);
-									}
+								if(parameterSet.FilterType == SelectableFilterType.Include)
+								{
+									productGroupToInclude.AddRange(parameterSet.GetSelectedParameters()
+										.Where(x => x.Selected)
+										.Cast<SelectableEntityParameter<ProductGroup>>()
+										.Select(value => value.EntityId));
+								}
+								else
+								{
+									productGroupToExclude.AddRange(parameterSet.GetSelectedParameters()
+										.Where(x => x.Selected)
+										.Cast<SelectableEntityParameter<ProductGroup>>()
+										.Select(value => value.EntityId));
 								}
 								break;
 						}
@@ -361,7 +369,7 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 					OnPropertyChanged(nameof(FillNomenclaturesByStorageTitle));
 				}
 			));
-		
+
 		public DelegateCommand AddMissingNomenclatureCommand => _addMissingNomenclatureCommand ?? (
 			_addMissingNomenclatureCommand = new DelegateCommand(
 				() =>

@@ -670,6 +670,9 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual string Title => string.Format("МЛ №{0}", Id);
 
+		public virtual bool HasAddressesOrAdditionalLoading =>
+			Addresses.Any() || AdditionalLoadingDocument != null;
+
 		public virtual decimal UniqueAddressCount => Addresses.Where(item => item.IsDelivered())
 			.Select(item => item.Order.DeliveryPoint.Id)
 			.Distinct()

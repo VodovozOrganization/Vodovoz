@@ -1,13 +1,14 @@
-﻿using MassTransit;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Logging;
-using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MassTransit;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Logging;
+using Polly;
+using Polly.Retry;
+using QS.DomainModel.UoW;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Extensions;
 using VodovozHealthCheck.Providers;
@@ -17,9 +18,15 @@ namespace VodovozHealthCheck
 	public abstract class VodovozHealthCheckBase : IHealthCheck
 	{
 		private readonly ILogger<VodovozHealthCheckBase> _logger;
-		private readonly IHealthCheckServiceInfoProvider _serviceInfoProvider;
 		protected readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IBusControl _busControl;
+		
+		protected IHealthCheckServiceInfoProvider ServiceInfoProvider { get; }
+
+		private static readonly AsyncRetryPolicy<VodovozHealthResultDto> _serviceRetryPolicy = Policy<VodovozHealthResultDto>
+			.Handle<Exception>()
+			.OrResult(r => !r.IsHealthy)
+			.WaitAndRetryAsync(1, retryAttempt => TimeSpan.FromMilliseconds(500 * retryAttempt));
 
 		/// <summary>
 		/// Конструктор HealthCheck
@@ -35,7 +42,7 @@ namespace VodovozHealthCheck
 			IBusControl busControl = null)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_serviceInfoProvider = serviceInfoProvider ?? throw new ArgumentNullException(nameof(serviceInfoProvider));
+			ServiceInfoProvider = serviceInfoProvider ?? throw new ArgumentNullException(nameof(serviceInfoProvider));
 			_unitOfWorkFactory = unitOfWorkFactory;
 			_busControl = busControl;
 		}
@@ -52,12 +59,13 @@ namespace VodovozHealthCheck
 
 			const string checkMessage = "Проверяем работоспособность";
 
-			var _unhealthyMessage = $"Обнаружены проблемы в сервисе <{_serviceInfoProvider.Name}>. Могут быть недоступны: {_serviceInfoProvider.DetailedDescription}";
+			var _unhealthyMessage =
+				$"Обнаружены проблемы в сервисе <{ServiceInfoProvider.Name}>. Могут быть недоступны: {ServiceInfoProvider.DetailedDescription}";
 
 			var healthResult = new VodovozHealthResultDto { IsHealthy = false };
 
 			try
-			{				
+			{
 				if(_unitOfWorkFactory != null)
 				{
 					_logger.LogInformation("{CheckMessage}: Соединение с БД.", checkMessage);
@@ -84,7 +92,7 @@ namespace VodovozHealthCheck
 
 				_logger.LogInformation("{CheckMessage}: Вызываем проверку из сервиса.", checkMessage);
 
-				healthResult = await CheckServiceHealthAsync(cancellationToken);
+				healthResult = await _serviceRetryPolicy.ExecuteAsync(CheckServiceHealthAsync, cancellationToken);
 
 				_logger.LogInformation("{CheckMessage}: Проверка из сервиса завершена, результат: IsHealthy {IsHealthy}", checkMessage,
 					healthResult.IsHealthy);
@@ -216,20 +224,18 @@ namespace VodovozHealthCheck
 		/// - IsHealthy = true только если все проверки в healthResults успешны (IsHealthy = true)
 		/// - AdditionalUnhealthyResults содержит все уникальные сообщения об ошибках из всех проверок
 		/// </returns>
-
-
-		protected async Task<VodovozHealthResultDto> ConcatHealthCheckResultsAsync(IEnumerable<Task<VodovozHealthResultDto>> healthCheckTasks, string serviceName = null)
+		protected async Task<VodovozHealthResultDto> ConcatHealthCheckResultsAsync(IEnumerable<Task<VodovozHealthResultDto>> healthCheckTasks)
 		{
-			var tasks = healthCheckTasks is Task<VodovozHealthResultDto>[] arr ? arr : healthCheckTasks?.ToArray() ?? Array.Empty<Task<VodovozHealthResultDto>>();
+			var tasks = healthCheckTasks as Task<VodovozHealthResultDto>[]
+			            ?? healthCheckTasks?.ToArray()
+			            ?? Array.Empty<Task<VodovozHealthResultDto>>();
 
 			if(tasks.Length == 0)
 			{
 				return new VodovozHealthResultDto
 				{
 					IsHealthy = true,
-					AdditionalUnhealthyResults = (serviceName is null
-						? Enumerable.Empty<string>()
-						: new[] { $"Название сервиса: {serviceName}" }).ToHashSet()
+					AdditionalUnhealthyResults = new[] { $"Название сервиса: {ServiceInfoProvider.Name}" }.ToHashSet()
 				};
 			}
 
@@ -240,9 +246,7 @@ namespace VodovozHealthCheck
 				return new VodovozHealthResultDto
 				{
 					IsHealthy = results.All(r => r.IsHealthy),
-					AdditionalUnhealthyResults = (serviceName is null
-							? Enumerable.Empty<string>()
-							: new[] { $"Название сервиса: {serviceName}" })
+					AdditionalUnhealthyResults = new[] { $"Название сервиса: {ServiceInfoProvider.Name}" }
 						.Concat(results.SelectMany(r => r.AdditionalUnhealthyResults))
 						.ToHashSet()
 				};
@@ -266,7 +270,6 @@ namespace VodovozHealthCheck
 						continue;
 					}
 
-
 					var ex = t.Exception?.GetBaseException();
 					var message = ex != null ? ex.Message : "Неизвестная ошибка при выполнении проверки";
 					collected.Add(VodovozHealthResultDto.UnhealthyResult($"Ошибка выполнения проверки: {message}"));
@@ -275,9 +278,7 @@ namespace VodovozHealthCheck
 				return new VodovozHealthResultDto
 				{
 					IsHealthy = collected.All(r => r.IsHealthy),
-					AdditionalUnhealthyResults = (serviceName is null
-							? Enumerable.Empty<string>()
-							: new[] { $"Название сервиса: {serviceName}" })
+					AdditionalUnhealthyResults = new[] { $"Название сервиса: {ServiceInfoProvider.Name}" }
 						.Concat(collected.SelectMany(r => r.AdditionalUnhealthyResults))
 						.ToHashSet()
 				};
