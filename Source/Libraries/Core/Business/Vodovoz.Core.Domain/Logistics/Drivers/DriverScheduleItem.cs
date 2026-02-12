@@ -1,4 +1,5 @@
 ﻿using QS.DomainModel.Entity;
+using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Logistics.Cars;
@@ -6,8 +7,18 @@ using Vodovoz.Core.Domain.Logistics.Cars;
 namespace Vodovoz.Core.Domain.Logistics.Drivers
 {
 	/// <summary>
-	/// День из графика водителя
+	/// День из графика водителей
 	/// </summary>
+	[Appellative(Gender = GrammaticalGender.Masculine,
+		Accusative = "день из графика водителей",
+		AccusativePlural = "дни из графика водителей",
+		Genitive = "дня из графика водителей",
+		GenitivePlural = "дней из графика водителей",
+		Nominative = "день из графика водителей",
+		NominativePlural = "дни из графика водителей",
+		Prepositional = "дне из графика водителей",
+		PrepositionalPlural = "днях из графика водителей")]
+	[HistoryTrace]
 	public class DriverScheduleItem : PropertyChangedBase, IDomainObject
 	{
 		private int _id;

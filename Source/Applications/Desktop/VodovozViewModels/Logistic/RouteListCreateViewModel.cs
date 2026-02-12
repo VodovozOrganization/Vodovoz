@@ -459,13 +459,8 @@ namespace Vodovoz.ViewModels.Logistic
 
 			DriverViewModel.IsEditable = Entity.Driver == null || isCompanyCar;
 
-			if(Entity.Driver != null && Entity.Date != default && HasDriverScheduleMarkOnDate(Entity.Driver, Entity.Date))
+			if(Entity.Driver != null && !TryAssignDriver(Entity.Driver))
 			{
-				_interactiveService.ShowMessage(
-					ImportanceLevel.Warning,
-					$"Нельзя добавить автомобиль в МЛ. У водителя {Entity.Driver.FullName} есть отметка в графике водителей на {Entity.Date:dd.MM.yyyy}",
-					"Предупреждение");
-
 				Entity.Car = null;
 				Entity.Driver = null;
 				return;
@@ -498,20 +493,29 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public void OnDriverChangedByUser(object sender, EventArgs e)
 		{
-			if(Entity.Driver == null || Entity.Date == default)
+			if(!TryAssignDriver(Entity.Driver))
 			{
-				return;
+				Entity.Driver = null;
+			}
+		}
+
+		private bool TryAssignDriver(Employee driver)
+		{
+			if(driver == null || Entity.Date == default)
+			{
+				return true;
 			}
 
-			if(HasDriverScheduleMarkOnDate(Entity.Driver, Entity.Date))
+			if(HasDriverScheduleMarkOnDate(driver, Entity.Date))
 			{
 				_interactiveService.ShowMessage(
 					ImportanceLevel.Warning,
 					$"Нельзя добавить сотрудника в МЛ. У данного сотрудника есть отметка в графике водителей",
 					"Предупреждение");
-
-				Entity.Driver = null;
+				return false;
 			}
+
+			return true;
 		}
 
 		private bool HasDriverScheduleMarkOnDate(Employee driver, DateTime date)

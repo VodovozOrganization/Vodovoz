@@ -1,4 +1,5 @@
 ﻿using QS.DomainModel.Entity;
+using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -6,6 +7,19 @@ using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz.Core.Domain.Logistics.Drivers
 {
+	/// <summary>
+	/// График водителей
+	/// </summary>
+	[Appellative(Gender = GrammaticalGender.Masculine,
+		Accusative = "график водителей",
+		AccusativePlural = "графики водителей",
+		Genitive = "графика водителей",
+		GenitivePlural = "графиков водителей",
+		Nominative = "график водителей",
+		NominativePlural = "графики водителей",
+		Prepositional = "графике водителей",
+		PrepositionalPlural = "графиках водителей")]
+	[HistoryTrace]
 	public class DriverScheduleEntity : PropertyChangedBase, IDomainObject
 	{
 		private int _id;

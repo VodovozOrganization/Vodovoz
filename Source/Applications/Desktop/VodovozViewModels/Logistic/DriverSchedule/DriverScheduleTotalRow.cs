@@ -10,29 +10,13 @@
 		/// </summary>
 		public bool IsTotalRow => true;
 
-		public override int MorningAddresses
-		{
-			get => 0;
-			set { }
-		}
+		public override int MorningAddresses => 0;
 
-		public override int MorningBottles
-		{
-			get => 0;
-			set { }
-		}
+		public override int MorningBottles => 0;
 
-		public override int EveningAddresses
-		{
-			get => 0;
-			set { }
-		}
+		public override int EveningAddresses => 0;
 
-		public override int EveningBottles
-		{
-			get => 0;
-			set { }
-		}
+		public override int EveningBottles => 0;
 	}
 
 	/// <summary>
