@@ -103,7 +103,7 @@ namespace Edo.Docflow.Factories
 			var document = new UniversalTransferDocumentInfo
 			{
 				DocumentId = Guid.NewGuid(),
-				StringNumber = UPDNumberBuilder.Build(transferOrder, transferOrder.TransferDocument),
+				StringNumber = DocumentNumberBuilder.Build(transferOrder, transferOrder.TransferDocument),
 				Sum = products.Sum(x => x.Sum),
 				Date = transferOrder.Date,
 				Seller = GetSellerInfo(transferOrder),

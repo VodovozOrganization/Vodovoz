@@ -23,6 +23,7 @@ using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;
 using VodovozHealthCheck;
 using RabbitMQ.MailSending;
+using Vodovoz.Trackers;
 
 namespace FastPaymentsAPI
 {
@@ -75,6 +76,7 @@ namespace FastPaymentsAPI
 				.AddCore()
 				.AddInfrastructure()
 				.AddTrackedUoW()
+				.AddOrderTrackerFor1c()
 				;
 
 			services.AddOpenTelemetry()
