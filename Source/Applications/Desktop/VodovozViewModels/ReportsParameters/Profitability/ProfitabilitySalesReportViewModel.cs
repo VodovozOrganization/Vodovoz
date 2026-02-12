@@ -25,6 +25,7 @@ using Vodovoz.Reports.Editing;
 using Vodovoz.Reports.Editing.Modifiers;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Factories;
+using Vodovoz.ViewModels.Widgets;
 
 namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 {
@@ -226,6 +227,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			_parameters = FilterViewModel.GetReportParametersSet(out var sb);
 			_parameters.Add("start_date", StartDate);
 			_parameters.Add("end_date", EndDate);
+			_parameters.Add("order_date_type", OrderDateFilterViewModel.SelectedOrderDateFilterType);
 			_parameters.Add("creation_date", DateTime.Now);
 			_parameters.Add("filters", sb.Length > 0 ? sb.ToString() : "Не выбраны");
 
@@ -377,6 +379,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 		}
 
 		public IncludeExludeFiltersViewModel FilterViewModel => _filterViewModel;
+		public OrderDateFilterViewModel OrderDateFilterViewModel = new OrderDateFilterViewModel();
 
 		private void ShowInfo()
 		{

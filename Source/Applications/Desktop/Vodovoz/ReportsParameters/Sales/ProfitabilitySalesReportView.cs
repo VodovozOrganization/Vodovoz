@@ -32,6 +32,7 @@ namespace Vodovoz.Reports
 				.AddBinding(vm => vm.IsDetailed, w => w.Active)
 				.InitializeFromSource();
 
+			orderdatefilterview2.ViewModel = ViewModel.OrderDateFilterViewModel;
 			leftrightlistview.ViewModel = ViewModel.GroupingSelectViewModel;
 
 			ShowFilter();
