@@ -165,6 +165,65 @@ namespace VodovozBusiness.Services.TrueMark
 				Problem = problem
 			};
 
+		public async Task<Result> IsAllStagingTrueMarkCodesAddedToRouteListItem(
+			IUnitOfWork uow,
+			RouteListItem routeListItem,
+			CancellationToken cancellationToken = default)
+		{
+			var order = routeListItem.Order;
+
+			var stagingCodes =
+				await _trueMarkWaterCodeService.GetAllTrueMarkStagingCodesByRelatedDocument(
+				uow,
+				StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
+				routeListItem.Id,
+				cancellationToken);
+
+			return IsAllStagingTrueMarkCodesAdded(order, stagingCodes);
+		}
+
+		private Result IsAllStagingTrueMarkCodesAdded(
+			Order order,
+			IEnumerable<StagingTrueMarkCode> stagingCodes)
+		{
+			var orderItemStaginCodes = stagingCodes
+				.GroupBy(x => x.OrderItemId)
+				.ToDictionary(x => x.Key, x => x.ToList());
+
+			foreach(var orderItem in order.OrderItems)
+			{
+				if(!orderItem.Nomenclature.IsAccountableInTrueMark)
+				{
+					continue;
+				}
+
+				if(!orderItemStaginCodes.TryGetValue(orderItem.Id, out var stagingCodesForOrderItem))
+				{
+					var error = TrueMarkCodeErrors.NotAllCodesAdded;
+					return Result.Failure(error);
+				}
+
+				var stagingCodesForOrderItemCount = stagingCodesForOrderItem
+					.Count(x => x.CodeType == StagingTrueMarkCodeType.Identification);
+
+				var orderItemCount = orderItem.ActualCount ?? orderItem.Count;
+
+				if(stagingCodesForOrderItemCount < orderItemCount)
+				{
+					var error = TrueMarkCodeErrors.NotAllCodesAdded;
+					return Result.Failure(error);
+				}
+
+				if(stagingCodesForOrderItemCount > orderItemCount)
+				{
+					var error = TrueMarkCodeErrors.TrueMarkCodesCountMoreThenInOrderItem;
+					return Result.Failure(error);
+				}
+			}
+
+			return Result.Success();
+		}
+
 		public async Task<Result> AddProductCodesToRouteListItemAndDeleteStagingCodes(
 			IUnitOfWork uow,
 			RouteListItem routeListItem,

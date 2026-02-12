@@ -1417,9 +1417,10 @@ namespace Vodovoz.Domain.Orders
 			.Where(x => _nomenclatureSettings.EquipmentKindsHavingGlassHolder.Any(n => n == x.Kind.Id))
 			.Count() > 0;
 
-		public virtual bool IsOrderContainsIsAccountableInTrueMarkItems =>
-			ObservableOrderItems.Any(x =>
-			x.Nomenclature.IsAccountableInTrueMark && !string.IsNullOrWhiteSpace(x.Nomenclature.Gtin) && x.Count > 0);
+		public virtual bool IsOrderContainsIsAccountableInTrueMarkItems => ObservableOrderItems.Any(x =>
+			x.Nomenclature.IsAccountableInTrueMark
+			&& !x.Nomenclature.Gtins.All(g => string.IsNullOrWhiteSpace(g.GtinNumber))
+			&& x.Count > 0);
 
 		/// <summary>
 		/// Проверка, является ли целью покупки заказа - для перепродажи

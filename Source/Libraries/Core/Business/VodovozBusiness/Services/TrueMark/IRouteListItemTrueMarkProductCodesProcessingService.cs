@@ -1,4 +1,4 @@
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
@@ -65,14 +65,21 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <returns>Результат удаления кода</returns>
 		Task<Result> RemoveStagingTrueMarkCode(IUnitOfWork uow, string scannedCode, int routeListItemId, int orderItemId, CancellationToken cancellationToken = default);
 
-		/// <summary>
 		/// Добавляет коды Честного Знака из промежуточного хранения к строке маршрутного листа и удаляет их
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
-		/// <param name="order">Заказ</param>
-		/// <param name="orderItemId">Id строки заказа</param>
+		/// <param name="routeListItem">Адрес МЛ</param>
 		/// <param name="cancellationToken">Токен отмены</param>
-		/// <returns>Результат добавления кодов к строке МЛ</returns>
+		/// <returns></returns>
 		Task<Result> AddProductCodesToRouteListItemAndDeleteStagingCodes(IUnitOfWork uow, RouteListItem routeListItem, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Проверяет, что все коды Честного Знака для промежуточного хранения добавлены к строке маршрутного листа
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="routeListItem">Адрес МЛ</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
+		Task<Result> IsAllStagingTrueMarkCodesAddedToRouteListItem(IUnitOfWork uow, RouteListItem routeListItem, CancellationToken cancellationToken = default);
 	}
 }

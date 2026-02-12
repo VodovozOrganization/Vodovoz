@@ -99,6 +99,8 @@ namespace Vodovoz
 		private RouteListItemStatus _routeListItemStatusToChange;
 		private UndeliveryViewModel _undeliveryViewModel;
 
+		private HashSet<RouteListItem> _routeListItemsToAddCodesFromStagingCodes = new HashSet<RouteListItem>();
+
 		public RouteListKeepingViewModel(
 			ILogger<RouteListKeepingViewModel> logger,
 			IEntityUoWBuilder uowBuilder,
@@ -611,6 +613,12 @@ namespace Vodovoz
 			message = null;
 			var order = rli.RouteListItem.Order;
 
+			if(newStatus != RouteListItemStatus.Completed
+				&& _routeListItemsToAddCodesFromStagingCodes.Contains(rli.RouteListItem))
+			{
+				_routeListItemsToAddCodesFromStagingCodes.Remove(rli.RouteListItem);
+			}
+
 			if(newStatus == RouteListItemStatus.Completed
 				&& order.IsOrderContainsIsAccountableInTrueMarkItems
 				&& !_currentPermissionService.ValidatePresetPermission(
@@ -622,9 +630,13 @@ namespace Vodovoz
 
 				bool isAllDriverTrueMarkCodesAdded = driverCodes.Count() == requiredCodesCount;
 
+				if(isAllDriverTrueMarkCodesAdded)
+				{
+					return true;
+				}
+
 				if((order.IsNeedIndividualSetOnLoad(_edoAccountController) || order.IsNeedIndividualSetOnLoadForTender)
-				   && !_orderRepository.IsOrderCarLoadDocumentLoadOperationStateDone(UoW, order.Id)
-				   && !isAllDriverTrueMarkCodesAdded)
+				   && !_orderRepository.IsOrderCarLoadDocumentLoadOperationStateDone(UoW, order.Id))
 				{
 					message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
 						"т.к. данный заказ является сетевым, либо госзаказом, но документ погрузки не находится в статусе \"Погрузка завершена\"";
@@ -632,37 +644,29 @@ namespace Vodovoz
 					return false;
 				}
 
-				if(order.IsOrderForResale
-				   && !order.IsNeedIndividualSetOnLoad(_edoAccountController))
+				var isOrderForResaleAndMustBeScannedByDriver =
+					order.IsOrderForResale
+					&& !order.IsNeedIndividualSetOnLoad(_edoAccountController);
+
+				var isOrderForTenderAndMustBeScannedByDriver =
+					order.IsOrderForTender
+					&& order.Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.Delivered
+					&& !order.IsNeedIndividualSetOnLoad(_edoAccountController);
+
+				if(isOrderForResaleAndMustBeScannedByDriver || isOrderForTenderAndMustBeScannedByDriver)
 				{
-					var addCodesResult = _routeListItemTrueMarkProductCodesProcessingService
-						.AddProductCodesToRouteListItemAndDeleteStagingCodes(UoW, rli.RouteListItem)
-						.GetAwaiter().GetResult();
+					var isAllStagingCodesAddedResult =
+						_routeListItemTrueMarkProductCodesProcessingService.IsAllStagingTrueMarkCodesAddedToRouteListItem(UoW, rli.RouteListItem).GetAwaiter().GetResult();
 
-					if(addCodesResult.IsFailure)
+					if(isAllStagingCodesAddedResult.IsFailure)
 					{
-						message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
-							  "т.к. данный заказ на перепродажу, но не все коды ЧЗ были добавлены";
-
+						message =
+							$"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", "
+							+ "т.к. данный заказ на перепродажу, но количество добавленных кодов не соответствует заказу";
 						return false;
 					}
-				}
 
-				if(order.IsOrderForTender
-				   && order.Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.Delivered
-				   && !order.IsNeedIndividualSetOnLoad(_edoAccountController))
-				{
-					var addCodesResult = _routeListItemTrueMarkProductCodesProcessingService
-						.AddProductCodesToRouteListItemAndDeleteStagingCodes(UoW, rli.RouteListItem)
-						.GetAwaiter().GetResult();
-
-					if(addCodesResult.IsFailure)
-					{
-						message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
-							  "т.к. данный заказ на госзакупку, но не все коды ЧЗ были добавлены";
-
-						return false;
-					}
+					_routeListItemsToAddCodesFromStagingCodes.Add(rli.RouteListItem);
 				}
 			}
 
@@ -710,6 +714,60 @@ namespace Vodovoz
 			}
 		}
 
+		private bool AddProductCodesToAllCompletedRouteListItemsFromStagingCodes(out string message)
+		{
+			message = string.Empty;
+			var routeListItemsWithAddedCodes = new List<RouteListItem>();
+
+			foreach(var routeListItem in _routeListItemsToAddCodesFromStagingCodes)
+			{
+				if(!AddProductCodesToRouteListItemFromStagingCodes(routeListItem, out var addCodesMessage))
+				{
+					message = addCodesMessage;
+					return false;
+				}
+				routeListItemsWithAddedCodes.Add(routeListItem);
+
+				if(_createdOrderEdoRequests.TryGetValue(routeListItem.Order.Id, out var requestData))
+				{
+					var request = requestData.Request;
+					request.ProductCodes.Clear();
+
+					foreach(var code in routeListItem.TrueMarkCodes)
+					{
+						request.ProductCodes.Add(code);
+					}
+				}
+			}
+
+			foreach(var routeListItem in routeListItemsWithAddedCodes)
+			{
+				_routeListItemsToAddCodesFromStagingCodes.Remove(routeListItem);
+			}
+
+			return true;
+		}
+
+		private bool AddProductCodesToRouteListItemFromStagingCodes(RouteListItem routeListItem, out string message)
+		{
+			message = string.Empty;
+			var order = routeListItem.Order;
+
+			var addCodesResult = _routeListItemTrueMarkProductCodesProcessingService
+				.AddProductCodesToRouteListItemAndDeleteStagingCodes(UoW, routeListItem)
+				.GetAwaiter().GetResult();
+
+			if(addCodesResult.IsFailure)
+			{
+				message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", " +
+					"т.к. данный заказ на перепродажу, но количество добавленных кодов не соответствует заказу";
+
+				return false;
+			}
+
+			return true;
+		}
+
 		private void OnForwarderChanged(object sender, EventArgs e)
 		{
 			var newForwarder = Entity.Forwarder;
@@ -753,6 +811,14 @@ namespace Vodovoz
 			try
 			{
 				IsCanClose = false;
+
+				var isCodesAdded = AddProductCodesToAllCompletedRouteListItemsFromStagingCodes(out var message);
+
+				if(!isCodesAdded)
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Warning, message);
+					return false;
+				}
 
 				foreach(var node in Items.Where(x => x.PaymentTypeHasChanged))
 				{
