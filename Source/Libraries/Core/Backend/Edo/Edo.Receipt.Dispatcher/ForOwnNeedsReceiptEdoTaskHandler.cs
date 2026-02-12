@@ -1111,6 +1111,8 @@ namespace Edo.Receipt.Dispatcher
 				try
 				{
 					codeId = await _trueMarkCodesPool.TakeCode(gtin.GtinNumber, cancellationToken);
+					
+					break;
 				}
 				catch(EdoCodePoolMissingCodeException ex) 
 				{
