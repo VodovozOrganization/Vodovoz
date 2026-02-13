@@ -58,12 +58,16 @@ namespace CustomerAppsApi.Library.Services
 			}
 
 			var account = externalAccounts.First();
-			var checkOldPassword =
-				_passwordHasher.VerifyHashedPassword(account.AccountPasswordSalt, account.AccountPasswordHash, dto.OldPassword);
 
-			if(!checkOldPassword)
+			if(!string.IsNullOrWhiteSpace(dto.OldPassword))
 			{
-				Result.Failure(LegalCounterpartyControllerError.WrongOldAccountPassword());
+				var checkOldPassword =
+					_passwordHasher.VerifyHashedPassword(account.AccountPasswordSalt, account.AccountPasswordHash, dto.OldPassword);
+
+				if(!checkOldPassword)
+				{
+					Result.Failure(LegalCounterpartyControllerError.WrongOldAccountPassword());
+				}
 			}
 			
 			var passwordData = _passwordHasher.HashPassword(dto.NewPassword);

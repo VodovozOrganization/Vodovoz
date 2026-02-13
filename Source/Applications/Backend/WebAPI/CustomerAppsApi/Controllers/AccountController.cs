@@ -5,6 +5,7 @@ using CustomerAppsApi.Library.Dto.Counterparties;
 using CustomerAppsApi.Library.Dto.Counterparties.Password;
 using CustomerAppsApi.Library.Services;
 using CustomerAppsApi.Library.Validators;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -13,6 +14,7 @@ using Vodovoz.Extensions;
 namespace CustomerAppsApi.Controllers
 {
 	[ApiController]
+	[Authorize]
 	[Route("/api/[action]")]
 	public class AccountController : ControllerBase
 	{

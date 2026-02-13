@@ -1,6 +1,10 @@
+using CustomerAppsApi.Configs;
 using CustomerAppsApi.HealthChecks;
 using CustomerAppsApi.Library;
+using CustomerAppsApi.Library.Configs;
+using CustomerAppsApi.Library.Services;
 using CustomerAppsApi.Middleware;
+using CustomerAppsApi.Services;
 using MassTransit;
 using MessageTransport;
 using Microsoft.AspNetCore.Builder;
@@ -79,6 +83,11 @@ namespace CustomerAppsApi
 				.AddControllers()
 				;
 
+			services.AddAuthentication("Basic")
+				.AddScheme<BasicAuthenticationOptions, CustomAuthenticationHandler>(
+					"Basic",
+					conf => Configuration.GetSection("BasicAuthenticationOptions").Bind(conf));
+
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
 			services.AddStaticHistoryTracker();
@@ -100,6 +109,8 @@ namespace CustomerAppsApi
 			app.UseMiddleware<ResponseLoggingMiddleware>();
 			app.UseHttpsRedirection();
 			app.UseRouting();
+			app.UseAuthentication();
+			app.UseAuthorization();
 
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 

@@ -13,7 +13,6 @@
 		/// Электронная почта
 		/// </summary>
 		public string Email { get; set; }
-		//TODO 5633: обговорить что лучше принимать и старый пароль и новый во избежание смены неизвестными лицами или при поломке функционала
 		/// <summary>
 		/// Старый пароль
 		/// </summary>
@@ -22,5 +21,9 @@
 		/// Новый пароль
 		/// </summary>
 		public string NewPassword { get; set; }
+		/// <summary>
+		/// Введенный код авторизации
+		/// </summary>
+		public string AuthorizationCode { get; set; }
 	}
 }

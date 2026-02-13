@@ -167,7 +167,6 @@ namespace CustomerAppsApi.Library.Validators
 			ValidateSource(dto.Source);
 			ValidateLegalCounterpartyId(dto.ErpCounterpartyId);
 			ValidateEmail(dto.Email);
-			ValidatePassword(dto.OldPassword);
 			ValidatePassword(dto.NewPassword);
 			
 			return ValidationResult();
