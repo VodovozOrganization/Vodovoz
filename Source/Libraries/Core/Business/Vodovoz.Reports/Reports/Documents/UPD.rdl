@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -2536,7 +2536,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox71">
-                      <Value>=Sum(Iif({count}&gt;0 AND {vat}&gt;1, (Fields!item_price.Value * Fields!count.Value - Fields!item_discount_money.Value) * ({vat} - 1) / {vat}, 0))</Value>
+                      <Value>=Sum(Iif({count}&gt;0 AND {vat}&gt;1, Round((Fields!item_price.Value * Fields!count.Value - Fields!item_discount_money.Value) * ({vat} - 1) / {vat}, 2), 0))</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
