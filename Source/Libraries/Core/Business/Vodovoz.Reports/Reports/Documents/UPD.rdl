@@ -2538,7 +2538,6 @@ WHERE o.id = @order_id
                     <Textbox Name="Textbox71">
                       <Value>=Sum(Iif({count}&gt;0 AND {vat}&gt;1, Round((Fields!item_price.Value * Fields!count.Value - Fields!item_discount_money.Value) * ({vat} - 1) / {vat}, 2), 0))</Value>
                       <CanGrow>false</CanGrow>
-                      
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
