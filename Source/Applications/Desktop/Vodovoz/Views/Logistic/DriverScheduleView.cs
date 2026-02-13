@@ -212,7 +212,7 @@ namespace Vodovoz.Views.Logistic
 				.HeaderAlignment(0.5f)
 				.AddTextRenderer(node => node.Comment)
 				.Editable()
-				.XAlign(0.5f)
+				.XAlign(0f)
 				.Finish();
 
 			ytreeviewDynamicPart.ColumnsConfig = columnsConfig;

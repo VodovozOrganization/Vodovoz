@@ -389,10 +389,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			}
 
 			schedule.ArrivalTime = node.ArrivalTime;
-
-			schedule.Comment = node.Comment?.Length > 255
-				? node.Comment.Substring(0, 255)
-				: node.Comment;
+			schedule.Comment = node.Comment;
 		}
 
 		/// <summary>
@@ -529,7 +526,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 				MorningBottlesPotential = node.MorningBottles,
 				EveningAddressesPotential = node.EveningAddresses,
 				EveningBottlesPotential = node.EveningBottles,
-				Comment = node.Comment?.Length > 255 ? node.Comment.Substring(0, 255) : node.Comment,
+				Comment = node.Comment,
 				LastChangeTime = hasNonZeroValues ? (DateTime?)DateTime.Now : null,
 				Days = new List<DriverScheduleItem>()
 			};

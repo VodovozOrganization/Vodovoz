@@ -706,7 +706,7 @@ namespace VodovozBusiness.Nodes
 			get => _comment;
 			set
 			{
-				if(SetField(ref _comment, value))
+				if(SetField(ref _comment, value?.Length > 255 ? value.Substring(0, 255) : value))
 				{
 					UpdateHasChanges();
 				}
