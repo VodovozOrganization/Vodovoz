@@ -10,7 +10,7 @@ namespace Vodovoz.Domain.Goods
 	{
 		private decimal _purchasePrice;
 		private DateTime _creationDate;
-		private Nomenclature _nomenclature;
+		private NomenclatureEntity _nomenclature;
 		
 		public virtual int Id { get; set; }
 
@@ -22,7 +22,7 @@ namespace Vodovoz.Domain.Goods
 		}
 		
 		[Display(Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature
+		public virtual NomenclatureEntity Nomenclature
 		{
 			get => _nomenclature;
 			set => SetField(ref _nomenclature, value);

@@ -1,4 +1,5 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Vodovoz.Core.Domain.Edo;
 
 namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 {
@@ -42,7 +43,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			/// </summary>
 			public string AdditionalInformation { get; set; }
 			/// <summary>
-			/// Дуюдикат кода
+			/// Дубликат кода
 			/// </summary>
 			public bool IsDuplicate { get; set; }
 		}

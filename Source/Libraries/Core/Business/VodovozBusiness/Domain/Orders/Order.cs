@@ -383,7 +383,7 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		[Display(Name = "Район города склада самовывоза")]
-		public virtual GeoGroup SelfDeliveryGeoGroup
+		public virtual new GeoGroup SelfDeliveryGeoGroup
 		{
 			get => _selfDeliveryGeoGroup;
 			set => SetField(ref _selfDeliveryGeoGroup, value);
@@ -601,7 +601,7 @@ namespace Vodovoz.Domain.Orders
 		private IList<OrderEquipment> orderEquipments = new List<OrderEquipment>();
 
 		[Display(Name = "Список оборудования")]
-		public virtual IList<OrderEquipment> OrderEquipments {
+		public virtual new IList<OrderEquipment> OrderEquipments {
 			get => orderEquipments;
 			set => SetField(ref orderEquipments, value, () => OrderEquipments);
 		}
@@ -1417,9 +1417,10 @@ namespace Vodovoz.Domain.Orders
 			.Where(x => _nomenclatureSettings.EquipmentKindsHavingGlassHolder.Any(n => n == x.Kind.Id))
 			.Count() > 0;
 
-		public virtual bool IsOrderContainsIsAccountableInTrueMarkItems =>
-			ObservableOrderItems.Any(x =>
-			x.Nomenclature.IsAccountableInTrueMark && !string.IsNullOrWhiteSpace(x.Nomenclature.Gtin) && x.Count > 0);
+		public virtual bool IsOrderContainsIsAccountableInTrueMarkItems => ObservableOrderItems.Any(x =>
+			x.Nomenclature.IsAccountableInTrueMark
+			&& !x.Nomenclature.Gtins.All(g => string.IsNullOrWhiteSpace(g.GtinNumber))
+			&& x.Count > 0);
 
 		/// <summary>
 		/// Проверка, является ли целью покупки заказа - для перепродажи
@@ -1800,6 +1801,12 @@ namespace Vodovoz.Domain.Orders
 				&& Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute
 				&& edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
 		}
+
+		/// <summary>
+		/// Документооборот по ЭДО с клиентом по заказу осуществляется по новой схеме
+		/// </summary>
+		public virtual bool IsClientWorksWithNewEdoProcessing =>
+			Client?.IsNewEdoProcessing ?? false;
 
 		public virtual void AddDeliveryPointCommentToOrder()
 		{

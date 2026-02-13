@@ -9,6 +9,8 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents.MovementDocuments.BulkAccounting;
@@ -16,7 +18,6 @@ using Vodovoz.Domain.Documents.MovementDocuments.InstanceAccounting;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
 using Vodovoz.EntityRepositories.Store;
 
@@ -30,7 +31,6 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 	public class MovementDocument : Document, IValidatableObject
 	{
 		private MovementDocumentType _documentType;
-		private DateTime timeStamp;
 		private MovementDocumentStatus _status;
 		private bool _hasDiscrepancy;
 		private MovementWagon _movementWagon;
@@ -66,12 +66,6 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 		{
 			get => _documentType;
 			set => SetField(ref _documentType, value);
-		}
-
-		public override DateTime TimeStamp
-		{
-			get => timeStamp;
-			set => SetField(ref timeStamp, value);
 		}
 
 		[Display(Name = "Статус")]
@@ -586,7 +580,7 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 		}
 
 		#endregion
-		
+
 		#endregion
 
 		#region Функции
