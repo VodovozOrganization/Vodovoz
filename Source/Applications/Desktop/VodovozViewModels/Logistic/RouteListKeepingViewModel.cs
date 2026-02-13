@@ -742,8 +742,8 @@ namespace Vodovoz
 				{
 					var order = node.RouteListItem.Order;
 					var newPaymentType = node.PaymentType;
-					order.Contract = null;
-					order.UpdatePaymentType(node.PaymentType, _orderContractUpdater);
+
+					order.UpdatePaymentType(newPaymentType, _orderContractUpdater);
 				}
 
 				UoWGeneric.Save();
