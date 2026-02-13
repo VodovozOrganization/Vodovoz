@@ -1,4 +1,4 @@
-﻿namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
+﻿namespace VodovozBusiness.Nodes
 {
 	/// <summary>
 	/// Базовый класс для итоговых строк расписания водителей

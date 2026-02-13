@@ -1,8 +1,4 @@
 ﻿using ClosedXML.Excel;
-using NHibernate;
-using NHibernate.Criterion;
-using NHibernate.Dialect.Function;
-using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -10,13 +6,11 @@ using System.IO;
 using System.Linq;
 using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Core.Domain.Logistics.Drivers;
-using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Services;
-using Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule;
 using VodovozBusiness.EntityRepositories.Logistic;
 using VodovozBusiness.Nodes;
 using Schedule = VodovozBusiness.Domain.Logistic.Drivers.DriverSchedule;
@@ -75,11 +69,11 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			bool canEditAfter13,
 			List<CarEventType> availableCarEventTypes)
 		{
-			var driverRows = GetDriverRowsFromDatabase(
+			var driverRows = _logisticRepository.GetDriverScheduleRows(
 				uow,
+				selectedSubdivisionIds,
 				startDate,
 				endDate,
-				selectedSubdivisionIds,
 				selectedCarOwnTypes,
 				selectedCarTypeOfUse);
 
@@ -108,85 +102,6 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			var resultWithTotals = AddTotalRows(filteredResult, startDate);
 
 			return resultWithTotals;
-		}
-
-		private List<DriverScheduleRow> GetDriverRowsFromDatabase(
-			IUnitOfWork uow,
-			DateTime startDate,
-			DateTime endDate,
-			int[] selectedSubdivisionIds,
-			CarOwnType[] selectedCarOwnTypes,
-			CarTypeOfUse[] selectedCarTypeOfUse)
-		{
-			Employee employeeAlias = null;
-			Car carAlias = null;
-			CarModel carModelAlias = null;
-			Phone phoneAlias = null;
-			DriverScheduleRow resultAlias = null;
-			CarVersion carVersionAlias = null;
-			Schedule driverScheduleAlias = null;
-
-			var driversQuery = _logisticRepository.GetDriversQueryWithJoins(
-				uow, selectedSubdivisionIds, startDate, endDate);
-
-			if(selectedCarOwnTypes != null && selectedCarOwnTypes.Any())
-			{
-				driversQuery.WhereRestrictionOn(() => employeeAlias.DriverOfCarOwnType)
-					.IsIn(selectedCarOwnTypes.ToArray());
-			}
-			else
-			{
-				driversQuery.Where(Restrictions.IsNull(Projections.Property(() => employeeAlias.DriverOfCarOwnType)));
-			}
-
-			if(selectedCarTypeOfUse != null && selectedCarTypeOfUse.Any())
-			{
-				driversQuery.WhereRestrictionOn(() => carModelAlias.CarTypeOfUse)
-					.IsIn(selectedCarTypeOfUse.ToArray());
-			}
-			else
-			{
-				driversQuery.Where(Restrictions.IsNull(Projections.Property(() => carModelAlias.CarTypeOfUse)));
-			}
-
-			var phoneSubquery = QueryOver.Of(() => phoneAlias)
-				.Where(() => phoneAlias.Employee.Id == employeeAlias.Id)
-				.OrderBy(() => phoneAlias.Id).Asc
-				.Select(Projections.Property(() => phoneAlias.Number))
-				.Take(1);
-
-			return driversQuery
-				.SelectList(list => list
-					.Select(e => e.Id).WithAlias(() => resultAlias.DriverId)
-					.Select(() => carModelAlias.CarTypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
-					.Select(() => carVersionAlias.CarOwnType).WithAlias(() => resultAlias.CarOwnType)
-					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.RegNumber)
-					.Select(e => e.LastName).WithAlias(() => resultAlias.LastName)
-					.Select(e => e.Name).WithAlias(() => resultAlias.Name)
-					.Select(e => e.Patronymic).WithAlias(() => resultAlias.Patronymic)
-					.Select(e => e.DriverOfCarOwnType).WithAlias(() => resultAlias.DriverCarOwnType)
-					.Select(e => e.District).WithAlias(() => resultAlias.District)
-					.Select(() => driverScheduleAlias.ArrivalTime).WithAlias(() => resultAlias.ArrivalTime)
-					.Select(() => driverScheduleAlias.MorningAddressesPotential).WithAlias(() => resultAlias.MorningAddresses)
-					.Select(() => driverScheduleAlias.MorningBottlesPotential).WithAlias(() => resultAlias.MorningBottles)
-					.Select(() => driverScheduleAlias.EveningAddressesPotential).WithAlias(() => resultAlias.EveningAddresses)
-					.Select(() => driverScheduleAlias.EveningBottlesPotential).WithAlias(() => resultAlias.EveningBottles)
-					.Select(() => driverScheduleAlias.LastChangeTime).WithAlias(() => resultAlias.LastModifiedDateTime)
-					.Select(() => driverScheduleAlias.Comment).WithAlias(() => resultAlias.Comment)
-					.Select(() => employeeAlias.DateFired).WithAlias(() => resultAlias.DateFired)
-					.Select(() => employeeAlias.DateCalculated).WithAlias(() => resultAlias.DateCalculated)
-					.Select(Projections.SqlFunction(
-						new SQLFunctionTemplate(NHibernateUtil.Int32, "FLOOR(COALESCE(?1, 0) / 20)"),
-						NHibernateUtil.Int32,
-						Projections.Property(() => carModelAlias.MaxWeight)))
-					.WithAlias(() => resultAlias.MaxBottles)
-					.SelectSubQuery(phoneSubquery).WithAlias(() => resultAlias.DriverPhone))
-				.OrderBy(e => e.LastName).Asc
-				.TransformUsing(Transformers.AliasToBean<DriverScheduleRow>())
-				.List<DriverScheduleRow>()
-				.GroupBy(x => x.DriverId)
-				.Select(g => g.First())
-				.ToList();
 		}
 
 		private void ProcessDriverNode(
@@ -474,7 +389,10 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			}
 
 			schedule.ArrivalTime = node.ArrivalTime;
-			schedule.Comment = node.Comment;
+
+			schedule.Comment = node.Comment?.Length > 255
+				? node.Comment.Substring(0, 255)
+				: node.Comment;
 		}
 
 		/// <summary>
@@ -611,7 +529,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 				MorningBottlesPotential = node.MorningBottles,
 				EveningAddressesPotential = node.EveningAddresses,
 				EveningBottlesPotential = node.EveningBottles,
-				Comment = node.Comment,
+				Comment = node.Comment?.Length > 255 ? node.Comment.Substring(0, 255) : node.Comment,
 				LastChangeTime = hasNonZeroValues ? (DateTime?)DateTime.Now : null,
 				Days = new List<DriverScheduleItem>()
 			};
@@ -790,7 +708,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 		}
 
 		private List<DriverScheduleRow> FilterByDismissalDate(
-			List<DriverScheduleRow> driverRows,
+			IList<DriverScheduleRow> driverRows,
 			DateTime startDate)
 		{
 			return driverRows.Where(r =>

@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule;
 using VodovozBusiness.Nodes;
 
 namespace Vodovoz.ViewModels.Services.DriverSchedule

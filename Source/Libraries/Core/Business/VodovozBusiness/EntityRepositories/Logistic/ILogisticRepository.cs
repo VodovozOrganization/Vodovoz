@@ -1,13 +1,12 @@
-﻿using NHibernate;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using Vodovoz;
 using Vodovoz.Core.Domain.Logistics.Drivers;
-using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using VodovozBusiness.Domain.Logistic.Drivers;
+using VodovozBusiness.Nodes;
 
 namespace VodovozBusiness.EntityRepositories.Logistic
 {
@@ -52,9 +51,15 @@ namespace VodovozBusiness.EntityRepositories.Logistic
 		IList<DriverScheduleItem> GetDriverScheduleItemsByDriverIds(IUnitOfWork uow, int[] driverIds, DateTime startDate, DateTime endDate);
 
 		/// <summary>
-		/// Получить запрос водителей с joinами по машинам и графику водителей с фильтром по подразделениям
+		/// Получить список строк для графика водителей за указанный период, отфильтрованных по подразделениям, типу принадлежности ТС и типу модели ТС
 		/// </summary>
-		IQueryOver<Employee, Employee> GetDriversQueryWithJoins(IUnitOfWork uow, int[] subdivisionIds, DateTime startDate, DateTime endDate);
+		IList<DriverScheduleRow> GetDriverScheduleRows(
+			IUnitOfWork uow,
+			int[] selectedSubdivisionIds,
+			DateTime startDate,
+			DateTime endDate,
+			CarOwnType[] selectedCarOwnTypes,
+			CarTypeOfUse[] selectedCarTypeOfUse);
 
 		/// <summary>
 		/// Получить подразделения для водителей для графика водителей за указанный период

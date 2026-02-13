@@ -2,7 +2,7 @@
 using System;
 using Vodovoz.Core.Domain.Logistics.Cars;
 
-namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
+namespace VodovozBusiness.Nodes
 {
 	public class DriverScheduleDayRow : PropertyChangedBase
 	{

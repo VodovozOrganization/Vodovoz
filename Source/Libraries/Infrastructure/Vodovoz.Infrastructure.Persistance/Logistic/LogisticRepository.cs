@@ -1,5 +1,6 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using System;
@@ -7,11 +8,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Logistics.Drivers;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using VodovozBusiness.Domain.Logistic.Drivers;
 using VodovozBusiness.EntityRepositories.Logistic;
+using VodovozBusiness.Nodes;
 
 namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
@@ -44,14 +47,23 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 					.List();
 		}
 
-		public IQueryOver<Employee, Employee> GetDriversQueryWithJoins(IUnitOfWork uow, int[] subdivisionIds, DateTime startDate, DateTime endDate)
+		public IList<DriverScheduleRow> GetDriverScheduleRows(
+			IUnitOfWork uow,
+			int[] selectedSubdivisionIds,
+			DateTime startDate,
+			DateTime endDate,
+			CarOwnType[] selectedCarOwnTypes,
+			CarTypeOfUse[] selectedCarTypeOfUse)
 		{
 			Employee employeeAlias = null;
 			Car carAlias = null;
+			CarModel carModelAlias = null;
+			Phone phoneAlias = null;
+			DriverScheduleRow resultAlias = null;
 			CarVersion carVersionAlias = null;
 			DriverSchedule driverScheduleAlias = null;
 
-			var query = GetFilteredDriversQuery(uow, DateTime.MinValue, DateTime.MaxValue)
+			var driversQuery = GetFilteredDriversQuery(uow, startDate, endDate)
 				.JoinEntityAlias(
 					() => carVersionAlias,
 					() => carVersionAlias.Car.Id == carAlias.Id,
@@ -62,9 +74,66 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 					() => driverScheduleAlias.Driver.Id == employeeAlias.Id,
 					NHibernate.SqlCommand.JoinType.LeftOuterJoin
 				)
-				.WhereRestrictionOn(e => e.Subdivision.Id).IsIn(subdivisionIds);
-			
-			return query;
+				.WhereRestrictionOn(e => e.Subdivision.Id).IsIn(selectedSubdivisionIds);
+
+			if(selectedCarOwnTypes != null && selectedCarOwnTypes.Any())
+			{
+				driversQuery.WhereRestrictionOn(() => employeeAlias.DriverOfCarOwnType)
+					.IsIn(selectedCarOwnTypes.ToArray());
+			}
+			else
+			{
+				driversQuery.Where(Restrictions.IsNull(Projections.Property(() => employeeAlias.DriverOfCarOwnType)));
+			}
+
+			if(selectedCarTypeOfUse != null && selectedCarTypeOfUse.Any())
+			{
+				driversQuery.WhereRestrictionOn(() => carModelAlias.CarTypeOfUse)
+					.IsIn(selectedCarTypeOfUse.ToArray());
+			}
+			else
+			{
+				driversQuery.Where(Restrictions.IsNull(Projections.Property(() => carModelAlias.CarTypeOfUse)));
+			}
+
+			var phoneSubquery = QueryOver.Of(() => phoneAlias)
+				.Where(() => phoneAlias.Employee.Id == employeeAlias.Id)
+				.OrderBy(() => phoneAlias.Id).Asc
+				.Select(Projections.Property(() => phoneAlias.Number))
+				.Take(1);
+
+			return driversQuery
+				.SelectList(list => list
+					.Select(e => e.Id).WithAlias(() => resultAlias.DriverId)
+					.Select(() => carModelAlias.CarTypeOfUse).WithAlias(() => resultAlias.CarTypeOfUse)
+					.Select(() => carVersionAlias.CarOwnType).WithAlias(() => resultAlias.CarOwnType)
+					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.RegNumber)
+					.Select(e => e.LastName).WithAlias(() => resultAlias.LastName)
+					.Select(e => e.Name).WithAlias(() => resultAlias.Name)
+					.Select(e => e.Patronymic).WithAlias(() => resultAlias.Patronymic)
+					.Select(e => e.DriverOfCarOwnType).WithAlias(() => resultAlias.DriverCarOwnType)
+					.Select(e => e.District).WithAlias(() => resultAlias.District)
+					.Select(() => driverScheduleAlias.ArrivalTime).WithAlias(() => resultAlias.ArrivalTime)
+					.Select(() => driverScheduleAlias.MorningAddressesPotential).WithAlias(() => resultAlias.MorningAddresses)
+					.Select(() => driverScheduleAlias.MorningBottlesPotential).WithAlias(() => resultAlias.MorningBottles)
+					.Select(() => driverScheduleAlias.EveningAddressesPotential).WithAlias(() => resultAlias.EveningAddresses)
+					.Select(() => driverScheduleAlias.EveningBottlesPotential).WithAlias(() => resultAlias.EveningBottles)
+					.Select(() => driverScheduleAlias.LastChangeTime).WithAlias(() => resultAlias.LastModifiedDateTime)
+					.Select(() => driverScheduleAlias.Comment).WithAlias(() => resultAlias.Comment)
+					.Select(() => employeeAlias.DateFired).WithAlias(() => resultAlias.DateFired)
+					.Select(() => employeeAlias.DateCalculated).WithAlias(() => resultAlias.DateCalculated)
+					.Select(Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.Int32, "FLOOR(COALESCE(?1, 0) / 20)"),
+						NHibernateUtil.Int32,
+						Projections.Property(() => carModelAlias.MaxWeight)))
+					.WithAlias(() => resultAlias.MaxBottles)
+					.SelectSubQuery(phoneSubquery).WithAlias(() => resultAlias.DriverPhone))
+				.OrderBy(e => e.LastName).Asc
+				.TransformUsing(Transformers.AliasToBean<DriverScheduleRow>())
+				.List<DriverScheduleRow>()
+				.GroupBy(x => x.DriverId)
+				.Select(g => g.First())
+				.ToList();
 		}
 
 		public IList<DriverSchedule> GetDriverSchedules(IUnitOfWork uow, int[] driverIds, DateTime startDate, DateTime endDate)
@@ -93,10 +162,9 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 					.SelectGroup(() => subdivisionAlias.Id)
 				)
 				.List<int>()
-				.Distinct()
-				.ToList();
+				.Distinct();
 
-			var subdivisions = subdivisionIds.Count > 0
+			var subdivisions = subdivisionIds.Count() > 0
 				? uow.Session.QueryOver<Subdivision>()
 					.WhereRestrictionOn(s => s.Id).IsIn(subdivisionIds.ToArray())
 					.OrderBy(s => s.Name).Asc
@@ -125,14 +193,14 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 					.Add(Restrictions.Not(Restrictions.Eq(Projections.Property(() => employeeAlias.Status), EmployeeStatus.IsFired)))
 					.Add(Restrictions.And(
 						Restrictions.Eq(Projections.Property(() => employeeAlias.Status), EmployeeStatus.IsFired),
-						Restrictions.Ge(Projections.Property(() => employeeAlias.DateFired), startDate)
+						Restrictions.Between(Projections.Property(() => employeeAlias.DateFired), startDate, endDate)
 					))
 				)
 				.Where(Restrictions.Disjunction()
 					.Add(Restrictions.Not(Restrictions.Eq(Projections.Property(() => employeeAlias.Status), EmployeeStatus.OnCalculation)))
 					.Add(Restrictions.And(
 						Restrictions.Eq(Projections.Property(() => employeeAlias.Status), EmployeeStatus.OnCalculation),
-						Restrictions.Ge(Projections.Property(() => employeeAlias.DateCalculated), startDate)
+						Restrictions.Between(Projections.Property(() => employeeAlias.DateCalculated), startDate, endDate)
 					))
 				)
 				.Where(() => employeeAlias.Status != EmployeeStatus.OnMaternityLeave);

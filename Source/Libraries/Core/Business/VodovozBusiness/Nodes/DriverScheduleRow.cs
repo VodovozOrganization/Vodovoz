@@ -5,7 +5,7 @@ using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Sale;
 
-namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
+namespace VodovozBusiness.Nodes
 {
 	public class DriverScheduleRow : PropertyChangedBase
 	{
@@ -865,6 +865,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 				return;
 			}
 
+			if(!_isCarAssigned)
+			{
+				return;
+			}
+
 			int todayIndex = (int)(DateTime.Today - StartDate).TotalDays;
 
 			if(todayIndex < 0 || todayIndex >= 7)
@@ -890,7 +895,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 				return;
 			}
 
-			for(int i = todayIndex; i < 7; i++)
+			for(int i = startDayIndex; i < 7; i++)
 			{
 				if(Days[i] != null)
 				{
