@@ -17,31 +17,31 @@ namespace Vodovoz.Domain.Logistic.Cars
 		/// <summary>
 		/// Легковая (Ларгус)
 		/// </summary>
-		[Display(Name = "Легковая (Ларгус)")]
+		[Display(Name = "Легковая (Ларгус)", ShortName = "Л")]
 		Largus,
 
 		/// <summary>
 		/// Фургон (Transit Mini)
 		/// </summary>
-		[Display(Name = "Фургон (Transit Mini)")]
+		[Display(Name = "Фургон (Transit Mini)", ShortName = "Т")]
 		Minivan,
 
 		/// <summary>
 		/// Грузовой
 		/// </summary>
-		[Display(Name = "Грузовой")]
+		[Display(Name = "Грузовой", ShortName = "Г")]
 		GAZelle,
 
 		/// <summary>
 		/// Фура
 		/// </summary>
-		[Display(Name = "Фура")]
+		[Display(Name = "Фура", ShortName = "Ф")]
 		Truck,
 
 		/// <summary>
 		/// Погрузчик
 		/// </summary>
-		[Display(Name = "Погрузчик")]
+		[Display(Name = "Погрузчик", ShortName = "П")]
 		Loader
 	}
 }

@@ -1,7 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Domain.Logistic
+namespace Vodovoz.Core.Domain.Logistics.Cars
 {
 	/// <summary>
 	/// Зона ответственности

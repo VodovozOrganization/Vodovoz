@@ -60,6 +60,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 			References(x => x.Post).Column("employees_posts_id");
 			References(x => x.Counterparty).Column("counterparty_id");
 			References(x => x.PhoneForCounterpartyCalls).Column("phone_for_counterparty_calls_id");
+			References(x => x.District).Column("district_id");
 
 			HasMany(x => x.Accounts).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("employee_id");
 			HasMany(x => x.Phones).Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("employee_id");

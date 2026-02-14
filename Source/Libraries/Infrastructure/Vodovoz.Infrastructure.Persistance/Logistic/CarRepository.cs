@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
@@ -23,6 +24,14 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 		{
 			return uow.Session.QueryOver<Car>()
 					  .Where(x => x.Driver == driver)
+					  .Take(1)
+					  .SingleOrDefault();
+		}
+
+		public Car GetCarByDriverId(IUnitOfWork uow, int driverId)
+		{
+			return uow.Session.QueryOver<Car>()
+					  .Where(x => x.Driver.Id == driverId)
 					  .Take(1)
 					  .SingleOrDefault();
 		}

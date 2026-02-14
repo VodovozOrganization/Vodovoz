@@ -1,6 +1,6 @@
 ﻿using QS.Navigation;
 using QS.Views.GtkUI;
-using Vodovoz.Domain.Logistic;
+using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic

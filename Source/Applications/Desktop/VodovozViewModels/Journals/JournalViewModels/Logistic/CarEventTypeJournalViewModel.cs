@@ -7,7 +7,7 @@ using QS.Project.Journal;
 using QS.Services;
 using System;
 using System.Linq;
-using Vodovoz.Domain.Logistic;
+using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;

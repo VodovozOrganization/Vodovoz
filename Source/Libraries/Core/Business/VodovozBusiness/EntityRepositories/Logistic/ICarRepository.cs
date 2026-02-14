@@ -16,6 +16,14 @@ namespace Vodovoz.EntityRepositories.Logistic
 	{
 		QueryOver<Car> ActiveCarsQuery();
 		Car GetCarByDriver(IUnitOfWork uow, Employee driver);
+
+		/// <summary>
+		/// Получить авто по идентификатору водителя
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="driverId"></param>
+		/// <returns></returns>
+		Car GetCarByDriverId(IUnitOfWork uow, int driverId);
 		IList<Car> GetCarsByDrivers(IUnitOfWork uow, int[] driversIds);
 		bool IsInAnyRouteList(IUnitOfWork uow, Car car);
 		IList<CarEvent> GetCarEventsForCostCarExploitation(
