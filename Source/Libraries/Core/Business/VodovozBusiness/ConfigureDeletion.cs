@@ -59,6 +59,7 @@ using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Payments;
 using VodovozBusiness.Domain.Service;
 using Vodovoz.Core.Domain.BasicHandbooks;
+using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Vodovoz

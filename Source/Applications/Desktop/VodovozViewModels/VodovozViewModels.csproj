@@ -130,6 +130,9 @@
     <Compile Include="Journals\JournalViewModels\Payments\BankAccountsMovementsJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Payments\NotAllocatedCounterpartiesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Payments\ProfitCategoriesJournalViewModel.cs" />
+    <Compile Include="Logistic\DriverSchedule\DriverScheduleViewModel.cs" />
+    <Compile Include="Services\DriverSchedule\DriverScheduleService.cs" />
+    <Compile Include="Services\DriverSchedule\IDriverScheduleService.cs" />
     <Compile Include="Logistic\Reports\CarIsNotAtLineReport.UiRow.cs" />
     <Compile Include="Logistic\Reports\CarIsNotAtLineReport.UiRowType.cs" />
     <Compile Include="Logistic\SelfDeliveringOrderEditViewModel.cs" />

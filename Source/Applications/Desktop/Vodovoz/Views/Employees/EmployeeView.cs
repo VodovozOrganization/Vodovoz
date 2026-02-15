@@ -291,6 +291,8 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
 
+			entryDistrictOfResidence.ViewModel = ViewModel.DistictsSetViewModel;
+
 			yspinTripsPriority.Binding
 				.AddBinding(ViewModel.Entity, e => e.TripPriority, w => w.ValueAsShort)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
