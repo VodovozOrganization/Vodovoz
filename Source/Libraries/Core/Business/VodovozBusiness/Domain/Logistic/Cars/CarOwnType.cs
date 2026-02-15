@@ -15,19 +15,19 @@ namespace Vodovoz.Domain.Logistic.Cars
 		/// <summary>
 		/// ТС компании
 		/// </summary>
-		[Display(Name = "ТС компании")]
+		[Display(Name = "ТС компании", ShortName = "К")]
 		Company,
 
 		/// <summary>
 		/// ТС в раскате
 		/// </summary>
-		[Display(Name = "ТС в раскате")]
+		[Display(Name = "ТС в раскате", ShortName = "Р")]
 		Raskat,
 
 		/// <summary>
 		/// ТС водителя
 		/// </summary>
-		[Display(Name = "ТС водителя")]
+		[Display(Name = "ТС водителя", ShortName = "В")]
 		Driver
 	}
 }
