@@ -2495,7 +2495,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox68">
-                      <Value>=Sum((Fields!item_price.Value * Fields!count.Value - Fields!item_discount_money.Value) / Fields!vat.Value)</Value>
+                      <Value>=Sum(Round((Fields!item_price.Value * Fields!count.Value - Fields!item_discount_money.Value) / Fields!vat.Value, 2))</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
