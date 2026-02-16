@@ -1,4 +1,4 @@
-﻿using QS.Dialog;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using QS.Navigation;
@@ -36,7 +36,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 
 		protected IList<Gtin> GetItems(CancellationToken token)
 		{
-			var result = _nomenclature.Gtins.OrderBy(g => g.Priority).ToList();
+			var result = _nomenclature.Gtins;
 
 			if(Search.SearchValues != null && Search.SearchValues.Any())
 			{
