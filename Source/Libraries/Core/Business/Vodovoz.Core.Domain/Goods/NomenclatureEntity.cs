@@ -33,8 +33,6 @@ namespace Vodovoz.Core.Domain.Goods
 		private string _name;
 		private NomenclatureCategory _category;
 		private bool _isAccountableInTrueMark;
-		private string _gtin;
-
 		private bool _usingInGroupPriceSet;
 		private bool _hasInventoryAccounting;
 		private bool _hasConditionAccounting;

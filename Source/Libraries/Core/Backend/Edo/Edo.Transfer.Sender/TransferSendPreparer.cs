@@ -124,6 +124,7 @@ namespace Edo.Transfer.Sender
 			var groupGtins = await _uow.Session.QueryOver<GroupGtinEntity>()
 				.ListAsync(cancellationToken);
 			var gtins = await _uow.Session.QueryOver<GtinEntity>()
+				.OrderBy(g => g.Priority).Asc
 				.ListAsync(cancellationToken);
 
 			if(!transferEdoTask.StartTime.HasValue)

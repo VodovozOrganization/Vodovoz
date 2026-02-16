@@ -302,6 +302,13 @@ namespace Vodovoz.Domain.Goods
 			get => _nomenclatureOnlineParameters;
 			set => SetField(ref _nomenclatureOnlineParameters, value);
 		}
+		
+		/// <summary>
+		/// Номер товарной продукции GTIN
+		/// </summary>
+		[Display(Name = "Номер товарной продукции GTIN")]
+		[Obsolete("Свойство Gtin устарело и будет удалено в следующих версиях. Используйте коллекцию Gtins.")]
+		public virtual string Gtin => Gtins?.FirstOrDefault()?.GtinNumber;
 
 		/// <summary>
 		/// Gtin
@@ -747,7 +754,7 @@ namespace Vodovoz.Domain.Goods
 				yield return new ValidationResult("Начальное значение температуры нагрева не может быть больше конечного",
 					new[] { nameof(HeatingTemperatureFromOnline), nameof(HeatingTemperatureToOnline) });
 			}
-
+			
 			if(IsAccountableInTrueMark && !Gtins.Any())
 			{
 				yield return new ValidationResult("Должен быть заполнен GTIN для ТМЦ, подлежащих учёту в Честном знаке.",
