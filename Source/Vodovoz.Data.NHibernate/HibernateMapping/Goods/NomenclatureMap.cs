@@ -167,7 +167,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 				.KeyColumn("nomenclature_id")
 				.Cascade.AllDeleteOrphan()
 				.Inverse()
-				.LazyLoad();
+				.LazyLoad()
+				.OrderBy("priority");
 
 			HasMany(x => x.GroupGtins)
 				.KeyColumn("nomenclature_id")

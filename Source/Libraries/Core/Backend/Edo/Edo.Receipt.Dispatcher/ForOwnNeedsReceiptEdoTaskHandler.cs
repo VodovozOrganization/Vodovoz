@@ -1044,7 +1044,7 @@ namespace Edo.Receipt.Dispatcher
 			var invalidCodes = unprocessedCodes
 				.Where(x => x.ProductCode.SourceCode == null || x.ProductCode.SourceCode.IsInvalid);
 			
-			foreach(var gtin in orderItem.Nomenclature.Gtins.OrderBy(g => g.Priority))
+			foreach(var gtin in orderItem.Nomenclature.Gtins)
 			{
 				matchEdoTaskItem = invalidCodes.FirstOrDefault();
 				if(matchEdoTaskItem != null)
@@ -1106,7 +1106,7 @@ namespace Edo.Receipt.Dispatcher
 			var problemGtins = new List<EdoProblemGtinItem>();
 			EdoCodePoolMissingCodeException exception = null;
 
-			foreach(var gtin in nomenclature.Gtins.OrderBy(g => g.Priority))
+			foreach(var gtin in nomenclature.Gtins)
 			{
 				try
 				{
