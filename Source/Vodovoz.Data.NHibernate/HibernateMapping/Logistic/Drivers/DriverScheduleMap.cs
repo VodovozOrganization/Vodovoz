@@ -36,7 +36,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Drivers
 				.Column("driver_id");
 
 			HasMany(x => x.Days)
-				.Table("driver_schedule_item")
+				.Table("driver_schedule_items")
 				.KeyColumn("driver_schedule_id")
 				.Cascade.AllDeleteOrphan()
 				.Inverse()
