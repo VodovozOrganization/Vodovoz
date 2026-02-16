@@ -2,7 +2,7 @@
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
-using Vodovoz.Domain.Logistic;
+using Vodovoz.Core.Domain.Logistics.Cars;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {

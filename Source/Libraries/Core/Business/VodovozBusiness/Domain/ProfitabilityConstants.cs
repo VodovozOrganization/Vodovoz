@@ -1,4 +1,4 @@
-﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -15,6 +15,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Profitability;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Core.Domain.Warehouses;
+using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.Domain

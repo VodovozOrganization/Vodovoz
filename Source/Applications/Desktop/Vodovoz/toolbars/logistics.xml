@@ -11,5 +11,6 @@
 		<toolitem name='ActionFastDeliveryAvailabilityJournal' action='ActionFastDeliveryAvailabilityJournal'/>
 		<!-- <toolitem name='ActionLogisticAreas' action='ActionLogisticAreas'/> -->
 		<toolitem name='ActionDriversStopLists' action='ActionDriversStopLists'/>
+		<toolitem name='ActionDriverSchedule' action='ActionDriverSchedule'/>
 	</toolbar>
 </ui>
