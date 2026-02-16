@@ -333,7 +333,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 			}
 		}
 
-		public string GtinsString => string.Join(", ", Entity.Gtins.Select(x => x.GtinNumber));
+		public string GtinsString => string.Join(", ", Entity.Gtins.OrderBy(g => g.Priority).Select(x => x.GtinNumber));
 
 		private void UpdateOnlineCategories()
 		{

@@ -36,7 +36,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 
 		protected IList<Gtin> GetItems(CancellationToken token)
 		{
-			var result = _nomenclature.Gtins;
+			var result = _nomenclature.Gtins.OrderBy(g => g.Priority).ToList();
 
 			if(Search.SearchValues != null && Search.SearchValues.Any())
 			{
@@ -102,16 +102,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 			NavigationManager.OpenViewModel<GtinViewModel, INavigationManager, Gtin, Nomenclature>(this, NavigationManager, gtin, _nomenclature, OpenPageOptions.AsSlave);
 		}
 
-		protected virtual void Delete(IEnumerable<Gtin> nodes)
+		protected virtual void Delete(IEnumerable<Gtin> gtinNodes)
 		{
 			if(!_interactiveService.Question("Удалить выбранные Gtin?"))
 			{
 				return;
 			}
 
-			foreach(Gtin node in nodes)
+			foreach(var gtinNode in gtinNodes)
 			{
-				_nomenclature.Gtins.Remove(node);
+				_nomenclature.Gtins.Remove(gtinNode);
 			}
 		}
 	}

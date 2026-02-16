@@ -1,9 +1,8 @@
-﻿using QS.Commands;
+﻿using System;
+using System.Linq;
+using QS.Commands;
 using QS.Navigation;
 using QS.ViewModels.Dialog;
-using System;
-using System.Linq;
-using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using VodovozBusiness.Domain.Goods;
 
@@ -11,7 +10,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 {
 	public class GtinViewModel : DialogViewModelBase
 	{
-		private Nomenclature _nomenclature;
+		private readonly Nomenclature _nomenclature;
 
 		public GtinViewModel(INavigationManager navigationManager, Gtin gtin, Nomenclature nomenclature)
 			: this(navigationManager)

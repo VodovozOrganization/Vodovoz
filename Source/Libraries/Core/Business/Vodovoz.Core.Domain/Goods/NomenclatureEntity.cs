@@ -193,11 +193,8 @@ namespace Vodovoz.Core.Domain.Goods
 		/// Номер товарной продукции GTIN
 		/// </summary>
 		[Display(Name = "Номер товарной продукции GTIN")]
-		public virtual string Gtin
-		{
-			get => _gtin;
-			set => SetField(ref _gtin, value);
-		}
+		[Obsolete("Свойство Gtin устарело и будет удалено в следующих версиях. Используйте коллекцию Gtins.")]
+		public virtual string Gtin => Gtins?.FirstOrDefault()?.GtinNumber;
 
 		/// <summary>
 		/// Инфоррмация о прикрепленных файлах
@@ -561,9 +558,9 @@ namespace Vodovoz.Core.Domain.Goods
 		}
 
 		/// <summary>
-		/// Gtin
+		/// Gtins
 		/// </summary>
-		[Display(Name = "Gtin")]
+		[Display(Name = "Gtins")]
 		public virtual IObservableList<GtinEntity> Gtins
 		{
 			get => _gtins;

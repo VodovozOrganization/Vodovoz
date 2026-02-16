@@ -11,7 +11,6 @@ namespace VodovozBusiness.Domain.Goods
 		Nominative = "Gtin")]
 	[EntityPermission]
 	[HistoryTrace]
-
 	public class Gtin : GtinEntity
 	{
 		private Nomenclature _nomenclature;

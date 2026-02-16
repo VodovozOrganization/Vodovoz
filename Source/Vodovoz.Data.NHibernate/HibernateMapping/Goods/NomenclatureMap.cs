@@ -114,7 +114,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 
 			//Честный знак
 			Map(x => x.IsAccountableInTrueMark).Column("is_accountable_in_chestniy_znak");
-			Map(x => x.Gtin).Column("gtin");
 			
 			//Мотивация
 			Map(x => x.MotivationUnitType).Column("motivation_unit_type");

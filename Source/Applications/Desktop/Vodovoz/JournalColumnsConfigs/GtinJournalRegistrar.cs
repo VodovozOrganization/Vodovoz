@@ -9,6 +9,7 @@ namespace Vodovoz.JournalColumnsConfigs
 		public override IColumnsConfig Configure(FluentColumnsConfig<Gtin> config) =>
 			config.AddColumn("Номер").AddNumericRenderer(node => node.Id)
 				.AddColumn("Gtin").AddTextRenderer(node => node.GtinNumber)
+				.AddColumn("Приоритет").AddNumericRenderer(node => node.Priority)
 				.Finish();
 	}
 }
