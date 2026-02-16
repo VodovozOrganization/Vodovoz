@@ -95,7 +95,14 @@ namespace ExportTo1c.Library.Exporters
 				{
 					var isService = item.Nomenclature.Category == NomenclatureCategory.master
 					                || item.Nomenclature.Category == NomenclatureCategory.service;
+					
+					var vatRateVersion = item.Nomenclature.GetActualVatRateVersion(order.BillDate);
 
+					if(vatRateVersion == null)
+					{
+						throw new InvalidOperationException($"У номенклатуры #{item.Nomenclature.Id} отсутствует версия НДС на дату счета {order.BillDate}");
+					}
+					
 					var rowItem = new XElement("Строка",
 						new XAttribute("Заказ", item.Order.Id),
 						new XAttribute("Код", item.Nomenclature.Code1c),
@@ -106,7 +113,7 @@ namespace ExportTo1c.Library.Exporters
 						new XAttribute("Цена", item.Price.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("Сумма", item.Sum.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("СуммаНДС", item.CurrentNDS.ToString("F2", CultureInfo.InvariantCulture)),
-						new XAttribute("СтавкаНДС", item.Nomenclature.VAT.GetAttribute<Value1cComplexAutomation>().Value),
+						new XAttribute("СтавкаНДС", vatRateVersion.VatRate.GetValue1cComplexAutomation()),
 						new XAttribute("Безнал", item.Order.PaymentType != PaymentType.Cash),
 						new XAttribute("КатегорияНоменклатуры", isService ? "Услуга" : "Товар"),
 						new XAttribute("ОдноразоваяТара", item.Nomenclature.IsDisposableTare),

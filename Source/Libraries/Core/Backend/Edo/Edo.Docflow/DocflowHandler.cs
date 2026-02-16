@@ -119,10 +119,10 @@ namespace Edo.Docflow
 			UniversalTransferDocumentInfo updInfo;
 			OrganizationEntity sender;
 
-			switch(documentTask.OrderEdoRequest.Type)
+			switch(documentTask.FormalEdoRequest.Type)
 			{
 				case CustomerEdoRequestType.Order:
-					var order = documentTask.OrderEdoRequest.Order;
+					var order = documentTask.FormalEdoRequest.Order;
 					var payments = _paymentRepository.GetOrderPayments(_uow, order.Id)
 						.Select(payment => payment.GetFirstParentRefundedPaymentOrCurrent())
 						.Where(x => order.DeliveryDate.HasValue && x.Date < order.DeliveryDate.Value.AddDays(1))
@@ -137,7 +137,7 @@ namespace Edo.Docflow
 				case CustomerEdoRequestType.OrderWithoutShipmentForPayment:
 					throw new NotImplementedException("Не реализована отправка счетов без отгрузки");
 				default:
-					throw new InvalidOperationException($"Неизвестный тип заявки {documentTask.OrderEdoRequest.Type}");
+					throw new InvalidOperationException($"Неизвестный тип заявки {documentTask.FormalEdoRequest.Type}");
 			}
 
 			var message = new TaxcomDocflowSendEvent
@@ -420,7 +420,7 @@ namespace Edo.Docflow
 
 			var message = new TaxcomDocflowRequestCancellationEvent
 			{
-				EdoAccount = documentEdoTask.OrderEdoRequest.Order.Contract.Organization.TaxcomEdoSettings.EdoAccount,
+				EdoAccount = documentEdoTask.FormalEdoRequest.Order.Contract.Organization.TaxcomEdoSettings.EdoAccount,
 				DocumentId = document.Id,
 				CancellationReason = reason
 			};

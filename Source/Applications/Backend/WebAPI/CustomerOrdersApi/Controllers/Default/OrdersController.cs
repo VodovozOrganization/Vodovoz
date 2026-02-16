@@ -6,6 +6,9 @@ using Gamma.Utilities;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
+using VodovozHealthCheck.Helpers;
 
 namespace CustomerOrdersApi.Controllers.Default
 {
@@ -48,8 +51,14 @@ namespace CustomerOrdersApi.Controllers.Default
 				}
 
 				Logger.LogInformation("Подпись валидна, отправляем в очередь");
-				await _publishEndpoint.Publish(onlineOrderInfoDto);
+
+				var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
 				
+				if(!isDryRun)
+				{
+					await _publishEndpoint.Publish(onlineOrderInfoDto);
+				}
+
 				return Accepted();
 			}
 			catch(Exception e)

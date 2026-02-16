@@ -1,0 +1,735 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description></Description>
+  <Author></Author>
+  <PageHeight>11.69in</PageHeight>
+  <PageWidth>8.27in</PageWidth>
+  <Width>.1pt</Width>
+  <TopMargin>0mm</TopMargin>
+  <LeftMargin>0mm</LeftMargin>
+  <RightMargin>0mm</RightMargin>
+  <BottomMargin>0mm</BottomMargin>
+  <DataSets>
+    <DataSet Name="Order">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+    o.id AS order_id,
+    doc.document_number AS document_number,
+    DATE_FORMAT(o.delivery_date,'%d.%m.%y') AS order_date,
+    DATE_FORMAT(o.bill_date,'%d.%m.%Y') AS bill_date,
+    c.full_name AS client_name,
+    c.inn,
+    c.kpp,
+    p.`number` AS contact_phone,
+    (
+        Select
+            GROUP_CONCAT(
+                    CONCAT(
+                            '+7 ',
+                            p_delivery_point.number,
+                            IF(
+                                    p_delivery_point.comment IS NULL,
+                                    '',
+                                    CONCAT(' ', p_delivery_point.comment)
+                                )
+                        )
+                    SEPARATOR '; '
+                )
+        from phones p_delivery_point
+        where dp.id = p_delivery_point.delivery_point_id
+          and p_delivery_point.is_archive = 0
+    )AS delivery_point_contact,
+    (
+        Select
+            GROUP_CONCAT(
+                    CONCAT(
+                            '+7 ',
+                            p_counterparty.number,
+                            IF(
+                                    p_counterparty.comment IS NULL,
+                                    '',
+                                    CONCAT(' ', p_counterparty.comment)
+                            )
+                    )
+                    SEPARATOR '; '
+            )
+        from phones p_counterparty
+        where c.id = p_counterparty.counterparty_id
+          and p_counterparty.is_archive = 0
+    )AS client_contact,
+    CONCAT(
+        FORMAT(
+            (
+                select sum(ROUND(IFNULL(oi.actual_count, oi.count) * oi.price - oi.discount_money, 2))
+                from order_items oi
+                where oi.order_id = o.id
+            ) - 
+            (
+                select IFNULL(sum(pi2.sum), 0)
+                from payment_items pi2
+                where pi2.order_id = o.id
+                  and pi2.payment_item_status != 'Cancelled'
+            ), 2
+        ),
+        ' руб. (',
+        NUMBER_TO_STRING_DESCRIPTION(
+            (
+                select sum(ROUND(IFNULL(oi.actual_count, oi.count) * oi.price - oi.discount_money, 2))
+                from order_items oi
+                where oi.order_id = o.id
+            ) - 
+            (
+                select IFNULL(sum(pi2.sum), 0)
+                from payment_items pi2
+                where pi2.order_id = o.id
+                  and pi2.payment_item_status != 'Cancelled'
+            )
+        ),
+        ')'
+    ) AS order_debt_formatted
+FROM
+    orders o
+        LEFT JOIN
+    counterparty c ON o.client_id = c.id
+        LEFT JOIN
+    delivery_points dp ON dp.id = o.delivery_point_id
+        LEFT JOIN
+    employees ON employees.id = o.author_employee_id
+    	LEFT JOIN
+    phones p ON o.contact_phone_id = p.id
+      LEFT JOIN 
+    order_documents od ON od.order_id = o.id AND od.type IN ('SpecialUPD', 'UPD') AND od.document_organization_counter_id IS NOT NULL
+      LEFT JOIN 
+    document_organization_counters doc ON doc.id = od.document_organization_counter_id
+WHERE
+        o.id = @order_id;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="order_id">
+          <DataField>order_id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="document_number">
+          <DataField>document_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="order_date">
+          <DataField>order_date</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client_name">
+          <DataField>client_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="inn">
+          <DataField>inn</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="kpp">
+          <DataField>kpp</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="delivery_point_contact">
+          <DataField>delivery_point_contact</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client_contact">
+          <DataField>client_contact</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="bill_date">
+          <DataField>bill_date</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="contact_phone">
+          <DataField>contact_phone</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="order_debt_formatted">
+          <DataField>order_debt_formatted</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Organization">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    organizations.full_name,
+    organizations.name as org_name,
+    organizations.INN,
+    organizations.KPP,
+    accounts.`number` as account,
+    ov.jur_address AS address,
+    phones.additional,
+    banks.name,
+    banks.bik,
+    cor_account.cor_account_number as cor_account,
+    accounts.number,
+    leader.last_name AS leader_last_name,
+    leader.name AS leader_name,
+    leader.patronymic AS leader_patronymic,
+    CASE 
+        WHEN CONCAT('+7 ', phones.number) IS NOT NULL AND phones.additional IS NOT NULL AND phones.additional != ''
+            THEN CONCAT('Тел. ', CONCAT('+7 ', phones.number), ', доб. ', phones.additional)
+        WHEN CONCAT('+7 ', phones.number) IS NOT NULL 
+            THEN CONCAT('Тел. ', CONCAT('+7 ', phones.number))
+        ELSE ''
+    END AS contact_info,
+    CASE 
+        WHEN organizations.full_name LIKE 'ООО%' THEN CONCAT('Общество с ограниченной ответственностью', SUBSTRING(organizations.full_name, 4))
+        WHEN organizations.full_name LIKE 'ИП%' THEN CONCAT('Индивидуальный предприниматель', SUBSTRING(organizations.full_name, 3))
+        ELSE organizations.full_name
+    END AS full_name_formatted
+FROM
+    orders
+        LEFT JOIN
+    counterparty ON orders.client_id = counterparty.id
+        LEFT JOIN
+    counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
+        LEFT JOIN
+    organizations ON organizations.id = counterparty_contract.organization_id
+        LEFT JOIN
+   organization_versions ov
+        ON
+            organizations.id = ov.organization_id 
+        AND
+            ov.start_date &lt;= orders.bill_date 
+        AND
+            (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
+        LEFT JOIN
+    accounts ON 
+    		((counterparty.our_organization_account_for_bills is NULL and accounts.id = organizations.default_account_id) 
+    		or (accounts.id = counterparty.our_organization_account_for_bills))
+    	LEFT JOIN
+    banks_cor_accounts cor_account ON accounts.bank_cor_account_id = cor_account.id 
+    	LEFT JOIN
+    banks ON banks.id = accounts.bank_id
+        LEFT JOIN
+    employees leader ON leader.id = ov.leader_id
+        LEFT JOIN
+    employees buh ON buh.id = ov.accountant_id 
+        LEFT JOIN
+    phones ON organizations.id = phones.org_id AND phones.is_archive = 0
+WHERE
+    orders.id = @order_id LIMIT 1;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>={?order_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="full_name">
+          <DataField>full_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="INN">
+          <DataField>INN</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="KPP">
+          <DataField>KPP</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="address">
+          <DataField>address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="name">
+          <DataField>name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="bik">
+          <DataField>bik</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="number">
+          <DataField>number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="leader_last_name">
+          <DataField>leader_last_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="leader_name">
+          <DataField>leader_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="leader_patronymic">
+          <DataField>leader_patronymic</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="cor_account">
+          <DataField>cor_account</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="org_name">
+          <DataField>org_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="account">
+          <DataField>account</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="contact_info">
+          <DataField>contact_info</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="full_name_formatted">
+          <DataField>full_name_formatted</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Stamp">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT sr.binary_file as image
+FROM orders o 
+LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
+LEFT JOIN organizations org ON cc.organization_id = org.id 
+LEFT JOIN stored_resource sr ON org.stamp_id = sr.id
+WHERE o.id = @order_id
+</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>={?order_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="image">
+          <DataField>image</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Signatures">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+	(SELECT binary_file FROM stored_resource WHERE id = 
+		(SELECT 
+			 ov.signature_leader_id
+		FROM
+		    orders
+		        LEFT JOIN
+		    counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
+		        LEFT JOIN
+		    organizations ON organizations.id = counterparty_contract.organization_id
+		        LEFT JOIN    
+		    organization_versions ov
+		        ON
+		            organizations.id = ov.organization_id 
+		        AND
+		            ov.start_date &lt;= orders.bill_date 
+		        AND
+		           (ov.end_date is null OR ov.end_date &gt;= orders.bill_date)
+		    WHERE
+		    	orders.id = @order_id)) as chief
+;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>={?order_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="chief">
+          <DataField>chief</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <PageHeader>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>false</PrintOnFirstPage>
+    <PrintOnLastPage>false</PrintOnLastPage>
+  </PageHeader>
+  <Body>
+    <Height>847.4pt</Height>
+    <Columns>1</Columns>
+    <ReportItems>
+      <Table Name="Table1">
+        <DataSetName>Order</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>215.9pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>51.7pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox42">
+                      <Value>={client_name} + "\nИНН: " + {inn}</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily>Calibri</FontFamily>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>34.9pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>="От генерального директора\n" + First({org_name}, 'Organization') + "\n"  + First({leader_last_name}, 'Organization')  + " "  + Left(First({leader_name}, 'Organization'), 1)   + "."  + Left(First({leader_patronymic}, 'Organization'), 1)  + "."</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily>Calibri</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>355.8pt</Left>
+        <Top>114.6pt</Top>
+      </Table>
+      <Textbox Name="Textbox1">
+        <Height>12.75pt</Height>
+        <Width>214.95pt</Width>
+           <Value>='Исх.  № ' + IIF(Len(First({document_number}, 'Order')) = 0, CStr(First({order_id}, 'Order')), First({document_number}, 'Order')) + ' от ' + First({bill_date}, 'Order')</Value>
+        <ZIndex>1</ZIndex>
+        <Left>28.7pt</Left>
+        <Top>108.7pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Table Name="Table3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <DataSetName>Organization</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>553.8pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>18.5pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>=First({full_name_formatted}, 'Organization')</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily>Calibri</FontFamily>
+                        <FontSize>12pt</FontSize>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>15.0pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
+                      <Value>=First({address}, 'Organization')</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily>Calibri</FontFamily>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>13.4pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Value>=First({contact_info}, 'Organization')</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily>Calibri</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12.6pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Value>='ИНН/КПП ' + First({INN}, 'Organization') + '/' + First({KPP}, 'Organization')</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontFamily>Calibri</FontFamily>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>22.4pt</Left>
+        <Top>32.0pt</Top>
+      </Table>
+      <List Name="List1">
+        <Height>356.97pt</Height>
+        <Width>547.77pt</Width>
+        <Left>28.50pt</Left>
+        <Top>218.15pt</Top>
+        <ReportItems>
+          <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>24.03pt</Height>
+            <Width>552.36pt</Width>
+            <Value>="      В соответствии с актом сверки расчетов по состоянию на " + First({bill_date}, 'Order') + " за " + First({client_name}, 'Order') + " ИНН " + First({inn}, 'Order') + " числится задолженность по заказу № " + IIF(Len(First({document_number}, 'Order')) = 0, CStr(First({order_id}, 'Order')), First({document_number}, 'Order')) + " в размере " + First({order_debt_formatted}, 'Order') + ". " + "Просим перечислить указанную сумму на расчетный счет по следующим реквизитам:"</Value>
+            <ZIndex>1</ZIndex>
+            <Left>0.00pt</Left>
+            <Top>21.30pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>10pt</FontSize>
+              <VerticalAlign>Top</VerticalAlign>
+            </Style>
+            <CanGrow>true</CanGrow>
+            <CanShrink>true</CanShrink>
+          </Textbox>
+          <Textbox Name="Textbox4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>13.50pt</Height>
+            <Width>135.40pt</Width>
+            <Value>Уважаемый Клиент</Value>
+            <ZIndex>1</ZIndex>
+            <Left>200.7pt</Left>
+            <Top>3.6pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="BankDetailsTextbox">
+            <Height>66.50pt</Height>
+            <Width>547.05pt</Width>
+            <Value>=First({full_name}, 'Organization') + "\nИНН/КПП " + First({INN}, 'Organization') + "/" + First({KPP}, 'Organization') + "\nПАО  " + First({name}, 'Organization') + "\nБИК  " + First({bik}, 'Organization') + "\nР/с " + First({number}, 'Organization')</Value>
+            <Style>
+              <BorderStyle>
+                <Default>None</Default>
+                <Left>None</Left>
+                <Right>None</Right>
+                <Top>None</Top>
+                <Bottom>None</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Left</TextAlign>
+              <VerticalAlign>Middle</VerticalAlign>
+              <FontFamily>Calibri</FontFamily>
+              <FontSize>10pt</FontSize>
+            </Style>
+            <Left>0.00pt</Left>
+            <Top>51.10pt</Top>
+            <CanGrow>true</CanGrow>
+          </Textbox>
+          <Textbox Name="Textbox2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>13.50pt</Height>
+            <Width>387.56pt</Width>
+            <Value>Генеральный директор                                           ___________________________</Value>
+            <ZIndex>1</ZIndex>
+            <Left>1.60pt</Left>
+            <Top>146.20pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontWeight>Normal</FontWeight>
+              <FontFamily>Calibri</FontFamily>
+            </Style>
+          </Textbox>
+          <Image Name="Image1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>60.21pt</Height>
+            <Width>80.53pt</Width>
+            <Left>221.9pt</Left>
+            <Top>113.9pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontFamily>Calibri</FontFamily>
+            </Style>
+            <Source>Database</Source>
+            <Value>=First({chief}, "Signatures")</Value>
+            <Sizing>Fit</Sizing>
+            <ZIndex>0</ZIndex>
+            <Visibility>
+              <Hidden>={?hide_signature}</Hidden>
+            </Visibility>
+            <MIMEType>image/png</MIMEType>
+          </Image>
+          <Textbox Name="Textbox6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>12.00pt</Height>
+            <Width>121.77pt</Width>
+            <Value>={leader_last_name}
++ ' '
++ Left({leader_name},1)
++ '.'
++ Left({leader_patronymic},1)
++ '.'</Value>
+            <ZIndex>0</ZIndex>
+            <Left>331.7pt</Left>
+            <Top>146.2pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>10pt</FontSize>
+              <FontFamily>Calibri</FontFamily>
+            </Style>
+            <CanGrow>false</CanGrow>
+          </Textbox>
+          <Image Name="Image3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>102.39pt</Height>
+            <Width>112.93pt</Width>
+            <Left>116.4pt</Left>
+            <Top>164.3pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <Source>Database</Source>
+            <Value>=First( {image} , "Stamp" )</Value>
+            <Sizing>Fit</Sizing>
+            <MIMEType>image/png</MIMEType>
+            <Visibility>
+              <Hidden>={?hide_signature}</Hidden>
+            </Visibility>
+            <ZIndex>2</ZIndex>
+          </Image>
+        </ReportItems>
+        <DataSetName>Organization</DataSetName>
+      </List>
+    </ReportItems>
+  </Body>
+  <PageFooter>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>false</PrintOnFirstPage>
+    <PrintOnLastPage>false</PrintOnLastPage>
+  </PageFooter>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySqlConnector</DataProvider>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <ReportParameters>
+    <ReportParameter Name="order_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>269991</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="hide_signature">
+      <DataType>Boolean</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>True</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+  </ReportParameters>
+</Report>

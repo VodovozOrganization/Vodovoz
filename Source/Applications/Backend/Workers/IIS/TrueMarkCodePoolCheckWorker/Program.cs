@@ -63,7 +63,6 @@ namespace TrueMarkCodePoolCheckWorker
 						.AddCore()
 						.AddTrackedUoW()
 						.AddInfrastructure()
-						.AddTrackedUoW()
 
 						.AddSingleton<ITrueMarkOrganizationClientSettingProvider>(sp =>
 						{

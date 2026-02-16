@@ -1,4 +1,4 @@
-using CustomerAppsApi.Library.Dto;
+﻿using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Library.Services;
 using CustomerAppsApi.Models;
 using Gamma.Utilities;
@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using Vodovoz.Core.Domain.Clients;
+using VodovozHealthCheck.Helpers;
 
 namespace CustomerAppsApi.Controllers
 {
@@ -34,7 +35,11 @@ namespace CustomerAppsApi.Controllers
 			var sourceName = source.GetEnumTitle();
 			try
 			{
-				if(!_rentPackagesFrequencyRequestsHandler.CanRequest(source, sourceName))
+				var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
+
+				var canRequest = isDryRun || _rentPackagesFrequencyRequestsHandler.CanRequest(source, sourceName);
+
+				if(!canRequest)
 				{
 					return new FreeRentPackagesDto
 					{
@@ -43,7 +48,12 @@ namespace CustomerAppsApi.Controllers
 				}
 
 				var rentPackages = _rentPackageModel.GetFreeRentPackages(source);
-				_rentPackagesFrequencyRequestsHandler.TryUpdate(source);
+
+				if(!isDryRun)
+				{
+					_rentPackagesFrequencyRequestsHandler.TryUpdate(source);
+				}
+
 				return rentPackages;
 			}
 			catch(Exception e)

@@ -47,7 +47,7 @@ namespace LogisticsEventsApi
 			services.AddWarehouseEventsDependencies(Configuration);
 
 			//закомментил пока нет зарегистрированных пользователей
-			services.ConfigureHealthCheckService<LogisticsEventsApiHealthCheck>();
+			services.ConfigureHealthCheckService<LogisticsEventsApiHealthCheck, ServiceInfoProvider>();
 			services.AddHttpClient();
 
 			services
@@ -107,7 +107,7 @@ namespace LogisticsEventsApi
 
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
-			app.ConfigureHealthCheckApplicationBuilder();
+			app.UseVodovozHealthCheck();
 		}
 	}
 }

@@ -1,4 +1,5 @@
-﻿using NHibernate.Linq;
+﻿using NHibernate;
+using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -20,7 +21,7 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 		public IList<EdoDockflowData> GetEdoDocflowDataByOrderId(IUnitOfWork uow, int orderId)
 		{
 			var data = (
-				from orderEdoRequest in uow.Session.Query<OrderEdoRequest>()
+				from orderEdoRequest in uow.Session.Query<FormalEdoRequest>()
 				join documentEdoTask in uow.Session.Query<DocumentEdoTask>() on orderEdoRequest.Task.Id equals documentEdoTask.Id
 				join oed in uow.Session.Query<OrderEdoDocument>() on documentEdoTask.Id equals oed.DocumentTaskId into orderEdoDocuments
 				from orderEdoDocument in orderEdoDocuments.DefaultIfEmpty()
@@ -100,7 +101,7 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 			var data = (
 				from client in uow.Session.Query<Counterparty>()
 				join order in uow.Session.Query<Order>() on client.Id equals order.Client.Id
-				join orderEdoRequest in uow.Session.Query<OrderEdoRequest>() on order.Id equals orderEdoRequest.Order.Id
+				join orderEdoRequest in uow.Session.Query<FormalEdoRequest>() on order.Id equals orderEdoRequest.Order.Id
 				join documentEdoTask in uow.Session.Query<DocumentEdoTask>() on orderEdoRequest.Task.Id equals documentEdoTask.Id
 				join oed in uow.Session.Query<OrderEdoDocument>() on documentEdoTask.Id equals oed.DocumentTaskId into orderEdoDocuments
 				from orderEdoDocument in orderEdoDocuments.DefaultIfEmpty()
@@ -217,13 +218,32 @@ namespace Vodovoz.Infrastructure.Persistance.Edo
 		}
 
 		/// <inheritdoc/>
-		public async Task<IEnumerable<OrderEdoRequest>> GetOrderEdoRequestsByOrderId(IUnitOfWork uow, int orderId, CancellationToken cancellationToken)
+		public async Task<IEnumerable<FormalEdoRequest>> GetOrderEdoRequestsByOrderId(IUnitOfWork uow, int orderId, CancellationToken cancellationToken)
 		{
-			var orderEdoRequests = await uow.Session.Query<OrderEdoRequest>()
+			var orderEdoRequests = await uow.Session.Query<FormalEdoRequest>()
 				.Where(x => x.Order.Id == orderId)
 				.ToListAsync(cancellationToken);
 
 			return orderEdoRequests;
+		}
+
+		public TaxcomDocflow GetLastTaxcomDocflowByOrderId(IUnitOfWork uow, int orderId)
+		{
+			TaxcomDocflow taxcomDocflowAlias = null;
+			OrderEdoDocument outgoingEdoDocumentAlias = null;
+			EdoTask edoTaskAlias = null;
+			FormalEdoRequest formalEdoRequestAlias = null;
+
+			var taxcomDocflow = uow.Session.QueryOver(() => taxcomDocflowAlias)
+				.JoinEntityAlias(() => outgoingEdoDocumentAlias, () => outgoingEdoDocumentAlias.Id == taxcomDocflowAlias.EdoDocumentId)
+				.JoinEntityAlias(() => edoTaskAlias, () => edoTaskAlias.Id == outgoingEdoDocumentAlias.DocumentTaskId)
+				.JoinEntityAlias(() => formalEdoRequestAlias, () => formalEdoRequestAlias.Task.Id == edoTaskAlias.Id)
+				.Where(() => formalEdoRequestAlias.Order.Id == orderId)
+				.OrderByAlias(() => taxcomDocflowAlias.CreationTime).Desc
+				.Take(1)
+				.SingleOrDefault();
+
+			return taxcomDocflow;
 		}
 	}
 }

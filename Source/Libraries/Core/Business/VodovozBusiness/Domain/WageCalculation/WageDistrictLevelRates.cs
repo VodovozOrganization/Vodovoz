@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
@@ -19,8 +19,10 @@ namespace Vodovoz.Domain.WageCalculation
 	]
 	[HistoryTrace]
 	[EntityPermission]
-	public class WageDistrictLevelRates : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class WageDistrictLevelRates : PropertyChangedBase, IDomainObject, IValidatableObject, ICloneable
 	{
+		public const int NameMaxLength = 255;
+
 		#region Свойства
 
 		bool _isDefaultLevelForRaskatCars;
@@ -92,9 +94,9 @@ namespace Vodovoz.Domain.WageCalculation
 				yield return new ValidationResult("Укажите название ставки", new[] {nameof(Name)});
 			}
 
-			if(Name?.Length > 255)
+			if(Name?.Length > NameMaxLength)
 			{
-				yield return new ValidationResult("Слишком длинное название ставки.\n Оно не должно превышать 255 символов",
+				yield return new ValidationResult($"Слишком длинное название ставки.\n Оно не должно превышать {NameMaxLength} символов",
 					new[] {nameof(Name)});
 			}
 
@@ -110,6 +112,28 @@ namespace Vodovoz.Domain.WageCalculation
 			}
 
 			#endregion валидация ставок
+		}
+
+		public virtual object Clone()
+		{
+			var wageDistrictLevelRates = new WageDistrictLevelRates
+			{
+				Name = Name,
+				IsArchive = IsArchive,
+				IsDefaultLevel = IsDefaultLevel,
+				IsDefaultLevelForOurCars = IsDefaultLevelForOurCars,
+				IsDefaultLevelForRaskatCars = IsDefaultLevelForRaskatCars,
+				LevelRates = new List<WageDistrictLevelRate>()
+			};
+
+			foreach(var rate in LevelRates)
+			{
+				var clonedRate = (WageDistrictLevelRate)rate.Clone();
+				clonedRate.WageDistrictLevelRates = wageDistrictLevelRates;
+				wageDistrictLevelRates.LevelRates.Add(clonedRate);
+			}
+
+			return wageDistrictLevelRates;
 		}
 
 		#endregion Вычисляемые

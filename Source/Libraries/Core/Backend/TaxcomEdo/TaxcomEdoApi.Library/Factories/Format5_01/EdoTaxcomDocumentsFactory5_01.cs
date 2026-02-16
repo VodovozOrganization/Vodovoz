@@ -90,7 +90,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_01
 				NaimJekonSubSost = $"{org.Name}, ИНН/КПП {org.Inn}/{org.Kpp}",
 				SvSchFakt = new FajlDokumentSvSchFakt
 				{
-					NomerSchF = orderInfoForEdo.Id.ToString(),
+					NomerSchF = orderInfoForEdo.StringNumber,
 					DataSchF = orderInfoForEdo.DeliveryDate.ToShortDateString(),
 					KodOKV = "643",
 					IsprSchF = new FajlDokumentSvSchFaktIsprSchF
@@ -148,7 +148,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_01
 				new FajlDokumentSvSchFaktDokPodtvOtgr
 				{
 					NaimDokOtgr = "Универсальный передаточный документ,",
-					NomDokOtgr = orderInfoForEdo.Id.ToString(),
+					NomDokOtgr = orderInfoForEdo.StringNumber,
 					DataDokOtgr = orderInfoForEdo.DeliveryDate.ToShortDateString()
 				}
 			};
@@ -214,7 +214,16 @@ namespace TaxcomEdoApi.Library.Factories.Format5_01
 				SvPer = new FajlDokumentSvProdPerSvPer
 				{
 					SodOper = GetOperationName(orderItems),
-					OsnPer = new []{ GetBasis(orderInfoForEdo) },
+					OsnPer = new []
+					{
+						GetBasis(orderInfoForEdo),
+						new OsnovanieTip()
+						{
+							NaimOsn = "Заказ",
+							NomOsn = orderInfoForEdo.StringNumber,
+							DataOsn = $"{orderInfoForEdo.DeliveryDate:dd.MM.yyyy}",
+						}
+					},
 					SvLicPer = new FajlDokumentSvProdPerSvPerSvLicPer
 					{
 						Item = new FajlDokumentSvProdPerSvPerSvLicPerRabOrgProd
@@ -301,7 +310,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_01
 				NaimJekonSubSost = $"{org.Name}, ИНН/КПП {org.Inn}/{org.Kpp}",
 				SvSchFakt = new FajlDokumentSvSchFakt
 				{
-					NomerSchF = updInfo.Number.ToString(),
+					NomerSchF = updInfo.StringNumber,
 					DataSchF = updInfo.Date.ToShortDateString(),
 					KodOKV = "643",
 					IsprSchF = new FajlDokumentSvSchFaktIsprSchF
@@ -358,7 +367,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_01
 				new FajlDokumentSvSchFaktDokPodtvOtgr
 				{
 					NaimDokOtgr = "Универсальный передаточный документ,",
-					NomDokOtgr = updInfo.Number.ToString(),
+					NomDokOtgr = updInfo.StringNumber,
 					DataDokOtgr = updInfo.Date.ToShortDateString()
 				}
 			};
@@ -413,7 +422,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_01
 							NaimOsn = updInfo.DocumentConfirmingShipment.Document,
 							NomOsn = updInfo.DocumentConfirmingShipment.Number,
 							DataOsn = updInfo.DocumentConfirmingShipment.Date
-						}
+						},
 					},
 					SvLicPer = new FajlDokumentSvProdPerSvPerSvLicPer
 					{

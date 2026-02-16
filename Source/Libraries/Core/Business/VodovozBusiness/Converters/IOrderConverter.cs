@@ -1,4 +1,5 @@
-using TaxcomEdo.Contracts.Orders;
+﻿using TaxcomEdo.Contracts.Orders;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Converters
@@ -10,6 +11,6 @@ namespace Vodovoz.Converters
 		/// </summary>
 		/// <param name="order">Заказ</param>
 		/// <returns>Информация о заказе для ЭДО</returns>
-		OrderInfoForEdo ConvertOrderToOrderInfoForEdo(Order order);
+		OrderInfoForEdo ConvertOrderToOrderInfoForEdo(Order order, DocumentContainerType documentContainerType);
 	}
 }

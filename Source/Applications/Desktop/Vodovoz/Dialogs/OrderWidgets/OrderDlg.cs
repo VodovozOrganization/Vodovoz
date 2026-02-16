@@ -214,6 +214,8 @@ namespace Vodovoz
 		private IOrderSettings _orderSettings;
 		private IOrganizationSettings _organizationSettings;
 		private IPaymentFromBankClientController _paymentFromBankClientController;
+		private IGenericRepository<OrderTo1cExport> _exportsOrderTo1cReporitory;
+		private ICashReceiptRepository _cashReceiptRepository;
 		private RouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 
 		private IGenericRepository<EdoContainer> _edoContainerRepository;
@@ -243,7 +245,7 @@ namespace Vodovoz
 		private readonly ICurrentPermissionService _currentPermissionService = ScopeProvider.Scope.Resolve<ICurrentPermissionService>();
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory = ScopeProvider.Scope.Resolve<IUnitOfWorkFactory>();
 		private readonly OrderCancellationService _orderCancellationService = ScopeProvider.Scope.Resolve<OrderCancellationService>();
-
+		
 		private IOrderService _orderService => ScopeProvider.Scope
 			.Resolve<IOrderService>();
 		private IPaymentService _paymentService => ScopeProvider.Scope
@@ -689,6 +691,8 @@ namespace Vodovoz
 			_counterpartyEdoAccountController = _lifetimeScope.Resolve<ICounterpartyEdoAccountController>();
 			_organizationSettings = _lifetimeScope.Resolve<IOrganizationSettings>();
 			_paymentFromBankClientController = _lifetimeScope.Resolve<IPaymentFromBankClientController>();
+			_exportsOrderTo1cReporitory = _lifetimeScope.Resolve<IGenericRepository<OrderTo1cExport>>();
+			_cashReceiptRepository = _lifetimeScope.Resolve<ICashReceiptRepository>();
 
 			_justCreated = UoWGeneric.IsNew;
 
@@ -1221,6 +1225,8 @@ namespace Vodovoz
 			RefreshBottlesDebtNotifier();
 
 			RefreshDebtorDebtNotifier();
+
+			UpdateDocumentsDescription();
 		}
 
 		private void OnYbuttonSaveWaitUntilClicked(object sender, EventArgs e)
@@ -1482,84 +1488,95 @@ namespace Vodovoz
 				return;
 			}
 
-			if(SelectedEdoDocumentDataNode.EdoDocumentType == EdoDocumentType.InformalOrderDocument)
+			if(SelectedEdoDocumentDataNode.EdoDocumentType is null && SelectedEdoDocumentDataNode.OldEdoDocumentType is null)
 			{
-				ybuttonSendDocumentAgain.Sensitive = true;
-				ybuttonSendDocumentAgain.Label = "Переотправить неформализованный документ";
-				return;
-			}
-
-			if(SelectedEdoDocumentDataNode.IsNewDockflow || SelectedEdoDocumentDataNode.OldEdoDocumentType is null)
-			{
-				ybuttonSendDocumentAgain.Label = "Документы по новому документообороту недоступны для повторной отправки";
+				ybuttonSendDocumentAgain.Label = "Отсутствуют документы для повторной отправки";
 				ybuttonSendDocumentAgain.Sensitive = false;
 
 				return;
 			}
 
-			var selectedType = SelectedEdoDocumentDataNode.OldEdoDocumentType.Value;
-
-			OrderEdoTrueMarkDocumentsActions resendAction;
-
-			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
+			if(!SelectedEdoDocumentDataNode.IsNewDockflow && SelectedEdoDocumentDataNode.OldEdoDocumentType != null)
 			{
-				var resendActionQuery = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
-						.Where(x => x.Order.Id == Entity.Id);
+				var selectedType = SelectedEdoDocumentDataNode.OldEdoDocumentType.Value;
 
-				switch(selectedType)
+				OrderEdoTrueMarkDocumentsActions resendAction;
+
+				using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 				{
-					case DocumentContainerType.Upd:
-						resendActionQuery.Where(x => x.IsNeedToResendEdoUpd);
-						break;
-					case DocumentContainerType.Bill:
-						resendActionQuery.Where(x => x.IsNeedToResendEdoBill);
-						break;
+					var resendActionQuery = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
+							.Where(x => x.Order.Id == Entity.Id);
+
+					switch(selectedType)
+					{
+						case DocumentContainerType.Bill:
+							resendActionQuery.Where(x => x.IsNeedToResendEdoBill);
+							break;
+					}
+
+					resendAction = resendActionQuery.FirstOrDefault();
 				}
 
-				resendAction = resendActionQuery.FirstOrDefault();
+				var alreadyInProcess = resendAction != null
+					&& (resendAction.IsNeedToResendEdoBill && selectedType == DocumentContainerType.Bill);
+
+				if(alreadyInProcess)
+				{
+					ybuttonSendDocumentAgain.Sensitive = false;
+					ybuttonSendDocumentAgain.Label = $"Идет подготовка {selectedType.GetEnumTitle()}";
+
+					return;
+				}
+
+				var outgoingEdoDocuments = GetEdoOutgoingDocuments();
+				var canResendBill = selectedType is DocumentContainerType.Bill && outgoingEdoDocuments.Any(x => !x.IsNewDockflow && x.OldEdoDocumentType == DocumentContainerType.Bill);
+
+				if(canResendBill)
+				{
+					ybuttonSendDocumentAgain.Sensitive = true;
+					ybuttonSendDocumentAgain.Label = $"Отправить повторно {selectedType.GetEnumDisplayName()}";
+
+					return;
+				}
 			}
-
-			var alreadyInProcess = resendAction != null
-				&& (
-						(resendAction.IsNeedToResendEdoUpd && selectedType == DocumentContainerType.Upd)
-						|| (resendAction.IsNeedToResendEdoBill && selectedType == DocumentContainerType.Bill)
-					);
-
-			if(alreadyInProcess)
-			{
-				ybuttonSendDocumentAgain.Sensitive = false;
-				ybuttonSendDocumentAgain.Label = $"Идет подготовка {selectedType.GetEnumTitle()}";
-
-				return;
-			}
-
-			var outgoingEdoDocuments = GetEdoOutgoingDocuments();
-			var canResendUpd = selectedType is DocumentContainerType.Upd && outgoingEdoDocuments.Any(x => !x.IsNewDockflow && x.OldEdoDocumentType == DocumentContainerType.Upd);
-			var canResendBill = selectedType is DocumentContainerType.Bill && outgoingEdoDocuments.Any(x => !x.IsNewDockflow && x.OldEdoDocumentType == DocumentContainerType.Bill);
-
-			if(canResendUpd || canResendBill)
+			else if(SelectedEdoDocumentDataNode.IsNewDockflow && SelectedEdoDocumentDataNode.EdoDocumentType != null)
 			{
 				ybuttonSendDocumentAgain.Sensitive = true;
-				ybuttonSendDocumentAgain.Label = $"Отправить повторно {selectedType.GetEnumDisplayName()}";
-
-				return;
+				ybuttonSendDocumentAgain.Label = "Отправить повторно";
+			}
+			else
+			{
+				ybuttonSendDocumentAgain.Sensitive = false;
+				ybuttonSendDocumentAgain.Label = "Отправить повторно";
 			}
 
-			ybuttonSendDocumentAgain.Sensitive = false;
-			ybuttonSendDocumentAgain.Label = "Отправить повторно";
 		}
 
 		private void OnButtonSendDocumentAgainClicked(object sender, EventArgs e)
 		{
-			if(SelectedEdoDocumentDataNode?.EdoDocumentType == EdoDocumentType.InformalOrderDocument)
+			if(SelectedEdoDocumentDataNode is null)
 			{
-				ResendEquipmentTransferEdoRequest();
-				CustomizeSendDocumentAgainButton();
 				return;
 			}
 
-			ResendUpd();
-			CustomizeSendDocumentAgainButton();
+			if(!(SelectedEdoDocumentDataNode.EdoDocumentType is null))
+			{
+				switch(SelectedEdoDocumentDataNode?.EdoDocumentType)
+				{
+					case EdoDocumentType.UPD:
+						ResendUpdOnNewEdo();
+						break;
+					case EdoDocumentType.InformalOrderDocument:
+						ResendEquipmentTransferEdoRequest();
+						break;
+				}
+				CustomizeSendDocumentAgainButton();
+			}
+			else if(!(SelectedEdoDocumentDataNode.OldEdoDocumentType is null))
+			{
+				ResendUpd();
+				CustomizeSendDocumentAgainButton();
+			}
 		}
 
 		private void ResendEquipmentTransferEdoRequest()
@@ -1626,6 +1643,51 @@ namespace Vodovoz
 			}
 
 			_edoService.SetNeedToResendEdoDocumentForOrder(Entity, type);
+		}
+
+		private void ResendUpdOnNewEdo()
+		{
+			var type = SelectedEdoDocumentDataNode.EdoDocumentType.Value;
+
+			var document = SelectedEdoDocumentDataNode.DocFlowId;
+
+            if(!document.HasValue)
+            {
+                _interactiveService.ShowMessage(ImportanceLevel.Warning,
+					$"Документ {type.GetEnumTitle()} не найден для переотправки.");
+            }
+
+			var result = _edoService.ValidateOutgoingDocument(UoW, SelectedEdoDocumentDataNode);
+
+            var errors = result.Errors.ToArray();
+
+            var errorMessages = result.Errors.Select(x => x.Message).ToArray();
+
+            if(result.IsFailure)
+            {
+                if(errors.Any(error => error.Code == EdoErrors.AlreadyPaidUpd || error.Code == EdoErrors.ResendableEdoDocumentStatuses)
+                    && !_interactiveService.Question(
+                        "Вы уверены, что хотите отправить повторно?\n" +
+                        string.Join("\n - ", errorMessages),
+                        "Требуется подтверждение!"))
+                {
+                    return;
+                }
+            }
+
+			var resendResult = _edoService.ResendEdoDocumentForOrder(Entity);
+
+			var resendErrors = resendResult.Errors.ToArray();
+
+			if(resendResult.IsFailure)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error,
+					$"Не удалось переотправить документ {type.GetEnumTitle()}.\nПричины:\n - " +
+					string.Join("\n - ", resendErrors.Select(x => x.Message)));
+				return;
+			}
+
+			_interactiveService.ShowMessage(ImportanceLevel.Info, "Документ успешно отправлен");
 		}
 
 		private void OnLogisticsRequirementsSelectionChanged(object sender, PropertyChangedEventArgs e)
@@ -2192,6 +2254,10 @@ namespace Vodovoz
 					{
 						toggle.Activatable = CanEditByPermission && _canEditSealAndSignatureUpd;
 					}
+                    if(document.Type == OrderDocumentType.LetterOfDebt)
+                    {
+                        toggle.Activatable = false;
+                    }
 					else
 					{
 						toggle.Activatable = CanEditByPermission;
@@ -2442,7 +2508,7 @@ namespace Vodovoz
 					_currentEmployee,
 					ServicesConfig.CommonServices);
 			var sendEmailView = new SendDocumentByEmailView(SendDocumentByEmailViewModel);
-			hbox20.Add(sendEmailView);
+			yhboxEmails.Add(sendEmailView);
 			sendEmailView.Show();
 		}
 
@@ -2609,6 +2675,7 @@ namespace Vodovoz
 
 				_logger.Info("Ok.");
 				UpdateUIState();
+				UpdateDocumentsDescription();
 				btnCopyEntityId.Sensitive = true;
 				TabName = typeof(Order).GetCustomAttribute<DisplayNameAttribute>(true)?.DisplayName;
 
@@ -2733,6 +2800,7 @@ namespace Vodovoz
 
 					TabParent.OpenTab(() => new OrderDlg(Entity.Id));
 
+					_logger.Error(e, "Ошибка при попытке подтверждения заказа");
 					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 						"Возникла ошибка при подтверждении заказа, заказ был сохранён в виде черновика, вкладка переоткрыта.");
 
@@ -3337,6 +3405,44 @@ namespace Vodovoz
 				return MessageDialogHelper.RunWarningDialog("Сертификаты не добавлены", msg, btns);
 			}
 			return true;
+		}
+
+		private void UpdateDocumentsDescription()
+		{
+			if(Entity.Id == 0)
+			{
+				ylabelDocumentsDescription.LabelProp = string.Empty;
+			}
+
+			var lastExport = _exportsOrderTo1cReporitory.Get(UoW, e => e.Order.Id == Entity.Id).SingleOrDefault();
+			var lastExportDate = lastExport?.LastExportDate;
+			var lastChangeDate = lastExport?.LastOrderChangeDate;
+			var lastFiscalDocumentDate = _cashReceiptRepository.GetLastEdoFiscalDocumentByOrderId(UoW, Entity.Id)?.CreationTime;
+			var lastTaxcomDocflowDate = _edoDocflowRepository.GetLastTaxcomDocflowByOrderId(UoW, Entity.Id)?.CreationTime;
+
+			var result = new StringBuilder();
+
+			if(lastExportDate.HasValue)
+			{
+				result.AppendLine($"\n - Дата последней выгрузки в 1С: {lastExportDate.Value:g}");
+			}
+
+			if(lastChangeDate.HasValue)
+			{
+				result.AppendLine($"\n - Дата последнего изменения значимых полей для выгрузки: {lastChangeDate.Value:g}");
+			}
+
+			if(lastFiscalDocumentDate.HasValue)
+			{
+				result.AppendLine($"\n -Дата формирования чека: {lastFiscalDocumentDate.Value:g}");
+			}
+
+			if(lastTaxcomDocflowDate.HasValue)
+			{
+				result.AppendLine($"\n - Дата формирования УПД: {lastTaxcomDocflowDate.Value:g}");
+			}
+
+			ylabelDocumentsDescription.LabelProp = result.ToString();		
 		}
 
 		#endregion
@@ -4356,7 +4462,7 @@ namespace Vodovoz
 				_interactiveService.ShowMessage(
 					ImportanceLevel.Error,
 					"Вы не можете отменить отгруженный или оплаченный самовывоз. " +
-						"Для продолжения необходимо удалить отгрузку или приходник."
+						"Для продолжения необходимо удалить отгрузку."
 				);
 				return;
 			}
@@ -4383,7 +4489,10 @@ namespace Vodovoz
 					{
 						throw new InvalidOperationException("Для аннулирования документооборота должен быть указан идентификатор ЭДО задачи.");
 					}
-					_orderCancellationService.CancelDocflowByUser(Entity, permit.EdoTaskToCancellationId.Value);
+					_orderCancellationService.CancelDocflowByUser(
+						$"Отмена заказа №{Entity.Id}", 
+						permit.EdoTaskToCancellationId.Value
+					);
 					return;
 				case OrderCancellationPermitType.AllowCancelOrder:
 					OpenUndelivery(permit);
@@ -4454,7 +4563,11 @@ namespace Vodovoz
 			var hasEdoTaskToCancellationId = e.CancellationPermit.EdoTaskToCancellationId != null;
 			if(saved && allowCancellation && hasEdoTaskToCancellationId)
 			{
-				_orderCancellationService.AutomaticCancelDocflow(UoW, Entity, e.CancellationPermit.EdoTaskToCancellationId.Value);
+				_orderCancellationService.AutomaticCancelDocflow(
+					UoW, 
+					$"Отмена заказа №{Entity.Id}", 
+					e.CancellationPermit.EdoTaskToCancellationId.Value
+				);
 			}
 
 			if(saved && e.NeedClose)

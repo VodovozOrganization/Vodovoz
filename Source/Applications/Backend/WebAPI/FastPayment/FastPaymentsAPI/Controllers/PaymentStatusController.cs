@@ -1,10 +1,11 @@
-﻿using FastPaymentsApi.Contracts.Requests;
+using FastPaymentsApi.Contracts.Requests;
 using FastPaymentsAPI.Library.Factories;
 using Microsoft.AspNetCore.Mvc;
 using QS.DomainModel.UoW;
 using System.Linq;
 using System.Net.Http;
 using Vodovoz.EntityRepositories.FastPayments;
+using VodovozHealthCheck.Helpers;
 
 namespace FastPaymentsAPI.Controllers
 {
@@ -55,7 +56,14 @@ namespace FastPaymentsAPI.Controllers
 			result.PaymentStatus = (RequestPaymentStatus)payment.FastPaymentStatus;
 			result.PaymentDetails = _fastPaymentApiFactory.GetNewOnlinePaymentDetailsDto(orderId, payment.Amount);
 
+			var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
 			//сделать сохранение события
+
+			if(!isDryRun)
+			{
+				_notificationModel.SaveNotification(payment, FastPaymentNotificationType.Site, true);
+				_notificationModel.SaveNotification(payment, FastPaymentNotificationType.MobileApp, true);
+			}
 
 			return result;
 		}

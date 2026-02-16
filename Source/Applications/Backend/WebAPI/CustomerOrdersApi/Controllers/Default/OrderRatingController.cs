@@ -8,6 +8,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Vodovoz.Core.Domain.Clients;
+using VodovozHealthCheck.Helpers;
 
 namespace CustomerOrdersApi.Controllers.Default
 {
@@ -54,8 +55,14 @@ namespace CustomerOrdersApi.Controllers.Default
 					Logger.LogWarning("Пришла оценка неизвестного заказа с {Source}", sourceName);
 					return Problem("Произошла ошибка, пожалуйста, попробуйте позже");
 				}
+				
+				var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
 
-				_customerOrdersService.CreateOrderRating(orderRatingInfo);
+				if(!isDryRun)
+				{
+					_customerOrdersService.CreateOrderRating(orderRatingInfo);
+				}
+				
 				return Ok();
 			}
 			catch(Exception e)
@@ -78,15 +85,22 @@ namespace CustomerOrdersApi.Controllers.Default
 			{
 				Logger.LogInformation("Пришел запрос на получение всех причин оценки заказа от {Source}", sourceName);
 
-				if(_memoryCache.TryGetValue(source, out var value))
+				var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
+
+				var canRequest = isDryRun || !_memoryCache.TryGetValue(source, out var value);
+
+				if(!canRequest)
 				{
 					return BadRequest("Превышен интервал обращений");
 				}
 
-				_memoryCache.Set(
+				if(!isDryRun)
+				{
+					_memoryCache.Set(
 					source,
 					DateTime.Now,
 					TimeSpan.FromMinutes(_requestsMinutesLimitsOptions.OrderRatingReasonsRequestFrequencyLimit));
+				}
 				
 				var reasons = _customerOrdersService.GetOrderRatingReasons();
 				return Ok(reasons);

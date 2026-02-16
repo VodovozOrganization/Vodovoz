@@ -24,6 +24,7 @@ namespace Vodovoz.Domain.Orders
 	public class OnlineOrder : PropertyChangedBase, IDomainObject
 	{
 		public const string OnlineOrderName = "Онлайн заказ";
+		public const int CommentMaxLength = 750;
 		private DateTime _version;
 		private DateTime _created;
 		private Source _source;

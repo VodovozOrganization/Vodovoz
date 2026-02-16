@@ -12,6 +12,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
+using Vodovoz.Core.Data.Repositories.Document;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Organizations;
@@ -28,6 +30,8 @@ namespace Edo.Transfer.Sender
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly IBus _messageBus;
+		private readonly IDocumentOrganizationCounterRepository _documentOrganizationCounterRepository;
+		private readonly IOrganizationRepository _organizationRepository;
 
 		public TransferSendPreparer(
 			ILogger<TransferSendPreparer> logger,
@@ -35,7 +39,9 @@ namespace Edo.Transfer.Sender
 			TransferTaskRepository transferTaskRepository,
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			EdoProblemRegistrar edoProblemRegistrar,
-			IBus messageBus
+			IBus messageBus,
+			IDocumentOrganizationCounterRepository documentOrganizationCounterRepository,
+			IOrganizationRepository organizationRepository
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -44,6 +50,8 @@ namespace Edo.Transfer.Sender
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_documentOrganizationCounterRepository = documentOrganizationCounterRepository ?? throw new ArgumentNullException(nameof(documentOrganizationCounterRepository));
+			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 		}
 
 		public async Task PrepareSendAsync(
@@ -129,10 +137,16 @@ namespace Edo.Transfer.Sender
 				return;
 			}
 
+			var seller = await _organizationRepository.GetOrganizationByIdAsync(transferEdoTask.FromOrganizationId);
+			var customer = await _organizationRepository.GetOrganizationByIdAsync(transferEdoTask.ToOrganizationId);
+
+			var transferDocument = await CreateTransferDocumentOrganizationCounterAsync(transferEdoTask.StartTime.Value, seller, cancellationToken);
+			
 			var transferOrderResult = TransferOrder.Create(
 				transferEdoTask.StartTime.Value,
-				new OrganizationEntity { Id = transferEdoTask.FromOrganizationId },
-				new OrganizationEntity { Id = transferEdoTask.ToOrganizationId });
+				seller,
+				customer,
+				transferDocument);
 
 			var transferOrder = transferOrderResult.Match(
 				to => to,
@@ -178,7 +192,7 @@ namespace Edo.Transfer.Sender
 
 			var codesToPreload = sourceCodes.Union(resultCodes).Distinct();
 			await _trueMarkCodeRepository.PreloadCodes(codesToPreload, cancellationToken);
-
+			
 			await _uow.SaveAsync(transferOrder, cancellationToken: cancellationToken);
 
 			foreach(var transferEdoRequest in transferEdoTask.TransferEdoRequests)
@@ -411,6 +425,25 @@ namespace Edo.Transfer.Sender
 			}
 
 			return nomenclature;
+		}
+		
+		private async Task<DocumentOrganizationCounter> CreateTransferDocumentOrganizationCounterAsync(DateTime transferDate, OrganizationEntity seller, CancellationToken cancellationToken)
+		{
+			var lastDocument = await _documentOrganizationCounterRepository
+				.GetMaxDocumentOrganizationCounterOnYearAsync(_uow, transferDate, seller, cancellationToken);
+			var documentCounter = (lastDocument?.Counter ?? 0) + 1;
+			
+			var transferDocumentOrganization = new DocumentOrganizationCounter
+			{
+				Organization = seller,
+				Counter = documentCounter,
+				CounterDateYear = transferDate.Year,
+				DocumentNumber = DocumentNumberBuilder.BuildDocumentNumber(seller, transferDate, documentCounter),
+			};
+
+			await _uow.SaveAsync(transferDocumentOrganization, cancellationToken: cancellationToken);
+			
+			return transferDocumentOrganization;
 		}
 
 		public void Dispose()

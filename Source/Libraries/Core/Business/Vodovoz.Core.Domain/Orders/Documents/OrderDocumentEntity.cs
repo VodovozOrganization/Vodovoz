@@ -2,6 +2,7 @@
 using QS.DomainModel.UoW;
 using System;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Documents;
 
 namespace Vodovoz.Core.Domain.Orders.Documents
 {
@@ -10,6 +11,7 @@ namespace Vodovoz.Core.Domain.Orders.Documents
 		private int _id;
 		OrderEntity _order;
 		OrderEntity _attachedToOrder;
+		private DocumentOrganizationCounter _documentOrganizationCounter;
 
 		/// <summary>
 		/// Идентификатор документа заказа
@@ -48,6 +50,16 @@ namespace Vodovoz.Core.Domain.Orders.Documents
 		{
 			get => _attachedToOrder;
 			set => SetField(ref _attachedToOrder, value);
+		}
+
+		/// <summary>
+		/// Счетчик документа в течении года
+		/// </summary>
+		[Display(Name = "Счетчик документа")]
+		public virtual DocumentOrganizationCounter DocumentOrganizationCounter
+		{
+			get => _documentOrganizationCounter;
+			set => SetField(ref _documentOrganizationCounter, value);
 		}
 
 		/// <summary>

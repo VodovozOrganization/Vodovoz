@@ -45,7 +45,6 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 				BottlesReturn = creatingOnlineOrder.BottlesReturn,
 				Trifle = creatingOnlineOrder.Trifle,
 				ContactPhone = creatingOnlineOrder.ContactPhone,
-				OnlineOrderComment = creatingOnlineOrder.OnlineOrderComment,
 				OnlineOrderPaymentType = creatingOnlineOrder.OnlineOrderPaymentType,
 				OnlineOrderPaymentStatus = creatingOnlineOrder.OnlineOrderPaymentStatus,
 				OnlinePaymentSource = creatingOnlineOrder.OnlinePaymentSource,
@@ -71,12 +70,25 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 				onlineOrder.OnlineOrderStatus = OnlineOrderStatus.New;
 			}
 
+			UpdateOnlineComment(onlineOrder, creatingOnlineOrder.OnlineOrderComment);
 			InitializeOnlineOrderReferences(uow, onlineOrder, creatingOnlineOrder);
 			AddOrderItems(uow, onlineOrder, selfDeliveryDiscountReasonId, creatingOnlineOrder.OnlineOrderItems);
 			AddRentPackages(uow, onlineOrder, creatingOnlineOrder.OnlineRentPackages);
 			onlineOrder.Created = DateTime.Now;
 
 			return onlineOrder;
+		}
+
+		private void UpdateOnlineComment(OnlineOrder onlineOrder, string onlineOrderComment)
+		{
+			if(!string.IsNullOrWhiteSpace(onlineOrderComment)
+				&& onlineOrderComment.Length > OnlineOrder.CommentMaxLength)
+			{
+				const int maxLength = OnlineOrder.CommentMaxLength - 3;
+				onlineOrderComment = onlineOrderComment[..maxLength] + "...";
+			}
+			
+			onlineOrder.OnlineOrderComment = onlineOrderComment;
 		}
 
 		private void AddOrderItems(

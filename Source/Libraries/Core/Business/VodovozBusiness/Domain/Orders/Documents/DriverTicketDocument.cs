@@ -18,7 +18,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		{
 			var reportInfoFactory = ScopeProvider.Scope.Resolve<IReportInfoFactory>();
 			var reportInfo = reportInfoFactory.Create();
-			reportInfo.Title = String.Format("Талон водителю {0} от {1:d}", Order.Id, Order.DeliveryDate);
+			reportInfo.Title = $"{Name} от {Order.DeliveryDate:d}";
 			reportInfo.Identifier = "Documents.DriverTicket";
 			reportInfo.Parameters = new Dictionary<string, object>
 			{
@@ -31,7 +31,9 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
-		public override string Name => String.Format("Талон водителю №{0}", Order.Id);
+		public override string Name => Order?.DeliveryDate >= new DateTime(2026, 1, 1) 
+			?  $"Талон водителю №{DocumentOrganizationCounter?.DocumentNumber ?? Order?.Id.ToString()}"
+			:  $"Талон водителю №{Order?.Id}";
 
 		public override DateTime? DocumentDate => Order?.DeliveryDate;
 

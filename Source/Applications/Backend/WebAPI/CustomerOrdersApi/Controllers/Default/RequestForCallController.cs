@@ -4,6 +4,8 @@ using CustomerOrdersApi.Library.Default.Services;
 using Gamma.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using VodovozHealthCheck.Helpers;
 
 namespace CustomerOrdersApi.Controllers.Default
 {
@@ -37,8 +39,14 @@ namespace CustomerOrdersApi.Controllers.Default
 				}
 
 				Logger.LogInformation("Подпись валидна, сохраняем");
-				_customerOrdersService.CreateRequestForCall(creatingInfoDto);
 				
+				var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
+
+				if(!isDryRun)
+				{
+					_customerOrdersService.CreateRequestForCall(creatingInfoDto);
+				}
+
 				return Ok();
 			}
 			catch(Exception e)

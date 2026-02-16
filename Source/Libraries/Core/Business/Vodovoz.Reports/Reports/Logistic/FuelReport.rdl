@@ -833,7 +833,7 @@
       <Textbox Name="Textbox21">
         <Height>12.76pt</Height>
         <Width>560.97pt</Width>
-        <Value>="Баланс до " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + ": " + First({balance}, "StartBalance")</Value>
+        <Value>="Баланс до " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + ": " + First({start_balance}, "Fuel")</Value>
         <ZIndex>0</ZIndex>
         <Left>0.80pt</Left>
         <Top>37.20pt</Top>
@@ -869,8 +869,95 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>300</Timeout>
-        <CommandText>#Получаем данные по операциям с топливом в ДВ
-WITH all_fuel_operations as
+        <CommandText>SET @fuel_calibration_date := (
+	SELECT start_date
+	FROM car_events
+	WHERE
+		car_id = @car_id
+		AND car_event_type_id = GET_PARAMETER('FuelBalanceCalibrationCarEventTypeId')
+	    AND start_date &lt; @start_date
+	ORDER BY id DESC
+	LIMIT 1
+);
+
+SET @fuel_calibration_actual_balance := (
+	SELECT actual_fuel_balance
+	FROM car_events
+	WHERE
+		car_id = @car_id
+		AND car_event_type_id = GET_PARAMETER('FuelBalanceCalibrationCarEventTypeId')
+	    AND start_date &lt; @start_date
+	ORDER BY id DESC
+	LIMIT 1
+);
+
+SET @fuel_calibration_operation_id := (
+	SELECT calibration_fuel_operation_id
+	FROM car_events
+	WHERE
+		car_id = @car_id
+		AND car_event_type_id = GET_PARAMETER('FuelBalanceCalibrationCarEventTypeId')
+	    AND start_date &lt; @start_date
+	ORDER BY id DESC
+	LIMIT 1
+);
+
+WITH start_balance AS (SELECT
+	CAST(IFNULL(@fuel_calibration_actual_balance, 0) + gived_to_fuel_card.liters_gived - fuel_operations_outlayed.liters_outlayed - written_off_without_rl.liters_outlayed AS DECIMAL(10,2)) as balance
+FROM
+(
+# Выдано на топливную карту:
+	(SELECT
+		IFNULL(SUM(ft.quantity), 0) as liters_gived
+	FROM fuel_transactions ft
+	JOIN fuel_cards fc ON ft.card_id = fc.card_id 
+	JOIN fuel_card_versions fcv ON fc.id = fcv.fuel_card_id AND fcv.start_date &lt;= ft.transaction_date  AND (fcv.end_date &gt; ft.transaction_date OR fcv.end_date is null)
+	WHERE
+		fcv.car_id  = @car_id
+		AND (@fuel_calibration_date is null OR ft.transaction_date &gt;= @fuel_calibration_date)
+		AND ft.transaction_date &lt; @start_date
+	) as gived_to_fuel_card,
+
+# Потрачено
+	(SELECT
+		IFNULL(SUM(fuel_operations_out.liters_outlayed),0) AS liters_outlayed
+	FROM
+		(    
+			SELECT 
+				fuel_operations.id,
+				fuel_operations.date,
+				fuel_operations.driver_id,
+				fuel_operations.liters_outlayed,
+				fuel_operations.car_id,
+				route_lists.id as route_listID,
+				route_lists.date as route_listDate,
+				route_lists.driver_id as rl_driver
+			FROM fuel_operations
+			LEFT JOIN route_lists ON fuel_operations.id = route_lists.fuel_outlayed_operation_id
+			WHERE fuel_operations.is_fine = 0
+		) as fuel_operations_out
+	WHERE	
+		DATE(fuel_operations_out.date) &lt; @start_date
+		AND (@fuel_calibration_operation_id IS NULL OR NOT (fuel_operations_out.id = @fuel_calibration_operation_id))
+		AND (@fuel_calibration_date is null OR fuel_operations_out.date &gt;= @fuel_calibration_date)
+		AND ((fuel_operations_out.driver_id = @driver_id) OR (@car_id &lt;&gt; -1 AND fuel_operations_out.car_id = @car_id))) as fuel_operations_outlayed,
+
+# Списание километража без МЛ
+	(SELECT
+	        IFNULL(SUM(mwo.liters_outlayed),0) AS liters_outlayed
+		FROM 
+			mileage_write_off mwo 
+			LEFT JOIN employees e ON mwo.driver_id = e.id 
+			LEFT JOIN cars c on mwo.car_id = c.id 
+		WHERE
+			mwo.write_off_date &lt; @start_date
+			AND (@fuel_calibration_date is null OR mwo.write_off_date &gt;= @fuel_calibration_date)
+	        AND ((@driver_id &lt;&gt; -1 AND mwo.driver_id = @driver_id) OR (@car_id &lt;&gt; -1 AND mwo.car_id = @car_id))
+	    ) as written_off_without_rl
+)),
+
+#Получаем данные по операциям с топливом в ДВ
+all_fuel_operations as
 ((SELECT
         date,
         route_list_id,
@@ -884,7 +971,9 @@ WITH all_fuel_operations as
         SUM(liters_limits) as liters_limits,
         reg_number,
         car_id,
-        is_fine
+        is_fine,
+        is_fuel_calibration,
+        calibration_actual_fuel_balance
     FROM
         (
             #Выбираем полученное топливо
@@ -901,7 +990,9 @@ WITH all_fuel_operations as
                 IFNULL(fuel_documents.gived_fuel_limits_amount, 0) AS liters_limits,
                 cars.reg_number AS reg_number,
                 cars.id AS car_id,
-                0 as is_fine
+                0 as is_fine,
+                IF(car_events.id IS NULL, 0, 1) as is_fuel_calibration,
+                IF(car_events.id IS NULL, 0, car_events.actual_fuel_balance) as calibration_actual_fuel_balance
 	            FROM
                 fuel_operations
                 LEFT JOIN fuel_documents ON fuel_operations.id = fuel_documents.fuel_operation_id
@@ -932,7 +1023,9 @@ WITH all_fuel_operations as
                 IFNULL(fuel_documents.gived_fuel_limits_amount, 0) AS liters_limits,
                 cars.reg_number AS reg_number,
                 cars.id AS car_id,
-                fuel_operations.is_fine as is_fine
+                fuel_operations.is_fine as is_fine,
+                IF(car_events.id IS NULL, 0, 1) as is_fuel_calibration,
+                IF(car_events.id IS NULL, 0, car_events.actual_fuel_balance) as calibration_actual_fuel_balance
              FROM
                 fuel_operations
                 LEFT JOIN fuel_documents ON fuel_operations.id = fuel_documents.fuel_operation_id
@@ -966,7 +1059,9 @@ WITH all_fuel_operations as
             0 AS liters_limits,
 	        cars.reg_number AS reg_number,
 	        cars.id AS car_id,
-            0 as is_fine
+            0 as is_fine,
+            0 as is_fuel_calibration,
+            0 as calibration_actual_fuel_balance
 		FROM 
 			mileage_write_off mwo 
 			LEFT JOIN employees e ON mwo.driver_id = e.id 
@@ -996,7 +1091,9 @@ SELECT
     afo.reg_number as reg_number,
     afo.car_id as car_id,
     afo.is_fine as is_fine,
-	#Устанавливаем порядоквый номер МЛ за день для сопоставления с транзакциями
+    afo.is_fuel_calibration as is_fuel_calibration,
+    afo.calibration_actual_fuel_balance,
+	#Устанавливаем порядковый номер МЛ за день для сопоставления с транзакциями
 	(SELECT COUNT(*)+1 FROM all_fuel_operations WHERE NOT route_list_date IS NULL AND afo.route_list_date = route_list_date AND afo.route_list_id &gt; route_list_id) as daily_rl_number
 FROM
 	all_fuel_operations afo    
@@ -1012,6 +1109,7 @@ SELECT
 	fuel_transactions.quantity as fuel_transactions_quantity,
 	fuel_transactions.total_sum  as fuel_transactions_total_sum,
 	cars.reg_number as reg_number,
+	cars.id as car_id,
 	CONCAT_WS(' ', employees.last_name, employees.name) as driver,
 	gfp.gazprom_product_name as gazprom_product_name
 FROM 
@@ -1039,13 +1137,9 @@ ORDER BY fuel_transactions.transaction_date
 transactions_data AS
 (
 SELECT at.*,
-##Устанавливаем порядоквый номер транзакции за день для сопоставления с МЛ
-(SELECT COUNT(*)+1 FROM all_transactions WHERE at.transaction_date &gt; transaction_date AND transaction_date &gt;= DATE(at.transaction_date)) as daily_transaction_number,
-cars.id AS car_id
+##Устанавливаем порядковый номер транзакции за день для сопоставления с МЛ
+(SELECT COUNT(*)+1 FROM all_transactions WHERE at.transaction_date &gt; transaction_date AND transaction_date &gt;= DATE(at.transaction_date)) as daily_transaction_number
 FROM all_transactions at
-LEFT JOIN fuel_cards ON fuel_cards.card_id = at.card_id
-LEFT JOIN fuel_card_versions ON fuel_cards.id = fuel_card_versions.fuel_card_id
-LEFT JOIN cars ON fuel_card_versions.car_id = cars.id
 ),
 
 #Совмещаем данные по МЛ и данные по транзакциям. Выполняем LEFT JOIN, поэтому часть транзакций в выборку не попадет
@@ -1065,6 +1159,8 @@ SELECT
 	fod.reg_number,
 	fod.car_id,
 	fod.is_fine,
+	fod.is_fuel_calibration,
+    fod.calibration_actual_fuel_balance,
 	td.fuel_transactions_quantity,
 	td.fuel_transactions_total_sum,
 	td.transaction_id,
@@ -1094,6 +1190,8 @@ route_lists_transactions AS
 	rlt.reg_number,
 	rlt.car_id,
 	rlt.is_fine,
+	rlt.is_fuel_calibration,
+    rlt.calibration_actual_fuel_balance,
 	IFNULL(rlt.fuel_transactions_quantity,0) as fuel_transactions_quantity,
 	IFNULL(rlt.fuel_transactions_total_sum,0) as fuel_transactions_total_sum,
 	rlt.gazprom_product_name
@@ -1113,12 +1211,14 @@ UNION ALL
 	IFNULL((SELECT reg_number FROM route_lists_part_of_transactions WHERE route_list_date = td.transaction_date ORDER BY route_list_id DESC LIMIT 1), td.reg_number) as reg_number,
 	IFNULL((SELECT car_id FROM route_lists_part_of_transactions WHERE route_list_date =  DATE(td.transaction_date) ORDER BY route_list_id DESC LIMIT 1), td.car_id) as car_id,
 	0 as is_fine,
+	0 as is_fuel_calibration,
+    0 as calibration_actual_fuel_balance,
 	td.fuel_transactions_quantity,
 	td.fuel_transactions_total_sum,
 	td.gazprom_product_name
 FROM transactions_data td
 WHERE td.transaction_id NOT IN (SELECT transaction_id FROM route_lists_part_of_transactions WHERE NOT transaction_id IS NULL))
-ORDER BY date, route_list_id
+ORDER BY date, is_fuel_calibration DESC, route_list_id
 ),
 
 #Добавляем расчет баланса в строках
@@ -1161,36 +1261,25 @@ SELECT
 	route_lists_transactions.liters_limits,
 	route_lists_transactions.reg_number,
 	route_lists_transactions.is_fine,
+	route_lists_transactions.is_fuel_calibration,
+    route_lists_transactions.calibration_actual_fuel_balance,
 	route_lists_transactions.fuel_transactions_total_sum,
 	route_lists_transactions.gazprom_product_name,
-    ROUND((@fuel_balance:=@fuel_balance - IF(route_lists_transactions.is_fine=0,route_lists_transactions.liters_outlayed,0) + route_lists_transactions.fuel_transactions_quantity + IFNULL(route_lists_transactions.payed_for_fuel / (
-                                                                                                                                                                                                    SELECT IF(f.quantity &gt; 0, f.total_sum / f.quantity, NULL)
-                                                                                                                                                                                                    FROM fuel_transactions f
-                                                                                                                                                                                                    WHERE f.card_id = (
-                                                                                                                                                                                                        SELECT fc.card_id
-                                                                                                                                                                                                        FROM fuel_cards fc
-                                                                                                                                                                                                        LEFT JOIN fuel_card_versions fcv ON fc.id = fcv.fuel_card_id
-                                                                                                                                                                                                        WHERE fcv.car_id = route_lists_transactions.car_id
-                                                                                                                                                                                                          AND NOT(fcv.start_date &gt; route_lists_transactions.date)
-                                                                                                                                                                                                          AND (fcv.end_date IS NULL OR fcv.end_date &gt;= route_lists_transactions.date)
-                                                                                                                                                                                                        LIMIT 1
-                                                                                                                                                                                                    )
-                                                                                                                                                                                                      AND NOT(f.transaction_date &gt; route_lists_transactions.date)
-                                                                                                                                                                                                    ORDER BY f.transaction_date DESC
-                                                                                                                                                                                                    LIMIT 1
-                                                                                                                                                                                                ),
-                                                                                                                                                                                                0
-                                                                                                                                                                                            )),2) AS balance
+	@start_balance as start_balance,
+    ROUND(@fuel_balance := 
+			IF(
+				route_lists_transactions.is_fuel_calibration=1,
+				route_lists_transactions.calibration_actual_fuel_balance,
+				@fuel_balance
+	    			- IF(route_lists_transactions.is_fine=0,route_lists_transactions.liters_outlayed,0)
+	    			+ IF(route_lists_transactions.is_fuel_calibration=0,0,route_lists_transactions.liters_gived)
+	    			+ route_lists_transactions.fuel_transactions_quantity)
+		, 2) AS balance
 FROM 
 	route_lists_transactions,
     #Выбирается баланс на начало выбранного периода
-    (SELECT
-        @fuel_balance:= (
-            SELECT IFNULL(SUM(liters_gived), 0) - IFNULL(SUM(IF(is_fine=0,liters_outlayed,0)), 0)
-            FROM fuel_operations
-            WHERE DATE(date) &lt; @start_date AND (driver_id = @driver_id OR @car_id &lt;&gt; -1 AND car_id = @car_id)
-        )
-    ) as TableBalance
+	(SELECT @start_balance := IFNULL((SELECT balance FROM start_balance LIMIT 1), 0)) as StartBalance,
+    (SELECT @fuel_balance:= @start_balance ) as TableBalance
     #Конец выбора баланса
 )
 SELECT * FROM route_lists_transactions_balance
@@ -1271,84 +1360,8 @@ SELECT * FROM route_lists_transactions_balance
           <DataField>gazprom_product_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-      </Fields>
-    </DataSet>
-    <DataSet Name="StartBalance">
-      <Query>
-        <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
-(
-# Выдано:
-	(SELECT
-		IFNULL(SUM(fuel_operations_in.liters_gived), 0)
-	FROM
-		(    
-			SELECT 
-				fuel_operations.id,
-				fuel_operations.date,
-				fuel_operations.driver_id,
-				fuel_operations.liters_gived,
-				fuel_operations.car_id,
-				route_lists.id as route_listID,
-				route_lists.date as route_listDate,
-				route_lists.driver_id as rl_driver
-			FROM fuel_operations
-			LEFT JOIN fuel_documents ON fuel_operations.id = fuel_documents.fuel_operation_id
-			LEFT JOIN route_lists ON fuel_documents.route_list_id = route_lists.id        
-		) as fuel_operations_in
-	WHERE	
-		DATE(fuel_operations_in.date) &lt; @start_date	
-		AND ((fuel_operations_in.driver_id = @driver_id) OR (@car_id &lt;&gt; -1 AND fuel_operations_in.car_id = @car_id)))
--
-# Потрачено
-	(SELECT
-		IFNULL(SUM(fuel_operations_out.liters_outlayed),0)
-	FROM
-		(    
-			SELECT 
-				fuel_operations.id,
-				fuel_operations.date,
-				fuel_operations.driver_id,
-				fuel_operations.liters_outlayed,
-				fuel_operations.car_id,
-				route_lists.id as route_listID,
-				route_lists.date as route_listDate,
-				route_lists.driver_id as rl_driver
-			FROM fuel_operations
-			LEFT JOIN route_lists ON fuel_operations.id = route_lists.fuel_outlayed_operation_id
-			WHERE fuel_operations.is_fine = 0
-		) as fuel_operations_out
-	WHERE	
-		DATE(fuel_operations_out.date) &lt; @start_date	
-		AND ((fuel_operations_out.driver_id = @driver_id) OR (@car_id &lt;&gt; -1 AND fuel_operations_out.car_id = @car_id)))
--
-# Списание километража без МЛ
-	(SELECT
-	        IFNULL(SUM(mwo.liters_outlayed),0) AS liters_outlayed
-		FROM 
-			mileage_write_off mwo 
-			LEFT JOIN employees e ON mwo.driver_id = e.id 
-			LEFT JOIN cars c on mwo.car_id = c.id 
-		WHERE
-			mwo.write_off_date &lt; @start_date
-	        AND ((@driver_id &lt;&gt; -1 AND mwo.driver_id = @driver_id) OR (@car_id &lt;&gt; -1 AND mwo.car_id = @car_id))
-	    )
-) as balance</CommandText>
-        <QueryParameters>
-          <QueryParameter Name="start_date">
-            <Value>=Parameters!start_date</Value>
-          </QueryParameter>
-          <QueryParameter Name="car_id">
-            <Value>=Parameters!car_id</Value>
-          </QueryParameter>
-          <QueryParameter Name="driver_id">
-            <Value>=Parameters!driver_id</Value>
-          </QueryParameter>
-        </QueryParameters>
-      </Query>
-      <Fields>
-        <Field Name="balance">
-          <DataField>balance</DataField>
+        <Field Name="start_balance">
+          <DataField>start_balance</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
@@ -1356,6 +1369,15 @@ SELECT * FROM route_lists_transactions_balance
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySqlConnector</DataProvider>
+        <ConnectString>database=Vodovoz_honeybee;user=;password=;port=3306;server=vod-srv.qsolution.ru;Allow User Variables=True</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
   <ReportParameters>
     <ReportParameter Name="driver_id">
       <DataType>String</DataType>
@@ -1418,13 +1440,4 @@ SELECT * FROM route_lists_transactions_balance
       <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySqlConnector</DataProvider>
-        <ConnectString>database=Vodovoz_honeybee;user=;password=;port=3306;server=vod-srv.qsolution.ru;Allow User Variables=True</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>

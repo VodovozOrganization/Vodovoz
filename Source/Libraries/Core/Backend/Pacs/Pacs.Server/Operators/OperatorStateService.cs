@@ -259,12 +259,12 @@ namespace Pacs.Server.Operators
 
 				if(!operatorStateMachine.CanChangedBy(OperatorTrigger.EndWorkShift))
 				{
-					return new OperatorResult(GetResultContent(operatorStateMachine), $"В данный момент нельзя завершить смену");
+					return new OperatorResult(GetResultContent(operatorStateMachine), "В данный момент нельзя завершить смену");
 				}
 
 				if(!operatorStateMachine.CanEndWorkshift(reason))
 				{
-					return new OperatorResult(GetResultContent(operatorStateMachine), $"Необходимо указать причину закрытия смены, если завершается раньше планируемого");
+					return new OperatorResult(GetResultContent(operatorStateMachine), "Необходимо указать причину закрытия смены, если завершается раньше планируемого");
 				}
 
 				await operatorStateMachine.EndWorkShift(reason);

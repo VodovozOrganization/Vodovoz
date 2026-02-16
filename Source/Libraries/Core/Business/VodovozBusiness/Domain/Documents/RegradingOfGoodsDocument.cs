@@ -9,10 +9,10 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Logistic;
 
 namespace VodovozBusiness.Domain.Documents
 {
@@ -26,6 +26,7 @@ namespace VodovozBusiness.Domain.Documents
 	[HistoryTrace]
 	public class RegradingOfGoodsDocument : Document, IValidatableObject, IWarehouseBoundedDocument
 	{
+		private const int _commentLength = 142;
 		private string _comment;
 		private Warehouse _warehouse;
 		private IObservableList<RegradingOfGoodsDocumentItem> _items = new ObservableList<RegradingOfGoodsDocumentItem>();
@@ -196,10 +197,10 @@ namespace VodovozBusiness.Domain.Documents
 					new[] { nameof(CarEventType) });
 			}
 
-			if(!string.IsNullOrEmpty(Comment) && Comment.Length > 250)
+			if(!string.IsNullOrEmpty(Comment) && Comment.Length > _commentLength)
 			{
 				yield return new ValidationResult(
-					"Длина комментария не должна превышать 250 символов",
+					$"Длина комментария не должна превышать {_commentLength} символов. Сейчас {Comment.Length}",
 					new[] { nameof(Comment) });
 			}
 		}

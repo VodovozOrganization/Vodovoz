@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -16,7 +17,6 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 	{
 		private decimal _amount;
 		private decimal _primeCost;
-		private VAT _vat;
 		private Nomenclature _nomenclature;
 
 		public virtual int Id { get; set; }
@@ -58,13 +58,7 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 			get => _primeCost;
 			set => SetField(ref _primeCost, value);
 		}
-
-		public virtual VAT VAT
-		{
-			get => _vat;
-			set => SetField(ref _vat, value);
-		}
-
+		
 		public virtual decimal Sum => PrimeCost * Amount;
 
 		public abstract string Name { get; }

@@ -1,3 +1,5 @@
+using CustomerOrdersApi.HealthCheck;
+using CustomerOrdersApi.Library;
 using System;
 using CustomerOrdersApi.Library.V4;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
@@ -18,6 +20,8 @@ using Vodovoz.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Trackers;
+using VodovozHealthCheck;
 using Vodovoz.Presentation.WebApi;
 
 namespace CustomerOrdersApi
@@ -48,6 +52,7 @@ namespace CustomerOrdersApi
 				.AddDatabaseConnection()
 				.AddCore()
 				.AddTrackedUoW()
+				.AddOrderTrackerFor1c()
 				.AddBusiness(Configuration)
 				.AddDriverApiNotificationsSenders()
 				.AddApplicationOrderServices()
@@ -67,6 +72,8 @@ namespace CustomerOrdersApi
 					busConf.ConfigureRabbitMq();
 				})
 				.AddHttpClient();
+			
+			services.ConfigureHealthCheckService<CustomerOrdersApiHealthCheck, ServiceInfoProvider>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -96,6 +103,8 @@ namespace CustomerOrdersApi
 			app.UseAuthorization();
 			app.UseApiVersioning();
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+			
+			app.UseVodovozHealthCheck();
 		}
 	}
 }
