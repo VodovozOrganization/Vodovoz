@@ -7,32 +7,36 @@ using Vodovoz.Core.Domain.Organizations;
 
 namespace Vodovoz.Core.Domain.Documents
 {
-	public class UPDNumberBuilder
+	public class DocumentNumberBuilder
 	{
 		private static readonly DateTime _dateForNewDocumentNumbers = new DateTime(2026, 1, 1);
-		
-		public static string Build(OrderEntity order)
+
+		public static string Build(OrderEntity order, DocumentContainerType documentContainerType)
 		{
+			var documentTypes = documentContainerType == DocumentContainerType.Upd
+				? new[] { OrderDocumentType.UPD, OrderDocumentType.SpecialUPD }
+				: new[] { OrderDocumentType.Bill, OrderDocumentType.SpecialBill };
+
 			if(order.DeliveryDate < _dateForNewDocumentNumbers)
 			{
 				return order.Id.ToString();
 			}
-			
-			if (order?.OrderDocuments == null)
+
+			if(order?.OrderDocuments == null)
 			{
 				throw new ArgumentNullException(nameof(order));
 			}
 
 			var document = order.OrderDocuments
-				.FirstOrDefault(x => (x.Type == OrderDocumentType.UPD || x.Type == OrderDocumentType.SpecialUPD) && x.Order.Id == order.Id);
+				.FirstOrDefault(x => documentTypes.Contains(x.Type) && x.Order.Id == order.Id);
 
-			if (document == null)
+			if(document == null)
 			{
 				throw new InvalidOperationException($"Нет документа для заказа #{order.Id}, кол-во документов {order.OrderDocuments.Count}");
 			}
 
-			return document.DocumentOrganizationCounter?.DocumentNumber 
-			       ?? throw new InvalidOperationException("Номер документа отсутствует");
+			return document.DocumentOrganizationCounter?.DocumentNumber
+				   ?? throw new InvalidOperationException("Номер документа отсутствует");
 		}
 
 		public static string Build(

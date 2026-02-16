@@ -34,12 +34,9 @@ namespace MailjetEventsDistributorAPI.HealthChecks
 			var healthSection = _configuration.GetSection("Health");
 			var baseAddress = healthSection.GetValue<string>("BaseAddress");
 
-			var isHealthy = await HttpResponseHelper.CheckUriExistsAsync($"{baseAddress}/Test", _httpClientFactory);
+			var response = await HttpResponseHelper.CheckUriExistsAsync($"{baseAddress}/Test", _httpClientFactory);
 
-			return new VodovozHealthResultDto
-			{
-				IsHealthy = isHealthy
-			};
+			return VodovozHealthResultDto.FromCondition("Сервис почты MailjetEventsDistribute", response.IsSuccess, response.ErrorMessage);
 		}
 	}
 }

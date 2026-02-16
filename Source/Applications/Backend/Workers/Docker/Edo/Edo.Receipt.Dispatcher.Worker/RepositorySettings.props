@@ -1,0 +1,5 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>edo.receipt.dispatcher.worker</ContainerRepository>
+  </PropertyGroup>
+</Project>

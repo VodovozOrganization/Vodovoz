@@ -66,15 +66,16 @@ namespace WarehouseApi.HealthChecks
 
 			_logger.LogInformation($"Проверка работоспособности: get-запрос в {baseAddress}/api/GetOrder?orderId={orderId}");
 
-			var orderData = await HttpResponseHelper.GetByUriAsync(
+			var orderData = await HttpResponseHelper.SendRequestAsync<HttpResponseMessage>(
+				HttpMethod.Get,
 				$"{baseAddress}/api/GetOrder?orderId={orderId}",
 				_httpClientFactory,
-				tokenResponse.Data?.AccessToken,
+				accessToken: tokenResponse.Data?.AccessToken,
 				cancellationToken: cancellationToken);
 
-			var statusCode = ((HttpResponseMessage)orderData).StatusCode;
+			var statusCode = orderData?.StatusCode;
 
-			_logger.LogInformation($"Проверка работоспособности: Результат get-запроса в {baseAddress}/api/GetOrder?orderId={orderId}: {statusCode}. {((HttpResponseMessage)orderData)}");
+			_logger.LogInformation($"Проверка работоспособности: Результат get-запроса в {baseAddress}/api/GetOrder?orderId={orderId}: {statusCode}. {orderData?.StatusCode}");
 
 			var isHealthy = statusCode == HttpStatusCode.OK;
 

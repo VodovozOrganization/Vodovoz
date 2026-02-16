@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using QS.ViewModels;
 using QS.Commands;
 
@@ -7,7 +7,8 @@ namespace Vodovoz.Presentation.ViewModels.Widgets.Profitability
 	public class DatePickerViewModel : WidgetViewModelBase, IDisposable
 	{
 		private DateTime _selectedDate;
-		
+		private int _dateEntryWidthRequest = 100;
+
 		private Func<DateTime, bool> _canSelectNextDateFunc;
 		private Func<DateTime, bool> _canSelectPreviousDateFunc;
 
@@ -42,6 +43,15 @@ namespace Vodovoz.Presentation.ViewModels.Widgets.Profitability
 			}
 		}
 
+		/// <summary>
+		/// Ширина виджета, по умолчанию 100
+		/// </summary>
+		public int DateEntryWidthRequest
+		{
+			get => _dateEntryWidthRequest;
+			set => SetField(ref _dateEntryWidthRequest, value);
+		}
+
 		public void UpdateState()
 		{
 			OnPropertyChanged(nameof(CanSelectNextDate));
@@ -58,6 +68,9 @@ namespace Vodovoz.Presentation.ViewModels.Widgets.Profitability
 						return SelectedDate.ToString("d");
 					case ChangeDateType.Month:
 						return SelectedDate.ToString("Y");
+					case ChangeDateType.Week:
+						var weekEnd = SelectedDate.AddDays(6);
+						return $"{SelectedDate:d} - {weekEnd:d}";
 				}
 
 				return "Неизвестный формат смены даты";
@@ -105,6 +118,9 @@ namespace Vodovoz.Presentation.ViewModels.Widgets.Profitability
 				case ChangeDateType.Day:
 					SelectedDate = selectedDate;
 					break;
+				case ChangeDateType.Week:
+					SelectedDate = GetWeekStart(selectedDate);
+					break;
 			}
 		}
 
@@ -117,6 +133,9 @@ namespace Vodovoz.Presentation.ViewModels.Widgets.Profitability
 					break;
 				case ChangeDateType.Day:
 					SelectedDate = SelectedDate.AddDays(1);
+					break;
+				case ChangeDateType.Week:
+					SelectedDate = SelectedDate.AddDays(7);
 					break;
 			}
 			
@@ -133,9 +152,23 @@ namespace Vodovoz.Presentation.ViewModels.Widgets.Profitability
 				case ChangeDateType.Day:
 					SelectedDate = SelectedDate.AddDays(-1);
 					break;
+				case ChangeDateType.Week:
+					SelectedDate = SelectedDate.AddDays(-7);
+					break;
 			}
 			
 			OnDateChangedByUser();
+		}
+
+		private DateTime GetWeekStart(DateTime date)
+		{
+			int daysToMonday = (int)date.DayOfWeek - (int)DayOfWeek.Monday;
+			if(daysToMonday < 0)
+			{
+				daysToMonday += 7;
+			}
+
+			return date.AddDays(-daysToMonday).Date;
 		}
 
 		public void Dispose()

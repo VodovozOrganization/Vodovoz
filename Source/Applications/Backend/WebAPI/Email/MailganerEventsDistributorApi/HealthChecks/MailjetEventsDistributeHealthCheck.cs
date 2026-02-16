@@ -34,12 +34,9 @@ namespace MailganerEventsDistributorApi.HealthChecks
 			var healthSection = _configuration.GetSection("Health");
 			var baseAddress = healthSection.GetValue<string>("BaseAddress");
 
-			var isHealthy = await HttpResponseHelper.CheckUriExistsAsync($"{baseAddress}/Test", _httpClientFactory);
-
-			return new VodovozHealthResultDto
-			{
-				IsHealthy = isHealthy
-			};
+			var response = await HttpResponseHelper.CheckUriExistsAsync($"{baseAddress}/Test", _httpClientFactory);
+			
+			return VodovozHealthResultDto.FromCondition("Сервис почты Mailganer", response.IsSuccess, response.ErrorMessage);
 		}
 	}
 }

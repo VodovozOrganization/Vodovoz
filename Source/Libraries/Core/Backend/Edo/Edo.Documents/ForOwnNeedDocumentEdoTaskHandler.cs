@@ -1,4 +1,4 @@
-﻿using Edo.Common;
+using Edo.Common;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems.Custom.Sources;
 using Edo.Problems;
@@ -390,8 +390,8 @@ namespace Edo.Documents
 							// индивидуальные коды при этом будут обновлены после валидации
 							if(unscannedCode.ProductCode.ResultCode == null)
 							{
-								var availableGtin = orderItem.Nomenclature.Gtins.First();
-								var newCode = await LoadCodeFromPool(availableGtin, cancellationToken);
+								var forUnscannedAvailableGtins = orderItem.Nomenclature.Gtins;
+								var newCode = await LoadCodeFromPool(forUnscannedAvailableGtins, cancellationToken);
 								unscannedCode.ProductCode.ResultCode = newCode;
 								unscannedCode.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
 							}
@@ -411,10 +411,9 @@ namespace Edo.Documents
 
 						// если не отсканированных нет, но назначить код все еще есть необходимость
 						// то создаем новый taskItem и назначаем код из пула в него и в инвентарную позицию УПД
-						var forNewAvailableGtin = orderItem.Nomenclature.Gtins.First();
-						var forNewCode = await LoadCodeFromPool(forNewAvailableGtin, cancellationToken);
-
-
+						var forNewAvailableGtins = orderItem.Nomenclature.Gtins;
+						var forNewCode = await LoadCodeFromPool(forNewAvailableGtins, cancellationToken);
+						
 						var newAutoTrueMarkProductCode = new AutoTrueMarkProductCode
 						{
 							ResultCode = forNewCode,
@@ -491,6 +490,45 @@ namespace Edo.Documents
 			}
 
 			if(codeId == 0)
+			{
+				throw new EdoProblemException(exception, problemGtins);
+			}
+
+			return await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(codeId, cancellationToken);
+		}
+		
+		private async Task<TrueMarkWaterIdentificationCode> LoadCodeFromPool(
+			IEnumerable<GtinEntity> gtins,
+			CancellationToken cancellationToken)
+		{
+			int codeId = 0;
+			var problemGtins = new List<EdoProblemGtinItem>();
+			EdoCodePoolMissingCodeException exception = null;
+			
+			// Последний основной, первый резервный
+			foreach (var gtin in gtins.Reverse())
+			{
+				try
+				{
+					codeId = await _trueMarkCodesPool.TakeCode(gtin.GtinNumber, cancellationToken);
+					
+					break;
+				}
+				catch (EdoCodePoolMissingCodeException ex)
+				{
+					exception = ex;
+
+					if (!problemGtins.Any(x => x.Gtin == gtin))
+					{
+						problemGtins.Add(new EdoProblemGtinItem
+						{
+							Gtin = gtin
+						});
+					}
+				}
+			}
+
+			if (codeId == 0)
 			{
 				throw new EdoProblemException(exception, problemGtins);
 			}

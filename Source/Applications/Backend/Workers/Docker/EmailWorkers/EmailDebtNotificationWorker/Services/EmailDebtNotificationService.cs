@@ -27,7 +27,7 @@ namespace EmailDebtNotificationWorker.Services
 	public partial class EmailDebtNotificationService : IEmailDebtNotificationService
 	{
 		private readonly ILogger<EmailDebtNotificationService> _logger;
-		private readonly IUnitOfWork _uow;
+		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IEmailRepository _emailRepository;
 		private readonly IEmailSettings _emailSettings;
 		private readonly PrintableDocumentSaver _printableDocumentSaver;
@@ -37,7 +37,7 @@ namespace EmailDebtNotificationWorker.Services
 
 		public EmailDebtNotificationService(
 			ILogger<EmailDebtNotificationService> logger,
-			IUnitOfWork uow,
+			IUnitOfWorkFactory uowFactory,
 			IEmailRepository emailRepository,
 			IEmailSettings emailSettings,
 			PrintableDocumentSaver printableDocumentSaver,
@@ -45,7 +45,7 @@ namespace EmailDebtNotificationWorker.Services
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_printableDocumentSaver = printableDocumentSaver ?? throw new ArgumentNullException(nameof(printableDocumentSaver));
@@ -54,7 +54,9 @@ namespace EmailDebtNotificationWorker.Services
 
 		public async Task ScheduleDebtNotificationsAsync(CancellationToken cancellationToken)
 		{
-			var overdueOrdersByClient = await _emailRepository.GetAllOverdueOrderForDebtNotificationAsync(_uow, _maxEmailsPerMinute, cancellationToken);
+			using var uow = _uowFactory.CreateWithoutRoot("Получение списка должников в воркере по рассылке писем о задолженнности");
+
+			var overdueOrdersByClient = await _emailRepository.GetAllOverdueOrderForDebtNotificationAsync(uow, _maxEmailsPerMinute, cancellationToken);
 			if(!overdueOrdersByClient.Any())
 			{
 				_logger.LogDebug("Нет писем для массовой рассылки");
@@ -66,6 +68,8 @@ namespace EmailDebtNotificationWorker.Services
 
 			foreach(var clientOrders in overdueOrdersByClient)
 			{
+				using var clientUow = _uowFactory.CreateWithoutRoot($"Отправка письма клиенту {clientOrders.Value.Counterparty.Id} в воркере по рассылке писем о задолженнности");
+
 				try
 				{
 					if(cancellationToken.IsCancellationRequested)
@@ -77,7 +81,7 @@ namespace EmailDebtNotificationWorker.Services
 					var organization = clientOrders.Value.Organization;
 					var order = clientOrders.Key;
 
-					await ProcessSingleClientEmailAsync(client, organization, order, cancellationToken);
+					await ProcessSingleClientEmailAsync(clientUow, client, organization, order, cancellationToken);
 				}
 				catch(Exception ex)
 				{
@@ -87,6 +91,7 @@ namespace EmailDebtNotificationWorker.Services
 		}
 
 		private async Task ProcessSingleClientEmailAsync(
+			IUnitOfWork uow,
 			Counterparty client,
 			Organization organization,
 			Order order,
@@ -129,12 +134,15 @@ namespace EmailDebtNotificationWorker.Services
 				throw new ArgumentNullException(nameof(storedEmail));
 			}
 
+			await uow.SaveAsync(storedEmail, cancellationToken: cancellationToken);
+
 			var letterOfDebtDocument = new LetterOfDebtDocument
 			{
 				Order = order,
 				HideSignature = !organization.DebtMailingWithSignature,
 				AttachedToOrder = order
 			};
+			await uow.SaveAsync(letterOfDebtDocument, cancellationToken: cancellationToken);
 
 			var bulkEmail = new BulkEmail
 			{
@@ -142,21 +150,19 @@ namespace EmailDebtNotificationWorker.Services
 				Counterparty = client,
 				OrderDocument = letterOfDebtDocument
 			};
+			await uow.SaveAsync(bulkEmail, cancellationToken: cancellationToken);
 
 			var bulkEmailOrder = new BulkEmailOrder
 			{
 				BulkEmail = bulkEmail,
 				Order = order
 			};
+			await uow.SaveAsync(bulkEmailOrder, cancellationToken: cancellationToken);
 
-			await _uow.SaveAsync(letterOfDebtDocument, cancellationToken: cancellationToken);
-			await _uow.SaveAsync(storedEmail, cancellationToken: cancellationToken);
-			await _uow.SaveAsync(bulkEmail, cancellationToken: cancellationToken);
-			await _uow.SaveAsync(bulkEmailOrder, cancellationToken: cancellationToken);
-
-			await _uow.CommitAsync(cancellationToken);
+			await uow.CommitAsync(cancellationToken);
 
 			await PublishDebtEmailMessageAsync(
+				uow,
 				storedEmail,
 				client,
 				organization,
@@ -167,8 +173,20 @@ namespace EmailDebtNotificationWorker.Services
 				cancellationToken);
 		}
 
-		private static StoredEmail CreateStoredEmail(string subject, string email, int orderId)
+		private StoredEmail CreateStoredEmail(string subject, string email, int orderId)
 		{
+			const int maxSubjectLength = 200;
+
+			var truncatedSubject = subject.Length > maxSubjectLength
+			   ? subject[..(maxSubjectLength - 3)] + "..."
+			   : subject;
+
+			if(subject.Length > maxSubjectLength)
+			{
+				_logger.LogWarning("Тема письма обрезана с {OriginalLength} до {TruncatedLength} символов", 
+					subject.Length, truncatedSubject.Length);
+			}
+
 			var storedEmail = new StoredEmail
 			{
 				State = StoredEmailStates.SendingComplete,
@@ -176,7 +194,7 @@ namespace EmailDebtNotificationWorker.Services
 				ManualSending = false,
 				SendDate = DateTime.Now,
 				StateChangeDate = DateTime.Now,
-				Subject = subject,
+				Subject = truncatedSubject,
 				RecipientAddress = email,
 				Guid = Guid.NewGuid(),
 				Description = $"Уведомление о задолженности по заказу: {string.Join(", ", orderId)}",
@@ -186,6 +204,7 @@ namespace EmailDebtNotificationWorker.Services
 		}
 
 		private SendEmailMessage CreateDebtEmailMessage(
+			IUnitOfWork uow,
 			StoredEmail storedEmail,
 			Counterparty client,
 			Organization organization,
@@ -195,7 +214,7 @@ namespace EmailDebtNotificationWorker.Services
 			string emailSubject
 			)
 		{
-			var instanceId = GetCurrentDatabaseId();
+			var instanceId = GetCurrentDatabaseId(uow);
 
 			var unsubscribeUrl = storedEmail.Guid.HasValue
 				? GetUnsubscribeLink(storedEmail.Guid.Value)
@@ -247,10 +266,10 @@ namespace EmailDebtNotificationWorker.Services
 			return sendEmailMessage;
 		}
 
-		private int GetCurrentDatabaseId()
+		private static int GetCurrentDatabaseId(IUnitOfWork uow)
 		{
 			var instanceId = Convert.ToInt32(
-				_uow.Session
+				uow.Session
 				.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
 				.List<object>()
 				.FirstOrDefault());
@@ -357,6 +376,7 @@ namespace EmailDebtNotificationWorker.Services
 		}
 
 		private async Task PublishDebtEmailMessageAsync(
+			IUnitOfWork uow,
 			StoredEmail storedEmail,
 			Counterparty client,
 			Organization organization,
@@ -367,7 +387,7 @@ namespace EmailDebtNotificationWorker.Services
 			CancellationToken cancellationToken
 			)
 		{
-			var emailMessage = CreateDebtEmailMessage(storedEmail, client, organization, order, letterOfDebtDocument, emailAddress, emailSubject);
+			var emailMessage = CreateDebtEmailMessage(uow, storedEmail, client, organization, order, letterOfDebtDocument, emailAddress, emailSubject);
 			await _bus.Publish(emailMessage, cancellationToken);
 		}
 	}

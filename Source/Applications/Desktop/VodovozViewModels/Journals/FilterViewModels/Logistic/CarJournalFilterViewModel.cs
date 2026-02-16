@@ -36,6 +36,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		private bool _isUsedInDelivery;
 		private bool _isNotUsedInDelivery;
 		private IEnumerable<CarTypeOfUse> _excludedCarTypesOfUse;
+		private string _vinFilter;
 
 		public CarJournalFilterViewModel(
 			ViewModelEEVMBuilder<CarModel> carModelViewModelBuilder,
@@ -206,6 +207,12 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Logistic
 		{
 			get => _canChangeCarModel;
 			set => SetField(ref _canChangeCarModel, value);
+		}
+
+		public string VinFilter
+		{
+			get => _vinFilter;
+			set => UpdateFilterField(ref _vinFilter, value);
 		}
 
 		public void SetFilterSensitivity(bool isSensitive)
