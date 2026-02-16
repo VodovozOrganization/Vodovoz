@@ -4,7 +4,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Domain.Logistic
+namespace Vodovoz.Core.Domain.Logistics.Cars
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "виды событий ТС",

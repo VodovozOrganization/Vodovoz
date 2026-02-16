@@ -16,6 +16,7 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Profitability;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Core.Domain.Warehouses;
+using Vodovoz.Core.Domain.Logistics.Cars;
 
 namespace Vodovoz.Domain
 {
