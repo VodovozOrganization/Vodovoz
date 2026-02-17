@@ -167,7 +167,7 @@ namespace CustomerAppsApi.Library.Models
 					externalCounterparty.Phone,
 					externalCounterparty.Email,
 					counterpartyContactInfoDto.ExternalCounterpartyId,
-					externalCounterparty.CounterpartyFrom);
+					counterpartyFrom);
 
 				_uow.Save(copiedExternalCounterparty);
 				_uow.Commit();
