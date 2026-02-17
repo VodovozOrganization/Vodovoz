@@ -201,7 +201,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 
 			if(eventWithComment != null)
 			{
-				node.Comment = eventWithComment.Comment;
+				node.OriginalComment = eventWithComment.Comment;
 			}
 
 			for(int dayIndex = 0; dayIndex < 7; dayIndex++)
@@ -389,7 +389,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			}
 
 			schedule.ArrivalTime = node.ArrivalTime;
-			schedule.Comment = node.Comment;
+			schedule.Comment = node.OriginalComment;
 		}
 
 		/// <summary>
@@ -454,7 +454,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 							CarEventType = eventType,
 							StartDate = day.Date,
 							EndDate = day.Date,
-							Comment = day.ParentRow.Comment,
+							Comment = day.ParentRow.OriginalComment,
 							DayIndices = new List<int> { dayIndex }
 						};
 					}
@@ -485,6 +485,10 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 
 			var existingEvent = _logisticRepository.GetCarEventByCarId(uow, car.Id, group, endOfDay);
 
+			var commentToSave = driverNode.IsCommentEdited
+				? driverNode.EditedComment
+				: driverNode.OriginalComment;
+
 			if(existingEvent == null)
 			{
 				var newEvent = new CarEvent
@@ -494,7 +498,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 					Driver = uow.GetById<Employee>(driverNode.DriverId),
 					StartDate = group.StartDate,
 					EndDate = group.EndDate.AddHours(23).AddMinutes(59).AddSeconds(59),
-					Comment = group.Comment,
+					Comment = commentToSave,
 					Foundation = "Создано из графика водителей",
 					CreateDate = DateTime.Now,
 					Author = _employeeService.GetEmployeeForUser(uow, currentUserId)
@@ -505,7 +509,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			else
 			{
 				existingEvent.EndDate = endOfDay;
-				existingEvent.Comment = group.Comment;
+				existingEvent.Comment = commentToSave;
 				uow.Save(existingEvent);
 			}
 		}
@@ -526,7 +530,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 				MorningBottlesPotential = node.MorningBottles,
 				EveningAddressesPotential = node.EveningAddresses,
 				EveningBottlesPotential = node.EveningBottles,
-				Comment = node.Comment,
+				Comment = node.OriginalComment,
 				LastChangeTime = hasNonZeroValues ? (DateTime?)DateTime.Now : null,
 				Days = new List<DriverScheduleItem>()
 			};
@@ -684,7 +688,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 					worksheet.Cell(row, dayColumn + 4).Value = day.EveningBottles;
 				}
 
-				worksheet.Cell(row, _commentColumn).Value = node.Comment ?? "";
+				worksheet.Cell(row, _commentColumn).Value = node.OriginalComment ?? "";
 				row++;
 			}
 
