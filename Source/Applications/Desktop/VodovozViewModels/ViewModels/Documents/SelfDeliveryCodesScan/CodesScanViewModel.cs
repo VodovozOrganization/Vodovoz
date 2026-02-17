@@ -130,7 +130,9 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 						{
 							GtinNumber = x.GtinNumber,
 							NomenclatureName = x.Nomenclature.Name,
+							GtinPriority =  x.Priority
 						})
+				.OrderBy(x => x.GtinPriority)
 				.ToList();
 
 			_allGroupGtins = _groupGtinrepository.GetValue(
@@ -369,7 +371,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 						NomenclatureName = nomenclature,
 						InSelfDelivery = (int)selfDeliveryDocumentItem.Amount,
 						LeftToScan = (int)selfDeliveryDocumentItem.Amount - selfDeliveryDocumentItem.TrueMarkProductCodes.Count,
-						Gtin = _allGtins.FirstOrDefault(x => x.NomenclatureName == nomenclature)?.GtinNumber
+						Gtins = string.Join(", ", _allGtins.Where(x => x.NomenclatureName == nomenclature)?.Select(x => x.GtinNumber))
 					});
 			}
 		}
