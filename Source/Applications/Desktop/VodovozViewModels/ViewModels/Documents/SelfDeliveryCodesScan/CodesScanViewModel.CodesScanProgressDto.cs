@@ -22,7 +22,7 @@
 			/// <summary>
 			/// Gtin
 			/// </summary>
-			public string Gtin { get; set; }
+			public string Gtins { get; set; }
 		}
 	}
 }

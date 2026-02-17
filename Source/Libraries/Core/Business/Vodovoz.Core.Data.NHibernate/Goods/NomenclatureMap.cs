@@ -276,9 +276,6 @@ namespace Vodovoz.Core.Data.NHibernate.Goods
 			//Честный знак
 			Map(x => x.IsAccountableInTrueMark)
 				.Column("is_accountable_in_chestniy_znak");
-
-			Map(x => x.Gtin)
-				.Column("gtin");
 			
 			//Мотивация
 			Map(x => x.MotivationUnitType)
@@ -331,7 +328,8 @@ namespace Vodovoz.Core.Data.NHibernate.Goods
 				.KeyColumn("nomenclature_id")
 				.Cascade.AllDeleteOrphan()
 				.Inverse()
-				.LazyLoad();
+				.LazyLoad()
+				.OrderBy("priority");
 
 			HasMany(x => x.GroupGtins)
 				.KeyColumn("nomenclature_id")
