@@ -1,9 +1,12 @@
+﻿using System;
 using FastPaymentsApi.Contracts.Requests;
 using FastPaymentsAPI.Library.Factories;
 using Microsoft.AspNetCore.Mvc;
 using QS.DomainModel.UoW;
 using System.Linq;
 using System.Net.Http;
+using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Domain.FastPayments;
 using Vodovoz.EntityRepositories.FastPayments;
 using VodovozHealthCheck.Helpers;
 
@@ -16,16 +19,19 @@ namespace FastPaymentsAPI.Controllers
 		private readonly IUnitOfWork _uow;
 		private readonly IFastPaymentRepository _fastPaymentRepository;
 		private readonly IFastPaymentFactory _fastPaymentApiFactory;
+		private readonly IGenericRepository<FastPaymentStatusUpdatedEvent> _statusUpdatedEventRepository;
 
 		public PaymentStatusController(
 			IUnitOfWork uow, 
 			IFastPaymentRepository fastPaymentRepository, 
-			IFastPaymentFactory fastPaymentApiFactory
+			IFastPaymentFactory fastPaymentApiFactory,
+			IGenericRepository<FastPaymentStatusUpdatedEvent> statusUpdatedEventRepository
 			)
 		{
-			_uow = uow ?? throw new System.ArgumentNullException(nameof(uow));
-			_fastPaymentRepository = fastPaymentRepository ?? throw new System.ArgumentNullException(nameof(fastPaymentRepository));
-			_fastPaymentApiFactory = fastPaymentApiFactory ?? throw new System.ArgumentNullException(nameof(fastPaymentApiFactory));
+			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
+			_fastPaymentRepository = fastPaymentRepository ?? throw new ArgumentNullException(nameof(fastPaymentRepository));
+			_fastPaymentApiFactory = fastPaymentApiFactory ?? throw new ArgumentNullException(nameof(fastPaymentApiFactory));
+			_statusUpdatedEventRepository = statusUpdatedEventRepository ?? throw new ArgumentNullException(nameof(statusUpdatedEventRepository));
 		}
 
 		/// <summary>
@@ -57,12 +63,20 @@ namespace FastPaymentsAPI.Controllers
 			result.PaymentDetails = _fastPaymentApiFactory.GetNewOnlinePaymentDetailsDto(orderId, payment.Amount);
 
 			var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
-			//сделать сохранение события
 
 			if(!isDryRun)
 			{
-				_notificationModel.SaveNotification(payment, FastPaymentNotificationType.Site, true);
-				_notificationModel.SaveNotification(payment, FastPaymentNotificationType.MobileApp, true);
+				var statusUpdatedEvents = _statusUpdatedEventRepository
+					.Get(_uow, x => x.FastPayment.Id == payment.Id)
+					.ToList();
+
+				foreach(var @event in statusUpdatedEvents)
+				{
+					@event.HttpCode = 200;
+					_uow.Save(@event);
+				}
+
+				_uow.Commit();
 			}
 
 			return result;

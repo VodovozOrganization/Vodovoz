@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -17,6 +17,7 @@ using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.FastPayments;
 using VodovozHealthCheck.Helpers;
+using ZXing;
 
 namespace FastPaymentsAPI.Controllers
 {
@@ -485,7 +486,6 @@ namespace FastPaymentsAPI.Controllers
 				return Problem();
 			}
 
-			bool fastPaymentUpdated;
 			var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
 			
 			try
@@ -517,16 +517,11 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				_logger.LogInformation("Обновляем статус оплаты платежа с ticket: {Ticket}", ticket);
-				
-				if(isDryRun)
+
+				if(!isDryRun)
 				{
-					fastPaymentUpdated = true;
+					_fastPaymentService.UpdateFastPaymentStatus(paidOrderInfoDto, fastPayment);
 				}
-				else
-				{
-					fastPaymentUpdated = _fastPaymentService.UpdateFastPaymentStatus(paidOrderInfoDto, fastPayment);	
-				}
-				_fastPaymentService.UpdateFastPaymentStatus(paidOrderInfoDto, fastPayment);
 			}
 			catch(Exception e)
 			{
@@ -536,17 +531,6 @@ namespace FastPaymentsAPI.Controllers
 					paidOrderInfoDto.Status);
 				
 				return Problem();
-			}
-
-			if(!isDryRun)
-			{
-				NotifyDriver(fastPayment, paidOrderInfoDto.OrderNumber);
-
-				if(fastPaymentUpdated)
-				{
-					await _siteNotifier.NotifyPaymentStatusChangeAsync(fastPayment);
-					await _mobileAppNotifier.NotifyPaymentStatusChangeAsync(fastPayment);
-				}
 			}
 
 			return Accepted();

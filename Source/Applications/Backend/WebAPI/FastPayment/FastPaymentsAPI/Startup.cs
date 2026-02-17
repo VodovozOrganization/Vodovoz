@@ -16,6 +16,8 @@ using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Services;
 using System;
+using MassTransit;
+using MessageTransport;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;

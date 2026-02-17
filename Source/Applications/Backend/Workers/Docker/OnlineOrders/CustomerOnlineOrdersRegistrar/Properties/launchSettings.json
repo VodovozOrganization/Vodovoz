@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "CustomersOnlineOrdersRegistrator": {
+    "CustomerOnlineOrdersRegistrar": {
       "commandName": "Project",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"
