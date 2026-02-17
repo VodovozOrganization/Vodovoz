@@ -25,7 +25,8 @@ namespace VodovozBusiness.Nodes
 		private int _eveningAddresses;
 		private int _eveningBottles;
 		private DateTime _lastModifiedDateTime;
-		private string _comment;
+		private string _originalComment;
+		private string _editedComment;
 		private DateTime? _dateFired;
 		private DateTime? _dateCalculated;
 		private DateTime _startDate;
@@ -699,14 +700,33 @@ namespace VodovozBusiness.Nodes
 		}
 
 		/// <summary>
-		/// Комментарий
+		/// Оригинальный комментарий
 		/// </summary>
-		public virtual string Comment
+		public virtual string OriginalComment
 		{
-			get => _comment;
+			get => _originalComment;
 			set
 			{
-				if(SetField(ref _comment, value?.Length > 255 ? value.Substring(0, 255) : value))
+				if(SetField(ref _originalComment, value?.Length > 255 ? value.Substring(0, 255) : value))
+				{
+					UpdateHasChanges();
+				}
+			}
+		}
+
+		/// <summary>
+		/// Комментарий без переносов
+		/// </summary>
+		public string EditedComment
+		{
+			get => string.IsNullOrEmpty(_editedComment)
+				? (OriginalComment?.Replace("\r\n", " ")
+					.Replace("\r", " ")
+					.Replace("\n", " ") ?? "")
+				: _editedComment;
+			set
+			{
+				if(SetField(ref _editedComment, value))
 				{
 					UpdateHasChanges();
 				}
@@ -807,6 +827,12 @@ namespace VodovozBusiness.Nodes
 		public string DriverFullName => string.Join(" ",
 			new[] { LastName, Name, Patronymic }
 				.Where(x => !string.IsNullOrWhiteSpace(x)));
+
+		/// <summary>
+		/// Был ли комментарий изменен
+		/// </summary>
+		/// <returns></returns>
+		public bool IsCommentEdited => !string.IsNullOrEmpty(_editedComment);
 
 		#endregion
 
