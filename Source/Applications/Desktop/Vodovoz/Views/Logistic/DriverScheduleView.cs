@@ -210,7 +210,7 @@ namespace Vodovoz.Views.Logistic
 
 			columnsConfig.AddColumn(" Комментарий ")
 				.HeaderAlignment(0.5f)
-				.AddTextRenderer(node => node.Comment)
+				.AddTextRenderer(node => node.EditedComment)
 				.Editable()
 				.XAlign(0f)
 				.Finish();

@@ -119,7 +119,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 					.Select(() => driverScheduleAlias.EveningAddressesPotential).WithAlias(() => resultAlias.EveningAddresses)
 					.Select(() => driverScheduleAlias.EveningBottlesPotential).WithAlias(() => resultAlias.EveningBottles)
 					.Select(() => driverScheduleAlias.LastChangeTime).WithAlias(() => resultAlias.LastModifiedDateTime)
-					.Select(() => driverScheduleAlias.Comment).WithAlias(() => resultAlias.Comment)
+					.Select(() => driverScheduleAlias.Comment).WithAlias(() => resultAlias.OriginalComment)
 					.Select(() => employeeAlias.DateFired).WithAlias(() => resultAlias.DateFired)
 					.Select(() => employeeAlias.DateCalculated).WithAlias(() => resultAlias.DateCalculated)
 					.Select(Projections.SqlFunction(

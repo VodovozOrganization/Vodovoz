@@ -111,6 +111,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.EdoUpdReport
 
 			var gtinsProjection = CustomProjections.GroupConcat(
 				() => gtinAlias.GtinNumber,
+				orderByExpression: () => gtinAlias.Priority,
 				separator: ", "
 			);
 

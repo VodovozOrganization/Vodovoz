@@ -342,6 +342,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			
 			if(resultProcessBankAccountMovement.IsFailure)
 			{
+				BankAccountMovements.Clear();
 				IsNotProcessingMode = true;
 				UpdateProgress?.Invoke(resultProcessBankAccountMovement.Errors.First().Message, 1);
 				return false;
@@ -352,6 +353,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			
 			if(matchBankAccountMovementResult.IsFailure)
 			{
+				BankAccountMovements.Clear();
 				IsNotProcessingMode = true;
 				UpdateProgress?.Invoke(matchBankAccountMovementResult.Errors.First().Message, 1);
 				return false;

@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Core.Domain.Logistics.Cars;
 
-namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
+namespace Vodovoz.Core.Data.NHibernate.Logistic.Cars
 {
 	public class CarEventTypeMap : ClassMap<CarEventType>
 	{

@@ -41,6 +41,7 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				var result = await uow.Session.QueryOver<GtinEntity>()
+					.OrderBy(g => g.Priority).Asc
 					.ListAsync(cancellationToken);
 
 				return result;

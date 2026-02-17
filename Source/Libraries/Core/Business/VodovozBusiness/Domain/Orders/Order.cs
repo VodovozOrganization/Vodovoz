@@ -1,10 +1,18 @@
-﻿using Autofac;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using Autofac;
 using Core.Infrastructure;
 using fyiReporting.RDL;
 using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using NHibernate;
 using NHibernate.Exceptions;
+using NLog;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -13,23 +21,15 @@ using QS.HistoryLog;
 using QS.Project.Services;
 using QS.Services;
 using QS.Validation;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Data.Repositories.Document;
 using Vodovoz.Core.Domain.Attributes;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Orders.Documents;
+using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents;
@@ -78,7 +78,7 @@ namespace Vodovoz.Domain.Orders
 	public class Order : OrderEntity, IValidatableObject
 	{
 		public const string DontArriveBeforeIntervalString = "Не приезжать раньше интервала!";
-		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		private static Logger logger = LogManager.GetCurrentClassLogger();
 
 		private IOrderRepository _orderRepository => ScopeProvider.Scope
 			.Resolve<IOrderRepository>();
@@ -538,9 +538,9 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool CanChangeContractor()
 		{
-			return (!NHibernate.NHibernateUtil.IsInitialized(OrderDocuments) || !OrderDocuments.Any())
-				&& (!NHibernate.NHibernateUtil.IsInitialized(InitialOrderService) || !InitialOrderService.Any())
-				&& (!NHibernate.NHibernateUtil.IsInitialized(FinalOrderService) || !FinalOrderService.Any());
+			return (!NHibernateUtil.IsInitialized(OrderDocuments) || !OrderDocuments.Any())
+				&& (!NHibernateUtil.IsInitialized(InitialOrderService) || !InitialOrderService.Any())
+				&& (!NHibernateUtil.IsInitialized(FinalOrderService) || !FinalOrderService.Any());
 		}
 
 		private IList<OrderDepositItem> orderDepositItems = new List<OrderDepositItem>();
@@ -1419,7 +1419,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual bool IsOrderContainsIsAccountableInTrueMarkItems =>
 			ObservableOrderItems.Any(x =>
-			x.Nomenclature.IsAccountableInTrueMark && !string.IsNullOrWhiteSpace(x.Nomenclature.Gtin) && x.Count > 0);
+			x.Nomenclature.IsAccountableInTrueMark && x.Nomenclature.Gtins.Any() && x.Count > 0);
 
 		/// <summary>
 		/// Проверка, является ли целью покупки заказа - для перепродажи
@@ -3066,7 +3066,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 			if(OrderStatus == OrderStatus.Accepted
-				&& permissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.StorePermissions.Documents.CanLoadSelfDeliveryDocument))
+				&& permissionService.ValidatePresetPermission(StorePermissions.Documents.CanLoadSelfDeliveryDocument))
 			{
 				ChangeStatusAndCreateTasks(OrderStatus.OnLoading, callTaskWorker);
 				LoadAllowedBy = employee;
