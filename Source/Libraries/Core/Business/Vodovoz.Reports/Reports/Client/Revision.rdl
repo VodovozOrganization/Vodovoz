@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description>
   </Description>
@@ -16,96 +16,142 @@
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>
-          SELECT *
-          FROM (
-          SELECT # Не оплаченные и частично оплаченные заказы
-            0 as num,
-            CONCAT('Продажа (', o.id, ' от ', o.delivery_date , ')' ) as document,
-              (
-                  (
-                    SELECT round(sum(IFNULL(oi.actual_count, oi.count) * oi.price - oi.discount_money), 2)
-                      FROM order_items oi
-                      WHERE oi.order_id = o.id
-                  )
-                  -
-                  (
-                      SELECT IFNULL(sum(cmo.expense), 0)
-                      FROM payment_items pi
-                          INNER JOIN cashless_movement_operations cmo ON pi.cashless_movement_operation_id = cmo.id
-                      WHERE pi.order_id = o.id
-                        AND cmo.cashless_movement_operation_status != 'Cancelled')
-                  ) as debt,
-            0 as deposit,
-              0 as money,
-              o.delivery_date AS date,
-            CASE
-              WHEN (
-                SELECT IFNULL(sum(cmo.expense), 0)
-                FROM payment_items pi
-                  INNER JOIN cashless_movement_operations cmo ON pi.cashless_movement_operation_id = cmo.id
-                WHERE pi.order_id = o.id
-                  AND cmo.cashless_movement_operation_status != 'Cancelled'
-              ) = 0 THEN 'NotPaid'
-              ELSE 'PartiallyPaid'
-            END as payment_status,
-            o.order_status as order_status
-          FROM orders o
-          LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
-          WHERE
-              o.client_id = @counterparty_id
-              AND o.order_payment_status != 'Paid'
-              AND o.payment_type = 'Cashless'
-              AND cc.organization_id = @organization_id
-              AND o.order_status IN ('Shipped', 'Closed', 'UnloadingOnStock')
-          HAVING
-            debt &gt; 0
-          UNION ALL
-          SELECT # Оплаченные заказы
-              p.payment_num as num,
-              CONCAT('Продажа (', o.id, ' от ', o.delivery_date , ')' ) as document,
-              pi.sum as debt,
-              0 as deposit,
-              0 as money,
-              o.delivery_date as date,
-              'Paid' as payment_status,
-              o.order_status as order_status
-          FROM 
-            orders o
-          INNER JOIN 
-            payment_items pi ON o.id = pi.order_id
-          INNER JOIN 
-            payments_from_bank_client p ON pi.payment_id = p.id
-          LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
-          WHERE
-            o.client_id = @counterparty_id
-            AND pi.payment_item_status != 'Cancelled'
-            AND cc.organization_id = @organization_id
-            AND o.order_status IN ('Shipped', 'Closed', 'UnloadingOnStock')
-          UNION ALL
-          SELECT # Депозит, кредит
-            p.payment_num as num,
-            CONCAT('Оплата (', p.payment_num , ' от ', IFNULL(cmo.operation_time, p.payment_date) , ')') as document, 
-            0 as debt,
-            cmo.income as deposit,
-            0 as money,
-            IFNULL(cmo.operation_time, p.payment_date) as date,
-            '' as payment_status,
-            '' as order_status
-          FROM payments_from_bank_client p
-            LEFT JOIN cashless_movement_operations cmo ON p.cashless_movement_operation_id = cmo.id
-            INNER JOIN organizations o ON p.organization_id = o.id
-          WHERE
-            p.counterparty_id = @counterparty_id
-            AND p.refund_payment_from_order_id is null
-            AND (
-              p.organization_id = @organization_id
-            )) as t
-          WHERE 
-            t.`date` &gt;= @date_start
-          AND 
-            t.`date`  &lt; DATE_ADD(@date_end, INTERVAL 1 DAY)
-          ORDER BY
-            t.`date` DESC
+            SELECT *
+            FROM (
+                SELECT # Не оплаченные и частично оплаченные заказы
+                    0 as num,
+                    CONCAT('Продажа (', 
+                            IFNULL(doc.document_number, o.id), 
+                            ' от ', 
+                            o.delivery_date, 
+                            ')' 
+                    ) as document,
+                    (
+                        (
+                            SELECT round(sum(IFNULL(oi.actual_count, oi.count) * oi.price - oi.discount_money), 2)
+                            FROM order_items oi
+                            WHERE oi.order_id = o.id
+                        )
+                        -
+                        (
+                            SELECT IFNULL(sum(cmo.expense), 0)
+                            FROM payment_items pi
+                            INNER JOIN cashless_movement_operations cmo ON pi.cashless_movement_operation_id = cmo.id
+                            WHERE pi.order_id = o.id
+                            AND cmo.cashless_movement_operation_status != 'Cancelled'
+                        )
+                    ) as debt,
+                    0 as deposit,
+                    0 as money,
+                    o.delivery_date AS date,
+                    CASE
+                        WHEN (
+                            SELECT IFNULL(sum(cmo.expense), 0)
+                            FROM payment_items pi
+                            INNER JOIN cashless_movement_operations cmo ON pi.cashless_movement_operation_id = cmo.id
+                            WHERE pi.order_id = o.id
+                            AND cmo.cashless_movement_operation_status != 'Cancelled'
+                        ) = 0 THEN 'NotPaid'
+                        ELSE 'PartiallyPaid'
+                    END as payment_status,
+                    o.order_status as order_status
+                FROM orders o
+                LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
+                LEFT JOIN order_documents od ON od.order_id = o.id 
+                    AND od.type IN ('SpecialUPD', 'UPD') 
+                    AND od.document_organization_counter_id IS NOT NULL
+                LEFT JOIN document_organization_counters doc ON doc.id = od.document_organization_counter_id
+                WHERE
+                    o.client_id = @counterparty_id
+                    AND o.order_payment_status != 'Paid'
+                    AND o.payment_type = 'Cashless'
+                    AND cc.organization_id = @organization_id
+                    AND o.order_status IN ('Shipped', 'Closed', 'UnloadingOnStock')
+                    AND o.delivery_date &gt;= @date_start
+                    AND o.delivery_date &lt; DATE_ADD(@date_end, INTERVAL 1 DAY)
+                HAVING debt &gt; 0
+                
+                UNION ALL
+                
+                SELECT # Оплаченные заказы
+                    p.payment_num as num,
+                    CONCAT('Продажа (', 
+                            IFNULL(doc.document_number, o.id), 
+                            ' от ', 
+                            o.delivery_date, 
+                            ')' 
+                    ) as document,
+                    pi.sum as debt,
+                    0 as deposit,
+                    0 as money,
+                    o.delivery_date as date,
+                    'Paid' as payment_status,
+                    o.order_status as order_status
+                FROM orders o
+                INNER JOIN payment_items pi ON o.id = pi.order_id
+                INNER JOIN payments_from_bank_client p ON pi.payment_id = p.id
+                LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
+                LEFT JOIN order_documents od ON od.order_id = o.id 
+                    AND od.type IN ('SpecialUPD', 'UPD') 
+                    AND od.document_organization_counter_id IS NOT NULL
+                LEFT JOIN document_organization_counters doc ON doc.id = od.document_organization_counter_id
+                WHERE
+                    o.client_id = @counterparty_id
+                    AND pi.payment_item_status != 'Cancelled'
+                    AND cc.organization_id = @organization_id
+                    AND o.order_status IN ('Shipped', 'Closed', 'UnloadingOnStock')
+                    AND o.delivery_date &gt;= @date_start
+                    AND o.delivery_date &lt; DATE_ADD(@date_end, INTERVAL 1 DAY)
+                
+                UNION ALL
+                
+                SELECT # Депозит, кредит
+                    p.payment_num as num,
+                    CONCAT('Оплата (', p.payment_num , ' от ', IFNULL(cmo.operation_time, p.payment_date) , ')') as document, 
+                    0 as debt,
+                    cmo.income as deposit,
+                    0 as money,
+                    IFNULL(cmo.operation_time, p.payment_date) as date,
+                    '' as payment_status,
+                    '' as order_status
+                FROM payments_from_bank_client p
+                LEFT JOIN cashless_movement_operations cmo ON p.cashless_movement_operation_id = cmo.id
+                INNER JOIN organizations o ON p.organization_id = o.id
+                WHERE
+                    p.counterparty_id = @counterparty_id
+                    AND p.refund_payment_from_order_id is null
+                    AND p.organization_id = @organization_id
+                    AND IFNULL(cmo.operation_time, p.payment_date) &gt;= @date_start
+                    AND IFNULL(cmo.operation_time, p.payment_date) &lt; DATE_ADD(@date_end, INTERVAL 1 DAY)
+                
+                UNION ALL
+                
+                SELECT # Фиктивная запись для отображения таблицы при отсутствии данных
+                    0 as num,
+                    'Нет движений за период' as document,
+                    0 as debt,
+                    0 as deposit,
+                    0 as money,
+                    NULL as date,
+                    '' as payment_status,
+                    '' as order_status
+                FROM (SELECT 1) as dummy
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM (
+                        SELECT o.id FROM orders o
+                        LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
+                        WHERE
+                            o.client_id = @counterparty_id
+                            AND o.payment_type = 'Cashless'
+                            AND cc.organization_id = @organization_id
+                            AND o.order_status IN ('Shipped', 'Closed', 'UnloadingOnStock')
+                            AND o.delivery_date &gt;= @date_start
+                            AND o.delivery_date &lt; DATE_ADD(@date_end, INTERVAL 1 DAY)
+                        LIMIT 1
+                    ) as has_orders
+                )
+            ) as t
+            ORDER BY t.`date` ASC
         </CommandText>
         <QueryParameters>
           <QueryParameter Name="counterparty_id">
@@ -219,45 +265,90 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Initial">
-      <Query>
+    <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>
-        SELECT T.total, NUMBER_TO_STRING_DESCRIPTION(T.total) as total_string
-        FROM (
-          SELECT
-              IFNULL(SUM(IFNULL(cmo.income, 0)) - SUM(IFNULL(cmo.expense, 0)), 0) as total
-          FROM 
-              cashless_movement_operations cmo 
-          WHERE
-              cmo.counterparty_id = @counterparty_id
-              AND cmo.organization_id = @organization_id) as T
-        </CommandText>
-        <QueryParameters>
-          <QueryParameter Name="counterparty_id">
-            <Value>=Parameters!CounterpartyId</Value>
-          </QueryParameter>
-          <QueryParameter Name="date_start">
-            <Value>=Parameters!StartDate</Value>
-          </QueryParameter>
-          <QueryParameter Name="date_end">
-            <Value>=Parameters!EndDate</Value>
-          </QueryParameter>
-          <QueryParameter Name="organization_id">
-            <Value>=Parameters!OrganizationId</Value>
-          </QueryParameter>
-        </QueryParameters>
+            SELECT 
+                IFNULL(SUM(t.deposit), 0) - IFNULL(SUM(t.debt), 0) as total
+            FROM (
+                SELECT # Не оплаченные и частично оплаченные заказы (до начала периода)
+                    (
+                        (
+                            SELECT round(sum(IFNULL(oi.actual_count, oi.count) * oi.price - oi.discount_money), 2)
+                            FROM order_items oi
+                            WHERE oi.order_id = o.id
+                        )
+                        -
+                        (
+                            SELECT IFNULL(sum(cmo.expense), 0)
+                            FROM payment_items pi
+                            INNER JOIN cashless_movement_operations cmo ON pi.cashless_movement_operation_id = cmo.id
+                            WHERE pi.order_id = o.id
+                            AND cmo.cashless_movement_operation_status != 'Cancelled'
+                        )
+                    ) as debt,
+                    0 as deposit
+                FROM orders o
+                LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
+                WHERE
+                    o.client_id = @counterparty_id
+                    AND o.order_payment_status != 'Paid'
+                    AND o.payment_type = 'Cashless'
+                    AND cc.organization_id = @organization_id
+                    AND o.order_status IN ('Shipped', 'Closed', 'UnloadingOnStock')
+                    AND o.delivery_date &lt; @date_start
+                HAVING debt &gt; 0
+                
+                UNION ALL
+                
+                SELECT # Оплаченные заказы (до начала периода)
+                    pi.sum as debt,
+                    0 as deposit
+                FROM orders o
+                INNER JOIN payment_items pi ON o.id = pi.order_id
+                INNER JOIN payments_from_bank_client p ON pi.payment_id = p.id
+                LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
+                WHERE
+                    o.client_id = @counterparty_id
+                    AND pi.payment_item_status != 'Cancelled'
+                    AND cc.organization_id = @organization_id
+                    AND o.order_status IN ('Shipped', 'Closed', 'UnloadingOnStock')
+                    AND o.delivery_date &lt; @date_start
+                
+                UNION ALL
+                
+                SELECT # Депозит, кредит (до начала периода)
+                    0 as debt,
+                    cmo.income as deposit
+                FROM payments_from_bank_client p
+                LEFT JOIN cashless_movement_operations cmo ON p.cashless_movement_operation_id = cmo.id
+                INNER JOIN organizations o ON p.organization_id = o.id
+                WHERE
+                    p.counterparty_id = @counterparty_id
+                    AND p.refund_payment_from_order_id is null
+                    AND p.organization_id = @organization_id
+                    AND IFNULL(cmo.operation_time, p.payment_date) &lt; @date_start
+            ) as t
+          </CommandText>
+          <QueryParameters>
+              <QueryParameter Name="counterparty_id">
+                  <Value>=Parameters!CounterpartyId</Value>
+              </QueryParameter>
+              <QueryParameter Name="date_start">
+                  <Value>=Parameters!StartDate</Value>
+              </QueryParameter>
+              <QueryParameter Name="organization_id">
+                  <Value>=Parameters!OrganizationId</Value>
+              </QueryParameter>
+          </QueryParameters>
       </Query>
       <Fields>
-        <Field Name="total">
-          <DataField>total</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="total_string">
-          <DataField>total_string</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
+          <Field Name="total">
+              <DataField>total</DataField>
+              <TypeName>System.Decimal</TypeName>
+          </Field>
       </Fields>
-    </DataSet>
+  </DataSet>
   </DataSets>
   <PageHeader>
     <Height>46.8pt</Height>
@@ -289,8 +380,7 @@ WHERE
         <Width>806.19pt</Width>
         <Value>="взаимных расчетов за период: " + Format(CDate(Parameters!StartDate), "dd.MM.yyyy") +" - "+ Format(CDate(Parameters!EndDate), "dd.MM.yyyy")+"\n"
 +"между " + First(Fields!org_name,'Organization') +"\n"
-+"и " + First(Fields!counterparty_name,'Counterparty')  +"\n"
-+"по договору №"+First(Fields!contract_id,'Counterparty')+" от "+ Format(First(Fields!issue_date,'Counterparty'),"dd.MM.yyyy")</Value>
++"и " + First(Fields!counterparty_name,'Counterparty')</Value>
         <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>31.40pt</Top>
@@ -538,12 +628,12 @@ WHERE
                   <ReportItems>
                     <Textbox Name="Textbox21">
                       <Value>=Iif(
-First(Fields!total.Value,'Initial')&gt;0,
-First(Fields!total.Value,'Initial'),
+First(Fields!total.Value,'Initial')&lt;0,
+-First(Fields!total.Value,'Initial'),
 ""
 )</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Right</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -558,12 +648,12 @@ First(Fields!total.Value,'Initial'),
                   <ReportItems>
                     <Textbox Name="Textbox20">
                       <Value>=Iif(
-First(Fields!total.Value,'Initial')&lt;0,
--First(Fields!total.Value,'Initial'),
+First(Fields!total.Value,'Initial')&gt;0,
+First(Fields!total.Value,'Initial'),
 ""
 )</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
+                        <TextAlign>Right</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -780,7 +870,7 @@ First(Fields!total.Value,'Initial')&lt;0,
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="TextboxSumOfDebts">
-                      <Value>=Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value))</Value>
+                      <Value>=Sum(Fields!debt)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -877,18 +967,17 @@ First(Fields!total.Value,'Initial')&lt;0,
                   <ReportItems>
                     <Textbox Name="TextboxDebtBalance">
                       <Value>=Iif(
-                        First(Fields!total.Value, 'Initial')
-                        +
-                        Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations')
+                        (Iif(First(Fields!total.Value,'Initial') &lt; 0, Math.Abs(First(Fields!total.Value,'Initial')), 0) 
+                         + Sum(Fields!debt,'Operations'))
                         -
-                        Sum(Iif(Fields!deposit.IsMissing, 0, Fields!deposit.Value),'Operations')&gt;0
-                        ,
-                        First(Fields!total.Value, 'Initial')
-                        +
-                        Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations')
+                        (Iif(First(Fields!total.Value,'Initial') &gt; 0, First(Fields!total.Value,'Initial'), 0)
+                         + Sum(Fields!deposit,'Operations'))
+                        &gt; 0,
+                        (Iif(First(Fields!total.Value,'Initial') &lt; 0, Math.Abs(First(Fields!total.Value,'Initial')), 0) 
+                         + Sum(Fields!debt,'Operations'))
                         -
-                        Sum(Iif(Fields!deposit.IsMissing, 0, Fields!deposit.Value),'Operations')
-                        ,
+                        (Iif(First(Fields!total.Value,'Initial') &gt; 0, First(Fields!total.Value,'Initial'), 0)
+                         + Sum(Fields!deposit,'Operations')),
                         "")
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -906,18 +995,17 @@ First(Fields!total.Value,'Initial')&lt;0,
                   <ReportItems>
                     <Textbox Name="TextboxCreditBalance">
                       <Value>=Iif(
-                        First(Fields!total.Value, 'Initial')
-                        +
-                        Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations')
+                        (Iif(First(Fields!total.Value,'Initial') &gt; 0, First(Fields!total.Value,'Initial'), 0)
+                         + Sum(Fields!deposit,'Operations'))
                         -
-                        Sum(Iif(Fields!deposit.IsMissing, 0, Fields!deposit.Value),'Operations')&lt;0
-                        ,
-                        -First(Fields!total.Value, 'Initial')
-                        +
-                        Sum(Iif(Fields!deposit.IsMissing, 0, Fields!deposit.Value),'Operations')
+                        (Iif(First(Fields!total.Value,'Initial') &lt; 0, Math.Abs(First(Fields!total.Value,'Initial')), 0) 
+                         + Sum(Fields!debt,'Operations'))
+                        &gt; 0,
+                        (Iif(First(Fields!total.Value,'Initial') &gt; 0, First(Fields!total.Value,'Initial'), 0)
+                         + Sum(Fields!deposit,'Operations'))
                         -
-                        Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations')
-                        ,
+                        (Iif(First(Fields!total.Value,'Initial') &lt; 0, Math.Abs(First(Fields!total.Value,'Initial')), 0) 
+                         + Sum(Fields!debt,'Operations')),
                         "")
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -980,47 +1068,77 @@ First(Fields!total.Value,'Initial')&lt;0,
         <Left>0.0pt</Left>
         <Top>144.5pt</Top>
       </Table>
-      <Textbox Name="Textbox72">
-        <Height>14.28pt</Height>
-        <Width>671.55pt</Width>
-        <Value>="По данным "+ First(Fields!org_name,'Organization')</Value>
-        <ZIndex>0</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>250.90pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox73">
-        <Height>52.66pt</Height>
+      <List Name="ConclusionList">
+        <DataSetName>Organization</DataSetName>
+        <Height>85.22pt</Height>
         <Width>461.47pt</Width>
-        <Value>="на "+Format(CDate(Parameters!EndDate),"dd.MM.yyyy") + " задолженность в пользу"
-+ " "+
-Iif(
-First(Fields!total.Value, 'Initial') + Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations') - Sum(Iif(Fields!deposit.IsMissing, 0, Fields!deposit.Value),'Operations')&gt;0
-,
-First(Fields!org_name,'Organization')
-,
-First(Fields!counterparty_name,'Counterparty')
-)
-+ " " +
-Math.Abs(First(Fields!total.Value, 'Initial') + Sum(Iif(Fields!debt.IsMissing, 0, Fields!debt.Value),'Operations') - Sum(Iif(Fields!deposit.IsMissing, 0, Fields!deposit.Value),'Operations'))
-+" руб." + "\n"+
-"( "+
-First({total_string}, 'Initial')
-+" )"</Value>
-        <ZIndex>0</ZIndex>
         <Left>0.00pt</Left>
         <Top>267.20pt</Top>
         <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Bold</FontWeight>
+            <BorderStyle />
         </Style>
-      </Textbox>
+        <KeepTogether>true</KeepTogether>
+        <ReportItems>
+            <Textbox Name="Textbox72">
+                <Height>14.28pt</Height>
+                <Width>461.47pt</Width>
+                <Value>="По данным "+ First(Fields!org_name,'Organization')</Value>
+                <ZIndex>0</ZIndex>
+                <Left>0.00pt</Left>
+                <Top>0pt</Top>
+                <Style>
+                    <BorderStyle />
+                    <BorderColor />
+                    <BorderWidth />
+                </Style>
+            </Textbox>
+            <Textbox Name="Textbox73">
+              <Height>52.66pt</Height>
+              <Width>461.47pt</Width>
+              <Value>="на "+Format(CDate(Parameters!EndDate),"dd.MM.yyyy") + " " +
+          Iif(
+              (Iif(First(Fields!total.Value,'Initial') &lt; 0, Math.Abs(First(Fields!total.Value,'Initial')), 0) + Sum(Fields!debt,'Operations'))
+              -
+              (Iif(First(Fields!total.Value,'Initial') &gt; 0, First(Fields!total.Value,'Initial'), 0) + Sum(Fields!deposit,'Operations'))
+              = 0,
+              "задолженность отсутствует",
+              "задолженность в пользу " +
+              Iif(
+                  (Iif(First(Fields!total.Value,'Initial') &lt; 0, Math.Abs(First(Fields!total.Value,'Initial')), 0) + Sum(Fields!debt,'Operations'))
+                  -
+                  (Iif(First(Fields!total.Value,'Initial') &gt; 0, First(Fields!total.Value,'Initial'), 0) + Sum(Fields!deposit,'Operations'))
+                  &gt; 0,
+                  First(Fields!org_name,'Organization'),     
+                  First(Fields!counterparty_name,'Counterparty')
+              )
+              + " составляет " +
+              Format(
+                  Math.Abs(
+                      (Iif(First(Fields!total.Value,'Initial') &lt; 0, Math.Abs(First(Fields!total.Value,'Initial')), 0) + Sum(Fields!debt,'Operations'))
+                      -
+                      (Iif(First(Fields!total.Value,'Initial') &gt; 0, First(Fields!total.Value,'Initial'), 0) + Sum(Fields!deposit,'Operations'))
+                  ), "N2")
+              +" руб." + "\n"+
+              "("+
+              Code.NumberToWords(Math.Abs(
+                  (Iif(First(Fields!total.Value,'Initial') &lt; 0, Math.Abs(First(Fields!total.Value,'Initial')), 0) + Sum(Fields!debt,'Operations'))
+                  -
+                  (Iif(First(Fields!total.Value,'Initial') &gt; 0, First(Fields!total.Value,'Initial'), 0) + Sum(Fields!deposit,'Operations'))
+              ))
+              +")"
+          )</Value>
+              <ZIndex>0</ZIndex>
+              <Left>0.00pt</Left>
+              <Top>16.28pt</Top>
+              <Style>
+                  <BorderStyle />
+                  <BorderColor />
+                  <BorderWidth />
+                  <FontWeight>Bold</FontWeight>
+              </Style>
+          </Textbox>
+          </ReportItems>
+      </List>
       <List Name="SignaturesList">
         <DataSetName>Organization</DataSetName>
         <Height>78pt</Height>
@@ -1183,6 +1301,114 @@ First({total_string}, 'Initial')
       </ConnectionProperties>
     </DataSource>
   </DataSources>
+  <Code>
+  <![CDATA[
+  Public Function NumberToWords(ByVal num As Decimal) As String
+      Try
+          Dim rub As Integer = Math.Floor(num)
+          Dim kop As Integer = Math.Round((num - rub) * 100)
+          
+          ' Форматируем копейки как двузначное число
+          Dim kopStr As String = kop.ToString("00")
+          
+          Return RublesToWords(rub) + " рублей " + kopStr + " копеек"
+      Catch
+          Return "ноль рублей 00 копеек"
+      End Try
+  End Function
+
+  Private Function RublesToWords(ByVal rub As Integer) As String
+      If rub = 0 Then Return "ноль"
+      
+      Dim units() As String = {"", "один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять"}
+      Dim teens() As String = {"десять", "одиннадцать", "двенадцать", "тринадцать", "четырнадцать", "пятнадцать", "шестнадцать", "семнадцать", "восемнадцать", "девятнадцать"}
+      Dim tens() As String = {"", "", "двадцать", "тридцать", "сорок", "пятьдесят", "шестьдесят", "семьдесят", "восемьдесят", "девяносто"}
+      Dim hundreds() As String = {"", "сто", "двести", "триста", "четыреста", "пятьсот", "шестьсот", "семьсот", "восемьсот", "девятьсот"}
+      
+      Dim result As String = ""
+      Dim temp As Integer = rub
+      
+      'Тысячи
+      Dim thousands As Integer = Math.Floor(temp / 1000)
+      If thousands > 0 Then
+          Dim thousandsWord As String = GetThousandsWord(thousands)
+          result += HundredsToWords(thousands, True) + " " + thousandsWord + " "
+          temp = temp Mod 1000
+      End If
+      
+      'Сотни
+      Dim hundred As Integer = Math.Floor(temp / 100)
+      If hundred > 0 Then
+          result += hundreds(hundred) + " "
+          temp = temp Mod 100
+      End If
+      
+      'Десятки и единицы
+      If temp >= 20 Then
+          Dim ten As Integer = Math.Floor(temp / 10)
+          result += tens(ten) + " "
+          temp = temp Mod 10
+          If temp > 0 Then
+              result += units(temp) + " "
+          End If
+      ElseIf temp >= 10 Then
+          result += teens(temp - 10) + " "
+      ElseIf temp > 0 Then
+          result += units(temp) + " "
+      End If
+      
+      Return result.Trim()
+  End Function
+
+  Private Function GetThousandsWord(ByVal num As Integer) As String
+      Dim lastDigit As Integer = num Mod 10
+      Dim lastTwoDigits As Integer = num Mod 100
+      
+      If lastTwoDigits >= 11 AndAlso lastTwoDigits <= 19 Then
+          Return "тысяч"
+      ElseIf lastDigit = 1 Then
+          Return "тысяча"
+      ElseIf lastDigit >= 2 AndAlso lastDigit <= 4 Then
+          Return "тысячи"
+      Else
+          Return "тысяч"
+      End If
+  End Function
+
+  Private Function HundredsToWords(ByVal num As Integer, ByVal isThousands As Boolean) As String
+      Dim units() As String = {"", If(isThousands, "одна", "один"), If(isThousands, "две", "два"), "три", "четыре", "пять", "шесть", "семь", "восемь", "девять"}
+      Dim teens() As String = {"десять", "одиннадцать", "двенадцать", "тринадцать", "четырнадцать", "пятнадцать", "шестнадцать", "семнадцать", "восемнадцать", "девятнадцать"}
+      Dim tens() As String = {"", "", "двадцать", "тридцать", "сорок", "пятьдесят", "шестьдесят", "семьдесят", "восемьдесят", "девяносто"}
+      Dim hundreds() As String = {"", "сто", "двести", "триста", "четыреста", "пятьсот", "шестьсот", "семьсот", "восемьсот", "девятьсот"}
+      
+      Dim result As String = ""
+      Dim temp As Integer = num
+      
+      'Сотни
+      Dim hundred As Integer = Math.Floor(temp / 100)
+      If hundred > 0 Then
+          result += hundreds(hundred) + " "
+          temp = temp Mod 100
+      End If
+      
+      'Десятки и единицы
+      If temp >= 20 Then
+          Dim ten As Integer = Math.Floor(temp / 10)
+          result += tens(ten) + " "
+          temp = temp Mod 10
+          If temp > 0 Then
+              result += units(temp) + " "
+          End If
+      ElseIf temp >= 10 Then
+          result += teens(temp - 10) + " "
+      ElseIf temp > 0 Then
+          result += units(temp) + " "
+      End If
+      
+      Return result.Trim()
+  End Function
+  ]]>
+  </Code>
   <ReportParameters>
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
