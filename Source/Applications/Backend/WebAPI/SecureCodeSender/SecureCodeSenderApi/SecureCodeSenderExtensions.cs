@@ -51,7 +51,7 @@ namespace SecureCodeSenderApi
 				{
 					busConf.AddRequestClient<SentEmailResponse>(
 						new Uri($"exchange:{configuration.GetValue<string>("RabbitOptions:AuthorizationCodesExchange")}"));
-					busConf.ConfigureRabbitMq();
+					busConf.ConfigureRabbitMq((rabbitMq, context) => rabbitMq.AddSendAuthorizationCodesByEmailTopology(context));
 				})
 				.AddVersioning();
 

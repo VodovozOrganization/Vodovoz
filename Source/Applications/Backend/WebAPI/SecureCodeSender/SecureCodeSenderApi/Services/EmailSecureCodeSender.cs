@@ -18,12 +18,12 @@ namespace SecureCodeSenderApi.Services
 	{
 		private readonly IEmailSettings _emailSettings;
 		private readonly ISecureCodeSettings _secureCodeSettings;
-		private readonly IRequestClient<SendEmailMessage> _client;
+		private readonly IRequestClient<AuthorizationCodesSendEmailMessage> _client;
 		
 		public EmailSecureCodeSender(
 			IEmailSettings emailSettings,
 			ISecureCodeSettings secureCodeSettings,
-			IRequestClient<SendEmailMessage> client)
+			IRequestClient<AuthorizationCodesSendEmailMessage> client)
 		{
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_secureCodeSettings = secureCodeSettings ?? throw new ArgumentNullException(nameof(secureCodeSettings));
@@ -44,7 +44,7 @@ namespace SecureCodeSenderApi.Services
 				client = uow.GetById<Counterparty>(secureCode.CounterpartyId.Value);
 			}
 
-			var sendEmailMessage = new SendEmailMessage
+			var sendEmailMessage = new AuthorizationCodesSendEmailMessage
 			{
 				From = new EmailContact
 				{
