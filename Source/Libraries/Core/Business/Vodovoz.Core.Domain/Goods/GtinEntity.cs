@@ -5,6 +5,10 @@ using QS.HistoryLog;
 
 namespace Vodovoz.Core.Domain.Goods
 {
+	/// <summary>
+	/// Универсальный код товара Gtin
+	/// </summary>
+	
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "Gtin",
 		Nominative = "Gtin")]
@@ -24,18 +28,25 @@ namespace Vodovoz.Core.Domain.Goods
 			set => SetField(ref _id, value);
 		}
 
+		[Display(Name = "Номер Gtin")]
 		public virtual string GtinNumber
 		{
 			get => _gtinNumber;
 			set => SetField(ref _gtinNumber, value);
 		}
 
+		/// <summary>
+		/// Приоритет для номенклатуры, может быть использован для указания приоритета при наличии нескольких Gtin для одной номенклатуры.
+		/// Чем ниже значение, тем выше приоритет. Например, 1 - основной Gtin, 2 - дополнительный Gtin и т.д.
+		/// </summary>
+		[Display(Name = "Приоритет")]
 		public virtual uint Priority
 		{
 			get => _priority;
 			set => SetField(ref _priority, value);
 		}
 
+		[Display(Name = "Номенклатура")]
 		public virtual NomenclatureEntity Nomenclature
 		{
 			get => _nomenclature;
