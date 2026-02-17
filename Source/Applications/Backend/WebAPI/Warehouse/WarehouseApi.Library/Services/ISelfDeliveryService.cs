@@ -45,7 +45,7 @@ namespace WarehouseApi.Library.Services
 		/// <returns></returns>
 		Task<Result<SelfDeliveryDocument>> SendEdoRequest(SelfDeliveryDocument selfDeliveryDocument, CancellationToken cancellationToken);
 		/// <summary>
-		/// Документ самовывоза
+		/// Установка количества тары, которую нужно вернуть, в документе самовывоза
 		/// </summary>
 		/// <param name="selfDeliveryDocument">Документ самовывоза</param>
 		/// <param name="tareToReturn">Количество тары, которую нужно вернуть</param>

@@ -13,7 +13,7 @@ namespace WarehouseApi.Contracts.Responses.V1
 		public OrderDto Order { get; set; }
 
 		/// <summary>
-		/// Существует ли самовывоз
+		/// Номер документа отпуска самовывоза
 		/// </summary>
 		public int? SelfDeliveryDocumentId { get; set; }
 	}

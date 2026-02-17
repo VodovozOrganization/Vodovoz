@@ -170,6 +170,16 @@ namespace VodovozBusiness.Services.TrueMark
 			RouteListItem routeListItem,
 			CancellationToken cancellationToken = default)
 		{
+			if(uow is null)
+			{
+				throw new ArgumentNullException(nameof(uow));
+			}
+
+			if(routeListItem is null)
+			{
+				throw new ArgumentNullException(nameof(routeListItem));
+			}
+
 			var order = routeListItem.Order;
 
 			var stagingCodes =
@@ -229,6 +239,16 @@ namespace VodovozBusiness.Services.TrueMark
 			RouteListItem routeListItem,
 			CancellationToken cancellationToken = default)
 		{
+			if(uow is null)
+			{
+				throw new ArgumentNullException(nameof(uow));
+			}
+
+			if(routeListItem is null)
+			{
+				throw new ArgumentNullException(nameof(routeListItem));
+			}
+
 			var order = routeListItem.Order;
 
 			var stagingCodes =
@@ -353,6 +373,21 @@ namespace VodovozBusiness.Services.TrueMark
 			OrderItem orderItem,
 			CancellationToken cancellationToken = default)
 		{
+			if(uow is null)
+			{
+				throw new ArgumentNullException(nameof(uow));
+			}
+
+			if(string.IsNullOrWhiteSpace(scannedCode))
+			{
+				throw new ArgumentException($"'{nameof(scannedCode)}' cannot be null or whitespace.", nameof(scannedCode));
+			}
+
+			if(orderItem is null)
+			{
+				throw new ArgumentNullException(nameof(orderItem));
+			}
+
 			var createCodeResult =
 				await _trueMarkWaterCodeService.CreateStagingTrueMarkCode(
 					uow,
@@ -394,6 +429,16 @@ namespace VodovozBusiness.Services.TrueMark
 			int orderItemId,
 			CancellationToken cancellationToken = default)
 		{
+			if(uow is null)
+			{
+				throw new ArgumentNullException(nameof(uow));
+			}
+
+			if(string.IsNullOrWhiteSpace(scannedCode))
+			{
+				throw new ArgumentException($"'{nameof(scannedCode)}' cannot be null or whitespace.", nameof(scannedCode));
+			}
+
 			var existingCodeResult =
 				_trueMarkWaterCodeService.GetSavedStagingTrueMarkCodeByScannedCode(
 					uow,

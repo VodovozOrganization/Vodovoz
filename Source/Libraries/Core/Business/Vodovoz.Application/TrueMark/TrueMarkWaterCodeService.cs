@@ -1082,7 +1082,7 @@ namespace Vodovoz.Application.TrueMark
 			int relatedDocumentId,
 			int? orderItemId)
 		{
-			StagingTrueMarkCode stagingTrueMarkCode = null;
+			StagingTrueMarkCode stagingTrueMarkCode;
 
 			if(_trueMarkWaterCodeParser.TryParse(scannedCode, out var parsedCode))
 			{

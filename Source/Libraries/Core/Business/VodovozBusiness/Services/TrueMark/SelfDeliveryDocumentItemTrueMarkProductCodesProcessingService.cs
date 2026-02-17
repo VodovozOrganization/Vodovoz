@@ -1,5 +1,4 @@
-﻿using FluentNHibernate.Data;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,6 +60,21 @@ namespace VodovozBusiness.Services.TrueMark
 			ProductCodeProblem problem,
 			CancellationToken cancellationToken = default)
 		{
+			if(uow is null)
+			{
+				throw new ArgumentNullException(nameof(uow));
+			}
+
+			if(selfDeliveryDocumentItem is null)
+			{
+				throw new ArgumentNullException(nameof(selfDeliveryDocumentItem));
+			}
+
+			if(trueMarkAnyCode is null)
+			{
+				throw new ArgumentNullException(nameof(trueMarkAnyCode));
+			}
+
 			IEnumerable<TrueMarkAnyCode> trueMarkAnyCodes = trueMarkAnyCode.Match(
 				transportCode => trueMarkAnyCodes = transportCode.GetAllCodes(),
 				groupCode => trueMarkAnyCodes = groupCode.GetAllCodes(),
