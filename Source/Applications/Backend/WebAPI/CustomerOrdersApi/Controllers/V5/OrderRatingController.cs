@@ -13,13 +13,13 @@ namespace CustomerOrdersApi.Controllers.V5
 {
 	public class OrderRatingController : SignatureControllerBase
 	{
-		private readonly ICustomerOrdersService _customerOrdersService;
+		private readonly ICustomerOrdersServiceV5 _customerOrdersService;
 		private readonly IMemoryCache _memoryCache;
 		private readonly RequestsMinutesLimitsOptions _requestsMinutesLimitsOptions;
 
 		public OrderRatingController(
 			ILogger<OrderRatingController> logger,
-			ICustomerOrdersService customerOrdersService,
+			ICustomerOrdersServiceV5 customerOrdersService,
 			IOptions<RequestsMinutesLimitsOptions> requestsLimitsOptions,
 			IMemoryCache memoryCache) : base(logger)
 		{

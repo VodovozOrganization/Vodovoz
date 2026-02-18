@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CustomerOrdersApi.Library.V5.Dto.Orders;
-using CustomerOrdersApi.Library.V5.Factories;
+using CustomerOrdersApi.Library.V4.Dto.Orders;
+using CustomerOrdersApi.Library.V4.Factories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Data.Orders.V5;
+using Vodovoz.Core.Data.Orders.V4;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
@@ -19,14 +19,14 @@ using Vodovoz.Settings.Orders;
 using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Cryptography;
 
-namespace CustomerOrdersApi.Library.V5.Services
+namespace CustomerOrdersApi.Library.V4.Services
 {
-	public class CustomerOrdersService : ICustomerOrdersService
+	public class CustomerOrdersServiceV4 : ICustomerOrdersServiceV4
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly ILogger<CustomerOrdersService> _logger;
+		private readonly ILogger<CustomerOrdersServiceV4> _logger;
 		private readonly ISignatureManager _signatureManager;
-		private readonly ICustomerOrderFactory _customerOrderFactory;
+		private readonly ICustomerOrderFactoryV4 _customerOrderFactory;
 		private readonly IOrderSettings _orderSettings;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOnlineOrderRepository _onlineOrderRepository;
@@ -34,11 +34,11 @@ namespace CustomerOrdersApi.Library.V5.Services
 		private readonly IUnPaidOnlineOrderHandler _unPaidOnlineOrderHandler;
 		private readonly IConfigurationSection _signaturesSection;
 
-		public CustomerOrdersService(
+		public CustomerOrdersServiceV4(
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ILogger<CustomerOrdersService> logger,
+			ILogger<CustomerOrdersServiceV4> logger,
 			ISignatureManager signatureManager,
-			ICustomerOrderFactory customerOrderFactory,
+			ICustomerOrderFactoryV4 customerOrderFactory,
 			IOrderSettings orderSettings,
 			IOrderRepository orderRepository,
 			IOnlineOrderRepository onlineOrderRepository,

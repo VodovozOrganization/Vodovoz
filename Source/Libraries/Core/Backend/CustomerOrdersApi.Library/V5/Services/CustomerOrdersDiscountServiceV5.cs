@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using CustomerOrdersApi.Library.Config;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
-using CustomerOrdersApi.Library.V4.Dto.Orders.OrderItem;
+using CustomerOrdersApi.Library.V5.Dto.Orders;
+using CustomerOrdersApi.Library.V5.Dto.Orders.OrderItem;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
@@ -14,18 +14,18 @@ using Vodovoz.Nodes;
 using VodovozBusiness.Domain.Orders;
 using VodovozInfrastructure.Cryptography;
 
-namespace CustomerOrdersApi.Library.V4.Services
+namespace CustomerOrdersApi.Library.V5.Services
 {
-	public class CustomerOrdersDiscountService : SignatureService, ICustomerOrdersDiscountService
+	public class CustomerOrdersDiscountServiceV5 : SignatureService, ICustomerOrdersDiscountServiceV5
 	{
-		private readonly ILogger<CustomerOrdersService> _logger;
+		private readonly ILogger<CustomerOrdersServiceV5> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ISignatureManager _signatureManager;
 		private readonly IOnlineOrderDiscountHandler _onlineOrderDiscountHandler;
 		private readonly SignatureOptions _signatureOptions;
 
-		public CustomerOrdersDiscountService(
-			ILogger<CustomerOrdersService> logger,
+		public CustomerOrdersDiscountServiceV5(
+			ILogger<CustomerOrdersServiceV5> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ISignatureManager signatureManager,
 			IOptions<SignatureOptions> signatureOptions,

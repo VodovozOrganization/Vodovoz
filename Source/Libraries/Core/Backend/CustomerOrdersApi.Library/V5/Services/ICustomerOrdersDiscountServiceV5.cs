@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
+using CustomerOrdersApi.Library.V5.Dto.Orders;
 using Vodovoz.Core.Domain.Results;
 using VodovozBusiness.Domain.Orders;
 
-namespace CustomerOrdersApi.Library.V4.Services
+namespace CustomerOrdersApi.Library.V5.Services
 {
 	/// <summary>
 	/// Интерфейс работы со скидками в онлайн заказе
 	/// </summary>
-	public interface ICustomerOrdersDiscountService
+	public interface ICustomerOrdersDiscountServiceV5
 	{
 		/// <summary>
 		/// Проверка подписи на применение промокода

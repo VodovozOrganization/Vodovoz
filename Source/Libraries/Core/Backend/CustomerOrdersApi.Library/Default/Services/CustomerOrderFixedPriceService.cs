@@ -18,14 +18,14 @@ namespace CustomerOrdersApi.Library.Default.Services
 {
 	public class CustomerOrderFixedPriceService : SignatureService, ICustomerOrderFixedPriceService
 	{
-		private readonly ILogger<V4.Services.CustomerOrdersService> _logger;
+		private readonly ILogger<V4.Services.CustomerOrdersServiceV4> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ISignatureManager _signatureManager;
 		private readonly IOnlineOrderFixedPriceHandler _onlineOrderFixedPriceHandler;
 		private readonly SignatureOptions _signatureOptions;
 
 		public CustomerOrderFixedPriceService(
-			ILogger<V4.Services.CustomerOrdersService> logger,
+			ILogger<V4.Services.CustomerOrdersServiceV4> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ISignatureManager signatureManager,
 			IOptions<SignatureOptions> signatureOptions,

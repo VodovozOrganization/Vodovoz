@@ -10,11 +10,11 @@ namespace CustomerOrdersApi.Controllers.V5
 {
 	public class DiscountController : SignatureControllerBase
 	{
-		private readonly ICustomerOrdersDiscountService _discountService;
+		private readonly ICustomerOrdersDiscountServiceV5 _discountService;
 
 		public DiscountController(
 			ILogger<SignatureControllerBase> logger,
-			ICustomerOrdersDiscountService discountService
+			ICustomerOrdersDiscountServiceV5 discountService
 			) : base(logger)
 		{
 			_discountService = discountService ?? throw new ArgumentNullException(nameof(discountService));

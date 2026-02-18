@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using CustomerOrdersApi.Library.Config;
-using CustomerOrdersApi.Library.V5.Dto.Orders.FixedPrice;
-using CustomerOrdersApi.Library.V5.Dto.Orders.OrderItem;
+using CustomerOrdersApi.Library.V4.Dto.Orders.FixedPrice;
+using CustomerOrdersApi.Library.V4.Dto.Orders.OrderItem;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
@@ -14,18 +14,18 @@ using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Nodes;
 using VodovozInfrastructure.Cryptography;
 
-namespace CustomerOrdersApi.Library.V5.Services
+namespace CustomerOrdersApi.Library.V4.Services
 {
-	public class CustomerOrderFixedPriceService : SignatureService, ICustomerOrderFixedPriceService
+	public class CustomerOrderFixedPriceServiceV4 : SignatureService, ICustomerOrderFixedPriceServiceV4
 	{
-		private readonly ILogger<CustomerOrdersService> _logger;
+		private readonly ILogger<CustomerOrdersServiceV4> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ISignatureManager _signatureManager;
 		private readonly IOnlineOrderFixedPriceHandler _onlineOrderFixedPriceHandler;
 		private readonly SignatureOptions _signatureOptions;
 
-		public CustomerOrderFixedPriceService(
-			ILogger<CustomerOrdersService> logger,
+		public CustomerOrderFixedPriceServiceV4(
+			ILogger<CustomerOrdersServiceV4> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ISignatureManager signatureManager,
 			IOptions<SignatureOptions> signatureOptions,

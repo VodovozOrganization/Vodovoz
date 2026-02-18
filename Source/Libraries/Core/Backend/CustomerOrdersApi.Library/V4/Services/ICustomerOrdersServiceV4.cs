@@ -4,7 +4,7 @@ using Vodovoz.Core.Domain.Results;
 
 namespace CustomerOrdersApi.Library.V4.Services
 {
-	public interface ICustomerOrdersService
+	public interface ICustomerOrdersServiceV4
 	{
 		/// <summary>
 		/// Проверка контрольной суммы запроса создания заказа

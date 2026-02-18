@@ -25,9 +25,9 @@ namespace CustomerOrdersApi.Library
 		
 		public static IServiceCollection AddVersion4(this IServiceCollection services)
 		{
-			services.AddScoped<V4.Services.ICustomerOrdersService, V4.Services.CustomerOrdersService>()
-				.AddScoped<V4.Factories.ICustomerOrderFactory, V4.Factories.CustomerOrderFactory>()
-				.AddScoped<V4.Factories.IInfoMessageFactory, V4.Factories.InfoMessageFactory>()
+			services.AddScoped<V4.Services.ICustomerOrdersServiceV4, V4.Services.CustomerOrdersServiceV4>()
+				.AddScoped<V4.Factories.ICustomerOrderFactoryV4, V4.Factories.CustomerOrderFactoryV4>()
+				.AddScoped<V4.Factories.IInfoMessageFactoryV4, V4.Factories.InfoMessageFactoryV4>()
 				.AddDefaultServices();
 			
 			return services;
@@ -35,9 +35,9 @@ namespace CustomerOrdersApi.Library
 		
 		public static IServiceCollection AddVersion5(this IServiceCollection services)
 		{
-			services.AddScoped<V5.Services.ICustomerOrdersService, V5.Services.CustomerOrdersService>()
-				.AddScoped<V5.Factories.ICustomerOrderFactory, V5.Factories.CustomerOrderFactory>()
-				.AddScoped<V5.Factories.IInfoMessageFactory, V5.Factories.InfoMessageFactory>()
+			services.AddScoped<V5.Services.ICustomerOrdersServiceV5, V5.Services.CustomerOrdersServiceV5>()
+				.AddScoped<V5.Factories.ICustomerOrderFactoryV5, V5.Factories.CustomerOrderFactoryV5>()
+				.AddScoped<V5.Factories.IInfoMessageFactoryV5, V5.Factories.InfoMessageFactoryV5>()
 				.AddDefaultServices();
 			
 			return services;

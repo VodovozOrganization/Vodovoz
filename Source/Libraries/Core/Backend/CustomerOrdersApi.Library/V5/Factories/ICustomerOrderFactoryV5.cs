@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
+using CustomerOrdersApi.Library.V5.Dto.Orders;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 
-namespace CustomerOrdersApi.Library.V4.Factories
+namespace CustomerOrdersApi.Library.V5.Factories
 {
-	public interface ICustomerOrderFactory
+	public interface ICustomerOrderFactoryV5
 	{
 		DetailedOrderInfoDto CreateDetailedOrderInfo(
 			Order order, OrderRating orderRating, OnlineOrderTimers timers, int? onlineOrderId, DateTime ratingAvailableFrom);

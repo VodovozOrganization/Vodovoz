@@ -13,11 +13,11 @@ namespace CustomerOrdersApi.Controllers.V5
 	/// </summary>
 	public class FixedPriceController : SignatureControllerBase
 	{
-		private readonly ICustomerOrderFixedPriceService _fixedPriceService;
+		private readonly ICustomerOrderFixedPriceServiceV5 _fixedPriceService;
 
 		public FixedPriceController(
 			ILogger<SignatureControllerBase> logger,
-			ICustomerOrderFixedPriceService fixedPriceService) : base(logger)
+			ICustomerOrderFixedPriceServiceV5 fixedPriceService) : base(logger)
 		{
 			_fixedPriceService = fixedPriceService ?? throw new ArgumentNullException(nameof(fixedPriceService));
 		}

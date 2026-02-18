@@ -11,14 +11,14 @@ using Vodovoz.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.V5.Factories
 {
-	public class CustomerOrderFactory : ICustomerOrderFactory
+	public class CustomerOrderFactoryV5 : ICustomerOrderFactoryV5
 	{
 		private readonly IExternalOrderStatusConverter _externalOrderStatusConverter;
-		private readonly IInfoMessageFactory _infoMessageFactory;
+		private readonly IInfoMessageFactoryV5 _infoMessageFactory;
 
-		public CustomerOrderFactory(
+		public CustomerOrderFactoryV5(
 			IExternalOrderStatusConverter externalOrderStatusConverter,
-			IInfoMessageFactory infoMassageFactory)
+			IInfoMessageFactoryV5 infoMassageFactory)
 		{
 			_externalOrderStatusConverter =
 				externalOrderStatusConverter ?? throw new ArgumentNullException(nameof(externalOrderStatusConverter));

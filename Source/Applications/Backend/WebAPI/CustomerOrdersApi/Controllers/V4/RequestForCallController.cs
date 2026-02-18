@@ -9,11 +9,11 @@ namespace CustomerOrdersApi.Controllers.V4
 {
 	public class RequestForCallController : SignatureControllerBase
 	{
-		private readonly ICustomerOrdersService _customerOrdersService;
+		private readonly ICustomerOrdersServiceV4 _customerOrdersService;
 
 		public RequestForCallController(
 			ILogger<RequestForCallController> logger,
-			ICustomerOrdersService customerOrdersService) : base(logger)
+			ICustomerOrdersServiceV4 customerOrdersService) : base(logger)
 		{
 			_customerOrdersService = customerOrdersService ?? throw new ArgumentNullException(nameof(customerOrdersService));
 		}

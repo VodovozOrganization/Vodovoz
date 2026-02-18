@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
-using CustomerOrdersApi.Library.V5.Dto.Orders.FixedPrice;
+using CustomerOrdersApi.Library.V4.Dto.Orders.FixedPrice;
 using Vodovoz.Core.Domain.Results;
 using VodovozBusiness.Domain.Orders;
 
-namespace CustomerOrdersApi.Library.V5.Services
+namespace CustomerOrdersApi.Library.V4.Services
 {
 	/// <summary>
 	/// Сервис по работе с фиксой в ИПЗ
 	/// </summary>
-	public interface ICustomerOrderFixedPriceService
+	public interface ICustomerOrderFixedPriceServiceV4
 	{
 		/// <summary>
 		/// Проверка подписи запроса

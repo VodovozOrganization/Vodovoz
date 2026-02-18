@@ -1,8 +1,8 @@
 ﻿using Vodovoz.Core.Data.InfoMessages;
 
-namespace CustomerOrdersApi.Library.V5.Factories
+namespace CustomerOrdersApi.Library.V4.Factories
 {
-	public class InfoMessageFactory : IInfoMessageFactory
+	public class InfoMessageFactoryV4 : IInfoMessageFactoryV4
 	{
 		public InfoMessage CreateNeedPayOrderInfoMessage()
 		{
