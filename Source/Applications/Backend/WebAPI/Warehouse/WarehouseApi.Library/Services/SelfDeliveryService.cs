@@ -2,6 +2,8 @@
 using MassTransit;
 using MassTransit.Initializers;
 using Microsoft.Extensions.Logging;
+using MoreLinq;
+using MySqlConnector;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -27,8 +29,9 @@ using Vodovoz.Errors.TrueMark;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
 using VodovozBusiness.Controllers;
-using VodovozBusiness.Domain.Client.Specifications;
 using VodovozBusiness.Services.TrueMark;
+using WarehouseApi.Contracts.Responses.V1;
+using WarehouseApi.Library.Extensions;
 
 namespace WarehouseApi.Library.Services
 {
@@ -40,6 +43,7 @@ namespace WarehouseApi.Library.Services
 		private readonly IGenericRepository<Warehouse> _warehouseRepository;
 		private readonly IGenericRepository<Subdivision> _subdivisionRepository;
 		private readonly ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService _codesProcessingService;
+		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly INomenclatureRepository _nomenclatureRepository;
@@ -58,6 +62,7 @@ namespace WarehouseApi.Library.Services
 			IGenericRepository<Warehouse> warehouseRepository,
 			IGenericRepository<Subdivision> subdivisionRepository,
 			ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService codesProcessingService,
+			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			ICounterpartyEdoAccountController edoAccountController,
 			INomenclatureSettings nomenclatureSettings,
 			INomenclatureRepository nomenclatureRepository,
@@ -81,6 +86,8 @@ namespace WarehouseApi.Library.Services
 				?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_codesProcessingService = codesProcessingService
 				?? throw new ArgumentNullException(nameof(codesProcessingService));
+			_trueMarkWaterCodeService = trueMarkWaterCodeService
+				?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_edoAccountController = edoAccountController
 				?? throw new ArgumentNullException(nameof(edoAccountController));
 			_nomenclatureSettings = nomenclatureSettings
@@ -277,16 +284,28 @@ namespace WarehouseApi.Library.Services
 			IEnumerable<StagingTrueMarkCode> newCodes,
 			IEnumerable<StagingTrueMarkCode> addedCodes)
 		{
+			var addedCodesData = addedCodes.SelectMany(x => x.AllCodes).ToLookup(code => (
+				code.IsTransport,
+				RawCode: code.IsTransport ? code.RawCode : null,
+				Gtin: !code.IsTransport ? code.Gtin : null,
+				Serial: !code.IsTransport ? code.SerialNumber : null
+			));
+
 			var existingCodes = new List<StagingTrueMarkCode>();
-			var allScannedCodes = addedCodes.SelectMany(x => x.AllCodes).ToList();
 
 			foreach(var code in newCodes)
 			{
-				var existingCodesPredicate = StagingTrueMarkCodeSpecification.CreateForEqualStagingCodes(code).Expression.Compile();
+				var key = (
+					code.IsTransport,
+					RawCode: code.IsTransport ? code.RawCode : null,
+					Gtin: !code.IsTransport ? code.Gtin : null,
+					Serial: !code.IsTransport ? code.SerialNumber : null
+				);
 
-				existingCodes.AddRange(allScannedCodes
-					.Where(existingCodesPredicate)
-					.ToList());
+				if(addedCodesData.Contains(key))
+				{
+					existingCodes.AddRange(addedCodesData[key]);
+				}
 			}
 
 			return existingCodes;
@@ -366,22 +385,29 @@ namespace WarehouseApi.Library.Services
 				return Result.Failure<SelfDeliveryDocument>(SelfDeliveryDocumentErrors.IsNotFullyShiped);
 			}
 
-			return await Task.FromResult(selfDeliveryDocument);
-		}
-
-		public async Task<Result<SelfDeliveryDocument>> SendEdoRequest(SelfDeliveryDocument selfDeliveryDocument, CancellationToken cancellationToken)
-		{
 			var edoRequest = CreateEdoRequest(selfDeliveryDocument);
 
-			if(edoRequest is null)
+			await _unitOfWork.SaveAsync(selfDeliveryDocument, cancellationToken: cancellationToken);
+			await _unitOfWork.SaveAsync(edoRequest, cancellationToken: cancellationToken);
+
+			try
 			{
-				return await Task.FromResult(selfDeliveryDocument);
+				await _unitOfWork.CommitAsync(cancellationToken);
+			}
+			catch(MySqlException mysqlException) when(mysqlException.ErrorCode == MySqlErrorCode.DuplicateKey)
+			{
+				_logger.LogError(mysqlException, "DuplicateEntry: {ExceptionMessage}", mysqlException.Message);
+				var error = new Error("Database.Commit.Error", "Код уже был добавлен в другом документе");
+				return Result.Failure<SelfDeliveryDocument>(error);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "Exception while commiting: {ExceptionMessage}", e.Message);
+				var error = new Error("Database.Commit.Error", e.Message);
+				return Result.Failure<SelfDeliveryDocument>(error);
 			}
 
-			await _unitOfWork.SaveAsync(edoRequest, cancellationToken: cancellationToken);
-			await _unitOfWork.CommitAsync(cancellationToken);
-
-			await SendEdoRequestCreatedEvent(edoRequest);
+			await SendEdoRequestCreatedEvent(edoRequest.Id);
 
 			return await Task.FromResult(selfDeliveryDocument);
 		}
@@ -429,7 +455,7 @@ namespace WarehouseApi.Library.Services
 			while(subdivisionId != null && warehouseGeoGroupId is null)
 			{
 				var subdivision = _subdivisionRepository
-					.GetFirstOrDefault(_unitOfWork, s => s.Id == warehouse.OwningSubdivisionId);
+					.GetFirstOrDefault(_unitOfWork, s => s.Id == subdivisionId);
 
 				subdivisionId = subdivision?.ParentSubdivision?.Id;
 				warehouseGeoGroupId = subdivision?.GeographicGroup?.Id;
@@ -459,9 +485,47 @@ namespace WarehouseApi.Library.Services
 			return edoRequest;
 		}
 
-		private async Task SendEdoRequestCreatedEvent(PrimaryEdoRequest orderEdoRequest)
+		private async Task SendEdoRequestCreatedEvent(int requestId)
 		{
-			await _messageBus.Publish(new EdoRequestCreatedEvent { Id = orderEdoRequest.Id });
+			_logger.LogInformation(
+				"Отправляем событие создания новой заявки на отправку документов ЭДО.  Id заявки: {RequestId}.",
+				requestId);
+
+			try
+			{
+				await _messageBus.Publish(new EdoRequestCreatedEvent { Id = requestId });
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(
+					ex,
+					"Ошибка при отправке события создания новой заявки на отправку документов ЭДО. Id заявки: {RequestId}. Exception: {ExceptionMessage}",
+					requestId,
+					ex.Message);
+			}
+		}
+
+		public GetSelfDeliveryResponse CreateSelfDeliveryResponse(SelfDeliveryDocument selfDeliveryDocument)
+		{
+			var nomenclatures =
+				selfDeliveryDocument.Order.OrderItems
+				.Select(x => x.Nomenclature)
+				.ToArray();
+
+			var response = new GetSelfDeliveryResponse
+			{
+				SelfDeliveryDocumentId = selfDeliveryDocument.Id,
+				Order = selfDeliveryDocument.Order.ToApiDtoV1(nomenclatures, selfDeliveryDocument)
+			};
+
+			response.Order.Items
+				.PopulateRelatedCodes(_unitOfWork, _trueMarkWaterCodeService, selfDeliveryDocument.Items.SelectMany(x => x.TrueMarkProductCodes));
+
+			response.Order.Items.ForEach(item =>
+				item.Codes.ForEach((code, i) =>
+					code.SequenceNumber = i));
+
+			return response;
 		}
 	}
 }

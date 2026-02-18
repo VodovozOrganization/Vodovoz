@@ -9,6 +9,9 @@ using Vodovoz.Core.Domain.Sale;
 
 namespace Vodovoz.Core.Domain.Organizations
 {
+	/// <summary>
+	/// Подразделение
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "подразделения",
 		Nominative = "подразделение",
@@ -48,6 +51,9 @@ namespace Vodovoz.Core.Domain.Organizations
 			set => SetField(ref _name, value);
 		}
 
+		/// <summary>
+		/// Сокращенное наименование
+		/// </summary>
 		[Display(Name = "Сокращенное наименование")]
 		public virtual string ShortName
 		{
@@ -55,6 +61,9 @@ namespace Vodovoz.Core.Domain.Organizations
 			set => SetField(ref _shortName, value);
 		}
 
+		/// <summary>
+		/// Адрес подразделения
+		/// </summary>
 		[Display(Name = "Адрес подразделения")]
 		public virtual string Address
 		{
@@ -62,6 +71,9 @@ namespace Vodovoz.Core.Domain.Organizations
 			set => SetField(ref _address, value);
 		}
 
+		/// <summary>
+		/// Архив
+		/// </summary>
 		[Display(Name = "Архив")]
 		public virtual bool IsArchive
 		{
@@ -101,6 +113,9 @@ namespace Vodovoz.Core.Domain.Organizations
 			set => SetField(ref _financialResponsibilityCenterId, value);
 		}
 
+		/// <summary>
+		/// Обслуживаемая часть города
+		/// </summary>
 		[Display(Name = "Обслуживаемая часть города")]
 		public virtual GeoGroupEntity GeographicGroup
 		{

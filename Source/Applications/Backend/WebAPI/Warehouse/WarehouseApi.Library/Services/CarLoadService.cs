@@ -442,12 +442,8 @@ namespace WarehouseApi.Library.Services
 				});
 			}
 
-			NomenclatureDto nomenclatureDto = null;
-
-			if(nomenclatureDto is null)
-			{
-				nomenclatureDto = _carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit);
-			}
+			NomenclatureDto nomenclatureDto =
+				_carLoadDocumentConverter.ConvertToApiNomenclature(documentItemToEdit);
 
 			if(nomenclatureDto != null)
 			{
@@ -910,7 +906,7 @@ namespace WarehouseApi.Library.Services
 		private async Task PublishEdoRequestCreatedEvent(int requestId)
 		{
 			_logger.LogInformation(
-				"Отправляем событие создания новой заявки на отправку документов ЭДО.  Id заявки: {TaskId}.",
+				"Отправляем событие создания новой заявки на отправку документов ЭДО.  Id заявки: {RequestId}.",
 				requestId);
 
 			try
@@ -923,7 +919,7 @@ namespace WarehouseApi.Library.Services
 			{
 				_logger.LogError(
 					ex,
-					"Ошибка при отправке события создания новой заявки на отправку документов ЭДО. Id задачи: {TaskId}. Exception: {ExceptionMessage}",
+					"Ошибка при отправке события создания новой заявки на отправку документов ЭДО. Id заявки: {RequestId}. Exception: {ExceptionMessage}",
 					requestId,
 					ex.Message);
 			}

@@ -5,6 +5,8 @@ using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
+using WarehouseApi.Contracts.Responses.V1;
+using WarehouseApi.Contracts.V1.Dto;
 
 namespace WarehouseApi.Library.Services
 {
@@ -30,6 +32,7 @@ namespace WarehouseApi.Library.Services
 		/// <param name="selfDeliveryDocument"></param>
 		/// <returns></returns>
 		Task<Result<SelfDeliveryDocument>> EndLoad(SelfDeliveryDocument selfDeliveryDocument, CancellationToken cancellationToken);
+
 		/// <summary>
 		/// Получение списка заказов самовывоза для склада
 		/// </summary>
@@ -37,13 +40,7 @@ namespace WarehouseApi.Library.Services
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
 		Task<Result<IEnumerable<Order>>> GetSelfDeliveryOrders(int warehouseId, CancellationToken cancellationToken);
-		/// <summary>
-		/// Отправка запроса в ЭДО по заказу с самовывозом
-		/// </summary>
-		/// <param name="selfDeliveryDocument">Документ самовывоза</param>
-		/// <param name="cancellationToken"></param>
-		/// <returns></returns>
-		Task<Result<SelfDeliveryDocument>> SendEdoRequest(SelfDeliveryDocument selfDeliveryDocument, CancellationToken cancellationToken);
+
 		/// <summary>
 		/// Установка количества тары, которую нужно вернуть, в документе самовывоза
 		/// </summary>
@@ -51,5 +48,11 @@ namespace WarehouseApi.Library.Services
 		/// <param name="tareToReturn">Количество тары, которую нужно вернуть</param>
 		/// <returns></returns>
 		Task<Result<SelfDeliveryDocument>> SetTareToReturn(SelfDeliveryDocument selfDeliveryDocument, int tareToReturn);
+
+		/// <summary>
+		/// Заполнение связанных кодов ЧЗ в строках заказа самовывоза
+		/// </summary>
+		/// <param name="selfDeliveryDocument">Документ самовывоза</param>
+		GetSelfDeliveryResponse CreateSelfDeliveryResponse(SelfDeliveryDocument selfDeliveryDocument);
 	}
 }

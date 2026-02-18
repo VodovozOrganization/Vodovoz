@@ -2,11 +2,30 @@
 
 namespace Vodovoz.Core.Domain.Orders
 {
+	/// <summary>
+	/// Принадлежность
+	/// </summary>
 	public enum OwnTypes
 	{
-		[Display(Name = "")] None,
-		[Display(Name = "Клиент")] Client,
-		[Display(Name = "Дежурный")] Duty,
-		[Display(Name = "Аренда")] Rent
+		/// <summary>
+		/// Не указано
+		/// </summary>
+		[Display(Name = "")]
+		None,
+		/// <summary>
+		/// Клиент
+		/// </summary>
+		[Display(Name = "Клиент")]
+		Client,
+		/// <summary>
+		/// Дежурный
+		/// </summary>
+		[Display(Name = "Дежурный")]
+		Duty,
+		/// <summary>
+		/// Аренда
+		/// </summary>
+		[Display(Name = "Аренда")]
+		Rent
 	}
 }

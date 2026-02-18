@@ -17,6 +17,7 @@ namespace WarehouseApi.Library.Services
 		/// <param name="cancellationToken">Токен отмены операции</param>
 		/// <returns>Результат выполнения операции</returns>
 		Task<Result> AddProductCodesToCarLoadDocumentAndDeleteStagingCodes(IUnitOfWork uow, CarLoadDocument carLoadDocument, CancellationToken cancellationToken = default);
+		
 		/// <summary>
 		/// Добавляем отсканированный код ЧЗ в staging таблицу
 		/// </summary>
@@ -26,6 +27,7 @@ namespace WarehouseApi.Library.Services
 		/// <param name="cancellationToken">Токен отмены операции</param>
 		/// <returns>Результат выполнения операции</returns>
 		Task<Result<StagingTrueMarkCode>> AddStagingTrueMarkCode(IUnitOfWork uow, string scannedCode, CarLoadDocumentItem carLoadDocumentItem, CancellationToken cancellationToken = default);
+		
 		/// <summary>
 		/// Заменяем отсканированный код ЧЗ в staging таблице
 		/// </summary>
@@ -36,6 +38,7 @@ namespace WarehouseApi.Library.Services
 		/// <param name="cancellationToken">Токен отмены операции</param>
 		/// <returns>Результат выполнения операции</returns>
 		Task<Result<StagingTrueMarkCode>> ChangeStagingTrueMarkCode(IUnitOfWork uow, string newScannedCode, string oldScannedCode, CarLoadDocumentItem carLoadDocumentItem, CancellationToken cancellationToken = default);
+		
 		/// <summary>
 		/// Удаляем отсканированный код ЧЗ из staging таблицы
 		/// </summary>

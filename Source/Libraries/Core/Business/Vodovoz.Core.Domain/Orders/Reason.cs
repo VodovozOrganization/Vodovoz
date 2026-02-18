@@ -2,12 +2,34 @@
 
 namespace Vodovoz.Core.Domain.Orders
 {
+	/// <summary>
+	/// Причина
+	/// </summary>
 	public enum Reason
 	{
-		[Display(Name = "Неизвестна")] Unknown,
-		[Display(Name = "Сервис")] Service,
-		[Display(Name = "Аренда")] Rent,
-		[Display(Name = "Расторжение")] Cancellation,
+		/// <summary>
+		/// Неизвестна
+		/// </summary>
+		[Display(Name = "Неизвестна")]
+		Unknown,
+		/// <summary>
+		/// Сервис
+		/// </summary>
+		[Display(Name = "Сервис")]
+		Service,
+		/// <summary>
+		/// Аренда
+		/// </summary>
+		[Display(Name = "Аренда")]
+		Rent,
+		/// <summary>
+		/// Расторжение
+		/// </summary>
+		[Display(Name = "Расторжение")]
+		Cancellation,
+		/// <summary>
+		/// Продажа
+		/// </summary>
 		[Display(Name = "Продажа")] Sale
 	}
 }

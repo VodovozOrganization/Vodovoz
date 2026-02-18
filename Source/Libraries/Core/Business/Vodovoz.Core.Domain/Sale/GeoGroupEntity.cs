@@ -5,6 +5,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Sale
 {
+	/// <summary>
+	/// Часть города
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		Nominative = "Часть города",
 		NominativePlural = "Части города",
@@ -27,6 +30,9 @@ namespace Vodovoz.Core.Domain.Sale
 			set => SetField(ref _id, value);
 		}
 
+		/// <summary>
+		/// Название
+		/// </summary>
 		[Display(Name = "Название")]
 		[Required(ErrorMessage = "Название части города должно быть заполнено")]
 		public virtual string Name
@@ -35,6 +41,9 @@ namespace Vodovoz.Core.Domain.Sale
 			set => SetField(ref _name, value);
 		}
 
+		/// <summary>
+		/// В архиве
+		/// </summary>
 		[Display(Name = "В архиве")]
 		public virtual bool IsArchived
 		{

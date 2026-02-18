@@ -85,25 +85,27 @@ namespace WarehouseApi.Library.Extensions
 		{
 			foreach(var trueMarkProductCode in trueMarkCodes)
 			{
-				if(trueMarkProductCode.ResultCode == null)
+				var resultCode = trueMarkProductCode.ResultCode;
+
+				if(resultCode == null)
 				{
 					continue;
 				}
 
-				if(trueMarkProductCode.ResultCode.ParentWaterGroupCodeId == null
-					&& trueMarkProductCode.ResultCode.ParentTransportCodeId == null)
+				if(resultCode.ParentWaterGroupCodeId == null
+					&& resultCode.ParentTransportCodeId == null)
 				{
 					continue;
 				}
 
-				var codeToAddInfo = orderItemDtos.FirstOrDefault(x => x.Codes.Select(code => code.Code).Contains(trueMarkProductCode.ResultCode.RawCode));
+				var codeToAddInfo = orderItemDtos.FirstOrDefault(x => x.Codes.Select(code => code.Code).Contains(resultCode.RawCode));
 
-				if(codeToAddInfo.Codes.Any(x => x.Parent != null && x.Code == trueMarkProductCode.ResultCode.RawCode))
+				if(codeToAddInfo.Codes.Any(x => x.Parent != null && x.Code == resultCode.RawCode))
 				{
 					continue;
 				}
 
-				var parentCode = trueMarkWaterCodeService.GetParentGroupCode(unitOfWork, trueMarkProductCode.ResultCode);
+				var parentCode = trueMarkWaterCodeService.GetParentGroupCode(unitOfWork, resultCode);
 
 				var trueMarkCodeDtos = new List<TrueMarkCodeDto>();
 

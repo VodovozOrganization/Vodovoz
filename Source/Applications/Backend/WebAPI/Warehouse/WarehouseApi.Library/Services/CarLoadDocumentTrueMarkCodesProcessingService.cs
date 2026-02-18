@@ -41,6 +41,16 @@ namespace WarehouseApi.Library.Services
 			CarLoadDocument carLoadDocument,
 			CancellationToken cancellationToken = default)
 		{
+			if(uow is null)
+			{
+				throw new ArgumentNullException(nameof(uow));
+			}
+
+			if(carLoadDocument is null)
+			{
+				throw new ArgumentNullException(nameof(carLoadDocument));
+			}
+
 			foreach(var carLoadDocumentItem in carLoadDocument.Items)
 			{
 				var addProductCodesResult =
@@ -286,6 +296,16 @@ namespace WarehouseApi.Library.Services
 			CarLoadDocumentItem carLoadDocumentItem,
 			CancellationToken cancellationToken = default)
 		{
+			if(uow is null)
+			{
+				throw new ArgumentNullException(nameof(uow));
+			}
+
+			if(carLoadDocumentItem is null)
+			{
+				throw new ArgumentNullException(nameof(carLoadDocumentItem));
+			}
+
 			var createCodeResult =
 				await _trueMarkWaterCodeService.CreateStagingTrueMarkCode(
 					uow,
@@ -327,6 +347,16 @@ namespace WarehouseApi.Library.Services
 			CarLoadDocumentItem carLoadDocumentItem,
 			CancellationToken cancellationToken = default)
 		{
+			if(uow is null)
+			{
+				throw new ArgumentNullException(nameof(uow));
+			}
+
+			if(carLoadDocumentItem is null)
+			{
+				throw new ArgumentNullException(nameof(carLoadDocumentItem));
+			}
+
 			var removeCodeResult =
 				await RemoveStagingTrueMarkCode(
 					uow,

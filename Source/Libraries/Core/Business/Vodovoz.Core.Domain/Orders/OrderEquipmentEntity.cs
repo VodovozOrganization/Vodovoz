@@ -159,8 +159,17 @@ namespace Vodovoz.Core.Domain.Orders
 
 		#region Вычисляемые
 
+		/// <summary>
+		/// Направление (в виде строки)
+		/// </summary>
 		public virtual string DirectionString => Direction.GetEnumTitle();
+		/// <summary>
+		/// Причина забор-доставки (в виде строки)
+		/// </summary>
 		public virtual string DirectionReasonString => DirectionReason.GetEnumTitle();
+		/// <summary>
+		/// Причина (в виде строки)
+		/// </summary>
 		public virtual string ReasonString => Reason.GetEnumTitle();
 
 		#endregion

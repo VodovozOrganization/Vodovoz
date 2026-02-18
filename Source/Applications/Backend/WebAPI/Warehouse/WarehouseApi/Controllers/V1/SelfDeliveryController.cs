@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using MoreLinq;
-using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,15 +10,12 @@ using System.Net.Mime;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Presentation.WebApi.Security.OnlyOneSession;
 using VodovozBusiness.Employees;
-using VodovozBusiness.Services.TrueMark;
 using WarehouseApi.Contracts.Requests.V1;
-using WarehouseApi.Contracts.Responses.V1;
 using WarehouseApi.Contracts.V1.Responses;
 using WarehouseApi.Library.Extensions;
 using WarehouseApi.Library.Services;
@@ -40,7 +35,6 @@ namespace WarehouseApi.Controllers.V1
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly IExternalApplicationUserService _externalApplicationUserService;
 		private readonly ISelfDeliveryService _selfDeliveryService;
-		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 
 		/// <summary>
 		/// Конструктор
@@ -55,8 +49,7 @@ namespace WarehouseApi.Controllers.V1
 			ILogger<SelfDeliveryController> logger,
 			UserManager<IdentityUser> userManager,
 			IExternalApplicationUserService externalApplicationUserService,
-			ISelfDeliveryService selfDeliveryService,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService)
+			ISelfDeliveryService selfDeliveryService)
 			: base(logger)
 		{
 			_userManager = userManager
@@ -65,8 +58,6 @@ namespace WarehouseApi.Controllers.V1
 				?? throw new ArgumentNullException(nameof(externalApplicationUserService));
 			_selfDeliveryService = selfDeliveryService
 				?? throw new ArgumentNullException(nameof(selfDeliveryService));
-			_trueMarkWaterCodeService = trueMarkWaterCodeService
-				?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 		}
 
 		/// <summary>
@@ -79,7 +70,6 @@ namespace WarehouseApi.Controllers.V1
 		[HttpPut]
 		[ProducesResponseType(StatusCodes.Status201Created)]
 		public async Task<IActionResult> Put(
-			[FromServices] IUnitOfWork unitOfWork,
 			PutSelfDeliveryRequest request,
 			CancellationToken cancellationToken)
 			=> await GetUserAsync(User)
@@ -95,36 +85,8 @@ namespace WarehouseApi.Controllers.V1
 				.BindAsync(employee =>
 					_selfDeliveryService.SetTareToReturn(employee, request.TareToReturn))
 				.BindAsync(selfDeliveryDocument => EndLoad(selfDeliveryDocument, cancellationToken))
-				.BindAsync(async selfDeliveryDocument =>
-				{
-					await unitOfWork.SaveAsync(selfDeliveryDocument, cancellationToken: cancellationToken);
-					await unitOfWork.CommitAsync(cancellationToken);
-					return Result.Success(selfDeliveryDocument);
-				})
-				.BindAsync(async selfDeliveryDocument => await _selfDeliveryService.SendEdoRequest(selfDeliveryDocument, cancellationToken))
 				.MatchAsync<SelfDeliveryDocument, IActionResult>(
-					selfDeliveryDocument =>
-					{
-						var nomenclatures = selfDeliveryDocument.Order.OrderItems
-							.Select(x => x.Nomenclature)
-							.ToArray()
-							.AsEnumerable();
-
-						var response = new GetSelfDeliveryResponse
-						{
-							SelfDeliveryDocumentId = selfDeliveryDocument.Id,
-							Order = selfDeliveryDocument.Order.ToApiDtoV1(nomenclatures, selfDeliveryDocument)
-						};
-
-						response.Order.Items
-							.PopulateRelatedCodes(unitOfWork, _trueMarkWaterCodeService, selfDeliveryDocument.Items.SelectMany(x => x.TrueMarkProductCodes));
-
-						response.Order.Items.ForEach(item =>
-							item.Codes.ForEach((code, i) =>
-								code.SequenceNumber = i));
-
-						return Ok(response);
-					},
+					selfDeliveryDocument => Ok(_selfDeliveryService.CreateSelfDeliveryResponse(selfDeliveryDocument)),
 					errors => Problem(
 						string.Join(", ", errors.Select(e => e.Message)),
 						statusCode: StatusCodes.Status400BadRequest));

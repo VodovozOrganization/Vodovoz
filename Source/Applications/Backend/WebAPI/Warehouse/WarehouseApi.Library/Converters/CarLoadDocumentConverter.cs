@@ -141,7 +141,7 @@ namespace WarehouseApi.Library.Converters
 			}
 
 			return stagingCodes
-				.Select(PopulateStagingTrueMarkCodes(stagingCodes, sequenceNumber++))
+				.Select(PopulateStagingTrueMarkCodes(stagingCodes))
 				.ToList();
 
 		}
@@ -157,8 +157,7 @@ namespace WarehouseApi.Library.Converters
 		}
 
 		public Func<StagingTrueMarkCode, TrueMarkCodeDto> PopulateStagingTrueMarkCodes(
-			IEnumerable<StagingTrueMarkCode> allCodes,
-			int sequenceNumber = 0)
+			IEnumerable<StagingTrueMarkCode> allCodes)
 		{
 			return stagingCode =>
 			{
