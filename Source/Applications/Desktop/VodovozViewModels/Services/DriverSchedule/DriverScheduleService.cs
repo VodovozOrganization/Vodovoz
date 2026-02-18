@@ -97,6 +97,8 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 					driversActiveRouteListDates,
 					carEvents,
 					scheduleItems);
+
+				node.HasChanges = false;
 			}
 
 			var resultWithTotals = AddTotalRows(filteredResult, startDate);
@@ -388,8 +390,12 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 				}
 			}
 
+			var commentToUpdate = node.IsCommentEdited
+				? node.EditedComment
+				: node.OriginalComment;
+
 			schedule.ArrivalTime = node.ArrivalTime;
-			schedule.Comment = node.OriginalComment;
+			schedule.Comment = commentToUpdate;
 		}
 
 		/// <summary>
