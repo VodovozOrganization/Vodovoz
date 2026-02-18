@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -120,6 +120,49 @@ namespace WarehouseApi.Library.Errors
 		}
 
 		private Result IsCarLoadDocumentLoadOperationStateNotStartedOrInProgress(CarLoadDocument carLoadDocument, int documentId)
+		{
+			var cancelledOrdersIds = GetCarLoadDocumentCancelledOrders(carLoadDocument);
+
+			var isNotAllCodesAdded = carLoadDocument.Items
+				.Where(x =>
+					x.OrderId != null
+					&& !cancelledOrdersIds.Contains(x.OrderId.Value)
+					&& x.Nomenclature.IsAccountableInTrueMark
+					&& x.Nomenclature.Gtins.Any())
+				.Any(x => x.TrueMarkCodes.Count < x.Amount);
+
+			if(isNotAllCodesAdded)
+			{
+				var error = CarLoadDocumentErrors.CreateNotAllTrueMarkCodesWasAddedIntoCarLoadDocument(documentId);
+				LogError(error);
+				return Result.Failure(error);
+			}
+
+			return Result.Success();
+		}
+
+		private IEnumerable<int> GetCarLoadDocumentCancelledOrders(CarLoadDocumentEntity carLoadDocument)
+		{
+			var ordersInDocument = carLoadDocument.Items
+				.Where(x => x.OrderId != null)
+				.Select(x => x.OrderId.Value)
+				.Distinct()
+				.ToList();
+
+			var undeliveredStatuses = new OrderStatus[]
+			{
+				OrderStatus.NotDelivered,
+				OrderStatus.DeliveryCanceled,
+				OrderStatus.Canceled
+			};
+			
+			var cancelledOrders =
+				_orderRepository.Get(_uow, o => ordersInDocument.Contains(o.Id) && undeliveredStatuses.Contains(o.OrderStatus));
+
+			return cancelledOrders.Select(o => o.Id);
+		}
+
+		private Result IsCarLoadDocumentLoadOperationStateNotStartedOrInProgress(CarLoadDocumentEntity carLoadDocument, int documentId)
 		{
 			if(!(carLoadDocument.LoadOperationState == CarLoadDocumentLoadOperationState.NotStarted
 				|| carLoadDocument.LoadOperationState == CarLoadDocumentLoadOperationState.InProgress))

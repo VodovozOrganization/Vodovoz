@@ -59,8 +59,8 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 			{
 				var result =
 				(
-					from nomenclatures in unitOfWork.Session.Query<GtinEntity>()
-					select nomenclatures.GtinNumber
+					from gtins in unitOfWork.Session.Query<GtinEntity>()
+					select gtins.GtinNumber
 				)
 				.Distinct()
 				.ToHashSet();

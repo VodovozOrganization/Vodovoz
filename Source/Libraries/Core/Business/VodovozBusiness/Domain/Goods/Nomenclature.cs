@@ -1,4 +1,3 @@
-﻿using Autofac;
 using Gamma.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.Entity;
@@ -165,6 +164,13 @@ namespace Vodovoz.Domain.Goods
 			get => _nomenclatureOnlineParameters;
 			set => SetField(ref _nomenclatureOnlineParameters, value);
 		}
+		
+		/// <summary>
+		/// Номер товарной продукции GTIN
+		/// </summary>
+		[Display(Name = "Номер товарной продукции GTIN")]
+		[Obsolete("Свойство Gtin устарело и будет удалено в следующих версиях. Используйте коллекцию Gtins.")]
+		public virtual string Gtin => Gtins?.FirstOrDefault()?.GtinNumber;
 
 		/// <summary>
 		/// Gtin
@@ -562,12 +568,14 @@ namespace Vodovoz.Domain.Goods
 				yield return new ValidationResult("Начальное значение температуры нагрева не может быть больше конечного",
 					new[] { nameof(HeatingTemperatureFromOnline), nameof(HeatingTemperatureToOnline) });
 			}
-
+			
 			if(IsAccountableInTrueMark && !Gtins.Any())
 			{
 				yield return new ValidationResult("Должен быть заполнен GTIN для ТМЦ, подлежащих учёту в Честном знаке.",
 					new[] { nameof(Gtins) });
 			}
+			
+			#region Gtins
 
 			if(Gtins.Any(x => x.GtinNumber.Length < 8 || x.GtinNumber.Length > 14))
 			{
@@ -652,11 +660,26 @@ namespace Vodovoz.Domain.Goods
 					new[] { nameof(Gtins) });
 			}
 			
+			var gtinPriorityDuplicates = Gtins
+				.GroupBy(g => g.Priority)
+				.Where(g => g.Count() > 1)
+				.ToList();
 
+			if (gtinPriorityDuplicates.Any())
+			{
+				yield return new ValidationResult(
+					$"Дубли приоритетов Gtin: " + string.Join("; ", gtinPriorityDuplicates.Select(g =>
+						$"Приоритет = {g.Key}: {string.Join(", ", g.Select(x => x.GtinNumber))}"
+					)),
+					new[] { nameof(Gtins) });
+			}
+			
+			#endregion Gtins
+			
 			if(!VatRateVersions.Any())
 			{
 				yield return new ValidationResult(
-						"У номенклатуры нет ниодной версии НДС!",
+						"У номенклатуры нет ни одной версии НДС!",
 						new[] { nameof(VatRateVersions) });
 			}
 			

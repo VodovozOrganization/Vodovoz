@@ -1043,8 +1043,8 @@ namespace Edo.Receipt.Dispatcher
 			// и заполняем у него Result кодом из пула
 			var invalidCodes = unprocessedCodes
 				.Where(x => x.ProductCode.SourceCode == null || x.ProductCode.SourceCode.IsInvalid);
-			//Reverse чтобы брать свежий Gtin, раз уж заполняем новым кодом
-			foreach(var gtin in orderItem.Nomenclature.Gtins.Reverse())
+			
+			foreach(var gtin in orderItem.Nomenclature.Gtins)
 			{
 				matchEdoTaskItem = invalidCodes.FirstOrDefault();
 				if(matchEdoTaskItem != null)
@@ -1106,7 +1106,7 @@ namespace Edo.Receipt.Dispatcher
 			var problemGtins = new List<EdoProblemGtinItem>();
 			EdoCodePoolMissingCodeException exception = null;
 
-			foreach(var gtin in nomenclature.Gtins.Reverse())
+			foreach(var gtin in nomenclature.Gtins)
 			{
 				try
 				{
