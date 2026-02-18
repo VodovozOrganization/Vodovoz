@@ -260,7 +260,7 @@
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox18">
-                          <Value>Кол-во на складах, шт.</Value>
+                          <Value>Кол-во на складе, шт.</Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
