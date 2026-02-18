@@ -264,8 +264,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 					row.HasChanges = false;
 				}
 
-				_interactiveService.ShowMessage(ImportanceLevel.Info, "Сохранено успешно");
 				UoW.Commit();
+
+				UoW.Session.Clear();
+
+				_interactiveService.ShowMessage(ImportanceLevel.Info, "Сохранено успешно");
 			}
 			catch(Exception ex)
 			{
