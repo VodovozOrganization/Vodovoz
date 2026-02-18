@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -1420,10 +1420,6 @@ namespace Vodovoz.Domain.Orders
 		public virtual bool IsOrderContainsIsAccountableInTrueMarkItems =>
 			ObservableOrderItems.Any(x =>
 			x.Nomenclature.IsAccountableInTrueMark && x.Nomenclature.Gtins.Any() && x.Count > 0);
-		public virtual bool IsOrderContainsIsAccountableInTrueMarkItems => ObservableOrderItems.Any(x =>
-			x.Nomenclature.IsAccountableInTrueMark
-			&& !x.Nomenclature.Gtins.All(g => string.IsNullOrWhiteSpace(g.GtinNumber))
-			&& x.Count > 0);
 
 		/// <summary>
 		/// Проверка, является ли целью покупки заказа - для перепродажи

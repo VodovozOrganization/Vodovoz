@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -160,19 +160,6 @@ namespace WarehouseApi.Library.Errors
 				_orderRepository.Get(_uow, o => ordersInDocument.Contains(o.Id) && undeliveredStatuses.Contains(o.OrderStatus));
 
 			return cancelledOrders.Select(o => o.Id);
-		}
-
-		private Result IsCarLoadDocumentLoadOperationStateNotStartedOrInProgress(CarLoadDocumentEntity carLoadDocument, int documentId)
-		{
-			if(!(carLoadDocument.LoadOperationState == CarLoadDocumentLoadOperationState.NotStarted
-				|| carLoadDocument.LoadOperationState == CarLoadDocumentLoadOperationState.InProgress))
-			{
-				var error = CarLoadDocumentErrors.CreateLoadingProcessStateMustBeNotStartedOrInProgress(documentId);
-				LogError(error);
-				return Result.Failure(error);
-			}
-
-			return Result.Success();
 		}
 
 		private Result IsCarLoadDocumentLoadOperationStateInProgress(CarLoadDocument carLoadDocument, int documentId)
