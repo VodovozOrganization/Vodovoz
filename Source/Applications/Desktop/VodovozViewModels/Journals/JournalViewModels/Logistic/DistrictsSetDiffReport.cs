@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Text;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Extensions;

@@ -1,4 +1,5 @@
-﻿using Vodovoz.Domain.Sale;
+﻿using Vodovoz.Core.Domain.Sale;
+using Vodovoz.Domain.Sale;
 using VodovozBusiness.Domain.Service;
 
 namespace VodovozBusiness.Domain.Orders

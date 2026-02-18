@@ -1,4 +1,5 @@
 ﻿using System;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Sale;
 
 namespace VodovozBusiness.Extensions

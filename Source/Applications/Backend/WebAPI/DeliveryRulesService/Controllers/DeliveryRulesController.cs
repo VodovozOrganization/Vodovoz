@@ -1,4 +1,4 @@
-﻿using DeliveryRulesService.Cache;
+using DeliveryRulesService.Cache;
 using DeliveryRulesService.Constants;
 using DeliveryRulesService.DTO;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Delivery;

@@ -1,5 +1,6 @@
 ﻿using Gamma.Utilities;
 using QS.DomainModel.Entity;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.DeliveryAnalytics

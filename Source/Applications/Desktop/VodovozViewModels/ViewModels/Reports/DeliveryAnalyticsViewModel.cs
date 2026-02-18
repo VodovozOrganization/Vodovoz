@@ -16,6 +16,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -109,7 +110,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports
 
 			foreach(var week in Enum.GetValues(typeof(WeekDayName)))
 			{
-				if((WeekDayName)week == Domain.Sale.WeekDayName.Today) continue;
+				if((WeekDayName)week == Core.Domain.Sale.WeekDayName.Today) continue;
 				var weekNode = new WeekDayNodes { WeekNameNode = (WeekDayName)week, Selected = true };
 				WeekDayName.Add(weekNode);
 			}
