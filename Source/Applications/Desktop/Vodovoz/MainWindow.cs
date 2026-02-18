@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using NLog;
 using QS.Commands;
 using QS.Dialog;
@@ -130,8 +130,13 @@ public partial class MainWindow : Gtk.Window
 		ActionExportImportNomenclatureCatalog.Sensitive =
 			CurrentPermissionService.ValidatePresetPermission("can_create_and_arc_nomenclatures");
 		ActionDistricts.Sensitive = CurrentPermissionService.ValidateEntityPermission(typeof(DistrictsSet)).CanRead;
+
+		// Логистика
 		ActionDriversStopLists.Sensitive = CurrentPermissionService.ValidateEntityPermission(typeof(DriverStopListRemoval)).CanRead;
-		
+
+		ActionDriverSchedule.Sensitive = 
+			CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.CanWorkWithDriverSchedule);
+
 		MainPanelMenuItemHandler.Initialize();
 
 		// Отдел продаж
