@@ -3,9 +3,7 @@ using System.Net.Security;
 using System.Security.Authentication;
 using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.Converters;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
-using CustomerOrdersApi.Library.V4.Factories;
-using CustomerOrdersApi.Library.V4.Services;
+using CustomerOrdersApi.Library.V5.Dto.Orders;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +12,7 @@ using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Settings.Pacs;
 using VodovozInfrastructure.Cryptography;
 
-namespace CustomerOrdersApi.Library.V4
+namespace CustomerOrdersApi.Library
 {
 	public static class CustomerOrdersApiExtensions
 	{
@@ -25,14 +23,22 @@ namespace CustomerOrdersApi.Library.V4
 			return services;
 		}
 		
-		public static IServiceCollection AddDependenciesGroup(this IServiceCollection services)
+		public static IServiceCollection AddVersion4(this IServiceCollection services)
 		{
-			services.AddScoped<ICustomerOrdersService, CustomerOrdersService>()
-				.AddScoped<ISignatureManager, SignatureManager>()
-				.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>()
-				.AddScoped<ICustomerOrderFactory, CustomerOrderFactory>()
-				.AddScoped<IInfoMessageFactory, InfoMessageFactory>()
-				.AddScoped<IExternalOrderStatusConverter, ExternalOrderStatusConverter>();
+			services.AddScoped<V4.Services.ICustomerOrdersService, V4.Services.CustomerOrdersService>()
+				.AddScoped<V4.Factories.ICustomerOrderFactory, V4.Factories.CustomerOrderFactory>()
+				.AddScoped<V4.Factories.IInfoMessageFactory, V4.Factories.InfoMessageFactory>()
+				.AddDefaultServices();
+			
+			return services;
+		}
+		
+		public static IServiceCollection AddVersion5(this IServiceCollection services)
+		{
+			services.AddScoped<V5.Services.ICustomerOrdersService, V5.Services.CustomerOrdersService>()
+				.AddScoped<V5.Factories.ICustomerOrderFactory, V5.Factories.CustomerOrderFactory>()
+				.AddScoped<V5.Factories.IInfoMessageFactory, V5.Factories.InfoMessageFactory>()
+				.AddDefaultServices();
 			
 			return services;
 		}
@@ -121,6 +127,16 @@ namespace CustomerOrdersApi.Library.V4
 				DeliveryDate = source.DeliveryDate,
 				DeliveryScheduleId = source.DeliveryScheduleId
 			};
+		}
+		
+		private static IServiceCollection AddDefaultServices(this IServiceCollection services)
+		{
+			services
+				.AddScoped<ISignatureManager, SignatureManager>()
+				.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>()
+				.AddScoped<IExternalOrderStatusConverter, ExternalOrderStatusConverter>();
+			
+			return services;
 		}
 	}
 }

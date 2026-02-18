@@ -2,12 +2,12 @@
 using Microsoft.Extensions.Logging;
 using Vodovoz.Presentation.WebApi.Common;
 
-namespace CustomerOrdersApi.Controllers
+namespace CustomerOrdersApi.Controllers.V5
 {
 	/// <summary>
 	/// Базовый контроллер с версией
 	/// </summary>
-	[ApiVersion("4.0")]
+	[ApiVersion("5.0")]
 	[Route("api/v{version:apiVersion}/[action]")]
 	[ApiController]
 	public class VersionedController : ApiControllerBase

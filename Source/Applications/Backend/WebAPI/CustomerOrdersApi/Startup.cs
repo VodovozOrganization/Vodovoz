@@ -58,7 +58,8 @@ namespace CustomerOrdersApi
 				.AddApplicationOrderServices()
 				.AddInfrastructure()
 				.AddConfig(Configuration)
-				.AddDependenciesGroup()
+				.AddVersion4()
+				.AddVersion5()
 				.AddVersioning();
 
 			services.AddStaticScopeForEntity();
