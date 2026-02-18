@@ -9,9 +9,15 @@ namespace Vodovoz.Core.Data.NHibernate.Sale
 		{
 			Table("geo_groups");
 
-			Id(x => x.Id).Column("id").GeneratedBy.Native();
-			Map(x => x.Name).Column("name");
-			Map(x => x.IsArchived).Column("is_archived");
+			Id(x => x.Id)
+				.Column("id")
+				.GeneratedBy.Native();
+
+			Map(x => x.Name)
+				.Column("name");
+
+			Map(x => x.IsArchived)
+				.Column("is_archived");
 		}
 	}
 }
