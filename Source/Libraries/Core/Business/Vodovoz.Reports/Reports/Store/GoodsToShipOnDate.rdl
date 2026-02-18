@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -44,10 +44,10 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>310.2pt</Width>
+            <Width>303.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>28.8pt</Width>
+            <Width>36.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>69.1pt</Width>
@@ -55,7 +55,7 @@
           <TableColumn>
             <Width>69.0pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>78.2pt</Width>
           </TableColumn>
         </TableColumns>
@@ -136,7 +136,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox23">
                       <Value>={qty_after_ship}</Value>
@@ -274,7 +274,7 @@
                         </Textbox>
                       </ReportItems>
                     </TableCell>
-                    <TableCell >
+                    <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox24">
                           <Value>Остаток после отгрузки, шт.</Value>
@@ -621,8 +621,8 @@
 		END
 	) AS category_name,
 	items.qty_to_ship,
-	wh_qty.qty AS qty_available,
-  wh_qty.qty - items.qty_to_ship AS qty_after_ship,
+	COALESCE(wh_qty.qty, 0) AS qty_available,
+  COALESCE(wh_qty.qty, 0) - COALESCE(items.qty_to_ship, 0) AS qty_after_ship,
 	items.geo_group_id AS geo_group,
 	w.name AS warehouse_name
 #товары и оборудование к клиенту
