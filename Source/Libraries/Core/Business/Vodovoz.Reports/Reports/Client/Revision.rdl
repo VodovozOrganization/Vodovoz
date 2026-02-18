@@ -1,9 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>210.058mm</PageHeight>
   <PageWidth>296.926mm</PageWidth>
   <Width>7.5in</Width>
@@ -13,7 +11,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Operations">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>
             SELECT *
@@ -168,7 +166,7 @@
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="num">
           <DataField>num</DataField>
           <TypeName>System.String</TypeName>
@@ -265,7 +263,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Initial">
-    <Query>
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>
             SELECT 
@@ -330,25 +328,25 @@ WHERE
                     AND IFNULL(cmo.operation_time, p.payment_date) &lt; @date_start
             ) as t
           </CommandText>
-          <QueryParameters>
-              <QueryParameter Name="counterparty_id">
-                  <Value>=Parameters!CounterpartyId</Value>
-              </QueryParameter>
-              <QueryParameter Name="date_start">
-                  <Value>=Parameters!StartDate</Value>
-              </QueryParameter>
-              <QueryParameter Name="organization_id">
-                  <Value>=Parameters!OrganizationId</Value>
-              </QueryParameter>
-          </QueryParameters>
+        <QueryParameters>
+          <QueryParameter Name="counterparty_id">
+            <Value>=Parameters!CounterpartyId</Value>
+          </QueryParameter>
+          <QueryParameter Name="date_start">
+            <Value>=Parameters!StartDate</Value>
+          </QueryParameter>
+          <QueryParameter Name="organization_id">
+            <Value>=Parameters!OrganizationId</Value>
+          </QueryParameter>
+        </QueryParameters>
       </Query>
       <Fields>
-          <Field Name="total">
-              <DataField>total</DataField>
-              <TypeName>System.Decimal</TypeName>
-          </Field>
+        <Field Name="total">
+          <DataField>total</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
       </Fields>
-  </DataSet>
+    </DataSet>
   </DataSets>
   <PageHeader>
     <Height>46.8pt</Height>
@@ -393,14 +391,14 @@ WHERE
         <CanGrow>true</CanGrow>
       </Textbox>
       <Textbox Name="Textbox3">
-        <Height>49.02pt</Height>
-        <Width>809.00pt</Width>
+        <Height>22.77pt</Height>
+        <Width>807.68pt</Width>
         <Value>="Мы, нижеподписавшиеся, "
 +First(Fields!org_name,'Organization')+", с одной стороны, и "
 +First(Fields!counterparty_name,'Counterparty')+", с другой стороны, составили настоящий акт сверки в том, что состояние взаимных расчетов по данным учета следующее:"</Value>
         <ZIndex>0</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>87.60pt</Top>
+        <Left>0.0pt</Left>
+        <Top>89.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -684,8 +682,7 @@ First(Fields!total.Value,'Initial'),
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox54">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -699,8 +696,7 @@ First(Fields!total.Value,'Initial'),
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox48">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -714,7 +710,6 @@ First(Fields!total.Value,'Initial'),
               </TableCells>
             </TableRow>
           </TableRows>
-          <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
         <Details>
           <TableRows>
@@ -767,8 +762,7 @@ First(Fields!total.Value,'Initial'),
                         <TextAlign>Right</TextAlign>
                       </Style>
                       <Visibility>
-                        <Hidden>
-                        </Hidden>
+                        <Hidden></Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -791,8 +785,7 @@ First(Fields!total.Value,'Initial'),
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox14">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -805,8 +798,7 @@ First(Fields!total.Value,'Initial'),
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox61">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -818,8 +810,7 @@ First(Fields!total.Value,'Initial'),
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox55">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -831,8 +822,7 @@ First(Fields!total.Value,'Initial'),
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox49">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -919,8 +909,7 @@ First(Fields!total.Value,'Initial'),
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox56">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -932,8 +921,7 @@ First(Fields!total.Value,'Initial'),
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox50">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1038,8 +1026,7 @@ First(Fields!total.Value,'Initial'),
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox57">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1051,8 +1038,7 @@ First(Fields!total.Value,'Initial'),
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox51">
-                      <Value>
-                      </Value>
+                      <Value></Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1066,97 +1052,84 @@ First(Fields!total.Value,'Initial'),
           </TableRows>
         </Footer>
         <Left>0.0pt</Left>
-        <Top>144.5pt</Top>
+        <Top>121.3pt</Top>
       </Table>
       <List Name="ConclusionList">
         <DataSetName>Organization</DataSetName>
-        <Height>85.22pt</Height>
-        <Width>461.47pt</Width>
-        <Left>0.00pt</Left>
-        <Top>267.20pt</Top>
+        <Height>135.44pt</Height>
+        <Width>808.34pt</Width>
+        <Left>0.0pt</Left>
+        <Top>217.4pt</Top>
         <Style>
-            <BorderStyle />
+          <BorderStyle />
         </Style>
         <KeepTogether>true</KeepTogether>
         <ReportItems>
-            <Textbox Name="Textbox72">
-                <Height>14.28pt</Height>
-                <Width>461.47pt</Width>
-                <Value>="По данным "+ First(Fields!org_name,'Organization')</Value>
-                <ZIndex>0</ZIndex>
-                <Left>0.00pt</Left>
-                <Top>0pt</Top>
-                <Style>
-                    <BorderStyle />
-                    <BorderColor />
-                    <BorderWidth />
-                </Style>
-            </Textbox>
-            <Textbox Name="Textbox73">
-              <Height>52.66pt</Height>
-              <Width>461.47pt</Width>
-              <Value>="на "+Format(CDate(Parameters!EndDate),"dd.MM.yyyy") + " " +
-          Iif(
-              (Iif(First(Fields!total.Value,'Initial') &lt; 0, Math.Abs(First(Fields!total.Value,'Initial')), 0) + Sum(Fields!debt,'Operations'))
-              -
-              (Iif(First(Fields!total.Value,'Initial') &gt; 0, First(Fields!total.Value,'Initial'), 0) + Sum(Fields!deposit,'Operations'))
-              = 0,
-              "задолженность отсутствует",
-              "задолженность в пользу " +
-              Iif(
-                  (Iif(First(Fields!total.Value,'Initial') &lt; 0, Math.Abs(First(Fields!total.Value,'Initial')), 0) + Sum(Fields!debt,'Operations'))
-                  -
-                  (Iif(First(Fields!total.Value,'Initial') &gt; 0, First(Fields!total.Value,'Initial'), 0) + Sum(Fields!deposit,'Operations'))
-                  &gt; 0,
-                  First(Fields!org_name,'Organization'),     
-                  First(Fields!counterparty_name,'Counterparty')
-              )
-              + " составляет " +
-              Format(
-                  Math.Abs(
-                      (Iif(First(Fields!total.Value,'Initial') &lt; 0, Math.Abs(First(Fields!total.Value,'Initial')), 0) + Sum(Fields!debt,'Operations'))
-                      -
-                      (Iif(First(Fields!total.Value,'Initial') &gt; 0, First(Fields!total.Value,'Initial'), 0) + Sum(Fields!deposit,'Operations'))
-                  ), "N2")
-              +" руб." + "\n"+
-              "("+
-              Code.NumberToWords(Math.Abs(
-                  (Iif(First(Fields!total.Value,'Initial') &lt; 0, Math.Abs(First(Fields!total.Value,'Initial')), 0) + Sum(Fields!debt,'Operations'))
-                  -
-                  (Iif(First(Fields!total.Value,'Initial') &gt; 0, First(Fields!total.Value,'Initial'), 0) + Sum(Fields!deposit,'Operations'))
-              ))
-              +")"
-          )</Value>
-              <ZIndex>0</ZIndex>
-              <Left>0.00pt</Left>
-              <Top>16.28pt</Top>
-              <Style>
-                  <BorderStyle />
-                  <BorderColor />
-                  <BorderWidth />
-                  <FontWeight>Bold</FontWeight>
-              </Style>
+          <Textbox Name="Textbox72">
+            <Height>14.28pt</Height>
+            <Width>809.00pt</Width>
+            <Value>="По данным "+ First(Fields!org_name,'Organization')</Value>
+            <ZIndex>0</ZIndex>
+            <Left>0.0pt</Left>
+            <Top>0.8pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
           </Textbox>
-          </ReportItems>
-      </List>
-      <List Name="SignaturesList">
-        <DataSetName>Organization</DataSetName>
-        <Height>78pt</Height>
-        <Width>809pt</Width>
-        <Left>0.00pt</Left>
-        <Top>325.10pt</Top>
-        <Style>
-          <BorderStyle/>
-        </Style>
-        <KeepTogether>true</KeepTogether>
-        <ReportItems>
+          <Textbox Name="Textbox73">
+            <Height>35.41pt</Height>
+            <Width>806.88pt</Width>
+            <Value>="на "+Format(CDate(Parameters!EndDate),"dd.MM.yyyy") + " " +
+                    Iif(
+                        (Iif(First(Fields!total.Value,'Initial') &lt; 0, Math.Abs(First(Fields!total.Value,'Initial')), 0) + Sum(Fields!debt,'Operations'))
+                        -
+                        (Iif(First(Fields!total.Value,'Initial') &gt; 0, First(Fields!total.Value,'Initial'), 0) + Sum(Fields!deposit,'Operations'))
+                        = 0,
+                        "задолженность отсутствует",
+                        "задолженность в пользу " +
+                        Iif(
+                            (Iif(First(Fields!total.Value,'Initial') &lt; 0, Math.Abs(First(Fields!total.Value,'Initial')), 0) + Sum(Fields!debt,'Operations'))
+                            -
+                            (Iif(First(Fields!total.Value,'Initial') &gt; 0, First(Fields!total.Value,'Initial'), 0) + Sum(Fields!deposit,'Operations'))
+                            &gt; 0,
+                            First(Fields!org_name,'Organization'),     
+                            First(Fields!counterparty_name,'Counterparty')
+                        )
+                        + " составляет " +
+                        Format(
+                            Math.Abs(
+                                (Iif(First(Fields!total.Value,'Initial') &lt; 0, Math.Abs(First(Fields!total.Value,'Initial')), 0) + Sum(Fields!debt,'Operations'))
+                                -
+                                (Iif(First(Fields!total.Value,'Initial') &gt; 0, First(Fields!total.Value,'Initial'), 0) + Sum(Fields!deposit,'Operations'))
+                            ), "N2")
+                        +" руб." + "\n"+
+                        "("+
+                        Code.NumberToWords(Math.Abs(
+                            (Iif(First(Fields!total.Value,'Initial') &lt; 0, Math.Abs(First(Fields!total.Value,'Initial')), 0) + Sum(Fields!debt,'Operations'))
+                            -
+                            (Iif(First(Fields!total.Value,'Initial') &gt; 0, First(Fields!total.Value,'Initial'), 0) + Sum(Fields!deposit,'Operations'))
+                        ))
+                        +")"
+                    )</Value>
+            <ZIndex>0</ZIndex>
+            <Left>0.0pt</Left>
+            <Top>15.4pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontWeight>Bold</FontWeight>
+            </Style>
+          </Textbox>
           <Textbox Name="Textbox74">
             <Height>15.02pt</Height>
             <Width>370.43pt</Width>
             <Value>="От "+ First(Fields!org_name, 'Organization')</Value>
             <ZIndex>0</ZIndex>
-            <Left>0.00pt</Left>
-            <Top>0pt</Top>
+            <Left>0.0pt</Left>
+            <Top>52.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1171,8 +1144,8 @@ First(Fields!total.Value,'Initial'),
                 <Default>Solid</Default>
               </BorderStyle>
             </Style>
-            <Left>0.00pt</Left>
-            <Top>34.10pt</Top>
+            <Left>0.0pt</Left>
+            <Top>86.7pt</Top>
           </Line>
           <Line Name="Line2">
             <Height>0.02pt</Height>
@@ -1182,8 +1155,8 @@ First(Fields!total.Value,'Initial'),
                 <Default>Solid</Default>
               </BorderStyle>
             </Style>
-            <Left>0.80pt</Left>
-            <Top>57.20pt</Top>
+            <Left>0.8pt</Left>
+            <Top>109.8pt</Top>
           </Line>
           <Textbox Name="Textbox75">
             <Height>13.52pt</Height>
@@ -1191,7 +1164,7 @@ First(Fields!total.Value,'Initial'),
             <Value>(____________________________)</Value>
             <ZIndex>0</ZIndex>
             <Left>206.7pt</Left>
-            <Top>47.4pt</Top>
+            <Top>100.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1199,12 +1172,12 @@ First(Fields!total.Value,'Initial'),
             </Style>
           </Textbox>
           <Textbox Name="Textbox76">
-            <Height>12pt</Height>
-            <Width>1in</Width>
+            <Height>12.00pt</Height>
+            <Width>72.27pt</Width>
             <Value>М.П.</Value>
             <ZIndex>0</ZIndex>
             <Left>0.0pt</Left>
-            <Top>64.9pt</Top>
+            <Top>117.5pt</Top>
           </Textbox>
           <Line Name="Line3">
             <Height>-0.01pt</Height>
@@ -1217,7 +1190,7 @@ First(Fields!total.Value,'Initial'),
               <BorderWidth />
             </Style>
             <Left>394.9pt</Left>
-            <Top>35.2pt</Top>
+            <Top>87.8pt</Top>
           </Line>
           <Line Name="Line4">
             <Height>0.02pt</Height>
@@ -1228,7 +1201,7 @@ First(Fields!total.Value,'Initial'),
               </BorderStyle>
             </Style>
             <Left>395.7pt</Left>
-            <Top>58.3pt</Top>
+            <Top>110.9pt</Top>
           </Line>
           <Textbox Name="Textbox6">
             <Height>13.52pt</Height>
@@ -1236,7 +1209,7 @@ First(Fields!total.Value,'Initial'),
             <Value>(____________________________)</Value>
             <ZIndex>0</ZIndex>
             <Left>601.6pt</Left>
-            <Top>48.5pt</Top>
+            <Top>101.1pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1244,12 +1217,12 @@ First(Fields!total.Value,'Initial'),
             </Style>
           </Textbox>
           <Textbox Name="Textbox7">
-            <Height>12pt</Height>
-            <Width>1in</Width>
+            <Height>12.00pt</Height>
+            <Width>72.27pt</Width>
             <Value>М.П.</Value>
             <ZIndex>0</ZIndex>
             <Left>394.9pt</Left>
-            <Top>66.0pt</Top>
+            <Top>118.6pt</Top>
             <Style />
           </Textbox>
           <Textbox Name="Textbox8">
@@ -1257,8 +1230,8 @@ First(Fields!total.Value,'Initial'),
             <Width>370.43pt</Width>
             <Value>="От "+ First(Fields!counterparty_name,'Counterparty')</Value>
             <ZIndex>0</ZIndex>
-            <Left>390.70pt</Left>
-            <Top>0.6pt</Top>
+            <Left>390.7pt</Left>
+            <Top>53.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1301,8 +1274,7 @@ First(Fields!total.Value,'Initial'),
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <Code>
-  <![CDATA[
+  <Code><![CDATA[
   Public Function NumberToWords(ByVal num As Decimal) As String
       Try
           Dim rub As Integer = Math.Floor(num)
@@ -1407,8 +1379,7 @@ First(Fields!total.Value,'Initial'),
       
       Return result.Trim()
   End Function
-  ]]>
-  </Code>
+  ]]></Code>
   <ReportParameters>
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
@@ -1420,8 +1391,7 @@ First(Fields!total.Value,'Initial'),
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="EndDate">
       <DataType>String</DataType>
@@ -1433,24 +1403,21 @@ First(Fields!total.Value,'Initial'),
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="CounterpartyId">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="OrganizationId">
       <DataType>Integer</DataType>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>
