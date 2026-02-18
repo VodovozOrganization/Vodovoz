@@ -1,4 +1,5 @@
-﻿using QS.Commands;
+﻿using Microsoft.Extensions.Logging;
+using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
@@ -24,6 +25,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 {
 	public class DriverScheduleViewModel : DialogTabViewModelBase
 	{
+		private readonly ILogger<DriverScheduleViewModel> _logger;
 		private readonly ICarEventSettings _carEventSettings;
 		private readonly IInteractiveService _interactiveService;
 		private readonly ICurrentPermissionService _currentPermissionService;
@@ -40,6 +42,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		private DateTime _endDate;
 
 		public DriverScheduleViewModel(
+			ILogger<DriverScheduleViewModel> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
 			ICurrentPermissionService currentPermissionService,
@@ -53,7 +56,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			ILogisticRepository logisticRepository
 			) : base(unitOfWorkFactory, interactiveService, navigation)
 		{
-
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
@@ -215,6 +218,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Error,
 					$"Ошибка при загрузке данных: {ex.Message}");
+
+				_logger.LogError(ex, "Ошибка при загрузке данных в графике водителей");
+
 				return new ObservableList<DriverScheduleRow>();
 			}
 		}
@@ -264,6 +270,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			catch(Exception ex)
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Error, $"Ошибка при сохранении:\n{ex.Message}");
+
+				_logger.LogError(ex, "Ошибка при сохранении в графике водителей");
 			}
 		}
 
@@ -305,6 +313,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 					_interactiveService.ShowMessage(
 						ImportanceLevel.Error,
 						$"Ошибка при экспорте:\n{ex.Message}\n{ex.InnerException?.Message}");
+
+					_logger.LogError(ex, "Ошибка при экспорте данных в графике водителей");
 				}
 			}
 		}
