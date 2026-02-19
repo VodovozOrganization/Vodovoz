@@ -367,8 +367,6 @@ namespace DriverAPI.Controllers.V6
 			var user = await _userManager.GetUserAsync(User);
 			var driver = _employeeService.GetByAPILogin(user.UserName);
 
-			var resultMessage = "OK";
-
 			try
 			{
 				var requestProcessingResult =
@@ -398,10 +396,6 @@ namespace DriverAPI.Controllers.V6
 				return Problem($"При проверке кода ЧЗ произошла ошибка. " +
 					$"Code: {code}, " +
 					$"ExceptionMessage: {ex.Message}");
-			}
-			finally
-			{
-				_driverMobileAppActionRecordService.RegisterAction(driver, DriverMobileAppActionType.CompleteOrderClicked, DateTime.Now, receivedTime, resultMessage);
 			}
 		}
 
