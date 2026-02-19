@@ -1129,26 +1129,26 @@ namespace Vodovoz.Application.TrueMark
 			var codes = new List<StagingTrueMarkCode>();
 
 			var requestCodesData = CreateRequestCodesDataByScannedCodes(new List<string> { scannedCode });
-			var requestCodesInstanseStatusesDataResult = await GetProductInstanceStatuses(requestCodesData.Keys, cancellationToken);
+			var requestCodesInstanceStatusesDataResult = await GetProductInstanceStatuses(requestCodesData.Keys, cancellationToken);
 
-			if(requestCodesInstanseStatusesDataResult.IsFailure)
+			if(requestCodesInstanceStatusesDataResult.IsFailure)
 			{
-				return Result.Failure<StagingTrueMarkCode>(requestCodesInstanseStatusesDataResult.Errors);
+				return Result.Failure<StagingTrueMarkCode>(requestCodesInstanceStatusesDataResult.Errors);
 			}
 
-			var codesInstanseStatuses = requestCodesInstanseStatusesDataResult.Value.Select(x => x.Value).ToList();
+			var codesInstanceStatuses = requestCodesInstanceStatusesDataResult.Value.Select(x => x.Value).ToList();
 
-			var isAllCodesValidResult = IsAllCodesValid(codesInstanseStatuses.Where(x => x.GeneralPackageType == GeneralPackageType.Unit));
+			var isAllCodesValidResult = IsAllCodesValid(codesInstanceStatuses.Where(x => x.GeneralPackageType == GeneralPackageType.Unit));
 
 			if(isAllCodesValidResult.IsFailure)
 			{
 				return Result.Failure<StagingTrueMarkCode>(isAllCodesValidResult.Errors);
 			}
 
-			foreach(var codeInstanseStatusData in requestCodesInstanseStatusesDataResult.Value)
+			foreach(var codeInstanceStatusData in requestCodesInstanceStatusesDataResult.Value)
 			{
-				var requestCode = codeInstanseStatusData.Key;
-				var instanceStatus = codeInstanseStatusData.Value;
+				var requestCode = codeInstanceStatusData.Key;
+				var instanceStatus = codeInstanceStatusData.Value;
 
 				StagingTrueMarkCode code = null;
 				TrueMarkWaterCode parsedCode = null;
@@ -1182,13 +1182,22 @@ namespace Vodovoz.Application.TrueMark
 				codes.Add(code);
 			}
 
+			var childToParentCodeInstanceStatuses = codesInstanceStatuses
+				.SelectMany(status => status.Childs.Select(child => (Child: child, Parent: status.IdentificationCode)))
+				.ToLookup(x => x.Child, x => x.Parent);
+
+			var codeByIdentificationCode = codes.ToLookup(c => c.IdentificationCode);
+
 			foreach(var code in codes)
 			{
-				var parentCode = codes
-					.FirstOrDefault(c => codesInstanseStatuses
-						.FirstOrDefault(cis => cis.Childs.Contains(code.IdentificationCode))
-						?.IdentificationCode == c.IdentificationCode);
+				var parentIdentificationCode = childToParentCodeInstanceStatuses[code.IdentificationCode].FirstOrDefault();
 
+				if(parentIdentificationCode is null)
+				{
+					continue;
+				}
+
+				var parentCode = codeByIdentificationCode[parentIdentificationCode].FirstOrDefault();
 				parentCode?.AddInnerCode(code);
 			}
 
