@@ -382,7 +382,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 				.FirstOrDefault(x => x.Id == changingOrderDto.DeliveryScheduleId);
 
 			var result = _unPaidOnlineOrderHandler.TryUpdateOrder(
-				uow, orders, onlineOrder, deliverySchedule, changingOrderDto.ToUpdateOnlineOrderFromChangeRequest());
+				uow, orders, onlineOrder, deliverySchedule, changingOrderDto.ToUpdateOnlineOrderFromChangeRequestV4());
 			
 			if(result.IsFailure)
 			{

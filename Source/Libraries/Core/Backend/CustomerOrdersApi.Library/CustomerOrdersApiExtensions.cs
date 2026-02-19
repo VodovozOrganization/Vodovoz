@@ -110,7 +110,26 @@ namespace CustomerOrdersApi.Library
 			return busConf;
 		}
 
-		public static UpdateOnlineOrderFromChangeRequest ToUpdateOnlineOrderFromChangeRequest(this ChangingOrderDto source)
+		public static UpdateOnlineOrderFromChangeRequest ToUpdateOnlineOrderFromChangeRequestV4(this V4.Dto.Orders.ChangingOrderDto source)
+		{
+			return new UpdateOnlineOrderFromChangeRequest
+			{
+				OnlineOrderId = source.OnlineOrderId,
+				OnlinePayment = source.OnlinePayment,
+				IsFastDelivery = source.IsFastDelivery,
+				Source = source.Source,
+				PaymentStatus = source.PaymentStatus,
+				OnlinePaymentSource = source.OnlinePaymentSource,
+				CounterpartyErpId = source.CounterpartyErpId,
+				ExternalCounterpartyId = source.ExternalCounterpartyId,
+				OnlineOrderPaymentType = source.OnlineOrderPaymentType,
+				UnPaidReason = source.UnPaidReason,
+				DeliveryDate = source.DeliveryDate,
+				DeliveryScheduleId = source.DeliveryScheduleId
+			};
+		}
+		
+		public static UpdateOnlineOrderFromChangeRequest ToUpdateOnlineOrderFromChangeRequestV5(this V5.Dto.Orders.ChangingOrderDto source)
 		{
 			return new UpdateOnlineOrderFromChangeRequest
 			{

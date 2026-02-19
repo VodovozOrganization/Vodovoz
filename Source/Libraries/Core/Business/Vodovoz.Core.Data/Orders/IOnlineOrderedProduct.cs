@@ -1,4 +1,4 @@
-﻿namespace VodovozBusiness.Domain.Orders
+﻿namespace Vodovoz.Core.Data.Orders
 {
 	public interface IOnlineOrderedProduct
 	{

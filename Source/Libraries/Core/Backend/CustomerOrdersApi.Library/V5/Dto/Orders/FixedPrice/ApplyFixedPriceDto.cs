@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using CustomerOrdersApi.Library.V5.Dto.Orders.OrderItem;
+using Vodovoz.Core.Data.Orders.V5;
 using Vodovoz.Core.Domain.Clients;
 
 namespace CustomerOrdersApi.Library.V5.Dto.Orders.FixedPrice

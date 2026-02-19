@@ -2,17 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Data.Orders;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.DiscountReasons;
-using Vodovoz.Errors;
 using Vodovoz.Handlers;
 using Vodovoz.Nodes;
 using VodovozBusiness.Controllers;
-using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Extensions;
 
 namespace Vodovoz.Application.Orders.Services

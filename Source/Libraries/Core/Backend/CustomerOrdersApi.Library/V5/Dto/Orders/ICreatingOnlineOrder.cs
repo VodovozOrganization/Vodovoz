@@ -1,6 +1,6 @@
-﻿using CustomerOrdersApi.Library.V5.Dto.Orders.OrderItem;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Data.Orders.V5;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
 

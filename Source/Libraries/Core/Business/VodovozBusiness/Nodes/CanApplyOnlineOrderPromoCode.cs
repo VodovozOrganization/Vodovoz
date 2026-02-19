@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Data.Orders;
 using Vodovoz.Core.Domain.Clients;
-using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Nodes
 {

@@ -200,10 +200,10 @@ namespace CustomerOrdersApi.Library.V5.Services
 			
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot();
 			var ordersWithoutOnlineOrders =
-				_orderRepository.GetCounterpartyOrdersWithoutOnlineOrdersV4(uow, getOrdersDto.CounterpartyErpId, dateAvailabilityRating);
+				_orderRepository.GetCounterpartyOrdersWithoutOnlineOrdersV5(uow, getOrdersDto.CounterpartyErpId, dateAvailabilityRating);
 			var onlineOrdersWithOrders = GetOnlineOrdersWithOrdersInfo(getOrdersDto, uow, dateAvailabilityRating);
 			var onlineOrdersWithoutOrders =
-				_onlineOrderRepository.GetCounterpartyOnlineOrdersWithoutOrderV4(uow, getOrdersDto.CounterpartyErpId, dateAvailabilityRating);
+				_onlineOrderRepository.GetCounterpartyOnlineOrdersWithoutOrderV5(uow, getOrdersDto.CounterpartyErpId, dateAvailabilityRating);
 
 			var allOrders = 
 				ordersWithoutOnlineOrders
@@ -229,7 +229,7 @@ namespace CustomerOrdersApi.Library.V5.Services
 		{
 			var onlineOrdersInfo = new List<OrderDto>();
 			var ordersFromOnlineOrders =
-				_orderRepository.GetCounterpartyOrdersFromOnlineOrdersV4(uow, getOrdersDto.CounterpartyErpId, dateAvailabilityRating)
+				_orderRepository.GetCounterpartyOrdersFromOnlineOrdersV5(uow, getOrdersDto.CounterpartyErpId, dateAvailabilityRating)
 					.ToLookup(x => x.OnlineOrderId);
 
 			foreach(var ordersFromOnlineOrdersGroup in ordersFromOnlineOrders)
@@ -382,7 +382,7 @@ namespace CustomerOrdersApi.Library.V5.Services
 				.FirstOrDefault(x => x.Id == changingOrderDto.DeliveryScheduleId);
 
 			var result = _unPaidOnlineOrderHandler.TryUpdateOrder(
-				uow, orders, onlineOrder, deliverySchedule, changingOrderDto.ToUpdateOnlineOrderFromChangeRequest());
+				uow, orders, onlineOrder, deliverySchedule, changingOrderDto.ToUpdateOnlineOrderFromChangeRequestV5());
 			
 			if(result.IsFailure)
 			{
