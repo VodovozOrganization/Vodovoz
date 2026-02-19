@@ -37,7 +37,7 @@ namespace Vodovoz.SidePanel.InfoViews
 			if(InfoProvider is IEdoLightsMatrixInfoProvider edoLightsMatrixInfoProvider
 				&& edoLightsMatrixInfoProvider.Counterparty != null)
 			{
-				ViewModel.Refresh(edoLightsMatrixInfoProvider.Counterparty, edoLightsMatrixInfoProvider.Organization?.Id);
+				ViewModel.Refresh(edoLightsMatrixInfoProvider.Counterparty, edoLightsMatrixInfoProvider.EdoLightMatrxiOrganization?.Id);
 			}
 		}
 

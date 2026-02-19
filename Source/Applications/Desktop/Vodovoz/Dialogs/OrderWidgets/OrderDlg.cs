@@ -449,7 +449,7 @@ namespace Vodovoz
 			}
 		}
 
-		public Organization Organization => Contract?.Organization;
+		public Organization EdoLightMatrxiOrganization => Entity?.OurOrganization ?? Contract?.Organization;
 
 		public DeliveryPoint DeliveryPoint
 		{
@@ -2947,7 +2947,7 @@ namespace Vodovoz
 		private CounterpartyEdoAccount CurrentCounterpartyEdoAccount()
 		{
 			var currentCounterpartyEdoAccount =
-				_counterpartyEdoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(Counterparty, Organization?.Id);
+				_counterpartyEdoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(Counterparty, EdoLightMatrxiOrganization?.Id);
 			return currentCounterpartyEdoAccount;
 		}
 

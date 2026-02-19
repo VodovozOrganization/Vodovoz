@@ -6,6 +6,6 @@ namespace Vodovoz.SidePanel.InfoProviders
     public interface IEdoLightsMatrixInfoProvider : IInfoProvider
     {
         Counterparty Counterparty { get; }
-        Organization Organization { get; }
+        Organization EdoLightMatrxiOrganization { get; }
     }
 }
