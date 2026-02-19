@@ -6,6 +6,9 @@ using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.Core.Domain.Orders
 {
+	/// <summary>
+	/// Строка оборудования в заказе
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки оборудования в заказе",
 		Nominative = "строка оборудования в заказе")]
