@@ -31,6 +31,11 @@ namespace Vodovoz.Application.Employees
 			ExternalApplicationType externalApplicationType,
 			CancellationToken cancellationToken)
 		{
+			if(string.IsNullOrWhiteSpace(username))
+			{
+				throw new ArgumentException($"'{nameof(username)}' cannot be null or whitespace.", nameof(username));
+			}
+
 			if(_externalApplicationUserRepository
 				.Get(
 					_unitOfWork,

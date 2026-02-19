@@ -7,6 +7,9 @@ using Vodovoz.Core.Domain.Orders;
 
 namespace Vodovoz.Core.Domain.Documents
 {
+	/// <summary>
+	/// Строки документа самовывоза
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки документа самовывоза",
 		Nominative = "строка документа самовывоза")]

@@ -1446,6 +1446,10 @@ namespace Vodovoz.Core.Domain.Goods
 			};
 		}
 
+		/// <summary>
+		/// Категории товаров, доступные для доставки
+		/// </summary>
+		/// <returns></returns>
 		public static NomenclatureCategory[] GetCategoriesForShipment()
 		{
 			return new[]
@@ -1459,11 +1463,19 @@ namespace Vodovoz.Core.Domain.Goods
 			};
 		}
 
+		/// <summary>
+		/// Категории товаров, для которых может быть указано сырьё для продукции
+		/// </summary>
+		/// <returns></returns>
 		public static NomenclatureCategory[] GetCategoriesForProductMaterial()
 		{
 			return new[] { NomenclatureCategory.material, NomenclatureCategory.bottle };
 		}
 
+		/// <summary>
+		/// Категории товаров, которые могут продаваться
+		/// </summary>
+		/// <returns></returns>
 		public static NomenclatureCategory[] GetCategoriesForSale()
 		{
 			return new[]
@@ -1479,6 +1491,10 @@ namespace Vodovoz.Core.Domain.Goods
 			};
 		}
 
+		/// <summary>
+		/// Категории товаров, которые могут добавляться в заказ при продаже
+		/// </summary>
+		/// <returns></returns>
 		public static NomenclatureCategory[] GetCategoriesForSaleToOrder()
 		{
 			return new[]
@@ -1512,6 +1528,10 @@ namespace Vodovoz.Core.Domain.Goods
 			};
 		}
 
+		/// <summary>
+		/// Категории товаров, доступные для сервисных заказов
+		/// </summary>
+		/// <returns></returns>
 		public static NomenclatureCategory[] GetCategoriesForMaster()
 		{
 			return GetCategoriesForSale()
@@ -1562,6 +1582,10 @@ namespace Vodovoz.Core.Domain.Goods
 			};
 		}
 
+		/// <summary>
+		/// Категории товаров, для которых может быть отредактирована цена в заказе
+		/// </summary>
+		/// <returns></returns>
 		public static NomenclatureCategory[] GetCategoriesWithEditablePrice()
 		{
 			return new[]
@@ -1578,6 +1602,10 @@ namespace Vodovoz.Core.Domain.Goods
 			};
 		}
 
+		/// <summary>
+		/// Все категории товаров
+		/// </summary>
+		/// <returns></returns>
 		public static NomenclatureCategory[] GetAllCategories()
 		{
 			return Enum.GetValues(typeof(NomenclatureCategory)).Cast<NomenclatureCategory>().ToArray();
@@ -1594,6 +1622,10 @@ namespace Vodovoz.Core.Domain.Goods
 			};
 		}
 
+		/// <summary>
+		/// Категории товаров, для которых не нужна погрузка
+		/// </summary>
+		/// <returns></returns>
 		public static NomenclatureCategory[] GetCategoriesNotNeededToLoad()
 		{
 			return new[]

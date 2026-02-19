@@ -74,6 +74,9 @@ namespace Vodovoz.Core.Domain.Documents
 			set => SetField(ref _items, value);
 		}
 
+		/// <summary>
+		/// Заголовок
+		/// </summary>
 		public virtual string Title => $"Талон погрузки №{Id} от {TimeStamp:d}";
 	}
 }

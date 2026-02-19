@@ -658,7 +658,7 @@ namespace Vodovoz.ViewModels.TrueMark
 		private void ReloadScanndedStagingCodes(IUnitOfWork uow)
 		{
 			var stagingTrueMarkCodes = _trueMarkRepository.GetAllStagingCodesByOrderId(uow, OrderId);
-			_totalScannedStagingCodes = stagingTrueMarkCodes.Where(x => x.IsIdentification).Count();
+			TotalScannedStagingCodes = stagingTrueMarkCodes.Where(x => x.IsIdentification).Count();
 			var allCodes =
 				stagingTrueMarkCodes
 				.Select(x => new OrderCodeItemViewModel

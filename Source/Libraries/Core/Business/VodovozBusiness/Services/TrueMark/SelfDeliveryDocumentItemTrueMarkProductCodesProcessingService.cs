@@ -21,9 +21,7 @@ namespace VodovozBusiness.Services.TrueMark
 {
 	public class SelfDeliveryDocumentItemTrueMarkProductCodesProcessingService : ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService
 	{
-		private readonly IGenericRepository<StagingTrueMarkCode> _stagingTrueMarkCodeRepository;
 		private readonly IGenericRepository<NomenclatureEntity> _nomenclatureRepository;
-		private readonly IGenericRepository<GtinEntity> _gtinRepository;
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 
 		public SelfDeliveryDocumentItemTrueMarkProductCodesProcessingService(
@@ -32,12 +30,8 @@ namespace VodovozBusiness.Services.TrueMark
 			IGenericRepository<GtinEntity> gtinRepository,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService)
 		{
-			_stagingTrueMarkCodeRepository =
-				stagingTrueMarkCodeRepository ?? throw new ArgumentNullException(nameof(stagingTrueMarkCodeRepository));
 			_nomenclatureRepository =
 				nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
-			_gtinRepository =
-				gtinRepository ?? throw new ArgumentNullException(nameof(gtinRepository));
 			_trueMarkWaterCodeService =
 				trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 		}
