@@ -39,6 +39,7 @@
 		<ProjectReference Include="..\..\..\..\Libraries\Core\Backend\HealthCheck\VodovozHealthCheck.csproj" />
 		<ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Infrastructure\BackendInfrastructure\BackendInfrastructure.csproj" />
 		<ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Osrm\Osrm.csproj" />
+		<ProjectReference Include="..\..\..\..\Libraries\Core\Business\Vodovoz.Application\Vodovoz.Application.csproj" />
 		<ProjectReference Include="..\..\..\..\Libraries\Core\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
 		<ProjectReference Include="..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
 		<ProjectReference Include="..\..\..\..\Libraries\External\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj" />

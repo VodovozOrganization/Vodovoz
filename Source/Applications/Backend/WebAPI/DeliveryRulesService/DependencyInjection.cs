@@ -11,6 +11,7 @@ using QS.Project.Core;
 using QS.Services;
 using System.Linq;
 using System.Reflection;
+using Vodovoz.Application.Sale;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;
@@ -18,6 +19,7 @@ using Vodovoz.Models;
 using Vodovoz.Settings.Common;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using VodovozBusiness.Services.Sale;
 using VodovozHealthCheck;
 
 namespace DeliveryRulesService
@@ -73,6 +75,7 @@ namespace DeliveryRulesService
 				.AddScoped<IUserService, UserService>()
 				.AddScoped<ICallTaskWorker, CallTaskWorker>()
 				.AddScoped<IFastDeliveryAvailabilityHistoryModel, FastDeliveryAvailabilityHistoryModel>()
+				.AddScoped<IDistrictRulesService, DistrictRulesService>()
 				.AddInfrastructure()
 				.AddHostedServices();
 
