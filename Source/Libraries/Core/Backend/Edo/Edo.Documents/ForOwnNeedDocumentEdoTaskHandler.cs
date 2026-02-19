@@ -504,9 +504,8 @@ namespace Edo.Documents
 			int codeId = 0;
 			var problemGtins = new List<EdoProblemGtinItem>();
 			EdoCodePoolMissingCodeException exception = null;
-			
-			// Последний основной, первый резервный
-			foreach (var gtin in gtins.Reverse())
+
+			foreach(var gtin in gtins.OrderBy(g => g.Priority))
 			{
 				try
 				{
