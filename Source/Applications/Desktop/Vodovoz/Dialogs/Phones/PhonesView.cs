@@ -93,12 +93,7 @@ namespace Vodovoz.Dialogs.Phones
 				_hBoxList = new List<HBox>();
 			}
 
-			var hasExternalUsersForThisPhone = false;
-
-			if(newPhone.Id > 0)
-			{
-				hasExternalUsersForThisPhone = ViewModel.ExternalCounterpartyHandler.HasExternalCounterparties(ViewModel.UoW, newPhone);
-			}
+			var hasExternalUsersForThisPhone = ViewModel.ExternalCounterpartyHandler.HasExternalCounterparties(ViewModel.UoW, newPhone);
 
 			var hBox = new HBox();
 
