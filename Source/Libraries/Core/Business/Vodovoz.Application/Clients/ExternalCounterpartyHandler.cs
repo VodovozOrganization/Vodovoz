@@ -6,6 +6,7 @@ using VodovozBusiness.Services.Clients;
 
 namespace Vodovoz.Application.Clients
 {
+	/// <inheritdoc/>
 	public class ExternalCounterpartyHandler : IExternalCounterpartyHandler
 	{
 		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository;
@@ -18,6 +19,7 @@ namespace Vodovoz.Application.Clients
 				externalCounterpartyRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyRepository));
 		}
 
+		/// <inheritdoc/>
 		public bool HasExternalCounterparties(IUnitOfWork uow, Phone phone)
 		{
 			if(phone is null || phone.Id == 0 || phone.Counterparty is null)

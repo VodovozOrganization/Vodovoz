@@ -935,7 +935,7 @@ namespace Vodovoz
 					.Editing(false)
 				.Finish();
 
-			treeViewExternalCounterparties.SetItemsSource(_externalCounterpartyRepository.GetExternalCounterpartiesForClientTab(UoW, Entity.Id));
+			treeViewExternalCounterparties.SetItemsSource(_externalCounterpartyRepository.GetPersonalCounterpartyExternalUsersInfo(UoW, Entity.Id));
 		}
 
 		private bool SetSensitivityByPermission(string permission, Widget widget)

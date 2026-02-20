@@ -14,7 +14,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		ExternalCounterparty GetExternalCounterparty(IUnitOfWork uow, string phoneNumber, CounterpartyFrom counterpartyFrom);
 		IList<ExternalCounterparty> GetExternalCounterpartyByEmail(IUnitOfWork uow, int emailId);
 		/// <summary>
-		/// Есть ли зарегистрированные пользователи по этому номеру
+		/// Есть ли зарегистрированные пользователи физиков по этому номеру
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="phoneId">Идентификатор телефона</param>
@@ -26,6 +26,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="counterpartyId">Идентификатор клиента</param>
 		/// <returns></returns>
-		IList<PersonalCounterpartyExternalUserInfo> GetExternalCounterpartiesForClientTab(IUnitOfWork uow, int counterpartyId);
+		IList<PersonalCounterpartyExternalUserInfo> GetPersonalCounterpartyExternalUsersInfo(IUnitOfWork uow, int counterpartyId);
 	}
 }

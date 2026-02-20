@@ -53,6 +53,7 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				.List();
 		}
 
+		/// <inheritdoc/>
 		public bool HasExternalCounterparties(IUnitOfWork uow, int phoneId)
 		{
 			return uow.Session
@@ -60,7 +61,8 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				.Any(ec => ec.Phone.Id == phoneId);
 		}
 
-		public IList<PersonalCounterpartyExternalUserInfo> GetExternalCounterpartiesForClientTab(IUnitOfWork uow, int counterpartyId)
+		/// <inheritdoc/>
+		public IList<PersonalCounterpartyExternalUserInfo> GetPersonalCounterpartyExternalUsersInfo(IUnitOfWork uow, int counterpartyId)
 		{
 			return (
 				from externalUser in uow.Session.Query<ExternalCounterparty>()
