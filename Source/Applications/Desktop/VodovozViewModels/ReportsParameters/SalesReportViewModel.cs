@@ -23,6 +23,7 @@ using Vodovoz.Reports.Editing;
 using Vodovoz.Reports.Editing.Modifiers;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
+using Vodovoz.ViewModels.Widgets;
 
 namespace Vodovoz.ViewModels.ReportsParameters
 {
@@ -105,6 +106,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		public virtual LeftRightListViewModel<GroupingNode> GroupingSelectViewModel => _groupViewModel;
 
 		public IncludeExludeFiltersViewModel FilterViewModel => _filterViewModel;
+
+		public OrderDateFilterViewModel OrderDateFilterViewModel = new OrderDateFilterViewModel();
 
 		public DelegateCommand ShowInfoCommand { get; }
 
@@ -352,6 +355,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			_parameters = FilterViewModel.GetReportParametersSet(out var sb);
 			_parameters.Add("start_date", StartDate?.ToString(DateTimeFormats.QueryDateTimeFormat));
 			_parameters.Add("end_date", EndDate?.LatestDayTime().ToString(DateTimeFormats.QueryDateTimeFormat));
+			_parameters.Add("order_date_type", OrderDateFilterViewModel.SelectedOrderDateFilterType);
 			_parameters.Add("creation_date", DateTime.Now);
 			_parameters.Add("show_phones", ShowPhones);
 			_parameters.Add("filters", sb.ToString());

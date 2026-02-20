@@ -26,6 +26,8 @@ namespace Vodovoz.Reports
 
 		private global::Gtk.VBox vboxParameters;
 
+		private global::Vodovoz.ViewWidgets.Reports.OrderDateFilterView orderdatefilterview1;
+
 		private global::QS.Widgets.GtkUI.LeftRightListView leftrightlistview;
 
 		private global::Gamma.GtkWidgets.yButton buttonCreateReport;
@@ -138,19 +140,30 @@ namespace Vodovoz.Reports
 			this.vboxParameters = new global::Gtk.VBox();
 			this.vboxParameters.Name = "vboxParameters";
 			this.vboxParameters.Spacing = 6;
+			// Container child vboxParameters.Gtk.Box+BoxChild
+			this.orderdatefilterview1 = new global::Vodovoz.ViewWidgets.Reports.OrderDateFilterView();
+			this.orderdatefilterview1.Events = ((global::Gdk.EventMask)(256));
+			this.orderdatefilterview1.Name = "orderdatefilterview1";
+			this.vboxParameters.Add(this.orderdatefilterview1);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vboxParameters[this.orderdatefilterview1]));
+			w11.Position = 0;
+			w11.Expand = false;
+			w11.Fill = false;
 			this.vbox2.Add(this.vboxParameters);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.vboxParameters]));
-			w11.Position = 1;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.vboxParameters]));
+			w12.Position = 1;
+			w12.Expand = false;
+			w12.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.leftrightlistview = new global::QS.Widgets.GtkUI.LeftRightListView();
 			this.leftrightlistview.HeightRequest = 200;
 			this.leftrightlistview.Events = ((global::Gdk.EventMask)(256));
 			this.leftrightlistview.Name = "leftrightlistview";
 			this.vbox2.Add(this.leftrightlistview);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.leftrightlistview]));
-			w12.Position = 2;
-			w12.Expand = false;
-			w12.Fill = false;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.leftrightlistview]));
+			w13.Position = 2;
+			w13.Expand = false;
+			w13.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gamma.GtkWidgets.yButton();
 			this.buttonCreateReport.CanFocus = true;
@@ -158,10 +171,10 @@ namespace Vodovoz.Reports
 			this.buttonCreateReport.UseUnderline = true;
 			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox2.Add(this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.buttonCreateReport]));
-			w13.Position = 3;
-			w13.Expand = false;
-			w13.Fill = false;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.buttonCreateReport]));
+			w14.Position = 3;
+			w14.Expand = false;
+			w14.Fill = false;
 			w1.Add(this.vbox2);
 			this.scrolledwindow1.Add(w1);
 			this.Add(this.scrolledwindow1);

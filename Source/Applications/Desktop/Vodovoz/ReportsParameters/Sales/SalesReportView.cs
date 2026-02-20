@@ -43,6 +43,7 @@ namespace Vodovoz.Reports
 			vboxParameters.Add(filterView);
 			filterView.Show();
 
+			orderdatefilterview1.ViewModel = ViewModel.OrderDateFilterViewModel;
 			leftrightlistview.ViewModel = ViewModel.GroupingSelectViewModel;
 		}
 
