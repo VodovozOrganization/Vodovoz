@@ -284,32 +284,32 @@ namespace WarehouseApi.Library.Services
 			IEnumerable<StagingTrueMarkCode> newCodes,
 			IEnumerable<StagingTrueMarkCode> addedCodes)
 		{
-			var addedCodesData = addedCodes.SelectMany(x => x.AllCodes).ToLookup(code => (
+			var addedCodesData = addedCodes
+				.SelectMany(x => x.AllCodes)
+				.ToLookup(code => CreateStagingTrueMarkCodeKey(code));
+
+			var duplicateCodes = new List<StagingTrueMarkCode>();
+
+			foreach(var code in newCodes)
+			{
+				var key = CreateStagingTrueMarkCodeKey(code);
+
+				if(addedCodesData.Contains(key))
+				{
+					duplicateCodes.AddRange(addedCodesData[key]);
+				}
+			}
+
+			return duplicateCodes;
+		}
+
+		private (bool IsTransport, string RawCode, string Gtin, string Serial) CreateStagingTrueMarkCodeKey(StagingTrueMarkCode code) =>
+			(
 				code.IsTransport,
 				RawCode: code.IsTransport ? code.RawCode : null,
 				Gtin: !code.IsTransport ? code.Gtin : null,
 				Serial: !code.IsTransport ? code.SerialNumber : null
-			));
-
-			var existingCodes = new List<StagingTrueMarkCode>();
-
-			foreach(var code in newCodes)
-			{
-				var key = (
-					code.IsTransport,
-					RawCode: code.IsTransport ? code.RawCode : null,
-					Gtin: !code.IsTransport ? code.Gtin : null,
-					Serial: !code.IsTransport ? code.SerialNumber : null
-				);
-
-				if(addedCodesData.Contains(key))
-				{
-					existingCodes.AddRange(addedCodesData[key]);
-				}
-			}
-
-			return existingCodes;
-		}
+			);
 
 		private async Task<Result> AddProductCodesToSelfDeliveryDocumentItemAndDeleteStagingCodes(
 			SelfDeliveryDocument document,
