@@ -5,7 +5,7 @@ namespace Vodovoz.ViewModels.Widgets
 	public class OrderDateFilterViewModel : WidgetViewModelBase
 	{
 		private bool _filteringByCreationDate;
-		private bool _filteringByDeliveryDate;
+		private bool _filteringByDeliveryDate = true;
 		private bool _filteringByPaymentDate;
 		private OrderDateFilterType _orderDateFilterType;
 
