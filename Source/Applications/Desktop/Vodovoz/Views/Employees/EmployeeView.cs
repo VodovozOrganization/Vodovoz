@@ -192,8 +192,6 @@ namespace Vodovoz.Views.Employees
 				.InitializeFromSource();
 
 			phonesView.ViewModel = ViewModel.PhonesViewModel;
-			phonesView.ViewModel.PhonesList = new GenericObservableList<Phone>(ViewModel.Entity.Phones);
-			phonesView.Sensitive = ViewModel.CanEditEmployee;
 
 			entryAddressCurrent.Binding
 				.AddBinding(ViewModel.Entity, e => e.AddressCurrent, w => w.Text)

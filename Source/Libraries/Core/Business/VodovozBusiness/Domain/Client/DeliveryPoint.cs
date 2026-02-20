@@ -11,6 +11,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
+using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Core.Domain;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.DeliveryPoints;
@@ -43,7 +44,7 @@ namespace Vodovoz.Domain.Client
 		private Counterparty _counterparty;
 		private Nomenclature _defaultWaterNomenclature;
 		private User _coordsLastChangeUser;
-		private IList<Phone> _phones = new List<Phone>();
+		private IObservableList<Phone> _phones = new ObservableList<Phone>();
 		private GenericObservableList<Phone> _observablePhones;
 		private IList<NomenclatureFixedPrice> _nomenclatureFixedPrices = new List<NomenclatureFixedPrice>();
 		private GenericObservableList<NomenclatureFixedPrice> _observableNomenclatureFixedPrices;
@@ -111,24 +112,10 @@ namespace Vodovoz.Domain.Client
 		}
 
 		[Display(Name = "Телефоны")]
-		public virtual IList<Phone> Phones
+		public new virtual IObservableList<Phone> Phones
 		{
 			get => _phones;
 			set => SetField(ref _phones, value);
-		}
-
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<Phone> ObservablePhones
-		{
-			get
-			{
-				if(_observablePhones == null)
-				{
-					_observablePhones = new GenericObservableList<Phone>(Phones);
-				}
-
-				return _observablePhones;
-			}
 		}
 
 		[Display(Name = "Фиксированные цены")]

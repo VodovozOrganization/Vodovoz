@@ -51,8 +51,7 @@ namespace Vodovoz.Domain.Client
 		private IList<Proxy> _proxies;
 		private Counterparty _mainCounterparty;
 		private Counterparty _previousCounterparty;
-		private IList<Phone> _phones = new List<Phone>();
-		private GenericObservableList<Phone> _observablePhones;
+		private IObservableList<Phone> _phones = new ObservableList<Phone>();
 		private string _ogrnip;
 		private IList<Email> _emails = new List<Email>();
 		private Employee _accountant;
@@ -175,24 +174,10 @@ namespace Vodovoz.Domain.Client
 		}
 
 		[Display(Name = "Телефоны")]
-		public new virtual IList<Phone> Phones
+		public new virtual IObservableList<Phone> Phones
 		{
 			get => _phones;
 			set => SetField(ref _phones, value);
-		}
-
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<Phone> ObservablePhones
-		{
-			get
-			{
-				if(_observablePhones == null)
-				{
-					_observablePhones = new GenericObservableList<Phone>(Phones);
-				}
-
-				return _observablePhones;
-			}
 		}
 
 		[Display(Name = "E-mail адреса")]

@@ -58,7 +58,7 @@ namespace Vodovoz.Domain.Employees
 		private CarTypeOfUse? _driverOfCarTypeOfUse;
 		private CarOwnType? _driverOfCarOwnType;
 
-		private IList<Phone> _phones = new List<Phone>();
+		private IObservableList<Phone> _phones = new ObservableList<Phone>();
 		private IList<EmployeeDocument> _documents = new List<EmployeeDocument>();
 		private IObservableList<Account> _accounts = new ObservableList<Account>();
 		private IList<EmployeeContract> _contracts = new List<EmployeeContract>();
@@ -168,7 +168,7 @@ namespace Vodovoz.Domain.Employees
 		}
 
 		[Display(Name = "Телефоны")]
-		public virtual IList<Phone> Phones
+		public virtual IObservableList<Phone> Phones
 		{
 			get => _phones;
 			set => SetField(ref _phones, value);

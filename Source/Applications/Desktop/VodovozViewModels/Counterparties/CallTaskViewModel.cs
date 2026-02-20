@@ -142,11 +142,11 @@ namespace Vodovoz.ViewModels.Counterparties
 
 			DeliveryPointViewModel.IsEditable = CanChengeDeliveryPoint;
 
-			CounterpartyPhonesViewModel = new PhonesViewModel(_phoneTypeSettings, _phoneRepository, UoW, _contactSettings, _commonServices);
-			CounterpartyPhonesViewModel.ReadOnly = true;
+			CounterpartyPhonesViewModel = LifetimeScope.Resolve<PhonesViewModel>(new TypedParameter(typeof(IUnitOfWork), UoW));
+			CounterpartyPhonesViewModel.Initialize(this, true);
 
-			DeliveryPointPhonesViewModel = new PhonesViewModel(_phoneTypeSettings, _phoneRepository, UoW, _contactSettings, _commonServices);
-			DeliveryPointPhonesViewModel.ReadOnly = true;
+			DeliveryPointPhonesViewModel = LifetimeScope.Resolve<PhonesViewModel>(new TypedParameter(typeof(IUnitOfWork), UoW));
+			DeliveryPointPhonesViewModel.Initialize(this, true);
 
 			CreateReportByCounterpartyCommand = new DelegateCommand(CreateReportByCounterparty, () => CanCreateReportByCounterparty);
 			CreateReportByCounterpartyCommand.CanExecuteChangedWith(this, vm => vm.CanCreateReportByCounterparty);
@@ -392,8 +392,7 @@ namespace Vodovoz.ViewModels.Counterparties
 			if(Entity.Counterparty != null)
 			{
 				CounterpartyDebt = _bottlesRepository.GetBottlesDebtAtCounterparty(UoW, Entity.Counterparty).ToString();
-
-				CounterpartyPhonesViewModel.PhonesList = Entity.Counterparty.ObservablePhones;
+				CounterpartyPhonesViewModel.PhonesList = Entity.Counterparty.Phones;
 			}
 			else
 			{
@@ -413,7 +412,7 @@ namespace Vodovoz.ViewModels.Counterparties
 				BottleReserve = Entity.DeliveryPoint.BottleReserv.ToString();
 
 				DeliveryPointPhonesViewModel.PhonesList =
-					Entity.DeliveryPoint.ObservablePhones;
+					Entity.DeliveryPoint.Phones;
 
 				OldComments = _callTaskRepository.GetCommentsByDeliveryPoint(UoW, Entity.DeliveryPoint, Entity);
 			}
