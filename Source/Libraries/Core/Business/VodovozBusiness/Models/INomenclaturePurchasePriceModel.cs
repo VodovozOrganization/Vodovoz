@@ -7,13 +7,13 @@ namespace Vodovoz.Models
 	public interface INomenclaturePurchasePriceModel
 	{
 		bool CanChangeDate(Nomenclature nomenclature, NomenclaturePurchasePrice price, DateTime startDate);
-		bool CanCreatePrice(Nomenclature nomenclature, DateTime startDate);
-		bool CanCreatePrice(Nomenclature nomenclature, DateTime startDate, decimal newPrice);
+		bool CanCreatePrice(NomenclatureEntity nomenclature, DateTime startDate);
+		bool CanCreatePrice(NomenclatureEntity nomenclature, DateTime startDate, decimal newPrice);
 		void ChangeDate(Nomenclature nomenclature, NomenclaturePurchasePrice price, DateTime startDate);
-		void CloseActivePrice(Nomenclature nomenclature, DateTime startDate);
-		NomenclaturePurchasePrice CreatePrice(Nomenclature nomenclature, DateTime startDate);
-		NomenclaturePurchasePrice CreatePrice(Nomenclature nomenclature, DateTime startDate, decimal price);
-		NomenclaturePurchasePrice GetActivePrice(Nomenclature nomenclature);
+		void CloseActivePrice(NomenclatureEntity nomenclature, DateTime startDate);
+		NomenclaturePurchasePrice CreatePrice(NomenclatureEntity nomenclature, DateTime startDate);
+		NomenclaturePurchasePrice CreatePrice(NomenclatureEntity nomenclature, DateTime startDate, decimal price);
+		NomenclaturePurchasePrice GetActivePrice(NomenclatureEntity nomenclature);
 		NomenclaturePurchasePrice GetPrice(DateTime date, Nomenclature nomenclature);
 	}
 }

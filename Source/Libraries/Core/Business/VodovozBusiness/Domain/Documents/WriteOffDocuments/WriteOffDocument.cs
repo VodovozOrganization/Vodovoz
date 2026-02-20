@@ -7,6 +7,7 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -36,22 +37,6 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 		{
 			Comment = string.Empty;
 			WriteOffType = WriteOffType.Warehouse;
-		}
-		
-		public override DateTime TimeStamp
-		{
-			get => base.TimeStamp;
-			set
-			{
-				base.TimeStamp = value;
-				foreach(var item in Items)
-				{
-					if(item.GoodsAccountingOperation != null && item.GoodsAccountingOperation.OperationTime != TimeStamp)
-					{
-						item.GoodsAccountingOperation.OperationTime = TimeStamp;
-					}
-				}
-			}
 		}
 
 		[Display (Name = "Комментарий")]
@@ -134,6 +119,18 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 			_observableItems ?? (_observableItems = new GenericObservableList<WriteOffDocumentItem>(Items));
 
 		public virtual string Title => $"Акт списания №{Id} от {TimeStamp:d}";
+
+		public override void SetTimeStamp(DateTime value)
+		{
+			base.TimeStamp = value;
+			foreach(var item in Items)
+			{
+				if(item.GoodsAccountingOperation != null && item.GoodsAccountingOperation.OperationTime != TimeStamp)
+				{
+					item.GoodsAccountingOperation.OperationTime = TimeStamp;
+				}
+			}
+		}
 
 		public virtual void AddItem(Nomenclature nomenclature, decimal amount, decimal inStock)
 		{

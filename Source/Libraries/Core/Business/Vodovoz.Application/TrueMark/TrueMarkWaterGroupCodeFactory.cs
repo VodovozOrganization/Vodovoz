@@ -1,5 +1,7 @@
-﻿using System;
+﻿using iTextSharp.text.pdf;
+using System;
 using TrueMark.Contracts;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Models.TrueMark;
 
@@ -35,6 +37,24 @@ namespace Vodovoz.Application.TrueMark
 				RawCode = rawCode,
 				GTIN = productInstanceStatus.Gtin,
 				SerialNumber = serialNumber
+			};
+		}
+
+		public TrueMarkWaterGroupCode CreateFromStagingCode(StagingTrueMarkCode stagingCode)
+		{
+			if(stagingCode?.IsGroup == false)
+			{
+				throw new ArgumentException(
+					$"Код {stagingCode?.IdentificationCode} не является групповым кодом",
+					nameof(stagingCode));
+			}
+
+			return new TrueMarkWaterGroupCode
+			{
+				IsInvalid = false,
+				RawCode = stagingCode.RawCode,
+				GTIN = stagingCode.Gtin,
+				SerialNumber = stagingCode.SerialNumber
 			};
 		}
 	}

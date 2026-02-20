@@ -10,6 +10,7 @@ using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -36,21 +37,6 @@ namespace Vodovoz.Domain.Documents
 		public const string DocumentRdlPath = "Reports/Store/CarUnloadDoc.rdl";
 
 		#region Сохраняемые свойства
-
-		public override DateTime TimeStamp
-		{
-			get => base.TimeStamp;
-			set
-			{
-				base.TimeStamp = value;
-				if(!NHibernateUtil.IsInitialized(Items))
-				{
-					return;
-				}
-
-				UpdateOperationsTime();
-			}
-		}
 
 		public virtual RouteList RouteList
 		{
@@ -140,7 +126,7 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual void AddItem(
 			ReciveTypes reciveType, 
-			Nomenclature nomenclature, 
+			NomenclatureEntity nomenclature, 
 			Equipment equipment, 
 			decimal amount, 
 			ServiceClaim serviceClaim,
@@ -209,6 +195,17 @@ namespace Vodovoz.Domain.Documents
 				return false;
 			TareToReturn += (int)(item.GoodsAccountingOperation?.Amount ?? 0);
 			return true;
+		}
+
+		public override void SetTimeStamp(DateTime value)
+		{
+			base.TimeStamp = value;
+			if(!NHibernateUtil.IsInitialized(Items))
+			{
+				return;
+			}
+
+			UpdateOperationsTime();
 		}
 
 		#endregion

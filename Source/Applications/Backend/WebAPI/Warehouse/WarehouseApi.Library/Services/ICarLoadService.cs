@@ -24,8 +24,9 @@ namespace WarehouseApi.Library.Services
 		/// Получение данных по заказу в талоне погрузки
 		/// </summary>
 		/// <param name="orderId">Номер заказа</param>
+		/// <param name="cancellationToken">CancellationToken</param>
 		/// <returns>Результ выполнения запроса и данные заказа</returns>
-		Task<RequestProcessingResult<GetOrderResponse>> GetOrder(int orderId);
+		Task<RequestProcessingResult<GetOrderResponse>> GetOrder(int orderId, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Добавление кода ЧЗ к товару в талоне погрузки

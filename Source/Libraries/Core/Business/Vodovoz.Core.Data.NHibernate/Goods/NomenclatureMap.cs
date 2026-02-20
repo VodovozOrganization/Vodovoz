@@ -18,7 +18,10 @@ namespace Vodovoz.Core.Data.NHibernate.Goods
 
 			Map(x => x.Category)
 				.Column("category");
-			
+
+			Map(x => x.MasterServiceType)
+				.Column("master_service_type");
+
 			Map(x => x.CreateDate)
 				.Column("create_date");
 
@@ -36,6 +39,15 @@ namespace Vodovoz.Core.Data.NHibernate.Goods
 
 			Map(x => x.Weight)
 				.Column("weight");
+
+			Map(x => x.Length)
+				.Column("length");
+
+			Map(x => x.Width)
+				.Column("width");
+
+			Map(x => x.Height)
+				.Column("height");
 
 			Map(x => x.DoNotReserve)
 				.Column("reserve");
@@ -265,7 +277,16 @@ namespace Vodovoz.Core.Data.NHibernate.Goods
 			
 			Map(x => x.IsNeedSanitisation)
 				.Column("is_need_sanitisation");
-			
+
+			Map(x => x.IsNewBottle)
+				.Column("is_new_bottle");
+
+			Map(x => x.IsDefectiveBottle)
+				.Column("is_defective_bottle");
+
+			Map(x => x.IsShabbyBottle)
+				.Column("is_shabby_bottle");
+
 			//Планирование продаж для КЦ
 			Map(x => x.PlanDay)
 				.Column("plan_day");
@@ -291,6 +312,12 @@ namespace Vodovoz.Core.Data.NHibernate.Goods
 
 			References(x => x.DependsOnNomenclature)
 				.Column("depends_on_nomenclature");
+
+			References(x => x.OnlineStore)
+				.Column("online_store_id");
+
+			References(x => x.ProductGroup)
+				.Column("group_id");
 
 
 			HasMany(x => x.AttachedFileInformations)

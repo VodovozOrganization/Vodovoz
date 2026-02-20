@@ -1,10 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Operations;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -150,6 +155,35 @@ namespace Vodovoz.Domain.Documents
 			DeliveryFreeBalanceOperation.Amount = Amount;
 			DeliveryFreeBalanceOperation.Nomenclature = Nomenclature;
 			DeliveryFreeBalanceOperation.RouteList = Document.RouteList;
+		}
+
+		/// <summary>
+		/// Получение статуса погрузки строки документа погрузки
+		/// </summary>
+		/// <returns></returns>
+		/// <exception cref="InvalidOperationException"></exception>
+		public virtual CarLoadDocumentLoadOperationState GetDocumentItemLoadOperationState(IEnumerable<StagingTrueMarkCode> stagingTrueMarkCodes)
+		{
+			if(OrderId is null)
+			{
+				throw new InvalidOperationException("Получение статуса погрузки строки документа погрузки доступно только для товаров сетвых клиентов");
+			}
+
+			if(Nomenclature.Category != NomenclatureCategory.water)
+			{
+				throw new InvalidOperationException("Получение статуса погрузки строки документа погрузки доступно только для товаров категории \"Вода\"");
+			}
+
+			var loadedItemsCount = TrueMarkCodes.Count;
+
+			var state =
+				loadedItemsCount == 0 && stagingTrueMarkCodes.Count() == 0
+				? CarLoadDocumentLoadOperationState.NotStarted
+				: loadedItemsCount < Amount
+					? CarLoadDocumentLoadOperationState.InProgress
+					: CarLoadDocumentLoadOperationState.Done;
+
+			return state;
 		}
 
 		#endregion

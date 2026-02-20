@@ -16,16 +16,6 @@ namespace Vodovoz.Domain.Documents
     {
         #region Сохраняемые свойства
 
-        public override DateTime TimeStamp {
-            get => base.TimeStamp;
-            set {
-                base.TimeStamp = value;
-                if(!NHibernateUtil.IsInitialized(Items))
-                    return;
-                UpdateOperationsTime();
-            }
-        }
-
         private RouteList routeList;
         [Display(Name = "Маршрутный лист")]
         public virtual RouteList RouteList {
@@ -45,11 +35,22 @@ namespace Vodovoz.Domain.Documents
         public virtual GenericObservableList<DriverDiscrepancyDocumentItem> ObservableItems => 
             observableItems ?? (observableItems = new GenericObservableList<DriverDiscrepancyDocumentItem>(Items));
 
-        #endregion
+		#endregion
 
-        #region Приватные функии
+		public override void SetTimeStamp(DateTime value)
+		{
+			base.TimeStamp = value;
+			if(!NHibernateUtil.IsInitialized(Items))
+			{
+				return;
+			}
 
-        private void UpdateOperationsTime()
+			UpdateOperationsTime();
+		}
+
+		#region Приватные функии
+
+		private void UpdateOperationsTime()
         {
             foreach(var item in Items) {
                 if(item.EmployeeNomenclatureMovementOperation != null && item.EmployeeNomenclatureMovementOperation.OperationTime != TimeStamp)

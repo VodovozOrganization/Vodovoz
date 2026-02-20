@@ -2,10 +2,8 @@
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
-using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Operations;
+using Vodovoz.Core.Domain.Operations;
 
 namespace Vodovoz.Domain.Documents.IncomingInvoices
 {
@@ -17,7 +15,7 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 	{
 		private decimal _amount;
 		private decimal _primeCost;
-		private Nomenclature _nomenclature;
+		private NomenclatureEntity _nomenclature;
 
 		public virtual int Id { get; set; }
 
@@ -25,7 +23,7 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 		
 		[Required(ErrorMessage = "Номенклатура должна быть заполнена.")]
 		[Display(Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature
+		public virtual NomenclatureEntity Nomenclature
 		{
 			get => _nomenclature;
 			set

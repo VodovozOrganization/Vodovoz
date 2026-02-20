@@ -1,132 +1,75 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using System;
+using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Warehouses;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Documents
 {
-	[Appellative (Gender = GrammaticalGender.Feminine,
+	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки документа самовывоза",
 		Nominative = "строка документа самовывоза")]
 	[HistoryTrace]
-	public class SelfDeliveryDocumentReturned: PropertyChangedBase, IDomainObject
+	public class SelfDeliveryDocumentReturned : SelfDeliveryDocumentReturnedEntity
 	{
-		public virtual int Id { get; set; }
+		private SelfDeliveryDocument _document;
+		private Nomenclature _nomenclature;
+		private WarehouseBulkGoodsAccountingOperation _goodsAccountingOperation;
 
-		SelfDeliveryDocument document;
+		decimal _amountUnloaded;
 
-		public virtual SelfDeliveryDocument Document {
-			get => document;
-			set => SetField(ref document, value, () => Document);
+		/// <summary>
+		/// Документ самовывоза
+		/// </summary>
+		[Display(Name = "Документ самовывоза")]
+		public virtual new SelfDeliveryDocument Document
+		{
+			get => _document;
+			set => SetField(ref _document, value);
 		}
 
-		Nomenclature nomenclature;
+		/// <summary>
+		/// Номенклатура
+		/// </summary>
+		[Display(Name = "Номенклатура")]
+		public virtual new Nomenclature Nomenclature
+		{
+			get => _nomenclature;
+			set
+			{
+				SetField(ref _nomenclature, value);
 
-		[Display (Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature {
-			get => nomenclature;
-			set {
-				SetField(ref nomenclature, value, () => Nomenclature);
-
-				if(GoodsAccountingOperation != null && GoodsAccountingOperation.Nomenclature != nomenclature)
-					GoodsAccountingOperation.Nomenclature = nomenclature;
-			}
-		}
-
-		Equipment equipment;
-
-		[Display (Name = "Оборудование")]
-		public virtual Equipment Equipment {
-			get => equipment;
-			set {
-				SetField(ref equipment, value, () => Equipment);
-				
-				if(CounterpartyMovementOperation != null && CounterpartyMovementOperation.Equipment != equipment)
+				if(GoodsAccountingOperation != null && GoodsAccountingOperation.Nomenclature != _nomenclature)
 				{
-					CounterpartyMovementOperation.Equipment = equipment;
+					GoodsAccountingOperation.Nomenclature = _nomenclature;
 				}
 			}
 		}
 
-		decimal amount;
-
-		[Display (Name = "Количество")]
-		public virtual decimal Amount {
-			get => amount;
-			set => SetField(ref amount, value, () => Amount);
-		}
-
-		int? actualCount;
 		/// <summary>
-		/// Количество оборудования, которое фактически привез/забрал клиент
+		/// Операция передвижения товаров по складу (объемный учет)
 		/// </summary>
-		public virtual int? ActualCount
+		[Display(Name = "Операция передвижения товаров по складу (объемный учет)")]
+		public virtual WarehouseBulkGoodsAccountingOperation GoodsAccountingOperation
 		{
-			get => actualCount;
-			set => SetField(ref actualCount, value);
-		}
-
-		WarehouseBulkGoodsAccountingOperation _goodsAccountingOperation;
-
-		public virtual WarehouseBulkGoodsAccountingOperation GoodsAccountingOperation {
 			get => _goodsAccountingOperation;
 			set => SetField(ref _goodsAccountingOperation, value);
 		}
 
-		CounterpartyMovementOperation counterpartyMovementOperation;
-
-		public virtual CounterpartyMovementOperation CounterpartyMovementOperation {
-			get => counterpartyMovementOperation;
-			set => SetField(ref counterpartyMovementOperation, value, () => CounterpartyMovementOperation);
-		}
-
-		Direction? direction;
-
-		[Display(Name = "Направление")]
-		public virtual Direction? Direction
-		{
-			get => direction;
-			set => SetField(ref direction, value, () => Direction);
-		}
-
-		DirectionReason directionReason;
-
-		[Display(Name = "Причина забор-доставки")]
-		public virtual DirectionReason DirectionReason
-		{
-			get => directionReason;
-			set => SetField(ref directionReason, value, () => DirectionReason);
-		}
-
-		OwnTypes ownType;
-
-		[Display(Name = "Принадлежность")]
-		public virtual OwnTypes OwnType
-		{
-			get => ownType;
-			set => SetField(ref ownType, value, () => OwnType);
-		}
-
 		#region Не сохраняемые
 
-		decimal amountUnloaded;
-
-		[Display (Name = "Уже отгружено")]
-		public virtual decimal AmountUnloaded {
-			get => amountUnloaded;
-			set => SetField(ref amountUnloaded, value, () => AmountUnloaded);
-		}
-
-		public virtual string Title {
-			get{
+		public virtual string Title
+		{
+			get
+			{
 				return string.Format(
-					"{0} - {1}", 
-					GoodsAccountingOperation.Nomenclature.Name, 
+					"{0} - {1}",
+					GoodsAccountingOperation.Nomenclature.Name,
 					GoodsAccountingOperation.Nomenclature.Unit.MakeAmountShortStr(GoodsAccountingOperation.Amount)
 				);
 			}
@@ -136,26 +79,26 @@ namespace Vodovoz.Domain.Documents
 
 		#region Функции
 
-		public virtual void CreateOperation(Warehouse warehouse, Counterparty counterparty, DateTime time)
+		public virtual void CreateOperation(Warehouse warehouse, CounterpartyEntity counterparty, DateTime time)
 		{
 			GoodsAccountingOperation = new WarehouseBulkGoodsAccountingOperation
-				{
-					Warehouse = warehouse,
-					Amount = Amount,
-					OperationTime = time,
-					Nomenclature = Nomenclature,
-				};
+			{
+				Warehouse = warehouse,
+				Amount = Amount,
+				OperationTime = time,
+				Nomenclature = Nomenclature,
+			};
 
-			CounterpartyMovementOperation = new CounterpartyMovementOperation 
-				{
-					WriteoffCounterparty = counterparty,
-					Amount = Amount,
-					OperationTime = time,
-					Nomenclature = Nomenclature,
-				};
+			CounterpartyMovementOperation = new CounterpartyMovementOperation
+			{
+				WriteoffCounterparty = counterparty,
+				Amount = Amount,
+				OperationTime = time,
+				Nomenclature = Nomenclature,
+			};
 		}
 
-		public virtual void UpdateOperation(Warehouse warehouse, Counterparty counterparty)
+		public virtual void UpdateOperation(Warehouse warehouse, CounterpartyEntity counterparty)
 		{
 			GoodsAccountingOperation.Warehouse = warehouse;
 			GoodsAccountingOperation.Amount = Amount;

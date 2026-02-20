@@ -174,7 +174,7 @@ namespace Vodovoz
 					.JoinAlias(() => routeListItemAlias.Order, () => orderAlias)
 					.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
 					.Where(() => routeListItemAlias.RouteList.Id == RouteList.Id)
-					.And(() => orderEquipmentAlias.Direction == Domain.Orders.Direction.PickUp)
+					.And(() => orderEquipmentAlias.Direction == Core.Domain.Orders.Direction.PickUp)
 					.And(() => orderEquipmentAlias.Nomenclature.Id == freeBalanceOperationAlias.Nomenclature.Id)
 					.Select(Projections.Property(() => orderEquipmentAlias.Nomenclature.Id));
 
@@ -214,7 +214,7 @@ namespace Vodovoz
 					.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
 					.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => nomenclatureAlias)
 					.Where(() => routeListItemAlias.RouteList.Id == RouteList.Id)
-					.Where(() => orderEquipmentAlias.Direction == Vodovoz.Domain.Orders.Direction.Deliver)
+					.Where(() => orderEquipmentAlias.Direction == Core.Domain.Orders.Direction.Deliver)
 					.Where(Restrictions.Or(
 							Restrictions.In(
 								Projections.Property(() => orderAlias.OrderStatus),

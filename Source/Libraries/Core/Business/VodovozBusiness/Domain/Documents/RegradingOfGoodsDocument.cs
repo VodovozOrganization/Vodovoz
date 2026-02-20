@@ -11,10 +11,9 @@ using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Core.Domain.Warehouses;
-using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 
-namespace VodovozBusiness.Domain.Documents
+namespace Vodovoz.Domain.Documents
 {
 	/// <summary>
 	/// Документ пересортицы товаров
@@ -30,30 +29,6 @@ namespace VodovozBusiness.Domain.Documents
 		private string _comment;
 		private Warehouse _warehouse;
 		private IObservableList<RegradingOfGoodsDocumentItem> _items = new ObservableList<RegradingOfGoodsDocumentItem>();
-
-		/// <summary>
-		/// Дата пересортицы
-		/// </summary>
-		public override DateTime TimeStamp
-		{
-			get => base.TimeStamp;
-			set
-			{
-				base.TimeStamp = value;
-				foreach(var item in Items)
-				{
-					if(item.WarehouseWriteOffOperation != null && item.WarehouseWriteOffOperation.OperationTime != TimeStamp)
-					{
-						item.WarehouseWriteOffOperation.OperationTime = TimeStamp;
-					}
-
-					if(item.WarehouseIncomeOperation != null && item.WarehouseIncomeOperation.OperationTime != TimeStamp)
-					{
-						item.WarehouseIncomeOperation.OperationTime = TimeStamp;
-					}
-				}
-			}
-		}
 
 		/// <summary>
 		/// Комментарий
@@ -120,6 +95,23 @@ namespace VodovozBusiness.Domain.Documents
 			item.WarehouseWriteOffOperation.Warehouse = Warehouse;
 
 			Items.Add(item);
+		}
+
+		public override void SetTimeStamp(DateTime value)
+		{
+			base.TimeStamp = value;
+			foreach(var item in Items)
+			{
+				if(item.WarehouseWriteOffOperation != null && item.WarehouseWriteOffOperation.OperationTime != TimeStamp)
+				{
+					item.WarehouseWriteOffOperation.OperationTime = TimeStamp;
+				}
+
+				if(item.WarehouseIncomeOperation != null && item.WarehouseIncomeOperation.OperationTime != TimeStamp)
+				{
+					item.WarehouseIncomeOperation.OperationTime = TimeStamp;
+				}
+			}
 		}
 
 		/// <summary>

@@ -5,9 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Core;
-using TrueMarkApi.Client;
 using Vodovoz;
 using Vodovoz.Application;
+using Vodovoz.Controllers;
 using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Data.NHibernate.Repositories.Employees;
 using Vodovoz.Core.Domain.Controllers;
@@ -15,6 +15,9 @@ using Vodovoz.FirebaseCloudMessaging;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
+using Vodovoz.Tools;
+using Vodovoz.Tools.CallTasks;
+using VodovozBusiness.Services.TrueMark;
 using WarehouseApi.Library.Converters;
 using WarehouseApi.Library.Errors;
 using WarehouseApi.Library.Services;
@@ -38,6 +41,7 @@ namespace WarehouseApi.Library
 				.AddApplication()
 				.AddRepositories()
 				.AddTrackedUoW()
+				.AddBusiness(configuration)
 				.AddFirebaseCloudMessaging(configuration)
 				.ConfigureBusinessOptions(configuration)
 				.AddScoped<ICarLoadService, CarLoadService>()
@@ -46,7 +50,14 @@ namespace WarehouseApi.Library
 				.AddScoped<TrueMarkWaterCodeParser>()
 				.AddScoped<CarLoadDocumentProcessingErrorsChecker>()
 				.AddScoped<TrueMarkCodesChecker>()
+				.AddScoped<ICarLoadDocumentTrueMarkCodesProcessingService, CarLoadDocumentTrueMarkCodesProcessingService>()
 				.AddScoped<ILogisticsEventsCreationService, LogisticsEventsCreationService>()
+				.AddScoped<ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService, SelfDeliveryDocumentItemTrueMarkProductCodesProcessingService>()
+				.AddScoped<IPaymentFromBankClientController, PaymentFromBankClientController>()
+				.AddScoped<ISelfDeliveryService, SelfDeliveryService>()
+				.AddScoped<ICallTaskWorker, CallTaskWorker>()
+				.AddScoped<ICallTaskFactory, CallTaskSingletonFactory>()
+				.AddScoped<IErrorReporter>(context => ErrorReporter.Instance)
 				.AddScoped<IEmployeeWithLoginRepository, EmployeeWithLoginRepository>()
 				.AddScoped<ICounterpartyEdoAccountEntityController, CounterpartyEdoAccountEntityController>();
 
