@@ -105,11 +105,11 @@
                 
                 SELECT # Депозит, кредит
                     p.payment_num as num,
-                    CONCAT('Оплата (', p.payment_num , ' от ', IFNULL(cmo.operation_time, p.payment_date) , ')') as document, 
+                    CONCAT('Оплата (', p.payment_num , ' от ', p.payment_date , ')') as document, 
                     0 as debt,
                     cmo.income as deposit,
                     0 as money,
-                    IFNULL(cmo.operation_time, p.payment_date) as date,
+                    p.payment_date as date,
                     '' as payment_status,
                     '' as order_status
                 FROM payments_from_bank_client p
@@ -119,8 +119,8 @@
                     p.counterparty_id = @counterparty_id
                     AND p.refund_payment_from_order_id is null
                     AND p.organization_id = @organization_id
-                    AND IFNULL(cmo.operation_time, p.payment_date) &gt;= @date_start
-                    AND IFNULL(cmo.operation_time, p.payment_date) &lt; DATE_ADD(@date_end, INTERVAL 1 DAY)
+                    AND p.payment_date &gt;= @date_start
+                    AND p.payment_date &lt; DATE_ADD(@date_end, INTERVAL 1 DAY)
                 
                 UNION ALL
                 
