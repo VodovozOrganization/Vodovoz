@@ -1440,14 +1440,13 @@ namespace Vodovoz.Application.TrueMark
 				throw new InvalidOperationException($"Ошибка при получении сохраненных транспортных кодов ЧЗ: {error?.Message}");
 			}
 
-			var savedCodes = savedCodesResult.Value;
+			var savedCodes = savedCodesResult.Value.ToDictionary(x => x.RawCode);
 
 			var codesData = new Dictionary<StagingTrueMarkCode, TrueMarkAnyCode>();
 
 			foreach(var stagingCode in stagingCodes)
 			{
-				var savedCode = savedCodes.FirstOrDefault(x => x.RawCode == stagingCode.RawCode);
-				if(savedCode != null)
+				if(savedCodes.TryGetValue(stagingCode.RawCode, out var savedCode))
 				{
 					codesData.Add(stagingCode, savedCode);
 				}
@@ -1485,14 +1484,13 @@ namespace Vodovoz.Application.TrueMark
 				throw new InvalidOperationException($"Ошибка при получении сохраненных групповых кодов ЧЗ: {error?.Message}");
 			}
 
-			var savedCodes = savedCodesResult.Value;
+			var savedCodes = savedCodesResult.Value.ToDictionary(x => (x.SerialNumber, x.GTIN));
 
 			var codesData = new Dictionary<StagingTrueMarkCode, TrueMarkAnyCode>();
 
 			foreach(var stagingCode in stagingCodes)
 			{
-				var savedCode = savedCodes.FirstOrDefault(x => x.SerialNumber == stagingCode.SerialNumber && x.GTIN == stagingCode.Gtin);
-				if(savedCode != null)
+				if(savedCodes.TryGetValue((stagingCode.SerialNumber, stagingCode.Gtin), out var savedCode))
 				{
 					codesData.Add(stagingCode, savedCode);
 				}
@@ -1530,14 +1528,13 @@ namespace Vodovoz.Application.TrueMark
 				throw new InvalidOperationException($"Ошибка при получении сохраненных индивидуальных кодов ЧЗ: {error?.Message}");
 			}
 
-			var savedCodes = savedCodesResult.Value;
+			var savedCodes = savedCodesResult.Value.ToDictionary(x => (x.SerialNumber, x.Gtin));
 
 			var codesData = new Dictionary<StagingTrueMarkCode, TrueMarkAnyCode>();
 
 			foreach(var stagingCode in stagingCodes)
 			{
-				var savedCode = savedCodes.FirstOrDefault(x => x.SerialNumber == stagingCode.SerialNumber && x.Gtin == stagingCode.Gtin);
-				if(savedCode != null)
+				if(savedCodes.TryGetValue((stagingCode.SerialNumber, stagingCode.Gtin), out var savedCode))
 				{
 					codesData.Add(stagingCode, savedCode);
 				}
