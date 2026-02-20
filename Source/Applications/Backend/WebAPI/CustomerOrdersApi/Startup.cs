@@ -1,10 +1,14 @@
-﻿using CustomerOrdersApi.HealthCheck;
+using CustomerOrdersApi.HealthCheck;
 using CustomerOrdersApi.Library;
+using System;
+using CustomerOrdersApi.Library.V4;
+using CustomerOrdersApi.Library.V4.Dto.Orders;
 using DriverApi.Notifications.Client;
 using MassTransit;
 using MessageTransport;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -12,11 +16,13 @@ using Microsoft.OpenApi.Models;
 using QS.Project.Core;
 using QS.Services;
 using Vodovoz;
+using Vodovoz.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Trackers;
 using VodovozHealthCheck;
+using Vodovoz.Presentation.WebApi;
 
 namespace CustomerOrdersApi
 {
@@ -33,15 +39,7 @@ namespace CustomerOrdersApi
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddControllers();
-			services.AddSwaggerGen(c =>
-				{
-					c.SwaggerDoc("v1", new OpenApiInfo
-					{
-						Title = "CustomerOrdersApi",
-						Version = "v1"
-					});
-				})
-
+			services
 				.AddMappingAssemblies(
 					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
 					typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
@@ -57,16 +55,22 @@ namespace CustomerOrdersApi
 				.AddOrderTrackerFor1c()
 				.AddBusiness(Configuration)
 				.AddDriverApiNotificationsSenders()
+				.AddApplicationOrderServices()
 				.AddInfrastructure()
 				.AddConfig(Configuration)
-				.AddDependenciesGroup();
+				.AddDependenciesGroup()
+				.AddVersioning();
 
 			services.AddStaticScopeForEntity();
 
 			services
 				.AddMemoryCache()
 				.AddMessageTransportSettings()
-				.AddMassTransit(busConf => busConf.ConfigureRabbitMq())
+				.AddMassTransit(busConf =>
+				{
+					busConf.AddRequestClient<CreatedOnlineOrder>(new Uri($"exchange:{CreatingOnlineOrder.ExchangeAndQueueName}"));
+					busConf.ConfigureRabbitMq();
+				})
 				.AddHttpClient();
 			
 			services.ConfigureHealthCheckService<CustomerOrdersApiHealthCheck, ServiceInfoProvider>();
@@ -76,19 +80,28 @@ namespace CustomerOrdersApi
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
 			app.ApplicationServices.GetService<IUserService>();
+
 			if(env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
 				app.UseSwagger();
-				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CustomerOrdersApi v1"));
+				app.UseSwaggerUI(options =>
+				{
+					var provider = app.ApplicationServices.GetRequiredService<IApiVersionDescriptionProvider>();
+
+					foreach(var description in provider.ApiVersionDescriptions)
+					{
+						options.SwaggerEndpoint(
+							$"/swagger/{description.GroupName}/swagger.json",
+							description.ApiVersion.ToString());
+					}
+				});
 			}
 
 			app.UseHttpsRedirection();
-
 			app.UseRouting();
-
 			app.UseAuthorization();
-
+			app.UseApiVersioning();
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 			
 			app.UseVodovozHealthCheck();

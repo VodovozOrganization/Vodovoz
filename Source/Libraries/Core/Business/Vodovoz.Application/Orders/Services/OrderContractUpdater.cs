@@ -95,7 +95,6 @@ namespace Vodovoz.Application.Orders.Services
 				organization = GetOrganization(uow, order);
 			}
 
-			//TODO: перепроверить условие
 			var counterpartyContract = organization != null 
 				? GetCounterpartyContractByOrganization(uow, order, organization)
 				: GetCounterpartyContract(uow, order, ErrorReporter.Instance);

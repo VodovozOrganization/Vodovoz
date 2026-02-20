@@ -34,7 +34,14 @@ namespace ExternalCounterpartyAssignNotifier.Services
 		public async Task<int> NotifyOfCounterpartyAssignAsync(
 			RegisteredNaturalCounterpartyDto counterpartyDto, CounterpartyFrom counterpartyFrom)
 		{
-			var response = await _httpClient.PostAsJsonAsync(GetUriString(counterpartyFrom), counterpartyDto, _serializerOptions);
+			var uri = GetUriString(counterpartyFrom);
+
+			if(string.IsNullOrWhiteSpace(uri))
+			{
+				return 405;
+			}
+			
+			var response = await _httpClient.PostAsJsonAsync(uri, counterpartyDto, _serializerOptions);
 			return (int)response.StatusCode;
 		}
 
@@ -46,6 +53,8 @@ namespace ExternalCounterpartyAssignNotifier.Services
 					return $"{_mobileAppSection["BaseUrl"]}{_mobileAppSection["NotificationAddress"]}";
 				case CounterpartyFrom.WebSite:
 					return $"{_vodovozSiteSection["BaseUrl"]}{_vodovozSiteSection["NotificationAddress"]}";
+				case CounterpartyFrom.AiBot:
+					return null;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(counterpartyFrom), counterpartyFrom, null);
 			}

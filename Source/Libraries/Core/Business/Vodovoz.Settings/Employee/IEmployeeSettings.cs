@@ -10,5 +10,9 @@
 		int MobileAppEmployee { get; }
 		int VodovozWebSiteEmployee { get; }
 		int KulerSaleWebSiteEmployee { get; }
+		/// <summary>
+		/// Id сотрудника ИИ бот
+		/// </summary>
+		int AiBotEmployee { get; }
 	}
 }

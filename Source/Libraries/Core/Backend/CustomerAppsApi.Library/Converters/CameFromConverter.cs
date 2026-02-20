@@ -15,9 +15,22 @@ namespace CustomerAppsApi.Library.Converters
 		
 		public CounterpartyFrom ConvertCameFromToCounterpartyFrom(int cameFromId)
 		{
-			return cameFromId == _counterpartySettings.GetMobileAppCounterpartyCameFromId
-				? CounterpartyFrom.MobileApp
-				: CounterpartyFrom.WebSite;
+			if(cameFromId == _counterpartySettings.GetMobileAppCounterpartyCameFromId)
+			{
+				return CounterpartyFrom.MobileApp;
+			}
+
+			if(cameFromId == _counterpartySettings.GetWebSiteCounterpartyCameFromId)
+			{
+				return CounterpartyFrom.WebSite;
+			}
+
+			if(cameFromId == _counterpartySettings.GetAiBotCounterpartyCameFromId)
+			{
+				return CounterpartyFrom.AiBot;
+			}
+			
+			throw new ArgumentException($"Неизвестно откуда пришел клиент Id {cameFromId}");
 		}
 	}
 }

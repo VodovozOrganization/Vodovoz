@@ -7,6 +7,7 @@ using Vodovoz.Extensions;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Journals.JournalNodes.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
+using WrapMode = Pango.WrapMode;
 
 namespace Vodovoz.JournalColumnsConfigs
 {
@@ -28,10 +29,16 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Дата доставки").AddTextRenderer(node =>
 						node.DeliveryDate.HasValue ? node.DeliveryDate.Value.ToShortDateString() : string.Empty)
 				.AddColumn("Время доставки").AddTextRenderer(node => node.IsSelfDelivery ? "-" : node.DeliveryTime)
-				.AddColumn("Оформленный заказ(ы)").AddTextRenderer(node => node.OrdersIds)
+				.AddColumn("Оформленный\nзаказ(ы)").AddTextRenderer(node => node.OrdersIds)
 				.AddColumn("Статус").AddTextRenderer(node => node.Status)
-				.AddColumn("Клиент").AddTextRenderer(node => node.CounterpartyName)
-				.AddColumn("Адрес").AddTextRenderer(node => node.CompiledAddress)
+				.AddColumn("Клиент")
+					.AddTextRenderer(node => node.CounterpartyName)
+					.WrapMode(WrapMode.Word)
+					.WrapWidth(350)
+				.AddColumn("Адрес")
+					.AddTextRenderer(node => node.CompiledAddress)
+					.WrapMode(WrapMode.Word)
+					.WrapWidth(500)
 				.AddColumn("Сумма").AddTextRenderer(node =>
 						node.OnlineOrderSum.HasValue
 							? CurrencyWorks.GetShortCurrencyString(node.OnlineOrderSum.Value)

@@ -1,4 +1,4 @@
-﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -610,11 +610,6 @@ namespace Vodovoz.Application.Orders.Services
 			CancellationToken cancellationToken
 		)
 		{
-			if(onlineOrder.IsNeedConfirmationByCall)
-			{
-				return 0;
-			}
-
 			Employee employee = null;
 			switch(onlineOrder.Source)
 			{
@@ -626,6 +621,9 @@ namespace Vodovoz.Application.Orders.Services
 					break;
 				case Source.KulerSaleWebSite:
 					employee = await uow.Session.GetAsync<Employee>(_employeeSettings.KulerSaleWebSiteEmployee, cancellationToken);
+					break;
+				case Source.AiBot:
+					employee = await uow.Session.GetAsync<Employee>(_employeeSettings.AiBotEmployee, cancellationToken);
 					break;
 			}
 

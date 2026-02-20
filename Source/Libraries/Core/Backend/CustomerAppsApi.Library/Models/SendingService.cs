@@ -83,6 +83,9 @@ namespace CustomerAppsApi.Library.Models
 				case Source.KulerSaleWebSite:
 					employee = _unitOfWork.GetById<Employee>(_employeeSettings.KulerSaleWebSiteEmployee);
 					break;
+				case Source.AiBot:
+					employee = _unitOfWork.GetById<Employee>(_employeeSettings.AiBotEmployee);
+					break;
 			}
 
 			if(employee is null)

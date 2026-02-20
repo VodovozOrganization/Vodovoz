@@ -1,10 +1,10 @@
-﻿using CustomerOrdersApi.Library.Dto.Orders.FixedPrice;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using CustomerOrdersApi.Library.V4.Dto.Orders.FixedPrice;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Nodes;
 using VodovozHealthCheck.Dto;

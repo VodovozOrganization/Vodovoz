@@ -20,7 +20,6 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Roboats;
-using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Settings.Roboats;
@@ -34,7 +33,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 		private readonly IRoboatsRepository _roboatsRepository;
 		private readonly IEmailRepository _emailRepository;
 		private readonly IRoboatsSettings _roboatsSettings;
-		private readonly IExternalCounterpartyFactory _externalCounterpartyFactory;
 		private object _selectedMatch;
 		private object _selectedDiscrepancy;
 		private DelegateCommand _openOrderJournalCommand;
@@ -51,8 +49,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			ILifetimeScope scope,
 			IRoboatsRepository roboatsRepository,
 			IEmailRepository emailRepository,
-			IRoboatsSettings roboatsSettings,
-			IExternalCounterpartyFactory externalCounterpartyFactory)
+			IRoboatsSettings roboatsSettings)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			Navigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
@@ -60,8 +57,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			_roboatsRepository = roboatsRepository ?? throw new ArgumentNullException(nameof(roboatsRepository));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_roboatsSettings = roboatsSettings ?? throw new ArgumentNullException(nameof(roboatsSettings));
-			_externalCounterpartyFactory =
-				externalCounterpartyFactory ?? throw new ArgumentNullException(nameof(externalCounterpartyFactory));
 
 			ConfigureEntityChangingRelations();
 			UpdateMatches();
@@ -154,10 +149,11 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 					}
 					else
 					{
-						externalCounterparty = _externalCounterpartyFactory.CreateNewExternalCounterparty(Entity.CounterpartyFrom);
-						externalCounterparty.Phone = GetPhone(counterpartyNode);
-						externalCounterparty.ExternalCounterpartyId = Entity.ExternalCounterpartyGuid;
-						externalCounterparty.Email = _emailRepository.GetEmailForExternalCounterparty(UoW, counterpartyNode.EntityId);
+						externalCounterparty = ExternalCounterparty.Create(
+							GetPhone(counterpartyNode),
+							_emailRepository.GetEmailForExternalCounterparty(UoW, counterpartyNode.EntityId),
+							Entity.ExternalCounterpartyGuid,
+							Entity.CounterpartyFrom);
 					}
 					
 					Entity.AssignCounterparty(externalCounterparty);

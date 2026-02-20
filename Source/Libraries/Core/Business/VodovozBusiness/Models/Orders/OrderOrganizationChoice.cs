@@ -33,7 +33,7 @@ namespace VodovozBusiness.Models.Orders
 		{
 			var paymentFrom = onlineOrder.OnlinePaymentSource.HasValue
 				? uow.GetById<PaymentFrom>(
-					onlineOrder.OnlinePaymentSource.Value.ConvertToPaymentFromId(orderSettings))
+					onlineOrder.OnlinePaymentSource.ConvertToPaymentFromId(orderSettings))
 				: null;
 			
 			return new OrderOrganizationChoice

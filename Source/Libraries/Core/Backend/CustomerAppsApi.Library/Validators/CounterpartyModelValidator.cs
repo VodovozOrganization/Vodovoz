@@ -113,9 +113,10 @@ namespace CustomerAppsApi.Library.Validators
 
 		private void ValidateCameFromProperty(int cameFromId)
 		{
-			if(cameFromId == default(int)
+			if(cameFromId == 0
 				|| (cameFromId != _counterpartySettings.GetMobileAppCounterpartyCameFromId
-					&& cameFromId != _counterpartySettings.GetWebSiteCounterpartyCameFromId))
+					&& cameFromId != _counterpartySettings.GetWebSiteCounterpartyCameFromId
+					&& cameFromId != _counterpartySettings.GetAiBotCounterpartyCameFromId))
 			{
 				_sb.AppendLine(_wrongCameFromId);
 			}

@@ -24,6 +24,10 @@
 		/// <summary>
 		/// МП по Qr
 		/// </summary>
-		FromMobileAppByQr
+		FromMobileAppByQr,
+		/// <summary>
+		/// ИИ Бот по Qr
+		/// </summary>
+		FromAiBotByQr
 	}
 }

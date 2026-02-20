@@ -11,7 +11,7 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 		public IList<ExternalCounterpartyAssignNotification> GetNotificationsForSend(IUnitOfWork uow, int days)
 		{
 			return uow.Session.QueryOver<ExternalCounterpartyAssignNotification>()
-				.Where(n => n.HttpCode == null || n.HttpCode != 204)
+				.Where(n => n.HttpCode == null || (n.HttpCode != 204 && n.HttpCode != 405))
 				.And(n => n.CreationDate >= DateTime.Today.AddDays(-days))
 				.List();
 		}

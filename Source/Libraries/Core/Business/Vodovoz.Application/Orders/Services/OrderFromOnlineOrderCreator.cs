@@ -60,7 +60,7 @@ namespace Vodovoz.Application.Orders.Services
 		{
 			var paymentFrom = onlineOrder.OnlinePaymentSource.HasValue
 				? uow.GetById<PaymentFrom>(
-					onlineOrder.OnlinePaymentSource.Value.ConvertToPaymentFromId(_orderSettings))
+					onlineOrder.OnlinePaymentSource.ConvertToPaymentFromId(_orderSettings))
 				: null;
 
 			if(author != null)

@@ -263,7 +263,8 @@ stage('Web'){
 			}
 			stage('Web.Build'){
 				// Docker
-				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/FastPaymentsAPI/FastPaymentsAPI.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/FastPayment/FastPaymentsAPI/FastPaymentsAPI.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/FastPayment/FastPaymentEventsSender/FastPaymentEventsSender.csproj")
 				DockerPublishBuild("${APP_PATH}/Frontend/UnsubscribePage/UnsubscribePage.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/DeliveryRulesService/DeliveryRulesService.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/RoboatsService/RoboatsService.csproj")
@@ -271,8 +272,9 @@ stage('Web'){
 
 				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/DriverAPI/DriverAPI.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/WebAPI/CashReceiptApi/CashReceiptApi.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/CustomerOnlineOrdersRegistrar/CustomerOnlineOrdersRegistrar.csproj")
-				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/CustomerOnlineOrdersStatusUpdateNotifier/CustomerOnlineOrdersStatusUpdateNotifier.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/OnlineOrders/CustomerOnlineOrdersRegistrar/CustomerOnlineOrdersRegistrar.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/OnlineOrders/CustomerOnlineOrdersStatusUpdateNotifier/CustomerOnlineOrdersStatusUpdateNotifier.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/OnlineOrders/CustomerOnlineOrdersUpdater/CustomerOnlineOrdersUpdater.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/DatabaseServiceWorker/DatabaseServiceWorker.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EmailWorkers/EmailPrepareWorker/EmailPrepareWorker.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EmailWorkers/EmailSendWorker/EmailSendWorker.csproj")
