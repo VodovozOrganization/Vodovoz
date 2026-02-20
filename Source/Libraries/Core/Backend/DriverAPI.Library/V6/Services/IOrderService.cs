@@ -151,5 +151,14 @@ namespace DriverAPI.Library.V6.Services
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Задача с результатом обработки кодов ЧЗ</returns>
 		Task<Result> SendTrueMarkCodes(DateTime actionTime, Employee driver, int orderId, IEnumerable<OrderItemScannedBottlesDto> scannedBottles, string unscannedBottlesReason, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Проверить код через API Честного Знака
+		/// </summary>
+		/// <param name="driver">Водитель</param>
+		/// <param name="code">Транспортный код для проверки</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Задача с результатом проверки транспортного кода</returns>
+		Task<RequestProcessingResult<CheckCodeResultResponse>> CheckCode(string code, CancellationToken cancellationToken);
 	}
 }
