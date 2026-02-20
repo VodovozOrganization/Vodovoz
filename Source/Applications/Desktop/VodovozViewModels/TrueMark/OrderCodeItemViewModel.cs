@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
@@ -156,8 +156,8 @@ namespace Vodovoz.ViewModels.TrueMark
 			get => _stagingTrueMarkCode;
 			set
 			{
-				SetField(ref _stagingTrueMarkCode, value);
-				if(value != null)
+				if(SetField(ref _stagingTrueMarkCode, value)
+					&& value != null)
 				{
 					SourceIdentificationCode = value.IdentificationCode;
 					Type = value.GetCodeTypeString();
