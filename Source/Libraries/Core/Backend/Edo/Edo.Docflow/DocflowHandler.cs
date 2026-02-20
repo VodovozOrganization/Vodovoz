@@ -373,6 +373,15 @@ namespace Edo.Docflow
 			{
 				await _publishEndpoint.Publish(message, cancellationToken);
 			}
+
+			// Отправляем событие о завершении документооборота
+			// для проверки необходимости создания заявки на вывод кодов из оборота
+			if(docflowStatus == EdoDocFlowStatus.Succeed && document.Type == OutgoingEdoDocumentType.Order)
+			{
+				await _publishEndpoint.Publish(
+					new OrderDocflowCompletedEvent { DocumentId = document.Id },
+					cancellationToken);
+			}
 		}
 
 		public async Task HandleDocflowCancellation(int taskId, string reason, CancellationToken cancellationToken)
