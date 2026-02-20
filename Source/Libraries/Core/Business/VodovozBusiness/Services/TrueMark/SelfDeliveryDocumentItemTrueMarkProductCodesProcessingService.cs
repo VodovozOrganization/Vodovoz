@@ -25,9 +25,7 @@ namespace VodovozBusiness.Services.TrueMark
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 
 		public SelfDeliveryDocumentItemTrueMarkProductCodesProcessingService(
-			IGenericRepository<StagingTrueMarkCode> stagingTrueMarkCodeRepository,
 			IGenericRepository<NomenclatureEntity> nomenclatureRepository,
-			IGenericRepository<GtinEntity> gtinRepository,
 			ITrueMarkWaterCodeService trueMarkWaterCodeService)
 		{
 			_nomenclatureRepository =
