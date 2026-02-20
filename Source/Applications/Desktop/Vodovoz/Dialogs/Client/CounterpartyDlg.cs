@@ -922,10 +922,6 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.RingUpPhone, w => w.Buffer.Text)
 				.InitializeFromSource();
 			txtRingUpPhones.Editable = CanEdit;
-
-			contactsview1.CounterpartyUoW = UoWGeneric;
-			contactsview1.Visible = true;
-			contactsview1.Sensitive = CanEdit;
 		}
 
 		private bool SetSensitivityByPermission(string permission, Widget widget)
