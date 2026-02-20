@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Contacts;
+using VodovozBusiness.Nodes;
 
 namespace Vodovoz.EntityRepositories.Counterparties
 {
@@ -20,5 +20,12 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		/// <param name="phoneId">Идентификатор телефона</param>
 		/// <returns></returns>
 		bool HasExternalCounterparties(IUnitOfWork uow, int phoneId);
+		/// <summary>
+		/// Получения информации о внешних пользователях 
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="counterpartyId">Идентификатор клиента</param>
+		/// <returns></returns>
+		IList<PersonalCounterpartyExternalUserInfo> GetExternalCounterpartiesForClientTab(IUnitOfWork uow, int counterpartyId);
 	}
 }

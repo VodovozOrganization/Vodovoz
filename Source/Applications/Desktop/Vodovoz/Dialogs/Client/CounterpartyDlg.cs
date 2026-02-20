@@ -922,6 +922,20 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.RingUpPhone, w => w.Buffer.Text)
 				.InitializeFromSource();
 			txtRingUpPhones.Editable = CanEdit;
+
+			treeViewExternalCounterparties.ColumnsConfig = FluentColumnsConfig<PersonalCounterpartyExternalUserInfo>.Create()
+				.AddColumn("Код")
+					.AddNumericRenderer(x => x.Id)
+				.AddColumn("Телефон")
+					.AddTextRenderer(x => x.Phone)
+				.AddColumn("Идентификатор пользователя")
+					.AddTextRenderer(x => x.ExternalId)
+				.AddColumn("ИПЗ")
+					.AddEnumRenderer(x => x.CounterpartyFrom)
+					.Editing(false)
+				.Finish();
+
+			treeViewExternalCounterparties.SetItemsSource(_externalCounterpartyRepository.GetExternalCounterpartiesForClientTab(UoW, Entity.Id));
 		}
 
 		private bool SetSensitivityByPermission(string permission, Widget widget)

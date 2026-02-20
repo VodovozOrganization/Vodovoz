@@ -56,14 +56,8 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 		{
 			if(phoneType.Id == _phoneTypeSettings.ArchiveId)
 			{
-				if(_externalCounterpartyHandler.HasExternalCounterparties(_uow, _phone))
+				if(CheckExternalCounterparties())
 				{
-					_commonServices.InteractiveService
-						.ShowMessage(
-							ImportanceLevel.Warning,
-							"По данному номеру привязан пользователь ИПЗ(МП, сайта и т.д.) архивация/деархивация невозможна. Обратитесь в отдель разработки");
-				
-					//_phone.PhoneType = _phone.PhoneType;
 					return;
 				}
 				
@@ -78,22 +72,31 @@ namespace Vodovoz.ViewModels.ViewModels.Contacts
 			{
 				if(PhoneIsArchive)
 				{
-					if(_externalCounterpartyHandler.HasExternalCounterparties(_uow, _phone))
+					if(CheckExternalCounterparties())
 					{
-						_commonServices.InteractiveService
-							.ShowMessage(
-								ImportanceLevel.Warning,
-								"По данному номеру привязан пользователь ИПЗ(МП, сайта и т.д.) архивация/деархивация невозможна. Обратитесь в отдель разработки");
-				
-						//_phone.PhoneType = _phone.PhoneType;
 						return;
 					}
-					
+
 					PhoneIsArchive = false;
 				}
 			}
 			
 			_phone.PhoneType = phoneType;
+		}
+
+		private bool CheckExternalCounterparties()
+		{
+			if(_externalCounterpartyHandler.HasExternalCounterparties(_uow, _phone))
+			{
+				_commonServices.InteractiveService
+					.ShowMessage(
+						ImportanceLevel.Warning,
+						"По данному номеру привязан пользователь ИПЗ(МП, сайта и т.д.) архивация/деархивация невозможна. Обратитесь в отдель разработки");
+
+				return true;
+			}
+
+			return false;
 		}
 	}
 }
