@@ -863,14 +863,8 @@ namespace Vodovoz
 
 		private void ConfigureTabContacts()
 		{
-			var phoneTypeSettings = ScopeProvider.Scope.Resolve<IPhoneTypeSettings>();
-			_phonesViewModel =
-				new PhonesViewModel(phoneTypeSettings, _phoneRepository, UoW, _contactsSettings, _roboatsJournalsFactory, _commonServices)
-				{
-					PhonesList = Entity.ObservablePhones,
-					Counterparty = Entity,
-					ReadOnly = !CanEdit
-				};
+			_phonesViewModel = _lifetimeScope.Resolve<PhonesViewModel>(new TypedParameter(typeof(IUnitOfWork), UoW));
+			_phonesViewModel.Initialize(this, !CanEdit,  Entity.Phones, Entity, true);
 			phonesView.ViewModel = _phonesViewModel;
 
 			var emailsViewModel = new EmailsViewModel(

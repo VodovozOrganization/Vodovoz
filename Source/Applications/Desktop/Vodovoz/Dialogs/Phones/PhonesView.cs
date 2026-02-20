@@ -1,18 +1,25 @@
-﻿using Gamma.GtkWidgets;
+﻿using System;
+using Gamma.GtkWidgets;
 using Gamma.Widgets;
 using Gtk;
-using QS.Widgets.GtkUI;
 using QSWidgetLib;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
+using QS.Extensions.Observable.Collections.List;
+using QS.ViewModels.Control.EEVM;
+using QS.Views.Control;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.ViewModels.Dialogs.Counterparties;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewWidgets.Mango;
 using VodovozBusiness.Domain.Contacts;
 
 namespace Vodovoz.Dialogs.Phones
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[ToolboxItem(true)]
 	public partial class PhonesView : Bin
 	{
 		private PhonesViewModel _viewModel;
@@ -21,7 +28,7 @@ namespace Vodovoz.Dialogs.Phones
 
 		public PhonesViewModel ViewModel
 		{
-			get { return _viewModel; }
+			get => _viewModel;
 			set
 			{
 				_viewModel = value;
@@ -43,31 +50,66 @@ namespace Vodovoz.Dialogs.Phones
 				return;
 			}
 
-			buttonAddPhone.Clicked += (sender, e) => ViewModel.AddItemCommand.Execute();
-			buttonAddPhone.Binding.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
-
-			ViewModel.PhonesList.PropertyChanged += (sender, e) => Redraw();
+			buttonAddPhone.BindCommand(ViewModel.AddItemCommand);
+			buttonAddPhone.Binding
+				.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			ViewModel.PhonesListChangedAction += ViewModelOnPhonesListChangedAction;
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+			ViewModel.PhonesList.CollectionChanged += OnPhonesCollectionChanged;
 			Redraw();
 		}
 
+		private void ViewModelOnPhonesListChangedAction(IObservableList<Phone> oldList)
+		{
+			if(oldList is null)
+			{
+				return;
+			}
+			
+			oldList.CollectionChanged -= OnPhonesCollectionChanged;
+		}
+
+		private void OnPhonesCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			Redraw();
+		}
+
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(ViewModel.PhonesList))
+			{
+				Redraw();
+			}
+		}
 
 		private void DrawNewRow(Phone newPhone)
 		{
-			PhoneViewModel phoneViewModel = ViewModel.GetPhoneViewModel(newPhone);
+			var phoneViewModel = ViewModel.GetPhoneViewModel(newPhone);
 
 			if(_hBoxList?.FirstOrDefault() == null)
 			{
 				_hBoxList = new List<HBox>();
 			}
 
-			HBox hBox = new HBox();
+			var hasExternalUsersForThisPhone = false;
+
+			if(newPhone.Id > 0)
+			{
+				hasExternalUsersForThisPhone = ViewModel.ExternalCounterpartyHandler.HasExternalCounterparties(ViewModel.UoW, newPhone);
+			}
+
+			var hBox = new HBox();
 
 			var phoneDataCombo = new yListComboBox();
 			phoneDataCombo.WidthRequest = 100;
 			phoneDataCombo.SetRenderTextFunc((PhoneType x) => x.Name);
 			phoneDataCombo.ItemsList = ViewModel.PhoneTypes;
-			phoneDataCombo.Binding.AddBinding(phoneViewModel, pvm => pvm.SelectedPhoneType, w => w.SelectedItem).InitializeFromSource();
-			phoneDataCombo.Binding.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
+			phoneDataCombo.Binding
+				.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.Sensitive)
+				.AddBinding(phoneViewModel, pvm => pvm.SelectedPhoneType, w => w.SelectedItem)
+				.InitializeFromSource();
 			hBox.Add(phoneDataCombo);
 			hBox.SetChildPacking(phoneDataCombo, true, true, 0, PackType.Start);
 
@@ -80,12 +122,22 @@ namespace Vodovoz.Dialogs.Phones
 			phoneDataEntry.Tag = newPhone;
 			phoneDataEntry.WidthRequest = 110;
 			phoneDataEntry.WidthChars = 19;
-			phoneDataEntry.Binding.AddBinding(newPhone, e => e.Number, w => w.Text).InitializeFromSource();
-			phoneDataEntry.Binding.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.IsEditable).InitializeFromSource();
+
+			if(hasExternalUsersForThisPhone)
+			{
+				phoneDataEntry.TooltipText =
+					"По этому телефону привязан пользователь ИПЗ(МП или сайта). Для удаления или архивации обратитесь в отдель разработки";
+			}
+
+			phoneDataEntry.Binding
+				.AddFuncBinding(ViewModel, e => !e.ReadOnly && !hasExternalUsersForThisPhone, w => w.IsEditable)
+				.AddBinding(newPhone, e => e.Number, w => w.Text)
+				.InitializeFromSource();
+
 			hBox.Add(phoneDataEntry);
 			hBox.SetChildPacking(phoneDataEntry, false, false, 0, PackType.Start);
 
-			HandsetView handset = new HandsetView(newPhone.DigitsNumber);
+			var handset = new HandsetView(newPhone.DigitsNumber);
 			handset.Binding.AddFuncBinding(newPhone, e => !e.IsArchive, w => w.Sensitive).InitializeFromSource();
 			hBox.Add(handset);
 			hBox.SetChildPacking(handset, false, false, 0, PackType.Start);
@@ -97,66 +149,44 @@ namespace Vodovoz.Dialogs.Phones
 			var additionalDataEntry = new yEntry();
 			additionalDataEntry.WidthRequest = 40;
 			additionalDataEntry.MaxLength = 10;
-			additionalDataEntry.Binding.AddBinding(newPhone, e => e.Additional, w => w.Text).InitializeFromSource();
-			additionalDataEntry.Binding.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.IsEditable).InitializeFromSource();
+			
+			additionalDataEntry.Binding
+				.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.IsEditable)
+				.AddBinding(newPhone, e => e.Additional, w => w.Text)
+				.InitializeFromSource();
+			
 			hBox.Add(additionalDataEntry);
 			hBox.SetChildPacking(additionalDataEntry, false, false, 0, PackType.Start);
 
 			var labelComment = new Label("коммент.:");
 			hBox.Add(labelComment);
 			hBox.SetChildPacking(labelComment, false, false, 0, PackType.Start);
-
+			
 			var entryComment = new yEntry();
 			entryComment.MaxLength = 150;
-			entryComment.Binding.AddBinding(newPhone, e => e.Comment, w => w.Text).InitializeFromSource();
-			entryComment.Binding.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.IsEditable).InitializeFromSource();
+			
+			entryComment.Binding
+				.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.IsEditable)
+				.AddBinding(newPhone, e => e.Comment, w => w.Text)
+				.InitializeFromSource();
+
 			hBox.Add(entryComment);
 			hBox.SetChildPacking(entryComment, true, true, 0, PackType.Start);
 
-			if(ViewModel.RoboAtsCounterpartyNameSelectorFactory != null)
+			if(ViewModel.WithRoboatsWidgets)
 			{
-				var labelName = new Label("имя:");
-				hBox.PackStart(labelName, false, false, 0);
-
-				var entityviewmodelentryName = new EntityViewModelEntry();
-				entityviewmodelentryName.CanDisposeEntitySelectorFactory = false;
-				entityviewmodelentryName.Binding.AddBinding(ViewModel, vm => vm.CanEditCounterpartyName, w => w.CanEditReference)
-					.InitializeFromSource();
-				entityviewmodelentryName.Binding.AddBinding(newPhone, e => e.RoboAtsCounterpartyName, w => w.Subject)
-					.InitializeFromSource();
-				entityviewmodelentryName.Binding
-					.AddFuncBinding(ViewModel, vm => !vm.ReadOnly && vm.CanReadCounterpartyName, w => w.IsEditable).InitializeFromSource();
-				entityviewmodelentryName.SetEntityAutocompleteSelectorFactory(ViewModel.RoboAtsCounterpartyNameSelectorFactory);
-				entityviewmodelentryName.WidthRequest = 170;
-				hBox.PackStart(entityviewmodelentryName, true, true, 0);
+				CreateRoboatsClientNameEntry(newPhone, hBox);
+				CreateRoboatsClientPatronymicEntry(newPhone, hBox);
 			}
 
-			if(ViewModel.RoboAtsCounterpartyPatronymicSelectorFactory != null)
-			{
-
-				var labelPatronymic = new Label("отч.:");
-				hBox.PackStart(labelPatronymic, false, false, 0);
-
-				var entityviewmodelentryPatronymic = new EntityViewModelEntry();
-				entityviewmodelentryPatronymic.CanDisposeEntitySelectorFactory = false;
-				entityviewmodelentryPatronymic.Binding
-					.AddBinding(ViewModel, vm => vm.CanEditCounterpartyPatronymic, w => w.CanEditReference).InitializeFromSource();
-				entityviewmodelentryPatronymic.Binding.AddBinding(newPhone, e => e.RoboAtsCounterpartyPatronymic, w => w.Subject)
-					.InitializeFromSource();
-				entityviewmodelentryPatronymic.Binding
-					.AddFuncBinding(ViewModel, vm => !vm.ReadOnly && vm.CanReadCounterpartyPatronymic, w => w.IsEditable)
-					.InitializeFromSource();
-				entityviewmodelentryPatronymic.SetEntityAutocompleteSelectorFactory(ViewModel.RoboAtsCounterpartyPatronymicSelectorFactory);
-				entityviewmodelentryPatronymic.WidthRequest = 170;
-				hBox.PackStart(entityviewmodelentryPatronymic, true, true, 0);
-			}
-
-			yButton deleteButton = new yButton();
-			Image image = new Image();
+			var deleteButton = new yButton();
+			var image = new Image();
 			image.Pixbuf = Stetic.IconLoader.LoadIcon(this, "gtk-delete", IconSize.Menu);
 			deleteButton.Image = image;
-			deleteButton.Clicked += (sender, e) => ViewModel.DeleteItemCommand.Execute(hBox.Data["phone"] as Phone);
-			deleteButton.Binding.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.Sensitive).InitializeFromSource();
+			deleteButton.Clicked += OnRemovePhoneClicked;
+			deleteButton.Binding
+				.AddFuncBinding(ViewModel, e => !e.ReadOnly, w => w.Sensitive)
+				.InitializeFromSource();
 			hBox.Add(deleteButton);
 			hBox.SetChildPacking(deleteButton, false, false, 0, PackType.Start);
 
@@ -166,6 +196,58 @@ namespace Vodovoz.Dialogs.Phones
 			vboxPhones.Add(hBox);
 			vboxPhones.ShowAll();
 			_hBoxList.Add(hBox);
+		}
+
+		private void CreateRoboatsClientNameEntry(Phone newPhone, HBox hBox)
+		{
+			var labelName = new Label("имя:");
+			hBox.PackStart(labelName, false, false, 0);
+
+			var entityEntryName = new EntityEntry();
+			var builder =
+				new LegacyEEVMBuilderFactory<Phone>(ViewModel.ParentTab, newPhone, ViewModel.UoW, ViewModel.NavigationManager, ViewModel.Scope);
+
+			var viewModel = builder.ForProperty(x => x.RoboAtsCounterpartyName)
+				.UseViewModelJournalAndAutocompleter<RoboAtsCounterpartyNameJournalViewModel>()
+				.UseViewModelDialog<RoboAtsCounterpartyNameViewModel>()
+				.Finish();
+
+			viewModel.IsEditable = !ViewModel.ReadOnly && ViewModel.CanReadCounterpartyName;
+			viewModel.CanViewEntity = ViewModel.CanEditCounterpartyName;
+			entityEntryName.ViewModel = viewModel;
+			
+			entityEntryName.WidthRequest = 170;
+			hBox.PackStart(entityEntryName, true, true, 0);
+		}
+		
+		private void CreateRoboatsClientPatronymicEntry(Phone newPhone, HBox hBox)
+		{
+			var labelPatronymic = new Label("отч.:");
+			hBox.PackStart(labelPatronymic, false, false, 0);
+
+			var entityEntryPatronymic = new EntityEntry();
+			var builder =
+				new LegacyEEVMBuilderFactory<Phone>(ViewModel.ParentTab, newPhone, ViewModel.UoW, ViewModel.NavigationManager, ViewModel.Scope);
+
+			var viewModel = builder.ForProperty(x => x.RoboAtsCounterpartyPatronymic)
+				.UseViewModelJournalAndAutocompleter<RoboAtsCounterpartyPatronymicJournalViewModel>()
+				.UseViewModelDialog<RoboAtsCounterpartyPatronymicViewModel>()
+				.Finish();
+			
+			viewModel.IsEditable = !ViewModel.ReadOnly && ViewModel.CanReadCounterpartyPatronymic;
+			viewModel.CanViewEntity = ViewModel.CanEditCounterpartyPatronymic;
+			entityEntryPatronymic.ViewModel = viewModel;
+			
+			entityEntryPatronymic.WidthRequest = 170;
+			hBox.PackStart(entityEntryPatronymic, true, true, 0);
+		}
+		
+		private void OnRemovePhoneClicked(object sender, EventArgs e)
+		{
+			var deleteBtn =  sender as yButton;
+			var hbox = deleteBtn.Parent as HBox;
+
+			ViewModel.DeleteItemCommand.Execute(hbox.Data["phone"]);
 		}
 
 		private void Redraw()
@@ -178,10 +260,17 @@ namespace Vodovoz.Dialogs.Phones
 				vboxPhones.Remove(child);
 			}
 
-			foreach(Phone phone in ViewModel.PhonesList)
+			foreach(var phone in ViewModel.PhonesList)
 			{
 				DrawNewRow(phone);
 			}
+		}
+
+		protected override void OnDestroyed()
+		{
+			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+			ViewModel.PhonesList.CollectionChanged -= OnPhonesCollectionChanged;
+			base.OnDestroyed();
 		}
 	}
 }
