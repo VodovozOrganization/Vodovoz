@@ -4189,11 +4189,26 @@ namespace Vodovoz
 			{
 				try
 				{
-					var totalDebt = _counterpartyRepository.GetTotalDebt(UoW, Counterparty.Id);
+					var organizations = _organizationRepository.GetOrganizations(UoW);
+					var orgDebts = new StringBuilder();
+					decimal totalDebt = 0;
+
+					foreach(var org in organizations)
+					{
+						var orgDebt = _counterpartyRepository.GetDebtByOrganization(UoW, Counterparty.Id, org.Id);
+						if(orgDebt > 0)
+						{
+							totalDebt += orgDebt;
+							orgDebts.AppendLine($"{org.Prefix} - {orgDebt} руб.");
+						}
+					}
+
 					if(totalDebt > 0)
 					{
 						ylabelTotalDebt.Visible = true;
-						ylabelTotalDebt.LabelProp = $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">Долг по безналу: {totalDebt} руб.</span>";
+						var debtDetails = orgDebts.ToString().TrimEnd();
+						var debtText = $"Общий долг по безналу: {totalDebt} руб.\nДолг по организациям:\n{debtDetails}";
+						ylabelTotalDebt.LabelProp = $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">{debtText}</span>";
 					}
 				}
 				catch(Exception ex)
