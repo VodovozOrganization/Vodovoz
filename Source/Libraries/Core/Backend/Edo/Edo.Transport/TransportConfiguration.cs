@@ -222,6 +222,22 @@ namespace Edo.Transport
 				x.Durable = true;
 				x.AutoDelete = false;
 			});
+
+			cfg.Message<OrderDocflowCompletedEvent>(x => x.SetEntityName("edo.order-docflow-completed.publish"));
+			cfg.Publish<OrderDocflowCompletedEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+
+			cfg.Message<WithdrawalEdoRequestCreatedEvent>(x => x.SetEntityName("edo.withdrawal-request-created.publish"));
+			cfg.Publish<WithdrawalEdoRequestCreatedEvent>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
 			
 			cfg.Message<RequestTaskCancellationEvent>(x => x.SetEntityName("edo.request-task-cancellation.publish"));
 			cfg.Publish<RequestTaskCancellationEvent>(x =>
