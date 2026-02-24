@@ -977,7 +977,7 @@ FROM
             END as terminal_subtype_title,
         if(
             orders.payment_type = 'Terminal', 
-            CONCAT((select payment_type_title), if((select terminal_subtype_title) is not null, CONCAT(' | ', (select terminal_subtype_title)), null)), 
+            CONCAT((select payment_type_title), if((select terminal_subtype_title) is not null, CONCAT(' | ', (select terminal_subtype_title)), '')), 
             CONCAT((select payment_type_title), if(orders.payment_from_id is not null, CONCAT(' | ', pf.name), '')) 
         ) as payment_type,
          orders.delivery_date as delivery_date,

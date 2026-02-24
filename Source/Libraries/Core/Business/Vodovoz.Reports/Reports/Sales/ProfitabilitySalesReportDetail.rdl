@@ -2994,7 +2994,7 @@ SELECT
 		END as terminal_subtype_title,
 	if(
 		o.payment_type = 'Terminal', 
-		CONCAT((select payment_type_title), if((select terminal_subtype_title) is not null, CONCAT(' | ', (select terminal_subtype_title)), null)), 
+		CONCAT((select payment_type_title), if((select terminal_subtype_title) is not null, CONCAT(' | ', (select terminal_subtype_title)), '')), 
 		CONCAT((select payment_type_title), if(o.payment_from_id is not null, CONCAT(' | ', pf.name), '')) 
 	) as payment_type,
     oi.id AS order_item_id,
@@ -3015,7 +3015,7 @@ SELECT
     n.weight AS weight,
     IFNULL(oi.actual_count, oi.count) AS items_count,
     (SELECT ((items_count * oi.price) - oi.discount_money)) AS total_price,
-    (SELECT (total_price / items_count)) AS order_item_price,
+    (SELECT (if(items_count = 0, 0, total_price / items_count))) AS order_item_price,
     #Пр-во/закупка - если групповая себестоимость то себестоимость, иначе цена закупки
     (
     	IF(n.using_in_group_price_set,
@@ -3126,7 +3126,7 @@ SELECT
 	) AS spending_per_item,
 	(SELECT CAST((spending_per_item * items_count) AS DECIMAL(12,2))) AS total_spending,
 	(SELECT CAST((total_price - total_spending)  AS DECIMAL(12,2))) AS profitability,
-	(SELECT CAST(IFNULL((profitability / total_price * 100), 0) AS DECIMAL(12,2))) AS profitability_percent,
+	(SELECT CAST(if(total_price = 0, 0, IFNULL((profitability / total_price * 100), 0)) AS DECIMAL(12,2))) AS profitability_percent,
     IFNULL(CONCAT(ccl.classification_by_bottles_count, ccl.classification_by_orders_count), 'Новый') as counterparty_classification,
     IFNULL(ps.name, 'Без промонабора')  as promotional_set,
     IFNULL(CONCAT(e_manager.last_name,  ' ', e_manager.name, ' ', e_manager.patronymic), ' Без менеджера КА')  as sales_manager_name,
