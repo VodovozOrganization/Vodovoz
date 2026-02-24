@@ -65,6 +65,7 @@ namespace EmailDebtNotificationWorker
 					services.AddCore();
 					services.AddInfrastructure();
 					services.AddRepositories();
+					services.AddCoreDataRepositories();
 					services.AddTrackedUoW();
 					services.ConfigureZabbixSenderFromDataBase(nameof(EmailDebtNotificationWorker));
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
