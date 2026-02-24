@@ -50,10 +50,11 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Document
 		public async Task<string> GetDocumentNumberByOrderId(IUnitOfWork unitOfWork, int orderId, CancellationToken cancellationToken)
 		{
 			return await unitOfWork.Session.Query<OrderDocumentEntity>()
-				.Where(od => od.Order.Id == orderId
-					&& (od.Type == OrderDocumentType.SpecialUPD || od.Type == OrderDocumentType.UPD)
-					&& od.DocumentOrganizationCounter != null)
-				.Select(od => od.DocumentOrganizationCounter.DocumentNumber)
+				.Where(orderDocument => orderDocument.Order.Id == orderId
+					&& (orderDocument is UPDDocumentEntity || orderDocument is SpecialUPDDocumentEntity)
+					&& orderDocument.DocumentOrganizationCounter != null)
+				.OrderByDescending(orderDocument => orderDocument.Id)
+				.Select(orderDocument => orderDocument.DocumentOrganizationCounter.DocumentNumber)
 				.FirstOrDefaultAsync(cancellationToken);
 		}
 	}
