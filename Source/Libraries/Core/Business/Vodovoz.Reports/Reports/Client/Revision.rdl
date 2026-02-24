@@ -83,10 +83,11 @@
                     '' as payment_status,
                     '' as order_status
                 FROM payments_from_bank_client p
-                LEFT JOIN cashless_movement_operations cmo ON p.cashless_movement_operation_id = cmo.id
+                INNER JOIN cashless_movement_operations cmo ON p.cashless_movement_operation_id = cmo.id
                 INNER JOIN organizations o ON p.organization_id = o.id
                 WHERE
                     p.counterparty_id = @counterparty_id
+                    AND cmo.cashless_movement_operation_status != 'Cancelled'
                     AND p.refund_payment_from_order_id is null
                     AND p.organization_id = @organization_id
                     AND p.payment_date &gt;= @date_start
@@ -275,9 +276,11 @@ WHERE
                 FROM orders o
                 INNER JOIN payment_items pi ON o.id = pi.order_id
                 INNER JOIN payments_from_bank_client p ON pi.payment_id = p.id
+                INNER JOIN cashless_movement_operations cmo ON pi.cashless_movement_operation_id = cmo.id
                 LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
                 WHERE
                     o.client_id = @counterparty_id
+                    AND cmo.cashless_movement_operation_status != 'Cancelled'
                     AND pi.payment_item_status != 'Cancelled'
                     AND cc.organization_id = @organization_id
                     AND o.order_status IN ('Shipped', 'Closed', 'UnloadingOnStock')
@@ -293,6 +296,7 @@ WHERE
                 INNER JOIN organizations o ON p.organization_id = o.id
                 WHERE
                     p.counterparty_id = @counterparty_id
+                    AND cmo.cashless_movement_operation_status != 'Cancelled'
                     AND p.refund_payment_from_order_id is null
                     AND p.organization_id = @organization_id
                     AND IFNULL(cmo.operation_time, p.payment_date) &lt; @date_start
