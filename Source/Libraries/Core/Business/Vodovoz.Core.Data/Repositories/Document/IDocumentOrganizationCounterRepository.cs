@@ -1,8 +1,7 @@
-﻿using System;
+﻿using QS.DomainModel.UoW;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using NHibernate.Criterion;
-using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
@@ -47,5 +46,13 @@ namespace Vodovoz.Core.Data.Repositories.Document
 			IUnitOfWork unitOfWork,
 			OrderEntity order,
 			int organizationId);
+
+		/// <summary>
+		/// Получить номер документа по номеру заказа
+		/// </summary>
+		/// <param name="unitOfWork"></param>
+		/// <param name="orderId"></param>
+		/// <returns>Номер документа</returns>
+		Task<string> GetDocumentNumberByOrderId(IUnitOfWork unitOfWork, int orderId, CancellationToken cancellationToken);
 	}
 }
