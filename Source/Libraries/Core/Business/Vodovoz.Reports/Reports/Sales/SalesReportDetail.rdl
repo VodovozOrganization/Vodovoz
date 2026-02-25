@@ -1047,13 +1047,13 @@ FROM
 			union all
 			select orders.* from orders
 			left join payment_items pi on pi.order_id = orders.id and pi.payment_item_status = 'Accepted'
-			left join cashless_movement_operations cmo on cmo.id = pi.cashless_movement_operation_id AND cmo.operation_time &gt;= @start_date AND cmo.operation_time &lt;= @end_date
+			left join payments_from_bank_client pfbc on pfbc.id = pi.payment_id
 			where 
                 @order_date_type = 'PaymentDate' 
                 AND orders.payment_type = 'Cashless'
                 and orders.order_payment_status = 'Paid'
-                AND cmo.operation_time &gt;= @start_date 
-                AND cmo.operation_time &lt;= @end_date
+                AND pfbc.payment_date &gt;= @start_date 
+                AND pfbc.payment_date &lt;= @end_date
             # Выбор заказов по дате оплаты СБП
 			union all
 			select orders.* from orders
