@@ -343,6 +343,62 @@ namespace DriverAPI.Controllers.V6
 			}
 		}
 
+		/// <summary>
+		/// Проверка кода Честного Знака
+		/// </summary>
+		/// <param name="code">Код ЧЗ для проверки</param>
+		/// <param name="cancellationToken">CancellationToken</param>
+		/// <returns></returns>
+		[HttpGet]
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CheckCodeResultResponse))]
+		public async Task<IActionResult> CheckCode([FromQuery] string code, CancellationToken cancellationToken)
+		{
+			_logger.LogInformation("(Проверка кода ЧЗ: {Code}) пользователем {Username} | User token: {AccessToken} | X-Idempotency-Key: {XIdempotencyKey} | X-Action-Time-Utc: {XActionTimeUtc}",
+				code,
+				HttpContext.User.Identity?.Name ?? "Unknown",
+				Request.Headers[HeaderNames.Authorization],
+				HttpContext.Request.Headers["X-Idempotency-Key"],
+				HttpContext.Request.Headers["X-Action-Time-Utc"]);
+
+			var receivedTime = DateTime.Now;
+
+			var user = await _userManager.GetUserAsync(User);
+			var driver = _employeeService.GetByAPILogin(user.UserName);
+
+			try
+			{
+				var requestProcessingResult =
+					await _orderService.CheckCode(code, cancellationToken);
+
+				if(requestProcessingResult.Result.IsSuccess)
+				{
+					var maxIndex = requestProcessingResult.Result.Value.Codes?.Count ?? 0;
+					for(int i = 0; i < maxIndex; i++)
+					{
+						requestProcessingResult.Result.Value.Codes.ElementAt(i).SequenceNumber = i;
+					}
+				}
+
+				return MapRequestProcessingResult(
+					requestProcessingResult,
+					result => GetStatusCode(result));
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "При проверке кода ЧЗ произошла ошибка. " +
+					"Code: {Code}, " +
+					"ExceptionMessage: {ExceptionMessage}",
+					code,
+					ex.Message);
+
+				return Problem($"При проверке кода ЧЗ произошла ошибка. " +
+					$"Code: {code}, " +
+					$"ExceptionMessage: {ex.Message}");
+			}
+		}
+
 		private IActionResult MapRequestProcessingResult<TValue>(
 			RequestProcessingResult<TValue> processingResult,
 			Func<Result, int?> statusCodeSelectorFunc)
