@@ -62,7 +62,7 @@ namespace LogisticsEventsApi.HealthChecks
 				accessToken: tokenResponse.Data?.AccessToken,
 				cancellationToken: cancellationToken);
 
-			var todayCompletedEventsIsHealthy = todayCompletedEventsResult?.Data?.StatusCode == HttpStatusCode.OK;
+			var todayCompletedEventsIsHealthy = todayCompletedEventsResult.StatusCode == HttpStatusCode.OK;
 
 			if(!todayCompletedEventsIsHealthy)
 			{

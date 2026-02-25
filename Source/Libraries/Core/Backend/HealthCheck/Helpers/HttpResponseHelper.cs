@@ -18,7 +18,7 @@ namespace VodovozHealthCheck.Helpers
 		// Заголовок для идентификации проверки работоспособности
 		private const string _healthCheckHeader = "X-Health-Check";
 
-		private const int healthCheckTimeoutSeconds = 14;
+		private const int healthCheckTimeoutSeconds = 30; //14; Пока ищем проблемы с сетью, тестируем на 30
 
 		private static readonly JsonSerializerOptions VodovozDefaultJsonOptions = new()
 		{
