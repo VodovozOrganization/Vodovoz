@@ -23,7 +23,7 @@ namespace Vodovoz.ViewModels.Factories
 				new GroupingNode { Name = "Группа уровень 2", GroupType = GroupingType.NomenclatureGroup2 },
 				new GroupingNode { Name = "Группа уровень 3", GroupType = GroupingType.NomenclatureGroup3 },
 				new GroupingNode { Name = "Тип контрагента/подтип", GroupType = GroupingType.CounterpartyType },
-				new GroupingNode { Name = "Тип оплаты", GroupType = GroupingType.PaymentType },
+				new GroupingNode { Name = "Тип оплаты/подтип", GroupType = GroupingType.PaymentType },
 				new GroupingNode { Name = "Организация", GroupType = GroupingType.Organization },
 				new GroupingNode { Name = "Классификация контрагента", GroupType = GroupingType.CounterpartyClassification },
 				new GroupingNode { Name = "Промонаборы", GroupType = GroupingType.PromotionalSet },

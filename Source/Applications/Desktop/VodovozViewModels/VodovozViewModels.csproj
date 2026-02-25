@@ -1161,6 +1161,7 @@
     <Compile Include="Widgets\Cars\Insurance\EditCarInsuranceEventArgs.cs" />
     <Compile Include="Widgets\Cash\VatRateNomenclatureVersionViewModel.cs" />
     <Compile Include="Widgets\Cash\VatRateOrganizationVersionViewModel.cs" />
+    <Compile Include="Widgets\OrderDateFilterViewModel.cs" />
     <Compile Include="Widgets\Goods\NomenclatureMinimumBalanceByWarehouseViewModel.cs" />
     <Compile Include="Widgets\OrganizationForOrderOrganizationSettingsViewModel.cs" />
     <Compile Include="Widgets\Print\DocumentsPrinterSettingsViewModel.cs" />
