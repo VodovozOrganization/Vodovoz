@@ -333,7 +333,7 @@ WHERE
                     AND cmo.cashless_movement_operation_status != 'Cancelled'
                     AND p.refund_payment_from_order_id is null
                     AND p.organization_id = @organization_id
-                    AND IFNULL(cmo.operation_time, p.payment_date) &lt; @date_start
+                    AND p.payment_date &lt; @date_start
             ) as t
           </CommandText>
         <QueryParameters>
