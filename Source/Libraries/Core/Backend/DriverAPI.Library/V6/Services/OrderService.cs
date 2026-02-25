@@ -1,4 +1,4 @@
-using DriverApi.Contracts.V6;
+﻿using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Responses;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V6.Converters;
@@ -43,6 +43,7 @@ using RouteListItemErrors = Vodovoz.Errors.Logistics.RouteListErrors.RouteListIt
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
 using IDomainRouteListService = Vodovoz.Services.Logistics.IRouteListService;
 using Vodovoz.Tools.CallTasks;
+using Vodovoz.Core.Domain.TrueMark;
 
 namespace DriverAPI.Library.V6.Services
 {
