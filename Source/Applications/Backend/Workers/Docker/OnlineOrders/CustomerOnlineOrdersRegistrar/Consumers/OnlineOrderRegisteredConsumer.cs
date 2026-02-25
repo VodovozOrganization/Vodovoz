@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using CustomerOnlineOrdersRegistrar.Factories.V3;
 using CustomerOnlineOrdersRegistrar.Factories.V4;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
+using CustomerOrdersApi.Library.Default.Dto.Orders;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
