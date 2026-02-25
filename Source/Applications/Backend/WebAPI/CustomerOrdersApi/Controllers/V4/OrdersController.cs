@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CustomerOrdersApi.Library.Common;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
@@ -171,7 +172,7 @@ namespace CustomerOrdersApi.Controllers.V4
 		}
 		
 		[HttpPost]
-		public IActionResult ChangeOrder(ChangingOrderDto changingOrderDto)
+		public async Task<IActionResult> ChangeOrder(ChangingOrderDto changingOrderDto, CancellationToken cancellationToken)
 		{
 			var sourceName = changingOrderDto.Source.GetEnumTitle();
 
@@ -179,7 +180,7 @@ namespace CustomerOrdersApi.Controllers.V4
 			{
 				_logger.LogInformation("Поступил запрос на изменение заказа {@ChangeOrderRequest}", changingOrderDto);
 
-				var result = _customerOrdersService.UpdateOrder(changingOrderDto);
+				var result = await _customerOrdersService.UpdateOrderAsync(changingOrderDto, cancellationToken);
 
 				if(result.IsSuccess)
 				{

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Orders;
@@ -11,11 +12,12 @@ namespace VodovozBusiness.Services.Orders
 	{
 		Task TryMoveToManualProcessingWaitingForPaymentOnlineOrders(IUnitOfWork uow);
 		Result CanChangePaymentType(IUnitOfWork uow, OnlineOrder onlineOrder);
-		Result TryUpdateOrder(
+		Task<Result> TryUpdateOrderAsync(
 			IUnitOfWork uow,
 			IEnumerable<Order> orders,
 			OnlineOrder onlineOrder,
 			Vodovoz.Domain.Logistic.DeliverySchedule deliverySchedule,
-			UpdateOnlineOrderFromChangeRequest data);
+			UpdateOnlineOrderFromChangeRequest data,
+			CancellationToken cancellationToken);
 	}
 }

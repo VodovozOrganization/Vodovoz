@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using Vodovoz.Core.Domain.Results;
 
@@ -79,7 +81,8 @@ namespace CustomerOrdersApi.Library.V4.Services
 		/// Обновление заказа
 		/// </summary>
 		/// <param name="changingOrderDto">Данные по обновляемому заказу</param>
+		/// <param name="cancellationToken">Токен для отмены операции</param>
 		/// <returns></returns>
-		Result<ChangedOrderDto> UpdateOrder(ChangingOrderDto changingOrderDto);
+		Task<Result<ChangedOrderDto>> UpdateOrderAsync(ChangingOrderDto changingOrderDto, CancellationToken cancellationToken);
 	}
 }

@@ -53,7 +53,11 @@ namespace VodovozBusiness.Services.Orders
 		Task<Result<(int OrderId, int AuthorId, OrderStatus OrderStatus)>> CreateIncompleteOrderAsync(CreateOrderRequest createOrderRequest);
 		void AddLogisticsRequirements(Order order);
 		void UpdatePaymentStatus(IUnitOfWork uow, Order order);
-		Task<int> TryCreateOrderFromOnlineOrderAndAcceptAsync(IUnitOfWork uow, OnlineOrder onlineOrder, IRouteListService routeListService, CancellationToken cancellationToken);
+		Task<int> TryCreateOrderFromOnlineOrderAndAcceptAsync(
+			IUnitOfWork uow,
+			OnlineOrder onlineOrder,
+			IRouteListService routeListService,
+			CancellationToken cancellationToken);
 		void RejectOrderTrueMarkCodes(IUnitOfWork uow, int orderId);
 	}
 }

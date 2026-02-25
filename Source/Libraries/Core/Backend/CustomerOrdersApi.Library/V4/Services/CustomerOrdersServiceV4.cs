@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using CustomerOrdersApi.Library.V4.Factories;
 using Microsoft.Extensions.Configuration;
@@ -372,7 +374,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 			return (200, null, availablePayments);
 		}
 
-		public Result<ChangedOrderDto> UpdateOrder(ChangingOrderDto changingOrderDto)
+		public async Task<Result<ChangedOrderDto>> UpdateOrderAsync(ChangingOrderDto changingOrderDto, CancellationToken cancellationToken)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис онлайн заказов. Изменение заказа");
 			
@@ -381,8 +383,13 @@ namespace CustomerOrdersApi.Library.V4.Services
 			var deliverySchedule = uow.GetAll<Vodovoz.Domain.Logistic.DeliverySchedule>()
 				.FirstOrDefault(x => x.Id == changingOrderDto.DeliveryScheduleId);
 
-			var result = _unPaidOnlineOrderHandler.TryUpdateOrder(
-				uow, orders, onlineOrder, deliverySchedule, changingOrderDto.ToUpdateOnlineOrderFromChangeRequest());
+			var result = await _unPaidOnlineOrderHandler.TryUpdateOrderAsync(
+				uow,
+				orders,
+				onlineOrder,
+				deliverySchedule,
+				changingOrderDto.ToUpdateOnlineOrderFromChangeRequest(),
+				cancellationToken);
 			
 			if(result.IsFailure)
 			{

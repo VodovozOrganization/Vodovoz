@@ -11,16 +11,21 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Osrm;
 using QS.Project.Core;
 using QS.Services;
 using Vodovoz;
 using Vodovoz.Application;
+using Vodovoz.Application.Logistics;
+using Vodovoz.Application.Orders.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Trackers;
 using VodovozHealthCheck;
 using Vodovoz.Presentation.WebApi;
+using Vodovoz.Services.Logistics;
+using VodovozBusiness.Services.Orders;
 
 namespace CustomerOrdersApi
 {
@@ -58,7 +63,12 @@ namespace CustomerOrdersApi
 				.AddConfig(Configuration)
 				.AddVersion3()
 				.AddVersion4()
-				.AddVersioning();
+				.AddVersioning()
+				.AddOsrm()
+
+				.AddScoped<IRouteListService, RouteListService>()
+				.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
+				.AddScoped<IOnlineOrderService, OnlineOrderService>();
 
 			services.AddStaticScopeForEntity();
 
