@@ -70,6 +70,7 @@
                     AND o.order_status IN ('Shipped', 'Closed', 'UnloadingOnStock')
                     AND o.delivery_date &gt;= @date_start
                     AND o.delivery_date &lt; DATE_ADD(@date_end, INTERVAL 1 DAY)
+                HAVING debt &gt; 0
                 
                 UNION ALL
                 
@@ -93,6 +94,26 @@
                     AND p.payment_date &gt;= @date_start
                     AND p.payment_date &lt; DATE_ADD(@date_end, INTERVAL 1 DAY)
                 
+                UNION ALL
+
+                SELECT # Возвраты денежных средств
+                    pwo.payment_number as num,
+                    CONCAT('Возврат (', pwo.payment_number , ' от ', pwo.date , ')') as document,
+                    pwo.sum as debt,
+                    0 as deposit,
+                    pwo.sum as money,
+                    pwo.date as date,
+                    '' as payment_status,
+                    '' as order_status
+                FROM payment_write_offs pwo
+                INNER JOIN cashless_movement_operations cmo ON pwo.cashless_movement_operation_id = cmo.id
+                WHERE
+                    pwo.counterparty_id = @counterparty_id
+                    AND pwo.organization_id = @organization_id
+                    AND cmo.cashless_movement_operation_status != 'Cancelled'
+                    AND pwo.date &gt;= @date_start
+                    AND pwo.date &lt; DATE_ADD(@date_end, INTERVAL 1 DAY)
+
                 UNION ALL
                 
                 SELECT # Фиктивная запись для отображения таблицы при отсутствии данных
@@ -287,7 +308,20 @@ WHERE
                     AND o.delivery_date &lt; @date_start
                 
                 UNION ALL
-                
+
+                SELECT # Возвраты денежных средств
+                    pwo.sum as debt,
+                    0 as deposit
+                FROM payment_write_offs pwo
+                INNER JOIN cashless_movement_operations cmo ON pwo.cashless_movement_operation_id = cmo.id
+                WHERE
+                    pwo.counterparty_id = @counterparty_id
+                    AND pwo.organization_id = @organization_id
+                    AND cmo.cashless_movement_operation_status != 'Cancelled'
+                    AND pwo.date &lt; @date_start
+
+                UNION ALL
+    
                 SELECT # Депозит, кредит (до начала периода)
                     0 as debt,
                     cmo.income as deposit
