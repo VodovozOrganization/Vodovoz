@@ -8,7 +8,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 	/// <summary>
 	/// Сервис по работе с фиксой в ИПЗ
 	/// </summary>
-	public interface ICustomerOrderFixedPriceService
+	public interface ICustomerOrderFixedPriceServiceV4
 	{
 		/// <summary>
 		/// Проверка подписи запроса

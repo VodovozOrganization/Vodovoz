@@ -12,14 +12,15 @@ using Vodovoz.Presentation.WebApi.Messages;
 
 namespace CustomerOrdersApi.Controllers.V4
 {
+	[ApiVersion("4.0")]
 	public class OrdersController : SignatureControllerBase
 	{
-		private readonly ICustomerOrdersService _customerOrdersService;
+		private readonly ICustomerOrdersServiceV4 _customerOrdersService;
 		private readonly IRequestClient<CreatingOnlineOrder> _requestClient;
 
 		public OrdersController(
 			ILogger<OrdersController> logger,
-			ICustomerOrdersService customerOrdersService,
+			ICustomerOrdersServiceV4 customerOrdersService,
 			IRequestClient<CreatingOnlineOrder> requestClient
 			) : base(logger)
 		{

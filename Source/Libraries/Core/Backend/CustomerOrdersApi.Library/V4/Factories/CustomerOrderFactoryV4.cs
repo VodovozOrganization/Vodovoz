@@ -11,12 +11,12 @@ using Vodovoz.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.V4.Factories
 {
-	public class CustomerOrderFactory : ICustomerOrderFactory
+	public class CustomerOrderFactoryV4 : ICustomerOrderFactoryV4
 	{
 		private readonly IExternalOrderStatusConverter _externalOrderStatusConverter;
 		private readonly IInfoMessageFactory _infoMessageFactory;
 
-		public CustomerOrderFactory(
+		public CustomerOrderFactoryV4(
 			IExternalOrderStatusConverter externalOrderStatusConverter,
 			IInfoMessageFactory infoMassageFactory)
 		{

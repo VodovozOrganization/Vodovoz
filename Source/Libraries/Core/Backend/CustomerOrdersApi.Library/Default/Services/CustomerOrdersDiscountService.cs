@@ -18,14 +18,14 @@ namespace CustomerOrdersApi.Library.Default.Services
 {
 	public class CustomerOrdersDiscountService : SignatureService, ICustomerOrdersDiscountService
 	{
-		private readonly ILogger<V4.Services.CustomerOrdersService> _logger;
+		private readonly ILogger<CustomerOrdersDiscountService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ISignatureManager _signatureManager;
 		private readonly IOnlineOrderDiscountHandler _onlineOrderDiscountHandler;
 		private readonly SignatureOptions _signatureOptions;
 
 		public CustomerOrdersDiscountService(
-			ILogger<V4.Services.CustomerOrdersService> logger,
+			ILogger<CustomerOrdersDiscountService> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ISignatureManager signatureManager,
 			IOptions<SignatureOptions> signatureOptions,

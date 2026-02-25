@@ -7,7 +7,6 @@ namespace CustomerOrdersApi.Controllers
 	/// <summary>
 	/// Базовый контроллер с версией
 	/// </summary>
-	[ApiVersion("4.0")]
 	[Route("api/v{version:apiVersion}/[action]")]
 	[ApiController]
 	public class VersionedController : ApiControllerBase

@@ -8,7 +8,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 	/// <summary>
 	/// Интерфейс работы со скидками в онлайн заказе
 	/// </summary>
-	public interface ICustomerOrdersDiscountService
+	public interface ICustomerOrdersDiscountServiceV4
 	{
 		/// <summary>
 		/// Проверка подписи на применение промокода

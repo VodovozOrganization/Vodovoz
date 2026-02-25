@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace CustomerOrdersApi.Controllers.Default
 {
+	[ApiVersion("3.0")]
 	public class DiscountController : SignatureControllerBase
 	{
 		private readonly ICustomerOrdersDiscountService _discountService;

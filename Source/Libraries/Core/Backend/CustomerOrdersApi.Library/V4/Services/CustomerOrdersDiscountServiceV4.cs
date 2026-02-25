@@ -16,16 +16,16 @@ using VodovozInfrastructure.Cryptography;
 
 namespace CustomerOrdersApi.Library.V4.Services
 {
-	public class CustomerOrdersDiscountService : SignatureService, ICustomerOrdersDiscountService
+	public class CustomerOrdersDiscountServiceV4 : SignatureService, ICustomerOrdersDiscountServiceV4
 	{
-		private readonly ILogger<CustomerOrdersService> _logger;
+		private readonly ILogger<CustomerOrdersServiceV4> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ISignatureManager _signatureManager;
 		private readonly IOnlineOrderDiscountHandler _onlineOrderDiscountHandler;
 		private readonly SignatureOptions _signatureOptions;
 
-		public CustomerOrdersDiscountService(
-			ILogger<CustomerOrdersService> logger,
+		public CustomerOrdersDiscountServiceV4(
+			ILogger<CustomerOrdersServiceV4> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ISignatureManager signatureManager,
 			IOptions<SignatureOptions> signatureOptions,

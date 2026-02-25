@@ -3,6 +3,8 @@ using System.Net.Security;
 using System.Security.Authentication;
 using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.Converters;
+using CustomerOrdersApi.Library.Default.Factories;
+using CustomerOrdersApi.Library.Default.Services;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using CustomerOrdersApi.Library.V4.Factories;
 using CustomerOrdersApi.Library.V4.Services;
@@ -25,15 +27,32 @@ namespace CustomerOrdersApi.Library.V4
 			return services;
 		}
 		
-		public static IServiceCollection AddDependenciesGroup(this IServiceCollection services)
+		public static IServiceCollection AddVersion3(this IServiceCollection services)
 		{
 			services.AddScoped<ICustomerOrdersService, CustomerOrdersService>()
+				.AddScoped<ICustomerOrderFactory, CustomerOrderFactory>()
+				.AddDefault();
+			
+			return services;
+		}
+		
+		public static IServiceCollection AddVersion4(this IServiceCollection services)
+		{
+			services.AddScoped<ICustomerOrdersServiceV4, CustomerOrdersServiceV4>()
+				.AddScoped<ICustomerOrderFactoryV4, CustomerOrderFactoryV4>()
+				.AddScoped<IInfoMessageFactory, InfoMessageFactory>()
+				.AddDefault();
+			
+			return services;
+		}
+		
+		public static IServiceCollection AddDefault(this IServiceCollection services)
+		{
+			services
 				.AddScoped<ISignatureManager, SignatureManager>()
 				.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>()
-				.AddScoped<ICustomerOrderFactory, CustomerOrderFactory>()
-				.AddScoped<IInfoMessageFactory, InfoMessageFactory>()
 				.AddScoped<IExternalOrderStatusConverter, ExternalOrderStatusConverter>();
-			
+
 			return services;
 		}
 

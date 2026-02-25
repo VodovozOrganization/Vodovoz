@@ -11,15 +11,16 @@ using Vodovoz.Core.Domain.Clients;
 
 namespace CustomerOrdersApi.Controllers.V4
 {
+	[ApiVersion("4.0")]
 	public class OrderRatingController : SignatureControllerBase
 	{
-		private readonly ICustomerOrdersService _customerOrdersService;
+		private readonly ICustomerOrdersServiceV4 _customerOrdersService;
 		private readonly IMemoryCache _memoryCache;
 		private readonly RequestsMinutesLimitsOptions _requestsMinutesLimitsOptions;
 
 		public OrderRatingController(
 			ILogger<OrderRatingController> logger,
-			ICustomerOrdersService customerOrdersService,
+			ICustomerOrdersServiceV4 customerOrdersService,
 			IOptions<RequestsMinutesLimitsOptions> requestsLimitsOptions,
 			IMemoryCache memoryCache) : base(logger)
 		{

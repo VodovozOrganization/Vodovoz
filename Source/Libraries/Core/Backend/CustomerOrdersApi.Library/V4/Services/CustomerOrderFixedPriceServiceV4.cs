@@ -16,16 +16,16 @@ using VodovozInfrastructure.Cryptography;
 
 namespace CustomerOrdersApi.Library.V4.Services
 {
-	public class CustomerOrderFixedPriceService : SignatureService, ICustomerOrderFixedPriceService
+	public class CustomerOrderFixedPriceServiceV4 : SignatureService, ICustomerOrderFixedPriceServiceV4
 	{
-		private readonly ILogger<CustomerOrdersService> _logger;
+		private readonly ILogger<CustomerOrdersServiceV4> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ISignatureManager _signatureManager;
 		private readonly IOnlineOrderFixedPriceHandler _onlineOrderFixedPriceHandler;
 		private readonly SignatureOptions _signatureOptions;
 
-		public CustomerOrderFixedPriceService(
-			ILogger<CustomerOrdersService> logger,
+		public CustomerOrderFixedPriceServiceV4(
+			ILogger<CustomerOrdersServiceV4> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ISignatureManager signatureManager,
 			IOptions<SignatureOptions> signatureOptions,
