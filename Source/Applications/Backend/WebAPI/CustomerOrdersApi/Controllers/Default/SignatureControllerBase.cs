@@ -3,11 +3,13 @@ using Microsoft.Extensions.Logging;
 
 namespace CustomerOrdersApi.Controllers.Default
 {
-	public class SignatureControllerBase : VersionedController
+	[ApiController]
+	[Route("api/[action]")]
+	public class SignatureControllerBase : ControllerBase
 	{
 		private const string _invalidSignature = "Неккоректная контрольная сумма";
 		
-		public SignatureControllerBase(ILogger<SignatureControllerBase> logger) : base(logger)
+		public SignatureControllerBase(ILogger<SignatureControllerBase> logger)
 		{
 			Logger = logger;
 		}

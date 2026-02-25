@@ -12,7 +12,6 @@ using VodovozHealthCheck.Helpers;
 
 namespace CustomerOrdersApi.Controllers.Default
 {
-	[ApiVersion("3.0")]
 	public class OrderRatingController : SignatureControllerBase
 	{
 		private readonly ICustomerOrdersService _customerOrdersService;
