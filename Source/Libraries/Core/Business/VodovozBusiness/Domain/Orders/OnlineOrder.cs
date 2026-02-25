@@ -49,6 +49,7 @@ namespace Vodovoz.Domain.Orders
 		private bool _isFastDelivery;
 		private string _contactPhone;
 		private string _onlineOrderComment;
+		private string _unPaidReason;
 		private int? _trifle;
 		private int? _bottlesReturn;
 		private decimal _onlineOrderSum;
@@ -231,6 +232,13 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _contactPhone, value);
 		}
 		
+		[Display(Name = "Причина неоплаты(если заказ не был оплачен онлайн)")]
+		public virtual string UnPaidReason
+		{
+			get => _unPaidReason;
+			set => SetField(ref _unPaidReason, value);
+		}
+		
 		[Display(Name = "Комментарий к заказу")]
 		public virtual string OnlineOrderComment
 		{
@@ -307,6 +315,33 @@ namespace Vodovoz.Domain.Orders
 			protected set => SetField(ref _isDeliveryPointNotBelongCounterparty, value);
 		}
 
+		/// <summary>
+		/// Заказ не оплачен онлайн и время на оплату не истекло
+		/// </summary>
+		/// <param name="timeToPayInSeconds">Общее время на оплату в секундах</param>
+		/// <returns></returns>
+		public virtual bool IsNeedOnlinePayment(double timeToPayInSeconds) =>
+			OnlineOrderPaymentType == OnlineOrderPaymentType.PaidOnline
+				&& OnlineOrderStatus == OnlineOrderStatus.WaitingForPayment
+				&& OnlineOrderPaymentStatus != OnlineOrderPaymentStatus.Paid
+				&& (DateTime.Now - Created).TotalSeconds < timeToPayInSeconds;
+		
+		/// <summary>
+		/// Заказ не оплачен онлайн и время на оплату истекло, но он еще не переведен на ручную обработку
+		/// </summary>
+		/// <param name="timeToPayInSeconds">Общее время на оплату в секундах</param>
+		/// <param name="timeToTransferToManualProcessing">Общее время на перевод на ручную обработку</param>
+		/// <returns></returns>
+		public virtual bool IsNeedOnlinePaymentButTimeIsUp(double timeToPayInSeconds, double timeToTransferToManualProcessing)
+		{
+			var createdSeconds = (DateTime.Now - Created).TotalSeconds;
+			return OnlineOrderPaymentType == OnlineOrderPaymentType.PaidOnline
+				&& OnlineOrderStatus == OnlineOrderStatus.WaitingForPayment
+				&& OnlineOrderPaymentStatus != OnlineOrderPaymentStatus.Paid
+				&& createdSeconds >= timeToPayInSeconds
+				&& createdSeconds < timeToTransferToManualProcessing;
+		}
+
 		public virtual void SetOrderPerformed(IEnumerable<Order> orders, Employee employee = null)
 		{
 			if(employee != null)
@@ -321,12 +356,95 @@ namespace Vodovoz.Domain.Orders
 
 			OnlineOrderStatus = OnlineOrderStatus.OrderPerformed;
 		}
+
+		public virtual void UpdateOnlineOrder(DeliverySchedule deliverySchedule, UpdateOnlineOrderFromChangeRequest data)
+		{
+			UpdateOnlineOrderPaymentData(
+					data.OnlineOrderPaymentType, data.OnlinePaymentSource, data.PaymentStatus, data.UnPaidReason, data.OnlinePayment);
+			UpdateOnlineOrderDeliveryData(deliverySchedule, data.DeliveryScheduleId, data.DeliveryDate, data.IsFastDelivery);
+		}
 		
+		public virtual void UpdateOnlineOrderPaymentData(
+			OnlineOrderPaymentType? paymentType,
+			OnlinePaymentSource? paymentSource,
+			OnlineOrderPaymentStatus? paymentStatus,
+			string unPaidReason,
+			int? onlinePayment
+		)
+		{
+			if(paymentType is null || paymentStatus is null)
+			{
+				return;
+			}
+			
+			OnlineOrderPaymentType = paymentType.Value;
+			OnlinePaymentSource = paymentSource;
+			OnlineOrderPaymentStatus = paymentStatus.Value;
+			OnlinePayment = onlinePayment;
+
+			if(OnlineOrderPaymentType != OnlineOrderPaymentType.PaidOnline && OnlineOrderStatus == OnlineOrderStatus.WaitingForPayment)
+			{
+				OnlineOrderStatus = OnlineOrderStatus.New;
+				UnPaidReason = null;
+				return;
+			}
+			
+			if(paymentStatus == OnlineOrderPaymentStatus.Paid)
+			{
+				if(OnlineOrderStatus == OnlineOrderStatus.WaitingForPayment)
+				{
+					OnlineOrderStatus = OnlineOrderStatus.New;
+				}
+				UnPaidReason = null;
+			}
+			else
+			{
+				UnPaidReason = unPaidReason;
+			}
+		}
+		
+		public virtual void UpdateOnlineOrderDeliveryData(
+			DeliverySchedule deliverySchedule,
+			int? deliveryScheduleId,
+			DateTime? deliveryDate,
+			bool isFastDelivery
+		)
+		{
+			if(deliverySchedule is null || deliveryDate is null)
+			{
+				return;
+			}
+			
+			UpdateDeliverySchedule(deliverySchedule, deliveryScheduleId);
+			DeliveryDate = deliveryDate.Value;
+			IsFastDelivery = isFastDelivery;
+		}
+
+		public virtual bool TryMoveToManualProcessingWithoutPaymentByUnPaidReason(
+			double timeToTransferInSeconds,
+			string message)
+		{
+			if((DateTime.Now - Created).TotalSeconds >= timeToTransferInSeconds)
+			{
+				OnlineOrderStatus = OnlineOrderStatus.New;
+				UnPaidReason = string.IsNullOrWhiteSpace(_unPaidReason) ? $"\n{message}" : $"\n{message}. Причина : {_unPaidReason}";
+				return true;
+			}
+			
+			return false;
+		}
+
 		public virtual void SetDeliveryPointNotBelongCounterparty(bool value) => IsDeliveryPointNotBelongCounterparty = value;
 
 		public override string ToString()
 		{
 			return Id > 0 ? $"{OnlineOrderName} №{Id} от {_deliveryDate:d}" : $"Новый {OnlineOrderName.ToLower()}";
+		}
+		
+		private void UpdateDeliverySchedule(DeliverySchedule deliverySchedule, int? deliveryScheduleId)
+		{
+			DeliveryScheduleId = deliveryScheduleId;
+			DeliverySchedule = deliverySchedule;
 		}
 	}
 }

@@ -59,6 +59,35 @@ namespace Vodovoz.Errors.Orders
 				nameof(NotNeedPaidDelivery),
 				"В онлайн заказе не должно быть платной доставки");
 		
+		public static Error OrderMustBeNull =>
+			new Error("400", "У онлайн заказа не должно быть реального заказа");
+		
+		public static Error IsEmptyOnlineOrder =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(IsEmptyOnlineOrder),
+				"Не найден онлайн заказ");
+		public static Error OnlineOrderNotFound =>
+			new Error("400", "Онлайн заказ не найден");
+		public static Error OnlineOrderIsPaidButOnlinePaymentIsEmpty =>
+			new Error("400", "Онлайн заказ оплачен, но не заполнен номер оплаты");
+		public static Error OnlineOrderCanceled =>
+			new Error("400", "Онлайн заказ отменен");
+		public static Error IsOnlineOrderNotWaitForPayment =>
+			new Error("400", "Онлайн заказ не находится в ожидании оплаты");
+		public static Error IsOrderAlreadyProcessingAndCannotChanged =>
+			new Error("400", "Заказ уже в обработке и не может быть изменен");
+		public static Error IsOnlineOrderPaid =>
+			new Error("400", "Онлайн заказ уже оплачен");
+		public static Error CantChangePaymentType =>
+			new Error("400", "Нельзя менять тип оплаты");
+		public static Error IsUnknownDeliverySchedule =>
+			new Error("400", "Неизвестный график доставки");
+		public static Error HasTimeToPayOrderExpired =>
+			new Error("408", "Время на оплату заказа истекло. В ближайшее время с Вами свяжется менеджер для оформления заказа");
+		public static Error IsOnlineOrderTimersEmpty =>
+			new Error("500", "Не найдены таймеры для онлайн заказов");
+		
 		public static Error IncorrectPricePaidDelivery(decimal price, decimal onlineOrderItemPrice) =>
 			new Error(
 				typeof(OnlineOrderErrors),

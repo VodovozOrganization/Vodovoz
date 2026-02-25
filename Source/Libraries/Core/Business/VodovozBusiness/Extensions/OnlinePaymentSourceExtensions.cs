@@ -17,7 +17,7 @@ namespace Vodovoz.Extensions
 		/// <returns>Id источника оплаты ДВ или ошибка</returns>
 		/// <exception cref="InvalidOperationException">Ошибка, если пришел неивестный источник оплаты</exception>
 		public static int ConvertToPaymentFromId(
-			this OnlinePaymentSource onlinePaymentSource,
+			this OnlinePaymentSource? onlinePaymentSource,
 			IOrderSettings orderSettings)
 		{
 			switch(onlinePaymentSource)
@@ -34,6 +34,8 @@ namespace Vodovoz.Extensions
 					return orderSettings.GetPaymentByCardFromSiteByQrCodeId;
 				case OnlinePaymentSource.FromVodovozWebSiteByYandexSplit:
 					return orderSettings.PaymentByCardFromYandexSplitFromSiteId;
+				case OnlinePaymentSource.FromAiBotByQr:
+					return orderSettings.GetPaymentByCardFromAiBotByQrCodeId;
 				default:
 					throw new InvalidOperationException("Неизвестный источник онлайн оплаты");
 			}

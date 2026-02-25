@@ -106,6 +106,8 @@ namespace Vodovoz.Application
 			.AddScoped<IOrderContractUpdater, OrderContractUpdater>()
 			.AddScoped<IOrderConfirmationService, OrderConfirmationService>()
 			.AddScoped<IPartitioningOrderService, PartitioningOrderService>()
+			.AddScoped<IUnPaidOnlineOrderHandler, UnPaidOnlineOrderHandler>()
+			.AddScoped<IOrderOnlinePaymentAcceptanceHandler, OrderOnlinePaymentAcceptanceHandler>()
 		;
 
 		private static IServiceCollection ConfigureFileOptions(this IServiceCollection services)

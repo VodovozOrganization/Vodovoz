@@ -1,10 +1,10 @@
-﻿using CustomerOrdersApi.Library.Dto.Orders;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using CustomerOrdersApi.Library.V4.Dto.Orders;
 using Vodovoz.Core.Domain.Clients;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Extensions;
