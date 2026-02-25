@@ -863,14 +863,8 @@ namespace Vodovoz
 
 		private void ConfigureTabContacts()
 		{
-			var phoneTypeSettings = ScopeProvider.Scope.Resolve<IPhoneTypeSettings>();
-			_phonesViewModel =
-				new PhonesViewModel(phoneTypeSettings, _phoneRepository, UoW, _contactsSettings, _roboatsJournalsFactory, _commonServices)
-				{
-					PhonesList = Entity.ObservablePhones,
-					Counterparty = Entity,
-					ReadOnly = !CanEdit
-				};
+			_phonesViewModel = _lifetimeScope.Resolve<PhonesViewModel>(new TypedParameter(typeof(IUnitOfWork), UoW));
+			_phonesViewModel.Initialize(this, !CanEdit,  Entity.Phones, Entity, true);
 			phonesView.ViewModel = _phonesViewModel;
 
 			var emailsViewModel = new EmailsViewModel(
@@ -929,9 +923,19 @@ namespace Vodovoz
 				.InitializeFromSource();
 			txtRingUpPhones.Editable = CanEdit;
 
-			contactsview1.CounterpartyUoW = UoWGeneric;
-			contactsview1.Visible = true;
-			contactsview1.Sensitive = CanEdit;
+			treeViewExternalCounterparties.ColumnsConfig = FluentColumnsConfig<PersonalCounterpartyExternalUserInfo>.Create()
+				.AddColumn("Код")
+					.AddNumericRenderer(x => x.Id)
+				.AddColumn("Телефон")
+					.AddTextRenderer(x => x.Phone)
+				.AddColumn("Идентификатор пользователя")
+					.AddTextRenderer(x => x.ExternalId)
+				.AddColumn("ИПЗ")
+					.AddEnumRenderer(x => x.CounterpartyFrom)
+					.Editing(false)
+				.Finish();
+
+			treeViewExternalCounterparties.SetItemsSource(_externalCounterpartyRepository.GetPersonalCounterpartyExternalUsersInfo(UoW, Entity.Id));
 		}
 
 		private bool SetSensitivityByPermission(string permission, Widget widget)
