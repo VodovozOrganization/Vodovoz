@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using CustomerOnlineOrdersRegistrar.Factories;
+using CustomerOnlineOrdersRegistrar.Factories.V4;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -20,7 +20,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 		public OnlineOrderRegisterFaultConsumer(
 			ILogger<OnlineOrderRegisterFaultConsumer> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IOnlineOrderFactory onlineOrderFactory,
+			IOnlineOrderFactoryV4 onlineOrderFactory,
 			IOrderService orderService,
 			IDeliveryRulesSettings deliveryRulesSettings,
 			IDiscountReasonSettings discountReasonSettings,

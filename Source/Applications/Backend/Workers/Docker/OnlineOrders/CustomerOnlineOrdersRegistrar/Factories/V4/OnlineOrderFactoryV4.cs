@@ -12,13 +12,13 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using VodovozBusiness.Controllers;
 
-namespace CustomerOnlineOrdersRegistrar.Factories
+namespace CustomerOnlineOrdersRegistrar.Factories.V4
 {
-	public class OnlineOrderFactory : IOnlineOrderFactory
+	public class OnlineOrderFactoryV4 : IOnlineOrderFactoryV4
 	{
 		private readonly IDiscountController _discountController;
 
-		public OnlineOrderFactory(IDiscountController discountController)
+		public OnlineOrderFactoryV4(IDiscountController discountController)
 		{
 			_discountController = discountController ?? throw new ArgumentNullException(nameof(discountController));
 		}

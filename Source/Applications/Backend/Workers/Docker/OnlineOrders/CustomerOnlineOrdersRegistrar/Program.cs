@@ -1,7 +1,9 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using CustomerOnlineOrdersRegistrar.Consumers;
 using CustomerOnlineOrdersRegistrar.Factories;
-using CustomerOrdersApi.Library.V4;
+using CustomerOnlineOrdersRegistrar.Factories.V3;
+using CustomerOnlineOrdersRegistrar.Factories.V4;
+using CustomerOrdersApi.Library;
 using DriverApi.Notifications.Client;
 using MassTransit;
 using MessageTransport;
@@ -21,7 +23,6 @@ using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Services.Logistics;
-using Vodovoz.Services.Orders;
 using Vodovoz.Trackers;
 using VodovozBusiness.Services.Orders;
 
@@ -60,14 +61,16 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddBusiness(hostContext.Configuration)
 						.AddDriverApiNotificationsSenders()
 						.AddInfrastructure()
-						.AddDependenciesGroup()
+						.AddVersion3()
+						.AddVersion4()
 						.AddApplicationOrderServices()
 						.AddOsrm()
 
 						.AddScoped<IRouteListService, RouteListService>()
 						.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
 						.AddScoped<IOnlineOrderService, OnlineOrderService>()
-						.AddScoped<IOnlineOrderFactory, OnlineOrderFactory>()
+						.AddScoped<IOnlineOrderFactoryV3, OnlineOrderFactoryV3>()
+						.AddScoped<IOnlineOrderFactoryV4, OnlineOrderFactoryV4>()
 
 						.AddMessageTransportSettings()
 						.AddMassTransit(busConf =>

@@ -1,6 +1,6 @@
 using CustomerOrdersApi.HealthCheck;
 using System;
-using CustomerOrdersApi.Library.V4;
+using CustomerOrdersApi.Library;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using DriverApi.Notifications.Client;
 using MassTransit;
