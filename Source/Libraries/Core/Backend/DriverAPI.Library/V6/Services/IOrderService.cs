@@ -157,7 +157,6 @@ namespace DriverAPI.Library.V6.Services
 		/// <summary>
 		/// Проверить код через API Честного Знака
 		/// </summary>
-		/// <param name="driver">Водитель</param>
 		/// <param name="code">Транспортный код для проверки</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Задача с результатом проверки транспортного кода</returns>

@@ -30,10 +30,12 @@ using Vodovoz.Errors;
 using Vodovoz.Extensions;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
+using Vodovoz.Tools.CallTasks;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.TrueMark;
 using Error = Vodovoz.Core.Domain.Results.Error;
+using IDomainRouteListService = Vodovoz.Services.Logistics.IRouteListService;
 using Order = Vodovoz.Domain.Orders.Order;
 using OrderErrors = Vodovoz.Errors.Orders.OrderErrors;
 using OrderItem = Vodovoz.Domain.Orders.OrderItem;
@@ -41,9 +43,6 @@ using OrderItemErrors = Vodovoz.Errors.Orders.OrderItemErrors;
 using RouteListErrors = Vodovoz.Errors.Logistics.RouteListErrors;
 using RouteListItemErrors = Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
-using IDomainRouteListService = Vodovoz.Services.Logistics.IRouteListService;
-using Vodovoz.Tools.CallTasks;
-using Vodovoz.Core.Domain.TrueMark;
 
 namespace DriverAPI.Library.V6.Services
 {
@@ -1176,91 +1175,6 @@ namespace DriverAPI.Library.V6.Services
 			return Result.Success();
 		}
 
-		private static Func<TrueMarkWaterIdentificationCode, TrueMarkCodeDto> PopulateWaterCode(IEnumerable<TrueMarkAnyCode> allCodes)
-		{
-			return waterCode =>
-			{
-				string parentRawCode = null;
-
-				if(waterCode.ParentTransportCodeId != null)
-				{
-					parentRawCode = allCodes
-						.FirstOrDefault(x => x.IsTrueMarkTransportCode
-							&& x.TrueMarkTransportCode.Id == waterCode.ParentTransportCodeId)
-						?.TrueMarkTransportCode.RawCode;
-				}
-
-				if(waterCode.ParentWaterGroupCodeId != null)
-				{
-					parentRawCode = allCodes
-						.FirstOrDefault(x => x.IsTrueMarkWaterGroupCode
-							&& x.TrueMarkWaterGroupCode.Id == waterCode.ParentWaterGroupCodeId)
-						?.TrueMarkWaterGroupCode.RawCode;
-				}
-
-				return new TrueMarkCodeDto
-				{
-					Code = waterCode.RawCode,
-					Level = DriverApiTruemarkCodeLevel.unit,
-					Parent = parentRawCode,
-				};
-			};
-		}
-
-		private static Func<TrueMarkWaterGroupCode, TrueMarkCodeDto> PopulateGroupCode(IEnumerable<TrueMarkAnyCode> allCodes)
-		{
-			return groupCode =>
-			{
-				string parentRawCode = null;
-
-				if(groupCode.ParentTransportCodeId != null)
-				{
-					parentRawCode = allCodes
-						.FirstOrDefault(x => x.IsTrueMarkTransportCode
-							&& x.TrueMarkTransportCode.Id == groupCode.ParentTransportCodeId)
-						?.TrueMarkTransportCode.RawCode;
-				}
-
-				if(groupCode.ParentWaterGroupCodeId != null)
-				{
-					parentRawCode = allCodes
-						.FirstOrDefault(x => x.IsTrueMarkWaterGroupCode
-							&& x.TrueMarkWaterGroupCode.Id == groupCode.ParentWaterGroupCodeId)
-						?.TrueMarkWaterGroupCode.RawCode;
-				}
-
-				return new TrueMarkCodeDto
-				{
-					Code = groupCode.RawCode,
-					Level = DriverApiTruemarkCodeLevel.group,
-					Parent = parentRawCode
-				};
-			};
-		}
-
-		private static Func<TrueMarkTransportCode, TrueMarkCodeDto> PopulateTransportCode(IEnumerable<TrueMarkAnyCode> allCodes)
-		{
-			return transportCode =>
-			{
-				string parentRawCode = null;
-
-				if(transportCode.ParentTransportCodeId != null)
-				{
-					parentRawCode = allCodes
-						.FirstOrDefault(x => x.IsTrueMarkTransportCode
-							&& x.TrueMarkTransportCode.Id == transportCode.ParentTransportCodeId)
-						?.TrueMarkTransportCode.RawCode;
-				}
-
-				return new TrueMarkCodeDto
-				{
-					Code = transportCode.RawCode,
-					Level = DriverApiTruemarkCodeLevel.transport,
-					Parent = parentRawCode
-				};
-			};
-		}
-
 		/// <inheritdoc/>
 		public async Task<RequestProcessingResult<CheckCodeResultResponse>> CheckCode(
 			string code,
@@ -1270,6 +1184,8 @@ namespace DriverAPI.Library.V6.Services
 			{
 				var error = TrueMarkCodeErrors.TrueMarkCodeStringIsNotValid;
 				var result = Result.Failure<CheckCodeResultResponse>(error);
+				_logger.LogError("Проверка кода ЧЗ не удалась. Сообщение: {ErrorMessage}", error.Message);
+
 				return RequestProcessingResult.CreateFailure(result, new CheckCodeResultResponse
 				{
 					Result = RequestProcessingResultTypeDto.Error,
@@ -1278,15 +1194,20 @@ namespace DriverAPI.Library.V6.Services
 				});
 			}
 
-			var trueMarkCodeResult = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(
+			var createCodeResult = await _trueMarkWaterCodeService.CreateStagingTrueMarkCode(
 				_uow,
 				code,
+				StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
+				0,
+				0,
 				cancellationToken);
 
-			if(trueMarkCodeResult.IsFailure)
+			if(createCodeResult.IsFailure)
 			{
-				var error = trueMarkCodeResult.Errors.FirstOrDefault();
+				var error = createCodeResult.Errors.FirstOrDefault();
 				var result = Result.Failure<CheckCodeResultResponse>(error);
+				_logger.LogError("Ошибка при получении кодов ЧЗ. Сообщение: {ErrorMessage}", error.Message);
+
 				return RequestProcessingResult.CreateFailure(result, new CheckCodeResultResponse
 				{
 					Result = RequestProcessingResultTypeDto.Error,
@@ -1295,31 +1216,17 @@ namespace DriverAPI.Library.V6.Services
 				});
 			}
 
-			IEnumerable<TrueMarkAnyCode> trueMarkAnyCodes = trueMarkCodeResult.Value.Match(
-				transportCode => transportCode.GetAllCodes(),
-				groupCode => groupCode.GetAllCodes(),
-				waterCode => new TrueMarkAnyCode[] { waterCode });
+			var stagingCode = createCodeResult.Value;
 
-			var trueMarkCodes = trueMarkAnyCodes
-				.Select(code => code.Match(
-					PopulateTransportCode(trueMarkAnyCodes),
-					PopulateGroupCode(trueMarkAnyCodes),
-					PopulateWaterCode(trueMarkAnyCodes)))
-				.ToList();
-			
-			var instanceCodes = trueMarkAnyCodes
-				.Where(x => x.IsTrueMarkWaterIdentificationCode)
-				.Select(x => x.TrueMarkWaterIdentificationCode);
+			var isCodeUsedResult =
+				await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsedInProductCodes(_uow, stagingCode, cancellationToken);
 
-			var codeCheckingProcessResult = await _trueMarkWaterCodeService.IsAllTrueMarkCodesValid(
-				instanceCodes,
-				cancellationToken
-			);
-
-			if(codeCheckingProcessResult.IsFailure)
+			if(isCodeUsedResult.IsFailure)
 			{
-				var error = codeCheckingProcessResult.Errors.FirstOrDefault();
+				var error = isCodeUsedResult.Errors.FirstOrDefault();
 				var result = Result.Failure<CheckCodeResultResponse>(error);
+				_logger.LogError("Ошибка при проверке использования кода ЧЗ. Сообщение: {ErrorMessage}", error.Message);
+
 				return RequestProcessingResult.CreateFailure(result, new CheckCodeResultResponse
 				{
 					Result = RequestProcessingResultTypeDto.Error,
@@ -1327,12 +1234,14 @@ namespace DriverAPI.Library.V6.Services
 					Codes = null
 				});
 			}
+
+			var codesDto = _orderConverter.PopulateStagingTrueMarkCode(stagingCode);
 
 			var successResponse = new CheckCodeResultResponse
 			{
 				Result = RequestProcessingResultTypeDto.Success,
 				Error = null,
-				Codes = trueMarkCodes
+				Codes = codesDto.ToList()
 			};
 
 			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));

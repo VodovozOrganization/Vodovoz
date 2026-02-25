@@ -524,5 +524,45 @@ namespace DriverAPI.Library.V6.Converters
 				};
 			};
 		}
+
+		/// <summary>
+		/// Преобразует код ЧЗ для промежуточного хранения в DTO, при этом для групповых и транспортных кодов будет заполнено поле Parent,
+		/// содержащее RawCode родительского кода.
+		/// Метод работает рекурсивно, поэтому будет обработана вся иерархия кодов ЧЗ, если она есть
+		/// </summary>
+		/// <param name="stagingCode">Код ЧЗ промежуточного хранения</param>
+		/// <param name="parentCode">Строка родительского кода</param>
+		/// <param name="sequenceNumber">Порядковый номер</param>
+		/// <returns></returns>
+		/// <exception cref="InvalidOperationException"></exception>
+		public IEnumerable<TrueMarkCodeDto> PopulateStagingTrueMarkCode(StagingTrueMarkCode stagingCode, string parentCode = "", int sequenceNumber = 0)
+		{
+			var result = new List<TrueMarkCodeDto>();
+			var level = stagingCode.CodeType switch
+			{
+				StagingTrueMarkCodeType.Transport => DriverApiTruemarkCodeLevel.transport,
+				StagingTrueMarkCodeType.Group => DriverApiTruemarkCodeLevel.group,
+				StagingTrueMarkCodeType.Identification => DriverApiTruemarkCodeLevel.unit,
+				_ => throw new InvalidOperationException("Unknown StagingTrueMarkCodeLevel"),
+			};
+			var codeDto = new TrueMarkCodeDto
+			{
+				Code = stagingCode.RawCode,
+				Level = level,
+				Parent = parentCode,
+				SequenceNumber = sequenceNumber++
+			};
+
+			result.Add(codeDto);
+
+			foreach(var innerCode in stagingCode.InnerCodes)
+			{
+				var childDtos = PopulateStagingTrueMarkCode(innerCode, stagingCode.RawCode, sequenceNumber);
+				result.AddRange(childDtos);
+				sequenceNumber = sequenceNumber + childDtos.Count();
+			}
+
+			return result;
+		}
 	}
 }

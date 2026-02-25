@@ -352,26 +352,30 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 
 			var query =
 				from identificationCode in uow.Session.Query<TrueMarkWaterIdentificationCode>()
-				join tmpc in uow.Session.Query<TrueMarkProductCode>() on identificationCode.Id equals tmpc.ResultCode.Id into productCodes
-				from productCode in productCodes.DefaultIfEmpty()
+				join productCode in uow.Session.Query<TrueMarkProductCode>() on identificationCode.Id equals productCode.ResultCode.Id
 				where
-				productCode.Id != null
+				productCode != null
 				&& serialNumbers.Contains(identificationCode.SerialNumber)
-				select productCode;
+				select new { identificationCode.Gtin, identificationCode.SerialNumber, ProductCode = productCode };
 
-			var existingCodesHavingReuqiredSerialNumbers = await query.ToListAsync(cancellationToken);
+			var usedCodesData =
+				(await query.ToListAsync(cancellationToken))
+				.ToLookup(
+					x => new { x.Gtin, x.SerialNumber },
+					x => x.ProductCode);
 
 			foreach(var identificationCode in allIdentificationCodes)
 			{
-				var existingTrueMarkProductCode = existingCodesHavingReuqiredSerialNumbers
-					.FirstOrDefault(x => x.SourceCode.Gtin == gtin && x.SourceCode.SerialNumber == identificationCode.SerialNumber);
+				var searchKey = new { identificationCode.Gtin, identificationCode.SerialNumber };
 
-				if(existingTrueMarkProductCode is null)
+				var usedCodesByKey = usedCodesData[searchKey];
+
+				if(!usedCodesByKey.Any())
 				{
 					continue;
 				}
 
-				usedCodes.Add(existingTrueMarkProductCode);
+				usedCodes.AddRange(usedCodesByKey.ToList());
 			}
 
 			return usedCodes;
