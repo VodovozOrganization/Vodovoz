@@ -104,7 +104,7 @@ namespace ExportTo1c.Library.Exporters
 						new XAttribute("Количество", item.CurrentCount.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("ЕдиницаИзмерения", item.Nomenclature.Unit.Name),
 						new XAttribute("Цена", item.Price.ToString("F2", CultureInfo.InvariantCulture)),
-						new XAttribute("Сумма", item.Sum.ToString("F2", CultureInfo.InvariantCulture)),
+						new XAttribute("Сумма", item.ActualSum.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("СуммаНДС", item.CurrentNDS.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("СтавкаНДС", vatRateVersion.VatRate.GetValue1cComplexAutomation()),
 						new XAttribute("Безнал", item.Order.PaymentType != PaymentType.Cash),
