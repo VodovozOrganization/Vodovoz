@@ -1,13 +1,13 @@
-﻿using System;
+﻿using NHibernate.Linq;
+using QS.DomainModel.UoW;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using NHibernate.Criterion;
-using NHibernate.Linq;
-using QS.DomainModel.UoW;
 using Vodovoz.Core.Data.Repositories.Document;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.Documents;
 using Vodovoz.Core.Domain.Organizations;
 
 namespace Vodovoz.Core.Data.NHibernate.Repositories.Document
@@ -45,6 +45,17 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Document
 		{
 			return unitOfWork.Session.Query<DocumentOrganizationCounter>()
 				.FirstOrDefault(d => d.Order.Id == order.Id && d.Organization.Id == organizationId);
+		}
+
+		public async Task<string> GetDocumentNumberByOrderId(IUnitOfWork unitOfWork, int orderId, CancellationToken cancellationToken)
+		{
+			return await unitOfWork.Session.Query<OrderDocumentEntity>()
+				.Where(orderDocument => orderDocument.Order.Id == orderId
+					&& (orderDocument is UPDDocumentEntity || orderDocument is SpecialUPDDocumentEntity)
+					&& orderDocument.DocumentOrganizationCounter != null)
+				.OrderByDescending(orderDocument => orderDocument.Id)
+				.Select(orderDocument => orderDocument.DocumentOrganizationCounter.DocumentNumber)
+				.FirstOrDefaultAsync(cancellationToken);
 		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿using DriverApi.Contracts.V6;
+using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Responses;
 using DriverAPI.Library.Helpers;
 using DriverAPI.Library.V6.Converters;
@@ -1173,6 +1173,168 @@ namespace DriverAPI.Library.V6.Services
 			}
 
 			return Result.Success();
+		}
+
+		private static Func<TrueMarkWaterIdentificationCode, TrueMarkCodeDto> PopulateWaterCode(IEnumerable<TrueMarkAnyCode> allCodes)
+		{
+			return waterCode =>
+			{
+				string parentRawCode = null;
+
+				if(waterCode.ParentTransportCodeId != null)
+				{
+					parentRawCode = allCodes
+						.FirstOrDefault(x => x.IsTrueMarkTransportCode
+							&& x.TrueMarkTransportCode.Id == waterCode.ParentTransportCodeId)
+						?.TrueMarkTransportCode.RawCode;
+				}
+
+				if(waterCode.ParentWaterGroupCodeId != null)
+				{
+					parentRawCode = allCodes
+						.FirstOrDefault(x => x.IsTrueMarkWaterGroupCode
+							&& x.TrueMarkWaterGroupCode.Id == waterCode.ParentWaterGroupCodeId)
+						?.TrueMarkWaterGroupCode.RawCode;
+				}
+
+				return new TrueMarkCodeDto
+				{
+					Code = waterCode.RawCode,
+					Level = DriverApiTruemarkCodeLevel.unit,
+					Parent = parentRawCode,
+				};
+			};
+		}
+
+		private static Func<TrueMarkWaterGroupCode, TrueMarkCodeDto> PopulateGroupCode(IEnumerable<TrueMarkAnyCode> allCodes)
+		{
+			return groupCode =>
+			{
+				string parentRawCode = null;
+
+				if(groupCode.ParentTransportCodeId != null)
+				{
+					parentRawCode = allCodes
+						.FirstOrDefault(x => x.IsTrueMarkTransportCode
+							&& x.TrueMarkTransportCode.Id == groupCode.ParentTransportCodeId)
+						?.TrueMarkTransportCode.RawCode;
+				}
+
+				if(groupCode.ParentWaterGroupCodeId != null)
+				{
+					parentRawCode = allCodes
+						.FirstOrDefault(x => x.IsTrueMarkWaterGroupCode
+							&& x.TrueMarkWaterGroupCode.Id == groupCode.ParentWaterGroupCodeId)
+						?.TrueMarkWaterGroupCode.RawCode;
+				}
+
+				return new TrueMarkCodeDto
+				{
+					Code = groupCode.RawCode,
+					Level = DriverApiTruemarkCodeLevel.group,
+					Parent = parentRawCode
+				};
+			};
+		}
+
+		private static Func<TrueMarkTransportCode, TrueMarkCodeDto> PopulateTransportCode(IEnumerable<TrueMarkAnyCode> allCodes)
+		{
+			return transportCode =>
+			{
+				string parentRawCode = null;
+
+				if(transportCode.ParentTransportCodeId != null)
+				{
+					parentRawCode = allCodes
+						.FirstOrDefault(x => x.IsTrueMarkTransportCode
+							&& x.TrueMarkTransportCode.Id == transportCode.ParentTransportCodeId)
+						?.TrueMarkTransportCode.RawCode;
+				}
+
+				return new TrueMarkCodeDto
+				{
+					Code = transportCode.RawCode,
+					Level = DriverApiTruemarkCodeLevel.transport,
+					Parent = parentRawCode
+				};
+			};
+		}
+
+		/// <inheritdoc/>
+		public async Task<RequestProcessingResult<CheckCodeResultResponse>> CheckCode(
+			string code,
+			CancellationToken cancellationToken)
+		{
+			if(string.IsNullOrWhiteSpace(code))
+			{
+				var error = TrueMarkCodeErrors.TrueMarkCodeStringIsNotValid;
+				var result = Result.Failure<CheckCodeResultResponse>(error);
+				return RequestProcessingResult.CreateFailure(result, new CheckCodeResultResponse
+				{
+					Result = RequestProcessingResultTypeDto.Error,
+					Error = error.Message,
+					Codes = null
+				});
+			}
+
+			var trueMarkCodeResult = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(
+				_uow,
+				code,
+				cancellationToken);
+
+			if(trueMarkCodeResult.IsFailure)
+			{
+				var error = trueMarkCodeResult.Errors.FirstOrDefault();
+				var result = Result.Failure<CheckCodeResultResponse>(error);
+				return RequestProcessingResult.CreateFailure(result, new CheckCodeResultResponse
+				{
+					Result = RequestProcessingResultTypeDto.Error,
+					Error = error.Message,
+					Codes = null
+				});
+			}
+
+			IEnumerable<TrueMarkAnyCode> trueMarkAnyCodes = trueMarkCodeResult.Value.Match(
+				transportCode => transportCode.GetAllCodes(),
+				groupCode => groupCode.GetAllCodes(),
+				waterCode => new TrueMarkAnyCode[] { waterCode });
+
+			var trueMarkCodes = trueMarkAnyCodes
+				.Select(code => code.Match(
+					PopulateTransportCode(trueMarkAnyCodes),
+					PopulateGroupCode(trueMarkAnyCodes),
+					PopulateWaterCode(trueMarkAnyCodes)))
+				.ToList();
+			
+			var instanceCodes = trueMarkAnyCodes
+				.Where(x => x.IsTrueMarkWaterIdentificationCode)
+				.Select(x => x.TrueMarkWaterIdentificationCode);
+
+			var codeCheckingProcessResult = await _trueMarkWaterCodeService.IsAllTrueMarkCodesValid(
+				instanceCodes,
+				cancellationToken
+			);
+
+			if(codeCheckingProcessResult.IsFailure)
+			{
+				var error = codeCheckingProcessResult.Errors.FirstOrDefault();
+				var result = Result.Failure<CheckCodeResultResponse>(error);
+				return RequestProcessingResult.CreateFailure(result, new CheckCodeResultResponse
+				{
+					Result = RequestProcessingResultTypeDto.Error,
+					Error = error.Message,
+					Codes = null
+				});
+			}
+
+			var successResponse = new CheckCodeResultResponse
+			{
+				Result = RequestProcessingResultTypeDto.Success,
+				Error = null,
+				Codes = trueMarkCodes
+			};
+
+			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
 		}
 
 		public async Task<Result> SendTrueMarkCodes(

@@ -541,7 +541,7 @@ namespace Vodovoz.ViewModels.Widgets
 					var orderJournal = _orderSelectorFactory.CreateOrderJournalViewModel(CreateDefaultFilter());
 					orderJournal.SelectionMode = JournalSelectionMode.Single;
 
-					Tab.TabParent.AddTab(orderJournal, Tab, false);
+					Tab.TabParent.AddSlaveTab(Tab, orderJournal);
 
 					orderJournal.OnEntitySelectedResult += (s, ea) =>
 					{
@@ -571,7 +571,7 @@ namespace Vodovoz.ViewModels.Widgets
 				var orderJournal = _orderSelectorFactory.CreateOrderJournalViewModel(filter);
 				orderJournal.SelectionMode = JournalSelectionMode.Single;
 
-				Tab.TabParent.AddTab(orderJournal, Tab, false);
+				Tab.TabParent.AddSlaveTab(Tab, orderJournal);
 
 				orderJournal.OnEntitySelectedResult += (s, ea) =>
 				{
