@@ -1,16 +1,17 @@
-﻿using EmailPrepareWorker.Prepares;
+using System;
+using System.Collections.Generic;
+using EmailPrepareWorker.Prepares;
 using Mailjet.Api.Abstractions;
 using QS.DomainModel.UoW;
 using RabbitMQ.MailSending;
-using System;
-using System.Collections.Generic;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Organizations;
 using VodovozBusiness.Controllers;
+using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
 
 namespace EmailPrepareWorker.SendEmailMessageBuilders
@@ -23,6 +24,7 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 		private readonly IEmailDocumentPreparer _emailDocumentPreparer;
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly CounterpartyEmail _counterpartyEmail;
+		private readonly IOrganizationSettings _organizationSettings;
 		private EmailTemplate _template;
 		private readonly int _instanceId;
 
@@ -35,6 +37,7 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 			IEmailDocumentPreparer emailDocumentPreparer,
 			ICounterpartyEdoAccountController edoAccountController,
 			CounterpartyEmail counterpartyEmail,
+			IOrganizationSettings organizationSettings,
 			int instanceId)
 		{
 			_unitOfWork = unitOfWork
@@ -48,6 +51,7 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 			_edoAccountController = edoAccountController ?? throw new ArgumentNullException(nameof(edoAccountController));
 			_counterpartyEmail = counterpartyEmail
 				?? throw new ArgumentNullException(nameof(counterpartyEmail));
+			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_instanceId = instanceId;
 		}
 
@@ -112,7 +116,7 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 			}
 			else
 			{
-				_template = document.GetEmailTemplate(_edoAccountController);
+				_template = document.GetEmailTemplate(_edoAccountController, _organizationSettings);
 			}
 
 			_sendEmailMessage.Subject = $"{_template.Title} {document.Title}";
