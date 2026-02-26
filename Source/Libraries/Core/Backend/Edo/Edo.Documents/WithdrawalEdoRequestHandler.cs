@@ -41,7 +41,7 @@ namespace Edo.Documents
 		/// <param name="documentId">Идентификатор документа ЭДО</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Идентификатор созданной заявки или null, если заявка не была создана</returns>
-		public async Task<int?> HandleOrderDocflowCompleted(int documentId, CancellationToken cancellationToken)
+		public async Task HandleOrderDocflowCompleted(int documentId, CancellationToken cancellationToken)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
@@ -49,39 +49,42 @@ namespace Edo.Documents
 				if(document == null)
 				{
 					_logger.LogWarning("Документ ЭДО с Id {DocumentId} не найден", documentId);
-					return null;
+					return;
 				}
 
 				var documentTask = await uow.Session.GetAsync<DocumentEdoTask>(document.DocumentTaskId, cancellationToken);
 				if(documentTask == null)
 				{
 					_logger.LogWarning("Задача ЭДО для документа {DocumentId} не найдена", documentId);
-					return null;
+					return;
 				}
 
 				var formalEdoRequest = documentTask.FormalEdoRequest;
 				if(formalEdoRequest == null)
 				{
-					_logger.LogWarning("Формальная заявка ЭДО для задачи {TaskId} не найдена", documentTask.Id);
-					return null;
+					_logger.LogWarning("Запрос на ЭДО для задачи {TaskId} не найден", documentTask.Id);
+					return;
 				}
 
 				var order = formalEdoRequest.Order;
 				if(order == null)
 				{
 					_logger.LogWarning("Заказ для заявки {RequestId} не найден", formalEdoRequest.Id);
-					return null;
+					return;
 				}
 
 				var client = order.Client;
 				if(client == null)
 				{
 					_logger.LogWarning("Клиент для заказа {OrderId} не найден", order.Id);
-					return null;
+					return;
 				}
 
 				var edoAccount = _edoAccountRepository
-					.Get(uow, x => x.Counterparty.Id == client.Id && x.OrganizationId == order.Contract.Organization.Id)
+					.Get(uow, x =>
+						x.Counterparty.Id == client.Id
+						&& x.OrganizationId == order.Contract.Organization.Id
+						&& x.IsDefault)
 					.FirstOrDefault();
 
 				if(edoAccount == null)
@@ -89,7 +92,7 @@ namespace Edo.Documents
 					_logger.LogWarning(
 						"Не найден аккаунт ЭДО для контрагента {CounterpartyId} и организации {OrganizationId}",
 						client.Id, order.Contract.Organization.Id);
-					return null;
+					return;
 				}
 
 				if(edoAccount.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
@@ -97,7 +100,7 @@ namespace Edo.Documents
 					_logger.LogInformation(
 						"Контрагент {CounterpartyId} не подключён к ЭДО. Вывод из оборота не требуется",
 						client.Id);
-					return null;
+					return;
 				}
 
 				if(client.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
@@ -105,7 +108,7 @@ namespace Edo.Documents
 					_logger.LogInformation(
 						"Контрагент {CounterpartyId} зарегистрирован в ЧЗ. Вывод из оборота не требуется",
 						client.Id);
-					return null;
+					return;
 				}
 
 				var existingWithdrawalRequest = uow.Session
@@ -118,7 +121,7 @@ namespace Edo.Documents
 					_logger.LogInformation(
 						"Заявка на вывод из оборота для заказа {OrderId} уже существует",
 						order.Id);
-					return null;
+					return;
 				}
 
 				var withdrawalRequest = CreateWithdrawalEdoRequest(formalEdoRequest, order);
@@ -134,7 +137,7 @@ namespace Edo.Documents
 					new WithdrawalEdoRequestCreatedEvent { Id = withdrawalRequest.Id },
 					cancellationToken);
 
-				return withdrawalRequest.Id;
+				return;
 			}
 		}
 
@@ -152,8 +155,7 @@ namespace Edo.Documents
 				Source = CustomerEdoRequestSource.Manual,
 				Type = CustomerEdoRequestType.Order,
 				DocumentType = EdoDocumentType.UPD,
-				Order = order,
-				Task = sourceRequest.Task
+				Order = order
 			};
 
 			if(sourceRequest.ProductCodes != null)
