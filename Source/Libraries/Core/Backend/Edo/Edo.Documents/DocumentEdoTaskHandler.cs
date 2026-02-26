@@ -9,7 +9,6 @@ using MySqlConnector;
 using NHibernate;
 using QS.DomainModel.UoW;
 using System;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -420,6 +419,23 @@ namespace Edo.Documents
 
 			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
+
+			try
+			{
+				// Отправляем событие о завершении документооборота
+				// для проверки необходимости создания заявки на вывод кодов из оборота
+				await _messageBus.Publish(
+					new OrderDocflowCompletedEvent { DocumentId = document.Id },
+					cancellationToken);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(
+					ex,
+					"Ошибка при публикации события {EvantTypeName} для документа Id {DocumentId}",
+					nameof(OrderDocflowCompletedEvent),
+					document.Id);
+			}
 		}
 
 		private void AcceptDocument(DocumentEdoTask edoTask, CancellationToken cancellationToken)
