@@ -4793,11 +4793,30 @@ namespace Vodovoz.Domain.Orders
 
 		#region Статические
 
-		public static OrderStatus[] StatusesToExport1c => new[] {
-			OrderStatus.Shipped,
-			OrderStatus.UnloadingOnStock,			
-			OrderStatus.Closed,					
-		};
+		public static OrderStatus[] StatusesToExport1c(Export1cMode export1cMode)
+		{
+			switch (export1cMode)
+			{
+				case Export1cMode.ComplexAutomation:
+					return new[]
+					{
+						OrderStatus.Shipped,
+						OrderStatus.UnloadingOnStock,
+						OrderStatus.Closed,
+						OrderStatus.Canceled,
+						OrderStatus.DeliveryCanceled,
+						OrderStatus.NotDelivered
+					};
+
+				default:
+					return new[]
+					{
+						OrderStatus.Shipped,
+						OrderStatus.UnloadingOnStock,
+						OrderStatus.Closed
+					};
+			}
+		}
 
 		public static PaymentType[] PaymentTypesFastDeliveryAvailableFor => new[]
 		{
