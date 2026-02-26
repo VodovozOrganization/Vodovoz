@@ -73,11 +73,24 @@ namespace Edo.Documents
 					return;
 				}
 
+				if(order.PaymentType != Vodovoz.Domain.Client.PaymentType.Cashless)
+				{
+					throw new InvalidOperationException(
+						$"Заказ {order.Id} не по безналу. Вывод из оборота невозможен");
+				}
+
 				var client = order.Client;
 				if(client == null)
 				{
 					_logger.LogWarning("Клиент для заказа {OrderId} не найден", order.Id);
 					return;
+				}
+
+				if(client.ReasonForLeaving != ReasonForLeaving.ForOwnNeeds)
+				{
+					throw new InvalidOperationException(
+						$"В карточке контрагента {client.Id} указана причина выбытия отличная от {ReasonForLeaving.ForOwnNeeds}. " +
+						$"Вывод из оборота невозможен");
 				}
 
 				var edoAccount = _edoAccountRepository
