@@ -92,7 +92,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _externalOrderId, value);
 		}
 
-		[Display(Name = "Клиент")]
+		[Display(Name = "Переданный идентификатор клиента")]
 		public virtual int? CounterpartyId
 		{
 			get => _counterpartyId;
@@ -113,7 +113,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _externalCounterpartyId, value);
 		}
 		
-		[Display(Name = "Точка доставки")]
+		[Display(Name = "Переданный идентификатор ТД")]
 		public virtual int? DeliveryPointId
 		{
 			get => _deliveryPointId;
@@ -385,7 +385,7 @@ namespace Vodovoz.Domain.Orders
 			if(OnlineOrderPaymentType != OnlineOrderPaymentType.PaidOnline && OnlineOrderStatus == OnlineOrderStatus.WaitingForPayment)
 			{
 				OnlineOrderStatus = OnlineOrderStatus.New;
-				UnPaidReason = null;
+				ClearPaymentDataWithReason();
 				return;
 			}
 			
@@ -426,6 +426,11 @@ namespace Vodovoz.Domain.Orders
 		{
 			if((DateTime.Now - Created).TotalSeconds >= timeToTransferInSeconds)
 			{
+				if(OnlineOrderPaymentStatus != OnlineOrderPaymentStatus.Paid)
+				{
+					ClearPaymentData();
+				}
+				
 				OnlineOrderStatus = OnlineOrderStatus.New;
 				UnPaidReason = string.IsNullOrWhiteSpace(_unPaidReason) ? $"\n{message}" : $"\n{message}. Причина : {_unPaidReason}";
 				return true;
@@ -445,6 +450,18 @@ namespace Vodovoz.Domain.Orders
 		{
 			DeliveryScheduleId = deliveryScheduleId;
 			DeliverySchedule = deliverySchedule;
+		}
+		
+		private void ClearPaymentData()
+		{
+			OnlinePayment = null;
+			OnlinePaymentSource = null;
+		}
+		
+		private void ClearPaymentDataWithReason()
+		{
+			ClearPaymentData();
+			UnPaidReason = null;
 		}
 	}
 }

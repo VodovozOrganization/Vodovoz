@@ -455,7 +455,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				return;
 			}
 			
-			var result = _onlineOrderValidator.ValidateOnlineOrder(UoW, Entity);
+			var result = _onlineOrderValidator.ValidateOnlineOrder(UoW, Entity, true);
 
 			if(result.IsFailure)
 			{

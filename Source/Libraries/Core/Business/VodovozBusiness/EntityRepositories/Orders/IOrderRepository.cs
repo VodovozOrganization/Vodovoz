@@ -288,5 +288,14 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Данные по неоплаченным заказам</returns>
 		Task<IDictionary<int, OrderPaymentsDataNode[]>> GetNotPaidCashlessOrdersData(IUnitOfWork uow, int organizationId, IEnumerable<OrderStatus> orderStatuses, IEnumerable<CounterpartyType> counterpartyTypes, CancellationToken cancellationToken);
+		/// <summary>
+		/// Получение идентификаторов заказов на дату по клиенту и ТД
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="date">Дата доставки заказа</param>
+		/// <param name="counterpartyId">Идентификатор клиента</param>
+		/// <param name="deliveryPointId">Идентификатор ТД</param>
+		/// <returns></returns>
+		IEnumerable<int> GetClientOrdersIdsForDate(IUnitOfWork uow, DateTime date, int? counterpartyId, int? deliveryPointId);
 	}
 }

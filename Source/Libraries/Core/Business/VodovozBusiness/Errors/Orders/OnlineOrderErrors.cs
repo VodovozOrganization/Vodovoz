@@ -231,5 +231,11 @@ namespace Vodovoz.Errors.Orders
 				typeof(OnlineOrderErrors),
 				nameof(IncorrectOrderSum),
 				$"Некорректная сумма заказа! Пришло {producedOrderSum}, а должно быть {currentOrderSum}");
+		
+		public static Error ClientHasOrdersForThisDate(string orderIds) =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(ClientHasOrdersForThisDate),
+				$"У клиента уже есть оформленные заказы: { orderIds } на этот день!");
 	}
 }

@@ -2732,5 +2732,25 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 			return notPaidOrdersData;
 		}
+		
+		public IEnumerable<int> GetClientOrdersIdsForDate(IUnitOfWork uow, DateTime date, int?counterpartyId, int? deliveryPointId)
+		{
+			var query = uow.Session.Query<VodovozOrder>()
+				.Where(x => x.DeliveryDate == date);
+
+			if(counterpartyId.HasValue)
+			{
+				query = query.Where(x => x.Client.Id == counterpartyId.Value);
+			}
+
+			if(deliveryPointId.HasValue)
+			{
+				query = query.Where(x => x.DeliveryPoint.Id == deliveryPointId.Value);
+			}
+
+			return query
+				.Select(x => x.Id)
+				.ToList();
+		}
 	}
 }

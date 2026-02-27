@@ -197,7 +197,7 @@ namespace Vodovoz.Application.Orders.Services
 				&& onlineOrder.EmployeeWorkWith is null
 				&& !orders.Any())
 			{
-				var validationResult = _onlineOrderValidator.ValidateOnlineOrder(uow, onlineOrder);
+				var validationResult = _onlineOrderValidator.ValidateOnlineOrder(uow, onlineOrder, true);
 
 				if(validationResult.IsFailure)
 				{

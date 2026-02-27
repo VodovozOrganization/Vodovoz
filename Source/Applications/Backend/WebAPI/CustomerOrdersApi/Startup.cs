@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Osrm;
+using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Services;
 using Vodovoz;
@@ -71,6 +72,7 @@ namespace CustomerOrdersApi
 				.AddScoped<IOnlineOrderService, OnlineOrderService>();
 
 			services.AddStaticScopeForEntity();
+			services.AddStaticHistoryTracker();
 
 			services
 				.AddMemoryCache()

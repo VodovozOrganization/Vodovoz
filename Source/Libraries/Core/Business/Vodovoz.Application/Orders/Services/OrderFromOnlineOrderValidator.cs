@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Core.Infrastructure;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Services.Orders;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
@@ -27,6 +29,7 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly IFreeLoaderChecker _freeLoaderChecker;
 		private readonly IOrderOrganizationManager _orderOrganizationManager;
 		private readonly IOrderSettings _orderSettings;
+		private readonly IOrderRepository _orderRepository;
 		private OnlineOrder _onlineOrder;
 		private List<Error> _validationResults;
 		private List<ICheckOnlineOrderSum> _calculatedOrderItemPrices;
@@ -39,7 +42,9 @@ namespace Vodovoz.Application.Orders.Services
 			IDiscountController discountController,
 			IFreeLoaderChecker freeLoaderChecker,
 			IOrderOrganizationManager orderOrganizationManager,
-			IOrderSettings orderSettings)
+			IOrderSettings orderSettings,
+			IOrderRepository orderRepository
+			)
 		{
 			_priceCalculator = goodsPriceCalculator ?? throw new ArgumentNullException(nameof(goodsPriceCalculator));
 			_deliveryPriceGetter = deliveryPriceGetter ?? throw new ArgumentNullException(nameof(deliveryPriceGetter));
@@ -49,9 +54,10 @@ namespace Vodovoz.Application.Orders.Services
 			_freeLoaderChecker = freeLoaderChecker ?? throw new ArgumentNullException(nameof(freeLoaderChecker));
 			_orderOrganizationManager = orderOrganizationManager ?? throw new ArgumentNullException(nameof(orderOrganizationManager));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 		}
 
-		public Result ValidateOnlineOrder(IUnitOfWork uow, OnlineOrder onlineOrder)
+		public Result ValidateOnlineOrder(IUnitOfWork uow, OnlineOrder onlineOrder, bool checkPerformedOrders = false)
 		{
 			_onlineOrder = onlineOrder;
 			_validationResults = new List<Error>();
@@ -123,6 +129,22 @@ namespace Vodovoz.Application.Orders.Services
 				uow, DateTime.Now.TimeOfDay, OrderOrganizationChoice.Create(uow, _orderSettings, onlineOrder)).Count() > 1)
 			{
 				_validationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.OnlineOrderContainsGoodsSoldFromSeveralOrganizations());
+			}
+
+			if(checkPerformedOrders)
+			{
+				var ordersIds =
+					_orderRepository.GetClientOrdersIdsForDate(
+						uow,
+						onlineOrder.DeliveryDate,
+						onlineOrder.CounterpartyId,
+						onlineOrder.DeliveryPointId);
+
+				if(ordersIds.Any())
+				{
+					_validationResults.Add(
+						Vodovoz.Errors.Orders.OnlineOrderErrors.ClientHasOrdersForThisDate(ordersIds.ToStringValue(',')));
+				}
 			}
 
 			ValidateOnlineOrderItems(uow);
