@@ -157,7 +157,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		public IList<VodovozOrder> GetOrdersToExport1c8(
 			IUnitOfWork uow,
 			IOrderSettings orderSettings,
-			Export1cMode mode,
+			Export1cMode exportMode,
 			DateTime startDate,
 			DateTime endDate,
 			int? organizationId = null)
@@ -197,7 +197,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				;
 
 			var query = uow.Session.QueryOver(() => orderAlias)
-				.Where(() => orderAlias.OrderStatus.IsIn(VodovozOrder.StatusesToExport1c));
+				.Where(() => orderAlias.OrderStatus.IsIn(VodovozOrder.StatusesToExport1c(exportMode)));
 
 			if(organizationId.HasValue)
 			{
@@ -207,14 +207,18 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					.Where(() => counterpartyContractAlias.Organization.Id == organizationId);
 			}
 
-			switch(mode)
+			switch(exportMode)
 			{
 				case Export1cMode.BuhgalteriaOOO:
-				case Export1cMode.ComplexAutomation:
 					query
 						.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate)
 						.Where(o => o.PaymentType == PaymentType.Cashless)
 						.Where(Subqueries.Le(0.01, export1CSubquerySum.DetachedCriteria));
+					break;
+				case Export1cMode.ComplexAutomation:
+					query
+						.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate)
+						.Where(o => o.PaymentType == PaymentType.Cashless);
 					break;
 				case Export1cMode.Retail:
 					AddWithCashReceipOnlyRestrictionsToOrderQuery(query, orderAlias);
@@ -271,7 +275,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						.Where(Subqueries.Le(0.01, export1CSubquerySum.DetachedCriteria));
 					break;
 				default:
-					throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
+					throw new ArgumentOutOfRangeException(nameof(exportMode), exportMode, null);
 			}
 
 			query.TransformUsing(Transformers.DistinctRootEntity);

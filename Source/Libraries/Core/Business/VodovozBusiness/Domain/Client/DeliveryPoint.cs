@@ -34,6 +34,7 @@ namespace Vodovoz.Domain.Client
 	public class DeliveryPoint : DeliveryPointEntity, IValidatableObject
 	{
 		public const int IntercomMaxLength = 100;
+		public const int CityLength = 60;
 
 		private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 		private IOsrmSettings _globalSettings;
@@ -322,10 +323,10 @@ namespace Vodovoz.Domain.Client
 					new[] { this.GetPropertyName(o => o.City) });
 			}
 
-			if(City?.Length > 45)
+			if(City?.Length > CityLength)
 			{
 				yield return new ValidationResult(
-					"Длина строки \"Город\" не должна превышать 45 символов",
+					$"Длина строки \"Город\" не должна превышать {CityLength} символов",
 					new[] { this.GetPropertyName(o => o.City) });
 			}
 

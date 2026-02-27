@@ -16,7 +16,7 @@
         <CommandText>
             SELECT *
             FROM (
-                SELECT # Не оплаченные и частично оплаченные заказы
+                SELECT # Заказы
                     0 as num,
                     CONCAT('Продажа (', 
                             IFNULL(doc.document_number, o.id), 
@@ -25,32 +25,36 @@
                             ')' 
                     ) as document,
                     (
-                        (
-                            SELECT round(sum(IFNULL(oi.actual_count, oi.count) * oi.price - oi.discount_money), 2)
-                            FROM order_items oi
-                            WHERE oi.order_id = o.id
-                        )
-                        -
-                        (
-                            SELECT IFNULL(sum(cmo.expense), 0)
-                            FROM payment_items pi
-                            INNER JOIN cashless_movement_operations cmo ON pi.cashless_movement_operation_id = cmo.id
-                            WHERE pi.order_id = o.id
-                            AND cmo.cashless_movement_operation_status != 'Cancelled'
-                        )
+                    	SELECT ROUND(IFNULL(SUM(IFNULL(oi.actual_count, oi.count) * oi.price - oi.discount_money), 0), 2)
+                        FROM order_items oi
+                        WHERE oi.order_id = o.id
                     ) as debt,
                     0 as deposit,
                     0 as money,
                     o.delivery_date AS date,
                     CASE
-                        WHEN (
-                            SELECT IFNULL(sum(cmo.expense), 0)
+                        WHEN NOT EXISTS 
+                        (
+                            SELECT 1 FROM payment_items pi 
+                            INNER JOIN cashless_movement_operations cmo ON pi.cashless_movement_operation_id = cmo.id
+                            WHERE pi.order_id = o.id 
+                            AND cmo.cashless_movement_operation_status != 'Cancelled'
+                        ) THEN 'NotPaid'
+                        WHEN 
+                        (
+                            SELECT ROUND(IFNULL(SUM(IFNULL(oi.actual_count, oi.count) * oi.price - oi.discount_money), 0), 2)
+                            FROM order_items oi
+                            WHERE oi.order_id = o.id
+                        )
+                        -
+                        (
+                            SELECT IFNULL(SUM(cmo.expense), 0)
                             FROM payment_items pi
                             INNER JOIN cashless_movement_operations cmo ON pi.cashless_movement_operation_id = cmo.id
                             WHERE pi.order_id = o.id
                             AND cmo.cashless_movement_operation_status != 'Cancelled'
-                        ) = 0 THEN 'NotPaid'
-                        ELSE 'PartiallyPaid'
+                        ) &gt; 0 THEN 'PartiallyPaid'
+                        ELSE 'Paid'
                     END as payment_status,
                     o.order_status as order_status
                 FROM orders o
@@ -61,7 +65,6 @@
                 LEFT JOIN document_organization_counters doc ON doc.id = od.document_organization_counter_id
                 WHERE
                     o.client_id = @counterparty_id
-                    AND o.order_payment_status != 'Paid'
                     AND o.payment_type = 'Cashless'
                     AND cc.organization_id = @organization_id
                     AND o.order_status IN ('Shipped', 'Closed', 'UnloadingOnStock')
@@ -71,57 +74,46 @@
                 
                 UNION ALL
                 
-                SELECT # Оплаченные заказы
-                    p.payment_num as num,
-                    CONCAT('Продажа (', 
-                            IFNULL(doc.document_number, o.id), 
-                            ' от ', 
-                            o.delivery_date, 
-                            ')' 
-                    ) as document,
-                    pi.sum as debt,
-                    0 as deposit,
-                    0 as money,
-                    o.delivery_date as date,
-                    'Paid' as payment_status,
-                    o.order_status as order_status
-                FROM orders o
-                INNER JOIN payment_items pi ON o.id = pi.order_id
-                INNER JOIN payments_from_bank_client p ON pi.payment_id = p.id
-                LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
-                LEFT JOIN order_documents od ON od.order_id = o.id 
-                    AND od.type IN ('SpecialUPD', 'UPD') 
-                    AND od.document_organization_counter_id IS NOT NULL
-                LEFT JOIN document_organization_counters doc ON doc.id = od.document_organization_counter_id
-                WHERE
-                    o.client_id = @counterparty_id
-                    AND pi.payment_item_status != 'Cancelled'
-                    AND cc.organization_id = @organization_id
-                    AND o.order_status IN ('Shipped', 'Closed', 'UnloadingOnStock')
-                    AND o.delivery_date &gt;= @date_start
-                    AND o.delivery_date &lt; DATE_ADD(@date_end, INTERVAL 1 DAY)
-                
-                UNION ALL
-                
                 SELECT # Депозит, кредит
                     p.payment_num as num,
-                    CONCAT('Оплата (', p.payment_num , ' от ', IFNULL(cmo.operation_time, p.payment_date) , ')') as document, 
+                    CONCAT('Оплата (', p.payment_num , ' от ', p.payment_date , ')') as document, 
                     0 as debt,
                     cmo.income as deposit,
                     0 as money,
-                    IFNULL(cmo.operation_time, p.payment_date) as date,
+                    p.payment_date as date,
                     '' as payment_status,
                     '' as order_status
                 FROM payments_from_bank_client p
-                LEFT JOIN cashless_movement_operations cmo ON p.cashless_movement_operation_id = cmo.id
+                INNER JOIN cashless_movement_operations cmo ON p.cashless_movement_operation_id = cmo.id
                 INNER JOIN organizations o ON p.organization_id = o.id
                 WHERE
                     p.counterparty_id = @counterparty_id
+                    AND cmo.cashless_movement_operation_status != 'Cancelled'
                     AND p.refund_payment_from_order_id is null
                     AND p.organization_id = @organization_id
-                    AND IFNULL(cmo.operation_time, p.payment_date) &gt;= @date_start
-                    AND IFNULL(cmo.operation_time, p.payment_date) &lt; DATE_ADD(@date_end, INTERVAL 1 DAY)
+                    AND p.payment_date &gt;= @date_start
+                    AND p.payment_date &lt; DATE_ADD(@date_end, INTERVAL 1 DAY)
                 
+                UNION ALL
+
+                SELECT # Возвраты денежных средств
+                    pwo.payment_number as num,
+                    CONCAT('Возврат (', pwo.payment_number , ' от ', pwo.date , ')') as document,
+                    pwo.sum as debt,
+                    0 as deposit,
+                    pwo.sum as money,
+                    pwo.date as date,
+                    '' as payment_status,
+                    '' as order_status
+                FROM payment_write_offs pwo
+                INNER JOIN cashless_movement_operations cmo ON pwo.cashless_movement_operation_id = cmo.id
+                WHERE
+                    pwo.counterparty_id = @counterparty_id
+                    AND pwo.organization_id = @organization_id
+                    AND cmo.cashless_movement_operation_status != 'Cancelled'
+                    AND pwo.date &gt;= @date_start
+                    AND pwo.date &lt; DATE_ADD(@date_end, INTERVAL 1 DAY)
+
                 UNION ALL
                 
                 SELECT # Фиктивная запись для отображения таблицы при отсутствии данных
@@ -305,16 +297,31 @@ WHERE
                 FROM orders o
                 INNER JOIN payment_items pi ON o.id = pi.order_id
                 INNER JOIN payments_from_bank_client p ON pi.payment_id = p.id
+                INNER JOIN cashless_movement_operations cmo ON pi.cashless_movement_operation_id = cmo.id
                 LEFT JOIN counterparty_contract cc ON o.counterparty_contract_id = cc.id
                 WHERE
                     o.client_id = @counterparty_id
+                    AND cmo.cashless_movement_operation_status != 'Cancelled'
                     AND pi.payment_item_status != 'Cancelled'
                     AND cc.organization_id = @organization_id
                     AND o.order_status IN ('Shipped', 'Closed', 'UnloadingOnStock')
                     AND o.delivery_date &lt; @date_start
                 
                 UNION ALL
-                
+
+                SELECT # Возвраты денежных средств
+                    pwo.sum as debt,
+                    0 as deposit
+                FROM payment_write_offs pwo
+                INNER JOIN cashless_movement_operations cmo ON pwo.cashless_movement_operation_id = cmo.id
+                WHERE
+                    pwo.counterparty_id = @counterparty_id
+                    AND pwo.organization_id = @organization_id
+                    AND cmo.cashless_movement_operation_status != 'Cancelled'
+                    AND pwo.date &lt; @date_start
+
+                UNION ALL
+    
                 SELECT # Депозит, кредит (до начала периода)
                     0 as debt,
                     cmo.income as deposit
@@ -323,9 +330,10 @@ WHERE
                 INNER JOIN organizations o ON p.organization_id = o.id
                 WHERE
                     p.counterparty_id = @counterparty_id
+                    AND cmo.cashless_movement_operation_status != 'Cancelled'
                     AND p.refund_payment_from_order_id is null
                     AND p.organization_id = @organization_id
-                    AND IFNULL(cmo.operation_time, p.payment_date) &lt; @date_start
+                    AND p.payment_date &lt; @date_start
             ) as t
           </CommandText>
         <QueryParameters>

@@ -9,6 +9,7 @@ using QS.Osrm;
 using System;
 using System.Linq;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Clients.DeliveryPoints;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Delivery;
@@ -98,6 +99,8 @@ namespace CustomerAppsApi.Library.Models
 				statusCode = StatusCodes.Status500InternalServerError;
 				return null;
 			}
+
+			TryUpdateCityParameter(newDeliveryPointInfoDto);
 
 			try
 			{
@@ -247,6 +250,21 @@ namespace CustomerAppsApi.Library.Models
 			if(string.IsNullOrWhiteSpace(newDeliveryPointInfoDto.Floor))
 			{
 				newDeliveryPointInfoDto.Floor = defaultValue;
+			}
+		}
+		
+		private void TryUpdateCityParameter(NewDeliveryPointInfoDto newDeliveryPointInfoDto)
+		{
+			if(newDeliveryPointInfoDto.City.Length <= DeliveryPoint.CityLength)
+			{
+				return;
+			}
+
+			newDeliveryPointInfoDto.City = newDeliveryPointInfoDto.City.TrimEnd('\n', '\r');
+
+			if(newDeliveryPointInfoDto.City.Length > DeliveryPoint.CityLength)
+			{
+				newDeliveryPointInfoDto.City = newDeliveryPointInfoDto.City[..DeliveryPoint.CityLength];
 			}
 		}
 	}
