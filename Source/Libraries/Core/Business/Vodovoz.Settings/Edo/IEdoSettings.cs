@@ -22,5 +22,11 @@
 		int CodePoolPromoteWithExtraSeconds { get; }
 		int[] OrganizationsHavingAccountsInTrueMark { get; }
 		bool CodePoolLoaderToNewPool { get; }
+
+		/// <summary>
+		/// Количество дней не принятия документооборота клиентом, подключенным к ЧЗ, 
+		/// после которого будет создана заявка на вывод кодов из оборота
+		/// </summary>
+		int WithdrawalDocflowTimeoutDays { get; }
 	}
 }

@@ -38,5 +38,7 @@ namespace Vodovoz.Settings.Database.Edo
 			.ToArray();
 
 		public bool CodePoolLoaderToNewPool => _settingsController.GetBoolValue("CodePoolLoaderToNewPool");
+
+		public int WithdrawalDocflowTimeoutDays => _settingsController.GetIntValue("WithdrawalDocflowTimeoutDays");
 	}
 }
