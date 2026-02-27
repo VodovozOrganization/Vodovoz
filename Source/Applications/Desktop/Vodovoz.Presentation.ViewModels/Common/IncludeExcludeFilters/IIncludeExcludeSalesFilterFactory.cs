@@ -6,6 +6,6 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 	{
 		IncludeExludeFiltersViewModel CreateSalesReportIncludeExcludeFilter(IUnitOfWork unitOfWork, int? onlyEmployeeId);
 		IncludeExludeFiltersViewModel CreateTurnoverOfWarehouseBalancesReportFilterViewModel(IUnitOfWork unitOfWork);
-		IncludeExludeFiltersViewModel CreateCallCenterMotivationReportIncludeExcludeFilter(IUnitOfWork unitOfWork);
+		IncludeExludeFiltersViewModel CreateCallCenterMotivationReportIncludeExcludeFilter(IUnitOfWork unitOfWork, int? onlyEmployeeId);
 	}
 }
