@@ -38,9 +38,16 @@ namespace CustomerOnlineOrdersUpdater
 
 		private async Task TryMoveToManualProcessingWaitingForPaymentOnlineOrders(IServiceScope scope)
 		{
-			using var uow = scope.ServiceProvider.GetService<IUnitOfWork>();
-			var unPaidOnlineOrderHandler = scope.ServiceProvider.GetService<IUnPaidOnlineOrderHandler>();
-			await unPaidOnlineOrderHandler.TryMoveToManualProcessingWaitingForPaymentOnlineOrders(uow);
+			try
+			{
+				using var uow = scope.ServiceProvider.GetService<IUnitOfWork>();
+				var unPaidOnlineOrderHandler = scope.ServiceProvider.GetService<IUnPaidOnlineOrderHandler>();
+				await unPaidOnlineOrderHandler.TryMoveToManualProcessingWaitingForPaymentOnlineOrders(uow);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при работе воркера по обновлению онлайн заказов");
+			}
 		}
 	}
 }
