@@ -13,6 +13,10 @@ namespace Vodovoz.Settings.Database.Notifications
 			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 		}
 
+		public int[] CashlessDebtsOrganizations =>
+			_settingsController.GetStringValue($"{_parametersPrefix}CashlessDebtsOrganizations")
+			.FromStringToIntArray();
+
 		public TimeSpan CashlessDebtsNotificationsSendInterval =>
 			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}CashlessDebtsNotificationsSendInterval");
 
