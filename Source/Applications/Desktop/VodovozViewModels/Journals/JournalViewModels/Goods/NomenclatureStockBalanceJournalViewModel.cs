@@ -14,6 +14,7 @@ using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Services;
 using QS.ViewModels.Dialog;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;

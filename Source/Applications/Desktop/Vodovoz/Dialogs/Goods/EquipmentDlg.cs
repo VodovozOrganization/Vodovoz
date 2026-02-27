@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using NHibernate.Criterion;
 using NLog;
@@ -105,7 +105,7 @@ namespace Vodovoz
 
 		void FillLocation()
 		{
-			var location = _equipmentRepository.GetLocation(UoW, Entity);
+			var location = _equipmentRepository.GetLocation(UoW, Entity.Id);
 			labelWhere.LabelProp = location.Title;
 		}
 	}

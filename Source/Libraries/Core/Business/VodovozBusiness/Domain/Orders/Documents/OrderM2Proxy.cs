@@ -41,7 +41,7 @@ namespace Vodovoz.Domain.Orders.Documents
 			{
 				M2Proxy.DocumentTemplate.DocParser.SetDocObject(M2Proxy);
 				var parser = (M2Proxy.DocumentTemplate.DocParser as M2ProxyDocumentParser);
-				parser.AddTableEquipmentFromClient(Order.ObservableOrderEquipments.Where(eq => eq.Direction == Domain.Orders.Direction.PickUp).ToList<OrderEquipment>());
+				parser.AddTableEquipmentFromClient(Order.ObservableOrderEquipments.Where(eq => eq.Direction == Direction.PickUp).ToList<OrderEquipment>());
 			}
 		}
 

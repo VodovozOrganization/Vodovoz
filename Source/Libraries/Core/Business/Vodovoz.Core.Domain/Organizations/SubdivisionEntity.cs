@@ -2,11 +2,16 @@
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using System.ComponentModel.DataAnnotations;
+using System.IO.Compression;
 using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Sale;
 
 namespace Vodovoz.Core.Domain.Organizations
 {
+	/// <summary>
+	/// Подразделение
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "подразделения",
 		Nominative = "подразделение",
@@ -17,9 +22,13 @@ namespace Vodovoz.Core.Domain.Organizations
 	{
 		private int _id;
 		private string _name;
+		private string _shortName;
+		private string _address;
+		private bool _isArchive;
 		private bool _pacsTimeManagementEnabled;
 		private int? _financialResponsibilityCenterId;
 		private int? _chiefId;
+		private GeoGroupEntity _geographicGroup;
 
 		/// <summary>
 		/// Идентификатор
@@ -40,6 +49,36 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _name;
 			set => SetField(ref _name, value);
+		}
+
+		/// <summary>
+		/// Сокращенное наименование
+		/// </summary>
+		[Display(Name = "Сокращенное наименование")]
+		public virtual string ShortName
+		{
+			get => _shortName;
+			set => SetField(ref _shortName, value);
+		}
+
+		/// <summary>
+		/// Адрес подразделения
+		/// </summary>
+		[Display(Name = "Адрес подразделения")]
+		public virtual string Address
+		{
+			get => _address;
+			set => SetField(ref _address, value);
+		}
+
+		/// <summary>
+		/// Архив
+		/// </summary>
+		[Display(Name = "Архив")]
+		public virtual bool IsArchive
+		{
+			get => _isArchive;
+			set => SetField(ref _isArchive, value);
 		}
 
 		/// <summary>
@@ -72,6 +111,16 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _financialResponsibilityCenterId;
 			set => SetField(ref _financialResponsibilityCenterId, value);
+		}
+
+		/// <summary>
+		/// Обслуживаемая часть города
+		/// </summary>
+		[Display(Name = "Обслуживаемая часть города")]
+		public virtual GeoGroupEntity GeographicGroup
+		{
+			get => _geographicGroup;
+			set => SetField(ref _geographicGroup, value);
 		}
 	}
 }

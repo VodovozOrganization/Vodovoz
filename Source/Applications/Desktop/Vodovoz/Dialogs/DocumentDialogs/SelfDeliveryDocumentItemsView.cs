@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Gamma.GtkWidgets;
 using Gdk;
-using Gamma.GtkWidgets;
 using Gtk;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
+using System;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Infrastructure;
@@ -73,7 +73,7 @@ namespace Vodovoz
 
 		string GetItemsCount(SelfDeliveryDocumentItem item)
 		{
-			decimal cnt = item.Document.GetNomenclaturesCountInOrder(item.Nomenclature);
+			decimal cnt = item.Document.GetNomenclaturesCountInOrder(item.Nomenclature.Id);
 			return item.Nomenclature.Unit.MakeAmountShortStr(cnt);
 		}
 
@@ -83,12 +83,17 @@ namespace Vodovoz
 			get { return documentUoW; }
 			set {
 				if(documentUoW == value)
+				{
 					return;
+				}
+
 				documentUoW = value;
 				if(DocumentUoW.Root.Items == null)
-					DocumentUoW.Root.Items = new List<SelfDeliveryDocumentItem>();
+				{
+					DocumentUoW.Root.Items = new ObservableList<SelfDeliveryDocumentItem>();
+				}
 
-				ytreeviewItems.ItemsDataSource = DocumentUoW.Root.ObservableItems;
+				ytreeviewItems.ItemsDataSource = DocumentUoW.Root.Items;
 			}
 		}
 
@@ -99,7 +104,7 @@ namespace Vodovoz
 				return GdkColors.DangerText;
 			}
 
-			var cnt = item.Document.GetNomenclaturesCountInOrder(item.Nomenclature);
+			var cnt = item.Document.GetNomenclaturesCountInOrder(item.Nomenclature.Id);
 			if(cnt < item.AmountUnloaded + item.Amount)
 			{
 				return GdkColors.Orange;
@@ -120,7 +125,7 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteClicked(object sender, EventArgs e)
 		{
-			DocumentUoW.Root.ObservableItems.Remove(ytreeviewItems.GetSelectedObject<SelfDeliveryDocumentItem>());
+			DocumentUoW.Root.Items.Remove(ytreeviewItems.GetSelectedObject<SelfDeliveryDocumentItem>());
 		}
 	}
 }

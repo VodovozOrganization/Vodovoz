@@ -6,12 +6,12 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
-using QS.Validation;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
 using System.ComponentModel;
 using Vodovoz.Core.Domain.Warehouses;
+using Vodovoz.Domain.Documents;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.PermissionExtensions;
@@ -19,7 +19,6 @@ using Vodovoz.Tools.Store;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Store;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Store;
 using Vodovoz.ViewModels.Warehouses;
-using VodovozBusiness.Domain.Documents;
 
 namespace Vodovoz.ViewModels.Store
 {

@@ -12,7 +12,6 @@ using NHibernate.SqlCommand;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Dialogs.Goods;
@@ -20,6 +19,8 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 using NHibernate.Dialect.Function;
+using Vodovoz.Core.Domain.Operations;
+using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Goods
 {

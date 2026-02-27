@@ -6,10 +6,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
 using MySqlConnector;
 using QS.Project.Core;
 using QS.Services;
+using Vodovoz;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Presentation.WebApi;
@@ -41,7 +41,7 @@ namespace WarehouseApi
 			services
 				.AddMappingAssemblies(
 					typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
-					typeof(AssemblyFinder).Assembly,
+					typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
 					typeof(QS.Banks.Domain.Bank).Assembly,
 					typeof(QS.HistoryLog.HistoryMain).Assembly,
 					typeof(QS.Project.Domain.TypeOfEntity).Assembly,
@@ -51,6 +51,8 @@ namespace WarehouseApi
 				)
 				.AddDatabaseConnection()
 				.AddWarehouseApiDependencies(Configuration);
+
+			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
 			services.AddDbContext<ApplicationDbContext>((provider, options) =>
 			{

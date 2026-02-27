@@ -71,5 +71,66 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="trueMarkAnyCode">Код ЧЗ</param>
 		/// <returns>Результат поиска сохраненного кода ЧЗ</returns>
 		Result<TrueMarkAnyCode> TryGetSavedTrueMarkAnyCode(IUnitOfWork uow, TrueMarkAnyCode trueMarkAnyCode);
+
+		/// <summary>
+		/// Создает код ЧЗ для промежуточного хранения на основе отсканированного кода
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="scannedCode">Отсканированный код</param>
+		/// <param name="relatedDocumentType">Тип связанного документа</param>
+		/// <param name="relatedDocumentId">Id связанного документа</param>
+		/// <param name="orderItemId">Номер строки заказа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Результат создания кода</returns>
+		Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCode(IUnitOfWork uow, string scannedCode, StagingTrueMarkCodeRelatedDocumentType relatedDocumentType, int relatedDocumentId, int? orderItemId, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Проверят, что код ЧЗ для промежуточного хранения уже используется в кодах товаров
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="stagingTrueMarkCode">Код ЧЗ для промежуточного хранения</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Результат проверки</returns>
+		Task<Result> IsStagingTrueMarkCodeAlreadyUsedInProductCodes(IUnitOfWork uow, StagingTrueMarkCode stagingTrueMarkCode, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Возвращает все коды Честного Знака для промежуточного хранения, связанные с указанным документом
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="relatedDocumentType">Тип связанного документа</param>
+		/// <param name="relatedDocumentId">Id связанного документа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Список кодов</returns>
+		Task<IEnumerable<StagingTrueMarkCode>> GetAllTrueMarkStagingCodesByRelatedDocument(IUnitOfWork uow, StagingTrueMarkCodeRelatedDocumentType relatedDocumentType, int relatedDocumentId, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Возвращает сохраненный код Честного Знака для промежуточного хранения по отсканированному коду
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="scannedCode">Отсканированный код</param>
+		/// <param name="relatedDocumentType">Тип связанного документа</param>
+		/// <param name="relatedDocumentId">Id связанного документа</param>
+		/// <param name="orderItemId">Id строки заказа</param>
+		/// <returns>Результат поиска кода</returns>
+		Result<StagingTrueMarkCode> GetSavedStagingTrueMarkCodeByScannedCode(IUnitOfWork uow, string scannedCode, StagingTrueMarkCodeRelatedDocumentType relatedDocumentType, int relatedDocumentId, int? orderItemId);
+
+		/// <summary>
+		/// Создает коды ЧЗ (включая дочерние коды всех уровней вложенности) на основе кодов промежуточного хранения верхнего уровня
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="rootStagingCodes">Коды промежуточного хранения верхнего уровня</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Результат создания кодов</returns>
+		Task<Result<IEnumerable<TrueMarkAnyCode>>> CreateTrueMarkAnyCodesFromStagingCodes(IUnitOfWork uow, IEnumerable<StagingTrueMarkCode> rootStagingCodes, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Удаляет все коды Честного Знака для промежуточного хранения, связанные с указанным документом
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="relatedDocumentType">Тип связанного документа</param>
+		/// <param name="relatedDocumentId">Id связанного документа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Результат удаления кодов</returns>
+		Task<Result> DeleteAllTrueMarkStagingCodesByRelatedDocument(IUnitOfWork uow, StagingTrueMarkCodeRelatedDocumentType relatedDocumentType, int relatedDocumentId, CancellationToken cancellationToken = default);
 	}
 }

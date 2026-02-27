@@ -20,35 +20,7 @@ namespace Vodovoz.Domain.Documents
 	[HistoryTrace]
 	public class TransferOperationDocument : Document, IValidatableObject, IDomainObject
 	{
-		private const int _commentLimit = 255; 
-		
-		[Display(Name = "Дата")]
-		public override DateTime TimeStamp {
-			get => base.TimeStamp;
-			set {
-				base.TimeStamp = value;
-
-				if(this.OutBottlesOperation != null) {
-					this.OutBottlesOperation.OperationTime = TimeStamp;
-				}
-				if(this.IncBottlesOperation != null) {
-					this.IncBottlesOperation.OperationTime = TimeStamp;
-				}
-
-				if(this.OutBottlesDepositOperation != null) {
-					this.OutBottlesDepositOperation.OperationTime = TimeStamp;
-				}
-				if(this.IncBottlesDepositOperation != null) {
-					this.IncBottlesDepositOperation.OperationTime = TimeStamp;
-				}
-				if(this.OutEquipmentDepositOperation != null) {
-					this.OutEquipmentDepositOperation.OperationTime = TimeStamp;
-				}
-				if(this.IncEquipmentDepositOperation != null) {
-					this.IncEquipmentDepositOperation.OperationTime = TimeStamp;
-				}
-			}
-		}
+		private const int _commentLimit = 255;
 
 		BottlesMovementOperation outBottlesOperation;
 
@@ -138,6 +110,37 @@ namespace Vodovoz.Domain.Documents
 		public virtual Employee ResponsiblePerson {
 			get { return responsibleEmployee; }
 			set { SetField(ref responsibleEmployee, value, () => ResponsiblePerson); }
+		}
+
+		public override void SetTimeStamp(DateTime value)
+		{
+			base.TimeStamp = value;
+
+			if(this.OutBottlesOperation != null)
+			{
+				this.OutBottlesOperation.OperationTime = TimeStamp;
+			}
+			if(this.IncBottlesOperation != null)
+			{
+				this.IncBottlesOperation.OperationTime = TimeStamp;
+			}
+
+			if(this.OutBottlesDepositOperation != null)
+			{
+				this.OutBottlesDepositOperation.OperationTime = TimeStamp;
+			}
+			if(this.IncBottlesDepositOperation != null)
+			{
+				this.IncBottlesDepositOperation.OperationTime = TimeStamp;
+			}
+			if(this.OutEquipmentDepositOperation != null)
+			{
+				this.OutEquipmentDepositOperation.OperationTime = TimeStamp;
+			}
+			if(this.IncEquipmentDepositOperation != null)
+			{
+				this.IncEquipmentDepositOperation.OperationTime = TimeStamp;
+			}
 		}
 
 		public virtual string[] SaveOperations(IUnitOfWork UoW, int bottles, decimal bottlesDeposits, decimal equipmentDeposits)

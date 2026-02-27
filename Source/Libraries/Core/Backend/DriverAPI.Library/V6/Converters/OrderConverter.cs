@@ -8,6 +8,7 @@ using System.Text;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
@@ -300,6 +301,21 @@ namespace DriverAPI.Library.V6.Converters
 
 			var sequenceNumber = 0;
 
+			if(routeListItem.Status == RouteListItemStatus.EnRoute)
+			{
+				var allStagingCodes =
+					_trueMarkWaterCodeService.GetAllTrueMarkStagingCodesByRelatedDocument(
+						_uow,
+						StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
+						routeListItem.Id)
+					.GetAwaiter()
+					.GetResult();
+
+				codes = allStagingCodes.Select(PopulateStagingTrueMarkCodes(allStagingCodes));
+
+				return codes;
+			}
+
 			var addedTrueMarkWaterCodes =
 				saleItem.IsTrueMarkCodesMustBeAddedInWarehouse(_edoAccountController)
 				? GetCodesAddedInWarehouse(saleItem)
@@ -475,6 +491,77 @@ namespace DriverAPI.Library.V6.Converters
 				Quantity = saleItem.ActualCount ?? saleItem.Count,
 				Codes = GetOrderItemCodes(saleItem, routeListItem)
 			};
+			return result;
+		}
+
+		public Func<StagingTrueMarkCode, TrueMarkCodeDto> PopulateStagingTrueMarkCodes(
+			IEnumerable<StagingTrueMarkCode> allCodes)
+		{
+			return stagingCode =>
+			{
+				string parentRawCode = null;
+
+				if(stagingCode.ParentCodeId != null)
+				{
+					parentRawCode = allCodes
+						.FirstOrDefault(x => x.Id == stagingCode.ParentCodeId)
+						?.RawCode;
+				}
+
+				var level = stagingCode.CodeType switch
+				{
+					StagingTrueMarkCodeType.Transport => DriverApiTruemarkCodeLevel.transport,
+					StagingTrueMarkCodeType.Group => DriverApiTruemarkCodeLevel.group,
+					StagingTrueMarkCodeType.Identification => DriverApiTruemarkCodeLevel.unit,
+					_ => throw new InvalidOperationException("Unknown StagingTrueMarkCodeLevel")
+				};
+
+				return new TrueMarkCodeDto
+				{
+					Code = stagingCode.RawCode,
+					Level = level,
+					Parent = parentRawCode
+				};
+			};
+		}
+
+		/// <summary>
+		/// Преобразует код ЧЗ для промежуточного хранения в DTO, при этом для групповых и транспортных кодов будет заполнено поле Parent,
+		/// содержащее RawCode родительского кода.
+		/// Метод работает рекурсивно, поэтому будет обработана вся иерархия кодов ЧЗ, если она есть
+		/// </summary>
+		/// <param name="stagingCode">Код ЧЗ промежуточного хранения</param>
+		/// <param name="parentCode">Строка родительского кода</param>
+		/// <param name="sequenceNumber">Порядковый номер</param>
+		/// <returns></returns>
+		/// <exception cref="InvalidOperationException"></exception>
+		public IEnumerable<TrueMarkCodeDto> PopulateStagingTrueMarkCode(StagingTrueMarkCode stagingCode, string parentCode = "", int sequenceNumber = 0)
+		{
+			var result = new List<TrueMarkCodeDto>();
+			var level = stagingCode.CodeType switch
+			{
+				StagingTrueMarkCodeType.Transport => DriverApiTruemarkCodeLevel.transport,
+				StagingTrueMarkCodeType.Group => DriverApiTruemarkCodeLevel.group,
+				StagingTrueMarkCodeType.Identification => DriverApiTruemarkCodeLevel.unit,
+				_ => throw new InvalidOperationException("Unknown StagingTrueMarkCodeLevel"),
+			};
+			var codeDto = new TrueMarkCodeDto
+			{
+				Code = stagingCode.RawCode,
+				Level = level,
+				Parent = parentCode,
+				SequenceNumber = sequenceNumber++
+			};
+
+			result.Add(codeDto);
+
+			foreach(var innerCode in stagingCode.InnerCodes)
+			{
+				var childDtos = PopulateStagingTrueMarkCode(innerCode, stagingCode.RawCode, sequenceNumber);
+				result.AddRange(childDtos);
+				sequenceNumber = sequenceNumber + childDtos.Count();
+			}
+
 			return result;
 		}
 	}

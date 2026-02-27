@@ -16,6 +16,7 @@ using QS.Project.Journal;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Documents.DriverTerminalTransfer;

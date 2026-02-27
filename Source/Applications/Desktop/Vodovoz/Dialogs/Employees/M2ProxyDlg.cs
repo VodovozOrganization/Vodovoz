@@ -145,7 +145,7 @@ namespace Vodovoz.Dialogs.Employees
 		{
 			Order order = Entity.Order;
 			if(order != null) {
-				equipmentList = Entity.Order.ObservableOrderEquipments.Where(eq => eq.Direction == Domain.Orders.Direction.PickUp).ToList<OrderEquipment>();
+				equipmentList = Entity.Order.ObservableOrderEquipments.Where(eq => eq.Direction == Core.Domain.Orders.Direction.PickUp).ToList<OrderEquipment>();
 				Entity.Date = order.DeliveryDate != null ? order.DeliveryDate.Value : DateTime.Now;
 				Entity.ExpirationDate = Entity.Date.AddDays(10);
 				Entity.Supplier = order.Client;

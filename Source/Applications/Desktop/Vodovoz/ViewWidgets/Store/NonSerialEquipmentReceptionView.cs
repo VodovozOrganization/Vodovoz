@@ -91,7 +91,7 @@ namespace Vodovoz.ViewWidgets.Store
 				.Where(r => r.RouteList.Id == RouteList.Id)
 				.JoinAlias(rli => rli.Order, () => orderAlias)
 				.JoinAlias(() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
-				.Where(() => orderEquipmentAlias.Direction == Domain.Orders.Direction.PickUp)
+				.Where(() => orderEquipmentAlias.Direction == Core.Domain.Orders.Direction.PickUp)
 				.JoinAlias(() => orderEquipmentAlias.Nomenclature, () => NomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.SelectList(list => list
 					.SelectGroup(() => NomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)

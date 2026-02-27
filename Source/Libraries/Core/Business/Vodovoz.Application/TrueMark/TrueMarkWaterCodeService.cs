@@ -14,9 +14,11 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Edo;
 using VodovozBusiness.Models.TrueMark;
+using VodovozBusiness.Domain.Client.Specifications;
 using VodovozBusiness.Services.TrueMark;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
 
@@ -39,11 +41,14 @@ namespace Vodovoz.Application.TrueMark
 		private readonly ITrueMarkTransportCodeFactory _trueMarkTransportCodeFactory;
 		private readonly ITrueMarkWaterGroupCodeFactory _trueMarkWaterGroupCodeFactory;
 		private readonly ITrueMarkWaterIdentificationCodeFactory _trueMarkWaterIdentificationCodeFactory;
+		private readonly IStagingTrueMarkCodeFactory _stagingTrueMarkCodeFactory;
 		private readonly IGenericRepository<TrueMarkWaterIdentificationCode> _trueMarkWaterIdentificationCodeRepository;
 		private readonly IGenericRepository<TrueMarkProductCode> _trueMarkProductCodeRepository;
 		private readonly IGenericRepository<TrueMarkWaterGroupCode> _trueMarkWaterGroupCodeRepository;
 		private readonly IGenericRepository<TrueMarkTransportCode> _trueMarkTransportCodeRepository;
+		private readonly IGenericRepository<StagingTrueMarkCode> _stagingTrueMarkCodeRepository;
 		private readonly IGenericRepository<OrganizationEntity> _organizationRepository;
+		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly IEdoSettings _edoSettings;
 
 		public TrueMarkWaterCodeService(
@@ -56,11 +61,14 @@ namespace Vodovoz.Application.TrueMark
 			ITrueMarkTransportCodeFactory trueMarkTransportCodeFactory,
 			ITrueMarkWaterGroupCodeFactory trueMarkWaterGroupCodeFactory,
 			ITrueMarkWaterIdentificationCodeFactory trueMarkWaterIdentificationCodeFactory,
+			IStagingTrueMarkCodeFactory stagingTrueMarkCodeFactory,
 			IGenericRepository<TrueMarkWaterIdentificationCode> trueMarkWaterIdentificationCodeRepository,
 			IGenericRepository<TrueMarkProductCode> trueMarkProductCodeRepository,
 			IGenericRepository<TrueMarkWaterGroupCode> trueMarkWaterGroupCodeRepository,
 			IGenericRepository<TrueMarkTransportCode> trueMarkTransportCodeRepository,
+			IGenericRepository<StagingTrueMarkCode> stagingTrueMarkCodeRepository,
 			IGenericRepository<OrganizationEntity> organizationRepository,
+			ITrueMarkRepository trueMarkRepository,
 			IEdoSettings edoSettings
 			)
 		{
@@ -82,6 +90,8 @@ namespace Vodovoz.Application.TrueMark
 				?? throw new ArgumentNullException(nameof(trueMarkWaterGroupCodeFactory));
 			_trueMarkWaterIdentificationCodeFactory = trueMarkWaterIdentificationCodeFactory
 				?? throw new ArgumentNullException(nameof(trueMarkWaterIdentificationCodeFactory));
+			_stagingTrueMarkCodeFactory = stagingTrueMarkCodeFactory
+				?? throw new ArgumentNullException(nameof(stagingTrueMarkCodeFactory));
 			_trueMarkWaterIdentificationCodeRepository = trueMarkWaterIdentificationCodeRepository
 				?? throw new ArgumentNullException(nameof(trueMarkWaterIdentificationCodeRepository));
 			_trueMarkProductCodeRepository = trueMarkProductCodeRepository
@@ -90,8 +100,12 @@ namespace Vodovoz.Application.TrueMark
 				?? throw new ArgumentNullException(nameof(trueMarkWaterGroupCodeRepository));
 			_trueMarkTransportCodeRepository = trueMarkTransportCodeRepository
 				?? throw new ArgumentNullException(nameof(trueMarkTransportCodeRepository));
+			_stagingTrueMarkCodeRepository = stagingTrueMarkCodeRepository
+				?? throw new ArgumentNullException(nameof(stagingTrueMarkCodeRepository));
 			_organizationRepository = organizationRepository
 				?? throw new ArgumentNullException(nameof(organizationRepository));
+			_trueMarkRepository = trueMarkRepository
+				?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_edoSettings = edoSettings
 				?? throw new ArgumentNullException(nameof(edoSettings));
 		}
@@ -175,28 +189,7 @@ namespace Vodovoz.Application.TrueMark
 					trueMarkWaterIdentificationCodes,
 					cancellationToken);
 
-				var result = IsAllCodesIntroduced(checkResults);
-
-				if(result.IsFailure)
-				{
-					return result;
-				}
-
-				result = IsAllCodesHasCorrectInn(checkResults);
-
-				if(result.IsFailure)
-				{
-					return result;
-				}
-
-				result = IsAllCodesNotExpired(checkResults);
-
-				if(result.IsFailure)
-				{
-					return result;
-				}
-
-				return Result.Success();
+				return IsAllCodesValid(checkResults);
 			}
 			catch(TrueMarkException ex)
 			{
@@ -216,7 +209,7 @@ namespace Vodovoz.Application.TrueMark
 			}
 		}
 
-		private Result IsAllCodesIntroduced(IDictionary<TrueMarkWaterIdentificationCode, ProductInstanceStatus> checkResults)
+		private Result IsAllCodesValid(IDictionary<TrueMarkWaterIdentificationCode, ProductInstanceStatus> checkResults)
 		{
 			foreach(var checkResult in checkResults)
 			{
@@ -225,58 +218,88 @@ namespace Vodovoz.Application.TrueMark
 					return Result.Failure(TrueMarkCodeErrors.TrueMarkCodeNotCheckedInTrueMark);
 				}
 
-				if(checkResult.Value.Status == ProductInstanceStatusEnum.Introduced)
-				{
-					continue;
-				}
+				var isCodeValidResult = IsCodeValid(checkResult.Value);
 
-				var error = TrueMarkCodeErrors.TrueMarkCodeIsNotIntroduced;
-				return Result.Failure(error);
+				if(isCodeValidResult.IsFailure)
+				{
+					return isCodeValidResult;
+				}
 			}
 
 			return Result.Success();
 		}
 
-		private Result IsAllCodesHasCorrectInn(IDictionary<TrueMarkWaterIdentificationCode, ProductInstanceStatus> checkResults)
+		private Result IsAllCodesValid(IEnumerable<ProductInstanceStatus> productInstanceStatuses)
 		{
-			foreach(var checkResult in checkResults)
+			foreach(var productInstanceStatus in productInstanceStatuses)
 			{
-				if(checkResult.Value == null)
+				var isCodeValidResult = IsCodeValid(productInstanceStatus);
+				if(isCodeValidResult.IsFailure)
 				{
-					return Result.Failure(TrueMarkCodeErrors.TrueMarkCodeNotCheckedInTrueMark);
+					return isCodeValidResult;
+				}
+			}
+			return Result.Success();
+		}
+
+		private Result IsCodeValid(ProductInstanceStatus productInstanceStatus)
+		{
+			if(productInstanceStatus == null)
+			{
+				return Result.Failure(TrueMarkCodeErrors.TrueMarkCodeNotCheckedInTrueMark);
+			}
+
+			var isIntroducedResult = IsCodeIntroduced(productInstanceStatus);
+			if(isIntroducedResult.IsFailure)
+			{
+				return isIntroducedResult;
+			}
+
+			if(productInstanceStatus.GeneralPackageType == GeneralPackageType.Unit)
+			{
+				var isHasCorrectInnResult = IsCodeHasCorrectInn(productInstanceStatus);
+				if(isHasCorrectInnResult.IsFailure)
+				{
+					return isHasCorrectInnResult;
 				}
 
-				if(_ourCodesChecker.IsOurOrganizationOwner(checkResult.Value.OwnerInn))
+				var isNotExpiredResult = IsCodeNotExpired(productInstanceStatus);
+				if(isNotExpiredResult.IsFailure)
 				{
-					continue;
+					return isNotExpiredResult;
 				}
-
-				var error = TrueMarkCodeErrors.CreateTrueMarkCodeOwnerInnIsNotCorrect(checkResult.Value.OwnerInn);
-				return Result.Failure(error);
 			}
 
 			return Result.Success();
 		}
 
-		private Result IsAllCodesNotExpired(IDictionary<TrueMarkWaterIdentificationCode, ProductInstanceStatus> checkResults)
+		private Result IsCodeIntroduced(ProductInstanceStatus productInstanceStatus)
 		{
-			foreach(var checkResult in checkResults)
+			if(productInstanceStatus.Status == ProductInstanceStatusEnum.Introduced)
 			{
-				if(checkResult.Value == null)
-				{
-					return Result.Failure(TrueMarkCodeErrors.TrueMarkCodeNotCheckedInTrueMark);
-				}
+				return Result.Success();
+			}
+			return Result.Failure(TrueMarkCodeErrors.TrueMarkCodeIsNotIntroduced);
+		}
 
-				if(checkResult.Value.ExpirationDate >= DateTime.Today)
-				{
-					continue;
-				}
-
-				var error = TrueMarkCodeErrors.TrueMarkCodeIsExpired;
-				return Result.Failure(error);
+		private Result IsCodeHasCorrectInn(ProductInstanceStatus productInstanceStatus)
+		{
+			if(_ourCodesChecker.IsOurOrganizationOwner(productInstanceStatus.OwnerInn))
+			{
+				return Result.Success();
 			}
 
-			return Result.Success();
+			var error = TrueMarkCodeErrors.CreateTrueMarkCodeOwnerInnIsNotCorrect(productInstanceStatus.OwnerInn);
+			return Result.Failure(error);
+		}
+
+		private Result IsCodeNotExpired(ProductInstanceStatus productInstanceStatus)
+		{
+			if(productInstanceStatus.ExpirationDate >= DateTime.Today)
+			{
+				return Result.Success();
+			}
+			return Result.Failure(TrueMarkCodeErrors.TrueMarkCodeIsExpired);
 		}
 
 		public Result IsTrueMarkWaterIdentificationCodeNotUsed(
@@ -487,7 +510,7 @@ namespace Vodovoz.Application.TrueMark
 				if(trueMarkAnyCode.IsTrueMarkTransportCode)
 				{
 					var innerCodes = createCodesResult.Value.ToArray();
-					
+
 					foreach(var innerCode in innerCodes)
 					{
 						if(innerCode.IsTrueMarkTransportCode)
@@ -780,7 +803,7 @@ namespace Vodovoz.Application.TrueMark
 				{
 					codes.Add(trueMarkAnyCode);
 				}
-				
+
 				if(!requestCodesData.TryGetValue(requestCode, out var scannedCodeData))
 				{
 					continue;
@@ -837,7 +860,7 @@ namespace Vodovoz.Application.TrueMark
 					{
 						newTransportCodes
 							.FirstOrDefault(ntc => codesInstanseStatuses
-								.FirstOrDefault(iccr => iccr.Childs.Contains(waterIdentificationCode.RawCode))
+								.FirstOrDefault(iccr => iccr.Childs.Contains(waterIdentificationCode.IdentificationCode))
 								?.IdentificationCode == ntc.RawCode)
 							?.AddInnerWaterCode(waterIdentificationCode);
 
@@ -918,7 +941,7 @@ namespace Vodovoz.Application.TrueMark
 					.Where(x => x.GeneralPackageType != GeneralPackageType.Unit)
 					.SelectMany(x => x.Childs)
 					.ToList();
-			};
+			}
 
 			return result;
 		}
@@ -975,6 +998,554 @@ namespace Vodovoz.Application.TrueMark
 			}
 
 			return result;
+		}
+
+		public async Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCode(
+			IUnitOfWork uow,
+			string scannedCode,
+			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
+			int relatedDocumentId,
+			int? orderItemId,
+			CancellationToken cancellationToken = default)
+		{
+			var createCodeResult =
+				await CreateStagingTrueMarkCodeByScannedCodeUsingDataFromTrueMark(
+					scannedCode,
+					relatedDocumentType,
+					relatedDocumentId,
+					orderItemId,
+					cancellationToken);
+
+			if(createCodeResult.IsFailure)
+			{
+				var error = createCodeResult.Errors.FirstOrDefault();
+				return Result.Failure<StagingTrueMarkCode>(error);
+			}
+
+			var stagingTrueMarkCode = createCodeResult.Value;
+
+			var existingRootCodeResult =
+				await GetStagingTrueMarkCodeSavedDuplicates(uow, stagingTrueMarkCode, cancellationToken);
+
+			if(existingRootCodeResult.IsFailure)
+			{
+				var error = createCodeResult.Errors.FirstOrDefault();
+				return Result.Failure<StagingTrueMarkCode>(error);
+			}
+
+			if(existingRootCodeResult.Value.Any())
+			{
+				return Result.Failure<StagingTrueMarkCode>(TrueMarkCodeErrors.StagingTrueMarkCodeDuplicate);
+			}
+
+			var existingInnerCodesResult =
+				await GetStagingTrueMarkCodesSavedDuplicates(uow, stagingTrueMarkCode.AllCodes, cancellationToken);
+
+			if(existingInnerCodesResult.IsFailure)
+			{
+				var error = existingInnerCodesResult.Errors.FirstOrDefault();
+				return Result.Failure<StagingTrueMarkCode>(error);
+			}
+
+			if(existingInnerCodesResult.Value.Any())
+			{
+				foreach(var existingCode in existingInnerCodesResult.Value)
+				{
+					var getCodePredicate = StagingTrueMarkCodeSpecification.CreateForStagingCodeDuplicates(existingCode).Expression.Compile();
+
+					var duplicatedAddingCode = stagingTrueMarkCode.AllCodes
+						.FirstOrDefault(getCodePredicate);
+
+					if(duplicatedAddingCode is null)
+					{
+						continue;
+					}
+
+					foreach(var code in stagingTrueMarkCode.AllCodes)
+					{
+						if(code.InnerCodes.Any(getCodePredicate))
+						{
+							code.RemoveInnerCode(duplicatedAddingCode);
+							code.AddInnerCode(existingCode);
+						}
+					}
+				}
+			}
+
+			return Result.Success(stagingTrueMarkCode);
+		}
+
+		public Result<StagingTrueMarkCode> GetSavedStagingTrueMarkCodeByScannedCode(
+			IUnitOfWork uow,
+			string scannedCode,
+			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
+			int relatedDocumentId,
+			int? orderItemId)
+		{
+			StagingTrueMarkCode stagingTrueMarkCode;
+
+			if(_trueMarkWaterCodeParser.TryParse(scannedCode, out var parsedCode))
+			{
+				stagingTrueMarkCode = _stagingTrueMarkCodeRepository.GetFirstOrDefault(
+					uow,
+					StagingTrueMarkCodeSpecification.CreateForRelatedDocumentOrderIdCodeData(
+						false,
+						parsedCode.SourceCode,
+						parsedCode.Gtin,
+						parsedCode.SerialNumber,
+						relatedDocumentType,
+						relatedDocumentId,
+						orderItemId));
+			}
+			else
+			{
+				stagingTrueMarkCode = _stagingTrueMarkCodeRepository.GetFirstOrDefault(
+					uow,
+					StagingTrueMarkCodeSpecification.CreateForRelatedDocumentOrderIdCodeData(
+						true,
+						scannedCode,
+						string.Empty,
+						string.Empty,
+						relatedDocumentType,
+						relatedDocumentId,
+						orderItemId));
+			}
+
+			if(stagingTrueMarkCode is null)
+			{
+				return Result.Failure<StagingTrueMarkCode>(TrueMarkCodeErrors.TrueMarkCodeForRouteListItemNotFound);
+			}
+
+			return Result.Success(stagingTrueMarkCode);
+		}
+
+		private async Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCodeByScannedCodeUsingDataFromTrueMark(
+			string scannedCode,
+			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
+			int relatedDocumentId,
+			int? orderItemId,
+			CancellationToken cancellationToken = default)
+		{
+			var codes = new List<StagingTrueMarkCode>();
+
+			var requestCodesData = CreateRequestCodesDataByScannedCodes(new List<string> { scannedCode });
+			var requestCodesInstanceStatusesDataResult = await GetProductInstanceStatuses(requestCodesData.Keys, cancellationToken);
+
+			if(requestCodesInstanceStatusesDataResult.IsFailure)
+			{
+				return Result.Failure<StagingTrueMarkCode>(requestCodesInstanceStatusesDataResult.Errors);
+			}
+
+			var codesInstanceStatuses = requestCodesInstanceStatusesDataResult.Value.Select(x => x.Value).ToList();
+
+			var isAllCodesValidResult = IsAllCodesValid(codesInstanceStatuses.Where(x => x.GeneralPackageType == GeneralPackageType.Unit));
+
+			if(isAllCodesValidResult.IsFailure)
+			{
+				return Result.Failure<StagingTrueMarkCode>(isAllCodesValidResult.Errors);
+			}
+
+			foreach(var codeInstanceStatusData in requestCodesInstanceStatusesDataResult.Value)
+			{
+				var requestCode = codeInstanceStatusData.Key;
+				var instanceStatus = codeInstanceStatusData.Value;
+
+				StagingTrueMarkCode code = null;
+				TrueMarkWaterCode parsedCode = null;
+
+				if(requestCodesData.TryGetValue(requestCode, out var requestCodeData))
+				{
+					parsedCode = requestCodeData.ParsedCode;
+				}
+
+				switch(instanceStatus.GeneralPackageType)
+				{
+					case GeneralPackageType.Box:
+						code = _stagingTrueMarkCodeFactory.CreateTransportCodeFromRawCode(requestCode, relatedDocumentType, relatedDocumentId, orderItemId);
+						break;
+					case GeneralPackageType.Group:
+						code =
+							parsedCode != null
+							? _stagingTrueMarkCodeFactory.CreateGroupCodeFromParsedCode(parsedCode, relatedDocumentType, relatedDocumentId, orderItemId)
+							: _stagingTrueMarkCodeFactory.CreateGroupCodeFromProductInstanceStatus(instanceStatus, relatedDocumentType, relatedDocumentId, orderItemId);
+						break;
+					case GeneralPackageType.Unit:
+						code =
+							parsedCode != null
+							? _stagingTrueMarkCodeFactory.CreateIdentificationCodeFromParsedCode(parsedCode, relatedDocumentType, relatedDocumentId, orderItemId)
+							: _stagingTrueMarkCodeFactory.CreateIdentificationCodeFromProductInstanceStatus(instanceStatus, relatedDocumentType, relatedDocumentId, orderItemId);
+						break;
+					default:
+						throw new NotImplementedException("Указанный в статусе кода тип упаковки не поддерживается");
+				}
+
+				codes.Add(code);
+			}
+
+			var childToParentCodeInstanceStatuses = codesInstanceStatuses
+				.SelectMany(status => status.Childs.Select(child => (Child: child, Parent: status.IdentificationCode)))
+				.ToLookup(x => x.Child, x => x.Parent);
+
+			var codeByIdentificationCode = codes.ToLookup(c => c.IdentificationCode);
+
+			foreach(var code in codes)
+			{
+				var parentIdentificationCode = childToParentCodeInstanceStatuses[code.IdentificationCode].FirstOrDefault();
+
+				if(parentIdentificationCode is null)
+				{
+					continue;
+				}
+
+				var parentCode = codeByIdentificationCode[parentIdentificationCode].FirstOrDefault();
+				parentCode?.AddInnerCode(code);
+			}
+
+			var rootCode = codes.First(x => x.ParentCodeId == null);
+
+			return rootCode;
+		}
+
+		private async Task<Result<IEnumerable<StagingTrueMarkCode>>> GetStagingTrueMarkCodesSavedDuplicates(
+			IUnitOfWork uow,
+			IEnumerable<StagingTrueMarkCode> codes,
+			CancellationToken cancellationToken)
+		{
+			var existingCodes = new List<StagingTrueMarkCode>();
+
+			if(!codes.Any())
+			{
+				return existingCodes;
+			}
+
+			var relatedDocumentType = codes.First().RelatedDocumentType;
+			var relatedDocumentId = codes.First().RelatedDocumentId;
+
+			var addedCodesResult = await _stagingTrueMarkCodeRepository.GetAsync(
+				uow,
+				c => c.RelatedDocumentType == relatedDocumentType && c.RelatedDocumentId == relatedDocumentId,
+				cancellationToken: cancellationToken);
+
+			if(addedCodesResult.IsFailure)
+			{
+				return addedCodesResult;
+			}
+
+			var addedCodes = addedCodesResult.Value;
+
+			foreach(var code in codes)
+			{
+				var existingCodesPredicate = StagingTrueMarkCodeSpecification.CreateForStagingCodeDuplicates(code).Expression.Compile();
+
+				existingCodes.AddRange(addedCodesResult.Value
+					.Where(existingCodesPredicate)
+					.ToList());
+			}
+
+			return existingCodes;
+		}
+
+		private async Task<Result<IEnumerable<StagingTrueMarkCode>>> GetStagingTrueMarkCodeSavedDuplicates(
+			IUnitOfWork uow,
+			StagingTrueMarkCode code,
+			CancellationToken cancellationToken)
+		{
+			return await _stagingTrueMarkCodeRepository.GetAsync(
+				uow,
+				StagingTrueMarkCodeSpecification.CreateForStagingCodeDuplicates(code),
+				cancellationToken: cancellationToken);
+		}
+
+		public async Task<Result> IsStagingTrueMarkCodeAlreadyUsedInProductCodes(
+			IUnitOfWork uow,
+			StagingTrueMarkCode stagingTrueMarkCode,
+			CancellationToken cancellationToken = default)
+		{
+			var usedProductCodes =
+				await _trueMarkRepository.GetUsedTrueMarkProductCodeByStagingTrueMarkCode(uow, stagingTrueMarkCode, cancellationToken);
+
+			if(usedProductCodes.Any())
+			{
+				var codesUsedOrderId = await _trueMarkRepository.GetOrderIdByTrueMarkProductCode(uow, usedProductCodes.First(), cancellationToken);
+				return Result.Failure(TrueMarkCodeErrors.CreateTrueMarkCodeIsAlreadyUsedInOrder(codesUsedOrderId ?? 0));
+			}
+
+			return Result.Success();
+		}
+
+		public async Task<IEnumerable<StagingTrueMarkCode>> GetAllTrueMarkStagingCodesByRelatedDocument(
+			IUnitOfWork uow,
+			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
+			int relatedDocumentId,
+			CancellationToken cancellationToken = default)
+		{
+			var allCodesResult =
+				await _stagingTrueMarkCodeRepository.GetAsync(
+					uow,
+					StagingTrueMarkCodeSpecification.CreateForRelatedDocument(relatedDocumentType, relatedDocumentId),
+					cancellationToken: cancellationToken);
+
+			return allCodesResult.Value;
+		}
+
+		public async Task<Result> DeleteAllTrueMarkStagingCodesByRelatedDocument(
+			IUnitOfWork uow,
+			StagingTrueMarkCodeRelatedDocumentType relatedDocumentType,
+			int relatedDocumentId,
+			CancellationToken cancellationToken = default)
+		{
+			var allCodesResult =
+				await _stagingTrueMarkCodeRepository.GetAsync(
+					uow,
+					StagingTrueMarkCodeSpecification.CreateForRelatedDocument(relatedDocumentType, relatedDocumentId),
+					cancellationToken: cancellationToken);
+
+			var rootCodes = allCodesResult.Value
+				.Where(x => x.ParentCodeId == null)
+				.ToList();
+
+			foreach(var rootCode in rootCodes)
+			{
+				await uow.DeleteAsync(rootCode, cancellationToken);
+			}
+
+			return Result.Success();
+		}
+
+		public async Task<Result<IEnumerable<TrueMarkAnyCode>>> CreateTrueMarkAnyCodesFromStagingCodes(
+			IUnitOfWork uow,
+			IEnumerable<StagingTrueMarkCode> stagingCodes,
+			CancellationToken cancellationToken = default)
+		{
+			var codesData = await GetSavedOrCreateTrueMarkAnyCodesByStagingCodes(uow, stagingCodes, cancellationToken);
+
+			var trueMarkAnyCodes = new List<TrueMarkAnyCode>();
+
+			foreach(var stagingCode in stagingCodes)
+			{
+				if(!codesData.TryGetValue(stagingCode, out var trueMarkAnyCode))
+				{
+					throw new InvalidOperationException($"Код ЧЗ с Id {stagingCode.Id} не найден в сохраненных или созданных кодах.");
+				}
+
+				if(stagingCode.InnerCodes.Any())
+				{
+					foreach(var innerCode in stagingCode.InnerCodes)
+					{
+						if(!codesData.TryGetValue(innerCode, out var innerTrueMarkAnyCode))
+						{
+							throw new InvalidOperationException($"Внутренний код ЧЗ с Id {innerCode.Id} не найден в сохраненных или созданных кодах.");
+						}
+						trueMarkAnyCode.AddInnerTrueMarkAnyCode(innerTrueMarkAnyCode);
+					}
+				}
+
+				if(stagingCode.ParentCodeId is null)
+				{
+					trueMarkAnyCodes.Add(trueMarkAnyCode);
+				}
+			}
+
+			return Result.Success<IEnumerable<TrueMarkAnyCode>>(trueMarkAnyCodes);
+		}
+
+		private async Task<IDictionary<StagingTrueMarkCode, TrueMarkAnyCode>> GetSavedOrCreateTrueMarkAnyCodesByStagingCodes(
+			IUnitOfWork uow,
+			IEnumerable<StagingTrueMarkCode> stagingCodes,
+			CancellationToken cancellationToken)
+		{
+			var transportSagingCodes  = stagingCodes
+				.Where(x => x.CodeType == StagingTrueMarkCodeType.Transport)
+				.ToList();
+
+			var groupStagingCodes = stagingCodes
+				.Where(x => x.CodeType == StagingTrueMarkCodeType.Group)
+				.ToList();
+
+			var identificationStagingCodes = stagingCodes
+				.Where(x => x.CodeType == StagingTrueMarkCodeType.Identification)
+				.ToList();
+
+			var codesData = new Dictionary<StagingTrueMarkCode, TrueMarkAnyCode>();
+
+			if(transportSagingCodes.Any())
+			{
+				var transportCodesData =
+					await GetSavedOrCreateTrueMarkAnyCodesByTransportStagingCodes(uow, transportSagingCodes, cancellationToken);
+				
+				foreach(var transportCodeData in transportCodesData)
+				{
+					if(codesData.ContainsKey(transportCodeData.Key))
+					{
+						continue;
+					}
+					codesData.Add(transportCodeData.Key, transportCodeData.Value);
+				}
+			}
+
+			if(groupStagingCodes.Any())
+			{
+				var groupCodesData =
+					await GetSavedOrCreateTrueMarkAnyCodesByGroupStagingCodes(uow, groupStagingCodes, cancellationToken);
+
+				foreach(var groupCodeData in groupCodesData)
+				{
+					if(codesData.ContainsKey(groupCodeData.Key))
+					{
+						continue;
+					}
+					codesData.Add(groupCodeData.Key, groupCodeData.Value);
+				}
+			}
+
+			if(identificationStagingCodes.Any())
+			{
+				var identificationCodesData =
+					await GetSavedOrCreateTrueMarkAnyCodesByIdentificationStagingCodes(uow, identificationStagingCodes, cancellationToken);
+
+				foreach(var identificationCodeData in identificationCodesData)
+				{
+					if(codesData.ContainsKey(identificationCodeData.Key))
+					{
+						continue;
+					}
+					codesData.Add(identificationCodeData.Key, identificationCodeData.Value);
+				}
+			}
+
+			return codesData;
+		}
+
+		private async Task<IDictionary<StagingTrueMarkCode, TrueMarkAnyCode>> GetSavedOrCreateTrueMarkAnyCodesByTransportStagingCodes(
+			IUnitOfWork uow,
+			IEnumerable<StagingTrueMarkCode> stagingCodes,
+			CancellationToken cancellationToken)
+		{
+			if(stagingCodes.Any(x => x.CodeType != StagingTrueMarkCodeType.Transport))
+			{
+				throw new ArgumentException(
+					"Метод поддерживает только транспортные коды ЧЗ, переданы коды других типов",
+					nameof(stagingCodes));
+			}
+
+			var savedCodesResult = await _trueMarkTransportCodeRepository
+				.GetAsync(
+					uow,
+					TrueMarkTransportCodeSpecification.CreateForRawCodes(stagingCodes.Select(x => x.RawCode)),
+					cancellationToken: cancellationToken);
+
+			if(savedCodesResult.IsFailure)
+			{
+				var error = savedCodesResult.Errors.FirstOrDefault();
+				throw new InvalidOperationException($"Ошибка при получении сохраненных транспортных кодов ЧЗ: {error?.Message}");
+			}
+
+			var savedCodes = savedCodesResult.Value.ToDictionary(x => x.RawCode);
+
+			var codesData = new Dictionary<StagingTrueMarkCode, TrueMarkAnyCode>();
+
+			foreach(var stagingCode in stagingCodes)
+			{
+				if(savedCodes.TryGetValue(stagingCode.RawCode, out var savedCode))
+				{
+					codesData.Add(stagingCode, savedCode);
+				}
+				else
+				{
+					var newTrueMarkAnyCode = _trueMarkTransportCodeFactory.CreateFromStagingCode(stagingCode);
+					codesData.Add(stagingCode, newTrueMarkAnyCode);
+				}
+			}
+
+			return codesData;
+		}
+
+		private async Task<IDictionary<StagingTrueMarkCode, TrueMarkAnyCode>> GetSavedOrCreateTrueMarkAnyCodesByGroupStagingCodes(
+			IUnitOfWork uow,
+			IEnumerable<StagingTrueMarkCode> stagingCodes,
+			CancellationToken cancellationToken)
+		{
+			if(stagingCodes.Any(x => x.CodeType != StagingTrueMarkCodeType.Group))
+			{
+				throw new ArgumentException(
+					"Метод поддерживает только групповые коды ЧЗ, переданы коды других типов",
+					nameof(stagingCodes));
+			}
+
+			var savedCodesResult = await _trueMarkWaterGroupCodeRepository
+				.GetAsync(
+					uow,
+					TrueMarkWaterGroupCodeSpecification.CreateForSerialNumbers(stagingCodes.Select(x => x.SerialNumber)),
+					cancellationToken: cancellationToken);
+
+			if(savedCodesResult.IsFailure)
+			{
+				var error = savedCodesResult.Errors.FirstOrDefault();
+				throw new InvalidOperationException($"Ошибка при получении сохраненных групповых кодов ЧЗ: {error?.Message}");
+			}
+
+			var savedCodes = savedCodesResult.Value.ToDictionary(x => (x.SerialNumber, x.GTIN));
+
+			var codesData = new Dictionary<StagingTrueMarkCode, TrueMarkAnyCode>();
+
+			foreach(var stagingCode in stagingCodes)
+			{
+				if(savedCodes.TryGetValue((stagingCode.SerialNumber, stagingCode.Gtin), out var savedCode))
+				{
+					codesData.Add(stagingCode, savedCode);
+				}
+				else
+				{
+					var newTrueMarkAnyCode = _trueMarkWaterGroupCodeFactory.CreateFromStagingCode(stagingCode);
+					codesData.Add(stagingCode, newTrueMarkAnyCode);
+				}
+			}
+
+			return codesData;
+		}
+
+		private async Task<IDictionary<StagingTrueMarkCode, TrueMarkAnyCode>> GetSavedOrCreateTrueMarkAnyCodesByIdentificationStagingCodes(
+			IUnitOfWork uow,
+			IEnumerable<StagingTrueMarkCode> stagingCodes,
+			CancellationToken cancellationToken)
+		{
+			if(stagingCodes.Any(x => x.CodeType != StagingTrueMarkCodeType.Identification))
+			{
+				throw new ArgumentException(
+					"Метод поддерживает только индивидуальные коды ЧЗ, переданы коды других типов",
+					nameof(stagingCodes));
+			}
+
+			var savedCodesResult = await _trueMarkWaterIdentificationCodeRepository
+				.GetAsync(
+					uow,
+					TrueMarkWaterIdentificationCodeSpecification.CreateForSerialNumbers(stagingCodes.Select(x => x.SerialNumber)),
+					cancellationToken: cancellationToken);
+
+			if(savedCodesResult.IsFailure)
+			{
+				var error = savedCodesResult.Errors.FirstOrDefault();
+				throw new InvalidOperationException($"Ошибка при получении сохраненных индивидуальных кодов ЧЗ: {error?.Message}");
+			}
+
+			var savedCodes = savedCodesResult.Value.ToDictionary(x => (x.SerialNumber, x.Gtin));
+
+			var codesData = new Dictionary<StagingTrueMarkCode, TrueMarkAnyCode>();
+
+			foreach(var stagingCode in stagingCodes)
+			{
+				if(savedCodes.TryGetValue((stagingCode.SerialNumber, stagingCode.Gtin), out var savedCode))
+				{
+					codesData.Add(stagingCode, savedCode);
+				}
+				else
+				{
+					var newTrueMarkAnyCode = _trueMarkWaterIdentificationCodeFactory.CreateFromStagingCode(stagingCode);
+					codesData.Add(stagingCode, newTrueMarkAnyCode);
+				}
+			}
+
+			return codesData;
 		}
 	}
 }

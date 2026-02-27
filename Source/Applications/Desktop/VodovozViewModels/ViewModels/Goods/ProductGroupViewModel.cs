@@ -5,7 +5,7 @@ using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
-using Vodovoz.Domain.Goods;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.ViewModels.Goods.ProductGroups;
 
 namespace Vodovoz.ViewModels.ViewModels.Goods

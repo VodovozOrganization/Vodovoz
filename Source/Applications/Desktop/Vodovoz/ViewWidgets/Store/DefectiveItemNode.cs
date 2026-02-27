@@ -1,16 +1,15 @@
-﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.ViewWidgets.Store
 {
 	public class DefectiveItemNode : PropertyChangedBase
 	{
-		public DefectiveItemNode(Nomenclature nomenclature, int amount)
+		public DefectiveItemNode(NomenclatureEntity nomenclature, int amount)
 		{
 			Name = nomenclature.Name;
 			NomenclatureId = nomenclature.Id;

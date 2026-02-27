@@ -1,4 +1,6 @@
-﻿using TrueMark.Contracts;
+﻿using System;
+using TrueMark.Contracts;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark;
 
 namespace Vodovoz.Application.TrueMark
@@ -20,6 +22,22 @@ namespace Vodovoz.Application.TrueMark
 			{
 				IsInvalid = false,
 				RawCode = scannedCode,
+			};
+		}
+
+		public TrueMarkTransportCode CreateFromStagingCode(StagingTrueMarkCode stagingCode)
+		{
+			if(stagingCode?.IsTransport == false)
+			{
+				throw new ArgumentException(
+					$"Код {stagingCode?.IdentificationCode} не является транспортным кодом",
+					nameof(stagingCode));
+			}
+
+			return new TrueMarkTransportCode
+			{
+				IsInvalid = false,
+				RawCode = stagingCode.RawCode,
 			};
 		}
 	}

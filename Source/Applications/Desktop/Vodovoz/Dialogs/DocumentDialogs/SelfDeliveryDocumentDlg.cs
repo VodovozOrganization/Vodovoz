@@ -1,8 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using Autofac;
+﻿using Autofac;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
@@ -16,12 +12,20 @@ using QS.Navigation;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Employees;
@@ -43,7 +47,8 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.TrueMark;
 using Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan;
-using VodovozBusiness.Services.TrueMark;
+using VodovozBusiness.Controllers;
+using VodovozBusiness.Domain.Client.Specifications;
 
 namespace Vodovoz
 {
@@ -58,10 +63,12 @@ namespace Vodovoz
 		private IStoreDocumentHelper _storeDocumentHelper;
 		private INomenclatureRepository _nomenclatureRepository;
 		private readonly IValidationContextFactory _validationContextFactory =  ScopeProvider.Scope.Resolve<IValidationContextFactory>();
-		private ITrueMarkWaterCodeService _trueMarkWaterCodeService;
+		private IGenericRepository<FormalEdoRequest> _orderEdoRequestRepository;
 		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
 		private CodesScanViewModel _codesScanViewModel;
 		private ValidationContext _validationContext;
+		private ICounterpartyEdoAccountController _edoAccountController;
+		public IList<StagingTrueMarkCode> _allScannedStagingCodes = new List<StagingTrueMarkCode>();
 
 		private GenericObservableList<GoodsReceptionVMNode> GoodsReceptionList = new GenericObservableList<GoodsReceptionVMNode>();
 
@@ -126,8 +133,8 @@ namespace Vodovoz
 			_bottlesRepository = _lifetimeScope.Resolve<IBottlesRepository>();
 			_storeDocumentHelper = _lifetimeScope.Resolve<IStoreDocumentHelper>();
 			_nomenclatureRepository = _lifetimeScope.Resolve<INomenclatureRepository>();
-			_trueMarkWaterCodeService = _lifetimeScope.Resolve<ITrueMarkWaterCodeService>
-				(new TypedParameter(typeof(IUnitOfWork), UoW)); 
+			_orderEdoRequestRepository = _lifetimeScope.Resolve<IGenericRepository<FormalEdoRequest>>();
+			_edoAccountController = _lifetimeScope.Resolve<ICounterpartyEdoAccountController>();
 		}
 		
 		private void ConfigureValidationContext(IValidationContextFactory validationContextFactory)
@@ -307,10 +314,21 @@ namespace Vodovoz
 
 				return;
 			}
-			
-			_codesScanViewModel = NavigationManager
-				.OpenViewModel<CodesScanViewModel, IUnitOfWork, SelfDeliveryDocument, ITrueMarkWaterCodeService>(
-					null, UoW, Entity, _trueMarkWaterCodeService).ViewModel;
+
+			var isOrderEdoRequestExists =
+					_orderEdoRequestRepository
+					.Get(UoW, OrderEdoRequestSpecification.CreateForOrderId(Entity.Order.Id))
+					.Any();
+
+			if(isOrderEdoRequestExists)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error,
+					"Заявка на отправку документов заказа по ЭДО уже создана. Изменение кодов запрещено");
+				return;
+			}
+
+			_codesScanViewModel = NavigationManager.OpenViewModel<CodesScanViewModel>(null).ViewModel;
+			_codesScanViewModel.Initialize(UoW, Entity, _allScannedStagingCodes);
 		}
 
 		private void FillTrees()
@@ -327,7 +345,7 @@ namespace Vodovoz
 			foreach(var item in Entity.ReturnedItems) {
 				if((item.Nomenclature.Category != NomenclatureCategory.bottle) 
 					&& ((item.Nomenclature.Category != NomenclatureCategory.equipment) 
-						|| ( item.Direction == Domain.Orders.Direction.PickUp)))
+						|| ( item.Direction == Core.Domain.Orders.Direction.PickUp)))
 					GoodsReceptionList.Add(new GoodsReceptionVMNode {
 						NomenclatureId = item.Nomenclature.Id,
 						Name = item.Nomenclature.Name,
@@ -358,6 +376,14 @@ namespace Vodovoz
 			   && (!(_codesScanViewModel?.IsAllCodesScanned ?? false))
 			   && !_interactiveService.Question("Не все коды отсканированы. Уверены, что хотите сохранить отпуск самовывоза?"))
 			{
+				return false;
+			}
+
+			var addingProductCodesResult = AddProductCodesAndCheckIsAllCodesAddedIfNeed();
+
+			if(addingProductCodesResult.IsFailure)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error, addingProductCodesResult.GetErrorsString());
 				return false;
 			}
 
@@ -405,6 +431,60 @@ namespace Vodovoz
 			//OrmMain.NotifyObjectUpdated(new object[] { Entity.Order });
 			logger.Info("Ok.");
 			return true;
+		}
+
+		private Result AddProductCodesAndCheckIsAllCodesAddedIfNeed()
+		{
+			var isAllTrueMarkProductCodesMustBeAdded =
+				Entity.Order.IsNeedIndividualSetOnLoad(_edoAccountController)
+				|| Entity.Order.IsOrderForResale
+				|| Entity.Order.IsOrderForTender;
+
+			if(_codesScanViewModel is null)
+			{
+				if(isAllTrueMarkProductCodesMustBeAdded)
+				{
+					return Result.Failure(Errors.TrueMark.TrueMarkCodeErrors.NotAllCodesAdded);
+				}
+
+				return Result.Success();
+			}
+
+			var addingCodesResult = AddProductCodesToSelfDeliveryDocumentItemAndDeleteStagingCodes(isAllTrueMarkProductCodesMustBeAdded);
+			if(addingCodesResult.IsFailure)
+			{
+				return addingCodesResult;
+			}
+
+			if(isAllTrueMarkProductCodesMustBeAdded)
+			{
+				var isAllCodesAddedResult = _codesScanViewModel.IsAllTrueMarkProductCodesAdded();
+				if(isAllCodesAddedResult.IsFailure)
+				{
+					return isAllCodesAddedResult;
+				}
+			}
+			
+			return Result.Success();
+		}
+
+		private Result AddProductCodesToSelfDeliveryDocumentItemAndDeleteStagingCodes(bool isAllTrueMarkProductCodesMustBeAdded = false)
+		{
+			if(_codesScanViewModel is null)
+			{
+				throw new InvalidOperationException("Невозможно добавить коды, так как окно сканирования кодов не открывалось.");
+			}
+
+			var addingCodesResult =
+				_codesScanViewModel.AddProductCodesToSelfDeliveryDocumentItemAndDeleteStagingCodes(isAllTrueMarkProductCodesMustBeAdded)
+				.GetAwaiter().GetResult();
+
+			if(addingCodesResult.IsFailure)
+			{
+				return addingCodesResult;
+			}
+
+			return Result.Success();
 		}
 
 		private void UpdateWarehouseGeoGroup()
@@ -462,7 +542,7 @@ namespace Vodovoz
 		private void UpdateAmounts()
 		{
 			foreach(var item in Entity.Items)
-				item.Amount = Math.Min(Entity.GetNomenclaturesCountInOrder(item.Nomenclature) - item.AmountUnloaded, item.AmountInStock);
+				item.Amount = Math.Min(Entity.GetNomenclaturesCountInOrder(item.Nomenclature.Id) - item.AmountUnloaded, item.AmountInStock);
 		}
 
 		private void UpdateWidgets()
@@ -509,7 +589,7 @@ namespace Vodovoz
 
 			if(node.Category == NomenclatureCategory.equipment)
 			{
-				node.Direction = Domain.Orders.Direction.PickUp;
+				node.Direction = Core.Domain.Orders.Direction.PickUp;
 			}
 
 			if(!GoodsReceptionList.Any(n => n.NomenclatureId == node.NomenclatureId))

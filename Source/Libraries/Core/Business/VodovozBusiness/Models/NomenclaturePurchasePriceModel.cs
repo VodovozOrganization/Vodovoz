@@ -15,7 +15,7 @@ namespace Vodovoz.Models
 			_permissionService = permissionService ?? throw new ArgumentNullException(nameof(permissionService));
 		}
 
-		public NomenclaturePurchasePrice CreatePrice(Nomenclature nomenclature, DateTime startDate)
+		public NomenclaturePurchasePrice CreatePrice(NomenclatureEntity nomenclature, DateTime startDate)
 		{
 			if(!CanCreatePrice(nomenclature, startDate))
 			{
@@ -30,14 +30,14 @@ namespace Vodovoz.Models
 			return newPrice;
 		}
 
-		public NomenclaturePurchasePrice CreatePrice(Nomenclature nomenclature, DateTime startDate, decimal price)
+		public NomenclaturePurchasePrice CreatePrice(NomenclatureEntity nomenclature, DateTime startDate, decimal price)
 		{
 			var newPrice = CreatePrice(nomenclature, startDate);
 			newPrice.PurchasePrice = price;
 			return newPrice;
 		}
 
-		public bool CanCreatePrice(Nomenclature nomenclature, DateTime startDate)
+		public bool CanCreatePrice(NomenclatureEntity nomenclature, DateTime startDate)
 		{
 			if(nomenclature is null)
 			{
@@ -52,7 +52,7 @@ namespace Vodovoz.Models
 			return true;
 		}
 
-		public bool CanCreatePrice(Nomenclature nomenclature, DateTime startDate, decimal newPrice)
+		public bool CanCreatePrice(NomenclatureEntity nomenclature, DateTime startDate, decimal newPrice)
 		{
 			if(nomenclature is null)
 			{
@@ -130,7 +130,7 @@ namespace Vodovoz.Models
 			return true;
 		}
 
-		public void CloseActivePrice(Nomenclature nomenclature, DateTime startDate)
+		public void CloseActivePrice(NomenclatureEntity nomenclature, DateTime startDate)
 		{
 			var activePrice = GetActivePrice(nomenclature);
 			if(activePrice == null)
@@ -141,7 +141,7 @@ namespace Vodovoz.Models
 			activePrice.EndDate = GetCloseTime(startDate);
 		}
 
-		public NomenclaturePurchasePrice GetActivePrice(Nomenclature nomenclature)
+		public NomenclaturePurchasePrice GetActivePrice(NomenclatureEntity nomenclature)
 		{
 			var unclosedPrices = nomenclature.PurchasePrices.Where(x => x.EndDate == null);
 			var unclosedPriceCount = unclosedPrices.Count();

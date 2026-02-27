@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using FluentNHibernate.Data;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
