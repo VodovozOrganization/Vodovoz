@@ -1841,30 +1841,23 @@ FROM
 			DateTime startDate,
 			DateTime endDate)
 		{
-			if(driverIds == null || driverIds.Length == 0)
+			if(driverIds == null || !driverIds.Any())
 			{
 				return new Dictionary<int, HashSet<DateTime>>();
 			}
 
-			var result = new Dictionary<int, HashSet<DateTime>>();
+			var routeLists = uow.Session.Query<RouteList>()
+				.Where(rl => rl.Date >= startDate.Date && rl.Date <= endDate.Date)
+				.Where(rl => driverIds.Contains(rl.Driver.Id))
+				.Select(rl => new { rl.Driver.Id, rl.Date })
+				.ToList();
 
-			var routeLists = uow.Session.QueryOver<RouteList>()
-				.Where(rl => rl.Date >= startDate)
-				.Where(rl => rl.Date <= endDate)
-				.Where(rl => rl.Status != RouteListStatus.Closed)
-				.WhereRestrictionOn(rl => rl.Driver.Id).IsIn(driverIds)
-				.List();
-
-			foreach(var routeList in routeLists)
-			{
-				if(!result.ContainsKey(routeList.Driver.Id))
-				{
-					result[routeList.Driver.Id] = new HashSet<DateTime>();
-				}
-				result[routeList.Driver.Id].Add(routeList.Date);
-			}
-
-			return result;
+			return routeLists
+				.GroupBy(x => x.Id)
+				.ToDictionary(
+					g => g.Key,
+					g => new HashSet<DateTime>(g.Select(x => x.Date.Date))
+				);
 		}
 	}
 }
