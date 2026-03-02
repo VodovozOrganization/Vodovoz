@@ -3,6 +3,7 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Edo.Documents
 {
@@ -137,7 +139,17 @@ namespace Edo.Documents
 					return;
 				}
 
-				var withdrawalRequest = CreateWithdrawalEdoRequest(formalEdoRequest, order);
+				var codes = documentTask.Items.Select(x => x.ProductCode).ToList();
+
+				if(!codes.Any())
+				{
+					_logger.LogInformation(
+						"В задаче {DocumentTaskId} отсутствуют коды ЧЗ. Вывод из оборота не требуется",
+						documentTask.Id);
+					return;
+				}
+
+				var withdrawalRequest = CreateWithdrawalEdoRequest(codes, order);
 
 				await uow.SaveAsync(withdrawalRequest, cancellationToken: cancellationToken);
 				await uow.CommitAsync(cancellationToken);
@@ -154,13 +166,7 @@ namespace Edo.Documents
 			}
 		}
 
-		/// <summary>
-		/// Создать заявку на вывод из оборота из заявки на отправку документов
-		/// </summary>
-		/// <param name="sourceRequest">Исходная заявка</param>
-		/// <param name="order">Заказ</param>
-		/// <returns>Заявка на вывод из оборота</returns>
-		private WithdrawalEdoRequest CreateWithdrawalEdoRequest(FormalEdoRequest sourceRequest, OrderEntity order)
+		private WithdrawalEdoRequest CreateWithdrawalEdoRequest(IEnumerable<TrueMarkProductCode> codes, OrderEntity order)
 		{
 			var withdrawalRequest = new WithdrawalEdoRequest
 			{
@@ -171,12 +177,9 @@ namespace Edo.Documents
 				Order = order
 			};
 
-			if(sourceRequest.ProductCodes != null)
+			foreach(var code in codes)
 			{
-				foreach(var productCode in sourceRequest.ProductCodes)
-				{
-					withdrawalRequest.ProductCodes.Add(productCode);
-				}
+				withdrawalRequest.ProductCodes.Add(code);
 			}
 
 			return withdrawalRequest;

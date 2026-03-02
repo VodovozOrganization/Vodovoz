@@ -16,7 +16,9 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Settings.Edo;
 using VodovozBusiness.EntityRepositories.Edo;
+using IEdoRepository = Vodovoz.Core.Data.Repositories.IEdoRepository;
 
 namespace Edo.Withdrawal
 {
@@ -29,6 +31,8 @@ namespace Edo.Withdrawal
 		private readonly IEdoDocflowRepository _edoDocflowRepository;
 		private readonly ICounterpartyEdoAccountEntityController _edoAccountEntityController;
 		private readonly IGenericRepository<TrueMarkDocument> _trueMarkDocumentRepository;
+		private readonly IEdoSettings _edoSettings;
+		private readonly IEdoRepository _edoRepository;
 
 		public WithdrawalTaskCreatedHandler(
 			ILogger<WithdrawalTaskCreatedHandler> logger,
@@ -37,7 +41,9 @@ namespace Edo.Withdrawal
 			ITrueMarkApiClient trueMarkApiClient,
 			IEdoDocflowRepository edoDocflowRepository,
 			ICounterpartyEdoAccountEntityController edoAccountEntityController,
-			IGenericRepository<TrueMarkDocument> trueMarkDocumentRepository)
+			IGenericRepository<TrueMarkDocument> trueMarkDocumentRepository,
+			IEdoSettings edoSettings,
+			IEdoRepository edoRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
@@ -46,6 +52,8 @@ namespace Edo.Withdrawal
 			_edoDocflowRepository = edoDocflowRepository ?? throw new ArgumentNullException(nameof(edoDocflowRepository));
 			_edoAccountEntityController = edoAccountEntityController ?? throw new ArgumentNullException(nameof(edoAccountEntityController));
 			_trueMarkDocumentRepository = trueMarkDocumentRepository ?? throw new ArgumentNullException(nameof(trueMarkDocumentRepository));
+			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
+			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 		}
 
 		public async Task HandleWithdrawal(int withdrawalEdoTaskId, CancellationToken cancellationToken)
@@ -101,9 +109,31 @@ namespace Edo.Withdrawal
 				if(edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree
 					&& client.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
 				{
-					throw new InvalidOperationException(
-						$"От клиента {client.Id} получено согласие на ЭДО и клиент зарегистрирован в ЧЗ. " +
-						"Вывод из оборота невозможен");
+					var documents = _edoRepository.GetOrderEdoDocumentsByOrderId(uow, order.Id);
+					var orderEdoDocument = documents.FirstOrDefault();
+
+					if(orderEdoDocument?.SendTime == null)
+					{
+						throw new InvalidOperationException(
+							$"От клиента {client.Id} получено согласие на ЭДО и клиент зарегистрирован в ЧЗ. " +
+							"Время отправки документа не найдено. Вывод из оборота невозможен");
+					}
+
+					var daysSinceSend = (DateTime.Now - orderEdoDocument.SendTime.Value).TotalDays;
+					var timeoutDays = _edoSettings.WithdrawalDocflowTimeoutDays;
+
+					if(daysSinceSend <= timeoutDays)
+					{
+						throw new InvalidOperationException(
+							$"От клиента {client.Id} получено согласие на ЭДО и клиент зарегистрирован в ЧЗ. " +
+							$"Документооборот не превысил таймаут в {timeoutDays} дней (прошло {daysSinceSend:F1} дней). " +
+							"Вывод из оборота невозможен");
+					}
+
+					_logger.LogInformation(
+						"Клиент {ClientId} зарегистрирован в ЭДО и ЧЗ, документооборот превысил таймаут в {Days} дней. Вывод из оборота разрешён",
+						client.Id,
+						timeoutDays);
 				}
 
 				var isTrueMarkDocumentExists = _trueMarkDocumentRepository
