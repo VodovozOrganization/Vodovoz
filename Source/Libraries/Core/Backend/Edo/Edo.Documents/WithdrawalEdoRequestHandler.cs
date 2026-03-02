@@ -149,7 +149,7 @@ namespace Edo.Documents
 					return;
 				}
 
-				var withdrawalRequest = CreateWithdrawalEdoRequest(codes, order);
+				var withdrawalRequest = CreateWithdrawalEdoRequest(order, documentTask);
 
 				await uow.SaveAsync(withdrawalRequest, cancellationToken: cancellationToken);
 				await uow.CommitAsync(cancellationToken);
@@ -166,7 +166,7 @@ namespace Edo.Documents
 			}
 		}
 
-		private WithdrawalEdoRequest CreateWithdrawalEdoRequest(IEnumerable<TrueMarkProductCode> codes, OrderEntity order)
+		private WithdrawalEdoRequest CreateWithdrawalEdoRequest(OrderEntity order, DocumentEdoTask documentTask)
 		{
 			var withdrawalRequest = new WithdrawalEdoRequest
 			{
@@ -174,13 +174,9 @@ namespace Edo.Documents
 				Source = CustomerEdoRequestSource.Manual,
 				Type = CustomerEdoRequestType.Order,
 				DocumentType = EdoDocumentType.UPD,
-				Order = order
+				Order = order,
+				BaseDocumentEdoTask = documentTask
 			};
-
-			foreach(var code in codes)
-			{
-				withdrawalRequest.ProductCodes.Add(code);
-			}
 
 			return withdrawalRequest;
 		}

@@ -8,6 +8,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Edo
 		public WithdrawalEdoRequestMap()
 		{
 			DiscriminatorValue(nameof(EdoRequestType.Withdrawal));
+
+			References(x => x.BaseDocumentEdoTask)
+				.Column("base_order_task_id");
 		}
 	}
 }

@@ -2,6 +2,7 @@
 using QS.Extensions.Observable.Collections.List;
 using System.Linq;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Edo.Scheduler.Service
 {
@@ -27,17 +28,18 @@ namespace Edo.Scheduler.Service
 				Status = EdoTaskStatus.New,
 			};
 
-			if(withdrawalRequest.ProductCodes != null && withdrawalRequest.ProductCodes.Any())
-			{
-				task.Items = new ObservableList<EdoTaskItem>(
-					withdrawalRequest.ProductCodes.Select(x =>
-						new EdoTaskItem
-						{
-							ProductCode = x,
-							CustomerEdoTask = task
-						})
-				);
-			}
+			var baseDocumentTask = withdrawalRequest.BaseDocumentEdoTask;
+
+			var codes = baseDocumentTask?.Items?.Select(x => x.ProductCode) ?? Enumerable.Empty<TrueMarkProductCode>();
+
+			task.Items = new ObservableList<EdoTaskItem>(
+				withdrawalRequest.ProductCodes.Select(x =>
+					new EdoTaskItem
+					{
+						ProductCode = x,
+						CustomerEdoTask = task
+					})
+			);
 
 			withdrawalRequest.Task = task;
 

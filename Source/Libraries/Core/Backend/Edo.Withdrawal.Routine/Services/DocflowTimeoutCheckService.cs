@@ -1,6 +1,7 @@
 ﻿using Edo.Contracts.Messages.Events;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -8,9 +9,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Core.Domain.Warehouses.Documents;
 using Vodovoz.Settings.Edo;
 
 namespace Edo.Withdrawal.Routine.Services
@@ -69,7 +72,7 @@ namespace Edo.Withdrawal.Routine.Services
 
 				var withdrawalRequests = new List<WithdrawalEdoRequest>();
 
-				foreach(var timedOutTask in timedOutTasks.Take(1).ToList())
+				foreach(var timedOutTask in timedOutTasks.OrderByDescending(x => x.Key.Id).Take(1).ToList())
 				{
 					var order = timedOutTask.Key;
 					var tasks = timedOutTask.ToList();
@@ -86,11 +89,8 @@ namespace Edo.Withdrawal.Routine.Services
 					}
 
 					var task = tasks.First();
-					var codes = task.Items
-						.Select(ti => ti.ProductCode)
-						.ToList();
 
-					var withdrawalRequest = CreateWithdrawalRequest(order, codes);
+					var withdrawalRequest = CreateWithdrawalRequest(order, task);
 
 					await uow.SaveAsync(withdrawalRequest, cancellationToken: cancellationToken);
 
@@ -107,7 +107,7 @@ namespace Edo.Withdrawal.Routine.Services
 
 		private WithdrawalEdoRequest CreateWithdrawalRequest(
 			OrderEntity order,
-			IEnumerable<TrueMarkProductCode> codes)
+			DocumentEdoTask edoTask)
 		{
 			var withdrawalRequest = new WithdrawalEdoRequest
 			{
@@ -115,13 +115,9 @@ namespace Edo.Withdrawal.Routine.Services
 				Source = CustomerEdoRequestSource.Manual,
 				Type = CustomerEdoRequestType.Order,
 				DocumentType = EdoDocumentType.UPD,
-				Order = order
+				Order = order,
+				BaseDocumentEdoTask = edoTask
 			};
-
-			foreach(var code in codes)
-			{
-				withdrawalRequest.ProductCodes.Add(code);
-			}
 
 			_logger.LogInformation(
 				"Создана заявка на вывод из оборота {RequestId} для заказа {OrderId}",
