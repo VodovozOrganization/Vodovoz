@@ -33,7 +33,7 @@ namespace Edo.Scheduler.Service
 			var codes = baseDocumentTask?.Items?.Select(x => x.ProductCode) ?? Enumerable.Empty<TrueMarkProductCode>();
 
 			task.Items = new ObservableList<EdoTaskItem>(
-				withdrawalRequest.ProductCodes.Select(x =>
+				codes.Select(x =>
 					new EdoTaskItem
 					{
 						ProductCode = x,

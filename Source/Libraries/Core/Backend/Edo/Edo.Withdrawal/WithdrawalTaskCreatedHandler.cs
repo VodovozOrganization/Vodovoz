@@ -74,7 +74,8 @@ namespace Edo.Withdrawal
 						$"Задача вывода из оборота с Id {withdrawalEdoTaskId} уже завершена, повторная обработка не требуется");
 				}
 
-				var order = withdrawalEdoTask.FormalEdoRequest?.Order;
+				var withdrawalEdoRequest = withdrawalEdoTask.FormalEdoRequest as WithdrawalEdoRequest;
+				var order = withdrawalEdoRequest?.Order;
 
 				if(order == null)
 				{
@@ -110,16 +111,19 @@ namespace Edo.Withdrawal
 					&& client.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
 				{
 					var documents = _edoRepository.GetOrderEdoDocumentsByOrderId(uow, order.Id);
-					var orderEdoDocument = documents.FirstOrDefault();
+					var orderEdoDocument =
+						documents
+						.Where(x => x.DocumentTaskId == withdrawalEdoRequest.BaseDocumentEdoTask.Id)
+						.FirstOrDefault();
 
-					if(orderEdoDocument?.SendTime == null)
+					if(orderEdoDocument?.CreationTime == null)
 					{
 						throw new InvalidOperationException(
 							$"От клиента {client.Id} получено согласие на ЭДО и клиент зарегистрирован в ЧЗ. " +
 							"Время отправки документа не найдено. Вывод из оборота невозможен");
 					}
 
-					var daysSinceSend = (DateTime.Now - orderEdoDocument.SendTime.Value).TotalDays;
+					var daysSinceSend = (DateTime.Today - orderEdoDocument.CreationTime.Date).TotalDays;
 					var timeoutDays = _edoSettings.WithdrawalDocflowTimeoutDays;
 
 					if(daysSinceSend <= timeoutDays)

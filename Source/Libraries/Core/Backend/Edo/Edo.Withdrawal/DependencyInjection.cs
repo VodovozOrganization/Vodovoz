@@ -6,8 +6,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TrueMarkApi.Client;
 using Vodovoz.Core.Data.Repositories;
+using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Infrastructure.Persistance.Edo;
-using Vodovoz.Settings.Edo;
 using VodovozBusiness.EntityRepositories.Edo;
 
 namespace Edo.Withdrawal
@@ -18,6 +18,7 @@ namespace Edo.Withdrawal
 		{
 			services
 				.AddScoped<IEdoDocflowRepository, EdoDocflowRepository>()
+				.AddScoped<ICounterpartyEdoAccountEntityController, CounterpartyEdoAccountEntityController>()
 				.AddScoped<WithdrawalTaskCreatedHandler>()
 				.AddTrueMarkApiClient();
 

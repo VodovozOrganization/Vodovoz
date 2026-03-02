@@ -121,14 +121,14 @@ namespace Edo.Documents
 				if(client.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
 				{
 					_logger.LogInformation(
-						"Контрагент {CounterpartyId} зарегистрирован в ЧЗ. Вывод из оборота не требуется",
+						"Контрагент {CounterpartyId} зарегистрирован в ЧЗ. Вывод из оборота в данный момент не требуется",
 						client.Id);
 					return;
 				}
 
 				var existingWithdrawalRequest = uow.Session
 					.QueryOver<WithdrawalEdoRequest>()
-					.Where(x => x.Order.Id == order.Id)
+					.Where(x => x.Order.Id == order.Id && x.BaseDocumentEdoTask.Id == documentTask.Id)
 					.RowCount();
 
 				if(existingWithdrawalRequest > 0)
