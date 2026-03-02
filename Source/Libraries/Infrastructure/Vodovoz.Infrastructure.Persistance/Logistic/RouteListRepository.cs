@@ -1846,16 +1846,14 @@ FROM
 				return new Dictionary<int, HashSet<DateTime>>();
 			}
 
-			var routeLists = uow.Session.QueryOver<RouteList>()
+			var routeLists = uow.Session.Query<RouteList>()
 				.Where(rl => rl.Date >= startDate.Date && rl.Date <= endDate.Date)
-				.WhereRestrictionOn(rl => rl.Driver.Id).IsIn(driverIds)
-				.Select(rl => rl.Driver.Id, rl => rl.Date)
-				.List<object[]>()
-				.Select(arr => new { DriverId = (int)arr[0], Date = (DateTime)arr[1] })
+				.Where(rl => driverIds.Contains(rl.Driver.Id))
+				.Select(rl => new { rl.Driver.Id, rl.Date })
 				.ToList();
 
 			return routeLists
-				.GroupBy(x => x.DriverId)
+				.GroupBy(x => x.Id)
 				.ToDictionary(
 					g => g.Key,
 					g => new HashSet<DateTime>(g.Select(x => x.Date.Date))
