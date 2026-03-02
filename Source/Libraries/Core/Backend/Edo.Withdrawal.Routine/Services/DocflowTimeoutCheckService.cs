@@ -1,7 +1,6 @@
 ﻿using Edo.Contracts.Messages.Events;
 using MassTransit;
 using Microsoft.Extensions.Logging;
-using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -9,11 +8,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using Vodovoz.Core.Domain.Warehouses.Documents;
 using Vodovoz.Settings.Edo;
 
 namespace Edo.Withdrawal.Routine.Services
@@ -72,7 +68,7 @@ namespace Edo.Withdrawal.Routine.Services
 
 				var withdrawalRequests = new List<WithdrawalEdoRequest>();
 
-				foreach(var timedOutTask in timedOutTasks.OrderByDescending(x => x.Key.Id).Take(1).ToList())
+				foreach(var timedOutTask in timedOutTasks)
 				{
 					var order = timedOutTask.Key;
 					var tasks = timedOutTask.ToList();
