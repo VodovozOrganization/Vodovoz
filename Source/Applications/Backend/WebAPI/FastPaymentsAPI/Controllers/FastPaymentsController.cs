@@ -459,12 +459,20 @@ namespace FastPaymentsAPI.Controllers
 		[Consumes("application/x-www-form-urlencoded")]
 		public async Task<IActionResult> ReceivePayment([FromForm] PaidOrderDTO paidOrderDto)
 		{
-			_logger.LogInformation("Пришел ответ об успешной оплате");
 			PaidOrderInfoDTO paidOrderInfoDto = null;
 
 			try
 			{
-				_logger.LogInformation("Парсим и получаем объект PaidOrderInfoDTO из ответа");
+				if(string.IsNullOrWhiteSpace(paidOrderDto.xml))
+				{
+					_logger.LogWarning("Пришел пустой ответ об успешной оплате c IP {ClientIp} port {ClientPort}",
+						HttpContext.Connection.RemoteIpAddress?.ToString(),
+						HttpContext.Connection.RemotePort);
+					
+					return Problem();
+				}
+
+				_logger.LogInformation("Парсим и получаем объект PaidOrderInfoDTO из колбэка банка {ReceivePaymentXml}", paidOrderDto.xml);
 				paidOrderInfoDto = _fastPaymentOrderService.GetPaidOrderInfo(paidOrderDto.xml);
 			}
 			catch(Exception e)
