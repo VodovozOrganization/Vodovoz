@@ -7,6 +7,7 @@ using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
+using Vodovoz.Settings.Organizations;
 using VodovozBusiness.Controllers;
 
 namespace Vodovoz.Domain.Orders.Documents
@@ -61,7 +62,7 @@ namespace Vodovoz.Domain.Orders.Documents
 			set => _hideSignature = value;
 		}
 
-		public virtual EmailTemplate GetEmailTemplate(ICounterpartyEdoAccountController edoAccountController = null)
+		public virtual EmailTemplate GetEmailTemplate(ICounterpartyEdoAccountController edoAccountController = null, IOrganizationSettings organizationSettings = null)
 		{
 			string deliveryDateFormatted = Order.DeliveryDate?.ToString("dd.MM.yyyy")
 				?? string.Empty;

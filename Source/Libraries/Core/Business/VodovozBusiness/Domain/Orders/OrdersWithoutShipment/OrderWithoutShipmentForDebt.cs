@@ -1,17 +1,14 @@
-﻿using Autofac;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using Autofac;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using QS.Print;
 using QS.Report;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.IO;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Settings.Organizations;
 using VodovozBusiness.Controllers;
@@ -162,7 +159,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 		#endregion
 
-		public virtual EmailTemplate GetEmailTemplate(ICounterpartyEdoAccountController edoAccountController = null)
+		public virtual EmailTemplate GetEmailTemplate(ICounterpartyEdoAccountController edoAccountController = null, IOrganizationSettings organizationSettings = null)
 		{
 			var template = new EmailTemplate();
 
