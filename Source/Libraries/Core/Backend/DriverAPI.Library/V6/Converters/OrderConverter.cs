@@ -299,9 +299,11 @@ namespace DriverAPI.Library.V6.Converters
 				return codes;
 			}
 
+			var isTrueMarkCodesMustBeAddedInWarehouse = saleItem.IsTrueMarkCodesMustBeAddedInWarehouse(_edoAccountController);
 			var sequenceNumber = 0;
 
-			if(routeListItem.Status == RouteListItemStatus.EnRoute)
+			if(!isTrueMarkCodesMustBeAddedInWarehouse
+				&& routeListItem.Status == RouteListItemStatus.EnRoute)
 			{
 				var allStagingCodes =
 					_trueMarkWaterCodeService.GetAllTrueMarkStagingCodesByRelatedDocument(
@@ -317,7 +319,7 @@ namespace DriverAPI.Library.V6.Converters
 			}
 
 			var addedTrueMarkWaterCodes =
-				saleItem.IsTrueMarkCodesMustBeAddedInWarehouse(_edoAccountController)
+				isTrueMarkCodesMustBeAddedInWarehouse
 				? GetCodesAddedInWarehouse(saleItem)
 				: GetCodesAddedByDriver(saleItem, routeListItem);
 
