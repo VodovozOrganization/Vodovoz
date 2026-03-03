@@ -67,6 +67,9 @@ namespace EarchiveApi
 			app.UseRouting();
 
 			app.UseGrpcWeb();
+
+			app.UseVodovozHealthCheck();
+
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapGrpcService<EarchiveUpdService>().EnableGrpcWeb();
@@ -74,8 +77,6 @@ namespace EarchiveApi
 				endpoints.MapGet("/", async context =>
 					await context.Response.WriteAsync("Use GRPC clietn for connection"));
 			});
-
-			app.UseVodovozHealthCheck();
 		}
 	}
 }

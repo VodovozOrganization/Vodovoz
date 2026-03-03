@@ -89,9 +89,9 @@ namespace CustomerOrdersApi
 
 			app.UseAuthorization();
 
-			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
-			
 			app.UseVodovozHealthCheck();
+
+			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 		}
 	}
 }

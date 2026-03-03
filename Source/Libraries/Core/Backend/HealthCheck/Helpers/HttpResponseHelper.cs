@@ -148,7 +148,8 @@ namespace VodovozHealthCheck.Helpers
 		/// <returns>true, если ответ имеет успешный статус (200-299); иначе false.</returns>
 		public static async Task<HttpResponseWrapper<string>> CheckUriExistsAsync(
 			string uri,
-			IHttpClientFactory httpClientFactory)
+			IHttpClientFactory httpClientFactory,
+			bool isHealthCheck = true)
 		{
 			var unavailableMessage = "Адрес недоступен";
 
@@ -158,6 +159,12 @@ namespace VodovozHealthCheck.Helpers
 				httpClient.Timeout = TimeSpan.FromSeconds(healthCheckTimeoutSeconds);
 
 				using var request = new HttpRequestMessage(HttpMethod.Get, uri);
+				
+				if(isHealthCheck)
+				{
+					request.Headers.Add(_healthCheckHeader, true.ToString());
+				}
+				
 				using var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
 				return new HttpResponseWrapper<string>

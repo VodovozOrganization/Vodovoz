@@ -128,12 +128,13 @@ namespace CashReceiptApi
 			app.UseAuthorization();
 
 			app.UseGrpcWeb();
+
+			app.UseVodovozHealthCheck();
+
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapGrpcService<CashReceiptService>().EnableGrpcWeb();
 			});
-
-			app.UseVodovozHealthCheck();
 		}
 
 		private IConfigurationSection GetCashboxesConfiguration()
