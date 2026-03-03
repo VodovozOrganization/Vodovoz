@@ -121,19 +121,10 @@ namespace WarehouseApi.Library.Errors
 
 		private Result IsCarLoadDocumentLoadOperationStateNotStartedOrInProgress(CarLoadDocument carLoadDocument, int documentId)
 		{
-			var cancelledOrdersIds = GetCarLoadDocumentCancelledOrders(carLoadDocument);
-
-			var isNotAllCodesAdded = carLoadDocument.Items
-				.Where(x =>
-					x.OrderId != null
-					&& !cancelledOrdersIds.Contains(x.OrderId.Value)
-					&& x.Nomenclature.IsAccountableInTrueMark
-					&& x.Nomenclature.Gtins.Any())
-				.Any(x => x.TrueMarkCodes.Count < x.Amount);
-
-			if(isNotAllCodesAdded)
+			if(!(carLoadDocument.LoadOperationState == CarLoadDocumentLoadOperationState.NotStarted
+				|| carLoadDocument.LoadOperationState == CarLoadDocumentLoadOperationState.InProgress))
 			{
-				var error = CarLoadDocumentErrors.CreateNotAllTrueMarkCodesWasAddedIntoCarLoadDocument(documentId);
+				var error = CarLoadDocumentErrors.CreateLoadingProcessStateMustBeNotStartedOrInProgress(documentId);
 				LogError(error);
 				return Result.Failure(error);
 			}

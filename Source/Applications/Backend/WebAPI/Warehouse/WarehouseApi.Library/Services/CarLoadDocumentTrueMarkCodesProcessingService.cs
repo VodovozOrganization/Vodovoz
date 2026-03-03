@@ -51,8 +51,16 @@ namespace WarehouseApi.Library.Services
 				throw new ArgumentNullException(nameof(carLoadDocument));
 			}
 
+			var cancelledOrdersIds = GetCarLoadDocumentCancelledOrders(uow, carLoadDocument).ToList();
+
 			foreach(var carLoadDocumentItem in carLoadDocument.Items)
 			{
+				if(carLoadDocumentItem.OrderId != null
+					&& cancelledOrdersIds.Contains(carLoadDocumentItem.OrderId.Value))
+				{
+					continue;
+				}
+
 				var addProductCodesResult =
 					await AddProductCodesToCarLoadDocumentItemAndDeleteStagingCodes(
 						uow,
@@ -67,7 +75,7 @@ namespace WarehouseApi.Library.Services
 			}
 
 			var isAllTrueMarkCodesAddedResult =
-				IsAllTrueMarkCodesInCarLoadDocumentAdded(uow, carLoadDocument);
+				IsAllTrueMarkCodesInCarLoadDocumentAdded(uow, carLoadDocument, cancelledOrdersIds);
 
 			if(isAllTrueMarkCodesAddedResult.IsFailure)
 			{
@@ -119,10 +127,8 @@ namespace WarehouseApi.Library.Services
 			return Result.Success();
 		}
 
-		private Result IsAllTrueMarkCodesInCarLoadDocumentAdded(IUnitOfWork uow, CarLoadDocument carLoadDocument)
+		private Result IsAllTrueMarkCodesInCarLoadDocumentAdded(IUnitOfWork uow, CarLoadDocument carLoadDocument, IEnumerable<int> cancelledOrdersIds)
 		{
-			var cancelledOrdersIds = GetCarLoadDocumentCancelledOrders(uow, carLoadDocument);
-
 			var isNotAllCodesAdded = carLoadDocument.Items
 				.Where(x =>
 					x.OrderId != null
