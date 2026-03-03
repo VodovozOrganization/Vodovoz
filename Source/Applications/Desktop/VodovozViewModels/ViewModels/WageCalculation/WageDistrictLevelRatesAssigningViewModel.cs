@@ -392,7 +392,9 @@ namespace Vodovoz.ViewModels.ViewModels.WageCalculation
 			IEnumerable<int> employeeIds) =>
 			_routeListRepository.Get(
 				UoW,
-				rl => employeeIds.Contains(rl.Driver.Id) && rl.Date >= StartDate.Value)
+				rl => employeeIds.Contains(rl.Driver.Id)
+					&& rl.Date >= StartDate.Value
+					&& rl.Status == RouteListStatus.Closed)
 			.ToLookup(x => x.Driver.Id, x => x);
 
 		private async Task ChangeEmployeeWageParameter(Employee employee, CancellationToken cancellationToken)
