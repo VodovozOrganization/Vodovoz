@@ -6,7 +6,7 @@ namespace Vodovoz.Models.CashReceipts.DTO
 	public class InventPosition
 	{
 		private int _vatTag;
-		private VAT _vat;
+		private decimal _vat;
 
 		[JsonProperty("name", Required = Required.Always)]
 		public string Name { get; set; }
@@ -31,33 +31,33 @@ namespace Vodovoz.Models.CashReceipts.DTO
 				_vatTag = value;
 				switch(value) {
 					case 1104:
-						_vat = VAT.No;
+						_vat = 0;
 						break;
 					case 1103:
-						_vat = VAT.Vat10;
+						_vat = 10;
 						break;
 					case 1102:
-						_vat = VAT.Vat20;
+						_vat = 20;
 						break;
 					case 1105:
-						_vat = VAT.No;
+						_vat = 0;
 						break;
 				}
 			}
 		}
 
-		public VAT Vat {
+		public decimal Vat {
 			get => _vat;
 			set {
 				_vat = value;
 				switch(value) {
-					case VAT.No:
+					case 0:
 						_vatTag = 1104;
 						break;
-					case VAT.Vat10:
+					case 10:
 						_vatTag = 1103;
 						break;
-					case VAT.Vat20:
+					case 20:
 						_vatTag = 1102;
 						break;
 				}

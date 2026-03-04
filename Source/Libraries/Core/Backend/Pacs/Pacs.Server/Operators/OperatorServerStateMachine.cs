@@ -308,6 +308,10 @@ namespace Pacs.Server.Operators
 
 		private void OnDisconnected(StateMachine.Transition transition)
 		{
+			_logger.LogInformation(
+			   "OnDisconnected выполнен для оператора {OperatorId}. Предыдущее состояние: {State}",
+			   OperatorId, transition.Source);
+
 			var reason = (DisconnectionType)transition.Parameters[0];
 			OperatorState.DisconnectionType = reason;
 			if(reason == DisconnectionType.InactivityTimeout)
@@ -362,12 +366,24 @@ namespace Pacs.Server.Operators
 			_timer.Stop();
 		}
 
-		private void InactivityTimerElapsed(object sender, ElapsedEventArgs e)
+		private async void InactivityTimerElapsed(object sender, ElapsedEventArgs e)
 		{
-			var inactivityPeriod = DateTime.Now - _disconnectedTime;
-			if(inactivityPeriod > _pacsSettings.OperatorInactivityTimeout)
+			try
 			{
-				_machine.FireAsync(_disconnectTrigger, DisconnectionType.InactivityTimeout);
+				var inactivityPeriod = DateTime.Now - _disconnectedTime;
+
+				if(inactivityPeriod > _pacsSettings.OperatorInactivityTimeout)
+				{
+					_logger.LogInformation(
+						"Таймаут бездействия. Выполняем отключение оператора {OperatorId} из состояния {State}",
+						OperatorId, _machine.State);
+
+					await _machine.FireAsync(_disconnectTrigger, DisconnectionType.InactivityTimeout);
+				}
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при срабатывании таймера бездействия");
 			}
 		}
 
@@ -611,8 +627,24 @@ namespace Pacs.Server.Operators
 
 		private void ClearPhoneNumber()
 		{
-			_phoneController.ReleasePhone(OperatorState.PhoneNumber);
-			OperatorState.PhoneNumber = null;
+			try
+			{
+				_logger.LogInformation(
+					"Освобождаем телефон {Phone} оператора {OperatorId}",
+					OperatorState.PhoneNumber, OperatorId);
+
+				_phoneController.ReleasePhone(OperatorState.PhoneNumber);
+				OperatorState.PhoneNumber = null;
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(
+					ex,
+					 "Не удалось освободить телефон {Phone} оператора {OperatorId}",
+					OperatorState.PhoneNumber, OperatorId);
+
+				throw;
+			}
 		}
 
 		#endregion Phone

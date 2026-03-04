@@ -139,7 +139,7 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 				_notificationRepository,
 				onlineOrder.GetExternalOrderStatus(),
 				onlineOrder.Id,
-				onlineOrder.DeliverySchedule?.To);
+				onlineOrder.DeliverySchedule);
 
 			return new OnlineOrderStatusUpdatedDto
 			{

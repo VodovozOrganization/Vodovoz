@@ -26,13 +26,12 @@
 	IFNULL(order_items.include_nds, 0) as include_nds,
 	order_items.discount AS item_discount,
 	order_items.discount_money AS item_discount_money,
-	CASE nomenclature.vat
-		WHEN 'No' THEN 1
-		WHEN 'Vat10' THEN 1.1
-		WHEN 'Vat18' THEN 1.18
-		WHEN 'Vat20' THEN 1.2
-	END AS vat_old,#удалить, если спустя какое-то время не будет проблем с отображением НДС
-	order_items.value_added_tax + 1 AS vat
+    CASE
+        WHEN organizations.is_usn_mode = 1 THEN
+            COALESCE(vr_organization.vat_rate_value, 0)
+        ELSE
+            COALESCE(vr_nomenclature.vat_rate_value, 0)
+    END / 100.0 + 1 AS vat
 FROM
     order_items
         LEFT JOIN
@@ -42,7 +41,23 @@ FROM
         LEFT JOIN
     orders ON orders.id = order_items.order_id
         LEFT JOIN
+    counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
+        LEFT JOIN
+    organizations ON organizations.id = counterparty_contract.organization_id
+        LEFT JOIN
     special_nomenclature ON special_nomenclature.counterparty_id = orders.client_id AND special_nomenclature.nomenclature_id = nomenclature.id
+        LEFT JOIN
+    vat_rate_versions vrv_nomenclature ON vrv_nomenclature.nomenclature_id = nomenclature.id 
+    AND ((vrv_nomenclature.start_date &lt;= orders.bill_date AND vrv_nomenclature.end_date IS NULL )
+     OR (vrv_nomenclature.start_date &lt;= orders.bill_date AND vrv_nomenclature.end_date &gt;= orders.bill_date))
+        LEFT JOIN
+    vat_rates vr_nomenclature ON vr_nomenclature.id = vrv_nomenclature.vat_rate_id
+        LEFT JOIN
+    vat_rate_versions vrv_organization ON vrv_organization.organization_id = organizations.id 
+        AND ((vrv_organization.start_date &lt;= orders.bill_date AND vrv_organization.end_date IS NULL )
+         OR (vrv_organization.start_date &lt;= orders.bill_date AND vrv_organization.end_date &gt;= orders.bill_date))
+        LEFT JOIN
+    vat_rates vr_organization ON vr_organization.id = vrv_organization.vat_rate_id
 WHERE
     order_items.order_id = @order_id;</CommandText>
         <QueryParameters>
@@ -2305,7 +2320,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox61">
-                      <Value>=Switch(Fields!vat.Value = 1, 'Без НДС', Fields!vat.Value = 1.1, '10%', Fields!vat.Value = 1.18,'18%', Fields!vat.Value = 1.2,'20%')</Value>
+                      <Value>=Iif(Fields!vat.Value = 1, "Без НДС", (Fields!vat.Value - 1) * 100 &amp; "%")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>

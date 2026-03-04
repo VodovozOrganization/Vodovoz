@@ -578,7 +578,11 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(ObservableUndeliveryDiscussions.All(x => x.Status == UndeliveryDiscussionStatus.Closed))
 			{
-				SetStatus(UndeliveryStatus.Checking);
+				if(UndeliveryStatus == UndeliveryStatus.Closed) { }
+				else
+				{
+					SetStatus(UndeliveryStatus.Checking);
+				}
 				return;
 			}
 

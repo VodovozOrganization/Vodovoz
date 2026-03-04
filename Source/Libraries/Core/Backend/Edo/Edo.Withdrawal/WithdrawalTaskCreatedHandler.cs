@@ -66,7 +66,7 @@ namespace Edo.Withdrawal
 						$"Задача вывода из оборота с Id {withdrawalEdoTaskId} уже завершена, повторная обработка не требуется");
 				}
 
-				var order = withdrawalEdoTask.OrderEdoRequest?.Order;
+				var order = withdrawalEdoTask.FormalEdoRequest?.Order;
 
 				if(order == null)
 				{

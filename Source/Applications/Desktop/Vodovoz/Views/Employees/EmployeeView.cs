@@ -192,8 +192,6 @@ namespace Vodovoz.Views.Employees
 				.InitializeFromSource();
 
 			phonesView.ViewModel = ViewModel.PhonesViewModel;
-			phonesView.ViewModel.PhonesList = new GenericObservableList<Phone>(ViewModel.Entity.Phones);
-			phonesView.Sensitive = ViewModel.CanEditEmployee;
 
 			entryAddressCurrent.Binding
 				.AddBinding(ViewModel.Entity, e => e.AddressCurrent, w => w.Text)
@@ -290,6 +288,8 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel.Entity, e => e.DefaultForwarder, w => w.Subject)
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
+
+			entryDistrictOfResidence.ViewModel = ViewModel.DistictsSetViewModel;
 
 			yspinTripsPriority.Binding
 				.AddBinding(ViewModel.Entity, e => e.TripPriority, w => w.ValueAsShort)

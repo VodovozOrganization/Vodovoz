@@ -89,6 +89,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
 
+			var currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
+			
 			OrganizationViewModel = organizationViewModelEEVMBuilder
 				.SetUnitOfWork(UoW)
 				.SetViewModel(this)
@@ -96,12 +98,21 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
 				.UseViewModelDialog<OrganizationViewModel>()
 				.Finish();
-			
+
+			SendDocViewModel =
+				new SendDocumentByEmailViewModel(
+					uowFactory,
+					_emailRepository,
+					_emailSettings,
+					currentEmployee,
+					commonServices,
+					UoW);
+
+			OrganizationViewModel.PropertyChanged += OnOrganizationViewModelPropertyChanged;
+
 			bool canCreateBillsWithoutShipment =
 				CommonServices.PermissionService.ValidateUserPresetPermission("can_create_bills_without_shipment", CurrentUser.Id);
 			_userHavePermissionToResendEdoDocuments = CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.EdoContainerPermissions.OrderWithoutShipmentForDebt.CanResendEdoBill, CurrentUser.Id);
-
-			var currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 
 			if(uowBuilder.IsNewEntity)
 			{
@@ -112,10 +123,9 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 						AbortOpening();
 						return;
 					}
-					else
-					{
-						Entity.Author = currentEmployee;
-					}
+
+					Entity.Author = currentEmployee;
+					Entity.Organization = UoW.GetById<Organization>(_organizationSettings.VodovozOrganizationId);
 				}
 				else
 				{
@@ -126,15 +136,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			TabName = "Счет без отгрузки на долг";
 			EntityUoWBuilder = uowBuilder;
-
-			SendDocViewModel =
-				new SendDocumentByEmailViewModel(
-					uowFactory,
-					_emailRepository,
-					_emailSettings,
-					currentEmployee,
-					commonServices,
-					UoW);
 
 			UpdateEdoContainers();
 
@@ -157,18 +158,21 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 					if(!UoWGeneric.HasChanges && Entity.Id > 0)
 					{
+						if(!Validate())
+						{
+							return;
+						}
 						_rdlPreviewOpener.OpenRldDocument(typeof(OrderWithoutShipmentForDebt), Entity);
 					}
 				},
 				() => true);
 
 			Entity.PropertyChanged += OnEntityPropertyChanged;
-			
-			OrganizationViewModel.PropertyChanged += OnOrganizationViewModelPropertyChanged;
 		}
 
 		private void OnOrganizationViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
+			Entity.RecalculateNDS();
 			UpdateEmails();
 		}
 

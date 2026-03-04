@@ -12,6 +12,7 @@ using Vodovoz.ViewModels.ReportsParameters.Client;
 using Vodovoz.ViewModels.ReportsParameters.Logistics;
 using Vodovoz.ViewModels.ReportsParameters.Orders;
 using Vodovoz.ViewModels.ReportsParameters.QualityControl;
+using Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport;
 using Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport;
 
 namespace Vodovoz.MainMenu.ReportsMenu
@@ -51,6 +52,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 			menu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет по забору тары", OnReturnedTareReportPressed));
 			menu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет о событиях рассылки", OnBulkEmailEventsReportPressed));
 			menu.Add(_concreteMenuItemCreator.CreateMenuItem("Ежедневный отчет ОКС", OnOksDailyReportPressed));
+			menu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет о рассылке писем о задолженности", OnBulkDebtMailingReportPressed));
 
 			return oskOkkReportsMenuItem;
 		}
@@ -213,6 +215,16 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		private void OnOksDailyReportPressed(object sender, EventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<OksDailyReportViewModel>(null, OpenPageOptions.IgnoreHash);
+		}
+
+		/// <summary>
+		/// Отчет о рассылке писем о задолженности
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void OnBulkDebtMailingReportPressed(object sender, EventArgs e)
+		{
+			Startup.MainWin.NavigationManager.OpenViewModel<BulkDebtMailingReportViewModel>(null, OpenPageOptions.IgnoreHash);
 		}
 	}
 }

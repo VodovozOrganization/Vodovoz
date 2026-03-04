@@ -23,6 +23,14 @@ namespace Vodovoz.Core.Domain.Permissions
 			/// </summary>
 			[Display(Name = "Просмотр продаж с чеками в отчётах")]
 			public static string CanViewReportSalesWithCashReceipts => "CanViewReportSalesWithCashReceipts";
+
+			/// <summary>
+			/// Выбор автора заказа в отчете по мотивации КЦ
+			/// </summary>
+			[Display(
+				Name = "Выбор автора заказа в отчете по мотивации КЦ",
+				Description = "Пользователь может выбирать автора заказа в отчете по мотивации КЦ")]
+			public static string CanSelectTheOrderAuthorInCallCenterMotivationReport => nameof(CanSelectTheOrderAuthorInCallCenterMotivationReport);
 		}
 	}
 }

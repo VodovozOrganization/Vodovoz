@@ -55,7 +55,7 @@ namespace Edo.Documents
 		{
 			object message = null;
 
-			var order = documentEdoTask.OrderEdoRequest.Order;
+			var order = documentEdoTask.FormalEdoRequest.Order;
 
 			foreach(var taskItem in documentEdoTask.Items)
 			{
@@ -180,7 +180,7 @@ namespace Edo.Documents
 
 		private async Task CreateUpdDocument(DocumentEdoTask documentEdoTask, CancellationToken cancellationToken)
 		{
-			var order = documentEdoTask.OrderEdoRequest.Order;
+			var order = documentEdoTask.FormalEdoRequest.Order;
 
 			var unprocessedCodes = documentEdoTask.Items.ToList();
 			var groupCodesWithTaskItems = await TakeGroupCodesWithTaskItems(unprocessedCodes, cancellationToken);

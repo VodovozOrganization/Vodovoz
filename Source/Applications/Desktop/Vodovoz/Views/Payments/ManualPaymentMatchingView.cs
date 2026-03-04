@@ -83,15 +83,15 @@ namespace Vodovoz.Views
 				.InitializeFromSource();
 
 			ylabelWaitForPaymentValue.Binding
-				.AddFuncBinding(ViewModel, vm => vm.CounterpartyWaitingForPaymentOrdersDebt > 0 ? vm.CounterpartyWaitingForPaymentOrdersDebt.ToString("N2") : "0.00", w => w.Text)
+				.AddFuncBinding(ViewModel, vm => vm.CounterpartyWaitingForPaymentOrdersDebt > 0 ? vm.CounterpartyWaitingForPaymentOrdersDebt.ToString("N2") : "0,00", w => w.Text)
 				.InitializeFromSource();
 
 			ylabelCloseDocumentsValue.Binding
-				.AddFuncBinding(ViewModel, vm => vm.CounterpartyClosingDocumentsOrdersDebt > 0 ? vm.CounterpartyClosingDocumentsOrdersDebt.ToString("N2") : "0.00", w => w.Text)
+				.AddFuncBinding(ViewModel, vm => vm.CounterpartyClosingDocumentsOrdersDebt > 0 ? vm.CounterpartyClosingDocumentsOrdersDebt.ToString("N2") : "0,00", w => w.Text)
 				.InitializeFromSource();
 
 			ylabelOtherOrdersDebtValue.Binding
-				.AddFuncBinding(ViewModel, vm => vm.CounterpartyOtherOrdersDebt > 0 ? vm.CounterpartyOtherOrdersDebt.ToString("N2") : "0.00", w => w.Text)
+				.AddFuncBinding(ViewModel, vm => vm.CounterpartyOtherOrdersDebt > 0 ? vm.CounterpartyOtherOrdersDebt.ToString("N2") : "0,00", w => w.Text)
 				.InitializeFromSource();
 
 			labelPayer.Text = ViewModel.Entity.CounterpartyName;
@@ -157,6 +157,10 @@ namespace Vodovoz.Views
 			ytreeviewOrdersAllocate.ColumnsConfig = FluentColumnsConfig<ManualPaymentMatchingViewModelNode>.Create()
 				.AddColumn("№ заказа")
 					.AddTextRenderer(node => node.Id.ToString())
+					.XAlign(0.5f)
+				.AddColumn("№ УПД")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(node => node.UpdDocumentName)
 					.XAlign(0.5f)
 				.AddColumn("Статус")
 					.AddEnumRenderer(node => node.OrderStatus)

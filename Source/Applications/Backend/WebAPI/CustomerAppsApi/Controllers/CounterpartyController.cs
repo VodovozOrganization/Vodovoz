@@ -1,8 +1,9 @@
-using CustomerAppsApi.Library.Dto.Counterparties;
+﻿using CustomerAppsApi.Library.Dto.Counterparties;
 using CustomerAppsApi.Library.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using VodovozHealthCheck.Helpers;
 
 namespace CustomerAppsApi.Controllers
 {
@@ -45,7 +46,9 @@ namespace CustomerAppsApi.Controllers
 		{
 			try
 			{
-				return _counterpartyModel.RegisterCounterparty(counterpartyDto);
+				var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
+				
+				return _counterpartyModel.RegisterCounterparty(counterpartyDto, isDryRun);
 			}
 			catch(Exception e)
 			{
@@ -63,7 +66,9 @@ namespace CustomerAppsApi.Controllers
 		{
 			try
 			{
-				return _counterpartyModel.UpdateCounterpartyInfo(counterpartyDto);
+				var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
+				
+				return _counterpartyModel.UpdateCounterpartyInfo(counterpartyDto, isDryRun);
 			}
 			catch(Exception e)
 			{

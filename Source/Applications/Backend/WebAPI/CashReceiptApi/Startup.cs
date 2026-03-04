@@ -60,7 +60,7 @@ namespace CashReceiptApi
 
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
-			services.ConfigureHealthCheckService<CashReceiptApiHealthChecks>();
+			services.ConfigureHealthCheckService<CashReceiptApiHealthChecks, ServiceInfoProvider>();
 			services.Configure<ServiceOptions>(Configuration.GetSection(nameof(ServiceOptions)));
 			services.AddAuthentication()
 				.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationOptions.DefaultScheme, null);
@@ -133,7 +133,7 @@ namespace CashReceiptApi
 				endpoints.MapGrpcService<CashReceiptService>().EnableGrpcWeb();
 			});
 
-			app.ConfigureHealthCheckApplicationBuilder();
+			app.UseVodovozHealthCheck();
 		}
 
 		private IConfigurationSection GetCashboxesConfiguration()

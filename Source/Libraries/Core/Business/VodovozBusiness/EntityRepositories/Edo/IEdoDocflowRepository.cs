@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using VodovozBusiness.Nodes;
 
@@ -32,7 +33,7 @@ namespace VodovozBusiness.EntityRepositories.Edo
 		/// <param name="orderId">Номер заказа</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Список запросов на ЭДО</returns>
-		Task<IEnumerable<OrderEdoRequest>> GetOrderEdoRequestsByOrderId(IUnitOfWork uow, int orderId, CancellationToken cancellationToken);
+		Task<IEnumerable<FormalEdoRequest>> GetOrderEdoRequestsByOrderId(IUnitOfWork uow, int orderId, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Возварщает данные по не обработанным отсканированным водителями кодам ЧЗ по идентификатору адреса МЛ
@@ -50,5 +51,13 @@ namespace VodovozBusiness.EntityRepositories.Edo
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Список адресов МЛ</returns>
 		Task<IEnumerable<int>> GetNotProcessedDriversScannedCodesRouteListAddressIds(IUnitOfWork uow, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Возвращает информацию о последнем документообороте в Такскоме
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="orderId"></param>
+		/// <returns></returns>
+		TaxcomDocflow GetLastTaxcomDocflowByOrderId(IUnitOfWork uow, int orderId);
 	}
 }

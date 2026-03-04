@@ -73,6 +73,10 @@
       <Project>{7baff136-4379-4d1d-a554-7dc340caf7a2}</Project>
       <Name>QS.ErrorReporting</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\..\External\QSProjects\QS.Extensions.Observable\QS.Extensions.Observable.csproj">
+      <Project>{2a0710b2-b71b-4959-88da-0940100e172a}</Project>
+      <Name>QS.Extensions.Observable</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\..\External\QSProjects\QS.HistoryLog\QS.HistoryLog.csproj">
       <Project>{3d3d6700-c625-46c5-9702-5f010a8dd035}</Project>
       <Name>QS.HistoryLog</Name>

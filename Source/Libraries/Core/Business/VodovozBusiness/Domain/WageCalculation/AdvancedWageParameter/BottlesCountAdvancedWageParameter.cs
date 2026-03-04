@@ -190,6 +190,34 @@ namespace Vodovoz.Domain.WageCalculation.AdvancedWageParameters
 			return scr.FullBottle19LCount >= range.Item1 
 				   && scr.FullBottle19LCount <= range.Item2;
 		}
+
+		public override object Clone()
+		{
+			var parameter = new BottlesCountAdvancedWageParameter
+			{
+				ForDriverWithForwarder = ForDriverWithForwarder,
+				ForDriverWithoutForwarder = ForDriverWithoutForwarder,
+				ForForwarder = ForForwarder,
+				BottlesFrom = BottlesFrom,
+				LeftSing = LeftSing,
+				RightSing = RightSing,
+				BottlesTo = BottlesTo
+			};
+
+			foreach(var child in Children)
+			{
+				if(child.Clone() is AdvancedWageParameter childParameter)
+				{
+					childParameter.ParentParameter = parameter;
+					parameter.ChildrenParameters.Add(childParameter);
+					continue;
+				}
+
+				throw new InvalidOperationException("Дочерний узел не является дополнительным параметром расчета зарплаты");
+			}
+
+			return parameter;
+		}
 	}
 
 	public enum ComparisonSings

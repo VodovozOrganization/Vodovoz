@@ -19,6 +19,11 @@ namespace Vodovoz.Settings.Edo
 		/// Интервал обновления ожидающих задач на трансфер с завершенными документами
 		/// </summary>
 		TimeSpan WaitingTransfersUpdateInterval { get; }
+		
+		/// <summary>
+		/// Количество обновляемых ожидающих задач на трансфер с завершенными документами за один прогон
+		/// </summary>
+		int WaitingTransfersCountToProcess { get; }
 
 		/// <summary>
 		/// Интервал отправки УПД по заказам Закр.Док

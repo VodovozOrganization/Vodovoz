@@ -3,7 +3,6 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
-using QS.Report;
 using QSReport;
 using System;
 using System.Collections.Generic;
@@ -14,20 +13,18 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.EntityRepositories.CallTasks;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.JournalNodes;
 using Vodovoz.JournalViewModels;
+using Vodovoz.Reports;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
-using Vodovoz.TempAdapters;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
-using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.Views.Mango;
 
 namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
@@ -40,16 +37,13 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IOrderSettings _orderSettings;
-		private readonly ICounterpartyJournalFactory _counterpartyJournalFactory;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IDeliveryRulesSettings _deliveryRulesSettings;
 		private readonly IUnitOfWork _uow;
-		private readonly IDeliveryPointJournalFactory _deliveryPointJournalFactory;
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ICallTaskRepository _callTaskRepository;
-		private readonly IReportInfoFactory _reportInfoFactory;
 		private readonly IRouteListService _routeListService;
 		private readonly OrderCancellationService _orderCancellationService;
 		private IPage<CounterpartyJournalViewModel> _counterpartyJournalPage;
@@ -67,15 +61,12 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			IInteractiveService interactiveService,
 			IOrderSettings orderSettings, 
 			MangoManager manager,
-			ICounterpartyJournalFactory counterpartyJournalFactory,
 			INomenclatureSettings nomenclatureSettings,
 			IOrderRepository orderRepository,
 			IDeliveryRulesSettings deliveryRulesSettings,
-			IDeliveryPointJournalFactory deliveryPointJournalFactory,
 			ICallTaskWorker callTaskWorker,
 			IEmployeeRepository employeeRepository,
 			ICallTaskRepository callTaskRepository,
-			IReportInfoFactory reportInfoFactory,
 			IRouteListService routeListService,
 			OrderCancellationService orderCancellationService
 			)
@@ -87,17 +78,13 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
-			_counterpartyJournalFactory = counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_deliveryRulesSettings = deliveryRulesSettings ?? throw new ArgumentNullException(nameof(deliveryRulesSettings));
 			_uow = _unitOfWorkFactory.CreateWithoutRoot();
-			_deliveryPointJournalFactory =
-				deliveryPointJournalFactory ?? throw new ArgumentNullException(nameof(deliveryPointJournalFactory));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
-			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
 			if(ActiveCall.CounterpartyIds.Any())
@@ -128,8 +115,11 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 				}
 				
 				currentCounterparty = CounterpartyOrdersViewModels.FirstOrDefault().Client;
-			} else
+			}
+			else
+			{
 				throw new InvalidProgramException("Открыт диалог разговора с имеющимся контрагентом, но ни одного id контрагента не найдено.");
+			}
 		}
 
 		public IDictionary<string, CounterpartyOrderView> GetCounterpartyViewModels()
@@ -271,15 +261,18 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 
 		public void BottleActCommand()
 		{
-			var parameters = new Vodovoz.Reports.RevisionBottlesAndDeposits(
-				_reportInfoFactory,
-				_orderRepository,
-				_counterpartyJournalFactory,
-				_deliveryPointJournalFactory);
-			parameters.SetCounterparty(currentCounterparty);
-			ReportViewDlg dialog = _tdiNavigation.OpenTdiTab<ReportViewDlg, IParametersWidget>(null, parameters) as ReportViewDlg;
-			parameters.OnUpdate(true);
-			
+			_tdiNavigation.OpenTdiTab<ReportViewDlg>(
+				null,
+				OpenPageOptions.IgnoreHash,
+				reportView =>
+				{
+					if(reportView.ParametersWidget is RevisionBottlesAndDeposits report)
+					{
+						report.SetCounterparty(currentCounterparty);
+						report.OnUpdate(true);
+					}
+				},
+				addingRegistrations: builder => builder.RegisterType<RevisionBottlesAndDeposits>().As<IParametersWidget>());
 		}
 
 		public void StockBalanceCommand()

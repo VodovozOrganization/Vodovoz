@@ -21,6 +21,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using QS.ViewModels.Dialog;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
@@ -30,6 +31,7 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
@@ -38,6 +40,8 @@ using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.WageCalculation;
 using Vodovoz.Factories;
 using Vodovoz.FilterViewModels.Organization;
+using Vodovoz.Journals.FilterViewModels;
+using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Journals.JournalViewModels.Organizations;
 using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Services;
@@ -194,6 +198,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			ConfigureValidationContext(validationContextFactory);
 
 			PhonesViewModel = LifetimeScope.Resolve<PhonesViewModel>(new TypedParameter(typeof(IUnitOfWork), UoW));
+			PhonesViewModel.Initialize(this as DialogViewModelBase, CanEditEmployee, Entity.Phones);
 			
 			if(Entity.Id == 0)
 			{
@@ -205,11 +210,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			else
 			{
 				TabName = Entity.GetPersonNameWithInitials();
-			}
-			
-			if(Entity.Phones == null)
-			{
-				Entity.Phones = new List<Phone>();
 			}
 
 			organizations = UoW.GetAll<Organization>().ToList();
@@ -225,6 +225,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			SetPermissions();
 			CreateCommands();
 			InitializeSubdivisionEntryViewModel();
+			InitializeDistrictsSetEntryViewModel();
 
 			if(Entity.Id != 0 && !string.IsNullOrWhiteSpace(Entity.PhotoFileName))
 			{
@@ -292,6 +293,24 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			SubdivisionViewModel.IsEditable = CanEditEmployee && (CanManageOfficeWorkers || CanManageDriversAndForwarders);
 		}
 
+		private void InitializeDistrictsSetEntryViewModel()
+		{
+			var districtsSetsEntryViewModelBuilder =
+				new CommonEEVMBuilderFactory<Employee>(this, Entity, UoW, NavigationManager, LifetimeScope);
+
+			DistictsSetViewModel = districtsSetsEntryViewModelBuilder
+				.ForProperty(x => x.District)
+				.UseViewModelDialog<DistrictViewModel>()
+				.UseViewModelJournalAndAutocompleter<DistrictJournalViewModel, DistrictJournalFilterViewModel>(
+					filter =>
+					{
+						filter.Status = DistrictsSetStatus.Active;
+					})
+				.Finish();
+
+			DistictsSetViewModel.CanViewEntity = false;
+		}
+
 		private Employee EmployeeForCurrentUser => 
 			_employeeForCurrentUser ?? (_employeeForCurrentUser = _employeeRepository.GetEmployeeForCurrentUser(UoW));
 
@@ -321,6 +340,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
 		public IEmployeePostsJournalFactory EmployeePostsJournalFactory { get; }
 		public IEntityEntryViewModel SubdivisionViewModel { get; private set; }
+		public EntityEntryViewModel<District> DistictsSetViewModel { get; private set; }
 
 		public bool HasChanges
 		{

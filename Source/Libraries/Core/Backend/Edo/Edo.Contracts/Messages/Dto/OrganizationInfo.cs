@@ -1,4 +1,6 @@
-﻿namespace Edo.Contracts.Messages.Dto
+﻿using System;
+
+namespace Edo.Contracts.Messages.Dto
 {
 	/// <summary>
 	/// Информация об организации
@@ -21,6 +23,14 @@
 		/// КПП
 		/// </summary>
 		public string Kpp { get; set; }
+		/// <summary>
+		/// ОГРН/ОГРНИП
+		/// </summary>
+		public string OGRN { get; set; }
+		/// <summary>
+		/// Дата ОГРН/ОГРНИП
+		/// </summary>
+		public DateTime? OGRNDate { get; set; }
 		/// <summary>
 		/// Номер кабинета в ЭДО
 		/// </summary>

@@ -102,11 +102,11 @@ namespace Receipt.Dispatcher.Tests
 			// Assert
 
 			Assert.Equal(receiptEdoTask.FiscalDocuments.Sum(x => x.InventPositions.Sum(x => x.Quantity)),
-				receiptEdoTask.OrderEdoRequest.Order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark).Sum(x => x.Count));
+				receiptEdoTask.FormalEdoRequest.Order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark).Sum(x => x.Count));
 
 			Assert.Equal(
 				receiptEdoTask.FiscalDocuments.Sum(x => x.InventPositions.Sum(x => x.Price * x.Quantity - x.DiscountSum)),
-				receiptEdoTask.OrderEdoRequest.Order.OrderItems
+				receiptEdoTask.FormalEdoRequest.Order.OrderItems
 					.Where(x =>
 						x.Nomenclature.IsAccountableInTrueMark
 						&& x.Count > 0)
@@ -174,11 +174,11 @@ namespace Receipt.Dispatcher.Tests
 			Assert.Equal(4, receiptEdoTask.FiscalDocuments.SelectMany(x => x.InventPositions).Count());
 
 			Assert.Equal(receiptEdoTask.FiscalDocuments.Sum(x => x.InventPositions.Sum(x => x.Quantity)),
-				receiptEdoTask.OrderEdoRequest.Order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark).Sum(x => x.Count));
+				receiptEdoTask.FormalEdoRequest.Order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark).Sum(x => x.Count));
 
 			Assert.Equal(
 				receiptEdoTask.FiscalDocuments.Sum(x => x.InventPositions.Sum(x => x.Price * x.Quantity - x.DiscountSum)),
-				receiptEdoTask.OrderEdoRequest.Order.OrderItems
+				receiptEdoTask.FormalEdoRequest.Order.OrderItems
 					.Where(x =>
 						x.Nomenclature.IsAccountableInTrueMark
 						&& x.Count > 0)
@@ -242,11 +242,11 @@ namespace Receipt.Dispatcher.Tests
 			// Assert
 
 			Assert.Equal(receiptEdoTask.FiscalDocuments.Sum(x => x.InventPositions.Sum(x => x.Quantity)),
-				receiptEdoTask.OrderEdoRequest.Order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark).Sum(x => x.Count));
+				receiptEdoTask.FormalEdoRequest.Order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark).Sum(x => x.Count));
 
 			Assert.Equal(
 				receiptEdoTask.FiscalDocuments.Sum(x => x.InventPositions.Sum(x => x.Price * x.Quantity - x.DiscountSum)),
-				receiptEdoTask.OrderEdoRequest.Order.OrderItems
+				receiptEdoTask.FormalEdoRequest.Order.OrderItems
 					.Where(x =>
 						x.Nomenclature.IsAccountableInTrueMark
 						&& x.Count > 0)
@@ -318,7 +318,7 @@ namespace Receipt.Dispatcher.Tests
 
 			var receiptEdoTask = new ReceiptEdoTask
 			{
-				OrderEdoRequest = new OrderEdoRequest
+				FormalEdoRequest = new PrimaryEdoRequest
 				{
 					Order = order
 				},

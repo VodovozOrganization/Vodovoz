@@ -55,7 +55,7 @@ namespace Edo.Problems.Validation.Sources
 			
 			var edoOrderContactProvider = serviceProvider.GetRequiredService<IEdoOrderContactProvider>();
 
-			var contact = edoOrderContactProvider.GetContact(receiptEdoTask.OrderEdoRequest.Order);
+			var contact = edoOrderContactProvider.GetContact(receiptEdoTask.FormalEdoRequest.Order);
 
 			if(!contact.IsValid)
 			{

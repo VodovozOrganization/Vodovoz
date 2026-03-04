@@ -6,6 +6,7 @@ using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Attributes;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Clients.DeliveryPoints;
 using Vodovoz.Core.Domain.Controllers;
@@ -89,7 +90,7 @@ namespace Vodovoz.Core.Domain.Orders
 		private DriverCallType _driverCallType;
 		private OrderSource _orderSource = OrderSource.VodovozApp;
 		private DefaultDocumentType? _documentType;
-		private DateTime? _deliveryDate;
+		protected DateTime? _deliveryDate;
 		private PaymentFromEntity _paymentByCardFrom;
 		private PaymentType _paymentType;
 		private CounterpartyEntity _client;
@@ -512,6 +513,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		[Display(Name = "Статус заказа")]
+		[OrderTracker1c]
 		public virtual OrderStatus OrderStatus
 		{
 			get => _orderStatus;
@@ -569,6 +571,7 @@ namespace Vodovoz.Core.Domain.Orders
 
 		[Display(Name = "Дата доставки")]
 		[HistoryDateOnly]
+		[OrderTracker1c]
 		public virtual DateTime? DeliveryDate
 		{
 			get => _deliveryDate;
@@ -593,6 +596,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		[Display(Name = "Строки заказа")]
+		[OrderTracker1c]
 		public virtual IObservableList<OrderItemEntity> OrderItems
 		{
 			get => _orderItems;
@@ -612,8 +616,9 @@ namespace Vodovoz.Core.Domain.Orders
 			get => _orderDepositItems;
 			set => SetField(ref _orderDepositItems, value);
 		}
-
+		
 		[Display(Name = "Клиент")]
+		[OrderTracker1c]
 		public virtual CounterpartyEntity Client
 		{
 			get => _client;
@@ -630,6 +635,7 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		[Display(Name = "Договор")]
+		[OrderTracker1c]
 		public virtual CounterpartyContractEntity Contract
 		{
 			get => _contract;
@@ -771,7 +777,7 @@ namespace Vodovoz.Core.Domain.Orders
 		/// Является ли заказ безналичным и организация по договору без НДС
 		/// </summary>
 		public virtual bool IsCashlessPaymentTypeAndOrganizationWithoutVAT => PaymentType == PaymentType.Cashless
-			&& (Contract?.Organization?.WithoutVAT ?? false);
+			&& Contract?.Organization?.GetActualVatRateVersion(DeliveryDate)?.VatRate.VatRateValue == 0;
 
 		public override string ToString()
 		{

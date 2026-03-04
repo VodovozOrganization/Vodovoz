@@ -20,6 +20,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Taxcom.Docflow.Utility;
+using TaxcomEdo.Client;
+using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Organizations;
 
 namespace CustomTaskDebugExecutor
 {
@@ -121,7 +124,10 @@ namespace CustomTaskDebugExecutor
 			Console.WriteLine("22. InformalOrderDocumenTaskCreatedEvent (отправка неформализованного документа заказа) - [Edo.InformalOrderDocuments]");
 			Console.WriteLine("    Событие создания задачи на отправку ЭДО неформализованного документа клиенту");
 			Console.WriteLine();
-
+			
+			Console.WriteLine("23. Обновить статус ДО");
+			Console.WriteLine();
+			
 			Console.Write("Выберите действие: ");
 			var messageNumber = int.Parse(Console.ReadLine());
 
@@ -192,6 +198,9 @@ namespace CustomTaskDebugExecutor
 					break;
 				case 22:
 					await ReceiveInformalDocumentTaskCreatedEvent(cancellationToken);
+					break;
+				case 23:
+					await UpdateDocflowStatus();
 					break;
 				default:
 					break;
@@ -542,7 +551,72 @@ namespace CustomTaskDebugExecutor
 			var service = _serviceProvider.GetRequiredService<TransferEdoHandler>();
 			await service.MoveToPrepareToSend(id, cancellationToken);
 		}
+		
+		private async Task UpdateDocflowStatus()
+		{
+			Console.WriteLine();
+			Console.WriteLine("Необходимо ввести Id документооборота, статус которого надо обновить");
+			Console.Write("Введите Id (0 - выход): ");
+			var docflowId = Console.ReadLine();
+			
+			if(string.IsNullOrWhiteSpace(docflowId))
+			{
+				Console.WriteLine("Выход");
+				return;
+			}
+			
+			Console.WriteLine();
+			Console.WriteLine("Необходимо ввести Id организации, от которой шла отправка");
+			Console.Write("Введите Id (0 - выход): ");
+			var organizationId = int.Parse(Console.ReadLine());
+			
+			if(organizationId <= 0)
+			{
+				Console.WriteLine("Выход");
+				return;
+			}
 
+			try
+			{
+				var taxcomApiClient = _serviceProvider.GetRequiredService<ITaxcomApiClient>();
+				var uowFactory = _serviceProvider.GetRequiredService<IUnitOfWorkFactory>();
+
+				using var uow = uowFactory.CreateWithoutRoot();
+				var org = uow.GetById<OrganizationEntity>(organizationId);
+
+				if(org is null)
+				{
+					throw new InvalidOperationException("Не найдена организация, по которой был отправлен документ");
+				}
+
+				var edoAccount = org.TaxcomEdoSettings.EdoAccount;
+				var description = await taxcomApiClient.GetDocflowStatus(docflowId, edoAccount);
+				var mainDocument = description.DocFlow.Documents.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.Definition.Identifiers.ExternalIdentifier));
+
+				if(mainDocument is null)
+				{
+					throw new InvalidOperationException("Не найден главный документ");
+				}
+
+				var docflowUpdatedEvent = new OutgoingTaxcomDocflowUpdatedEvent
+				{
+					DocFlowId = description.DocFlow.Id,
+					EdoAccount = edoAccount,
+					MainDocumentId = mainDocument.Definition.Identifiers.ExternalIdentifier,
+					Status = description.DocFlow.Status,
+					StatusChangeDateTime = description.DocFlow.StatusChangeDateTime,
+				};
+				docflowUpdatedEvent.IsReceived = docflowUpdatedEvent.Status == nameof(EdoDocFlowStatus.Succeed);
+				
+				var publishEndpoint = _serviceProvider.GetRequiredService<IPublishEndpoint>();
+				await publishEndpoint.Publish(docflowUpdatedEvent);
+			}
+			catch(Exception ex)
+			{
+				Console.WriteLine("Произошла ошибка при попытке обновления статуса ДО");
+				Console.WriteLine(ex.Message);
+			}
+		}
 
 		private async Task SendEvents(CancellationToken cancellationToken)
 		{

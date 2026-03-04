@@ -13,7 +13,10 @@ using QSReport;
 using System;
 using QS.Report;
 using Vodovoz;
+using Vodovoz.Core.Data.Repositories.Cash;
+using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Orders;
@@ -66,6 +69,7 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Service;
 using Vodovoz.ViewModels.ViewModels.Suppliers;
 using Action = Gtk.Action;
+using Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule;
 
 public partial class MainWindow : Window
 {
@@ -99,6 +103,7 @@ public partial class MainWindow : Window
 	Action ActionRouteListTracking;
 	Action ActionFastDeliveryAvailabilityJournal;
 	Action ActionDriversStopLists;
+	Action ActionDriverSchedule;
 	
 	//Склад
 	Action ActionWarehouseDocuments;
@@ -231,6 +236,7 @@ public partial class MainWindow : Window
 		ActionRouteListAddressesTransferring = new Action("ActionRouteListAddressesTransferring", "Перенос адресов", null, "table");
 		ActionFastDeliveryAvailabilityJournal = new Action("ActionFastDeliveryAvailabilityJournal", "Доставка за час", null, "table");
 		ActionDriversStopLists = new Action("ActionDriversStopLists", "Стоп-лист", null, "table");
+		ActionDriverSchedule = new Action("ActionDriverSchedule", "График водителей", null, "table");
 		
 		//Касса
 		ActionCashDocuments = new Action("ActionCashDocuments", "Кассовые документы", null, "table");
@@ -356,6 +362,7 @@ public partial class MainWindow : Window
 		w1.Add(ActionReportDebtorsBottles, null);
 		w1.Add(ActionFastDeliveryAvailabilityJournal, null);
 		w1.Add(ActionDriversStopLists, null);
+		w1.Add(ActionDriverSchedule, null);
 
 		//Бухгалтерия
 		w1.Add(ActionTransferBankDocs, null);
@@ -475,6 +482,7 @@ public partial class MainWindow : Window
 		ActionRouteListTracking.Activated += ActionRouteListTracking_Activated;
 		ActionFastDeliveryAvailabilityJournal.Activated += ActionFastDeliveryAvailabilityJournal_Activated;
 		ActionDriversStopLists.Activated += OnActionDriversStopListsActivated;
+		ActionDriverSchedule.Activated += OnActionDriverScheduleActivated;
 
 		ActionFinesJournal.Activated += ActionFinesJournal_Activated;
 		ActionPremiumJournal.Activated += ActionPremiumJournal_Activated;
@@ -554,6 +562,11 @@ public partial class MainWindow : Window
 	private void OnActionDriversStopListsActivated(object sender, EventArgs e)
 	{
 		NavigationManager.OpenViewModel<DriversStopListsViewModel>(null);
+	}
+
+	private void OnActionDriverScheduleActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<DriverScheduleViewModel>(null);
 	}
 
 	private void ActionWarehouseDocumentsItemsJournal_Activated(object sender, EventArgs e)
@@ -679,18 +692,7 @@ public partial class MainWindow : Window
 
 	void ActionExportImportNomenclatureCatalog_Activated(object sender, System.EventArgs e)
 	{
-		var nomenclatureRepository = _autofacScope.Resolve<INomenclatureRepository>();
-		var uowFactory = _autofacScope.Resolve<IUnitOfWorkFactory>();
-
-		tdiMain.OpenTab(
-			"ExportImportNomenclatureCatalog",
-			() => new ExportImportNomenclatureCatalogViewModel(
-				nomenclatureRepository,
-				uowFactory,
-				ServicesConfig.CommonServices,
-				NavigationManagerProvider.NavigationManager
-			)
-		);
+		NavigationManager.OpenViewModel<ExportImportNomenclatureCatalogViewModel>(null, OpenPageOptions.IgnoreHash);
 	}
 
 	void ActionUnclosedAdvances_Activated(object sender, System.EventArgs e)

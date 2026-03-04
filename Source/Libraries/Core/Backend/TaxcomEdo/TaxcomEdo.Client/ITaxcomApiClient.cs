@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Edo.Contracts.Messages.Dto;
+using Edo.Contracts.Xml;
 using TaxcomEdo.Contracts.Contacts;
 using TaxcomEdo.Contracts.Counterparties;
 using TaxcomEdo.Contracts.Documents;
@@ -141,5 +142,12 @@ namespace TaxcomEdo.Client
 		/// <param name="cancellationToken">Токен для остановки выполнения задачи</param>
 		/// <returns></returns>
 		Task RejectOfferCancellation(string docFlowId, string comment, CancellationToken cancellationToken = default);
+		/// <summary>
+		/// Получение текущего статуса ДО
+		/// </summary>
+		/// <param name="docflowId">Идентификатор ДО</param>
+		/// <param name="ourEdoAccountId">Аккаунт ЭДО по которому проверяем(чаще всего это отправитель)</param>
+		/// <returns></returns>
+		Task<ContainerDescription> GetDocflowStatus(string docflowId, string ourEdoAccountId = null);
 	}
 }

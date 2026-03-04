@@ -76,7 +76,7 @@ namespace Vodovoz.Views.Documents
 
 			ytreeviewProgress.ColumnsConfig = FluentColumnsConfig<CodesScanViewModel.CodesScanProgressRow>.Create()
 				.AddColumn("GTIN")
-				.AddTextRenderer(n => n.Gtin)
+				.AddTextRenderer(n => n.Gtins)
 				.AddColumn("Номенклатура")
 				.AddTextRenderer(n => n.NomenclatureName)
 				.WrapMode(WrapMode.Word).WrapWidth(400)

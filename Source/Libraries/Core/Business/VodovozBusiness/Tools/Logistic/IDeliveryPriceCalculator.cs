@@ -5,7 +5,7 @@ namespace Vodovoz.Tools.Logistic
 	public interface IDeliveryPriceCalculator
 	{
 		DeliveryPriceNode Calculate(decimal? latitude, decimal? longitude);
-		DeliveryPriceNode Calculate(decimal? latitude, decimal? longitude, int? bottlesCount);
+		DeliveryPriceNode Calculate(decimal? latitude, decimal? longitude, int? bottlesCount, bool needCalculateDistance = true);
 		DeliveryPriceNode Calculate(DeliveryPoint point, int? bottlesCount = null);
 		DeliveryPriceNode CalculateForService(DeliveryPoint point);
 	}

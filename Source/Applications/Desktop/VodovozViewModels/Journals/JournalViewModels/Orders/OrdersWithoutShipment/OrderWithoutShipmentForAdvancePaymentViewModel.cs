@@ -115,6 +115,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
 
+			var currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
+
 			OrganizationViewModel = organizationViewModelEEVMBuilder
 				.SetUnitOfWork(UoW)
 				.SetViewModel(this)
@@ -122,12 +124,19 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				.UseViewModelJournalAndAutocompleter<OrganizationJournalViewModel>()
 				.UseViewModelDialog<OrganizationViewModel>()
 				.Finish();
-			
+
+			SendDocViewModel =
+				new SendDocumentByEmailViewModel(
+					uowFactory,
+					_emailRepository,
+					_emailSettings,
+					currentEmployee,
+					commonServices,
+					UoW);
+
 			OrganizationViewModel.PropertyChanged += OnOrganizationViewModelPropertyChanged;
-			
+
 			SetPermissions();
-			
-			var currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
 
 			if(uowBuilder.IsNewEntity)
 			{
@@ -139,6 +148,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 						return;
 					}
 					Entity.Author = currentEmployee;
+					Entity.Organization = UoW.GetById<Organization>(_organizationSettings.VodovozOrganizationId);
 				}
 				else
 				{
@@ -149,15 +159,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			TabName = "Счет без отгрузки на предоплату";
 			EntityUoWBuilder = uowBuilder;
-
-			SendDocViewModel =
-				new SendDocumentByEmailViewModel(
-					uowFactory,
-					_emailRepository,
-					_emailSettings,
-					currentEmployee,
-					commonServices,
-					UoW);
 
 			FillDiscountReasons(discountReasonRepository);
 
@@ -374,6 +375,11 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 					if(!UoWGeneric.HasChanges && Entity.Id > 0)
 					{
+						if(!Validate())
+						{
+							return;
+						}
+						
 						_rdlPreviewOpener.OpenRldDocument(typeof(OrderWithoutShipmentForAdvancePayment), Entity);
 					}
 				},

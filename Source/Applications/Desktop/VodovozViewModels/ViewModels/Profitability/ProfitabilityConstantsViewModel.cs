@@ -241,6 +241,7 @@ namespace Vodovoz.ViewModels.Profitability
 
 			MonthPickerViewModel = monthPickerViewModelFactory.CreateNewDatePickerViewModel(
 				Entity.CalculatedMonth,
+				ChangeDateType.Month,
 				canSelectNextDateFunc: CanSelectNextMonth,
 				canSelectPreviousDateFunc: CanSelectPreviousMonth);
 

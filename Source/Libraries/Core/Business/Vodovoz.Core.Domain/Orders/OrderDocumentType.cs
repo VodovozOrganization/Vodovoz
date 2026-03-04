@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Core.Domain.Orders
 {
@@ -68,6 +68,9 @@ namespace Vodovoz.Core.Domain.Orders
 		Torg2,
 		[DocumentOfOrder]
 		[Display(Name = "Лист сборки")]
-		AssemblyList
+		AssemblyList,
+		[DocumentOfOrder]
+		[Display(Name = "Письмо о задолженности")]
+		LetterOfDebt
 	}
 }

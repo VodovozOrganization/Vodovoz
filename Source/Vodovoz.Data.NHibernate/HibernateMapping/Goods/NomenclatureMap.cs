@@ -21,7 +21,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 			Map(x => x.Length).Column("length");
 			Map(x => x.Width).Column("width");
 			Map(x => x.Height).Column("height");
-			Map(x => x.VAT).Column("vat");
+			
 			Map(x => x.DoNotReserve).Column("reserve");
 			Map(x => x.RentPriority).Column("rent_priority");
 			Map(x => x.IsDuty).Column("is_duty");
@@ -114,7 +114,10 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 
 			//Честный знак
 			Map(x => x.IsAccountableInTrueMark).Column("is_accountable_in_chestniy_znak");
-			Map(x => x.Gtin).Column("gtin");
+			
+			//Мотивация
+			Map(x => x.MotivationUnitType).Column("motivation_unit_type");
+			Map(x => x.MotivationCoefficient).Column("motivation_coefficient");
 
 			References(x => x.ShipperCounterparty).Column("shipper_counterparty_id");
 			References(x => x.CreatedBy).Column("created_by");
@@ -153,13 +156,19 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 			HasMany(x => x.InnerDeliveryPrices).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 			HasMany(x => x.NomenclatureOnlineParameters)
 				.Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
+			HasMany(x => x.VatRateVersions)
+				.Cascade.AllDeleteOrphan()
+				.Inverse()
+				.KeyColumn("nomenclature_id")
+				.OrderBy("start_date DESC");
 			HasMany(x => x.NomenclatureMinimumBalancesByWarehouse).Inverse().Cascade.AllDeleteOrphan().LazyLoad().KeyColumn("nomenclature_id");
 
 			HasMany(x => x.Gtins)
 				.KeyColumn("nomenclature_id")
 				.Cascade.AllDeleteOrphan()
 				.Inverse()
-				.LazyLoad();
+				.LazyLoad()
+				.OrderBy("priority");
 
 			HasMany(x => x.GroupGtins)
 				.KeyColumn("nomenclature_id")

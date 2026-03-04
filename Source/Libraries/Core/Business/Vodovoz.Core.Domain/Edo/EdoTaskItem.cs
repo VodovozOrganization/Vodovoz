@@ -9,7 +9,6 @@ namespace Vodovoz.Core.Domain.Edo
 		private int _id;
 		private OrderEdoTask _customerEdoTask;
 		private TrueMarkProductCode _productCode;
-		private int _transferEdoTaskId;
 
 		[Display(Name = "Код")]
 		public virtual int Id
@@ -31,14 +30,5 @@ namespace Vodovoz.Core.Domain.Edo
 			get => _productCode;
 			set => SetField(ref _productCode, value);
 		}
-
-		/*
-		[Display(Name = "Код ЭДО задачи перемещения")]
-		public virtual int TransferEdoTaskId
-		{
-			get => _transferEdoTaskId;
-			set => SetField(ref _transferEdoTaskId, value);
-		}
-		*/
 	}
 }

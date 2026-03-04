@@ -1,10 +1,11 @@
-using CustomerAppsApi.Library.Models;
+﻿using CustomerAppsApi.Library.Models;
 using CustomerAppsApi.Library.Services;
 using Gamma.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using Vodovoz.Core.Domain.Clients;
+using VodovozHealthCheck.Helpers;
 
 namespace CustomerAppsApi.Controllers
 {
@@ -36,12 +37,20 @@ namespace CustomerAppsApi.Controllers
 			_logger.LogInformation("Поступил запрос на выборку адресов самовывоза от источника {Source}", sourceName);
 			try
 			{
-				if(!_selfDeliveriesAddressesFrequencyRequestsHandler.CanRequest(source, sourceName))
+				var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
+
+				var canRequest = isDryRun || _selfDeliveriesAddressesFrequencyRequestsHandler.CanRequest(source, sourceName);
+
+				if(!canRequest)
 				{
 					return BadRequest("Превышен интервал обращений");
 				}
 
-				_selfDeliveriesAddressesFrequencyRequestsHandler.TryUpdate(source);
+				if(!isDryRun)
+				{
+					_selfDeliveriesAddressesFrequencyRequestsHandler.TryUpdate(source);
+				}
+
 				return Ok(_warehouseModel.GetSelfDeliveriesAddresses());
 			}
 			catch(Exception e)

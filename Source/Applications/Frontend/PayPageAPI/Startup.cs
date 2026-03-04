@@ -88,8 +88,10 @@ namespace PayPageAPI
 			
 			//models
 			services.AddScoped<IAvangardFastPaymentModel, AvangardFastPaymentModel>();
+			
+			services.AddHttpClient();
 
-			services.ConfigureHealthCheckService<PayPageHealthCheck>();
+			services.ConfigureHealthCheckService<PayPageHealthCheck, ServiceInfoProvider>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -123,7 +125,7 @@ namespace PayPageAPI
 					pattern: "{controller=Home}/{action=Index}/{id?}");
 			});
 
-			app.ConfigureHealthCheckApplicationBuilder();
+			app.UseVodovozHealthCheck();
 		}
 	}
 }

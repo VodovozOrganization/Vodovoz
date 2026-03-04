@@ -21,6 +21,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Roboats;
 using Vodovoz.EntityRepositories.Roboats;
+using VodovozHealthCheck.Helpers;
 
 namespace RoboatsService.Controllers
 {
@@ -102,7 +103,12 @@ namespace RoboatsService.Controllers
 				OrderId = orderId
 			};
 
-			_roboatsCallRegistrator.RegisterCall(request.ClientPhone, request.CallGuid);
+			var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
+
+			if(!isDryRun)
+			{
+				_roboatsCallRegistrator.RegisterCall(request.ClientPhone, request.CallGuid);
+			}
 
 			var handler = _handlerFactory.GetHandler(request);
 			if(handler == null)
@@ -127,7 +133,7 @@ namespace RoboatsService.Controllers
 		/// <returns></returns>
 		[HttpGet(nameof(GetContactPhoneHasOrdersForDeliveryToday))]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetContactPhoneHasOrdersForDeliveryTodayResponse))]
-		public IActionResult GetContactPhoneHasOrdersForDeliveryToday([FromServices]IUnitOfWork unitOfWork, string counterpartyPhone)
+		public IActionResult GetContactPhoneHasOrdersForDeliveryToday([FromServices] IUnitOfWork unitOfWork, string counterpartyPhone)
 		{
 			try
 			{

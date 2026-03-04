@@ -9,6 +9,7 @@ service EarchiveUpd {
   rpc GetCounterparties (NameSubstring) returns (stream CounterpartyInfo);
   rpc GetAddresses (CounterpartyInfo) returns (stream DeliveryPointInfo);
   rpc GetUpdCode (UpdRequestInfo) returns (stream UpdResponseInfo);
+  rpc GetUpdNumbers (OrderIdsInfo) returns (stream UpdNumberResponseInfo);
 }
 
 message NameSubstring{
@@ -34,4 +35,13 @@ message UpdRequestInfo{
 
 message UpdResponseInfo{
 	int64 id = 1;
+}
+
+message OrderIdsInfo {
+  repeated int64 orderIds = 1;
+}
+
+message UpdNumberResponseInfo{
+	int64 orderId = 1;
+	string updNumber = 2;
 }

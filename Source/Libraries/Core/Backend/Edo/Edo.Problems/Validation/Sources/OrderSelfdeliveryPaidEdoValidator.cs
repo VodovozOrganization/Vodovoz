@@ -35,7 +35,7 @@ namespace Edo.Problems.Validation.Sources
 
 		public string GetTemplateMessage(EdoTask edoTask)
 		{
-			var orderEdoRequest = GetOrderEdoRequest(edoTask);
+			var orderEdoRequest = GetEdoRequest(edoTask);
 			if(orderEdoRequest == null)
 			{
 				return Message;
@@ -52,14 +52,14 @@ namespace Edo.Problems.Validation.Sources
 			}
 			
 			var orderEdoTask = (OrderEdoTask)edoTask;
-			var orderEdoRequest = orderEdoTask.OrderEdoRequest;
+			var orderEdoRequest = orderEdoTask.FormalEdoRequest;
 			var order = orderEdoRequest.Order;
 			return isOrder && order.SelfDelivery && !order.IsOrderForResale;
 		}
 
 		public override Task<EdoValidationResult> ValidateAsync(EdoTask edoTask, IServiceProvider serviceProvider, CancellationToken cancellationToken)
 		{
-			var orderEdoRequest = GetOrderEdoRequest(edoTask);
+			var orderEdoRequest = GetEdoRequest(edoTask);
 			if(!orderEdoRequest.Order.SelfDelivery)
 			{
 				return Task.FromResult(EdoValidationResult.Valid(this));

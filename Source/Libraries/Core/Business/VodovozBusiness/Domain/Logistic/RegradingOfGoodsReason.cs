@@ -3,6 +3,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Logistics.Cars;
 
 namespace Vodovoz.Domain.Logistic
 {

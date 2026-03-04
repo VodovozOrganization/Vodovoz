@@ -1,6 +1,7 @@
 ﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Domain.TrueMark;
 
 namespace Vodovoz.EntityRepositories.Cash
@@ -26,5 +27,13 @@ namespace Vodovoz.EntityRepositories.Cash
 		IEnumerable<int> GetReceiptIdsForPrepare(int count);
 		IEnumerable<int> GetUnfinishedReceiptIds(int count);
 		int GetCashReceiptsCountForOrder(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Возвращает информацию о чеке, которая была отправлена в фискальный регистратор
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="orderId"></param>
+		/// <returns></returns>
+		EdoFiscalDocument GetLastEdoFiscalDocumentByOrderId(IUnitOfWork uow, int orderId);
 	}
 }

@@ -23,6 +23,12 @@ namespace Vodovoz.Core.Domain.Errors
 				typeof(TransferOrder),
 				nameof(TransferOrderCreateCustomerMissing),
 				"Покупатель не указан");
+			
+			public static Error TransferOrderDocumentOrganizationCounterMissing =>
+				new Error(
+					typeof(TransferOrder),
+					nameof(TransferOrderDocumentOrganizationCounterMissing),
+					"Нет счетчика документов для трансфера");
 		}
 	}
 }

@@ -54,7 +54,7 @@ namespace Vodovoz.Additions.Logistic
 			{
 				documentName = "ClosedRouteList";
 				isClosed = true;
-				commentColSpanCount = 9;
+				commentColSpanCount = 10;
 			}
 
 			string RdlText = string.Empty;
@@ -351,7 +351,7 @@ namespace Vodovoz.Additions.Logistic
 			{
 				using(MemoryStream stream = new MemoryStream())
 				{
-					bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+					bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Jpeg);
 					img = stream.ToArray();
 				}
 			}

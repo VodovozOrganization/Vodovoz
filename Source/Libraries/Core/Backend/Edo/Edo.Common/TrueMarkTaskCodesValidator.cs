@@ -84,7 +84,7 @@ namespace Edo.Common
 
 			var edoOrganizations = await _edoRepository.GetEdoOrganizationsAsync(cancellationToken);
 			var ourOrganizationInns = edoOrganizations.Select(x => x.INN);
-			var sellerInn = edoTask.OrderEdoRequest.Order.Contract.Organization.INN;
+			var sellerInn = edoTask.FormalEdoRequest.Order.Contract.Organization.INN;
 
 			var checkResults = await edoTaskItemTrueMarkStatusProvider.GetItemsStatusesAsync(cancellationToken);
 			var codeResults = new List<TrueMarkCodeValidationResult>();

@@ -271,26 +271,20 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			if(!NHibernateUtil.IsInitialized(OrderWithoutDeliveryForAdvancePayment)) {
 				NHibernateUtil.Initialize(OrderWithoutDeliveryForAdvancePayment);
 			}
+
+			var organization = OrderWithoutDeliveryForAdvancePayment.Organization;
 			
-			VAT vat = CanUseVAT() ? Nomenclature.VAT : VAT.No;
-			
-			switch(vat) {
-				case VAT.No:
-					ValueAddedTax = 0m;
-					break;
-				case VAT.Vat10:
-					ValueAddedTax = 0.10m;
-					break;
-				case VAT.Vat18:
-					ValueAddedTax = 0.18m;
-					break;
-				case VAT.Vat20:
-					ValueAddedTax = 0.20m;
-					break;
-				default:
-					ValueAddedTax = 0m;
-					break;
+			var vatRateVersion = organization != null && organization.IsUsnMode
+				? organization.GetActualVatRateVersion(OrderWithoutDeliveryForAdvancePayment.DocumentDate)
+				: Nomenclature.GetActualVatRateVersion(OrderWithoutDeliveryForAdvancePayment.DocumentDate);
+
+			if (vatRateVersion == null)
+			{
+				throw new InvalidOperationException(
+					$"У товара #{Nomenclature.Id} отсутствует версия НДС на дату доставки счета #{OrderWithoutDeliveryForAdvancePayment.DocumentDate}");
 			}
+
+			ValueAddedTax = CanUseVAT() ? vatRateVersion.VatRate.VatNumericValue : 0;
 		}
 		
 		private void RecalculateVAT()
@@ -315,13 +309,14 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 		private bool CanUseVAT()
 		{
-			bool canUseVAT = true;
+			var canUseVat = true;
 			var organization = OrderWithoutDeliveryForAdvancePayment.Organization;
+			
 			if(organization != null) {
-				canUseVAT = !organization.WithoutVAT;
+				canUseVat = organization.GetActualVatRateVersion(OrderWithoutDeliveryForAdvancePayment.DocumentDate)?.VatRate.VatNumericValue != 0;
 			}
 
-			return canUseVAT;
+			return canUseVat;
 		}
 		
 		public void SetDiscount(bool isDiscountInMoney, decimal discount, DiscountReason discountReason)

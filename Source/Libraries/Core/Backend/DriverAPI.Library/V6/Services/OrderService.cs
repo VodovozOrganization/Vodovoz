@@ -407,7 +407,7 @@ namespace DriverAPI.Library.V6.Services
 			await _uow.SaveAsync(routeListAddress);
 			await _uow.SaveAsync(routeList);
 
-			var edoRequest = _uow.Session.Query<OrderEdoRequest>()
+			var edoRequest = _uow.Session.Query<PrimaryEdoRequest>()
 				.Where(x => x.Order.Id == vodovozOrder.Id)
 				.Take(1)
 				.SingleOrDefault();
@@ -433,9 +433,9 @@ namespace DriverAPI.Library.V6.Services
 			return Result.Success();
 		}
 
-		private OrderEdoRequest CreateEdoRequests(Order vodovozOrder, RouteListItem routeListAddress)
+		private PrimaryEdoRequest CreateEdoRequests(Order vodovozOrder, RouteListItem routeListAddress)
 		{
-			var edoRequest = new OrderEdoRequest
+			var edoRequest = new PrimaryEdoRequest
 			{
 				Time = DateTime.Now,
 				Source = CustomerEdoRequestSource.Driver,
@@ -1700,6 +1700,83 @@ namespace DriverAPI.Library.V6.Services
 					Parent = parentRawCode
 				};
 			};
+		}
+
+		/// <inheritdoc/>
+		public async Task<RequestProcessingResult<CheckCodeResultResponse>> CheckCode(
+			string code,
+			CancellationToken cancellationToken)
+		{
+			if(string.IsNullOrWhiteSpace(code))
+			{
+				var error = TrueMarkCodeErrors.TrueMarkCodeStringIsNotValid;
+				var result = Result.Failure<CheckCodeResultResponse>(error);
+				return RequestProcessingResult.CreateFailure(result, new CheckCodeResultResponse
+				{
+					Result = RequestProcessingResultTypeDto.Error,
+					Error = error.Message,
+					Codes = null
+				});
+			}
+
+			var trueMarkCodeResult = await _trueMarkWaterCodeService.GetTrueMarkCodeByScannedCode(
+				_uow,
+				code,
+				cancellationToken);
+
+			if(trueMarkCodeResult.IsFailure)
+			{
+				var error = trueMarkCodeResult.Errors.FirstOrDefault();
+				var result = Result.Failure<CheckCodeResultResponse>(error);
+				return RequestProcessingResult.CreateFailure(result, new CheckCodeResultResponse
+				{
+					Result = RequestProcessingResultTypeDto.Error,
+					Error = error.Message,
+					Codes = null
+				});
+			}
+
+			IEnumerable<TrueMarkAnyCode> trueMarkAnyCodes = trueMarkCodeResult.Value.Match(
+				transportCode => transportCode.GetAllCodes(),
+				groupCode => groupCode.GetAllCodes(),
+				waterCode => new TrueMarkAnyCode[] { waterCode });
+
+			var trueMarkCodes = trueMarkAnyCodes
+				.Select(code => code.Match(
+					PopulateTransportCode(trueMarkAnyCodes),
+					PopulateGroupCode(trueMarkAnyCodes),
+					PopulateWaterCode(trueMarkAnyCodes)))
+				.ToList();
+			
+			var instanceCodes = trueMarkAnyCodes
+				.Where(x => x.IsTrueMarkWaterIdentificationCode)
+				.Select(x => x.TrueMarkWaterIdentificationCode);
+
+			var codeCheckingProcessResult = await _trueMarkWaterCodeService.IsAllTrueMarkCodesValid(
+				instanceCodes,
+				cancellationToken
+			);
+
+			if(codeCheckingProcessResult.IsFailure)
+			{
+				var error = codeCheckingProcessResult.Errors.FirstOrDefault();
+				var result = Result.Failure<CheckCodeResultResponse>(error);
+				return RequestProcessingResult.CreateFailure(result, new CheckCodeResultResponse
+				{
+					Result = RequestProcessingResultTypeDto.Error,
+					Error = error.Message,
+					Codes = null
+				});
+			}
+
+			var successResponse = new CheckCodeResultResponse
+			{
+				Result = RequestProcessingResultTypeDto.Success,
+				Error = null,
+				Codes = trueMarkCodes
+			};
+
+			return RequestProcessingResult.CreateSuccess(Result.Success(successResponse));
 		}
 
 		public async Task<Result> SendTrueMarkCodes(

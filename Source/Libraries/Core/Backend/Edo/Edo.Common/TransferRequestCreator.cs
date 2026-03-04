@@ -34,7 +34,7 @@ namespace Edo.Common
 			var itemStatuses = await taskItemStatusProvider.GetItemsStatusesAsync(cancellationToken);
 
 			var edoOrganizations = await _edoRepository.GetEdoOrganizationsAsync(cancellationToken);
-			var organizationTo = edoTask.OrderEdoRequest.Order.Contract.Organization;
+			var organizationTo = edoTask.FormalEdoRequest.Order.Contract.Organization;
 
 			var transferRequests = new Dictionary<string, TransferEdoRequest>();
 			foreach(var itemStatus in itemStatuses.Values)

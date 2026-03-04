@@ -57,7 +57,7 @@ namespace DeliveryRulesService
 				.AddCore()
 				.AddTrackedUoW()
 
-				.ConfigureHealthCheckService<DeliveryRulesServiceHealthCheck>()
+				.ConfigureHealthCheckService<DeliveryRulesServiceHealthCheck, ServiceInfoProvider>()
 				.AddHttpClient()
 				.AddFiasClient()
 				.AddOsrm()

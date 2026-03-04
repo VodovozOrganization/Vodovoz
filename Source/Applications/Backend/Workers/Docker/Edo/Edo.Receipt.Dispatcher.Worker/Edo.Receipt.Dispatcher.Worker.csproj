@@ -3,8 +3,6 @@
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
 		<UserSecretsId>dotnet-Edo.Receipt.Dispatcher.Worker-928f2a4a-d22a-4974-981f-b860056fead8</UserSecretsId>
-		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-		<DockerfileContext>..\..\..\..\..\..</DockerfileContext>
 	</PropertyGroup>
 
 	<ItemGroup>

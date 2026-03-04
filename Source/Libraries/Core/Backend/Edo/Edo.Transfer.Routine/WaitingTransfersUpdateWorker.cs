@@ -29,13 +29,20 @@ namespace Edo.Transfer.Routine
 
 		protected override async Task DoWork(CancellationToken stoppingToken)
 		{
+			var tasksCountForProcess = _optionsMonitor.CurrentValue.TasksCountForProcess;
+
+			if(tasksCountForProcess <= 0)
+			{
+				tasksCountForProcess = 15;
+			}
+			
 			using(var scope = _serviceScopeFactory.CreateScope())
 			{
 				var waitingTransfersUpdateService = scope.ServiceProvider.GetService<WaitingTransfersUpdateService>();
 
 				_logger.LogInformation("Start waiting transfers update");
 
-				await waitingTransfersUpdateService.Update(stoppingToken);
+				await waitingTransfersUpdateService.Update(tasksCountForProcess, stoppingToken);
 
 				_logger.LogInformation("End waiting transfers update");
 			}

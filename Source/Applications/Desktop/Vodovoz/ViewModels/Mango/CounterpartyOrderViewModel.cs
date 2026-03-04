@@ -295,7 +295,10 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 						{
 							throw new InvalidOperationException("Для аннулирования документооборота должен быть указан идентификатор ЭДО задачи.");
 						}
-						_orderCancellationService.CancelDocflowByUser(order, permit.EdoTaskToCancellationId.Value);
+						_orderCancellationService.CancelDocflowByUser(
+							$"Отмена заказа №{order.Id}", 
+							permit.EdoTaskToCancellationId.Value
+						);
 						return;
 					case OrderCancellationPermitType.AllowCancelOrder:
 						break;
@@ -342,7 +345,11 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			var hasEdoTaskToCancellationId = e.CancellationPermit.EdoTaskToCancellationId != null;
 			if(allowCancellation && hasEdoTaskToCancellationId)
 			{
-				_orderCancellationService.AutomaticCancelDocflow(UoW, SelectedOrder, e.CancellationPermit.EdoTaskToCancellationId.Value);
+				_orderCancellationService.AutomaticCancelDocflow(
+					UoW, 
+					$"Отмена заказа №{SelectedOrder.Id}", 
+					e.CancellationPermit.EdoTaskToCancellationId.Value
+				);
 			}
 		}
 

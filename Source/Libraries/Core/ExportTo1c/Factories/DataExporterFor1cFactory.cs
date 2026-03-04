@@ -1,6 +1,7 @@
 ﻿using System;
 using ExportTo1c.Library.Exporters;
 using QS.Dialog;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -29,5 +30,7 @@ namespace ExportTo1c.Library.Factories
 		}
 		
 		public IDataExporterFor1c<CounterpartyChangesDto> CreateCounterpartyChanges1cDataExporter() => new CounterpartyChanges1cDataExporter();
+		
+		public IDataExporterFor1c<OrderTo1cExport> CreateApi1cChangesExporter(DateTime exportDate) => new Api1cChangesExporter(exportDate);
 	}
 }

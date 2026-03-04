@@ -80,10 +80,19 @@ namespace Vodovoz.Domain.Client
 
 		#endregion
 
+		/// <summary>
+		/// Типы событий рассылки
+		/// </summary>
 		public enum BulkEmailEventType
 		{
+			/// <summary>
+			/// Подписка
+			/// </summary>
 			[Display(Name = "Подписка")]
 			Subscribing,
+			/// <summary>
+			/// Отписка
+			/// </summary>
 			[Display(Name = "Отписка")]
 			Unsubscribing
 		}

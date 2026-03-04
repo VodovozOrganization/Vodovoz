@@ -37,7 +37,7 @@ namespace BitrixApi
 		{
 			services
 				.AddFeatureManagement()
-				.ConfigureHealthCheckService<BitrixApiHealthChecks>();
+				.ConfigureHealthCheckService<BitrixApiHealthChecks, ServiceInfoProvider>();
 
 			services
 				.AddMappingAssemblies(
@@ -107,7 +107,7 @@ namespace BitrixApi
 				endpoints.MapControllers();
 			});
 
-			app.ConfigureHealthCheckApplicationBuilder();
+			app.UseVodovozHealthCheck();
 		}
 	}
 }

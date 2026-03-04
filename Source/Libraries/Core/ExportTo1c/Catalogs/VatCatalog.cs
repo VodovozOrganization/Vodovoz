@@ -2,6 +2,7 @@
 using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using Vodovoz.Core.Domain.Attributes;
+using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Goods;
 
 namespace ExportTo1c.Library.Catalogs
@@ -16,7 +17,7 @@ namespace ExportTo1c.Library.Catalogs
 		{
 		}
 
-		public VAT Vat { get; set; }
+		public VatRate Vat { get; set; }
 		protected override string Name => "СтавкиНДС";
 
 		public int Id { get; }
@@ -29,7 +30,7 @@ namespace ExportTo1c.Library.Catalogs
 
 			referenceNode.Properties.Add(new PropertyNode("Наименование",
 				Common1cTypes.String,
-				vatCatalog.Vat.GetAttribute<Value1cComplexAutomation>().Value));
+				vatCatalog.Vat.GetValue1cComplexAutomation()));
 
 			return referenceNode;
 		}

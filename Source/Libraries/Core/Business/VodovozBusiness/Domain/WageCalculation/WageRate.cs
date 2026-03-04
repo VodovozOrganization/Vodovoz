@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using QS.Utilities;
 using QS.Utilities.Text;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Vodovoz.Domain.WageCalculation.AdvancedWageParameters;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 
@@ -232,5 +233,30 @@ namespace Vodovoz.Domain.WageCalculation
 		}
 
 		#endregion Вычисляемые
+
+		public virtual object Clone()
+		{
+			var wageRate = new WageRate
+			{
+				WageRateType = WageRateType,
+				ForDriverWithForwarder = ForDriverWithForwarder,
+				ForDriverWithoutForwarder = ForDriverWithoutForwarder,
+				ForForwarder = ForForwarder
+			};
+
+			foreach(var child in Children)
+			{
+				if(child.Clone() is AdvancedWageParameter childParameter)
+				{
+					childParameter.WageRate = wageRate;
+					wageRate.ChildrenParameters.Add(childParameter);
+					continue;
+				}
+
+				throw new InvalidOperationException("Дочерний узел не является дополнительным параметром расчета зарплаты");
+			}
+
+			return wageRate;
+		}
 	}
 }

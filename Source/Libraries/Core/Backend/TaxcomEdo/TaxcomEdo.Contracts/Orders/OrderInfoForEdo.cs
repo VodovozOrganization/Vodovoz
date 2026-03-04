@@ -13,6 +13,11 @@ namespace TaxcomEdo.Contracts.Orders
 		/// Id заказа
 		/// </summary>
 		public int Id { get; set; }
+
+		/// <summary>
+		/// Номер документа строкой (для использования новой нумерации документов)
+		/// </summary>
+		public string StringNumber { get; set; }
 		/// <summary>
 		/// Сумма заказа
 		/// </summary>

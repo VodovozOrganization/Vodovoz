@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -65,7 +65,6 @@ using Vodovoz.Extensions;
 using Vodovoz.Factories;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
-using Vodovoz.Infrastructure;
 using Vodovoz.JournalViewModels;
 using Vodovoz.Models;
 using Vodovoz.Models.TrueMark;
@@ -126,6 +125,7 @@ namespace Vodovoz
 		private readonly IContactSettings _contactsSettings = ScopeProvider.Scope.Resolve<IContactSettings>();
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
+		private readonly IEmailTypeSettings _emailTypeSettings = ScopeProvider.Scope.Resolve<IEmailTypeSettings>();
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
 		private IEdoOperatorsJournalFactory _edoOperatorsJournalFactory;
 		private IEmailSettings _emailSettings;
@@ -223,8 +223,6 @@ namespace Vodovoz
 		public PanelViewType[] InfoWidgets => new[] { PanelViewType.CounterpartyView };
 
 		public Counterparty Counterparty => UoWGeneric.Root;
-
-		public bool HasOgrn => Counterparty.CounterpartyType == CounterpartyType.Dealer;
 
 		private bool CanEdit => permissionResult.CanUpdate || permissionResult.CanCreate && Entity.Id == 0;
 
@@ -767,6 +765,12 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.HideDeliveryPointForBill, w => w.Active)
 				.InitializeFromSource();
 
+			ycheckbuttonDisableDebtMailing.Binding
+				.AddBinding(Entity, e => e.DisableDebtMailing, w => w.Active)
+				.InitializeFromSource();
+			ycheckbuttonDisableDebtMailing.Sensitive = 
+				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CounterpartyPermissions.CanEditDebtNotification);
+
 			// Настройка каналов сбыта
 			if(Entity.IsForRetail)
 			{
@@ -859,14 +863,8 @@ namespace Vodovoz
 
 		private void ConfigureTabContacts()
 		{
-			var phoneTypeSettings = ScopeProvider.Scope.Resolve<IPhoneTypeSettings>();
-			_phonesViewModel =
-				new PhonesViewModel(phoneTypeSettings, _phoneRepository, UoW, _contactsSettings, _roboatsJournalsFactory, _commonServices)
-				{
-					PhonesList = Entity.ObservablePhones,
-					Counterparty = Entity,
-					ReadOnly = !CanEdit
-				};
+			_phonesViewModel = _lifetimeScope.Resolve<PhonesViewModel>(new TypedParameter(typeof(IUnitOfWork), UoW));
+			_phonesViewModel.Initialize(this, !CanEdit,  Entity.Phones, Entity, true);
 			phonesView.ViewModel = _phonesViewModel;
 
 			var emailsViewModel = new EmailsViewModel(
@@ -874,8 +872,9 @@ namespace Vodovoz
 				Entity.Emails,
 				_emailSettings,
 				_externalCounterpartyRepository,
-				_commonServices.InteractiveService,
-				Entity.PersonType);
+				_commonServices,
+				Entity.PersonType,
+				_emailTypeSettings);
 			emailsView.ViewModel = emailsViewModel;
 			emailsView.Sensitive = CanEdit;
 
@@ -924,9 +923,19 @@ namespace Vodovoz
 				.InitializeFromSource();
 			txtRingUpPhones.Editable = CanEdit;
 
-			contactsview1.CounterpartyUoW = UoWGeneric;
-			contactsview1.Visible = true;
-			contactsview1.Sensitive = CanEdit;
+			treeViewExternalCounterparties.ColumnsConfig = FluentColumnsConfig<PersonalCounterpartyExternalUserInfo>.Create()
+				.AddColumn("Код")
+					.AddNumericRenderer(x => x.Id)
+				.AddColumn("Телефон")
+					.AddTextRenderer(x => x.Phone)
+				.AddColumn("Идентификатор пользователя")
+					.AddTextRenderer(x => x.ExternalId)
+				.AddColumn("ИПЗ")
+					.AddEnumRenderer(x => x.CounterpartyFrom)
+					.Editing(false)
+				.Finish();
+
+			treeViewExternalCounterparties.SetItemsSource(_externalCounterpartyRepository.GetPersonalCounterpartyExternalUsersInfo(UoW, Entity.Id));
 		}
 
 		private bool SetSensitivityByPermission(string permission, Widget widget)
@@ -957,12 +966,17 @@ namespace Vodovoz
 				.InitializeFromSource();
 
 			validatedOGRN.ValidationMode = validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			validatedOGRN.MaxLength = CompanyConstants.PrivateBusinessmanOgrnLength;
 
 			validatedOGRN.Binding
 				.AddBinding(Entity, e => e.OGRN, w => w.Text)
 				.InitializeFromSource();
-			validatedOGRN.MaxLength = 13;
 			validatedOGRN.IsEditable = CanEdit;
+			
+			dateOGRNPicker.Binding
+				.AddBinding(Entity, e => e.OGRNDate, w => w.DateOrNull)
+				.InitializeFromSource();
+			dateOGRNPicker.IsEditable = CanEdit;
 
 			validatedINN.Binding
 				.AddBinding(Entity, e => e.INN, w => w.Text)
@@ -1860,7 +1874,6 @@ namespace Vodovoz
 		private void OnEnumCounterpartyTypeChanged(object sender, EventArgs e)
 		{
 			rbnPrices.Visible = Entity.CounterpartyType == CounterpartyType.Supplier;
-			validatedOGRN.Visible = labelOGRN.Visible = HasOgrn;
 			if(Entity.CounterpartyType == CounterpartyType.Dealer)
 			{
 				Entity.PersonType = PersonType.legal;

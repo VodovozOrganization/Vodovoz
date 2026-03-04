@@ -193,7 +193,12 @@ namespace Vodovoz.Application.Goods
 			{
 				return;
 			}
-			
+
+			if(masterCallOrerItem.IsUserPrice)
+			{
+				return;
+			}
+
 			var deliveryPoint = order.DeliveryPoint;
 
 			if(deliveryPoint is null || order.DeliveryDate is null)

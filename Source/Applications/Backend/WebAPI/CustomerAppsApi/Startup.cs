@@ -1,4 +1,4 @@
-using CustomerAppsApi.HealthChecks;
+﻿using CustomerAppsApi.HealthChecks;
 using CustomerAppsApi.Library;
 using CustomerAppsApi.Middleware;
 using MassTransit;
@@ -66,7 +66,7 @@ namespace CustomerAppsApi
 				.AddTrackedUoW()
 				.AddInfrastructure()
 				.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot())
-				.ConfigureHealthCheckService<CustomerAppsApiHealthCheck>()
+				.ConfigureHealthCheckService<CustomerAppsApiHealthCheck, ServiceInfoProvider>()
 				.AddHttpClient()
 				.AddCustomerApiLibrary()
 				.AddOsrm()
@@ -103,7 +103,7 @@ namespace CustomerAppsApi
 
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
-			app.ConfigureHealthCheckApplicationBuilder();
+			app.UseVodovozHealthCheck();
 		}
 	}
 }

@@ -28,6 +28,7 @@ using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Settings;
 using VodovozBusiness.Models.TrueMark;
 using VodovozBusiness.Services;
+using VodovozBusiness.Services.Clients;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.Receipts;
 using VodovozBusiness.Services.Subdivisions;
@@ -67,6 +68,8 @@ namespace Vodovoz.Application
 			.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>()
 			.AddScoped<OurCodesChecker>()
 			.AddScoped<OrderCancellationService>()
+			.AddScoped<SelfdeliveryCancellationService>()
+			.AddScoped<IExternalCounterpartyHandler, ExternalCounterpartyHandler>()
 			.AddTrueMarkApiClient()
 			.AddApplicationOrderServices()
 		;

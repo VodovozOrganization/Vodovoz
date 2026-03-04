@@ -1,4 +1,5 @@
 ﻿using EdoDocumentsPreparer.Factories;
+using EdoService.Library.Services;
 using MassTransit;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -187,7 +188,7 @@ namespace EdoDocumentsPreparer
 				var bulkAccountingEdoTasks =
 					uow.GetAll<BulkAccountingEdoTask>()
 						.Where(x => x.Status == EdoTaskStatus.New
-							&& x.OrderEdoRequest.Order.PaymentType == PaymentType.Cashless)
+							&& x.FormalEdoRequest.Order.PaymentType == PaymentType.Cashless)
 						.ToList();
 
 				//Фильтруем заказы в которых есть УПД и они не в пути, если у клиента стоит выборка по статусу доставлен
@@ -212,7 +213,7 @@ namespace EdoDocumentsPreparer
 				_logger.LogInformation("Обрабатываем новые отправки по таскам");
 				while(i < bulkAccountingEdoTasks.Count)
 				{
-					var orderEntity = bulkAccountingEdoTasks[i].OrderEdoRequest.Order;
+					var orderEntity = bulkAccountingEdoTasks[i].FormalEdoRequest.Order;
 
 					if(!filteredOrdersDictionary.TryGetValue(orderEntity.Id, out var order))
 					{
@@ -356,7 +357,7 @@ namespace EdoDocumentsPreparer
 				.Distinct();
 
 			var updInfo = InfoForCreatingEdoUpd.Create(
-				_orderConverter.ConvertOrderToOrderInfoForEdo(order),
+				_orderConverter.ConvertOrderToOrderInfoForEdo(order, DocumentContainerType.Upd),
 				_paymentConverter.ConvertPaymentToPaymentInfoForEdo(orderPayments));
 
 			var edoContainer = EdoContainerBuilder
@@ -455,10 +456,10 @@ namespace EdoDocumentsPreparer
 					}
 
 					var billAttachment = _printableDocumentSaver.SaveToPdf(printableRdlDocument);
-					var orderInfo = _orderConverter.ConvertOrderToOrderInfoForEdo(order);
+					var orderInfo = _orderConverter.ConvertOrderToOrderInfoForEdo(order, DocumentContainerType.Bill);
 					var infoForCreatingEdoBill = _billInfoFactory.CreateInfoForCreatingEdoBill(
 						orderInfo,
-						_fileDataFactory.CreateBillFileData(orderInfo.Id.ToString(), orderInfo.CreationDate, billAttachment));
+						_fileDataFactory.CreateBillFileData(orderInfo.StringNumber, orderInfo.CreationDate, billAttachment));
 
 					var edoContainer = EdoContainerBuilder
 						.Create()

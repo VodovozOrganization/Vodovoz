@@ -30,7 +30,9 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual Dictionary<object, object> Parameters { get; set; }
 		#endregion
 
-		public override string Name => String.Format("Акт выполненных работ");
+		public override string Name => Order?.DeliveryDate >= new DateTime(2026, 1, 1) 
+			?  $"Акт выполненных работ №{DocumentOrganizationCounter?.DocumentNumber ?? Order?.Id.ToString()}"
+			:  $"Акт выполненных работ";
 
 		public override DateTime? DocumentDate => Order?.DeliveryDate;
 

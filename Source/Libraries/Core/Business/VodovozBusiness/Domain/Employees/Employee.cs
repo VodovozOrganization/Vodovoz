@@ -25,6 +25,7 @@ using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Employees;
@@ -57,7 +58,7 @@ namespace Vodovoz.Domain.Employees
 		private CarTypeOfUse? _driverOfCarTypeOfUse;
 		private CarOwnType? _driverOfCarOwnType;
 
-		private IList<Phone> _phones = new List<Phone>();
+		private IObservableList<Phone> _phones = new ObservableList<Phone>();
 		private IList<EmployeeDocument> _documents = new List<EmployeeDocument>();
 		private IObservableList<Account> _accounts = new ObservableList<Account>();
 		private IList<EmployeeContract> _contracts = new List<EmployeeContract>();
@@ -78,6 +79,7 @@ namespace Vodovoz.Domain.Employees
 		private IWageCalculationRepository _wageCalculationRepository;
 		private bool _canRecieveCounterpartyCalls;
 		private Phone _phoneForCounterpartyCalls;
+		private District _district;
 
 		public virtual IUnitOfWork UoW { set; get; }
 
@@ -166,7 +168,7 @@ namespace Vodovoz.Domain.Employees
 		}
 
 		[Display(Name = "Телефоны")]
-		public virtual IList<Phone> Phones
+		public virtual IObservableList<Phone> Phones
 		{
 			get => _phones;
 			set => SetField(ref _phones, value);
@@ -184,6 +186,13 @@ namespace Vodovoz.Domain.Employees
 		{
 			get => _phoneForCounterpartyCalls;
 			set => SetField(ref _phoneForCounterpartyCalls, value);
+		}
+
+		[Display(Name = "Район проживания")]
+		public virtual District District
+		{
+			get => _district;
+			set => SetField(ref _district, value);
 		}
 
 		[Display(Name = "Документы")]
@@ -487,6 +496,12 @@ namespace Vodovoz.Domain.Employees
 			if(!string.IsNullOrWhiteSpace(Email) && !Regex.IsMatch(Email, emailRegEx))
 			{
 				yield return new ValidationResult($"Неверно указан email", new[] { nameof(Email) });
+			}
+
+			if(District != null && District.DistrictsSet.Status != DistrictsSetStatus.Active)
+			{
+				yield return new ValidationResult("Район проживания должен быть из активного набора районов (Вкладка Логистика)",
+					new[] { nameof(District.Title) });
 			}
 		}
 

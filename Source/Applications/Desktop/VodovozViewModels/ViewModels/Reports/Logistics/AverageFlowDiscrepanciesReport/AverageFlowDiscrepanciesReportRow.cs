@@ -30,6 +30,19 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 		public decimal? ConfirmedDistance { get; internal set; }
 
 		/// <summary>
+		/// Полезный Пробег в процентах
+		/// </summary>
+		public string UsefulMileagePercent =>
+			ConfirmedDistance.HasValue && RecalculatedDistance.HasValue && ConfirmedDistance != 0
+				? $"{(100 * RecalculatedDistance / ConfirmedDistance): # ##0.00}"
+				: string.Empty;
+
+		/// <summary>
+		/// Пересчитанное расстояние
+		/// </summary>
+		public decimal? RecalculatedDistance { get; internal set; }
+
+		/// <summary>
 		/// Факт. расход
 		/// </summary>
 		public decimal? ConsumptionFact { get; internal set; }
@@ -37,7 +50,10 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 		/// <summary>
 		/// План. расход
 		/// </summary>
-		public decimal? ConsumptionPlan => ConfirmedDistance / 100 * (decimal?)Consumption100KmPlan;
+		public decimal? ConsumptionPlan =>
+			ConfirmedDistance is null || ConfirmedDistance == 0
+			? RecalculatedDistance / 100 * (decimal?)Consumption100KmPlan
+			: ConfirmedDistance / 100 * (decimal?)Consumption100KmPlan;
 
 		/// <summary>
 		/// Разница по топливу между факт.расход и план.расход
@@ -50,16 +66,13 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 		public decimal? LastFuelCost { get; internal set; }
 
 		/// <summary>
-		/// Разница в руб.
-		/// </summary>
-		public decimal? DiscrepancyMoney => DiscrepancyFuel * LastFuelCost;
-
-		/// <summary>
 		/// Факт. расход на 100 км
 		/// </summary>
 		public decimal Consumption100KmFact => ConfirmedDistance.HasValue && ConfirmedDistance != 0
 			? (ConsumptionFact ?? 0) / ((ConfirmedDistance ?? 0) / 100)
-			: 0;
+			: RecalculatedDistance.HasValue && RecalculatedDistance != 0
+				? (ConsumptionFact ?? 0) / ((RecalculatedDistance ?? 0) / 100)
+				: 0;
 
 		/// <summary>
 		/// План. расход на 100 км

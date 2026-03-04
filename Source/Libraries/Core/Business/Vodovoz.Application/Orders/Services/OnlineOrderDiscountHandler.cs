@@ -172,8 +172,8 @@ namespace Vodovoz.Application.Orders.Services
 
 			var onlinePrice = onlineParameters?.GetOnlinePrice(product.Count);
 
-			if(onlineParameters?.NomenclatureOnlineDiscount is null
-				|| onlinePrice?.PriceWithoutDiscount is null)
+			if(onlineParameters?.NomenclatureOnlineDiscount != null
+				|| onlinePrice?.PriceWithoutDiscount != null)
 			{
 				return false;
 			}

@@ -64,7 +64,7 @@ namespace Vodovoz.Domain.Payments
 			if(counterparty != null)
 			{
 				Counterparty = counterparty;
-				CounterpartyAccount = counterparty.Accounts.FirstOrDefault(acc => acc.Number == doc.PayerCurrentAccount);
+				CounterpartyAccount = counterparty.Accounts.FirstOrDefault(acc => acc.Number == doc.PayerAccount);
 			}
 		}
 

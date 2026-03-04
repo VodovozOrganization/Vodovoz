@@ -1,8 +1,10 @@
 ﻿using Autofac;
 using Microsoft.Extensions.Logging;
 using QS.Dialog.GtkUI;
+using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.Navigation;
+using QS.Project.DB;
 using QS.Project.Services;
 using QS.ViewModels.Control.EEVM;
 using QSOrmProject;
@@ -10,7 +12,6 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Vodovoz.Additions;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Core.Domain.Warehouses;
@@ -20,7 +21,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.EntityRepositories.Employees;
-using Vodovoz.EntityRepositories.Equipments;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Infrastructure.Converters;
@@ -55,6 +55,7 @@ namespace Vodovoz
 		private IWageParameterService _wageParameterService;
 		private ICallTaskWorker _callTaskWorker;
 		private ILifetimeScope _lifetimeScope;
+		private IOrmConfig _ormConfig;
 		private IEventsQrPlacer _eventsQrPlacer;
 
 		private IStoreDocumentHelper _storeDocumentHelper;
@@ -108,6 +109,7 @@ namespace Vodovoz
 		private void ResolveDependencies()
 		{
 			_lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+			_ormConfig = _lifetimeScope.Resolve<IOrmConfig>();
 			_logger = _lifetimeScope.Resolve<ILogger<CarUnloadDocumentDlg>>();
 			NavigationManager = _lifetimeScope.Resolve<INavigationManager>();
 
@@ -302,9 +304,40 @@ namespace Vodovoz
 				 _routeListService.CompleteRouteAndCreateTask(UoW, Entity.RouteList, _wageParameterService, _callTaskWorker);
 			}
 
-			_logger.LogInformation("Сохраняем разгрузочный талон...");
-			UoWGeneric.Save();
-			_logger.LogInformation("Ok.");
+			try
+			{
+				_logger.LogInformation("Сохраняем талон разгрузки авто по МЛ {RouteListId}", Entity.RouteList?.Id);
+				UoWGeneric.Save();
+				_logger.LogInformation("Талон разгрузки авто успешно сохранен");
+			}
+			catch(NHibernate.StaleObjectStateException ex)
+			{
+				var type = _ormConfig.FindMappingByFullClassName(ex.EntityName).MappedClass;
+				var objectName = DomainHelper.GetSubjectNames(type)?.Nominative ?? type.Name;
+
+				_logger.LogError(
+					ex,
+					"Ошибка при сохранении талона разгрузки. Версия документа {DocumentTypeName} №{DocumentId} устарела",
+					objectName,
+					ex.Identifier);
+
+				MessageDialogHelper.RunErrorDialog(
+					$"Ошибка при сохранении талона разгрузки" +
+					$"\nВерсия документа {objectName} №{ex.Identifier} устарела" +
+					$"\nВаши изменения не будут записаны, чтобы не потерять чужие изменения" +
+					$"\nПереоткройте вкладку");
+				
+				return false;
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при сохранении талона разгрузки");
+				MessageDialogHelper.RunErrorDialog(
+					"Ошибка при сохранении талона разгрузки" +
+					"\nПереоткройте вкладку");
+				return false;
+			}
+
 			return true;
 		}
 

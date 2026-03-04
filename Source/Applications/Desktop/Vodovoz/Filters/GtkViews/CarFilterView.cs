@@ -68,6 +68,10 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, vm => vm.IsNotUsedInDelivery, w => w.Active)
 				.InitializeFromSource();
 
+			yentryVin.Binding
+				.AddBinding(ViewModel, vm => vm.VinFilter, w => w.Text)
+				.InitializeFromSource();
+			
 			ConfigureInsurerEntityEntry();
 			ConfigureCarOwnerEntityEntry();
 

@@ -1,6 +1,7 @@
 ﻿using ApiClientProvider;
 using System;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace VodovozInfrastructure.Endpoints
@@ -58,20 +59,28 @@ namespace VodovozInfrastructure.Endpoints
 			{
 				if(!response.IsSuccessStatusCode)
 				{
-					ErrorMessage error = null;
+					var message = response.ReasonPhrase ?? "Ошибка сервера";
 
 					try
 					{
-						error = await response.Content.ReadFromJsonAsync<ErrorMessage>();
+						var error = await response.Content.ReadFromJsonAsync<ProblemDetailResponse>();
+						
+						if(error != null)
+						{
+							message = error.GetMessage();
+						}
 					}
-					catch {}
-
-					if(error != null)
+					catch(JsonException)
 					{
-						throw new Exception(error.Error);
+						string raw = await response.Content.ReadAsStringAsync();
+
+						if(!string.IsNullOrWhiteSpace(raw))
+						{
+							message = raw;
+						}
 					}
 
-					throw new Exception(response.ReasonPhrase);
+					throw new Exception(message);
 				}
 			}
 		}

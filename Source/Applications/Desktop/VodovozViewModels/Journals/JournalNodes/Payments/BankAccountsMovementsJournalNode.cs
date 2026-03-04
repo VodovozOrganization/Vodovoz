@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Logistic;
 
@@ -30,30 +31,41 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Payments
 
 			switch(AccountMovementDataType)
 			{
-				case BankAccountMovementDataType.InitialBalance:
+				case BankAccountMovementDataType.TotalReceived:
+					var sb = new StringBuilder();
 					if(!Amount.HasValue)
 					{
-						return $"Загрузите файл выписки за {StartDate.ToShortDateString()}";
+						return null;
 					}
+					
+					const string duplicates = "Либо проверьте журнал платежей на дубли за этот период";
 					
 					if(StartDate == EndDate)
 					{
-						return string.Format(messageTemplateWithSimpleDates, "платежам", StartDate.ToShortDateString());
+						sb.Append(string.Format(messageTemplateWithSimpleDates, "платежам", StartDate.ToShortDateString()))
+							.Append(". ")
+							.Append(duplicates);
+						
+						return sb.ToString();
 					}
 
 					if(StartDate != EndDate)
 					{
-						return string.Format(
-							messageTemplateWithDifferentDates,
-							"платежам",
-							StartDate.ToShortDateString(),
-							EndDate.ToShortDateString());
+						sb.Append(string.Format(
+								messageTemplateWithDifferentDates,
+								"платежам",
+								StartDate.ToShortDateString(),
+								EndDate.ToShortDateString()))
+							.Append(". ")
+							.Append(duplicates);
+						
+						return sb.ToString();
 					}
 					break;
-				case BankAccountMovementDataType.TotalReceived:
+				case BankAccountMovementDataType.InitialBalance:
 					if(!Amount.HasValue)
 					{
-						return null;
+						return $"Загрузите файл выписки за {StartDate.ToShortDateString()}";
 					}
 					
 					if(StartDate == EndDate)

@@ -17,6 +17,7 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	orders.id AS order_id, 
+	document_organization_counters.document_number AS document_number,
 	orders.delivery_date AS order_date, 
                 case when (orders.order_address_type = 'Service') then 1 else 0 end AS is_service, 
     	counterparty_contract.number AS contract,
@@ -33,6 +34,8 @@ FROM orders
     LEFT JOIN counterparty_contract ON counterparty_contract.id = orders.counterparty_contract_id
 	LEFT JOIN delivery_points on delivery_points.id = orders.delivery_point_id
 	LEFT JOIN phones ON delivery_points.id = phones.delivery_point_id AND phones.is_archive = 0
+	LEFT JOIN order_documents ON order_documents.order_id = orders.id AND order_documents.type IN ('SpecialUPD', 'UPD') AND order_documents.document_organization_counter_id IS NOT NULL
+    LEFT JOIN document_organization_counters ON document_organization_counters.id = order_documents.document_organization_counter_id
 WHERE orders.id = @order_id</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
@@ -45,6 +48,10 @@ WHERE orders.id = @order_id</CommandText>
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
         </Field>
+        <Field Name="document_number">
+          <DataField>document_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field> 
         <Field Name="order_date">
           <DataField>order_date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -194,8 +201,13 @@ stored_resource.id = (select str_value from base_parameters where name = "kuler_
       <Textbox Name="Textbox1">
         <Height>31.82pt</Height>
         <Width>288.76pt</Width>
-        <Value>="АКТ
-выполненных работ №"+{?order_id}</Value>
+        <Value>="АКТ выполненных работ №" + 
+            IIf(
+                Len(Trim(CStr(First(Fields!document_number.Value, "Order")))) = 0,
+                CStr(First(Fields!order_id.Value, "Order")),
+                CStr(First(Fields!document_number.Value, "Order"))
+            )
+        </Value>
         <ZIndex>0</ZIndex>
         <Left>98.00pt</Left>
         <Top>40.40pt</Top>

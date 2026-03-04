@@ -105,9 +105,10 @@ namespace Vodovoz.ViewModels.Orders
 		}
 
 		public void Initialize(
-			IUnitOfWork extrenalUoW = null, 
-			int oldOrderId = 0, 
-			bool isForSalesDepartment = false, 
+			IUnitOfWork extrenalUoW = null,
+			int oldOrderId = 0,
+			int undeliveredOrderId = 0,
+			bool isForSalesDepartment = false,
 			bool isFromRouteListClosing = false,
 			OrderCancellationPermit cancellationPermit = null
 			)
@@ -132,7 +133,9 @@ namespace Vodovoz.ViewModels.Orders
 
 			_currentUser = _employeeRepository.GetEmployeeForCurrentUser(UoW);
 
-			var undelivery = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, oldOrderId).FirstOrDefault();
+			var undelivery = undeliveredOrderId != 0
+				? UoW.GetById<UndeliveredOrder>(undeliveredOrderId)
+				: _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(UoW, oldOrderId).FirstOrDefault();
 
 			Entity = undelivery ?? new UndeliveredOrder();			
 
@@ -271,7 +274,10 @@ namespace Vodovoz.ViewModels.Orders
 
 				if(_orderCancellationPermit.Type == OrderCancellationPermitType.AllowCancelDocflow)
 				{
-					_orderCancellationService.CancelDocflowByUser(Entity.OldOrder, _orderCancellationPermit.EdoTaskToCancellationId.Value);
+					_orderCancellationService.CancelDocflowByUser(
+						$"Отмена заказа №{Entity.OldOrder.Id}", 
+						_orderCancellationPermit.EdoTaskToCancellationId.Value
+					);
 					Close(false, CloseSource.Self);
 					return false;
 				}
@@ -321,7 +327,7 @@ namespace Vodovoz.ViewModels.Orders
 				{
 					_orderCancellationService.AutomaticCancelDocflow(
 						UoW,
-						Entity.OldOrder, 
+						$"Отмена заказа №{Entity.OldOrder.Id}", 
 						_orderCancellationPermit.EdoTaskToCancellationId.Value
 					);
 				}

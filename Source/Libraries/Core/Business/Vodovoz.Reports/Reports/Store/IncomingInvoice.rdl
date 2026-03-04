@@ -91,14 +91,7 @@ WHERE doc.id = @document_id
     IFNULL(n.short_name, n.name) AS nomenclature,
     IFNULL(GET_INVENTORY_NUMBER(ni.is_used, ni.inventory_number), '-') AS inventory_number,
     '-' AS sn,
-    (CASE i.vat
-         WHEN 'No' THEN '0%'
-         WHEN 'Vat10' THEN '10%'
-         WHEN 'Vat18' THEN '18%'
-         WHEN 'Vat20' THEN '20%'
-         ELSE i.vat
-        END
-        ) AS vat,
+    CONCAT(vr_nomenclature.vat_rate_value, '%') AS vat,
     op.amount AS qty,
     u.name AS unit,
     i.price AS prime_cost,
@@ -108,6 +101,12 @@ FROM store_incoming_invoice_items i
          LEFT JOIN nomenclature_instances ni ON ni.id = i.nomenclature_instance_id
          LEFT JOIN nomenclature n ON n.id = i.nomenclature_id
          LEFT JOIN measurement_units u ON u.id = n.unit_id
+         LEFT JOIN
+             vat_rate_versions vrv_nomenclature ON vrv_nomenclature.nomenclature_id = n.id 
+             AND ((vrv_nomenclature.start_date &lt;= op.operation_time AND vrv_nomenclature.end_date IS NULL )
+             OR (vrv_nomenclature.start_date &lt;= op.operation_time AND vrv_nomenclature.end_date &gt; op.operation_time))
+         LEFT JOIN
+             vat_rates vr_nomenclature ON vr_nomenclature.id = vrv_nomenclature.vat_rate_id
 WHERE i.incoming_invoice_id = @document_id</CommandText>
         <QueryParameters>
           <QueryParameter Name="@document_id">

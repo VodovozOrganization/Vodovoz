@@ -1,9 +1,10 @@
-using CustomerAppsApi.Library.Dto;
+﻿using CustomerAppsApi.Library.Dto;
 using CustomerAppsApi.Library.Models;
 using CustomerAppsApi.Library.Validators;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using VodovozHealthCheck.Helpers;
 
 namespace CustomerAppsApi.Controllers
 {
@@ -51,8 +52,10 @@ namespace CustomerAppsApi.Controllers
 					
 					return ValidationProblem(validationResult);
 				}
-
-				var result = _sendingService.SendCodeToEmail(codeToEmailDto);
+				
+				var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
+				
+				var result = _sendingService.SendCodeToEmail(codeToEmailDto, isDryRun);
 
 				if(result.IsFailure)
 				{

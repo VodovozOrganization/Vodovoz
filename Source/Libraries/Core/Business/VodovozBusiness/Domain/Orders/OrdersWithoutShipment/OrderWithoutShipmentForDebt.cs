@@ -10,6 +10,7 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Settings.Organizations;
@@ -46,7 +47,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			set => SetField(ref includeNDS, value);
 		}
 
-		private decimal? valueAddedTax = 0.20m;
+		private decimal? valueAddedTax;
 		[Display(Name = "НДС на момент создания")]
 		public virtual decimal? ValueAddedTax {
 			get => valueAddedTax;
@@ -60,11 +61,44 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			set => SetField(ref debtName, value);
 		}
 		
-		void RecalculateNDS()
+		public virtual void RecalculateNDS()
 		{
-			IncludeNDS = Math.Round(DebtSum * ValueAddedTax.Value / (1 + ValueAddedTax.Value), 2);
+			SetValueAddedTax();
+
+			IncludeNDS =
+				ValueAddedTax is null
+				? 0
+				: Math.Round(DebtSum * ValueAddedTax.Value / (1 + ValueAddedTax.Value), 2);
 		}
-		
+
+		private void SetValueAddedTax()
+		{
+			if(DocumentDate < new DateTime(2026, 1, 1))
+			{
+				ValueAddedTax = 0.2m;
+				return;
+			}
+
+			if(Organization is null)
+			{
+				ValueAddedTax = null;
+				return;
+			}
+
+			if(Organization.IsUsnMode)
+			{
+				var vatRateVersion = Organization.GetActualVatRateVersion(DocumentDate)
+					?? throw new InvalidOperationException($"У организации отсутствует версия НДС на дату счета #{DocumentDate}");
+
+				ValueAddedTax = vatRateVersion.VatRate.VatNumericValue;
+			}
+			else
+			{
+				ValueAddedTax = 0.22m;
+			}
+		}
+
+
 		public virtual OrderDocumentType Type => OrderDocumentType.BillWSForDebt;
 
 		private Order order;
@@ -200,6 +234,14 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 					"Наименование задолженности должно быть заполнено.",
 					new[] {nameof(DebtName)}
 				);
+
+			if(ValueAddedTax is null)
+			{
+				yield return new ValidationResult(
+					"Ставка НДС не установлена",
+					new[] { nameof(ValueAddedTax) }
+				);
+			}
 		}
 	}
 }

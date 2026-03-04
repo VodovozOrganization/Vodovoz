@@ -130,7 +130,9 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 						{
 							GtinNumber = x.GtinNumber,
 							NomenclatureName = x.Nomenclature.Name,
+							GtinPriority =  x.Priority
 						})
+				.OrderBy(x => x.GtinPriority)
 				.ToList();
 
 			_allGroupGtins = _groupGtinrepository.GetValue(
@@ -196,11 +198,11 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 						return;
 					}
 
-					var hasOrderEdoRequest = _unitOfWork
-						.GetAll<OrderEdoRequest>()
+					var hasEdoRequest = _unitOfWork
+						.GetAll<FormalEdoRequest>()
 						.Any(x => x.Order.Id == _selfDeliveryDocument.Order.Id);
 
-					if(hasOrderEdoRequest)
+					if(hasEdoRequest)
 					{
 						_interactiveService.ShowMessage(ImportanceLevel.Error, $"По данному заказу уже создана заявка");
 
@@ -369,7 +371,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 						NomenclatureName = nomenclature,
 						InSelfDelivery = (int)selfDeliveryDocumentItem.Amount,
 						LeftToScan = (int)selfDeliveryDocumentItem.Amount - selfDeliveryDocumentItem.TrueMarkProductCodes.Count,
-						Gtin = _allGtins.FirstOrDefault(x => x.NomenclatureName == nomenclature)?.GtinNumber
+						Gtins = string.Join(", ", _allGtins.Where(x => x.NomenclatureName == nomenclature)?.Select(x => x.GtinNumber))
 					});
 			}
 		}
@@ -934,7 +936,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			AddNewCodeToCheck(rawCode);
 		}
 
-		public OrderEdoRequest CreateEdoRequest(IUnitOfWork unitOfWork, Order order)
+		public PrimaryEdoRequest CreateEdoRequest(IUnitOfWork unitOfWork, Order order)
 		{
 			var codes = _selfDeliveryDocument.Items
 				.SelectMany(x => x.TrueMarkProductCodes)
@@ -945,7 +947,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 				return null;
 			}
 
-			var edoRequest = new OrderEdoRequest
+			var edoRequest = new PrimaryEdoRequest
 			{
 				Time = DateTime.Now,
 				Source = CustomerEdoRequestSource.Selfdelivery,
@@ -962,7 +964,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			return edoRequest;
 		}
 
-		public async Task SendEdoRequestCreatedEvent(OrderEdoRequest orderEdoRequest)
+		public async Task SendEdoRequestCreatedEvent(PrimaryEdoRequest orderEdoRequest)
 		{
 			await _messageBus.Publish(new EdoRequestCreatedEvent { Id = orderEdoRequest.Id });
 		}

@@ -98,7 +98,8 @@ namespace FastPaymentsAPI.Library.Models
 			Organization organization,
 			FastPaymentRequestFromType fastPaymentRequestFromType,
 			PaymentType paymentType,
-			string phoneNumber = null)
+			string phoneNumber = null,
+			bool isDryRun = false)
 		{
 			Order order;
 			var creationDate = DateTime.Now;
@@ -132,7 +133,10 @@ namespace FastPaymentsAPI.Library.Models
 			
 			try
 			{
-				Save(fastPayment);
+				if(!isDryRun)
+				{
+					Save(fastPayment);
+				}
 			}
 			catch(Exception e)
 			{

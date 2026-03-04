@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Roboats;
+using Vodovoz.Zabbix.Sender;
 
 namespace RoboatsService.Workers
 {
@@ -13,14 +14,20 @@ namespace RoboatsService.Workers
 		private readonly ILogger<CloseStaleCallsWorker> _logger;
 		private readonly IRoboatsSettings _roboatsSettings;
 		private readonly StaleCallsController _staleCallsController;
+		private readonly IZabbixSender _zabbixSender;
 		private readonly TimeSpan _interval;
 		private bool _isRunning = false;
 
-		public CloseStaleCallsWorker(ILogger<CloseStaleCallsWorker> logger, IRoboatsSettings roboatsSettings, StaleCallsController staleCallsController)
+		public CloseStaleCallsWorker(
+			ILogger<CloseStaleCallsWorker> logger,
+			IRoboatsSettings roboatsSettings,
+			StaleCallsController staleCallsController,
+			IZabbixSender zabbixSender)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_roboatsSettings = roboatsSettings ?? throw new ArgumentNullException(nameof(roboatsSettings));
 			_staleCallsController = staleCallsController ?? throw new ArgumentNullException(nameof(staleCallsController));
+			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 			_interval = TimeSpan.FromMinutes(_roboatsSettings.StaleCallCheckInterval);
 		}
 		protected override TimeSpan Interval => _interval;
@@ -38,6 +45,7 @@ namespace RoboatsService.Workers
 			{
 				_logger.LogInformation("Вызов закрытия устаревших звонков");
 				_staleCallsController.CloseStaleCalls();
+				await _zabbixSender.SendIsHealthyAsync(stoppingToken);
 			}
 			finally
 			{

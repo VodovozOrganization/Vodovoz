@@ -489,7 +489,7 @@ namespace Vodovoz.Views.Logistic
 			// Container child yhboxFuel.Gtk.Box+BoxChild
 			this.ylabelCurrentFuelBalance = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelCurrentFuelBalance.Name = "ylabelCurrentFuelBalance";
-			this.ylabelCurrentFuelBalance.LabelProp = global::Mono.Unix.Catalog.GetString("Текуший баланс:");
+			this.ylabelCurrentFuelBalance.LabelProp = global::Mono.Unix.Catalog.GetString("Текущий баланс:");
 			this.yhboxFuel.Add(this.ylabelCurrentFuelBalance);
 			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.yhboxFuel[this.ylabelCurrentFuelBalance]));
 			w32.Position = 1;

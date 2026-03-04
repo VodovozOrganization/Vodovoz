@@ -156,7 +156,7 @@ namespace WarehouseApi.Library.Errors
 					x.OrderId != null
 					&& !cancelledOrdersIds.Contains(x.OrderId.Value)
 					&& x.Nomenclature.IsAccountableInTrueMark
-					&& x.Nomenclature.Gtin != null)
+					&& x.Nomenclature.Gtins.Any())
 				.Any(x => x.TrueMarkCodes.Count < x.Amount);
 
 			if(isNotAllCodesAdded)

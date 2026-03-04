@@ -891,6 +891,15 @@ namespace Vodovoz.Application.Orders.Services
 			var isUnpaid = allocatedSum == default;
 			var isPaid = allocatedSum >= order.OrderSum;
 
+			//т.к. имеем скриптовое распределение на заказы до старта выписки без операций,
+			//то не трогаем статус оплаты заказов ранее 12.08.2020
+			if(order.DeliveryDate < new DateTime(2020, 8, 12)
+				&& order.PaymentType == PaymentType.Cashless
+				&& isUnpaid)
+			{
+				return;
+			}
+
 			if(isUnpaid)
 			{
 				order.OrderPaymentStatus = OrderPaymentStatus.UnPaid;
@@ -907,7 +916,7 @@ namespace Vodovoz.Application.Orders.Services
 
 		public void RejectOrderTrueMarkCodes(IUnitOfWork uow, int orderId)
 		{
-			var requests = uow.Session.QueryOver<OrderEdoRequest>()
+			var requests = uow.Session.QueryOver<FormalEdoRequest>()
 				.Where(x => x.Order.Id == orderId)
 				.List();
 

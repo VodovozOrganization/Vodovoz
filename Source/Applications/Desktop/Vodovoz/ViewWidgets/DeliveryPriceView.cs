@@ -231,6 +231,10 @@ namespace Vodovoz.ViewWidgets
 				RefreshDistrictData();
 
 			}
+			else
+			{
+				HideDistrictsData();
+			}
 		}
 
 		private void RefreshDistrictData()
@@ -709,6 +713,18 @@ namespace Vodovoz.ViewWidgets
 			}
 
 			return deliveryRuleRows;
+		}
+
+		private void HideDistrictsData()
+		{
+			drrvToday.Visible = false;
+			drrvMonday.Visible = false;
+			drrvTuesday.Visible = false;
+			drrvWednesday.Visible = false;
+			drrvThursday.Visible = false;
+			drrvFriday.Visible = false;
+			drrvSaturday.Visible = false;
+			drrvSunday.Visible = false;
 		}
 	}
 }

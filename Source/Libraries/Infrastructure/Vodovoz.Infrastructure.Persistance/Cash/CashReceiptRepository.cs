@@ -402,7 +402,7 @@ namespace Vodovoz.Infrastructure.Persistance.Cash
 
 			var receipts =
 				(from edoTask in uow.Session.Query<ReceiptEdoTask>()
-				 join edoRequest in uow.Session.Query<OrderEdoRequest>() on edoTask.Id equals edoRequest.Task.Id
+				 join edoRequest in uow.Session.Query<FormalEdoRequest>() on edoTask.Id equals edoRequest.Task.Id
 				 join efd in uow.Session.Query<EdoFiscalDocument>() on edoTask.Id equals efd.ReceiptEdoTask.Id into fiscalDocuments
 				 from fiscalDocument in fiscalDocuments.DefaultIfEmpty()
 				 join tri in uow.Session.Query<TransferEdoRequestIteration>() on edoTask.Id equals tri.OrderEdoTask.Id into transferEdoRequestIterations
@@ -483,6 +483,24 @@ namespace Vodovoz.Infrastructure.Persistance.Cash
 				.SingleOrDefault<int>();
 
 			return result;
+		}
+
+		public EdoFiscalDocument GetLastEdoFiscalDocumentByOrderId(IUnitOfWork uow, int orderId)
+		{
+			EdoFiscalDocument fiscalDocumentAlias = null;
+			ReceiptEdoTask receiptEdoTaskAlias = null;
+			FormalEdoRequest formalEdoRequestAlias = null;
+
+			var fiscalDocument = uow.Session.QueryOver(() => fiscalDocumentAlias)
+				.JoinAlias(() => fiscalDocumentAlias.ReceiptEdoTask, () => receiptEdoTaskAlias)
+				.JoinAlias(() => receiptEdoTaskAlias.FormalEdoRequest, () => formalEdoRequestAlias)
+				.Where(() => formalEdoRequestAlias.Order.Id == orderId)
+				.OrderByAlias(() => fiscalDocumentAlias.CreationTime)
+				.Desc
+				.Take(1)
+				.SingleOrDefault();
+
+			return fiscalDocument;
 		}
 	}
 }

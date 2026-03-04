@@ -227,6 +227,14 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 			return includedValues;
 		}
 
+
+		/// <summary>
+		/// Возвращает выбранные параметры
+		/// </summary>
+		/// <returns></returns>
+		/// <exception cref="ArgumentOutOfRangeException"></exception>
+		public IEnumerable<SelectableParameter> GetSelectedParameters() => OutputParameters.SelectMany(x => x.GetAllSelected());
+
 		public Dictionary<string, object> GetParameters()
 		{
 			var result = new Dictionary<string, object>();

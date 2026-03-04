@@ -6,6 +6,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Edo.Transport
 {
+	/// <summary>
+	/// Сервис для отправки сообщений в шину сообщений
+	/// </summary>
 	public class MessageService
 	{
 		private readonly ILogger<MessageService> _logger;
@@ -16,7 +19,12 @@ namespace Edo.Transport
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 		}
-		
+
+		/// <summary>
+		/// Опубликовать событие о создании заявки по ЭДО
+		/// </summary>
+		/// <param name="requestId"></param>
+		/// <returns></returns>
 		public async Task PublishEdoRequestCreatedEvent(int requestId)
 		{
 			_logger.LogInformation("Отправляем событие на создание новой заявки по ЭДО, запрос: {RequestId}.", requestId);

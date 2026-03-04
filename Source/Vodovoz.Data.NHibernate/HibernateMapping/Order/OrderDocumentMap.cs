@@ -1,4 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
@@ -14,6 +15,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			DiscriminateSubClassesOnColumn("type");
 			References(x => x.Order).Column("order_id");
 			References(x => x.AttachedToOrder).Column("attached_to_order_id");
+			References(x => x.DocumentOrganizationCounter).Column("document_organization_counter_id");
 		}
 	}
 
@@ -21,7 +23,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 	{
 		public OrderM2ProxyMap()
 		{
-			DiscriminatorValue("M2Proxy");
+			DiscriminatorValue(nameof(OrderDocumentType.M2Proxy));
 			References(x => x.M2Proxy).Column("m2proxy_id").Cascade.SaveUpdate();
 		}
 	}
@@ -30,7 +32,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 	{
 		public OrderAgreementMap()
 		{
-			DiscriminatorValue("AdditionalAgreement");
+			DiscriminatorValue(nameof(OrderDocumentType.AdditionalAgreement));
 			References(x => x.AdditionalAgreement).Column("agreement_id");
 		}
 	}
@@ -39,7 +41,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 	{
 		public OrderContractMap()
 		{
-			DiscriminatorValue("Contract");
+			DiscriminatorValue(nameof(OrderDocumentType.Contract));
 			References(x => x.Contract).Column("contract_id");
 		}
 	}
@@ -48,7 +50,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 	{
 		public BillDocumentMap()
 		{
-			DiscriminatorValue("Bill");
+			DiscriminatorValue(nameof(OrderDocumentType.Bill));
 
 			Map(x => x.HideSignature).Column("hide_signature");
 		}
@@ -58,7 +60,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 	{
 		public SpecialBillDocumentMap()
 		{
-			DiscriminatorValue("SpecialBill");
+			DiscriminatorValue(nameof(OrderDocumentType.SpecialBill));
 
 			Map(x => x.HideSignature).Column("hide_signature");
 		}
@@ -68,7 +70,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 	{
 		public DoneWorkDocumentMap()
 		{
-			DiscriminatorValue("DoneWorkReport");
+			DiscriminatorValue(nameof(OrderDocumentType.DoneWorkReport));
 		}
 	}
 
@@ -76,7 +78,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 	{
 		public EquipmentTransferDocumentMap()
 		{
-			DiscriminatorValue("EquipmentTransfer");
+			DiscriminatorValue(nameof(OrderDocumentType.EquipmentTransfer));
 		}
 	}
 
@@ -84,7 +86,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 	{
 		public EquipmentReturnDocumentMap()
 		{
-			DiscriminatorValue("EquipmentReturn");
+			DiscriminatorValue(nameof(OrderDocumentType.EquipmentReturn));
 		}
 	}
 
@@ -93,7 +95,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 	{
 		public InvoiceBarterDocumentMap()
 		{
-			DiscriminatorValue("InvoiceBarter");
+			DiscriminatorValue(nameof(OrderDocumentType.InvoiceBarter));
 		}
 	}
 
@@ -101,7 +103,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 	{
 		public InvoiceContractDocMap()
 		{
-			DiscriminatorValue("InvoiceContractDoc");
+			DiscriminatorValue(nameof(OrderDocumentType.InvoiceContractDoc));
 
 			Map(x => x.WithoutAdvertising).Column("without_advertising");
 			Map(x => x.HideSignature).Column("hide_signature");
@@ -112,7 +114,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 	{
 		public InvoiceDocumentMap()
 		{
-			DiscriminatorValue("Invoice");
+			DiscriminatorValue(nameof(OrderDocumentType.Invoice));
 
 			Map(x => x.WithoutAdvertising).Column("without_advertising");
 			Map(x => x.HideSignature).Column("hide_signature");
@@ -123,7 +125,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 	{
 		public UPDDocumentMap()
 		{
-			DiscriminatorValue("UPD");
+			DiscriminatorValue(nameof(OrderDocumentType.UPD));
 		}
 	}
 
@@ -131,7 +133,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 	{
 		public SpecialUPDDocumentMap()
 		{
-			DiscriminatorValue("SpecialUPD");
+			DiscriminatorValue(nameof(OrderDocumentType.SpecialUPD));
 		}
 	}
 
@@ -139,7 +141,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 	{
 		public DriverTicketDocumentMap()
 		{
-			DiscriminatorValue("DriverTicket");
+			DiscriminatorValue(nameof(OrderDocumentType.DriverTicket));
 		}
 	}
 
@@ -147,7 +149,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 	{
 		public Torg12DocumentMap()
 		{
-			DiscriminatorValue("Torg12");
+			DiscriminatorValue(nameof(OrderDocumentType.Torg12));
 		}
 	}
 
@@ -155,7 +157,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 	{
 		public ShetFacturaDocumentMap()
 		{
-			DiscriminatorValue("ShetFactura");
+			DiscriminatorValue(nameof(OrderDocumentType.ShetFactura));
 		}
 	}
 
@@ -163,7 +165,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 	{
 		public NomenclatureCertificateDocumentMap()
 		{
-			DiscriminatorValue("ProductCertificate");
+			DiscriminatorValue(nameof(OrderDocumentType.ProductCertificate));
 			References(x => x.Certificate).Column("certificate_id");
 		}
 	}
@@ -172,7 +174,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 	{
 		public TransportInvoiceDocumentMap()
 		{
-			DiscriminatorValue("TransportInvoice");
+			DiscriminatorValue(nameof(OrderDocumentType.TransportInvoice));
 		}
 	}
 
@@ -180,7 +182,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 	{
 		public Torg2DocumentMap()
 		{
-			DiscriminatorValue("Torg2");
+			DiscriminatorValue(nameof(OrderDocumentType.Torg2));
 		}
 	}
 
@@ -188,7 +190,16 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 	{
 		public AssemblyListDocumentMap()
 		{
-			DiscriminatorValue("AssemblyList");
+			DiscriminatorValue(nameof(OrderDocumentType.AssemblyList));
+		}
+	}
+
+	public class LetterOfDebtDocumentMap : SubclassMap<LetterOfDebtDocument>
+	{
+		public LetterOfDebtDocumentMap()
+		{
+			DiscriminatorValue(nameof(OrderDocumentType.LetterOfDebt));
+			Map(x => x.HideSignature).Column("hide_signature");
 		}
 	}
 }

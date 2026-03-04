@@ -16,6 +16,7 @@ namespace Edo.Transfer.Routine.Options
 		public void Configure(WaitingTransfersUpdateSettings settings)
 		{
 			settings.Interval = _edoTransferSettings.WaitingTransfersUpdateInterval;
+			settings.TasksCountForProcess = _edoTransferSettings.WaitingTransfersCountToProcess;
 		}
 	}
 }

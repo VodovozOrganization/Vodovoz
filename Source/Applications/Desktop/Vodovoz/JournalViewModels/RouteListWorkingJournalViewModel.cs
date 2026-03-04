@@ -278,6 +278,11 @@ namespace Vodovoz.JournalViewModels
 				Projections.Constant(false),
 				Projections.Constant(true));
 
+			var hasAdditionalLoadingProjection = Projections.Conditional(
+				Restrictions.IsNull(Projections.Property(() => routeListAlias.AdditionalLoadingDocument.Id)),
+				Projections.Constant(false),
+				Projections.Constant(true));
+
 			var result = query
 				.SelectList(list => list
 					.SelectGroup(() => routeListAlias.Id).WithAlias(() => routeListJournalNodeAlias.Id)
@@ -302,6 +307,7 @@ namespace Vodovoz.JournalViewModels
 					.Select(Projections.Constant(_routeListProfitabilityIndicator))
 						.WithAlias(() => routeListJournalNodeAlias.RouteListProfitabilityIndicator)
 					.Select(hasAddressesProjection).WithAlias(() => routeListJournalNodeAlias.HasAddresses)
+					.Select(hasAdditionalLoadingProjection).WithAlias(() => routeListJournalNodeAlias.HasAdditionalLoading)
 				).OrderBy(rl => rl.Date).Desc
 				.TransformUsing(Transformers.AliasToBean<RouteListJournalNode>());
 
@@ -446,8 +452,11 @@ namespace Vodovoz.JournalViewModels
 
 			PopupActionsList.Add(new JournalAction(
 				"Выдать топливо",
-				(selectedItems) => selectedItems.Any(x => _fuelIssuingStatuses.Contains((x as RouteListJournalNode).StatusEnum))
-					&& selectedItems.All(x => (x as RouteListJournalNode).HasAddresses),
+				(selectedItems) =>
+					selectedItems.Count() == 1
+					&& selectedItems.FirstOrDefault() is RouteListJournalNode node
+					&& _fuelIssuingStatuses.Contains(node.StatusEnum)
+					&& node.HasAddressesOrAdditionalLoading,
 				(selectedItems) => selectedItems.Any(x => _fuelIssuingStatuses.Contains((x as RouteListJournalNode).StatusEnum)),
 				(selectedItems) =>
 				{
@@ -470,6 +479,7 @@ namespace Vodovoz.JournalViewModels
 								_organizationRepository,
 								_lifetimeScope.Resolve<IFuelApiService>(),
 								_lifetimeScope.Resolve<IFuelControlSettings>(),
+								_lifetimeScope.Resolve<ICarEventSettings>(),
 								_lifetimeScope.Resolve<IGuiDispatcher>(),
 								_lifetimeScope.Resolve<IUserSettingsService>(),
 								_lifetimeScope.Resolve<IYesNoCancelQuestionInteractive>(),

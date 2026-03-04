@@ -58,7 +58,7 @@ namespace Vodovoz.Tools.Logistic
 			return Calculate(_deliveryPoint.Latitude, _deliveryPoint.Longitude, bottlesCount);
 		}
 
-		public DeliveryPriceNode Calculate(decimal? latitude, decimal? longitude, int? bottlesCount)
+		public DeliveryPriceNode Calculate(decimal? latitude, decimal? longitude, int? bottlesCount, bool needCalculateDistance = true)
 		{
 			IList<District> districts;
 
@@ -94,7 +94,7 @@ namespace Vodovoz.Tools.Logistic
 				}
 
 				//Расчет растояния
-				if(_deliveryPoint == null)
+				if(_deliveryPoint == null && needCalculateDistance)
 				{
 					var gg = _geographicGroupRepository.GeographicGroupByCoordinates((double)latitude.Value, (double)longitude.Value, districts);
 					var route = new List<PointOnEarth>(2);
@@ -121,8 +121,9 @@ namespace Vodovoz.Tools.Logistic
 					}
 
 					route.Add(new PointOnEarth(latitude.Value, longitude.Value));
+					
 					var osrmResult = _osrmClient.GetRoute(route, false, GeometryOverview.False, _globalSettings.ExcludeToll);
-
+					
 					if(osrmResult == null)
 					{
 						result.ErrorMessage = "Ошибка на сервере расчета расстояний, невозможно расчитать расстояние.";
@@ -137,7 +138,7 @@ namespace Vodovoz.Tools.Logistic
 
 					_distance = osrmResult.Routes[0].TotalDistance / 1000d;
 				}
-				else
+				else if(_deliveryPoint != null)
 				{
 					_distance = (_deliveryPoint.DistanceFromBaseMeters ?? 0) / 1000d;
 				}

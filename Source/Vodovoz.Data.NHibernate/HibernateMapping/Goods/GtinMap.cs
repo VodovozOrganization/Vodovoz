@@ -12,6 +12,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Goods
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
 			Map(x => x.GtinNumber).Column("gtin");
+			Map(x => x.Priority).Column("priority");
 
 			References(x => x.Nomenclature).Column("nomenclature_id");
 		}

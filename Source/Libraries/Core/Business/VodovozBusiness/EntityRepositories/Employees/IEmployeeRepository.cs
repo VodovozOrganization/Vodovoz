@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using NHibernate.Criterion;
+﻿using NHibernate.Criterion;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
@@ -33,5 +33,23 @@ namespace Vodovoz.EntityRepositories.Employees
 		NamedDomainObjectNode GetOtherEmployeeInfoWithSameCounterparty(
 			IUnitOfWorkFactory uowFactory, int employeeId, int counterpartyId);
 		IEnumerable<int> GetControlledByEmployeeSubdivisionIds(IUnitOfWork uow, int employeeId);
+
+		/// <summary>
+		/// Возвращает список сотрудников с датами начала действия их последних параметров оплаты
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="employeeIds">Список Id сотрудников</param>
+		/// <returns></returns>
+		IEnumerable<EmployeeLastWageParameterStartDateNode> GetSelectedEmployeesWageParametersStartDate(IUnitOfWork uow, IEnumerable<int> employeeIds);
+
+		/// <summary>
+		/// Возвращает список водителей и экспедиторов, у которых есть параметры оплаты по уровню районов з/п
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="category">Категория сотрудника</param>
+		/// <param name="wageDistrictLevelRatesIdFilter">Id ставки по зарплатным районам и уровням</param>
+		/// <param name="isExcludeSelectedInFilterWageDistrictLevelRates">Исключить сотрудников с указанной ставкой по зарплатным районам и уровням</param>
+		/// <returns></returns>
+		IList<EmployeeNode> GetDriverForwarderEmployeesHavingWageDistrictLevelRates(IUnitOfWork uow, EmployeeCategory? category, int? wageDistrictLevelRatesIdFilter, bool isExcludeSelectedInFilterWageDistrictLevelRates);
 	}
 }

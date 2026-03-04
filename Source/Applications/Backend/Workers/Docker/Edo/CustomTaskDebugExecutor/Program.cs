@@ -28,6 +28,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Taxcom.Docflow.Utility;
+using TaxcomEdo.Client;
 using TrueMark.Codes.Pool;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
@@ -110,6 +111,7 @@ namespace CustomTaskDebugExecutor
 				.AddEdoTransferSenderServices()
 				.AddEdoWithdrawalService()
 				.AddInformalOrderDocumentEdoServices()
+				.AddTaxcomClient()
 				;
 
 			services.AddScoped<EdoExecutor>();

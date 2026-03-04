@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using ClosedXML.Report;
 using QS.Commands;
 using QS.Dialog;
@@ -123,6 +123,15 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 					select routeList.ConfirmedDistance
 				).Sum() ?? 0
 
+				let recalculatedDistance =
+					(decimal?)(from routeList in UoW.Session.Query<RouteList>()
+						where
+							routeList.Car.Id == carEvent.Car.Id
+							&& routeList.Date >= carEvent.CreateDate.Date
+							&& routeList.Date < nextCalibrationDate.Date
+						select routeList.RecalculatedDistance
+					).Sum() ?? 0
+
 				let mileageWriteOffKmSum =
 					(decimal?)(from mileageWriteOff in UoW.Session.Query<MileageWriteOff>()
 					where
@@ -176,6 +185,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 					CurrentBalance = carEvent.CurrentFuelBalance ?? 0,
 					Car = carEvent.Car.RegistrationNumber,
 					ConfirmedDistance = confirmedDistance + mileageWriteOffKmSum,
+					RecalculatedDistance = recalculatedDistance,
 					Consumption100KmPlan = carFuelConsumption,
 					LastFuelCost = lastFuelCost,
 					NextCalibrationDate = nextCalibrationDate,

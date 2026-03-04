@@ -44,6 +44,7 @@ namespace Vodovoz.MainMenu.JournalsMenu.Financies
 			financesMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Финансовые статьи", OnFinancialCategoriesGroupsPressed));
 			financesMenu.Add(_companyBalanceMenuItemCreator.Create());
 			financesMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Категории штрафов", OnFineCategoryJournalPressed));
+			financesMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Ставки НДС", OnVatRateJournalPressed));
 
 			Configure();
 
@@ -105,6 +106,16 @@ namespace Vodovoz.MainMenu.JournalsMenu.Financies
 		protected void OnFineCategoryJournalPressed(object sender, ButtonPressEventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<FineCategoryJournalViewModel>(null);
+		}
+		
+		/// <summary>
+		/// Ставки НДС
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		protected void OnVatRateJournalPressed(object sender, ButtonPressEventArgs e)
+		{
+			Startup.MainWin.NavigationManager.OpenViewModel<VatRateJournalViewModel>(null);
 		}
 	}
 }

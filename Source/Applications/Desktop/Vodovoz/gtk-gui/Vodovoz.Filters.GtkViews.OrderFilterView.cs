@@ -108,6 +108,10 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::QS.Widgets.ValidatedEntry entryCounteragentNameLike;
 
+		private global::Gtk.Label lblInn1;
+
+		private global::QS.Widgets.ValidatedEntry entryUpdNumber;
+
 		private global::Gtk.Label lblInn;
 
 		private global::QS.Widgets.ValidatedEntry entryInn;
@@ -719,14 +723,34 @@ namespace Vodovoz.Filters.GtkViews
 			global::Gtk.Box.BoxChild w48 = ((global::Gtk.Box.BoxChild)(this.hboxAdditionalFilters[this.entryCounteragentNameLike]));
 			w48.Position = 1;
 			// Container child hboxAdditionalFilters.Gtk.Box+BoxChild
+			this.lblInn1 = new global::Gtk.Label();
+			this.lblInn1.Name = "lblInn1";
+			this.lblInn1.LabelProp = global::Mono.Unix.Catalog.GetString("Номер УПД:");
+			this.hboxAdditionalFilters.Add(this.lblInn1);
+			global::Gtk.Box.BoxChild w49 = ((global::Gtk.Box.BoxChild)(this.hboxAdditionalFilters[this.lblInn1]));
+			w49.Position = 2;
+			w49.Expand = false;
+			w49.Fill = false;
+			// Container child hboxAdditionalFilters.Gtk.Box+BoxChild
+			this.entryUpdNumber = new global::QS.Widgets.ValidatedEntry();
+			this.entryUpdNumber.CanFocus = true;
+			this.entryUpdNumber.Name = "entryUpdNumber";
+			this.entryUpdNumber.IsEditable = true;
+			this.entryUpdNumber.InvisibleChar = '•';
+			this.hboxAdditionalFilters.Add(this.entryUpdNumber);
+			global::Gtk.Box.BoxChild w50 = ((global::Gtk.Box.BoxChild)(this.hboxAdditionalFilters[this.entryUpdNumber]));
+			w50.Position = 3;
+			w50.Expand = false;
+			w50.Fill = false;
+			// Container child hboxAdditionalFilters.Gtk.Box+BoxChild
 			this.lblInn = new global::Gtk.Label();
 			this.lblInn.Name = "lblInn";
 			this.lblInn.LabelProp = global::Mono.Unix.Catalog.GetString("ИНН контрагента:");
 			this.hboxAdditionalFilters.Add(this.lblInn);
-			global::Gtk.Box.BoxChild w49 = ((global::Gtk.Box.BoxChild)(this.hboxAdditionalFilters[this.lblInn]));
-			w49.Position = 2;
-			w49.Expand = false;
-			w49.Fill = false;
+			global::Gtk.Box.BoxChild w51 = ((global::Gtk.Box.BoxChild)(this.hboxAdditionalFilters[this.lblInn]));
+			w51.Position = 4;
+			w51.Expand = false;
+			w51.Fill = false;
 			// Container child hboxAdditionalFilters.Gtk.Box+BoxChild
 			this.entryInn = new global::QS.Widgets.ValidatedEntry();
 			this.entryInn.CanFocus = true;
@@ -734,14 +758,14 @@ namespace Vodovoz.Filters.GtkViews
 			this.entryInn.IsEditable = true;
 			this.entryInn.InvisibleChar = '•';
 			this.hboxAdditionalFilters.Add(this.entryInn);
-			global::Gtk.Box.BoxChild w50 = ((global::Gtk.Box.BoxChild)(this.hboxAdditionalFilters[this.entryInn]));
-			w50.Position = 3;
-			w50.Expand = false;
+			global::Gtk.Box.BoxChild w52 = ((global::Gtk.Box.BoxChild)(this.hboxAdditionalFilters[this.entryInn]));
+			w52.Position = 5;
+			w52.Expand = false;
 			this.yvboxAdditionalFilters.Add(this.hboxAdditionalFilters);
-			global::Gtk.Box.BoxChild w51 = ((global::Gtk.Box.BoxChild)(this.yvboxAdditionalFilters[this.hboxAdditionalFilters]));
-			w51.Position = 0;
-			w51.Expand = false;
-			w51.Fill = false;
+			global::Gtk.Box.BoxChild w53 = ((global::Gtk.Box.BoxChild)(this.yvboxAdditionalFilters[this.hboxAdditionalFilters]));
+			w53.Position = 0;
+			w53.Expand = false;
+			w53.Fill = false;
 			// Container child yvboxAdditionalFilters.Gtk.Box+BoxChild
 			this.yhboxSearchByAddressMain = new global::Gamma.GtkWidgets.yHBox();
 			this.yhboxSearchByAddressMain.Name = "yhboxSearchByAddressMain";
@@ -751,33 +775,33 @@ namespace Vodovoz.Filters.GtkViews
 			this.lblDeliveryPointAddress.Name = "lblDeliveryPointAddress";
 			this.lblDeliveryPointAddress.LabelProp = global::Mono.Unix.Catalog.GetString("Адрес точки доставки:");
 			this.yhboxSearchByAddressMain.Add(this.lblDeliveryPointAddress);
-			global::Gtk.Box.BoxChild w52 = ((global::Gtk.Box.BoxChild)(this.yhboxSearchByAddressMain[this.lblDeliveryPointAddress]));
-			w52.Position = 0;
-			w52.Expand = false;
-			w52.Fill = false;
+			global::Gtk.Box.BoxChild w54 = ((global::Gtk.Box.BoxChild)(this.yhboxSearchByAddressMain[this.lblDeliveryPointAddress]));
+			w54.Position = 0;
+			w54.Expand = false;
+			w54.Fill = false;
 			// Container child yhboxSearchByAddressMain.Gtk.Box+BoxChild
 			this.yhboxSearchByAddress = new global::Gamma.GtkWidgets.yHBox();
 			this.yhboxSearchByAddress.Name = "yhboxSearchByAddress";
 			this.yhboxSearchByAddress.Spacing = 6;
 			this.yhboxSearchByAddressMain.Add(this.yhboxSearchByAddress);
-			global::Gtk.Box.BoxChild w53 = ((global::Gtk.Box.BoxChild)(this.yhboxSearchByAddressMain[this.yhboxSearchByAddress]));
-			w53.Position = 1;
+			global::Gtk.Box.BoxChild w55 = ((global::Gtk.Box.BoxChild)(this.yhboxSearchByAddressMain[this.yhboxSearchByAddress]));
+			w55.Position = 1;
 			this.yvboxAdditionalFilters.Add(this.yhboxSearchByAddressMain);
-			global::Gtk.Box.BoxChild w54 = ((global::Gtk.Box.BoxChild)(this.yvboxAdditionalFilters[this.yhboxSearchByAddressMain]));
-			w54.Position = 1;
-			w54.Expand = false;
-			w54.Fill = false;
+			global::Gtk.Box.BoxChild w56 = ((global::Gtk.Box.BoxChild)(this.yvboxAdditionalFilters[this.yhboxSearchByAddressMain]));
+			w56.Position = 1;
+			w56.Expand = false;
+			w56.Fill = false;
 			this.table1.Add(this.yvboxAdditionalFilters);
-			global::Gtk.Table.TableChild w55 = ((global::Gtk.Table.TableChild)(this.table1[this.yvboxAdditionalFilters]));
-			w55.TopAttach = ((uint)(7));
-			w55.BottomAttach = ((uint)(8));
-			w55.RightAttach = ((uint)(7));
-			w55.XOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w57 = ((global::Gtk.Table.TableChild)(this.table1[this.yvboxAdditionalFilters]));
+			w57.TopAttach = ((uint)(7));
+			w57.BottomAttach = ((uint)(8));
+			w57.RightAttach = ((uint)(7));
+			w57.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.Add(this.table1);
 			this.scrolledwindow1.Add(w1);
 			this.vbox2.Add(this.scrolledwindow1);
-			global::Gtk.Box.BoxChild w58 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.scrolledwindow1]));
-			w58.Position = 0;
+			global::Gtk.Box.BoxChild w60 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.scrolledwindow1]));
+			w60.Position = 0;
 			this.Add(this.vbox2);
 			if ((this.Child != null))
 			{

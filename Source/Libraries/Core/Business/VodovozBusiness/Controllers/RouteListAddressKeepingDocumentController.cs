@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
@@ -181,16 +182,23 @@ namespace Vodovoz.Controllers
 			CreateOrUpdateRouteListKeepingDocument(uow, routeListItem, balanceType, false, useActualCount, oldStatus, newStatus, true);
 		}
 
-		public void CreateOrUpdateRouteListKeepingDocument(IUnitOfWork uow, RouteListItem routeListItem,
-			DeliveryFreeBalanceType deliveryFreeBalanceType, bool isFullRecreation = false, bool isActualCount = false,
-			RouteListItemStatus? oldStatus = null, RouteListItemStatus? newStatus = null, bool needRouteListUpdate = false)
+		public void CreateOrUpdateRouteListKeepingDocument(
+			IUnitOfWork uow,
+			RouteListItem routeListItem,
+			DeliveryFreeBalanceType deliveryFreeBalanceType,
+			bool isFullRecreation = false,
+			bool isActualCount = false,
+			RouteListItemStatus? oldStatus = null,
+			RouteListItemStatus? newStatus = null,
+			bool needRouteListUpdate = false,
+			Employee employee = null)
 		{
 			var routeListKeepingDocument =
 				uow.GetAll<RouteListAddressKeepingDocument>()
 					.SingleOrDefault(x => x.RouteListItem.Id == routeListItem.Id)
 				?? new RouteListAddressKeepingDocument();
 
-			var currentEmployee = _employeeRepository.GetEmployeeForCurrentUser(uow);
+			var currentEmployee = employee ?? _employeeRepository.GetEmployeeForCurrentUser(uow);
 			routeListKeepingDocument.RouteListItem = routeListItem;
 			routeListKeepingDocument.AuthorId = currentEmployee.Id;
 

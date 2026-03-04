@@ -29,9 +29,9 @@ namespace Edo.Transfer.Routine.Services
 			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
 		}
 
-		public async Task Update(CancellationToken cancellationToken)
+		public async Task Update(int tasksCountToProcess, CancellationToken cancellationToken)
 		{
-			var documentIds = await GetWaitingTransfersDocumentsIds(cancellationToken);
+			var documentIds = await GetWaitingTransfersDocumentsIds(tasksCountToProcess, cancellationToken);
 
 			_logger.LogInformation("Получено {DocumentIdsCount} документов для обработки", documentIds.Count());
 
@@ -65,7 +65,7 @@ namespace Edo.Transfer.Routine.Services
 				errorsCount);
 		}
 
-		private async Task<IEnumerable<int>> GetWaitingTransfersDocumentsIds(CancellationToken cancellationToken)
+		private async Task<IEnumerable<int>> GetWaitingTransfersDocumentsIds(int count, CancellationToken cancellationToken)
 		{
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
 			{
@@ -76,6 +76,8 @@ namespace Edo.Transfer.Routine.Services
 							   task.Status == EdoTaskStatus.Waiting
 							   && document.Status == EdoDocumentStatus.Succeed
 							   select document.Id)
+						.OrderByDescending(id => id)
+						.Take(count)
 						.ToListAsync(cancellationToken);
 
 				return documentIds;

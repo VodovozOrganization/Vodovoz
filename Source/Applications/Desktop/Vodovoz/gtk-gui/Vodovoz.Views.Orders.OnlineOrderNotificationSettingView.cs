@@ -14,13 +14,19 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gtk.Table table1;
 
+		private global::Gamma.GtkWidgets.yCheckButton ycheckNotificationDisabled;
+
 		private global::Gamma.GtkWidgets.yEntry yentryNotificationText;
 
-		private global::Gamma.Widgets.yEnumComboBox yenumcmbExternalOrderStatus;
+		private global::Gamma.Widgets.yEnumComboBox yenumcmbNotificationEvent;
+
+		private global::Gamma.Widgets.yEnumComboBox yenumcmbNotificationType;
 
 		private global::Gamma.GtkWidgets.yLabel ylabel1;
 
-		private global::Gamma.GtkWidgets.yLabel ylabel2;
+		private global::Gamma.GtkWidgets.yLabel ylabelNotificationEvent;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelNotificationType;
 
 		protected virtual void Build()
 		{
@@ -71,10 +77,24 @@ namespace Vodovoz.Views.Orders
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.table1 = new global::Gtk.Table(((uint)(2)), ((uint)(2)), false);
+			this.table1 = new global::Gtk.Table(((uint)(4)), ((uint)(2)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
+			// Container child table1.Gtk.Table+TableChild
+			this.ycheckNotificationDisabled = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckNotificationDisabled.CanFocus = true;
+			this.ycheckNotificationDisabled.Name = "ycheckNotificationDisabled";
+			this.ycheckNotificationDisabled.Label = global::Mono.Unix.Catalog.GetString("Не отправлять данный тип уведомлений");
+			this.ycheckNotificationDisabled.DrawIndicator = true;
+			this.ycheckNotificationDisabled.UseUnderline = true;
+			this.table1.Add(this.ycheckNotificationDisabled);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckNotificationDisabled]));
+			w6.TopAttach = ((uint)(3));
+			w6.BottomAttach = ((uint)(4));
+			w6.RightAttach = ((uint)(2));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yentryNotificationText = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryNotificationText.CanFocus = true;
@@ -82,50 +102,76 @@ namespace Vodovoz.Views.Orders
 			this.yentryNotificationText.IsEditable = true;
 			this.yentryNotificationText.InvisibleChar = '●';
 			this.table1.Add(this.yentryNotificationText);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryNotificationText]));
-			w6.TopAttach = ((uint)(1));
-			w6.BottomAttach = ((uint)(2));
-			w6.LeftAttach = ((uint)(1));
-			w6.RightAttach = ((uint)(2));
-			w6.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.yenumcmbExternalOrderStatus = new global::Gamma.Widgets.yEnumComboBox();
-			this.yenumcmbExternalOrderStatus.Name = "yenumcmbExternalOrderStatus";
-			this.yenumcmbExternalOrderStatus.ShowSpecialStateAll = false;
-			this.yenumcmbExternalOrderStatus.ShowSpecialStateNot = false;
-			this.yenumcmbExternalOrderStatus.UseShortTitle = false;
-			this.yenumcmbExternalOrderStatus.DefaultFirst = false;
-			this.table1.Add(this.yenumcmbExternalOrderStatus);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumcmbExternalOrderStatus]));
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryNotificationText]));
+			w7.TopAttach = ((uint)(1));
+			w7.BottomAttach = ((uint)(2));
 			w7.LeftAttach = ((uint)(1));
 			w7.RightAttach = ((uint)(2));
-			w7.XOptions = ((global::Gtk.AttachOptions)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.yenumcmbNotificationEvent = new global::Gamma.Widgets.yEnumComboBox();
+			this.yenumcmbNotificationEvent.Name = "yenumcmbNotificationEvent";
+			this.yenumcmbNotificationEvent.ShowSpecialStateAll = false;
+			this.yenumcmbNotificationEvent.ShowSpecialStateNot = false;
+			this.yenumcmbNotificationEvent.UseShortTitle = false;
+			this.yenumcmbNotificationEvent.DefaultFirst = false;
+			this.table1.Add(this.yenumcmbNotificationEvent);
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumcmbNotificationEvent]));
+			w8.LeftAttach = ((uint)(1));
+			w8.RightAttach = ((uint)(2));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.yenumcmbNotificationType = new global::Gamma.Widgets.yEnumComboBox();
+			this.yenumcmbNotificationType.Name = "yenumcmbNotificationType";
+			this.yenumcmbNotificationType.ShowSpecialStateAll = false;
+			this.yenumcmbNotificationType.ShowSpecialStateNot = false;
+			this.yenumcmbNotificationType.UseShortTitle = false;
+			this.yenumcmbNotificationType.DefaultFirst = false;
+			this.table1.Add(this.yenumcmbNotificationType);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumcmbNotificationType]));
+			w9.TopAttach = ((uint)(2));
+			w9.BottomAttach = ((uint)(3));
+			w9.LeftAttach = ((uint)(1));
+			w9.RightAttach = ((uint)(2));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabel1 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabel1.Name = "ylabel1";
 			this.ylabel1.Xalign = 1F;
 			this.ylabel1.LabelProp = global::Mono.Unix.Catalog.GetString("Текст уведомления:");
 			this.table1.Add(this.ylabel1);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabel1]));
-			w8.TopAttach = ((uint)(1));
-			w8.BottomAttach = ((uint)(2));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabel1]));
+			w10.TopAttach = ((uint)(1));
+			w10.BottomAttach = ((uint)(2));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.ylabel2 = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabel2.Name = "ylabel2";
-			this.ylabel2.Xalign = 1F;
-			this.ylabel2.LabelProp = global::Mono.Unix.Catalog.GetString("Статус заказа:");
-			this.table1.Add(this.ylabel2);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabel2]));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.ylabelNotificationEvent = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelNotificationEvent.Name = "ylabelNotificationEvent";
+			this.ylabelNotificationEvent.Xalign = 1F;
+			this.ylabelNotificationEvent.LabelProp = global::Mono.Unix.Catalog.GetString("Событие для отправки уведомления:");
+			this.table1.Add(this.ylabelNotificationEvent);
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelNotificationEvent]));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.ylabelNotificationType = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelNotificationType.Name = "ylabelNotificationType";
+			this.ylabelNotificationType.Xalign = 1F;
+			this.ylabelNotificationType.LabelProp = global::Mono.Unix.Catalog.GetString("Классификация уведомлений:");
+			this.table1.Add(this.ylabelNotificationType);
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelNotificationType]));
+			w12.TopAttach = ((uint)(2));
+			w12.BottomAttach = ((uint)(3));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add(this.table1);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
-			w10.Position = 1;
-			w10.Expand = false;
-			w10.Fill = false;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
+			w13.Position = 1;
+			w13.Expand = false;
+			w13.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

@@ -9,7 +9,8 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.TrueMark.TrueMarkProductCodes
 		{
 			DiscriminatorValue("SelfDeliveryDocumentItem");
 
-			References(x => x.SelfDeliveryDocumentItem).Column("self_delivery_document_item_id");
+			References(x => x.SelfDeliveryDocumentItem)
+				.Column("self_delivery_document_item_id");
 		}
 	}
 }

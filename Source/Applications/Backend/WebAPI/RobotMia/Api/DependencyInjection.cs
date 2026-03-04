@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
@@ -9,9 +9,9 @@ using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Presentation.WebApi;
-using Vodovoz.Settings.Database;
-using Vodovoz;
 using Vodovoz.RobotMia.Api.Services;
+using Vodovoz.Settings.Database;
+using Vodovoz.Trackers;
 
 namespace Vodovoz.RobotMia.Api
 {
@@ -35,6 +35,7 @@ namespace Vodovoz.RobotMia.Api
 				.AddInfrastructure()
 				.AddApplication()
 				.AddTrackedUoW()
+				.AddOrderTrackerFor1c()
 				.AddDatabaseSettings()
 				.AddScoped((sp) => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot())
 				.AddScoped<INomenclatureService, NomenclatureService>()

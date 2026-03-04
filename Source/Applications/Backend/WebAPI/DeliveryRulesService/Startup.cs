@@ -47,7 +47,7 @@ namespace DeliveryRulesService
 				endpoints.MapControllers();
 			});
 
-			app.ConfigureHealthCheckApplicationBuilder();
+			app.UseVodovozHealthCheck();
 		}
 	}
 }

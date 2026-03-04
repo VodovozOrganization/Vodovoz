@@ -1,0 +1,5 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>pacs.operator.service</ContainerRepository>
+  </PropertyGroup>
+</Project>

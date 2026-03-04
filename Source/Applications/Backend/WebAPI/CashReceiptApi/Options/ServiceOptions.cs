@@ -8,7 +8,7 @@
 		public string ApiKey { get; set; }
 
 		/// <summary>
-		/// Id чека для проверки здоровья службы
+		/// Id чека для проверки работоспособности службы
 		/// </summary>
 		public int HealthCheckCashReceiptId { get; set; }
 	}

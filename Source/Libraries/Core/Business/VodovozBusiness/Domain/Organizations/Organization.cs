@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using QS.Extensions.Observable.Collections.List;
+using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Logistic.Organizations;
@@ -22,8 +24,8 @@ namespace Vodovoz.Domain.Organizations
 	{
 		private OrganizationVersion _activeOrganizationVersion;
 		private IList<Phone> _phones = new List<Phone>();
-		private IList<OrganizationVersion> _organizationVersions = new List<OrganizationVersion>();
 		private GenericObservableList<OrganizationVersion> _observableOrganizationVersions;
+		private IList<OrganizationVersion> _organizationVersions = new List<OrganizationVersion>();
 		private string _suffix;
 
 		[Display(Name = "Телефоны")]
@@ -44,10 +46,10 @@ namespace Vodovoz.Domain.Organizations
 			get => _suffix;
 			set => SetField(ref _suffix, value);
 		}
-
+		
 		public virtual GenericObservableList<OrganizationVersion> ObservableOrganizationVersions => _observableOrganizationVersions
 			?? (_observableOrganizationVersions = new GenericObservableList<OrganizationVersion>(OrganizationVersions));
-
+		
 		public virtual new OrganizationVersion OrganizationVersionOnDate(DateTime dateTime) =>
 			ObservableOrganizationVersions.LastOrDefault(x =>
 				x.StartDate <= dateTime && (x.EndDate == null || x.EndDate >= dateTime));

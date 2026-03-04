@@ -13,7 +13,10 @@ namespace TrueMark.Codes.Pool
 		
 		public override int TakeCode(string gtin)
 		{
-			var findCodeQuery = GetTakeCodeQuery(gtin);
+			var selectCodeQuery = GetSelectCodeQuery(gtin);
+			var codeToTakeId = selectCodeQuery.UniqueResult<uint>();
+
+			var findCodeQuery = GetTakeCodeQuery(codeToTakeId);
 			var codeId = findCodeQuery.UniqueResult<uint>();
 			if(codeId == 0)
 			{
@@ -24,7 +27,10 @@ namespace TrueMark.Codes.Pool
 
 		public override async Task<int> TakeCode(string gtin, CancellationToken cancellationToken)
 		{
-			var findCodeQuery = GetTakeCodeQuery(gtin);
+			var selectCodeQuery = GetSelectCodeQuery(gtin);
+			var codeToTakeId = await selectCodeQuery.UniqueResultAsync<uint>(cancellationToken);
+
+			var findCodeQuery = GetTakeCodeQuery(codeToTakeId);
 			var codeId = await findCodeQuery.UniqueResultAsync<uint>(cancellationToken);
 			if(codeId == 0)
 			{
@@ -33,11 +39,9 @@ namespace TrueMark.Codes.Pool
 			return (int)codeId;
 		}
 
-		private IQuery GetTakeCodeQuery(string gtin)
+		private IQuery GetSelectCodeQuery(string gtin)
 		{
 			var sql = $@"
-			DELETE FROM {_poolTableName}
-			WHERE id = (
 				SELECT pool.id
 				FROM {_poolTableName} pool
 					INNER JOIN true_mark_identification_code code ON code.id = pool.code_id 
@@ -46,12 +50,22 @@ namespace TrueMark.Codes.Pool
 					AND code.check_code is not null
 				ORDER BY pool.adding_time DESC
 				LIMIT 1
-				FOR UPDATE SKIP LOCKED
-			)
-			RETURNING code_id";
+				FOR UPDATE SKIP LOCKED";
 
 			var query = UoW.Session.CreateSQLQuery(sql)
 				.SetParameter("gtin", gtin);
+			return query;
+		}
+
+		private IQuery GetTakeCodeQuery(uint codeId)
+		{
+			var sql = $@"
+			DELETE FROM {_poolTableName}
+			WHERE id = :code_id
+			RETURNING code_id";
+
+			var query = UoW.Session.CreateSQLQuery(sql)
+				.SetParameter("code_id", codeId);
 			return query;
 		}
 	}

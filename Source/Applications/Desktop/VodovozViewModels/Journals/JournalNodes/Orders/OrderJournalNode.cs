@@ -101,5 +101,7 @@ namespace Vodovoz.JournalNodes
 				? string.Empty
 				: NewEdoDocFlowStatus.GetEnumTitle()
 			: EdoDocFlowStatus.GetEnumTitle();
+		
+		public string UpdDocumentName { get; set; }
 	}
 }

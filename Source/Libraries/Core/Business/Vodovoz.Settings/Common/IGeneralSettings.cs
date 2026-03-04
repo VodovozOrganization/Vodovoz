@@ -67,5 +67,8 @@ namespace Vodovoz.Settings.Common
 		int DefaultPaymentDeferment { get; }
 		void SaveDefaultPaymentDeferment(int defaultPaymentDeferment);
 		
+		decimal DefaultVatRate { get; }
+		void SaveDefaultVatRate(decimal defaultVatRate);
+		
 	}
 }

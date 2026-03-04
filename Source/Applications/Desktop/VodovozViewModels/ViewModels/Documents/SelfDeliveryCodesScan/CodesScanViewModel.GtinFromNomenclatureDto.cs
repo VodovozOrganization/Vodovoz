@@ -19,6 +19,11 @@
 			/// Количество для группового gtin
 			/// </summary>
 			public int CodesCount { get; set; }
+
+			/// <summary>
+			/// Приоритет Gtin
+			/// </summary>
+			public uint GtinPriority { get; set; }
 		}
 	}
 }

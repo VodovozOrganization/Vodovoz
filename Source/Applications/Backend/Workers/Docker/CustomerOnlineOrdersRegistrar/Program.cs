@@ -22,6 +22,7 @@ using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Orders;
+using Vodovoz.Trackers;
 using VodovozBusiness.Services.Orders;
 
 namespace CustomerOnlineOrdersRegistrar
@@ -55,6 +56,7 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddDatabaseConnection()
 						.AddCore()
 						.AddTrackedUoW()
+						.AddOrderTrackerFor1c()
 						.AddBusiness(hostContext.Configuration)
 						.AddDriverApiNotificationsSenders()
 						.AddInfrastructure()

@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Autofac;
+﻿using Autofac;
 using ClosedXML.Excel;
 using DateTimeHelpers;
 using Gamma.Utilities;
-using Microsoft.Extensions.Logging;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
@@ -17,6 +10,12 @@ using QS.Navigation;
 using QS.Project.Services.FileDialog;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
@@ -41,6 +40,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 		public const string EventDistanceTitle = "Расстояние от\nместа фиксации";
 		public const string EventTimeTitle = "Время фиксации";
 		public const string SecondEventTitle = "Второе событие";
+		public const string TimeDifferenceTitle = "Разница между\nсобытиями";
 
 		private const string _xlsxFileFilter = "XLSX File (*.xlsx)";
 		private readonly ILifetimeScope _scope;
@@ -310,6 +310,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 				DocumentNumberColumn,
 				EventDistanceTitle,
 				EventTimeTitle,
+				TimeDifferenceTitle,
 			};
 		}
 
@@ -365,9 +366,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 					var node = nodes[i];
 					if(date == node.EventDate && driver == node.DriverFio && eventId == FirstEvent.Id && eventId != node.EventId)
 					{
-						nextNode.SecondEventName = node.EventName;
-						nextNode.SecondEventDistance = node.Distance;
-						nextNode.SecondEventTime = node.EventTime;
+						FillSecondEventData(node, nextNode);
 					}
 					else
 					{
@@ -526,6 +525,11 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics
 			nextNode.SecondEventDocumentNumber = node.DocumentNumber;
 			nextNode.SecondEventDistance = node.Distance;
 			nextNode.SecondEventTime = node.EventTime;
+
+			if(nextNode.FirstEventTime.HasValue && node.EventTime != null)
+			{
+				nextNode.TimeDifference = node.EventTime - nextNode.FirstEventTime.Value;
+			}
 		}
 	}
 }

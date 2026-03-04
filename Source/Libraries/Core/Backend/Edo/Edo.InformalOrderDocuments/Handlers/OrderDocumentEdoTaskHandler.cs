@@ -55,21 +55,24 @@ namespace Edo.InformalOrderDocuments.Handlers
 
 			if(informalEdoRequest == null)
 			{
-				_logger.LogWarning($"Заявка на неформальный ЭДО для задачи с идентификатором {orderDocumentEdoTaskId} не найдена.");
+				_logger.LogWarning("Заявка на неформальный ЭДО для задачи с идентификатором {TaskId} не найдена.",
+					   orderDocumentEdoTaskId);
 				return;
 			}
 
 			var edoTask = informalEdoRequest.Task;
 			if(edoTask == null)
 			{
-				_logger.LogWarning($"Задача с идентификатором ЭДО №{informalEdoRequest.Task} не найдена");
+				_logger.LogWarning("Задача с идентификатором ЭДО №{TaskId} не найдена.",
+					   informalEdoRequest.Task.Id);
 				return;
 			}
 
 			var order = await _uow.Session.GetAsync<OrderEntity>(informalEdoRequest.Order.Id, cancellationToken);
 			if(order == null)
 			{
-				_logger.LogWarning($"Заказ с идентификатором {informalEdoRequest.Order.Id} не найден.");
+				_logger.LogWarning("Заказ с идентификатором {OrderId} не найден.",
+					   informalEdoRequest.Order.Id);
 				return;
 			}
 
@@ -81,7 +84,10 @@ namespace Edo.InformalOrderDocuments.Handlers
 					.Where(doc => doc.Type == informalEdoRequest.OrderDocumentType).FirstOrDefault();
 				if(orderDocument == null)
 				{
-					_logger.LogWarning($"Документ типа {informalEdoRequest.OrderDocumentType} для заказа №{order.Id} не найден.");
+					_logger.LogWarning("Документ типа {DocumentType} для заказа №{OrderId} не найден.",
+						informalEdoRequest.OrderDocumentType,
+						order.Id);
+					return;
 				}
 
 				var result = await handler.ProcessDocumentAsync(order, orderDocument.Id, cancellationToken);
@@ -105,7 +111,10 @@ namespace Edo.InformalOrderDocuments.Handlers
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex, $"Ошибка при обработке задачи EDO документа заказа №{order.Id}, тип документа {informalEdoRequest.OrderDocumentType}.");
+				_logger.LogError(ex,
+					 "Ошибка при обработке задачи EDO документа заказа №{OrderId}, тип документа {DocumentType}.",
+					 order.Id,
+					 informalEdoRequest.OrderDocumentType);
 				throw;
 			}
 			
