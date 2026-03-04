@@ -3867,8 +3867,6 @@ namespace Vodovoz.Domain.Orders
 			
 			var targetTypesForUpdReference = new List<OrderDocumentType>()
 			{
-				OrderDocumentType.Bill, 
-				OrderDocumentType.SpecialBill, 
 				OrderDocumentType.DoneWorkReport, 
 				OrderDocumentType.EquipmentTransfer,
 				OrderDocumentType.DriverTicket
