@@ -23,7 +23,7 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 		/// <summary>
 		/// Id контрагента в ДВ
 		/// </summary>
-		public int CounterpartyErpId { get; set; }
+		public int ErpCounterpartyId { get; set; }
 		/// <summary>
 		/// Id клиента в ИПЗ
 		/// </summary>
