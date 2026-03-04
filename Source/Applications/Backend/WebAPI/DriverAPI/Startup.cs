@@ -73,6 +73,8 @@ namespace DriverAPI
 
 			app.UseAuthentication();
 			app.UseAuthorization();
+			
+			app.UseVodovozHealthCheck();
 
 			app.UseEndpoints(endpoints =>
 			{
@@ -81,8 +83,6 @@ namespace DriverAPI
 					pattern: "{controller=Home}/{action=Index}/{id?}");
 				endpoints.MapRazorPages();
 			});
-
-			app.UseVodovozHealthCheck();
 		}
 	}
 }

@@ -90,12 +90,12 @@ namespace WarehouseApi
 			app.UseAuthentication();
 			app.UseAuthorization();
 
+			app.UseVodovozHealthCheck();
+
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapControllers();
 			});
-
-			app.UseVodovozHealthCheck();
 		}
 	}
 }

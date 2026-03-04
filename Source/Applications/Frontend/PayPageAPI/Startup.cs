@@ -118,14 +118,14 @@ namespace PayPageAPI
 
 			app.UseAuthorization();
 			
+			app.UseVodovozHealthCheck();
+			
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapControllerRoute(
 					name: "default",
 					pattern: "{controller=Home}/{action=Index}/{id?}");
 			});
-
-			app.UseVodovozHealthCheck();
 		}
 	}
 }
