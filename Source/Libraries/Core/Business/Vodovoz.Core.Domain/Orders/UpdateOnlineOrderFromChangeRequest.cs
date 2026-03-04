@@ -23,7 +23,7 @@ namespace Vodovoz.Core.Domain.Orders
 		/// <summary>
 		/// Id клиента из ДВ
 		/// </summary>
-		public int CounterpartyErpId { get; set; }
+		public int ErpCounterpartyId { get; set; }
 		/// <summary>
 		/// Id пользователя в ИПЗ
 		/// </summary>

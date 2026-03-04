@@ -133,7 +133,7 @@ namespace CustomerOrdersApi.Library
 				Source = source.Source,
 				PaymentStatus = source.PaymentStatus,
 				OnlinePaymentSource = source.OnlinePaymentSource,
-				CounterpartyErpId = source.CounterpartyErpId,
+				ErpCounterpartyId = source.ErpCounterpartyId,
 				ExternalCounterpartyId = source.ExternalCounterpartyId,
 				OnlineOrderPaymentType = source.OnlineOrderPaymentType,
 				UnPaidReason = source.UnPaidReason,
