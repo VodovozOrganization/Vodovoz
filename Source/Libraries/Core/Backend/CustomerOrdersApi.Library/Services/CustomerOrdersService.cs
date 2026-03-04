@@ -11,6 +11,7 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Orders;
@@ -348,6 +349,111 @@ namespace CustomerOrdersApi.Library.Services
 		private string GetSourceSign(Source source)
 		{
 			return _signaturesSection.GetValue<string>(source.ToString());
+		}
+
+		public bool ValidateTransferOrderSignature(TransferOrderDto transferOrderDto, out string generatedSignature)
+		{
+			var sourceSign = GetSourceSign(transferOrderDto.Source);
+
+			return _signatureManager.Validate(
+				transferOrderDto.Signature,
+				new TransferOrderSignatureParams
+				{
+					OrderId = transferOrderDto.ExternalOrderId.ToString(),
+					DeliveryDate = transferOrderDto.DeliveryDate.ToString("yyyy-MM-dd"),
+					DeliveryScheduleId = transferOrderDto.DeliveryScheduleId,
+					ShopId = (int)transferOrderDto.Source,
+					Sign = sourceSign
+				},
+				out generatedSignature);
+		}
+
+		public bool ValidateCancelOrderSignature(CancelOrderDto cancelOrderDto, out string generatedSignature)
+		{
+			var sourceSign = GetSourceSign(cancelOrderDto.Source);
+
+			return _signatureManager.Validate(
+				cancelOrderDto.Signature,
+				new CancelOrderSignatureParams
+				{
+					OrderId = cancelOrderDto.ExternalOrderId.ToString(),
+					OrderSumInKopecks = (int)(cancelOrderDto.OrderSum * 100),
+					ShopId = (int)cancelOrderDto.Source,
+					Sign = sourceSign
+				},
+				out generatedSignature);
+		}
+
+		public CancellationCheckResultDto CanCancelOrder(CancelOrderDto cancelOrderDto)
+		{
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			{
+				var onlineOrder = _onlineOrderRepository.GetOnlineOrderByExternalId(uow, cancelOrderDto.ExternalOrderId);
+
+				if(onlineOrder == null)
+				{
+					return new CancellationCheckResultDto
+					{
+						CanCancel = false,
+						RequireManagerContact = false,
+						ReasonMessage = "Заказ не найден"
+					};
+				}
+
+				if(onlineOrder.Orders.Count == 0)
+				{
+					return new CancellationCheckResultDto
+					{
+						CanCancel = true,
+						RequireManagerContact = false,
+						ReasonMessage = string.Empty
+					};
+				}
+
+				var allowedStatuses = new[]
+				{
+					OrderStatus.Accepted,
+					OrderStatus.InTravelList,
+					OrderStatus.OnLoading,
+					OrderStatus.OnTheWay
+				};
+
+				// Проверяем статус первого привязанного заказа
+				var order = onlineOrder.Orders.First();
+
+				if(!allowedStatuses.Contains(order.OrderStatus))
+				{
+					return new CancellationCheckResultDto
+					{
+						CanCancel = false,
+						RequireManagerContact = false,
+						ReasonMessage = $"Заказ имеет статус '{order.OrderStatus}' и не может быть отменен"
+					};
+				}
+
+				if(order.OrderStatus == OrderStatus.OnTheWay)
+				{
+					var hasRouteListItems = uow.GetAll<RouteListItem>()
+						.Any(rli => rli.Order.Id == order.Id);
+
+					if(hasRouteListItems)
+					{
+						return new CancellationCheckResultDto
+						{
+							CanCancel = false,
+							RequireManagerContact = true,
+							ReasonMessage = "Заказ на доставке с установленным маршрутом"
+						};
+					}
+				}
+
+				return new CancellationCheckResultDto
+				{
+					CanCancel = true,
+					RequireManagerContact = false,
+					ReasonMessage = string.Empty
+				};
+			}
 		}
 	}
 }

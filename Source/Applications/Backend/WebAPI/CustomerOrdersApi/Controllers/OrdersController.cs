@@ -13,15 +13,18 @@ namespace CustomerOrdersApi.Controllers
 	public class OrdersController : SignatureControllerBase
 	{
 		private readonly ICustomerOrdersService _customerOrdersService;
+		private readonly IOrderTransferService _orderTransferService;
 		private readonly IPublishEndpoint _publishEndpoint;
 
 		public OrdersController(
 			ILogger<OrdersController> logger,
 			ICustomerOrdersService customerOrdersService,
+			IOrderTransferService orderTransferService,
 			IPublishEndpoint publishEndpoint
 			) : base(logger)
 		{
 			_customerOrdersService = customerOrdersService ?? throw new ArgumentNullException(nameof(customerOrdersService));
+			_orderTransferService = orderTransferService ?? throw new ArgumentNullException(nameof(orderTransferService));
 			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
@@ -144,7 +147,134 @@ namespace CustomerOrdersApi.Controllers
 				return Problem();
 			}
 		}
-		
+
+		[HttpPost]
+		public async Task<IActionResult> TransferOrderAsync(TransferOrderDto transferOrderDto)
+		{
+			var sourceName = transferOrderDto.Source.GetEnumTitle();
+
+			try
+			{
+				Logger.LogInformation(
+					"Поступил запрос от {Source} на перенос заказа {ExternalOrderId} на дату {DeliveryDate} с интервалом {DeliveryScheduleId} c подписью {Signature}, проверяем...",
+					sourceName,
+					transferOrderDto.ExternalOrderId,
+					transferOrderDto.DeliveryDate,
+					transferOrderDto.DeliveryScheduleId,
+					transferOrderDto.Signature);
+
+				if(!_customerOrdersService.ValidateTransferOrderSignature(transferOrderDto, out var generatedSignature))
+				{
+					return InvalidSignature(transferOrderDto.Signature, generatedSignature);
+				}
+
+				Logger.LogInformation("Подпись валидна, выполняем перенос заказа");
+
+				var transferResult = await _orderTransferService.TransferOrderAsync(transferOrderDto);
+
+				Logger.LogInformation(
+					"Результат переноса: IsSuccess={IsSuccess}, StatusCode={StatusCode}",
+					transferResult.IsSuccess,
+					transferResult.StatusCode);
+
+				return StatusCode(transferResult.StatusCode, new
+				{
+					title = transferResult.Title,
+					status = transferResult.StatusCode,
+					detail = transferResult.DetailMessage
+				});
+			}
+			catch(Exception e)
+			{
+				Logger.LogError(e,
+					"Ошибка при переносе заказа {ExternalOrderId} от {Source}",
+					transferOrderDto.ExternalOrderId,
+					sourceName);
+
+				return StatusCode(500, new
+				{
+					title = "One or more validation errors occurred",
+					status = 500,
+					detail = "Произошла ошибка, пожалуйста, попробуйте позже"
+				});
+			}
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> CancelOrderAsync(CancelOrderDto cancelOrderDto)
+		{
+			var sourceName = cancelOrderDto.Source.GetEnumTitle();
+
+			try
+			{
+				Logger.LogInformation(
+					"Поступил запрос от {Source} на отмену заказа {ExternalOrderId} c подписью {Signature}, проверяем...",
+					sourceName,
+					cancelOrderDto.ExternalOrderId,
+					cancelOrderDto.Signature);
+
+				if(!_customerOrdersService.ValidateCancelOrderSignature(cancelOrderDto, out var generatedSignature))
+				{
+					return InvalidSignature(cancelOrderDto.Signature, generatedSignature);
+				}
+
+				Logger.LogInformation("Подпись валидна, проверяем возможность отмены");
+
+				var cancellationResult = _customerOrdersService.CanCancelOrder(cancelOrderDto);
+
+				if(!cancellationResult.CanCancel)
+				{
+					if(cancellationResult.RequireManagerContact)
+					{
+						Logger.LogInformation(
+							"Отмена заказа {ExternalOrderId} требует контакта с менеджером (установленный маршрут)",
+							cancelOrderDto.ExternalOrderId);
+
+						return Ok(new OrderActionResultDto
+						{
+							ExternalOrderId = cancelOrderDto.ExternalOrderId,
+							IsSuccess = false,
+							Message = "Для отмены этого заказа требуется связь с менеджером",
+							RequireManagerContact = true,
+							ManagerChatUrl = "https://vodovoz.bitrix24.ru/online/orderdelivery"
+						});
+					}
+
+					return BadRequest(new OrderActionResultDto
+					{
+						ExternalOrderId = cancelOrderDto.ExternalOrderId,
+						IsSuccess = false,
+						Message = cancellationResult.ReasonMessage
+					});
+				}
+
+				Logger.LogInformation("Возможность отмены подтверждена, отправляем в очередь");
+
+				var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
+
+				if(!isDryRun)
+				{
+					await _publishEndpoint.Publish(cancelOrderDto);
+				}
+
+				return Accepted(new OrderActionResultDto
+				{
+					ExternalOrderId = cancelOrderDto.ExternalOrderId,
+					IsSuccess = true,
+					Message = "Заказ успешно отменен"
+				});
+			}
+			catch(Exception e)
+			{
+				Logger.LogError(e,
+					"Ошибка при отмене заказа {ExternalOrderId} от {Source}",
+					cancelOrderDto.ExternalOrderId,
+					sourceName);
+
+				return Problem();
+			}
+		}
+
 		/*[HttpPost]
 		public IActionResult UpdateOnlineOrderPaymentStatus(OnlineOrderPaymentStatusUpdatedDto paymentStatusUpdatedDto)
 		{
