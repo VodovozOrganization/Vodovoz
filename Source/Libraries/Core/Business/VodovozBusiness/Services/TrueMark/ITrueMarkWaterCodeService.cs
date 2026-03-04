@@ -85,13 +85,13 @@ namespace VodovozBusiness.Services.TrueMark
 		Task<Result<StagingTrueMarkCode>> CreateStagingTrueMarkCode(IUnitOfWork uow, string scannedCode, StagingTrueMarkCodeRelatedDocumentType relatedDocumentType, int relatedDocumentId, int? orderItemId, CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// Проверят, что код ЧЗ для промежуточного хранения уже используется в кодах товаров
+		/// Проверяет, что код ЧЗ для промежуточного хранения уже используется
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="stagingTrueMarkCode">Код ЧЗ для промежуточного хранения</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Результат проверки</returns>
-		Task<Result> IsStagingTrueMarkCodeAlreadyUsedInProductCodes(IUnitOfWork uow, StagingTrueMarkCode stagingTrueMarkCode, CancellationToken cancellationToken = default);
+		Task<Result> IsStagingTrueMarkCodeAlreadyUsed(IUnitOfWork uow, StagingTrueMarkCode stagingTrueMarkCode, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Возвращает все коды Честного Знака для промежуточного хранения, связанные с указанным документом

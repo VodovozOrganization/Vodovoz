@@ -251,7 +251,7 @@ namespace VodovozBusiness.Services.TrueMark
 			IUnitOfWork uow,
 			StagingTrueMarkCode stagingTrueMarkCode,
 			CancellationToken cancellationToken) =>
-			await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsedInProductCodes(uow, stagingTrueMarkCode, cancellationToken);
+			await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsed(uow, stagingTrueMarkCode, cancellationToken);
 
 		private async Task<Result> IsStagingTrueMarkCodeCanBeAddedToDocumentNomenclatures(
 			IUnitOfWork uow,

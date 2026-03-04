@@ -81,7 +81,7 @@ namespace WarehouseApi.Controllers.V1
 				var stagingCode = createCodeResult.Value;
 
 				var isCodeUsedResult =
-					await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsedInProductCodes(unitOfWork, stagingCode, cancellationToken);
+					await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsed(unitOfWork, stagingCode, cancellationToken);
 
 				if(isCodeUsedResult.IsFailure)
 				{

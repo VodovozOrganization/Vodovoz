@@ -506,7 +506,7 @@ namespace VodovozBusiness.Services.TrueMark
 			}
 
 			codeCheckingProcessResult =
-				await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsedInProductCodes(uow, stagingTrueMarkCode, cancellationToken);
+				await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsed(uow, stagingTrueMarkCode, cancellationToken);
 
 			if(codeCheckingProcessResult.IsFailure)
 			{

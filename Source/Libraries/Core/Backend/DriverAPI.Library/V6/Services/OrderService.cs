@@ -1219,7 +1219,7 @@ namespace DriverAPI.Library.V6.Services
 			var stagingCode = createCodeResult.Value;
 
 			var isCodeUsedResult =
-				await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsedInProductCodes(_uow, stagingCode, cancellationToken);
+				await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsed(_uow, stagingCode, cancellationToken);
 
 			if(isCodeUsedResult.IsFailure)
 			{

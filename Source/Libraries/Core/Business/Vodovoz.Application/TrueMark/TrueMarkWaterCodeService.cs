@@ -1256,11 +1256,20 @@ namespace Vodovoz.Application.TrueMark
 				cancellationToken: cancellationToken);
 		}
 
-		public async Task<Result> IsStagingTrueMarkCodeAlreadyUsedInProductCodes(
+		public async Task<Result> IsStagingTrueMarkCodeAlreadyUsed(
 			IUnitOfWork uow,
 			StagingTrueMarkCode stagingTrueMarkCode,
 			CancellationToken cancellationToken = default)
 		{
+			var usedStagingCodes =
+				await _trueMarkRepository.GetUsedTrueMarkStagingCodeByStagingTrueMarkCode(uow, stagingTrueMarkCode, cancellationToken);
+
+			if(usedStagingCodes.Any())
+			{
+				var codesUsedOrderId = await _trueMarkRepository.GetOrderIdByStagingCode(uow, usedStagingCodes.First(), cancellationToken);
+				return Result.Failure(TrueMarkCodeErrors.CreateTrueMarkCodeIsAlreadyUsedInOrder(codesUsedOrderId ?? 0));
+			}
+
 			var usedProductCodes =
 				await _trueMarkRepository.GetUsedTrueMarkProductCodeByStagingTrueMarkCode(uow, stagingTrueMarkCode, cancellationToken);
 

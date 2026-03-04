@@ -115,5 +115,23 @@ namespace Vodovoz.EntityRepositories.TrueMark
 		/// <param name="orderId">Номер заказа</param>
 		/// <returns></returns>
 		IList<StagingTrueMarkCode> GetAllStagingCodesByOrderId(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Возвращает уже добавленные дубли кода ЧЗ для промежуточного хранения
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="stagingTrueMarkCode">Код ЧЗ для промежуточного хранения</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
+		Task<IEnumerable<StagingTrueMarkCode>> GetUsedTrueMarkStagingCodeByStagingTrueMarkCode(IUnitOfWork uow, StagingTrueMarkCode stagingTrueMarkCode, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Возвращает номер заказа, в котором использовался код ЧЗ для промежуточного хранения
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="stagingTrueMarkCode">Код ЧЗ для промежуточного хранения</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
+		Task<int?> GetOrderIdByStagingCode(IUnitOfWork uow, StagingTrueMarkCode stagingTrueMarkCode, CancellationToken cancellationToken);
 	}
 }

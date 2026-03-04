@@ -484,7 +484,7 @@ namespace WarehouseApi.Library.Services
 			}
 
 			codeCheckingProcessResult =
-				await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsedInProductCodes(uow, stagingTrueMarkCode, cancellationToken);
+				await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsed(uow, stagingTrueMarkCode, cancellationToken);
 
 			if(codeCheckingProcessResult.IsFailure)
 			{
@@ -536,7 +536,7 @@ namespace WarehouseApi.Library.Services
 			}
 
 			codeCheckingProcessResult =
-				await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsedInProductCodes(uow, newStagingTrueMarkCode, cancellationToken);
+				await _trueMarkWaterCodeService.IsStagingTrueMarkCodeAlreadyUsed(uow, newStagingTrueMarkCode, cancellationToken);
 
 			if(codeCheckingProcessResult.IsFailure)
 			{

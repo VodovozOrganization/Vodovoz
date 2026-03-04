@@ -17,6 +17,7 @@ using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Logistics;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
@@ -331,6 +332,73 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				.SingleOrDefault<decimal>();
 
 			return (int)codesRequired;
+		}
+
+		public async Task<IEnumerable<StagingTrueMarkCode>> GetUsedTrueMarkStagingCodeByStagingTrueMarkCode(
+			IUnitOfWork uow,
+			StagingTrueMarkCode stagingTrueMarkCode,
+			CancellationToken cancellationToken)
+		{
+			var usedCodes = new List<StagingTrueMarkCode>();
+
+			var allIdentificationCodes = stagingTrueMarkCode.AllIdentificationCodes;
+
+			if(allIdentificationCodes is null || !allIdentificationCodes.Any())
+			{
+				return usedCodes;
+			}
+
+			var serialNumbers = allIdentificationCodes.Select(x => x.SerialNumber).Distinct().ToList();
+			var gtin = allIdentificationCodes.First().Gtin;
+
+			var query =
+				from stagingCode in uow.Session.Query<StagingTrueMarkCode>()
+				where
+				stagingCode.CodeType == StagingTrueMarkCodeType.Identification
+				&& stagingCode.Gtin == gtin
+				&& serialNumbers.Contains(stagingCode.SerialNumber)
+				&& stagingCode.RelatedDocumentId != stagingTrueMarkCode.RelatedDocumentId
+				select stagingCode;
+
+			usedCodes = await query.ToListAsync(cancellationToken);
+
+			return usedCodes;
+		}
+
+		public async Task<int?> GetOrderIdByStagingCode(
+			IUnitOfWork uow,
+			StagingTrueMarkCode stagingTrueMarkCode,
+			CancellationToken cancellationToken)
+		{
+			int? orderId;
+
+			switch (stagingTrueMarkCode.RelatedDocumentType)
+			{
+				case StagingTrueMarkCodeRelatedDocumentType.CarLoadDocumentItem:
+					orderId = uow.Session.Query<CarLoadDocumentItemEntity>()
+						.Where(x => x.Id == stagingTrueMarkCode.RelatedDocumentId)
+						.Select(x => x.OrderId)
+						.FirstOrDefault();
+					break;
+				case StagingTrueMarkCodeRelatedDocumentType.RouteListItem:
+					orderId = uow.Session.Query<RouteListItemEntity>()
+						.Where(x => x.Id == stagingTrueMarkCode.RelatedDocumentId)
+						.Select(x => x.Order.Id)
+						.FirstOrDefault();
+					break;
+				case StagingTrueMarkCodeRelatedDocumentType.SelfDeliveryDocumentItem:
+					orderId =
+						(from documentItem in uow.Session.Query<SelfDeliveryDocumentItemEntity>()
+						 join orderItem in uow.Session.Query<OrderItemEntity>() on documentItem.OrderItem.Id equals orderItem.Id
+						 where documentItem.Id == stagingTrueMarkCode.RelatedDocumentId
+						 select orderItem.Order.Id)
+						.FirstOrDefault();
+					break;
+				default:
+					throw new InvalidOperationException("Тип кода неизвестен");
+			}
+
+			return orderId;
 		}
 
 		public async Task<IEnumerable<TrueMarkProductCode>> GetUsedTrueMarkProductCodeByStagingTrueMarkCode(
