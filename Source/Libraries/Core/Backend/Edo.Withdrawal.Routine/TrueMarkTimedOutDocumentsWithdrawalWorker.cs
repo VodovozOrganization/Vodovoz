@@ -19,7 +19,6 @@ namespace Edo.Withdrawal.Routine
 		private readonly ILogger<TrueMarkTimedOutDocumentsWithdrawalWorker> _logger;
 		private readonly IOptions<WithdrawalRoutineOptions> _options;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
-		private readonly TimeSpan _checkInterval = TimeSpan.FromHours(24);
 
 		public TrueMarkTimedOutDocumentsWithdrawalWorker(
 			ILogger<TrueMarkTimedOutDocumentsWithdrawalWorker> logger,
