@@ -1,4 +1,6 @@
-﻿namespace Vodovoz.Settings.Edo
+﻿using System;
+
+namespace Vodovoz.Settings.Edo
 {
 	public interface IEdoSettings
 	{
@@ -27,6 +29,12 @@
 		/// Количество дней не принятия документооборота клиентом, подключенным к ЧЗ, 
 		/// после которого будет создана заявка на вывод кодов из оборота
 		/// </summary>
-		int WithdrawalDocflowTimeoutDays { get; }
+		TimeSpan ConnectedTrueMarkClientsWithdrawalDocflowTimeoutDays { get; }
+
+		/// <summary>
+		/// Количество дней не принятия документооборота клиентом, не подключенным к ЧЗ, 
+		/// после которого будет создана заявка на вывод кодов из оборота
+		/// </summary>
+		TimeSpan NotConnectedTrueMarkClientsWithdrawalDocflowTimeoutDays { get; }
 	}
 }
