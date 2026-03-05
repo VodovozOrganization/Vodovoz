@@ -1,6 +1,8 @@
-﻿using Edo.Withdrawal.Routine.Services;
+﻿using Edo.Withdrawal.Routine.Options;
+using Edo.Withdrawal.Routine.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,21 +17,24 @@ namespace Edo.Withdrawal.Routine
 	public class TrueMarkTimedOutDocumentsWithdrawalWorker : TimerBackgroundServiceBase
 	{
 		private readonly ILogger<TrueMarkTimedOutDocumentsWithdrawalWorker> _logger;
+		private readonly IOptions<WithdrawalRoutineOptions> _options;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
 		private readonly TimeSpan _checkInterval = TimeSpan.FromHours(24);
 
 		public TrueMarkTimedOutDocumentsWithdrawalWorker(
 			ILogger<TrueMarkTimedOutDocumentsWithdrawalWorker> logger,
+			IOptions<WithdrawalRoutineOptions> options,
 			IServiceScopeFactory serviceScopeFactory)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
+			_options = options;
+			_serviceScopeFactory = serviceScopeFactory;
 		}
 
 		/// <summary>
 		/// Интервал выполнения воркера
 		/// </summary>
-		protected override TimeSpan Interval => _checkInterval;
+		protected override TimeSpan Interval => _options.Value.Interval;
 
 		/// <summary>
 		/// Выполнить проверку и создать заявки на вывод из оборота для просроченных документооборотов

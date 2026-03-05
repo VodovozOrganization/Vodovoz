@@ -1,5 +1,6 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using Edo.Withdrawal.Routine;
+using Edo.Withdrawal.Routine.Options;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,6 +35,10 @@ namespace Edo.Withdrawal.Routine.Worker
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureServices((hostContext, services) =>
 				{
+					services
+						.Configure<WithdrawalRoutineOptions>(
+							hostContext.Configuration.GetSection(nameof(WithdrawalRoutineOptions)));
+
 					services
 						.AddMappingAssemblies(
 							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
