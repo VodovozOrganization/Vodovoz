@@ -60,7 +60,7 @@ namespace Edo.Withdrawal.Routine.Services
 		/// </summary>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		public async Task ProcessTimedOutDocuments(CancellationToken cancellationToken)
+		public async Task ProcessTimedOutDocumentTasks(CancellationToken cancellationToken)
 		{
 			var withdrawalEdoRequests = Enumerable.Empty<WithdrawalEdoRequest>();
 			var clientInnsToSetRegisteredStatus = Enumerable.Empty<string>();
@@ -88,7 +88,10 @@ namespace Edo.Withdrawal.Routine.Services
 
 			await PublishWithdrawalEdoRequestCreatedEvents(withdrawalEdoRequests, cancellationToken);
 
-			await UpdateClientsRegistrationInTrueMarkStatus(clientInnsToSetRegisteredStatus, cancellationToken);
+			if(clientInnsToSetRegisteredStatus.Any())
+			{
+				await UpdateClientsRegistrationInTrueMarkStatus(clientInnsToSetRegisteredStatus, cancellationToken);
+			}
 		}
 
 		private async Task UpdateClientsRegistrationInTrueMarkStatus(IEnumerable<string> clientInns, CancellationToken cancellationToken)

@@ -45,7 +45,7 @@ namespace Edo.Withdrawal.Routine
 				{
 					var docflowTimeoutCheckService = scope.ServiceProvider.GetService<TrueMarkTimedOutDocumentsWithdrawalService>();
 
-					await docflowTimeoutCheckService.ProcessTimedOutDocuments(stoppingToken);
+					await docflowTimeoutCheckService.ProcessTimedOutDocumentTasks(stoppingToken);
 
 					_logger.LogInformation(
 						"Обработка просроченных документооборотов для вывода кодов из оборота успешно завершена");
