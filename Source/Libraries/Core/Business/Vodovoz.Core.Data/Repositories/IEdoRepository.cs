@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
 
 namespace Vodovoz.Core.Data.Repositories
@@ -32,8 +31,17 @@ namespace Vodovoz.Core.Data.Repositories
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="timeoutDays">Таймаут</param>
+		/// <param name="searchMode">Режим поиска</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Заказ с задачами</returns>
-		Task<ILookup<OrderEntity, DocumentEdoTask>> GetTrueMarkConnectedClientsTimedOutOrderDocumentTasks(IUnitOfWork uow, int timeoutDays, CancellationToken cancellationToken);
+		Task<IList<TimedOutOrderDocumentTaskNode>> GetTrueMarkConnectedClientsTimedOutOrderDocumentTasks(IUnitOfWork uow, int timeoutDays, TimedOutDocumentTasksSearchMode searchMode, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Возвращает номера заказов, по которым уже созданы заявки на вывод кодов из оборота
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderIds">Номера заказов для проверки</param>
+		/// <returns>Номера заказов, по которым существуют заявки на вывод кодов из оборота</returns>
+		Task<IList<int>> GetExistingWithdrawalEdoRequestOrders(IUnitOfWork uow, IEnumerable<int> orderIds, CancellationToken cancellationToken);
 	}
 }

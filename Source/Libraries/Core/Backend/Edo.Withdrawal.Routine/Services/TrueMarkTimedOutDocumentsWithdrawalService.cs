@@ -9,8 +9,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Settings.Edo;
 
 namespace Edo.Withdrawal.Routine.Services
@@ -24,6 +26,7 @@ namespace Edo.Withdrawal.Routine.Services
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IEdoSettings _edoSettings;
 		private readonly IEdoRepository _edoRepository;
+		private readonly IGenericRepository<CounterpartyEntity> _counterpartyRepository;
 		private readonly IClientsTrueMarkRegistrationCheckService _trueMarkRegistrationCheckService;
 		private readonly IBus _messageBus;
 
@@ -32,6 +35,7 @@ namespace Edo.Withdrawal.Routine.Services
 			IUnitOfWorkFactory uowFactory,
 			IEdoSettings edoSettings,
 			IEdoRepository edoRepository,
+			IGenericRepository<CounterpartyEntity> counterpartyRepository,
 			IClientsTrueMarkRegistrationCheckService trueMarkRegistrationCheckService,
 			IBus messageBus)
 		{
@@ -43,6 +47,8 @@ namespace Edo.Withdrawal.Routine.Services
 				?? throw new ArgumentNullException(nameof(edoSettings));
 			_edoRepository = edoRepository
 				?? throw new ArgumentNullException(nameof(edoRepository));
+			_counterpartyRepository = counterpartyRepository
+				?? throw new ArgumentNullException(nameof(counterpartyRepository));
 			_trueMarkRegistrationCheckService = trueMarkRegistrationCheckService
 				?? throw new ArgumentNullException(nameof(trueMarkRegistrationCheckService));
 			_messageBus = messageBus
@@ -56,64 +62,199 @@ namespace Edo.Withdrawal.Routine.Services
 		/// <returns></returns>
 		public async Task ProcessTimedOutDocuments(CancellationToken cancellationToken)
 		{
-			await ProcessTimedOutDocumentsOfRegisteredInTrueMarkClients(cancellationToken);
+			var withdrawalEdoRequests = Enumerable.Empty<WithdrawalEdoRequest>();
+			var clientInnsToSetRegisteredStatus = Enumerable.Empty<string>();
+
+			using(var uow = _uowFactory.CreateWithoutRoot(nameof(TrueMarkTimedOutDocumentsWithdrawalService)))
+			{
+				var timedOutDocumentTasks =
+					(await GetTimedOutDocumentsOfRegisteredInTrueMarkClients(uow, cancellationToken))
+					.ToList();
+
+				var timedOutTasksOfNotRegisteredInTrueMarkClients =
+					await GetTimedOutDocumentsOfNotRegisteredInTrueMarkClients(uow, cancellationToken);
+
+				clientInnsToSetRegisteredStatus =
+					await GetRegisteredInTrueMarkClientsByDataFromTrueMark(timedOutTasksOfNotRegisteredInTrueMarkClients, cancellationToken);
+
+				timedOutDocumentTasks.AddRange(
+					timedOutTasksOfNotRegisteredInTrueMarkClients
+						.Where(x => !clientInnsToSetRegisteredStatus.Contains(x.ClientInn)));
+
+				withdrawalEdoRequests = await CreateWithdrawalEdoRequesrs(uow, timedOutDocumentTasks, cancellationToken);
+
+				await uow.CommitAsync(cancellationToken);
+			}
+
+			await PublishWithdrawalEdoRequestCreatedEvents(withdrawalEdoRequests, cancellationToken);
+
+			await UpdateClientsRegistrationInTrueMarkStatus(clientInnsToSetRegisteredStatus, cancellationToken);
 		}
 
-		/// <summary>
-		/// Обработка просроченных ДО клиентов, зарегистрированных в ЧЗ
-		/// </summary>
-		/// <param name="cancellationToken"></param>
-		/// <returns></returns>
-		private async Task ProcessTimedOutDocumentsOfRegisteredInTrueMarkClients(CancellationToken cancellationToken)
+		private async Task UpdateClientsRegistrationInTrueMarkStatus(IEnumerable<string> clientInns, CancellationToken cancellationToken)
+		{
+			try
+			{
+				using(var uow = _uowFactory.CreateWithoutRoot($"Обновление статуса регистрации клиента в ЧЗ в сервисе {nameof(TrueMarkTimedOutDocumentsWithdrawalService)}"))
+				{
+					var clients =
+						(await _counterpartyRepository.GetAsync(uow, x => clientInns.Contains(x.INN), cancellationToken: cancellationToken))
+						.Value;
+
+					foreach(var client in clients)
+					{
+						client.RegistrationInChestnyZnakStatus = RegistrationInChestnyZnakStatus.Registered;
+						await uow.SaveAsync(client, cancellationToken: cancellationToken);
+					}
+
+					await uow.CommitAsync(cancellationToken);
+				}
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(
+					ex,
+					"Ошибка при обновлении статуса регистрации клиента в ЧЗ в сервисе. Сообщение: {ErrorMessage}",
+					ex.Message);
+			}
+		}
+
+		private async Task<IList<TimedOutOrderDocumentTaskNode>> GetTimedOutDocumentsOfRegisteredInTrueMarkClients(
+			IUnitOfWork uow,
+			CancellationToken cancellationToken)
 		{
 			var timeoutDays = _edoSettings.ConnectedTrueMarkClientsWithdrawalDocflowTimeoutDays;
+			var searchMode = TimedOutDocumentTasksSearchMode.OnlyTrueMarkRegisteredClients;
 
-			using(var uow = _uowFactory.CreateWithoutRoot())
-			{
-				_logger.LogInformation(
+			_logger.LogInformation(
 					"Ищем задачи ЭДО с отправленным более {TimeoutDays} дней назад, но не принятым клиентом документом. Клиент должен быть зарегистрирован в ЧЗ",
 					timeoutDays);
 
-				var timedOutTasks =
-					await _edoRepository.GetTrueMarkConnectedClientsTimedOutOrderDocumentTasks(uow, timeoutDays, cancellationToken);
+			var timedOutTasks = await _edoRepository.GetTrueMarkConnectedClientsTimedOutOrderDocumentTasks(
+					uow,
+					timeoutDays,
+					searchMode,
+					cancellationToken);
 
-				_logger.LogInformation(
-					"Найдены просроченные задачи ЭДО по {OrdersCount} заказам по зарегистрированным в ЧЗ клиентам",
-					timedOutTasks.Count);
+			_logger.LogInformation(
+				"Найдены просроченные задачи ЭДО по {OrdersCount} заказам по зарегистрированным в ЧЗ клиентам",
+				timedOutTasks.Count);
 
-				var withdrawalRequests = new List<WithdrawalEdoRequest>();
+			return timedOutTasks;
+		}
 
-				foreach(var timedOutTask in timedOutTasks)
+		private async Task<IList<TimedOutOrderDocumentTaskNode>> GetTimedOutDocumentsOfNotRegisteredInTrueMarkClients(IUnitOfWork uow, CancellationToken cancellationToken)
+		{
+			var timeoutDays = _edoSettings.NotConnectedTrueMarkClientsWithdrawalDocflowTimeoutDays;
+			var searchMode = TimedOutDocumentTasksSearchMode.OnlyTrueMarkNotRegisteredClients;
+
+			_logger.LogInformation(
+					"Ищем задачи ЭДО с отправленным более {TimeoutDays} дней назад, но не принятым клиентом документом. Клиент не должен быть зарегистрирован в ЧЗ",
+					timeoutDays);
+
+			var timedOutTasks = await _edoRepository.GetTrueMarkConnectedClientsTimedOutOrderDocumentTasks(
+					uow,
+					timeoutDays,
+					searchMode,
+					cancellationToken);
+
+			_logger.LogInformation(
+				"Найдены просроченные задачи ЭДО по {OrdersCount} заказам по не зарегистрированным в ЧЗ клиентам",
+				timedOutTasks.Count);
+
+			return timedOutTasks;
+		}
+
+		private async Task<IList<string>> GetRegisteredInTrueMarkClientsByDataFromTrueMark(
+			IEnumerable<TimedOutOrderDocumentTaskNode> timedOutOrderDocumentTaskNodes,
+			CancellationToken cancellationToken)
+		{
+			var clientsInnsToCheckRegistrationInTrueMark =
+				timedOutOrderDocumentTaskNodes
+				.Select(x => x.ClientInn)
+				.Distinct()
+				.ToList();
+
+			return await GetRegisteredInTrueMarkClientsByDataFromTrueMark(clientsInnsToCheckRegistrationInTrueMark, cancellationToken);
+		}
+
+		private async Task<IList<string>> GetRegisteredInTrueMarkClientsByDataFromTrueMark(
+			IEnumerable<string> inns,
+			CancellationToken cancellationToken)
+		{
+			var registeredInTrueMarkClients = new List<string>();
+
+			foreach(var inn in inns)
+			{
+				var registrationStatusResult =
+					await _trueMarkRegistrationCheckService.GetTrueMarkRegistrationStatus(inn, cancellationToken);
+
+				if(registrationStatusResult.IsSuccess)
 				{
-					var order = timedOutTask.Key;
-					var tasks = timedOutTask.ToList();
-
-					if(tasks.Count != 1)
+					var registrationStatus = registrationStatusResult.Value;
+					if(registrationStatus == RegistrationInChestnyZnakStatus.Registered)
 					{
-						_logger.LogInformation(
-							"По заказу {OrderId} найдено {TasksCount} задач с истёкшим таймаутом. " +
-							"Заявка на вывод из оборота не будет сформирована",
-							order.Id,
-							tasks.Count);
-
-						continue;
+						registeredInTrueMarkClients.Add(inn);
 					}
+				}
+			}
 
-					var task = tasks.First();
+			return registeredInTrueMarkClients;
+		}
 
-					var withdrawalRequest = CreateWithdrawalRequest(order, task);
+		private async Task<IList<WithdrawalEdoRequest>> CreateWithdrawalEdoRequesrs(
+			IUnitOfWork uow,
+			IList<TimedOutOrderDocumentTaskNode> documentTaskNodes,
+			CancellationToken cancellationToken)
+		{
+			var withdrawalRequests = new List<WithdrawalEdoRequest>();
 
-					await uow.SaveAsync(withdrawalRequest, cancellationToken: cancellationToken);
+			var existingWithdrawalRequestsForOrders = await _edoRepository.GetExistingWithdrawalEdoRequestOrders(
+				uow,
+				documentTaskNodes.Select(x => x.Order.Id).Distinct(),
+				cancellationToken);
 
-					withdrawalRequests.Add(withdrawalRequest);
+			var orderTasks = documentTaskNodes
+				.ToLookup(x => x.Order, x => x.Task);
+
+			foreach(var orderTask in orderTasks)
+			{
+				var order = orderTask.Key;
+				var documentTasks = orderTask.ToList();
+
+				if(existingWithdrawalRequestsForOrders.Contains(order.Id))
+				{
+					_logger.LogInformation(
+						"По заказу {OrderId} уже создана заявка на вывод из оборота. " +
+						"Новая заявка на вывод из оборота не будет сформирована",
+						order.Id);
+
+					continue;
 				}
 
-				await uow.CommitAsync(cancellationToken);
+				if(documentTasks.Count != 1)
+				{
+					_logger.LogInformation(
+						"По заказу {OrderId} найдено {TasksCount} задач с истёкшим таймаутом. " +
+						"Заявка на вывод из оборота не будет сформирована",
+						order.Id,
+						documentTasks.Count);
 
-				await PublishWithdrawalEdoRequestCreatedEvents(withdrawalRequests, cancellationToken);
+					continue;
+				}
 
-				_logger.LogInformation("Обработка ЭДО задач с истёкшим таймаутом для создания запроса на вывод из оборота выполнено");
+				var withdrawalRequest = CreateWithdrawalRequest(order, documentTasks.First());
+
+				await uow.SaveAsync(withdrawalRequest, cancellationToken: cancellationToken);
+
+				_logger.LogInformation(
+					"Создана заявка на вывод из оборота {RequestId} для заказа {OrderId}",
+					withdrawalRequest.Id, order.Id);
+
+				withdrawalRequests.Add(withdrawalRequest);
 			}
+
+			return withdrawalRequests;
 		}
 
 		private WithdrawalEdoRequest CreateWithdrawalRequest(
@@ -129,10 +270,6 @@ namespace Edo.Withdrawal.Routine.Services
 				Order = order,
 				BaseDocumentEdoTask = edoTask
 			};
-
-			_logger.LogInformation(
-				"Создана заявка на вывод из оборота {RequestId} для заказа {OrderId}",
-				withdrawalRequest.Id, order.Id);
 
 			return withdrawalRequest;
 		}

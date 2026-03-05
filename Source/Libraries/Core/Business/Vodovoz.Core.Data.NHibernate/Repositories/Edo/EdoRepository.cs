@@ -115,9 +115,10 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 			return edoDocuments.ToList();
 		}
 
-		public async Task<ILookup<OrderEntity, DocumentEdoTask>> GetTrueMarkConnectedClientsTimedOutOrderDocumentTasks(
+		public async Task<IList<TimedOutOrderDocumentTaskNode>> GetTrueMarkConnectedClientsTimedOutOrderDocumentTasks(
 			IUnitOfWork uow,
 			int timeoutDays,
+			TimedOutDocumentTasksSearchMode searchMode,
 			CancellationToken cancellationToken)
 		{
 			var thresholdDate = DateTime.Today.AddDays(-timeoutDays);
@@ -170,19 +171,35 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 					&& order.PaymentType == Vodovoz.Domain.Client.PaymentType.Cashless
 					&& client.PersonType == PersonType.legal
 					&& client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
-					&& client.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered
+					&& ((searchMode == TimedOutDocumentTasksSearchMode.OnlyTrueMarkRegisteredClients
+							&& client.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
+						|| (searchMode == TimedOutDocumentTasksSearchMode.OnlyTrueMarkNotRegisteredClients
+							&& client.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered))
 					&& edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree
 					&& withdrawalEdoRequest.Id == null
 					&& taskItemCodesCount > 0
 
-				select new { Order = order, Task = task };
+				select new TimedOutOrderDocumentTaskNode
+				{
+					ClientId = client.Id,
+					ClientInn = client.INN,
+					RegistrationInChestnyZnakStatus = client.RegistrationInChestnyZnakStatus,
+					Order = order,
+					Task = task
+				};
 
-			var orderTasks =
-				(await documentOrderTasks.ToListAsync(cancellationToken))
-				.Distinct()
-				.ToLookup(x => x.Order, x => x.Task);
+			var orderTasks = await documentOrderTasks.ToListAsync(cancellationToken);
 
 			return orderTasks;
+		}
+
+		public async Task<IList<int>> GetExistingWithdrawalEdoRequestOrders(IUnitOfWork uow, IEnumerable<int> orderIds, CancellationToken cancellationToken)
+		{
+			var existingOrders = await uow.Session.Query<WithdrawalEdoRequest>()
+				.Where(wer => orderIds.Contains(wer.Order.Id))
+				.Select(wer => wer.Order.Id)
+				.ToListAsync(cancellationToken);
+			return existingOrders;
 		}
 	}
 }
