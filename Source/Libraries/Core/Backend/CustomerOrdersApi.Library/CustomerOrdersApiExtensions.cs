@@ -31,6 +31,8 @@ namespace CustomerOrdersApi.Library
 		{
 			services.AddScoped<ICustomerOrdersService, CustomerOrdersService>()
 				.AddScoped<ICustomerOrderFactory, CustomerOrderFactory>()
+				.AddScoped<ICustomerOrdersDiscountService, CustomerOrdersDiscountService>()
+				.AddScoped<ICustomerOrderFixedPriceService, CustomerOrderFixedPriceService>()
 				.AddDefault();
 			
 			return services;
@@ -40,6 +42,8 @@ namespace CustomerOrdersApi.Library
 		{
 			services.AddScoped<ICustomerOrdersServiceV4, CustomerOrdersServiceV4>()
 				.AddScoped<ICustomerOrderFactoryV4, CustomerOrderFactoryV4>()
+				.AddScoped<ICustomerOrdersDiscountServiceV4, CustomerOrdersDiscountServiceV4>()
+				.AddScoped<ICustomerOrderFixedPriceServiceV4, CustomerOrderFixedPriceServiceV4>()
 				.AddScoped<IInfoMessageFactory, InfoMessageFactory>()
 				.AddDefault();
 			
