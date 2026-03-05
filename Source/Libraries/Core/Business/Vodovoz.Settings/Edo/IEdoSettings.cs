@@ -29,12 +29,12 @@ namespace Vodovoz.Settings.Edo
 		/// Количество дней не принятия документооборота клиентом, подключенным к ЧЗ, 
 		/// после которого будет создана заявка на вывод кодов из оборота
 		/// </summary>
-		TimeSpan ConnectedTrueMarkClientsWithdrawalDocflowTimeoutDays { get; }
+		int ConnectedTrueMarkClientsWithdrawalDocflowTimeoutDays { get; }
 
 		/// <summary>
 		/// Количество дней не принятия документооборота клиентом, не подключенным к ЧЗ, 
 		/// после которого будет создана заявка на вывод кодов из оборота
 		/// </summary>
-		TimeSpan NotConnectedTrueMarkClientsWithdrawalDocflowTimeoutDays { get; }
+		int NotConnectedTrueMarkClientsWithdrawalDocflowTimeoutDays { get; }
 	}
 }
