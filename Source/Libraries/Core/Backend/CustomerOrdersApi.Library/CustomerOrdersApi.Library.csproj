@@ -5,10 +5,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Dto\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <Reference Include="Microsoft.Extensions.Logging.Abstractions">
         <HintPath>C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\5.0.17\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
       </Reference>
