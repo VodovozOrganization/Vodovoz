@@ -66,6 +66,7 @@ namespace DriverAPI.Library.V6.Services
 		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
 		private readonly IGenericRepository<CarLoadDocument> _carLoadDocumentRepository;
+		private readonly IGenericRepository<StagingTrueMarkCode> _stagingTrueMarkCodeRepository;
 		private readonly IOrderContractUpdater _contractUpdater;
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly IDomainRouteListService _domainRouteListService;
@@ -88,6 +89,7 @@ namespace DriverAPI.Library.V6.Services
 			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
 			IGenericRepository<CarLoadDocument> carLoadDocumentRepository,
+			IGenericRepository<StagingTrueMarkCode> stagingTrueMarkCodeRepository,
 			IOrderContractUpdater contractUpdater,
 			ICounterpartyEdoAccountController edoAccountController,
 			IDomainRouteListService domainRouteListService,
@@ -110,6 +112,7 @@ namespace DriverAPI.Library.V6.Services
 			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_routeListItemTrueMarkProductCodesProcessingService = routeListItemTrueMarkProductCodesProcessingService ?? throw new ArgumentNullException(nameof(routeListItemTrueMarkProductCodesProcessingService));
 			_carLoadDocumentRepository = carLoadDocumentRepository ?? throw new ArgumentNullException(nameof(carLoadDocumentRepository));
+			_stagingTrueMarkCodeRepository = stagingTrueMarkCodeRepository ?? throw new ArgumentNullException(nameof(stagingTrueMarkCodeRepository));
 			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
 			_edoAccountController = edoAccountController ?? throw new ArgumentNullException(nameof(edoAccountController));
 			_domainRouteListService = domainRouteListService ?? throw new ArgumentNullException(nameof(domainRouteListService));
@@ -634,13 +637,24 @@ namespace DriverAPI.Library.V6.Services
 			RouteListItem routeListAddress,
 			CancellationToken cancellationToken)
 		{
+			var isNetworkClientCodesNotScannedInWarehouse = false;
+
 			if(routeListAddress.Order.IsNeedIndividualSetOnLoad(_edoAccountController)
 				|| routeListAddress.Order.IsNeedIndividualSetOnLoadForTender)
 			{
-				return CheckNetworkClientOrderScannedCodes(routeListAddress);
+				var orderId = routeListAddress.Order.Id;
+
+				if(IsOrderHasCodesInCarLoadDocument(orderId))
+				{
+					return CheckNetworkClientOrderScannedCodes(routeListAddress);
+				}
+				else
+				{
+					isNetworkClientCodesNotScannedInWarehouse = true;
+				}
 			}
 
-			if(routeListAddress.Order.IsOrderForResale || routeListAddress.Order.IsOrderForTender)
+			if(routeListAddress.Order.IsOrderForResale || routeListAddress.Order.IsOrderForTender || isNetworkClientCodesNotScannedInWarehouse)
 			{
 				return await _routeListItemTrueMarkProductCodesProcessingService.AddProductCodesToRouteListItemAndDeleteStagingCodes(
 					_uow,
@@ -827,11 +841,7 @@ namespace DriverAPI.Library.V6.Services
 
 			// Если на скаладе не сканировались коды ЧЗ, то разрешить добавить коды
 
-			var carLoadDocuments = _carLoadDocumentRepository.Get(_uow, x => x.RouteList.Addresses.Any(routeListItem => routeListItem.Order.Id == orderId));
-
-			var carLoadDocumentItems = carLoadDocuments.SelectMany(x => x.Items.Where(x => x.OrderId == vodovozOrder.Id));
-
-			var hasCodesInCarLoadDocument = carLoadDocumentItems.Any(x => x.TrueMarkCodes.Any(x => x.SourceCode != null || x.ResultCode != null));
+			bool hasCodesInCarLoadDocument = IsOrderHasCodesInCarLoadDocument(orderId);
 
 			if(vodovozOrderItem.IsTrueMarkCodesMustBeAddedInWarehouse(_edoAccountController) && hasCodesInCarLoadDocument)
 			{
@@ -862,6 +872,31 @@ namespace DriverAPI.Library.V6.Services
 				_logger.LogError(e, "Exception while commiting: {ExceptionMessage}", e.Message);
 				throw;
 			}
+		}
+
+		private bool IsOrderHasCodesInCarLoadDocument(int orderId)
+		{
+			var carLoadDocuments =
+				_carLoadDocumentRepository
+				.Get(_uow, x => x.RouteList.Addresses.Any(routeListItem => routeListItem.Order.Id == orderId));
+
+			var carLoadDocumentItems =
+				carLoadDocuments.SelectMany(x => x.Items.Where(x => x.OrderId == orderId));
+
+			var hasCodesInCarLoadDocument =
+				carLoadDocumentItems.Any(x => x.TrueMarkCodes.Any(x => x.SourceCode != null || x.ResultCode != null));
+
+			var carLoadDocumentItemsIds = carLoadDocumentItems.Select(x => x.Id).ToList();
+
+			var hasCarLoadDocumentItemStagingTrueMarkCodes =
+				_stagingTrueMarkCodeRepository.Get(
+					_uow,
+					x =>
+						x.RelatedDocumentType == StagingTrueMarkCodeRelatedDocumentType.CarLoadDocumentItem
+						&& carLoadDocumentItemsIds.Contains(x.RelatedDocumentId))
+				.Any();
+
+			return hasCodesInCarLoadDocument || hasCarLoadDocumentItemStagingTrueMarkCodes;
 		}
 
 		public async Task<RequestProcessingResult<TrueMarkCodeProcessingResultResponse>> ChangeTrueMarkCode(
