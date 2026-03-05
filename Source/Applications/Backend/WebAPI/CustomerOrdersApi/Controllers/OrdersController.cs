@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
+using Vodovoz.Application.Orders.Services.OrderCancellation;
 using VodovozHealthCheck.Helpers;
 
 namespace CustomerOrdersApi.Controllers
@@ -14,17 +15,20 @@ namespace CustomerOrdersApi.Controllers
 	{
 		private readonly ICustomerOrdersService _customerOrdersService;
 		private readonly IOrderTransferService _orderTransferService;
+		private readonly IOrderCancellationService _orderCancellationService;
 		private readonly IPublishEndpoint _publishEndpoint;
 
 		public OrdersController(
 			ILogger<OrdersController> logger,
 			ICustomerOrdersService customerOrdersService,
 			IOrderTransferService orderTransferService,
+			IOrderCancellationService orderCancellationService,
 			IPublishEndpoint publishEndpoint
 			) : base(logger)
 		{
 			_customerOrdersService = customerOrdersService ?? throw new ArgumentNullException(nameof(customerOrdersService));
 			_orderTransferService = orderTransferService ?? throw new ArgumentNullException(nameof(orderTransferService));
+			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
 			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
@@ -220,48 +224,18 @@ namespace CustomerOrdersApi.Controllers
 
 				Logger.LogInformation("Подпись валидна, проверяем возможность отмены");
 
-				var cancellationResult = _customerOrdersService.CanCancelOrder(cancelOrderDto);
+				var cancellationResult = await _orderCancellationService.CancelOrderAsync(cancelOrderDto);
 
-				if(!cancellationResult.CanCancel)
+				Logger.LogInformation(
+					"Результат отмены: Success={Success}, StatusCode={StatusCode}",
+					cancellationResult.Success,
+					cancellationResult.StatusCode);
+
+				return StatusCode(cancellationResult.StatusCode, new
 				{
-					if(cancellationResult.RequireManagerContact)
-					{
-						Logger.LogInformation(
-							"Отмена заказа {ExternalOrderId} требует контакта с менеджером (установленный маршрут)",
-							cancelOrderDto.ExternalOrderId);
-
-						return Ok(new OrderActionResultDto
-						{
-							ExternalOrderId = cancelOrderDto.ExternalOrderId,
-							IsSuccess = false,
-							Message = "Для отмены этого заказа требуется связь с менеджером",
-							RequireManagerContact = true,
-							ManagerChatUrl = "https://vodovoz.bitrix24.ru/online/orderdelivery"
-						});
-					}
-
-					return BadRequest(new OrderActionResultDto
-					{
-						ExternalOrderId = cancelOrderDto.ExternalOrderId,
-						IsSuccess = false,
-						Message = cancellationResult.ReasonMessage
-					});
-				}
-
-				Logger.LogInformation("Возможность отмены подтверждена, отправляем в очередь");
-
-				var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
-
-				if(!isDryRun)
-				{
-					await _publishEndpoint.Publish(cancelOrderDto);
-				}
-
-				return Accepted(new OrderActionResultDto
-				{
-					ExternalOrderId = cancelOrderDto.ExternalOrderId,
-					IsSuccess = true,
-					Message = "Заказ успешно отменен"
+					title = cancellationResult.Title,
+					status = cancellationResult.StatusCode,
+					detail = cancellationResult.Detail
 				});
 			}
 			catch(Exception e)
@@ -271,7 +245,12 @@ namespace CustomerOrdersApi.Controllers
 					cancelOrderDto.ExternalOrderId,
 					sourceName);
 
-				return Problem();
+				return StatusCode(500, new
+				{
+					title = "One or more validation errors occurred",
+					status = 500,
+					detail = "Произошла ошибка, пожалуйста, попробуйте позже"
+				});
 			}
 		}
 

@@ -377,7 +377,6 @@ namespace CustomerOrdersApi.Library.Services
 				new CancelOrderSignatureParams
 				{
 					OrderId = cancelOrderDto.ExternalOrderId.ToString(),
-					OrderSumInKopecks = (int)(cancelOrderDto.OrderSum * 100),
 					ShopId = (int)cancelOrderDto.Source,
 					Sign = sourceSign
 				},
@@ -386,67 +385,21 @@ namespace CustomerOrdersApi.Library.Services
 
 		public CancellationCheckResultDto CanCancelOrder(CancelOrderDto cancelOrderDto)
 		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			using var uow = _unitOfWorkFactory.CreateWithoutRoot();
+			var onlineOrder = _onlineOrderRepository.GetOnlineOrderByExternalId(uow, cancelOrderDto.ExternalOrderId);
+
+			if(onlineOrder == null)
 			{
-				var onlineOrder = _onlineOrderRepository.GetOnlineOrderByExternalId(uow, cancelOrderDto.ExternalOrderId);
-
-				if(onlineOrder == null)
+				return new CancellationCheckResultDto
 				{
-					return new CancellationCheckResultDto
-					{
-						CanCancel = false,
-						RequireManagerContact = false,
-						ReasonMessage = "Заказ не найден"
-					};
-				}
-
-				if(onlineOrder.Orders.Count == 0)
-				{
-					return new CancellationCheckResultDto
-					{
-						CanCancel = true,
-						RequireManagerContact = false,
-						ReasonMessage = string.Empty
-					};
-				}
-
-				var allowedStatuses = new[]
-				{
-					OrderStatus.Accepted,
-					OrderStatus.InTravelList,
-					OrderStatus.OnLoading,
-					OrderStatus.OnTheWay
+					CanCancel = false,
+					RequireManagerContact = false,
+					ReasonMessage = "Заказ не найден"
 				};
+			}
 
-				// Проверяем статус первого привязанного заказа
-				var order = onlineOrder.Orders.First();
-
-				if(!allowedStatuses.Contains(order.OrderStatus))
-				{
-					return new CancellationCheckResultDto
-					{
-						CanCancel = false,
-						RequireManagerContact = false,
-						ReasonMessage = $"Заказ имеет статус '{order.OrderStatus}' и не может быть отменен"
-					};
-				}
-
-				if(order.OrderStatus == OrderStatus.OnTheWay)
-				{
-					var hasRouteListItems = uow.GetAll<RouteListItem>()
-						.Any(rli => rli.Order.Id == order.Id);
-
-					if(hasRouteListItems)
-					{
-						return new CancellationCheckResultDto
-						{
-							CanCancel = false,
-							RequireManagerContact = true,
-							ReasonMessage = "Заказ на доставке с установленным маршрутом"
-						};
-					}
-				}
-
+			if(onlineOrder.Orders.Count == 0)
+			{
 				return new CancellationCheckResultDto
 				{
 					CanCancel = true,
@@ -454,6 +407,49 @@ namespace CustomerOrdersApi.Library.Services
 					ReasonMessage = string.Empty
 				};
 			}
+
+			var allowedStatuses = new[]
+			{
+					OrderStatus.Accepted,
+					OrderStatus.InTravelList,
+					OrderStatus.OnLoading,
+					OrderStatus.OnTheWay
+				};
+
+			var order = onlineOrder.Orders.First();
+
+			if(!allowedStatuses.Contains(order.OrderStatus))
+			{
+				return new CancellationCheckResultDto
+				{
+					CanCancel = false,
+					RequireManagerContact = false,
+					ReasonMessage = $"Заказ имеет статус '{order.OrderStatus}' и не может быть отменен"
+				};
+			}
+
+			if(order.OrderStatus == OrderStatus.OnTheWay)
+			{
+				var hasRouteListItems = uow.GetAll<RouteListItem>()
+					.Any(rli => rli.Order.Id == order.Id);
+
+				if(hasRouteListItems)
+				{
+					return new CancellationCheckResultDto
+					{
+						CanCancel = false,
+						RequireManagerContact = true,
+						ReasonMessage = "Заказ на доставке с установленным маршрутом"
+					};
+				}
+			}
+
+			return new CancellationCheckResultDto
+			{
+				CanCancel = true,
+				RequireManagerContact = false,
+				ReasonMessage = string.Empty
+			};
 		}
 	}
 }

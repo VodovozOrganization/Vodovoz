@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace CustomerOrdersApi.Library.Services
 {
 	/// <summary>
-	/// Сервис для переноса заказов
+	/// Сервис для переноса заказов из ИПЗ
 	/// </summary>
 	public interface IOrderTransferService
 	{
