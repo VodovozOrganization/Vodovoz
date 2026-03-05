@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Core.Domain.Sale;
 
@@ -18,10 +19,10 @@ namespace Vodovoz.Core.Data.Orders.V5
 		/// </summary>
 		public bool IsActive { get; set; }
 		/// <summary>
-		/// День недели
+		/// Дни недели
 		/// </summary>
 		[JsonConverter(typeof(JsonStringEnumConverter))]
-		public WeekDayName Weekday { get; set; }
+		public IEnumerable<WeekDayName> Weekdays { get; set; }
 		/// <summary>
 		/// Интервал повторов
 		/// </summary>
@@ -31,7 +32,7 @@ namespace Vodovoz.Core.Data.Orders.V5
 			new OrderTemplateDto
 			{
 				OrderTemplateId = template.Id,
-				Weekday = template.Weekday,
+				Weekdays = template.Weekdays,
 				RepeatOrder = template.RepeatOrder,
 				IsActive = template.IsActive,
 			};

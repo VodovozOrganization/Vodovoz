@@ -1,12 +1,12 @@
 ﻿using System;
-using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Data.Orders.V4;
 
 namespace CustomerOrdersApi.Library.Default.Dto.Orders.OrderItem
 {
 	/// <summary>
 	/// Товар онлайн заказа
 	/// </summary>
-	public class OnlineOrderItemDto : IOnlineOrderedProduct
+	public class OnlineOrderItemDto : IOnlineOrderedProductV4
 	{
 		/// <summary>
 		/// Id номенклатуры в ДВ

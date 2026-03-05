@@ -41,6 +41,6 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders.FixedPrice
 		/// <summary>
 		/// Список товаров
 		/// </summary>
-		public IEnumerable<OnlineOrderItemDto> OnlineOrderItems { get; set; }
+		public IEnumerable<OnlineOrderItemDtoV4> OnlineOrderItems { get; set; }
 	}
 }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using CustomerOrdersApi.Library.Default.Dto.Orders;
-using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Data.Orders.V4;
 using Vodovoz.Core.Domain.Results;
 
 namespace CustomerOrdersApi.Library.Default.Services
@@ -33,6 +33,6 @@ namespace CustomerOrdersApi.Library.Default.Services
 		/// </summary>
 		/// <param name="applyPromoCodeDto">Данные запроса</param>
 		/// <returns>Список товаров</returns>
-		Result<IEnumerable<IOnlineOrderedProduct>> ApplyPromoCodeToOnlineOrder(ApplyPromoCodeDto applyPromoCodeDto);
+		Result<IEnumerable<IOnlineOrderedProductV4>> ApplyPromoCodeToOnlineOrder(ApplyPromoCodeDto applyPromoCodeDto);
 	}
 }

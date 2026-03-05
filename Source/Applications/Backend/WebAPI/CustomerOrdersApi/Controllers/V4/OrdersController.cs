@@ -35,9 +35,13 @@ namespace CustomerOrdersApi.Controllers.V4
 			try
 			{
 				_logger.LogInformation(
-					"Поступил запрос от {Source} на регистрацию заказа {ExternalOrderId} c подписью {Signature}, проверяем...",
+					"Поступил запрос от {Source} на регистрацию заказа {ExternalOrderId} от пользователя {ExternalCounterpartyId}" +
+					" клиента {ClientId} с контактным номером {ContactPhone} c подписью {Signature}, проверяем...",
 					sourceName,
 					creatingOnlineOrder.ExternalOrderId,
+					creatingOnlineOrder.ExternalCounterpartyId,
+					creatingOnlineOrder.CounterpartyErpId,
+					creatingOnlineOrder.ContactPhone,
 					creatingOnlineOrder.Signature);
 				
 				if(!_customerOrdersService.ValidateOrderSignature(creatingOnlineOrder, out var generatedSignature))

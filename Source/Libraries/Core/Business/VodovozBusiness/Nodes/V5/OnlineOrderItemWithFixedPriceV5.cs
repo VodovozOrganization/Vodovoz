@@ -1,11 +1,13 @@
-﻿using VodovozBusiness.Domain.Orders;
+﻿using System.Collections.Generic;
+using Vodovoz.Core.Data.Orders.V5;
+using VodovozBusiness.Domain.Orders.V5;
 
-namespace VodovozBusiness.Nodes
+namespace VodovozBusiness.Nodes.V5
 {
 	/// <summary>
 	/// Позиция онлайн заказа с фиксой
 	/// </summary>
-	public class OnlineOrderItemWithFixedPrice :  IOnlineOrderedProductWithFixedPrice
+	public class OnlineOrderItemWithFixedPriceV5 :  IOnlineOrderedProductWithFixedPriceV5
 	{
 		/// <summary>
 		/// Id номенклатуры в ДВ
@@ -24,20 +26,12 @@ namespace VodovozBusiness.Nodes
 		/// </summary>
 		public decimal Count { get; set; }
 		/// <summary>
-		/// Скидка в деньгах?
-		/// </summary>
-		public bool IsDiscountInMoney { get; set; }
-		/// <summary>
-		/// Скидка
-		/// </summary>
-		public decimal Discount { get; set; }
-		/// <summary>
 		/// Id промонабора
 		/// </summary>
 		public int? PromoSetId { get; set; }
 		/// <summary>
-		/// Id скидки/промокода
+		/// Скидки, привязанные к товару
 		/// </summary>
-		public int? DiscountReasonId { get; set; }
+		public IEnumerable<DiscountData> Discounts { get; set; }
 	}
 }

@@ -1,16 +1,16 @@
 ﻿using System.Collections.Generic;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Orders;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Domain.Service
 {
 	public interface IGoodsPriceCalculator
 	{
 		decimal CalculateItemPrice(
-			IEnumerable<IProduct> products,
+			IEnumerable<ICalculatingPrice> products,
 			DeliveryPoint deliveryPoint,
 			Counterparty counterparty,
-			IProduct currentProduct,
+			ICalculatingPrice currentProduct,
 			bool hasPermissionsForAlternativePrice);
 	}
 }

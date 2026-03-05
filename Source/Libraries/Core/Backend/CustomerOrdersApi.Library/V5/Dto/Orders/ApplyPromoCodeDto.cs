@@ -38,7 +38,7 @@ namespace CustomerOrdersApi.Library.V5.Dto.Orders
 		/// <summary>
 		/// Список товаров
 		/// </summary>
-		public IEnumerable<OnlineOrderItemDto> OnlineOrderItems { get; set; }
+		public IEnumerable<OnlineOrderItemDtoV5> OnlineOrderItems { get; set; }
 		[JsonIgnore]
 		public DateTime RequestTime { get; } = DateTime.UtcNow;
 	}

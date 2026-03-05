@@ -14,8 +14,10 @@ using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Orders;
+using VodovozBusiness.Errors.Orders;
 using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Cryptography;
 
@@ -32,6 +34,8 @@ namespace CustomerOrdersApi.Library.V5.Services
 		private readonly IOnlineOrderRepository _onlineOrderRepository;
 		private readonly IGenericRepository<OrderRating> _genericRatingRepository;
 		private readonly IUnPaidOnlineOrderHandler _unPaidOnlineOrderHandler;
+		private readonly IPromotionalSetRepository _promotionalSetRepository;
+		private readonly IDeliveryPointRepository _deliveryPointRepository;
 		private readonly IConfigurationSection _signaturesSection;
 
 		public CustomerOrdersServiceV5(
@@ -44,6 +48,8 @@ namespace CustomerOrdersApi.Library.V5.Services
 			IOnlineOrderRepository onlineOrderRepository,
 			IGenericRepository<OrderRating> genericRatingRepository,
 			IUnPaidOnlineOrderHandler unPaidOnlineOrderHandler,
+			IPromotionalSetRepository promotionalSetRepository,
+			IDeliveryPointRepository deliveryPointRepository,
 			IConfiguration configuration)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -55,6 +61,8 @@ namespace CustomerOrdersApi.Library.V5.Services
 			_onlineOrderRepository = onlineOrderRepository ?? throw new ArgumentNullException(nameof(onlineOrderRepository));
 			_genericRatingRepository = genericRatingRepository ?? throw new ArgumentNullException(nameof(genericRatingRepository));
 			_unPaidOnlineOrderHandler = unPaidOnlineOrderHandler ?? throw new ArgumentNullException(nameof(unPaidOnlineOrderHandler));
+			_promotionalSetRepository = promotionalSetRepository ?? throw new ArgumentNullException(nameof(promotionalSetRepository));
+			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 
 			_signaturesSection = configuration.GetSection("Signatures");
 		}
@@ -392,6 +400,92 @@ namespace CustomerOrdersApi.Library.V5.Services
 			var changedOrderDto = ChangedOrderDto.Create(changingOrderDto.OnlineOrderId);
 			
 			return Result.Success(changedOrderDto);
+		}
+
+		public Result CanCreateOnlineOrderWithOrderTemplateData(CreatingOnlineOrder creatingOrder)
+		{
+			using var uow = _unitOfWorkFactory.CreateWithoutRoot();
+			
+			if(creatingOrder.OrderTemplate is null)
+			{
+				return Result.Success();
+			}
+			
+			if(!creatingOrder.DeliveryPointId.HasValue)
+			{
+				return Result.Failure(OnlineOrderTemplateErrors.DeliveryPointIdIsNull);
+			}
+			
+			if(!creatingOrder.CounterpartyErpId.HasValue)
+			{
+				return Result.Failure(OnlineOrderTemplateErrors.CounterpartyIdIsNull);
+			}
+
+			if(!creatingOrder.OrderTemplate.DeliveryScheduleId.HasValue)
+			{
+				return Result.Failure(OnlineOrderTemplateErrors.DeliveryScheduleIdIsNull);
+			}
+			
+			if(!creatingOrder.OrderTemplate.RepeatOrder.HasValue)
+			{
+				return Result.Failure(OnlineOrderTemplateErrors.RepeatOrderIsNull);
+			}
+			
+			if(creatingOrder.OrderTemplate.Weekdays is null
+				|| !creatingOrder.OrderTemplate.Weekdays.Any())
+			{
+				return Result.Failure(OnlineOrderTemplateErrors.WeekdaysEmpty);
+			}
+			else
+			{
+				var deliverySchedule = uow.GetById<Vodovoz.Domain.Logistic.DeliverySchedule>(creatingOrder.OrderTemplate.DeliveryScheduleId.Value);
+				var district = _deliveryPointRepository.GetDistrictDeliveryPoint(uow, creatingOrder.DeliveryPointId.Value);
+				var deliveryScheduleHasInAllWeekDays = false;
+
+				foreach(var weekday in creatingOrder.OrderTemplate.Weekdays)
+				{
+					deliveryScheduleHasInAllWeekDays = district
+						.GetScheduleRestrictionCollectionByWeekDayName(weekday)
+						.Any(x => x.DeliverySchedule.Id == creatingOrder.DeliveryScheduleId);
+
+					if(!deliveryScheduleHasInAllWeekDays)
+					{
+						break;
+					}
+				}
+
+				if(!deliveryScheduleHasInAllWeekDays)
+				{
+					return Result.Failure(OnlineOrderTemplateErrors.DeliveryScheduleIsNotSuitableForSelectedWeekdays(deliverySchedule.DeliveryTime));
+				}
+			}
+			
+			if(creatingOrder.IsSelfDelivery)
+			{
+				return Result.Failure(OnlineOrderTemplateErrors.CantCreateForSelfDelivery);
+			}
+
+			if(creatingOrder.OnlineRentPackages.Any())
+			{
+				return Result.Failure(OnlineOrderTemplateErrors.CantCreateWithFreeRentPackages);
+			}
+
+			var promoSetsIds = creatingOrder.OnlineOrderItems
+				.Where(x => x.PromoSetId.HasValue)
+				.Select(x => x.PromoSetId.Value)
+				.Distinct()
+				.ToList();
+
+			if(!promoSetsIds.Any())
+			{
+				return Result.Success();
+			}
+
+			var hasPromoSetsForNewClients = _promotionalSetRepository.IsPromoSetsForNewClients(uow, promoSetsIds);
+
+			return hasPromoSetsForNewClients
+				? Result.Failure(OnlineOrderTemplateErrors.CantCreateWithPromosetForNewClients)
+				: Result.Success();
 		}
 
 		private string GetSourceSign(Source source)

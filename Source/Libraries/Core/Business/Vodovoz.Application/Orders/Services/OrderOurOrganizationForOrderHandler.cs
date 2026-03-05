@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Orders;
-using VodovozBusiness.Domain.Orders;
-using VodovozBusiness.Models.Orders;
+using Vodovoz.Models.Orders;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Application.Orders.Services

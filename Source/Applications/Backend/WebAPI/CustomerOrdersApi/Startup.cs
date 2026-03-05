@@ -101,6 +101,7 @@ namespace CustomerOrdersApi
 
 			app.UseHttpsRedirection();
 			app.UseRouting();
+			app.UseAuthentication();
 			app.UseAuthorization();
 			app.UseApiVersioning();
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });

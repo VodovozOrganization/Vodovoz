@@ -1,6 +1,5 @@
 using System;
 using CustomerOnlineOrdersRegistrar.Factories;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -12,6 +11,7 @@ using VodovozBusiness.Services.Orders;
 using Vodovoz.Settings.Orders;
 using System.Threading.Tasks;
 using System.Threading;
+using CustomerOrdersApi.Library.V5.Dto.Orders;
 using MySqlConnector;
 using QS.Utilities.Debug;
 using Vodovoz.Services.Logistics;
@@ -59,7 +59,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			_onlineOrderValidator = onlineOrderValidator ?? throw new ArgumentNullException(nameof(onlineOrderValidator));
 		}
 		
-		protected virtual async Task<(int OnlineOrderId, int Code)> TryRegisterOnlineOrderAsync(ICreatingOnlineOrder message, CancellationToken cancellationToken)
+		protected virtual async Task<(int OnlineOrderId, int Code)> TryRegisterOnlineOrderAsync(CreatingOnlineOrder message, CancellationToken cancellationToken)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot($"Создание онлайн заказа из ИПЗ {message.Source.GetEnumTitle()}");
 			// Необходимо сделать асинхронным
@@ -70,6 +70,13 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 				_discountReasonSettings.GetSelfDeliveryDiscountReasonId
 			);
 
+			if(message.OrderTemplate != null)
+			{
+				var templateOrderWithProducts = _onlineOrderFactory.CreateOnlineOrderTemplate(onlineOrder, message.OrderTemplate);
+				await uow.SaveAsync(templateOrderWithProducts.OrderTemplate, cancellationToken: cancellationToken);
+				await uow.SaveAsync(templateOrderWithProducts.OrderTemplateProducts, cancellationToken: cancellationToken);
+			}
+			
 			var validationResult = _onlineOrderValidator.ValidateOnlineOrder(uow, onlineOrder);
 			var externalOrderId = message.ExternalOrderId;
 			var needSpecialProcessingDuplicate = NeedSpecialProcessingDuplicate(uow, onlineOrder);

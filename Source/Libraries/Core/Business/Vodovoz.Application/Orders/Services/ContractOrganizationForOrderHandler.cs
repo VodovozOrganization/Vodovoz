@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories.Cash;
-using VodovozBusiness.Models.Orders;
+using Vodovoz.Models.Orders;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Application.Orders.Services

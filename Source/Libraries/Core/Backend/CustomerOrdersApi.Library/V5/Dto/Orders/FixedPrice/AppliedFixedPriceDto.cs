@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Orders.V5;
 
 namespace CustomerOrdersApi.Library.V5.Dto.Orders.FixedPrice
 {
@@ -8,6 +9,6 @@ namespace CustomerOrdersApi.Library.V5.Dto.Orders.FixedPrice
 		/// <summary>
 		/// Список товаров с фиксой
 		/// </summary>
-		public IEnumerable<IOnlineOrderedProductWithFixedPrice> OnlineOrderItems { get; set; }
+		public IEnumerable<IOnlineOrderedProductWithFixedPriceV5> OnlineOrderItems { get; set; }
 	}
 }

@@ -35,6 +35,6 @@ namespace CustomerOrdersApi.Library.V5.Services
 		/// </summary>
 		/// <param name="applyPromoCodeDto">Данные запроса</param>
 		/// <returns>Список товаров</returns>
-		Result<IEnumerable<IOnlineOrderedProduct>> ApplyPromoCodeToOnlineOrder(ApplyPromoCodeDto applyPromoCodeDto);
+		Result<IEnumerable<IOnlineOrderedProductV5>> ApplyPromoCodeToOnlineOrder(ApplyPromoCodeDto applyPromoCodeDto);
 	}
 }

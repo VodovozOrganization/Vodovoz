@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Data.Orders.V5;
 using Vodovoz.Core.Domain.Clients;
 
-namespace Vodovoz.Nodes
+namespace VodovozBusiness.Nodes.V5
 {
 	/// <summary>
-	/// Данные для проверки промокода и товары онлайн заказа
+	/// Данные для проверки промокода и товаров онлайн заказа
 	/// </summary>
-	public class CanApplyOnlineOrderPromoCode
+	public class CanApplyOnlineOrderPromoCodeV5
 	{
 		/// <summary>
 		/// Время, когда пришел запрос
@@ -21,7 +21,7 @@ namespace Vodovoz.Nodes
 		/// <summary>
 		/// Товары онлайн заказа
 		/// </summary>
-		public IEnumerable<IOnlineOrderedProduct> Products { get; set; }
+		public IEnumerable<IOnlineOrderedProductV5> Products { get; set; }
 		/// <summary>
 		/// Промокод
 		/// </summary>

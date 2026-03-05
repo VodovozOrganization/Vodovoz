@@ -2,24 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Data.Orders.V5;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.Handlers;
-using Vodovoz.Nodes;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Extensions;
+using VodovozBusiness.Nodes.V5;
 
 namespace Vodovoz.Application.Orders.Services
 {
-	public class OnlineOrderDiscountHandler : DiscountController, IOnlineOrderDiscountHandler
+	public class OnlineOrderDiscountHandlerV5 : DiscountController, IOnlineOrderDiscountHandlerV5
 	{
 		private readonly IDiscountReasonRepository _discountReasonRepository;
 
-		public OnlineOrderDiscountHandler(
+		public OnlineOrderDiscountHandlerV5(
 			IDiscountReasonRepository discountReasonRepository)
 		{
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
@@ -42,9 +42,9 @@ namespace Vodovoz.Application.Orders.Services
 		/// </summary>
 		/// <param name="uow">unit of work</param>
 		/// <param name="onlineOrderPromoCode">Данные, необходимые для проверки промокода и товары
-		/// <see cref="CanApplyOnlineOrderPromoCode"/></param>
+		/// <see cref="CanApplyOnlineOrderPromoCodeV5"/></param>
 		/// <returns></returns>
-		public Result<IEnumerable<IOnlineOrderedProduct>> TryApplyPromoCode(IUnitOfWork uow, CanApplyOnlineOrderPromoCode onlineOrderPromoCode)
+		public Result<IEnumerable<IOnlineOrderedProductV5>> TryApplyPromoCode(IUnitOfWork uow, CanApplyOnlineOrderPromoCodeV5 onlineOrderPromoCode)
 		{
 			var discountPromoCode = _discountReasonRepository.GetActivePromoCode(uow, onlineOrderPromoCode.PromoCode);
 			var date = onlineOrderPromoCode.Time.Date;
@@ -53,41 +53,41 @@ namespace Vodovoz.Application.Orders.Services
 
 			if(discountPromoCode is null)
 			{
-				return Result.Failure<IEnumerable<IOnlineOrderedProduct>>(Vodovoz.Errors.Orders.DiscountErrors.PromoCode.NotFound);
+				return Result.Failure<IEnumerable<IOnlineOrderedProductV5>>(Vodovoz.Errors.Orders.DiscountErrors.PromoCode.NotFound);
 			}
 
 			if(date.Date < discountPromoCode.StartDatePromoCode || date.Date > discountPromoCode.EndDatePromoCode)
 			{
-				return Result.Failure<IEnumerable<IOnlineOrderedProduct>>(Vodovoz.Errors.Orders.DiscountErrors.PromoCode.ExpiredDateDuration);
+				return Result.Failure<IEnumerable<IOnlineOrderedProductV5>>(Vodovoz.Errors.Orders.DiscountErrors.PromoCode.ExpiredDateDuration);
 			}
 
 			if(time < discountPromoCode.StartTimePromoCode || time > discountPromoCode.EndTimePromoCode)
 			{
-				return Result.Failure<IEnumerable<IOnlineOrderedProduct>>(
+				return Result.Failure<IEnumerable<IOnlineOrderedProductV5>>(
 					Vodovoz.Errors.Orders.DiscountErrors.PromoCode.ExpiredTimeDuration(
 						discountPromoCode.StartTimePromoCodeString, discountPromoCode.EndTimePromoCodeString));
 			}
 
 			if(orderSum < discountPromoCode.PromoCodeOrderMinSum)
 			{
-				return Result.Failure<IEnumerable<IOnlineOrderedProduct>>(Vodovoz.Errors.Orders.DiscountErrors.PromoCode.InvalidMinimalOrderSum);
+				return Result.Failure<IEnumerable<IOnlineOrderedProductV5>>(Vodovoz.Errors.Orders.DiscountErrors.PromoCode.InvalidMinimalOrderSum);
 			}
 
 			if(discountPromoCode.IsOneTimePromoCode
 				&& _discountReasonRepository.HasBeenUsagePromoCode(uow, onlineOrderPromoCode.CounterpartyId, discountPromoCode.Id))
 			{
-				return Result.Failure<IEnumerable<IOnlineOrderedProduct>>(
+				return Result.Failure<IEnumerable<IOnlineOrderedProductV5>>(
 					Vodovoz.Errors.Orders.DiscountErrors.PromoCode.UsageLimitHasBeenExceeded);
 			}
 
 			return TryApplyPromoCode(uow, onlineOrderPromoCode.Source, discountPromoCode, onlineOrderPromoCode.Products);
 		}
 
-		private Result<IEnumerable<IOnlineOrderedProduct>> TryApplyPromoCode(
+		private Result<IEnumerable<IOnlineOrderedProductV5>> TryApplyPromoCode(
 			IUnitOfWork uow,
 			Source source,
 			DiscountReason discountPromoCode,
-			IEnumerable<IOnlineOrderedProduct> products)
+			IEnumerable<IOnlineOrderedProductV5> products)
 		{
 			var promoCodeApplied = false;
 			
@@ -99,14 +99,14 @@ namespace Vodovoz.Application.Orders.Services
 
 			return promoCodeApplied
 				? Result.Success(products)
-				: Result.Failure<IEnumerable<IOnlineOrderedProduct>>(Vodovoz.Errors.Orders.DiscountErrors.PromoCode.UnsuitableItemsInCart);
+				: Result.Failure<IEnumerable<IOnlineOrderedProductV5>>(Vodovoz.Errors.Orders.DiscountErrors.PromoCode.UnsuitableItemsInCart);
 		}
 
 		private bool TryApplyPromoCode(
 			Source source,
 			DiscountReason discountPromoCode,
 			Nomenclature nomenclature,
-			IOnlineOrderedProduct product)
+			IOnlineOrderedProductV5 product)
 		{
 			if(!CanApplicableDiscount(source, discountPromoCode, nomenclature, product))
 			{
@@ -138,7 +138,7 @@ namespace Vodovoz.Application.Orders.Services
 			Source source,
 			DiscountReason discountPromoCode,
 			Nomenclature nomenclature,
-			IOnlineOrderedProduct product)
+			IOnlineOrderedProductV5 product)
 		{
 			if(nomenclature is null)
 			{
@@ -155,10 +155,11 @@ namespace Vodovoz.Application.Orders.Services
 				return false;
 			}
 
-			if(product.Discount > 0)
+			//TODO 5695: Как будут работать промокоды? Складываются с любыми скидками?
+			/*if(product.Discounts.Any())
 			{
 				return false;
-			}
+			}*/
 
 			if(!IsApplicableDiscount(discountPromoCode, nomenclature))
 			{
@@ -179,28 +180,26 @@ namespace Vodovoz.Application.Orders.Services
 			return product.Count * product.Price != 0;
 		}
 
-		private void ApplyPromoCode(DiscountReason discountPromoCode, IOnlineOrderedProduct product)
+		private void ApplyPromoCode(DiscountReason discountPromoCode, IOnlineOrderedProductV5 product)
 		{
-			product.DiscountReasonId = discountPromoCode.Id;
-			product.IsDiscountInMoney = discountPromoCode.ValueType == DiscountUnits.money;
+			var discountData = DiscountData.Create(discountPromoCode.ValueType == DiscountUnits.money, discountPromoCode.Id);
 
-			if(!product.IsDiscountInMoney)
+			if(!discountData.IsDiscountInMoney)
 			{
-				product.Discount = discountPromoCode.Value > 100 ? 100 : discountPromoCode.Value;
+				discountData.Discount = discountPromoCode.Value > 100 ? 100 : discountPromoCode.Value;
 			}
 			else
 			{
 				var itemSum = product.Price * product.Count;
-				product.Discount = itemSum < discountPromoCode.Value ? itemSum : discountPromoCode.Value;
+				discountData.Discount = itemSum < discountPromoCode.Value ? itemSum : discountPromoCode.Value;
 			}
+			
+			product.Discounts.Add(discountData);
 		}
 
-		private decimal GetOnlineOrderSum(IEnumerable<IOnlineOrderedProduct> products)
+		private decimal GetOnlineOrderSum(IEnumerable<IOnlineOrderedProductV5> products)
 		{
-			return products.Sum(x =>
-				x.IsDiscountInMoney
-					? x.Count * x.Price - x.Discount
-					: x.Count * x.Price * (1 - x.Discount / 100));
+			return products.Sum(x => x.Count * x.Price - x.Discount());
 		}
 	}
 }

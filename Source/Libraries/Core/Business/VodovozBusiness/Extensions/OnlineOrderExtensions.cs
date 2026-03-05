@@ -2,8 +2,8 @@
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Models.Orders;
 using Vodovoz.Settings.Orders;
-using VodovozBusiness.Models.Orders;
 
 namespace VodovozBusiness.Extensions
 {

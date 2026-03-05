@@ -11,6 +11,8 @@ using Vodovoz.Application.Goods;
 using Vodovoz.Application.Logistics;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Application.Orders.Services.OrderCancellation;
+using Vodovoz.Application.Orders.Services.V4;
+using Vodovoz.Application.Orders.Services.V5;
 using Vodovoz.Application.Pacs;
 using Vodovoz.Application.Payments;
 using Vodovoz.Application.Receipts;
@@ -86,8 +88,6 @@ namespace Vodovoz.Application
 			.AddScoped<IOrderDeliveryPriceGetter, OrderDeliveryPriceGetter>()
 			.AddScoped<IClientDeliveryPointsChecker, ClientDeliveryPointsChecker>()
 			.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
-			.AddScoped<IOnlineOrderDiscountHandler, OnlineOrderDiscountHandler>()
-			.AddScoped<IOnlineOrderFixedPriceHandler, OnlineOrderFixedPriceHandler>()
 			.AddDriverApiNotificationsSenders()
 			.AddScoped<IOrderOrganizationManager, OrderOrganizationManager>()
 			.AddScoped<IOrderReceiptHandler, OrderReceiptHandler>()
@@ -106,6 +106,8 @@ namespace Vodovoz.Application
 			.AddScoped<IPartitioningOrderService, PartitioningOrderService>()
 			.AddScoped<IUnPaidOnlineOrderHandler, UnPaidOnlineOrderHandler>()
 			.AddScoped<IOrderOnlinePaymentAcceptanceHandler, OrderOnlinePaymentAcceptanceHandler>()
+			.AddVersion4()
+			.AddVersion5()
 		;
 
 		private static IServiceCollection ConfigureFileOptions(this IServiceCollection services)
@@ -120,5 +122,25 @@ namespace Vodovoz.Application
 					".ps1"
 				};
 			});
+
+		private static IServiceCollection AddVersion4(this IServiceCollection services)
+		{
+			services
+				.AddScoped<IOnlineOrderDiscountHandlerV4, OnlineOrderDiscountHandlerV4>()
+				.AddScoped<IOnlineOrderFixedPriceHandlerV4, OnlineOrderFixedPriceHandlerV4>()
+				;
+			
+			return services;
+		}
+		
+		private static IServiceCollection AddVersion5(this IServiceCollection services)
+		{
+			services
+				.AddScoped<IOnlineOrderDiscountHandlerV5, OnlineOrderDiscountHandlerV5>()
+				.AddScoped<IOnlineOrderFixedPriceHandlerV5, OnlineOrderFixedPriceHandlerV5>()
+				;
+			
+			return services;
+		}
 	}
 }

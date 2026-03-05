@@ -2,15 +2,15 @@
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Goods;
-using VodovozBusiness.Domain.Orders;
-using VodovozBusiness.Nodes;
+using VodovozBusiness.Domain.Orders.V4;
+using VodovozBusiness.Nodes.V4;
 
 namespace Vodovoz.Handlers
 {
 	/// <summary>
 	/// Интерфейс для работы с фиксой в ИПЗ
 	/// </summary>
-	public interface IOnlineOrderFixedPriceHandler
+	public interface IOnlineOrderFixedPriceHandlerV4
 	{
 		/// <summary>
 		/// 
@@ -32,9 +32,9 @@ namespace Vodovoz.Handlers
 		/// </summary>
 		/// <param name="uow">unit of work</param>
 		/// <param name="canApplyOnlineOrderFixedPrice">Данные, необходимые для проверки фиксы и товары
-		/// <see cref="CanApplyOnlineOrderFixedPrice"/></param>
+		/// <see cref="CanApplyOnlineOrderFixedPriceV4"/></param>
 		/// <returns></returns>
-		Result<IEnumerable<IOnlineOrderedProductWithFixedPrice>> TryApplyFixedPrice(
-			IUnitOfWork uow, CanApplyOnlineOrderFixedPrice canApplyOnlineOrderFixedPrice);
+		Result<IEnumerable<IOnlineOrderedProductWithFixedPriceV4>> TryApplyFixedPrice(
+			IUnitOfWork uow, CanApplyOnlineOrderFixedPriceV4 canApplyOnlineOrderFixedPrice);
 	}
 }

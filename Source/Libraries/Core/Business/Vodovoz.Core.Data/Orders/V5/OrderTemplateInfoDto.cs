@@ -14,8 +14,7 @@ namespace Vodovoz.Core.Data.Orders.V5
 		/// <summary>
 		/// Список товаров
 		/// </summary>
-		//TODO 5695:Когда станет известным точный состав автозаказа, тогда надо доделать его наполнение
-		public IEnumerable<OnlineOrderItemDto> OrderItems { get; set; }
+		public IEnumerable<OrderTemplateProductDto> TemplateProducts { get; set; }
 		/// <summary>
 		/// Сумма заказа
 		/// </summary>
@@ -38,20 +37,20 @@ namespace Vodovoz.Core.Data.Orders.V5
 			string deliveryAddress,
 			string deliverySchedule,
 			Guid? lastOnlineOrderExternalId,
-			IEnumerable<OnlineOrderItemDto> orderItems,
+			IEnumerable<OrderTemplateProductDto> templateProducts,
 			decimal orderSum)
 		{
 			var onlineOrderTemplate = new OrderTemplateInfoDto
 			{
 				OrderTemplateId = template.Id,
-				Weekday = template.Weekday,
+				Weekdays = template.Weekdays,
 				RepeatOrder = template.RepeatOrder,
 				PaymentType = template.PaymentType,
 				DeliveryAddress = deliveryAddress,
 				DeliverySchedule = deliverySchedule,
 				IsActive = template.IsActive,
 				LastOnlineOrderExternalId = lastOnlineOrderExternalId,
-				OrderItems = orderItems,
+				TemplateProducts = templateProducts,
 				OrderSum = orderSum
 			};
 

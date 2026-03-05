@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
@@ -18,13 +19,32 @@ namespace Vodovoz.Core.Domain.Orders.OnlineOrders
 		private DateTime _createdAt;
 		private bool _isActive;
 		private bool _isArchive;
-		private WeekDayName _weekday;
 		private RepeatOnlineOrderType _repeatOrder;
 		private OnlineOrderPaymentType _paymentType;
 		private int _counterpartyId;
 		private int _deliveryPointId;
 		private int _deliveryScheduleId;
-		private IObservableList<int> _templateItems = new ObservableList<int>();
+		private IObservableList<int> _templateProducts = new ObservableList<int>();
+		private IObservableList<WeekDayName> _weekdays = new ObservableList<WeekDayName>();
+
+		protected OnlineOrderTemplate(
+			int counterpartyId,
+			int deliveryPointId,
+			int deliveryScheduleId,
+			RepeatOnlineOrderType repeatOrder,
+			OnlineOrderPaymentType paymentType,
+			IEnumerable<WeekDayName> weekdays)
+		{
+			CreatedAt = DateTime.Now;
+			IsActive = true;
+			IsArchive = false;
+			CounterpartyId = counterpartyId;
+			DeliveryPointId = deliveryPointId;
+			DeliveryScheduleId = deliveryScheduleId;
+			RepeatOrder = repeatOrder;
+			PaymentType = paymentType;
+			Weekdays = new ObservableList<WeekDayName>(weekdays);
+		}
 
 		/// <summary>
 		/// Идентификатор
@@ -56,15 +76,6 @@ namespace Vodovoz.Core.Domain.Orders.OnlineOrders
 		{
 			get => _isArchive;
 			protected set => SetField(ref _isArchive, value);
-		}
-
-		/// <summary>
-		/// День недели
-		/// </summary>
-		public virtual WeekDayName Weekday
-		{
-			get => _weekday;
-			set => SetField(ref _weekday, value);
 		}
 
 		/// <summary>
@@ -115,10 +126,19 @@ namespace Vodovoz.Core.Domain.Orders.OnlineOrders
 		/// <summary>
 		/// Список идентификаторов товаров
 		/// </summary>
-		public virtual IObservableList<int> TemplateItems
+		public virtual IObservableList<int> TemplateProducts
 		{
-			get => _templateItems;
-			set => SetField(ref _templateItems, value);
+			get => _templateProducts;
+			set => SetField(ref _templateProducts, value);
+		}
+
+		/// <summary>
+		/// Дни недели
+		/// </summary>
+		public virtual IObservableList<WeekDayName> Weekdays
+		{
+			get => _weekdays;
+			set => SetField(ref _weekdays, value);
 		}
 
 		/// <summary>
@@ -144,5 +164,14 @@ namespace Vodovoz.Core.Domain.Orders.OnlineOrders
 			IsArchive = true;
 			IsActive = false;
 		}
+		
+		public static OnlineOrderTemplate Create(
+			int counterpartyId,
+			int deliveryPointId,
+			int deliveryScheduleId,
+			RepeatOnlineOrderType repeatOrder,
+			OnlineOrderPaymentType paymentType,
+			IEnumerable<WeekDayName> weekdays
+			) => new OnlineOrderTemplate(counterpartyId, deliveryPointId, deliveryScheduleId, repeatOrder, paymentType, weekdays);
 	}
 }

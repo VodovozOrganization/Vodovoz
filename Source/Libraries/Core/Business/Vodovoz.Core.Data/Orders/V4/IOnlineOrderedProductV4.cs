@@ -1,6 +1,6 @@
-﻿namespace Vodovoz.Core.Data.Orders
+﻿namespace Vodovoz.Core.Data.Orders.V4
 {
-	public interface IOnlineOrderedProduct
+	public interface IOnlineOrderedProductV4
 	{
 		/// <summary>
 		/// Id номенклатуры в ДВ
@@ -15,6 +15,10 @@
 		/// </summary>
 		decimal Count { get; }
 		/// <summary>
+		/// Id промонабора
+		/// </summary>
+		int? PromoSetId { get; }
+		/// <summary>
 		/// Скидка в деньгах?
 		/// </summary>
 		bool IsDiscountInMoney { get; set; }
@@ -22,10 +26,6 @@
 		/// Скидка
 		/// </summary>
 		decimal Discount { get; set; }
-		/// <summary>
-		/// Id промонабора
-		/// </summary>
-		int? PromoSetId { get; }
 		/// <summary>
 		/// Id скидки/промокода
 		/// </summary>

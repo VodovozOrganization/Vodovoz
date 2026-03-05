@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
-using CustomerOrdersApi.Library.V4.Dto.Orders.OrderItem;
+using CustomerOrdersApi.Library.V5.Dto.Orders;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
+using Vodovoz.Core.Data.Orders.V5;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.Rent;
@@ -11,6 +13,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using VodovozBusiness.Controllers;
+using VodovozBusiness.Domain.Orders;
 
 namespace CustomerOnlineOrdersRegistrar.Factories
 {
@@ -25,7 +28,7 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 		
 		public OnlineOrder CreateOnlineOrder(
 			IUnitOfWork uow,
-			ICreatingOnlineOrder creatingOnlineOrder,
+			CreatingOnlineOrder creatingOnlineOrder,
 			int fastDeliveryScheduleId,
 			int selfDeliveryDiscountReasonId)
 		{
@@ -78,6 +81,40 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 
 			return onlineOrder;
 		}
+		
+		public (OnlineOrderTemplate OrderTemplate, IEnumerable<OnlineOrderTemplateProduct> OrderTemplateProducts)
+			CreateOnlineOrderTemplate(OnlineOrder creatingOnlineOrder, CreatingOrderTemplate creatingTemplate)
+		{
+			var template = OnlineOrderTemplate.Create(
+				creatingOnlineOrder.CounterpartyId.Value,
+				creatingOnlineOrder.DeliveryPointId.Value,
+				creatingTemplate.DeliveryScheduleId.Value,
+				creatingTemplate.RepeatOrder.Value,
+				creatingOnlineOrder.OnlineOrderPaymentType,
+				creatingTemplate.Weekdays
+			);
+
+			//TODO 5965: подумать насчет расчета и идентификатора шаблона
+			var templateProducts = new ObservableList<OnlineOrderTemplateProduct>();
+			foreach(var orderItem in creatingOnlineOrder.OnlineOrderItems)
+			{
+				templateProducts.Add(
+					OnlineOrderTemplateProduct.Create(
+						orderItem.NomenclatureId,
+						orderItem.Count,
+						orderItem.IsDiscountInMoney,
+						orderItem.GetDiscount,
+						orderItem.Price,
+						orderItem.PromoSetId,
+						orderItem.DiscountReason,
+						orderItem.Nomenclature,
+						orderItem.PromoSet,
+						template.Id
+					));
+			}
+
+			return (template, templateProducts);
+		}
 
 		private void UpdateOnlineComment(OnlineOrder onlineOrder, string onlineOrderComment)
 		{
@@ -95,7 +132,7 @@ namespace CustomerOnlineOrdersRegistrar.Factories
 			IUnitOfWork uow,
 			OnlineOrder onlineOrder,
 			int selfDeliveryDiscountReasonId,
-			IEnumerable<OnlineOrderItemDto> onlineOrderItemsDtos)
+			IEnumerable<OnlineOrderItemDtoV5> onlineOrderItemsDtos)
 		{
 			if(onlineOrderItemsDtos is null)
 			{

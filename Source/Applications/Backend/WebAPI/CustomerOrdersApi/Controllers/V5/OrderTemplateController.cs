@@ -3,8 +3,8 @@ using System.Data.Bindings;
 using System.Linq;
 using System.Threading.Tasks;
 using CustomerOrdersApi.Library.V5.Dto.Orders.OrderTemplates;
+using CustomerOrdersApi.Library.V5.Factories;
 using CustomerOrdersApi.Library.V5.Repositories;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -12,29 +12,36 @@ using Vodovoz.Application.Orders.Services;
 using Vodovoz.Core.Data.Orders.V5;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Settings.Orders;
 
 namespace CustomerOrdersApi.Controllers.V5
 {
-	[Authorize]
 	public class OrderTemplateController : VersionedController
 	{
+		private readonly IDiscountReasonSettings _discountReasonSettings;
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly CustomerAppOrderTemplateRepository _orderTemplateDtoRepository;
 		private readonly IGenericRepository<OnlineOrderTemplate> _orderTemplateRepository;
 		private readonly OnlineOrderTemplateHandler _onlineOrderTemplateHandler;
+		private readonly IInfoMessageFactoryV5 _infoMessageFactoryV5;
 
 		public OrderTemplateController(
 			ILogger<OrderTemplateController> logger,
+			IDiscountReasonSettings discountReasonSettings,
 			IUnitOfWorkFactory uowFactory,
 			CustomerAppOrderTemplateRepository orderTemplateDtoRepository,
 			IGenericRepository<OnlineOrderTemplate> orderTemplateRepository,
-			OnlineOrderTemplateHandler onlineOrderTemplateHandler
+			OnlineOrderTemplateHandler onlineOrderTemplateHandler,
+			IInfoMessageFactoryV5 infoMessageFactoryV5
 			) : base(logger)
 		{
+			_discountReasonSettings = discountReasonSettings ?? throw new ArgumentNullException(nameof(discountReasonSettings));
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_orderTemplateDtoRepository = orderTemplateDtoRepository ?? throw new ArgumentNullException(nameof(orderTemplateDtoRepository));
 			_orderTemplateRepository = orderTemplateRepository ?? throw new ArgumentNullException(nameof(orderTemplateRepository));
 			_onlineOrderTemplateHandler = onlineOrderTemplateHandler ?? throw new ArgumentNullException(nameof(onlineOrderTemplateHandler));
+			_infoMessageFactoryV5 = infoMessageFactoryV5 ?? throw new ArgumentNullException(nameof(infoMessageFactoryV5));
 		}
 
 		/// <summary>
@@ -166,6 +173,47 @@ namespace CustomerOrdersApi.Controllers.V5
 				_logger.LogError(e,
 					"Ошибка при обновлении шаблона {OrderTemplateId} от {Source}",
 					orderTemplateId,
+					sourceName);
+
+				return Problem();
+			}
+		}
+		
+		/// <summary>
+		/// Получение информации о скидке при автозаказе
+		/// </summary>
+		/// <param name="templateDiscountInfoDto">Данные запроса получения инфы о скидке при автозаказе</param>
+		/// <returns>
+		/// 200 с сообщением о скидке<see cref="OrderTemplatesDto"/>
+		/// 500 - ошибка
+		/// </returns>
+		[HttpGet]
+		public IActionResult GetOrderTemplateDiscountMessage([FromBody] GetTemplateDiscountInfoDto templateDiscountInfoDto)
+		{
+			var sourceName = templateDiscountInfoDto.Source.GetEnumTitle();
+			
+			try
+			{
+				_logger.LogInformation(
+					"Поступил запрос от {Source} и клиента {CounterpartyId} на получение сообщения о скидке для автозаказа",
+					sourceName,
+					templateDiscountInfoDto.CounterpartyErpId);
+				
+				using var uow = _uowFactory.CreateWithoutRoot("Получение информации о скидке при автозаказе");
+				var orderTemplateDiscount = uow.GetById<DiscountReason>(_discountReasonSettings.GetAutoOrderDiscountReasonId);
+
+				if(orderTemplateDiscount is null)
+				{
+					return Problem("Не найдена скидка на автозаказ");
+				}
+				
+				return Ok(_infoMessageFactoryV5.CreateAutoOrderDiscountInfoMessage(orderTemplateDiscount.Value, orderTemplateDiscount.ValueType));
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e,
+					"Ошибка при получении сообщения о скидке для автозаказа клиента {CounterpartyId} от {Source}",
+					templateDiscountInfoDto.CounterpartyErpId,
 					sourceName);
 
 				return Problem();

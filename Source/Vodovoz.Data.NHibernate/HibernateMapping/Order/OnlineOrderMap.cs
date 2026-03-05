@@ -2,7 +2,7 @@
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 
-namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
+namespace Vodovoz.Data.NHibernate.HibernateMapping.Orders
 {
 	public class OnlineOrderMap : ClassMap<OnlineOrder>
 	{

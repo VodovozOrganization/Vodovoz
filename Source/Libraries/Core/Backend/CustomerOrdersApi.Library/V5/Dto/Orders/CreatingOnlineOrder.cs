@@ -15,27 +15,27 @@ namespace CustomerOrdersApi.Library.V5.Dto.Orders
 		/// </summary>
 		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public Source Source { get; set; }
-		
+
 		/// <summary>
 		/// Номер онлайн заказа из ИПЗ
 		/// </summary>
 		public Guid ExternalOrderId { get; set; }
-		
+
 		/// <summary>
 		/// Id контрагента в ДВ
 		/// </summary>
 		public int? CounterpartyErpId { get; set; }
-		
+
 		/// <summary>
 		/// Контрольная сумма заказа, для проверки валидности отправителя
 		/// </summary>
 		public string Signature { get; set; }
-		
+
 		/// <summary>
 		/// Id клиента в ИПЗ
 		/// </summary>
 		public Guid? ExternalCounterpartyId { get; set; }
-		
+
 		/// <summary>
 		/// Id точки доставки в ДВ
 		/// </summary>
@@ -45,17 +45,17 @@ namespace CustomerOrdersApi.Library.V5.Dto.Orders
 		/// Самовывоз?
 		/// </summary>
 		public bool IsSelfDelivery { get; set; }
-		
+
 		/// <summary>
 		/// Id гео группы в ДВ для самовывоза
 		/// </summary>
 		public int? SelfDeliveryGeoGroupId { get; set; }
-		
+
 		/// <summary>
 		/// Форма оплаты
 		/// </summary>
 		public OnlineOrderPaymentType OnlineOrderPaymentType { get; set; }
-		
+
 		/// <summary>
 		/// Статус оплаты
 		/// </summary>
@@ -85,12 +85,12 @@ namespace CustomerOrdersApi.Library.V5.Dto.Orders
 		/// Id времени доставки из ДВ
 		/// </summary>
 		public int? DeliveryScheduleId { get; set; }
-		
+
 		/// <summary>
 		/// Отзвон за
 		/// </summary>
 		public int? CallBeforeArrivalMinutes { get; set; }
-		
+
 		/// <summary>
 		/// Доставка за час?
 		/// </summary>
@@ -115,12 +115,12 @@ namespace CustomerOrdersApi.Library.V5.Dto.Orders
 		/// Бутылей на возврат
 		/// </summary>
 		public int? BottlesReturn { get; set; }
-		
+
 		/// <summary>
 		/// Сумма онлайн заказа
 		/// </summary>
 		public decimal OrderSum { get; set; }
-		
+
 		/// <summary>
 		/// Не приезжать раньше интервала
 		/// </summary>
@@ -129,11 +129,16 @@ namespace CustomerOrdersApi.Library.V5.Dto.Orders
 		/// <summary>
 		/// Список товаров
 		/// </summary>
-		public IList<OnlineOrderItemDto> OnlineOrderItems { get; set; }
-		
+		public IList<OnlineOrderItemDtoV5> OnlineOrderItems { get; set; }
+
 		/// <summary>
 		/// Список пакетов аренды
 		/// </summary>
 		public IList<OnlineRentPackageDto> OnlineRentPackages { get; set; }
+
+		/// <summary>
+		/// Параметры создаваемого шаблона заказа, может быть null
+		/// </summary>
+		public CreatingOrderTemplate OrderTemplate { get; set; }
 	}
 }

@@ -6,7 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using CustomerOrdersApi.Library.V4.Dto.Orders.FixedPrice;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Orders.V5;
 using VodovozBusiness.Nodes;
+using VodovozBusiness.Nodes.V5;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Extensions;
 using VodovozHealthCheck.Helpers;
@@ -36,7 +38,7 @@ namespace CustomerOrdersApi.HealthCheck
 				PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
 				Converters =
 				{
-					new InterfaceToImplementationJsonConverter<IOnlineOrderedProductWithFixedPrice, OnlineOrderItemWithFixedPrice>()
+					new InterfaceToImplementationJsonConverter<IOnlineOrderedProductWithFixedPriceV5, OnlineOrderItemWithFixedPriceV5>()
 				}
 			};
 

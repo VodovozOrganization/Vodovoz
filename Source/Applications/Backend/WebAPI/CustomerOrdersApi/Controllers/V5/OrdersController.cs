@@ -9,6 +9,7 @@ using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Vodovoz.Presentation.WebApi.Messages;
+using VodovozBusiness.Errors.Orders;
 
 namespace CustomerOrdersApi.Controllers.V5
 {
@@ -35,9 +36,13 @@ namespace CustomerOrdersApi.Controllers.V5
 			try
 			{
 				_logger.LogInformation(
-					"Поступил запрос от {Source} на регистрацию заказа {ExternalOrderId} c подписью {Signature}, проверяем...",
+					"Поступил запрос от {Source} на регистрацию заказа {ExternalOrderId} от пользователя {ExternalCounterpartyId}" +
+					" клиента {ClientId} с контактным номером {ContactPhone} c подписью {Signature}, проверяем...",
 					sourceName,
 					creatingOnlineOrder.ExternalOrderId,
+					creatingOnlineOrder.ExternalCounterpartyId,
+					creatingOnlineOrder.CounterpartyErpId,
+					creatingOnlineOrder.ContactPhone,
 					creatingOnlineOrder.Signature);
 				
 				if(!_customerOrdersService.ValidateOrderSignature(creatingOnlineOrder, out var generatedSignature))
@@ -45,14 +50,31 @@ namespace CustomerOrdersApi.Controllers.V5
 					return InvalidSignature(creatingOnlineOrder.Signature, generatedSignature);
 				}
 
-				_logger.LogInformation("Подпись валидна, отправляем в очередь");
+				_logger.LogInformation("Подпись валидна, проверяем автозаказ...");
+				var canCreateOnlineOrder = _customerOrdersService.CanCreateOnlineOrderWithOrderTemplateData(creatingOnlineOrder);
+
+				if(canCreateOnlineOrder.IsFailure)
+				{
+					var message = canCreateOnlineOrder.Errors.First().Message;
+					
+					_logger.LogWarning("Отменили регистрацию заказа {ExternalOrderId} от пользователя {ExternalCounterpartyId} " +
+						"клиента {ClientId} из-за автозаказа {OrderTemplateMessage}",
+						creatingOnlineOrder.ExternalOrderId,
+						creatingOnlineOrder.ExternalCounterpartyId,
+						creatingOnlineOrder.CounterpartyErpId,
+						message);
+					
+					return Problem(message, statusCode: 400, type: "OnlineOrderTemplateError", title: "Нельзя создать автозаказ");
+				}
+				
+				_logger.LogInformation("Отправляем в очередь");
 				var response = await _requestClient.GetResponse<CreatedOnlineOrderResult>(creatingOnlineOrder);
 
 				return response.Message.Code switch
 				{
 					200 => Ok(CreatedOnlineOrder.Create(response.Message)),
 					409 => Problem(Messages.DuplicatOrderMessage(creatingOnlineOrder.ExternalOrderId), statusCode: response.Message.Code),
-					500 => Problem(Messages.ErrorMessage)
+					_ => Problem(Messages.ErrorMessage)
 				};
 			}
 			catch(Exception e)

@@ -6,13 +6,11 @@ using CustomerOrdersApi.Library.V5.Dto.Orders;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Data.Orders;
 using Vodovoz.Core.Data.Orders.V5;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Handlers;
-using Vodovoz.Nodes;
-using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Nodes.V5;
 using VodovozInfrastructure.Cryptography;
 
 namespace CustomerOrdersApi.Library.V5.Services
@@ -22,7 +20,7 @@ namespace CustomerOrdersApi.Library.V5.Services
 		private readonly ILogger<CustomerOrdersServiceV5> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ISignatureManager _signatureManager;
-		private readonly IOnlineOrderDiscountHandler _onlineOrderDiscountHandler;
+		private readonly IOnlineOrderDiscountHandlerV5 _onlineOrderDiscountHandler;
 		private readonly SignatureOptions _signatureOptions;
 
 		public CustomerOrdersDiscountServiceV5(
@@ -30,7 +28,7 @@ namespace CustomerOrdersApi.Library.V5.Services
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ISignatureManager signatureManager,
 			IOptions<SignatureOptions> signatureOptions,
-			IOnlineOrderDiscountHandler onlineOrderDiscountHandler)
+			IOnlineOrderDiscountHandlerV5 onlineOrderDiscountHandler)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -76,11 +74,11 @@ namespace CustomerOrdersApi.Library.V5.Services
 				out generatedSignature);
 		}
 
-		public Result<IEnumerable<IOnlineOrderedProduct>> ApplyPromoCodeToOnlineOrder(ApplyPromoCodeDto applyPromoCodeDto)
+		public Result<IEnumerable<IOnlineOrderedProductV5>> ApplyPromoCodeToOnlineOrder(ApplyPromoCodeDto applyPromoCodeDto)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Применение промокода к онлайн заказу");
 
-			var dto = new CanApplyOnlineOrderPromoCode
+			var dto = new CanApplyOnlineOrderPromoCodeV5
 			{
 				Source = applyPromoCodeDto.Source,
 				PromoCode =	applyPromoCodeDto.PromoCode,
@@ -92,12 +90,9 @@ namespace CustomerOrdersApi.Library.V5.Services
 			return _onlineOrderDiscountHandler.TryApplyPromoCode(uow, dto);
 		}
 
-		private decimal GetOnlineOrderSum(IEnumerable<OnlineOrderItemDto> orderItems)
+		private decimal GetOnlineOrderSum(IEnumerable<OnlineOrderItemDtoV5> orderItems)
 		{
-			return orderItems.Sum(x =>
-				x.IsDiscountInMoney
-					? x.Count * x.Price - x.Discount
-					: x.Count * x.Price * (1 - x.Discount / 100));
+			return orderItems.Sum(x => x.Count * x.Price - x.Discount());
 		}
 	}
 }

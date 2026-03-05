@@ -161,6 +161,16 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.List<PromotionalSetItemBalanceNode>();
 		}
 
+		public bool IsPromoSetsForNewClients(IUnitOfWork uow, IEnumerable<int> promotionalSetIds)
+		{
+			return (
+				from promoset in uow.Session.Query<PromotionalSet>()
+				where promotionalSetIds.Contains(promoset.Id)
+					&& promoset.PromotionalSetForNewClients
+				select promoset)
+				.Any();
+		}
+
 		private string GetBuildingNumber(string building)
 		{
 			string buildingNumber = string.Empty;

@@ -136,7 +136,7 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 		/// <summary>
 		/// Список товаров
 		/// </summary>
-		public IList<OnlineOrderItemDto> OnlineOrderItems { get; set; }
+		public IList<OnlineOrderItemDtoV4> OnlineOrderItems { get; set; }
 		
 		/// <summary>
 		/// Список пакетов аренды

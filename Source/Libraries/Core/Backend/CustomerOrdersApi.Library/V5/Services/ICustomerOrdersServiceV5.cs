@@ -81,5 +81,11 @@ namespace CustomerOrdersApi.Library.V5.Services
 		/// <param name="changingOrderDto">Данные по обновляемому заказу</param>
 		/// <returns></returns>
 		Result<ChangedOrderDto> UpdateOrder(ChangingOrderDto changingOrderDto);
+		/// <summary>
+		/// Проверка возможности создания автозаказа
+		/// </summary>
+		/// <param name="creatingOrder">Данные по обновляемому заказу</param>
+		/// <returns></returns>
+		Result CanCreateOnlineOrderWithOrderTemplateData(CreatingOnlineOrder creatingOrder);
 	}
 }

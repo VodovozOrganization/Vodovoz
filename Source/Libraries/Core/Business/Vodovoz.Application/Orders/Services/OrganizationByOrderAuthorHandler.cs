@@ -5,7 +5,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using VodovozBusiness.Domain.Settings;
-using VodovozBusiness.Models.Orders;
+using Vodovoz.Models.Orders;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Application.Orders.Services

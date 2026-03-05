@@ -14,7 +14,7 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.Extensions;
 using Vodovoz.Settings.Nomenclature;
 using VodovozBusiness.Controllers;
-using static VodovozBusiness.Services.Orders.CreateOrderRequest;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -22,7 +22,7 @@ namespace Vodovoz.Domain.Orders
 		NominativePlural = "строки заказа",
 		Nominative = "строка заказа")]
 	[HistoryTrace]
-	public class OrderItem : OrderItemEntity, IOrderItemWageCalculationSource, IDiscount, IProduct
+	public class OrderItem : OrderItemEntity, IOrderItemWageCalculationSource, IDiscount, IProduct, ICalculatingPrice
 	{
 		private Order _order;
 		private Equipment _equipment;

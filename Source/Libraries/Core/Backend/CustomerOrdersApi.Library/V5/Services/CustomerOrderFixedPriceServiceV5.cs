@@ -10,8 +10,8 @@ using Vodovoz.Core.Data.Orders.V5;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Handlers;
-using VodovozBusiness.Domain.Orders;
-using VodovozBusiness.Nodes;
+using VodovozBusiness.Domain.Orders.V5;
+using VodovozBusiness.Nodes.V5;
 using VodovozInfrastructure.Cryptography;
 
 namespace CustomerOrdersApi.Library.V5.Services
@@ -21,7 +21,7 @@ namespace CustomerOrdersApi.Library.V5.Services
 		private readonly ILogger<CustomerOrdersServiceV5> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ISignatureManager _signatureManager;
-		private readonly IOnlineOrderFixedPriceHandler _onlineOrderFixedPriceHandler;
+		private readonly IOnlineOrderFixedPriceHandlerV5 _onlineOrderFixedPriceHandler;
 		private readonly SignatureOptions _signatureOptions;
 
 		public CustomerOrderFixedPriceServiceV5(
@@ -29,7 +29,7 @@ namespace CustomerOrdersApi.Library.V5.Services
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ISignatureManager signatureManager,
 			IOptions<SignatureOptions> signatureOptions,
-			IOnlineOrderFixedPriceHandler onlineOrderFixedPriceHandler)
+			IOnlineOrderFixedPriceHandlerV5 onlineOrderFixedPriceHandler)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -57,11 +57,11 @@ namespace CustomerOrdersApi.Library.V5.Services
 				out generatedSignature);
 		}
 		
-		public Result<IEnumerable<IOnlineOrderedProductWithFixedPrice>> ApplyFixedPriceToOnlineOrder(ApplyFixedPriceDto applyFixedPriceDto)
+		public Result<IEnumerable<IOnlineOrderedProductWithFixedPriceV5>> ApplyFixedPriceToOnlineOrder(ApplyFixedPriceDto applyFixedPriceDto)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot($"Применение фиксы к онлайн заказу {applyFixedPriceDto.ExternalOrderId}");
 
-			var node = new CanApplyOnlineOrderFixedPrice
+			var node = new CanApplyOnlineOrderFixedPriceV5
 			{
 				IsSelfDelivery =	applyFixedPriceDto.IsSelfDelivery,
 				DeliveryPointId = applyFixedPriceDto.ErpDeliveryPointId,
@@ -72,12 +72,9 @@ namespace CustomerOrdersApi.Library.V5.Services
 			return _onlineOrderFixedPriceHandler.TryApplyFixedPrice(uow, node);
 		}
 		
-		private decimal GetOnlineOrderSum(IEnumerable<OnlineOrderItemDto> orderItems)
+		private decimal GetOnlineOrderSum(IEnumerable<OnlineOrderItemDtoV5> orderItems)
 		{
-			return orderItems.Sum(x =>
-				x.IsDiscountInMoney
-					? x.Count * x.Price - x.Discount
-					: x.Count * x.Price * (1 - x.Discount / 100));
+			return orderItems.Sum(x => x.Count * x.Price - x.Discount());
 		}
 	}
 }

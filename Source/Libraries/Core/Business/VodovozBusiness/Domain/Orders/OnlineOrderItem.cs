@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -13,7 +14,7 @@ namespace Vodovoz.Domain.Orders
 		PrepositionalPlural = "Строках онлайн заказа"
 	)]
 	[HistoryTrace]
-	public class OnlineOrderItem : PropertyChangedBase, IDomainObject, IProduct
+	public class OnlineOrderItem : PropertyChangedBase, IDomainObject, IProduct, ICalculatingPrice
 	{
 		private int? _nomenclatureId;
 		private decimal _price;

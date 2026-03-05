@@ -4,6 +4,7 @@ using QS.HistoryLog;
 using QS.Project.Repositories;
 using QS.Utilities.Text;
 using Vodovoz.Domain.Goods;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -11,7 +12,7 @@ namespace Vodovoz.Domain.Orders
 		NominativePlural = "строки промонабора",
 		Nominative = "строка промонабора")]
 	[HistoryTrace]
-	public class PromotionalSetItem : PropertyChangedBase, IDomainObject
+	public class PromotionalSetItem : PropertyChangedBase, IDomainObject, ICalculatingPrice
 	{
 		private PromotionalSet _promoSet;
 		private Nomenclature _nomenclature;
@@ -27,14 +28,14 @@ namespace Vodovoz.Domain.Orders
 		#region Cвойства
 
 		public virtual int Id { get; set; }
-		
+
 		[Display(Name = "Рекламный набор")]
 		public virtual PromotionalSet PromoSet
 		{
 			get => _promoSet;
 			set => SetField(ref _promoSet, value);
 		}
-		
+
 		[Display(Name = "Номенклатура")]
 		public virtual Nomenclature Nomenclature
 		{
@@ -97,6 +98,10 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 		}
+
+		decimal ICalculatingPrice.Count => Count;
+		public virtual bool IsFixedPrice => false;
+		public virtual DiscountReason DiscountReason => null;
 
 		public virtual decimal ManualChangingDiscount
 		{

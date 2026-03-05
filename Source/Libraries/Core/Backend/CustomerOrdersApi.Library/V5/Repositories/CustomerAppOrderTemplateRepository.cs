@@ -3,6 +3,7 @@ using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Data.Orders.V5;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
+using VodovozBusiness.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.V5.Repositories
 {

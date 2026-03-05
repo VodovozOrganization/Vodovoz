@@ -9,7 +9,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Tools;
 using VodovozBusiness.Domain.Orders;
-using VodovozBusiness.Models.Orders;
+using Vodovoz.Models.Orders;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.Receipts;
 

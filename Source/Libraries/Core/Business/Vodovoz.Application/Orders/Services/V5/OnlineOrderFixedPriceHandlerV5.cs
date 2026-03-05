@@ -2,21 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Data.Orders.V5;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Handlers;
-using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Orders.V5;
 using VodovozBusiness.Nodes;
+using VodovozBusiness.Nodes.V5;
 
-namespace Vodovoz.Application.Orders.Services
+namespace Vodovoz.Application.Orders.Services.V5
 {
-	public class OnlineOrderFixedPriceHandler : IOnlineOrderFixedPriceHandler
+	public class OnlineOrderFixedPriceHandlerV5 : IOnlineOrderFixedPriceHandlerV5
 	{
 		private readonly IGenericRepository<NomenclatureFixedPrice> _nomenclatureFixedPriceRepository;
 
-		public OnlineOrderFixedPriceHandler(IGenericRepository<NomenclatureFixedPrice> nomenclatureFixedPriceRepository)
+		public OnlineOrderFixedPriceHandlerV5(IGenericRepository<NomenclatureFixedPrice> nomenclatureFixedPriceRepository)
 		{
 			_nomenclatureFixedPriceRepository =
 				nomenclatureFixedPriceRepository ?? throw new ArgumentNullException(nameof(nomenclatureFixedPriceRepository));
@@ -57,9 +58,9 @@ namespace Vodovoz.Application.Orders.Services
 			return fixedPrices.Any();
 		}
 
-		public Result<IEnumerable<IOnlineOrderedProductWithFixedPrice>> TryApplyFixedPrice(
+		public Result<IEnumerable<IOnlineOrderedProductWithFixedPriceV5>> TryApplyFixedPrice(
 			IUnitOfWork uow,
-			CanApplyOnlineOrderFixedPrice canApplyOnlineOrderFixedPrice)
+			CanApplyOnlineOrderFixedPriceV5 canApplyOnlineOrderFixedPrice)
 		{
 			if(!HasFixedPrices(
 				uow,
@@ -68,21 +69,21 @@ namespace Vodovoz.Application.Orders.Services
 				canApplyOnlineOrderFixedPrice.IsSelfDelivery,
 				out var fixedPrices))
 			{
-				return Result.Failure<IEnumerable<IOnlineOrderedProductWithFixedPrice>>(Vodovoz.Errors.Orders.FixedPriceErrors.NotFound);
+				return Result.Failure<IEnumerable<IOnlineOrderedProductWithFixedPriceV5>>(Vodovoz.Errors.Orders.FixedPriceErrors.NotFound);
 			}
 
 			return TryApplyFixedPrice(canApplyOnlineOrderFixedPrice, fixedPrices);
 		}
 
-		private Result<IEnumerable<IOnlineOrderedProductWithFixedPrice>> TryApplyFixedPrice(
-			CanApplyOnlineOrderFixedPrice canApplyOnlineOrderFixedPrice,
+		private Result<IEnumerable<IOnlineOrderedProductWithFixedPriceV5>> TryApplyFixedPrice(
+			CanApplyOnlineOrderFixedPriceV5 canApplyOnlineOrderFixedPrice,
 			IEnumerable<NomenclatureFixedPrice> fixedPrices)
 		{
-			var itemsWithFixedPrice = new List<IOnlineOrderedProductWithFixedPrice>();
+			var itemsWithFixedPrice = new List<IOnlineOrderedProductWithFixedPriceV5>();
 
 			foreach(var onlineItem in canApplyOnlineOrderFixedPrice.OnlineOrderItems)
 			{
-				var onlineOrderedProductWithFixedPrice = new OnlineOrderItemWithFixedPrice
+				var onlineOrderedProductWithFixedPrice = new OnlineOrderItemWithFixedPriceV5
 				{
 					Count = onlineItem.Count,
 					NomenclatureId = onlineItem.NomenclatureId,
@@ -94,9 +95,7 @@ namespace Vodovoz.Application.Orders.Services
 				{
 					if(!CanApplyFixedPrice(onlineItem, fixedPrice))
 					{
-						onlineOrderedProductWithFixedPrice.IsDiscountInMoney = onlineItem.IsDiscountInMoney;
-						onlineOrderedProductWithFixedPrice.Discount = onlineItem.Discount;
-						onlineOrderedProductWithFixedPrice.DiscountReasonId = onlineItem.DiscountReasonId;
+						onlineOrderedProductWithFixedPrice.Discounts = onlineItem.Discounts;
 						continue;
 					}
 
@@ -111,7 +110,7 @@ namespace Vodovoz.Application.Orders.Services
 			return Result.Success(itemsWithFixedPrice.AsEnumerable());
 		}
 
-		private bool CanApplyFixedPrice(IOnlineOrderedProduct onlineItem, NomenclatureFixedPrice fixedPrice)
+		private bool CanApplyFixedPrice(IOnlineOrderedProductV5 onlineItem, NomenclatureFixedPrice fixedPrice)
 		{
 			if(onlineItem.PromoSetId.HasValue)
 			{
