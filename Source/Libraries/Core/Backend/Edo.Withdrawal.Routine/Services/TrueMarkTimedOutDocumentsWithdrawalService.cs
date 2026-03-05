@@ -1,4 +1,5 @@
-﻿using Edo.Contracts.Messages.Events;
+﻿using Edo.Common.Services;
+using Edo.Contracts.Messages.Events;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -17,26 +18,35 @@ namespace Edo.Withdrawal.Routine.Services
 	/// <summary>
 	/// Сервис для проверки документооборотов с истёкшим таймаутом
 	/// </summary>
-	public class DocflowTimeoutCheckService
+	public class TrueMarkTimedOutDocumentsWithdrawalService
 	{
-		private readonly ILogger<DocflowTimeoutCheckService> _logger;
+		private readonly ILogger<TrueMarkTimedOutDocumentsWithdrawalService> _logger;
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IEdoSettings _edoSettings;
 		private readonly IEdoRepository _edoRepository;
+		private readonly IClientsTrueMarkRegistrationCheckService _trueMarkRegistrationCheckService;
 		private readonly IBus _messageBus;
 
-		public DocflowTimeoutCheckService(
-			ILogger<DocflowTimeoutCheckService> logger,
+		public TrueMarkTimedOutDocumentsWithdrawalService(
+			ILogger<TrueMarkTimedOutDocumentsWithdrawalService> logger,
 			IUnitOfWorkFactory uowFactory,
 			IEdoSettings edoSettings,
 			IEdoRepository edoRepository,
+			IClientsTrueMarkRegistrationCheckService trueMarkRegistrationCheckService,
 			IBus messageBus)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
-			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_logger = logger
+				?? throw new ArgumentNullException(nameof(logger));
+			_uowFactory = uowFactory
+				?? throw new ArgumentNullException(nameof(uowFactory));
+			_edoSettings = edoSettings
+				?? throw new ArgumentNullException(nameof(edoSettings));
+			_edoRepository = edoRepository
+				?? throw new ArgumentNullException(nameof(edoRepository));
+			_trueMarkRegistrationCheckService = trueMarkRegistrationCheckService
+				?? throw new ArgumentNullException(nameof(trueMarkRegistrationCheckService));
+			_messageBus = messageBus
+				?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
 		/// <summary>
@@ -49,9 +59,14 @@ namespace Edo.Withdrawal.Routine.Services
 			await ProcessTimedOutDocumentsOfRegisteredInTrueMarkClients(cancellationToken);
 		}
 
+		/// <summary>
+		/// Обработка просроченных ДО клиентов, зарегистрированных в ЧЗ
+		/// </summary>
+		/// <param name="cancellationToken"></param>
+		/// <returns></returns>
 		private async Task ProcessTimedOutDocumentsOfRegisteredInTrueMarkClients(CancellationToken cancellationToken)
 		{
-			var timeoutDays = _edoSettings.WithdrawalDocflowTimeoutDays;
+			var timeoutDays = _edoSettings.ConnectedTrueMarkClientsWithdrawalDocflowTimeoutDays;
 
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{

@@ -124,7 +124,7 @@ namespace Edo.Withdrawal
 					}
 
 					var daysSinceSend = (DateTime.Today - orderEdoDocument.CreationTime.Date).TotalDays;
-					var timeoutDays = _edoSettings.WithdrawalDocflowTimeoutDays;
+					var timeoutDays = _edoSettings.ConnectedTrueMarkClientsWithdrawalDocflowTimeoutDays;
 
 					if(daysSinceSend <= timeoutDays)
 					{

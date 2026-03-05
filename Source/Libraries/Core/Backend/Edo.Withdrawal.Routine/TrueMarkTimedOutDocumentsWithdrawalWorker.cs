@@ -43,7 +43,7 @@ namespace Edo.Withdrawal.Routine
 
 				using(var scope = _serviceScopeFactory.CreateScope())
 				{
-					var docflowTimeoutCheckService = scope.ServiceProvider.GetService<DocflowTimeoutCheckService>();
+					var docflowTimeoutCheckService = scope.ServiceProvider.GetService<TrueMarkTimedOutDocumentsWithdrawalService>();
 
 					await docflowTimeoutCheckService.ProcessTimedOutDocuments(stoppingToken);
 
