@@ -1,4 +1,4 @@
-﻿using NHibernate.Criterion;
+using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using System;
@@ -164,12 +164,19 @@ namespace Vodovoz.Infrastructure.Persistance.Operations
 			uow.Session.Query<BottlesMovementOperation>()
 			.Where(x => counterpartiesIds.Contains(x.Counterparty.Id))
 			.GroupBy(x => x.Counterparty.Id)
+			.Select(g => new
+			{
+				CounterpartyId = g.Key,
+				Delivered = g.Sum(b => b.Delivered),
+				Returned = g.Sum(b => b.Returned)
+			})
+			.ToList()
 			.ToDictionary(
-				x => x.Key,
+				x => x.CounterpartyId,
 				x => new BottlesBalanceQueryResult
 				{
-					Delivered = x.Sum(b => b.Delivered),
-					Returned = x.Sum(b => b.Returned)
+					Delivered = x.Delivered,
+					Returned = x.Returned
 				});
 	}
 }
