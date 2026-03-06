@@ -1,4 +1,4 @@
-﻿using DateTimeHelpers;
+using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -2462,7 +2462,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.List();
 		}
 
-		public async Task<IDictionary<int, OrderPaymentsDataNode[]>> GetNotPaidCashlessOrdersData(
+		public async Task<IDictionary<int, CounterpartyOrdersAggregatedNode>> GetNotPaidCashlessOrdersData(
 			IUnitOfWork uow,
 			int organizationId,
 			IEnumerable<OrderStatus> orderStatuses,
@@ -2521,18 +2521,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 							   orderItem.ActualSum)
 							   .Sum() ?? 0
 
-					let counterpartyPhones =
-					from phone in uow.Session.Query<Phone>()
-					where phone.Counterparty.Id == counterparty.Id
-					select phone
-
-					let counterpartyOrdersContactPhones =
-					from order in uow.Session.Query<Order>()
-					join phone in uow.Session.Query<Phone>() on order.ContactPhone.Id equals phone.Id
-					where
-					order.Client.Id == counterparty.Id
-					select phone
-
 					where
 						order.OrderPaymentStatus != OrderPaymentStatus.Paid
 						&& orderStatuses.Contains(order.OrderStatus)
@@ -2545,7 +2533,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 					select new OrderPaymentsDataNode
 					{
-						OrderId = order.Id,
 						CounterpartyId = counterparty.Id,
 						OrganizationId = organization.Id,
 						OrganizationName = organization.FullName,
@@ -2560,7 +2547,16 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.GroupBy(x => x.CounterpartyId)
 				.ToDictionary(
 					x => x.Key,
-					x => x.ToArray());
+					x => new CounterpartyOrdersAggregatedNode
+					{
+						CounterpartyId = x.Key,
+						OrganizationId = x.First().OrganizationId,
+						OrganizationName = x.First().OrganizationName,
+						TotalNotPaidSum = x.Sum(o => o.NotPaidSum),
+						TotalPartialPaidSum = x.Sum(o => o.PartialPaidSum),
+						TotalOverdueDebtorDebt = x.Sum(o => o.OverdueDebtorDebt),
+						MinOrderDeliveryDate = x.Min(o => o.OrderDeliveryDate)
+					});
 
 			return notPaidOrdersData;
 		}
