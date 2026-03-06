@@ -31,6 +31,7 @@ using VodovozBusiness.Domain.Settings;
 using VodovozBusiness.Models.TrueMark;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
+using VodovozBusiness.Services.Orders.V5;
 using VodovozBusiness.Services.Receipts;
 using VodovozBusiness.Services.Subdivisions;
 using VodovozBusiness.Services.TrueMark;
@@ -84,7 +85,7 @@ namespace Vodovoz.Application
 			.AddScoped<IOnlineOrderDeliveryPriceGetter, OnlineOrderDeliveryPriceGetter>()
 			.AddScoped<IOrderFromOnlineOrderCreator, OrderFromOnlineOrderCreator>()
 			.AddScoped<IOrderFromOnlineOrderValidator, OrderFromOnlineOrderValidator>()
-			.AddScoped<IGoodsPriceCalculator, GoodsPriceCalculator>()
+			.AddScoped<IGoodsPriceCalculatorV5, GoodsPriceCalculator>()
 			.AddScoped<IOrderDeliveryPriceGetter, OrderDeliveryPriceGetter>()
 			.AddScoped<IClientDeliveryPointsChecker, ClientDeliveryPointsChecker>()
 			.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()

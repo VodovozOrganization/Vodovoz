@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace Vodovoz.Core.Data.Orders.V5
@@ -9,15 +10,13 @@ namespace Vodovoz.Core.Data.Orders.V5
 	public class OrderTemplateProductDto
 	{
 		private OrderTemplateProductDto(
-			int nomenclatureId, decimal price, decimal count, bool isDiscountInMoney, decimal discount, int? promoSetId, int? discountReasonId)
+			int nomenclatureId, decimal price, decimal count, int? promoSetId, IEnumerable<DiscountData> discounts)
 		{
 			NomenclatureId = nomenclatureId;
 			Price = price;
 			Count = count;
-			IsDiscountInMoney = isDiscountInMoney;
-			Discount = discount;
 			PromoSetId = promoSetId;
-			DiscountReasonId = discountReasonId;
+			Discounts = discounts;
 		}
 		
 		/// <summary>
@@ -33,47 +32,43 @@ namespace Vodovoz.Core.Data.Orders.V5
 		/// </summary>
 		public decimal Count { get; }
 		/// <summary>
-		/// Скидка в деньгах?
-		/// </summary>
-		public bool IsDiscountInMoney { get; }
-		/// <summary>
-		/// Скидка
-		/// </summary>
-		public decimal Discount { get; }
-		/// <summary>
 		/// Id промонабора
 		/// </summary>
 		public int? PromoSetId { get; }
 		/// <summary>
-		/// Id скидки/промокода
+		/// Скидки
 		/// </summary>
-		public int? DiscountReasonId { get; }
+		public IEnumerable<DiscountData> Discounts { get; }
 		
 		[JsonIgnore]
 		public decimal Sum => Price * Count - CalculateDiscount();
 
 		private decimal CalculateDiscount()
 		{
-			if(IsDiscountInMoney)
+			var discountSum = 0m;
+
+			if(Discounts is null)
 			{
-				return Discount > Price * Count
-					? Price * Count
-					: (Discount < 0 ? 0 : Discount);
+				return discountSum;
 			}
-			
-			return Discount > 100
-				? Price * Count
-				: Price * Count * Discount / 100;
+
+			foreach(var discountData in Discounts)
+			{
+				discountSum += !discountData.IsDiscountInMoney
+					? Math.Round(Price * Count * (100 - discountData.Discount) / 100, 2)
+					: Math.Round(Price * Count - discountData.Discount, 2);
+			}
+
+			return discountSum > Price * Count ? Price * Count : discountSum;
 		}
 
 		public static OrderTemplateProductDto Create(
 			int nomenclatureId,
 			decimal price,
 			decimal count,
-			bool isDiscountInMoney,
-			decimal discount,
 			int? promoSetId,
-			int? discountReasonId) =>
-			new OrderTemplateProductDto(nomenclatureId, price, count, isDiscountInMoney, discount, promoSetId, discountReasonId);
+			IEnumerable<DiscountData> discounts
+			) =>
+			new OrderTemplateProductDto(nomenclatureId, price, count, promoSetId, discounts);
 	}
 }

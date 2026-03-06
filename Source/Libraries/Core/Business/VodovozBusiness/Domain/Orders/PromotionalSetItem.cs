@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
@@ -5,6 +6,7 @@ using QS.Project.Repositories;
 using QS.Utilities.Text;
 using Vodovoz.Domain.Goods;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Orders.V5;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -12,7 +14,7 @@ namespace Vodovoz.Domain.Orders
 		NominativePlural = "строки промонабора",
 		Nominative = "строка промонабора")]
 	[HistoryTrace]
-	public class PromotionalSetItem : PropertyChangedBase, IDomainObject, ICalculatingPrice
+	public class PromotionalSetItem : PropertyChangedBase, IDomainObject, ICalculatingPriceV5
 	{
 		private PromotionalSet _promoSet;
 		private Nomenclature _nomenclature;
@@ -99,9 +101,13 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		decimal ICalculatingPrice.Count => Count;
+		decimal ICalculatingPriceV5.Count => Count;
 		public virtual bool IsFixedPrice => false;
 		public virtual DiscountReason DiscountReason => null;
+		public virtual IEnumerable<IDiscountData> Discounts => new []
+		{
+			new ProductDiscountData{ Discount = Discount, IsDiscountInMoney = IsDiscountInMoney, DiscountReason = null}
+		};
 
 		public virtual decimal ManualChangingDiscount
 		{

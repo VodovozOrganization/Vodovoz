@@ -44,7 +44,7 @@ namespace Vodovoz.Core.Data.Orders.V5
 		{
 			get
 			{
-				if(Discounts.Any())
+				if(Discounts != null && Discounts.Any())
 				{
 					if(Count == 0)
 					{
@@ -80,6 +80,11 @@ namespace Vodovoz.Core.Data.Orders.V5
 		public decimal Discount()
 		{
 			var discountSum = 0m;
+			
+			if(Discounts is null)
+			{
+				return discountSum;
+			}
 
 			foreach(var discountData in Discounts)
 			{

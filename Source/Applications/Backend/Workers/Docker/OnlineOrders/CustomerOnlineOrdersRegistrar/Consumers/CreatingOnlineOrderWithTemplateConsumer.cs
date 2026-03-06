@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using CustomerOnlineOrdersRegistrar.Factories.V4;
 using CustomerOnlineOrdersRegistrar.Factories.V5;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
+using CustomerOrdersApi.Library.V5.Dto.Orders;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -16,21 +16,20 @@ using VodovozBusiness.Services.Orders;
 
 namespace CustomerOnlineOrdersRegistrar.Consumers
 {
-	public class OnlineOrderRegisterFaultConsumer : OnlineOrderConsumer, IConsumer<OnlineOrderInfoDto>
+	public class CreatingOnlineOrderWithTemplateConsumer : OnlineOrderConsumer, IConsumer<CreatingOnlineOrder>
 	{
-		public OnlineOrderRegisterFaultConsumer(
-			ILogger<OnlineOrderRegisterFaultConsumer> logger,
+		public CreatingOnlineOrderWithTemplateConsumer(
+			ILogger<CreatingOnlineOrderWithTemplateConsumer> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOnlineOrderFactoryV4 onlineOrderFactoryV4,
 			IOnlineOrderFactoryV5 onlineOrderFactoryV5,
-			IOrderService orderService,
 			IDeliveryRulesSettings deliveryRulesSettings,
 			IDiscountReasonSettings discountReasonSettings,
 			IOnlineOrderRepository onlineOrderRepository,
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
+			IOrderService orderService,
 			IRouteListService routeListService,
-			IOrderFromOnlineOrderValidator onlineOrderValidator
-			)
+			IOrderFromOnlineOrderValidator onlineOrderValidator)
 			: base(
 				logger,
 				unitOfWorkFactory,
@@ -46,20 +45,20 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 		{
 		}
 		
-		public async Task Consume(ConsumeContext<OnlineOrderInfoDto> context)
+		public async Task Consume(ConsumeContext<CreatingOnlineOrder> context)
 		{
 			var message = context.Message;
-			Logger.LogInformation("Пробуем обработать онлайн заказ {ExternalOrderId}", message.ExternalOrderId);
+			Logger.LogInformation("Пришел онлайн заказ {ExternalOrderId}, регистрируем...", message.ExternalOrderId);
 			
 			try
 			{
-				await TryRegisterOnlineOrderV4Async(message, context.CancellationToken);
-				return;
+				var onlineOrderIdWithCode = await TryRegisterOnlineOrderV5Async(message, context.CancellationToken);
+				await context.RespondAsync(CreatedOnlineOrderResult.Create(onlineOrderIdWithCode));
 			}
 			catch(Exception e)
 			{
-				Logger.LogError(e, "Ошибка при повторной обработке сообщения с онлайн заказом {ExternalOrderId}", message.ExternalOrderId);
-				message.FaultedMessage = true;
+				//TODO: проверить работу вброса ошибки
+				Logger.LogError(e, "Ошибка при регистрации онлайн заказа {ExternalOrderId}", message.ExternalOrderId);
 				throw;
 			}
 		}

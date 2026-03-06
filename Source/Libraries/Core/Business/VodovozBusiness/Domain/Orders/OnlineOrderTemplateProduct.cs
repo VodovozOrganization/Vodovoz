@@ -1,8 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using QS.DomainModel.Entity;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using VodovozBusiness.Domain.Orders.V5;
 
 namespace VodovozBusiness.Domain.Orders
 {
@@ -13,18 +17,16 @@ namespace VodovozBusiness.Domain.Orders
 		PrepositionalPlural = "Товарах автозаказов с ИПЗ"
 	)]
 	[HistoryTrace]
-	public class OnlineOrderTemplateProduct : PropertyChangedBase, IDomainObject, ICalculatingPrice
+	public class OnlineOrderTemplateProduct : PropertyChangedBase, IDomainObject, ICalculatingPriceV5
 	{
 		private int? _nomenclatureId;
 		private decimal _price;
-		private bool _isDiscountInMoney;
-		private decimal _discount;
 		private int? _promoSetId;
 		private int _onlineOrderTemplateId;
 		private decimal _count;
-		private DiscountReason _discountReason;
 		private Nomenclature _nomenclature;
 		private PromotionalSet _promoSet;
+		private IObservableList<OnlineOrderTemplateProductDiscount> _discounts = new ObservableList<OnlineOrderTemplateProductDiscount>();
 
 		protected OnlineOrderTemplateProduct() { }
 
@@ -59,26 +61,6 @@ namespace VodovozBusiness.Domain.Orders
 			get => _price;
 			set => SetField(ref _price, value);
 		}
-
-		/// <summary>
-		/// Скидка в деньгах
-		/// </summary>
-		[Display(Name = "Скидка в деньгах")]
-		public virtual bool IsDiscountInMoney
-		{
-			get => _isDiscountInMoney;
-			set => SetField(ref _isDiscountInMoney, value);
-		}
-		
-		/// <summary>
-		/// Скидка
-		/// </summary>
-		[Display(Name = "Скидка")]
-		public virtual decimal Discount
-		{
-			get => _discount;
-			set => SetField(ref _discount, value);
-		}
 		
 		/// <summary>
 		/// Id промонабора
@@ -88,6 +70,16 @@ namespace VodovozBusiness.Domain.Orders
 		{
 			get => _promoSetId;
 			set => SetField(ref _promoSetId, value);
+		}
+		
+		/// <summary>
+		/// Количество
+		/// </summary>
+		[Display(Name = "Количество")]
+		public virtual decimal Count
+		{
+			get => _count;
+			protected set => SetField(ref _count, value);
 		}
 
 		/// <summary>
@@ -111,24 +103,21 @@ namespace VodovozBusiness.Domain.Orders
 		}
 
 		/// <summary>
-		/// Количество
+		/// Список скидок
 		/// </summary>
-		[Display(Name = "Количество")]
-		public virtual decimal Count
+		public virtual IObservableList<OnlineOrderTemplateProductDiscount> Discounts
 		{
-			get => _count;
-			protected set => SetField(ref _count, value);
+			get => _discounts;
+			set => SetField(ref _discounts, value);
 		}
-
-		/// <summary>
-		/// Основание скидки на товар
-		/// </summary>
-		[Display(Name = "Основание скидки на товар")]
-		public virtual DiscountReason DiscountReason
-		{
-			get => _discountReason;
-			set => SetField(ref _discountReason, value);
-		}
+		
+		IEnumerable<IDiscountData> ICalculatingPriceV5.Discounts => Discounts
+			.Select(x => new ProductDiscountData
+			{
+				Discount = x.IsDiscountInMoney ? x.MoneyDiscount : x.PercentDiscount,
+				IsDiscountInMoney = x.IsDiscountInMoney,
+				DiscountReason = x.DiscountReason
+			});
 
 		public virtual bool IsFixedPrice { get; }
 		
@@ -137,28 +126,24 @@ namespace VodovozBusiness.Domain.Orders
 		public static OnlineOrderTemplateProduct Create(
 			int? nomenclatureId,
 			decimal count,
-			bool isDiscountInMoney,
-			decimal discount,
 			decimal price,
 			int? promoSetId,
-			DiscountReason discountReason,
 			Nomenclature nomenclature,
 			PromotionalSet promotionalSet,
-			int templateId
+			int templateId,
+			IObservableList<OnlineOrderTemplateProductDiscount> discounts
 		)
 		{
 			var onlineOrderItem = new OnlineOrderTemplateProduct
 			{
 				NomenclatureId = nomenclatureId,
 				Count = count,
-				IsDiscountInMoney = isDiscountInMoney,
-				Discount =  discount,
 				Price = price,
 				PromoSetId = promoSetId,
-				DiscountReason = discountReason,
 				Nomenclature = nomenclature,
 				PromoSet = promotionalSet,
-				OnlineOrderTemplateId = templateId
+				OnlineOrderTemplateId = templateId,
+				Discounts = discounts
 			};
 
 			return onlineOrderItem;

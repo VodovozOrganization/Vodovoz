@@ -10,16 +10,17 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories.Orders;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Services.Orders.V5;
 
 namespace Vodovoz.Application.Orders.Services
 {
 	public class OnlineOrderTemplateHandler
 	{
-		private readonly IGoodsPriceCalculator _priceCalculator;
+		private readonly IGoodsPriceCalculatorV5 _priceCalculator;
 		private readonly IOnlineOrderRepository _onlineOrderRepository;
 
 		public OnlineOrderTemplateHandler(
-			IGoodsPriceCalculator priceCalculator,
+			IGoodsPriceCalculatorV5 priceCalculator,
 			IOnlineOrderRepository onlineOrderRepository)
 		{
 			_priceCalculator = priceCalculator ?? throw new ArgumentNullException(nameof(priceCalculator));
@@ -80,17 +81,22 @@ namespace Vodovoz.Application.Orders.Services
 					counterparty,
 					item,
 					false);
+				
+				var discounts = item.Discounts
+					.Select(x =>
+						DiscountData.Create(
+							x.IsDiscountInMoney ? x.MoneyDiscount : x.PercentDiscount,
+							x.IsDiscountInMoney,
+							x.DiscountReason.Id))
+					.ToArray();
 
-				//TODO 5695: нужны ли данные по скидкам для позиций не из промонаборов? Будет ли возможность постоянной скидки, какой-либо для автозаказа
 				var onlineOrderItem = OrderTemplateProductDto.Create(
 					item.Nomenclature.Id,
 					price,
 					item.Count,
-					item.IsDiscountInMoney,
-					item.Discount,
 					item.Id,
-					item.DiscountReason?.Id);
-				
+					discounts);
+
 				templateProducts.Add(onlineOrderItem);
 				
 				orderSum += item.Sum;
@@ -122,6 +128,8 @@ namespace Vodovoz.Application.Orders.Services
 				{
 					foreach(var promoItem in promoSet.PromotionalSetItems)
 					{
+						var discounts = new[] { DiscountData.Create(promoItem.Discount, promoItem.IsDiscountInMoney) };
+						
 						var orderTemplateProduct = OrderTemplateProductDto.Create(
 							promoItem.Nomenclature.Id,
 							_priceCalculator.CalculateItemPrice(
@@ -131,10 +139,8 @@ namespace Vodovoz.Application.Orders.Services
 								promoItem,
 								false),
 							promoItem.Count,
-							promoItem.IsDiscountInMoney,
-							promoItem.Discount,
 							promoSet.Id,
-							null);
+							discounts);
 						
 						templateProducts.Add(orderTemplateProduct);
 						orderSum += orderTemplateProduct.Sum;

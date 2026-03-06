@@ -14,12 +14,13 @@ using Vodovoz.Settings.Orders;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Services.Orders;
+using VodovozBusiness.Services.Orders.V5;
 
 namespace Vodovoz.Application.Orders.Services
 {
 	public class OrderFromOnlineOrderValidator : IOrderFromOnlineOrderValidator
 	{
-		private readonly IGoodsPriceCalculator _priceCalculator;
+		private readonly IGoodsPriceCalculatorV5 _priceCalculator;
 		private readonly IOnlineOrderDeliveryPriceGetter _deliveryPriceGetter;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IClientDeliveryPointsChecker _clientDeliveryPointsChecker;
@@ -32,7 +33,7 @@ namespace Vodovoz.Application.Orders.Services
 		private List<ICheckOnlineOrderSum> _calculatedOrderItemPrices;
 
 		public OrderFromOnlineOrderValidator(
-			IGoodsPriceCalculator goodsPriceCalculator,
+			IGoodsPriceCalculatorV5 goodsPriceCalculator,
 			IOnlineOrderDeliveryPriceGetter deliveryPriceGetter,
 			INomenclatureSettings nomenclatureSettings,
 			IClientDeliveryPointsChecker clientDeliveryPointsChecker,

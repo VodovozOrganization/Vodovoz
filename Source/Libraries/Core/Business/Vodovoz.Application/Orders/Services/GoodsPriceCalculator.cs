@@ -4,16 +4,18 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Service;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Orders.V5;
+using VodovozBusiness.Services.Orders.V5;
 
 namespace Vodovoz.Application.Orders.Services
 {
-	public class GoodsPriceCalculator : IGoodsPriceCalculator
+	public class GoodsPriceCalculator : IGoodsPriceCalculatorV5
 	{
 		public decimal CalculateItemPrice(
-			IEnumerable<ICalculatingPrice> products,
+			IEnumerable<ICalculatingPriceV5> products,
 			DeliveryPoint deliveryPoint,
 			Counterparty counterparty,
-			ICalculatingPrice currentProduct,
+			ICalculatingPriceV5 currentProduct,
 			bool hasPermissionsForAlternativePrice)
 		{
 			var fixedPrice = GetFixedPriceOrNull(
@@ -38,7 +40,7 @@ namespace Vodovoz.Application.Orders.Services
 			return currentProduct.Nomenclature.GetPrice(count, canApplyAlternativePrice);
 		}
 
-		private decimal GetTotalWater19LCount(IEnumerable<ICalculatingPrice> products, bool doNotCalculateWaterFromPromoSets = false)
+		private decimal GetTotalWater19LCount(IEnumerable<ICalculatingPriceV5> products, bool doNotCalculateWaterFromPromoSets = false)
 		{
 			var water19L = doNotCalculateWaterFromPromoSets
 				? products.Where(x => x.Nomenclature != null && x.Nomenclature.IsWater19L && x.PromoSet == null)
@@ -48,10 +50,10 @@ namespace Vodovoz.Application.Orders.Services
 		}
 		
 		private NomenclatureFixedPrice GetFixedPriceOrNull(
-			IEnumerable<ICalculatingPrice> products,
+			IEnumerable<ICalculatingPriceV5> products,
 			DeliveryPoint deliveryPoint,
 			Counterparty counterparty,
-			ICalculatingPrice currentProduct)
+			ICalculatingPriceV5 currentProduct)
 		{
 			IList<NomenclatureFixedPrice> fixedPrices;
 

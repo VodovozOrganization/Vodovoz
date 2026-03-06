@@ -27,6 +27,8 @@ namespace Vodovoz.Core.Domain.Orders.OnlineOrders
 		private IObservableList<int> _templateProducts = new ObservableList<int>();
 		private IObservableList<WeekDayName> _weekdays = new ObservableList<WeekDayName>();
 
+		protected OnlineOrderTemplate() { }
+		
 		protected OnlineOrderTemplate(
 			int counterpartyId,
 			int deliveryPointId,

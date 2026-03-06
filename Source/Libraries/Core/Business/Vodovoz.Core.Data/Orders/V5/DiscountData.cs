@@ -34,5 +34,13 @@
 			IsDiscountInMoney = isDiscountInMoney,
 			DiscountReasonId = discountReasonId
 		};
+		
+		public static DiscountData Create(
+			decimal discount,
+			bool isDiscountInMoney) => new DiscountData
+		{
+			Discount = discount,
+			IsDiscountInMoney = isDiscountInMoney
+		};
 	}
 }

@@ -1,9 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
-using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Orders.V5;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -14,7 +15,7 @@ namespace Vodovoz.Domain.Orders
 		PrepositionalPlural = "Строках онлайн заказа"
 	)]
 	[HistoryTrace]
-	public class OnlineOrderItem : PropertyChangedBase, IDomainObject, IProduct, ICalculatingPrice
+	public class OnlineOrderItem : PropertyChangedBase, IDomainObject, IProduct, ICalculatingPriceV5
 	{
 		private int? _nomenclatureId;
 		private decimal _price;
@@ -53,7 +54,7 @@ namespace Vodovoz.Domain.Orders
 			get => _price;
 			set => SetField(ref _price, value);
 		}
-		
+
 		[Display(Name = "Скидка в деньгах")]
 		public virtual bool IsDiscountInMoney
 		{
@@ -67,7 +68,7 @@ namespace Vodovoz.Domain.Orders
 			get => _isFixedPrice;
 			set => SetField(ref _isFixedPrice, value);
 		}
-		
+
 		[Display(Name = "Скидка в процентах")]
 		public virtual decimal PercentDiscount
 		{
@@ -133,6 +134,16 @@ namespace Vodovoz.Domain.Orders
 		public virtual OnlineOrderErrorState? OnlineOrderErrorState { get; set; }
 
 		public virtual decimal GetDiscount => IsDiscountInMoney ? MoneyDiscount : PercentDiscount;
+
+		public virtual IEnumerable<IDiscountData> Discounts => new[]
+		{
+			new ProductDiscountData
+			{
+				Discount = GetDiscount,
+				IsDiscountInMoney = IsDiscountInMoney,
+				DiscountReason = DiscountReason
+			}
+		};
 		public virtual decimal Sum => Math.Round(Price * Count - MoneyDiscount, 2);
 		public virtual decimal ActualSum => Sum;
 		public virtual decimal CurrentCount => Count;

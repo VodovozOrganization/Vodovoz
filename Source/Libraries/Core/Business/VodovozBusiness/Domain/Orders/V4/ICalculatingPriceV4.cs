@@ -1,9 +1,9 @@
 ﻿using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 
-namespace VodovozBusiness.Domain.Orders
+namespace VodovozBusiness.Domain.Orders.V4
 {
-	public interface ICalculatingPrice
+	public interface ICalculatingPriceV4
 	{
 		/// <summary>
 		/// Id сущности
@@ -14,15 +14,19 @@ namespace VodovozBusiness.Domain.Orders
 		/// </summary>
 		decimal Count { get; }
 		/// <summary>
-		/// Скидка в деньгах
-		/// </summary>
-		bool IsDiscountInMoney { get; }
-		/// <summary>
 		/// Фикса
 		/// </summary>
 		bool IsFixedPrice { get; }
 		/// <summary>
-		/// Основание скидки <see cref="Vodovoz.Domain.Orders.DiscountReason"/>
+		/// Скидка
+		/// </summary>
+		decimal Discount { get; }
+		/// <summary>
+		/// Скидка в деньгах
+		/// </summary>
+		bool IsDiscountInMoney { get; }
+		/// <summary>
+		/// Основание скидки
 		/// </summary>
 		DiscountReason DiscountReason { get; }
 		/// <summary>

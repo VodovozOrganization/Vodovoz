@@ -9,7 +9,6 @@ using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Vodovoz.Presentation.WebApi.Messages;
-using VodovozBusiness.Errors.Orders;
 
 namespace CustomerOrdersApi.Controllers.V5
 {

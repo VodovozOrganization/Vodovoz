@@ -3,7 +3,6 @@ using System.Net.Security;
 using System.Security.Authentication;
 using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.Converters;
-using CustomerOrdersApi.Library.V5.Dto.Orders;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -71,15 +70,15 @@ namespace CustomerOrdersApi.Library
 						}
 					});
 								
-				configurator.Send<OnlineOrderInfoDto>(x => x.UseRoutingKeyFormatter(y => y.Message.FaultedMessage.ToString()));
-				configurator.Message<OnlineOrderInfoDto>(x => x.SetEntityName(OnlineOrderInfoDto.ExchangeName));
-				configurator.Publish<OnlineOrderInfoDto>(x =>
+				configurator.Send<V4.Dto.Orders.OnlineOrderInfoDto>(x => x.UseRoutingKeyFormatter(y => y.Message.FaultedMessage.ToString()));
+				configurator.Message<V4.Dto.Orders.OnlineOrderInfoDto>(x => x.SetEntityName(V4.Dto.Orders.OnlineOrderInfoDto.ExchangeName));
+				configurator.Publish<V4.Dto.Orders.OnlineOrderInfoDto>(x =>
 				{
 					x.ExchangeType = ExchangeType.Direct;
 					x.Durable = true;
 					x.AutoDelete = false;
 					x.BindQueue(
-						OnlineOrderInfoDto.ExchangeName,
+						V4.Dto.Orders.OnlineOrderInfoDto.ExchangeName,
 						"online-orders",
 						conf =>
 						{
@@ -87,7 +86,7 @@ namespace CustomerOrdersApi.Library
 							conf.RoutingKey = "False";
 						});
 					x.BindQueue(
-						OnlineOrderInfoDto.ExchangeName,
+						V4.Dto.Orders.OnlineOrderInfoDto.ExchangeName,
 						"online-orders-fault",
 						conf =>
 						{
@@ -96,8 +95,18 @@ namespace CustomerOrdersApi.Library
 						});
 				});
 				
-				configurator.Message<CreatingOnlineOrder>(x => x.SetEntityName(CreatingOnlineOrder.ExchangeAndQueueName));
-				configurator.Publish<CreatingOnlineOrder>(x =>
+				configurator.Message<V4.Dto.Orders.CreatingOnlineOrder>(
+					x => x.SetEntityName(V4.Dto.Orders.CreatingOnlineOrder.ExchangeAndQueueName));
+				configurator.Publish<V4.Dto.Orders.CreatingOnlineOrder>(x =>
+				{
+					x.ExchangeType = ExchangeType.Fanout;
+					x.Durable = true;
+					x.AutoDelete = false;
+				});
+				
+				configurator.Message<V5.Dto.Orders.CreatingOnlineOrder>(
+					x => x.SetEntityName(V5.Dto.Orders.CreatingOnlineOrder.ExchangeAndQueueName));
+				configurator.Publish<V5.Dto.Orders.CreatingOnlineOrder>(x =>
 				{
 					x.ExchangeType = ExchangeType.Fanout;
 					x.Durable = true;

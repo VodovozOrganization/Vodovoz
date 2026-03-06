@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using CustomerOnlineOrdersRegistrar.Factories;
+using CustomerOnlineOrdersRegistrar.Factories.V4;
+using CustomerOnlineOrdersRegistrar.Factories.V5;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -20,7 +21,8 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 		public CreatingOnlineOrderConsumer(
 			ILogger<CreatingOnlineOrderConsumer> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IOnlineOrderFactory onlineOrderFactory,
+			IOnlineOrderFactoryV4 onlineOrderFactoryV4,
+			IOnlineOrderFactoryV5 onlineOrderFactoryV5,
 			IDeliveryRulesSettings deliveryRulesSettings,
 			IDiscountReasonSettings discountReasonSettings,
 			IOnlineOrderRepository onlineOrderRepository,
@@ -31,7 +33,8 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			: base(
 				logger,
 				unitOfWorkFactory,
-				onlineOrderFactory,
+				onlineOrderFactoryV4,
+				onlineOrderFactoryV5,
 				deliveryRulesSettings,
 				discountReasonSettings,
 				onlineOrderRepository,
@@ -49,7 +52,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			
 			try
 			{
-				var onlineOrderIdWithCode = await TryRegisterOnlineOrderAsync(message, context.CancellationToken);
+				var onlineOrderIdWithCode = await TryRegisterOnlineOrderV4Async(message, context.CancellationToken);
 				await context.RespondAsync(CreatedOnlineOrderResult.Create(onlineOrderIdWithCode));
 			}
 			catch(Exception e)

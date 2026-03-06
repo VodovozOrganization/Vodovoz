@@ -9,7 +9,7 @@ namespace CustomerOrdersApi.Library.V5.Dto.Orders
 {
 	public class CreatingOnlineOrder : ICreatingOnlineOrder
 	{
-		public const string ExchangeAndQueueName = "creating-online-orders";
+		public const string ExchangeAndQueueName = "creating-online-orders-with-template";
 		/// <summary>
 		/// Источник заказа
 		/// </summary>

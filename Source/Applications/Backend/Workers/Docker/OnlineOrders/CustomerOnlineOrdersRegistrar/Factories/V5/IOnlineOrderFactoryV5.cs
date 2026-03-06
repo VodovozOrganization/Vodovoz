@@ -5,9 +5,9 @@ using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Domain.Orders;
 using VodovozBusiness.Domain.Orders;
 
-namespace CustomerOnlineOrdersRegistrar.Factories
+namespace CustomerOnlineOrdersRegistrar.Factories.V5
 {
-	public interface IOnlineOrderFactory
+	public interface IOnlineOrderFactoryV5
 	{
 		OnlineOrder CreateOnlineOrder(
 			IUnitOfWork uow, CreatingOnlineOrder creatingOnlineOrder, int fastDeliveryScheduleId, int selfDeliveryDiscountReasonId);
