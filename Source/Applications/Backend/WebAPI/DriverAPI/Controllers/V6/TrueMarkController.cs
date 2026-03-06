@@ -372,15 +372,6 @@ namespace DriverAPI.Controllers.V6
 				var requestProcessingResult =
 					await _orderService.CheckCode(code, cancellationToken);
 
-				if(requestProcessingResult.Result.IsSuccess)
-				{
-					var maxIndex = requestProcessingResult.Result.Value.Codes?.Count ?? 0;
-					for(int i = 0; i < maxIndex; i++)
-					{
-						requestProcessingResult.Result.Value.Codes.ElementAt(i).SequenceNumber = i;
-					}
-				}
-
 				return MapRequestProcessingResult(
 					requestProcessingResult,
 					result => GetStatusCode(result));

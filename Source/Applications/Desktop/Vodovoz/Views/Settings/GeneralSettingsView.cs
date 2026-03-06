@@ -20,6 +20,7 @@ using Vodovoz.Views.Common;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Settings;
 using VodovozBusiness.Nodes;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.Views.Settings
 {

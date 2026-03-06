@@ -1,4 +1,6 @@
 ﻿using OneOf;
+using System;
+using System.Collections.Generic;
 using Vodovoz.Core.Domain.Edo;
 
 namespace Vodovoz.Core.Domain.TrueMark
@@ -43,5 +45,63 @@ namespace Vodovoz.Core.Domain.TrueMark
 		public TrueMarkWaterGroupCode TrueMarkWaterGroupCode => AsT1;
 
 		public TrueMarkWaterIdentificationCode TrueMarkWaterIdentificationCode => AsT2;
+
+		public void AddInnerTrueMarkAnyCodes(IEnumerable<TrueMarkAnyCode> innerCodes)
+		{
+			foreach(var code in innerCodes)
+			{
+				AddInnerTrueMarkAnyCode(code);
+			}
+		}
+
+		public void AddInnerTrueMarkAnyCode(TrueMarkAnyCode innerCode)
+		{
+			Match(
+				transportCode =>
+				{
+					innerCode.Match(
+						innerTransportCode =>
+						{
+							transportCode.AddInnerTransportCode(innerTransportCode);
+							return true;
+						},
+						innerWaterGroupCode =>
+						{
+							transportCode.AddInnerGroupCode(innerWaterGroupCode);
+							return true;
+						},
+						innerWaterIdentificationCode =>
+						{
+							transportCode.AddInnerWaterCode(innerWaterIdentificationCode);
+							return true;
+						});
+
+					return true;
+				},
+				waterGroupCode =>
+				{
+					innerCode.Match(
+						innerTransportCode =>
+						{
+							throw new InvalidOperationException("Нельзя добавить транспортный код внуть группового кода");
+						},
+						innerWaterGroupCode =>
+						{
+							waterGroupCode.AddInnerGroupCode(innerWaterGroupCode);
+							return true;
+						},
+						innerWaterIdentificationCode =>
+						{
+							waterGroupCode.AddInnerWaterCode(innerWaterIdentificationCode);
+							return true;
+						});
+
+					return true;
+				},
+				waterIdentificationCode =>
+				{
+					throw new InvalidOperationException("Нельзя добавить коды внуть кода экземпляра");
+				});
+		}
 	}
 }

@@ -16,6 +16,7 @@ using Vodovoz.Infrastructure.Converters;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
+using Vodovoz.Core.Domain.Orders;
 
 namespace Vodovoz.ViewWidgets
 {
@@ -123,7 +124,7 @@ namespace Vodovoz.ViewWidgets
 				)
 				.HideCondition(HideItemFromDirectionReasonComboInEquipment)
 				.AddSetter((c, n) => {
-					if(n.Direction == Domain.Orders.Direction.Deliver) {
+					if(n.Direction == Core.Domain.Orders.Direction.Deliver) {
 						switch(n.DirectionReason) {
 							case DirectionReason.Rent:
 								c.Text = "В аренду";
@@ -215,7 +216,7 @@ namespace Vodovoz.ViewWidgets
 					.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 1, 0))
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? string.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Причина незабора").AddTextRenderer(x => x.ConfirmedComment)
-				.AddSetter((cell, node) => cell.Editable = node.Direction == Domain.Orders.Direction.PickUp)
+				.AddSetter((cell, node) => cell.Editable = node.Direction == Core.Domain.Orders.Direction.PickUp)
 				.AddColumn("Принадлежность").AddEnumRenderer(node => node.OwnType, true, new Enum[] { OwnTypes.None })
 				.AddSetter((c, n) => {
 					c.Editable = false;
@@ -234,7 +235,7 @@ namespace Vodovoz.ViewWidgets
 				)
 				.HideCondition(HideItemFromDirectionReasonComboInEquipment)
 				.AddSetter((c, n) => {
-					if(n.Direction == Domain.Orders.Direction.Deliver) {
+					if(n.Direction == Core.Domain.Orders.Direction.Deliver) {
 						switch(n.DirectionReason) {
 							case DirectionReason.Rent:
 								c.Text = "В аренду";
@@ -310,7 +311,7 @@ namespace Vodovoz.ViewWidgets
 					return false;
 				case DirectionReason.TradeIn:
 				case DirectionReason.ClientGift:
-					return node.Direction == Domain.Orders.Direction.Deliver;
+					return node.Direction == Core.Domain.Orders.Direction.Deliver;
 				default:
 					return false;
 			}

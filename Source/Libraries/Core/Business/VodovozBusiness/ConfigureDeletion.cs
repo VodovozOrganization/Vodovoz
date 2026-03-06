@@ -12,7 +12,6 @@ using System.Collections.Generic;
 using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.StoredResources;
 using Vodovoz.Core.Domain.Users;
@@ -53,7 +52,6 @@ using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Suppliers;
 using Vodovoz.Domain.WageCalculation;
 using VodovozBusiness.Domain.Contacts;
-using VodovozBusiness.Domain.Documents;
 using VodovozBusiness.Domain.Operations;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Payments;
@@ -61,6 +59,8 @@ using VodovozBusiness.Domain.Service;
 using Vodovoz.Core.Domain.BasicHandbooks;
 using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
+using Vodovoz.Core.Domain.Operations;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz
 {
@@ -139,7 +139,7 @@ namespace Vodovoz
 					}
 				}.FillFromMetaInfo()
 			);
-			
+
 			DeleteConfig.AddHibernateDeleteInfo<Equipment>()
 				.AddDeleteDependence<OrderEquipment>(item => item.Equipment)
 				.AddDeleteDependence<OrderItem>(item => item.Equipment)
@@ -1005,7 +1005,7 @@ namespace Vodovoz
 				.AddDeleteDependence<RegradingOfGoodsDocumentItem>(x => x.WarehouseWriteOffOperation)
 				.AddDeleteDependence<SelfDeliveryDocumentItem>(x => x.GoodsAccountingOperation)
 				.AddDeleteDependence<SelfDeliveryDocumentReturned>(x => x.GoodsAccountingOperation);
-			
+
 			DeleteConfig.AddHibernateDeleteInfo<WarehouseBulkGoodsAccountingOperation>()
 				.RequiredCascadeDeletion()
 				.AddDeleteDependence<CarLoadDocumentItem>(x => x.GoodsAccountingOperation)

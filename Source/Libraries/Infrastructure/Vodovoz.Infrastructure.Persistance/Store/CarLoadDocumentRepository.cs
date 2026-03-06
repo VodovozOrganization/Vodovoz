@@ -6,8 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Documents;
-using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
@@ -39,21 +39,21 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 			return query;
 		}
 
-		public async Task<IEnumerable<CarLoadDocumentEntity>> GetCarLoadDocumentsById(IUnitOfWork uow, int carLoadDocumentId)
+		public async Task<IEnumerable<CarLoadDocument>> GetCarLoadDocumentsById(IUnitOfWork uow, int carLoadDocumentId)
 		{
-			var documents = uow.Session.Query<CarLoadDocumentEntity>()
+			var documents = uow.Session.Query<CarLoadDocument>()
 				.Where(d => d.Id == carLoadDocumentId);
 
 			return await documents.ToListAsync();
 		}
 
-		public async Task<IEnumerable<CarLoadDocumentItemEntity>> GetAccountableInTrueMarkHavingGtinItemsByCarLoadDocumentId(
+		public async Task<IEnumerable<CarLoadDocumentItem>> GetAccountableInTrueMarkHavingGtinItemsByCarLoadDocumentId(
 			IUnitOfWork uow,
 			int orderId)
 		{
 			var documentItems =
-				from documentItem in uow.Session.Query<CarLoadDocumentItemEntity>()
-				join nomenclature in uow.Session.Query<NomenclatureEntity>() on documentItem.Nomenclature.Id equals nomenclature.Id
+				from documentItem in uow.Session.Query<CarLoadDocumentItem>()
+				join nomenclature in uow.Session.Query<Nomenclature>() on documentItem.Nomenclature.Id equals nomenclature.Id
 				where
 					documentItem.OrderId == orderId
 					&& nomenclature.IsAccountableInTrueMark

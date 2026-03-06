@@ -12,6 +12,7 @@ using Vodovoz.Core.Domain.Clients.DeliveryPoints;
 using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.Orders.Documents;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
@@ -98,8 +99,10 @@ namespace Vodovoz.Core.Domain.Orders
 		private CounterpartyContractEntity _contract;
 		private DeliveryScheduleEntity _deliverySchedule;
 		private string _orderPartsIds;
-		
+		private GeoGroupEntity _selfDeliveryGeoGroup;
+
 		private IObservableList<OrderItemEntity> _orderItems = new ObservableList<OrderItemEntity>();
+		private IObservableList<OrderEquipmentEntity> _orderEquipments = new ObservableList<OrderEquipmentEntity>();
 		private IList<OrderDocumentEntity> _orderDocuments = new List<OrderDocumentEntity>();
 		private IObservableList<OrderDepositItemEntity> _orderDepositItems = new ObservableList<OrderDepositItemEntity>();
 
@@ -603,6 +606,16 @@ namespace Vodovoz.Core.Domain.Orders
 			set => SetField(ref _orderItems, value);
 		}
 
+		/// <summary>
+		/// Список оборудования
+		/// </summary>
+		[Display(Name = "Список оборудования")]
+		public virtual IObservableList<OrderEquipmentEntity> OrderEquipments
+		{
+			get => _orderEquipments;
+			set => SetField(ref _orderEquipments, value);
+		}
+
 		[Display(Name = "Документы заказа")]
 		public virtual IList<OrderDocumentEntity> OrderDocuments
 		{
@@ -663,6 +676,13 @@ namespace Vodovoz.Core.Domain.Orders
 			set => SetField(ref _orderPartsIds, value);
 		}
 
+		[Display(Name = "Район города склада самовывоза")]
+		public virtual GeoGroupEntity SelfDeliveryGeoGroup
+		{
+			get => _selfDeliveryGeoGroup;
+			set => SetField(ref _selfDeliveryGeoGroup, value);
+		}
+
 		#region Вычисляемые свойства
 
 		public virtual bool IsUndeliveredStatus =>
@@ -693,12 +713,6 @@ namespace Vodovoz.Core.Domain.Orders
 			IsOrderForTender
 			&& Client?.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute
 			&& PaymentType == PaymentType.Cashless;
-
-		/// <summary>
-		/// Документооборот по ЭДО с клиентом по заказу осуществляется по новой схеме
-		/// </summary>
-		public virtual bool IsClientWorksWithNewEdoProcessing =>
-			Client?.IsNewEdoProcessing ?? false;
 			
 		/// <summary>
 		/// Полная сумма заказа

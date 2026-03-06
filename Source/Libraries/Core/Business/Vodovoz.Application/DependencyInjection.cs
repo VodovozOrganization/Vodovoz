@@ -1,4 +1,4 @@
-﻿using DriverApi.Notifications.Client;
+using DriverApi.Notifications.Client;
 using Microsoft.Extensions.DependencyInjection;
 using RevenueService.Client;
 using TrueMarkApi.Client;
@@ -6,6 +6,7 @@ using Vodovoz.Application.Clients;
 using Vodovoz.Application.Clients.Services;
 using Vodovoz.Application.Complaints;
 using Vodovoz.Application.Contacts;
+using Vodovoz.Application.Employees;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Application.Goods;
 using Vodovoz.Application.Logistics;
@@ -17,13 +18,16 @@ using Vodovoz.Application.Receipts;
 using Vodovoz.Application.Services.Subdivisions;
 using Vodovoz.Application.TrueMark;
 using Vodovoz.Application.Users;
+using Vodovoz.Application.Warehouses;
 using Vodovoz.Core.Domain.Users;
+using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Service;
 using Vodovoz.Handlers;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Orders;
 using VodovozBusiness.Controllers;
+using VodovozBusiness.Employees;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Settings;
 using VodovozBusiness.Models.TrueMark;
@@ -65,11 +69,14 @@ namespace Vodovoz.Application
 			.AddScoped<ITrueMarkTransportCodeFactory, TrueMarkTransportCodeFactory>()
 			.AddScoped<ITrueMarkWaterGroupCodeFactory, TrueMarkWaterGroupCodeFactory>()
 			.AddScoped<ITrueMarkWaterIdentificationCodeFactory, TrueMarkWaterIdentificationCodeFactory>()
+			.AddScoped<IWarehousePermissionService, WarehousePermissionService>()
+			.AddScoped<IExternalApplicationUserService, ExternalApplicationUserService>()
 			.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>()
 			.AddScoped<OurCodesChecker>()
 			.AddScoped<OrderCancellationService>()
 			.AddScoped<SelfdeliveryCancellationService>()
 			.AddScoped<IExternalCounterpartyHandler, ExternalCounterpartyHandler>()
+			.AddScoped<IStagingTrueMarkCodeFactory, StagingTrueMarkCodeFactory>()
 			.AddTrueMarkApiClient()
 			.AddApplicationOrderServices()
 		;

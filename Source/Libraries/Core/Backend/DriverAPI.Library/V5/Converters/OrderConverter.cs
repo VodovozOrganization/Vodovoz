@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
 
