@@ -72,7 +72,8 @@ namespace ExportTo1c.Library.Exporters
 					new XAttribute("НомерУПД", updNum),
 					new XAttribute("КонтрагентИНН", order.Client.INN),
 					new XAttribute("Договор", $"{order.Contract.Number} от {order.Contract.IssueDate:d}"),
-					new XAttribute("Статус", order.OrderStatus.GetEnumTitle())
+					new XAttribute("Статус", order.OrderStatus.GetEnumTitle()),
+					new XAttribute("ТипОплаты", order.PaymentType.GetEnumTitle())
 				);
 
 				var salesElement = new XElement("Продажи");
@@ -100,7 +101,6 @@ namespace ExportTo1c.Library.Exporters
 						new XAttribute("Сумма", item.Sum.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("СуммаНДС", item.CurrentNDS.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("СтавкаНДС", vatRateVersion.VatRate.GetValue1cComplexAutomation()),
-						new XAttribute("Безнал", item.Order.PaymentType != PaymentType.Cash),
 						new XAttribute("КатегорияНоменклатуры", item.Nomenclature.Category.GetEnumTitle()),
 						new XAttribute("ОдноразоваяТара", item.Nomenclature.IsDisposableTare)
 					);
