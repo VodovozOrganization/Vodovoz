@@ -351,38 +351,6 @@ namespace CustomerOrdersApi.Library.Services
 			return _signaturesSection.GetValue<string>(source.ToString());
 		}
 
-		public bool ValidateTransferOrderSignature(TransferOrderDto transferOrderDto, out string generatedSignature)
-		{
-			var sourceSign = GetSourceSign(transferOrderDto.Source);
-
-			return _signatureManager.Validate(
-				transferOrderDto.Signature,
-				new TransferOrderSignatureParams
-				{
-					OrderId = transferOrderDto.ExternalOrderId.ToString(),
-					DeliveryDate = transferOrderDto.DeliveryDate.ToString("yyyy-MM-dd"),
-					DeliveryScheduleId = transferOrderDto.DeliveryScheduleId,
-					ShopId = (int)transferOrderDto.Source,
-					Sign = sourceSign
-				},
-				out generatedSignature);
-		}
-
-		public bool ValidateCancelOrderSignature(CancelOrderDto cancelOrderDto, out string generatedSignature)
-		{
-			var sourceSign = GetSourceSign(cancelOrderDto.Source);
-
-			return _signatureManager.Validate(
-				cancelOrderDto.Signature,
-				new CancelOrderSignatureParams
-				{
-					OrderId = cancelOrderDto.ExternalOrderId.ToString(),
-					ShopId = (int)cancelOrderDto.Source,
-					Sign = sourceSign
-				},
-				out generatedSignature);
-		}
-
 		public CancellationCheckResultDto CanCancelOrder(CancelOrderDto cancelOrderDto)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot();

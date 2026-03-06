@@ -3,7 +3,6 @@ using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -13,6 +12,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Models.Orders;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Nomenclature;
@@ -21,19 +21,10 @@ using VodovozBusiness.Services.Orders;
 
 namespace CustomerOrdersApi.Library.Services
 {
-	public class OrderTransferService : IOrderTransferService
+	public class OrderTransferService : BaseOrderOperationService<TransferOrderDto, TransferOrderResult>, IOrderTransferService
 	{
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly ILogger<OrderTransferService> _logger;
-		private readonly IOnlineOrderRepository _onlineOrderRepository;
-		private readonly IOrderRepository _orderRepository;
-		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IFlyerRepository _flyerRepository;
 		private readonly IOrderContractUpdater _orderContractUpdater;
-		private readonly IEmployeeRepository _employeeRepository;
-		private readonly IRouteListService _routeListService;
-		private readonly INomenclatureSettings _nomenclatureSettings;
-		private readonly ICallTaskWorker _callTaskWorker;
 
 		public OrderTransferService(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -44,415 +35,286 @@ namespace CustomerOrdersApi.Library.Services
 			IFlyerRepository flyerRepository,
 			IOrderContractUpdater orderContractUpdater,
 			IEmployeeRepository employeeRepository,
+			ISubdivisionRepository subdivisionRepository,
 			IRouteListService routeListService,
 			INomenclatureSettings nomenclatureSettings,
-			ICallTaskWorker callTaskWorker
-			)
+			ICallTaskWorker callTaskWorker)
+			: base(
+				unitOfWorkFactory,
+				logger,
+				onlineOrderRepository,
+				orderRepository,
+				routeListItemRepository,
+				employeeRepository,
+				subdivisionRepository,
+				routeListService,
+				nomenclatureSettings,
+				callTaskWorker)
 		{
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_onlineOrderRepository = onlineOrderRepository ?? throw new ArgumentNullException(nameof(onlineOrderRepository));
-			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
-			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
-			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
-			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 		}
 
-		private static readonly OrderStatus[] _simpleTransferStatuses = new[]
-		{
-			OrderStatus.NewOrder,
-			OrderStatus.WaitForPayment,
-			OrderStatus.Accepted
-		};
+		public async Task<TransferOrderResult> TransferOrderAsync(TransferOrderDto transferOrderDto) => await ExecuteAsync(transferOrderDto);
 
-		private static readonly OrderStatus[] _complexTransferStatuses = new[]
-		{
-			OrderStatus.InTravelList,
-			OrderStatus.OnLoading,
-			OrderStatus.OnTheWay
-		};
+		protected override string OperationName => "Перенос";
 
-		private static readonly OrderStatus[] _allowedTransferStatuses =
-			_simpleTransferStatuses.Concat(_complexTransferStatuses).ToArray();
+		protected override string GetSuccessMessage() => "Заказ перенесен успешно";
 
-		public async Task<TransferOrderResult> TransferOrderAsync(TransferOrderDto transferOrderDto)
-		{
-			using var uow = _unitOfWorkFactory.CreateWithoutRoot();
-			try
-			{
-				var onlineOrder = _onlineOrderRepository.GetOnlineOrderByExternalId(uow, transferOrderDto.ExternalOrderId);
-
-				if(onlineOrder == null)
-				{
-					_logger.LogWarning(
-						"Попытка переноса несуществующего заказа: ExternalOrderId: {ExternalOrderId}",
-						transferOrderDto.ExternalOrderId);
-
-					return new TransferOrderResult(false, 404, "One or more validation errors occurred", "Заказ не найден");
-				}
-
-				var (canTransfer, statusTitle, requiresComplexHandling, errorMessage) =
-					CanTransferOrder(uow, transferOrderDto.ExternalOrderId);
-
-				if(!canTransfer)
-				{
-					_logger.LogWarning(
-						"Перенос заказа {ExternalOrderId} невозможен, причина: {Reason}",
-						transferOrderDto.ExternalOrderId,
-						errorMessage);
-
-					return new TransferOrderResult(false, 408, "One or more validation errors occurred", errorMessage);
-				}
-
-				if(!onlineOrder.Orders.Any())
-				{
-					_logger.LogWarning(
-						"Попытка переноса онлайн заказа {ExternalOrderId} без привязанного заказа",
-						transferOrderDto.ExternalOrderId);
-
-					return new TransferOrderResult(
-						false,
-						400,
-						"One or more validation errors occurred",
-						"Онлайн заказ не имеет привязанного заказа. Сначала необходимо создать заказ.");
-				}
-
-				var undeliveryStatuses = _orderRepository.GetUndeliveryStatuses();
-				var order = onlineOrder.Orders.FirstOrDefault(x => !undeliveryStatuses.Contains(x.OrderStatus));
-
-				if(requiresComplexHandling)
-				{
-					return await TransferComplexOrderAsync(uow, order, onlineOrder, transferOrderDto);
-				}
-				else
-				{
-					return await TransferSimpleOrderAsync(uow, order, onlineOrder, transferOrderDto);
-				}
-
-				throw new InvalidOperationException($"Неизвестный статус заказа: {order.OrderStatus}");
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex,
-					"Ошибка при переносе заказа {ExternalOrderId}",
-					transferOrderDto.ExternalOrderId);
-
-				return new TransferOrderResult(false, 500, "One or more validation errors occurred", "Произошла ошибка, пожалуйста, попробуйте позже");
-			}
-		}
-
-		private (bool canTransfer, string statusTitle, bool requiresComplexHandling, string errorMessage) CanTransferOrder(IUnitOfWork uow, Guid externalOrderId)
-		{
-			var onlineOrder = _onlineOrderRepository.GetOnlineOrderByExternalId(uow, externalOrderId);
-
-			if(onlineOrder == null)
-			{
-				return (false, default, default, "Заказ не найден");
-			}
-
-			if(onlineOrder.Orders.Count == 0)
-			{
-				return (true, "Без привязанного заказа", false, default);
-			}
-
-			var undeliveryStatuses = _orderRepository.GetUndeliveryStatuses();
-			var order = onlineOrder.Orders.FirstOrDefault(x => !undeliveryStatuses.Contains(x.OrderStatus));
-
-			if(order == null)
-			{
-				return (false, default, default, "Заказ не найден");
-			}
-
-			if(!_allowedTransferStatuses.Contains(order.OrderStatus))
-			{
-				return (
-					false,
-					order.OrderStatus.GetEnumTitle(),
-					default,
-					$"Невозможно перенести заказ в статусе '{order.OrderStatus.GetEnumTitle()}'"
-				);
-			}
-
-			return (
-				true,
-				order.OrderStatus.GetEnumTitle(),
-				_complexTransferStatuses.Contains(order.OrderStatus),
-				default
-			);
-		}
-
-		/// <summary>
-		/// Простой перенос заказа (статусы: Новый, Ожидание оплаты, Принят)
-		/// Просто меняем дату и время доставки
-		/// </summary>
-		private async Task<TransferOrderResult> TransferSimpleOrderAsync(
+		protected override async Task<TransferOrderResult> ProcessSimpleOperationAsync(
 			IUnitOfWork uow,
 			Order order,
 			OnlineOrder onlineOrder,
-			TransferOrderDto transferOrderDto)
+			TransferOrderDto dto)
 		{
-			try
+			_logger.LogInformation(
+				"Начало простого переноса заказа {OrderId} в статусе {Status}",
+				order.Id,
+				order.OrderStatus.GetEnumTitle());
+
+			order.TransferToNewDateAndSchedule(
+				dto.DeliveryDate,
+				dto.DeliveryScheduleId,
+				_orderContractUpdater,
+				out _);
+
+			uow.Save(order);
+			uow.Commit();
+
+			_logger.LogInformation(
+				"Простой перенос заказа {OrderId} на дату {NewDate} успешно завершен",
+				order.Id,
+				dto.DeliveryDate);
+
+			return CreateSuccessResult(GetSuccessMessage());
+		}
+
+		protected override async Task<TransferOrderResult> ProcessComplexOperationAsync(
+			IUnitOfWork uow,
+			Order order,
+			OnlineOrder onlineOrder,
+			TransferOrderDto dto)
+		{
+			return order.OrderStatus switch
 			{
-				_logger.LogInformation(
-					"Начало переноса заказа {OrderId} в статусе {Status}",
-					order.Id,
-					order.OrderStatus.GetEnumTitle());
+				OrderStatus.InTravelList =>
+					await TransferFromTravelListAsync(uow, order, onlineOrder, dto),
 
-				order.TransferToNewDateAndSchedule(
-					transferOrderDto.DeliveryDate,
-					transferOrderDto.DeliveryScheduleId,
-					_orderContractUpdater,
-					out string orderMessage);
+				OrderStatus.OnLoading or OrderStatus.OnTheWay =>
+					await TransferWithUndeliveryAsync(uow, order, onlineOrder, dto),
 
-				onlineOrder.DeliveryDate = transferOrderDto.DeliveryDate;
-				onlineOrder.DeliveryScheduleId = transferOrderDto.DeliveryScheduleId;
-
-				uow.Save(order);
-				uow.Save(onlineOrder);
-				uow.Commit();
-
-				_logger.LogInformation(
-					"Перенос заказа {OrderId} на дату {NewDate} успешно завершен",
-					order.Id,
-					transferOrderDto.DeliveryDate);
-
-				return new TransferOrderResult(true, 200, "Success", "Заказ перенесен успешно");
+				_ => throw new InvalidOperationException($"Неожиданный статус заказа: {order.OrderStatus}")
+			};
+		}
+		
+		protected override async Task<OperationValidationResult> ValidateSpecificAsync(
+			IUnitOfWork uow,
+			Order order,
+			OnlineOrder onlineOrder,
+			TransferOrderDto dto)
+		{
+			if(dto.DeliveryScheduleId <= 0)
+			{
+				return OperationValidationResult.Invalid("Не указано время доставки");
 			}
-			catch(Exception ex)
+
+			if(dto.DeliveryDate.Date < DateTime.Now.Date)
 			{
-				_logger.LogError(ex,
-					"Ошибка при простом переносе заказа {OrderId}",
+				return OperationValidationResult.Invalid("Дата доставки не может быть назначена на прошлую дату");
+			}
+
+			if(order.DeliverySchedule != null &&
+				dto.DeliveryScheduleId == order.DeliverySchedule.Id &&
+				order.DeliveryDate.HasValue &&
+				dto.DeliveryDate.Date == order.DeliveryDate.Value.Date)
+			{
+				return OperationValidationResult.Invalid("Заказ уже запланирован на то же время доставки");
+			}
+
+			if(order.DeliveryDate.HasValue && dto.DeliveryDate.Date == order.DeliveryDate.Value.Date)
+			{
+				_logger.LogWarning(
+					"Попытка переноса заказа {ExternalOrderId} на ту же дату доставки {DeliveryDate}",
+					dto.ExternalOrderId,
+					dto.DeliveryDate);
+			}
+
+			return OperationValidationResult.Valid();
+		}
+
+		private async Task<TransferOrderResult> TransferFromTravelListAsync(
+			IUnitOfWork uow,
+			Order order,
+			OnlineOrder onlineOrder,
+			TransferOrderDto dto)
+		{
+			_logger.LogInformation(
+				"Перенос заказа {OrderId} из маршрутного листа",
+				order.Id);
+
+			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(uow, order);
+
+			if(routeListItem is null)
+			{
+				_logger.LogWarning(
+					"Позиция маршрутного листа не найдена для заказа {OrderId}",
 					order.Id);
 
-				return new TransferOrderResult(false, 500, "One or more validation errors occurred", "Произошла ошибка при переносе заказа");
-			}
-		}
-
-		/// <summary>
-		/// Сложный перенос заказа (статусы: В маршрутном листе, На погрузке, В пути)
-		/// </summary>
-		private async Task<TransferOrderResult> TransferComplexOrderAsync(
-			IUnitOfWork uow,
-			Order order,
-			OnlineOrder onlineOrder,
-			TransferOrderDto transferOrderDto)
-		{
-			try
-			{
-				return order.OrderStatus switch
+				var result = new TransferOrderResult
 				{
-					OrderStatus.InTravelList =>
-						await TransferOrderFromTravelListAsync(uow, order, onlineOrder, transferOrderDto),
-
-					OrderStatus.OnLoading or OrderStatus.OnTheWay =>
-						await TransferOrderFromOnTheWayOrOnLoadingAsync(uow, order, onlineOrder, transferOrderDto),
-
-					_ => throw new InvalidOperationException($"Неожиданный статус заказа: {order.OrderStatus}")
+					IsSuccess = false,
+					StatusCode = 400,
+					Title = "One or more validation errors occurred",
+					DetailMessage = "Позиция маршрутного листа не найдена"
 				};
+				return result;
 			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex,
-					"Ошибка при переносе заказа {OrderId} в статусе {Status}",
-					order.Id,
-					order.OrderStatus.GetEnumTitle());
 
-				return new TransferOrderResult(
-					false,
-					500,
-					"One or more validation errors occurred",
-					"Произошла ошибка при переносе заказа");
-			}
+			var routeList = routeListItem.RouteList;
+			routeList.RemoveAddress(routeListItem);
+			routeList.Version = DateTime.Now;
+
+			order.ChangeStatus(OrderStatus.Accepted);
+			order.Version = DateTime.Now;
+			order.TransferToNewDateAndSchedule(
+				dto.DeliveryDate,
+				dto.DeliveryScheduleId,
+				_orderContractUpdater,
+				out _);
+
+			onlineOrder.DeliveryDate = dto.DeliveryDate;
+			onlineOrder.DeliveryScheduleId = dto.DeliveryScheduleId;
+
+			uow.Save(routeList);
+			uow.Save(order);
+			uow.Save(onlineOrder);
+			uow.Commit();
+
+			_logger.LogInformation(
+				"Заказ {OrderId} успешно перенесен из маршрутного листа на {NewDate}",
+				order.Id,
+				dto.DeliveryDate);
+
+			var successResult = new TransferOrderResult
+			{
+				IsSuccess = true,
+				StatusCode = 200,
+				Title = "Success",
+				DetailMessage = GetSuccessMessage()
+			};
+			return successResult;
 		}
 
-		/// <summary>
-		/// Перенос заказа из маршрутного листа (статус: В маршрутном листе)
-		/// </summary>
-		private async Task<TransferOrderResult> TransferOrderFromTravelListAsync(
+		private async Task<TransferOrderResult> TransferWithUndeliveryAsync(
 			IUnitOfWork uow,
 			Order order,
 			OnlineOrder onlineOrder,
-			TransferOrderDto transferOrderDto)
+			TransferOrderDto dto)
 		{
-			try
+			_logger.LogInformation(
+				"Начало переноса заказа {OrderId} из статуса '{Status}' с использованием механизма недовоза",
+				order.Id,
+				order.OrderStatus.GetEnumTitle());
+
+			//var currentUser = _employeeRepository.GetEmployeeForCurrentUser(uow);
+			var currentUser = uow.GetById<Employee>(1468);
+			if(currentUser is null)
 			{
-				_logger.LogInformation(
-					"Перенос заказа {OrderId} из маршрутного листа",
+				_logger.LogWarning(
+					"Не удалось получить текущего пользователя для переноса заказа {OrderId}",
 					order.Id);
 
-				var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(uow, order);
-
-				if(routeListItem == null)
+				var result = new TransferOrderResult
 				{
-					_logger.LogWarning(
-						"Позиция маршрутного листа не найдена для заказа {OrderId}",
-						order.Id);
-
-					return new TransferOrderResult(
-						false,
-						400,
-						"One or more validation errors occurred",
-						"Позиция маршрутного листа не найдена");
-				}
-
-				var routeList = routeListItem.RouteList;
-				routeList.RemoveAddress(routeListItem);
-				routeList.Version = DateTime.Now;
-
-				order.ChangeStatus(OrderStatus.Accepted);
-				order.Version = DateTime.Now;
-
-				order.TransferToNewDateAndSchedule(
-					transferOrderDto.DeliveryDate,
-					transferOrderDto.DeliveryScheduleId,
-					_orderContractUpdater,
-					out string orderMessage);
-
-				onlineOrder.DeliveryDate = transferOrderDto.DeliveryDate;
-				onlineOrder.DeliveryScheduleId = transferOrderDto.DeliveryScheduleId;
-
-				uow.Save(routeList);
-				uow.Save(order);
-				uow.Save(onlineOrder);
-				uow.Commit();
-
-				_logger.LogInformation(
-					"Заказ {OrderId} успешно перенесен из маршрутного листа на {NewDate}",
-					order.Id,
-					transferOrderDto.DeliveryDate);
-
-				return new TransferOrderResult(true, 200, "Success", "Заказ перенесен успешно");
+					IsSuccess = false,
+					StatusCode = 500,
+					Title = "One or more validation errors occurred",
+					DetailMessage = "Не удалось получить информацию о пользователе"
+				};
+				return result;
 			}
-			catch(Exception ex)
+
+			var deliverySchedule = uow.GetById<DeliverySchedule>(dto.DeliveryScheduleId);
+			if(deliverySchedule is null)
 			{
-				_logger.LogError(ex,
-					"Ошибка при переносе заказа {OrderId} из маршрутного листа",
-					order.Id);
+				_logger.LogWarning(
+					"Расписание доставки не найдено: {DeliveryScheduleId}",
+					dto.DeliveryScheduleId);
 
-				return new TransferOrderResult(
-					false,
-					500,
-					"One or more validation errors occurred",
-					"Произошла ошибка при переносе заказа");
+				var result = new TransferOrderResult
+				{
+					IsSuccess = false,
+					StatusCode = 400,
+					Title = "One or more validation errors occurred",
+					DetailMessage = "Расписание доставки не найдено"
+				};
+				return result;
 			}
+
+			var newOrder = CreateOrderCopy(uow, order, dto.DeliveryDate, deliverySchedule);
+
+			_logger.LogInformation(
+				"Создана копия заказа {OrderId}: новый заказ {NewOrderId}",
+				order.Id,
+				newOrder.Id);
+
+			var undelivery = CreateUndeliveryForTransfer(
+				uow,
+				order,
+				newOrder,
+				currentUser,
+				deliverySchedule);
+
+			order.SetUndeliveredStatus(
+				uow,
+				_routeListService,
+				_nomenclatureSettings,
+				_callTaskWorker,
+				needCreateDeliveryFreeBalanceOperation: false);
+
+			_logger.LogInformation(
+				"Установлен статус 'Недовезено' для заказа {OrderId}",
+				order.Id);
+
+			onlineOrder.Orders.Add(newOrder);
+			onlineOrder.DeliveryDate = dto.DeliveryDate;
+			onlineOrder.DeliveryScheduleId = dto.DeliveryScheduleId;
+
+			uow.Save(order);
+			uow.Save(newOrder);
+			uow.Save(undelivery);
+			uow.Save(onlineOrder);
+			uow.Commit();
+
+			_logger.LogInformation(
+				"Заказ {OrderId} успешно перенесен из статуса '{Status}' на дату {NewDate} через механизм недовоза. Новый заказ: {NewOrderId}, Недовоз: {UndeliveryId}",
+				order.Id,
+				order.OrderStatus.GetEnumTitle(),
+				dto.DeliveryDate,
+				newOrder.Id,
+				undelivery.Id);
+
+			var successResult = new TransferOrderResult
+			{
+				IsSuccess = true,
+				StatusCode = 200,
+				Title = "Success",
+				DetailMessage = GetSuccessMessage()
+			};
+			return successResult;
 		}
 
-		/// <summary>
-		/// Перенос заказа со статусами "На погрузке" и "В пути" с использованием механизма недовоза.
-		/// Создается копия заказа с новой датой доставки, старый заказ отменяется через недовоз
-		/// </summary>
-		private async Task<TransferOrderResult> TransferOrderFromOnTheWayOrOnLoadingAsync(
-			IUnitOfWork uow,
-			Order order,
-			OnlineOrder onlineOrder,
-			TransferOrderDto transferOrderDto)
-		{
-			try
-			{
-				_logger.LogInformation(
-					"Начало переноса заказа {OrderId} из статуса 'В пути' с использованием механизма недовоза",
-					order.Id);
-
-				var currentUser = _employeeRepository.GetEmployeeForCurrentUser(uow);
-				if(currentUser == null)
-				{
-					_logger.LogWarning(
-						"Не удалось получить текущего пользователя для переноса заказа {OrderId}",
-						order.Id);
-
-					return new TransferOrderResult(
-						false,
-						500,
-						"One or more validation errors occurred",
-						"Не удалось получить информацию о пользователе");
-				}
-
-				var deliverySchedule = uow.GetById<DeliverySchedule>(transferOrderDto.DeliveryScheduleId);
-				if(deliverySchedule == null)
-				{
-					_logger.LogWarning(
-						"Расписание доставки не найдено: {DeliveryScheduleId}",
-						transferOrderDto.DeliveryScheduleId);
-
-					return new TransferOrderResult(
-						false,
-						400,
-						"One or more validation errors occurred",
-						"Расписание доставки не найдено");
-				}
-
-				var newOrder = CreateOrderCopy(uow, order, transferOrderDto.DeliveryDate, deliverySchedule);
-
-				_logger.LogInformation(
-					"Создана копия заказа {OrderId}: новый заказ {NewOrderId}",
-					order.Id,
-					newOrder.Id);
-
-				var undelivery = CreateUndeliveryForTransfer(
-					uow,
-					order,
-					newOrder,
-					currentUser,
-					deliverySchedule);
-
-				order.SetUndeliveredStatus(
-					uow,
-					_routeListService,
-					_nomenclatureSettings,
-					_callTaskWorker,
-					needCreateDeliveryFreeBalanceOperation: false);
-
-				_logger.LogInformation(
-					"Установлен статус 'Недовезено' для заказа {OrderId}",
-					order.Id);
-
-				onlineOrder.Orders.Add(newOrder);
-				onlineOrder.DeliveryDate = transferOrderDto.DeliveryDate;
-				onlineOrder.DeliveryScheduleId = transferOrderDto.DeliveryScheduleId;
-
-				uow.Save(order);
-				uow.Save(newOrder);
-				uow.Save(undelivery);
-				uow.Save(onlineOrder);
-				uow.Commit();
-
-				_logger.LogInformation(
-					"Заказ {OrderId} успешно перенесен из статуса 'В пути' на дату {NewDate} через механизм недовоза. Новый заказ: {NewOrderId}, Недовоз: {UndeliveryId}",
-					order.Id,
-					transferOrderDto.DeliveryDate,
-					newOrder.Id,
-					undelivery.Id);
-
-				return new TransferOrderResult(true, 200, "Success", "Заказ перенесен успешно");
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex,
-					"Ошибка при переносе заказа {OrderId} из статуса 'В пути'",
-					order.Id);
-
-				return new TransferOrderResult(
-					false,
-					500,
-					"One or more validation errors occurred",
-					"Произошла ошибка при переносе заказа");
-			}
-		}
-
-		/// <summary>
-		/// Создает копию заказа с новой датой доставки
-		/// </summary>
 		private Order CreateOrderCopy(
 			IUnitOfWork uow,
 			Order originalOrder,
 			DateTime newDeliveryDate,
 			DeliverySchedule newDeliverySchedule)
 		{
-			var newOrder = new Order();
+			var newOrder = new Order
+			{
+				UoW = uow
+			};
+
 			var orderCopyModel = new OrderCopyModel(_nomenclatureSettings, _flyerRepository, _orderContractUpdater);
 
 			var copying = orderCopyModel.StartCopyOrder(uow, originalOrder.Id, newOrder)
@@ -473,13 +335,13 @@ namespace CustomerOrdersApi.Library.Services
 			newOrder.OrderStatus = OrderStatus.Accepted;
 			newOrder.IsCopiedFromUndelivery = true;
 
-			if(copying.GetCopiedOrder.PaymentType == PaymentType.PaidOnline)
+			if(copying.GetCopiedOrder.PaymentType is PaymentType.PaidOnline)
 			{
 				copying.CopyPaymentByCardDataIfPossible();
 			}
 
-			if(copying.GetCopiedOrder.PaymentType == PaymentType.DriverApplicationQR
-				|| copying.GetCopiedOrder.PaymentType == PaymentType.SmsQR)
+			if(copying.GetCopiedOrder.PaymentType is PaymentType.DriverApplicationQR
+				|| copying.GetCopiedOrder.PaymentType is PaymentType.SmsQR)
 			{
 				copying.CopyPaymentByQrDataIfPossible();
 			}
@@ -489,13 +351,14 @@ namespace CustomerOrdersApi.Library.Services
 			return newOrder;
 		}
 
-		private static UndeliveredOrder CreateUndeliveryForTransfer(
+		private UndeliveredOrder CreateUndeliveryForTransfer(
 			IUnitOfWork uow,
 			Order oldOrder,
 			Order newOrder,
 			Employee currentUser,
 			DeliverySchedule newDeliverySchedule)
 		{
+			var oksSubdivision = _subdivisionRepository.GetQCDepartment(uow);
 			var undelivery = new UndeliveredOrder
 			{
 				UoW = uow,
@@ -505,8 +368,18 @@ namespace CustomerOrdersApi.Library.Services
 				Author = currentUser,
 				EmployeeRegistrator = currentUser,
 				TimeOfCreation = DateTime.Now,
-				OrderTransferType = TransferType.AutoTransferApproved // Или TransferredByCounterparty?
+				OrderTransferType = TransferType.AutoTransferApproved,
+				Reason = "Перенос заказа клиентом",
+				InProcessAtDepartment = oksSubdivision
 			};
+
+			var guilty = new GuiltyInUndelivery
+			{
+				UndeliveredOrder = undelivery,
+				GuiltySide = GuiltyTypes.None
+			};
+
+			undelivery.GuiltyInUndelivery.Add(guilty);
 
 			undelivery.CreateOkkDiscussion(uow);
 

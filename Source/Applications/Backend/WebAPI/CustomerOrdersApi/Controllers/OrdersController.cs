@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
-using Vodovoz.Application.Orders.Services.OrderCancellation;
 using VodovozHealthCheck.Helpers;
 
 namespace CustomerOrdersApi.Controllers
@@ -160,19 +159,11 @@ namespace CustomerOrdersApi.Controllers
 			try
 			{
 				Logger.LogInformation(
-					"Поступил запрос от {Source} на перенос заказа {ExternalOrderId} на дату {DeliveryDate} с интервалом {DeliveryScheduleId} c подписью {Signature}, проверяем...",
+					"Поступил запрос от {Source} на перенос заказа {ExternalOrderId} на дату {DeliveryDate} с интервалом {DeliveryScheduleId}, проверяем...",
 					sourceName,
 					transferOrderDto.ExternalOrderId,
 					transferOrderDto.DeliveryDate,
-					transferOrderDto.DeliveryScheduleId,
-					transferOrderDto.Signature);
-
-				if(!_customerOrdersService.ValidateTransferOrderSignature(transferOrderDto, out var generatedSignature))
-				{
-					return InvalidSignature(transferOrderDto.Signature, generatedSignature);
-				}
-
-				Logger.LogInformation("Подпись валидна, выполняем перенос заказа");
+					transferOrderDto.DeliveryScheduleId);
 
 				var transferResult = await _orderTransferService.TransferOrderAsync(transferOrderDto);
 
@@ -212,30 +203,22 @@ namespace CustomerOrdersApi.Controllers
 			try
 			{
 				Logger.LogInformation(
-					"Поступил запрос от {Source} на отмену заказа {ExternalOrderId} c подписью {Signature}, проверяем...",
+					"Поступил запрос от {Source} на отмену заказа {ExternalOrderId}, проверяем...",
 					sourceName,
-					cancelOrderDto.ExternalOrderId,
-					cancelOrderDto.Signature);
-
-				if(!_customerOrdersService.ValidateCancelOrderSignature(cancelOrderDto, out var generatedSignature))
-				{
-					return InvalidSignature(cancelOrderDto.Signature, generatedSignature);
-				}
-
-				Logger.LogInformation("Подпись валидна, проверяем возможность отмены");
+					cancelOrderDto.ExternalOrderId);
 
 				var cancellationResult = await _orderCancellationService.CancelOrderAsync(cancelOrderDto);
 
 				Logger.LogInformation(
 					"Результат отмены: Success={Success}, StatusCode={StatusCode}",
-					cancellationResult.Success,
+					cancellationResult.IsSuccess,
 					cancellationResult.StatusCode);
 
 				return StatusCode(cancellationResult.StatusCode, new
 				{
 					title = cancellationResult.Title,
 					status = cancellationResult.StatusCode,
-					detail = cancellationResult.Detail
+					detail = cancellationResult.DetailMessage
 				});
 			}
 			catch(Exception e)

@@ -49,22 +49,6 @@ namespace CustomerOrdersApi.Library.Services
 		bool ValidateRequestForCallSignature(CreatingRequestForCallDto creatingInfoDto, out string generatedSignature);
 
 		/// <summary>
-		/// Валидирует подпись запроса на перенос заказа
-		/// </summary>
-		/// <param name="transferOrderDto">DTO с данными для переноса заказа</param>
-		/// <param name="generatedSignature">Сгенерированная подпись для сравнения</param>
-		/// <returns>true, если подпись валидна; иначе false</returns>
-		bool ValidateTransferOrderSignature(TransferOrderDto transferOrderDto, out string generatedSignature);
-
-		/// <summary>
-		/// Валидирует подпись запроса на отмену заказа
-		/// </summary>
-		/// <param name="cancelOrderDto">DTO с данными для отмены заказа</param>
-		/// <param name="generatedSignature">Сгенерированная подпись для сравнения</param>
-		/// <returns>true, если подпись валидна; иначе false</returns>
-		bool ValidateCancelOrderSignature(CancelOrderDto cancelOrderDto, out string generatedSignature);
-
-		/// <summary>
 		/// Получает детальную информацию о заказе
 		/// </summary>
 		/// <param name="getDetailedOrderInfoDto">DTO с параметрами запроса на получение деталей</param>
