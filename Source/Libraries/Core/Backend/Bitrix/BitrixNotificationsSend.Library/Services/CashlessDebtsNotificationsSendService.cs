@@ -8,13 +8,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
-using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Organizations;
 using VodovozBusiness.EntityRepositories.Nodes;
 
@@ -109,30 +107,30 @@ namespace BitrixNotificationsSend.Library.Services
 		{
 			var counterpartiesDebtData = new List<CounterpartyCashlessDebtDto>();
 
-			var counterpartiesNotPaidOrdersData = await GetNotPaidCashlessOrdersData(
+			var counterpartiesOrdersData = await GetNotPaidCashlessOrdersData(
 				uow,
 				organizationId,
 				cancellationToken);
 
 			var counterpartiesPaymentsData = await GetCounterpatiesPaymentsData(
 				uow,
-				counterpartiesNotPaidOrdersData.Keys,
+				counterpartiesOrdersData.Keys,
 				organizationId,
 				cancellationToken);
 
 			var counterpartiesBottlesDebtData = GetCounterpartiesBottlesDebtData(
 				uow,
-				counterpartiesNotPaidOrdersData.Keys);
+				counterpartiesOrdersData.Keys);
 
 			var counterpartiesEmails = GetCounterpartiesEmails(
 				uow,
-				counterpartiesNotPaidOrdersData.Keys);
+				counterpartiesOrdersData.Keys);
 
 			var counterpartiesPhones = GetCounterpartyiesPhones(
 				uow,
-				counterpartiesNotPaidOrdersData.Keys);
+				counterpartiesOrdersData.Keys);
 
-			var noPhoneCounteraparties = counterpartiesNotPaidOrdersData.Keys
+			var noPhoneCounteraparties = counterpartiesOrdersData.Keys
 				.Except(counterpartiesPhones.Keys)
 				.ToList();
 
@@ -140,11 +138,10 @@ namespace BitrixNotificationsSend.Library.Services
 				uow,
 				noPhoneCounteraparties);
 
-			foreach(var counterpartyOrdersData in counterpartiesNotPaidOrdersData)
+			foreach(var counterpartyOrdersData in counterpartiesOrdersData)
 			{
 				var counterpartyId = counterpartyOrdersData.Key;
 				var ordersData = counterpartyOrdersData.Value;
-				var firstOrderData = ordersData.FirstOrDefault();
 
 				counterpartiesPaymentsData.TryGetValue(counterpartyId, out var counterpartyPaymentsData);
 				var counterpartyPayments = counterpartyPaymentsData?.FirstOrDefault();
@@ -160,23 +157,23 @@ namespace BitrixNotificationsSend.Library.Services
 				var couterpartyDebtData = new CounterpartyCashlessDebtDto
 				{
 					OrganizationId = organizationId,
-					OrganizationName = firstOrderData?.OrganizationName,
+					OrganizationName = ordersData.OrganizationName,
 					CounterpartyId = counterpartyId,
 					CounterpartyName = counterpartyPayments?.CounterpartyName,
 					CounterpartyInn = counterpartyPayments?.CounterpartyInn,
-					CounterpartyPhones = counterpartyPhones?.Select(x => x.Number).Distinct() ?? Enumerable.Empty<string>(),
-					CounterpartyOrdersContactPhones = counterpartyOrdersContactPhones?.Select(x => x.Number).Distinct() ?? Enumerable.Empty<string>(),
+					CounterpartyPhones = counterpartyPhones ?? Enumerable.Empty<string>(),
+					CounterpartyOrdersContactPhones = counterpartyOrdersContactPhones ?? Enumerable.Empty<string>(),
 					UnallocatedBalance = counterpartyPayments?.UnallocatedBalance ?? default,
-					NotPaidOrdersSum = ordersData.Sum(x => x.NotPaidSum),
-					PartialPaidOrdersSum = ordersData.Sum(x => x.PartialPaidSum),
+					NotPaidOrdersSum = ordersData.TotalNotPaidSum,
+					PartialPaidOrdersSum = ordersData.TotalPartialPaidSum,
 					WriteOffSum = counterpartyPayments?.WriteOffSum ?? default,
-					OverdueDebtorDebt = ordersData.Sum(x => x.OverdueDebtorDebt),
+					OverdueDebtorDebt = ordersData.TotalOverdueDebtorDebt,
 					DelayDaysForCounterparty = counterpartyPayments?.DelayDaysForCounterparty ?? default,
-					OrderMinDeliveryDate = ordersData.Min(x => x.OrderDeliveryDate),
+					OrderMinDeliveryDate = ordersData.MinOrderDeliveryDate,
 					IsCounterpartyLiquidating = counterpartyPayments?.IsLiquidating ?? default,
 					BottlesDelivered = counterpartyBottlesDebtData?.Delivered ?? 0,
 					BottlesReturned = counterpartyBottlesDebtData?.Returned ?? 0,
-					Emails = counterpartyEmails?.Select(x => x.Address).Distinct() ?? Enumerable.Empty<string>()
+					Emails = counterpartyEmails ?? Enumerable.Empty<string>()
 				};
 
 				counterpartiesDebtData.Add(couterpartyDebtData);
@@ -185,7 +182,7 @@ namespace BitrixNotificationsSend.Library.Services
 			return counterpartiesDebtData;
 		}
 
-		private async Task<IDictionary<int, OrderPaymentsDataNode[]>> GetNotPaidCashlessOrdersData(
+		private async Task<IDictionary<int, CounterpartyOrdersAggregatedNode>> GetNotPaidCashlessOrdersData(
 			IUnitOfWork uow,
 			int organizationId,
 			CancellationToken cancellationToken) =>
@@ -208,17 +205,17 @@ namespace BitrixNotificationsSend.Library.Services
 			IEnumerable<int> counterparties) =>
 			_bottlesRepository.GetCounterpartiesBottlesDebtData(uow, counterparties);
 
-		private IDictionary<int, Email[]> GetCounterpartiesEmails(
+		private IDictionary<int, string[]> GetCounterpartiesEmails(
 			IUnitOfWork uow,
 			IEnumerable<int> counterparties) =>
 			_counterpartyRepository.GetCounterpartyEmails(uow, counterparties);
 
-		private IDictionary<int, Phone[]> GetCounterpartyiesPhones(
+		private IDictionary<int, string[]> GetCounterpartyiesPhones(
 			IUnitOfWork uow,
 			IEnumerable<int> counterparties) =>
 			_counterpartyRepository.GetCounterpartyPhones(uow, counterparties);
 
-		private IDictionary<int, Phone[]> GetCounterpartiesOrdersContactPhones(
+		private IDictionary<int, string[]> GetCounterpartiesOrdersContactPhones(
 			IUnitOfWork uow,
 			IEnumerable<int> counterparties) =>
 			_counterpartyRepository.GetCounterpartyOrdersContactPhones(uow, counterparties);
