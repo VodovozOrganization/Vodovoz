@@ -9,9 +9,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Osrm;
 using QS.Project.Core;
 using QS.Services;
 using Vodovoz;
+using Vodovoz.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
@@ -59,7 +61,9 @@ namespace CustomerOrdersApi
 				.AddDriverApiNotificationsSenders()
 				.AddInfrastructure()
 				.AddConfig(Configuration)
-				.AddDependenciesGroup();
+				.AddDependenciesGroup()
+				.AddApplicationOrderServices()
+				.AddOsrm();
 
 			services.AddStaticScopeForEntity();
 

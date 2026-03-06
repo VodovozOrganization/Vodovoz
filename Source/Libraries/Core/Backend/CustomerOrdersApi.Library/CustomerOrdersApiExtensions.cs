@@ -1,7 +1,4 @@
-﻿using System;
-using System.Net.Security;
-using System.Security.Authentication;
-using CustomerOrdersApi.Library.Config;
+﻿using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.Converters;
 using CustomerOrdersApi.Library.Dto.Orders;
 using CustomerOrdersApi.Library.Factories;
@@ -10,9 +7,17 @@ using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
+using System;
+using System.Net.Security;
+using System.Security.Authentication;
+using Vodovoz.Application.Logistics;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Handlers;
+using Vodovoz.Services.Logistics;
+using Vodovoz.Settings.Database.Nomenclature;
+using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Pacs;
+using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Cryptography;
 
 namespace CustomerOrdersApi.Library
@@ -38,8 +43,13 @@ namespace CustomerOrdersApi.Library
 				.AddScoped<ICustomerOrderFactory, CustomerOrderFactory>()
 				.AddScoped<IExternalOrderStatusConverter, ExternalOrderStatusConverter>()
 				.AddScoped<IOnlineOrderDiscountHandler, OnlineOrderDiscountHandler>()
-				.AddScoped<IOnlineOrderFixedPriceHandler, OnlineOrderFixedPriceHandler>();
-			
+				.AddScoped<IOrderTransferService, OrderTransferService>()
+				.AddScoped<IOrderCancellationService, OrderCancellationService>()
+				.AddScoped<IRouteListService, RouteListService>()
+				.AddScoped<INomenclatureSettings, NomenclatureSettings>()
+				.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
+				.AddScoped<IOnlineOrderService, OnlineOrderService>();
+
 			return services;
 		}
 

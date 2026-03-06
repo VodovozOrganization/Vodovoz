@@ -1782,7 +1782,39 @@ namespace Vodovoz.Domain.Orders
 				_nomenclatureService.CalculateMasterCallNomenclaturePriceIfNeeded(UoW, this);
 			}
 		}
-		
+
+		/// <summary>
+		/// Переносит заказ на новую дату с новым интервалом доставки
+		/// </summary>
+		public virtual void TransferToNewDateAndSchedule(
+			DateTime newDeliveryDate,
+			int? newDeliveryScheduleId,
+			IOrderContractUpdater contractUpdater,
+			out string message)
+		{
+			message = string.Empty;
+
+			UpdateDeliveryDate(newDeliveryDate, contractUpdater, out var dateMessage);
+
+			if(newDeliveryScheduleId.HasValue)
+			{
+				var newSchedule = UoW.GetById<DeliverySchedule>(newDeliveryScheduleId.Value);
+				if(newSchedule != null)
+				{
+					DeliverySchedule = newSchedule;
+				}
+				else
+				{
+					throw new InvalidOperationException($"Расписание доставки с ID {newDeliveryScheduleId} не найдено");
+				}
+			}
+
+			if(!string.IsNullOrEmpty(dateMessage))
+			{
+				message = dateMessage;
+			}
+		}
+
 		/// <summary>
 		/// Проверка, является ли клиент по заказу сетевым покупателем
 		/// и нужно ли собирать данный заказ отдельно при отгрузке со склада

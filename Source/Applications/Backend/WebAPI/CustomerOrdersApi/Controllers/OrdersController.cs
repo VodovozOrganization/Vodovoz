@@ -13,15 +13,21 @@ namespace CustomerOrdersApi.Controllers
 	public class OrdersController : SignatureControllerBase
 	{
 		private readonly ICustomerOrdersService _customerOrdersService;
+		private readonly IOrderTransferService _orderTransferService;
+		private readonly IOrderCancellationService _orderCancellationService;
 		private readonly IPublishEndpoint _publishEndpoint;
 
 		public OrdersController(
 			ILogger<OrdersController> logger,
 			ICustomerOrdersService customerOrdersService,
+			IOrderTransferService orderTransferService,
+			IOrderCancellationService orderCancellationService,
 			IPublishEndpoint publishEndpoint
 			) : base(logger)
 		{
 			_customerOrdersService = customerOrdersService ?? throw new ArgumentNullException(nameof(customerOrdersService));
+			_orderTransferService = orderTransferService ?? throw new ArgumentNullException(nameof(orderTransferService));
+			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
 			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
@@ -144,7 +150,93 @@ namespace CustomerOrdersApi.Controllers
 				return Problem();
 			}
 		}
-		
+
+		[HttpPost]
+		public async Task<IActionResult> TransferOrderAsync(TransferOrderDto transferOrderDto)
+		{
+			var sourceName = transferOrderDto.Source.GetEnumTitle();
+
+			try
+			{
+				Logger.LogInformation(
+					"Поступил запрос от {Source} на перенос заказа {ExternalOrderId} на дату {DeliveryDate} с интервалом {DeliveryScheduleId}, проверяем...",
+					sourceName,
+					transferOrderDto.ExternalOrderId,
+					transferOrderDto.DeliveryDate,
+					transferOrderDto.DeliveryScheduleId);
+
+				var transferResult = await _orderTransferService.TransferOrderAsync(transferOrderDto);
+
+				Logger.LogInformation(
+					"Результат переноса: IsSuccess={IsSuccess}, StatusCode={StatusCode}",
+					transferResult.IsSuccess,
+					transferResult.StatusCode);
+
+				return StatusCode(transferResult.StatusCode, new
+				{
+					title = transferResult.Title,
+					status = transferResult.StatusCode,
+					detail = transferResult.DetailMessage
+				});
+			}
+			catch(Exception e)
+			{
+				Logger.LogError(e,
+					"Ошибка при переносе заказа {ExternalOrderId} от {Source}",
+					transferOrderDto.ExternalOrderId,
+					sourceName);
+
+				return StatusCode(500, new
+				{
+					title = "One or more validation errors occurred",
+					status = 500,
+					detail = "Произошла ошибка, пожалуйста, попробуйте позже"
+				});
+			}
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> CancelOrderAsync(CancelOrderDto cancelOrderDto)
+		{
+			var sourceName = cancelOrderDto.Source.GetEnumTitle();
+
+			try
+			{
+				Logger.LogInformation(
+					"Поступил запрос от {Source} на отмену заказа {ExternalOrderId}, проверяем...",
+					sourceName,
+					cancelOrderDto.ExternalOrderId);
+
+				var cancellationResult = await _orderCancellationService.CancelOrderAsync(cancelOrderDto);
+
+				Logger.LogInformation(
+					"Результат отмены: Success={Success}, StatusCode={StatusCode}",
+					cancellationResult.IsSuccess,
+					cancellationResult.StatusCode);
+
+				return StatusCode(cancellationResult.StatusCode, new
+				{
+					title = cancellationResult.Title,
+					status = cancellationResult.StatusCode,
+					detail = cancellationResult.DetailMessage
+				});
+			}
+			catch(Exception e)
+			{
+				Logger.LogError(e,
+					"Ошибка при отмене заказа {ExternalOrderId} от {Source}",
+					cancelOrderDto.ExternalOrderId,
+					sourceName);
+
+				return StatusCode(500, new
+				{
+					title = "One or more validation errors occurred",
+					status = 500,
+					detail = "Произошла ошибка, пожалуйста, попробуйте позже"
+				});
+			}
+		}
+
 		/*[HttpPost]
 		public IActionResult UpdateOnlineOrderPaymentStatus(OnlineOrderPaymentStatusUpdatedDto paymentStatusUpdatedDto)
 		{
