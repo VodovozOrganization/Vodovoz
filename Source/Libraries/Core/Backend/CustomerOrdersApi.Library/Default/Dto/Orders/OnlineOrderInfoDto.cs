@@ -12,6 +12,7 @@ namespace CustomerOrdersApi.Library.Default.Dto.Orders
 	/// </summary>
 	public class OnlineOrderInfoDto
 	{
+		public const string ExchangeName = "online-order-received";
 		/// <summary>
 		/// Заказ не прошел сохранение
 		/// </summary>
@@ -60,13 +61,11 @@ namespace CustomerOrdersApi.Library.Default.Dto.Orders
 		/// <summary>
 		/// Форма оплаты
 		/// </summary>
-		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public OnlineOrderPaymentType OnlineOrderPaymentType { get; set; }
 		
 		/// <summary>
 		/// Статус оплаты
 		/// </summary>
-		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public OnlineOrderPaymentStatus OnlineOrderPaymentStatus { get; set; }
 
 		/// <summary>
@@ -77,7 +76,6 @@ namespace CustomerOrdersApi.Library.Default.Dto.Orders
 		/// <summary>
 		/// Источник оплаты
 		/// </summary>
-		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public OnlinePaymentSource? OnlinePaymentSource { get; set; }
 
 		/// <summary>

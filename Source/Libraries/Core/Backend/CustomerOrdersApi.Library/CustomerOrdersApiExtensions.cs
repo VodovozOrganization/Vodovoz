@@ -88,15 +88,17 @@ namespace CustomerOrdersApi.Library
 						}
 					});
 								
-				configurator.Send<OnlineOrderInfoDto>(x => x.UseRoutingKeyFormatter(y => y.Message.FaultedMessage.ToString()));
-				configurator.Message<OnlineOrderInfoDto>(x => x.SetEntityName(OnlineOrderInfoDto.ExchangeName));
-				configurator.Publish<OnlineOrderInfoDto>(x =>
+				configurator.Send<Default.Dto.Orders.OnlineOrderInfoDto>(
+					x => x.UseRoutingKeyFormatter(y => y.Message.FaultedMessage.ToString()));
+				configurator.Message<Default.Dto.Orders.OnlineOrderInfoDto>(
+					x => x.SetEntityName(Default.Dto.Orders.OnlineOrderInfoDto.ExchangeName));
+				configurator.Publish<Default.Dto.Orders.OnlineOrderInfoDto>(x =>
 				{
 					x.ExchangeType = ExchangeType.Direct;
 					x.Durable = true;
 					x.AutoDelete = false;
 					x.BindQueue(
-						OnlineOrderInfoDto.ExchangeName,
+						Default.Dto.Orders.OnlineOrderInfoDto.ExchangeName,
 						"online-orders",
 						conf =>
 						{
@@ -104,7 +106,7 @@ namespace CustomerOrdersApi.Library
 							conf.RoutingKey = "False";
 						});
 					x.BindQueue(
-						OnlineOrderInfoDto.ExchangeName,
+						Default.Dto.Orders.OnlineOrderInfoDto.ExchangeName,
 						"online-orders-fault",
 						conf =>
 						{
