@@ -1,16 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Orders.OnlineOrders;
 
-namespace Vodovoz.Core.Data.Orders.V5
+namespace CustomerApps.Contracts.V5
 {
-	public class OrderTemplateInfoDto : OrderTemplateDto
+	public class OrderTemplateInfoDto : OrderTemplateData
 	{
-		/// <summary>
-		/// Адрес доставки
-		/// </summary>
-		public string DeliveryAddress { get; set; }
 		/// <summary>
 		/// Список товаров
 		/// </summary>
@@ -22,32 +16,27 @@ namespace Vodovoz.Core.Data.Orders.V5
 		/// <summary>
 		/// Тип оплаты
 		/// </summary>
-		public OnlineOrderPaymentType PaymentType { get; set; }
-		/// <summary>
-		/// Интервал доставки в формате с 07:00 до 16:00
-		/// </summary>
-		public string DeliverySchedule { get; set; }
+		public string PaymentType { get; set; }
 		/// <summary>
 		/// Идентификатор последнего онлайн заказа
 		/// </summary>
 		public Guid? LastOnlineOrderExternalId { get; set; }
 
 		public static OrderTemplateInfoDto Create(
-			OnlineOrderTemplate template,
-			string deliveryAddress,
-			string deliverySchedule,
+			OrderTemplateData template,
+			string paymentType,
 			Guid? lastOnlineOrderExternalId,
 			IEnumerable<OrderTemplateProductDto> templateProducts,
 			decimal orderSum)
 		{
 			var onlineOrderTemplate = new OrderTemplateInfoDto
 			{
-				OrderTemplateId = template.Id,
+				OrderTemplateId = template.OrderTemplateId,
 				Weekdays = template.Weekdays,
 				RepeatOrder = template.RepeatOrder,
-				PaymentType = template.PaymentType,
-				DeliveryAddress = deliveryAddress,
-				DeliverySchedule = deliverySchedule,
+				PaymentType = paymentType,
+				DeliveryAddress = template.DeliveryAddress,
+				DeliverySchedule = template.DeliverySchedule,
 				IsActive = template.IsActive,
 				LastOnlineOrderExternalId = lastOnlineOrderExternalId,
 				TemplateProducts = templateProducts,

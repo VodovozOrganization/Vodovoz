@@ -3,7 +3,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Core.Data.Orders.V5;
 using Vodovoz.Core.Domain.Results;
 using VodovozBusiness.Controllers;
-using VodovozBusiness.Nodes.V5;
+using VodovozBusiness.Handlers.V5;
 
 namespace Vodovoz.Handlers
 {
@@ -17,8 +17,8 @@ namespace Vodovoz.Handlers
 		/// </summary>
 		/// <param name="uow">unit of work</param>
 		/// <param name="onlineOrderPromoCode">Данные, необходимые для проверки промокода и товары
-		/// <see cref="CanApplyOnlineOrderPromoCodeV5"/></param>
+		/// <see cref="ICanApplyOnlineOrderPromoCodeV5"/></param>
 		/// <returns></returns>
-		Result<IEnumerable<IOnlineOrderedProductV5>> TryApplyPromoCode(IUnitOfWork uow, CanApplyOnlineOrderPromoCodeV5 onlineOrderPromoCode);
+		Result<IEnumerable<IOnlineOrderedProductV5>> TryApplyPromoCode(IUnitOfWork uow, ICanApplyOnlineOrderPromoCodeV5 onlineOrderPromoCode);
 	}
 }

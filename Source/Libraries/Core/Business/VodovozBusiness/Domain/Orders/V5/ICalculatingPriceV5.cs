@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Vodovoz.Core.Data.Orders.V5;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 
@@ -21,7 +22,7 @@ namespace VodovozBusiness.Domain.Orders.V5
 		/// <summary>
 		/// Скидки
 		/// </summary>
-		IEnumerable<IDiscountData> Discounts { get; }
+		IEnumerable<IProductDiscountData> Discounts { get; }
 		/// <summary>
 		/// Номенклатура <see cref="Vodovoz.Domain.Goods.Nomenclature"/>
 		/// </summary>
@@ -32,14 +33,14 @@ namespace VodovozBusiness.Domain.Orders.V5
 		PromotionalSet PromoSet { get; }
 	}
 
-	public interface IDiscountData
+	public interface IProductDiscountData
 	{
 		decimal Discount { get; }
 		bool IsDiscountInMoney { get; }
 		DiscountReason DiscountReason { get; }
 	}
 
-	public class ProductDiscountData : IDiscountData
+	public class ProductDiscountData : IProductDiscountData
 	{
 		public decimal Discount { get; set; }
 		public bool IsDiscountInMoney { get; set; }

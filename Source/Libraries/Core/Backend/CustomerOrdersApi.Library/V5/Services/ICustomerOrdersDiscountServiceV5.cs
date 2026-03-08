@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using CustomerApps.Contracts.V5;
 using CustomerOrdersApi.Library.V5.Dto.Orders;
 using Vodovoz.Core.Data.Orders;
 using Vodovoz.Core.Data.Orders.V5;

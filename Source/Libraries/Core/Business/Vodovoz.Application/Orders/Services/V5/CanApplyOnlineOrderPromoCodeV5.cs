@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using Vodovoz.Core.Data.Orders.V5;
 using Vodovoz.Core.Domain.Clients;
+using VodovozBusiness.Handlers.V5;
 
-namespace VodovozBusiness.Nodes.V5
+namespace Vodovoz.Application.Orders.Services.V5
 {
 	/// <summary>
 	/// Данные для проверки промокода и товаров онлайн заказа
 	/// </summary>
-	public class CanApplyOnlineOrderPromoCodeV5
+	public class CanApplyOnlineOrderPromoCodeV5 : ICanApplyOnlineOrderPromoCodeV5
 	{
 		/// <summary>
 		/// Время, когда пришел запрос

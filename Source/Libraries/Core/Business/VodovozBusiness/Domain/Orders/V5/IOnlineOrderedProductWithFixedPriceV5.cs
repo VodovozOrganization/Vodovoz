@@ -28,6 +28,6 @@ namespace VodovozBusiness.Domain.Orders.V5
 		/// <summary>
 		/// Скидки, привязанные к товару
 		/// </summary>
-		IEnumerable<DiscountData> Discounts { get; }
+		IEnumerable<IDiscountData> Discounts { get; }
 	}
 }

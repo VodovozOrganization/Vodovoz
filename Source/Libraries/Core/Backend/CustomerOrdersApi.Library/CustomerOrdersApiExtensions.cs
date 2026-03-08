@@ -3,10 +3,12 @@ using System.Net.Security;
 using System.Security.Authentication;
 using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.Converters;
+using CustomerOrdersApi.Library.V5.Repositories;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
+using Vodovoz.Application.Orders.Services;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Settings.Pacs;
 using VodovozInfrastructure.Cryptography;
@@ -37,6 +39,8 @@ namespace CustomerOrdersApi.Library
 			services.AddScoped<V5.Services.ICustomerOrdersServiceV5, V5.Services.CustomerOrdersServiceV5>()
 				.AddScoped<V5.Factories.ICustomerOrderFactoryV5, V5.Factories.CustomerOrderFactoryV5>()
 				.AddScoped<V5.Factories.IInfoMessageFactoryV5, V5.Factories.InfoMessageFactoryV5>()
+				.AddScoped<CustomerAppOrderTemplateRepository>()
+				.AddScoped<OnlineOrderTemplateHandler>()
 				.AddDefaultServices();
 			
 			return services;

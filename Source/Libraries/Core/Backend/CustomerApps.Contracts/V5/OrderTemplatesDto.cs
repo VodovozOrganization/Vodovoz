@@ -1,6 +1,4 @@
-﻿using Vodovoz.Core.Data.Orders.V5;
-
-namespace CustomerOrdersApi.Library.V5.Dto.Orders.OrderTemplates
+﻿namespace CustomerApps.Contracts.V5
 {
 	/// <summary>
 	/// Ответ с информацией по шаблонам автозаказов
@@ -14,9 +12,9 @@ namespace CustomerOrdersApi.Library.V5.Dto.Orders.OrderTemplates
 		/// <summary>
 		/// Шаблон автозаказа
 		/// </summary>
-		public OrderTemplateDto[] OrderTemplates { get; set; }
+		public OrderTemplateCardFromListDto[] OrderTemplates { get; set; }
 
-		public static OrderTemplatesDto Create(OrderTemplateDto[] orderTemplates) => new OrderTemplatesDto
+		public static OrderTemplatesDto Create(OrderTemplateCardFromListDto[] orderTemplates) => new OrderTemplatesDto
 		{
 			TemplatesCount = orderTemplates.Length,
 			OrderTemplates = orderTemplates

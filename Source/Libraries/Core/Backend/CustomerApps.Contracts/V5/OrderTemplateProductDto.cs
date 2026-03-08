@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace Vodovoz.Core.Data.Orders.V5
+namespace CustomerApps.Contracts.V5
 {
 	/// <summary>
 	/// Товар онлайн заказа
@@ -10,7 +10,11 @@ namespace Vodovoz.Core.Data.Orders.V5
 	public class OrderTemplateProductDto
 	{
 		private OrderTemplateProductDto(
-			int nomenclatureId, decimal price, decimal count, int? promoSetId, IEnumerable<DiscountData> discounts)
+			int nomenclatureId,
+			decimal price,
+			decimal count,
+			int? promoSetId,
+			IEnumerable<DiscountData> discounts)
 		{
 			NomenclatureId = nomenclatureId;
 			Price = price;

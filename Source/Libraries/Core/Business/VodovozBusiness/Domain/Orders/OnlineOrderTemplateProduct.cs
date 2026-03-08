@@ -111,7 +111,7 @@ namespace VodovozBusiness.Domain.Orders
 			set => SetField(ref _discounts, value);
 		}
 		
-		IEnumerable<IDiscountData> ICalculatingPriceV5.Discounts => Discounts
+		IEnumerable<IProductDiscountData> ICalculatingPriceV5.Discounts => Discounts
 			.Select(x => new ProductDiscountData
 			{
 				Discount = x.IsDiscountInMoney ? x.MoneyDiscount : x.PercentDiscount,

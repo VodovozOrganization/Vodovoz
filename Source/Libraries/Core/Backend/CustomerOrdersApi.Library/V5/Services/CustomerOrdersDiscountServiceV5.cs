@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomerApps.Contracts.V5;
 using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.V5.Dto.Orders;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
+using Vodovoz.Application.Orders.Services.V5;
 using Vodovoz.Core.Data.Orders.V5;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Handlers;
-using VodovozBusiness.Nodes.V5;
 using VodovozInfrastructure.Cryptography;
 
 namespace CustomerOrdersApi.Library.V5.Services

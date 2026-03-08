@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomerApps.Contracts.V5;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Data.Orders.V5;
 using Vodovoz.Core.Domain.Clients;
@@ -11,9 +12,9 @@ using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.Handlers;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Extensions;
-using VodovozBusiness.Nodes.V5;
+using VodovozBusiness.Handlers.V5;
 
-namespace Vodovoz.Application.Orders.Services
+namespace Vodovoz.Application.Orders.Services.V5
 {
 	public class OnlineOrderDiscountHandlerV5 : DiscountController, IOnlineOrderDiscountHandlerV5
 	{
@@ -42,9 +43,11 @@ namespace Vodovoz.Application.Orders.Services
 		/// </summary>
 		/// <param name="uow">unit of work</param>
 		/// <param name="onlineOrderPromoCode">Данные, необходимые для проверки промокода и товары
-		/// <see cref="CanApplyOnlineOrderPromoCodeV5"/></param>
+		/// <see cref="ICanApplyOnlineOrderPromoCodeV5"/></param>
 		/// <returns></returns>
-		public Result<IEnumerable<IOnlineOrderedProductV5>> TryApplyPromoCode(IUnitOfWork uow, CanApplyOnlineOrderPromoCodeV5 onlineOrderPromoCode)
+		public Result<IEnumerable<IOnlineOrderedProductV5>> TryApplyPromoCode(
+			IUnitOfWork uow,
+			ICanApplyOnlineOrderPromoCodeV5 onlineOrderPromoCode)
 		{
 			var discountPromoCode = _discountReasonRepository.GetActivePromoCode(uow, onlineOrderPromoCode.PromoCode);
 			var date = onlineOrderPromoCode.Time.Date;

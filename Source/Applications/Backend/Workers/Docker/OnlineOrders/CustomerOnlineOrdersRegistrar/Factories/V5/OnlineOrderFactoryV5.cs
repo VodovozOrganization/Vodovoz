@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomerApps.Contracts.V5;
 using CustomerOrdersApi.Library.V5.Dto.Orders;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;

@@ -1,5 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
+using NHibernate.Type;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
+using Vodovoz.Core.Domain.Sale;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 {
@@ -26,11 +28,11 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 				.Element("id")
 				;
 			
-			/*HasManyToMany(x => x.TemplateProducts)
-				.Table("online_orders_templates_to_products")
-				.ParentKeyColumn("template_id")
-				.ChildKeyColumn("product_id")
-				.LazyLoad();*/
+			HasMany(x => x.Weekdays)
+				.Table("online_orders_templates_weekdays")
+				.KeyColumn("template_id")
+				.Element("weekday", x => x.Type<EnumStringType<WeekDayName>>())
+				;
 		}
 	}
 }

@@ -135,7 +135,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual decimal GetDiscount => IsDiscountInMoney ? MoneyDiscount : PercentDiscount;
 
-		public virtual IEnumerable<IDiscountData> Discounts => new[]
+		public virtual IEnumerable<IProductDiscountData> Discounts => new[]
 		{
 			new ProductDiscountData
 			{

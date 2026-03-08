@@ -33,7 +33,7 @@ namespace Vodovoz.Core.Data.Orders.V5
 		/// <summary>
 		/// Скидки, привязанные к товару
 		/// </summary>
-		public IList<DiscountData> Discounts { get; set; }
+		public IList<IDiscountData> Discounts { get; set; }
 
 		/// <summary>
 		/// Фикса

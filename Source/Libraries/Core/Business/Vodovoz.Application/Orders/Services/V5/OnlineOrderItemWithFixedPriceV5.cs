@@ -2,7 +2,7 @@
 using Vodovoz.Core.Data.Orders.V5;
 using VodovozBusiness.Domain.Orders.V5;
 
-namespace VodovozBusiness.Nodes.V5
+namespace Vodovoz.Application.Orders.Services.V5
 {
 	/// <summary>
 	/// Позиция онлайн заказа с фиксой
@@ -32,6 +32,6 @@ namespace VodovozBusiness.Nodes.V5
 		/// <summary>
 		/// Скидки, привязанные к товару
 		/// </summary>
-		public IEnumerable<DiscountData> Discounts { get; set; }
+		public IEnumerable<IDiscountData> Discounts { get; set; }
 	}
 }

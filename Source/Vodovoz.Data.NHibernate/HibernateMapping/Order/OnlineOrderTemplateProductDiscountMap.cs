@@ -22,7 +22,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 				.Not.Nullable();
 			
 			References(x => x.DiscountReason)
-				.Column("discount_reason");
+				.Column("discount_reason_id");
 			
 			References(x => x.TemplateProduct)
 				.Column("template_product_id")

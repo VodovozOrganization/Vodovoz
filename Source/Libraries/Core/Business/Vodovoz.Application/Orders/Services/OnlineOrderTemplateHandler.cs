@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomerApps.Contracts.V5;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Data.Orders.V5;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
+using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories.Orders;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Services.Orders.V5;
@@ -18,13 +20,16 @@ namespace Vodovoz.Application.Orders.Services
 	{
 		private readonly IGoodsPriceCalculatorV5 _priceCalculator;
 		private readonly IOnlineOrderRepository _onlineOrderRepository;
+		private readonly IGenericRepository<OnlineOrderTemplate> _onlineOrderTemplateRepository;
 
 		public OnlineOrderTemplateHandler(
 			IGoodsPriceCalculatorV5 priceCalculator,
-			IOnlineOrderRepository onlineOrderRepository)
+			IOnlineOrderRepository onlineOrderRepository,
+			IGenericRepository<OnlineOrderTemplate> onlineOrderTemplateRepository)
 		{
 			_priceCalculator = priceCalculator ?? throw new ArgumentNullException(nameof(priceCalculator));
 			_onlineOrderRepository = onlineOrderRepository ?? throw new ArgumentNullException(nameof(onlineOrderRepository));
+			_onlineOrderTemplateRepository = onlineOrderTemplateRepository ?? throw new ArgumentNullException(nameof(onlineOrderTemplateRepository));
 		}
 		
 		public OrderTemplateInfoDto GetFreshOnlineOrderTemplateData(IUnitOfWork uow, int templateId)
@@ -54,10 +59,18 @@ namespace Vodovoz.Application.Orders.Services
 
 			var lastExternalOnlineOrderId = _onlineOrderRepository.GetLastOnlineOrderExternalId(uow, template.CounterpartyId);
 
-			var onlineOrderTemplateInfo = OrderTemplateInfoDto.Create(
-				template,
+			var templateData = OrderTemplateData.Create(
+				template.Id,
+				template.IsActive,
 				deliveryPoint.ShortAddress,
 				deliverySchedule.DeliveryTime,
+				template.Weekdays.Select(x => Enum.GetName(typeof(WeekDayName), x)).ToArray(),
+				Enum.GetName(typeof(RepeatOnlineOrderType), template.RepeatOrder)
+				);
+
+			var onlineOrderTemplateInfo = OrderTemplateInfoDto.Create(
+				templateData,
+				Enum.GetName(typeof(OnlineOrderPaymentType), template.PaymentType),
 				lastExternalOnlineOrderId,
 				templateProducts,
 				orderSum);
@@ -147,6 +160,26 @@ namespace Vodovoz.Application.Orders.Services
 					}
 				}
 			}
+		}
+
+		public OrderTemplatesDto GetOnlineOrderTemplates(IUnitOfWork uow, GetOrderTemplatesDto orderTemplatesDto)
+		{
+			var orderTemplates = _onlineOrderTemplateRepository.Get(
+				uow,
+				x => !x.IsArchive
+					&& x.CounterpartyId == orderTemplatesDto.CounteraprtyId);
+				
+			var skipElements = (orderTemplatesDto.Page - 1) * orderTemplatesDto.TemplatesCountOnPage;
+
+			var templates = orderTemplates
+				.Skip(skipElements)
+				.Take(orderTemplatesDto.TemplatesCountOnPage)
+				.ToArray();
+			
+			var deliveryPoint = uow.GetById<DeliveryPoint>(template.DeliveryPointId);
+			var deliverySchedule = uow.GetById<DeliverySchedule>(template.DeliveryScheduleId);
+
+			return OrderTemplatesDto.Create(templates);
 		}
 	}
 }

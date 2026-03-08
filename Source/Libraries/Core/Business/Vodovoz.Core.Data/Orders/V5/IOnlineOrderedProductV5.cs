@@ -23,7 +23,7 @@ namespace Vodovoz.Core.Data.Orders.V5
 		/// <summary>
 		/// Скидки
 		/// </summary>
-		IList<DiscountData> Discounts { get; }
+		IList<IDiscountData> Discounts { get; }
 		/// <summary>
 		/// Фикса
 		/// </summary>

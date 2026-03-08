@@ -104,7 +104,7 @@ namespace Vodovoz.Domain.Orders
 		decimal ICalculatingPriceV5.Count => Count;
 		public virtual bool IsFixedPrice => false;
 		public virtual DiscountReason DiscountReason => null;
-		public virtual IEnumerable<IDiscountData> Discounts => new []
+		public virtual IEnumerable<IProductDiscountData> Discounts => new []
 		{
 			new ProductDiscountData{ Discount = Discount, IsDiscountInMoney = IsDiscountInMoney, DiscountReason = null}
 		};

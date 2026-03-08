@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;

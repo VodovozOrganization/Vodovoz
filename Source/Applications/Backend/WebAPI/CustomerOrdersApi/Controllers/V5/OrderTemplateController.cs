@@ -2,6 +2,7 @@
 using System.Data.Bindings;
 using System.Linq;
 using System.Threading.Tasks;
+using CustomerApps.Contracts.V5;
 using CustomerOrdersApi.Library.V5.Dto.Orders.OrderTemplates;
 using CustomerOrdersApi.Library.V5.Factories;
 using CustomerOrdersApi.Library.V5.Repositories;
@@ -109,7 +110,7 @@ namespace CustomerOrdersApi.Controllers.V5
 				
 				using var uow = _uowFactory.CreateWithoutRoot();
 				var orderTemplates =
-					_orderTemplateDtoRepository.GetOrderTemplates(uow, orderTemplatesDto.CounterpartyErpId);
+					_onlineOrderTemplateHandler.GetOnlineOrderTemplates(uow, orderTemplatesDto);
 				var skipElements = (orderTemplatesDto.Page - 1) * orderTemplatesDto.TemplatesCountOnPage;
 
 				var templates = orderTemplates

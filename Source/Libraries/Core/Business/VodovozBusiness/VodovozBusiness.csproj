@@ -180,5 +180,6 @@
   <ItemGroup>
     <Folder Include="Domain\Security\" />
     <Folder Include="Domain\StoredResources\" />
+    <Folder Include="Nodes\V5\" />
   </ItemGroup>
 </Project>

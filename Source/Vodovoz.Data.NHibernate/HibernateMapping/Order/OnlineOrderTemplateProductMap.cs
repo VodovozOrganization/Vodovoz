@@ -20,7 +20,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			References(x => x.PromoSet).Column("promo_set_id");
 			
 			HasMany(x => x.Discounts)
-				.KeyColumn("template_id")
+				.KeyColumn("template_product_id")
 				.Cascade
 				.AllDeleteOrphan();
 		}

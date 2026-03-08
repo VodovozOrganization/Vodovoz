@@ -8,8 +8,7 @@ using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Handlers;
 using VodovozBusiness.Domain.Orders.V5;
-using VodovozBusiness.Nodes;
-using VodovozBusiness.Nodes.V5;
+using VodovozBusiness.Handlers.V5;
 
 namespace Vodovoz.Application.Orders.Services.V5
 {
@@ -60,7 +59,7 @@ namespace Vodovoz.Application.Orders.Services.V5
 
 		public Result<IEnumerable<IOnlineOrderedProductWithFixedPriceV5>> TryApplyFixedPrice(
 			IUnitOfWork uow,
-			CanApplyOnlineOrderFixedPriceV5 canApplyOnlineOrderFixedPrice)
+			ICanApplyOnlineOrderFixedPriceV5 canApplyOnlineOrderFixedPrice)
 		{
 			if(!HasFixedPrices(
 				uow,
@@ -76,7 +75,7 @@ namespace Vodovoz.Application.Orders.Services.V5
 		}
 
 		private Result<IEnumerable<IOnlineOrderedProductWithFixedPriceV5>> TryApplyFixedPrice(
-			CanApplyOnlineOrderFixedPriceV5 canApplyOnlineOrderFixedPrice,
+			ICanApplyOnlineOrderFixedPriceV5 canApplyOnlineOrderFixedPrice,
 			IEnumerable<NomenclatureFixedPrice> fixedPrices)
 		{
 			var itemsWithFixedPrice = new List<IOnlineOrderedProductWithFixedPriceV5>();
