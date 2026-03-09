@@ -24,7 +24,7 @@ namespace Edo.Documents
 		private readonly IGenericRepository<CounterpartyEdoAccountEntity> _edoAccountRepository;
 		private readonly IGenericRepository<WithdrawalEdoRequest> _withdrawalEdoRequestRepository;
 		private readonly IClientsTrueMarkRegistrationCheckService _trueMarkRegistrationCheckService;
-		private readonly IPublishEndpoint _publishEndpoint;
+		private readonly IBus _messageBus;
 
 		public WithdrawalEdoRequestHandler(
 			ILogger<WithdrawalEdoRequestHandler> logger,
@@ -32,7 +32,7 @@ namespace Edo.Documents
 			IGenericRepository<CounterpartyEdoAccountEntity> edoAccountRepository,
 			IGenericRepository<WithdrawalEdoRequest> withdrawalEdoRequestRepository,
 			IClientsTrueMarkRegistrationCheckService trueMarkRegistrationCheckService,
-			IPublishEndpoint publishEndpoint)
+			IBus publishEndpoint)
 		{
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));
@@ -44,7 +44,7 @@ namespace Edo.Documents
 				?? throw new ArgumentNullException(nameof(withdrawalEdoRequestRepository));
 			_trueMarkRegistrationCheckService = trueMarkRegistrationCheckService
 				?? throw new ArgumentNullException(nameof(trueMarkRegistrationCheckService));
-			_publishEndpoint = publishEndpoint
+			_messageBus = publishEndpoint
 				?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
@@ -155,7 +155,7 @@ namespace Edo.Documents
 					"Создана заявка на вывод из оборота {RequestId} для заказа {OrderId}",
 					withdrawalRequest.Id, order.Id);
 
-				await _publishEndpoint.Publish(
+				await _messageBus.Publish(
 					new WithdrawalEdoRequestCreatedEvent { Id = withdrawalRequest.Id },
 					cancellationToken);
 
