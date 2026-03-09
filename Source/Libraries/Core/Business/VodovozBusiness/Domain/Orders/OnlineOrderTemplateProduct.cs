@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QS.DomainModel.Entity;
@@ -22,7 +23,7 @@ namespace VodovozBusiness.Domain.Orders
 		private int? _nomenclatureId;
 		private decimal _price;
 		private int? _promoSetId;
-		private int _onlineOrderTemplateId;
+		private int _templateId;
 		private decimal _count;
 		private Nomenclature _nomenclature;
 		private PromotionalSet _promoSet;
@@ -36,10 +37,10 @@ namespace VodovozBusiness.Domain.Orders
 		/// Шаблон автозаказа
 		/// </summary>
 		[Display(Name = "Идентификатор шаблона автозаказа")]
-		public virtual int OnlineOrderTemplateId
+		public virtual int TemplateId
 		{
-			get => _onlineOrderTemplateId;
-			set => SetField(ref _onlineOrderTemplateId, value);
+			get => _templateId;
+			set => SetField(ref _templateId, value);
 		}
 		
 		/// <summary>
@@ -105,6 +106,7 @@ namespace VodovozBusiness.Domain.Orders
 		/// <summary>
 		/// Список скидок
 		/// </summary>
+		[Display(Name = "Список скидок")]
 		public virtual IObservableList<OnlineOrderTemplateProductDiscount> Discounts
 		{
 			get => _discounts;
@@ -121,7 +123,7 @@ namespace VodovozBusiness.Domain.Orders
 
 		public virtual bool IsFixedPrice { get; }
 		
-		public virtual decimal Sum => Price * Count;
+		public virtual decimal Sum => Math.Round(Price * Count, 2);
 		
 		public static OnlineOrderTemplateProduct Create(
 			int? nomenclatureId,
@@ -142,7 +144,7 @@ namespace VodovozBusiness.Domain.Orders
 				PromoSetId = promoSetId,
 				Nomenclature = nomenclature,
 				PromoSet = promotionalSet,
-				OnlineOrderTemplateId = templateId,
+				TemplateId = templateId,
 				Discounts = discounts
 			};
 

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
@@ -236,11 +236,12 @@ namespace Vodovoz.EntityRepositories.Orders
 				where onlineOrder.CounterpartyId == сounterpartyId
 				select onlineOrder;
 
-			return onlineOrders
+			var lastOnlineOrder = onlineOrders
 				.OrderByDescending(x => x.Id)
 				.Take(1)
-				.Select(x => x.ExternalOrderId)
 				.FirstOrDefault();
+
+			return lastOnlineOrder?.ExternalOrderId;
 		}
 	}
 }

@@ -14,7 +14,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.Price).Column("price");
 			Map(x => x.Count).Column("count");
 			Map(x => x.IsFixedPrice).Column("is_fixed_price");
-			Map(x => x.OnlineOrderTemplateId).Column("template_id");
+			Map(x => x.TemplateId).Column("template_id");
 			
 			References(x => x.Nomenclature).Column("nomenclature_id");
 			References(x => x.PromoSet).Column("promo_set_id");

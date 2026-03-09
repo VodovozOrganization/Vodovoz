@@ -193,15 +193,22 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 
 			if(message.OrderTemplate != null)
 			{
-				var templateOrderWithProducts = _onlineOrderFactoryV5.CreateOnlineOrderTemplate(onlineOrder, message.OrderTemplate);
-				await uow.SaveAsync(templateOrderWithProducts.OrderTemplate, cancellationToken: cancellationToken);
+				var (template, orderTemplateProducts, orderTemplateWeekDays) =
+					_onlineOrderFactoryV5.CreateOnlineOrderTemplate(onlineOrder, message.OrderTemplate);
+				await uow.SaveAsync(template, cancellationToken: cancellationToken);
 
-				foreach(var templateProduct in templateOrderWithProducts.OrderTemplateProducts)
+				foreach(var templateProduct in orderTemplateProducts)
 				{
-					templateProduct.OnlineOrderTemplateId = templateOrderWithProducts.OrderTemplate.Id;
+					templateProduct.TemplateId = template.Id;
 				}
 				
-				await uow.SaveAsync(templateOrderWithProducts.OrderTemplateProducts, cancellationToken: cancellationToken);
+				foreach(var templateWeekday in orderTemplateWeekDays)
+				{
+					templateWeekday.TemplateId = template.Id;
+				}
+				
+				await uow.SaveAsync(orderTemplateProducts, cancellationToken: cancellationToken);
+				await uow.SaveAsync(orderTemplateWeekDays, cancellationToken: cancellationToken);
 			}
 			
 			var validationResult = _onlineOrderValidator.ValidateOnlineOrder(uow, onlineOrder);

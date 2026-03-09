@@ -1,13 +1,11 @@
-﻿using Vodovoz.Core.Domain.Clients;
-
-namespace CustomerOrdersApi.Library.V5.Dto.Orders.OrderTemplates
+﻿namespace CustomerApps.Contracts.V5
 {
 	public class GetOrderTemplatesDto
 	{
 		/// <summary>
 		/// Источник запроса
 		/// </summary>
-		public Source Source { get; set; }
+		public int Source { get; set; }
 		/// <summary>
 		/// Id клиента из ДВ
 		/// </summary>

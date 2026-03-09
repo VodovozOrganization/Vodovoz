@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
@@ -26,7 +27,7 @@ namespace Vodovoz.Core.Domain.Orders.OnlineOrders
 		private int _deliveryPointId;
 		private int _deliveryScheduleId;
 		private IObservableList<int> _templateProducts = new ObservableList<int>();
-		private IObservableList<WeekDayName> _weekdays = new ObservableList<WeekDayName>();
+		private IObservableList<int> _weekdays = new ObservableList<int>();
 
 		protected OnlineOrderTemplate() { }
 		
@@ -35,8 +36,7 @@ namespace Vodovoz.Core.Domain.Orders.OnlineOrders
 			int deliveryPointId,
 			int deliveryScheduleId,
 			RepeatOnlineOrderType repeatOrder,
-			OnlineOrderPaymentType paymentType,
-			IEnumerable<WeekDayName> weekdays)
+			OnlineOrderPaymentType paymentType)
 		{
 			CreatedAt = DateTime.Now;
 			IsActive = true;
@@ -46,7 +46,6 @@ namespace Vodovoz.Core.Domain.Orders.OnlineOrders
 			DeliveryScheduleId = deliveryScheduleId;
 			RepeatOrder = repeatOrder;
 			PaymentType = paymentType;
-			Weekdays = new ObservableList<WeekDayName>(weekdays);
 		}
 
 		/// <summary>
@@ -57,6 +56,7 @@ namespace Vodovoz.Core.Domain.Orders.OnlineOrders
 		/// <summary>
 		/// Дата и время создания
 		/// </summary>
+		[Display(Name = "Дата и время создания")]
 		public virtual DateTime CreatedAt
 		{
 			get => _createdAt;
@@ -66,6 +66,7 @@ namespace Vodovoz.Core.Domain.Orders.OnlineOrders
 		/// <summary>
 		/// Действующий ли шаблон
 		/// </summary>
+		[Display(Name = "Действующий шаблон")]
 		public virtual bool IsActive
 		{
 			get => _isActive;
@@ -75,6 +76,7 @@ namespace Vodovoz.Core.Domain.Orders.OnlineOrders
 		/// <summary>
 		/// Архивный
 		/// </summary>
+		[Display(Name = "Архивный")]
 		public virtual bool IsArchive
 		{
 			get => _isArchive;
@@ -84,6 +86,7 @@ namespace Vodovoz.Core.Domain.Orders.OnlineOrders
 		/// <summary>
 		/// Интервал повторов
 		/// </summary>
+		[Display(Name = "Интервал повторов")]
 		public virtual RepeatOnlineOrderType RepeatOrder
 		{
 			get => _repeatOrder;
@@ -93,6 +96,7 @@ namespace Vodovoz.Core.Domain.Orders.OnlineOrders
 		/// <summary>
 		/// Тип оплаты
 		/// </summary>
+		[Display(Name = "Тип оплаты")]
 		public virtual OnlineOrderPaymentType PaymentType
 		{
 			get => _paymentType;
@@ -102,6 +106,7 @@ namespace Vodovoz.Core.Domain.Orders.OnlineOrders
 		/// <summary>
 		/// Идентификатор клиента
 		/// </summary>
+		[Display(Name = "Идентификатор клиента")]
 		public virtual int CounterpartyId
 		{
 			get => _counterpartyId;
@@ -111,6 +116,7 @@ namespace Vodovoz.Core.Domain.Orders.OnlineOrders
 		/// <summary>
 		/// Идентификатор ТД
 		/// </summary>
+		[Display(Name = "Идентификатор ТД")]
 		public virtual int DeliveryPointId
 		{
 			get => _deliveryPointId;
@@ -120,6 +126,7 @@ namespace Vodovoz.Core.Domain.Orders.OnlineOrders
 		/// <summary>
 		/// Идентификатор интервала доставки
 		/// </summary>
+		[Display(Name = "Идентификатор интервала доставки")]
 		public virtual int DeliveryScheduleId
 		{
 			get => _deliveryScheduleId;
@@ -129,6 +136,7 @@ namespace Vodovoz.Core.Domain.Orders.OnlineOrders
 		/// <summary>
 		/// Список идентификаторов товаров
 		/// </summary>
+		[Display(Name = "Список идентификаторов товаров")]
 		public virtual IObservableList<int> TemplateProducts
 		{
 			get => _templateProducts;
@@ -138,7 +146,8 @@ namespace Vodovoz.Core.Domain.Orders.OnlineOrders
 		/// <summary>
 		/// Дни недели
 		/// </summary>
-		public virtual IObservableList<WeekDayName> Weekdays
+		[Display(Name = "Дни недели")]
+		public virtual IObservableList<int> Weekdays
 		{
 			get => _weekdays;
 			set => SetField(ref _weekdays, value);
@@ -173,8 +182,7 @@ namespace Vodovoz.Core.Domain.Orders.OnlineOrders
 			int deliveryPointId,
 			int deliveryScheduleId,
 			RepeatOnlineOrderType repeatOrder,
-			OnlineOrderPaymentType paymentType,
-			IEnumerable<WeekDayName> weekdays
-			) => new OnlineOrderTemplate(counterpartyId, deliveryPointId, deliveryScheduleId, repeatOrder, paymentType, weekdays);
+			OnlineOrderPaymentType paymentType
+			) => new OnlineOrderTemplate(counterpartyId, deliveryPointId, deliveryScheduleId, repeatOrder, paymentType);
 	}
 }

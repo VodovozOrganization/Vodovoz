@@ -10,11 +10,11 @@ namespace CustomerApps.Contracts.V5
 		/// <summary>
 		/// Дата следующей доставки
 		/// </summary>
-		public DateTime NextDeliveryDate { get; set; }
+		public DateTime? NextDeliveryDate { get; set; }
 		
 		public static OrderTemplateCardFromListDto Create(
 			OrderTemplateData template,
-			DateTime nextDeliveryDate
+			DateTime? nextDeliveryDate
 			)
 		{
 			return new OrderTemplateCardFromListDto

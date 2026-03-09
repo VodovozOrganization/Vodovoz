@@ -31,7 +31,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			HasMany(x => x.Weekdays)
 				.Table("online_orders_templates_weekdays")
 				.KeyColumn("template_id")
-				.Element("weekday", x => x.Type<EnumStringType<WeekDayName>>())
+				.Element("id")
 				;
 		}
 	}

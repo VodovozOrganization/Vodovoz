@@ -45,7 +45,7 @@ namespace CustomerApps.Contracts.V5
 		public IEnumerable<DiscountData> Discounts { get; }
 		
 		[JsonIgnore]
-		public decimal Sum => Price * Count - CalculateDiscount();
+		public decimal Sum => Math.Round(Price * Count - CalculateDiscount(), 2);
 
 		private decimal CalculateDiscount()
 		{

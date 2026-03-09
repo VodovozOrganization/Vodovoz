@@ -2,19 +2,20 @@
 using System.Data.Bindings;
 using System.Linq;
 using System.Threading.Tasks;
+using Core.Infrastructure;
 using CustomerApps.Contracts.V5;
 using CustomerOrdersApi.Library.V5.Dto.Orders.OrderTemplates;
 using CustomerOrdersApi.Library.V5.Factories;
-using CustomerOrdersApi.Library.V5.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using Vodovoz.Application.Orders.Services;
-using Vodovoz.Core.Data.Orders.V5;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Settings.Orders;
+using VodovozBusiness.EntityRepositories.Orders;
 
 namespace CustomerOrdersApi.Controllers.V5
 {
@@ -22,7 +23,7 @@ namespace CustomerOrdersApi.Controllers.V5
 	{
 		private readonly IDiscountReasonSettings _discountReasonSettings;
 		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly CustomerAppOrderTemplateRepository _orderTemplateDtoRepository;
+		private readonly IOnlineOrderTemplateRepository _onlineOrderTemplateRepository;
 		private readonly IGenericRepository<OnlineOrderTemplate> _orderTemplateRepository;
 		private readonly OnlineOrderTemplateHandler _onlineOrderTemplateHandler;
 		private readonly IInfoMessageFactoryV5 _infoMessageFactoryV5;
@@ -31,7 +32,7 @@ namespace CustomerOrdersApi.Controllers.V5
 			ILogger<OrderTemplateController> logger,
 			IDiscountReasonSettings discountReasonSettings,
 			IUnitOfWorkFactory uowFactory,
-			CustomerAppOrderTemplateRepository orderTemplateDtoRepository,
+			IOnlineOrderTemplateRepository onlineOrderTemplateRepository,
 			IGenericRepository<OnlineOrderTemplate> orderTemplateRepository,
 			OnlineOrderTemplateHandler onlineOrderTemplateHandler,
 			IInfoMessageFactoryV5 infoMessageFactoryV5
@@ -39,7 +40,7 @@ namespace CustomerOrdersApi.Controllers.V5
 		{
 			_discountReasonSettings = discountReasonSettings ?? throw new ArgumentNullException(nameof(discountReasonSettings));
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			_orderTemplateDtoRepository = orderTemplateDtoRepository ?? throw new ArgumentNullException(nameof(orderTemplateDtoRepository));
+			_onlineOrderTemplateRepository = onlineOrderTemplateRepository ?? throw new ArgumentNullException(nameof(onlineOrderTemplateRepository));
 			_orderTemplateRepository = orderTemplateRepository ?? throw new ArgumentNullException(nameof(orderTemplateRepository));
 			_onlineOrderTemplateHandler = onlineOrderTemplateHandler ?? throw new ArgumentNullException(nameof(onlineOrderTemplateHandler));
 			_infoMessageFactoryV5 = infoMessageFactoryV5 ?? throw new ArgumentNullException(nameof(infoMessageFactoryV5));
@@ -54,7 +55,7 @@ namespace CustomerOrdersApi.Controllers.V5
 		/// 500 - ошибка
 		/// </returns>
 		[HttpGet]
-		public IActionResult GetOrderTemplateInfo([FromBody] GetOrderTemplateInfoDto orderTemplateDto)
+		public async Task<IActionResult> GetOrderTemplateInfo([FromBody] GetOrderTemplateInfoDto orderTemplateDto)
 		{
 			var sourceName = orderTemplateDto.Source.GetEnumTitle();
 			var templateId = orderTemplateDto.OrderTemplateId;
@@ -67,7 +68,7 @@ namespace CustomerOrdersApi.Controllers.V5
 					templateId);
 
 				using var uow = _uowFactory.CreateWithoutRoot();
-				var templateInfo = _onlineOrderTemplateHandler.GetFreshOnlineOrderTemplateData(uow, templateId);
+				var templateInfo = await _onlineOrderTemplateHandler.GetFreshOnlineOrderTemplateDataAsync(uow, templateId);
 
 				if(templateInfo is null)
 				{
@@ -98,10 +99,12 @@ namespace CustomerOrdersApi.Controllers.V5
 		[HttpGet]
 		public IActionResult GetOrderTemplates([FromBody] GetOrderTemplatesDto orderTemplatesDto)
 		{
-			var sourceName = orderTemplatesDto.Source.GetEnumTitle();
+			var sourceName = "Неизвестный источник";
 			
 			try
 			{
+				sourceName = orderTemplatesDto.Source.ToString().TryParseAsEnum<Source>().GetEnumTitle();
+			
 				_logger.LogInformation(
 					"Поступил запрос от {Source} на получение шаблонов автозаказа клиента {CounterpartyId} страница {Page}",
 					sourceName,
@@ -109,16 +112,13 @@ namespace CustomerOrdersApi.Controllers.V5
 					orderTemplatesDto.Page);
 				
 				using var uow = _uowFactory.CreateWithoutRoot();
-				var orderTemplates =
-					_onlineOrderTemplateHandler.GetOnlineOrderTemplates(uow, orderTemplatesDto);
-				var skipElements = (orderTemplatesDto.Page - 1) * orderTemplatesDto.TemplatesCountOnPage;
 
-				var templates = orderTemplates
-					.Skip(skipElements)
-					.Take(orderTemplatesDto.TemplatesCountOnPage)
-					.ToArray();
-				
-				return Ok(OrderTemplatesDto.Create(templates));
+				var skipElements = (orderTemplatesDto.Page - 1) * orderTemplatesDto.TemplatesCountOnPage;
+				var orderTemplates =
+					_onlineOrderTemplateHandler.GetOnlineOrdersTemplatesList(
+						uow, orderTemplatesDto.CounterpartyErpId, skipElements, orderTemplatesDto.TemplatesCountOnPage);
+
+				return Ok(orderTemplates);
 			}
 			catch(Exception e)
 			{

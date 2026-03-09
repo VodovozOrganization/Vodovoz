@@ -8,6 +8,7 @@ using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Core.Data.Orders.V5;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.Rent;
@@ -84,7 +85,9 @@ namespace CustomerOnlineOrdersRegistrar.Factories.V5
 			return onlineOrder;
 		}
 		
-		public (OnlineOrderTemplate OrderTemplate, IEnumerable<OnlineOrderTemplateProduct> OrderTemplateProducts)
+		public (OnlineOrderTemplate OrderTemplate,
+			IEnumerable<OnlineOrderTemplateProduct> OrderTemplateProducts,
+			IEnumerable<OnlineOrderTemplateWeekday> OrderTemplateWeekDays)
 			CreateOnlineOrderTemplate(OnlineOrder creatingOnlineOrder, CreatingOrderTemplate creatingTemplate)
 		{
 			var template = OnlineOrderTemplate.Create(
@@ -92,9 +95,11 @@ namespace CustomerOnlineOrdersRegistrar.Factories.V5
 				creatingOnlineOrder.DeliveryPointId.Value,
 				creatingTemplate.DeliveryScheduleId.Value,
 				creatingTemplate.RepeatOrder.Value,
-				creatingOnlineOrder.OnlineOrderPaymentType,
-				creatingTemplate.Weekdays
+				creatingOnlineOrder.OnlineOrderPaymentType
 			);
+			
+			var templateWeekdays = creatingTemplate.Weekdays
+				.Select(x => OnlineOrderTemplateWeekday.Create(template.Id, x));
 
 			//TODO 5965: подумать насчет расчета и идентификатора шаблона
 			var templateProducts = new ObservableList<OnlineOrderTemplateProduct>();
@@ -129,7 +134,7 @@ namespace CustomerOnlineOrdersRegistrar.Factories.V5
 				templateProducts.Add(product);
 			}
 
-			return (template, templateProducts);
+			return (template, templateProducts, templateWeekdays);
 		}
 
 		private void UpdateOnlineComment(OnlineOrder onlineOrder, string onlineOrderComment)
