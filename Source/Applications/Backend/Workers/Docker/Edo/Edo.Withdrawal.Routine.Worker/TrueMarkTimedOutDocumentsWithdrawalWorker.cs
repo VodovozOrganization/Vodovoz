@@ -7,8 +7,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Infrastructure;
+using Vodovoz.Zabbix.Sender;
 
-namespace Edo.Withdrawal.Routine
+namespace Edo.Withdrawal.Routine.Worker
 {
 	/// <summary>
 	/// Воркер для автоматического вывода кодов из оборота для клиентов,
@@ -41,24 +42,25 @@ namespace Edo.Withdrawal.Routine
 		/// <param name="stoppingToken">Токен остановки</param>
 		protected override async Task DoWork(CancellationToken stoppingToken)
 		{
+			_logger.LogInformation("Начало обработки просроченных документооборотов для вывода кодов из оборота");
+
+			using var scope = _serviceScopeFactory.CreateScope();
+			var zabbixSender = scope.ServiceProvider.GetService<IZabbixSender>();
+			var docflowTimeoutCheckService = scope.ServiceProvider.GetService<TrueMarkTimedOutDocumentsWithdrawalService>();
+
 			try
 			{
-				_logger.LogInformation("Начало обработки просроченных документооборотов для вывода кодов из оборота");
-
-				using(var scope = _serviceScopeFactory.CreateScope())
-				{
-					var docflowTimeoutCheckService = scope.ServiceProvider.GetService<TrueMarkTimedOutDocumentsWithdrawalService>();
-
-					await docflowTimeoutCheckService.ProcessTimedOutDocumentTasks(stoppingToken);
-
-					_logger.LogInformation(
-						"Обработка просроченных документооборотов для вывода кодов из оборота успешно завершена");
-				}
+				await docflowTimeoutCheckService.ProcessTimedOutDocumentTasks(stoppingToken);
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Ошибка при выполнении обработки вывода кодов из оборота");
 			}
+
+			await zabbixSender.SendIsHealthyAsync(stoppingToken);
+
+			_logger.LogInformation(
+				"Обработка просроченных документооборотов для вывода кодов из оборота успешно завершена");
 		}
 	}
 }

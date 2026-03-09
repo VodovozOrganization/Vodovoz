@@ -1,5 +1,4 @@
 ﻿using Autofac.Extensions.DependencyInjection;
-using Edo.Withdrawal.Routine;
 using Edo.Withdrawal.Routine.Options;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;
@@ -13,7 +12,7 @@ using System.Text;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
-using Vodovoz.Settings.Database;
+using Vodovoz.Zabbix.Sender;
 
 namespace Edo.Withdrawal.Routine.Worker
 {
@@ -54,9 +53,10 @@ namespace Edo.Withdrawal.Routine.Worker
 						.AddTrackedUoW()
 						.AddMessageTransportSettings()
 						.AddEdoWithdrawalRoutine()
+						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
+						.AddHostedService<TrueMarkTimedOutDocumentsWithdrawalWorker>()
+						.ConfigureZabbixSenderFromDataBase(nameof(TrueMarkTimedOutDocumentsWithdrawalWorker))
 						;
-
-					services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 				});
 	}
 }

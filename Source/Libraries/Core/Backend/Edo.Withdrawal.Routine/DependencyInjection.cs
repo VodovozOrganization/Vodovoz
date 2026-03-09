@@ -2,7 +2,6 @@
 using Edo.Transport;
 using Edo.Withdrawal.Routine.Services;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Edo.Withdrawal.Routine
 {
@@ -18,8 +17,7 @@ namespace Edo.Withdrawal.Routine
 			services
 				.AddEdo()
 				.AddScoped<TrueMarkTimedOutDocumentsWithdrawalService>()
-				.AddEdoMassTransit()
-				.AddHostedService<TrueMarkTimedOutDocumentsWithdrawalWorker>();
+				.AddEdoMassTransit();
 
 			return services;
 		}
