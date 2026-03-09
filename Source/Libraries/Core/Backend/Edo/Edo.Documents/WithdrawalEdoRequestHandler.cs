@@ -1,4 +1,5 @@
-﻿using Edo.Contracts.Messages.Events;
+﻿using Edo.Common.Services;
+using Edo.Contracts.Messages.Events;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -10,7 +11,6 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Edo.Documents
 {
@@ -22,18 +22,30 @@ namespace Edo.Documents
 		private readonly ILogger<WithdrawalEdoRequestHandler> _logger;
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IGenericRepository<CounterpartyEdoAccountEntity> _edoAccountRepository;
+		private readonly IGenericRepository<WithdrawalEdoRequest> _withdrawalEdoRequestRepository;
+		private readonly IClientsTrueMarkRegistrationCheckService _trueMarkRegistrationCheckService;
 		private readonly IPublishEndpoint _publishEndpoint;
 
 		public WithdrawalEdoRequestHandler(
 			ILogger<WithdrawalEdoRequestHandler> logger,
 			IUnitOfWorkFactory uowFactory,
 			IGenericRepository<CounterpartyEdoAccountEntity> edoAccountRepository,
+			IGenericRepository<WithdrawalEdoRequest> withdrawalEdoRequestRepository,
+			IClientsTrueMarkRegistrationCheckService trueMarkRegistrationCheckService,
 			IPublishEndpoint publishEndpoint)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			_edoAccountRepository = edoAccountRepository ?? throw new ArgumentNullException(nameof(edoAccountRepository));
-			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
+			_logger = logger
+				?? throw new ArgumentNullException(nameof(logger));
+			_uowFactory = uowFactory
+				?? throw new ArgumentNullException(nameof(uowFactory));
+			_edoAccountRepository = edoAccountRepository
+				?? throw new ArgumentNullException(nameof(edoAccountRepository));
+			_withdrawalEdoRequestRepository = withdrawalEdoRequestRepository
+				?? throw new ArgumentNullException(nameof(withdrawalEdoRequestRepository));
+			_trueMarkRegistrationCheckService = trueMarkRegistrationCheckService
+				?? throw new ArgumentNullException(nameof(trueMarkRegistrationCheckService));
+			_publishEndpoint = publishEndpoint
+				?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
 
 		/// <summary>
@@ -46,75 +58,60 @@ namespace Edo.Documents
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
-				var document = await uow.Session.GetAsync<OrderEdoDocument>(documentId, cancellationToken);
-				if(document == null)
-				{
-					_logger.LogWarning("Документ ЭДО с Id {DocumentId} не найден", documentId);
-					return;
-				}
+				var document = await uow.Session.GetAsync<OrderEdoDocument>(documentId, cancellationToken)
+					?? throw new InvalidOperationException($"Документ ЭДО с Id {documentId} не найден");
 
-				var documentTask = await uow.Session.GetAsync<DocumentEdoTask>(document.DocumentTaskId, cancellationToken);
-				if(documentTask == null)
-				{
-					_logger.LogWarning("Задача ЭДО для документа {DocumentId} не найдена", documentId);
-					return;
-				}
+				var documentTask = await uow.Session.GetAsync<DocumentEdoTask>(document.DocumentTaskId, cancellationToken)
+					?? throw new InvalidOperationException($"Задача ЭДО для документа {documentId} не найдена");
 
-				var formalEdoRequest = documentTask.FormalEdoRequest;
-				if(formalEdoRequest == null)
-				{
-					_logger.LogWarning("Запрос на ЭДО для задачи {TaskId} не найден", documentTask.Id);
-					return;
-				}
+				var formalEdoRequest = documentTask.FormalEdoRequest
+					?? throw new InvalidOperationException($"Запрос на ЭДО для задачи {documentTask.Id} не найден");
 
-				var order = formalEdoRequest.Order;
-				if(order == null)
-				{
-					_logger.LogWarning("Заказ для заявки {RequestId} не найден", formalEdoRequest.Id);
-					return;
-				}
+				var order = formalEdoRequest.Order
+					?? throw new InvalidOperationException($"Заказ для заявки {formalEdoRequest.Id} не найден");
+
+				var client = order.Client
+					?? throw new InvalidOperationException($"Клиент для заказа {order.Id} не найден");
 
 				if(order.PaymentType != Vodovoz.Domain.Client.PaymentType.Cashless)
 				{
 					throw new InvalidOperationException(
-						$"Заказ {order.Id} не по безналу. Вывод из оборота невозможен");
-				}
-
-				var client = order.Client;
-				if(client == null)
-				{
-					_logger.LogWarning("Клиент для заказа {OrderId} не найден", order.Id);
-					return;
+						$"Поступило событие об окончании ДО по заказу {order.Id}. " +
+						$"Но при этом заказ имеет форму оплаты {order.PaymentType}, отличную от безналичный расчет");
 				}
 
 				if(client.ReasonForLeaving != ReasonForLeaving.ForOwnNeeds)
 				{
-					throw new InvalidOperationException(
-						$"В карточке контрагента {client.Id} указана причина выбытия отличная от {ReasonForLeaving.ForOwnNeeds}. " +
-						$"Вывод из оборота невозможен");
-				}
-
-				var edoAccount = _edoAccountRepository
-					.Get(uow, x =>
-						x.Counterparty.Id == client.Id
-						&& x.OrganizationId == order.Contract.Organization.Id
-						&& x.IsDefault)
-					.FirstOrDefault();
-
-				if(edoAccount == null)
-				{
-					_logger.LogWarning(
-						"Не найден аккаунт ЭДО для контрагента {CounterpartyId} и организации {OrganizationId}",
-						client.Id, order.Contract.Organization.Id);
+					_logger.LogInformation(
+						"В карточке контрагента {client.Id} указана причина выбытия отличная от {RequiredReasonForLeaving}. Вывод из оборота не требуется",
+						client.Id,
+						nameof(ReasonForLeaving.ForOwnNeeds));
 					return;
 				}
+
+				var edoAccount = await GetClientEdoAccount(uow, client.Id, order.Contract.Organization.Id, cancellationToken)
+					?? throw new InvalidOperationException(
+						$"Не найден аккаунт ЭДО для контрагента {client.Id} и организации {order.Contract.Organization.Id}");
 
 				if(edoAccount.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 				{
-					_logger.LogInformation(
-						"Контрагент {CounterpartyId} не подключён к ЭДО. Вывод из оборота не требуется",
-						client.Id);
-					return;
+					throw new InvalidOperationException(
+						$"Поступило событие об окончании ДО по заказу {order.Id}. " +
+						$"Но при этом клиент {client.Id} имеет статус согласия на ЭДО {edoAccount.ConsentForEdoStatus} " +
+						$"с нашей организацией {order.Contract.Organization.Id}");
+				}
+
+				var actualTrueMarkRegistrationStatusResult =
+					await _trueMarkRegistrationCheckService.GetTrueMarkRegistrationStatus(client.INN, cancellationToken);
+
+				if(actualTrueMarkRegistrationStatusResult.IsSuccess)
+				{
+					var actualRegistrationStatus = actualTrueMarkRegistrationStatusResult.Value;
+
+					if(actualRegistrationStatus != client.RegistrationInChestnyZnakStatus)
+					{
+						client.RegistrationInChestnyZnakStatus = actualRegistrationStatus;
+					}
 				}
 
 				if(client.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
@@ -125,12 +122,13 @@ namespace Edo.Documents
 					return;
 				}
 
-				var existingWithdrawalRequest = uow.Session
-					.QueryOver<WithdrawalEdoRequest>()
-					.Where(x => x.Order.Id == order.Id && x.BaseDocumentEdoTask.Id == documentTask.Id)
-					.RowCount();
+				var isWithdrawalRequestExists = await IsWithdrawalRequestForOrderAndDocumentTaskExists(
+					uow,
+					order.Id,
+					documentTask.Id,
+					cancellationToken);
 
-				if(existingWithdrawalRequest > 0)
+				if(isWithdrawalRequestExists)
 				{
 					_logger.LogInformation(
 						"Заявка на вывод из оборота для заказа {OrderId} уже существует",
@@ -163,6 +161,42 @@ namespace Edo.Documents
 
 				return;
 			}
+		}
+
+		private async Task<CounterpartyEdoAccountEntity> GetClientEdoAccount(
+			IUnitOfWork uow,
+			int clientId,
+			int organizationId,
+			CancellationToken cancellationToken)
+		{
+			var edoAccount = (await _edoAccountRepository
+				.GetAsync(
+					uow,
+					x => x.Counterparty.Id == clientId
+						&& x.OrganizationId == organizationId
+						&& x.IsDefault,
+					cancellationToken: cancellationToken))
+				.Value
+				.FirstOrDefault();
+
+			return edoAccount;
+		}
+
+		private async Task<bool> IsWithdrawalRequestForOrderAndDocumentTaskExists(
+			IUnitOfWork uow,
+			int orderId,
+			int documentTaskId,
+			CancellationToken cancellationToken)
+		{
+			var isWithdrawalRequestExists = (await _withdrawalEdoRequestRepository
+				.GetAsync(
+					uow,
+					x => x.Order.Id == orderId && x.BaseDocumentEdoTask.Id == documentTaskId,
+					cancellationToken: cancellationToken))
+				.Value
+				.Any();
+
+			return isWithdrawalRequestExists;
 		}
 
 		private WithdrawalEdoRequest CreateWithdrawalEdoRequest(OrderEntity order, DocumentEdoTask documentTask)
