@@ -81,7 +81,7 @@ namespace Edo.Withdrawal.Routine.Services
 					timedOutTasksOfNotRegisteredInTrueMarkClients
 						.Where(x => !clientInnsToSetRegisteredStatus.Contains(x.ClientInn)));
 
-				withdrawalEdoRequests = await CreateWithdrawalEdoRequesrs(uow, timedOutDocumentTasks, cancellationToken);
+				withdrawalEdoRequests = await CreateWithdrawalEdoRequests(uow, timedOutDocumentTasks, cancellationToken);
 
 				await uow.CommitAsync(cancellationToken);
 			}
@@ -205,7 +205,7 @@ namespace Edo.Withdrawal.Routine.Services
 			return registeredInTrueMarkClients;
 		}
 
-		private async Task<IList<WithdrawalEdoRequest>> CreateWithdrawalEdoRequesrs(
+		private async Task<IList<WithdrawalEdoRequest>> CreateWithdrawalEdoRequests(
 			IUnitOfWork uow,
 			IList<TimedOutOrderDocumentTaskNode> documentTaskNodes,
 			CancellationToken cancellationToken)

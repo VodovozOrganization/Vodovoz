@@ -56,7 +56,7 @@ namespace Edo.Documents
 		/// <returns>Идентификатор созданной заявки или null, если заявка не была создана</returns>
 		public async Task HandleOrderDocflowCompleted(int documentId, CancellationToken cancellationToken)
 		{
-			using(var uow = _uowFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot(nameof(WithdrawalEdoRequestHandler)))
 			{
 				var document = await uow.Session.GetAsync<OrderEdoDocument>(documentId, cancellationToken)
 					?? throw new InvalidOperationException($"Документ ЭДО с Id {documentId} не найден");
@@ -104,6 +104,8 @@ namespace Edo.Documents
 				var actualTrueMarkRegistrationStatusResult =
 					await _trueMarkRegistrationCheckService.GetTrueMarkRegistrationStatus(client.INN, cancellationToken);
 
+				var isClientRegistrationStatusChangedToRegistered = false;
+
 				if(actualTrueMarkRegistrationStatusResult.IsSuccess)
 				{
 					var actualRegistrationStatus = actualTrueMarkRegistrationStatusResult.Value;
@@ -111,6 +113,7 @@ namespace Edo.Documents
 					if(actualRegistrationStatus != client.RegistrationInChestnyZnakStatus)
 					{
 						client.RegistrationInChestnyZnakStatus = actualRegistrationStatus;
+						isClientRegistrationStatusChangedToRegistered = true;
 					}
 				}
 
@@ -119,6 +122,12 @@ namespace Edo.Documents
 					_logger.LogInformation(
 						"Контрагент {CounterpartyId} зарегистрирован в ЧЗ. Вывод из оборота в данный момент не требуется",
 						client.Id);
+
+					if(isClientRegistrationStatusChangedToRegistered)
+					{
+						await uow.CommitAsync(cancellationToken);
+					}
+
 					return;
 				}
 
@@ -158,8 +167,6 @@ namespace Edo.Documents
 				await _messageBus.Publish(
 					new WithdrawalEdoRequestCreatedEvent { Id = withdrawalRequest.Id },
 					cancellationToken);
-
-				return;
 			}
 		}
 
