@@ -127,7 +127,15 @@ namespace CustomTaskDebugExecutor
 			
 			Console.WriteLine("23. Обновить статус ДО");
 			Console.WriteLine();
-			
+
+			Console.WriteLine("24. OrderDocflowCompletedEvent (отправка события о том, что документооборот УПД по заказу успешно завершён) - [Edo.Documents]");
+			Console.WriteLine("    Событие для создания заявки на вывод из оборота кодов в ЧЗ");
+			Console.WriteLine();
+
+			Console.WriteLine("25. WithdrawalEdoRequestCreatedEvent (отправка события о том, что создана заявка на вывод кодов из оборота) - [Edo.Scheduler]");
+			Console.WriteLine("    Событие для создания задачи на вывод из оборота кодов в ЧЗ");
+			Console.WriteLine();
+
 			Console.Write("Выберите действие: ");
 			var messageNumber = int.Parse(Console.ReadLine());
 
@@ -201,6 +209,12 @@ namespace CustomTaskDebugExecutor
 					break;
 				case 23:
 					await UpdateDocflowStatus();
+					break;
+				case 24:
+					await ReceiveOrderDocflowCompletedEvent(cancellationToken);
+					break;
+				case 25:
+					await ReceiveWithdrawalEdoRequestCreatedEvent(cancellationToken);
 					break;
 				default:
 					break;
@@ -655,6 +669,42 @@ and ecr.source != 'Manual'
 
 			var service = _serviceProvider.GetRequiredService<WithdrawalTaskCreatedHandler>();
 			await service.HandleWithdrawal(id, cancellationToken);
+		}
+
+		private async Task ReceiveOrderDocflowCompletedEvent(CancellationToken cancellationToken)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Необходимо ввести Id ЭДО документа с типом Order (edo_outgoing_documents)");
+			Console.Write("Введите Id (0 - выход): ");
+
+			var id = int.Parse(Console.ReadLine());
+
+			if(id <= 0)
+			{
+				Console.WriteLine("Выход");
+				return;
+			}
+
+			var service = _serviceProvider.GetRequiredService<WithdrawalEdoRequestHandler>();
+			await service.HandleOrderDocflowCompleted(id, cancellationToken);
+		}
+
+		private async Task ReceiveWithdrawalEdoRequestCreatedEvent(CancellationToken cancellationToken)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Необходимо ввести Id заявки на вывод из оборота (edo_customer_requests типа Withdrawal)");
+			Console.Write("Введите Id (0 - выход): ");
+
+			var id = int.Parse(Console.ReadLine());
+
+			if(id <= 0)
+			{
+				Console.WriteLine("Выход");
+				return;
+			}
+
+			var service = _serviceProvider.GetRequiredService<EdoTaskScheduler>();
+			await service.CreateTask(id, cancellationToken);
 		}
 
 		private async Task RehandleTaxcomAcceptDocuments(CancellationToken cancellationToken)
