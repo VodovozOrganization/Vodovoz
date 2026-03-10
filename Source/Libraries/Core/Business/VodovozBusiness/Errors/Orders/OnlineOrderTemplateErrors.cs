@@ -44,7 +44,7 @@ namespace VodovozBusiness.Errors.Orders
 			new Error(
 				typeof(OnlineOrderTemplateErrors),
 				nameof(DeliveryScheduleIdIsNull),
-				"Выбранный интервал доставки {deliverySchedule} не подходит для выбранных дней поставок автозаказа");
+				$"Выбранный интервал доставки {deliverySchedule} не подходит для выбранных дней поставок автозаказа");
 		
 		public static Error RepeatOrderIsNull =>
 			new Error(

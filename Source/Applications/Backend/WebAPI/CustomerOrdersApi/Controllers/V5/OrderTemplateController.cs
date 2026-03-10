@@ -73,7 +73,7 @@ namespace CustomerOrdersApi.Controllers.V5
 
 				if(templateInfo is null)
 				{
-					return Problem("Не найден шаблон с таким идентификатором", statusCode: 404);
+					return Problem($"Не найден шаблон с идентификатором {templateId}", statusCode: 404);
 				}
 				
 				return Ok(templateInfo);

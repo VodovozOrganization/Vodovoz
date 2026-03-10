@@ -17,7 +17,7 @@ namespace CustomerOrdersApi.Controllers.V4
 		private readonly ICustomerOrderFixedPriceServiceV4 _fixedPriceService;
 
 		public FixedPriceController(
-			ILogger<SignatureControllerBase> logger,
+			ILogger<FixedPriceController> logger,
 			ICustomerOrderFixedPriceServiceV4 fixedPriceService) : base(logger)
 		{
 			_fixedPriceService = fixedPriceService ?? throw new ArgumentNullException(nameof(fixedPriceService));
