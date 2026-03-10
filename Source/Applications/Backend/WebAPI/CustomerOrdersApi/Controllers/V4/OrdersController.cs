@@ -12,6 +12,7 @@ using Vodovoz.Presentation.WebApi.Messages;
 
 namespace CustomerOrdersApi.Controllers.V4
 {
+	[ApiVersion("4.0")]
 	public class OrdersController : SignatureControllerBase
 	{
 		private readonly ICustomerOrdersServiceV4 _customerOrdersService;

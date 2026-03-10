@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CustomerApps.Contracts.V5
+namespace Vodovoz.Core.Data.V5
 {
 	public class OrderTemplateInfoDto : OrderTemplateData
 	{
@@ -21,6 +21,10 @@ namespace CustomerApps.Contracts.V5
 		/// Идентификатор последнего онлайн заказа
 		/// </summary>
 		public Guid? LastOnlineOrderExternalId { get; set; }
+		/// <summary>
+		/// Список различных сообщений для ИПЗ
+		/// </summary>
+		public IEnumerable<InfoMessage> InfoMessages { get; set; }
 
 		public static OrderTemplateInfoDto Create(
 			OrderTemplateData template,
@@ -40,7 +44,8 @@ namespace CustomerApps.Contracts.V5
 				IsActive = template.IsActive,
 				LastOnlineOrderExternalId = lastOnlineOrderExternalId,
 				TemplateProducts = templateProducts,
-				OrderSum = orderSum
+				OrderSum = orderSum,
+				InfoMessages = new List<InfoMessage>()
 			};
 
 			return onlineOrderTemplate;

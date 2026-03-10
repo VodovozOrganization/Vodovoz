@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CustomerApps.Contracts.V5;
 using CustomerOrdersApi.Library.V5.Dto.Orders;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
-using Vodovoz.Core.Data.Orders.V5;
+using Vodovoz.Core.Data.V5;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Core.Domain.Sale;

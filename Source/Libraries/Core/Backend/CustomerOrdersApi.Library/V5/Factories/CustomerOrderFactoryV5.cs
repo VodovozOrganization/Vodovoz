@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CustomerOrdersApi.Library.Converters;
 using CustomerOrdersApi.Library.V5.Dto.Orders;
-using Vodovoz.Core.Data.InfoMessages;
+using Vodovoz.Core.Data;
 using Vodovoz.Core.Data.Orders;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Logistic;

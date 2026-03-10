@@ -1,6 +1,6 @@
-﻿namespace CustomerApps.Contracts.V5
+﻿namespace Vodovoz.Core.Data.V5
 {
-	public class DiscountData
+	public class DiscountData : IDiscountData
 	{
 		/// <summary>
 		/// Скидка
@@ -23,6 +23,14 @@
 			int discountReasonId) => new DiscountData
 		{
 			Discount = discount,
+			IsDiscountInMoney = isDiscountInMoney,
+			DiscountReasonId = discountReasonId
+		};
+		
+		public static DiscountData Create(
+			bool isDiscountInMoney,
+			int discountReasonId) => new DiscountData
+		{
 			IsDiscountInMoney = isDiscountInMoney,
 			DiscountReasonId = discountReasonId
 		};

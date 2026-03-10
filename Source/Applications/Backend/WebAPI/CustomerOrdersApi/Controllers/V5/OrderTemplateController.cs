@@ -3,13 +3,13 @@ using System.Data.Bindings;
 using System.Linq;
 using System.Threading.Tasks;
 using Core.Infrastructure;
-using CustomerApps.Contracts.V5;
 using CustomerOrdersApi.Library.V5.Dto.Orders.OrderTemplates;
 using CustomerOrdersApi.Library.V5.Factories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using Vodovoz.Application.Orders.Services;
+using Vodovoz.Core.Data.V5;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Core.Domain.Repositories;
@@ -19,6 +19,7 @@ using VodovozBusiness.EntityRepositories.Orders;
 
 namespace CustomerOrdersApi.Controllers.V5
 {
+	[ApiVersion("5.0")]
 	public class OrderTemplateController : VersionedController
 	{
 		private readonly IDiscountReasonSettings _discountReasonSettings;

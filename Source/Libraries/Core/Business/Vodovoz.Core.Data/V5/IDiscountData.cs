@@ -1,4 +1,4 @@
-﻿namespace Vodovoz.Core.Data.Orders.V5
+﻿namespace Vodovoz.Core.Data.V5
 {
 	/// <summary>
 	/// Контракт данных по скидке 

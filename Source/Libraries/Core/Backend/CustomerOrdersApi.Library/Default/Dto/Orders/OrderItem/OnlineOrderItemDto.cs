@@ -1,5 +1,5 @@
 ﻿using System;
-using Vodovoz.Core.Data.Orders.V4;
+using Vodovoz.Core.Data.V4;
 
 namespace CustomerOrdersApi.Library.Default.Dto.Orders.OrderItem
 {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using CustomerApps.Contracts.V5;
-using Vodovoz.Core.Data.Orders.V5;
+using Vodovoz.Core.Data.V5;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
 

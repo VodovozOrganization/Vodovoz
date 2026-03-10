@@ -1,4 +1,4 @@
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -1837,7 +1837,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return orders;
 		}
 		
-		public IEnumerable<Vodovoz.Core.Data.Orders.V4.OrderDto> GetCounterpartyOrdersFromOnlineOrdersV4(
+		public IEnumerable<Core.Data.V4.OrderDto> GetCounterpartyOrdersFromOnlineOrdersV4(
 			IUnitOfWork uow,
 			int counterpartyId,
 			DateTime ratingAvailableFrom)
@@ -1901,7 +1901,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						? (DateTime.Now - onlineOrder.Created).TotalSeconds < timer.PayTimeWithFastDelivery.TotalSeconds
 						: (DateTime.Now - onlineOrder.Created).TotalSeconds < timer.PayTimeWithoutFastDelivery.TotalSeconds)
 
-				select new Vodovoz.Core.Data.Orders.V4.OrderDto
+				select new Core.Data.V4.OrderDto
 				{
 					OrderId = order.Id,
 					OnlineOrderId = onlineOrder.Id,
@@ -1920,7 +1920,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return orders;
 		}
 		
-		public IEnumerable<Vodovoz.Core.Data.Orders.V4.OrderDto> GetCounterpartyOrdersWithoutOnlineOrdersV4(
+		public IEnumerable<Core.Data.V4.OrderDto> GetCounterpartyOrdersWithoutOnlineOrdersV4(
 			IUnitOfWork uow,
 			int counterpartyId,
 			DateTime ratingAvailableFrom)
@@ -1972,7 +1972,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						? deliverySchedule.DeliveryTime
 						: null
 
-				select new Vodovoz.Core.Data.Orders.V4.OrderDto
+				select new Core.Data.V4.OrderDto
 				{
 					OrderId = order.Id,
 					OnlineOrderId = null,
@@ -1991,7 +1991,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return orders;
 		}
 		
-		public IEnumerable<Vodovoz.Core.Data.Orders.V5.OrderDto> GetCounterpartyOrdersFromOnlineOrdersV5(
+		public IEnumerable<Core.Data.V5.OrderDto> GetCounterpartyOrdersFromOnlineOrdersV5(
 			IUnitOfWork uow,
 			int counterpartyId,
 			DateTime ratingAvailableFrom)
@@ -2055,7 +2055,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						? (DateTime.Now - onlineOrder.Created).TotalSeconds < timer.PayTimeWithFastDelivery.TotalSeconds
 						: (DateTime.Now - onlineOrder.Created).TotalSeconds < timer.PayTimeWithoutFastDelivery.TotalSeconds)
 
-				select new Vodovoz.Core.Data.Orders.V5.OrderDto
+				select new Core.Data.V5.OrderDto
 				{
 					OrderId = order.Id,
 					OnlineOrderId = onlineOrder.Id,
@@ -2074,7 +2074,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return orders;
 		}
 		
-		public IEnumerable<Vodovoz.Core.Data.Orders.V5.OrderDto> GetCounterpartyOrdersWithoutOnlineOrdersV5(
+		public IEnumerable<Core.Data.V5.OrderDto> GetCounterpartyOrdersWithoutOnlineOrdersV5(
 			IUnitOfWork uow,
 			int counterpartyId,
 			DateTime ratingAvailableFrom)
@@ -2126,7 +2126,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						? deliverySchedule.DeliveryTime
 						: null
 
-				select new Vodovoz.Core.Data.Orders.V5.OrderDto
+				select new Core.Data.V5.OrderDto
 				{
 					OrderId = order.Id,
 					OnlineOrderId = null,

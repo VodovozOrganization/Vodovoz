@@ -1,5 +1,4 @@
-﻿using CustomerApps.Contracts.V5;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Multi;
 using QS.DomainModel.UoW;
 using System;
@@ -7,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Core.Infrastructure;
+using Vodovoz.Core.Data.V5;
+using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -128,16 +129,16 @@ namespace Vodovoz.Application.Orders.Services
 				var currentDayOfWeek = DateTime.Today.DayOfWeek;
 				DateTime? nextDeliveryDate = null;
 				
+				var template = keyPairValue.Value;
+				
 				if(weekdays.Contains(keyPairValue.Key))
 				{
 					templateWeekdays
 						.AddRange(weekdays[keyPairValue.Key]
 							.Select(x => x.Weekday));
 
-					nextDeliveryDate = CalculateNextDeliveryDate(templateWeekdays, currentDayOfWeek);
+					nextDeliveryDate = CalculateNextDeliveryDate(templateWeekdays, template.RepeatOrder, currentDayOfWeek);
 				}
-
-				var template = keyPairValue.Value;
 
 				templates.Add(
 					OrderTemplateCardFromListDto.Create(
@@ -241,10 +242,12 @@ namespace Vodovoz.Application.Orders.Services
 		
 		private DateTime? CalculateNextDeliveryDate(
 			IEnumerable<string> templateWeekdays,
+			string repeatOrder,
 			DayOfWeek currentDayOfWeek)
 		{
 			DateTime? nextDeliveryDate = null;
 			DayOfWeek? firstTemplateDayOfWeek = null;
+			var enumRepeatOrder = repeatOrder.TryParseAsEnum<RepeatOnlineOrderType>();
 
 			foreach(var templateWeekday in templateWeekdays)
 			{
@@ -270,7 +273,27 @@ namespace Vodovoz.Application.Orders.Services
 
 			if(nextDeliveryDate is null && firstTemplateDayOfWeek != null)
 			{
-				nextDeliveryDate = DateTime.Today.AddDays(7 - (int)currentDayOfWeek + (int)firstTemplateDayOfWeek.Value);
+				var days = 0;
+				
+				switch(enumRepeatOrder)
+				{
+					case RepeatOnlineOrderType.OnePerWeek:
+						days = 7;
+						break;
+					case RepeatOnlineOrderType.OneEveryTwoWeeks:
+						days = 14;
+						break;
+					case RepeatOnlineOrderType.OneEveryThreeWeeks:
+						days = 21;
+						break;
+					case RepeatOnlineOrderType.OneEveryFourWeeks:
+						days = 28;
+						break;
+					default:
+						throw new InvalidOperationException($"Неизвестный интервал повторений автозаказа {enumRepeatOrder}");
+				}
+				
+				nextDeliveryDate = DateTime.Today.AddDays(days - (int)currentDayOfWeek + (int)firstTemplateDayOfWeek.Value);
 			}
 
 			return nextDeliveryDate;

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace CustomerApps.Contracts.V5
+namespace Vodovoz.Core.Data.V5
 {
 	/// <summary>
 	/// Товар онлайн заказа

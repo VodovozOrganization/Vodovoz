@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Vodovoz.Core.Data.Orders.V5;
+using Vodovoz.Core.Data.V5;
 using VodovozBusiness.Domain.Orders.V5;
 
 namespace Vodovoz.Application.Orders.Services.V5

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Vodovoz.Core.Data.InfoMessages;
 using Vodovoz.Core.Domain.Orders;
 
-namespace Vodovoz.Core.Data.Orders.V4
+namespace Vodovoz.Core.Data.V4
 {
 	/// <summary>
 	/// Информация о заказе

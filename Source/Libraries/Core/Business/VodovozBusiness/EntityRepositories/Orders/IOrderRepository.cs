@@ -204,13 +204,13 @@ namespace Vodovoz.EntityRepositories.Orders
 		OrderStatus[] GetStatusesForOrderCancelationWithCancellation();
 		IEnumerable<OrderDto> GetCounterpartyOrdersFromOnlineOrders(IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
 		IEnumerable<OrderDto> GetCounterpartyOrdersWithoutOnlineOrders(IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
-		IEnumerable<Vodovoz.Core.Data.Orders.V4.OrderDto> GetCounterpartyOrdersFromOnlineOrdersV4(
+		IEnumerable<Core.Data.V4.OrderDto> GetCounterpartyOrdersFromOnlineOrdersV4(
 			IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
-		IEnumerable<Vodovoz.Core.Data.Orders.V4.OrderDto> GetCounterpartyOrdersWithoutOnlineOrdersV4(
+		IEnumerable<Core.Data.V4.OrderDto> GetCounterpartyOrdersWithoutOnlineOrdersV4(
 			IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
-		IEnumerable<Vodovoz.Core.Data.Orders.V5.OrderDto> GetCounterpartyOrdersFromOnlineOrdersV5(
+		IEnumerable<Core.Data.V5.OrderDto> GetCounterpartyOrdersFromOnlineOrdersV5(
 			IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
-		IEnumerable<Vodovoz.Core.Data.Orders.V5.OrderDto> GetCounterpartyOrdersWithoutOnlineOrdersV5(
+		IEnumerable<Core.Data.V5.OrderDto> GetCounterpartyOrdersWithoutOnlineOrdersV5(
 			IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
 		IEnumerable<Order> GetOrdersFromOnlineOrder(IUnitOfWork uow, int onlineOrderId);
 		OrderStatus[] GetStatusesForEditGoodsInOrderInRouteList();

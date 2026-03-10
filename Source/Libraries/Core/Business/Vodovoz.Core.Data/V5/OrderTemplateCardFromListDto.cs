@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CustomerApps.Contracts.V5
+namespace Vodovoz.Core.Data.V5
 {
 	/// <summary>
 	/// Информация для карточки шаблона автозаказа из списка

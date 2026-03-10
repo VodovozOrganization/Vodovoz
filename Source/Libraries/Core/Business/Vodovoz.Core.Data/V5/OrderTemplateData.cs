@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace CustomerApps.Contracts.V5
+namespace Vodovoz.Core.Data.V5
 {
 	/// <summary>
 	/// Информация о шаблоне автозаказа

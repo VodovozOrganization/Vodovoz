@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Vodovoz.Core.Data.InfoMessages
+namespace Vodovoz.Core.Data
 {
 	/// <summary>
 	/// Информационное сообщение

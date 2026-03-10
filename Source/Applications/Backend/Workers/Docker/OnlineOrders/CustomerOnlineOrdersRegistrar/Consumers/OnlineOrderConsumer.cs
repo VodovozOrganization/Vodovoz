@@ -200,15 +200,14 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 				foreach(var templateProduct in orderTemplateProducts)
 				{
 					templateProduct.TemplateId = template.Id;
+					await uow.SaveAsync(templateProduct, cancellationToken: cancellationToken);
 				}
 				
 				foreach(var templateWeekday in orderTemplateWeekDays)
 				{
 					templateWeekday.TemplateId = template.Id;
+					await uow.SaveAsync(templateWeekday, cancellationToken: cancellationToken);
 				}
-				
-				await uow.SaveAsync(orderTemplateProducts, cancellationToken: cancellationToken);
-				await uow.SaveAsync(orderTemplateWeekDays, cancellationToken: cancellationToken);
 			}
 			
 			var validationResult = _onlineOrderValidator.ValidateOnlineOrder(uow, onlineOrder);

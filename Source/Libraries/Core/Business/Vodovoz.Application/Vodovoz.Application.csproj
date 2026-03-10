@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Backend\CustomerApps.Contracts\CustomerApps.Contracts.csproj" />
     <ProjectReference Include="..\..\Backend\DriverApi.Notifications.Client\DriverApi.Notifications.Client.csproj" />
     <ProjectReference Include="..\..\Backend\Mango\Mango.Client\Mango.Client.csproj" />
     <ProjectReference Include="..\..\Backend\Mango\Mango.Grpc.Client\Mango.Grpc.Client.csproj" />

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Data.Orders;
 using Vodovoz.Core.Data.Orders.Default;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Logistic;
@@ -63,7 +62,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			return onlineOrders;
 		}
 		
-		public IEnumerable<Vodovoz.Core.Data.Orders.V4.OrderDto> GetCounterpartyOnlineOrdersWithoutOrderV4(
+		public IEnumerable<Core.Data.V4.OrderDto> GetCounterpartyOnlineOrdersWithoutOrderV4(
 			IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom)
 		{
 			var onlineOrders = from onlineOrder in uow.Session.Query<OnlineOrder>()
@@ -106,7 +105,7 @@ namespace Vodovoz.EntityRepositories.Orders
 					&& onlineOrder.OnlineOrderPaymentStatus != OnlineOrderPaymentStatus.Paid
 					&& (DateTime.Now - onlineOrder.Created).TotalSeconds < payTime
 
-				select new Vodovoz.Core.Data.Orders.V4.OrderDto
+				select new Core.Data.V4.OrderDto
 				{
 					OnlineOrderId = onlineOrder.Id,
 					DeliveryDate = onlineOrder.DeliveryDate,
@@ -124,7 +123,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			return onlineOrders;
 		}
 		
-		public IEnumerable<Vodovoz.Core.Data.Orders.V5.OrderDto> GetCounterpartyOnlineOrdersWithoutOrderV5(
+		public IEnumerable<Core.Data.V5.OrderDto> GetCounterpartyOnlineOrdersWithoutOrderV5(
 			IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom)
 		{
 			var onlineOrders = from onlineOrder in uow.Session.Query<OnlineOrder>()
@@ -167,7 +166,7 @@ namespace Vodovoz.EntityRepositories.Orders
 					&& onlineOrder.OnlineOrderPaymentStatus != OnlineOrderPaymentStatus.Paid
 					&& (DateTime.Now - onlineOrder.Created).TotalSeconds < payTime
 
-				select new Vodovoz.Core.Data.Orders.V5.OrderDto
+				select new Core.Data.V5.OrderDto
 				{
 					OnlineOrderId = onlineOrder.Id,
 					DeliveryDate = onlineOrder.DeliveryDate,

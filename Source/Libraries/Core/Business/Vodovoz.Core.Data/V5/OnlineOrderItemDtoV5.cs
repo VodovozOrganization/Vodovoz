@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 
-namespace Vodovoz.Core.Data.Orders.V5
+namespace Vodovoz.Core.Data.V5
 {
 	/// <summary>
 	/// Товар онлайн заказа
@@ -33,7 +33,7 @@ namespace Vodovoz.Core.Data.Orders.V5
 		/// <summary>
 		/// Скидки, привязанные к товару
 		/// </summary>
-		public IList<IDiscountData> Discounts { get; set; }
+		public IList<DiscountData> Discounts { get; set; }
 
 		/// <summary>
 		/// Фикса

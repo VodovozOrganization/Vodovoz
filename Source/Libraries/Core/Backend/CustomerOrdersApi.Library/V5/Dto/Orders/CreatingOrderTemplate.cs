@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Core.Domain.Sale;
 
@@ -14,7 +14,7 @@ namespace CustomerOrdersApi.Library.V5.Dto.Orders
 		/// <summary>
 		/// Дни недели
 		/// </summary>
-		[JsonConverter(typeof(JsonStringEnumConverter))]
+		[JsonProperty (ItemConverterType = typeof(StringEnumConverter))]
 		public IEnumerable<WeekDayName> Weekdays { get; set; }
 		/// <summary>
 		/// Интервал повторений

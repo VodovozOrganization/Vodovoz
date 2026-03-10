@@ -6,7 +6,7 @@ using CustomerOrdersApi.Library.V4.Dto.Orders;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Data.Orders.V4;
+using Vodovoz.Core.Data.V4;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Handlers;

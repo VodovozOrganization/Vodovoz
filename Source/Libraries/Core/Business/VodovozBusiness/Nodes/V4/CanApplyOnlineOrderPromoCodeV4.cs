@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Vodovoz.Core.Data.Orders.V4;
+using Vodovoz.Core.Data.V4;
 using Vodovoz.Core.Domain.Clients;
 
 namespace VodovozBusiness.Nodes.V4

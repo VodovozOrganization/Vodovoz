@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-
-namespace Vodovoz.Core.Data.Orders.V5
+﻿namespace Vodovoz.Core.Data.V4
 {
-	public interface IOnlineOrderedProductV5
+	public interface IOnlineOrderedProductV4
 	{
 		/// <summary>
 		/// Id номенклатуры в ДВ
@@ -21,9 +19,17 @@ namespace Vodovoz.Core.Data.Orders.V5
 		/// </summary>
 		int? PromoSetId { get; }
 		/// <summary>
-		/// Скидки
+		/// Скидка в деньгах?
 		/// </summary>
-		IList<IDiscountData> Discounts { get; }
+		bool IsDiscountInMoney { get; set; }
+		/// <summary>
+		/// Скидка
+		/// </summary>
+		decimal Discount { get; set; }
+		/// <summary>
+		/// Id скидки/промокода
+		/// </summary>
+		int? DiscountReasonId { get; set; }
 		/// <summary>
 		/// Фикса
 		/// </summary>
@@ -35,10 +41,6 @@ namespace Vodovoz.Core.Data.Orders.V5
 		/// <summary>
 		/// Очистка данных по скидке
 		/// </summary>
-		void ClearDiscounts();
-		/// <summary>
-		/// Общая скидка на позицию
-		/// </summary>
-		decimal Discount();
+		void ClearDiscount();
 	}
 }

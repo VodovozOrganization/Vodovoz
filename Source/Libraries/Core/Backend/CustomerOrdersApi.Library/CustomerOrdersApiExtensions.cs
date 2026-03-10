@@ -71,7 +71,7 @@ namespace CustomerOrdersApi.Library
 							});
 						}
 					});
-								
+
 				configurator.Send<V4.Dto.Orders.OnlineOrderInfoDto>(x => x.UseRoutingKeyFormatter(y => y.Message.FaultedMessage.ToString()));
 				configurator.Message<V4.Dto.Orders.OnlineOrderInfoDto>(x => x.SetEntityName(V4.Dto.Orders.OnlineOrderInfoDto.ExchangeName));
 				configurator.Publish<V4.Dto.Orders.OnlineOrderInfoDto>(x =>

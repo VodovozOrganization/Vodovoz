@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.4.11519.219 insiders
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -622,8 +622,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OnlineOrders", "OnlineOrders", "{B813852E-1227-44E1-BB50-F862A67C60C3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomerOnlineOrdersUpdater", "Applications\Backend\Workers\Docker\OnlineOrders\CustomerOnlineOrdersUpdater\CustomerOnlineOrdersUpdater.csproj", "{CA40BF2B-C55F-4AA6-909A-4B146603682F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomerApps.Contracts", "Libraries\Core\Backend\CustomerApps.Contracts\CustomerApps.Contracts.csproj", "{8BCFF183-31CC-4610-8016-B137F93BB511}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -8613,42 +8611,6 @@ Global
 		{CA40BF2B-C55F-4AA6-909A-4B146603682F}.WinDesktop|Any CPU.Build.0 = Debug|Any CPU
 		{CA40BF2B-C55F-4AA6-909A-4B146603682F}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
 		{CA40BF2B-C55F-4AA6-909A-4B146603682F}.WinDesktop|x86.Build.0 = Debug|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.Debug|x86.Build.0 = Debug|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.DebugWin|Any CPU.ActiveCfg = Debug|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.DebugWin|Any CPU.Build.0 = Debug|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.DebugWin|x86.ActiveCfg = Debug|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.DebugWin|x86.Build.0 = Debug|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.Docker|Any CPU.ActiveCfg = Release|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.Docker|Any CPU.Build.0 = Release|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.Docker|x86.ActiveCfg = Release|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.Docker|x86.Build.0 = Release|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.LinuxDesktop|Any CPU.ActiveCfg = Release|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.LinuxDesktop|Any CPU.Build.0 = Release|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.LinuxDesktop|x86.ActiveCfg = Release|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.LinuxDesktop|x86.Build.0 = Release|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.Release|x86.ActiveCfg = Release|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.Release|x86.Build.0 = Release|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.ReleaseWin|Any CPU.ActiveCfg = Release|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.ReleaseWin|Any CPU.Build.0 = Release|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.ReleaseWin|x86.ActiveCfg = Release|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.ReleaseWin|x86.Build.0 = Release|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.WCF|Any CPU.ActiveCfg = Debug|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.WCF|Any CPU.Build.0 = Debug|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.WCF|x86.ActiveCfg = Debug|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.WCF|x86.Build.0 = Debug|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.Web|Any CPU.ActiveCfg = Debug|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.Web|Any CPU.Build.0 = Debug|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.Web|x86.ActiveCfg = Debug|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.Web|x86.Build.0 = Debug|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.WinDesktop|Any CPU.ActiveCfg = Debug|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.WinDesktop|Any CPU.Build.0 = Debug|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
-		{8BCFF183-31CC-4610-8016-B137F93BB511}.WinDesktop|x86.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -8949,7 +8911,6 @@ Global
 		{7BEDA312-C8D9-4717-82B1-4EBD88652717} = {C7C978D6-3716-40F2-B781-98E441337ACA}
 		{B813852E-1227-44E1-BB50-F862A67C60C3} = {75B30F60-775F-48C6-BF82-7F5FB3093C49}
 		{CA40BF2B-C55F-4AA6-909A-4B146603682F} = {B813852E-1227-44E1-BB50-F862A67C60C3}
-		{8BCFF183-31CC-4610-8016-B137F93BB511} = {755F5318-7A67-4B7C-AB0D-E08E6DDEBD92}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5C28294A-BE19-449D-A626-5F2CC748368D}

@@ -1,4 +1,4 @@
-﻿namespace CustomerApps.Contracts.V5
+﻿namespace Vodovoz.Core.Data.V5
 {
 	public class GetOrderTemplatesDto
 	{
