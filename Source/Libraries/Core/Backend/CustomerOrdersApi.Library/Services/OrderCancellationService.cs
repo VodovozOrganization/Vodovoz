@@ -1,9 +1,13 @@
 ﻿using CustomerOrdersApi.Library.Dto.Orders;
+using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
+using CustomerOrdersApi.Library.Factories;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
@@ -18,6 +22,8 @@ namespace CustomerOrdersApi.Library.Services
 {
 	public class OrderCancellationService : BaseOrderOperationService<CancelOrderDto, CancelOrderResult>, IOrderCancellationService
 	{
+		private readonly IPaymentRefundServiceFactory _paymentRefundServiceFactory;
+
 		public OrderCancellationService(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ILogger<OrderCancellationService> logger,
@@ -28,7 +34,8 @@ namespace CustomerOrdersApi.Library.Services
 			ISubdivisionRepository subdivisionRepository,
 			IRouteListService routeListService,
 			INomenclatureSettings nomenclatureSettings,
-			ICallTaskWorker callTaskWorker)
+			ICallTaskWorker callTaskWorker,
+			IPaymentRefundServiceFactory paymentRefundServiceFactory)
 			: base(
 				unitOfWorkFactory,
 				logger,
@@ -41,6 +48,7 @@ namespace CustomerOrdersApi.Library.Services
 				nomenclatureSettings,
 				callTaskWorker)
 		{
+			_paymentRefundServiceFactory = paymentRefundServiceFactory ?? throw new ArgumentNullException(nameof(paymentRefundServiceFactory));
 		}
 
 		public async Task<CancelOrderResult> CancelOrderAsync(CancelOrderDto cancelOrderDto) => await ExecuteAsync(cancelOrderDto);
@@ -103,30 +111,81 @@ namespace CustomerOrdersApi.Library.Services
 			CancelOrderDto dto)
 		{
 			_logger.LogInformation(
-				"Обработка отмены оплаченного заказа {OrderId} с типом платежа PaidOnline. TransactionId: {TransactionId}",
+				"Обработка отмены оплаченного заказа {OrderId}. " +
+				"Тип оплаты: {PaymentType}, TransactionId: {TransactionId}, PaymentSource: {PaymentSource}",
 				order.Id,
-				dto.TransactionId);
+				order.PaymentType,
+				dto.TransactionId,
+				onlineOrder?.OnlinePaymentSource);
 
-			// TODO: Интеграция с платежной системой для возврата денег
-			// CloudPayments.ReturnMoney(dto.TransactionId);
+			var refundService = _paymentRefundServiceFactory.GetRefundService(onlineOrder);
+
+			var refundRequest = new RefundRequestDto(
+				OnlineOrder: onlineOrder,
+				TransactionId: dto.TransactionId,
+				Amount: 228,
+				ExternalOrderId: onlineOrder?.ExternalOrderId.ToString(),
+				CancellationToken: CancellationToken.None
+			);
+
+			var refundResult = await refundService.ProcessRefundAsync(refundRequest);
+
+			if(!refundResult.Success)
+			{
+				_logger.LogWarning(
+					"Не удалось выполнить возврат для заказа {OrderId}: {ErrorMessage}",
+					order.Id,
+					refundResult.ErrorMessage);
+
+				return new CancelOrderResult
+				{
+					IsSuccess = false,
+					StatusCode = 400,
+					Title = "Payment refund failed",
+					DetailMessage = refundResult.GetUserFriendlyMessage() ??
+						"Не удалось выполнить возврат платежа. Пожалуйста, обратитесь в поддержку."
+				};
+			}
+
+			if(onlineOrder != null && refundResult.NewPaymentStatus != onlineOrder.OnlineOrderPaymentStatus)
+			{
+				onlineOrder.OnlineOrderPaymentStatus = refundResult.NewPaymentStatus;
+				_logger.LogInformation(
+					"Статус оплаты онлайн заказа {OnlineOrderId} обновлен на {NewStatus}",
+					onlineOrder.Id,
+					refundResult.NewPaymentStatus);
+			}
 
 			order.ChangeStatus(OrderStatus.Canceled);
 			order.Version = DateTime.Now;
 
 			uow.Save(order);
+
+			if(onlineOrder != null)
+			{
+				uow.Save(onlineOrder);
+			}
+
 			uow.Commit();
 
 			_logger.LogInformation(
-				"Оплаченный заказ {OrderId} отменен с возвратом платежа",
-				order.Id);
+				"Оплаченный заказ {OrderId} отменен. Результат возврата: {RefundStatus}",
+				order.Id,
+				refundResult.RefundStatus);
+
+			// Формируем сообщение для пользователя в зависимости от статуса возврата
+			var message = refundResult.RefundStatus == RefundStatus.PENDING
+				? "Заказ отменен, возврат средств инициирован. Статус возврата можно отслеживать в истории заказов."
+				: "Заказ отменен успешно, денежные средства вернутся к Вам в течение 10 дней. Срок зависит от банка получателя";
 
 			var result = new CancelOrderResult
 			{
 				IsSuccess = true,
 				StatusCode = 200,
 				Title = "Success",
-				DetailMessage = "Заказ отменен успешно, денежные средства вернутся к Вам в течение 10 дней. Срок зависит от банка получателя"
+				DetailMessage = message
 			};
+
 			return result;
 		}
 
@@ -256,7 +315,7 @@ namespace CustomerOrdersApi.Library.Services
 				order.OrderStatus.GetEnumTitle(),
 				undelivery.Id);
 
-			var message = IsPaidOnline(order)
+			var message = IsPaidOnline(order) // ПЕРЕДЕЛАТь
 				? "Заказ отменен успешно, денежные средства вернутся к Вам в течение 10 дней. Срок зависит от банка получателя"
 				: "Заказ отменен успешно";
 

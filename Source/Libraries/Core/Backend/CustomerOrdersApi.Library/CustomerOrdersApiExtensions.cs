@@ -3,13 +3,21 @@ using CustomerOrdersApi.Library.Converters;
 using CustomerOrdersApi.Library.Dto.Orders;
 using CustomerOrdersApi.Library.Factories;
 using CustomerOrdersApi.Library.Services;
+using CustomerOrdersApi.Library.Services.PaymentRefund;
+using CustomerOrdersApi.Library.Services.PaymentRefund.HttpClients;
+using CustomerOrdersApi.Library.Services.PaymentRefund.Mappers;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using System;
+using System.Net.Http.Headers;
 using System.Net.Security;
 using System.Security.Authentication;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Vodovoz.Application.Logistics;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Handlers;
@@ -110,6 +118,47 @@ namespace CustomerOrdersApi.Library
 			});
 			
 			return busConf;
+		}
+
+		public static IServiceCollection AddPaymentRefundServices(
+			this IServiceCollection services,
+			IConfiguration configuration)
+		{
+			services.Configure<CloudPaymentsSettings>(
+				configuration.GetSection("CloudPayments"));
+
+			services.AddSingleton<JsonSerializerOptions>(sp =>
+			{
+				return new JsonSerializerOptions
+				{
+					WriteIndented = false,
+					DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+				};
+			});
+
+			services.AddHttpClient<ICloudPaymentsHttpClient, CloudPaymentsHttpClient>((sp, client) =>
+			{
+				var settings = sp.GetRequiredService<IOptions<CloudPaymentsSettings>>().Value;
+
+				client.BaseAddress = new Uri(settings.ApiUrl);
+
+				var authToken = Convert.ToBase64String(
+					Encoding.ASCII.GetBytes($"{settings.PublicId}:{settings.ApiSecret}"));
+
+				client.DefaultRequestHeaders.Authorization =
+					new AuthenticationHeaderValue("Basic", authToken);
+
+				client.DefaultRequestHeaders.Add("User-Agent", "Vodovoz"); 
+
+				client.Timeout = TimeSpan.FromMinutes(5);
+			});
+
+
+			services.AddScoped<ICloudPaymentsMapper, CloudPaymentsMapper>();
+			services.AddScoped<IPaymentRefundServiceFactory, PaymentRefundServiceFactory>();
+			services.AddScoped<IPaymentRefundService, CloudPaymentsRefundService>();
+
+			return services;
 		}
 	}
 }
