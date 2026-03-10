@@ -17,6 +17,7 @@ using Vodovoz.Settings.Contacts;
 using Vodovoz.ViewModels.ViewModels.Contacts;
 using Vodovoz.ViewWidgets.Mango;
 using VodovozBusiness.Domain.Contacts;
+using VodovozBusiness.Services.Clients;
 
 namespace Vodovoz.Views.Contacts
 {
@@ -141,9 +142,12 @@ namespace Vodovoz.Views.Contacts
 		{
 			datatablePhones.NRows = RowNum + 1;
 
-			var phoneViewModel = new PhoneViewModel(newPhone,
+			var phoneViewModel = new PhoneViewModel(
+				UoW,
+				newPhone,
 				ServicesConfig.CommonServices,
-				ScopeProvider.Scope.Resolve<IPhoneTypeSettings>()
+				ScopeProvider.Scope.Resolve<IPhoneTypeSettings>(),
+				ScopeProvider.Scope.Resolve<IExternalCounterpartyHandler>()
 			);
 
 			var phoneDataCombo = new yListComboBox();

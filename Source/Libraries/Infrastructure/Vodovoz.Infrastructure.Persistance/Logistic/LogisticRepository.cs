@@ -223,7 +223,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 			DriverSchedule scheduleAlias = null;
 
 			var scheduleItem = uow.Session.QueryOver(() => itemAlias)
-				.Where(() => itemAlias.Date == date)
+				.Where(() => itemAlias.Date == date.Date)
 				.JoinAlias(() => itemAlias.DriverSchedule, () => scheduleAlias)
 				.Where(() => scheduleAlias.Driver.Id == driverId)
 				.SingleOrDefault();

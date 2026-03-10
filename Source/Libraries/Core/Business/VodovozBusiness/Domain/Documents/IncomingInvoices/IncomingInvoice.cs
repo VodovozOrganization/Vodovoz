@@ -48,19 +48,6 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 
 		#region Properties
 
-		public override DateTime TimeStamp
-		{
-			get => base.TimeStamp;
-			set
-			{
-				base.TimeStamp = value;
-				foreach(var item in Items)
-				{
-					item.GoodsAccountingOperation.OperationTime = value;
-				}
-			}
-		}
-
 		[Display(Name = "Номер счета-фактуры")]
 		public virtual string InvoiceNumber
 		{
@@ -122,9 +109,18 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 		public virtual bool CanDeleteItems => true;
 
 		#endregion
-		
+
 		#region Functions
-		
+
+		public override void SetTimeStamp(DateTime value)
+		{
+			base.TimeStamp = value;
+			foreach(var item in Items)
+			{
+				item.GoodsAccountingOperation.OperationTime = value;
+			}
+		}
+
 		public virtual void AddItem(IncomingInvoiceItem item)
 		{
 			if(!CanAddItem)

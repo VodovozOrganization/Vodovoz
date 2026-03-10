@@ -13,6 +13,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Complaints;
 using Vodovoz.Domain.Employees;
@@ -320,7 +321,12 @@ namespace Vodovoz.Infrastructure.Persistance.Delivery
 				return fastDeliveryAvailabilityHistory;
 			}
 
-			var neededNomenclatures = nomenclatureNodes.ToDictionary(x => x.NomenclatureId, x => x.Amount);
+			var neededNomenclatures = nomenclatureNodes
+				.GroupBy(x => x.NomenclatureId)
+				.ToDictionary(
+					g => g.Key,
+					g => g.Sum(x => x.Amount)
+				);
 
 
 			var routeListNodesQuery = GetRouteListNodesQuery(uow, date);
@@ -634,8 +640,12 @@ namespace Vodovoz.Infrastructure.Persistance.Delivery
 				return fastDeliveryAvailabilityHistory;
 			}
 
-			var neededNomenclatures = nomenclatureNodes.ToDictionary(x => x.NomenclatureId, x => x.Amount);
-
+			var neededNomenclatures = nomenclatureNodes
+				.GroupBy(x => x.NomenclatureId)
+				.ToDictionary(
+					g => g.Key,
+					g => g.Sum(x => x.Amount)
+				);
 
 			var routeListNodesQuery = GetRouteListNodesQuery(uow, date);
 			var routeListNodes = await routeListNodesQuery

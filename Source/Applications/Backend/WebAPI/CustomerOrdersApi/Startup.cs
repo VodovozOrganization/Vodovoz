@@ -113,9 +113,9 @@ namespace CustomerOrdersApi
 			app.UseRouting();
 			app.UseAuthorization();
 			app.UseApiVersioning();
-			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
-			
 			app.UseVodovozHealthCheck();
+
+			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 		}
 	}
 }

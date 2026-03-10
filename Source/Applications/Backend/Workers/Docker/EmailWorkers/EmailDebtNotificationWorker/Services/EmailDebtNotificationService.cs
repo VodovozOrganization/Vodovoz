@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Data.Repositories.Document;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -29,6 +30,7 @@ namespace EmailDebtNotificationWorker.Services
 		private readonly ILogger<EmailDebtNotificationService> _logger;
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IEmailRepository _emailRepository;
+		private readonly IDocumentOrganizationCounterRepository _documentOrganizationCounterRepository;
 		private readonly IEmailSettings _emailSettings;
 		private readonly PrintableDocumentSaver _printableDocumentSaver;
 		private readonly IBus _bus;
@@ -39,6 +41,7 @@ namespace EmailDebtNotificationWorker.Services
 			ILogger<EmailDebtNotificationService> logger,
 			IUnitOfWorkFactory uowFactory,
 			IEmailRepository emailRepository,
+			IDocumentOrganizationCounterRepository documentOrganizationCounterRepository,
 			IEmailSettings emailSettings,
 			PrintableDocumentSaver printableDocumentSaver,
 			IBus bus
@@ -47,6 +50,7 @@ namespace EmailDebtNotificationWorker.Services
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
+			_documentOrganizationCounterRepository = documentOrganizationCounterRepository ?? throw new ArgumentNullException(nameof(documentOrganizationCounterRepository));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_printableDocumentSaver = printableDocumentSaver ?? throw new ArgumentNullException(nameof(printableDocumentSaver));
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
@@ -127,6 +131,8 @@ namespace EmailDebtNotificationWorker.Services
 				throw new InvalidOperationException($"Клиент {client.Id} не имеет подходящего email для уведомления о задолженности");
 			}
 
+			var documentNumber = await _documentOrganizationCounterRepository.GetDocumentNumberByOrderId(uow, order.Id, cancellationToken);
+
 			var storedEmail = CreateStoredEmail(emailSubject, emailAddress, order.Id);
 			if(storedEmail == null)
 			{
@@ -170,6 +176,7 @@ namespace EmailDebtNotificationWorker.Services
 				letterOfDebtDocument,
 				emailAddress,
 				emailSubject,
+				documentNumber,
 				cancellationToken);
 		}
 
@@ -211,7 +218,8 @@ namespace EmailDebtNotificationWorker.Services
 			Order order,
 			LetterOfDebtDocument letterOfDebt,
 			string emailAddress,
-			string emailSubject
+			string emailSubject,
+			string documentNumber
 			)
 		{
 			var instanceId = GetCurrentDatabaseId(uow);
@@ -226,7 +234,7 @@ namespace EmailDebtNotificationWorker.Services
 				throw new ArgumentNullException(nameof(storedEmail.Guid));
 			}
 
-			var messageText = GenerateDebtEmailBody(client, order, unsubscribeUrl);
+			var messageText = GenerateDebtEmailBody(client, order, documentNumber, unsubscribeUrl);
 			var attachment = CreateDebtEmailAttachment(order, letterOfDebt);
 
 			var sendEmailMessage = new SendEmailMessage()
@@ -308,12 +316,16 @@ namespace EmailDebtNotificationWorker.Services
 
 		private string GetUnsubscribeLink(Guid guid) => $"{_emailSettings.UnsubscribeUrl}/{guid}";
 
-		private static string GenerateDebtEmailBody(Counterparty client, Order order, string unsubscribeUrl)
+		private static string GenerateDebtEmailBody(Counterparty client, Order order, string documentNumber, string unsubscribeUrl)
 		{
 			string deliveryDateFormatted = order.DeliveryDate?.ToString("dd.MM.yyyy")
 				?? string.Empty;
 
 			string dueDateFormatted = order.DeliveryDate?.AddDays(client.DelayDaysForBuyers).ToString("dd.MM.yyyy") ?? string.Empty;
+
+			string orderNumber = !string.IsNullOrWhiteSpace(documentNumber)
+				? $"№{documentNumber}"
+				: $"№{order.Id}";
 
 			return $@"
 				<!DOCTYPE html>
@@ -338,7 +350,7 @@ namespace EmailDebtNotificationWorker.Services
 						</div>
         
 						<div class='content'>
-							<p>Мы хотим напомнить вам, что на текущий момент у вас имеется задолженность по заказу №{order.Id} от {deliveryDateFormatted},
+							<p>Мы хотим напомнить вам, что на текущий момент у вас имеется задолженность по заказу №{orderNumber} от {deliveryDateFormatted},
 							срок оплаты по которому истёк <strong>{dueDateFormatted}.</strong></p>
             
 							<p>Мы ценим ваше сотрудничество и надеемся на оперативное урегулирование задолженности. 
@@ -384,10 +396,21 @@ namespace EmailDebtNotificationWorker.Services
 			LetterOfDebtDocument letterOfDebtDocument,
 			string emailAddress,
 			string emailSubject,
+			string documentNumber,
 			CancellationToken cancellationToken
 			)
 		{
-			var emailMessage = CreateDebtEmailMessage(uow, storedEmail, client, organization, order, letterOfDebtDocument, emailAddress, emailSubject);
+			var emailMessage = CreateDebtEmailMessage(
+				uow,
+				storedEmail,
+				client,
+				organization,
+				order,
+				letterOfDebtDocument,
+				emailAddress,
+				emailSubject,
+				documentNumber);
+
 			await _bus.Publish(emailMessage, cancellationToken);
 		}
 	}

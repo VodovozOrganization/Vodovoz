@@ -574,6 +574,7 @@ namespace Vodovoz.Application.Orders.Services
 			}
 			
 			ValidatePrice(fastDelivery, checkOnlineOrderSum);
+			_calculatedOrderItemPrices.Add(checkOnlineOrderSum);
 		}
 
 		private void ValidateOnlineRentPackages()

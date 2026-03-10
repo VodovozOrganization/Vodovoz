@@ -127,7 +127,7 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 			return includeExludeFiltersViewModel;
 		}
 		
-		public IncludeExludeFiltersViewModel CreateCallCenterMotivationReportIncludeExcludeFilter(IUnitOfWork unitOfWork)
+		public IncludeExludeFiltersViewModel CreateCallCenterMotivationReportIncludeExcludeFilter(IUnitOfWork unitOfWork, int? onlyEmployeeId)
 		{
 			var includeExludeFiltersViewModel = CreateDefaultIncludeExludeFiltersViewModel();
 
@@ -139,7 +139,17 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 			AddOrganizationFilter(unitOfWork, includeExludeFiltersViewModel);
 			AddDiscountReasonFilter(unitOfWork, includeExludeFiltersViewModel);
 			AddSubdivisionFilter(unitOfWork, includeExludeFiltersViewModel);
-			AddEmployeeFilter(unitOfWork, includeExludeFiltersViewModel);
+
+			if(onlyEmployeeId.HasValue)
+			{
+				AddEmployeeFilter(unitOfWork, includeExludeFiltersViewModel, e => e.Id == onlyEmployeeId, onlyEmployeeId);
+				includeExludeFiltersViewModel.Filters.Last().RefreshFilteredElementsCommand.Execute();
+			}
+			else
+			{
+				AddEmployeeFilter(unitOfWork, includeExludeFiltersViewModel);
+			}
+
 			AddPromotionalSetFilter(unitOfWork, includeExludeFiltersViewModel);
 			
 			var statusesToSelect = new[]

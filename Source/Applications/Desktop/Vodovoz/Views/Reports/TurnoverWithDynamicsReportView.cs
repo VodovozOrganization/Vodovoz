@@ -102,6 +102,7 @@ namespace Vodovoz.ReportsParameters.Sales
 			ShowFilter();
 
 			leftrightlistview.ViewModel = ViewModel.GroupingSelectViewModel;
+			orderdatefilterview3.Visible = false;
 
 			ytreeReportIndicatorsRows.RowActivated += OnReportRowActivated;
 			ViewModel.PropertyChanged += ViewModelPropertyChanged;

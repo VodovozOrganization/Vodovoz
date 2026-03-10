@@ -92,7 +92,10 @@ namespace VodovozHealthCheck
 
 				_logger.LogInformation("{CheckMessage}: Вызываем проверку из сервиса.", checkMessage);
 
-				healthResult = await _serviceRetryPolicy.ExecuteAsync(CheckServiceHealthAsync, cancellationToken);
+				// Пока ищем причины проблем с сетью, пробуем без повтора
+				// healthResult = await _serviceRetryPolicy.ExecuteAsync(CheckServiceHealthAsync, cancellationToken);
+
+				healthResult = await CheckServiceHealthAsync(cancellationToken);
 
 				_logger.LogInformation("{CheckMessage}: Проверка из сервиса завершена, результат: IsHealthy {IsHealthy}", checkMessage,
 					healthResult.IsHealthy);

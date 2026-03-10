@@ -3,16 +3,18 @@ using Gamma.Utilities;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using QS.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -35,105 +37,33 @@ namespace Vodovoz.Domain.Documents
 		Nominative = "отпуск самовывоза")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class SelfDeliveryDocument : Document, IValidatableObject, IWarehouseBoundedDocument
+	public class SelfDeliveryDocument : SelfDeliveryDocumentEntity, IValidatableObject, IWarehouseBoundedDocument
 	{
 		private Order _order;
-		private Warehouse _warehouse;
-		private string _comment;
-		private IList<SelfDeliveryDocumentItem> _items
-			= new List<SelfDeliveryDocumentItem>();
-		private GenericObservableList<SelfDeliveryDocumentItem> _observableItems;
-		private IList<SelfDeliveryDocumentReturned> _returnedItems
-			= new List<SelfDeliveryDocumentReturned>();
 		private int _defBottleId;
 		private int _returnedTareBefore;
 		private int _tareToReturn;
-
-		/// <summary>
-		/// <inheritdoc/>
-		/// </summary>
-		public override DateTime TimeStamp
-		{
-			get => base.TimeStamp;
-			set
-			{
-				base.TimeStamp = value;
-
-				if(!NHibernate.NHibernateUtil.IsInitialized(Items))
-				{
-					return;
-				}
-
-				foreach(var item in Items)
-				{
-					if(item.GoodsAccountingOperation != null
-						&& item.GoodsAccountingOperation.OperationTime != TimeStamp)
-					{
-						item.GoodsAccountingOperation.OperationTime = TimeStamp;
-					}
-				}
-			}
-		}
+		private IObservableList<SelfDeliveryDocumentItem> _items = new ObservableList<SelfDeliveryDocumentItem>();
+		private IList<SelfDeliveryDocumentReturned> _returnedItems = new List<SelfDeliveryDocumentReturned>();
 
 		/// <summary>
 		/// Заказ, по которому оформляется самовывоз
 		/// </summary>
 		[Required(ErrorMessage = "Заказ должен быть указан.")]
-		public virtual Order Order
+		public virtual new Order Order
 		{
 			get => _order;
 			set => SetField(ref _order, value);
 		}
 
 		/// <summary>
-		/// Склад, на который оформляется самовывоз
-		/// </summary>
-		[Required(ErrorMessage = "Склад должен быть указан.")]
-		public virtual Warehouse Warehouse
-		{
-			get => _warehouse;
-			set => SetField(ref _warehouse, value);
-		}
-
-		/// <summary>
-		/// Комментарий к самовывозу
-		/// </summary>
-		[Display(Name = "Комментарий")]
-		public virtual string Comment
-		{
-			get => _comment;
-			set => SetField(ref _comment, value);
-		}
-
-		/// <summary>
 		/// Строки самовывоза
 		/// </summary>
-		[Display(Name = "Строки")]
-		public virtual IList<SelfDeliveryDocumentItem> Items
+		[Display(Name = "Строки самовывоза")]
+		public virtual new IObservableList<SelfDeliveryDocumentItem> Items
 		{
 			get => _items;
-			set
-			{
-				SetField(ref _items, value);
-				_observableItems = null;
-			}
-		}
-
-		/// <summary>
-		/// Строки самовывоза
-		/// </summary>
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<SelfDeliveryDocumentItem> ObservableItems
-		{
-			get
-			{
-				if(_observableItems == null)
-				{
-					_observableItems = new GenericObservableList<SelfDeliveryDocumentItem>(Items);
-				}
-
-				return _observableItems;
-			}
+			set => SetField(ref _items, value);
 		}
 
 		/// <summary>
@@ -147,11 +77,6 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		#region Не сохраняемые
-
-		/// <summary>
-		/// <inheritdoc/>
-		/// </summary>
-		public virtual string Title => $"Самовывоз №{Id} от {TimeStamp:d}";
 
 		/// <summary>
 		/// Количество возвратов, которые были оформлены до оформления текущего самовывоза
@@ -182,6 +107,25 @@ namespace Vodovoz.Domain.Documents
 
 		#endregion
 
+		public override void SetTimeStamp(DateTime value)
+		{
+			base.TimeStamp = value;
+
+			if(!NHibernate.NHibernateUtil.IsInitialized(Items))
+			{
+				return;
+			}
+
+			foreach(var item in Items)
+			{
+				if(item.GoodsAccountingOperation != null
+					&& item.GoodsAccountingOperation.OperationTime != TimeStamp)
+				{
+					item.GoodsAccountingOperation.OperationTime = TimeStamp;
+				}
+			}
+		}
+
 		/// <summary>
 		/// Проверка валидности документа самовывоза
 		/// </summary>
@@ -207,6 +151,11 @@ namespace Vodovoz.Domain.Documents
 				throw new ArgumentNullException(nameof(commonServices));
 			}
 
+			if(!(validationContext.GetService(typeof(IGenericRepository<FormalEdoRequest>)) is IGenericRepository<FormalEdoRequest> orderEdoRequestRepository))
+			{
+				throw new ArgumentNullException(nameof(orderEdoRequestRepository));
+			}
+
 			foreach(var item in Items)
 			{
 				if(item.Amount > item.AmountInStock)
@@ -223,7 +172,7 @@ namespace Vodovoz.Domain.Documents
 						new[] { this.GetPropertyName(o => o.Items) });
 				}
 
-				var count =  decimal.ToInt32(item.Document.GetNomenclaturesCountInOrder(item.Nomenclature));
+				var count =  decimal.ToInt32(item.Document.GetNomenclaturesCountInOrder(item.Nomenclature.Id));
 				if(item.Amount != count)
 				{
 					yield return new ValidationResult(
@@ -275,7 +224,7 @@ namespace Vodovoz.Domain.Documents
 		/// </summary>
 		public virtual void FillByOrder()
 		{
-			ObservableItems.Clear();
+			Items.Clear();
 			if(Order == null)
 			{
 				return;
@@ -290,16 +239,16 @@ namespace Vodovoz.Domain.Documents
 					continue;
 				}
 
-				if(!ObservableItems.Any(i => i.Nomenclature == orderItem.Nomenclature))
+				if(!Items.Any(i => i.Nomenclature == orderItem.Nomenclature))
 				{
-					ObservableItems.Add(
+					Items.Add(
 						new SelfDeliveryDocumentItem
 						{
 							Document = this,
 							Nomenclature = orderItem.Nomenclature,
 							OrderItem = orderItem,
 							OrderEquipment = null,
-							Amount = GetNomenclaturesCountInOrder(orderItem.Nomenclature)
+							Amount = GetNomenclaturesCountInOrder(orderItem.Nomenclature.Id)
 						});
 				}
 
@@ -308,16 +257,16 @@ namespace Vodovoz.Domain.Documents
 			foreach(var orderEquipment in Order.OrderEquipments
 				.Where(x => x.Direction == Direction.Deliver))
 			{
-				if(!ObservableItems.Any(i => i.Nomenclature == orderEquipment.Nomenclature))
+				if(!Items.Any(i => i.Nomenclature == orderEquipment.Nomenclature))
 				{
-					ObservableItems.Add(
+					Items.Add(
 						new SelfDeliveryDocumentItem
 						{
 							Document = this,
 							Nomenclature = orderEquipment.Nomenclature,
 							OrderItem = null,
 							OrderEquipment = orderEquipment,
-							Amount = GetNomenclaturesCountInOrder(orderEquipment.Nomenclature)
+							Amount = GetNomenclaturesCountInOrder(orderEquipment.Nomenclature.Id)
 						});
 				}
 			}
@@ -347,14 +296,14 @@ namespace Vodovoz.Domain.Documents
 		/// </summary>
 		/// <param name="item"></param>
 		/// <returns></returns>
-		public virtual decimal GetNomenclaturesCountInOrder(Nomenclature item)
+		public virtual decimal GetNomenclaturesCountInOrder(int nomenclatureId)
 		{
 			decimal count = Order.OrderItems
-				.Where(i => i.Nomenclature == item)
+				.Where(i => i.Nomenclature.Id == nomenclatureId)
 				.Sum(i => i.Count);
 
 			count += Order.OrderEquipments
-				.Where(e => e.Nomenclature == item
+				.Where(e => e.Nomenclature.Id == nomenclatureId
 					&& e.Direction == Direction.Deliver)
 				.Sum(e => e.Count);
 

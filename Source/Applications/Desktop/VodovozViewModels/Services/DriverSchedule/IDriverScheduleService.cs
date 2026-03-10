@@ -81,5 +81,11 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 		/// Пример: "Пн, 01.01.2001"
 		/// </returns>
 		string GetShortDayString(DateTime date);
+
+		/// <summary>
+		/// Перерасчет итоговых строк
+		/// </summary>
+		/// <param name="allRows">Все строки</param>
+		void RecalculateTotalRows(IEnumerable<DriverScheduleRow> allRows);
 	}
 }

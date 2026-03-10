@@ -11,7 +11,6 @@ namespace CustomerAppsApi.Library.Validators
 {
 	public class DeliveryPointModelValidator : IDeliveryPointModelValidator
 	{
-		private const int _cityLimit = 45;
 		private const int _streetLimit = 500;
 		private const int _buildingLimit = 20;
 		private const int _floorLimit = 20;
@@ -91,11 +90,6 @@ namespace CustomerAppsApi.Library.Validators
 		
 		private void ValidateOutLimit(StringBuilder sb, NewDeliveryPointInfoDto newDeliveryPointInfoDto)
 		{
-			if(newDeliveryPointInfoDto.City?.Length > _cityLimit)
-			{
-				AppendLineParameterOutLimit(sb, _cityLimit, newDeliveryPointInfoDto, x => x.City);
-			}
-
 			if(newDeliveryPointInfoDto.Street?.Length > _streetLimit)
 			{
 				AppendLineParameterOutLimit(sb, _streetLimit, newDeliveryPointInfoDto, x => x.Street);

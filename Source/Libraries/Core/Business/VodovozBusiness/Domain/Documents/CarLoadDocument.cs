@@ -22,47 +22,24 @@ namespace Vodovoz.Domain.Documents
 		Nominative = "талон погрузки автомобиля")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class CarLoadDocument : Document, IValidatableObject, IWarehouseBoundedDocument
+	public class CarLoadDocument : CarLoadDocumentEntity, IValidatableObject
 	{
 		private const int _commentLimit = 150;
 
 		private RouteList _routeList;
-		private Warehouse _warehouse;
 		private IList<CarLoadDocumentItem> _items = new List<CarLoadDocumentItem>();
 		private GenericObservableList<CarLoadDocumentItem> _observableItems;
-		private string _comment;
-		private CarLoadDocumentLoadOperationState _loadOperationState;
 
 		#region Сохраняемые свойства
 
-		public override DateTime TimeStamp {
-			get => base.TimeStamp;
-			set
-			{
-				base.TimeStamp = value;
-				if(!NHibernate.NHibernateUtil.IsInitialized(Items))
-				{
-					return;
-				}
-
-				UpdateOperationsTime();
-			}
-		}
-
-		public virtual RouteList RouteList
+		public virtual new RouteList RouteList
 		{
 			get => _routeList;
 			set => SetField(ref _routeList, value);
 		}
-
-		public virtual Warehouse Warehouse
-		{
-			get => _warehouse;
-			set => SetField(ref _warehouse, value);
-		}
 		
 		[Display(Name = "Строки")]
-		public virtual IList<CarLoadDocumentItem> Items {
+		public virtual new IList<CarLoadDocumentItem> Items {
 			get => _items;
 			set
 			{
@@ -84,25 +61,9 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		[Display(Name = "Комментарий")]
-		public virtual string Comment {
-			get => _comment;
-			set => SetField(ref _comment, value);
-		}
-
-		[Display(Name = "Статус талона погрузки")]
-		public virtual CarLoadDocumentLoadOperationState LoadOperationState
-		{
-			get => _loadOperationState;
-			set => SetField(ref _loadOperationState, value);
-		}
-
-
 		#endregion
 
 		#region Не сохраняемые свойства
-
-		public virtual string Title => $"Талон погрузки №{Id} от {TimeStamp:d}";
 
 		public virtual IEnumerable<int> SeparateTableOrderIds =>
 			Items
@@ -328,6 +289,17 @@ namespace Vodovoz.Domain.Documents
 			foreach(var item in Items.Where(x => x.Amount == 0).ToList()) {
 				ObservableItems.Remove(item);
 			}
+		}
+
+		public override void SetTimeStamp(DateTime value)
+		{
+			base.TimeStamp = value;
+			if(!NHibernate.NHibernateUtil.IsInitialized(Items))
+			{
+				return;
+			}
+
+			UpdateOperationsTime();
 		}
 
 		#endregion

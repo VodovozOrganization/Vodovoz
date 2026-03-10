@@ -7,6 +7,7 @@ using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents.MovementDocuments;
 using Vodovoz.Domain.Goods;

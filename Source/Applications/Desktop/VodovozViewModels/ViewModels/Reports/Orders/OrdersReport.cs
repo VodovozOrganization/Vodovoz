@@ -87,27 +87,29 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Orders
 			var columns = new Columns();
 
 			var orderIdColumn = CreateColumn(1, defaultColumnWidth);
-			var dateColumn = CreateColumn(2, defaultColumnWidth);
-			var authorColumn = CreateColumn(3, defaultColumnWidth * 2);
-			var deliveryTimeColumn = CreateColumn(4, defaultColumnWidth);
-			var orderStatusColumn = CreateColumn(5, defaultColumnWidth);
-			var typeColumn = CreateColumn(6, defaultColumnWidth * 1.5);
-			var bottleAmountCount = CreateColumn(7, defaultColumnWidth);
-			var sanitisationAmount = CreateColumn(8, defaultColumnWidth);
-			var counterpartyColumn = CreateColumn(9, defaultColumnWidth * 3);
-			var innColumn = CreateColumn(10, defaultColumnWidth);
-			var sumColumn = CreateColumn(11, defaultColumnWidth);
-			var paymentStatusColumn = CreateColumn(12, defaultColumnWidth);
-			var edoDocFlowStatusColumn = CreateColumn(13, defaultColumnWidth);
-			var districtNameColumn = CreateColumn(14, defaultColumnWidth * 2);
-			var addressColumn = CreateColumn(15, defaultColumnWidth * 5);
-			var lastEditorColumn = CreateColumn(16, defaultColumnWidth * 2);
-			var lastEditedTimeColumn = CreateColumn(17, defaultColumnWidth * 2);
-			var driverCallIdColumn = CreateColumn(18, defaultColumnWidth);
-			var onLineNumberColumn = CreateColumn(19, defaultColumnWidth);
-			var eShopNumberColumn = CreateColumn(20, defaultColumnWidth);
+			var updNumColumn = CreateColumn(2, defaultColumnWidth);
+			var dateColumn = CreateColumn(3, defaultColumnWidth);
+			var authorColumn = CreateColumn(4, defaultColumnWidth * 2);
+			var deliveryTimeColumn = CreateColumn(5, defaultColumnWidth);
+			var orderStatusColumn = CreateColumn(6, defaultColumnWidth);
+			var typeColumn = CreateColumn(7, defaultColumnWidth * 1.5);
+			var bottleAmountCount = CreateColumn(8, defaultColumnWidth);
+			var sanitisationAmount = CreateColumn(9, defaultColumnWidth);
+			var counterpartyColumn = CreateColumn(10, defaultColumnWidth * 3);
+			var innColumn = CreateColumn(11, defaultColumnWidth);
+			var sumColumn = CreateColumn(12, defaultColumnWidth);
+			var paymentStatusColumn = CreateColumn(13, defaultColumnWidth);
+			var edoDocFlowStatusColumn = CreateColumn(14, defaultColumnWidth);
+			var districtNameColumn = CreateColumn(15, defaultColumnWidth * 2);
+			var addressColumn = CreateColumn(16, defaultColumnWidth * 5);
+			var lastEditorColumn = CreateColumn(17, defaultColumnWidth * 2);
+			var lastEditedTimeColumn = CreateColumn(18, defaultColumnWidth * 2);
+			var driverCallIdColumn = CreateColumn(19, defaultColumnWidth);
+			var onLineNumberColumn = CreateColumn(20, defaultColumnWidth);
+			var eShopNumberColumn = CreateColumn(21, defaultColumnWidth);
 
 			columns.Append(orderIdColumn);
+			columns.Append(updNumColumn);
 			columns.Append(dateColumn);
 			columns.Append(authorColumn);
 			columns.Append(deliveryTimeColumn);
@@ -158,6 +160,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Orders
 			var row = new Row();
 
 			row.AppendChild(GetTableHeaderStringCell("Номер"));
+			row.AppendChild(GetTableHeaderStringCell("Номер УПД"));
 			row.AppendChild(GetTableHeaderStringCell("Дата"));
 			row.AppendChild(GetTableHeaderStringCell("Автор"));
 			row.AppendChild(GetTableHeaderStringCell("Время"));
@@ -186,6 +189,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Orders
 			var row = new Row();
 
 			row.AppendChild(GetNumericCell(node.Id));
+			row.AppendChild(GetStringCell(node.UpdDocumentName));
 			row.AppendChild(GetStringCell(node.Date != null ? ((DateTime)node.Date).ToString("d") : string.Empty));
 			row.AppendChild(GetStringCell(node.Author));
 			row.AppendChild(GetStringCell(node.IsSelfDelivery ? "-" : node.DeliveryTime));

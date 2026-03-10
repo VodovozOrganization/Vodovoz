@@ -69,8 +69,9 @@ namespace DriverAPI.Library.V6.Services
 		/// <param name="actionTime">Время действия</param>
 		/// <param name="driver">Водитель</param>
 		/// <param name="completeOrderInfo">Информация о завершении заказа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Результат обновления информации о доставке</returns>
-		Task<Result> UpdateOrderShipmentInfoAsync(DateTime actionTime, Employee driver, IDriverOrderShipmentInfo completeOrderInfo);
+		Task<Result> UpdateOrderShipmentInfoAsync(DateTime actionTime, Employee driver, IDriverOrderShipmentInfo completeOrderInfo, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Получить дополнительную информацию о заказе
@@ -101,8 +102,9 @@ namespace DriverAPI.Library.V6.Services
 		/// <param name="driver">Водитель</param>
 		/// <param name="completeOrderInfo">Информация о завершении заказа</param>
 		/// <param name="driverComplaintInfo">Информация о жалобе водителя</param>
+		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Результат завершения доставки заказа</returns>
-		Task<Result> CompleteOrderDelivery(DateTime actionTime, Employee driver, IDriverOrderShipmentInfo completeOrderInfo, IDriverComplaintInfo driverComplaintInfo);
+		Task<Result> CompleteOrderDelivery(DateTime actionTime, Employee driver, IDriverOrderShipmentInfo completeOrderInfo, IDriverComplaintInfo driverComplaintInfo, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Добавить код ЧЗ
@@ -151,5 +153,13 @@ namespace DriverAPI.Library.V6.Services
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Задача с результатом обработки кодов ЧЗ</returns>
 		Task<Result> SendTrueMarkCodes(DateTime actionTime, Employee driver, int orderId, IEnumerable<OrderItemScannedBottlesDto> scannedBottles, string unscannedBottlesReason, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Проверить код через API Честного Знака
+		/// </summary>
+		/// <param name="code">Транспортный код для проверки</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Задача с результатом проверки транспортного кода</returns>
+		Task<RequestProcessingResult<CheckCodeResultResponse>> CheckCode(string code, CancellationToken cancellationToken);
 	}
 }

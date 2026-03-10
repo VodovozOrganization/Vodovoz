@@ -1,9 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
-  <Description>
-  </Description>
-  <Author>
-  </Author>
+  <Description></Description>
+  <Author></Author>
   <PageHeight>296.926mm</PageHeight>
   <PageWidth>209.804mm</PageWidth>
   <Width>7.5in</Width>
@@ -46,16 +44,19 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>319.0pt</Width>
+            <Width>303.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>41.1pt</Width>
+            <Width>36.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>98.7pt</Width>
+            <Width>69.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>96.9pt</Width>
+            <Width>69.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>78.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Details>
@@ -135,6 +136,24 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Value>={qty_after_ship}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <Format>0</Format>
+                        <BackgroundColor>=IIF(Fields!qty_after_ship.Value &lt; 0, "Red", "White")</BackgroundColor>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -173,10 +192,10 @@
                             <FontSize>12pt</FontSize>
                             <VerticalAlign>Middle</VerticalAlign>
                           </Style>
-                          <Value>={gg_name}</Value>
+                          <Value>={warehouse_name}</Value>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>4</ColSpan>
+                      <ColSpan>5</ColSpan>
                     </TableCell>
                   </TableCells>
                 </TableRow>
@@ -241,7 +260,24 @@
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox18">
-                          <Value>Кол-во на складах, шт.</Value>
+                          <Value>Кол-во на складе, шт.</Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox24">
+                          <Value>Остаток после отгрузки, шт.</Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -290,7 +326,7 @@
                           <Value>={category_name}</Value>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>4</ColSpan>
+                      <ColSpan>5</ColSpan>
                     </TableCell>
                   </TableCells>
                 </TableRow>
@@ -585,9 +621,10 @@
 		END
 	) AS category_name,
 	items.qty_to_ship,
-	wh_qty.qty AS qty_available,
+	COALESCE(wh_qty.qty, 0) AS qty_available,
+  COALESCE(wh_qty.qty, 0) - COALESCE(items.qty_to_ship, 0) AS qty_after_ship,
 	items.geo_group_id AS geo_group,
-	gg.name AS gg_name
+	w.name AS warehouse_name
 #товары и оборудование к клиенту
 FROM (
 	SELECT
@@ -636,21 +673,27 @@ FROM (
 ) AS items
 JOIN nomenclature n ON n.id = items.nomenclature_id
 LEFT JOIN nomenclature_groups ng ON n.group_id = ng.id
-LEFT JOIN geo_groups gg ON items.geo_group_id = gg.id
+INNER JOIN geo_groups gg ON items.geo_group_id = gg.id
+INNER JOIN geo_group_versions ggv ON ggv.geo_group_id = gg.id AND ggv.status = 'Active'
+INNER JOIN warehouses w ON w.id = ggv.warehouse_id 
 #остатки на складах
 LEFT JOIN (
 	SELECT
-		qty_tbl.nom_id,
-		SUM(qty_tbl.quantity) AS qty
-	FROM(
+		wh_geo.nomenclature_id,
+		wh_geo.geo_group_id,
+		SUM(wh_geo.quantity) AS qty
+	FROM (
 		SELECT
-			nomenclature_id AS nom_id,
-			SUM(amount) AS quantity
-		FROM goods_accounting_operations
-		GROUP BY nom_id
-	) AS qty_tbl
-	GROUP BY qty_tbl.nom_id
-) AS wh_qty ON wh_qty.nom_id = n.id
+			gao.nomenclature_id,
+			ggv.geo_group_id,
+			SUM(gao.amount) AS quantity
+		FROM goods_accounting_operations gao
+		INNER JOIN geo_group_versions ggv ON ggv.warehouse_id = gao.warehouse_id 
+			AND ggv.status = 'Active'
+		GROUP BY gao.nomenclature_id, ggv.geo_group_id
+	) AS wh_geo
+	GROUP BY wh_geo.nomenclature_id, wh_geo.geo_group_id
+) AS wh_qty ON wh_qty.nomenclature_id = n.id AND wh_qty.geo_group_id = items.geo_group_id
 WHERE n.category NOT IN('water','deposit','service','master')
 	AND n.id NOT IN(
 		SELECT str_value
@@ -724,18 +767,22 @@ WHERE n.category NOT IN('water','deposit','service','master')
           <DataField>qty_available</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
+        <Field Name="qty_after_ship">
+          <DataField>qty_after_ship</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
         <Field Name="geo_group">
           <DataField>geo_group</DataField>
           <TypeName>System.UInt32</TypeName>
         </Field>
-        <Field Name="gg_name">
-          <DataField>gg_name</DataField>
+        <Field Name="warehouse_name">
+          <DataField>warehouse_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Details">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
@@ -816,7 +863,7 @@ GROUP BY o.id
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -862,8 +909,7 @@ GROUP BY o.id
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="geo_group_id">
       <DataType>String</DataType>
@@ -875,32 +921,28 @@ GROUP BY o.id
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="creation_date">
       <DataType>DateTime</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="product_group_include">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="product_group_exclude">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>true</MultiValue>
-      <Prompt>
-      </Prompt>
+      <Prompt></Prompt>
     </ReportParameter>
     <ReportParameter Name="nomenclature_type_include">
       <DataType>String</DataType>

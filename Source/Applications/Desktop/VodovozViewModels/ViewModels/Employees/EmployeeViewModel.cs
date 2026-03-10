@@ -21,6 +21,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using QS.ViewModels.Dialog;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
@@ -197,6 +198,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			ConfigureValidationContext(validationContextFactory);
 
 			PhonesViewModel = LifetimeScope.Resolve<PhonesViewModel>(new TypedParameter(typeof(IUnitOfWork), UoW));
+			PhonesViewModel.Initialize(this as DialogViewModelBase, CanEditEmployee, Entity.Phones);
 			
 			if(Entity.Id == 0)
 			{
@@ -208,11 +210,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			else
 			{
 				TabName = Entity.GetPersonNameWithInitials();
-			}
-			
-			if(Entity.Phones == null)
-			{
-				Entity.Phones = new List<Phone>();
 			}
 
 			organizations = UoW.GetAll<Organization>().ToList();

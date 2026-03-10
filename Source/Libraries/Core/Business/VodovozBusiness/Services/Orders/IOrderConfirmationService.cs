@@ -11,6 +11,11 @@ namespace VodovozBusiness.Services.Orders
 	public interface IOrderConfirmationService
 	{
 		void AcceptOrder(IUnitOfWork uow, Employee employee, Order order, bool needUpdateContract = true);
-		Task<Result> TryAcceptOrderCreatedByOnlineOrderAsync(IUnitOfWork uow, Employee employee, Order order, IRouteListService routeListService, CancellationToken cancellationToken);
+		Task<Result> TryAcceptOrderCreatedByOnlineOrderAsync(
+			IUnitOfWork uow,
+			Employee employee,
+			Order order,
+			IRouteListService routeListService,
+			CancellationToken cancellationToken);
 	}
 }

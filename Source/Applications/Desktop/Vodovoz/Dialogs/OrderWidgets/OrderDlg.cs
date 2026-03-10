@@ -4189,11 +4189,26 @@ namespace Vodovoz
 			{
 				try
 				{
-					var totalDebt = _counterpartyRepository.GetTotalDebt(UoW, Counterparty.Id);
+					var organizations = _organizationRepository.GetOrganizations(UoW);
+					var orgDebts = new StringBuilder();
+					decimal totalDebt = 0;
+
+					foreach(var org in organizations)
+					{
+						var orgDebt = _counterpartyRepository.GetDebtByOrganization(UoW, Counterparty.Id, org.Id);
+						if(orgDebt > 0)
+						{
+							totalDebt += orgDebt;
+							orgDebts.AppendLine($"{org.Prefix} - {orgDebt} руб.");
+						}
+					}
+
 					if(totalDebt > 0)
 					{
 						ylabelTotalDebt.Visible = true;
-						ylabelTotalDebt.LabelProp = $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">Долг по безналу: {totalDebt} руб.</span>";
+						var debtDetails = orgDebts.ToString().TrimEnd();
+						var debtText = $"Общий долг по безналу: {totalDebt} руб.\nДолг по организациям:\n{debtDetails}";
+						ylabelTotalDebt.LabelProp = $"<span foreground=\"{GdkColors.DangerText.ToHtmlColor()}\">{debtText}</span>";
 					}
 				}
 				catch(Exception ex)
@@ -4794,7 +4809,7 @@ namespace Vodovoz
 				case DirectionReason.None:
 					return true;
 				case DirectionReason.Rent:
-					return node.Direction == Domain.Orders.Direction.Deliver;
+					return node.Direction == Core.Domain.Orders.Direction.Deliver;
 				case DirectionReason.Repair:
 				case DirectionReason.Cleaning:
 				case DirectionReason.RepairAndCleaning:
@@ -5694,7 +5709,7 @@ namespace Vodovoz
 			var equipmentItems = sourceOrder.OrderEquipments
 				.Where(oe => oe.OwnType == OwnTypes.Rent
 					&& oe.Reason == Reason.Rent
-					&& oe.Direction == Domain.Orders.Direction.Deliver
+					&& oe.Direction == Core.Domain.Orders.Direction.Deliver
 					&& oe.OrderRentDepositItem?.RentType == OrderRentType.DailyRent)
 				.Select(oe => (oe.Nomenclature, oe.Count)).ToList();
 
@@ -5704,7 +5719,7 @@ namespace Vodovoz
 					equipmentItem.Nomenclature,
 					result,
 					equipmentItem.Count,
-					Domain.Orders.Direction.PickUp,
+					Core.Domain.Orders.Direction.PickUp,
 					DirectionReason.Rent,
 					OwnTypes.Rent,
 					Reason.Rent);

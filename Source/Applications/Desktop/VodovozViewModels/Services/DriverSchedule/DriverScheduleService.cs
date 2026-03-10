@@ -97,6 +97,8 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 					driversActiveRouteListDates,
 					carEvents,
 					scheduleItems);
+
+				node.HasChanges = false;
 			}
 
 			var resultWithTotals = AddTotalRows(filteredResult, startDate);
@@ -270,50 +272,55 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 				totalBottles.Days[dayIndex] = new DriverScheduleDayRow();
 			}
 
-			var filteredRows = driverRows.Where(n => !(n is DriverScheduleTotalAddressesRow) && !(n is DriverScheduleTotalBottlesRow));
-
-			foreach(var node in filteredRows)
-			{
-				for(int dayIndex = 0; dayIndex < 7; dayIndex++)
-				{
-					var day = node.Days[dayIndex];
-					if(day != null)
-					{
-						totalAddresses.Days[dayIndex].MorningAddresses += day.MorningAddresses;
-						totalAddresses.Days[dayIndex].EveningAddresses += day.EveningAddresses;
-
-						totalBottles.Days[dayIndex].MorningBottles += day.MorningBottles;
-						totalBottles.Days[dayIndex].EveningBottles += day.EveningBottles;
-					}
-				}
-			}
-
-			for(int dayIndex = 0; dayIndex < 7; dayIndex++)
-			{
-				int totalAddressesForDay = totalAddresses.Days[dayIndex].MorningAddresses +
-										 totalAddresses.Days[dayIndex].EveningAddresses;
-				totalAddresses.Days[dayIndex].CarEventType = new CarEventType
-				{
-					ShortName = totalAddressesForDay.ToString()
-				};
-
-				int totalBottlesForDay = totalBottles.Days[dayIndex].MorningBottles +
-									   totalBottles.Days[dayIndex].EveningBottles;
-				totalBottles.Days[dayIndex].CarEventType = new CarEventType
-				{
-					ShortName = totalBottlesForDay.ToString()
-				};
-			}
-
 			totalAddresses.StartDate = startDate;
 			totalBottles.StartDate = startDate;
 
-			var result = new List<DriverScheduleRow>();
-			result.AddRange(filteredRows);
-			result.Add(totalAddresses);
-			result.Add(totalBottles);
+			var result = new List<DriverScheduleRow>(driverRows)
+			{
+				totalAddresses,
+				totalBottles
+			};
+
+			RecalculateTotalRows(result);
 
 			return result;
+		}
+
+		public void RecalculateTotalRows(IEnumerable<DriverScheduleRow> allRows)
+		{
+			var totalRows = allRows.OfType<DriverScheduleTotalRow>().ToList();
+			var driverRows = allRows
+				.Where(r => !(r is DriverScheduleTotalRow))
+				.ToList();
+
+			if(!totalRows.Any() || !driverRows.Any())
+			{
+				return;
+			}
+
+			var totalAddresses = totalRows.OfType<DriverScheduleTotalAddressesRow>().FirstOrDefault();
+			var totalBottles = totalRows.OfType<DriverScheduleTotalBottlesRow>().FirstOrDefault();
+
+			for(int dayIndex = 0; dayIndex < 7; dayIndex++)
+			{
+				if(totalAddresses != null)
+				{
+					totalAddresses.Days[dayIndex].MorningAddresses = driverRows.Sum(r => r.Days[dayIndex].MorningAddresses);
+					totalAddresses.Days[dayIndex].EveningAddresses = driverRows.Sum(r => r.Days[dayIndex].EveningAddresses);
+
+					int total = totalAddresses.Days[dayIndex].MorningAddresses + totalAddresses.Days[dayIndex].EveningAddresses;
+					totalAddresses.Days[dayIndex].CarEventType = new CarEventType { ShortName = total.ToString() };
+				}
+
+				if(totalBottles != null)
+				{
+					totalBottles.Days[dayIndex].MorningBottles = driverRows.Sum(r => r.Days[dayIndex].MorningBottles);
+					totalBottles.Days[dayIndex].EveningBottles = driverRows.Sum(r => r.Days[dayIndex].EveningBottles);
+
+					int total = totalBottles.Days[dayIndex].MorningBottles + totalBottles.Days[dayIndex].EveningBottles;
+					totalBottles.Days[dayIndex].CarEventType = new CarEventType { ShortName = total.ToString() };
+				}
+			}
 		}
 
 		public void SaveScheduleChanges(
@@ -388,8 +395,12 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 				}
 			}
 
+			var commentToUpdate = node.IsCommentEdited
+				? node.EditedComment
+				: node.OriginalComment;
+
 			schedule.ArrivalTime = node.ArrivalTime;
-			schedule.Comment = node.OriginalComment;
+			schedule.Comment = commentToUpdate;
 		}
 
 		/// <summary>

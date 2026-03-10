@@ -1,5 +1,8 @@
-namespace Vodovoz.Domain.Operations
+﻿namespace Vodovoz.Core.Domain.Operations
 {
+	/// <summary>
+	/// Тип операции
+	/// </summary>
 	public enum OperationType
 	{
 		WarehouseInstanceGoodsAccountingOperation,

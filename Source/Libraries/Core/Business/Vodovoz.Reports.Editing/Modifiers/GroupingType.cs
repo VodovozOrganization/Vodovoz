@@ -28,7 +28,7 @@ namespace Vodovoz.Reports.Editing.Modifiers
 		NomenclatureGroup3,
 		[Display(Name = "Тип контрагента")]
 		CounterpartyType,
-		[Display(Name = "Тип оплаты")]
+		[Display(Name = "Тип оплаты/подтип")]
 		PaymentType,
 		[Display(Name = "Организация")]
 		Organization,

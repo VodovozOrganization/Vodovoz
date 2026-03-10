@@ -66,6 +66,12 @@ namespace Vodovoz.Views.TrueMark
 
 		private global::Gamma.GtkWidgets.yLabel labelPagePool;
 
+		private global::Gtk.ScrolledWindow GtkScrolledWindow4;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewStaging;
+
+		private global::Gamma.GtkWidgets.yLabel labelPageStaging;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -335,9 +341,27 @@ namespace Vodovoz.Views.TrueMark
 			this.labelPagePool.LabelProp = global::Mono.Unix.Catalog.GetString("Пул");
 			this.ynotebookCodes.SetTabLabel(this.GtkScrolledWindow3, this.labelPagePool);
 			this.labelPagePool.ShowAll();
+			// Container child ynotebookCodes.Gtk.Notebook+NotebookChild
+			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
+			this.GtkScrolledWindow4.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow4.Gtk.Container+ContainerChild
+			this.ytreeviewStaging = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewStaging.CanFocus = true;
+			this.ytreeviewStaging.Name = "ytreeviewStaging";
+			this.GtkScrolledWindow4.Add(this.ytreeviewStaging);
+			this.ynotebookCodes.Add(this.GtkScrolledWindow4);
+			global::Gtk.Notebook.NotebookChild w27 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebookCodes[this.GtkScrolledWindow4]));
+			w27.Position = 4;
+			// Notebook tab
+			this.labelPageStaging = new global::Gamma.GtkWidgets.yLabel();
+			this.labelPageStaging.Name = "labelPageStaging";
+			this.labelPageStaging.LabelProp = global::Mono.Unix.Catalog.GetString("Промежуточные");
+			this.ynotebookCodes.SetTabLabel(this.GtkScrolledWindow4, this.labelPageStaging);
+			this.labelPageStaging.ShowAll();
 			this.vboxWidget.Add(this.ynotebookCodes);
-			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.ynotebookCodes]));
-			w26.Position = 3;
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.ynotebookCodes]));
+			w28.Position = 3;
 			this.Add(this.vboxWidget);
 			if ((this.Child != null))
 			{

@@ -7,10 +7,9 @@ using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
-using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Domain.Orders;
+using Vodovoz.Core.Domain.Orders;
 
-namespace Vodovoz.Domain.Goods
+namespace Vodovoz.Core.Domain.Goods
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "группы товаров",

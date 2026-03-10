@@ -23,6 +23,7 @@ using Vodovoz.Reports.Editing;
 using Vodovoz.Reports.Editing.Modifiers;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
+using Vodovoz.ViewModels.Widgets;
 
 namespace Vodovoz.ViewModels.ReportsParameters
 {
@@ -105,6 +106,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		public virtual LeftRightListViewModel<GroupingNode> GroupingSelectViewModel => _groupViewModel;
 
 		public IncludeExludeFiltersViewModel FilterViewModel => _filterViewModel;
+
+		public OrderDateFilterViewModel OrderDateFilterViewModel = new OrderDateFilterViewModel();
 
 		public DelegateCommand ShowInfoCommand { get; }
 
@@ -278,32 +281,45 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 		private void ShowInfoWindow()
 		{
-			var info =
-				"<b>1.</b> Подсчет продаж ведется на основе заказов. В отчете учитываются заказы со статусами:\n" +
-				$"\t'{OrderStatus.Accepted.GetEnumTitle()}'\n" +
-				$"\t'{OrderStatus.InTravelList.GetEnumTitle()}'\n" +
-				$"\t'{OrderStatus.OnLoading.GetEnumTitle()}'\n" +
-				$"\t'{OrderStatus.OnTheWay.GetEnumTitle()}'\n" +
-				$"\t'{OrderStatus.Shipped.GetEnumTitle()}'\n" +
-				$"\t'{OrderStatus.UnloadingOnStock.GetEnumTitle()}'\n" +
-				$"\t'{OrderStatus.Closed.GetEnumTitle()}'\n" +
-				"В отчет <b>не попадают</b> заказы, являющиеся закрывашками по контракту.\n" +
-				"Фильтр по дате отсекает заказы, если дата доставки не входит в выбранный период.\n\n" +
-				"«Только заказы в МЛ» - выбираются заказы только в МЛ где авто не фура, для получения схожих данных с отчетом по статистике по дням недели\r\n" +
-				"<b>2.</b> Подсчет тары ведется следующим образом:\n" +
-				"\tПлановое значение - сумма бутылей на возврат попавших в отчет заказов;\n" +
-				"\tФактическое значение - сумма фактически возвращенных бутылей по адресам маршрутного листа.\n" +
-				"\t\tФактическое значение возвращенных бутылей по адресу зависит от того, доставлен<b>(*)</b> заказ или нет:\n" +
-				"\t\t\t <b>-</b> Если да - берется кол-во бутылей, которое по факту забрал водитель. " +
-				"Это кол-во может быть вручную указано при закрытии МЛ;\n" +
+			var info = 
+$@"<b>1.</b> Подсчет продаж ведется на основе заказов. В отчете учитываются заказы со статусами:
+	'{OrderStatus.Accepted.GetEnumTitle()}'
+	'{OrderStatus.InTravelList.GetEnumTitle()}'
+	'{OrderStatus.OnLoading.GetEnumTitle()}'
+	'{OrderStatus.OnTheWay.GetEnumTitle()}'
+	'{OrderStatus.Shipped.GetEnumTitle()}'
+	'{OrderStatus.UnloadingOnStock.GetEnumTitle()}'
+	'{OrderStatus.Closed.GetEnumTitle()}'
+В отчет <b>не попадают</b> заказы, являющиеся закрывашками по контракту.
 
-				"\t\t\t <b>-</b> Если не доставлен - берется кол-во бутылей на возврат из заказа;\n" +
-				"\t\t\t <b>-</b> Если заказ является самовывозом - берется значение возвращенной тары, указанное в отпуске самовывоза;\n" +
-				$"\t\t <b>*</b> Заказ считается доставленным, если его статус в МЛ: '{RouteListItemStatus.Completed.GetEnumTitle()}' или " +
-				$"'{RouteListItemStatus.EnRoute.GetEnumTitle()}' и статус МЛ '{RouteListStatus.Closed.GetEnumTitle()}' " +
-				$"или '{RouteListStatus.OnClosing.GetEnumTitle()}'.\n" +
-				$"По умолчанию используется группировка Тип номенклатуры | Номенклатура\n\n" +
-				"Детальный отчет аналогичен обычному, лишь предоставляет расширенную информацию.";
+«Только заказы в МЛ» - выбираются заказы только в МЛ где авто не фура, для получения схожих данных с отчетом по статистике по дням недели
+<b>2.</b> Подсчет тары ведется следующим образом:
+	Плановое значение - сумма бутылей на возврат попавших в отчет заказов;
+	Фактическое значение - сумма фактически возвращенных бутылей по адресам маршрутного листа.
+		Фактическое значение возвращенных бутылей по адресу зависит от того, доставлен<b>(*)</b> заказ или нет:
+			 <b>-</b> Если да - берется кол-во бутылей, которое по факту забрал водитель. Это кол-во может быть вручную указано при закрытии МЛ;
+			 <b>-</b> Если не доставлен - берется кол-во бутылей на возврат из заказа;
+			 <b>-</b> Если заказ является самовывозом - берется значение возвращенной тары, указанное в отпуске самовывоза;
+		 <b>*</b> Заказ считается доставленным, если его статус в МЛ: '{RouteListItemStatus.Completed.GetEnumTitle()}' или '{RouteListItemStatus.EnRoute.GetEnumTitle()}' и статус МЛ '{RouteListStatus.Closed.GetEnumTitle()}' или '{RouteListStatus.OnClosing.GetEnumTitle()}'.
+По умолчанию используется группировка Тип номенклатуры | Номенклатура
+
+Фильтр по типу даты:
+ <b>-</b> Создания: в отчет попадают заказы по дате создания заказа.
+ <b>-</b> Доставки: в отчет попадают заказы по дате доставки
+ <b>-</b> Оплаты:
+		- Для форм оплаты: Наличная, Терминал (оба вида)
+		  Дата оплаты = Дата доставки в заказе
+		- Для форм оплаты: Бартер, Контрактная документация и источников онлайн оплаты:
+			Сайт, Приложение, ВК, Маркетплейс, Кулер Сейл, Сайт Я.Сплит, МП Я.Сплит
+		  Дата оплаты = Дата создания заказа
+		- Для форм оплаты: SMS (QR), МП водителя (QR) и источников онлайн оплаты:
+			Сайт по QR, Авангард по карте, МП по QR
+		  Дата оплаты = дата оплаты быстрого платежа
+		- Для форм оплаты: 
+			-Безналичная
+		  Дата оплаты = дата платежа из банка		
+
+Детальный отчет аналогичен обычному, лишь предоставляет расширенную информацию.";
 
 			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Справка по работе с отчетом");
 		}
@@ -352,6 +368,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			_parameters = FilterViewModel.GetReportParametersSet(out var sb);
 			_parameters.Add("start_date", StartDate?.ToString(DateTimeFormats.QueryDateTimeFormat));
 			_parameters.Add("end_date", EndDate?.LatestDayTime().ToString(DateTimeFormats.QueryDateTimeFormat));
+			_parameters.Add("order_date_type", OrderDateFilterViewModel.SelectedOrderDateFilterType);
 			_parameters.Add("creation_date", DateTime.Now);
 			_parameters.Add("show_phones", ShowPhones);
 			_parameters.Add("filters", sb.ToString());
