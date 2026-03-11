@@ -1,4 +1,6 @@
-﻿namespace Vodovoz.Settings.Edo
+﻿using System;
+
+namespace Vodovoz.Settings.Edo
 {
 	public interface IEdoSettings
 	{
@@ -22,5 +24,17 @@
 		int CodePoolPromoteWithExtraSeconds { get; }
 		int[] OrganizationsHavingAccountsInTrueMark { get; }
 		bool CodePoolLoaderToNewPool { get; }
+
+		/// <summary>
+		/// Количество дней не принятия документооборота клиентом, подключенным к ЧЗ, 
+		/// после которого будет создана заявка на вывод кодов из оборота
+		/// </summary>
+		int ConnectedTrueMarkClientsWithdrawalDocflowTimeoutDays { get; }
+
+		/// <summary>
+		/// Количество дней не принятия документооборота клиентом, не подключенным к ЧЗ, 
+		/// после которого будет создана заявка на вывод кодов из оборота
+		/// </summary>
+		int NotConnectedTrueMarkClientsWithdrawalDocflowTimeoutDays { get; }
 	}
 }

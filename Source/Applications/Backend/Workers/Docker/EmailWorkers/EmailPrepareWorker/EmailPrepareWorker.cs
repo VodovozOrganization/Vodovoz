@@ -1,4 +1,4 @@
-﻿using EmailPrepareWorker.Prepares;
+using EmailPrepareWorker.Prepares;
 using EmailPrepareWorker.SendEmailMessageBuilders;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,6 +16,7 @@ using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Common;
+using Vodovoz.Settings.Organizations;
 using VodovozBusiness.Controllers;
 
 namespace EmailPrepareWorker
@@ -120,6 +121,7 @@ namespace EmailPrepareWorker
 			var emailSendMessagePreparer = prepareAndSendEmailsScope.ServiceProvider.GetRequiredService<IEmailSendMessagePreparer>();
 			var mySqlConnectionStringBuilder = prepareAndSendEmailsScope.ServiceProvider.GetRequiredService<MySqlConnector.MySqlConnectionStringBuilder>();
 			var edoAccountController = prepareAndSendEmailsScope.ServiceProvider.GetRequiredService<ICounterpartyEdoAccountController>();
+			var organizationSettings = prepareAndSendEmailsScope.ServiceProvider.GetRequiredService<IOrganizationSettings>();
 
 			SendEmailMessageBuilder emailSendMessageBuilder = null;
 
@@ -165,6 +167,7 @@ namespace EmailPrepareWorker
 									emailDocumentPreparer,
 									edoAccountController,
 									counterpartyEmail,
+									organizationSettings,
 									_instanceId);
 
 								break;
@@ -178,6 +181,7 @@ namespace EmailPrepareWorker
 									emailDocumentPreparer,
 									edoAccountController,
 									counterpartyEmail,
+									organizationSettings,
 									_instanceId);
 
 								break;

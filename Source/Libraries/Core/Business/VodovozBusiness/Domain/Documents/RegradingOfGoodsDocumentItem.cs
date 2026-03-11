@@ -11,7 +11,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 
-namespace VodovozBusiness.Domain.Documents
+namespace Vodovoz.Domain.Documents
 {
 	/// <summary>
 	/// Строка пересортицы товаров

@@ -2,7 +2,8 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Logging;
+using NLog.Config;
+using VodovozHealthCheck.Logging;
 using VodovozHealthCheck.Providers;
 using VodovozHealthCheck.ResponseWriter;
 
@@ -13,10 +14,19 @@ namespace VodovozHealthCheck
 		private static IHealthChecksBuilder _healthCheckBuilder;
 		private const string TagName = "vodovoz"; // фильтр (только кастомный хелзчек)
 
+		/// <summary>
+		/// Должен быть зарегистрирован в пайплайне до <c>UseEndpoints</c>,
+		/// иначе настройки логгирования не будут распространятся на ендпоинты
+		/// </summary>
+		/// <param name="app"></param>
+		/// <param name="responseWriter"></param>
+		/// <returns></returns>
 		public static IApplicationBuilder UseVodovozHealthCheck(
 			this IApplicationBuilder app,
 			IResponseWriter responseWriter = null)
 		{
+			app.UseMiddleware<LoggingMiddleware>();
+
 			var options = new HealthCheckOptions
 			{
 				ResponseWriter = async (ctx, report) =>
@@ -46,10 +56,15 @@ namespace VodovozHealthCheck
 			{
 				serviceCollection.AddSingleton<THealthCheck>();
 			}
-			
+
 			serviceCollection
-				.AddSingleton<JsonResponseWriter>() 
+				.AddSingleton<JsonResponseWriter>()
 				.AddSingleton<IHealthCheckServiceInfoProvider, TServiceInfoProvider>();
+
+			ConfigurationItemFactory
+				.Default
+				.Filters
+				.RegisterDefinition(LoggingConstants.HealthCheckSuppressLogFilterName, typeof(LoggingFilter));
 
 			return serviceCollection;
 		}

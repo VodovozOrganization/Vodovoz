@@ -1,7 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Gamma.Utilities;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using System.ComponentModel.DataAnnotations;
+using Vodovoz.Core.Domain.Operations;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Service;
 
@@ -11,78 +12,47 @@ namespace Vodovoz.Domain.Orders
 		NominativePlural = "строки оборудования в заказе",
 		Nominative = "строка оборудования в заказе")]
 	[HistoryTrace]
-	public class OrderEquipment : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class OrderEquipment : OrderEquipmentEntity, IValidatableObject
 	{
-		public virtual int Id { get; set; }
+		private Order _order;
+		private OrderItem _orderItem;
+		private Equipment _equipment;
+		private Nomenclature _nomenclature;
 
-		Order order;
-
+		/// <summary>
+		/// Заказ
+		/// </summary>
 		[Display(Name = "Заказ")]
-		public virtual Order Order {
-			get => order;
-			set => SetField(ref order, value, () => Order);
+		public virtual new Order Order {
+			get => _order;
+			set => SetField(ref _order, value);
 		}
 
-		Direction direction;
-
-		[Display(Name = "Направление")]
-		public virtual Direction Direction {
-			get => direction;
-			set => SetField(ref direction, value, () => Direction);
-		}
-
-		DirectionReason directionReason;
-
-		[Display(Name = "Причина забор-доставки")]
-		public virtual DirectionReason DirectionReason {
-			get => directionReason;
-			set => SetField(ref directionReason, value, () => DirectionReason);
-		}
-
-		OrderItem orderItem;
-
+		/// <summary>
+		/// Связанная строка
+		/// </summary>
 		[Display(Name = "Связанная строка")]
-		public virtual OrderItem OrderItem {
-			get => orderItem;
-			set => SetField(ref orderItem, value, () => OrderItem);
+		public virtual new OrderItem OrderItem {
+			get => _orderItem;
+			set => SetField(ref _orderItem, value);
 		}
 
-		Equipment equipment;
-
+		/// <summary>
+		/// Оборудование
+		/// </summary>
 		[Display(Name = "Оборудование")]
-		public virtual Equipment Equipment {
-			get => equipment;
-			set => SetField(ref equipment, value, () => Equipment);
+		public virtual new Equipment Equipment {
+			get => _equipment;
+			set => SetField(ref _equipment, value);
 		}
 
-		OwnTypes ownType;
-
-		[Display(Name = "Принадлежность")]
-		public virtual OwnTypes OwnType {
-			get => ownType;
-			set => SetField(ref ownType, value, () => OwnType);
-		}
-
-		Nomenclature nomenclature;
-
+		/// <summary>
+		/// Номенклатура оборудования
+		/// </summary>
 		[Display(Name = "Номенклатура оборудования")]
-		public virtual Nomenclature Nomenclature {
-			get => Equipment?.Nomenclature ?? nomenclature;
-			set => SetField(ref nomenclature, value, () => Nomenclature);
-		}
-
-		Reason reason = Reason.Unknown;
-
-		[Display(Name = "Причина")]
-		public virtual Reason Reason {
-			get => reason;
-			set => SetField(ref reason, value, () => Reason);
-		}
-
-		bool confirmed;
-		public virtual bool Confirmed {
-			get => confirmed;
-			set => SetField(ref confirmed, value, () => Confirmed);
+		public virtual new Nomenclature Nomenclature {
+			get => Equipment?.Nomenclature ?? _nomenclature;
+			set => SetField(ref _nomenclature, value);
 		}
 
 		CounterpartyMovementOperation counterpartyMovementOperation;
@@ -90,14 +60,6 @@ namespace Vodovoz.Domain.Orders
 		public virtual CounterpartyMovementOperation CounterpartyMovementOperation {
 			get => counterpartyMovementOperation;
 			set => SetField(ref counterpartyMovementOperation, value, () => CounterpartyMovementOperation);
-		}
-
-		string confirmedComment;
-		[Display(Name = "Комментарий по забору")]
-		[StringLength(200)]
-		public virtual string ConfirmedComment {
-			get => confirmedComment;
-			set => SetField(ref confirmedComment, value, () => ConfirmedComment);
 		}
 
 		public virtual string NameString {
@@ -132,22 +94,13 @@ namespace Vodovoz.Domain.Orders
 		/// Количество оборудования, которое изначально должен был привезти/забрать водитель
 		/// </summary>
 		[Display(Name = "Количество")]
-		public virtual int Count {
+		public virtual new int Count {
 			get => count;
 			set {
 				if(SetField(ref count, value)) {
 					Order?.UpdateRentsCount();
 				}
 			}
-		}
-
-		int? actualCount;
-		/// <summary>
-		/// Количество оборудования, которое фактически привез/забрал водитель
-		/// </summary>
-		public virtual int? ActualCount {
-			get => actualCount;
-			set => SetField(ref actualCount, value);
 		}
 
 		OrderItem orderRentDepositItem;
@@ -172,11 +125,6 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual int UndeliveredCount => Count - ActualCount ?? 0;
 		public virtual bool IsFullyDelivered => UndeliveredCount == 0;
-
-		public virtual string DirectionString => Direction.GetEnumTitle();
-		public virtual string DirectionReasonString => DirectionReason.GetEnumTitle();
-		public virtual string ReasonString => Reason.GetEnumTitle();
-
 		public virtual string Title => $"{NameString} {DirectionString}";
 
 		#endregion
@@ -195,7 +143,7 @@ namespace Vodovoz.Domain.Orders
 
 			CounterpartyMovementOperation.OperationTime = Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
 			CounterpartyMovementOperation.Amount = ActualCount.Value;
-			CounterpartyMovementOperation.Nomenclature = nomenclature;
+			CounterpartyMovementOperation.Nomenclature = _nomenclature;
 			CounterpartyMovementOperation.ForRent = Reason != Reason.Sale;
 			if(Direction == Direction.Deliver) {
 				CounterpartyMovementOperation.IncomingCounterparty = Order.Client;
@@ -242,46 +190,5 @@ namespace Vodovoz.Domain.Orders
 				Count = orderEquipment.Count
 			};
 		}
-	}
-
-	public enum Direction
-	{
-		[Display(Name = "Доставить")] Deliver,
-		[Display(Name = "Забрать")] PickUp
-	}
-
-	public enum DirectionReason
-	{
-		[Display(Name = "")]
-		None,
-		[Display(Name = "Аренда")]
-		Rent,
-		[Display(Name = "Ремонт")]
-		Repair,
-		[Display(Name = "Санобработка")]
-		Cleaning,
-		[Display(Name = "Ремонт и санобработка")]
-		RepairAndCleaning,
-		[Display(Name = "Акция \"Трейд-Ин\"")]
-		TradeIn,
-		[Display(Name = "Подарок клиента")]
-		ClientGift,
-	}
-
-	public enum Reason
-	{
-		[Display(Name = "Неизвестна")] Unknown,
-		[Display(Name = "Сервис")] Service,
-		[Display(Name = "Аренда")] Rent,
-		[Display(Name = "Расторжение")] Cancellation,
-		[Display(Name = "Продажа")] Sale
-	}
-
-	public enum OwnTypes
-	{
-		[Display(Name = "")] None,
-		[Display(Name = "Клиент")] Client,
-		[Display(Name = "Дежурный")] Duty,
-		[Display(Name = "Аренда")] Rent
 	}
 }

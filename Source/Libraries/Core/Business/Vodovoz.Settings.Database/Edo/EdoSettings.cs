@@ -38,5 +38,11 @@ namespace Vodovoz.Settings.Database.Edo
 			.ToArray();
 
 		public bool CodePoolLoaderToNewPool => _settingsController.GetBoolValue("CodePoolLoaderToNewPool");
+
+		public int ConnectedTrueMarkClientsWithdrawalDocflowTimeoutDays =>
+			_settingsController.GetIntValue("edo.withdrawal.docflow_timeout.connected_tm_clients");
+
+		public int NotConnectedTrueMarkClientsWithdrawalDocflowTimeoutDays =>
+			_settingsController.GetIntValue("edo.withdrawal.docflow_timeout.not_connected_tm_clients");
 	}
 }

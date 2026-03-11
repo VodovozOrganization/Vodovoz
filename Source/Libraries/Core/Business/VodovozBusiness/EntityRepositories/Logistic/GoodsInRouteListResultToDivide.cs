@@ -1,4 +1,4 @@
-﻿using Vodovoz.Domain.Orders;
+﻿using Vodovoz.Core.Domain.Orders;
 
 namespace Vodovoz.EntityRepositories.Logistic
 {
