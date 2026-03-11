@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Orders;
 
@@ -30,7 +31,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 
 		public override bool CanHandle(OnlinePaymentSource paymentSource) => paymentSource is OnlinePaymentSource.FromMobileApp;
 
-		public override async Task<RefundResultDto> ProcessRefundAsync(RefundRequestDto request)
+		public override async Task<RefundResultDto> ProcessRefundAsync(RefundRequestDto request, CancellationToken cancellationToken)
 		{
 			try
 			{
@@ -42,7 +43,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 					return CreateErrorResult($"Неверный формат идентификатора транзакции: {request.TransactionId}");
 				}
 
-				var transactionResponse = await _cloudPaymentsClient.GetTransactionAsync(transactionId);
+				var transactionResponse = await _cloudPaymentsClient.GetTransactionAsync(transactionId, cancellationToken);
 
 				if(!transactionResponse.Success)
 				{
@@ -58,7 +59,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 				}
 
 				var refundDto = _mapper.MapToRefundRequest(request);
-				var refundResponse = await _cloudPaymentsClient.RefundAsync(refundDto);
+				var refundResponse = await _cloudPaymentsClient.RefundAsync(refundDto, cancellationToken);
 
 				if(!refundResponse.Success)
 				{

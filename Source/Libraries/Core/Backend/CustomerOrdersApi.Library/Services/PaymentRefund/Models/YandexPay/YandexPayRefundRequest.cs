@@ -1,5 +1,4 @@
 ﻿using System.Text.Json.Serialization;
-using System.Threading;
 
 namespace CustomerOrdersApi.Library.Services.PaymentRefund.Models.YandexPay
 {
@@ -31,11 +30,5 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.Models.YandexPay
 		/// </summary>
 		[JsonIgnore]
 		public string OrderId { get; set; }
-
-		/// <summary>
-		/// Токен отмены
-		/// </summary>
-		[JsonIgnore]
-		public CancellationToken CancellationToken { get; set; }
 	}
 }

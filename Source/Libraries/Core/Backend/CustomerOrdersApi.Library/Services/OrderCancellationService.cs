@@ -1,4 +1,4 @@
-﻿using CustomerOrdersApi.Library.Dto.Orders;
+using CustomerOrdersApi.Library.Dto.Orders;
 using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
 using CustomerOrdersApi.Library.Factories;
 using Gamma.Utilities;
@@ -51,7 +51,7 @@ namespace CustomerOrdersApi.Library.Services
 			_paymentRefundServiceFactory = paymentRefundServiceFactory ?? throw new ArgumentNullException(nameof(paymentRefundServiceFactory));
 		}
 
-		public async Task<CancelOrderResult> CancelOrderAsync(CancelOrderDto cancelOrderDto) => await ExecuteAsync(cancelOrderDto);
+		public async Task<CancelOrderResult> CancelOrderAsync(CancelOrderDto cancelOrderDto, CancellationToken cancellationToken) => await ExecuteAsync(cancelOrderDto, cancellationToken);
 
 		protected override string OperationName => "Отмена";
 
@@ -61,16 +61,17 @@ namespace CustomerOrdersApi.Library.Services
 			IUnitOfWork uow,
 			Order order,
 			OnlineOrder onlineOrder,
-			CancelOrderDto dto)
+			CancelOrderDto dto,
+			CancellationToken cancellationToken)
 		{
 			_logger.LogInformation(
 				"Начало простой отмены заказа {OrderId} в статусе {Status}",
 				order.Id,
 				order.OrderStatus.GetEnumTitle());
 
-			if(IsPaidOnline(order))
+			if(IsPaidOnline(onlineOrder))
 			{
-				return await ProcessPaidOperationAsync(uow, order, onlineOrder, dto);
+				return await ProcessPaidOperationAsync(uow, order, onlineOrder, dto, cancellationToken);
 			}
 
 			order.ChangeStatus(OrderStatus.Canceled);
@@ -90,15 +91,16 @@ namespace CustomerOrdersApi.Library.Services
 			IUnitOfWork uow,
 			Order order,
 			OnlineOrder onlineOrder,
-			CancelOrderDto dto)
+			CancelOrderDto dto, 
+			CancellationToken cancellationToken)
 		{
 			return order.OrderStatus switch
 			{
 				OrderStatus.InTravelList =>
-					await CancelFromTravelListAsync(uow, order, onlineOrder, dto),
+					await CancelFromTravelListAsync(uow, order, onlineOrder, dto, cancellationToken),
 
 				OrderStatus.OnLoading or OrderStatus.OnTheWay =>
-					await CancelWithUndeliveryAsync(uow, order, onlineOrder, dto),
+					await CancelWithUndeliveryAsync(uow, order, onlineOrder, dto, cancellationToken),
 
 				_ => throw new InvalidOperationException($"Неожиданный статус заказа: {order.OrderStatus}")
 			};
@@ -108,7 +110,8 @@ namespace CustomerOrdersApi.Library.Services
 			IUnitOfWork uow,
 			Order order,
 			OnlineOrder onlineOrder,
-			CancelOrderDto dto)
+			CancelOrderDto dto,
+			CancellationToken cancellationToken)
 		{
 			_logger.LogInformation(
 				"Обработка отмены оплаченного заказа {OrderId}. " +
@@ -123,12 +126,11 @@ namespace CustomerOrdersApi.Library.Services
 			var refundRequest = new RefundRequestDto(
 				OnlineOrder: onlineOrder,
 				TransactionId: dto.TransactionId,
-				Amount: 228,
-				ExternalOrderId: onlineOrder?.ExternalOrderId.ToString(),
-				CancellationToken: CancellationToken.None
+				Amount: onlineOrder.OnlineOrderSum,
+				ExternalOrderId: onlineOrder?.ExternalOrderId.ToString()
 			);
 
-			var refundResult = await refundService.ProcessRefundAsync(refundRequest);
+			var refundResult = await refundService.ProcessRefundAsync(refundRequest, cancellationToken);
 
 			if(!refundResult.Success)
 			{
@@ -142,8 +144,7 @@ namespace CustomerOrdersApi.Library.Services
 					IsSuccess = false,
 					StatusCode = 400,
 					Title = "Payment refund failed",
-					DetailMessage = refundResult.GetUserFriendlyMessage() ??
-						"Не удалось выполнить возврат платежа. Пожалуйста, обратитесь в поддержку."
+					DetailMessage = "Не удалось выполнить возврат платежа. Пожалуйста, обратитесь в поддержку."
 				};
 			}
 
@@ -199,7 +200,8 @@ namespace CustomerOrdersApi.Library.Services
 			IUnitOfWork uow,
 			Order order,
 			OnlineOrder onlineOrder,
-			CancelOrderDto dto)
+			CancelOrderDto dto, 
+			CancellationToken cancellationToken)
 		{
 			_logger.LogInformation(
 				"Отмена заказа {OrderId} из маршрутного листа",
@@ -227,9 +229,9 @@ namespace CustomerOrdersApi.Library.Services
 			routeList.RemoveAddress(routeListItem);
 			routeList.Version = DateTime.Now;
 
-			if(IsPaidOnline(order))
+			if(IsPaidOnline(onlineOrder))
 			{
-				return await ProcessPaidOperationAsync(uow, order, onlineOrder, dto);
+				return await ProcessPaidOperationAsync(uow, order, onlineOrder, dto, cancellationToken);
 			}
 
 			order.ChangeStatus(OrderStatus.Canceled);
@@ -257,7 +259,8 @@ namespace CustomerOrdersApi.Library.Services
 			IUnitOfWork uow,
 			Order order,
 			OnlineOrder onlineOrder,
-			CancelOrderDto dto)
+			CancelOrderDto dto, 
+			CancellationToken cancellationToken)
 		{
 			_logger.LogInformation(
 				"Начало отмены заказа {OrderId} из статуса '{Status}' с использованием механизма недовоза",
@@ -282,9 +285,9 @@ namespace CustomerOrdersApi.Library.Services
 				return result;
 			}
 
-			if(IsPaidOnline(order))
+			if(IsPaidOnline(onlineOrder))
 			{
-				var paidResult = await ProcessPaidOperationAsync(uow, order, onlineOrder, dto);
+				var paidResult = await ProcessPaidOperationAsync(uow, order, onlineOrder, dto, cancellationToken);
 				if(!paidResult.IsSuccess)
 				{
 					return paidResult;
@@ -315,7 +318,7 @@ namespace CustomerOrdersApi.Library.Services
 				order.OrderStatus.GetEnumTitle(),
 				undelivery.Id);
 
-			var message = IsPaidOnline(order) // ПЕРЕДЕЛАТь
+			var message = IsPaidOnline(onlineOrder)
 				? "Заказ отменен успешно, денежные средства вернутся к Вам в течение 10 дней. Срок зависит от банка получателя"
 				: "Заказ отменен успешно";
 

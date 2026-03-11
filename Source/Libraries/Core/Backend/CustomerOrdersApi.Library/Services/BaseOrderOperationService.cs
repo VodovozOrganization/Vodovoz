@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
@@ -82,12 +83,12 @@ namespace CustomerOrdersApi.Library.Services
 		/// <summary>
 		/// Простой перенос заказа (статусы: Новый, Ожидание оплаты, Принят)
 		/// </summary>
-		protected abstract Task<TResult> ProcessSimpleOperationAsync(IUnitOfWork uow, Order order, OnlineOrder onlineOrder, TDto dto);
+		protected abstract Task<TResult> ProcessSimpleOperationAsync(IUnitOfWork uow, Order order, OnlineOrder onlineOrder, TDto dto, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Сложный перенос заказа (статусы: В маршрутном листе, На погрузке, В пути)
 		/// </summary>
-		protected abstract Task<TResult> ProcessComplexOperationAsync(IUnitOfWork uow, Order order, OnlineOrder onlineOrder, TDto dto);
+		protected abstract Task<TResult> ProcessComplexOperationAsync(IUnitOfWork uow, Order order, OnlineOrder onlineOrder, TDto dto, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Проверка специфичных для сервиса параметров и условий, которые не были покрыты базовой валидацией
@@ -113,7 +114,7 @@ namespace CustomerOrdersApi.Library.Services
 		/// <returns></returns>
 		protected static bool IsPaidOnline(OnlineOrder order) => order.OnlineOrderPaymentType is OnlineOrderPaymentType.PaidOnline;
 
-		public async Task<TResult> ExecuteAsync(TDto dto)
+		public async Task<TResult> ExecuteAsync(TDto dto, CancellationToken cancellationToken)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot();
 
@@ -124,7 +125,7 @@ namespace CustomerOrdersApi.Library.Services
 					OperationName,
 					dto.ExternalOrderId);
 
-				var onlineOrder = await FindOnlineOrderAsync(uow, dto.ExternalOrderId);
+				var onlineOrder = FindOnlineOrderAsync(uow, dto.ExternalOrderId);
 				if(onlineOrder == null)
 				{
 					return CreateNotFoundResult(dto.ExternalOrderId);
@@ -150,11 +151,11 @@ namespace CustomerOrdersApi.Library.Services
 
 				if(SimpleStatuses.Contains(order.OrderStatus))
 				{
-					return await ProcessSimpleOperationAsync(uow, order, onlineOrder, dto);
+					return await ProcessSimpleOperationAsync(uow, order, onlineOrder, dto, cancellationToken);
 				}
 				else if(ComplexStatuses.Contains(order.OrderStatus))
 				{
-					return await ProcessComplexOperationAsync(uow, order, onlineOrder, dto);
+					return await ProcessComplexOperationAsync(uow, order, onlineOrder, dto, cancellationToken);
 				}
 				else
 				{
@@ -172,7 +173,7 @@ namespace CustomerOrdersApi.Library.Services
 			}
 		}
 
-		private async Task<OnlineOrder> FindOnlineOrderAsync(IUnitOfWork uow, Guid externalOrderId)
+		private OnlineOrder FindOnlineOrderAsync(IUnitOfWork uow, Guid externalOrderId)
 		{
 			return _onlineOrderRepository.GetOnlineOrderByExternalId(uow, externalOrderId);
 		}

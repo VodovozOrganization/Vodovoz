@@ -7,6 +7,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Globalization;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Orders;
 
@@ -32,13 +33,13 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 		public override bool CanHandle(OnlinePaymentSource paymentSource)
 			=> paymentSource is OnlinePaymentSource.FromMobileAppByYandexSplit or OnlinePaymentSource.FromVodovozWebSiteByYandexSplit;
 
-		public override async Task<RefundResultDto> ProcessRefundAsync(RefundRequestDto request)
+		public override async Task<RefundResultDto> ProcessRefundAsync(RefundRequestDto request, CancellationToken cancellationToken)
 		{
 			try
 			{
 				ValidateRequest(request);
 
-				var orderResponse = await _yandexPayClient.GetOrderAsync(request.TransactionId);
+				var orderResponse = await _yandexPayClient.GetOrderAsync(request.TransactionId, cancellationToken);
 
 				if(!orderResponse.Success)
 				{
@@ -68,7 +69,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 				}
 
 				var refundRequest = _mapper.MapToRefundRequest(request);
-				var refundResponse = await _yandexPayClient.RefundAsync(refundRequest);
+				var refundResponse = await _yandexPayClient.RefundAsync(refundRequest, cancellationToken);
 
 				if(!refundResponse.Success)
 				{

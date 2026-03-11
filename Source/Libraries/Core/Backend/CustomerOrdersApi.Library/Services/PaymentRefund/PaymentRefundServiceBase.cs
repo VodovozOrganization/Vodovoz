@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Payments;
@@ -26,7 +27,8 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 		}
 
 		public abstract bool CanHandle(OnlinePaymentSource paymentSource);
-		public abstract Task<RefundResultDto> ProcessRefundAsync(RefundRequestDto request);
+
+		public abstract Task<RefundResultDto> ProcessRefundAsync(RefundRequestDto request, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Создает результат для успешного возврата

@@ -25,7 +25,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.HttpClients
 			_jsonOptions = jsonOptions ?? throw new ArgumentNullException(nameof(jsonOptions));
 		}
 
-		public async Task<YandexPayResult<YandexPayOrderResponse>> GetOrderAsync(string orderId)
+		public async Task<YandexPayResult<YandexPayOrderResponse>> GetOrderAsync(string orderId, CancellationToken cancellationToken)
 		{
 			_logger.LogDebug("Запрос информации о заказе {OrderId}", orderId);
 
@@ -41,13 +41,13 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.HttpClients
 			return result;
 		}
 
-		public async Task<YandexPayResult<YandexPayRefundResponse>> RefundAsync(YandexPayRefundRequest request)
+		public async Task<YandexPayResult<YandexPayRefundResponse>> RefundAsync(YandexPayRefundRequest request, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Выполнение возврата для заказа {OrderId}, сумма: {Amount}, externalOperationId: {ExternalId}",
 				request.OrderId, request.RefundAmount, request.ExternalOperationId);
 
 			var endpoint = $"v2/orders/{request.OrderId}/refund";
-			var result = await PostAsync<YandexPayRefundResponse>(endpoint, request, request.CancellationToken);
+			var result = await PostAsync<YandexPayRefundResponse>(endpoint, request, cancellationToken);
 
 			if(result.Success)
 			{
