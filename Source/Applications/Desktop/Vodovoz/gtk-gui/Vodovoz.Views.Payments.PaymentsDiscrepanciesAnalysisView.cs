@@ -169,7 +169,7 @@ namespace Vodovoz.Views.Payments
 			this.yhboxFileSelection.Spacing = 6;
 			// Container child yhboxFileSelection.Gtk.Box+BoxChild
 			this.buttonInfo = new global::Gamma.GtkWidgets.yButton();
-			this.buttonInfo.TooltipMarkup = "Справка по работе с отчётом";
+			this.buttonInfo.TooltipMarkup = "Справка";
 			this.buttonInfo.CanFocus = true;
 			this.buttonInfo.Name = "buttonInfo";
 			this.buttonInfo.UseUnderline = true;

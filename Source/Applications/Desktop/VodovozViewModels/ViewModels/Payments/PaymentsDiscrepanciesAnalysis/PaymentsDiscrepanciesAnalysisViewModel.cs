@@ -15,6 +15,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
+using Vodovoz.Extensions;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 {
@@ -93,9 +94,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 			Title = "Поиск расхождений в оплатах клиента";
 
-			SetByCounterpartyCheckModeCommand = new DelegateCommand(SetByCounterpartyCheckMode);
-			SetCommonReconciliationCheckModeCommand = new DelegateCommand(SetCommonReconciliationCheckMode);
-			AnalyseDiscrepanciesCommand = new DelegateCommand(AnalyseDiscrepancies, () => CanReadFile);
+			InitializeCommands();
 
 			OrdersNodes = new GenericObservableList<OrderDiscrepanciesNode>();
 			OrderDiscrepancyDuplicateNodes = new GenericObservableList<OrderDiscrepanciesNode>();
@@ -105,7 +104,15 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 			_isClosedOrdersOnly = true;
 		}
-		
+
+		private void InitializeCommands()
+		{
+			SetByCounterpartyCheckModeCommand = new DelegateCommand(SetByCounterpartyCheckMode);
+			SetCommonReconciliationCheckModeCommand = new DelegateCommand(SetCommonReconciliationCheckMode);
+			AnalyseDiscrepanciesCommand = new DelegateCommand(AnalyseDiscrepancies, () => CanReadFile);
+			HelpCommand = new DelegateCommand(GetHelp);
+		}
+
 		#region Settings
 
 		public DiscrepancyCheckMode SelectedCheckMode
@@ -260,6 +267,11 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 		public bool CanReadFile => !string.IsNullOrWhiteSpace(_selectedFileName);
 
+		private static string Help =>
+			$"Если не стоит фильтр Только закрытые, то строчки с заказами не в статусах {OrderStatus.Shipped.GetEnumDisplayName()}," +
+			$"{OrderStatus.UnloadingOnStock.GetEnumDisplayName()}, {OrderStatus.Closed.GetEnumDisplayName()} будут выделены желтым цветом.\n" +
+			 "Для визуального отличия тех заказов, которые не попадут в акт сверки ДВ";
+
 		public GenericObservableList<OrderDiscrepanciesNode> OrdersNodes { get; }
 		public GenericObservableList<PaymentDiscrepanciesNode> PaymentsNodes { get; }
 		public GenericObservableList<CounterpartyBalanceNode> BalanceNodes { get; }
@@ -270,9 +282,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 		#region Commands
 
-		public DelegateCommand SetByCounterpartyCheckModeCommand { get; }
-		public DelegateCommand SetCommonReconciliationCheckModeCommand { get; }
-		public DelegateCommand AnalyseDiscrepanciesCommand { get; }
+		public DelegateCommand SetByCounterpartyCheckModeCommand { get; private set; }
+		public DelegateCommand SetCommonReconciliationCheckModeCommand { get; private set; }
+		public DelegateCommand AnalyseDiscrepanciesCommand { get; private set; }
+		public DelegateCommand HelpCommand { get; private set; }
 
 		#endregion
 
@@ -284,6 +297,11 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 		private void SetCommonReconciliationCheckMode()
 		{
 			SelectedCheckMode = DiscrepancyCheckMode.CommonReconciliation;
+		}
+
+		private void GetHelp()
+		{
+			_interactiveService.ShowMessage(ImportanceLevel.Info, Help);
 		}
 
 		private void AnalyseDiscrepancies()
