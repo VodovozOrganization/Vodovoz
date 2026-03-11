@@ -1,0 +1,5 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>edo.withdrawal.routine.worker</ContainerRepository>
+  </PropertyGroup>
+</Project>

@@ -10,6 +10,7 @@ using QS.ViewModels.Extension;
 using Vodovoz.Domain.Goods;
 using Vodovoz.ViewModels.Dialogs.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.ViewModels.ViewModels.Goods
 {
@@ -34,7 +35,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 		}
 		
 		public InventoryInstanceViewModel(
-			Nomenclature nomenclature,
+			NomenclatureEntity nomenclature,
 			IEntityUoWBuilder entityUoWBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
@@ -52,7 +53,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 		public bool CanEditUsedParameter => !Entity.IsUsed || _canEditUsedParameterPermission;
 		public bool CanShowUsedPrefix => Entity.IsUsed;
 
-		public Nomenclature Nomenclature
+		public NomenclatureEntity Nomenclature
 		{
 			get => Entity.Nomenclature;
 			set
@@ -111,7 +112,7 @@ namespace Vodovoz.ViewModels.ViewModels.Goods
 			ConfigureEntityPropertyChanges();
 		}
 		
-		private void CopyEntityWithoutInventoryNumber(Nomenclature nomenclature)
+		private void CopyEntityWithoutInventoryNumber(NomenclatureEntity nomenclature)
 		{
 			Entity.Nomenclature = nomenclature;
 		}

@@ -35,6 +35,10 @@ namespace Vodovoz.Settings.Orders
 		int FastDeliveryLateDiscountReasonId { get; }
 		int GetOrderRatingForMandatoryProcessing { get; }
 		DateTime GetDateAvailabilityRatingOrder { get; }
+		/// <summary>
+		/// Id источника оплаты ИИ Бот по QR
+		/// </summary>
+		int GetPaymentByCardFromAiBotByQrCodeId { get; }
 
 		/// <summary>
 		/// Id оснований для скидки ОКС

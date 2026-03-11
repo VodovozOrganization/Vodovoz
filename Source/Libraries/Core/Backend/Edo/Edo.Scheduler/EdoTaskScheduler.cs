@@ -19,6 +19,7 @@ namespace Edo.Scheduler.Service
 		private readonly BillForDebtEdoRequestTaskScheduler _billForDebtEdoRequestTaskScheduler;
 		private readonly BillForPaymentEdoRequestTaskScheduler _billForPaymentEdoRequestTaskScheduler;
 		private readonly EquipmentTransferEdoRequestTaskScheduler _equipmentTransferEdoRequestTaskScheduler;
+		private readonly WithdrawalEdoRequestScheduler _withdrawalEdoRequestScheduler;
 		private readonly IBus _messageBus;
 
 		public EdoTaskScheduler(
@@ -29,6 +30,7 @@ namespace Edo.Scheduler.Service
 			BillForDebtEdoRequestTaskScheduler billForDebtEdoRequestTaskScheduler,
 			BillForPaymentEdoRequestTaskScheduler billForPaymentEdoRequestTaskScheduler,
 			EquipmentTransferEdoRequestTaskScheduler equipmentTransferEdoRequestTaskScheduler,
+			WithdrawalEdoRequestScheduler withdrawalEdoRequestScheduler,
 			IBus messageBus
 			)
 		{
@@ -39,6 +41,7 @@ namespace Edo.Scheduler.Service
 			_billForDebtEdoRequestTaskScheduler = billForDebtEdoRequestTaskScheduler ?? throw new ArgumentNullException(nameof(billForDebtEdoRequestTaskScheduler));
 			_billForPaymentEdoRequestTaskScheduler = billForPaymentEdoRequestTaskScheduler ?? throw new ArgumentNullException(nameof(billForPaymentEdoRequestTaskScheduler));
 			_equipmentTransferEdoRequestTaskScheduler = equipmentTransferEdoRequestTaskScheduler ?? throw new ArgumentNullException(nameof(equipmentTransferEdoRequestTaskScheduler));
+			_withdrawalEdoRequestScheduler = withdrawalEdoRequestScheduler ?? throw new ArgumentNullException(nameof(withdrawalEdoRequestScheduler));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
 
@@ -61,7 +64,10 @@ namespace Edo.Scheduler.Service
 			switch(request.Type)
 			{
 				case CustomerEdoRequestType.Order:
-					edoTask = _orderTaskScheduler.CreateTask(request);
+					edoTask =
+						request.DocumentRequestType == EdoRequestType.Withdrawal
+						? _withdrawalEdoRequestScheduler.CreateTask((WithdrawalEdoRequest)request)
+						: _orderTaskScheduler.CreateTask(request);
 					break;
 				case CustomerEdoRequestType.OrderWithoutShipmentForAdvancePayment:
 					edoTask = _billForAdvanceEdoRequestTaskScheduler.CreateTask((BillForAdvanceEdoRequest)request);
