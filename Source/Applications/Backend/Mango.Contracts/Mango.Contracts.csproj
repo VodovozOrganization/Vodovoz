@@ -4,4 +4,9 @@
         <TargetFramework>net5.0</TargetFramework>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Folder Include="V1\Request\" />
+      <Folder Include="V1\Response\" />
+    </ItemGroup>
+
 </Project>

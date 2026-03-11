@@ -8,4 +8,10 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0"/>
     </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Mango.Business\Mango.Business.csproj" />
+      <ProjectReference Include="..\Mango.Contracts\Mango.Contracts.csproj" />
+      <ProjectReference Include="..\Mango.Infrastructure\Mango.Infrastructure.csproj" />
+    </ItemGroup>
 </Project>
