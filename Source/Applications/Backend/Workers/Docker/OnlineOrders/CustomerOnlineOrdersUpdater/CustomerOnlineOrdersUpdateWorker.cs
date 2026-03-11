@@ -32,17 +32,17 @@ namespace CustomerOnlineOrdersUpdater
 				using var scope = _scopeFactory.CreateScope();
 				var options = scope.ServiceProvider.GetService<IOptionsMonitor<CustomerOnlineOrdersUpdaterOptions>>().CurrentValue;
 				await Task.Delay(TimeSpan.FromSeconds(options.DelayInSeconds), stoppingToken);
-				await TryMoveToManualProcessingWaitingForPaymentOnlineOrders(scope);
+				await TryMoveToManualProcessingWaitingForPaymentOnlineOrders(scope, stoppingToken);
 			}
 		}
 
-		private async Task TryMoveToManualProcessingWaitingForPaymentOnlineOrders(IServiceScope scope)
+		private async Task TryMoveToManualProcessingWaitingForPaymentOnlineOrders(IServiceScope scope, CancellationToken cancellationToken)
 		{
 			try
 			{
 				using var uow = scope.ServiceProvider.GetService<IUnitOfWork>();
 				var unPaidOnlineOrderHandler = scope.ServiceProvider.GetService<IUnPaidOnlineOrderHandler>();
-				await unPaidOnlineOrderHandler.TryMoveToManualProcessingWaitingForPaymentOnlineOrders(uow);
+				await unPaidOnlineOrderHandler.TryMoveToManualProcessingWaitingForPaymentOnlineOrders(uow, cancellationToken);
 			}
 			catch(Exception ex)
 			{

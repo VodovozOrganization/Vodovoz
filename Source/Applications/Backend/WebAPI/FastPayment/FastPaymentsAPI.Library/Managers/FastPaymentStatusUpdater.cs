@@ -62,7 +62,7 @@ namespace FastPaymentsAPI.Library.Managers
 
 						using(var scope = _serviceScopeFactory.CreateScope())
 						{
-							await UpdateFastPaymentStatusAsync(processingFastPayments, scope, uow);
+							await UpdateFastPaymentStatusAsync(processingFastPayments, scope, uow, stoppingToken);
 						}
 					}
 
@@ -90,7 +90,8 @@ namespace FastPaymentsAPI.Library.Managers
 		private async Task UpdateFastPaymentStatusAsync(
 			IEnumerable<FastPayment> processingFastPayments,
 			IServiceScope scope,
-			IUnitOfWork uow)
+			IUnitOfWork uow,
+			CancellationToken cancellationToken)
 		{
 			var orderRequestManager = scope.ServiceProvider.GetRequiredService<IOrderRequestManager>();
 
@@ -105,7 +106,7 @@ namespace FastPaymentsAPI.Library.Managers
 				}
 
 				//Обновляем сущность, т.к. колбэк может поменять статус быстрого платежа
-				await uow.Session.RefreshAsync(payment);
+				await uow.Session.RefreshAsync(payment, cancellationToken: cancellationToken);
 
 				if((payment.FastPaymentStatus == FastPaymentStatus.Rejected && response.Status == FastPaymentDTOStatus.Processing)
 					|| (payment.FastPaymentStatus == FastPaymentStatus.Performed && response.Status == FastPaymentDTOStatus.Performed))
@@ -135,12 +136,12 @@ namespace FastPaymentsAPI.Library.Managers
 					_fastPaymentManager.UpdateFastPaymentStatus(uow, payment, newStatus, response.StatusDate);
 				}
 
-				await uow.SaveAsync(payment);
+				await uow.SaveAsync(payment, cancellationToken: cancellationToken);
 
 				var @event = FastPaymentStatusUpdatedEvent.Create(payment, payment.FastPaymentStatus);
-				await uow.SaveAsync(@event);
+				await uow.SaveAsync(@event, cancellationToken: cancellationToken);
 
-				await uow.CommitAsync();
+				await uow.CommitAsync(cancellationToken);
 				_updatedCount++;
 			}
 		}

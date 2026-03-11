@@ -52,7 +52,7 @@ namespace Vodovoz.Application.Orders.Services
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 		}
 
-		public async Task TryMoveToManualProcessingWaitingForPaymentOnlineOrders(IUnitOfWork uow)
+		public async Task TryMoveToManualProcessingWaitingForPaymentOnlineOrders(IUnitOfWork uow, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Проверяем онлайн заказы, ожидающих оплаты...");
 
@@ -81,11 +81,11 @@ namespace Vodovoz.Application.Orders.Services
 							? onlineOrderTimers.TimeForTransferToManualProcessingWithFastDelivery
 							: onlineOrderTimers.TimeForTransferToManualProcessingWithoutFastDelivery);
 
-					await uow.SaveAsync(onlineOrder);
+					await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
 				}
 
 				_logger.LogInformation("Сохраняем обработанные заказы");
-				await uow.CommitAsync();
+				await uow.CommitAsync(cancellationToken);
 			}
 			catch(Exception ex)
 			{
@@ -161,13 +161,13 @@ namespace Vodovoz.Application.Orders.Services
 			//у оплаченных мы меняем только информацию по доставке в нужных состояниях
 			if(onlineOrder.OnlineOrderPaymentStatus == OnlineOrderPaymentStatus.Paid)
 			{
-				return TryUpdatePaidOnlineOrder(uow, orders, onlineOrder, deliverySchedule, data);
+				return await TryUpdatePaidOnlineOrder(uow, orders, onlineOrder, deliverySchedule, data, cancellationToken);
 			}
 			else
 			{
 				if(orders.Any())
 				{
-					return TryUpdateUnPaidOnlineOrderWithOrders(uow, orders, onlineOrder, data);
+					return await TryUpdateUnPaidOnlineOrderWithOrders(uow, orders, onlineOrder, data, cancellationToken);
 				}
 				
 				if(onlineOrder.OnlineOrderStatus == OnlineOrderStatus.Canceled
@@ -180,7 +180,7 @@ namespace Vodovoz.Application.Orders.Services
 						data.UnPaidReason,
 						data.OnlinePayment);
 					
-					SaveOnlineOrder(uow, onlineOrder);
+					await SaveOnlineOrder(uow, onlineOrder, cancellationToken);
 					return Result.Success();
 				}
 				
@@ -205,7 +205,7 @@ namespace Vodovoz.Application.Orders.Services
 						"Не прошли валидацию онлайн заказа {OnlineOrderId} после его изменения перед оформлением заказа. На ручное...",
 						onlineOrder.Id);
 					
-					SaveOnlineOrder(uow, onlineOrder);
+					await SaveOnlineOrder(uow, onlineOrder, cancellationToken);
 					return Result.Success();
 				}
 				
@@ -218,15 +218,16 @@ namespace Vodovoz.Application.Orders.Services
 				);
 			}
 
-			SaveOnlineOrder(uow, onlineOrder);
+			await SaveOnlineOrder(uow, onlineOrder, cancellationToken);
 			return Result.Success();
 		}
 
-		private Result TryUpdateUnPaidOnlineOrderWithOrders(
+		private async Task<Result> TryUpdateUnPaidOnlineOrderWithOrders(
 			IUnitOfWork uow,
 			IEnumerable<Order> orders,
 			OnlineOrder onlineOrder,
-			UpdateOnlineOrderFromChangeRequest data)
+			UpdateOnlineOrderFromChangeRequest data,
+			CancellationToken cancellationToken)
 		{
 			var needUpdate = true;
 
@@ -276,12 +277,17 @@ namespace Vodovoz.Application.Orders.Services
 					uow.GetById<PaymentFrom>(data.OnlinePaymentSource.ConvertToPaymentFromId(_orderSettings)));
 			}
 
-			SaveOnlineOrder(uow, onlineOrder);
+			await SaveOnlineOrder(uow, onlineOrder, cancellationToken);
 			return Result.Success();
 		}
 
-		private Result TryUpdatePaidOnlineOrder(IUnitOfWork uow, IEnumerable<Order> orders, OnlineOrder onlineOrder, DeliverySchedule deliverySchedule,
-			UpdateOnlineOrderFromChangeRequest data)
+		private async Task<Result> TryUpdatePaidOnlineOrder(
+			IUnitOfWork uow,
+			IEnumerable<Order> orders,
+			OnlineOrder onlineOrder,
+			DeliverySchedule deliverySchedule,
+			UpdateOnlineOrderFromChangeRequest data,
+			CancellationToken cancellationToken)
 		{
 			_logger.LogWarning("Пришел запрос на изменение оплаченного онлайна {OnlineOrderId}", onlineOrder.Id);
 				
@@ -302,7 +308,7 @@ namespace Vodovoz.Application.Orders.Services
 				data.DeliveryDate,
 				data.IsFastDelivery);
 
-			SaveOnlineOrder(uow, onlineOrder);
+			await SaveOnlineOrder(uow, onlineOrder, cancellationToken);
 			return Result.Success();
 		}
 
@@ -317,10 +323,10 @@ namespace Vodovoz.Application.Orders.Services
 			}
 		}
 		
-		private void SaveOnlineOrder(IUnitOfWork uow, OnlineOrder onlineOrder)
+		private async Task SaveOnlineOrder(IUnitOfWork uow, OnlineOrder onlineOrder, CancellationToken cancellationToken)
 		{
-			uow.Save(onlineOrder);
-			uow.Commit();
+			await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
+			await uow.CommitAsync(cancellationToken);
 		}
 	}
 }

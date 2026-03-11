@@ -10,7 +10,7 @@ namespace VodovozBusiness.Services.Orders
 {
 	public interface IUnPaidOnlineOrderHandler
 	{
-		Task TryMoveToManualProcessingWaitingForPaymentOnlineOrders(IUnitOfWork uow);
+		Task TryMoveToManualProcessingWaitingForPaymentOnlineOrders(IUnitOfWork uow, CancellationToken cancellationToken);
 		Result CanChangePaymentType(IUnitOfWork uow, OnlineOrder onlineOrder);
 		Task<Result> TryUpdateOrderAsync(
 			IUnitOfWork uow,
