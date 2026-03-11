@@ -1,4 +1,4 @@
-﻿using Gamma.Utilities;
+using Gamma.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -58,7 +58,7 @@ namespace ExportTo1c.Library.Exporters
 					continue;
 				}
 
-				var updNum = order.OrderDocuments
+				var updNum = order.OrderDocuments?
 					.FirstOrDefault(od => counterDocumentsTypes.Contains(od.Type) && od.DocumentOrganizationCounter != null)
 					?.DocumentOrganizationCounter
 					?.DocumentNumber
@@ -73,7 +73,8 @@ namespace ExportTo1c.Library.Exporters
 					new XAttribute("КонтрагентИНН", order.Client.INN),
 					new XAttribute("Договор", $"{order.Contract.Number} от {order.Contract.IssueDate:d}"),
 					new XAttribute("Статус", order.OrderStatus.GetEnumTitle()),
-					new XAttribute("ТипОплаты", order.PaymentType.GetEnumTitle())
+					new XAttribute("ТипОплаты", order.PaymentType.GetEnumTitle()),
+					new XAttribute("ОрганизацияИНН", order.Contract?.Organization?.INN ?? "Отсутствует договор")
 				);
 
 				var salesElement = new XElement("Продажи");
