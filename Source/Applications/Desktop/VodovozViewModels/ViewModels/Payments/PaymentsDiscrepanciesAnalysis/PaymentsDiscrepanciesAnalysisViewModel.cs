@@ -268,8 +268,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 		public bool CanReadFile => !string.IsNullOrWhiteSpace(_selectedFileName);
 
 		private static string Help =>
-			$"Если не стоит фильтр Только закрытые, то строчки с заказами не в статусах {OrderStatus.Shipped.GetEnumDisplayName()}," +
-			$"{OrderStatus.UnloadingOnStock.GetEnumDisplayName()}, {OrderStatus.Closed.GetEnumDisplayName()} будут выделены желтым цветом.\n" +
+			$"Если не стоит фильтр Только закрытые, то строчки с заказами не в статусах <b>{OrderStatus.Shipped.GetEnumDisplayName()}</b>, " +
+			$"<b>{OrderStatus.UnloadingOnStock.GetEnumDisplayName()}</b>, <b>{OrderStatus.Closed.GetEnumDisplayName()}</b> будут выделены желтым цветом.\n" +
 			 "Для визуального отличия тех заказов, которые не попадут в акт сверки ДВ";
 
 		public GenericObservableList<OrderDiscrepanciesNode> OrdersNodes { get; }
