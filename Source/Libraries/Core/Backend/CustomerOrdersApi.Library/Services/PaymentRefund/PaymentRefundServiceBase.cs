@@ -37,14 +37,6 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 		}
 
 		/// <summary>
-		/// Создает результат для ожидающего возврата (асинхронные операции)
-		/// </summary>
-		protected virtual RefundResultDto CreatePendingResult(string operationId)
-		{
-			return new RefundResultDto(true, default, operationId, default, default, default, DateTime.UtcNow, RefundStatus.PENDING, OnlineOrderPaymentStatus.Refunding);
-		}
-
-		/// <summary>
 		/// Создает результат для ошибки возврата
 		/// </summary>
 		protected virtual RefundResultDto CreateErrorResult(
@@ -53,17 +45,6 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 			string cancellationReason = null)
 		{
 			return new RefundResultDto(false, default, default, errorMessage, cancellationParty, cancellationReason, DateTime.UtcNow, RefundStatus.FAIL, OnlineOrderPaymentStatus.Paid);
-		}
-
-		/// <summary>
-		/// Создает результат для отмененного возврата (YooKassa)
-		/// </summary>
-		protected virtual RefundResultDto CreateCanceledResult(
-			string errorMessage,
-			string cancellationParty,
-			string cancellationReason)
-		{
-			return new RefundResultDto(false, default, default, errorMessage, cancellationParty, cancellationReason, DateTime.UtcNow, RefundStatus.CANCELED, OnlineOrderPaymentStatus.Paid);
 		}
 
 		/// <summary>
@@ -76,7 +57,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 				throw new ArgumentNullException(nameof(request));
 			}
 
-			if(request.OnlineOrder == null)
+			if(request.OnlineOrder is null)
 			{
 				throw new ArgumentException("OnlineOrder не может быть null", nameof(request));
 			}
@@ -84,6 +65,11 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 			if(string.IsNullOrEmpty(request.ExternalOrderId))
 			{
 				throw new ArgumentException("ExternalOrderId не может быть пустым", nameof(request));
+			}
+
+			if(string.IsNullOrEmpty(request.TransactionId))
+			{
+				throw new ArgumentException("TransactionId не может быть пустым", nameof(request));
 			}
 
 			if(request.Amount <= 0)

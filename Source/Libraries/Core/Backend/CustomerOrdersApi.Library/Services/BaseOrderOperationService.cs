@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
@@ -110,7 +111,7 @@ namespace CustomerOrdersApi.Library.Services
 		/// </summary>
 		/// <param name="order"></param>
 		/// <returns></returns>
-		protected static bool IsPaidOnline(Order order) => order.PaymentType is PaymentType.PaidOnline;
+		protected static bool IsPaidOnline(OnlineOrder order) => order.OnlineOrderPaymentType is OnlineOrderPaymentType.PaidOnline;
 
 		public async Task<TResult> ExecuteAsync(TDto dto)
 		{

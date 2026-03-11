@@ -124,7 +124,7 @@ namespace CustomerOrdersApi.Library
 			this IServiceCollection services,
 			IConfiguration configuration)
 		{
-			services.Configure<CloudPaymentsSettings>(
+			services.Configure<CloudPaymentsOptions>(
 				configuration.GetSection("CloudPayments"));
 
 			services.AddSingleton<JsonSerializerOptions>(sp =>
@@ -138,7 +138,7 @@ namespace CustomerOrdersApi.Library
 
 			services.AddHttpClient<ICloudPaymentsHttpClient, CloudPaymentsHttpClient>((sp, client) =>
 			{
-				var settings = sp.GetRequiredService<IOptions<CloudPaymentsSettings>>().Value;
+				var settings = sp.GetRequiredService<IOptions<CloudPaymentsOptions>>().Value;
 
 				client.BaseAddress = new Uri(settings.ApiUrl);
 
@@ -148,15 +148,31 @@ namespace CustomerOrdersApi.Library
 				client.DefaultRequestHeaders.Authorization =
 					new AuthenticationHeaderValue("Basic", authToken);
 
-				client.DefaultRequestHeaders.Add("User-Agent", "Vodovoz"); 
-
-				client.Timeout = TimeSpan.FromMinutes(5);
+				client.Timeout = TimeSpan.FromSeconds(30);
 			});
 
 
 			services.AddScoped<ICloudPaymentsMapper, CloudPaymentsMapper>();
 			services.AddScoped<IPaymentRefundServiceFactory, PaymentRefundServiceFactory>();
 			services.AddScoped<IPaymentRefundService, CloudPaymentsRefundService>();
+
+
+			services.Configure<YandexPayOptions>(
+				configuration.GetSection("YandexPay"));
+
+			services.AddHttpClient<IYandexPayHttpClient, YandexPayHttpClient>((sp, client) =>
+			{
+				var settings = sp.GetRequiredService<IOptions<YandexPayOptions>>().Value;
+
+				client.BaseAddress = new Uri(settings.ApiUrl);
+				client.DefaultRequestHeaders.Add("Authorization", $"Api-Key {settings.ApiKey}");
+				client.DefaultRequestHeaders.Add("Accept", "application/json");
+
+				client.Timeout = TimeSpan.FromSeconds(30);
+			});
+
+			services.AddScoped<IYandexPayMapper, YandexPayMapper>();
+			services.AddScoped<IPaymentRefundService, YandexPayRefundService>();
 
 			return services;
 		}

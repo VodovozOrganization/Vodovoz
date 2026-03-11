@@ -3,7 +3,7 @@
 	/// <summary>
 	/// Настройки для CloudPayments
 	/// </summary>
-	public class CloudPaymentsSettings
+	public class CloudPaymentsOptions
 	{
 		public string PublicId { get; set; }
 		public string ApiSecret { get; set; }
