@@ -15,6 +15,12 @@ namespace SecureCodeSenderApi.Services.Validators
 		/// <param name="target">Назначение отправки</param>
 		/// <param name="sendTo">Куда отправляется код <see cref="SendTo"/></param>
 		/// <returns>Список результатов с ошибками или пустой список</returns>
-		IEnumerable<ValidationResult> Validate(string target, SendTo sendTo = SendTo.Email);
+		IEnumerable<ValidationResult> Validate(string target, SendTo sendTo);
+		/// <summary>
+		/// Проверка отправки по email
+		/// </summary>
+		/// <param name="target">Назначение отправки</param>
+		/// <returns>Список результатов с ошибками или пустой список</returns>
+		IEnumerable<ValidationResult> ValidateEmailFormat(string target);
 	}
 }

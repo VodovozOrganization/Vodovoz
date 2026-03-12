@@ -15,6 +15,6 @@ namespace SecureCodeSenderApi.Services
 		/// <param name="uow">unit of work</param>
 		/// <param name="secureCode">Данные по коду</param>
 		/// <returns><c>true</c> - отправлено, <c>false</c> - не отправлено</returns>
-		Task<bool> SendCodeToEmail(IUnitOfWork uow, GeneratedSecureCode secureCode);
+		Task<bool> SendCode(IUnitOfWork uow, GeneratedSecureCode secureCode);
 	}
 }

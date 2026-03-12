@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SecureCodeSenderApi.Services;
+using Vodovoz.Settings.SecureCodes;
 
 namespace SecureCodeSenderApi.Controllers.V1
 {
@@ -18,15 +19,18 @@ namespace SecureCodeSenderApi.Controllers.V1
 	{
 		private readonly ISecureCodeServiceValidator _codeServiceValidator;
 		private readonly ISecureCodeHandler _secureCodeHandler;
+		private readonly ISecureCodeSettings _secureCodeSettings;
 
 		public SecureCodeController(
 			ILogger<SecureCodeController> logger,
 			ISecureCodeServiceValidator codeServiceValidator,
-			ISecureCodeHandler secureCodeHandler)
+			ISecureCodeHandler secureCodeHandler,
+			ISecureCodeSettings secureCodeSettings)
 			: base(logger)
 		{
 			_codeServiceValidator = codeServiceValidator ?? throw new ArgumentNullException(nameof(codeServiceValidator));
 			_secureCodeHandler = secureCodeHandler ?? throw new ArgumentNullException(nameof(secureCodeHandler));
+			_secureCodeSettings = secureCodeSettings ?? throw new ArgumentNullException(nameof(secureCodeSettings));
 		}
 
 		/// <summary>
@@ -35,6 +39,7 @@ namespace SecureCodeSenderApi.Controllers.V1
 		/// <param name="sendSecureCodeDto">Информация для отправки</param>
 		/// <returns>
 		/// 200 - в случае успеха с временем до следующего запроса <see cref="SecureCodeSent"/>
+		/// 422 - невозможность отправки в Телеграм
 		/// 500 - ошибка/неудача
 		/// </returns>
 		[HttpPost("Send")]
@@ -59,18 +64,25 @@ namespace SecureCodeSenderApi.Controllers.V1
 
 				var result = await _secureCodeHandler.GenerateAndSendSecureCode(sendSecureCodeDto);
 
-				if(result.IsFailure)
+				if(result.IsSuccess)
 				{
-					return Problem(result.Errors.First().Message);
+					return Ok(SecureCodeSent.Create(_secureCodeSettings.TimeForNextCodeSeconds));
 				}
 
-				return Ok(SecureCodeSent.Create(result.Value.TimeForNextCode));
+				var firstError = result.Errors.First();
+				return firstError.Code switch
+				{
+					"422" => Problem(firstError.Message, statusCode: int.Parse(firstError.Code)),
+					_ => Problem(firstError.Message)
+				};
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(
 					e,
-					"Ошибка при генерации и отправке кода авторизации для пользователя {ExternalUserId}",
+					"Ошибка при генерации и отправке кода авторизации на {SendTo} {Target} для пользователя {ExternalUserId}",
+					nameof(sendSecureCodeDto.Method),
+					sendSecureCodeDto.Target,
 					sendSecureCodeDto.ExternalCounterpartyId
 				);
 
@@ -92,7 +104,7 @@ namespace SecureCodeSenderApi.Controllers.V1
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK)]
-		public IActionResult CheckSecureCode([FromBody] CheckSecureCodeDto checkSecureCodeDto)
+		public async Task<IActionResult> CheckSecureCode([FromBody] CheckSecureCodeDto checkSecureCodeDto)
 		{
 			try
 			{
@@ -108,7 +120,7 @@ namespace SecureCodeSenderApi.Controllers.V1
 					return ValidationProblem(validationResult);
 				}
 
-				var result = _secureCodeHandler.CheckSecureCode(checkSecureCodeDto);
+				var result = await _secureCodeHandler.CheckSecureCode(checkSecureCodeDto);
 
 				return result.Response switch
 				{

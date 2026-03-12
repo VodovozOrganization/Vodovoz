@@ -30,7 +30,7 @@ namespace SecureCodeSenderApi.Services
 			_client = client ?? throw new ArgumentNullException(nameof(client));
 		}
 		
-		public async Task<bool> SendCodeToEmail(IUnitOfWork uow, GeneratedSecureCode secureCode)
+		public async Task<bool> SendCode(IUnitOfWork uow, GeneratedSecureCode secureCode)
 		{
 			var instanceId = Convert.ToInt32(uow.Session
 				.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")

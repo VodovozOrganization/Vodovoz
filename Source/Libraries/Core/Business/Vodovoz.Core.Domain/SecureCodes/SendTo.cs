@@ -15,6 +15,10 @@ namespace Vodovoz.Core.Domain.SecureCodes
 		/// <summary>
 		/// На электронную почту
 		/// </summary>
-		Email
+		Email,
+		/// <summary>
+		/// В Telegram
+		/// </summary>
+		Telegram
 	}
 }

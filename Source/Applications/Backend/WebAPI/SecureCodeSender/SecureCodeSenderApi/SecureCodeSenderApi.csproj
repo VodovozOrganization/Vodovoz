@@ -10,14 +10,18 @@
     <PackageReference Include="NLog.Extensions.Logging" Version="5.3.14" />
     <PackageReference Include="NLog.Targets.Seq" Version="4.0.1" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="5.2.1" />
+    <PackageReference Include="StackExchange.Redis" Version="2.6.122" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Email\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport\MessageTransport.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Telegram\Telegram.GatewayApi.Client\Telegram.GatewayApi.Client.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.WebApi.Caching.Redis\Vodovoz.Infrastructure.WebApi.Caching.Redis.csproj" />
     <ProjectReference Include="..\..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
+    <ProjectReference Include="..\..\Sms.Internal.Service\Sms.Internal.Service.csproj" />
     <ProjectReference Include="..\..\Vodovoz.Presentation.WebApi\Vodovoz.Presentation.WebApi.csproj" />
     <ProjectReference Include="..\SecureCodeSender.Contracts\SecureCodeSender.Contracts.csproj" />
   </ItemGroup>

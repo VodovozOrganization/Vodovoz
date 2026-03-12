@@ -28,7 +28,9 @@ namespace Vodovoz.Core.Domain.SecureCodes
 		private string _userAgent;
 		private int? _counterpartyId;
 		private Guid? _externalCounterpartyId;
-		private bool _isUsed;
+		private bool? _isUsed;
+		private string _telegramRequestId;
+		private string _telegramVerificationStatus;
 
 		protected GeneratedSecureCode(){ }
 
@@ -41,7 +43,8 @@ namespace Vodovoz.Core.Domain.SecureCodes
 			string ip,
 			string userAgent,
 			int? counterpartyId,
-			Guid? externalCounterpartyId
+			Guid? externalCounterpartyId,
+			string telegramRequestId = null
 		)
 		{
 			Created = DateTime.Now;
@@ -54,7 +57,12 @@ namespace Vodovoz.Core.Domain.SecureCodes
 			UserAgent = userAgent;
 			CounterpartyId = counterpartyId;
 			ExternalCounterpartyId = externalCounterpartyId;
-			IsUsed = false;
+			TelegramRequestId = telegramRequestId;
+
+			if(Method != SendTo.Telegram)
+			{
+				IsUsed = false;
+			}
 		}
 
 		public virtual int Id { get; set; }
@@ -165,10 +173,31 @@ namespace Vodovoz.Core.Domain.SecureCodes
 		/// Использован
 		/// </summary>
 		[Display(Name = "Использован")]
-		public virtual bool IsUsed
+		public virtual bool? IsUsed
 		{
 			get => _isUsed;
 			set => SetField(ref _isUsed, value);
+		}
+		
+		/// <summary>
+		/// Идентификатор запроса в Telegram
+		/// </summary>
+		[IgnoreHistoryTrace]
+		[Display(Name = "Идентификатор запроса в Telegram")]
+		public virtual string TelegramRequestId
+		{
+			get => _telegramRequestId;
+			set => SetField(ref _telegramRequestId, value);
+		}
+		
+		/// <summary>
+		/// Статус проверки кода, отправленного в Telegram
+		/// </summary>
+		[Display(Name = "Статус проверки кода, отправленного в Telegram")]
+		public virtual string TelegramVerificationStatus
+		{
+			get => _telegramVerificationStatus;
+			set => SetField(ref _telegramVerificationStatus, value);
 		}
 
 		public static GeneratedSecureCode Create(
@@ -180,11 +209,12 @@ namespace Vodovoz.Core.Domain.SecureCodes
 			string ip,
 			string userAgent,
 			int? counterpartyId,
-			Guid? externalCounterpartyId
+			Guid? externalCounterpartyId,
+			string telegramRequestId = null
 			)
 		{
 			return new GeneratedSecureCode(
-				code, method, target, userPhone, source, ip, userAgent, counterpartyId, externalCounterpartyId);
+				code, method, target, userPhone, source, ip, userAgent, counterpartyId, externalCounterpartyId, telegramRequestId);
 		}
 	}
 }

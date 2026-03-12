@@ -22,6 +22,7 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.SecureCodes
 			Map(x => x.CounterpartyId).Column("counterparty_id");
 			Map(x => x.ExternalCounterpartyId).Column("external_counterparty_id");
 			Map(x => x.IsUsed).Column("is_used");
+			Map(x => x.TelegramRequestId).Column("telegram_request_id");
 		}
 	}
 }

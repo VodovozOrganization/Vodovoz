@@ -9,10 +9,15 @@ using QS.Project.Core;
 using QS.Utilities.Numeric;
 using RabbitMQ.EmailSending.Contracts;
 using RabbitMQ.MailSending;
+using SecureCodeSenderApi.Configs;
 using SecureCodeSenderApi.Services;
 using SecureCodeSenderApi.Services.Validators;
+using Sms.External.Interface;
+using Sms.External.SmsRu;
+using Telegram.GatewayApi.Client;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Infrastructure.WebApi.Caching.Redis;
 using Vodovoz.Presentation.WebApi;
 
 namespace SecureCodeSenderApi
@@ -44,7 +49,7 @@ namespace SecureCodeSenderApi
 				.AddCore()
 				.AddTrackedUoW()
 				.AddInfrastructure()
-				.AddDependencyGroup()
+				.AddDependencyGroup(configuration)
 				.AddRabbitConfig(configuration)
 				.AddMessageTransportSettings()
 				.AddMassTransit(busConf =>
@@ -66,9 +71,11 @@ namespace SecureCodeSenderApi
 		/// </summary>
 		/// <param name="services">Контейнер</param>
 		/// <returns></returns>
-		private static IServiceCollection AddDependencyGroup(this IServiceCollection services)
+		private static IServiceCollection AddDependencyGroup(this IServiceCollection services, IConfiguration configuration)
 		{
 			services
+				.Configure<SmsRuConfiguration>(conf => configuration.GetSection("SmsRuConfiguration").Bind(conf))
+				.Configure<SenderOptions>(options => configuration.GetSection(SenderOptions.Path).Bind(options))
 				.AddScoped(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot())
 				.AddScoped<ISecureCodeHandler, SecureCodeHandler>()
 				.AddScoped<IEmailSecureCodeSender, EmailSecureCodeSender>()
@@ -78,6 +85,9 @@ namespace SecureCodeSenderApi
 				.AddScoped<IUserPhoneValidator, UserPhoneValidator>()
 				.AddScoped<ISecureCodeValidator, SecureCodeValidator>()
 				.AddScoped(s => new PhoneValidator(PhoneFormat.RussiaOnlyShort))
+				.AddScoped<ISmsSender, SmsRuSendController>()
+				.AddTelegramGatewayApiClient(configuration)
+				.AddGarnetCaching(configuration)
 				;
 			
 			return services;

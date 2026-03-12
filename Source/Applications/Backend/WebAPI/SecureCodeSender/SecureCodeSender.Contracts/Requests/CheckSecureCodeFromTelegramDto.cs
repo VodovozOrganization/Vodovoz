@@ -1,9 +1,8 @@
 ﻿using System;
-using Vodovoz.Core.Domain.Clients;
 
 namespace SecureCodeSender.Contracts.Requests
 {
-	public class CheckSecureCodeDto
+	public class CheckSecureCodeFromTelegramDto
 	{
 		/// <summary>
 		/// Код авторизации
@@ -20,7 +19,7 @@ namespace SecureCodeSender.Contracts.Requests
 		/// <summary>
 		/// Источник запроса
 		/// </summary>
-		public Source Source { get; set; }
+		public int Source { get; set; }
 		/// <summary>
 		/// Ip адрес пользователя
 		/// </summary>

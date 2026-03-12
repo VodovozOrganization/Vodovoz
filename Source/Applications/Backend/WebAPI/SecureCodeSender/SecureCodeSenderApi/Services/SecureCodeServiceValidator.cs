@@ -63,7 +63,7 @@ namespace SecureCodeSenderApi.Services
 				yield return validationResult;
 			}
 
-			foreach (var validationResult in _userPhoneValidator.Validate(sendCodeDto.UserPhone))
+			foreach (var validationResult in _userPhoneValidator.Validate(sendCodeDto.Method, sendCodeDto.UserPhone, sendCodeDto.Target))
 			{
 				yield return validationResult;
 			}
@@ -80,13 +80,8 @@ namespace SecureCodeSenderApi.Services
 			{
 				yield return validationResult;
 			}
-			
-			foreach (var validationResult in _emailMethodValidator.Validate(checkCodeDto.Target))
-			{
-				yield return validationResult;
-			}
 
-			foreach (var validationResult in _userPhoneValidator.Validate(checkCodeDto.UserPhone))
+			foreach (var validationResult in _userPhoneValidator.Validate(checkCodeDto.UserPhone, checkCodeDto.Target))
 			{
 				yield return validationResult;
 			}

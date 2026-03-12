@@ -11,11 +11,7 @@ namespace SecureCodeSenderApi.Services.Validators
 	{
 		public IEnumerable<ValidationResult> Validate(string target, SendTo sendTo = SendTo.Email)
 		{
-			if(sendTo != SendTo.Email)
-			{
-				yield return new ValidationResult("Отправка не на электронную почту не поддерживается");
-			}
-			else
+			if(sendTo == SendTo.Email)
 			{
 				if(string.IsNullOrWhiteSpace(target))
 				{
@@ -23,11 +19,19 @@ namespace SecureCodeSenderApi.Services.Validators
 				}
 				else
 				{
-					if(!Regex.IsMatch(target, EmailEntity.EmailRegEx, RegexOptions.None, TimeSpan.FromSeconds(1)))
+					foreach(var result in ValidateEmailFormat(target))
 					{
-						yield return new ValidationResult("Неизвестный формат электронной почты");
+						yield return result;
 					}
 				}
+			}
+		}
+
+		public IEnumerable<ValidationResult> ValidateEmailFormat(string target)
+		{
+			if(!Regex.IsMatch(target, EmailEntity.EmailRegEx, RegexOptions.None, TimeSpan.FromSeconds(1)))
+			{
+				yield return new ValidationResult("Неизвестный формат электронной почты");
 			}
 		}
 	}

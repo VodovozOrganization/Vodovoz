@@ -23,5 +23,10 @@ namespace Sms.External.Interface
 		{
 			ScheduleTime = scheduleTime;
 		}
+
+		public static ISmsMessage Create(string mobilePhoneNumber, string localId, string messageText)
+		{
+			return new SmsMessage(mobilePhoneNumber, localId, messageText);
+		}
 	}
 }
