@@ -134,7 +134,7 @@ namespace Edo.Problems.Validation.Sources
 			// Что отсканировано в самовывозах
 			var scannedSelfDeliveryCodes =
 				(from item in unitOfWork.Session.Query<SelfDeliveryDocumentItemEntity>()
-					join document in unitOfWork.Session.Query<SelfDeliveryDocumentEntity>() on item.SelfDeliveryDocument.Id equals document.Id
+					join document in unitOfWork.Session.Query<SelfDeliveryDocumentEntity>() on item.Document.Id equals document.Id
 					where document.Order.Id == orderEdoRequest.Order.Id
 					join productCode in unitOfWork.Session.Query<SelfDeliveryDocumentItemTrueMarkProductCode>()
 						on item.Id equals productCode.SelfDeliveryDocumentItem.Id

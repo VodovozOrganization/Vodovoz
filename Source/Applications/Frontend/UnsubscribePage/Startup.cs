@@ -93,14 +93,14 @@ namespace UnsubscribePage
 
 			app.UseRouting();
 
+			app.UseVodovozHealthCheck();
+
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapControllerRoute(
 					name: "default",
 					pattern: "{controller=Unsubscribe}/{action=Index}/{id?}");
 			});
-
-			app.UseVodovozHealthCheck();
 		}
 	}
 }

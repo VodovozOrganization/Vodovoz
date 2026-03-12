@@ -1,5 +1,6 @@
 using System;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -102,6 +103,10 @@ namespace DatabaseServiceWorker.ExportTo1c
 			{
 				Content = content
 			};
+
+			var authValue = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_options.Value.Login}:{_options.Value.Password}"));
+
+			request.Headers.Authorization = new AuthenticationHeaderValue("Basic", authValue);
 
 			using var response = await httpClient.SendAsync(request, cancellationToken);
 

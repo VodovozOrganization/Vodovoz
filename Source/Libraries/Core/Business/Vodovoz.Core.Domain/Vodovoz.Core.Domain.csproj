@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -34,6 +34,7 @@
 
   <ItemGroup>
     <Folder Include="Warehouses\" />
+    <Folder Include="Logistics\Cars\" />
   </ItemGroup>
 
 </Project>

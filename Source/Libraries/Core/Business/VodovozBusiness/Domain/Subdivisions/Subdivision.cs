@@ -27,7 +27,6 @@ namespace Vodovoz
 	public class Subdivision : SubdivisionEntity, IValidatableObject, IArchivable
 	{
 		private SalesPlan _defaultSalesPlan;
-		private string _shortName;
 		private Employee _chief;
 		private Subdivision _parentSubdivision;
 		private IList<Subdivision> _childSubdivisions = new List<Subdivision>();
@@ -36,17 +35,8 @@ namespace Vodovoz
 		private GenericObservableList<TypeOfEntity> _observableDocumentTypes;
 		private GeoGroup _geographicGroup;
 		private SubdivisionType _subdivisionType;
-		private string _address;
-		private bool _isArchive;
 
 		#region Свойства
-
-		[Display(Name = "Сокращенное наименование")]
-		public virtual string ShortName
-		{
-			get => _shortName;
-			set => SetField(ref _shortName, value);
-		}
 
 		[IgnoreHistoryTrace]
 		[Display(Name = "Начальник подразделения")]
@@ -112,7 +102,7 @@ namespace Vodovoz
 		}
 
 		[Display(Name = "Обслуживаемая часть города")]
-		public virtual GeoGroup GeographicGroup
+		public virtual new GeoGroup GeographicGroup
 		{
 			get => _geographicGroup;
 			set => SetField(ref _geographicGroup, value);
@@ -129,20 +119,6 @@ namespace Vodovoz
 		{
 			get => _defaultSalesPlan;
 			set => SetField(ref _defaultSalesPlan, value);
-		}
-
-		[Display(Name = "Адрес подразделения")]
-		public virtual string Address
-		{
-			get => _address;
-			set => SetField(ref _address, value);
-		}
-
-		[Display(Name = "Архив")]
-		public virtual bool IsArchive
-		{
-			get => _isArchive;
-			set => SetField(ref _isArchive, value);
 		}
 
 		#endregion

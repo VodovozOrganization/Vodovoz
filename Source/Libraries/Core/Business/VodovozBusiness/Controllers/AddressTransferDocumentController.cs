@@ -1,9 +1,9 @@
 ﻿using QS.DomainModel.UoW;
 using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
 
 namespace Vodovoz.Controllers
@@ -39,7 +39,7 @@ namespace Vodovoz.Controllers
 			}
 			if(transferDocument.TimeStamp == default(DateTime))
 			{
-				transferDocument.TimeStamp = DateTime.Now;
+				transferDocument.SetTimeStamp(DateTime.Now);
 			}
 
 			transferDocument.LastEditorId = employeeForCurrentUser.Id;

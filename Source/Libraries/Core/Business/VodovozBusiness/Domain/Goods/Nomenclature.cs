@@ -10,12 +10,12 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.BasicHandbooks;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using VodovozBusiness.Domain.Goods;
@@ -24,13 +24,6 @@ namespace Vodovoz.Domain.Goods
 {
 	public class Nomenclature : NomenclatureEntity, IArchivable, IValidatableObject
 	{
-		private bool _isNewBottle;
-		private bool _isDefectiveBottle;
-		private bool _isShabbyBottle;
-		private decimal _length;
-		private decimal _width;
-		private decimal _height;
-
 		private IObservableList<NomenclaturePrice> _nomenclaturePrice = new ObservableList<NomenclaturePrice>();
 		private IObservableList<NomenclatureCostPrice> _costPrices = new ObservableList<NomenclatureCostPrice>();
 		private IObservableList<NomenclatureInnerDeliveryPrice> _innerDeliveryPrices = new ObservableList<NomenclatureInnerDeliveryPrice>();
@@ -53,15 +46,11 @@ namespace Vodovoz.Domain.Goods
 		private RouteColumn _routeListColumn;
 		private FuelType _fuelType;
 		private Nomenclature _dependsOnNomenclature;
-		private OnlineStore _onlineStore;
-		private ProductGroup _productGroup;
 		private Counterparty _shipperCounterparty;
 		private IObservableList<NomenclatureMinimumBalanceByWarehouse> _nomenclatureMinimumBalancesByWarehouse =
 			new ObservableList<NomenclatureMinimumBalanceByWarehouse>();
 		private IObservableList<Gtin> _gtins = new ObservableList<Gtin>();
 		private IObservableList<GroupGtin> _groupGtins = new ObservableList<GroupGtin>();
-
-		private NomenclatureCategory _category;
 
 		#region Свойства
 
@@ -83,57 +72,6 @@ namespace Vodovoz.Domain.Goods
 		{
 			get => _folder1;
 			set => SetField(ref _folder1, value);
-		}
-
-		/// <summary>
-		/// Объем номенклатуры, измеряемый в квадратных метрах
-		/// </summary>
-		[Display(Name = "Объём")]
-		public virtual decimal Volume => Length * Width * Height / 1000000;    // 1 000 000
-
-
-		/// <summary>
-		/// Категория
-		/// </summary>
-		[Display(Name = "Категория")]
-		public virtual new NomenclatureCategory Category
-		{
-			get => _category;
-			set
-			{
-				if(SetField(ref _category, value))
-				{
-					if(!CategoriesWithSerial.Contains(Category))
-					{
-						IsSerial = false;
-					}
-
-					if(Category != NomenclatureCategory.water)
-					{
-						TareVolume = null;
-					}
-
-					if(!GetCategoriesWithSaleCategory().Contains(value))
-					{
-						SaleCategory = null;
-					}
-					if(value != NomenclatureCategory.master)
-					{
-						MasterServiceType = null;
-					}
-				}
-			}
-		}
-
-
-		/// <summary>
-		/// Тип выезда мастера
-		/// </summary>
-		[Display(Name = "Тип выезда мастера")]
-		public virtual MasterServiceType? MasterServiceType
-		{
-			get => _masterServiceType;
-			set => SetField(ref _masterServiceType, value);
 		}
 
 		/// <summary>
@@ -196,61 +134,7 @@ namespace Vodovoz.Domain.Goods
 			get => _alternativeNomenclaturePrices;
 			set => SetField(ref _alternativeNomenclaturePrices, value);
 		}
-
-		/// <summary>
-		/// Это новая бутыль
-		/// </summary>
-		[Display(Name = "Это новая бутыль")]
-		public virtual bool IsNewBottle
-		{
-			get => _isNewBottle;
-			set
-			{
-				if(SetField(ref _isNewBottle, value) && _isNewBottle)
-				{
-					IsDefectiveBottle = false;
-					IsShabbyBottle = false;
-				}
-			}
-		}
-
-		/// <summary>
-		/// Это бракованая бутыль
-		/// </summary>
-		[Display(Name = "Это бракованая бутыль")]
-		public virtual bool IsDefectiveBottle
-		{
-			get => _isDefectiveBottle;
-			set
-			{
-				if(SetField(ref _isDefectiveBottle, value) && _isDefectiveBottle)
-				{
-					IsNewBottle = false;
-					IsShabbyBottle = false;
-				}
-			}
-		}
-
-		/// <summary>
-		/// Стройка
-		/// </summary>
-		[Display(Name = "Стройка")]
-		public virtual bool IsShabbyBottle
-		{
-			get => _isShabbyBottle;
-			set
-			{
-				if(SetField(ref _isShabbyBottle, value) && _isShabbyBottle)
-				{
-					IsNewBottle = false;
-					IsDefectiveBottle = false;
-				}
-			}
-		}
-
 		
-
-
 		/// <summary>
 		/// Тип топлива
 		/// </summary>
@@ -269,28 +153,6 @@ namespace Vodovoz.Domain.Goods
 		{
 			get => _dependsOnNomenclature;
 			set => SetField(ref _dependsOnNomenclature, value);
-		}
-
-
-		/// <summary>
-		/// Группа товаров
-		/// </summary>
-		[Display(Name = "Группа товаров")]
-		public virtual ProductGroup ProductGroup
-		{
-			get => _productGroup;
-			set => SetField(ref _productGroup, value);
-		}
-
-
-		/// <summary>
-		/// Интернет-магазин
-		/// </summary>
-		[Display(Name = "Интернет-магазин")]
-		public virtual OnlineStore OnlineStore
-		{
-			get => _onlineStore;
-			set => SetField(ref _onlineStore, value);
 		}
 
 
@@ -366,55 +228,7 @@ namespace Vodovoz.Domain.Goods
 
 		public virtual GenericObservableList<NomenclatureInnerDeliveryPrice> ObservableInnerDeliveryPrices =>
 			_observableInnerDeliveryPrices ?? (_observableInnerDeliveryPrices = new GenericObservableList<NomenclatureInnerDeliveryPrice>(InnerDeliveryPrices));
-
-		/// <summary>
-		/// Длина номенклатуры, измеряемая в сантиметрах
-		/// </summary>
-		[Display(Name = "Длина")]
-		public virtual decimal Length
-		{
-			get => _length;
-			set
-			{
-				if(SetField(ref _length, value))
-				{
-					OnPropertyChanged(nameof(Volume));
-				}
-			}
-		}
-
-		/// <summary>
-		/// Ширина номенклатуры, измеряемая в сантиметрах
-		/// </summary>
-		[Display(Name = "Ширина")]
-		public virtual decimal Width
-		{
-			get => _width;
-			set
-			{
-				if(SetField(ref _width, value))
-				{
-					OnPropertyChanged(nameof(Volume));
-				}
-			}
-		}
-
-		/// <summary>
-		/// Высота номенклатуры, измеряемая в сантиметрах
-		/// </summary>
-		[Display(Name = "Высота")]
-		public virtual decimal Height
-		{
-			get => _height;
-			set
-			{
-				if(SetField(ref _height, value))
-				{
-					OnPropertyChanged(nameof(Volume));
-				}
-			}
-		}
-		
+				
 		#endregion Свойства
 
 		#region Свойства товаров для магазина
@@ -635,7 +449,7 @@ namespace Vodovoz.Domain.Goods
 					new[] { nameof(Kind) });
 			}
 
-			if(GetCategoriesWithSaleCategory().Contains(_category) && SaleCategory == null)
+			if(GetCategoriesWithSaleCategory().Contains(Category) && SaleCategory == null)
 			{
 				yield return new ValidationResult(
 					"Не указана \"Доступность для продажи\"",
@@ -887,212 +701,6 @@ namespace Vodovoz.Domain.Goods
 		
 
 		#endregion IValidatableObject implementation
-
-		#region Statics
-
-		public static string PrefixOfCode1c = "ДВ";
-		public static int LengthOfCode1c = 10;
-		private MasterServiceType? _masterServiceType;
-
-		/// <summary>
-		/// Категории товаров к которым применима категория продажи
-		/// (доступность для продаж) "<see cref="SaleCategory"/>"
-		/// </summary>
-		/// <returns>Массив <see cref="NomenclatureCategory"/> к которым может применяться <see cref="SaleCategory"/></returns>
-		public static NomenclatureCategory[] GetCategoriesWithSaleCategory()
-		{
-			return new[]
-			{
-				NomenclatureCategory.equipment,
-				NomenclatureCategory.material,
-				NomenclatureCategory.bottle,
-				NomenclatureCategory.spare_parts
-			};
-		}
-
-		public static NomenclatureCategory[] GetCategoriesForShipment()
-		{
-			return new[]
-			{
-				NomenclatureCategory.additional,
-				NomenclatureCategory.equipment,
-				NomenclatureCategory.water,
-				NomenclatureCategory.bottle,
-				NomenclatureCategory.spare_parts,
-				NomenclatureCategory.material
-			};
-		}
-
-		public static NomenclatureCategory[] GetCategoriesForProductMaterial()
-		{
-			return new[] { NomenclatureCategory.material, NomenclatureCategory.bottle };
-		}
-
-		public static NomenclatureCategory[] GetCategoriesForSale()
-		{
-			return new[]
-			{
-				NomenclatureCategory.additional,
-				NomenclatureCategory.equipment,
-				NomenclatureCategory.water,
-				NomenclatureCategory.bottle,
-				NomenclatureCategory.deposit,
-				NomenclatureCategory.spare_parts,
-				NomenclatureCategory.service,
-				NomenclatureCategory.material
-			};
-		}
-
-		public static NomenclatureCategory[] GetCategoriesForSaleToOrder()
-		{
-			return new[]
-			{
-				NomenclatureCategory.additional,
-				NomenclatureCategory.equipment,
-				NomenclatureCategory.water,
-				NomenclatureCategory.deposit,
-				NomenclatureCategory.service,
-				NomenclatureCategory.spare_parts,
-				NomenclatureCategory.bottle,
-				NomenclatureCategory.material
-			};
-		}
-
-		/// <summary>
-		/// Список номенклатур доступных для добавления в товары
-		/// из диалога изменения заказа в закрытии МЛ
-		/// </summary>
-		public static NomenclatureCategory[] GetCategoriesForEditOrderFromRL()
-		{
-			return new[]
-			{
-				NomenclatureCategory.additional,
-				NomenclatureCategory.water,
-				NomenclatureCategory.bottle,
-				NomenclatureCategory.deposit,
-				NomenclatureCategory.spare_parts,
-				NomenclatureCategory.service,
-				NomenclatureCategory.master
-			};
-		}
-
-		public static NomenclatureCategory[] GetCategoriesForMaster()
-		{
-			return GetCategoriesForSale()
-				.Concat(new[]
-				{
-					NomenclatureCategory.master,
-					NomenclatureCategory.spare_parts
-				}).ToArray();
-		}
-
-		/// <summary>
-		/// Категории товаров. Товары могут хранится на складе.
-		/// </summary>
-		public static NomenclatureCategory[] GetCategoriesForGoods()
-		{
-			return new[]
-			{
-				NomenclatureCategory.bottle,
-				NomenclatureCategory.additional,
-				NomenclatureCategory.equipment,
-				NomenclatureCategory.material,
-				NomenclatureCategory.spare_parts,
-				NomenclatureCategory.water,
-				NomenclatureCategory.CashEquipment,
-				NomenclatureCategory.Stationery,
-				NomenclatureCategory.OfficeEquipment,
-				NomenclatureCategory.PromotionalProducts,
-				NomenclatureCategory.Overalls,
-				NomenclatureCategory.HouseholdInventory,
-				NomenclatureCategory.Tools,
-				NomenclatureCategory.CarParts
-			};
-		}
-
-		/// <summary>
-		/// Категории товаров. Товары могут хранится на складе без учёта 19л воды.
-		/// </summary>
-		public static NomenclatureCategory[] GetCategoriesForGoodsWithoutEmptyBottles()
-		{
-			return new[]
-			{
-				NomenclatureCategory.water,
-				NomenclatureCategory.additional,
-				NomenclatureCategory.equipment,
-				NomenclatureCategory.material,
-				NomenclatureCategory.spare_parts,
-				NomenclatureCategory.PromotionalProducts
-			};
-		}
-
-		public static NomenclatureCategory[] GetCategoriesWithEditablePrice()
-		{
-			return new[]
-			{
-				NomenclatureCategory.bottle,
-				NomenclatureCategory.additional,
-				NomenclatureCategory.equipment,
-				NomenclatureCategory.material,
-				NomenclatureCategory.spare_parts,
-				NomenclatureCategory.water,
-				NomenclatureCategory.service,
-				NomenclatureCategory.deposit,
-				NomenclatureCategory.master
-			};
-		}
-
-		public static NomenclatureCategory[] GetAllCategories()
-		{
-			return Enum.GetValues(typeof(NomenclatureCategory)).Cast<NomenclatureCategory>().ToArray();
-		}
-
-		/// <summary>
-		/// Определяет категории для которых необходимо создавать доп соглашение по продаже воды
-		/// </summary>
-		public static NomenclatureCategory[] GetCategoriesRequirementForWaterAgreement()
-		{
-			return new[]
-			{
-				NomenclatureCategory.water
-			};
-		}
-
-		public static NomenclatureCategory[] GetCategoriesNotNeededToLoad()
-		{
-			return new[]
-			{
-				NomenclatureCategory.service,
-				NomenclatureCategory.deposit,
-				NomenclatureCategory.master
-			};
-		}
-
-		/// <summary>
-		/// Категории, для которых обазательно должны быть заполнены вес и объём
-		/// </summary>
-		public static readonly NomenclatureCategory[] CategoriesWithWeightAndVolume =
-		{
-			NomenclatureCategory.water,
-			NomenclatureCategory.equipment,
-			NomenclatureCategory.additional,
-			NomenclatureCategory.bottle
-		};
-
-		/// <summary>
-		/// Категории для номенклатур с серийным номером
-		/// </summary>
-		public static readonly NomenclatureCategory[] CategoriesWithSerial =
-		{
-			NomenclatureCategory.equipment,
-			NomenclatureCategory.Stationery,
-			NomenclatureCategory.EquipmentForIndoorUse,
-			NomenclatureCategory.OfficeEquipment,
-			NomenclatureCategory.ProductionEquipment,
-			NomenclatureCategory.Vehicle
-		};
-
-		#endregion Statics
 
 		public virtual void ResetNotWaterOnlineParameters()
 		{

@@ -31,6 +31,14 @@ namespace Vodovoz.EntityRepositories.Goods
 		Nomenclature GetDefaultBottleNomenclature(IUnitOfWork uow);
 
 		/// <summary>
+		/// Возвращает идентификатор номенклатуры по умолчанию для бутылей
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Идентификатор</returns>
+		Task<int?> GetDefaultBottleNomenclatureId(IUnitOfWork uow, CancellationToken cancellationToken);
+
+		/// <summary>
 		/// Возвращает список номенклатур, которые зависят от передаваемой номенклатуры.
 		/// </summary>
 		/// <returns>Список зависимых номенклатур.</returns>

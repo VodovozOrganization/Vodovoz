@@ -37,14 +37,21 @@ namespace ExportTo1c.Library.Repositories
 			}
 
 			var result = await (
-					from orderTo1сExport in unitOfWork.Session.Query<OrderTo1cExport>()
-					join o in unitOfWork.Session.Query<OrderEntity>() on orderTo1сExport.OrderId equals o.Id into orders
+					from orderTo1cExport in unitOfWork.Session.Query<OrderTo1cExport>()
+					join o in unitOfWork.Session.Query<OrderEntity>() on orderTo1cExport.OrderId equals o.Id into orders
 					from order in orders.DefaultIfEmpty()
-					where
-						(order == null || order.PaymentType == PaymentType.Cashless)
-						&& (orderTo1сExport.LastExportDate == null ||
-						    orderTo1сExport.LastOrderChangeDate > orderTo1сExport.LastExportDate)
-					select orderTo1сExport
+					
+					let hasExport = orderTo1cExport.LastExportDate != null
+					let hasNewOrderChanges = !hasExport || orderTo1cExport.LastOrderChangeDate > orderTo1cExport.LastExportDate
+					let allowedForFirstExport =
+						order == null // Удалили заказ
+						|| order.PaymentType == PaymentType.Cashless
+					
+					// Выгружаем только новый безнал, либо любой тип оплаты, если уже выгружался ранее (мог измениться тип оплаты (н-р: с безнала на нал)
+					where hasNewOrderChanges
+					      && (allowedForFirstExport || hasExport) 
+					      
+					select orderTo1cExport
 				)
 				.ToListAsync(cancellationToken);
 
