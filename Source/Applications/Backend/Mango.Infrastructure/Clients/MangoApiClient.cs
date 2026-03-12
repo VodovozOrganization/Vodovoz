@@ -35,14 +35,6 @@ namespace Mango.Infrastructure.Clients
 
 		public async Task<string> GetCallsRawJsonAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
 		{
-			/*var requestJson = JsonSerializer.Serialize(new
-            {
-                start_date = startDate,
-                end_date = endDate,
-                limit = _mangoOptions.Value.Limit ,
-                offset = 0
-            });*/
-			
 			var requestJson = $@"{{
 				""start_date"": ""{startDate}"",
 				""end_date"": ""{endDate}"",
