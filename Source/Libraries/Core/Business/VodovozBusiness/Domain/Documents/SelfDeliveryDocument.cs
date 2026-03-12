@@ -39,6 +39,8 @@ namespace Vodovoz.Domain.Documents
 	[HistoryTrace]
 	public class SelfDeliveryDocument : SelfDeliveryDocumentEntity, IValidatableObject, IWarehouseBoundedDocument
 	{
+		public const string SkipTrueMarkCodesCheckValidationParameterKey = "skipTrueMarkCodesCheck";
+
 		private Order _order;
 		private int _defBottleId;
 		private int _returnedTareBefore;
@@ -135,7 +137,7 @@ namespace Vodovoz.Domain.Documents
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(!(validationContext.Items
-					.TryGetValue("skipTrueMarkCodesCheck", out var value)
+					.TryGetValue(SkipTrueMarkCodesCheckValidationParameterKey, out var value)
 				&& value is bool skipTrueMarkCodesCheck))
 			{
 				skipTrueMarkCodesCheck = false;

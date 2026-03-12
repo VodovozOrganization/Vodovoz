@@ -141,6 +141,11 @@ namespace Vodovoz
 		{
 			_validationContext = validationContextFactory.CreateNewValidationContext(Entity);
 			_validationContext.ServiceContainer.AddService(typeof(IUnitOfWork), UoW);
+
+			if(Entity.Id == 0)
+			{
+				_validationContext.Items.Add(SelfDeliveryDocument.SkipTrueMarkCodesCheckValidationParameterKey, true);
+			}
 		}
 
 		public INavigationManager NavigationManager { get; } = Startup.MainWin.NavigationManager;
