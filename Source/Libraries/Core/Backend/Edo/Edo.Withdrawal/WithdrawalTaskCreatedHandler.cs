@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Edo.Common;
+using Edo.Problems;
+using Edo.Problems.Custom.Sources;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -31,6 +34,9 @@ namespace Edo.Withdrawal
 		private readonly IEdoDocflowRepository _edoDocflowRepository;
 		private readonly ICounterpartyEdoAccountEntityController _edoAccountEntityController;
 		private readonly IGenericRepository<TrueMarkDocument> _trueMarkDocumentRepository;
+		private readonly ITrueMarkCodesValidator _trueMarkTaskCodesValidator;
+		private readonly EdoTaskItemTrueMarkStatusProviderFactory _edoTaskTrueMarkCodeCheckerFactory;
+		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly IEdoSettings _edoSettings;
 		private readonly IEdoRepository _edoRepository;
 
@@ -42,6 +48,9 @@ namespace Edo.Withdrawal
 			IEdoDocflowRepository edoDocflowRepository,
 			ICounterpartyEdoAccountEntityController edoAccountEntityController,
 			IGenericRepository<TrueMarkDocument> trueMarkDocumentRepository,
+			ITrueMarkCodesValidator trueMarkTaskCodesValidator,
+			EdoTaskItemTrueMarkStatusProviderFactory edoTaskTrueMarkCodeCheckerFactory,
+			EdoProblemRegistrar edoProblemRegistrar,
 			IEdoSettings edoSettings,
 			IEdoRepository edoRepository)
 		{
@@ -52,19 +61,22 @@ namespace Edo.Withdrawal
 			_edoDocflowRepository = edoDocflowRepository ?? throw new ArgumentNullException(nameof(edoDocflowRepository));
 			_edoAccountEntityController = edoAccountEntityController ?? throw new ArgumentNullException(nameof(edoAccountEntityController));
 			_trueMarkDocumentRepository = trueMarkDocumentRepository ?? throw new ArgumentNullException(nameof(trueMarkDocumentRepository));
+			_trueMarkTaskCodesValidator = trueMarkTaskCodesValidator ?? throw new ArgumentNullException(nameof(trueMarkTaskCodesValidator));
+			_edoTaskTrueMarkCodeCheckerFactory = edoTaskTrueMarkCodeCheckerFactory ?? throw new ArgumentNullException(nameof(edoTaskTrueMarkCodeCheckerFactory));
+			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 		}
 
 		public async Task HandleWithdrawal(int withdrawalEdoTaskId, CancellationToken cancellationToken)
 		{
-			using(var uow = _uowFactory.CreateWithoutRoot())
+			using(var uow = _uowFactory.CreateWithoutRoot(nameof(WithdrawalTaskCreatedHandler)))
 			{
 				var withdrawalEdoTask = await uow.Session.GetAsync<WithdrawalEdoTask>(withdrawalEdoTaskId, cancellationToken);
 
 				if(withdrawalEdoTask is null)
 				{
-					throw new InvalidOperationException(
+					new InvalidOperationException(
 						$"Задача вывода из оборота с Id {withdrawalEdoTaskId} не найдена. Вывод из оборота невозможен");
 				}
 
@@ -104,117 +116,188 @@ namespace Edo.Withdrawal
 						$"Вывод из оборота невозможен");
 				}
 
+				var orderOrganizationId = order.Contract.Organization.Id;
+				var orderOrganizationInn = order.Contract.Organization.INN;
+
 				var edoAccount =
-					_edoAccountEntityController.GetDefaultCounterpartyEdoAccountByOrganizationId(client, order.Contract.Organization.Id);
+					_edoAccountEntityController.GetDefaultCounterpartyEdoAccountByOrganizationId(client, orderOrganizationId);
 
 				if(edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree
 					&& client.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
 				{
-					var documents = _edoRepository.GetOrderEdoDocumentsByOrderId(uow, order.Id);
-					var orderEdoDocument =
-						documents
-						.Where(x => x.DocumentTaskId == withdrawalEdoRequest.BaseDocumentEdoTask.Id)
-						.FirstOrDefault();
+					var canCreateWithdrawal =
+						CanCreateWithdrawalForRegisteredInTrueMarkClientOrder(uow, withdrawalEdoRequest, order, client);
 
-					if(orderEdoDocument?.CreationTime == null)
+					if(!canCreateWithdrawal)
 					{
-						throw new InvalidOperationException(
-							$"От клиента {client.Id} получено согласие на ЭДО и клиент зарегистрирован в ЧЗ. " +
-							"Время отправки документа не найдено. Вывод из оборота невозможен");
+						await _edoProblemRegistrar.RegisterCustomProblem<WithdrawalCanNotBeCreatedForRegisteredInTrueMarkClient>(
+							withdrawalEdoTask,
+							Enumerable.Empty<EdoTaskItem>(),
+							cancellationToken);
+						return;
 					}
-
-					var daysSinceSend = (DateTime.Today - orderEdoDocument.CreationTime.Date).TotalDays;
-					var timeoutDays = _edoSettings.ConnectedTrueMarkClientsWithdrawalDocflowTimeoutDays;
-
-					if(daysSinceSend <= timeoutDays)
-					{
-						throw new InvalidOperationException(
-							$"От клиента {client.Id} получено согласие на ЭДО и клиент зарегистрирован в ЧЗ. " +
-							$"Документооборот не превысил таймаут в {timeoutDays} дней (прошло {daysSinceSend:F1} дней). " +
-							"Вывод из оборота невозможен");
-					}
-
-					_logger.LogInformation(
-						"Клиент {ClientId} зарегистрирован в ЭДО и ЧЗ, документооборот превысил таймаут в {Days} дней. Вывод из оборота разрешён",
-						client.Id,
-						timeoutDays);
 				}
 
-				var isTrueMarkDocumentExists = _trueMarkDocumentRepository
-					.Get(uow, x => x.Order.Id == order.Id && x.Type == TrueMarkDocument.TrueMarkDocumentType.Withdrawal)
-					.Any();
+				var isTrueMarkDocumentExists = await IsTrueMarkWithdrawalDocumentExists(uow, order.Id, cancellationToken);
 
 				if(isTrueMarkDocumentExists)
 				{
-					_logger.LogInformation(
-						"Заказ {OrderId} уже имеет документ Честного знака для вывода из оборота, повторная обработка не требуется",
-						order.Id);
-
-					return;
-				}
-
-				var codesInOrder = withdrawalEdoTask.Items
-					.Select(x => x.ProductCode)
-					.Where(x => x.SourceCodeStatus == SourceProductCodeStatus.Accepted || x.SourceCodeStatus == SourceProductCodeStatus.Changed)
-					.Select(x => x.ResultCode.IdentificationCode)
-					.ToList();
-
-				if(codesInOrder.Count == 0)
-				{
-					_logger.LogInformation(
-						"Задача вывода из оборота с Id {WithdrawalEdoTaskId} не содержит кодов для вывода из оборота",
-						withdrawalEdoTaskId);
-
+					await _edoProblemRegistrar.RegisterCustomProblem<WithdrawalDocumentForOrderExists>(
+						withdrawalEdoTask,
+						Enumerable.Empty<EdoTaskItem>(),
+						cancellationToken);
 					return;
 				}
 
 				try
 				{
-					var productInstancesInfo = await _trueMarkApiClient.GetProductInstanceInfoAsync(codesInOrder, cancellationToken);
+					var trueMarkCodesChecker =
+						_edoTaskTrueMarkCodeCheckerFactory.Create(withdrawalEdoTask);
+					var codesValidationResult =
+						await _trueMarkTaskCodesValidator.ValidateAsync(withdrawalEdoTask, trueMarkCodesChecker, cancellationToken);
 
-					if(productInstancesInfo?.InstanceStatuses is null)
+					if(false && !codesValidationResult.IsAllValid)
 					{
-						throw new Exception(productInstancesInfo?.ErrorMessage ?? "Не удалось получить информацию о кодах в ЧЗ");
+						var invalidTaskItems =
+							codesValidationResult.CodeResults
+							.Where(x => !x.IsValid)
+							.Select(x => x.EdoTaskItem);
+
+						await _edoProblemRegistrar.RegisterCustomProblem<WithdrawalTaskHasInvalidCodes>(
+							withdrawalEdoTask,
+							invalidTaskItems,
+							cancellationToken);
+
+						return;
 					}
 
-					var productInstansesForDocument = productInstancesInfo.InstanceStatuses
-						.Where(x => x.Status == ProductInstanceStatusEnum.Introduced)
-						.ToList();
+					await CreateTrueMarkDocument(uow, withdrawalEdoTask, order, orderOrganizationInn, cancellationToken);
+					await SetWithdrawalEdoTaskStatusInProgress(uow, withdrawalEdoTask, cancellationToken);
 
-					if(productInstansesForDocument.Count == 0)
-					{
-						throw new InvalidOperationException(
-							$"После проверки кодов в ЧЗ не найдено кодов со статусом \"В обороте\". " +
-							$"Тип задачи: {nameof(WithdrawalEdoTask)}. Id задачи: {withdrawalEdoTaskId}");
-					}
-
-					var document = CreateIndividualAccountingWithdrawalDocument(order, productInstansesForDocument);
-
-					var trueMarkDocumentId =
-						await _trueMarkApiClient.SendIndividualAccountingWithdrawalDocument(document, order.Contract.Organization.INN, cancellationToken);
-
-					withdrawalEdoTask.Status = EdoTaskStatus.InProgress;
-
-					var trueMarkDocument = new TrueMarkDocument
-					{
-						Order = order,
-						Guid = new Guid(trueMarkDocumentId),
-						Organization = order.Contract.Organization,
-						Type = TrueMarkDocument.TrueMarkDocumentType.Withdrawal
-					};
-
-					await uow.SaveAsync(trueMarkDocument, cancellationToken: cancellationToken);
+					uow.Commit();
 				}
 				catch(Exception ex)
 				{
-					_logger.LogError(ex, ex.Message);
-
-					withdrawalEdoTask.Status = EdoTaskStatus.Problem;
+					var registered = await _edoProblemRegistrar.TryRegisterExceptionProblem(withdrawalEdoTask, ex, cancellationToken);
+					if(!registered)
+					{
+						throw;
+					}
 				}
-
-				await uow.SaveAsync(withdrawalEdoTask, cancellationToken: cancellationToken);
-				uow.Commit();
 			}
+		}
+
+		private bool CanCreateWithdrawalForRegisteredInTrueMarkClientOrder(IUnitOfWork uow, WithdrawalEdoRequest withdrawalEdoRequest, OrderEntity order, CounterpartyEntity client)
+		{
+			var documents = _edoRepository.GetOrderEdoDocumentsByOrderId(uow, order.Id);
+
+			var orderEdoDocument =
+				documents
+				.Where(x => x.DocumentTaskId == withdrawalEdoRequest.BaseDocumentEdoTask.Id)
+				.FirstOrDefault();
+
+			if(orderEdoDocument?.CreationTime == null)
+			{
+				_logger.LogWarning(
+					"От клиента {ClientId} получено согласие на ЭДО и клиент зарегистрирован в ЧЗ. " +
+					"Время отправки документа не найдено. Вывод из оборота невозможен",
+					client.Id);
+
+				return false;
+			}
+
+			var daysSinceSend = (DateTime.Today - orderEdoDocument.CreationTime.Date).TotalDays;
+			var timeoutDays = _edoSettings.ConnectedTrueMarkClientsWithdrawalDocflowTimeoutDays;
+
+			if(daysSinceSend < timeoutDays)
+			{
+				_logger.LogInformation(
+					"От клиента {ClientId} получено согласие на ЭДО и клиент зарегистрирован в ЧЗ. " +
+					"Документооборот не превысил таймаут в {Days} дней (прошло {DaysSinceSend} дней). " +
+					"Вывод из оборота невозможен",
+					client.Id,
+					timeoutDays,
+					daysSinceSend);
+
+				return false;
+			}
+
+			_logger.LogInformation(
+				"Клиент {ClientId} зарегистрирован в ЭДО и ЧЗ, документооборот превысил таймаут в {Days} дней. Вывод из оборота разрешён",
+				client.Id,
+				timeoutDays);
+
+			return true;
+		}
+
+		private async Task<bool> IsTrueMarkWithdrawalDocumentExists(IUnitOfWork uow, int orderId, CancellationToken cancellationToken)
+		{
+			var existingDocuments = await _trueMarkDocumentRepository
+				.GetAsync(
+					uow,
+					x => x.Order.Id == orderId && x.Type == TrueMarkDocument.TrueMarkDocumentType.Withdrawal,
+					cancellationToken: cancellationToken);
+
+			return existingDocuments.Value.Any();
+		}
+
+		private async Task<IEnumerable<ProductInstanceStatus>> GetCodesInstanceStatuses(
+			WithdrawalEdoTask withdrawalEdoTask,
+			CancellationToken cancellationToken)
+		{
+			var codesInOrder = withdrawalEdoTask.Items
+				.Select(x => x.ProductCode)
+				.Where(x => x.SourceCodeStatus == SourceProductCodeStatus.Accepted || x.SourceCodeStatus == SourceProductCodeStatus.Changed)
+				.Select(x => x.ResultCode.IdentificationCode)
+				.ToList();
+
+			var productInstancesInfo = await _trueMarkApiClient.GetProductInstanceInfoAsync(codesInOrder, cancellationToken);
+
+			if(productInstancesInfo?.InstanceStatuses is null)
+			{
+				throw new Exception(productInstancesInfo?.ErrorMessage ?? "Не удалось получить информацию о кодах в ЧЗ");
+			}
+
+			var productInstansesForDocument = productInstancesInfo.InstanceStatuses;
+
+			if(productInstansesForDocument.Count() == 0)
+			{
+				throw new InvalidOperationException(
+					$"При проверке кодов в ЧЗ указанные коды не найдены. " +
+					$"Тип задачи: {nameof(WithdrawalEdoTask)}. Id задачи: {withdrawalEdoTask.Id}");
+			}
+
+			return productInstansesForDocument;
+		}
+
+		private async Task CreateTrueMarkDocument(IUnitOfWork uow, WithdrawalEdoTask withdrawalEdoTask, OrderEntity order, string orderOrganizationInn, CancellationToken cancellationToken)
+		{
+			var document =
+				await CreateIndividualAccountingWithdrawalDocument(order, withdrawalEdoTask, cancellationToken);
+
+			var trueMarkDocumentId =
+				await _trueMarkApiClient.SendIndividualAccountingWithdrawalDocument(document, orderOrganizationInn, cancellationToken);
+
+			var trueMarkDocument = new TrueMarkDocument
+			{
+				Order = order,
+				Guid = new Guid(trueMarkDocumentId),
+				Organization = order.Contract.Organization,
+				Type = TrueMarkDocument.TrueMarkDocumentType.Withdrawal
+			};
+
+			await uow.SaveAsync(trueMarkDocument, cancellationToken: cancellationToken);
+		}
+
+		private async Task<string> CreateIndividualAccountingWithdrawalDocument(
+			OrderEntity order,
+			WithdrawalEdoTask withdrawalEdoTask,
+			CancellationToken cancellationToken)
+		{
+			var productInstansesForDocument =
+				await GetCodesInstanceStatuses(withdrawalEdoTask, cancellationToken);
+
+			return CreateIndividualAccountingWithdrawalDocument(order, productInstansesForDocument);
 		}
 
 		private string CreateIndividualAccountingWithdrawalDocument(OrderEntity order, IEnumerable<ProductInstanceStatus> codes)
@@ -314,6 +397,16 @@ namespace Edo.Withdrawal
 			}
 
 			return products;
+		}
+
+		private static async Task SetWithdrawalEdoTaskStatusInProgress(
+			IUnitOfWork uow,
+			WithdrawalEdoTask withdrawalEdoTask,
+			CancellationToken cancellationToken)
+		{
+			withdrawalEdoTask.Problems.Clear();
+			withdrawalEdoTask.Status = EdoTaskStatus.InProgress;
+			await uow.SaveAsync(withdrawalEdoTask, cancellationToken: cancellationToken);
 		}
 	}
 }
