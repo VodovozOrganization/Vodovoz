@@ -176,7 +176,7 @@ namespace Edo.Withdrawal
 					var codesValidationResult =
 						await _trueMarkTaskCodesValidator.ValidateAsync(withdrawalEdoTask, trueMarkCodesChecker, cancellationToken);
 
-					if(!codesValidationResult.IsAllValid)
+					if(!codesValidationResult.IsAllValid || !codesValidationResult.ReadyToSell)
 					{
 						var invalidTaskItems =
 							codesValidationResult.CodeResults
