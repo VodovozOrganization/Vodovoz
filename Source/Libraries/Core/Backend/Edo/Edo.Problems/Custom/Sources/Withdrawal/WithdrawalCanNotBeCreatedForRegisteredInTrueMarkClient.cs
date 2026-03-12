@@ -1,6 +1,6 @@
 ﻿using Vodovoz.Core.Domain.Edo;
 
-namespace Edo.Problems.Custom.Sources
+namespace Edo.Problems.Custom.Sources.Withdrawal
 {
 	public class WithdrawalCanNotBeCreatedForRegisteredInTrueMarkClient : EdoTaskProblemCustomSource
 	{

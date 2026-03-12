@@ -1,6 +1,6 @@
 ﻿using Edo.Common;
 using Edo.Problems;
-using Edo.Problems.Custom.Sources;
+using Edo.Problems.Custom.Sources.Withdrawal;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -39,6 +39,13 @@ namespace Edo.Withdrawal
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly IEdoSettings _edoSettings;
 		private readonly IEdoRepository _edoRepository;
+
+		private EdoTaskStatus[] _availiableEdoTaskStatuses => new[]
+		{
+			EdoTaskStatus.New,
+			EdoTaskStatus.Waiting,
+			EdoTaskStatus.Problem
+		};
 
 		public WithdrawalTaskCreatedHandler(
 			ILogger<WithdrawalTaskCreatedHandler> logger,
@@ -80,12 +87,6 @@ namespace Edo.Withdrawal
 						$"Задача вывода из оборота с Id {withdrawalEdoTaskId} не найдена. Вывод из оборота невозможен");
 				}
 
-				if(withdrawalEdoTask.Status == EdoTaskStatus.Completed)
-				{
-					throw new InvalidOperationException(
-						$"Задача вывода из оборота с Id {withdrawalEdoTaskId} уже завершена, повторная обработка не требуется");
-				}
-
 				var withdrawalEdoRequest = withdrawalEdoTask.FormalEdoRequest as WithdrawalEdoRequest;
 				var order = withdrawalEdoRequest?.Order;
 
@@ -97,23 +98,42 @@ namespace Edo.Withdrawal
 
 				var client = order.Client;
 
+				if(!_availiableEdoTaskStatuses.Contains(withdrawalEdoTask.Status))
+				{
+					_logger.LogInformation(
+						"Задача вывода из оборота с Id {WithdrawalEdoTaskId} имеет статус {EdoTaskStatus}, который не позволяет обработать задачу. " +
+						"Статус задачи должен быть одним из следующих: {AvailableStatuses}",
+						withdrawalEdoTask.Id,
+						withdrawalEdoTask.Status,
+						string.Join(", ", _availiableEdoTaskStatuses));
+					return;
+				}
+
 				if(client.PersonType != PersonType.legal)
 				{
-					throw new InvalidOperationException(
-						$"Контрагент {client.Id} не является юридическим лицов. Вывод из оборота невозможен");
+					await _edoProblemRegistrar.RegisterCustomProblem<WithdrawalCanBeCreatedOnlyForLegalPersons>(
+						withdrawalEdoTask,
+						Enumerable.Empty<EdoTaskItem>(),
+						cancellationToken);
+					return;
 				}
 
 				if(order.PaymentType != Vodovoz.Domain.Client.PaymentType.Cashless)
 				{
-					throw new InvalidOperationException(
-						$"Заказ {order.Id} не по безналу. Вывод из оборота невозможен");
+					await _edoProblemRegistrar.RegisterCustomProblem<WithdrawalCanBeCreatedOnlyForCashlessOrders>(
+						withdrawalEdoTask,
+						Enumerable.Empty<EdoTaskItem>(),
+						cancellationToken);
+					return;
 				}
 
 				if(client.ReasonForLeaving != ReasonForLeaving.ForOwnNeeds)
 				{
-					throw new InvalidOperationException(
-						$"В карточке контрагента {client.Id} указана причина выбытия отличная от {ReasonForLeaving.ForOwnNeeds}. " +
-						$"Вывод из оборота невозможен");
+					await _edoProblemRegistrar.RegisterCustomProblem<WithdrawalCanBeCreatedOnlyForOwnNeedsOrders>(
+						withdrawalEdoTask,
+						Enumerable.Empty<EdoTaskItem>(),
+						cancellationToken);
+					return;
 				}
 
 				var orderOrganizationId = order.Contract.Organization.Id;
@@ -156,7 +176,7 @@ namespace Edo.Withdrawal
 					var codesValidationResult =
 						await _trueMarkTaskCodesValidator.ValidateAsync(withdrawalEdoTask, trueMarkCodesChecker, cancellationToken);
 
-					if(false && !codesValidationResult.IsAllValid)
+					if(!codesValidationResult.IsAllValid)
 					{
 						var invalidTaskItems =
 							codesValidationResult.CodeResults
@@ -172,7 +192,7 @@ namespace Edo.Withdrawal
 					}
 
 					await CreateTrueMarkDocument(uow, withdrawalEdoTask, order, orderOrganizationInn, cancellationToken);
-					await SetWithdrawalEdoTaskStatusInProgress(uow, withdrawalEdoTask, cancellationToken);
+					await SetCompletedWithdrawalEdoTaskStatus(uow, withdrawalEdoTask, cancellationToken);
 
 					uow.Commit();
 				}
@@ -399,13 +419,13 @@ namespace Edo.Withdrawal
 			return products;
 		}
 
-		private static async Task SetWithdrawalEdoTaskStatusInProgress(
+		private static async Task SetCompletedWithdrawalEdoTaskStatus(
 			IUnitOfWork uow,
 			WithdrawalEdoTask withdrawalEdoTask,
 			CancellationToken cancellationToken)
 		{
 			withdrawalEdoTask.Problems.Clear();
-			withdrawalEdoTask.Status = EdoTaskStatus.InProgress;
+			withdrawalEdoTask.Status = EdoTaskStatus.Completed;
 			await uow.SaveAsync(withdrawalEdoTask, cancellationToken: cancellationToken);
 		}
 	}
