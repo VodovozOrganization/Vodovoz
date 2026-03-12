@@ -1,0 +1,172 @@
+
+
+
+// -- CONFIGS
+
+NODE_DOCKER_BUILD = "DOCKER_BUILD"
+PUBLISH_PROFILE = "registry-dev"
+PUBLISH_PROFILE_FILE = "${PUBLISH_PROFILE}.pubxml"
+CHECKOUT_CONTAINER_IMAGE = "mcr.microsoft.com/dotnet/sdk:5.0"
+REFERENCE_REPOSITORY_MOUNT_PATH = "/reference-repository"
+
+
+DOCKER_REGISTRY_URL = "docker.vod.qsolution.ru:5100"
+
+
+// -- PIPELINE
+
+// stage('Prepare') {
+// 	if (env.BRANCH_NAME != 'master') {
+// 		error("Сборка и публикация сервисов разрешена только для ветки master")
+// 	}
+// }
+
+// подготовка референсного репозитория на нодах, чтобы использовать его позже в контейнерах для ускорения git clone
+stage('Checkout nodes') {
+	def availableNodes = getNodesByLabel(NODE_DOCKER_BUILD)
+    
+    def parallelCheckouts = [:]
+    
+    availableNodes.each { nodeName ->
+        parallelCheckouts[nodeName] = {
+            node(nodeName) {
+                def REFERENCE_REPOSITORY_PATH = "${env.JENKINS_HOME_NODE}/workspace/_VODOVOZ_REFERENCE_REPOSITORY"
+				CheckoutReference(REFERENCE_REPOSITORY_PATH)
+            }
+        }
+    }
+    
+    parallel parallelCheckouts
+}
+
+stage('Checkout in containers') {
+	def availableNodes = getNodesByLabel(NODE_DOCKER_BUILD)
+	if (!availableNodes) {
+		error("Не найдено доступных нод с тегом ${NODE_DOCKER_BUILD} для checkout в контейнерах")
+	}
+	def parallelCheckouts = [:]
+
+	availableNodes.each { nodeName ->
+		parallelCheckouts[nodeName] = {
+			node(nodeName) {
+				def referenceRepositoryPath = "${env.JENKINS_HOME_NODE}/workspace/_VODOVOZ_REFERENCE_REPOSITORY"
+				def mountArgs = "--entrypoint='' -v ${referenceRepositoryPath}:${REFERENCE_REPOSITORY_MOUNT_PATH}:ro"
+
+				docker.image(CHECKOUT_CONTAINER_IMAGE).inside(mountArgs) {
+					EnsureGitInContainer()
+					deleteDir()
+					// Git plugin may execute on host launcher (JENKINS-30600), so reference path must be host-visible.
+					CheckoutInContainer(referenceRepositoryPath)
+				}
+			}
+		}
+	}
+
+	parallel parallelCheckouts
+}
+
+// stage('Build and publish in containers') {
+
+// 	// получаем список путей
+// 	GetPublishingProjects()
+
+// 	// тут нужно сделать распределение сборки проектов по нодам и параллельным контейнерам в них
+// 	BuildService(service_path_variable)
+// }
+
+// -- FUNCTIONS
+
+// Setup
+
+@NonCPS
+def getNodesByLabel(label) {
+    def nodes = []
+    Jenkins.instance.computers.each { computer ->
+        if (computer.node.labelString.contains(label) && computer.online) {
+            nodes.add(computer.node.name)
+        }
+    }
+    return nodes
+}
+
+def CheckoutReference(referenceRepositoryPath) {
+	echo "Prepare reference repository ${referenceRepositoryPath}"
+	
+	withCredentials([usernamePassword(credentialsId: '21dbdc92-7ffd-47e2-a198-303233bb0fe4', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+		if(fileExists(referenceRepositoryPath)){
+			// fetch all on reference repository
+			sh ('git -C ' + "${referenceRepositoryPath}" + ' -c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' fetch --all')
+			sh ('git -C ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/GMap.NET " + '-c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' fetch --all')
+			sh ('git -C ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/Gtk.DataBindings " + '-c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' fetch --all')
+			sh ('git -C ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/My-FyiReporting " + '-c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' fetch --all')
+			sh ('git -C ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/QSProjects " + '-c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' fetch --all')
+		}else{
+			// clone reference
+			sh ('git -c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' clone https://github.com/VodovozOrganization/Vodovoz.git --mirror ' + "${referenceRepositoryPath}")
+			sh ('git -c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' clone https://github.com/QualitySolution/GMap.NET.git --mirror ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/GMap.NET")
+			sh ('git -c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' clone https://github.com/QualitySolution/Gtk.DataBindings.git --mirror ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/Gtk.DataBindings")
+			sh ('git -c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' clone https://github.com/QualitySolution/My-FyiReporting.git --mirror ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/My-FyiReporting")
+			sh ('git -c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' clone https://github.com/QualitySolution/QSProjects.git --mirror ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/QSProjects")
+		}
+    }
+}
+
+def BuildService(service) {
+	sh """
+		msbuild ${service.Path} \
+			-restore:True \
+			/t:Publish \
+			/p:Configuration=Release \
+			/p:PublishProfile=${PUBLISH_PROFILE} \
+			/maxcpucount:6
+	""".stripIndent()
+}
+
+def EnsureGitInContainer() {
+	sh '''
+		set -e
+		if ! command -v git >/dev/null 2>&1; then
+			apt-get update
+			apt-get install -y git
+		fi
+	'''.stripIndent()
+}
+
+def CheckoutInContainer(referenceRepositoryPath) {
+	// def scmExtensions = (scm.extensions ?: []).findAll {
+	// 	it['$class'] != 'CloneOption' && it['$class'] != 'SubmoduleOption'
+	// }
+
+	// checkout changelog: false, poll: false, scm: [
+	// 	$class: 'GitSCM',
+	// 	branches: scm.branches,
+	// 	doGenerateSubmoduleConfigurations: false,
+	// 	extensions: scmExtensions + [
+	// 		[$class: 'CloneOption', noTags: false, reference: referenceRepositoryPath, shallow: false]
+	// 	] + [
+	// 		[$class: 'SubmoduleOption', disableSubmodules: false, parentCredentials: true, recursiveSubmodules: true, reference: referenceRepositoryPath]
+	// 	],
+	// 	userRemoteConfigs: scm.userRemoteConfigs
+	// ]
+
+	checkout changelog: false, poll: false, scm: [
+		$class: 'GitSCM',
+		branches: [[name: '*/master']],
+		doGenerateSubmoduleConfigurations: false,
+		extensions: [
+			[$class: 'CloneOption', noTags: false, reference: referenceRepositoryPath, shallow: false]
+		] + [
+			[$class: 'SubmoduleOption', disableSubmodules: false, parentCredentials: true, recursiveSubmodules: true, reference: referenceRepositoryPath]
+		],
+		userRemoteConfigs: [[
+			url: 'https://github.com/VodovozOrganization/Vodovoz.git',
+			credentialsId: '21dbdc92-7ffd-47e2-a198-303233bb0fe4'
+		]]
+	]
+}
+
+def GetPublishingProjects(){
+	// тут нужно получить список проектов (возвращается список путей относительно корня репозитория))
+	sh 'bash ./get_publishing_projects.sh ${PUBLISH_PROFILE}.pubxml'
+}
+
