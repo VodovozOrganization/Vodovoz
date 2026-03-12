@@ -1,6 +1,7 @@
 using Mango.Infrastructure.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Mango.Application
 {
@@ -13,6 +14,12 @@ namespace Mango.Application
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
+				.ConfigureLogging(logging =>
+				{
+					logging.ClearProviders();
+					logging.AddConsole();
+					logging.AddDebug();
+				})
 				.ConfigureServices((hostContext, services) =>
 				{
 					services.AddHostedService<MangoStatsWorker>();

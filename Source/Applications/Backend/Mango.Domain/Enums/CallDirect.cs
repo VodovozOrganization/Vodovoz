@@ -2,21 +2,21 @@
 {
 	public enum CallDirect
 	{
-		None,
+		None = 0,
 		
 		/// <summary>
 		/// Входящий
 		/// </summary>
-		Inbound,
+		Inbound = 1,
 		
 		/// <summary>
 		/// Исходящий
 		/// </summary>
-		Outbound,
+		Outbound = 2,
 		
 		/// <summary>
 		/// Внутренний
 		/// </summary>
-		Inner
+		Inner = 3
 	}
 }

@@ -15,5 +15,7 @@ namespace Mango.Test
 		public string Direction { get; set; }
 
 		public bool IsMissed { get; set; }
+		
+		public string AbonentInfo { get; set; }
 	}
 }

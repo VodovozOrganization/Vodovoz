@@ -13,7 +13,7 @@ namespace Mango.Business.Interfaces
 
 		Task SaveAsync(
 			string source,
-			DateTime lastProcessedAtUtc,
+			DateTime lastProcessedDate,
 			CancellationToken cancellationToken);
 	}
 }

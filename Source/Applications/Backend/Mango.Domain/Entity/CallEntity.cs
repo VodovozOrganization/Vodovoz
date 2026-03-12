@@ -5,7 +5,9 @@ namespace Mango.Domain.Entity
 {
 	public class CallEntity
 	{
-		public int Id { get; set; }
+		public string EntryId { get; set; } = string.Empty;
+		
+		public string GroupName { get; set; }
 		
 		public string UnicHash { get; set; }
 

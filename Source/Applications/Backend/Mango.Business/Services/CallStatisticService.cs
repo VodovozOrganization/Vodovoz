@@ -15,7 +15,7 @@ namespace Mango.Business.Services
 	public class CallStatisticService : ICallStatisticService
 	{
 		private const string SourceName = "MangoCallsAnalytics";
-		
+
 		private readonly IMangoApiClient _apiClient;
 		private readonly ICallStatisticParser _callStatisticParser;
 		private readonly ICallStatisticRepository _callStatisticRepository;
@@ -25,12 +25,12 @@ namespace Mango.Business.Services
 
 		public CallStatisticService(
 			IMangoApiClient apiClient,
-			ICallStatisticParser  callStatisticParser,
-			ICallStatisticRepository  callStatisticRepository,
-			ISyncStateRepository  syncStateRepository,
+			ICallStatisticParser callStatisticParser,
+			ICallStatisticRepository callStatisticRepository,
+			ISyncStateRepository syncStateRepository,
 			IOptions<SyncOptions> syncOptions,
 			ILogger<CallStatisticService> logger
-			)
+		)
 		{
 			_apiClient = apiClient;
 			_callStatisticParser = callStatisticParser;
@@ -39,59 +39,72 @@ namespace Mango.Business.Services
 			_syncOptions = syncOptions;
 			_logger = logger;
 		}
-		
+
 		public async Task LoadDataAsync(CancellationToken cancellationToken)
 		{
-		var state = await _syncStateRepository.GetAsync(SourceName, cancellationToken);
+			var state = await _syncStateRepository.GetAsync(SourceName, cancellationToken);
 
-            var nowUtc = DateTime.UtcNow;
-            var fromUtc = state.LastProcessedDate == default
-                ? nowUtc.Date.AddDays(-1)
-                : state.LastProcessedDate.AddMinutes(-_syncOptions.Value.OverlapMinutes);
-            
-            if (fromUtc > nowUtc)
-                fromUtc = nowUtc.AddMinutes(-_syncOptions.Value.OverlapMinutes);
+			var dateTimeNow = DateTime.Now;
+			var fromDate = state.LastProcessedDate.AddHours(3);
+			var toDate = fromDate.AddMinutes(_syncOptions.Value.RangeMinutes);
+			
+			if(toDate > dateTimeNow)
+			{
+				toDate = dateTimeNow;
+				fromDate = toDate.AddMinutes(-_syncOptions.Value.RangeMinutes);
+			}
+			
+			_logger.LogInformation(
+				"Starting sync. FromDate={fromDate}, ToDate={toDate}",
+				fromDate,
+				toDate);
+			
+			var rawJson = await _apiClient.GetCallsRawJsonAsync(
+				fromDate,
+				toDate,
+				cancellationToken);
 
-            _logger.LogInformation(
-                "Starting sync. FromDate={FromUtc:o}, ToDate={ToUtc:o}",
-                fromUtc,
-                nowUtc);
+			var parsed = _callStatisticParser.Parse(rawJson);
 
-            var rawJson = await _apiClient.GetCallsRawJsonAsync(
-                fromUtc,
-                nowUtc,
-                cancellationToken);
+			foreach(var item in parsed)
+			{
+				item.UnicHash = BuildHash(item);
+			}
 
-            var parsed = _callStatisticParser.Parse(rawJson);
+			var deduplicated = parsed
+				.GroupBy(x => x.UnicHash)
+				.Select(g => g.First())
+				.ToList();
 
-            foreach (var item in parsed)
-            {
-                item.UnicHash = BuildHash(item);
-            }
+			var callStatistics = await _callStatisticRepository.GetCallEntitiesAsync(fromDate, toDate, cancellationToken);
+			
+			var existingHashes = callStatistics
+				.Select(x => x.UnicHash)
+				.ToHashSet();
 
-            var deduplicated = parsed
-                .GroupBy(x => x.UnicHash)
-                .Select(g => g.First())
-                .ToList();
+			var toInsert = deduplicated
+				.Where(x => !existingHashes.Contains(x.UnicHash))
+				.ToList();
+			
+			_logger.LogInformation(
+				"Parsed {ParsedCount} records, deduplicated to {DeduplicatedCount}",
+				parsed.Count,
+				toInsert.Count);
+			
+			if(deduplicated.Count > 0)
+			{
+				await _callStatisticRepository.InsertBatchAsync(toInsert, cancellationToken);
+			}
 
-            _logger.LogInformation(
-                "Parsed {ParsedCount} records, deduplicated to {DeduplicatedCount}",
-                parsed.Count,
-                deduplicated.Count);
+			await _syncStateRepository.SaveAsync(SourceName, toDate, cancellationToken);
 
-            if (deduplicated.Count > 0)
-            {
-                await _callStatisticRepository.InsertBatchAsync(deduplicated, cancellationToken);
-            }
-
-            await _syncStateRepository.SaveAsync(SourceName, nowUtc, cancellationToken);
-
-            _logger.LogInformation("Sync completed.");
-        }
+			_logger.LogInformation("Sync completed.");
+		}
 
 		private static string BuildHash(CallEntity item)
 		{
-			var raw = string.Join("|",
+			var raw = string.Join("|", 
+				item.EntryId,
 				item.StartTime.ToString("O"),
 				item.EndTime.ToString("O"),
 				item.AnswerTime?.ToString("O") ?? string.Empty,
@@ -100,7 +113,7 @@ namespace Mango.Business.Services
 
 			using var sha = SHA256.Create();
 			var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(raw));
-			
+
 			return Convert.ToHexString(bytes);
 		}
 	}

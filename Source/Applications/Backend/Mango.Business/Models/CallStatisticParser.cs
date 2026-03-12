@@ -8,14 +8,9 @@ using Mango.Domain.Enums;
 
 namespace Mango.Business.Models
 {
-	public class CallStatisticParser : ICallStatisticParser
-	{
-		public CallStatisticParser()
-		{
-			
-		}
-
-		public List<CallEntity> Parse(string json)
+    public class CallStatisticParser : ICallStatisticParser
+    {
+        public List<CallEntity> Parse(string json)
         {
             var result = new List<CallEntity>();
 
@@ -39,9 +34,11 @@ namespace Mango.Business.Models
 
         private static CallEntity? ParseEntry(JsonElement entry)
         {
+            var entryId = GetString(entry, "entry_id") ?? string.Empty;
             var entryStart = GetNullableInt64(entry, "context_start_time");
             var entryDuration = GetNullableInt32(entry, "duration");
             var contextStatus = GetNullableInt32(entry, "context_status");
+            var entryDirection = GetDirectionFromEntry(entry);
 
             if (!entry.TryGetProperty("context_calls", out var contextCalls) ||
                 contextCalls.ValueKind != JsonValueKind.Array ||
@@ -55,18 +52,22 @@ namespace Mango.Business.Models
 
                 return new CallEntity
                 {
+                    EntryId = entryId,
+                    GroupName = null,
                     StartTime = start,
                     EndTime = end,
                     AnswerTime = null,
-                    CallDirect = GetDirectionFromEntry(entry),
-                    IsMissed = GetDirectionFromEntry(entry) == CallDirect.Inbound && contextStatus == 0
+                    CallDirect = entryDirection,
+                    IsMissed = entryDirection == CallDirect.Inbound && contextStatus == 0
                 };
             }
 
-            var candidates = new List<JsonElement>();
+            var candidates = new List<CallCandidate>();
 
             foreach (var call in contextCalls.EnumerateArray())
             {
+                var parentGroupName = GetString(call, "call_abonent_info");
+
                 if (call.TryGetProperty("members", out var members) &&
                     members.ValueKind == JsonValueKind.Array &&
                     members.GetArrayLength() > 0)
@@ -74,14 +75,26 @@ namespace Mango.Business.Models
                     foreach (var member in members.EnumerateArray())
                     {
                         if (GetString(member, "call_type") == "user")
-                            candidates.Add(member);
+                        {
+                            candidates.Add(new CallCandidate
+                            {
+                                Call = member,
+                                ParentGroupName = parentGroupName
+                            });
+                        }
                     }
                 }
                 else
                 {
                     var callType = GetString(call, "call_type");
                     if (callType == "number" || callType == "user")
-                        candidates.Add(call);
+                    {
+                        candidates.Add(new CallCandidate
+                        {
+                            Call = call,
+                            ParentGroupName = parentGroupName
+                        });
+                    }
                 }
             }
 
@@ -95,54 +108,57 @@ namespace Mango.Business.Models
 
                 return new CallEntity
                 {
+                    EntryId = entryId,
+                    GroupName = null,
                     StartTime = start,
                     EndTime = end,
                     AnswerTime = null,
-                    CallDirect = GetDirectionFromEntry(entry),
-                    IsMissed = GetDirectionFromEntry(entry) == CallDirect.Inbound && contextStatus == 0
+                    CallDirect = entryDirection,
+                    IsMissed = entryDirection == CallDirect.Inbound && contextStatus == 0
                 };
             }
 
             var answered = candidates
-                .Where(HasAnswerTime)
-                .OrderBy(GetAnswerTimeOrMax)
+                .Where(x => HasAnswerTime(x.Call))
+                .OrderBy(x => GetAnswerTimeOrMax(x.Call))
                 .FirstOrDefault();
 
-            JsonElement selected;
-            var hasAnswered = answered.ValueKind != JsonValueKind.Undefined;
+            CallCandidate selected;
 
-            if (hasAnswered)
+            if (answered != null)
             {
                 selected = answered;
             }
             else
             {
                 selected = candidates
-                    .OrderBy(GetStartTimeOrMax)
-                    .ThenBy(GetEndTimeOrMax)
-                    .ThenBy(GetAbonentIdOrMax)
+                    .OrderBy(x => GetStartTimeOrMax(x.Call))
+                    .ThenBy(x => GetEndTimeOrMax(x.Call))
+                    .ThenBy(x => GetAbonentIdOrMax(x.Call))
                     .First();
             }
 
-            var directionFromLeg = GetDirectionFromLeg(selected);
-            var direction = directionFromLeg == CallDirect.None ? GetDirectionFromEntry(entry) : directionFromLeg;
+            var directionFromLeg = GetDirectionFromLeg(selected.Call);
+            var direction = directionFromLeg == CallDirect.None ? entryDirection : directionFromLeg;
 
             var startTime = entryStart.HasValue
                 ? ToLocalDateTime(entryStart.Value)
-                : ToLocalDateTime(GetStartTimeOrMax(selected));
+                : ToLocalDateTime(GetStartTimeOrMax(selected.Call));
 
-            var endUnix = GetNullableInt64(selected, "call_end_time");
+            var endUnix = GetNullableInt64(selected.Call, "call_end_time");
             var endTime = endUnix.HasValue
                 ? ToLocalDateTime(endUnix.Value)
                 : startTime.AddSeconds(entryDuration ?? 0);
 
-            var answerUnix = GetNullableInt64(selected, "call_answer_time");
+            var answerUnix = GetNullableInt64(selected.Call, "call_answer_time");
             var answerTime = answerUnix.HasValue
                 ? ToLocalDateTime(answerUnix.Value)
                 : (DateTime?)null;
 
-            return new CallEntity()
+            return new CallEntity
             {
+                EntryId = entryId,
+                GroupName = selected.ParentGroupName,
                 StartTime = startTime,
                 EndTime = endTime,
                 AnswerTime = answerTime,
@@ -153,7 +169,7 @@ namespace Mango.Business.Models
 
         private static CallDirect GetDirectionFromEntry(JsonElement entry)
         {
-            var initType = GetNullableInt32(entry, "context_init_type");
+            var initType = GetNullableInt32(entry, "context_type");
 
             return initType switch
             {
@@ -251,8 +267,13 @@ namespace Mango.Business.Models
         private static DateTime ToLocalDateTime(long unix)
         {
             return DateTimeOffset.FromUnixTimeSeconds(unix)
-                .ToOffset(TimeSpan.FromHours(3))
-                .DateTime;
+                .DateTime.AddHours(3);
         }
-	}
+
+        private sealed class CallCandidate
+        {
+            public JsonElement Call { get; set; }
+            public string? ParentGroupName { get; set; }
+        }
+    }
 }

@@ -28,11 +28,11 @@ namespace Mango.Infrastructure.Repositories
             command.CommandText = $@"
 SELECT
     Source,
-    LastProcessedAtUtc,
-    UpdatedAtUtc
+    LastProcessedDate,
+    UpdatedAtDate
 FROM {_options.Value.SyncStateTableName}
 WHERE Source = @Source
-ORDER BY UpdatedAtUtc DESC
+ORDER BY UpdatedAtDate DESC
 LIMIT 1";
 
             command.Parameters.Add(new ClickHouseDbParameter
@@ -56,17 +56,19 @@ LIMIT 1";
             return new SyncStateEntity()
             {
                 Source = source,
-                LastProcessedDate = DateTime.Now.AddHours(-1),
+                LastProcessedDate = DateTime.Now,
                 UpdatedAtDate = DateTime.Now
             };
         }
 
         public async Task SaveAsync(
             string source,
-            DateTime lastProcessedAtUtc,
+            DateTime lastProcessedDate,
             CancellationToken cancellationToken)
         {
 	        await using var connection = new ClickHouseConnection(_options.Value.ConnectionString);
+	        
+	        lastProcessedDate = lastProcessedDate.AddHours(-3);
 	        
 	        await connection.OpenAsync(cancellationToken);
 
@@ -75,14 +77,14 @@ LIMIT 1";
 			INSERT INTO {_options.Value.SyncStateTableName}
 			(
     			Source,
-    			LastProcessedAtUtc,
-    			UpdatedAtUtc
+    			LastProcessedDate,
+    			UpdatedAtDate
 			)
 			VALUES
 			(
     			@Source,
-   				@LastProcessedAtUtc,
-    			@UpdatedAtUtc
+   				@LastProcessedDate,
+    			@UpdatedAtDate
 			)";
 
             command.Parameters.Add(new ClickHouseDbParameter
@@ -93,14 +95,14 @@ LIMIT 1";
 
             command.Parameters.Add(new ClickHouseDbParameter
             {
-                ParameterName = "LastProcessedAtUtc",
-                Value = lastProcessedAtUtc
+                ParameterName = "LastProcessedDate",
+                Value = lastProcessedDate
             });
 
             command.Parameters.Add(new ClickHouseDbParameter
             {
-                ParameterName = "UpdatedAtUtc",
-                Value = DateTime.UtcNow
+                ParameterName = "UpdatedAtDate",
+                Value = DateTime.Now
             });
 
             await command.ExecuteNonQueryAsync(cancellationToken);

@@ -35,13 +35,20 @@ namespace Mango.Infrastructure.Clients
 
 		public async Task<string> GetCallsRawJsonAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
 		{
-			var requestJson = JsonSerializer.Serialize(new
+			/*var requestJson = JsonSerializer.Serialize(new
             {
-                start_date = startDate.ToString("yyyy-MM-dd HH:mm:ss"),
-                end_date = endDate.ToString("yyyy-MM-dd HH:mm:ss"),
+                start_date = startDate,
+                end_date = endDate,
                 limit = _mangoOptions.Value.Limit ,
                 offset = 0
-            });
+            });*/
+			
+			var requestJson = $@"{{
+				""start_date"": ""{startDate}"",
+				""end_date"": ""{endDate}"",
+				""limit"": ""{_mangoOptions.Value.Limit}"",
+				""offset"": ""0"" 
+			}}";
 
             var requestResponse = await PostToMangoAsync(
                 "/vpbx/stats/calls/request",

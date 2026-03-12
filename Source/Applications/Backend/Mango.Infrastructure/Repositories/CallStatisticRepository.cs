@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ClickHouse.Client.ADO;
@@ -7,6 +8,7 @@ using ClickHouse.Client.ADO.Parameters;
 using Mango.Business.Interfaces;
 using Mango.Contracts.V1.Options;
 using Mango.Domain.Entity;
+using Mango.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -19,11 +21,67 @@ namespace Mango.Infrastructure.Repositories
 
 		public CallStatisticRepository(
 			IOptions<DatabaseOptions> options,
-			ILogger<CallStatisticRepository> logger
-		)
+			ILogger<CallStatisticRepository> logger)
 		{
 			_options = options;
 			_logger = logger;
+		}
+
+		public async Task<IEnumerable<CallEntity>> GetCallEntitiesAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
+		{
+			using var connection = new ClickHouseConnection(_options.Value.ConnectionString);
+			await connection.OpenAsync(cancellationToken);
+
+			using var command = connection.CreateCommand();
+			command.CommandText = $@"
+SELECT
+    UnicHash,
+    EntryId,
+    GroupName,
+    StartTime,
+    EndTime,
+    AnswerTime,
+    Direction,
+    IsMissed
+FROM {_options.Value.CallsTableName}
+WHERE StartTime >= {{StartDate:DateTime}}
+  AND StartTime <= {{EndDate:DateTime}}
+ORDER BY StartTime";
+
+			command.Parameters.Add(new ClickHouseDbParameter
+			{
+				ParameterName = "StartDate",
+				Value = startDate
+			});
+
+			command.Parameters.Add(new ClickHouseDbParameter
+			{
+				ParameterName = "EndDate",
+				Value = endDate
+			});
+
+			var result = new List<CallEntity>();
+
+			using var reader = await command.ExecuteReaderAsync(cancellationToken);
+
+			while (await reader.ReadAsync(cancellationToken))
+			{
+				var directionRaw = reader.GetValue(6)?.ToString();
+
+				result.Add(new CallEntity
+				{
+					UnicHash = reader.GetString(0),
+					EntryId = reader.GetString(1),
+					GroupName = reader.IsDBNull(2) ? null : reader.GetString(2),
+					StartTime = reader.GetDateTime(3),
+					EndTime = reader.GetDateTime(4),
+					AnswerTime = reader.IsDBNull(5) ? null : reader.GetDateTime(5),
+					CallDirect = ParseCallDirect(directionRaw),
+					IsMissed = !reader.IsDBNull(7) && Convert.ToByte(reader.GetValue(7)) == 1
+				});
+			}
+
+			return result;
 		}
 
 		public async Task InsertBatchAsync(
@@ -33,45 +91,55 @@ namespace Mango.Infrastructure.Repositories
 			if(records == null || records.Count == 0)
 				return;
 
-			using var connection = new ClickHouseConnection(_options.Value.ConnectionString);
+			await using var connection = new ClickHouseConnection(_options.Value.ConnectionString);
 			await connection.OpenAsync(cancellationToken);
 
-			var recordsList = new List<CallEntity>(records);
+			var recordsList = records.ToList();
 			var batchSize = Math.Max(1, _options.Value.InsertBatchSize);
 
 			for(var offset = 0; offset < recordsList.Count; offset += batchSize)
 			{
-				var chunk = recordsList.GetRange(
-					offset,
-					Math.Min(batchSize, recordsList.Count - offset));
+				var chunk = recordsList
+					.Skip(offset)
+					.Take(batchSize)
+					.ToList();
 
 				using var command = connection.CreateCommand();
-
-				var sql = $@"
-					INSERT INTO {_options.Value.CallsTableName}
-					(
-    					RowHash,
-    					StartTime,
-    					EndTime,
-    					AnswerTime,
-    					Direction,
-    					IsMissed,
-					)
-					VALUES ";
 
 				var values = new List<string>();
 
 				for(var i = 0; i < chunk.Count; i++)
 				{
-					values.Add(
-						$"(@RowHash{i}, @Date{i}, @StartTime{i}, @EndTime{i}, @AnswerTime{i}, @Direction{i}, @IsMissed{i}, @ImportedAtUtc{i})");
+					values.Add($@"
+(
+	{{UnicHash{i}:String}},
+	{{EntryId{i}:String}},
+	{{GroupName{i}:Nullable(String)}},
+	{{StartTime{i}:DateTime}},
+	{{EndTime{i}:DateTime}},
+	{{AnswerTime{i}:Nullable(DateTime)}},
+	CAST({{Direction{i}:String}} AS Enum8('None' = 0, 'Inbound' = 1, 'Outbound' = 2, 'Inner' = 3)),
+	{{IsMissed{i}:UInt8}}
+)");
 
 					var item = chunk[i];
 
 					command.Parameters.Add(new ClickHouseDbParameter
 					{
-						ParameterName = $"RowHash{i}",
+						ParameterName = $"UnicHash{i}",
 						Value = item.UnicHash
+					});
+
+					command.Parameters.Add(new ClickHouseDbParameter
+					{
+						ParameterName = $"EntryId{i}",
+						Value = item.EntryId
+					});
+
+					command.Parameters.Add(new ClickHouseDbParameter
+					{
+						ParameterName = $"GroupName{i}",
+						Value = (object?)item.GroupName ?? DBNull.Value
 					});
 
 					command.Parameters.Add(new ClickHouseDbParameter
@@ -94,18 +162,31 @@ namespace Mango.Infrastructure.Repositories
 
 					command.Parameters.Add(new ClickHouseDbParameter
 					{
-						ParameterName = $"CallDirect{i}",
-						Value = item.CallDirect
+						ParameterName = $"Direction{i}",
+						Value = item.CallDirect.ToString()
 					});
 
 					command.Parameters.Add(new ClickHouseDbParameter
 					{
 						ParameterName = $"IsMissed{i}",
-						Value = item.IsMissed ? 1 : 0
+						Value = item.IsMissed ? (byte)1 : (byte)0
 					});
 				}
 
-				command.CommandText = sql + string.Join(", ", values);
+				command.CommandText = $@"
+INSERT INTO {_options.Value.CallsTableName}
+(
+	UnicHash,
+	EntryId,
+	GroupName,
+	StartTime,
+	EndTime,
+	AnswerTime,
+	Direction,
+	IsMissed
+)
+VALUES
+{string.Join(",\n", values)}";
 
 				await command.ExecuteNonQueryAsync(cancellationToken);
 			}
@@ -114,6 +195,17 @@ namespace Mango.Infrastructure.Repositories
 				"Inserted {Count} analytics rows into {Table}",
 				records.Count,
 				_options.Value.CallsTableName);
+		}
+		
+		private static CallDirect ParseCallDirect(string? value)
+		{
+			return value switch
+			{
+				"Inbound" => CallDirect.Inbound,
+				"Outbound" => CallDirect.Outbound,
+				"Inner" => CallDirect.Inner,
+				_ => CallDirect.None
+			};
 		}
 	}
 }
