@@ -1,5 +1,8 @@
-﻿using Edo.Common.Services;
+﻿using Edo.Common;
+using Edo.Common.Services;
 using Edo.Contracts.Messages.Events;
+using Edo.Problems;
+using Edo.Problems.Custom.Sources.Withdrawal;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -24,6 +27,8 @@ namespace Edo.Documents
 		private readonly IGenericRepository<CounterpartyEdoAccountEntity> _edoAccountRepository;
 		private readonly IGenericRepository<WithdrawalEdoRequest> _withdrawalEdoRequestRepository;
 		private readonly IClientsTrueMarkRegistrationCheckService _trueMarkRegistrationCheckService;
+		private readonly ITrueMarkCodesValidator _trueMarkTaskCodesValidator;
+		private readonly EdoTaskItemTrueMarkStatusProviderFactory _edoTaskTrueMarkCodeCheckerFactory;
 		private readonly IBus _messageBus;
 
 		public WithdrawalEdoRequestHandler(
@@ -32,6 +37,8 @@ namespace Edo.Documents
 			IGenericRepository<CounterpartyEdoAccountEntity> edoAccountRepository,
 			IGenericRepository<WithdrawalEdoRequest> withdrawalEdoRequestRepository,
 			IClientsTrueMarkRegistrationCheckService trueMarkRegistrationCheckService,
+			ITrueMarkCodesValidator trueMarkTaskCodesValidator,
+			EdoTaskItemTrueMarkStatusProviderFactory edoTaskTrueMarkCodeCheckerFactory,
 			IBus publishEndpoint)
 		{
 			_logger = logger
@@ -44,6 +51,10 @@ namespace Edo.Documents
 				?? throw new ArgumentNullException(nameof(withdrawalEdoRequestRepository));
 			_trueMarkRegistrationCheckService = trueMarkRegistrationCheckService
 				?? throw new ArgumentNullException(nameof(trueMarkRegistrationCheckService));
+			_trueMarkTaskCodesValidator = trueMarkTaskCodesValidator
+				?? throw new ArgumentNullException(nameof(trueMarkTaskCodesValidator));
+			_edoTaskTrueMarkCodeCheckerFactory = edoTaskTrueMarkCodeCheckerFactory
+				?? throw new ArgumentNullException(nameof(edoTaskTrueMarkCodeCheckerFactory));
 			_messageBus = publishEndpoint
 				?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
@@ -99,6 +110,20 @@ namespace Edo.Documents
 						$"Поступило событие об окончании ДО по заказу {order.Id}. " +
 						$"Но при этом клиент {client.Id} имеет статус согласия на ЭДО {edoAccount.ConsentForEdoStatus} " +
 						$"с нашей организацией {order.Contract.Organization.Id}");
+				}
+
+				var trueMarkCodesChecker =
+					_edoTaskTrueMarkCodeCheckerFactory.Create(documentTask);
+				var codesValidationResult =
+					await _trueMarkTaskCodesValidator.ValidateAsync(documentTask, trueMarkCodesChecker, cancellationToken);
+
+				if(!codesValidationResult.IsAllValid || !codesValidationResult.ReadyToSell)
+				{
+					_logger.LogInformation(
+						"В задаче {DocumentTaskId} присутствуют коды ЧЗ, статус которых не позволяет выполнить вывод из оборота, " +
+						"либо принадлежащие организации, отличной от организации в заказе",
+						documentTask.Id);
+					return;
 				}
 
 				var actualTrueMarkRegistrationStatusResult =
