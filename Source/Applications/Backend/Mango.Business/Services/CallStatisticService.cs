@@ -91,7 +91,7 @@ namespace Mango.Business.Services
 				parsed.Count,
 				toInsert.Count);
 			
-			if(deduplicated.Count > 0)
+			if(toInsert.Count > 0)
 			{
 				await _callStatisticRepository.InsertBatchAsync(toInsert, cancellationToken);
 			}
