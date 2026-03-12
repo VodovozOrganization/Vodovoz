@@ -11,7 +11,7 @@ namespace Vodovoz.Core.Domain.Documents
 		DateTime LastEditedTime { get; set; }
 		int? LastEditorId { get; set; }
 		string Number { get; }
-		DateTime TimeStamp { get; set; }
+		DateTime TimeStamp { get; }
 		DateTime Version { get; set; }
 	}
 }

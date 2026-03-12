@@ -9,7 +9,6 @@ using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Store;
-using VodovozBusiness.Domain.Documents;
 
 namespace Vodovoz.Store
 {

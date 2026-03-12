@@ -16,6 +16,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\..\..\Applications\Backend\WebAPI\FastPayment\FastPaymentsApi.Contracts\FastPaymentsApi.Contracts.csproj" />
 		<ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
 		<ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
 		<ProjectReference Include="..\..\..\..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj" />
@@ -28,7 +29,6 @@
 		<ProjectReference Include="..\DriverApi.Notifications.Client\DriverApi.Notifications.Client.csproj" />
 		<ProjectReference Include="..\Edo\Edo.Transport\Edo.Transport.csproj" />
 		<ProjectReference Include="..\EventsApi.Library\EventsApi.Library.csproj" />
-		<ProjectReference Include="..\FastPaymentsApi.Contracts\FastPaymentsApi.Contracts.csproj" />
 		<ProjectReference Include="..\Infrastructure\MessageTransport\MessageTransport.csproj" />
 		<ProjectReference Include="..\Osrm\Osrm.csproj" />
 		<ProjectReference Include="..\Vodovoz.FirebaseCloudMessaging\Vodovoz.FirebaseCloudMessaging.csproj" />

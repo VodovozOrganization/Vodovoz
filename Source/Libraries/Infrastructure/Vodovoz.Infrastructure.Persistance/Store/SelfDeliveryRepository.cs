@@ -2,6 +2,7 @@
 using System.Linq;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
@@ -85,6 +86,22 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 			}
 
 			return unloadedDict;
+		}
+
+		public bool IsSelfDeliveryDocumentItemsUsedInEdoTasks(IUnitOfWork uow, int selfDeliveryDocumentId)
+		{
+			var edoTasks =
+				(from selfDeliveryDocument in uow.Session.Query<SelfDeliveryDocument>()
+				 join selfDeliveryDocumentItem in uow.Session.Query<SelfDeliveryDocumentItemEntity>()
+				 on selfDeliveryDocument.Id equals selfDeliveryDocumentItem.Document.Id
+				 join trueMarkProductCode in uow.Session.Query<SelfDeliveryDocumentItemTrueMarkProductCode>()
+				 on selfDeliveryDocumentItem.Id equals trueMarkProductCode.SelfDeliveryDocumentItem.Id
+				 join edoTaskItem in uow.Session.Query<EdoTaskItem>() on trueMarkProductCode.Id equals edoTaskItem.ProductCode.Id
+				 where selfDeliveryDocument.Id == selfDeliveryDocumentId
+				 select edoTaskItem)
+				 .ToList();
+
+			return edoTasks.Any();
 		}
 	}
 }
