@@ -806,5 +806,7 @@ namespace Vodovoz.Core.Domain.Clients.DeliveryPoints
 				? $"{StreetTypeShort} "
 				: $"{StreetTypeShort}. ";
 		}
+
+		public virtual string Title => string.IsNullOrWhiteSpace(CompiledAddress) ? "АДРЕС ПУСТОЙ" : CompiledAddress;
 	}
 }

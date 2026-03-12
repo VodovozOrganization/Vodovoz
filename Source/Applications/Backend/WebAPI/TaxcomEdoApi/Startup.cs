@@ -80,12 +80,12 @@ namespace TaxcomEdoApi
 			app.UseHttpsRedirection();
 			app.UseRouting();
 			app.UseAuthorization();
+			app.UseVodovozHealthCheck();
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapControllers();
 			});
-			
-			app.UseVodovozHealthCheck();
+		
 		}
 	}
 }

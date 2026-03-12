@@ -14,6 +14,8 @@ namespace Vodovoz.Settings.Database.Counterparty
 		public int CounterpartyFromTenderId => _settingsController.GetValue<int>(nameof(CounterpartyFromTenderId).FromPascalCaseToSnakeCase());
 		public int GetMobileAppCounterpartyCameFromId => _settingsController.GetIntValue("mobile_app_counterparty_came_from_id");
 		public int GetWebSiteCounterpartyCameFromId => _settingsController.GetIntValue("web_site_counterparty_came_from_id");
+		/// <inheritdoc/>
+		public int GetAiBotCounterpartyCameFromId => _settingsController.GetIntValue("Counterparty.AiBotCounterpartyCameFromId");
 		public string RevenueServiceClientAccessToken => _settingsController.GetStringValue("RevenueServiceClientAccessToken");
 		public int ReferFriendPromotionCameFromId => _settingsController.GetValue<int>(nameof(ReferFriendPromotionCameFromId));
 	}

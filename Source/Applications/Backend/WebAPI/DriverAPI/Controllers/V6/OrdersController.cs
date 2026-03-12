@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Mime;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Results;
@@ -113,12 +114,13 @@ namespace DriverAPI.Controllers.V6
 		/// </summary>
 		/// <param name="unitOfWork"></param>
 		/// <param name="completedOrderRequestModel"><see cref="CompletedOrderRequest"/></param>
+		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
 		[HttpPost]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		public async Task<IActionResult> CompleteOrderDeliveryAsync([FromServices] IUnitOfWork unitOfWork, [FromBody] CompletedOrderRequest completedOrderRequestModel)
+		public async Task<IActionResult> CompleteOrderDeliveryAsync([FromServices] IUnitOfWork unitOfWork, [FromBody] CompletedOrderRequest completedOrderRequestModel, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("(Завершение заказа: {OrderId}) пользователем {Username} | User token: {AccessToken} | Тело запроса: {@RequestBody}",
 				completedOrderRequestModel.OrderId,
@@ -162,7 +164,8 @@ namespace DriverAPI.Controllers.V6
 					recievedTime,
 					driver,
 					completedOrderRequestModel,
-					completedOrderRequestModel);
+					completedOrderRequestModel,
+					cancellationToken);
 
 				await unitOfWork.CommitAsync();
 
@@ -272,12 +275,13 @@ namespace DriverAPI.Controllers.V6
 		/// Создание рекламации по координатам точки доставки заказа
 		/// </summary>
 		/// <param name="completedOrderRequestModel"></param>
+		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
 		[HttpPost]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
-		public async Task<IActionResult> UpdateOrderShipmentInfoAsync([FromBody] UpdateOrderShipmentInfoRequest completedOrderRequestModel)
+		public async Task<IActionResult> UpdateOrderShipmentInfoAsync([FromBody] UpdateOrderShipmentInfoRequest completedOrderRequestModel, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("(Создание рекламации по координатам точки доставки заказа: {OrderId}) пользователем {Username} | User token: {AccessToken}",
 				completedOrderRequestModel.OrderId,
@@ -305,7 +309,8 @@ namespace DriverAPI.Controllers.V6
 				await _orderService.UpdateOrderShipmentInfoAsync(
 				recievedTime,
 				driver,
-				completedOrderRequestModel),
+				completedOrderRequestModel,
+				cancellationToken),
 				result =>
 				{
 					if(result.IsSuccess)

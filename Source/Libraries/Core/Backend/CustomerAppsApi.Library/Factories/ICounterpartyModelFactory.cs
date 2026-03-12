@@ -1,6 +1,4 @@
-﻿using System;
-using CustomerAppsApi.Library.Dto;
-using CustomerAppsApi.Library.Dto.Counterparties;
+﻿using CustomerAppsApi.Library.Dto.Counterparties;
 using Vodovoz.Domain.Client;
 
 namespace CustomerAppsApi.Library.Factories
@@ -20,10 +18,5 @@ namespace CustomerAppsApi.Library.Factories
 		CounterpartyRegistrationDto CreateRegisteredCounterpartyRegistrationDto(int counterpartyId);
 		CounterpartyUpdateDto CreateErrorCounterpartyUpdateDto(string error);
 		CounterpartyUpdateDto CreateNotFoundCounterpartyUpdateDto();
-		ExternalCounterparty CreateExternalCounterparty(CounterpartyFrom counterpartyFrom);
-		ExternalCounterparty CopyToOtherExternalCounterparty(ExternalCounterparty copyingCounterparty, Guid externalCounterpartyId);
-
-		ExternalCounterpartyMatching CreateNewExternalCounterpartyMatching(Guid externalCounterpartyId, string phoneNumber,
-			CounterpartyFrom counterpartyFrom);
 	}
 }

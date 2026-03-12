@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using QS.Print;
 using QS.Report;
 using System;
@@ -27,36 +27,53 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		private int? _beveragesWorldOrganizationId;
 
-		private EmailTemplate GetTemplateForStandartReason(bool hasAgreeForEdo)
+		private EmailTemplate GetTemplateForStandartReason(IOrganizationSettings organizationSettings, bool hasAgreeForEdo)
 		{
 			var isFastDelivery = Order.IsFastDelivery;
 
 			var reason = isFastDelivery ? "" : "<br>Т.к. заказ был перенесен на другой маршрут, Вам не привезли закрывающие документы.";
 
 			var fastDeliveryString = isFastDelivery ? "по экспресс-доставке." : "";
+			
+			var organization = Order.OurOrganization ?? Order.Contract?.Organization;
+
+			var isKulerService = organization?.Id == organizationSettings?.KulerServiceOrganizationId;
+
+			var waterOrderText =
+				"<br>Если Вам необходим оригинал УПД, мы можем подготовить отправку документа со следующей поставкой или почте РФ, для этого пришлите Ваш почтовый адрес." +
+				"<br><br>Также предлагаем настроить ЭДО для обмена документами в будущем.\nПрошу выслать приглашение по указанным данным ниже.";
+
+			var kulerServiceOrderText =
+				"<br>Если компания использует ЭДО, прошу выслать приглашение по указанным данным ниже, это упростит обмен документами в будущем.";
+
+			var edoInfoText = isKulerService ? kulerServiceOrderText : waterOrderText;
+			
+			var edoRefusialText = isKulerService
+				? "<br>В случае отказа от обмена через ЭДО, я подготовлю документы для отправки по почте РФ или со следующей поставкой."
+				: "";
 
 			var body = hasAgreeForEdo
-				? "Просьба подписать документ в ЭДО или ответным письмом выслать скан с Вашими печатью и подписью"
-				: "Просьба ответным письмом выслать скан с Вашими печатью и подписью." +
-				  "<br>Если компания использует ЭДО, прошу выслать приглашение по указанным данным ниже, это упростит обмен документами в будущем." +
-				  "<br>Наши данные:" +
+				? "<br>Просьба подписать документ в ЭДО или ответным письмом выслать скан с Вашими печатью и подписью"
+				: "<br>Просьба ответным письмом выслать скан с Вашими печатью и подписью." +
+				  edoInfoText +
+				  "<br><br>Наши данные:" +
 				  "<br>Оператор ЭДО - ТАКСКОМ" +
-				  "<br>ООО \"Веселый Водовоз\" (роуминг, Такском)" +
-				  "<br>ИНН 7816453294" +
-				  "<br>ИД 2AL-EF740B2F-CA2E-414B-A2A7-F8FA6824B4E4-00000";
+				  $"<br>{organization?.Name} (роуминг, Такском)" +
+				  $"<br>ИНН {organization?.INN}" +
+				  $"<br>ИД {organization?.TaxcomEdoSettings?.EdoAccount}";
 
-			var text = "Добрый день!" +
-					   $"<br>" +
-					   $"<br>Во вложении {Title} {fastDeliveryString}" +
-					   $"{reason}" +
+			var text = "Добрый день!" + 
+			           $"<br>" + 
+			           $"<br>Во вложении {Title} {fastDeliveryString}" + 
+			           $"<br>{reason}" +
 					   $"<br>{body}" +
-					   "<br>" +
-					   "<br>В случае отказа от обмена через ЭДО, я подготовлю документы для отправки по почте РФ или со следующей поставкой." +
+					   $"<br>{edoRefusialText}" +
+					   $"<br>" +
 					   "<br>Жду обратной связи.";
 
 			var template = new EmailTemplate
 			{
-				Title = "ООО \"Веселый водовоз\"",
+				Title = organization?.Name,
 				TextHtml = text,
 				Text = text
 			};
@@ -64,29 +81,46 @@ namespace Vodovoz.Domain.Orders.Documents
 			return template;
 		}
 
-		private EmailTemplate GetTemplateForClosingDocumentOrder(bool hasAgreeForEdo)
+		private EmailTemplate GetTemplateForClosingDocumentOrder(IOrganizationSettings organizationSettings, bool hasAgreeForEdo)
 		{
-			var body = hasAgreeForEdo
-				? "Просьба подписать документ в ЭДО или ответным письмом выслать скан с Вашими печатью и подписью."
-				: "Просьба ответным письмом выслать скан с Вашими печатью и подписью." +
-				  "<br>Если компания использует ЭДО, прошу выслать приглашение по указанным данным ниже, это упростит обмен документами в будущем." +
-				  "<br>Наши данные:" +
-				  "<br>Оператор ЭДО - ТАКСКОМ" +
-				  "<br>ООО \"Веселый Водовоз\" (роуминг, Такском)" +
-				  "<br>ИНН 7816453294" +
-				  "<br>ИД 2AL-EF740B2F-CA2E-414B-A2A7-F8FA6824B4E4-00000";
+			var organization = Order.OurOrganization ?? Order.Contract?.Organization;
 
-			var text = "Добрый день!" +
+			var isKulerService = organization?.Id == organizationSettings?.KulerServiceOrganizationId;
+
+			var waterOrderText =
+				"<br>Если Вам необходим оригинал УПД, мы можем подготовить отправку документа со следующей поставкой или почте РФ, для этого пришлите Ваш почтовый адрес." +
+				"<br><br>Также предлагаем настроить ЭДО для обмена документами в будущем.\nПрошу выслать приглашение по указанным данным ниже.";
+
+			var kulerServiceOrderText =
+				"<br>Если компания использует ЭДО, прошу выслать приглашение по указанным данным ниже, это упростит обмен документами в будущем.";
+
+			var edoInfoText = isKulerService ? kulerServiceOrderText : waterOrderText;
+			
+			var edoRefusialText = isKulerService
+				? "<br>В случае отказа от обмена через ЭДО, я подготовлю документы для отправки по почте РФ или со следующей поставкой."
+				: "";
+
+			var body = hasAgreeForEdo
+				? "<br>Просьба подписать документ в ЭДО или ответным письмом выслать скан с Вашими печатью и подписью"
+				: "<br>Просьба ответным письмом выслать скан с Вашими печатью и подписью." +
+				  edoInfoText +
+				  "<br><br>Наши данные:" +
+				  "<br>Оператор ЭДО - ТАКСКОМ" +
+				  $"<br>{organization?.Name} (роуминг, Такском)" +
+				  $"<br>ИНН {organization?.INN}" +
+				  $"<br>ИД {organization?.TaxcomEdoSettings?.EdoAccount}";
+
+			var text = "Добрый день!" + 
+			           $"<br>" + 
+			           $"<br>Во вложении {Title}" +					   
+					   $"<br>{body}" + 
+					   $"<br>{edoRefusialText}" +
 					   $"<br>" +
-					   $"<br>Во вложении {Title}." +
-					   $"<br>{body}" +
-					   "<br>" +
-					   "<br>В случае отказа от обмена через ЭДО, я подготовлю документы для отправки по почте РФ или со следующей поставкой." +
 					   "<br>Жду обратной связи.";
 
 			var template = new EmailTemplate
 			{
-				Title = "ООО \"Веселый водовоз\"",
+				Title = organization?.Name,
 				TextHtml = text,
 				Text = text
 			};
@@ -122,7 +156,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual string Title => $"{Name} от {Order.DeliveryDate:d}";
 		public virtual Counterparty Counterparty => Order?.Client;
 
-		public virtual EmailTemplate GetEmailTemplate(ICounterpartyEdoAccountController edoAccountController = null)
+		public virtual EmailTemplate GetEmailTemplate(ICounterpartyEdoAccountController edoAccountController = null, IOrganizationSettings organizationSettings = null)
 		{
 			var hasAgreeForEdo = false;
 			
@@ -133,12 +167,9 @@ namespace Vodovoz.Domain.Orders.Documents
 				hasAgreeForEdo = edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
 			}
 
-			if( Order.DeliverySchedule.Id == _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId)
-			{
-				return GetTemplateForClosingDocumentOrder(hasAgreeForEdo);
-			}
-
-			return GetTemplateForStandartReason(hasAgreeForEdo);
+			return Order.DeliverySchedule.Id == _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId 
+				? GetTemplateForClosingDocumentOrder(organizationSettings, hasAgreeForEdo) 
+				: GetTemplateForStandartReason(organizationSettings, hasAgreeForEdo);
 		}
 
 		#endregion
