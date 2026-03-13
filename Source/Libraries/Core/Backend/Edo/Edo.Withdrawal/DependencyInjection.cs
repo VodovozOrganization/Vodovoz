@@ -1,4 +1,6 @@
-﻿using Edo.Transport;
+﻿using Edo.Common;
+using Edo.Problems;
+using Edo.Transport;
 using Edo.Withdrawal.Consumers;
 using Edo.Withdrawal.Consumers.Definitions;
 using MassTransit;
@@ -33,6 +35,10 @@ namespace Edo.Withdrawal
 			{
 				cfg.AddConsumer<WithdrawalTaskCreatedConsumer, WithdrawalTaskCreatedConsumerDefinition>();
 			});
+
+			services
+				.AddEdo()
+				.AddEdoProblemRegistration();
 
 			AddEdoWithdrawalService(services);
 
