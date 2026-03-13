@@ -1,11 +1,14 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
-using QS.HistoryLog;
 using Vodovoz.Domain.Contacts;
+using VodovozBusiness.Domain.Client;
 
 namespace Vodovoz.Domain.Client
 {
+	/// <summary>
+	/// Клиент с внешнего ресурса
+	/// </summary>
 	public class ExternalCounterparty : PropertyChangedBase, IDomainObject
 	{
 		private Guid _externalCounterpartyId;
@@ -16,6 +19,9 @@ namespace Vodovoz.Domain.Client
 
 		public virtual int Id { get; set; }
 
+		/// <summary>
+		/// Идентификатор пользователя в ИПЗ
+		/// </summary>
 		[Display(Name = "Внешний код клиента")]
 		public virtual Guid ExternalCounterpartyId
 		{
@@ -23,6 +29,9 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _externalCounterpartyId, value);
 		}
 		
+		/// <summary>
+		/// Дата создания
+		/// </summary>
 		[Display(Name = "Дата создания")]
 		public virtual DateTime? CreationDate
 		{
@@ -30,6 +39,9 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _creationDate, value);
 		}
 
+		/// <summary>
+		/// Телефон
+		/// </summary>
 		[Display(Name = "Телефон клиента")]
 		public virtual Phone Phone
 		{
@@ -37,6 +49,9 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _phone, value);
 		}
 
+		/// <summary>
+		/// Почта
+		/// </summary>
 		[Display(Name = "Электронная почта")]
 		public virtual Email Email
 		{
@@ -44,21 +59,49 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _email, value);
 		}
 
-		[Display(Name = "В архиве?")]
+		/// <summary>
+		/// Архивный
+		/// </summary>
+		[Display(Name = "Архивный")]
 		public virtual bool IsArchive
 		{
 			get => _isArchive;
 			set => SetField(ref _isArchive, value);
 		}
 
+		/// <summary>
+		/// Откуда клиент
+		/// </summary>
 		public virtual CounterpartyFrom CounterpartyFrom { get; }
-	}
 
-	public enum CounterpartyFrom
-	{
-		[Display(Name = "Мобильное приложение")]
-		MobileApp = 54,
-		[Display(Name = "Сайт")]
-		WebSite = 55
+		public static ExternalCounterparty Create(Phone phone, Email email, Guid externalCounterpartyId, CounterpartyFrom counterpartyFrom)
+		{
+			ExternalCounterparty externalCounterparty = null;
+			
+			switch(counterpartyFrom)
+			{
+				case CounterpartyFrom.WebSite:
+					externalCounterparty = new WebSiteCounterparty();
+					break;
+				case CounterpartyFrom.MobileApp:
+					externalCounterparty = new MobileAppCounterparty();
+					break;
+				case CounterpartyFrom.AiBot:
+					externalCounterparty = new AiBotCounterparty();
+					break;
+			}
+			
+			externalCounterparty?.FillData(phone, email, externalCounterpartyId);
+
+			return externalCounterparty;
+		}
+		
+		private void FillData(Phone phone, Email email, Guid externalCounterpartyId)
+		{
+			Email = email;
+			Phone = phone;
+			ExternalCounterpartyId = externalCounterpartyId;
+			CreationDate =  DateTime.Now;
+		}
 	}
 }

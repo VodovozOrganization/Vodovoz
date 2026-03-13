@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Documents.DriverTerminal;
@@ -14,7 +15,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Order = Vodovoz.Domain.Orders.Order;
 

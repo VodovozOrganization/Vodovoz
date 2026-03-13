@@ -1,7 +1,7 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
-using Vodovoz.Domain.Goods;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.NHibernateProjections.Goods
 {

@@ -120,6 +120,8 @@ namespace Edo.Common
 					return ((DocumentEdoTask)_edoTask).Items;
 				case EdoTaskType.Tender:
 					return ((TenderEdoTask)_edoTask).Items;
+				case EdoTaskType.Withdrawal:
+					return ((WithdrawalEdoTask)_edoTask).Items;
 				default:
 					throw new NotSupportedException($"Проверка кодов для задачи {_edoTask.TaskType} не поддерживается.");
 			}

@@ -19,16 +19,6 @@ namespace Vodovoz.Domain.Documents
     {
         #region Сохраняемые свойства
 
-        public override DateTime TimeStamp {
-            get => base.TimeStamp;
-            set {
-                base.TimeStamp = value;
-                if(!NHibernateUtil.IsInitialized(AddressTransferDocumentItems))
-                    return;
-                UpdateOperationsTime();
-            }
-        }
-
         private RouteList routeListFrom;
         [Display(Name = "От МЛ")]
         public virtual RouteList RouteListFrom {
@@ -81,6 +71,17 @@ namespace Vodovoz.Domain.Documents
             }
         }
 
-        #endregion
-    }
+		#endregion
+
+		public override void SetTimeStamp(DateTime value)
+		{
+			base.TimeStamp = value;
+			if(!NHibernateUtil.IsInitialized(AddressTransferDocumentItems))
+			{
+				return;
+			}
+
+			UpdateOperationsTime();
+		}
+	}
 }

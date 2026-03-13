@@ -37,6 +37,16 @@ namespace Vodovoz.Core.Domain.Clients
 			Genitive = "сайта Кулер Сэйл"
 		)]
 		[Display(Name = "Сайт Кулер Сэйл")]
-		KulerSaleWebSite = 56
+		KulerSaleWebSite = 56,
+		/// <summary>
+		/// ИИ Бот
+		/// </summary>
+		[Appellative (
+			Gender = GrammaticalGender.Masculine,
+			Nominative = "ИИ Бот",
+			Genitive = "ИИ Бота"
+		)]
+		[Display(Name = "ИИ Бот")]
+		AiBot = 61
 	}
 }

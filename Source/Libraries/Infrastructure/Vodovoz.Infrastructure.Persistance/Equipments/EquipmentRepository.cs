@@ -3,6 +3,8 @@ using System.Linq;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.BasicHandbooks;
+using Vodovoz.Core.Domain.Operations;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
@@ -179,12 +181,12 @@ namespace Vodovoz.Infrastructure.Persistance.Equipments
 				.List();
 		}
 
-		public EquipmentLocation GetLocation(IUnitOfWork uow, Equipment equ)
+		public EquipmentLocation GetLocation(IUnitOfWork uow, int equipmentId)
 		{
 			var result = new EquipmentLocation();
 
 			var lastCouterpartyOp = uow.Session.QueryOver<CounterpartyMovementOperation>()
-				.Where(o => o.Equipment == equ)
+				.Where(o => o.Equipment.Id == equipmentId)
 				.OrderBy(o => o.OperationTime).Desc
 				.Take(1)
 				.SingleOrDefault();

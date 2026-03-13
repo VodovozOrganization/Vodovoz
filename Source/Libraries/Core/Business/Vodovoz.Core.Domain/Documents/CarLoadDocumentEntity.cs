@@ -2,10 +2,9 @@
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
-using System;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Logistics;
+using Vodovoz.Core.Domain.Warehouses;
 
 namespace Vodovoz.Core.Domain.Documents
 {
@@ -17,43 +16,13 @@ namespace Vodovoz.Core.Domain.Documents
 		Nominative = "талон погрузки автомобиля")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class CarLoadDocumentEntity : PropertyChangedBase, IDomainObject
+	public class CarLoadDocumentEntity : Document
 	{
-		private int _id;
-		private DateTime _version;
-		private EmployeeEntity _author;
 		private RouteListEntity _routeList;
+		private Warehouse _warehouse;
 		private CarLoadDocumentLoadOperationState _loadOperationState;
+		private string _comment;
 		private IObservableList<CarLoadDocumentItemEntity> _items = new ObservableList<CarLoadDocumentItemEntity>();
-
-		/// <summary>
-		/// Идентификатор<br/>
-		/// Код
-		/// </summary>
-		[Display(Name = "Код")]
-		public virtual int Id
-		{
-			get => _id;
-			set => SetField(ref _id, value);
-		}
-
-		/// <summary>
-		/// Версия
-		/// </summary>
-		[Display(Name = "Версия")]
-		public virtual DateTime Version
-		{
-			get => _version;
-			set => SetField(ref _version, value);
-		}
-
-
-		[Display(Name = "Автор")]
-		public virtual EmployeeEntity Author
-		{
-			get => _author;
-			set => SetField(ref _author, value);
-		}
 
 		/// <summary>
 		/// Маршрутный лист, к которому относится талон погрузки
@@ -63,6 +32,16 @@ namespace Vodovoz.Core.Domain.Documents
 		{
 			get => _routeList;
 			set => SetField(ref _routeList, value);
+		}
+
+		/// <summary>
+		/// Склад
+		/// </summary>
+		[Display(Name = "Склад")]
+		public virtual Warehouse Warehouse
+		{
+			get => _warehouse;
+			set => SetField(ref _warehouse, value);
 		}
 
 		/// <summary>
@@ -76,6 +55,16 @@ namespace Vodovoz.Core.Domain.Documents
 		}
 
 		/// <summary>
+		/// Комментарий
+		/// </summary>
+		[Display(Name = "Комментарий")]
+		public virtual string Comment
+		{
+			get => _comment;
+			set => SetField(ref _comment, value);
+		}
+
+		/// <summary>
 		/// Строки талона погрузки
 		/// </summary>
 		[Display(Name = "Строки")]
@@ -84,5 +73,10 @@ namespace Vodovoz.Core.Domain.Documents
 			get => _items;
 			set => SetField(ref _items, value);
 		}
+
+		/// <summary>
+		/// Заголовок
+		/// </summary>
+		public virtual string Title => $"Талон погрузки №{Id} от {TimeStamp:d}";
 	}
 }

@@ -13,6 +13,7 @@ using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels.Dialog;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;

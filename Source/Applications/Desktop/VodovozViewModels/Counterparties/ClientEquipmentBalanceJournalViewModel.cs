@@ -9,6 +9,7 @@ using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels.Dialog;
 using System;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using static Vodovoz.ViewModels.Counterparties.ClientEquipmentBalanceJournalViewModel;

@@ -7,14 +7,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using QS.Attachments.Domain;
+using QS.Banks.Domain;
 using QS.HistoryLog;
 using QS.Project.Core;
+using QS.Project.Domain;
+using QS.Project.HibernateMapping;
 using QS.Report;
-using RabbitMQ.Client;
-using RabbitMQ.Infrastructure;
 using RabbitMQ.MailSending;
-using System;
-using System.Net.Security;
 using Vodovoz.Application.Clients;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
@@ -23,8 +23,11 @@ using Vodovoz.Settings;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Common;
-using Vodovoz.Settings.Pacs;
+using Vodovoz.Settings.Database.Organizations;
+using Vodovoz.Settings.Organizations;
 using VodovozBusiness.Controllers;
+using AssemblyFinder = Vodovoz.Data.NHibernate.AssemblyFinder;
+using DependencyInjection = Vodovoz.Data.NHibernate.DependencyInjection;
 
 namespace EmailPrepareWorker
 {
@@ -62,12 +65,12 @@ namespace EmailPrepareWorker
 						});
 
 					services.AddMappingAssemblies(
-						typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
-						typeof(Vodovoz.Data.NHibernate.AssemblyFinder).Assembly,
-						typeof(QS.Banks.Domain.Bank).Assembly,
-						typeof(QS.HistoryLog.HistoryMain).Assembly,
-						typeof(QS.Project.Domain.TypeOfEntity).Assembly,
-						typeof(QS.Attachments.Domain.Attachment).Assembly,
+						typeof(UserBaseMap).Assembly,
+						typeof(AssemblyFinder).Assembly,
+						typeof(Bank).Assembly,
+						typeof(HistoryMain).Assembly,
+						typeof(TypeOfEntity).Assembly,
+						typeof(Attachment).Assembly,
 						typeof(EmployeeWithLoginMap).Assembly
 					);
 
@@ -76,7 +79,7 @@ namespace EmailPrepareWorker
 					services.AddInfrastructure();
 					services.AddTrackedUoW();
 					services.AddStaticHistoryTracker();
-					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
+					DependencyInjection.AddStaticScopeForEntity(services);
 
 					services.AddScoped<ISettingsController, SettingsController>()
 						.AddScoped<IEmailSettings, EmailSettings>()
@@ -84,7 +87,8 @@ namespace EmailPrepareWorker
 						.AddScoped<IEmailDocumentPreparer, EmailDocumentPreparer>()
 						.AddScoped<IReportInfoFactory, DefaultReportInfoFactory>()
 						.AddScoped<IEmailSendMessagePreparer, EmailSendMessagePreparer>()
-						.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>();
+						.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>()
+						;
 
 					services.AddHostedService<EmailPrepareWorker>();
 				});

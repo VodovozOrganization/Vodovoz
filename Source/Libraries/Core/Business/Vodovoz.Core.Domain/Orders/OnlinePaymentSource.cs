@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Vodovoz.Core.Domain.Orders
 {
 	/// <summary>
 	/// Источник оплаты с ИПЗ
 	/// </summary>
+	[JsonConverter(typeof(JsonStringEnumConverter))]
 	public enum OnlinePaymentSource
 	{
 		/// <summary>
@@ -36,6 +38,11 @@ namespace Vodovoz.Core.Domain.Orders
 		/// МП Яндекс Сплит
 		/// </summary>
 		[Display(Name = "МП Я.Сплит")]
-		FromMobileAppByYandexSplit
+		FromMobileAppByYandexSplit,
+		/// <summary>
+		/// ИИ Бот по QR
+		/// </summary>
+		[Display(Name = "ИИ Бот по QR")]
+		FromAiBotByQr
 	}
 }

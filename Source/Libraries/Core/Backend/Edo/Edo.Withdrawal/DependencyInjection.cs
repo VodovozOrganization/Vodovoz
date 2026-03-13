@@ -1,10 +1,14 @@
-﻿using Edo.Transport;
+﻿using Edo.Common;
+using Edo.Problems;
+using Edo.Transport;
 using Edo.Withdrawal.Consumers;
 using Edo.Withdrawal.Consumers.Definitions;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TrueMarkApi.Client;
+using Vodovoz.Core.Data.Repositories;
+using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Infrastructure.Persistance.Edo;
 using VodovozBusiness.EntityRepositories.Edo;
 
@@ -16,8 +20,11 @@ namespace Edo.Withdrawal
 		{
 			services
 				.AddScoped<IEdoDocflowRepository, EdoDocflowRepository>()
+				.AddScoped<ICounterpartyEdoAccountEntityController, CounterpartyEdoAccountEntityController>()
 				.AddScoped<WithdrawalTaskCreatedHandler>()
 				.AddTrueMarkApiClient();
+
+			services.AddScoped<IEdoRepository, Vodovoz.Core.Data.NHibernate.Repositories.Edo.EdoRepository>();
 
 			return services;
 		}
@@ -28,6 +35,10 @@ namespace Edo.Withdrawal
 			{
 				cfg.AddConsumer<WithdrawalTaskCreatedConsumer, WithdrawalTaskCreatedConsumerDefinition>();
 			});
+
+			services
+				.AddEdo()
+				.AddEdoProblemRegistration();
 
 			AddEdoWithdrawalService(services);
 

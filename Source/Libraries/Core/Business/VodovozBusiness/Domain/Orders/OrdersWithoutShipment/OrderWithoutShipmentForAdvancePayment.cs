@@ -169,7 +169,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 		#endregion
 
-		public virtual EmailTemplate GetEmailTemplate(ICounterpartyEdoAccountController edoAccountController = null)
+		public virtual EmailTemplate GetEmailTemplate(ICounterpartyEdoAccountController edoAccountController = null, IOrganizationSettings organizationSettings = null)
 		{
 			var template = new EmailTemplate();
 
