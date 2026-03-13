@@ -1,5 +1,6 @@
 ﻿using DriverApi.Contracts.V5;
 using DriverApi.Contracts.V5.Responses;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -28,9 +29,10 @@ namespace DriverAPI.HealthChecks
 			ILogger<DriverApiHealthCheck> logger,
 			IHttpClientFactory httpClientFactory,
 			IConfiguration configuration,
+			IHttpContextAccessor httpContextAccessor,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IHealthCheckServiceInfoProvider serviceInfoProvider)
-			: base(logger, serviceInfoProvider, unitOfWorkFactory)
+			: base(logger, serviceInfoProvider, httpContextAccessor, unitOfWorkFactory)
 		{
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));

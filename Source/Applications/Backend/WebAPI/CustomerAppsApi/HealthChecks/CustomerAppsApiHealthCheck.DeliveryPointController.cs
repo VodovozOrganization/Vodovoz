@@ -39,7 +39,7 @@ namespace CustomerAppsApi.HealthChecks
 				_httpClientFactory,
 				cancellationToken: cancellationToken);
 
-			var isHealthy = result.Data.DeliveryPointsInfo?.Any() ?? false;
+			var isHealthy = result.Data?.DeliveryPointsInfo?.Any() ?? false;
 
 			return VodovozHealthResultDto.FromCondition(checkMethodName, isHealthy, result.Data?.ErrorDescription ?? result.ErrorMessage);
 		}

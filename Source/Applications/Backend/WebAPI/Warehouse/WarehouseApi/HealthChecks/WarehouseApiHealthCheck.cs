@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -25,8 +26,9 @@ namespace WarehouseApi.HealthChecks
 			ILogger<WarehouseApiHealthCheck> logger,
 			IHttpClientFactory httpClientFactory,
 			IConfiguration configuration,
+			IHttpContextAccessor httpContextAccessor,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IHealthCheckServiceInfoProvider serviceInfoProvider) : base(logger, serviceInfoProvider, unitOfWorkFactory)
+			IHealthCheckServiceInfoProvider serviceInfoProvider) : base(logger, serviceInfoProvider, httpContextAccessor, unitOfWorkFactory)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));

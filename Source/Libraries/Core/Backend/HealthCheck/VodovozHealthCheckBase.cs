@@ -1,14 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using MassTransit;
+﻿using MassTransit;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Retry;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Extensions;
 using VodovozHealthCheck.Providers;
@@ -22,6 +24,7 @@ namespace VodovozHealthCheck
 		private readonly IBusControl _busControl;
 		
 		protected IHealthCheckServiceInfoProvider ServiceInfoProvider { get; }
+		private IHttpContextAccessor _httpContextAccessor { get; }
 
 		private static readonly AsyncRetryPolicy<VodovozHealthResultDto> _serviceRetryPolicy = Policy<VodovozHealthResultDto>
 			.Handle<Exception>()
@@ -38,11 +41,13 @@ namespace VodovozHealthCheck
 		protected VodovozHealthCheckBase(
 			ILogger<VodovozHealthCheckBase> logger,
 			IHealthCheckServiceInfoProvider serviceInfoProvider,
+			IHttpContextAccessor httpContextAccessor,
 			IUnitOfWorkFactory unitOfWorkFactory = null,
 			IBusControl busControl = null)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			ServiceInfoProvider = serviceInfoProvider ?? throw new ArgumentNullException(nameof(serviceInfoProvider));
+			_httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
 			_unitOfWorkFactory = unitOfWorkFactory;
 			_busControl = busControl;
 		}
@@ -63,9 +68,11 @@ namespace VodovozHealthCheck
 				$"Обнаружены проблемы в сервисе <{ServiceInfoProvider.Name}>. Могут быть недоступны: {ServiceInfoProvider.DetailedDescription}";
 
 			var healthResult = new VodovozHealthResultDto { IsHealthy = false };
-
+						
+			var dnsInfo = await GetDnsInfoAsync();
+			
 			try
-			{
+			{				
 				if(_unitOfWorkFactory != null)
 				{
 					_logger.LogInformation("{CheckMessage}: Соединение с БД.", checkMessage);
@@ -95,7 +102,7 @@ namespace VodovozHealthCheck
 				// Пока ищем причины проблем с сетью, пробуем без повтора
 				// healthResult = await _serviceRetryPolicy.ExecuteAsync(CheckServiceHealthAsync, cancellationToken);
 
-				healthResult = await CheckServiceHealthAsync(cancellationToken);
+				healthResult = await CheckServiceHealthAsync(cancellationToken);				
 
 				_logger.LogInformation("{CheckMessage}: Проверка из сервиса завершена, результат: IsHealthy {IsHealthy}", checkMessage,
 					healthResult.IsHealthy);
@@ -112,6 +119,10 @@ namespace VodovozHealthCheck
 				_logger.LogInformation("{CheckMessage}: Возвращаем итоговый результат IsHealthy: {IsHealthy}", checkMessage, healthResult.IsHealthy);
 
 				return HealthCheckResult.Healthy("Проверка пройдена успешно.");
+			}
+			else
+			{
+				healthResult.AdditionalUnhealthyResults.Add(dnsInfo);
 			}
 
 			const string failedMessage = "Проверка не пройдена!";
@@ -216,6 +227,33 @@ namespace VodovozHealthCheck
 		}
 
 		/// <summary>
+		/// Выполняет DNS-резолв и возвращает информацию о результатах
+		/// </summary>
+		/// <param name="host">Хост для резолва</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Строка с результатом DNS</returns>
+		private async Task<string> GetDnsInfoAsync()
+		{
+			try
+			{
+				var host = _httpContextAccessor.HttpContext?.Request?.Host.Host;
+
+				var addresses = await Dns.GetHostAddressesAsync(host);
+
+				if(addresses == null || addresses.Length == 0)
+				{
+					return "DNS resolved: empty";
+				}
+
+				return $"DNS resolved: {string.Join(", ", addresses.Select(a => a.ToString()))}";
+			}
+			catch(Exception ex)
+			{
+				return $"DNS failed: {ex.Message}";
+			}
+		}
+
+		/// <summary>
 		/// Объединяет результаты нескольких проверок работоспособности в один общий результат.
 		/// Итоговая проверка считается успешной только если все входящие проверки успешны.
 		/// Все сообщения об ошибках из неуспешных проверок объединяются в одну коллекцию.
@@ -243,14 +281,14 @@ namespace VodovozHealthCheck
 			}
 
 			try
-			{
+			{				
 				var results = await Task.WhenAll(tasks);
 
 				return new VodovozHealthResultDto
 				{
 					IsHealthy = results.All(r => r.IsHealthy),
-					AdditionalUnhealthyResults = new[] { $"Название сервиса: {ServiceInfoProvider.Name}" }
-						.Concat(results.SelectMany(r => r.AdditionalUnhealthyResults))
+					AdditionalUnhealthyResults = new[] { $"Название сервиса: {ServiceInfoProvider.Name}" }						
+						.Concat(results.SelectMany(r => r.AdditionalUnhealthyResults))						
 						.ToHashSet()
 				};
 			}

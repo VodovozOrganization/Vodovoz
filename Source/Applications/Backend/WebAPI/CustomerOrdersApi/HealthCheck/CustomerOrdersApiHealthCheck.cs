@@ -1,4 +1,5 @@
 ﻿using MassTransit;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -23,10 +24,11 @@ namespace CustomerOrdersApi.HealthCheck
 			ILogger<VodovozHealthCheckBase> logger,
 			IConfiguration configuration,
 			IHttpClientFactory httpClientFactory,
+			IHttpContextAccessor httpContextAccessor,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IBusControl busControl,
 			IHealthCheckServiceInfoProvider serviceInfoProvider)
-			: base(logger, serviceInfoProvider, unitOfWorkFactory, busControl)
+			: base(logger, serviceInfoProvider, httpContextAccessor, unitOfWorkFactory, busControl)
 		{
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
