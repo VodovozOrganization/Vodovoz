@@ -83,7 +83,7 @@ namespace Edo.Withdrawal
 
 				if(withdrawalEdoTask is null)
 				{
-					new InvalidOperationException(
+					throw new InvalidOperationException(
 						$"Задача вывода из оборота с Id {withdrawalEdoTaskId} не найдена. Вывод из оборота невозможен");
 				}
 
