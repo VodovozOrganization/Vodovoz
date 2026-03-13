@@ -94,18 +94,18 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 				throw new ArgumentNullException(nameof(uow));
 			}
 
-			var subquery = uow.Session.Query<MovementDocumentItem>()
-			   .Where(item => item.Nomenclature != null
-				   && item.Document != null
-				   && item.Document.Status == MovementDocumentStatus.Discrepancy
-				   && item.Document.FromWarehouse.Id == warehouseId
-				   && item.SentAmount != item.ReceivedAmount)
-			   .Select(item => item.Nomenclature.Id)
-			   .Distinct();
+			Nomenclature nomenclatureAlias = null;
+			MovementDocument movementDocumentAlias = null;
+			MovementDocumentItem movementDocumentItemAlias = null;
 
-			return uow.Session.Query<Nomenclature>()
-				.Where(n => subquery.Contains(n.Id))
-				.ToList();
+			return uow.Session.QueryOver(() => nomenclatureAlias)
+				.JoinEntityAlias(() => movementDocumentItemAlias, () => movementDocumentItemAlias.Nomenclature.Id == nomenclatureAlias.Id)
+				.Left.JoinAlias(() => movementDocumentItemAlias.Document, () => movementDocumentAlias)
+				.Where(() => movementDocumentAlias.Status == MovementDocumentStatus.Discrepancy)
+				.Where(() => movementDocumentAlias.FromWarehouse.Id == warehouseId)
+				.Where(() => movementDocumentItemAlias.SentAmount != movementDocumentItemAlias.ReceivedAmount)
+				.Select(Projections.RootEntity())
+				.List<Nomenclature>();
 		}
 
 		public bool WarehouseByMovementDocumentsNotificationsSubdivisionExists(IUnitOfWork uow, int subdivisionId)
