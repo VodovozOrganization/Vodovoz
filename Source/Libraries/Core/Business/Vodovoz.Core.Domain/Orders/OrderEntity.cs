@@ -767,6 +767,13 @@ namespace Vodovoz.Core.Domain.Orders
 			}
 		}
 
+		public static OrderStatus[] GetOnClosingOrderStatuses => 
+			new OrderStatus[] {
+				OrderStatus.UnloadingOnStock,
+				OrderStatus.Shipped,
+				OrderStatus.Closed
+			};
+
 		#endregion Вычисляемые свойства
 		
 		/// <summary>

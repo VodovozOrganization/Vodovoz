@@ -5,6 +5,8 @@ using Gtk;
 using QS.Views.Dialog;
 using System;
 using System.ComponentModel;
+using System.Linq;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure;
@@ -122,6 +124,8 @@ namespace Vodovoz.Views.Payments
 			ycheckbuttonHideUnregisteredCounterparties.Binding
 				.AddBinding(ViewModel, vm => vm.HideUnregisteredCounterparties, w => w.Active)
 				.InitializeFromSource();
+			
+			buttonInfo.BindCommand(ViewModel.HelpCommand);
 
 			ConfigureFileChooser();
 			ConfigureOrdersTree();
@@ -188,6 +192,18 @@ namespace Vodovoz.Views.Payments
 						}
 					})
 				.AddColumn("")
+				.RowCells()
+				.AddSetter<CellRenderer>((cell, node) =>
+				{
+					if(node.OrderStatus is null || !OrderEntity.GetOnClosingOrderStatuses.Contains(node.OrderStatus.Value))
+					{
+						cell.CellBackgroundGdk = GdkColors.YellowMustard;
+					}
+					else
+					{
+						cell.CellBackgroundGdk = GdkColors.PrimaryBG;
+					}
+				})
 				.Finish();
 
 			ytreeviewOrdersData.ItemsDataSource = ViewModel.OrdersNodes;

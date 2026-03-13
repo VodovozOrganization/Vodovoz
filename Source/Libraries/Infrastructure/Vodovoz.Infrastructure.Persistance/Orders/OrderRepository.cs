@@ -674,15 +674,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return GetAvgRangeBetweenOrders(uow, deliveryPoint, out int? orderCount, startDate, endDate);
 		}
 
-		public OrderStatus[] GetOnClosingOrderStatuses()
-		{
-			return new OrderStatus[] {
-				OrderStatus.UnloadingOnStock,
-				OrderStatus.Shipped,
-				OrderStatus.Closed
-			};
-		}
-
 		public OrderStatus[] GetStatusesForOrderCancelation()
 		{
 			return new OrderStatus[] {
@@ -2367,7 +2358,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 				let finishedReferOrders = from orders in uow.Session.Query<Domain.Orders.Order>()
 										  where orders.Client.Id == counterparty.Id
-										  && GetOnClosingOrderStatuses().Contains(orders.OrderStatus)
+										  && OrderEntity.GetOnClosingOrderStatuses.Contains(orders.OrderStatus)
 										  select orders.Id
 
 				where finishedReferOrders.Any()
