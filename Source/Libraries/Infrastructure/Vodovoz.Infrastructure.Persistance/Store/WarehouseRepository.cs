@@ -98,13 +98,13 @@ namespace Vodovoz.Infrastructure.Persistance.Store
 			MovementDocument movementDocumentAlias = null;
 			MovementDocumentItem movementDocumentItemAlias = null;
 
-			return uow.Session.QueryOver(() => movementDocumentItemAlias)
-				.Left.JoinAlias(() => movementDocumentItemAlias.Nomenclature, () => nomenclatureAlias)
+			return uow.Session.QueryOver(() => nomenclatureAlias)
+				.JoinEntityAlias(() => movementDocumentItemAlias, () => movementDocumentItemAlias.Nomenclature.Id == nomenclatureAlias.Id)
 				.Left.JoinAlias(() => movementDocumentItemAlias.Document, () => movementDocumentAlias)
 				.Where(() => movementDocumentAlias.Status == MovementDocumentStatus.Discrepancy)
 				.Where(() => movementDocumentAlias.FromWarehouse.Id == warehouseId)
 				.Where(() => movementDocumentItemAlias.SentAmount != movementDocumentItemAlias.ReceivedAmount)
-				.Select(Projections.Entity(() => nomenclatureAlias))
+				.Select(Projections.RootEntity())
 				.List<Nomenclature>();
 		}
 
