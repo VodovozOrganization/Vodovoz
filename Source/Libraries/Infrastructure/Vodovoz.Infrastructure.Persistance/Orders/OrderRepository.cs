@@ -1,4 +1,4 @@
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -2684,6 +2684,10 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 							   orderItem.ActualSum)
 							   .Sum() ?? 0
 
+					let isExpired =
+						order.DeliveryDate != null
+						&& order.DeliveryDate.Value.AddDays(counterparty.DelayDaysForBuyers) < today
+
 					where
 						order.OrderPaymentStatus != OrderPaymentStatus.Paid
 						&& orderStatuses.Contains(order.OrderStatus)
@@ -2693,6 +2697,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						&& organization.Id == organizationId
 						&& order.DeliveryDate != null
 						&& orderSum > 0
+						&& isExpired
 
 					select new OrderPaymentsDataNode
 					{
