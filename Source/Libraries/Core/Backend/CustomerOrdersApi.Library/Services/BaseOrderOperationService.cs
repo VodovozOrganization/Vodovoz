@@ -168,7 +168,7 @@ namespace CustomerOrdersApi.Library.Services
 					OperationName.ToLower(),
 					dto.ExternalOrderId);
 
-				return CreateErrorResult(ex);
+				return CreateErrorResult();
 			}
 		}
 
@@ -271,7 +271,7 @@ namespace CustomerOrdersApi.Library.Services
 			return result;
 		}
 
-		private static TResult CreateErrorResult(Exception ex)
+		private static TResult CreateErrorResult()
 		{
 			var result = new TResult
 			{

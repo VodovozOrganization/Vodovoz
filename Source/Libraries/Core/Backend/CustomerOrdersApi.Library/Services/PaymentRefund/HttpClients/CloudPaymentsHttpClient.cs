@@ -98,7 +98,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.HttpClients
 				using var content = new System.Net.Http.StringContent(json, Encoding.UTF8, "application/json");
 				using var response = await _httpClient.PostAsync(endpoint, content, cancellationToken);
 
-				var responseJson = await response.Content.ReadAsStringAsync();
+				var responseJson = await response.Content.ReadAsStringAsync(cancellationToken);
 				_logger.LogTrace("Ответ от {Endpoint}: {StatusCode} - {Response}",
 					endpoint, response.StatusCode, responseJson);
 

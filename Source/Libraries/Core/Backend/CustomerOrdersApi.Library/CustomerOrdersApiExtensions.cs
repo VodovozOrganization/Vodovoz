@@ -180,6 +180,31 @@ namespace CustomerOrdersApi.Library
 			services.AddScoped<IYandexPayMapper, YandexPayMapper>();
 			services.AddScoped<IPaymentRefundService, YandexPayRefundService>();
 
+			services.Configure<YooKassaOptions>(
+				configuration.GetSection("YooKassa"));
+
+			services.AddHttpClient<IYooKassaHttpClient, YooKassaHttpClient>((sp, client) =>
+			{
+				var settings = sp.GetRequiredService<IOptions<YooKassaOptions>>().Value;
+
+				client.BaseAddress = new Uri(settings.ApiUrl);
+
+				var authToken = Convert.ToBase64String(
+					Encoding.ASCII.GetBytes($"{settings.ShopId}:{settings.SecretKey}"));
+
+				client.DefaultRequestHeaders.Authorization =
+					new AuthenticationHeaderValue("Basic", authToken);
+
+				client.DefaultRequestHeaders.Accept.Add(
+					new MediaTypeWithQualityHeaderValue("application/json"));
+				client.DefaultRequestHeaders.Add("User-Agent", "Vodovoz/1.0");
+
+				client.Timeout = TimeSpan.FromSeconds(30);
+			});
+
+			services.AddScoped<IYooKassaMapper, YooKassaMapper>();
+			services.AddScoped<IPaymentRefundService, YooKassaRefundService>();
+
 			return services;
 		}
 	}

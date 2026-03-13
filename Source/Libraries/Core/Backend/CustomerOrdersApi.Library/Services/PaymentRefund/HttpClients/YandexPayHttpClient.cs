@@ -30,7 +30,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.HttpClients
 			_logger.LogDebug("Запрос информации о заказе {OrderId}", orderId);
 
 			var endpoint = $"v1/orders/{orderId}";
-			var result = await GetAsync<YandexPayOrderResponse>(endpoint);
+			var result = await GetAsync<YandexPayOrderResponse>(endpoint, cancellationToken);
 
 			if(result.Success)
 			{
@@ -66,7 +66,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.HttpClients
 		/// <summary>
 		/// Общий метод для GET запросов к API Яндекс Пэй
 		/// </summary>
-		private async Task<YandexPayResult<T>> GetAsync<T>(string endpoint, CancellationToken cancellationToken = default)
+		private async Task<YandexPayResult<T>> GetAsync<T>(string endpoint, CancellationToken cancellationToken)
 		{
 			try
 			{

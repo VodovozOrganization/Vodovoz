@@ -19,7 +19,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 
 		public YandexPayRefundRequest MapToRefundRequest(RefundRequestDto request)
 		{
-			if(request == null)
+			if(request is null)
 			{
 				throw new ArgumentNullException(nameof(request));
 			}
@@ -107,7 +107,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 		/// <summary>
 		/// Маппит статус операции из YandexPay во внутренние статусы
 		/// </summary>
-		private (RefundStatus refundStatus, OnlineOrderPaymentStatus orderStatus) MapRefundStatus(YandexPayOperationStatus status)
+		private static (RefundStatus refundStatus, OnlineOrderPaymentStatus orderStatus) MapRefundStatus(YandexPayOperationStatus status)
 		{
 			return status switch
 			{
