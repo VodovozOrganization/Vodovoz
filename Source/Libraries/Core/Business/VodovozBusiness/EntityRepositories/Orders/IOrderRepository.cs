@@ -104,8 +104,6 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <returns>Возможность смены даты контракта</returns>
 		bool CanChangeContractDate(IUnitOfWork uow, Counterparty client, DateTime newDeliveryDate, int orderId);
 
-		OrderStatus[] GetOnClosingOrderStatuses();
-
 		Order GetOrderOnDateAndDeliveryPoint(IUnitOfWork uow, DateTime date, DeliveryPoint deliveryPoint);
 		IList<Order> GetSameOrderForDateAndDeliveryPoint(IUnitOfWorkFactory uow, DateTime date, DeliveryPoint deliveryPoint);
 		Order GetOrder(IUnitOfWork unitOfWork, int orderId);

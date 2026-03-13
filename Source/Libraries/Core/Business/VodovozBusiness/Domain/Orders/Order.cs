@@ -1683,7 +1683,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			if(_orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus))
+			if(GetOnClosingOrderStatuses.Contains(OrderStatus))
 			{
 				OnChangeCounterparty(UoW, orderContractUpdater, counterparty);
 			}

@@ -233,7 +233,7 @@ namespace Vodovoz.Application.Orders.Services
 
 			foreach(var order in orders)
 			{
-				if(_orderRepository.GetOnClosingOrderStatuses().Contains(order.OrderStatus)
+				if(OrderEntity.GetOnClosingOrderStatuses.Contains(order.OrderStatus)
 					&& (order.PaymentType == PaymentType.Cash
 						|| order.PaymentType == PaymentType.DriverApplicationQR
 						|| order.PaymentType == PaymentType.SmsQR
