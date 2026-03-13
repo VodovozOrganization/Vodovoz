@@ -1,4 +1,5 @@
 ﻿using MassTransit;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -22,9 +23,10 @@ namespace Vodovoz.RobotMia.Api.HealthCheck
 		public RobotMiaApiHealthCheck(ILogger<VodovozHealthCheckBase> logger,
 			IConfiguration configuration,
 			IHttpClientFactory httpClientFactory,
+			IHttpContextAccessor httpContextAccessor,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IHealthCheckServiceInfoProvider serviceInfoProvider)
-			: base(logger, serviceInfoProvider, unitOfWorkFactory)
+			: base(logger, serviceInfoProvider, httpContextAccessor, unitOfWorkFactory)
 		{
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
