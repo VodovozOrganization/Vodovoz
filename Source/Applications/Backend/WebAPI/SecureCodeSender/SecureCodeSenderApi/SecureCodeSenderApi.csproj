@@ -17,11 +17,11 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Email\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport\MessageTransport.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Sms\Sms.External.SmsRu\Sms.External.SmsRu.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\Core\Backend\Telegram\Telegram.GatewayApi.Client\Telegram.GatewayApi.Client.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
     <ProjectReference Include="..\..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.WebApi.Caching.Redis\Vodovoz.Infrastructure.WebApi.Caching.Redis.csproj" />
     <ProjectReference Include="..\..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
-    <ProjectReference Include="..\..\Sms.Internal.Service\Sms.Internal.Service.csproj" />
     <ProjectReference Include="..\..\Vodovoz.Presentation.WebApi\Vodovoz.Presentation.WebApi.csproj" />
     <ProjectReference Include="..\SecureCodeSender.Contracts\SecureCodeSender.Contracts.csproj" />
   </ItemGroup>
