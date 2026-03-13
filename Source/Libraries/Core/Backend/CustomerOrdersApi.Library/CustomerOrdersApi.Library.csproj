@@ -16,6 +16,7 @@
       <ProjectReference Include="..\..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />
       <ProjectReference Include="..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
       <ProjectReference Include="..\..\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj" />
+      <ProjectReference Include="..\FastPaymentsAPI.Library\FastPaymentsAPI.Library.csproj" />
     </ItemGroup>
 
     <ItemGroup>

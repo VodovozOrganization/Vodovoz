@@ -43,8 +43,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 				OnlineOrder: request.OnlineOrder,
 				ExternalOrderId: request.ExternalOrderId,
 				Amount: request.Amount,
-				TransactionId: transactionId.ToString(),
-				CancellationToken: CancellationToken.None
+				TransactionId: transactionId.ToString()
 			);
 		}
 

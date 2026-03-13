@@ -5,6 +5,7 @@ using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using VodovozHealthCheck.Helpers;
 
@@ -152,7 +153,7 @@ namespace CustomerOrdersApi.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> TransferOrderAsync(TransferOrderDto transferOrderDto)
+		public async Task<IActionResult> TransferOrderAsync(TransferOrderDto transferOrderDto, CancellationToken cancellationToken)
 		{
 			var sourceName = transferOrderDto.Source.GetEnumTitle();
 
@@ -165,7 +166,7 @@ namespace CustomerOrdersApi.Controllers
 					transferOrderDto.DeliveryDate,
 					transferOrderDto.DeliveryScheduleId);
 
-				var transferResult = await _orderTransferService.TransferOrderAsync(transferOrderDto);
+				var transferResult = await _orderTransferService.TransferOrderAsync(transferOrderDto, cancellationToken);
 
 				Logger.LogInformation(
 					"Результат переноса: IsSuccess={IsSuccess}, StatusCode={StatusCode}",
@@ -196,7 +197,7 @@ namespace CustomerOrdersApi.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> CancelOrderAsync(CancelOrderDto cancelOrderDto)
+		public async Task<IActionResult> CancelOrderAsync(CancelOrderDto cancelOrderDto, CancellationToken cancellationToken)
 		{
 			var sourceName = cancelOrderDto.Source.GetEnumTitle();
 
@@ -207,7 +208,7 @@ namespace CustomerOrdersApi.Controllers
 					sourceName,
 					cancelOrderDto.ExternalOrderId);
 
-				var cancellationResult = await _orderCancellationService.CancelOrderAsync(cancelOrderDto);
+				var cancellationResult = await _orderCancellationService.CancelOrderAsync(cancelOrderDto, cancellationToken);
 
 				Logger.LogInformation(
 					"Результат отмены: Success={Success}, StatusCode={StatusCode}",

@@ -15,6 +15,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Employee;
 
@@ -27,6 +28,7 @@ namespace CustomerAppsApi.Library.Models
 		private readonly IEmployeeSettings _employeeSettings;
 		private readonly IEmailSettings _emailSettings;
 		private readonly IExternalCounterpartyRepository _externalCounterpartyRepository;
+		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ISourceConverter _sourceConverter;
 		private readonly IPublishEndpoint _publishEndpoint;
 
@@ -35,6 +37,7 @@ namespace CustomerAppsApi.Library.Models
 			IEmployeeSettings employeeSettings,
 			IEmailSettings emailSettings,
 			IExternalCounterpartyRepository externalCounterpartyRepository,
+			IEmployeeRepository employeeRepository,
 			ISourceConverter sourceConverter,
 			IPublishEndpoint publishEndpoint)
 		{
@@ -43,6 +46,7 @@ namespace CustomerAppsApi.Library.Models
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_externalCounterpartyRepository =
 				externalCounterpartyRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyRepository));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_sourceConverter = sourceConverter ?? throw new ArgumentNullException(nameof(sourceConverter));
 			_publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
@@ -70,20 +74,9 @@ namespace CustomerAppsApi.Library.Models
 				return Result.Failure(Vodovoz.Errors.Common.CustomerAppsApiClientErrors.UnknownUser);
 			}
 			
-			Employee employee = null;
+			Employee employee;
 			
-			switch(codeToEmailDto.Source)
-			{
-				case Source.MobileApp:
-					employee = _unitOfWork.GetById<Employee>(_employeeSettings.MobileAppEmployee);
-					break;
-				case Source.VodovozWebSite:
-					employee = _unitOfWork.GetById<Employee>(_employeeSettings.VodovozWebSiteEmployee);
-					break;
-				case Source.KulerSaleWebSite:
-					employee = _unitOfWork.GetById<Employee>(_employeeSettings.KulerSaleWebSiteEmployee);
-					break;
-			}
+			employee = _employeeRepository.GetEmployeeBySource(_unitOfWork, codeToEmailDto.Source);
 
 			if(employee is null)
 			{

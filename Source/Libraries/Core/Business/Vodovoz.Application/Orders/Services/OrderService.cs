@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Office2010.Excel;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -8,7 +7,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Controllers;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
@@ -28,7 +26,6 @@ using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Services.Logistics;
-using Vodovoz.Services.Orders;
 using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
@@ -55,7 +52,6 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly IOrderDailyNumberController _orderDailyNumberController;
 		private readonly IPaymentFromBankClientController _paymentFromBankClientController;
 		private readonly IOrderFromOnlineOrderCreator _orderFromOnlineOrderCreator;
-		private readonly IEmployeeSettings _employeeSettings;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IGenericRepository<DiscountReason> _discountReasonRepository;
 		private readonly IOrderSettings _orderSettings;
@@ -81,7 +77,6 @@ namespace Vodovoz.Application.Orders.Services
 			IOrderDailyNumberController orderDailyNumberController,
 			IPaymentFromBankClientController paymentFromBankClientController,
 			IOrderFromOnlineOrderCreator orderFromOnlineOrderCreator,
-			IEmployeeSettings employeeSettings,
 			INomenclatureRepository nomenclatureRepository,
 			IGenericRepository<DiscountReason> discountReasonRepository,
 			IOrderSettings orderSettings,
@@ -111,7 +106,6 @@ namespace Vodovoz.Application.Orders.Services
 			_orderDailyNumberController = orderDailyNumberController ?? throw new ArgumentNullException(nameof(orderDailyNumberController));
 			_paymentFromBankClientController = paymentFromBankClientController ?? throw new ArgumentNullException(nameof(paymentFromBankClientController));
 			_orderFromOnlineOrderCreator = orderFromOnlineOrderCreator ?? throw new ArgumentNullException(nameof(orderFromOnlineOrderCreator));
-			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
@@ -615,19 +609,12 @@ namespace Vodovoz.Application.Orders.Services
 				return 0;
 			}
 
-			Employee employee = null;
-			switch(onlineOrder.Source)
-			{
-				case Source.MobileApp:
-					employee = await uow.Session.GetAsync<Employee>(_employeeSettings.MobileAppEmployee, cancellationToken);
-					break;
-				case Source.VodovozWebSite:
-					employee = await uow.Session.GetAsync<Employee>(_employeeSettings.VodovozWebSiteEmployee, cancellationToken);
-					break;
-				case Source.KulerSaleWebSite:
-					employee = await uow.Session.GetAsync<Employee>(_employeeSettings.KulerSaleWebSiteEmployee, cancellationToken);
-					break;
-			}
+			Employee employee;
+
+			employee = await _employeeRepository.GetEmployeeBySourceAsync(
+				uow,
+				onlineOrder.Source,
+				cancellationToken);
 
 			// Необходимо сделать асинхронным
 			var order = _orderFromOnlineOrderCreator.CreateOrderFromOnlineOrder(uow, employee, onlineOrder);

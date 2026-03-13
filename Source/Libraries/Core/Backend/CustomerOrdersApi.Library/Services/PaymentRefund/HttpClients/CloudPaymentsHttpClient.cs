@@ -4,6 +4,7 @@ using System;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using xNetStandard;
 
@@ -25,14 +26,14 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.HttpClients
 			_jsonOptions = jsonOptions ?? throw new ArgumentNullException(nameof(jsonOptions));
 		}
 
-		public async Task<CloudPaymentsResponse<CloudPaymentsTransaction>> GetTransactionAsync(long transactionId)
+		public async Task<CloudPaymentsResponse<CloudPaymentsTransaction>> GetTransactionAsync(long transactionId, CancellationToken cancellationToken)
 		{
 			try
 			{
 				_logger.LogDebug("Запрос информации о транзакции {TransactionId}", transactionId);
 
 				var request = new { TransactionId = transactionId };
-				var response = await PostAsync<CloudPaymentsTransaction>("payments/get", request);
+				var response = await PostAsync<CloudPaymentsTransaction>("payments/get", request, cancellationToken);
 
 				if(response?.Success == true)
 				{
@@ -54,14 +55,14 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.HttpClients
 			}
 		}
 
-		public async Task<CloudPaymentsResponse<CloudPaymentsRefundResult>> RefundAsync(CloudPaymentsRefundRequest request)
+		public async Task<CloudPaymentsResponse<CloudPaymentsRefundResult>> RefundAsync(CloudPaymentsRefundRequest request, CancellationToken cancellationToken)
 		{
 			try
 			{
 				_logger.LogInformation("Выполнение возврата для транзакции {TransactionId}, сумма: {Amount}",
 					request.TransactionId, request.Amount);
 
-				var response = await PostAsync<CloudPaymentsRefundResult>("payments/refund", request);
+				var response = await PostAsync<CloudPaymentsRefundResult>("payments/refund", request, cancellationToken);
 
 				if(response?.Success == true)
 				{
@@ -87,7 +88,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.HttpClients
 		/// <summary>
 		/// Общий метод для POST запросов к API CloudPayments
 		/// </summary>
-		private async Task<CloudPaymentsResponse<T>> PostAsync<T>(string endpoint, object data)
+		private async Task<CloudPaymentsResponse<T>> PostAsync<T>(string endpoint, object data, CancellationToken cancellationToken)
 		{
 			try
 			{
@@ -95,7 +96,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.HttpClients
 				_logger.LogTrace("Отправка запроса на {Endpoint}: {Json}", endpoint, json);
 
 				using var content = new System.Net.Http.StringContent(json, Encoding.UTF8, "application/json");
-				using var response = await _httpClient.PostAsync(endpoint, content);
+				using var response = await _httpClient.PostAsync(endpoint, content, cancellationToken);
 
 				var responseJson = await response.Content.ReadAsStringAsync();
 				_logger.LogTrace("Ответ от {Endpoint}: {StatusCode} - {Response}",

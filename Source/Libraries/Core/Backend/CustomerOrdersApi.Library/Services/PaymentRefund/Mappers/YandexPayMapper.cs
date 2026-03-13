@@ -38,8 +38,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 			{
 				RefundAmount = request.Amount,
 				ExternalOperationId = GenerateExternalOperationId(request),
-				OrderId = request.TransactionId,
-				CancellationToken = request.CancellationToken
+				OrderId = request.TransactionId
 			};
 
 			if(IsFullRefund(request))

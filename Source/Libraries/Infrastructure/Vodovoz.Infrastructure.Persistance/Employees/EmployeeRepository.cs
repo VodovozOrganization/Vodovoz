@@ -6,7 +6,10 @@ using QS.Project.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Cash;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Subdivisions;
 using Vodovoz.Core.Domain.Users;
@@ -16,14 +19,16 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.Settings.Employee;
 
 namespace Vodovoz.Infrastructure.Persistance.Employees
 {
 	internal sealed class EmployeeRepository : IEmployeeRepository
 	{
-		public EmployeeRepository()
+		private readonly IEmployeeSettings _employeeSettings;
+		public EmployeeRepository(IEmployeeSettings employeeSettings)
 		{
-
+			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 		}
 
 		public Employee GetEmployeeForCurrentUser(IUnitOfWork unitOfWork)
@@ -321,6 +326,58 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 				};
 
 			return query.ToList();
+		}
+
+		public Employee GetEmployeeBySource(IUnitOfWork unitOfWork, Source source)
+		{
+			int employeeId;
+
+			switch(source)
+			{
+				case Source.MobileApp:
+					employeeId = _employeeSettings.MobileAppEmployee;
+					break;
+
+				case Source.VodovozWebSite:
+					employeeId = _employeeSettings.VodovozWebSiteEmployee;
+					break;
+
+				case Source.KulerSaleWebSite:
+					employeeId = _employeeSettings.KulerSaleWebSiteEmployee;
+					break;
+
+				default:
+					employeeId = 0;
+					break;
+			}
+
+			return unitOfWork.GetById<Employee>(employeeId);
+		}
+
+		public async Task<Employee> GetEmployeeBySourceAsync(IUnitOfWork unitOfWork, Source source, CancellationToken cancellationToken)
+		{
+			int employeeId;
+
+			switch(source)
+			{
+				case Source.MobileApp:
+					employeeId = _employeeSettings.MobileAppEmployee;
+					break;
+
+				case Source.VodovozWebSite:
+					employeeId = _employeeSettings.VodovozWebSiteEmployee;
+					break;
+
+				case Source.KulerSaleWebSite:
+					employeeId = _employeeSettings.KulerSaleWebSiteEmployee;
+					break;
+
+				default:
+					employeeId = 0;
+					break;
+			}
+
+			return await unitOfWork.Session.GetAsync<Employee>(employeeId, cancellationToken);
 		}
 	}
 }

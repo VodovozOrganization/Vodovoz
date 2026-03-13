@@ -6,6 +6,7 @@ using CustomerOrdersApi.Library.Services;
 using CustomerOrdersApi.Library.Services.PaymentRefund;
 using CustomerOrdersApi.Library.Services.PaymentRefund.HttpClients;
 using CustomerOrdersApi.Library.Services.PaymentRefund.Mappers;
+using FastPaymentsAPI.Library;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -59,6 +60,11 @@ namespace CustomerOrdersApi.Library
 				.AddScoped<IOnlineOrderService, OnlineOrderService>();
 
 			return services;
+		}
+
+		public static IServiceCollection AddFastPaymentsDependencies(this IServiceCollection services)
+		{
+			return services.AddDependencyGroup();
 		}
 
 		public static IBusRegistrationConfigurator ConfigureRabbitMq(this IBusRegistrationConfigurator busConf)

@@ -44,7 +44,7 @@ namespace CustomerOrdersApi.Library.Factories
 				throw new ArgumentNullException(nameof(onlineOrder));
 			}
 
-			if(onlineOrder.OnlineOrderPaymentStatus != OnlineOrderPaymentStatus.Paid)
+			if(onlineOrder.OnlineOrderPaymentStatus is not OnlineOrderPaymentStatus.Paid)
 			{
 				_logger.LogDebug("Заказ {ExternalOrderId} не оплачен, возврат не требуется",
 					onlineOrder.ExternalOrderId);

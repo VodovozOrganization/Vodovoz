@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;

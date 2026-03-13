@@ -3,6 +3,7 @@ using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -55,7 +56,7 @@ namespace CustomerOrdersApi.Library.Services
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 		}
 
-		public async Task<TransferOrderResult> TransferOrderAsync(TransferOrderDto transferOrderDto) => await ExecuteAsync(transferOrderDto);
+		public async Task<TransferOrderResult> TransferOrderAsync(TransferOrderDto transferOrderDto, CancellationToken cancellationToken) => await ExecuteAsync(transferOrderDto, cancellationToken);
 
 		protected override string OperationName => "Перенос";
 
@@ -65,7 +66,8 @@ namespace CustomerOrdersApi.Library.Services
 			IUnitOfWork uow,
 			Order order,
 			OnlineOrder onlineOrder,
-			TransferOrderDto dto)
+			TransferOrderDto dto, 
+			CancellationToken cancellationToken)
 		{
 			_logger.LogInformation(
 				"Начало простого переноса заказа {OrderId} в статусе {Status}",
@@ -78,8 +80,8 @@ namespace CustomerOrdersApi.Library.Services
 				_orderContractUpdater,
 				out _);
 
-			uow.Save(order);
-			uow.Commit();
+			await uow.SaveAsync(order, cancellationToken: cancellationToken);
+			await uow.CommitAsync(cancellationToken);
 
 			_logger.LogInformation(
 				"Простой перенос заказа {OrderId} на дату {NewDate} успешно завершен",
@@ -93,15 +95,16 @@ namespace CustomerOrdersApi.Library.Services
 			IUnitOfWork uow,
 			Order order,
 			OnlineOrder onlineOrder,
-			TransferOrderDto dto)
+			TransferOrderDto dto,
+			CancellationToken cancellationToken)
 		{
 			return order.OrderStatus switch
 			{
 				OrderStatus.InTravelList =>
-					await TransferFromTravelListAsync(uow, order, onlineOrder, dto),
+					await TransferFromTravelListAsync(uow, order, onlineOrder, dto, cancellationToken),
 
 				OrderStatus.OnLoading or OrderStatus.OnTheWay =>
-					await TransferWithUndeliveryAsync(uow, order, onlineOrder, dto),
+					await TransferWithUndeliveryAsync(uow, order, onlineOrder, dto, cancellationToken),
 
 				_ => throw new InvalidOperationException($"Неожиданный статус заказа: {order.OrderStatus}")
 			};
@@ -146,7 +149,8 @@ namespace CustomerOrdersApi.Library.Services
 			IUnitOfWork uow,
 			Order order,
 			OnlineOrder onlineOrder,
-			TransferOrderDto dto)
+			TransferOrderDto dto,
+			CancellationToken cancellationToken)
 		{
 			_logger.LogInformation(
 				"Перенос заказа {OrderId} из маршрутного листа",
@@ -185,10 +189,10 @@ namespace CustomerOrdersApi.Library.Services
 			onlineOrder.DeliveryDate = dto.DeliveryDate;
 			onlineOrder.DeliveryScheduleId = dto.DeliveryScheduleId;
 
-			uow.Save(routeList);
-			uow.Save(order);
-			uow.Save(onlineOrder);
-			uow.Commit();
+			await uow.SaveAsync(routeList, cancellationToken: cancellationToken);
+			await uow.SaveAsync(order, cancellationToken: cancellationToken);
+			await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
+			await uow.CommitAsync(cancellationToken);
 
 			_logger.LogInformation(
 				"Заказ {OrderId} успешно перенесен из маршрутного листа на {NewDate}",
@@ -209,15 +213,15 @@ namespace CustomerOrdersApi.Library.Services
 			IUnitOfWork uow,
 			Order order,
 			OnlineOrder onlineOrder,
-			TransferOrderDto dto)
+			TransferOrderDto dto,
+			CancellationToken cancellationToken)
 		{
 			_logger.LogInformation(
 				"Начало переноса заказа {OrderId} из статуса '{Status}' с использованием механизма недовоза",
 				order.Id,
 				order.OrderStatus.GetEnumTitle());
 
-			//var currentUser = _employeeRepository.GetEmployeeForCurrentUser(uow);
-			var currentUser = uow.GetById<Employee>(1468);
+			var currentUser = await _employeeRepository.GetEmployeeBySourceAsync(uow, dto.Source, cancellationToken);
 			if(currentUser is null)
 			{
 				_logger.LogWarning(
@@ -251,7 +255,7 @@ namespace CustomerOrdersApi.Library.Services
 				return result;
 			}
 
-			var newOrder = CreateOrderCopy(uow, order, dto.DeliveryDate, deliverySchedule);
+			var newOrder = await CreateOrderCopy(uow, order, dto.DeliveryDate, deliverySchedule, cancellationToken);
 
 			_logger.LogInformation(
 				"Создана копия заказа {OrderId}: новый заказ {NewOrderId}",
@@ -280,11 +284,11 @@ namespace CustomerOrdersApi.Library.Services
 			onlineOrder.DeliveryDate = dto.DeliveryDate;
 			onlineOrder.DeliveryScheduleId = dto.DeliveryScheduleId;
 
-			uow.Save(order);
-			uow.Save(newOrder);
-			uow.Save(undelivery);
-			uow.Save(onlineOrder);
-			uow.Commit();
+			await uow.SaveAsync(order, cancellationToken: cancellationToken);
+			await uow.SaveAsync(newOrder, cancellationToken: cancellationToken);
+			await uow.SaveAsync(undelivery, cancellationToken: cancellationToken);
+			await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
+			await uow.CommitAsync(cancellationToken);
 
 			_logger.LogInformation(
 				"Заказ {OrderId} успешно перенесен из статуса '{Status}' на дату {NewDate} через механизм недовоза. Новый заказ: {NewOrderId}, Недовоз: {UndeliveryId}",
@@ -304,11 +308,12 @@ namespace CustomerOrdersApi.Library.Services
 			return successResult;
 		}
 
-		private Order CreateOrderCopy(
+		private async Task<Order> CreateOrderCopy(
 			IUnitOfWork uow,
 			Order originalOrder,
 			DateTime newDeliveryDate,
-			DeliverySchedule newDeliverySchedule)
+			DeliverySchedule newDeliverySchedule,
+			CancellationToken cancellationToken)
 		{
 			var newOrder = new Order
 			{
@@ -346,7 +351,7 @@ namespace CustomerOrdersApi.Library.Services
 				copying.CopyPaymentByQrDataIfPossible();
 			}
 
-			uow.Save(newOrder);
+			await uow.SaveAsync(newOrder, cancellationToken: cancellationToken);
 
 			return newOrder;
 		}

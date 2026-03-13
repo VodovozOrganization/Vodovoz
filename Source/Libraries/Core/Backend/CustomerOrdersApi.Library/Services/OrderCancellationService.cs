@@ -1,4 +1,4 @@
-using CustomerOrdersApi.Library.Dto.Orders;
+﻿using CustomerOrdersApi.Library.Dto.Orders;
 using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
 using CustomerOrdersApi.Library.Factories;
 using Gamma.Utilities;
@@ -77,8 +77,8 @@ namespace CustomerOrdersApi.Library.Services
 			order.ChangeStatus(OrderStatus.Canceled);
 			order.Version = DateTime.Now;
 
-			uow.Save(order);
-			uow.Commit();
+			await uow.SaveAsync(order, cancellationToken: cancellationToken);
+			await uow.CommitAsync(cancellationToken);
 
 			_logger.LogInformation(
 				"Заказ {OrderId} успешно отменен",
@@ -160,21 +160,20 @@ namespace CustomerOrdersApi.Library.Services
 			order.ChangeStatus(OrderStatus.Canceled);
 			order.Version = DateTime.Now;
 
-			uow.Save(order);
+			await uow.SaveAsync(order, cancellationToken: cancellationToken);
 
 			if(onlineOrder != null)
 			{
-				uow.Save(onlineOrder);
+				await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken); 
 			}
 
-			uow.Commit();
+			await uow.CommitAsync(cancellationToken);
 
 			_logger.LogInformation(
 				"Оплаченный заказ {OrderId} отменен. Результат возврата: {RefundStatus}",
 				order.Id,
 				refundResult.RefundStatus);
 
-			// Формируем сообщение для пользователя в зависимости от статуса возврата
 			var message = refundResult.RefundStatus == RefundStatus.PENDING
 				? "Заказ отменен, возврат средств инициирован. Статус возврата можно отслеживать в истории заказов."
 				: "Заказ отменен успешно, денежные средства вернутся к Вам в течение 10 дней. Срок зависит от банка получателя";
@@ -237,9 +236,9 @@ namespace CustomerOrdersApi.Library.Services
 			order.ChangeStatus(OrderStatus.Canceled);
 			order.Version = DateTime.Now;
 
-			uow.Save(routeList);
-			uow.Save(order);
-			uow.Commit();
+			await uow.SaveAsync(routeList, cancellationToken: cancellationToken);
+			await uow.SaveAsync(order, cancellationToken: cancellationToken);
+			await uow.CommitAsync(cancellationToken);
 
 			_logger.LogInformation(
 				"Заказ {OrderId} успешно отменен из маршрутного листа",
@@ -267,8 +266,7 @@ namespace CustomerOrdersApi.Library.Services
 				order.Id,
 				order.OrderStatus.GetEnumTitle());
 
-			//var currentUser = _employeeRepository.GetEmployeeForCurrentUser(uow);
-			var currentUser = uow.GetById<Employee>(1468);
+			var currentUser = await _employeeRepository.GetEmployeeBySourceAsync(uow, dto.Source, cancellationToken);
 			if(currentUser == null)
 			{
 				_logger.LogWarning(
@@ -307,10 +305,10 @@ namespace CustomerOrdersApi.Library.Services
 				"Установлен статус 'Недовезено' для заказа {OrderId}",
 				order.Id);
 
-			uow.Save(order);
-			uow.Save(undelivery);
-			uow.Save(onlineOrder);
-			uow.Commit();
+			await uow.SaveAsync(order, cancellationToken: cancellationToken);
+			await uow.SaveAsync(undelivery, cancellationToken: cancellationToken);
+			await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
+			await uow.CommitAsync(cancellationToken);
 
 			_logger.LogInformation(
 				"Заказ {OrderId} успешно отменен из статуса '{Status}' через механизм недовоза. Недовоз: {UndeliveryId}",
