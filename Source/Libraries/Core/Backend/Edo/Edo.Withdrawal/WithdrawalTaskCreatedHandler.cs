@@ -194,7 +194,7 @@ namespace Edo.Withdrawal
 					await CreateTrueMarkDocument(uow, withdrawalEdoTask, order, orderOrganizationInn, cancellationToken);
 					await SetCompletedWithdrawalEdoTaskStatus(uow, withdrawalEdoTask, cancellationToken);
 
-					uow.Commit();
+					await uow.CommitAsync(cancellationToken);
 				}
 				catch(Exception ex)
 				{
