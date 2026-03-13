@@ -1,4 +1,5 @@
 ﻿using MassTransit;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -20,12 +21,13 @@ namespace CustomerAppsApi.HealthChecks
 		private readonly string _baseAddress;
 
 		public CustomerAppsApiHealthCheck(ILogger<VodovozHealthCheckBase> logger,
+			IHttpContextAccessor httpContextAccessor,
 			IConfiguration configuration,
 			IHttpClientFactory httpClientFactory,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IBusControl busControl,
 			IHealthCheckServiceInfoProvider serviceInfoProvider)
-			: base(logger, serviceInfoProvider, unitOfWorkFactory, busControl)
+			: base(logger, serviceInfoProvider, httpContextAccessor, unitOfWorkFactory, busControl)
 		{
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));

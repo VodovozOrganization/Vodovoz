@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -20,10 +21,11 @@ namespace MailjetEventsDistributorAPI.HealthChecks
 		public MailjetEventsDistributeHealthCheck(
 			ILogger<MailjetEventsDistributeHealthCheck> logger,
 			IConfiguration configuration,
+			IHttpContextAccessor httpContextAccessor,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IHttpClientFactory httpClientFactory,
 			IHealthCheckServiceInfoProvider serviceInfoProvider)
-		: base(logger, serviceInfoProvider, unitOfWorkFactory)
+		: base(logger, serviceInfoProvider,httpContextAccessor, unitOfWorkFactory)
 		{
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
@@ -34,7 +36,7 @@ namespace MailjetEventsDistributorAPI.HealthChecks
 			var healthSection = _configuration.GetSection("Health");
 			var baseAddress = healthSection.GetValue<string>("BaseAddress");
 
-			var response = await HttpResponseHelper.CheckUriExistsAsync($"{baseAddress}/Test", _httpClientFactory);
+			var response = await HttpResponseHelper.CheckUriExistsAsync($"{baseAddress}/Test", _httpClientFactory, cancellationToken);
 
 			return VodovozHealthResultDto.FromCondition("Сервис почты MailjetEventsDistribute", response.IsSuccess, response.ErrorMessage);
 		}
