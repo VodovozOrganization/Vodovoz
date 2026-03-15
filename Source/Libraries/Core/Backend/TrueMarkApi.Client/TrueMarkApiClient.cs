@@ -14,12 +14,16 @@ namespace TrueMarkApi.Client
 {
 	public class TrueMarkApiClient : ITrueMarkApiClient
 	{
+		private const int _participantsCheckMaxCount = 100;
+
 		private readonly HttpClient _httpClient;
 
 		public TrueMarkApiClient(HttpClient httpClient)
 		{
 			_httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 		}
+
+		public int ParticipantsCheckMaxCount => _participantsCheckMaxCount;
 
 		public async Task<TrueMarkRegistrationResultDto> GetParticipantRegistrationForWaterStatusAsync(string url, string inn, CancellationToken cancellationToken)
 		{
@@ -28,6 +32,22 @@ namespace TrueMarkApi.Client
 			var responseBody = await response.Content.ReadAsStreamAsync();
 			var responseResult = await JsonSerializer.DeserializeAsync<TrueMarkRegistrationResultDto>(responseBody, cancellationToken: cancellationToken);
 
+			return responseResult;
+		}
+
+		public async Task<IEnumerable<ParticipantRegistrationDto>> GetParticipantsRegistrations(IEnumerable<string> inns, CancellationToken cancellationToken)
+		{
+			var uniqueInns = inns.Distinct().ToArray();
+			if(uniqueInns.Count() > ParticipantsCheckMaxCount)
+			{
+				throw new ArgumentException($"The number of INNs cannot exceed {ParticipantsCheckMaxCount}.", nameof(inns));
+			}
+			string content = JsonSerializer.Serialize(uniqueInns.ToArray());
+			HttpContent httpContent = new StringContent(content, Encoding.UTF8, "application/json");
+			var response = await _httpClient.PostAsync("api/participants", httpContent, cancellationToken);
+			response.EnsureSuccessStatusCode();
+			var responseBody = await response.Content.ReadAsStreamAsync();
+			var responseResult = await JsonSerializer.DeserializeAsync<IEnumerable<ParticipantRegistrationDto>>(responseBody, cancellationToken: cancellationToken);
 			return responseResult;
 		}
 

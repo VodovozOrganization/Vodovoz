@@ -8,7 +8,21 @@ namespace TrueMarkApi.Client
 {
 	public interface ITrueMarkApiClient
 	{
+		/// <summary>
+		/// Максимальное количество ИНН, которое можно передать в одном запросе для проверки регистрации участников в системе маркировки.
+		/// Если количество ИНН превышает это значение, необходимо разбить запрос на несколько частей и выполнить несколько запросов к API.
+		/// </summary>
+		int ParticipantsCheckMaxCount { get; }
+
 		Task<TrueMarkRegistrationResultDto> GetParticipantRegistrationForWaterStatusAsync(string url, string inn, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Проверяет статус регистрации участников в системе маркировки для указанных ИНН. Возвращает список с результатами проверки для каждого ИНН
+		/// </summary>
+		/// <param name="inns">Список строк ИНН</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
+		Task<IEnumerable<ParticipantRegistrationDto>> GetParticipantsRegistrations(IEnumerable<string> inns, CancellationToken cancellationToken);
 		Task<ProductInstancesInfoResponse> GetProductInstanceInfoAsync(IEnumerable<string> identificationCodes, CancellationToken cancellationToken);
 
 		/// <summary>

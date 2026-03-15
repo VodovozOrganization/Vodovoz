@@ -1,8 +1,6 @@
 ﻿using Edo.Common;
 using Edo.Common.Services;
 using Edo.Contracts.Messages.Events;
-using Edo.Problems;
-using Edo.Problems.Custom.Sources.Withdrawal;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -22,6 +20,12 @@ namespace Edo.Documents
 	/// </summary>
 	public class WithdrawalEdoRequestHandler
 	{
+		private static readonly RegistrationInChestnyZnakStatus[] _registeredInTrueMarkStatuses = new[]
+		{
+			RegistrationInChestnyZnakStatus.Registered,
+			RegistrationInChestnyZnakStatus.RegisteredWithoutWater
+		};
+
 		private readonly ILogger<WithdrawalEdoRequestHandler> _logger;
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IGenericRepository<CounterpartyEdoAccountEntity> _edoAccountRepository;
@@ -129,7 +133,7 @@ namespace Edo.Documents
 				var actualTrueMarkRegistrationStatusResult =
 					await _trueMarkRegistrationCheckService.GetTrueMarkRegistrationStatus(client.INN, cancellationToken);
 
-				var isClientRegistrationStatusChangedToRegistered = false;
+				var isClientRegistrationStatusChanged = false;
 
 				if(actualTrueMarkRegistrationStatusResult.IsSuccess)
 				{
@@ -138,17 +142,18 @@ namespace Edo.Documents
 					if(actualRegistrationStatus != client.RegistrationInChestnyZnakStatus)
 					{
 						client.RegistrationInChestnyZnakStatus = actualRegistrationStatus;
-						isClientRegistrationStatusChangedToRegistered = true;
+						isClientRegistrationStatusChanged = true;
+						await uow.SaveAsync(client, cancellationToken: cancellationToken);
 					}
 				}
 
-				if(client.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
+				if(_registeredInTrueMarkStatuses.Contains(client.RegistrationInChestnyZnakStatus))
 				{
 					_logger.LogInformation(
 						"Контрагент {CounterpartyId} зарегистрирован в ЧЗ. Вывод из оборота в данный момент не требуется",
 						client.Id);
 
-					if(isClientRegistrationStatusChangedToRegistered)
+					if(isClientRegistrationStatusChanged)
 					{
 						await uow.CommitAsync(cancellationToken);
 					}
