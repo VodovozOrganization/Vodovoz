@@ -22,6 +22,7 @@ using TrueMark.Api.Contracts.Responses;
 using TrueMark.Api.Extensions;
 using TrueMark.Api.Options;
 using TrueMark.Contracts;
+using TrueMark.Contracts.Documents;
 using TrueMark.Contracts.Requests;
 using TrueMark.Contracts.Responses;
 using IAuthorizationService = TrueMark.Api.Services.Authorization.IAuthorizationService;
@@ -64,7 +65,7 @@ public class TrueMarkApiController : ControllerBase
 	[HttpGet]
 	public async Task<TrueMarkRegistrationResultDto> ParticipantRegistrationForWaterAsync(string inn)
 	{
-		var uri = $"participants?inns={inn}";
+		var uri = $"v3/true-api/participants?inns={inn}";
 
 		var errorMessage = new StringBuilder();
 		errorMessage.AppendLine("Не удалось получить статус регистрации учатниска.");
@@ -126,7 +127,7 @@ public class TrueMarkApiController : ControllerBase
 
 		var innString = string.Join("&inns=", inns);
 
-		var uri = $"participants?inns={innString}";
+		var uri = $"v3/true-api/participants?inns={innString}";
 
 		var response = await _httpClient.GetAsync(uri);
 
@@ -202,7 +203,7 @@ public class TrueMarkApiController : ControllerBase
 		CancellationToken cancellationToken
 		)
 	{
-		var uri = $"cises/info";
+		var uri = $"v3/true-api/cises/info";
 
 		var errorMessage = new StringBuilder();
 		errorMessage.AppendLine("Не удалось получить данные о статусах экземпляров товаров.");
@@ -304,6 +305,60 @@ public class TrueMarkApiController : ControllerBase
 	}
 
 	/// <summary>
+	/// Возвращает данные по документу ЧЗ по его идентификатору. 
+	/// Идентификатор документа ЧЗ должен быть передан в виде строки в формате GUID.
+	/// ИНН организации, от имени которой выполняется запрос, должен быть передан в виде строки.
+	/// </summary>
+	/// <param name="documentId">Идентификатор документа</param>
+	/// <param name="inn">ИНН</param>
+	/// <param name="cancellationToken">Токен отмены</param>
+	/// <returns></returns>
+	[HttpGet]
+	[Produces(MediaTypeNames.Application.Json)]
+	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CreatedDocumentInfoDto))]
+	public async Task<IActionResult> GetDocumentInfo([FromQuery] string documentId, [FromQuery] string inn, CancellationToken cancellationToken)
+	{
+		var uri = $"v4/true-api/doc/{documentId}/info";
+
+		try
+		{
+			var certificateThumbPrint = GetCertificateThumbPrintByInn(inn);
+			var token = await _authorizationService.Login(certificateThumbPrint, inn);
+			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+			var responseResult = await _httpClient.GetAsync(uri, cancellationToken);
+
+			if(!responseResult.IsSuccessStatusCode)
+			{
+				return Problem(
+					$"Не удалось получить документ из ЧЗ. Ошибка: {responseResult.StatusCode} {responseResult.ReasonPhrase}",
+					statusCode: (int)responseResult.StatusCode);
+			}
+
+			var response = await responseResult.Content.ReadAsStreamAsync(cancellationToken);
+			var createdDocumentInfo =
+				(await JsonSerializer.DeserializeAsync<IEnumerable<CreatedDocumentInfoDto>>(response, cancellationToken: cancellationToken))
+				.FirstOrDefault();
+
+			if(createdDocumentInfo is null)
+			{
+				return Problem(
+					"При получении документа из ЧЗ не был получен результат.",
+					statusCode: StatusCodes.Status500InternalServerError);
+			}
+
+			return Ok(createdDocumentInfo);
+		}
+		catch(Exception e)
+		{
+			_logger.LogError(e, "При обработке запроса получения документа ЧЗ возникла непредвиденная ошибка");
+
+			return Problem(
+				$"При обработке запроса получения документа ЧЗ возникла непредвиденная ошибка: {e.Message}",
+				statusCode: StatusCodes.Status500InternalServerError);
+		}
+	}
+
+	/// <summary>
 	/// Отправка документа вывода из оборота
 	/// </summary>
 	/// <param name="documentData">Данные документа</param>
@@ -312,7 +367,7 @@ public class TrueMarkApiController : ControllerBase
 	[HttpPost]
 	public async Task<IActionResult> SendIndividualAccountingWithdrawalDocument([FromBody] SendDocumentDataRequest documentData, CancellationToken cancellationToken)
 	{
-		var uri = $"lk/documents/create?pg=water";
+		var uri = $"v3/true-api/lk/documents/create?pg=water";
 
 		var document = documentData.Document;
 		var inn = documentData.Inn;
