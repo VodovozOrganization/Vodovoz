@@ -34,7 +34,7 @@ namespace Edo.Withdrawal.Routine.Worker
 		/// <summary>
 		/// Интервал выполнения воркера
 		/// </summary>
-		protected override TimeSpan Interval => _options.Value.Interval;
+		protected override TimeSpan Interval => _options.Value.TimedOutDocumentsWorkerInterval;
 
 		/// <summary>
 		/// Выполнить проверку и создать заявки на вывод из оборота для просроченных документооборотов
