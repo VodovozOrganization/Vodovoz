@@ -19,5 +19,11 @@ namespace TrueMark.Contracts.Documents
 		/// </summary>
 		[JsonPropertyName("errors")]
 		public IList<string> Errors { get; set; }
+
+		/// <summary>
+		/// В документе есть ошибки
+		/// </summary>
+		[JsonIgnore]
+		public bool HasErrors => Errors != null && Errors.Count > 0;
 	}
 }
