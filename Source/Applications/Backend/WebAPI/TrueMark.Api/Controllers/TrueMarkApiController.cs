@@ -316,7 +316,7 @@ public class TrueMarkApiController : ControllerBase
 	[HttpGet]
 	[Produces(MediaTypeNames.Application.Json)]
 	[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CreatedDocumentInfoDto))]
-	public async Task<IActionResult> GetDocumentInfo([FromQuery] string documentId, [FromQuery] string inn, CancellationToken cancellationToken)
+	public async Task<IActionResult> GetDocumentInfo([FromQuery] Guid documentId, [FromQuery] string inn, CancellationToken cancellationToken)
 	{
 		var uri = $"v4/true-api/doc/{documentId}/info";
 
