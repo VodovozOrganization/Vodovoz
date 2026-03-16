@@ -407,7 +407,8 @@ namespace Vodovoz.JournalViewModels
 			EdoContainer edoContainerAlias = null;
 			EdoContainer innerEdoContainerAlias = null;
 			FormalEdoRequest edoRequestAlias = null;
-			FormalEdoRequest edoRequestAlias2 = null;
+			PrimaryEdoRequest edoRequestAlias2 = null;
+			ManualEdoRequest edoRequestAlias3 = null;
 			OrderEdoDocument orderEdoDocumentAlias = null;
 			OrderEdoDocument orderEdoDocumentAlias2 = null;
 			Employee salesManagerAlias = null;
@@ -688,6 +689,11 @@ namespace Vodovoz.JournalViewModels
 					() => edoRequestAlias2.Order.Id == edoRequestAlias.Order.Id
 						&& edoRequestAlias2.Id > edoRequestAlias.Id,
 					NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinEntityAlias(
+					() => edoRequestAlias3,
+					() => edoRequestAlias3.Order.Id == edoRequestAlias.Order.Id
+						&& edoRequestAlias3.Id > edoRequestAlias.Id,
+					NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => orderEdoDocumentAlias, () => edoRequestAlias.Task.Id == orderEdoDocumentAlias.DocumentTaskId)
 				.JoinEntityAlias(
 					() => orderEdoDocumentAlias2,
@@ -697,6 +703,7 @@ namespace Vodovoz.JournalViewModels
 				.Where(() => edoRequestAlias.Order.Id == orderAlias.Id)
 				.And(() => edoRequestAlias.DocumentType == EdoDocumentType.UPD)
 				.And(() => edoRequestAlias2.Id == null)
+				.And(() => edoRequestAlias3.Id == null)
 				.And(() => orderEdoDocumentAlias2.Id == null)
 				.Select(Projections.Property(() => orderEdoDocumentAlias.Status))
 				.Take(1);
