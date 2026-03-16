@@ -46,12 +46,12 @@ stage('Checkout nodes') {
     parallel parallelCheckouts
 }
 
-stage('Checkout in containers') {
+stage('Checkout and build in containers') {
 	def availableNodes = getDockerBuildNodesBySecondaryLabel(NODE_DOCKER_BUILD)
 	if (!availableNodes) {
-		error("Не найдено доступных нод с тегом ${NODE_DOCKER_BUILD} для checkout в контейнерах")
+		error("Не найдено доступных нод с тегом ${NODE_DOCKER_BUILD} для работы в контейнерах")
 	}
-	def parallelCheckouts = [:]
+	def parallelBranches = [:]
 
 	availableNodes.each { nodeInfo ->
 		def nodeSelector = "${nodeInfo.secondaryLabel}"
@@ -60,48 +60,53 @@ stage('Checkout in containers') {
 		for (int i = 1; i <= CONTAINERS_PER_NODE; i++) {
 			def containerIndex = i
 			def branchName = "${nodeInfo.secondaryLabel} #${containerIndex}"
-			parallelCheckouts[branchName] = {
+			parallelBranches[branchName] = {
 				node(nodeSelector) {
 					def referenceRepositoryPath = "${env.JENKINS_HOME_NODE}/workspace/_VODOVOZ_REFERENCE_REPOSITORY"
-					def mountArgs = "--entrypoint='' -v ${referenceRepositoryPath}:${REFERENCE_REPOSITORY_MOUNT_PATH}:ro"
 					def workspaceSuffix = "container-${containerIndex}"
+					def cid = null
 
 					ws("${env.WORKSPACE}@${workspaceSuffix}") {
-						docker.image(CHECKOUT_CONTAINER_IMAGE).inside(mountArgs) {
-							// sh '''
-							// echo "IN_CONTAINER_CHECK"
-							// cat /etc/os-release
-							// pwd
-							// whoami
-							// ls -la /reference-repository | head
-							// '''
+						try {
+							stage("Start container ${branchName}") {
+								def workspaceDir = pwd()
+								def containerName = "build-${env.BUILD_NUMBER}-${containerIndex}-${nodeSelector.replaceAll('[^a-zA-Z0-9]', '-')}"
+								cid = sh(
+									script: """
+										docker run -d \
+										  --name ${containerName} \
+										  -v ${referenceRepositoryPath}:${REFERENCE_REPOSITORY_MOUNT_PATH}:ro \
+										  -v ${workspaceDir}:/work \
+										  -w /work \
+										  ${CHECKOUT_CONTAINER_IMAGE} \
+										  tail -f /dev/null
+									""".stripIndent(),
+									returnStdout: true
+								).trim()
+								echo "Started container: ${cid}"
+							}
 
-							//EnsureGitInContainer()
-							//deleteDir()
-							//sh "echo Checking out in container ${branchName} on node ${nodeSelector}"
-							// Git plugin may execute on host launcher (JENKINS-30600), so reference path must be host-visible.
-							CheckoutInContainer(referenceRepositoryPath)
+							stage("Checkout ${branchName}") {
+								// Checkout выполняется через Jenkins Git plugin на хосте (JENKINS-30600).
+								// Рабочий каталог смонтирован в контейнер как /work, поэтому код доступен внутри.
+								CheckoutInContainer(referenceRepositoryPath)
+							}
 
-							sh '''
-							echo "IN_CONTAINER_CHECK"
-							'''
+							stage("Build ${branchName}") {
+								sh "docker exec ${cid} bash -c 'echo BUILD_TEST: container ${branchName} is alive'"
+							}
+						} finally {
+							if (cid?.trim()) {
+								sh "docker rm -f ${cid} || true"
+							}
 						}
 					}
 				}
 			}
 		}
 	}
-	parallel parallelCheckouts
+	parallel parallelBranches
 }
-
-// stage('Build and publish in containers') {
-
-// 	// получаем список путей
-// 	GetPublishingProjects()
-
-// 	// тут нужно сделать распределение сборки проектов по нодам и параллельным контейнерам в них
-// 	BuildService(service_path_variable)
-// }
 
 // -- FUNCTIONS
 
