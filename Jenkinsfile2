@@ -8,6 +8,7 @@ PUBLISH_PROFILE = "registry-dev"
 PUBLISH_PROFILE_FILE = "${PUBLISH_PROFILE}.pubxml"
 CHECKOUT_CONTAINER_IMAGE = "mcr.microsoft.com/dotnet/sdk:5.0"
 REFERENCE_REPOSITORY_MOUNT_PATH = "/reference-repository"
+CONTAINERS_PER_NODE = 3
 
 
 DOCKER_REGISTRY_URL = "docker.vod.qsolution.ru:5100"
@@ -23,15 +24,21 @@ DOCKER_REGISTRY_URL = "docker.vod.qsolution.ru:5100"
 
 // подготовка референсного репозитория на нодах, чтобы использовать его позже в контейнерах для ускорения git clone
 stage('Checkout nodes') {
-	def availableNodes = getNodesByLabel(NODE_DOCKER_BUILD)
+	def availableNodes = getDockerBuildNodesBySecondaryLabel(NODE_DOCKER_BUILD)
+	if (!availableNodes) {
+		error("Не найдено доступных нод с меткой ${NODE_DOCKER_BUILD}")
+	}
     
     def parallelCheckouts = [:]
     
-    availableNodes.each { nodeName ->
-        parallelCheckouts[nodeName] = {
-            node(nodeName) {
-                def REFERENCE_REPOSITORY_PATH = "${env.JENKINS_HOME_NODE}/workspace/_VODOVOZ_REFERENCE_REPOSITORY"
-				CheckoutReference(REFERENCE_REPOSITORY_PATH)
+    availableNodes.each { nodeInfo ->
+		def nodeSelector = "${nodeInfo.secondaryLabel}"
+		echo "nodeSelector='${nodeSelector}'"
+
+		parallelCheckouts[nodeSelector] = {
+			node(nodeSelector) {
+                def referenceRepositoryPath = "${env.JENKINS_HOME_NODE}/workspace/_VODOVOZ_REFERENCE_REPOSITORY"
+				CloneMirror("https://github.com/VodovozOrganization/Vodovoz.git", referenceRepositoryPath)
             }
         }
     }
@@ -40,28 +47,50 @@ stage('Checkout nodes') {
 }
 
 stage('Checkout in containers') {
-	def availableNodes = getNodesByLabel(NODE_DOCKER_BUILD)
+	def availableNodes = getDockerBuildNodesBySecondaryLabel(NODE_DOCKER_BUILD)
 	if (!availableNodes) {
 		error("Не найдено доступных нод с тегом ${NODE_DOCKER_BUILD} для checkout в контейнерах")
 	}
 	def parallelCheckouts = [:]
 
-	availableNodes.each { nodeName ->
-		parallelCheckouts[nodeName] = {
-			node(nodeName) {
-				def referenceRepositoryPath = "${env.JENKINS_HOME_NODE}/workspace/_VODOVOZ_REFERENCE_REPOSITORY"
-				def mountArgs = "--entrypoint='' -v ${referenceRepositoryPath}:${REFERENCE_REPOSITORY_MOUNT_PATH}:ro"
+	availableNodes.each { nodeInfo ->
+		def nodeSelector = "${nodeInfo.secondaryLabel}"
+		echo "nodeSelector='${nodeSelector}'"
 
-				docker.image(CHECKOUT_CONTAINER_IMAGE).inside(mountArgs) {
-					EnsureGitInContainer()
-					deleteDir()
-					// Git plugin may execute on host launcher (JENKINS-30600), so reference path must be host-visible.
-					CheckoutInContainer(referenceRepositoryPath)
+		for (int i = 1; i <= CONTAINERS_PER_NODE; i++) {
+			def containerIndex = i
+			def branchName = "${nodeInfo.secondaryLabel} #${containerIndex}"
+			parallelCheckouts[branchName] = {
+				node(nodeSelector) {
+					def referenceRepositoryPath = "${env.JENKINS_HOME_NODE}/workspace/_VODOVOZ_REFERENCE_REPOSITORY"
+					def mountArgs = "--entrypoint='' -v ${referenceRepositoryPath}:${REFERENCE_REPOSITORY_MOUNT_PATH}:ro"
+					def workspaceSuffix = "container-${containerIndex}"
+
+					ws("${env.WORKSPACE}@${workspaceSuffix}") {
+						docker.image(CHECKOUT_CONTAINER_IMAGE).inside(mountArgs) {
+							// sh '''
+							// echo "IN_CONTAINER_CHECK"
+							// cat /etc/os-release
+							// pwd
+							// whoami
+							// ls -la /reference-repository | head
+							// '''
+
+							//EnsureGitInContainer()
+							//deleteDir()
+							//sh "echo Checking out in container ${branchName} on node ${nodeSelector}"
+							// Git plugin may execute on host launcher (JENKINS-30600), so reference path must be host-visible.
+							CheckoutInContainer(referenceRepositoryPath)
+
+							sh '''
+							echo "IN_CONTAINER_CHECK"
+							'''
+						}
+					}
 				}
 			}
 		}
 	}
-
 	parallel parallelCheckouts
 }
 
@@ -79,35 +108,95 @@ stage('Checkout in containers') {
 // Setup
 
 @NonCPS
-def getNodesByLabel(label) {
+def getDockerBuildNodesBySecondaryLabel(dockerBuildLabel) {
     def nodes = []
+    def usedSecondaryLabels = [] as Set
+
     Jenkins.instance.computers.each { computer ->
-        if (computer.node.labelString.contains(label) && computer.online) {
-            nodes.add(computer.node.name)
-        }
+    	def node = computer.node
+    	if (node == null || !computer.online) {
+    		return
+    	}
+
+    	def labels = (node.labelString ?: '').tokenize(' ') as Set
+    	if (!labels.contains(dockerBuildLabel)) {
+    		return
+    	}
+
+    	if (labels.size() != 2) {
+    		error("Нода '${node.name}' должна иметь ровно 2 метки (включая '${dockerBuildLabel}'), сейчас: ${labels.join(' ')}")
+    	}
+
+    	def secondaryLabels = labels.findAll { it != dockerBuildLabel }
+    	if (secondaryLabels.size() != 1) {
+    		error("Не удалось определить вторую метку для ноды '${node.name}', метки: ${labels.join(' ')}")
+    	}
+
+    	def secondaryLabel = secondaryLabels[0]
+    	if (usedSecondaryLabels.contains(secondaryLabel)) {
+    		error("Вторая метка '${secondaryLabel}' встречается у нескольких нод. Требуется уникальная вторая метка на ноду")
+    	}
+
+    	usedSecondaryLabels.add(secondaryLabel)
+    	nodes.add([nodeName: node.name, secondaryLabel: secondaryLabel])
     }
+
     return nodes
 }
 
-def CheckoutReference(referenceRepositoryPath) {
-	echo "Prepare reference repository ${referenceRepositoryPath}"
+// def CheckoutReference(referenceRepositoryPath) {
+// 	echo "Prepare reference repository ${referenceRepositoryPath}"
 	
-	withCredentials([usernamePassword(credentialsId: '21dbdc92-7ffd-47e2-a198-303233bb0fe4', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-		if(fileExists(referenceRepositoryPath)){
-			// fetch all on reference repository
-			sh ('git -C ' + "${referenceRepositoryPath}" + ' -c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' fetch --all')
-			sh ('git -C ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/GMap.NET " + '-c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' fetch --all')
-			sh ('git -C ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/Gtk.DataBindings " + '-c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' fetch --all')
-			sh ('git -C ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/My-FyiReporting " + '-c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' fetch --all')
-			sh ('git -C ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/QSProjects " + '-c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' fetch --all')
-		}else{
-			// clone reference
-			sh ('git -c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' clone https://github.com/VodovozOrganization/Vodovoz.git --mirror ' + "${referenceRepositoryPath}")
-			sh ('git -c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' clone https://github.com/QualitySolution/GMap.NET.git --mirror ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/GMap.NET")
-			sh ('git -c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' clone https://github.com/QualitySolution/Gtk.DataBindings.git --mirror ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/Gtk.DataBindings")
-			sh ('git -c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' clone https://github.com/QualitySolution/My-FyiReporting.git --mirror ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/My-FyiReporting")
-			sh ('git -c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' clone https://github.com/QualitySolution/QSProjects.git --mirror ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/QSProjects")
-		}
+// 	withCredentials([usernamePassword(credentialsId: '21dbdc92-7ffd-47e2-a198-303233bb0fe4', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+// 		if(fileExists(referenceRepositoryPath)){
+// 			// fetch all on reference repository
+// 			sh ('git -C ' + "${referenceRepositoryPath}" + ' -c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' fetch --all')
+// 			sh ('git -C ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/GMap.NET " + '-c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' fetch --all')
+// 			sh ('git -C ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/Gtk.DataBindings " + '-c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' fetch --all')
+// 			sh ('git -C ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/My-FyiReporting " + '-c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' fetch --all')
+// 			sh ('git -C ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/QSProjects " + '-c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' fetch --all')
+// 		}else{
+// 			// clone reference
+// 			sh ('git -c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' clone https://github.com/VodovozOrganization/Vodovoz.git --mirror ' + "${referenceRepositoryPath}")
+// 			sh ('git -c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' clone https://github.com/QualitySolution/GMap.NET.git --mirror ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/GMap.NET")
+// 			sh ('git -c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' clone https://github.com/QualitySolution/Gtk.DataBindings.git --mirror ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/Gtk.DataBindings")
+// 			sh ('git -c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' clone https://github.com/QualitySolution/My-FyiReporting.git --mirror ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/My-FyiReporting")
+// 			sh ('git -c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' clone https://github.com/QualitySolution/QSProjects.git --mirror ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/QSProjects")
+// 		}
+//     }
+// }
+
+def CloneMirror(String url, String cache) {
+
+    def name = url.tokenize('/').last().replace('.git','')
+    def path = "${cache}/${name}.git"
+
+    if (!fileExists(path)) {
+        sh "echo Cloning mirror ${url}"
+        sh "git clone --mirror ${url} ${path}"
+    } else {
+        sh "echo Updating mirror ${url}"
+        sh "git -C ${path} remote update"
+    }
+
+    // читаем .gitmodules прямо из mirror
+    def hasModules = sh(
+        script: "git -C ${path} show HEAD:.gitmodules >/dev/null 2>&1",
+        returnStatus: true
+    )
+
+    if (hasModules == 0) {
+
+        def subUrls = sh(
+            script: "git -C ${path} show HEAD:.gitmodules | grep url | awk '{print \$3}'",
+            returnStdout: true
+        ).trim().split("\\n")
+
+        for (sub in subUrls) {
+            if (sub?.trim()) {
+                CloneMirror(sub.trim(), cache)
+            }
+        }
     }
 }
 
@@ -149,20 +238,85 @@ def CheckoutInContainer(referenceRepositoryPath) {
 	// 	userRemoteConfigs: scm.userRemoteConfigs
 	// ]
 
+	// checkout changelog: false, poll: false, scm: [
+	// 	$class: 'GitSCM',
+	// 	branches: [[name: '*/master']],
+	// 	doGenerateSubmoduleConfigurations: false,
+	// 	extensions: [
+	// 		[$class: 'CloneOption', noTags: false, reference: referenceRepositoryPath, shallow: false]
+	// 	] + [
+	// 		[$class: 'SubmoduleOption', disableSubmodules: false, parentCredentials: true, recursiveSubmodules: true, reference: referenceRepositoryPath]
+	// 	],
+	// 	userRemoteConfigs: [[
+	// 		url: 'https://github.com/VodovozOrganization/Vodovoz.git',
+	// 		credentialsId: '21dbdc92-7ffd-47e2-a198-303233bb0fe4'
+	// 	]]
+	// ]
+
 	checkout changelog: false, poll: false, scm: [
 		$class: 'GitSCM',
 		branches: [[name: '*/master']],
 		doGenerateSubmoduleConfigurations: false,
-		extensions: [
-			[$class: 'CloneOption', noTags: false, reference: referenceRepositoryPath, shallow: false]
-		] + [
-			[$class: 'SubmoduleOption', disableSubmodules: false, parentCredentials: true, recursiveSubmodules: true, reference: referenceRepositoryPath]
-		],
+
 		userRemoteConfigs: [[
-			url: 'https://github.com/VodovozOrganization/Vodovoz.git',
-			credentialsId: '21dbdc92-7ffd-47e2-a198-303233bb0fe4'
-		]]
+			url: 'https://github.com/VodovozOrganization/Vodovoz.git'
+			// credentialsId: '21dbdc92-7ffd-47e2-a198-303233bb0fe4'
+		]],
+
+		extensions: [
+
+			// reference clone ТОЛЬКО для основного repo
+			[$class: 'CloneOption',
+				shallow: false,
+				noTags: false,
+				reference: "${referenceRepositoryPath}/Vodovoz.git"
+			],
+
+			// отключаем автоинициализацию сабмодулей
+			[$class: 'SubmoduleOption',
+				disableSubmodules: true
+			]
+		]
 	]
+
+	echo "=== Checkout submodules from mounted reference repository ==="
+	CheckoutSubmodulesFromMountedReference(REFERENCE_REPOSITORY_MOUNT_PATH)
+
+	echo "=== Source/Libraries/External directories ==="
+	sh 'find Source/Libraries/External -maxdepth 1 -mindepth 1 -type d | sort || echo "(directory not found)"'
+}
+
+def CheckoutSubmodulesFromMountedReference(referenceRepositoryMountPath) {
+	def submoduleRowsRaw = sh(
+		script: "git config -f .gitmodules --get-regexp '^submodule\\..*\\.path\$' || true",
+		returnStdout: true
+	).trim()
+
+	if (!submoduleRowsRaw) {
+		echo "No submodules found in .gitmodules"
+		return
+	}
+
+	def submoduleRows = submoduleRowsRaw.split("\\r?\\n")
+
+	for (row in submoduleRows) {
+		def pair = row.trim().split("\\s+", 2)
+		if (pair.size() != 2) {
+			continue
+		}
+
+		def pathKey = pair[0].trim()
+		def submodulePath = pair[1].trim()
+		def urlKey = pathKey.replace('.path', '.url')
+		def submoduleUrl = sh(script: "git config -f .gitmodules --get ${urlKey}", returnStdout: true).trim()
+		def repoName = submoduleUrl.tokenize('/').last().replace('.git', '')
+		def referenceMirrorPath = "${referenceRepositoryMountPath}/${repoName}.git"
+
+		sh "echo Preparing submodule ${submodulePath}"
+		sh "git submodule init -- ${submodulePath}"
+		sh "git submodule sync -- ${submodulePath}"
+		sh "git submodule update --init --reference ${referenceMirrorPath} -- ${submodulePath}"
+	}
 }
 
 def GetPublishingProjects(){
