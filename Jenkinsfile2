@@ -16,11 +16,17 @@ DOCKER_REGISTRY_URL = "docker.vod.qsolution.ru:5100"
 
 // -- PIPELINE
 
-// stage('Prepare') {
-// 	if (env.BRANCH_NAME != 'master') {
-// 		error("Сборка и публикация сервисов разрешена только для ветки master")
-// 	}
-// }
+PUBLISHING_PROJECT_PATHS = []
+
+stage('Prepare') {
+	// if (env.BRANCH_NAME != 'master') {
+	// 	error("Сборка и публикация сервисов разрешена только для ветки master")
+	// }
+
+	PUBLISHING_PROJECT_PATHS = [
+		'Source/Applications/Backend/Workers/Docker/Edo/Edo.Admin.Worker/Edo.Admin.Worker.csproj',
+	]
+}
 
 // подготовка референсного репозитория на нодах, чтобы использовать его позже в контейнерах для ускорения git clone
 stage('Checkout nodes') {
@@ -52,13 +58,16 @@ stage('Checkout and build in containers') {
 		error("Не найдено доступных нод с тегом ${NODE_DOCKER_BUILD} для работы в контейнерах")
 	}
 	def parallelBranches = [:]
+	def totalBuilders = availableNodes.size() * CONTAINERS_PER_NODE
 
-	availableNodes.each { nodeInfo ->
+	availableNodes.eachWithIndex { nodeInfo, nodeIndex ->
 		def nodeSelector = "${nodeInfo.secondaryLabel}"
 		echo "nodeSelector='${nodeSelector}'"
 
 		for (int i = 1; i <= CONTAINERS_PER_NODE; i++) {
 			def containerIndex = i
+			def builderIndex = nodeIndex * CONTAINERS_PER_NODE + (containerIndex - 1)
+			def assignedProjects = getProjectsForBuilder(PUBLISHING_PROJECT_PATHS, builderIndex, totalBuilders)
 			def branchName = "${nodeInfo.secondaryLabel} #${containerIndex}"
 			parallelBranches[branchName] = {
 				node(nodeSelector) {
@@ -93,7 +102,10 @@ stage('Checkout and build in containers') {
 							}
 
 							stage("Build ${branchName}") {
-								sh "docker exec ${cid} bash -c 'echo BUILD_TEST: container ${branchName} is alive'"
+								echo "Builder ${builderIndex + 1}/${totalBuilders}: ${assignedProjects.size()} project(s) assigned"
+								for (projectPath in assignedProjects) {
+									sh "docker exec ${cid} bash -c 'dotnet publish ${projectPath} -c Release -p:PublishProfile=${PUBLISH_PROFILE_FILE}'"
+								}
 							}
 						} finally {
 							if (cid?.trim()) {
@@ -150,6 +162,15 @@ def getDockerBuildNodesBySecondaryLabel(dockerBuildLabel) {
 }
 
 // def CheckoutReference(referenceRepositoryPath) {
+@NonCPS
+def getProjectsForBuilder(List projects, int builderIndex, int totalBuilders) {
+	def result = []
+	for (int i = builderIndex; i < projects.size(); i += totalBuilders) {
+		result.add(projects[i])
+	}
+	return result
+}
+
 // 	echo "Prepare reference repository ${referenceRepositoryPath}"
 	
 // 	withCredentials([usernamePassword(credentialsId: '21dbdc92-7ffd-47e2-a198-303233bb0fe4', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
