@@ -17,20 +17,23 @@ DOCKER_REGISTRY_URL = "docker.vod.qsolution.ru:5100"
 // -- PIPELINE
 
 PUBLISHING_PROJECT_PATHS = []
+PUBLISHING_PROJECTS = []
+AVAILABLE_DOCKER_BUILD_NODES = []
 
 stage('Prepare') {
 	// if (env.BRANCH_NAME != 'master') {
 	// 	error("Сборка и публикация сервисов разрешена только для ветки master")
 	// }
 
-	PUBLISHING_PROJECT_PATHS = [
-		'Source/Applications/Backend/Workers/Docker/Edo/Edo.Admin.Worker/Edo.Admin.Worker.csproj',
-	]
+	AVAILABLE_DOCKER_BUILD_NODES = getDockerBuildNodesBySecondaryLabel(NODE_DOCKER_BUILD)
+	if (!AVAILABLE_DOCKER_BUILD_NODES) {
+		error("Не найдено доступных нод с меткой ${NODE_DOCKER_BUILD}")
+	}
 }
 
 // подготовка референсного репозитория на нодах, чтобы использовать его позже в контейнерах для ускорения git clone
 stage('Checkout nodes') {
-	def availableNodes = getDockerBuildNodesBySecondaryLabel(NODE_DOCKER_BUILD)
+	def availableNodes = AVAILABLE_DOCKER_BUILD_NODES
 	if (!availableNodes) {
 		error("Не найдено доступных нод с меткой ${NODE_DOCKER_BUILD}")
 	}
@@ -52,73 +55,114 @@ stage('Checkout nodes') {
     parallel parallelCheckouts
 }
 
-stage('Checkout and build in containers') {
-	def availableNodes = getDockerBuildNodesBySecondaryLabel(NODE_DOCKER_BUILD)
-	if (!availableNodes) {
-		error("Не найдено доступных нод с тегом ${NODE_DOCKER_BUILD} для работы в контейнерах")
-	}
-	def parallelBranches = [:]
-	def totalBuilders = availableNodes.size() * CONTAINERS_PER_NODE
+stage('Discover publishing projects') {
+	def firstNode = AVAILABLE_DOCKER_BUILD_NODES[0]
+	node(firstNode.secondaryLabel) {
+		def referenceRepositoryPath = "${env.JENKINS_HOME_NODE}/workspace/_VODOVOZ_REFERENCE_REPOSITORY"
 
-	availableNodes.eachWithIndex { nodeInfo, nodeIndex ->
-		def nodeSelector = "${nodeInfo.secondaryLabel}"
-		echo "nodeSelector='${nodeSelector}'"
+		ws("${env.WORKSPACE}@discover-projects") {
+			deleteDir()
+			CheckoutMainRepositoryWithoutSubmodules(referenceRepositoryPath)
 
-		for (int i = 1; i <= CONTAINERS_PER_NODE; i++) {
-			def containerIndex = i
-			def builderIndex = nodeIndex * CONTAINERS_PER_NODE + (containerIndex - 1)
-			def assignedProjects = getProjectsForBuilder(PUBLISHING_PROJECT_PATHS, builderIndex, totalBuilders)
-			def branchName = "${nodeInfo.secondaryLabel} #${containerIndex}"
-			parallelBranches[branchName] = {
-				node(nodeSelector) {
-					def referenceRepositoryPath = "${env.JENKINS_HOME_NODE}/workspace/_VODOVOZ_REFERENCE_REPOSITORY"
-					def workspaceSuffix = "container-${containerIndex}"
-					def cid = null
+			def projectDirs = DiscoverPublishingProjectDirs(PUBLISH_PROFILE_FILE)
+			if (!projectDirs) {
+				error("Не найдено проектов с профилем публикации ${PUBLISH_PROFILE_FILE}")
+			}
 
-					ws("${env.WORKSPACE}@${workspaceSuffix}") {
-						try {
-							stage("Start container ${branchName}") {
-								def workspaceDir = pwd()
-								def containerName = "build-${env.BUILD_NUMBER}-${containerIndex}-${nodeSelector.replaceAll('[^a-zA-Z0-9]', '-')}"
-								cid = sh(
-									script: """
-										docker run -d \
-										  --name ${containerName} \
-										  -v ${referenceRepositoryPath}:${REFERENCE_REPOSITORY_MOUNT_PATH}:ro \
-										  -v ${workspaceDir}:/work \
-										  -w /work \
-										  ${CHECKOUT_CONTAINER_IMAGE} \
-										  tail -f /dev/null
-									""".stripIndent(),
-									returnStdout: true
-								).trim()
-								echo "Started container: ${cid}"
-							}
+			def discoveredProjects = []
+			projectDirs.each { projectDir ->
+				def projectPath = DiscoverProjectFilePath(projectDir)
+				def repositorySettingsPath = "${projectDir}/RepositorySettings.props"
+				def publishProfilePath = "${projectDir}/Properties/PublishProfiles/${PUBLISH_PROFILE_FILE}"
 
-							stage("Checkout ${branchName}") {
-								// Checkout выполняется через Jenkins Git plugin на хосте (JENKINS-30600).
-								// Рабочий каталог смонтирован в контейнер как /work, поэтому код доступен внутри.
-								CheckoutInContainer(referenceRepositoryPath)
-							}
+				def containerRepository = ReadXmlProperty(repositorySettingsPath, 'ContainerRepository')
+				def publishImageTag = ReadXmlProperty(publishProfilePath, 'PublishImageTag')
 
-							stage("Build ${branchName}") {
-								echo "Builder ${builderIndex + 1}/${totalBuilders}: ${assignedProjects.size()} project(s) assigned"
-								for (projectPath in assignedProjects) {
-									sh "docker exec ${cid} bash -c 'dotnet publish ${projectPath} -c Release -p:PublishProfile=${PUBLISH_PROFILE_FILE}'"
-								}
-							}
-						} finally {
-							if (cid?.trim()) {
-								sh "docker rm -f ${cid} || true"
-							}
-						}
-					}
-				}
+				discoveredProjects.add([
+					projectPath: projectPath,
+					containerRepository: containerRepository,
+					publishImageTag: publishImageTag
+				])
+			}
+
+			PUBLISHING_PROJECTS = discoveredProjects
+			PUBLISHING_PROJECT_PATHS = discoveredProjects.collect { it.projectPath }
+
+			echo "Найдено проектов для публикации: ${PUBLISHING_PROJECTS.size()}"
+			PUBLISHING_PROJECTS.each { p ->
+				echo "projectPath=${p.projectPath}; containerRepository=${p.containerRepository}; publishImageTag=${p.publishImageTag}"
 			}
 		}
 	}
-	parallel parallelBranches
 }
+
+// stage('Checkout and build in containers') {
+// 	def availableNodes = getDockerBuildNodesBySecondaryLabel(NODE_DOCKER_BUILD)
+// 	if (!availableNodes) {
+// 		error("Не найдено доступных нод с тегом ${NODE_DOCKER_BUILD} для работы в контейнерах")
+// 	}
+// 	def parallelBranches = [:]
+// 	def totalBuilders = availableNodes.size() * CONTAINERS_PER_NODE
+
+// 	availableNodes.eachWithIndex { nodeInfo, nodeIndex ->
+// 		def nodeSelector = "${nodeInfo.secondaryLabel}"
+// 		echo "nodeSelector='${nodeSelector}'"
+
+// 		for (int i = 1; i <= CONTAINERS_PER_NODE; i++) {
+// 			def containerIndex = i
+// 			def builderIndex = nodeIndex * CONTAINERS_PER_NODE + (containerIndex - 1)
+// 			def assignedProjects = getProjectsForBuilder(PUBLISHING_PROJECT_PATHS, builderIndex, totalBuilders)
+// 			def branchName = "${nodeInfo.secondaryLabel} #${containerIndex}"
+// 			parallelBranches[branchName] = {
+// 				node(nodeSelector) {
+// 					def referenceRepositoryPath = "${env.JENKINS_HOME_NODE}/workspace/_VODOVOZ_REFERENCE_REPOSITORY"
+// 					def workspaceSuffix = "container-${containerIndex}"
+// 					def cid = null
+
+// 					ws("${env.WORKSPACE}@${workspaceSuffix}") {
+// 						try {
+// 							stage("Start container ${branchName}") {
+// 								def workspaceDir = pwd()
+// 								def containerName = "build-${env.BUILD_NUMBER}-${containerIndex}-${nodeSelector.replaceAll('[^a-zA-Z0-9]', '-')}"
+// 								cid = sh(
+// 									script: """
+// 										docker run -d \
+// 										  --name ${containerName} \
+// 										  -v ${referenceRepositoryPath}:${REFERENCE_REPOSITORY_MOUNT_PATH}:ro \
+// 										  -v ${workspaceDir}:/work \
+// 										  -w /work \
+// 										  ${CHECKOUT_CONTAINER_IMAGE} \
+// 										  tail -f /dev/null
+// 									""".stripIndent(),
+// 									returnStdout: true
+// 								).trim()
+// 								echo "Started container: ${cid}"
+// 							}
+
+// 							stage("Checkout ${branchName}") {
+// 								// Checkout выполняется через Jenkins Git plugin на хосте (JENKINS-30600).
+// 								// Рабочий каталог смонтирован в контейнер как /work, поэтому код доступен внутри.
+// 								CheckoutInContainer(referenceRepositoryPath)
+// 							}
+
+// 							stage("Build ${branchName}") {
+// 								echo "Builder ${builderIndex + 1}/${totalBuilders}: ${assignedProjects.size()} project(s) assigned"
+// 								for (projectPath in assignedProjects) {
+// 									sh "docker exec ${cid} bash -c 'dotnet publish ${projectPath} -c Release -p:PublishProfile=${PUBLISH_PROFILE_FILE}'"
+// 								}
+// 							}
+// 						} finally {
+// 							if (cid?.trim()) {
+// 								sh "docker rm -f ${cid} || true"
+// 							}
+// 						}
+// 					}
+// 				}
+// 			}
+// 		}
+// 	}
+// 	parallel parallelBranches
+// }
 
 // -- FUNCTIONS
 
@@ -169,6 +213,90 @@ def getProjectsForBuilder(List projects, int builderIndex, int totalBuilders) {
 		result.add(projects[i])
 	}
 	return result
+}
+
+def CheckoutMainRepositoryWithoutSubmodules(referenceRepositoryPath) {
+	checkout changelog: false, poll: false, scm: [
+		$class: 'GitSCM',
+		branches: [[name: '*/master']],
+		doGenerateSubmoduleConfigurations: false,
+		userRemoteConfigs: [[
+			url: 'https://github.com/VodovozOrganization/Vodovoz.git'
+		]],
+		extensions: [
+			[$class: 'CloneOption',
+				shallow: false,
+				noTags: false,
+				reference: "${referenceRepositoryPath}/Vodovoz.git"
+			],
+			[$class: 'SubmoduleOption',
+				disableSubmodules: true
+			]
+		]
+	]
+}
+
+def DiscoverPublishingProjectDirs(String profileName) {
+	def projectDirsRaw = sh(
+		script: """
+			set -eu
+
+			scriptDir=\"\$PWD\"
+			applicationsPath=\"\$scriptDir/Source/Applications\"
+
+			if [ ! -d \"\$applicationsPath\" ]; then
+				echo \"Error: Directory not found: \$applicationsPath\" >&2
+				exit 1
+			fi
+
+			find \"\$applicationsPath\" -type f -name \"RepositorySettings.props\" |
+				while IFS= read -r filepath; do
+					projectDir=\"\$(dirname \"\$filepath\")\"
+					echo \"\${projectDir#\$scriptDir/}\"
+				done |
+				sort -u
+		""".stripIndent(),
+		returnStdout: true
+	).trim()
+
+	if (!projectDirsRaw) {
+		return []
+	}
+
+	return projectDirsRaw.split("\\r?\\n").findAll { it?.trim() }
+}
+
+def DiscoverProjectFilePath(String projectDir) {
+	def projectFile = sh(
+		script: """
+			set -eu
+			ls -1 \"${projectDir}\"/*.csproj 2>/dev/null | head -n 1 || true
+		""".stripIndent(),
+		returnStdout: true
+	).trim()
+
+	if (!projectFile) {
+		error("Не найден .csproj в директории ${projectDir}")
+	}
+
+	return projectFile
+}
+
+def ReadXmlProperty(String filePath, String propertyName) {
+	if (!fileExists(filePath)) {
+		error("Не найден файл: ${filePath}")
+	}
+
+	def xmlText = readFile(file: filePath)
+	def propertyRegex = "(?s)<${propertyName}>(.*?)</${propertyName}>"
+	def matcher = (xmlText =~ propertyRegex)
+	def value = matcher.find() ? matcher.group(1).trim() : ''
+
+	if (!value) {
+		error("В файле ${filePath} не найдено значение PropertyGroup/${propertyName}")
+	}
+
+	return value
 }
 
 // 	echo "Prepare reference repository ${referenceRepositoryPath}"
