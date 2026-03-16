@@ -5937,6 +5937,12 @@ namespace Vodovoz
 
 		protected void OnYbuttonToStorageLogicAddressTypeClicked(object sender, EventArgs e)
 		{
+			if(Counterparty is null)
+			{
+				MessageDialogHelper.RunWarningDialog("Клиент должен быть заполнен");
+				return;
+			}
+			
 			if((Entity.OrderAddressType == OrderAddressType.Delivery
 				|| Entity.OrderAddressType == OrderAddressType.Service)
 			   && !Counterparty.IsChainStore
@@ -5950,6 +5956,12 @@ namespace Vodovoz
 
 		protected void OnYbuttonToDeliveryAddressTypeClicked(object sender, EventArgs e)
 		{
+			if(Counterparty is null)
+			{
+				MessageDialogHelper.RunWarningDialog("Клиент должен быть заполнен");
+				return;
+			}
+			
 			if((Entity.OrderAddressType == OrderAddressType.StorageLogistics
 				|| Entity.OrderAddressType == OrderAddressType.Service)
 			   && !Counterparty.IsChainStore

@@ -84,7 +84,8 @@ namespace CustomerOrdersApi.Library.Default.Services
 				PromoCode =	applyPromoCodeDto.PromoCode,
 				Time = applyPromoCodeDto.RequestTime.ToLocalTime(),
 				CounterpartyId = applyPromoCodeDto.ErpCounterpartyId.Value,
-				Products = applyPromoCodeDto.OnlineOrderItems
+				Products = applyPromoCodeDto.OnlineOrderItems,
+				Source = applyPromoCodeDto.Source
 			};
 			
 			return _onlineOrderDiscountHandler.TryApplyPromoCode(uow, dto);
