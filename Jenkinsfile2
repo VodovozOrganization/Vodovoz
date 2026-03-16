@@ -6,7 +6,8 @@
 NODE_DOCKER_BUILD = "DOCKER_BUILD"
 PUBLISH_PROFILE = "registry-dev"
 PUBLISH_PROFILE_FILE = "${PUBLISH_PROFILE}.pubxml"
-CHECKOUT_CONTAINER_IMAGE = "mcr.microsoft.com/dotnet/sdk:5.0"
+CHECKOUT_CONTAINER_IMAGE = "docker.vod.qsolution.ru:5100/dotnet5-docker"
+DOCKER_REGISTRY_CREDENTIALS_ID = "docker-registry-credentials"
 REFERENCE_REPOSITORY_MOUNT_PATH = "/reference-repository"
 CONTAINERS_PER_NODE = 3
 
@@ -96,73 +97,83 @@ stage('Discover publishing projects') {
 	}
 }
 
-// stage('Checkout and build in containers') {
-// 	def availableNodes = getDockerBuildNodesBySecondaryLabel(NODE_DOCKER_BUILD)
-// 	if (!availableNodes) {
-// 		error("Не найдено доступных нод с тегом ${NODE_DOCKER_BUILD} для работы в контейнерах")
-// 	}
-// 	def parallelBranches = [:]
-// 	def totalBuilders = availableNodes.size() * CONTAINERS_PER_NODE
+stage('Checkout and build in containers') {
+	def availableNodes = getDockerBuildNodesBySecondaryLabel(NODE_DOCKER_BUILD)
+	if (!availableNodes) {
+		error("Не найдено доступных нод с тегом ${NODE_DOCKER_BUILD} для работы в контейнерах")
+	}
+	def parallelBranches = [:]
+	def totalBuilders = availableNodes.size() * CONTAINERS_PER_NODE
 
-// 	availableNodes.eachWithIndex { nodeInfo, nodeIndex ->
-// 		def nodeSelector = "${nodeInfo.secondaryLabel}"
-// 		echo "nodeSelector='${nodeSelector}'"
+	availableNodes.eachWithIndex { nodeInfo, nodeIndex ->
+		def nodeSelector = "${nodeInfo.secondaryLabel}"
+		echo "nodeSelector='${nodeSelector}'"
 
-// 		for (int i = 1; i <= CONTAINERS_PER_NODE; i++) {
-// 			def containerIndex = i
-// 			def builderIndex = nodeIndex * CONTAINERS_PER_NODE + (containerIndex - 1)
-// 			def assignedProjects = getProjectsForBuilder(PUBLISHING_PROJECT_PATHS, builderIndex, totalBuilders)
-// 			def branchName = "${nodeInfo.secondaryLabel} #${containerIndex}"
-// 			parallelBranches[branchName] = {
-// 				node(nodeSelector) {
-// 					def referenceRepositoryPath = "${env.JENKINS_HOME_NODE}/workspace/_VODOVOZ_REFERENCE_REPOSITORY"
-// 					def workspaceSuffix = "container-${containerIndex}"
-// 					def cid = null
+		for (int i = 1; i <= CONTAINERS_PER_NODE; i++) {
+			def containerIndex = i
+			def builderIndex = nodeIndex * CONTAINERS_PER_NODE + (containerIndex - 1)
+			def assignedProjects = getProjectsForBuilder(PUBLISHING_PROJECT_PATHS, builderIndex, totalBuilders)
+			def branchName = "${nodeInfo.secondaryLabel} #${containerIndex}"
+			parallelBranches[branchName] = {
+				node(nodeSelector) {
+					def referenceRepositoryPath = "${env.JENKINS_HOME_NODE}/workspace/_VODOVOZ_REFERENCE_REPOSITORY"
+					def workspaceSuffix = "container-${containerIndex}"
+					def cid = null
 
-// 					ws("${env.WORKSPACE}@${workspaceSuffix}") {
-// 						try {
-// 							stage("Start container ${branchName}") {
-// 								def workspaceDir = pwd()
-// 								def containerName = "build-${env.BUILD_NUMBER}-${containerIndex}-${nodeSelector.replaceAll('[^a-zA-Z0-9]', '-')}"
-// 								cid = sh(
-// 									script: """
-// 										docker run -d \
-// 										  --name ${containerName} \
-// 										  -v ${referenceRepositoryPath}:${REFERENCE_REPOSITORY_MOUNT_PATH}:ro \
-// 										  -v ${workspaceDir}:/work \
-// 										  -w /work \
-// 										  ${CHECKOUT_CONTAINER_IMAGE} \
-// 										  tail -f /dev/null
-// 									""".stripIndent(),
-// 									returnStdout: true
-// 								).trim()
-// 								echo "Started container: ${cid}"
-// 							}
+					ws("${env.WORKSPACE}@${workspaceSuffix}") {
+						try {
+							stage("Start container ${branchName}") {
+								def workspaceDir = pwd()
+								def containerName = "build-${env.BUILD_NUMBER}-${containerIndex}-${nodeSelector.replaceAll('[^a-zA-Z0-9]', '-')}"
+								withCredentials([usernamePassword(credentialsId: DOCKER_REGISTRY_CREDENTIALS_ID, usernameVariable: 'DOCKER_REGISTRY_USERNAME', passwordVariable: 'DOCKER_REGISTRY_PASSWORD')]) {
+									sh "echo \"\$DOCKER_REGISTRY_PASSWORD\" | docker login ${DOCKER_REGISTRY_URL} -u \"\$DOCKER_REGISTRY_USERNAME\" --password-stdin"
+								}
 
-// 							stage("Checkout ${branchName}") {
-// 								// Checkout выполняется через Jenkins Git plugin на хосте (JENKINS-30600).
-// 								// Рабочий каталог смонтирован в контейнер как /work, поэтому код доступен внутри.
-// 								CheckoutInContainer(referenceRepositoryPath)
-// 							}
+								cid = sh(
+									script: """
+										docker run -d \
+										  --name ${containerName} \
+										  -v /var/run/docker.sock:/var/run/docker.sock \
+										  -v ${referenceRepositoryPath}:${REFERENCE_REPOSITORY_MOUNT_PATH}:ro \
+										  -v ${workspaceDir}:/work \
+										  -w /work \
+										  ${CHECKOUT_CONTAINER_IMAGE} \
+										  tail -f /dev/null
+									""".stripIndent(),
+									returnStdout: true
+								).trim()
+								echo "Started container: ${cid}"
+							}
 
-// 							stage("Build ${branchName}") {
-// 								echo "Builder ${builderIndex + 1}/${totalBuilders}: ${assignedProjects.size()} project(s) assigned"
-// 								for (projectPath in assignedProjects) {
-// 									sh "docker exec ${cid} bash -c 'dotnet publish ${projectPath} -c Release -p:PublishProfile=${PUBLISH_PROFILE_FILE}'"
-// 								}
-// 							}
-// 						} finally {
-// 							if (cid?.trim()) {
-// 								sh "docker rm -f ${cid} || true"
-// 							}
-// 						}
-// 					}
-// 				}
-// 			}
-// 		}
-// 	}
-// 	parallel parallelBranches
-// }
+							stage("Checkout ${branchName}") {
+								withCredentials([usernamePassword(credentialsId: DOCKER_REGISTRY_CREDENTIALS_ID, usernameVariable: 'DOCKER_REGISTRY_USERNAME', passwordVariable: 'DOCKER_REGISTRY_PASSWORD')]) {
+									sh "docker exec ${cid} sh -c 'command -v docker >/dev/null 2>&1 || (apt-get update && apt-get install -y docker.io)'"
+									sh "docker exec -e REG_USER=\"${DOCKER_REGISTRY_USERNAME}\" -e REG_PASS=\"${DOCKER_REGISTRY_PASSWORD}\" ${cid} sh -c 'echo \"\$REG_PASS\" | docker login ${DOCKER_REGISTRY_URL} -u \"\$REG_USER\" --password-stdin'"
+								}
+
+								// Checkout выполняется через Jenkins Git plugin на хосте (JENKINS-30600).
+								// Рабочий каталог смонтирован в контейнер как /work, поэтому код доступен внутри.
+								CheckoutInContainer(referenceRepositoryPath)
+							}
+
+							stage("Build ${branchName}") {
+								echo "Builder ${builderIndex + 1}/${totalBuilders}: ${assignedProjects.size()} project(s) assigned"
+								for (projectPath in assignedProjects) {
+									sh "docker exec ${cid} bash -c 'dotnet publish ${projectPath} -c Release -p:PublishProfile=${PUBLISH_PROFILE_FILE}'"
+								}
+							}
+						} finally {
+							if (cid?.trim()) {
+								sh "docker rm -f ${cid} || true"
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	parallel parallelBranches
+}
 
 // -- FUNCTIONS
 
