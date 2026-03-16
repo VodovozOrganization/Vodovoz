@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Contracts;
+using TrueMark.Contracts.Documents;
 using TrueMark.Contracts.Responses;
 
 namespace TrueMarkApi.Client
@@ -96,6 +97,58 @@ namespace TrueMarkApi.Client
 			var documentId = await response.Content.ReadAsStringAsync();
 
 			return documentId;
+		}
+
+		public async Task<TrueMarkDocumentInfo> GetDocumentInfo(Guid documentId, string inn, CancellationToken cancellationToken)
+		{
+			var urlWithParams = $"api/GetDocumentInfo?documentId={documentId}&inn={inn}";
+			var response = await _httpClient.GetAsync(urlWithParams, cancellationToken);
+
+			if(!response.IsSuccessStatusCode)
+			{
+				if(response.StatusCode == System.Net.HttpStatusCode.NotFound)
+				{
+					return new TrueMarkDocumentInfo
+					{
+						DocumentId = documentId,
+						Status = TrueMarkDocumentStatus.NotFound,
+						ErrorMessage = "Document not found"
+					};
+				}
+
+				return new TrueMarkDocumentInfo
+				{
+					DocumentId = documentId,
+					Status = TrueMarkDocumentStatus.Error,
+					ErrorMessage = $"Error retrieving document info. Message: {response.ReasonPhrase} Status code: {response.StatusCode}"
+				};
+			}
+
+			var responseBody = await response.Content.ReadAsStreamAsync();
+			var createdDocumentInfo = await JsonSerializer.DeserializeAsync<CreatedDocumentInfoDto>(responseBody, cancellationToken: cancellationToken);
+
+			if(createdDocumentInfo is null)
+			{
+				return new TrueMarkDocumentInfo
+				{
+					DocumentId = documentId,
+					Status = TrueMarkDocumentStatus.Error,
+					ErrorMessage = "Error deserializing document info response"
+				};
+			}
+			
+			return new TrueMarkDocumentInfo
+			{
+				DocumentId = documentId,
+				Status =
+					createdDocumentInfo.HasErrors
+					? TrueMarkDocumentStatus.Error
+					: TrueMarkDocumentStatus.Ok,
+				ErrorMessage =
+					createdDocumentInfo.HasErrors
+					? string.Join("; ", createdDocumentInfo.Errors)
+					: null
+			};
 		}
 	}
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Contracts;
@@ -13,6 +14,15 @@ namespace TrueMarkApi.Client
 		/// Если количество ИНН превышает это значение, необходимо разбить запрос на несколько частей и выполнить несколько запросов к API.
 		/// </summary>
 		int ParticipantsCheckMaxCount { get; }
+
+		/// <summary>
+		/// Возвращает информацию о документе в ЧЗ по его идентификатору
+		/// </summary>
+		/// <param name="documentId">Идентификатор документа</param>
+		/// <param name="inn">ИНН организации</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
+		Task<TrueMarkDocumentInfo> GetDocumentInfo(Guid documentId, string inn, CancellationToken cancellationToken);
 
 		Task<TrueMarkRegistrationResultDto> GetParticipantRegistrationForWaterStatusAsync(string url, string inn, CancellationToken cancellationToken);
 
