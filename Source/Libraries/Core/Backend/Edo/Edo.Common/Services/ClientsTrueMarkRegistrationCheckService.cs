@@ -82,11 +82,9 @@ namespace Edo.Common.Services
 			IEnumerable<string> inns,
 			CancellationToken cancellationToken)
 		{
-			var registrationsData = new List<ParticipantRegistrationDto>();
 			try
 			{
-				var trueMarkResponse = await _trueMarkApiClient.GetParticipantsRegistrations(inns, cancellationToken);
-				registrationsData.AddRange(trueMarkResponse);
+				return await _trueMarkApiClient.GetParticipantsRegistrations(inns, cancellationToken);
 			}
 			catch(Exception ex)
 			{
@@ -95,6 +93,7 @@ namespace Edo.Common.Services
 					"Ошибка при запросе статусов регистрации клиентов в Честном Знаке для ИНН: {Inns}",
 					string.Join(", ", inns));
 
+				var registrationsData = new List<ParticipantRegistrationDto>();
 				foreach(var inn in inns)
 				{
 					registrationsData.Add(new ParticipantRegistrationDto
@@ -103,9 +102,8 @@ namespace Edo.Common.Services
 						ErrorMessage = $"Ошибка при проверке статуса регистрации клиента в ЧЗ: {ex.Message}"
 					});
 				}
+				return registrationsData;
 			}
-
-			return registrationsData;
 		}
 
 		private Result<RegistrationInChestnyZnakStatus> ConvertToRegistrationStatus(ParticipantRegistrationDto registrationData)

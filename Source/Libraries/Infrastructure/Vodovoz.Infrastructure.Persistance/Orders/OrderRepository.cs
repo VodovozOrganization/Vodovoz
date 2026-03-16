@@ -1,4 +1,4 @@
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -1506,6 +1506,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						.Add(Restrictions.Disjunction()
 							.Add(() => defaultEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 							.Add(() => counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.InProcess
+									   && counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.RegisteredWithoutWater
 									   && counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered)))
 					.Add(Restrictions.Conjunction()
 						.Add(() => orderAlias.PaymentType == PaymentType.Barter)
@@ -1565,6 +1566,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						.Add(Restrictions.Disjunction()
 							.Add(() => defaultEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 							.Add(() => counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.InProcess
+								&& counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.RegisteredWithoutWater
 								&& counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered)))
 					.Add(Restrictions.Conjunction()
 						.Add(() => orderAlias.PaymentType == PaymentType.Barter)
@@ -1654,6 +1656,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						.Add(Restrictions.Disjunction()
 							.Add(() => defaultEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 							.Add(() => counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.InProcess
+									   && counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.RegisteredWithoutWater
 									   && counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered)
 							)
 						)
@@ -2435,6 +2438,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.And(Restrictions.Disjunction()
 					.Add(() => (
 						counterpartyAlias.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess
+							|| counterpartyAlias.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.RegisteredWithoutWater
 							|| counterpartyAlias.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
 							&& (defaultEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree))
 					.Add(() => counterpartyAlias.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds

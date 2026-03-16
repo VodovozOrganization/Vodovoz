@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using TrueMark.Contracts;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Results;
 

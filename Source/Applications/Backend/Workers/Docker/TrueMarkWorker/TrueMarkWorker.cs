@@ -514,7 +514,7 @@ namespace TrueMarkWorker
 			_logger.LogInformation("Проверям регистрацию клиентов в Честном Знаке");
 
 			var notRegisteredInns =
-				orders.Where(o => o.Client.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered)
+				orders.Where(o => !CounterpartyEntity.RegisteredInTrueMarkStatuses.Contains(o.Client.RegistrationInChestnyZnakStatus))
 					.Select(o => o.Client.INN).ToList();
 
 			if(!notRegisteredInns.Any())
@@ -535,16 +535,22 @@ namespace TrueMarkWorker
 
 				foreach(var registration in registrations)
 				{
+					if(!registration.IsRegistered)
+					{
+						continue;
+					}
+
 					var orderForUpdate = orders.FirstOrDefault(o =>
-							o.Client.INN == registration.Inn
-							&& (o.Client.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered
-								&& registration.IsRegisteredForWater));
+							o.Client.INN == registration.Inn);
 
 					if(orderForUpdate?.Client is Counterparty counterparty)
 					{
 						_logger.LogInformation("Найдено изменение статуса регистрации клиента {CounterpartyId} в Честном Знаке, сохраняем изменение в базу.", counterparty.Id);
 
-						counterparty.RegistrationInChestnyZnakStatus = RegistrationInChestnyZnakStatus.Registered;
+						counterparty.RegistrationInChestnyZnakStatus =
+							registration.IsRegistered && registration.IsRegisteredForWater
+							? RegistrationInChestnyZnakStatus.Registered
+							: RegistrationInChestnyZnakStatus.RegisteredWithoutWater;
 
 						uow.Save(counterparty);
 
