@@ -20,12 +20,6 @@ namespace Edo.Documents
 	/// </summary>
 	public class WithdrawalEdoRequestHandler
 	{
-		private static readonly RegistrationInChestnyZnakStatus[] _registeredInTrueMarkStatuses = new[]
-		{
-			RegistrationInChestnyZnakStatus.Registered,
-			RegistrationInChestnyZnakStatus.RegisteredWithoutWater
-		};
-
 		private readonly ILogger<WithdrawalEdoRequestHandler> _logger;
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IGenericRepository<CounterpartyEdoAccountEntity> _edoAccountRepository;
@@ -147,7 +141,7 @@ namespace Edo.Documents
 					}
 				}
 
-				if(_registeredInTrueMarkStatuses.Contains(client.RegistrationInChestnyZnakStatus))
+				if(CounterpartyEntity.RegisteredInTrueMarkStatuses.Contains(client.RegistrationInChestnyZnakStatus))
 				{
 					_logger.LogInformation(
 						"Контрагент {CounterpartyId} зарегистрирован в ЧЗ. Вывод из оборота в данный момент не требуется",

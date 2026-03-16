@@ -143,7 +143,7 @@ namespace Edo.Withdrawal
 					_edoAccountEntityController.GetDefaultCounterpartyEdoAccountByOrganizationId(client, orderOrganizationId);
 
 				if(edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree
-					&& client.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
+					&& CounterpartyEntity.RegisteredInTrueMarkStatuses.Contains(client.RegistrationInChestnyZnakStatus))
 				{
 					var canCreateWithdrawal =
 						CanCreateWithdrawalForRegisteredInTrueMarkClientOrder(uow, withdrawalEdoRequest, order, client);
@@ -198,8 +198,8 @@ namespace Edo.Withdrawal
 				}
 				catch(Exception ex)
 				{
-					var registered = await _edoProblemRegistrar.TryRegisterExceptionProblem(withdrawalEdoTask, ex, cancellationToken);
-					if(!registered)
+					var isProblemRegistered = await _edoProblemRegistrar.TryRegisterExceptionProblem(withdrawalEdoTask, ex, cancellationToken);
+					if(!isProblemRegistered)
 					{
 						throw;
 					}
