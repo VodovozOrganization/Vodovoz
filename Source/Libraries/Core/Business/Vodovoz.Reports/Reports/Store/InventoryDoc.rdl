@@ -33,7 +33,7 @@ FROM
     store_inventory ON store_inventory.id = store_inventory_item.store_inventory_id
         LEFT JOIN
     (
-        SELECT
+        SELECT distinct
             nomenclature.id
         FROM
             store_movement_document_items 
