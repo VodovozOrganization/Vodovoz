@@ -3,7 +3,6 @@ using CustomerOrdersApi.Library.Services.PaymentRefund.Models.YandexPay;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using Vodovoz.Core.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 {
@@ -79,8 +78,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 			return new RefundResultDto
 			{
 				Success = true,
-				RefundId = operation.OperationId,
-				//ExternalOperationId = operation.ExternalOperationId,
+				RefundId = operation.OperationId
 			};
 		}
 
@@ -101,8 +99,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 			return new RefundResultDto
 			{
 				Success = false,
-				ErrorMessage = fullErrorMessage,
-				NewPaymentStatus = OnlineOrderPaymentStatus.Refunding
+				ErrorMessage = fullErrorMessage
 			};
 		}
 	}

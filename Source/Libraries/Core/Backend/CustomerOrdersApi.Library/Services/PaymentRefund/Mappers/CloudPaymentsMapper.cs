@@ -2,7 +2,6 @@
 using CustomerOrdersApi.Library.Services.PaymentRefund.Models.CloudPayments;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Threading;
 
 namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 {

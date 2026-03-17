@@ -11,7 +11,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Payments;
 
 namespace CustomerOrdersApi.Library.Services.PaymentRefund
 {

@@ -130,15 +130,14 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 					Success = true,
 					RefundId = operation.RefundId,
 					ErrorMessage = "Возврат уже был выполнен ранее",
-					NewPaymentStatus = OnlineOrderPaymentStatus.Refunded
+					NewPaymentStatus = OnlineOrderPaymentStatus.Refund
 				};
 			}
 
 			return new RefundResultDto
 			{
 				Success = false,
-				ErrorMessage = operation.ErrorMessage ?? "Предыдущая попытка возврата завершилась ошибкой",
-				NewPaymentStatus = OnlineOrderPaymentStatus.Paid
+				ErrorMessage = operation.ErrorMessage ?? "Предыдущая попытка возврата завершилась ошибкой"
 			};
 		}
 
@@ -147,7 +146,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 		/// </summary>
 		protected virtual RefundResultDto CreateSuccessResult(string refundId)
 		{
-			return new RefundResultDto(true, refundId, default, default, default, OnlineOrderPaymentStatus.Refunded);
+			return new RefundResultDto(true, refundId, default, default, default, OnlineOrderPaymentStatus.Refund);
 		}
 
 		/// <summary>

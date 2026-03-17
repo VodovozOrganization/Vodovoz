@@ -1,11 +1,9 @@
-using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
+﻿using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
 using CustomerOrdersApi.Library.Services.PaymentRefund.Models.YooKassa;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Payments;
 
 namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 {
@@ -96,12 +94,11 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 
 			return new RefundResultDto
 			{
-				Success = refund.Status == YooKassaRefundStatus.Succeeded,
+				Success = refund.Status is YooKassaRefundStatus.Succeeded,
 				RefundId = refund.Id,
 				ErrorMessage = GetErrorMessage(refund),
 				CancellationParty = cancellationParty,
-				CancellationReason = cancellationReason,
-				NewPaymentStatus = OnlineOrderPaymentStatus.Refunding
+				CancellationReason = cancellationReason
 			};
 		}
 
@@ -178,8 +175,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 			return new RefundResultDto
 			{
 				Success = false,
-				ErrorMessage = fullErrorMessage,
-				NewPaymentStatus = OnlineOrderPaymentStatus.Paid
+				ErrorMessage = fullErrorMessage
 			};
 		}
 	}

@@ -19,15 +19,9 @@ namespace Vodovoz.Core.Domain.Orders
 		Paid,
 
 		/// <summary>
-		/// Возврат в процессе
+		/// Возврат денежных средств
 		/// </summary>
-		[Display(Name = "Возврат в процессе")]
-		Refunding,
-
-		/// <summary>
-		/// Средства возвращены полностью
-		/// </summary>
-		[Display(Name = "Средства возвращены полностью")]
-		Refunded
+		[Display(Name = "Возврат денежных средств")]
+		Refund
 	}
 }
