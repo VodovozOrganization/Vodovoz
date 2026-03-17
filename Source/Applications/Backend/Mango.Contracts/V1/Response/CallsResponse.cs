@@ -9,19 +9,19 @@ namespace Mango.Contracts.V1.Response
 		public int Result { get; set; }
 
 		[JsonPropertyName("status")]
-		public string? Status { get; set; }
+		public string Status { get; set; }
 
 		[JsonPropertyName("data")]
-		public List<CallsDayBlock>? Data { get; set; }
+		public List<CallsDayBlock> Data { get; set; }
 	}
 	
 	public sealed class CallsDayBlock
     {
         [JsonPropertyName("list")]
-        public List<CallEntry>? List { get; set; }
+        public List<CallEntry> List { get; set; }
 
         [JsonPropertyName("period")]
-        public string? Period { get; set; }
+        public string Period { get; set; }
 
         [JsonPropertyName("total_talks_duration")]
         public long? TotalTalksDuration { get; set; }
@@ -36,7 +36,7 @@ namespace Mango.Contracts.V1.Response
     public sealed class CallEntry
     {
         [JsonPropertyName("entry_id")]
-        public string? EntryId { get; set; }
+        public string EntryId { get; set; }
 
         [JsonPropertyName("context_type")]
         public int? ContextType { get; set; }
@@ -48,13 +48,13 @@ namespace Mango.Contracts.V1.Response
         public long? CallerId { get; set; }
 
         [JsonPropertyName("caller_name")]
-        public string? CallerName { get; set; }
+        public string CallerName { get; set; }
 
         [JsonPropertyName("caller_number")]
-        public string? CallerNumber { get; set; }
+        public string CallerNumber { get; set; }
 
         [JsonPropertyName("called_number")]
-        public string? CalledNumber { get; set; }
+        public string CalledNumber { get; set; }
 
         [JsonPropertyName("context_start_time")]
         public long? ContextStartTime { get; set; }
@@ -75,22 +75,22 @@ namespace Mango.Contracts.V1.Response
         public decimal? Cost { get; set; }
 
         [JsonPropertyName("context_calls")]
-        public List<CallNode>? ContextCalls { get; set; }
+        public List<CallNode> ContextCalls { get; set; }
     }
 
     public sealed class CallNode
     {
         [JsonPropertyName("call_type")]
-        public string? CallType { get; set; }
+        public string CallType { get; set; }
 
         [JsonPropertyName("call_abonent_id")]
         public long? CallAbonentId { get; set; }
 
         [JsonPropertyName("call_abonent_info")]
-        public string? CallAbonentInfo { get; set; }
+        public string CallAbonentInfo { get; set; }
 
         [JsonPropertyName("call_abonent_number")]
-        public string? CallAbonentNumber { get; set; }
+        public string CallAbonentNumber { get; set; }
 
         [JsonPropertyName("call_start_time")]
         public long? CallStartTime { get; set; }
@@ -129,6 +129,6 @@ namespace Mango.Contracts.V1.Response
         public bool? ModeGroup { get; set; }
 
         [JsonPropertyName("members")]
-        public List<CallNode>? Members { get; set; }
+        public List<CallNode> Members { get; set; }
     }
 }

@@ -30,15 +30,16 @@ namespace Mango.Infrastructure.DependencyInjection
 
 			services.AddSingleton<ICallStatisticParser, CallStatisticParser>();
 
-			services.AddHttpClient<IMangoApiClient, MangoApiClient>((provider, client) =>
+			services.AddHttpClient<IMangoApiClient, MangoApiClient>((_, client) =>
 			{
-				client.Timeout = TimeSpan.FromSeconds(60);
+				client.Timeout = TimeSpan.FromSeconds(120);
 			});
 
 			services.AddScoped<ICallStatisticService, CallStatisticService>();
 			
 			services.AddScoped<ICallStatisticRepository, CallStatisticRepository>();
 			services.AddScoped<ISyncStateRepository, SyncStateRepository>();
+			
 			services.AddSingleton<IMangoReferenceDataBuilder, MangoReferenceDataBuilder>();
 
 			return services;

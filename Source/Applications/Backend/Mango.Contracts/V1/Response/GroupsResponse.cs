@@ -9,7 +9,7 @@ namespace Mango.Contracts.V1.Response
 		public int Result { get; set; }
 
 		[JsonPropertyName("groups")]
-		public List<MangoGroup>? Groups { get; set; }
+		public List<MangoGroup> Groups { get; set; }
 	}
 	
 	public sealed class MangoGroup
@@ -18,16 +18,16 @@ namespace Mango.Contracts.V1.Response
 		public long Id { get; set; }
 
 		[JsonPropertyName("name")]
-		public string? Name { get; set; }
+		public string Name { get; set; }
 
 		[JsonPropertyName("description")]
-		public string? Description { get; set; }
+		public string Description { get; set; }
 
 		[JsonPropertyName("extension")]
-		public string? Extension { get; set; }
+		public string Extension { get; set; }
 
 		[JsonPropertyName("operators")]
-		public List<MangoOperator>? Operators { get; set; }
+		public List<MangoOperator> Operators { get; set; }
 	}
 
 	public sealed class MangoOperator
@@ -36,10 +36,10 @@ namespace Mango.Contracts.V1.Response
 		public long Id { get; set; }
 
 		[JsonPropertyName("name")]
-		public string? Name { get; set; }
+		public string Name { get; set; }
 
 		[JsonPropertyName("extension")]
-		public string? Extension { get; set; }
+		public string Extension { get; set; }
 
 		[JsonPropertyName("priority")]
 		public int? Priority { get; set; }
