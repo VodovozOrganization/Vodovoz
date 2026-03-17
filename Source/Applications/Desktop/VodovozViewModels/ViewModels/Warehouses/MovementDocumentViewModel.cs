@@ -133,7 +133,7 @@ namespace Vodovoz.ViewModels.Warehouses
 				Entity.DocumentType = MovementDocumentType.Transportation;
 				SetDefaultWarehouseFrom();
 			}
-			else
+			else if (Entity.FromWarehouse != null)
 			{
 				var nomenclaturesIds = Entity.Items
 					.Select(i => i.Id)
