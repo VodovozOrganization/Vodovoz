@@ -15,27 +15,21 @@ namespace Mango.Business.Models
             var result = new List<CallEntity>();
 
             if (response.Data == null)
-                return result;
-
-            foreach (var day in response.Data)
             {
-                if (day.List == null)
-                    continue;
+	            return result;
+            }
 
-                foreach (var entry in day.List)
-                {
-                    var analyticsRecord = ParseEntry(entry, referenceData);
-                    if (analyticsRecord != null)
-                    {
-                        result.Add(analyticsRecord);
-                    }
-                }
+            foreach (var day in response.Data.Where(day => day.List != null))
+            {
+	            result.AddRange(day.List
+		            .Select(entry => ParseEntry(entry, referenceData))
+		            .Where(analyticsRecord => analyticsRecord != null));
             }
 
             return result;
         }
 
-        private static CallEntity? ParseEntry(CallEntry entry, MangoReferenceData referenceData)
+        private static CallEntity ParseEntry(CallEntry entry, MangoReferenceData referenceData)
         {
             var entryId = entry.EntryId ?? string.Empty;
             var entryStart = entry.ContextStartTime;
@@ -78,7 +72,9 @@ namespace Mango.Business.Models
                     : (DateTime?)null;
 
             if (!startTime.HasValue)
-                return null;
+            {
+	            return null;
+            }
 
             var endTime = selected.Call.CallEndTime.HasValue
                 ? ToLocalDateTime(selected.Call.CallEndTime.Value)
@@ -117,7 +113,7 @@ namespace Mango.Business.Models
 
         private static void CollectCandidates(
             CallNode node,
-            string? currentGroupName,
+            string currentGroupName,
             List<CallCandidate> candidates)
         {
             var nodeGroupName = currentGroupName;
@@ -127,7 +123,7 @@ namespace Mango.Business.Models
                 nodeGroupName = node.CallAbonentInfo;
             }
 
-            if (node.Members != null && node.Members.Count > 0)
+            if (node.Members is { Count: > 0 })
             {
                 foreach (var member in node.Members)
                 {
@@ -148,7 +144,7 @@ namespace Mango.Business.Models
             }
         }
 
-        private static MangoOperatorReference? ResolveGroup(
+        private static MangoOperatorReference ResolveGroup(
             CallCandidate selected,
             MangoReferenceData referenceData)
         {
@@ -168,7 +164,7 @@ namespace Mango.Business.Models
             return null;
         }
 
-        private static string? ExtractExtension(string? abonentNumber)
+        private static string ExtractExtension(string abonentNumber)
         {
             if (string.IsNullOrWhiteSpace(abonentNumber))
                 return null;
@@ -177,11 +173,11 @@ namespace Mango.Business.Models
             if (!abonentNumber.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
                 return null;
 
-            var value = abonentNumber.Substring(prefix.Length);
+            var value = abonentNumber[prefix.Length..];
             var atIndex = value.IndexOf('@');
             if (atIndex >= 0)
             {
-                value = value.Substring(0, atIndex);
+                value = value[..atIndex];
             }
 
             return string.IsNullOrWhiteSpace(value) ? null : value;
@@ -220,7 +216,7 @@ namespace Mango.Business.Models
         private sealed class CallCandidate
         {
             public CallNode Call { get; set; } = null!;
-            public string? ParentGroupName { get; set; }
+            public string ParentGroupName { get; set; }
         }
     }
 }

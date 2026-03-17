@@ -29,10 +29,10 @@ namespace Mango.Infrastructure.Repositories
 
 		public async Task<IEnumerable<CallEntity>> GetCallEntitiesAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
 		{
-			using var connection = new ClickHouseConnection(_options.Value.ConnectionString);
+			await using var connection = new ClickHouseConnection(_options.Value.ConnectionString);
 			await connection.OpenAsync(cancellationToken);
 
-			using var command = connection.CreateCommand();
+			await using var command = connection.CreateCommand();
 			command.CommandText = $@"
 SELECT
     UnicHash,
@@ -62,7 +62,7 @@ ORDER BY StartTime";
 
 			var result = new List<CallEntity>();
 
-			using var reader = await command.ExecuteReaderAsync(cancellationToken);
+			await using var reader = await command.ExecuteReaderAsync(cancellationToken);
 
 			while (await reader.ReadAsync(cancellationToken))
 			{
@@ -89,7 +89,9 @@ ORDER BY StartTime";
 			CancellationToken cancellationToken)
 		{
 			if(records == null || records.Count == 0)
+			{
 				return;
+			}
 
 			await using var connection = new ClickHouseConnection(_options.Value.ConnectionString);
 			await connection.OpenAsync(cancellationToken);
@@ -104,7 +106,7 @@ ORDER BY StartTime";
 					.Take(batchSize)
 					.ToList();
 
-				using var command = connection.CreateCommand();
+				await using var command = connection.CreateCommand();
 
 				var values = new List<string>();
 

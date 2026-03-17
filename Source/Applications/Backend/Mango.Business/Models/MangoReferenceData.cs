@@ -8,6 +8,5 @@ namespace Mango.Business.Models
 		public Dictionary<long, MangoGroup> GroupsById { get; init; } = new();
 		public Dictionary<long, MangoOperatorReference> OperatorsById { get; init; } = new();
 		public Dictionary<string, MangoOperatorReference> OperatorsByExtension { get; init; } = new();
-
 	}
 }

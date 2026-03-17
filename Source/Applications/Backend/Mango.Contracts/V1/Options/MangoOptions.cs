@@ -9,6 +9,7 @@
 		public string ApiSalt { get; set; } = string.Empty;
 		
 		public string GroupsUrl { get; set; } = "https://app.mango-office.ru/vpbx/groups";
+		
 		public string CallsUrl { get; set; } = "https://app.mango-office.ru/vpbx/stats/calls/request/";
 		
 		public string CallsResult { get; set; } = "https://app.mango-office.ru/vpbx/stats/calls/result/";

@@ -30,7 +30,9 @@ namespace Mango.Business.Models
 					groupsById[group.Id] = group;
 
 					if (group.Operators == null)
+					{
 						continue;
+					}
 
 					foreach (var op in group.Operators)
 					{
