@@ -81,7 +81,7 @@ namespace Edo.Withdrawal.Routine.Services
 						break;
 					case TrueMarkDocumentStatus.Error:
 						trueMarkDocument.IsSuccess = false;
-						trueMarkDocument.ErrorMessage = documentInfo.ErrorMessage.Substring(0, 255);
+						trueMarkDocument.ErrorMessage = documentInfo.ErrorMessage.Substring(0, Math.Min(documentInfo.ErrorMessage.Length, 255));
 						break;
 					case TrueMarkDocumentStatus.NotFound:
 						_logger.LogWarning(
