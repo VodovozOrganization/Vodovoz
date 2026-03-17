@@ -1,5 +1,9 @@
 ﻿namespace CustomerOrdersApi.Library.Services.PaymentRefund.Models.YandexPay
 {
+	/// <summary>
+	/// Универсальная модель ответа от Yandex Pay API
+	/// </summary>
+	/// <typeparam name="T">Тип данных ответа</typeparam>
 	public class YandexPayResult<T>
 	{
 		/// <summary>
@@ -27,6 +31,11 @@
 		/// </summary>
 		public object ErrorDetails { get; set; }
 
+		/// <summary>
+		/// Создает успешный результат
+		/// </summary>
+		/// <param name="data">Данные ответа</param>
+		/// <returns>Успешный результат с данными</returns>
 		public static YandexPayResult<T> FromSuccess(T data)
 		{
 			return new YandexPayResult<T>
@@ -36,6 +45,13 @@
 			};
 		}
 
+		/// <summary>
+		/// Создает результат с ошибкой
+		/// </summary>
+		/// <param name="errorMessage">Сообщение об ошибке</param>
+		/// <param name="errorCode">Код ошибки</param>
+		/// <param name="errorDetails">Детали ошибки</param>
+		/// <returns>Результат с ошибкой</returns>
 		public static YandexPayResult<T> FromError(string errorMessage, string errorCode = null, object errorDetails = null)
 		{
 			return new YandexPayResult<T>

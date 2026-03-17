@@ -5,30 +5,30 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.Models.YandexPay
 	/// <summary>
 	/// Запрос на возврат средств в Яндекс Пэй
 	/// </summary>
-	public record YandexPayRefundRequest
+	public class YandexPayRefundRequest
 	{
 		/// <summary>
 		/// Сумма возврата
 		/// </summary>
 		[JsonPropertyName("refundAmount")]
-		public decimal RefundAmount { get; set; }
+		public decimal RefundAmount { get; init; }
 
 		/// <summary>
 		/// Внешний ID операции (для идемпотентности)
 		/// </summary>
 		[JsonPropertyName("externalOperationId")]
-		public string ExternalOperationId { get; set; }
+		public string ExternalOperationId { get; init; }
 
 		/// <summary>
 		/// Целевая корзина после возврата
 		/// </summary>
 		[JsonPropertyName("targetCart")]
-		public YandexPayTargetCart TargetCart { get; set; }
+		public YandexPayTargetCart TargetCart { get; init; }
 
 		/// <summary>
 		/// ID заказа в Яндекс Пэй
 		/// </summary>
 		[JsonIgnore]
-		public string OrderId { get; set; }
+		public string OrderId { get; init; }
 	}
 }

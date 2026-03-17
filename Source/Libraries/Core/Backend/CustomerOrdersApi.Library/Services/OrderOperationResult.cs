@@ -21,15 +21,5 @@
 		/// Подробное сообщение об ошибке или успехе
 		/// </summary>
 		public string DetailMessage { get; set; }
-
-		protected OrderOperationResult() { }
-
-		protected OrderOperationResult(bool isSuccess, int statusCode, string title, string detailMessage)
-		{
-			IsSuccess = isSuccess;
-			StatusCode = statusCode;
-			Title = title;
-			DetailMessage = detailMessage;
-		}
 	}
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using Vodovoz.Core.Domain.Orders;
+﻿using Vodovoz.Core.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.Dto.Orders.CancelOrder
 {
@@ -8,6 +7,25 @@ namespace CustomerOrdersApi.Library.Dto.Orders.CancelOrder
 	/// </summary>
 	public class RefundResultDto
 	{
+		public RefundResultDto()
+		{
+		}
+
+		public RefundResultDto(
+			bool success,
+			string refundId,
+			string errorMessage,
+			string cancellationParty,
+			string cancellationReason,
+			OnlineOrderPaymentStatus newPaymentStatus)
+		{
+			Success = success;
+			RefundId = refundId;
+			ErrorMessage = errorMessage;
+			CancellationParty = cancellationParty;
+			CancellationReason = cancellationReason;
+			NewPaymentStatus = newPaymentStatus;
+		}
 		/// <summary>
 		/// Успешность операции
 		/// </summary>
@@ -38,24 +56,5 @@ namespace CustomerOrdersApi.Library.Dto.Orders.CancelOrder
 		/// </summary>
 		public OnlineOrderPaymentStatus NewPaymentStatus { get; set; }
 
-		public RefundResultDto()
-		{
-		}
-
-		public RefundResultDto(
-			bool success,
-			string refundId,
-			string errorMessage,
-			string cancellationParty,
-			string cancellationReason,
-			OnlineOrderPaymentStatus newPaymentStatus)
-		{
-			Success = success;
-			RefundId = refundId;
-			ErrorMessage = errorMessage;
-			CancellationParty = cancellationParty;
-			CancellationReason = cancellationReason;
-			NewPaymentStatus = newPaymentStatus;
-		}
 	}
 }

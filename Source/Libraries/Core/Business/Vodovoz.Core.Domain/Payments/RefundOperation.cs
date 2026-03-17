@@ -33,6 +33,10 @@ namespace Vodovoz.Core.Domain.Payments
 		private bool _isSuccess;
 		private string _errorMessage;
 
+		/// <summary>
+		/// Идентификатор
+		/// </summary>
+		[Display(Name = "Идентификтор")]
 		public virtual int Id
 		{
 			get => _id;
@@ -136,8 +140,7 @@ namespace Vodovoz.Core.Domain.Payments
 				OnlineOrderId = onlineOrderId,
 				TransactionId = transactionId,
 				PaymentSource = paymentSource,
-				CreatedAt = now,
-				IsSuccess = false
+				CreatedAt = now
 			};
 		}
 

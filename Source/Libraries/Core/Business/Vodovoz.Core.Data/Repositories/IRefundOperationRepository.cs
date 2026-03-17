@@ -9,10 +9,10 @@ namespace Vodovoz.Core.Data.Repositories
 		/// <summary>
 		/// Получить успешный возврат по ID транзакции
 		/// </summary>
-		/// <param name="uow"></param>
-		/// <param name="transactionId"></param>
-		/// <param name="paymentSource"></param>
-		/// <returns></returns>
+		/// <param name="uow">Unit of Work</param>
+		/// <param name="transactionId">Идентификатор транзакции в платежной системе</param>
+		/// <param name="paymentSource">Источник платежа</param>
+		/// <returns>Операция возврата со статусом "Успешно"</returns>
 		RefundOperation GetSuccessfulByTransactionId(
 			IUnitOfWork uow,
 			string transactionId,
@@ -21,10 +21,11 @@ namespace Vodovoz.Core.Data.Repositories
 		/// <summary>
 		/// Получить последнюю попытку возврата по транзакции
 		/// </summary>
-		/// <param name="uow"></param>
-		/// <param name="transactionId"></param>
-		/// <param name="paymentSource"></param>
-		/// <returns></returns>
+		/// <param name="uow">Unit of Work</param>
+		/// <param name="transactionId">Идентификатор транзакции в платежной системе</param>
+		/// <param name="paymentSource">Источник платежа</param>
+		/// <returns>Последняя по времени операция возврата для указанной транзакции</returns>
+		/// <remarks>Возвращает самую свежую операцию возврата вне зависимости от её статуса</remarks>
 		RefundOperation GetLastAttemptByTransactionId(
 			IUnitOfWork uow,
 			string transactionId,
