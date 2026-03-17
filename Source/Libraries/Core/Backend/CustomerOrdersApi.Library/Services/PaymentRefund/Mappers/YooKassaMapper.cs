@@ -1,4 +1,4 @@
-﻿using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
+using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
 using CustomerOrdersApi.Library.Services.PaymentRefund.Models.YooKassa;
 using Microsoft.Extensions.Logging;
 using System;
@@ -80,8 +80,6 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 				refund.Id,
 				refund.Status);
 
-			var (refundStatus, orderPaymentStatus) = MapRefundStatus(refund.Status);
-
 			string cancellationParty = null;
 			string cancellationReason = null;
 
@@ -103,22 +101,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 				ErrorMessage = GetErrorMessage(refund),
 				CancellationParty = cancellationParty,
 				CancellationReason = cancellationReason,
-				RefundStatus = refundStatus,
-				NewPaymentStatus = orderPaymentStatus
-			};
-		}
-
-		/// <summary>
-		/// Маппит статус возврата из ЮKassa во внутренние статусы
-		/// </summary>
-		private static (RefundStatus refundStatus, OnlineOrderPaymentStatus orderStatus) MapRefundStatus(string status)
-		{
-			return status switch
-			{
-				YooKassaRefundStatus.Succeeded => (RefundStatus.SUCCEEDED, OnlineOrderPaymentStatus.Refunded),
-				YooKassaRefundStatus.Pending => (RefundStatus.PENDING, OnlineOrderPaymentStatus.Refunding),
-				YooKassaRefundStatus.Canceled => (RefundStatus.CANCELED, OnlineOrderPaymentStatus.Paid),
-				_ => (RefundStatus.FAIL, OnlineOrderPaymentStatus.Paid)
+				NewPaymentStatus = OnlineOrderPaymentStatus.Refunding
 			};
 		}
 
@@ -196,7 +179,6 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 			{
 				Success = false,
 				ErrorMessage = fullErrorMessage,
-				RefundStatus = RefundStatus.FAIL,
 				NewPaymentStatus = OnlineOrderPaymentStatus.Paid
 			};
 		}

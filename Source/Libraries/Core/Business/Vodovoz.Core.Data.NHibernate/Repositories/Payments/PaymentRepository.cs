@@ -20,7 +20,7 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Payments
 				where order.Id == orderId
 					&& paymentItem.PaymentItemStatus != AllocationStatus.Cancelled
 				select payment;
-			
+
 			return query.ToList();
 		}
 	}

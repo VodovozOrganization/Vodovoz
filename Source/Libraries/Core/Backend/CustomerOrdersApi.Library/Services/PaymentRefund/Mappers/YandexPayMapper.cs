@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Payments;
 
 namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 {
@@ -17,7 +16,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
-		public YandexPayRefundRequest MapToRefundRequest(RefundRequestDto request)
+		public YandexPayRefundRequest MapToRefundRequest(RefundRequestDto request, string idempotenceKey)
 		{
 			if(request is null)
 			{
@@ -37,7 +36,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 			var refundRequest = new YandexPayRefundRequest
 			{
 				RefundAmount = request.Amount,
-				ExternalOperationId = GenerateExternalOperationId(request),
+				ExternalOperationId = idempotenceKey,
 				OrderId = request.TransactionId
 			};
 
@@ -77,14 +76,11 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 				operation.OperationId,
 				operation.Status);
 
-			var (refundStatus, orderPaymentStatus) = MapRefundStatus(operation.Status);
-
 			return new RefundResultDto
 			{
 				Success = true,
 				RefundId = operation.OperationId,
 				//ExternalOperationId = operation.ExternalOperationId,
-				RefundStatus = refundStatus
 			};
 		}
 
@@ -92,33 +88,6 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 		/// Проверяет, является ли возврат полным
 		/// </summary>
 		private static bool IsFullRefund(RefundRequestDto request) => request.Amount == request.OnlineOrder?.OnlineOrderSum;
-
-		/// <summary>
-		/// Генерирует внешний ID операции для идемпотентности
-		/// </summary>
-		private static string GenerateExternalOperationId(RefundRequestDto request)
-		{
-			// Формат: refund_{orderId}_{timestamp}_{random} //Подумать над этим
-			var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-			var random = Guid.NewGuid().ToString("N")[..8];
-			return $"refund_{request.OnlineOrder?.Id}_{timestamp}_{random}";
-		}
-
-		/// <summary>
-		/// Маппит статус операции из YandexPay во внутренние статусы
-		/// </summary>
-		private static (RefundStatus refundStatus, OnlineOrderPaymentStatus orderStatus) MapRefundStatus(YandexPayOperationStatus status)
-		{
-			return status switch
-			{
-				YandexPayOperationStatus.Success => (RefundStatus.SUCCEEDED, OnlineOrderPaymentStatus.Refunded),
-				YandexPayOperationStatus.Pending => (RefundStatus.PENDING, OnlineOrderPaymentStatus.Refunding),
-				YandexPayOperationStatus.Processing => (RefundStatus.PENDING, OnlineOrderPaymentStatus.Refunding),
-				YandexPayOperationStatus.Fail => (RefundStatus.FAIL, OnlineOrderPaymentStatus.Paid),
-				YandexPayOperationStatus.Canceled => (RefundStatus.CANCELED, OnlineOrderPaymentStatus.Paid),
-				_ => (RefundStatus.FAIL, OnlineOrderPaymentStatus.Paid)
-			};
-		}
 
 		/// <summary>
 		/// Создает результат с ошибкой
@@ -133,7 +102,6 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 			{
 				Success = false,
 				ErrorMessage = fullErrorMessage,
-				RefundStatus = RefundStatus.FAIL,
 				NewPaymentStatus = OnlineOrderPaymentStatus.Refunding
 			};
 		}

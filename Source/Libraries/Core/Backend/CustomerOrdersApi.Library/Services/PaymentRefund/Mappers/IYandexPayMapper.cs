@@ -8,7 +8,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 		/// <summary>
 		/// Маппит из общего запроса на возврат в запрос для YandexPay API
 		/// </summary>
-		YandexPayRefundRequest MapToRefundRequest(RefundRequestDto request);
+		YandexPayRefundRequest MapToRefundRequest(RefundRequestDto request, string idempotenceKey);
 
 		/// <summary>
 		/// Маппит из ответа YandexPay API в общий результат возврата

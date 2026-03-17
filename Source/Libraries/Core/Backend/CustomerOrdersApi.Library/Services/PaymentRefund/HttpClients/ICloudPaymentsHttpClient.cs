@@ -18,8 +18,9 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.HttpClients
 		/// Возврат денег по транзакции
 		/// </summary>
 		/// <param name="request">Запрос на возврат</param>
+		/// <param name="idempotenceKey">Ключ идемпотентности</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<CloudPaymentsResponse<CloudPaymentsRefundResult>> RefundAsync(CloudPaymentsRefundRequest request, CancellationToken cancellationToken);
+		Task<CloudPaymentsResponse<CloudPaymentsRefundResult>> RefundAsync(CloudPaymentsRefundRequest request, string idempotenceKey, CancellationToken cancellationToken);
 	}
 }

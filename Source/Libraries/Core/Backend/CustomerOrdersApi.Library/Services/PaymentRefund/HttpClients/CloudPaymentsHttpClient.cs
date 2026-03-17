@@ -6,7 +6,6 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using xNetStandard;
 
 namespace CustomerOrdersApi.Library.Services.PaymentRefund.HttpClients
 {
@@ -55,14 +54,17 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.HttpClients
 			}
 		}
 
-		public async Task<CloudPaymentsResponse<CloudPaymentsRefundResult>> RefundAsync(CloudPaymentsRefundRequest request, CancellationToken cancellationToken)
+		public async Task<CloudPaymentsResponse<CloudPaymentsRefundResult>> RefundAsync(
+			CloudPaymentsRefundRequest request,
+			string idempotenceKey,
+			CancellationToken cancellationToken)
 		{
 			try
 			{
 				_logger.LogInformation("Выполнение возврата для транзакции {TransactionId}, сумма: {Amount}",
 					request.TransactionId, request.Amount);
 
-				var response = await PostAsync<CloudPaymentsRefundResult>("payments/refund", request, cancellationToken);
+				var response = await PostAsync<CloudPaymentsRefundResult>("payments/refund", request, cancellationToken, idempotenceKey);
 
 				if(response?.Success == true)
 				{
@@ -88,18 +90,30 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.HttpClients
 		/// <summary>
 		/// Общий метод для POST запросов к API CloudPayments
 		/// </summary>
-		private async Task<CloudPaymentsResponse<T>> PostAsync<T>(string endpoint, object data, CancellationToken cancellationToken)
+		private async Task<CloudPaymentsResponse<T>> PostAsync<T>(string endpoint, object data, CancellationToken cancellationToken, string idempotenceKey = null)
 		{
 			try
 			{
 				var json = JsonSerializer.Serialize(data, _jsonOptions);
-				_logger.LogTrace("Отправка запроса на {Endpoint}: {Json}", endpoint, json);
+				_logger.LogInformation("Отправка запроса на {Endpoint}: {Json}", endpoint, json);
 
-				using var content = new System.Net.Http.StringContent(json, Encoding.UTF8, "application/json");
+				using var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+				var requestMessage = new HttpRequestMessage(HttpMethod.Post, endpoint)
+				{
+					Content = content
+				};
+
+				if(!string.IsNullOrEmpty(idempotenceKey))
+				{
+					requestMessage.Headers.Add("X-Request-ID", idempotenceKey);
+					_logger.LogDebug("Добавлен заголовок X-Request-ID: {IdempotenceKey}", idempotenceKey);
+				}
+
 				using var response = await _httpClient.PostAsync(endpoint, content, cancellationToken);
 
 				var responseJson = await response.Content.ReadAsStringAsync(cancellationToken);
-				_logger.LogTrace("Ответ от {Endpoint}: {StatusCode} - {Response}",
+				_logger.LogInformation("Ответ от {Endpoint}: {StatusCode} - {Response}",
 					endpoint, response.StatusCode, responseJson);
 
 				if(!response.IsSuccessStatusCode)
@@ -133,12 +147,17 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.HttpClients
 			catch(HttpRequestException ex)
 			{
 				_logger.LogError(ex, "Ошибка HTTP запроса к {Endpoint}", endpoint);
-				throw new HttpException($"Ошибка соединения с CloudPayments: {ex.Message}", ex);
+				throw new Exception($"Ошибка соединения с CloudPayments: {ex.Message}", ex);
 			}
 			catch(JsonException ex)
 			{
 				_logger.LogError(ex, "Ошибка десериализации ответа от {Endpoint}", endpoint);
-				throw new HttpException($"Ошибка формата ответа от CloudPayments: {ex.Message}", ex);
+				throw new Exception($"Ошибка формата ответа от CloudPayments: {ex.Message}", ex);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Неожиданная ошибка при запросе к {Endpoint}", endpoint);
+				throw new Exception($"Неожиданная ошибка при обращении к CloudPayments: {ex.Message}", ex);
 			}
 		}
 	}

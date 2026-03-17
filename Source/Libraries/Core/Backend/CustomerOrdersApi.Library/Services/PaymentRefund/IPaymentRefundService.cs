@@ -1,4 +1,5 @@
 ﻿using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
+using QS.DomainModel.UoW;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Orders;
@@ -17,9 +18,10 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 		/// <summary>
 		/// Обработка возврата
 		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
 		/// <param name="request">Запрос на возврат</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Результат операции возврата средств в виде объекта <see cref="RefundResultDto"/></returns>
-		Task<RefundResultDto> ProcessRefundAsync(RefundRequestDto request, CancellationToken cancellationToken);
+		Task<RefundResultDto> ProcessRefundAsync(IUnitOfWork uow, RefundRequestDto request, CancellationToken cancellationToken);
 	}
 }

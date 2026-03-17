@@ -1,6 +1,5 @@
 ﻿using System;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Payments;
 
 namespace CustomerOrdersApi.Library.Dto.Orders.CancelOrder
 {
@@ -20,11 +19,6 @@ namespace CustomerOrdersApi.Library.Dto.Orders.CancelOrder
 		public string RefundId { get; set; }
 
 		/// <summary>
-		/// ID операции для асинхронных возвратов (Яндекс Сплит)
-		/// </summary>
-		public string OperationId { get; set; }
-
-		/// <summary>
 		/// Текст ошибки (для неуспешных операций)
 		/// </summary>
 		public string ErrorMessage { get; set; }
@@ -40,16 +34,6 @@ namespace CustomerOrdersApi.Library.Dto.Orders.CancelOrder
 		public string CancellationReason { get; set; }
 
 		/// <summary>
-		/// Время обработки
-		/// </summary>
-		public DateTime ProcessedAt { get; set; }
-
-		/// <summary>
-		/// Статус возврата
-		/// </summary>
-		public RefundStatus RefundStatus { get; set; }
-
-		/// <summary>
 		/// Новый статус оплаты онлайн заказа
 		/// </summary>
 		public OnlineOrderPaymentStatus NewPaymentStatus { get; set; }
@@ -61,22 +45,16 @@ namespace CustomerOrdersApi.Library.Dto.Orders.CancelOrder
 		public RefundResultDto(
 			bool success,
 			string refundId,
-			string operationId,
 			string errorMessage,
 			string cancellationParty,
 			string cancellationReason,
-			DateTime processedAt,
-			RefundStatus refundStatus,
 			OnlineOrderPaymentStatus newPaymentStatus)
 		{
 			Success = success;
 			RefundId = refundId;
-			OperationId = operationId;
 			ErrorMessage = errorMessage;
 			CancellationParty = cancellationParty;
 			CancellationReason = cancellationReason;
-			ProcessedAt = processedAt;
-			RefundStatus = refundStatus;
 			NewPaymentStatus = newPaymentStatus;
 		}
 	}

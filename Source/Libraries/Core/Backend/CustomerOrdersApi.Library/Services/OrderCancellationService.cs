@@ -1,4 +1,4 @@
-﻿using CustomerOrdersApi.Library.Dto.Orders;
+using CustomerOrdersApi.Library.Dto.Orders;
 using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
 using CustomerOrdersApi.Library.Factories;
 using Gamma.Utilities;
@@ -130,7 +130,7 @@ namespace CustomerOrdersApi.Library.Services
 				ExternalOrderId: onlineOrder?.ExternalOrderId.ToString()
 			);
 
-			var refundResult = await refundService.ProcessRefundAsync(refundRequest, cancellationToken);
+			var refundResult = await refundService.ProcessRefundAsync(uow, refundRequest, cancellationToken);
 
 			if(!refundResult.Success)
 			{
@@ -148,7 +148,7 @@ namespace CustomerOrdersApi.Library.Services
 				};
 			}
 
-			if(onlineOrder != null && refundResult.NewPaymentStatus != onlineOrder.OnlineOrderPaymentStatus)
+			if(onlineOrder is not null && refundResult.NewPaymentStatus != onlineOrder.OnlineOrderPaymentStatus)
 			{
 				onlineOrder.OnlineOrderPaymentStatus = refundResult.NewPaymentStatus;
 				_logger.LogInformation(
@@ -170,13 +170,9 @@ namespace CustomerOrdersApi.Library.Services
 			await uow.CommitAsync(cancellationToken);
 
 			_logger.LogInformation(
-				"Оплаченный заказ {OrderId} отменен. Результат возврата: {RefundStatus}",
-				order.Id,
-				refundResult.RefundStatus);
+				"Оплаченный заказ {OrderId} отменен.", order.Id);
 
-			var message = refundResult.RefundStatus == RefundStatus.PENDING
-				? "Заказ отменен, возврат средств инициирован. Статус возврата можно отслеживать в истории заказов."
-				: "Заказ отменен успешно, денежные средства вернутся к Вам в течение 10 дней. Срок зависит от банка получателя";
+			var message = "Заказ отменен, возврат средств инициирован. Статус возврата можно отслеживать в истории заказов.";
 
 			var result = new CancelOrderResult
 			{

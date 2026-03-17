@@ -70,7 +70,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.HttpClients
 		{
 			try
 			{
-				_logger.LogTrace("GET запрос на {Endpoint}", endpoint);
+				_logger.LogInformation("GET запрос на {Endpoint}", endpoint);
 
 				using var response = await _httpClient.GetAsync(endpoint, cancellationToken);
 
@@ -103,7 +103,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.HttpClients
 				};
 
 				var json = JsonSerializer.Serialize(apiRequest, _jsonOptions);
-				_logger.LogTrace("POST запрос на {Endpoint}: {Json}", endpoint, json);
+				_logger.LogInformation("POST запрос на {Endpoint}: {Json}", endpoint, json);
 
 				using var content = new StringContent(json, Encoding.UTF8, "application/json");
 				using var response = await _httpClient.PostAsync(endpoint, content, cancellationToken);
@@ -120,6 +120,11 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.HttpClients
 				_logger.LogError(ex, "Ошибка десериализации ответа от {Endpoint}", endpoint);
 				return YandexPayResult<T>.FromError($"Ошибка формата ответа: {ex.Message}");
 			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Неожиданная ошибка при запросе к {Endpoint}", endpoint);
+				throw new Exception($"Неожиданная ошибка при обращении к YandexPay: {ex.Message}", ex);
+			}
 		}
 
 		/// <summary>
@@ -129,7 +134,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.HttpClients
 		{
 			var responseJson = await response.Content.ReadAsStringAsync();
 
-			_logger.LogTrace("Ответ от {Endpoint}: {StatusCode} - {Response}",
+			_logger.LogInformation("Ответ от {Endpoint}: {StatusCode} - {Response}",
 				endpoint, response.StatusCode, responseJson);
 
 			if(!response.IsSuccessStatusCode)
