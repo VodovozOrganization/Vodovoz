@@ -212,6 +212,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public string OnlineOrderPaymentType => Entity.OnlineOrderPaymentType.GetEnumDisplayName();
 		public string OnlineOrderDeliveryDate => Entity.DeliveryDate.ToShortDateString();
 		public string OnlinePayment => Entity.OnlinePayment.ToString();
+		public string OnlineOrderPaymentStatus => Entity.OnlineOrderPaymentStatus.GetEnumDisplayName();
 		public string OnlinePaymentSource =>
 			Entity.OnlinePaymentSource.HasValue
 				? Entity.OnlinePaymentSource.GetEnumTitle()

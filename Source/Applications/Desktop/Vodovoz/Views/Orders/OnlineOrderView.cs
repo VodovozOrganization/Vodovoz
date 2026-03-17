@@ -134,7 +134,11 @@ namespace Vodovoz.Views.Orders
 			lblPaymentType.Binding
 				.AddBinding(ViewModel, vm => vm.OnlineOrderPaymentType, w => w.LabelProp)
 				.InitializeFromSource();
-			
+
+			lblPaymentStatus.Binding
+				.AddBinding(ViewModel, vm => vm.OnlineOrderPaymentStatus, w => w.LabelProp)
+				.InitializeFromSource();
+
 			lblOnlinePaymentTitle.Binding
 				.AddBinding(ViewModel, vm => vm.CanShowOnlinePayment, w => w.Visible)
 				.InitializeFromSource();
