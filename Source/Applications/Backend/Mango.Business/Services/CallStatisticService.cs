@@ -22,6 +22,7 @@ namespace Mango.Business.Services
 		private readonly ISyncStateRepository _syncStateRepository;
 		private readonly IOptions<SyncOptions> _syncOptions;
 		private readonly ILogger<CallStatisticService> _logger;
+		private readonly IMangoReferenceDataBuilder _referenceDataBuilder;
 
 		public CallStatisticService(
 			IMangoApiClient apiClient,
@@ -29,7 +30,8 @@ namespace Mango.Business.Services
 			ICallStatisticRepository callStatisticRepository,
 			ISyncStateRepository syncStateRepository,
 			IOptions<SyncOptions> syncOptions,
-			ILogger<CallStatisticService> logger
+			ILogger<CallStatisticService> logger,
+			IMangoReferenceDataBuilder referenceDataBuilder	
 		)
 		{
 			_apiClient = apiClient;
@@ -38,6 +40,7 @@ namespace Mango.Business.Services
 			_syncStateRepository = syncStateRepository;
 			_syncOptions = syncOptions;
 			_logger = logger;
+			_referenceDataBuilder = referenceDataBuilder;
 		}
 
 		public async Task LoadDataAsync(CancellationToken cancellationToken)
@@ -59,13 +62,23 @@ namespace Mango.Business.Services
 				fromDate,
 				toDate);
 			
-			var rawJson = await _apiClient.GetCallsRawJsonAsync(
-				fromDate,
-				toDate,
-				cancellationToken);
+			var groupsResponse = await _apiClient.GetGroupsAsync(cancellationToken);
+			var referenceData = _referenceDataBuilder.Build(groupsResponse);
 
-			var parsed = _callStatisticParser.Parse(rawJson);
+			await Task.Delay(5000, cancellationToken);
 
+			var callStatResponse = await _apiClient.GetCallsStatAsync(fromDate, toDate, cancellationToken);
+
+			if(callStatResponse == null || string.IsNullOrEmpty(callStatResponse.Key))
+			{
+				_logger.LogError("Wrong call stats response");
+				throw new OperationCanceledException("Wrong call stats response");
+			}
+			
+			var callsResponse = await _apiClient.GetCallsAsync(callStatResponse.Key, cancellationToken);
+
+			var parsed = _callStatisticParser.Parse(callsResponse, referenceData);
+			
 			foreach(var item in parsed)
 			{
 				item.UnicHash = BuildHash(item);

@@ -24,16 +24,14 @@ namespace Mango.Infrastructure.DependencyInjection
 
 			services.Configure<DatabaseOptions>(
 				configuration.GetSection(DatabaseOptions.SectionName));
+			
+			services.Configure<MangoGroupOptions>(
+				configuration.GetSection(MangoGroupOptions.SectionName));
 
 			services.AddSingleton<ICallStatisticParser, CallStatisticParser>();
 
 			services.AddHttpClient<IMangoApiClient, MangoApiClient>((provider, client) =>
 			{
-				var options = configuration
-					.GetSection(MangoOptions.SectionName)
-					.Get<MangoOptions>() ?? new MangoOptions();
-
-				client.BaseAddress = new Uri(options.BaseUrl);
 				client.Timeout = TimeSpan.FromSeconds(60);
 			});
 
@@ -41,6 +39,7 @@ namespace Mango.Infrastructure.DependencyInjection
 			
 			services.AddScoped<ICallStatisticRepository, CallStatisticRepository>();
 			services.AddScoped<ISyncStateRepository, SyncStateRepository>();
+			services.AddSingleton<IMangoReferenceDataBuilder, MangoReferenceDataBuilder>();
 
 			return services;
 		}

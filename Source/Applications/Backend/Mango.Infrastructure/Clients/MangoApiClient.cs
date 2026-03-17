@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
@@ -8,6 +9,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Mango.Business.Interfaces;
 using Mango.Contracts.V1.Options;
+using Mango.Contracts.V1.Request;
+using Mango.Contracts.V1.Response;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -20,6 +23,13 @@ namespace Mango.Infrastructure.Clients
 		private readonly IOptions<SyncOptions> _syncOptions;
 		private readonly ILogger<MangoApiClient> _logger;
 
+		private static readonly JsonSerializerOptions JsonOptions = new()
+		{
+			PropertyNameCaseInsensitive = true,
+			AllowTrailingCommas = true,
+			ReadCommentHandling = JsonCommentHandling.Skip
+		};
+		
 		public MangoApiClient(
 			HttpClient httpClient,
 			IOptions<MangoOptions> mangoOptions,
@@ -33,80 +43,140 @@ namespace Mango.Infrastructure.Clients
 			_logger = logger;
 		}
 
-		public async Task<string> GetCallsRawJsonAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
-		{
-			var requestJson = $@"{{
-				""start_date"": ""{startDate}"",
-				""end_date"": ""{endDate}"",
-				""limit"": ""{_mangoOptions.Value.Limit}"",
-				""offset"": ""0"" 
-			}}";
+		public async Task<GroupsResponse> GetGroupsAsync(CancellationToken cancellationToken)
+        {
+            var request = new GroupsRequest
+            {
+                ShowUsers = 1
+            };
 
-            var requestResponse = await PostToMangoAsync(
-                "/vpbx/stats/calls/request",
-                requestJson,
+            var json = JsonSerializer.Serialize(request, JsonOptions);
+            var sign = CreateSign(_mangoOptions.Value.ApiKey, json, _mangoOptions.Value.ApiSalt);
+
+            var response = await PostFormAsync<GroupsResponse>(
+	            _mangoOptions.Value.GroupsUrl,
+	            _mangoOptions.Value.ApiKey,
+                sign,
+                json,
                 cancellationToken);
 
-            var key = ExtractKey(requestResponse);
-            if (string.IsNullOrWhiteSpace(key))
+            if (response.Result != 1000)
             {
-                throw new InvalidOperationException($"Mango did not return key. Response: {requestResponse}");
+                throw new InvalidOperationException(
+                    $"Mango groups request failed. Result={response.Result}");
             }
 
-            for (var attempt = 1; attempt <= _syncOptions.Value.ResultRetryCount; attempt++)
-            {
-                var resultJson = JsonSerializer.Serialize(new
-                {
-                    key = key
-                });
-
-                var resultResponse = await PostToMangoAsync(
-                    "/vpbx/stats/calls/result",
-                    resultJson,
-                    cancellationToken);
-
-                if (IsCompletedJson(resultResponse))
-                {
-                    return resultResponse;
-                }
-
-                _logger.LogInformation(
-                    "Mango result is not ready. Attempt={Attempt}/{RetryCount}",
-                    attempt,
-                    _syncOptions.Value.ResultRetryCount);
-
-                await Task.Delay(
-                    TimeSpan.FromSeconds(_syncOptions.Value.ResultRetryDelaySeconds),
-                    cancellationToken);
-            }
-
-            throw new TimeoutException("Mango result was not ready in time.");
+            return response;
         }
 
-        private async Task<string> PostToMangoAsync(
-            string endpoint,
+        public async Task<CallsResponse> GetCallsAsync(
+            string key,
+            CancellationToken cancellationToken)
+        {
+            var request = new CallsRequest
+            {
+                Key = key
+            };
+
+            var json = JsonSerializer.Serialize(request, JsonOptions);
+            var sign = CreateSign(_mangoOptions.Value.ApiKey, json, _mangoOptions.Value.ApiSalt);
+
+            for(var i = 0; i < _syncOptions.Value.ResultRetryCount; i++)
+            {
+	            await Task.Delay(TimeSpan.FromSeconds(_syncOptions.Value.ResultRetryDelaySeconds), cancellationToken);
+	            
+	            var response = await PostFormAsync<CallsResponse>(
+		            _mangoOptions.Value.CallsResult,
+		            _mangoOptions.Value.ApiKey,
+		            sign,
+		            json,
+		            cancellationToken);
+
+	            if(response.Result == 1000 || response.Status == "complete")
+	            {
+		            return response;
+	            }
+
+	            _logger.LogInformation("Result ={Result}, Status = {Status} waiting next attempt for request result status", 
+		            response.Result,
+		            response.Status);
+            }
+            
+            throw new InvalidOperationException(
+	            $"Mango calls request failed. Can't load result after all attempts");
+        }
+
+        public async Task<CallsStatResponse> GetCallsStatAsync(DateTime fromDate, DateTime toDate, CancellationToken cancellationToken)
+        {
+	        var request = new CallsStatRequest()
+	        {
+		        StartDate = fromDate.ToString("dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+		        EndDate = toDate.ToString("dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
+		        Limit = _mangoOptions.Value.Limit.ToString(CultureInfo.InvariantCulture),
+		        Offset = "0"
+	        };
+
+	        var json = JsonSerializer.Serialize(request, JsonOptions);
+	        var sign = CreateSign(_mangoOptions.Value.ApiKey, json, _mangoOptions.Value.ApiSalt);
+	        
+	        var response = await PostFormAsync<CallsStatResponse>(
+		        _mangoOptions.Value.CallsUrl,
+		        _mangoOptions.Value.ApiKey,
+		        sign,
+		        json,
+		        cancellationToken);
+
+	        return response;
+
+        }
+
+        private async Task<T> PostFormAsync<T>(
+            string url,
+            string apiKey,
+            string sign,
             string json,
             CancellationToken cancellationToken)
         {
-            var sign = CreateSign(_mangoOptions.Value.ApiKey, json, _mangoOptions.Value.ApiSalt);
-
             using var content = new FormUrlEncodedContent(new Dictionary<string, string>
             {
-                ["vpbx_api_key"] = _mangoOptions.Value.ApiKey,
+                ["vpbx_api_key"] = apiKey,
                 ["sign"] = sign,
                 ["json"] = json
             });
 
-            using var response = await _httpClient.PostAsync(endpoint, content, cancellationToken);
-            var responseBody = await response.Content.ReadAsStringAsync();
+            using var response = await _httpClient.PostAsync(url, content, cancellationToken);
+            var raw = await response.Content.ReadAsStringAsync(cancellationToken);
+
+            _logger.LogInformation(
+                "Mango response received. Url={Url}, StatusCode={StatusCode}",
+                url,
+                (int)response.StatusCode);
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new HttpRequestException(
-                    $"Mango request failed. Status={(int)response.StatusCode}, Body={responseBody}");
+                _logger.LogError(
+                    "Mango request failed. Url={Url}, StatusCode={StatusCode}, Response={Response}",
+                    url,
+                    (int)response.StatusCode,
+                    raw);
+
+                response.EnsureSuccessStatusCode();
             }
 
-            return responseBody;
+            var result = JsonSerializer.Deserialize<T>(raw, JsonOptions);
+
+            if (result is null)
+            {
+                _logger.LogError(
+                    "Failed to deserialize Mango response. Url={Url}, Response={Response}",
+                    url,
+                    raw);
+
+                throw new InvalidOperationException(
+                    $"Failed to deserialize Mango response from {url}");
+            }
+
+            return result;
         }
 
         private static string CreateSign(string apiKey, string json, string apiSalt)
@@ -116,59 +186,13 @@ namespace Mango.Infrastructure.Clients
             using var sha = SHA256.Create();
             var hash = sha.ComputeHash(Encoding.UTF8.GetBytes(raw));
 
-            var sb = new StringBuilder();
+            var sb = new StringBuilder(hash.Length * 2);
             foreach (var b in hash)
+            {
                 sb.Append(b.ToString("x2"));
+            }
 
             return sb.ToString();
-        }
-
-        private static string? ExtractKey(string responseBody)
-        {
-            try
-            {
-                using var doc = JsonDocument.Parse(responseBody);
-                var root = doc.RootElement;
-
-                if (root.TryGetProperty("key", out var keyElement))
-                    return keyElement.GetString();
-
-                if (root.TryGetProperty("result", out var resultElement) &&
-                    resultElement.ValueKind == JsonValueKind.Object &&
-                    resultElement.TryGetProperty("key", out var nestedKey))
-                {
-                    return nestedKey.GetString();
-                }
-
-                return null;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        private static bool IsCompletedJson(string response)
-        {
-            try
-            {
-                using var doc = JsonDocument.Parse(response);
-                var root = doc.RootElement;
-
-                if (root.TryGetProperty("status", out var status))
-                {
-                    return string.Equals(
-                        status.GetString(),
-                        "complete",
-                        StringComparison.OrdinalIgnoreCase);
-                }
-
-                return false;
-            }
-            catch
-            {
-                return false;
-            }
         }
 	}
 }

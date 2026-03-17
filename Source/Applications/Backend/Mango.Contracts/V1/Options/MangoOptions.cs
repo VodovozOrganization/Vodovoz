@@ -8,7 +8,10 @@
 		
 		public string ApiSalt { get; set; } = string.Empty;
 		
-		public string BaseUrl { get; set; } = "https://app.mango-office.ru";
+		public string GroupsUrl { get; set; } = "https://app.mango-office.ru/vpbx/groups";
+		public string CallsUrl { get; set; } = "https://app.mango-office.ru/vpbx/stats/calls/request/";
+		
+		public string CallsResult { get; set; } = "https://app.mango-office.ru/vpbx/stats/calls/result/";
 
 		public int Limit { get; set; } = 100;
 	}
