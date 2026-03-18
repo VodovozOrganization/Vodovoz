@@ -20,11 +20,16 @@ namespace FuelControl.Library.Services
 		private const string _authorizationEndpointAddress = "vip/v1/authUser";
 
 		private readonly ILogger<GazpromAuthorizationService> _logger;
+		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly IFuelControlSettings _fuelControlSettings;
 
-		public GazpromAuthorizationService(ILogger<GazpromAuthorizationService> logger, IFuelControlSettings fuelControlSettings)
+		public GazpromAuthorizationService(
+			ILogger<GazpromAuthorizationService> logger,
+			IHttpClientFactory httpClientFactory,
+			IFuelControlSettings fuelControlSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 		}
 
@@ -45,7 +50,6 @@ namespace FuelControl.Library.Services
 				throw new ArgumentException($"'{nameof(apiKey)}' cannot be null or whitespace.", nameof(apiKey));
 			}
 
-			var baseAddress = new Uri(_fuelControlSettings.ApiBaseAddress);
 			var httpContent = CreateAuthorizationHttpContent(login, password, apiKey);
 
 			_logger.LogDebug("Выполняется запрос авторизации пользователя {UserLogin} с паролем {UserPassword} ключ API {ApiKey}",
@@ -53,34 +57,32 @@ namespace FuelControl.Library.Services
 				password,
 				apiKey);
 
-			using(var httpClient = new HttpClient { BaseAddress = baseAddress })
+			var httpClient = _httpClientFactory.CreateClient(GazpromHttpClientNames.Default);
+			var response = await httpClient.PostAsync(_authorizationEndpointAddress, httpContent, cancellationToken);
+
+			var responseString = await response.Content.ReadAsStringAsync();
+
+			var responseData = JsonSerializer.Deserialize<AuthorizationResponse>(responseString);
+
+			if(responseData.Status.Errors?.Count() > 0)
 			{
-				var response = await httpClient.PostAsync(_authorizationEndpointAddress, httpContent, cancellationToken);
+				var errorMessages =
+					$"На запрос авторизации сервер Газпром вернул ответ с ошибками: {string.Concat(responseData.Status.Errors.Select(e => $"\nТип: {e.ErrorType}. Сообщение: {e.Message}"))}";
 
-				var responseString = await response.Content.ReadAsStringAsync();
+				_logger.LogError(errorMessages);
 
-				var responseData = JsonSerializer.Deserialize<AuthorizationResponse>(responseString);
-
-				if(responseData.Status.Errors?.Count() > 0)
-				{
-					var errorMessages =
-						$"На запрос авторизации сервер Газпром вернул ответ с ошибками: {string.Concat(responseData.Status.Errors.Select(e => $"\nТип: {e.ErrorType}. Сообщение: {e.Message}"))}";
-
-					_logger.LogError(errorMessages);
-
-					throw new FuelControlException(errorMessages);
-				}
-
-				var sessionId = responseData.UserData.SessionId;
-				var sessionExpirationDate = DateTimeOffset.FromUnixTimeSeconds(responseData.Timestamp).Date
-					.AddDays(_fuelControlSettings.ApiSessionLifetime.TotalDays);
-
-				_logger.LogDebug("Авторизация выполнена успешно. ID сессии {SessionId} получено {NowDateTime}",
-				sessionId,
-				DateTime.Now.ToString(_logsDateTimeFormatString));
-
-				return (sessionId, sessionExpirationDate);
+				throw new FuelControlException(errorMessages);
 			}
+
+			var sessionId = responseData.UserData.SessionId;
+			var sessionExpirationDate = DateTimeOffset.FromUnixTimeSeconds(responseData.Timestamp).Date
+				.AddDays(_fuelControlSettings.ApiSessionLifetime.TotalDays);
+
+			_logger.LogDebug("Авторизация выполнена успешно. ID сессии {SessionId} получено {NowDateTime}",
+			sessionId,
+			DateTime.Now.ToString(_logsDateTimeFormatString));
+
+			return (sessionId, sessionExpirationDate);
 		}
 
 		private HttpContent CreateAuthorizationHttpContent(string login, string password, string apiKey)
