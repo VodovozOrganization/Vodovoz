@@ -19,6 +19,15 @@ namespace FastPaymentsAPI.Library.Factories
 		OrderRegistrationRequestDTO GetOrderRegistrationRequestDTOForOnlineOrder(
 			RequestRegisterOnlineOrderDTO registerOnlineOrderDto, string signature, int shopId);
 		CancelPaymentRequestDTO GetCancelPaymentRequestDTO(string ticket, int shopId);
+
+		/// <summary>
+		/// Создание DTO для запроса возврата денежных средств
+		/// </summary>
+		/// <param name="ticket">Тикет/сессия оплаты</param>
+		/// <param name="shopId">ID магазина</param>
+		/// <param name="amount">Сумма возврата (опционально)</param>
+		/// <returns>DTO для запроса возврата</returns>
+		ReverseOrderRequestDTO GetReverseOrderRequestDTO(string ticket, int shopId, decimal? amount = null);
 		OrderSignatureParams GetSignatureParamsForRegisterOrder(int orderId, decimal orderSum, int shopId);
 		OrderSignatureParams GetSignatureParamsForValidate(PaidOrderInfoDTO paidOrderInfoDto);
 		FastPayment GetFastPayment(

@@ -26,6 +26,15 @@ namespace FastPaymentsAPI.Library.Models
 			FastPaymentRequestFromType fastPaymentRequestFromType);
 		Task<OrderInfoResponseDTO> GetOrderInfo(string ticket, Organization organization);
 		Task<CancelPaymentResponseDTO> CancelPayment(string ticket, Organization organization);
+
+		/// <summary>
+		/// Отправить запрос на возврат денежных средств по платежу
+		/// </summary>
+		/// <param name="ticket">Тикет/сессия оплаты</param>
+		/// <param name="organization">Организация</param>
+		/// <param name="amount">Сумма возврата (опционально)</param>
+		/// <returns>Результат возврата</returns>
+		Task<ReverseOrderResponseDTO> ReverseOrder(string ticket, Organization organization, decimal? amount = null);
 		Task NotifyEmployee(string orderNumber, string bankSignature, long shopId, string paymentSignature);
 		PaidOrderInfoDTO GetPaidOrderInfo(string data);
 	}

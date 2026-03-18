@@ -1,11 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
-using Core.Infrastructure;
-using FastPaymentsApi.Contracts;
+﻿using Core.Infrastructure;
 using FastPaymentsApi.Contracts.Requests;
 using FastPaymentsApi.Contracts.Responses;
 using FastPaymentsAPI.Library.Factories;
 using FastPaymentsAPI.Library.Services;
+using System;
+using System.Threading.Tasks;
 using Vodovoz.Core.Data.Orders;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
@@ -73,7 +72,17 @@ namespace FastPaymentsAPI.Library.Managers
 
 			return _orderService.CancelPaymentAsync(xmlStringFromCancelPaymentRequestDTO);
 		}
-		
+
+		public async Task<ReverseOrderResponseDTO> ReverseOrder(string ticket, Organization organization, decimal? amount = null)
+		{
+			var shopId = GetShopIdFromOrganization(organization);
+
+			var reverseOrderRequestDto = _fastPaymentApiFactory.GetReverseOrderRequestDTO(ticket, shopId, amount);
+			var xmlStringFromReverseOrderRequestDto = reverseOrderRequestDto.ToXmlString();
+
+			return await _orderService.ReverseOrderAsync(xmlStringFromReverseOrderRequestDto);
+		}
+
 		public string GetVodovozFastPayUrl(Guid fastPaymentGuid)
 		{
 			return $"{_fastPaymentSettings.GetVodovozFastPayBaseUrl}/{fastPaymentGuid}";

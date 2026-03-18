@@ -8,6 +8,8 @@ namespace Vodovoz.Core.Domain.FastPayments
 		Processing = 1,
 		[Display(Name = "Отбракован")]
 		Rejected,
+		[Display(Name = "Возврат")]
+		Refund,
 		[Display(Name = "Исполнен")]
 		Performed
 	}

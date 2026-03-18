@@ -81,7 +81,12 @@ namespace FastPaymentsAPI.Library.Models
 		{
 			return _orderRequestManager.CancelPayment(ticket, organization);
 		}
-		
+
+		public Task<ReverseOrderResponseDTO> ReverseOrder(string ticket, Organization organization, decimal? amount = null)
+		{
+			return _orderRequestManager.ReverseOrder(ticket, organization, amount);
+		}
+
 		public PaidOrderInfoDTO GetPaidOrderInfo(string data)
 		{
 			using TextReader reader = new StringReader(data);

@@ -39,18 +39,33 @@ namespace FastPaymentsAPI.Library.Services
 			await using var responseStream = await response.Content.ReadAsStreamAsync();
 			return (OrderInfoResponseDTO)new XmlSerializer(typeof(OrderInfoResponseDTO)).Deserialize(responseStream);
 		}
-		
+
 		public async Task<CancelPaymentResponseDTO> CancelPaymentAsync(string xmlStringFromCancelPaymentRequestDTO)
 		{
+			var endpoint = _configuration.GetSection("OrderService").GetValue<string>("CancelPaymentEndpointURI");
 			var httpContent = new StringContent(
 				$"xml={xmlStringFromCancelPaymentRequestDTO}",
 				Encoding.UTF8,
 				"application/x-www-form-urlencoded");
-			var response = await _httpClient.PostAsync(
-				_configuration.GetSection("OrderService").GetValue<string>("CancelPaymentEndpointURI"), httpContent);
-			
+
+			var response = await _httpClient.PostAsync(endpoint, httpContent);
+
 			await using var responseStream = await response.Content.ReadAsStreamAsync();
 			return (CancelPaymentResponseDTO)new XmlSerializer(typeof(CancelPaymentResponseDTO)).Deserialize(responseStream);
+		}
+
+		public async Task<ReverseOrderResponseDTO> ReverseOrderAsync(string xmlStringReverseOrderRequestDTO)
+		{
+			var endpoint = _configuration.GetSection("OrderService").GetValue<string>("ReverseOrderEndpointURI");
+			var httpContent = new StringContent(
+				$"xml={xmlStringReverseOrderRequestDTO}",
+				Encoding.UTF8,
+				"application/x-www-form-urlencoded");
+
+			var response = await _httpClient.PostAsync(endpoint, httpContent);
+
+			await using var responseStream = await response.Content.ReadAsStreamAsync();
+			return (ReverseOrderResponseDTO)new XmlSerializer(typeof(ReverseOrderResponseDTO)).Deserialize(responseStream);
 		}
 	}
 }

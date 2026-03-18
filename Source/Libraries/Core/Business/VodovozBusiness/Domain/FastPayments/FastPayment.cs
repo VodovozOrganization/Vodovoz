@@ -1,4 +1,4 @@
-using NHibernate.Type;
+﻿using NHibernate.Type;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
@@ -218,6 +218,11 @@ namespace Vodovoz.Domain.FastPayments
 		public virtual void SetRejectedStatus()
 		{
 			FastPaymentStatus = FastPaymentStatus.Rejected;
+		}
+
+		public virtual void SetRefundStatus()
+		{
+			FastPaymentStatus = FastPaymentStatus.Refund;
 		}
 	}
 

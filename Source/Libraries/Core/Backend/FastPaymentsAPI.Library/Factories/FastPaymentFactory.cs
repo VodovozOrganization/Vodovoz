@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using FastPaymentsApi.Contracts;
 using FastPaymentsApi.Contracts.Requests;
 using FastPaymentsApi.Contracts.Responses;
@@ -87,6 +87,19 @@ namespace FastPaymentsAPI.Library.Factories
 				Ticket = ticket,
 				ShopId = signatureSection.GetValue<long>("ShopId"),
 				ShopPasswd = signatureSection.GetValue<string>("ShopPasswd"),
+			};
+		}
+
+		public ReverseOrderRequestDTO GetReverseOrderRequestDTO(string ticket, int shopId, decimal? amount = null)
+		{
+			var signatureSection = _configuration.GetSection($"{_signature}{shopId}");
+
+			return new ReverseOrderRequestDTO
+			{
+				Ticket = ticket,
+				ShopId = signatureSection.GetValue<long>("ShopId"),
+				ShopPasswd = signatureSection.GetValue<string>("ShopPasswd"),
+				Amount = amount
 			};
 		}
 
