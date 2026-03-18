@@ -112,7 +112,7 @@ stage('Checkout and build in containers') {
 		for (int i = 1; i <= CONTAINERS_PER_NODE; i++) {
 			def containerIndex = i
 			def builderIndex = nodeIndex * CONTAINERS_PER_NODE + (containerIndex - 1)
-			def assignedProjects = getProjectsForBuilder(PUBLISHING_PROJECT_PATHS, builderIndex, totalBuilders)
+			def assignedProjects = getProjectsForBuilder(PUBLISHING_PROJECTS, builderIndex, totalBuilders)
 			def branchName = "${nodeInfo.secondaryLabel} #${containerIndex}"
 			parallelBranches[branchName] = {
 				node(nodeSelector) {
@@ -158,8 +158,41 @@ stage('Checkout and build in containers') {
 
 							stage("Build ${branchName}") {
 								echo "Builder ${builderIndex + 1}/${totalBuilders}: ${assignedProjects.size()} project(s) assigned"
-								for (projectPath in assignedProjects) {
-									sh "docker exec ${cid} bash -c 'dotnet publish ${projectPath} -c Release -p:PublishProfile=${PUBLISH_PROFILE_FILE}'"
+								for (projectInfo in assignedProjects) {
+									def projectPath = projectInfo.projectPath
+									def imageRepository = projectInfo.containerRepository
+									def imageTag = projectInfo.publishImageTag
+									def projectDll = projectPath.tokenize('/').last().replace('.csproj', '.dll')
+									def publishDir = "/work/.publish/${projectDll.replace('.dll', '')}"
+									def imageFullName = "${DOCKER_REGISTRY_URL}/${imageRepository}:${imageTag}"
+
+									stage("${imageRepository}:${imageTag}") {
+										echo "Build and push: ${projectPath} -> ${DOCKER_REGISTRY_URL}/${imageRepository}:${imageTag}"
+										def cmdCreateDir = "docker exec ${cid} sh -c 'mkdir -p \"${publishDir}\"'"
+										echo "CMD: ${cmdCreateDir}"
+										sh cmdCreateDir
+
+										def cmdPublish = "docker exec ${cid} sh -c 'dotnet publish \"${projectPath}\" -c Release -r linux-x64 --self-contained false -o \"${publishDir}\"'"
+										echo "CMD: ${cmdPublish}"
+										sh cmdPublish
+
+										def cmdWriteDockerfile = """docker exec ${cid} sh -c 'cat > "${publishDir}/Dockerfile" <<EOF
+FROM mcr.microsoft.com/dotnet/runtime:5.0
+WORKDIR /app
+COPY . .
+ENTRYPOINT ["dotnet","${projectDll}"]
+EOF'"""
+										echo "CMD: write Dockerfile to ${publishDir}/Dockerfile"
+										sh cmdWriteDockerfile
+
+										def cmdBuild = "docker exec ${cid} sh -c 'docker build -t \"${imageFullName}\" \"${publishDir}\"'"
+										echo "CMD: ${cmdBuild}"
+										sh cmdBuild
+
+										def cmdPush = "docker exec ${cid} sh -c 'docker push \"${imageFullName}\"'"
+										echo "CMD: ${cmdPush}"
+										sh cmdPush
+									}
 								}
 							}
 						} finally {
