@@ -1,4 +1,4 @@
-﻿using Edo.Common.Errors;
+using Edo.Common.Errors;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -57,12 +57,10 @@ namespace Edo.Common.Services
 
 			var registrationsData = new List<ParticipantRegistrationDto>();
 			var maxInnsPerRequest = _trueMarkApiClient.ParticipantsCheckMaxCount;
-			var counter = 0;
 
-			while(true)
+			for(var i = 0; ; i++)
 			{
-				var innsPortion = inns.Skip(counter * maxInnsPerRequest).Take(maxInnsPerRequest).ToArray();
-				counter++;
+				var innsPortion = inns.Skip(i * maxInnsPerRequest).Take(maxInnsPerRequest).ToArray();
 
 				if(!innsPortion.Any())
 				{

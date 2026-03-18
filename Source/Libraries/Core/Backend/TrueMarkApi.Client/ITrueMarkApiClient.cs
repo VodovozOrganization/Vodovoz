@@ -27,11 +27,11 @@ namespace TrueMarkApi.Client
 		Task<TrueMarkRegistrationResultDto> GetParticipantRegistrationForWaterStatusAsync(string url, string inn, CancellationToken cancellationToken);
 
 		/// <summary>
-		/// Проверяет статус регистрации участников в системе маркировки для указанных ИНН. Возвращает список с результатами проверки для каждого ИНН
+		/// Проверяет статус регистрации участников в системе маркировки для указанных ИНН
 		/// </summary>
 		/// <param name="inns">Список строк ИНН</param>
 		/// <param name="cancellationToken">Токен отмены</param>
-		/// <returns></returns>
+		/// <returns>Список с результатами проверки для каждого ИНН</returns>
 		Task<IEnumerable<ParticipantRegistrationDto>> GetParticipantsRegistrations(IEnumerable<string> inns, CancellationToken cancellationToken);
 		Task<ProductInstancesInfoResponse> GetProductInstanceInfoAsync(IEnumerable<string> identificationCodes, CancellationToken cancellationToken);
 

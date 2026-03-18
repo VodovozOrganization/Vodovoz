@@ -107,7 +107,7 @@ namespace Edo.Withdrawal.Routine.Services
 					uow,
 					x => !x.IsSuccess && x.ErrorMessage == null && x.Guid != null,
 					cancellationToken: cancellationToken))
-				.Value ?? Enumerable.Empty<TrueMarkDocument>();
+				.Value;
 
 			_logger.LogInformation("Найдено {Count} документов для обновления статуса", trueMarkDocuments.Count());
 

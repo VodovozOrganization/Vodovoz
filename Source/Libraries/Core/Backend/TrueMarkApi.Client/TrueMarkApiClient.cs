@@ -38,17 +38,21 @@ namespace TrueMarkApi.Client
 
 		public async Task<IEnumerable<ParticipantRegistrationDto>> GetParticipantsRegistrations(IEnumerable<string> inns, CancellationToken cancellationToken)
 		{
-			var uniqueInns = inns.Distinct().ToArray();
+			var uniqueInns = inns.Distinct();
 			if(uniqueInns.Count() > ParticipantsCheckMaxCount)
 			{
 				throw new ArgumentException($"The number of INNs cannot exceed {ParticipantsCheckMaxCount}.", nameof(inns));
 			}
-			string content = JsonSerializer.Serialize(uniqueInns.ToArray());
+
+			string content = JsonSerializer.Serialize(uniqueInns);
 			HttpContent httpContent = new StringContent(content, Encoding.UTF8, "application/json");
+
 			var response = await _httpClient.PostAsync("api/participants", httpContent, cancellationToken);
 			response.EnsureSuccessStatusCode();
+
 			var responseBody = await response.Content.ReadAsStreamAsync();
 			var responseResult = await JsonSerializer.DeserializeAsync<IEnumerable<ParticipantRegistrationDto>>(responseBody, cancellationToken: cancellationToken);
+			
 			return responseResult;
 		}
 

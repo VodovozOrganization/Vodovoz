@@ -54,8 +54,12 @@ namespace Edo.Withdrawal.Routine.Worker
 						.AddMessageTransportSettings()
 						.AddEdoWithdrawalRoutine()
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
+
 						.AddHostedService<TrueMarkTimedOutDocumentsWithdrawalWorker>()
 						.ConfigureZabbixSenderFromDataBase(nameof(TrueMarkTimedOutDocumentsWithdrawalWorker))
+
+						.AddHostedService<TrueMarkDocumentsStatusUpdateWorker>()
+						.ConfigureZabbixSenderFromDataBase(nameof(TrueMarkDocumentsStatusUpdateWorker))
 						;
 				});
 	}
