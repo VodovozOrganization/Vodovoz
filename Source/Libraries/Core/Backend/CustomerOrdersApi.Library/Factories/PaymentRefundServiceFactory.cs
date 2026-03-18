@@ -1,6 +1,5 @@
 ﻿using CustomerOrdersApi.Library.Services.PaymentRefund;
 using Microsoft.Extensions.Logging;
-using NPOI.SS.Formula.Functions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,16 +41,6 @@ namespace CustomerOrdersApi.Library.Factories
 			if(onlineOrder == null)
 			{
 				throw new ArgumentNullException(nameof(onlineOrder));
-			}
-
-			if(onlineOrder.OnlineOrderPaymentStatus is not OnlineOrderPaymentStatus.Paid)
-			{
-				_logger.LogDebug("Заказ {ExternalOrderId} не оплачен, возврат не требуется",
-					onlineOrder.ExternalOrderId);
-
-				throw new InvalidOperationException(
-					$"Невозможно выполнить возврат для заказа {onlineOrder.ExternalOrderId}, " +
-					$"так как он не оплачен (текущий статус: {onlineOrder.OnlineOrderPaymentStatus})");
 			}
 
 			return GetRefundService(onlineOrder.OnlinePaymentSource);

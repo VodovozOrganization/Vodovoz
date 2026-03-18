@@ -77,7 +77,11 @@ namespace CustomerOrdersApi.Library.Services
 			order.ChangeStatus(OrderStatus.Canceled);
 			order.Version = DateTime.Now;
 
+			onlineOrder.OnlineOrderStatus = OnlineOrderStatus.Canceled;
+			onlineOrder.Version = DateTime.Now;
+
 			await uow.SaveAsync(order, cancellationToken: cancellationToken);
+			await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
 			await uow.CommitAsync(cancellationToken);
 
 			_logger.LogInformation(
@@ -124,10 +128,10 @@ namespace CustomerOrdersApi.Library.Services
 			var refundService = _paymentRefundServiceFactory.GetRefundService(onlineOrder);
 
 			var refundRequest = new RefundRequestDto(
-				OnlineOrder: onlineOrder,
-				TransactionId: dto.TransactionId,
-				Amount: onlineOrder.OnlineOrderSum,
-				ExternalOrderId: onlineOrder?.ExternalOrderId.ToString()
+				onlineOrder: onlineOrder,
+				transactionId: dto.TransactionId,
+				amount: order.OrderSum,
+				externalOrderId: onlineOrder?.ExternalOrderId.ToString()
 			);
 
 			var refundResult = await refundService.ProcessRefundAsync(uow, refundRequest, cancellationToken);
@@ -161,12 +165,7 @@ namespace CustomerOrdersApi.Library.Services
 			order.Version = DateTime.Now;
 
 			await uow.SaveAsync(order, cancellationToken: cancellationToken);
-
-			if(onlineOrder != null)
-			{
-				await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken); 
-			}
-
+			await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
 			await uow.CommitAsync(cancellationToken);
 
 			_logger.LogInformation(
@@ -232,8 +231,12 @@ namespace CustomerOrdersApi.Library.Services
 			order.ChangeStatus(OrderStatus.Canceled);
 			order.Version = DateTime.Now;
 
+			onlineOrder.OnlineOrderStatus = OnlineOrderStatus.Canceled;
+			onlineOrder.Version = DateTime.Now;
+
 			await uow.SaveAsync(routeList, cancellationToken: cancellationToken);
 			await uow.SaveAsync(order, cancellationToken: cancellationToken);
+			await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
 			await uow.CommitAsync(cancellationToken);
 
 			_logger.LogInformation(
@@ -281,11 +284,7 @@ namespace CustomerOrdersApi.Library.Services
 
 			if(IsPaidOnline(onlineOrder))
 			{
-				var paidResult = await ProcessPaidOperationAsync(uow, order, onlineOrder, dto, cancellationToken);
-				if(!paidResult.IsSuccess)
-				{
-					return paidResult;
-				}
+				return await ProcessPaidOperationAsync(uow, order, onlineOrder, dto, cancellationToken);
 			}
 
 			var undelivery = CreateUndeliveryForCancellation(uow, order, currentUser);
@@ -297,8 +296,11 @@ namespace CustomerOrdersApi.Library.Services
 				_callTaskWorker,
 				needCreateDeliveryFreeBalanceOperation: false);
 
+			onlineOrder.OnlineOrderStatus = OnlineOrderStatus.Canceled;
+			onlineOrder.Version = DateTime.Now;
+
 			_logger.LogInformation(
-				"Установлен статус 'Недовезено' для заказа {OrderId}",
+				"Установлен статус недовоза для заказа {OrderId}",
 				order.Id);
 
 			await uow.SaveAsync(order, cancellationToken: cancellationToken);

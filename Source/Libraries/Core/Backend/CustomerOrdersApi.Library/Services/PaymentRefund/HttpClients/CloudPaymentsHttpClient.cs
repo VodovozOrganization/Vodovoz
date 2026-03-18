@@ -107,7 +107,6 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.HttpClients
 				if(!string.IsNullOrEmpty(idempotenceKey))
 				{
 					requestMessage.Headers.Add("X-Request-ID", idempotenceKey);
-					_logger.LogDebug("Добавлен заголовок X-Request-ID: {IdempotenceKey}", idempotenceKey);
 				}
 
 				using var response = await _httpClient.PostAsync(endpoint, content, cancellationToken);

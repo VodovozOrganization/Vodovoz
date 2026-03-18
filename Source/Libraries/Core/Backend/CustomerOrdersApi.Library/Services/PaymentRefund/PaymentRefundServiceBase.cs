@@ -36,14 +36,18 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 		{
 			try
 			{
-				ValidateRequest(request);
+				var validationError = ValidateRequest(request);
+				if(validationError is not null)
+				{
+					return validationError;
+				}
 
 				var existingSuccess = _refundOperationRepository.GetSuccessfulByTransactionId(
 					uow,
 					request.TransactionId,
 					request.OnlineOrder.OnlinePaymentSource);
 
-				if(existingSuccess != null)
+				if(existingSuccess is not null)
 				{
 					_logger.LogWarning("Попытка повторного возврата по успешной транзакции {TransactionId}", request.TransactionId);
 					return MapFromExistingOperation(existingSuccess);
@@ -57,13 +61,13 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 				string idempotenceKey;
 				RefundOperation operation;
 
-				if(lastAttempt != null && !lastAttempt.IsSuccess)
+				if(lastAttempt is not null && !lastAttempt.IsSuccess)
 				{
 					idempotenceKey = lastAttempt.IdempotenceKey;
 					operation = lastAttempt;
 					_logger.LogInformation("Повторная попытка возврата с ключом {IdempotenceKey}", idempotenceKey);
 				}
-				else if(lastAttempt != null && lastAttempt.IsSuccess)
+				else if(lastAttempt is not null && lastAttempt.IsSuccess)
 				{
 					_logger.LogWarning("Найдена успешная попытка возврата по транзакции {TransactionId}", request.TransactionId);
 					return MapFromExistingOperation(lastAttempt);
@@ -104,10 +108,6 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 
 				return CreateErrorResult("Техническая ошибка при обработке возврата");
 			}
-			finally
-			{
-				uow?.Dispose();
-			}
 		}
 
 		/// <summary>
@@ -146,7 +146,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 		/// </summary>
 		protected virtual RefundResultDto CreateSuccessResult(string refundId)
 		{
-			return new RefundResultDto(true, refundId, default, default, default, OnlineOrderPaymentStatus.Refund);
+			return new RefundResultDto(true, refundId, default, OnlineOrderPaymentStatus.Refund);
 		}
 
 		/// <summary>
@@ -162,42 +162,55 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 		/// Создает результат для ошибки возврата
 		/// </summary>
 		protected virtual RefundResultDto CreateErrorResult(
-			string errorMessage,
-			string cancellationParty = null,
-			string cancellationReason = null)
+			string errorMessage)
 		{
-			return new RefundResultDto(false, default, default, errorMessage, cancellationParty, OnlineOrderPaymentStatus.Paid);
+			return new RefundResultDto(false, default, errorMessage, OnlineOrderPaymentStatus.Paid);
 		}
 
+		/// Переделать на возврат DTO
 		/// <summary>
 		/// Проверяет обязательные параметры запроса
 		/// </summary>
-		protected virtual void ValidateRequest(RefundRequestDto request)
+		protected virtual RefundResultDto ValidateRequest(RefundRequestDto request)
 		{
 			if(request == null)
 			{
-				throw new ArgumentNullException(nameof(request));
+				_logger.LogWarning("Получен пустой запрос");
+				return CreateErrorResult("Запрос не может быть пустым");
 			}
 
 			if(request.OnlineOrder is null)
 			{
-				throw new ArgumentException("OnlineOrder не может быть null", nameof(request));
+				_logger.LogWarning("OnlineOrder не может быть null для заказа {ExternalOrderId}", request?.ExternalOrderId);
+				return CreateErrorResult("OnlineOrder не может быть null");
+			}
+
+			if(request.OnlineOrder.OnlineOrderPaymentStatus is not OnlineOrderPaymentStatus.Paid)
+			{
+				_logger.LogWarning("Заказ {ExternalOrderId} не оплачен, возврат не требуется", request.OnlineOrder.ExternalOrderId);
+				return CreateErrorResult("Заказ не оплачен, возврат не требуется");
 			}
 
 			if(string.IsNullOrEmpty(request.ExternalOrderId))
 			{
-				throw new ArgumentException("ExternalOrderId не может быть пустым", nameof(request));
+				_logger.LogWarning("ExternalOrderId не может быть пустым для заказа {OnlineOrderId}", request?.OnlineOrder?.Id);
+				return CreateErrorResult("ExternalOrderId не может быть пустым");
 			}
 
 			if(string.IsNullOrEmpty(request.TransactionId))
 			{
-				throw new ArgumentException("TransactionId не может быть пустым", nameof(request));
+				_logger.LogWarning("TransactionId не может быть пустым для заказа {ExternalOrderId}", request?.ExternalOrderId);
+				return CreateErrorResult("TransactionId не может быть пустым");
 			}
 
 			if(request.Amount <= 0)
 			{
-				throw new ArgumentException("Сумма возврата должна быть больше 0", nameof(request));
+				_logger.LogWarning("Сумма возврата {Amount} должна быть больше 0 для заказа {ExternalOrderId}",
+					request?.Amount, request?.ExternalOrderId);
+				return CreateErrorResult("Сумма возврата должна быть больше 0");
 			}
+
+			return null;
 		}
 	}
 }

@@ -132,7 +132,7 @@ namespace Vodovoz.Core.Domain.Payments
 			string transactionId,
 			OnlinePaymentSource? paymentSource)
 		{
-			var now = DateTime.UtcNow;
+			var now = DateTime.Now;
 
 			return new RefundOperation
 			{

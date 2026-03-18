@@ -15,15 +15,11 @@ namespace CustomerOrdersApi.Library.Dto.Orders.CancelOrder
 			bool success,
 			string refundId,
 			string errorMessage,
-			string cancellationParty,
-			string cancellationReason,
 			OnlineOrderPaymentStatus newPaymentStatus)
 		{
 			Success = success;
 			RefundId = refundId;
 			ErrorMessage = errorMessage;
-			CancellationParty = cancellationParty;
-			CancellationReason = cancellationReason;
 			NewPaymentStatus = newPaymentStatus;
 		}
 		/// <summary>
@@ -40,16 +36,6 @@ namespace CustomerOrdersApi.Library.Dto.Orders.CancelOrder
 		/// Текст ошибки (для неуспешных операций)
 		/// </summary>
 		public string ErrorMessage { get; set; }
-
-		/// <summary>
-		/// Инициатор отмены (для YooKassa)
-		/// </summary>
-		public string CancellationParty { get; set; }
-
-		/// <summary>
-		/// Причина отмены (для YooKassa)
-		/// </summary>
-		public string CancellationReason { get; set; }
 
 		/// <summary>
 		/// Новый статус оплаты онлайн заказа

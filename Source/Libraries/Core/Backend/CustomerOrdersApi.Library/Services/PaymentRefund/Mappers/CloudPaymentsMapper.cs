@@ -39,7 +39,6 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 
 			return new CloudPaymentsRefundRequest
 			(
-				onlineOrder: request.OnlineOrder,
 				externalOrderId: request.ExternalOrderId,
 				amount: request.Amount,
 				transactionId: transactionId.ToString()

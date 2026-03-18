@@ -78,61 +78,11 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 				refund.Id,
 				refund.Status);
 
-			string cancellationParty = null;
-			string cancellationReason = null;
-
-			if(refund.CancellationDetails != null)
-			{
-				cancellationParty = MapCancellationParty(refund.CancellationDetails.Party);
-				cancellationReason = MapCancellationReason(refund.CancellationDetails.Reason);
-
-				_logger.LogWarning(
-					"Возврат отменен. Инициатор: {Party}, причина: {Reason}",
-					cancellationParty,
-					cancellationReason);
-			}
-
 			return new RefundResultDto
 			{
 				Success = refund.Status is YooKassaRefundStatus.Succeeded,
 				RefundId = refund.Id,
-				ErrorMessage = GetErrorMessage(refund),
-				CancellationParty = cancellationParty,
-				CancellationReason = cancellationReason
-			};
-		}
-
-		/// <summary>
-		/// Маппит инициатора отмены
-		/// </summary>
-		private static string MapCancellationParty(string party)
-		{
-			return party switch
-			{
-				YooKassaCancellationParty.YooKassa => "yoo_kassa",
-				YooKassaCancellationParty.RefundNetwork => "refund_network",
-				_ => party
-			};
-		}
-
-		/// <summary>
-		/// Маппит причину отмены
-		/// </summary>
-		private static string MapCancellationReason(string reason)
-		{
-			return reason switch
-			{
-				YooKassaCancellationReason.GeneralDecline => "general_decline",
-				YooKassaCancellationReason.InsufficientFunds => "insufficient_funds",
-				YooKassaCancellationReason.RejectedByPayee => "rejected_by_payee",
-				YooKassaCancellationReason.RejectedByTimeout => "rejected_by_timeout",
-				YooKassaCancellationReason.YooMoneyAccountClosed => "yoo_money_account_closed",
-				YooKassaCancellationReason.PaymentArticleNumberNotFound => "payment_article_number_not_found",
-				YooKassaCancellationReason.PaymentBasketIdNotFound => "payment_basket_id_not_found",
-				YooKassaCancellationReason.PaymentTruCodeNotFound => "payment_tru_code_not_found",
-				YooKassaCancellationReason.SomeArticlesAlreadyRefunded => "some_articles_already_refunded",
-				YooKassaCancellationReason.TooManyRefundingArticles => "too_many_refunding_articles",
-				_ => reason
+				ErrorMessage = GetErrorMessage(refund)
 			};
 		}
 

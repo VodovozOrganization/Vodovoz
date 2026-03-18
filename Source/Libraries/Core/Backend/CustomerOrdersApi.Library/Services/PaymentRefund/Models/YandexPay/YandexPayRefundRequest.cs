@@ -23,7 +23,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.Models.YandexPay
 		/// Целевая корзина после возврата
 		/// </summary>
 		[JsonPropertyName("targetCart")]
-		public YandexPayTargetCart TargetCart { get; init; }
+		public YandexPayTargetCart TargetCart { get; set; }
 
 		/// <summary>
 		/// ID заказа в Яндекс Пэй

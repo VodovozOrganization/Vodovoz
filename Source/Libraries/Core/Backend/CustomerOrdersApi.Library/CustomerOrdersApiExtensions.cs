@@ -197,7 +197,6 @@ namespace CustomerOrdersApi.Library
 
 				client.DefaultRequestHeaders.Accept.Add(
 					new MediaTypeWithQualityHeaderValue("application/json"));
-				client.DefaultRequestHeaders.Add("User-Agent", "Vodovoz/1.0");
 
 				client.Timeout = TimeSpan.FromSeconds(30);
 			});

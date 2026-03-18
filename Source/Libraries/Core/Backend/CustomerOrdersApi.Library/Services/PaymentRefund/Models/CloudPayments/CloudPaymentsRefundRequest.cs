@@ -10,26 +10,18 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.Models.CloudPayments
 		/// <summary>
 		/// Конструктор запроса возврата
 		/// </summary>
-		/// <param name="onlineOrder">Онлайн заказ</param>
 		/// <param name="externalOrderId">Внешний идентификатор заказа</param>
 		/// <param name="amount">Сумма возврата</param>
 		/// <param name="transactionId">Идентификатор транзакции</param>
 		public CloudPaymentsRefundRequest(
-			OnlineOrder onlineOrder,
 			string externalOrderId,
 			decimal amount,
 			string transactionId)
 		{
-			OnlineOrder = onlineOrder;
 			ExternalOrderId = externalOrderId;
 			Amount = amount;
 			TransactionId = transactionId;
 		}
-
-		/// <summary>
-		/// Онлайн заказ
-		/// </summary>
-		public OnlineOrder OnlineOrder { get; init; }
 
 		/// <summary>
 		/// Внешний идентификатор заказа

@@ -60,6 +60,7 @@ namespace CustomerOrdersApi
 				.AddBusiness(Configuration)
 				.AddDriverApiNotificationsSenders()
 				.AddInfrastructure()
+				.AddCoreDataRepositories()
 				.AddConfig(Configuration)
 				.AddDependenciesGroup()
 				.AddFastPaymentsDependencies()
