@@ -71,10 +71,12 @@ namespace ExportTo1c.Library.Exporters
 					new XAttribute("Номер", order.Id),
 					new XAttribute("НомерУПД", updNum),
 					new XAttribute("КонтрагентИНН", order.Client.INN),
+					new XAttribute("КонтрагентПолноеНаименование", order.Client.FullName),
 					new XAttribute("Договор", $"{order.Contract.Number} от {order.Contract.IssueDate:d}"),
 					new XAttribute("Статус", order.OrderStatus.GetEnumTitle()),
 					new XAttribute("ТипОплаты", order.PaymentType.GetEnumTitle()),
-					new XAttribute("ОрганизацияИНН", order.Contract?.Organization?.INN ?? "Отсутствует договор")
+					new XAttribute("ОрганизацияИНН", order.Contract?.Organization?.INN ?? "Отсутствует договор"),
+					new XAttribute("ДатаИзмененияЗаказа", orderForExport.LastOrderChangeDate.ToString("yyyy-MM-ddTHH:mm:ss"))
 				);
 
 				var salesElement = new XElement("Продажи");
