@@ -1,4 +1,4 @@
-using FuelControl.Contracts.Responses;
+﻿using FuelControl.Contracts.Responses;
 using FuelControl.Library.Exceptions;
 using Microsoft.Extensions.Logging;
 using System;
@@ -58,6 +58,7 @@ namespace FuelControl.Library.Services
 				apiKey);
 
 			var httpClient = _httpClientFactory.CreateClient(GazpromHttpClientNames.Default);
+
 			using (var request = new HttpRequestMessage(HttpMethod.Post, _authorizationEndpointAddress) { Content = httpContent })
 			{
 				request.Headers.Add("api_key", apiKey);

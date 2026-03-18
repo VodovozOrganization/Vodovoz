@@ -75,6 +75,7 @@ namespace FuelControl.Library.Services
 			}
 
 			var httpClient = _httpClientFactory.CreateClient(GazpromHttpClientNames.WithTimeout);
+
 			using(var request = new HttpRequestMessage(
 				HttpMethod.Get,
 				$"{_transactionsEndpointAddress}?date_from={formatedStartDate}&date_to={formatedEndDate}&page_limit={pageLimit}&page_offset={pageOffset}"))

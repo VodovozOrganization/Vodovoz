@@ -1,4 +1,4 @@
-using FuelControl.Contracts.Dto;
+﻿using FuelControl.Contracts.Dto;
 using FuelControl.Contracts.Responses;
 using FuelControl.Library.Exceptions;
 using Microsoft.Extensions.Logging;
@@ -216,8 +216,8 @@ namespace FuelControl.Library.Services
 			string apiKey,
 			CancellationToken cancellationToken)
 		{
-		var httpContent =
-			CreateSetRestrictionHttpContent(_fuelControlSettings.OrganizationContractId, cardId, productGroupId);
+			var httpContent =
+				CreateSetRestrictionHttpContent(_fuelControlSettings.OrganizationContractId, cardId, productGroupId);
 
 			_logger.LogDebug(
 				"Выполняется создания нового товарного ограничителя." +
@@ -228,6 +228,7 @@ namespace FuelControl.Library.Services
 				apiKey);
 
 			var httpClient = _httpClientFactory.CreateClient(GazpromHttpClientNames.Default);
+
 			using (var request = new HttpRequestMessage(HttpMethod.Post, _setRestrictionEndpointAddress) { Content = httpContent })
 			{
 				request.Headers.Add("api_key", apiKey);

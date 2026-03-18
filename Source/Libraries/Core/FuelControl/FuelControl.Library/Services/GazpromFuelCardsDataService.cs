@@ -86,13 +86,13 @@ namespace FuelControl.Library.Services
 				_logger.LogDebug("Количество полученных карт: {TransactionsCount}",
 					responseData.FuelCardsData.FuelCards?.Count());
 
-				var transactions = ConvertResponseDataToTransactions(responseData);
+				var fuelCards = ConvertResponseDataToFuelCards(responseData);
 
-				return transactions;
+				return fuelCards;
 			}
 		}
 
-		private IEnumerable<FuelCard> ConvertResponseDataToTransactions(FuelCardResponse responseData)
+		private IEnumerable<FuelCard> ConvertResponseDataToFuelCards(FuelCardResponse responseData)
 		{
 			var fuelCardDtos = responseData?.FuelCardsData?.FuelCards;
 
