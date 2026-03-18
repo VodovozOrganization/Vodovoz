@@ -1,4 +1,4 @@
-﻿using FuelControl.Contracts.Responses;
+using FuelControl.Contracts.Responses;
 using FuelControl.Library.Converters;
 using FuelControl.Library.Exceptions;
 using Microsoft.Extensions.Logging;
@@ -134,7 +134,7 @@ namespace FuelControl.Library.Services
 				throw new ArgumentException($"'{nameof(apiKey)}' cannot be null or whitespace.", nameof(apiKey));
 			}
 
-			var httpContent = CreateRemoveLimitHttpContent(_fuelControlSettings.OrganizationContractId, limitId, apiKey, sessionId);
+			var httpContent = CreateRemoveLimitHttpContent(_fuelControlSettings.OrganizationContractId, limitId);
 
 			_logger.LogDebug("Выполняется запрос удаления существующего лимита {LimitId}. Id сессии {SessionId}, ключ API {ApiKey}",
 				limitId,
@@ -142,32 +142,39 @@ namespace FuelControl.Library.Services
 				apiKey);
 
 			var httpClient = _httpClientFactory.CreateClient(GazpromHttpClientNames.Default);
-			var response = await httpClient.PostAsync(_removeLimitEndpointAddress, httpContent, cancellationToken);
-
-			var responseString = await response.Content.ReadAsStringAsync();
-
-			var responseData = JsonSerializer.Deserialize<RemoveFuelLimitResponse>(responseString);
-
-			if(responseData.Status.Errors?.Count() > 0)
+			using (var request = new HttpRequestMessage(HttpMethod.Post, _removeLimitEndpointAddress) { Content = httpContent })
 			{
-				var errorMessage =
-					$"На запрос удаления существующего лимита {limitId} сервер Газпром вернул ответ с ошибками: {string.Concat(responseData.Status.Errors.Select(e => $"\nТип: {e.ErrorType}. Сообщение: {e.Message}"))}";
+				request.Headers.Add("api_key", apiKey);
+				request.Headers.Add("session_id", sessionId);
+				request.Headers.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
 
-				LogErrorMessageAndThrowException(errorMessage);
+				var response = await httpClient.SendAsync(request, cancellationToken);
+
+				var responseString = await response.Content.ReadAsStringAsync();
+
+				var responseData = JsonSerializer.Deserialize<RemoveFuelLimitResponse>(responseString);
+
+				if(responseData.Status.Errors?.Count() > 0)
+				{
+					var errorMessage =
+						$"На запрос удаления существующего лимита {limitId} сервер Газпром вернул ответ с ошибками: {string.Concat(responseData.Status.Errors.Select(e => $"\nТип: {e.ErrorType}. Сообщение: {e.Message}"))}";
+
+					LogErrorMessageAndThrowException(errorMessage);
+				}
+
+				if(!responseData.IsRemovalSuccessful)
+				{
+					var errorMessage =
+						$"На запрос удаления существующего лимита {limitId} сервер Газпром вернул ответ что лимит не удален.";
+
+					LogErrorMessageAndThrowException(errorMessage);
+				}
+
+				return true;
 			}
-
-			if(!responseData.IsRemovalSuccessful)
-			{
-				var errorMessage =
-					$"На запрос удаления существующего лимита {limitId} сервер Газпром вернул ответ что лимит не удален.";
-
-				LogErrorMessageAndThrowException(errorMessage);
-			}
-
-			return true;
 		}
 
-		private HttpContent CreateRemoveLimitHttpContent(string contractId, string limitId, string apiKey, string sessionId)
+		private HttpContent CreateRemoveLimitHttpContent(string contractId, string limitId)
 		{
 			var requestData = new List<KeyValuePair<string, string>>
 			{
@@ -175,12 +182,7 @@ namespace FuelControl.Library.Services
 				new KeyValuePair<string, string>("limit_id", limitId)
 			};
 
-			var content = new FormUrlEncodedContent(requestData);
-			content.Headers.Add("api_key", apiKey);
-			content.Headers.Add("session_id", sessionId);
-			content.Headers.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
-
-			return content;
+			return new FormUrlEncodedContent(requestData);
 		}
 
 		public async Task<IEnumerable<string>> SetFuelLimit(
@@ -207,51 +209,53 @@ namespace FuelControl.Library.Services
 			var requestDto = _fuelLimitConverter.ConvertFuelLimitToRequestDto(fuelLimit, _fuelControlSettings.LiterUnitId, _fuelControlSettings.RubleCurrencyId);
 			var requestParameters = JsonSerializer.Serialize(requestDto);
 
-			var httpContent = CreateSetLimitHttpContent(requestParameters, apiKey, sessionId);
+			var httpContent = CreateSetLimitHttpContent(requestParameters);
 
 			_logger.LogDebug("Выполняется создания нового лимита. Параметры запроса: {RequestParameters}, ключ API {ApiKey}",
 				requestParameters,
 				apiKey);
 
 			var httpClient = _httpClientFactory.CreateClient(GazpromHttpClientNames.Default);
-			var response = await httpClient.PostAsync(_setLimitEndpointAddress, httpContent, cancellationToken);
-
-			var responseString = await response.Content.ReadAsStringAsync();
-
-			var responseData = JsonSerializer.Deserialize<SetFuelLimitResponse>(responseString);
-
-			if(responseData.Status.Errors?.Count() > 0)
+			using (var request = new HttpRequestMessage(HttpMethod.Post, _setLimitEndpointAddress) { Content = httpContent })
 			{
-				var errorMessage =
-					$"На запрос создания нового лимита сервер Газпром вернул ответ с ошибками: {string.Concat(responseData.Status.Errors.Select(e => $"\nТип: {e.ErrorType}. Сообщение: {e.Message}"))}";
+				request.Headers.Add("api_key", apiKey);
+				request.Headers.Add("session_id", sessionId);
+				request.Headers.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
 
-				LogErrorMessageAndThrowException(errorMessage);
+				var response = await httpClient.SendAsync(request, cancellationToken);
+
+				var responseString = await response.Content.ReadAsStringAsync();
+
+				var responseData = JsonSerializer.Deserialize<SetFuelLimitResponse>(responseString);
+
+				if(responseData.Status.Errors?.Count() > 0)
+				{
+					var errorMessage =
+						$"На запрос создания нового лимита сервер Газпром вернул ответ с ошибками: {string.Concat(responseData.Status.Errors.Select(e => $"\nТип: {e.ErrorType}. Сообщение: {e.Message}"))}";
+
+					LogErrorMessageAndThrowException(errorMessage);
+				}
+
+				if(responseData.CreatedLimitsIds?.Count() < 1)
+				{
+					var errorMessage =
+						$"Ответ на запрос создания нового лимита не содержит Id созданных лимитов.";
+
+					LogErrorMessageAndThrowException(errorMessage);
+				}
+
+				return responseData.CreatedLimitsIds;
 			}
-
-			if(responseData.CreatedLimitsIds?.Count() < 1)
-			{
-				var errorMessage =
-					$"Ответ на запрос создания нового лимита не содержит Id созданных лимитов.";
-
-				LogErrorMessageAndThrowException(errorMessage);
-			}
-
-			return responseData.CreatedLimitsIds;
 		}
 
-		private HttpContent CreateSetLimitHttpContent(string requestParameters, string apiKey, string sessionId)
+		private HttpContent CreateSetLimitHttpContent(string requestParameters)
 		{
 			var requestData = new List<KeyValuePair<string, string>>
 			{
 				new KeyValuePair<string, string>("limit", $"[{requestParameters}]")
 			};
 
-			var content = new FormUrlEncodedContent(requestData);
-			content.Headers.Add("api_key", apiKey);
-			content.Headers.Add("session_id", sessionId);
-			content.Headers.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
-
-			return content;
+			return new FormUrlEncodedContent(requestData);
 		}
 
 		private void LogErrorMessageAndThrowException(string errorMessage)

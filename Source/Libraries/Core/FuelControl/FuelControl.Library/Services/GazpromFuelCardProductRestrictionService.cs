@@ -1,4 +1,4 @@
-﻿using FuelControl.Contracts.Dto;
+using FuelControl.Contracts.Dto;
 using FuelControl.Contracts.Responses;
 using FuelControl.Library.Exceptions;
 using Microsoft.Extensions.Logging;
@@ -114,7 +114,7 @@ namespace FuelControl.Library.Services
 				throw new ArgumentException($"'{nameof(apiKey)}' cannot be null or whitespace.", nameof(apiKey));
 			}
 
-			var httpContent = CreateRemoveRestrictionHttpContent(_fuelControlSettings.OrganizationContractId, restrictionId, apiKey, sessionId);
+			var httpContent = CreateRemoveRestrictionHttpContent(_fuelControlSettings.OrganizationContractId, restrictionId);
 
 			_logger.LogDebug("Выполняется запрос удаления существующего товарного ограничителя {RestrictionId}. Id сессии {SessionId}, ключ API {ApiKey}",
 				restrictionId,
@@ -122,30 +122,37 @@ namespace FuelControl.Library.Services
 				apiKey);
 
 			var httpClient = _httpClientFactory.CreateClient(GazpromHttpClientNames.Default);
-			var response = await httpClient.PostAsync(_removeRestrictionEndpointAddress, httpContent, cancellationToken);
-
-			var responseString = await response.Content.ReadAsStringAsync();
-
-			var responseData = JsonSerializer.Deserialize<RemoveFuelLimitResponse>(responseString);
-
-			if(responseData.Status.Errors?.Count() > 0)
+			using (var request = new HttpRequestMessage(HttpMethod.Post, _removeRestrictionEndpointAddress) { Content = httpContent })
 			{
-				var errorMessage =
-					$"На запрос удаления существующего товарного ограничителя {restrictionId} сервер Газпром вернул ответ с ошибками: " +
-					$"{string.Concat(responseData.Status.Errors.Select(e => $"\nТип: {e.ErrorType}. Сообщение: {e.Message}"))}";
+				request.Headers.Add("api_key", apiKey);
+				request.Headers.Add("session_id", sessionId);
+				request.Headers.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
 
-				LogErrorMessageAndThrowException(errorMessage);
+				var response = await httpClient.SendAsync(request, cancellationToken);
+
+				var responseString = await response.Content.ReadAsStringAsync();
+
+				var responseData = JsonSerializer.Deserialize<RemoveFuelLimitResponse>(responseString);
+
+				if(responseData.Status.Errors?.Count() > 0)
+				{
+					var errorMessage =
+						$"На запрос удаления существующего товарного ограничителя {restrictionId} сервер Газпром вернул ответ с ошибками: " +
+						$"{string.Concat(responseData.Status.Errors.Select(e => $"\nТип: {e.ErrorType}. Сообщение: {e.Message}"))}";
+
+					LogErrorMessageAndThrowException(errorMessage);
+				}
+
+				if(!responseData.IsRemovalSuccessful)
+				{
+					var errorMessage =
+						$"На запрос удаления существующего товарного ограничителя {restrictionId} сервер Газпром вернул ответ что ограничитель не удален.";
+
+					LogErrorMessageAndThrowException(errorMessage);
+				}
+
+				return true;
 			}
-
-			if(!responseData.IsRemovalSuccessful)
-			{
-				var errorMessage =
-					$"На запрос удаления существующего товарного ограничителя {restrictionId} сервер Газпром вернул ответ что ограничитель не удален.";
-
-				LogErrorMessageAndThrowException(errorMessage);
-			}
-
-			return true;
 		}
 
 		public async Task<IEnumerable<long>> SetCommonFuelRestriction(
@@ -209,8 +216,8 @@ namespace FuelControl.Library.Services
 			string apiKey,
 			CancellationToken cancellationToken)
 		{
-			var httpContent =
-				CreateSetRestrictionHttpContent(_fuelControlSettings.OrganizationContractId, cardId, productGroupId, apiKey, sessionId);
+		var httpContent =
+			CreateSetRestrictionHttpContent(_fuelControlSettings.OrganizationContractId, cardId, productGroupId);
 
 			_logger.LogDebug(
 				"Выполняется создания нового товарного ограничителя." +
@@ -221,33 +228,40 @@ namespace FuelControl.Library.Services
 				apiKey);
 
 			var httpClient = _httpClientFactory.CreateClient(GazpromHttpClientNames.Default);
-			var response = await httpClient.PostAsync(_setRestrictionEndpointAddress, httpContent, cancellationToken);
-
-			var responseString = await response.Content.ReadAsStringAsync();
-
-			var responseData = JsonSerializer.Deserialize<SetFuelCardProductRestrictionResponse>(responseString);
-
-			if(responseData.Status.Errors?.Count() > 0)
+			using (var request = new HttpRequestMessage(HttpMethod.Post, _setRestrictionEndpointAddress) { Content = httpContent })
 			{
-				var errorMessage =
-					$"На запрос создания нового товарного ограничителя сервер Газпром вернул ответ с ошибками: " +
-					$"{string.Concat(responseData.Status.Errors.Select(e => $"\nТип: {e.ErrorType}. Сообщение: {e.Message}"))}";
+				request.Headers.Add("api_key", apiKey);
+				request.Headers.Add("session_id", sessionId);
+				request.Headers.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
 
-				LogErrorMessageAndThrowException(errorMessage);
+				var response = await httpClient.SendAsync(request, cancellationToken);
+
+				var responseString = await response.Content.ReadAsStringAsync();
+
+				var responseData = JsonSerializer.Deserialize<SetFuelCardProductRestrictionResponse>(responseString);
+
+				if(responseData.Status.Errors?.Count() > 0)
+				{
+					var errorMessage =
+						$"На запрос создания нового товарного ограничителя сервер Газпром вернул ответ с ошибками: " +
+						$"{string.Concat(responseData.Status.Errors.Select(e => $"\nТип: {e.ErrorType}. Сообщение: {e.Message}"))}";
+
+					LogErrorMessageAndThrowException(errorMessage);
+				}
+
+				if(responseData.CreatedRestrictionsIds?.Count() < 1)
+				{
+					var errorMessage =
+						$"Ответ на запрос создания нового товарного ограничителя не содержит Id созданных ограничителей.";
+
+					LogErrorMessageAndThrowException(errorMessage);
+				}
+
+				return responseData.CreatedRestrictionsIds.ToList();
 			}
-
-			if(responseData.CreatedRestrictionsIds?.Count() < 1)
-			{
-				var errorMessage =
-					$"Ответ на запрос создания нового товарного ограничителя не содержит Id созданных ограничителей.";
-
-				LogErrorMessageAndThrowException(errorMessage);
-			}
-
-			return responseData.CreatedRestrictionsIds.ToList();
 		}
 
-		private HttpContent CreateRemoveRestrictionHttpContent(string contractId, string restrictionId, string apiKey, string sessionId)
+		private HttpContent CreateRemoveRestrictionHttpContent(string contractId, string restrictionId)
 		{
 			var requestData = new List<KeyValuePair<string, string>>
 			{
@@ -255,15 +269,10 @@ namespace FuelControl.Library.Services
 				new KeyValuePair<string, string>("restriction_id", restrictionId)
 			};
 
-			var content = new FormUrlEncodedContent(requestData);
-			content.Headers.Add("api_key", apiKey);
-			content.Headers.Add("session_id", sessionId);
-			content.Headers.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
-
-			return content;
+			return new FormUrlEncodedContent(requestData);
 		}
 
-		private HttpContent CreateSetRestrictionHttpContent(string contractId, string cardId, string productGroupId, string apiKey, string sessionId)
+		private HttpContent CreateSetRestrictionHttpContent(string contractId, string cardId, string productGroupId)
 		{
 			var restriction = new FuelCardProductRestrictionDto
 			{
@@ -285,12 +294,7 @@ namespace FuelControl.Library.Services
 				new KeyValuePair<string, string>("restriction", $"[{requestParameters}]")
 			};
 
-			var content = new FormUrlEncodedContent(requestData);
-			content.Headers.Add("api_key", apiKey);
-			content.Headers.Add("session_id", sessionId);
-			content.Headers.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
-
-			return content;
+			return new FormUrlEncodedContent(requestData);
 		}
 
 		private void LogErrorMessageAndThrowException(string errorMessage)

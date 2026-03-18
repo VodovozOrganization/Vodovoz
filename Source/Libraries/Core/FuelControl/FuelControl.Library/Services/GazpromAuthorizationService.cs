@@ -1,4 +1,4 @@
-﻿using FuelControl.Contracts.Responses;
+using FuelControl.Contracts.Responses;
 using FuelControl.Library.Exceptions;
 using Microsoft.Extensions.Logging;
 using System;
@@ -50,7 +50,7 @@ namespace FuelControl.Library.Services
 				throw new ArgumentException($"'{nameof(apiKey)}' cannot be null or whitespace.", nameof(apiKey));
 			}
 
-			var httpContent = CreateAuthorizationHttpContent(login, password, apiKey);
+			var httpContent = CreateAuthorizationHttpContent(login, password);
 
 			_logger.LogDebug("Выполняется запрос авторизации пользователя {UserLogin} с паролем {UserPassword} ключ API {ApiKey}",
 				login,
@@ -58,34 +58,39 @@ namespace FuelControl.Library.Services
 				apiKey);
 
 			var httpClient = _httpClientFactory.CreateClient(GazpromHttpClientNames.Default);
-			var response = await httpClient.PostAsync(_authorizationEndpointAddress, httpContent, cancellationToken);
-
-			var responseString = await response.Content.ReadAsStringAsync();
-
-			var responseData = JsonSerializer.Deserialize<AuthorizationResponse>(responseString);
-
-			if(responseData.Status.Errors?.Count() > 0)
+			using (var request = new HttpRequestMessage(HttpMethod.Post, _authorizationEndpointAddress) { Content = httpContent })
 			{
-				var errorMessages =
-					$"На запрос авторизации сервер Газпром вернул ответ с ошибками: {string.Concat(responseData.Status.Errors.Select(e => $"\nТип: {e.ErrorType}. Сообщение: {e.Message}"))}";
+				request.Headers.Add("api_key", apiKey);
+				request.Headers.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
+				var response = await httpClient.SendAsync(request, cancellationToken);
 
-				_logger.LogError(errorMessages);
+				var responseString = await response.Content.ReadAsStringAsync();
 
-				throw new FuelControlException(errorMessages);
+				var responseData = JsonSerializer.Deserialize<AuthorizationResponse>(responseString);
+
+				if(responseData.Status.Errors?.Count() > 0)
+				{
+					var errorMessages =
+						$"На запрос авторизации сервер Газпром вернул ответ с ошибками: {string.Concat(responseData.Status.Errors.Select(e => $"\nТип: {e.ErrorType}. Сообщение: {e.Message}"))}";
+
+					_logger.LogError(errorMessages);
+
+					throw new FuelControlException(errorMessages);
+				}
+
+				var sessionId = responseData.UserData.SessionId;
+				var sessionExpirationDate = DateTimeOffset.FromUnixTimeSeconds(responseData.Timestamp).Date
+					.AddDays(_fuelControlSettings.ApiSessionLifetime.TotalDays);
+
+				_logger.LogDebug("Авторизация выполнена успешно. ID сессии {SessionId} получено {NowDateTime}",
+				sessionId,
+				DateTime.Now.ToString(_logsDateTimeFormatString));
+
+				return (sessionId, sessionExpirationDate);
 			}
-
-			var sessionId = responseData.UserData.SessionId;
-			var sessionExpirationDate = DateTimeOffset.FromUnixTimeSeconds(responseData.Timestamp).Date
-				.AddDays(_fuelControlSettings.ApiSessionLifetime.TotalDays);
-
-			_logger.LogDebug("Авторизация выполнена успешно. ID сессии {SessionId} получено {NowDateTime}",
-			sessionId,
-			DateTime.Now.ToString(_logsDateTimeFormatString));
-
-			return (sessionId, sessionExpirationDate);
 		}
 
-		private HttpContent CreateAuthorizationHttpContent(string login, string password, string apiKey)
+		private HttpContent CreateAuthorizationHttpContent(string login, string password)
 		{
 			var hashedPassword = HashCompute.GetSha512HashString(password);
 
@@ -95,11 +100,7 @@ namespace FuelControl.Library.Services
 				new KeyValuePair<string, string>("password", hashedPassword)
 			};
 
-			var content = new FormUrlEncodedContent(requestData);
-			content.Headers.Add("api_key", apiKey);
-			content.Headers.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
-
-			return content;
+			return new FormUrlEncodedContent(requestData);
 		}
 	}
 }
