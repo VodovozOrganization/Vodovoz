@@ -7,6 +7,7 @@ using CustomerOrdersApi.Library.Services.PaymentRefund;
 using CustomerOrdersApi.Library.Services.PaymentRefund.HttpClients;
 using CustomerOrdersApi.Library.Services.PaymentRefund.Mappers;
 using FastPaymentsAPI.Library;
+using FastPaymentsAPI.Library.Services;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,6 +29,7 @@ using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Pacs;
 using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Cryptography;
+using IOrderService = FastPaymentsAPI.Library.Services.IOrderService;
 
 namespace CustomerOrdersApi.Library
 {
@@ -64,6 +66,8 @@ namespace CustomerOrdersApi.Library
 
 		public static IServiceCollection AddFastPaymentsDependencies(this IServiceCollection services)
 		{
+			services.AddHttpClient<IOrderService, OrderService>();
+
 			return services.AddDependencyGroup();
 		}
 

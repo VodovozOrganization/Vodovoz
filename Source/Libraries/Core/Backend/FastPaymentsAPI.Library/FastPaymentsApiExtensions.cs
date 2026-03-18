@@ -7,20 +7,9 @@ using FastPaymentsAPI.Library.Notifications;
 using FastPaymentsAPI.Library.Validators;
 using Microsoft.Extensions.DependencyInjection;
 using Vodovoz.Application;
-using Vodovoz.Application.Orders.Services;
-using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.EntityRepositories.FastPayments;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Organizations;
-using Vodovoz.EntityRepositories.Store;
-using Vodovoz.Models;
 using Vodovoz.Services;
 using Vodovoz.Settings.FastPayments;
 using Vodovoz.Tools.Orders;
-using VodovozBusiness.Domain.Settings;
-using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Cryptography;
 
 namespace FastPaymentsAPI.Library
