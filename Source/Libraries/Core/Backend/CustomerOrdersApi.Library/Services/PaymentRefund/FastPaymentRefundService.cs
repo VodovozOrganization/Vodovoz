@@ -42,7 +42,8 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 				request.ExternalOrderId,
 				ticket);
 
-			_logger.LogInformation("Пришел запрос на отмену платежа с сессией: {Ticket}", ticket);
+			_logger.LogInformation("Пришел запрос на возврат средств по платежу с сессией: {Ticket}", ticket);
+
 			var fastPayment = _fastPaymentService.GetFastPaymentByTicket(ticket);
 
 			if(fastPayment == null)
@@ -51,20 +52,26 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 				return CreateErrorResult("Идентификатор платежа не найден");
 			}
 
-			_logger.LogInformation("Посылаем запрос в банк на отмену сессии оплаты: {Ticket}", ticket);
+			_logger.LogInformation("Посылаем запрос в банк на возврат средств по сессии оплаты: {Ticket}", ticket);
 
-			var cancelResponse = await _fastPaymentOrderService.CancelPayment(ticket, fastPayment.Organization);
+			var reverseOrderResponse = await _fastPaymentOrderService.ReverseOrder(ticket, fastPayment.Organization);
 
-			if(cancelResponse.ResponseCode != 0)
+			if(reverseOrderResponse.ResponseCode != 0)
 			{
-				return CreateErrorResult($"Ошибка отмены платежа: {ticket}");
+				_logger.LogError(
+					"Ошибка при возврате средств по платежу {Ticket}. Код ответа: {ResponseCode}, Сообщение: {ResponseMessage}",
+					ticket,
+					reverseOrderResponse.ResponseCode,
+					reverseOrderResponse.ResponseMessage);
+
+				return CreateErrorResult($"Ошибка возврата платежа: {ticket}. Код ошибки: {reverseOrderResponse.ResponseCode}");
 			}
 
-			_logger.LogInformation("Обновляем статус платежа");
-			_fastPaymentService.UpdateFastPaymentStatus(fastPayment, FastPaymentDTOStatus.Rejected, DateTime.Now);
+			_logger.LogInformation("Возврат по платежу {Ticket} успешно инициирован, обновляем статус", ticket);
+			_fastPaymentService.UpdateFastPaymentStatus(fastPayment, FastPaymentDTOStatus.Refund, DateTime.Now);
 
 			_logger.LogInformation(
-				"Платеж QR успешно отменен для заказа {ExternalOrderId}",
+				"Возврат по платежу QR успешно выполнен для заказа {ExternalOrderId}",
 				request.ExternalOrderId);
 
 			return CreateSuccessResult(ticket);

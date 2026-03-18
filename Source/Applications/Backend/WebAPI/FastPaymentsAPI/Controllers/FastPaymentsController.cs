@@ -75,7 +75,7 @@ namespace FastPaymentsAPI.Controllers
 		public async Task<QRResponseDTO> RegisterOrderForGetQR([FromBody] OrderDTO orderDto)
 		{
 			var orderId = orderDto.OrderId;
-			_logger.LogInformation($"Поступил запрос отправки QR-кода для заказа №{orderId}");
+			_logger.LogInformation("Поступил запрос отправки QR-кода для заказа №{OrderId}", orderId);
 			
 			var response = new QRResponseDTO();
 			var paramsValidationResult = _fastPaymentOrderService.ValidateParameters(orderId);
@@ -460,7 +460,7 @@ namespace FastPaymentsAPI.Controllers
 		public async Task<IActionResult> ReceivePayment([FromForm] PaidOrderDTO paidOrderDto)
 		{
 			_logger.LogInformation("Пришел ответ об успешной оплате");
-			PaidOrderInfoDTO paidOrderInfoDto = null;
+			PaidOrderInfoDTO paidOrderInfoDto;
 
 			try
 			{
