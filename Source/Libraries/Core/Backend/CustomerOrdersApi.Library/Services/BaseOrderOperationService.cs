@@ -115,10 +115,10 @@ namespace CustomerOrdersApi.Library.Services
 
 		public async Task<TResult> ExecuteAsync(TDto dto, CancellationToken cancellationToken)
 		{
-			using var uow = _unitOfWorkFactory.CreateWithoutRoot();
-
 			try
 			{
+				using var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис переноса/отмены заказа");
+
 				_logger.LogInformation(
 					"Начало {OperationName} заказа: ExternalOrderId: {ExternalOrderId}",
 					OperationName,

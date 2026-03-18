@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Osrm;
+using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Services;
 using Vodovoz;
@@ -69,6 +70,7 @@ namespace CustomerOrdersApi
 				.AddOsrm();
 
 			services.AddStaticScopeForEntity();
+			services.AddStaticHistoryTracker();
 
 			services
 				.AddMemoryCache()
