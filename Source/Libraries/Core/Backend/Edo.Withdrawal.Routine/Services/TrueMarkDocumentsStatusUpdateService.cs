@@ -48,7 +48,7 @@ namespace Edo.Withdrawal.Routine.Services
 
 				foreach(var trueMarkDocument in documentsToUpdateStatus)
 				{
-					if(trueMarkDocument.Guid == null)
+					if(trueMarkDocument.Guid is null)
 					{
 						_logger.LogWarning("Документ ЧЗ с Id {Id} имеет пустой Guid, пропускаем", trueMarkDocument.Id);
 						continue;
