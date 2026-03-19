@@ -1,4 +1,4 @@
-using Edo.Common.Errors;
+﻿using Edo.Common.Errors;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -57,15 +57,11 @@ namespace Edo.Common.Services
 
 			var registrationsData = new List<ParticipantRegistrationDto>();
 			var maxInnsPerRequest = _trueMarkApiClient.ParticipantsCheckMaxCount;
+			var innsCount = inns.Count();
 
-			for(var i = 0; ; i++)
+			for(var i = 0; i * maxInnsPerRequest < innsCount; i++)
 			{
 				var innsPortion = inns.Skip(i * maxInnsPerRequest).Take(maxInnsPerRequest).ToArray();
-
-				if(!innsPortion.Any())
-				{
-					break;
-				}
 
 				var trueMarkResponse = await GetParticipantsRegistrationsStatuses(innsPortion, cancellationToken);
 				registrationsData.AddRange(trueMarkResponse);
