@@ -20,11 +20,16 @@ namespace FuelControl.Library.Services
 		private const string _authorizationEndpointAddress = "vip/v1/authUser";
 
 		private readonly ILogger<GazpromAuthorizationService> _logger;
+		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly IFuelControlSettings _fuelControlSettings;
 
-		public GazpromAuthorizationService(ILogger<GazpromAuthorizationService> logger, IFuelControlSettings fuelControlSettings)
+		public GazpromAuthorizationService(
+			ILogger<GazpromAuthorizationService> logger,
+			IHttpClientFactory httpClientFactory,
+			IFuelControlSettings fuelControlSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 		}
 
@@ -45,17 +50,20 @@ namespace FuelControl.Library.Services
 				throw new ArgumentException($"'{nameof(apiKey)}' cannot be null or whitespace.", nameof(apiKey));
 			}
 
-			var baseAddress = new Uri(_fuelControlSettings.ApiBaseAddress);
-			var httpContent = CreateAuthorizationHttpContent(login, password, apiKey);
+			var httpContent = CreateAuthorizationHttpContent(login, password);
 
 			_logger.LogDebug("Выполняется запрос авторизации пользователя {UserLogin} с паролем {UserPassword} ключ API {ApiKey}",
 				login,
 				password,
 				apiKey);
 
-			using(var httpClient = new HttpClient { BaseAddress = baseAddress })
+			var httpClient = _httpClientFactory.CreateClient(GazpromHttpClientNames.Default);
+
+			using (var request = new HttpRequestMessage(HttpMethod.Post, _authorizationEndpointAddress) { Content = httpContent })
 			{
-				var response = await httpClient.PostAsync(_authorizationEndpointAddress, httpContent, cancellationToken);
+				request.Headers.Add("api_key", apiKey);
+				request.Headers.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
+				var response = await httpClient.SendAsync(request, cancellationToken);
 
 				var responseString = await response.Content.ReadAsStringAsync();
 
@@ -83,7 +91,7 @@ namespace FuelControl.Library.Services
 			}
 		}
 
-		private HttpContent CreateAuthorizationHttpContent(string login, string password, string apiKey)
+		private HttpContent CreateAuthorizationHttpContent(string login, string password)
 		{
 			var hashedPassword = HashCompute.GetSha512HashString(password);
 
@@ -93,11 +101,7 @@ namespace FuelControl.Library.Services
 				new KeyValuePair<string, string>("password", hashedPassword)
 			};
 
-			var content = new FormUrlEncodedContent(requestData);
-			content.Headers.Add("api_key", apiKey);
-			content.Headers.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
-
-			return content;
+			return new FormUrlEncodedContent(requestData);
 		}
 	}
 }

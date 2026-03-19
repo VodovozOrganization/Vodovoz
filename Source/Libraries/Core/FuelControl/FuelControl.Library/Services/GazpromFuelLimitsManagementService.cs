@@ -22,17 +22,20 @@ namespace FuelControl.Library.Services
 		private const string _setLimitEndpointAddress = "vip/v1/setLimit";
 
 		private readonly ILogger<GazpromFuelLimitsManagementService> _logger;
+		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly IFuelLimitConverter _fuelLimitConverter;
 		private readonly IFuelControlSettings _fuelControlSettings;
 
 		public GazpromFuelLimitsManagementService(
 			ILogger<GazpromFuelLimitsManagementService> logger,
+			IHttpClientFactory httpClientFactory,
 			IFuelLimitConverter fuelLimitConverter,
 			IFuelControlSettings fuelControlSettings)
 		{
-			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 			_fuelLimitConverter = fuelLimitConverter ?? throw new ArgumentNullException(nameof(fuelLimitConverter));
-			_fuelControlSettings = fuelControlSettings ?? throw new System.ArgumentNullException(nameof(fuelControlSettings));
+			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 		}
 
 		public async Task<IEnumerable<FuelLimit>> GetFuelLimitsByCardId(
@@ -60,18 +63,17 @@ namespace FuelControl.Library.Services
 				"Запрос на получение списка имеющихся лимитов по карте CardId={CardId}.",
 				cardId);
 
-			var baseAddress = new Uri(_fuelControlSettings.ApiBaseAddress);
+			var httpClient = _httpClientFactory.CreateClient(GazpromHttpClientNames.WithTimeout);
 
-			using(var httpClient = new HttpClient { BaseAddress = baseAddress })
+			using (var request = new HttpRequestMessage(
+				HttpMethod.Get,
+				$"{_limitsListEndpointAddress}?contract_id={_fuelControlSettings.OrganizationContractId}&card_id={cardId}"))
 			{
-				httpClient.Timeout = TimeSpan.FromSeconds(_fuelControlSettings.ApiRequesTimeout.TotalSeconds);
-				httpClient.DefaultRequestHeaders.Add("api_key", apiKey);
-				httpClient.DefaultRequestHeaders.Add("session_id", sessionId);
-				httpClient.DefaultRequestHeaders.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
+				request.Headers.Add("api_key", apiKey);
+				request.Headers.Add("session_id", sessionId);
+				request.Headers.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
 
-				var response = await httpClient.GetAsync(
-					  $"{_limitsListEndpointAddress}?contract_id={_fuelControlSettings.OrganizationContractId}&card_id={cardId}",
-					  cancellationToken);
+				var response = await httpClient.SendAsync(request, cancellationToken);
 
 				var responseString = await response.Content.ReadAsStringAsync();
 
@@ -132,17 +134,22 @@ namespace FuelControl.Library.Services
 				throw new ArgumentException($"'{nameof(apiKey)}' cannot be null or whitespace.", nameof(apiKey));
 			}
 
-			var baseAddress = new Uri(_fuelControlSettings.ApiBaseAddress);
-			var httpContent = CreateRemoveLimitHttpContent(_fuelControlSettings.OrganizationContractId, limitId, apiKey, sessionId);
+			var httpContent = CreateRemoveLimitHttpContent(_fuelControlSettings.OrganizationContractId, limitId);
 
 			_logger.LogDebug("Выполняется запрос удаления существующего лимита {LimitId}. Id сессии {SessionId}, ключ API {ApiKey}",
 				limitId,
 				sessionId,
 				apiKey);
 
-			using(var httpClient = new HttpClient { BaseAddress = baseAddress })
+			var httpClient = _httpClientFactory.CreateClient(GazpromHttpClientNames.Default);
+
+			using (var request = new HttpRequestMessage(HttpMethod.Post, _removeLimitEndpointAddress) { Content = httpContent })
 			{
-				var response = await httpClient.PostAsync(_removeLimitEndpointAddress, httpContent, cancellationToken);
+				request.Headers.Add("api_key", apiKey);
+				request.Headers.Add("session_id", sessionId);
+				request.Headers.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
+
+				var response = await httpClient.SendAsync(request, cancellationToken);
 
 				var responseString = await response.Content.ReadAsStringAsync();
 
@@ -168,7 +175,7 @@ namespace FuelControl.Library.Services
 			}
 		}
 
-		private HttpContent CreateRemoveLimitHttpContent(string contractId, string limitId, string apiKey, string sessionId)
+		private HttpContent CreateRemoveLimitHttpContent(string contractId, string limitId)
 		{
 			var requestData = new List<KeyValuePair<string, string>>
 			{
@@ -176,12 +183,7 @@ namespace FuelControl.Library.Services
 				new KeyValuePair<string, string>("limit_id", limitId)
 			};
 
-			var content = new FormUrlEncodedContent(requestData);
-			content.Headers.Add("api_key", apiKey);
-			content.Headers.Add("session_id", sessionId);
-			content.Headers.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
-
-			return content;
+			return new FormUrlEncodedContent(requestData);
 		}
 
 		public async Task<IEnumerable<string>> SetFuelLimit(
@@ -208,16 +210,21 @@ namespace FuelControl.Library.Services
 			var requestDto = _fuelLimitConverter.ConvertFuelLimitToRequestDto(fuelLimit, _fuelControlSettings.LiterUnitId, _fuelControlSettings.RubleCurrencyId);
 			var requestParameters = JsonSerializer.Serialize(requestDto);
 
-			var baseAddress = new Uri(_fuelControlSettings.ApiBaseAddress);
-			var httpContent = CreateSetLimitHttpContent(requestParameters, apiKey, sessionId);
+			var httpContent = CreateSetLimitHttpContent(requestParameters);
 
 			_logger.LogDebug("Выполняется создания нового лимита. Параметры запроса: {RequestParameters}, ключ API {ApiKey}",
 				requestParameters,
 				apiKey);
 
-			using(var httpClient = new HttpClient { BaseAddress = baseAddress })
+			var httpClient = _httpClientFactory.CreateClient(GazpromHttpClientNames.Default);
+
+			using (var request = new HttpRequestMessage(HttpMethod.Post, _setLimitEndpointAddress) { Content = httpContent })
 			{
-				var response = await httpClient.PostAsync(_setLimitEndpointAddress, httpContent, cancellationToken);
+				request.Headers.Add("api_key", apiKey);
+				request.Headers.Add("session_id", sessionId);
+				request.Headers.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
+
+				var response = await httpClient.SendAsync(request, cancellationToken);
 
 				var responseString = await response.Content.ReadAsStringAsync();
 
@@ -243,19 +250,14 @@ namespace FuelControl.Library.Services
 			}
 		}
 
-		private HttpContent CreateSetLimitHttpContent(string requestParameters, string apiKey, string sessionId)
+		private HttpContent CreateSetLimitHttpContent(string requestParameters)
 		{
 			var requestData = new List<KeyValuePair<string, string>>
 			{
 				new KeyValuePair<string, string>("limit", $"[{requestParameters}]")
 			};
 
-			var content = new FormUrlEncodedContent(requestData);
-			content.Headers.Add("api_key", apiKey);
-			content.Headers.Add("session_id", sessionId);
-			content.Headers.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
-
-			return content;
+			return new FormUrlEncodedContent(requestData);
 		}
 
 		private void LogErrorMessageAndThrowException(string errorMessage)
