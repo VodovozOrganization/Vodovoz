@@ -172,9 +172,9 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 					&& client.PersonType == PersonType.legal
 					&& client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
 					&& ((searchMode == TimedOutDocumentTasksSearchMode.OnlyTrueMarkRegisteredClients
-							&& client.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
+							&& CounterpartyEntity.RegisteredInTrueMarkStatuses.Contains(client.RegistrationInChestnyZnakStatus))
 						|| (searchMode == TimedOutDocumentTasksSearchMode.OnlyTrueMarkNotRegisteredClients
-							&& client.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered))
+							&& !CounterpartyEntity.RegisteredInTrueMarkStatuses.Contains(client.RegistrationInChestnyZnakStatus)))
 					&& edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree
 					&& withdrawalEdoRequest.Id == null
 					&& taskItemCodesCount > 0

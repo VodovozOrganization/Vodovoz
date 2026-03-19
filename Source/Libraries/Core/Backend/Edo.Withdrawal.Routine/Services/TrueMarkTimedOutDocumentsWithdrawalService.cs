@@ -63,7 +63,7 @@ namespace Edo.Withdrawal.Routine.Services
 		public async Task ProcessTimedOutDocumentTasks(CancellationToken cancellationToken)
 		{
 			var withdrawalEdoRequests = Enumerable.Empty<WithdrawalEdoRequest>();
-			var clientInnsToSetRegisteredStatus = Enumerable.Empty<string>();
+			var clientInnsToSetRegisteredStatus = new Dictionary<string, RegistrationInChestnyZnakStatus>();
 
 			using(var uow = _uowFactory.CreateWithoutRoot(nameof(TrueMarkTimedOutDocumentsWithdrawalService)))
 			{
@@ -79,7 +79,7 @@ namespace Edo.Withdrawal.Routine.Services
 
 				timedOutDocumentTasks.AddRange(
 					timedOutTasksOfNotRegisteredInTrueMarkClients
-						.Where(x => !clientInnsToSetRegisteredStatus.Contains(x.ClientInn)));
+						.Where(x => !clientInnsToSetRegisteredStatus.Keys.Contains(x.ClientInn)));
 
 				withdrawalEdoRequests = await CreateWithdrawalEdoRequests(uow, timedOutDocumentTasks, cancellationToken);
 
@@ -94,20 +94,28 @@ namespace Edo.Withdrawal.Routine.Services
 			}
 		}
 
-		private async Task UpdateClientsRegistrationInTrueMarkStatus(IEnumerable<string> clientInns, CancellationToken cancellationToken)
+		private async Task UpdateClientsRegistrationInTrueMarkStatus(
+			IDictionary<string, RegistrationInChestnyZnakStatus> innRegistrationStatuses,
+			CancellationToken cancellationToken)
 		{
 			try
 			{
 				using(var uow = _uowFactory.CreateWithoutRoot($"Обновление статуса регистрации клиента в ЧЗ в сервисе {nameof(TrueMarkTimedOutDocumentsWithdrawalService)}"))
 				{
 					var clients =
-						(await _counterpartyRepository.GetAsync(uow, x => clientInns.Contains(x.INN), cancellationToken: cancellationToken))
+						(await _counterpartyRepository.GetAsync(
+							uow,
+							x => innRegistrationStatuses.Keys.Contains(x.INN),
+							cancellationToken: cancellationToken))
 						.Value;
 
 					foreach(var client in clients)
 					{
-						client.RegistrationInChestnyZnakStatus = RegistrationInChestnyZnakStatus.Registered;
-						await uow.SaveAsync(client, cancellationToken: cancellationToken);
+						if(innRegistrationStatuses.TryGetValue(client.INN, out var actualRegistrationStatus))
+						{
+							client.RegistrationInChestnyZnakStatus = actualRegistrationStatus;
+							await uow.SaveAsync(client, cancellationToken: cancellationToken);
+						}
 					}
 
 					await uow.CommitAsync(cancellationToken);
@@ -168,7 +176,7 @@ namespace Edo.Withdrawal.Routine.Services
 			return timedOutTasks;
 		}
 
-		private async Task<IList<string>> GetRegisteredInTrueMarkClientsByDataFromTrueMark(
+		private async Task<Dictionary<string, RegistrationInChestnyZnakStatus>> GetRegisteredInTrueMarkClientsByDataFromTrueMark(
 			IEnumerable<TimedOutOrderDocumentTaskNode> timedOutOrderDocumentTaskNodes,
 			CancellationToken cancellationToken)
 		{
@@ -181,28 +189,21 @@ namespace Edo.Withdrawal.Routine.Services
 			return await GetRegisteredInTrueMarkClientsByDataFromTrueMark(clientsInnsToCheckRegistrationInTrueMark, cancellationToken);
 		}
 
-		private async Task<IList<string>> GetRegisteredInTrueMarkClientsByDataFromTrueMark(
+		private async Task<Dictionary<string, RegistrationInChestnyZnakStatus>> GetRegisteredInTrueMarkClientsByDataFromTrueMark(
 			IEnumerable<string> inns,
 			CancellationToken cancellationToken)
 		{
 			var registeredInTrueMarkClients = new List<string>();
+			
+			var registrationStatusesResults =
+					await _trueMarkRegistrationCheckService.GetTrueMarkRegistrationsStatuses(inns, cancellationToken);
 
-			foreach(var inn in inns)
-			{
-				var registrationStatusResult =
-					await _trueMarkRegistrationCheckService.GetTrueMarkRegistrationStatus(inn, cancellationToken);
+			var registeredInTrueMarkInns = registrationStatusesResults
+				.Where(x => x.Value.IsSuccess)
+				.Where(x => CounterpartyEntity.RegisteredInTrueMarkStatuses.Contains(x.Value.Value))
+				.ToDictionary(x => x.Key, x => x.Value.Value);
 
-				if(registrationStatusResult.IsSuccess)
-				{
-					var registrationStatus = registrationStatusResult.Value;
-					if(registrationStatus == RegistrationInChestnyZnakStatus.Registered)
-					{
-						registeredInTrueMarkClients.Add(inn);
-					}
-				}
-			}
-
-			return registeredInTrueMarkClients;
+			return registeredInTrueMarkInns;
 		}
 
 		private async Task<IList<WithdrawalEdoRequest>> CreateWithdrawalEdoRequests(
