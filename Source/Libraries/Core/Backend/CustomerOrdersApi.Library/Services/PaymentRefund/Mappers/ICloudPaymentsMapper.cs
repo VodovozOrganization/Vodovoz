@@ -1,5 +1,7 @@
-﻿using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
-using CustomerOrdersApi.Library.Services.PaymentRefund.Models.CloudPayments;
+﻿using CloudPaymentsApi.Library.Models;
+using CloudPaymentsApi.Library.Requests;
+using CloudPaymentsApi.Library.Responses;
+using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
 
 namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 {

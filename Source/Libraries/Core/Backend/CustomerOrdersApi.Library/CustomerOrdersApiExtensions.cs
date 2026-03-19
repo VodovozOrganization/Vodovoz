@@ -1,24 +1,19 @@
-﻿using CustomerOrdersApi.Library.Config;
+﻿using CloudPaymentsApi.Client;
+using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.Converters;
 using CustomerOrdersApi.Library.Dto.Orders;
 using CustomerOrdersApi.Library.Factories;
 using CustomerOrdersApi.Library.Services;
 using CustomerOrdersApi.Library.Services.PaymentRefund;
-using CustomerOrdersApi.Library.Services.PaymentRefund.HttpClients;
 using CustomerOrdersApi.Library.Services.PaymentRefund.Mappers;
-using FastPaymentsAPI.Library;
-using FastPaymentsAPI.Library.Services;
+using FastPaymentsApi.Client;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using QS.DomainModel.UoW;
 using RabbitMQ.Client;
 using System;
-using System.Net.Http.Headers;
 using System.Net.Security;
 using System.Security.Authentication;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Vodovoz.Application.Logistics;
@@ -30,7 +25,8 @@ using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Pacs;
 using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Cryptography;
-using IOrderService = FastPaymentsAPI.Library.Services.IOrderService;
+using YandexPayApi.Client;
+using YooKassaApi.Client;
 
 namespace CustomerOrdersApi.Library
 {
@@ -63,19 +59,6 @@ namespace CustomerOrdersApi.Library
 				.AddScoped<IOnlineOrderService, OnlineOrderService>();
 
 			return services;
-		}
-
-		public static IServiceCollection AddFastPaymentsDependencies(this IServiceCollection services, IConfiguration config)
-		{
-			services.AddHttpClient<IOrderService, OrderService>(c =>
-			{
-				c.BaseAddress = new Uri(config.GetSection("OrderService").GetValue<string>("ApiBase"));
-				c.DefaultRequestHeaders.Add("Accept", "application/x-www-form-urlencoded");
-			});
-
-			services.AddScoped((provider) => provider.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot("Сервис быстрых платежей"));
-
-			return services.AddDependencyGroup();
 		}
 
 		public static IBusRegistrationConfigurator ConfigureRabbitMq(this IBusRegistrationConfigurator busConf)
@@ -138,12 +121,28 @@ namespace CustomerOrdersApi.Library
 		}
 
 		public static IServiceCollection AddPaymentRefundServices(
+			this IServiceCollection services)
+		{
+			services.AddScoped<IPaymentRefundServiceFactory, PaymentRefundServiceFactory>();
+
+			services.AddScoped<ICloudPaymentsMapper, CloudPaymentsMapper>();
+			services.AddScoped<IPaymentRefundService, CloudPaymentsRefundService>();
+
+			services.AddScoped<IYandexPayMapper, YandexPayMapper>();
+			services.AddScoped<IPaymentRefundService, YandexPayRefundService>();
+
+			services.AddScoped<IYooKassaMapper, YooKassaMapper>();
+			services.AddScoped<IPaymentRefundService, YooKassaRefundService>();
+
+			services.AddScoped<IPaymentRefundService, FastPaymentsRefundService>();
+
+			return services;
+		}
+
+		public static IServiceCollection AddPaymentApiClients(
 			this IServiceCollection services,
 			IConfiguration configuration)
 		{
-			services.Configure<CloudPaymentsOptions>(
-				configuration.GetSection("CloudPayments"));
-
 			services.AddSingleton<JsonSerializerOptions>(sp =>
 			{
 				return new JsonSerializerOptions
@@ -153,69 +152,11 @@ namespace CustomerOrdersApi.Library
 				};
 			});
 
-			services.AddHttpClient<ICloudPaymentsHttpClient, CloudPaymentsHttpClient>((sp, client) =>
-			{
-				var settings = sp.GetRequiredService<IOptions<CloudPaymentsOptions>>().Value;
-
-				client.BaseAddress = new Uri(settings.ApiUrl);
-
-				var authToken = Convert.ToBase64String(
-					Encoding.ASCII.GetBytes($"{settings.PublicId}:{settings.ApiSecret}"));
-
-				client.DefaultRequestHeaders.Authorization =
-					new AuthenticationHeaderValue("Basic", authToken);
-
-				client.Timeout = TimeSpan.FromSeconds(30);
-			});
-
-
-			services.AddScoped<ICloudPaymentsMapper, CloudPaymentsMapper>();
-			services.AddScoped<IPaymentRefundServiceFactory, PaymentRefundServiceFactory>();
-			services.AddScoped<IPaymentRefundService, CloudPaymentsRefundService>();
-
-
-			services.Configure<YandexPayOptions>(
-				configuration.GetSection("YandexPay"));
-
-			services.AddHttpClient<IYandexPayHttpClient, YandexPayHttpClient>((sp, client) =>
-			{
-				var settings = sp.GetRequiredService<IOptions<YandexPayOptions>>().Value;
-
-				client.BaseAddress = new Uri(settings.ApiUrl);
-				client.DefaultRequestHeaders.Add("Authorization", $"Api-Key {settings.ApiKey}");
-				client.DefaultRequestHeaders.Add("Accept", "application/json");
-
-				client.Timeout = TimeSpan.FromSeconds(30);
-			});
-
-			services.AddScoped<IYandexPayMapper, YandexPayMapper>();
-			services.AddScoped<IPaymentRefundService, YandexPayRefundService>();
-
-			services.Configure<YooKassaOptions>(
-				configuration.GetSection("YooKassa"));
-
-			services.AddHttpClient<IYooKassaHttpClient, YooKassaHttpClient>((sp, client) =>
-			{
-				var settings = sp.GetRequiredService<IOptions<YooKassaOptions>>().Value;
-
-				client.BaseAddress = new Uri(settings.ApiUrl);
-
-				var authToken = Convert.ToBase64String(
-					Encoding.ASCII.GetBytes($"{settings.ShopId}:{settings.SecretKey}"));
-
-				client.DefaultRequestHeaders.Authorization =
-					new AuthenticationHeaderValue("Basic", authToken);
-
-				client.DefaultRequestHeaders.Accept.Add(
-					new MediaTypeWithQualityHeaderValue("application/json"));
-
-				client.Timeout = TimeSpan.FromSeconds(30);
-			});
-
-			services.AddScoped<IYooKassaMapper, YooKassaMapper>();
-			services.AddScoped<IPaymentRefundService, YooKassaRefundService>();
-
-			services.AddScoped<IPaymentRefundService, FastPaymentRefundService>();
+			services
+				.AddFastPaymentsApiClient(configuration)
+				.AddCloudPaymentsApiClient(configuration)
+				.AddYandexPayApiClient(configuration)
+				.AddYooKassaApiClient(configuration);
 
 			return services;
 		}

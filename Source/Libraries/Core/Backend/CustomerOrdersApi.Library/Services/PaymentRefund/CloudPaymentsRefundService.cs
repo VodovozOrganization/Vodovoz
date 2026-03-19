@@ -1,7 +1,7 @@
-﻿using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
-using CustomerOrdersApi.Library.Services.PaymentRefund.HttpClients;
+﻿using CloudPaymentsApi.Client;
+using CloudPaymentsApi.Library.Models;
+using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
 using CustomerOrdersApi.Library.Services.PaymentRefund.Mappers;
-using CustomerOrdersApi.Library.Services.PaymentRefund.Models.CloudPayments;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -15,13 +15,13 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 {
 	public class CloudPaymentsRefundService : PaymentRefundServiceBase
 	{
-		private readonly ICloudPaymentsHttpClient _cloudPaymentsClient;
+		private readonly ICloudPaymentsApiClient _cloudPaymentsClient;
 		private readonly ICloudPaymentsMapper _mapper;
 
 		public CloudPaymentsRefundService(
 			ILogger<CloudPaymentsRefundService> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ICloudPaymentsHttpClient cloudPaymentsClient,
+			ICloudPaymentsApiClient cloudPaymentsClient,
 			ICloudPaymentsMapper mapper,
 			IHttpClientFactory httpClientFactory,
 			IRefundOperationRepository refundOperationRepository

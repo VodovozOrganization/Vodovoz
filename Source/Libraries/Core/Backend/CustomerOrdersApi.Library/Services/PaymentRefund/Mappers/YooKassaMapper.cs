@@ -1,9 +1,11 @@
 ﻿using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
-using CustomerOrdersApi.Library.Services.PaymentRefund.Models.YooKassa;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using YooKassaApi.Library.Models;
+using YooKassaApi.Library.Requests;
+using YooKassaApi.Library.Responses;
 
 namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 {

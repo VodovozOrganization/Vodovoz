@@ -1,7 +1,5 @@
 ﻿using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
-using CustomerOrdersApi.Library.Services.PaymentRefund.HttpClients;
 using CustomerOrdersApi.Library.Services.PaymentRefund.Mappers;
-using CustomerOrdersApi.Library.Services.PaymentRefund.Models.YandexPay;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -11,18 +9,20 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Orders;
+using YandexPayApi.Client;
+using YandexPayApi.Library.Models;
 
 namespace CustomerOrdersApi.Library.Services.PaymentRefund
 {
 	public class YandexPayRefundService : PaymentRefundServiceBase, IPaymentRefundService
 	{
-		private readonly IYandexPayHttpClient _yandexPayClient;
+		private readonly IYandexPayApiClient _yandexPayClient;
 		private readonly IYandexPayMapper _mapper;
 
 		public YandexPayRefundService(
 			ILogger<YandexPayRefundService> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IYandexPayHttpClient yandexPayClient,
+			IYandexPayApiClient yandexPayClient,
 			IYandexPayMapper mapper,
 			IHttpClientFactory httpClientFactory,
 			IRefundOperationRepository refundOperationRepository

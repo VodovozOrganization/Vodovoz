@@ -1,7 +1,5 @@
 ﻿using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
-using CustomerOrdersApi.Library.Services.PaymentRefund.HttpClients;
 using CustomerOrdersApi.Library.Services.PaymentRefund.Mappers;
-using CustomerOrdersApi.Library.Services.PaymentRefund.Models.YooKassa;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -11,18 +9,20 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Orders;
+using YooKassaApi.Client;
+using YooKassaApi.Library.Models;
 
 namespace CustomerOrdersApi.Library.Services.PaymentRefund
 {
 	public class YooKassaRefundService : PaymentRefundServiceBase, IPaymentRefundService
 	{
-		private readonly IYooKassaHttpClient _yooKassaClient;
+		private readonly IYooKassaApiClient _yooKassaClient;
 		private readonly IYooKassaMapper _mapper;
 
 		public YooKassaRefundService(
 			ILogger<YooKassaRefundService> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IYooKassaHttpClient yooKassaClient,
+			IYooKassaApiClient yooKassaClient,
 			IYooKassaMapper mapper,
 			IHttpClientFactory httpClientFactory,
 			IRefundOperationRepository refundOperationRepository

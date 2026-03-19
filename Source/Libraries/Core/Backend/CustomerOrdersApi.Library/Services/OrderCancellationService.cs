@@ -1,4 +1,4 @@
-using CustomerOrdersApi.Library.Dto.Orders;
+﻿using CustomerOrdersApi.Library.Dto.Orders;
 using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
 using CustomerOrdersApi.Library.Factories;
 using Gamma.Utilities;
@@ -7,7 +7,6 @@ using QS.DomainModel.UoW;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
@@ -75,7 +74,6 @@ namespace CustomerOrdersApi.Library.Services
 			}
 
 			order.ChangeStatus(OrderStatus.Canceled);
-
 			onlineOrder.OnlineOrderStatus = OnlineOrderStatus.Canceled;
 
 			await uow.SaveAsync(order, cancellationToken: cancellationToken);
@@ -128,7 +126,7 @@ namespace CustomerOrdersApi.Library.Services
 			var refundRequest = new RefundRequestDto(
 				onlineOrder: onlineOrder,
 				transactionId: dto.TransactionId,
-				amount: order.OrderSum,
+				amount: onlineOrder.OnlineOrderSum,
 				externalOrderId: onlineOrder?.ExternalOrderId.ToString()
 			);
 
@@ -150,9 +148,10 @@ namespace CustomerOrdersApi.Library.Services
 				};
 			}
 
-			if(onlineOrder is not null && refundResult.NewPaymentStatus != onlineOrder.OnlineOrderPaymentStatus)
+			if(refundResult.NewPaymentStatus != onlineOrder.OnlineOrderPaymentStatus)
 			{
 				onlineOrder.OnlineOrderPaymentStatus = refundResult.NewPaymentStatus;
+
 				_logger.LogInformation(
 					"Статус оплаты онлайн заказа {OnlineOrderId} обновлен на {NewStatus}",
 					onlineOrder.Id,
@@ -160,6 +159,7 @@ namespace CustomerOrdersApi.Library.Services
 			}
 
 			order.ChangeStatus(OrderStatus.Canceled);
+			onlineOrder.OnlineOrderStatus = OnlineOrderStatus.Canceled;
 
 			await uow.SaveAsync(order, cancellationToken: cancellationToken);
 			await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
@@ -225,7 +225,6 @@ namespace CustomerOrdersApi.Library.Services
 			}
 
 			order.ChangeStatus(OrderStatus.Canceled);
-
 			onlineOrder.OnlineOrderStatus = OnlineOrderStatus.Canceled;
 
 			await uow.SaveAsync(routeList, cancellationToken: cancellationToken);
@@ -276,11 +275,6 @@ namespace CustomerOrdersApi.Library.Services
 				return result;
 			}
 
-			if(IsPaidOnline(onlineOrder))
-			{
-				return await ProcessPaidOperationAsync(uow, order, onlineOrder, dto, cancellationToken);
-			}
-
 			var undelivery = CreateUndeliveryForCancellation(uow, order, currentUser);
 
 			order.SetUndeliveredStatus(
@@ -290,15 +284,20 @@ namespace CustomerOrdersApi.Library.Services
 				_callTaskWorker,
 				needCreateDeliveryFreeBalanceOperation: false);
 
-			onlineOrder.OnlineOrderStatus = OnlineOrderStatus.Canceled;
-
 			_logger.LogInformation(
 				"Установлен статус недовоза для заказа {OrderId}",
 				order.Id);
 
+			if(IsPaidOnline(onlineOrder))
+			{
+				return await ProcessPaidOperationAsync(uow, order, onlineOrder, dto, cancellationToken);
+			}
+
+			onlineOrder.OnlineOrderStatus = OnlineOrderStatus.Canceled;
+
 			await uow.SaveAsync(order, cancellationToken: cancellationToken);
-			await uow.SaveAsync(undelivery, cancellationToken: cancellationToken);
 			await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
+			await uow.SaveAsync(undelivery, cancellationToken: cancellationToken);
 			await uow.CommitAsync(cancellationToken);
 
 			_logger.LogInformation(

@@ -1,8 +1,10 @@
 ﻿using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
-using CustomerOrdersApi.Library.Services.PaymentRefund.Models.YandexPay;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using YandexPayApi.Library.Models;
+using YandexPayApi.Library.Requests;
+using YandexPayApi.Library.Responses;
 
 namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 {
