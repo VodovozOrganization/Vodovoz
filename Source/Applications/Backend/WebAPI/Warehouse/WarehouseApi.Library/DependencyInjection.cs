@@ -8,6 +8,7 @@ using QS.Project.Core;
 using Vodovoz;
 using Vodovoz.Application;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Application;
 using Vodovoz.Core.Data.Interfaces.Employees;
 using Vodovoz.Core.Data.NHibernate.Repositories.Employees;
 using Vodovoz.Core.Domain.Controllers;
@@ -38,7 +39,7 @@ namespace WarehouseApi.Library
 				.AddScoped((sp) => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot("API приложения склада"))
 				.AddCore()
 				.AddInfrastructure()
-				.AddApplication()
+				.AddCoreApplication()
 				.AddRepositories()
 				.AddTrackedUoW()
 				.AddBusiness(configuration)

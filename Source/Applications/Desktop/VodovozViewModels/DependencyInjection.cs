@@ -1,7 +1,7 @@
-using EdoService.Library;
+﻿using EdoService.Library;
 using GeoCoderApi.Client.Extensions;
 using Microsoft.Extensions.DependencyInjection;
-using Vodovoz.Application.BankStatements;
+using Vodovoz.Core.Application.BankStatements;
 using Vodovoz.Presentation.ViewModels;
 using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.ViewModels.Factories;

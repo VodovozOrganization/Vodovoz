@@ -3,7 +3,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using Vodovoz.Application.FileStorage;
+using Vodovoz.Core.Application.FileStorage;
 using Vodovoz.Core.Domain.Common;
 
 namespace Vodovoz.Presentation.ViewModels.AttachedFiles
