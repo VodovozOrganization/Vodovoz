@@ -12,6 +12,7 @@ using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using QS.DomainModel.UoW;
 using RabbitMQ.Client;
 using System;
 using System.Net.Http.Headers;
@@ -64,9 +65,15 @@ namespace CustomerOrdersApi.Library
 			return services;
 		}
 
-		public static IServiceCollection AddFastPaymentsDependencies(this IServiceCollection services)
+		public static IServiceCollection AddFastPaymentsDependencies(this IServiceCollection services, IConfiguration config)
 		{
-			services.AddHttpClient<IOrderService, OrderService>();
+			services.AddHttpClient<IOrderService, OrderService>(c =>
+			{
+				c.BaseAddress = new Uri(config.GetSection("OrderService").GetValue<string>("ApiBase"));
+				c.DefaultRequestHeaders.Add("Accept", "application/x-www-form-urlencoded");
+			});
+
+			services.AddScoped((provider) => provider.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot("Сервис быстрых платежей"));
 
 			return services.AddDependencyGroup();
 		}
@@ -207,6 +214,8 @@ namespace CustomerOrdersApi.Library
 
 			services.AddScoped<IYooKassaMapper, YooKassaMapper>();
 			services.AddScoped<IPaymentRefundService, YooKassaRefundService>();
+
+			services.AddScoped<IPaymentRefundService, FastPaymentRefundService>();
 
 			return services;
 		}

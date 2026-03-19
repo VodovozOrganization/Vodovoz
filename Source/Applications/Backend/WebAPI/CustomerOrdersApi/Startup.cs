@@ -64,7 +64,7 @@ namespace CustomerOrdersApi
 				.AddCoreDataRepositories()
 				.AddConfig(Configuration)
 				.AddDependenciesGroup()
-				.AddFastPaymentsDependencies()
+				.AddFastPaymentsDependencies(Configuration)
 				.AddPaymentRefundServices(Configuration)
 				.AddApplicationOrderServices()
 				.AddOsrm();

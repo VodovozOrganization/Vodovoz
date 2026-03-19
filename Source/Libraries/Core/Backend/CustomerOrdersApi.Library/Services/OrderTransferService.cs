@@ -176,10 +176,8 @@ namespace CustomerOrdersApi.Library.Services
 
 			var routeList = routeListItem.RouteList;
 			routeList.RemoveAddress(routeListItem);
-			routeList.Version = DateTime.Now;
 
 			order.ChangeStatus(OrderStatus.Accepted);
-			order.Version = DateTime.Now;
 			order.TransferToNewDateAndSchedule(
 				dto.DeliveryDate,
 				dto.DeliveryScheduleId,

@@ -75,10 +75,8 @@ namespace CustomerOrdersApi.Library.Services
 			}
 
 			order.ChangeStatus(OrderStatus.Canceled);
-			order.Version = DateTime.Now;
 
 			onlineOrder.OnlineOrderStatus = OnlineOrderStatus.Canceled;
-			onlineOrder.Version = DateTime.Now;
 
 			await uow.SaveAsync(order, cancellationToken: cancellationToken);
 			await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
@@ -162,7 +160,6 @@ namespace CustomerOrdersApi.Library.Services
 			}
 
 			order.ChangeStatus(OrderStatus.Canceled);
-			order.Version = DateTime.Now;
 
 			await uow.SaveAsync(order, cancellationToken: cancellationToken);
 			await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
@@ -221,7 +218,6 @@ namespace CustomerOrdersApi.Library.Services
 
 			var routeList = routeListItem.RouteList;
 			routeList.RemoveAddress(routeListItem);
-			routeList.Version = DateTime.Now;
 
 			if(IsPaidOnline(onlineOrder))
 			{
@@ -229,10 +225,8 @@ namespace CustomerOrdersApi.Library.Services
 			}
 
 			order.ChangeStatus(OrderStatus.Canceled);
-			order.Version = DateTime.Now;
 
 			onlineOrder.OnlineOrderStatus = OnlineOrderStatus.Canceled;
-			onlineOrder.Version = DateTime.Now;
 
 			await uow.SaveAsync(routeList, cancellationToken: cancellationToken);
 			await uow.SaveAsync(order, cancellationToken: cancellationToken);
@@ -297,7 +291,6 @@ namespace CustomerOrdersApi.Library.Services
 				needCreateDeliveryFreeBalanceOperation: false);
 
 			onlineOrder.OnlineOrderStatus = OnlineOrderStatus.Canceled;
-			onlineOrder.Version = DateTime.Now;
 
 			_logger.LogInformation(
 				"Установлен статус недовоза для заказа {OrderId}",
