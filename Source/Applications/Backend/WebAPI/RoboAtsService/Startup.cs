@@ -32,6 +32,7 @@ using Osrm;
 using RoboatsService.HealthCheck;
 using Vodovoz.Trackers;
 using VodovozHealthCheck;
+using Vodovoz.Core.Application;
 
 namespace RoboatsService
 {
@@ -83,7 +84,7 @@ namespace RoboatsService
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
 			services
-				.AddApplication()
+				.AddCoreApplication()
 				.AddBusiness(Configuration)
 				.AddDriverApiNotificationsSenders()
 				.AddInfrastructure()

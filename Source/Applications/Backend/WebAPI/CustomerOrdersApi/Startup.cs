@@ -1,4 +1,4 @@
-using CustomerOrdersApi.HealthCheck;
+﻿using CustomerOrdersApi.HealthCheck;
 using System;
 using CustomerOrdersApi.Library;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
@@ -17,8 +17,8 @@ using QS.Project.Core;
 using QS.Services;
 using Vodovoz;
 using Vodovoz.Application;
-using Vodovoz.Application.Logistics;
-using Vodovoz.Application.Orders.Services;
+using Vodovoz.Core.Application.Logistics;
+using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
@@ -27,6 +27,7 @@ using VodovozHealthCheck;
 using Vodovoz.Presentation.WebApi;
 using Vodovoz.Services.Logistics;
 using VodovozBusiness.Services.Orders;
+using Vodovoz.Core.Application;
 
 namespace CustomerOrdersApi
 {
@@ -59,7 +60,7 @@ namespace CustomerOrdersApi
 				.AddOrderTrackerFor1c()
 				.AddBusiness(Configuration)
 				.AddDriverApiNotificationsSenders()
-				.AddApplicationOrderServices()
+				.AddCoreApplicationOrderServices()
 				.AddInfrastructure()
 				.AddConfig(Configuration)
 				.AddVersion3()

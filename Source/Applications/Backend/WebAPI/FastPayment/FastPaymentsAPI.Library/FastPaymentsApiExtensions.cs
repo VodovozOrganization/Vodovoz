@@ -6,6 +6,7 @@ using FastPaymentsAPI.Library.Settings;
 using FastPaymentsAPI.Library.Validators;
 using Microsoft.Extensions.DependencyInjection;
 using Vodovoz.Application;
+using Vodovoz.Core.Application;
 using Vodovoz.Services;
 using Vodovoz.Settings.FastPayments;
 using Vodovoz.Tools.Orders;
@@ -18,7 +19,7 @@ namespace FastPaymentsAPI.Library
 		public static IServiceCollection AddDependencyGroup(this IServiceCollection services)
 		{
 			services
-				.AddApplication()
+				.AddCoreApplication()
 				.AddScoped<ISiteSettings, SiteSettings>()
 				.AddScoped<OrderStateKey>()
 				.AddScoped<FastPaymentStatusManagerFromDesktop>()

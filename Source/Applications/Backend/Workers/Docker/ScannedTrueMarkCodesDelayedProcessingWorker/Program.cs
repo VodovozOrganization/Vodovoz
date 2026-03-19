@@ -12,6 +12,7 @@ using ScannedTrueMarkCodesDelayedProcessing.Library.Option;
 using System;
 using System.Text;
 using Vodovoz.Application;
+using Vodovoz.Core.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
@@ -53,7 +54,7 @@ namespace ScannedTrueMarkCodesDelayedProcessingWorker
 						.AddDatabaseConnection()
 						.AddNHibernateConventions()
 						.AddCore()
-						.AddApplicationServices()
+						.AddCoreApplicationServices()
 						.AddRepositories()
 						.AddTrackedUoW()
 						.AddScannedTrueMarkCodesDelayedProcessing()

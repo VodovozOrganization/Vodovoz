@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Application.Errors;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Repositories;
@@ -457,7 +458,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 						return;
 					}
 
-					if(createStagingTrueMarkCodeResult.Errors.Any(x => x == Application.Errors.TrueMarkApi.ErrorResponse))
+					if(createStagingTrueMarkCodeResult.Errors.Any(x => x == TrueMarkApi.ErrorResponse))
 					{
 						additionalInformation.AddRange(createStagingTrueMarkCodeResult.Errors.Select(x => x.Message));
 						UpdateCodeScanRows(code, gtin, false, additionalInformation: additionalInformation);
@@ -512,7 +513,7 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 						return;
 					}
 
-					if(addingCodeResult.Errors.Any(x => x == Application.Errors.TrueMarkApi.ErrorResponse))
+					if(addingCodeResult.Errors.Any(x => x == TrueMarkApi.ErrorResponse))
 					{
 						additionalInformation.AddRange(addingCodeResult.Errors.Select(x => x.Message));
 						UpdateCodeScanRows(code, gtin, false, additionalInformation: additionalInformation);

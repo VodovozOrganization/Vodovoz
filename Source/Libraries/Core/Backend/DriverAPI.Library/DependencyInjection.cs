@@ -35,6 +35,7 @@ using RouteListServiceV5 = DriverAPI.Library.V5.Services.RouteListService;
 using SmsPaymentServiceV5 = DriverAPI.Library.V5.Services.SmsPaymentService;
 using TrackPointsServiceV5 = DriverAPI.Library.V5.Services.TrackPointsService;
 using Osrm;
+using Vodovoz.Core.Application;
 
 namespace DriverAPI.Library
 {
@@ -75,7 +76,7 @@ namespace DriverAPI.Library
 
 			services.AddBusiness(configuration)
 				.AddDriverApiNotificationsSenders()
-				.AddApplication()
+				.AddCoreApplication()
 				.AddInfrastructure()
 				.AddDatabaseSettings()
 				.AddDriverEventsDependencies()
