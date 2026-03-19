@@ -10,7 +10,7 @@ using Vodovoz.Domain.TrueMark;
 using CashReceiptErrors = Vodovoz.Errors.CashReceipts.CashReceiptErrors;
 using RequestProcessingResult = CashReceiptApi.RequestProcessingResult;
 
-namespace Vodovoz.Models.TrueMark
+namespace Vodovoz.Application.TrueMark
 {
 	public class ReceiptManualController
 	{

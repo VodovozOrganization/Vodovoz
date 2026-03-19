@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain.FastPayments;
 
-namespace Vodovoz.Models
+namespace Vodovoz.Core.Application.FastPayment
 {
-	public class FastPaymentResponseDTO
+	public class FastPaymentResponse
 	{
 		public string Ticket { get; set; }
 		public Guid FastPaymentGuid { get; set; }

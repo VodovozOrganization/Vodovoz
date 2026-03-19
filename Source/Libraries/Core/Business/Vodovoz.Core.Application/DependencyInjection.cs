@@ -1,12 +1,15 @@
 ﻿using DriverApi.Notifications.Client;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using RevenueService.Client;
+using Sms.Internal.Client;
 using TrueMarkApi.Client;
 using Vodovoz.Core.Application.Clients;
 using Vodovoz.Core.Application.Clients.Services;
 using Vodovoz.Core.Application.Complaints;
 using Vodovoz.Core.Application.Contacts;
 using Vodovoz.Core.Application.Employees;
+using Vodovoz.Core.Application.FastPayment;
 using Vodovoz.Core.Application.FileStorage;
 using Vodovoz.Core.Application.Goods;
 using Vodovoz.Core.Application.Logistics;
@@ -26,9 +29,9 @@ using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Orders;
 using VodovozBusiness.Controllers;
-using VodovozBusiness.Employees;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Settings;
+using VodovozBusiness.Employees;
 using VodovozBusiness.Models.TrueMark;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Clients;
@@ -51,34 +54,42 @@ namespace Vodovoz.Core.Application
 			.AddScoped<IUserRoleService, UserRoleService>()
 			.AddScoped<GrantsRoleParser>();
 
-		public static IServiceCollection AddCoreApplicationServices(this IServiceCollection services) => services
-			.AddScoped<ICounterpartyService, CounterpartyService>()
-			.AddScoped<IRouteListService, RouteListService>()
-			.AddScoped<IRouteListTransferService, RouteListTransferService>()
-			.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
-			.AddScoped<IOnlineOrderService, OnlineOrderService>()
-			.AddScoped<IRouteListTransferService, RouteListTransferService>()
-			.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
-			.AddScoped<IPhoneService, PhoneService>()
-			.AddScoped<INomenclatureService, NomenclatureService>()
-			.AddScoped<IComplaintService, ComplaintService>()
-			.AddScoped<ISubdivisionPermissionsService, SubdivisionPermissionsService>()
-			.AddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>()
-			.AddScoped<ITrueMarkTransportCodeFactory, TrueMarkTransportCodeFactory>()
-			.AddScoped<ITrueMarkWaterGroupCodeFactory, TrueMarkWaterGroupCodeFactory>()
-			.AddScoped<ITrueMarkWaterIdentificationCodeFactory, TrueMarkWaterIdentificationCodeFactory>()
-			.AddScoped<IWarehousePermissionService, WarehousePermissionService>()
-			.AddScoped<IExternalApplicationUserService, ExternalApplicationUserService>()
-			.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>()
-			.AddScoped<OurCodesChecker>()
-			.AddScoped<OrderCancellationService>()
-			.AddScoped<SelfdeliveryCancellationService>()
-			.AddScoped<IExternalCounterpartyHandler, ExternalCounterpartyHandler>()
-			.AddScoped<IStagingTrueMarkCodeFactory, StagingTrueMarkCodeFactory>()
-			.AddTrueMarkApiClient()
-			.AddCoreApplicationOrderServices()
-		;
-		
+		public static IServiceCollection AddCoreApplicationServices(this IServiceCollection services)
+		{
+			services
+				.AddScoped<ICounterpartyService, CounterpartyService>()
+				.AddScoped<IRouteListService, RouteListService>()
+				.AddScoped<IRouteListTransferService, RouteListTransferService>()
+				.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
+				.AddScoped<IOnlineOrderService, OnlineOrderService>()
+				.AddScoped<IRouteListTransferService, RouteListTransferService>()
+				.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
+				.AddScoped<IPhoneService, PhoneService>()
+				.AddScoped<INomenclatureService, NomenclatureService>()
+				.AddScoped<IComplaintService, ComplaintService>()
+				.AddScoped<ISubdivisionPermissionsService, SubdivisionPermissionsService>()
+				.AddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>()
+				.AddScoped<ITrueMarkTransportCodeFactory, TrueMarkTransportCodeFactory>()
+				.AddScoped<ITrueMarkWaterGroupCodeFactory, TrueMarkWaterGroupCodeFactory>()
+				.AddScoped<ITrueMarkWaterIdentificationCodeFactory, TrueMarkWaterIdentificationCodeFactory>()
+				.AddScoped<IWarehousePermissionService, WarehousePermissionService>()
+				.AddScoped<IExternalApplicationUserService, ExternalApplicationUserService>()
+				.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>()
+				.AddScoped<OurCodesChecker>()
+				.AddScoped<OrderCancellationService>()
+				.AddScoped<SelfdeliveryCancellationService>()
+				.AddScoped<IExternalCounterpartyHandler, ExternalCounterpartyHandler>()
+				.AddScoped<IStagingTrueMarkCodeFactory, StagingTrueMarkCodeFactory>()
+				.AddTrueMarkApiClient()
+				.AddCoreApplicationOrderServices()
+				;
+
+			services.TryAddScoped<IFastPaymentSender, FastPaymentSender>();
+			services.TryAddScoped<SmsClientChannelFactory>();
+
+			return services;
+		}
+
 		public static IServiceCollection AddCoreApplicationOrderServices(this IServiceCollection services) => services
 			.AddScoped<IOrderService, OrderService>()
 			.AddScoped<IPaymentService, PaymentService>()

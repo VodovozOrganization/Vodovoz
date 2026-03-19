@@ -5,8 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Backend\CashReceipt\CashReceiptApi.Client.Framework\CashReceiptApi.Client.Framework.csproj" />
     <ProjectReference Include="..\..\Backend\Mango\Mango.Client\Mango.Client.csproj" />
     <ProjectReference Include="..\..\Backend\Mango\Mango.Grpc.Client\Mango.Grpc.Client.csproj" />
+    <ProjectReference Include="..\..\Backend\Sms\Sms.Internal.Client.Famework\Sms.Internal.Client.Framework.csproj" />
     <ProjectReference Include="..\Vodovoz.Core.Application\Vodovoz.Core.Application.csproj" />
   </ItemGroup>
 

@@ -1,6 +1,4 @@
-﻿using Sms.Internal;
-
-namespace Vodovoz.Models
+﻿namespace Vodovoz.Core.Application.FastPayment
 {
 	public class FastPaymentResult
 	{

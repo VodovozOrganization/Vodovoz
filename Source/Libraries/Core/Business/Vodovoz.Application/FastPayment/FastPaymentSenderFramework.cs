@@ -5,25 +5,27 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using Vodovoz.Core.Application.FastPayment;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Settings.FastPayments;
 using Vodovoz.Settings.Sms;
 using VodovozInfrastructure.Utils;
+using ResultStatus = Vodovoz.Core.Application.FastPayment.ResultStatus;
 
-namespace Vodovoz.Models
+namespace Vodovoz.Application.FastPayment
 {
-	internal sealed class FastPaymentSender : IFastPaymentSender
+	internal sealed class FastPaymentSenderFramework : IFastPaymentSender
 	{
 		private readonly IFastPaymentSettings _fastPaymentSettings;
-		private readonly ISmsClientChannelFactory _smsClientFactory;
+		private readonly SmsClientChannelFactory _smsClientFactory;
 		private readonly ISmsSettings _smsSettings;
 		private HttpClient _httpClient;
 
-		public FastPaymentSender(
+		public FastPaymentSenderFramework(
 			IFastPaymentSettings fastPaymentSettings,
-			ISmsClientChannelFactory smsClientFactory,
+			SmsClientChannelFactory smsClientFactory,
 			ISmsSettings smsSettings)
 		{
 			_fastPaymentSettings =
@@ -76,7 +78,7 @@ namespace Vodovoz.Models
 
 				return new FastPaymentResult
 				{
-					Status = result.Status,
+					Status = (ResultStatus)result.Status,
 					ErrorMessage = result.ErrorDescription
 				};
 			}
@@ -92,7 +94,7 @@ namespace Vodovoz.Models
 			return resultMessage;
 		}
 
-		private async Task<FastPaymentResponseDTO> GetFastPaymentResponseDtoAsync(int orderid, string phoneNumber, bool isQr)
+		private async Task<FastPaymentResponse> GetFastPaymentResponseDtoAsync(int orderid, string phoneNumber, bool isQr)
 		{
 			using(_httpClient = HttpClientFactory.Create())
 			{
@@ -100,7 +102,7 @@ namespace Vodovoz.Models
 				_httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 				var responseTask = await _httpClient.PostAsJsonAsync("/api/RegisterOrder", new { orderid, phoneNumber, isQr });
 
-				return await responseTask.Content.ReadAsAsync<FastPaymentResponseDTO>();
+				return await responseTask.Content.ReadAsAsync<FastPaymentResponse>();
 			}
 		}
 	}

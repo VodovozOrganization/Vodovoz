@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
-using Vodovoz.Domain.Orders;
 
-namespace Vodovoz.Models
+namespace Vodovoz.Core.Application.FastPayment
 {
 	public interface IFastPaymentSender
 	{
