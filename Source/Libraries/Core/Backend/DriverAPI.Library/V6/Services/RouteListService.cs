@@ -3,7 +3,6 @@ using DriverApi.Contracts.V6.Requests;
 using DriverApi.Contracts.V6.Responses;
 using DriverAPI.Library.Exceptions;
 using DriverAPI.Library.V6.Converters;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;

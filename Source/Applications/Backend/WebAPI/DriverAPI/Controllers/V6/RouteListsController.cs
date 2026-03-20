@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using QS.DomainModel.UoW;
-using Sms.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
