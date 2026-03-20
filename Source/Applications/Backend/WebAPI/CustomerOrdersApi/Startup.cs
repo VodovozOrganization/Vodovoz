@@ -27,6 +27,7 @@ using VodovozHealthCheck;
 using Vodovoz.Presentation.WebApi;
 using Vodovoz.Services.Logistics;
 using VodovozBusiness.Services.Orders;
+using CustomerOrdersApi.Library.Services;
 
 namespace CustomerOrdersApi
 {
@@ -71,6 +72,8 @@ namespace CustomerOrdersApi
 				.AddScoped<IRouteListService, RouteListService>()
 				.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
 				.AddScoped<IOnlineOrderService, OnlineOrderService>()
+				.AddScoped<IOrderCancellationService, OrderCancellationService>()
+				.AddScoped<IOrderTransferService, OrderTransferService>()
 				.AddPaymentApiClients(Configuration)
 				.AddPaymentRefundServices()
 				.AddApplicationOrderServices();

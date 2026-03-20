@@ -1,7 +1,8 @@
-﻿using System;
+﻿using CustomerOrdersApi.Library.Dto.Orders;
+using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace CustomerOrdersApi.Library.Dto.Orders
+namespace CustomerOrdersApi.Library.V4.Dto.Orders
 {
 	/// <summary>
 	/// DTO для запроса на перенос заказа

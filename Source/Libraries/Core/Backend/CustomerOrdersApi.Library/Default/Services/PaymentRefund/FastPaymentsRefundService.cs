@@ -28,7 +28,9 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 		}
 
 		public override bool CanHandle(OnlinePaymentSource paymentSource)
-			=> paymentSource is OnlinePaymentSource.FromMobileAppByQr or OnlinePaymentSource.FromVodovozWebSiteByQr;
+			=> paymentSource is OnlinePaymentSource.FromMobileAppByQr 
+				or OnlinePaymentSource.FromVodovozWebSiteByQr 
+				or OnlinePaymentSource.FromAiBotByQr;
 
 		protected override async Task<RefundResultDto> ProcessRefundInternalAsync(RefundRequestDto request, string idempotenceKey, CancellationToken cancellationToken)
 		{

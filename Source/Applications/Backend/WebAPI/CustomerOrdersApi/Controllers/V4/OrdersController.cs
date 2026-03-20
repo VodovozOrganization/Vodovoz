@@ -1,5 +1,4 @@
 ﻿using CustomerOrdersApi.Library.Common;
-using CustomerOrdersApi.Library.Dto.Orders;
 using CustomerOrdersApi.Library.Services;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using CustomerOrdersApi.Library.V4.Services;
