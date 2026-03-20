@@ -29,6 +29,7 @@ namespace Vodovoz.Domain.FastPayments
 		private string _qrPngBase64;
 		private string _phoneNumber;
 		private string _callbackUrlForMobileApp;
+		private string _callbackUrlForAiBot;
 		private Order _order;
 		private Organization _organization;
 		private PaymentFrom _paymentByCardFrom;
@@ -153,6 +154,17 @@ namespace Vodovoz.Domain.FastPayments
 		{
 			get => _callbackUrlForMobileApp;
 			set => SetField(ref _callbackUrlForMobileApp, value);
+		}
+		
+		/// <summary>
+		/// Адрес коллбэка для ИИ Бота
+		/// </summary>
+		[IgnoreHistoryTrace]
+		[Display(Name = "Адрес коллбэка для ИИ Бота")]
+		public virtual string CallbackUrlForAiBot
+		{
+			get => _callbackUrlForAiBot;
+			set => SetField(ref _callbackUrlForAiBot, value);
 		}
 
 		public virtual void SetProcessingStatus()

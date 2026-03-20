@@ -1,11 +1,14 @@
 ﻿using CloudPaymentsApi.Client;
 using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.Converters;
-using CustomerOrdersApi.Library.Dto.Orders;
+using CustomerOrdersApi.Library.Default.Factories;
+using CustomerOrdersApi.Library.Default.Services;
 using CustomerOrdersApi.Library.Factories;
-using CustomerOrdersApi.Library.Services;
 using CustomerOrdersApi.Library.Services.PaymentRefund;
 using CustomerOrdersApi.Library.Services.PaymentRefund.Mappers;
+using CustomerOrdersApi.Library.V4.Dto.Orders;
+using CustomerOrdersApi.Library.V4.Factories;
+using CustomerOrdersApi.Library.V4.Services;
 using FastPaymentsApi.Client;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
@@ -16,14 +19,8 @@ using System.Net.Security;
 using System.Security.Authentication;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Vodovoz.Application.Logistics;
-using Vodovoz.Application.Orders.Services;
-using Vodovoz.Handlers;
-using Vodovoz.Services.Logistics;
-using Vodovoz.Settings.Database.Nomenclature;
-using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Settings.Pacs;
-using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Cryptography;
 using YandexPayApi.Client;
 using YooKassaApi.Client;
@@ -34,29 +31,41 @@ namespace CustomerOrdersApi.Library
 	{
 		public static IServiceCollection AddConfig(this IServiceCollection services, IConfiguration config)
 		{
-			services
-				.Configure<RequestsMinutesLimitsOptions>(config.GetSection(RequestsMinutesLimitsOptions.Position))
-				.Configure<SignatureOptions>(config.GetSection(SignatureOptions.Path));
+			services.Configure<RequestsMinutesLimitsOptions>(config.GetSection(RequestsMinutesLimitsOptions.Position));
+			services.Configure<SignatureOptions>(config.GetSection(SignatureOptions.Path));
 			
 			return services;
 		}
 		
-		public static IServiceCollection AddDependenciesGroup(this IServiceCollection services)
+		public static IServiceCollection AddVersion3(this IServiceCollection services)
 		{
 			services.AddScoped<ICustomerOrdersService, CustomerOrdersService>()
+				.AddScoped<ICustomerOrderFactory, CustomerOrderFactory>()
 				.AddScoped<ICustomerOrdersDiscountService, CustomerOrdersDiscountService>()
 				.AddScoped<ICustomerOrderFixedPriceService, CustomerOrderFixedPriceService>()
+				.AddDefault();
+			
+			return services;
+		}
+		
+		public static IServiceCollection AddVersion4(this IServiceCollection services)
+		{
+			services.AddScoped<ICustomerOrdersServiceV4, CustomerOrdersServiceV4>()
+				.AddScoped<ICustomerOrderFactoryV4, CustomerOrderFactoryV4>()
+				.AddScoped<ICustomerOrdersDiscountServiceV4, CustomerOrdersDiscountServiceV4>()
+				.AddScoped<ICustomerOrderFixedPriceServiceV4, CustomerOrderFixedPriceServiceV4>()
+				.AddScoped<IInfoMessageFactory, InfoMessageFactory>()
+				.AddDefault();
+			
+			return services;
+		}
+		
+		public static IServiceCollection AddDefault(this IServiceCollection services)
+		{
+			services
 				.AddScoped<ISignatureManager, SignatureManager>()
 				.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>()
-				.AddScoped<ICustomerOrderFactory, CustomerOrderFactory>()
-				.AddScoped<IExternalOrderStatusConverter, ExternalOrderStatusConverter>()
-				.AddScoped<IOnlineOrderDiscountHandler, OnlineOrderDiscountHandler>()
-				.AddScoped<IOrderTransferService, OrderTransferService>()
-				.AddScoped<IOrderCancellationService, OrderCancellationService>()
-				.AddScoped<IRouteListService, RouteListService>()
-				.AddScoped<INomenclatureSettings, NomenclatureSettings>()
-				.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
-				.AddScoped<IOnlineOrderService, OnlineOrderService>();
+				.AddScoped<IExternalOrderStatusConverter, ExternalOrderStatusConverter>();
 
 			return services;
 		}
@@ -89,15 +98,17 @@ namespace CustomerOrdersApi.Library
 						}
 					});
 								
-				configurator.Send<OnlineOrderInfoDto>(x => x.UseRoutingKeyFormatter(y => y.Message.FaultedMessage.ToString()));
-				configurator.Message<OnlineOrderInfoDto>(x => x.SetEntityName("online-order-received"));
-				configurator.Publish<OnlineOrderInfoDto>(x =>
+				configurator.Send<Default.Dto.Orders.OnlineOrderInfoDto>(
+					x => x.UseRoutingKeyFormatter(y => y.Message.FaultedMessage.ToString()));
+				configurator.Message<Default.Dto.Orders.OnlineOrderInfoDto>(
+					x => x.SetEntityName(Default.Dto.Orders.OnlineOrderInfoDto.ExchangeName));
+				configurator.Publish<Default.Dto.Orders.OnlineOrderInfoDto>(x =>
 				{
 					x.ExchangeType = ExchangeType.Direct;
 					x.Durable = true;
 					x.AutoDelete = false;
 					x.BindQueue(
-						"online-order-received",
+						Default.Dto.Orders.OnlineOrderInfoDto.ExchangeName,
 						"online-orders",
 						conf =>
 						{
@@ -105,7 +116,7 @@ namespace CustomerOrdersApi.Library
 							conf.RoutingKey = "False";
 						});
 					x.BindQueue(
-						"online-order-received",
+						Default.Dto.Orders.OnlineOrderInfoDto.ExchangeName,
 						"online-orders-fault",
 						conf =>
 						{
@@ -113,11 +124,38 @@ namespace CustomerOrdersApi.Library
 							conf.RoutingKey = "True";
 						});
 				});
+				
+				configurator.Message<CreatingOnlineOrder>(x => x.SetEntityName(CreatingOnlineOrder.ExchangeAndQueueName));
+				configurator.Publish<CreatingOnlineOrder>(x =>
+				{
+					x.ExchangeType = ExchangeType.Fanout;
+					x.Durable = true;
+					x.AutoDelete = false;
+				});
 								
 				configurator.ConfigureEndpoints(context);
 			});
 			
 			return busConf;
+		}
+
+		public static UpdateOnlineOrderFromChangeRequest ToUpdateOnlineOrderFromChangeRequest(this ChangingOrderDto source)
+		{
+			return new UpdateOnlineOrderFromChangeRequest
+			{
+				OnlineOrderId = source.OnlineOrderId,
+				OnlinePayment = source.OnlinePayment,
+				IsFastDelivery = source.IsFastDelivery,
+				Source = source.Source,
+				PaymentStatus = source.PaymentStatus,
+				OnlinePaymentSource = source.OnlinePaymentSource,
+				ErpCounterpartyId = source.ErpCounterpartyId,
+				ExternalCounterpartyId = source.ExternalCounterpartyId,
+				OnlineOrderPaymentType = source.OnlineOrderPaymentType,
+				UnPaidReason = source.UnPaidReason,
+				DeliveryDate = source.DeliveryDate,
+				DeliveryScheduleId = source.DeliveryScheduleId
+			};
 		}
 
 		public static IServiceCollection AddPaymentRefundServices(

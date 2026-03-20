@@ -1,4 +1,4 @@
-﻿using Vodovoz.Domain.Goods;
+﻿using Vodovoz.Core.Domain.Goods;
 using Vodovoz.ViewModels.Goods.ProductGroups;
 
 namespace Vodovoz.ViewModels.Journals.Mappings.ProductGroups

@@ -383,7 +383,7 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		[Display(Name = "Район города склада самовывоза")]
-		public virtual GeoGroup SelfDeliveryGeoGroup
+		public virtual new GeoGroup SelfDeliveryGeoGroup
 		{
 			get => _selfDeliveryGeoGroup;
 			set => SetField(ref _selfDeliveryGeoGroup, value);
@@ -601,7 +601,7 @@ namespace Vodovoz.Domain.Orders
 		private IList<OrderEquipment> orderEquipments = new List<OrderEquipment>();
 
 		[Display(Name = "Список оборудования")]
-		public virtual IList<OrderEquipment> OrderEquipments {
+		public virtual new IList<OrderEquipment> OrderEquipments {
 			get => orderEquipments;
 			set => SetField(ref orderEquipments, value, () => OrderEquipments);
 		}
@@ -1683,7 +1683,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			if(_orderRepository.GetOnClosingOrderStatuses().Contains(OrderStatus))
+			if(GetOnClosingOrderStatuses.Contains(OrderStatus))
 			{
 				OnChangeCounterparty(UoW, orderContractUpdater, counterparty);
 			}
@@ -1832,6 +1832,12 @@ namespace Vodovoz.Domain.Orders
 				&& Client.OrderStatusForSendingUpd == OrderStatusForSendingUpd.EnRoute
 				&& edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree;
 		}
+
+		/// <summary>
+		/// Документооборот по ЭДО с клиентом по заказу осуществляется по новой схеме
+		/// </summary>
+		public virtual bool IsClientWorksWithNewEdoProcessing =>
+			Client?.IsNewEdoProcessing ?? false;
 
 		public virtual void AddDeliveryPointCommentToOrder()
 		{
@@ -3899,8 +3905,6 @@ namespace Vodovoz.Domain.Orders
 			
 			var targetTypesForUpdReference = new List<OrderDocumentType>()
 			{
-				OrderDocumentType.Bill, 
-				OrderDocumentType.SpecialBill, 
 				OrderDocumentType.DoneWorkReport, 
 				OrderDocumentType.EquipmentTransfer,
 				OrderDocumentType.DriverTicket

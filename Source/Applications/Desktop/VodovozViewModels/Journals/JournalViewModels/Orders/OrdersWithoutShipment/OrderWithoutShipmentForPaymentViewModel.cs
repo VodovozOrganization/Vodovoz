@@ -107,6 +107,18 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			_userHavePermissionToResendEdoDocuments = CommonServices.PermissionService.ValidateUserPresetPermission(Vodovoz.Core.Domain.Permissions.EdoContainerPermissions.OrderWithoutShipmentForDebt.CanResendEdoBill, CurrentUser.Id);
 
 			var currentEmployee = employeeService.GetEmployeeForUser(UoW, UserService.CurrentUserId);
+			
+			SendDocViewModel =
+				new SendDocumentByEmailViewModel(
+					uowFactory,
+					_emailRepository,
+					_emailSettings,
+					currentEmployee,
+					commonServices,
+					UoW);
+			
+			ObservableAvailableOrders = new GenericObservableList<OrderWithoutShipmentForPaymentNode>();
+			OrganizationViewModel.PropertyChanged += OnOrganizationViewModelPropertyChanged;
 
 			if(uowBuilder.IsNewEntity)
 			{
@@ -119,6 +131,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 					else
 					{
 						Entity.Author = currentEmployee;
+						Entity.Organization = UoW.GetById<Organization>(_organizationSettings.VodovozOrganizationId);
 					}
 				}
 				else
@@ -129,44 +142,8 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			TabName = "Счет без отгрузки на постоплату";
 
-			SendDocViewModel =
-				new SendDocumentByEmailViewModel(
-					uowFactory,
-					_emailRepository,
-					_emailSettings,
-					currentEmployee,
-					commonServices,
-					UoW);
-
-			ObservableAvailableOrders = new GenericObservableList<OrderWithoutShipmentForPaymentNode>();
-
 			UpdateEdoContainers();
-
-			CancelCommand = new DelegateCommand(
-				() => Close(true, CloseSource.Cancel),
-				() => true);
-
-			OpenBillCommand = new DelegateCommand(
-				() =>
-				{
-					string whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
-
-					if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(OrderWithoutShipmentForPayment), whatToPrint))
-					{
-						if(Save(false))
-						{
-							_rdlPreviewOpener.OpenRldDocument(typeof(OrderWithoutShipmentForPayment), Entity);
-						}
-					}
-
-					if(!UoWGeneric.HasChanges && Entity.Id > 0)
-					{
-						_rdlPreviewOpener.OpenRldDocument(typeof(OrderWithoutShipmentForPayment), Entity);
-					}
-				},
-				() => true);
-
-			OrganizationViewModel.PropertyChanged += OnOrganizationViewModelPropertyChanged;
+			InitializeCommands();
 		}
 
 		private void OnOrganizationViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -213,10 +190,9 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 		#region Commands
 
-		public DelegateCommand CancelCommand { get; }
+		public DelegateCommand CancelCommand { get; private set; }
+		public DelegateCommand OpenBillCommand { get; private set; }
 
-		public DelegateCommand OpenBillCommand { get; }
-		
 		#endregion
 
 		public GenericObservableList<EdoContainer> EdoContainers { get; } =
@@ -406,6 +382,38 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		{
 			OrganizationViewModel.PropertyChanged -= OnOrganizationViewModelPropertyChanged;
 			base.Dispose();
+		}
+		
+		private void InitializeCommands()
+		{
+			CancelCommand = new DelegateCommand(
+				() => Close(true, CloseSource.Cancel),
+				() => true);
+
+			OpenBillCommand = new DelegateCommand(
+				() =>
+				{
+					string whatToPrint = "документа \"" + Entity.Type.GetEnumTitle() + "\"";
+
+					if(UoWGeneric.HasChanges && _commonMessages.SaveBeforePrint(typeof(OrderWithoutShipmentForPayment), whatToPrint))
+					{
+						if(Save(false))
+						{
+							_rdlPreviewOpener.OpenRldDocument(typeof(OrderWithoutShipmentForPayment), Entity);
+						}
+					}
+
+					if(!UoWGeneric.HasChanges && Entity.Id > 0)
+					{
+						if(!Validate())
+						{
+							return;
+						}
+						
+						_rdlPreviewOpener.OpenRldDocument(typeof(OrderWithoutShipmentForPayment), Entity);
+					}
+				},
+				() => true);
 		}
 	}
 }

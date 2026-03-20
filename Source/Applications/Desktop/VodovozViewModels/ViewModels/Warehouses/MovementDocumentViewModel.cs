@@ -133,6 +133,22 @@ namespace Vodovoz.ViewModels.Warehouses
 				Entity.DocumentType = MovementDocumentType.Transportation;
 				SetDefaultWarehouseFrom();
 			}
+			else if (Entity.FromWarehouse != null)
+			{
+				var nomenclaturesIds = Entity.Items
+					.Select(i => i.Id)
+					.Distinct()
+					.ToArray();
+				
+				var amountOnStock = _stockRepository.NomenclatureInStock(
+					UoW, nomenclaturesIds, new []{ Entity.FromWarehouse.Id }, Entity.SendTime);
+				
+				foreach (var item in Entity.ObservableItems)
+				{
+					amountOnStock.TryGetValue(item.Nomenclature.Id, out var amount);
+					item.AmountOnSource = amount < item.SentAmount ? item.SentAmount : amount;
+				}
+			}
 
 			SourceWarehouseViewModel = sourceWarehouseViewModelEEVMBuilder
 				.SetUnitOfWork(UoW)
@@ -481,7 +497,7 @@ namespace Vodovoz.ViewModels.Warehouses
 		{
 			if(UoW.IsNew) {
 				Entity.AuthorId = CurrentEmployee?.Id;
-				Entity.TimeStamp = DateTime.Now;
+				Entity.SetTimeStamp(DateTime.Now);
 			}
 
 			Entity.LastEditorId = CurrentEmployee?.Id;

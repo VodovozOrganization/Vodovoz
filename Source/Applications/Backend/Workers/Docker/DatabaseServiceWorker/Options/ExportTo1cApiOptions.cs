@@ -26,5 +26,15 @@ namespace DatabaseServiceWorker.Options
 		/// До скольки часов можно выполнять экспорт
 		/// </summary>
 		public int DoExportToHour { get; set; }
+		
+		/// <summary>
+		/// Логин 1с апи
+		/// </summary>
+		public string Login { get; set; }
+		
+		/// <summary>
+		/// Пароль 1с апи
+		/// </summary>
+		public string Password { get; set; }
 	}
 }

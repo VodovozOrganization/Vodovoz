@@ -45,22 +45,6 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 			InventoryDocumentType = InventoryDocumentType.WarehouseInventory;
 		}
 
-		public override DateTime TimeStamp
-		{
-			get => base.TimeStamp;
-			set
-			{
-				base.TimeStamp = value;
-				foreach(var item in NomenclatureItems)
-				{
-					if(item.GoodsAccountingOperation != null && item.GoodsAccountingOperation.OperationTime != TimeStamp)
-					{
-						item.GoodsAccountingOperation.OperationTime = TimeStamp;
-					}
-				}
-			}
-		}
-
 		[Display(Name = "Комментарий")]
 		public virtual string Comment
 		{
@@ -488,7 +472,19 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 				ObservableInstanceItems.Add(instanceItem);
 			}
 		}
-		
+
+		public override void SetTimeStamp(DateTime value)
+		{
+			base.TimeStamp = value;
+			foreach(var item in NomenclatureItems)
+			{
+				if(item.GoodsAccountingOperation != null && item.GoodsAccountingOperation.OperationTime != TimeStamp)
+				{
+					item.GoodsAccountingOperation.OperationTime = TimeStamp;
+				}
+			}
+		}
+
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(NomenclatureItems.Count == 0 && InstanceItems.Count == 0)
@@ -568,7 +564,7 @@ namespace Vodovoz.Domain.Documents.InventoryDocuments
 		{
 			return Warehouse != null || Employee != null || Car != null;
 		}
-		
+
 		private void FillBulkItem(InventoryDocumentItem item, Nomenclature nomenclature, decimal amountInDb, decimal amountInFact)
 		{
 			item.Nomenclature = nomenclature;

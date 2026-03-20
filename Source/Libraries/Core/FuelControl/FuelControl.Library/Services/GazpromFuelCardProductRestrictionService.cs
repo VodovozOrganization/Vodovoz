@@ -21,13 +21,16 @@ namespace FuelControl.Library.Services
 		private const string _setRestrictionEndpointAddress = "vip/v1/setRestriction";
 
 		private readonly ILogger<GazpromFuelCardProductRestrictionService> _logger;
+		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly IFuelControlSettings _fuelControlSettings;
 
 		public GazpromFuelCardProductRestrictionService(
 			ILogger<GazpromFuelCardProductRestrictionService> logger,
+			IHttpClientFactory httpClientFactory,
 			IFuelControlSettings fuelControlSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 		}
 
@@ -56,18 +59,17 @@ namespace FuelControl.Library.Services
 				"Запрос на получение товарных ограничений по карте. 'CardId'={PageLimit}",
 				cardId);
 
-			var baseAddress = new Uri(_fuelControlSettings.ApiBaseAddress);
+			var httpClient = _httpClientFactory.CreateClient(GazpromHttpClientNames.WithTimeout);
 
-			using(var httpClient = new HttpClient { BaseAddress = baseAddress })
+			using (var request = new HttpRequestMessage(
+				HttpMethod.Get,
+				$"{_cardsEndpointAddress}?contract_id={_fuelControlSettings.OrganizationContractId}&card_id={cardId}"))
 			{
-				httpClient.Timeout = TimeSpan.FromSeconds(_fuelControlSettings.ApiRequesTimeout.TotalSeconds);
-				httpClient.DefaultRequestHeaders.Add("api_key", apiKey);
-				httpClient.DefaultRequestHeaders.Add("session_id", sessionId);
-				httpClient.DefaultRequestHeaders.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
+				request.Headers.Add("api_key", apiKey);
+				request.Headers.Add("session_id", sessionId);
+				request.Headers.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
 
-				var response = await httpClient.GetAsync(
-					  $"{_cardsEndpointAddress}?contract_id={_fuelControlSettings.OrganizationContractId}&card_id={cardId}",
-					  cancellationToken);
+				var response = await httpClient.SendAsync(request, cancellationToken);
 
 				var responseString = await response.Content.ReadAsStringAsync();
 
@@ -112,17 +114,21 @@ namespace FuelControl.Library.Services
 				throw new ArgumentException($"'{nameof(apiKey)}' cannot be null or whitespace.", nameof(apiKey));
 			}
 
-			var baseAddress = new Uri(_fuelControlSettings.ApiBaseAddress);
-			var httpContent = CreateRemoveRestrictionHttpContent(_fuelControlSettings.OrganizationContractId, restrictionId, apiKey, sessionId);
+			var httpContent = CreateRemoveRestrictionHttpContent(_fuelControlSettings.OrganizationContractId, restrictionId);
 
 			_logger.LogDebug("Выполняется запрос удаления существующего товарного ограничителя {RestrictionId}. Id сессии {SessionId}, ключ API {ApiKey}",
 				restrictionId,
 				sessionId,
 				apiKey);
 
-			using(var httpClient = new HttpClient { BaseAddress = baseAddress })
+			var httpClient = _httpClientFactory.CreateClient(GazpromHttpClientNames.Default);
+			using (var request = new HttpRequestMessage(HttpMethod.Post, _removeRestrictionEndpointAddress) { Content = httpContent })
 			{
-				var response = await httpClient.PostAsync(_removeRestrictionEndpointAddress, httpContent, cancellationToken);
+				request.Headers.Add("api_key", apiKey);
+				request.Headers.Add("session_id", sessionId);
+				request.Headers.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
+
+				var response = await httpClient.SendAsync(request, cancellationToken);
 
 				var responseString = await response.Content.ReadAsStringAsync();
 
@@ -210,9 +216,8 @@ namespace FuelControl.Library.Services
 			string apiKey,
 			CancellationToken cancellationToken)
 		{
-			var baseAddress = new Uri(_fuelControlSettings.ApiBaseAddress);
 			var httpContent =
-				CreateSetRestrictionHttpContent(_fuelControlSettings.OrganizationContractId, cardId, productGroupId, apiKey, sessionId);
+				CreateSetRestrictionHttpContent(_fuelControlSettings.OrganizationContractId, cardId, productGroupId);
 
 			_logger.LogDebug(
 				"Выполняется создания нового товарного ограничителя." +
@@ -222,9 +227,15 @@ namespace FuelControl.Library.Services
 				sessionId,
 				apiKey);
 
-			using(var httpClient = new HttpClient { BaseAddress = baseAddress })
+			var httpClient = _httpClientFactory.CreateClient(GazpromHttpClientNames.Default);
+
+			using (var request = new HttpRequestMessage(HttpMethod.Post, _setRestrictionEndpointAddress) { Content = httpContent })
 			{
-				var response = await httpClient.PostAsync(_setRestrictionEndpointAddress, httpContent, cancellationToken);
+				request.Headers.Add("api_key", apiKey);
+				request.Headers.Add("session_id", sessionId);
+				request.Headers.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
+
+				var response = await httpClient.SendAsync(request, cancellationToken);
 
 				var responseString = await response.Content.ReadAsStringAsync();
 
@@ -251,7 +262,7 @@ namespace FuelControl.Library.Services
 			}
 		}
 
-		private HttpContent CreateRemoveRestrictionHttpContent(string contractId, string restrictionId, string apiKey, string sessionId)
+		private HttpContent CreateRemoveRestrictionHttpContent(string contractId, string restrictionId)
 		{
 			var requestData = new List<KeyValuePair<string, string>>
 			{
@@ -259,15 +270,10 @@ namespace FuelControl.Library.Services
 				new KeyValuePair<string, string>("restriction_id", restrictionId)
 			};
 
-			var content = new FormUrlEncodedContent(requestData);
-			content.Headers.Add("api_key", apiKey);
-			content.Headers.Add("session_id", sessionId);
-			content.Headers.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
-
-			return content;
+			return new FormUrlEncodedContent(requestData);
 		}
 
-		private HttpContent CreateSetRestrictionHttpContent(string contractId, string cardId, string productGroupId, string apiKey, string sessionId)
+		private HttpContent CreateSetRestrictionHttpContent(string contractId, string cardId, string productGroupId)
 		{
 			var restriction = new FuelCardProductRestrictionDto
 			{
@@ -289,12 +295,7 @@ namespace FuelControl.Library.Services
 				new KeyValuePair<string, string>("restriction", $"[{requestParameters}]")
 			};
 
-			var content = new FormUrlEncodedContent(requestData);
-			content.Headers.Add("api_key", apiKey);
-			content.Headers.Add("session_id", sessionId);
-			content.Headers.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
-
-			return content;
+			return new FormUrlEncodedContent(requestData);
 		}
 
 		private void LogErrorMessageAndThrowException(string errorMessage)

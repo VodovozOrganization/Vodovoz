@@ -456,11 +456,6 @@ namespace Vodovoz.Domain.Complaints
 					result.Add("Заполните поле \"Итог работы по клиенту\".");
 				}
 
-				if(ComplaintResultOfEmployees == null)
-				{
-					result.Add("Заполните поле \"Итог работы по сотрудникам\".");
-				}
-
 				if(ObservableResultComments.Count == 0)
 				{
 					result.Add("Необходимо добавить комментарий \"Результат\".");
@@ -541,12 +536,6 @@ namespace Vodovoz.Domain.Complaints
 				{
 					yield return new ValidationResult(
 						"Заполните поле \"Итог работы по клиенту\".", new[] { nameof(ComplaintResultOfCounterparty) });
-				}
-
-				if(ComplaintResultOfEmployees == null)
-				{
-					yield return new ValidationResult(
-						"Заполните поле \"Итог работы по сотрудникам\".", new[] { nameof(ComplaintResultOfEmployees) });
 				}
 
 				if(ObservableResultComments.Count == 0)

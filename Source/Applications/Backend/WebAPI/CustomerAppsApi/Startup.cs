@@ -101,9 +101,9 @@ namespace CustomerAppsApi
 			app.UseHttpsRedirection();
 			app.UseRouting();
 
-			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
-
 			app.UseVodovozHealthCheck();
+
+			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 		}
 	}
 }

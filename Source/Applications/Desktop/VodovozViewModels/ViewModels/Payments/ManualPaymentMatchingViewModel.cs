@@ -280,7 +280,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 		public void UpdateSumToAllocate()
 		{
-			if(Entity.CashlessMovementOperation == null && !Entity.IsRefundPayment)
+			if(Entity.CashlessMovementOperation == null
+				&& !Entity.IsRefundPayment
+				&& Entity.Status != PaymentState.Cancelled)
 			{
 				SumToAllocate = Entity.Total + LastBalance;
 			}

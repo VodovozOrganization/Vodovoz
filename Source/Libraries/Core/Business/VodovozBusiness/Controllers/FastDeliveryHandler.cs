@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Orders;
@@ -134,7 +135,12 @@ namespace Vodovoz.Controllers
 			return Result.Success();
 		}
 
-		public Result TryAddOrderToRouteListAndNotifyDriver(IUnitOfWork uow, Order order, IRouteListService routeListService, ICallTaskWorker callTaskWorker)
+		public Result TryAddOrderToRouteListAndNotifyDriver(
+			IUnitOfWork uow,
+			Order order,
+			IRouteListService routeListService,
+			ICallTaskWorker callTaskWorker,
+			Employee employee = null)
 		{
 			RouteListItem fastDeliveryAddress = null;
 
@@ -160,7 +166,7 @@ namespace Vodovoz.Controllers
 				uow.Session.Save(fastDeliveryAddress);
 
 				_routeListAddressKeepingDocumentController.CreateOrUpdateRouteListKeepingDocument(
-					uow, fastDeliveryAddress, DeliveryFreeBalanceType.Decrease);
+					uow, fastDeliveryAddress, DeliveryFreeBalanceType.Decrease, employee: employee);
 			}
 			
 			NotifyDriverOfFastDeliveryOrderAdded(order.Id);

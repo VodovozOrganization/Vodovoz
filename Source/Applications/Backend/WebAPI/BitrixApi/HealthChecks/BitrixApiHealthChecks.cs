@@ -1,5 +1,6 @@
 ﻿using BitrixApi.Contracts.Dto;
 using BitrixApi.Contracts.Dto.Requests;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -23,11 +24,12 @@ namespace BitrixApi.HealthChecks
 
 		public BitrixApiHealthChecks(
 			ILogger<VodovozHealthCheckBase> logger,
+			IHttpContextAccessor httpContextAccessor,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IHttpClientFactory httpClientFactory,
 			IConfiguration configuration,
 			IHealthCheckServiceInfoProvider serviceInfoProvider)
-			: base(logger, serviceInfoProvider, unitOfWorkFactory)
+			: base(logger, serviceInfoProvider, httpContextAccessor, unitOfWorkFactory)
 		{
 			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
 			_httpClient = (httpClientFactory ?? throw new System.ArgumentNullException(nameof(httpClientFactory)))

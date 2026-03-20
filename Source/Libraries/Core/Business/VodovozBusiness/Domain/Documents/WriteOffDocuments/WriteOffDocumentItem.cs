@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Domain.Documents.IncomingInvoices;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Documents.WriteOffDocuments
 {
@@ -16,7 +16,7 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 	[HistoryTrace]
 	public abstract class WriteOffDocumentItem : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
-		private Nomenclature _nomenclature;
+		private NomenclatureEntity _nomenclature;
 		private CullingCategory _cullingCategory;
 		private decimal _amount;
 		private string _comment;
@@ -30,7 +30,7 @@ namespace Vodovoz.Domain.Documents.WriteOffDocuments
 
 		[Required(ErrorMessage = "Номенклатура должна быть заполнена.")]
 		[Display(Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature
+		public virtual NomenclatureEntity Nomenclature
 		{
 			get => _nomenclature;
 			set => SetField(ref _nomenclature, value);

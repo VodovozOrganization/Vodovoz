@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -13,16 +8,24 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Services.FileDialog;
+using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Widgets;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.NHibernateProjections.Goods;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Presentation.ViewModels.Common;
@@ -30,8 +33,8 @@ using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
 using Vodovoz.Reports.Editing.Modifiers;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
-using Order = Vodovoz.Domain.Orders.Order;
 using ExcelExporter = Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotivation.CallCenterMotivationReport.ExcelExporter;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotivation
 {
@@ -40,6 +43,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotiva
 		private readonly IFileDialogService _fileDialogService;
 		private readonly IGuiDispatcher _guiDispatcher;
 		private readonly IInteractiveService _interactiveService;
+		private readonly ICurrentPermissionService _currentPermissionService;
+		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IUnitOfWork _unitOfWork;
 		private DateTime? _startDate;
 		private DateTime? _endDate;
@@ -54,6 +59,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotiva
 		public CallCenterMotivationReportViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IInteractiveService interactiveService,
+			ICurrentPermissionService currentPermissionService,
+			IEmployeeRepository employeeRepository,
 			INavigationManager navigation,
 			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory,
 			ILeftRightListViewModelFactory leftRightListViewModelFactory,
@@ -72,6 +79,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotiva
 			}
 
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 
@@ -91,8 +100,16 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotiva
 
 			AbortCreateReportCommand = new DelegateCommand(() => CreateReportCommand.Abort());
 
-			FilterViewModel = includeExcludeSalesFilterFactory.CreateCallCenterMotivationReportIncludeExcludeFilter(_unitOfWork);
+			SetupFilter(includeExcludeSalesFilterFactory);
 			GroupingSelectViewModel = leftRightListViewModelFactory.CreateCallCenterMotivationReportGroupingsConstructor();
+		}
+
+		private void SetupFilter(IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory)
+		{
+			var onlyCurrentEmployee = !_currentPermissionService.ValidatePresetPermission(ReportPermissions.Sales.CanSelectTheOrderAuthorInCallCenterMotivationReport);
+			FilterViewModel = includeExcludeSalesFilterFactory.CreateCallCenterMotivationReportIncludeExcludeFilter(
+				_unitOfWork,
+				onlyCurrentEmployee ? (int?)_employeeRepository.GetEmployeeForCurrentUser(_unitOfWork).Id : null);
 		}
 
 		private IEnumerable<GroupingType> SelectedGroupings => GroupingSelectViewModel.GetRightItems().Select(x => x.GroupType);
@@ -148,7 +165,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.WageCalculation.CallCenterMotiva
 		public DelegateCommand AbortCreateReportCommand { get; }
 		public AsyncCommand CreateReportCommand { get; }
 
-		public IncludeExludeFiltersViewModel FilterViewModel { get; }
+		public IncludeExludeFiltersViewModel FilterViewModel { get; private set; }
 		public LeftRightListViewModel<GroupingNode> GroupingSelectViewModel { get; }
 
 		public string SaveProgressText

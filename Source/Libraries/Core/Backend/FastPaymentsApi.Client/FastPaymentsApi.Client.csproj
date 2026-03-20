@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Applications\Backend\WebAPI\FastPayment\FastPaymentsApi.Contracts\FastPaymentsApi.Contracts.csproj" />
     <ProjectReference Include="..\FastPaymentsApi.Contracts\FastPaymentsApi.Contracts.csproj" />
   </ItemGroup>
 

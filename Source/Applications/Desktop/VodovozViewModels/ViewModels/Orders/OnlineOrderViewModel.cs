@@ -212,6 +212,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public string OnlineOrderPaymentType => Entity.OnlineOrderPaymentType.GetEnumDisplayName();
 		public string OnlineOrderDeliveryDate => Entity.DeliveryDate.ToShortDateString();
 		public string OnlinePayment => Entity.OnlinePayment.ToString();
+		public string OnlineOrderPaymentStatus => Entity.OnlineOrderPaymentStatus.GetEnumDisplayName();
 		public string OnlinePaymentSource =>
 			Entity.OnlinePaymentSource.HasValue
 				? Entity.OnlinePaymentSource.GetEnumTitle()
@@ -455,7 +456,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				return;
 			}
 			
-			var result = _onlineOrderValidator.ValidateOnlineOrder(UoW, Entity);
+			var result = _onlineOrderValidator.ValidateOnlineOrder(UoW, Entity, true);
 
 			if(result.IsFailure)
 			{

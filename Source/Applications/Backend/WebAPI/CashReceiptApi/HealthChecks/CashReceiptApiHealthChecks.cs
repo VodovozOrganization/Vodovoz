@@ -1,6 +1,7 @@
 ﻿using CashReceiptApi.Options;
 using Grpc.Net.Client;
 using Grpc.Net.Client.Web;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
@@ -23,11 +24,12 @@ namespace CashReceiptApi.HealthChecks
 
 		public CashReceiptApiHealthChecks(
 			ILogger<VodovozHealthCheckBase> logger,
+			IHttpContextAccessor httpContextAccessor,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOptions<ServiceOptions> serviceOptions,
 			ICashReceiptSettings cashReceiptSettings,
 			IHealthCheckServiceInfoProvider serviceInfoProvider)
-			: base(logger, serviceInfoProvider, unitOfWorkFactory)
+			: base(logger, serviceInfoProvider, httpContextAccessor, unitOfWorkFactory)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_serviceOptions = serviceOptions ?? throw new ArgumentNullException(nameof(serviceOptions));

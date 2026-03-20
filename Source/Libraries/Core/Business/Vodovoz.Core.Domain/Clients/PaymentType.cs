@@ -35,7 +35,7 @@ namespace Vodovoz.Domain.Client
 		/// <summary>
 		/// Оплачено онлайн
 		/// </summary>
-		[Display(Name = "Оплачено онлайн", ShortName = "онлайн")]
+		[Display(Name = "Оплата онлайн", ShortName = "онлайн")]
 		PaidOnline,
 		/// <summary>
 		/// Бартер

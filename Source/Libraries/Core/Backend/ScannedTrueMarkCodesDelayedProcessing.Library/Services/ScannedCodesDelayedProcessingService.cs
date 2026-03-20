@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Logistics;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
@@ -503,7 +504,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			var isOrderEdoRequestExists = existingEdoRequests
 				.Any(x => x.Order.Id == order.Id && x.DocumentType == EdoDocumentType.UPD);
 
-			var isOrderOnClosingStatus = _orderRepository.GetOnClosingOrderStatuses().Contains(order.OrderStatus);
+			var isOrderOnClosingStatus = OrderEntity.GetOnClosingOrderStatuses.Contains(order.OrderStatus);
 
 			if(isAllDriversScannedCodesInOrderProcessed
 				&& !isOrderEdoRequestExists

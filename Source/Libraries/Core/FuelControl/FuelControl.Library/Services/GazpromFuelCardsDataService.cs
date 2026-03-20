@@ -20,15 +20,18 @@ namespace FuelControl.Library.Services
 		private const string _cardsEndpointAddress = "vip/v2/cards";
 
 		private readonly ILogger<GazpromFuelCardsDataService> _logger;
+		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly IFuelCardConverter _fuelCardConverter;
 		private readonly IFuelControlSettings _fuelControlSettings;
 
 		public GazpromFuelCardsDataService(
 			ILogger<GazpromFuelCardsDataService> logger,
+			IHttpClientFactory httpClientFactory,
 			IFuelCardConverter fuelCardConverter,
 			IFuelControlSettings fuelControlSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 			_fuelCardConverter = fuelCardConverter ?? throw new ArgumentNullException(nameof(fuelCardConverter));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 		}
@@ -55,19 +58,16 @@ namespace FuelControl.Library.Services
 				pageLimit,
 				pageOffset);
 
-			var baseAddress = new Uri(_fuelControlSettings.ApiBaseAddress);
+			var httpClient = _httpClientFactory.CreateClient(GazpromHttpClientNames.WithTimeout);
 
-			using(var httpClient = new HttpClient { BaseAddress = baseAddress })
+			using(var request = new HttpRequestMessage(HttpMethod.Get, $"{_cardsEndpointAddress}"))
 			{
-				httpClient.Timeout = TimeSpan.FromSeconds(_fuelControlSettings.ApiRequesTimeout.TotalSeconds);
-				httpClient.DefaultRequestHeaders.Add("api_key", apiKey);
-				httpClient.DefaultRequestHeaders.Add("session_id", sessionId);
-				httpClient.DefaultRequestHeaders.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
-				httpClient.DefaultRequestHeaders.Add("contract_id", _fuelControlSettings.OrganizationContractId);
+				request.Headers.Add("api_key", apiKey);
+				request.Headers.Add("session_id", sessionId);
+				request.Headers.Add("date_time", DateTime.Now.ToString(_requestDateTimeFormatString));
+				request.Headers.Add("contract_id", _fuelControlSettings.OrganizationContractId);
 
-				var response = await httpClient.GetAsync(
-					  $"{_cardsEndpointAddress}",
-					  cancellationToken);
+				var response = await httpClient.SendAsync(request, cancellationToken);
 
 				var responseString = await response.Content.ReadAsStringAsync();
 
@@ -86,13 +86,13 @@ namespace FuelControl.Library.Services
 				_logger.LogDebug("Количество полученных карт: {TransactionsCount}",
 					responseData.FuelCardsData.FuelCards?.Count());
 
-				var transactions = ConvertResponseDataToTransactions(responseData);
+				var fuelCards = ConvertResponseDataToFuelCards(responseData);
 
-				return transactions;
+				return fuelCards;
 			}
 		}
 
-		private IEnumerable<FuelCard> ConvertResponseDataToTransactions(FuelCardResponse responseData)
+		private IEnumerable<FuelCard> ConvertResponseDataToFuelCards(FuelCardResponse responseData)
 		{
 			var fuelCardDtos = responseData?.FuelCardsData?.FuelCards;
 

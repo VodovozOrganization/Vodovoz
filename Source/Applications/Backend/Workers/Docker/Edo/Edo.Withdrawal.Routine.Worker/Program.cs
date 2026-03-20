@@ -1,0 +1,66 @@
+﻿using Autofac.Extensions.DependencyInjection;
+using Edo.Withdrawal.Routine.Options;
+using MessageTransport;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
+using QS.Project.Core;
+using System;
+using System.Text;
+using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Zabbix.Sender;
+
+namespace Edo.Withdrawal.Routine.Worker
+{
+	public class Program
+	{
+		public static void Main(string[] args)
+		{
+			Console.OutputEncoding = Encoding.UTF8;
+			CreateHostBuilder(args).Build().Run();
+		}
+
+		public static IHostBuilder CreateHostBuilder(string[] args) =>
+			Host.CreateDefaultBuilder(args)
+				.ConfigureLogging((ctx, builder) =>
+				{
+					builder.AddNLog();
+					builder.AddConfiguration(ctx.Configuration.GetSection("NLog"));
+				})
+				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
+				.ConfigureServices((hostContext, services) =>
+				{
+					services
+						.Configure<WithdrawalRoutineOptions>(
+							hostContext.Configuration.GetSection(nameof(WithdrawalRoutineOptions)));
+
+					services
+						.AddMappingAssemblies(
+							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
+							typeof(QS.Banks.Domain.Bank).Assembly,
+							typeof(QS.HistoryLog.HistoryMain).Assembly,
+							typeof(QS.Project.Domain.TypeOfEntity).Assembly,
+							typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder).Assembly,
+							typeof(QS.BusinessCommon.HMap.MeasurementUnitsMap).Assembly
+						)
+						.AddDatabaseConnection()
+						.AddCoreDataRepositories()
+						.AddCore()
+						.AddTrackedUoW()
+						.AddMessageTransportSettings()
+						.AddEdoWithdrawalRoutine()
+						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
+
+						.AddHostedService<TrueMarkTimedOutDocumentsWithdrawalWorker>()
+						.ConfigureZabbixSenderFromDataBase(nameof(TrueMarkTimedOutDocumentsWithdrawalWorker))
+
+						.AddHostedService<TrueMarkDocumentsStatusUpdateWorker>()
+						.ConfigureZabbixSenderFromDataBase(nameof(TrueMarkDocumentsStatusUpdateWorker))
+						;
+				});
+	}
+}

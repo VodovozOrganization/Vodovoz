@@ -88,7 +88,7 @@ namespace Vodovoz
 
 		public CarUnloadDocumentDlg(int routeListId, int warehouseId, DateTime date) : this(routeListId, warehouseId)
 		{
-			Entity.TimeStamp = date;
+			Entity.SetTimeStamp(date);
 		}
 
 		public CarUnloadDocumentDlg(int id)

@@ -20,16 +20,19 @@ namespace FuelControl.Library.Services
 		private const string _transactionsEndpointAddress = "vip/v2/transactions";
 
 		private readonly ILogger<GazpromTransactionsDataService> _logger;
+		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly ITransactionConverter _transactionConverter;
 		private readonly IFuelControlSettings _fuelControlSettings;
 
 		public GazpromTransactionsDataService(
 			ILogger<GazpromTransactionsDataService> logger,
+			IHttpClientFactory httpClientFactory,
 			ITransactionConverter transactionConverter,
 			IFuelControlSettings fuelControlSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_transactionConverter = transactionConverter ?? throw new System.ArgumentNullException(nameof(transactionConverter));
+			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+			_transactionConverter = transactionConverter ?? throw new ArgumentNullException(nameof(transactionConverter));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 		}
 
@@ -71,18 +74,17 @@ namespace FuelControl.Library.Services
 				throw new ArgumentException(message, nameof(endDate));
 			}
 
-			var baseAddress = new Uri(_fuelControlSettings.ApiBaseAddress);
+			var httpClient = _httpClientFactory.CreateClient(GazpromHttpClientNames.WithTimeout);
 
-			using(var httpClient = new HttpClient { BaseAddress = baseAddress })
+			using(var request = new HttpRequestMessage(
+				HttpMethod.Get,
+				$"{_transactionsEndpointAddress}?date_from={formatedStartDate}&date_to={formatedEndDate}&page_limit={pageLimit}&page_offset={pageOffset}"))
 			{
-				httpClient.Timeout = TimeSpan.FromSeconds(_fuelControlSettings.ApiRequesTimeout.TotalSeconds);
-				httpClient.DefaultRequestHeaders.Add("api_key", apiKey);
-				httpClient.DefaultRequestHeaders.Add("session_id", sessionId);
-				httpClient.DefaultRequestHeaders.Add("contract_id", _fuelControlSettings.OrganizationContractId);
+				request.Headers.Add("api_key", apiKey);
+				request.Headers.Add("session_id", sessionId);
+				request.Headers.Add("contract_id", _fuelControlSettings.OrganizationContractId);
 
-				var response = await httpClient.GetAsync(
-					  $"{_transactionsEndpointAddress}?date_from={formatedStartDate}&date_to={formatedEndDate}&page_limit={pageLimit}&page_offset={pageOffset}",
-					  cancellationToken);
+				var response = await httpClient.SendAsync(request, cancellationToken);
 
 				var responseString = await response.Content.ReadAsStringAsync();
 

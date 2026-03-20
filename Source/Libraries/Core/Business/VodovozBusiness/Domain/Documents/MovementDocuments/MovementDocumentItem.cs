@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Domain.Documents.IncomingInvoices;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Operations;
 using InvalidOperationException = System.InvalidOperationException;
 
 namespace Vodovoz.Domain.Documents.MovementDocuments
@@ -14,7 +15,7 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 	[HistoryTrace]
 	public abstract class MovementDocumentItem : PropertyChangedBase, IDomainObject
 	{
-		private Nomenclature _nomenclature;
+		private NomenclatureEntity _nomenclature;
 		private decimal _sentAmount;
 		private decimal _receivedAmount;
 		private decimal _amountOnSource = 99999999;
@@ -26,7 +27,7 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 		public virtual MovementDocument Document { get; set; }
 
 		[Display(Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature
+		public virtual NomenclatureEntity Nomenclature
 		{
 			get => _nomenclature;
 			set => SetField(ref _nomenclature, value);

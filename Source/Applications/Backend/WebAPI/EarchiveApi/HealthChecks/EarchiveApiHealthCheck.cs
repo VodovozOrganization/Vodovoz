@@ -1,4 +1,5 @@
 ﻿using Grpc.Net.Client;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -15,9 +16,9 @@ namespace EarchiveApi.HealthChecks
 	{
 		private readonly IConfiguration _configuration;
 
-		public EarchiveApiHealthCheck(ILogger<EarchiveApiHealthCheck> logger,  IConfiguration configuration, IUnitOfWorkFactory unitOfWorkFactory,
+		public EarchiveApiHealthCheck(ILogger<EarchiveApiHealthCheck> logger,  IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IUnitOfWorkFactory unitOfWorkFactory,
 			IHealthCheckServiceInfoProvider serviceInfoProvider)
-			: base(logger, serviceInfoProvider, unitOfWorkFactory)
+			: base(logger, serviceInfoProvider, httpContextAccessor, unitOfWorkFactory)
 		{
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 		}

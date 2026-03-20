@@ -35,7 +35,8 @@ namespace Vodovoz.Application.Orders.Services
 			FastPaymentRequestFromType requestFromType)
 		{
 			if(requestFromType == FastPaymentRequestFromType.FromMobileAppByQr
-				|| requestFromType == FastPaymentRequestFromType.FromSiteByQr)
+				|| requestFromType == FastPaymentRequestFromType.FromSiteByQr
+				|| requestFromType == FastPaymentRequestFromType.FromAiBotByQr)
 			{
 				return GetOrganizationByPaymentType(uow, requestTime, requestFromType);
 			}
@@ -117,6 +118,7 @@ namespace Vodovoz.Application.Orders.Services
 				case FastPaymentRequestFromType.FromDriverAppByQr:
 				case FastPaymentRequestFromType.FromMobileAppByQr:
 				case FastPaymentRequestFromType.FromSiteByQr:
+				case FastPaymentRequestFromType.FromAiBotByQr:
 					return !orderOrganization.AvangardShopId.HasValue
 						? GetOrganizationByPaymentType(uow, requestTime, requestFromType)
 						: Result.Success(orderOrganization);
@@ -142,6 +144,9 @@ namespace Vodovoz.Application.Orders.Services
 				case FastPaymentRequestFromType.FromMobileAppByQr:
 					return uow.GetAll<OnlinePaymentTypeOrganizationSettings>()
 						.SingleOrDefault(x => x.PaymentFrom.Id == _orderSettings.GetPaymentByCardFromMobileAppByQrCodeId);
+				case FastPaymentRequestFromType.FromAiBotByQr:
+					return uow.GetAll<OnlinePaymentTypeOrganizationSettings>()
+						.SingleOrDefault(x => x.PaymentFrom.Id == _orderSettings.GetPaymentByCardFromAiBotByQrCodeId);
 				default:
 					throw new ArgumentOutOfRangeException(nameof(requestFromType), requestFromType, null);
 			}

@@ -16,6 +16,7 @@
     <ProjectReference Include="..\..\..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />
     <ProjectReference Include="..\..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
     <ProjectReference Include="..\..\TrueMarkApi.Client\TrueMarkApi.Client.csproj" />
+    <ProjectReference Include="..\Edo.Problems\Edo.Problems.csproj" />
     <ProjectReference Include="..\Edo.Transport\Edo.Transport.csproj" />
   </ItemGroup>
 

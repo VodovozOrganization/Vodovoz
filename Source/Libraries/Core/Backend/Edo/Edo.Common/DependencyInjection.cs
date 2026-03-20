@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Edo.Common.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using TrueMark.Codes.Pool;
-using TrueMark.Library;
 using TrueMarkApi.Client;
 
 namespace Edo.Common
@@ -19,6 +19,7 @@ namespace Edo.Common
 			services.TryAddScoped<ITrueMarkCodesValidator, TrueMarkTaskCodesValidator>();
 			services.TryAddScoped<IEdoOrderContactProvider, EdoOrderContactProvider>();
 			services.TryAddScoped<ISaveCodesService, SaveCodesService>();
+			services.TryAddScoped<IClientsTrueMarkRegistrationCheckService, ClientsTrueMarkRegistrationCheckService>();
 
 			return services;
 		}
