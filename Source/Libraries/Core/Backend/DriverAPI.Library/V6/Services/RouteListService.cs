@@ -1,13 +1,19 @@
 ﻿using DriverApi.Contracts.V6;
+using DriverApi.Contracts.V6.Requests;
 using DriverApi.Contracts.V6.Responses;
 using DriverAPI.Library.Exceptions;
 using DriverAPI.Library.V6.Converters;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.FastPayments;
+using Vodovoz.Core.Domain.Logistics.Drivers;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
@@ -16,11 +22,10 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Tools.CallTasks;
+using IDomainRouteListService = Vodovoz.Services.Logistics.IRouteListService;
 using IDomainRouteListSpecialConditionsService = Vodovoz.Services.Logistics.IRouteListSpecialConditionsService;
 using IDomainRouteListTransferService = Vodovoz.Services.Logistics.IRouteListTransferService;
-using IDomainRouteListService = Vodovoz.Services.Logistics.IRouteListService;
-using Vodovoz.Tools.CallTasks;
-using Vodovoz.Core.Domain.Orders;
 
 namespace DriverAPI.Library.V6.Services
 {
@@ -470,6 +475,101 @@ namespace DriverAPI.Library.V6.Services
 			}
 
 			return result;
+		}
+
+		/// <inheritdoc />
+		public async Task<Result> SelectNextAddress(
+			SelectAddressRequest selectAddressRequest,
+			int requestedByDriverId,
+			CancellationToken cancellationToken)
+		{
+			var routeListAddress =
+				_routeListItemRepository.GetRouteListItemById(_unitOfWork, selectAddressRequest.NextAddressId);
+
+			if(routeListAddress is null)
+			{
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotFound);
+			}
+
+			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
+			{
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotEnRouteState);
+			}
+
+			var routeList = routeListAddress.RouteList;
+
+			if(routeList is null)
+			{
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.NotFound);
+			}
+
+			if(routeList.Status != RouteListStatus.EnRoute)
+			{
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.NotEnRouteState);
+			}
+
+			var order = routeListAddress.Order;
+
+			if(order is null)
+			{
+				return Result.Failure(Vodovoz.Errors.Orders.OrderErrors.NotFound);
+			}
+
+			if(order.OrderStatus != OrderStatus.OnTheWay)
+			{
+				return Result.Failure(Vodovoz.Errors.Orders.OrderErrors.NotInOnTheWayStatus);
+			}
+
+			var driver = routeList.Driver;
+
+			if(driver is null)
+			{
+				return Result.Failure(Vodovoz.Errors.Employees.DriverErrors.NotFound);
+			}
+
+			if(driver.Id != requestedByDriverId)
+			{
+				_logger.LogWarning(
+					"Сотрудник {RequestedByDriverId} пытается выбрать следующим адрес {NextAddressId} в МЛ {RouteListId} водителя {DriverId}",
+					requestedByDriverId,
+					routeListAddress.Id,
+					routeList.Id,
+					routeList.Driver.Id);
+
+				return Result.Failure(Errors.Security.Authorization.RouteListAccessDenied);
+			}
+
+			var driversSelectedAddress = new DriversSelectedAddress
+			{
+				DriverId = routeList.Driver.Id,
+				NextAddressId = routeListAddress.Id,
+				PreviousUncompletedAddressId = selectAddressRequest.PreviousUncompletedAddressId,
+				SelectedAt = DateTime.Now
+			};
+
+			await _unitOfWork.SaveAsync(driversSelectedAddress, cancellationToken: cancellationToken);
+			await _unitOfWork.CommitAsync(cancellationToken);
+
+			try
+			{
+				//Отправить уведомление на устройство клиента о том, что Курьер направляется к вам
+
+				if(selectAddressRequest.PreviousUncompletedAddressId.HasValue)
+				{
+					//Отправить уведомление на устройство клиента о том, что Курьер задерживается
+				}
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(
+					ex,
+					"Ошибка при отправке уведомления о выборе следующего адреса. " +
+					"RouteListAddressId: {RouteListAddressId}, PreviousUncompletedAddressId: {PreviousUncompletedAddressId}",
+					selectAddressRequest.NextAddressId,
+					selectAddressRequest.PreviousUncompletedAddressId);
+			}
+
+			return Result.Success();
 		}
 	}
 }

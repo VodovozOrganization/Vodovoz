@@ -1,7 +1,10 @@
 ﻿using DriverApi.Contracts.V6;
+using DriverApi.Contracts.V6.Requests;
 using DriverApi.Contracts.V6.Responses;
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
 
 namespace DriverAPI.Library.V6.Services
@@ -86,5 +89,14 @@ namespace DriverAPI.Library.V6.Services
 		/// <param name="routeListAddressId">идентификатор адреса маршрутного листа</param>
 		/// <returns></returns>
 		Result<RouteListAddressOutgoingTransferDto> GetOutgoingTransferInfo(int routeListAddressId);
+
+		/// <summary>
+		/// Совершение действия выбора следующего адреса маршрутного листа в пути
+		/// </summary>
+		/// <param name="selectAddressRequest">Данные для выбора следующего адреса маршрутного листа</param>
+		/// <param name="requestedByDriverId">Водтель, отправивший запрос на выбор следующего адреса</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Результат выполнения выбора</returns>
+		Task<Result> SelectNextAddress(SelectAddressRequest selectAddressRequest, int requestedByDriverId, CancellationToken cancellationToken);
 	}
 }

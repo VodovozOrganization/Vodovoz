@@ -10,16 +10,18 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using QS.DomainModel.UoW;
+using Sms.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Logistic.Drivers;
 using IApiRouteListService = DriverAPI.Library.V6.Services.IRouteListService;
-using IRouteListTransferService = Vodovoz.Services.Logistics.IRouteListTransferService;
 using IRouteListSpecialConditionsService = Vodovoz.Services.Logistics.IRouteListSpecialConditionsService;
+using IRouteListTransferService = Vodovoz.Services.Logistics.IRouteListTransferService;
 
 namespace DriverAPI.Controllers.V6
 {
@@ -363,6 +365,75 @@ namespace DriverAPI.Controllers.V6
 		public IActionResult ConfirmRouteListAddressTransferTransfered(ConfirmRouteListAddressTransferTransferedRequest confirmRouteListAddressTransferTransferedRequest)
 		{
 			return NoContent();
+		}
+
+		/// <summary>
+		/// Выбора адреса для следующей точки маршрута
+		/// </summary>
+		/// <param name="selectAddressRequest">Модель данных входящего запроса</param>
+		[HttpPost]
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		public async Task<IActionResult> SelectNextAddress([FromBody] SelectAddressRequest selectAddressRequest, CancellationToken cancellationToken)
+		{
+			_logger.LogInformation(
+				"Получен запрос на выбор адреса для следующей точки маршрута. " +
+				"Id следующего адреса: {NextAddressId} " +
+				"Предыдущий незавершенный заказ: {PreviousUncompletedAddressId} " +
+				"Запрос отправлен пользователем: {Username} | User token: {AccessToken}",
+				selectAddressRequest.NextAddressId,
+				selectAddressRequest.PreviousUncompletedAddressId,
+				HttpContext.User.Identity?.Name ?? "Unknown",
+				Request.Headers[HeaderNames.Authorization]);
+
+			var user = await _userManager.GetUserAsync(User);
+			var driver = _employeeService.GetByAPILogin(user.UserName);
+
+			try
+			{
+				return MapResult(
+					await _apiRouteListService.SelectNextAddress(selectAddressRequest, driver.Id, cancellationToken),
+					result =>
+					{
+						if(result.IsSuccess)
+						{
+							return StatusCodes.Status204NoContent;
+						}
+
+						var firstError = result.Errors.First();
+
+						if(firstError == Vodovoz.Errors.Logistics.RouteListErrors.NotEnRouteState
+							|| firstError == Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotEnRouteState
+							|| firstError == Vodovoz.Errors.Orders.OrderErrors.NotInOnTheWayStatus)
+						{
+							return StatusCodes.Status400BadRequest;
+						}
+
+						if(firstError == Library.Errors.Security.Authorization.RouteListAccessDenied)
+						{
+							return StatusCodes.Status403Forbidden;
+						}
+
+						if(firstError == Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotFound
+							|| firstError == Vodovoz.Errors.Logistics.RouteListErrors.NotFound
+							|| firstError == Vodovoz.Errors.Orders.OrderErrors.NotFound)
+						{
+							return StatusCodes.Status404NotFound;
+						}
+
+						return StatusCodes.Status500InternalServerError;
+					});
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(
+					ex,
+					"Произошла ошибка при выборе адреса для следующей точки маршрута",
+					ex.Message);
+
+				return Problem("Непредвиденная ошибка при выборе адреса для следующей точки маршрута");
+			}
 		}
 	}
 }
