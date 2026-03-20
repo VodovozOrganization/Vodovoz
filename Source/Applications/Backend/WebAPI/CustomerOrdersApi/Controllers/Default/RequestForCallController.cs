@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using CustomerOrdersApi.Library.Default.Dto.Orders;
 using CustomerOrdersApi.Library.Default.Services;
 using Gamma.Utilities;
@@ -9,6 +9,7 @@ using VodovozHealthCheck.Helpers;
 
 namespace CustomerOrdersApi.Controllers.Default
 {
+	[ApiVersion("3.0")]
 	public class RequestForCallController : SignatureControllerBase
 	{
 		private readonly ICustomerOrdersService _customerOrdersService;
