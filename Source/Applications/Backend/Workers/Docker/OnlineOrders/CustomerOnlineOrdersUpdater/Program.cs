@@ -5,7 +5,6 @@ using NLog.Extensions.Logging;
 using QS.HistoryLog;
 using QS.Project.Core;
 using Vodovoz;
-using Vodovoz.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
