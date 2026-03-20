@@ -16,7 +16,6 @@ using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Services;
 using Vodovoz;
-using Vodovoz.Application;
 using Vodovoz.Core.Application.Logistics;
 using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Data.NHibernate;

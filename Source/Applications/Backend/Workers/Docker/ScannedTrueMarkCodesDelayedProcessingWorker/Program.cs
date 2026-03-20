@@ -11,7 +11,6 @@ using ScannedTrueMarkCodesDelayedProcessing.Library;
 using ScannedTrueMarkCodesDelayedProcessing.Library.Option;
 using System;
 using System.Text;
-using Vodovoz.Application;
 using Vodovoz.Core.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
