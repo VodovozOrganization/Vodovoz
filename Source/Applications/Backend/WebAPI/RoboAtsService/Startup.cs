@@ -18,7 +18,6 @@ using Sms.External.SmsRu;
 using System.Linq;
 using System.Reflection;
 using Vodovoz;
-using Vodovoz.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Factories;
