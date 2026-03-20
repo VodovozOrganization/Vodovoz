@@ -538,6 +538,24 @@ namespace DriverAPI.Library.V6.Services
 				return Result.Failure(Errors.Security.Authorization.RouteListAccessDenied);
 			}
 
+			if(selectAddressRequest.PreviousUncompletedAddressId.HasValue
+				&& selectAddressRequest.NextAddressId == selectAddressRequest.PreviousUncompletedAddressId.Value)
+			{
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NextAddressSameAsUncompletedPrevious);
+			}
+
+			var lastSelectedAddress =
+				await _routeListRepository.GetLastSelectedAddressForRouteList(
+				_unitOfWork,
+				driver.Id,
+				routeList.Id,
+				cancellationToken);
+
+			if(lastSelectedAddress != null && lastSelectedAddress.NextAddressId == selectAddressRequest.NextAddressId)
+			{
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.AlreadySelectedAsNext);
+			}
+
 			var driversSelectedAddress = new DriversSelectedAddress
 			{
 				DriverId = routeList.Driver.Id,

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
@@ -117,5 +118,15 @@ namespace Vodovoz.EntityRepositories.Logistic
 		/// <param name="endDate">Конец периода</param>
 		/// <returns>Словарь, где ключ - идентификатор водителя, значение - множество дат с активными маршрутными листами</returns>
 		Dictionary<int, HashSet<DateTime>> GetDriverIdsWithActiveRouteListByDates(IUnitOfWork uow, int[] driverIds, DateTime startDate, DateTime endDate);
+
+		/// <summary>
+		/// Возвращает последний выбранный адрес водителя в указанном маршрутном листе
+		/// </summary>
+		/// <param name="uow">Unit of Work</param>
+		/// <param name="driverId">Идентификатор водителя</param>
+		/// <param name="routeListId">Идентификатор маршрутного листа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Последняя запись о выборе адреса или null</returns>
+		Task<DriversSelectedAddress> GetLastSelectedAddressForRouteList(IUnitOfWork uow, int driverId, int routeListId, CancellationToken cancellationToken);
 	}
 }

@@ -12,8 +12,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NHibernate.Linq;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Warehouses;
@@ -40,6 +42,7 @@ using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Organizations;
 using VodovozBusiness.Domain.Client;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Core.Domain.Logistics;
 
 namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
@@ -1860,6 +1863,22 @@ FROM
 					g => g.Key,
 					g => new HashSet<DateTime>(g.Select(x => x.Date.Date))
 				);
+		}
+
+		public async Task<DriversSelectedAddress> GetLastSelectedAddressForRouteList(
+			IUnitOfWork uow,
+			int driverId,
+			int routeListId,
+			CancellationToken cancellationToken)
+		{
+			var query =
+				from dsa in uow.Session.Query<DriversSelectedAddress>()
+				join rli in uow.Session.Query<RouteListItemEntity>() on dsa.NextAddressId equals rli.Id
+				where dsa.DriverId == driverId && rli.RouteList.Id == routeListId
+				orderby dsa.Id descending
+				select dsa;
+
+			return await query.FirstOrDefaultAsync(cancellationToken);
 		}
 	}
 }

@@ -404,7 +404,9 @@ namespace DriverAPI.Controllers.V6
 
 						if(firstError == Vodovoz.Errors.Logistics.RouteListErrors.NotEnRouteState
 							|| firstError == Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotEnRouteState
-							|| firstError == Vodovoz.Errors.Orders.OrderErrors.NotInOnTheWayStatus)
+							|| firstError == Vodovoz.Errors.Orders.OrderErrors.NotInOnTheWayStatus
+							|| firstError == Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.AlreadySelectedAsNext
+							|| firstError == Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NextAddressSameAsUncompletedPrevious)
 						{
 							return StatusCodes.Status400BadRequest;
 						}
