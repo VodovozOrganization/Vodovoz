@@ -4,6 +4,7 @@
         <TargetFramework>net5.0</TargetFramework>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <UserSecretsId>f19eabb2-17c6-43e1-94f3-860f82287943</UserSecretsId>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
         <DockerfileContext>.</DockerfileContext>
     </PropertyGroup>
 
