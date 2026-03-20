@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net5.0</TargetFramework>
+        <TargetFramework>netstandard2.0</TargetFramework>
         <ImplicitUsings>disable</ImplicitUsings>
         <Nullable>disable</Nullable>
         <LangVersion>9</LangVersion>
@@ -11,7 +11,7 @@
       <ProjectReference Include="..\..\..\..\..\Libraries\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
       <ProjectReference Include="..\..\..\..\..\Libraries\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
       <ProjectReference Include="..\..\..\..\..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj" />
-      <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\Vodovoz.Application\Vodovoz.Application.csproj" />
+      <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Application\Vodovoz.Core.Application.csproj" />
       <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />
       <ProjectReference Include="..\..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
       <ProjectReference Include="..\..\..\..\..\Libraries\Core\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj" />

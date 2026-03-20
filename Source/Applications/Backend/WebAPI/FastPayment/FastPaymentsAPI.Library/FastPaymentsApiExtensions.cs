@@ -5,7 +5,6 @@ using FastPaymentsAPI.Library.Models;
 using FastPaymentsAPI.Library.Settings;
 using FastPaymentsAPI.Library.Validators;
 using Microsoft.Extensions.DependencyInjection;
-using Vodovoz.Application;
 using Vodovoz.Core.Application;
 using Vodovoz.Services;
 using Vodovoz.Settings.FastPayments;
