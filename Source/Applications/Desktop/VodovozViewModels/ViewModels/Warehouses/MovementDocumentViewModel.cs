@@ -136,7 +136,7 @@ namespace Vodovoz.ViewModels.Warehouses
 			else if (Entity.FromWarehouse != null)
 			{
 				var nomenclaturesIds = Entity.Items
-					.Select(i => i.Id)
+					.Select(i => i.Nomenclature.Id)
 					.Distinct()
 					.ToArray();
 				
