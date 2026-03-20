@@ -29,12 +29,14 @@ namespace FastPaymentEventsSender.ApiClients
 		/// <inheritdoc/>
 		public async Task<int> NotifyPaymentStatusChangedAsync(FastPaymentStatusChangeNotificationDto notification)
 		{
-			_logger.LogInformation(
-				"Отправка уведомления о быстрой оплате на сайт для онлайн заказа {OnlineOrderId}",
-				notification.PaymentDetails.OnlineOrderId);
-			
 			var uri = _siteSettings.NotifyOfFastPaymentStatusChangedUri;
 			var content = JsonSerializer.Serialize(notification);
+			
+			_logger.LogInformation(
+				"Отправка уведомления о быстрой оплате на сайт для онлайн заказа {OnlineOrderId} {Notification}",
+				notification.PaymentDetails.OnlineOrderId,
+				content);
+			
 			var response = await _httpClient.PostAsJsonAsync(uri, content);
 
 			return (int)response.StatusCode;
