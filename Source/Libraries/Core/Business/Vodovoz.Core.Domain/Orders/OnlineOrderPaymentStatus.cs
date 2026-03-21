@@ -9,6 +9,8 @@ namespace Vodovoz.Core.Domain.Orders
 		[Display(Name = "Не оплачен")]
 		UnPaid,
 		[Display(Name = "Оплачен")]
-		Paid
+		Paid,
+		[Display(Name = "Возвращен")]
+		Refund
 	}
 }
