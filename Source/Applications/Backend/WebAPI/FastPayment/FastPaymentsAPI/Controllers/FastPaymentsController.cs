@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -463,12 +463,20 @@ namespace FastPaymentsAPI.Controllers
 		[Consumes("application/x-www-form-urlencoded")]
 		public async Task<IActionResult> ReceivePayment([FromForm] PaidOrderDTO paidOrderDto)
 		{
-			_logger.LogInformation("Пришел ответ об успешной оплате");
 			PaidOrderInfoDTO paidOrderInfoDto = null;
 
 			try
 			{
-				_logger.LogInformation("Парсим и получаем объект PaidOrderInfoDTO из ответа");
+				if(string.IsNullOrWhiteSpace(paidOrderDto.xml))
+				{
+					_logger.LogWarning("Пришел пустой ответ об успешной оплате c IP {ClientIp} port {ClientPort}",
+						HttpContext.Connection.RemoteIpAddress?.ToString(),
+						HttpContext.Connection.RemotePort);
+					
+					return Problem();
+				}
+
+				_logger.LogInformation("Парсим и получаем объект PaidOrderInfoDTO из колбэка банка {ReceivePaymentXml}", paidOrderDto.xml);
 				paidOrderInfoDto = _fastPaymentOrderService.GetPaidOrderInfo(paidOrderDto.xml);
 			}
 			catch(Exception e)
@@ -486,7 +494,6 @@ namespace FastPaymentsAPI.Controllers
 				return Problem();
 			}
 
-			bool fastPaymentUpdated;
 			var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
 			
 			try
@@ -518,14 +525,10 @@ namespace FastPaymentsAPI.Controllers
 				}
 
 				_logger.LogInformation("Обновляем статус оплаты платежа с ticket: {Ticket}", ticket);
-				
-				if(isDryRun)
+
+				if(!isDryRun)
 				{
-					fastPaymentUpdated = true;
-				}
-				else
-				{
-					fastPaymentUpdated = _fastPaymentService.UpdateFastPaymentStatus(paidOrderInfoDto, fastPayment);	
+					_fastPaymentService.UpdateFastPaymentStatus(paidOrderInfoDto, fastPayment);
 				}
 			}
 			catch(Exception e)
@@ -536,17 +539,6 @@ namespace FastPaymentsAPI.Controllers
 					paidOrderInfoDto.Status);
 				
 				return Problem();
-			}
-
-			if(!isDryRun)
-			{
-				NotifyDriver(fastPayment, paidOrderInfoDto.OrderNumber);
-
-				if(fastPaymentUpdated)
-				{
-					await _siteNotifier.NotifyPaymentStatusChangeAsync(fastPayment);
-					await _mobileAppNotifier.NotifyPaymentStatusChangeAsync(fastPayment);
-				}
 			}
 
 			return Accepted();

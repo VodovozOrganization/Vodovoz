@@ -1,4 +1,5 @@
 ﻿using MassTransit;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -8,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using VodovozHealthCheck;
 using VodovozHealthCheck.Dto;
+using VodovozHealthCheck.Providers;
 
 namespace FastPaymentsAPI.HealthChecks
 {
@@ -17,14 +19,16 @@ namespace FastPaymentsAPI.HealthChecks
 		private readonly IConfiguration _configuration;
 		private readonly IConfigurationSection _healthSection;
 		private readonly string _baseAddress;
-		private const string _serviceName = "Сервис СБП Авангарда, для оплаты по QR.";
 
-		public FastPaymentsHealthCheck(ILogger<FastPaymentsHealthCheck> logger,
+		public FastPaymentsHealthCheck(
+				ILogger<FastPaymentsHealthCheck> logger,
 				IConfiguration configuration,
 				IHttpClientFactory httpClientFactory,
+				IHttpContextAccessor httpContextAccessor,
 				IUnitOfWorkFactory unitOfWorkFactory,
-				IBusControl busControl)
-			: base(logger, unitOfWorkFactory, busControl)
+				IBusControl busControl,
+				IHealthCheckServiceInfoProvider serviceInfoProvider)
+			: base(logger, serviceInfoProvider, httpContextAccessor, unitOfWorkFactory, busControl)
 		{
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
@@ -42,7 +46,7 @@ namespace FastPaymentsAPI.HealthChecks
 					CheckPaymentStatusController(cancellationToken)
 				};
 
-				return await ConcatHealthCheckResultsAsync(checks, _serviceName);
+				return await ConcatHealthCheckResultsAsync(checks);
 			}
 			catch(Exception e)
 			{

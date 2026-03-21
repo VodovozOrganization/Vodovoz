@@ -7,8 +7,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Extensions;
+using VodovozHealthCheck.Providers;
 
 namespace VodovozHealthCheck
 {
@@ -34,6 +36,23 @@ namespace VodovozHealthCheck
 			_unitOfWorkFactory = unitOfWorkFactory;
 			_busControl = busControl;
 		}
+		
+		protected VodovozHealthCheckBase(
+			ILogger<VodovozHealthCheckBase> logger,
+			IHealthCheckServiceInfoProvider serviceInfoProvider,
+			IHttpContextAccessor httpContextAccessor,
+			IUnitOfWorkFactory unitOfWorkFactory = null,
+			IBusControl busControl = null)
+		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			ServiceInfoProvider = serviceInfoProvider ?? throw new ArgumentNullException(nameof(serviceInfoProvider));
+			_httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+			_unitOfWorkFactory = unitOfWorkFactory;
+			_busControl = busControl;
+		}
+		
+		protected IHealthCheckServiceInfoProvider ServiceInfoProvider { get; }
+		private IHttpContextAccessor _httpContextAccessor { get; }
 
 		/// <summary>
 		/// Реализация интерфейса IHealthCheck

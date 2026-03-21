@@ -256,10 +256,11 @@ namespace CustomerAppsApi.Library.Models
 			var email = CreateNewEmail(counterpartyDto.Email, counterparty);
 
 			//Делаем привязку нового клиента и покупателя
-			var externalCounterparty = _counterpartyModelFactory.CreateExternalCounterparty(counterpartyFrom);
-			externalCounterparty.Email = email;
-			externalCounterparty.ExternalCounterpartyId = counterpartyDto.ExternalCounterpartyId;
-			externalCounterparty.Phone = phone;
+			var externalCounterparty = ExternalCounterparty.Create(
+				phone,
+				email,
+				counterpartyDto.ExternalCounterpartyId,
+				counterpartyFrom);
 
 			if(!isDryRun)
 			{
