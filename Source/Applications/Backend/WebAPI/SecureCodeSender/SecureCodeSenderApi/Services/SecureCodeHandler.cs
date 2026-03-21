@@ -292,6 +292,9 @@ namespace SecureCodeSenderApi.Services
 		private string GenerateSecureCode()
 		{
 			var code = new Random().Next(100000, 999999).ToString();
+			
+			//TODO: логируем полученный код для тестов. На проде удалить
+			_logger.LogInformation("Код {Code}", code);
 			return code;
 		}
 
