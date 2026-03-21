@@ -53,7 +53,6 @@ namespace CustomerAppsApi.Library
 				.AddScoped<ICachedBottlesDebtRepository, CachedBottlesDebtRepository>()
 				.AddScoped<IRegisteredNaturalCounterpartyDtoFactory, RegisteredNaturalCounterpartyDtoFactory>()
 				.AddScoped<IExternalCounterpartyMatchingFactory, ExternalCounterpartyMatchingFactory>()
-				.AddScoped<IExternalCounterpartyFactory, ExternalCounterpartyFactory>()
 				.AddScoped<ICounterpartyModelFactory, CounterpartyModelFactory>()
 				.AddScoped<ICounterpartyFactory, CounterpartyFactory>()
 				.AddScoped<INomenclatureFactory, NomenclatureFactory>()
