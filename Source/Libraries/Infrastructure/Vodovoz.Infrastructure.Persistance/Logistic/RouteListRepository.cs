@@ -1883,7 +1883,7 @@ FROM
 		}
 
 		/// <inheritdoc/>
-		public async Task<bool> IsOrdesWasSelectedAsNext(
+		public async Task<bool> IsOrderWasSelectedAsNext(
 			IUnitOfWork uow,
 			int orderId,
 			CancellationToken cancellationToken = default)

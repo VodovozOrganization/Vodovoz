@@ -155,6 +155,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 		/// <param name="orderId">Номер заказа</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<bool> IsOrdesWasSelectedAsNext(IUnitOfWork uow, int orderId, CancellationToken cancellationToken = default);
+		Task<bool> IsOrderWasSelectedAsNext(IUnitOfWork uow, int orderId, CancellationToken cancellationToken = default);
 	}
 }
