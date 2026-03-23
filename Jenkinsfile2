@@ -9,7 +9,7 @@ PUBLISH_PROFILE_FILE = "${PUBLISH_PROFILE}.pubxml"
 CHECKOUT_CONTAINER_IMAGE = "docker.vod.qsolution.ru:5100/dotnet5-docker"
 DOCKER_REGISTRY_CREDENTIALS_ID = "docker-registry-credentials"
 REFERENCE_REPOSITORY_MOUNT_PATH = "/reference-repository"
-CONTAINERS_PER_NODE = 3
+CONTAINERS_PER_NODE = 1
 
 
 DOCKER_REGISTRY_URL = "docker.vod.qsolution.ru:5100"
@@ -132,6 +132,7 @@ stage('Checkout and build in containers') {
 								cid = sh(
 									script: """
 										docker run -d \
+										  --pull always \
 										  --name ${containerName} \
 										  -v /var/run/docker.sock:/var/run/docker.sock \
 										  -v ${referenceRepositoryPath}:${REFERENCE_REPOSITORY_MOUNT_PATH}:ro \
@@ -148,7 +149,11 @@ stage('Checkout and build in containers') {
 							stage("Checkout ${branchName}") {
 								withCredentials([usernamePassword(credentialsId: DOCKER_REGISTRY_CREDENTIALS_ID, usernameVariable: 'DOCKER_REGISTRY_USERNAME', passwordVariable: 'DOCKER_REGISTRY_PASSWORD')]) {
 									sh "docker exec ${cid} sh -c 'command -v docker >/dev/null 2>&1 || (apt-get update && apt-get install -y docker.io)'"
-									sh "docker exec -e REG_USER=\"${DOCKER_REGISTRY_USERNAME}\" -e REG_PASS=\"${DOCKER_REGISTRY_PASSWORD}\" ${cid} sh -c 'echo \"\$REG_PASS\" | docker login ${DOCKER_REGISTRY_URL} -u \"\$REG_USER\" --password-stdin'"
+									withEnv(["CID=${cid}", "REGISTRY_URL=${DOCKER_REGISTRY_URL}"]) {
+										sh '''
+											docker exec -e REG_USER="$DOCKER_REGISTRY_USERNAME" -e REG_PASS="$DOCKER_REGISTRY_PASSWORD" -e REGISTRY_URL="$REGISTRY_URL" "$CID" sh -c 'echo "$REG_PASS" | docker login "$REGISTRY_URL" -u "$REG_USER" --password-stdin'
+										'''.stripIndent()
+									}
 								}
 
 								// Checkout выполняется через Jenkins Git plugin на хосте (JENKINS-30600).
@@ -172,7 +177,7 @@ stage('Checkout and build in containers') {
 										echo "CMD: ${cmdCreateDir}"
 										sh cmdCreateDir
 
-										def cmdPublish = "docker exec ${cid} sh -c 'dotnet publish \"${projectPath}\" -c Release -r linux-x64 --self-contained false -o \"${publishDir}\"'"
+										def cmdPublish = "docker exec ${cid} sh -c 'dotnet publish \"${projectPath}\" -c Release -r linux-x64 --self-contained false -o \"${publishDir}\" /maxcpucount:4'"
 										echo "CMD: ${cmdPublish}"
 										sh cmdPublish
 
@@ -198,6 +203,11 @@ EOF'"""
 						} finally {
 							if (cid?.trim()) {
 								sh "docker rm -f ${cid} || true"
+							}
+							try {
+								deleteDir()
+							} catch (e) {
+								echo "Workspace cleanup failed: ${e}"
 							}
 						}
 					}
@@ -262,7 +272,7 @@ def getProjectsForBuilder(List projects, int builderIndex, int totalBuilders) {
 def CheckoutMainRepositoryWithoutSubmodules(referenceRepositoryPath) {
 	checkout changelog: false, poll: false, scm: [
 		$class: 'GitSCM',
-		branches: [[name: '*/master']],
+		branches: [[name: 'hotfix/jenkins']],
 		doGenerateSubmoduleConfigurations: false,
 		userRemoteConfigs: [[
 			url: 'https://github.com/VodovozOrganization/Vodovoz.git'
@@ -453,7 +463,7 @@ def CheckoutInContainer(referenceRepositoryPath) {
 
 	checkout changelog: false, poll: false, scm: [
 		$class: 'GitSCM',
-		branches: [[name: '*/master']],
+		branches: [[name: 'hotfix/jenkins']],
 		doGenerateSubmoduleConfigurations: false,
 
 		userRemoteConfigs: [[
@@ -477,18 +487,32 @@ def CheckoutInContainer(referenceRepositoryPath) {
 		]
 	]
 
-	echo "=== Checkout submodules from mounted reference repository ==="
-	CheckoutSubmodulesFromMountedReference(REFERENCE_REPOSITORY_MOUNT_PATH)
+	echo "=== Checkout submodules from reference repository ==="
+	echo "referenceRepositoryPath(host): ${referenceRepositoryPath}"
+	echo "REFERENCE_REPOSITORY_MOUNT_PATH(container): ${REFERENCE_REPOSITORY_MOUNT_PATH}"
+	sh """
+		echo "=== Host diagnostics before submodule checkout ==="
+		pwd
+		echo "WORKSPACE=$PWD"
+		echo "Listing host reference repository path"
+		ls -la "${referenceRepositoryPath}" || true
+		echo "Listing container mount-like path on host (if exists)"
+		ls -la "${REFERENCE_REPOSITORY_MOUNT_PATH}" || echo "Path does not exist on host: ${REFERENCE_REPOSITORY_MOUNT_PATH}"
+	""".stripIndent()
+	CheckoutSubmodulesFromReference(referenceRepositoryPath)
 
 	echo "=== Source/Libraries/External directories ==="
 	sh 'find Source/Libraries/External -maxdepth 1 -mindepth 1 -type d | sort || echo "(directory not found)"'
 }
 
-def CheckoutSubmodulesFromMountedReference(referenceRepositoryMountPath) {
+def CheckoutSubmodulesFromReference(referenceRepositoryPath) {
 	def submoduleRowsRaw = sh(
 		script: "git config -f .gitmodules --get-regexp '^submodule\\..*\\.path\$' || true",
 		returnStdout: true
 	).trim()
+
+	def referenceRootExists = (sh(script: "test -d \"${referenceRepositoryPath}\"", returnStatus: true) == 0)
+	echo "referenceRepositoryPathExists=${referenceRootExists}; path=${referenceRepositoryPath}"
 
 	if (!submoduleRowsRaw) {
 		echo "No submodules found in .gitmodules"
@@ -508,12 +532,27 @@ def CheckoutSubmodulesFromMountedReference(referenceRepositoryMountPath) {
 		def urlKey = pathKey.replace('.path', '.url')
 		def submoduleUrl = sh(script: "git config -f .gitmodules --get ${urlKey}", returnStdout: true).trim()
 		def repoName = submoduleUrl.tokenize('/').last().replace('.git', '')
-		def referenceMirrorPath = "${referenceRepositoryMountPath}/${repoName}.git"
+		def referenceMirrorPath = "${referenceRepositoryPath}/${repoName}.git"
+		def referenceMirrorExists = (sh(script: "test -d \"${referenceMirrorPath}\"", returnStatus: true) == 0)
 
 		sh "echo Preparing submodule ${submodulePath}"
+		sh "echo submoduleUrl=${submoduleUrl}"
+		sh "echo repoName=${repoName}"
+		sh "echo referenceRepositoryPath=${referenceRepositoryPath}"
+		sh "echo referenceMirrorPath=${referenceMirrorPath}"
+		sh "echo referenceMirrorExists=${referenceMirrorExists}"
+		if (!referenceMirrorExists) {
+			sh "echo 'Reference mirror is missing. Available entries in reference path:'"
+			sh "ls -la \"${referenceRepositoryPath}\" || true"
+		}
 		sh "git submodule init -- ${submodulePath}"
 		sh "git submodule sync -- ${submodulePath}"
-		sh "git submodule update --init --reference ${referenceMirrorPath} -- ${submodulePath}"
+		if (referenceMirrorExists) {
+			sh "git submodule update --init --reference ${referenceMirrorPath} -- ${submodulePath}"
+		} else {
+			sh "echo 'Running submodule update without --reference'"
+			sh "git submodule update --init -- ${submodulePath}"
+		}
 	}
 }
 
