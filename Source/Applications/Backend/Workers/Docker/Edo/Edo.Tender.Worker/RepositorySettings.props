@@ -1,0 +1,6 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>edo.tender.worker</ContainerRepository>
+  </PropertyGroup>
+</Project>
+
