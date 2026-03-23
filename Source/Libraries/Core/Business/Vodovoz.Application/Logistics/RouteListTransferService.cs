@@ -4,6 +4,7 @@ using System.Linq;
 using NHibernate;
 using QS.DomainModel.UoW;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Documents;
@@ -263,7 +264,7 @@ namespace Vodovoz.Application.Logistics
 			}
 
 			order.ChangeStatus(OrderStatus.OnTheWay);
-			_onlineOrderService.NotifyClientOfOnlineOrderStatusChange(unitOfWork, order.OnlineOrder);
+			_onlineOrderService.NotifyClientOfOnlineOrderStatusChange(order.OnlineOrder, CustomerNotificationEventType.CourierAssigned);
 
 			unitOfWork.Save(order);
 			unitOfWork.Save(newRouteListItem);

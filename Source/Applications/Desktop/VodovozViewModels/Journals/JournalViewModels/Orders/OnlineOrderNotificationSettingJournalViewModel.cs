@@ -47,14 +47,15 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 
 			itemsQuery.Where(GetSearchCriterion(
 				() => onlineOrderNotificationSettingAlias.Id,
-				() => onlineOrderNotificationSettingAlias.ExternalOrderStatus,
+				() => onlineOrderNotificationSettingAlias.CustomerNotificationEventType,
 				() => onlineOrderNotificationSettingAlias.NotificationText)
 			);
 
 			itemsQuery.SelectList(list => list
 					.Select(() => onlineOrderNotificationSettingAlias.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => onlineOrderNotificationSettingAlias.ExternalOrderStatus).WithAlias(() => resultAlias.ExternalOrderStatus)
+					.Select(() => onlineOrderNotificationSettingAlias.CustomerNotificationEventType).WithAlias(() => resultAlias.CustomerNotificationEventType)
 					.Select(() => onlineOrderNotificationSettingAlias.NotificationText).WithAlias(() => resultAlias.NotificationText)
+					.Select(() => onlineOrderNotificationSettingAlias.NotificationDisabled).WithAlias(() => resultAlias.NotificationDisabled)
 				)
 				.TransformUsing(Transformers.AliasToBean<OnlineOrderNotificationSettingJournalNode>());
 

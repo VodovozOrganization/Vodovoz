@@ -42,6 +42,8 @@ using QSProjectsLib;
 using RabbitMQ.MailSending;
 using ResourceLocker.Library;
 using System;
+using CustomerNotifications.Publisher.Configuration;
+using CustomerNotifications.Publisher.Services;
 using TrueMark.Codes.Pool;
 using TrueMarkApi.Client;
 using Vodovoz.Additions;
@@ -249,6 +251,7 @@ namespace Vodovoz
 				
 				.AddScoped<IDataExporterFor1cFactory, DataExporterFor1cFactory>()
 
+				.AddVodovozDesktopGarnetRedisConnection()
 				.AddVodovozDesktopResourceLocker()
 				.AddScoped<BankAccountsMovementsJournalReport>()
 				.AddMainMenuDependencies()
@@ -257,6 +260,7 @@ namespace Vodovoz
 				.AddScoped<IPasswordValidator, PasswordValidator>()
 				.AddScoped<IPasswordValidationSettings, DefaultPasswordValidationSettings>()
 				.AddScoped<IDriverScheduleService, DriverScheduleService>()
+				.AddDesktopCustomerNotificationsPublisher()
 				;
 
 			services.AddStaticHistoryTracker();
@@ -334,6 +338,7 @@ namespace Vodovoz
 					rabbitCfg.AddPacsBaseTopology(context);
 					rabbitCfg.AddEdoTopology(context);
 					rabbitCfg.AddSendEmailMessageTopology(context);
+					rabbitCfg.AddCustomerNotificationPublisherTopology(context);
 				},
 				(busCfg) =>
 				{

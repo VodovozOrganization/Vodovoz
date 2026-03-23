@@ -30,7 +30,6 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
@@ -93,6 +92,7 @@ namespace Vodovoz
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender;
 		private readonly OrderCancellationService _orderCancellationService;
+		private readonly IOnlineOrderService _onlineOrderService;
 		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
 		private bool _canClose = true;
 		private IEnumerable<object> _selectedRouteListAddressesObjects = Enumerable.Empty<object>();
@@ -130,7 +130,8 @@ namespace Vodovoz
 			IOrderContractUpdater orderContractUpdater,
 			IRouteListService routeListService,
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
-			OrderCancellationService orderCancellationService
+			OrderCancellationService orderCancellationService,
+			IOnlineOrderService onlineOrderService
 			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
@@ -160,7 +161,7 @@ namespace Vodovoz
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
-
+			_onlineOrderService = onlineOrderService ?? throw new ArgumentNullException(nameof(onlineOrderService));
 			TabName = $"Ведение МЛ №{Entity.Id}";
 
 			_permissionResult = _currentPermissionService.ValidateEntityPermission(typeof(RouteList));
@@ -198,13 +199,18 @@ namespace Vodovoz
 			CancelCommand = new DelegateCommand(() => Close(true, CloseSource.Cancel));
 			RefreshCommand = new DelegateCommand(RefreshCommandHandler, () => AllEditing);
 			CreateFineCommand = new DelegateCommand(CreateFineCommandHandler, () => AllEditing);
-			ReturnToEnRouteStatus = new DelegateCommand(Entity.RollBackEnRouteStatus, () => CanReturnRouteListToEnRouteStatus);
+			ReturnToEnRouteStatus = new DelegateCommand(RollBackEnRouteStatus, () => CanReturnRouteListToEnRouteStatus);
 			CallMadenCommand = new DelegateCommand(CallMadenHandler, () => AllEditing);
 			ChangeDeliveryTimeCommand = new DelegateCommand(ChangeDeliveryTimeHandler, () => CanChangeDeliveryTime);
 			SetStatusCompleteCommand = new DelegateCommand(SetStatusCompleteHandler, () => CanComplete);
 			ReDeliverCommand = new DelegateCommand(ReDeliverHandler, () => Entity.CanChangeStatusToDeliveredWithIgnoringAdditionalLoadingDocument);
 			OpenOrderCodesCommand = new DelegateCommand(() => OpenOrderCodesDialog(),() => CanOpenOrderCodes());
 			OpenOrderCodesCommand.CanExecuteChangedWith(this, x => x.SelectedRouteListAddressesObjects);
+		}
+
+		private void RollBackEnRouteStatus()
+		{
+			Entity.RollBackEnRouteStatus(_onlineOrderService);
 		}
 
 		private void CreateInitialRouteListItemStatuses()

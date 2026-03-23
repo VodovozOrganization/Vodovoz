@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
+using CustomerNotifications.Contracts.Messages;
+using CustomerNotifications.Publisher.Services;
 using CustomerOnlineOrdersRegistrar.Factories.V3;
 using CustomerOnlineOrdersRegistrar.Factories.V4;
 using CustomerOrdersApi.Library.Default.Dto.Orders;
@@ -8,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using QS.DomainModel.UoW;
 using QS.Utilities.Debug;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Orders;
@@ -34,7 +37,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
 			IRouteListService routeListService,
 			IOrderFromOnlineOrderValidator onlineOrderValidator,
-			IBus bus)
+			ICustomerNotificationPublisher notificationPublisher)
 				: base(
 					logger,
 					unitOfWorkFactory,
@@ -46,9 +49,9 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 					onlineOrderCancellationReasonSettings,
 					orderService,
 					routeListService,
-					onlineOrderValidator)
+					onlineOrderValidator,
+					notificationPublisher)
 		{
-			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 		}
 		
 		public async Task Consume(ConsumeContext<OnlineOrderInfoDto> context)

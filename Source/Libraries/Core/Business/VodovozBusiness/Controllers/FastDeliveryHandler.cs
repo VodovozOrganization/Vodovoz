@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -157,7 +158,7 @@ namespace Vodovoz.Controllers
 				fastDeliveryAddress = routeListService.AddAddressFromOrder(uow, RouteListToAddFastDeliveryOrder, order);
 				
 				order.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, callTaskWorker);
-				_onlineOrderService.NotifyClientOfOnlineOrderStatusChange(uow, order.OnlineOrder);
+				_onlineOrderService.NotifyClientOfOnlineOrderStatusChange(order.OnlineOrder, CustomerNotificationEventType.CourierAssigned);
 				order.UpdateDocuments();
 			}
 

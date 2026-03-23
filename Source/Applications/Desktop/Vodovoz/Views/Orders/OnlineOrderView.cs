@@ -508,8 +508,8 @@ namespace Vodovoz.Views.Orders
 
 				ViewModel.Entity.SetOrderPerformed(orders);
 
-				var notification = ViewModel.CreateNewNotification();
-				ViewModel.UoW.Save(notification);
+				ViewModel.PublishCustomerNotification();
+				
 				ViewModel.Save(true);
 			}
 			

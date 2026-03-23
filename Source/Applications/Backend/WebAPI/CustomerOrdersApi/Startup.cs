@@ -1,4 +1,4 @@
-using CustomerOrdersApi.HealthCheck;
+﻿using CustomerOrdersApi.HealthCheck;
 using System;
 using CustomerOrdersApi.Library;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
@@ -27,6 +27,7 @@ using VodovozHealthCheck;
 using Vodovoz.Presentation.WebApi;
 using Vodovoz.Services.Logistics;
 using VodovozBusiness.Services.Orders;
+using CustomerNotifications.Publisher.Configuration;
 
 namespace CustomerOrdersApi
 {
@@ -82,7 +83,8 @@ namespace CustomerOrdersApi
 					busConf.AddRequestClient<CreatedOnlineOrder>(new Uri($"exchange:{CreatingOnlineOrder.ExchangeAndQueueName}"));
 					busConf.ConfigureRabbitMq();
 				})
-				.AddHttpClient();
+				.AddHttpClient()
+				.AddMultibusCustomerNotificationsPublisher(Configuration);
 			
 			services.ConfigureHealthCheckService<CustomerOrdersApiHealthCheck, ServiceInfoProvider>();
 		}

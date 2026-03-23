@@ -20,13 +20,13 @@ namespace Vodovoz.Views.Orders
 
 		private global::Gamma.Widgets.yEnumComboBox yenumcmbNotificationEvent;
 
-		private global::Gamma.Widgets.yEnumComboBox yenumcmbNotificationType;
+		private global::Gamma.Widgets.yEnumComboBox yenumcmbNotificationClassification;
 
 		private global::Gamma.GtkWidgets.yLabel ylabel1;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelNotificationEvent;
 
-		private global::Gamma.GtkWidgets.yLabel ylabelNotificationType;
+		private global::Gamma.GtkWidgets.yLabel ylabelNotificationClassification;
 
 		protected virtual void Build()
 		{
@@ -122,14 +122,14 @@ namespace Vodovoz.Views.Orders
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yenumcmbNotificationType = new global::Gamma.Widgets.yEnumComboBox();
-			this.yenumcmbNotificationType.Name = "yenumcmbNotificationType";
-			this.yenumcmbNotificationType.ShowSpecialStateAll = false;
-			this.yenumcmbNotificationType.ShowSpecialStateNot = false;
-			this.yenumcmbNotificationType.UseShortTitle = false;
-			this.yenumcmbNotificationType.DefaultFirst = false;
-			this.table1.Add(this.yenumcmbNotificationType);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumcmbNotificationType]));
+			this.yenumcmbNotificationClassification = new global::Gamma.Widgets.yEnumComboBox();
+			this.yenumcmbNotificationClassification.Name = "yenumcmbNotificationClassification";
+			this.yenumcmbNotificationClassification.ShowSpecialStateAll = false;
+			this.yenumcmbNotificationClassification.ShowSpecialStateNot = false;
+			this.yenumcmbNotificationClassification.UseShortTitle = false;
+			this.yenumcmbNotificationClassification.DefaultFirst = false;
+			this.table1.Add(this.yenumcmbNotificationClassification);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.yenumcmbNotificationClassification]));
 			w9.TopAttach = ((uint)(2));
 			w9.BottomAttach = ((uint)(3));
 			w9.LeftAttach = ((uint)(1));
@@ -157,12 +157,12 @@ namespace Vodovoz.Views.Orders
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.ylabelNotificationType = new global::Gamma.GtkWidgets.yLabel();
-			this.ylabelNotificationType.Name = "ylabelNotificationType";
-			this.ylabelNotificationType.Xalign = 1F;
-			this.ylabelNotificationType.LabelProp = global::Mono.Unix.Catalog.GetString("Классификация уведомлений:");
-			this.table1.Add(this.ylabelNotificationType);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelNotificationType]));
+			this.ylabelNotificationClassification = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelNotificationClassification.Name = "ylabelNotificationClassification";
+			this.ylabelNotificationClassification.Xalign = 1F;
+			this.ylabelNotificationClassification.LabelProp = global::Mono.Unix.Catalog.GetString("Классификация уведомлений:");
+			this.table1.Add(this.ylabelNotificationClassification);
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.ylabelNotificationClassification]));
 			w12.TopAttach = ((uint)(2));
 			w12.BottomAttach = ((uint)(3));
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));

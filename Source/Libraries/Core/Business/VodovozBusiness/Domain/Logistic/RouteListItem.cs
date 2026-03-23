@@ -14,6 +14,7 @@ using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
@@ -669,11 +670,12 @@ namespace Vodovoz.Domain.Logistic
 
 					RestoreOrder(status);
 					_orderService.AutoCancelAutoTransfer(uow, Order);
+					onlineOrderService.NotifyClientOfOnlineOrderStatusChange(Order.OnlineOrder, CustomerNotificationEventType.DeliveryCompleted);
 					break;
 				case RouteListItemStatus.EnRoute:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, callTaskWorker);
 					RestoreOrder(status);
-					onlineOrderService.NotifyClientOfOnlineOrderStatusChange(uow, Order.OnlineOrder);
+					onlineOrderService.NotifyClientOfOnlineOrderStatusChange(Order.OnlineOrder, CustomerNotificationEventType.CourierOnTheWay);
 					break;
 				case RouteListItemStatus.Overdue:
 					Order.OverdueDelivery(uow, callTaskWorker);
