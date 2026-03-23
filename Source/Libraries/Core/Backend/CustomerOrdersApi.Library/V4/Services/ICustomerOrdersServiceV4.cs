@@ -35,7 +35,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 		/// <param name="getOrdersDto">Информация для получения заказов клиента</param>
 		/// <param name="generatedSignature">Сгенерированная контрольная сумма Erp, для проверки</param>
 		/// <returns><c>true</c> - валидный запрос, <c>false</c> - невалидный запрос</returns>
-		bool ValidateCounterpartyOrdersSignature(GetOrdersDto getOrdersDto, out string generatedSignature);
+		bool ValidateCounterpartyOrdersSignature(GetCounterpartyOrdersDto getCounterpartyOrdersDto, out string generatedSignature);
 		/// <summary>
 		/// Проверка контрольной суммы запроса заявки на звонок
 		/// </summary>
@@ -55,6 +55,13 @@ namespace CustomerOrdersApi.Library.V4.Services
 		/// <param name="getOrdersDto">Данные для получения заказов клиента</param>
 		/// <returns>Заказы клиента <see cref="GetOrdersDto"/></returns>
 		OrdersDto GetOrders(GetOrdersDto getOrdersDto);
+		/// <summary>
+		/// Получение текущих активных заказов клиента
+		/// </summary>
+		/// <param name="getCounterpartyOrdersDto">Данные для получения заказов клиента</param>
+		/// <param name="cancellationToken">Токен для отмены операции</param>
+		/// <returns>Активные заказы клиента <see cref="ActiveOrdersDto"/></returns>
+		Task<ActiveOrdersDto> GetCurrentClientOrders(GetCounterpartyOrdersDto getCounterpartyOrdersDto, CancellationToken cancellationToken = default);
 		/// <summary>
 		/// Получение списка причин оценки заказа
 		/// </summary>

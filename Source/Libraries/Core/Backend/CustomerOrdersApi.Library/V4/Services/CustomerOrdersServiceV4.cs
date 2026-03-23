@@ -120,17 +120,17 @@ namespace CustomerOrdersApi.Library.V4.Services
 				out generatedSignature);
 		}
 		
-		public bool ValidateCounterpartyOrdersSignature(GetOrdersDto getOrdersDto, out string generatedSignature)
+		public bool ValidateCounterpartyOrdersSignature(GetCounterpartyOrdersDto getCounterpartyOrdersDto, out string generatedSignature)
 		{
-			var sourceSign = GetSourceSign(getOrdersDto.Source);
-			
+			var sourceSign = GetSourceSign(getCounterpartyOrdersDto.Source);
+
 			return _signatureManager.Validate(
-				getOrdersDto.Signature,
+				getCounterpartyOrdersDto.Signature,
 				new CounterpartyOrdersSignatureParams
 				{
-					CounterpartyId = getOrdersDto.CounterpartyErpId.ToString(),
-					Page = getOrdersDto.Page,
-					ShopId = (int)getOrdersDto.Source,
+					CounterpartyId = getCounterpartyOrdersDto.CounterpartyErpId.ToString(),
+					Page = getCounterpartyOrdersDto.Page,
+					ShopId = (int)getCounterpartyOrdersDto.Source,
 					Sign = sourceSign
 				},
 				out generatedSignature);
@@ -317,11 +317,77 @@ namespace CustomerOrdersApi.Library.V4.Services
 			};
 		}
 
-		private IEnumerable<OrderDto> GetOnlineOrdersWithOrdersInfo(GetOrdersDto getOrdersDto, IUnitOfWork uow, DateTime dateAvailabilityRating)
+		public async Task<ActiveOrdersDto> GetCurrentClientOrders(
+			GetCounterpartyOrdersDto getCounterpartyOrdersDto,
+			CancellationToken cancellationToken = default)
+		{
+			var skipElements = (getCounterpartyOrdersDto.Page - 1) * getCounterpartyOrdersDto.OrdersCountOnPage;
+			var dateAvailabilityRating = _orderSettings.GetDateAvailabilityRatingOrder;
+
+			using var uow = _unitOfWorkFactory.CreateWithoutRoot();
+
+			var ordersWithoutOnlineOrders =
+				_orderRepository.GetCounterpartyOrdersWithoutOnlineOrdersV4(uow, getCounterpartyOrdersDto.CounterpartyErpId, dateAvailabilityRating);
+			var onlineOrdersWithOrders =
+				GetOnlineOrdersWithOrdersInfo(getCounterpartyOrdersDto, uow, dateAvailabilityRating);
+			var onlineOrdersWithoutOrders =
+				_onlineOrderRepository.GetCounterpartyOnlineOrdersWithoutOrderV4(uow, getCounterpartyOrdersDto.CounterpartyErpId, dateAvailabilityRating);
+
+			var activeStatuses = new[]
+			{
+				ExternalOrderStatus.OrderPerformed,
+				ExternalOrderStatus.OrderDelivering
+			};
+
+			var activeOrders = ordersWithoutOnlineOrders
+				.Concat(onlineOrdersWithOrders)
+				.Concat(onlineOrdersWithoutOrders)
+				.Where(x => activeStatuses.Contains(x.OrderStatus))
+				.OrderByDescending(x => x.DeliveryDate)
+				.ThenByDescending(x => x.CreatedDateTimeUtc)
+				.ToArray();
+
+			var pagedOrders = activeOrders
+				.Skip(skipElements)
+				.Take(getCounterpartyOrdersDto.OrdersCountOnPage)
+				.ToArray();
+
+			var activeOrderDtos = new List<ActiveOrderDto>();
+
+			foreach(var orderDto in pagedOrders)
+			{
+				bool establishedRoute = false;
+				bool isOrderWasSelectedAsNext = false;
+
+				if(orderDto.OrderId.HasValue)
+				{
+					var order = uow.GetById<Order>(orderDto.OrderId.Value);
+
+					if(order != null)
+					{
+						var (estRoute, _, _) = await GetEstablishedRoute(uow, order, cancellationToken);
+						establishedRoute = estRoute;
+						isOrderWasSelectedAsNext =
+							establishedRoute || await _routeListRepository.IsOrderWasSelectedAsNext(uow, order.Id, cancellationToken);
+					}
+				}
+
+				var activeOrderDto = _customerOrderFactory.CreateActiveOrderInfo(orderDto, establishedRoute, isOrderWasSelectedAsNext);
+				activeOrderDtos.Add(activeOrderDto);
+			}
+
+			return new ActiveOrdersDto
+			{
+				Orders = activeOrderDtos.ToArray(),
+				OrdersCount = activeOrders.Length
+			};
+		}
+
+		private IEnumerable<OrderDto> GetOnlineOrdersWithOrdersInfo(GetCounterpartyOrdersDto getCounterpartyOrdersDto, IUnitOfWork uow, DateTime dateAvailabilityRating)
 		{
 			var onlineOrdersInfo = new List<OrderDto>();
 			var ordersFromOnlineOrders =
-				_orderRepository.GetCounterpartyOrdersFromOnlineOrdersV4(uow, getOrdersDto.CounterpartyErpId, dateAvailabilityRating)
+				_orderRepository.GetCounterpartyOrdersFromOnlineOrdersV4(uow, getCounterpartyOrdersDto.CounterpartyErpId, dateAvailabilityRating)
 					.ToLookup(x => x.OnlineOrderId);
 
 			foreach(var ordersFromOnlineOrdersGroup in ordersFromOnlineOrders)

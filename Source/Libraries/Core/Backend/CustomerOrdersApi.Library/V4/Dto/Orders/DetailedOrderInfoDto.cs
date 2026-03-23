@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Data.Orders.V4;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 
@@ -10,18 +9,18 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 	/// <summary>
 	/// Детальная информация о заказе
 	/// </summary>
-	public class DetailedOrderInfoDto : OrderDto
+	public class DetailedOrderInfoDto : ActiveOrderDto
 	{
 		/// <summary>
 		/// Значение таймера для оплаты заказа
 		/// </summary>
 		public int? TimerForPaySeconds { get; set; }
-		
+
 		/// <summary>
 		/// Доступность повторения заказа
 		/// </summary>
 		public bool AvailableRepeatOrder { get; set; }
-		
+
 		/// <summary>
 		/// Быстрая доставка
 		/// </summary>
@@ -31,41 +30,31 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 		/// Источник онлайн оплаты
 		/// </summary>
 		public OnlinePaymentSource? OnlinePaymentSource { get; set; }
-		
+
 		/// <summary>
 		/// Тип онлайн оплаты
 		/// </summary>
 		public OnlineOrderPaymentType? OnlinePaymentType { get; set; }
-		
+
 		/// <summary>
 		/// Причины оценки
 		/// </summary>
 		public IEnumerable<int> RatingReasonsIds { get; private set; }
-		
+
 		/// <summary>
 		/// Комментарий к оценке
 		/// </summary>
 		public string OrderRatingComment { get; set; }
-		
+
 		/// <summary>
 		/// Товары без промонаборов
 		/// </summary>
 		public IEnumerable<OrderItemDto> OrderItems { get; private set; }
-		
+
 		/// <summary>
 		/// Промонаборы
 		/// </summary>
 		public IEnumerable<PromoSetDto> PromoSets { get; private set; }
-
-		/// <summary>
-		/// Маршрут проложен водителем до точки доставки
-		/// </summary>
-		public bool EstablishedRoute { get; private set; }
-
-		/// <summary>
-		/// Текстовое сообщение о статусе заказа
-		/// </summary>
-		public string TextStatusMessage { get; private set; }
 
 		/// <summary>
 		/// Координаты курьера с момента выбора адреса водителем
@@ -95,7 +84,7 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 			RatingValue = orderRating.Rating;
 			IsRatingAvailable = false;
 		}
-		
+
 		public void UpdateOrderItems(IEnumerable<IProduct> orderItems)
 		{
 			OrderItems = orderItems
@@ -114,28 +103,8 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 
 		public void UpdateDriverPosition(bool establishedRoute, IEnumerable<CoordinatesDto> courierCoordinates)
 		{
-			EstablishedRoute = establishedRoute;
+			UpdateDriverRoute(establishedRoute);
 			CourierCoordinates = courierCoordinates;
-		}
-
-		public void UpdateTextStatusMessage(bool establishedRoute, bool isOrderWasSelectedAsNext)
-		{
-			switch(OrderStatus)
-			{
-				case ExternalOrderStatus.OrderProcessing:
-					TextStatusMessage = "Заказ оформлен";
-					break;
-				case ExternalOrderStatus.OrderDelivering:
-					TextStatusMessage = 
-						establishedRoute ? "Курьер направляется к Вам"
-						: isOrderWasSelectedAsNext
-							? "Курьер задерживается"
-							: "Заказ в пути";
-					break;
-				default:
-					TextStatusMessage = string.Empty;
-					break;
-			}
 		}
 
 		public void UpdateClientCoordinates(CoordinatesDto clientCoordinates)
@@ -148,7 +117,7 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 			var promoSetsGroup = orderItems
 				.Where(x => x.PromoSet != null)
 				.ToLookup(x => x.PromoSet.Id);
-			
+
 			var promoSets = new List<PromoSetDto>();
 
 			foreach(var orderItemGroup in promoSetsGroup)
@@ -168,7 +137,7 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 						break;
 					}
 				}
-					
+
 				promoSets.Add(
 					PromoSetDto.Create(
 						orderItemGroup.Key,

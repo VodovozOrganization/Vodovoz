@@ -4,6 +4,7 @@ using System.Linq;
 using CustomerOrdersApi.Library.Converters;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using Vodovoz.Core.Data.InfoMessages;
+using Vodovoz.Core.Data.Orders.V4;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -51,6 +52,36 @@ namespace CustomerOrdersApi.Library.V4.Factories
 			orderInfo.UpdateOrderRating(orderRating, ratingAvailableFrom);
 			orderInfo.UpdateOrderItems(onlineOrder.OnlineOrderItems);
 			return orderInfo;
+		}
+
+		public ActiveOrderDto CreateActiveOrderInfo(
+			OrderDto orderDto,
+			bool establishedRoute,
+			bool isOrderWasSelectedAsNext)
+		{
+			var activeOrder = new ActiveOrderDto
+			{
+				OrderId = orderDto.OrderId,
+				OnlineOrderId = orderDto.OnlineOrderId,
+				CreatedDateTimeUtc = orderDto.CreatedDateTimeUtc,
+				DeliveryDate = orderDto.DeliveryDate,
+				IsSelfDelivery = orderDto.IsSelfDelivery,
+				OrderSum = orderDto.OrderSum,
+				OrderStatus = orderDto.OrderStatus,
+				OrderPaymentStatus = orderDto.OrderPaymentStatus,
+				DeliverySchedule = orderDto.DeliverySchedule,
+				DeliveryAddress = orderDto.DeliveryAddress,
+				RatingValue = orderDto.RatingValue,
+				IsRatingAvailable = orderDto.IsRatingAvailable,
+				IsNeedPay = orderDto.IsNeedPay,
+				DeliveryPointId = orderDto.DeliveryPointId,
+				InfoMessages = orderDto.InfoMessages
+			};
+
+			activeOrder.UpdateDriverRoute(establishedRoute);
+			activeOrder.UpdateTextStatusMessage(establishedRoute, isOrderWasSelectedAsNext);
+
+			return activeOrder;
 		}
 
 		public IEnumerable<OrderRatingReasonDto> GetOrderRatingReasonDtos(IEnumerable<OrderRatingReason> orderRatingReasons)

@@ -1,14 +1,16 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using CustomerOrdersApi.Library.Common;
+﻿using CustomerOrdersApi.Library.Common;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using CustomerOrdersApi.Library.V4.Services;
 using Gamma.Utilities;
 using MassTransit;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
+using System.Net.Mime;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Presentation.WebApi.Messages;
 
 namespace CustomerOrdersApi.Controllers.V4
@@ -68,7 +70,16 @@ namespace CustomerOrdersApi.Controllers.V4
 			}
 		}
 
+		/// <summary>
+		/// Получение детальной информации о заказе
+		/// </summary>
+		/// <param name="getDetailedOrderInfoDto">Данные для получения деталей заказа</param>
+		/// <param name="cancellationToken">Токен для отмены операции</param>
+		/// <returns>Детальная информация о заказе <see cref="DetailedOrderInfoDto"/></returns>
 		[HttpGet]
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DetailedOrderInfoDto))]
 		public async Task<IActionResult> GetOrderInfo([FromBody] GetDetailedOrderInfoDto getDetailedOrderInfoDto, CancellationToken cancellationToken)
 		{
 			var sourceName = getDetailedOrderInfoDto.Source.GetEnumTitle();
@@ -141,6 +152,55 @@ namespace CustomerOrdersApi.Controllers.V4
 			}
 		}
 		
+		/// <summary>
+		/// Получение текущих активных заказов клиента
+		/// </summary>
+		/// <param name="getCounterpartyOrdersDto">Данные для получения заказов клиента</param>
+		/// <param name="cancellationToken">Токен для отмены операции</param>
+		/// <returns>Активные заказы клиента <see cref="ActiveOrdersDto"/> со статусами <c>OrderPerformed</c> и <c>OrderDelivering</c></returns>
+		[HttpGet]
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ActiveOrdersDto))]
+		public async Task<IActionResult> GetCurrentClientOrders(
+			[FromBody] GetCounterpartyOrdersDto getCounterpartyOrdersDto,
+			CancellationToken cancellationToken)
+		{
+			var sourceName = getCounterpartyOrdersDto.Source.GetEnumTitle();
+
+			try
+			{
+				_logger.LogInformation(
+					"Поступил запрос от {Source} на получение текущих заказов клиента {CounterpartyId} c подписью {Signature}, проверяем...",
+					sourceName,
+					getCounterpartyOrdersDto.CounterpartyErpId,
+					getCounterpartyOrdersDto.Signature);
+
+				if(!_customerOrdersService.ValidateCounterpartyOrdersSignature(getCounterpartyOrdersDto, out var generatedSignature))
+				{
+					return InvalidSignature(getCounterpartyOrdersDto.Signature, generatedSignature);
+				}
+
+				_logger.LogInformation(
+					"Подпись валидна, получаем текущие заказы клиента {CounterpartyId} страница {Page}",
+					getCounterpartyOrdersDto.CounterpartyErpId,
+					getCounterpartyOrdersDto.Page);
+
+				var orders = await _customerOrdersService.GetCurrentClientOrders(getCounterpartyOrdersDto, cancellationToken);
+
+				return Ok(orders);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e,
+					"Ошибка при получении текущих заказов клиента {CounterpartyId} от {Source}",
+					getCounterpartyOrdersDto.CounterpartyErpId,
+					sourceName);
+
+				return Problem();
+			}
+		}
+
 		[HttpGet]
 		public IActionResult GetAvailablePaymentMethods([FromBody] GetAvailablePaymentMethodsDto getAvailablePaymentMethods)
 		{
