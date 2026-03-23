@@ -122,11 +122,30 @@ namespace Vodovoz.EntityRepositories.Logistic
 		/// <summary>
 		/// Возвращает последний выбранный адрес водителя в указанном маршрутном листе
 		/// </summary>
-		/// <param name="uow">Unit of Work</param>
+		/// <param name="uow">UnitofWork</param>
 		/// <param name="driverId">Идентификатор водителя</param>
 		/// <param name="routeListId">Идентификатор маршрутного листа</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Последняя запись о выборе адреса или null</returns>
-		Task<DriversSelectedAddress> GetLastSelectedAddressForRouteList(IUnitOfWork uow, int driverId, int routeListId, CancellationToken cancellationToken);
+		Task<DriversSelectedAddress> GetLastSelectedAddressForRouteList(IUnitOfWork uow, int driverId, int routeListId, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Возвращает координаты водителя, которые были получены после указанного времени для данного маршрутного листа
+		/// </summary>
+		/// <param name="uow">UnitofWork</param>
+		/// <param name="routeListId">Идентификатор маршрутного листа</param>
+		/// <param name="startFrom">Время начала</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Список координат водителя</returns>
+		Task<IEnumerable<TrackPoint>> GetDriverCoordinates(IUnitOfWork uow, int routeListId, DateTime startFrom, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Возвращает адрес маршрутного листа в статусе "В пути" для данного заказа, если такой существует
+		/// </summary>
+		/// <param name="uow">UnitofWork</param>
+		/// <param name="orderId">Номер заказа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Адрес МЛ</returns>
+		Task<RouteListItem> GetEnRouteRouteListItemByOrderId(IUnitOfWork uow, int orderId, CancellationToken cancellationToken = default);
 	}
 }

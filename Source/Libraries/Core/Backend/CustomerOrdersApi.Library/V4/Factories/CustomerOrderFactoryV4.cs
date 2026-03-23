@@ -30,11 +30,16 @@ namespace CustomerOrdersApi.Library.V4.Factories
 			OrderRating orderRating,
 			OnlineOrderTimers timers,
 			int? onlineOrderId,
-			DateTime ratingAvailableFrom)
+			DateTime ratingAvailableFrom,
+			bool establishedRoute,
+			IEnumerable<CoordinatesDto> courierCoordinates,
+			CoordinatesDto clientCoordinates)
 		{
 			var orderInfo = CreateOrderInfoDto(order, timers, onlineOrderId);
 			orderInfo.UpdateOrderRating(orderRating, ratingAvailableFrom);
 			orderInfo.UpdateOrderItems(order.OrderItems);
+			orderInfo.UpdateDriverPosition(establishedRoute, courierCoordinates);
+			orderInfo.UpdateClientCoordinates(clientCoordinates);
 			return orderInfo;
 		}
 

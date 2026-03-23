@@ -2,6 +2,7 @@
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.Linq;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
@@ -12,14 +13,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using NHibernate.Linq;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Warehouses;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -42,7 +42,6 @@ using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Organizations;
 using VodovozBusiness.Domain.Client;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
-using Vodovoz.Core.Domain.Logistics;
 
 namespace Vodovoz.Infrastructure.Persistance.Logistic
 {
@@ -397,7 +396,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 					(!r.WasTransfered || r.AddressTransferType.IsIn(AddressTransferTypesWithoutTransferFromHandToHand)))
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
-			
+
 			var isNeedIndividualSetOnLoadSubquery = QueryOver.Of(() => orderAlias)
 				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.JoinAlias(() => orderAlias.Contract, () => contractAlias)
@@ -1865,11 +1864,12 @@ FROM
 				);
 		}
 
+		/// <inheritdoc/>
 		public async Task<DriversSelectedAddress> GetLastSelectedAddressForRouteList(
 			IUnitOfWork uow,
 			int driverId,
 			int routeListId,
-			CancellationToken cancellationToken)
+			CancellationToken cancellationToken = default)
 		{
 			var query =
 				from dsa in uow.Session.Query<DriversSelectedAddress>()
@@ -1877,6 +1877,37 @@ FROM
 				where dsa.DriverId == driverId && rli.RouteList.Id == routeListId
 				orderby dsa.Id descending
 				select dsa;
+
+			return await query.FirstOrDefaultAsync(cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public async Task<IEnumerable<TrackPoint>> GetDriverCoordinates(
+			IUnitOfWork uow,
+			int routeListId,
+			DateTime startFrom,
+			CancellationToken cancellationToken = default)
+		{
+			var query =
+				from tp in uow.Session.Query<TrackPoint>()
+				join t in uow.Session.Query<Track>() on tp.Track.Id equals t.Id
+				where t.RouteList.Id == routeListId && tp.TimeStamp >= startFrom
+				orderby tp.TimeStamp
+				select tp;
+
+			return await query.ToListAsync(cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public async Task<RouteListItem> GetEnRouteRouteListItemByOrderId(IUnitOfWork uow, int orderId, CancellationToken cancellationToken = default)
+		{
+			var query =
+				from rli in uow.Session.Query<RouteListItem>()
+				join rl in uow.Session.Query<RouteList>() on rli.RouteList.Id equals rl.Id
+				where rli.Order.Id == orderId
+					&& rli.Status == RouteListItemStatus.EnRoute
+					&& rl.Status == RouteListStatus.EnRoute
+				select rli;
 
 			return await query.FirstOrDefaultAsync(cancellationToken);
 		}

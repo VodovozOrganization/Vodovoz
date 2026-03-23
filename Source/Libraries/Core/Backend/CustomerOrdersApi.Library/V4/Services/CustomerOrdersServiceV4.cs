@@ -16,10 +16,13 @@ using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Core.Domain.Logistics.Drivers;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Cryptography;
+using Vodovoz.EntityRepositories.Logistic;
 
 namespace CustomerOrdersApi.Library.V4.Services
 {
@@ -31,6 +34,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 		private readonly ICustomerOrderFactoryV4 _customerOrderFactory;
 		private readonly IOrderSettings _orderSettings;
 		private readonly IOrderRepository _orderRepository;
+		private readonly IRouteListRepository _routeListRepository;
 		private readonly IOnlineOrderRepository _onlineOrderRepository;
 		private readonly IGenericRepository<OrderRating> _genericRatingRepository;
 		private readonly IUnPaidOnlineOrderHandler _unPaidOnlineOrderHandler;
@@ -43,6 +47,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 			ICustomerOrderFactoryV4 customerOrderFactory,
 			IOrderSettings orderSettings,
 			IOrderRepository orderRepository,
+			IRouteListRepository routeListRepository,
 			IOnlineOrderRepository onlineOrderRepository,
 			IGenericRepository<OrderRating> genericRatingRepository,
 			IUnPaidOnlineOrderHandler unPaidOnlineOrderHandler,
@@ -54,6 +59,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 			_customerOrderFactory = customerOrderFactory ?? throw new ArgumentNullException(nameof(customerOrderFactory));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_onlineOrderRepository = onlineOrderRepository ?? throw new ArgumentNullException(nameof(onlineOrderRepository));
 			_genericRatingRepository = genericRatingRepository ?? throw new ArgumentNullException(nameof(genericRatingRepository));
 			_unPaidOnlineOrderHandler = unPaidOnlineOrderHandler ?? throw new ArgumentNullException(nameof(unPaidOnlineOrderHandler));
@@ -164,10 +170,12 @@ namespace CustomerOrdersApi.Library.V4.Services
 
 		#endregion
 
-		public DetailedOrderInfoDto GetDetailedOrderInfo(GetDetailedOrderInfoDto getDetailedOrderInfoDto)
+		public async Task<DetailedOrderInfoDto> GetDetailedOrderInfo(
+			GetDetailedOrderInfoDto getDetailedOrderInfoDto,
+			CancellationToken cancellationToken = default)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot();
-			
+
 			var ratingAvailableFrom = _orderSettings.GetDateAvailabilityRatingOrder;
 			OrderRating orderRating = null;
 			var timers = uow.GetAll<OnlineOrderTimers>().FirstOrDefault();
@@ -175,24 +183,97 @@ namespace CustomerOrdersApi.Library.V4.Services
 			if(getDetailedOrderInfoDto.OrderId.HasValue)
 			{
 				var order = uow.GetById<Order>(getDetailedOrderInfoDto.OrderId.Value);
-				
+
 				orderRating = _genericRatingRepository.Get(
 						uow,
 						x => x.Order.Id == order.Id)
 					.FirstOrDefault();
-			
+
+				var (establishedRoute, courierCoordinates) = await GetDriverPositionData(uow, order, cancellationToken);
+				var clientCoordinates = GetClientCoordinates(order);
+
 				return _customerOrderFactory.CreateDetailedOrderInfo(
-					order, orderRating, timers, getDetailedOrderInfoDto.OnlineOrderId, ratingAvailableFrom);
+					order, orderRating, timers, getDetailedOrderInfoDto.OnlineOrderId, ratingAvailableFrom,
+					establishedRoute, courierCoordinates, clientCoordinates);
 			}
-			
+
 			var onlineOrder = uow.GetById<OnlineOrder>(getDetailedOrderInfoDto.OnlineOrderId.Value);
 			orderRating = _genericRatingRepository.Get(
 					uow,
 					x => x.OnlineOrder.Id == onlineOrder.Id)
 				.FirstOrDefault();
-			
+
 			return _customerOrderFactory.CreateDetailedOrderInfo(
 				onlineOrder, orderRating, timers, getDetailedOrderInfoDto.OrderId, ratingAvailableFrom);
+		}
+
+		private async Task<(bool EstablishedRoute, IEnumerable<CoordinatesDto> CourierCoordinates)> GetDriverPositionData(
+			IUnitOfWork uow,
+			Order order,
+			CancellationToken cancellationToken = default)
+		{
+			var (establishedRoute, routeListId, selectedAt) = await GetEstablishedRoute(uow, order, cancellationToken);
+
+			if(!establishedRoute)
+			{
+				return (false, Enumerable.Empty<CoordinatesDto>());
+			}
+
+			var courierCoordinates =
+				(await _routeListRepository.GetDriverCoordinates(uow, routeListId.Value, selectedAt.Value, cancellationToken))
+				.Select(tp => new CoordinatesDto
+				{
+					Latitude = tp.Latitude,
+					Longitude = tp.Longitude
+				})
+				.ToList();
+
+			return (true, courierCoordinates);
+		}
+
+		private async Task<(bool EstablishedRoute, int? RouteListId, DateTime? SelectedAt)> GetEstablishedRoute(
+			IUnitOfWork uow,
+			Order order,
+			CancellationToken cancellationToken = default)
+		{
+			if(order.SelfDelivery || order.OrderStatus != OrderStatus.OnTheWay)
+			{
+				return (false, default, default);
+			}
+
+			var routeListItem =
+				await _routeListRepository.GetEnRouteRouteListItemByOrderId(uow, order.Id, cancellationToken);
+
+			if(routeListItem == null)
+			{
+				return (false, default, default);
+			}
+
+			var routeListId = routeListItem.RouteList.Id;
+			var driverId = routeListItem.RouteList.Driver.Id;
+
+			var selectedAddress =
+				await _routeListRepository.GetLastSelectedAddressForRouteList(uow, driverId, routeListId, cancellationToken);
+
+			if(selectedAddress == null || selectedAddress.NextAddressId != routeListItem.Id)
+			{
+				return (false, default, default);
+			}
+
+			return (true, routeListId, selectedAddress.SelectedAt);
+		}
+
+		private CoordinatesDto GetClientCoordinates(Order order)
+		{
+			var deliveryPoint = order.DeliveryPoint;
+
+			return deliveryPoint?.Latitude == null || deliveryPoint.Longitude == null
+				? null
+				: new CoordinatesDto
+				{
+					Latitude = (double)deliveryPoint.Latitude.Value,
+					Longitude = (double)deliveryPoint.Longitude.Value
+				};
 		}
 
 		public OrdersDto GetOrders(GetOrdersDto getOrdersDto)

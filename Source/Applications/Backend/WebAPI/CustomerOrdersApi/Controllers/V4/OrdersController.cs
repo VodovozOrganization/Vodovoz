@@ -69,7 +69,7 @@ namespace CustomerOrdersApi.Controllers.V4
 		}
 
 		[HttpGet]
-		public IActionResult GetOrderInfo([FromBody] GetDetailedOrderInfoDto getDetailedOrderInfoDto)
+		public async Task<IActionResult> GetOrderInfo([FromBody] GetDetailedOrderInfoDto getDetailedOrderInfoDto, CancellationToken cancellationToken)
 		{
 			var sourceName = getDetailedOrderInfoDto.Source.GetEnumTitle();
 			var orderId = getDetailedOrderInfoDto.OrderId ?? getDetailedOrderInfoDto.OnlineOrderId;
@@ -88,7 +88,7 @@ namespace CustomerOrdersApi.Controllers.V4
 				}
 
 				_logger.LogInformation("Подпись валидна, получаем данные");
-				var orderInfo = _customerOrdersService.GetDetailedOrderInfo(getDetailedOrderInfoDto);
+				var orderInfo = await _customerOrdersService.GetDetailedOrderInfo(getDetailedOrderInfoDto, cancellationToken);
 				
 				return Ok(orderInfo);
 			}

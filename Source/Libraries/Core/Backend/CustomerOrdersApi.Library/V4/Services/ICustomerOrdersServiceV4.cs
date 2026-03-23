@@ -48,7 +48,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 		/// </summary>
 		/// <param name="getDetailedOrderInfoDto">Данные для получения деталей заказа</param>
 		/// <returns>Детали заказа <see cref="DetailedOrderInfoDto"/></returns>
-		DetailedOrderInfoDto GetDetailedOrderInfo(GetDetailedOrderInfoDto getDetailedOrderInfoDto);
+		Task<DetailedOrderInfoDto> GetDetailedOrderInfo(GetDetailedOrderInfoDto getDetailedOrderInfoDto, CancellationToken cancellationToken = default);
 		/// <summary>
 		/// Получение заказов клиента
 		/// </summary>
