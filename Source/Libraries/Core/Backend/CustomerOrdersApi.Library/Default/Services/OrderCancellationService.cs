@@ -70,7 +70,11 @@ namespace CustomerOrdersApi.Library.Services
 
 			if(IsPaidOnline(onlineOrder))
 			{
-				return await ProcessPaidOperationAsync(uow, order, onlineOrder, dto, cancellationToken);
+				var refundResult = await ProcessPaidOperationAsync(uow, order, onlineOrder, dto, cancellationToken);
+				if(!refundResult.IsSuccess)
+				{
+					return refundResult;
+				}
 			}
 
 			order.ChangeStatus(OrderStatus.Canceled);
@@ -158,13 +162,6 @@ namespace CustomerOrdersApi.Library.Services
 					refundResult.NewPaymentStatus);
 			}
 
-			order.ChangeStatus(OrderStatus.Canceled);
-			onlineOrder.OnlineOrderStatus = OnlineOrderStatus.Canceled;
-
-			await uow.SaveAsync(order, cancellationToken: cancellationToken);
-			await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
-			await uow.CommitAsync(cancellationToken);
-
 			_logger.LogInformation(
 				"Оплаченный заказ {OrderId} отменен.", order.Id);
 
@@ -221,7 +218,11 @@ namespace CustomerOrdersApi.Library.Services
 
 			if(IsPaidOnline(onlineOrder))
 			{
-				return await ProcessPaidOperationAsync(uow, order, onlineOrder, dto, cancellationToken);
+				var refundResult = await ProcessPaidOperationAsync(uow, order, onlineOrder, dto, cancellationToken);
+				if(!refundResult.IsSuccess)
+				{
+					return refundResult;
+				}
 			}
 
 			order.ChangeStatus(OrderStatus.Canceled);
@@ -290,7 +291,11 @@ namespace CustomerOrdersApi.Library.Services
 
 			if(IsPaidOnline(onlineOrder))
 			{
-				return await ProcessPaidOperationAsync(uow, order, onlineOrder, dto, cancellationToken);
+				var refundResult = await ProcessPaidOperationAsync(uow, order, onlineOrder, dto, cancellationToken);
+				if(!refundResult.IsSuccess)
+				{
+					return refundResult;
+				}
 			}
 
 			onlineOrder.OnlineOrderStatus = OnlineOrderStatus.Canceled;

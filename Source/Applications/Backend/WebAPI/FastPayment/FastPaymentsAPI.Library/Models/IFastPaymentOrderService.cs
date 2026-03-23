@@ -1,4 +1,4 @@
-using FastPaymentsApi.Contracts;
+﻿using FastPaymentsApi.Contracts;
 using FastPaymentsApi.Contracts.Requests;
 using FastPaymentsApi.Contracts.Responses;
 using System;
@@ -35,7 +35,6 @@ namespace FastPaymentsAPI.Library.Models
 		/// <param name="amount">Сумма возврата (опционально)</param>
 		/// <returns>Результат возврата</returns>
 		Task<ReverseOrderResponseDTO> ReverseOrder(string ticket, Organization organization, decimal? amount = null);
-		Task NotifyEmployee(string orderNumber, string bankSignature, long shopId, string paymentSignature);
 		PaidOrderInfoDTO GetPaidOrderInfo(string data);
 	}
 }

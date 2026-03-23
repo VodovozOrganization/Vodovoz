@@ -98,7 +98,6 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 				}
 
 				await uow.SaveAsync(operation, cancellationToken: cancellationToken);
-				await uow.CommitAsync(cancellationToken);
 
 				return result;
 			}
