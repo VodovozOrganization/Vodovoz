@@ -13,26 +13,6 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 	public class DetailedOrderInfoDto : OrderDto
 	{
 		/// <summary>
-		/// Маршрут проложен водителем до точки доставки
-		/// </summary>
-		public bool EstablishedRoute { get; private set; }
-
-		/// <summary>
-		/// Текстовое сообщение о статусе заказа
-		/// </summary>
-		public string TextStatusMessage { get; private set; }
-
-		/// <summary>
-		/// Координаты курьера с момента выбора адреса водителем (null, если EstablishedRoute = false)
-		/// </summary>
-		public IEnumerable<CoordinatesDto> CourierCoordinates { get; private set; }
-
-		/// <summary>
-		/// Координаты клиента (null, если EstablishedRoute = false)
-		/// </summary>
-		public CoordinatesDto ClientCoordinates { get; private set; }
-
-		/// <summary>
 		/// Значение таймера для оплаты заказа
 		/// </summary>
 		public int? TimerForPaySeconds { get; set; }
@@ -77,6 +57,26 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 		/// </summary>
 		public IEnumerable<PromoSetDto> PromoSets { get; private set; }
 
+		/// <summary>
+		/// Маршрут проложен водителем до точки доставки
+		/// </summary>
+		public bool EstablishedRoute { get; private set; }
+
+		/// <summary>
+		/// Текстовое сообщение о статусе заказа
+		/// </summary>
+		public string TextStatusMessage { get; private set; }
+
+		/// <summary>
+		/// Координаты курьера с момента выбора адреса водителем
+		/// </summary>
+		public IEnumerable<CoordinatesDto> CourierCoordinates { get; private set; }
+
+		/// <summary>
+		/// Координаты клиента
+		/// </summary>
+		public CoordinatesDto ClientCoordinates { get; private set; }
+
 		public void UpdateOrderRating(OrderRating orderRating, DateTime ratingAvailableFrom)
 		{
 			if(orderRating is null)
@@ -115,8 +115,27 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 		public void UpdateDriverPosition(bool establishedRoute, IEnumerable<CoordinatesDto> courierCoordinates)
 		{
 			EstablishedRoute = establishedRoute;
-			TextStatusMessage = establishedRoute ? "Курьер едет к Вам" : string.Empty;
 			CourierCoordinates = courierCoordinates;
+		}
+
+		public void UpdateTextStatusMessage(bool establishedRoute, bool isOrderWasSelectedAsNext)
+		{
+			switch(OrderStatus)
+			{
+				case ExternalOrderStatus.OrderProcessing:
+					TextStatusMessage = "Заказ оформлен";
+					break;
+				case ExternalOrderStatus.OrderDelivering:
+					TextStatusMessage = 
+						establishedRoute ? "Курьер направляется к Вам"
+						: isOrderWasSelectedAsNext
+							? "Курьер задерживается"
+							: "Заказ в пути";
+					break;
+				default:
+					TextStatusMessage = string.Empty;
+					break;
+			}
 		}
 
 		public void UpdateClientCoordinates(CoordinatesDto clientCoordinates)

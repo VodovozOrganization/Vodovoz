@@ -4,7 +4,6 @@ using System.Linq;
 using CustomerOrdersApi.Library.Converters;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using Vodovoz.Core.Data.InfoMessages;
-using Vodovoz.Core.Data.Orders;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -32,6 +31,7 @@ namespace CustomerOrdersApi.Library.V4.Factories
 			int? onlineOrderId,
 			DateTime ratingAvailableFrom,
 			bool establishedRoute,
+			bool isOrderWasSelectedAsNext,
 			IEnumerable<CoordinatesDto> courierCoordinates,
 			CoordinatesDto clientCoordinates)
 		{
@@ -39,6 +39,7 @@ namespace CustomerOrdersApi.Library.V4.Factories
 			orderInfo.UpdateOrderRating(orderRating, ratingAvailableFrom);
 			orderInfo.UpdateOrderItems(order.OrderItems);
 			orderInfo.UpdateDriverPosition(establishedRoute, courierCoordinates);
+			orderInfo.UpdateTextStatusMessage(establishedRoute, isOrderWasSelectedAsNext);
 			orderInfo.UpdateClientCoordinates(clientCoordinates);
 			return orderInfo;
 		}

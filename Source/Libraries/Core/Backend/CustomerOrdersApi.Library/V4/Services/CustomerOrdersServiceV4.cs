@@ -190,11 +190,12 @@ namespace CustomerOrdersApi.Library.V4.Services
 					.FirstOrDefault();
 
 				var (establishedRoute, courierCoordinates) = await GetDriverPositionData(uow, order, cancellationToken);
+				var isOrderWasSelectedAsNext = await _routeListRepository.IsOrdesWasSelectedAsNext(uow, order.Id, cancellationToken);
 				var clientCoordinates = GetClientCoordinates(order);
 
 				return _customerOrderFactory.CreateDetailedOrderInfo(
 					order, orderRating, timers, getDetailedOrderInfoDto.OnlineOrderId, ratingAvailableFrom,
-					establishedRoute, courierCoordinates, clientCoordinates);
+					establishedRoute, isOrderWasSelectedAsNext, courierCoordinates, clientCoordinates);
 			}
 
 			var onlineOrder = uow.GetById<OnlineOrder>(getDetailedOrderInfoDto.OnlineOrderId.Value);

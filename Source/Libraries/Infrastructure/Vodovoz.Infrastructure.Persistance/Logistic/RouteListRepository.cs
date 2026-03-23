@@ -1,4 +1,5 @@
-﻿using MoreLinq;
+﻿using FluentNHibernate.Conventions;
+using MoreLinq;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -1879,6 +1880,24 @@ FROM
 				select dsa;
 
 			return await query.FirstOrDefaultAsync(cancellationToken);
+		}
+
+		/// <inheritdoc/>
+		public async Task<bool> IsOrdesWasSelectedAsNext(
+			IUnitOfWork uow,
+			int orderId,
+			CancellationToken cancellationToken = default)
+		{
+			var query =
+				from dsa in uow.Session.Query<DriversSelectedAddress>()
+				join rli in uow.Session.Query<RouteListItemEntity>() on dsa.NextAddressId equals rli.Id
+				where rli.Order.Id == orderId
+				orderby dsa.Id descending
+				select dsa;
+
+			var isOrderWasSelected = (await query.FirstOrDefaultAsync(cancellationToken)) != null;
+
+			return isOrderWasSelected;
 		}
 
 		/// <inheritdoc/>

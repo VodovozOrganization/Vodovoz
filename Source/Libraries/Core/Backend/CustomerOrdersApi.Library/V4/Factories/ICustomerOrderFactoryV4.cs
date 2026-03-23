@@ -15,6 +15,7 @@ namespace CustomerOrdersApi.Library.V4.Factories
 			int? onlineOrderId,
 			DateTime ratingAvailableFrom,
 			bool establishedRoute,
+			bool isOrderWasSelectedAsNext,
 			IEnumerable<CoordinatesDto> courierCoordinates,
 			CoordinatesDto clientCoordinates);
 		DetailedOrderInfoDto CreateDetailedOrderInfo(

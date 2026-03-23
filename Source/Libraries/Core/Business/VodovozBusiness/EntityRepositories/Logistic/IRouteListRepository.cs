@@ -147,5 +147,14 @@ namespace Vodovoz.EntityRepositories.Logistic
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Адрес МЛ</returns>
 		Task<RouteListItem> GetEnRouteRouteListItemByOrderId(IUnitOfWork uow, int orderId, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Проверка, что заказ был выбран в качестве следующего для водителя в маршрутном листе, который сейчас находится в статусе "В пути"
+		/// </summary>
+		/// <param name="uow">UnitofWork</param>
+		/// <param name="orderId">Номер заказа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
+		Task<bool> IsOrdesWasSelectedAsNext(IUnitOfWork uow, int orderId, CancellationToken cancellationToken = default);
 	}
 }
