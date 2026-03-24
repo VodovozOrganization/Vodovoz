@@ -11,5 +11,6 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders
 		public CustomerNotificationEventType CustomerNotificationEventType { get; set; }
 		public string NotificationText { get; set; }
 		public bool NotificationDisabled { get; set; }
+		public bool AllowDuplicateNotifications { get; internal set; }
 	}
 }

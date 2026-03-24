@@ -13,6 +13,7 @@ namespace Vodovoz.JournalColumnsConfigs
 				.AddColumn("Событие для отправки уведомления").AddTextRenderer(node => node.CustomerNotificationEventType.GetEnumDisplayName(false))
 				.AddColumn("Текст уведомления").AddTextRenderer(node => node.NotificationText)
 				.AddColumn("Не отправлять").AddToggleRenderer(node => node.NotificationDisabled).Editing(false)
+				.AddColumn("Разрешить повторные отправки").AddToggleRenderer(node => node.AllowDuplicateNotifications).Editing(false)
 				.AddColumn("")
 				.Finish();
 	}

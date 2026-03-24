@@ -32,6 +32,10 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(ViewModel.Entity, e => e.NotificationDisabled, w => w.Active)
 				.InitializeFromSource();
 
+			ycheckAllowDuplicates.Binding
+				.AddBinding(ViewModel.Entity, e => e.AllowDuplicateNotifications, w => w.Active)
+				.InitializeFromSource();
+
 			buttonSave.BindCommand(ViewModel.SaveCommand);
 			buttonCancel.BindCommand(ViewModel.CloseCommand);
 		}

@@ -56,6 +56,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.Select(() => onlineOrderNotificationSettingAlias.CustomerNotificationEventType).WithAlias(() => resultAlias.CustomerNotificationEventType)
 					.Select(() => onlineOrderNotificationSettingAlias.NotificationText).WithAlias(() => resultAlias.NotificationText)
 					.Select(() => onlineOrderNotificationSettingAlias.NotificationDisabled).WithAlias(() => resultAlias.NotificationDisabled)
+					.Select(() => onlineOrderNotificationSettingAlias.AllowDuplicateNotifications).WithAlias(() => resultAlias.AllowDuplicateNotifications)
 				)
 				.TransformUsing(Transformers.AliasToBean<OnlineOrderNotificationSettingJournalNode>());
 
