@@ -13,10 +13,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
+using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Extensions;
 
 namespace CustomerNotifications.Consumer.Services
@@ -26,9 +25,8 @@ namespace CustomerNotifications.Consumer.Services
 		private readonly HttpClient _httpClient;
 		private readonly NotifierOptions _options;
 		private readonly JsonSerializerOptions _jsonSerializerOptions;
-		private readonly IRouteListItemRepository _routeListItemRepository;
-		private readonly IOrderRepository _orderRepository;
-		private readonly IUndeliveredOrdersRepository _undeliveredOrdersRepository;
+		private readonly IGenericRepository<RouteListItem> _routeListItemRepository;
+		private readonly IGenericRepository<UndeliveredOrder> _undeliveredOrdersRepository;
 		private const string _orderIdTemplate = "*номер заказа*";
 		private const string _deliveryScheduleFromTemplate = "*интервал доставки*";
 		private const string _bottlesReturnedTemplate = "*Вы сдали количество пустых бутылей*";
@@ -40,16 +38,14 @@ namespace CustomerNotifications.Consumer.Services
 			HttpClient client,
 			IOptionsSnapshot<NotifierOptions> options,
 			JsonSerializerOptions jsonSerializerOptions,
-			IRouteListItemRepository routeListItemRepository,
-			IOrderRepository orderRepository,
-			IUndeliveredOrdersRepository undeliveredOrdersRepository
+			IGenericRepository<RouteListItem> routeListItemRepository,
+			IGenericRepository<UndeliveredOrder> undeliveredOrdersRepository
 			)
 		{
 			_httpClient = client ?? throw new ArgumentNullException(nameof(client));
 			_options = (options ?? throw new ArgumentNullException(nameof(options))).Value;
 			_jsonSerializerOptions = jsonSerializerOptions ?? throw new ArgumentNullException(nameof(jsonSerializerOptions));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
-			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_undeliveredOrdersRepository = undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
 		}
 
@@ -92,7 +88,12 @@ namespace CustomerNotifications.Consumer.Services
 				.Replace(_orderIdTemplate, message.OnlineOrderId.ToString())
 				.Replace(_deliveryScheduleFromTemplate, onlineOrder.DeliverySchedule?.DeliveryTime ?? "[интервал в заказе не выбран]");
 
-			var undeliveryStatus = _orderRepository.GetUndeliveryStatuses();		
+			var undeliveryStatus = new OrderStatus[]
+				{
+					OrderStatus.NotDelivered,
+					OrderStatus.DeliveryCanceled,
+					OrderStatus.Canceled
+				};
 
 			if(message.CustomerNotificationEventType == CustomerNotificationEventType.DeliveryCompleted)
 			{
@@ -104,7 +105,11 @@ namespace CustomerNotifications.Consumer.Services
 						$"Не найден текущий заказ «{message.CustomerNotificationEventType.GetEnumDisplayName()}» (OnlineOrderId={message.OnlineOrderId}).");
 				}
 
-				var address = _routeListItemRepository.GetRouteListItemForOrder(unitOfWork, currentOrder);
+				var address = _routeListItemRepository.Get(
+					unitOfWork,
+					x => x.Status != RouteListItemStatus.Transfered && x.Order.Id == currentOrder.Id)
+					.SingleOrDefault();
+
 				onlineOrderNotificationText = onlineOrderNotificationText
 					.Replace(_bottlesReturnedTemplate,
 						currentOrder.GetTotalWater19LCount() > 0
@@ -115,14 +120,16 @@ namespace CustomerNotifications.Consumer.Services
 			if(message.CustomerNotificationEventType == CustomerNotificationEventType.OrderRescheduled)
 			{
 				var undeliveredOrder = onlineOrder.Orders
-					.OrderByDescending(o=>o.CreateDate)
+					.OrderByDescending(o => o.CreateDate)
 					.FirstOrDefault(o => undeliveryStatus.Contains(o.OrderStatus));
 
 				var currentOrder = onlineOrder.Orders
 					.OrderByDescending(o => o.CreateDate)
 					.FirstOrDefault(o => !undeliveryStatus.Contains(o.OrderStatus));
 
-				var undelivery = _undeliveredOrdersRepository.GetListOfUndeliveriesForOrder(unitOfWork, undeliveredOrder)
+				var undelivery = _undeliveredOrdersRepository.Get(
+					unitOfWork,
+					x => x.OldOrder.Id == undeliveredOrder.Id)
 					.OrderByDescending(o => o.TimeOfCreation)
 					.FirstOrDefault();
 

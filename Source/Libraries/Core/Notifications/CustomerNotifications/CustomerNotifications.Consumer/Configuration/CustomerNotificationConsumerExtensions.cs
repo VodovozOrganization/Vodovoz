@@ -24,6 +24,9 @@ using System.Text.Json;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
+using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Infrastructure.Persistance;
+
 using AssemblyFinder = Vodovoz.Data.NHibernate.AssemblyFinder;
 
 namespace CustomerNotifications.Consumer.Configuration
@@ -115,12 +118,13 @@ namespace CustomerNotifications.Consumer.Configuration
 				typeof(Bank).Assembly,
 				typeof(TypeOfEntity).Assembly
 		   )
-		   .AddDatabaseConnection()
-		   .AddCore()
-		   .AddNotTrackedUoW()
+			.AddDatabaseConnection()
+			.AddCore()
+			.AddNotTrackedUoW()
 
-		   	.AddCustomerNotificationConsumer(hostContext.Configuration)
+			.AddCustomerNotificationConsumer(hostContext.Configuration)
 			.AddOnlineOrderNotificationSettingsProvider()
+			.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 
 			.AddLogging(logging =>
 			{

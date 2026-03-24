@@ -41,7 +41,6 @@ namespace CustomerNotifications.Consumer.Consumers
 				"Получено уведомление для онлайн заказа {OnlineOrderId}",
 				message.OnlineOrderId);
 
-			var httpCode = -1;
 			var onlineOrderId = message.OnlineOrderId;
 
 			try
@@ -59,7 +58,7 @@ namespace CustomerNotifications.Consumer.Consumers
 					onlineOrderId,
 					dto);
 
-				httpCode = await _onlineOrdersStatusUpdatedNotificationService.NotifyOfOnlineOrderStatusUpdatedAsync(dto, onlineOrder.Source);
+				var httpCode = await _onlineOrdersStatusUpdatedNotificationService.NotifyOfOnlineOrderStatusUpdatedAsync(dto, onlineOrder.Source);
 
 				_logger.LogInformation("Ответ по отправке уведомления по заказу {OnlineOrderId}: {HttpCode}",
 					onlineOrderId,

@@ -1,4 +1,5 @@
-﻿using CustomerNotifications.Consumer.Configuration;
+﻿using Autofac.Extensions.DependencyInjection;
+using CustomerNotifications.Consumer.Configuration;
 using Microsoft.Extensions.Hosting;
 
 namespace PushNotifications.Service
@@ -12,10 +13,11 @@ namespace PushNotifications.Service
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
+				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 				.ConfigureServices((hostContext, services) =>
 				{
-					services
-						.AddCustomerNotificationsConsumer(hostContext);
+					services.AddCustomerNotificationsConsumer(hostContext);
 				});
+			
 	}
 }

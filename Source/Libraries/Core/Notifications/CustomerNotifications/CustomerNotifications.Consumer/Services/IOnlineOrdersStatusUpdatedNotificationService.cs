@@ -14,6 +14,10 @@ namespace CustomerNotifications.Consumer.Services
 		Task<int> NotifyOfOnlineOrderStatusUpdatedAsync(
 			OnlineOrderStatusUpdatedDto statusUpdatedDto, Source source, CancellationToken cancellationToken = default);
 
-		string GetPushText(IUnitOfWork unitOfWork, IOnlineOrderNotificationSettingsProvider onlineOrderNotificationSettingsProvider, CustomerNotificationMessage message, OnlineOrder onlineOrder);
+		string GetPushText(
+		   IUnitOfWork unitOfWork,
+		   IOnlineOrderNotificationSettingsProvider onlineOrderNotificationSettingsProvider,
+		   CustomerNotificationMessage message,
+		   OnlineOrder onlineOrder);
 	}
 }

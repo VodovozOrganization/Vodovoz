@@ -17,22 +17,20 @@ namespace CustomerNotifications.Consumer.Defenitions
 			IReceiveEndpointConfigurator endpointConfigurator,
 			IConsumerConfigurator<CustomerNotificationConsumer> consumerConfigurator)
 		{
-			endpointConfigurator.ConfigureConsumeTopology = true;
-			endpointConfigurator.PrefetchCount = 8;
-			endpointConfigurator.ConcurrentMessageLimit = 4;
-			endpointConfigurator.UseInMemoryOutbox();
+			endpointConfigurator.ConfigureConsumeTopology = false;
 
-			endpointConfigurator.UseDelayedRedelivery(r =>
+			endpointConfigurator.UseMessageRetry(r =>
 			{
+				r.Handle<Exception>();
+
 				r.Intervals(
 					TimeSpan.FromSeconds(5),
 					TimeSpan.FromSeconds(15),
 					TimeSpan.FromSeconds(45),
 					TimeSpan.FromMinutes(2),
-					TimeSpan.FromMinutes(10));
+					TimeSpan.FromMinutes(10)
+				);
 			});
-
-			endpointConfigurator.UseMessageRetry(r => r.Immediate(0));
 		}
 	}
 }
