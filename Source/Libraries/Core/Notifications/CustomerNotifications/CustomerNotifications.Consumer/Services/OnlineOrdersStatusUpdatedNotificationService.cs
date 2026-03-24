@@ -88,7 +88,7 @@ namespace CustomerNotifications.Consumer.Services
 				.Replace(_orderIdTemplate, message.OnlineOrderId.ToString())
 				.Replace(_deliveryScheduleFromTemplate, onlineOrder.DeliverySchedule?.DeliveryTime ?? "[интервал в заказе не выбран]");
 
-			var undeliveryStatus = new OrderStatus[]
+			var undeliveryStatuses = new OrderStatus[]
 				{
 					OrderStatus.NotDelivered,
 					OrderStatus.DeliveryCanceled,
@@ -97,7 +97,9 @@ namespace CustomerNotifications.Consumer.Services
 
 			if(message.CustomerNotificationEventType == CustomerNotificationEventType.DeliveryCompleted)
 			{
-				var currentOrder = onlineOrder.Orders.FirstOrDefault(o => !undeliveryStatus.Contains(o.OrderStatus));
+				var currentOrder = onlineOrder.Orders
+					.OrderByDescending(o => o.CreateDate)
+					.FirstOrDefault(o => !undeliveryStatuses.Contains(o.OrderStatus));
 
 				if(currentOrder == null)
 				{
@@ -119,17 +121,24 @@ namespace CustomerNotifications.Consumer.Services
 
 			if(message.CustomerNotificationEventType == CustomerNotificationEventType.OrderRescheduled)
 			{
-				var undeliveredOrder = onlineOrder.Orders
+				var undeliveredOrderId = onlineOrder.Orders
 					.OrderByDescending(o => o.CreateDate)
-					.FirstOrDefault(o => undeliveryStatus.Contains(o.OrderStatus));
+					.FirstOrDefault(o => undeliveryStatuses.Contains(o.OrderStatus))
+					?.Id ?? 0;
 
 				var currentOrder = onlineOrder.Orders
 					.OrderByDescending(o => o.CreateDate)
-					.FirstOrDefault(o => !undeliveryStatus.Contains(o.OrderStatus));
+					.FirstOrDefault(o => !undeliveryStatuses.Contains(o.OrderStatus));
+
+				if(currentOrder == null)
+				{
+					throw new InvalidOperationException(
+						$"Не найден текущий заказ «{message.CustomerNotificationEventType.GetEnumDisplayName()}» (OnlineOrderId={message.OnlineOrderId}).");
+				}
 
 				var undelivery = _undeliveredOrdersRepository.Get(
 					unitOfWork,
-					x => x.OldOrder.Id == undeliveredOrder.Id)
+					x => x.OldOrder.Id == undeliveredOrderId)
 					.OrderByDescending(o => o.TimeOfCreation)
 					.FirstOrDefault();
 

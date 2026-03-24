@@ -1384,7 +1384,7 @@
       <Name>CustomerNotifications.Contracts</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Notifications\CustomerNotifications\CustomerNotifications.Publisher\CustomerNotifications.Publisher.csproj">
-      <Project>{618EF1D8-B4A8-09FD-B5B9-84EC1080071C}</Project>
+      <Project>{618ef1d8-b4a8-09fd-b5b9-84ec1080071c}</Project>
       <Name>CustomerNotifications.Publisher</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\ResourceLocker\ResourceLocker.Library.csproj">

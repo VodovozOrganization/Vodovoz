@@ -22,14 +22,8 @@ using Vodovoz.Core.Domain.Orders.OrderEnums;
 
 namespace CustomerNotifications.Publisher.Configuration
 {
-	/// <summary>
-	/// Методы расширения для регистрации издателя уведомлений и его инфраструктуры.
-	/// </summary>
 	public static class CustomerNotificationPublisherExtensions
 	{
-		/// <summary>
-		/// Регистрирует подключение к Garnet/Redis и создаёт мультиплексор.
-		/// </summary>
 		private static IServiceCollection AddGarnetRedisConnection(this IServiceCollection services, IConfiguration configuration)
 		{
 			services.Configure<GarnetConnection>(
@@ -64,7 +58,7 @@ namespace CustomerNotifications.Publisher.Configuration
 		}
 		
 		/// <summary>
-		/// Регистрирует издателя уведомлений, работающего через отдельную шину MassTransit (multibus).
+		/// Регистрирует издателя уведомлений, работающего через отдельную шину MassTransit (multibus)
 		/// </summary>
 		public static IServiceCollection AddMultibusCustomerNotificationsPublisher(
 			this IServiceCollection services,

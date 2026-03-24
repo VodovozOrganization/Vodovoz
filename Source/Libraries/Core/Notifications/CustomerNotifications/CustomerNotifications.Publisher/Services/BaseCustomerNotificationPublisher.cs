@@ -17,7 +17,7 @@ namespace CustomerNotifications.Publisher.Services
 		/// <summary>
 		/// Создаёт экземпляр базового издателя уведомлений.
 		/// </summary>
-		/// <param name="notificationSettingsProvider"></param>
+		/// <param name="notificationSettingsProvider">Настройки уведомлений</param>
 		/// <param name="cache">Кэш, используемый для предотвращения повторной отправки.</param>
 		protected BaseCustomerNotificationPublisher(
 			IOnlineOrderNotificationSettingsProvider notificationSettingsProvider,

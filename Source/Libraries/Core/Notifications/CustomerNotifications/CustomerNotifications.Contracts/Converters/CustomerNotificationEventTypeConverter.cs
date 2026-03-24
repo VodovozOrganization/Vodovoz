@@ -7,7 +7,8 @@ namespace CustomerNotifications.Contracts.Converters
 	{
 		public static CustomerNotificationEventType ToCustomerNotificationEventType(this ExternalOrderStatus status)
 		{
-			// Art8m todo Ждё от Константина информацию
+			// Ждём от Константина информацию по соответствию статусов и типов событий
+
 			switch(status)
 			{
 				case ExternalOrderStatus.OrderProcessing:

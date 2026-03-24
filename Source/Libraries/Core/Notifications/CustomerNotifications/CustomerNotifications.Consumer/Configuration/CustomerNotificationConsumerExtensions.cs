@@ -26,14 +26,10 @@ using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
-
 using AssemblyFinder = Vodovoz.Data.NHibernate.AssemblyFinder;
 
 namespace CustomerNotifications.Consumer.Configuration
 {
-	/// <summary>
-	/// Методы расширения для регистрации консюмера уведомлений в DI.
-	/// </summary>
 	public static class CustomerNotificationConsumerExtensions
 	{
 		private static IServiceCollection AddOnlineOrderNotificationSettingsProvider(this IServiceCollection services)
@@ -55,12 +51,6 @@ namespace CustomerNotifications.Consumer.Configuration
 			return services;
 		}
 
-		/// <summary>
-		/// Регистрирует консюмер уведомлений и настраивает подключение к RabbitMQ.
-		/// </summary>
-		/// <param name="services">Коллекция сервисов приложения.</param>
-		/// <param name="configuration">Конфигурация приложения.</param>
-		/// <returns>Коллекция сервисов с добавленной конфигурацией консюмера.</returns>
 		private static IServiceCollection AddCustomerNotificationConsumer(
 			this IServiceCollection services,
 			IConfiguration configuration)
@@ -107,7 +97,9 @@ namespace CustomerNotifications.Consumer.Configuration
 			return services;
 		}
 
-
+		/// <summary>
+		/// Регистрирует консюмер уведомлений с необходимыми зависимостями
+		/// </summary>
 		public static IServiceCollection AddCustomerNotificationsConsumer(
 			this IServiceCollection services,
 			HostBuilderContext hostContext)

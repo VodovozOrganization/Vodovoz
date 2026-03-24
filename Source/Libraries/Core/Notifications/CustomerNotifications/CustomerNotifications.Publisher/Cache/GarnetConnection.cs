@@ -1,7 +1,7 @@
 ﻿namespace CustomerNotifications.Publisher.Cache
 {
 	/// <summary>
-	/// Настройки подключения к Garnet/Redis, включая URL, пароль и время жизни ключей.
+	/// Настройки подключения к Garnet/Redis
 	/// </summary>
 	public class GarnetConnection
 	{

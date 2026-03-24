@@ -6,6 +6,7 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Vodovoz.Domain.Orders;
 using VodovozBusiness.Extensions;
@@ -36,12 +37,12 @@ namespace CustomerNotifications.Consumer.Consumers
 		public async Task Consume(ConsumeContext<CustomerNotificationMessage> context)
 		{
 			var message = context.Message;
+			var onlineOrderId = message.OnlineOrderId;
+			var retryAttempt = context.GetRetryAttempt();
 
 			_logger.LogInformation(
-				"Получено уведомление для онлайн заказа {OnlineOrderId}",
-				message.OnlineOrderId);
-
-			var onlineOrderId = message.OnlineOrderId;
+				"Получено уведомление для онлайн заказа {OnlineOrderId} (попытка #{Attempt})",
+				onlineOrderId, retryAttempt);
 
 			try
 			{
@@ -51,25 +52,33 @@ namespace CustomerNotifications.Consumer.Consumers
 				using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot(nameof(CustomerNotificationConsumer)))
 				{
 					onlineOrder = unitOfWork.GetById<OnlineOrder>(onlineOrderId);
+
+					if(onlineOrder == null)
+					{
+						throw new InvalidOperationException($"Онлайн заказ с Id {onlineOrderId} не найден");
+					}
+
 					dto = GetOnlineOrderStatusUpdatedDto(unitOfWork, message, onlineOrder);
 				}
 
 				_logger.LogInformation("Отправляем данные в ИПЗ по онлайн заказу {OnlineOrderId}: {@Notification}",
-					onlineOrderId,
-					dto);
+					onlineOrderId, dto);
 
-				var httpCode = await _onlineOrdersStatusUpdatedNotificationService.NotifyOfOnlineOrderStatusUpdatedAsync(dto, onlineOrder.Source);
+				var httpCode = await _onlineOrdersStatusUpdatedNotificationService
+					.NotifyOfOnlineOrderStatusUpdatedAsync(dto, onlineOrder.Source);
 
-				_logger.LogInformation("Ответ по отправке уведомления по заказу {OnlineOrderId}: {HttpCode}",
-					onlineOrderId,
-					httpCode);
+				if(httpCode < 200 || httpCode >= 300)
+				{
+					throw new HttpRequestException($"API вернул код ошибки: {httpCode}");
+				}
+
+				_logger.LogInformation("Успешно отправлено. Код ответа: {HttpCode}", httpCode);
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(
-					e,
-					"Ошибка при отправке уведомления об изменении статуса онлайн заказа {OnlineOrderId}",
-					onlineOrderId);
+				_logger.LogError(e,
+					"Ошибка при отправке уведомления об изменении статуса онлайн заказа {OnlineOrderId}. Попытка #{Attempt}",
+					onlineOrderId, retryAttempt);
 
 				throw;
 			}

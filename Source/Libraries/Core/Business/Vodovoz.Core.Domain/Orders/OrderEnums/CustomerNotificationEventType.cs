@@ -7,7 +7,7 @@ namespace Vodovoz.Core.Domain.Orders.OrderEnums
 	/// </summary>
 	public enum CustomerNotificationEventType
 	{
-		// todo Art8m СТАРЫЕ, УДАЛИТЬ?! ЖДУ ОТВЕТ ОТ КОНСТАНТИНА
+		// ЖДУ ОТВЕТ ОТ КОНСТАНТИНА (УДАЛЯТЬ ЛИ СТАРЫЕ?)
 
 		/// <summary>
 		/// Заказ оформляется
@@ -33,10 +33,8 @@ namespace Vodovoz.Core.Domain.Orders.OrderEnums
 		[Display(Name = "Заказ доставляется")]
 		OrderDelivering,
 
-
-		// todo Art8m Новые переделаны на события
-
-
+		//-----------------------------------------------------------
+		// Ниже новые события (Оставить только их? Жду ответ Константина)
 
 		/// <summary>
 		/// Курьер назначен
