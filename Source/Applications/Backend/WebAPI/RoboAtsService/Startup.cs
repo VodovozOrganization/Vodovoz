@@ -18,6 +18,7 @@ using Sms.External.SmsRu;
 using System.Linq;
 using System.Reflection;
 using Vodovoz;
+using Vodovoz.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Factories;
@@ -31,7 +32,6 @@ using Osrm;
 using RoboatsService.HealthCheck;
 using Vodovoz.Trackers;
 using VodovozHealthCheck;
-using Vodovoz.Core.Application;
 
 namespace RoboatsService
 {
@@ -83,7 +83,7 @@ namespace RoboatsService
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
 			services
-				.AddCoreApplication()
+				.AddApplication()
 				.AddBusiness(Configuration)
 				.AddDriverApiNotificationsSenders()
 				.AddInfrastructure()

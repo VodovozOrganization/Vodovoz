@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using Vodovoz;
+using Vodovoz.Application;
 using Vodovoz.Controllers;
 using Vodovoz.FirebaseCloudMessaging;
 using Vodovoz.Infrastructure.Persistance;
@@ -34,7 +35,6 @@ using RouteListServiceV5 = DriverAPI.Library.V5.Services.RouteListService;
 using SmsPaymentServiceV5 = DriverAPI.Library.V5.Services.SmsPaymentService;
 using TrackPointsServiceV5 = DriverAPI.Library.V5.Services.TrackPointsService;
 using Osrm;
-using Vodovoz.Core.Application;
 
 namespace DriverAPI.Library
 {
@@ -75,7 +75,7 @@ namespace DriverAPI.Library
 
 			services.AddBusiness(configuration)
 				.AddDriverApiNotificationsSenders()
-				.AddCoreApplication()
+				.AddApplication()
 				.AddInfrastructure()
 				.AddDatabaseSettings()
 				.AddDriverEventsDependencies()

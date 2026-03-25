@@ -1,6 +1,6 @@
 ﻿using QS.Project.DB;
 using System;
-using Vodovoz.Core.Application.FileStorage;
+using Vodovoz.Application.FileStorage;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 

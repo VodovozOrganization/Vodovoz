@@ -3,7 +3,7 @@ using Vodovoz.Settings.Sms;
 
 namespace Sms.Internal.Client.Framework
 {
-	public class SmsClientChannelFactory
+	public class SmsClientChannelFactory : ISmsClientChannelFactory
 	{
 		private readonly ISmsSettings _smsSettings;
 

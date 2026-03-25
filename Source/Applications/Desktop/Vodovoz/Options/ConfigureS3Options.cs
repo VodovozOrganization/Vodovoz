@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using System;
-using Vodovoz.Core.Application.Options;
+using Vodovoz.Application.Options;
 using Vodovoz.Settings;
 
 namespace Vodovoz.Options

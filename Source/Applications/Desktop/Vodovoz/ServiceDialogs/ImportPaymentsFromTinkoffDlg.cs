@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
@@ -15,7 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using QS.Extensions.Observable.Collections.List;
-using Vodovoz.Core.Application.Payments.OnlinePayments;
+using Vodovoz.Application.Payments.OnlinePayments;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Infrastructure;

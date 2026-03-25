@@ -2,8 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
-using Vodovoz.Core.Application.FileStorage;
-using Vodovoz.Core.Application.Options;
+using Vodovoz.Application.FileStorage;
+using Vodovoz.Application.Options;
 
 namespace Vodovoz.Infrastructure.S3
 {

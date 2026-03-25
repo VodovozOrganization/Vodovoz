@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using System.Threading;
-using Vodovoz.Core.Application.FileStorage;
+using Vodovoz.Application.FileStorage;
 using QS.DomainModel.Entity;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Results;

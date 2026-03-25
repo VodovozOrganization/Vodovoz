@@ -20,8 +20,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Input;
-using Vodovoz.Core.Application.Errors;
-using Vodovoz.Core.Application.FileStorage;
+using Vodovoz.Application.FileStorage;
 using Vodovoz.Core.Data.Repositories.Cash;
 using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Goods;
@@ -1145,7 +1144,7 @@ namespace Vodovoz.ViewModels.Dialogs.Goods
 						.GetAwaiter()
 						.GetResult();
 
-					if(result.IsFailure && !result.Errors.All(x => x.Code == S3.FileAlreadyExists.ToString()))
+					if(result.IsFailure && !result.Errors.All(x => x.Code == Application.Errors.S3.FileAlreadyExists.ToString()))
 					{
 						errors.Add(fileName, string.Join(", ", result.Errors.Select(e => e.Message)));
 					}

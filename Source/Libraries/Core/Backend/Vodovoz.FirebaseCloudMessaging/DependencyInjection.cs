@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
-using Vodovoz.Core.Application.FirebaseCloudMessaging;
+using Vodovoz.Application.FirebaseCloudMessaging;
 
 namespace Vodovoz.FirebaseCloudMessaging
 {

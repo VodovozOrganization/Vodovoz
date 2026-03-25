@@ -13,7 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
-using Vodovoz.Core.Application.FirebaseCloudMessaging;
+using Vodovoz.Application.FirebaseCloudMessaging;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Documents;

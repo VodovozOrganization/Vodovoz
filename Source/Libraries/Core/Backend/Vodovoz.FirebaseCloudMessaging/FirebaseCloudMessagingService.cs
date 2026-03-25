@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Vodovoz.Core.Application.FirebaseCloudMessaging;
+using Vodovoz.Application.FirebaseCloudMessaging;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Options;
 

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 	</PropertyGroup>
@@ -128,11 +128,19 @@
       <Project>{e2228a2b-4883-4dd8-8a05-23501f7b8a33}</Project>
       <Name>QS.Utilities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Backend\CashReceipt\CashReceiptApi.Client.Framework\CashReceiptApi.Client.Framework.csproj">
+      <Project>{d3b6592d-6dcf-40f7-8627-3b4a6cbb040c}</Project>
+      <Name>CashReceiptApi.Client.Framework</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Backend\DriverApi.Contracts\DriverApi.Contracts.csproj" />
     <ProjectReference Include="..\..\Backend\Edo\Edo.Common\Edo.Common.csproj" />
     <ProjectReference Include="..\..\Backend\Pacs\Pacs.Core\Pacs.Core.csproj">
       <Project>{2A0BF064-B8AB-4FBC-9765-673A9255E6CE}</Project>
       <Name>Pacs.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Backend\Sms\Sms.Internal.Client.Famework\Sms.Internal.Client.Framework.csproj">
+      <Project>{e6465994-0f46-4c9f-8ce4-bcb98f916b17}</Project>
+      <Name>Sms.Internal.Client.Framework</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Backend\TaxcomEdo\TaxcomEdo.Contracts\TaxcomEdo.Contracts.csproj" />
     <ProjectReference Include="..\..\Backend\TrueMarkApi.Client\TrueMarkApi.Client.csproj">

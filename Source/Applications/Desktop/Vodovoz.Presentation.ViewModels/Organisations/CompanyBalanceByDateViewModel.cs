@@ -13,7 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Vodovoz.Core.Application.BankStatements;
+using Vodovoz.Application.BankStatements;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.EntityRepositories.Cash;
