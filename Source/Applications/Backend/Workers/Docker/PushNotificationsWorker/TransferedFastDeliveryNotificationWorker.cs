@@ -11,7 +11,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Application.FirebaseCloudMessaging;
+using Vodovoz.Core.Application.FirebaseCloudMessaging;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace PushNotificationsWorker

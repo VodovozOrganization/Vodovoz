@@ -4,7 +4,7 @@ using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Services;
 using QS.Tdi;
-using Vodovoz.Application.FileStorage;
+using Vodovoz.Core.Application.FileStorage;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Presentation.ViewModels.AttachedFiles;

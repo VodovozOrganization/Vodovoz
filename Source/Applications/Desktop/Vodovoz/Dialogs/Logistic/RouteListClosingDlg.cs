@@ -86,7 +86,7 @@ using Vodovoz.ViewWidgets.Logistics;
 using VodovozBusiness.Services.Orders;
 using EnumItemClickedEventArgs = QS.Widgets.EnumItemClickedEventArgs;
 using Order = Vodovoz.Domain.Orders.Order;
-using Vodovoz.Application.Orders.Services.OrderCancellation;
+using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
 
 namespace Vodovoz
 {

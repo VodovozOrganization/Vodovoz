@@ -1,6 +1,6 @@
 ﻿using QS.Project.DB;
 using System;
-using Vodovoz.Application.FileStorage;
+using Vodovoz.Core.Application.FileStorage;
 using VodovozBusiness.Domain.Cash.CashRequest;
 
 namespace Vodovoz.Infrastructure.FileStorage

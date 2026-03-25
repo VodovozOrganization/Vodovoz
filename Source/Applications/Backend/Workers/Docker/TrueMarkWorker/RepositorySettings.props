@@ -1,0 +1,6 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>true.mark.worker</ContainerRepository>
+  </PropertyGroup>
+</Project>
+
