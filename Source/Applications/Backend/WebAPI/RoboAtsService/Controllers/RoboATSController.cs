@@ -14,7 +14,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Vodovoz.Core.Application.Contacts;
+using Vodovoz.Application.Contacts;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;

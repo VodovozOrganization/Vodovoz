@@ -3,8 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Osrm;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Application.Logistics;
-using Vodovoz.Core.Application.Orders.Services;
+using Vodovoz.Application.Logistics;
+using Vodovoz.Application.Orders.Services;
 using Vodovoz.Services.Logistics;
 using VodovozBusiness.Services.Orders;
 

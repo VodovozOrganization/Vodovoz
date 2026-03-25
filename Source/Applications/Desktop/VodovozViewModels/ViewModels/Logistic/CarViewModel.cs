@@ -19,6 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using QS.ViewModels.Extension;
+using Vodovoz.Application.FileStorage;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Logistics.Cars;
@@ -51,8 +52,6 @@ using Vodovoz.ViewModels.Widgets.Cars;
 using Vodovoz.ViewModels.Widgets.Cars.CarVersions;
 using Vodovoz.ViewModels.Widgets.Cars.Insurance;
 using VodovozInfrastructure.StringHandlers;
-using Vodovoz.Core.Application.Errors;
-using Vodovoz.Core.Application.FileStorage;
 
 namespace Vodovoz.ViewModels.ViewModels.Logistic
 {
@@ -409,7 +408,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 						.GetAwaiter()
 						.GetResult();
 
-					if(result.IsFailure && !result.Errors.All(x => x.Code == S3.FileAlreadyExists.ToString()))
+					if(result.IsFailure && !result.Errors.All(x => x.Code == Application.Errors.S3.FileAlreadyExists.ToString()))
 					{
 						errors.Add(fileName, string.Join(", ", result.Errors.Select(e => e.Message)));
 					}

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using FastPaymentsApi.Contracts;
 using FastPaymentsApi.Contracts.Requests;
 using FastPaymentsApi.Contracts.Responses;
@@ -182,7 +182,7 @@ namespace FastPaymentsAPI.Library.Factories
 				ExternalId = paymentDto.ExternalId,
 				PhoneNumber = paymentDto.PhoneNumber,
 				FastPaymentGuid = paymentDto.FastPaymentGuid,
-                FastPaymentPayType = (FastPaymentPayType)Enum.Parse(typeof(FastPaymentPayType), paymentDto.FastPaymentPayType)
+				FastPaymentPayType = Enum.Parse<FastPaymentPayType>(paymentDto.FastPaymentPayType)
 			};
 		}
 

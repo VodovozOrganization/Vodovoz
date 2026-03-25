@@ -1,6 +1,0 @@
-﻿<Project>
-  <PropertyGroup>
-    <ContainerRepository>pushnotifications.worker</ContainerRepository>
-  </PropertyGroup>
-</Project>
-

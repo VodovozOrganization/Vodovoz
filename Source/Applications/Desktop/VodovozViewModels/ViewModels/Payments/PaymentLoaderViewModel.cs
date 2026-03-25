@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -12,7 +12,7 @@ using QS.Services;
 using QS.ViewModels;
 using ResourceLocker.Library;
 using ResourceLocker.Library.Factories;
-using Vodovoz.Core.Application.Payments;
+using Vodovoz.Application.Payments;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;

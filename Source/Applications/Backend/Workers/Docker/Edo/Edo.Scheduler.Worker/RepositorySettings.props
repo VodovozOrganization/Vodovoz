@@ -1,6 +1,0 @@
-﻿<Project>
-  <PropertyGroup>
-    <ContainerRepository>edo.scheduler.worker</ContainerRepository>
-  </PropertyGroup>
-</Project>
-

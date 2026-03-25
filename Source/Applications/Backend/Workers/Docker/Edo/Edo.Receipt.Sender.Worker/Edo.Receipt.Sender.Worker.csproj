@@ -3,7 +3,9 @@
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
 		<UserSecretsId>dotnet-Edo.Receipt.Sender-102a791f-9989-4deb-a412-3e789d856c62</UserSecretsId>
-</PropertyGroup>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<DockerfileContext>..\..\..\..\..\..</DockerfileContext>
+	</PropertyGroup>
 
 	<ItemGroup>
 		<Content Remove="appsettings.Development.json" />
@@ -39,4 +41,3 @@
 	</ItemGroup>
 
 </Project>
-

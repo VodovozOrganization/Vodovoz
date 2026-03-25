@@ -1,9 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project.Core;
-using Vodovoz.Core.Application;
+using Vodovoz.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Core.Domain.Repositories;
@@ -33,7 +33,7 @@ namespace Vodovoz.RobotMia.Api
 				.AddCore()
 				.AddBusiness(configuration)
 				.AddInfrastructure()
-				.AddCoreApplication()
+				.AddApplication()
 				.AddTrackedUoW()
 				.AddOrderTrackerFor1c()
 				.AddDatabaseSettings()

@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.HistoryLog;
 using QS.Project.Core;
-using Vodovoz.Core.Application.Clients;
+using Vodovoz.Application.Clients;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;

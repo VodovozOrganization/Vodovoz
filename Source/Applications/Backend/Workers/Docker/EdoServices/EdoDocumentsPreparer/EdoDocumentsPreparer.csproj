@@ -1,10 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
+<Project Sdk="Microsoft.NET.Sdk.Worker">
 
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
         <UserSecretsId>dotnet-EdoDocumentsPreparer-E1E9725A-C330-4303-B96B-2586C4FD2743</UserSecretsId>
 		<RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
-</PropertyGroup>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
@@ -24,7 +25,7 @@
       <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport\MessageTransport.csproj" />
       <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\TaxcomEdo\TaxcomEdo.Library\TaxcomEdo.Library.csproj" />
       <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Vodovoz.Zabbix.Sender\Vodovoz.Zabbix.Sender.csproj" />
-      <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Application\Vodovoz.Core.Application.csproj" />
+      <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Application\Vodovoz.Application.csproj" />
       <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj" />
       <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
       <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\EdoService\EdoService.Library.csproj" />
@@ -34,4 +35,3 @@
     </ItemGroup>
 	<Import Project="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Reports\Vodovoz.Reports.projitems" Label="Shared" />
 </Project>
-

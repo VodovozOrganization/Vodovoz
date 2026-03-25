@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Application.FileStorage;
+using Vodovoz.Application.FileStorage;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories;
 using Vodovoz.FilterViewModels.Organization;

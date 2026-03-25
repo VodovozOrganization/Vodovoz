@@ -18,9 +18,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Vodovoz.Core.Application.Complaints;
-using Vodovoz.Core.Application.Errors;
-using Vodovoz.Core.Application.FileStorage;
+using Vodovoz.Application.Complaints;
+using Vodovoz.Application.FileStorage;
 using Vodovoz.Core.Domain.Complaints;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Complaints;
@@ -756,7 +755,7 @@ namespace Vodovoz.ViewModels.Complaints
 						.GetAwaiter()
 						.GetResult();
 
-					if(result.IsFailure && !result.Errors.All(x => x.Code == S3.FileAlreadyExists.ToString()))
+					if(result.IsFailure && !result.Errors.All(x => x.Code == Application.Errors.S3.FileAlreadyExists.ToString()))
 					{
 						errors.Add(fileName, string.Join(", ", result.Errors.Select(e => e.Message)));
 					}
@@ -865,7 +864,7 @@ namespace Vodovoz.ViewModels.Complaints
 									.GetAwaiter()
 									.GetResult();
 
-								if(result.IsFailure && !result.Errors.All(x => x.Code == S3.FileAlreadyExists.ToString()))
+								if(result.IsFailure && !result.Errors.All(x => x.Code == Application.Errors.S3.FileAlreadyExists.ToString()))
 								{
 									errors.Add(fileToUploadPair.Key, string.Join(", ", result.Errors.Select(e => e.Message)));
 								}
