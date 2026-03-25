@@ -31,6 +31,11 @@ stage('Prepare') {
 	if (!AVAILABLE_DOCKER_BUILD_NODES) {
 		error("Не найдено доступных нод с меткой ${NODE_DOCKER_BUILD}")
 	}
+
+	AVAILABLE_DOCKER_BUILD_NODES = AssignCpuInfoToDockerBuildNodes(AVAILABLE_DOCKER_BUILD_NODES)
+	AVAILABLE_DOCKER_BUILD_NODES.each { nodeInfo ->
+		echo "Node ${nodeInfo.nodeName} (${nodeInfo.secondaryLabel}): cpuCount=${nodeInfo.cpuCount}, maxCpuCountPerContainer=${nodeInfo.maxCpuCountPerContainer}"
+	}
 }
 
 // подготовка референсного репозитория на нодах, чтобы использовать его позже в контейнерах для ускорения git clone
@@ -100,7 +105,7 @@ stage('Discover publishing projects') {
 }
 
 stage('Checkout and build in containers') {
-	def availableNodes = getDockerBuildNodesBySecondaryLabel(NODE_DOCKER_BUILD)
+	def availableNodes = AVAILABLE_DOCKER_BUILD_NODES
 	if (!availableNodes) {
 		error("Не найдено доступных нод с тегом ${NODE_DOCKER_BUILD} для работы в контейнерах")
 	}
@@ -112,7 +117,9 @@ stage('Checkout and build in containers') {
 
 	availableNodes.eachWithIndex { nodeInfo, nodeIndex ->
 		def nodeSelector = "${nodeInfo.secondaryLabel}"
+		def maxCpuCountPerContainer = (nodeInfo.maxCpuCountPerContainer ?: 1) as int
 		echo "nodeSelector='${nodeSelector}'"
+		echo "maxCpuCountPerContainer=${maxCpuCountPerContainer}"
 
 		for (int i = 1; i <= CONTAINERS_PER_NODE; i++) {
 			def containerIndex = i
@@ -189,7 +196,7 @@ stage('Checkout and build in containers') {
 										echo "CMD: ${cmdCreateDir}"
 										sh cmdCreateDir
 
-										def cmdPublish = "docker exec ${cid} sh -c 'dotnet publish \"${projectPath}\" -c Release -r linux-x64 --self-contained false -o \"${publishDir}\" /maxcpucount:4'"
+										def cmdPublish = "docker exec ${cid} sh -c 'dotnet publish \"${projectPath}\" -c Release -r linux-x64 --self-contained false -o \"${publishDir}\" /maxcpucount:${maxCpuCountPerContainer}'"
 										echo "CMD: ${cmdPublish}"
 										sh cmdPublish
 
@@ -269,6 +276,51 @@ def getDockerBuildNodesBySecondaryLabel(dockerBuildLabel) {
     }
 
     return nodes
+}
+
+def AssignCpuInfoToDockerBuildNodes(nodes) {
+	def updatedNodes = []
+
+	nodes.each { nodeInfo ->
+		def cpuCount = DetectCpuCountOnNode(nodeInfo.secondaryLabel)
+		def maxCpuCountPerContainer = Math.max(1, cpuCount.intdiv(CONTAINERS_PER_NODE as int))
+
+		updatedNodes.add(nodeInfo + [
+			cpuCount: cpuCount,
+			maxCpuCountPerContainer: maxCpuCountPerContainer
+		])
+	}
+
+	return updatedNodes
+}
+
+def DetectCpuCountOnNode(nodeSelector) {
+	def cpuRaw = ''
+
+	node(nodeSelector) {
+		if (isUnix()) {
+			cpuRaw = sh(
+				script: "getconf _NPROCESSORS_ONLN 2>/dev/null || nproc 2>/dev/null || grep -c '^processor' /proc/cpuinfo",
+				returnStdout: true
+			).trim()
+		} else {
+			cpuRaw = powershell(
+				script: '[Environment]::ProcessorCount',
+				returnStdout: true
+			).trim()
+		}
+	}
+
+	if (!cpuRaw?.isInteger()) {
+		error("Не удалось определить количество CPU для ноды '${nodeSelector}'. Получено: '${cpuRaw}'")
+	}
+
+	def cpuCount = cpuRaw.toInteger()
+	if (cpuCount < 1) {
+		error("Некорректное количество CPU для ноды '${nodeSelector}': ${cpuCount}")
+	}
+
+	return cpuCount
 }
 
 // def CheckoutReference(referenceRepositoryPath) {
