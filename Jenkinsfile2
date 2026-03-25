@@ -370,7 +370,7 @@ def getPublishingProjectQueueLock() {
 def CheckoutMainRepositoryWithoutSubmodules(referenceRepositoryPath) {
 	checkout changelog: false, poll: false, scm: [
 		$class: 'GitSCM',
-		branches: [[name: 'hotfix/jenkins']],
+		branches:  scm.branches,
 		doGenerateSubmoduleConfigurations: false,
 		userRemoteConfigs: [[
 			url: 'https://github.com/VodovozOrganization/Vodovoz.git'
@@ -455,27 +455,6 @@ def ReadXmlProperty(String filePath, String propertyName) {
 	return value
 }
 
-// 	echo "Prepare reference repository ${referenceRepositoryPath}"
-	
-// 	withCredentials([usernamePassword(credentialsId: '21dbdc92-7ffd-47e2-a198-303233bb0fe4', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-// 		if(fileExists(referenceRepositoryPath)){
-// 			// fetch all on reference repository
-// 			sh ('git -C ' + "${referenceRepositoryPath}" + ' -c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' fetch --all')
-// 			sh ('git -C ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/GMap.NET " + '-c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' fetch --all')
-// 			sh ('git -C ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/Gtk.DataBindings " + '-c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' fetch --all')
-// 			sh ('git -C ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/My-FyiReporting " + '-c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' fetch --all')
-// 			sh ('git -C ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/QSProjects " + '-c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' fetch --all')
-// 		}else{
-// 			// clone reference
-// 			sh ('git -c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' clone https://github.com/VodovozOrganization/Vodovoz.git --mirror ' + "${referenceRepositoryPath}")
-// 			sh ('git -c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' clone https://github.com/QualitySolution/GMap.NET.git --mirror ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/GMap.NET")
-// 			sh ('git -c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' clone https://github.com/QualitySolution/Gtk.DataBindings.git --mirror ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/Gtk.DataBindings")
-// 			sh ('git -c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' clone https://github.com/QualitySolution/My-FyiReporting.git --mirror ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/My-FyiReporting")
-// 			sh ('git -c credential.helper=\'!f() { echo \"username=$USERNAME\"; echo \"password=$PASSWORD\"; }; f\' clone https://github.com/QualitySolution/QSProjects.git --mirror ' + "${referenceRepositoryPath}/modules/Source/Libraries/External/QSProjects")
-// 		}
-//     }
-// }
-
 def CloneMirror(String url, String cache) {
 
     def name = url.tokenize('/').last().replace('.git','')
@@ -510,62 +489,13 @@ def CloneMirror(String url, String cache) {
     }
 }
 
-def BuildService(service) {
-	sh """
-		msbuild ${service.Path} \
-			-restore:True \
-			/t:Publish \
-			/p:Configuration=Release \
-			/p:PublishProfile=${PUBLISH_PROFILE} \
-			/maxcpucount:6
-	""".stripIndent()
-}
 
-def EnsureGitInContainer() {
-	sh '''
-		set -e
-		if ! command -v git >/dev/null 2>&1; then
-			apt-get update
-			apt-get install -y git
-		fi
-	'''.stripIndent()
-}
 
 def CheckoutInContainer(referenceRepositoryPath) {
-	// def scmExtensions = (scm.extensions ?: []).findAll {
-	// 	it['$class'] != 'CloneOption' && it['$class'] != 'SubmoduleOption'
-	// }
-
-	// checkout changelog: false, poll: false, scm: [
-	// 	$class: 'GitSCM',
-	// 	branches: scm.branches,
-	// 	doGenerateSubmoduleConfigurations: false,
-	// 	extensions: scmExtensions + [
-	// 		[$class: 'CloneOption', noTags: false, reference: referenceRepositoryPath, shallow: false]
-	// 	] + [
-	// 		[$class: 'SubmoduleOption', disableSubmodules: false, parentCredentials: true, recursiveSubmodules: true, reference: referenceRepositoryPath]
-	// 	],
-	// 	userRemoteConfigs: scm.userRemoteConfigs
-	// ]
-
-	// checkout changelog: false, poll: false, scm: [
-	// 	$class: 'GitSCM',
-	// 	branches: [[name: '*/master']],
-	// 	doGenerateSubmoduleConfigurations: false,
-	// 	extensions: [
-	// 		[$class: 'CloneOption', noTags: false, reference: referenceRepositoryPath, shallow: false]
-	// 	] + [
-	// 		[$class: 'SubmoduleOption', disableSubmodules: false, parentCredentials: true, recursiveSubmodules: true, reference: referenceRepositoryPath]
-	// 	],
-	// 	userRemoteConfigs: [[
-	// 		url: 'https://github.com/VodovozOrganization/Vodovoz.git',
-	// 		credentialsId: '21dbdc92-7ffd-47e2-a198-303233bb0fe4'
-	// 	]]
-	// ]
 
 	checkout changelog: false, poll: false, scm: [
 		$class: 'GitSCM',
-		branches: [[name: 'hotfix/jenkins']],
+		branches: scm.branches,
 		doGenerateSubmoduleConfigurations: false,
 
 		userRemoteConfigs: [[
