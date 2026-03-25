@@ -1,10 +1,12 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
+using QS.HistoryLog;
 using Vodovoz.Core.Domain.Employees;
 
 namespace Vodovoz.Core.Domain.Orders
 {
+	[HistoryTrace]
 	public class OnlineOrderOperatorComments : PropertyChangedBase, IDomainObject
 	{
 		private DateTime _createTime;

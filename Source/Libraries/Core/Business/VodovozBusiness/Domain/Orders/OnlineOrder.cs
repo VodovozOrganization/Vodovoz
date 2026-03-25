@@ -317,7 +317,7 @@ namespace Vodovoz.Domain.Orders
 			protected set => SetField(ref _isDeliveryPointNotBelongCounterparty, value);
 		}
 
-		[Display(Name = "Дата следующего звонка")]
+		/*[Display(Name = "Дата следующего звонка")]
 		public DateTime NextCallDate
 		{
 			get => _nextCallDate;
@@ -329,7 +329,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _operatorComments;
 			set => SetField(ref _operatorComments, value);
-		}
+		}*/
 
 		/// <summary>
 		/// Заказ не оплачен онлайн и время на оплату не истекло
