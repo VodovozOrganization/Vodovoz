@@ -277,7 +277,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		Task<bool> IsAllDriversScannedCodesInOrderProcessed(IUnitOfWork uow, int orderId, CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// Возвращает данные по неоплаченным безналичным заказам для указанной организации
+		/// Возвращает агрегированные данные по неоплаченным безналичным заказам для указанной организации, сгруппированные по контрагенту
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="organizationId">Id организации</param>
@@ -285,7 +285,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="counterpartyTypes">Типы контагентов</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Данные по неоплаченным заказам</returns>
-		Task<IDictionary<int, OrderPaymentsDataNode[]>> GetNotPaidCashlessOrdersData(IUnitOfWork uow, int organizationId, IEnumerable<OrderStatus> orderStatuses, IEnumerable<CounterpartyType> counterpartyTypes, CancellationToken cancellationToken);
+		Task<IDictionary<int, CounterpartyOrdersAggregatedNode>> GetNotPaidCashlessOrdersData(IUnitOfWork uow, int organizationId, IEnumerable<OrderStatus> orderStatuses, IEnumerable<CounterpartyType> counterpartyTypes, CancellationToken cancellationToken);
 		/// <summary>
 		/// Получение идентификаторов заказов на дату по клиенту и ТД
 		/// </summary>

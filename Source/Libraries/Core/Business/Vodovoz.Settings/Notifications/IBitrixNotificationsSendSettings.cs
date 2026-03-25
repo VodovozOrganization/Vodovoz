@@ -8,6 +8,10 @@ namespace Vodovoz.Settings.Notifications
 	public interface IBitrixNotificationsSendSettings
 	{
 		/// <summary>
+		/// Наши организации по которымм отправляются уведомлений по долгам по безналу в Битрикс24
+		/// </summary>
+		int[] CashlessDebtsOrganizations { get; }
+		/// <summary>
 		/// Интервал отправки уведомлений по долгам по безналу в Битрикс24
 		/// </summary>
 		TimeSpan CashlessDebtsNotificationsSendInterval { get; }
