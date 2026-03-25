@@ -728,7 +728,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 
 		private IEnumerable<OnlineOrdersJournalNode> GetReportData()
 		{
-			throw new NotImplementedException();
+			return OnlineOrdersQuery(UoW).List<OnlineOrdersJournalNode>();
 		}
 		
 		public override void Dispose()
