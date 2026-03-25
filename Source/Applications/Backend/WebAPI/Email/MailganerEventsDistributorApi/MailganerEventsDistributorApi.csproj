@@ -1,9 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
 		<UserSecretsId>69121648-e770-404f-9399-b9b19ec4f054</UserSecretsId>
-</PropertyGroup>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<DockerfileContext>..\..\..\..\..</DockerfileContext>
+	</PropertyGroup>
 
 	<ItemGroup>
 		<Content Remove="appsettings.Development.json" />
@@ -40,4 +42,3 @@
 	</ItemGroup>
 
 </Project>
-

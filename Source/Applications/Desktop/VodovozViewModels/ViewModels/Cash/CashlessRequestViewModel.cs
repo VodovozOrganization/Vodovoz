@@ -20,8 +20,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Vodovoz.Core.Application.Errors;
-using Vodovoz.Core.Application.FileStorage;
+using Vodovoz.Application.FileStorage;
 using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
@@ -1151,7 +1150,7 @@ namespace Vodovoz.ViewModels.ViewModels.Cash
 								.GetResult();
 
 							if(result.IsFailure && !result.Errors
-								.All(x => x.Code == S3.FileAlreadyExists.ToString()))
+								.All(x => x.Code == Application.Errors.S3.FileAlreadyExists.ToString()))
 							{
 								errors.Add(
 									fileToUploadPair.Key,

@@ -1,6 +1,5 @@
 ﻿<Project>
   <PropertyGroup>
     <ContainerRepository>bitrix.api</ContainerRepository>
-    <ContainerBaseImage>docker.vod.qsolution.ru:5100/vodovoz-reporting-base:latest</ContainerBaseImage>
   </PropertyGroup>
 </Project>

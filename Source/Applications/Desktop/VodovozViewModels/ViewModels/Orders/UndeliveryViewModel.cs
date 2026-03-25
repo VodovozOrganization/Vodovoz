@@ -13,6 +13,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Microsoft.Extensions.Logging;
+using Vodovoz.Application.FileStorage;
+using Vodovoz.Application.Orders;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sms;
@@ -26,10 +28,7 @@ using Vodovoz.Settings.Organizations;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Widgets;
-using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
-using Vodovoz.Core.Application.Orders;
-using Vodovoz.Core.Application.FileStorage;
-using Vodovoz.Core.Application.Errors;
+using Vodovoz.Application.Orders.Services.OrderCancellation;
 
 namespace Vodovoz.ViewModels.Orders
 {
@@ -395,7 +394,7 @@ namespace Vodovoz.ViewModels.Orders
 									.GetAwaiter()
 									.GetResult();
 
-								if(result.IsFailure && !result.Errors.All(x => x.Code == S3.FileAlreadyExists.ToString()))
+								if(result.IsFailure && !result.Errors.All(x => x.Code == Application.Errors.S3.FileAlreadyExists.ToString()))
 								{
 									_logger.LogWarning("Не удалось сохранить файл {FileName} размером {Size}",
 										fileToUploadPair.Key,

@@ -3,8 +3,10 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>dedf4830-786c-4526-b1ad-bef9a997fcc9</UserSecretsId>
-	<RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
-</PropertyGroup>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
+    <DockerfileContext>..\..\..\..</DockerfileContext>
+  </PropertyGroup>
 
 	<PropertyGroup>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -33,4 +35,3 @@
   </ItemGroup>
 
 </Project>
-

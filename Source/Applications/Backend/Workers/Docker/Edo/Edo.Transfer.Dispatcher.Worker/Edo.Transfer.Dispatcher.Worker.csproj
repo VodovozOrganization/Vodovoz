@@ -3,7 +3,9 @@
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
 		<UserSecretsId>dotnet-Edo.Transfer.Dispatcher-468df519-bd4b-4f56-a3b7-ae772d29e900</UserSecretsId>
-</PropertyGroup>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<DockerfileContext>..\..\..\..\..\..</DockerfileContext>
+	</PropertyGroup>
 
 	<ItemGroup>
 		<Content Remove="appsettings.Development.json" />
@@ -37,4 +39,3 @@
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Settings.Database\Vodovoz.Settings.Database.csproj" />
 	</ItemGroup>
 </Project>
-

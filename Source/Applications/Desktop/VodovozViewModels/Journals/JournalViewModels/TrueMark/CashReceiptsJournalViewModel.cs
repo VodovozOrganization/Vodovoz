@@ -18,7 +18,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
-using Vodovoz.Application.TrueMark;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;

@@ -3,7 +3,9 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>dotnet-Edo.Withdrawal.Worker-1ebe3c81-701f-41ed-9d9a-455b3b16501b</UserSecretsId>
-</PropertyGroup>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..\..\..\..\..</DockerfileContext>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
@@ -25,4 +27,3 @@
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj" />
   </ItemGroup>
 </Project>
-

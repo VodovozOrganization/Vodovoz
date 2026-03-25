@@ -15,7 +15,7 @@ using QS.Project.Domain;
 using QS.Project.HibernateMapping;
 using QS.Report;
 using RabbitMQ.MailSending;
-using Vodovoz.Core.Application.Clients;
+using Vodovoz.Application.Clients;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;

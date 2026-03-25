@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -15,7 +15,7 @@ using QS.DomainModel.UoW;
 using QS.Services;
 using TaxcomEdo.Client;
 using TaxcomEdo.Contracts.Documents;
-using Vodovoz.Core.Application.FileStorage;
+using Vodovoz.Application.FileStorage;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Domain.Orders;

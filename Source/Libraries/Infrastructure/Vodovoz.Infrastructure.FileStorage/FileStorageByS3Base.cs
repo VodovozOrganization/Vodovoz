@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Application.FileStorage;
+using Vodovoz.Application.FileStorage;
 using Vodovoz.Core.Domain.Results;
 
 namespace Vodovoz.Infrastructure.FileStorage
