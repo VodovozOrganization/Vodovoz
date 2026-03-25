@@ -106,7 +106,8 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 			if(counterparty.ReasonForLeaving == ReasonForLeaving.Resale)
 			{
 				if((counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess
-				    || counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
+					|| counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.RegisteredWithoutWater
+					|| counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
 				   && !string.IsNullOrWhiteSpace(counterparty.INN)
 				   && counterparty.PersonType == PersonType.legal)
 				{
@@ -114,7 +115,8 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 				}
 
 				if((counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess
-				    || counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
+					|| counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.RegisteredWithoutWater
+					|| counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
 				   && !string.IsNullOrWhiteSpace(counterparty.INN)
 				   && counterparty.PersonType == PersonType.legal
 				   && edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
@@ -124,7 +126,8 @@ namespace Vodovoz.ViewModels.Widgets.EdoLightsMatrix
 				}
 
 				if((counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess
-				    || counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
+					|| counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.RegisteredWithoutWater
+					|| counterparty.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
 				   && !string.IsNullOrWhiteSpace(counterparty.INN)
 				   && counterparty.PersonType == PersonType.natural)
 				{

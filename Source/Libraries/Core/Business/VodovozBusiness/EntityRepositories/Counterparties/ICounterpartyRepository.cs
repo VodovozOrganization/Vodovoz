@@ -1,4 +1,4 @@
-﻿using NHibernate.Criterion;
+using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -62,7 +62,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="counterparties">Id контрагентов</param>
 		/// <returns>Email адреса контрагента</returns>
-		IDictionary<int, Email[]> GetCounterpartyEmails(IUnitOfWork uow, IEnumerable<int> counterparties);
+		IDictionary<int, string[]> GetCounterpartyEmails(IUnitOfWork uow, IEnumerable<int> counterparties);
 
 		/// <summary>
 		/// Возвращает телефоны контрагентов по их Id
@@ -70,7 +70,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="counterpartiesIds">Id контрагентов</param>
 		/// <returns>Телефоны контрагента</returns>
-		IDictionary<int, Phone[]> GetCounterpartyPhones(IUnitOfWork uow, IEnumerable<int> counterpartiesIds);
+		IDictionary<int, string[]> GetCounterpartyPhones(IUnitOfWork uow, IEnumerable<int> counterpartiesIds);
 
 		/// <summary>
 		/// Возвращает телефоны для связи по заказам контрагентов по их Id
@@ -78,7 +78,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="counterpartiesIds">Id контрагентов</param>
 		/// <returns>Телефоны, указанные как контактные, в заказах контрагента</returns>
-		IDictionary<int, Phone[]> GetCounterpartyOrdersContactPhones(IUnitOfWork uow, IEnumerable<int> counterpartiesIds);
+		IDictionary<int, string[]> GetCounterpartyOrdersContactPhones(IUnitOfWork uow, IEnumerable<int> counterpartiesIds);
 
 		/// <summary>
 		/// Изменения в контрагенте с определённой даты
