@@ -209,7 +209,7 @@ EOF'"""
 										echo "CMD: write Dockerfile to ${publishDir}/Dockerfile"
 										sh cmdWriteDockerfile
 
-										def cmdBuild = "docker exec ${cid} sh -c 'docker build -t \"${imageFullName}\" \"${publishDir}\"'"
+										def cmdBuild = "docker exec ${cid} sh -c 'docker build --pull --no-cache --force-rm -t \"${imageFullName}\" \"${publishDir}\"'"
 										echo "CMD: ${cmdBuild}"
 										sh cmdBuild
 
@@ -235,6 +235,32 @@ EOF'"""
 		}
 	}
 	parallel parallelBranches
+}
+
+stage('Prune Docker cache on build nodes') {
+	def availableNodes = AVAILABLE_DOCKER_BUILD_NODES
+	if (!availableNodes) {
+		error("Не найдено доступных нод с тегом ${NODE_DOCKER_BUILD} для очистки Docker cache")
+	}
+
+	def cleanupBranches = [:]
+	availableNodes.each { nodeInfo ->
+		def nodeSelector = "${nodeInfo.secondaryLabel}"
+		def branchName = "Prune ${nodeSelector}"
+
+		cleanupBranches[branchName] = {
+			node(nodeSelector) {
+				sh '''
+					echo "Pruning dangling images"
+					docker image prune -f || true
+					echo "Pruning BuildKit cache"
+					docker builder prune -af || true
+				'''.stripIndent()
+			}
+		}
+	}
+
+	parallel cleanupBranches
 }
 
 // -- FUNCTIONS
