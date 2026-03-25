@@ -334,12 +334,26 @@ namespace Vodovoz.Domain.Orders
 		/// <returns></returns>
 		public virtual bool IsNeedOnlinePaymentButTimeIsUp(double timeToPayInSeconds, double timeToTransferToManualProcessing)
 		{
-			var createdSeconds = (DateTime.Now - Created).TotalSeconds;
+			var secondsFromCreated = (DateTime.Now - Created).TotalSeconds;
 			return OnlineOrderPaymentType == OnlineOrderPaymentType.PaidOnline
 				&& OnlineOrderStatus == OnlineOrderStatus.WaitingForPayment
 				&& OnlineOrderPaymentStatus != OnlineOrderPaymentStatus.Paid
-				&& createdSeconds >= timeToPayInSeconds
-				&& createdSeconds < timeToTransferToManualProcessing;
+				&& secondsFromCreated >= timeToPayInSeconds
+				&& secondsFromCreated < timeToTransferToManualProcessing;
+		}
+		
+		/// <summary>
+		/// Заказ не оплачен онлайн и не наступило время для перевода на ручную обработку
+		/// </summary>
+		/// <param name="timeToTransferToManualProcessing">Общее время на перевод на ручную обработку</param>
+		/// <returns></returns>
+		public virtual bool IsNeedOnlinePaymentAndTimeToTransferToManualHasNotCome(double timeToTransferToManualProcessing)
+		{
+			var secondsFromCreated = (DateTime.Now - Created).TotalSeconds;
+			return OnlineOrderPaymentType == OnlineOrderPaymentType.PaidOnline
+				&& OnlineOrderStatus == OnlineOrderStatus.WaitingForPayment
+				&& OnlineOrderPaymentStatus != OnlineOrderPaymentStatus.Paid
+				&& secondsFromCreated < timeToTransferToManualProcessing;
 		}
 
 		public virtual void SetOrderPerformed(IEnumerable<Order> orders, Employee employee = null)
