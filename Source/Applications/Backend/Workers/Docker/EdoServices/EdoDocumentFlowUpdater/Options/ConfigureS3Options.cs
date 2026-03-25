@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.Extensions.Options;
-using Vodovoz.Application.Options;
+using Vodovoz.Core.Application.Options;
 using Vodovoz.Settings;
 
 namespace EdoDocumentFlowUpdater.Options

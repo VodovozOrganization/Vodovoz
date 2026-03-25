@@ -1,0 +1,6 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>edo.transfer.sender.worker</ContainerRepository>
+  </PropertyGroup>
+</Project>
+

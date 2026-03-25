@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 using TaxcomEdo.Contracts.Documents;
 using TaxcomEdo.Contracts.OrdersWithoutShipment;
 using TaxcomEdo.Library.Options;
-using Vodovoz.Application.Documents;
+using Vodovoz.Core.Application.Documents;
 using Vodovoz.Converters;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;

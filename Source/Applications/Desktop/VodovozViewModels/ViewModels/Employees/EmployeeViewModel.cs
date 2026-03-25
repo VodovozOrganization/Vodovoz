@@ -22,7 +22,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using QS.ViewModels.Dialog;
-using Vodovoz.Application.FileStorage;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Users.Settings;
@@ -60,6 +59,8 @@ using Vodovoz.ViewModels.ViewModels.Organizations;
 using VodovozInfrastructure.Endpoints;
 using EmployeeSettings = Vodovoz.Settings.Employee;
 using PhoneViewModel = Vodovoz.ViewModels.ViewModels.Counterparty.PhoneViewModel;
+using Vodovoz.Core.Application.Errors;
+using Vodovoz.Core.Application.FileStorage;
 
 namespace Vodovoz.ViewModels.ViewModels.Employees
 {
@@ -1310,7 +1311,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 						.GetAwaiter()
 						.GetResult();
 
-					if(result.IsFailure && !result.Errors.All(x => x.Code == Application.Errors.S3.FileAlreadyExists.ToString()))
+					if(result.IsFailure && !result.Errors.All(x => x.Code == S3.FileAlreadyExists.ToString()))
 					{
 						errors.Add(fileName, string.Join(", ", result.Errors.Select(e => e.Message)));
 					}
