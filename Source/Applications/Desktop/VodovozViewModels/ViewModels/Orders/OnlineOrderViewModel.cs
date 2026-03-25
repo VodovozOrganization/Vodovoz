@@ -45,6 +45,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private bool _canCancelAnyOnlineOrder;
 		private string _newComment;
 		private string _operatorsComments;
+		private OnlineOrderTimers _onlineOrderTimers;
 
 		public OnlineOrderViewModel(
 			ILogger<OnlineOrderViewModel> logger,
@@ -87,7 +88,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				externalCounterpartyMatchingRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyMatchingRepository));
 			_lifetimeScope = scope ?? throw new ArgumentNullException(nameof(scope));
 			OrderOrganizationManager = orderOrganizationManager ?? throw new ArgumentNullException(nameof(orderOrganizationManager));
-			
+
+			GetTimers();
 			SetPermissions();
 			CreateCommands();
 			CreatePropertyChangeRelations();
@@ -264,6 +266,16 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			return AskQuestion(question, title);
 		}
 		
+		private void GetTimers()
+		{
+			_onlineOrderTimers = UoW.GetAll<OnlineOrderTimers>().FirstOrDefault();
+
+			if(_onlineOrderTimers is null)
+			{
+				throw new InvalidOperationException("Не установлены таймеры для онлайн заказов! Дальнейшая работа невозможна");
+			}
+		}
+		
 		private void SetPermissions()
 		{
 			var permissionService = CommonServices.PermissionService;
@@ -288,7 +300,16 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				{
 					if(Entity.EmployeeWorkWith != null && Entity.EmployeeWorkWith.Id != _currentEmployee.Id)
 					{
-						ShowWarningMessage($"Эту заявку уже обрабатывает {Entity.EmployeeWorkWith.ShortName}. Дальнейшая работа не возможна");
+						ShowWarningMessage($"Эту заявку уже обрабатывает {Entity.EmployeeWorkWith.ShortName}. Дальнейшая работа невозможна");
+						return;
+					}
+
+					if(Entity.IsNeedOnlinePaymentAndTimeToTransferToManualHasNotCome(
+							Entity.IsFastDelivery
+								? _onlineOrderTimers.TimeForTransferToManualProcessingWithFastDelivery.TotalSeconds
+								: _onlineOrderTimers.TimeForTransferToManualProcessingWithoutFastDelivery.TotalSeconds))
+					{
+						ShowWarningMessage("У клиента не закончилось время на оплату заказа. Подождите, пока заказ перейдет на ручную обработку");
 						return;
 					}
 
