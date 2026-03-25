@@ -173,10 +173,9 @@ namespace CustomerOrdersApi.Controllers.V4
 			try
 			{
 				_logger.LogInformation(
-					"Поступил запрос от {Source} на получение текущих заказов клиента {CounterpartyId} c подписью {Signature}, проверяем...",
+					"Поступил запрос от {Source} на получение текущих активных заказов клиента {CounterpartyId}",
 					sourceName,
-					getCounterpartyOrdersDto.CounterpartyErpId,
-					getCounterpartyOrdersDto.Signature);
+					getCounterpartyOrdersDto.CounterpartyErpId);
 
 				var orders = await _customerOrdersService.GetCurrentClientOrders(getCounterpartyOrdersDto, cancellationToken);
 

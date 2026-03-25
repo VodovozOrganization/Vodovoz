@@ -88,8 +88,8 @@ namespace CustomerOrdersApi
 
 			services.AddAuthentication("Basic")
 				.AddScheme<SignatureOptions, CustomAuthenticationHandler>(
-					"Basic",
-					conf => Configuration.GetSection(SignatureOptions.Path).Bind(conf));
+				"Basic",
+				conf => Configuration.GetSection(SignatureOptions.Path).Bind(conf));
 
 			services.ConfigureHealthCheckService<CustomerOrdersApiHealthCheck, ServiceInfoProvider>();
 		}
@@ -118,10 +118,9 @@ namespace CustomerOrdersApi
 
 			app.UseHttpsRedirection();
 			app.UseRouting();
-			app.UseAuthorization();
-			app.UseApiVersioning();
 			app.UseAuthentication();
 			app.UseAuthorization();
+			app.UseApiVersioning();
 			app.UseVodovozHealthCheck();
 
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });

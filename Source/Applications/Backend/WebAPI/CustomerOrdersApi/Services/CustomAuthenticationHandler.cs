@@ -78,8 +78,8 @@ namespace CustomerOrdersApi.Services
 
 			var isValid = source switch
 			{
-				Source.MobileApp => Options.VodovozWebSite == token,
-				Source.VodovozWebSite => Options.MobileApp == token,
+				Source.MobileApp => Options.MobileApp == token,
+				Source.VodovozWebSite => Options.VodovozWebSite == token,
 				_ => false
 			};
 
