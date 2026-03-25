@@ -1,0 +1,5 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>email.send.worker</ContainerRepository>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,5 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>pay-page.api</ContainerRepository>
+  </PropertyGroup>
+</Project>
