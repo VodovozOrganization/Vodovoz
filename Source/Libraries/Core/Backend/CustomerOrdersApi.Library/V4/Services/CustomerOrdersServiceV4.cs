@@ -120,17 +120,17 @@ namespace CustomerOrdersApi.Library.V4.Services
 				out generatedSignature);
 		}
 		
-		public bool ValidateCounterpartyOrdersSignature(GetCounterpartyOrdersDto getCounterpartyOrdersDto, out string generatedSignature)
+		public bool ValidateCounterpartyOrdersSignature(GetOrdersDto getOrdersDto, out string generatedSignature)
 		{
-			var sourceSign = GetSourceSign(getCounterpartyOrdersDto.Source);
+			var sourceSign = GetSourceSign(getOrdersDto.Source);
 
 			return _signatureManager.Validate(
-				getCounterpartyOrdersDto.Signature,
+				getOrdersDto.Signature,
 				new CounterpartyOrdersSignatureParams
 				{
-					CounterpartyId = getCounterpartyOrdersDto.CounterpartyErpId.ToString(),
-					Page = getCounterpartyOrdersDto.Page,
-					ShopId = (int)getCounterpartyOrdersDto.Source,
+					CounterpartyId = getOrdersDto.CounterpartyErpId.ToString(),
+					Page = getOrdersDto.Page,
+					ShopId = (int)getOrdersDto.Source,
 					Sign = sourceSign
 				},
 				out generatedSignature);

@@ -1,7 +1,8 @@
-using CustomerOrdersApi.HealthCheck;
-using System;
+﻿using CustomerOrdersApi.HealthCheck;
 using CustomerOrdersApi.Library;
+using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
+using CustomerOrdersApi.Services;
 using DriverApi.Notifications.Client;
 using MassTransit;
 using MessageTransport;
@@ -15,6 +16,7 @@ using Osrm;
 using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Services;
+using System;
 using Vodovoz;
 using Vodovoz.Application;
 using Vodovoz.Application.Logistics;
@@ -22,11 +24,11 @@ using Vodovoz.Application.Orders.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
-using Vodovoz.Trackers;
-using VodovozHealthCheck;
 using Vodovoz.Presentation.WebApi;
 using Vodovoz.Services.Logistics;
+using Vodovoz.Trackers;
 using VodovozBusiness.Services.Orders;
+using VodovozHealthCheck;
 
 namespace CustomerOrdersApi
 {
@@ -83,7 +85,12 @@ namespace CustomerOrdersApi
 					busConf.ConfigureRabbitMq();
 				})
 				.AddHttpClient();
-			
+
+			services.AddAuthentication("Basic")
+				.AddScheme<SignatureOptions, CustomAuthenticationHandler>(
+					"Basic",
+					conf => Configuration.GetSection(SignatureOptions.Path).Bind(conf));
+
 			services.ConfigureHealthCheckService<CustomerOrdersApiHealthCheck, ServiceInfoProvider>();
 		}
 
@@ -113,6 +120,8 @@ namespace CustomerOrdersApi
 			app.UseRouting();
 			app.UseAuthorization();
 			app.UseApiVersioning();
+			app.UseAuthentication();
+			app.UseAuthorization();
 			app.UseVodovozHealthCheck();
 
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });

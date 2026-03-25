@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using CustomerOrdersApi.Library.V4.Dto.Orders;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
 using Vodovoz.Core.Domain.Results;
 
 namespace CustomerOrdersApi.Library.V4.Services
@@ -35,7 +35,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 		/// <param name="getOrdersDto">Информация для получения заказов клиента</param>
 		/// <param name="generatedSignature">Сгенерированная контрольная сумма Erp, для проверки</param>
 		/// <returns><c>true</c> - валидный запрос, <c>false</c> - невалидный запрос</returns>
-		bool ValidateCounterpartyOrdersSignature(GetCounterpartyOrdersDto getCounterpartyOrdersDto, out string generatedSignature);
+		bool ValidateCounterpartyOrdersSignature(GetOrdersDto getOrdersDto, out string generatedSignature);
 		/// <summary>
 		/// Проверка контрольной суммы запроса заявки на звонок
 		/// </summary>

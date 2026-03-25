@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Vodovoz.Core.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.V4.Dto.Orders
@@ -8,6 +8,11 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 	/// </summary>
 	public class GetOrdersDto : GetCounterpartyOrdersDto
 	{
+		/// <summary>
+		/// Контрольная сумма запроса
+		/// </summary>
+		public string Signature { get; set; }
+
 		/// <summary>
 		/// Статус заказа(фильтр)
 		/// </summary>

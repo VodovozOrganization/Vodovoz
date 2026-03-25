@@ -1,4 +1,4 @@
-using Vodovoz.Core.Domain.Clients;
+﻿using Vodovoz.Core.Domain.Clients;
 
 namespace CustomerOrdersApi.Library.V4.Dto.Orders
 {
@@ -11,11 +11,6 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 		/// Источник запроса
 		/// </summary>
 		public Source Source { get; set; }
-
-		/// <summary>
-		/// Контрольная сумма запроса
-		/// </summary>
-		public string Signature { get; set; }
 
 		/// <summary>
 		/// Id клиента из ДВ

@@ -3,6 +3,7 @@ using CustomerOrdersApi.Library.V4.Dto.Orders;
 using CustomerOrdersApi.Library.V4.Services;
 using Gamma.Utilities;
 using MassTransit;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -162,6 +163,7 @@ namespace CustomerOrdersApi.Controllers.V4
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ActiveOrdersDto))]
+		[Authorize]
 		public async Task<IActionResult> GetCurrentClientOrders(
 			[FromBody] GetCounterpartyOrdersDto getCounterpartyOrdersDto,
 			CancellationToken cancellationToken)
@@ -175,16 +177,6 @@ namespace CustomerOrdersApi.Controllers.V4
 					sourceName,
 					getCounterpartyOrdersDto.CounterpartyErpId,
 					getCounterpartyOrdersDto.Signature);
-
-				if(!_customerOrdersService.ValidateCounterpartyOrdersSignature(getCounterpartyOrdersDto, out var generatedSignature))
-				{
-					return InvalidSignature(getCounterpartyOrdersDto.Signature, generatedSignature);
-				}
-
-				_logger.LogInformation(
-					"Подпись валидна, получаем текущие заказы клиента {CounterpartyId} страница {Page}",
-					getCounterpartyOrdersDto.CounterpartyErpId,
-					getCounterpartyOrdersDto.Page);
 
 				var orders = await _customerOrdersService.GetCurrentClientOrders(getCounterpartyOrdersDto, cancellationToken);
 
