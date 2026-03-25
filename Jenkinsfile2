@@ -378,6 +378,10 @@ def DiscoverPublishingProjectDirs(String profileName) {
 			find \"\$applicationsPath\" -type f -name \"RepositorySettings.props\" |
 				while IFS= read -r filepath; do
 					projectDir=\"\$(dirname \"\$filepath\")\"
+					if [ -f \"\$projectDir/jenkins-ignore\" ]; then
+						echo \"Skip project due to jenkins-ignore: \${projectDir#\$scriptDir/}\" >&2
+						continue
+					fi
 					echo \"\${projectDir#\$scriptDir/}\"
 				done |
 				sort -u
