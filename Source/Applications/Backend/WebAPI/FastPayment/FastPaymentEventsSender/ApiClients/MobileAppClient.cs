@@ -30,11 +30,13 @@ namespace FastPaymentEventsSender.ApiClients
 				throw new ArgumentException($"'{nameof(url)}' cannot be null or whitespace.", nameof(url));
 			}
 
-			_logger.LogInformation(
-				"Отправка уведомления о быстрой оплате на мобильное приложение для онлайн заказа {OnlineOrderId}",
-				notification.PaymentDetails.OnlineOrderId);
-
 			var content = JsonSerializer.Serialize(notification);
+			
+			_logger.LogInformation(
+				"Отправка уведомления о быстрой оплате на мобильное приложение для онлайн заказа {OnlineOrderId} {Notification}",
+				notification.PaymentDetails.OnlineOrderId,
+				content);
+			
 			var response = await _httpClient.PostAsJsonAsync(url, content);
 
 			return (int)response.StatusCode;

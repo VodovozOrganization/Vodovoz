@@ -237,5 +237,11 @@ namespace Vodovoz.Errors.Orders
 				typeof(OnlineOrderErrors),
 				nameof(ClientHasOrdersForThisDate),
 				$"У клиента уже есть оформленные заказы: { orderIds } на этот день!");
+		
+		public static Error ClientDontPayOrder() =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(ClientDontPayOrder),
+				"Заказ не был оплачен в отведенный срок");
 	}
 }

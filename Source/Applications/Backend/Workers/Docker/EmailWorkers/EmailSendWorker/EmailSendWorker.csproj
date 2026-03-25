@@ -3,18 +3,11 @@
     <TargetFramework>net5.0</TargetFramework>
 	  <RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
     <UserSecretsId>dotnet-EmailSendingWorkerService-D47D98F9-5F1A-43FE-A38E-EE38C8049D46</UserSecretsId>
-    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <DockerfileContext>..\..\..\..\..\..</DockerfileContext>
   </PropertyGroup>
 
 	<ItemGroup>
 		<Content Remove="appsettings.Development.json" />
 		<Content Remove="appsettings.Production.json" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <_WebToolingArtifacts Remove="Properties\PublishProfiles\registry-prod.pubxml" />
-	  <_WebToolingArtifacts Remove="Properties\PublishProfiles\registry-dev.pubxml" />
 	</ItemGroup>
 
 	<ItemGroup>
