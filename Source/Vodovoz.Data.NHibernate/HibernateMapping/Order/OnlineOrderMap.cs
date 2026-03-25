@@ -38,7 +38,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.OnlineOrderSum).Column("online_order_sum");
 			Map(x => x.CallBeforeArrivalMinutes).Column("call_before_arrival_minutes");
 			Map(x => x.DontArriveBeforeInterval).Column("dont_arrive_before_interval");
-
+			Map(x => x.NextCallDate).Column("next_call_date");
+			
 			References(x => x.Counterparty).Column("counterparty_id");
 			References(x => x.DeliveryPoint).Column("delivery_point_id");
 			References(x => x.DeliverySchedule).Column("delivery_schedule_id");
@@ -57,6 +58,10 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			HasMany(x => x.OnlineRentPackages)
 				.KeyColumn("online_order_id")
 				.Inverse().Cascade.AllDeleteOrphan();
+			
+			HasMany(x => x.OperatorComments)
+				.KeyColumn("online_order_id")
+				.Cascade.AllDeleteOrphan();
 		}
 	}
 }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
@@ -62,7 +64,8 @@ namespace Vodovoz.Domain.Orders
 		private IList<OnlineOrderItem> _onlineOrderItems = new List<OnlineOrderItem>();
 		private IList<OnlineFreeRentPackage> _onlineRentPackages = new List<OnlineFreeRentPackage>();
 		private DateTime _nextCallDate;
-		private IEnumerable<OnlineOrderOperatorComments> _operatorComments;
+		private IList<OnlineOrderOperatorComments> _operatorComments = new List<OnlineOrderOperatorComments>();
+		
 
 		public virtual int Id { get; set; }
 		
@@ -317,20 +320,20 @@ namespace Vodovoz.Domain.Orders
 			protected set => SetField(ref _isDeliveryPointNotBelongCounterparty, value);
 		}
 
-		/*[Display(Name = "Дата следующего звонка")]
-		public DateTime NextCallDate
+		[Display(Name = "Дата следующего звонка")]
+		public virtual DateTime NextCallDate
 		{
 			get => _nextCallDate;
 			set => SetField(ref _nextCallDate, value);
 		}
 
 		[Display(Name = "Комментарии оператора")]
-		public IEnumerable<OnlineOrderOperatorComments> OperatorComments
+		public virtual IList<OnlineOrderOperatorComments> OperatorComments
 		{
 			get => _operatorComments;
 			set => SetField(ref _operatorComments, value);
-		}*/
-
+		}
+		
 		/// <summary>
 		/// Заказ не оплачен онлайн и время на оплату не истекло
 		/// </summary>

@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Timers;
 using Core.Infrastructure;
 using DateTimeHelpers;
@@ -7,12 +9,14 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
+using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.DB;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -26,6 +30,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Enums;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes.Orders;
 using Vodovoz.ViewModels.ViewModels.Orders;
+using Vodovoz.ViewModels.ViewModels.Reports.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
@@ -40,19 +45,22 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		private readonly int _autoRefreshInterval = 30;
 		private Timer _autoRefreshTimer;
 		private bool _autoRefreshEnabled;
+		private bool _isOnlineOrdersExportToExcelInProcess;
+		private readonly IFileDialogService _fileDialogService;
+		
 
 		public OnlineOrdersJournalViewModel(
 			OnlineOrdersJournalFilterViewModel journalFilterViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
 			INavigationManager navigation,
-			IGtkTabsOpener gtkTabsOpener,
-			Action<OnlineOrdersJournalFilterViewModel> filterParams = null)
+			IGtkTabsOpener gtkTabsOpener, IFileDialogService fileDialogService, Action<OnlineOrdersJournalFilterViewModel> filterParams = null)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigation)
 		{
 			_filterViewModel = journalFilterViewModel ?? throw new ArgumentNullException(nameof(journalFilterViewModel));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 
 			var dataLoader = new ThreadDataLoader<OnlineOrdersJournalNode>(unitOfWorkFactory);
 			dataLoader.AddQuery(OnlineOrdersQuery);
@@ -80,13 +88,20 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 				return $"{autoRefreshInfo} | {base.FooterInfo}";
 			}
 		}
-		
+
+		public bool IsOnlineOrdersExportToExcelInProcess
+		{
+			get => _isOnlineOrdersExportToExcelInProcess;
+			set => SetField(ref _isOnlineOrdersExportToExcelInProcess, value);
+		}
+
 		protected override void CreateNodeActions()
 		{
 			NodeActionsList.Clear();
 			CreateDefaultEditAction();
 			CreateStartAutoRefresh();
 			CreateStopAutoRefresh();
+			CreateExportToExcel();
 		}
 
 		public IQueryOver<OnlineOrder> OnlineOrdersQuery(IUnitOfWork uow)
@@ -101,11 +116,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			District districtAlias = null;
 			GeoGroup geographicalGroupAlias = null;
 			GeoGroup selfDeliveryGeographicalGroupAlias = null;
+			OnlineOrderCancellationReason cancellationReasonAlias = null;
 
 			var query = uow.Session.QueryOver(() => onlineOrderAlias)
 				.Left.JoinAlias(o => o.Counterparty, () => counterpartyAlias)
 				.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
 				.Left.JoinAlias(o => o.DeliverySchedule, () => deliveryScheduleAlias)
+				.Left.JoinAlias(o => o.OnlineOrderCancellationReason, () => cancellationReasonAlias)
 				.Left.JoinAlias(o => o.EmployeeWorkWith, () => employeeWorkWithAlias)
 				.Left.JoinAlias(o => o.Orders, () => orderAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
@@ -274,6 +291,24 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 
 				query.Where(Subqueries.Exists(counterpartyPhonesSubquery.DetachedCriteria));
 			}
+
+			var nextCallStartDate = _filterViewModel.NextCallStartDate;
+			var nextCallEndDate = _filterViewModel.NextCallEndDate;
+			
+			if(nextCallStartDate.HasValue)
+			{
+				query.Where(o => o.NextCallDate >= nextCallStartDate);
+			}
+					
+			if(nextCallEndDate.HasValue)
+			{
+				query.Where(o => o.NextCallDate <= nextCallEndDate); 
+			}
+
+			if(_filterViewModel.CancellationReason != null)
+			{
+				query.Where(() => cancellationReasonAlias.Id == _filterViewModel.CancellationReason.Id);
+			}
 			
 			if(!string.IsNullOrWhiteSpace(_filterViewModel.CounterpartyNameLike)
 				&& _filterViewModel.CounterpartyNameLike.Length >= _minLengthLikeSearch)
@@ -325,6 +360,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.Select(o => o.OnlinePayment).WithAlias(() => resultAlias.OnlinePayment)
 					.Select(o => o.OnlineOrderPaymentType).WithAlias(() => resultAlias.OnlineOrderPaymentType)
 					.Select(o => o.IsNeedConfirmationByCall).WithAlias(() => resultAlias.IsNeedConfirmationByCall)
+					.Select(() => cancellationReasonAlias.Name).WithAlias(() => resultAlias.CancelReason)
 					.Select(ordersIdsProjection).WithAlias(() => resultAlias.OrdersIds)
 				)
 				.OrderBy(o => o.OnlineOrderStatus).Asc()
@@ -558,6 +594,21 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			NodeActionsList.Add(journalAction);
 		}
 
+		private void CreateExportToExcel()
+		{
+			var journalAction = new JournalAction(
+				"Экспорт в Excel",
+				objects => true,
+				objects => true,
+				objects =>
+				{
+					ExportToExcel();
+				}
+			);
+			
+			NodeActionsList.Add(journalAction);
+		}
+
 		private void ConfigureFilter(Action<OnlineOrdersJournalFilterViewModel> filterParams)
 		{
 			if(_filterViewModel is null) return;
@@ -634,6 +685,50 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 		private string GetAutoRefreshInfo()
 		{
 			return _autoRefreshEnabled ? $"Автообновление каждые {_autoRefreshInterval} сек." : "Автообновление выключено";
+		}
+
+		private async Task ExportToExcel()
+		{
+			if(_filterViewModel.StartDate == null || _filterViewModel.EndDate == null)
+			{
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Выберете временной диапазон для формирования выгрузки");
+
+				return;
+			}
+
+			var dialogSettings = new DialogSettings();
+			dialogSettings.Title = "Сохранить";
+			dialogSettings.DefaultFileExtention = ".xlsx";
+			dialogSettings.FileName = $"{Title} {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx";
+
+			var saveDialogResul = _fileDialogService.RunSaveFileDialog(dialogSettings);
+			if(!saveDialogResul.Successful)
+			{
+				return;
+			}
+
+			IsOnlineOrdersExportToExcelInProcess = true;
+
+			await Task.Run(() =>
+			{
+				var nodes = GetReportData();
+
+				var ordersReport = new OnlineOrdersReport(
+					_filterViewModel.StartDate.Value,
+					_filterViewModel.EndDate.Value,
+					nodes);
+
+				ordersReport.Export(saveDialogResul.Path);
+			});
+
+			IsOnlineOrdersExportToExcelInProcess = false;
+		}
+
+		private IEnumerable<OnlineOrdersJournalNode> GetReportData()
+		{
+			throw new NotImplementedException();
 		}
 		
 		public override void Dispose()
