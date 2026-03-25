@@ -9,7 +9,7 @@ PUBLISH_PROFILE_FILE = "${PUBLISH_PROFILE}.pubxml"
 CHECKOUT_CONTAINER_IMAGE = "docker.vod.qsolution.ru:5100/dotnet5-docker"
 DOCKER_REGISTRY_CREDENTIALS_ID = "docker-registry-credentials"
 REFERENCE_REPOSITORY_MOUNT_PATH = "/reference-repository"
-CONTAINERS_PER_NODE = 1
+CONTAINERS_PER_NODE = 2
 
 
 DOCKER_REGISTRY_URL = "docker.vod.qsolution.ru:5100"
@@ -19,6 +19,7 @@ DOCKER_REGISTRY_URL = "docker.vod.qsolution.ru:5100"
 
 PUBLISHING_PROJECT_PATHS = []
 PUBLISHING_PROJECTS = []
+PUBLISHING_PROJECT_QUEUE = []
 AVAILABLE_DOCKER_BUILD_NODES = []
 
 stage('Prepare') {
@@ -88,6 +89,7 @@ stage('Discover publishing projects') {
 
 			PUBLISHING_PROJECTS = discoveredProjects
 			PUBLISHING_PROJECT_PATHS = discoveredProjects.collect { it.projectPath }
+			PUBLISHING_PROJECT_QUEUE = discoveredProjects.collect { it.collectEntries { key, value -> [key, value] } }
 
 			echo "Найдено проектов для публикации: ${PUBLISHING_PROJECTS.size()}"
 			PUBLISHING_PROJECTS.each { p ->
@@ -104,6 +106,9 @@ stage('Checkout and build in containers') {
 	}
 	def parallelBranches = [:]
 	def totalBuilders = availableNodes.size() * CONTAINERS_PER_NODE
+	echo "Total builder containers to run in parallel: ${totalBuilders}"
+	
+	def totalProjects = PUBLISHING_PROJECTS.size()
 
 	availableNodes.eachWithIndex { nodeInfo, nodeIndex ->
 		def nodeSelector = "${nodeInfo.secondaryLabel}"
@@ -111,8 +116,7 @@ stage('Checkout and build in containers') {
 
 		for (int i = 1; i <= CONTAINERS_PER_NODE; i++) {
 			def containerIndex = i
-			def builderIndex = nodeIndex * CONTAINERS_PER_NODE + (containerIndex - 1)
-			def assignedProjects = getProjectsForBuilder(PUBLISHING_PROJECTS, builderIndex, totalBuilders)
+			def builderNumber = nodeIndex * CONTAINERS_PER_NODE + containerIndex
 			def branchName = "${nodeInfo.secondaryLabel} #${containerIndex}"
 			parallelBranches[branchName] = {
 				node(nodeSelector) {
@@ -162,8 +166,16 @@ stage('Checkout and build in containers') {
 							}
 
 							stage("Build ${branchName}") {
-								echo "Builder ${builderIndex + 1}/${totalBuilders}: ${assignedProjects.size()} project(s) assigned"
-								for (projectInfo in assignedProjects) {
+								echo "Builder ${builderNumber}/${totalBuilders} is waiting for work from the shared project queue (${totalProjects} project(s) total)"
+								def processedProjects = 0
+								while (true) {
+									def projectInfo = takeNextPublishingProject()
+									if (!projectInfo) {
+										echo "Shared queue is empty. Builder ${builderNumber}/${totalBuilders} finished after ${processedProjects} project(s)"
+										break
+									}
+
+									processedProjects++
 									def projectPath = projectInfo.projectPath
 									def imageRepository = projectInfo.containerRepository
 									def imageTag = projectInfo.publishImageTag
@@ -172,7 +184,7 @@ stage('Checkout and build in containers') {
 									def imageFullName = "${DOCKER_REGISTRY_URL}/${imageRepository}:${imageTag}"
 
 									stage("${imageRepository}:${imageTag}") {
-										echo "Build and push: ${projectPath} -> ${DOCKER_REGISTRY_URL}/${imageRepository}:${imageTag}"
+										echo "Builder ${builderNumber}/${totalBuilders} picked project ${processedProjects}: ${projectPath} -> ${DOCKER_REGISTRY_URL}/${imageRepository}:${imageTag}"
 										def cmdCreateDir = "docker exec ${cid} sh -c 'mkdir -p \"${publishDir}\"'"
 										echo "CMD: ${cmdCreateDir}"
 										sh cmdCreateDir
@@ -261,12 +273,20 @@ def getDockerBuildNodesBySecondaryLabel(dockerBuildLabel) {
 
 // def CheckoutReference(referenceRepositoryPath) {
 @NonCPS
-def getProjectsForBuilder(List projects, int builderIndex, int totalBuilders) {
-	def result = []
-	for (int i = builderIndex; i < projects.size(); i += totalBuilders) {
-		result.add(projects[i])
+def takeNextPublishingProject() {
+	synchronized(getPublishingProjectQueueLock()) {
+		if (!PUBLISHING_PROJECT_QUEUE) {
+			return null
+		}
+
+		def nextProject = PUBLISHING_PROJECT_QUEUE.remove(0)
+		return nextProject.collectEntries { key, value -> [key, value] }
 	}
-	return result
+}
+
+@NonCPS
+def getPublishingProjectQueueLock() {
+	return 'vodovoz-publishing-project-queue-lock'.intern()
 }
 
 def CheckoutMainRepositoryWithoutSubmodules(referenceRepositoryPath) {
