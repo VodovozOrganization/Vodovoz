@@ -4,7 +4,7 @@
 // -- CONFIGS
 
 NODE_DOCKER_BUILD = "DOCKER_BUILD"
-PUBLISH_PROFILE = "registry-dev"
+PUBLISH_PROFILE = "registry-prod"
 PUBLISH_PROFILE_FILE = "${PUBLISH_PROFILE}.pubxml"
 CHECKOUT_CONTAINER_IMAGE = "docker.vod.qsolution.ru:5100/dotnet5-docker"
 DOCKER_REGISTRY_CREDENTIALS_ID = "docker-registry-credentials"
@@ -23,10 +23,6 @@ PUBLISHING_PROJECT_QUEUE = []
 AVAILABLE_DOCKER_BUILD_NODES = []
 
 stage('Prepare') {
-	// if (env.BRANCH_NAME != 'master') {
-	// 	error("Сборка и публикация сервисов разрешена только для ветки master")
-	// }
-
 	AVAILABLE_DOCKER_BUILD_NODES = getDockerBuildNodesBySecondaryLabel(NODE_DOCKER_BUILD)
 	if (!AVAILABLE_DOCKER_BUILD_NODES) {
 		error("Не найдено доступных нод с меткой ${NODE_DOCKER_BUILD}")
