@@ -47,7 +47,13 @@ namespace Vodovoz.Core.Domain.Orders.OrderEnums
 		/// </summary>
 		[Display(Name = "Курьер в пути к клиенту")]
 		CourierOnTheWay,
-		
+
+		/// <summary>
+		/// Курьер задерживается
+		/// </summary>
+		[Display(Name = "Курьер задерживается")]
+		CourierIsLate,
+
 		/// <summary>
 		/// Доставка выполнена
 		/// </summary>
