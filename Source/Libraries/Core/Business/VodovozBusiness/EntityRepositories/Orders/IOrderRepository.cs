@@ -1,4 +1,4 @@
-using NHibernate.Criterion;
+﻿using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -202,10 +202,37 @@ namespace Vodovoz.EntityRepositories.Orders
 		OrderStatus[] GetStatusesForOrderCancelationWithCancellation();
 		IEnumerable<OrderDto> GetCounterpartyOrdersFromOnlineOrders(IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
 		IEnumerable<OrderDto> GetCounterpartyOrdersWithoutOnlineOrders(IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
+		
+		/// <summary>
+		/// Возвращает заказы контрагента, созданные из онлайн-заказов
+		/// </summary>
+		/// <param name="uow">Unit of Work</param>
+		/// <param name="counterpartyId">Идентификатор контрагента</param>
+		/// <param name="ratingAvailableFrom">Дата, начиная с которой доступна оценка заказа</param>
+		/// <param name="orderStatuses">Необязательный список допустимых внешних статусов заказа для фильтрации.
+		/// Если не указан — возвращаются заказы во всех статусах</param>
+		/// <returns>Коллекция DTO заказов</returns>
 		IEnumerable<Vodovoz.Core.Data.Orders.V4.OrderDto> GetCounterpartyOrdersFromOnlineOrdersV4(
-			IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
+			IUnitOfWork uow,
+			int counterpartyId,
+			DateTime ratingAvailableFrom,
+			IEnumerable<ExternalOrderStatus> orderStatuses = null);
+
+		/// <summary>
+		/// Возвращает заказы контрагента, не связанные с онлайн-заказами
+		/// </summary>
+		/// <param name="uow">Unit of Work</param>
+		/// <param name="counterpartyId">Идентификатор контрагента</param>
+		/// <param name="ratingAvailableFrom">Дата, начиная с которой доступна оценка заказа</param>
+		/// <param name="orderStatuses">Необязательный список допустимых внешних статусов заказа для фильтрации.
+		/// Если не указан — возвращаются заказы во всех статусах</param>
+		/// <returns>Коллекция DTO заказов</returns>
 		IEnumerable<Vodovoz.Core.Data.Orders.V4.OrderDto> GetCounterpartyOrdersWithoutOnlineOrdersV4(
-			IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
+			IUnitOfWork uow,
+			int counterpartyId,
+			DateTime ratingAvailableFrom,
+			IEnumerable<ExternalOrderStatus> orderStatuses = null);
+
 		IEnumerable<Order> GetOrdersFromOnlineOrder(IUnitOfWork uow, int onlineOrderId);
 		OrderStatus[] GetStatusesForEditGoodsInOrderInRouteList();
 		OrderStatus[] GetStatusesForFreeBalanceOperations();

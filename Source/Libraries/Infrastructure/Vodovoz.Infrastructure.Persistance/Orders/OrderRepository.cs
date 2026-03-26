@@ -1838,8 +1838,10 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		public IEnumerable<Vodovoz.Core.Data.Orders.V4.OrderDto> GetCounterpartyOrdersFromOnlineOrdersV4(
 			IUnitOfWork uow,
 			int counterpartyId,
-			DateTime ratingAvailableFrom)
+			DateTime ratingAvailableFrom,
+			IEnumerable<ExternalOrderStatus> orderStatuses = null)
 		{
+			var statusesList = orderStatuses?.ToArray();
 			var orders =
 				from onlineOrder in uow.Session.Query<OnlineOrder>()
 				from timer in uow.Session.Query<OnlineOrderTimers>()
@@ -1851,7 +1853,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					on onlineOrder.Id equals orderRating.OnlineOrder.Id into orderRatings
 				from orderRating in orderRatings.DefaultIfEmpty()
 				from deliverySchedule in schedules.DefaultIfEmpty()
-				where order.Client.Id == counterpartyId
+
 				let address = order.DeliveryPoint != null ? order.DeliveryPoint.ShortAddress : null
 				let deliveryPointId = order.DeliveryPoint != null ? order.DeliveryPoint.Id : (int?)null
 				let orderStatus =
@@ -1872,7 +1874,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 										: order.OrderStatus == OrderStatus.OnLoading
 											? ExternalOrderStatus.OrderCollecting
 											: ExternalOrderStatus.OrderProcessing
-				
+
 				let ratingAvailable =
 					order.CreateDate.HasValue
 					&& order.CreateDate >= ratingAvailableFrom
@@ -1880,11 +1882,11 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					&& (orderStatus == ExternalOrderStatus.OrderCompleted
 						|| orderStatus == ExternalOrderStatus.Canceled
 						|| orderStatus == ExternalOrderStatus.OrderDelivering)
-				
+
 				let orderPaymentStatus = order.OnlinePaymentNumber.HasValue
 					? OnlineOrderPaymentStatus.Paid
 					: OnlineOrderPaymentStatus.UnPaid
-					
+
 				let deliveryScheduleString = order.IsFastDelivery
 					? DeliverySchedule.FastDelivery
 					: deliverySchedule != null
@@ -1907,6 +1909,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						.Where(od => od.Order.Id == order.Id)
 						.Sum(od => (decimal?)od.ActualSum) ?? 0m)
 
+				where order.Client.Id == counterpartyId
+
 				select new Vodovoz.Core.Data.Orders.V4.OrderDto
 				{
 					OrderId = order.Id,
@@ -1923,14 +1927,21 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					DeliveryPointId = deliveryPointId
 				};
 
+			if(statusesList != null && statusesList.Length > 0)
+			{
+				orders = orders.Where(x => statusesList.Contains(x.OrderStatus));
+			}
+
 			return orders;
 		}
 
 		public IEnumerable<Vodovoz.Core.Data.Orders.V4.OrderDto> GetCounterpartyOrdersWithoutOnlineOrdersV4(
 			IUnitOfWork uow,
 			int counterpartyId,
-			DateTime ratingAvailableFrom)
+			DateTime ratingAvailableFrom,
+			IEnumerable<ExternalOrderStatus> orderStatuses = null)
 		{
+			var statusesList = orderStatuses?.ToArray();
 			var orders = from order in uow.Session.Query<VodovozOrder>()
 				join deliverySchedule in uow.Session.Query<DeliverySchedule>()
 					on order.DeliverySchedule.Id equals deliverySchedule.Id into schedules
@@ -1938,7 +1949,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					on order.Id equals orderRating.Order.Id into orderRatings
 				from orderRating in orderRatings.DefaultIfEmpty()
 				from deliverySchedule in schedules.DefaultIfEmpty()
-				where order.Client.Id == counterpartyId && order.OnlineOrder == null
+
 				let address = order.DeliveryPoint != null ? order.DeliveryPoint.ShortAddress : null
 				let deliveryPointId = order.DeliveryPoint != null ? order.DeliveryPoint.Id : (int?)null
 				let orderStatus =
@@ -1959,7 +1970,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 										: order.OrderStatus == OrderStatus.OnLoading
 											? ExternalOrderStatus.OrderCollecting
 											: ExternalOrderStatus.OrderProcessing
-				
+
 				let ratingAvailable =
 					order.CreateDate.HasValue
 					&& order.CreateDate >= ratingAvailableFrom
@@ -1967,11 +1978,11 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					&& (orderStatus == ExternalOrderStatus.OrderCompleted
 						|| orderStatus == ExternalOrderStatus.Canceled
 						|| orderStatus == ExternalOrderStatus.OrderDelivering)
-				
+
 				let orderPaymentStatus = order.OnlinePaymentNumber.HasValue
 					? OnlineOrderPaymentStatus.Paid
 					: OnlineOrderPaymentStatus.UnPaid
-					
+
 				let deliveryScheduleString = order.IsFastDelivery
 					? DeliverySchedule.FastDelivery
 					: deliverySchedule != null
@@ -1986,7 +1997,11 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						.Where(od => od.Order.Id == order.Id)
 						.Sum(od => (decimal?)od.ActualSum) ?? 0m)
 
-						 select new Vodovoz.Core.Data.Orders.V4.OrderDto
+				where
+					order.Client.Id == counterpartyId
+					&& order.OnlineOrder == null
+
+				select new Vodovoz.Core.Data.Orders.V4.OrderDto
 				{
 					OrderId = order.Id,
 					OnlineOrderId = null,
@@ -2001,6 +2016,11 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					IsNeedPay = false,
 					DeliveryPointId = deliveryPointId
 				};
+
+			if(statusesList != null && statusesList.Length > 0)
+			{
+				orders = orders.Where(x => statusesList.Contains(x.OrderStatus));
+			}
 
 			return orders;
 		}

@@ -326,23 +326,22 @@ namespace CustomerOrdersApi.Library.V4.Services
 
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot();
 
-			var ordersWithoutOnlineOrders =
-				_orderRepository.GetCounterpartyOrdersWithoutOnlineOrdersV4(uow, getCounterpartyOrdersDto.CounterpartyErpId, dateAvailabilityRating);
-			var onlineOrdersWithOrders =
-				GetOnlineOrdersWithOrdersInfo(getCounterpartyOrdersDto, uow, dateAvailabilityRating);
-			var onlineOrdersWithoutOrders =
-				_onlineOrderRepository.GetCounterpartyOnlineOrdersWithoutOrderV4(uow, getCounterpartyOrdersDto.CounterpartyErpId, dateAvailabilityRating);
-
 			var activeStatuses = new[]
 			{
 				ExternalOrderStatus.OrderPerformed,
 				ExternalOrderStatus.OrderDelivering
 			};
 
+			var ordersWithoutOnlineOrders =
+				_orderRepository.GetCounterpartyOrdersWithoutOnlineOrdersV4(uow, getCounterpartyOrdersDto.CounterpartyErpId, dateAvailabilityRating, activeStatuses);
+			var onlineOrdersWithOrders =
+				GetOnlineOrdersWithOrdersInfo(getCounterpartyOrdersDto, uow, dateAvailabilityRating, activeStatuses);
+			var onlineOrdersWithoutOrders =
+				_onlineOrderRepository.GetCounterpartyOnlineOrdersWithoutOrderV4(uow, getCounterpartyOrdersDto.CounterpartyErpId, dateAvailabilityRating, activeStatuses);
+
 			var activeOrders = ordersWithoutOnlineOrders
 				.Concat(onlineOrdersWithOrders)
 				.Concat(onlineOrdersWithoutOrders)
-				.Where(x => activeStatuses.Contains(x.OrderStatus))
 				.OrderByDescending(x => x.DeliveryDate)
 				.ThenByDescending(x => x.CreatedDateTimeUtc)
 				.ToArray();
@@ -383,11 +382,15 @@ namespace CustomerOrdersApi.Library.V4.Services
 			};
 		}
 
-		private IEnumerable<OrderDto> GetOnlineOrdersWithOrdersInfo(GetCounterpartyOrdersDto getCounterpartyOrdersDto, IUnitOfWork uow, DateTime dateAvailabilityRating)
+		private IEnumerable<OrderDto> GetOnlineOrdersWithOrdersInfo(
+			GetCounterpartyOrdersDto getCounterpartyOrdersDto,
+			IUnitOfWork uow,
+			DateTime dateAvailabilityRating,
+			IEnumerable<ExternalOrderStatus> orderStatuses = null)
 		{
 			var onlineOrdersInfo = new List<OrderDto>();
 			var ordersFromOnlineOrders =
-				_orderRepository.GetCounterpartyOrdersFromOnlineOrdersV4(uow, getCounterpartyOrdersDto.CounterpartyErpId, dateAvailabilityRating)
+				_orderRepository.GetCounterpartyOrdersFromOnlineOrdersV4(uow, getCounterpartyOrdersDto.CounterpartyErpId, dateAvailabilityRating, orderStatuses)
 					.ToLookup(x => x.OnlineOrderId);
 
 			foreach(var ordersFromOnlineOrdersGroup in ordersFromOnlineOrders)

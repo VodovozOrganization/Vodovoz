@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
@@ -64,22 +64,22 @@ namespace Vodovoz.EntityRepositories.Orders
 		}
 		
 		public IEnumerable<Vodovoz.Core.Data.Orders.V4.OrderDto> GetCounterpartyOnlineOrdersWithoutOrderV4(
-			IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom)
+			IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom,
+			IEnumerable<ExternalOrderStatus> orderStatuses = null)
 		{
+			var statusesList = orderStatuses?.ToArray();
 			var onlineOrders = from onlineOrder in uow.Session.Query<OnlineOrder>()
 				from timer in uow.Session.Query<OnlineOrderTimers>()
 				join orderRating in uow.Session.Query<OrderRating>()
 					on onlineOrder.Id equals orderRating.OnlineOrder.Id into orderRatings
 				from onlineOrderRating in orderRatings.DefaultIfEmpty()
-				where onlineOrder.Counterparty.Id == counterpartyId
-					&& !onlineOrder.Orders.Any()
 
 				let address = onlineOrder.DeliveryPoint != null ? onlineOrder.DeliveryPoint.ShortAddress : null
 
 				let deliverySchedule =
 					onlineOrder.DeliverySchedule != null && onlineOrder.IsFastDelivery
 						? DeliverySchedule.FastDelivery
-						: onlineOrder.DeliverySchedule != null 
+						: onlineOrder.DeliverySchedule != null
 							? onlineOrder.DeliverySchedule.DeliveryTime
 							: null
 
@@ -106,6 +106,10 @@ namespace Vodovoz.EntityRepositories.Orders
 					&& onlineOrder.OnlineOrderPaymentStatus != OnlineOrderPaymentStatus.Paid
 					&& (DateTime.Now - onlineOrder.Created).TotalSeconds < payTime
 
+				where
+					onlineOrder.Counterparty.Id == counterpartyId
+					&& !onlineOrder.Orders.Any()
+
 				select new Vodovoz.Core.Data.Orders.V4.OrderDto
 				{
 					OnlineOrderId = onlineOrder.Id,
@@ -120,6 +124,11 @@ namespace Vodovoz.EntityRepositories.Orders
 					IsNeedPay = isNeedPay,
 					DeliveryPointId = onlineOrder.DeliveryPointId
 				};
+
+			if(statusesList != null && statusesList.Length > 0)
+			{
+				onlineOrders = onlineOrders.Where(x => statusesList.Contains(x.OrderStatus));
+			}
 
 			return onlineOrders;
 		}
