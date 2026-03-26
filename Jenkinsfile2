@@ -92,10 +92,10 @@ stage('Determine projects') {
 			PUBLISHING_PROJECT_PATHS = determinedProjects.collect { it.projectPath }
 			PUBLISHING_PROJECT_QUEUE = determinedProjects.collect { it.collectEntries { key, value -> [key, value] } }
 
-			echo "Найдено проектов для публикации: ${PUBLISHING_PROJECTS.size()}"
-			PUBLISHING_PROJECTS.each { p ->
-				echo "projectPath=${p.projectPath}; containerRepository=${p.containerRepository}; publishImageTag=${p.publishImageTag}"
-			}
+			def projectsSummary = PUBLISHING_PROJECTS.collect { p ->
+				"projectPath=${p.projectPath}; containerRepository=${p.containerRepository}; publishImageTag=${p.publishImageTag}"
+			}.join('\n')
+			echo "Найдено проектов для публикации: ${PUBLISHING_PROJECTS.size()}\n${projectsSummary}"
 		}
 	}
 }
@@ -401,7 +401,6 @@ def DeterminePublishingProjectDirs(String profileName) {
 				while IFS= read -r filepath; do
 					projectDir=\"\$(dirname \"\$filepath\")\"
 					if [ -f \"\$projectDir/jenkins-ignore\" ]; then
-						echo \"Skip project due to jenkins-ignore: \${projectDir#\$scriptDir/}\" >&2
 						continue
 					fi
 					echo \"\${projectDir#\$scriptDir/}\"
