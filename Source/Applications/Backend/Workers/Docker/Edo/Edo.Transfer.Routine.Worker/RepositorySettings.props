@@ -1,0 +1,6 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>edo.transfer.routine.worker</ContainerRepository>
+  </PropertyGroup>
+</Project>
+

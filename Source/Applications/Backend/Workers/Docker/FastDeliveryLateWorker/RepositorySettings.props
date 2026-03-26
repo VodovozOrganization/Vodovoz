@@ -1,0 +1,6 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>fast.delivery.late.worker</ContainerRepository>
+  </PropertyGroup>
+</Project>
+

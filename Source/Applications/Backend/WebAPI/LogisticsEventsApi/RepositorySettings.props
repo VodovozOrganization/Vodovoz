@@ -1,0 +1,6 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>logistics.events.api</ContainerRepository>
+  </PropertyGroup>
+</Project>
+

@@ -1,0 +1,6 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>sms.informer.worker</ContainerRepository>
+  </PropertyGroup>
+</Project>
+

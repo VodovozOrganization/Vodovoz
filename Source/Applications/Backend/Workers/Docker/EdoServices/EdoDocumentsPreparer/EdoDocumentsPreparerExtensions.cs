@@ -2,7 +2,7 @@
 using EdoService.Library.Services;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Report;
-using Vodovoz.Application.Clients;
+using Vodovoz.Core.Application.Clients;
 using VodovozBusiness.Controllers;
 
 namespace EdoDocumentsPreparer
