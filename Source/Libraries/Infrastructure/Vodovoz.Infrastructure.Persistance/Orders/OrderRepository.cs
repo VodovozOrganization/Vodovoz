@@ -1975,7 +1975,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					OrderId = order.Id,
 					OnlineOrderId = null,
 					OrderStatus = orderStatus,
-					DeliveryDate = order.DeliveryDate.Value,
+					DeliveryDate = order.DeliveryDate != null ? order.DeliveryDate.Value : default,
 					CreatedDateTimeUtc = DateTimeOffset.Parse(order.CreateDate.Value.ToString()),
 					OrderSum = order.OrderSum,
 					DeliveryAddress = address,
