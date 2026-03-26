@@ -23,6 +23,7 @@ using Vodovoz.Application.Logistics;
 using Vodovoz.Application.Orders.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Presentation.WebApi;
 using Vodovoz.Services.Logistics;
@@ -56,6 +57,10 @@ namespace CustomerOrdersApi
 					typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
 				)
 				.AddDatabaseConnection()
+				.AddDatabaseConfigurationExposer(config =>
+				{
+					config.LinqToHqlGeneratorsRegistry<LinqToHqlGeneratorsRegistry>();
+				})
 				.AddCore()
 				.AddTrackedUoW()
 				.AddOrderTrackerFor1c()
