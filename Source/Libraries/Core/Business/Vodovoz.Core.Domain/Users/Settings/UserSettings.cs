@@ -484,9 +484,9 @@ namespace Vodovoz.Core.Domain.Users.Settings
 		/// </summary>
 		public virtual void UpdateCashSortingIndices()
 		{
-			for(int i = 1; i <= CashSubdivisionSortingSettings.Count; i++)
+			for(int i = 0; i < CashSubdivisionSortingSettings.Count; i++)
 			{
-				CashSubdivisionSortingSettings[i].SortingIndex = i;
+				CashSubdivisionSortingSettings[i].SortingIndex = i + 1;
 			}
 		}
 
