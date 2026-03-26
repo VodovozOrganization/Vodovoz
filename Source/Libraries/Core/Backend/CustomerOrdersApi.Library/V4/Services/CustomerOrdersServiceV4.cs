@@ -289,26 +289,16 @@ namespace CustomerOrdersApi.Library.V4.Services
 		{
 			var skipElements = (getOrdersDto.Page - 1) * getOrdersDto.OrdersCountOnPage;
 			var dateAvailabilityRating = _orderSettings.GetDateAvailabilityRatingOrder;
-			
-			using var uow = _unitOfWorkFactory.CreateWithoutRoot();
-			var ordersWithoutOnlineOrders =
-				_orderRepository.GetCounterpartyOrdersWithoutOnlineOrdersV4(uow, getOrdersDto.CounterpartyErpId, dateAvailabilityRating);
-			var onlineOrdersWithOrders = GetOnlineOrdersWithOrdersInfo(getOrdersDto, uow, dateAvailabilityRating);
-			var onlineOrdersWithoutOrders =
-				_onlineOrderRepository.GetCounterpartyOnlineOrdersWithoutOrderV4(uow, getOrdersDto.CounterpartyErpId, dateAvailabilityRating);
 
-			var allOrders = 
-				ordersWithoutOnlineOrders
-					.Concat(onlineOrdersWithOrders)
-					.Concat(onlineOrdersWithoutOrders)
-					.ToArray();
+			using var uow = _unitOfWorkFactory.CreateWithoutRoot();
+			var allOrders = GetAllCounterpartyOrders(uow, getOrdersDto, dateAvailabilityRating);
 
 			var res = allOrders
-					.OrderByDescending(x => x.DeliveryDate)
-					.ThenByDescending(x => x.CreatedDateTimeUtc)
-					.Skip(skipElements)
-					.Take(getOrdersDto.OrdersCountOnPage)
-					.ToArray();
+				.OrderByDescending(x => x.DeliveryDate)
+				.ThenByDescending(x => x.CreatedDateTimeUtc)
+				.Skip(skipElements)
+				.Take(getOrdersDto.OrdersCountOnPage)
+				.ToArray();
 
 			return new OrdersDto
 			{
@@ -332,28 +322,17 @@ namespace CustomerOrdersApi.Library.V4.Services
 				ExternalOrderStatus.OrderDelivering
 			};
 
-			var ordersWithoutOnlineOrders =
-				_orderRepository.GetCounterpartyOrdersWithoutOnlineOrdersV4(uow, getCounterpartyOrdersDto.CounterpartyErpId, dateAvailabilityRating, activeStatuses);
-			var onlineOrdersWithOrders =
-				GetOnlineOrdersWithOrdersInfo(getCounterpartyOrdersDto, uow, dateAvailabilityRating, activeStatuses);
-			var onlineOrdersWithoutOrders =
-				_onlineOrderRepository.GetCounterpartyOnlineOrdersWithoutOrderV4(uow, getCounterpartyOrdersDto.CounterpartyErpId, dateAvailabilityRating, activeStatuses);
-
-			var activeOrders = ordersWithoutOnlineOrders
-				.Concat(onlineOrdersWithOrders)
-				.Concat(onlineOrdersWithoutOrders)
+			var activeOrders =
+				GetAllCounterpartyOrders(uow, getCounterpartyOrdersDto, dateAvailabilityRating, activeStatuses)
 				.OrderByDescending(x => x.DeliveryDate)
 				.ThenByDescending(x => x.CreatedDateTimeUtc)
-				.ToArray();
-
-			var pagedOrders = activeOrders
 				.Skip(skipElements)
 				.Take(getCounterpartyOrdersDto.OrdersCountOnPage)
 				.ToArray();
 
 			var activeOrderDtos = new List<ActiveOrderDto>();
 
-			foreach(var orderDto in pagedOrders)
+			foreach(var orderDto in activeOrders)
 			{
 				bool establishedRoute = false;
 				bool isOrderWasSelectedAsNext = false;
@@ -380,6 +359,27 @@ namespace CustomerOrdersApi.Library.V4.Services
 				Orders = activeOrderDtos.ToArray(),
 				OrdersCount = activeOrders.Length
 			};
+		}
+
+		private OrderDto[] GetAllCounterpartyOrders(
+			IUnitOfWork uow,
+			GetCounterpartyOrdersDto getCounterpartyOrdersDto,
+			DateTime dateAvailabilityRating,
+			IEnumerable<ExternalOrderStatus> orderStatuses = null)
+		{
+			var ordersWithoutOnlineOrders =
+				_orderRepository.GetCounterpartyOrdersWithoutOnlineOrdersV4(
+					uow, getCounterpartyOrdersDto.CounterpartyErpId, dateAvailabilityRating, orderStatuses);
+			var onlineOrdersWithOrders =
+				GetOnlineOrdersWithOrdersInfo(getCounterpartyOrdersDto, uow, dateAvailabilityRating, orderStatuses);
+			var onlineOrdersWithoutOrders =
+				_onlineOrderRepository.GetCounterpartyOnlineOrdersWithoutOrderV4(
+					uow, getCounterpartyOrdersDto.CounterpartyErpId, dateAvailabilityRating, orderStatuses);
+
+			return ordersWithoutOnlineOrders
+				.Concat(onlineOrdersWithOrders)
+				.Concat(onlineOrdersWithoutOrders)
+				.ToArray();
 		}
 
 		private IEnumerable<OrderDto> GetOnlineOrdersWithOrdersInfo(
