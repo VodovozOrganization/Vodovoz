@@ -32,6 +32,7 @@
 		<ProjectReference Include="..\Infrastructure\MessageTransport\MessageTransport.csproj" />
 		<ProjectReference Include="..\Osrm\Osrm.csproj" />
 		<ProjectReference Include="..\Vodovoz.FirebaseCloudMessaging\Vodovoz.FirebaseCloudMessaging.csproj" />
+		<ProjectReference Include="..\..\Notifications\CustomerNotifications\CustomerNotifications.Publisher\CustomerNotifications.Publisher.csproj" />
 	</ItemGroup>
 
 </Project>

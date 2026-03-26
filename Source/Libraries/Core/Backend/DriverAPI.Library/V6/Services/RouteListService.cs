@@ -21,6 +21,9 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using CustomerNotifications.Contracts.Messages;
+using CustomerNotifications.Publisher.Services;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Tools.CallTasks;
 using IDomainRouteListService = Vodovoz.Services.Logistics.IRouteListService;
 using IDomainRouteListSpecialConditionsService = Vodovoz.Services.Logistics.IRouteListSpecialConditionsService;
@@ -44,6 +47,7 @@ namespace DriverAPI.Library.V6.Services
 		private readonly PaymentTypeConverter _paymentTypeConverter;
 		private readonly IFastPaymentService _fastPaymentService;
 		private readonly ICallTaskWorker _callTaskWorker;
+		private readonly ICustomerNotificationPublisher _customerNotificationPublisher;
 		private readonly IUnitOfWork _unitOfWork;
 
 		public RouteListService(ILogger<RouteListService> logger,
@@ -60,7 +64,8 @@ namespace DriverAPI.Library.V6.Services
 			IGenericRepository<Order> orderRepository,
 			PaymentTypeConverter paymentTypeConverter,
 			IFastPaymentService fastPaymentService,
-			ICallTaskWorker callTaskWorker)
+			ICallTaskWorker callTaskWorker,
+			ICustomerNotificationPublisher customerNotificationPublisher)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
@@ -77,6 +82,7 @@ namespace DriverAPI.Library.V6.Services
 			_paymentTypeConverter = paymentTypeConverter ?? throw new ArgumentNullException(nameof(paymentTypeConverter));
 			_fastPaymentService = fastPaymentService ?? throw new ArgumentNullException(nameof(fastPaymentService));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 		}
 
 		public RouteListDto GetRouteList(int routeListId)
@@ -569,11 +575,32 @@ namespace DriverAPI.Library.V6.Services
 
 			try
 			{
-				//Отправить уведомление на устройство клиента о том, что Курьер направляется к вам
+				if(order.OnlineOrder != null)
+				{
+					await _customerNotificationPublisher.PublishAsync(
+						new CustomerNotificationMessage
+						{
+							CustomerNotificationEventType = CustomerNotificationEventType.CourierOnTheWay,
+							OnlineOrderId = order.OnlineOrder.Id
+						});
+				}
 
 				if(selectAddressRequest.PreviousUncompletedAddressId.HasValue)
 				{
-					//Отправить уведомление на устройство клиента о том, что Курьер задерживается
+					var previousAddress =
+						_routeListItemRepository.GetRouteListItemById(_unitOfWork, selectAddressRequest.PreviousUncompletedAddressId.Value);
+
+					if(previousAddress?.Order?.OnlineOrder != null
+						&& previousAddress.Status == RouteListItemStatus.EnRoute
+						&& previousAddress.Order.OrderStatus == OrderStatus.OnTheWay)
+					{
+						await _customerNotificationPublisher.PublishAsync(
+							new CustomerNotificationMessage
+							{
+								CustomerNotificationEventType = CustomerNotificationEventType.CourierIsLate,
+								OnlineOrderId = previousAddress.Order.OnlineOrder.Id
+							});
+					}
 				}
 			}
 			catch(Exception ex)

@@ -69,6 +69,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\DriverAPI.Library\DriverAPI.Library.csproj" />
+    <ProjectReference Include="..\..\..\..\Libraries\Core\Notifications\CustomerNotifications\CustomerNotifications.Publisher\CustomerNotifications.Publisher.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\EventsApi.Library\EventsApi.Library.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\HealthCheck\VodovozHealthCheck.csproj" />
     <ProjectReference Include="..\..\..\..\Libraries\Core\Backend\Vodovoz.Presentation.WebApi.Authentication.Contracts\Vodovoz.Presentation.WebApi.Authentication.Contracts.csproj" />
