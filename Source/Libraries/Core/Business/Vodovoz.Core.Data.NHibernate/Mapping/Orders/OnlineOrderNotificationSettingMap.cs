@@ -13,11 +13,20 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 				.Column("id")
 				.GeneratedBy.Native();
 
-			Map(x => x.ExternalOrderStatus)
-				.Column("external_order_status");
-
 			Map(x => x.NotificationText)
 				.Column("notification_text");
+
+			Map(x => x.CustomerNotificationEventType)
+				.Column("notification_event_type");
+
+			Map(x => x.NotificationClassification)
+				.Column("notification_classification");
+			
+			Map(x => x.NotificationDisabled)
+				.Column("notification_disabled");
+			
+			Map(x => x.AllowDuplicateNotifications)
+				.Column("allow_duplicate_notifications");
 		}
 	}
 }

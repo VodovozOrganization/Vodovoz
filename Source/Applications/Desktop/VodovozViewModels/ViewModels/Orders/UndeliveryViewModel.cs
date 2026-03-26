@@ -29,6 +29,8 @@ using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.Application.Orders.Services.OrderCancellation;
+using VodovozBusiness.Services.Orders;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 
 namespace Vodovoz.ViewModels.Orders
 {
@@ -52,6 +54,7 @@ namespace Vodovoz.ViewModels.Orders
 		private readonly IUndeliveryDiscussionCommentFileStorageService _undeliveryDiscussionCommentFileStorageService;
 		private readonly IRouteListService _routeListService;
 		private readonly OrderCancellationService _orderCancellationService;
+		private readonly IOnlineOrderService _onlineOrderService;
 		private ValidationContext _validationContext;
 		private bool _addedCommentToOldUndelivery;
 		private bool _forceSave;
@@ -79,7 +82,8 @@ namespace Vodovoz.ViewModels.Orders
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IUndeliveryDiscussionCommentFileStorageService undeliveryDiscussionCommentFileStorageService,
 			IRouteListService routeListService,
-			OrderCancellationService orderCancellationService
+			OrderCancellationService orderCancellationService,
+			IOnlineOrderService onlineOrderService
 			)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager)
 		{
@@ -101,6 +105,7 @@ namespace Vodovoz.ViewModels.Orders
 			_undeliveryDiscussionCommentFileStorageService = undeliveryDiscussionCommentFileStorageService ?? throw new ArgumentNullException(nameof(undeliveryDiscussionCommentFileStorageService));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
+			_onlineOrderService = onlineOrderService ?? throw new ArgumentNullException(nameof(onlineOrderService));
 			_orderCancellationPermit = OrderCancellationPermit.Default();
 		}
 
@@ -216,6 +221,11 @@ namespace Vodovoz.ViewModels.Orders
 			_forceSave = true;
 			var result = Save(needClose);
 			_forceSave = false;
+
+			if(Entity.NewOrder?.OnlineOrder is OnlineOrder onlineOrder)
+			{
+				_onlineOrderService.NotifyClientOfOnlineOrderStatusChange(onlineOrder, CustomerNotificationEventType.OrderRescheduled);
+			}
 
 			return result;
 		}

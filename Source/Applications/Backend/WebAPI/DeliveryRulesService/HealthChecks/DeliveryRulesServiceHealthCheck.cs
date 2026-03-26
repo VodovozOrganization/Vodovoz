@@ -112,7 +112,7 @@ namespace DeliveryRulesService.HealthChecks
 
 			var isHealthy = result.Data?.StatusEnum != DeliveryRulesResponseStatus.Error;
 
-			return VodovozHealthResultDto.FromCondition(checkMethodName, isHealthy, result.ErrorMessage);
+			return VodovozHealthResultDto.FromCondition(checkMethodName, isHealthy, result?.ErrorMessage);
 		}
 	}
 }

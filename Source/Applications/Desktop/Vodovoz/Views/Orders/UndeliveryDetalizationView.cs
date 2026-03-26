@@ -45,6 +45,10 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(ViewModel.Entity, vm => vm.IsArchive, w => w.Active)
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
+			
+			yentryClientNotificationText.Binding
+				.AddBinding(ViewModel.Entity, vm => vm.CustomerNotificationText, w => w.Text)
+				.InitializeFromSource();
 
 			buttonSave.Binding
 				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
@@ -52,9 +56,6 @@ namespace Vodovoz.Views.Orders
 
 			buttonSave.Clicked += OnButtonSaveClicked;
 			buttonCancel.Clicked += OnButtonCancelClicked;
-
-			ylabelClientNotificationText.Visible = false;
-			yentryClientNotificationText.Visible = false;
 		}
 
 		private void OnButtonSaveClicked(object sender, EventArgs e)

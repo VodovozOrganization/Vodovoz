@@ -29,6 +29,7 @@ using Vodovoz.Presentation.WebApi;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Trackers;
 using VodovozBusiness.Services.Orders;
+using CustomerNotifications.Publisher.Configuration;
 using VodovozHealthCheck;
 
 namespace CustomerOrdersApi
@@ -89,8 +90,9 @@ namespace CustomerOrdersApi
 					busConf.AddRequestClient<CreatedOnlineOrder>(new Uri($"exchange:{CreatingOnlineOrder.ExchangeAndQueueName}"));
 					busConf.ConfigureRabbitMq();
 				})
-				.AddHttpClient();
-
+				.AddHttpClient()
+				.AddMultibusCustomerNotificationsPublisher(Configuration);
+			
 			services.AddAuthentication("Basic")
 				.AddScheme<SignatureOptions, CustomAuthenticationHandler>(
 				"Basic",

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using CustomerNotifications.Publisher.Services;
 using CustomerOnlineOrdersRegistrar.Factories.V3;
 using CustomerOnlineOrdersRegistrar.Factories.V4;
 using CustomerOrdersApi.Library.Default.Dto.Orders;
@@ -29,7 +30,8 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IOnlineOrderRepository onlineOrderRepository,
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
 			IRouteListService routeListService,
-			IOrderFromOnlineOrderValidator onlineOrderValidator
+			IOrderFromOnlineOrderValidator onlineOrderValidator,
+			ICustomerNotificationPublisher notificationPublisher
 			)
 			: base(
 				logger,
@@ -42,7 +44,8 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 				onlineOrderCancellationReasonSettings,
 				orderService,
 				routeListService,
-				onlineOrderValidator)
+				onlineOrderValidator,
+				notificationPublisher)
 		{
 		}
 		

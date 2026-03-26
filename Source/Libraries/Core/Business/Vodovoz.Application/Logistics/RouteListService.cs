@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using QS.Osrm;
 using QS.Services;
 using QS.Validation;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
@@ -381,7 +382,7 @@ namespace Vodovoz.Application.Logistics
 							if(!isInvalidStatus)
 							{
 								item.Order.OrderStatus = OrderStatus.OnTheWay;
-								_onlineOrderService.NotifyClientOfOnlineOrderStatusChange(unitOfWork, item.Order.OnlineOrder);
+								_onlineOrderService.NotifyClientOfOnlineOrderStatusChange(item.Order.OnlineOrder, CustomerNotificationEventType.CourierAssigned);
 							}
 						}
 
@@ -559,7 +560,7 @@ namespace Vodovoz.Application.Logistics
 								if(!isInvalidStatus)
 								{
 									address.Order.OrderStatus = OrderStatus.OnTheWay;
-									_onlineOrderService.NotifyClientOfOnlineOrderStatusChange(unitOfWork, address.Order.OnlineOrder);
+									_onlineOrderService.NotifyClientOfOnlineOrderStatusChange(address.Order.OnlineOrder, CustomerNotificationEventType.CourierAssigned);
 								}
 							}
 						}
@@ -886,11 +887,12 @@ namespace Vodovoz.Application.Logistics
 
 					address.RestoreOrder();
 					_orderService.AutoCancelAutoTransfer(uow, address.Order);
+					_onlineOrderService.NotifyClientOfOnlineOrderStatusChange(address.Order.OnlineOrder, CustomerNotificationEventType.DeliveryCompleted);
 					break;
 				case RouteListItemStatus.EnRoute:
 					address.Order.ChangeStatus(OrderStatus.OnTheWay);
 					address.RestoreOrder();
-					_onlineOrderService.NotifyClientOfOnlineOrderStatusChange(uow, address.Order.OnlineOrder);
+					_onlineOrderService.NotifyClientOfOnlineOrderStatusChange(address.Order.OnlineOrder, CustomerNotificationEventType.CourierAssigned);
 					break;
 				case RouteListItemStatus.Overdue:
 					address.Order.ChangeStatus(OrderStatus.NotDelivered);

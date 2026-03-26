@@ -1379,6 +1379,14 @@
       <Project>{42EFC426-2C88-4608-8191-DBCA4172A695}</Project>
       <Name>VodovozInfrastructure</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Notifications\CustomerNotifications\CustomerNotifications.Contracts\CustomerNotifications.Contracts.csproj">
+      <Project>{C98A3F81-C25F-F282-46A3-FB51DA0D98E2}</Project>
+      <Name>CustomerNotifications.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Notifications\CustomerNotifications\CustomerNotifications.Publisher\CustomerNotifications.Publisher.csproj">
+      <Project>{618ef1d8-b4a8-09fd-b5b9-84ec1080071c}</Project>
+      <Name>CustomerNotifications.Publisher</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\ResourceLocker\ResourceLocker.Library.csproj">
       <Project>{bf89316b-1a47-7797-6a98-7a3fad52b2e0}</Project>
       <Name>ResourceLocker.Library</Name>
