@@ -58,21 +58,21 @@ stage('Checkout nodes') {
     parallel parallelCheckouts
 }
 
-stage('Discover publishing projects') {
+stage('Determine projects') {
 	def firstNode = AVAILABLE_DOCKER_BUILD_NODES[0]
 	node(firstNode.secondaryLabel) {
 		def referenceRepositoryPath = "${env.JENKINS_HOME_NODE}/workspace/_VODOVOZ_REFERENCE_REPOSITORY"
 
-		ws("${env.WORKSPACE}@discover-projects") {
+		ws("${env.WORKSPACE}@determine-projects") {
 			deleteDir()
 			CheckoutMainRepositoryWithoutSubmodules(referenceRepositoryPath)
 
-			def projectDirs = DiscoverPublishingProjectDirs(PUBLISH_PROFILE_FILE)
+			def projectDirs = DeterminePublishingProjectDirs(PUBLISH_PROFILE_FILE)
 			if (!projectDirs) {
 				error("Не найдено проектов с профилем публикации ${PUBLISH_PROFILE_FILE}")
 			}
 
-			def discoveredProjects = []
+			def determinedProjects = []
 			projectDirs.each { projectDir ->
 				def projectPath = DiscoverProjectFilePath(projectDir)
 				def repositorySettingsPath = "${projectDir}/RepositorySettings.props"
@@ -81,16 +81,16 @@ stage('Discover publishing projects') {
 				def containerRepository = ReadXmlProperty(repositorySettingsPath, 'ContainerRepository')
 				def publishImageTag = ReadXmlProperty(publishProfilePath, 'PublishImageTag')
 
-				discoveredProjects.add([
+				determinedProjects.add([
 					projectPath: projectPath,
 					containerRepository: containerRepository,
 					publishImageTag: publishImageTag
 				])
 			}
 
-			PUBLISHING_PROJECTS = discoveredProjects
-			PUBLISHING_PROJECT_PATHS = discoveredProjects.collect { it.projectPath }
-			PUBLISHING_PROJECT_QUEUE = discoveredProjects.collect { it.collectEntries { key, value -> [key, value] } }
+			PUBLISHING_PROJECTS = determinedProjects
+			PUBLISHING_PROJECT_PATHS = determinedProjects.collect { it.projectPath }
+			PUBLISHING_PROJECT_QUEUE = determinedProjects.collect { it.collectEntries { key, value -> [key, value] } }
 
 			echo "Найдено проектов для публикации: ${PUBLISHING_PROJECTS.size()}"
 			PUBLISHING_PROJECTS.each { p ->
@@ -366,7 +366,7 @@ def getPublishingProjectQueueLock() {
 def CheckoutMainRepositoryWithoutSubmodules(referenceRepositoryPath) {
 	checkout changelog: false, poll: false, scm: [
 		$class: 'GitSCM',
-		branches:  scm.branches,
+		branches:  [[name: 'hotfix/jenkins-services-pipeline']],
 		doGenerateSubmoduleConfigurations: false,
 		userRemoteConfigs: [[
 			url: 'https://github.com/VodovozOrganization/Vodovoz.git'
@@ -384,7 +384,7 @@ def CheckoutMainRepositoryWithoutSubmodules(referenceRepositoryPath) {
 	]
 }
 
-def DiscoverPublishingProjectDirs(String profileName) {
+def DeterminePublishingProjectDirs(String profileName) {
 	def projectDirsRaw = sh(
 		script: """
 			set -eu
@@ -491,7 +491,7 @@ def CheckoutInContainer(referenceRepositoryPath) {
 
 	checkout changelog: false, poll: false, scm: [
 		$class: 'GitSCM',
-		branches: scm.branches,
+		branches: [[name: 'hotfix/jenkins-services-pipeline']],
 		doGenerateSubmoduleConfigurations: false,
 
 		userRemoteConfigs: [[
