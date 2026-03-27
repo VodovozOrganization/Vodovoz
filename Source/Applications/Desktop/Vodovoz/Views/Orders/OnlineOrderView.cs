@@ -8,13 +8,10 @@ using NHibernate.Engine;
 using Gtk;
 using QS.Views.GtkUI;
 using QS.Navigation;
-using QS.Tdi;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.ViewModels.Orders;
-using VodovozBusiness.Extensions;
-using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Views.Orders
 {
@@ -33,7 +30,10 @@ namespace Vodovoz.Views.Orders
 			btnAssignCounterparty.Clicked += (sender, args) => ViewModel.OpenExternalCounterpartyMatchingCommand.Execute();
 			btnCancel.Clicked += (sender, args) => ViewModel.Close(false, CloseSource.Cancel);
 			btnCancelOnlineOrder.Clicked += (sender, args) => ViewModel.CancelOnlineOrderCommand.Execute();
-
+			ybuttonCallClient.Clicked +=  (sender, args) => ViewModel.CallClientCommand.Execute();
+			buttonSave.Clicked += (sender, args) => ViewModel.AddOperatorCommentCommand.Execute();
+			buttonAddFailedCallComment.Clicked += (sender, args) => ViewModel.AddFailedCallCommentCommand.Execute();
+			
 			btnGetToWork.Binding
 				.AddBinding(ViewModel, vm => vm.CanGetToWork, w => w.Sensitive)
 				.InitializeFromSource();
@@ -209,7 +209,23 @@ namespace Vodovoz.Views.Orders
 			ybuttonCopyContactPhone.Binding
 				.AddBinding(ViewModel, vm => vm.CanShowContactPhone, w => w.Visible)
 				.InitializeFromSource();
+			ybuttonCallClient.Binding
+				.AddBinding(ViewModel, vm => vm.CanCallClient, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			datepickerNextCallDate.Binding
+				.AddBinding(ViewModel.Entity, e => e.NextCallDate, w => w.Date)
+				.InitializeFromSource();
 
+			yentryNewComment.Binding
+				.AddBinding(ViewModel, vm => vm.NewComment, w => w.Text);
+			
+			textViewOnlineOrderOperatorComments.Editable = false;
+			textViewOnlineOrderOperatorComments.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.OperatorsComments, w => w.Buffer.Text)
+				.InitializeFromSource();
+			
 			ybuttonCopyOnlinePaymentNumber.Clicked += OnCopyOnlinePaymentNumberClicked;
 			ybuttonCopyContactPhone.Clicked += OnCopyContactPhoneClicked;
 		}

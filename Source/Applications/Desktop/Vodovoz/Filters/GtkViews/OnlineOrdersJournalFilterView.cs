@@ -94,7 +94,7 @@ namespace Vodovoz.Filters.GtkViews
 			entryCounterparty.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CanChangeCounterparty, w => w.Sensitive)
 				.InitializeFromSource();
-
+			
 			entryCounterparty.ViewModel = new LegacyEEVMBuilderFactory<OnlineOrdersJournalFilterViewModel>(
 					ViewModel.Journal as ITdiTab, ViewModel, ViewModel.UoW, ViewModel.Journal.NavigationManager, ViewModel.LifetimeScope)
 				.ForProperty(x => x.RestrictCounterparty)
@@ -107,7 +107,9 @@ namespace Vodovoz.Filters.GtkViews
 				.InitializeFromSource();
 
 			entryEmployeeWorkWith.ViewModel = ViewModel.EmployeeWorkWithViewModel;
-
+			
+			entryCancelReason.ViewModel = ViewModel.CancelReasonViewModel;
+			
 			yenumcomboboxDateType.ItemsEnum = typeof(OrdersDateFilterType);
 			yenumcomboboxDateType.Binding
 				.AddBinding(ViewModel, x => x.FilterDateType, w => w.SelectedItem)
@@ -117,6 +119,12 @@ namespace Vodovoz.Filters.GtkViews
 			dateperiodOrders.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.StartDate, w => w.StartDateOrNull)
 				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
+				.AddFuncBinding(vm => vm.CanChangeStartDate && vm.CanChangeEndDate, w => w.Sensitive)
+				.InitializeFromSource();
+			
+			dateperiodNextCall.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.NextCallStartDate, w => w.StartDateOrNull)
+				.AddBinding(vm => vm.NextCallEndDate, w => w.EndDateOrNull)
 				.AddFuncBinding(vm => vm.CanChangeStartDate && vm.CanChangeEndDate, w => w.Sensitive)
 				.InitializeFromSource();
 

@@ -16,7 +16,9 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Enums;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Employees;
+using Vodovoz.ViewModels.ViewModels.Orders;
 using Vodovoz.ViewModels.Widgets.Search;
 
 namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
@@ -58,6 +60,9 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 		private OnlinePaymentSource? _restrictOnlinePaymentSource;
 		private bool _isVisibleOnlinePaymentSource;
 		private bool _withoutDeliverySchedule;
+		private OnlineOrderCancellationReason _cancellationReason;
+		private DateTime? _nextCallStartDate;
+		private DateTime? _nextCallEndDate;
 
 		public OnlineOrdersJournalFilterViewModel(
 			ILifetimeScope lifetimeScope)
@@ -77,6 +82,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 		
 		public IEntityEntryViewModel DeliveryPointViewModel { get; private set; }
 		public IEntityEntryViewModel EmployeeWorkWithViewModel { get; private set; }
+		
+		public IEntityEntryViewModel CancelReasonViewModel { get; private set; }
 
 		#endregion
 
@@ -401,7 +408,25 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 			get => _counterpartyNameLike;
 			set => SetField(ref _counterpartyNameLike, value);
 		}
-		
+
+		public OnlineOrderCancellationReason CancellationReason
+		{
+			get => _cancellationReason;
+			set => UpdateFilterField(ref _cancellationReason, value);
+		}
+
+		public DateTime? NextCallStartDate
+		{
+			get => _nextCallStartDate;
+			set => UpdateFilterField(ref _nextCallStartDate, value);
+		}
+
+		public DateTime? NextCallEndDate
+		{
+			get => _nextCallEndDate;
+			set => UpdateFilterField(ref _nextCallEndDate, value);
+		}
+
 		public override bool IsShow { get; set; } = true;
 
 		public DialogViewModelBase Journal
@@ -428,6 +453,11 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 						.UseViewModelJournalAndAutocompleter<DeliveryPointByClientJournalViewModel, DeliveryPointJournalFilterViewModel>(
 							_deliveryPointJournalFilterViewModel)
 						.UseViewModelDialog<DeliveryPointViewModel>()
+						.Finish();
+					
+					CancelReasonViewModel = builder.ForProperty(x => x.CancellationReason)
+						.UseViewModelJournalAndAutocompleter<OnlineOrderCancellationReasonsJournalViewModel>()
+						.UseViewModelDialog<OnlineOrderCancellationReasonViewModel>()
 						.Finish();
 				}
 			}
