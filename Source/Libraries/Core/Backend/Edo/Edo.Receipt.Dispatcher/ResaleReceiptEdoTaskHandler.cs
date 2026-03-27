@@ -1,4 +1,4 @@
-﻿using Edo.Common;
+using Edo.Common;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
 using Edo.Problems.Custom.Sources;
@@ -138,19 +138,6 @@ namespace Edo.Receipt.Dispatcher
 			var isValid = await _edoTaskValidator.Validate(receiptEdoTask, cancellationToken, trueMarkCodesChecker);
 			if(!isValid)
 			{
-				return;
-			}
-			
-			var hasManualSend = receiptEdoTask.FormalEdoRequest.Source == CustomerEdoRequestSource.Manual;
-
-			if(!hasManualSend)
-			{
-				await SaveCodesToPool(receiptEdoTask, cancellationToken);
-				receiptEdoTask.Status = EdoTaskStatus.Completed;
-				receiptEdoTask.ReceiptStatus = EdoReceiptStatus.SavedToPool;
-				receiptEdoTask.EndTime = DateTime.Now;
-				await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
-				await _uow.CommitAsync(cancellationToken);
 				return;
 			}
 
