@@ -142,20 +142,16 @@ namespace Edo.Withdrawal
 				var edoAccount =
 					_edoAccountEntityController.GetDefaultCounterpartyEdoAccountByOrganizationId(client, orderOrganizationId);
 
-				if(edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree
-					&& CounterpartyEntity.RegisteredInTrueMarkStatuses.Contains(client.RegistrationInChestnyZnakStatus))
-				{
-					var canCreateWithdrawal =
-						CanCreateWithdrawalForRegisteredInTrueMarkClientOrder(uow, withdrawalEdoRequest, order, client);
+				var isTimeoutExpired =
+					IsTimeoutExpired(uow, withdrawalEdoRequest, order);
 
-					if(!canCreateWithdrawal)
-					{
-						await _edoProblemRegistrar.RegisterCustomProblem<WithdrawalCanNotBeCreatedForRegisteredInTrueMarkClient>(
-							withdrawalEdoTask,
-							Enumerable.Empty<EdoTaskItem>(),
-							cancellationToken);
-						return;
-					}
+				if(!isTimeoutExpired)
+				{
+					await _edoProblemRegistrar.RegisterCustomProblem<WithdrawalTimeoutIsNotExpired>(
+						withdrawalEdoTask,
+						Enumerable.Empty<EdoTaskItem>(),
+						cancellationToken);
+					return;
 				}
 
 				var isTrueMarkDocumentExists = await IsTrueMarkWithdrawalDocumentExists(uow, order.Id, cancellationToken);
@@ -207,7 +203,7 @@ namespace Edo.Withdrawal
 			}
 		}
 
-		private bool CanCreateWithdrawalForRegisteredInTrueMarkClientOrder(IUnitOfWork uow, WithdrawalEdoRequest withdrawalEdoRequest, OrderEntity order, CounterpartyEntity client)
+		private bool IsTimeoutExpired(IUnitOfWork uow, WithdrawalEdoRequest withdrawalEdoRequest, OrderEntity order)
 		{
 			var documents = _edoRepository.GetOrderEdoDocumentsByOrderId(uow, order.Id);
 
@@ -219,9 +215,7 @@ namespace Edo.Withdrawal
 			if(orderEdoDocument?.CreationTime == null)
 			{
 				_logger.LogWarning(
-					"От клиента {ClientId} получено согласие на ЭДО и клиент зарегистрирован в ЧЗ. " +
-					"Время отправки документа не найдено. Вывод из оборота невозможен",
-					client.Id);
+					"Время отправки документа не найдено. Вывод из оборота невозможен");
 
 				return false;
 			}
@@ -232,10 +226,9 @@ namespace Edo.Withdrawal
 			if(daysSinceSend < timeoutDays)
 			{
 				_logger.LogInformation(
-					"От клиента {ClientId} получено согласие на ЭДО и клиент зарегистрирован в ЧЗ. " +
-					"Документооборот не превысил таймаут в {Days} дней (прошло {DaysSinceSend} дней). " +
+					"Длительность документооборота по документу ЭДО {DocumentId} не превысил таймаут в {Days} дней (прошло {DaysSinceSend} дней). " +
 					"Вывод из оборота невозможен",
-					client.Id,
+					orderEdoDocument.Id,
 					timeoutDays,
 					daysSinceSend);
 
@@ -243,8 +236,8 @@ namespace Edo.Withdrawal
 			}
 
 			_logger.LogInformation(
-				"Клиент {ClientId} зарегистрирован в ЭДО и ЧЗ, документооборот превысил таймаут в {Days} дней. Вывод из оборота разрешён",
-				client.Id,
+				"Длительность документооборота по документу ЭДО {DocumentId} превысил таймаут в {Days} дней. Вывод из оборота разрешён",
+				orderEdoDocument.Id,
 				timeoutDays);
 
 			return true;
