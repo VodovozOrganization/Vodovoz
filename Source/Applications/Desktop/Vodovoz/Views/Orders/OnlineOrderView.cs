@@ -32,7 +32,8 @@ namespace Vodovoz.Views.Orders
 			btnCancelOnlineOrder.Clicked += (sender, args) => ViewModel.CancelOnlineOrderCommand.Execute();
 			ybuttonCallClient.Clicked +=  (sender, args) => ViewModel.CallClientCommand.Execute();
 			buttonSave.Clicked += (sender, args) => ViewModel.AddOperatorCommentCommand.Execute();
-
+			buttonAddFailedCallComment.Clicked += (sender, args) => ViewModel.AddFailedCallCommentCommand.Execute();
+			
 			btnGetToWork.Binding
 				.AddBinding(ViewModel, vm => vm.CanGetToWork, w => w.Sensitive)
 				.InitializeFromSource();

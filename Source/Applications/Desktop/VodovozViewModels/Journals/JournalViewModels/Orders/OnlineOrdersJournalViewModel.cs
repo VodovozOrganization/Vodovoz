@@ -360,6 +360,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.Select(o => o.OnlinePayment).WithAlias(() => resultAlias.OnlinePayment)
 					.Select(o => o.OnlineOrderPaymentType).WithAlias(() => resultAlias.OnlineOrderPaymentType)
 					.Select(o => o.IsNeedConfirmationByCall).WithAlias(() => resultAlias.IsNeedConfirmationByCall)
+					.Select(o => o.NextCallDate).WithAlias(() => resultAlias.NextCallDate)
 					.Select(() => cancellationReasonAlias.Name).WithAlias(() => resultAlias.CancelReason)
 					.Select(ordersIdsProjection).WithAlias(() => resultAlias.OrdersIds)
 				)

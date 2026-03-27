@@ -63,7 +63,7 @@ namespace Vodovoz.Domain.Orders
 		private IList<Order> _orders = new List<Order>();
 		private IList<OnlineOrderItem> _onlineOrderItems = new List<OnlineOrderItem>();
 		private IList<OnlineFreeRentPackage> _onlineRentPackages = new List<OnlineFreeRentPackage>();
-		private DateTime _nextCallDate;
+		private DateTime? _nextCallDate;
 		private IList<OnlineOrderOperatorComments> _operatorComments = new List<OnlineOrderOperatorComments>();
 		
 
@@ -321,10 +321,18 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		[Display(Name = "Дата следующего звонка")]
-		public virtual DateTime NextCallDate
+		public virtual DateTime? NextCallDate
 		{
 			get => _nextCallDate;
-			set => SetField(ref _nextCallDate, value);
+			set
+			{
+				if (value < DateTime.Now.Date)
+				{
+					return;
+				}
+
+				SetField(ref _nextCallDate, value);
+			}
 		}
 
 		[Display(Name = "Комментарии оператора")]

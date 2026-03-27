@@ -4,7 +4,6 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using QS.DomainModel.Entity;
 using System;
 using System.Collections.Generic;
-using System.Data.Bindings;
 using Vodovoz.Extensions;
 using Vodovoz.ViewModels.Journals.JournalNodes.Orders;
 
@@ -89,25 +88,22 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Orders
 		{
 			var columns = new Columns();
 
-			columns.Append(CreateColumn(1, defaultColumnWidth));        // Id
-			columns.Append(CreateColumn(2, defaultColumnWidth * 1.5));  // Тип сущности
-			columns.Append(CreateColumn(3, defaultColumnWidth * 3));    // Клиент
-			columns.Append(CreateColumn(4, defaultColumnWidth * 5));    // Адрес
-			columns.Append(CreateColumn(5, defaultColumnWidth * 1.5));  // Дата доставки
-			columns.Append(CreateColumn(6, defaultColumnWidth * 1.5));  // Дата создания
-			columns.Append(CreateColumn(7, defaultColumnWidth));        // Самовывоз
-			columns.Append(CreateColumn(8, defaultColumnWidth));        // Быстрая доставка
-			columns.Append(CreateColumn(9, defaultColumnWidth * 1.5));  // Время доставки
-			columns.Append(CreateColumn(10, defaultColumnWidth * 1.5)); // Статус
-			columns.Append(CreateColumn(11, defaultColumnWidth * 2));   // Менеджер
-			columns.Append(CreateColumn(12, defaultColumnWidth * 1.5)); // Источник
-			columns.Append(CreateColumn(13, defaultColumnWidth * 1.5)); // Сумма
-			columns.Append(CreateColumn(14, defaultColumnWidth * 1.5)); // Статус оплаты
-			columns.Append(CreateColumn(15, defaultColumnWidth));       // Онлайн оплата
-			columns.Append(CreateColumn(16, defaultColumnWidth * 1.5)); // Тип оплаты
-			columns.Append(CreateColumn(17, defaultColumnWidth));       // Нужен звонок
-			columns.Append(CreateColumn(18, defaultColumnWidth * 2));   // Причина отмены
-			columns.Append(CreateColumn(19, defaultColumnWidth * 2));   // Id заказов
+			columns.Append(CreateColumn(1, defaultColumnWidth));        // Номер
+			columns.Append(CreateColumn(2, defaultColumnWidth));        // Тип
+			columns.Append(CreateColumn(3, defaultColumnWidth * 1.7));  // Дата создания
+			columns.Append(CreateColumn(4, defaultColumnWidth * 1.5));  // Дата доставки
+			columns.Append(CreateColumn(5, defaultColumnWidth * 1.5));  // Время доставки
+			columns.Append(CreateColumn(6, defaultColumnWidth * 2));    // Оформленный заказ(ы)
+			columns.Append(CreateColumn(7, defaultColumnWidth * 1.5));  // Статус
+			columns.Append(CreateColumn(8, defaultColumnWidth * 3));    // Клиент
+			columns.Append(CreateColumn(9, defaultColumnWidth * 5));    // Адрес
+			columns.Append(CreateColumn(10, defaultColumnWidth * 1.5)); // Сумма
+			columns.Append(CreateColumn(11, defaultColumnWidth * 1.5)); // Источник
+			columns.Append(CreateColumn(12, defaultColumnWidth * 1.5)); // Статус оплаты
+			columns.Append(CreateColumn(13, defaultColumnWidth * 1.5)); // Номер оплаты
+			columns.Append(CreateColumn(14, defaultColumnWidth * 1.7)); // Дата след. звонка
+			columns.Append(CreateColumn(15, defaultColumnWidth * 2));   // Причина отмены
+			columns.Append(CreateColumn(16, defaultColumnWidth * 2));   // В работе
 
 			return columns;
 		}
@@ -140,24 +136,21 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Orders
 			var row = new Row();
 
 			row.AppendChild(GetTableHeaderStringCell("Номер"));
-			row.AppendChild(GetTableHeaderStringCell("Тип сущности"));
+			row.AppendChild(GetTableHeaderStringCell("Тип"));
+			row.AppendChild(GetTableHeaderStringCell("Дата создания"));
+			row.AppendChild(GetTableHeaderStringCell("Дата доставки"));
+			row.AppendChild(GetTableHeaderStringCell("Время доставки"));
+			row.AppendChild(GetTableHeaderStringCell("Оформленный заказ(ы)"));
+			row.AppendChild(GetTableHeaderStringCell("Статус"));
 			row.AppendChild(GetTableHeaderStringCell("Клиент"));
 			row.AppendChild(GetTableHeaderStringCell("Адрес"));
-			row.AppendChild(GetTableHeaderStringCell("Дата доставки"));
-			row.AppendChild(GetTableHeaderStringCell("Дата создания"));
-			row.AppendChild(GetTableHeaderStringCell("Самовывоз"));
-			row.AppendChild(GetTableHeaderStringCell("Быстрая доставка"));
-			row.AppendChild(GetTableHeaderStringCell("Время доставки"));
-			row.AppendChild(GetTableHeaderStringCell("Статус"));
-			row.AppendChild(GetTableHeaderStringCell("Менеджер"));
-			row.AppendChild(GetTableHeaderStringCell("Источник"));
 			row.AppendChild(GetTableHeaderStringCell("Сумма"));
+			row.AppendChild(GetTableHeaderStringCell("Источник"));
 			row.AppendChild(GetTableHeaderStringCell("Статус оплаты"));
-			row.AppendChild(GetTableHeaderStringCell("Онлайн оплата"));
-			row.AppendChild(GetTableHeaderStringCell("Тип оплаты"));
-			row.AppendChild(GetTableHeaderStringCell("Нужен звонок"));
+			row.AppendChild(GetTableHeaderStringCell("Номер оплаты"));
+			row.AppendChild(GetTableHeaderStringCell("Дата след. звонка"));
 			row.AppendChild(GetTableHeaderStringCell("Причина отмены"));
-			row.AppendChild(GetTableHeaderStringCell("Номера заказов"));
+			row.AppendChild(GetTableHeaderStringCell("В работе"));
 
 			return row;
 		}
@@ -168,23 +161,24 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Orders
 
 			row.AppendChild(GetNumericCell(node.Id));
 			row.AppendChild(GetStringCell(node.EntityTypeString));
+			row.AppendChild(GetStringCell(node.CreationDate.ToString("G")));
+			row.AppendChild(GetStringCell(node.DeliveryDate.HasValue ? node.DeliveryDate.Value.ToShortDateString() : string.Empty));
+			row.AppendChild(GetStringCell(node.IsSelfDelivery ? "-" : node.DeliveryTime));
+			row.AppendChild(GetStringCell(node.OrdersIds));
+			row.AppendChild(GetStringCell(node.Status));
 			row.AppendChild(GetStringCell(node.CounterpartyName));
 			row.AppendChild(GetStringCell(node.CompiledAddress));
-			row.AppendChild(GetStringCell(node.DeliveryDate?.ToString("d") ?? string.Empty));
-			row.AppendChild(GetStringCell(node.CreationDate.ToString("g")));
-			row.AppendChild(GetStringCell(node.IsSelfDelivery ? "Да" : "Нет"));
-			row.AppendChild(GetStringCell(node.IsFastDelivery ? "Да" : "Нет"));
-			row.AppendChild(GetStringCell(node.DeliveryTime));
-			row.AppendChild(GetStringCell(node.Status));
+			row.AppendChild(node.OnlineOrderSum.HasValue
+				? GetCurrencyFormatCell(node.OnlineOrderSum.Value)
+				: GetStringCell(string.Empty));
+			row.AppendChild(GetStringCell(node.Source.GetEnumDisplayName(false)));
+			row.AppendChild(GetStringCell(node.OnlineOrderPaymentStatus.HasValue
+				? node.OnlineOrderPaymentStatus.Value.GetEnumDisplayName(false)
+				: string.Empty));
+			row.AppendChild(GetStringCell(node.OnlinePayment?.ToString() ?? string.Empty));
+			row.AppendChild(GetStringCell(node.NextCallDate.HasValue ? node.NextCallDate.Value.ToShortDateString() : string.Empty));
+			row.AppendChild(GetStringCell(string.IsNullOrEmpty(node.CancelReason) ? string.Empty : node.CancelReason));
 			row.AppendChild(GetStringCell(node.ManagerWorkWith));
-			row.AppendChild(GetStringCell(node.Source.GetEnumTitle()));
-			row.AppendChild(GetCurrencyFormatCell(node.OnlineOrderSum ?? 0m));
-			row.AppendChild(GetStringCell(node.OnlineOrderPaymentStatus?.GetEnumDisplayName() ?? string.Empty));
-			row.AppendChild(GetStringCell(node.OnlinePayment.HasValue ? node.OnlinePayment.Value.ToString() : string.Empty));
-			row.AppendChild(GetStringCell(node.OnlineOrderPaymentType.GetEnumDisplayName()));
-			row.AppendChild(GetStringCell(node.IsNeedConfirmationByCall ? "Да" : "Нет"));
-			row.AppendChild(GetStringCell(node.CancelReason));
-			row.AppendChild(GetStringCell(node.OrdersIds));
 
 			return row;
 		}

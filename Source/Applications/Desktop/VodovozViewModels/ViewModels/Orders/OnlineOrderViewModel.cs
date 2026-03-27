@@ -104,6 +104,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public DelegateCommand OpenExternalCounterpartyMatchingCommand { get; private set; }
 		public DelegateCommand CallClientCommand { get; private set; }
 		public DelegateCommand AddOperatorCommentCommand { get; private set; }
+		public DelegateCommand AddFailedCallCommentCommand { get; private set; }
 		public IList<OnlineOrderItem> OnlineOrderPromoItems { get; } = new List<OnlineOrderItem>();
 		public IList<OnlineOrderItem> OnlineOrderNotPromoItems { get; } = new List<OnlineOrderItem>();
 		public IList<OnlineFreeRentPackage> OnlineRentPackages { get; private set; }
@@ -290,6 +291,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			CreateCancelOnlineOrderCommand();
 			CreateOpenExternalCounterpartyMatchingCommand();
 			CreateCallClientCommand();
+			CreateAddFailedCallCommentCommand();
 			CreateAddOperatorCommentCommand();
 		}
 
@@ -409,10 +411,39 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			});
 		}
 
+		private void CreateAddFailedCallCommentCommand()
+		{
+			AddFailedCallCommentCommand = new DelegateCommand(() =>
+			{
+				var newEntityComment = new OnlineOrderOperatorComments
+				{
+					CreateTime = DateTime.Now,
+					Comment = "Недозвон до клиента",
+					OnlineOrder = Entity,
+					CommentAuthor = _currentEmployee
+				};
+				
+				Entity.OperatorComments.Add(newEntityComment);
+				
+				if(!Save(false))
+				{
+					Entity.OperatorComments.Remove(newEntityComment);
+					return;
+				}
+
+				ConvertOperatorCommentFromEntity();
+			});
+		}
+
 		private void CreateAddOperatorCommentCommand()
 		{
 			AddOperatorCommentCommand = new DelegateCommand(() =>
 			{
+				if(string.IsNullOrEmpty(NewComment))
+				{
+					return;
+				}
+				
 				var newEntityComment = new OnlineOrderOperatorComments
 				{
 					CreateTime = DateTime.Now,
