@@ -663,6 +663,8 @@ namespace Vodovoz.Application.Orders.Services
 
 			onlineOrder.SetOrderPerformed(new []{ order }, employee);
 
+			await uow.CommitAsync(cancellationToken);
+
 			var notificationType = onlineOrder.GetExternalOrderStatus().ToCustomerNotificationEventType();
 
 			await _customerNotificationPublisher.PublishAsync(new CustomerNotificationMessage
@@ -670,8 +672,7 @@ namespace Vodovoz.Application.Orders.Services
 				OnlineOrderId = onlineOrder.Id,
 				CustomerNotificationEventType = notificationType
 			});
-			
-			await uow.CommitAsync(cancellationToken);
+
 
 			return order.Id;
 		}

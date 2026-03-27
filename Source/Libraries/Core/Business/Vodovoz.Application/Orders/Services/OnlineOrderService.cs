@@ -26,7 +26,7 @@ namespace Vodovoz.Application.Orders.Services
 			var customerNotificationMessage = new CustomerNotificationMessage()
 			{
 				OnlineOrderId = onlineOrder.Id,
-				CustomerNotificationEventType = eventType,
+				CustomerNotificationEventType = eventType
 			};
 
 			_customerNotificationPublisher.PublishAsync(customerNotificationMessage);

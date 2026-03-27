@@ -86,6 +86,8 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			var externalOrderId = message.ExternalOrderId;
 			var needSpecialProcessingDuplicate = NeedSpecialProcessingDuplicate(uow, onlineOrder);
 
+			bool needCancelNotification = false;
+
 			if(needSpecialProcessingDuplicate != null)
 			{
 				if(needSpecialProcessingDuplicate == OnlineOrderDuplicateProcess.NeedCancel)
@@ -94,13 +96,9 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 					onlineOrder.OnlineOrderStatus = OnlineOrderStatus.Canceled;
 					var cancellationReasonId = _onlineOrderCancellationReasonSettings.GetDuplicateOnlineOrderCancellationReasonId;
 					onlineOrder.OnlineOrderCancellationReason = await uow.Session
-						.GetAsync<OnlineOrderCancellationReason>(cancellationReasonId, cancellationToken);							
-					
-					await _notificationPublisher.PublishAsync(new CustomerNotificationMessage
-					{
-						OnlineOrderId = onlineOrder.Id,
-						CustomerNotificationEventType = CustomerNotificationEventType.OrderCanceled
-					});
+						.GetAsync<OnlineOrderCancellationReason>(cancellationReasonId, cancellationToken);
+
+					needCancelNotification = true;
 				}
 				else
 				{
@@ -110,6 +108,16 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 
 			await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
 			await uow.CommitAsync(cancellationToken);
+
+			if(needCancelNotification)
+			{
+				await _notificationPublisher.PublishAsync(
+					new CustomerNotificationMessage
+					{
+						OnlineOrderId = onlineOrder.Id,
+						CustomerNotificationEventType = CustomerNotificationEventType.OrderCanceled
+					});
+			}
 
 			if(needSpecialProcessingDuplicate != null)
 			{
@@ -192,6 +200,8 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			var externalOrderId = message.ExternalOrderId;
 			var needSpecialProcessingDuplicate = NeedSpecialProcessingDuplicate(uow, onlineOrder);
 
+			bool needCancelNotification = false;
+
 			if(needSpecialProcessingDuplicate != null)
 			{
 				if(needSpecialProcessingDuplicate == OnlineOrderDuplicateProcess.NeedCancel)
@@ -202,12 +212,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 					onlineOrder.OnlineOrderCancellationReason = await uow.Session
 						.GetAsync<OnlineOrderCancellationReason>(cancellationReasonId, cancellationToken);
 
-					await _notificationPublisher.PublishAsync(
-						new CustomerNotificationMessage
-						{
-							OnlineOrderId = onlineOrder.Id,
-							CustomerNotificationEventType = CustomerNotificationEventType.OrderCanceled
-						});
+					needCancelNotification = true;
 				}
 				else
 				{
@@ -219,6 +224,16 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			{
 				await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
 				await uow.CommitAsync(cancellationToken);
+
+				if(needCancelNotification)
+				{
+					await _notificationPublisher.PublishAsync(
+						new CustomerNotificationMessage
+						{
+							OnlineOrderId = onlineOrder.Id,
+							CustomerNotificationEventType = CustomerNotificationEventType.OrderCanceled
+						});
+				}
 			}
 			catch(Exception e)
 			{

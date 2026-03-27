@@ -326,15 +326,15 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 					
 					var oldStatus = Entity.OnlineOrderStatus;
 					Entity.OnlineOrderStatus = OnlineOrderStatus.Canceled;
-
-					PublishCustomerNotification();
 					
 					if(!Save())
 					{
 						Entity.OnlineOrderStatus = oldStatus;
 						return;
 					}
-					
+
+					PublishCustomerNotification();
+
 					Close(false, CloseSource.Save);
 				});
 		}

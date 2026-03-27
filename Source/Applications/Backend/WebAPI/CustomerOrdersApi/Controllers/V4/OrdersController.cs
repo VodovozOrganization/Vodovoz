@@ -225,8 +225,6 @@ namespace CustomerOrdersApi.Controllers.V4
 							});
 					}
 
-
-
 					return Ok(result.Value);
 				}
 

@@ -1,4 +1,5 @@
-﻿using StackExchange.Redis;
+﻿using QS.Project.DB;
+using StackExchange.Redis;
 using System;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
@@ -13,14 +14,16 @@ namespace CustomerNotifications.Publisher.Cache
 	{
 		private readonly IDatabase _db;
 		private readonly TimeSpan _ttl = TimeSpan.FromDays(1);
+		private readonly IDatabaseConnectionSettings _databaseConnectionSettings;
 
 		/// <summary>
 		/// Создаёт экземпляр кэша уведомлений Redis.
 		/// </summary>
 		/// <param name="redis">Подключение к Redis.</param>
-		public RedisCustomerNotificationCache(IConnectionMultiplexer redis)
+		public RedisCustomerNotificationCache(IConnectionMultiplexer redis, IDatabaseConnectionSettings databaseConnectionSettings)
 		{
 			_db = redis?.GetDatabase() ?? throw new ArgumentNullException(nameof(redis));
+			_databaseConnectionSettings = databaseConnectionSettings ?? throw new ArgumentNullException(nameof(databaseConnectionSettings));
 		}
 
 		/// <summary>
@@ -34,7 +37,7 @@ namespace CustomerNotifications.Publisher.Cache
 				throw new ArgumentException("TTL должен быть положительным", nameof(_ttl));
 			}
 
-			var key = $"customer-notification:{onlineOrderId}:{eventType}";
+			var key = $"customer-notification:{_databaseConnectionSettings.DatabaseName}:[{nameof(onlineOrderId)}:{onlineOrderId}]:[{nameof(eventType)}:{eventType}]";
 
 			// Lua-скрипт: если ключ не существует, создаем его с TTL и возвращаем 1, иначе 0
 			const string lua = @"
