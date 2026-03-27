@@ -26,15 +26,9 @@ namespace Vodovoz.Settings.Edo
 		bool CodePoolLoaderToNewPool { get; }
 
 		/// <summary>
-		/// Количество дней не принятия документооборота клиентом, подключенным к ЧЗ, 
+		/// Количество дней не принятия документооборота клиентом, 
 		/// после которого будет создана заявка на вывод кодов из оборота
 		/// </summary>
-		int ConnectedTrueMarkClientsWithdrawalDocflowTimeoutDays { get; }
-
-		/// <summary>
-		/// Количество дней не принятия документооборота клиентом, не подключенным к ЧЗ, 
-		/// после которого будет создана заявка на вывод кодов из оборота
-		/// </summary>
-		int NotConnectedTrueMarkClientsWithdrawalDocflowTimeoutDays { get; }
+		int WithdrawalDocflowTimeoutDays { get; }
 	}
 }

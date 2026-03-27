@@ -115,10 +115,9 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 			return edoDocuments.ToList();
 		}
 
-		public async Task<IList<TimedOutOrderDocumentTaskNode>> GetTrueMarkConnectedClientsTimedOutOrderDocumentTasks(
+		public async Task<IList<TimedOutOrderDocumentTaskNode>> GetTimedOutOrderDocumentTasks(
 			IUnitOfWork uow,
 			int timeoutDays,
-			TimedOutDocumentTasksSearchMode searchMode,
 			CancellationToken cancellationToken)
 		{
 			var thresholdDate = DateTime.Today.AddDays(-timeoutDays);
@@ -171,10 +170,6 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 					&& order.PaymentType == Vodovoz.Domain.Client.PaymentType.Cashless
 					&& client.PersonType == PersonType.legal
 					&& client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
-					&& ((searchMode == TimedOutDocumentTasksSearchMode.OnlyTrueMarkRegisteredClients
-							&& CounterpartyEntity.RegisteredInTrueMarkStatuses.Contains(client.RegistrationInChestnyZnakStatus))
-						|| (searchMode == TimedOutDocumentTasksSearchMode.OnlyTrueMarkNotRegisteredClients
-							&& !CounterpartyEntity.RegisteredInTrueMarkStatuses.Contains(client.RegistrationInChestnyZnakStatus)))
 					&& edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree
 					&& withdrawalEdoRequest.Id == null
 					&& taskItemCodesCount > 0

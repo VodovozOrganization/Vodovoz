@@ -31,10 +31,9 @@ namespace Vodovoz.Core.Data.Repositories
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="timeoutDays">Таймаут</param>
-		/// <param name="searchMode">Режим поиска</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Заказ с задачами</returns>
-		Task<IList<TimedOutOrderDocumentTaskNode>> GetTrueMarkConnectedClientsTimedOutOrderDocumentTasks(IUnitOfWork uow, int timeoutDays, TimedOutDocumentTasksSearchMode searchMode, CancellationToken cancellationToken);
+		Task<IList<TimedOutOrderDocumentTaskNode>> GetTimedOutOrderDocumentTasks(IUnitOfWork uow, int timeoutDays, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Возвращает номера заказов, по которым уже созданы заявки на вывод кодов из оборота
