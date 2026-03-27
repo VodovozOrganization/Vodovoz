@@ -39,6 +39,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.CallBeforeArrivalMinutes).Column("call_before_arrival_minutes");
 			Map(x => x.DontArriveBeforeInterval).Column("dont_arrive_before_interval");
 			Map(x => x.NextCallDate).Column("next_call_date").Nullable();
+			Map(x => x.NextCallDateChanged).Column("next_call_date_changed").Nullable();
+			
 			
 			References(x => x.Counterparty).Column("counterparty_id");
 			References(x => x.DeliveryPoint).Column("delivery_point_id");

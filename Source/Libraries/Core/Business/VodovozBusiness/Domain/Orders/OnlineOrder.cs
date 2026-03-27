@@ -23,7 +23,7 @@ namespace Vodovoz.Domain.Orders
 	)]
 	[HistoryTrace]
 	[EntityPermission]
-	public class OnlineOrder : PropertyChangedBase, IDomainObject
+	public class OnlineOrder : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public const string OnlineOrderName = "Онлайн заказ";
 		public const int CommentMaxLength = 750;
@@ -65,7 +65,8 @@ namespace Vodovoz.Domain.Orders
 		private IList<OnlineFreeRentPackage> _onlineRentPackages = new List<OnlineFreeRentPackage>();
 		private DateTime? _nextCallDate;
 		private IList<OnlineOrderOperatorComments> _operatorComments = new List<OnlineOrderOperatorComments>();
-		
+		private DateTime? _nextCallDateChanged;
+
 
 		public virtual int Id { get; set; }
 		
@@ -326,13 +327,20 @@ namespace Vodovoz.Domain.Orders
 			get => _nextCallDate;
 			set
 			{
-				if (value < DateTime.Now.Date)
+				if(NextCallDate != null && NextCallDate != value)
 				{
-					return;
+					NextCallDateChanged = DateTime.Now;
 				}
 
 				SetField(ref _nextCallDate, value);
 			}
+		}
+
+		[Display(Name = "Дата изменения следующего звонка")]
+		public virtual DateTime? NextCallDateChanged
+		{
+			get => _nextCallDateChanged;
+			set => SetField(ref _nextCallDateChanged, value);
 		}
 
 		[Display(Name = "Комментарии оператора")]
@@ -486,7 +494,15 @@ namespace Vodovoz.Domain.Orders
 		{
 			return Id > 0 ? $"{OnlineOrderName} №{Id} от {_deliveryDate:d}" : $"Новый {OnlineOrderName.ToLower()}";
 		}
-		
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(NextCallDateChanged != null && NextCallDate < NextCallDateChanged.Value.Date)
+			{
+				yield return new ValidationResult("Нельзя ставить дату следующего звонка раньше сегодняшнего дня");
+			}
+		}
+
 		private void UpdateDeliverySchedule(DeliverySchedule deliverySchedule, int? deliveryScheduleId)
 		{
 			DeliveryScheduleId = deliveryScheduleId;

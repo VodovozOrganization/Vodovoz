@@ -210,7 +210,7 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(ViewModel, vm => vm.CanShowContactPhone, w => w.Visible)
 				.InitializeFromSource();
 			ybuttonCallClient.Binding
-				.AddBinding(ViewModel, vm => vm.CanCallClient, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.CanCallClient, w => w.Sensitive)
 				.InitializeFromSource();
 			
 			datepickerNextCallDate.Binding
