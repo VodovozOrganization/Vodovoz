@@ -50,5 +50,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders
 		public OnlineOrderPaymentType OnlineOrderPaymentType { get; set; }
 		public bool IsNeedConfirmationByCall { get; set; }
 		public string OrdersIds { get; set; }
+		public string CancelReason { get; set; }
+		public DateTime? NextCallDate { get; set; }
 	}
 }

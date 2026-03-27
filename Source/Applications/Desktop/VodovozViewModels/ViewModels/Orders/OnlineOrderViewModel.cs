@@ -13,6 +13,7 @@ using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
+using Vodovoz.Application.Mango;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -23,6 +24,7 @@ using Vodovoz.Filters.ViewModels;
 using Vodovoz.Services;
 using Vodovoz.Services.Orders;
 using Vodovoz.ViewModels.Dialogs.Counterparties;
+using Vodovoz.ViewModels.Dialogs.Mango;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
@@ -36,10 +38,13 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private readonly IOrderFromOnlineOrderValidator _onlineOrderValidator;
 		private readonly ViewModelEEVMBuilder<DeliveryPoint> _deliveryPointViewModelBuilder;
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel;
+		private readonly MangoManager _mangoManager;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly Employee _currentEmployee;
 		private bool _orderCreatingState;
 		private bool _canCancelAnyOnlineOrder;
+		private string _newComment;
+		private string _operatorsComments;
 		private OnlineOrderTimers _onlineOrderTimers;
 
 		public OnlineOrderViewModel(
@@ -55,7 +60,8 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			ViewModelEEVMBuilder<DeliveryPoint> deliveryPointViewModelBuilder,
 			DeliveryPointJournalFilterViewModel deliveryPointJournalFilterViewModel,
 			IDiscountController discountController,
-			IOrderOrganizationManager orderOrganizationManager
+			IOrderOrganizationManager orderOrganizationManager,
+			MangoManager mangoManager
 			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
@@ -75,6 +81,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				deliveryPointViewModelBuilder ?? throw new ArgumentNullException(nameof(deliveryPointViewModelBuilder));
 			_deliveryPointJournalFilterViewModel =
 				deliveryPointJournalFilterViewModel ?? throw new ArgumentNullException(nameof(deliveryPointJournalFilterViewModel));
+			_mangoManager = mangoManager ?? throw new ArgumentNullException(nameof(mangoManager));
 			DiscountController = discountController ?? throw new ArgumentNullException(nameof(discountController));
 			Logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			ExternalCounterpartyMatchingRepository =
@@ -89,11 +96,15 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			GetOnlineOrderItems();
 			ConfigureEntryViewModels();
 			TryValidateOnlineOrder();
+			InitViewModelProperty();
 		}
 
 		public DelegateCommand GetToWorkCommand { get; private set; }
 		public DelegateCommand CancelOnlineOrderCommand { get; private set; }
 		public DelegateCommand OpenExternalCounterpartyMatchingCommand { get; private set; }
+		public DelegateCommand CallClientCommand { get; private set; }
+		public DelegateCommand AddOperatorCommentCommand { get; private set; }
+		public DelegateCommand AddFailedCallCommentCommand { get; private set; }
 		public IList<OnlineOrderItem> OnlineOrderPromoItems { get; } = new List<OnlineOrderItem>();
 		public IList<OnlineOrderItem> OnlineOrderNotPromoItems { get; } = new List<OnlineOrderItem>();
 		public IList<OnlineFreeRentPackage> OnlineRentPackages { get; private set; }
@@ -126,6 +137,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public bool CanShowOnlinePayment => Entity.OnlinePayment.HasValue;
 		public bool CanShowOnlinePaymentSource => Entity.OnlinePaymentSource.HasValue;
 		public bool CanShowContactPhone => !string.IsNullOrWhiteSpace(Entity.ContactPhone);
+		public bool CanCallClient => CanShowContactPhone && _mangoManager.IsActive;
 		public bool CanShowNotPromoItems => OnlineOrderNotPromoItems.Any();
 		public bool CanShowPromoItems => OnlineOrderPromoItems.Any();
 		public bool CanShowRentPackages => OnlineRentPackages.Any();
@@ -221,7 +233,19 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				? Entity.OnlinePaymentSource.GetEnumTitle()
 				: string.Empty;
 		public string ValidationErrors { get; private set; }
-		
+
+		public string OperatorsComments
+		{
+			get => _operatorsComments;
+			set => SetField(ref _operatorsComments, value);
+		}
+
+		public string NewComment
+		{
+			get => _newComment;
+			set => SetField(ref _newComment, value);
+		}
+
 		public IEntityEntryViewModel CancellationReasonViewModel { get; private set; }
 		public IEntityEntryViewModel DeliveryPointViewModel { get; private set; }
 		
@@ -266,6 +290,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			CreateGetToWorkCommand();
 			CreateCancelOnlineOrderCommand();
 			CreateOpenExternalCounterpartyMatchingCommand();
+			CreateCallClientCommand();
+			CreateAddFailedCallCommentCommand();
+			CreateAddOperatorCommentCommand();
 		}
 
 		private void CreateGetToWorkCommand()
@@ -371,6 +398,70 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 						ShowMessage("Не найден запрос на ручное сопоставление клиента из внешних источников");
 					}
 				});
+		}
+
+		private void CreateCallClientCommand()
+		{
+			CallClientCommand = new DelegateCommand(() =>
+			{
+				if(!string.IsNullOrEmpty(Entity.ContactPhone))
+				{
+					_mangoManager.MakeCall(Entity.ContactPhone);
+				}
+			});
+		}
+
+		private void CreateAddFailedCallCommentCommand()
+		{
+			AddFailedCallCommentCommand = new DelegateCommand(() =>
+			{
+				var newEntityComment = new OnlineOrderOperatorComments
+				{
+					CreateTime = DateTime.Now,
+					Comment = "Недозвон до клиента",
+					OnlineOrder = Entity,
+					CommentAuthor = _currentEmployee
+				};
+				
+				Entity.OperatorComments.Add(newEntityComment);
+				
+				if(!Save(false))
+				{
+					Entity.OperatorComments.Remove(newEntityComment);
+					return;
+				}
+
+				ConvertOperatorCommentFromEntity();
+			});
+		}
+
+		private void CreateAddOperatorCommentCommand()
+		{
+			AddOperatorCommentCommand = new DelegateCommand(() =>
+			{
+				if(string.IsNullOrEmpty(NewComment))
+				{
+					return;
+				}
+				
+				var newEntityComment = new OnlineOrderOperatorComments
+				{
+					CreateTime = DateTime.Now,
+					Comment = NewComment,
+					OnlineOrder = Entity,
+					CommentAuthor = _currentEmployee
+				};
+				
+				Entity.OperatorComments.Add(newEntityComment);
+				
+				if(!Save(false))
+				{
+					Entity.OperatorComments.Remove(newEntityComment);
+					return;
+				}
+
+				ConvertOperatorCommentFromEntity();
+			});
 		}
 
 		private void CreatePropertyChangeRelations()
@@ -486,6 +577,28 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			}
 			
 			OnPropertyChanged(nameof(ValidationErrors));
+		}
+	
+		private void InitViewModelProperty()
+		{
+			ConvertOperatorCommentFromEntity();
+		}
+
+		private void ConvertOperatorCommentFromEntity()
+		{
+			var sb = new StringBuilder();
+
+			foreach(var comment in Entity.OperatorComments)
+			{
+				sb.Append(comment.CreateTime.ToString("g"));
+				sb.Append(' ');
+				sb.Append(comment.CommentAuthor.ShortName);
+				sb.Append(": ");
+				sb.Append(comment.Comment);
+				sb.AppendLine();
+			}
+
+			OperatorsComments = sb.ToString();
 		}
 
 		public override void Dispose()
