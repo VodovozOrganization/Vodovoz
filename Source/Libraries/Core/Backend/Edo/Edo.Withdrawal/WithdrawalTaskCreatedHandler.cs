@@ -6,7 +6,6 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,7 +19,6 @@ using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Settings.Edo;
-using VodovozBusiness.EntityRepositories.Edo;
 using IEdoRepository = Vodovoz.Core.Data.Repositories.IEdoRepository;
 
 namespace Edo.Withdrawal
@@ -28,10 +26,8 @@ namespace Edo.Withdrawal
 	public class WithdrawalTaskCreatedHandler
 	{
 		private readonly ILogger<WithdrawalTaskCreatedHandler> _logger;
-		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly ITrueMarkApiClient _trueMarkApiClient;
-		private readonly IEdoDocflowRepository _edoDocflowRepository;
 		private readonly ICounterpartyEdoAccountEntityController _edoAccountEntityController;
 		private readonly IGenericRepository<TrueMarkDocument> _trueMarkDocumentRepository;
 		private readonly ITrueMarkCodesValidator _trueMarkTaskCodesValidator;
@@ -49,10 +45,8 @@ namespace Edo.Withdrawal
 
 		public WithdrawalTaskCreatedHandler(
 			ILogger<WithdrawalTaskCreatedHandler> logger,
-			IHttpClientFactory httpClientFactory,
 			IUnitOfWorkFactory uowFactory,
 			ITrueMarkApiClient trueMarkApiClient,
-			IEdoDocflowRepository edoDocflowRepository,
 			ICounterpartyEdoAccountEntityController edoAccountEntityController,
 			IGenericRepository<TrueMarkDocument> trueMarkDocumentRepository,
 			ITrueMarkCodesValidator trueMarkTaskCodesValidator,
@@ -62,10 +56,8 @@ namespace Edo.Withdrawal
 			IEdoRepository edoRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_trueMarkApiClient = trueMarkApiClient ?? throw new ArgumentNullException(nameof(trueMarkApiClient));
-			_edoDocflowRepository = edoDocflowRepository ?? throw new ArgumentNullException(nameof(edoDocflowRepository));
 			_edoAccountEntityController = edoAccountEntityController ?? throw new ArgumentNullException(nameof(edoAccountEntityController));
 			_trueMarkDocumentRepository = trueMarkDocumentRepository ?? throw new ArgumentNullException(nameof(trueMarkDocumentRepository));
 			_trueMarkTaskCodesValidator = trueMarkTaskCodesValidator ?? throw new ArgumentNullException(nameof(trueMarkTaskCodesValidator));
@@ -142,15 +134,11 @@ namespace Edo.Withdrawal
 				var edoAccount =
 					_edoAccountEntityController.GetDefaultCounterpartyEdoAccountByOrganizationId(client, orderOrganizationId);
 
-				var isTimeoutExpired =
-					IsTimeoutExpired(uow, withdrawalEdoRequest, order);
+				var isOrderEdoDocumentValid =
+					await IsOrderEdoDocumentValid(uow, withdrawalEdoTask, withdrawalEdoRequest, order, cancellationToken);
 
-				if(!isTimeoutExpired)
+				if(!isOrderEdoDocumentValid)
 				{
-					await _edoProblemRegistrar.RegisterCustomProblem<WithdrawalTimeoutIsNotExpired>(
-						withdrawalEdoTask,
-						Enumerable.Empty<EdoTaskItem>(),
-						cancellationToken);
 					return;
 				}
 
@@ -203,7 +191,12 @@ namespace Edo.Withdrawal
 			}
 		}
 
-		private bool IsTimeoutExpired(IUnitOfWork uow, WithdrawalEdoRequest withdrawalEdoRequest, OrderEntity order)
+		private async Task<bool> IsOrderEdoDocumentValid(
+			IUnitOfWork uow,
+			WithdrawalEdoTask withdrawalEdoTask,
+			WithdrawalEdoRequest withdrawalEdoRequest,
+			OrderEntity order,
+			CancellationToken cancellationToken)
 		{
 			var documents = _edoRepository.GetOrderEdoDocumentsByOrderId(uow, order.Id);
 
@@ -212,7 +205,61 @@ namespace Edo.Withdrawal
 				.Where(x => x.DocumentTaskId == withdrawalEdoRequest.BaseDocumentEdoTask.Id)
 				.FirstOrDefault();
 
-			if(orderEdoDocument?.CreationTime == null)
+			if(orderEdoDocument == null)
+			{
+				_logger.LogError(
+					"Документ ЭДО для заказа {OrderId} и задачи ЭДО {BaseDocumentEdoTaskId} не найден. Вывод из оборота невозможен",
+					order.Id,
+					withdrawalEdoRequest.BaseDocumentEdoTask.Id);
+
+				await _edoProblemRegistrar.RegisterCustomProblem<WithdrawalOrderEdoDocumentNotFound>(
+					withdrawalEdoTask,
+					Enumerable.Empty<EdoTaskItem>(),
+					cancellationToken);
+
+				return false;
+			}
+
+			var isTimeoutExpired = IsTimeoutExpired(orderEdoDocument);
+
+			if(!isTimeoutExpired)
+			{
+				_logger.LogError(
+					"Документ ЭДО {OrderEdoDocumentId} не превысил таймаут в {Days} дней, который требуется для вывода кодов из оборота. ",
+					orderEdoDocument.Id,
+					_edoSettings.WithdrawalDocflowTimeoutDays);
+
+				await _edoProblemRegistrar.RegisterCustomProblem<WithdrawalTimeoutIsNotExpired>(
+					withdrawalEdoTask,
+					Enumerable.Empty<EdoTaskItem>(),
+					cancellationToken);
+
+				return false;
+			}
+
+			if(!IsDocumentHasValidStatus(orderEdoDocument))
+			{
+				_logger.LogError(
+					"Документ ЭДО {OrderEdoDocumentId} имеет статус {DocumentStatus}, который не позволяет вывести коды из оборота. " +
+					"Требуемый статус: {RequiredStatus}",
+					orderEdoDocument.Id,
+					orderEdoDocument.Status,
+					EdoDocumentStatus.InProgress);
+
+				await _edoProblemRegistrar.RegisterCustomProblem<WithdrawalOrderEdoDocumentHasInvalidStatus>(
+					withdrawalEdoTask,
+					Enumerable.Empty<EdoTaskItem>(),
+					cancellationToken);
+
+				return false;
+			}
+
+			return true;
+		}
+
+		private bool IsTimeoutExpired(OrderEdoDocument orderEdoDocument)
+		{
+			if(orderEdoDocument.CreationTime == null)
 			{
 				_logger.LogWarning(
 					"Время отправки документа не найдено. Вывод из оборота невозможен");
@@ -242,6 +289,9 @@ namespace Edo.Withdrawal
 
 			return true;
 		}
+
+		private bool IsDocumentHasValidStatus(OrderEdoDocument orderEdoDocument) =>
+			orderEdoDocument.Status == EdoDocumentStatus.InProgress;
 
 		private async Task<bool> IsTrueMarkWithdrawalDocumentExists(IUnitOfWork uow, int orderId, CancellationToken cancellationToken)
 		{
