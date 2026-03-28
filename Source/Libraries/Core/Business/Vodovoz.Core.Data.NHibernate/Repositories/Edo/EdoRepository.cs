@@ -165,6 +165,7 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 				where
 					task.Status == EdoTaskStatus.InProgress
 					&& orderEdoDocument.CreationTime < thresholdDate
+					&& orderEdoDocument.Status == EdoDocumentStatus.InProgress
 					&& orderEdoDocument.AcceptTime == null
 					&& taxcomDocflow.IsReceived
 					&& order.PaymentType == Vodovoz.Domain.Client.PaymentType.Cashless
