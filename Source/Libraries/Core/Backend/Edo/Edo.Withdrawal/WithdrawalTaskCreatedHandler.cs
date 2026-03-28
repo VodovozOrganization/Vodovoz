@@ -419,6 +419,7 @@ namespace Edo.Withdrawal
 		{
 			withdrawalEdoTask.Problems.Clear();
 			withdrawalEdoTask.Status = EdoTaskStatus.Completed;
+			withdrawalEdoTask.EndTime = DateTime.Now;
 			await uow.SaveAsync(withdrawalEdoTask, cancellationToken: cancellationToken);
 		}
 	}
