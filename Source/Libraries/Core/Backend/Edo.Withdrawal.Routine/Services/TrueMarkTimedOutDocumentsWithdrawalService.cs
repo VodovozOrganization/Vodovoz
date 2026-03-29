@@ -56,7 +56,8 @@ namespace Edo.Withdrawal.Routine.Services
 			using(var uow = _uowFactory.CreateWithoutRoot(nameof(TrueMarkTimedOutDocumentsWithdrawalService)))
 			{
 				var timedOutTasks =
-					(await GetTimedOutOrderDocumentTasks(uow, cancellationToken));
+					(await GetTimedOutOrderDocumentTasks(uow, cancellationToken))
+					.ToList();
 
 				withdrawalEdoRequests = await CreateWithdrawalEdoRequests(uow, timedOutTasks, cancellationToken);
 
