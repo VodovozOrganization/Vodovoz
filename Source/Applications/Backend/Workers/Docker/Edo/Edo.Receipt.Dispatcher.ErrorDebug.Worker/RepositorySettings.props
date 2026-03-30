@@ -1,0 +1,6 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>edo.receipt-dispatcher-errordebug.worker</ContainerRepository>
+  </PropertyGroup>
+</Project>
+

@@ -2,11 +2,9 @@
 
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
-        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
 		<UserSecretsId>50e938ed-e8db-4963-b71c-b0876e8f8889</UserSecretsId>
-        <DockerfileContext>.</DockerfileContext>
-    </PropertyGroup>
+</PropertyGroup>
 
 	<PropertyGroup>
 		<Version>1.0.0</Version>
@@ -49,3 +47,4 @@
     </ItemGroup>
 
 </Project>
+

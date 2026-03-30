@@ -3,7 +3,7 @@ using QS.ViewModels;
 using System;
 using QS.Dialog;
 using QS.DomainModel.UoW;
-using Vodovoz.Application.Clients;
+using Vodovoz.Core.Application.Clients;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Settings.Contacts;
 using VodovozBusiness.Domain.Contacts;

@@ -1,0 +1,6 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>edo.transfer-dispatcher.error-debug-worker</ContainerRepository>
+  </PropertyGroup>
+</Project>
+
