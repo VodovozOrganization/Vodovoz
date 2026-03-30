@@ -21,7 +21,10 @@ PUBLISHING_PROJECT_PATHS = []
 PUBLISHING_PROJECTS = []
 PUBLISHING_PROJECT_QUEUE = []
 AVAILABLE_DOCKER_BUILD_NODES = []
+BUILD_STOP_REQUESTED = false
+PIPELINE_INTERRUPTION = null
 
+try {
 stage('Prepare') {
 	AVAILABLE_DOCKER_BUILD_NODES = getDockerBuildNodesBySecondaryLabel(NODE_DOCKER_BUILD)
 	if (!AVAILABLE_DOCKER_BUILD_NODES) {
@@ -168,12 +171,11 @@ stage('Checkout and build in containers') {
 								CheckoutInContainer(referenceRepositoryPath)
 							}
 
-						catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', catchInterruptions: false) {
 						stage("Build ${branchName}") {
 							echo "Builder ${builderNumber}/${totalBuilders} is waiting for work from the shared project queue (${totalProjects} project(s) total)"
 							def processedProjects = 0
 							while (true) {
-								if (isBuildInterrupted()) {
+								if (isBuildStopRequested() || isBuildInterrupted()) {
 									echo "Build прерван, выход из очереди проектов (Builder ${builderNumber}/${totalBuilders})"
 									break
 								}
@@ -191,6 +193,7 @@ stage('Checkout and build in containers') {
 									def publishDir = "/work/.publish/${projectDll.replace('.dll', '')}"
 									def imageFullName = "${DOCKER_REGISTRY_URL}/${imageRepository}:${imageTag}"
 
+									try {
 									stage("${imageRepository}:${imageTag}") {
 										echo "Builder ${builderNumber}/${totalBuilders} picked project ${processedProjects}: ${projectPath} -> ${DOCKER_REGISTRY_URL}/${imageRepository}:${imageTag}"
 										def cmdCreateDir = "docker exec ${cid} sh -c 'mkdir -p \"${publishDir}\"'"
@@ -224,9 +227,16 @@ EOF'"""
 										echo "CMD: ${cmdPush}"
 										sh cmdPush
 									}
+								} catch (Exception e) {
+									if (isBuildInterrupted() || e instanceof org.jenkinsci.plugins.workflow.steps.FlowInterruptedException) {
+										requestBuildStop("Build interrupted on ${branchName}")
+										throw e
+									}
+									echo "FAILED ${imageFullName}: ${e.message}"
+									currentBuild.result = 'FAILURE'
+								}
 								}
 							}
-						} // end catchError
 						} finally {
 							if (cid?.trim()) {
 								sh "docker exec ${cid} sh -c 'kill -9 -1' || true"
@@ -272,6 +282,21 @@ stage('Prune Docker cache on build nodes') {
 	}
 
 	parallel cleanupBranches
+}
+
+} catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e) {
+	requestBuildStop("Pipeline interrupted: ${e.getClass().simpleName}")
+	PIPELINE_INTERRUPTION = e
+} finally {
+	if (isBuildStopRequested() || PIPELINE_INTERRUPTION != null) {
+		stage('Abort cleanup on build nodes') {
+			CleanupAbortedBuildResourcesOnNodes()
+		}
+	}
+}
+
+if (PIPELINE_INTERRUPTION != null) {
+	throw PIPELINE_INTERRUPTION
 }
 
 // -- FUNCTIONS
@@ -379,8 +404,82 @@ def getPublishingProjectQueueLock() {
 }
 
 @NonCPS
+def getBuildStopLock() {
+	return 'vodovoz-build-stop-lock'.intern()
+}
+
+@NonCPS
+def requestBuildStop(String reason = '') {
+	synchronized(getBuildStopLock()) {
+		BUILD_STOP_REQUESTED = true
+	}
+	if (reason?.trim()) {
+		echo "Build stop requested: ${reason}"
+	}
+}
+
+@NonCPS
+def isBuildStopRequested() {
+	synchronized(getBuildStopLock()) {
+		return BUILD_STOP_REQUESTED
+	}
+}
+
+@NonCPS
 def isBuildInterrupted() {
 	return Thread.currentThread().isInterrupted()
+}
+
+def CleanupAbortedBuildResourcesOnNodes() {
+	def availableNodes = AVAILABLE_DOCKER_BUILD_NODES
+	if (!availableNodes) {
+		echo "AVAILABLE_DOCKER_BUILD_NODES is empty, discovering nodes by label ${NODE_DOCKER_BUILD} for cleanup"
+		availableNodes = getDockerBuildNodesBySecondaryLabel(NODE_DOCKER_BUILD)
+	}
+
+	if (!availableNodes) {
+		echo "No available nodes found for abort cleanup"
+		return
+	}
+
+	def cleanupBranches = [:]
+	availableNodes.each { nodeInfo ->
+		def nodeSelector = "${nodeInfo.secondaryLabel}"
+		def branchName = "Abort cleanup ${nodeSelector}"
+
+		cleanupBranches[branchName] = {
+			node(nodeSelector) {
+				def workspaceBase = env.WORKSPACE ?: ''
+				sh """
+					set +e
+					echo "Abort cleanup on node ${nodeSelector}"
+
+					echo "Removing build containers for build #${env.BUILD_NUMBER}"
+					for cid in \$(docker ps -aq --filter 'name=build-${env.BUILD_NUMBER}-' 2>/dev/null); do
+						docker exec "\$cid" sh -c 'kill -9 -1' || true
+						docker rm -f "\$cid" || true
+					done
+
+					echo "Pruning dangling images"
+					docker image prune -f || true
+
+					echo "Pruning BuildKit cache"
+					docker builder prune -af || true
+				""".stripIndent()
+
+				if (workspaceBase?.trim()) {
+					sh """
+						set +e
+						echo "Removing workspace container dirs under ${workspaceBase}"
+						rm -rf "${workspaceBase}@container-"* || true
+						rm -rf "${workspaceBase}@determine-projects" || true
+					""".stripIndent()
+				}
+			}
+		}
+	}
+
+	parallel cleanupBranches
 }
 
 def CheckoutMainRepositoryWithoutSubmodules(referenceRepositoryPath) {
