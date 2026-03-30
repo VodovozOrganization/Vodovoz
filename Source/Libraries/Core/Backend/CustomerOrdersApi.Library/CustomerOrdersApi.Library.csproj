@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
@@ -12,6 +12,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\..\Applications\Backend\WebAPI\FastPayment\FastPaymentsApi.Contracts\FastPaymentsApi.Contracts.csproj" />
+      <ProjectReference Include="..\..\..\..\Applications\Backend\WebAPI\FastPayment\FastPaymentsAPI.Library\FastPaymentsAPI.Library.csproj" />
       <ProjectReference Include="..\..\Business\Vodovoz.Application\Vodovoz.Application.csproj" />
       <ProjectReference Include="..\..\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
       <ProjectReference Include="..\..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />
@@ -19,7 +20,6 @@
       <ProjectReference Include="..\..\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj" />
       <ProjectReference Include="..\CloudPaymentsApi.Client\CloudPaymentsApi.Client.csproj" />
       <ProjectReference Include="..\FastPaymentsApi.Client\FastPaymentsApi.Client.csproj" />
-      <ProjectReference Include="..\FastPaymentsAPI.Library\FastPaymentsAPI.Library.csproj" />
       <ProjectReference Include="..\YandexPayApi.Client\YandexPayApi.Client.csproj" />
       <ProjectReference Include="..\YooKassaApi.Client\YooKassaApi.Client.csproj" />
     </ItemGroup>
