@@ -617,38 +617,39 @@ def ReadXmlProperty(String filePath, String propertyName) {
 	return value
 }
 
-def CloneMirror(String url, String cache) {
+def CloneMirror(String url, String cache, int depth = 0) {
 
     def name = url.tokenize('/').last().replace('.git','')
     def path = "${cache}/${name}.git"
 
     if (!fileExists(path)) {
-        sh "echo Cloning mirror ${url}"
         sh "git clone --mirror ${url} ${path}"
     } else {
-        sh "echo Updating mirror ${url}"
         sh "git -C ${path} remote update"
     }
 
-    // читаем .gitmodules прямо из mirror
-    def hasModules = sh(
-        script: "git -C ${path} show HEAD:.gitmodules >/dev/null 2>&1",
-        returnStatus: true
-    )
+	// Ищем сабмодули только у корневого репозитория.
+	// Сабмодули внутри сабмодулей (depth > 0) не обрабатываем.
+	if (depth == 0) {
+		def hasModules = sh(
+			script: "git -C ${path} show HEAD:.gitmodules >/dev/null 2>&1",
+			returnStatus: true
+		)
 
-    if (hasModules == 0) {
+		if (hasModules == 0) {
 
-        def subUrls = sh(
-            script: "git -C ${path} show HEAD:.gitmodules | grep url | awk '{print \$3}'",
-            returnStdout: true
-        ).trim().split("\\n")
+			def subUrls = sh(
+				script: "git -C ${path} show HEAD:.gitmodules | grep url | awk '{print \$3}'",
+				returnStdout: true
+			).trim().split("\\n")
 
-        for (sub in subUrls) {
-            if (sub?.trim()) {
-                CloneMirror(sub.trim(), cache)
-            }
-        }
-    }
+			for (sub in subUrls) {
+				if (sub?.trim()) {
+					CloneMirror(sub.trim(), cache, depth + 1)
+				}
+			}
+		}
+	}
 }
 
 
