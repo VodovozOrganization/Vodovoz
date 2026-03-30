@@ -4,7 +4,7 @@
 // -- CONFIGS
 
 NODE_DOCKER_BUILD = "DOCKER_BUILD"
-PUBLISH_PROFILE = "registry-prod"
+PUBLISH_PROFILE = "registry-dev"
 PUBLISH_PROFILE_FILE = "${PUBLISH_PROFILE}.pubxml"
 CHECKOUT_CONTAINER_IMAGE = "docker.vod.qsolution.ru:5100/dotnet5-docker"
 DOCKER_REGISTRY_CREDENTIALS_ID = "docker-registry-credentials"
@@ -220,12 +220,14 @@ try {
 											echo "CMD: ${cmdPublish}"
 											sh cmdPublish
 
-											def cmdWriteDockerfile = """docker exec ${cid} sh -c 'cat > "${publishDir}/Dockerfile" <<EOF
-	FROM mcr.microsoft.com/dotnet/runtime:5.0
-	WORKDIR /app
-	COPY . .
-	ENTRYPOINT ["dotnet","${projectDll}"]
-	EOF'"""
+											def cmdWriteDockerfile = """
+											docker exec ${cid} sh -c 'cat > "${publishDir}/Dockerfile" <<EOF
+											FROM mcr.microsoft.com/dotnet/runtime:5.0
+											WORKDIR /app
+											COPY . .
+											ENTRYPOINT ["dotnet","${projectDll}"]
+											EOF'
+											""".stripIndent()
 											echo "CMD: write Dockerfile to ${publishDir}/Dockerfile"
 											sh cmdWriteDockerfile
 
