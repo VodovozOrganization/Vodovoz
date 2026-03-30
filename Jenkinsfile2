@@ -126,12 +126,12 @@ stage('Checkout and build in containers') {
 					def referenceRepositoryPath = "${env.JENKINS_HOME_NODE}/workspace/_VODOVOZ_REFERENCE_REPOSITORY"
 					def workspaceSuffix = "container-${containerIndex}"
 					def cid = null
+					def containerName = "build-${env.BUILD_NUMBER}-${containerIndex}-${nodeSelector.replaceAll('[^a-zA-Z0-9]', '-')}"
 
 					ws("${env.WORKSPACE}@${workspaceSuffix}") {
 						try {
 							stage("Start container ${branchName}") {
 								def workspaceDir = pwd()
-								def containerName = "build-${env.BUILD_NUMBER}-${containerIndex}-${nodeSelector.replaceAll('[^a-zA-Z0-9]', '-')}"
 								withCredentials([usernamePassword(credentialsId: DOCKER_REGISTRY_CREDENTIALS_ID, usernameVariable: 'DOCKER_REGISTRY_USERNAME', passwordVariable: 'DOCKER_REGISTRY_PASSWORD')]) {
 									sh "echo \"\$DOCKER_REGISTRY_PASSWORD\" | docker login ${DOCKER_REGISTRY_URL} -u \"\$DOCKER_REGISTRY_USERNAME\" --password-stdin"
 								}
@@ -168,10 +168,15 @@ stage('Checkout and build in containers') {
 								CheckoutInContainer(referenceRepositoryPath)
 							}
 
-							stage("Build ${branchName}") {
-								echo "Builder ${builderNumber}/${totalBuilders} is waiting for work from the shared project queue (${totalProjects} project(s) total)"
-								def processedProjects = 0
-								while (true) {
+						catchError(buildResult: 'FAILURE', stageResult: 'FAILURE', catchInterruptions: false) {
+						stage("Build ${branchName}") {
+							echo "Builder ${builderNumber}/${totalBuilders} is waiting for work from the shared project queue (${totalProjects} project(s) total)"
+							def processedProjects = 0
+							while (true) {
+								if (isBuildInterrupted()) {
+									echo "Build прерван, выход из очереди проектов (Builder ${builderNumber}/${totalBuilders})"
+									break
+								}
 									def projectInfo = takeNextPublishingProject()
 									if (!projectInfo) {
 										echo "Shared queue is empty. Builder ${builderNumber}/${totalBuilders} finished after ${processedProjects} project(s)"
@@ -205,19 +210,29 @@ EOF'"""
 										echo "CMD: write Dockerfile to ${publishDir}/Dockerfile"
 										sh cmdWriteDockerfile
 
+										if (isBuildInterrupted()) {
+											error("Build прерван, пропуск docker build для ${imageFullName}")
+										}
 										def cmdBuild = "docker exec ${cid} sh -c 'docker build --pull --no-cache --force-rm -t \"${imageFullName}\" \"${publishDir}\"'"
 										echo "CMD: ${cmdBuild}"
 										sh cmdBuild
 
+										if (isBuildInterrupted()) {
+											error("Build прерван, пропуск docker push для ${imageFullName}")
+										}
 										def cmdPush = "docker exec ${cid} sh -c 'docker push \"${imageFullName}\"'"
 										echo "CMD: ${cmdPush}"
 										sh cmdPush
 									}
 								}
 							}
+						} // end catchError
 						} finally {
 							if (cid?.trim()) {
+								sh "docker exec ${cid} sh -c 'kill -9 -1' || true"
 								sh "docker rm -f ${cid} || true"
+							} else {
+								sh "docker rm -f ${containerName} || true"
 							}
 							try {
 								deleteDir()
@@ -361,6 +376,11 @@ def takeNextPublishingProject() {
 @NonCPS
 def getPublishingProjectQueueLock() {
 	return 'vodovoz-publishing-project-queue-lock'.intern()
+}
+
+@NonCPS
+def isBuildInterrupted() {
+	return Thread.currentThread().isInterrupted()
 }
 
 def CheckoutMainRepositoryWithoutSubmodules(referenceRepositoryPath) {
