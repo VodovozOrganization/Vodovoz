@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.Default.Dto.Orders;
 using CustomerOrdersApi.Library.Default.Services;
@@ -12,6 +12,7 @@ using VodovozHealthCheck.Helpers;
 
 namespace CustomerOrdersApi.Controllers.Default
 {
+	[ApiVersion("3.0")]
 	public class OrderRatingController : SignatureControllerBase
 	{
 		private readonly ICustomerOrdersService _customerOrdersService;
