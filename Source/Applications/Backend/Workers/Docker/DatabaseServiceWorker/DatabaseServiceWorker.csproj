@@ -46,7 +46,4 @@
     <ProjectReference Include="..\..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
     <ProjectReference Include="..\..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\PublishProfiles\" />
-  </ItemGroup>
 </Project>
