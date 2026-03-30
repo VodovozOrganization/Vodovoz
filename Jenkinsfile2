@@ -74,25 +74,33 @@ try {
 				deleteDir()
 				CheckoutMainRepositoryWithoutSubmodules(referenceRepositoryPath)
 
-				def projectDirs = DeterminePublishingProjectDirs(PUBLISH_PROFILE_FILE)
-				if (!projectDirs) {
+				def determinedProjectsJson = sh(
+					script: "sh ./determine-projects.sh \"${pwd()}\" \"${PUBLISH_PROFILE_FILE}\"",
+					returnStdout: true
+				).trim()
+
+				if (!determinedProjectsJson) {
 					error("Не найдено проектов с профилем публикации ${PUBLISH_PROFILE_FILE}")
 				}
 
-				def determinedProjects = []
-				projectDirs.each { projectDir ->
-					def projectPath = DiscoverProjectFilePath(projectDir)
-					def repositorySettingsPath = "${projectDir}/RepositorySettings.props"
-					def publishProfilePath = "${projectDir}/Properties/PublishProfiles/${PUBLISH_PROFILE_FILE}"
+				def parsedProjects = new groovy.json.JsonSlurperClassic().parseText(determinedProjectsJson)
+				if (!(parsedProjects instanceof List) || parsedProjects.isEmpty()) {
+					error("Не найдено проектов с профилем публикации ${PUBLISH_PROFILE_FILE}")
+				}
 
-					def containerRepository = ReadXmlProperty(repositorySettingsPath, 'ContainerRepository')
-					def publishImageTag = ReadXmlProperty(publishProfilePath, 'PublishImageTag')
+				def determinedProjects = parsedProjects.collect { p ->
+					[
+						projectPath: (p.projectPath ?: '').toString(),
+						containerRepository: (p.containerRepository ?: '').toString(),
+						publishImageTag: (p.publishImageTag ?: '').toString()
+					]
+				}
 
-					determinedProjects.add([
-						projectPath: projectPath,
-						containerRepository: containerRepository,
-						publishImageTag: publishImageTag
-					])
+				def invalidProjects = determinedProjects.findAll {
+					!it.projectPath || !it.containerRepository || !it.publishImageTag
+				}
+				if (invalidProjects) {
+					error("Скрипт determine-projects.sh вернул некорректные данные для ${invalidProjects.size()} проект(ов)")
 				}
 
 				PUBLISHING_PROJECTS = determinedProjects
