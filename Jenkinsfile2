@@ -29,6 +29,7 @@ BUILD_STOP_REQUESTED = false
 PIPELINE_INTERRUPTION = null
 
 try {
+	// 1) Определяем и валидируем список доступных build-нод, считаем лимиты CPU на контейнер.
 	stage('Prepare') {
 		AVAILABLE_DOCKER_BUILD_NODES = getDockerBuildNodesBySecondaryLabel(NODE_DOCKER_BUILD)
 		if (!AVAILABLE_DOCKER_BUILD_NODES) {
@@ -66,6 +67,7 @@ try {
 	}
 
 	stage('Determine projects') {
+		// 2) Один раз определяем список проектов к публикации и наполняем общую очередь задач.
 		def firstNode = AVAILABLE_DOCKER_BUILD_NODES[0]
 		node(firstNode.secondaryLabel) {
 			def referenceRepositoryPath = "${env.JENKINS_HOME_NODE}/workspace/_VODOVOZ_REFERENCE_REPOSITORY"
@@ -116,6 +118,7 @@ try {
 	}
 
 	stage('Checkout and build in containers') {
+		// 3) Запускаем контейнеры-билдеры на всех нодах и параллельно вычитываем общую очередь проектов.
 		def availableNodes = AVAILABLE_DOCKER_BUILD_NODES
 		if (!availableNodes) {
 			error("Не найдено доступных нод с тегом ${NODE_DOCKER_BUILD} для работы в контейнерах")
@@ -188,6 +191,7 @@ try {
 								}
 
 							stage("Build ${branchName}") {
+								// Каждый builder берёт следующий проект из общей очереди до её опустошения или stop-сигнала.
 								echo "Builder ${builderNumber}/${totalBuilders} is waiting for work from the shared project queue (${totalProjects} project(s) total)"
 								def processedProjects = 0
 								while (true) {
@@ -213,6 +217,7 @@ try {
 										stage("${imageRepository}:${imageTag}") {
 											echo "Builder ${builderNumber}/${totalBuilders} picked project ${processedProjects}: ${projectPath} -> ${imageFullName}"
 
+											// Публикуем артефакты .NET и готовим Dockerfile рядом с output.
 											sh "docker exec ${cid} sh -c 'mkdir -p \"${publishDir}\"'"
 											sh "docker exec ${cid} sh -c 'dotnet publish \"${projectPath}\" -c Release -r linux-x64 --self-contained false -o \"${publishDir}\" /maxcpucount:${maxCpuCountPerContainer}'"
 
@@ -228,6 +233,7 @@ EOF'
 											if (isBuildInterrupted()) {
 												error("Build прерван, пропуск docker build для ${imageFullName}")
 											}
+											// Собираем runtime-образ и публикуем его в registry.
 											sh "docker exec ${cid} sh -c 'docker build --pull --no-cache --force-rm -t \"${imageFullName}\" \"${publishDir}\"'"
 
 											if (isBuildInterrupted()) {
@@ -267,6 +273,7 @@ EOF'
 	}
 
 	stage('Prune Docker cache on build nodes') {
+		// 4) Финальная очистка локального Docker cache на build-нодах.
 		def availableNodes = AVAILABLE_DOCKER_BUILD_NODES
 		if (!availableNodes) {
 			error("Не найдено доступных нод с тегом ${NODE_DOCKER_BUILD} для очистки Docker cache")
@@ -297,6 +304,7 @@ EOF'
 	PIPELINE_INTERRUPTION = e
 } finally {
 	if (isBuildStopRequested() || PIPELINE_INTERRUPTION != null) {
+		// Гарантированная очистка контейнеров/кэша/временных workspace при abort/interrupt.
 		stage('Abort cleanup on build nodes') {
 			CleanupAbortedBuildResourcesOnNodes()
 		}
