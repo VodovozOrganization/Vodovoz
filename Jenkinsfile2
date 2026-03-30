@@ -4,7 +4,7 @@
 // -- CONFIGS
 
 NODE_DOCKER_BUILD = "DOCKER_BUILD"
-PUBLISH_PROFILE = "registry-dev"
+PUBLISH_PROFILE = "registry-prod"
 PUBLISH_PROFILE_FILE = "${PUBLISH_PROFILE}.pubxml"
 CHECKOUT_CONTAINER_IMAGE = "docker.vod.qsolution.ru:5100/dotnet5-docker"
 DOCKER_REGISTRY_CREDENTIALS_ID = "docker-registry-credentials"
@@ -531,7 +531,7 @@ def CleanupAbortedBuildResourcesOnNodes() {
 def CheckoutMainRepositoryWithoutSubmodules(referenceRepositoryPath) {
 	checkout changelog: false, poll: false, scm: [
 		$class: 'GitSCM',
-		branches:  [[name: 'hotfix/jenkins-services-pipeline']],
+		branches:  scm.branches,
 		doGenerateSubmoduleConfigurations: false,
 		userRemoteConfigs: [[
 			url: 'https://github.com/VodovozOrganization/Vodovoz.git'
@@ -656,7 +656,7 @@ def CheckoutInContainer(referenceRepositoryPath) {
 
 	checkout changelog: false, poll: false, scm: [
 		$class: 'GitSCM',
-		branches: [[name: 'hotfix/jenkins-services-pipeline']],
+		branches: scm.branches,
 		doGenerateSubmoduleConfigurations: false,
 
 		userRemoteConfigs: [[
