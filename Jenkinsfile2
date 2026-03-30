@@ -211,39 +211,29 @@ try {
 
 										try {
 										stage("${imageRepository}:${imageTag}") {
-											echo "Builder ${builderNumber}/${totalBuilders} picked project ${processedProjects}: ${projectPath} -> ${DOCKER_REGISTRY_URL}/${imageRepository}:${imageTag}"
-											def cmdCreateDir = "docker exec ${cid} sh -c 'mkdir -p \"${publishDir}\"'"
-											echo "CMD: ${cmdCreateDir}"
-											sh cmdCreateDir
+											echo "Builder ${builderNumber}/${totalBuilders} picked project ${processedProjects}: ${projectPath} -> ${imageFullName}"
 
-											def cmdPublish = "docker exec ${cid} sh -c 'dotnet publish \"${projectPath}\" -c Release -r linux-x64 --self-contained false -o \"${publishDir}\" /maxcpucount:${maxCpuCountPerContainer}'"
-											echo "CMD: ${cmdPublish}"
-											sh cmdPublish
+											sh "docker exec ${cid} sh -c 'mkdir -p \"${publishDir}\"'"
+											sh "docker exec ${cid} sh -c 'dotnet publish \"${projectPath}\" -c Release -r linux-x64 --self-contained false -o \"${publishDir}\" /maxcpucount:${maxCpuCountPerContainer}'"
 
-											def cmdWriteDockerfile = """
-											docker exec ${cid} sh -c 'cat > "${publishDir}/Dockerfile" <<EOF
-											FROM mcr.microsoft.com/dotnet/runtime:5.0
-											WORKDIR /app
-											COPY . .
-											ENTRYPOINT ["dotnet","${projectDll}"]
-											EOF'
+											sh """
+												docker exec ${cid} sh -c 'cat > "${publishDir}/Dockerfile" <<EOF
+FROM mcr.microsoft.com/dotnet/runtime:5.0
+WORKDIR /app
+COPY . .
+ENTRYPOINT ["dotnet","${projectDll}"]
+EOF'
 											""".stripIndent()
-											echo "CMD: write Dockerfile to ${publishDir}/Dockerfile"
-											sh cmdWriteDockerfile
 
 											if (isBuildInterrupted()) {
 												error("Build прерван, пропуск docker build для ${imageFullName}")
 											}
-											def cmdBuild = "docker exec ${cid} sh -c 'docker build --pull --no-cache --force-rm -t \"${imageFullName}\" \"${publishDir}\"'"
-											echo "CMD: ${cmdBuild}"
-											sh cmdBuild
+											sh "docker exec ${cid} sh -c 'docker build --pull --no-cache --force-rm -t \"${imageFullName}\" \"${publishDir}\"'"
 
 											if (isBuildInterrupted()) {
 												error("Build прерван, пропуск docker push для ${imageFullName}")
 											}
-											def cmdPush = "docker exec ${cid} sh -c 'docker push \"${imageFullName}\"'"
-											echo "CMD: ${cmdPush}"
-											sh cmdPush
+											sh "docker exec ${cid} sh -c 'docker push \"${imageFullName}\"'"
 										}
 									} catch (Exception e) {
 										if (isBuildInterrupted() || e instanceof org.jenkinsci.plugins.workflow.steps.FlowInterruptedException) {
