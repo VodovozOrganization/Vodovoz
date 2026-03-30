@@ -10,6 +10,10 @@ CHECKOUT_CONTAINER_IMAGE = "docker.vod.qsolution.ru:5100/dotnet5-docker"
 DOCKER_REGISTRY_CREDENTIALS_ID = "docker-registry-credentials"
 REFERENCE_REPOSITORY_MOUNT_PATH = "/reference-repository"
 CONTAINERS_PER_NODE = 2
+PIPELINE_CONTAINER_LABEL_KEY = "vodovoz.pipeline"
+PIPELINE_CONTAINER_CREATED_LABEL_KEY = "vodovoz.created_at_epoch"
+PIPELINE_CONTAINER_LABEL_PREFIX = "jenkins-services-build"
+PIPELINE_CONTAINER_MAX_AGE_SECONDS = 3600
 
 
 DOCKER_REGISTRY_URL = "docker.vod.qsolution.ru:5100"
@@ -130,11 +134,13 @@ stage('Checkout and build in containers') {
 					def workspaceSuffix = "container-${containerIndex}"
 					def cid = null
 					def containerName = "build-${env.BUILD_NUMBER}-${containerIndex}-${nodeSelector.replaceAll('[^a-zA-Z0-9]', '-')}"
+					def pipelineContainerLabel = "${PIPELINE_CONTAINER_LABEL_PREFIX}-${env.BUILD_NUMBER}"
 
 					ws("${env.WORKSPACE}@${workspaceSuffix}") {
 						try {
 							stage("Start container ${branchName}") {
 								def workspaceDir = pwd()
+								def containerCreatedAtEpoch = (System.currentTimeMillis() / 1000L) as long
 								withCredentials([usernamePassword(credentialsId: DOCKER_REGISTRY_CREDENTIALS_ID, usernameVariable: 'DOCKER_REGISTRY_USERNAME', passwordVariable: 'DOCKER_REGISTRY_PASSWORD')]) {
 									sh "echo \"\$DOCKER_REGISTRY_PASSWORD\" | docker login ${DOCKER_REGISTRY_URL} -u \"\$DOCKER_REGISTRY_USERNAME\" --password-stdin"
 								}
@@ -144,6 +150,8 @@ stage('Checkout and build in containers') {
 										docker run -d \
 										  --pull always \
 										  --name ${containerName} \
+										  --label ${PIPELINE_CONTAINER_LABEL_KEY}=${pipelineContainerLabel} \
+										  --label ${PIPELINE_CONTAINER_CREATED_LABEL_KEY}=${containerCreatedAtEpoch} \
 										  -v /var/run/docker.sock:/var/run/docker.sock \
 										  -v ${referenceRepositoryPath}:${REFERENCE_REPOSITORY_MOUNT_PATH}:ro \
 										  -v ${workspaceDir}:/work \
@@ -432,6 +440,8 @@ def isBuildInterrupted() {
 
 def CleanupAbortedBuildResourcesOnNodes() {
 	def availableNodes = AVAILABLE_DOCKER_BUILD_NODES
+	def pipelineContainerLabel = "${PIPELINE_CONTAINER_LABEL_PREFIX}-${env.BUILD_NUMBER}"
+	def maxContainerAgeSeconds = PIPELINE_CONTAINER_MAX_AGE_SECONDS as int
 	if (!availableNodes) {
 		echo "AVAILABLE_DOCKER_BUILD_NODES is empty, discovering nodes by label ${NODE_DOCKER_BUILD} for cleanup"
 		availableNodes = getDockerBuildNodesBySecondaryLabel(NODE_DOCKER_BUILD)
@@ -453,11 +463,39 @@ def CleanupAbortedBuildResourcesOnNodes() {
 				sh """
 					set +e
 					echo "Abort cleanup on node ${nodeSelector}"
+					now_epoch=\$(date +%s)
+					oldest_allowed_epoch=\$((now_epoch - ${maxContainerAgeSeconds}))
 
-					echo "Removing build containers for build #${env.BUILD_NUMBER}"
-					for cid in \$(docker ps -aq --filter 'name=build-${env.BUILD_NUMBER}-' 2>/dev/null); do
+					remove_container() {
+						cid="\$1"
+						if [ -z "\$cid" ]; then
+							return 0
+						fi
 						docker exec "\$cid" sh -c 'kill -9 -1' || true
 						docker rm -f "\$cid" || true
+					}
+
+					echo "Removing containers for current build label ${pipelineContainerLabel}"
+					for cid in \$(docker ps -aq --filter 'label=${PIPELINE_CONTAINER_LABEL_KEY}=${pipelineContainerLabel}' 2>/dev/null); do
+						remove_container "\$cid"
+					done
+
+					echo "Removing ${PIPELINE_CONTAINER_LABEL_PREFIX} containers older than ${maxContainerAgeSeconds} second(s)"
+					for cid in \$(docker ps -aq --filter 'label=${PIPELINE_CONTAINER_LABEL_KEY}' 2>/dev/null); do
+						pipeline_label=\$(docker inspect --format '{{ index .Config.Labels "${PIPELINE_CONTAINER_LABEL_KEY}" }}' "\$cid" 2>/dev/null || true)
+						case "\$pipeline_label" in
+							${PIPELINE_CONTAINER_LABEL_PREFIX}-*) ;;
+							*) continue ;;
+						esac
+
+						created_epoch=\$(docker inspect --format '{{ index .Config.Labels "${PIPELINE_CONTAINER_CREATED_LABEL_KEY}" }}' "\$cid" 2>/dev/null || true)
+						case "\$created_epoch" in
+							''|*[!0-9]*) continue ;;
+						esac
+
+						if [ "\$created_epoch" -le "\$oldest_allowed_epoch" ]; then
+							remove_container "\$cid"
+						fi
 					done
 
 					echo "Pruning dangling images"
