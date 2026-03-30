@@ -685,15 +685,6 @@ def CheckoutInContainer(referenceRepositoryPath) {
 	echo "=== Checkout submodules from reference repository ==="
 	echo "referenceRepositoryPath(host): ${referenceRepositoryPath}"
 	echo "REFERENCE_REPOSITORY_MOUNT_PATH(container): ${REFERENCE_REPOSITORY_MOUNT_PATH}"
-	sh """
-		echo "=== Host diagnostics before submodule checkout ==="
-		pwd
-		echo "WORKSPACE=$PWD"
-		echo "Listing host reference repository path"
-		ls -la "${referenceRepositoryPath}" || true
-		echo "Listing container mount-like path on host (if exists)"
-		ls -la "${REFERENCE_REPOSITORY_MOUNT_PATH}" || echo "Path does not exist on host: ${REFERENCE_REPOSITORY_MOUNT_PATH}"
-	""".stripIndent()
 	CheckoutSubmodulesFromReference(referenceRepositoryPath)
 
 	echo "=== Source/Libraries/External directories ==="
@@ -701,54 +692,37 @@ def CheckoutInContainer(referenceRepositoryPath) {
 }
 
 def CheckoutSubmodulesFromReference(referenceRepositoryPath) {
-	def submoduleRowsRaw = sh(
-		script: "git config -f .gitmodules --get-regexp '^submodule\\..*\\.path\$' || true",
-		returnStdout: true
-	).trim()
+	sh """
+		set -eu
 
-	def referenceRootExists = (sh(script: "test -d \"${referenceRepositoryPath}\"", returnStatus: true) == 0)
-	echo "referenceRepositoryPathExists=${referenceRootExists}; path=${referenceRepositoryPath}"
+		referenceRepositoryPath="${referenceRepositoryPath}"
 
-	if (!submoduleRowsRaw) {
-		echo "No submodules found in .gitmodules"
-		return
-	}
+		if ! test -f .gitmodules; then
+			echo "No submodules found in .gitmodules"
+			exit 0
+		fi
 
-	def submoduleRows = submoduleRowsRaw.split("\\r?\\n")
+		echo "referenceRepositoryPathExists=\$(test -d "\$referenceRepositoryPath" && echo true || echo false); path=\$referenceRepositoryPath"
 
-	for (row in submoduleRows) {
-		def pair = row.trim().split("\\s+", 2)
-		if (pair.size() != 2) {
-			continue
-		}
+		git submodule sync --quiet --recursive || true
 
-		def pathKey = pair[0].trim()
-		def submodulePath = pair[1].trim()
-		def urlKey = pathKey.replace('.path', '.url')
-		def submoduleUrl = sh(script: "git config -f .gitmodules --get ${urlKey}", returnStdout: true).trim()
-		def repoName = submoduleUrl.tokenize('/').last().replace('.git', '')
-		def referenceMirrorPath = "${referenceRepositoryPath}/${repoName}.git"
-		def referenceMirrorExists = (sh(script: "test -d \"${referenceMirrorPath}\"", returnStatus: true) == 0)
+		git config -f .gitmodules --get-regexp '^submodule\\..*\\.path\$' | while IFS= read -r row; do
+			pathKey="\${row%% *}"
+			submodulePath="\${row#* }"
+			urlKey="\${pathKey%.path}.url"
+			submoduleUrl="\$(git config -f .gitmodules --get "\$urlKey")"
+			repoName="\$(basename "\$submoduleUrl" .git)"
+			referenceMirrorPath="\$referenceRepositoryPath/\$repoName.git"
 
-		sh "echo Preparing submodule ${submodulePath}"
-		sh "echo submoduleUrl=${submoduleUrl}"
-		sh "echo repoName=${repoName}"
-		sh "echo referenceRepositoryPath=${referenceRepositoryPath}"
-		sh "echo referenceMirrorPath=${referenceMirrorPath}"
-		sh "echo referenceMirrorExists=${referenceMirrorExists}"
-		if (!referenceMirrorExists) {
-			sh "echo 'Reference mirror is missing. Available entries in reference path:'"
-			sh "ls -la \"${referenceRepositoryPath}\" || true"
-		}
-		sh "git submodule init -- ${submodulePath}"
-		sh "git submodule sync -- ${submodulePath}"
-		if (referenceMirrorExists) {
-			sh "git submodule update --init --reference ${referenceMirrorPath} -- ${submodulePath}"
-		} else {
-			sh "echo 'Running submodule update without --reference'"
-			sh "git submodule update --init -- ${submodulePath}"
-		}
-	}
+			echo "Preparing submodule \$submodulePath"
+
+			if test -d "\$referenceMirrorPath"; then
+				git submodule update --init --jobs 4 --reference "\$referenceMirrorPath" -- "\$submodulePath"
+			else
+				git submodule update --init --jobs 4 -- "\$submodulePath"
+			fi
+		done
+	""".stripIndent()
 }
 
 def GetPublishingProjects(){
