@@ -1,0 +1,6 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>customer.online.orders.registrar</ContainerRepository>
+  </PropertyGroup>
+</Project>
+

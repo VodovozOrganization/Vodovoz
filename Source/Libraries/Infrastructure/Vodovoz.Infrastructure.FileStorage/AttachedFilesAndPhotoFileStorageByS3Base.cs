@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Application.FileStorage;
+using Vodovoz.Core.Application.FileStorage;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Results;
 
@@ -22,7 +22,7 @@ namespace Vodovoz.Infrastructure.FileStorage
 		{
 			if(entity.AttachedFileInformations.Any(ati => ati.FileName == filename))
 			{
-				return Task.FromResult(Result.Failure(Application.Errors.FileStorage.PhotoMatchesAttachedFileFileName));
+				return Task.FromResult(Result.Failure(Vodovoz.Core.Application.Errors.FileStorage.PhotoMatchesAttachedFileFileName));
 			}
 
 			return CreateFileAsync($"{entity.Id}/{filename}", inputStream, cancellationToken);
@@ -35,7 +35,7 @@ namespace Vodovoz.Infrastructure.FileStorage
 		{
 			if(entity.AttachedFileInformations.Any(ati => ati.FileName == filename))
 			{
-				return Task.FromResult(Result.Failure(Application.Errors.FileStorage.PhotoMatchesAttachedFileFileName));
+				return Task.FromResult(Result.Failure(Vodovoz.Core.Application.Errors.FileStorage.PhotoMatchesAttachedFileFileName));
 			}
 
 			if(string.IsNullOrWhiteSpace(entity.PhotoFileName))
@@ -60,7 +60,7 @@ namespace Vodovoz.Infrastructure.FileStorage
 		{
 			if(entity.PhotoFileName == fileName)
 			{
-				return Task.FromResult(Result.Failure(Application.Errors.FileStorage.AttachedFileMatchesPhotoFileName));
+				return Task.FromResult(Result.Failure(Vodovoz.Core.Application.Errors.FileStorage.AttachedFileMatchesPhotoFileName));
 			}
 
 			return CreateFileAsync($"{entity.Id}/{fileName}", inputStream, cancellationToken);
@@ -73,7 +73,7 @@ namespace Vodovoz.Infrastructure.FileStorage
 		{
 			if(entity.PhotoFileName == fileName)
 			{
-				return Task.FromResult(Result.Failure(Application.Errors.FileStorage.AttachedFileMatchesPhotoFileName));
+				return Task.FromResult(Result.Failure(Vodovoz.Core.Application.Errors.FileStorage.AttachedFileMatchesPhotoFileName));
 			}
 
 			return UpdateFileAsync($"{entity.Id}/{fileName}", inputStream, cancellationToken);

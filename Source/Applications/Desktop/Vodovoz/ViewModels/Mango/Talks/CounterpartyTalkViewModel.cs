@@ -7,7 +7,7 @@ using QSReport;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Application.Orders.Services.OrderCancellation;
+using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;

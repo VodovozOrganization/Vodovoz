@@ -6,6 +6,7 @@ using QS.Services;
 using Sms.Internal;
 using System;
 using System.Linq;
+using Vodovoz.Core.Application.FastPayment;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;

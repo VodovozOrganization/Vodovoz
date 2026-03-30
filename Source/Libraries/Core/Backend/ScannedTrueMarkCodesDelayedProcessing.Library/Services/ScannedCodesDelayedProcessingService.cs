@@ -176,7 +176,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 					{
 						driversScannedCode.DriversScannedTrueMarkCodeStatus = DriversScannedTrueMarkCodeStatus.Error;
 						driversScannedCode.DriversScannedTrueMarkCodeError =
-							scannedTrueMarkAnyCodesDataResult.Errors.FirstOrDefault() == Vodovoz.Application.Errors.TrueMarkApi.UnknownCode
+							scannedTrueMarkAnyCodesDataResult.Errors.FirstOrDefault() == Vodovoz.Core.Application.Errors.TrueMarkApi.UnknownCode
 							? DriversScannedTrueMarkCodeError.NotTrueMarkCode
 							: DriversScannedTrueMarkCodeError.TrueMarkApiRequestError;
 
