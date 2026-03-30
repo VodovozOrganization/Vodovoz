@@ -9,6 +9,7 @@ using CustomerOrdersApi.Library.Services.PaymentRefund.Mappers;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using CustomerOrdersApi.Library.V4.Factories;
 using CustomerOrdersApi.Library.V4.Services;
+using CustomerOrdersApi.Library.V5.Services;
 using FastPaymentsApi.Client;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
@@ -55,6 +56,14 @@ namespace CustomerOrdersApi.Library
 				.AddScoped<ICustomerOrdersDiscountServiceV4, CustomerOrdersDiscountServiceV4>()
 				.AddScoped<ICustomerOrderFixedPriceServiceV4, CustomerOrderFixedPriceServiceV4>()
 				.AddScoped<IInfoMessageFactory, InfoMessageFactory>()
+				.AddDefault();
+			
+			return services;
+		}
+		
+		public static IServiceCollection AddVersion5(this IServiceCollection services)
+		{
+			services.AddScoped<ICustomerOrdersServiceV5, CustomerOrdersServiceV5>()
 				.AddDefault();
 			
 			return services;

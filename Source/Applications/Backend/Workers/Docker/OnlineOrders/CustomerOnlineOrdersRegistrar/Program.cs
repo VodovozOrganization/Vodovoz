@@ -1,6 +1,5 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using CustomerOnlineOrdersRegistrar.Consumers;
-using CustomerOnlineOrdersRegistrar.Factories;
 using CustomerOnlineOrdersRegistrar.Factories.V3;
 using CustomerOnlineOrdersRegistrar.Factories.V4;
 using CustomerOrdersApi.Library;
@@ -16,12 +15,15 @@ using QS.HistoryLog;
 using QS.Project.Core;
 using Vodovoz;
 using Vodovoz.Application;
+using Vodovoz.Application.Logistics;
+using Vodovoz.Application.Orders.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Trackers;
+using VodovozBusiness.Services.Orders;
 
 namespace CustomerOnlineOrdersRegistrar
 {
@@ -60,6 +62,7 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddInfrastructure()
 						.AddVersion3()
 						.AddVersion4()
+						.AddVersion5()
 						.AddApplicationOrderServices()
 						.AddOsrm()
 

@@ -1,6 +1,6 @@
 ﻿using CustomerOrdersApi.HealthCheck;
-using System;
 using CustomerOrdersApi.Library;
+using CustomerOrdersApi.Library.Services;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using DriverApi.Notifications.Client;
 using MassTransit;
@@ -15,6 +15,7 @@ using Osrm;
 using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Services;
+using System;
 using Vodovoz;
 using Vodovoz.Application;
 using Vodovoz.Application.Logistics;
@@ -22,12 +23,11 @@ using Vodovoz.Application.Orders.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
-using Vodovoz.Trackers;
-using VodovozHealthCheck;
 using Vodovoz.Presentation.WebApi;
 using Vodovoz.Services.Logistics;
+using Vodovoz.Trackers;
 using VodovozBusiness.Services.Orders;
-using CustomerOrdersApi.Library.Services;
+using VodovozHealthCheck;
 
 namespace CustomerOrdersApi
 {
@@ -66,6 +66,7 @@ namespace CustomerOrdersApi
 				.AddConfig(Configuration)
 				.AddVersion3()
 				.AddVersion4()
+				.AddVersion5()
 				.AddVersioning()
 				.AddOsrm()
 
