@@ -49,6 +49,8 @@ namespace Vodovoz.JournalColumnsConfigs
 							? node.OnlineOrderPaymentStatus.Value.GetEnumDisplayName(false)
 							: string.Empty)
 				.AddColumn("Номер оплаты").AddTextRenderer(node => node.OnlinePayment.ToString())
+				.AddColumn("Дата след. звонка").AddTextRenderer(node => node.NextCallDate.HasValue ? node.NextCallDate.Value.ToShortDateString() : string.Empty)
+				.AddColumn("Причина отмены").AddTextRenderer(node => string.IsNullOrEmpty(node.CancelReason) ? "" : node.CancelReason)
 				.AddColumn("В работе").AddTextRenderer(node => node.ManagerWorkWith)
 				.RowCells().AddSetter<CellRendererText>((cell, node) =>
 				{
@@ -70,6 +72,7 @@ namespace Vodovoz.JournalColumnsConfigs
 
 					cell.ForegroundGdk = color;
 				})
+				
 				.Finish();
 	}
 }

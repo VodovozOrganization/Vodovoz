@@ -1,4 +1,4 @@
-﻿using NHibernate;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
@@ -658,27 +658,31 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 			return Math.Round(result ?? 0m, 2);
 		}
 
-		public IDictionary<int, Email[]> GetCounterpartyEmails(
+		public IDictionary<int, string[]> GetCounterpartyEmails(
 			IUnitOfWork uow,
 			IEnumerable<int> counterparties) =>
 			uow.Session.Query<Email>()
 			.Where(x => x.Counterparty != null && counterparties.Contains(x.Counterparty.Id))
-			.GroupBy(x => x.Counterparty.Id)
+			.Select(x => new { CounterpartyId = x.Counterparty.Id, x.Address })
+			.ToList()
+			.GroupBy(x => x.CounterpartyId)
 			.ToDictionary(
 				x => x.Key,
-				x => x.Distinct().ToArray());
+				x => x.Select(e => e.Address).Distinct().ToArray());
 
-		public IDictionary<int, Phone[]> GetCounterpartyPhones(
+		public IDictionary<int, string[]> GetCounterpartyPhones(
 			IUnitOfWork uow,
 			IEnumerable<int> counterparties) =>
 			uow.Session.Query<Phone>()
 			.Where(x => x.Counterparty.Id != null && counterparties.Contains(x.Counterparty.Id))
-			.GroupBy(x => x.Counterparty.Id)
+			.Select(x => new { CounterpartyId = x.Counterparty.Id, x.Number })
+			.ToList()
+			.GroupBy(x => x.CounterpartyId)
 			.ToDictionary(
 				x => x.Key,
-				x => x.Distinct().ToArray());
+				x => x.Select(p => p.Number).Distinct().ToArray());
 
-		public IDictionary<int, Phone[]> GetCounterpartyOrdersContactPhones(
+		public IDictionary<int, string[]> GetCounterpartyOrdersContactPhones(
 			IUnitOfWork uow,
 			IEnumerable<int> counterparties) =>
 			(from order in uow.Session.Query<Vodovoz.Domain.Orders.Order>()
@@ -687,11 +691,12 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				order.Client.Id != null
 				&& counterparties.Contains(order.Client.Id)
 				&& order.ContactPhone.Id != null
-			 group phone by order.Client.Id into g
-			 select g)
+			 select new { CounterpartyId = order.Client.Id, phone.Number })
+			.ToList()
+			.GroupBy(x => x.CounterpartyId)
 			.ToDictionary(
 				x => x.Key,
-				x => x.Distinct().ToArray());
+				x => x.Select(p => p.Number).Distinct().ToArray());
 
 		public IList<CounterpartyChangesDto> GetCounterpartyChanges(IUnitOfWork unitOfWork, DateTime fromDate, DateTime toDate)
 		{

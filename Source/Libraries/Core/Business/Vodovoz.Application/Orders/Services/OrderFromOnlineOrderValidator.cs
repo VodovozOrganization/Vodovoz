@@ -4,6 +4,7 @@ using System.Linq;
 using Core.Infrastructure;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
@@ -145,6 +146,13 @@ namespace Vodovoz.Application.Orders.Services
 					_validationResults.Add(
 						Vodovoz.Errors.Orders.OnlineOrderErrors.ClientHasOrdersForThisDate(ordersIds.ToStringValue(',')));
 				}
+			}
+
+			if(onlineOrder.OnlineOrderPaymentType == OnlineOrderPaymentType.PaidOnline
+				&& onlineOrder.OnlineOrderPaymentStatus == OnlineOrderPaymentStatus.UnPaid
+				&& onlineOrder.OnlineOrderStatus == OnlineOrderStatus.New)
+			{
+				_validationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.ClientDontPayOrder());
 			}
 
 			ValidateOnlineOrderItems(uow);

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
@@ -21,7 +23,7 @@ namespace Vodovoz.Domain.Orders
 	)]
 	[HistoryTrace]
 	[EntityPermission]
-	public class OnlineOrder : PropertyChangedBase, IDomainObject
+	public class OnlineOrder : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public const string OnlineOrderName = "Онлайн заказ";
 		public const int CommentMaxLength = 750;
@@ -61,6 +63,10 @@ namespace Vodovoz.Domain.Orders
 		private IList<Order> _orders = new List<Order>();
 		private IList<OnlineOrderItem> _onlineOrderItems = new List<OnlineOrderItem>();
 		private IList<OnlineFreeRentPackage> _onlineRentPackages = new List<OnlineFreeRentPackage>();
+		private DateTime? _nextCallDate;
+		private IList<OnlineOrderOperatorComments> _operatorComments = new List<OnlineOrderOperatorComments>();
+		private DateTime? _nextCallDateChanged;
+
 
 		public virtual int Id { get; set; }
 		
@@ -315,6 +321,35 @@ namespace Vodovoz.Domain.Orders
 			protected set => SetField(ref _isDeliveryPointNotBelongCounterparty, value);
 		}
 
+		[Display(Name = "Дата следующего звонка")]
+		public virtual DateTime? NextCallDate
+		{
+			get => _nextCallDate;
+			set
+			{
+				if(NextCallDate != null && NextCallDate != value)
+				{
+					NextCallDateChanged = DateTime.Now;
+				}
+
+				SetField(ref _nextCallDate, value);
+			}
+		}
+
+		[Display(Name = "Дата изменения следующего звонка")]
+		public virtual DateTime? NextCallDateChanged
+		{
+			get => _nextCallDateChanged;
+			set => SetField(ref _nextCallDateChanged, value);
+		}
+
+		[Display(Name = "Комментарии оператора")]
+		public virtual IList<OnlineOrderOperatorComments> OperatorComments
+		{
+			get => _operatorComments;
+			set => SetField(ref _operatorComments, value);
+		}
+		
 		/// <summary>
 		/// Заказ не оплачен онлайн и время на оплату не истекло
 		/// </summary>
@@ -334,12 +369,26 @@ namespace Vodovoz.Domain.Orders
 		/// <returns></returns>
 		public virtual bool IsNeedOnlinePaymentButTimeIsUp(double timeToPayInSeconds, double timeToTransferToManualProcessing)
 		{
-			var createdSeconds = (DateTime.Now - Created).TotalSeconds;
+			var secondsFromCreated = (DateTime.Now - Created).TotalSeconds;
 			return OnlineOrderPaymentType == OnlineOrderPaymentType.PaidOnline
 				&& OnlineOrderStatus == OnlineOrderStatus.WaitingForPayment
 				&& OnlineOrderPaymentStatus != OnlineOrderPaymentStatus.Paid
-				&& createdSeconds >= timeToPayInSeconds
-				&& createdSeconds < timeToTransferToManualProcessing;
+				&& secondsFromCreated >= timeToPayInSeconds
+				&& secondsFromCreated < timeToTransferToManualProcessing;
+		}
+		
+		/// <summary>
+		/// Заказ не оплачен онлайн и не наступило время для перевода на ручную обработку
+		/// </summary>
+		/// <param name="timeToTransferToManualProcessing">Общее время на перевод на ручную обработку</param>
+		/// <returns></returns>
+		public virtual bool IsNeedOnlinePaymentAndTimeToTransferToManualHasNotCome(double timeToTransferToManualProcessing)
+		{
+			var secondsFromCreated = (DateTime.Now - Created).TotalSeconds;
+			return OnlineOrderPaymentType == OnlineOrderPaymentType.PaidOnline
+				&& OnlineOrderStatus == OnlineOrderStatus.WaitingForPayment
+				&& OnlineOrderPaymentStatus != OnlineOrderPaymentStatus.Paid
+				&& secondsFromCreated < timeToTransferToManualProcessing;
 		}
 
 		public virtual void SetOrderPerformed(IEnumerable<Order> orders, Employee employee = null)
@@ -445,7 +494,15 @@ namespace Vodovoz.Domain.Orders
 		{
 			return Id > 0 ? $"{OnlineOrderName} №{Id} от {_deliveryDate:d}" : $"Новый {OnlineOrderName.ToLower()}";
 		}
-		
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(NextCallDateChanged != null && NextCallDate < NextCallDateChanged.Value.Date)
+			{
+				yield return new ValidationResult("Нельзя ставить дату следующего звонка раньше сегодняшнего дня");
+			}
+		}
+
 		private void UpdateDeliverySchedule(DeliverySchedule deliverySchedule, int? deliveryScheduleId)
 		{
 			DeliveryScheduleId = deliveryScheduleId;
