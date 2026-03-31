@@ -210,50 +210,6 @@ namespace CustomerOrdersApi.Controllers.V5
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> TransferOrderAsync(TransferOrderDto transferOrderDto, CancellationToken cancellationToken)
-		{
-			var sourceName = transferOrderDto.Source.GetEnumTitle();
-
-			try
-			{
-				_logger.LogInformation(
-					"Поступил запрос от {Source} на перенос заказа {ExternalOrderId} на дату {DeliveryDate} с интервалом {DeliveryScheduleId}, проверяем...",
-					sourceName,
-					transferOrderDto.ExternalOrderId,
-					transferOrderDto.DeliveryDate,
-					transferOrderDto.DeliveryScheduleId);
-
-				var transferResult = await _orderTransferService.TransferOrderAsync(transferOrderDto, cancellationToken);
-
-				_logger.LogInformation(
-					"Результат переноса: IsSuccess={IsSuccess}, StatusCode={StatusCode}",
-					transferResult.IsSuccess,
-					transferResult.StatusCode);
-
-				return StatusCode(transferResult.StatusCode, new
-				{
-					title = transferResult.Title,
-					status = transferResult.StatusCode,
-					detail = transferResult.DetailMessage
-				});
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(e,
-					"Ошибка при переносе заказа {ExternalOrderId} от {Source}",
-					transferOrderDto.ExternalOrderId,
-					sourceName);
-
-				return StatusCode(500, new
-				{
-					title = "One or more validation errors occurred",
-					status = 500,
-					detail = "Произошла ошибка, пожалуйста, попробуйте позже"
-				});
-			}
-		}
-
-		[HttpPost]
 		public async Task<IActionResult> CancelOrderAsync(CancelOrderDto cancelOrderDto, CancellationToken cancellationToken)
 		{
 			var sourceName = cancelOrderDto.Source.GetEnumTitle();

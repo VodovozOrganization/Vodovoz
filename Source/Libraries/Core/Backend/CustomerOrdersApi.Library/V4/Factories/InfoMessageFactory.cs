@@ -13,5 +13,10 @@ namespace CustomerOrdersApi.Library.V4.Factories
 		{
 			return InfoMessage.Create("orderDescriptionTop", 2, "Заказ не был оплачен", "Наш менеджер свяжется с Вами в ближайшее время");
 		}
+
+		public InfoMessage CreateRefundPaymentInfoMessage()
+		{
+			return InfoMessage.Create("cancelOrderPopUp", null, default, "В случае отмены заказа, денежные средства будут возвращены в течение 10 дней");
+		}
 	}
 }

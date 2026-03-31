@@ -1,6 +1,7 @@
 ﻿using CustomerOrdersApi.Library.Dto.Orders;
 using System;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Domain.Logistic;
 
 namespace CustomerOrdersApi.Library.V4.Dto.Orders
 {
@@ -19,6 +20,6 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 		/// Время доставки заказа, на которое необходимо перенести заказ
 		/// </summary>
 		[Required]
-		public int DeliveryScheduleId { get; set; }
+		public DeliverySchedule DeliverySchedule { get; set; }
 	}
 }

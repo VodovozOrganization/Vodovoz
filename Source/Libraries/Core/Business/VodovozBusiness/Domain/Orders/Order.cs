@@ -1787,8 +1787,8 @@ namespace Vodovoz.Domain.Orders
 		/// Переносит заказ на новую дату с новым интервалом доставки
 		/// </summary>
 		public virtual void TransferToNewDateAndSchedule(
-			DateTime newDeliveryDate,
-			int? newDeliveryScheduleId,
+			DateTime? newDeliveryDate,
+			DeliverySchedule newDeliverySchedule,
 			IOrderContractUpdater contractUpdater,
 			out string message)
 		{
@@ -1796,17 +1796,13 @@ namespace Vodovoz.Domain.Orders
 
 			UpdateDeliveryDate(newDeliveryDate, contractUpdater, out var dateMessage);
 
-			if(newDeliveryScheduleId.HasValue)
+			if(newDeliverySchedule != null)
 			{
-				var newSchedule = UoW.GetById<DeliverySchedule>(newDeliveryScheduleId.Value);
-				if(newSchedule != null)
-				{
-					DeliverySchedule = newSchedule;
-				}
-				else
-				{
-					throw new InvalidOperationException($"Расписание доставки с ID {newDeliveryScheduleId} не найдено");
-				}
+				DeliverySchedule = newDeliverySchedule;
+			}
+			else
+			{
+				throw new InvalidOperationException($"Расписание доставки {newDeliverySchedule} не найдено");
 			}
 
 			if(!string.IsNullOrEmpty(dateMessage))

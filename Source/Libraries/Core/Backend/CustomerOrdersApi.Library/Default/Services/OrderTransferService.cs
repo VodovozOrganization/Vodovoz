@@ -76,7 +76,7 @@ namespace CustomerOrdersApi.Library.Services
 
 			order.TransferToNewDateAndSchedule(
 				dto.DeliveryDate,
-				dto.DeliveryScheduleId,
+				dto.DeliverySchedule,
 				_orderContractUpdater,
 				out _);
 
@@ -116,7 +116,7 @@ namespace CustomerOrdersApi.Library.Services
 			OnlineOrder onlineOrder,
 			TransferOrderDto dto)
 		{
-			if(dto.DeliveryScheduleId <= 0)
+			if(dto.DeliverySchedule is null)
 			{
 				return OperationValidationResult.Invalid("Не указано время доставки");
 			}
@@ -127,7 +127,7 @@ namespace CustomerOrdersApi.Library.Services
 			}
 
 			if(order.DeliverySchedule != null &&
-				dto.DeliveryScheduleId == order.DeliverySchedule.Id &&
+				dto.DeliverySchedule.Id == order.DeliverySchedule.Id &&
 				order.DeliveryDate.HasValue &&
 				dto.DeliveryDate.Date == order.DeliveryDate.Value.Date)
 			{
@@ -180,12 +180,12 @@ namespace CustomerOrdersApi.Library.Services
 			order.ChangeStatus(OrderStatus.Accepted);
 			order.TransferToNewDateAndSchedule(
 				dto.DeliveryDate,
-				dto.DeliveryScheduleId,
+				dto.DeliverySchedule,
 				_orderContractUpdater,
 				out _);
 
 			onlineOrder.DeliveryDate = dto.DeliveryDate;
-			onlineOrder.DeliveryScheduleId = dto.DeliveryScheduleId;
+			onlineOrder.DeliverySchedule = dto.DeliverySchedule;
 
 			await uow.SaveAsync(routeList, cancellationToken: cancellationToken);
 			await uow.SaveAsync(order, cancellationToken: cancellationToken);
@@ -236,12 +236,9 @@ namespace CustomerOrdersApi.Library.Services
 				return result;
 			}
 
-			var deliverySchedule = uow.GetById<DeliverySchedule>(dto.DeliveryScheduleId);
-			if(deliverySchedule is null)
+			if(dto.DeliverySchedule is null)
 			{
-				_logger.LogWarning(
-					"Расписание доставки не найдено: {DeliveryScheduleId}",
-					dto.DeliveryScheduleId);
+				_logger.LogWarning("Расписание доставки не найдено");
 
 				var result = new TransferOrderResult
 				{
@@ -253,7 +250,7 @@ namespace CustomerOrdersApi.Library.Services
 				return result;
 			}
 
-			var newOrder = await CreateOrderCopy(uow, order, dto.DeliveryDate, deliverySchedule, cancellationToken);
+			var newOrder = await CreateOrderCopy(uow, order, dto.DeliveryDate, dto.DeliverySchedule, cancellationToken);
 
 			_logger.LogInformation(
 				"Создана копия заказа {OrderId}: новый заказ {NewOrderId}",
@@ -265,7 +262,7 @@ namespace CustomerOrdersApi.Library.Services
 				order,
 				newOrder,
 				currentUser,
-				deliverySchedule);
+				dto.DeliverySchedule);
 
 			order.SetUndeliveredStatus(
 				uow,
@@ -280,7 +277,7 @@ namespace CustomerOrdersApi.Library.Services
 
 			onlineOrder.Orders.Add(newOrder);
 			onlineOrder.DeliveryDate = dto.DeliveryDate;
-			onlineOrder.DeliveryScheduleId = dto.DeliveryScheduleId;
+			onlineOrder.DeliverySchedule = dto.DeliverySchedule;
 
 			await uow.SaveAsync(order, cancellationToken: cancellationToken);
 			await uow.SaveAsync(newOrder, cancellationToken: cancellationToken);
@@ -332,7 +329,7 @@ namespace CustomerOrdersApi.Library.Services
 
 			newOrder.TransferToNewDateAndSchedule(
 				newDeliveryDate,
-				newDeliverySchedule.Id,
+				newDeliverySchedule,
 				_orderContractUpdater,
 				out _);
 			newOrder.OrderStatus = OrderStatus.Accepted;

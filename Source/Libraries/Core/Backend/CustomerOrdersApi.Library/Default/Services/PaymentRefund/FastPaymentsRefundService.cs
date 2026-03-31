@@ -46,7 +46,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 			var reverseRequest = new ReverseTicketRequestDTO
 			{
 				Ticket = ticket,
-				Amount = request.Amount
+				Amount = request.Amount * 100 // Авангард считает сумму в копейках
 			};
 
 			try

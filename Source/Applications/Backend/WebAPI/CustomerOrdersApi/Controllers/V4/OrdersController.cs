@@ -18,20 +18,17 @@ namespace CustomerOrdersApi.Controllers.V4
 	public class OrdersController : SignatureControllerBase
 	{
 		private readonly ICustomerOrdersServiceV4 _customerOrdersService;
-		private readonly IOrderTransferService _orderTransferService;
 		private readonly IOrderCancellationService _orderCancellationService;
 		private readonly IRequestClient<CreatingOnlineOrder> _requestClient;
 
 		public OrdersController(
 			ILogger<OrdersController> logger,
 			ICustomerOrdersServiceV4 customerOrdersService,
-			IOrderTransferService orderTransferService,
 			IOrderCancellationService orderCancellationService,
 			IRequestClient<CreatingOnlineOrder> requestClient
 			) : base(logger)
 		{
 			_customerOrdersService = customerOrdersService ?? throw new ArgumentNullException(nameof(customerOrdersService));
-			_orderTransferService = orderTransferService ?? throw new ArgumentNullException(nameof(orderTransferService));
 			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
 			_requestClient = requestClient ?? throw new ArgumentNullException(nameof(requestClient));
 		}
@@ -206,50 +203,6 @@ namespace CustomerOrdersApi.Controllers.V4
 					sourceName);
 				
 				return Problem(ResponseMessage.HasErrorOccurredPleaseTryAgainLater);
-			}
-		}
-
-		[HttpPost]
-		public async Task<IActionResult> TransferOrderAsync(TransferOrderDto transferOrderDto, CancellationToken cancellationToken)
-		{
-			var sourceName = transferOrderDto.Source.GetEnumTitle();
-
-			try
-			{
-				_logger.LogInformation(
-					"Поступил запрос от {Source} на перенос заказа {ExternalOrderId} на дату {DeliveryDate} с интервалом {DeliveryScheduleId}, проверяем...",
-					sourceName,
-					transferOrderDto.ExternalOrderId,
-					transferOrderDto.DeliveryDate,
-					transferOrderDto.DeliveryScheduleId);
-
-				var transferResult = await _orderTransferService.TransferOrderAsync(transferOrderDto, cancellationToken);
-
-				_logger.LogInformation(
-					"Результат переноса: IsSuccess={IsSuccess}, StatusCode={StatusCode}",
-					transferResult.IsSuccess,
-					transferResult.StatusCode);
-
-				return StatusCode(transferResult.StatusCode, new
-				{
-					title = transferResult.Title,
-					status = transferResult.StatusCode,
-					detail = transferResult.DetailMessage
-				});
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(e,
-					"Ошибка при переносе заказа {ExternalOrderId} от {Source}",
-					transferOrderDto.ExternalOrderId,
-					sourceName);
-
-				return StatusCode(500, new
-				{
-					title = "One or more validation errors occurred",
-					status = 500,
-					detail = "Произошла ошибка, пожалуйста, попробуйте позже"
-				});
 			}
 		}
 

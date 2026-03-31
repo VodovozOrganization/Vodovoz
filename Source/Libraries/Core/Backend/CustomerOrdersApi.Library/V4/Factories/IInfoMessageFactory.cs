@@ -6,5 +6,6 @@ namespace CustomerOrdersApi.Library.V4.Factories
 	{
 		InfoMessage CreateNeedPayOrderInfoMessage();
 		InfoMessage CreateNotPaidOrderInfoMessage();
+		InfoMessage CreateRefundPaymentInfoMessage();
 	}
 }

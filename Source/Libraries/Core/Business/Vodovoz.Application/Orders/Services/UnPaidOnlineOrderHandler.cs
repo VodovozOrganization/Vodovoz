@@ -29,6 +29,7 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly IOrderFromOnlineOrderValidator _onlineOrderValidator;
 		private readonly IOrderService _orderService;
 		private readonly IRouteListService _routeListService;
+		private readonly IOrderTransferLogicService _orderTransferLogicService;
 
 		public UnPaidOnlineOrderHandler(
 			ILogger<UnPaidOnlineOrderHandler> logger,
@@ -38,7 +39,8 @@ namespace Vodovoz.Application.Orders.Services
 			IOrderOnlinePaymentAcceptanceHandler onlinePaymentAcceptanceHandler,
 			IOrderFromOnlineOrderValidator onlineOrderValidator,
 			IOrderService orderService,
-			IRouteListService routeListService
+			IRouteListService routeListService,
+			IOrderTransferLogicService orderTransferLogicService
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -50,6 +52,7 @@ namespace Vodovoz.Application.Orders.Services
 			_onlineOrderValidator = onlineOrderValidator ?? throw new ArgumentNullException(nameof(onlineOrderValidator));
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
+			_orderTransferLogicService = orderTransferLogicService ?? throw new ArgumentNullException(nameof(orderTransferLogicService));
 		}
 
 		public async Task TryMoveToManualProcessingWaitingForPaymentOnlineOrders(IUnitOfWork uow, CancellationToken cancellationToken)
@@ -290,26 +293,86 @@ namespace Vodovoz.Application.Orders.Services
 			CancellationToken cancellationToken)
 		{
 			_logger.LogWarning("Пришел запрос на изменение оплаченного онлайна {OnlineOrderId}", onlineOrder.Id);
-				
-			if(orders.Any())
+
+			if(!orders.Any())
 			{
-				_logger.LogWarning("Оплаченный онлайн {OnlineOrderId} с уже выставленными заказом(ми), бракуем", onlineOrder.Id);
-				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.IsOrderAlreadyProcessingAndCannotChanged);
+				_logger.LogInformation("Оплаченный онлайн {OnlineOrderId} без выставленных заказов", onlineOrder.Id);
+
+				if(onlineOrder.EmployeeWorkWith != null)
+				{
+					return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.IsOrderAlreadyProcessingAndCannotChanged);
+				}
+
+				onlineOrder.UpdateOnlineOrderDeliveryData(
+					deliverySchedule,
+					data.DeliveryScheduleId,
+					data.DeliveryDate,
+					data.IsFastDelivery);
+
+				await SaveOnlineOrder(uow, onlineOrder, cancellationToken);
+				return Result.Success();
 			}
 
-			if(onlineOrder.EmployeeWorkWith != null)
+			var order = GetActiveOrder(onlineOrder);
+			if(order == null)
 			{
-				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.IsOrderAlreadyProcessingAndCannotChanged);
+				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.IsOnlineOrderDoesNotHaveALinkedOrder);
 			}
-				
-			onlineOrder.UpdateOnlineOrderDeliveryData(
-				deliverySchedule,
-				data.DeliveryScheduleId,
+
+			var deliveryParametersChanged = _orderTransferLogicService.IsDeliveryParametersChanged(
+				order,
 				data.DeliveryDate,
-				data.IsFastDelivery);
+				data.DeliveryScheduleId);
 
-			await SaveOnlineOrder(uow, onlineOrder, cancellationToken);
+			if(deliveryParametersChanged)
+			{
+				_logger.LogInformation(
+					"Параметры доставки оплаченного онлайна {OnlineOrderId} изменились, применяем перенос",
+					onlineOrder.Id);
+
+				var (success, errorMessage) = await _orderTransferLogicService.ApplyTransferAsync(
+						uow,
+						order,
+						onlineOrder,
+						data.DeliveryDate,
+						deliverySchedule,
+						data.Source,
+						cancellationToken);
+
+				if(!success)
+				{
+					_logger.LogError(
+						"Ошибка при переносе заказа {OrderId} оплаченного онлайна {OnlineOrderId}: {ErrorMessage}",
+						order.Id,
+						onlineOrder.Id,
+						errorMessage);
+
+					return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.CantUpdateOrder(errorMessage));
+				}
+			}
+			else
+			{
+				_logger.LogInformation(
+					"Параметры доставки не изменились для оплаченного онлайна {OnlineOrderId}, обновляем метаданные",
+					onlineOrder.Id);
+
+				onlineOrder.UpdateOnlineOrderDeliveryData(
+					deliverySchedule,
+					data.DeliveryScheduleId,
+					data.DeliveryDate,
+					data.IsFastDelivery);
+
+				await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
+			}
+
+			await uow.CommitAsync(cancellationToken);
 			return Result.Success();
+		}
+
+		private Order GetActiveOrder(OnlineOrder onlineOrder)
+		{
+			var undeliveryStatuses = _orderRepository.GetUndeliveryStatuses();
+			return onlineOrder.Orders.FirstOrDefault(x => !undeliveryStatuses.Contains(x.OrderStatus));
 		}
 
 		private void TransferToManualProcessing(
