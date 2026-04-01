@@ -346,6 +346,10 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 					employeeId = _employeeSettings.KulerSaleWebSiteEmployee;
 					break;
 
+				case Source.AiBot:
+					employeeId = _employeeSettings.AiBotEmployee;
+					break;
+
 				default:
 					employeeId = 0;
 					break;

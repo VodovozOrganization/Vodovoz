@@ -220,18 +220,28 @@ namespace Vodovoz.Domain.FastPayments
 				uow.Save(routeListItem);
 			}
 		}
-		
+
+		/// <summary>
+		/// Установить статус "Исполнен" с датой оплаты
+		/// </summary>
+		/// <param name="paidDate"></param>
 		public virtual void SetPerformedStatusForOnlineOrder(DateTime paidDate)
 		{
 			FastPaymentStatus = FastPaymentStatus.Performed;
 			PaidDate = paidDate;
 		}
-		
+
+		/// <summary>
+		/// Установить статус "Отбракован"
+		/// </summary>
 		public virtual void SetRejectedStatus()
 		{
 			FastPaymentStatus = FastPaymentStatus.Rejected;
 		}
 
+		/// <summary>
+		/// Установить статус "Возврат"
+		/// </summary>
 		public virtual void SetRefundStatus()
 		{
 			FastPaymentStatus = FastPaymentStatus.Refund;
