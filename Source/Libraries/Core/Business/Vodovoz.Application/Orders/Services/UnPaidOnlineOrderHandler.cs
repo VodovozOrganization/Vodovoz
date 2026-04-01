@@ -330,17 +330,18 @@ namespace Vodovoz.Application.Orders.Services
 					"Параметры доставки оплаченного онлайна {OnlineOrderId} изменились, применяем перенос",
 					onlineOrder.Id);
 
-				var (success, errorMessage) = await _orderTransferLogicService.ApplyTransferAsync(
-						uow,
-						order,
-						onlineOrder,
-						data.DeliveryDate,
-						deliverySchedule,
-						data.Source,
-						cancellationToken);
+				var transferResult = await _orderTransferLogicService.ApplyTransferAsync(
+					uow,
+					order,
+					onlineOrder,
+					data.DeliveryDate,
+					deliverySchedule,
+					data.Source,
+					cancellationToken);
 
-				if(!success)
+				if(transferResult.IsFailure)
 				{
+					var errorMessage = transferResult.Errors.FirstOrDefault()?.Message ?? "Неизвестная ошибка";
 					_logger.LogError(
 						"Ошибка при переносе заказа {OrderId} оплаченного онлайна {OnlineOrderId}: {ErrorMessage}",
 						order.Id,

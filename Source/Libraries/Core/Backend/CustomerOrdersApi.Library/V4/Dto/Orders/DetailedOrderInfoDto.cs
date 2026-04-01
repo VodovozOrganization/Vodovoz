@@ -57,6 +57,16 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 		/// </summary>
 		public IEnumerable<PromoSetDto> PromoSets { get; private set; }
 
+		/// <summary>
+		/// Доступность переноса даты/времени доставки
+		/// </summary>
+		public bool AvailableChangeDeliverySchedule { get; set; }
+
+		/// <summary>
+		/// Доступность отмены заказа
+		/// </summary>
+		public bool AvailableCancelOrder { get; set; }
+
 		public void UpdateOrderRating(OrderRating orderRating, DateTime ratingAvailableFrom)
 		{
 			if(orderRating is null)

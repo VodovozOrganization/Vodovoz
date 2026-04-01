@@ -1,4 +1,4 @@
-using NHibernate.Criterion;
+﻿using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -130,6 +130,12 @@ namespace Vodovoz.EntityRepositories.Orders
 		double GetAvgRangeBetweenOrders(IUnitOfWork uow, DeliveryPoint deliveryPoint, out int? orderCount, DateTime? startDate = null, DateTime? endDate = null);
 
 		OrderStatus[] GetUndeliveryStatuses();
+
+		/// <summary>
+		/// Статусы заказов для отмены или переноса онлайн-заказов, при которых разрешается выполнять эти действия
+		/// </summary>
+		/// <returns>Массив статусов</returns>
+		OrderStatus[] GetStatusesForTransferOrCancellationOnlineOrder();
 
 		SmsPaymentStatus? GetOrderSmsPaymentStatus(IUnitOfWork uow, int orderId);
 

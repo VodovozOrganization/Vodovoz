@@ -1,4 +1,5 @@
 ﻿using Gamma.Utilities;
+using System;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
@@ -110,6 +111,7 @@ namespace Vodovoz.Errors.Orders
 				typeof(OrderErrors),
 				nameof(SplitOrderError),
 				"Произошла ошибка при разбиении заказа");
+
 		public static Error CannotCancelOrderInStatus(OrderStatus status) =>
 		new Error(
 				"408",
@@ -129,5 +131,35 @@ namespace Vodovoz.Errors.Orders
 			new Error(
 				"400",
 				$"Не удалось выполнить возврат платежа: {reason}");
+
+		public static Error CannotTransferOrderInStatus(OrderStatus status) =>
+			new Error(
+				"408",
+				$"Невозможно перенести заказ в статусе '{status.GetEnumTitle()}'");
+
+		public static Error UnsupportedOrderStatusForTransfer(OrderStatus status) =>
+			new Error(
+				"400",
+				$"Не поддерживаемый статус для переноса: {status.GetEnumTitle()}");
+
+		public static Error DeliveryScheduleNotFound =>
+			new Error(
+				"400",
+				$"Расписание доставки не найдено");
+
+		public static Error InvalidDeliveryDate(DateTime date) =>
+			new Error(
+				"400",
+				$"Дата доставки {date:dd.MM.yyyy} не может быть раньше сегодняшнего дня");
+
+		public static Error SameDeliveryParameters =>
+			new Error(
+				"400",
+				"Заказ уже запланирован на указанную дату и время доставки");
+
+		public static Error TransferFailed(string reason) =>
+			new Error(
+				"500",
+				$"Ошибка при переносе заказа: {reason}");
 	}
 }

@@ -65,15 +65,12 @@ namespace CustomerOrdersApi.Library.V4.Services
 		/// </summary>
 		public Result CanCancel(Order order)
 		{
-			var allowedStatuses = new[]
+			var allowedStatuses = _orderRepository.GetStatusesForTransferOrCancellationOnlineOrder();
+
+			if(order is null)
 			{
-				OrderStatus.NewOrder,
-				OrderStatus.WaitForPayment,
-				OrderStatus.Accepted,
-				OrderStatus.InTravelList,
-				OrderStatus.OnLoading,
-				OrderStatus.OnTheWay
-			};
+				return Result.Failure(OrderErrors.NotFound);
+			}
 
 			if(!allowedStatuses.Contains(order.OrderStatus))
 			{

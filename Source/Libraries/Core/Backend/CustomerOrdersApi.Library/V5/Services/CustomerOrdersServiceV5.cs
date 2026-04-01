@@ -1,5 +1,6 @@
 ﻿using CustomerOrdersApi.Library.V4.Dto.Orders;
 using CustomerOrdersApi.Library.V4.Factories;
+using CustomerOrdersApi.Library.V5.Factories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -28,7 +29,7 @@ namespace CustomerOrdersApi.Library.V5.Services
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ILogger<CustomerOrdersServiceV5> _logger;
 		private readonly ISignatureManager _signatureManager;
-		private readonly ICustomerOrderFactoryV4 _customerOrderFactory;
+		private readonly ICustomerOrderFactoryV5 _customerOrderFactory;
 		private readonly IOrderSettings _orderSettings;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOnlineOrderRepository _onlineOrderRepository;
@@ -40,7 +41,7 @@ namespace CustomerOrdersApi.Library.V5.Services
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ILogger<CustomerOrdersServiceV5> logger,
 			ISignatureManager signatureManager,
-			ICustomerOrderFactoryV4 customerOrderFactory,
+			ICustomerOrderFactoryV5 customerOrderFactory,
 			IOrderSettings orderSettings,
 			IOrderRepository orderRepository,
 			IOnlineOrderRepository onlineOrderRepository,
@@ -170,7 +171,14 @@ namespace CustomerOrdersApi.Library.V5.Services
 			
 			var ratingAvailableFrom = _orderSettings.GetDateAvailabilityRatingOrder;
 			OrderRating orderRating = null;
+			OnlineOrder onlineOrder = null;
+
 			var timers = uow.GetAll<OnlineOrderTimers>().FirstOrDefault();
+
+			if(getDetailedOrderInfoDto.OnlineOrderId.HasValue) 
+			{
+				onlineOrder = uow.GetById<OnlineOrder>(getDetailedOrderInfoDto.OnlineOrderId.Value);
+			}
 
 			if(getDetailedOrderInfoDto.OrderId.HasValue)
 			{
@@ -182,10 +190,9 @@ namespace CustomerOrdersApi.Library.V5.Services
 					.FirstOrDefault();
 			
 				return _customerOrderFactory.CreateDetailedOrderInfo(
-					order, orderRating, timers, getDetailedOrderInfoDto.OnlineOrderId, ratingAvailableFrom);
+					order, orderRating, timers, onlineOrder, ratingAvailableFrom);
 			}
 			
-			var onlineOrder = uow.GetById<OnlineOrder>(getDetailedOrderInfoDto.OnlineOrderId.Value);
 			orderRating = _genericRatingRepository.Get(
 					uow,
 					x => x.OnlineOrder.Id == onlineOrder.Id)

@@ -12,18 +12,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Data.Orders.Default;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Payments;
-using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -47,17 +45,6 @@ using VodovozBusiness.EntityRepositories.Nodes;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using Order = Vodovoz.Domain.Orders.Order;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
-using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Payments;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using Vodovoz.Core.Domain.TrueMark;
-using VodovozBusiness.Domain.Operations;
-using System.Threading.Tasks;
-using System.Threading;
-using NHibernate.Linq;
-using Vodovoz.Core.Data.Orders.Default;
-using Vodovoz.Settings.Organizations;
-using VodovozBusiness.Domain.Client;
 
 namespace Vodovoz.Infrastructure.Persistance.Orders
 {
@@ -804,6 +791,19 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				OrderStatus.Shipped,
 				OrderStatus.UnloadingOnStock,
 				OrderStatus.Closed
+			};
+		}
+
+		public OrderStatus[] GetStatusesForTransferOrCancellationOnlineOrder()
+		{
+			return new[]
+			{
+				OrderStatus.NewOrder,
+				OrderStatus.WaitForPayment,
+				OrderStatus.Accepted,
+				OrderStatus.InTravelList,
+				OrderStatus.OnLoading,
+				OrderStatus.OnTheWay
 			};
 		}
 

@@ -1,10 +1,13 @@
 ﻿using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
+using OneOf.Types;
 using QS.DomainModel.UoW;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -12,7 +15,9 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Subdivisions;
+using Vodovoz.Errors.Orders;
 using Vodovoz.Models.Orders;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Nomenclature;
@@ -26,10 +31,11 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly ILogger<OrderTransferLogicService> _logger;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
+		private readonly IFlyerRepository _flyerRepository;
+		private readonly IOrderRepository _orderRepository;
 		private readonly IRouteListService _routeListService;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly ICallTaskWorker _callTaskWorker;
-		private readonly IFlyerRepository _flyerRepository;
 		private readonly IOrderContractUpdater _orderContractUpdater;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 
@@ -37,22 +43,59 @@ namespace Vodovoz.Application.Orders.Services
 			ILogger<OrderTransferLogicService> logger,
 			IEmployeeRepository employeeRepository,
 			ISubdivisionRepository subdivisionRepository,
+			IFlyerRepository flyerRepository,
+			IOrderRepository orderRepository,
 			IRouteListService routeListService,
 			INomenclatureSettings nomenclatureSettings,
 			ICallTaskWorker callTaskWorker,
-			IFlyerRepository flyerRepository,
 			IOrderContractUpdater orderContractUpdater,
 			IRouteListItemRepository routeListItemRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
+		}
+
+		/// <summary>
+		/// Проверяет, можно ли перенести заказ
+		/// </summary>
+		public Result CanTransfer(Order order, DateTime? newDeliveryDate, DeliverySchedule newDeliverySchedule)
+		{
+			var allowedStatuses = _orderRepository.GetStatusesForTransferOrCancellationOnlineOrder();
+
+			if(!allowedStatuses.Contains(order.OrderStatus))
+			{
+				return Result.Failure(OrderErrors.CannotTransferOrderInStatus(order.OrderStatus));
+			}
+
+			if(newDeliveryDate.HasValue && newDeliveryDate.Value.Date < DateTime.Now.Date)
+			{
+				return Result.Failure(OrderErrors.InvalidDeliveryDate(newDeliveryDate.Value));
+			}
+
+			if(newDeliverySchedule is null)
+			{
+				return Result.Failure(OrderErrors.DeliveryScheduleNotFound);
+			}
+
+			var deliveryDateChanged = !order.DeliveryDate.HasValue
+				|| order.DeliveryDate.Value.Date != newDeliveryDate.Value.Date;
+
+			var deliveryScheduleChanged = order.DeliverySchedule?.Id != newDeliverySchedule.Id;
+
+			if(!deliveryDateChanged && !deliveryScheduleChanged)
+			{
+				return Result.Failure(OrderErrors.SameDeliveryParameters);
+			}
+
+			return Result.Success();
 		}
 
 		public bool IsDeliveryParametersChanged(Order order, DateTime? newDeliveryDate, int? newDeliveryScheduleId)
@@ -70,7 +113,7 @@ namespace Vodovoz.Application.Orders.Services
 			return deliveryDateChanged || deliveryScheduleChanged;
 		}
 
-		public async Task<(bool Success, string ErrorMessage)> ApplyTransferAsync(
+		public async Task<Result> ApplyTransferAsync(
 			IUnitOfWork uow,
 			Order order,
 			OnlineOrder onlineOrder,
@@ -84,9 +127,18 @@ namespace Vodovoz.Application.Orders.Services
 				order.Id,
 				order.OrderStatus.GetEnumTitle());
 
-			if(order.OrderStatus == OrderStatus.NewOrder
-				|| order.OrderStatus == OrderStatus.WaitForPayment
-				|| order.OrderStatus == OrderStatus.Accepted)
+			var canTransferResult = CanTransfer(order, newDeliveryDate, newDeliverySchedule);
+			if(canTransferResult.IsFailure)
+			{
+				_logger.LogWarning(
+					"Заказ {OrderId}: {ErrorMessage}",
+					order.Id,
+					canTransferResult.Errors.FirstOrDefault().Message);
+
+				return canTransferResult;
+			}
+
+			if(IsSimpleStatus(order.OrderStatus))
 			{
 				return await ApplySimpleTransferAsync(uow, order, onlineOrder, newDeliveryDate, newDeliverySchedule, cancellationToken);
 			}
@@ -96,20 +148,27 @@ namespace Vodovoz.Application.Orders.Services
 				return await ApplyTransferFromTravelListAsync(uow, order, onlineOrder, newDeliveryDate, newDeliverySchedule, cancellationToken);
 			}
 
-			if(order.OrderStatus == OrderStatus.OnLoading 
-				|| order.OrderStatus == OrderStatus.OnTheWay)
+			if(order.OrderStatus == OrderStatus.OnLoading || order.OrderStatus == OrderStatus.OnTheWay)
 			{
 				return await ApplyTransferWithUndeliveryAsync(uow, order, onlineOrder, newDeliveryDate, newDeliverySchedule, source, cancellationToken);
 			}
 
-			return (false, $"Перенос заказов в статусе '{order.OrderStatus.GetEnumTitle()}' не поддерживается");
+			var error = OrderErrors.UnsupportedOrderStatusForTransfer(order.OrderStatus);
+			_logger.LogWarning("Заказ {OrderId}: {ErrorMessage}", order.Id, error.Message);
+
+			return Result.Failure(error);
 		}
+
+		private static bool IsSimpleStatus(OrderStatus status) =>
+			status is OrderStatus.NewOrder
+			|| status is OrderStatus.WaitForPayment
+			|| status is OrderStatus.Accepted;
 
 		/// <summary>
 		/// Простой перенос заказа - изменение даты и интервала доставки
 		/// Для статусов: NewOrder, WaitForPayment, Accepted
 		/// </summary>
-		private async Task<(bool Success, string ErrorMessage)> ApplySimpleTransferAsync(
+		private async Task<Result> ApplySimpleTransferAsync(
 			IUnitOfWork uow,
 			Order order,
 			OnlineOrder onlineOrder,
@@ -143,7 +202,7 @@ namespace Vodovoz.Application.Orders.Services
 					order.Id,
 					newDeliveryDate);
 
-				return (true, null);
+				return Result.Success();
 			}
 			catch(Exception ex)
 			{
@@ -152,14 +211,14 @@ namespace Vodovoz.Application.Orders.Services
 					"Ошибка при простом переносе заказа {OrderId}",
 					order.Id);
 
-				return (false, "Ошибка при переносе заказа");
+				return Result.Failure(OrderErrors.TransferFailed(ex.Message));
 			}
 		}
 
 		/// <summary>
 		/// Перенос заказа из маршрутного листа (статус InTravelList)
 		/// </summary>
-		private async Task<(bool Success, string ErrorMessage)> ApplyTransferFromTravelListAsync(
+		private async Task<Result> ApplyTransferFromTravelListAsync(
 			IUnitOfWork uow,
 			Order order,
 			OnlineOrder onlineOrder,
@@ -175,9 +234,10 @@ namespace Vodovoz.Application.Orders.Services
 
 			if(routeListItem is null)
 			{
-				var errorMsg = "Позиция маршрутного листа не найдена";
-				_logger.LogWarning("Заказ {OrderId}: {ErrorMessage}", order.Id, errorMsg);
-				return (false, errorMsg);
+				var error = OrderErrors.RouteListItemNotFound(order.Id);
+				_logger.LogWarning("Заказ {OrderId}: {ErrorMessage}", order.Id, error.Message);
+
+				return Result.Failure(error);
 			}
 
 			try
@@ -207,7 +267,7 @@ namespace Vodovoz.Application.Orders.Services
 					order.Id,
 					newDeliveryDate);
 
-				return (true, null);
+				return Result.Success();
 			}
 			catch(Exception ex)
 			{
@@ -216,7 +276,7 @@ namespace Vodovoz.Application.Orders.Services
 					"Ошибка при переносе заказа {OrderId} из маршрутного листа",
 					order.Id);
 
-				return (false, "Ошибка при переносе заказа из маршрутного листа");
+				return Result.Failure(OrderErrors.TransferFailed(ex.Message));
 			}
 		}
 
@@ -224,7 +284,7 @@ namespace Vodovoz.Application.Orders.Services
 		/// Перенос заказа с использованием механизма недовоза (статусы OnLoading, OnTheWay)
 		/// Создает копию заказа для новой даты доставки
 		/// </summary>
-		private async Task<(bool Success, string ErrorMessage)> ApplyTransferWithUndeliveryAsync(
+		private async Task<Result> ApplyTransferWithUndeliveryAsync(
 			IUnitOfWork uow,
 			Order order,
 			OnlineOrder onlineOrder,
@@ -242,16 +302,16 @@ namespace Vodovoz.Application.Orders.Services
 				var currentUser = await _employeeRepository.GetEmployeeBySourceAsync(uow, source, cancellationToken);
 				if(currentUser is null)
 				{
-					var errorMsg = "Не удалось получить информацию о пользователе";
-					_logger.LogWarning("Заказ {OrderId}: {ErrorMessage}", order.Id, errorMsg);
-					return (false, errorMsg);
+					var error = OnlineOrderErrors.EmployeeNotFound(source);
+					_logger.LogWarning("Заказ {OrderId}: {ErrorMessage}", order.Id, error.Message);
+					return Result.Failure(error);
 				}
 
 				if(newDeliverySchedule is null)
 				{
-					var errorMsg = "Расписание доставки не найдено";
-					_logger.LogWarning("Заказ {OrderId}: {ErrorMessage}", order.Id, errorMsg);
-					return (false, errorMsg);
+					var error = OrderErrors.DeliveryScheduleNotFound;
+					_logger.LogWarning("Заказ {OrderId}: {ErrorMessage}", order.Id, error.Message);
+					return Result.Failure(error);
 				}
 
 				var newOrder = await CreateOrderCopy(uow, order, newDeliveryDate, newDeliverySchedule, cancellationToken);
@@ -294,7 +354,7 @@ namespace Vodovoz.Application.Orders.Services
 					newOrder.Id,
 					undelivery.Id);
 
-				return (true, null);
+				return Result.Success();
 			}
 			catch(Exception ex)
 			{
@@ -303,7 +363,7 @@ namespace Vodovoz.Application.Orders.Services
 					"Ошибка при переносе заказа {OrderId} с недовозом",
 					order.Id);
 
-				return (false, "Ошибка при переносе заказа с недовозом");
+				return Result.Failure(OrderErrors.TransferFailed(ex.Message));
 			}
 		}
 

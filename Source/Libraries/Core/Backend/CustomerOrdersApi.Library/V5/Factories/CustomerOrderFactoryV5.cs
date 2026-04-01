@@ -1,0 +1,260 @@
+﻿using CustomerOrdersApi.Library.Converters;
+using CustomerOrdersApi.Library.V4.Dto.Orders;
+using CustomerOrdersApi.Library.V4.Factories;
+using CustomerOrdersApi.Library.V4.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Vodovoz.Application.Orders.Services;
+using Vodovoz.Core.Data.InfoMessages;
+using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
+using Vodovoz.EntityRepositories.Orders;
+
+namespace CustomerOrdersApi.Library.V5.Factories
+{
+	public class CustomerOrderFactoryV5 : ICustomerOrderFactoryV5
+	{
+		private readonly IExternalOrderStatusConverter _externalOrderStatusConverter;
+		private readonly IInfoMessageFactory _infoMessageFactory;
+		private readonly IOrderRepository _orderRepository;
+		private readonly IOrderCancellationLogicService _orderCancellationLogicService;
+		private readonly IOrderTransferLogicService _orderTransferLogicService;
+
+		public CustomerOrderFactoryV5(
+			IExternalOrderStatusConverter externalOrderStatusConverter,
+			IInfoMessageFactory infoMassageFactory,
+			IOrderRepository orderRepository,
+			IOrderCancellationLogicService orderCancellationLogicService,
+			IOrderTransferLogicService orderTransferLogicService
+			)
+		{
+			_externalOrderStatusConverter =
+				externalOrderStatusConverter ?? throw new ArgumentNullException(nameof(externalOrderStatusConverter));
+			_infoMessageFactory = infoMassageFactory ?? throw new ArgumentNullException(nameof(infoMassageFactory));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_orderCancellationLogicService = orderCancellationLogicService ?? throw new ArgumentNullException(nameof(orderCancellationLogicService));
+			_orderTransferLogicService = orderTransferLogicService ?? throw new ArgumentNullException(nameof(orderTransferLogicService));
+		}
+
+		public DetailedOrderInfoDto CreateDetailedOrderInfo(
+			Order order,
+			OrderRating orderRating,
+			OnlineOrderTimers timers,
+			OnlineOrder onlineOrder,
+			DateTime ratingAvailableFrom)
+		{
+			var orderInfo = CreateOrderInfoDto(order, timers, onlineOrder.Id);
+			orderInfo.UpdateOrderRating(orderRating, ratingAvailableFrom);
+			orderInfo.UpdateOrderItems(order.OrderItems);
+
+			UpdateAvailableOperations(orderInfo, order, null);
+
+			return orderInfo;
+		}
+
+		public DetailedOrderInfoDto CreateDetailedOrderInfo(
+			OnlineOrder onlineOrder, OrderRating orderRating, OnlineOrderTimers timers, int? orderId, DateTime ratingAvailableFrom)
+		{
+			var orderInfo = CreateOrderInfoDto(onlineOrder, timers, orderId);
+			orderInfo.UpdateOrderRating(orderRating, ratingAvailableFrom);
+			orderInfo.UpdateOrderItems(onlineOrder.OnlineOrderItems);
+
+			var activeOrder = GetActiveOrder(onlineOrder);
+			UpdateAvailableOperations(orderInfo, activeOrder, onlineOrder);
+
+			return orderInfo;
+		}
+
+		public IEnumerable<OrderRatingReasonDto> GetOrderRatingReasonDtos(IEnumerable<OrderRatingReason> orderRatingReasons)
+		{
+			return orderRatingReasons.Select(x => new OrderRatingReasonDto
+			{
+				OrderRatingReasonId = x.Id,
+				Name = x.Name,
+				IsArchive = x.IsArchive,
+				Ratings = x.GetRatingsArray()
+			});
+		}
+
+		private DetailedOrderInfoDto CreateOrderInfoDto(Order order, OnlineOrderTimers timers, int? onlineOrderId)
+		{
+			var orderInfo = new DetailedOrderInfoDto
+			{
+				OrderId = order.Id,
+				OnlineOrderId = onlineOrderId,
+				CreatedDateTimeUtc = order.CreateDate.HasValue ? DateTimeOffset.Parse(order.CreateDate.ToString()) : default,
+				DeliveryDate = order.DeliveryDate ?? default,
+				IsFastDelivery = order.IsFastDelivery,
+				IsSelfDelivery = order.SelfDelivery,
+				OrderSum = order.OrderSum,
+				OrderStatus = _externalOrderStatusConverter.ConvertOrderStatus(order.OrderStatus),
+				OnlinePaymentSource = null,
+				OnlinePaymentType = null,
+				//при выставленном заказе не нужны сообщения и передача таймера
+				InfoMessages = Array.Empty<InfoMessage>()
+			};
+
+			if(!order.SelfDelivery)
+			{
+				var deliveryPoint = order.DeliveryPoint;
+
+				if(deliveryPoint != null)
+				{
+					orderInfo.DeliveryPointId = deliveryPoint.Id;
+					orderInfo.DeliveryAddress = deliveryPoint.ShortAddress;
+				}
+
+				orderInfo.DeliverySchedule = orderInfo.IsFastDelivery
+					? DeliverySchedule.FastDelivery
+					: order.DeliverySchedule?.DeliveryTime;
+			}
+
+			UpdateAvailabilityRepeatOrder(orderInfo);
+
+			return orderInfo;
+		}
+
+		private DetailedOrderInfoDto CreateOrderInfoDto(OnlineOrder onlineOrder, OnlineOrderTimers timers, int? orderId)
+		{
+			var orderInfo = new DetailedOrderInfoDto
+			{
+				OrderId = orderId,
+				OnlineOrderId = onlineOrder.Id,
+				CreatedDateTimeUtc = DateTimeOffset.Parse(onlineOrder.Created.ToString()),
+				DeliveryDate = onlineOrder.DeliveryDate,
+				IsFastDelivery = onlineOrder.IsFastDelivery,
+				IsSelfDelivery = onlineOrder.IsSelfDelivery,
+				OrderSum = onlineOrder.OnlineOrderSum,
+				OrderStatus = _externalOrderStatusConverter.ConvertOnlineOrderStatus(onlineOrder.OnlineOrderStatus),
+				OnlinePaymentSource = onlineOrder.OnlinePaymentSource,
+				OnlinePaymentType = onlineOrder.OnlineOrderPaymentType
+			};
+
+			if(timers != null)
+			{
+				var payTime = orderInfo.IsFastDelivery
+					? (int)timers.PayTimeWithFastDelivery.TotalSeconds
+					: (int)timers.PayTimeWithoutFastDelivery.TotalSeconds;
+
+				var toManualProcessingTime = orderInfo.IsFastDelivery
+					? (int)timers.TimeForTransferToManualProcessingWithFastDelivery.TotalSeconds
+					: (int)timers.TimeForTransferToManualProcessingWithoutFastDelivery.TotalSeconds;
+
+				if(onlineOrder.IsNeedOnlinePayment(payTime))
+				{
+					orderInfo.TimerForPaySeconds = payTime;
+					orderInfo.IsNeedPay = true;
+					orderInfo.InfoMessages = new[] { _infoMessageFactory.CreateNeedPayOrderInfoMessage() };
+				}
+				else if(onlineOrder.IsNeedOnlinePaymentButTimeIsUp(payTime, toManualProcessingTime))
+				{
+					orderInfo.InfoMessages = new[] { _infoMessageFactory.CreateNotPaidOrderInfoMessage() };
+				}
+				else
+				{
+					orderInfo.InfoMessages = Array.Empty<InfoMessage>();
+				}
+			}
+
+			if(!onlineOrder.IsSelfDelivery)
+			{
+				var deliveryPoint = onlineOrder.DeliveryPoint;
+
+				if(deliveryPoint != null)
+				{
+					orderInfo.DeliveryPointId = deliveryPoint.Id;
+					orderInfo.DeliveryAddress = deliveryPoint.ShortAddress;
+				}
+
+				orderInfo.DeliverySchedule = orderInfo.IsFastDelivery
+					? DeliverySchedule.FastDelivery
+					: onlineOrder.DeliverySchedule?.DeliveryTime;
+			}
+
+			UpdateAvailabilityRepeatOrder(orderInfo);
+
+			return orderInfo;
+		}
+
+		private void UpdateAvailabilityRepeatOrder(DetailedOrderInfoDto orderInfo)
+		{
+			if(orderInfo.OrderStatus is ExternalOrderStatus.OrderCompleted or ExternalOrderStatus.Canceled)
+			{
+				orderInfo.AvailableRepeatOrder = true;
+			}
+		}
+
+		/// <summary>
+		/// Получает активный заказ из онлайн-заказа
+		/// </summary>
+		private Order GetActiveOrder(OnlineOrder onlineOrder)
+		{
+			var availableStatuses = _orderRepository.GetStatusesForTransferOrCancellationOnlineOrder();
+			return onlineOrder.Orders?.FirstOrDefault(x => availableStatuses.Contains(x.OrderStatus));
+		}
+
+		/// <summary>
+		/// Обновляет доступность операций (отмена, перенос) и добавляет информационные сообщения
+		/// </summary>
+		private void UpdateAvailableOperations(
+			DetailedOrderInfoDto orderInfo,
+			Order order,
+			OnlineOrder onlineOrder)
+		{
+			if(order is not null)
+			{
+				var cancelResult = _orderCancellationLogicService.CanCancel(order);
+				orderInfo.AvailableCancelOrder = cancelResult.IsSuccess;
+			}
+			else
+			{
+				orderInfo.AvailableCancelOrder = false;
+			}
+
+			if(order is not null && onlineOrder?.DeliverySchedule is not null)
+			{
+				var transferResult = _orderTransferLogicService.CanTransfer(
+					order,
+					onlineOrder.DeliveryDate,
+					onlineOrder.DeliverySchedule);
+				orderInfo.AvailableChangeDeliverySchedule = transferResult.IsSuccess;
+			}
+			else
+			{
+				orderInfo.AvailableChangeDeliverySchedule = false;
+			}
+
+			AddCancelOrderInfoMessage(orderInfo, order, onlineOrder);
+		}
+
+		/// <summary>
+		/// Добавляет информационное сообщение об отмене для оплаченных заказов
+		/// </summary>
+		private void AddCancelOrderInfoMessage(
+			DetailedOrderInfoDto orderInfo,
+			Order order,
+			OnlineOrder onlineOrder)
+		{
+			var isPaid = false;
+
+			if(order != null)
+			{
+				isPaid = order.PaymentType == PaymentType.PaidOnline;
+			}
+			else if(onlineOrder != null)
+			{
+				isPaid = onlineOrder.OnlineOrderPaymentType == OnlineOrderPaymentType.PaidOnline;
+			}
+
+			if(isPaid)
+			{
+				var existingMessages = orderInfo.InfoMessages?.ToList() ?? new List<InfoMessage>();
+				existingMessages.Add(_infoMessageFactory.CreateRefundPaymentInfoMessage());
+				orderInfo.InfoMessages = existingMessages;
+			}
+		}
+	}
+}
