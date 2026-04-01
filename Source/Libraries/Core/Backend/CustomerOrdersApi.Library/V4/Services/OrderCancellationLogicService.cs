@@ -31,6 +31,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IOrderRepository _orderRepository;
+		private readonly IOnlineOrderRepository _onlineOrderRepository;
 		private readonly IRouteListService _routeListService;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly ICallTaskWorker _callTaskWorker;
@@ -43,6 +44,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 			IEmployeeRepository employeeRepository,
 			ISubdivisionRepository subdivisionRepository,
 			IOrderRepository orderRepository,
+			IOnlineOrderRepository onlineOrderRepository,
 			IRouteListService routeListService,
 			INomenclatureSettings nomenclatureSettings,
 			ICallTaskWorker callTaskWorker,
@@ -54,6 +56,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_onlineOrderRepository = onlineOrderRepository ?? throw new ArgumentNullException(nameof(onlineOrderRepository));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
@@ -91,7 +94,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис отмены заказа");
 
-			var onlineOrder = await uow.Session.GetAsync<OnlineOrder>(externalOrderId, cancellationToken);
+			var onlineOrder = _onlineOrderRepository.GetOnlineOrderByExternalId(uow, externalOrderId);
 			if(onlineOrder == null)
 			{
 				var onlineOrderNotFoundError = OnlineOrderErrors.OnlineOrderNotFound;
