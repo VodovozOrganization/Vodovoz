@@ -8,7 +8,7 @@ using YooKassaApi.Library.Models;
 using YooKassaApi.Library.Requests;
 using YooKassaApi.Library.Responses;
 
-namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
+namespace CustomerOrdersApi.Library.Default.Services.PaymentRefund.Mappers
 {
 	public class YooKassaMapper : IYooKassaMapper
 	{
@@ -96,12 +96,12 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 				return $"Возврат отменен. Инициатор: {refund.CancellationDetails.Party}, причина: {refund.CancellationDetails.Reason}";
 			}
 
-			if(refund.Status == YooKassaRefundStatus.Canceled)
+			if(refund.Status is YooKassaRefundStatus.Canceled)
 			{
 				return "Возврат отменен по неизвестной причине";
 			}
 
-			if(refund.Status != YooKassaRefundStatus.Succeeded)
+			if(refund.Status is not YooKassaRefundStatus.Succeeded)
 			{
 				return $"Статус возврата: {refund.Status}";
 			}

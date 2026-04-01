@@ -1,4 +1,4 @@
-﻿using CustomerOrdersApi.Library.Factories;
+﻿using CustomerOrdersApi.Library.Default.Factories;
 using CustomerOrdersApi.Library.V4.Dto.Orders.CancelOrder;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
@@ -95,18 +95,20 @@ namespace CustomerOrdersApi.Library.V4.Services
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис отмены заказа");
 
 			var onlineOrder = _onlineOrderRepository.GetOnlineOrderByExternalId(uow, externalOrderId);
-			if(onlineOrder == null)
+			if(onlineOrder is null)
 			{
 				var onlineOrderNotFoundError = OnlineOrderErrors.OnlineOrderNotFound;
 				_logger.LogWarning("Заказ {ExternalOrderId}: {ErrorMessage}", externalOrderId, onlineOrderNotFoundError.Message);
+
 				return Result.Failure<string>(onlineOrderNotFoundError);
 			}
 
 			var order = GetActiveOrder(onlineOrder);
-			if(order == null)
+			if(order is null)
 			{
 				var isOnlineOrderDoesNotHaveALinkedOrderError = OnlineOrderErrors.IsOnlineOrderDoesNotHaveALinkedOrder;
 				_logger.LogWarning("Заказ {ExternalOrderId}: {ErrorMessage}", externalOrderId, isOnlineOrderDoesNotHaveALinkedOrderError.Message);
+
 				return Result.Failure<string>(isOnlineOrderDoesNotHaveALinkedOrderError);
 			}
 
@@ -144,6 +146,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 			{
 				var error = OrderErrors.UnsupportedOrderStatusForCancellation(order.OrderStatus);
 				_logger.LogWarning("Заказ {OrderId}: {ErrorMessage}", order.Id, error.Message);
+
 				return Result.Failure<string>(error);
 			}
 
@@ -164,6 +167,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 		private Order GetActiveOrder(OnlineOrder onlineOrder)
 		{
 			var undeliveryStatuses = _orderRepository.GetUndeliveryStatuses();
+
 			return onlineOrder.Orders.FirstOrDefault(x => !undeliveryStatuses.Contains(x.OrderStatus));
 		}
 
@@ -222,10 +226,11 @@ namespace CustomerOrdersApi.Library.V4.Services
 
 			var routeListItem = _routeListItemRepository.GetRouteListItemForOrder(uow, order);
 
-			if(routeListItem == null)
+			if(routeListItem is null)
 			{
 				var error = OrderErrors.RouteListItemNotFound(order.Id);
 				_logger.LogWarning("Заказ {OrderId}: {ErrorMessage}", order.Id, error.Message);
+
 				return Result.Failure<string>(error);
 			}
 
@@ -272,10 +277,11 @@ namespace CustomerOrdersApi.Library.V4.Services
 				order.OrderStatus.GetEnumTitle());
 
 			var currentUser = await _employeeRepository.GetEmployeeBySourceAsync(uow, source, cancellationToken);
-			if(currentUser == null)
+			if(currentUser is null)
 			{
 				var error = OnlineOrderErrors.EmployeeNotFound(source);
 				_logger.LogWarning("Заказ {OrderId}: {ErrorMessage}", order.Id, error.Message);
+
 				return Result.Failure<string>(error);
 			}
 

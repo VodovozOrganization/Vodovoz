@@ -1,4 +1,5 @@
-﻿using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
+﻿using CustomerOrdersApi.Library.Default.Services.PaymentRefund;
+using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
 using CustomerOrdersApi.Library.V4.Dto.Orders.CancelOrder;
 using FastPaymentsApi.Client;
 using FastPaymentsApi.Contracts.Requests;
@@ -47,14 +48,14 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 			var reverseRequest = new ReverseTicketRequestDTO
 			{
 				Ticket = ticket,
-				Amount = request.Amount * 100 // Авангард считает сумму в копейках
+				Amount = request.Amount * 100
 			};
 
 			try
 			{
 				var reverseOrderResponse = await _fastPaymentApiClient.ReverseOrderAsync(reverseRequest, cancellationToken);
 
-				if(reverseOrderResponse == null)
+				if(reverseOrderResponse is null)
 				{
 					_logger.LogError("Получен пустой ответ от API при возврате платежа {Ticket}", ticket);
 					return CreateErrorResult("Ошибка при получении ответа от сервиса платежей");

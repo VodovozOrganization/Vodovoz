@@ -1,4 +1,5 @@
 ﻿using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
+using CustomerOrdersApi.Library.Services.PaymentRefund;
 using CustomerOrdersApi.Library.V4.Dto.Orders.CancelOrder;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -10,7 +11,7 @@ using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Payments;
 
-namespace CustomerOrdersApi.Library.Services.PaymentRefund
+namespace CustomerOrdersApi.Library.Default.Services.PaymentRefund
 {
 	public abstract class PaymentRefundServiceBase : IPaymentRefundService
 	{

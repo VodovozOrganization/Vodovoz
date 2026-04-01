@@ -7,7 +7,7 @@ using YandexPayApi.Library.Models;
 using YandexPayApi.Library.Requests;
 using YandexPayApi.Library.Responses;
 
-namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
+namespace CustomerOrdersApi.Library.Default.Services.PaymentRefund.Mappers
 {
 	public class YandexPayMapper : IYandexPayMapper
 	{
@@ -55,7 +55,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 
 		public RefundResultDto MapToRefundResult(YandexPayResult<YandexPayRefundResponse> yandexPayResponse)
 		{
-			if(yandexPayResponse == null)
+			if(yandexPayResponse is null)
 			{
 				return CreateErrorResult("Пустой ответ от платежной системы");
 			}
@@ -68,7 +68,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 			}
 
 			var operation = yandexPayResponse.Data?.Operation;
-			if(operation == null)
+			if(operation is null)
 			{
 				return CreateErrorResult("Ответ не содержит данных об операции");
 			}

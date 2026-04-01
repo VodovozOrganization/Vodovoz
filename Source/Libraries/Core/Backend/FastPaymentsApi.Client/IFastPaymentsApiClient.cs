@@ -11,8 +11,13 @@ namespace FastPaymentsApi.Client
 	public interface IFastPaymentsApiClient
 	{
 		/// <summary>
-		/// Выполнить возврат заказа
+		/// Выполняет возврат средств по заказу, оплаченному через быстрые платежи (QR-код)
 		/// </summary>
+		/// <param name="request">Запрос на возврат платежа <see cref="ReverseTicketRequestDTO"/>, содержащий идентификатор сессии (Ticket) и сумму возврата</param>
+		/// <param name="cancellationToken">Токен отмены операции</param>
+		/// <returns>
+		/// Ответ от API <see cref="ReverseTicketResponseDTO"/> с результатом выполнения возврата
+		/// </returns>
 		Task<ReverseTicketResponseDTO> ReverseOrderAsync(ReverseTicketRequestDTO request, CancellationToken cancellationToken);
 	}
 }

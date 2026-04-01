@@ -117,6 +117,11 @@ namespace Vodovoz.Errors.Orders
 				"400",
 				$"Позиция маршрутного листа не найдена для заказа {orderId}");
 
+		public static Error CannotCancelOrderInStatus(OrderStatus status) =>
+			new Error(
+				"408",
+				$"Невозможно отменить заказ в статусе '{status.GetEnumTitle()}'");
+
 		public static Error CannotTransferOrderInStatus(OrderStatus status) =>
 			new Error(
 				"408",
@@ -125,7 +130,12 @@ namespace Vodovoz.Errors.Orders
 		public static Error UnsupportedOrderStatusForTransfer(OrderStatus status) =>
 			new Error(
 				"400",
-				$"Не поддерживаемый статус для переноса: {status.GetEnumTitle()}");
+				$"Не поддерживаемый статус для переноса заказа: {status.GetEnumTitle()}");
+
+		public static Error UnsupportedOrderStatusForCancellation(OrderStatus status) =>
+			new Error(
+				"400",
+				$"Не поддерживаемый статус для отмены заказа: {status.GetEnumTitle()}");
 
 		public static Error DeliveryScheduleNotFound =>
 			new Error(

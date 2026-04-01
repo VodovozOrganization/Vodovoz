@@ -1,6 +1,4 @@
-﻿using Vodovoz.Core.Data.Orders;
-
-namespace CustomerOrdersApi.Library.V4.Dto.Orders
+﻿namespace CustomerOrdersApi.Library.V4.Dto.Orders
 {
 	/// <summary>
 	/// Номер измененного онлайн заказа, если есть и заказа
@@ -13,7 +11,7 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 		public int? OnlineOrderId { get; set; }
 
 		public static ChangedOrderDto Create(int? onlineOrderId) =>
-			new ChangedOrderDto
+			new()
 			{
 				OnlineOrderId = onlineOrderId
 			};

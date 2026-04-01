@@ -6,7 +6,7 @@ using CustomerOrdersApi.Library.V4.Dto.Orders.CancelOrder;
 using Microsoft.Extensions.Logging;
 using System;
 
-namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
+namespace CustomerOrdersApi.Library.Default.Services.PaymentRefund.Mappers
 {
 	public class CloudPaymentsMapper : ICloudPaymentsMapper
 	{
@@ -19,7 +19,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 
 		public CloudPaymentsRefundRequest MapToRefundRequest(RefundRequestDto request)
 		{
-			if(request == null)
+			if(request is null)
 			{
 				throw new ArgumentNullException(nameof(request));
 			}
@@ -50,7 +50,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 
 		public RefundResultDto MapToRefundResult(CloudPaymentsResponse<CloudPaymentsRefundResult> cloudPaymentsResponse)
 		{
-			if(cloudPaymentsResponse == null)
+			if(cloudPaymentsResponse is null)
 			{
 				return CreateErrorResult("Пустой ответ от платежной системы");
 			}

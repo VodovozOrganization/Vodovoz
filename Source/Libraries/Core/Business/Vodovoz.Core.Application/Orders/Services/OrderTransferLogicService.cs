@@ -63,9 +63,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 		}
 
-		/// <summary>
-		/// Проверяет, можно ли перенести заказ
-		/// </summary>
 		public Result CanTransfer(Order order, DateTime? newDeliveryDate, DeliverySchedule newDeliverySchedule)
 		{
 			var allowedStatuses = _orderRepository.GetStatusesForTransferOrCancellationOnlineOrder();

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace CustomerOrdersApi.Library.Default.Services
 {
 	/// <summary>
-	/// Сервис для работы с онлайн заказами из внешних источников
+	/// Сервис для работы с онлайн заказами
 	/// </summary>
 	public interface ICustomerOrdersService
 	{

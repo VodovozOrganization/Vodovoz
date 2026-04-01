@@ -6,7 +6,7 @@ using System.Linq;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 
-namespace CustomerOrdersApi.Library.Factories
+namespace CustomerOrdersApi.Library.Default.Factories
 {
 	public class PaymentRefundServiceFactory : IPaymentRefundServiceFactory
 	{
@@ -38,7 +38,7 @@ namespace CustomerOrdersApi.Library.Factories
 
 		public IPaymentRefundService GetRefundService(OnlineOrder onlineOrder)
 		{
-			if(onlineOrder == null)
+			if(onlineOrder is null)
 			{
 				throw new ArgumentNullException(nameof(onlineOrder));
 			}

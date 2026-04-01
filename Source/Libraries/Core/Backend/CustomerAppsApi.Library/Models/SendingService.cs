@@ -74,9 +74,7 @@ namespace CustomerAppsApi.Library.Models
 				return Result.Failure(Vodovoz.Errors.Common.CustomerAppsApiClientErrors.UnknownUser);
 			}
 			
-			Employee employee;
-			
-			employee = _employeeRepository.GetEmployeeBySource(_unitOfWork, codeToEmailDto.Source);
+			var employee = _employeeRepository.GetEmployeeBySource(_unitOfWork, codeToEmailDto.Source);
 
 			if(employee is null)
 			{

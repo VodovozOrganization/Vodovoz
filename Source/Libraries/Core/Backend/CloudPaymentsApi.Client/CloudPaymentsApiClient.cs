@@ -30,9 +30,6 @@ namespace CloudPaymentsApi.Client
 			_jsonOptions = jsonOptions ?? throw new ArgumentNullException(nameof(jsonOptions));
 		}
 
-		/// <summary>
-		/// Получить информацию о транзакции
-		/// </summary>
 		public async Task<CloudPaymentsResponse<CloudPaymentsTransaction>> GetTransactionAsync(
 			long transactionId,
 			CancellationToken cancellationToken)
@@ -44,7 +41,7 @@ namespace CloudPaymentsApi.Client
 				var request = new { TransactionId = transactionId };
 				var response = await PostAsync<CloudPaymentsTransaction>("payments/get", request, cancellationToken);
 
-				if(response?.Success == true)
+				if(response?.Success is true)
 				{
 					_logger.LogDebug("Транзакция {TransactionId} получена успешно, статус: {Status}",
 						transactionId, response.Model?.Status);
@@ -64,9 +61,6 @@ namespace CloudPaymentsApi.Client
 			}
 		}
 
-		/// <summary>
-		/// Выполнить возврат платежа
-		/// </summary>
 		public async Task<CloudPaymentsResponse<CloudPaymentsRefundResult>> RefundAsync(
 			CloudPaymentsRefundRequest request,
 			string idempotenceKey,
@@ -79,7 +73,7 @@ namespace CloudPaymentsApi.Client
 
 				var response = await PostAsync<CloudPaymentsRefundResult>("payments/refund", request, cancellationToken, idempotenceKey);
 
-				if(response?.Success == true)
+				if(response?.Success is true)
 				{
 					_logger.LogInformation("Возврат успешно создан, ID транзакции возврата: {RefundTransactionId}",
 						response.Model?.TransactionId);
@@ -96,7 +90,6 @@ namespace CloudPaymentsApi.Client
 			{
 				_logger.LogError(ex, "Ошибка при выполнении возврата для транзакции {TransactionId}",
 					request.TransactionId);
-				throw;
 			}
 		}
 
@@ -137,16 +130,10 @@ namespace CloudPaymentsApi.Client
 					_logger.LogWarning("HTTP ошибка при вызове {Endpoint}: {StatusCode}",
 						endpoint, response.StatusCode);
 
-					try
+					var errorResponse = JsonSerializer.Deserialize<CloudPaymentsResponse<T>>(responseJson);
+					if(errorResponse is not null)
 					{
-						var errorResponse = JsonSerializer.Deserialize<CloudPaymentsResponse<T>>(responseJson);
-						if(errorResponse != null)
-						{
-							return errorResponse;
-						}
-					}
-					catch
-					{
+						return errorResponse;
 					}
 
 					return new CloudPaymentsResponse<T>

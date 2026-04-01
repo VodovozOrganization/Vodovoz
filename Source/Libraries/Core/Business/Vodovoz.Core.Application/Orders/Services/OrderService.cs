@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Application.Errors;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
@@ -28,7 +27,6 @@ using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Services.Logistics;
-using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Domain.Client.Specifications;
@@ -611,9 +609,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return 0;
 			}
 
-			Employee employee;
-
-			employee = await _employeeRepository.GetEmployeeBySourceAsync(
+			Employee employee = await _employeeRepository.GetEmployeeBySourceAsync(
 				uow,
 				onlineOrder.Source,
 				cancellationToken);
