@@ -1,4 +1,5 @@
 ﻿using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
+using CustomerOrdersApi.Library.V4.Dto.Orders.CancelOrder;
 using FastPaymentsApi.Client;
 using FastPaymentsApi.Contracts.Requests;
 using Microsoft.Extensions.Logging;

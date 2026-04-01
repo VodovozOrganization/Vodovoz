@@ -2,6 +2,7 @@
 using CustomerOrdersApi.Library;
 using CustomerOrdersApi.Library.Services;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
+using CustomerOrdersApi.Library.V4.Services;
 using DriverApi.Notifications.Client;
 using MassTransit;
 using MessageTransport;
@@ -73,8 +74,7 @@ namespace CustomerOrdersApi
 				.AddScoped<IRouteListService, RouteListService>()
 				.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
 				.AddScoped<IOnlineOrderService, OnlineOrderService>()
-				.AddScoped<IOrderCancellationService, OrderCancellationService>()
-				.AddScoped<IOrderTransferService, OrderTransferService>()
+				.AddScoped<IOrderCancellationLogicService, OrderCancellationLogicService>()
 				.AddPaymentApiClients(Configuration)
 				.AddPaymentRefundServices()
 				.AddApplicationOrderServices();

@@ -1,4 +1,5 @@
 ﻿using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
+using CustomerOrdersApi.Library.V4.Dto.Orders.CancelOrder;
 using YandexPayApi.Library.Models;
 using YandexPayApi.Library.Requests;
 using YandexPayApi.Library.Responses;

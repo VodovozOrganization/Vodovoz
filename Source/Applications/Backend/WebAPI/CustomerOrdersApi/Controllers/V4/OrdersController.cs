@@ -18,18 +18,18 @@ namespace CustomerOrdersApi.Controllers.V4
 	public class OrdersController : SignatureControllerBase
 	{
 		private readonly ICustomerOrdersServiceV4 _customerOrdersService;
-		private readonly IOrderCancellationService _orderCancellationService;
+		private readonly IOrderCancellationLogicService _orderCancellationLogicService;
 		private readonly IRequestClient<CreatingOnlineOrder> _requestClient;
 
 		public OrdersController(
 			ILogger<OrdersController> logger,
 			ICustomerOrdersServiceV4 customerOrdersService,
-			IOrderCancellationService orderCancellationService,
+			IOrderCancellationLogicService orderCancellationLogicService,
 			IRequestClient<CreatingOnlineOrder> requestClient
 			) : base(logger)
 		{
 			_customerOrdersService = customerOrdersService ?? throw new ArgumentNullException(nameof(customerOrdersService));
-			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
+			_orderCancellationLogicService = orderCancellationLogicService ?? throw new ArgumentNullException(nameof(orderCancellationLogicService));
 			_requestClient = requestClient ?? throw new ArgumentNullException(nameof(requestClient));
 		}
 
@@ -214,22 +214,38 @@ namespace CustomerOrdersApi.Controllers.V4
 			try
 			{
 				_logger.LogInformation(
-					"Поступил запрос от {Source} на отмену заказа {ExternalOrderId}, проверяем...",
+					"Поступил запрос от {Source} на отмену заказа {ExternalOrderId}",
 					sourceName,
 					cancelOrderDto.ExternalOrderId);
 
-				var cancellationResult = await _orderCancellationService.CancelOrderAsync(cancelOrderDto, cancellationToken);
+				var result = await _orderCancellationLogicService.ApplyCancellationAsync(
+					cancelOrderDto.ExternalOrderId,
+					cancelOrderDto.Source,
+					cancelOrderDto.TransactionId,
+					cancellationToken);
 
-				_logger.LogInformation(
-					"Результат отмены: Success={Success}, StatusCode={StatusCode}",
-					cancellationResult.IsSuccess,
-					cancellationResult.StatusCode);
-
-				return StatusCode(cancellationResult.StatusCode, new
+				if(result.IsSuccess)
 				{
-					title = cancellationResult.Title,
-					status = cancellationResult.StatusCode,
-					detail = cancellationResult.DetailMessage
+					_logger.LogInformation(
+						"Заказ {ExternalOrderId} успешно отменен",
+						cancelOrderDto.ExternalOrderId);
+
+					return Ok(result.Value);
+				}
+
+				var error = result.Errors.First();
+				var statusCode = int.Parse(error.Code);
+
+				_logger.LogWarning(
+					"Отмена заказа {ExternalOrderId} не выполнена: {ErrorMessage}",
+					cancelOrderDto.ExternalOrderId,
+					error.Message);
+
+				return StatusCode(statusCode, new
+				{
+					title = "One or more validation errors occurred",
+					status = statusCode,
+					detail = error.Message
 				});
 			}
 			catch(Exception e)

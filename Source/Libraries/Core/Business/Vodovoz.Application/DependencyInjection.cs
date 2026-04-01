@@ -1,4 +1,4 @@
-using DriverApi.Notifications.Client;
+﻿using DriverApi.Notifications.Client;
 using Microsoft.Extensions.DependencyInjection;
 using RevenueService.Client;
 using TrueMarkApi.Client;
@@ -115,6 +115,7 @@ namespace Vodovoz.Application
 			.AddScoped<IPartitioningOrderService, PartitioningOrderService>()
 			.AddScoped<IUnPaidOnlineOrderHandler, UnPaidOnlineOrderHandler>()
 			.AddScoped<IOrderOnlinePaymentAcceptanceHandler, OrderOnlinePaymentAcceptanceHandler>()
+			.AddScoped<IOrderTransferLogicService, OrderTransferLogicService>()
 		;
 
 		private static IServiceCollection ConfigureFileOptions(this IServiceCollection services)

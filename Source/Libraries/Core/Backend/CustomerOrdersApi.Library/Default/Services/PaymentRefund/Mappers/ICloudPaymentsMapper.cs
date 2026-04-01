@@ -2,6 +2,7 @@
 using CloudPaymentsApi.Library.Requests;
 using CloudPaymentsApi.Library.Responses;
 using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
+using CustomerOrdersApi.Library.V4.Dto.Orders.CancelOrder;
 
 namespace CustomerOrdersApi.Library.Services.PaymentRefund.Mappers
 {

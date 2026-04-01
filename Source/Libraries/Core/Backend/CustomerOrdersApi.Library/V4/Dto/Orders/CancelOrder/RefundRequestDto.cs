@@ -1,6 +1,6 @@
 ﻿using Vodovoz.Domain.Orders;
 
-namespace CustomerOrdersApi.Library.Dto.Orders.CancelOrder
+namespace CustomerOrdersApi.Library.V4.Dto.Orders.CancelOrder
 {
 	/// <summary>
 	/// DTO запроса на возврат средств

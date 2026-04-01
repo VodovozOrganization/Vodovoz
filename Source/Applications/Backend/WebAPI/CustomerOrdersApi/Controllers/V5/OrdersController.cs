@@ -1,6 +1,7 @@
 ﻿using CustomerOrdersApi.Library.Common;
 using CustomerOrdersApi.Library.Services;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
+using CustomerOrdersApi.Library.V4.Services;
 using CustomerOrdersApi.Library.V5.Services;
 using Gamma.Utilities;
 using MassTransit;
@@ -18,21 +19,18 @@ namespace CustomerOrdersApi.Controllers.V5
 	public class OrdersController : SignatureControllerBase
 	{
 		private readonly ICustomerOrdersServiceV5 _customerOrdersService;
-		private readonly IOrderTransferService _orderTransferService;
-		private readonly IOrderCancellationService _orderCancellationService;
+		private readonly IOrderCancellationLogicService _orderCancellationLogicService;
 		private readonly IRequestClient<CreatingOnlineOrder> _requestClient;
 
 		public OrdersController(
 			ILogger<OrdersController> logger,
 			ICustomerOrdersServiceV5 customerOrdersService,
-			IOrderTransferService orderTransferService,
-			IOrderCancellationService orderCancellationService,
+			IOrderCancellationLogicService orderCancellationLogicService,
 			IRequestClient<CreatingOnlineOrder> requestClient
 			) : base(logger)
 		{
 			_customerOrdersService = customerOrdersService ?? throw new ArgumentNullException(nameof(customerOrdersService));
-			_orderTransferService = orderTransferService ?? throw new ArgumentNullException(nameof(orderTransferService));
-			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
+			_orderCancellationLogicService = orderCancellationLogicService ?? throw new ArgumentNullException(nameof(orderCancellationLogicService));
 			_requestClient = requestClient ?? throw new ArgumentNullException(nameof(requestClient));
 		}
 
@@ -217,22 +215,38 @@ namespace CustomerOrdersApi.Controllers.V5
 			try
 			{
 				_logger.LogInformation(
-					"Поступил запрос от {Source} на отмену заказа {ExternalOrderId}, проверяем...",
+					"Поступил запрос от {Source} на отмену заказа {ExternalOrderId}",
 					sourceName,
 					cancelOrderDto.ExternalOrderId);
 
-				var cancellationResult = await _orderCancellationService.CancelOrderAsync(cancelOrderDto, cancellationToken);
+				var result = await _orderCancellationLogicService.ApplyCancellationAsync(
+					cancelOrderDto.ExternalOrderId,
+					cancelOrderDto.Source,
+					cancelOrderDto.TransactionId,
+					cancellationToken);
 
-				_logger.LogInformation(
-					"Результат отмены: Success={Success}, StatusCode={StatusCode}",
-					cancellationResult.IsSuccess,
-					cancellationResult.StatusCode);
-
-				return StatusCode(cancellationResult.StatusCode, new
+				if(result.IsSuccess)
 				{
-					title = cancellationResult.Title,
-					status = cancellationResult.StatusCode,
-					detail = cancellationResult.DetailMessage
+					_logger.LogInformation(
+						"Заказ {ExternalOrderId} успешно отменен",
+						cancelOrderDto.ExternalOrderId);
+
+					return Ok(result.Value);
+				}
+
+				var error = result.Errors.First();
+				var statusCode = int.Parse(error.Code);
+
+				_logger.LogWarning(
+					"Отмена заказа {ExternalOrderId} не выполнена: {ErrorMessage}",
+					cancelOrderDto.ExternalOrderId,
+					error.Message);
+
+				return StatusCode(statusCode, new
+				{
+					title = "One or more validation errors occurred",
+					status = statusCode,
+					detail = error.Message
 				});
 			}
 			catch(Exception e)

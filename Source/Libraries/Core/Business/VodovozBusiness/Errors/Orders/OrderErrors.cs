@@ -1,4 +1,7 @@
-﻿using Vodovoz.Core.Domain.Results;
+﻿using Gamma.Utilities;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Results;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Errors.Orders
 {
@@ -107,5 +110,24 @@ namespace Vodovoz.Errors.Orders
 				typeof(OrderErrors),
 				nameof(SplitOrderError),
 				"Произошла ошибка при разбиении заказа");
+		public static Error CannotCancelOrderInStatus(OrderStatus status) =>
+		new Error(
+				"408",
+				$"Невозможно отменить заказ в статусе '{status.GetEnumTitle()}'");
+
+		public static Error UnsupportedOrderStatusForCancellation(OrderStatus status) =>
+			new Error(
+				"400",
+				$"Не поддерживаемый статус для отмены: {status.GetEnumTitle()}");
+
+		public static Error RouteListItemNotFound(int orderId) =>
+			new Error(
+				"400",
+				$"Позиция маршрутного листа не найдена для заказа {orderId}");
+
+		public static Error RefundFailed(string reason) =>
+			new Error(
+				"400",
+				$"Не удалось выполнить возврат платежа: {reason}");
 	}
 }

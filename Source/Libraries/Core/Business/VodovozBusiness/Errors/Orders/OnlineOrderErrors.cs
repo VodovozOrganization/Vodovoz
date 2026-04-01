@@ -1,4 +1,4 @@
-﻿using System.Security.Cryptography;
+﻿using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Results;
 using VodovozInfrastructure.Extensions;
 
@@ -251,5 +251,9 @@ namespace Vodovoz.Errors.Orders
 				typeof(OnlineOrderErrors),
 				nameof(ClientDontPayOrder),
 				"Заказ не был оплачен в отведенный срок");
+		public static Error EmployeeNotFound(Source source) =>
+			new Error(
+				"400",
+				$"Не удалось получить информацию о пользователе из источника {source}");
 	}
 }
