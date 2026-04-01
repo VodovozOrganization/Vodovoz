@@ -5,7 +5,7 @@ using CustomerOrdersApi.Library.V4.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Application.Orders.Services;
+using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Data.InfoMessages;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;

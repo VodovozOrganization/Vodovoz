@@ -90,6 +90,7 @@ namespace CloudPaymentsApi.Client
 			{
 				_logger.LogError(ex, "Ошибка при выполнении возврата для транзакции {TransactionId}",
 					request.TransactionId);
+				throw new InvalidOperationException($"Не удалось выполнить возврат по транзакции {request.TransactionId}", ex);
 			}
 		}
 
