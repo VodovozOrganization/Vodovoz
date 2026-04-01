@@ -1,6 +1,5 @@
 ﻿using CustomerOrdersApi.HealthCheck;
 using CustomerOrdersApi.Library;
-using CustomerOrdersApi.Library.Services;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using CustomerOrdersApi.Library.V4.Services;
 using DriverApi.Notifications.Client;
@@ -18,9 +17,9 @@ using QS.Project.Core;
 using QS.Services;
 using System;
 using Vodovoz;
-using Vodovoz.Application;
-using Vodovoz.Application.Logistics;
-using Vodovoz.Application.Orders.Services;
+using Vodovoz.Core.Application;
+using Vodovoz.Core.Application.Logistics;
+using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
@@ -61,7 +60,7 @@ namespace CustomerOrdersApi
 				.AddOrderTrackerFor1c()
 				.AddBusiness(Configuration)
 				.AddDriverApiNotificationsSenders()
-				.AddApplicationOrderServices()
+				.AddCoreApplicationOrderServices()
 				.AddInfrastructure()
 				.AddCoreDataRepositories()
 				.AddConfig(Configuration)
@@ -70,14 +69,12 @@ namespace CustomerOrdersApi
 				.AddVersion5()
 				.AddVersioning()
 				.AddOsrm()
-
 				.AddScoped<IRouteListService, RouteListService>()
 				.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
 				.AddScoped<IOnlineOrderService, OnlineOrderService>()
 				.AddScoped<IOrderCancellationLogicService, OrderCancellationLogicService>()
 				.AddPaymentApiClients(Configuration)
-				.AddPaymentRefundServices()
-				.AddApplicationOrderServices();
+				.AddPaymentRefundServices();
 
 			services.AddStaticScopeForEntity();
 			services.AddStaticHistoryTracker();

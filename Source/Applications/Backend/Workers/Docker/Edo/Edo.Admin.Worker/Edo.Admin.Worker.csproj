@@ -1,11 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk.Worker">
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>dotnet-Edo.Admin.Worker-1edd3e9f-d7dc-49cf-9b3c-a09e6801b7c0</UserSecretsId>
-    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <DockerfileContext>..\..\..\..\..\..</DockerfileContext>
-  </PropertyGroup>
+</PropertyGroup>
 
 	<ItemGroup>
 		<Content Remove="appsettings.Development.json" />
@@ -41,3 +39,4 @@
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\External\QSProjects\QS.Attachments\QS.Attachments.csproj" />
 	</ItemGroup>
 </Project>
+

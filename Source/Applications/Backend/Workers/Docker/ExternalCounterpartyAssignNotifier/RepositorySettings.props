@@ -1,0 +1,6 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>counterparty.assign.notifier</ContainerRepository>
+  </PropertyGroup>
+</Project>
+

@@ -17,9 +17,9 @@ using NHibernate.Transform;
 using Vodovoz.Domain.Retail;
 using QS.DomainModel.Entity;
 using Vodovoz.Presentation.ViewModels.AttachedFiles;
-using Vodovoz.Application.FileStorage;
 using System.Threading;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Application.FileStorage;
 
 namespace Vodovoz.ViewModels.Dialogs.Counterparties
 {

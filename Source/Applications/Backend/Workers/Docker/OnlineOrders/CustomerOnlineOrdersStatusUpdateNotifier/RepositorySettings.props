@@ -1,0 +1,6 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>customer.online.orders.status.update.notifier</ContainerRepository>
+  </PropertyGroup>
+</Project>
+

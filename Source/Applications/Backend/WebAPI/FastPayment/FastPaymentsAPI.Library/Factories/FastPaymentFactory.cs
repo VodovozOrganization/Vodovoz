@@ -195,7 +195,7 @@ namespace FastPaymentsAPI.Library.Factories
 				ExternalId = paymentDto.ExternalId,
 				PhoneNumber = paymentDto.PhoneNumber,
 				FastPaymentGuid = paymentDto.FastPaymentGuid,
-				FastPaymentPayType = Enum.Parse<FastPaymentPayType>(paymentDto.FastPaymentPayType)
+                FastPaymentPayType = (FastPaymentPayType)Enum.Parse(typeof(FastPaymentPayType), paymentDto.FastPaymentPayType)
 			};
 		}
 
