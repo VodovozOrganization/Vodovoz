@@ -1,5 +1,4 @@
-﻿using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
-using CustomerOrdersApi.Library.V4.Dto.Orders.CancelOrder;
+﻿using CustomerOrdersApi.Library.V4.Dto.Orders.CancelOrder;
 using QS.DomainModel.UoW;
 using System.Threading;
 using System.Threading.Tasks;

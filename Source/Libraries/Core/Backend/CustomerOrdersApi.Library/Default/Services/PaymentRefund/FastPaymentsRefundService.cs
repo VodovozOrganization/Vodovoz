@@ -1,5 +1,4 @@
 ﻿using CustomerOrdersApi.Library.Default.Services.PaymentRefund;
-using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
 using CustomerOrdersApi.Library.V4.Dto.Orders.CancelOrder;
 using FastPaymentsApi.Client;
 using FastPaymentsApi.Contracts.Requests;

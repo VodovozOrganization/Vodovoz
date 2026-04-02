@@ -1,5 +1,4 @@
-﻿using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
-using CustomerOrdersApi.Library.Services.PaymentRefund;
+﻿using CustomerOrdersApi.Library.Services.PaymentRefund;
 using CustomerOrdersApi.Library.V4.Dto.Orders.CancelOrder;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -145,10 +144,11 @@ namespace CustomerOrdersApi.Library.Default.Services.PaymentRefund
 		/// <summary>
 		/// Создает результат для успешного возврата
 		/// </summary>
-		protected virtual RefundResultDto CreateSuccessResult()
+		protected virtual RefundResultDto CreateSuccessResult() => new()
 		{
-			return new RefundResultDto(true, null, default, OnlineOrderPaymentStatus.Refund);
-		}
+			Success = true,
+			NewPaymentStatus = OnlineOrderPaymentStatus.Refund
+		};
 
 		/// <summary>
 		/// Генерирует ключ идемпотентности для запроса
@@ -162,11 +162,11 @@ namespace CustomerOrdersApi.Library.Default.Services.PaymentRefund
 		/// <summary>
 		/// Создает результат для ошибки возврата
 		/// </summary>
-		protected virtual RefundResultDto CreateErrorResult(
-			string errorMessage)
-		{
-			return new RefundResultDto(false, default, errorMessage, OnlineOrderPaymentStatus.Paid);
-		}
+		protected virtual RefundResultDto CreateErrorResult(string errorMessage) => new() 
+		{ 
+			ErrorMessage = errorMessage,
+			NewPaymentStatus = OnlineOrderPaymentStatus.Paid
+		};
 
 		/// Переделать на возврат DTO
 		/// <summary>

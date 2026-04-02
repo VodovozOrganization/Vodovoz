@@ -1,5 +1,4 @@
-﻿using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
-using CustomerOrdersApi.Library.V4.Dto.Orders.CancelOrder;
+﻿using CustomerOrdersApi.Library.V4.Dto.Orders.CancelOrder;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;

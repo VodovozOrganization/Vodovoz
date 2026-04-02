@@ -1,5 +1,4 @@
-﻿using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
-using CustomerOrdersApi.Library.V4.Dto.Orders.CancelOrder;
+﻿using CustomerOrdersApi.Library.V4.Dto.Orders.CancelOrder;
 using YooKassaApi.Library.Models;
 using YooKassaApi.Library.Requests;
 using YooKassaApi.Library.Responses;

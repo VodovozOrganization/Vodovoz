@@ -2,7 +2,6 @@
 using CloudPaymentsApi.Library.Models;
 using CustomerOrdersApi.Library.Default.Services.PaymentRefund;
 using CustomerOrdersApi.Library.Default.Services.PaymentRefund.Mappers;
-using CustomerOrdersApi.Library.Dto.Orders.CancelOrder;
 using CustomerOrdersApi.Library.V4.Dto.Orders.CancelOrder;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;

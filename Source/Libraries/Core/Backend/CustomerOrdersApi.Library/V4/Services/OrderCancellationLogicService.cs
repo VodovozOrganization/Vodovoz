@@ -340,12 +340,13 @@ namespace CustomerOrdersApi.Library.V4.Services
 
 			var refundService = _paymentRefundServiceFactory.GetRefundService(onlineOrder);
 
-			var refundRequest = new RefundRequestDto(
-				onlineOrder: onlineOrder,
-				transactionId: transactionId,
-				amount: onlineOrder.OnlineOrderSum,
-				externalOrderId: onlineOrder?.ExternalOrderId.ToString()
-			);
+			var refundRequest = new RefundRequestDto
+			{
+				OnlineOrder = onlineOrder,
+				TransactionId = transactionId,
+				Amount = onlineOrder.OnlineOrderSum,
+				ExternalOrderId = onlineOrder?.ExternalOrderId.ToString()
+			};
 
 			var refundResult = await refundService.ProcessRefundAsync(uow, refundRequest, cancellationToken);
 
