@@ -23,9 +23,9 @@ using Vodovoz.Tools.CallTasks;
 
 namespace CustomerOrdersApi.Library.V4.Services
 {
-	public class OrderCancellationLogicService : IOrderCancellationLogicService
+	public class CustomerOrderCancellationService : ICustomerOrderCancellationService
 	{
-		private readonly ILogger<OrderCancellationLogicService> _logger;
+		private readonly ILogger<CustomerOrderCancellationService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IEmployeeRepository _employeeRepository;
@@ -37,8 +37,8 @@ namespace CustomerOrdersApi.Library.V4.Services
 		private readonly ICallTaskWorker _callTaskWorker;
 		private readonly IPaymentRefundServiceFactory _paymentRefundServiceFactory;
 
-		public OrderCancellationLogicService(
-			ILogger<OrderCancellationLogicService> logger,
+		public CustomerOrderCancellationService(
+			ILogger<CustomerOrderCancellationService> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IRouteListItemRepository routeListItemRepository,
 			IEmployeeRepository employeeRepository,
@@ -63,10 +63,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 			_paymentRefundServiceFactory = paymentRefundServiceFactory ?? throw new ArgumentNullException(nameof(paymentRefundServiceFactory));
 		}
 
-		/// <summary>
-		/// Проверяет, можно ли отменить заказ в текущем статусе
-		/// </summary>
-		public Result CanCancel(Order order)
+		public Result CanCancel(Order order, OnlineOrder onlineOrder)
 		{
 			var allowedStatuses = _orderRepository.GetStatusesForTransferOrCancellationOnlineOrder();
 
@@ -80,12 +77,14 @@ namespace CustomerOrdersApi.Library.V4.Services
 				return Result.Failure(OrderErrors.CannotCancelOrderInStatus(order.OrderStatus));
 			}
 
+			if(onlineOrder is not null && IsPaidOnline(onlineOrder))
+			{
+				return Result.Failure(OrderErrors.CannotCancelOrder);
+			}
+
 			return Result.Success();
 		}
 
-		/// <summary>
-		/// Применяет отмену заказа
-		/// </summary>
 		public async Task<Result<string>> ApplyCancellationAsync(
 			Guid externalOrderId,
 			Source source,
@@ -118,7 +117,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 				order.OrderStatus.GetEnumTitle(),
 				IsPaidOnline(onlineOrder));
 
-			var canCancelResult = CanCancel(order);
+			var canCancelResult = CanCancel(order, onlineOrder);
 			if(canCancelResult.IsFailure)
 			{
 				_logger.LogWarning("Заказ {OrderId}: {ErrorMessage}",
@@ -415,6 +414,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 				   or OrderStatus.Accepted;
 
 		private static bool IsPaidOnline(OnlineOrder order) =>
-			order.OnlineOrderPaymentType is OnlineOrderPaymentType.PaidOnline;
+			order.OnlineOrderPaymentType is OnlineOrderPaymentType.PaidOnline
+			&& order.OnlineOrderPaymentStatus is OnlineOrderPaymentStatus.Paid;
 	}
 }

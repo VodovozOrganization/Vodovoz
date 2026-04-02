@@ -123,7 +123,7 @@ namespace Vodovoz.Core.Application
 			.AddScoped<IOrderConfirmationService, OrderConfirmationService>()
 			.AddScoped<IPartitioningOrderService, PartitioningOrderService>()
 			.AddScoped<IUnPaidOnlineOrderHandler, UnPaidOnlineOrderHandler>()
-			.AddScoped<IOrderTransferService, OrderTransferService>()
+			.AddScoped<ICustomerOrderTransferService, CustomerOrderTransferService>()
 			.AddScoped<IOrderOnlinePaymentAcceptanceHandler, OrderOnlinePaymentAcceptanceHandler>()
 		;
 

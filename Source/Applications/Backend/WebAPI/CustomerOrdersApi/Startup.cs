@@ -72,7 +72,7 @@ namespace CustomerOrdersApi
 				.AddScoped<IRouteListService, RouteListService>()
 				.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
 				.AddScoped<IOnlineOrderService, OnlineOrderService>()
-				.AddScoped<IOrderCancellationLogicService, OrderCancellationLogicService>()
+				.AddScoped<ICustomerOrderCancellationService, CustomerOrderCancellationService>()
 				.AddPaymentApiClients(Configuration)
 				.AddPaymentRefundServices();
 

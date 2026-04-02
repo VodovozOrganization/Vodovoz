@@ -26,9 +26,9 @@ using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Core.Application.Orders.Services
 {
-	public class OrderTransferService : IOrderTransferService
+	public class CustomerOrderTransferService : ICustomerOrderTransferService
 	{
-		private readonly ILogger<OrderTransferService> _logger;
+		private readonly ILogger<CustomerOrderTransferService> _logger;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IFlyerRepository _flyerRepository;
@@ -39,8 +39,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly IOrderContractUpdater _orderContractUpdater;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 
-		public OrderTransferService(
-			ILogger<OrderTransferService> logger,
+		public CustomerOrderTransferService(
+			ILogger<CustomerOrderTransferService> logger,
 			IEmployeeRepository employeeRepository,
 			ISubdivisionRepository subdivisionRepository,
 			IFlyerRepository flyerRepository,
@@ -79,6 +79,16 @@ namespace Vodovoz.Core.Application.Orders.Services
 			if(newDeliverySchedule is null)
 			{
 				return Result.Failure(OrderErrors.DeliveryScheduleNotFound);
+			}
+
+			if(newDeliveryDate.Value.Date == DateTime.Now.Date)
+			{
+				var currentTime = DateTime.Now.TimeOfDay;
+
+				if(newDeliverySchedule.To <= currentTime)
+				{
+					return Result.Failure(OrderErrors.DeliveryScheduleAlreadyPassed(newDeliverySchedule.DeliveryTime));
+				}
 			}
 
 			var deliveryDateChanged = !order.DeliveryDate.HasValue

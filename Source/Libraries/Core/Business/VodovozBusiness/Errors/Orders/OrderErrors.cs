@@ -117,6 +117,11 @@ namespace Vodovoz.Errors.Orders
 				"400",
 				$"Позиция маршрутного листа не найдена для заказа {orderId}");
 
+		public static Error CannotCancelOrder =>
+			new Error(
+				"400",
+				"Невозможно отменить заказ");
+
 		public static Error CannotCancelOrderInStatus(OrderStatus status) =>
 			new Error(
 				"408",
@@ -156,5 +161,10 @@ namespace Vodovoz.Errors.Orders
 			new Error(
 				"500",
 				$"Ошибка при переносе заказа: {reason}");
+
+		public static Error DeliveryScheduleAlreadyPassed(string deliveryTime) =>
+			new Error(
+				"400", 
+				$"Интервал доставки {deliveryTime} уже закончился для сегодняшней даты");
 	}
 }

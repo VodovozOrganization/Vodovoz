@@ -10,6 +10,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Presentation.WebApi.Messages;
 
 namespace CustomerOrdersApi.Controllers.V4
@@ -18,13 +19,13 @@ namespace CustomerOrdersApi.Controllers.V4
 	public class OrdersController : SignatureControllerBase
 	{
 		private readonly ICustomerOrdersServiceV4 _customerOrdersService;
-		private readonly IOrderCancellationLogicService _orderCancellationLogicService;
+		private readonly ICustomerOrderCancellationService _orderCancellationLogicService;
 		private readonly IRequestClient<CreatingOnlineOrder> _requestClient;
 
 		public OrdersController(
 			ILogger<OrdersController> logger,
 			ICustomerOrdersServiceV4 customerOrdersService,
-			IOrderCancellationLogicService orderCancellationLogicService,
+			ICustomerOrderCancellationService orderCancellationLogicService,
 			IRequestClient<CreatingOnlineOrder> requestClient
 			) : base(logger)
 		{
@@ -191,8 +192,10 @@ namespace CustomerOrdersApi.Controllers.V4
 					return Ok(result.Value);
 				}
 
-				var firstError = result.Errors.First();
-				return Problem(firstError.Message, statusCode: int.Parse(firstError.Code));
+				var firstError = result.Errors.FirstOrDefault();
+				var statusCode = GetStatusCodeFromError(firstError);
+
+				return Problem(firstError.Message, statusCode: statusCode);
 			}
 			catch(Exception e)
 			{
@@ -233,8 +236,8 @@ namespace CustomerOrdersApi.Controllers.V4
 					return Ok(result.Value);
 				}
 
-				var error = result.Errors.First();
-				var statusCode = int.Parse(error.Code);
+				var error = result.Errors.FirstOrDefault();
+				var statusCode = GetStatusCodeFromError(error);
 
 				_logger.LogWarning(
 					"Отмена заказа {ExternalOrderId} не выполнена: {ErrorMessage}",
@@ -262,6 +265,16 @@ namespace CustomerOrdersApi.Controllers.V4
 					detail = "Произошла ошибка, пожалуйста, попробуйте позже"
 				});
 			}
+		}
+
+		private static int GetStatusCodeFromError(Error error)
+		{
+			if(error is null || string.IsNullOrEmpty(error.Code))
+			{
+				return 400;
+			}
+
+			return int.TryParse(error.Code, out var code) ? code : 400;
 		}
 	}
 }

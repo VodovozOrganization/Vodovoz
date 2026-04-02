@@ -12,7 +12,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 	/// <summary>
 	/// Сервис для обработки логики переноса заказов
 	/// </summary>
-	public interface IOrderTransferService
+	public interface ICustomerOrderTransferService
 	{
 		/// <summary>
 		/// Проверяет возможность переноса заказа на новую дату и время доставки

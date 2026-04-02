@@ -29,7 +29,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly IOrderFromOnlineOrderValidator _onlineOrderValidator;
 		private readonly IOrderService _orderService;
 		private readonly IRouteListService _routeListService;
-		private readonly IOrderTransferService _orderTransferLogicService;
+		private readonly ICustomerOrderTransferService _orderTransferLogicService;
 
 		public UnPaidOnlineOrderHandler(
 			ILogger<UnPaidOnlineOrderHandler> logger,
@@ -40,7 +40,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IOrderFromOnlineOrderValidator onlineOrderValidator,
 			IOrderService orderService,
 			IRouteListService routeListService,
-			IOrderTransferService orderTransferLogicService
+			ICustomerOrderTransferService orderTransferLogicService
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));

@@ -21,15 +21,15 @@ namespace CustomerOrdersApi.Library.V5.Factories
 		private readonly IExternalOrderStatusConverter _externalOrderStatusConverter;
 		private readonly IInfoMessageFactory _infoMessageFactory;
 		private readonly IOrderRepository _orderRepository;
-		private readonly IOrderCancellationLogicService _orderCancellationLogicService;
-		private readonly IOrderTransferService _orderTransferService;
+		private readonly ICustomerOrderCancellationService _orderCancellationLogicService;
+		private readonly ICustomerOrderTransferService _orderTransferService;
 
 		public CustomerOrderFactoryV5(
 			IExternalOrderStatusConverter externalOrderStatusConverter,
 			IInfoMessageFactory infoMassageFactory,
 			IOrderRepository orderRepository,
-			IOrderCancellationLogicService orderCancellationLogicService,
-			IOrderTransferService orderTransferService
+			ICustomerOrderCancellationService orderCancellationLogicService,
+			ICustomerOrderTransferService orderTransferService
 			)
 		{
 			_externalOrderStatusConverter =
@@ -207,17 +207,17 @@ namespace CustomerOrdersApi.Library.V5.Factories
 		{
 			if(order is not null)
 			{
-				var cancelResult = _orderCancellationLogicService.CanCancel(order);
-				orderInfo.AvailableCancelOrder = cancelResult.IsSuccess;
-
-				if(orderInfo.AvailableCancelOrder)
+				if(onlineOrder is not null)
 				{
-					AddCancelOrderInfoMessage(orderInfo, order, onlineOrder);
-				}
-			}
+					var cancelResult = _orderCancellationLogicService.CanCancel(order, onlineOrder);
+					orderInfo.AvailableCancelOrder = cancelResult.IsSuccess;
 
-			if(order is not null)
-			{
+					if(orderInfo.AvailableCancelOrder)
+					{
+						AddCancelOrderInfoMessage(orderInfo, order, onlineOrder);
+					}
+				}
+
 				var transferResult = _orderTransferService.CanTransfer(order);
 				orderInfo.AvailableChangeDeliverySchedule = transferResult.IsSuccess;
 			}
