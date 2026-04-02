@@ -2,6 +2,7 @@
 using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
+using NHibernate;
 using Vodovoz.Core.Domain.Attributes;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -229,5 +230,76 @@ namespace Vodovoz.Core.Domain.Orders
 		public virtual decimal OriginalSum => Math.Round(Price * Count - (OriginalDiscountMoney ?? 0), 2);
 
 		public virtual bool RentVisible => OrderItemRentSubType == OrderItemRentSubType.RentServiceItem;
+		
+		public virtual void CalculateVATType()
+		{
+			if(!NHibernateUtil.IsInitialized(Nomenclature))
+			{
+				NHibernateUtil.Initialize(Nomenclature);
+			}
+
+			if(!NHibernateUtil.IsInitialized(Order))
+			{
+				NHibernateUtil.Initialize(Order);
+			}
+
+			if(Order == null || Nomenclature == null)
+			{
+				return;
+			}
+
+			var organization = Order.Contract?.Organization;
+			
+			var vatRateVersion =  organization != null && organization.IsUsnMode 
+				? Order.Contract.Organization.GetActualVatRateVersion(Order.DeliveryDate)
+				: Nomenclature.GetActualVatRateVersion(Order.DeliveryDate);
+			
+			if(vatRateVersion == null)
+			{
+				throw new InvalidOperationException($"У товара #{Nomenclature.Id} отсутствует версия НДС на дату доставки заказа #{Order.DeliveryDate}");
+			}
+			
+			ValueAddedTax =  CanUseVAT() ? vatRateVersion.VatRate.VatNumericValue : 0;
+			
+			RecalculateVAT();
+		}
+		
+		private bool CanUseVAT()
+		{
+			if(!NHibernateUtil.IsInitialized(Order))
+			{
+				NHibernateUtil.Initialize(Order);
+			}
+
+			bool canUseVAT = true;
+
+			if(Order.Contract?.Organization != null)
+			{
+				canUseVAT = Order.Contract.Organization.IsUsnMode 
+					? Order.Contract.Organization.GetActualVatRateVersion(Order.DeliveryDate)?.VatRate.VatNumericValue != 0
+					: Nomenclature.GetActualVatRateVersion(Order.DeliveryDate)?.VatRate.VatNumericValue != 0;
+			}
+
+			return canUseVAT;
+		}
+		
+		private void RecalculateVAT()
+		{
+			if(Order == null)
+			{
+				return;
+			}
+
+			if(!CanUseVAT())
+			{
+				IncludeNDS = null;
+				return;
+			}
+
+			if(CanUseVAT() && ValueAddedTax.HasValue)
+			{
+				IncludeNDS = Math.Round(ActualSum * ValueAddedTax.Value / (1 + ValueAddedTax.Value), 2);
+			}
+		}
 	}
 }
