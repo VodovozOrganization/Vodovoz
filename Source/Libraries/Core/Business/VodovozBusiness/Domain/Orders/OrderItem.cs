@@ -495,7 +495,7 @@ namespace Vodovoz.Domain.Orders
 
 		#region Внутрение
 
-		public virtual void CalculateVATType()
+		public override void CalculateVATType()
 		{
 			if(!NHibernateUtil.IsInitialized(Nomenclature))
 			{
