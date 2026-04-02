@@ -51,7 +51,7 @@ namespace CustomerOrdersApi.Library.V5.Factories
 			orderInfo.UpdateOrderRating(orderRating, ratingAvailableFrom);
 			orderInfo.UpdateOrderItems(order.OrderItems);
 
-			UpdateAvailableOperations(orderInfo, order, null);
+			UpdateAvailableOperations(orderInfo, order, onlineOrder);
 
 			return orderInfo;
 		}
@@ -205,21 +205,18 @@ namespace CustomerOrdersApi.Library.V5.Factories
 			Order order,
 			OnlineOrder onlineOrder)
 		{
-			if(order is not null)
+			if(order is not null && onlineOrder is not null)
 			{
-				if(onlineOrder is not null)
-				{
-					var cancelResult = _orderCancellationLogicService.CanCancel(order, onlineOrder);
-					orderInfo.AvailableCancelOrder = cancelResult.IsSuccess;
-
-					if(orderInfo.AvailableCancelOrder)
-					{
-						AddCancelOrderInfoMessage(orderInfo, order, onlineOrder);
-					}
-				}
-
 				var transferResult = _orderTransferService.CanTransfer(order);
 				orderInfo.AvailableChangeDeliverySchedule = transferResult.IsSuccess;
+
+				var cancelResult = _orderCancellationLogicService.CanCancel(order, onlineOrder);
+				orderInfo.AvailableCancelOrder = cancelResult.IsSuccess;
+
+				if(orderInfo.AvailableCancelOrder)
+				{
+					AddCancelOrderInfoMessage(orderInfo, order, onlineOrder);
+				}
 			}
 		}
 

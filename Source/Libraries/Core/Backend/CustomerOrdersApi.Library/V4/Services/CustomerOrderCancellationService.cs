@@ -77,7 +77,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 				return Result.Failure(OrderErrors.CannotCancelOrderInStatus(order.OrderStatus));
 			}
 
-			if(onlineOrder is not null && IsPaidOnline(onlineOrder))
+			if(onlineOrder is not null && !IsPaidOnline(onlineOrder))
 			{
 				return Result.Failure(OrderErrors.CannotCancelOrder);
 			}
