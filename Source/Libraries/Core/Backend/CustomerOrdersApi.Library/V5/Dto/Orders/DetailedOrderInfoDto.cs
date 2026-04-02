@@ -1,11 +1,12 @@
-﻿using System;
+﻿using CustomerOrdersApi.Library.V4.Dto.Orders;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Data.Orders.V4;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 
-namespace CustomerOrdersApi.Library.V4.Dto.Orders
+namespace CustomerOrdersApi.Library.V5.Dto.Orders
 {
 	/// <summary>
 	/// Детальная информация о заказе
@@ -21,7 +22,17 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 		/// Доступность повторения заказа
 		/// </summary>
 		public bool AvailableRepeatOrder { get; set; }
-		
+
+		/// <summary>
+		/// Доступность переноса даты/времени доставки
+		/// </summary>
+		public bool AvailableChangeDeliverySchedule { get; set; }
+
+		/// <summary>
+		/// Доступность отмены заказа
+		/// </summary>
+		public bool AvailableCancelOrder { get; set; }
+
 		/// <summary>
 		/// Быстрая доставка
 		/// </summary>

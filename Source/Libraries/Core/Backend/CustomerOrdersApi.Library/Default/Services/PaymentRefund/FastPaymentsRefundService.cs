@@ -76,7 +76,7 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 					request.ExternalOrderId,
 					ticket);
 
-				return CreateSuccessResult(ticket);
+				return CreateSuccessResult();
 			}
 			catch(Exception ex)
 			{

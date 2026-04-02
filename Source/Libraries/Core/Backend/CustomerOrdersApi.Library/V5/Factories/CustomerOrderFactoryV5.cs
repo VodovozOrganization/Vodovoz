@@ -12,6 +12,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
+using DetailedOrderInfoDto = CustomerOrdersApi.Library.V5.Dto.Orders.DetailedOrderInfoDto;
 
 namespace CustomerOrdersApi.Library.V5.Factories
 {
@@ -21,14 +22,14 @@ namespace CustomerOrdersApi.Library.V5.Factories
 		private readonly IInfoMessageFactory _infoMessageFactory;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOrderCancellationLogicService _orderCancellationLogicService;
-		private readonly IOrderTransferLogicService _orderTransferLogicService;
+		private readonly IOrderTransferService _orderTransferService;
 
 		public CustomerOrderFactoryV5(
 			IExternalOrderStatusConverter externalOrderStatusConverter,
 			IInfoMessageFactory infoMassageFactory,
 			IOrderRepository orderRepository,
 			IOrderCancellationLogicService orderCancellationLogicService,
-			IOrderTransferLogicService orderTransferLogicService
+			IOrderTransferService orderTransferService
 			)
 		{
 			_externalOrderStatusConverter =
@@ -36,7 +37,7 @@ namespace CustomerOrdersApi.Library.V5.Factories
 			_infoMessageFactory = infoMassageFactory ?? throw new ArgumentNullException(nameof(infoMassageFactory));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_orderCancellationLogicService = orderCancellationLogicService ?? throw new ArgumentNullException(nameof(orderCancellationLogicService));
-			_orderTransferLogicService = orderTransferLogicService ?? throw new ArgumentNullException(nameof(orderTransferLogicService));
+			_orderTransferService = orderTransferService ?? throw new ArgumentNullException(nameof(orderTransferService));
 		}
 
 		public DetailedOrderInfoDto CreateDetailedOrderInfo(
@@ -208,26 +209,18 @@ namespace CustomerOrdersApi.Library.V5.Factories
 			{
 				var cancelResult = _orderCancellationLogicService.CanCancel(order);
 				orderInfo.AvailableCancelOrder = cancelResult.IsSuccess;
-			}
-			else
-			{
-				orderInfo.AvailableCancelOrder = false;
+
+				if(orderInfo.AvailableCancelOrder)
+				{
+					AddCancelOrderInfoMessage(orderInfo, order, onlineOrder);
+				}
 			}
 
-			if(order is not null && onlineOrder?.DeliverySchedule is not null)
+			if(order is not null)
 			{
-				var transferResult = _orderTransferLogicService.CanTransfer(
-					order,
-					onlineOrder.DeliveryDate,
-					onlineOrder.DeliverySchedule);
+				var transferResult = _orderTransferService.CanTransfer(order);
 				orderInfo.AvailableChangeDeliverySchedule = transferResult.IsSuccess;
 			}
-			else
-			{
-				orderInfo.AvailableChangeDeliverySchedule = false;
-			}
-
-			AddCancelOrderInfoMessage(orderInfo, order, onlineOrder);
 		}
 
 		/// <summary>
@@ -240,13 +233,13 @@ namespace CustomerOrdersApi.Library.V5.Factories
 		{
 			var isPaid = false;
 
-			if(order != null)
+			if(order is not null)
 			{
-				isPaid = order.PaymentType == PaymentType.PaidOnline;
+				isPaid = order.PaymentType is PaymentType.PaidOnline;
 			}
-			else if(onlineOrder != null)
+			else if(onlineOrder is not null)
 			{
-				isPaid = onlineOrder.OnlineOrderPaymentType == OnlineOrderPaymentType.PaidOnline;
+				isPaid = onlineOrder.OnlineOrderPaymentStatus is OnlineOrderPaymentStatus.Paid;
 			}
 
 			if(isPaid)

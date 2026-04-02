@@ -12,7 +12,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 	/// <summary>
 	/// Сервис для обработки логики переноса заказов
 	/// </summary>
-	public interface IOrderTransferLogicService
+	public interface IOrderTransferService
 	{
 		/// <summary>
 		/// Проверяет возможность переноса заказа на новую дату и время доставки
@@ -29,6 +29,17 @@ namespace Vodovoz.Core.Application.Orders.Services
 			Order order,
 			DateTime? newDeliveryDate,
 			DeliverySchedule newDeliverySchedule);
+
+		/// <summary>
+		/// Проверяет возможность переноса заказа
+		/// </summary>
+		/// <param name="order">Заказ, который планируется перенести</param>
+		/// <returns>
+		/// Результат проверки:
+		///		Success - перенос возможен;
+		///		Failure с соответствующей ошибкой - перенос невозможен
+		/// </returns>
+		Result CanTransfer(Order order);
 
 		/// <summary>
 		/// Проверяет, были ли изменены параметры доставки (дата или интервал)

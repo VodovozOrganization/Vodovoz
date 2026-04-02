@@ -145,7 +145,7 @@ namespace CustomerOrdersApi.Library.Default.Services.PaymentRefund
 		/// <summary>
 		/// Создает результат для успешного возврата
 		/// </summary>
-		protected virtual RefundResultDto CreateSuccessResult(string refundId)
+		protected virtual RefundResultDto CreateSuccessResult()
 		{
 			return new RefundResultDto(true, null, default, OnlineOrderPaymentStatus.Refund);
 		}

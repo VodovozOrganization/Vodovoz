@@ -1,5 +1,4 @@
 ﻿using CustomerOrdersApi.Library.V4.Dto.Orders;
-using CustomerOrdersApi.Library.V4.Factories;
 using CustomerOrdersApi.Library.V5.Factories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -21,6 +20,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Cryptography;
+using DetailedOrderInfoDto = CustomerOrdersApi.Library.V5.Dto.Orders.DetailedOrderInfoDto;
 
 namespace CustomerOrdersApi.Library.V5.Services
 {

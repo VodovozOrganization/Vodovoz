@@ -192,7 +192,7 @@ namespace CustomerOrdersApi.Controllers.V5
 					return Ok(result.Value);
 				}
 
-				var firstError = result.Errors.First();
+				var firstError = result.Errors.FirstOrDefault();
 				return Problem(firstError.Message, statusCode: int.Parse(firstError.Code));
 			}
 			catch(Exception e)
@@ -234,7 +234,7 @@ namespace CustomerOrdersApi.Controllers.V5
 					return Ok(result.Value);
 				}
 
-				var error = result.Errors.First();
+				var error = result.Errors.FirstOrDefault();
 				var statusCode = int.Parse(error.Code);
 
 				_logger.LogWarning(

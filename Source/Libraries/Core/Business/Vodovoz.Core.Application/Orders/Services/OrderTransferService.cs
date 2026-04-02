@@ -26,9 +26,9 @@ using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Core.Application.Orders.Services
 {
-	public class OrderTransferLogicService : IOrderTransferLogicService
+	public class OrderTransferService : IOrderTransferService
 	{
-		private readonly ILogger<OrderTransferLogicService> _logger;
+		private readonly ILogger<OrderTransferService> _logger;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly IFlyerRepository _flyerRepository;
@@ -39,8 +39,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly IOrderContractUpdater _orderContractUpdater;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 
-		public OrderTransferLogicService(
-			ILogger<OrderTransferLogicService> logger,
+		public OrderTransferService(
+			ILogger<OrderTransferService> logger,
 			IEmployeeRepository employeeRepository,
 			ISubdivisionRepository subdivisionRepository,
 			IFlyerRepository flyerRepository,
@@ -65,11 +65,10 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 		public Result CanTransfer(Order order, DateTime? newDeliveryDate, DeliverySchedule newDeliverySchedule)
 		{
-			var allowedStatuses = _orderRepository.GetStatusesForTransferOrCancellationOnlineOrder();
-
-			if(!allowedStatuses.Contains(order.OrderStatus))
+			var statusCheckResult = CanTransfer(order);
+			if(statusCheckResult.IsFailure)
 			{
-				return Result.Failure(OrderErrors.CannotTransferOrderInStatus(order.OrderStatus));
+				return statusCheckResult;
 			}
 
 			if(newDeliveryDate.HasValue && newDeliveryDate.Value.Date < DateTime.Now.Date)
@@ -90,6 +89,18 @@ namespace Vodovoz.Core.Application.Orders.Services
 			if(!deliveryDateChanged && !deliveryScheduleChanged)
 			{
 				return Result.Failure(OrderErrors.SameDeliveryParameters);
+			}
+
+			return Result.Success();
+		}
+
+		public Result CanTransfer(Order order)
+		{
+			var allowedStatuses = _orderRepository.GetStatusesForTransferOrCancellationOnlineOrder();
+
+			if(!allowedStatuses.Contains(order.OrderStatus))
+			{
+				return Result.Failure(OrderErrors.CannotTransferOrderInStatus(order.OrderStatus));
 			}
 
 			return Result.Success();
