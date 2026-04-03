@@ -40,6 +40,8 @@ namespace Vodovoz.Views.Edo
 
 		private global::Gtk.VSeparator vseparator2;
 
+		private global::Vodovoz.Views.Edo.EdoTaskInOrderResolveView edotaskinorderresolveview1;
+
 		private global::Gtk.HSeparator hseparator1;
 
 		private global::Gamma.GtkWidgets.yLabel labelProblems;
@@ -205,27 +207,34 @@ namespace Vodovoz.Views.Edo
 			w16.Position = 1;
 			w16.Expand = false;
 			w16.Fill = false;
+			// Container child hboxEdoData.Gtk.Box+BoxChild
+			this.edotaskinorderresolveview1 = new global::Vodovoz.Views.Edo.EdoTaskInOrderResolveView();
+			this.edotaskinorderresolveview1.Events = ((global::Gdk.EventMask)(256));
+			this.edotaskinorderresolveview1.Name = "edotaskinorderresolveview1";
+			this.hboxEdoData.Add(this.edotaskinorderresolveview1);
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hboxEdoData[this.edotaskinorderresolveview1]));
+			w17.Position = 2;
 			this.vboxDialog.Add(this.hboxEdoData);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.hboxEdoData]));
-			w17.Position = 0;
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.hboxEdoData]));
+			w18.Position = 0;
 			// Container child vboxDialog.Gtk.Box+BoxChild
 			this.hseparator1 = new global::Gtk.HSeparator();
 			this.hseparator1.Name = "hseparator1";
 			this.vboxDialog.Add(this.hseparator1);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.hseparator1]));
-			w18.Position = 1;
-			w18.Expand = false;
-			w18.Fill = false;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.hseparator1]));
+			w19.Position = 1;
+			w19.Expand = false;
+			w19.Fill = false;
 			// Container child vboxDialog.Gtk.Box+BoxChild
 			this.labelProblems = new global::Gamma.GtkWidgets.yLabel();
 			this.labelProblems.Name = "labelProblems";
 			this.labelProblems.Xalign = 0F;
 			this.labelProblems.LabelProp = global::Mono.Unix.Catalog.GetString("Проблемы:");
 			this.vboxDialog.Add(this.labelProblems);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.labelProblems]));
-			w19.Position = 2;
-			w19.Expand = false;
-			w19.Fill = false;
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.labelProblems]));
+			w20.Position = 2;
+			w20.Expand = false;
+			w20.Fill = false;
 			// Container child vboxDialog.Gtk.Box+BoxChild
 			this.yhbox4 = new global::Gamma.GtkWidgets.yHBox();
 			this.yhbox4.Name = "yhbox4";
@@ -240,11 +249,11 @@ namespace Vodovoz.Views.Edo
 			this.treeViewProblems.Name = "treeViewProblems";
 			this.GtkScrolledWindow3.Add(this.treeViewProblems);
 			this.yhbox4.Add(this.GtkScrolledWindow3);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.yhbox4[this.GtkScrolledWindow3]));
-			w21.Position = 0;
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.yhbox4[this.GtkScrolledWindow3]));
+			w22.Position = 0;
 			this.vboxDialog.Add(this.yhbox4);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.yhbox4]));
-			w22.Position = 3;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.yhbox4]));
+			w23.Position = 3;
 			this.ynotebook1.Add(this.vboxDialog);
 			// Notebook tab
 			this.labelDialog = new global::Gtk.Label();
@@ -262,8 +271,8 @@ namespace Vodovoz.Views.Edo
 			this.textViewHelp.Name = "textViewHelp";
 			this.GtkScrolledWindow.Add(this.textViewHelp);
 			this.ynotebook1.Add(this.GtkScrolledWindow);
-			global::Gtk.Notebook.NotebookChild w25 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebook1[this.GtkScrolledWindow]));
-			w25.Position = 1;
+			global::Gtk.Notebook.NotebookChild w26 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebook1[this.GtkScrolledWindow]));
+			w26.Position = 1;
 			// Notebook tab
 			this.labelHelp = new global::Gtk.Label();
 			this.labelHelp.Name = "labelHelp";
@@ -271,8 +280,8 @@ namespace Vodovoz.Views.Edo
 			this.ynotebook1.SetTabLabel(this.GtkScrolledWindow, this.labelHelp);
 			this.labelHelp.ShowAll();
 			this.vboxMain.Add(this.ynotebook1);
-			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.ynotebook1]));
-			w26.Position = 1;
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.ynotebook1]));
+			w27.Position = 1;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{
