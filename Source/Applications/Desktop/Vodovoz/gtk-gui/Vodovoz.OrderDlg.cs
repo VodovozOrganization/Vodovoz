@@ -3696,6 +3696,7 @@ namespace Vodovoz
 			this.toggleService.Toggled += new global::System.EventHandler(this.OnToggleServiceToggled);
 			this.toggleDocuments.Toggled += new global::System.EventHandler(this.OnToggleDocumentsToggled);
 			this.toggleTareControl.Toggled += new global::System.EventHandler(this.OnToggleTareControlToggled);
+			this.toggleEdo.Toggled += new global::System.EventHandler(this.OnToggleEdoToggled);
 			this.btnCopyEntityId.Clicked += new global::System.EventHandler(this.OnBtnCopyEntityIdClicked);
 			this.ybuttonSaveWaitUntil.Clicked += new global::System.EventHandler(this.OnYbuttonSaveWaitUntilClicked);
 			this.ybuttonToDeliveryAddressType.Clicked += new global::System.EventHandler(this.OnYbuttonToDeliveryAddressTypeClicked);

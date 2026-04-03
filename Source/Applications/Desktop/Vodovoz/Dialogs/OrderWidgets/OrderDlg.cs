@@ -6315,6 +6315,10 @@ namespace Vodovoz
 
 			return result;
 		}
+
+		protected void OnToggleEdoToggled(object sender, EventArgs e)
+		{
+		}
 		#endregion CustomCancellationConfirmationDialog
 
 		private bool IsFastDeliveryAvailabilityMustBeChecked =>
