@@ -161,12 +161,12 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return await ApplySimpleTransferAsync(uow, order, onlineOrder, newDeliveryDate, newDeliverySchedule, cancellationToken);
 			}
 
-			if(order.OrderStatus == OrderStatus.InTravelList)
+			if(order.OrderStatus is OrderStatus.InTravelList)
 			{
 				return await ApplyTransferFromTravelListAsync(uow, order, onlineOrder, newDeliveryDate, newDeliverySchedule, cancellationToken);
 			}
 
-			if(order.OrderStatus == OrderStatus.OnLoading || order.OrderStatus == OrderStatus.OnTheWay)
+			if(order.OrderStatus is OrderStatus.OnLoading || order.OrderStatus is OrderStatus.OnTheWay)
 			{
 				return await ApplyTransferWithUndeliveryAsync(uow, order, onlineOrder, newDeliveryDate, newDeliverySchedule, source, cancellationToken);
 			}
