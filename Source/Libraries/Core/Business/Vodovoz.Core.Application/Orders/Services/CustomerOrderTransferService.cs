@@ -76,6 +76,12 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return Result.Failure(OrderErrors.InvalidDeliveryDate(newDeliveryDate.Value));
 			}
 
+			var maxDeliveryDate = DateTime.Now.Date.AddDays(30);
+			if(newDeliveryDate.Value.Date > maxDeliveryDate)
+			{
+				return Result.Failure(OrderErrors.DeliveryDateExceedsMaxPeriod(newDeliveryDate.Value, 30));
+			}
+
 			if(newDeliverySchedule is null)
 			{
 				return Result.Failure(OrderErrors.DeliveryScheduleNotFound);

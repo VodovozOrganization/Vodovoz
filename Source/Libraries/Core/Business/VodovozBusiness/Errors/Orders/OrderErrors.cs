@@ -166,5 +166,10 @@ namespace Vodovoz.Errors.Orders
 			new Error(
 				"400", 
 				$"Интервал доставки {deliveryTime} уже закончился для сегодняшней даты");
+
+		public static Error DeliveryDateExceedsMaxPeriod(DateTime deliveryDate, int maxDays) =>
+			new Error(
+				"400",
+				$"Дата доставки {deliveryDate:dd.MM.yyyy} превышает максимальный срок переноса в {maxDays} дней. ");
 	}
 }
