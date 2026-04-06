@@ -107,5 +107,11 @@ namespace Vodovoz.Errors.Orders
 				typeof(OrderErrors),
 				nameof(SplitOrderError),
 				"Произошла ошибка при разбиении заказа");
+
+		public static Error OrderDoesNotBelongToCounterparty =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(OrderDoesNotBelongToCounterparty),
+				"Заказ не относится к указанному клиенту");
 	}
 }

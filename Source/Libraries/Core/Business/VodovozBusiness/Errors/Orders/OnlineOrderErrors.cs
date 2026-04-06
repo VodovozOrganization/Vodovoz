@@ -243,5 +243,23 @@ namespace Vodovoz.Errors.Orders
 				typeof(OnlineOrderErrors),
 				nameof(ClientDontPayOrder),
 				"Заказ не был оплачен в отведенный срок");
+
+		public static Error IncorrectOrdersData =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(IncorrectOrdersData),
+				"Некорректные данные по заказу");
+
+		public static Error ErpOrderForOnlineOrderNotFound =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(ErpOrderForOnlineOrderNotFound),
+				"Заказ ERP, соответствующий онлайн заказу не найден");
+
+		public static Error OnlineOrderHasManyErpOrders =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(OnlineOrderHasManyErpOrders),
+				"Для онлайн заказа создано несколько заказов в ERP");
 	}
 }

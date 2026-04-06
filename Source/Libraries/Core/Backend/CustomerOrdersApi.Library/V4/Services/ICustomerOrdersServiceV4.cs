@@ -91,5 +91,13 @@ namespace CustomerOrdersApi.Library.V4.Services
 		/// <param name="cancellationToken">Токен для отмены операции</param>
 		/// <returns></returns>
 		Task<Result<ChangedOrderDto>> UpdateOrderAsync(ChangingOrderDto changingOrderDto, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получение координат курьера для заказа
+		/// </summary>
+		/// <param name="getCourierCoordinatesDto">Данные по заказу</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Данные координат курьера</returns>
+		Task<Result<CourierCoordinatesDto>> GetCourierCoordinates(GetCourierCoordinatesDto getCourierCoordinatesDto, CancellationToken cancellationToken = default);
 	}
 }

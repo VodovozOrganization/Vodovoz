@@ -295,5 +295,51 @@ namespace CustomerOrdersApi.Controllers.V4
 				return Problem(ResponseMessage.HasErrorOccurredPleaseTryAgainLater);
 			}
 		}
+
+		/// <summary>
+		/// Получение текущих активных заказов клиента
+		/// </summary>
+		/// <param name="getCounterpartyOrdersDto">Данные для получения заказов клиента</param>
+		/// <param name="cancellationToken">Токен для отмены операции</param>
+		/// <returns>Координаты курьера <see cref="CourierCoordinatesDto"/></returns>
+		[HttpGet]
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CourierCoordinatesDto))]
+		[Authorize]
+		public async Task<IActionResult> GetCourierCoordinates(
+			[FromBody] GetCourierCoordinatesDto getCourierCoordinatesDto,
+			CancellationToken cancellationToken)
+		{
+			var sourceName = getCourierCoordinatesDto.Source.GetEnumTitle();
+
+			try
+			{
+				_logger.LogInformation(
+					"Поступил запрос от {Source} на получение координат курьера. " +
+					"Клиент: {CounterpartyId} " +
+					"Идентификатор клиента в ИПЗ: {ExternalCounterpartyId} " +
+					"Номер заказа: {OrderId} " +
+					"Номер онлайн заказа: {OnlineOrderId}",
+					sourceName,
+					getCourierCoordinatesDto.CounterpartyErpId,
+					getCourierCoordinatesDto.ExternalCounterpartyId,
+					getCourierCoordinatesDto.OrderId,
+					getCourierCoordinatesDto.OnlineOrderId);
+
+				var courierCoordinatesorders = await _customerOrdersService.GetCourierCoordinates(getCourierCoordinatesDto, cancellationToken);
+
+				return Ok(courierCoordinatesorders);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e,
+					"Ошибка при получении координат курьера по запросу клиента {CounterpartyId} от {Source}",
+					getCourierCoordinatesDto.CounterpartyErpId,
+					sourceName);
+
+				return Problem();
+			}
+		}
 	}
 }
