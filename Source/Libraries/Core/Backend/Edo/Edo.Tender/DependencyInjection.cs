@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Edo.Admin;
 using Edo.Common;
 using Edo.Problems;
 using Edo.Tender;
@@ -20,7 +21,8 @@ namespace Edo.Documents
 
 			services.AddEdo();
 			services.AddEdoProblemRegistration();
-
+			services.AddEdoAdmin();
+			
 			return services;
 		}
 
