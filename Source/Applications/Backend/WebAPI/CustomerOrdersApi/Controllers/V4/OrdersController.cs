@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using CustomerNotifications.Contracts.Messages;
+﻿using CustomerNotifications.Contracts.Messages;
 using CustomerNotifications.Publisher.Services;
 using CustomerOrdersApi.Library.Common;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
@@ -13,9 +9,17 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
 using System.Net.Mime;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
+using Vodovoz.Core.Domain.Results;
+using Vodovoz.Errors.Logistics;
+using Vodovoz.Errors.Orders;
+using Vodovoz.Errors.TrueMark;
 using Vodovoz.Presentation.WebApi.Messages;
 
 namespace CustomerOrdersApi.Controllers.V4
@@ -327,9 +331,15 @@ namespace CustomerOrdersApi.Controllers.V4
 					getCourierCoordinatesDto.OrderId,
 					getCourierCoordinatesDto.OnlineOrderId);
 
-				var courierCoordinatesorders = await _customerOrdersService.GetCourierCoordinates(getCourierCoordinatesDto, cancellationToken);
+				var courierCoordinatesResult = await _customerOrdersService.GetCourierCoordinates(getCourierCoordinatesDto, cancellationToken);
 
-				return Ok(courierCoordinatesorders);
+				if(courierCoordinatesResult.IsFailure)
+				{
+					var firstError = courierCoordinatesResult.Errors.First();
+					return Problem(firstError.Message, statusCode: GetStatusCode(courierCoordinatesResult));
+				}
+
+				return Ok(courierCoordinatesResult);
 			}
 			catch(Exception e)
 			{
@@ -340,6 +350,26 @@ namespace CustomerOrdersApi.Controllers.V4
 
 				return Problem();
 			}
+		}
+
+		private static int GetStatusCode(Result result)
+		{
+			if(result.IsSuccess)
+			{
+				return StatusCodes.Status200OK;
+			}
+
+			var firstError = result.Errors.FirstOrDefault();
+
+			if(firstError != null
+				&& (firstError.Code == OrderErrors.NotFound
+					|| firstError.Code == OnlineOrderErrors.OnlineOrderNotFound
+					|| firstError.Code == OnlineOrderErrors.ErpOrderForOnlineOrderNotFound))
+			{
+				return StatusCodes.Status404NotFound;
+			}
+
+			return StatusCodes.Status400BadRequest;
 		}
 	}
 }
