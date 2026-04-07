@@ -18,8 +18,9 @@ namespace DriverAPI.Library.V6.Services
 		/// Получение информации о маошрутном листе в требуемом формате
 		/// </summary>
 		/// <param name="routeListId">Идентификатор МЛ</param>
+		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Информация о маршрутном листе <see cref="RouteListDto"/></returns>
-		RouteListDto GetRouteList(int routeListId);
+		Task<RouteListDto> GetRouteList(int routeListId, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Получение информации о маршрутных листах в требуемом формате

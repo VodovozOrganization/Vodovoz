@@ -529,7 +529,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 
 			Order order;
 
-			if(getCourierCoordinatesDto.OnlineOrderId is not null)
+			if(getCourierCoordinatesDto.OnlineOrderId != null)
 			{
 				var onlineOrder = _onlineOrderRepository.GetOnlineOrderById(uow, getCourierCoordinatesDto.OnlineOrderId.Value);
 
@@ -633,7 +633,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 
 			CoordinatesDto courierCoordinate = null;
 
-			if(trackPoint is not null)
+			if(trackPoint != null)
 			{
 				courierCoordinate = new CoordinatesDto
 				{

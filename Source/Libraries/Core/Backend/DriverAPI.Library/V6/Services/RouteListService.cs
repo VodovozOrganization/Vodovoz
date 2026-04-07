@@ -85,7 +85,7 @@ namespace DriverAPI.Library.V6.Services
 			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 		}
 
-		public RouteListDto GetRouteList(int routeListId)
+		public async Task<RouteListDto> GetRouteList(int routeListId, CancellationToken cancellationToken = default)
 		{
 			var routeList = _routeListRepository.GetRouteListById(_unitOfWork, routeListId)
 				?? throw new DataNotFoundException(nameof(routeListId), $"Маршрутный лист {routeListId} не найден");
@@ -97,7 +97,17 @@ namespace DriverAPI.Library.V6.Services
 				spectiaConditionsToAccept = _domainRouteListSpecialConditionsService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeListId);
 			}
 
-			return _routeListConverter.ConvertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeListId), spectiaConditionsToAccept);
+			var lastSelectedAddress = await _routeListRepository.GetLastSelectedAddressForRouteList(
+				_unitOfWork,
+				routeList.Driver.Id,
+				routeList.Id,
+				cancellationToken);
+
+			return _routeListConverter.ConvertToAPIRouteList(
+				routeList,
+				_routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeListId),
+				spectiaConditionsToAccept,
+				lastSelectedAddress?.NextAddressId);
 		}
 
 		public IEnumerable<RouteListDto> GetRouteLists(int[] routeListsIds)

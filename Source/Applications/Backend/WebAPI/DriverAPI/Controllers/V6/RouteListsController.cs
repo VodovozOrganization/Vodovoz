@@ -125,7 +125,7 @@ namespace DriverAPI.Controllers.V6
 		[HttpGet]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RouteListDto))]
-		public IActionResult GetRouteList(int routeListId)
+		public async Task<IActionResult> GetRouteList(int routeListId, CancellationToken cancellationToken)
 		{
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
 
@@ -134,7 +134,7 @@ namespace DriverAPI.Controllers.V6
 				HttpContext.User.Identity?.Name ?? "Unknown",
 				tokenStr);
 
-			return Ok(_apiRouteListService.GetRouteList(routeListId));
+			return Ok(await _apiRouteListService.GetRouteList(routeListId, cancellationToken));
 		}
 
 		/// <summary>
