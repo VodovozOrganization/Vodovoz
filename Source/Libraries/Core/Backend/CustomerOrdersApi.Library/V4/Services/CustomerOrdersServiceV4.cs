@@ -225,7 +225,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 				onlineOrder, orderRating, timers, getDetailedOrderInfoDto.OrderId, ratingAvailableFrom);
 		}
 
-		public OrdersDto GetOrders(GetOrdersDto getOrdersDto)
+		public async Task<OrdersDto> GetOrders(GetOrdersDto getOrdersDto, CancellationToken cancellationToken = default)
 		{
 			var skipElements = (getOrdersDto.Page - 1) * getOrdersDto.OrdersCountOnPage;
 			var dateAvailabilityRating = _orderSettings.GetDateAvailabilityRatingOrder;
@@ -233,16 +233,22 @@ namespace CustomerOrdersApi.Library.V4.Services
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot();
 			var allOrders = GetAllCounterpartyOrders(uow, getOrdersDto, dateAvailabilityRating);
 
-			var res = allOrders
+			var orderDtos = allOrders
 				.OrderByDescending(x => x.DeliveryDate)
 				.ThenByDescending(x => x.CreatedDateTimeUtc)
 				.Skip(skipElements)
 				.Take(getOrdersDto.OrdersCountOnPage)
 				.ToArray();
 
+			foreach(var orderDto in orderDtos)
+			{
+				var (establishedRoute, _, _) = await GetEstablishedRoute(uow, orderDto, cancellationToken);
+				orderDto.UpdateTrackingAvailability(establishedRoute);
+			}
+
 			return new OrdersDto
 			{
-				Orders = res,
+				Orders = orderDtos,
 				OrdersCount = allOrders.Length
 			};
 		}
@@ -644,8 +650,31 @@ namespace CustomerOrdersApi.Library.V4.Services
 				return (false, default, default);
 			}
 
+			return await GetEstablishedRoute(uow, order.Id, cancellationToken);
+		}
+
+		private async Task<(bool EstablishedRoute, int? RouteListId, DateTime? SelectedAt)> GetEstablishedRoute(
+			IUnitOfWork uow,
+			OrderDto order,
+			CancellationToken cancellationToken = default)
+		{
+			if(order.OrderId is null
+				|| order.IsSelfDelivery
+				|| order.OrderStatus != ExternalOrderStatus.OrderDelivering)
+			{
+				return (false, default, default);
+			}
+
+			return await GetEstablishedRoute(uow, order.OrderId.Value, cancellationToken);
+		}
+
+		private async Task<(bool EstablishedRoute, int? RouteListId, DateTime? SelectedAt)> GetEstablishedRoute(
+			IUnitOfWork uow,
+			int orderId,
+			CancellationToken cancellationToken = default)
+		{
 			var routeListItem =
-				await _routeListRepository.GetEnRouteRouteListItemByOrderId(uow, order.Id, cancellationToken);
+				await _routeListRepository.GetEnRouteRouteListItemByOrderId(uow, orderId, cancellationToken);
 
 			if(routeListItem == null)
 			{

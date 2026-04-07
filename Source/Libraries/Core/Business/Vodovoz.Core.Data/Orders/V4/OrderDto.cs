@@ -84,5 +84,25 @@ namespace Vodovoz.Core.Data.Orders.V4
 		/// Сообщения для размещения в UI
 		/// </summary>
 		public IEnumerable<InfoMessage> InfoMessages { get; set; }
+
+		/// <summary>
+		/// Разрешено отслеживание положение курьера на карте
+		/// </summary>
+		public bool IsCourierTrackingAvailable { get; private set; }
+
+		/// <summary>
+		/// Обновление значения доступности отслеживания положения курьера на карте
+		/// </summary>
+		/// <param name="establishedRoute">Установлен ли маршрут</param>
+		public void UpdateTrackingAvailability(bool establishedRoute)
+		{
+			if(IsSelfDelivery || OrderStatus != ExternalOrderStatus.OrderDelivering)
+			{
+				IsCourierTrackingAvailable = false;
+				return;
+			}
+
+			IsCourierTrackingAvailable = establishedRoute;
+		}
 	}
 }

@@ -37,7 +37,7 @@ namespace CustomerOrdersApi.Library.V4.Factories
 			var orderInfo = CreateOrderInfoDto(order, timers, onlineOrderId);
 			orderInfo.UpdateOrderRating(orderRating, ratingAvailableFrom);
 			orderInfo.UpdateOrderItems(order.OrderItems);
-			orderInfo.UpdateDriverRoute(establishedRoute);
+			orderInfo.UpdateTrackingAvailability(establishedRoute);
 			orderInfo.UpdateTextStatusMessage(establishedRoute, isOrderWasSelectedAsNext);
 			return orderInfo;
 		}
@@ -75,7 +75,7 @@ namespace CustomerOrdersApi.Library.V4.Factories
 				InfoMessages = orderDto.InfoMessages
 			};
 
-			activeOrder.UpdateDriverRoute(establishedRoute);
+			activeOrder.UpdateTrackingAvailability(establishedRoute);
 			activeOrder.UpdateTextStatusMessage(establishedRoute, isOrderWasSelectedAsNext);
 
 			return activeOrder;

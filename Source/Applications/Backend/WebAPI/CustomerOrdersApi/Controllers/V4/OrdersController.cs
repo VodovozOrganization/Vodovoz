@@ -301,9 +301,9 @@ namespace CustomerOrdersApi.Controllers.V4
 		}
 
 		/// <summary>
-		/// Получение текущих активных заказов клиента
+		/// Получение координат курьера и точки доставки
 		/// </summary>
-		/// <param name="getCounterpartyOrdersDto">Данные для получения заказов клиента</param>
+		/// <param name="getCourierCoordinatesDto">Данные для получения координат</param>
 		/// <param name="cancellationToken">Токен для отмены операции</param>
 		/// <returns>Координаты курьера <see cref="CourierCoordinatesDto"/></returns>
 		[HttpGet]

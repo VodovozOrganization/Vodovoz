@@ -54,7 +54,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 		/// </summary>
 		/// <param name="getOrdersDto">Данные для получения заказов клиента</param>
 		/// <returns>Заказы клиента <see cref="GetOrdersDto"/></returns>
-		OrdersDto GetOrders(GetOrdersDto getOrdersDto);
+		Task<OrdersDto> GetOrders(GetOrdersDto getOrdersDto, CancellationToken cancellationToken = default);
 		/// <summary>
 		/// Получение текущих активных заказов клиента
 		/// </summary>

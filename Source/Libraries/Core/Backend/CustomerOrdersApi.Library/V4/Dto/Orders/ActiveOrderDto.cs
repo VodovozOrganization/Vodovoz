@@ -9,19 +9,9 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 	public class ActiveOrderDto : OrderDto
 	{
 		/// <summary>
-		/// Разрешено отслеживание положение курьера на карте
-		/// </summary>
-		public bool IsCourierTrackingAvailable { get; private set; }
-
-		/// <summary>
 		/// Текстовое сообщение о статусе заказа
 		/// </summary>
 		public string TextStatusMessage { get; private set; }
-
-		public void UpdateDriverRoute(bool establishedRoute)
-		{
-			IsCourierTrackingAvailable = establishedRoute;
-		}
 
 		public void UpdateTextStatusMessage(bool establishedRoute, bool isOrderWasSelectedAsNext)
 		{
