@@ -40,43 +40,45 @@ namespace Edo.Problems.Routine
 			}
 
 			_workInProgress = true;
-			
+
 			try
 			{
 				var now = DateTime.Now;
 				var startDate = now.Date.AddDays(-3);
 				var endDate = now;
-				
+
 				using var scope = _serviceScopeFactory.CreateScope();
-				
+
 				var edoTaskRepository = scope.ServiceProvider.GetRequiredService<IGenericRepository<EdoTask>>();
 				var unitOfWorkFactory = scope.ServiceProvider.GetRequiredService<IUnitOfWorkFactory>();
 				var edoOrderContactProvider = scope.ServiceProvider.GetRequiredService<IEdoOrderContactProvider>();
-				
+
 				using var uow = unitOfWorkFactory.CreateWithoutRoot("Проверка исправления клиента в заказе");
 
 				var edoTasks = (await edoTaskRepository
-					.GetAsync(uow,
-						x => x.CreationTime >= startDate 
-						     && x.CreationTime <= endDate 
-						     && x.Problems.Any(problem => (problem.SourceName == "OrderContactMissingException" || problem.SourceName == "Receipt.ContactValid") 
-							     && problem.State == TaskProblemState.Active), 
-						cancellationToken: stoppingToken))
+						.GetAsync(uow,
+							x => x.CreationTime >= startDate
+							     && x.CreationTime <= endDate
+							     && x.Problems.Any(problem =>
+								     (problem.SourceName == "OrderContactMissingException" || problem.SourceName == "Receipt.ContactValid")
+								     && problem.State == TaskProblemState.Active),
+							cancellationToken: stoppingToken))
 					.Value.ToArray();
 
 				foreach(var edoTask in edoTasks)
 				{
 					if(edoTask is OrderEdoTask orderEdoTask)
 					{
-						var request =  orderEdoTask.FormalEdoRequest;
+						var request = orderEdoTask.FormalEdoRequest;
 						var order = request.Order;
-						
+
 						var contact = edoOrderContactProvider.GetContact(order);
-						
+
 						if(order.Client != null && contact.IsValid)
 						{
-							var problem = orderEdoTask.Problems.FirstOrDefault(problem => problem.SourceName is "OrderContactMissingException" or "Receipt.ContactValid" 
-							                                                              && problem.State == TaskProblemState.Active);
+							var problem = orderEdoTask.Problems.FirstOrDefault(problem =>
+								(problem.SourceName is "OrderContactMissingException" or "Receipt.ContactValid")
+								&& problem.State == TaskProblemState.Active);
 							if(problem != null)
 							{
 								problem.State = TaskProblemState.Solved;
@@ -88,7 +90,7 @@ namespace Edo.Problems.Routine
 						}
 					}
 				}
-				
+
 				await uow.CommitAsync(stoppingToken);
 			}
 			catch(Exception e)
@@ -98,8 +100,11 @@ namespace Edo.Problems.Routine
 					"Ошибка при обработке заказов в: {ErrorDateTime}",
 					DateTimeOffset.Now);
 			}
+			finally
+			{
+				_workInProgress = false;
+			}
 			
-			_workInProgress = false;
 			
 			_logger.LogInformation(
 				"Воркер {WorkerName} ожидает '{DelayTime}' мин. перед следующим запуском", nameof(OrderContactProblemUpdateWorker), _intervalMinutes);
