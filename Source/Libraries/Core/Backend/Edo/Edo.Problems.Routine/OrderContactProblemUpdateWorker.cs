@@ -16,8 +16,7 @@ namespace Edo.Problems.Routine
 	{
 		private readonly ILogger<OrderContactProblemUpdateWorker> _logger;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
-		
-		private bool _workInProgress;
+
 		private readonly int _intervalMinutes = 15;
 		
 		public OrderContactProblemUpdateWorker(
