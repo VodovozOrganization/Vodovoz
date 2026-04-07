@@ -279,5 +279,11 @@ namespace Vodovoz.Errors.Orders
 				typeof(OnlineOrderErrors),
 				nameof(OrderHasNoEstablishedRoute),
 				"Для данного заказа маршрут не установлен водителем");
+
+		public static Error CourierCoordinatesAreMissing =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(CourierCoordinatesAreMissing),
+				"Координаты курьера отсутствуют");
 	}
 }

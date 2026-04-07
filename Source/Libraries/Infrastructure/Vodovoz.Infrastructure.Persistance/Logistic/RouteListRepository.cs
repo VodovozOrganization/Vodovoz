@@ -1901,7 +1901,7 @@ FROM
 		}
 
 		/// <inheritdoc/>
-		public async Task<IEnumerable<TrackPoint>> GetDriverCoordinates(
+		public async Task<TrackPoint> GetDriverLastCoordinate(
 			IUnitOfWork uow,
 			int routeListId,
 			DateTime startFrom,
@@ -1911,10 +1911,10 @@ FROM
 				from tp in uow.Session.Query<TrackPoint>()
 				join t in uow.Session.Query<Track>() on tp.Track.Id equals t.Id
 				where t.RouteList.Id == routeListId && tp.TimeStamp >= startFrom
-				orderby tp.TimeStamp
+				orderby tp.TimeStamp descending
 				select tp;
 
-			return await query.ToListAsync(cancellationToken);
+			return await query.FirstOrDefaultAsync(cancellationToken);
 		}
 
 		/// <inheritdoc/>

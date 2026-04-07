@@ -136,8 +136,8 @@ namespace Vodovoz.EntityRepositories.Logistic
 		/// <param name="routeListId">Идентификатор маршрутного листа</param>
 		/// <param name="startFrom">Время начала</param>
 		/// <param name="cancellationToken">Токен отмены</param>
-		/// <returns>Список координат водителя</returns>
-		Task<IEnumerable<TrackPoint>> GetDriverCoordinates(IUnitOfWork uow, int routeListId, DateTime startFrom, CancellationToken cancellationToken = default);
+		/// <returns>Координаты водителя</returns>
+		Task<TrackPoint> GetDriverLastCoordinate(IUnitOfWork uow, int routeListId, DateTime startFrom, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Возвращает адрес маршрутного листа в статусе "В пути" для данного заказа, если такой существует

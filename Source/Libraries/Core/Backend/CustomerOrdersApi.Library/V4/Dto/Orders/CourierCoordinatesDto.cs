@@ -23,8 +23,8 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 		public CoordinatesDto ClientCoordinates { get; set; }
 
 		/// <summary>
-		/// Координаты курьера с момента выбора адреса водителем
+		/// Координаты курьера
 		/// </summary>
-		public IEnumerable<CoordinatesDto> CourierCoordinates { get; set; }
+		public CoordinatesDto CourierCoordinate { get; set; }
 	}
 }
