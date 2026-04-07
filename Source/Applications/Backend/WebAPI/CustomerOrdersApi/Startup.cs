@@ -93,6 +93,10 @@ namespace CustomerOrdersApi
 				.AddHttpClient()
 				.AddMultibusCustomerNotificationsPublisher(Configuration);
 			
+			services
+				.Configure<CourierCoordinatesOptions>(
+					Configuration.GetSection(nameof(CourierCoordinatesOptions)));
+
 			services.AddAuthentication("Basic")
 				.AddScheme<SignatureOptions, CustomAuthenticationHandler>(
 				"Basic",

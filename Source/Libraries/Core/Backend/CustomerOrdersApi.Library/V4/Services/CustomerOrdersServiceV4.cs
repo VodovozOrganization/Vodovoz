@@ -1,13 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using CustomerOrdersApi.Library.V4.Factories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Data.Orders.V4;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
@@ -16,19 +18,24 @@ using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Core.Domain.Logistics.Drivers;
-using Vodovoz.Domain.Logistic;
+using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Errors.Orders;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Cryptography;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.Errors.Orders;
 
 namespace CustomerOrdersApi.Library.V4.Services
 {
 	public class CustomerOrdersServiceV4 : ICustomerOrdersServiceV4
 	{
+		private static readonly OrderStatus[] _orderCompleteStatuses = new OrderStatus[]
+		{
+			OrderStatus.Shipped,
+			OrderStatus.UnloadingOnStock,
+			OrderStatus.Closed
+		};
+
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ILogger<CustomerOrdersServiceV4> _logger;
 		private readonly ISignatureManager _signatureManager;
@@ -39,6 +46,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 		private readonly IOnlineOrderRepository _onlineOrderRepository;
 		private readonly IGenericRepository<OrderRating> _genericRatingRepository;
 		private readonly IUnPaidOnlineOrderHandler _unPaidOnlineOrderHandler;
+		private readonly IOptionsMonitor<CourierCoordinatesOptions> _courierCoordinatesOptions;
 		private readonly IConfigurationSection _signaturesSection;
 
 		public CustomerOrdersServiceV4(
@@ -52,7 +60,8 @@ namespace CustomerOrdersApi.Library.V4.Services
 			IOnlineOrderRepository onlineOrderRepository,
 			IGenericRepository<OrderRating> genericRatingRepository,
 			IUnPaidOnlineOrderHandler unPaidOnlineOrderHandler,
-			IConfiguration configuration)
+			IConfiguration configuration,
+			IOptionsMonitor<CourierCoordinatesOptions> courierCoordinatesOptions)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -64,6 +73,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 			_onlineOrderRepository = onlineOrderRepository ?? throw new ArgumentNullException(nameof(onlineOrderRepository));
 			_genericRatingRepository = genericRatingRepository ?? throw new ArgumentNullException(nameof(genericRatingRepository));
 			_unPaidOnlineOrderHandler = unPaidOnlineOrderHandler ?? throw new ArgumentNullException(nameof(unPaidOnlineOrderHandler));
+			_courierCoordinatesOptions = courierCoordinatesOptions;
 
 			_signaturesSection = configuration.GetSection("Signatures");
 		}
@@ -73,7 +83,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 		public bool ValidateOrderSignature(ICreatingOnlineOrder creatingOnlineOrder, out string generatedSignature)
 		{
 			var sourceSign = GetSourceSign(creatingOnlineOrder.Source);
-			
+
 			return _signatureManager.Validate(
 				creatingOnlineOrder.Signature,
 				new OrderSignatureParams
@@ -85,11 +95,11 @@ namespace CustomerOrdersApi.Library.V4.Services
 				},
 				out generatedSignature);
 		}
-		
+
 		public bool ValidateOrderRatingSignature(OrderRatingInfoForCreateDto orderRatingInfo, out string generatedSignature)
 		{
 			var sourceSign = GetSourceSign(orderRatingInfo.Source);
-			
+
 			return _signatureManager.Validate(
 				orderRatingInfo.Signature,
 				new OrderRatingSignatureParams
@@ -103,11 +113,11 @@ namespace CustomerOrdersApi.Library.V4.Services
 				},
 				out generatedSignature);
 		}
-		
+
 		public bool ValidateOrderInfoSignature(GetDetailedOrderInfoDto getDetailedOrderInfoDto, out string generatedSignature)
 		{
 			var sourceSign = GetSourceSign(getDetailedOrderInfoDto.Source);
-			
+
 			return _signatureManager.Validate(
 				getDetailedOrderInfoDto.Signature,
 				new OrderInfoSignatureParams
@@ -120,7 +130,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 				},
 				out generatedSignature);
 		}
-		
+
 		public bool ValidateCounterpartyOrdersSignature(GetOrdersDto getOrdersDto, out string generatedSignature)
 		{
 			var sourceSign = GetSourceSign(getOrdersDto.Source);
@@ -136,12 +146,12 @@ namespace CustomerOrdersApi.Library.V4.Services
 				},
 				out generatedSignature);
 		}
-		
+
 		public bool ValidateOnlineOrderPaymentStatusUpdatedSignature(
 			OnlineOrderPaymentStatusUpdatedDto paymentStatusUpdatedDto, out string generatedSignature)
 		{
 			var sourceSign = GetSourceSign(paymentStatusUpdatedDto.Source);
-			
+
 			return _signatureManager.Validate(
 				paymentStatusUpdatedDto.Signature,
 				new OnlineOrderPaymentStatusUpdatedSignatureParams
@@ -157,7 +167,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 		public bool ValidateRequestForCallSignature(CreatingRequestForCallDto creatingInfoDto, out string generatedSignature)
 		{
 			var sourceSign = GetSourceSign(creatingInfoDto.Source);
-			
+
 			return _signatureManager.Validate(
 				creatingInfoDto.Signature,
 				new RequestForCallSignatureParams
@@ -370,7 +380,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 					}
 				}
 			}
-			
+
 			return onlineOrdersInfo;
 		}
 
@@ -381,7 +391,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 
 			return _customerOrderFactory.GetOrderRatingReasonDtos(reasons);
 		}
-		
+
 		public void CreateOrderRating(OrderRatingInfoForCreateDto orderRatingInfo)
 		{
 			var negativeRating = _orderSettings.GetOrderRatingForMandatoryProcessing;
@@ -393,12 +403,12 @@ namespace CustomerOrdersApi.Library.V4.Services
 				orderRatingInfo.OrderId,
 				orderRatingInfo.OrderRatingReasonsIds,
 				negativeRating);
-			
+
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot();
 			uow.Save(orderRating);
 			uow.Commit();
 		}
-		
+
 		public bool TryUpdateOnlineOrderPaymentStatus(OnlineOrderPaymentStatusUpdatedDto paymentStatusUpdatedDto)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot();
@@ -428,7 +438,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 			{
 				nomenclature = uow.GetById<Nomenclature>(creatingInfoDto.NomenclatureErpId.Value);
 			}
-			
+
 			if(creatingInfoDto.CounterpartyErpId.HasValue)
 			{
 				counterparty = uow.GetById<Counterparty>(creatingInfoDto.CounterpartyErpId.Value);
@@ -441,7 +451,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 				nomenclature,
 				counterparty
 				);
-			
+
 			uow.Save(requestForCall);
 			uow.Commit();
 		}
@@ -451,24 +461,24 @@ namespace CustomerOrdersApi.Library.V4.Services
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис онлайн заказов. Получение доступных способов оплат");
 			var onlineOrder = _onlineOrderRepository.GetOnlineOrderById(uow, getAvailablePaymentMethods.OnlineOrderId);
-			
+
 			var result = _unPaidOnlineOrderHandler.CanChangePaymentType(uow, onlineOrder);
-			
+
 			if(result.IsFailure)
 			{
 				var firstError = result.Errors.First();
 				return (int.Parse(firstError.Code), firstError.Message, null);
 			}
-			
+
 			var availablePayments = AvailablePaymentMethods.Create(getAvailablePaymentMethods.Source, onlineOrder.OnlineOrderPaymentType);
-			
+
 			return (200, null, availablePayments);
 		}
 
 		public async Task<Result<ChangedOrderDto>> UpdateOrderAsync(ChangingOrderDto changingOrderDto, CancellationToken cancellationToken)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис онлайн заказов. Изменение заказа");
-			
+
 			var orders = _orderRepository.GetOrdersFromOnlineOrder(uow, changingOrderDto.OnlineOrderId ?? 0);
 			var onlineOrder = uow.GetAll<OnlineOrder>().FirstOrDefault(x => x.Id == changingOrderDto.OnlineOrderId);
 			var deliverySchedule = uow.GetAll<Vodovoz.Domain.Logistic.DeliverySchedule>()
@@ -481,14 +491,14 @@ namespace CustomerOrdersApi.Library.V4.Services
 				deliverySchedule,
 				changingOrderDto.ToUpdateOnlineOrderFromChangeRequest(),
 				cancellationToken);
-			
+
 			if(result.IsFailure)
 			{
 				return Result.Failure<ChangedOrderDto>(result.Errors);
 			}
-			
+
 			var changedOrderDto = ChangedOrderDto.Create(changingOrderDto.OnlineOrderId);
-			
+
 			return Result.Success(changedOrderDto);
 		}
 
@@ -553,24 +563,48 @@ namespace CustomerOrdersApi.Library.V4.Services
 				return Result.Failure<CourierCoordinatesDto>(OrderErrors.OrderDoesNotBelongToCounterparty);
 			}
 
-			var courierCoordinatesDto = new CourierCoordinatesDto();
+			if(order.SelfDelivery)
+			{
+				return Result.Failure<CourierCoordinatesDto>(OnlineOrderErrors.CourierCoordinatesUnavailableSelfDeliveryOrders);
+			}
+
+			var isOrderComplete = _orderCompleteStatuses.Contains(order.OrderStatus);
+
+			if(order.OrderStatus != OrderStatus.OnTheWay && !isOrderComplete)
+			{
+				return Result.Failure<CourierCoordinatesDto>(OnlineOrderErrors.OrderHasInvalidStatusForCourierCoordinates);
+			}
+
+			var courierCoordinatesDto = new CourierCoordinatesDto
+			{
+				TimeForRefresh = _courierCoordinatesOptions.CurrentValue.TimeForRefreshInMobileApp,
+				ClientCoordinates = GetClientCoordinates(order)
+			};
+
+			if(isOrderComplete)
+			{
+				courierCoordinatesDto.TrackingStatus = CourierTrackingStatusTypeDto.Complete;
+				return Result.Success(courierCoordinatesDto);
+			}
 
 			var (establishedRoute, courierCoordinates, coordinatesLastUpdateTime) =
 				await GetDriverPositionData(uow, order, cancellationToken);
 
-			var trackingLostMinutesThreshold = 5;
+			if(!establishedRoute)
+			{
+				return Result.Failure<CourierCoordinatesDto>(OnlineOrderErrors.OrderHasNoEstablishedRoute);
+			}
 
 			var isTrackingLost =
 				coordinatesLastUpdateTime.HasValue
-				&& (DateTime.Now - coordinatesLastUpdateTime.Value).TotalMinutes > trackingLostMinutesThreshold;
+				&& (DateTime.Now - coordinatesLastUpdateTime.Value > _courierCoordinatesOptions.CurrentValue.TrackingLostTimeout);
 
-			var clientCoordinates = GetClientCoordinates(order);
+			courierCoordinatesDto.TrackingStatus =
+				isTrackingLost
+				? CourierTrackingStatusTypeDto.Lost
+				: CourierTrackingStatusTypeDto.Active;
 
-			var trackingStatus =
-				establishedRoute
-				? CourierTrackingStatusTypeDto.Active
-				: 
-
+			courierCoordinatesDto.CourierCoordinates = courierCoordinates;
 
 			return Result.Success(courierCoordinatesDto);
 		}

@@ -20,11 +20,11 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 		/// <summary>
 		/// Координаты клиента
 		/// </summary>
-		public CoordinatesDto ClientCoordinates { get; private set; }
+		public CoordinatesDto ClientCoordinates { get; set; }
 
 		/// <summary>
 		/// Координаты курьера с момента выбора адреса водителем
 		/// </summary>
-		public IEnumerable<CoordinatesDto> CourierCoordinates { get; private set; }
+		public IEnumerable<CoordinatesDto> CourierCoordinates { get; set; }
 	}
 }

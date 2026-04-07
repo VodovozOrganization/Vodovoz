@@ -261,5 +261,23 @@ namespace Vodovoz.Errors.Orders
 				typeof(OnlineOrderErrors),
 				nameof(OnlineOrderHasManyErpOrders),
 				"Для онлайн заказа создано несколько заказов в ERP");
+
+		public static Error OrderHasInvalidStatusForCourierCoordinates =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(OrderHasInvalidStatusForCourierCoordinates),
+				"Статус заказа не позволяет передать координаты курьера");
+
+		public static Error CourierCoordinatesUnavailableSelfDeliveryOrders =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(CourierCoordinatesUnavailableSelfDeliveryOrders),
+				"Координаты курьера недоступны для заказов с самовывозом");
+
+		public static Error OrderHasNoEstablishedRoute =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(OrderHasNoEstablishedRoute),
+				"Для данного заказа маршрут не установлен водителем");
 	}
 }
