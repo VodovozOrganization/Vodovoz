@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using QS.Utilities.Numeric;
 using Vodovoz.Core.Domain.SecureCodes;
 
@@ -10,14 +9,10 @@ namespace SecureCodeSenderApi.Services.Validators
 	public class UserPhoneValidator : IUserPhoneValidator
 	{
 		private readonly PhoneValidator _phoneValidator;
-		private readonly IEmailMethodValidator _emailMethodValidator;
 
-		public UserPhoneValidator(
-			PhoneValidator phoneValidator,
-			IEmailMethodValidator emailMethodValidator)
+		public UserPhoneValidator(PhoneValidator phoneValidator)
 		{
 			_phoneValidator = phoneValidator ?? throw new ArgumentNullException(nameof(phoneValidator));
-			_emailMethodValidator = emailMethodValidator ?? throw new ArgumentNullException(nameof(emailMethodValidator));
 		}
 		
 		public IEnumerable<ValidationResult> Validate(SendTo sendTo, string userPhone, string target)
@@ -26,7 +21,7 @@ namespace SecureCodeSenderApi.Services.Validators
 			{
 				if(string.IsNullOrWhiteSpace(target))
 				{
-					yield return new ValidationResult($"Должен быть заполнен номер телефона в параметре { nameof(target) }");
+					yield return new ValidationResult($"Должен быть заполнен номер телефона в параметре {nameof(target)}");
 				}
 				else
 				{
@@ -37,11 +32,12 @@ namespace SecureCodeSenderApi.Services.Validators
 						yield return new ValidationResult($"Передан неверный формат номера телефона в параметре {nameof(target)}");
 					}
 				}
-			}
 
-			foreach (var validationResult in ValidateUserPhone(userPhone))
-			{
-				yield return validationResult;
+
+				foreach(var validationResult in ValidateUserPhone(userPhone))
+				{
+					yield return validationResult;
+				}
 			}
 		}
 
@@ -67,25 +63,6 @@ namespace SecureCodeSenderApi.Services.Validators
 			if(string.IsNullOrWhiteSpace(target))
 			{
 				yield return new ValidationResult($"Должен быть заполнен номер телефона, почта и т.д. в параметре { nameof(target) }");
-			}
-			else
-			{
-				var resultPhoneCheck = _phoneValidator.Validate('+' + userPhone, onlyMobile: true);
-
-				if(!resultPhoneCheck)
-				{
-					var emailCheckResult = _emailMethodValidator.ValidateEmailFormat(target);
-
-					if(emailCheckResult.Any())
-					{
-						yield return new ValidationResult($"Передан неверный формат в параметре {nameof(target)}");
-					}
-				}
-			}
-			
-			foreach (var validationResult in ValidateUserPhone(userPhone))
-			{
-				yield return validationResult;
 			}
 		}
 	}
