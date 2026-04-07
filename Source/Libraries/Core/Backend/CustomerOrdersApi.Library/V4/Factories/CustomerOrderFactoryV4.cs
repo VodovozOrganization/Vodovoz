@@ -32,16 +32,13 @@ namespace CustomerOrdersApi.Library.V4.Factories
 			int? onlineOrderId,
 			DateTime ratingAvailableFrom,
 			bool establishedRoute,
-			bool isOrderWasSelectedAsNext,
-			IEnumerable<CoordinatesDto> courierCoordinates,
-			CoordinatesDto clientCoordinates)
+			bool isOrderWasSelectedAsNext)
 		{
 			var orderInfo = CreateOrderInfoDto(order, timers, onlineOrderId);
 			orderInfo.UpdateOrderRating(orderRating, ratingAvailableFrom);
 			orderInfo.UpdateOrderItems(order.OrderItems);
-			orderInfo.UpdateDriverPosition(establishedRoute, courierCoordinates);
+			orderInfo.UpdateDriverRoute(establishedRoute);
 			orderInfo.UpdateTextStatusMessage(establishedRoute, isOrderWasSelectedAsNext);
-			orderInfo.UpdateClientCoordinates(clientCoordinates);
 			return orderInfo;
 		}
 

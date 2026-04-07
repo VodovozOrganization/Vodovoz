@@ -1,4 +1,4 @@
-using Vodovoz.Core.Data.Orders.V4;
+﻿using Vodovoz.Core.Data.Orders.V4;
 using Vodovoz.Core.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.V4.Dto.Orders
@@ -9,9 +9,9 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 	public class ActiveOrderDto : OrderDto
 	{
 		/// <summary>
-		/// Маршрут проложен водителем до точки доставки
+		/// Разрешено отслеживание положение курьера на карте
 		/// </summary>
-		public bool EstablishedRoute { get; private set; }
+		public bool IsCourierTrackingAvailable { get; private set; }
 
 		/// <summary>
 		/// Текстовое сообщение о статусе заказа
@@ -20,7 +20,7 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 
 		public void UpdateDriverRoute(bool establishedRoute)
 		{
-			EstablishedRoute = establishedRoute;
+			IsCourierTrackingAvailable = establishedRoute;
 		}
 
 		public void UpdateTextStatusMessage(bool establishedRoute, bool isOrderWasSelectedAsNext)

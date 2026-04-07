@@ -56,16 +56,6 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 		/// </summary>
 		public IEnumerable<PromoSetDto> PromoSets { get; private set; }
 
-		/// <summary>
-		/// Координаты курьера с момента выбора адреса водителем
-		/// </summary>
-		public IEnumerable<CoordinatesDto> CourierCoordinates { get; private set; }
-
-		/// <summary>
-		/// Координаты клиента
-		/// </summary>
-		public CoordinatesDto ClientCoordinates { get; private set; }
-
 		public void UpdateOrderRating(OrderRating orderRating, DateTime ratingAvailableFrom)
 		{
 			if(orderRating is null)
@@ -99,17 +89,6 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 				.ToList();
 
 			UpdatePromoSets(orderItems);
-		}
-
-		public void UpdateDriverPosition(bool establishedRoute, IEnumerable<CoordinatesDto> courierCoordinates)
-		{
-			UpdateDriverRoute(establishedRoute);
-			CourierCoordinates = courierCoordinates;
-		}
-
-		public void UpdateClientCoordinates(CoordinatesDto clientCoordinates)
-		{
-			ClientCoordinates = clientCoordinates;
 		}
 
 		private void UpdatePromoSets(IEnumerable<IProduct> orderItems)

@@ -16,11 +16,11 @@ namespace CustomerOrdersApi.Library.V4.Factories
 			int? onlineOrderId,
 			DateTime ratingAvailableFrom,
 			bool establishedRoute,
-			bool isOrderWasSelectedAsNext,
-			IEnumerable<CoordinatesDto> courierCoordinates,
-			CoordinatesDto clientCoordinates);
+			bool isOrderWasSelectedAsNext);
+
 		DetailedOrderInfoDto CreateDetailedOrderInfo(
 			OnlineOrder onlineOrder, OrderRating orderRating, OnlineOrderTimers timers, int? orderId, DateTime ratingAvailableFrom);
+
 		ActiveOrderDto CreateActiveOrderInfo(
 			OrderDto orderDto,
 			bool establishedRoute,

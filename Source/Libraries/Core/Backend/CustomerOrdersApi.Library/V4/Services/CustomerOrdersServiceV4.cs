@@ -200,7 +200,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 						x => x.Order.Id == order.Id)
 					.FirstOrDefault();
 
-				var (establishedRoute, courierCoordinates, _) = await GetDriverPositionData(uow, order, cancellationToken);
+				var (establishedRoute, _, _) = await GetEstablishedRoute(uow, order, cancellationToken);
 				var isOrderWasSelectedAsNext =
 					establishedRoute || await _routeListRepository.IsOrderWasSelectedAsNext(uow, order.Id, cancellationToken);
 				var clientCoordinates = GetClientCoordinates(order);
@@ -212,9 +212,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 					getDetailedOrderInfoDto.OnlineOrderId,
 					ratingAvailableFrom,
 					establishedRoute,
-					isOrderWasSelectedAsNext,
-					courierCoordinates,
-					clientCoordinates);
+					isOrderWasSelectedAsNext);
 			}
 
 			var onlineOrder = uow.GetById<OnlineOrder>(getDetailedOrderInfoDto.OnlineOrderId.Value);
