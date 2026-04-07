@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.Text.Json.Serialization;
 
 namespace CustomerOrdersApi.Library.V4.Dto.Orders
 {
@@ -10,6 +10,7 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 		/// <summary>
 		/// Статус отслеживания курьера
 		/// </summary>
+		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public CourierTrackingStatusTypeDto? TrackingStatus { get; set; }
 
 		/// <summary>

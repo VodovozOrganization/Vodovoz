@@ -127,7 +127,7 @@ namespace CustomerOrdersApi.Controllers.V4
 		}
 		
 		[HttpGet]
-		public IActionResult GetOrders([FromBody] GetOrdersDto getOrdersDto)
+		public async Task<IActionResult> GetOrders([FromBody] GetOrdersDto getOrdersDto)
 		{
 			var sourceName = getOrdersDto.Source.GetEnumTitle();
 			
@@ -149,7 +149,7 @@ namespace CustomerOrdersApi.Controllers.V4
 					getOrdersDto.CounterpartyErpId,
 					getOrdersDto.Page);
 				
-				var orders = _customerOrdersService.GetOrders(getOrdersDto);
+				var orders = await _customerOrdersService.GetOrders(getOrdersDto);
 				
 				return Ok(orders);
 			}

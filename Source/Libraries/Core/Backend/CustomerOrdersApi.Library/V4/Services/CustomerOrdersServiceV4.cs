@@ -550,7 +550,16 @@ namespace CustomerOrdersApi.Library.V4.Services
 					return Result.Failure<CourierCoordinatesDto>(OnlineOrderErrors.OnlineOrderHasManyErpOrders);
 				}
 
-				order = orders.First();
+				if(getCourierCoordinatesDto.OrderId != null
+					&& !orders.Any(x => x.Id == getCourierCoordinatesDto.OrderId))
+				{
+					return Result.Failure<CourierCoordinatesDto>(OnlineOrderErrors.ErpOrderNotRelatedToOnlineOrder);
+				}
+
+				order =
+					getCourierCoordinatesDto.OrderId is null
+					? orders.First()
+					: orders.First(x => x.Id == getCourierCoordinatesDto.OrderId);
 			}
 			else
 			{

@@ -262,6 +262,12 @@ namespace Vodovoz.Errors.Orders
 				nameof(OnlineOrderHasManyErpOrders),
 				"Для онлайн заказа создано несколько заказов в ERP");
 
+		public static Error ErpOrderNotRelatedToOnlineOrder =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(ErpOrderNotRelatedToOnlineOrder),
+				"Указанный заказ в ERP не связан с указанным онлайн заказом");
+
 		public static Error OrderHasInvalidStatusForCourierCoordinates =>
 			new Error(
 				typeof(OnlineOrderErrors),
