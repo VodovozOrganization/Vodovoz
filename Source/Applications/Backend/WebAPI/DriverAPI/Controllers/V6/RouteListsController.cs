@@ -89,14 +89,14 @@ namespace DriverAPI.Controllers.V6
 		[HttpPost]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetRouteListsDetailsResponse))]
-		public IActionResult GetRouteListsDetails([FromBody] int[] routeListsIds)
+		public async Task<IActionResult> GetRouteListsDetails([FromBody] int[] routeListsIds, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Запрос МЛ-ов с деталями: {@RouteListIds} пользователем {Username} User token: {AccessToken}",
 				routeListsIds,
 				HttpContext.User.Identity?.Name ?? "Unknown",
 				Request.Headers[HeaderNames.Authorization]);
 
-			var routeLists = _apiRouteListService.GetRouteLists(routeListsIds);
+			var routeLists = await _apiRouteListService.GetRouteLists(routeListsIds, cancellationToken);
 			var ordersIds = routeLists
 				.Where(x => x.CompletionStatus == RouteListDtoCompletionStatus.Incompleted)
 				.SelectMany(x => x.IncompletedRouteList.RouteListAddresses.Select(x => x.OrderId));

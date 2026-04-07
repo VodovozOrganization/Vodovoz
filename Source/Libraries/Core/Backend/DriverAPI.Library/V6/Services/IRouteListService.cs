@@ -26,8 +26,9 @@ namespace DriverAPI.Library.V6.Services
 		/// Получение информации о маршрутных листах в требуемом формате
 		/// </summary>
 		/// <param name="routeListsIds">Список идентификаторов МЛ</param>
+		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Список информаций о маршрутных листах <see cref="IEnumerable{T}"/> <see cref="RouteListDto"/></returns>
-		IEnumerable<RouteListDto> GetRouteLists(int[] routeListsIds);
+		Task<IEnumerable<RouteListDto>> GetRouteLists(int[] routeListsIds, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Получение списка идентификаторов МЛ для водителя по его Email адресу

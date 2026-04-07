@@ -97,11 +97,16 @@ namespace DriverAPI.Library.V6.Services
 				spectiaConditionsToAccept = _domainRouteListSpecialConditionsService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeListId);
 			}
 
-			var lastSelectedAddress = await _routeListRepository.GetLastSelectedAddressForRouteList(
-				_unitOfWork,
-				routeList.Driver.Id,
-				routeList.Id,
-				cancellationToken);
+			DriversSelectedAddress lastSelectedAddress = null;
+
+			if(routeList.Status == RouteListStatus.EnRoute)
+			{
+				lastSelectedAddress = await _routeListRepository.GetLastSelectedAddressForRouteList(
+					_unitOfWork,
+					routeList.Driver.Id,
+					routeList.Id,
+					cancellationToken);
+			}
 
 			return _routeListConverter.ConvertToAPIRouteList(
 				routeList,
@@ -110,7 +115,7 @@ namespace DriverAPI.Library.V6.Services
 				lastSelectedAddress?.NextAddressId);
 		}
 
-		public IEnumerable<RouteListDto> GetRouteLists(int[] routeListsIds)
+		public async Task<IEnumerable<RouteListDto>> GetRouteLists(int[] routeListsIds, CancellationToken cancellationToken = default)
 		{
 			var vodovozRouteLists = _routeListRepository.GetRouteListsByIds(_unitOfWork, routeListsIds);
 			var routeLists = new List<RouteListDto>();
@@ -126,7 +131,24 @@ namespace DriverAPI.Library.V6.Services
 						spectiaConditionsToAccept = _domainRouteListSpecialConditionsService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeList.Id);
 					}
 
-					routeLists.Add(_routeListConverter.ConvertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeList.Id), spectiaConditionsToAccept));
+					DriversSelectedAddress lastSelectedAddress = null;
+
+					if(routeList.Status == RouteListStatus.EnRoute)
+					{
+						lastSelectedAddress = await _routeListRepository.GetLastSelectedAddressForRouteList(
+							_unitOfWork,
+							routeList.Driver.Id,
+							routeList.Id,
+							cancellationToken);
+					}
+
+					var routeListDto = _routeListConverter.ConvertToAPIRouteList(
+						routeList,
+						_routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeList.Id),
+						spectiaConditionsToAccept,
+						lastSelectedAddress?.NextAddressId);
+
+					routeLists.Add(routeListDto);
 				}
 				catch(ConverterException e)
 				{
