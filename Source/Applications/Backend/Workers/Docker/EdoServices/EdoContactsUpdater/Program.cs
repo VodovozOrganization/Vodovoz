@@ -1,4 +1,6 @@
 using Autofac.Extensions.DependencyInjection;
+using Edo.Common;
+using Edo.Problems.Routine;
 using EdoContactsUpdater.Configs;
 using EdoContactsUpdater.Converters;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,6 +45,7 @@ namespace EdoContactsUpdater
 						)
 						.AddDatabaseConnection()
 						.AddCore()
+						.AddEdo()
 						.AddTrackedUoW()
 						.AddInfrastructure(ServiceLifetime.Singleton)
 						.AddStaticHistoryTracker()
@@ -56,6 +59,7 @@ namespace EdoContactsUpdater
 						.ConfigureZabbixSenderFromDataBase(nameof(TaxcomEdoContactsUpdaterService));
 					
 					services.AddHostedService<TaxcomEdoContactsUpdaterService>();
+					services.AddHostedService<OrderContactProblemUpdateWorker>();
 				});
 	}
 }
