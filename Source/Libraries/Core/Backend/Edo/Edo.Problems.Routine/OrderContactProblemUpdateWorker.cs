@@ -34,13 +34,6 @@ namespace Edo.Problems.Routine
 		
 		protected override async Task DoWork(CancellationToken stoppingToken)
 		{
-			if(_workInProgress)
-			{
-				return;
-			}
-
-			_workInProgress = true;
-
 			try
 			{
 				var now = DateTime.Now;
@@ -100,16 +93,9 @@ namespace Edo.Problems.Routine
 					"Ошибка при обработке заказов в: {ErrorDateTime}",
 					DateTimeOffset.Now);
 			}
-			finally
-			{
-				_workInProgress = false;
-			}
-			
 			
 			_logger.LogInformation(
 				"Воркер {WorkerName} ожидает '{DelayTime}' мин. перед следующим запуском", nameof(OrderContactProblemUpdateWorker), _intervalMinutes);
-
-			await Task.CompletedTask;
 		}
 		
 		protected override void OnStartService()
