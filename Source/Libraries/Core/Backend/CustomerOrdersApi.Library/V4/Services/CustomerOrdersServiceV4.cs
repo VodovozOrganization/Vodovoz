@@ -202,7 +202,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 
 				var (establishedRoute, _, _) = await GetEstablishedRoute(uow, order, cancellationToken);
 				var isOrderWasSelectedAsNext =
-					establishedRoute || await _routeListRepository.IsOrderWasSelectedAsNext(uow, order.Id, cancellationToken);
+					establishedRoute || await _routeListRepository.IsOrderEverWasSelectedAsNext(uow, order.Id, cancellationToken);
 				var clientCoordinates = GetClientCoordinates(order);
 
 				return _customerOrderFactory.CreateDetailedOrderInfo(
@@ -292,7 +292,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 						var (estRoute, _, _) = await GetEstablishedRoute(uow, order, cancellationToken);
 						establishedRoute = estRoute;
 						isOrderWasSelectedAsNext =
-							establishedRoute || await _routeListRepository.IsOrderWasSelectedAsNext(uow, order.Id, cancellationToken);
+							establishedRoute || await _routeListRepository.IsOrderEverWasSelectedAsNext(uow, order.Id, cancellationToken);
 					}
 				}
 

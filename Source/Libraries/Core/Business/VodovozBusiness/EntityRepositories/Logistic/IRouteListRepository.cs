@@ -149,12 +149,12 @@ namespace Vodovoz.EntityRepositories.Logistic
 		Task<RouteListItem> GetEnRouteRouteListItemByOrderId(IUnitOfWork uow, int orderId, CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// Проверка, что заказ был выбран в качестве следующего для водителя в маршрутном листе, который сейчас находится в статусе "В пути"
+		/// Проверка, что заказ когда-либо был выбран следующим в маршрутном листе
 		/// </summary>
 		/// <param name="uow">UnitofWork</param>
 		/// <param name="orderId">Номер заказа</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<bool> IsOrderWasSelectedAsNext(IUnitOfWork uow, int orderId, CancellationToken cancellationToken = default);
+		Task<bool> IsOrderEverWasSelectedAsNext(IUnitOfWork uow, int orderId, CancellationToken cancellationToken = default);
 	}
 }
