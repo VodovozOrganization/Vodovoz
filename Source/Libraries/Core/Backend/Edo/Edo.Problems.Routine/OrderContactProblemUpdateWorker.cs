@@ -116,6 +116,13 @@ namespace Edo.Problems.Routine
 					var request = orderEdoTask.FormalEdoRequest;
 					var order = request.Order;
 
+					var isActiveProblem = orderEdoTask.Problems.Any(problem => problem.State == TaskProblemState.Active);
+
+					if(isActiveProblem)
+					{
+						continue;
+					}
+					
 					var resendResult = _edoService.ResendEdoDocumentForOrder(order);
 
 					if(!resendResult.IsFailure)
