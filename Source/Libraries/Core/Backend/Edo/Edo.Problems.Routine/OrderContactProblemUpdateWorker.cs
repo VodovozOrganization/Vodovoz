@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Edo.Common;
+using EdoService.Library;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -16,16 +18,19 @@ namespace Edo.Problems.Routine
 	{
 		private readonly ILogger<OrderContactProblemUpdateWorker> _logger;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
+		private readonly IEdoService _edoService;
 
 		private readonly int _intervalMinutes = 15;
 		
 		public OrderContactProblemUpdateWorker(
 			ILogger<OrderContactProblemUpdateWorker> logger,
-			IServiceScopeFactory serviceScopeFactory)
+			IServiceScopeFactory serviceScopeFactory,
+			IEdoService edoService)
 		{
 			_logger = logger;
 			_serviceScopeFactory = serviceScopeFactory;
-			
+			_edoService = edoService;
+
 			Interval = TimeSpan.FromMinutes(_intervalMinutes);
 		}
 		
@@ -55,35 +60,77 @@ namespace Edo.Problems.Routine
 								     (problem.SourceName == "OrderContactMissingException" || problem.SourceName == "Receipt.ContactValid")
 								     && problem.State == TaskProblemState.Active),
 							cancellationToken: stoppingToken))
-					.Value.ToArray();
+					.Value.ToList();
 
+				var tasksToRemove = new List<EdoTask>();
+				
 				foreach(var edoTask in edoTasks)
 				{
-					if(edoTask is OrderEdoTask orderEdoTask)
+					if(edoTask is not OrderEdoTask orderEdoTask)
 					{
-						var request = orderEdoTask.FormalEdoRequest;
-						var order = request.Order;
+						continue;
+					}
 
-						var contact = edoOrderContactProvider.GetContact(order);
+					var request = orderEdoTask.FormalEdoRequest;
+					var order = request.Order;
 
-						if(order.Client != null && contact.IsValid)
+					var contact = edoOrderContactProvider.GetContact(order);
+
+					if(order.Client != null && contact.IsValid)
+					{
+						var problem = orderEdoTask.Problems.FirstOrDefault(problem =>
+							(problem.SourceName is "OrderContactMissingException" or "Receipt.ContactValid")
+							&& problem.State == TaskProblemState.Active);
+						
+						if(problem == null)
 						{
-							var problem = orderEdoTask.Problems.FirstOrDefault(problem =>
-								(problem.SourceName is "OrderContactMissingException" or "Receipt.ContactValid")
-								&& problem.State == TaskProblemState.Active);
-							if(problem != null)
-							{
-								problem.State = TaskProblemState.Solved;
-								orderEdoTask.Status = EdoTaskStatus.InProgress;
-
-								await uow.SaveAsync(problem, cancellationToken: stoppingToken);
-								await uow.SaveAsync(orderEdoTask, cancellationToken: stoppingToken);
-							}
+							continue;
 						}
+
+						problem.State = TaskProblemState.Solved;
+						orderEdoTask.Status = EdoTaskStatus.InProgress;
+
+						await uow.SaveAsync(problem, cancellationToken: stoppingToken);
+						await uow.SaveAsync(orderEdoTask, cancellationToken: stoppingToken);
+					}
+					else
+					{
+						tasksToRemove.Add(edoTask);
 					}
 				}
 
+				foreach (var t in tasksToRemove)
+				{
+					edoTasks.Remove(t);
+				}
+
 				await uow.CommitAsync(stoppingToken);
+
+				foreach(var edoTask in edoTasks)
+				{
+					if(edoTask is not OrderEdoTask orderEdoTask)
+					{
+						continue;
+					}
+
+					var request = orderEdoTask.FormalEdoRequest;
+					var order = request.Order;
+
+					var resendResult = _edoService.ResendEdoDocumentForOrder(order);
+
+					if(!resendResult.IsFailure)
+					{
+						continue;
+					}
+
+					var errors = string.Join("\n - ", resendResult.Errors.Select(x => x.Message));
+
+					_logger.LogError(
+						"Не удалось переотправить документ для заказа {OrderId}.\nПричины:\n - {Errors}",
+						order.Id,
+						errors
+					);
+				}
 			}
 			catch(Exception e)
 			{

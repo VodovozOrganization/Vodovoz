@@ -3,6 +3,7 @@ using Edo.Common;
 using Edo.Problems.Routine;
 using EdoContactsUpdater.Configs;
 using EdoContactsUpdater.Converters;
+using EdoService.Library;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -46,6 +47,7 @@ namespace EdoContactsUpdater
 						.AddDatabaseConnection()
 						.AddCore()
 						.AddEdo()
+						.AddEdoServicesLibrary()
 						.AddTrackedUoW()
 						.AddInfrastructure(ServiceLifetime.Singleton)
 						.AddStaticHistoryTracker()
