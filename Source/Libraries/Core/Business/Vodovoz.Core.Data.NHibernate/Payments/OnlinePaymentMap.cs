@@ -15,6 +15,10 @@ namespace Vodovoz.Core.Data.NHibernate.Payments
 				.Column("id")
 				.GeneratedBy.Native();
 
+			Map(x => x.ExternalId)
+				.Column("external_id")
+				.Unique();
+
 			Map(x => x.TransactionId)
 				.Column("transaction_id");
 

@@ -87,6 +87,11 @@ namespace Vodovoz.Errors.Orders
 				nameof(OrderDoesNotBelongToCounterparty),
 				"Заказ не принадлежит клиенту");
 
+		public static Error CannotTransferFastDeliveryOrder =>
+			new Error(
+				typeof(OrderErrors),
+				nameof(CannotTransferFastDeliveryOrder),
+				"Нельзя отменить заказ с ДЗЧ");
 		public static Error FastDelivery19LBottlesLimitError(int water19lInOrder, int fastDelivery19LBottlesLimit) =>
 			new Error(
 				typeof(OrderErrors),
@@ -116,16 +121,22 @@ namespace Vodovoz.Errors.Orders
 				typeof(OrderErrors),
 				nameof(SplitOrderError),
 				"Произошла ошибка при разбиении заказа");
+		public static Error CannotCancelOrder =>
+			new Error(
+				"400",
+				"Невозможно отменить заказ");
 
 		public static Error RouteListItemNotFound(int orderId) =>
 			new Error(
 				"400",
 				$"Позиция маршрутного листа не найдена для заказа {orderId}");
 
-		public static Error CannotCancelOrder =>
+
+		public static Error CannotCancelOrderWithError(string errorMessage) =>
 			new Error(
 				"400",
-				"Невозможно отменить заказ");
+				$"Невозможно отменить заказ: {errorMessage}");
+
 
 		public static Error CannotCancelOrderInStatus(OrderStatus status) =>
 			new Error(

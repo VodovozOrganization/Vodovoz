@@ -137,13 +137,6 @@ namespace CustomerOrdersApi.Library.V4.Services
 				return Result.Failure<string>(OrderErrors.OrderDoesNotBelongToCounterparty);
 			}
 
-			if(onlineOrder?.IsFastDelivery is true)
-			{
-				_logger.LogWarning("Нельзя отменить заказ с ДЗЧ {OrderId}", order.Id);
-
-				return Result.Failure<string>(OnlineOrderErrors.CannotCancelFastDeliveryOrder);
-			}
-
 			_logger.LogInformation(
 				"Начало отмены заказа {OrderId}, статус: {Status}, оплачен: {IsPaid}",
 				order.Id,
@@ -189,7 +182,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 			}
 			else
 			{
-				_logger.LogWarning("Отмена заказа {OrderId} не выполнена, ошибка: {Error}", order.Id, result.Errors.FirstOrDefault());
+				_logger.LogWarning("Отмена заказа {OrderId} не выполнена, ошибка: {Error}", order.Id, result.Errors.FirstOrDefault().Message);
 			}
 
 			return result;
@@ -236,7 +229,6 @@ namespace CustomerOrdersApi.Library.V4.Services
 			return Result.Failure<(Order, OnlineOrder)>(OrderErrors.NotFound);
 		}
 
-
 		private Order GetActiveOrder(OnlineOrder onlineOrder)
 		{
 			var undeliveryStatuses = _orderRepository.GetUndeliveryStatuses();
@@ -249,19 +241,19 @@ namespace CustomerOrdersApi.Library.V4.Services
 		/// </summary>
 		private async Task<string> GetTransactionIdForCancellationAsync(
 			IUnitOfWork uow,
-			Order order,
+			OnlineOrder onlineOrder,
 			CancellationToken cancellationToken)
 		{
-			if(order.OnlinePaymentNumber.HasValue is true)
+			if(onlineOrder.OnlinePayment.HasValue is true)
 			{
-				var onlinePayment = await _onlinePaymentRepository.GetByExternalIdAsync(uow, order.OnlinePaymentNumber.Value, cancellationToken);
+				var onlinePayment = await _onlinePaymentRepository.GetByExternalIdAsync(uow, onlineOrder.OnlinePayment.Value, cancellationToken);
 				if(onlinePayment is not null && !string.IsNullOrWhiteSpace(onlinePayment.TransactionId))
 				{
 					return onlinePayment.TransactionId;
 				}
 			}
 
-			_logger.LogWarning("Не удалось найти TransactionId для заказа {OrderId}", order?.Id);
+			_logger.LogWarning("Не удалось найти TransactionId для заказа {OrderId}", onlineOrder?.Id);
 			return null;
 		}
 
@@ -417,7 +409,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 				return Result.Success();
 			}
 
-			var transactionId = await GetTransactionIdForCancellationAsync(uow, order, cancellationToken);
+			var transactionId = await GetTransactionIdForCancellationAsync(uow, onlineOrder, cancellationToken);
 			var refundResult = await ProcessRefundAsync(uow, order, onlineOrder, transactionId, cancellationToken);
 
 			if(refundResult.IsFailure)
@@ -438,6 +430,11 @@ namespace CustomerOrdersApi.Library.V4.Services
 			string transactionId,
 			CancellationToken cancellationToken)
 		{
+			if(string.IsNullOrEmpty(transactionId))
+			{
+				return Result.Failure(OrderErrors.CannotCancelOrder);
+			}
+
 			_logger.LogInformation(
 				"Обработка возврата для оплаченного заказа {OrderId}. TransactionId: {TransactionId}",
 				order.Id,
@@ -462,7 +459,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 					order.Id,
 					refundResult.ErrorMessage);
 
-				return Result.Failure(OnlineOrderErrors.CantUpdateOrder(refundResult.ErrorMessage));
+				return Result.Failure(OrderErrors.CannotCancelOrderWithError(refundResult.ErrorMessage));
 			}
 
 			if(refundResult.NewPaymentStatus != onlineOrder.OnlineOrderPaymentStatus)

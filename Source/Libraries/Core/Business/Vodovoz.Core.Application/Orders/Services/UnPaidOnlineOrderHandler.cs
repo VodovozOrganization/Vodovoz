@@ -126,7 +126,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.HasTimeToPayOrderExpired);
 			}
 			
-			if(onlineOrder.OnlineOrderPaymentStatus == OnlineOrderPaymentStatus.Paid)
+			if(onlineOrder.OnlineOrderPaymentStatus is OnlineOrderPaymentStatus.Paid)
 			{
 				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.IsOnlineOrderPaid);
 			}
@@ -152,7 +152,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.OnlineOrderNotFound);
 			}
 			
-			if(data.PaymentStatus == OnlineOrderPaymentStatus.Paid && !data.OnlinePayment.HasValue)
+			if(data.PaymentStatus is OnlineOrderPaymentStatus.Paid && !data.OnlinePayment.HasValue)
 			{
 				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.OnlineOrderIsPaidButOnlinePaymentIsEmpty);
 			}
@@ -162,7 +162,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.IsUnknownDeliverySchedule);
 			}
 			
-			if(onlineOrder.OnlineOrderPaymentStatus == OnlineOrderPaymentStatus.Paid)
+			if(onlineOrder.OnlineOrderPaymentStatus is OnlineOrderPaymentStatus.Paid)
 			{
 				return await TryUpdatePaidOnlineOrder(uow, orders, onlineOrder, deliverySchedule, data, cancellationToken);
 			}
@@ -173,8 +173,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 					return await TryUpdateUnPaidOnlineOrderWithOrders(uow, orders, onlineOrder, data, cancellationToken);
 				}
 				
-				if(onlineOrder.OnlineOrderStatus == OnlineOrderStatus.Canceled
-					&& data.PaymentStatus == OnlineOrderPaymentStatus.Paid)
+				if(onlineOrder.OnlineOrderStatus is OnlineOrderStatus.Canceled
+					&& data.PaymentStatus is OnlineOrderPaymentStatus.Paid)
 				{
 					onlineOrder.UpdateOnlineOrderPaymentData(
 						data.OnlineOrderPaymentType,
@@ -196,7 +196,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_logger.LogInformation("Полностью обновляем онлайн заказ {OnlineOrderId}", onlineOrder.Id);
 			onlineOrder.UpdateOnlineOrder(deliverySchedule, data);
 
-			if(onlineOrder.OnlineOrderStatus == OnlineOrderStatus.New
+			if(onlineOrder.OnlineOrderStatus is OnlineOrderStatus.New
 				&& onlineOrder.EmployeeWorkWith is null
 				&& !orders.Any())
 			{
@@ -237,11 +237,11 @@ namespace Vodovoz.Core.Application.Orders.Services
 			foreach(var order in orders)
 			{
 				if(OrderEntity.GetOnClosingOrderStatuses.Contains(order.OrderStatus)
-					&& (order.PaymentType == PaymentType.Cash
-						|| order.PaymentType == PaymentType.DriverApplicationQR
-						|| order.PaymentType == PaymentType.SmsQR
-						|| order.PaymentType == PaymentType.PaidOnline
-						|| order.PaymentType == PaymentType.Terminal)
+					&& (order.PaymentType is PaymentType.Cash
+						|| order.PaymentType is PaymentType.DriverApplicationQR
+						|| order.PaymentType is PaymentType.SmsQR
+						|| order.PaymentType is PaymentType.PaidOnline
+						|| order.PaymentType is PaymentType.Terminal)
 					&& !order.OnlinePaymentNumber.HasValue)
 				{
 					needUpdate &= true;
@@ -269,7 +269,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				data.OnlinePayment);
 
 			if(data.OnlinePayment.HasValue
-				&& data.PaymentStatus == OnlineOrderPaymentStatus.Paid
+				&& data.PaymentStatus is OnlineOrderPaymentStatus.Paid
 				&& data.OnlineOrderPaymentType.HasValue)
 			{
 				_onlinePaymentAcceptanceHandler.AcceptOnlinePayment(
@@ -314,7 +314,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			}
 
 			var order = GetActiveOrder(onlineOrder);
-			if(order == null)
+			if(order is null)
 			{
 				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.IsOnlineOrderDoesNotHaveALinkedOrder);
 			}

@@ -119,6 +119,13 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return Result.Failure(OrderErrors.CannotTransferOrderInStatus(order.OrderStatus));
 			}
 
+			if(order?.IsFastDelivery is true)
+			{
+				_logger.LogWarning("Нельзя перенести заказ с ДЗЧ {OrderId}", order.Id);
+
+				return Result.Failure<string>(OrderErrors.CannotTransferFastDeliveryOrder);
+			}
+
 			return Result.Success();
 		}
 

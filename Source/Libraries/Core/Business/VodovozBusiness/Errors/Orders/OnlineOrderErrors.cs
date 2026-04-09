@@ -110,12 +110,6 @@ namespace Vodovoz.Errors.Orders
 				nameof(FastDeliveryNotAvailable),
 				"Быстрая доставка не доступна");
 		
-		public static Error CannotCancelFastDeliveryOrder =>
-			new Error(
-				typeof(OnlineOrderErrors),
-				nameof(CannotCancelFastDeliveryOrder),
-				"Нельзя отменить заказ с ДЗЧ");
-		
 		public static Error IsArchivedOnlineOrderPromoSet(string promoSetTitle) =>
 			new Error(
 				typeof(OnlineOrderErrors),

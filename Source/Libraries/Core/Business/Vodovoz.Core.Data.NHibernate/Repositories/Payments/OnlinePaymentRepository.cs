@@ -13,7 +13,9 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Payments
 			int externalId,
 			CancellationToken cancellationToken)
 		{
-			return await uow.Session.GetAsync<OnlinePayment>(externalId, cancellationToken);
+			return await uow.Session.QueryOver<OnlinePayment>()
+				.Where(x => x.ExternalId == externalId)
+				.SingleOrDefaultAsync(cancellationToken);
 		}
 	}
 }
