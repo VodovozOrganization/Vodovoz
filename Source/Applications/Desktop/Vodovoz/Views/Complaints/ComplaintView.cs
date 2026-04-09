@@ -146,9 +146,8 @@ namespace Vodovoz.Views.Complaints
 			cmbComplaintResultOfEmployees.Binding
 				.AddBinding(ViewModel, vm => vm.ComplaintResultsOfEmployees, w => w.ItemsList)
 				.AddBinding(ViewModel.Entity, e => e.ComplaintResultOfEmployees, w => w.SelectedItem)
+				.AddBinding(ViewModel, vm => vm.CanEdit, w => w.Sensitive)
 				.InitializeFromSource();
-
-			cmbComplaintResultOfEmployees.Sensitive = false;
 
 			smallfileinformationsview1.ViewModel = ViewModel.AttachedFileInformationsViewModel;
 
