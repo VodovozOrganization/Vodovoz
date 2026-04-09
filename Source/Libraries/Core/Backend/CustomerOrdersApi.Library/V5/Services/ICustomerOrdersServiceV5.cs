@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
 using DetailedOrderInfoDto = CustomerOrdersApi.Library.V5.Dto.Orders.DetailedOrderInfoDto;
+using ChangingOrderDto = CustomerOrdersApi.Library.V5.Dto.Orders.ChangingOrderDto;
 
 namespace CustomerOrdersApi.Library.V5.Services
 {

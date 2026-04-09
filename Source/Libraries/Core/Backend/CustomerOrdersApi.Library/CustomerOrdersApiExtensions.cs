@@ -25,6 +25,7 @@ using Vodovoz.Settings.Pacs;
 using VodovozInfrastructure.Cryptography;
 using YandexPayApi.Client;
 using YooKassaApi.Client;
+using ChangingOrderDtoV5 = CustomerOrdersApi.Library.V5.Dto.Orders.ChangingOrderDto;
 
 namespace CustomerOrdersApi.Library
 {
@@ -165,6 +166,26 @@ namespace CustomerOrdersApi.Library
 				UnPaidReason = source.UnPaidReason,
 				DeliveryDate = source.DeliveryDate,
 				DeliveryScheduleId = source.DeliveryScheduleId
+			};
+		}
+
+		public static UpdateOnlineOrderFromChangeRequest ToUpdateOnlineOrderFromChangeRequest(this ChangingOrderDtoV5 source)
+		{
+			return new UpdateOnlineOrderFromChangeRequest
+			{
+				OnlineOrderId = source.OnlineOrderId,
+				OnlinePayment = source.OnlinePayment,
+				IsFastDelivery = source.IsFastDelivery,
+				Source = source.Source,
+				PaymentStatus = source.PaymentStatus,
+				OnlinePaymentSource = source.OnlinePaymentSource,
+				ErpCounterpartyId = source.ErpCounterpartyId,
+				ExternalCounterpartyId = source.ExternalCounterpartyId,
+				OnlineOrderPaymentType = source.OnlineOrderPaymentType,
+				UnPaidReason = source.UnPaidReason,
+				DeliveryDate = source.DeliveryDate,
+				DeliveryScheduleId = source.DeliveryScheduleId,
+				TransactionId = source.TransactionId
 			};
 		}
 

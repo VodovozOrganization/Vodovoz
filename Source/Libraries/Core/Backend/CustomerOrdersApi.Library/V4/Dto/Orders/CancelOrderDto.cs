@@ -13,15 +13,19 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 		public Source Source { get; set; }
 
 		/// <summary>
-		/// Идентификатор заказа 
+		/// Идентификатор клиента ДВ 
 		/// </summary>
 		[Required]
-		public Guid ExternalOrderId { get; set; }
+		public int ErpCounterpartyId { get; set; }
 
 		/// <summary>
-		/// Идентификатор транзакции
+		/// ID заказа (опционально)
 		/// </summary>
-		[Required]
-		public string TransactionId { get; set; }
+		public int? OrderId { get; set; }
+
+		/// <summary>
+		/// ID онлайн-заказа (опционально)
+		/// </summary>
+		public int? OnlineOrderId { get; set; }
 	}
 }

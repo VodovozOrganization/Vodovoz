@@ -86,6 +86,8 @@ namespace Vodovoz.Errors.Orders
 			new Error("400", "Нельзя менять тип оплаты");
 		public static Error IsUnknownDeliverySchedule =>
 			new Error("400", "Неизвестный график доставки");
+		public static Error OnlineOrderPaymentNumberNotFound =>
+			new Error("400", "Оплата по онлайн заказу не найдена");
 		public static Error HasTimeToPayOrderExpired =>
 			new Error("408", "Время на оплату заказа истекло. В ближайшее время с Вами свяжется менеджер для оформления заказа");
 		public static Error IsOnlineOrderTimersEmpty =>
@@ -107,6 +109,12 @@ namespace Vodovoz.Errors.Orders
 				typeof(OnlineOrderErrors),
 				nameof(FastDeliveryNotAvailable),
 				"Быстрая доставка не доступна");
+		
+		public static Error CannotCancelFastDeliveryOrder =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(CannotCancelFastDeliveryOrder),
+				"Нельзя отменить заказ с ДЗЧ");
 		
 		public static Error IsArchivedOnlineOrderPromoSet(string promoSetTitle) =>
 			new Error(

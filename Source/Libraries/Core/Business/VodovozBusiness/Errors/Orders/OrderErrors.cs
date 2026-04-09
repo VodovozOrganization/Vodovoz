@@ -1,6 +1,5 @@
 ﻿using Gamma.Utilities;
 using System;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
 
@@ -81,6 +80,12 @@ namespace Vodovoz.Errors.Orders
 				typeof(OrderErrors),
 				nameof(NotInOnTheWayStatus),
 				"Заказ не в статусе в пути");
+
+		public static Error OrderDoesNotBelongToCounterparty =>
+			new Error(
+				typeof(OrderErrors),
+				nameof(OrderDoesNotBelongToCounterparty),
+				"Заказ не принадлежит клиенту");
 
 		public static Error FastDelivery19LBottlesLimitError(int water19lInOrder, int fastDelivery19LBottlesLimit) =>
 			new Error(

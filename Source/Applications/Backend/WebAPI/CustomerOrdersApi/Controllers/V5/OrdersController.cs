@@ -1,5 +1,4 @@
 ﻿using CustomerOrdersApi.Library.Common;
-using CustomerOrdersApi.Library.Services;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using CustomerOrdersApi.Library.V4.Services;
 using CustomerOrdersApi.Library.V5.Services;
@@ -13,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Presentation.WebApi.Messages;
+using ChangingOrderDtoV5 = CustomerOrdersApi.Library.V5.Dto.Orders.ChangingOrderDto;
 
 namespace CustomerOrdersApi.Controllers.V5
 {
@@ -20,18 +20,18 @@ namespace CustomerOrdersApi.Controllers.V5
 	public class OrdersController : SignatureControllerBase
 	{
 		private readonly ICustomerOrdersServiceV5 _customerOrdersService;
-		private readonly ICustomerOrderCancellationService _orderCancellationLogicService;
+		private readonly ICustomerOrderCancellationService _orderCancellationService;
 		private readonly IRequestClient<CreatingOnlineOrder> _requestClient;
 
 		public OrdersController(
 			ILogger<OrdersController> logger,
 			ICustomerOrdersServiceV5 customerOrdersService,
-			ICustomerOrderCancellationService orderCancellationLogicService,
+			ICustomerOrderCancellationService orderCancellationService,
 			IRequestClient<CreatingOnlineOrder> requestClient
 			) : base(logger)
 		{
 			_customerOrdersService = customerOrdersService ?? throw new ArgumentNullException(nameof(customerOrdersService));
-			_orderCancellationLogicService = orderCancellationLogicService ?? throw new ArgumentNullException(nameof(orderCancellationLogicService));
+			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
 			_requestClient = requestClient ?? throw new ArgumentNullException(nameof(requestClient));
 		}
 
@@ -178,7 +178,7 @@ namespace CustomerOrdersApi.Controllers.V5
 		}
 		
 		[HttpPost]
-		public async Task<IActionResult> ChangeOrder(ChangingOrderDto changingOrderDto, CancellationToken cancellationToken)
+		public async Task<IActionResult> ChangeOrder(ChangingOrderDtoV5 changingOrderDto, CancellationToken cancellationToken)
 		{
 			var sourceName = changingOrderDto.Source.GetEnumTitle();
 
@@ -215,24 +215,36 @@ namespace CustomerOrdersApi.Controllers.V5
 		{
 			var sourceName = cancelOrderDto.Source.GetEnumTitle();
 
+			if(!cancelOrderDto.OrderId.HasValue && !cancelOrderDto.OnlineOrderId.HasValue)
+			{
+				_logger.LogWarning(
+					"Поступил запрос от {Source} на отмену заказа без указания OrderId или OnlineOrderId",
+					sourceName);
+
+				return BadRequest("Необходимо указать OrderId или OnlineOrderId");
+			}
+
+			var orderId = cancelOrderDto.OrderId ?? cancelOrderDto.OnlineOrderId;
+
 			try
 			{
 				_logger.LogInformation(
-					"Поступил запрос от {Source} на отмену заказа {ExternalOrderId}",
+					"Поступил запрос от {Source} на отмену заказа {OrderId} от клиента {ClientId}",
 					sourceName,
-					cancelOrderDto.ExternalOrderId);
+					orderId,
+					cancelOrderDto.ErpCounterpartyId);
 
-				var result = await _orderCancellationLogicService.ApplyCancellationAsync(
-					cancelOrderDto.ExternalOrderId,
+				var result = await _orderCancellationService.ApplyCancellationAsync(
 					cancelOrderDto.Source,
-					cancelOrderDto.TransactionId,
+					cancelOrderDto.ErpCounterpartyId,
+					cancelOrderDto.OrderId,
+					cancelOrderDto.OnlineOrderId,
 					cancellationToken);
 
 				if(result.IsSuccess)
 				{
 					_logger.LogInformation(
-						"Заказ {ExternalOrderId} успешно отменен",
-						cancelOrderDto.ExternalOrderId);
+						"Заказ {OrderId} успешно отменен", orderId);
 
 					return Ok(result.Value);
 				}
@@ -241,8 +253,8 @@ namespace CustomerOrdersApi.Controllers.V5
 				var statusCode = GetStatusCodeFromError(error);
 
 				_logger.LogWarning(
-					"Отмена заказа {ExternalOrderId} не выполнена: {ErrorMessage}",
-					cancelOrderDto.ExternalOrderId,
+					"Отмена заказа {OrderId} не выполнена: {ErrorMessage}",
+					orderId,
 					error.Message);
 
 				return StatusCode(statusCode, new
@@ -255,16 +267,11 @@ namespace CustomerOrdersApi.Controllers.V5
 			catch(Exception e)
 			{
 				_logger.LogError(e,
-					"Ошибка при отмене заказа {ExternalOrderId} от {Source}",
-					cancelOrderDto.ExternalOrderId,
+					"Ошибка при отмене заказа {OrderId} от {Source}",
+					orderId,
 					sourceName);
 
-				return StatusCode(500, new
-				{
-					title = "One or more validation errors occurred",
-					status = 500,
-					detail = "Произошла ошибка, пожалуйста, попробуйте позже"
-				});
+				return Problem("Произошла ошибка, пожалуйста, попробуйте позже");
 			}
 		}
 

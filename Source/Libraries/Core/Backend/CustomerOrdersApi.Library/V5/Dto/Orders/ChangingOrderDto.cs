@@ -1,12 +1,13 @@
 ﻿using System;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Orders;
 
-namespace Vodovoz.Core.Domain.Orders
+namespace CustomerOrdersApi.Library.V5.Dto.Orders
 {
 	/// <summary>
-	/// Данные для обновления онлайн заказа
+	/// Данные для изменения заказа
 	/// </summary>
-	public class UpdateOnlineOrderFromChangeRequest
+	public class ChangingOrderDto
 	{
 		/// <summary>
 		/// Источник запроса
@@ -20,10 +21,6 @@ namespace Vodovoz.Core.Domain.Orders
 		/// Номер онлайн оплаты
 		/// </summary>
 		public int? OnlinePayment { get; set; }
-		/// <summary>
-		/// Идентификатор транзакции в платёжной системе
-		/// </summary>
-		public string TransactionId { get; set; }
 		/// <summary>
 		/// Id клиента из ДВ
 		/// </summary>
@@ -53,12 +50,16 @@ namespace Vodovoz.Core.Domain.Orders
 		/// </summary>
 		public DateTime? DeliveryDate { get; set; }
 		/// <summary>
-		/// Id интервала доставки
+		/// Интервал доставки
 		/// </summary>
 		public int? DeliveryScheduleId { get; set; }
 		/// <summary>
 		/// Быстрая доставка
 		/// </summary>
 		public bool IsFastDelivery { get; set; }
+		/// <summary>
+		/// Идентификатор транзакции
+		/// </summary>
+		public string TransactionId { get; set; }
 	}
 }

@@ -20,6 +20,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Cryptography;
+using ChangingOrderDto = CustomerOrdersApi.Library.V5.Dto.Orders.ChangingOrderDto;
 using DetailedOrderInfoDto = CustomerOrdersApi.Library.V5.Dto.Orders.DetailedOrderInfoDto;
 
 namespace CustomerOrdersApi.Library.V5.Services

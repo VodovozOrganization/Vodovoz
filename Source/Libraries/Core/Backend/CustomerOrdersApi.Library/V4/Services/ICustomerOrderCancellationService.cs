@@ -35,9 +35,10 @@ namespace CustomerOrdersApi.Library.V4.Services
 		/// Failure с соответствующей ошибкой - отмена невозможна
 		/// </returns>
 		Task<Result<string>> ApplyCancellationAsync(
-			Guid externalOrderId,
 			Source source,
-			string transactionId,
+			int counterpartyId,
+			int? orderId,
+			int? onlineOrderId,
 			CancellationToken cancellationToken);
 	}
 }

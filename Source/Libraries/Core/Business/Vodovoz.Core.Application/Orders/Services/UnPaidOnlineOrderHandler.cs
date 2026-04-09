@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
@@ -161,7 +162,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.IsUnknownDeliverySchedule);
 			}
 			
-			//у оплаченных мы меняем только информацию по доставке в нужных состояниях
 			if(onlineOrder.OnlineOrderPaymentStatus == OnlineOrderPaymentStatus.Paid)
 			{
 				return await TryUpdatePaidOnlineOrder(uow, orders, onlineOrder, deliverySchedule, data, cancellationToken);
@@ -364,6 +364,28 @@ namespace Vodovoz.Core.Application.Orders.Services
 					data.IsFastDelivery);
 
 				await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
+			}
+
+			if(!string.IsNullOrEmpty(data.TransactionId))
+			{
+				if(!onlineOrder.OnlinePayment.HasValue)
+				{
+					_logger.LogWarning(
+						"Не удалось сохранить OnlinePayment: поле OnlineOrder.OnlinePayment не заполнено для онлайн-заказа Id={OnlineOrderId}",
+						onlineOrder.Id);
+
+					return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.OnlineOrderPaymentNumberNotFound);
+				}
+
+				var onlinePayment = new OnlinePayment
+				{
+					ExternalId = onlineOrder.OnlinePayment.Value,
+					TransactionId = data.TransactionId,
+					PaymentSource = onlineOrder.OnlinePaymentSource,
+					Date = DateTime.Now
+				};
+
+				uow.Save(onlinePayment);
 			}
 
 			await uow.CommitAsync(cancellationToken);

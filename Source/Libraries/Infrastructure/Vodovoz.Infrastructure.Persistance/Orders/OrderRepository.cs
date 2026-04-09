@@ -1219,6 +1219,11 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return unitOfWork.GetById<VodovozOrder>(orderId);
 		}
 
+		public async Task<VodovozOrder> GetOrderByIdAsync(IUnitOfWork unitOfWork, int orderId, CancellationToken cancellationToken)
+		{
+			return await unitOfWork.Session.GetAsync<VodovozOrder>(orderId, cancellationToken);
+		}
+
 		public int? GetMaxOrderDailyNumberForDate(IUnitOfWorkFactory uowFactory, DateTime deliveryDate)
 		{
 			int? dailyNumber;

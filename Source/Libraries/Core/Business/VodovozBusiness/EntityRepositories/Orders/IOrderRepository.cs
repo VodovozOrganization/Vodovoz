@@ -107,6 +107,16 @@ namespace Vodovoz.EntityRepositories.Orders
 		Order GetOrderOnDateAndDeliveryPoint(IUnitOfWork uow, DateTime date, DeliveryPoint deliveryPoint);
 		IList<Order> GetSameOrderForDateAndDeliveryPoint(IUnitOfWorkFactory uow, DateTime date, DeliveryPoint deliveryPoint);
 		Order GetOrder(IUnitOfWork unitOfWork, int orderId);
+
+		/// <summary>
+		/// Получить заказ по его идентификатору
+		/// </summary>
+		/// <param name="unitOfWork">IUnitOfWork</param>
+		/// <param name="orderId">Идентификатор заказа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Объект заказа</returns>
+		Task<Order> GetOrderByIdAsync(IUnitOfWork unitOfWork, int orderId, CancellationToken cancellationToken);
+
 		IList<Order> GetOrdersBetweenDates(IUnitOfWork UoW, DateTime startDate, DateTime endDate);
 
 		IList<Order> GetOrdersByCode1c(IUnitOfWork uow, string[] codes1c);
@@ -132,7 +142,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		OrderStatus[] GetUndeliveryStatuses();
 
 		/// <summary>
-		/// Статусы заказов для отмены или переноса онлайн-заказов, при которых разрешается выполнять эти действия
+		/// Статусы заказов для отмены и переноса онлайн-заказов, при которых разрешается выполнять эти действия
 		/// </summary>
 		/// <returns>Массив статусов</returns>
 		OrderStatus[] GetStatusesForTransferOrCancellationOnlineOrder();

@@ -1,5 +1,5 @@
-﻿using System.Linq;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
+using System.Linq;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Payments;
@@ -32,6 +32,5 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Payments
 				.OrderByDescending(x => x.CreatedAt)
 				.FirstOrDefault();
 		}
-
 	}
 }
