@@ -52,6 +52,18 @@ namespace Vodovoz.Views.Edo
 
 		private global::Gamma.GtkWidgets.yTreeView treeViewProblems;
 
+		private global::Gtk.VSeparator vseparator3;
+
+		private global::Gamma.GtkWidgets.yVBox vboxProblemDetails;
+
+		private global::Gamma.GtkWidgets.yLabel labelProblemDescription;
+
+		private global::Gamma.GtkWidgets.yTextView textViewProblemDescription;
+
+		private global::Gamma.GtkWidgets.yLabel labelProblemRecomendation;
+
+		private global::Gamma.GtkWidgets.yTextView textViewProblemDescription1;
+
 		private global::Gtk.Label labelDialog;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
@@ -198,7 +210,6 @@ namespace Vodovoz.Views.Edo
 			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hboxEdoData[this.vboxTables]));
 			w15.Position = 0;
 			w15.Expand = false;
-			w15.Fill = false;
 			// Container child hboxEdoData.Gtk.Box+BoxChild
 			this.vseparator2 = new global::Gtk.VSeparator();
 			this.vseparator2.Name = "vseparator2";
@@ -251,9 +262,63 @@ namespace Vodovoz.Views.Edo
 			this.yhbox4.Add(this.GtkScrolledWindow3);
 			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.yhbox4[this.GtkScrolledWindow3]));
 			w22.Position = 0;
+			w22.Expand = false;
+			// Container child yhbox4.Gtk.Box+BoxChild
+			this.vseparator3 = new global::Gtk.VSeparator();
+			this.vseparator3.Name = "vseparator3";
+			this.yhbox4.Add(this.vseparator3);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.yhbox4[this.vseparator3]));
+			w23.Position = 1;
+			w23.Expand = false;
+			w23.Fill = false;
+			// Container child yhbox4.Gtk.Box+BoxChild
+			this.vboxProblemDetails = new global::Gamma.GtkWidgets.yVBox();
+			this.vboxProblemDetails.Name = "vboxProblemDetails";
+			this.vboxProblemDetails.Spacing = 6;
+			// Container child vboxProblemDetails.Gtk.Box+BoxChild
+			this.labelProblemDescription = new global::Gamma.GtkWidgets.yLabel();
+			this.labelProblemDescription.Name = "labelProblemDescription";
+			this.labelProblemDescription.Xalign = 0F;
+			this.labelProblemDescription.LabelProp = global::Mono.Unix.Catalog.GetString("Описание:");
+			this.vboxProblemDetails.Add(this.labelProblemDescription);
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vboxProblemDetails[this.labelProblemDescription]));
+			w24.Position = 0;
+			w24.Expand = false;
+			w24.Fill = false;
+			// Container child vboxProblemDetails.Gtk.Box+BoxChild
+			this.textViewProblemDescription = new global::Gamma.GtkWidgets.yTextView();
+			this.textViewProblemDescription.CanFocus = true;
+			this.textViewProblemDescription.Name = "textViewProblemDescription";
+			this.textViewProblemDescription.Editable = false;
+			this.textViewProblemDescription.WrapMode = ((global::Gtk.WrapMode)(2));
+			this.vboxProblemDetails.Add(this.textViewProblemDescription);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vboxProblemDetails[this.textViewProblemDescription]));
+			w25.Position = 1;
+			// Container child vboxProblemDetails.Gtk.Box+BoxChild
+			this.labelProblemRecomendation = new global::Gamma.GtkWidgets.yLabel();
+			this.labelProblemRecomendation.Name = "labelProblemRecomendation";
+			this.labelProblemRecomendation.Xalign = 0F;
+			this.labelProblemRecomendation.LabelProp = global::Mono.Unix.Catalog.GetString("Рекомендация:");
+			this.vboxProblemDetails.Add(this.labelProblemRecomendation);
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vboxProblemDetails[this.labelProblemRecomendation]));
+			w26.Position = 2;
+			w26.Expand = false;
+			w26.Fill = false;
+			// Container child vboxProblemDetails.Gtk.Box+BoxChild
+			this.textViewProblemDescription1 = new global::Gamma.GtkWidgets.yTextView();
+			this.textViewProblemDescription1.CanFocus = true;
+			this.textViewProblemDescription1.Name = "textViewProblemDescription1";
+			this.textViewProblemDescription1.Editable = false;
+			this.textViewProblemDescription1.WrapMode = ((global::Gtk.WrapMode)(2));
+			this.vboxProblemDetails.Add(this.textViewProblemDescription1);
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vboxProblemDetails[this.textViewProblemDescription1]));
+			w27.Position = 3;
+			this.yhbox4.Add(this.vboxProblemDetails);
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.yhbox4[this.vboxProblemDetails]));
+			w28.Position = 2;
 			this.vboxDialog.Add(this.yhbox4);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.yhbox4]));
-			w23.Position = 3;
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.yhbox4]));
+			w29.Position = 3;
 			this.ynotebook1.Add(this.vboxDialog);
 			// Notebook tab
 			this.labelDialog = new global::Gtk.Label();
@@ -271,8 +336,8 @@ namespace Vodovoz.Views.Edo
 			this.textViewHelp.Name = "textViewHelp";
 			this.GtkScrolledWindow.Add(this.textViewHelp);
 			this.ynotebook1.Add(this.GtkScrolledWindow);
-			global::Gtk.Notebook.NotebookChild w26 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebook1[this.GtkScrolledWindow]));
-			w26.Position = 1;
+			global::Gtk.Notebook.NotebookChild w32 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebook1[this.GtkScrolledWindow]));
+			w32.Position = 1;
 			// Notebook tab
 			this.labelHelp = new global::Gtk.Label();
 			this.labelHelp.Name = "labelHelp";
@@ -280,8 +345,8 @@ namespace Vodovoz.Views.Edo
 			this.ynotebook1.SetTabLabel(this.GtkScrolledWindow, this.labelHelp);
 			this.labelHelp.ShowAll();
 			this.vboxMain.Add(this.ynotebook1);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.ynotebook1]));
-			w27.Position = 1;
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.ynotebook1]));
+			w33.Position = 1;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{
