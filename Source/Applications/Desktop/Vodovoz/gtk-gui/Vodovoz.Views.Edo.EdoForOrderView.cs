@@ -209,7 +209,6 @@ namespace Vodovoz.Views.Edo
 			this.hboxEdoData.Add(this.vboxTables);
 			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hboxEdoData[this.vboxTables]));
 			w15.Position = 0;
-			w15.Expand = false;
 			// Container child hboxEdoData.Gtk.Box+BoxChild
 			this.vseparator2 = new global::Gtk.VSeparator();
 			this.vseparator2.Name = "vseparator2";
@@ -262,7 +261,6 @@ namespace Vodovoz.Views.Edo
 			this.yhbox4.Add(this.GtkScrolledWindow3);
 			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.yhbox4[this.GtkScrolledWindow3]));
 			w22.Position = 0;
-			w22.Expand = false;
 			// Container child yhbox4.Gtk.Box+BoxChild
 			this.vseparator3 = new global::Gtk.VSeparator();
 			this.vseparator3.Name = "vseparator3";
