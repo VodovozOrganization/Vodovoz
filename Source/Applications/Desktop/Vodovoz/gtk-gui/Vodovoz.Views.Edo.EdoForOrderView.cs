@@ -62,7 +62,7 @@ namespace Vodovoz.Views.Edo
 
 		private global::Gamma.GtkWidgets.yLabel labelProblemRecomendation;
 
-		private global::Gamma.GtkWidgets.yTextView textViewProblemDescription1;
+		private global::Gamma.GtkWidgets.yTextView textViewProblemRecommendation;
 
 		private global::Gtk.Label labelDialog;
 
@@ -305,13 +305,13 @@ namespace Vodovoz.Views.Edo
 			w26.Expand = false;
 			w26.Fill = false;
 			// Container child vboxProblemDetails.Gtk.Box+BoxChild
-			this.textViewProblemDescription1 = new global::Gamma.GtkWidgets.yTextView();
-			this.textViewProblemDescription1.CanFocus = true;
-			this.textViewProblemDescription1.Name = "textViewProblemDescription1";
-			this.textViewProblemDescription1.Editable = false;
-			this.textViewProblemDescription1.WrapMode = ((global::Gtk.WrapMode)(2));
-			this.vboxProblemDetails.Add(this.textViewProblemDescription1);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vboxProblemDetails[this.textViewProblemDescription1]));
+			this.textViewProblemRecommendation = new global::Gamma.GtkWidgets.yTextView();
+			this.textViewProblemRecommendation.CanFocus = true;
+			this.textViewProblemRecommendation.Name = "textViewProblemRecommendation";
+			this.textViewProblemRecommendation.Editable = false;
+			this.textViewProblemRecommendation.WrapMode = ((global::Gtk.WrapMode)(2));
+			this.vboxProblemDetails.Add(this.textViewProblemRecommendation);
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vboxProblemDetails[this.textViewProblemRecommendation]));
 			w27.Position = 3;
 			this.yhbox4.Add(this.vboxProblemDetails);
 			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.yhbox4[this.vboxProblemDetails]));
