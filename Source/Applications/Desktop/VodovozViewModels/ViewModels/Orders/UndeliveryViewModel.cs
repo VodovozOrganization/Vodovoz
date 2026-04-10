@@ -1,4 +1,7 @@
 ﻿using Autofac;
+using CustomerPushNotifications.Contracts;
+using Microsoft.Extensions.Logging;
+using PushNotifications.Infrastructure;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -12,9 +15,9 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Microsoft.Extensions.Logging;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Application.Orders;
+using Vodovoz.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sms;
@@ -28,9 +31,7 @@ using Vodovoz.Settings.Organizations;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Widgets;
-using Vodovoz.Application.Orders.Services.OrderCancellation;
-using VodovozBusiness.Services.Orders;
-using Vodovoz.Core.Domain.Orders.OrderEnums;
+
 
 namespace Vodovoz.ViewModels.Orders
 {
@@ -54,7 +55,7 @@ namespace Vodovoz.ViewModels.Orders
 		private readonly IUndeliveryDiscussionCommentFileStorageService _undeliveryDiscussionCommentFileStorageService;
 		private readonly IRouteListService _routeListService;
 		private readonly OrderCancellationService _orderCancellationService;
-		private readonly IOnlineOrderService _onlineOrderService;
+		private readonly IOutboxPushNotificationPublisher<CustomerNotificationDomainEvent> _customerPushNotificationService;
 		private ValidationContext _validationContext;
 		private bool _addedCommentToOldUndelivery;
 		private bool _forceSave;
@@ -83,7 +84,7 @@ namespace Vodovoz.ViewModels.Orders
 			IUndeliveryDiscussionCommentFileStorageService undeliveryDiscussionCommentFileStorageService,
 			IRouteListService routeListService,
 			OrderCancellationService orderCancellationService,
-			IOnlineOrderService onlineOrderService
+			IOutboxPushNotificationPublisher<CustomerNotificationDomainEvent> customerPushNotificationService
 			)
 			: base(unitOfWorkFactory, commonServices.InteractiveService, navigationManager)
 		{
@@ -105,7 +106,7 @@ namespace Vodovoz.ViewModels.Orders
 			_undeliveryDiscussionCommentFileStorageService = undeliveryDiscussionCommentFileStorageService ?? throw new ArgumentNullException(nameof(undeliveryDiscussionCommentFileStorageService));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
-			_onlineOrderService = onlineOrderService ?? throw new ArgumentNullException(nameof(onlineOrderService));
+			_customerPushNotificationService = customerPushNotificationService ?? throw new ArgumentNullException(nameof(customerPushNotificationService));
 			_orderCancellationPermit = OrderCancellationPermit.Default();
 		}
 
@@ -224,7 +225,7 @@ namespace Vodovoz.ViewModels.Orders
 
 			if(Entity.NewOrder?.OnlineOrder is OnlineOrder onlineOrder)
 			{
-				_onlineOrderService.NotifyClientOfOnlineOrderStatusChange(onlineOrder, CustomerNotificationEventType.OrderRescheduled);
+				_customerPushNotificationService.Publish(UoW, new CustomerNotificationDomainEvent(onlineOrder.Id,  CustomerNotificationEventType.OrderRescheduled));
 			}
 
 			return result;

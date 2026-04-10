@@ -1,4 +1,5 @@
-﻿using QS.Views.GtkUI;
+﻿using CustomerPushNotifications.Contracts;
+using QS.Views.GtkUI;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.ViewModels.ViewModels.Orders;
 

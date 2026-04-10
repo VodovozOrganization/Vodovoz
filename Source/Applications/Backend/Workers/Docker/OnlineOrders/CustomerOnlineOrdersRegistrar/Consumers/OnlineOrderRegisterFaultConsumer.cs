@@ -1,12 +1,13 @@
-﻿using System;
-using System.Threading.Tasks;
-using CustomerNotifications.Publisher.Services;
-using CustomerOnlineOrdersRegistrar.Factories.V3;
+﻿using CustomerOnlineOrdersRegistrar.Factories.V3;
 using CustomerOnlineOrdersRegistrar.Factories.V4;
 using CustomerOrdersApi.Library.Default.Dto.Orders;
+using CustomerPushNotifications.Contracts;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using PushNotifications.Infrastructure;
 using QS.DomainModel.UoW;
+using System;
+using System.Threading.Tasks;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Orders;
@@ -31,7 +32,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
 			IRouteListService routeListService,
 			IOrderFromOnlineOrderValidator onlineOrderValidator,
-			ICustomerNotificationPublisher notificationPublisher
+			IPushNotificationsPublisher<CustomerNotificationDomainEvent> customerIPushNotificationsPublisher
 			)
 			: base(
 				logger,
@@ -45,7 +46,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 				orderService,
 				routeListService,
 				onlineOrderValidator,
-				notificationPublisher)
+				customerIPushNotificationsPublisher)
 		{
 		}
 		

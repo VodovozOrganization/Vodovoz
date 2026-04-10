@@ -4,9 +4,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using Autofac;
-using CustomerNotifications.Contracts.Converters;
-using CustomerNotifications.Contracts.Messages;
-using CustomerNotifications.Publisher.Services;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
@@ -32,6 +29,9 @@ using Vodovoz.ViewModels.ViewModels.Counterparty;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Extensions;
+using CustomerPushNotifications.Application.Converters;
+using PushNotifications.Infrastructure;
+using CustomerPushNotifications.Contracts;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {
@@ -40,7 +40,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private readonly IOrderFromOnlineOrderValidator _onlineOrderValidator;
 		private readonly ViewModelEEVMBuilder<DeliveryPoint> _deliveryPointViewModelBuilder;
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel;
-		private readonly ICustomerNotificationPublisher _customerNotificationPublisher;
+		private readonly IOutboxPushNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly Employee _currentEmployee;
 		private bool _orderCreatingState;
@@ -61,12 +61,10 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			DeliveryPointJournalFilterViewModel deliveryPointJournalFilterViewModel,
 			IDiscountController discountController,
 			IOrderOrganizationManager orderOrganizationManager,
-			ICustomerNotificationPublisher customerNotificationPublisher
+			IOutboxPushNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher
 			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
-		{
-			_customerNotificationPublisher = customerNotificationPublisher?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
-
+		{			
 			_currentEmployee =
 				(employeeService ?? throw new ArgumentNullException(nameof(employeeService)))
 				.GetEmployeeForUser(UoW, CurrentUser.Id);
@@ -83,14 +81,13 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				deliveryPointViewModelBuilder ?? throw new ArgumentNullException(nameof(deliveryPointViewModelBuilder));
 			_deliveryPointJournalFilterViewModel =
 				deliveryPointJournalFilterViewModel ?? throw new ArgumentNullException(nameof(deliveryPointJournalFilterViewModel));
-			_customerNotificationPublisher = customerNotificationPublisher;
 			DiscountController = discountController ?? throw new ArgumentNullException(nameof(discountController));
 			Logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			ExternalCounterpartyMatchingRepository =
 				externalCounterpartyMatchingRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyMatchingRepository));
 			_lifetimeScope = scope ?? throw new ArgumentNullException(nameof(scope));
 			OrderOrganizationManager = orderOrganizationManager ?? throw new ArgumentNullException(nameof(orderOrganizationManager));
-
+			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 			GetTimers();
 			SetPermissions();
 			CreateCommands();
@@ -243,11 +240,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		{
 			var notificationType = Entity.GetExternalOrderStatus().ToCustomerNotificationEventType();
 
-			_customerNotificationPublisher.PublishAsync(new CustomerNotificationMessage
-			{
-				OnlineOrderId = Entity.Id,
-				CustomerNotificationEventType = notificationType
-			});
+			_customerNotificationPublisher.Publish(UoW, new CustomerNotificationDomainEvent(Entity.Id, notificationType));
 		}
 
 		public void ShowMessage(string message, string title = null)

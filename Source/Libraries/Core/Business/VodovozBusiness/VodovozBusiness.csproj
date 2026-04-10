@@ -50,8 +50,7 @@
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
-    <PackageReference Include="Dapper">
-      <Version>2.0.123</Version>
+    <PackageReference Include="Dapper"><Version>2.0.123</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
@@ -159,6 +158,7 @@
       <Project>{42efc426-2c88-4608-8191-dbca4172a695}</Project>
       <Name>VodovozInfrastructure</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\PushNotifications\PushNotifications.Infrastructure\PushNotifications.Infrastructure.csproj" />
     <ProjectReference Include="..\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj" />
     <ProjectReference Include="..\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj">
       <Project>{ec987b0b-d857-4ec5-85a8-f8821363698f}</Project>

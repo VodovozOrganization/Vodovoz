@@ -1,5 +1,7 @@
 ﻿using Autofac;
+using CustomerPushNotifications.Contracts;
 using Gamma.Utilities;
+using PushNotifications.Infrastructure;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Utilities.Debug;
@@ -14,7 +16,6 @@ using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
@@ -53,6 +54,7 @@ namespace Vodovoz.Domain.Logistic
 			.Resolve<IRouteListItemRepository>();
 		private IOrderService _orderService => ScopeProvider.Scope
 			.Resolve<IOrderService>();
+	
 
 		private Order _order;
 		private RouteList _routeList;
@@ -641,7 +643,7 @@ namespace Vodovoz.Domain.Logistic
 			IUnitOfWork uow,
 			RouteListItemStatus status,
 			ICallTaskWorker callTaskWorker,
-			IOnlineOrderService onlineOrderService,
+			IOutboxPushNotificationPublisher<CustomerNotificationDomainEvent> customerPushNotificationPublisher,
 			bool isEditAtCashier = false)
 		{
 			if(Status == status)
@@ -670,12 +672,12 @@ namespace Vodovoz.Domain.Logistic
 
 					RestoreOrder(status);
 					_orderService.AutoCancelAutoTransfer(uow, Order);
-					onlineOrderService.NotifyClientOfOnlineOrderStatusChange(Order.OnlineOrder, CustomerNotificationEventType.DeliveryCompleted);
+					customerPushNotificationPublisher.Publish(uow, new CustomerNotificationDomainEvent(Order.OnlineOrder.Id, CustomerNotificationEventType.DeliveryCompleted));
 					break;
 				case RouteListItemStatus.EnRoute:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, callTaskWorker);
 					RestoreOrder(status);
-					onlineOrderService.NotifyClientOfOnlineOrderStatusChange(Order.OnlineOrder, CustomerNotificationEventType.CourierOnTheWay);
+					customerPushNotificationPublisher.Publish(uow, new CustomerNotificationDomainEvent(Order.OnlineOrder.Id, CustomerNotificationEventType.CourierOnTheWay));
 					break;
 				case RouteListItemStatus.Overdue:
 					Order.OverdueDelivery(uow, callTaskWorker);

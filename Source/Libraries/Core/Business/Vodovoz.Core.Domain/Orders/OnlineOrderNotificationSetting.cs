@@ -3,6 +3,7 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using CustomerPushNotifications.Contracts;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
 
 namespace Vodovoz.Core.Domain.Orders
@@ -20,6 +21,8 @@ namespace Vodovoz.Core.Domain.Orders
 		private CustomerNotificationEventType _customerNotificationEventType;
 		private bool _notificationDisabled;
 		private bool _allowDuplicateNotifications;
+		private CustomerNotificationPushType _pushType;
+		private CustomerNotificationTargetType _pushTarget;
 
 		[Display(Name = "Код")]
 		public virtual int Id
@@ -61,6 +64,20 @@ namespace Vodovoz.Core.Domain.Orders
 		{
 			get => _allowDuplicateNotifications;
 			set => SetField(ref _allowDuplicateNotifications, value);
+		}
+
+		[Display(Name = "Тип пуш уведомления")]
+		public virtual CustomerNotificationPushType PushType
+		{
+			get => _pushType;
+			set => SetField(ref _pushType, value);
+		}
+
+		[Display(Name = "Куда ведет пуш")]
+		public virtual CustomerNotificationTargetType PushTarget
+		{
+			get => _pushTarget;
+			set => SetField(ref _pushTarget, value);
 		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

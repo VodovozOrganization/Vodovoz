@@ -1,5 +1,4 @@
 ﻿using Autofac.Extensions.DependencyInjection;
-using CustomerNotifications.Publisher.Configuration;
 using CustomerOnlineOrdersRegistrar.Consumers;
 using CustomerOnlineOrdersRegistrar.Factories.V3;
 using CustomerOnlineOrdersRegistrar.Factories.V4;
@@ -74,7 +73,6 @@ namespace CustomerOnlineOrdersRegistrar
 
 						.AddScoped<IRouteListService, RouteListService>()
 						.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
-						.AddScoped<IOnlineOrderService, OnlineOrderService>()
 						.AddScoped<IOnlineOrderFactoryV3, OnlineOrderFactoryV3>()
 						.AddScoped<IOnlineOrderFactoryV4, OnlineOrderFactoryV4>()
 
@@ -85,7 +83,6 @@ namespace CustomerOnlineOrdersRegistrar
 							busConf.AddConsumer<CreatingOnlineOrderConsumer, CreatingOnlineOrderConsumerDefinition>();
 							busConf.ConfigureRabbitMq();
 						})
-						.AddMultibusCustomerNotificationsPublisher(hostContext.Configuration)
 						;
 
 					services.AddStaticScopeForEntity();

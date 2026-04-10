@@ -1,6 +1,6 @@
-﻿using QS.Project.Journal;
+﻿using CustomerPushNotifications.Contracts;
+using QS.Project.Journal;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Extensions;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders

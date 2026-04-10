@@ -1,9 +1,11 @@
-﻿using DriverApi.Contracts.V6;
+﻿using CustomerPushNotifications.Contracts;
+using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Requests;
 using Edo.Transport;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
+using PushNotifications.Infrastructure;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -92,7 +94,7 @@ namespace Vodovoz
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender;
 		private readonly OrderCancellationService _orderCancellationService;
-		private readonly IOnlineOrderService _onlineOrderService;
+		private readonly IOutboxPushNotificationPublisher<CustomerNotificationDomainEvent> _customerPushNotificationService;
 		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
 		private bool _canClose = true;
 		private IEnumerable<object> _selectedRouteListAddressesObjects = Enumerable.Empty<object>();
@@ -131,7 +133,8 @@ namespace Vodovoz
 			IRouteListService routeListService,
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
 			OrderCancellationService orderCancellationService,
-			IOnlineOrderService onlineOrderService
+			////IOnlineOrderService onlineOrderService
+			IOutboxPushNotificationPublisher<CustomerNotificationDomainEvent> customerPushNotificationService
 			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
@@ -161,7 +164,8 @@ namespace Vodovoz
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
-			_onlineOrderService = onlineOrderService ?? throw new ArgumentNullException(nameof(onlineOrderService));
+			_customerPushNotificationService = customerPushNotificationService ?? throw new ArgumentNullException(nameof(customerPushNotificationService));
+	//		_onlineOrderService = onlineOrderService ?? throw new ArgumentNullException(nameof(onlineOrderService));
 			TabName = $"Ведение МЛ №{Entity.Id}";
 
 			_permissionResult = _currentPermissionService.ValidateEntityPermission(typeof(RouteList));
@@ -210,7 +214,7 @@ namespace Vodovoz
 
 		private void RollBackEnRouteStatus()
 		{
-			Entity.RollBackEnRouteStatus(_onlineOrderService);
+			Entity.RollBackEnRouteStatus(UoW, _customerPushNotificationService);
 		}
 
 		private void CreateInitialRouteListItemStatuses()
