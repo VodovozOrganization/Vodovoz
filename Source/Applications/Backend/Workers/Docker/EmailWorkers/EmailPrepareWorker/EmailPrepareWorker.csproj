@@ -27,6 +27,7 @@
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
 		<PackageReference Include="NLog.Extensions.Logging" Version="5.2.2" />
 		<PackageReference Include="NLog.Targets.Seq" Version="4.0.1" />
+		<PackageReference Include="System.Drawing.Common" Version="5.0.3" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Email\RabbitMQ.MailSending\RabbitMQ.EmailSending.csproj" />
