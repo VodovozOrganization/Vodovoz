@@ -191,7 +191,12 @@ namespace CustomerOrdersApi.Library.V5.Services
 					.FirstOrDefault();
 			
 				return _customerOrderFactory.CreateDetailedOrderInfo(
-					order, orderRating, timers, onlineOrder, ratingAvailableFrom);
+					uow,
+					order,
+					orderRating,
+					timers,
+					onlineOrder,
+					ratingAvailableFrom);
 			}
 			
 			orderRating = _genericRatingRepository.Get(
@@ -200,7 +205,12 @@ namespace CustomerOrdersApi.Library.V5.Services
 				.FirstOrDefault();
 			
 			return _customerOrderFactory.CreateDetailedOrderInfo(
-				onlineOrder, orderRating, timers, getDetailedOrderInfoDto.OrderId, ratingAvailableFrom);
+				uow,
+				onlineOrder,
+				orderRating,
+				timers,
+				getDetailedOrderInfoDto.OrderId,
+				ratingAvailableFrom);
 		}
 
 		public OrdersDto GetOrders(GetOrdersDto getOrdersDto)

@@ -73,7 +73,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 			_paymentRefundServiceFactory = paymentRefundServiceFactory ?? throw new ArgumentNullException(nameof(paymentRefundServiceFactory));
 		}
 
-		public Result CanCancel(Order order, OnlineOrder onlineOrder)
+		public async Task<Result> CanCancel(IUnitOfWork uow, Order order, OnlineOrder onlineOrder, CancellationToken cancellationToken)
 		{
 			if(order is null)
 			{
@@ -99,6 +99,35 @@ namespace CustomerOrdersApi.Library.V4.Services
 
 			if(IsUnPaidOnline(onlineOrder) || !onlineOrder.OnlinePayment.HasValue)
 			{
+				return Result.Failure(OrderErrors.CannotCancelOrder);
+			}
+
+			if(IsPaidOnline(onlineOrder) && !onlineOrder.OnlinePayment.HasValue)
+			{
+				return Result.Failure(OrderErrors.CannotCancelOrder);
+			}
+
+			var onlinePayment = await _onlinePaymentRepository.GetByExternalIdAsync(
+				uow,
+				onlineOrder.OnlinePayment.Value,
+				cancellationToken);
+
+			if(onlinePayment is null)
+			{
+				_logger.LogWarning(
+					"Заказ {OrderId} оплачен, номер оплаты {OnlinePayment} есть, но нет записи в online_payments",
+					order.Id,
+					onlineOrder.OnlinePayment.Value);
+
+				return Result.Failure(OrderErrors.CannotCancelOrder);
+			}
+
+			if(string.IsNullOrWhiteSpace(onlinePayment.TransactionId))
+			{
+				_logger.LogWarning(
+					"Заказ {OrderId} имеет запись в online_payments, но TransactionId пуст",
+					order.Id);
+
 				return Result.Failure(OrderErrors.CannotCancelOrder);
 			}
 
@@ -143,7 +172,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 				order.OrderStatus.GetEnumTitle(),
 				IsPaidOnline(onlineOrder));
 
-			var canCancelResult = CanCancel(order, onlineOrder);
+			var canCancelResult = await CanCancel(uow, order, onlineOrder, cancellationToken);
 			if(canCancelResult.IsFailure)
 			{
 				_logger.LogWarning("Заказ {OrderId}: {ErrorMessage}",

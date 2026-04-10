@@ -2,9 +2,11 @@
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using CustomerOrdersApi.Library.V4.Factories;
 using CustomerOrdersApi.Library.V4.Services;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Data.InfoMessages;
 using Vodovoz.Core.Domain.Orders;
@@ -41,6 +43,7 @@ namespace CustomerOrdersApi.Library.V5.Factories
 		}
 
 		public DetailedOrderInfoDto CreateDetailedOrderInfo(
+			IUnitOfWork uow,
 			Order order,
 			OrderRating orderRating,
 			OnlineOrderTimers timers,
@@ -51,20 +54,25 @@ namespace CustomerOrdersApi.Library.V5.Factories
 			orderInfo.UpdateOrderRating(orderRating, ratingAvailableFrom);
 			orderInfo.UpdateOrderItems(order.OrderItems);
 
-			UpdateAvailableOperations(orderInfo, order, onlineOrder);
+			UpdateAvailableOperations(uow, orderInfo, order, onlineOrder, CancellationToken.None);
 
 			return orderInfo;
 		}
 
 		public DetailedOrderInfoDto CreateDetailedOrderInfo(
-			OnlineOrder onlineOrder, OrderRating orderRating, OnlineOrderTimers timers, int? orderId, DateTime ratingAvailableFrom)
+			IUnitOfWork uow,
+			OnlineOrder onlineOrder,
+			OrderRating orderRating,
+			OnlineOrderTimers timers,
+			int? orderId,
+			DateTime ratingAvailableFrom)
 		{
 			var orderInfo = CreateOrderInfoDto(onlineOrder, timers, orderId);
 			orderInfo.UpdateOrderRating(orderRating, ratingAvailableFrom);
 			orderInfo.UpdateOrderItems(onlineOrder.OnlineOrderItems);
 
 			var activeOrder = GetActiveOrder(onlineOrder);
-			UpdateAvailableOperations(orderInfo, activeOrder, onlineOrder);
+			UpdateAvailableOperations(uow, orderInfo, activeOrder, onlineOrder, CancellationToken.None);
 
 			return orderInfo;
 		}
@@ -200,17 +208,19 @@ namespace CustomerOrdersApi.Library.V5.Factories
 		/// <summary>
 		/// Обновляет доступность операций (отмена, перенос) и добавляет информационные сообщения
 		/// </summary>
-		private void UpdateAvailableOperations(
+		private async void UpdateAvailableOperations(
+			IUnitOfWork uow,
 			DetailedOrderInfoDto orderInfo,
 			Order order,
-			OnlineOrder onlineOrder)
+			OnlineOrder onlineOrder,
+			CancellationToken cancellationToken)
 		{
 			if(order is not null && onlineOrder is not null)
 			{
 				var transferResult = _orderTransferService.CanTransfer(order);
 				orderInfo.AvailableChangeDeliverySchedule = transferResult.IsSuccess;
 
-				var cancelResult = _orderCancellationLogicService.CanCancel(order, onlineOrder);
+				var cancelResult = await _orderCancellationLogicService.CanCancel(uow, order, onlineOrder, cancellationToken);
 				orderInfo.AvailableCancelOrder = cancelResult.IsSuccess;
 
 				if(orderInfo.AvailableCancelOrder)

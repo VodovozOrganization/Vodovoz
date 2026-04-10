@@ -13,14 +13,16 @@ namespace CustomerOrdersApi.Library.V4.Services
 		/// <summary>
 		/// Проверяет, можно ли отменить заказ в текущем статусе
 		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
 		/// <param name="order">Заказ для проверки</param>
 		/// <param name="onlineOrder">Онлайн заказ, связанный с заказом</param>
+		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>
 		/// Результат проверки:
 		/// Success - отмена возможна;
 		/// Failure с соответствующей ошибкой - отмена невозможна
 		/// </returns>
-		Result CanCancel(Order order, OnlineOrder onlineOrder);
+		Task<Result> CanCancel(IUnitOfWork uow, Order order, OnlineOrder onlineOrder, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Применяет отмену заказа по его внешнему идентификатору
