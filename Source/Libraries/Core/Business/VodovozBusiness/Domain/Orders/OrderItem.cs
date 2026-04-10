@@ -2,6 +2,7 @@
 using NHibernate;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
@@ -35,6 +36,7 @@ namespace Vodovoz.Domain.Orders
 		private DiscountReason _discountReason;
 		private Nomenclature _nomenclature;
 		private PromotionalSet _promoSet;
+		private IObservableList<DiscountReason> _discountReasons = new ObservableList<DiscountReason>();
 		private INomenclatureSettings _nomenclatureSettings => ScopeProvider.Scope.Resolve<INomenclatureSettings>();
 
 		protected OrderItem()
@@ -114,6 +116,13 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _discountReason;
 			set => SetField(ref _discountReason, value);
+		}
+
+		[Display(Name = "Основание скидки на товар")]
+		public virtual IObservableList<DiscountReason> DiscountReasons
+		{
+			get => _discountReasons;
+			set => SetField(ref _discountReasons, value);
 		}
 
 		#endregion
