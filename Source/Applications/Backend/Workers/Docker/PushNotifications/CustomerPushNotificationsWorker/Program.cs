@@ -1,5 +1,6 @@
 ﻿using CustomerPushNotifications.Transport;
 using MassTransit;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -28,28 +29,8 @@ namespace CustomerNotificationsWorker
 					{
 						x.AddConsumer<CustomerPushNotificationsConsumer, CustomerPushNotificationsConsumerDefinition>();
 
-						x.UsingRabbitMq((context, cfg) =>
-						{
-							var settings = context.GetRequiredService<IOptions<CustomerNotificationTransportSettings>>().Value;
+						x.ConfigureCustomerNotificationRabbitMq(services, hostContext.Configuration);
 
-							cfg.Host(settings.Host, (ushort)settings.Port, settings.VirtualHost, h =>
-							{
-								h.Username(settings.Username);
-								h.Password(settings.Password);
-
-								if(settings.UseSSL)
-								{
-									h.UseSsl(ssl =>
-									{
-										if(Enum.TryParse<SslPolicyErrors>(settings.AllowSslPolicyErrors, out var allowed))
-											ssl.AllowPolicyErrors(allowed);
-
-										ssl.Protocol = SslProtocols.Tls12;
-									});
-								}
-							});
-							cfg.ConfigureEndpoints(context);
-						});
 					});
 				});
 	}

@@ -26,31 +26,10 @@ namespace OutboxWorker
 				{
 					services.Configure<CustomerNotificationTransportSettings>(hostContext.Configuration.GetSection("CustomerNotificationTransportSettings"));
 
-					services.AddMassTransit(x =>
+					services.AddMassTransit(busConf =>
 					{
-						x.UsingRabbitMq((context, cfg) =>
-						{
-							var settings = context.GetRequiredService<IOptions<CustomerNotificationTransportSettings>>().Value;
+						busConf.ConfigureCustomerNotificationRabbitMq(services, hostContext.Configuration);
 
-							cfg.Host(settings.Host, (ushort)settings.Port, settings.VirtualHost, h =>
-							{
-								h.Username(settings.Username);
-								h.Password(settings.Password);
-
-								if(settings.UseSSL)
-								{
-									h.UseSsl(ssl =>
-									{
-										if(Enum.TryParse<SslPolicyErrors>(settings.AllowSslPolicyErrors, out var allowed))
-										{
-											ssl.AllowPolicyErrors(allowed);
-										}
-
-										ssl.Protocol = SslProtocols.Tls12;
-									});
-								}
-							});
-						});
 					});
 					
 					services.AddScoped<IOutboxRepository, OutboxRepository>();

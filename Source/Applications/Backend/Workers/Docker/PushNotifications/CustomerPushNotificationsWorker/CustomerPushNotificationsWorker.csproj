@@ -11,6 +11,7 @@
 		<PackageReference Include="MassTransit" Version="8.0.12" />
 		<PackageReference Include="MassTransit.RabbitMQ" Version="8.0.12" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
