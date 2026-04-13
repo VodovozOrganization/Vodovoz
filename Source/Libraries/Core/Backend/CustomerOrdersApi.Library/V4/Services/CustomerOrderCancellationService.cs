@@ -11,6 +11,7 @@ using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Counterparties;
@@ -89,7 +90,17 @@ namespace CustomerOrdersApi.Library.V4.Services
 
 			if(onlineOrder is null)
 			{
-				return Result.Success();
+				if(order.PaymentType is PaymentType.Cash
+					or PaymentType.Terminal
+					or PaymentType.DriverApplicationQR
+					or PaymentType.SmsQR) 
+				{ 
+					return Result.Success();
+				}
+				else
+				{
+					return Result.Failure(OrderErrors.CannotCancelOrderWithPaymentType(order.PaymentType));
+				}
 			}
 
 			if(onlineOrder.OnlineOrderPaymentType is not OnlineOrderPaymentType.PaidOnline)
@@ -99,12 +110,12 @@ namespace CustomerOrdersApi.Library.V4.Services
 
 			if(IsUnPaidOnline(onlineOrder) || !onlineOrder.OnlinePayment.HasValue)
 			{
-				return Result.Failure(OrderErrors.CannotCancelOrder);
+				return Result.Failure(OrderErrors.CannotCancelOrderWithDetails("Невозможно отменить неоплаченный заказ"));
 			}
 
 			if(IsPaidOnline(onlineOrder) && !onlineOrder.OnlinePayment.HasValue)
 			{
-				return Result.Failure(OrderErrors.CannotCancelOrder);
+				return Result.Failure(OrderErrors.CannotCancelOrderWithDetails("Невозможно отменить заказ без номера оплаты"));
 			}
 
 			var onlinePayment = await _onlinePaymentRepository.GetByExternalIdAsync(
@@ -119,7 +130,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 					order.Id,
 					onlineOrder.OnlinePayment.Value);
 
-				return Result.Failure(OrderErrors.CannotCancelOrder);
+				return Result.Failure(OrderErrors.CannotCancelOrderWithDetails("Невозможно отменить заказ без номера оплаты"));
 			}
 
 			if(string.IsNullOrWhiteSpace(onlinePayment.TransactionId))
@@ -230,6 +241,15 @@ namespace CustomerOrdersApi.Library.V4.Services
 				{
 					_logger.LogWarning("Заказ с OrderId {OrderId} не найден", orderId.Value);
 					return Result.Failure<(Order, OnlineOrder)>(OrderErrors.NotFound);
+				}
+
+				if(onlineOrderId.HasValue)
+				{
+					var onlineOrder = _onlineOrderRepository.GetOnlineOrderById(uow, onlineOrderId.Value);
+					if(onlineOrder is not null)
+					{
+						return Result.Success<(Order, OnlineOrder)>((order, onlineOrder));
+					}
 				}
 
 				return Result.Success<(Order, OnlineOrder)>((order, null));

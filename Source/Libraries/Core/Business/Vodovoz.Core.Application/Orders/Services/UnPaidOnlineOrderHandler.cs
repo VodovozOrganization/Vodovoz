@@ -200,6 +200,19 @@ namespace Vodovoz.Core.Application.Orders.Services
 				&& onlineOrder.EmployeeWorkWith is null
 				&& !orders.Any())
 			{
+				if(!string.IsNullOrEmpty(data.TransactionId))
+				{
+					var onlinePayment = new OnlinePayment
+					{
+						ExternalId = onlineOrder.OnlinePayment.Value,
+						TransactionId = data.TransactionId,
+						PaymentSource = onlineOrder.OnlinePaymentSource,
+						Date = DateTime.Now
+					};
+
+					uow.Save(onlinePayment);
+				}
+
 				var validationResult = _onlineOrderValidator.ValidateOnlineOrder(uow, onlineOrder, true);
 
 				if(validationResult.IsFailure)
@@ -364,28 +377,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 					data.IsFastDelivery);
 
 				await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
-			}
-
-			if(!string.IsNullOrEmpty(data.TransactionId))
-			{
-				if(!onlineOrder.OnlinePayment.HasValue)
-				{
-					_logger.LogWarning(
-						"Не удалось сохранить OnlinePayment: поле OnlineOrder.OnlinePayment не заполнено для онлайн-заказа Id={OnlineOrderId}",
-						onlineOrder.Id);
-
-					return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.OnlineOrderPaymentNumberNotFound);
-				}
-
-				var onlinePayment = new OnlinePayment
-				{
-					ExternalId = onlineOrder.OnlinePayment.Value,
-					TransactionId = data.TransactionId,
-					PaymentSource = onlineOrder.OnlinePaymentSource,
-					Date = DateTime.Now
-				};
-
-				uow.Save(onlinePayment);
 			}
 
 			await uow.CommitAsync(cancellationToken);

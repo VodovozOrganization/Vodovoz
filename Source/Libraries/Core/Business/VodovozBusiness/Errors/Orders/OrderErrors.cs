@@ -1,6 +1,7 @@
 ﻿using Gamma.Utilities;
 using System;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Errors.Orders
@@ -126,6 +127,11 @@ namespace Vodovoz.Errors.Orders
 				"400",
 				"Невозможно отменить заказ");
 
+		public static Error CannotCancelOrderWithDetails(string details) =>
+			new Error(
+				"400",
+				$"Невозможно отменить заказ: {details}");
+
 		public static Error RouteListItemNotFound(int orderId) =>
 			new Error(
 				"400",
@@ -147,6 +153,11 @@ namespace Vodovoz.Errors.Orders
 			new Error(
 				"408",
 				$"Невозможно перенести заказ в статусе '{status.GetEnumTitle()}'");
+
+		public static Error CannotCancelOrderWithPaymentType(PaymentType type) =>
+			new Error(
+				"408",
+				$"Невозможно отменить заказ с типом оплаты '{type.GetEnumTitle()}'");
 
 		public static Error UnsupportedOrderStatusForTransfer(OrderStatus status) =>
 			new Error(

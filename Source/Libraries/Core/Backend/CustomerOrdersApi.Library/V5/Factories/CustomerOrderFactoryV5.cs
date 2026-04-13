@@ -215,18 +215,22 @@ namespace CustomerOrdersApi.Library.V5.Factories
 			OnlineOrder onlineOrder,
 			CancellationToken cancellationToken)
 		{
-			if(order is not null && onlineOrder is not null)
+			var cancelResult = await _orderCancellationLogicService.CanCancel(uow, order, onlineOrder, cancellationToken);
+			orderInfo.AvailableCancelOrder = cancelResult.IsSuccess;
+
+			if(orderInfo.AvailableCancelOrder && (order is not null || onlineOrder is not null))
+			{
+				AddCancelOrderInfoMessage(orderInfo, order, onlineOrder);
+			}
+
+			if(order is not null)
 			{
 				var transferResult = _orderTransferService.CanTransfer(order);
 				orderInfo.AvailableChangeDeliverySchedule = transferResult.IsSuccess;
-
-				var cancelResult = await _orderCancellationLogicService.CanCancel(uow, order, onlineOrder, cancellationToken);
-				orderInfo.AvailableCancelOrder = cancelResult.IsSuccess;
-
-				if(orderInfo.AvailableCancelOrder)
-				{
-					AddCancelOrderInfoMessage(orderInfo, order, onlineOrder);
-				}
+			}
+			else
+			{
+				orderInfo.AvailableChangeDeliverySchedule = false;
 			}
 		}
 
