@@ -110,12 +110,12 @@ namespace CustomerOrdersApi.Library.V4.Services
 
 			if(IsUnPaidOnline(onlineOrder) || !onlineOrder.OnlinePayment.HasValue)
 			{
-				return Result.Failure(OrderErrors.CannotCancelOrderWithDetails("Невозможно отменить неоплаченный заказ"));
+				return Result.Failure(OrderErrors.CannotCancelOrderWithDetails("Не оплачен заказ"));
 			}
 
 			if(IsPaidOnline(onlineOrder) && !onlineOrder.OnlinePayment.HasValue)
 			{
-				return Result.Failure(OrderErrors.CannotCancelOrderWithDetails("Невозможно отменить заказ без номера оплаты"));
+				return Result.Failure(OrderErrors.CannotCancelOrderWithDetails("Нет номера оплаты"));
 			}
 
 			var onlinePayment = await _onlinePaymentRepository.GetByExternalIdAsync(
@@ -130,7 +130,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 					order.Id,
 					onlineOrder.OnlinePayment.Value);
 
-				return Result.Failure(OrderErrors.CannotCancelOrderWithDetails("Невозможно отменить заказ без номера оплаты"));
+				return Result.Failure(OrderErrors.CannotCancelOrderWithDetails("Нет номера оплаты"));
 			}
 
 			if(string.IsNullOrWhiteSpace(onlinePayment.TransactionId))

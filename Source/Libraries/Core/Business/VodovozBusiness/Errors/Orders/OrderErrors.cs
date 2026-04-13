@@ -92,7 +92,7 @@ namespace Vodovoz.Errors.Orders
 			new Error(
 				typeof(OrderErrors),
 				nameof(CannotTransferFastDeliveryOrder),
-				"Нельзя отменить заказ с ДЗЧ");
+				"Нельзя перенести заказ с ДЗЧ");
 		public static Error FastDelivery19LBottlesLimitError(int water19lInOrder, int fastDelivery19LBottlesLimit) =>
 			new Error(
 				typeof(OrderErrors),
