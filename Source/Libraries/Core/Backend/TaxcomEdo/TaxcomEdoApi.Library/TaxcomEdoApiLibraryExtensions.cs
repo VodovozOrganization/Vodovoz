@@ -4,7 +4,10 @@ using TaxcomEdoApi.Library.Converters.Format5_03;
 using TaxcomEdoApi.Library.Factories;
 using TaxcomEdoApi.Library.Factories.Format5_01;
 using TaxcomEdoApi.Library.Factories.Format5_03;
+using TaxcomEdoApi.Library.Providers;
 using TaxcomEdoApi.Library.Services;
+using TaxcomEdoApi.Library.Services.ContainerDocumentsServices;
+using TaxcomEdoApi.Library.Services.Interfaces;
 
 namespace TaxcomEdoApi.Library
 {
@@ -22,7 +25,18 @@ namespace TaxcomEdoApi.Library
 				.AddScoped<IErpDocumentInfoConverter5_01, ErpDocumentInfoConverter5_01>()
 				.AddScoped<IErpDocumentInfoConverter5_03, ErpDocumentInfoConverter5_03>()
 				.AddScoped<ITaxcomEdoService, TaxcomEdoService>()
-				.AddScoped<IEdoBillFactory, EdoBillFactory>();
+				.AddScoped<IEdoBillFactory, EdoBillFactory>()
+				.AddScoped<ContainerService>()
+				.AddScoped<ISignProcessorFactory, SignProcessorFactory>()
+				.AddScoped<ISignFilenameProvider, DefaultSignFilenameProvider>()
+				.AddScoped<ICertificateSearcher, CertificateSearcher>()
+				.AddScoped<DocumentService>()
+				.AddScoped<UniversalInvoiceContainerDocumentService>()
+				.AddScoped<CustomerUniversalInvoiceContainerDocumentService>()
+				.AddScoped<CancellationOfferContainerDocumentService>()
+				.AddScoped<CancellationOfferResignContainerDocumentService>()
+				.AddScoped<NonformalizedContainerDocumentService>()
+				;
 			
 			return services;
 		}

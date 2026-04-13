@@ -5,6 +5,7 @@ namespace TaxcomEdo.Contracts.Counterparties
 	/// <summary>
 	/// Информация о статусе контакта
 	/// </summary>
+	[Serializable]
 	public class EdoContactState
 	{
 		/// <summary>

@@ -1,33 +1,52 @@
 ﻿using System;
-using Core.Infrastructure;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading;
+using System.Threading.Tasks;
 using Edo.Contracts.Messages.Dto;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Taxcom.Client.Api;
-using Taxcom.Client.Api.Entity;
 using TaxcomEdo.Contracts.Documents;
+using TaxcomEdo.Contracts.Responses;
+using TaxcomEdo.Contracts.Xml.Container;
 using TaxcomEdoApi.Library.Services;
+using TaxcomEdoApi.Library.Services.Interfaces;
+using GetMessageListParameters = TaxcomEdoApi.Library.Services.GetMessageListParameters;
 
 namespace TaxcomEdoApi.Controllers
 {
+	[ApiController]
+	[Route("/api/[action]")]
 	public class DocflowController : ControllerBase
 	{
 		private readonly ILogger<DocflowController> _logger;
 		private readonly ITaxcomEdoService _taxcomEdoService;
+		private readonly ContainerService _containerService;
 		private readonly IEdoDocflowService _docflowService;
+		private readonly X509Certificate2 _certificate;
 
 		public DocflowController(
 			ILogger<DocflowController> logger,
 			ITaxcomEdoService taxcomEdoService,
-			IEdoDocflowService docflowService)
+			ContainerService containerService,
+			IEdoDocflowService docflowService,
+			X509Certificate2 certificate)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_taxcomEdoService = taxcomEdoService ?? throw new ArgumentNullException(nameof(taxcomEdoService));
+			_containerService = containerService ?? throw new ArgumentNullException(nameof(containerService));
 			_docflowService = docflowService ?? throw new ArgumentNullException(nameof(docflowService));
+			_certificate = certificate ?? throw new ArgumentNullException(nameof(certificate));
 		}
 		
+		/// <summary>
+		/// Отправка оператору ЭДО УПД по экземплярному учету
+		/// </summary>
+		/// <param name="updInfo">Данные для УПД</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
 		[HttpPost]
-		public IActionResult CreateAndSendIndividualAccountingUpd(UniversalTransferDocumentInfo updInfo)
+		public async Task<TaxcomResponse> CreateAndSendIndividualAccountingUpd(
+			UniversalTransferDocumentInfo updInfo, CancellationToken cancellationToken)
 		{
 			var documentId = updInfo.DocumentId;
 			_logger.LogInformation(
@@ -43,9 +62,12 @@ namespace TaxcomEdoApi.Controllers
 					"Отправляем контейнер с УПД {UpdNumber} {DocumentId}",
 					updInfo.Number,
 					documentId);
-				
-				_docflowService.SendMessageAsync(container);
-				return Ok();
+
+				var bytes = _containerService.ExportNewToZip(container);
+
+				await System.IO.File.WriteAllBytesAsync(@"D:\testRawContainer.zip", bytes, cancellationToken);
+				//await _docflowService.SendMessageAsync(_containerService.ExportNewToZip(container), _certificate.RawData, cancellationToken);
+				return TaxcomResponse.Success();
 			}
 			catch(Exception e)
 			{
@@ -54,12 +76,15 @@ namespace TaxcomEdoApi.Controllers
 					"Ошибка в процессе формирования УПД №{UpdNumber} {DocumentId} и ее отправки",
 					updInfo.Number,
 					documentId);
-				return Problem();
+				
+				return TaxcomResponse.Error(
+					$"Произошла ошибка в процессе формирования УПД №{updInfo.Number} {documentId} и ее отправки." +
+					" Попробуйте позднее или обратитесь в отдел разработки");
 			}
 		}
 		
 		[HttpPost]
-		public IActionResult CreateAndSendBill(InfoForCreatingEdoBill data)
+		public async Task<TaxcomResponse> CreateAndSendBill(InfoForCreatingEdoBill data, CancellationToken cancellationToken)
 		{
 			var orderId = data.OrderInfoForEdo.Id;
 			_logger.LogInformation("Создаем счёт по заказу №{OrderId}", orderId);
@@ -69,8 +94,10 @@ namespace TaxcomEdoApi.Controllers
 				var container = _taxcomEdoService.CreateContainerWithBill(data);
 				
 				_logger.LogInformation("Отправляем контейнер со счетом по заказу №{OrderId}", orderId);
-				_taxcomApi.Send(container);
-				return Ok();
+				var result =
+					await _docflowService.SendMessageAsync(_containerService.ExportNewToZip(container), _certificate.RawData, cancellationToken);
+				
+				return result;
 			}
 			catch(Exception e)
 			{
@@ -78,119 +105,103 @@ namespace TaxcomEdoApi.Controllers
 					e,
 					"Ошибка в процессе формирования контейнера по заказу №{OrderId} для отправки счета",
 					orderId);
-				return Problem();
+				
+				return TaxcomResponse.Error(
+					$"Произошла ошибка в процессе формирования контейнера по заказу №{orderId} для отправки счета. " +
+					"Попробуйте позднее или обратитесь в отдел разработки");
 			}
 		}
 		
 		[HttpPost]
-		public IActionResult CreateAndSendBillWithoutShipmentForDebt(InfoForCreatingBillWithoutShipmentForDebtEdo data)
+		public async Task<TaxcomResponse> CreateAndSendBillWithoutShipmentForDebt(
+			InfoForCreatingBillWithoutShipmentForDebtEdo data, CancellationToken cancellationToken)
 		{
-			return CreateAndSendBillWithoutShipment(data);
+			return await CreateAndSendBillWithoutShipment(data, cancellationToken);
 		}
 		
 		[HttpPost]
-		public IActionResult CreateAndSendBillWithoutShipmentForPayment(InfoForCreatingBillWithoutShipmentForPaymentEdo data)
+		public async Task<TaxcomResponse> CreateAndSendBillWithoutShipmentForPayment(
+			InfoForCreatingBillWithoutShipmentForPaymentEdo data, CancellationToken cancellationToken)
 		{
-			return CreateAndSendBillWithoutShipment(data);
+			return await CreateAndSendBillWithoutShipment(data, cancellationToken);
 		}
 		
 		[HttpPost]
-		public IActionResult CreateAndSendBillWithoutShipmentForAdvancePayment(InfoForCreatingBillWithoutShipmentForAdvancePaymentEdo data)
+		public async Task<TaxcomResponse> CreateAndSendBillWithoutShipmentForAdvancePayment(
+			InfoForCreatingBillWithoutShipmentForAdvancePaymentEdo data, CancellationToken cancellationToken)
 		{
-			return CreateAndSendBillWithoutShipment(data);
+			return await CreateAndSendBillWithoutShipment(data, cancellationToken);
 		}
 		
 		[HttpGet]
-		public IActionResult StartAutoSendReceive()
-		{
-			_logger.LogInformation("Запуск необходимых транзакций по ЭДО");
-			
-			try
-			{
-				_taxcomApi.AutoSendReceive();
-				return Ok();
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(e, "Ошибка при запуске необходимых транзакций по ЭДО");
-				return Problem();
-			}
-		}
-		
-		[HttpGet]
-		public IActionResult GetDocFlowRawData(string docFlowId)
+		public async Task<TaxcomResponse<EdoDocFlowUpdates>> GetDocFlowRawData(string docFlowId, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Получение документов контейнера документооборота {DocFlowId}", docFlowId);
 			
 			try
 			{
-				var documents = _taxcomApi.GetDocflowRawData(docFlowId);
-				return Ok(documents);
+				var response = await _docflowService.GetMessageAsync(docFlowId, _certificate.RawData, cancellationToken);
+				return response;
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка при получении документов контейнера документооборота {DocFlowId}", docFlowId);
-				return Problem();
+				
+				return TaxcomResponse<EdoDocFlowUpdates>.Error(
+					$"Произошла ошибка при получении документов контейнера документооборота {docFlowId}. " +
+					"Попробуйте позднее или обратитесь в отдел разработки");
 			}
 		}
 		
-		[HttpGet]
-		public IActionResult GetDocFlowsUpdates([FromBody] GetDocFlowsUpdatesParameters docFlowsUpdatesParams)
+		[HttpPost]
+		public async Task<TaxcomResponse<ContainerDescription>> GetDocFlowsUpdates(
+			GetDocFlowsUpdatesParameters docFlowsUpdatesParams, CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Получаем исходящие документы");
+			_logger.LogInformation("Получаем изменения {Direction} ДО", docFlowsUpdatesParams.DocFlowDirection);
 			
 			try
 			{
-				var docFlowUpdates =
-					_taxcomApi.GetDocflowsUpdates(
-						docFlowsUpdatesParams.DocFlowStatus.TryParseAsEnum<DocFlowStatus>(),
-						docFlowsUpdatesParams.LastEventTimeStamp,
-						docFlowsUpdatesParams.DocFlowDirection.TryParseAsEnum<DocFlowDirection>(),
-						docFlowsUpdatesParams.DepartmentId,
-						docFlowsUpdatesParams.IncludeTransportInfo);
-
-				return Ok(docFlowUpdates);
+				var response = await _docflowService.GetListAsync(docFlowsUpdatesParams, _certificate.RawData, cancellationToken);
+				return response;
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e, "Ошибка при получении исходящих документов");
-				return Problem();
+				_logger.LogError(e, "Ошибка при получении изменений ДО");
+				return TaxcomResponse<ContainerDescription>.Error(
+					"Произошла ошибка при получении изменений ДО. Попробуйте позднее или обратитесь в отдел разработки");
 			}
 		}
 		
-		[HttpGet]
-		public IActionResult GetMessageList()
+		[HttpPost]
+		public async Task<TaxcomResponse<ContainerDescription>> GetMessageListAsync(
+			GetMessageListParameters docFlowsUpdatesParams, CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Получаем исходящие документы");
+			_logger.LogInformation("Получаем документообороты {Direction} ДО", docFlowsUpdatesParams.DocflowDirection);
 			
 			try
 			{
-				var docFlowUpdates =
-					_taxcomApi.GetDocflowsUpdates(
-						docFlowsUpdatesParams.DocFlowStatus.TryParseAsEnum<DocFlowStatus>(),
-						docFlowsUpdatesParams.LastEventTimeStamp,
-						docFlowsUpdatesParams.DocFlowDirection.TryParseAsEnum<DocFlowDirection>(),
-						docFlowsUpdatesParams.DepartmentId,
-						docFlowsUpdatesParams.IncludeTransportInfo);
-
-				return Ok(docFlowUpdates);
+				var response = await _docflowService.GetMessageListAsync(docFlowsUpdatesParams, _certificate.RawData, cancellationToken);
+				return response;
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e, "Ошибка при получении исходящих документов");
-				return Problem();
+				_logger.LogError(e, "Ошибка при получении изменений ДО");
+				return TaxcomResponse<ContainerDescription>.Error(
+					"Произошла ошибка при получении изменений ДО. Попробуйте позднее или обратитесь в отдел разработки");
 			}
 		}
 		
 		[HttpGet]
-		public IActionResult AcceptIngoingDocflow(string docflowId, string organization)
+		public async Task<IActionResult> AcceptIngoingDocflow(string docflowId, string organization, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation(
 				"Поступил запрос принятия входящего документооборота {DocFlowId}", docflowId);
-			
-			try
+
+			return Ok();
+
+			/*try
 			{
-				var taxcomContainer = _taxcomApi.GetMainDocumentContainerFromDocflow(docflowId);
+				var taxcomContainer = await _docflowService.GetMessageAsync(docflowId, _certificate.RawData, cancellationToken);
 
 				if(taxcomContainer?.Documents == null || !taxcomContainer.Documents.Any())
 				{
@@ -209,24 +220,24 @@ namespace TaxcomEdoApi.Controllers
 				}
 
 				var xmlString = _taxcomEdoService.GetSendCustomerInformationEvent(docflowId, organization, upd.Version);
-				
+
 				_logger.LogInformation(
 					"Сформировали файл действие для отправки титула покупателя по {DocFlowId} версия {UpdVersion}",
 					docflowId,
 					upd.Version);
 
-				_taxcomApi.SendCustomerInformationWithRawData(xmlString);
+				await _docflowService.SendMessageAsync(xmlString, _certificate.RawData, cancellationToken);
 				return Ok();
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка при принятии входящего документооборота {DocFlowId}", docflowId);
 				return Problem();
-			}
+			}*/
 		}
 
 		[HttpGet]
-		public IActionResult SendOfferCancellation(string docflowId, string comment)
+		public async Task<IActionResult> SendOfferCancellation(string docflowId, string comment, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Аннулирование документооборота {DocFlowId} по причине {Reason}",
 				docflowId, 
@@ -240,7 +251,7 @@ namespace TaxcomEdoApi.Controllers
 				_logger.LogInformation("Сформировали файл действие для отправки предложения об " +
 					"аннулировании для документооборота {DocFlowId}", docflowId);
 
-				_taxcomApi.OfferCancellationWithRawData(document.ToXmlString());
+				await _docflowService.SendMessageAsync(Array.Empty<byte>(), _certificate.RawData, cancellationToken);
 				return Ok();
 			}
 			catch(Exception e)
@@ -252,7 +263,7 @@ namespace TaxcomEdoApi.Controllers
 		}
 
 		[HttpGet]
-		public IActionResult AcceptOfferCancellation(string docflowId)
+		public async Task<IActionResult> AcceptOfferCancellation(string docflowId, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Принятие аннулирования документооборот {DocFlowId}",
 				docflowId
@@ -265,7 +276,7 @@ namespace TaxcomEdoApi.Controllers
 				_logger.LogInformation("Сформировали файл действие для отправки принятия предложения об " +
 					"аннулировании документооборота {DocFlowId}", docflowId);
 
-				_taxcomApi.AcceptCancellationOfferWithRawData(document.ToXmlString());
+				await _docflowService.SendMessageAsync(Array.Empty<byte>(),_certificate.RawData, cancellationToken);
 				return Ok();
 			}
 			catch(Exception e)
@@ -277,7 +288,7 @@ namespace TaxcomEdoApi.Controllers
 		}
 
 		[HttpGet]
-		public IActionResult RejectOfferCancellation(string docflowId, string comment)
+		public async Task<IActionResult> RejectOfferCancellation(string docflowId, string comment, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Отказ в аннулировании документооборота {DocFlowId} по причине {Reason}",
 				docflowId,
@@ -291,7 +302,7 @@ namespace TaxcomEdoApi.Controllers
 				_logger.LogInformation("Сформировали файл действие для отправки отказа в " +
 					"аннулировании документооборота {DocFlowId}", docflowId);
 
-				_taxcomApi.RejectCancellationOfferWithRawData(document.ToXmlString());
+				await _docflowService.SendMessageAsync(Array.Empty<byte>(), _certificate.RawData, cancellationToken);
 				return Ok();
 			}
 			catch(Exception e)
@@ -303,13 +314,13 @@ namespace TaxcomEdoApi.Controllers
 		}
 		
 		[HttpGet]
-		public IActionResult GetDocFlowStatus(string docFlowId)
+		public async Task<IActionResult> GetDocFlowStatus(string docFlowId, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Получение текущего статуса документооборота {DocFlowId}", docFlowId);
 
 			try
 			{
-				var docflowDescription = _edoDocflowService.GetStatus(docFlowId);
+				var docflowDescription = await _docflowService.GetMessageAsync(docFlowId, _certificate.RawData, cancellationToken);
 				return Ok(docflowDescription);
 			}
 			catch(Exception e)
@@ -318,14 +329,9 @@ namespace TaxcomEdoApi.Controllers
 				return Problem();
 			}
 		}
-
-		[HttpGet]
-		public IActionResult GetStatus()
-		{
-			return Ok("It's working!!!");
-		}
 		
-		private IActionResult CreateAndSendBillWithoutShipment(InfoForCreatingBillWithoutShipmentEdo data)
+		private async Task<TaxcomResponse> CreateAndSendBillWithoutShipment(
+			InfoForCreatingBillWithoutShipmentEdo data, CancellationToken cancellationToken)
 		{
 			var documentType = data.GetBillWithoutShipmentInfoTitle();
 			var orderWithoutShipmentId = data.OrderWithoutShipmentInfo.Id;
@@ -343,8 +349,10 @@ namespace TaxcomEdoApi.Controllers
 					documentType,
 					orderWithoutShipmentId);
 				
-				_taxcomApi.Send(container);
-				return Ok();
+				var result =
+					await _docflowService.SendMessageAsync(_containerService.ExportNewToZip(container), _certificate.RawData, cancellationToken);
+				
+				return result;
 			}
 			catch(Exception e)
 			{
@@ -353,7 +361,10 @@ namespace TaxcomEdoApi.Controllers
 					"Ошибка в процессе формирования контейнера по {OrderWithoutShipmentType} №{OrderWithoutShipmentId} и его отправки",
 					documentType,
 					orderWithoutShipmentId);
-				return Problem();
+				
+				return TaxcomResponse.Error(
+					$"Произошла ошибка в процессе формирования контейнера по {documentType} №{orderWithoutShipmentId} и его отправки. " +
+					"Попробуйте позднее или обратитесь в отдел разработки");
 			}
 		}
 	}

@@ -1,110 +1,138 @@
 ﻿using System;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Taxcom.Client.Api;
+using TaxcomEdo.Contracts.Contacts;
 using TaxcomEdo.Contracts.Counterparties;
-using TaxcomEdoApi.Library.Services;
+using TaxcomEdo.Contracts.Responses;
+using TaxcomEdoApi.Library.Services.Interfaces;
 
 namespace TaxcomEdoApi.Controllers
 {
+	[ApiController]
+	[Route("/api/[action]")]
 	public class ContactController : ControllerBase
 	{
 		private readonly ILogger<ContactController> _logger;
 		private readonly IEdoContactService _edoContactService;
+		private readonly X509Certificate2 _certificate;
 
 		public ContactController(
 			ILogger<ContactController> logger,
-			IEdoContactService edoContactService)
+			IEdoContactService edoContactService,
+			X509Certificate2 certificate)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_edoContactService = edoContactService ?? throw new ArgumentNullException(nameof(edoContactService));
+			_certificate = certificate ?? throw new ArgumentNullException(nameof(certificate));
 		}
 		
+		/// <summary>
+		/// Получение обновлений списка статусов приглашений
+		/// </summary>
+		/// <param name="dateTime">Дата и время начала поиска</param>
+		/// <param name="contactState">Статус контакта</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
 		[HttpGet]
-		public IActionResult GetContactListUpdates(DateTime? lastCheckContactsUpdates, EdoContactStateCode? contactState)
+		public async Task<TaxcomResponse<EdoContactList>> GetContactListUpdates(
+			DateTime dateTime, EdoContactStateCode? contactState, CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Получаем обновленный список контактов...");
-
-			ContactStatus? contactStatus = null;
-
-			if(contactState.HasValue)
-			{
-				if(Enum.TryParse(contactState.ToString(), out ContactStatus parsedContactStatus))
-				{
-					contactStatus = parsedContactStatus;
-				}
-			}
+			_logger.LogInformation("Получаем обновленный список контактов c {DateTime}...", dateTime.ToShortDateString());
 			
 			try
 			{
-				var response = _edoContactService.GetContactListUpdatesAsync(lastCheckContactsUpdates, contactStatus);
-				return Ok(response);
+				var response = await _edoContactService.GetContactListUpdatesAsync(
+					dateTime, contactState, _certificate.RawData, cancellationToken);
+				
+				return response;
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка при получении обновлений для списка контактов");
-				return Problem();
+				
+				return TaxcomResponse<EdoContactList>.Error(
+					"Произошла ошибка при получении обновлений для списка контактов. " +
+					"Попробуйте позднее или обратитесь в отдел разработки");
 			}
 		}
 		
+		/// <summary>
+		/// Отправка приглашения зарегистрированным в системе Такском-Доклайнз контрагентам через систему Такском-Доклайнз.
+		/// </summary>
+		/// <param name="contactList">Список клиентов для приглашений</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
 		[HttpPost]
-		public IActionResult SendContact()
+		public async Task<TaxcomResponse> SendContacts(EdoContactList contactList, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Отправляем приглашение на ЭДО...");
-
-			ContactStatus? contactStatus = null;
-
-			if(contactState.HasValue)
-			{
-				if(Enum.TryParse(contactState.ToString(), out ContactStatus parsedContactStatus))
-				{
-					contactStatus = parsedContactStatus;
-				}
-			}
 			
 			try
 			{
-				var response = _edoContactService.GetContactListUpdates(lastCheckContactsUpdates, contactStatus);
-				return Ok(response);
+				var response = await _edoContactService.SendContactsAsync(contactList, _certificate.RawData, cancellationToken);
+				return response;
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e, "Ошибка при получении обновлений для списка контактов");
-				return Problem();
+				_logger.LogError(e, "Ошибка при отправке приглашения");
+				
+				return TaxcomResponse.Error(
+					"Произошла неизвестная ошибка при отправке приглашения на ЭДО." +
+					" Попробуйте позднее или обратитесь в отдел разработки");
 			}
 		}
 		
+		/// <summary>
+		///  Подтверждение согласия на обмен электронными документами в ответ на полученное от контрагента приглашение
+		/// </summary>
+		/// <param name="clientEdoAccountId">Идентификатор участника ЭДО</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
 		[HttpGet]
-		public IActionResult AcceptContact(string clientEdoAccountId)
+		public async Task<TaxcomResponse> AcceptContact(string clientEdoAccountId, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Принимаем входящее приглашение по ЭДО от клиента с аккаунтом {ClientEdoAccountId}", clientEdoAccountId);
 			
 			try
 			{
-				var response = _edoContactService.AcceptContactAsync(clientEdoAccountId);
-				return Ok(response);
+				var response = await _edoContactService.AcceptContactAsync(clientEdoAccountId, _certificate.RawData, cancellationToken);
+				return response;
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка при принятии приглашения от клиента с аккаунтом {ClientEdoAccountId}", clientEdoAccountId);
-				return Problem();
+				return TaxcomResponse.Error(
+					$"Произошла неизвестная ошибка при принятии приглашения от клиента с аккаунтом {clientEdoAccountId}." +
+					" Попробуйте позднее или обратитесь в отдел разработки");
 			}
 		}
 		
+		/// <summary>
+		/// Отклонение приглашения к обмену документами или для запрещения обмена документами с одним из контрагентов.
+		/// </summary>
+		/// <param name="clientEdoAccountId">Идентификатор участника ЭДО</param>
+		/// <param name="comment">Комментарий</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
 		[HttpGet]
-		public IActionResult RejectContact(string clientEdoAccountId, string comment)
+		public async Task<TaxcomResponse> RejectContact(string clientEdoAccountId, string comment, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Отклонение приглашения по ЭДО от клиента с аккаунтом {ClientEdoAccountId}", clientEdoAccountId);
 			
 			try
 			{
-				var response = _edoContactService.RejectContactAsync(clientEdoAccountId);
-				return Ok(response);
+				var response = await _edoContactService.RejectContactAsync(clientEdoAccountId, _certificate.RawData, comment, cancellationToken);
+				return response;
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка при отклонении приглашения от клиента с аккаунтом {ClientEdoAccountId}", clientEdoAccountId);
-				return Problem();
+				return TaxcomResponse.Error(
+					$"Произошла неизвестная ошибка при отклонении приглашения от клиента с аккаунтом {clientEdoAccountId}." +
+					" Попробуйте позднее или обратитесь в отдел разработки");
 			}
 		}
 		
@@ -121,15 +149,16 @@ namespace TaxcomEdoApi.Controllers
 		/// </summary>
 		/// <param name="clientEdoAccountId"></param>
 		/// <param name="comment"></param>
+		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
 		[HttpGet]
-		public IActionResult GetContacts()
+		public async Task<IActionResult> GetContacts(CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Получение списка контактов");
 			
 			try
 			{
-				var response = _edoContactService.GetContactsAsync(clientEdoAccountId);
+				var response = await _edoContactService.GetContactsAsync(_certificate.RawData, cancellationToken);
 				return Ok(response);
 			}
 			catch(Exception e)
@@ -149,23 +178,26 @@ namespace TaxcomEdoApi.Controllers
 		///	Если с указанным ИНН/КПП зарегистрирован роуминговый кабинет (т.е. кабинет с префиксом, отличным от 2AL),
 		/// то в результате возвращается информация об этом кабинете, но без признака активности.
 		/// </summary>
-		/// <param name="clientEdoAccountId"></param>
-		/// <param name="comment"></param>
+		/// <param name="contactList">Список на проверку</param>
+		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
 		[HttpPost]
-		public IActionResult CheckCounterparty(object innKpp)
+		public async Task<TaxcomResponse<EdoContactList>> CheckCounterparty(EdoContactList contactList, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Проверка наличия данных о клиентах в Такскоме");
 			
 			try
 			{
-				var response = _edoContactService.CheckCounterpartyAsync(clientEdoAccountId);
-				return Ok(response);
+				var response = await _edoContactService.CheckCounterpartyAsync(contactList, _certificate.RawData, cancellationToken);
+				return response;
 			}
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка при проверке наличия данных о клиентах в Такскоме");
-				return Problem();
+				
+				return TaxcomResponse<EdoContactList>.Error(
+					"Произошла неизвестная ошибка при проверке наличия данных о клиентах в Такскоме." +
+					" Попробуйте позднее или обратитесь в отдел разработки");
 			}
 		}
 	}

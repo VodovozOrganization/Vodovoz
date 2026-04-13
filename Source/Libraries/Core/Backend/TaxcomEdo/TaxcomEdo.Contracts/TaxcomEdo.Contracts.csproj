@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\External\DateTime\DateTimeHelpers\DateTimeHelpers.csproj" />
+    <ProjectReference Include="..\..\..\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Edo\Edo.Contracts.Xml\Edo.Contracts.Xml\Edo.Contracts.Xml.csproj" />
   </ItemGroup>
 

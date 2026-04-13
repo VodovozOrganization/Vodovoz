@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using TaxcomEdo.Client;
 using TaxcomEdo.Contracts.Documents;
+using TaxcomEdo.Contracts.Responses;
 
 namespace EdoDocumentsConsumer.Consumers
 {
@@ -23,19 +24,30 @@ namespace EdoDocumentsConsumer.Consumers
 		protected async Task SendDataToTaxcomApi<T>(T data)
 			where T : InfoForCreatingBillWithoutShipmentEdo
 		{
+			TaxcomResponse result = null;
+			
 			try
 			{
 				switch (data)
 				{
 					case InfoForCreatingBillWithoutShipmentForDebtEdo debtData:
-						await _taxcomApiClient.SendDataForCreateBillWithoutShipmentForDebtByEdo(debtData);
+						result = await _taxcomApiClient.SendDataForCreateBillWithoutShipmentForDebtByEdo(debtData);
 						break;
 					case InfoForCreatingBillWithoutShipmentForPaymentEdo paymentData:
-						await _taxcomApiClient.SendDataForCreateBillWithoutShipmentForPaymentByEdo(paymentData);
+						result = await _taxcomApiClient.SendDataForCreateBillWithoutShipmentForPaymentByEdo(paymentData);
 						break;
 					case InfoForCreatingBillWithoutShipmentForAdvancePaymentEdo advancePaymentData:
-						await _taxcomApiClient.SendDataForCreateBillWithoutShipmentForAdvancePaymentByEdo(advancePaymentData);
+						result = await _taxcomApiClient.SendDataForCreateBillWithoutShipmentForAdvancePaymentByEdo(advancePaymentData);
 						break;
+				}
+
+				if(result is { Ok: false })
+				{
+					Logger.LogError(
+						"Ошибка при отправке {OrderWithoutShipment} {OrderId} в TaxcomApi. Ошибка {ErrorMessage}",
+						data.GetBillWithoutShipmentInfoTitle(),
+						data.OrderWithoutShipmentInfo.Id,
+						result.ErrorMessage);
 				}
 			}
 			catch(Exception e)

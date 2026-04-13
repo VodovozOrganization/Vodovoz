@@ -10,6 +10,10 @@ namespace TaxcomEdoApi.Library.Config
 		/// </summary>
 		public string AcceptContactUri { get; set; }
 		/// <summary>
+		/// Эндпойнт получения контактов
+		/// </summary>
+		public string GetContactsUri { get; set; }
+		/// <summary>
 		/// Эндпойнт отбраковки контакта
 		/// </summary>
 		public string RejectContactUri { get; set; }
@@ -21,5 +25,9 @@ namespace TaxcomEdoApi.Library.Config
 		/// Эндпойнт проверки клиента на сервере Такском
 		/// </summary>
 		public string CheckContragentUri { get; set; }
+		/// <summary>
+		/// Эндпойнт обновлений списка статусов приглашений
+		/// </summary>
+		public string GetContactListUpdatesUri { get; set; }
 	}
 }

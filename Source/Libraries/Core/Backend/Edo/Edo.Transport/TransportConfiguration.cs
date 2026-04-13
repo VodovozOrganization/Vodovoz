@@ -103,7 +103,7 @@ namespace Edo.Transport
 			});
 
 			cfg.Message<TransferCompleteEvent>(x => x.SetEntityName("edo.transfer-complete.publish"));
-			cfg.Send<TransferCompleteEvent>(x => x.UseRoutingKeyFormatter(c => c.Message.TransferInitiator.ToString()));
+			cfg.Send<TransferCompleteEvent>(x => x.UseRoutingKeyFormatter(c => c.Message.TransferInitiator));
 			cfg.Publish<TransferCompleteEvent>(x =>
 			{
 				x.ExchangeType = ExchangeType.Direct;

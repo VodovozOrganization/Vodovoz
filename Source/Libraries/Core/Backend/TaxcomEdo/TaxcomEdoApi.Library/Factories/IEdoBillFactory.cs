@@ -1,5 +1,5 @@
-﻿using Taxcom.Client.Api.Entity;
-using TaxcomEdo.Contracts.Documents;
+﻿using TaxcomEdo.Contracts.Documents;
+using TaxcomEdoApi.Library.Models.Documents;
 
 namespace TaxcomEdoApi.Library.Factories
 {

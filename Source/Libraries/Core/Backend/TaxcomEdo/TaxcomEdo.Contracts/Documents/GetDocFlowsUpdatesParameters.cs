@@ -14,7 +14,7 @@ namespace TaxcomEdo.Contracts.Documents
 		/// <summary>
 		/// Дата, с которой будет идти выборка
 		/// </summary>
-		public long? LastEventTimeStamp { get; set; }
+		public DateTime LastEventTimeStamp { get; set; }
 		/// <summary>
 		/// Фильтр по направлению документооборота: Входящий и Исходящий
 		/// </summary>
@@ -26,10 +26,10 @@ namespace TaxcomEdo.Contracts.Documents
 		/// <summary>
 		/// Включение/исключение информации по служебным документам из контейнера
 		/// </summary>
-		public bool IncludeTransportInfo { get; set; }
+		public bool IncludeTransportInfo { get; set; } = true;
 		/// <summary>
 		/// Включение/исключение расширенных статусов
 		/// </summary>
-		public bool IncludeExtendedDocFlowStatuses { get; set; }
+		public bool IncludeExtendedDocFlowStatuses { get; set; } = true;
 	}
 }

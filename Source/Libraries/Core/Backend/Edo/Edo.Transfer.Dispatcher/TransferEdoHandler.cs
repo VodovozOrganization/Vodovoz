@@ -224,7 +224,7 @@ namespace Edo.Transfer.Dispatcher
 				messages.Add(new TransferCompleteEvent
 				{
 					TransferIterationId = transferIteration.Id,
-					TransferInitiator = transferIteration.Initiator
+					TransferInitiator = Enum.GetName(typeof(TransferInitiator), transferIteration.Initiator)
 				});
 			}
 

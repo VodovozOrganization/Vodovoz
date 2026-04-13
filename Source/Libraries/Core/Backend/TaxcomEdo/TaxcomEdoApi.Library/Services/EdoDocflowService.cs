@@ -3,30 +3,28 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Core.Infrastructure;
-using DateTimeHelpers;
-using Microsoft.Extensions.Options;
 using TaxcomEdo.Contracts.Documents;
-using TaxcomEdoApi.Library.Config;
+using TaxcomEdo.Contracts.Extensions;
+using TaxcomEdo.Contracts.Responses;
+using TaxcomEdo.Contracts.Xml.Container;
+using TaxcomEdoApi.Library.Services.Interfaces;
 
 namespace TaxcomEdoApi.Library.Services
 {
 	public class EdoDocflowService : EdoLoginService, IEdoDocflowService
 	{
 		private readonly HttpClient _httpClient;
-		private readonly IEdoAuthorizationService _edoAuthorizationService;
-		private readonly TaxcomEdoApiOptions _options;
 
 		public EdoDocflowService(
 			HttpClient httpClient,
-			IEdoAuthorizationService edoAuthorizationService,
-			IOptions<TaxcomEdoApiOptions> options) : base(edoAuthorizationService)
+			IEdoAuthorizationService edoAuthorizationService
+			) : base(edoAuthorizationService)
 		{
 			_httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-			_edoAuthorizationService = edoAuthorizationService ?? throw new ArgumentNullException(nameof(edoAuthorizationService));
-			_options = (options ?? throw new ArgumentNullException(nameof(options))).Value;
 		}
 		
-		public async Task<EdoDocFlowUpdates> GetMessageListAsync(GetMessageListParameters parameters, byte[] certificateData, CancellationToken cancellationToken)
+		public async Task<TaxcomResponse<ContainerDescription>> GetMessageListAsync(
+			GetMessageListParameters parameters, byte[] certificateData, CancellationToken cancellationToken = default)
 		{
 			var query = HttpQueryBuilder.Create()
 				.AddParameter(parameters.Date, "DATE")
@@ -34,68 +32,65 @@ namespace TaxcomEdoApi.Library.Services
 				.AddParameter(parameters.WithTracing, "withTracing")
 				.AddParameter(parameters.WithGroupInfo, "withGroupInfo")
 				.ToString();
-			
-			var key = await CertificateLogin(certificateData);
-			var response = await _httpClient.GetAsync(_options.DocflowUri.GetMessageListUri + query, cancellationToken);
-			
-			return response.IsSuccessStatusCode;
+
+			var assistantKey = await CertificateLoginAsync(certificateData, cancellationToken);
+			var message = PrepareGetHttpRequestMessage(assistantKey, ExternalApiConstants.GetMessageListUri + query);
+			var response = await _httpClient.SendAsync(message, cancellationToken);
+
+			return await response.ToTaxcomResponseAsync<ContainerDescription>(cancellationToken);
 		}
 		
-		public async Task<EdoDocFlowUpdates> GetMessageAsync(string docFlowId, byte[] certificateData, CancellationToken cancellationToken)
+		public async Task<TaxcomResponse<ContainerDescription>> GetListAsync(
+			GetDocFlowsUpdatesParameters parameters, byte[] certificateData, CancellationToken cancellationToken = default)
+		{
+			var query = HttpQueryBuilder.Create()
+				.AddParameter(parameters.LastEventTimeStamp, "date")
+				.AddParameter(parameters.DocFlowDirection, "direction")
+				.AddParameter(parameters.DocFlowStatus, "status")
+				.AddParameter(parameters.DepartmentId, "departmentId")
+				.AddParameter(parameters.IncludeExtendedDocFlowStatuses, "includeExtendedDocflowStatuses")
+				.AddParameter(parameters.IncludeTransportInfo, "includeTransportInfo")
+				.ToString();
+
+			var assistantKey = await CertificateLoginAsync(certificateData, cancellationToken);
+			var message = PrepareGetHttpRequestMessage(assistantKey, ExternalApiConstants.GetListUri + query);
+			var response = await _httpClient.SendAsync(message, cancellationToken);
+
+			return await response.ToTaxcomResponseAsync<ContainerDescription>(cancellationToken);
+		}
+		
+		public async Task<TaxcomResponse<EdoDocFlowUpdates>> GetMessageAsync(
+			string docFlowId, byte[] certificateData, CancellationToken cancellationToken = default)
 		{
 			var query = HttpQueryBuilder.Create()
 				.AddParameter(docFlowId, "ID")
 				.ToString();
-			
-			var key = await CertificateLogin(certificateData);
-			var response = await _httpClient.GetAsync(_options.DocflowUri.GetMessageUri + query, cancellationToken);
-			
-			return response.IsSuccessStatusCode;
+
+			var assistantKey = await CertificateLoginAsync(certificateData, cancellationToken);
+			var message = PrepareGetHttpRequestMessage(assistantKey, ExternalApiConstants.GetMessageUri + query);
+			var response = await _httpClient.SendAsync(message, cancellationToken);
+
+			return await response.ToTaxcomResponseAsync<EdoDocFlowUpdates>(cancellationToken);
 		}
 		
-		public async Task<bool> SendMessageAsync(byte[] container, byte[] certificateData, CancellationToken cancellationToken)
+		public async Task<TaxcomResponse> SendMessageAsync(byte[] container, byte[] certificateData, CancellationToken cancellationToken = default)
 		{
-			var key = await CertificateLogin(certificateData);
-			var response = await _httpClient.PostAsync(_options.DocflowUri.SendMessageUri, null, cancellationToken);
-			
-			return response.IsSuccessStatusCode;
-		}
-	}
+			var assistantKey = await CertificateLoginAsync(certificateData, cancellationToken);
+			var content = PrepareByteArrayContent(container, assistantKey);
+			var response = await _httpClient.PostAsync(ExternalApiConstants.SendMessageUri, content, cancellationToken);
 
-	public interface IEdoDocflowService
-	{
-		/// <summary>
-		/// Отправка контейнера Такском с электронным документом или служебным сообщением.
-		/// Каждый отправляемый контейнер Такском должен содержать файлы meta.xml и card.xml, а также электронный документ или служебное сообщение
-		/// </summary>
-		/// <param name="container">Контйенер с документами</param>
-		/// <param name="certificateData">Подпись</param>
-		/// <param name="cancellationToken">Токен отмены операции</param>
-		/// <returns></returns>
-		Task<bool> SendMessageAsync(byte[] container, byte[] certificateData, CancellationToken cancellationToken);
-		/// <summary>
-		/// Получение с сервера системы Такском-Доклайнз списка входящих или исходящих транзакций для всех получаемых и отправляемых электронных документов.
-		/// </summary>
-		/// <param name="parameters">Параметры фильтрации нужных данных</param>
-		/// <param name="certificateData">Подпись</param>
-		/// <param name="cancellationToken">Токен отмены операции</param>
-		/// <returns></returns>
-		Task<EdoDocFlowUpdates> GetMessageListAsync(GetMessageListParameters parameters, byte[] certificateData, CancellationToken cancellationToken);
-		/// <summary>
-		/// Получение контейнера Такском с документом или служебным сообщением с сервера системы Такском-Доклайнз
-		/// </summary>
-		/// <param name="docFlowId">Id документооборота</param>
-		/// <param name="certificateData">Подпись</param>
-		/// <param name="cancellationToken">Токен отмены операции</param>
-		/// <returns></returns>
-		Task<EdoDocFlowUpdates> GetMessageAsync(string docFlowId, byte[] certificateData, CancellationToken cancellationToken);
+			return response.ToTaxcomResponse();
+		}
 	}
 
 	/// <summary>
 	/// Параметры для запроса GetMessageList <see cref="IEdoDocflowService"/>
 	/// </summary>
+	[Serializable]
 	public class GetMessageListParameters
 	{
+		public GetMessageListParameters() { }
+		
 		protected GetMessageListParameters(string date, string direction, bool withTracing, bool withGroupInfo)
 		{
 			Date = date;

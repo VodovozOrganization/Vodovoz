@@ -224,7 +224,7 @@ namespace EdoManualEventSender
 			_messageBus.Publish(new TransferCompleteEvent
 			{
 				TransferIterationId = id,
-				TransferInitiator = TransferInitiator.Document
+				TransferInitiator = nameof(TransferInitiator.Document)
 			}).Wait();
 		}
 		
@@ -243,7 +243,7 @@ namespace EdoManualEventSender
 			_messageBus.Publish(new TransferCompleteEvent
 			{
 				TransferIterationId = id,
-				TransferInitiator = TransferInitiator.Tender
+				TransferInitiator = nameof(TransferInitiator.Tender)
 			}).Wait();
 		}
 
@@ -262,7 +262,7 @@ namespace EdoManualEventSender
 			_messageBus.Publish(new TransferCompleteEvent
 			{
 				TransferIterationId = id,
-				TransferInitiator = TransferInitiator.Receipt
+				TransferInitiator = nameof(TransferInitiator.Receipt)
 			}).Wait();
 		}
 

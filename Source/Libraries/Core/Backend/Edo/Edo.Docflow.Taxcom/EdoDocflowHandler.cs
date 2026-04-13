@@ -50,8 +50,13 @@ namespace Edo.Docflow.Taxcom
 
 			var result = await _taxcomApiClient.SendDataForCreateUpdByEdo(@event.UpdInfo);
 
-			if(!result)
+			if(!result.Ok)
 			{
+				_logger.LogError(
+					"Произошла ошибка при отправке ДО с документом {EdoDocument}. Ошибка: {ErrorMessage}",
+					taxcomDocflow.MainDocumentId,
+					result.ErrorMessage);
+				
 				var newAction = new TaxcomDocflowAction
 				{
 					DocFlowState = EdoDocFlowStatus.Error,

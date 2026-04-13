@@ -44,7 +44,15 @@ namespace EdoDocumentsConsumer.Consumers
 
 		private async Task SendDataToTaxcomApi(InfoForCreatingEdoBill data)
 		{
-			await _taxcomApiClient.SendDataForCreateBillByEdo(data);
+			var result = await _taxcomApiClient.SendDataForCreateBillByEdo(data);
+
+			if(!result.Ok)
+			{
+				_logger.LogError(
+					"Произошла ошибка при отправке счета №{OrderId} по ЭДО. Ошибка: {ErrorMessage}",
+					data.OrderInfoForEdo.Id,
+					result.ErrorMessage);
+			}
 		}
 	}
 }

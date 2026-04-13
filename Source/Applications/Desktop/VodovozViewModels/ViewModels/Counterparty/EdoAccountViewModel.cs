@@ -1,11 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Windows.Input;
 using Autofac;
-using EdoService.Library;
-using EdoService.Library.Dto;
-using EdoService.Library.Services;
 using Microsoft.Extensions.Logging;
 using QS.Attachments.Domain;
 using QS.Commands;
@@ -16,9 +14,13 @@ using QS.Services;
 using QS.Tdi;
 using QS.Validation;
 using QS.ViewModels;
-using TISystems.TTC.CRM.BE.Serialization;
+using TaxcomEdo.Client;
+using TaxcomEdo.Contracts.Contacts;
+using TaxcomEdo.Contracts.Counterparties;
+using TaxcomEdo.Contracts.Responses;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Core.Domain.Extensions;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Factories;
@@ -31,8 +33,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 	public class EdoAccountViewModel : EntityWidgetViewModelBase<CounterpartyEdoAccount>, IDisposable
 	{
 		private readonly ILogger<EdoAccountViewModel> _logger;
-		private readonly ContactListParser _contactListParser;
-		private readonly IContactListService _contactListService;
+		private readonly ITaxcomApiClientSdkVersion _taxcomClient;
 		private readonly IEdoSettings _edoSettings;
 		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IValidator _validator;
@@ -44,8 +45,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			ILifetimeScope scope,
 			Domain.Client.Counterparty counterparty,
 			CounterpartyEdoAccount edoAccount,
-			ContactListParser contactListParser,
-			IContactListService contactListService,
+			ITaxcomApiClientSdkVersion taxcomClient,
 			ITdiTab parentTab,
 			ICommonServices commonServices,
 			IEdoSettings edoSettings,
@@ -55,8 +55,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			IValidationContextFactory validationContextFactory) : base(edoAccount, commonServices)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_contactListParser = contactListParser ?? throw new ArgumentNullException(nameof(contactListParser));
-			_contactListService = contactListService ?? throw new ArgumentNullException(nameof(contactListService));
+			_taxcomClient = taxcomClient ?? throw new ArgumentNullException(nameof(taxcomClient));
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
@@ -211,11 +210,11 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 
 		private void CheckClientInTaxcom()
 		{
-			ContactList contactResult;
+			EdoContactList contactResult;
 
 			try
 			{
-				contactResult = _contactListService.CheckContragentAsync(Counterparty.INN, Counterparty.KPP).Result;
+				contactResult = _taxcomClient.CheckCounterpartyAsync(Counterparty.INN, Counterparty.KPP).Result;
 			}
 			catch(Exception ex)
 			{
@@ -230,7 +229,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				return;
 			}
 
-			if(contactResult?.Contacts == null)
+			if(contactResult?.Contacts is null)
 			{
 				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 					"Контрагент не найден через Такском");
@@ -246,7 +245,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 
 				if(contactListItem.State != null)
 				{
-					Entity.ConsentForEdoStatus = _contactListService.ConvertStateToConsentForEdoStatus(contactListItem.State.Code);
+					Entity.ConsentForEdoStatus = contactListItem.State.Code.ToConsentEdoStatus();
 				}
 
 				TryRefreshEdoLightsMatrix();
@@ -306,13 +305,11 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			}
 
 			var checkDate = DateTime.Now.AddDays(-_edoSettings.EdoCheckPeriodDays);
-			ContactListItem contactListItem = null;
+			EdoContactInfo contactInfo = null;
 
 			try
 			{
-				contactListItem = _contactListParser
-					.GetLastChangeOnDate(_contactListService, checkDate, Counterparty.INN, Counterparty.KPP)
-					.Result;
+				contactInfo = GetLastChangeContact(checkDate, Counterparty.INN, Counterparty.KPP);
 			}
 			catch(Exception ex)
 			{
@@ -322,14 +319,14 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				return;
 			}
 
-			if(contactListItem == null)
+			if(contactInfo == null)
 			{
 				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Unknown;
 				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Приглашение не найдено.");
 				return;
 			}
 
-			Entity.ConsentForEdoStatus = _contactListService.ConvertStateToConsentForEdoStatus(contactListItem.State.Code);
+			Entity.ConsentForEdoStatus = contactInfo.State.Code.ToConsentEdoStatus();
 			TryRefreshEdoLightsMatrix();
 			CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Согласие проверено.");
 		}
@@ -351,7 +348,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				?? Counterparty.Emails.LastOrDefault(em => em.EmailType?.EmailPurpose == EmailPurpose.Work)
 				?? Counterparty.Emails.LastOrDefault();
 
-			ResultDto resultMessage;
+			TaxcomResponse result = null;
 
 			if(email == null)
 			{
@@ -368,17 +365,19 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 
 			try
 			{
+				var organization = UoW.GetById<Organization>(_organizationSettings.VodovozOrganizationId);
+				
 				if(isManual)
 				{
-					if(!CommonServices.InteractiveService.Question("Время обработки заявки без кода личного кабинета может составлять до 10 дней.\nПродолжить отправку?"))
+					if(!CommonServices.InteractiveService
+						.Question("Время обработки заявки без кода личного кабинета может составлять до 10 дней.\nПродолжить отправку?"))
 					{
 						return;
 					}
 
 					var document = UoW.GetById<Attachment>(_edoSettings.TaxcomManualInvitationFileId);
-					var organization = UoW.GetById<Organization>(_organizationSettings.VodovozOrganizationId);
 
-					resultMessage = _contactListService
+					result = _taxcomClient
 						.SendContactsForManualInvitationAsync(
 							Counterparty.INN,
 							Counterparty.KPP,
@@ -391,8 +390,8 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				}
 				else
 				{
-					resultMessage = _contactListService
-						.SendContactsAsync(Counterparty.INN, Counterparty.KPP, email.Address, Entity.PersonalAccountIdInEdo)
+					result = _taxcomClient
+						.SendContactsAsync(Counterparty.INN, Counterparty.KPP, email.Address, Entity.PersonalAccountIdInEdo, organization.Name)
 						.Result;
 				}
 			}
@@ -403,7 +402,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 				return;
 			}
 
-			if(resultMessage.IsSuccess)
+			if(result.Ok)
 			{
 				Entity.ConsentForEdoStatus = ConsentForEdoStatus.Sent;
 				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
@@ -411,7 +410,7 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			}
 			else
 			{
-				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, resultMessage.ErrorMessage);
+				CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Error, result.ErrorMessage);
 			}
 		}
 
@@ -455,6 +454,30 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 			
 			Entity.EdoOperator = edoAccount.EdoOperator;
 			Entity.PersonalAccountIdInEdo = edoAccount.PersonalAccountIdInEdo;
+		}
+
+		private EdoContactInfo GetLastChangeContact(DateTime checkDate, string inn, string kpp, EdoContactStateCode? contactState = null)
+		{
+			var items = new List<EdoContactInfo>();
+			EdoContactList contactList;
+
+			do
+			{
+				contactList = _taxcomClient.GetContactListUpdates(checkDate, contactState).Result;
+
+				if(contactList.Contacts != null && contactList.Contacts.LastOrDefault() is EdoContactInfo item)
+				{
+					checkDate = item.State.Changed;
+					items.AddRange(contactList.Contacts);
+				}
+
+			} while(contactList.Contacts != null && contactList.Contacts.Length >= 100);
+
+			return items
+				.Where(x => x.Inn == inn
+					&& (string.IsNullOrWhiteSpace(x.Kpp) || x.Kpp == kpp))
+				.OrderByDescending(x => x.State.Changed)
+				.FirstOrDefault();
 		}
 		
 		private void TryRefreshEdoLightsMatrix()

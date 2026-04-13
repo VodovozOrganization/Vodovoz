@@ -1,5 +1,4 @@
-﻿using EdoService.Library.Converters;
-using EdoService.Library.Services;
+﻿using EdoService.Library.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EdoService.Library
@@ -11,10 +10,7 @@ namespace EdoService.Library
 			services
 				.AddScoped<IEdoService, EdoService>()
 				.AddScoped<IEdoLogger, EdoLogger>()
-				.AddScoped<IContactListService, ContactListService>()
 				.AddScoped<IAuthorizationService, TaxcomAuthorizationService>()
-				.AddScoped<IContactStateConverter, ContactStateConverter>()
-				.AddScoped<ContactListParser>()
 				;
 			
 			return services;

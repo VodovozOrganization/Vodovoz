@@ -3,31 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using Core.Infrastructure;
 using Edo.Contracts.Messages.Dto;
-using Taxcom.Client.Api.Document.DocumentByFormat1115131_5_03;
-using TaxcomEdo.Contracts.Goods;
-using TaxcomEdo.Contracts.Orders;
+using Edo.Contracts.Xml.FormalizedDocuments;
+using Edo.Contracts.Xml.FormalizedDocuments.UPD;
 
 namespace TaxcomEdoApi.Library.Converters.Format5_03
 {
 	public class UpdProductConverter5_03 : IUpdProductConverter5_03
 	{
-		public FajlDokumentTablSchFaktSvedTov[] ConvertOrderItemsToUpdProducts(
-			IList<OrderItemInfoForEdo> orderItems, IEnumerable<SpecialNomenclatureInfoForEdo> counterpartySpecialNomenclatures)
+		public ФайлДокументТаблСчФактСведТов[] ConvertProductsToUpdProducts(IEnumerable<ProductInfo> products)
 		{
-			var products = new List<FajlDokumentTablSchFaktSvedTov>();
-
-			for(var i = 0; i < orderItems.Count; i++)
-			{
-				var product = ConvertOrderItemToUpdProduct(orderItems[i], counterpartySpecialNomenclatures, i + 1);
-				products.Add(product);
-			}
-
-			return products.ToArray();
-		}
-
-		public FajlDokumentTablSchFaktSvedTov[] ConvertProductsToUpdProducts(IEnumerable<ProductInfo> products)
-		{
-			var updProducts = new List<FajlDokumentTablSchFaktSvedTov>();
+			var updProducts = new List<ФайлДокументТаблСчФактСведТов>();
 			var i = 0;
 
 			foreach(var product in products)
@@ -39,96 +24,39 @@ namespace TaxcomEdoApi.Library.Converters.Format5_03
 			return updProducts.ToArray();
 		}
 
-		private FajlDokumentTablSchFaktSvedTov ConvertOrderItemToUpdProduct(
-			OrderItemInfoForEdo orderItemInfoForEdo, IEnumerable<SpecialNomenclatureInfoForEdo> counterpartySpecialNomenclatures, int row)
-		{
-			var count = Math.Round(orderItemInfoForEdo.CurrentCount, orderItemInfoForEdo.NomenclatureInfoForEdo?.MeasurementUnitInfoForEdo?.Digits ?? 2);
-			
-			var product = new FajlDokumentTablSchFaktSvedTov
-			{
-				Akciz = new SumAkcizTip
-				{
-					Item = SumAkcizTipBezAkciz.bezakciza
-				},
-				
-				NomStr = row.ToString(),
-				NaimTov = orderItemInfoForEdo.NomenclatureInfoForEdo?.OfficialName,
-				OKEI_Tov = orderItemInfoForEdo.NomenclatureInfoForEdo.MeasurementUnitInfoForEdo.OKEI,
-				NaimEdIzm = orderItemInfoForEdo.NomenclatureInfoForEdo.MeasurementUnitInfoForEdo.Name,
-				KolTov = count,
-				CenaTov = orderItemInfoForEdo.PriceWithoutVat,
-				StTovBezNDS = orderItemInfoForEdo.SumWithoutVat,
-				NalSt = GetProductTaxRate(orderItemInfoForEdo.ValueAddedTax),
-				StTovUchNal = orderItemInfoForEdo.ActualSum,
-				CenaTovSpecified = true,
-				KolTovSpecified = true,
-				StTovBezNDSSpecified = true,
-				
-				DopSvedTov = new FajlDokumentTablSchFaktSvedTovDopSvedTov
-				{
-					KodTov = GetProductCode(counterpartySpecialNomenclatures, orderItemInfoForEdo.NomenclatureInfoForEdo.Id)
-				}
-			};
-
-			if(!string.IsNullOrWhiteSpace(orderItemInfoForEdo.NomenclatureInfoForEdo?.Gtin))
-			{
-				product.DopSvedTov.NomSredIdentTov = new[]
-				{
-					new FajlDokumentTablSchFaktSvedTovDopSvedTovNomSredIdentTov
-					{
-						ItemsElementName = new[]
-						{
-							ItemsChoiceType.NomUpak
-						},
-						Items = new[]
-						{
-							new PackageNumberConverter().ConvertGtinToPackageNumberUpd(orderItemInfoForEdo.NomenclatureInfoForEdo.Gtin, count)
-						}
-					}
-				};
-			}
-			
-			product.SumNal = new SumNDSTip
-			{
-				Item = GetTax(orderItemInfoForEdo, product.NalSt)
-			};
-
-			return product;
-		}
-		
-		private FajlDokumentTablSchFaktSvedTov ConvertOrderItemToUpdProduct(ProductInfo product, int row)
+		private ФайлДокументТаблСчФактСведТов ConvertOrderItemToUpdProduct(ProductInfo product, int row)
 		{
 			var count = product.Count;
 			
-			var updProduct = new FajlDokumentTablSchFaktSvedTov
+			var updProduct = new ФайлДокументТаблСчФактСведТов
 			{
-				Akciz = new SumAkcizTip
+				Акциз = new СумАкцизТип
 				{
-					Item = SumAkcizTipBezAkciz.bezakciza
+					Item = СумАкцизТипБезАкциз.безакциза
 				},
 				
-				NomStr = row.ToString(),
-				NaimTov = product.Name,
-				OKEI_Tov = product.OKEI,
-				NaimEdIzm = product.UnitName,
-				KolTov = count,
-				CenaTov = product.PriceWithoutVat,
-				CenaTovSpecified = true,
-				KolTovSpecified = true,
-				NalSt = GetProductTaxRate(product.ValueAddedTax),
-				StTovUchNal = product.Sum,
-				StTovBezNDS = product.SumWithoutVat,
-				StTovBezNDSSpecified = true,
-				DopSvedTov = new FajlDokumentTablSchFaktSvedTovDopSvedTov
+				НомСтр = row.ToString(),
+				НаимТов = product.Name,
+				ОКЕИ_Тов = product.OKEI,
+				НаимЕдИзм = product.UnitName,
+				КолТов = count,
+				ЦенаТов = product.PriceWithoutVat,
+				ЦенаТовSpecified = true,
+				КолТовSpecified = true,
+				НалСт = GetProductTaxRate(product.ValueAddedTax),
+				СтТовУчНал = product.Sum,
+				СтТовБезНДС = product.SumWithoutVat,
+				СтТовБезНДСSpecified = true,
+				ДопСведТов = new ФайлДокументТаблСчФактСведТовДопСведТов
 				{
-					KodTov = product.Code
+					КодТов = product.Code
 				}
 			};
 
 			if(product.EconomicLifeFacts != null && product.EconomicLifeFacts.Any())
 			{
-				updProduct.InfPolFHZh2 = product.EconomicLifeFacts
-					.Select(x => new TekstInfTip { Identif = x.Id, Znachen = x.Value })
+				updProduct.ИнфПолФХЖ2 = product.EconomicLifeFacts
+					.Select(x => new TextInformation { Key = x.Id, Value = x.Value })
 					.ToArray();
 			}
 
@@ -141,7 +69,7 @@ namespace TaxcomEdoApi.Library.Converters.Format5_03
 					.Where(x => !x.TransportCode.IsNullOrWhiteSpace())
 					.GroupBy(x => x.TransportCode);
 
-				var sredIdentTovList = new List<FajlDokumentTablSchFaktSvedTovDopSvedTovNomSredIdentTov>();
+				var sredIdentTovList = new List<ФайлДокументТаблСчФактСведТовДопСведТовНомСредИдентТов>();
 
 				if(codesWithoutTransport.Any())
 				{
@@ -159,40 +87,40 @@ namespace TaxcomEdoApi.Library.Converters.Format5_03
 					}
 				}
 
-				updProduct.DopSvedTov.NomSredIdentTov = sredIdentTovList.ToArray();
+				updProduct.ДопСведТов.НомСредИдентТов = sredIdentTovList.ToArray();
 			}
 			
-			updProduct.SumNal = new SumNDSTip
+			updProduct.СумНал = new СумНДСТип
 			{
-				Item = GetTax(product, updProduct.NalSt)
+				Item = GetTax(product, updProduct.НалСт)
 			};
 
 			return updProduct;
 		}
 
-		private IEnumerable<FajlDokumentTablSchFaktSvedTovDopSvedTovNomSredIdentTov> CreateSredIdentTov(
+		private IEnumerable<ФайлДокументТаблСчФактСведТовДопСведТовНомСредИдентТов> CreateSredIdentTov(
 			IEnumerable<ProductCodeInfo> codes, 
 			string transportCode = null
 			)
 		{
 			if(!transportCode.IsNullOrWhiteSpace())
 			{
-				return new []{ new FajlDokumentTablSchFaktSvedTovDopSvedTovNomSredIdentTov { IdentTransUpak = transportCode} };
+				return new []{ new ФайлДокументТаблСчФактСведТовДопСведТовНомСредИдентТов { ИдентТрансУпак = transportCode} };
 			}
 
-			var identificationData = new List<FajlDokumentTablSchFaktSvedTovDopSvedTovNomSredIdentTov>();
+			var identificationData = new List<ФайлДокументТаблСчФактСведТовДопСведТовНомСредИдентТов>();
 			var groupedCodesByType = codes.ToLookup(x => x.IsGroup);
 
 			foreach(var groupCodesByType in groupedCodesByType)
 			{
-				var identificationInfo = new FajlDokumentTablSchFaktSvedTovDopSvedTovNomSredIdentTov();
+				var identificationInfo = new ФайлДокументТаблСчФактСведТовДопСведТовНомСредИдентТов();
 				var items = new List<(ItemsChoiceType Type, string Code)>();
 				
 				items.AddRange(
 					from code in groupCodesByType
 					let itemType = code.IsGroup
-						? ItemsChoiceType.NomUpak
-						: ItemsChoiceType.KIZ
+						? ItemsChoiceType.НомУпак
+						: ItemsChoiceType.КИЗ
 					select (itemType, code.IndividualOrGroupCode));
 
 				identificationInfo.ItemsElementName = items.Select(x => x.Type).ToArray();
@@ -203,48 +131,31 @@ namespace TaxcomEdoApi.Library.Converters.Format5_03
 			return identificationData;
 		}
 
-		private string GetProductCode(IEnumerable<SpecialNomenclatureInfoForEdo> counterpartySpecialNomenclatures, int nomenclatureId)
-		{
-			var specialNomenclature = counterpartySpecialNomenclatures.SingleOrDefault(x => x.NomenclatureId == nomenclatureId);
-
-			return specialNomenclature != null
-				? specialNomenclature.SpecialId.ToString()
-				: nomenclatureId.ToString();
-		}
-
-		private FajlDokumentTablSchFaktSvedTovNalSt GetProductTaxRate(decimal? orderItemTax)
+		private ФайлДокументТаблСчФактСведТовНалСт GetProductTaxRate(decimal? orderItemTax)
 		{
 			switch(orderItemTax)
 			{
 				case null:
 				case 0m:
-					return FajlDokumentTablSchFaktSvedTovNalSt.bezNDS;
+					return ФайлДокументТаблСчФактСведТовНалСт.безНДС;
 				case 0.10m:
-					return FajlDokumentTablSchFaktSvedTovNalSt.Item10;
+					return ФайлДокументТаблСчФактСведТовНалСт.Item10;
 				case 0.18m:
 					throw new InvalidOperationException("Не должно быть НДС 18% в УПД формата 5.03");
 				case 0.20m:
-					return FajlDokumentTablSchFaktSvedTovNalSt.Item20;
+					return ФайлДокументТаблСчФактСведТовНалСт.Item20;
+				case 0.22m:
+					return ФайлДокументТаблСчФактСведТовНалСт.Item22;
 				default:
-					return FajlDokumentTablSchFaktSvedTovNalSt.bezNDS;
+					return ФайлДокументТаблСчФактСведТовНалСт.безНДС;
 			}
-		}
-
-		private object GetTax(OrderItemInfoForEdo orderItemInfoForEdo, FajlDokumentTablSchFaktSvedTovNalSt taxRate)
-		{
-			if(taxRate == FajlDokumentTablSchFaktSvedTovNalSt.bezNDS)
-			{
-				return SumNDSTipBezNDS.bezNDS;
-			}
-
-			return orderItemInfoForEdo.IncludeNDS;
 		}
 		
-		private object GetTax(ProductInfo product, FajlDokumentTablSchFaktSvedTovNalSt taxRate)
+		private object GetTax(ProductInfo product, ФайлДокументТаблСчФактСведТовНалСт taxRate)
 		{
-			if(taxRate == FajlDokumentTablSchFaktSvedTovNalSt.bezNDS)
+			if(taxRate == ФайлДокументТаблСчФактСведТовНалСт.безНДС)
 			{
-				return SumNDSTipBezNDS.bezNDS;
+				return СумНДСТипБезНДС.безНДС;
 			}
 
 			return product.IncludeVat;

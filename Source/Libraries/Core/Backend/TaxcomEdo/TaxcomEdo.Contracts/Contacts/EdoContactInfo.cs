@@ -19,6 +19,35 @@ namespace TaxcomEdo.Contracts.Contacts
 			Kpp = kpp;
 		}
 		
+		private EdoContactInfo(string inn, string kpp, string email, string edxClientId, string comment)
+		{
+			Inn = inn;
+			Kpp = kpp;
+			Email = email;
+			EdxClientId = edxClientId;
+			Comment = comment;
+		}
+		
+		private EdoContactInfo(
+			string inn,
+			string kpp,
+			string organizationName,
+			string operatorId,
+			string email,
+			string scanFileName,
+			string scanFile,
+			string comment)
+		{
+			Inn = inn;
+			Kpp = kpp;
+			Name = organizationName;
+			OperatorId = operatorId;
+			Email = email;
+			ScanFilename = scanFileName;
+			Scan = scanFile;
+			Comment = comment;
+		}
+		
 		[XmlElement("ExternalContactId")]
 		public string ExternalContactId { get; set; }
 		/// <summary>
@@ -78,5 +107,16 @@ namespace TaxcomEdo.Contracts.Contacts
 		public string Active { get; set; }
 
 		public static EdoContactInfo CreateForCheckCounterparty(string inn, string kpp) => new EdoContactInfo(inn, kpp);
+		public static EdoContactInfo Create(string inn, string kpp, string email, string edxClientId, string comment = null) =>
+			new EdoContactInfo(inn, kpp, email, edxClientId, comment);
+		public static EdoContactInfo Create(string inn,
+			string kpp,
+			string organizationName,
+			string operatorId,
+			string email,
+			string scanFileName,
+			string scanFile,
+			string comment) =>
+			new EdoContactInfo(inn, kpp, organizationName, operatorId, email, scanFileName, scanFile, comment);
 	}
 }

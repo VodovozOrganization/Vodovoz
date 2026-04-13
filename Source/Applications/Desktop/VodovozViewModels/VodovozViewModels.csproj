@@ -1242,6 +1242,14 @@
       <Project>{AFA4490E-F4DA-461D-9B55-F565F61C1DEA}</Project>
       <Name>RevenueService.Client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\TaxcomEdo\TaxcomEdo.Client\TaxcomEdo.Client.csproj">
+      <Project>{ec46f330-1887-4176-81ce-b95d5c3e469a}</Project>
+      <Name>TaxcomEdo.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\TaxcomEdo\TaxcomEdo.Contracts\TaxcomEdo.Contracts.csproj">
+      <Project>{b8bbda55-32c7-43c7-b647-a02455a7fec0}</Project>
+      <Name>TaxcomEdo.Contracts</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\TrueMark\TrueMark.Codes.Pool\TrueMark.Codes.Pool.csproj">
       <Project>{88EEA039-F3D5-4069-A160-939FDF186AB4}</Project>
       <Name>TrueMark.Codes.Pool</Name>

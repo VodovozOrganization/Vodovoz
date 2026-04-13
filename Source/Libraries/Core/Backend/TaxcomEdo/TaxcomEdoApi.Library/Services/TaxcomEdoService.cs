@@ -5,13 +5,14 @@ using DateTimeHelpers;
 using Edo.Contracts.Messages.Dto;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Taxcom.Client.Api.Converters;
-using Taxcom.Client.Api.Entity;
 using TaxcomEdo.Contracts.Documents;
 using TaxcomEdo.Contracts.Documents.Events;
+using TaxcomEdoApi.Library.Builders;
 using TaxcomEdoApi.Library.Config;
 using TaxcomEdoApi.Library.Factories;
 using TaxcomEdoApi.Library.Factories.Format5_03;
+using TaxcomEdoApi.Library.Models.Containers;
+using TaxcomEdoApi.Library.Services.Interfaces;
 
 namespace TaxcomEdoApi.Library.Services
 {
@@ -42,68 +43,7 @@ namespace TaxcomEdoApi.Library.Services
 			_warrantOptions = (warrantOptions ?? throw new ArgumentNullException(nameof(warrantOptions))).Value;
 		}
 		
-		public TaxcomContainer CreateContainerWithUpd(InfoForCreatingEdoUpd infoForCreatingEdoUpd)
-		{
-			var edoAccountId = _apiOptions.EdxClientId;
-			var organizationEdoId = infoForCreatingEdoUpd.OrderInfoForEdo.ContractInfoForEdo.OrganizationInfoForEdo.TaxcomEdoAccountId;
-
-			if(edoAccountId != organizationEdoId)
-			{
-				_logger.LogError(
-					"edxClientId {EdoAccountId} отличается от указанного в организации из договора заказа {OrganizationEdoId}",
-					edoAccountId,
-					organizationEdoId);
-				
-				throw new InvalidOperationException("Организация заказа отличается от указанной для отправки документов в конфиге");
-			}
-			
-			var updXml = _edoTaxcomDocumentsFactory503.CreateUpdXml5_03(
-				infoForCreatingEdoUpd,
-				_warrantOptions,
-				edoAccountId,
-				_certificate.Subject);
-			
-			var container = new TaxcomContainer
-			{
-				SignMode = DocumentSignMode.UseSpecifiedCertificate
-			};
-
-			var orderId = infoForCreatingEdoUpd.OrderInfoForEdo.Id;
-			var upd = new UniversalInvoiceDocument();
-			UniversalInvoiceConverter_5_03.Convert(upd, updXml);
-
-			if(!upd.Validate(out var errors))
-			{
-				var errorsString = string.Join(", ", errors);
-				_logger.LogError(
-					"УПД {OrderId} не прошла валидацию\nОшибки: {ErrorsString}",
-					orderId,
-					errorsString);
-
-				throw new InvalidOperationException($"УПД {orderId} не прошла валидацию, отправка не возможна");
-				//подумать, что делаем в таких случаях
-			}
-			
-			upd.ExternalIdentifier = infoForCreatingEdoUpd.MainDocumentId.ToString();
-			container.Documents.Add(upd);
-			upd.AddCertificateForSign(_certificate.Thumbprint);
-			
-			//На случай, если МЧД будет не готова, просто проставляем пустые строки в конфиге
-			//чтобы отправка шла без прикрепления доверки
-			if(!string.IsNullOrWhiteSpace(_warrantOptions.WarrantNumber))
-			{
-				container.SetWarrantParameters(
-					_warrantOptions.WarrantNumber,
-					infoForCreatingEdoUpd.OrderInfoForEdo.ContractInfoForEdo.OrganizationInfoForEdo.Inn,
-					_warrantOptions.RepresentativeInn,
-					_warrantOptions.StartDate,
-					_warrantOptions.EndDate);
-			}
-
-			return container;
-		}
-		
-		public TaxcomContainer CreateContainerWithUpd(UniversalTransferDocumentInfo updInfo)
+		public NewContainer CreateContainerWithUpd(UniversalTransferDocumentInfo updInfo)
 		{
 			var edoAccountId = _apiOptions.EdxClientId;
 			var organizationEdoId = updInfo.Seller.Organization.EdoAccountId;
@@ -123,31 +63,18 @@ namespace TaxcomEdoApi.Library.Services
 				_warrantOptions,
 				edoAccountId,
 				_certificate.Subject);
-			
-			var container = new TaxcomContainer
-			{
-				SignMode = DocumentSignMode.UseSpecifiedCertificate
-			};
-			
-			var upd = new UniversalInvoiceDocument();
-			UniversalInvoiceConverter_5_03.Convert(upd, updXml);
 
-			if(!upd.Validate(out var errors))
-			{
-				var errorsString = string.Join(", ", errors);
-				_logger.LogError(
-					"УПД {UpdNumber} {DocumentId} не прошла валидацию\nОшибки: {ErrorsString}",
-					updInfo.Number,
-					updInfo.DocumentId,
-					errorsString);
-
-				throw new InvalidOperationException($"УПД {updInfo.Number} {updInfo.DocumentId} не прошла валидацию, отправка не возможна");
-				//подумать, что делаем в таких случаях
-			}
+			var container = NewContainer.Create(SignMode.UseSpecifiedCertificate);
+			var upd = UniversalInvoiceDocumentBuilder5_03
+				.Create()
+				.ExternalIdentifier(updInfo.DocumentId.ToString())
+				.WrapperXml(updXml)
+				.Sender(edoAccountId)
+				.Recipient(updInfo.Customer.Organization.EdoAccountId)
+				.AddCertificateForSign(_certificate.Thumbprint)
+				.Build();
 			
-			upd.ExternalIdentifier = updInfo.DocumentId.ToString();
-			container.Documents.Add(upd);
-			upd.AddCertificateForSign(_certificate.Thumbprint);
+			container.AddDocument(upd);
 			
 			//На случай, если МЧД будет не готова, просто проставляем пустые строки в конфиге
 			//чтобы отправка шла без прикрепления доверки
@@ -164,16 +91,12 @@ namespace TaxcomEdoApi.Library.Services
 			return container;
 		}
 
-		public TaxcomContainer CreateContainerWithBill(InfoForCreatingEdoBill data)
+		public NewContainer CreateContainerWithBill(InfoForCreatingEdoBill data)
 		{
-			var container = new TaxcomContainer
-			{
-				SignMode = DocumentSignMode.UseSpecifiedCertificate
-			};
-				
+			var container = NewContainer.Create(SignMode.UseSpecifiedCertificate);
 			var document = _edoBillFactory.CreateBillDocument(data);
 
-			container.Documents.Add(document);
+			container.AddDocument(document);
 			document.AddCertificateForSign(_certificate.Thumbprint);
 
 			if(!string.IsNullOrWhiteSpace(_warrantOptions.WarrantNumber) && _apiOptions.SendWarrantWithBills)
@@ -189,16 +112,12 @@ namespace TaxcomEdoApi.Library.Services
 			return container;
 		}
 		
-		public TaxcomContainer CreateContainerWithBillWithoutShipment(InfoForCreatingBillWithoutShipmentEdo data)
+		public NewContainer CreateContainerWithBillWithoutShipment(InfoForCreatingBillWithoutShipmentEdo data)
 		{
-			var container = new TaxcomContainer
-			{
-				SignMode = DocumentSignMode.UseSpecifiedCertificate
-			};
-
+			var container = NewContainer.Create(SignMode.UseSpecifiedCertificate);
 			var document = _edoBillFactory.CreateBillWithoutShipment(data);
 
-			container.Documents.Add(document);
+			container.AddDocument(document);
 			document.AddCertificateForSign(_certificate.Thumbprint);
 
 			if(!string.IsNullOrWhiteSpace(_warrantOptions.WarrantNumber) && _apiOptions.SendWarrantWithBillsWithoutShipment)

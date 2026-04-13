@@ -2442,6 +2442,10 @@
       <Project>{e6465994-0f46-4c9f-8ce4-bcb98f916b17}</Project>
       <Name>Sms.Internal.Client.Framework</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\TaxcomEdo\TaxcomEdo.Client\TaxcomEdo.Client.csproj">
+      <Project>{ec46f330-1887-4176-81ce-b95d5c3e469a}</Project>
+      <Name>TaxcomEdo.Client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\TrueMark\TrueMark.Codes.Pool\TrueMark.Codes.Pool.csproj">
       <Project>{88eea039-f3d5-4069-a160-939fdf186ab4}</Project>
       <Name>TrueMark.Codes.Pool</Name>

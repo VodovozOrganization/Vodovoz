@@ -267,21 +267,28 @@ namespace EdoContactsUpdater
 				return;
 			}
 
-			const string dontAcceptMessage = "Не удалось принять входящее приглашение от клиента, ИНН {Inn} аккаунт {EdxClientId}...";
-			
 			try
 			{
 				var result = await taxcomApiClient.AcceptContact(contact.EdxClientId, cancellationToken);
 
-				if(!result)
+				if(!result.Ok)
 				{
-					_logger.LogError(dontAcceptMessage, contact.Inn, contact.EdxClientId);
+					_logger.LogError(
+						"Не удалось принять входящее приглашение от клиента, ИНН {Inn} аккаунт {EdxClientId}. Ошибка {ErrorMessage}",
+						contact.Inn,
+						contact.EdxClientId,
+						result.ErrorMessage);
 					return;
 				}
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e, dontAcceptMessage, contact.Inn, contact.EdxClientId);
+				_logger.LogError(
+					e,
+					"Не удалось принять входящее приглашение от клиента, ИНН {Inn} аккаунт {EdxClientId}",
+					contact.Inn,
+					contact.EdxClientId);
+				
 				return;
 			}
 

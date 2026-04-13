@@ -1,10 +1,12 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Text.Json.Serialization;
 
 namespace TaxcomEdo.Contracts.Counterparties
 {
 	/// <summary>
 	/// Статус контакта по ЭДО
 	/// </summary>
+	[Serializable]
 	[JsonConverter(typeof(JsonStringEnumConverter))]
 	public enum EdoContactStateCode
 	{

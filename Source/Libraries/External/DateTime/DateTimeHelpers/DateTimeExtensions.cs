@@ -171,5 +171,7 @@ namespace DateTimeHelpers
 		
 		public static string ToEdoShortDateString(this DateTime dateTime) => $"{dateTime:yyyy.MM.dd}";
 		public static string ToEdoShortTimeString(this DateTime dateTime) => $"{dateTime:HH.mm.ss}";
+		public static string ToEdoMetaFileDateTimeString(this DateTime dateTime) => $"{dateTime:yyyy-MM-dd HH:mm:ss.fff}";
+		public static string ToCardDescriptionDateTimeString(this DateTime dateTime) => $"{dateTime:yyyy-MM-dd HH:mm:ss}";
 	}
 }

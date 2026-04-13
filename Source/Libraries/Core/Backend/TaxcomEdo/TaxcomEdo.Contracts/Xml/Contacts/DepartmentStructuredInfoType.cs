@@ -1,0 +1,27 @@
+namespace TaxcomEdo.Contracts.Xml.Contacts
+{
+	/// <remarks/>
+	[System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.8.3928.0")]
+	[System.SerializableAttribute]
+	[System.Diagnostics.DebuggerStepThroughAttribute]
+	[System.ComponentModel.DesignerCategoryAttribute("code")]
+	[System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://api-invoice.taxcom.ru/contacts")]
+	public class DepartmentStructuredInfoType
+	{
+		/// <remarks/>
+		[System.Xml.Serialization.XmlArrayItemAttribute("Department", IsNullable = false)]
+		public DepartmentStructuredInfoType[] SubDepartments { get; set; }
+
+		/// <remarks/>
+		[System.Xml.Serialization.XmlArrayItemAttribute("Employee", IsNullable = false)]
+		public EmployeeShortInfoType[] Employees { get; set; }
+
+		/// <remarks/>
+		[System.Xml.Serialization.XmlAttributeAttribute]
+		public string ID { get; set; }
+
+		/// <remarks/>
+		[System.Xml.Serialization.XmlAttributeAttribute]
+		public string Name { get; set; }
+	}
+}

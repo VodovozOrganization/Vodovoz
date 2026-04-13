@@ -22,7 +22,7 @@ namespace TaxcomEdoApi.Library.Builders.Format5_03
 	/// N6 – формируется значение «1» в случае, если использование настоящего формата предусмотрено в рамках движения нефтепродуктов
 	/// (при отсутствии показателя принимает однозначное значение «0»)
 	/// N7 – формируется свободное двузначное число, которое принимает значение в соответствии со списком в электронной форме,
-	/// размещенный на официальном сайте Федеральной налоговой службы в информационно-телекоммуникационной сети «Интернет»
+	/// размещенной на официальном сайте Федеральной налоговой службы в информационно-телекоммуникационной сети «Интернет»
 	/// в виде отдельного файла (при отсутствии показателя принимает однозначное значение «00»)
 	/// </summary>
 	public abstract class EdoUpdNameBuilder5_03
@@ -37,13 +37,23 @@ namespace TaxcomEdoApi.Library.Builders.Format5_03
 		private string _senderId;
 		private string _receiverId;
 		private string _date;
-		private readonly string _documentId = Guid.NewGuid().ToString("D").ToUpper();
+		private string _documentId;
 
 		/// <summary>
 		/// R_Т – префикс
 		/// </summary>
 		protected abstract string DocName { get; }
 
+		/// <summary>
+		/// Установка уникального номера документа
+		/// </summary>
+		/// <param name="documentId">Уникальный номер документа</param>
+		public EdoUpdNameBuilder5_03 DocumentId(string documentId)
+		{
+			_documentId = documentId;
+			return this;
+		}
+		
 		/// <summary>
 		/// Установка идентификатора отправителя
 		/// </summary>

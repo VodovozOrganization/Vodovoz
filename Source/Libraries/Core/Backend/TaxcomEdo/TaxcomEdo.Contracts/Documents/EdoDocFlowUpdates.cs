@@ -11,7 +11,7 @@ namespace TaxcomEdo.Contracts.Documents
 		/// <summary>
 		/// Информация о документооборотах
 		/// </summary>
-		public IEnumerable<EdoDocFlow> Updates { get; set; }
+		public EdoDocFlow[] Updates { get; set; }
 		/// <summary>
 		/// Время запроса
 		/// </summary>

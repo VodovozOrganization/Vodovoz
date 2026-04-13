@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Core.Infrastructure;
 using Edo.Contracts.Messages.Events;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -22,7 +23,7 @@ namespace Edo.Tender.Consumers
 
 		public async Task Consume(ConsumeContext<TransferCompleteEvent> context)
 		{
-			if(context.Message.TransferInitiator != TransferInitiator.Tender)
+			if(context.Message.TransferInitiator.TryParseAsEnum<TransferInitiator>() != TransferInitiator.Tender)
 			{
 				throw new InvalidOperationException("Не правильно настроена маршрутизация для сообщения " +
 				                                    $"{nameof(TransferCompleteEvent)}. Получено сообщение для {context.Message.TransferInitiator}, " +

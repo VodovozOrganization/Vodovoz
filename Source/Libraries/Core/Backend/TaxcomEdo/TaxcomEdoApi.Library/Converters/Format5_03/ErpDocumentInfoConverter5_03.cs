@@ -1,49 +1,50 @@
 using Edo.Contracts.Messages.Dto;
-using Taxcom.Client.Api.Document.DocumentByFormat1115131_5_03;
+using Edo.Contracts.Xml.FormalizedDocuments.UPD;
+using Edo.Contracts.Xml.Other;
 
 namespace TaxcomEdoApi.Library.Converters.Format5_03
 {
 	public class ErpDocumentInfoConverter5_03 : IErpDocumentInfoConverter5_03
 	{
-		public UchastnikTip ConvertCounterpartyToCustomerInfo(CustomerInfo customer)
+		public УчастникТип ConvertCounterpartyToCustomerInfo(CustomerInfo customer)
 		{
-			return new UchastnikTip
+			return new УчастникТип
 			{
-				IdSv = new UchastnikTipIdSv
+				ИдСв = new УчастникТипИдСв
 				{
 					Item = GetConcreteBuyer(customer)
 				},
-				Adres = new AdresTip
+				Адрес = new АдресТип
 				{
 					Item = GetCustomAddress(customer.Organization.Address)
 				}
 			};
 		}
 
-		public UchastnikTip ConvertCounterpartyToConsigneeInfo(ConsigneeInfo consignee)
+		public УчастникТип ConvertCounterpartyToConsigneeInfo(ConsigneeInfo consignee)
 		{
-			return new UchastnikTip
+			return new УчастникТип
 			{
-				IdSv = new UchastnikTipIdSv
+				ИдСв = new УчастникТипИдСв
 				{
 					Item = GetConsigneeInfo(consignee)
 				},
-				Adres = new AdresTip
+				Адрес = new АдресТип
 				{
 					Item = GetCustomAddress(consignee.Organization.Address)
 				}
 			};
 		}
 
-		public UchastnikTip ConvertOrganizationToSellerInfo(OrganizationInfo org)
+		public УчастникТип ConvertOrganizationToSellerInfo(OrganizationInfo org)
 		{
-			return new UchastnikTip
+			return new УчастникТип
 			{
-				IdSv = new UchastnikTipIdSv
+				ИдСв = new УчастникТипИдСв
 				{
 					Item = GetLegalCounterpartyInfo(org.Inn, org.Kpp, org.Name)
 				},
-				Adres = new AdresTip
+				Адрес = new АдресТип
 				{
 					Item = GetCustomAddress(org.Address)
 				}
@@ -58,10 +59,10 @@ namespace TaxcomEdoApi.Library.Converters.Format5_03
 			
 			if(clientInn.Length == 12)
 			{
-				return new SvIPTip
+				return new УчастникТипИдСвСвИП
 				{
-					FIO = FillFIOTip(clientName),
-					INNFL = clientInn
+					ФИО = FillFullName(clientName),
+					ИННФЛ = clientInn
 				};
 			}
 
@@ -76,10 +77,10 @@ namespace TaxcomEdoApi.Library.Converters.Format5_03
 			
 			if(clientInn.Length == 12)
 			{
-				return new SvIPTip
+				return new УчастникТипИдСвСвИП
 				{
-					FIO = FillFIOTip(consignee.CargoReceiver ?? clientName),
-					INNFL = clientInn
+					ФИО = FillFullName(consignee.CargoReceiver ?? clientName),
+					ИННФЛ = clientInn
 				};
 			}
 
@@ -88,49 +89,49 @@ namespace TaxcomEdoApi.Library.Converters.Format5_03
 		
 		private object GetCustomAddress(AddressInfo address)
 		{
-			return new AdrInfTip
+			return new АдрИнфТип
 			{
-				KodStr = address.CountryCode,
-				NaimStran = address.CountryName,
-				AdrTekst = address.Address
+				КодСтр = address.CountryCode,
+				НаимСтран = address.CountryName,
+				АдрТекст = address.Address
 			};
 		}
 		
 		private object GetLegalCounterpartyInfo(string inn, string kpp, string name)
 		{
-			return new UchastnikTipIdSvSvJuLUch
+			return new УчастникТипИдСвСвЮЛУч
 			{
-				INNJuL = inn,
-				KPP = kpp,
-				NaimOrg = name
+				ИННЮЛ = inn,
+				КПП = kpp,
+				НаимОрг = name
 			};
 		}
 		
-		private FIOTip FillFIOTip(string fullName)
+		private FullName FillFullName(string fullName)
 		{
-			var fio = GetFIOFromPrivateBusinessman(fullName);
-			var fioTip = new FIOTip();
+			var fio = GetFullNameFromPrivateBusinessman(fullName);
+			var fioTip = new FullName();
 
 			if(fio.Length >= 1)
 			{
-				fioTip.Familija = fio[0];
-				fioTip.Imja = "не указано";
+				fioTip.LastName = fio[0];
+				fioTip.Name = "не указано";
 			}
 
 			if(fio.Length >= 2)
 			{
-				fioTip.Imja = fio[1];
+				fioTip.Name = fio[1];
 			}
 			
 			if(fio.Length >= 3)
 			{
-				fioTip.Otchestvo = fio[2];
+				fioTip.Patronymic = fio[2];
 			}
 
 			return fioTip;
 		}
 		
-		private string[] GetFIOFromPrivateBusinessman(string fullName)
+		private string[] GetFullNameFromPrivateBusinessman(string fullName)
 		{
 			var fio = fullName.Trim('"');
 

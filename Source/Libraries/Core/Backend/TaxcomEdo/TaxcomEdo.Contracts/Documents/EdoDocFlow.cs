@@ -27,7 +27,7 @@ namespace TaxcomEdo.Contracts.Documents
 		/// <summary>
 		/// Документы
 		/// </summary>
-		public IEnumerable<EdoDocFlowDocument> Documents { get; set; }
+		public EdoDocFlowDocument[] Documents { get; set; }
 		/// <summary>
 		/// Описание ошибки
 		/// </summary>

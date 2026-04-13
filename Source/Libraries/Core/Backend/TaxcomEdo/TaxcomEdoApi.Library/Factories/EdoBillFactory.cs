@@ -1,6 +1,8 @@
 ﻿using System;
-using Taxcom.Client.Api.Entity;
 using TaxcomEdo.Contracts.Documents;
+using TaxcomEdoApi.Library.Models;
+using TaxcomEdoApi.Library.Models.Documents;
+using FileData = TaxcomEdoApi.Library.Models.FileData;
 
 namespace TaxcomEdoApi.Library.Factories
 {
@@ -13,7 +15,7 @@ namespace TaxcomEdoApi.Library.Factories
 			{
 				Number = orderInfo.Id.ToString(),
 				Type = DocumentType.Account,
-				Attachment = new Taxcom.Client.Api.Entity.FileData
+				Attachment = new FileData
 				{
 					Image = data.FileData.Image,
 					Name = data.FileData.Name
@@ -25,20 +27,14 @@ namespace TaxcomEdoApi.Library.Factories
 					Inn = orderInfo.ContractInfoForEdo.OrganizationInfoForEdo.Inn,
 					Kpp = orderInfo.ContractInfoForEdo.OrganizationInfoForEdo.Kpp,
 					Identifier = orderInfo.ContractInfoForEdo.OrganizationInfoForEdo.TaxcomEdoAccountId,
-					Name =
-					{
-						Organization = orderInfo.ContractInfoForEdo.OrganizationInfoForEdo.FullName
-					}
+					Name = orderInfo.ContractInfoForEdo.OrganizationInfoForEdo.FullName
 				},
 				Recipient =
 				{
 					Inn = orderInfo.CounterpartyInfoForEdo.Inn,
 					Kpp = orderInfo.CounterpartyInfoForEdo.Kpp,
 					Identifier = orderInfo.CounterpartyInfoForEdo.PersonalAccountIdInEdo,
-					Name =
-					{
-						Organization = orderInfo.CounterpartyInfoForEdo.FullName
-					}
+					Name = orderInfo.CounterpartyInfoForEdo.FullName
 				},
 				Sum = orderInfo.OrderSum
 			};
@@ -54,7 +50,7 @@ namespace TaxcomEdoApi.Library.Factories
 			{
 				Number = orderWithoutShipmentInfo.BillNumber,
 				Type = DocumentType.Account,
-				Attachment = new Taxcom.Client.Api.Entity.FileData
+				Attachment = new FileData
 				{
 					Image = data.FileData.Image,
 					Name = data.FileData.Name
@@ -66,20 +62,14 @@ namespace TaxcomEdoApi.Library.Factories
 					Inn = organization.Inn,
 					Kpp = organization.Kpp,
 					Identifier = organization.TaxcomEdoAccountId,
-					Name =
-					{
-						Organization = organization.FullName
-					}
+					Name = organization.FullName
 				},
 				Recipient =
 				{
 					Inn = orderWithoutShipmentInfo.CounterpartyInfoForEdo.Inn,
 					Kpp = orderWithoutShipmentInfo.CounterpartyInfoForEdo.Kpp,
 					Identifier = orderWithoutShipmentInfo.CounterpartyInfoForEdo.PersonalAccountIdInEdo,
-					Name =
-					{
-						Organization = orderWithoutShipmentInfo.CounterpartyInfoForEdo.FullName
-					}
+					Name = orderWithoutShipmentInfo.CounterpartyInfoForEdo.FullName
 				},
 				Sum = orderWithoutShipmentInfo.Sum
 			};

@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using Core.Infrastructure;
 using Microsoft.Extensions.Configuration;
@@ -9,6 +10,8 @@ using Taxcom.Client.Api;
 using Taxcom.Client.Api.Entity;
 using TaxcomEdoApi.Library;
 using TaxcomEdoApi.Library.Config;
+using TaxcomEdoApi.Library.Services;
+using TaxcomEdoApi.Library.Services.Interfaces;
 
 namespace TaxcomEdoApi
 {
@@ -68,7 +71,19 @@ namespace TaxcomEdoApi
 				})
 				.AddTaxcomEdoApiLibrary();
 
+			services.AddHttpClient<IEdoDocflowService, EdoDocflowService>(ConfigureExternalEdoClient);
+			services.AddHttpClient<IEdoContactService, EdoContactService>(ConfigureExternalEdoClient);
+			services.AddHttpClient<IEdoAuthorizationService, EdoAuthorizationService>(ConfigureExternalEdoClient);
+			
 			return services;
+		}
+
+		private static void ConfigureExternalEdoClient(IServiceProvider config, HttpClient client)
+		{
+			var options = config.GetRequiredService<IOptions<TaxcomEdoApiOptions>>().Value;
+				
+			client.BaseAddress = new Uri(options.BaseUrl);
+			client.DefaultRequestHeaders.Add(ExternalApiConstants.IntegratorIdHeader, options.IntegratorId);
 		}
 	}
 }

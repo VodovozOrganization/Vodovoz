@@ -5,9 +5,9 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using TaxcomEdo.Contracts.Documents;
 using Vodovoz.Core.Domain.Documents;
-using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Organizations;
 
 namespace Taxcom.Docflow.Utility
@@ -15,16 +15,19 @@ namespace Taxcom.Docflow.Utility
 	public class DocflowStatusesService
     {
 		private readonly IUnitOfWork _uow;
+		private readonly ILogger<DocflowStatusesService> _logger;
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly ITaxcomApiFactory _taxcomApiFactory;
 		private readonly IBus _messageBus;
 
 		public DocflowStatusesService(
+			ILogger<DocflowStatusesService> logger,
 			IUnitOfWorkFactory uowFactory,
 			ITaxcomApiFactory taxcomApiFactory,
 			IBus messageBus
 			)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_uow = _uowFactory.CreateWithoutRoot();
 			_taxcomApiFactory = taxcomApiFactory ?? throw new ArgumentNullException(nameof(taxcomApiFactory));
@@ -44,7 +47,7 @@ namespace Taxcom.Docflow.Utility
 
 			if(organization is null)
 			{
-				throw new InvalidOperationException($"Не найдена организация");
+				throw new InvalidOperationException("Не найдена организация");
 			}
 
 			var taxcomApiClient = _taxcomApiFactory.Create(taxcomSettings.TaxcomApiOptions);
@@ -53,7 +56,7 @@ namespace Taxcom.Docflow.Utility
 			var lastEventTime = timeFrom;
 			do
 			{
-				docFlowUpdates = await taxcomApiClient.GetDocFlowsUpdates(
+				var response = await taxcomApiClient.GetDocFlowsUpdates(
 					new GetDocFlowsUpdatesParameters
 					{
 						//смотрим только доки, ожидающих подписи
@@ -65,6 +68,14 @@ namespace Taxcom.Docflow.Utility
 					},
 					cancellationToken
 				);
+
+				if(!response.Ok)
+				{
+					_logger.LogError("При запросе обновлений ДО произошла ошибка: {ErrorMessage}", response.ErrorMessage);
+					return;
+				}
+				
+				docFlowUpdates = response.Result;
 
 				if(docFlowUpdates.Updates is null)
 				{

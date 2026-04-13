@@ -16,10 +16,4 @@
 	  <ProjectReference Include="..\Business\VodovozBusiness\VodovozBusiness.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="TISystems.TTC.CRM.BE">
-      <HintPath>..\..\External\Taxcom\TISystems.TTC.CRM.BE.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
 </Project>

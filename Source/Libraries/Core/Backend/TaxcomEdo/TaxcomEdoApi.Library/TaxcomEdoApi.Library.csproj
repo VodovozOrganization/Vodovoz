@@ -1,12 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CryptoPro.Security.Cryptography" Version="2024.4.17" />
+    <PackageReference Include="CryptoPro.Security.Cryptography.Pkcs" Version="2024.4.17" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="8.0.1" />
   </ItemGroup>
 
 	<ItemGroup>
@@ -31,9 +34,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\..\..\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj" />
 	  <ProjectReference Include="..\..\Edo\Edo.Contracts.Xml\Edo.Contracts.Xml\Edo.Contracts.Xml.csproj" />
 	  <ProjectReference Include="..\..\Edo\Edo.Contracts\Edo.Contracts.csproj" />
 	  <ProjectReference Include="..\TaxcomEdo.Contracts\TaxcomEdo.Contracts.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Services\Validators\" />
 	</ItemGroup>
 
 </Project>

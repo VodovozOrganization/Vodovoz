@@ -1,6 +1,7 @@
 ﻿using MassTransit;
 using System;
 using System.Threading.Tasks;
+using Core.Infrastructure;
 using Edo.Contracts.Messages.Events;
 using Vodovoz.Core.Domain.Edo;
 
@@ -17,7 +18,7 @@ namespace Edo.Receipt.Dispatcher.Consumers
 
 		public async Task Consume(ConsumeContext<TransferCompleteEvent> context)
 		{
-			if(context.Message.TransferInitiator != TransferInitiator.Receipt)
+			if(context.Message.TransferInitiator.TryParseAsEnum<TransferInitiator>() != TransferInitiator.Receipt)
 			{
 				throw new InvalidOperationException("Не правильно настроена маршрутизация для сообщения " +
 					$"{nameof(TransferCompleteEvent)}. Получено сообщение для {context.Message.TransferInitiator}, " +
