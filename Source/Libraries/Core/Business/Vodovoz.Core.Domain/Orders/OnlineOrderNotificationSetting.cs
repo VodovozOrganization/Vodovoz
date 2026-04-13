@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using CustomerPushNotifications.Contracts;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 
 namespace Vodovoz.Core.Domain.Orders
 {
@@ -14,21 +16,26 @@ namespace Vodovoz.Core.Domain.Orders
 	public class OnlineOrderNotificationSetting : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private int _id;
-		private ExternalOrderStatus _externalOrderStatus;
 		private string _notificationText;
+		private CustomerNotificationClassification _notificationClassification;
+		private CustomerNotificationEventType _customerNotificationEventType;
+		private bool _notificationDisabled;
+		private bool _allowDuplicateNotifications;
+		private CustomerNotificationPushType _pushType;
+		private CustomerNotificationTargetType _pushTarget;
 
 		[Display(Name = "Код")]
 		public virtual int Id
 		{
 			get => _id;
-			set => _id = value;
+			set => SetField(ref _id, value);
 		}
 
-		[Display(Name = "Статус онлайн заказа для ИПЗ")]
-		public virtual ExternalOrderStatus ExternalOrderStatus
+		[Display(Name = "Тип события для уведомления клиента")]
+		public virtual CustomerNotificationEventType CustomerNotificationEventType
 		{
-			get => _externalOrderStatus;
-			set => SetField(ref _externalOrderStatus, value);
+			get => _customerNotificationEventType;
+			set => SetField(ref _customerNotificationEventType, value);
 		}
 
 		[Display(Name = "Текст уведомления")]
@@ -38,16 +45,51 @@ namespace Vodovoz.Core.Domain.Orders
 			set => SetField(ref _notificationText, value);
 		}
 
+		[Display(Name = "Классификация уведомления")]
+		public virtual CustomerNotificationClassification NotificationClassification
+		{
+			get => _notificationClassification;
+			set => SetField(ref _notificationClassification, value);
+		}
+
+		[Display(Name = "Не отправлять")]
+		public virtual bool NotificationDisabled
+		{
+			get => _notificationDisabled;
+			set => SetField(ref _notificationDisabled, value);
+		}
+
+		[Display(Name = "Разрешить повторные отправки")]
+		public virtual bool AllowDuplicateNotifications
+		{
+			get => _allowDuplicateNotifications;
+			set => SetField(ref _allowDuplicateNotifications, value);
+		}
+
+		[Display(Name = "Тип пуш уведомления")]
+		public virtual CustomerNotificationPushType PushType
+		{
+			get => _pushType;
+			set => SetField(ref _pushType, value);
+		}
+
+		[Display(Name = "Куда ведет пуш")]
+		public virtual CustomerNotificationTargetType PushTarget
+		{
+			get => _pushTarget;
+			set => SetField(ref _pushTarget, value);
+		}
+
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(string.IsNullOrEmpty(NotificationText) || NotificationText.Length > 255)
 			{
-				yield return new ValidationResult("Длина уведомления должна быть заполнена (не более 255 символов)",
+				yield return new ValidationResult("Текст уведомления должен быть заполнен (не более 255 символов)",
 					new[] { nameof(NotificationText) });
 			}
 		}
 
 		public override string ToString() =>
-			$"Настройка уведомления для онлайн заказов {Id}. {NotificationText} ({ExternalOrderStatus})";
+			$"Настройка уведомления для онлайн заказов {Id}. {NotificationText} ({CustomerNotificationEventType})";
 	}
 }

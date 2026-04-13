@@ -1,4 +1,7 @@
 ﻿using Core.Infrastructure;
+using CustomerPushNotifications.Application.Builders;
+using CustomerPushNotifications.Application.Providers;
+using CustomerPushNotifications.Contracts;
 using DriverApi.Notifications.Client;
 using Edo.Transport;
 using ExportTo1c.Library.Factories;
@@ -20,11 +23,13 @@ using Pacs.Core.Messages.Events;
 using Pacs.Operators.Client;
 using Pacs.Operators.Client.Consumers;
 using Pacs.Operators.Client.Consumers.Definitions;
+using PushNotifications.Infrastructure;
 using QS.Attachments;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.Entity.PresetPermissions;
+using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project;
 using QS.Project.Core;
@@ -42,6 +47,10 @@ using QSProjectsLib;
 using RabbitMQ.MailSending;
 using ResourceLocker.Library;
 using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using TransactionalOutbox.Abstractions;
+using TransactionalOutbox.Builders;
 using TrueMark.Codes.Pool;
 using TrueMarkApi.Client;
 using Vodovoz.Additions;
@@ -55,6 +64,7 @@ using Vodovoz.Core.Application.Logistics.Fuel;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Repositories.Logistics;
 using Vodovoz.Core.Domain.Interfaces.Logistics;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
@@ -251,6 +261,7 @@ namespace Vodovoz
 				
 				.AddScoped<IDataExporterFor1cFactory, DataExporterFor1cFactory>()
 
+				.AddVodovozDesktopGarnetRedisConnection()
 				.AddVodovozDesktopResourceLocker()
 				.AddScoped<BankAccountsMovementsJournalReport>()
 				.AddMainMenuDependencies()
@@ -259,6 +270,24 @@ namespace Vodovoz
 				.AddScoped<IPasswordValidator, PasswordValidator>()
 				.AddScoped<IPasswordValidationSettings, DefaultPasswordValidationSettings>()
 				.AddScoped<IDriverScheduleService, DriverScheduleService>()
+				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>,	CustomerNotificationsIntegrationEventBuilder>()
+				.AddScoped<IOutboxMessageBuilder<CustomerNotificationDomainEvent>, OutboxMessageBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+				.AddScoped(typeof(IOutboxPushNotificationPublisher<>), typeof(OutBoxPushNotificationPublisher<>))																			
+				.AddSingleton<ICustomerPushNotificationsSettingsProvider>(sp =>
+				{
+					var uowFactory = sp.GetRequiredService<IUnitOfWorkFactory>();
+
+					using(var uow = uowFactory.CreateWithoutRoot())
+					{
+						var settingsDict = uow.GetAll<OnlineOrderNotificationSetting>()
+							.ToDictionary(s => s.CustomerNotificationEventType);
+
+						var readOnlySettings = new ReadOnlyDictionary<CustomerNotificationEventType, OnlineOrderNotificationSetting>(settingsDict);
+
+						return new CustomerPushNotificationsSettingsProvider(readOnlySettings);
+					}
+				})				
+				.AddSingleton<IOutBoxSettingsProvider<CustomerNotificationDomainEvent>>(sp => sp.GetRequiredService<ICustomerPushNotificationsSettingsProvider>())				
 				;
 
 			services.AddStaticHistoryTracker();

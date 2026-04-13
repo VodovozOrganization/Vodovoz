@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -30,6 +30,10 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Extensions;
+using CustomerPushNotifications.Application.Converters;
+using PushNotifications.Infrastructure;
+using CustomerPushNotifications.Contracts;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {
@@ -38,6 +42,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private readonly IOrderFromOnlineOrderValidator _onlineOrderValidator;
 		private readonly ViewModelEEVMBuilder<DeliveryPoint> _deliveryPointViewModelBuilder;
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel;
+		private readonly IOutboxPushNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private readonly MangoManager _mangoManager;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly Employee _currentEmployee;
@@ -60,11 +65,12 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			ViewModelEEVMBuilder<DeliveryPoint> deliveryPointViewModelBuilder,
 			DeliveryPointJournalFilterViewModel deliveryPointJournalFilterViewModel,
 			IDiscountController discountController,
+			MangoManager mangoManager,
 			IOrderOrganizationManager orderOrganizationManager,
-			MangoManager mangoManager
+			IOutboxPushNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher
 			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
-		{
+		{			
 			_currentEmployee =
 				(employeeService ?? throw new ArgumentNullException(nameof(employeeService)))
 				.GetEmployeeForUser(UoW, CurrentUser.Id);
@@ -88,7 +94,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				externalCounterpartyMatchingRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyMatchingRepository));
 			_lifetimeScope = scope ?? throw new ArgumentNullException(nameof(scope));
 			OrderOrganizationManager = orderOrganizationManager ?? throw new ArgumentNullException(nameof(orderOrganizationManager));
-
+			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 			GetTimers();
 			SetPermissions();
 			CreateCommands();
@@ -253,9 +259,13 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			Entity.EmployeeWorkWith != null && Entity.EmployeeWorkWith.Id == _currentEmployee.Id;
 		private bool OrderIsNullAndOnlineOrderNotCanceledStatus =>
 			!Entity.Orders.Any() && Entity.OnlineOrderStatus != OnlineOrderStatus.Canceled;
-		
-		public OnlineOrderStatusUpdatedNotification CreateNewNotification() =>
-			OnlineOrderStatusUpdatedNotification.Create(Entity);
+
+		public void PublishCustomerNotification()
+		{
+			var notificationType = Entity.GetExternalOrderStatus().ToCustomerNotificationEventType();
+
+			_customerNotificationPublisher.Publish(UoW, new CustomerNotificationDomainEvent(Entity.Id, notificationType));
+		}
 
 		public void ShowMessage(string message, string title = null)
 		{
@@ -336,15 +346,15 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 					
 					var oldStatus = Entity.OnlineOrderStatus;
 					Entity.OnlineOrderStatus = OnlineOrderStatus.Canceled;
-					var notification = CreateNewNotification();
-					UoW.Save(notification);
 					
 					if(!Save())
 					{
 						Entity.OnlineOrderStatus = oldStatus;
 						return;
 					}
-					
+
+					PublishCustomerNotification();
+
 					Close(false, CloseSource.Save);
 				});
 		}

@@ -72,7 +72,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 						.Select(() => undeliveryDetalizationAlias.Name).WithAlias(() => resultAlias.Name)
 						.Select(() => undeliveryDetalizationAlias.IsArchive).WithAlias(() => resultAlias.IsArchive)
 						.Select(() => undeliveryObjectAlias.Name).WithAlias(() => resultAlias.UndeliveryObject)
-						.Select(() => undeliveryKindAlias.Name).WithAlias(() => resultAlias.UndeliveryKind))
+						.Select(() => undeliveryKindAlias.Name).WithAlias(() => resultAlias.UndeliveryKind)
+						.Select(() => undeliveryDetalizationAlias.CustomerNotificationText).WithAlias(() => resultAlias.CustomerNotificationText)
+					)
 				.TransformUsing(Transformers.AliasToBean<UndeliveryDetalizationJournalNode>());
 
 			return itemsQuery;

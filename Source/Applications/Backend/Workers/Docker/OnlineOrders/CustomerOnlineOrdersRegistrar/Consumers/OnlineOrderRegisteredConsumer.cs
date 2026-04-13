@@ -3,9 +3,11 @@ using System.Threading.Tasks;
 using CustomerOnlineOrdersRegistrar.Factories.V3;
 using CustomerOnlineOrdersRegistrar.Factories.V4;
 using CustomerOrdersApi.Library.Default.Dto.Orders;
+using CustomerPushNotifications.Contracts;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
+using PushNotifications.Infrastructure;
 using QS.DomainModel.UoW;
 using QS.Utilities.Debug;
 using Vodovoz.EntityRepositories.Orders;
@@ -34,7 +36,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
 			IRouteListService routeListService,
 			IOrderFromOnlineOrderValidator onlineOrderValidator,
-			IBus bus)
+			IPushNotificationsPublisher<CustomerNotificationDomainEvent> customerPushNotificationsPublisher)
 				: base(
 					logger,
 					unitOfWorkFactory,
@@ -46,9 +48,9 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 					onlineOrderCancellationReasonSettings,
 					orderService,
 					routeListService,
-					onlineOrderValidator)
+					onlineOrderValidator,
+					customerPushNotificationsPublisher)
 		{
-			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 		}
 		
 		public async Task Consume(ConsumeContext<OnlineOrderInfoDto> context)

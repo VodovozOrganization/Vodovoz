@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
@@ -13,10 +13,12 @@ using System.Threading.Tasks;
 using System.Threading;
 using CustomerOnlineOrdersRegistrar.Factories.V3;
 using CustomerOnlineOrdersRegistrar.Factories.V4;
+using CustomerPushNotifications.Contracts;
 using MySqlConnector;
 using QS.Utilities.Debug;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Orders;
+using PushNotifications.Infrastructure;
 
 namespace CustomerOnlineOrdersRegistrar.Consumers
 {
@@ -32,6 +34,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 		private readonly IOrderService _orderService;
 		private readonly IRouteListService _routeListService;
 		private readonly IOrderFromOnlineOrderValidator _onlineOrderValidator;
+		IPushNotificationsPublisher<CustomerNotificationDomainEvent> _customerPushNotificationPublisher;
 
 		protected ILogger<OnlineOrderConsumer> Logger { get; }
 
@@ -46,7 +49,8 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
 			IOrderService orderService,
 			IRouteListService routeListService,
-			IOrderFromOnlineOrderValidator onlineOrderValidator
+			IOrderFromOnlineOrderValidator onlineOrderValidator,
+			IPushNotificationsPublisher<CustomerNotificationDomainEvent> customerPushNotificationPublisher
 			)
 		{
 			Logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -61,6 +65,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_onlineOrderValidator = onlineOrderValidator ?? throw new ArgumentNullException(nameof(onlineOrderValidator));
+			_customerPushNotificationPublisher = customerPushNotificationPublisher ?? throw new ArgumentNullException(nameof(customerPushNotificationPublisher));
 		}
 		
 		protected virtual async Task<(int OnlineOrderId, int Code)> TryRegisterOnlineOrderV3Async(
@@ -80,6 +85,8 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			var externalOrderId = message.ExternalOrderId;
 			var needSpecialProcessingDuplicate = NeedSpecialProcessingDuplicate(uow, onlineOrder);
 
+			bool needCancelNotification = false;
+
 			if(needSpecialProcessingDuplicate != null)
 			{
 				if(needSpecialProcessingDuplicate == OnlineOrderDuplicateProcess.NeedCancel)
@@ -89,9 +96,8 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 					var cancellationReasonId = _onlineOrderCancellationReasonSettings.GetDuplicateOnlineOrderCancellationReasonId;
 					onlineOrder.OnlineOrderCancellationReason = await uow.Session
 						.GetAsync<OnlineOrderCancellationReason>(cancellationReasonId, cancellationToken);
-					
-					var notification = OnlineOrderStatusUpdatedNotification.Create(onlineOrder);
-					await uow.SaveAsync(notification, cancellationToken: cancellationToken);
+
+					needCancelNotification = true;
 				}
 				else
 				{
@@ -101,6 +107,11 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 
 			await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
 			await uow.CommitAsync(cancellationToken);
+
+			if(needCancelNotification)
+			{
+				await _customerPushNotificationPublisher.PublishAsync(new CustomerNotificationDomainEvent(onlineOrder.Id, CustomerNotificationEventType.OrderCanceled), cancellationToken);
+			}
 
 			if(needSpecialProcessingDuplicate != null)
 			{
@@ -183,6 +194,8 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			var externalOrderId = message.ExternalOrderId;
 			var needSpecialProcessingDuplicate = NeedSpecialProcessingDuplicate(uow, onlineOrder);
 
+			bool needCancelNotification = false;
+
 			if(needSpecialProcessingDuplicate != null)
 			{
 				if(needSpecialProcessingDuplicate == OnlineOrderDuplicateProcess.NeedCancel)
@@ -192,9 +205,8 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 					var cancellationReasonId = _onlineOrderCancellationReasonSettings.GetDuplicateOnlineOrderCancellationReasonId;
 					onlineOrder.OnlineOrderCancellationReason = await uow.Session
 						.GetAsync<OnlineOrderCancellationReason>(cancellationReasonId, cancellationToken);
-					
-					var notification = OnlineOrderStatusUpdatedNotification.Create(onlineOrder);
-					await uow.SaveAsync(notification, cancellationToken: cancellationToken);
+
+					needCancelNotification = true;
 				}
 				else
 				{
@@ -206,6 +218,11 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			{
 				await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
 				await uow.CommitAsync(cancellationToken);
+
+				if(needCancelNotification)
+				{
+					await _customerPushNotificationPublisher.PublishAsync(new CustomerNotificationDomainEvent(onlineOrder.Id, CustomerNotificationEventType.OrderCanceled), cancellationToken);
+				}
 			}
 			catch(Exception e)
 			{

@@ -1,12 +1,10 @@
-﻿using CustomerOnlineOrdersUpdater.Config;
+using CustomerOnlineOrdersUpdater.Config;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Osrm;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Application.Logistics;
-using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Services.Logistics;
-using VodovozBusiness.Services.Orders;
 
 namespace CustomerOnlineOrdersUpdater
 {
@@ -24,7 +22,6 @@ namespace CustomerOnlineOrdersUpdater
 				.AddScoped(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot("Обработка онлайн заказов, ожидающих оплату"))
 				.AddScoped<IRouteListService, RouteListService>()
 				.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
-				.AddScoped<IOnlineOrderService, OnlineOrderService>()
 				.AddOsrm()
 				.AddHostedService<CustomerOnlineOrdersUpdateWorker>()
 				;

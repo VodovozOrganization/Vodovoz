@@ -5,10 +5,13 @@ using System.Threading.Tasks;
 using CustomerOrdersApi.Library.Common;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using CustomerOrdersApi.Library.V4.Services;
+using CustomerPushNotifications.Contracts;
 using Gamma.Utilities;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using PushNotifications.Infrastructure;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Presentation.WebApi.Messages;
 
 namespace CustomerOrdersApi.Controllers.V4
@@ -18,15 +21,18 @@ namespace CustomerOrdersApi.Controllers.V4
 	{
 		private readonly ICustomerOrdersServiceV4 _customerOrdersService;
 		private readonly IRequestClient<CreatingOnlineOrder> _requestClient;
+		private readonly IPushNotificationsPublisher<CustomerNotificationDomainEvent> _customerPushNotificationsService;
 
 		public OrdersController(
 			ILogger<OrdersController> logger,
 			ICustomerOrdersServiceV4 customerOrdersService,
-			IRequestClient<CreatingOnlineOrder> requestClient
+			IRequestClient<CreatingOnlineOrder> requestClient,
+			IPushNotificationsPublisher<CustomerNotificationDomainEvent> customerPushNotificationsService
 			) : base(logger)
 		{
 			_customerOrdersService = customerOrdersService ?? throw new ArgumentNullException(nameof(customerOrdersService));
 			_requestClient = requestClient ?? throw new ArgumentNullException(nameof(requestClient));
+			_customerPushNotificationsService = customerPushNotificationsService ?? throw new ArgumentNullException(nameof(customerPushNotificationsService));
 		}
 
 		[HttpPost]
@@ -180,10 +186,34 @@ namespace CustomerOrdersApi.Controllers.V4
 			{
 				_logger.LogInformation("Поступил запрос на изменение заказа {@ChangeOrderRequest}", changingOrderDto);
 
-				var result = await _customerOrdersService.UpdateOrderAsync(changingOrderDto, cancellationToken);
+				var result = await _customerOrdersService.UpdateOrderAsync(changingOrderDto, cancellationToken);				
 
 				if(result.IsSuccess)
 				{
+					var sourcesForPaymentAwaitingNotification = new[] { OnlinePaymentSource.FromMobileApp, OnlinePaymentSource.FromMobileAppByQr, OnlinePaymentSource.FromMobileAppByYandexSplit };
+
+					var needPaymentAwaitingNotification =
+						changingOrderDto.PaymentStatus == OnlineOrderPaymentStatus.UnPaid
+						&& changingOrderDto.OnlinePaymentSource != null
+						&& sourcesForPaymentAwaitingNotification.Contains(changingOrderDto.OnlinePaymentSource.Value)
+						&& changingOrderDto.OnlineOrderId != null;
+
+					if(needPaymentAwaitingNotification)
+					{
+						await _customerPushNotificationsService.PublishAsync(new CustomerNotificationDomainEvent(changingOrderDto.OnlineOrderId.Value, CustomerNotificationEventType.OrderAwaitingPayment), cancellationToken);
+					}
+
+					var needOrderPaidNotification =
+						changingOrderDto.PaymentStatus == OnlineOrderPaymentStatus.Paid
+						&& changingOrderDto.OnlinePayment != null
+						&& changingOrderDto.OnlineOrderPaymentType != null
+						&& changingOrderDto.OnlineOrderId != null;
+
+					if(needOrderPaidNotification)
+					{
+						await _customerPushNotificationsService.PublishAsync(new CustomerNotificationDomainEvent(changingOrderDto.OnlineOrderId.Value, CustomerNotificationEventType.OrderPaid), cancellationToken);
+					}
+
 					return Ok(result.Value);
 				}
 
