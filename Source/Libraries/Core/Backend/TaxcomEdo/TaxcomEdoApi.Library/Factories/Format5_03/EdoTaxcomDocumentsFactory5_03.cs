@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Edo.Contracts.Messages.Dto;
-using Edo.Contracts.Xml.FormalizedDocuments;
-using Edo.Contracts.Xml.FormalizedDocuments.UPD;
-using Edo.Contracts.Xml.Other;
+using Edo.Contracts.Xml.Documents;
+using Edo.Contracts.Xml.Documents.FormalizedDocuments;
+using Edo.Contracts.Xml.Documents.FormalizedDocuments.UPD;
 using TaxcomEdoApi.Library.Builders.Format5_03;
 using TaxcomEdoApi.Library.Config;
 using TaxcomEdoApi.Library.Converters.Format5_03;
-using TISystems.TTC.Common;
+using TaxcomEdoApi.Library.Parsers;
+using ФайлДокументПодписант = Edo.Contracts.Xml.Documents.FormalizedDocuments.UPD.ФайлДокументПодписант;
 
 namespace TaxcomEdoApi.Library.Factories.Format5_03
 {
@@ -20,19 +21,18 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 		private const string _jobResponsibilities = "Должностные обязанности";
 		private const string _upd = "Универсальный передаточный документ";
 		
-		private readonly IParticipantDocFlowConverter5_03 _participantDocFlowConverter;
 		private readonly IErpDocumentInfoConverter5_03 _erpDocumentInfoConverter;
 		private readonly IUpdProductConverter5_03 _updProductConverter;
+		private readonly ICertificateParser _certificateParser;
 
 		public EdoTaxcomDocumentsFactory5_03(
-			IParticipantDocFlowConverter5_03 participantDocFlowConverter,
 			IErpDocumentInfoConverter5_03 erpDocumentInfoConverter,
-			IUpdProductConverter5_03 updProductConverter)
+			IUpdProductConverter5_03 updProductConverter,
+			ICertificateParser certificateParser)
 		{
-			_participantDocFlowConverter =
-				participantDocFlowConverter ?? throw new ArgumentNullException(nameof(participantDocFlowConverter));
 			_erpDocumentInfoConverter = erpDocumentInfoConverter ?? throw new ArgumentNullException(nameof(erpDocumentInfoConverter));
 			_updProductConverter = updProductConverter ?? throw new ArgumentNullException(nameof(updProductConverter));
+			_certificateParser = certificateParser ?? throw new ArgumentNullException(nameof(certificateParser));
 		}
 
 		#region УПД
@@ -41,7 +41,8 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 			UniversalTransferDocumentInfo updInfo,
 			WarrantOptions warrantOptions,
 			string organizationAccountId,
-			string certificateSubject)
+			string certificateSubject,
+			string certificateThumbprint)
 		{
 			var org = updInfo.Seller.Organization;
 			var updDate = updInfo.Date.ToShortDateString();
@@ -74,7 +75,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 				Функция = ФайлДокументФункция.СЧФДОП,
 				ПоФактХЖ = "Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)",
 				НаимДокОпр = _upd,
-				КНД = ФайлДокументКНД.Item1115131,
+				FiscalDocumentClassifiers = FiscalDocumentClassifiers.KND1115131,
 				ДатаИнфПр = DateTime.Now.ToShortDateString(),
 				ВремИнфПр = $"{DateTime.Now:HH.mm.ss}",
 				НаимЭконСубСост = $"{org.Name}, ИНН/КПП {org.Inn}/{org.Kpp}",
@@ -175,7 +176,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 				}
 			};
 
-			var certDetails = new CertificateParser().ParseCertificate(certificateSubject, Guid.NewGuid());
+			var certDetails = _certificateParser.Parse(certificateSubject, certificateThumbprint);
 			var firstNameAndPatronymic = certDetails.GivenName.Split(' ');
 			var patronymic = firstNameAndPatronymic.Length == 2 ? firstNameAndPatronymic[1] : null;
 
@@ -220,7 +221,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 						LastName = certDetails.SurName,
 						Name = firstNameAndPatronymic[0],
 						Patronymic = patronymic
-					},
+					}
 				}
 			};
 

@@ -5,7 +5,6 @@ using System.Security.Cryptography.X509Certificates;
 using CryptoPro.Security.Cryptography.Pkcs;
 using CryptoPro.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Logging;
-using Taxcom.Client.Api.Exceptions;
 using TaxcomEdoApi.Library.Models;
 using TaxcomEdoApi.Library.Models.Containers.Interfaces;
 using TaxcomEdoApi.Library.Models.Interfaces;
@@ -82,7 +81,7 @@ namespace TaxcomEdoApi.Library.Services.SignProcessors
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Произошла ошибка при подписи документа сертификатом {Thumbprint}", thumbprint);
-				throw new TaxcomSdkException("При расшифровке сообщения произошла ошибка. Проверьте, установлен ли CryptoAX", ex);
+				throw new InvalidOperationException("При расшифровке сообщения произошла ошибка. Проверьте, установлен ли CryptoAX", ex);
 			}
 		}
 		

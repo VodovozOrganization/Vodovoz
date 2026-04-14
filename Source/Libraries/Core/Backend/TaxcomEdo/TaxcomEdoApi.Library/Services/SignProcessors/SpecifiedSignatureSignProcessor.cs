@@ -28,7 +28,7 @@ namespace TaxcomEdoApi.Library.Services.SignProcessors
 			}
 
 			var signatures = new List<IFileData>();
-			
+			/*
 			if(containerDocument.MainFile != null && document.Image != null)
 			{
 				var imageDocument = new FileData
@@ -40,7 +40,7 @@ namespace TaxcomEdoApi.Library.Services.SignProcessors
 				
 				containerDocument.MainFile = imageDocument;
 			}
-			
+			*/
 			foreach (var signature in document.Signatures)
 			{
 				var data = new FileData

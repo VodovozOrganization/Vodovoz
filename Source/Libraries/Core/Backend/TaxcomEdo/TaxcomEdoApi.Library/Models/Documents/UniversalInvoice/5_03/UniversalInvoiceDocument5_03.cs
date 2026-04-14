@@ -1,6 +1,6 @@
 ﻿using System;
 using Core.Infrastructure;
-using Edo.Contracts.Xml.FormalizedDocuments.UPD;
+using Edo.Contracts.Xml.Documents.FormalizedDocuments.UPD;
 
 namespace TaxcomEdoApi.Library.Models.Documents.UniversalInvoice._5_03
 {

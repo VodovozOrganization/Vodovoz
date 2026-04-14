@@ -23,6 +23,7 @@ namespace TaxcomEdoApi.Library.Services
 			_httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 		}
 		
+		/// <inheritdoc/>
 		public async Task<TaxcomResponse<ContainerDescription>> GetMessageListAsync(
 			GetMessageListParameters parameters, byte[] certificateData, CancellationToken cancellationToken = default)
 		{
@@ -40,6 +41,7 @@ namespace TaxcomEdoApi.Library.Services
 			return await response.ToTaxcomResponseAsync<ContainerDescription>(cancellationToken);
 		}
 		
+		/// <inheritdoc/>
 		public async Task<TaxcomResponse<ContainerDescription>> GetListAsync(
 			GetDocFlowsUpdatesParameters parameters, byte[] certificateData, CancellationToken cancellationToken = default)
 		{
@@ -59,6 +61,7 @@ namespace TaxcomEdoApi.Library.Services
 			return await response.ToTaxcomResponseAsync<ContainerDescription>(cancellationToken);
 		}
 		
+		/// <inheritdoc/>
 		public async Task<TaxcomResponse<EdoDocFlowUpdates>> GetMessageAsync(
 			string docFlowId, byte[] certificateData, CancellationToken cancellationToken = default)
 		{
@@ -73,6 +76,7 @@ namespace TaxcomEdoApi.Library.Services
 			return await response.ToTaxcomResponseAsync<EdoDocFlowUpdates>(cancellationToken);
 		}
 		
+		/// <inheritdoc/>
 		public async Task<TaxcomResponse> SendMessageAsync(byte[] container, byte[] certificateData, CancellationToken cancellationToken = default)
 		{
 			var assistantKey = await CertificateLoginAsync(certificateData, cancellationToken);

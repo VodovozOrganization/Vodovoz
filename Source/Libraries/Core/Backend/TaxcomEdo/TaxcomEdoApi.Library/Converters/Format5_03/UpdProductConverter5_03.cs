@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Core.Infrastructure;
 using Edo.Contracts.Messages.Dto;
-using Edo.Contracts.Xml.FormalizedDocuments;
-using Edo.Contracts.Xml.FormalizedDocuments.UPD;
+using Edo.Contracts.Xml.Documents.FormalizedDocuments;
+using Edo.Contracts.Xml.Documents.FormalizedDocuments.UPD;
 
 namespace TaxcomEdoApi.Library.Converters.Format5_03
 {

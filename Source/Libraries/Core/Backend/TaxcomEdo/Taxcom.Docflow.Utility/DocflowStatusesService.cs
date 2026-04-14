@@ -61,7 +61,7 @@ namespace Taxcom.Docflow.Utility
 					{
 						//смотрим только доки, ожидающих подписи
 						DocFlowStatus = "WaitingForSignature",
-						LastEventTimeStamp = lastEventTime.ToBinary(),
+						LastEventTimeStamp = lastEventTime,
 						DocFlowDirection = "Ingoing",
 						DepartmentId = null,
 						IncludeTransportInfo = true

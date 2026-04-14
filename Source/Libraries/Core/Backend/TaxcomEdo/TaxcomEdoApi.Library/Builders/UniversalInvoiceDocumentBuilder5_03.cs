@@ -1,4 +1,4 @@
-﻿using Edo.Contracts.Xml.FormalizedDocuments.UPD;
+﻿using Edo.Contracts.Xml.Documents.FormalizedDocuments.UPD;
 using TaxcomEdoApi.Library.Models.Documents;
 using TaxcomEdoApi.Library.Models.Documents.UniversalInvoice._5_03;
 

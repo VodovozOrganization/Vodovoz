@@ -13,27 +13,6 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<Reference Include="Ionic.Zip">
-			<HintPath>..\..\..\..\..\Libraries\External\Taxcom\Ionic.Zip.dll</HintPath>
-		</Reference>
-		<Reference Include="Taxcom.Client.Api">
-			<HintPath>..\..\..\..\..\Libraries\External\Taxcom\Taxcom.Client.Api.dll</HintPath>
-		</Reference>
-		<Reference Include="Taxcom.Common.Utils">
-			<HintPath>..\..\..\..\..\Libraries\External\Taxcom\Taxcom.Common.Utils.dll</HintPath>
-		</Reference>
-		<Reference Include="Taxcom.TTC.Container">
-			<HintPath>..\..\..\..\..\Libraries\External\Taxcom\Taxcom.TTC.Container.dll</HintPath>
-		</Reference>
-		<Reference Include="TISystems.TTC.Common">
-			<HintPath>..\..\..\..\..\Libraries\External\Taxcom\TISystems.TTC.Common.dll</HintPath>
-		</Reference>
-		<Reference Include="TISystems.TTC.CRM.BE">
-			<HintPath>..\..\..\..\..\Libraries\External\Taxcom\TISystems.TTC.CRM.BE.dll</HintPath>
-		</Reference>
-	</ItemGroup>
-
-	<ItemGroup>
 	  <ProjectReference Include="..\..\..\Infrastructure\Core.Infrastructure\Core.Infrastructure.csproj" />
 	  <ProjectReference Include="..\..\Edo\Edo.Contracts.Xml\Edo.Contracts.Xml\Edo.Contracts.Xml.csproj" />
 	  <ProjectReference Include="..\..\Edo\Edo.Contracts\Edo.Contracts.csproj" />

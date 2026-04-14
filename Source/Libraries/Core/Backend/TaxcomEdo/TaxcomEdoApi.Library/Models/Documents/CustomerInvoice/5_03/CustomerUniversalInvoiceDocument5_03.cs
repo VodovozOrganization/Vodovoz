@@ -1,6 +1,6 @@
 ﻿using System;
 using Core.Infrastructure;
-using Edo.Contracts.Xml.FormalizedDocuments;
+using Edo.Contracts.Xml.Documents.FormalizedDocuments;
 
 namespace TaxcomEdoApi.Library.Models.Documents.CustomerInvoice._5_03
 {

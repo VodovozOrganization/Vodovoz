@@ -185,9 +185,9 @@ namespace TaxcomEdoApi.Controllers
 			}
 			catch(Exception e)
 			{
-				_logger.LogError(e, "Ошибка при получении изменений ДО");
+				_logger.LogError(e, "Ошибка при получении ДО");
 				return TaxcomResponse<ContainerDescription>.Error(
-					"Произошла ошибка при получении изменений ДО. Попробуйте позднее или обратитесь в отдел разработки");
+					"Произошла ошибка при получении ДО. Попробуйте позднее или обратитесь в отдел разработки");
 			}
 		}
 		
@@ -320,8 +320,8 @@ namespace TaxcomEdoApi.Controllers
 
 			try
 			{
-				var docflowDescription = await _docflowService.GetMessageAsync(docFlowId, _certificate.RawData, cancellationToken);
-				return Ok(docflowDescription);
+				var response = await _docflowService.GetMessageAsync(docFlowId, _certificate.RawData, cancellationToken);
+				return Ok(response);
 			}
 			catch(Exception e)
 			{

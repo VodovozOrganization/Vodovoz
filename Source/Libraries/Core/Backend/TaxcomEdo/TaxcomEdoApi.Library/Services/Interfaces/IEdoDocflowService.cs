@@ -26,6 +26,13 @@ public interface IEdoDocflowService
 	/// <returns></returns>
 	Task<TaxcomResponse<ContainerDescription>> GetMessageListAsync(
 		GetMessageListParameters parameters, byte[] certificateData, CancellationToken cancellationToken = default);
+	/// <summary>
+	/// Получение с сервера системы Такском-Доклайнз списка документооборотов со статусами.
+	/// </summary>
+	/// <param name="parameters">Параметры выборки <see cref="GetDocFlowsUpdatesParameters"/></param>
+	/// <param name="certificateData">Данные сертификата</param>
+	/// <param name="cancellationToken">Токен отмены</param>
+	/// <returns></returns>
 	Task<TaxcomResponse<ContainerDescription>> GetListAsync(
 		GetDocFlowsUpdatesParameters parameters, byte[] certificateData, CancellationToken cancellationToken = default);
 	/// <summary>

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Xml;
-using Taxcom.TTC.Container.Exceptions;
 using TaxcomEdo.Contracts.Xml.Container.Entities.Warrant;
 using TaxcomEdoApi.Library.Models.Containers.Interfaces;
 using TaxcomEdoApi.Library.Models.Interfaces;

@@ -106,6 +106,7 @@ namespace EdoDocumentFlowUpdater
 			{
 				try
 				{
+					//TODO сделать все в отдельных методах(обработка входящих и исходящих)
 					await DelayAsync(cancellationToken);
 					await ProcessOutgoingDocuments(cancellationToken);
 					await CancellationDocFlows(cancellationToken);
@@ -127,60 +128,66 @@ namespace EdoDocumentFlowUpdater
 			{
 				EdoDocFlowUpdates docFlowUpdates;
 
-				using(var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис обработки исходящих документов"))
+				using var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис обработки исходящих документов");
+				do
 				{
-					do
+					_logger.LogInformation("Получаем исходящие документы");
+
+					using var scope = _serviceScopeFactory.CreateScope();
+					var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClientSdkVersion>();
+
+					var response =
+						await taxcomApiClient.GetDocFlowsUpdates(
+							new GetDocFlowsUpdatesParameters
+							{
+								DocFlowStatus = null,
+								LastEventTimeStamp = _lastEventsProcessTime.LastProcessedEventOutgoingDocuments,
+								DocFlowDirection = "Outgoing",
+								DepartmentId = null,
+								IncludeTransportInfo = true
+							},
+							cancellationToken);
+
+					if(!response.Ok)
 					{
-						_logger.LogInformation("Получаем исходящие документы");
+						_logger.LogError("Произошла ошибка при получении изменений исходящих ДО {ErrorMessage}", response.ErrorMessage);
+						return;
+					}
 
-						using var scope = _serviceScopeFactory.CreateScope();
-						var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClientSdkVersion>();
+					docFlowUpdates = response.Result;
 
-						docFlowUpdates =
-							await taxcomApiClient.GetDocFlowsUpdates(
-								new GetDocFlowsUpdatesParameters
-								{
-									DocFlowStatus = null,
-									LastEventTimeStamp = _lastEventsProcessTime.LastProcessedEventOutgoingDocuments.ToBinary(),
-									DocFlowDirection = "Outgoing",
-									DepartmentId = null,
-									IncludeTransportInfo = true
-								},
-								cancellationToken);
+					if(docFlowUpdates.Updates is null)
+					{
+						return;
+					}
 
-						if(docFlowUpdates.Updates is null)
+					_logger.LogInformation(
+						"Обрабатываем полученные исходящие документообороты {DocFlowUpdatesCount}",
+						docFlowUpdates.Updates.Count());
+
+					foreach(var item in docFlowUpdates.Updates)
+					{
+						EdoContainer container = null;
+						EdoDocFlowDocument mainDocument = null;
+
+						if(item.Documents.Any())
 						{
-							return;
+							mainDocument = item.Documents.First();
+							container = _orderRepository.GetEdoContainerByMainDocumentId(uow, mainDocument.ExternalIdentifier);
 						}
 
-						_logger.LogInformation(
-							"Обрабатываем полученные исходящие документообороты {DocFlowUpdatesCount}",
-							docFlowUpdates.Updates.Count());
-
-						foreach(var item in docFlowUpdates.Updates)
+						if(container != null)
 						{
-							EdoContainer container = null;
-							EdoDocFlowDocument mainDocument = null;
-
-							if(item.Documents.Any())
-							{
-								mainDocument = item.Documents.First();
-								container = _orderRepository.GetEdoContainerByMainDocumentId(uow, mainDocument.ExternalIdentifier);
-							}
-
-							if(container != null)
-							{
-								await TryUpdateEdoContainer(cancellationToken, container, item, mainDocument, taxcomApiClient, uow);
-							}
-							else
-							{
-								await SendOutgoingTaxcomDocflowUpdatedEvent(item, mainDocument, cancellationToken);
-							}
-
-							_lastEventsProcessTime.LastProcessedEventOutgoingDocuments = item.StatusChangeDateTime;
+							await TryUpdateEdoContainer(cancellationToken, container, item, mainDocument, taxcomApiClient, uow);
 						}
-					} while(!docFlowUpdates.IsLast);
-				}
+						else
+						{
+							await SendOutgoingTaxcomDocflowUpdatedEvent(item, mainDocument, cancellationToken);
+						}
+
+						_lastEventsProcessTime.LastProcessedEventOutgoingDocuments = item.StatusChangeDateTime;
+					}
+				} while(!docFlowUpdates.IsLast);
 			}
 			catch(Exception e)
 			{
@@ -188,7 +195,7 @@ namespace EdoDocumentFlowUpdater
 			}
 			finally
 			{
-				await SaveLastEventProcessTime();
+				await SaveLastEventProcessTime(cancellationToken);
 			}
 		}
 
@@ -247,52 +254,58 @@ namespace EdoDocumentFlowUpdater
 			{
 				EdoDocFlowUpdates docFlowUpdates;
 
-				using(var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис обработки входящих документов"))
+				using var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис обработки входящих документов");
+				do
 				{
-					do
+					_logger.LogInformation("Получаем входящие документы");
+
+					using var scope = _serviceScopeFactory.CreateScope();
+					var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClientSdkVersion>();
+
+					var response =
+						await taxcomApiClient.GetDocFlowsUpdates(
+							new GetDocFlowsUpdatesParameters
+							{
+								DocFlowStatus = "WaitingForSignature", //смотрим только доки, ожидающих подписи
+								LastEventTimeStamp = _lastEventsProcessTime.LastProcessedEventIngoingDocuments,
+								DocFlowDirection = "Ingoing",
+								DepartmentId = null,
+								IncludeTransportInfo = true
+							},
+							cancellationToken);
+					
+					if(!response.Ok)
 					{
-						_logger.LogInformation("Получаем входящие документы");
+						_logger.LogError("Произошла ошибка при получении изменений входящих ДО {ErrorMessage}", response.ErrorMessage);
+						return;
+					}
 
-						using var scope = _serviceScopeFactory.CreateScope();
-						var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClientSdkVersion>();
+					docFlowUpdates = response.Result;
 
-						docFlowUpdates =
-							await taxcomApiClient.GetDocFlowsUpdates(
-								new GetDocFlowsUpdatesParameters
-								{
-									DocFlowStatus = "WaitingForSignature", //смотрим только доки, ожидающих подписи
-									LastEventTimeStamp = _lastEventsProcessTime.LastProcessedEventIngoingDocuments.ToBinary(),
-									DocFlowDirection = "Ingoing",
-									DepartmentId = null,
-									IncludeTransportInfo = true
-								},
-								cancellationToken);
+					if(docFlowUpdates.Updates is null)
+					{
+						return;
+					}
 
-						if(docFlowUpdates.Updates is null)
-						{
-							return;
-						}
-
-						_logger.LogInformation(
-							"Обрабатываем полученные входящие документообороты {DocFlowUpdatesCount}",
-							docFlowUpdates.Updates.Count());
+					_logger.LogInformation(
+						"Обрабатываем полученные входящие документообороты {DocFlowUpdatesCount}",
+						docFlowUpdates.Updates.Count());
 						
-						var organization = _organizationRepository.GetOrganizationByTaxcomEdoAccountId(
-							uow, _documentFlowUpdaterOptions.EdoAccount);
+					var organization = _organizationRepository.GetOrganizationByTaxcomEdoAccountId(
+						uow, _documentFlowUpdaterOptions.EdoAccount);
 
-						if(organization is null)
-						{
-							throw new InvalidOperationException(
-								"Не найдена организация с таким кабинетом ЭДО " + _documentFlowUpdaterOptions.EdoAccount);
-						}
+					if(organization is null)
+					{
+						throw new InvalidOperationException(
+							"Не найдена организация с таким кабинетом ЭДО " + _documentFlowUpdaterOptions.EdoAccount);
+					}
 
-						foreach(var item in docFlowUpdates.Updates)
-						{
-							await SendAcceptingIngoingTaxcomDocflowWaitingForSignatureEvent(item, organization.Name, cancellationToken);
-							_lastEventsProcessTime.LastProcessedEventIngoingDocuments = item.StatusChangeDateTime;
-						}
-					} while(!docFlowUpdates.IsLast);
-				}
+					foreach(var item in docFlowUpdates.Updates)
+					{
+						await SendAcceptingIngoingTaxcomDocflowWaitingForSignatureEvent(item, organization.Name, cancellationToken);
+						_lastEventsProcessTime.LastProcessedEventIngoingDocuments = item.StatusChangeDateTime;
+					}
+				} while(!docFlowUpdates.IsLast);
 			}
 			catch(Exception e)
 			{
@@ -300,7 +313,7 @@ namespace EdoDocumentFlowUpdater
 			}
 			finally
 			{
-				await SaveLastEventProcessTime();
+				await SaveLastEventProcessTime(cancellationToken);
 			}
 		}
 
@@ -310,47 +323,46 @@ namespace EdoDocumentFlowUpdater
 			{
 				EdoDocFlowUpdates docFlowUpdates;
 
-				using(var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис обработки документов ожидающих аннулирования"))
+				using var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис обработки документов ожидающих аннулирования");
+				do
 				{
-					do
+					_logger.LogInformation("Получаем документы ожидающие аннулирования");
+
+					using var scope = _serviceScopeFactory.CreateScope();
+					var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClientSdkVersion>();
+					var lastProcessTime = _lastEventsProcessTime
+						.LastProcessedEventWaitingForCancellationDocuments;
+
+					var response =
+						await taxcomApiClient.GetDocFlowsUpdates(
+							new GetDocFlowsUpdatesParameters
+							{
+								DocFlowStatus = "WaitingForCancellation",
+								LastEventTimeStamp = lastProcessTime,
+								DocFlowDirection = "Ingoing",
+								DepartmentId = null,
+								IncludeTransportInfo = true
+							},
+							cancellationToken);
+					
+					docFlowUpdates = response.Result;
+					
+					if(docFlowUpdates.Updates is null)
 					{
-						_logger.LogInformation("Получаем документы ожидающие аннулирования");
+						return;
+					}
 
-						using var scope = _serviceScopeFactory.CreateScope();
-						var taxcomApiClient = scope.ServiceProvider.GetService<ITaxcomApiClientSdkVersion>();
-						var lastProcessTime = _lastEventsProcessTime
-							.LastProcessedEventWaitingForCancellationDocuments
-							.ToBinary();
-
-						docFlowUpdates =
-							await taxcomApiClient.GetDocFlowsUpdates(
-								new GetDocFlowsUpdatesParameters
-								{
-									DocFlowStatus = "WaitingForCancellation",
-									LastEventTimeStamp = lastProcessTime,
-									DocFlowDirection = "Ingoing",
-									DepartmentId = null,
-									IncludeTransportInfo = true
-								},
-								cancellationToken);
-
-						if(docFlowUpdates.Updates is null)
-						{
-							return;
-						}
-
-						_logger.LogInformation(
-							"Обрабатываем документообороты ожидающие аннулирования: {DocFlowUpdatesCount}",
-							docFlowUpdates.Updates.Count()
-						);
+					_logger.LogInformation(
+						"Обрабатываем документообороты ожидающие аннулирования: {DocFlowUpdatesCount}",
+						docFlowUpdates.Updates.Count()
+					);
 						
-						foreach(var item in docFlowUpdates.Updates)
-						{
-							await SendAcceptingWaitingForCancellationDocflowEvent(item, cancellationToken);
-							_lastEventsProcessTime.LastProcessedEventWaitingForCancellationDocuments = item.StatusChangeDateTime;
-						}
-					} while(!docFlowUpdates.IsLast);
-				}
+					foreach(var item in docFlowUpdates.Updates)
+					{
+						await SendAcceptingWaitingForCancellationDocflowEvent(item, cancellationToken);
+						_lastEventsProcessTime.LastProcessedEventWaitingForCancellationDocuments = item.StatusChangeDateTime;
+					}
+				} while(!docFlowUpdates.IsLast);
 			}
 			catch(Exception e)
 			{
@@ -358,7 +370,7 @@ namespace EdoDocumentFlowUpdater
 			}
 			finally
 			{
-				await SaveLastEventProcessTime();
+				await SaveLastEventProcessTime(cancellationToken);
 			}
 		}
 
@@ -523,8 +535,8 @@ namespace EdoDocumentFlowUpdater
 					}
 
 					offerCancellation.IsNeedOfferCancellation = false;
-					await uow.SaveAsync(offerCancellation);
-					await uow.CommitAsync();
+					await uow.SaveAsync(offerCancellation, cancellationToken: cancellationToken);
+					await uow.CommitAsync(cancellationToken);
 				}
 			}
 			catch(Exception e)
@@ -558,13 +570,13 @@ namespace EdoDocumentFlowUpdater
 			await Task.Delay(delay * 1000, cancellationToken);
 		}
 		
-		private async Task SaveLastEventProcessTime()
+		private async Task SaveLastEventProcessTime(CancellationToken cancellationToken)
 		{
 			try
 			{
 				using var uow = _unitOfWorkFactory.CreateWithoutRoot("Сохранение временной метки");
-				await uow.SaveAsync(_lastEventsProcessTime);
-				await uow.CommitAsync();
+				await uow.SaveAsync(_lastEventsProcessTime,  cancellationToken: cancellationToken);
+				await uow.CommitAsync(cancellationToken);
 			}
 			catch(Exception e)
 			{

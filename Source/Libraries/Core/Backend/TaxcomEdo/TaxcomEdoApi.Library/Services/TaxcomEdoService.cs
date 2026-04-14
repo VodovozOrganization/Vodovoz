@@ -62,7 +62,8 @@ namespace TaxcomEdoApi.Library.Services
 				updInfo,
 				_warrantOptions,
 				edoAccountId,
-				_certificate.Subject);
+				_certificate.Subject,
+				_certificate.Thumbprint);
 
 			var container = NewContainer.Create(SignMode.UseSpecifiedCertificate);
 			var upd = UniversalInvoiceDocumentBuilder5_03

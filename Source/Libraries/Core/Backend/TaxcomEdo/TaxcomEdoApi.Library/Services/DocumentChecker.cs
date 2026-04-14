@@ -2,7 +2,7 @@
 using System.IO;
 using System.Xml;
 using Core.Infrastructure;
-using Edo.Contracts.Xml.FormalizedDocuments;
+using Edo.Contracts.Xml.Documents.FormalizedDocuments;
 using TaxcomEdoApi.Library.Services.Interfaces;
 
 namespace TaxcomEdoApi.Library.Services

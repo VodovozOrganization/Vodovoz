@@ -7,13 +7,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Core.Infrastructure;
 using Edo.Contracts.Messages.Dto;
-using Edo.Contracts.Xml;
 using TaxcomEdo.Client.Configs;
 using TaxcomEdo.Contracts.Contacts;
 using TaxcomEdo.Contracts.Counterparties;
 using TaxcomEdo.Contracts.Documents;
 using TaxcomEdo.Contracts.Extensions;
 using TaxcomEdo.Contracts.Responses;
+using TaxcomEdo.Contracts.Xml.Container;
 
 namespace TaxcomEdo.Client
 {

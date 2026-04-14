@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Edo.Contracts.Xml.Transactions.CancellationOffer;
+using Edo.Contracts.Xml.Transactions.CancellationOffers;
 using TaxcomEdo.Contracts.Xml.Container;
 using TaxcomEdoApi.Library.Models.Interfaces;
 
@@ -12,7 +12,7 @@ namespace TaxcomEdoApi.Library.Models.Documents
 		private readonly IList<string> _certificatesForSign = new List<string>();
 		private readonly IList<byte[]> _signatures = new List<byte[]>();
 		
-		public Файл WrapperXml { get; set; }
+		public CancellationOffer WrapperXml { get; set; }
 		
 		public string ExternalIdentifier { get; set; }
 

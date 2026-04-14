@@ -8,7 +8,7 @@ namespace TaxcomEdoApi.Library.Models.Documents.CustomerInvoice
 	//TODO написать полное соответствие классу
 	public abstract class CustomerUniversalInvoiceDocument : IDocument
 	{
-		public const string DefaultDirectoryInsideArchive = "Invoice";
+		public const string DefaultDirectoryInsideArchive = "CustomerInformation";
 		
 		private readonly IList<string> _certificatesForSign = new List<string>();
 		private readonly IList<byte[]> _signatures = new List<byte[]>();
