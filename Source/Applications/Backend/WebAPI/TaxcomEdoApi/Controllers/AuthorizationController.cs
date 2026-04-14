@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TaxcomEdoApi.Library.Config;
-using TaxcomEdoApi.Library.Services;
+using TaxcomEdoApi.Library.Services.Interfaces;
 
 namespace TaxcomEdoApi.Controllers
 {
+	[ApiController]
+	[Route("/api/[action]")]
 	public class AuthorizationController : ControllerBase
 	{
 		private readonly ILogger<AuthorizationController> _logger;
@@ -30,11 +33,15 @@ namespace TaxcomEdoApi.Controllers
 		}
 
 		[HttpGet]
-		public async Task<IActionResult> Login()
+		public async Task<IActionResult> Login(CancellationToken cancellationToken)
 		{
 			try
 			{
-				var response = await _authorizationService.Login(_apiOptions.Login, _apiOptions.Password);
+				var response = await _authorizationService.LoginAsync(
+					_apiOptions.Login,
+					_apiOptions.Password,
+					cancellationToken: cancellationToken);
+				
 				return Ok(response);
 			}
 			catch(Exception e)
@@ -45,11 +52,12 @@ namespace TaxcomEdoApi.Controllers
 		}
 		
 		[HttpPost]
-		public async Task<IActionResult> CertificateLogin()
+		public async Task<IActionResult> CertificateLogin(CancellationToken cancellationToken)
 		{
+			//25e358964a844d0eab9a624bb877ab7120710cf4a9c84f728de51e3c65b507d2
 			try
 			{
-				var response = await _authorizationService.CertificateLogin(_certificate.RawData);
+				var response = await _authorizationService.CertificateLoginAsync(_certificate.RawData, cancellationToken);
 				return Ok(response);
 			}
 			catch(Exception e)

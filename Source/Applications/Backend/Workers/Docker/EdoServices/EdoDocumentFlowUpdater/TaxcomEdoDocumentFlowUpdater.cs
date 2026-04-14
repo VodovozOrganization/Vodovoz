@@ -172,8 +172,27 @@ namespace EdoDocumentFlowUpdater
 
 						if(item.Documents.Any())
 						{
-							mainDocument = item.Documents.First();
+							mainDocument = item.Documents.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.ExternalIdentifier));
+
+							if(mainDocument is null)
+							{
+								_logger.LogWarning(
+									"Исходящий ДО {DocflowId} со статусом {DocflowStatus} пришел без главного документа или с неизвестным документом." +
+									" Возможно ручная отправка...",
+									item.Id,
+									item.Status);
+								continue;
+							}
+
 							container = _orderRepository.GetEdoContainerByMainDocumentId(uow, mainDocument.ExternalIdentifier);
+						}
+						else
+						{
+							_logger.LogWarning(
+								"Исходящий ДО {DocflowId} со статусом {DocflowStatus} пришел без документов",
+								item.Id,
+								item.Status);
+							continue;
 						}
 
 						if(container != null)
@@ -377,11 +396,15 @@ namespace EdoDocumentFlowUpdater
 		private async Task SendAcceptingIngoingTaxcomDocflowWaitingForSignatureEvent(
 			EdoDocFlow docflow, string organization, CancellationToken cancellationToken)
 		{
+			var mainDocumentId = docflow.Documents
+				.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.ExternalIdentifier))?
+				.ExternalIdentifier;
+			
 			var @event = new AcceptingIngoingTaxcomDocflowWaitingForSignatureEvent
 			{
 				DocFlowId = docflow.Id,
 				Organization = organization,
-				MainDocumentId = docflow.Documents.First().ExternalIdentifier,
+				MainDocumentId = mainDocumentId,
 				EdoAccount = _documentFlowUpdaterOptions.EdoAccount,
 			};
 			
