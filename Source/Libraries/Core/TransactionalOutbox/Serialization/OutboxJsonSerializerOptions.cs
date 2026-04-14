@@ -5,6 +5,9 @@ using System.Text.Json.Serialization;
 
 namespace TransactionalOutbox.Serialization
 {
+	/// <summary>
+	/// Настройки сериализации JSON для сообщений Outbox.
+	/// </summary>
 	public static class OutboxJsonSerializerOptions
 	{
 		public static readonly JsonSerializerOptions Instance = Create();

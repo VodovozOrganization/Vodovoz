@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\Libraries\Core\PushNotifications\CustomerPushNotifications.Contracts\CustomerPushNotifications.Contracts.csproj" />
-    <ProjectReference Include="..\..\..\..\..\Libraries\Core\PushNotifications\CustomerPushNotifications.Transport\CustomerPushNotifications.Transport.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Notifications\CustomerNotifications.Contracts\CustomerNotifications.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Libraries\Core\Notifications\CustomerNotifications.Transport\CustomerNotifications.Transport.csproj" />
   </ItemGroup>
 </Project>

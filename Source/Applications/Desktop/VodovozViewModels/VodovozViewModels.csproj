@@ -1380,17 +1380,13 @@
       <Project>{42EFC426-2C88-4608-8191-DBCA4172A695}</Project>
       <Name>VodovozInfrastructure</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\Core\PushNotifications\CustomerPushNotifications.Application\CustomerPushNotifications.Application.csproj">
-      <Project>{6d50e702-c61b-415c-be60-3168a06d92f3}</Project>
-      <Name>CustomerPushNotifications.Application</Name>
+    <ProjectReference Include="..\..\..\Libraries\Core\Notifications\CustomerNotifications.Contracts\CustomerNotifications.Contracts.csproj">
+      <Project>{CDDE0D70-E3C3-A1D6-147E-E805A70744E6}</Project>
+      <Name>CustomerNotifications.Contracts</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\Core\PushNotifications\CustomerPushNotifications.Contracts\CustomerPushNotifications.Contracts.csproj">
-      <Project>{E8EB0277-A8F1-4981-8DCD-D0518EE49EAD}</Project>
-      <Name>CustomerPushNotifications.Contracts</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\Core\PushNotifications\PushNotifications.Infrastructure\PushNotifications.Infrastructure.csproj">
-      <Project>{41370DDB-5D13-4923-96DA-65F4A29FA669}</Project>
-      <Name>PushNotifications.Infrastructure</Name>
+    <ProjectReference Include="..\..\..\Libraries\Core\Notifications\Notifications.Infrastructure\Notifications.Infrastructure.csproj">
+      <Project>{F002AF1D-1958-EF09-F21A-0221E7874DE1}</Project>
+      <Name>Notifications.Infrastructure</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\ResourceLocker\ResourceLocker.Library.csproj">
       <Project>{bf89316b-1a47-7797-6a98-7a3fad52b2e0}</Project>

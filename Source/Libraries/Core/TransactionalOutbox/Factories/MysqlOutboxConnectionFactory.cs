@@ -4,6 +4,9 @@ using TransactionalOutbox.Abstractions;
 
 namespace TransactionalOutbox.Factories
 {
+	/// <summary>
+	/// Фабрика для создания соединений с MySQL базой данных для работы с транзакционным аутбоксом.
+	/// </summary>
 	public class MysqlOutboxConnectionFactory : IOutboxConnectionFactory
 	{
 		private readonly string _connectionString;

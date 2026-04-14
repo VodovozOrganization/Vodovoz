@@ -1,6 +1,8 @@
 ﻿using Autofac;
+using Vodovoz.Core.Domain.Clients;
 using Gamma.Utilities;
 using NHibernate.Criterion;
+using Notifications.Infrastructure;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
@@ -15,7 +17,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using CustomerPushNotifications.Contracts;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Goods;
@@ -59,7 +60,8 @@ using Vodovoz.Settings.Orders;
 using Vodovoz.Tools;
 using Vodovoz.Tools.Logistic;
 using Order = Vodovoz.Domain.Orders.Order;
-using PushNotifications.Infrastructure;
+using CustomerNotifications.Contracts;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -926,7 +928,7 @@ namespace Vodovoz.Domain.Logistic
 			observableAddresses = null;
 		}
 
-		public virtual void RollBackEnRouteStatus(IUnitOfWork unitOfWork, IOutboxPushNotificationPublisher<CustomerNotificationDomainEvent> customerPushNotificationService)
+		public virtual void RollBackEnRouteStatus(IUnitOfWork unitOfWork, IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher)
 		{
 			Status = RouteListStatus.EnRoute;
 			ClosingFilled = false;
@@ -935,7 +937,9 @@ namespace Vodovoz.Domain.Logistic
 			{
 				item.Order.OrderStatus = OrderStatus.OnTheWay;
 
-				customerPushNotificationService.Publish(unitOfWork, new CustomerNotificationDomainEvent(item.Order.OnlineOrder.Id, CustomerNotificationEventType.CourierAssigned));
+				var customerEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, item.Order.OnlineOrder?.Source, item.Order.OnlineOrder?.Id, item.Order.Id);
+
+				customerNotificationPublisher.Publish(unitOfWork, customerEvent);
 			}
 
 			UoW.Save(this);

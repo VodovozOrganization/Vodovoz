@@ -1,6 +1,6 @@
-﻿using CustomerPushNotifications.Contracts;
+﻿using Vodovoz.Core.Domain.Clients;
 using NHibernate;
-using PushNotifications.Infrastructure;
+using Notifications.Infrastructure;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -16,6 +16,8 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Errors.Logistics;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Cash;
+using CustomerNotifications.Contracts;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 
 namespace Vodovoz.Core.Application.Logistics
 {
@@ -28,7 +30,7 @@ namespace Vodovoz.Core.Application.Logistics
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IGenericRepository<RouteListAddressKeepingDocument> _routeListAddressKeepingDocumentsRepository;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
-		private readonly IOutboxPushNotificationPublisher<CustomerNotificationDomainEvent> _customerPushNotificationService;
+		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
 		private readonly IAddressTransferController _addressTransferController;
@@ -42,7 +44,7 @@ namespace Vodovoz.Core.Application.Logistics
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IGenericRepository<RouteListAddressKeepingDocument> routeListAddressKeepingDocumentsRepository,
 			IRouteListProfitabilityController routeListProfitabilityController,
-			IOutboxPushNotificationPublisher<CustomerNotificationDomainEvent> customerPushNotificationService,
+			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
 			IWageParameterService wageParameterService,
 			IRouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
@@ -59,7 +61,7 @@ namespace Vodovoz.Core.Application.Logistics
 			                                              throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentsRepository));
 			_routeListProfitabilityController =
 				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
-			_customerPushNotificationService = customerPushNotificationService ?? throw new ArgumentNullException(nameof(customerPushNotificationService));
+			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 			_routeListAddressKeepingDocumentController = routeListAddressKeepingDocumentController ??
 			                                             throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentController));
 			_financialCategoriesGroupsSettings =
@@ -264,8 +266,9 @@ namespace Vodovoz.Core.Application.Logistics
 			}
 
 			order.ChangeStatus(OrderStatus.OnTheWay);
-			
-			_customerPushNotificationService.Publish(unitOfWork, new CustomerNotificationDomainEvent(order.OnlineOrder.Id, CustomerNotificationEventType.CourierAssigned));
+
+			var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, order.OnlineOrder?.Source, order.OnlineOrder?.Id, order.Id);
+			_customerNotificationPublisher.Publish(unitOfWork, customerCourierAssignedEvent);
 
 			unitOfWork.Save(order);
 			unitOfWork.Save(newRouteListItem);

@@ -34,6 +34,7 @@
       <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Osrm\Osrm.csproj" />
       <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Application\Vodovoz.Core.Application.csproj" />
       <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\VodovozBusiness\VodovozBusiness.csproj" />
+      <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Notifications\Notifications.Infrastructure\Notifications.Infrastructure.csproj" />
       <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Vodovoz.Trackers\Vodovoz.Trackers.csproj" />
       <ProjectReference Include="..\..\..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
       <ProjectReference Include="..\..\..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />

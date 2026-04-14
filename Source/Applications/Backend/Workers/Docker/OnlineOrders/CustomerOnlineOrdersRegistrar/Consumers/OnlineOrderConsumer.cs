@@ -13,12 +13,12 @@ using System.Threading.Tasks;
 using System.Threading;
 using CustomerOnlineOrdersRegistrar.Factories.V3;
 using CustomerOnlineOrdersRegistrar.Factories.V4;
-using CustomerPushNotifications.Contracts;
 using MySqlConnector;
 using QS.Utilities.Debug;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Orders;
-using PushNotifications.Infrastructure;
+using Notifications.Infrastructure;
+using CustomerNotifications.Contracts;
 
 namespace CustomerOnlineOrdersRegistrar.Consumers
 {
@@ -34,7 +34,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 		private readonly IOrderService _orderService;
 		private readonly IRouteListService _routeListService;
 		private readonly IOrderFromOnlineOrderValidator _onlineOrderValidator;
-		IPushNotificationsPublisher<CustomerNotificationDomainEvent> _customerPushNotificationPublisher;
+		INotificationsPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 
 		protected ILogger<OnlineOrderConsumer> Logger { get; }
 
@@ -50,7 +50,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IOrderService orderService,
 			IRouteListService routeListService,
 			IOrderFromOnlineOrderValidator onlineOrderValidator,
-			IPushNotificationsPublisher<CustomerNotificationDomainEvent> customerPushNotificationPublisher
+			INotificationsPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher
 			)
 		{
 			Logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -65,7 +65,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_onlineOrderValidator = onlineOrderValidator ?? throw new ArgumentNullException(nameof(onlineOrderValidator));
-			_customerPushNotificationPublisher = customerPushNotificationPublisher ?? throw new ArgumentNullException(nameof(customerPushNotificationPublisher));
+			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 		}
 		
 		protected virtual async Task<(int OnlineOrderId, int Code)> TryRegisterOnlineOrderV3Async(
@@ -85,7 +85,6 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			var externalOrderId = message.ExternalOrderId;
 			var needSpecialProcessingDuplicate = NeedSpecialProcessingDuplicate(uow, onlineOrder);
 
-			bool needCancelNotification = false;
 
 			if(needSpecialProcessingDuplicate != null)
 			{
@@ -96,8 +95,6 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 					var cancellationReasonId = _onlineOrderCancellationReasonSettings.GetDuplicateOnlineOrderCancellationReasonId;
 					onlineOrder.OnlineOrderCancellationReason = await uow.Session
 						.GetAsync<OnlineOrderCancellationReason>(cancellationReasonId, cancellationToken);
-
-					needCancelNotification = true;
 				}
 				else
 				{
@@ -106,12 +103,8 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			}
 
 			await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
-			await uow.CommitAsync(cancellationToken);
 
-			if(needCancelNotification)
-			{
-				await _customerPushNotificationPublisher.PublishAsync(new CustomerNotificationDomainEvent(onlineOrder.Id, CustomerNotificationEventType.OrderCanceled), cancellationToken);
-			}
+			await uow.CommitAsync(cancellationToken);
 
 			if(needSpecialProcessingDuplicate != null)
 			{
@@ -221,7 +214,9 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 
 				if(needCancelNotification)
 				{
-					await _customerPushNotificationPublisher.PublishAsync(new CustomerNotificationDomainEvent(onlineOrder.Id, CustomerNotificationEventType.OrderCanceled), cancellationToken);
+					//Art8m жду от Константина новые события var customerEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.OrderCanceled, onlineOrder?.Source, onlineOrder.Id);
+
+					//await _customerNotificationPublisher.PublishAsync(customerEvent, cancellationToken); //Art8m должны отменять при дубле?
 				}
 			}
 			catch(Exception e)

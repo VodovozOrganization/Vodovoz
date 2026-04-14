@@ -522,12 +522,9 @@ namespace Vodovoz.Views.Orders
 					orders = new[] { savedOrder };
 				}
 
-				ViewModel.Entity.SetOrderPerformed(orders);				
-				
-				if(ViewModel.Save(true))
-				{
-					ViewModel.PublishCustomerNotification();
-				}
+				ViewModel.Entity.SetOrderPerformed(orders);
+
+				ViewModel.Save(true);
 			}
 			
 			ViewModel.OrderCreatingState = false;

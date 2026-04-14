@@ -1,7 +1,7 @@
 ﻿using Core.Infrastructure;
-using CustomerPushNotifications.Application.Builders;
-using CustomerPushNotifications.Application.Providers;
-using CustomerPushNotifications.Contracts;
+using CustomerNotifications.Application.Builders;
+using CustomerNotifications.Application.Providers;
+using Vodovoz.Core.Domain.Clients;
 using DriverApi.Notifications.Client;
 using Edo.Transport;
 using ExportTo1c.Library.Factories;
@@ -12,6 +12,7 @@ using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MySqlConnector;
+using Notifications.Infrastructure;
 using Osrm;
 using Pacs.Admin.Client;
 using Pacs.Admin.Client.Consumers;
@@ -23,7 +24,6 @@ using Pacs.Core.Messages.Events;
 using Pacs.Operators.Client;
 using Pacs.Operators.Client.Consumers;
 using Pacs.Operators.Client.Consumers.Definitions;
-using PushNotifications.Infrastructure;
 using QS.Attachments;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions;
@@ -50,7 +50,6 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using TransactionalOutbox.Abstractions;
-using TransactionalOutbox.Builders;
 using TrueMark.Codes.Pool;
 using TrueMarkApi.Client;
 using Vodovoz.Additions;
@@ -58,7 +57,6 @@ using Vodovoz.Application;
 using Vodovoz.Application.Pacs;
 using Vodovoz.Commons;
 using Vodovoz.Core;
-using Vodovoz.Core.Application;
 using Vodovoz.Core.Application.Entity;
 using Vodovoz.Core.Application.Logistics.Fuel;
 using Vodovoz.Core.Data.NHibernate;
@@ -117,6 +115,8 @@ using Vodovoz.ViewModels.ViewModels.Reports.Payments;
 using VodovozInfrastructure;
 using VodovozInfrastructure.Services;
 using DocumentPrinter = Vodovoz.Core.DocumentPrinter;
+using CustomerNotifications.Contracts;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 
 namespace Vodovoz
 {
@@ -270,10 +270,9 @@ namespace Vodovoz
 				.AddScoped<IPasswordValidator, PasswordValidator>()
 				.AddScoped<IPasswordValidationSettings, DefaultPasswordValidationSettings>()
 				.AddScoped<IDriverScheduleService, DriverScheduleService>()
-				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>,	CustomerNotificationsIntegrationEventBuilder>()
-				.AddScoped<IOutboxMessageBuilder<CustomerNotificationDomainEvent>, OutboxMessageBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
-				.AddScoped(typeof(IOutboxPushNotificationPublisher<>), typeof(OutBoxPushNotificationPublisher<>))																			
-				.AddSingleton<ICustomerPushNotificationsSettingsProvider>(sp =>
+				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>,	CustomerNotificationsIntegrationEventBuilder>()																		
+				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>,OutBoxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+				.AddSingleton<ICustomerNotificationsSettingsProvider>(sp =>
 				{
 					var uowFactory = sp.GetRequiredService<IUnitOfWorkFactory>();
 
@@ -284,10 +283,10 @@ namespace Vodovoz
 
 						var readOnlySettings = new ReadOnlyDictionary<CustomerNotificationEventType, OnlineOrderNotificationSetting>(settingsDict);
 
-						return new CustomerPushNotificationsSettingsProvider(readOnlySettings);
+						return new CustomerNotificationsSettingsProvider(readOnlySettings);
 					}
 				})				
-				.AddSingleton<IOutBoxSettingsProvider<CustomerNotificationDomainEvent>>(sp => sp.GetRequiredService<ICustomerPushNotificationsSettingsProvider>())				
+				.AddSingleton<IOutBoxSettingsProvider<CustomerNotificationDomainEvent>>(sp => sp.GetRequiredService<ICustomerNotificationsSettingsProvider>())				
 				;
 
 			services.AddStaticHistoryTracker();

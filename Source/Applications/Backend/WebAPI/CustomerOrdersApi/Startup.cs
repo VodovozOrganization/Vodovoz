@@ -1,8 +1,6 @@
-using CustomerOrdersApi.HealthCheck;
+﻿using CustomerOrdersApi.HealthCheck;
 using CustomerOrdersApi.Library;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
-using CustomerPushNotifications.Contracts;
-using CustomerPushNotifications.Transport;
 using DriverApi.Notifications.Client;
 using MassTransit;
 using MessageTransport;
@@ -12,14 +10,10 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
-using PushNotifications.Infrastructure;
 using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Services;
 using System;
-using System.Net.Security;
-using System.Security.Authentication;
 using Osrm;
 using Vodovoz;
 using Vodovoz.Core.Application;
@@ -31,7 +25,7 @@ using Vodovoz.Presentation.WebApi;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Trackers;
 using VodovozHealthCheck;
-
+using CustomerNotifications.Transport;
 
 namespace CustomerOrdersApi
 {
@@ -86,15 +80,9 @@ namespace CustomerOrdersApi
 				{
 					busConf.AddRequestClient<CreatedOnlineOrder>(new Uri($"exchange:{CreatingOnlineOrder.ExchangeAndQueueName}"));
 					busConf.ConfigureRabbitMq();
-					busConf.ConfigureCustomerNotificationRabbitMq(services, Configuration);
+					busConf.ConfigureCustomerNotificationsRabbitMq(services, Configuration);
 				})
 				.AddHttpClient();
-
-
-
-			services.AddScoped<
-				IPushNotificationsPublisher<CustomerNotificationDomainEvent>,
-				PushNotificationsPublisher<CustomerNotificationDomainEvent, ICustomerPushNotificationsBus, CustomerNotificationIntegrationEvent>>();
 
 			services.ConfigureHealthCheckService<CustomerOrdersApiHealthCheck, ServiceInfoProvider>();
 		}

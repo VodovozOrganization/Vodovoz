@@ -38,9 +38,9 @@ namespace TransactionalOutbox.Persistence
 
             await conn.ExecuteAsync(sql, new
             {
-                message.Payload,
+                message.PayloadJson,
                 message.DeduplicationKey,
-                message.MessageType,
+                message.Type,
                 message.CreatedAt,
                 message.Attempts
             }, transaction);

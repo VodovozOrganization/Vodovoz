@@ -3,7 +3,6 @@ using QS.DomainModel.Entity.EntityPermissions;
 using QS.HistoryLog;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using CustomerPushNotifications.Contracts;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
 
 namespace Vodovoz.Core.Domain.Orders

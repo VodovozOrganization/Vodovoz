@@ -1,11 +1,7 @@
-﻿using CustomerPushNotifications.Transport;
+﻿using CustomerNotifications.Transport;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
-using System;
-using System.Net.Security;
-using System.Security.Authentication;
 using TransactionalOutbox.Abstractions;
 using TransactionalOutbox.Persistence;
 
@@ -28,10 +24,10 @@ namespace OutboxWorker
 
 					services.AddMassTransit(busConf =>
 					{
-						busConf.ConfigureCustomerNotificationRabbitMq(services, hostContext.Configuration);
+						busConf.ConfigureCustomerNotificationsRabbitMq(services, hostContext.Configuration);
 
 					});
-					
+
 					services.AddScoped<IOutboxRepository, OutboxRepository>();
 
 					services.AddHostedService<OutboxWorker>();

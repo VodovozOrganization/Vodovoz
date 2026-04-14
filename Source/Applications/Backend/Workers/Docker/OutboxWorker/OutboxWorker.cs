@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using CustomerPushNotifications.Contracts;
+using Vodovoz.Core.Domain.Clients;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using TransactionalOutbox.Abstractions;
 using TransactionalOutbox.Extensions;
+using CustomerNotifications.Contracts;
 
 namespace OutboxWorker
 {
@@ -21,7 +22,11 @@ namespace OutboxWorker
 		private readonly IServiceScopeFactory _scopeFactory;
 		private readonly ILogger<OutboxWorker> _logger;
 
-		private static readonly Dictionary<string, Type> KnownTypes =
+		// Кэш для ускорения разрешения типов.
+		// Предполагается, что набор типов сообщений ограничен и известен заранее.
+		// Если в будущем появятся новые типы, их нужно будет добавить в эту коллекцию.
+
+		private static readonly Dictionary<string, Type> _knownTypes =
 			typeof(CustomerNotificationIntegrationEvent).Assembly
 				.GetTypes()
 				.Where(t => t.FullName != null)
@@ -39,10 +44,13 @@ namespace OutboxWorker
 
 		private Type ResolveType(string typeName)
 		{
-			if(KnownTypes.TryGetValue(typeName, out var type))
+			if(_knownTypes.TryGetValue(typeName, out var type))
+			{
 				return type;
+			}
 
 			_logger.LogWarning("Тип не найден: {TypeName}", typeName);
+
 			return null;
 		}
 
@@ -75,21 +83,25 @@ namespace OutboxWorker
 					{
 						try
 						{
-							var type = ResolveType(msg.MessageType);
+							var type = ResolveType(msg.Type);
+
 							if(type == null)
 							{
-								throw new Exception($"Type not found {msg.MessageType}");
+								throw new Exception($"Type not found {msg.Type}");
 							}
 
-							var integrationEvent = msg.Payload?.Deserialize(type);
-							if(integrationEvent == null)
+							var @event = msg.PayloadJson?.DeserializeFromOutbox(type);
+
+							if(@event == null)
 							{
 								_logger.LogWarning("Десериализация вернула null для сообщения {Guid}", msg.Guid);
+
 								await outboxRepository.IncrementAttemptsAsync(conn, msg.Guid, "Deserialization returned null", tx);
+
 								continue;
 							}
 							
-							await publishEndpoint.Publish(integrationEvent, type, token);
+							await publishEndpoint.Publish(@event, type, token);
 							
 							await outboxRepository.MarkAsSentAsync(conn, msg.Guid, tx);
 						}

@@ -1,18 +1,20 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using CustomerOrdersApi.Library.Common;
+﻿using CustomerOrdersApi.Library.Common;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using CustomerOrdersApi.Library.V4.Services;
-using CustomerPushNotifications.Contracts;
+using Vodovoz.Core.Domain.Clients;
 using Gamma.Utilities;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using PushNotifications.Infrastructure;
+using Notifications.Infrastructure;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Presentation.WebApi.Messages;
+using CustomerNotifications.Contracts;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 
 namespace CustomerOrdersApi.Controllers.V4
 {
@@ -21,18 +23,18 @@ namespace CustomerOrdersApi.Controllers.V4
 	{
 		private readonly ICustomerOrdersServiceV4 _customerOrdersService;
 		private readonly IRequestClient<CreatingOnlineOrder> _requestClient;
-		private readonly IPushNotificationsPublisher<CustomerNotificationDomainEvent> _customerPushNotificationsService;
+		private readonly INotificationsPublisher<CustomerNotificationDomainEvent> _customerNotificationsPublisher;
 
 		public OrdersController(
 			ILogger<OrdersController> logger,
 			ICustomerOrdersServiceV4 customerOrdersService,
 			IRequestClient<CreatingOnlineOrder> requestClient,
-			IPushNotificationsPublisher<CustomerNotificationDomainEvent> customerPushNotificationsService
+			INotificationsPublisher<CustomerNotificationDomainEvent> customerNotificationsPublisher
 			) : base(logger)
 		{
 			_customerOrdersService = customerOrdersService ?? throw new ArgumentNullException(nameof(customerOrdersService));
 			_requestClient = requestClient ?? throw new ArgumentNullException(nameof(requestClient));
-			_customerPushNotificationsService = customerPushNotificationsService ?? throw new ArgumentNullException(nameof(customerPushNotificationsService));
+			_customerNotificationsPublisher = customerNotificationsPublisher ?? throw new ArgumentNullException(nameof(customerNotificationsPublisher));
 		}
 
 		[HttpPost]
@@ -200,7 +202,8 @@ namespace CustomerOrdersApi.Controllers.V4
 
 					if(needPaymentAwaitingNotification)
 					{
-						await _customerPushNotificationsService.PublishAsync(new CustomerNotificationDomainEvent(changingOrderDto.OnlineOrderId.Value, CustomerNotificationEventType.OrderAwaitingPayment), cancellationToken);
+						var customerEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.OrderAwaitingPayment, changingOrderDto.Source, changingOrderDto.OnlineOrderId.Value);
+						await _customerNotificationsPublisher.PublishAsync(customerEvent, cancellationToken);
 					}
 
 					var needOrderPaidNotification =
@@ -211,7 +214,8 @@ namespace CustomerOrdersApi.Controllers.V4
 
 					if(needOrderPaidNotification)
 					{
-						await _customerPushNotificationsService.PublishAsync(new CustomerNotificationDomainEvent(changingOrderDto.OnlineOrderId.Value, CustomerNotificationEventType.OrderPaid), cancellationToken);
+						var customerEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.OrderPaid, changingOrderDto.Source, changingOrderDto.OnlineOrderId.Value);
+						await _customerNotificationsPublisher.PublishAsync(customerEvent, cancellationToken);
 					}
 
 					return Ok(result.Value);

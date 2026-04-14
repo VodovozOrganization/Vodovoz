@@ -1,7 +1,6 @@
-using CustomerPushNotifications.Contracts;
+﻿using Vodovoz.Core.Domain.Clients;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
-using PushNotifications.Infrastructure;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -10,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Application.Errors;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
@@ -38,10 +36,8 @@ using VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters;
 using VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters.Specifications;
 using VodovozBusiness.Domain.Goods.Specifications;
 using VodovozBusiness.Domain.Logistic.Specifications;
-using VodovozBusiness.Extensions;
 using VodovozBusiness.Services.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
-using CustomerPushNotifications.Application.Converters;
 
 namespace Vodovoz.Core.Application.Orders.Services
 {
@@ -75,7 +71,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly IOrderContractUpdater _orderContractUpdater;
 		private readonly IOrderConfirmationService _orderConfirmationService;
 		private readonly IPaymentItemsRepository _paymentItemsRepository;
-		private readonly IOutboxPushNotificationPublisher<CustomerNotificationDomainEvent> _customerPushNotificationService;
 		
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -101,8 +96,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IGenericRepository<Nomenclature> nomenclatureGenericRepository,
 			IOrderContractUpdater orderContractUpdater,
 			IOrderConfirmationService orderConfirmationService,
-			IPaymentItemsRepository paymentItemsRepository,
-			IOutboxPushNotificationPublisher<CustomerNotificationDomainEvent> customerPushNotificationService)
+			IPaymentItemsRepository paymentItemsRepository)
 		{
 			if(nomenclatureSettings is null)
 			{
@@ -132,7 +126,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 			_orderConfirmationService = orderConfirmationService ?? throw new ArgumentNullException(nameof(orderConfirmationService));
 			_paymentItemsRepository = paymentItemsRepository ?? throw new ArgumentNullException(nameof(paymentItemsRepository));
-			_customerPushNotificationService = customerPushNotificationService ?? throw new ArgumentNullException(nameof(customerPushNotificationService));
 			PaidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
 			ForfeitNomenclatureId = nomenclatureSettings.ForfeitId;
 		}
@@ -662,10 +655,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 			}
 
 			onlineOrder.SetOrderPerformed(new []{ order }, employee);
-			
-			var notificationType = onlineOrder.GetExternalOrderStatus().ToCustomerNotificationEventType();
-			
-			_customerPushNotificationService.Publish(uow, new CustomerNotificationDomainEvent(onlineOrder.Id, notificationType));
 
 			await uow.CommitAsync(cancellationToken);
 

@@ -10,7 +10,6 @@
     <ProjectReference Include="..\..\Backend\Mango\Mango.Grpc.Client\Mango.Grpc.Client.csproj" />
     <ProjectReference Include="..\..\Backend\Sms\Sms.Internal.Client.Famework\Sms.Internal.Client.Framework.csproj" />
     <ProjectReference Include="..\Vodovoz.Core.Application\Vodovoz.Core.Application.csproj" />
-    <ProjectReference Include="..\..\PushNotifications\CustomerPushNotifications.Application\CustomerPushNotifications.Application.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,11 +1,11 @@
-﻿using CustomerPushNotifications.Contracts;
+﻿using Vodovoz.Core.Domain.Clients;
 using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Requests;
 using Edo.Transport;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
-using PushNotifications.Infrastructure;
+using Notifications.Infrastructure;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -29,7 +29,6 @@ using System.Threading.Tasks;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Application.Orders;
 using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
@@ -61,6 +60,7 @@ using VodovozBusiness.NotificationSenders;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.TrueMark;
 using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
+using CustomerNotifications.Contracts;
 
 namespace Vodovoz
 {
@@ -95,7 +95,7 @@ namespace Vodovoz
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender;
 		private readonly OrderCancellationService _orderCancellationService;
-		private readonly IOutboxPushNotificationPublisher<CustomerNotificationDomainEvent> _customerPushNotificationService;
+		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
 		private bool _canClose = true;
 		private IEnumerable<object> _selectedRouteListAddressesObjects = Enumerable.Empty<object>();
@@ -134,7 +134,7 @@ namespace Vodovoz
 			IRouteListService routeListService,
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
 			OrderCancellationService orderCancellationService,
-			IOutboxPushNotificationPublisher<CustomerNotificationDomainEvent> customerPushNotificationService
+			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher
 			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
@@ -164,7 +164,7 @@ namespace Vodovoz
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
-			_customerPushNotificationService = customerPushNotificationService ?? throw new ArgumentNullException(nameof(customerPushNotificationService));
+			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 			TabName = $"Ведение МЛ №{Entity.Id}";
 
 			_permissionResult = _currentPermissionService.ValidateEntityPermission(typeof(RouteList));
@@ -213,7 +213,7 @@ namespace Vodovoz
 
 		private void RollBackEnRouteStatus()
 		{
-			Entity.RollBackEnRouteStatus(UoW, _customerPushNotificationService);
+			Entity.RollBackEnRouteStatus(UoW, _customerNotificationPublisher);
 		}
 
 		private void CreateInitialRouteListItemStatuses()

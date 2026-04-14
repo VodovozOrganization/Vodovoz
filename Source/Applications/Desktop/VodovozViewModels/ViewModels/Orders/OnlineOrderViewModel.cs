@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -13,7 +13,6 @@ using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
-using Vodovoz.Application.Mango;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -30,10 +29,8 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
-using VodovozBusiness.Extensions;
-using CustomerPushNotifications.Application.Converters;
-using PushNotifications.Infrastructure;
-using CustomerPushNotifications.Contracts;
+using Notifications.Infrastructure;
+using Vodovoz.Core.Domain.Clients;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {
@@ -42,7 +39,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private readonly IOrderFromOnlineOrderValidator _onlineOrderValidator;
 		private readonly ViewModelEEVMBuilder<DeliveryPoint> _deliveryPointViewModelBuilder;
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel;
-		private readonly IOutboxPushNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private readonly MangoManager _mangoManager;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly Employee _currentEmployee;
@@ -66,8 +62,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			DeliveryPointJournalFilterViewModel deliveryPointJournalFilterViewModel,
 			IDiscountController discountController,
 			MangoManager mangoManager,
-			IOrderOrganizationManager orderOrganizationManager,
-			IOutboxPushNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher
+			IOrderOrganizationManager orderOrganizationManager
 			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{			
@@ -94,7 +89,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				externalCounterpartyMatchingRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyMatchingRepository));
 			_lifetimeScope = scope ?? throw new ArgumentNullException(nameof(scope));
 			OrderOrganizationManager = orderOrganizationManager ?? throw new ArgumentNullException(nameof(orderOrganizationManager));
-			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 			GetTimers();
 			SetPermissions();
 			CreateCommands();
@@ -260,13 +254,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private bool OrderIsNullAndOnlineOrderNotCanceledStatus =>
 			!Entity.Orders.Any() && Entity.OnlineOrderStatus != OnlineOrderStatus.Canceled;
 
-		public void PublishCustomerNotification()
-		{
-			var notificationType = Entity.GetExternalOrderStatus().ToCustomerNotificationEventType();
-
-			_customerNotificationPublisher.Publish(UoW, new CustomerNotificationDomainEvent(Entity.Id, notificationType));
-		}
-
 		public void ShowMessage(string message, string title = null)
 		{
 			ShowInfoMessage(message, title);
@@ -352,8 +339,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 						Entity.OnlineOrderStatus = oldStatus;
 						return;
 					}
-
-					PublishCustomerNotification();
 
 					Close(false, CloseSource.Save);
 				});
