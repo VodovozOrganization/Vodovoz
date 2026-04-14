@@ -27,9 +27,9 @@ namespace Edo.Problems.Routine
 			IServiceScopeFactory serviceScopeFactory,
 			IEdoService edoService)
 		{
-			_logger = logger;
-			_serviceScopeFactory = serviceScopeFactory;
-			_edoService = edoService;
+			_logger = logger ?? throw new  ArgumentNullException(nameof(logger));
+			_serviceScopeFactory = serviceScopeFactory  ?? throw new  ArgumentNullException(nameof(serviceScopeFactory));
+			_edoService = edoService  ?? throw new  ArgumentNullException(nameof(edoService));
 
 			Interval = TimeSpan.FromMinutes(_intervalMinutes);
 		}
@@ -92,6 +92,8 @@ namespace Edo.Problems.Routine
 
 						await uow.SaveAsync(problem, cancellationToken: stoppingToken);
 						await uow.SaveAsync(orderEdoTask, cancellationToken: stoppingToken);
+						
+						await uow.CommitAsync(stoppingToken);
 					}
 					else
 					{
@@ -104,7 +106,6 @@ namespace Edo.Problems.Routine
 					edoTasks.Remove(t);
 				}
 
-				await uow.CommitAsync(stoppingToken);
 
 				foreach(var edoTask in edoTasks)
 				{
