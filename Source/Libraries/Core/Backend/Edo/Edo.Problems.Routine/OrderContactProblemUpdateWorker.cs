@@ -34,9 +34,9 @@ namespace Edo.Problems.Routine
 		{
 			try
 			{
-				await _zabbixSender.SendIsHealthyAsync(stoppingToken);
-				
 				await _contactProblemUpdateService.UpdateEdoTaskWithContactProblemAsync(stoppingToken);
+				
+				await _zabbixSender.SendIsHealthyAsync(stoppingToken);
 			}
 			catch(Exception e)
 			{
