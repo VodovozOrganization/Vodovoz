@@ -72,5 +72,12 @@ namespace EdoService.Library
 		/// <param name="dockflowData"></param>
 		/// <returns></returns>
 		Result ValidateOutgoingDocument(IUnitOfWork uow, EdoDockflowData dockflowData);
+		
+		/// <summary>
+		/// Попытка продолжить документооборот через ивент
+		/// </summary>
+		/// <param name="edoTask"></param>
+		/// <returns></returns>
+		Result ContinueDocflow(EdoTask edoTask);
 	}
 }

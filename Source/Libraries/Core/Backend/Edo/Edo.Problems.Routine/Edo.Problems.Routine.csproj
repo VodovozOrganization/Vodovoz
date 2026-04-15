@@ -8,6 +8,7 @@
       <ProjectReference Include="..\..\..\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
       <ProjectReference Include="..\..\..\EdoService\EdoService.Library.csproj" />
       <ProjectReference Include="..\..\Infrastructure\BackendInfrastructure\BackendInfrastructure.csproj" />
+      <ProjectReference Include="..\..\Vodovoz.Zabbix.Sender\Vodovoz.Zabbix.Sender.csproj" />
       <ProjectReference Include="..\Edo.Common\Edo.Common.csproj" />
     </ItemGroup>
 

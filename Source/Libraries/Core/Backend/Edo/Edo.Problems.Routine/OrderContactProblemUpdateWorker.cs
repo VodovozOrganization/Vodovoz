@@ -8,27 +8,35 @@ using EdoService.Library;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure;
+using Vodovoz.Zabbix.Sender;
 
 namespace Edo.Problems.Routine
 {
 	public class OrderContactProblemUpdateWorker : TimerBackgroundServiceBase
 	{
 		private readonly ILogger<OrderContactProblemUpdateWorker> _logger;
+		private readonly IZabbixSender _zabbixSender;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
+		private readonly IEdoRepository _edoRepository;
 		private readonly IEdoService _edoService;
 
-		private readonly int _intervalMinutes = 15;
+		private readonly int _intervalMinutes = 60;
 		
 		public OrderContactProblemUpdateWorker(
 			ILogger<OrderContactProblemUpdateWorker> logger,
+			IZabbixSender zabbixSender,
 			IServiceScopeFactory serviceScopeFactory,
+			IEdoRepository edoRepository,
 			IEdoService edoService)
 		{
 			_logger = logger ?? throw new  ArgumentNullException(nameof(logger));
+			_zabbixSender = zabbixSender ?? throw new  ArgumentNullException(nameof(zabbixSender));
 			_serviceScopeFactory = serviceScopeFactory  ?? throw new  ArgumentNullException(nameof(serviceScopeFactory));
+			_edoRepository = edoRepository  ?? throw new  ArgumentNullException(nameof(edoRepository));
 			_edoService = edoService  ?? throw new  ArgumentNullException(nameof(edoService));
 
 			Interval = TimeSpan.FromMinutes(_intervalMinutes);
@@ -52,6 +60,8 @@ namespace Edo.Problems.Routine
 
 				using var uow = unitOfWorkFactory.CreateWithoutRoot("Проверка исправления клиента в заказе");
 
+				await _zabbixSender.SendIsHealthyAsync(stoppingToken);
+				
 				var edoTasks = (await edoTaskRepository
 						.GetAsync(uow,
 							x => x.CreationTime >= startDate
@@ -74,39 +84,46 @@ namespace Edo.Problems.Routine
 					var request = orderEdoTask.FormalEdoRequest;
 					var order = request.Order;
 
-					var contact = edoOrderContactProvider.GetContact(order);
-
-					if(order.Client != null && contact.IsValid)
+					try
 					{
-						var problem = orderEdoTask.Problems.FirstOrDefault(problem =>
-							(problem.SourceName is "OrderContactMissingException" or "Receipt.ContactValid")
-							&& problem.State == TaskProblemState.Active);
+						var contact = edoOrderContactProvider.GetContact(order);
 						
-						if(problem == null)
+						if(order.Client != null && contact.IsValid)
 						{
-							continue;
-						}
-
-						problem.State = TaskProblemState.Solved;
-						orderEdoTask.Status = EdoTaskStatus.InProgress;
-
-						await uow.SaveAsync(problem, cancellationToken: stoppingToken);
-						await uow.SaveAsync(orderEdoTask, cancellationToken: stoppingToken);
+							var problem = orderEdoTask.Problems.FirstOrDefault(problem =>
+								(problem.SourceName is "OrderContactMissingException" or "Receipt.ContactValid")
+								&& problem.State == TaskProblemState.Active);
 						
-						await uow.CommitAsync(stoppingToken);
+							if(problem == null)
+							{
+								continue;
+							}
+
+							problem.State = TaskProblemState.Solved;
+							orderEdoTask.Status = EdoTaskStatus.InProgress;
+
+							await uow.SaveAsync(problem, cancellationToken: stoppingToken);
+							await uow.SaveAsync(orderEdoTask, cancellationToken: stoppingToken);
+						
+							await uow.CommitAsync(stoppingToken);
+						}
+						else
+						{
+							tasksToRemove.Add(edoTask);
+						}
 					}
-					else
+					catch(Exception e)
 					{
 						tasksToRemove.Add(edoTask);
 					}
+					
 				}
 
 				foreach (var t in tasksToRemove)
 				{
 					edoTasks.Remove(t);
 				}
-
-
+				
 				foreach(var edoTask in edoTasks)
 				{
 					if(edoTask is not OrderEdoTask orderEdoTask)
@@ -124,8 +141,17 @@ namespace Edo.Problems.Routine
 						continue;
 					}
 					
+					var documents = _edoRepository.GetOrderEdoDocumentsByOrderId(uow, order.Id);
+					
+					if(documents == null || !documents.Any())
+					{
+						_edoService.ContinueDocflow(edoTask);
+						
+						continue;
+					}
+					
 					var resendResult = _edoService.ResendEdoDocumentForOrder(order);
-
+					
 					if(!resendResult.IsFailure)
 					{
 						continue;

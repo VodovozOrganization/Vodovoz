@@ -67,10 +67,10 @@ namespace EdoService.Library
 			{
 				var documents = _edoRepository.GetOrderEdoDocumentsByOrderId(uow, order.Id);
 
-				if(documents == null || documents.Count() == 0)
-				{
-					return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.HasProblem);
-				}
+					if(documents == null || documents.Count() == 0)
+					{
+						return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.HasProblem);
+					}
 
 				foreach(var doc in documents)
 				{
@@ -403,6 +403,16 @@ namespace EdoService.Library
 				return ValidateOrderForDocumentTypeResult;
 			}
 
+			return Result.Success();
+		}
+
+		public Result ContinueDocflow(EdoTask edoTask)
+		{
+			_messageService.PublishSendDocumentTaskCreatedEvent(edoTask.Id)
+				.ConfigureAwait(false)
+				.GetAwaiter()
+				.GetResult();
+			
 			return Result.Success();
 		}
 
