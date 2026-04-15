@@ -67,10 +67,10 @@ namespace EdoService.Library
 			{
 				var documents = _edoRepository.GetOrderEdoDocumentsByOrderId(uow, order.Id);
 
-					if(documents == null || documents.Count() == 0)
-					{
-						return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.HasProblem);
-					}
+				if(documents == null || documents.Count() == 0)
+				{
+					return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.HasProblem);
+				}
 
 				foreach(var doc in documents)
 				{
@@ -92,7 +92,7 @@ namespace EdoService.Library
 
 				var document = documents.First();
 
-				if(!(document.Type == OutgoingEdoDocumentType.Order))
+				if(document.Type != OutgoingEdoDocumentType.Order)
 				{
 					return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.CreateInvalidOutgoingDocumentType(order.Id, document.Type));
 				}
