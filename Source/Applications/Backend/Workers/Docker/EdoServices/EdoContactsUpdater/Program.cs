@@ -66,6 +66,7 @@ namespace EdoContactsUpdater
 						.AddHttpClient()
 						.AddTaxcomClient()
 						.ConfigureZabbixSenderFromDataBase(nameof(TaxcomEdoContactsUpdaterService))
+						.ConfigureZabbixSenderFromDataBase(nameof(OrderContactProblemUpdateWorker))
 						.AddScoped<IEdoRepository, EdoRepository>();
 					
 					services.AddHostedService<TaxcomEdoContactsUpdaterService>();
