@@ -1,4 +1,4 @@
-﻿using Edo.Transfer.Routine.Options;
+using Edo.Transfer.Routine.Options;
 using Edo.Transport;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -13,6 +13,7 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Settings.Delivery;
@@ -69,7 +70,7 @@ namespace Edo.Transfer.Routine.Services
 					join client in uow.Session.Query<CounterpartyEntity>() on order.Client.Id equals client.Id
 					join contract in uow.Session.Query<CounterpartyContractEntity>()
 						on order.Contract.Id equals contract.Id
-					join organization in uow.Session.Query<CounterpartyEntity>()
+					join organization in uow.Session.Query<OrganizationEntity>()
 						on contract.Organization.Id equals organization.Id
 					join er in uow.Session.Query<FormalEdoRequest>() on order.Id equals er.Order.Id into edoRequests
 					from edoRequest in edoRequests.DefaultIfEmpty()
