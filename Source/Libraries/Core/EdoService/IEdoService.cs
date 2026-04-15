@@ -74,10 +74,10 @@ namespace EdoService.Library
 		Result ValidateOutgoingDocument(IUnitOfWork uow, EdoDockflowData dockflowData);
 		
 		/// <summary>
-		/// Попытка продолжить документооборот через ивент
+		/// Публикует ивент в rabbit о создании ЭДО задачи
 		/// </summary>
 		/// <param name="edoTask"></param>
 		/// <returns></returns>
-		Result ContinueDocflow(EdoTask edoTask);
+		Result SendDocumentTaskCreatedEvent(EdoTask edoTask);
 	}
 }

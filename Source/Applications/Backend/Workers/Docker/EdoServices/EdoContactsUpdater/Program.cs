@@ -13,6 +13,7 @@ using QS.HistoryLog;
 using MessageTransport;
 using QS.Project.Core;
 using TaxcomEdo.Client;
+using Vodovoz.Core.Application.Problems.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Core.Data.NHibernate.Repositories.Edo;
@@ -55,11 +56,11 @@ namespace EdoContactsUpdater
 						.AddTrackedUoW()
 						.AddMessageTransportSettings()
 						.AddEdoMassTransit()
-						
+
 						.AddInfrastructure(ServiceLifetime.Singleton)
 						.AddStaticHistoryTracker()
 						.AddStaticScopeForEntity()
-						
+
 						.Configure<TaxcomContactsUpdaterOptions>(hostContext.Configuration.GetSection(TaxcomContactsUpdaterOptions.Path))
 
 						.AddSingleton<IEdoContactStateCodeConverter, EdoContactStateCodeConverter>()
@@ -67,7 +68,9 @@ namespace EdoContactsUpdater
 						.AddTaxcomClient()
 						.ConfigureZabbixSenderFromDataBase(nameof(TaxcomEdoContactsUpdaterService))
 						.ConfigureZabbixSenderFromDataBase(nameof(OrderContactProblemUpdateWorker))
-						.AddScoped<IEdoRepository, EdoRepository>();
+						.AddScoped<IEdoRepository, EdoRepository>()
+						.AddScoped<IOrderContactProblemUpdateService, OrderContactProblemUpdateService>()
+						;
 					
 					services.AddHostedService<TaxcomEdoContactsUpdaterService>();
 					services.AddHostedService<OrderContactProblemUpdateWorker>();

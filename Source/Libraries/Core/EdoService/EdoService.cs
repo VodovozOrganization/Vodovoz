@@ -406,7 +406,7 @@ namespace EdoService.Library
 			return Result.Success();
 		}
 
-		public Result ContinueDocflow(EdoTask edoTask)
+		public Result SendDocumentTaskCreatedEvent(EdoTask edoTask)
 		{
 			_messageService.PublishSendDocumentTaskCreatedEvent(edoTask.Id)
 				.ConfigureAwait(false)
