@@ -800,6 +800,14 @@ namespace Vodovoz.Core.Domain.Orders
 		public virtual bool IsCashlessPaymentTypeAndOrganizationWithoutVAT => PaymentType == PaymentType.Cashless
 			&& Contract?.Organization?.GetActualVatRateVersion(DeliveryDate)?.VatRate.VatRateValue == 0;
 
+		public virtual void RecalculateVat()
+		{
+			for(var i = 0; i < OrderItems.Count; i++)
+			{
+				OrderItems[i].CalculateVATType();
+			}
+		}
+
 		public override string ToString()
 		{
 			if(IsLoadedFrom1C)

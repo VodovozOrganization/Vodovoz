@@ -134,6 +134,16 @@ namespace Vodovoz.Domain.Logistic
 
 			var points = new List<PointOnEarth>();
 			var lastPoint = lastAddress.Order.DeliveryPoint;
+
+			if(!lastPoint.CoordinatesExist)
+			{
+				_logger.Error($"У ТД №{lastPoint.Id} нет установленных координат");
+				return Result.Failure<RouteResponse>(
+					new Error(
+						"DistanceToBaseResponse",
+						$"У ТД №{lastPoint.Id} нет установленных координат! Нельзя рассчитать расстояние до базы"));
+			}
+			
 			points.Add(new PointOnEarth(lastPoint.Latitude.Value, lastPoint.Longitude.Value));
 
 			GeoGroupVersion geoGroupVersion = null;

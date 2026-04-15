@@ -455,6 +455,11 @@ namespace EdoDocumentsPreparer
 						continue;
 					}
 
+					if(printableRdlDocument is ISignableDocument signableRdlDocument)
+					{
+						signableRdlDocument.HideSignature = true;
+					}
+
 					var billAttachment = _printableDocumentSaver.SaveToPdf(printableRdlDocument);
 					var orderInfo = _orderConverter.ConvertOrderToOrderInfoForEdo(order, DocumentContainerType.Bill);
 					var infoForCreatingEdoBill = _billInfoFactory.CreateInfoForCreatingEdoBill(
@@ -615,6 +620,12 @@ namespace EdoDocumentsPreparer
 				orderWithoutShipmentInfo =
 					_orderWithoutShipmentConverter.ConvertOrderWithoutShipmentForDebtToOrderWithoutShipmentInfo(
 						orderWithoutShipmentForDebt, organization, now);
+
+				if(orderWithoutShipmentForDebt is ISignableDocument signableRdlDocument)
+				{
+					signableRdlDocument.HideSignature = true;
+				}
+
 				billAttachment = _printableDocumentSaver.SaveToPdf(orderWithoutShipmentForDebt);
 
 				edoContainerBuilder.BillWithoutShipmentForDebt(orderWithoutShipmentForDebt);
@@ -625,6 +636,12 @@ namespace EdoDocumentsPreparer
 				orderWithoutShipmentInfo =
 					_orderWithoutShipmentConverter.ConvertOrderWithoutShipmentForPaymentToOrderWithoutShipmentInfo(
 						orderWithoutShipmentForPayment, organization, now);
+
+				if(orderWithoutShipmentForPayment is ISignableDocument signableRdlDocument)
+				{
+					signableRdlDocument.HideSignature = true;
+				}
+
 				billAttachment = _printableDocumentSaver.SaveToPdf(orderWithoutShipmentForPayment);
 
 				edoContainerBuilder.BillWithoutShipmentForPayment(orderWithoutShipmentForPayment);
@@ -635,6 +652,12 @@ namespace EdoDocumentsPreparer
 				orderWithoutShipmentInfo =
 					_orderWithoutShipmentConverter.ConvertOrderWithoutShipmentForAdvancePaymentToOrderWithoutShipmentInfo(
 						orderWithoutShipmentForAdvancePayment, organization, now);
+
+				if(orderWithoutShipmentForAdvancePayment is ISignableDocument signableRdlDocument)
+				{
+					signableRdlDocument.HideSignature = true;
+				}
+
 				billAttachment = _printableDocumentSaver.SaveToPdf(orderWithoutShipmentForAdvancePayment);
 
 				edoContainerBuilder.BillWithoutShipmentForAdvancePayment(orderWithoutShipmentForAdvancePayment);
