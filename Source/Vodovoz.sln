@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34009.444
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -626,6 +626,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OnlineOrders", "OnlineOrders", "{B813852E-1227-44E1-BB50-F862A67C60C3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomerOnlineOrdersUpdater", "Applications\Backend\Workers\Docker\OnlineOrders\CustomerOnlineOrdersUpdater\CustomerOnlineOrdersUpdater.csproj", "{CA40BF2B-C55F-4AA6-909A-4B146603682F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Edo.Problems.Routine", "Libraries\Core\Backend\Edo\Edo.Problems.Routine\Edo.Problems.Routine.csproj", "{E0A31FBB-24AE-46C5-9907-57190F654D3C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

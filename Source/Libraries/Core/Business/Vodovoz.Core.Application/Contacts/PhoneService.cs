@@ -28,7 +28,7 @@ namespace Vodovoz.Core.Application.Contacts
 			IGenericRepository<RouteList> routeListRepository,
 			IGenericRepository<Phone> phoneRepository,
 			IGenericRepository<Order> orderRepository)
-		{
+		{	
 			_unitOfWorkFactory = unitOfWorkFactory
 				?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_employeeRepository = employeeRepository
