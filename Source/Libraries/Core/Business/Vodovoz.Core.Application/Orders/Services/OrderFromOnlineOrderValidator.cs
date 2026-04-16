@@ -355,37 +355,39 @@ namespace Vodovoz.Core.Application.Orders.Services
 			ValidateDiscountParametersFromNotPromoSet(onlineOrderItem, checkOnlineOrderSum);
 		}
 
+		// Обдумать
 		private void ValidateDiscountParametersFromNotPromoSet(OnlineOrderItem onlineOrderItem, CheckOnlineOrderSum checkOnlineOrderSum)
 		{
-			if(onlineOrderItem.DiscountReason != null)
-			{
-				var applicableDiscount =
-					_discountController.IsApplicableDiscount(onlineOrderItem.DiscountReason, onlineOrderItem.Nomenclature);
+			var applicableDiscounts = onlineOrderItem.DiscountReasons
+				.Where(reason => _discountController.IsApplicableDiscount(reason, onlineOrderItem.Nomenclature))
+				.ToList();
 
-				if(applicableDiscount)
+			if(applicableDiscounts.Any())
+			{
+				foreach(var discountReason in applicableDiscounts)
 				{
 					ValidateApplicableDiscountFromNotPromoSet(onlineOrderItem, checkOnlineOrderSum);
 				}
-				else
+			}
+			else if(onlineOrderItem.DiscountReasons.Any())
+			{
+				foreach(var discountReason in onlineOrderItem.DiscountReasons)
 				{
 					ValidateNotApplicableDiscountFromNotPromoSet(onlineOrderItem);
 				}
 			}
-			else
+			else if(onlineOrderItem.GetDiscount > 0)
 			{
-				if(onlineOrderItem.GetDiscount > 0)
-				{
-					_validationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IncorrectDiscountNomenclatureInOnlineOrder(
-						onlineOrderItem.Nomenclature.ToString(), 0, onlineOrderItem.GetDiscount));
-				}
-						
+				_validationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IncorrectDiscountNomenclatureInOnlineOrder(
+					onlineOrderItem.Nomenclature.ToString(), 0, onlineOrderItem.GetDiscount));
 				onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
 			}
 		}
 
+		/// Обсудить с Андреем
 		private void ValidateApplicableDiscountFromNotPromoSet(OnlineOrderItem onlineOrderItem, CheckOnlineOrderSum checkOnlineOrderSum)
 		{
-			checkOnlineOrderSum.DiscountMoney =
+			/*checkOnlineOrderSum.DiscountMoney =
 				onlineOrderItem.DiscountReason.ValueType == DiscountUnits.money
 					? onlineOrderItem.DiscountReason.Value
 					: checkOnlineOrderSum.CalculateDiscountMoney(onlineOrderItem.DiscountReason.Value);
@@ -417,7 +419,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 						onlineOrderItem.OnlineOrderErrorState = OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable;
 					}
 					break;
-			}
+			}*/
 		}
 
 		private void ValidateNotApplicableDiscountFromNotPromoSet(OnlineOrderItem onlineOrderItem)

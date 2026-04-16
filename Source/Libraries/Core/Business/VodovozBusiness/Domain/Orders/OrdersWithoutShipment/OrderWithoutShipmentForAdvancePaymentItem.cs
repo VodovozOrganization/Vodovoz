@@ -319,6 +319,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			return canUseVat;
 		}
 		
+		//Посмотреть
 		public void SetDiscount(bool isDiscountInMoney, decimal discount, DiscountReason discountReason)
 		{
 			IsDiscountInMoney = isDiscountInMoney;

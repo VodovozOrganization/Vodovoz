@@ -27,7 +27,7 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Основание скидки <see cref="Vodovoz.Domain.Orders.DiscountReason"/>
 		/// </summary>
-		DiscountReason DiscountReason { get; set; }
+		DiscountReason DiscountReason { get; set; } //Нужно очень хорошо подумать
 		/// <summary>
 		/// Номенклатура <see cref="Vodovoz.Domain.Goods.Nomenclature"/>
 		/// </summary>

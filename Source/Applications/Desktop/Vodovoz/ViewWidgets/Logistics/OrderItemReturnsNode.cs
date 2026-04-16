@@ -238,7 +238,7 @@ namespace Vodovoz
 
 		public DiscountReason DiscountReason
 		{
-			get => IsEquipment ? _orderEquipment.OrderItem?.DiscountReason : _orderItem.DiscountReason;
+			get => IsEquipment ? _orderEquipment.OrderItem?.DiscountReason : _orderItem.DiscountReason; // А тут как?
 			set
 			{
 				if(IsEquipment)

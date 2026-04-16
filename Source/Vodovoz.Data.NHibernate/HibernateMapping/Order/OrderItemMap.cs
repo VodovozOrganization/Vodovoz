@@ -36,8 +36,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			References(x => x.Equipment).Column("equipment_id");
 			References(x => x.Nomenclature).Column("nomenclature_id");
 			References(x => x.Order).Column("order_id");
-			References(x => x.DiscountReason).Column("discount_reason_id");
-			References(x => x.OriginalDiscountReason).Column("original_discount_reason_id");
+			References(x => x.DiscountReason).Column("discount_reason_id"); // Delete this
+			References(x => x.OriginalDiscountReason).Column("original_discount_reason_id"); // Как с ней быть? // Delete this
 			References(x => x.PromoSet).Column("promotional_set_id");
 			References(x => x.PaidRentPackage).Column("paid_rent_package_id");
 			References(x => x.FreeRentPackage).Column("free_rent_package_id");

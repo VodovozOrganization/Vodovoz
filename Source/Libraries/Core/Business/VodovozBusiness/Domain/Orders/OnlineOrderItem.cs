@@ -1,8 +1,11 @@
-using QS.DomainModel.Entity;
+﻿using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Orders
@@ -111,6 +114,9 @@ namespace Vodovoz.Domain.Orders
 			protected set => SetField(ref _count, value);
 		}
 
+		/// <summary>
+		/// Ещё с этим надо разобраться
+		/// </summary>
 		[Display(Name = "Основание скидки на товар")]
 		public virtual DiscountReason DiscountReason
 		{

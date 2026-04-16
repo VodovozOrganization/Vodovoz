@@ -212,7 +212,7 @@ namespace DriverAPI.Library.V5.Converters
 				IsBottleStock = saleItem.Order.IsBottleStock && saleItem.DiscountByStock > 0,
 				IsDiscountInMoney = saleItem.IsDiscountInMoney,
 				Discount = saleItem.IsDiscountInMoney ? saleItem.DiscountMoney : saleItem.Discount,
-				DiscountReason = saleItem.DiscountReason?.Name,
+				DiscountReason = saleItem.DiscountReason?.Name, //Подумать, как быть с APIшкой
 				CapColor = saleItem.Nomenclature.BottleCapColor,
 				IsNeedAdditionalControl = saleItem.Nomenclature.ProductGroup?.IsNeedAdditionalControl ?? false
 			};
