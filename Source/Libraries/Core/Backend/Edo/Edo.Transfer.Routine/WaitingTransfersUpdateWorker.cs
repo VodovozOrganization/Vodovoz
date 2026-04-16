@@ -25,6 +25,7 @@ namespace Edo.Transfer.Routine
 			_optionsMonitor = optionsMonitor;
 			_serviceScopeFactory = serviceScopeFactory;
 		}
+		
 		protected override TimeSpan Interval => _optionsMonitor.CurrentValue.Interval;
 
 		protected override async Task DoWork(CancellationToken stoppingToken)

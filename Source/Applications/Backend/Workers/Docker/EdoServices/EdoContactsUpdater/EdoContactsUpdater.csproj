@@ -19,7 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Problems.Routine\Edo.Problems.Routine.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\HealthCheck\VodovozHealthCheck.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport\MessageTransport.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\TaxcomEdo\TaxcomEdo.Client\TaxcomEdo.Client.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\TaxcomEdo\TaxcomEdo.Contracts\TaxcomEdo.Contracts.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Vodovoz.Zabbix.Sender\Vodovoz.Zabbix.Sender.csproj" />

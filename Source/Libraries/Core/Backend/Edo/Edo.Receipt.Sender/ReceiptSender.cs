@@ -9,6 +9,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Edo.Admin;
 using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Receipt.Sender
@@ -21,6 +22,7 @@ namespace Edo.Receipt.Sender
 		private readonly CashboxClientProvider _cashboxClientProvider;
 		private readonly FiscalDocumentFactory _fiscalDocumentFactory;
 		private readonly EdoTaskValidator _edoTaskValidator;
+		private readonly EdoCancellationService _edoCancellationService;
 
 		public ReceiptSender(
 			ILogger<ReceiptSender> logger,
@@ -28,7 +30,8 @@ namespace Edo.Receipt.Sender
 			EdoProblemRegistrar edoProblemRegistrar,
 			CashboxClientProvider cashboxClientProvider,
 			FiscalDocumentFactory fiscalDocumentFactory,
-			EdoTaskValidator edoTaskValidator
+			EdoTaskValidator edoTaskValidator,
+			EdoCancellationService edoCancellationService
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -37,6 +40,7 @@ namespace Edo.Receipt.Sender
 			_cashboxClientProvider = cashboxClientProvider ?? throw new ArgumentNullException(nameof(cashboxClientProvider));
 			_fiscalDocumentFactory = fiscalDocumentFactory ?? throw new ArgumentNullException(nameof(fiscalDocumentFactory));
 			_edoTaskValidator = edoTaskValidator ?? throw new ArgumentNullException(nameof(edoTaskValidator));
+			_edoCancellationService = edoCancellationService ?? throw new ArgumentNullException(nameof(edoCancellationService));
 		}
 
 		public async Task HandleReceiptSendEvent(int edoTaskId, CancellationToken cancellationToken)
@@ -58,6 +62,14 @@ namespace Edo.Receipt.Sender
 				return;
 			}
 
+			if(CheckOrderItemsAsync(edoTask))
+			{
+				var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
+				
+				await _edoCancellationService.CancelTask(edoTaskId, reason, false, cancellationToken);
+				return;
+			}
+			
 			var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken);
 			if(!isValid)
 			{
@@ -161,6 +173,18 @@ namespace Edo.Receipt.Sender
 			_logger.LogInformation("Все чеки по задаче №{edoTaskId} отправлены успешно.", edoTask.Id);
 		}
 
+		private bool CheckOrderItemsAsync(EdoTask edoTask)
+		{
+			if(!(edoTask is OrderEdoTask orderEdoTask))
+			{
+				return true;
+			}
+			
+			var edoRequest = orderEdoTask.FormalEdoRequest;
+
+			return edoRequest.Order.OrderItems.All(x => x.Price > 0) && edoRequest.Order.OrderSum > 0;
+		}
+		
 		public void Dispose()
 		{
 			_uow.Dispose();

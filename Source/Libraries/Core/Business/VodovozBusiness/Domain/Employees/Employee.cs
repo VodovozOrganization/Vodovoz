@@ -497,12 +497,6 @@ namespace Vodovoz.Domain.Employees
 			{
 				yield return new ValidationResult($"Неверно указан email", new[] { nameof(Email) });
 			}
-
-			if(District != null && District.DistrictsSet.Status != DistrictsSetStatus.Active)
-			{
-				yield return new ValidationResult("Район проживания должен быть из активного набора районов (Вкладка Логистика)",
-					new[] { nameof(District.Title) });
-			}
 		}
 
 		#endregion

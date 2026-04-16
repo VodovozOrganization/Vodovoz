@@ -40,6 +40,7 @@ namespace Edo.Admin
 		public async Task CancelTask(
 			int taskId, 
 			string reason,
+			bool needPublish,
 			CancellationToken cancellationToken
 		)
 		{
@@ -58,21 +59,20 @@ namespace Edo.Admin
 
 			if(edoTask.TaskType == EdoTaskType.Transfer)
 			{
-				await CancelTransferTask((TransferEdoTask)edoTask, reason, cancellationToken);
+				await CancelTransferTask((TransferEdoTask)edoTask, reason, needPublish, cancellationToken);
 			}
 			else
 			{
-				await CancelOrderTask((OrderEdoTask)edoTask, reason, cancellationToken);
+				await CancelOrderTask((OrderEdoTask)edoTask, reason, needPublish, cancellationToken);
 			}
 
 			await _uow.CommitAsync(cancellationToken);
 		}
 
-		private async Task CancelOrderTask(
-			OrderEdoTask edoTask, 
+		private async Task CancelOrderTask(OrderEdoTask edoTask,
 			string reason,
-			CancellationToken cancellationToken
-			)
+			bool needPublish,
+			CancellationToken cancellationToken)
 		{
 			var orderDocument = await _uow.Session.QueryOver<OrderEdoDocument>()
 				.Where(x => x.DocumentTaskId == edoTask.Id)
@@ -92,20 +92,22 @@ namespace Edo.Admin
 
 			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
 
-			var message = new RequestDocflowCancellationEvent
+			if(needPublish)
 			{
-				TaskId = edoTask.Id,
-				Reason = reason
-			};
+				var message = new RequestDocflowCancellationEvent
+				{
+					TaskId = edoTask.Id,
+					Reason = reason
+				};
 
-			await _publishEndpoint.Publish(message, cancellationToken);
+				await _publishEndpoint.Publish(message, cancellationToken);
+			}
 		}
 		
-		private async Task CancelTransferTask(
-			TransferEdoTask transferEdoTask,
+		private async Task CancelTransferTask(TransferEdoTask transferEdoTask,
 			string reason,
-			CancellationToken cancellationToken
-			)
+			bool needPublish,
+			CancellationToken cancellationToken)
 		{
 			if(transferEdoTask.Status.IsIn(
 				EdoTaskStatus.Completed,
@@ -134,13 +136,16 @@ namespace Edo.Admin
 
 			await _uow.SaveAsync(transferEdoTask, cancellationToken: cancellationToken);
 
-			var message = new RequestDocflowCancellationEvent
+			if(needPublish)
 			{
-				TaskId = transferEdoTask.Id,
-				Reason = reason
-			};
+				var message = new RequestDocflowCancellationEvent
+				{
+					TaskId = transferEdoTask.Id,
+					Reason = reason
+				};
 
-			await _publishEndpoint.Publish(message, cancellationToken);
+				await _publishEndpoint.Publish(message, cancellationToken);
+			}
 		}
 
 		public async Task AcceptTransferTaskCancellation(int transferDocumentId, CancellationToken cancellationToken)

@@ -1,15 +1,23 @@
 using Autofac.Extensions.DependencyInjection;
+using Edo.Common;
+using Edo.Problems.Routine;
+using Edo.Transport;
 using EdoContactsUpdater.Configs;
 using EdoContactsUpdater.Converters;
+using EdoService.Library;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using QS.HistoryLog;
+using MessageTransport;
 using QS.Project.Core;
 using TaxcomEdo.Client;
+using Vodovoz.Core.Application.Problems.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Core.Data.NHibernate.Repositories.Edo;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Zabbix.Sender;
@@ -43,19 +51,29 @@ namespace EdoContactsUpdater
 						)
 						.AddDatabaseConnection()
 						.AddCore()
+						.AddEdo()
+						.AddEdoServicesLibrary()
 						.AddTrackedUoW()
+						.AddMessageTransportSettings()
+						.AddEdoMassTransit()
+
 						.AddInfrastructure(ServiceLifetime.Singleton)
 						.AddStaticHistoryTracker()
 						.AddStaticScopeForEntity()
-						
+
 						.Configure<TaxcomContactsUpdaterOptions>(hostContext.Configuration.GetSection(TaxcomContactsUpdaterOptions.Path))
 
 						.AddSingleton<IEdoContactStateCodeConverter, EdoContactStateCodeConverter>()
 						.AddHttpClient()
 						.AddTaxcomClient()
-						.ConfigureZabbixSenderFromDataBase(nameof(TaxcomEdoContactsUpdaterService));
+						.ConfigureZabbixSenderFromDataBase(nameof(TaxcomEdoContactsUpdaterService))
+						.ConfigureZabbixSenderFromDataBase(nameof(OrderContactProblemUpdateWorker))
+						.AddScoped<IEdoRepository, EdoRepository>()
+						.AddScoped<IOrderContactProblemUpdateService, OrderContactProblemUpdateService>()
+						;
 					
 					services.AddHostedService<TaxcomEdoContactsUpdaterService>();
+					services.AddHostedService<OrderContactProblemUpdateWorker>();
 				});
 	}
 }
