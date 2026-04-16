@@ -268,7 +268,7 @@ namespace Vodovoz.Core.Application.Logistics
 			order.ChangeStatus(OrderStatus.OnTheWay);
 
 			var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, order.OnlineOrder?.Source, order.OnlineOrder?.Id, order.Id);
-			_customerNotificationPublisher.Publish(unitOfWork, customerCourierAssignedEvent);
+			_customerNotificationPublisher.TryPublish(unitOfWork, customerCourierAssignedEvent);
 
 			unitOfWork.Save(order);
 			unitOfWork.Save(newRouteListItem);

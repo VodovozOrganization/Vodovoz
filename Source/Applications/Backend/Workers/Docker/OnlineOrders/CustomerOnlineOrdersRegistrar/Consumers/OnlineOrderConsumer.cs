@@ -187,8 +187,6 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			var externalOrderId = message.ExternalOrderId;
 			var needSpecialProcessingDuplicate = NeedSpecialProcessingDuplicate(uow, onlineOrder);
 
-			bool needCancelNotification = false;
-
 			if(needSpecialProcessingDuplicate != null)
 			{
 				if(needSpecialProcessingDuplicate == OnlineOrderDuplicateProcess.NeedCancel)
@@ -198,8 +196,6 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 					var cancellationReasonId = _onlineOrderCancellationReasonSettings.GetDuplicateOnlineOrderCancellationReasonId;
 					onlineOrder.OnlineOrderCancellationReason = await uow.Session
 						.GetAsync<OnlineOrderCancellationReason>(cancellationReasonId, cancellationToken);
-
-					needCancelNotification = true;
 				}
 				else
 				{
@@ -211,13 +207,6 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			{
 				await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
 				await uow.CommitAsync(cancellationToken);
-
-				if(needCancelNotification)
-				{
-					//Art8m жду от Константина новые события var customerEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.OrderCanceled, onlineOrder?.Source, onlineOrder.Id);
-
-					//await _customerNotificationPublisher.PublishAsync(customerEvent, cancellationToken); //Art8m должны отменять при дубле?
-				}
 			}
 			catch(Exception e)
 			{

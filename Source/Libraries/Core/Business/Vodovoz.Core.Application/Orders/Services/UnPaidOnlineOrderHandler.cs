@@ -1,11 +1,15 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using CustomerNotifications.Contracts;
+using Microsoft.Extensions.Logging;
+using Notifications.Infrastructure;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
@@ -29,6 +33,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly IOrderFromOnlineOrderValidator _onlineOrderValidator;
 		private readonly IOrderService _orderService;
 		private readonly IRouteListService _routeListService;
+		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _outboxNotificationPublisher;
 
 		public UnPaidOnlineOrderHandler(
 			ILogger<UnPaidOnlineOrderHandler> logger,
@@ -38,7 +43,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IOrderOnlinePaymentAcceptanceHandler onlinePaymentAcceptanceHandler,
 			IOrderFromOnlineOrderValidator onlineOrderValidator,
 			IOrderService orderService,
-			IRouteListService routeListService
+			IRouteListService routeListService,
+			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> outboxNotificationPublisher
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -50,6 +56,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_onlineOrderValidator = onlineOrderValidator ?? throw new ArgumentNullException(nameof(onlineOrderValidator));
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
+			_outboxNotificationPublisher = outboxNotificationPublisher ?? throw new ArgumentNullException(nameof(outboxNotificationPublisher));
 		}
 
 		public async Task TryMoveToManualProcessingWaitingForPaymentOnlineOrders(IUnitOfWork uow, CancellationToken cancellationToken)
@@ -327,6 +334,70 @@ namespace Vodovoz.Core.Application.Orders.Services
 		{
 			await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
 			await uow.CommitAsync(cancellationToken);
+		}
+
+		public async Task SendWaitingForPaymentNotificationsAsync(IUnitOfWork uow, CancellationToken cancellationToken)
+		{
+			_logger.LogInformation("Проверяем онлайн заказы, ожидающих оплаты для уведомлений...");
+
+			try
+			{
+				var waitingForPaymentOnlineOrders = _onlineOrderRepository.GetWaitingForPaymentOnlineOrders(uow);
+				_logger.LogInformation("Найдено {WaitingForPaymentCount} онлайн заказов для уведомлений", waitingForPaymentOnlineOrders.Count());
+
+				if(!waitingForPaymentOnlineOrders.Any())
+				{
+					return;
+				}
+
+				var onlineOrderTimers = uow.GetAll<OnlineOrderTimers>().FirstOrDefault();
+
+				if(onlineOrderTimers is null)
+				{
+					_logger.LogWarning("Не найдены таймеры онлайн заказов");
+
+					return;
+				}
+
+				foreach(var onlineOrder in waitingForPaymentOnlineOrders)
+				{
+					var isNotified = await TryNotifyCustomerAboutWaitingForPayment(uow, onlineOrder, onlineOrderTimers.TimeForWaitingBeforeSendPaymentNotification, cancellationToken);
+					
+					if(isNotified)
+					{
+						await uow.CommitAsync(cancellationToken);
+
+						_logger.LogInformation("Уведомление клиенту о неоплаченном онлайн заказе №{OnlineOrderId} поставлено в очередь на отправку", onlineOrder.Id);
+					}
+					else
+					{
+						_logger.LogInformation("Уведомление клиенту о неоплаченном онлайн заказе №{OnlineOrderId} не требует отправки", onlineOrder.Id);
+					}					
+				}				
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при обработке онлайн заказов, ожидающих оплаты для уведомлений");
+			}
+		}
+
+		private async Task<bool> TryNotifyCustomerAboutWaitingForPayment(IUnitOfWork unitOfWork, OnlineOrder onlineOrder, TimeSpan timeForWaitingBeforeSendPaymentNotification, CancellationToken cancellationToken)
+		{
+			if(onlineOrder == null)
+			{  
+				return false;
+			}
+
+			var needNotification = onlineOrder.Created < DateTime.Now - timeForWaitingBeforeSendPaymentNotification;
+
+			if(!needNotification)
+			{
+				return false;
+			}
+
+			var customerEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.OrderAwaitingPayment, Source.MobileApp, onlineOrder.Id);
+
+			return await _outboxNotificationPublisher.TryPublishAsync(unitOfWork, customerEvent, cancellationToken);
 		}
 	}
 }

@@ -26,14 +26,14 @@ namespace Notifications.Infrastructure
 			_integrationEventBuilder = integrationEventBuilder ?? throw new ArgumentNullException(nameof(integrationEventBuilder));
 		}
 
-		public async Task PublishAsync(
+		public async Task<bool> TryPublishAsync(
 			IUnitOfWork unitOfWork,
 			TDomainEvent domainEvent,
 			CancellationToken cancellationToken = default)
 		{
 			if(_settingsProvider.IsDisabled(domainEvent))
 			{
-				return;
+				return false;
 			}
 
 			if(!_settingsProvider.IsDuplicateAllowed(domainEvent))
@@ -42,7 +42,7 @@ namespace Notifications.Infrastructure
 
 				if(hasSameNotification)
 				{
-					return;
+					return false;
 				}
 			}
 
@@ -59,18 +59,20 @@ namespace Notifications.Infrastructure
             }
             else
             {
-                outboxMessage = new OutboxMessage(domainEvent, integrationEvent); // await _outboxMessageBuilder.BuildAsync(domainEvent, cancellationToken);
+                outboxMessage = new OutboxMessage(domainEvent, integrationEvent);
             }
 
             await unitOfWork.SaveAsync(outboxMessage, cancellationToken: cancellationToken);
 
 			_sessionLastEvents[domainEvent.GetAggregateId()] = outboxMessage;
+
+			return true;
 		}
 
 
-		public void Publish(IUnitOfWork unitOfWork, TDomainEvent notificationEvent)
+		public bool TryPublish(IUnitOfWork unitOfWork, TDomainEvent notificationEvent)
 		{
-			PublishAsync(unitOfWork, notificationEvent)
+			return TryPublishAsync(unitOfWork, notificationEvent)
 				.GetAwaiter()
 				.GetResult();
 		}

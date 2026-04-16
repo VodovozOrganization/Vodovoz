@@ -33,6 +33,7 @@ namespace CustomerOnlineOrdersUpdater
 				var options = scope.ServiceProvider.GetService<IOptionsMonitor<CustomerOnlineOrdersUpdaterOptions>>().CurrentValue;
 				await Task.Delay(TimeSpan.FromSeconds(options.DelayInSeconds), stoppingToken);
 				await TryMoveToManualProcessingWaitingForPaymentOnlineOrders(scope, stoppingToken);
+				await SendWaitingForPaymentNotification(scope, stoppingToken);
 			}
 		}
 
@@ -48,6 +49,13 @@ namespace CustomerOnlineOrdersUpdater
 			{
 				_logger.LogError(ex, "Ошибка при работе воркера по обновлению онлайн заказов");
 			}
+		}
+
+		private async Task SendWaitingForPaymentNotification(IServiceScope scope, CancellationToken cancellationToken)
+		{
+			using var uow = scope.ServiceProvider.GetService<IUnitOfWork>();
+			var unPaidOnlineOrderHandler = scope.ServiceProvider.GetService<IUnPaidOnlineOrderHandler>();
+			await unPaidOnlineOrderHandler.SendWaitingForPaymentNotificationsAsync(uow, cancellationToken);
 		}
 	}
 }

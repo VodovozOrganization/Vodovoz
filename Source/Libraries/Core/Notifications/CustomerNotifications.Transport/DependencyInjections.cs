@@ -41,7 +41,7 @@ namespace CustomerNotifications.Transport
 					}
 				});
 
-				configurator.ConfigureEndpoints(context); //Art8m в воркере?
+				configurator.ConfigureEndpoints(context);
 			});
 
 			return busConf;

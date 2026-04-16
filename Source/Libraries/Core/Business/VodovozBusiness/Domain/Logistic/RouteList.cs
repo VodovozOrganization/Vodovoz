@@ -939,7 +939,7 @@ namespace Vodovoz.Domain.Logistic
 
 				var customerEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, item.Order.OnlineOrder?.Source, item.Order.OnlineOrder?.Id, item.Order.Id);
 
-				customerNotificationPublisher.Publish(unitOfWork, customerEvent);
+				customerNotificationPublisher.TryPublish(unitOfWork, customerEvent);
 			}
 
 			UoW.Save(this);

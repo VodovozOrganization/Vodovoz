@@ -163,7 +163,7 @@ namespace Vodovoz.Controllers
 
 				var customerEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, order.OnlineOrder?.Source, order.OnlineOrder?.Id, order.Id);
 
-				_customerNotificationService.Publish(uow, customerEvent);
+				_customerNotificationService.TryPublish(uow, customerEvent);
 				
 				order.UpdateDocuments();
 			}

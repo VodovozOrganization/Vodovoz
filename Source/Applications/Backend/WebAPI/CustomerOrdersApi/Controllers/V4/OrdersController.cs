@@ -188,23 +188,11 @@ namespace CustomerOrdersApi.Controllers.V4
 			{
 				_logger.LogInformation("Поступил запрос на изменение заказа {@ChangeOrderRequest}", changingOrderDto);
 
-				var result = await _customerOrdersService.UpdateOrderAsync(changingOrderDto, cancellationToken);				
+				var result = await _customerOrdersService.UpdateOrderAsync(changingOrderDto, cancellationToken);
 
 				if(result.IsSuccess)
 				{
 					var sourcesForPaymentAwaitingNotification = new[] { OnlinePaymentSource.FromMobileApp, OnlinePaymentSource.FromMobileAppByQr, OnlinePaymentSource.FromMobileAppByYandexSplit };
-
-					var needPaymentAwaitingNotification =
-						changingOrderDto.PaymentStatus == OnlineOrderPaymentStatus.UnPaid
-						&& changingOrderDto.OnlinePaymentSource != null
-						&& sourcesForPaymentAwaitingNotification.Contains(changingOrderDto.OnlinePaymentSource.Value)
-						&& changingOrderDto.OnlineOrderId != null;
-
-					if(needPaymentAwaitingNotification)
-					{
-						var customerEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.OrderAwaitingPayment, changingOrderDto.Source, changingOrderDto.OnlineOrderId.Value);
-						await _customerNotificationsPublisher.PublishAsync(customerEvent, cancellationToken);
-					}
 
 					var needOrderPaidNotification =
 						changingOrderDto.PaymentStatus == OnlineOrderPaymentStatus.Paid

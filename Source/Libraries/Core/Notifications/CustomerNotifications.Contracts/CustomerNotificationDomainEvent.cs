@@ -38,10 +38,6 @@ namespace CustomerNotifications.Contracts
 			EventSource = source ?? Source.MobileApp;
 		}
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns></returns>
 		public string GetDeduplicationKey() => $"{nameof(CustomerNotificationEventType)}:{nameof(OnlineOrderId)}={OnlineOrderId}:{nameof(CustomerNotificationEventType)}={CustomerNotificationEventType}";
 
 		public int GetAggregateId() => OnlineOrderId ?? OrderId ?? throw new ArgumentNullException();

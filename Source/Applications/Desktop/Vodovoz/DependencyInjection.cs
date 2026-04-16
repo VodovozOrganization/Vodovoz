@@ -1,7 +1,5 @@
 ﻿using Core.Infrastructure;
 using CustomerNotifications.Application.Builders;
-using CustomerNotifications.Application.Providers;
-using Vodovoz.Core.Domain.Clients;
 using DriverApi.Notifications.Client;
 using Edo.Transport;
 using ExportTo1c.Library.Factories;
@@ -29,7 +27,6 @@ using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.DomainModel.Entity.EntityPermissions.EntityExtendedPermission;
 using QS.DomainModel.Entity.PresetPermissions;
-using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Project;
 using QS.Project.Core;
@@ -47,8 +44,6 @@ using QSProjectsLib;
 using RabbitMQ.MailSending;
 using ResourceLocker.Library;
 using System;
-using System.Collections.ObjectModel;
-using System.Linq;
 using TransactionalOutbox.Abstractions;
 using TrueMark.Codes.Pool;
 using TrueMarkApi.Client;
@@ -62,7 +57,6 @@ using Vodovoz.Core.Application.Logistics.Fuel;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Repositories.Logistics;
 using Vodovoz.Core.Domain.Interfaces.Logistics;
-using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Pacs;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
@@ -116,7 +110,7 @@ using VodovozInfrastructure;
 using VodovozInfrastructure.Services;
 using DocumentPrinter = Vodovoz.Core.DocumentPrinter;
 using CustomerNotifications.Contracts;
-using Vodovoz.Core.Domain.Orders.OrderEnums;
+using CustomerNotifications.Application;
 
 namespace Vodovoz
 {
@@ -209,7 +203,7 @@ namespace Vodovoz
 				.AddScoped<IScanDialogService, ScanDialogService>()
 
 				.AddScoped<RouteGeometryCalculator>()
-		
+
 				.AddOsrm()
 
 				.AddScoped<IDebtorsSettings, DebtorsSettings>()
@@ -258,7 +252,7 @@ namespace Vodovoz
 
 				.AddMailganerApiClient()
 				.AddScoped<EmailDirectSender>()
-				
+
 				.AddScoped<IDataExporterFor1cFactory, DataExporterFor1cFactory>()
 
 				.AddVodovozDesktopGarnetRedisConnection()
@@ -270,24 +264,9 @@ namespace Vodovoz
 				.AddScoped<IPasswordValidator, PasswordValidator>()
 				.AddScoped<IPasswordValidationSettings, DefaultPasswordValidationSettings>()
 				.AddScoped<IDriverScheduleService, DriverScheduleService>()
-				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>,	CustomerNotificationsIntegrationEventBuilder>()																		
-				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>,OutBoxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
-				.AddSingleton<ICustomerNotificationsSettingsProvider>(sp =>
-				{
-					var uowFactory = sp.GetRequiredService<IUnitOfWorkFactory>();
-
-					using(var uow = uowFactory.CreateWithoutRoot())
-					{
-						var settingsDict = uow.GetAll<OnlineOrderNotificationSetting>()
-							.ToDictionary(s => s.CustomerNotificationEventType);
-
-						var readOnlySettings = new ReadOnlyDictionary<CustomerNotificationEventType, OnlineOrderNotificationSetting>(settingsDict);
-
-						return new CustomerNotificationsSettingsProvider(readOnlySettings);
-					}
-				})				
-				.AddSingleton<IOutBoxSettingsProvider<CustomerNotificationDomainEvent>>(sp => sp.GetRequiredService<ICustomerNotificationsSettingsProvider>())				
-				;
+				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
+				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, OutBoxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+				.AddCustomerNotificationsSettingsProvider();
 
 			services.AddStaticHistoryTracker();
 			services.AddStaticScopeForEntity();

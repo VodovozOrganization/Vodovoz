@@ -61,11 +61,11 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			ViewModelEEVMBuilder<DeliveryPoint> deliveryPointViewModelBuilder,
 			DeliveryPointJournalFilterViewModel deliveryPointJournalFilterViewModel,
 			IDiscountController discountController,
-			MangoManager mangoManager,
-			IOrderOrganizationManager orderOrganizationManager
+			IOrderOrganizationManager orderOrganizationManager,
+			MangoManager mangoManager
 			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
-		{			
+		{
 			_currentEmployee =
 				(employeeService ?? throw new ArgumentNullException(nameof(employeeService)))
 				.GetEmployeeForUser(UoW, CurrentUser.Id);

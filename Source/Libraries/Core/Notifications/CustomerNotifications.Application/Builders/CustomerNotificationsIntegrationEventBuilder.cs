@@ -52,7 +52,6 @@ namespace CustomerNotifications.Application.Builders
 				throw new ArgumentNullException(nameof(domainEvent));
 			}
 
-			// Получаем текст из настроек
 			var notificationText = _customerNotificationSettingsProvider.GetNotificationText(domainEvent);
 
 			if(string.IsNullOrEmpty(notificationText))

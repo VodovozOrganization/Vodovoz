@@ -11,7 +11,7 @@ namespace Notifications.Infrastructure
 	/// <typeparam name="TDomainEvent"></typeparam>
 	public interface IOutboxNotificationPublisher<in TDomainEvent>
 	{
-		Task PublishAsync(IUnitOfWork unitOfWork, TDomainEvent notificationEvent, CancellationToken cancellationToken = default);
-		void Publish(IUnitOfWork unitOfWork, TDomainEvent notificationEvent);
+		Task<bool> TryPublishAsync(IUnitOfWork unitOfWork, TDomainEvent notificationEvent, CancellationToken cancellationToken = default);
+		bool TryPublish(IUnitOfWork unitOfWork, TDomainEvent notificationEvent);
 	}
 }

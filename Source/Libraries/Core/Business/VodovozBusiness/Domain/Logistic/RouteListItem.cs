@@ -675,13 +675,13 @@ namespace Vodovoz.Domain.Logistic
 					RestoreOrder(status);
 					_orderService.AutoCancelAutoTransfer(uow, Order);
 					var customerDeliveryCompletedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.DeliveryCompleted, Order.OnlineOrder?.Source, Order.OnlineOrder?.Id, Order.Id);
-					customerNotificationPublisher.Publish(uow, customerDeliveryCompletedEvent);
+					customerNotificationPublisher.TryPublish(uow, customerDeliveryCompletedEvent);
 					break;
 				case RouteListItemStatus.EnRoute:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, callTaskWorker);
 					RestoreOrder(status);
 					var customerCourierOnTheWayEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierOnTheWay, Order.OnlineOrder?.Source, Order.OnlineOrder?.Id, Order.Id);
-					customerNotificationPublisher.Publish(uow, customerCourierOnTheWayEvent);
+					customerNotificationPublisher.TryPublish(uow, customerCourierOnTheWayEvent);
 					break;
 				case RouteListItemStatus.Overdue:
 					Order.OverdueDelivery(uow, callTaskWorker);

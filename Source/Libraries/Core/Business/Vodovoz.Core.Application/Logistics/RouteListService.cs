@@ -386,7 +386,7 @@ namespace Vodovoz.Core.Application.Logistics
 							{
 								item.Order.OrderStatus = OrderStatus.OnTheWay;
 								var customerEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, item.Order.OnlineOrder?.Source, item.Order.OnlineOrder?.Id, item.Order.Id);
-								_customerNotificationPublisher.Publish(unitOfWork, customerEvent);
+								_customerNotificationPublisher.TryPublish(unitOfWork, customerEvent);
 							}
 						}
 
@@ -565,7 +565,7 @@ namespace Vodovoz.Core.Application.Logistics
 								{
 									address.Order.OrderStatus = OrderStatus.OnTheWay;
 									var customerEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierOnTheWay, address.Order.OnlineOrder?.Source, address.Order.OnlineOrder?.Id, address.Order.Id);
-									_customerNotificationPublisher.Publish(unitOfWork, customerEvent);
+									_customerNotificationPublisher.TryPublish(unitOfWork, customerEvent);
 								}
 							}
 						}
@@ -893,13 +893,13 @@ namespace Vodovoz.Core.Application.Logistics
 					address.RestoreOrder();
 					_orderService.AutoCancelAutoTransfer(uow, address.Order);
 					var customerDeliveryCompletedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.DeliveryCompleted, address.Order.OnlineOrder?.Source, address.Order.OnlineOrder?.Id, address.Order.Id);
-					_customerNotificationPublisher.Publish(uow, customerDeliveryCompletedEvent);
+					_customerNotificationPublisher.TryPublish(uow, customerDeliveryCompletedEvent);
 					break;
 				case RouteListItemStatus.EnRoute:
 					address.Order.ChangeStatus(OrderStatus.OnTheWay);
 					address.RestoreOrder();
 					var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, address.Order.OnlineOrder?.Source, address.Order.OnlineOrder?.Id, address.Order.Id);
-					_customerNotificationPublisher.Publish(uow, customerCourierAssignedEvent);
+					_customerNotificationPublisher.TryPublish(uow, customerCourierAssignedEvent);
 					break;
 				case RouteListItemStatus.Overdue:
 					address.Order.ChangeStatus(OrderStatus.NotDelivered);

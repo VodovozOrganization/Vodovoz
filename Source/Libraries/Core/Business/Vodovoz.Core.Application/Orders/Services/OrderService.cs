@@ -71,7 +71,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly IOrderContractUpdater _orderContractUpdater;
 		private readonly IOrderConfirmationService _orderConfirmationService;
 		private readonly IPaymentItemsRepository _paymentItemsRepository;
-		
+
 		public OrderService(
 			ILogger<OrderService> logger,
 			INomenclatureSettings nomenclatureSettings,
