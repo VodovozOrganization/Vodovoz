@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34009.444
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -8748,7 +8748,6 @@ Global
 		{DA93E815-A4CD-4AAA-947A-659D5263267D}.Web|x86.ActiveCfg = Debug|Any CPU
 		{DA93E815-A4CD-4AAA-947A-659D5263267D}.Web|x86.Build.0 = Debug|Any CPU
 		{DA93E815-A4CD-4AAA-947A-659D5263267D}.WinDesktop|Any CPU.ActiveCfg = Debug|Any CPU
-		{DA93E815-A4CD-4AAA-947A-659D5263267D}.WinDesktop|Any CPU.Build.0 = Debug|Any CPU
 		{DA93E815-A4CD-4AAA-947A-659D5263267D}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
 		{9315F39C-5054-410E-B8E9-27C987321B67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9315F39C-5054-410E-B8E9-27C987321B67}.Debug|Any CPU.Build.0 = Debug|Any CPU
@@ -8779,8 +8778,9 @@ Global
 		{9315F39C-5054-410E-B8E9-27C987321B67}.Web|x86.ActiveCfg = Debug|Any CPU
 		{9315F39C-5054-410E-B8E9-27C987321B67}.Web|x86.Build.0 = Debug|Any CPU
 		{9315F39C-5054-410E-B8E9-27C987321B67}.WinDesktop|Any CPU.ActiveCfg = Debug|Any CPU
-		{9315F39C-5054-410E-B8E9-27C987321B67}.WinDesktop|Any CPU.Build.0 = Debug|Any CPU
 		{9315F39C-5054-410E-B8E9-27C987321B67}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
+		{9315F39C-5054-410E-B8E9-27C987321B67}.LinuxDesktop|Any CPU.Build.0 = Release|Any CPU
+		{9315F39C-5054-410E-B8E9-27C987321B67}.LinuxDesktop|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
