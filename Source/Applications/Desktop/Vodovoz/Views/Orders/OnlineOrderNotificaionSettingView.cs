@@ -27,7 +27,17 @@ namespace Vodovoz.Views.Orders
 			yenumcmbNotificationClassification.Binding
 				.AddBinding(ViewModel.Entity, e => e.NotificationClassification, w => w.SelectedItem)
 				.InitializeFromSource();
-			
+
+			yenumcmbCustomerNotificationPushType.ItemsEnum = typeof(CustomerNotificationPushType);
+			yenumcmbCustomerNotificationPushType.Binding
+				.AddBinding(ViewModel.Entity, e => e.PushType, w => w.SelectedItem)
+				.InitializeFromSource();
+
+			yenumcmbCustomerNotificationTargetType.ItemsEnum = typeof(CustomerNotificationTargetType);
+			yenumcmbCustomerNotificationTargetType.Binding
+				.AddBinding(ViewModel.Entity, e => e.PushTarget, w => w.SelectedItem)
+				.InitializeFromSource();
+
 			ycheckNotificationDisabled.Binding
 				.AddBinding(ViewModel.Entity, e => e.NotificationDisabled, w => w.Active)
 				.InitializeFromSource();
