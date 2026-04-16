@@ -86,31 +86,6 @@ namespace Vodovoz.ViewModels.Logistic
 			return geoGroups;
 		}
 
-		public void ApplyDiscountReasonToOrderItem(OrderItem orderItem, int positionIndex)
-		{
-			var previousDiscountReason = orderItem.DiscountReason;
-
-			//Дополнительно проверяем основание скидки на null, т.к при двойном щелчке
-			//комбо-бокс не откроется, но событие сработает и прилетит null
-			if(orderItem.DiscountReason != null)
-			{
-				if(!DiscountsController.SetDiscountFromDiscountReasonForOrderItem(
-					orderItem.DiscountReason, orderItem, _canEditPriceDiscountFromRouteListAndSelfDelivery, out string message))
-				{
-					orderItem.DiscountReason = previousDiscountReason;
-				}
-
-				if(message != null)
-				{
-					_interactiveService.ShowMessage(ImportanceLevel.Warning,
-						$"На позицию:\n№{positionIndex + 1} {message}нельзя применить скидку," +
-						" т.к. она из промонабора или на нее есть фикса.\nОбратитесь к руководителю");
-				}
-			}
-
-			Entity?.RecalculateItemsPrice();
-		}
-
 		private void OnSelectPaymentTypeClicked()
 		{
 			NavigationManager.OpenViewModel<SelectPaymentTypeViewModel>(null, addingRegistrations: containerBuilder =>

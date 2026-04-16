@@ -1,7 +1,8 @@
+using QS.DomainModel.Entity;
+using QS.Extensions.Observable.Collections.List;
+using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
-using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Orders
@@ -27,6 +28,7 @@ namespace Vodovoz.Domain.Orders
 		private DiscountReason _discountReason;
 		private Nomenclature _nomenclature;
 		private PromotionalSet _promoSet;
+		private IObservableList<DiscountReason> _discountReasons = new ObservableList<DiscountReason>();
 
 		protected OnlineOrderItem() { } 
 
@@ -116,6 +118,16 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _discountReason, value);
 		}
 
+		/// <summary>
+		/// Основания скидки на товар
+		/// </summary>
+		[Display(Name = "Основания скидки на товар")]
+		public virtual IObservableList<DiscountReason> DiscountReasons
+		{
+			get => _discountReasons;
+			set => SetField(ref _discountReasons, value);
+		}
+
 		[Display(Name = "Количество из промонабора")]
 		public virtual decimal CountFromPromoSet { get; set; }
 		
@@ -135,7 +147,8 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal Sum => Math.Round(Price * Count - MoneyDiscount, 2);
 		public virtual decimal ActualSum => Sum;
 		public virtual decimal CurrentCount => Count;
-		
+
+		[Obsolete("В сигнатуре передается одно основание скидки, нужно использовать другой метод Create()")]
 		public static OnlineOrderItem Create(
 			int? nomenclatureId,
 			decimal count,
@@ -158,11 +171,58 @@ namespace Vodovoz.Domain.Orders
 				IsFixedPrice = isFixedPrice,
 				Price = price,
 				PromoSetId = promoSetId,
-				DiscountReason = discountReason,
 				Nomenclature = nomenclature,
 				PromoSet = promotionalSet,
 				OnlineOrder = onlineOrder
 			};
+
+			if(discountReason != null)
+			{
+				onlineOrderItem.DiscountReasons.Add(discountReason);
+			}
+
+			onlineOrderItem.CalculateDiscount(discount);
+
+			return onlineOrderItem;
+		}
+		
+		public static OnlineOrderItem Create(
+			int? nomenclatureId,
+			decimal count,
+			bool isDiscountInMoney,
+			bool isFixedPrice,
+			decimal discount,
+			decimal price,
+			int? promoSetId,
+			IEnumerable<DiscountReason> discountReasons,
+			Nomenclature nomenclature,
+			PromotionalSet promotionalSet,
+			OnlineOrder onlineOrder
+		)
+		{
+			var onlineOrderItem = new OnlineOrderItem
+			{
+				NomenclatureId = nomenclatureId,
+				Count = count,
+				IsDiscountInMoney = isDiscountInMoney,
+				IsFixedPrice = isFixedPrice,
+				Price = price,
+				PromoSetId = promoSetId,
+				Nomenclature = nomenclature,
+				PromoSet = promotionalSet,
+				OnlineOrder = onlineOrder
+			};
+
+			if(discountReasons != null)
+			{
+				foreach(var reason in discountReasons)
+				{
+					if(reason != null)
+					{
+						onlineOrderItem.DiscountReasons.Add(reason);
+					}
+				}
+			}
 
 			onlineOrderItem.CalculateDiscount(discount);
 

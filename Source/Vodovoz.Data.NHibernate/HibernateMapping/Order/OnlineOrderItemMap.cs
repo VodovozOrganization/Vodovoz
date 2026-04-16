@@ -1,4 +1,4 @@
-﻿using FluentNHibernate.Mapping;
+using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
@@ -28,6 +28,13 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			References(x => x.Nomenclature).Column("nomenclature_id");
 			References(x => x.PromoSet).Column("promo_set_id");
 			References(x => x.DiscountReason).Column("discount_reason_id");
+
+			HasManyToMany(x => x.DiscountReasons)
+				.Table("discount_reasons_online_order_items")
+				.ParentKeyColumn("online_order_item_id")
+				.ChildKeyColumn("discount_reason_id")
+				.Cascade.SaveUpdate()
+				.LazyLoad();
 		}
 	}
 }

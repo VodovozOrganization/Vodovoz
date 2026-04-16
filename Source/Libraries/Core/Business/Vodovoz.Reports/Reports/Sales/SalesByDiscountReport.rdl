@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -929,7 +929,8 @@
 FROM
     order_items
         JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
-        LEFT JOIN discount_reasons ON discount_reasons.id = order_items.discount_reason_id
+        LEFT JOIN discount_reasons_order_items droi ON droi.order_item_id = order_items.id
+        LEFT JOIN discount_reasons ON discount_reasons.id = droi.discount_reason_id
         LEFT JOIN promotional_sets ps ON order_items.promotional_set_id = ps.id
         JOIN orders ON orders.id = order_items.order_id
         JOIN counterparty ON counterparty.id = orders.client_id

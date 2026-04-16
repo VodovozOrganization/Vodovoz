@@ -2379,7 +2379,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				from orderItems in uow.Session.Query<OrderItem>()
 				where orderItems.Order.Client.Id == order.Client.Id
 				&& orderItems.Order.Id != order.Id
-				&& orderItems.DiscountReason.Id == referFriendReasonId
+				&& orderItems.DiscountReasons.Any(r => r.Id == referFriendReasonId)
 				&& GetStatusesForCalculationAlreadyReceivedBottlesCountByReferPromotion().Contains(orderItems.Order.OrderStatus)
 				select (orderItems.ActualCount ?? orderItems.Count)
 			)
@@ -2490,10 +2490,10 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		{
 			var discounts =
 				from orderItem in uow.Session.Query<OrderItem>()
+				from discountReason in orderItem.DiscountReasons
 				join nomenclature in uow.Session.Query<Nomenclature>() on orderItem.Nomenclature.Id equals nomenclature.Id
 				join order in uow.Session.Query<Order>() on orderItem.Order.Id equals order.Id
 				join counterparty in uow.Session.Query<Counterparty>() on order.Client.Id equals counterparty.Id
-				join discountReason in uow.Session.Query<DiscountReason>() on orderItem.DiscountReason.Id equals discountReason.Id
 				join un in uow.Session.Query<MeasurementUnits>() on nomenclature.Unit.Id equals un.Id into units
 				from unit in units.DefaultIfEmpty()
 				where 

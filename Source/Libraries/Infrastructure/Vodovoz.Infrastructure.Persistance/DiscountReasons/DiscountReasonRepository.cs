@@ -87,8 +87,8 @@ namespace Vodovoz.Infrastructure.Persistance.DiscountReasons
 				join onlineOrder in uow.Session.Query<OnlineOrder>()
 					on onlineOrderItem.OnlineOrder.Id equals onlineOrder.Id
 				where onlineOrder.Counterparty.Id == counterpartyId
-				      && onlineOrderItem.DiscountReason.Id == discountReasonId
-				      && onlineOrder.OnlineOrderStatus != OnlineOrderStatus.Canceled
+				      && onlineOrderItem.DiscountReasons.Any(r => r.Id == discountReasonId)
+					  && onlineOrder.OnlineOrderStatus != OnlineOrderStatus.Canceled
 				select onlineOrderItem;
 
 			if(onlineOrderItems.Any())
@@ -101,7 +101,7 @@ namespace Vodovoz.Infrastructure.Persistance.DiscountReasons
 				join order in uow.Session.Query<Vodovoz.Domain.Orders.Order>()
 					on orderItem.Order.Id equals order.Id
 				where order.Client.Id == counterpartyId
-					&& orderItem.DiscountReason.Id == discountReasonId
+					&& orderItem.DiscountReasons.Any(r => r.Id == discountReasonId)
 					&& order.OrderStatus != OrderStatus.DeliveryCanceled
 					&& order.OrderStatus != OrderStatus.Canceled
 					&& order.OrderStatus != OrderStatus.NotDelivered

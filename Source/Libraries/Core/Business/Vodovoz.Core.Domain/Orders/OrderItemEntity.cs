@@ -94,7 +94,7 @@ namespace Vodovoz.Core.Domain.Orders
 		public virtual decimal Discount
 		{
 			get => _discount;
-			protected set => SetField(ref _discount, value);
+			protected set => SetField(ref _discount, value > 100 ? 100 : (value < 0 ? 0 : value));
 		}
 
 		[Display(Name = "Процент скидки на товар которая была установлена до отмены заказа")]
@@ -108,7 +108,7 @@ namespace Vodovoz.Core.Domain.Orders
 		public virtual decimal DiscountMoney
 		{
 			get => _discountMoney;
-			protected set => SetField(ref _discountMoney, value);
+			protected set => SetField(ref _discountMoney, Math.Max(0, value));
 		}
 
 		[Display(Name = "Скидки на товар которая была установлена до отмены заказа")]
