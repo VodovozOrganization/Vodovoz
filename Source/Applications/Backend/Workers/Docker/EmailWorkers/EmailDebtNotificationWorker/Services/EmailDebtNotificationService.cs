@@ -102,19 +102,19 @@ namespace EmailDebtNotificationWorker.Services
 			CancellationToken cancellationToken
 			)
 		{
-			if(client == null)
+			if(client is null)
 			{
 				_logger.LogWarning("Попытка отправить письмо несуществующему клиенту");
 				throw new ArgumentNullException(nameof(client));
 			}
 
-			if(organization == null)
+			if(organization is null)
 			{
 				_logger.LogWarning("Попытка отправить письмо клиенту {ClientId} от несуществующей организации", client.Id);
 				throw new ArgumentNullException(nameof(organization));
 			}
 
-			if(order == null)
+			if(order is null)
 			{
 				_logger.LogWarning("Попытка отправить письмо клиенту {ClientId} от организации {OrganizationId} по несуществующему заказу",
 					client.Id,
@@ -134,7 +134,7 @@ namespace EmailDebtNotificationWorker.Services
 			var documentNumber = await _documentOrganizationCounterRepository.GetDocumentNumberByOrderId(uow, order.Id, cancellationToken);
 
 			var storedEmail = CreateStoredEmail(emailSubject, emailAddress, order.Id);
-			if(storedEmail == null)
+			if(storedEmail is null)
 			{
 				_logger.LogError("Не удалось создать запись о письме с уведомлением о задолженности для клиента {ClientId}", client.Id);
 				throw new ArgumentNullException(nameof(storedEmail));
@@ -287,14 +287,14 @@ namespace EmailDebtNotificationWorker.Services
 
 		private string? SelectEmailForDebtNotification(Counterparty client)
 		{
-			if(client.Emails == null || !client.Emails.Any())
+			if(client.Emails is null || !client.Emails.Any())
 			{
 				_logger.LogWarning("Клиент {ClientId} не имеет email адресов", client.Id);
 				return null;
 			}
 
 			var billEmail = client.Emails
-				.LastOrDefault(x => x.EmailType?.EmailPurpose == EmailPurpose.ForBills)
+				.LastOrDefault(x => x.EmailType?.EmailPurpose is EmailPurpose.ForBills)
 				?.Address;
 
 			if(!string.IsNullOrWhiteSpace(billEmail))

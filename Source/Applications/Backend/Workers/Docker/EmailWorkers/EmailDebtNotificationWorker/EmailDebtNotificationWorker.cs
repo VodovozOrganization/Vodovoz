@@ -64,6 +64,7 @@ namespace EmailDebtNotificationWorker
 			}
 			catch(Exception ex)
 			{
+				await zabbixSender.SendProblemMessageAsync(ZabixSenderMessageType.Problem, "Ошибка в воркере рассылки писем", cancellationToken);
 				_logger.LogError(ex, "Ошибка в воркере рассылки писем");
 			}
 		}
@@ -72,7 +73,7 @@ namespace EmailDebtNotificationWorker
 		{
 			var now = DateTime.Now;
 
-			return workingDayService.IsWorkingDay(now) &&
+			return workingDayService.IsOddWeekday(now) &&
 				   workingDayService.IsWithinWorkingHours(now);
 		}
 
