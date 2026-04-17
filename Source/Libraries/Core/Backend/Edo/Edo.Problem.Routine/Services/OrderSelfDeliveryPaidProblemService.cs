@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Problem.Routine.Services
@@ -27,6 +28,7 @@ namespace Edo.Problem.Routine.Services
 		private readonly IOptionsMonitor<OrderSelfDeliveryPaidProblemWorkerOptions> _options;
 		private readonly IEdoTaskValidator _selfDeliveryPaidValidator;
 		private readonly IServiceProvider _serviceProvider;
+		private readonly IEdoRepository _edoRepository;
 		private readonly IBus _messageBus;
 
 		public OrderSelfDeliveryPaidProblemService(
@@ -35,12 +37,14 @@ namespace Edo.Problem.Routine.Services
 			IOptionsMonitor<OrderSelfDeliveryPaidProblemWorkerOptions> options,
 			IEnumerable<IEdoTaskValidator> validators,
 			IServiceProvider serviceProvider,
+			IEdoRepository edoRepository,
 			IBus messageBus)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_options = options;
 			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 			_selfDeliveryPaidValidator = (validators ?? throw new ArgumentNullException(nameof(validators)))
 				.FirstOrDefault(v => v.Name == _problemSourceName)
 				?? throw new InvalidOperationException($"Валидатор с именем '{_problemSourceName}' не зарегистрирован");
@@ -56,19 +60,33 @@ namespace Edo.Problem.Routine.Services
 		/// <returns></returns>
 		public async Task ProcessProblemTasks(CancellationToken cancellationToken)
 		{
-			IList<DocumentEdoTask> tasks;
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(OrderSelfDeliveryPaidProblemService)))
 			{
-				tasks = await GetProblemEdoTasks<DocumentEdoTask>(uow, _problemSourceName, _minEdoTaskCreationTime, cancellationToken);
+				var documentTasks =
+					await _edoRepository.GetProblemEdoTasks<DocumentEdoTask>(uow, _problemSourceName, _minEdoTaskCreationTime, cancellationToken);
+				var receiptTasks =
+					await _edoRepository.GetProblemEdoTasks<ReceiptEdoTask>(uow, _problemSourceName, _minEdoTaskCreationTime, cancellationToken);
+				var tenderTasks =
+					await _edoRepository.GetProblemEdoTasks<TenderEdoTask>(uow, _problemSourceName, _minEdoTaskCreationTime, cancellationToken);
+
+				var tasks = documentTasks
+					.Concat<OrderEdoTask>(receiptTasks)
+					.Concat(tenderTasks)
+					.ToList();
+
+				_logger.LogInformation("Найдено {Count} задач ЭДО с активной проблемой {ProblemName}",
+					tasks.Count, _problemSourceName);
+
+				await TryResumeTasks(tasks, cancellationToken);
 			}
+		}
 
-			_logger.LogInformation("Найдено {Count} задач ЭДО с активной проблемой {ProblemName}",
-				tasks.Count, _problemSourceName);
-
+		private async Task TryResumeTasks(IEnumerable<OrderEdoTask> edoTasks, CancellationToken cancellationToken)
+		{
 			var successCount = 0;
 			var errorCount = 0;
 
-			foreach(var edoTask in tasks)
+			foreach(var edoTask in edoTasks)
 			{
 				try
 				{
@@ -83,51 +101,18 @@ namespace Edo.Problem.Routine.Services
 					_logger.LogError(ex, "Ошибка при обработке задачи ЭДО {EdoTaskId}", edoTask.Id);
 					errorCount++;
 				}
+
+				_logger.LogInformation(
+					"Обработка завершена. Всего задач: {Total}. Возобновлено: {Success}. Ошибок: {Errors}",
+					edoTasks.Count(),
+					successCount,
+					errorCount);
 			}
-
-			_logger.LogInformation(
-				"Обработка завершена. Всего задач: {Total}. Возобновлено: {Success}. Ошибок: {Errors}",
-				tasks.Count,
-				successCount,
-				errorCount);
-		}
-
-		private async Task<IList<T>> GetProblemEdoTasks<T>(
-			IUnitOfWork uow,
-			string problemSourceName,
-			DateTime minCreationTime,
-			CancellationToken cancellationToken)
-			where T : OrderEdoTask
-		{
-			var tasksIdsQuery =
-				from problem in uow.Session.Query<EdoTaskProblem>()
-				join edoTask in uow.Session.Query<T>() on problem.EdoTask.Id equals edoTask.Id
-				join edoRequest in uow.Session.Query<FormalEdoRequest>() on edoTask.FormalEdoRequest.Id equals edoRequest.Id
-				where
-					problem.SourceName == problemSourceName
-					&& problem.State == TaskProblemState.Active
-					&& edoTask.CreationTime >= minCreationTime
-				select edoTask.Id;
-
-			var taskIds = await tasksIdsQuery.Distinct().ToListAsync(cancellationToken);
-
-			if(!taskIds.Any())
-			{
-				return new List<T>();
-			}
-
-			var tasks = await uow.Session.Query<T>()
-				.Where(t => taskIds.Contains(t.Id))
-				.Fetch(t => t.FormalEdoRequest)
-				.ThenFetch(r => r.Order)
-				.ToListAsync(cancellationToken);
-
-			return tasks;
 		}
 
 		private async Task<bool> TryResumeTask(OrderEdoTask edoTask, CancellationToken cancellationToken)
 		{
-			if(_selfDeliveryPaidValidator.IsApplicable(edoTask))
+			if(!_selfDeliveryPaidValidator.IsApplicable(edoTask))
 			{
 				_logger.LogError(
 					"Задача ЭДО {EedoTaskId} не подходит для обработки проблемой оплаты при самовывозе",
