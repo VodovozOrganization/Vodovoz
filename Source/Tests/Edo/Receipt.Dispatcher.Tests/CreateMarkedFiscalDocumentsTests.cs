@@ -1,4 +1,5 @@
-﻿using Edo.Common;
+﻿using Edo.Admin;
+using Edo.Common;
 using Edo.Problems;
 using Edo.Problems.Custom;
 using Edo.Problems.Exception;
@@ -517,6 +518,7 @@ namespace Receipt.Dispatcher.Tests
 			var trueMarkCodeRepository = Substitute.For<ITrueMarkCodeRepository>();
 			var saveCodesService = Substitute.For<ISaveCodesService>();
 			var bus = Substitute.For<IBus>();
+			var edoCancellationService = Substitute.For<EdoCancellationService>();
 
 			return new ForOwnNeedsReceiptEdoTaskHandler(
 				logger,
@@ -535,7 +537,8 @@ namespace Receipt.Dispatcher.Tests
 				Substitute.For<IEdoOrderContactProvider>(),
 				saveCodesService,
 				Substitute.For<IOrganizationSettings>(),
-				bus);
+				bus,
+				edoCancellationService);
 		}
 
 		private EdoTaskValidator CreateEdoTaskValidatorFixture(IUnitOfWorkFactory unitOfWorkFactory, EdoProblemRegistrar edoProblemRegistrar)
