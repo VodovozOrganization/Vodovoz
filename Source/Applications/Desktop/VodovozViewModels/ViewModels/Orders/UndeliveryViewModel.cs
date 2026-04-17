@@ -1,4 +1,7 @@
 ﻿using Autofac;
+using CustomerNotifications.Contracts;
+using Microsoft.Extensions.Logging;
+using Notifications.Infrastructure;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -12,8 +15,11 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Microsoft.Extensions.Logging;
-using Notifications.Infrastructure;
+using Vodovoz.Core.Application.Errors;
+using Vodovoz.Core.Application.FileStorage;
+using Vodovoz.Core.Application.Orders;
+using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sms;
@@ -27,12 +33,6 @@ using Vodovoz.Settings.Organizations;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Widgets;
-using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
-using Vodovoz.Core.Application.Orders;
-using Vodovoz.Core.Application.FileStorage;
-using Vodovoz.Core.Application.Errors;
-using CustomerNotifications.Contracts;
-using Vodovoz.Core.Domain.Orders.OrderEnums;
 
 namespace Vodovoz.ViewModels.Orders
 {
@@ -221,18 +221,10 @@ namespace Vodovoz.ViewModels.Orders
 		private bool SaveUndelivery(bool needClose = false)
 		{
 			_forceSave = true;
-			var result = Save(needClose);
+			var saveResult = Save(needClose);
 			_forceSave = false;
 
-			if(Entity.NewOrder?.OnlineOrder is OnlineOrder onlineOrder)
-			{
-				var customerOrderRescheduledEvent = new CustomerNotificationDomainEvent(
-					CustomerNotificationEventType.OrderRescheduled, Entity.NewOrder?.OnlineOrder?.Source, Entity.NewOrder?.OnlineOrder?.Id, Entity.NewOrder?.Id);
-				
-				_customerNotificationPublisher.TryPublish(UoW, customerOrderRescheduledEvent);
-			}
-
-			return result;
+			return saveResult;
 		}
 
 		/// <summary>
@@ -333,6 +325,13 @@ namespace Vodovoz.ViewModels.Orders
 			}
 
 			UoW.Save(Entity);
+
+			if(Entity.NewOrder != null)
+			{
+				var customerOrderRescheduledEvent = new CustomerNotificationDomainEvent(
+					CustomerNotificationEventType.OrderRescheduled, Entity.OldOrder.OnlineOrder?.Source, Entity.OldOrder.OnlineOrder?.Id, Entity.OldOrder.Id);
+				_customerNotificationPublisher.TryPublish(UoW, customerOrderRescheduledEvent);
+			}
 
 			if(!_isExternalUoW)
 			{

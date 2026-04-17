@@ -5,13 +5,13 @@ using TransactionalOutbox.Abstractions;
 
 namespace Notifications.Infrastructure
 {
-	public class PushNotificationsPublisher<TDomainEvent, TBus, TIntegrationEvent> : INotificationsPublisher<TDomainEvent>
+	public class PushNotificationPublisher<TDomainEvent, TBus, TIntegrationEvent> : INotificationPublisher<TDomainEvent>
 		where TBus : class, IBus
 	{
 		private readonly TBus _bus;
 		private readonly IIntegrationEventBuilder<TDomainEvent, TIntegrationEvent> _customerNotificationsIntegrationEventBuilder;
 
-		public PushNotificationsPublisher(
+		public PushNotificationPublisher(
 			TBus bus,
 			IIntegrationEventBuilder<TDomainEvent, TIntegrationEvent> customerNotificationsIntegrationEventBuilder)
 		{

@@ -53,7 +53,7 @@ namespace CustomerOnlineOrdersUpdater
 
 		private async Task SendWaitingForPaymentNotification(IServiceScope scope, CancellationToken cancellationToken)
 		{
-			using var uow = scope.ServiceProvider.GetService<IUnitOfWork>();
+			using var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 			var unPaidOnlineOrderHandler = scope.ServiceProvider.GetService<IUnPaidOnlineOrderHandler>();
 			await unPaidOnlineOrderHandler.SendWaitingForPaymentNotificationsAsync(uow, cancellationToken);
 		}

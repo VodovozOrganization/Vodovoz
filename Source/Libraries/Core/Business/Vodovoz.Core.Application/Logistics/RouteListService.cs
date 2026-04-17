@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Notifications.Infrastructure;
 using QS.DomainModel.UoW;
 using QS.Osrm;
 using QS.Services;
@@ -28,6 +27,7 @@ using Vodovoz.Tools.CallTasks;
 using VodovozBusiness.Services.Orders;
 using CustomerNotifications.Contracts;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
+using Notifications.Infrastructure;
 
 namespace Vodovoz.Core.Application.Logistics
 {
@@ -837,8 +837,8 @@ namespace Vodovoz.Core.Application.Logistics
 
 			routeList.ObservableAddresses.Add(item);
 
-			var customerCouriesAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, order.OnlineOrder?.Source, order.OnlineOrder?.Id, order.Id);
-			_customerNotificationPublisher.TryPublish(unitOfWork, customerCouriesAssignedEvent);
+			var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, order.OnlineOrder?.Source, order.OnlineOrder?.Id, order.Id);
+			_customerNotificationPublisher.TryPublish(unitOfWork, customerCourierAssignedEvent);
 
 			return item;
 		}
@@ -854,7 +854,7 @@ namespace Vodovoz.Core.Application.Logistics
 			RouteListItemStatus newAddressStatus, ICallTaskWorker callTaskWorker, bool isEditAtCashier = false)
 		{
 			routeList.Addresses.First(a => a.Id == routeListAddressid)
-				.UpdateStatusAndCreateTask(unitOfWork, newAddressStatus, callTaskWorker, _customerNotificationPublisher, isEditAtCashier);
+				.UpdateStatusAndCreateTask(unitOfWork, newAddressStatus, callTaskWorker, isEditAtCashier);
 			UpdateStatus(unitOfWork, routeList);
 		}
 
@@ -969,7 +969,12 @@ namespace Vodovoz.Core.Application.Logistics
 				{
 					if(address.Status == RouteListItemStatus.EnRoute)
 					{
-						address.UpdateStatusAndCreateTask(unitOfWork, RouteListItemStatus.Completed, callTaskWorker, _customerNotificationPublisher);
+						address.UpdateStatusAndCreateTask(unitOfWork, RouteListItemStatus.Completed, callTaskWorker);
+
+						var customerDeliveryCompletedEvent = new CustomerNotificationDomainEvent(
+							CustomerNotificationEventType.DeliveryCompleted, address.Order.OnlineOrder?.Source, address.Order.OnlineOrder?.Id, address.Order.Id);
+
+						_customerNotificationPublisher.TryPublish(unitOfWork, customerDeliveryCompletedEvent);
 					}
 
 					address.Order.ChangeStatusAndCreateTasks(OrderStatus.Closed, callTaskWorker);

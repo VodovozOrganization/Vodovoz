@@ -1,5 +1,4 @@
-﻿using Vodovoz.Core.Domain.Clients;
-using NHibernate;
+﻿using NHibernate;
 using Notifications.Infrastructure;
 using QS.DomainModel.UoW;
 using System;

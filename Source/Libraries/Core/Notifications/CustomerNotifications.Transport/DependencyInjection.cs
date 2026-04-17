@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 
 namespace CustomerNotifications.Transport
 {
-	public static class DependencyInjections
+	public static class DependencyInjection
 	{
 		public static IBusRegistrationConfigurator ConfigureCustomerNotificationsRabbitMq(
 			this IBusRegistrationConfigurator busConf,

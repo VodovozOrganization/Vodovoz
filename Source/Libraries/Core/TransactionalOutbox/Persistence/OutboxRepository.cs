@@ -31,14 +31,14 @@ namespace TransactionalOutbox.Persistence
 
             const string sql = @"
                 INSERT INTO outbox_messages (
-                    payload, deduplication_key, message_type, created_at, attempts
+                    payload, deduplication_key, type, created_at, attempts
                 ) VALUES (
-                    @Payload, @DeduplicationKey, @MessageType, @CreatedAt, @Attempts
+                    @Payload, @DeduplicationKey, @Type, @CreatedAt, @Attempts
                 )";
 
             await conn.ExecuteAsync(sql, new
             {
-                message.PayloadJson,
+                message.Payload,
                 message.DeduplicationKey,
                 message.Type,
                 message.CreatedAt,

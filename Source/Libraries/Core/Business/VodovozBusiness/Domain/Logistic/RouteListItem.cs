@@ -1,7 +1,5 @@
 ﻿using Autofac;
-using Vodovoz.Core.Domain.Clients;
 using Gamma.Utilities;
-using Notifications.Infrastructure;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using QS.Utilities.Debug;
@@ -30,8 +28,6 @@ using Vodovoz.Settings.Delivery;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
 using VodovozBusiness.Services.Orders;
-using CustomerNotifications.Contracts;
-using Vodovoz.Core.Domain.Orders.OrderEnums;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -645,7 +641,6 @@ namespace Vodovoz.Domain.Logistic
 			IUnitOfWork uow,
 			RouteListItemStatus status,
 			ICallTaskWorker callTaskWorker,
-			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
 			bool isEditAtCashier = false)
 		{
 			if(Status == status)
@@ -674,18 +669,10 @@ namespace Vodovoz.Domain.Logistic
 
 					RestoreOrder(status);
 					_orderService.AutoCancelAutoTransfer(uow, Order);
-
-					var customerDeliveryCompletedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.DeliveryCompleted, Order.OnlineOrder?.Source, Order.OnlineOrder?.Id, Order.Id);
-					customerNotificationPublisher.TryPublish(uow, customerDeliveryCompletedEvent);
-
 					break;
 				case RouteListItemStatus.EnRoute:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, callTaskWorker);
 					RestoreOrder(status);
-
-					var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, Order.OnlineOrder?.Source, Order.OnlineOrder?.Id, Order.Id);
-					customerNotificationPublisher.TryPublish(uow, customerCourierAssignedEvent);
-
 					break;
 				case RouteListItemStatus.Overdue:
 					Order.OverdueDelivery(uow, callTaskWorker);

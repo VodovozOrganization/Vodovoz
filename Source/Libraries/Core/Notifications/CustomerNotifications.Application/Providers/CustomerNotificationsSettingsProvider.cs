@@ -16,35 +16,30 @@ namespace CustomerNotifications.Application.Providers
 			_settings = settings ?? throw new ArgumentNullException(nameof(settings));
 		}
 
-		public bool IsDuplicateAllowed(CustomerNotificationDomainEvent notificationDomainEvent)
+		private OnlineOrderNotificationSetting GetSetting(CustomerNotificationDomainEvent notificationDomainEvent)
 		{
-			return _settings.TryGetValue(notificationDomainEvent.CustomerNotificationEventType, out var setting)
-			       && setting.AllowDuplicateNotifications;
+			if(notificationDomainEvent == null)
+			{
+				throw new ArgumentNullException(nameof(notificationDomainEvent));
+			}
+
+			if(!_settings.TryGetValue(notificationDomainEvent.CustomerNotificationEventType, out var setting))
+			{
+				throw new InvalidOperationException(
+					$"Не найдена настройка для типа события '{notificationDomainEvent.CustomerNotificationEventType}'.");
+			}
+
+			return setting;
 		}
 
-		public bool IsDisabled(CustomerNotificationDomainEvent notificationDomainEvent)
-		{
-			return _settings.TryGetValue(notificationDomainEvent.CustomerNotificationEventType, out var setting)
-			       && setting.NotificationDisabled;
-		}
+		public bool IsDuplicateAllowed(CustomerNotificationDomainEvent notificationDomainEvent) => GetSetting(notificationDomainEvent)?.AllowDuplicateNotifications ?? false;
 
-		public string GetNotificationText(CustomerNotificationDomainEvent notificationDomainEvent)
-		{
-			return _settings.TryGetValue(notificationDomainEvent.CustomerNotificationEventType, out var setting)
-				? setting.NotificationText
-				: null;
-		}
+		public bool IsDisabled(CustomerNotificationDomainEvent notificationDomainEvent) => GetSetting(notificationDomainEvent)?.NotificationDisabled ?? true;
 
-		public CustomerNotificationPushType GetCustomerPushType(CustomerNotificationDomainEvent notificationDomainEvent)
-		{
-			_settings.TryGetValue(notificationDomainEvent.CustomerNotificationEventType, out var setting);
-			return setting.PushType;
-		}
+		public string GetNotificationText(CustomerNotificationDomainEvent notificationDomainEvent) => GetSetting(notificationDomainEvent).NotificationText;
 
-		public CustomerNotificationTargetType GetCustomerPushTarget(CustomerNotificationDomainEvent notificationDomainEvent)
-		{
-			_settings.TryGetValue(notificationDomainEvent.CustomerNotificationEventType, out var setting);
-			return setting.PushTarget;
-		}
+		public CustomerNotificationPushType GetCustomerPushType(CustomerNotificationDomainEvent notificationDomainEvent) => GetSetting(notificationDomainEvent).PushType;
+		
+		public CustomerNotificationTargetType GetCustomerPushTarget(CustomerNotificationDomainEvent notificationDomainEvent) => GetSetting(notificationDomainEvent).PushTarget;		
 	}
 }

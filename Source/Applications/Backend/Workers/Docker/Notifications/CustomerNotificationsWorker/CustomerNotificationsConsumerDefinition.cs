@@ -8,7 +8,7 @@ namespace CustomerNotificationsWorker
 	{
 		public CustomerNotificationsConsumerDefinition()
 		{
-			EndpointName = "customer-push-notifications";
+			EndpointName = "customer-notifications";
 			ConcurrentMessageLimit = 5;
 		}
 

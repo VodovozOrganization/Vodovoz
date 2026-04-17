@@ -33,9 +33,9 @@ namespace OutboxWorker
 				.ToDictionary(t => t.FullName, t => t);
 
 		public OutboxWorker(
+			ILogger<OutboxWorker> logger,
 			IConfiguration config,
-			IServiceScopeFactory scopeFactory,
-			ILogger<OutboxWorker> logger)
+			IServiceScopeFactory scopeFactory)
 		{
 			if(config == null)
 			{
@@ -95,7 +95,7 @@ namespace OutboxWorker
 								throw new Exception($"Type not found {msg.Type}");
 							}
 
-							var @event = msg.PayloadJson?.DeserializeFromOutbox(type);
+							var @event = msg.Payload?.DeserializeFromOutbox(type);
 
 							if(@event == null)
 							{

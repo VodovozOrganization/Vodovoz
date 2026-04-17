@@ -11,7 +11,7 @@ namespace Vodovoz.Core.Data.NHibernate.Outbox
 			
 			Id(x => x.Guid).Column("guid").GeneratedBy.Guid();
 			Map(x => x.CreatedAt).Column("created_at").ReadOnly();
-			Map(x => x.PayloadJson).Column("payload");
+			Map(x => x.Payload).Column("payload");
 			Map(x => x.Type).Column("type");
 			Map(x => x.SentAt).Column("sent_at");
 			Map(x => x.Attempts).Column("attempts");

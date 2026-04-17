@@ -18,7 +18,7 @@ namespace CustomerNotifications.Contracts
 		/// <summary>
 		/// Код заказа
 		/// </summary>
-		public int? OrderId { get; set; }
+		public int? OrderId { get; }
 
 		/// <summary>
 		/// Тип события для уведомления
@@ -28,7 +28,7 @@ namespace CustomerNotifications.Contracts
 		/// <summary>
 		/// Внешний источник
 		/// </summary>
-		public Source? EventSource{ get; }
+		public Source EventSource{ get; }
 
 		public CustomerNotificationDomainEvent(CustomerNotificationEventType customerNotificationEventType, Source? source = null, int? onlineOrderId = null, int? orderId = null)
 		{

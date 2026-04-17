@@ -225,6 +225,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 				);
 			}
 
+			await TryNotifyCustomerAboudOrderPaidAsync(uow, data, cancellationToken);
+
 			await SaveOnlineOrder(uow, onlineOrder, cancellationToken);
 			return Result.Success();
 		}
@@ -395,9 +397,26 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return false;
 			}
 
-			var customerOrderAwaitingPaymentEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.OrderAwaitingPayment, Source.MobileApp, onlineOrder.Id);
+			var customerOrderAwaitingPaymentEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.OrderAwaitingPayment, onlineOrder.Source, onlineOrder.Id);
 
 			return await _outboxNotificationPublisher.TryPublishAsync(unitOfWork, customerOrderAwaitingPaymentEvent, cancellationToken);
+		}
+
+		private async Task<bool> TryNotifyCustomerAboudOrderPaidAsync(IUnitOfWork uow, UpdateOnlineOrderFromChangeRequest data, CancellationToken cancellationToken)
+		{
+			var needCustomerOrderPaidNotification =
+				data.PaymentStatus == OnlineOrderPaymentStatus.Paid
+				&& data.OnlinePayment != null
+				&& data.OnlineOrderPaymentType != null
+				&& data.OnlineOrderId != null;
+
+			if(needCustomerOrderPaidNotification)
+			{
+				var customerOrderPaidEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.OrderPaid, data.Source, data.OnlineOrderId.Value);
+				return await _outboxNotificationPublisher.TryPublishAsync(uow, customerOrderPaidEvent, cancellationToken);
+			}
+
+			return false;
 		}
 	}
 }

@@ -1,4 +1,6 @@
 ﻿using CustomerNotifications.Application.Providers;
+using CustomerNotifications.Application.Templates;
+using CustomerNotifications.Contracts;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -6,12 +8,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TransactionalOutbox.Abstractions;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Extensions;
-using CustomerNotifications.Contracts;
-using Vodovoz.Core.Domain.Orders.OrderEnums;
 
 namespace CustomerNotifications.Application.Builders
 {
@@ -22,12 +23,12 @@ namespace CustomerNotifications.Application.Builders
 		private readonly IGenericRepository<UndeliveredOrder> _undeliveredOrdersRepository;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 
-		// Шаблоны (лучше вынести в отдельный класс-конфиг в будущем)
-		private const string _orderIdTemplate = "{OrderId}";
-		private const string _deliveryScheduleFromTemplate = "{DeliveryScheduleFrom}";
-		private const string _bottlesReturnedTemplate = "{BottlesReturned}";
-		private const string _rescheduleDateTemplate = "{RescheduleDate}";
-		private const string _rescheduleReasonTemplate = "{RescheduleReason}";
+		private static readonly HashSet<OrderStatus> _undeliveryStatuses = new HashSet<OrderStatus>
+		{
+			OrderStatus.NotDelivered,
+			OrderStatus.DeliveryCanceled,
+			OrderStatus.Canceled
+		};
 
 		public CustomerNotificationsIntegrationEventBuilder(
 			ICustomerNotificationsSettingsProvider customerNotificationSettingsProvider,
@@ -45,8 +46,6 @@ namespace CustomerNotifications.Application.Builders
 			CustomerNotificationDomainEvent domainEvent,
 			CancellationToken cancellationToken = default)
 		{
-			var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot(nameof(CustomerNotificationsIntegrationEventBuilder));
-
 			if(domainEvent == null)
 			{
 				throw new ArgumentNullException(nameof(domainEvent));
@@ -62,42 +61,45 @@ namespace CustomerNotifications.Application.Builders
 			}
 
 			OnlineOrder onlineOrder = null;
-
-			if(domainEvent.OnlineOrderId != null)
-			{
-				onlineOrder = unitOfWork.GetById<OnlineOrder>(domainEvent.OnlineOrderId.Value);
-
-				if(onlineOrder == null)
-				{
-					throw new InvalidOperationException($"Онлайн заказ с Id {domainEvent.OnlineOrderId} не найден.");
-				}
-			}
-
 			Order order = null;
 
-			if(domainEvent.OrderId != null)
+			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot(nameof(CustomerNotificationsIntegrationEventBuilder)))
 			{
-				order = unitOfWork.GetById<Order>(domainEvent.OrderId.Value);
 
-				if(order == null)
+				if(domainEvent.OnlineOrderId != null)
 				{
-					throw new InvalidOperationException($"Заказ с Id {domainEvent.OrderId} не найден.");
+					onlineOrder = unitOfWork.GetById<OnlineOrder>(domainEvent.OnlineOrderId.Value);
+
+					if(onlineOrder == null)
+					{
+						throw new InvalidOperationException($"Онлайн заказ с Id {domainEvent.OnlineOrderId} не найден.");
+					}
+				}				
+
+				if(domainEvent.OrderId != null)
+				{
+					order = unitOfWork.GetById<Order>(domainEvent.OrderId.Value);
+
+					if(order == null)
+					{
+						throw new InvalidOperationException($"Заказ с Id {domainEvent.OrderId} не найден.");
+					}
 				}
-			}
 
-			var deliveryScheduleFrom = onlineOrder?.DeliverySchedule?.DeliveryTime ?? order?.DeliverySchedule?.DeliveryTime;
+				var deliveryScheduleFrom = onlineOrder?.DeliverySchedule?.DeliveryTime ?? order?.DeliverySchedule?.DeliveryTime;
 
-			notificationText = notificationText
-				.Replace(_orderIdTemplate, (domainEvent.OnlineOrderId ?? domainEvent.OrderId).ToString())
-				.Replace(_deliveryScheduleFromTemplate, deliveryScheduleFrom ?? "[интервал в заказе не выбран]");
+				notificationText = notificationText
+					.Replace(NotificationTemplates.OrderId, (domainEvent.OnlineOrderId ?? domainEvent.OrderId).ToString())
+					.Replace(NotificationTemplates.DeliveryScheduleFrom, deliveryScheduleFrom ?? "[интервал в заказе не выбран]");
 
-			if(domainEvent.CustomerNotificationEventType == CustomerNotificationEventType.DeliveryCompleted)
-			{
-				notificationText = await ApplyDeliveryCompletedLogicAsync(unitOfWork, domainEvent, onlineOrder, order, notificationText, cancellationToken);
-			}
-			else if(domainEvent.CustomerNotificationEventType == CustomerNotificationEventType.OrderRescheduled)
-			{
-				notificationText = await ApplyOrderRescheduledLogicAsync(unitOfWork, onlineOrder, order, notificationText, cancellationToken);
+				if(domainEvent.CustomerNotificationEventType == CustomerNotificationEventType.DeliveryCompleted)
+				{
+					notificationText = await ApplyDeliveryCompletedLogicAsync(unitOfWork, domainEvent, onlineOrder, order, notificationText, cancellationToken);
+				}
+				else if(domainEvent.CustomerNotificationEventType == CustomerNotificationEventType.OrderRescheduled)
+				{
+					notificationText = await ApplyOrderRescheduledLogicAsync(unitOfWork, onlineOrder, order, notificationText, cancellationToken);
+				}
 			}
 
 			var data = new CustomerNotificationMessage
@@ -130,16 +132,9 @@ namespace CustomerNotifications.Application.Builders
 			Order order,
 			string text, CancellationToken cancellationToken)
 		{
-			var undeliveryStatuses = new[]
-			{
-				OrderStatus.NotDelivered,
-				OrderStatus.DeliveryCanceled,
-				OrderStatus.Canceled
-			};
-
 			var currentOrder = onlineOrder.Orders
 				.OrderByDescending(o => o.CreateDate)
-				.FirstOrDefault(o => !undeliveryStatuses.Contains(o.OrderStatus))
+				.FirstOrDefault(o => !_undeliveryStatuses.Contains(o.OrderStatus))
 				?? order;
 
 			if(currentOrder == null)
@@ -160,7 +155,7 @@ namespace CustomerNotifications.Application.Builders
 				? $"Вы сдали {address?.BottlesReturned ?? 0} бутылей"
 				: string.Empty;
 
-			return text.Replace(_bottlesReturnedTemplate, bottlesInfo);
+			return text.Replace(NotificationTemplates.BottlesReturned, bottlesInfo);
 		}
 
 		private async Task<string> ApplyOrderRescheduledLogicAsync(
@@ -170,30 +165,14 @@ namespace CustomerNotifications.Application.Builders
 			string text,
 			CancellationToken cancellationToken)
 		{
-			var undeliveryStatuses = new[]
-			{
-				OrderStatus.NotDelivered,
-				OrderStatus.DeliveryCanceled,
-				OrderStatus.Canceled
-			};
-
-			var undeliveredOrderId = onlineOrder.Orders
-				.OrderByDescending(o => o.CreateDate)
-				.FirstOrDefault(o => undeliveryStatuses.Contains(o.OrderStatus))
+			var undeliveredOrderId = (onlineOrder
+				?.Orders
+				?.OrderByDescending(o => o.CreateDate)
+				?.FirstOrDefault(o => _undeliveryStatuses.Contains(o.OrderStatus))
+				?? order)
 				?.Id;
 
-			var currentOrder = onlineOrder.Orders
-				.OrderByDescending(o => o.CreateDate)
-				.FirstOrDefault(o => !undeliveryStatuses.Contains(o.OrderStatus))
-				?? order;
-
-			if(currentOrder == null)
-			{
-				throw new InvalidOperationException(
-					$"Не найден текущий заказ для OrderRescheduled (OnlineOrderId={onlineOrder.Id}, OrderId = {order.Id}).");
-			}
-
-			var undelivery = 
+			var undelivery =
 				(await _undeliveredOrdersRepository.GetAsync(
 					unitOfWork,
 					x => x.OldOrder.Id == undeliveredOrderId,
@@ -202,11 +181,23 @@ namespace CustomerNotifications.Application.Builders
 				.OrderByDescending(o => o.TimeOfCreation)
 				.FirstOrDefault();
 
+			var newOrder = onlineOrder
+				?.Orders
+				?.OrderByDescending(o => o.CreateDate)
+				?.FirstOrDefault(o => !_undeliveryStatuses.Contains(o.OrderStatus))
+				?? undelivery?.NewOrder;
+
 			var rescheduleReason = undelivery?.UndeliveryDetalization?.CustomerNotificationText ?? string.Empty;
 
+			if(newOrder is null)
+			{
+				return text
+					.Replace(NotificationTemplates.RescheduleReason, rescheduleReason);
+			}			
+
 			return text
-				.Replace(_rescheduleDateTemplate, currentOrder.DeliveryDate?.ToString("D") ?? "")
-				.Replace(_rescheduleReasonTemplate, rescheduleReason);
+				.Replace(NotificationTemplates.RescheduleDate, newOrder.DeliveryDate?.ToString("D") ?? "")
+				.Replace(NotificationTemplates.RescheduleReason, rescheduleReason);
 		}
 	}
 }

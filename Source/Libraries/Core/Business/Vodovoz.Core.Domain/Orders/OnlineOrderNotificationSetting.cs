@@ -23,6 +23,9 @@ namespace Vodovoz.Core.Domain.Orders
 		private CustomerNotificationPushType _pushType;
 		private CustomerNotificationTargetType _pushTarget;
 
+		/// <summary>
+		/// Код
+		/// </summary>
 		[Display(Name = "Код")]
 		public virtual int Id
 		{
@@ -30,6 +33,9 @@ namespace Vodovoz.Core.Domain.Orders
 			set => SetField(ref _id, value);
 		}
 
+		/// <summary>
+		/// Тип события для уведомления клиента
+		/// </summary>
 		[Display(Name = "Тип события для уведомления клиента")]
 		public virtual CustomerNotificationEventType CustomerNotificationEventType
 		{
@@ -37,6 +43,9 @@ namespace Vodovoz.Core.Domain.Orders
 			set => SetField(ref _customerNotificationEventType, value);
 		}
 
+		/// <summary>
+		/// Текст уведомления
+		/// </summary>
 		[Display(Name = "Текст уведомления")]
 		public virtual string NotificationText
 		{
@@ -44,6 +53,9 @@ namespace Vodovoz.Core.Domain.Orders
 			set => SetField(ref _notificationText, value);
 		}
 
+		/// <summary>
+		/// Классификация уведомления
+		/// </summary>
 		[Display(Name = "Классификация уведомления")]
 		public virtual CustomerNotificationClassification NotificationClassification
 		{
@@ -51,6 +63,9 @@ namespace Vodovoz.Core.Domain.Orders
 			set => SetField(ref _notificationClassification, value);
 		}
 
+		/// <summary>
+		/// Не отправлять
+		/// </summary>
 		[Display(Name = "Не отправлять")]
 		public virtual bool NotificationDisabled
 		{
@@ -58,6 +73,9 @@ namespace Vodovoz.Core.Domain.Orders
 			set => SetField(ref _notificationDisabled, value);
 		}
 
+		/// <summary>
+		/// Разрешить повторные отправки
+		/// </summary>
 		[Display(Name = "Разрешить повторные отправки")]
 		public virtual bool AllowDuplicateNotifications
 		{
@@ -65,6 +83,9 @@ namespace Vodovoz.Core.Domain.Orders
 			set => SetField(ref _allowDuplicateNotifications, value);
 		}
 
+		/// <summary>
+		/// Тип пуш уведомления
+		/// </summary>
 		[Display(Name = "Тип пуш уведомления")]
 		public virtual CustomerNotificationPushType PushType
 		{
@@ -72,6 +93,9 @@ namespace Vodovoz.Core.Domain.Orders
 			set => SetField(ref _pushType, value);
 		}
 
+		/// <summary>
+		/// Куда ведет пуш
+		/// </summary>
 		[Display(Name = "Куда ведет пуш")]
 		public virtual CustomerNotificationTargetType PushTarget
 		{

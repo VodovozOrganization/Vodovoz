@@ -10,7 +10,7 @@ using Vodovoz.Core.Domain.Orders.OrderEnums;
 
 namespace CustomerNotifications.Application
 {
-	public static class DependencyInjections
+	public static class DependencyInjection
 	{
 		public static IServiceCollection AddCustomerNotificationsSettingsProvider(this IServiceCollection services)
 		{

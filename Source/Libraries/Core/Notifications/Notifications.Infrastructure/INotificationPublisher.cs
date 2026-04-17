@@ -7,7 +7,7 @@ namespace Notifications.Infrastructure
 	/// Интерфейс для публикации нотификаций, которые не требуют оборачивания в транзакцию.
 	/// </summary>
 	/// <typeparam name="TDomainEvent"></typeparam>
-	public interface INotificationsPublisher<TDomainEvent>
+	public interface INotificationPublisher<TDomainEvent>
 	{
 		Task PublishAsync(TDomainEvent notificationEvent, CancellationToken cancellationToken = default);
 	}

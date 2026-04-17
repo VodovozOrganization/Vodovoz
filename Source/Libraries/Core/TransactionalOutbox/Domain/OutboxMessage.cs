@@ -27,7 +27,7 @@ namespace TransactionalOutbox.Domain
 		/// <summary>
 		/// Payload в виде JSON строки. Будет десериализован в объект нужного типа при отправке сообщения.
 		/// </summary>
-		public virtual string PayloadJson { get; protected set; }
+		public virtual string Payload { get; protected set; }
 
 		/// <summary>
 		/// Дата и время отправки сообщения.
@@ -101,7 +101,7 @@ namespace TransactionalOutbox.Domain
 			}
 
 			Type = integrationEvent.GetType().FullName;
-			PayloadJson = integrationEvent.SerializeForOutbox();
+			Payload = integrationEvent.SerializeForOutbox();
 			
 		}
 	}

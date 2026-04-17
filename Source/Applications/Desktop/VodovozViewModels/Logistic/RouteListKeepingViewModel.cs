@@ -1,4 +1,4 @@
-﻿using Vodovoz.Core.Domain.Clients;
+﻿using CustomerNotifications.Contracts;
 using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Requests;
 using Edo.Transport;
@@ -29,8 +29,10 @@ using System.Threading.Tasks;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Application.Orders;
 using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -60,7 +62,6 @@ using VodovozBusiness.NotificationSenders;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.TrueMark;
 using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
-using CustomerNotifications.Contracts;
 
 namespace Vodovoz
 {
@@ -213,7 +214,15 @@ namespace Vodovoz
 
 		private void RollBackEnRouteStatus()
 		{
-			Entity.RollBackEnRouteStatus(UoW, _customerNotificationPublisher);
+			Entity.RollBackEnRouteStatus(UoW);
+
+			foreach(var item in Entity.Addresses.Where(x => x.Status == RouteListItemStatus.Completed))
+			{
+				item.Order.OrderStatus = OrderStatus.OnTheWay;
+
+				var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, item.Order.OnlineOrder?.Source, item.Order.OnlineOrder?.Id, item.Order.Id);
+				_customerNotificationPublisher.TryPublish(UoW, customerCourierAssignedEvent);
+			}
 		}
 
 		private void CreateInitialRouteListItemStatuses()

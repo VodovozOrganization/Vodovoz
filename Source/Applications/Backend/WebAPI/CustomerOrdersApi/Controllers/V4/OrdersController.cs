@@ -5,16 +5,13 @@ using Gamma.Utilities;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging;
 using Notifications.Infrastructure;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Presentation.WebApi.Messages;
 using CustomerNotifications.Contracts;
-using Vodovoz.Core.Domain.Orders.OrderEnums;
 
 namespace CustomerOrdersApi.Controllers.V4
 {
@@ -23,18 +20,15 @@ namespace CustomerOrdersApi.Controllers.V4
 	{
 		private readonly ICustomerOrdersServiceV4 _customerOrdersService;
 		private readonly IRequestClient<CreatingOnlineOrder> _requestClient;
-		private readonly INotificationsPublisher<CustomerNotificationDomainEvent> _customerNotificationsPublisher;
 
 		public OrdersController(
 			ILogger<OrdersController> logger,
 			ICustomerOrdersServiceV4 customerOrdersService,
-			IRequestClient<CreatingOnlineOrder> requestClient,
-			INotificationsPublisher<CustomerNotificationDomainEvent> customerNotificationsPublisher
+			IRequestClient<CreatingOnlineOrder> requestClient
 			) : base(logger)
 		{
 			_customerOrdersService = customerOrdersService ?? throw new ArgumentNullException(nameof(customerOrdersService));
 			_requestClient = requestClient ?? throw new ArgumentNullException(nameof(requestClient));
-			_customerNotificationsPublisher = customerNotificationsPublisher ?? throw new ArgumentNullException(nameof(customerNotificationsPublisher));
 		}
 
 		[HttpPost]
@@ -192,18 +186,6 @@ namespace CustomerOrdersApi.Controllers.V4
 
 				if(result.IsSuccess)
 				{
-					var needOrderPaidNotification =
-						changingOrderDto.PaymentStatus == OnlineOrderPaymentStatus.Paid
-						&& changingOrderDto.OnlinePayment != null
-						&& changingOrderDto.OnlineOrderPaymentType != null
-						&& changingOrderDto.OnlineOrderId != null;
-
-					if(needOrderPaidNotification)
-					{
-						var customerOrderPaidEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.OrderPaid, changingOrderDto.Source, changingOrderDto.OnlineOrderId.Value);
-						await _customerNotificationsPublisher.PublishAsync(customerOrderPaidEvent, cancellationToken);
-					}
-
 					return Ok(result.Value);
 				}
 
