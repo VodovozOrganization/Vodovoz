@@ -17,8 +17,6 @@ using MySqlConnector;
 using QS.Utilities.Debug;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Orders;
-using Notifications.Infrastructure;
-using CustomerNotifications.Contracts;
 
 namespace CustomerOnlineOrdersRegistrar.Consumers
 {
@@ -34,7 +32,6 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 		private readonly IOrderService _orderService;
 		private readonly IRouteListService _routeListService;
 		private readonly IOrderFromOnlineOrderValidator _onlineOrderValidator;
-		INotificationsPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 
 		protected ILogger<OnlineOrderConsumer> Logger { get; }
 
@@ -49,8 +46,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
 			IOrderService orderService,
 			IRouteListService routeListService,
-			IOrderFromOnlineOrderValidator onlineOrderValidator,
-			INotificationsPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher
+			IOrderFromOnlineOrderValidator onlineOrderValidator
 			)
 		{
 			Logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -65,7 +61,6 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_onlineOrderValidator = onlineOrderValidator ?? throw new ArgumentNullException(nameof(onlineOrderValidator));
-			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 		}
 		
 		protected virtual async Task<(int OnlineOrderId, int Code)> TryRegisterOnlineOrderV3Async(

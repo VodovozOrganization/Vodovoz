@@ -6,7 +6,7 @@ using Vodovoz.Core.Domain.Orders.OrderEnums;
 namespace CustomerNotifications.Contracts
 {
 	/// <summary>
-	/// Событие домена для уведомлений клиентов. Содержит информацию о том, какое событие произошло, и какую информацию нужно передать для формирования уведомления.
+	/// Событие для уведомлений клиентов. Содержит информацию о том, какое событие произошло, и какую информацию нужно передать для формирования уведомления.
 	/// </summary>
 	public class CustomerNotificationDomainEvent : IOutboxDomainEvent
 	{
@@ -28,7 +28,7 @@ namespace CustomerNotifications.Contracts
 		/// <summary>
 		/// Внешний источник
 		/// </summary>
-		public Source? EventSource{ get; set; }
+		public Source? EventSource{ get; }
 
 		public CustomerNotificationDomainEvent(CustomerNotificationEventType customerNotificationEventType, Source? source = null, int? onlineOrderId = null, int? orderId = null)
 		{

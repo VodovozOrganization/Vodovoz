@@ -37,6 +37,11 @@ namespace OutboxWorker
 			IServiceScopeFactory scopeFactory,
 			ILogger<OutboxWorker> logger)
 		{
+			if(config == null)
+			{
+				throw new ArgumentNullException(nameof(config));
+			}
+
 			_connectionString = config.GetConnectionString("Default");
 			_scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));

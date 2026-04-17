@@ -192,8 +192,6 @@ namespace CustomerOrdersApi.Controllers.V4
 
 				if(result.IsSuccess)
 				{
-					var sourcesForPaymentAwaitingNotification = new[] { OnlinePaymentSource.FromMobileApp, OnlinePaymentSource.FromMobileAppByQr, OnlinePaymentSource.FromMobileAppByYandexSplit };
-
 					var needOrderPaidNotification =
 						changingOrderDto.PaymentStatus == OnlineOrderPaymentStatus.Paid
 						&& changingOrderDto.OnlinePayment != null

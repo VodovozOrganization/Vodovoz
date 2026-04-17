@@ -19,7 +19,6 @@ using QS.Project.Domain;
 using QS.Project.HibernateMapping;
 using Vodovoz;
 using Vodovoz.Core.Application.Logistics;
-using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
@@ -27,7 +26,6 @@ using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Trackers;
-using VodovozBusiness.Services.Orders;
 using AssemblyFinder = Vodovoz.Data.NHibernate.AssemblyFinder;
 
 namespace CustomerOnlineOrdersRegistrar

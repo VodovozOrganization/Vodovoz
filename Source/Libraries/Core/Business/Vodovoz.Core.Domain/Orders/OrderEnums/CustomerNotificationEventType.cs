@@ -47,6 +47,6 @@ namespace Vodovoz.Core.Domain.Orders.OrderEnums
 		/// Заказ перенесен на другое время
 		/// </summary>
 		[Display(Name = "Заказ перенесен на другое время")]
-		OrderRescheduled,
+		OrderRescheduled
 	}
 }

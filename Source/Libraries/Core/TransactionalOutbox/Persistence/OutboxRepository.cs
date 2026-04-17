@@ -94,7 +94,7 @@ namespace TransactionalOutbox.Persistence
                 @"
                 DELETE FROM outbox_messages
                 WHERE sent_at IS NOT NULL
-                  AND sent_at < UTC_TIMESTAMP() - INTERVAL 7 DAY",
+                  AND sent_at < UTC_TIMESTAMP() - INTERVAL 1 DAY",
                 transaction: transaction
             );
         }

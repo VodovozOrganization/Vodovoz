@@ -93,11 +93,11 @@ namespace CustomerNotifications.Application.Builders
 
 			if(domainEvent.CustomerNotificationEventType == CustomerNotificationEventType.DeliveryCompleted)
 			{
-				notificationText = await ApplyDeliveryCompletedLogicAsync(unitOfWork, domainEvent, onlineOrder, order, notificationText);
+				notificationText = await ApplyDeliveryCompletedLogicAsync(unitOfWork, domainEvent, onlineOrder, order, notificationText, cancellationToken);
 			}
 			else if(domainEvent.CustomerNotificationEventType == CustomerNotificationEventType.OrderRescheduled)
 			{
-				notificationText = await ApplyOrderRescheduledLogicAsync(unitOfWork, domainEvent, onlineOrder, order, notificationText);
+				notificationText = await ApplyOrderRescheduledLogicAsync(unitOfWork, onlineOrder, order, notificationText, cancellationToken);
 			}
 
 			var data = new CustomerNotificationMessage
@@ -128,7 +128,7 @@ namespace CustomerNotifications.Application.Builders
 			CustomerNotificationDomainEvent notificationDomainEvent,
 			OnlineOrder onlineOrder,
 			Order order,
-			string text)
+			string text, CancellationToken cancellationToken)
 		{
 			var undeliveryStatuses = new[]
 			{
@@ -148,9 +148,12 @@ namespace CustomerNotifications.Application.Builders
 					$"Не найден текущий заказ для DeliveryCompleted (OnlineOrderId={notificationDomainEvent.OnlineOrderId}).");
 			}
 
-			var address = _routeListItemRepository.Get(
+			var address =
+				(await _routeListItemRepository.GetAsync(
 					unitOfWork,
-					x => x.Status != RouteListItemStatus.Transfered && x.Order.Id == currentOrder.Id)
+					x => x.Status != RouteListItemStatus.Transfered && x.Order.Id == currentOrder.Id,
+					cancellationToken: cancellationToken))
+				.Value
 				.SingleOrDefault();
 
 			var bottlesInfo = currentOrder.GetTotalWater19LCount() > 0
@@ -162,10 +165,10 @@ namespace CustomerNotifications.Application.Builders
 
 		private async Task<string> ApplyOrderRescheduledLogicAsync(
 			IUnitOfWork unitOfWork,
-			CustomerNotificationDomainEvent notificationDomainEvent,
 			OnlineOrder onlineOrder,
 			Order order,
-			string text)
+			string text,
+			CancellationToken cancellationToken)
 		{
 			var undeliveryStatuses = new[]
 			{
@@ -190,9 +193,12 @@ namespace CustomerNotifications.Application.Builders
 					$"Не найден текущий заказ для OrderRescheduled (OnlineOrderId={onlineOrder.Id}, OrderId = {order.Id}).");
 			}
 
-			var undelivery = _undeliveredOrdersRepository.Get(
+			var undelivery = 
+				(await _undeliveredOrdersRepository.GetAsync(
 					unitOfWork,
-					x => x.OldOrder.Id == undeliveredOrderId)
+					x => x.OldOrder.Id == undeliveredOrderId,
+					cancellationToken: cancellationToken))
+				.Value
 				.OrderByDescending(o => o.TimeOfCreation)
 				.FirstOrDefault();
 

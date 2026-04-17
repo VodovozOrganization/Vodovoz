@@ -1,5 +1,4 @@
-﻿using Vodovoz.Core.Domain.Clients;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Notifications.Infrastructure;
 using QS.DomainModel.UoW;
 using QS.Osrm;

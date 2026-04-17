@@ -29,8 +29,6 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
-using Notifications.Infrastructure;
-using Vodovoz.Core.Domain.Clients;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {

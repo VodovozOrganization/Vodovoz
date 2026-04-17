@@ -14,6 +14,7 @@ using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Services;
 using System;
+using CustomerNotifications.Contracts;
 using Osrm;
 using Vodovoz;
 using Vodovoz.Core.Application;
@@ -26,6 +27,7 @@ using Vodovoz.Services.Logistics;
 using Vodovoz.Trackers;
 using VodovozHealthCheck;
 using CustomerNotifications.Transport;
+using Notifications.Infrastructure;
 
 namespace CustomerOrdersApi
 {
@@ -83,6 +85,10 @@ namespace CustomerOrdersApi
 					busConf.ConfigureCustomerNotificationsRabbitMq(services, Configuration);
 				})
 				.AddHttpClient();
+
+			services
+				.AddScoped<INotificationsPublisher<CustomerNotificationDomainEvent>,
+					PushNotificationsPublisher<CustomerNotificationDomainEvent, ICustomerNotificationsBus, CustomerNotificationIntegrationEvent>>();
 
 			services.ConfigureHealthCheckService<CustomerOrdersApiHealthCheck, ServiceInfoProvider>();
 		}

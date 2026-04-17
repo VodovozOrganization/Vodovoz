@@ -10,22 +10,22 @@ namespace TransactionalOutbox.Domain
 	public class OutboxMessage
 	{
 		/// <summary>
-		/// Уникальный идентификатор сообщения аутбокса
+		/// Уникальный идентификатор сообщения
 		/// </summary>
 		public virtual Guid Guid { get; protected set; }
 
 		/// <summary>
-		/// Дата и время создания сообщения аутбокса
+		/// Дата и время создания сообщения
 		/// </summary>
 		public virtual DateTime CreatedAt { get; protected set; }
 		
 		/// <summary>
-		/// Тип сообщения аутбокса
+		/// Тип сообщения
 		/// </summary>
 		public virtual string Type { get; protected set; }
 
 		/// <summary>
-		/// Payload в виде JSON строки. Он будет десериализован в объект нужного типа при отправке сообщения аутбокса.
+		/// Payload в виде JSON строки. Будет десериализован в объект нужного типа при отправке сообщения.
 		/// </summary>
 		public virtual string PayloadJson { get; protected set; }
 
@@ -45,17 +45,17 @@ namespace TransactionalOutbox.Domain
 		public virtual string Error { get; protected set; }
 
 		/// <summary>
-		/// Ключ для дедупликации сообщений аутбокса. Определяет, является ли новое сообщение дубликатом уже существующего сообщения.
+		/// Ключ для дедупликации сообщений. Определяет, является ли новое сообщение дубликатом уже существующего сообщения.
 		/// </summary>
 		public virtual string DeduplicationKey { get; protected set; }
 
 		protected OutboxMessage() { }
 
-		/// <summary> - на русский перепиши
+		/// <summary>
 		/// Инициализирует новый экземпляр класса OutboxMessage с указанным доменным событием и полезной нагрузкой.
 		/// </summary>
-		/// <param name="domainEvent">Доменное событие, связанное с этим сообщением аутбокса. Используется для генерации ключа дедупликации.</param>
-		/// <param name="payload">Объект, который будет сохранен в сообщением аутбокса. Представляет данные, которые будут сериализованы и отправлены.</param>
+		/// <param name="domainEvent">Доменное событие, связанное сообщением аутбокса. Используется для генерации ключа дедупликации.</param>
+		/// <param name="payload">Объект, который будет сохранен в сообщениеи аутбокса. Представляет данные, которые будут сериализованы и отправлены.</param>
 		/// <exception cref="ArgumentNullException">Выбрасывается, если domainEvent или payload равны null.</exception>
 		public OutboxMessage(IOutboxDomainEvent domainEvent, object payload)
 		{

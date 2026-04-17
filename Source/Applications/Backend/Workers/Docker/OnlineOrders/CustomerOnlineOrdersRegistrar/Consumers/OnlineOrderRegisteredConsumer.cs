@@ -6,7 +6,6 @@ using CustomerOrdersApi.Library.Default.Dto.Orders;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
-using Notifications.Infrastructure;
 using QS.DomainModel.UoW;
 using QS.Utilities.Debug;
 using Vodovoz.EntityRepositories.Orders;
@@ -16,7 +15,6 @@ using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.OnlineOrders;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Services.Orders;
-using CustomerNotifications.Contracts;
 
 namespace CustomerOnlineOrdersRegistrar.Consumers
 {
@@ -35,8 +33,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IOnlineOrderRepository onlineOrderRepository,
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
 			IRouteListService routeListService,
-			IOrderFromOnlineOrderValidator onlineOrderValidator,
-			INotificationsPublisher<CustomerNotificationDomainEvent> customerNotificationsPublisher)
+			IOrderFromOnlineOrderValidator onlineOrderValidator)
 				: base(
 					logger,
 					unitOfWorkFactory,
@@ -48,8 +45,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 					onlineOrderCancellationReasonSettings,
 					orderService,
 					routeListService,
-					onlineOrderValidator,
-					customerNotificationsPublisher)
+					onlineOrderValidator)
 		{
 		}
 		

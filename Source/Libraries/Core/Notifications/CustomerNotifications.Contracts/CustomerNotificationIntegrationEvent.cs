@@ -16,6 +16,5 @@ namespace CustomerNotifications.Contracts
 		/// Внешний источник события
 		/// </summary>
 		public Source? EventSource { get; set; }
-
 	}
 }

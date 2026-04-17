@@ -55,7 +55,6 @@ namespace Notifications.Infrastructure
                 existing.SavePayload(integrationEvent);
 
                 outboxMessage = existing;
-
             }
             else
             {

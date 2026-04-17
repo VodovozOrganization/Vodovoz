@@ -17,7 +17,7 @@ namespace CustomerNotificationsWorker
 	{
 		private readonly IOptionsSnapshot<NotifierOptions> _options;
 		private readonly IHttpClientFactory _httpClientFactory;
-		private readonly int _httpClientTimeout;
+		private readonly int _httpClientTimeoutInSeconds;
 		private readonly ILogger<CustomerNotificationsConsumer> _logger;
 
 		public CustomerNotificationsConsumer(
@@ -27,7 +27,7 @@ namespace CustomerNotificationsWorker
 		{
 			_options = options ?? throw new ArgumentNullException(nameof(options));
 			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
-			_httpClientTimeout = options.Value.SendingTimeoutInSeconds;
+			_httpClientTimeoutInSeconds = options.Value.SendingTimeoutInSeconds;
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
@@ -56,7 +56,7 @@ namespace CustomerNotificationsWorker
 
 			var httpClient = _httpClientFactory.CreateClient();
 
-			httpClient.Timeout = TimeSpan.FromSeconds(_httpClientTimeout);
+			httpClient.Timeout = TimeSpan.FromSeconds(_httpClientTimeoutInSeconds);
 
 			var content = JsonContent.Create(				
 				customerEvent.Payload,
