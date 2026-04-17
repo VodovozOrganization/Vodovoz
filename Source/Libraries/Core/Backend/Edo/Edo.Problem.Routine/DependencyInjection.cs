@@ -1,6 +1,7 @@
 ﻿using Edo.Common;
 using Edo.Problem.Routine.Options;
 using Edo.Problem.Routine.Services;
+using Edo.Problems;
 using Edo.Transport;
 using MessageTransport;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,7 +26,8 @@ namespace Edo.Problem.Routine
 				.AddCore()
 				.AddEdo()
 				.AddMessageTransportSettings()
-				.AddEdoMassTransit();
+				.AddEdoMassTransit()
+				.AddEdoProblemRegistration();
 
 			services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 

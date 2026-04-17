@@ -13,6 +13,7 @@
     <ProjectReference Include="..\..\..\Business\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj" />
     <ProjectReference Include="..\..\Infrastructure\MessageTransport\MessageTransport.csproj" />
     <ProjectReference Include="..\Edo.Common\Edo.Common.csproj" />
+    <ProjectReference Include="..\Edo.Problems\Edo.Problems.csproj" />
     <ProjectReference Include="..\Edo.Contracts\Edo.Contracts.csproj" />
     <ProjectReference Include="..\Edo.Transport\Edo.Transport.csproj" />
     <ProjectReference Include="..\..\Infrastructure\BackendInfrastructure\BackendInfrastructure.csproj" />
