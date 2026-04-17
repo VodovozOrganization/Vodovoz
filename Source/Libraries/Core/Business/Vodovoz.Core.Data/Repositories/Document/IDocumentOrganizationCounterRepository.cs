@@ -1,5 +1,6 @@
 ﻿using QS.DomainModel.UoW;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Documents;
@@ -13,7 +14,7 @@ namespace Vodovoz.Core.Data.Repositories.Document
 		/// <summary>
 		/// Получить максимальный счетчик в выбранном году
 		/// </summary>
-		/// <param name="unitOfWork">UoW</param>
+		/// <param name="unitOfWork">IUnitOfWork</param>
 		/// <param name="date">Выбранная дата</param>
 		/// <param name="organizationEntity">Организация</param>
 		/// <returns>Сущность (null если записи нет)</returns>
@@ -25,10 +26,10 @@ namespace Vodovoz.Core.Data.Repositories.Document
 		/// <summary>
 		/// Получить максимальный счетчик в выбранном году (async)
 		/// </summary>
-		/// <param name="unitOfWork">UoW</param>
+		/// <param name="unitOfWork">IUnitOfWork</param>
 		/// <param name="date">Выбранная дата</param>
 		/// <param name="organizationEntity">Организация</param>
-		/// <param name="cancellationToken"></param>
+		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Сущность (null если записи нет)</returns>
 		Task<DocumentOrganizationCounter> GetMaxDocumentOrganizationCounterOnYearAsync(
 			IUnitOfWork unitOfWork,
@@ -39,7 +40,7 @@ namespace Vodovoz.Core.Data.Repositories.Document
 		/// <summary>
 		/// Получить счетчик привязанный к заказу
 		/// </summary>
-		/// <param name="unitOfWork">UoW</param>
+		/// <param name="unitOfWork">IUnitOfWork</param>
 		/// <param name="order">Заказ</param>
 		/// <returns>Сущность (null если записи нет)</returns>
 		DocumentOrganizationCounter GetDocumentOrganizationCounterByOrder(
@@ -50,9 +51,19 @@ namespace Vodovoz.Core.Data.Repositories.Document
 		/// <summary>
 		/// Получить номер документа по номеру заказа
 		/// </summary>
-		/// <param name="unitOfWork"></param>
-		/// <param name="orderId"></param>
+		/// <param name="unitOfWork">IUnitOfWork</param>
+		/// <param name="orderId">Идентификатор заказа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Номер документа</returns>
 		Task<string> GetDocumentNumberByOrderId(IUnitOfWork unitOfWork, int orderId, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получить словарь
+		/// </summary>
+		/// <param name="unitOfWork">IUnitOfWork</param>
+		/// <param name="orderIds">Идентификаторы заказов</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Словарь: ключ - идентификатор заказа, значение - домер документа (при наличии)</returns>
+		Task<Dictionary<int, string>> GetDocumentNumbersByOrderIds(IUnitOfWork unitOfWork, IEnumerable<int> orderIds, CancellationToken cancellationToken);
 	}
 }

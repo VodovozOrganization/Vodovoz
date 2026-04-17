@@ -1,4 +1,5 @@
-﻿using EdoService.Library.Services;
+﻿using BitrixApi.Library.Services;
+using EdoService.Library.Services;
 using Mailjet.Api.Abstractions;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -7,18 +8,17 @@ using RabbitMQ.MailSending;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories.Document;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
-using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
 
 namespace EmailDebtNotificationWorker.Services
 {
@@ -32,7 +32,7 @@ namespace EmailDebtNotificationWorker.Services
 		private readonly IEmailRepository _emailRepository;
 		private readonly IDocumentOrganizationCounterRepository _documentOrganizationCounterRepository;
 		private readonly IEmailSettings _emailSettings;
-		private readonly PrintableDocumentSaver _printableDocumentSaver;
+		private readonly IEmailAttachmentsCreateService _emailAttachmentsCreateService;
 		private readonly IBus _bus;
 
 		private const int _maxEmailsPerMinute = 5;
@@ -43,7 +43,7 @@ namespace EmailDebtNotificationWorker.Services
 			IEmailRepository emailRepository,
 			IDocumentOrganizationCounterRepository documentOrganizationCounterRepository,
 			IEmailSettings emailSettings,
-			PrintableDocumentSaver printableDocumentSaver,
+			IEmailAttachmentsCreateService emailAttachmentsCreateService,
 			IBus bus
 			)
 		{
@@ -52,7 +52,7 @@ namespace EmailDebtNotificationWorker.Services
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_documentOrganizationCounterRepository = documentOrganizationCounterRepository ?? throw new ArgumentNullException(nameof(documentOrganizationCounterRepository));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
-			_printableDocumentSaver = printableDocumentSaver ?? throw new ArgumentNullException(nameof(printableDocumentSaver));
+			_emailAttachmentsCreateService = emailAttachmentsCreateService ?? throw new ArgumentNullException(nameof(emailAttachmentsCreateService));
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 		}
 
@@ -60,7 +60,7 @@ namespace EmailDebtNotificationWorker.Services
 		{
 			using var uow = _uowFactory.CreateWithoutRoot("Получение списка должников в воркере по рассылке писем о задолженнности");
 
-			var overdueOrdersByClient = await _emailRepository.GetAllOverdueOrderForDebtNotificationAsync(uow, _maxEmailsPerMinute, cancellationToken);
+			var overdueOrdersByClient = await _emailRepository.GetAllOverdueOrdersForDebtNotificationAsync(uow, _maxEmailsPerMinute, cancellationToken);
 			if(!overdueOrdersByClient.Any())
 			{
 				_logger.LogDebug("Нет писем для массовой рассылки");
@@ -70,22 +70,21 @@ namespace EmailDebtNotificationWorker.Services
 			_logger.LogInformation("В процессе {Count} писем для рассылки",
 				overdueOrdersByClient.Keys.Count);
 
-			foreach(var clientOrders in overdueOrdersByClient)
+			var keys = overdueOrdersByClient.Keys;
+			foreach(var key in keys)
 			{
-				using var clientUow = _uowFactory.CreateWithoutRoot($"Отправка письма клиенту {clientOrders.Value.Counterparty.Id} в воркере по рассылке писем о задолженнности");
 
 				try
 				{
-					if(cancellationToken.IsCancellationRequested)
+					using var clientUow = _uowFactory.CreateWithoutRoot($"Отправка письма клиенту в воркере по рассылке писем о задолженнности");
+
+					var client = key.Counterparty;
+					var organization = key.Organization;
+
+					if(overdueOrdersByClient.TryGetValue(key, out var orders))
 					{
-						break;
+						await ProcessSingleClientEmailAsync(clientUow, client, organization, orders, cancellationToken);
 					}
-
-					var client = clientOrders.Value.Counterparty;
-					var organization = clientOrders.Value.Organization;
-					var order = clientOrders.Key;
-
-					await ProcessSingleClientEmailAsync(clientUow, client, organization, order, cancellationToken);
 				}
 				catch(Exception ex)
 				{
@@ -98,7 +97,7 @@ namespace EmailDebtNotificationWorker.Services
 			IUnitOfWork uow,
 			Counterparty client,
 			Organization organization,
-			Order order,
+			IEnumerable <Order> orders,
 			CancellationToken cancellationToken
 			)
 		{
@@ -114,15 +113,15 @@ namespace EmailDebtNotificationWorker.Services
 				throw new ArgumentNullException(nameof(organization));
 			}
 
-			if(order is null)
+			if(orders is null)
 			{
 				_logger.LogWarning("Попытка отправить письмо клиенту {ClientId} от организации {OrganizationId} по несуществующему заказу",
 					client.Id,
 					organization.Id);
-				throw new ArgumentNullException(nameof(order));
+				throw new ArgumentNullException(nameof(orders));
 			}
 
-			var emailSubject = $"Информационное письмо о задолженности {client.FullName} от {order.DeliveryDate?.ToString("dd.MM.yyyy")}";
+			var emailSubject = "У вас имеется просроченная дебиторская задолженность!";
 
 			var emailAddress = SelectEmailForDebtNotification(client);
 			if(string.IsNullOrWhiteSpace(emailAddress))
@@ -131,102 +130,12 @@ namespace EmailDebtNotificationWorker.Services
 				throw new InvalidOperationException($"Клиент {client.Id} не имеет подходящего email для уведомления о задолженности");
 			}
 
-			var documentNumber = await _documentOrganizationCounterRepository.GetDocumentNumberByOrderId(uow, order.Id, cancellationToken);
-
-			var storedEmail = CreateStoredEmail(emailSubject, emailAddress, order.Id);
+			var storedEmail = CreateStoredEmail(emailSubject, emailAddress, orders.Select(x => x.Id));
 			if(storedEmail is null)
 			{
 				_logger.LogError("Не удалось создать запись о письме с уведомлением о задолженности для клиента {ClientId}", client.Id);
 				throw new ArgumentNullException(nameof(storedEmail));
 			}
-
-			await uow.SaveAsync(storedEmail, cancellationToken: cancellationToken);
-
-			var letterOfDebtDocument = new LetterOfDebtDocument
-			{
-				Order = order,
-				HideSignature = !organization.DebtMailingWithSignature,
-				AttachedToOrder = order
-			};
-			await uow.SaveAsync(letterOfDebtDocument, cancellationToken: cancellationToken);
-
-			var bulkEmail = new BulkEmail
-			{
-				StoredEmail = storedEmail,
-				Counterparty = client,
-				OrderDocument = letterOfDebtDocument
-			};
-			await uow.SaveAsync(bulkEmail, cancellationToken: cancellationToken);
-
-			var bulkEmailOrder = new BulkEmailOrder
-			{
-				BulkEmail = bulkEmail,
-				Order = order
-			};
-			await uow.SaveAsync(bulkEmailOrder, cancellationToken: cancellationToken);
-
-			await uow.CommitAsync(cancellationToken);
-
-			await PublishDebtEmailMessageAsync(
-				uow,
-				storedEmail,
-				client,
-				organization,
-				order,
-				letterOfDebtDocument,
-				emailAddress,
-				emailSubject,
-				documentNumber,
-				cancellationToken);
-		}
-
-		private StoredEmail CreateStoredEmail(string subject, string email, int orderId)
-		{
-			const int maxSubjectLength = 200;
-
-			var truncatedSubject = subject.Length > maxSubjectLength
-			   ? subject[..(maxSubjectLength - 3)] + "..."
-			   : subject;
-
-			if(subject.Length > maxSubjectLength)
-			{
-				_logger.LogWarning("Тема письма обрезана с {OriginalLength} до {TruncatedLength} символов", 
-					subject.Length, truncatedSubject.Length);
-			}
-
-			var storedEmail = new StoredEmail
-			{
-				State = StoredEmailStates.SendingComplete,
-				Author = null,
-				ManualSending = false,
-				SendDate = DateTime.Now,
-				StateChangeDate = DateTime.Now,
-				Subject = truncatedSubject,
-				RecipientAddress = email,
-				Guid = Guid.NewGuid(),
-				Description = $"Уведомление о задолженности по заказу: {string.Join(", ", orderId)}",
-			};
-
-			return storedEmail;
-		}
-
-		private SendEmailMessage CreateDebtEmailMessage(
-			IUnitOfWork uow,
-			StoredEmail storedEmail,
-			Counterparty client,
-			Organization organization,
-			Order order,
-			LetterOfDebtDocument letterOfDebt,
-			string emailAddress,
-			string emailSubject,
-			string documentNumber
-			)
-		{
-			var instanceId = GetCurrentDatabaseId(uow);
-
-			var unsubscribeUrl = storedEmail.Guid.HasValue
-				? GetUnsubscribeLink(storedEmail.Guid.Value)
-				: string.Empty;
 
 			if(!storedEmail.Guid.HasValue)
 			{
@@ -234,44 +143,54 @@ namespace EmailDebtNotificationWorker.Services
 				throw new ArgumentNullException(nameof(storedEmail.Guid));
 			}
 
-			var messageText = GenerateDebtEmailBody(client, order, documentNumber, unsubscribeUrl);
-			var attachment = CreateDebtEmailAttachment(order, letterOfDebt);
+			await uow.SaveAsync(storedEmail, cancellationToken: cancellationToken);
 
-			var sendEmailMessage = new SendEmailMessage()
+			var bulkEmail = new GeneralBillDocumentEmail
 			{
-				From = new EmailContact
-				{
-					Name = organization.FullName,
-					Email = organization.EmailForMailing,
-				},
-				To = new List<EmailContact>
-				{
-					new()
-					{
-						Name = client.FullName,
-						Email = emailAddress
-					}
-				},
-				Subject = emailSubject,
-				TextPart = messageText,
-				HTMLPart = messageText,
-				Payload = new EmailPayload
-				{
-					Id = storedEmail.Id,
-					Trackable = true,
-					InstanceId = instanceId
-				},
-				Attachments = new List<EmailAttachment>()
-				{
-					attachment
-				},
-				Headers = new Dictionary<string, string>
-				{
-					{ "List-Unsubscribe", unsubscribeUrl }
-				}
+				StoredEmail = storedEmail,
+				Counterparty = client
 			};
 
-			return sendEmailMessage;
+			await uow.SaveAsync(bulkEmail, cancellationToken: cancellationToken);
+
+			await uow.CommitAsync(cancellationToken);
+
+			var documentNumbersDict = await _documentOrganizationCounterRepository.GetDocumentNumbersByOrderIds(
+				uow,
+				orders.Select(x => x.Id),
+				cancellationToken);
+
+			var unsubscribeUrl = GetUnsubscribeLink(storedEmail.Guid.Value);
+			var messageText = GenerateDebtEmailBody(client, orders, documentNumbersDict, unsubscribeUrl);
+
+			await PublishDebtEmailMessageAsync(
+				uow,
+				storedEmail,
+				client,
+				organization,
+				orders,
+				emailAddress,
+				emailSubject,
+				messageText,
+				cancellationToken);
+		}
+
+		private static StoredEmail CreateStoredEmail(string subject, string email, IEnumerable<int> orderIds)
+		{
+			var storedEmail = new StoredEmail
+			{
+				State = StoredEmailStates.SendingComplete,
+				Author = null,
+				ManualSending = false,
+				SendDate = DateTime.Now,
+				StateChangeDate = DateTime.Now,
+				Subject = subject,
+				RecipientAddress = email,
+				Guid = Guid.NewGuid(),
+				Description = $"Уведомление о задолженности по заказам: {string.Join(", ", orderIds)}",
+			};
+
+			return storedEmail;
 		}
 
 		private static int GetCurrentDatabaseId(IUnitOfWork uow)
@@ -316,16 +235,121 @@ namespace EmailDebtNotificationWorker.Services
 
 		private string GetUnsubscribeLink(Guid guid) => $"{_emailSettings.UnsubscribeUrl}/{guid}";
 
-		private static string GenerateDebtEmailBody(Counterparty client, Order order, string documentNumber, string unsubscribeUrl)
+		private async Task PublishDebtEmailMessageAsync(
+			IUnitOfWork uow,
+			StoredEmail storedEmail,
+			Counterparty client,
+			Organization organization,
+			IEnumerable<Order> orders,
+			string emailAddress,
+			string emailSubject,
+			string messageText,
+			CancellationToken cancellationToken
+			)
 		{
-			string deliveryDateFormatted = order.DeliveryDate?.ToString("dd.MM.yyyy")
-				?? string.Empty;
+			var emailMessage = CreateDebtEmailMessage(
+				uow,
+				storedEmail,
+				client,
+				organization,
+				orders,
+				emailAddress,
+				emailSubject,
+				messageText);
 
-			string dueDateFormatted = order.DeliveryDate?.AddDays(client.DelayDaysForBuyers).ToString("dd.MM.yyyy") ?? string.Empty;
+			await _bus.Publish(emailMessage, cancellationToken);
+		}
 
-			string orderNumber = !string.IsNullOrWhiteSpace(documentNumber)
-				? $"№{documentNumber}"
-				: $"№{order.Id}";
+		private SendEmailMessage CreateDebtEmailMessage(
+			IUnitOfWork uow,
+			StoredEmail storedEmail,
+			Counterparty client,
+			Organization organization,
+			IEnumerable<Order> orders,
+			string emailAddress,
+			string emailSubject,
+			string messageText
+			)
+		{
+			var instanceId = GetCurrentDatabaseId(uow);
+
+			var unsubscribeUrl = storedEmail.Guid.HasValue
+				? GetUnsubscribeLink(storedEmail.Guid.Value)
+				: string.Empty;
+
+			var attachment = _emailAttachmentsCreateService.CreateGeneralBillAttachments(
+				client.Id,
+				organization.Id,
+				orders.Select(x => x.Id));
+
+			var sendEmailMessage = new SendEmailMessage()
+			{
+				From = new EmailContact
+				{
+					Name = organization.FullName,
+					Email = organization.EmailForMailing,
+				},
+				To = new List<EmailContact>
+				{
+					new()
+					{
+						Name = client.FullName,
+						//Email = emailAddress
+						Email = "work.semen.sd@gmail.com",
+					}
+				},
+				Subject = emailSubject,
+				TextPart = messageText,
+				HTMLPart = messageText,
+				Payload = new EmailPayload
+				{
+					Id = storedEmail.Id,
+					Trackable = true,
+					InstanceId = instanceId
+				},
+				Attachments = attachment.ToList(),
+				Headers = new Dictionary<string, string>
+				{
+					{ "List-Unsubscribe", unsubscribeUrl }
+				}
+			};
+
+			return sendEmailMessage;
+		}
+
+		private static string GenerateDebtEmailBody(Counterparty client, IEnumerable<Order> orders, Dictionary<int, string> documentNumbersDict, string unsubscribeUrl)
+		{
+			var ordersList = orders.ToList();
+
+			var ordersHtml = new StringBuilder();
+			decimal totalDebt = 0;
+
+			foreach(var order in ordersList)
+			{
+				var deliveryDate = order.DeliveryDate ?? DateTime.Today;
+				var dueDate = deliveryDate.AddDays(client.DelayDaysForBuyers);
+				var daysOverdue = (DateTime.Today - dueDate).Days;
+				var orderAmount = order.OrderSum;
+
+				totalDebt += orderAmount;
+
+				var documentNumber = documentNumbersDict.GetValueOrDefault(order.Id);
+				if(string.IsNullOrWhiteSpace(documentNumber))
+				{
+					documentNumber = order.Id.ToString();
+				}
+
+				ordersHtml.AppendLine($@"
+					<tr>
+						<td style='padding: 8px 0;'>№ {documentNumber}</td>
+						<td style='padding: 8px 0; text-align: right;'>{orderAmount:N2} руб. - </td>
+						<td style='padding: 8px 0; text-align: center;'>{daysOverdue}</td>
+					</tr>");
+			}
+
+			string contractNumber = orders
+				.Select(o => o.Contract.Number)
+				.FirstOrDefault(n => !string.IsNullOrWhiteSpace(n)) ?? "Не указан";
 
 			return $@"
 				<!DOCTYPE html>
@@ -337,10 +361,14 @@ namespace EmailDebtNotificationWorker.Services
 						.container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
 						.header {{ background-color: #f8f9fa; padding: 20px; border-radius: 5px; }}
 						.content {{ margin: 20px 0; }}
-						.order-list {{ margin: 15px 0; padding-left: 20px; }}
+						.debt-table {{ width: 100%; border-collapse: collapse; margin: 15px 0; }}
+						.debt-table th {{ background-color: #e9ecef; padding: 10px; text-align: left; }}
+						.debt-table td {{ border-bottom: 1px solid #dee2e6; }}
+						.total-row {{ font-weight: bold; background-color: #f8f9fa; }}
 						.footer {{ margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 12px; color: #666; }}
 						.unsubscribe {{ color: #007bff; text-decoration: none; }}
 						.phone {{ white-space: nowrap; }}
+						.signature {{ margin-top: 20px; }}
 					</style>
 				</head>
 				<body>
@@ -348,23 +376,48 @@ namespace EmailDebtNotificationWorker.Services
 						<div class='header'>
 							<h2>Уважаемый клиент!</h2>
 						</div>
-        
+
 						<div class='content'>
-							<p>Мы хотим напомнить вам, что на текущий момент у вас имеется задолженность по заказу №{orderNumber} от {deliveryDateFormatted},
-							срок оплаты по которому истёк <strong>{dueDateFormatted}.</strong></p>
-            
-							<p>Мы ценим ваше сотрудничество и надеемся на оперативное урегулирование задолженности. 
-							Для уточнения деталей Вы можете связаться с нами по телефону <strong><span class='phone'>8&nbsp;812-317-00-00&nbsp;доб.&nbsp;700</span></strong>
-							или электронной почте <strong>client.buh@vodovoz-spb.ru</strong>.</p>
-            
-							<p>Просим вас принять меры к погашению задолженности в ближайшее время, чтобы избежать возможных последствий, 
-							включая, при необходимости, обращение в суд.</p>
-            
-							<p>Благодарим за внимание и надеемся на скорое решение вопроса.</p>
+							<p>Сообщаем, что на текущий момент у вас имеется задолженность по договору <strong>{contractNumber}</strong> и следующим заказам:</p>
+                    
+							<table class='debt-table'>
+								<thead>
+									<tr>
+										<th>№ заказа</th>
+										<th>Сумма заказа</th>
+										<th>Дней после истечения отсрочки</th>
+									</tr>
+								</thead>
+								<tbody>
+									{ordersHtml}
+								</tbody>
+								<tfoot>
+									<tr class='total-row'>
+										<td style='padding: 10px 0;'><strong>Общая задолженность:</strong></td>
+										<td style='padding: 10px 0; text-align: right;'><strong>{totalDebt:N2} руб.</strong></td>
+										<td style='padding: 10px 0;'></td>
+									</tr>
+								</tfoot>
+							</table>
+
+							<p>Просим вас произвести оплату в кратчайшие сроки. Если оплата уже была направлена, пожалуйста, пришлите платежное поручение.</p>
+                    
+							<p>Также сообщаем, что в том случае, если просроченная задолженность по оплате по заказу составит 7 календарных дней, 
+							мы будем вынуждены приостановить поставки продукции до момента полного погашения задолженности, в соответствии с условиями договора. 
+							В случае поступления оплаты, поставки будут возобновлены.</p>
+                    
+							<p>При возникновении вопросов по сумме или срокам оплаты вы можете связаться с нами — будем рады помочь. 
+							Благодарим за сотрудничество и рассчитываем на скорейшее урегулирование вопроса.</p>
+                    
+							<div class='signature'>
+								<p>С уважением,<br />
+								Отдел сопровождения клиентов<br />
+								<span class='phone'>+7(812) 3170000 доб. 700</span><br />
+								client.buh@vodovoz-spb.ru</p>
+							</div>
 						</div>
-        
+
 						<div class='footer'>
-							<p>Подробная информация о задолженности приложена к письму в формате PDF.</p>
 							<p><a href='{unsubscribeUrl}' class='unsubscribe'>Отписаться от рассылки</a></p>
 							<p>Вы всегда можете отписаться от нашей рассылки, нажав соответствующую кнопку.</p>
 							<p><em>Это письмо отправлено автоматически.</em></p>
@@ -372,46 +425,6 @@ namespace EmailDebtNotificationWorker.Services
 					</div>
 				</body>
 				</html>";
-		}
-
-		private EmailAttachment CreateDebtEmailAttachment(Order order, LetterOfDebtDocument letterOfDebt)
-		{
-			byte[] pdfBytes = _printableDocumentSaver.SaveToPdf(letterOfDebt);
-
-			var attachment = new EmailAttachment
-			{
-				ContentType = "application/pdf",
-				Filename = $"Задолженность_{order.Id}.pdf",
-				Base64Content = Convert.ToBase64String(pdfBytes)
-			};
-			return attachment;
-		}
-
-		private async Task PublishDebtEmailMessageAsync(
-			IUnitOfWork uow,
-			StoredEmail storedEmail,
-			Counterparty client,
-			Organization organization,
-			Order order,
-			LetterOfDebtDocument letterOfDebtDocument,
-			string emailAddress,
-			string emailSubject,
-			string documentNumber,
-			CancellationToken cancellationToken
-			)
-		{
-			var emailMessage = CreateDebtEmailMessage(
-				uow,
-				storedEmail,
-				client,
-				organization,
-				order,
-				letterOfDebtDocument,
-				emailAddress,
-				emailSubject,
-				documentNumber);
-
-			await _bus.Publish(emailMessage, cancellationToken);
 		}
 	}
 }

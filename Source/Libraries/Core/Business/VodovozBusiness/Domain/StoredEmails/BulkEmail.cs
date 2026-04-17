@@ -5,6 +5,9 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 
 namespace Vodovoz.Domain.StoredEmails
 {
+	/// <summary>
+	/// Массовая рассылка
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "массовая рассылка",
 		Nominative = "массовая рассылка")]
@@ -23,5 +26,17 @@ namespace Vodovoz.Domain.StoredEmails
             get => _orderDocument;
             set => SetField(ref _orderDocument, value);
         }
+    }
+
+	/// <summary>
+	/// Общий счет по Email
+	/// </summary>
+	[Appellative(Gender = GrammaticalGender.Masculine,
+		NominativePlural = "общие счета",
+		Nominative = "общий счет")]
+	public class GeneralBillDocumentEmail : CounterpartyEmail
+	{
+        public override IEmailableDocument EmailableDocument { get; }
+		public override CounterpartyEmailType Type => CounterpartyEmailType.GeneralBillDocument;
     }
 }
