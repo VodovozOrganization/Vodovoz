@@ -27,16 +27,4 @@ namespace Vodovoz.Domain.StoredEmails
             set => SetField(ref _orderDocument, value);
         }
     }
-
-	/// <summary>
-	/// Общий счет по Email
-	/// </summary>
-	[Appellative(Gender = GrammaticalGender.Masculine,
-		NominativePlural = "общие счета",
-		Nominative = "общий счет")]
-	public class GeneralBillDocumentEmail : CounterpartyEmail
-	{
-        public override IEmailableDocument EmailableDocument { get; }
-		public override CounterpartyEmailType Type => CounterpartyEmailType.GeneralBillDocument;
-    }
 }
