@@ -385,8 +385,9 @@ namespace Vodovoz.Core.Application.Logistics
 							if(!isInvalidStatus)
 							{
 								item.Order.OrderStatus = OrderStatus.OnTheWay;
-								var customerEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, item.Order.OnlineOrder?.Source, item.Order.OnlineOrder?.Id, item.Order.Id);
-								_customerNotificationPublisher.TryPublish(unitOfWork, customerEvent);
+
+								var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, item.Order.OnlineOrder?.Source, item.Order.OnlineOrder?.Id, item.Order.Id);
+								_customerNotificationPublisher.TryPublish(unitOfWork, customerCourierAssignedEvent);
 							}
 						}
 
@@ -564,8 +565,8 @@ namespace Vodovoz.Core.Application.Logistics
 								if(!isInvalidStatus)
 								{
 									address.Order.OrderStatus = OrderStatus.OnTheWay;
-									var customerEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierOnTheWay, address.Order.OnlineOrder?.Source, address.Order.OnlineOrder?.Id, address.Order.Id);
-									_customerNotificationPublisher.TryPublish(unitOfWork, customerEvent);
+									var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, address.Order.OnlineOrder?.Source, address.Order.OnlineOrder?.Id, address.Order.Id);
+									_customerNotificationPublisher.TryPublish(unitOfWork, customerCourierAssignedEvent);
 								}
 							}
 						}
@@ -814,6 +815,9 @@ namespace Vodovoz.Core.Application.Logistics
 
 			routeList.ObservableAddresses.Add(item);
 
+			var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, order.OnlineOrder?.Source, order.OnlineOrder?.Id, order.Id);
+			_customerNotificationPublisher.TryPublish(unitOfWork, customerCourierAssignedEvent);
+
 			return item;
 		}
 
@@ -833,6 +837,10 @@ namespace Vodovoz.Core.Application.Logistics
 			};
 
 			routeList.ObservableAddresses.Add(item);
+
+			var customerCouriesAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, order.OnlineOrder?.Source, order.OnlineOrder?.Id, order.Id);
+			_customerNotificationPublisher.TryPublish(unitOfWork, customerCouriesAssignedEvent);
+
 			return item;
 		}
 
@@ -892,14 +900,18 @@ namespace Vodovoz.Core.Application.Logistics
 
 					address.RestoreOrder();
 					_orderService.AutoCancelAutoTransfer(uow, address.Order);
+
 					var customerDeliveryCompletedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.DeliveryCompleted, address.Order.OnlineOrder?.Source, address.Order.OnlineOrder?.Id, address.Order.Id);
 					_customerNotificationPublisher.TryPublish(uow, customerDeliveryCompletedEvent);
+
 					break;
 				case RouteListItemStatus.EnRoute:
 					address.Order.ChangeStatus(OrderStatus.OnTheWay);
 					address.RestoreOrder();
+
 					var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, address.Order.OnlineOrder?.Source, address.Order.OnlineOrder?.Id, address.Order.Id);
 					_customerNotificationPublisher.TryPublish(uow, customerCourierAssignedEvent);
+
 					break;
 				case RouteListItemStatus.Overdue:
 					address.Order.ChangeStatus(OrderStatus.NotDelivered);

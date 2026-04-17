@@ -937,9 +937,8 @@ namespace Vodovoz.Domain.Logistic
 			{
 				item.Order.OrderStatus = OrderStatus.OnTheWay;
 
-				var customerEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, item.Order.OnlineOrder?.Source, item.Order.OnlineOrder?.Id, item.Order.Id);
-
-				customerNotificationPublisher.TryPublish(unitOfWork, customerEvent);
+				var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, item.Order.OnlineOrder?.Source, item.Order.OnlineOrder?.Id, item.Order.Id);
+				customerNotificationPublisher.TryPublish(unitOfWork, customerCourierAssignedEvent);
 			}
 
 			UoW.Save(this);

@@ -226,9 +226,10 @@ namespace Vodovoz.ViewModels.Orders
 
 			if(Entity.NewOrder?.OnlineOrder is OnlineOrder onlineOrder)
 			{
-				var customerEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.OrderRescheduled, Entity.NewOrder?.OnlineOrder?.Source, Entity.NewOrder?.OnlineOrder?.Id, Entity.NewOrder?.Id);
-
-				_customerNotificationPublisher.TryPublish(UoW, customerEvent);
+				var customerOrderRescheduledEvent = new CustomerNotificationDomainEvent(
+					CustomerNotificationEventType.OrderRescheduled, Entity.NewOrder?.OnlineOrder?.Source, Entity.NewOrder?.OnlineOrder?.Id, Entity.NewOrder?.Id);
+				
+				_customerNotificationPublisher.TryPublish(UoW, customerOrderRescheduledEvent);
 			}
 
 			return result;

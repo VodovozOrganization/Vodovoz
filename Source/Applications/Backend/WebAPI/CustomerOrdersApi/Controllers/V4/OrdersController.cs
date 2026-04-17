@@ -1,10 +1,10 @@
 ﻿using CustomerOrdersApi.Library.Common;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using CustomerOrdersApi.Library.V4.Services;
-using Vodovoz.Core.Domain.Clients;
 using Gamma.Utilities;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging;
 using Notifications.Infrastructure;
 using System;
@@ -202,8 +202,8 @@ namespace CustomerOrdersApi.Controllers.V4
 
 					if(needOrderPaidNotification)
 					{
-						var customerEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.OrderPaid, changingOrderDto.Source, changingOrderDto.OnlineOrderId.Value);
-						await _customerNotificationsPublisher.PublishAsync(customerEvent, cancellationToken);
+						var customerOrderPaidEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.OrderPaid, changingOrderDto.Source, changingOrderDto.OnlineOrderId.Value);
+						await _customerNotificationsPublisher.PublishAsync(customerOrderPaidEvent, cancellationToken);
 					}
 
 					return Ok(result.Value);

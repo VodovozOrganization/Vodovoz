@@ -395,9 +395,9 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return false;
 			}
 
-			var customerEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.OrderAwaitingPayment, Source.MobileApp, onlineOrder.Id);
+			var customerOrderAwaitingPaymentEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.OrderAwaitingPayment, Source.MobileApp, onlineOrder.Id);
 
-			return await _outboxNotificationPublisher.TryPublishAsync(unitOfWork, customerEvent, cancellationToken);
+			return await _outboxNotificationPublisher.TryPublishAsync(unitOfWork, customerOrderAwaitingPaymentEvent, cancellationToken);
 		}
 	}
 }

@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using FluentNHibernate.Data;
 using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate.Criterion;
@@ -220,7 +219,7 @@ namespace Vodovoz
 			_tdiNavigationManager = tdiNavigationManager ?? throw new ArgumentNullException(nameof(tdiNavigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_contractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
-			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));;
+			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_orderCancellationService = _lifetimeScope.Resolve<OrderCancellationService>();
 			CancellationPermit = OrderCancellationPermit.Default();
 		}
@@ -713,6 +712,7 @@ namespace Vodovoz
 				_callTaskWorker, true);
 			_routeListItem.RestoreOrder();
 			_routeListItem.FirstFillClosing(_wageParameterService);
+
 			UpdateListsSentivity();
 			UpdateButtonsState();
 		}

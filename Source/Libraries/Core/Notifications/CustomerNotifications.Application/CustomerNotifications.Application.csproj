@@ -9,7 +9,6 @@
     <ProjectReference Include="..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
     <ProjectReference Include="..\..\TransactionalOutbox\TransactionalOutbox.csproj" />
     <ProjectReference Include="..\CustomerNotifications.Contracts\CustomerNotifications.Contracts.csproj" />
-    <ProjectReference Include="..\Notifications.Infrastructure\Notifications.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
