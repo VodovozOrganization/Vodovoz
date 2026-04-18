@@ -87,8 +87,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 					.OrderBy(x => x.OrderId)
 					.ToList();
 			}
-
-
+			
 			rows.AddRange(paymentTypesChangesData);
 			rows.AddRange(orderItemChangesData);
 
@@ -498,11 +497,8 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 						   select ((oi.ActualCount == null ? oi.Count : oi.ActualCount.Value) * oi.Price - oi.DiscountMoney))
 						   .Sum()
 
-				let paymentTypeChangesOrderIds = GetPaymentTypeChangesOrderIds(uow)
-
 				where
 					changedEntity.EntityClassName == "OrderItem"
-					&& paymentTypeChangesOrderIds.Contains(order.Id)
 					&& changedEntity.ChangeTime >= _startDate
 					&& changedEntity.ChangeTime <= _endDate.LatestDayTime()
 					&& operations.Contains(changedEntity.Operation)
@@ -549,41 +545,6 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 			var changesData = await query.ToListAsync(cancellationToken);
 
 			return changesData;
-		}
-
-		private IQueryable<int> GetPaymentTypeChangesOrderIds(IUnitOfWork uow)
-		{
-			var query =
-				from changedEntity in uow.Session.Query<ChangedEntity>()
-				join order in uow.Session.Query<Order>() on changedEntity.EntityId equals order.Id
-				join fieldChangePayType in uow.Session.Query<FieldChange>() on changedEntity.Id equals fieldChangePayType.Entity.Id
-				where
-					changedEntity.EntityClassName == "Order"
-					&& (changedEntity.Operation == EntityChangeOperation.Create || changedEntity.Operation == EntityChangeOperation.Change)
-					&& (fieldChangePayType.Type == FieldChangeType.Added || fieldChangePayType.Type == FieldChangeType.Changed)
-					&& fieldChangePayType.Path == "PaymentType"
-
-					&& (((_cashAndCashlessPaymentTypesValues.Contains(fieldChangePayType.NewValue)
-								|| _cashAndCashlessPaymentTypesValues.Contains(fieldChangePayType.OldValue))
-							&& _isPaymentTypeChangeTypeSelected)
-						|| ((fieldChangePayType.NewValue == "Terminal" || fieldChangePayType.OldValue == "Terminal")
-							&& _isTerminalIssuesTypeSelected)
-						|| ((_byCardAndPaidOnlinePaymentTypesValues.Contains(fieldChangePayType.NewValue)
-								|| _byCardAndPaidOnlinePaymentTypesValues.Contains(fieldChangePayType.OldValue))
-							&& _isManagersIssuesTypeSelected
-							&& order.PaymentByCardFrom.Id != null
-							&& order.PaymentByCardFrom.Id != _paymentByCardFromSmsId)
-						|| (_byCardAndPaidOnlinePaymentTypesValues.Contains(fieldChangePayType.NewValue)
-							&& order.PaymentByCardFrom.Id == _paymentByCardFromSmsId
-							&& _isSmsIssuesTypeSelected)
-						|| (_byCardAndPaidOnlinePaymentTypesValues.Contains(fieldChangePayType.NewValue)
-							&& order.PaymentByCardFrom.Id == _paymentByCardFromFastPaymentServiceId
-							&& _isQrIssuesTypeSelected)
-							)
-
-				select order.Id;
-
-			return query;
 		}
 
 		private async Task<IEnumerable<OrderChangesReportRow>> GetOldMonitoringOrderItemsChangesData(IUnitOfWork uow, CancellationToken cancellationToken)
@@ -727,48 +688,7 @@ namespace Vodovoz.ViewModels.Bookkeeping.Reports.OrderChanges
 
 			var changesData = await query.WithOptions(options => options.SetTimeout(_oldMonitoringQueriesTimeoutInSeconds)).ToListAsync(cancellationToken);
 
-			var paymentTypeChangedOrderIds =
-				await GetOldMonitoringPaymentTypeChangesOrderIds(uow, changesData.Select(x => x.OrderId).Distinct(), cancellationToken);
-
-			return changesData.Where(x => paymentTypeChangedOrderIds.Contains(x.OrderId));
-		}
-
-		private async Task<IEnumerable<int>> GetOldMonitoringPaymentTypeChangesOrderIds(IUnitOfWork uow, IEnumerable<int> orderIds, CancellationToken cancellationToken)
-		{
-			var query =
-				from changedEntity in uow.Session.Query<ArchivedChangedEntity>()
-				join order in uow.Session.Query<Order>() on changedEntity.EntityId equals order.Id
-				join fieldChangePayType in uow.Session.Query<ArchivedFieldChange>() on changedEntity.Id equals fieldChangePayType.Entity.Id
-				where
-					changedEntity.EntityClassName == "Order"
-					&& (changedEntity.Operation == EntityChangeOperation.Create || changedEntity.Operation == EntityChangeOperation.Change)
-					&& (fieldChangePayType.Type == FieldChangeType.Added || fieldChangePayType.Type == FieldChangeType.Changed)
-					&& fieldChangePayType.Path == "PaymentType"
-					&& orderIds.Contains(order.Id)
-
-					&& (((_cashAndCashlessPaymentTypesValues.Contains(fieldChangePayType.NewValue)
-								|| _cashAndCashlessPaymentTypesValues.Contains(fieldChangePayType.OldValue))
-							&& _isPaymentTypeChangeTypeSelected)
-						|| ((fieldChangePayType.NewValue == "Terminal" || fieldChangePayType.OldValue == "Terminal")
-							&& _isTerminalIssuesTypeSelected)
-						|| ((_byCardAndPaidOnlinePaymentTypesValues.Contains(fieldChangePayType.NewValue)
-								|| _byCardAndPaidOnlinePaymentTypesValues.Contains(fieldChangePayType.OldValue))
-							&& _isManagersIssuesTypeSelected
-							&& order.PaymentByCardFrom.Id != null
-							&& order.PaymentByCardFrom.Id != _paymentByCardFromSmsId)
-						|| (_byCardAndPaidOnlinePaymentTypesValues.Contains(fieldChangePayType.NewValue)
-							&& order.PaymentByCardFrom.Id == _paymentByCardFromSmsId
-							&& _isSmsIssuesTypeSelected)
-						|| (_byCardAndPaidOnlinePaymentTypesValues.Contains(fieldChangePayType.NewValue)
-							&& order.PaymentByCardFrom.Id == _paymentByCardFromFastPaymentServiceId
-							&& _isQrIssuesTypeSelected)
-							)
-
-				select order.Id;
-
-			var oderdIds = (await query.WithOptions(options => options.SetTimeout(_oldMonitoringQueriesTimeoutInSeconds)).ToListAsync(cancellationToken)).Distinct().ToList();
-
-			return oderdIds;
+			return changesData;
 		}
 
 		private string GetPaymentTypeChangedValue(string paymentTypeValue, PaymentFrom paymentByCardFrom, PaymentByTerminalSource? terminalSubtype)
