@@ -4,7 +4,6 @@ using Edo.Problems.Validation;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -164,50 +163,22 @@ namespace Edo.Problem.Routine.Services
 
 		private async Task PublishDocumentResumeEvent(DocumentEdoTask edoTask, CancellationToken cancellationToken)
 		{
-			switch(edoTask.Stage)
+			if(edoTask.Stage != DocumentEdoTaskStage.New)
 			{
-				case DocumentEdoTaskStage.New:
-					{
-						_logger.LogInformation(
-							"Задача ЭДО {EdoTaskId} (DocumentEdoTask, Stage=New): публикуем DocumentTaskCreatedEvent",
-							edoTask.Id);
-						await _messageBus.Publish(new DocumentTaskCreatedEvent { Id = edoTask.Id }, cancellationToken);
-						break;
-					}
-				case DocumentEdoTaskStage.Sending:
-					{
-						_logger.LogInformation(
-							"Задача ЭДО {EdoTaskId} (DocumentEdoTask, Stage=Sending): публикуем OrderDocumentSentEvent",
-							edoTask.Id);
-						await _messageBus.Publish(new OrderDocumentSentEvent { Id = edoTask.Id }, cancellationToken);
-						break;
-					}
-				case DocumentEdoTaskStage.Sent:
-					{
-						var documentId = await GetOrderEdoDocumentId(edoTask.Id, cancellationToken);
-						if(documentId == null)
-						{
-							_logger.LogWarning(
-								"Задача ЭДО {EdoTaskId} (DocumentEdoTask, Stage=Sent): не найден связанный документ, пропускаем",
-								edoTask.Id);
-							return;
-						}
-						_logger.LogInformation(
-							"Задача ЭДО {EdoTaskId} (DocumentEdoTask, Stage=Sent): публикуем OrderDocumentAcceptedEvent (DocumentId={DocumentId})",
-							edoTask.Id,
-							documentId.Value);
-
-						await _messageBus.Publish(new OrderDocumentAcceptedEvent { DocumentId = documentId.Value }, cancellationToken);
-						break;
-					}
-				default:
-					{
-						_logger.LogWarning(
-							"Задача ЭДО {EdoTaskId} (DocumentEdoTask): не удалось определить событие для этапа {Stage}",
-							edoTask.Id, edoTask.Stage);
-						break;
-					}
+				_logger.LogWarning(
+					"Задача ЭДО {EdoTaskId} (DocumentEdoTask) находится на стадии {Stage}. Возобновление возможно только на стадии New",
+					edoTask.Id,
+					edoTask.Stage);
+				return;
 			}
+
+			_logger.LogWarning(
+				"Задача ЭДО {EdoTaskId} (DocumentEdoTask) находится на стадии {Stage}. Публикуем событие {EventName}",
+				edoTask.Id,
+				edoTask.Stage,
+				nameof(DocumentTaskCreatedEvent));
+
+			await _messageBus.Publish(new DocumentTaskCreatedEvent { Id = edoTask.Id }, cancellationToken);
 		}
 
 		private async Task PublishTenderResumeEvent(TenderEdoTask edoTask, CancellationToken cancellationToken)
@@ -215,90 +186,39 @@ namespace Edo.Problem.Routine.Services
 			if(edoTask.Stage != TenderEdoTaskStage.New)
 			{
 				_logger.LogWarning(
-					"Задача ЭДО {EdoTaskId} (TenderEdoTask): не удалось определить событие для этапа {Stage}",
+					"Задача ЭДО {EdoTaskId} (TenderEdoTask) находится на стадии {Stage}. Возобновление возможно только на стадии New",
 					edoTask.Id,
 					edoTask.Stage);
 				return;
 			}
 
 			_logger.LogInformation(
-				"Задача ЭДО {EdoTaskId} (TenderEdoTask, Stage=New): публикуем TenderTaskCreatedEvent",
-				edoTask.Id);
+				"Задача ЭДО {EdoTaskId} (TenderEdoTask) находится на стадии {Stage}. Публикуем событие {EventName}",
+				edoTask.Id,
+				edoTask.Stage,
+				nameof(TenderTaskCreatedEvent));
 
 			await _messageBus.Publish(new TenderTaskCreatedEvent { TenderEdoTaskId = edoTask.Id }, cancellationToken);
 		}
 
 		private async Task PublishReceiptResumeEvent(ReceiptEdoTask edoTask, CancellationToken cancellationToken)
 		{
-			switch(edoTask.ReceiptStatus)
+			if(edoTask.ReceiptStatus != EdoReceiptStatus.New)
 			{
-				case EdoReceiptStatus.New:
-					{
-						_logger.LogInformation(
-							"Задача ЭДО {EdoTaskId} (ReceiptEdoTask, ReceiptStatus=New): публикуем ReceiptTaskCreatedEvent",
-							edoTask.Id);
-						await _messageBus.Publish(new ReceiptTaskCreatedEvent { ReceiptEdoTaskId = edoTask.Id }, cancellationToken);
-						break;
-					}
-				case EdoReceiptStatus.Transfering:
-					{
-						var iterationId = await GetCompletedReceiptTransferIterationId(edoTask.Id, cancellationToken);
-						if(iterationId == null)
-						{
-							_logger.LogWarning(
-								"Задача ЭДО {EdoTaskId} (ReceiptEdoTask, ReceiptStatus=Transfering): не найдена завершённая итерация трансфера, пропускаем",
-								edoTask.Id);
-							return;
-						}
-						_logger.LogInformation(
-							"Задача ЭДО {EdoTaskId} (ReceiptEdoTask, ReceiptStatus=Transfering): публикуем TransferCompleteEvent (IterationId={IterationId})",
-							edoTask.Id, iterationId.Value);
-						await _messageBus.Publish(
-							new TransferCompleteEvent { TransferIterationId = iterationId.Value, TransferInitiator = TransferInitiator.Receipt },
-							cancellationToken);
-						break;
-					}
-				case EdoReceiptStatus.Sending:
-					{
-						_logger.LogInformation(
-							"Задача ЭДО {EdoTaskId} (ReceiptEdoTask, ReceiptStatus=Sending): публикуем ReceiptReadyToSendEvent",
-							edoTask.Id);
-						await _messageBus.Publish(new ReceiptReadyToSendEvent { ReceiptEdoTaskId = edoTask.Id }, cancellationToken);
-						break;
-					}
-				default:
-					{
-						_logger.LogWarning(
-							"Задача ЭДО {EdoTaskId} (ReceiptEdoTask): не удалось определить событие для ReceiptStatus={ReceiptStatus}",
-							edoTask.Id, edoTask.ReceiptStatus);
-						break;
-					}
+				_logger.LogWarning(
+					"Задача ЭДО {EdoTaskId} (ReceiptEdoTask) находится в статусе {ReceiptStatus}. Возобновление возможно только в статусе New",
+					edoTask.Id,
+					edoTask.ReceiptStatus);
+				return;
 			}
-		}
 
-		private async Task<int?> GetOrderEdoDocumentId(int documentTaskId, CancellationToken cancellationToken)
-		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
-			{
-				return await uow.Session.Query<OrderEdoDocument>()
-					.Where(d => d.DocumentTaskId == documentTaskId)
-					.Select(d => (int?)d.Id)
-					.FirstOrDefaultAsync(cancellationToken);
-			}
-		}
+			_logger.LogWarning(
+				"Задача ЭДО {EdoTaskId} (ReceiptEdoTask) находится в статусе {ReceiptStatus}. Публикуем событие {EventName}",
+				edoTask.Id,
+				edoTask.ReceiptStatus,
+				nameof(ReceiptTaskCreatedEvent));
 
-		private async Task<int?> GetCompletedReceiptTransferIterationId(int receiptTaskId, CancellationToken cancellationToken)
-		{
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
-			{
-				return await uow.Session.Query<TransferEdoRequestIteration>()
-					.Where(i => i.OrderEdoTask.Id == receiptTaskId
-								&& i.Initiator == TransferInitiator.Receipt
-								&& i.Status == TransferEdoRequestIterationStatus.Completed)
-					.OrderByDescending(i => i.Id)
-					.Select(i => (int?)i.Id)
-					.FirstOrDefaultAsync(cancellationToken);
-			}
+			await _messageBus.Publish(new ReceiptTaskCreatedEvent { ReceiptEdoTaskId = edoTask.Id }, cancellationToken);
 		}
 	}
 }
