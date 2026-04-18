@@ -41,7 +41,7 @@ namespace Edo.Problem.Routine.Services
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
-			_options = options;
+			_options = options ?? throw new ArgumentNullException(nameof(options));
 			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 			_selfDeliveryPaidValidator = (validators ?? throw new ArgumentNullException(nameof(validators)))
@@ -100,13 +100,13 @@ namespace Edo.Problem.Routine.Services
 					_logger.LogError(ex, "Ошибка при обработке задачи ЭДО {EdoTaskId}", edoTask.Id);
 					errorCount++;
 				}
-
-				_logger.LogInformation(
-					"Обработка завершена. Всего задач: {Total}. Возобновлено: {Success}. Ошибок: {Errors}",
-					edoTasks.Count(),
-					successCount,
-					errorCount);
 			}
+
+			_logger.LogInformation(
+				"Обработка завершена. Всего задач: {Total}. Возобновлено: {Success}. Ошибок: {Errors}",
+				edoTasks.Count(),
+				successCount,
+				errorCount);
 		}
 
 		private async Task<bool> TryResumeTask(OrderEdoTask edoTask, CancellationToken cancellationToken)
@@ -114,7 +114,7 @@ namespace Edo.Problem.Routine.Services
 			if(!_selfDeliveryPaidValidator.IsApplicable(edoTask))
 			{
 				_logger.LogError(
-					"Задача ЭДО {EedoTaskId} не подходит для обработки проблемой оплаты при самовывозе",
+					"Задача ЭДО {EdoTaskId} не подходит для обработки проблемой оплаты при самовывозе",
 					edoTask.Id);
 				return false;
 			}

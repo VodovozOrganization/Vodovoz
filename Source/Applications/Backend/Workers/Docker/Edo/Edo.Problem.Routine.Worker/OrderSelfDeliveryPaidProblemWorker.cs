@@ -33,8 +33,8 @@ namespace Edo.Problem.Routine.Worker
 		{
 			using(var scope = _serviceScopeFactory.CreateScope())
 			{
-				var zabbixSender = scope.ServiceProvider.GetService<IZabbixSender>();
-				var orderSelfDeliveryPaidProblemService = scope.ServiceProvider.GetService<OrderSelfDeliveryPaidProblemService>();
+				var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
+				var orderSelfDeliveryPaidProblemService = scope.ServiceProvider.GetRequiredService<OrderSelfDeliveryPaidProblemService>();
 
 				_logger.LogInformation("Запуск обработки задач ЭДО с активной проблемой оплаты самовывоза");
 
