@@ -600,6 +600,29 @@ namespace Vodovoz
 
 			rli.UpdateStatus(_routeListService, _routeListItemStatusToChange, CallTaskWorker);
 			TryUpdateCreatedEdoRequests(rli, _routeListItemStatusToChange);
+
+			SendCustomerNotification(rli, _routeListItemStatusToChange);
+		}
+
+		private void SendCustomerNotification(RouteListKeepingItemNode node, RouteListItemStatus routeListItemStatusToChange)
+		{
+			CustomerNotificationDomainEvent cusomerNotificatoinEvent = null;
+			var order = node.RouteListItem.Order;
+
+			switch(routeListItemStatusToChange)
+			{
+				case RouteListItemStatus.EnRoute:
+					cusomerNotificatoinEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, order.OnlineOrder?.Source, order.OnlineOrder?.Id, order.Id);
+					break;
+				case RouteListItemStatus.Completed:
+					cusomerNotificatoinEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.DeliveryCompleted, order.OnlineOrder?.Source, order.OnlineOrder?.Id, order.Id);
+					break;
+			}
+
+			if(cusomerNotificatoinEvent != null)
+			{
+				_customerNotificationPublisher.TryPublish(UoW, cusomerNotificatoinEvent);
+			}
 		}
 
 		private void TryUpdateCreatedEdoRequests(RouteListKeepingItemNode rli, RouteListItemStatus addressStatus)
@@ -730,6 +753,19 @@ namespace Vodovoz
 					$"Отмена заказа №{e.UndeliveredOrder.OldOrder.Id}",
 					e.CancellationPermit.EdoTaskToCancellationId.Value
 				));
+			}
+
+			if(e.UndeliveredOrder.NewOrder != null)
+			{
+				var customerOrderRescheduledEvent = new CustomerNotificationDomainEvent(
+					CustomerNotificationEventType.OrderRescheduled,
+					e.UndeliveredOrder.OldOrder.OnlineOrder?.Source,
+					e.UndeliveredOrder.OldOrder.OnlineOrder?.Id,
+					e.UndeliveredOrder.OldOrder.Id,
+					e.UndeliveredOrder.NewOrder.Id,
+					e.UndeliveredOrder.UndeliveryDetalization?.CustomerNotificationText);
+
+				_customerNotificationPublisher.TryPublish(UoW, customerOrderRescheduledEvent);
 			}
 		}
 

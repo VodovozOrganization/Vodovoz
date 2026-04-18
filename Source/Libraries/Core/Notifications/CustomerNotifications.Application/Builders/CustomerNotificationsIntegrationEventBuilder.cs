@@ -20,25 +20,19 @@ namespace CustomerNotifications.Application.Builders
 	{
 		private readonly ICustomerNotificationsSettingsProvider _customerNotificationSettingsProvider;
 		private readonly IGenericRepository<RouteListItem> _routeListItemRepository;
-		private readonly IGenericRepository<UndeliveredOrder> _undeliveredOrdersRepository;
+		private readonly IGenericRepository<Order> _orderRepository;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-
-		private static readonly HashSet<OrderStatus> _undeliveryStatuses = new HashSet<OrderStatus>
-		{
-			OrderStatus.NotDelivered,
-			OrderStatus.DeliveryCanceled,
-			OrderStatus.Canceled
-		};
 
 		public CustomerNotificationsIntegrationEventBuilder(
 			ICustomerNotificationsSettingsProvider customerNotificationSettingsProvider,
 			IGenericRepository<RouteListItem> routeListItemRepository,
 			IGenericRepository<UndeliveredOrder> undeliveredOrdersRepository,
+			IGenericRepository<Order> orderRepository,
 			IUnitOfWorkFactory unitOfWorkFactory)
 		{
 			_customerNotificationSettingsProvider = customerNotificationSettingsProvider ?? throw new ArgumentNullException(nameof(customerNotificationSettingsProvider));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
-			_undeliveredOrdersRepository = undeliveredOrdersRepository ?? throw new ArgumentNullException(nameof(undeliveredOrdersRepository));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 		}
 
@@ -94,11 +88,11 @@ namespace CustomerNotifications.Application.Builders
 
 				if(domainEvent.CustomerNotificationEventType == CustomerNotificationEventType.DeliveryCompleted)
 				{
-					notificationText = await ApplyDeliveryCompletedLogicAsync(unitOfWork, domainEvent, onlineOrder, order, notificationText, cancellationToken);
+					notificationText = await ApplyDeliveryCompletedAsync(unitOfWork, domainEvent, onlineOrder, order, notificationText, cancellationToken);
 				}
 				else if(domainEvent.CustomerNotificationEventType == CustomerNotificationEventType.OrderRescheduled)
 				{
-					notificationText = await ApplyOrderRescheduledLogicAsync(unitOfWork, onlineOrder, order, notificationText, cancellationToken);
+					notificationText = await ApplyOrderRescheduledAsync(unitOfWork, domainEvent, notificationText, cancellationToken);
 				}
 			}
 
@@ -125,23 +119,17 @@ namespace CustomerNotifications.Application.Builders
 			return integrationEvent;
 		}
 
-		private async Task<string> ApplyDeliveryCompletedLogicAsync(
+		private async Task<string> ApplyDeliveryCompletedAsync(
 			IUnitOfWork unitOfWork,
 			CustomerNotificationDomainEvent notificationDomainEvent,
 			OnlineOrder onlineOrder,
 			Order order,
-			string text, CancellationToken cancellationToken)
+			string text,
+			CancellationToken cancellationToken)
 		{
-			var currentOrder = onlineOrder.Orders
-				.OrderByDescending(o => o.CreateDate)
-				.FirstOrDefault(o => !_undeliveryStatuses.Contains(o.OrderStatus))
+			var currentOrder = onlineOrder?.Orders			
+				.First()
 				?? order;
-
-			if(currentOrder == null)
-			{
-				throw new InvalidOperationException(
-					$"Не найден текущий заказ для DeliveryCompleted (OnlineOrderId={notificationDomainEvent.OnlineOrderId}).");
-			}
 
 			var address =
 				(await _routeListItemRepository.GetAsync(
@@ -149,55 +137,37 @@ namespace CustomerNotifications.Application.Builders
 					x => x.Status != RouteListItemStatus.Transfered && x.Order.Id == currentOrder.Id,
 					cancellationToken: cancellationToken))
 				.Value
-				.SingleOrDefault();
+				.Single();
 
 			var bottlesInfo = currentOrder.GetTotalWater19LCount() > 0
-				? $"Вы сдали {address?.BottlesReturned ?? 0} бутылей"
+				? $"Вы сдали {address?.BottlesReturned ?? 0} пустых бутылей."
 				: string.Empty;
 
 			return text.Replace(NotificationTemplates.BottlesReturned, bottlesInfo);
 		}
 
-		private async Task<string> ApplyOrderRescheduledLogicAsync(
+		private async Task<string> ApplyOrderRescheduledAsync(
 			IUnitOfWork unitOfWork,
-			OnlineOrder onlineOrder,
-			Order order,
+			CustomerNotificationDomainEvent domainEvent,
 			string text,
 			CancellationToken cancellationToken)
 		{
-			var undeliveredOrderId = (onlineOrder
-				?.Orders
-				?.OrderByDescending(o => o.CreateDate)
-				?.FirstOrDefault(o => _undeliveryStatuses.Contains(o.OrderStatus))
-				?? order)
-				?.Id;
-
-			var undelivery =
-				(await _undeliveredOrdersRepository.GetAsync(
-					unitOfWork,
-					x => x.OldOrder.Id == undeliveredOrderId,
-					cancellationToken: cancellationToken))
-				.Value
-				.OrderByDescending(o => o.TimeOfCreation)
-				.FirstOrDefault();
-
-			var newOrder = onlineOrder
-				?.Orders
-				?.OrderByDescending(o => o.CreateDate)
-				?.FirstOrDefault(o => !_undeliveryStatuses.Contains(o.OrderStatus))
-				?? undelivery?.NewOrder;
-
-			var rescheduleReason = undelivery?.UndeliveryDetalization?.CustomerNotificationText ?? string.Empty;
-
-			if(newOrder is null)
+			if(domainEvent.RescheduledNewOrderId is null)
 			{
-				return text
-					.Replace(NotificationTemplates.RescheduleReason, rescheduleReason);
+				throw new ArgumentNullException($"Для события {domainEvent.CustomerNotificationEventType} должен быть заполнен идентификатор перенесенного заказа: {nameof(domainEvent.RescheduledNewOrderId)}.");
 			}			
 
+			var rescheduledOrder =
+				   (await _orderRepository.GetAsync(
+					   unitOfWork,
+					   x => x.Id == domainEvent.RescheduledNewOrderId,
+					   cancellationToken: cancellationToken))
+				   .Value
+				   .Single();	
+
 			return text
-				.Replace(NotificationTemplates.RescheduleDate, newOrder.DeliveryDate?.ToString("D") ?? "")
-				.Replace(NotificationTemplates.RescheduleReason, rescheduleReason);
+				.Replace(NotificationTemplates.RescheduleDate, rescheduledOrder.DeliveryDate?.ToString("D") ?? "")
+				.Replace(NotificationTemplates.RescheduleReason, domainEvent.UndeliveryCustomerMessage);
 		}
 	}
 }

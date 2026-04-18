@@ -326,15 +326,21 @@ namespace Vodovoz.ViewModels.Orders
 
 			UoW.Save(Entity);
 
-			if(Entity.NewOrder != null)
-			{
-				var customerOrderRescheduledEvent = new CustomerNotificationDomainEvent(
-					CustomerNotificationEventType.OrderRescheduled, Entity.OldOrder.OnlineOrder?.Source, Entity.OldOrder.OnlineOrder?.Id, Entity.OldOrder.Id);
-				_customerNotificationPublisher.TryPublish(UoW, customerOrderRescheduledEvent);
-			}
-
 			if(!_isExternalUoW)
 			{
+				if(Entity.NewOrder != null)
+				{
+					var customerOrderRescheduledEvent = new CustomerNotificationDomainEvent(
+						CustomerNotificationEventType.OrderRescheduled, 
+						Entity.OldOrder.OnlineOrder?.Source, 
+						Entity.OldOrder.OnlineOrder?.Id, 
+						Entity.OldOrder.Id, 
+						Entity.NewOrder.Id,
+						Entity.UndeliveryDetalization?.CustomerNotificationText);
+
+					_customerNotificationPublisher.TryPublish(UoW, customerOrderRescheduledEvent);
+				}
+
 				UoW.Commit();
 
 				if(_orderCancellationPermit.EdoTaskToCancellationId != null)

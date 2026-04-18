@@ -223,9 +223,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 					_routeListService,
 					cancellationToken
 				);
-			}
-
-			await TryNotifyCustomerAboudOrderPaidAsync(uow, data, cancellationToken);
+			}			
 
 			await SaveOnlineOrder(uow, onlineOrder, cancellationToken);
 			return Result.Success();
@@ -317,7 +315,10 @@ namespace Vodovoz.Core.Application.Orders.Services
 				data.DeliveryDate,
 				data.IsFastDelivery);
 
-			await SaveOnlineOrder(uow, onlineOrder, cancellationToken);
+			await TryNotifyCustomerAboudOrderPaidAsync(uow, data, cancellationToken);
+
+			await SaveOnlineOrder(uow, onlineOrder, cancellationToken);			
+
 			return Result.Success();
 		}
 

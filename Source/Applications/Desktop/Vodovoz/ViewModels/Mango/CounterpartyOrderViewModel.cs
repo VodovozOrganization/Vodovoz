@@ -346,7 +346,13 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			if(e.UndeliveredOrder.NewOrder != null)
 			{
 				var customerOrderRescheduledEvent = new CustomerNotificationDomainEvent(
-					CustomerNotificationEventType.OrderRescheduled, e.UndeliveredOrder.OldOrder.OnlineOrder?.Source, e.UndeliveredOrder.OldOrder.OnlineOrder?.Id, e.UndeliveredOrder.OldOrder?.Id);
+					CustomerNotificationEventType.OrderRescheduled, 
+					e.UndeliveredOrder.OldOrder.OnlineOrder?.Source,
+					e.UndeliveredOrder.OldOrder.OnlineOrder?.Id, 
+					e.UndeliveredOrder.OldOrder?.Id, 
+					e.UndeliveredOrder.NewOrder.Id,
+					e.UndeliveredOrder.UndeliveryDetalization?.CustomerNotificationText);
+
 				_customerNotificationPublisher.TryPublish(UoW, customerOrderRescheduledEvent);
 			}
 

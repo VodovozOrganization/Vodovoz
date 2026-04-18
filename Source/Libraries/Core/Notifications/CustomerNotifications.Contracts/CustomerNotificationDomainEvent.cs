@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using TransactionalOutbox.Contracts;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
@@ -21,6 +21,16 @@ namespace CustomerNotifications.Contracts
 		public int? OrderId { get; }
 
 		/// <summary>
+		/// Код нового перенесенного заказа
+		/// </summary>
+		public int? RescheduledNewOrderId { get; }
+
+		/// <summary>
+		/// Сообщение клиенту недовезённого заказа
+		/// </summary>
+		public string UndeliveryCustomerMessage { get; }
+
+		/// <summary>
 		/// Тип события для уведомления
 		/// </summary>
 		public CustomerNotificationEventType CustomerNotificationEventType { get; }
@@ -30,15 +40,31 @@ namespace CustomerNotifications.Contracts
 		/// </summary>
 		public Source EventSource{ get; }
 
-		public CustomerNotificationDomainEvent(CustomerNotificationEventType customerNotificationEventType, Source? source = null, int? onlineOrderId = null, int? orderId = null)
+		public CustomerNotificationDomainEvent(
+			CustomerNotificationEventType customerNotificationEventType,
+			Source? source = null,
+			int? onlineOrderId = null,
+			int? orderId = null,
+			int? rescheduledOrderId = null,
+			string undeliveryCustomerMessage = null)
 		{
+			if(onlineOrderId == null && orderId == null)
+			{
+				throw new ArgumentException($"Для события {customerNotificationEventType} должен быть заполнен хотя бы один из идентификаторов заказа: {nameof(OnlineOrderId)} или {nameof(OrderId)}.");
+			}
+
 			OnlineOrderId = onlineOrderId;
 			OrderId = orderId;
+			RescheduledNewOrderId = rescheduledOrderId;
+			UndeliveryCustomerMessage = undeliveryCustomerMessage;
 			CustomerNotificationEventType = customerNotificationEventType;
 			EventSource = source ?? Source.MobileApp;
 		}
 
-		public string GetDeduplicationKey() => $"{nameof(CustomerNotificationEventType)}:{nameof(OnlineOrderId)}={OnlineOrderId}:{nameof(CustomerNotificationEventType)}={CustomerNotificationEventType}";
+		public string GetDeduplicationKey() => $"" +
+			$"Event={nameof(CustomerNotificationDomainEvent)}" +
+			$"AggregateId={GetAggregateId()}" +
+			$":{nameof(CustomerNotificationEventType)}={CustomerNotificationEventType}";
 
 		public int GetAggregateId() => OnlineOrderId ?? OrderId ?? throw new ArgumentNullException();
 	}

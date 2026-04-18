@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using Autofac;
+﻿using Autofac;
+using CustomerNotifications.Contracts;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
 using Microsoft.Extensions.Logging;
+using Notifications.Infrastructure;
 using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
@@ -27,8 +22,16 @@ using QSOrmProject;
 using QSOrmProject.UpdateNotification;
 using QSProjectsLib;
 using QSReport;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Domain.Cash;
@@ -81,7 +84,6 @@ using Vodovoz.ViewWidgets.Logistics;
 using VodovozBusiness.Services.Orders;
 using EnumItemClickedEventArgs = QS.Widgets.EnumItemClickedEventArgs;
 using Order = Vodovoz.Domain.Orders.Order;
-using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
 
 namespace Vodovoz
 {
@@ -116,6 +118,7 @@ namespace Vodovoz
 		private IPaymentFromBankClientController _paymentFromBankClientController;
 		private IEmployeeNomenclatureMovementRepository _employeeNomenclatureMovementRepository;
 		private INewDriverAdvanceSettings _newDriverAdvanceSettings;
+		private IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private IPermissionRepository _permissionRepository;
 		private IFlyerRepository _flyerRepository;
 		private IOrderContractUpdater _contractUpdater;
@@ -223,6 +226,7 @@ namespace Vodovoz
 			_paymentFromBankClientController = _lifetimeScope.Resolve<IPaymentFromBankClientController>();
 			_employeeNomenclatureMovementRepository = _lifetimeScope.Resolve<IEmployeeNomenclatureMovementRepository>();
 			_newDriverAdvanceSettings = _lifetimeScope.Resolve<INewDriverAdvanceSettings>();
+			_customerNotificationPublisher = _lifetimeScope.Resolve<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>>();
 
 			_permissionRepository = _lifetimeScope.Resolve<IPermissionRepository>();
 			
@@ -811,7 +815,8 @@ namespace Vodovoz
 				NavigationManager,
 				_lifetimeScope,
 				_contractUpdater,
-				_routeListService);
+				_routeListService,
+				_customerNotificationPublisher);
 			
 			dlg.ConfigureForRouteListAddress(node);
 			dlg.TabClosed += OnOrderReturnsViewTabClosed;

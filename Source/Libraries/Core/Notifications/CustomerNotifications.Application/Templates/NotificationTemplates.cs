@@ -2,10 +2,10 @@
 {
 	public static class NotificationTemplates
 	{
-		public const string OrderId = "{OrderId}";
-		public const string DeliveryScheduleFrom = "{DeliveryScheduleFrom}";
-		public const string BottlesReturned = "{BottlesReturned}";
-		public const string RescheduleDate = "{RescheduleDate}";
-		public const string RescheduleReason = "{RescheduleReason}";
+		public const string OrderId = "*номер заказа*";
+		public const string DeliveryScheduleFrom = "*интервал доставки*";
+		public const string BottlesReturned = "*пустые бутыли*";
+		public const string RescheduleDate = "*дата переноса*";
+		public const string RescheduleReason = "*причина переноса*";
 	}
 }
