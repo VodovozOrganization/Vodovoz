@@ -172,7 +172,7 @@ namespace Edo.Problem.Routine.Services
 				return;
 			}
 
-			_logger.LogWarning(
+			_logger.LogInformation(
 				"Задача ЭДО {EdoTaskId} (DocumentEdoTask) находится на стадии {Stage}. Публикуем событие {EventName}",
 				edoTask.Id,
 				edoTask.Stage,
@@ -212,7 +212,7 @@ namespace Edo.Problem.Routine.Services
 				return;
 			}
 
-			_logger.LogWarning(
+			_logger.LogInformation(
 				"Задача ЭДО {EdoTaskId} (ReceiptEdoTask) находится в статусе {ReceiptStatus}. Публикуем событие {EventName}",
 				edoTask.Id,
 				edoTask.ReceiptStatus,
