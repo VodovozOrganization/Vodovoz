@@ -26,6 +26,7 @@ using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
 using VodovozBusiness.Services.Orders;
 using CustomerNotifications.Contracts;
+using CustomerNotifications.Contracts.Extensions;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Notifications.Infrastructure;
 
@@ -86,6 +87,19 @@ namespace Vodovoz.Core.Application.Logistics
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 			_osrmSettings = osrmSettings ?? throw new ArgumentNullException(nameof(osrmSettings));
 			_osrmClient = osrmClient ?? throw new ArgumentNullException(nameof(osrmClient));
+		}
+
+		private void SendCustomerNotification(IUnitOfWork unitOfWork, Order order)
+		{
+			var eventType = order.OrderStatus.ToCustomerNotificationEventType();
+
+			if(eventType is null)
+			{
+				return;
+			}
+
+			var customerNotificationEvent = new CustomerNotificationDomainEvent(eventType.Value, order.OnlineOrder?.Source, order.OnlineOrder?.Id, order.Id);
+			_customerNotificationPublisher.TryPublish(unitOfWork, customerNotificationEvent);
 		}
 
 		#region Статусы МЛ
@@ -384,9 +398,8 @@ namespace Vodovoz.Core.Application.Logistics
 							if(!isInvalidStatus)
 							{
 								item.Order.OrderStatus = OrderStatus.OnTheWay;
-
-								var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, item.Order.OnlineOrder?.Source, item.Order.OnlineOrder?.Id, item.Order.Id);
-								_customerNotificationPublisher.TryPublish(unitOfWork, customerCourierAssignedEvent);
+								
+								SendCustomerNotification(unitOfWork, item.Order);
 							}
 						}
 
@@ -563,9 +576,8 @@ namespace Vodovoz.Core.Application.Logistics
 
 								if(!isInvalidStatus)
 								{
-									address.Order.OrderStatus = OrderStatus.OnTheWay;
-									var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, address.Order.OnlineOrder?.Source, address.Order.OnlineOrder?.Id, address.Order.Id);
-									_customerNotificationPublisher.TryPublish(unitOfWork, customerCourierAssignedEvent);
+									address.Order.OrderStatus = OrderStatus.OnTheWay;									
+									SendCustomerNotification(unitOfWork, address.Order);
 								}
 							}
 						}
@@ -846,15 +858,20 @@ namespace Vodovoz.Core.Application.Logistics
 		public void ChangeAddressStatus(IUnitOfWork unitOfWork, RouteList routeList, int routeListAddressid, RouteListItemStatus newAddressStatus, 
 			ICallTaskWorker callTaskWorker)
 		{
-			UpdateStatus(unitOfWork, routeList.Addresses.First(a => a.Id == routeListAddressid), newAddressStatus);
+			var address = routeList.Addresses.First(a => a.Id == routeListAddressid);
+			UpdateStatus(unitOfWork, address, newAddressStatus);
+			SendCustomerNotification(unitOfWork, address.Order);
+
 			UpdateStatus(unitOfWork, routeList);
 		}
 
 		public void ChangeAddressStatusAndCreateTask(IUnitOfWork unitOfWork, RouteList routeList, int routeListAddressid,
 			RouteListItemStatus newAddressStatus, ICallTaskWorker callTaskWorker, bool isEditAtCashier = false)
 		{
-			routeList.Addresses.First(a => a.Id == routeListAddressid)
-				.UpdateStatusAndCreateTask(unitOfWork, newAddressStatus, callTaskWorker, isEditAtCashier);
+			var address = routeList.Addresses.First(a => a.Id == routeListAddressid);
+			address.UpdateStatusAndCreateTask(unitOfWork, newAddressStatus, callTaskWorker, isEditAtCashier);
+			SendCustomerNotification(unitOfWork, address.Order);
+
 			UpdateStatus(unitOfWork, routeList);
 		}
 

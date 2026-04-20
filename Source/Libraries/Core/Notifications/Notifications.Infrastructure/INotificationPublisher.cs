@@ -9,6 +9,9 @@ namespace Notifications.Infrastructure
 	/// <typeparam name="TDomainEvent"></typeparam>
 	public interface INotificationPublisher<TDomainEvent>
 	{
+		/// <summary>
+		/// Публикация уведомления для клиента
+		/// </summary>			
 		Task PublishAsync(TDomainEvent notificationEvent, CancellationToken cancellationToken = default);
 	}
 }

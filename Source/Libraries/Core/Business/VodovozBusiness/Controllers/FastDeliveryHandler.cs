@@ -1,8 +1,11 @@
-﻿using QS.DomainModel.UoW;
+using CustomerNotifications.Contracts;
+using Notifications.Infrastructure;
+using QS.DomainModel.UoW;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -25,13 +28,15 @@ namespace Vodovoz.Controllers
 		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 		private readonly IFastDeliveryValidator _fastDeliveryValidator;
 		private readonly IFastDeliveryOrderAddedNotificationSender _fastDeliveryOrderAddedNotificationSender;
+		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 
 		public FastDeliveryHandler(
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IDeliveryRepository deliveryRepository,
 			IRouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController,
 			IFastDeliveryValidator fastDeliveryValidator,
-			IFastDeliveryOrderAddedNotificationSender fastDeliveryOrderAddedNotificationSender)
+			IFastDeliveryOrderAddedNotificationSender fastDeliveryOrderAddedNotificationSender,
+			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher)
 		{
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
@@ -39,6 +44,7 @@ namespace Vodovoz.Controllers
 				routeListAddressKeepingDocumentController ?? throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentController));
 			_fastDeliveryValidator = fastDeliveryValidator ?? throw new ArgumentNullException(nameof(fastDeliveryValidator));
 			_fastDeliveryOrderAddedNotificationSender = fastDeliveryOrderAddedNotificationSender ?? throw new ArgumentNullException(nameof(fastDeliveryOrderAddedNotificationSender));
+			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 		}
 		
 		public RouteList RouteListToAddFastDeliveryOrder { get; private set; }
@@ -153,7 +159,10 @@ namespace Vodovoz.Controllers
 				fastDeliveryAddress = routeListService.AddAddressFromOrder(uow, RouteListToAddFastDeliveryOrder, order);
 				
 				order.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, callTaskWorker);
-				
+
+				var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, order.OnlineOrder?.Source, order.OnlineOrder?.Id, order.Id);
+				_customerNotificationPublisher.TryPublish(uow, customerCourierAssignedEvent);
+
 				order.UpdateDocuments();
 			}
 

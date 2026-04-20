@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 	</PropertyGroup>
@@ -150,6 +150,8 @@
       <Project>{42efc426-2c88-4608-8191-dbca4172a695}</Project>
       <Name>VodovozInfrastructure</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Notifications\CustomerNotifications.Contracts\CustomerNotifications.Contracts.csproj" />
+    <ProjectReference Include="..\..\Notifications\Notifications.Infrastructure\Notifications.Infrastructure.csproj" />
     <ProjectReference Include="..\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj" />
     <ProjectReference Include="..\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj">
       <Project>{ec987b0b-d857-4ec5-85a8-f8821363698f}</Project>

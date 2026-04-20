@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Domain.Clients;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +20,9 @@ namespace OutboxWorker
 		private readonly string _connectionString;
 		private readonly IServiceScopeFactory _scopeFactory;
 		private readonly ILogger<OutboxWorker> _logger;
+		private const int _messageBatchSize = 50;
+		private const int _delayBeetweenMessagesInSeconds = 1;
+		private const int _delayWhenErrorInSeconds = 5;
 
 		// Кэш для ускорения разрешения типов.
 		// Предполагается, что набор типов сообщений ограничен и известен заранее.
@@ -75,12 +77,12 @@ namespace OutboxWorker
 					
 					await using var tx = await conn.BeginTransactionAsync(token);
 					
-					var messages = await outboxRepository.GetPendingMessagesAsync(conn, 50, tx);
+					var messages = await outboxRepository.GetPendingMessagesAsync(conn, _messageBatchSize, tx);
 
 					if(!messages.Any())
 					{
 						await tx.CommitAsync(token); // коммитим пустую транзакцию, чтобы снять блокировки
-						await Task.Delay(1000, token);
+						await Task.Delay(TimeSpan.FromSeconds(_delayBeetweenMessagesInSeconds), token);
 						continue;
 					}
 					
@@ -121,12 +123,12 @@ namespace OutboxWorker
 					
 					await outboxRepository.CleanupAsync(conn);
 
-					await Task.Delay(100, token);
+					await Task.Delay(TimeSpan.FromSeconds(_delayBeetweenMessagesInSeconds), token);
 				}
 				catch(Exception ex)
 				{
 					_logger.LogError(ex, "Outbox worker crash");
-					await Task.Delay(5000, token);
+					await Task.Delay(TimeSpan.FromSeconds(_delayWhenErrorInSeconds), token);
 				}
 			}
 		}

@@ -11,7 +11,14 @@ namespace Notifications.Infrastructure
 	/// <typeparam name="TDomainEvent"></typeparam>
 	public interface IOutboxNotificationPublisher<in TDomainEvent>
 	{
+		/// <summary>
+		/// Ассинхронная версия публикации уведомления в рамках транзакционного аутбокса. Сообщение будет сохранено в аутбоксе и опубликовано после успешного коммита транзакции.
+		/// </summary>
 		Task<bool> TryPublishAsync(IUnitOfWork unitOfWork, TDomainEvent notificationEvent, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Публикация уведомления в рамках транзакционного аутбокса. Сообщение будет сохранено в аутбоксе и опубликовано после успешного коммита транзакции.
+		/// </summary>
 		bool TryPublish(IUnitOfWork unitOfWork, TDomainEvent notificationEvent);
 	}
 }

@@ -1,4 +1,4 @@
-﻿using CustomerNotifications.Contracts;
+using CustomerNotifications.Contracts;
 using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Requests;
 using Edo.Transport;
@@ -600,30 +600,8 @@ namespace Vodovoz
 
 			rli.UpdateStatus(_routeListService, _routeListItemStatusToChange, CallTaskWorker);
 			TryUpdateCreatedEdoRequests(rli, _routeListItemStatusToChange);
-
-			SendCustomerNotification(rli, _routeListItemStatusToChange);
 		}
 
-		private void SendCustomerNotification(RouteListKeepingItemNode node, RouteListItemStatus routeListItemStatusToChange)
-		{
-			CustomerNotificationDomainEvent cusomerNotificatoinEvent = null;
-			var order = node.RouteListItem.Order;
-
-			switch(routeListItemStatusToChange)
-			{
-				case RouteListItemStatus.EnRoute:
-					cusomerNotificatoinEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, order.OnlineOrder?.Source, order.OnlineOrder?.Id, order.Id);
-					break;
-				case RouteListItemStatus.Completed:
-					cusomerNotificatoinEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.DeliveryCompleted, order.OnlineOrder?.Source, order.OnlineOrder?.Id, order.Id);
-					break;
-			}
-
-			if(cusomerNotificatoinEvent != null)
-			{
-				_customerNotificationPublisher.TryPublish(UoW, cusomerNotificatoinEvent);
-			}
-		}
 
 		private void TryUpdateCreatedEdoRequests(RouteListKeepingItemNode rli, RouteListItemStatus addressStatus)
 		{

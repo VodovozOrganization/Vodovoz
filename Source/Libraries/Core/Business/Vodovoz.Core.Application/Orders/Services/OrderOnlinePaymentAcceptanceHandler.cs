@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomerNotifications.Contracts;
+using Notifications.Infrastructure;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Cash;
@@ -19,19 +22,22 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly ISelfDeliveryRepository _selfDeliveryRepository;
 		private readonly ICashRepository _cashRepository;
 		private readonly IOrderContractUpdater _contractUpdater;
+		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 
 		public OrderOnlinePaymentAcceptanceHandler(
 			INomenclatureSettings nomenclatureSettings,
 			IRouteListItemRepository routeListItemRepository,
 			ISelfDeliveryRepository selfDeliveryRepository,
 			ICashRepository cashRepository,
-			IOrderContractUpdater contractUpdater)
+			IOrderContractUpdater contractUpdater,
+			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher)
 		{
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_selfDeliveryRepository = selfDeliveryRepository ?? throw new ArgumentNullException(nameof(selfDeliveryRepository));
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
+			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 		}
 
 		public void AcceptOnlinePayment(
@@ -71,6 +77,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 				{
 					order.ChangeStatus(OrderStatus.OnLoading);
 					order.IsSelfDeliveryPaid = true;
+					var customerNotificationEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, onlineOrderId: order.OnlineOrder?.Id, orderId: order.Id);
+					_customerNotificationPublisher.TryPublish(uow, customerNotificationEvent);
 				}
 			
 				order.OnlinePaymentNumber = paymentNumber;

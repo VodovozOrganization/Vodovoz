@@ -1,5 +1,4 @@
 ﻿using NHibernate;
-using Notifications.Infrastructure;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -15,8 +14,6 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Errors.Logistics;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Cash;
-using CustomerNotifications.Contracts;
-using Vodovoz.Core.Domain.Orders.OrderEnums;
 
 namespace Vodovoz.Core.Application.Logistics
 {
@@ -29,7 +26,6 @@ namespace Vodovoz.Core.Application.Logistics
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IGenericRepository<RouteListAddressKeepingDocument> _routeListAddressKeepingDocumentsRepository;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
-		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
 		private readonly IAddressTransferController _addressTransferController;
@@ -43,7 +39,6 @@ namespace Vodovoz.Core.Application.Logistics
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IGenericRepository<RouteListAddressKeepingDocument> routeListAddressKeepingDocumentsRepository,
 			IRouteListProfitabilityController routeListProfitabilityController,
-			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
 			IWageParameterService wageParameterService,
 			IRouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
@@ -60,7 +55,6 @@ namespace Vodovoz.Core.Application.Logistics
 			                                              throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentsRepository));
 			_routeListProfitabilityController =
 				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
-			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 			_routeListAddressKeepingDocumentController = routeListAddressKeepingDocumentController ??
 			                                             throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentController));
 			_financialCategoriesGroupsSettings =
@@ -265,9 +259,6 @@ namespace Vodovoz.Core.Application.Logistics
 			}
 
 			order.ChangeStatus(OrderStatus.OnTheWay);
-
-			var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, order.OnlineOrder?.Source, order.OnlineOrder?.Id, order.Id);
-			_customerNotificationPublisher.TryPublish(unitOfWork, customerCourierAssignedEvent);
 
 			unitOfWork.Save(order);
 			unitOfWork.Save(newRouteListItem);

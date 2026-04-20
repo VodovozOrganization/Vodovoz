@@ -7,6 +7,10 @@ namespace TransactionalOutbox.Abstractions
 	/// </summary>
 	public interface IOutboxConnectionFactory
 	{
+		/// <summary>
+		/// Создает и возвращает новое соединение с базой данных.
+		/// </summary>
+		/// <returns>Новое соединени с базой данных</returns>
 		DbConnection CreateConnection();
 	}
 }

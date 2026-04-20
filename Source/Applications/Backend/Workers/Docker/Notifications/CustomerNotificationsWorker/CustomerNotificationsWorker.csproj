@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk;Microsoft.NET.Sdk.Publish">
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
@@ -22,6 +22,17 @@
 
 	<ItemGroup>
 	  <Folder Include="Config\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="Properties\PublishProfiles\registry-prod.pubxml">
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	    <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+	  </None>
+	  <None Update="Properties\PublishProfiles\registry-dev.pubxml">
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	    <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+	  </None>
 	</ItemGroup>
 
 </Project>

@@ -10,6 +10,10 @@ namespace TransactionalOutbox.Abstractions
 	/// <typeparam name="TIntegrationEvent"></typeparam>
 	public interface IIntegrationEventBuilder<TDomainEvent, TIntegrationEvent>
 	{
+		/// <summary>
+		/// Строит интеграционное событие на основе доменного события.
+		/// </summary>
+		
 		Task<TIntegrationEvent> BuildAsync(TDomainEvent domainEvent, CancellationToken cancellationToken = default);
 	}
 }
