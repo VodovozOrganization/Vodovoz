@@ -1,4 +1,6 @@
 ﻿using Autofac;
+using CustomerNotifications.Contracts;
+using Notifications.Infrastructure;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -7,7 +9,7 @@ using QSReport;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Application.Orders.Services.OrderCancellation;
+using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -46,6 +48,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		private readonly ICallTaskRepository _callTaskRepository;
 		private readonly IRouteListService _routeListService;
 		private readonly OrderCancellationService _orderCancellationService;
+		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private IPage<CounterpartyJournalViewModel> _counterpartyJournalPage;
 
 		public List<CounterpartyOrderViewModel> CounterpartyOrdersViewModels { get; private set; } = new List<CounterpartyOrderViewModel>();
@@ -68,7 +71,8 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			IEmployeeRepository employeeRepository,
 			ICallTaskRepository callTaskRepository,
 			IRouteListService routeListService,
-			OrderCancellationService orderCancellationService
+			OrderCancellationService orderCancellationService,
+			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher
 			)
 			: base(tdinavigation, manager)
 		{
@@ -87,6 +91,8 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
+			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
+
 			if(ActiveCall.CounterpartyIds.Any())
 			{
 				var clients = _uow.GetById<Counterparty>(ActiveCall.CounterpartyIds);
@@ -108,7 +114,8 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 						_routeListItemRepository,
 						_callTaskRepository,
 						_routeListService,
-						_orderCancellationService
+						_orderCancellationService,
+						_customerNotificationPublisher
 						);
 
 					CounterpartyOrdersViewModels.Add(model);
@@ -174,7 +181,8 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 						_routeListItemRepository,
 						_callTaskRepository,
 						_routeListService,
-						_orderCancellationService
+						_orderCancellationService,
+						_customerNotificationPublisher
 						);
 				
 				CounterpartyOrdersViewModels.Add(model);
@@ -214,7 +222,8 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 						_routeListItemRepository,
 						_callTaskRepository,
 						_routeListService,
-						_orderCancellationService
+						_orderCancellationService,
+						_customerNotificationPublisher
 						);
 				
 				CounterpartyOrdersViewModels.Add(model);

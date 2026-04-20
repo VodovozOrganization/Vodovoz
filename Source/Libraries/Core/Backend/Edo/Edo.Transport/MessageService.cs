@@ -67,5 +67,29 @@ namespace Edo.Transport
 					ex.Message);
 			}
 		}
+
+		/// <summary>
+		/// Опубликовать событие о создании эдо задачи для повторной проверки на новые ошибки
+		/// </summary>
+		/// <param name="edoTaskId">ID ЭДО задачи</param>
+		/// <returns></returns>
+		public async Task PublishSendDocumentTaskCreatedEvent(int edoTaskId)
+		{
+			_logger.LogInformation("Отправляем событие о создании эдо задачи для повторной проверки на новые ошибки: {RequestId}.", edoTaskId);
+
+			try
+			{
+				await _bus.Publish(new DocumentTaskCreatedEvent { Id = edoTaskId });
+				_logger.LogInformation("Событие о создании эдо задачи для повторной проверки на новые ошибки отправлено успешно");
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(
+					ex,
+					"Ошибка при отправке события о создании эдо задачи для повторной проверки на новые ошибки. Id запроса: {RequestId}. Exception: {ExceptionMessage}",
+					edoTaskId,
+					ex.Message);
+			}
+		}
 	}
 }

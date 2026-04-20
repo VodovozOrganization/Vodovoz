@@ -1,16 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.Data;
-using System.Data.Bindings.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading;
-using Autofac;
+﻿using Autofac;
 using Core.Infrastructure;
+using CustomerNotifications.Contracts;
 using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Requests;
 using EdoService.Library;
@@ -22,6 +12,7 @@ using Gamma.Widgets;
 using Gtk;
 using NHibernate.Criterion;
 using NLog;
+using Notifications.Infrastructure;
 using QS.Dialog;
 using QS.Dialog.Gtk;
 using QS.Dialog.GtkUI;
@@ -47,15 +38,27 @@ using QS.ViewModels.Extension;
 using QSOrmProject;
 using QSProjectsLib;
 using QSWidgetLib;
-using Vodovoz.Application.Orders;
-using Vodovoz.Application.Orders.Services;
-using Vodovoz.Application.Orders.Services.OrderCancellation;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Data;
+using System.Data.Bindings.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Application.Orders;
+using Vodovoz.Core.Application.Orders.Services;
+using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
@@ -216,6 +219,7 @@ namespace Vodovoz
 		private IPaymentFromBankClientController _paymentFromBankClientController;
 		private IGenericRepository<OrderTo1cExport> _exportsOrderTo1cReporitory;
 		private ICashReceiptRepository _cashReceiptRepository;
+		private IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private RouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 
 		private IGenericRepository<EdoContainer> _edoContainerRepository;
@@ -693,6 +697,7 @@ namespace Vodovoz
 			_paymentFromBankClientController = _lifetimeScope.Resolve<IPaymentFromBankClientController>();
 			_exportsOrderTo1cReporitory = _lifetimeScope.Resolve<IGenericRepository<OrderTo1cExport>>();
 			_cashReceiptRepository = _lifetimeScope.Resolve<ICashReceiptRepository>();
+			_customerNotificationPublisher = _lifetimeScope.Resolve<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>>();
 
 			_justCreated = UoWGeneric.IsNew;
 
@@ -4587,8 +4592,22 @@ namespace Vodovoz
 
 			if(saved && e.NeedClose)
 			{
+				if(e.UndeliveredOrder.NewOrder != null)
+				{
+					var customerOrderRescheduledEvent = new CustomerNotificationDomainEvent(
+						CustomerNotificationEventType.OrderRescheduled,
+						e.UndeliveredOrder.OldOrder.OnlineOrder?.Source,
+						e.UndeliveredOrder.OldOrder.OnlineOrder?.Id,
+						e.UndeliveredOrder.OldOrder.Id,
+						e.UndeliveredOrder.NewOrder.Id,
+						e.UndeliveredOrder.UndeliveryDetalization?.CustomerNotificationText);
+					_customerNotificationPublisher.TryPublish(UoW, customerOrderRescheduledEvent);
+
+					UoW.Commit();
+				}
+
 				OnCloseTab(false);
-			}
+			}				
 		}
 
 		protected void OnEnumPaymentTypeChangedByUser(object sender, EventArgs e)

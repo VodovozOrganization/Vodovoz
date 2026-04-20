@@ -12,6 +12,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Edo.Admin;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
@@ -28,6 +29,7 @@ namespace Edo.Documents
 		private readonly EdoTaskValidator _edoTaskValidator;
 		private readonly EdoTaskItemTrueMarkStatusProviderFactory _edoTaskTrueMarkCodeCheckerFactory;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
+		private readonly EdoCancellationService _edoCancellationService;
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly IBus _messageBus;
 
@@ -39,6 +41,7 @@ namespace Edo.Documents
 			EdoTaskValidator edoTaskValidator,
 			EdoTaskItemTrueMarkStatusProviderFactory edoTaskTrueMarkCodeCheckerFactory,
 			EdoProblemRegistrar edoProblemRegistrar,
+			EdoCancellationService edoCancellationService,
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			IBus messageBus
 			)
@@ -50,6 +53,7 @@ namespace Edo.Documents
 			_edoTaskValidator = edoTaskValidator ?? throw new ArgumentNullException(nameof(edoTaskValidator));
 			_edoTaskTrueMarkCodeCheckerFactory = edoTaskTrueMarkCodeCheckerFactory ?? throw new ArgumentNullException(nameof(edoTaskTrueMarkCodeCheckerFactory));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
+			_edoCancellationService = edoCancellationService ?? throw new ArgumentNullException(nameof(edoCancellationService));
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
@@ -123,6 +127,14 @@ namespace Edo.Documents
 
 			try
 			{
+				if(CheckOrderItemsAsync(edoTask))
+				{
+					var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
+				
+					await _edoCancellationService.CancelTask(documentEdoTaskId, reason, false, cancellationToken);
+					return;
+				}
+				
 				var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
 				var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);
 				if(!isValid)
@@ -222,6 +234,18 @@ namespace Edo.Documents
 				default:
 					throw new EdoException($"Неизвестный тип документа {edoTask.DocumentType}.");
 			}
+		}
+		
+		private bool CheckOrderItemsAsync(EdoTask edoTask)
+		{
+			if(!(edoTask is OrderEdoTask orderEdoTask))
+			{
+				return true;
+			}
+			
+			var edoRequest = orderEdoTask.FormalEdoRequest;
+
+			return edoRequest.Order.OrderItems.All(x => x.Price > 0) && edoRequest.Order.OrderSum > 0;
 		}
 
 		private async Task<OrderEdoDocument> SendDocument(DocumentEdoTask edoTask, CancellationToken cancellationToken)
@@ -364,6 +388,14 @@ namespace Edo.Documents
 		{
 			var edoTask = await _uow.Session.GetAsync<DocumentEdoTask>(documentEdoTaskId, cancellationToken);
 
+			if(CheckOrderItemsAsync(edoTask))
+			{
+				var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
+				
+				await _edoCancellationService.CancelTask(documentEdoTaskId, reason, false, cancellationToken);
+				return;
+			}
+			
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
 			var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);
 			if(!isValid)
@@ -406,6 +438,14 @@ namespace Edo.Documents
 				return;
 			}
 
+			if(CheckOrderItemsAsync(edoTask))
+			{
+				var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
+				
+				await _edoCancellationService.CancelTask(document.DocumentTaskId, reason, false, cancellationToken);
+				return;
+			}
+			
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
 			var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);
 			if(!isValid)
@@ -419,23 +459,6 @@ namespace Edo.Documents
 
 			await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
-
-			try
-			{
-				// Отправляем событие о завершении документооборота
-				// для проверки необходимости создания заявки на вывод кодов из оборота
-				await _messageBus.Publish(
-					new OrderDocflowCompletedEvent { DocumentId = document.Id },
-					cancellationToken);
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(
-					ex,
-					"Ошибка при публикации события {EvantTypeName} для документа Id {DocumentId}",
-					nameof(OrderDocflowCompletedEvent),
-					document.Id);
-			}
 		}
 
 		private void AcceptDocument(DocumentEdoTask edoTask, CancellationToken cancellationToken)

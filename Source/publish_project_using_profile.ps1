@@ -47,6 +47,39 @@ function Find-SolutionRoot {
     return $PSScriptRoot
 }
 
+function Get-ProjectFile {
+    param([string]$projectPath)
+
+    $projectFile = Get-ChildItem -Path $projectPath -Filter *.csproj -File | Select-Object -First 1
+    if (-not $projectFile) {
+        Write-Error "Файл проекта (*.csproj) не найден в $projectPath"
+        exit 1
+    }
+
+    return $projectFile
+}
+
+function Get-RelativePathCompat {
+    param(
+        [string]$basePath,
+        [string]$targetPath
+    )
+
+    $baseFullPath = (Resolve-Path -LiteralPath $basePath).Path
+    $targetFullPath = (Resolve-Path -LiteralPath $targetPath).Path
+
+    if (-not $baseFullPath.EndsWith([System.IO.Path]::DirectorySeparatorChar)) {
+        $baseFullPath += [System.IO.Path]::DirectorySeparatorChar
+    }
+
+    $baseUri = New-Object System.Uri($baseFullPath)
+    $targetUri = New-Object System.Uri($targetFullPath)
+    $relativeUri = $baseUri.MakeRelativeUri($targetUri)
+    $relativePath = [System.Uri]::UnescapeDataString($relativeUri.ToString())
+
+    return ($relativePath -replace '/', '\\')
+}
+
 function Get-RegistryUrlFromDirectoryBuild {
     param([string]$solutionRoot)
     $directoryBuildsPath = Join-Path $solutionRoot "Directory.Build.props"
@@ -169,16 +202,54 @@ for ($i = 0; $i -lt $profiles.Count; $i++) {
     Write-Host "$($i+1): $($profiles[$i])"
 }
 
-do {
-    $selection = Read-Host "Выберите профиль публикации (1-$($profiles.Count))"
-} while (-not ($selection -as [int]) -or $selection -lt 1 -or $selection -gt $profiles.Count)
+$buildOptionNumber = $profiles.Count + 1
+Write-Host "$($buildOptionNumber): Тест сборки в docker контейнере"
 
-$selectedProfile = $profiles[$selection - 1]
-Write-Host "Выбран профиль: $selectedProfile"
+do {
+    $selection = Read-Host "Выберите пункт (1-$buildOptionNumber)"
+} while (-not ($selection -as [int]) -or $selection -lt 1 -or $selection -gt $buildOptionNumber)
+
+$selectionInt = [int]$selection
 
 # Определяем путь к проекту и находим корневую папку решения
 $projectPath = $ProjectPath
 $solutionRoot = Find-SolutionRoot -startPath $projectPath
+$projectFile = Get-ProjectFile -projectPath $ProjectPath
+
+if ($selectionInt -eq $buildOptionNumber) {
+    Write-Host "Выбран режим сборки проекта в Docker"
+
+    if (-not (Test-DockerEngine)) {
+        if (-not (Wait-ForDockerDesktop)) {
+            exit 1
+        }
+    }
+
+    $solutionRootForDocker = $solutionRoot -replace '\\', '/'
+    $relativeProjectPath = Get-RelativePathCompat -basePath $solutionRoot -targetPath $projectFile.FullName
+    $relativeProjectPathForDocker = $relativeProjectPath -replace '\\', '/'
+
+    $publishScript = @"
+set -ex
+dotnet publish $relativeProjectPathForDocker \
+  -c Release \
+  -r linux-x64 \
+  --verbosity diag
+"@
+
+    docker run --rm `
+      -v "${solutionRootForDocker}:/src" `
+      -w "/src" `
+      "docker.vod.qsolution.ru:5100/dotnet5-docker" `
+      sh -c $publishScript
+
+    Write-Host "Нажмите любую клавишу для выхода..."
+    [void][System.Console]::ReadKey($true)
+    exit 0
+}
+
+$selectedProfile = $profiles[$selectionInt - 1]
+Write-Host "Выбран профиль: $selectedProfile"
 
 
 # Проверяем, используется ли публикация в удаленный реестр образов
@@ -249,13 +320,6 @@ if (Get-Command msbuild -ErrorAction SilentlyContinue) {
     $msbuildCmd = "`"$msbuildPath`""
 } else {
     Write-Error "MSBuild не найден."
-    exit 1
-}
-
-# Находим проект, в котором лежит скрипт
-$projectFile = Get-ChildItem -Path $ProjectPath -Filter *.csproj -File | Select-Object -First 1
-if (-not $projectFile) {
-    Write-Error "Файл проекта (*.csproj) не найден в $ProjectPath"
     exit 1
 }
 

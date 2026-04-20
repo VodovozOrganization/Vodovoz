@@ -1,0 +1,7 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>edo-services.documents-preparer</ContainerRepository>
+    <ContainerBaseImage>docker.vod.qsolution.ru:5100/vodovoz-reporting-base:latest</ContainerBaseImage>
+  </PropertyGroup>
+</Project>
+

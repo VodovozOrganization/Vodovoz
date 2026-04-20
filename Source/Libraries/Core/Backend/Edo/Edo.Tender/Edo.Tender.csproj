@@ -11,6 +11,7 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\..\..\Business\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj" />
+	  <ProjectReference Include="..\Edo.Admin\Edo.Admin.csproj" />
 	  <ProjectReference Include="..\Edo.Common\Edo.Common.csproj" />
 	  <ProjectReference Include="..\Edo.Contracts\Edo.Contracts.csproj" />
 	  <ProjectReference Include="..\Edo.Problems\Edo.Problems.csproj" />

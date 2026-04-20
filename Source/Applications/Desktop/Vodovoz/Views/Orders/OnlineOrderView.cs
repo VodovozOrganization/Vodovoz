@@ -524,8 +524,6 @@ namespace Vodovoz.Views.Orders
 
 				ViewModel.Entity.SetOrderPerformed(orders);
 
-				ViewModel.PublishCustomerNotification();
-				
 				ViewModel.Save(true);
 			}
 			

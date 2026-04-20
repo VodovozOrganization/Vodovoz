@@ -24,7 +24,8 @@ namespace Vodovoz.Core.Domain.Orders
 		private TimeSpan _timeForTransferToManualProcessingWithoutFastDelivery;
 		private TimeSpan _payTimeWithFastDelivery;
 		private TimeSpan _timeForTransferToManualProcessingWithFastDelivery;
-		
+		private TimeSpan _timeForWaitingBeforeSendPaymentNotification;
+
 		public virtual int Id { get; set; }
 
 		/// <summary>
@@ -65,6 +66,16 @@ namespace Vodovoz.Core.Domain.Orders
 		{
 			get => _timeForTransferToManualProcessingWithFastDelivery;
 			set => SetField(ref _timeForTransferToManualProcessingWithFastDelivery, value);
+		}
+
+		/// <summary>
+		/// Время для ожидания перед уведомлением клиента о необходимости оплаты заказа
+		/// </summary>
+		[Display(Name = "Время для ожидания перед уведомлением клиента о необходимости оплаты заказа")]
+		public virtual TimeSpan TimeForWaitingBeforeSendPaymentNotification
+		{
+			get => _timeForWaitingBeforeSendPaymentNotification;
+			set => SetField(ref _timeForWaitingBeforeSendPaymentNotification, value);
 		}
 
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

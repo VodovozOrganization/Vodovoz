@@ -21,7 +21,6 @@ using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Logistics;
 using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -47,11 +46,9 @@ using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Factories;
 using Vodovoz.Models;
 using Vodovoz.Repository.Store;
 using Vodovoz.Services;
-using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Cash;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
@@ -59,9 +56,7 @@ using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools;
-using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
-using VodovozBusiness.Services.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Domain.Logistic
@@ -929,7 +924,7 @@ namespace Vodovoz.Domain.Logistic
 			observableAddresses = null;
 		}
 
-		public virtual void RollBackEnRouteStatus(IOnlineOrderService onlineOrderService)
+		public virtual void RollBackEnRouteStatus()
 		{
 			Status = RouteListStatus.EnRoute;
 			ClosingFilled = false;
@@ -937,8 +932,6 @@ namespace Vodovoz.Domain.Logistic
 			foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed))
 			{
 				item.Order.OrderStatus = OrderStatus.OnTheWay;
-
-				onlineOrderService.NotifyClientOfOnlineOrderStatusChange(item.Order.OnlineOrder, CustomerNotificationEventType.CourierAssigned);
 			}
 
 			UoW.Save(this);

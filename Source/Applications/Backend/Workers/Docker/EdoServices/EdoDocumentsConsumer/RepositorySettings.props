@@ -1,0 +1,6 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>edo-services.documents-consumer</ContainerRepository>
+  </PropertyGroup>
+</Project>
+

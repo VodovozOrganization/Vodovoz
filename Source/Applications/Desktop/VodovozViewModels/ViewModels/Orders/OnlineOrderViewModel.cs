@@ -1,12 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using Autofac;
-using CustomerNotifications.Contracts.Converters;
-using CustomerNotifications.Contracts.Messages;
-using CustomerNotifications.Publisher.Services;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
@@ -16,7 +13,6 @@ using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
-using Vodovoz.Application.Mango;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -33,7 +29,6 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Counterparty;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
-using VodovozBusiness.Extensions;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {
@@ -43,7 +38,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private readonly ViewModelEEVMBuilder<DeliveryPoint> _deliveryPointViewModelBuilder;
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel;
 		private readonly MangoManager _mangoManager;
-		private readonly ICustomerNotificationPublisher _customerNotificationPublisher;
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly Employee _currentEmployee;
 		private bool _orderCreatingState;
@@ -66,13 +60,10 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			DeliveryPointJournalFilterViewModel deliveryPointJournalFilterViewModel,
 			IDiscountController discountController,
 			IOrderOrganizationManager orderOrganizationManager,
-			MangoManager mangoManager,
-			ICustomerNotificationPublisher customerNotificationPublisher
+			MangoManager mangoManager
 			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
-			_customerNotificationPublisher = customerNotificationPublisher?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
-
 			_currentEmployee =
 				(employeeService ?? throw new ArgumentNullException(nameof(employeeService)))
 				.GetEmployeeForUser(UoW, CurrentUser.Id);
@@ -90,14 +81,12 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			_deliveryPointJournalFilterViewModel =
 				deliveryPointJournalFilterViewModel ?? throw new ArgumentNullException(nameof(deliveryPointJournalFilterViewModel));
 			_mangoManager = mangoManager ?? throw new ArgumentNullException(nameof(mangoManager));
-			_customerNotificationPublisher = customerNotificationPublisher;
 			DiscountController = discountController ?? throw new ArgumentNullException(nameof(discountController));
 			Logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			ExternalCounterpartyMatchingRepository =
 				externalCounterpartyMatchingRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyMatchingRepository));
 			_lifetimeScope = scope ?? throw new ArgumentNullException(nameof(scope));
 			OrderOrganizationManager = orderOrganizationManager ?? throw new ArgumentNullException(nameof(orderOrganizationManager));
-
 			GetTimers();
 			SetPermissions();
 			CreateCommands();
@@ -263,17 +252,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private bool OrderIsNullAndOnlineOrderNotCanceledStatus =>
 			!Entity.Orders.Any() && Entity.OnlineOrderStatus != OnlineOrderStatus.Canceled;
 
-		public void PublishCustomerNotification()
-		{
-			var notificationType = Entity.GetExternalOrderStatus().ToCustomerNotificationEventType();
-
-			_customerNotificationPublisher.PublishAsync(new CustomerNotificationMessage
-			{
-				OnlineOrderId = Entity.Id,
-				CustomerNotificationEventType = notificationType
-			});
-		}
-
 		public void ShowMessage(string message, string title = null)
 		{
 			ShowInfoMessage(message, title);
@@ -353,15 +331,13 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 					
 					var oldStatus = Entity.OnlineOrderStatus;
 					Entity.OnlineOrderStatus = OnlineOrderStatus.Canceled;
-
-					PublishCustomerNotification();
 					
 					if(!Save())
 					{
 						Entity.OnlineOrderStatus = oldStatus;
 						return;
 					}
-					
+
 					Close(false, CloseSource.Save);
 				});
 		}

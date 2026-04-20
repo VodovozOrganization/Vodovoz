@@ -27,6 +27,12 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 			
 			Map(x => x.AllowDuplicateNotifications)
 				.Column("allow_duplicate_notifications");
+			
+			Map(x => x.PushType)
+				.Column("push_type");
+			
+			Map(x => x.PushTarget)
+				.Column("push_target");
 		}
 	}
 }

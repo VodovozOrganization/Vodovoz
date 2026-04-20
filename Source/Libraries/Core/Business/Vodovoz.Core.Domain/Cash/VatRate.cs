@@ -91,6 +91,10 @@ namespace Vodovoz.Core.Domain.Cash
 			{
 				case 0:
 					return FiscalVat.VatFree;
+				case 5:
+					return FiscalVat.Vat5;
+				case 7:
+					return FiscalVat.Vat7;
 				case 10:
 					return FiscalVat.Vat10;
 				case 18:

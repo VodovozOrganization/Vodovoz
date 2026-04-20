@@ -1,9 +1,11 @@
-﻿using DriverApi.Contracts.V6;
+﻿using CustomerNotifications.Contracts;
+using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Requests;
 using Edo.Transport;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
+using Notifications.Infrastructure;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -24,11 +26,13 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Vodovoz.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Application.Orders;
+using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -92,7 +96,7 @@ namespace Vodovoz
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender;
 		private readonly OrderCancellationService _orderCancellationService;
-		private readonly IOnlineOrderService _onlineOrderService;
+		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
 		private bool _canClose = true;
 		private IEnumerable<object> _selectedRouteListAddressesObjects = Enumerable.Empty<object>();
@@ -131,7 +135,7 @@ namespace Vodovoz
 			IRouteListService routeListService,
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
 			OrderCancellationService orderCancellationService,
-			IOnlineOrderService onlineOrderService
+			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher
 			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
@@ -161,7 +165,7 @@ namespace Vodovoz
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
-			_onlineOrderService = onlineOrderService ?? throw new ArgumentNullException(nameof(onlineOrderService));
+			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 			TabName = $"Ведение МЛ №{Entity.Id}";
 
 			_permissionResult = _currentPermissionService.ValidateEntityPermission(typeof(RouteList));
@@ -210,7 +214,15 @@ namespace Vodovoz
 
 		private void RollBackEnRouteStatus()
 		{
-			Entity.RollBackEnRouteStatus(_onlineOrderService);
+			Entity.RollBackEnRouteStatus();
+
+			foreach(var item in Entity.Addresses.Where(x => x.Status == RouteListItemStatus.Completed))
+			{
+				item.Order.OrderStatus = OrderStatus.OnTheWay;
+
+				var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, item.Order.OnlineOrder?.Source, item.Order.OnlineOrder?.Id, item.Order.Id);
+				_customerNotificationPublisher.TryPublish(UoW, customerCourierAssignedEvent);
+			}
 		}
 
 		private void CreateInitialRouteListItemStatuses()
@@ -590,6 +602,7 @@ namespace Vodovoz
 			TryUpdateCreatedEdoRequests(rli, _routeListItemStatusToChange);
 		}
 
+
 		private void TryUpdateCreatedEdoRequests(RouteListKeepingItemNode rli, RouteListItemStatus addressStatus)
 		{
 			if(!_edoSettings.NewEdoProcessing)
@@ -680,7 +693,7 @@ namespace Vodovoz
 			return true;
 		}
 
-		private void OnUndeliveryViewModelSaved(object sender, Application.Orders.UndeliveryOnOrderCloseEventArgs e)
+		private void OnUndeliveryViewModelSaved(object sender, UndeliveryOnOrderCloseEventArgs e)
 		{
 			var address = Items
 				.Where(x => x.RouteListItem.Order.Id == e.UndeliveredOrder.OldOrder.Id)
@@ -718,6 +731,19 @@ namespace Vodovoz
 					$"Отмена заказа №{e.UndeliveredOrder.OldOrder.Id}",
 					e.CancellationPermit.EdoTaskToCancellationId.Value
 				));
+			}
+
+			if(e.UndeliveredOrder.NewOrder != null)
+			{
+				var customerOrderRescheduledEvent = new CustomerNotificationDomainEvent(
+					CustomerNotificationEventType.OrderRescheduled,
+					e.UndeliveredOrder.OldOrder.OnlineOrder?.Source,
+					e.UndeliveredOrder.OldOrder.OnlineOrder?.Id,
+					e.UndeliveredOrder.OldOrder.Id,
+					e.UndeliveredOrder.NewOrder.Id,
+					e.UndeliveredOrder.UndeliveryDetalization?.CustomerNotificationText);
+
+				_customerNotificationPublisher.TryPublish(UoW, customerOrderRescheduledEvent);
 			}
 		}
 

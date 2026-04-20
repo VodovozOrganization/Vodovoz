@@ -7,35 +7,6 @@ namespace Vodovoz.Core.Domain.Orders.OrderEnums
 	/// </summary>
 	public enum CustomerNotificationEventType
 	{
-		// ЖДУ ОТВЕТ ОТ КОНСТАНТИНА (УДАЛЯТЬ ЛИ СТАРЫЕ?)
-
-		/// <summary>
-		/// Заказ оформляется
-		/// </summary>
-		[Display(Name = "Заказ оформляется")]
-		OrderProcessing,
-		
-		/// <summary>
-		/// Заказ оформлен
-		/// </summary>
-		[Display(Name = "Заказ оформлен")]
-		OrderPerformed,
-		
-		/// <summary>
-		/// Заказ отменён
-		/// </summary>
-		[Display(Name = "Заказ отменён")]
-		OrderCanceled,
-		
-		/// <summary>
-		/// Заказ доставляется
-		/// </summary>
-		[Display(Name = "Заказ доставляется")]
-		OrderDelivering,
-
-		//-----------------------------------------------------------
-		// Ниже новые события (Оставить только их? Жду ответ Константина)
-
 		/// <summary>
 		/// Курьер назначен
 		/// </summary>
@@ -76,6 +47,6 @@ namespace Vodovoz.Core.Domain.Orders.OrderEnums
 		/// Заказ перенесен на другое время
 		/// </summary>
 		[Display(Name = "Заказ перенесен на другое время")]
-		OrderRescheduled,
+		OrderRescheduled
 	}
 }

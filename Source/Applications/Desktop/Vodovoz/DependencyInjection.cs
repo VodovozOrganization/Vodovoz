@@ -1,4 +1,5 @@
 ﻿using Core.Infrastructure;
+using CustomerNotifications.Application.Builders;
 using DriverApi.Notifications.Client;
 using Edo.Transport;
 using ExportTo1c.Library.Factories;
@@ -9,6 +10,7 @@ using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MySqlConnector;
+using Notifications.Infrastructure;
 using Osrm;
 using Pacs.Admin.Client;
 using Pacs.Admin.Client.Consumers;
@@ -42,16 +44,16 @@ using QSProjectsLib;
 using RabbitMQ.MailSending;
 using ResourceLocker.Library;
 using System;
-using CustomerNotifications.Publisher.Configuration;
-using CustomerNotifications.Publisher.Services;
+using TransactionalOutbox.Abstractions;
 using TrueMark.Codes.Pool;
 using TrueMarkApi.Client;
 using Vodovoz.Additions;
 using Vodovoz.Application;
-using Vodovoz.Application.Logistics.Fuel;
+using Vodovoz.Application.Pacs;
 using Vodovoz.Commons;
 using Vodovoz.Core;
 using Vodovoz.Core.Application.Entity;
+using Vodovoz.Core.Application.Logistics.Fuel;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Repositories.Logistics;
 using Vodovoz.Core.Domain.Interfaces.Logistics;
@@ -107,6 +109,8 @@ using Vodovoz.ViewModels.ViewModels.Reports.Payments;
 using VodovozInfrastructure;
 using VodovozInfrastructure.Services;
 using DocumentPrinter = Vodovoz.Core.DocumentPrinter;
+using CustomerNotifications.Contracts;
+using CustomerNotifications.Application;
 
 namespace Vodovoz
 {
@@ -199,7 +203,7 @@ namespace Vodovoz
 				.AddScoped<IScanDialogService, ScanDialogService>()
 
 				.AddScoped<RouteGeometryCalculator>()
-		
+
 				.AddOsrm()
 
 				.AddScoped<IDebtorsSettings, DebtorsSettings>()
@@ -248,7 +252,7 @@ namespace Vodovoz
 
 				.AddMailganerApiClient()
 				.AddScoped<EmailDirectSender>()
-				
+
 				.AddScoped<IDataExporterFor1cFactory, DataExporterFor1cFactory>()
 
 				.AddVodovozDesktopGarnetRedisConnection()
@@ -260,8 +264,9 @@ namespace Vodovoz
 				.AddScoped<IPasswordValidator, PasswordValidator>()
 				.AddScoped<IPasswordValidationSettings, DefaultPasswordValidationSettings>()
 				.AddScoped<IDriverScheduleService, DriverScheduleService>()
-				.AddDesktopCustomerNotificationsPublisher()
-				;
+				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
+				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, OutBoxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+				.AddCustomerNotificationsSettingsProvider();
 
 			services.AddStaticHistoryTracker();
 			services.AddStaticScopeForEntity();
@@ -338,7 +343,6 @@ namespace Vodovoz
 					rabbitCfg.AddPacsBaseTopology(context);
 					rabbitCfg.AddEdoTopology(context);
 					rabbitCfg.AddSendEmailMessageTopology(context);
-					rabbitCfg.AddCustomerNotificationPublisherTopology(context);
 				},
 				(busCfg) =>
 				{

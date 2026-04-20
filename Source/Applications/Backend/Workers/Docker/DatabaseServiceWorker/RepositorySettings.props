@@ -1,0 +1,6 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>database.service.worker</ContainerRepository>
+  </PropertyGroup>
+</Project>
+

@@ -115,10 +115,9 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 			return edoDocuments.ToList();
 		}
 
-		public async Task<IList<TimedOutOrderDocumentTaskNode>> GetTrueMarkConnectedClientsTimedOutOrderDocumentTasks(
+		public async Task<IList<TimedOutOrderDocumentTaskNode>> GetTimedOutOrderDocumentTasks(
 			IUnitOfWork uow,
 			int timeoutDays,
-			TimedOutDocumentTasksSearchMode searchMode,
 			CancellationToken cancellationToken)
 		{
 			var thresholdDate = DateTime.Today.AddDays(-timeoutDays);
@@ -166,15 +165,12 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 				where
 					task.Status == EdoTaskStatus.InProgress
 					&& orderEdoDocument.CreationTime < thresholdDate
+					&& orderEdoDocument.Status == EdoDocumentStatus.InProgress
 					&& orderEdoDocument.AcceptTime == null
 					&& taxcomDocflow.IsReceived
 					&& order.PaymentType == Vodovoz.Domain.Client.PaymentType.Cashless
 					&& client.PersonType == PersonType.legal
 					&& client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
-					&& ((searchMode == TimedOutDocumentTasksSearchMode.OnlyTrueMarkRegisteredClients
-							&& CounterpartyEntity.RegisteredInTrueMarkStatuses.Contains(client.RegistrationInChestnyZnakStatus))
-						|| (searchMode == TimedOutDocumentTasksSearchMode.OnlyTrueMarkNotRegisteredClients
-							&& !CounterpartyEntity.RegisteredInTrueMarkStatuses.Contains(client.RegistrationInChestnyZnakStatus)))
 					&& edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree
 					&& withdrawalEdoRequest.Id == null
 					&& taskItemCodesCount > 0
@@ -200,6 +196,40 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 				.Select(wer => wer.Order.Id)
 				.ToListAsync(cancellationToken);
 			return existingOrders;
+		}
+
+		public async Task<IList<T>> GetProblemEdoTasks<T>(
+			IUnitOfWork uow,
+			string problemSourceName,
+			DateTime minCreationTime,
+			CancellationToken cancellationToken)
+			where T : OrderEdoTask
+		{
+			var tasksIdsQuery =
+				from problem in uow.Session.Query<EdoTaskProblem>()
+				join edoTask in uow.Session.Query<T>() on problem.EdoTask.Id equals edoTask.Id
+				join edoRequest in uow.Session.Query<FormalEdoRequest>() on edoTask.FormalEdoRequest.Id equals edoRequest.Id
+				where
+					problem.SourceName == problemSourceName
+					&& problem.State == TaskProblemState.Active
+					&& edoTask.CreationTime >= minCreationTime
+				select edoTask.Id;
+
+			var taskIds = await tasksIdsQuery.Distinct().ToListAsync(cancellationToken);
+
+			if(!taskIds.Any())
+			{
+				return new List<T>();
+			}
+
+			var tasks = await uow.Session.Query<T>()
+				.Where(t => taskIds.Contains(t.Id))
+				.Fetch(t => t.FormalEdoRequest)
+				.ThenFetch(r => r.Order)
+				.ThenFetch(o => o.Client)
+				.ToListAsync(cancellationToken);
+
+			return tasks;
 		}
 	}
 }

@@ -5,11 +5,11 @@ using NLog.Extensions.Logging;
 using QS.HistoryLog;
 using QS.Project.Core;
 using Vodovoz;
-using Vodovoz.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Core.Application;
 
 namespace CustomerOnlineOrdersUpdater
 {
@@ -46,7 +46,7 @@ namespace CustomerOnlineOrdersUpdater
 						.AddInfrastructure()
 						.AddConfig(hostContext.Configuration)
 						.AddDependenciesGroup()
-						.AddApplicationOrderServices()
+						.AddCoreApplicationOrderServices()
 
 						.AddStaticScopeForEntity()
 						.AddStaticHistoryTracker();

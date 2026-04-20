@@ -1,12 +1,13 @@
 ﻿using Pacs.Admin.Client.Consumers.Definitions;
 using Pacs.Calls.Consumers.Definitions;
+using Pacs.Core;
 using Pacs.Operators.Client.Consumers.Definitions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Pacs.Core
+namespace Vodovoz.Application.Pacs
 {
 	public class PacsEndpointsConnector
 	{
@@ -28,8 +29,7 @@ namespace Pacs.Core
 		{
 			Task.Run(async () =>
 			{
-				var connectEndpointTasks = Enumerable.Concat(
-					GetOperatorsEndpointsTask(),
+				var connectEndpointTasks = GetOperatorsEndpointsTask().Concat(
 					GetAdminEndpointsTask()
 				);
 				await Task.WhenAll(connectEndpointTasks);

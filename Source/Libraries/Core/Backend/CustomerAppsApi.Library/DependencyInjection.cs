@@ -8,8 +8,8 @@ using CustomerAppsApi.Library.Validators;
 using CustomerAppsApi.Models;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Utilities.Numeric;
-using Vodovoz.Application.Clients.Services;
-using Vodovoz.Application.Orders.Services;
+using Vodovoz.Core.Application.Clients.Services;
+using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Controllers;
 using Vodovoz.Controllers.ContactsForExternalCounterparty;
 using Vodovoz.Converters;
@@ -21,7 +21,7 @@ using VodovozBusiness.Services.Clients.DeliveryPoints;
 using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Cryptography;
 using DriverApi.Notifications.Client;
-using Vodovoz.Application.Clients;
+using Vodovoz.Core.Application.Clients;
 using VodovozBusiness.Controllers;
 
 namespace CustomerAppsApi.Library
@@ -83,8 +83,7 @@ namespace CustomerAppsApi.Library
 				.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
 				.AddScoped<IDeliveryPointBuildingNumberParser, DeliveryPointBuildingNumberParser>()
 				.AddScoped<IDeliveryPointBuildingNumberHandler, DeliveryPointBuildingNumberHandler>()
-				.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>()
-				.AddScoped<IOnlineOrderService, OnlineOrderService>();
+				.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>();
 
 			return services;
 		}

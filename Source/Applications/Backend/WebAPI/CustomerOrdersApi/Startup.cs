@@ -1,4 +1,8 @@
-﻿using CustomerOrdersApi.HealthCheck;
+using CustomerNotifications.Application;
+using CustomerNotifications.Application.Builders;
+using CustomerNotifications.Contracts;
+using CustomerNotifications.Transport;
+using CustomerOrdersApi.HealthCheck;
 using CustomerOrdersApi.Library;
 using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
@@ -12,15 +16,16 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Notifications.Infrastructure;
 using Osrm;
 using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Services;
 using System;
+using TransactionalOutbox.Abstractions;
 using Vodovoz;
-using Vodovoz.Application;
-using Vodovoz.Application.Logistics;
-using Vodovoz.Application.Orders.Services;
+using Vodovoz.Core.Application;
+using Vodovoz.Core.Application.Logistics;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
@@ -67,7 +72,7 @@ namespace CustomerOrdersApi
 				.AddOrderTrackerFor1c()
 				.AddBusiness(Configuration)
 				.AddDriverApiNotificationsSenders()
-				.AddApplicationOrderServices()
+				.AddCoreApplicationOrderServices()
 				.AddInfrastructure()
 				.AddConfig(Configuration)
 				.AddVersion3()
@@ -77,7 +82,7 @@ namespace CustomerOrdersApi
 
 				.AddScoped<IRouteListService, RouteListService>()
 				.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
-				.AddScoped<IOnlineOrderService, OnlineOrderService>();
+				;
 
 			services.AddStaticScopeForEntity();
 			services.AddStaticHistoryTracker();
@@ -88,11 +93,21 @@ namespace CustomerOrdersApi
 				.AddMassTransit(busConf =>
 				{
 					busConf.AddRequestClient<CreatedOnlineOrder>(new Uri($"exchange:{CreatingOnlineOrder.ExchangeAndQueueName}"));
-					busConf.ConfigureRabbitMq();
+					busConf.ConfigureRabbitMq();					
 				})
-				.AddHttpClient()
-				.AddMultibusCustomerNotificationsPublisher(Configuration);
-			
+				.AddMassTransit<ICustomerNotificationsBus>(busConf =>
+				{
+					busConf.ConfigureCustomerNotificationsRabbitMq(services, Configuration);
+				});
+
+			services
+				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>,
+					OutBoxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
+				.AddCustomerNotificationsSettingsProvider()
+
+					;
+
 			services
 				.Configure<CourierCoordinatesOptions>(
 					Configuration.GetSection(nameof(CourierCoordinatesOptions)));
