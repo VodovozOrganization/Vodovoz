@@ -21,36 +21,29 @@ namespace Mango.Infrastructure.Clients
 		private readonly HttpClient _httpClient;
 		private readonly IOptions<MangoOptions> _mangoOptions;
 		private readonly IOptions<SyncOptions> _syncOptions;
+		private readonly IOptions<JsonSerializerOptions> _jsonOptions;
 		private readonly ILogger<MangoApiClient> _logger;
-
-		private static readonly JsonSerializerOptions JsonOptions = new()
-		{
-			PropertyNameCaseInsensitive = true,
-			AllowTrailingCommas = true,
-			ReadCommentHandling = JsonCommentHandling.Skip
-		};
 		
 		public MangoApiClient(
 			HttpClient httpClient,
 			IOptions<MangoOptions> mangoOptions,
 			IOptions<SyncOptions> syncOptions,
+			IOptions<JsonSerializerOptions> jsonOptions,
 			ILogger<MangoApiClient> logger
 			)
 		{
-			_httpClient = httpClient;
-			_mangoOptions = mangoOptions;
-			_syncOptions = syncOptions;
-			_logger = logger;
+			_httpClient = httpClient ?? throw new  ArgumentNullException(nameof(httpClient));
+			_mangoOptions = mangoOptions ?? throw new  ArgumentNullException(nameof(mangoOptions));
+			_syncOptions = syncOptions ?? throw new  ArgumentNullException(nameof(syncOptions));
+			_jsonOptions = jsonOptions ?? throw new  ArgumentNullException(nameof(jsonOptions));
+			_logger = logger ?? throw new  ArgumentNullException(nameof(logger));
 		}
 
 		public async Task<GroupsResponse> GetGroupsAsync(CancellationToken cancellationToken)
         {
-            var request = new GroupsRequest
-            {
-                ShowUsers = 1
-            };
+            var request = new GroupsRequest();
 
-            var json = JsonSerializer.Serialize(request, JsonOptions);
+            var json = JsonSerializer.Serialize(request, _jsonOptions.Value);
             var sign = CreateSign(_mangoOptions.Value.ApiKey, json, _mangoOptions.Value.ApiSalt);
 
             var response = await PostFormAsync<GroupsResponse>(
@@ -60,63 +53,42 @@ namespace Mango.Infrastructure.Clients
                 json,
                 cancellationToken);
 
-            if (response.Result != 1000)
-            {
-                throw new InvalidOperationException(
-                    $"Mango groups request failed. Result={response.Result}");
-            }
-
             return response;
         }
 
-        public async Task<CallsResponse> GetCallsAsync(
-            string key,
-            CancellationToken cancellationToken)
-        {
-            var request = new CallsRequest
-            {
-                Key = key
-            };
+		public async Task<CallsResponse> GetCallsAsync(
+			string key,
+			CancellationToken cancellationToken)
+		{
+			var request = new CallsRequest
+			{
+				Key = key
+			};
 
-            var json = JsonSerializer.Serialize(request, JsonOptions);
-            var sign = CreateSign(_mangoOptions.Value.ApiKey, json, _mangoOptions.Value.ApiSalt);
+			var json = JsonSerializer.Serialize(request, _jsonOptions.Value);
+			var sign = CreateSign(_mangoOptions.Value.ApiKey, json, _mangoOptions.Value.ApiSalt);
 
-            for(var i = 0; i < _syncOptions.Value.ResultRetryCount; i++)
-            {
-	            await Task.Delay(TimeSpan.FromSeconds(_syncOptions.Value.ResultRetryDelaySeconds), cancellationToken);
-	            
-	            var response = await PostFormAsync<CallsResponse>(
-		            _mangoOptions.Value.CallsResult,
-		            _mangoOptions.Value.ApiKey,
-		            sign,
-		            json,
-		            cancellationToken);
+			var response = await PostFormAsync<CallsResponse>(
+				_mangoOptions.Value.CallsResult,
+				_mangoOptions.Value.ApiKey,
+				sign,
+				json,
+				cancellationToken);
+			
+			return response;
+		}
 
-	            if(response.Result == 1000 || response.Status == "complete")
-	            {
-		            return response;
-	            }
-
-	            _logger.LogInformation("Result ={Result}, Status = {Status} waiting next attempt for request result status", 
-		            response.Result,
-		            response.Status);
-            }
-            
-            throw new InvalidOperationException(
-	            $"Mango calls request failed. Can't load result after all attempts");
-        }
-
-        public async Task<CallsStatResponse> GetCallsStatAsync(DateTime fromDate, DateTime toDate, CancellationToken cancellationToken)
+		public async Task<CallsStatResponse> GetCallsStatAsync(DateTime fromDate, DateTime toDate, CancellationToken cancellationToken)
         {
 	        var request = new CallsStatRequest()
 	        {
 		        StartDate = fromDate.ToString("dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
 		        EndDate = toDate.ToString("dd.MM.yyyy HH:mm:ss", CultureInfo.InvariantCulture),
 		        Limit = _mangoOptions.Value.Limit.ToString(CultureInfo.InvariantCulture),
-		        Offset = "0"
+		        Offset = _mangoOptions.Value.Offset.ToString(CultureInfo.InvariantCulture),
 	        };
 
-	        var json = JsonSerializer.Serialize(request, JsonOptions);
+	        var json = JsonSerializer.Serialize(request, _jsonOptions.Value);
 	        var sign = CreateSign(_mangoOptions.Value.ApiKey, json, _mangoOptions.Value.ApiSalt);
 	        
 	        var response = await PostFormAsync<CallsStatResponse>(
@@ -163,7 +135,7 @@ namespace Mango.Infrastructure.Clients
                 response.EnsureSuccessStatusCode();
             }
 
-            var result = JsonSerializer.Deserialize<T>(raw, JsonOptions);
+            var result = JsonSerializer.Deserialize<T>(raw, _jsonOptions.Value);
 
             if (result is null)
             {

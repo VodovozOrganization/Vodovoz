@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json;
 using Mango.Business.Interfaces;
 using Mango.Business.Models;
 using Mango.Business.Services;
@@ -12,7 +13,7 @@ namespace Mango.Infrastructure.DependencyInjection
 {
 	public static class ServiceCollectionExtensions
 	{
-		public static IServiceCollection AddMangoServices(
+		public static IServiceCollection AddMangoStatisticsServices(
 			this IServiceCollection services,
 			IConfiguration configuration)
 		{
@@ -27,6 +28,9 @@ namespace Mango.Infrastructure.DependencyInjection
 			
 			services.Configure<MangoGroupOptions>(
 				configuration.GetSection(MangoGroupOptions.SectionName));
+			
+			services.Configure<JsonSerializerOptions>(
+				configuration.GetSection("JsonOptions"));
 
 			services.AddSingleton<ICallStatisticParser, CallStatisticParser>();
 

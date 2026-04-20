@@ -23,7 +23,7 @@ namespace Mango.Application
 				.ConfigureServices((hostContext, services) =>
 				{
 					services.AddHostedService<MangoStatsWorker>();
-					services.AddMangoServices(hostContext.Configuration);
+					services.AddMangoStatisticsServices(hostContext.Configuration);
 				});
 	}
 }

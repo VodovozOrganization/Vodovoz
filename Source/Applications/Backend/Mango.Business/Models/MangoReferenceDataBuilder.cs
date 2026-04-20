@@ -14,7 +14,7 @@ namespace Mango.Business.Models
 
 		public MangoReferenceDataBuilder(IOptions<MangoGroupOptions>  options)
 		{
-			_options = options;
+			_options = options ?? throw new  ArgumentNullException(nameof(options));
 		}
 		
 		public MangoReferenceData Build(GroupsResponse response)
@@ -34,22 +34,22 @@ namespace Mango.Business.Models
 						continue;
 					}
 
-					foreach (var op in group.Operators)
+					foreach (var mangoOperator in group.Operators)
 					{
 						var reference = new MangoOperatorReference
 						{
-							OperatorId = op.Id,
-							OperatorName = op.Name,
-							Extension = op.Extension,
+							OperatorId = mangoOperator.Id,
+							OperatorName = mangoOperator.Name,
+							Extension = mangoOperator.Extension,
 							GroupId = group.Id,
 							GroupName = group.Name
 						};
 
-						operatorsById[op.Id] = reference;
+						operatorsById[mangoOperator.Id] = reference;
 
-						if (!string.IsNullOrWhiteSpace(op.Extension))
+						if (!string.IsNullOrWhiteSpace(mangoOperator.Extension))
 						{
-							operatorsByExtension[op.Extension] = reference;
+							operatorsByExtension[mangoOperator.Extension] = reference;
 						}
 					}
 				}

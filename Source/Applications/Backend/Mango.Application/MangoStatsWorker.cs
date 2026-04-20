@@ -18,13 +18,14 @@ namespace Mango.Application
 		private readonly IOptions<SyncOptions> _syncOptions;
 		private readonly ILogger<MangoStatsWorker> _logger;
 
-		public MangoStatsWorker(IServiceProvider serviceProvider,
+		public MangoStatsWorker(
+			IServiceProvider serviceProvider,
 			IOptions<SyncOptions> syncOptions,
 			ILogger<MangoStatsWorker> logger)
 		{
-			_serviceProvider = serviceProvider;
-			_syncOptions = syncOptions;
-			_logger = logger;
+			_serviceProvider = serviceProvider ?? throw new  ArgumentNullException(nameof(serviceProvider));
+			_syncOptions = syncOptions ?? throw new  ArgumentNullException(nameof(syncOptions));
+			_logger = logger ?? throw new  ArgumentNullException(nameof(logger));
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)

@@ -11,7 +11,5 @@
 		public string SyncStateTableName { get; set; } = "default.mango_sync_state";
 		
 		public int InsertBatchSize { get; set; } = 1000;
-		
-		public int MaxDegreeOfParallelism { get; set; } = 1;
 	}
 }
