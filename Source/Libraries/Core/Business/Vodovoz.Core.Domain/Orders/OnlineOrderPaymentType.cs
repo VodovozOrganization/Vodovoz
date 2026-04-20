@@ -22,7 +22,7 @@ namespace Vodovoz.Core.Domain.Orders
 		/// <summary>
 		/// Оплачено онлайн
 		/// </summary>
-		[Display(Name = "Оплачено онлайн")]
+		[Display(Name = "Оплата онлайн")]
 		PaidOnline
 	}
 }

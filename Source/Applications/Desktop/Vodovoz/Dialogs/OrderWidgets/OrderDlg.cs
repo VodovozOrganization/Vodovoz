@@ -47,10 +47,10 @@ using QS.ViewModels.Extension;
 using QSOrmProject;
 using QSProjectsLib;
 using QSWidgetLib;
-using Vodovoz.Application.Orders;
-using Vodovoz.Application.Orders.Services;
-using Vodovoz.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Application.Orders;
+using Vodovoz.Core.Application.Orders.Services;
+using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Edo;
@@ -5937,6 +5937,12 @@ namespace Vodovoz
 
 		protected void OnYbuttonToStorageLogicAddressTypeClicked(object sender, EventArgs e)
 		{
+			if(Counterparty is null)
+			{
+				MessageDialogHelper.RunWarningDialog("Клиент должен быть заполнен");
+				return;
+			}
+			
 			if((Entity.OrderAddressType == OrderAddressType.Delivery
 				|| Entity.OrderAddressType == OrderAddressType.Service)
 			   && !Counterparty.IsChainStore
@@ -5950,6 +5956,12 @@ namespace Vodovoz
 
 		protected void OnYbuttonToDeliveryAddressTypeClicked(object sender, EventArgs e)
 		{
+			if(Counterparty is null)
+			{
+				MessageDialogHelper.RunWarningDialog("Клиент должен быть заполнен");
+				return;
+			}
+			
 			if((Entity.OrderAddressType == OrderAddressType.StorageLogistics
 				|| Entity.OrderAddressType == OrderAddressType.Service)
 			   && !Counterparty.IsChainStore

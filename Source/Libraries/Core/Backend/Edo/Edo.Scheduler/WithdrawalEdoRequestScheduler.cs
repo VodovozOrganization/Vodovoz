@@ -26,6 +26,7 @@ namespace Edo.Scheduler.Service
 			var task = new WithdrawalEdoTask
 			{
 				Status = EdoTaskStatus.New,
+				StartTime = DateTime.Now
 			};
 
 			var baseDocumentTask = withdrawalRequest.BaseDocumentEdoTask;

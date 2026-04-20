@@ -1,4 +1,5 @@
 ﻿using DeliveryRulesService.DTO;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -25,9 +26,10 @@ namespace DeliveryRulesService.HealthChecks
 			ILogger<DeliveryRulesServiceHealthCheck> logger,
 			IHttpClientFactory httpClientFactory,
 			IConfiguration configuration,
+			IHttpContextAccessor httpContextAccessor,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IHealthCheckServiceInfoProvider serviceInfoProvider)
-			: base(logger, serviceInfoProvider, unitOfWorkFactory)
+			: base(logger, serviceInfoProvider, httpContextAccessor, unitOfWorkFactory)
 		{
 			_httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 			_configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
@@ -108,7 +110,7 @@ namespace DeliveryRulesService.HealthChecks
 				_httpClientFactory,
 				cancellationToken: cancellationToken);
 
-			var isHealthy = result?.Data.StatusEnum != DeliveryRulesResponseStatus.Error;
+			var isHealthy = result.Data?.StatusEnum != DeliveryRulesResponseStatus.Error;
 
 			return VodovozHealthResultDto.FromCondition(checkMethodName, isHealthy, result.ErrorMessage);
 		}

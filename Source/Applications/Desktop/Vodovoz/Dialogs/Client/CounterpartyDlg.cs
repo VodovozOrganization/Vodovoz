@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Edo.Common.Services;
 using EdoService.Library;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
@@ -43,7 +44,8 @@ using System.Text;
 using System.Threading;
 using TrueMark.Contracts;
 using TrueMarkApi.Client;
-using Vodovoz.Application.FileStorage;
+using Vodovoz.Core.Application.Errors;
+using Vodovoz.Core.Application.FileStorage;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Employees;
@@ -126,6 +128,7 @@ namespace Vodovoz
 		private readonly ICommonServices _commonServices = ServicesConfig.CommonServices;
 		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
 		private readonly IEmailTypeSettings _emailTypeSettings = ScopeProvider.Scope.Resolve<IEmailTypeSettings>();
+		private readonly IClientsTrueMarkRegistrationCheckService _clientsTrueMarkRegistration = ScopeProvider.Scope.Resolve<IClientsTrueMarkRegistrationCheckService>();
 		private RoboatsJournalsFactory _roboatsJournalsFactory;
 		private IEdoOperatorsJournalFactory _edoOperatorsJournalFactory;
 		private IEmailSettings _emailSettings;
@@ -1683,7 +1686,7 @@ namespace Vodovoz
 						.GetAwaiter()
 						.GetResult();
 
-					if(result.IsFailure && !result.Errors.All(x => x.Code == Application.Errors.S3.FileAlreadyExists.ToString()))
+					if(result.IsFailure && !result.Errors.All(x => x.Code == S3.FileAlreadyExists.ToString()))
 					{
 						errors.Add(fileName, string.Join(", ", result.Errors.Select(e => e.Message)));
 					}
@@ -2195,53 +2198,26 @@ namespace Vodovoz
 				return;
 			}
 
-			TrueMarkRegistrationResultDto trueMarkResponse;
+			var statusResult =
+				_clientsTrueMarkRegistration.GetTrueMarkRegistrationStatus(Entity.INN, _cancellationTokenSource.Token).GetAwaiter().GetResult();
 
-			try
+			if(statusResult.IsFailure)
 			{
-				trueMarkResponse = _trueMarkApiClient.GetParticipantRegistrationForWaterStatusAsync(
-					_edoSettings.TrueMarkApiParticipantRegistrationForWaterUri, Entity.INN, _cancellationTokenSource.Token)
-					.Result;
-			}
-			catch(Exception ex)
-			{
-				_logger.Error(ex);
-
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
-					$"Ошибка при проверке в Честном Знаке.\n{ex.Message}");
-
+				var error = statusResult.Errors.FirstOrDefault();
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Error,
+					error?.Message ?? "Ошибка при проверке статуса регистрации клиента в ЧЗ");
 				return;
 			}
 
-			if(!string.IsNullOrWhiteSpace(trueMarkResponse.ErrorMessage))
-			{
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
-					$"Результат проверки в Честном Знаке:\n{trueMarkResponse.ErrorMessage}");
+			var status = statusResult.Value;
 
-				Entity.RegistrationInChestnyZnakStatus = RegistrationInChestnyZnakStatus.Unknown;
-
-				return;
-			}
-
-			var statusConverter = new TrueMarkApiRegistrationStatusConverter();
-			var status = statusConverter.ConvertToChestnyZnakStatus(trueMarkResponse.RegistrationStatusString);
-
-			if(status == null)
-			{
-				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Error,
-					$"Такой статус участника в Честном Знаке у нас не используется:\n{trueMarkResponse.RegistrationStatusString}");
-
-				Entity.RegistrationInChestnyZnakStatus = RegistrationInChestnyZnakStatus.Unknown;
-
-				return;
-			}
-
-			Entity.RegistrationInChestnyZnakStatus = status.Value;
+			Entity.RegistrationInChestnyZnakStatus = status;
 
 			_counterpartyEdoAccountsViewModel.RefreshEdoLightsMatrices();
 
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info,
-				$"Статус регистрации в Честном Знаке:\n{trueMarkResponse.RegistrationStatusString}");
+				$"Статус регистрации в Честном Знаке:\n\"{status.GetEnumDisplayName()}\"");
 		}
 
 		public override void Dispose()

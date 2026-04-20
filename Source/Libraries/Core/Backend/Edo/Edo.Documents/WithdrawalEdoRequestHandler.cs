@@ -1,4 +1,5 @@
-﻿using Edo.Common.Services;
+﻿using Edo.Common;
+using Edo.Common.Services;
 using Edo.Contracts.Messages.Events;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -24,6 +25,8 @@ namespace Edo.Documents
 		private readonly IGenericRepository<CounterpartyEdoAccountEntity> _edoAccountRepository;
 		private readonly IGenericRepository<WithdrawalEdoRequest> _withdrawalEdoRequestRepository;
 		private readonly IClientsTrueMarkRegistrationCheckService _trueMarkRegistrationCheckService;
+		private readonly ITrueMarkCodesValidator _trueMarkTaskCodesValidator;
+		private readonly EdoTaskItemTrueMarkStatusProviderFactory _edoTaskTrueMarkCodeCheckerFactory;
 		private readonly IBus _messageBus;
 
 		public WithdrawalEdoRequestHandler(
@@ -32,6 +35,8 @@ namespace Edo.Documents
 			IGenericRepository<CounterpartyEdoAccountEntity> edoAccountRepository,
 			IGenericRepository<WithdrawalEdoRequest> withdrawalEdoRequestRepository,
 			IClientsTrueMarkRegistrationCheckService trueMarkRegistrationCheckService,
+			ITrueMarkCodesValidator trueMarkTaskCodesValidator,
+			EdoTaskItemTrueMarkStatusProviderFactory edoTaskTrueMarkCodeCheckerFactory,
 			IBus publishEndpoint)
 		{
 			_logger = logger
@@ -44,6 +49,10 @@ namespace Edo.Documents
 				?? throw new ArgumentNullException(nameof(withdrawalEdoRequestRepository));
 			_trueMarkRegistrationCheckService = trueMarkRegistrationCheckService
 				?? throw new ArgumentNullException(nameof(trueMarkRegistrationCheckService));
+			_trueMarkTaskCodesValidator = trueMarkTaskCodesValidator
+				?? throw new ArgumentNullException(nameof(trueMarkTaskCodesValidator));
+			_edoTaskTrueMarkCodeCheckerFactory = edoTaskTrueMarkCodeCheckerFactory
+				?? throw new ArgumentNullException(nameof(edoTaskTrueMarkCodeCheckerFactory));
 			_messageBus = publishEndpoint
 				?? throw new ArgumentNullException(nameof(publishEndpoint));
 		}
@@ -101,10 +110,24 @@ namespace Edo.Documents
 						$"с нашей организацией {order.Contract.Organization.Id}");
 				}
 
+				var trueMarkCodesChecker =
+					_edoTaskTrueMarkCodeCheckerFactory.Create(documentTask);
+				var codesValidationResult =
+					await _trueMarkTaskCodesValidator.ValidateAsync(documentTask, trueMarkCodesChecker, cancellationToken);
+
+				if(!codesValidationResult.IsAllValid || !codesValidationResult.ReadyToSell)
+				{
+					_logger.LogInformation(
+						"В задаче {DocumentTaskId} присутствуют коды ЧЗ, статус которых не позволяет выполнить вывод из оборота, " +
+						"либо принадлежащие организации, отличной от организации в заказе",
+						documentTask.Id);
+					return;
+				}
+
 				var actualTrueMarkRegistrationStatusResult =
 					await _trueMarkRegistrationCheckService.GetTrueMarkRegistrationStatus(client.INN, cancellationToken);
 
-				var isClientRegistrationStatusChangedToRegistered = false;
+				var isClientRegistrationStatusChanged = false;
 
 				if(actualTrueMarkRegistrationStatusResult.IsSuccess)
 				{
@@ -113,17 +136,18 @@ namespace Edo.Documents
 					if(actualRegistrationStatus != client.RegistrationInChestnyZnakStatus)
 					{
 						client.RegistrationInChestnyZnakStatus = actualRegistrationStatus;
-						isClientRegistrationStatusChangedToRegistered = true;
+						isClientRegistrationStatusChanged = true;
+						await uow.SaveAsync(client, cancellationToken: cancellationToken);
 					}
 				}
 
-				if(client.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
+				if(CounterpartyEntity.RegisteredInTrueMarkStatuses.Contains(client.RegistrationInChestnyZnakStatus))
 				{
 					_logger.LogInformation(
 						"Контрагент {CounterpartyId} зарегистрирован в ЧЗ. Вывод из оборота в данный момент не требуется",
 						client.Id);
 
-					if(isClientRegistrationStatusChangedToRegistered)
+					if(isClientRegistrationStatusChanged)
 					{
 						await uow.CommitAsync(cancellationToken);
 					}

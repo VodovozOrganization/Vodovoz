@@ -1,0 +1,6 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>mango.api.service</ContainerRepository>
+  </PropertyGroup>
+</Project>
+

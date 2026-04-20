@@ -1,11 +1,13 @@
 ﻿using Edo.Common.Errors;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using TrueMark.Contracts;
 using TrueMarkApi.Client;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Extensions;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Settings.Edo;
 
@@ -37,46 +39,112 @@ namespace Edo.Common.Services
 				throw new ArgumentException($"'{nameof(inn)}' cannot be null or whitespace.", nameof(inn));
 			}
 
+			var statuses = await GetTrueMarkRegistrationsStatuses(new[] { inn }, cancellationToken);
+
+			return statuses.TryGetValue(inn, out var registrationStatus)
+				? registrationStatus
+				: TrueMarkRegistrationCheckErrors.ClientTrueMarkRegistrationCheckRequestError;
+		}
+
+		public async Task<IDictionary<string, Result<RegistrationInChestnyZnakStatus>>> GetTrueMarkRegistrationsStatuses(
+			IEnumerable<string> inns,
+			CancellationToken cancellationToken = default)
+		{
+			if(inns is null)
+			{
+				throw new ArgumentNullException(nameof(inns));
+			}
+
+			var registrationsData = new List<ParticipantRegistrationDto>();
+			var maxInnsPerRequest = _trueMarkApiClient.ParticipantsCheckMaxCount;
+			var innsCount = inns.Count();
+
+			for(var i = 0; i * maxInnsPerRequest < innsCount; i++)
+			{
+				var innsPortion = inns.Skip(i * maxInnsPerRequest).Take(maxInnsPerRequest).ToArray();
+
+				var trueMarkResponse = await GetParticipantsRegistrationsStatuses(innsPortion, cancellationToken);
+				registrationsData.AddRange(trueMarkResponse);
+			}
+
+			return registrationsData.ToDictionary(
+				x => x.Inn,
+				x => ConvertToRegistrationStatus(x));
+		}
+
+		private async Task<IEnumerable<ParticipantRegistrationDto>> GetParticipantsRegistrationsStatuses(
+			IEnumerable<string> inns,
+			CancellationToken cancellationToken)
+		{
 			try
 			{
-				var trueMarkResponse = await _trueMarkApiClient.GetParticipantRegistrationForWaterStatusAsync(
-					_edoSettings.TrueMarkApiParticipantRegistrationForWaterUri, inn, cancellationToken);
-
-				if(!string.IsNullOrWhiteSpace(trueMarkResponse.ErrorMessage))
-				{
-					_logger.LogError(
-						"Ошибка при запросе статуса регистрации клиента в Честном Знаке для ИНН {Inn}:\n{ErrorMessage}",
-						inn,
-						trueMarkResponse.ErrorMessage);
-
-					return Result.Failure<RegistrationInChestnyZnakStatus>(
-						TrueMarkRegistrationCheckErrors.CreateClientTrueMarkRegistrationCheckRequestError(inn, trueMarkResponse.ErrorMessage));
-				}
-
-				var status = trueMarkResponse.RegistrationStatusString.ToRegistrationInChestnyZnakStatus();
-
-				if(status is null)
-				{
-					_logger.LogError(
-						"Запрос статуса регистрации клиента в Честном Знаке вернул неизвестное значение. ИНН {Inn}:\nСтатус: {Status}",
-						inn,
-						trueMarkResponse.RegistrationStatusString);
-
-					return Result.Failure<RegistrationInChestnyZnakStatus>(
-						TrueMarkRegistrationCheckErrors.CreateUnknownRegistrationStatusInTrueMarkError(inn, trueMarkResponse.RegistrationStatusString));
-				}
-
-				return status.Value;
+				return await _trueMarkApiClient.GetParticipantsRegistrations(inns, cancellationToken);
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(
 					ex,
-					"Ошибка при запросе статуса регистрации в Честном Знаке для ИНН {Inn}",
-					inn);
+					"Ошибка при запросе статусов регистрации клиентов в Честном Знаке для ИНН: {Inns}",
+					string.Join(", ", inns));
 
+				var registrationsData = new List<ParticipantRegistrationDto>();
+				foreach(var inn in inns)
+				{
+					registrationsData.Add(new ParticipantRegistrationDto
+					{
+						Inn = inn,
+						ErrorMessage = $"Ошибка при проверке статуса регистрации клиента в ЧЗ: {ex.Message}"
+					});
+				}
+				return registrationsData;
+			}
+		}
+
+		private Result<RegistrationInChestnyZnakStatus> ConvertToRegistrationStatus(ParticipantRegistrationDto registrationData)
+		{
+			if(registrationData is null)
+			{
 				return Result.Failure<RegistrationInChestnyZnakStatus>(
-					TrueMarkRegistrationCheckErrors.CreateClientTrueMarkRegistrationCheckUnhandledError(inn, ex.Message));
+					TrueMarkRegistrationCheckErrors.ClientTrueMarkRegistrationCheckRequestError);
+			}
+
+			if(!string.IsNullOrWhiteSpace(registrationData.ErrorMessage))
+			{
+				return Result.Failure<RegistrationInChestnyZnakStatus>(
+					TrueMarkRegistrationCheckErrors.CreateClientTrueMarkRegistrationCheckRequestError(
+						registrationData.Inn,
+						registrationData.ErrorMessage));
+			}
+
+			if(string.IsNullOrWhiteSpace(registrationData.Status))
+			{
+				return Result.Failure<RegistrationInChestnyZnakStatus>(
+					TrueMarkRegistrationCheckErrors.CreateClientTrueMarkRegistrationCheckRequestError(
+						registrationData.Inn,
+						"Ответ от АПИ ЧЗ не содержит значение актуального статуса"));
+			}
+
+			switch(registrationData.Status)
+			{
+				case "Зарегистрирован":
+				case "Восстановлен":
+					return
+						registrationData.IsRegisteredForWater
+						? RegistrationInChestnyZnakStatus.Registered
+						: RegistrationInChestnyZnakStatus.RegisteredWithoutWater;
+				case "Предварительная регистрация началась":
+				case "Предварительная регистрация производителя":
+				case "Предварительная регистрация продавца":
+					return RegistrationInChestnyZnakStatus.InProcess;
+				case "Заблокирован":
+					return RegistrationInChestnyZnakStatus.Blocked;
+				case "Не зарегистрирован":
+				case "Удален":
+					return RegistrationInChestnyZnakStatus.Unknown;
+				default:
+					return TrueMarkRegistrationCheckErrors.CreateClientTrueMarkRegistrationCheckRequestError(
+						registrationData.Inn,
+						$"Неизвестное значение статуса в ответе от ЧЗ: \"{registrationData.Status}\"");
 			}
 		}
 	}

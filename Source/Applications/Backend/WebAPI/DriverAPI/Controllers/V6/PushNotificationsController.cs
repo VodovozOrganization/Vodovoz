@@ -14,7 +14,7 @@ using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using DriverApi.Contracts.V6;
-using Vodovoz.Application.FirebaseCloudMessaging;
+using Vodovoz.Core.Application.FirebaseCloudMessaging;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Documents;

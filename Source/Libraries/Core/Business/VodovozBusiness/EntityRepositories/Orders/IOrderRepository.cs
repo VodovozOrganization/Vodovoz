@@ -104,8 +104,6 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <returns>Возможность смены даты контракта</returns>
 		bool CanChangeContractDate(IUnitOfWork uow, Counterparty client, DateTime newDeliveryDate, int orderId);
 
-		OrderStatus[] GetOnClosingOrderStatuses();
-
 		Order GetOrderOnDateAndDeliveryPoint(IUnitOfWork uow, DateTime date, DeliveryPoint deliveryPoint);
 		IList<Order> GetSameOrderForDateAndDeliveryPoint(IUnitOfWorkFactory uow, DateTime date, DeliveryPoint deliveryPoint);
 		Order GetOrder(IUnitOfWork unitOfWork, int orderId);
@@ -279,7 +277,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		Task<bool> IsAllDriversScannedCodesInOrderProcessed(IUnitOfWork uow, int orderId, CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// Возвращает данные по неоплаченным безналичным заказам для указанной организации
+		/// Возвращает агрегированные данные по неоплаченным безналичным заказам для указанной организации, сгруппированные по контрагенту
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="organizationId">Id организации</param>
@@ -287,7 +285,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="counterpartyTypes">Типы контагентов</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Данные по неоплаченным заказам</returns>
-		Task<IDictionary<int, OrderPaymentsDataNode[]>> GetNotPaidCashlessOrdersData(IUnitOfWork uow, int organizationId, IEnumerable<OrderStatus> orderStatuses, IEnumerable<CounterpartyType> counterpartyTypes, CancellationToken cancellationToken);
+		Task<IDictionary<int, CounterpartyOrdersAggregatedNode>> GetNotPaidCashlessOrdersData(IUnitOfWork uow, int organizationId, IEnumerable<OrderStatus> orderStatuses, IEnumerable<CounterpartyType> counterpartyTypes, CancellationToken cancellationToken);
 		/// <summary>
 		/// Получение идентификаторов заказов на дату по клиенту и ТД
 		/// </summary>

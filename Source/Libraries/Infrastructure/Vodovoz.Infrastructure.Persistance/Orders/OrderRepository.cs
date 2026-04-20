@@ -1,4 +1,4 @@
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -672,15 +672,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		public double GetAvgRandeBetwenOrders(IUnitOfWork uow, DeliveryPoint deliveryPoint, DateTime? startDate = null, DateTime? endDate = null)
 		{
 			return GetAvgRangeBetweenOrders(uow, deliveryPoint, out int? orderCount, startDate, endDate);
-		}
-
-		public OrderStatus[] GetOnClosingOrderStatuses()
-		{
-			return new OrderStatus[] {
-				OrderStatus.UnloadingOnStock,
-				OrderStatus.Shipped,
-				OrderStatus.Closed
-			};
 		}
 
 		public OrderStatus[] GetStatusesForOrderCancelation()
@@ -1515,6 +1506,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						.Add(Restrictions.Disjunction()
 							.Add(() => defaultEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 							.Add(() => counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.InProcess
+									   && counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.RegisteredWithoutWater
 									   && counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered)))
 					.Add(Restrictions.Conjunction()
 						.Add(() => orderAlias.PaymentType == PaymentType.Barter)
@@ -1574,6 +1566,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						.Add(Restrictions.Disjunction()
 							.Add(() => defaultEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 							.Add(() => counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.InProcess
+								&& counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.RegisteredWithoutWater
 								&& counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered)))
 					.Add(Restrictions.Conjunction()
 						.Add(() => orderAlias.PaymentType == PaymentType.Barter)
@@ -1663,6 +1656,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						.Add(Restrictions.Disjunction()
 							.Add(() => defaultEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree)
 							.Add(() => counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.InProcess
+									   && counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.RegisteredWithoutWater
 									   && counterpartyAlias.RegistrationInChestnyZnakStatus != RegistrationInChestnyZnakStatus.Registered)
 							)
 						)
@@ -2367,7 +2361,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 				let finishedReferOrders = from orders in uow.Session.Query<Domain.Orders.Order>()
 										  where orders.Client.Id == counterparty.Id
-										  && GetOnClosingOrderStatuses().Contains(orders.OrderStatus)
+										  && OrderEntity.GetOnClosingOrderStatuses.Contains(orders.OrderStatus)
 										  select orders.Id
 
 				where finishedReferOrders.Any()
@@ -2444,6 +2438,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.And(Restrictions.Disjunction()
 					.Add(() => (
 						counterpartyAlias.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.InProcess
+							|| counterpartyAlias.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.RegisteredWithoutWater
 							|| counterpartyAlias.RegistrationInChestnyZnakStatus == RegistrationInChestnyZnakStatus.Registered)
 							&& (defaultEdoAccountAlias.ConsentForEdoStatus == ConsentForEdoStatus.Agree))
 					.Add(() => counterpartyAlias.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
@@ -2634,7 +2629,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.List();
 		}
 
-		public async Task<IDictionary<int, OrderPaymentsDataNode[]>> GetNotPaidCashlessOrdersData(
+		public async Task<IDictionary<int, CounterpartyOrdersAggregatedNode>> GetNotPaidCashlessOrdersData(
 			IUnitOfWork uow,
 			int organizationId,
 			IEnumerable<OrderStatus> orderStatuses,
@@ -2693,17 +2688,9 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 							   orderItem.ActualSum)
 							   .Sum() ?? 0
 
-					let counterpartyPhones =
-					from phone in uow.Session.Query<Phone>()
-					where phone.Counterparty.Id == counterparty.Id
-					select phone
-
-					let counterpartyOrdersContactPhones =
-					from order in uow.Session.Query<Order>()
-					join phone in uow.Session.Query<Phone>() on order.ContactPhone.Id equals phone.Id
-					where
-					order.Client.Id == counterparty.Id
-					select phone
+					let isExpired =
+						order.DeliveryDate != null
+						&& order.DeliveryDate.Value.AddDays(counterparty.DelayDaysForBuyers) < today
 
 					where
 						order.OrderPaymentStatus != OrderPaymentStatus.Paid
@@ -2714,10 +2701,10 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						&& organization.Id == organizationId
 						&& order.DeliveryDate != null
 						&& orderSum > 0
+						&& isExpired
 
 					select new OrderPaymentsDataNode
 					{
-						OrderId = order.Id,
 						CounterpartyId = counterparty.Id,
 						OrganizationId = organization.Id,
 						OrganizationName = organization.FullName,
@@ -2732,7 +2719,16 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.GroupBy(x => x.CounterpartyId)
 				.ToDictionary(
 					x => x.Key,
-					x => x.ToArray());
+					x => new CounterpartyOrdersAggregatedNode
+					{
+						CounterpartyId = x.Key,
+						OrganizationId = x.First().OrganizationId,
+						OrganizationName = x.First().OrganizationName,
+						TotalNotPaidSum = x.Sum(o => o.NotPaidSum),
+						TotalPartialPaidSum = x.Sum(o => o.PartialPaidSum),
+						TotalOverdueDebtorDebt = x.Sum(o => o.OverdueDebtorDebt),
+						MinOrderDeliveryDate = x.Min(o => o.OrderDeliveryDate)
+					});
 
 			return notPaidOrdersData;
 		}

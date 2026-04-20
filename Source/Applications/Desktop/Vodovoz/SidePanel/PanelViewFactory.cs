@@ -5,7 +5,7 @@ using QS.Project.Services;
 using QS.Tdi;
 using System;
 using System.Collections.Generic;
-using Vodovoz.Application.Clients;
+using Vodovoz.Core.Application.Clients;
 using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Cash;

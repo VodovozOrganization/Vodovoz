@@ -1,4 +1,5 @@
 ﻿using Gamma.ColumnConfig;
+using Gtk;
 using QS.Navigation;
 using QS.Views.GtkUI;
 using QSProjectsLib;
@@ -142,6 +143,7 @@ namespace Vodovoz.Views.Logistic
 				.Finish();
 			ytreeviewFines.Binding.AddBinding(ViewModel, vm => vm.FineItems, w => w.ItemsDataSource).InitializeFromSource();
 
+			yspinBtnOdometerReading.Adjustment = new Adjustment(1D, 0D, 10_000_000D, 1D, 100D, 100D);
 			yspinBtnOdometerReading.Binding
 				.AddBinding(ViewModel.Entity, e => e.Odometer, w => w.ValueAsInt)
 				.AddBinding(ViewModel, vm => vm.IsTechInspectCarEventType, w => w.Visible)

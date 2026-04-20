@@ -1073,5 +1073,11 @@ namespace Vodovoz.Core.Domain.Clients
 				fileInformation.CounterpartyId = Id;
 			}
 		}
+
+		public static RegistrationInChestnyZnakStatus[] RegisteredInTrueMarkStatuses => new[]
+		{
+			RegistrationInChestnyZnakStatus.Registered,
+			RegistrationInChestnyZnakStatus.RegisteredWithoutWater
+		};
 	}
 }

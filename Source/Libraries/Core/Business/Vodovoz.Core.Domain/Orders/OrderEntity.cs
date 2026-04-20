@@ -767,6 +767,13 @@ namespace Vodovoz.Core.Domain.Orders
 			}
 		}
 
+		public static OrderStatus[] GetOnClosingOrderStatuses => 
+			new OrderStatus[] {
+				OrderStatus.UnloadingOnStock,
+				OrderStatus.Shipped,
+				OrderStatus.Closed
+			};
+
 		#endregion Вычисляемые свойства
 		
 		/// <summary>
@@ -792,6 +799,14 @@ namespace Vodovoz.Core.Domain.Orders
 		/// </summary>
 		public virtual bool IsCashlessPaymentTypeAndOrganizationWithoutVAT => PaymentType == PaymentType.Cashless
 			&& Contract?.Organization?.GetActualVatRateVersion(DeliveryDate)?.VatRate.VatRateValue == 0;
+
+		public virtual void RecalculateVat()
+		{
+			for(var i = 0; i < OrderItems.Count; i++)
+			{
+				OrderItems[i].CalculateVATType();
+			}
+		}
 
 		public override string ToString()
 		{

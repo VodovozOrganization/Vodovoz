@@ -1,0 +1,6 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>robotmia.api</ContainerRepository>
+  </PropertyGroup>
+</Project>
+

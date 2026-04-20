@@ -1,4 +1,4 @@
-﻿using Edo.Common;
+using Edo.Common;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
 using Edo.Problems.Custom.Sources;
@@ -140,19 +140,6 @@ namespace Edo.Receipt.Dispatcher
 			{
 				return;
 			}
-			
-			var hasManualSend = receiptEdoTask.FormalEdoRequest.Source == CustomerEdoRequestSource.Manual;
-
-			if(!hasManualSend)
-			{
-				await SaveCodesToPool(receiptEdoTask, cancellationToken);
-				receiptEdoTask.Status = EdoTaskStatus.Completed;
-				receiptEdoTask.ReceiptStatus = EdoReceiptStatus.SavedToPool;
-				receiptEdoTask.EndTime = DateTime.Now;
-				await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
-				await _uow.CommitAsync(cancellationToken);
-				return;
-			}
 
 			PrepareFiscalDocuments(receiptEdoTask, cancellationToken);
 
@@ -178,6 +165,9 @@ namespace Edo.Receipt.Dispatcher
 					trueMarkCodesChecker, 
 					cancellationToken
 				);
+				
+				TryRecalculateOrderVat(receiptEdoTask);
+				
 				await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
 				await _uow.CommitAsync(cancellationToken);
 
@@ -192,13 +182,15 @@ namespace Edo.Receipt.Dispatcher
 			{
 				return;
 			}
-
-
+			
 			// перевод в отправку
 			receiptEdoTask.Status = EdoTaskStatus.InProgress;
 			receiptEdoTask.ReceiptStatus = EdoReceiptStatus.Sending;
 			receiptEdoTask.StartTime = DateTime.Now;
 			receiptEdoTask.CashboxId = receiptEdoTask.FormalEdoRequest.Order.Contract.Organization.CashBoxId;
+			
+			TryRecalculateOrderVat(receiptEdoTask);
+			
 			await _uow.SaveAsync(receiptEdoTask, cancellationToken: cancellationToken);
 			await _uow.CommitAsync(cancellationToken);
 
@@ -647,6 +639,33 @@ namespace Edo.Receipt.Dispatcher
 			}
 
 			return isValid;
+		}
+		
+		private void TryRecalculateOrderVat(ReceiptEdoTask receiptEdoTask)
+		{
+			try
+			{
+				var order = receiptEdoTask.FormalEdoRequest.Order;
+				var firstInventPosition = receiptEdoTask
+					.FiscalDocuments
+					.FirstOrDefault()?
+					.InventPositions
+					.FirstOrDefault();
+
+				if(firstInventPosition != null)
+				{
+					var vatValue = firstInventPosition.Vat.ToAddedVat();
+
+					if(order.OrderItems.Any(x => x.ValueAddedTax != vatValue))
+					{
+						order.RecalculateVat();
+					}
+				}
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Произошла ошибка при пересчете НДС в заказе");
+			}
 		}
 
 		public void Dispose()

@@ -9,7 +9,6 @@ using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
-using Vodovoz.Domain.Operations;
 
 namespace Vodovoz
 {
@@ -109,22 +108,43 @@ namespace Vodovoz
 		
 		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if(LitersOutlayed > LitersOutlayedLimit)
+			if(LitersOutlayed != 0)
 			{
 				var sb = new StringBuilder();
 				var propertyName = this.GetPropertyInfo(x => x.LitersOutlayed).GetCustomAttribute<DisplayAttribute>(true).Name;
-				validationContext.Items.TryGetValue(DialogMessage, out var message);
 
-				sb.Append(
-					$"Поле {propertyName} в операции топлива с значением {LitersOutlayed} не должно превышать лимит {LitersOutlayedLimit}");
-
-				if(message != null)
+				if(LitersOutlayed > LitersOutlayedLimit)
 				{
-					sb.Insert(0, $"{message}\n");
+					yield return GetLitersOutlayedValidationMessage(
+						validationContext,
+						sb,
+						$"Поле {propertyName} в операции топлива со значением {LitersOutlayed} не должно превышать лимит {LitersOutlayedLimit}");
 				}
-				
-				yield return new ValidationResult(sb.ToString(), new []{ nameof(LitersOutlayed) });
+				else if(LitersOutlayed < 0)
+				{
+					yield return GetLitersOutlayedValidationMessage(
+						validationContext,
+						sb,
+						$"Поле {propertyName} в операции топлива со значением {LitersOutlayed} не должно быть отрицательным");
+				}
 			}
+		}
+
+		private ValidationResult GetLitersOutlayedValidationMessage(
+			ValidationContext validationContext,
+			StringBuilder sb,
+			string validationMessage)
+		{
+			validationContext.Items.TryGetValue(DialogMessage, out var message);
+
+			sb.Append(validationMessage);
+
+			if(message != null)
+			{
+				sb.Insert(0, $"{message}\n");
+			}
+				
+			return new ValidationResult(sb.ToString(), new []{ nameof(LitersOutlayed) });
 		}
 	}
 }

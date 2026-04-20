@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Gamma.GtkWidgets;
 using GMap.NET.MapProviders;
 using Gtk;
@@ -243,13 +243,29 @@ namespace Vodovoz
 
 			var settingsController = AppDIContainer.Resolve<ISettingsController>();
 			var userRepository = AppDIContainer.Resolve<IUserRepository>();
-			if(ChangePassword(applicationConfigurator, userRepository) && CanLogin())
+			var needChangePassword = NeedChangePassword(userRepository, out var currentUserId);
+
+			//TODO надо будет продумать более элегантный способ при смене пароля
+			// Смена пароля помимо этого доступна и из меню, а т.к. новая строка подключения у нас не передается при создании сессии хибернэйта,
+			// то любой запрос будет падать с access denied
+			switch(needChangePassword)
 			{
-				StartMainWindow(LoginDialog.BaseName, settingsController, _wikiSettings);
-			}
-			else
-			{
-				return;
+				case true:
+				{
+					if(ChangePassword(applicationConfigurator, currentUserId))
+					{
+						ServicesConfig.InteractiveService.ShowMessage(
+							ImportanceLevel.Info,
+							"Программа будет закрыта для применения настроек. Запустите ее повторно");
+					}
+
+					return;
+				}
+				case false when CanLogin():
+					StartMainWindow(LoginDialog.BaseName, settingsController, _wikiSettings);
+					break;
+				default:
+					return;
 			}
 
 			PermissionExtensionSingletonStore.AssembliesFilter = new[] { "QS", "Vodovoz" };
@@ -267,21 +283,11 @@ namespace Vodovoz
 			QSSaaS.Session.StopSessionRefresh();
 			ClearTempDir();
 		}
-
-		/// <summary>
-		/// Проверяет, необходима ли смена пароля для текущего пользователя, и, если необходима, открывает диалог смены пароля
-		/// </summary>
-		/// <returns>
-		/// <para><b>True</b> - Если смена пароля не нужна или пароль был успешно изменён</para>
-		/// <b>False</b> - Если смена была затребована смена пароля, но пароль не был изменён
-		/// </returns>
-		/// <exception cref="InvalidOperationException">Если текущий пользователь null</exception>
-		private static bool ChangePassword(IApplicationConfigurator applicationConfigurator, IUserRepository userRepository)
+		
+		private static bool NeedChangePassword(
+			IUserRepository userRepository,
+			out int currentUserId)
 		{
-			ResponseType result;
-			int currentUserId;
-			IChangePasswordModel changePasswordModel;
-
 			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
 			{
 				var currentUser = userRepository.GetCurrentUser(uow);
@@ -289,32 +295,52 @@ namespace Vodovoz
 				{
 					throw new InvalidOperationException("CurrentUser is null");
 				}
+				
 				if(!currentUser.NeedPasswordChange)
 				{
-					return true;
+					currentUserId = currentUser.Id;
+					return false;
 				}
+				
 				currentUserId = currentUser.Id;
-
-				if(!(Connection.ConnectionDB is MySqlConnection mySqlConnection))
-				{
-					throw new InvalidOperationException($"Текущее подключение не является {nameof(MySqlConnection)}");
-				}
-
-				var mySqlPasswordRepository = new MySqlPasswordRepository();
-				changePasswordModel = new MysqlChangePasswordModelExtended(applicationConfigurator, mySqlConnection, mySqlPasswordRepository);
-				var changePasswordViewModel = new ChangePasswordViewModel(
-					changePasswordModel,
-					passwordValidator,
-					null
-				);
-				var changePasswordView = new ChangePasswordView(changePasswordViewModel)
-				{
-					Title = "Требуется сменить пароль"
-				};
-				changePasswordView.ShowAll();
-				result = (ResponseType)changePasswordView.Run();
-				changePasswordView.Destroy();
+				return true;
 			}
+		}
+
+		/// <summary>
+		/// Открывает диалог смены пароля
+		/// </summary>
+		/// <returns>
+		/// <para><b>True</b> - пароль был успешно изменён</para>
+		/// <b>False</b> - пароль не был изменён
+		/// </returns>
+		/// <exception cref="InvalidOperationException">Если текущий пользователь null</exception>
+		private static bool ChangePassword(
+			IApplicationConfigurator applicationConfigurator,
+			int currentUserId)
+		{
+			ResponseType result;
+			IChangePasswordModel changePasswordModel;
+
+			if(!(Connection.ConnectionDB is MySqlConnection mySqlConnection))
+			{
+				throw new InvalidOperationException($"Текущее подключение не является {nameof(MySqlConnection)}");
+			}
+
+			var mySqlPasswordRepository = new MySqlPasswordRepository();
+			changePasswordModel = new MysqlChangePasswordModelExtended(applicationConfigurator, mySqlConnection, mySqlPasswordRepository);
+			var changePasswordViewModel = new ChangePasswordViewModel(
+				changePasswordModel,
+				passwordValidator,
+				null
+			);
+			var changePasswordView = new ChangePasswordView(changePasswordViewModel)
+			{
+				Title = "Требуется сменить пароль"
+			};
+			changePasswordView.ShowAll();
+			result = (ResponseType)changePasswordView.Run();
+			changePasswordView.Destroy();
 
 			if(result == ResponseType.Ok && changePasswordModel.PasswordWasChanged)
 			{

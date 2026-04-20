@@ -15,9 +15,9 @@ using Osrm;
 using QS.HistoryLog;
 using QS.Project.Core;
 using Vodovoz;
-using Vodovoz.Application;
-using Vodovoz.Application.Logistics;
-using Vodovoz.Application.Orders.Services;
+using Vodovoz.Core.Application.Logistics;
+using Vodovoz.Core.Application.Orders.Services;
+using Vodovoz.Core.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
@@ -63,7 +63,7 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddInfrastructure()
 						.AddVersion3()
 						.AddVersion4()
-						.AddApplicationOrderServices()
+						.AddCoreApplicationOrderServices()
 						.AddOsrm()
 
 						.AddScoped<IRouteListService, RouteListService>()

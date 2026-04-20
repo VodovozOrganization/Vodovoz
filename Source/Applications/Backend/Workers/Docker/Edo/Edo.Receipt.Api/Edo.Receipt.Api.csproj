@@ -3,9 +3,7 @@
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
 		<UserSecretsId>2d1526c6-90bb-40f6-8c26-5ade33f31983</UserSecretsId>
-		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-		<DockerfileContext>..\..\..\..\..\..</DockerfileContext>
-	</PropertyGroup>
+</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.2.0" />
@@ -22,3 +20,4 @@
 	</ItemGroup>
 
 </Project>
+

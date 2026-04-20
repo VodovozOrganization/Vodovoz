@@ -1,7 +1,8 @@
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CashReceiptApi.Client.Framework;
 using Edo.Common;
+using Edo.Common.Services;
 using EdoService.Library;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
@@ -23,6 +24,7 @@ using QS.ErrorReporting;
 using QS.ErrorReporting.Handlers;
 using QS.Navigation;
 using QS.Permissions;
+using QS.Project.DB.Passwords;
 using QS.Project.Domain;
 using QS.Project.Services;
 using QS.Project.Services.FileDialog;
@@ -41,7 +43,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using QS.Project.DB.Passwords;
 using Vodovoz.Additions;
 using Vodovoz.Additions.Printing;
 using Vodovoz.Application.Mango;
@@ -114,6 +115,7 @@ using VodovozInfrastructure.StringHandlers;
 using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
 using IWarehousePermissionService = Vodovoz.Infrastructure.Services.IWarehousePermissionService;
+using Vodovoz.Application.TrueMark;
 
 namespace Vodovoz
 {
@@ -293,6 +295,8 @@ namespace Vodovoz
 
 					builder.RegisterType<FileChooser>().As<IFileChooserProvider>();
 					builder.RegisterType<SmsNotifier>().As<ISmsNotifier>();
+
+					builder.RegisterType<ClientsTrueMarkRegistrationCheckService>().As<IClientsTrueMarkRegistrationCheckService>();
 
 					#region Adapters & Factories
 

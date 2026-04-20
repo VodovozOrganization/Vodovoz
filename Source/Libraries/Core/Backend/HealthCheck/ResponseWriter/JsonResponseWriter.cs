@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -74,7 +74,7 @@ namespace VodovozHealthCheck.ResponseWriter
 			}
 			else
 			{
-				_logger.LogWarning(
+				_logger.LogError(
 					"Health check НЕ ПРОЙДЕН! Status: {Status}. Полный ответ:\n{ResponseBody}",
 					healthReport.Status,
 					responseBody

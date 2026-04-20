@@ -84,8 +84,8 @@ IS_MANUAL_BUILD = GIT_BRANCH ==~ /^manual-build(.*?)/
 
 ARTIFACT_DATE_TIME = new Date().format("MMdd_HHmm")
 CAN_BUILD_DESKTOP = true
-CAN_BUILD_WEB = true
-CAN_PUBLISH_BUILD_WEB = IS_HOTFIX || IS_RELEASE
+CAN_BUILD_WEB = false
+CAN_PUBLISH_BUILD_WEB = false //IS_HOTFIX || IS_RELEASE
 
 // 106	Настройки. Архивация
 CAN_COMPRESS_DESKTOP = CAN_BUILD_DESKTOP && (IS_HOTFIX || IS_RELEASE || IS_DEVELOP || IS_PULL_REQUEST || IS_MANUAL_BUILD || GIT_BRANCH == 'Beta')
@@ -317,6 +317,7 @@ stage('Web'){
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Transfer.Routine.Worker/Edo.Transfer.Routine.Worker.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Transfer.Sender.Worker/Edo.Transfer.Sender.Worker.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Withdrawal.Worker/Edo.Withdrawal.Worker.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Withdrawal.Routine.Worker/Edo.Withdrawal.Routine.Worker.csproj")
 
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsPreparer/EdoDocumentsPreparer.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsConsumer/EdoDocumentsConsumer.csproj")
