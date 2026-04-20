@@ -27,7 +27,6 @@ using Vodovoz.Presentation.WebApi;
 using Vodovoz.Presentation.WebApi.BuildVersion;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
-using CustomerNotifications.Publisher.Configuration;
 using Vodovoz.Trackers;
 using VodovozHealthCheck;
 
@@ -98,8 +97,7 @@ namespace DriverAPI
 
 				.AddScoped<ICallTaskWorker, CallTaskWorker>()
 				.AddScoped<ICallTaskFactory>(context => CallTaskSingletonFactory.GetInstance())
-				.AddDriverApiHostedServices()
-				.AddMultibusCustomerNotificationsPublisher(configuration);
+				.AddDriverApiHostedServices();
 
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 			services.AddStaticHistoryTracker();
