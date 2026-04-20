@@ -525,10 +525,13 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 			CancellationToken cancellationToken)
 		{
 			var currentDate = DateTime.UtcNow.Date;
+			var today = DateTime.Today;
 
 			var deliveredOrderStatuses = new[]
 			{
-				OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed
+				OrderStatus.Shipped, 
+				OrderStatus.UnloadingOnStock, 
+				OrderStatus.Closed
 			};
 
 			Counterparty counterpartyAlias = null;
@@ -537,6 +540,16 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 			Organization organizationAlias = null;
 			BulkEmailEvent bulkEmailEventAlias = null;
 			OrderItem orderItemAlias = null;
+			CounterpartyEmail counterpartyEmailAlias = null;
+			StoredEmail storedEmailAlias = null;
+
+			var emailSentTodaySubQuery = QueryOver.Of(() => counterpartyEmailAlias)
+				.JoinAlias(() => counterpartyEmailAlias.StoredEmail, () => storedEmailAlias)
+				.Where(() => counterpartyEmailAlias.Counterparty.Id == counterpartyAlias.Id)
+				.Where(() => counterpartyEmailAlias.Type == CounterpartyEmailType.GeneralBillDocument)
+				.Where(() => storedEmailAlias.SendDate >= today)
+				.Where(() => storedEmailAlias.SendDate < today.AddDays(1))
+				.Select(Projections.Property(() => counterpartyEmailAlias.Id));
 
 			var topClientsQuery = uow.Session.QueryOver(() => orderAlias)
 				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)

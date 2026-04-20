@@ -70,18 +70,17 @@ namespace EmailDebtNotificationWorker.Services
 			_logger.LogInformation("В процессе {Count} писем для рассылки",
 				overdueOrdersByClient.Keys.Count);
 
-			var keys = overdueOrdersByClient.Keys;
-			foreach(var key in keys)
+			var clientByOrganizationDict = overdueOrdersByClient.Keys;
+			foreach(var clientByOrganization in clientByOrganizationDict)
 			{
-
 				try
 				{
 					using var clientUow = _uowFactory.CreateWithoutRoot($"Отправка письма клиенту в воркере по рассылке писем о задолженнности");
 
-					var client = key.Counterparty;
-					var organization = key.Organization;
+					var client = clientByOrganization.Counterparty;
+					var organization = clientByOrganization.Organization;
 
-					if(overdueOrdersByClient.TryGetValue(key, out var orders))
+					if(overdueOrdersByClient.TryGetValue(clientByOrganization, out var orders))
 					{
 						await ProcessSingleClientEmailAsync(clientUow, client, organization, orders, cancellationToken);
 					}
@@ -130,17 +129,17 @@ namespace EmailDebtNotificationWorker.Services
 				throw new InvalidOperationException($"Клиент {client.Id} не имеет подходящего email для уведомления о задолженности");
 			}
 
-			var storedEmail = CreateStoredEmail(emailSubject, emailAddress, orders.Select(x => x.Id));
+			var storedEmail = CreateStoredEmail(emailSubject, emailAddress);
 			if(storedEmail is null)
 			{
 				_logger.LogError("Не удалось создать запись о письме с уведомлением о задолженности для клиента {ClientId}", client.Id);
-				throw new ArgumentNullException(nameof(storedEmail));
+				throw new InvalidOperationException($"StoredEmail не может быть пустым для клиента {client.Id}");
 			}
 
 			if(!storedEmail.Guid.HasValue)
 			{
 				_logger.LogError("StoredEmail.Guid пустой для письма о задолженности клиенту {ClientId}", client.Id);
-				throw new ArgumentNullException(nameof(storedEmail.Guid));
+				throw new InvalidOperationException($"StoredEmail.Guid не может быть пустым для клиента {client.Id}");
 			}
 
 			await uow.SaveAsync(storedEmail, cancellationToken: cancellationToken);
@@ -163,7 +162,7 @@ namespace EmailDebtNotificationWorker.Services
 			var unsubscribeUrl = GetUnsubscribeLink(storedEmail.Guid.Value);
 			var messageText = GenerateDebtEmailBody(client, orders, documentNumbersDict, unsubscribeUrl);
 
-			await PublishDebtEmailMessageAsync(
+		await PublishDebtEmailMessageAsync(
 				uow,
 				storedEmail,
 				client,
@@ -175,7 +174,7 @@ namespace EmailDebtNotificationWorker.Services
 				cancellationToken);
 		}
 
-		private static StoredEmail CreateStoredEmail(string subject, string email, IEnumerable<int> orderIds)
+		private static StoredEmail CreateStoredEmail(string subject, string email)
 		{
 			var storedEmail = new StoredEmail
 			{
@@ -187,7 +186,7 @@ namespace EmailDebtNotificationWorker.Services
 				Subject = subject,
 				RecipientAddress = email,
 				Guid = Guid.NewGuid(),
-				Description = $"Уведомление о задолженности по заказам: {string.Join(", ", orderIds)}",
+				Description = $"Уведомление о ПДЗ",
 			};
 
 			return storedEmail;
