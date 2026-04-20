@@ -6,7 +6,7 @@ using Vodovoz.Core.Application.Problems.Services;
 using Vodovoz.Infrastructure;
 using Vodovoz.Zabbix.Sender;
 
-namespace Edo.Problems.Routine
+namespace EdoContactsUpdater.Worker
 {
 	public class OrderContactProblemUpdateWorker : TimerBackgroundServiceBase
 	{
