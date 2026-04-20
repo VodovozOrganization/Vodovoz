@@ -41,9 +41,10 @@ namespace CustomerOnlineOrdersUpdater
 		{
 			try
 			{
-				using var uow = scope.ServiceProvider.GetService<IUnitOfWork>();
+				var unitOfWorkFactory = scope.ServiceProvider.GetService<IUnitOfWorkFactory>();
+				using var unitOfWork = unitOfWorkFactory.CreateWithoutRoot();
 				var unPaidOnlineOrderHandler = scope.ServiceProvider.GetService<IUnPaidOnlineOrderHandler>();
-				await unPaidOnlineOrderHandler.TryMoveToManualProcessingWaitingForPaymentOnlineOrders(uow, cancellationToken);
+				await unPaidOnlineOrderHandler.TryMoveToManualProcessingWaitingForPaymentOnlineOrders(unitOfWork, cancellationToken);
 			}
 			catch(Exception ex)
 			{
@@ -53,9 +54,17 @@ namespace CustomerOnlineOrdersUpdater
 
 		private async Task SendWaitingForPaymentNotification(IServiceScope scope, CancellationToken cancellationToken)
 		{
-			using var uow = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-			var unPaidOnlineOrderHandler = scope.ServiceProvider.GetService<IUnPaidOnlineOrderHandler>();
-			await unPaidOnlineOrderHandler.SendWaitingForPaymentNotificationsAsync(uow, cancellationToken);
+			try
+			{
+				var unitOfWorkFactory = scope.ServiceProvider.GetService<IUnitOfWorkFactory>();
+				using var unitOfWork = unitOfWorkFactory.CreateWithoutRoot();
+				var unPaidOnlineOrderHandler = scope.ServiceProvider.GetService<IUnPaidOnlineOrderHandler>();
+				await unPaidOnlineOrderHandler.SendWaitingForPaymentNotificationsAsync(unitOfWork, cancellationToken);
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при отправке уведомлений о ожидании оплаты онлайн заказов");
+			}
 		}
 	}
 }
