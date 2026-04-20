@@ -1,15 +1,15 @@
+﻿using DatabaseServiceWorker.Options;
+using ExportTo1c.Library.Factories;
+using ExportTo1c.Library.Repositories;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using QS.DomainModel.UoW;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using DatabaseServiceWorker.Options;
-using ExportTo1c.Library.Factories;
-using ExportTo1c.Library.Repositories;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using QS.DomainModel.UoW;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Infrastructure;
 using Vodovoz.Zabbix.Sender;
@@ -56,6 +56,8 @@ namespace DatabaseServiceWorker.ExportTo1c
 			catch(Exception ex)
 			{
 				await _zabbixSender.SendProblemMessageAsync(ZabixSenderMessageType.Problem, ex.ToString(), cancellationToken);
+
+				_logger.LogError("Экспорт в 1С API не удался {Error}", ex);
 			}
 		}
 
@@ -71,12 +73,16 @@ namespace DatabaseServiceWorker.ExportTo1c
 				return;
 			}
 
+			_logger.LogInformation("Проверяем необходимость экспорт в 1С API.");
+
 			using var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot(nameof(ExportTo1cApiWorker));
 
 			var lastExportDate = await _orderTo1CExportRepository.GetMaxLastExportDate(unitOfWork, cancellationToken);
 
 			if(lastExportDate.HasValue && lastExportDate.Value.Date == nowExportDate.Date)
 			{
+				_logger.LogInformation("Экспорт в 1С API Уже выполнялся {ExportDate}. Пропускаем.", lastExportDate);
+
 				return;
 			}
 
@@ -85,8 +91,12 @@ namespace DatabaseServiceWorker.ExportTo1c
 
 			if(changedOrders.Count == 0)
 			{
+				_logger.LogInformation("Нечего экспортировать в 1С API. Пропускаем.");
+
 				return;
 			}
+
+			_logger.LogInformation("К эспорту в 1С API найдено {ChangesCount} изменений в заказах. Начинаем экспорт.", changedOrders.Count);
 
 			var exporter = _dataExporterFor1cFactory.CreateApi1cChangesExporter(nowExportDate);
 
@@ -114,6 +124,8 @@ namespace DatabaseServiceWorker.ExportTo1c
 
 			if(!response.IsSuccessStatusCode)
 			{
+				_logger.LogError("Ошибка отправки в 1с АПИ. Ответ: {StatusCode}", response.StatusCode);
+
 				return;
 			}
 
@@ -125,6 +137,8 @@ namespace DatabaseServiceWorker.ExportTo1c
 			}
 
 			await unitOfWork.CommitAsync(cancellationToken);
+
+			_logger.LogInformation("Экспорт в 1С API успешно завершён");
 		}
 
 		protected override TimeSpan Interval { get; }
@@ -133,7 +147,7 @@ namespace DatabaseServiceWorker.ExportTo1c
 		{
 			_logger.LogInformation(
 				"Воркер {Worker} запущен в: {TransferStartTime}",
-				nameof(ExportTo1cWorker),
+				nameof(ExportTo1cApiWorker),
 				DateTimeOffset.Now);
 
 			base.OnStartService();
@@ -143,7 +157,7 @@ namespace DatabaseServiceWorker.ExportTo1c
 		{
 			_logger.LogInformation(
 				"Воркер {Worker} завершил работу в: {StopTime}",
-				nameof(ExportTo1cWorker),
+				nameof(ExportTo1cApiWorker),
 				DateTimeOffset.Now);
 
 			base.OnStopService();

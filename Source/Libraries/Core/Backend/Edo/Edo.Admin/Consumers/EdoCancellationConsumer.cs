@@ -27,6 +27,7 @@ namespace Edo.Admin.Consumers
 			await _edoCancellationService.CancelTask(
 				message.TaskId, 
 				message.Reason,
+				true,
 				context.CancellationToken
 			);
 		}
