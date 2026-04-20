@@ -21,11 +21,11 @@ namespace Mango.Infrastructure.Repositories
 		
 		public async Task<SyncStateEntity> GetAsync(string source, CancellationToken cancellationToken)
         {
-            using var connection = new ClickHouseConnection(_options.Value.ConnectionString);
-            await connection.OpenAsync(cancellationToken);
+	        await using var connection = new ClickHouseConnection(_options.Value.ConnectionString);
+	        await connection.OpenAsync(cancellationToken);
 
-            using var command = connection.CreateCommand();
-            command.CommandText = $@"
+	        await using var command = connection.CreateCommand();
+	        command.CommandText = $@"
 SELECT
     Source,
     LastProcessedDate,
@@ -35,7 +35,7 @@ WHERE Source = @Source
 ORDER BY UpdatedAtDate DESC
 LIMIT 1";
 
-            command.Parameters.Add(new ClickHouseDbParameter
+	        command.Parameters.Add(new ClickHouseDbParameter
             {
                 ParameterName = "Source",
                 Value = source
@@ -73,7 +73,8 @@ LIMIT 1";
 	        await connection.OpenAsync(cancellationToken);
 
 	        await using var command = connection.CreateCommand();
-            command.CommandText = $@"
+	        
+	        command.CommandText = $@"
 			INSERT INTO {_options.Value.SyncStateTableName}
 			(
     			Source,
@@ -87,7 +88,7 @@ LIMIT 1";
     			@UpdatedAtDate
 			)";
 
-            command.Parameters.Add(new ClickHouseDbParameter
+	        command.Parameters.Add(new ClickHouseDbParameter
             {
                 ParameterName = "Source",
                 Value = source

@@ -14,17 +14,17 @@ namespace Mango.Application
 {
 	public class MangoStatsWorker : BackgroundService
 	{
-		private readonly IServiceProvider _serviceProvider;
 		private readonly IOptions<SyncOptions> _syncOptions;
+		private readonly IServiceScopeFactory _serviceScopeFactory;
 		private readonly ILogger<MangoStatsWorker> _logger;
 
 		public MangoStatsWorker(
-			IServiceProvider serviceProvider,
 			IOptions<SyncOptions> syncOptions,
+			IServiceScopeFactory serviceScopeFactory,
 			ILogger<MangoStatsWorker> logger)
 		{
-			_serviceProvider = serviceProvider ?? throw new  ArgumentNullException(nameof(serviceProvider));
 			_syncOptions = syncOptions ?? throw new  ArgumentNullException(nameof(syncOptions));
+			_serviceScopeFactory = serviceScopeFactory  ?? throw new  ArgumentNullException(nameof(serviceScopeFactory));
 			_logger = logger ?? throw new  ArgumentNullException(nameof(logger));
 		}
 
@@ -36,7 +36,7 @@ namespace Mango.Application
 			{
 				try
 				{
-					using var scope = _serviceProvider.CreateScope();
+					using var scope = _serviceScopeFactory.CreateScope();
 					var syncService = scope.ServiceProvider.GetRequiredService<ICallStatisticService>();
 
 					await syncService.LoadDataAsync(stoppingToken);
