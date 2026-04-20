@@ -1,0 +1,6 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>edo.problem.routine.worker</ContainerRepository>
+  </PropertyGroup>
+</Project>
+
