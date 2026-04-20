@@ -1,4 +1,4 @@
-﻿using BitrixApi.Library.Services;
+using BitrixApi.Library.Services;
 using EdoService.Library.Services;
 using Mailjet.Api.Abstractions;
 using MassTransit;
@@ -341,14 +341,15 @@ namespace EmailDebtNotificationWorker.Services
 				ordersHtml.AppendLine($@"
 					<tr>
 						<td style='padding: 8px 0;'>№ {documentNumber}</td>
-						<td style='padding: 8px 0; text-align: right;'>{orderAmount:N2} руб. - </td>
+						<td style='padding: 8px 0; text-align: right;'>{orderAmount:N2} руб.</td>
 						<td style='padding: 8px 0; text-align: center;'>{daysOverdue}</td>
 					</tr>");
 			}
 
-			string contractNumber = orders
-				.Select(o => o.Contract.Number)
-				.FirstOrDefault(n => !string.IsNullOrWhiteSpace(n)) ?? "Не указан";
+			string organizationName = orders
+				.Where(o => o?.Contract?.Organization?.FullName != null)
+				.Select(o => o.Contract.Organization.FullName)
+				.FirstOrDefault() ?? "Не указана";
 
 			return $@"
 				<!DOCTYPE html>
@@ -377,7 +378,7 @@ namespace EmailDebtNotificationWorker.Services
 						</div>
 
 						<div class='content'>
-							<p>Сообщаем, что на текущий момент у вас имеется задолженность по договору <strong>{contractNumber}</strong> и следующим заказам:</p>
+							<p>Сообщаем, что на текущий момент у вас имеется задолженность перед организацией <strong>{organizationName}</strong> по следующим заказам:</p>
                     
 							<table class='debt-table'>
 								<thead>

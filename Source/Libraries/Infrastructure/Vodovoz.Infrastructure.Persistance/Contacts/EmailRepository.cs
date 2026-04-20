@@ -621,6 +621,7 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				.Where(() => orderAlias.DeliveryDate != null)
 				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
 				.Where(() => orderAlias.OrderStatus.IsIn(deliveredOrderStatuses))
+				.WhereNot(() => organizationAlias.DisableDebtMailing)
 				.Where(Restrictions.Le(dateAddExpression, currentDate))
 				.Where(Restrictions.Gt(Projections.SubQuery(orderItemsSumSubquery), 0m))
 				.WithSubquery.WhereNotExists(isClientUnsubscribedSubQuery)

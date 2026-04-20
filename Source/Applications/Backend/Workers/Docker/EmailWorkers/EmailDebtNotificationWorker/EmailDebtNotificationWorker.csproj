@@ -30,6 +30,7 @@
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Data\Vodovoz.Core.Data.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\EdoService\EdoService.Library.csproj" />
+    <ProjectReference Include="..\..\..\..\..\..\Libraries\External\My-FyiReporting\RdlCri\RdlCri.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
     <ProjectReference Include="..\..\..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
   </ItemGroup>
