@@ -197,5 +197,39 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 				.ToListAsync(cancellationToken);
 			return existingOrders;
 		}
+
+		public async Task<IList<T>> GetProblemEdoTasks<T>(
+			IUnitOfWork uow,
+			string problemSourceName,
+			DateTime minCreationTime,
+			CancellationToken cancellationToken)
+			where T : OrderEdoTask
+		{
+			var tasksIdsQuery =
+				from problem in uow.Session.Query<EdoTaskProblem>()
+				join edoTask in uow.Session.Query<T>() on problem.EdoTask.Id equals edoTask.Id
+				join edoRequest in uow.Session.Query<FormalEdoRequest>() on edoTask.FormalEdoRequest.Id equals edoRequest.Id
+				where
+					problem.SourceName == problemSourceName
+					&& problem.State == TaskProblemState.Active
+					&& edoTask.CreationTime >= minCreationTime
+				select edoTask.Id;
+
+			var taskIds = await tasksIdsQuery.Distinct().ToListAsync(cancellationToken);
+
+			if(!taskIds.Any())
+			{
+				return new List<T>();
+			}
+
+			var tasks = await uow.Session.Query<T>()
+				.Where(t => taskIds.Contains(t.Id))
+				.Fetch(t => t.FormalEdoRequest)
+				.ThenFetch(r => r.Order)
+				.ThenFetch(o => o.Client)
+				.ToListAsync(cancellationToken);
+
+			return tasks;
+		}
 	}
 }
