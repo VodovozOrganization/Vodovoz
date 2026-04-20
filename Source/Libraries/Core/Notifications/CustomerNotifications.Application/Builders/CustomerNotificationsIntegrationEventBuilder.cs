@@ -128,7 +128,7 @@ namespace CustomerNotifications.Application.Builders
 			CancellationToken cancellationToken)
 		{
 			var currentOrder = onlineOrder?.Orders			
-				.First()
+				?.FirstOrDefault()
 				?? order;
 
 			var address =

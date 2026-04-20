@@ -924,7 +924,7 @@ namespace Vodovoz.Domain.Logistic
 			observableAddresses = null;
 		}
 
-		public virtual void RollBackEnRouteStatus(IUnitOfWork unitOfWork)
+		public virtual void RollBackEnRouteStatus()
 		{
 			Status = RouteListStatus.EnRoute;
 			ClosingFilled = false;

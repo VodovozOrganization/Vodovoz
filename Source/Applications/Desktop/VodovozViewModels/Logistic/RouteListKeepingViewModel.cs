@@ -1,4 +1,4 @@
-using CustomerNotifications.Contracts;
+﻿using CustomerNotifications.Contracts;
 using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Requests;
 using Edo.Transport;
@@ -214,7 +214,7 @@ namespace Vodovoz
 
 		private void RollBackEnRouteStatus()
 		{
-			Entity.RollBackEnRouteStatus(UoW);
+			Entity.RollBackEnRouteStatus();
 
 			foreach(var item in Entity.Addresses.Where(x => x.Status == RouteListItemStatus.Completed))
 			{

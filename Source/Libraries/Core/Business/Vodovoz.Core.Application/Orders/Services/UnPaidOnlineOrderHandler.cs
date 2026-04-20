@@ -315,7 +315,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				data.DeliveryDate,
 				data.IsFastDelivery);
 
-			await TryNotifyCustomerAboudOrderPaidAsync(uow, data, cancellationToken);
+			await TryNotifyCustomerAboutOrderPaidAsync(uow, data, cancellationToken);
 
 			await SaveOnlineOrder(uow, onlineOrder, cancellationToken);			
 
@@ -403,7 +403,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			return await _outboxNotificationPublisher.TryPublishAsync(unitOfWork, customerOrderAwaitingPaymentEvent, cancellationToken);
 		}
 
-		private async Task<bool> TryNotifyCustomerAboudOrderPaidAsync(IUnitOfWork uow, UpdateOnlineOrderFromChangeRequest data, CancellationToken cancellationToken)
+		private async Task<bool> TryNotifyCustomerAboutOrderPaidAsync(IUnitOfWork uow, UpdateOnlineOrderFromChangeRequest data, CancellationToken cancellationToken)
 		{
 			var needCustomerOrderPaidNotification =
 				data.PaymentStatus == OnlineOrderPaymentStatus.Paid
