@@ -21,6 +21,7 @@ namespace Vodovoz.Settings.Database.Organizations
 		public int VodovozNorthOrganizationId => _settingsController.GetIntValue("vodovoz_north_organization_id");
 		public int VodovozEastOrganizationId => _settingsController.GetIntValue("vodovoz_east_organization_id");
 		public int VodovozDeshitsOrganizationId => _settingsController.GetIntValue("vodovoz_Deshits_organization_id");
+		public int ZinovievOrganizationId => _settingsController.GetIntValue("zinoviev_organization_id");
 		public int VodovozMbnOrganizationId => _settingsController.GetIntValue("vodovoz_mbn_organization_id");
 		public int KulerServiceOrganizationId => _settingsController.GetIntValue("kuler_service_organization_id");
 		public int CommonCashDistributionOrganisationId =>
