@@ -603,7 +603,6 @@ namespace DriverAPI.Library.V6.Services
 			};
 
 			await _unitOfWork.SaveAsync(driversSelectedAddress, cancellationToken: cancellationToken);
-			await _unitOfWork.CommitAsync(cancellationToken);
 
 			try
 			{
@@ -613,22 +612,42 @@ namespace DriverAPI.Library.V6.Services
 					order.OnlineOrder?.Id,
 					order.Id);
 
-				await _customerNotificationPublisher.TryPublishAsync(_unitOfWork, courierOnTheWayEvent, cancellationToken);
+				var isCourierOnTheWayEventPublished =
+					await _customerNotificationPublisher.TryPublishAsync(_unitOfWork, courierOnTheWayEvent, cancellationToken);
+
+				if(!isCourierOnTheWayEventPublished)
+				{
+					_logger.LogError(
+						"Ошибка при отправке уведомления о том, что курьер в пути. RouteListAddressId: {RouteListAddressId}, PreviousUncompletedAddressId: {PreviousUncompletedAddressId}",
+						selectAddressRequest.NextAddressId,
+						selectAddressRequest.PreviousUncompletedAddressId);
+				}
 
 				if(selectAddressRequest.PreviousUncompletedAddressId.HasValue)
 				{
 					var previousAddress =
 						_routeListItemRepository.GetRouteListItemById(_unitOfWork, selectAddressRequest.PreviousUncompletedAddressId.Value);
 
-					if (previousAddress != null)
+					var previousOrder = previousAddress?.Order;
+
+					if (previousOrder != null)
 					{
 						var courierIsLateEvent = new CustomerNotificationDomainEvent(
 							CustomerNotificationEventType.CourierIsLate,
-							order.OnlineOrder?.Source,
-							order.OnlineOrder?.Id,
-							order.Id);
+							previousOrder.OnlineOrder?.Source,
+							previousOrder.OnlineOrder?.Id,
+							previousOrder.Id);
 
-						await _customerNotificationPublisher.TryPublishAsync(_unitOfWork, courierIsLateEvent, cancellationToken);
+						var isCourierIsLateEventPublished =
+							await _customerNotificationPublisher.TryPublishAsync(_unitOfWork, courierIsLateEvent, cancellationToken);
+
+						if(!isCourierIsLateEventPublished)
+						{
+							_logger.LogError(
+								"Ошибка при отправке уведомления о задержке курьера. RouteListAddressId: {RouteListAddressId}, PreviousUncompletedAddressId: {PreviousUncompletedAddressId}",
+								selectAddressRequest.NextAddressId,
+								selectAddressRequest.PreviousUncompletedAddressId);
+						}
 					}
 				}
 			}
@@ -641,6 +660,8 @@ namespace DriverAPI.Library.V6.Services
 					selectAddressRequest.NextAddressId,
 					selectAddressRequest.PreviousUncompletedAddressId);
 			}
+
+			await _unitOfWork.CommitAsync(cancellationToken);
 
 			return Result.Success();
 		}
