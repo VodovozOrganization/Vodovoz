@@ -1,5 +1,4 @@
-using BitrixApi.Library.Services;
-using EdoService.Library.Services;
+﻿using BitrixApi.Library.Services;
 using Mailjet.Api.Abstractions;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -293,8 +292,7 @@ namespace EmailDebtNotificationWorker.Services
 					new()
 					{
 						Name = client.FullName,
-						//Email = emailAddress
-						Email = "work.semen.sd@gmail.com",
+						Email = emailAddress
 					}
 				},
 				Subject = emailSubject,

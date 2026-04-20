@@ -547,40 +547,8 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				.JoinAlias(() => counterpartyEmailAlias.StoredEmail, () => storedEmailAlias)
 				.Where(() => counterpartyEmailAlias.Counterparty.Id == counterpartyAlias.Id)
 				.Where(() => counterpartyEmailAlias.Type == CounterpartyEmailType.GeneralBillDocument)
-				.Where(() => storedEmailAlias.SendDate >= today)
 				.Where(() => storedEmailAlias.SendDate < today.AddDays(1))
 				.Select(Projections.Property(() => counterpartyEmailAlias.Id));
-
-			var topClientsQuery = uow.Session.QueryOver(() => orderAlias)
-				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
-				.JoinAlias(() => orderAlias.Contract, () => contractAlias)
-				.JoinAlias(() => contractAlias.Organization, () => organizationAlias)
-				.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
-				.Where(() => orderAlias.DeliveryDate != null)
-				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
-				.Where(() => orderAlias.OrderStatus.IsIn(deliveredOrderStatuses))
-				.Where(() => counterpartyAlias.PersonType == PersonType.legal)
-				.Where(() => counterpartyAlias.CloseDeliveryDebtType == null)
-				.WhereNot(() => organizationAlias.DisableDebtMailing)
-				.WhereNot(() => counterpartyAlias.DisableDebtMailing)
-				.WhereNot(() => counterpartyAlias.IsArchive)
-				.WithSubquery.WhereExists(
-					QueryOver.Of<Email>()
-						.Where(email => email.Counterparty.Id == counterpartyAlias.Id)
-						.And(email => email.EmailType == null || email.EmailType.Id != _emailTypeSettings.ArchiveId)
-						.Select(email => email.Id)
-				)
-				.Select(Projections.Distinct(Projections.Property(() => counterpartyAlias.Id)))
-				.Take(maxClients);
-
-			var topClientIds = (await topClientsQuery.ListAsync<object>(cancellationToken))
-				.Select(id => (int)id)
-				.ToList();
-
-			if(!topClientIds.Any())
-			{
-				return new Dictionary<(Counterparty, Organization), IEnumerable<Order>>();
-			}
 
 			var lastEventIdSubQuery = QueryOver.Of<BulkEmailEvent>()
 				.Where(bee2 => bee2.Counterparty.Id == counterpartyAlias.Id)
@@ -613,6 +581,43 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				Projections.Property(() => counterpartyAlias.DelayDaysForBuyers)
 			);
 
+			// из-за того, что версия NHibernate не умеет работать с Take()
+			// внутри подзапросов .WithSubquery, то пришлось повторять много кода
+			var topClientsQuery = uow.Session.QueryOver(() => orderAlias)
+				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.JoinAlias(() => orderAlias.Contract, () => contractAlias)
+				.JoinAlias(() => contractAlias.Organization, () => organizationAlias)
+				.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
+				.Where(() => orderAlias.DeliveryDate != null)
+				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
+				.Where(() => orderAlias.OrderStatus.IsIn(deliveredOrderStatuses))
+				.Where(() => counterpartyAlias.PersonType == PersonType.legal)
+				.Where(() => counterpartyAlias.CloseDeliveryDebtType == null)
+				.WhereNot(() => organizationAlias.DisableDebtMailing)
+				.WhereNot(() => counterpartyAlias.DisableDebtMailing)
+				.WhereNot(() => counterpartyAlias.IsArchive)
+				.Where(Restrictions.Le(dateAddExpression, currentDate))
+				.Where(Restrictions.Gt(Projections.SubQuery(orderItemsSumSubquery), 0m))
+				.WithSubquery.WhereExists(
+					QueryOver.Of<Email>()
+						.Where(email => email.Counterparty.Id == counterpartyAlias.Id)
+						.And(email => email.EmailType == null || email.EmailType.Id != _emailTypeSettings.ArchiveId)
+						.Select(email => email.Id)
+				)
+				.WithSubquery.WhereNotExists(emailSentTodaySubQuery)
+				.WithSubquery.WhereNotExists(isClientUnsubscribedSubQuery)
+				.Select(Projections.Distinct(Projections.Property(() => counterpartyAlias.Id)))
+				.Take(maxClients);
+
+			var topClientIds = (await topClientsQuery.ListAsync<object>(cancellationToken))
+				.Select(id => (int)id)
+				.ToList();
+
+			if(!topClientIds.Any())
+			{
+				return new Dictionary<(Counterparty, Organization), IEnumerable<Order>>();
+			}
+
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.JoinAlias(() => orderAlias.Contract, () => contractAlias)
@@ -624,13 +629,11 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				.WhereNot(() => organizationAlias.DisableDebtMailing)
 				.Where(Restrictions.Le(dateAddExpression, currentDate))
 				.Where(Restrictions.Gt(Projections.SubQuery(orderItemsSumSubquery), 0m))
-				.WithSubquery.WhereNotExists(isClientUnsubscribedSubQuery)
 				.WhereRestrictionOn(() => counterpartyAlias.Id).IsIn(topClientIds);
 
 			var orders = await query.ListAsync(cancellationToken);
 
 			var groupedOrders = orders
-				.Where(order => order.Client != null && order.Contract?.Organization != null)
 				.GroupBy(order => (Counterparty: order.Client, order.Contract.Organization))
 				.ToDictionary(
 					group => group.Key,
