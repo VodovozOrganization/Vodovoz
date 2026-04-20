@@ -1,9 +1,11 @@
-﻿using DriverApi.Contracts.V6;
+﻿using CustomerNotifications.Contracts;
+using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Requests;
 using DriverApi.Contracts.V6.Responses;
 using DriverAPI.Library.Exceptions;
 using DriverAPI.Library.V6.Converters;
 using Microsoft.Extensions.Logging;
+using Notifications.Infrastructure;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -13,6 +15,7 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
@@ -44,6 +47,7 @@ namespace DriverAPI.Library.V6.Services
 		private readonly PaymentTypeConverter _paymentTypeConverter;
 		private readonly IFastPaymentService _fastPaymentService;
 		private readonly ICallTaskWorker _callTaskWorker;
+		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private readonly IUnitOfWork _unitOfWork;
 
 		public RouteListService(ILogger<RouteListService> logger,
@@ -60,7 +64,8 @@ namespace DriverAPI.Library.V6.Services
 			IGenericRepository<Order> orderRepository,
 			PaymentTypeConverter paymentTypeConverter,
 			IFastPaymentService fastPaymentService,
-			ICallTaskWorker callTaskWorker)
+			ICallTaskWorker callTaskWorker,
+			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
@@ -77,6 +82,7 @@ namespace DriverAPI.Library.V6.Services
 			_paymentTypeConverter = paymentTypeConverter ?? throw new ArgumentNullException(nameof(paymentTypeConverter));
 			_fastPaymentService = fastPaymentService ?? throw new ArgumentNullException(nameof(fastPaymentService));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 		}
 
 		public async Task<RouteListDto> GetRouteList(int routeListId, CancellationToken cancellationToken = default)
@@ -601,11 +607,29 @@ namespace DriverAPI.Library.V6.Services
 
 			try
 			{
-				//Отправить уведомление на устройство клиента о том, что Курьер направляется к вам
+				var courierOnTheWayEvent = new CustomerNotificationDomainEvent(
+					CustomerNotificationEventType.CourierOnTheWay,
+					order.OnlineOrder?.Source,
+					order.OnlineOrder?.Id,
+					order.Id);
+
+				await _customerNotificationPublisher.TryPublishAsync(_unitOfWork, courierOnTheWayEvent, cancellationToken);
 
 				if(selectAddressRequest.PreviousUncompletedAddressId.HasValue)
 				{
-					//Отправить уведомление на устройство клиента о том, что Курьер задерживается
+					var previousAddress =
+						_routeListItemRepository.GetRouteListItemById(_unitOfWork, selectAddressRequest.PreviousUncompletedAddressId.Value);
+
+					if (previousAddress != null)
+					{
+						var courierIsLateEvent = new CustomerNotificationDomainEvent(
+							CustomerNotificationEventType.CourierIsLate,
+							order.OnlineOrder?.Source,
+							order.OnlineOrder?.Id,
+							order.Id);
+
+						await _customerNotificationPublisher.TryPublishAsync(_unitOfWork, courierIsLateEvent, cancellationToken);
+					}
 				}
 			}
 			catch(Exception ex)

@@ -1,4 +1,4 @@
-using CustomerNotifications.Application;
+﻿using CustomerNotifications.Application;
 using CustomerNotifications.Application.Builders;
 using CustomerNotifications.Contracts;
 using CustomerNotifications.Transport;
@@ -33,8 +33,6 @@ using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Presentation.WebApi;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Trackers;
-using VodovozBusiness.Services.Orders;
-using CustomerNotifications.Publisher.Configuration;
 using VodovozHealthCheck;
 
 namespace CustomerOrdersApi
