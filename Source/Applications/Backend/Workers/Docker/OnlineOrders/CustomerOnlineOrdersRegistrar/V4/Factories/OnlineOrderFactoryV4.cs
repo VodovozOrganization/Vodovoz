@@ -12,7 +12,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using VodovozBusiness.Controllers;
 
-namespace CustomerOnlineOrdersRegistrar.Factories.V4
+namespace CustomerOnlineOrdersRegistrar.V4.Factories
 {
 	public class OnlineOrderFactoryV4 : IOnlineOrderFactoryV4
 	{

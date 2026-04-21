@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using CustomerOnlineOrdersRegistrar.Factories.V3;
-using CustomerOnlineOrdersRegistrar.Factories.V4;
+using CustomerOnlineOrdersRegistrar.V4.Factories;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -14,15 +13,14 @@ using Vodovoz.Settings.OnlineOrders;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Services.Orders;
 
-namespace CustomerOnlineOrdersRegistrar.Consumers
+namespace CustomerOnlineOrdersRegistrar.V4.Consumers
 {
-	public class CreatingOnlineOrderConsumer : OnlineOrderConsumer, IConsumer<CreatingOnlineOrder>
+	public class CreatingOnlineOrderConsumerV4 : OnlineOrderConsumerV4, IConsumer<CreatingOnlineOrder>
 	{
-		public CreatingOnlineOrderConsumer(
-			ILogger<CreatingOnlineOrderConsumer> logger,
+		public CreatingOnlineOrderConsumerV4(
+			ILogger<CreatingOnlineOrderConsumerV4> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IOnlineOrderFactoryV3 onlineOrderFactoryV3,
-			IOnlineOrderFactoryV4 onlineOrderFactoryV4,
+			IOnlineOrderFactoryV4 onlineOrderFactory,
 			IDeliveryRulesSettings deliveryRulesSettings,
 			IDiscountReasonSettings discountReasonSettings,
 			IOnlineOrderRepository onlineOrderRepository,
@@ -33,8 +31,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			: base(
 				logger,
 				unitOfWorkFactory,
-				onlineOrderFactoryV3,
-				onlineOrderFactoryV4,
+				onlineOrderFactory,
 				deliveryRulesSettings,
 				discountReasonSettings,
 				onlineOrderRepository,
@@ -52,12 +49,11 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			
 			try
 			{
-				var onlineOrderIdWithCode = await TryRegisterOnlineOrderV4Async(message, context.CancellationToken);
+				var onlineOrderIdWithCode = await TryRegisterOnlineOrderAsync(message, context.CancellationToken);
 				await context.RespondAsync(CreatedOnlineOrderResult.Create(onlineOrderIdWithCode));
 			}
 			catch(Exception e)
 			{
-				//TODO: проверить работу вброса ошибки
 				Logger.LogError(e, "Ошибка при регистрации онлайн заказа {ExternalOrderId}", message.ExternalOrderId);
 				throw;
 			}

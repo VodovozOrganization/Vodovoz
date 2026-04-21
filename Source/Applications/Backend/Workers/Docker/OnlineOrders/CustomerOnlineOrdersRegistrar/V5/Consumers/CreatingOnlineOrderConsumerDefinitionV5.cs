@@ -1,18 +1,18 @@
-﻿using CustomerOrdersApi.Library.V4.Dto.Orders;
+﻿using CustomerOrdersApi.Library.V5.Dto.Orders;
 using MassTransit;
 
-namespace CustomerOnlineOrdersRegistrar.Consumers
+namespace CustomerOnlineOrdersRegistrar.V5.Consumers
 {
-	public class CreatingOnlineOrderConsumerDefinition : ConsumerDefinition<CreatingOnlineOrderConsumer>
+	public class CreatingOnlineOrderConsumerDefinitionV5 : ConsumerDefinition<CreatingOnlineOrderConsumerV5>
 	{
-		public CreatingOnlineOrderConsumerDefinition()
+		public CreatingOnlineOrderConsumerDefinitionV5()
 		{
 			EndpointName = CreatingOnlineOrder.ExchangeAndQueueName;
 		}
 
 		protected override void ConfigureConsumer(
 			IReceiveEndpointConfigurator endpointConfigurator,
-			IConsumerConfigurator<CreatingOnlineOrderConsumer> consumerConfigurator)
+			IConsumerConfigurator<CreatingOnlineOrderConsumerV5> consumerConfigurator)
 		{
 			endpointConfigurator.ConfigureConsumeTopology = false;
 			endpointConfigurator.ConcurrentMessageLimit = 1;

@@ -1,4 +1,4 @@
-﻿namespace CustomerOnlineOrdersRegistrar.Consumers
+﻿namespace CustomerOnlineOrdersRegistrar
 {
 	/// <summary>
 	/// Действие над пришедшим онлайн заказом, возможным дублем

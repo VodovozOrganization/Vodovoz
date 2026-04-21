@@ -1,6 +1,6 @@
 ﻿using MassTransit;
 
-namespace CustomerOnlineOrdersRegistrar.Consumers
+namespace CustomerOnlineOrdersRegistrar.V3.Consumers
 {
 	public class OnlineOrderRegisteredConsumerDefinition : ConsumerDefinition<OnlineOrderRegisteredConsumer>
 	{

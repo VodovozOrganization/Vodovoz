@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using CustomerOnlineOrdersRegistrar.Factories.V3;
-using CustomerOnlineOrdersRegistrar.Factories.V4;
+using CustomerOnlineOrdersRegistrar.V3.Factories;
 using CustomerOrdersApi.Library.Default.Dto.Orders;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -16,17 +15,16 @@ using Vodovoz.Settings.OnlineOrders;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Services.Orders;
 
-namespace CustomerOnlineOrdersRegistrar.Consumers
+namespace CustomerOnlineOrdersRegistrar.V3.Consumers
 {
-	public class OnlineOrderRegisteredConsumer : OnlineOrderConsumer, IConsumer<OnlineOrderInfoDto>
+	public class OnlineOrderRegisteredConsumer : OnlineOrderConsumerV3, IConsumer<OnlineOrderInfoDto>
 	{
 		private readonly IBus _bus;
 
 		public OnlineOrderRegisteredConsumer(
 			ILogger<OnlineOrderRegisteredConsumer> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
-			IOnlineOrderFactoryV3 onlineOrderFactoryV3,
-			IOnlineOrderFactoryV4 onlineOrderFactoryV4,
+			IOnlineOrderFactoryV3 onlineOrderFactory,
 			IOrderService orderService,
 			IDeliveryRulesSettings deliveryRulesSettings,
 			IDiscountReasonSettings discountReasonSettings,
@@ -38,8 +36,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 				: base(
 					logger,
 					unitOfWorkFactory,
-					onlineOrderFactoryV3,
-					onlineOrderFactoryV4,
+					onlineOrderFactory,
 					deliveryRulesSettings,
 					discountReasonSettings,
 					onlineOrderRepository,
@@ -63,7 +60,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			
 			try
 			{
-				await TryRegisterOnlineOrderV3Async(message, context.CancellationToken);
+				await TryRegisterOnlineOrderAsync(message, context.CancellationToken);
 				return;
 			}
 			catch(Exception e)
