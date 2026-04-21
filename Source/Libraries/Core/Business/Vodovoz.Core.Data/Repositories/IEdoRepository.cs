@@ -42,5 +42,16 @@ namespace Vodovoz.Core.Data.Repositories
 		/// <param name="orderIds">Номера заказов для проверки</param>
 		/// <returns>Номера заказов, по которым существуют заявки на вывод кодов из оборота</returns>
 		Task<IList<int>> GetExistingWithdrawalEdoRequestOrders(IUnitOfWork uow, IEnumerable<int> orderIds, CancellationToken cancellationToken);
+		
+		/// <summary>
+		/// Возвращает список задач ЭДО с указанной проблемой
+		/// </summary>
+		/// <typeparam name="T">Тип задачи ЭДО</typeparam>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="problemSourceName">Имя источника проблемы</param>
+		/// <param name="minCreationTime">Минимальное время создания задачи</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Список задач ЭДО с указанной проблемой</returns>
+		Task<IList<T>> GetProblemEdoTasks<T>(IUnitOfWork uow, string problemSourceName, DateTime minCreationTime, CancellationToken cancellationToken) where T : OrderEdoTask;
 	}
 }

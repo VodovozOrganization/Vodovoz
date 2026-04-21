@@ -72,5 +72,12 @@ namespace EdoService.Library
 		/// <param name="dockflowData"></param>
 		/// <returns></returns>
 		Result ValidateOutgoingDocument(IUnitOfWork uow, EdoDockflowData dockflowData);
+		
+		/// <summary>
+		/// Публикует ивент в rabbit о создании ЭДО задачи
+		/// </summary>
+		/// <param name="edoTask"></param>
+		/// <returns></returns>
+		Result SendDocumentTaskCreatedEvent(EdoTask edoTask);
 	}
 }

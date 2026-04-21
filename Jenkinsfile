@@ -318,6 +318,7 @@ stage('Web'){
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Transfer.Sender.Worker/Edo.Transfer.Sender.Worker.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Withdrawal.Worker/Edo.Withdrawal.Worker.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Withdrawal.Routine.Worker/Edo.Withdrawal.Routine.Worker.csproj")
+				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/Edo/Edo.Problem.Routine.Worker/Edo.Problem.Routine.Worker.csproj")
 
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsPreparer/EdoDocumentsPreparer.csproj")
 				DockerPublishBuild("${APP_PATH}/Backend/Workers/Docker/EdoServices/EdoDocumentsConsumer/EdoDocumentsConsumer.csproj")
