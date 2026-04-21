@@ -170,7 +170,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			{
 				if(orders.Any())
 				{
-					return await TryUpdateUnPaidOnlineOrderWithOrders(uow, orders, onlineOrder, data, cancellationToken);
+					return await TryUpdateUnPaidOnlineOrderWithOrders(uow, orders, onlineOrder, data, deliverySchedule, cancellationToken);
 				}
 				
 				if(onlineOrder.OnlineOrderStatus is OnlineOrderStatus.Canceled
@@ -243,8 +243,15 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IEnumerable<Order> orders,
 			OnlineOrder onlineOrder,
 			UpdateOnlineOrderFromChangeRequest data,
+			DeliverySchedule deliverySchedule,
 			CancellationToken cancellationToken)
 		{
+			var transferResult = await TryApplyDeliveryTransferAsync(uow, onlineOrder, deliverySchedule, data, cancellationToken);
+			if(transferResult.IsFailure || transferResult.Value)
+			{
+				return transferResult;
+			}
+
 			var needUpdate = true;
 
 			foreach(var order in orders)
@@ -326,43 +333,10 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return Result.Success();
 			}
 
-			var order = GetActiveOrder(onlineOrder);
-			if(order is null)
+			var transferResult = await TryApplyDeliveryTransferAsync(uow, onlineOrder, deliverySchedule, data, cancellationToken);
+			if(transferResult.IsFailure || transferResult.Value)
 			{
-				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.IsOnlineOrderDoesNotHaveALinkedOrder);
-			}
-
-			var deliveryParametersChanged = _orderTransferLogicService.IsDeliveryParametersChanged(
-				order,
-				data.DeliveryDate,
-				data.DeliveryScheduleId);
-
-			if(deliveryParametersChanged)
-			{
-				_logger.LogInformation(
-					"Параметры доставки оплаченного онлайна {OnlineOrderId} изменились, применяем перенос",
-					onlineOrder.Id);
-
-				var transferResult = await _orderTransferLogicService.ApplyTransferAsync(
-					uow,
-					order,
-					onlineOrder,
-					data.DeliveryDate,
-					deliverySchedule,
-					data.Source,
-					cancellationToken);
-
-				if(transferResult.IsFailure)
-				{
-					var errorMessage = transferResult.Errors.FirstOrDefault()?.Message ?? "Неизвестная ошибка";
-					_logger.LogError(
-						"Ошибка при переносе заказа {OrderId} оплаченного онлайна {OnlineOrderId}: {ErrorMessage}",
-						order.Id,
-						onlineOrder.Id,
-						errorMessage);
-
-					return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.CantUpdateOrder(errorMessage));
-				}
+				return transferResult;
 			}
 			else
 			{
@@ -387,6 +361,59 @@ namespace Vodovoz.Core.Application.Orders.Services
 		{
 			var undeliveryStatuses = _orderRepository.GetUndeliveryStatuses();
 			return onlineOrder.Orders.FirstOrDefault(x => !undeliveryStatuses.Contains(x.OrderStatus));
+		}
+
+		private async Task<Result<bool>> TryApplyDeliveryTransferAsync(
+			IUnitOfWork uow,
+			OnlineOrder onlineOrder,
+			DeliverySchedule deliverySchedule,
+			UpdateOnlineOrderFromChangeRequest data,
+			CancellationToken cancellationToken)
+		{
+			var activeOrder = GetActiveOrder(onlineOrder);
+			if(activeOrder is null)
+			{
+				return Result.Failure<bool>(Vodovoz.Errors.Orders.OnlineOrderErrors.IsOnlineOrderDoesNotHaveALinkedOrder);
+			}
+
+			var deliveryParametersChanged = _orderTransferLogicService.IsDeliveryParametersChanged(
+				activeOrder,
+				data.DeliveryDate,
+				data.DeliveryScheduleId);
+
+			if(!deliveryParametersChanged)
+			{
+				return Result.Success(false);
+			}
+
+			_logger.LogInformation(
+				"Параметры доставки оплаченного онлайна {OnlineOrderId} изменились, применяем перенос",
+				onlineOrder.Id);
+
+			var transferResult = await _orderTransferLogicService.ApplyTransferAsync(
+				uow,
+				activeOrder,
+				onlineOrder,
+				data.DeliveryDate,
+				deliverySchedule,
+				data.Source,
+				cancellationToken);
+
+			await uow.CommitAsync(cancellationToken);
+
+			if(transferResult.IsFailure)
+			{
+				var errorMessage = transferResult.Errors.FirstOrDefault()?.Message ?? "Неизвестная ошибка";
+				_logger.LogError(
+					"Ошибка при переносе заказа {OrderId} оплаченного онлайна {OnlineOrderId}: {ErrorMessage}",
+					activeOrder.Id,
+					onlineOrder.Id,
+					errorMessage);
+
+				return Result.Failure<bool>(Vodovoz.Errors.Orders.OnlineOrderErrors.CantUpdateOrder(errorMessage));
+			}
+
+			return Result.Success(true);
 		}
 
 		private void TransferToManualProcessing(
