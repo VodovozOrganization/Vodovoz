@@ -126,7 +126,7 @@ namespace Edo.Receipt.Sender
 					if(result.SendStatus == SendStatus.Error)
 					{
 						edoFiscalDocument.FailureMessage = result.ErrorMessage;
-						edoFiscalDocument.Status = Vodovoz.Core.Domain.Edo.FiscalDocumentStatus.Failed;
+						edoFiscalDocument.Status = Vodovoz.Core.Domain.Edo.FiscalDocumentStatus.SendError;
 						continue;
 					}
 
