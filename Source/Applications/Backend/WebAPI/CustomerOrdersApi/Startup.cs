@@ -64,6 +64,7 @@ namespace CustomerOrdersApi
 				.AddConfig(Configuration)
 				.AddVersion3()
 				.AddVersion4()
+				.AddVersion5()
 				.AddVersioning()
 				.AddOsrm()
 

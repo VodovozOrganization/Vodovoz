@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
-using CustomerOrdersApi.Library.V4.Factories;
-using CustomerOrdersApi.Library.V4.Repositories;
+using CustomerOrdersApi.Library.V5.Dto.Orders;
+using CustomerOrdersApi.Library.V5.Factories;
+using CustomerOrdersApi.Library.V5.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -21,32 +21,32 @@ using Vodovoz.Settings.Orders;
 using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Cryptography;
 
-namespace CustomerOrdersApi.Library.V4.Services
+namespace CustomerOrdersApi.Library.V5.Services
 {
-	public class CustomerOrdersServiceV4 : ICustomerOrdersServiceV4
+	public class CustomerOrdersServiceV5 : ICustomerOrdersServiceV5
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly ILogger<CustomerOrdersServiceV4> _logger;
+		private readonly ILogger<CustomerOrdersServiceV5> _logger;
 		private readonly ISignatureManager _signatureManager;
-		private readonly ICustomerOrderFactoryV4 _customerOrderFactory;
+		private readonly ICustomerOrderFactoryV5 _customerOrderFactory;
 		private readonly IOrderSettings _orderSettings;
-		private readonly ICustomerOrderRepositoryV4 _customerOrderRepository;
+		private readonly ICustomerOrderRepositoryV5 _customerOrderRepository;
 		private readonly IOrderRepository _orderRepository;
-		private readonly ICustomerOnlineOrderRepositoryV4 _customerOnlineOrderRepository;
+		private readonly ICustomerOnlineOrderRepositoryV5 _customerOnlineOrderRepository;
 		private readonly IOnlineOrderRepository _onlineOrderRepository;
 		private readonly IGenericRepository<OrderRating> _genericRatingRepository;
 		private readonly IUnPaidOnlineOrderHandler _unPaidOnlineOrderHandler;
 		private readonly IConfigurationSection _signaturesSection;
 
-		public CustomerOrdersServiceV4(
+		public CustomerOrdersServiceV5(
 			IUnitOfWorkFactory unitOfWorkFactory,
-			ILogger<CustomerOrdersServiceV4> logger,
+			ILogger<CustomerOrdersServiceV5> logger,
 			ISignatureManager signatureManager,
-			ICustomerOrderFactoryV4 customerOrderFactory,
+			ICustomerOrderFactoryV5 customerOrderFactory,
 			IOrderSettings orderSettings,
-			ICustomerOrderRepositoryV4 customerOrderRepository,
+			ICustomerOrderRepositoryV5 customerOrderRepository,
 			IOrderRepository orderRepository,
-			ICustomerOnlineOrderRepositoryV4 customerOnlineOrderRepository,
+			ICustomerOnlineOrderRepositoryV5 customerOnlineOrderRepository,
 			IOnlineOrderRepository onlineOrderRepository,
 			IGenericRepository<OrderRating> genericRatingRepository,
 			IUnPaidOnlineOrderHandler unPaidOnlineOrderHandler,
@@ -57,11 +57,11 @@ namespace CustomerOrdersApi.Library.V4.Services
 			_signatureManager = signatureManager ?? throw new ArgumentNullException(nameof(signatureManager));
 			_customerOrderFactory = customerOrderFactory ?? throw new ArgumentNullException(nameof(customerOrderFactory));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
-			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_customerOrderRepository = customerOrderRepository ?? throw new ArgumentNullException(nameof(customerOrderRepository));
-			_onlineOrderRepository = onlineOrderRepository ?? throw new ArgumentNullException(nameof(onlineOrderRepository));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_customerOnlineOrderRepository =
 				customerOnlineOrderRepository ?? throw new ArgumentNullException(nameof(customerOnlineOrderRepository));
+			_onlineOrderRepository = onlineOrderRepository ?? throw new ArgumentNullException(nameof(onlineOrderRepository));
 			_genericRatingRepository = genericRatingRepository ?? throw new ArgumentNullException(nameof(genericRatingRepository));
 			_unPaidOnlineOrderHandler = unPaidOnlineOrderHandler ?? throw new ArgumentNullException(nameof(unPaidOnlineOrderHandler));
 

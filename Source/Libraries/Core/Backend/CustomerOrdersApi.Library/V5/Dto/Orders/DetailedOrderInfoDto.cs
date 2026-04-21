@@ -4,7 +4,7 @@ using System.Linq;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 
-namespace CustomerOrdersApi.Library.V4.Dto.Orders
+namespace CustomerOrdersApi.Library.V5.Dto.Orders
 {
 	/// <summary>
 	/// Детальная информация о заказе

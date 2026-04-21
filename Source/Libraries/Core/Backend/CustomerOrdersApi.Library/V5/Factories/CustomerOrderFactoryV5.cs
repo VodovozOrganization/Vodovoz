@@ -2,23 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using CustomerOrdersApi.Library.Converters;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
+using CustomerOrdersApi.Library.V5.Dto.Orders;
 using Vodovoz.Core.Data.InfoMessages;
 using Vodovoz.Core.Data.Orders;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 
-namespace CustomerOrdersApi.Library.V4.Factories
+namespace CustomerOrdersApi.Library.V5.Factories
 {
-	public class CustomerOrderFactoryV4 : ICustomerOrderFactoryV4
+	public class CustomerOrderFactoryV5 : ICustomerOrderFactoryV5
 	{
 		private readonly IExternalOrderStatusConverter _externalOrderStatusConverter;
-		private readonly IInfoMessageFactoryV4 _infoMessageFactory;
+		private readonly IInfoMessageFactoryV5 _infoMessageFactory;
 
-		public CustomerOrderFactoryV4(
+		public CustomerOrderFactoryV5(
 			IExternalOrderStatusConverter externalOrderStatusConverter,
-			IInfoMessageFactoryV4 infoMassageFactory)
+			IInfoMessageFactoryV5 infoMassageFactory)
 		{
 			_externalOrderStatusConverter =
 				externalOrderStatusConverter ?? throw new ArgumentNullException(nameof(externalOrderStatusConverter));

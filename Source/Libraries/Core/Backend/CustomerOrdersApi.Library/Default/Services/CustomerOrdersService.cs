@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using CustomerOrdersApi.Library.Default.Dto.Orders;
 using CustomerOrdersApi.Library.Default.Factories;
+using CustomerOrdersApi.Library.Default.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Data.Orders.Default;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
@@ -25,7 +25,8 @@ namespace CustomerOrdersApi.Library.Default.Services
 		private readonly ISignatureManager _signatureManager;
 		private readonly ICustomerOrderFactory _customerOrderFactory;
 		private readonly IOrderSettings _orderSettings;
-		private readonly IOrderRepository _orderRepository;
+		private readonly ICustomerOrderRepository _orderRepository;
+		private readonly ICustomerOnlineOrderRepository _customerOnlineOrderRepository;
 		private readonly IOnlineOrderRepository _onlineOrderRepository;
 		private readonly IGenericRepository<OrderRating> _genericRatingRepository;
 		private readonly IConfigurationSection _signaturesSection;
@@ -36,7 +37,8 @@ namespace CustomerOrdersApi.Library.Default.Services
 			ISignatureManager signatureManager,
 			ICustomerOrderFactory customerOrderFactory,
 			IOrderSettings orderSettings,
-			IOrderRepository orderRepository,
+			ICustomerOrderRepository orderRepository,
+			ICustomerOnlineOrderRepository customerOnlineOrderRepository,
 			IOnlineOrderRepository onlineOrderRepository,
 			IGenericRepository<OrderRating> genericRatingRepository,
 			IConfiguration configuration)
@@ -47,6 +49,8 @@ namespace CustomerOrdersApi.Library.Default.Services
 			_customerOrderFactory = customerOrderFactory ?? throw new ArgumentNullException(nameof(customerOrderFactory));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_customerOnlineOrderRepository =
+				customerOnlineOrderRepository ?? throw new ArgumentNullException(nameof(customerOnlineOrderRepository));
 			_onlineOrderRepository = onlineOrderRepository ?? throw new ArgumentNullException(nameof(onlineOrderRepository));
 			_genericRatingRepository = genericRatingRepository ?? throw new ArgumentNullException(nameof(genericRatingRepository));
 
@@ -195,7 +199,7 @@ namespace CustomerOrdersApi.Library.Default.Services
 				_orderRepository.GetCounterpartyOrdersWithoutOnlineOrders(uow, getOrdersDto.CounterpartyErpId, dateAvailabilityRating);
 			var onlineOrdersWithOrders = GetOnlineOrdersWithOrdersInfo(getOrdersDto, uow, dateAvailabilityRating);
 			var onlineOrdersWithoutOrders =
-				_onlineOrderRepository.GetCounterpartyOnlineOrdersWithoutOrder(uow, getOrdersDto.CounterpartyErpId, dateAvailabilityRating);
+				_customerOnlineOrderRepository.GetCounterpartyOnlineOrdersWithoutOrder(uow, getOrdersDto.CounterpartyErpId, dateAvailabilityRating);
 
 			var allOrders = 
 				ordersWithoutOnlineOrders

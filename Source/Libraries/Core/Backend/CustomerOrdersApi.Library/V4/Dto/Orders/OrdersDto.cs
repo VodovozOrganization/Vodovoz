@@ -1,6 +1,4 @@
-﻿using Vodovoz.Core.Data.Orders.V4;
-
-namespace CustomerOrdersApi.Library.V4.Dto.Orders
+﻿namespace CustomerOrdersApi.Library.V4.Dto.Orders
 {
 	/// <summary>
 	/// Постраничное представление заказов клиента

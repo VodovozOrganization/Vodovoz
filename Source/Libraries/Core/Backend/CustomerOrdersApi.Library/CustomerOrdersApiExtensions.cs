@@ -4,15 +4,19 @@ using System.Security.Authentication;
 using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.Converters;
 using CustomerOrdersApi.Library.Default.Factories;
+using CustomerOrdersApi.Library.Default.Repositories;
 using CustomerOrdersApi.Library.Default.Services;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using CustomerOrdersApi.Library.V4.Factories;
+using CustomerOrdersApi.Library.V4.Repositories;
 using CustomerOrdersApi.Library.V4.Services;
+using CustomerOrdersApi.Library.V5.Factories;
+using CustomerOrdersApi.Library.V5.Repositories;
+using CustomerOrdersApi.Library.V5.Services;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
-using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Settings.Pacs;
 using VodovozInfrastructure.Cryptography;
 
@@ -34,6 +38,8 @@ namespace CustomerOrdersApi.Library
 				.AddScoped<ICustomerOrderFactory, CustomerOrderFactory>()
 				.AddScoped<ICustomerOrdersDiscountService, CustomerOrdersDiscountService>()
 				.AddScoped<ICustomerOrderFixedPriceService, CustomerOrderFixedPriceService>()
+				.AddScoped<ICustomerOrderRepository, CustomerOrderRepository>()
+				.AddScoped<ICustomerOnlineOrderRepository, CustomerOnlineOrderRepository>()
 				.AddDefault();
 			
 			return services;
@@ -45,7 +51,23 @@ namespace CustomerOrdersApi.Library
 				.AddScoped<ICustomerOrderFactoryV4, CustomerOrderFactoryV4>()
 				.AddScoped<ICustomerOrdersDiscountServiceV4, CustomerOrdersDiscountServiceV4>()
 				.AddScoped<ICustomerOrderFixedPriceServiceV4, CustomerOrderFixedPriceServiceV4>()
-				.AddScoped<IInfoMessageFactory, InfoMessageFactory>()
+				.AddScoped<IInfoMessageFactoryV4, InfoMessageFactoryV4>()
+				.AddScoped<ICustomerOrderRepositoryV4, CustomerOrderRepositoryV4>()
+				.AddScoped<ICustomerOnlineOrderRepositoryV4, CustomerOnlineOrderRepositoryV4>()
+				.AddDefault();
+			
+			return services;
+		}
+		
+		public static IServiceCollection AddVersion5(this IServiceCollection services)
+		{
+			services.AddScoped<ICustomerOrdersServiceV5, CustomerOrdersServiceV5>()
+				.AddScoped<ICustomerOrderFactoryV5, CustomerOrderFactoryV5>()
+				.AddScoped<ICustomerOrdersDiscountServiceV5, CustomerOrdersDiscountServiceV5>()
+				.AddScoped<ICustomerOrderFixedPriceServiceV5, CustomerOrderFixedPriceServiceV5>()
+				.AddScoped<IInfoMessageFactoryV5, InfoMessageFactoryV5>()
+				.AddScoped<ICustomerOrderRepositoryV5, CustomerOrderRepositoryV5>()
+				.AddScoped<ICustomerOnlineOrderRepositoryV5, CustomerOnlineOrderRepositoryV5>()
 				.AddDefault();
 			
 			return services;
@@ -89,64 +111,67 @@ namespace CustomerOrdersApi.Library
 						}
 					});
 								
-				configurator.Send<Default.Dto.Orders.OnlineOrderInfoDto>(
-					x => x.UseRoutingKeyFormatter(y => y.Message.FaultedMessage.ToString()));
-				configurator.Message<Default.Dto.Orders.OnlineOrderInfoDto>(
-					x => x.SetEntityName(Default.Dto.Orders.OnlineOrderInfoDto.ExchangeName));
-				configurator.Publish<Default.Dto.Orders.OnlineOrderInfoDto>(x =>
-				{
-					x.ExchangeType = ExchangeType.Direct;
-					x.Durable = true;
-					x.AutoDelete = false;
-					x.BindQueue(
-						Default.Dto.Orders.OnlineOrderInfoDto.ExchangeName,
-						"online-orders",
-						conf =>
-						{
-							conf.ExchangeType = ExchangeType.Direct;
-							conf.RoutingKey = "False";
-						});
-					x.BindQueue(
-						Default.Dto.Orders.OnlineOrderInfoDto.ExchangeName,
-						"online-orders-fault",
-						conf =>
-						{
-							conf.ExchangeType = ExchangeType.Direct;
-							conf.RoutingKey = "True";
-						});
-				});
-				
-				configurator.Message<CreatingOnlineOrder>(x => x.SetEntityName(CreatingOnlineOrder.ExchangeAndQueueName));
-				configurator.Publish<CreatingOnlineOrder>(x =>
-				{
-					x.ExchangeType = ExchangeType.Fanout;
-					x.Durable = true;
-					x.AutoDelete = false;
-				});
-								
+				AddTopologyV3(configurator);
+				AddTopologyV4(configurator);
+				AddTopologyV5(configurator);
+
 				configurator.ConfigureEndpoints(context);
 			});
 			
 			return busConf;
 		}
 
-		public static UpdateOnlineOrderFromChangeRequest ToUpdateOnlineOrderFromChangeRequest(this ChangingOrderDto source)
+		private static void AddTopologyV3(IRabbitMqBusFactoryConfigurator configurator)
 		{
-			return new UpdateOnlineOrderFromChangeRequest
+			configurator.Send<Default.Dto.Orders.OnlineOrderInfoDto>(
+				x => x.UseRoutingKeyFormatter(y => y.Message.FaultedMessage.ToString()));
+			configurator.Message<Default.Dto.Orders.OnlineOrderInfoDto>(
+				x => x.SetEntityName(Default.Dto.Orders.OnlineOrderInfoDto.ExchangeName));
+			configurator.Publish<Default.Dto.Orders.OnlineOrderInfoDto>(x =>
 			{
-				OnlineOrderId = source.OnlineOrderId,
-				OnlinePayment = source.OnlinePayment,
-				IsFastDelivery = source.IsFastDelivery,
-				Source = source.Source,
-				PaymentStatus = source.PaymentStatus,
-				OnlinePaymentSource = source.OnlinePaymentSource,
-				ErpCounterpartyId = source.ErpCounterpartyId,
-				ExternalCounterpartyId = source.ExternalCounterpartyId,
-				OnlineOrderPaymentType = source.OnlineOrderPaymentType,
-				UnPaidReason = source.UnPaidReason,
-				DeliveryDate = source.DeliveryDate,
-				DeliveryScheduleId = source.DeliveryScheduleId
-			};
+				x.ExchangeType = ExchangeType.Direct;
+				x.Durable = true;
+				x.AutoDelete = false;
+				x.BindQueue(
+					Default.Dto.Orders.OnlineOrderInfoDto.ExchangeName,
+					"online-orders",
+					conf =>
+					{
+						conf.ExchangeType = ExchangeType.Direct;
+						conf.RoutingKey = "False";
+					});
+				x.BindQueue(
+					Default.Dto.Orders.OnlineOrderInfoDto.ExchangeName,
+					"online-orders-fault",
+					conf =>
+					{
+						conf.ExchangeType = ExchangeType.Direct;
+						conf.RoutingKey = "True";
+					});
+			});
+		}
+		
+		private static void AddTopologyV4(IRabbitMqBusFactoryConfigurator configurator)
+		{
+			configurator.Message<CreatingOnlineOrder>(x => x.SetEntityName(CreatingOnlineOrder.ExchangeAndQueueName));
+			configurator.Publish<CreatingOnlineOrder>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+		}
+		
+		private static void AddTopologyV5(IRabbitMqBusFactoryConfigurator configurator)
+		{
+			configurator.Message<V5.Dto.Orders.CreatingOnlineOrder>(
+				x => x.SetEntityName(V5.Dto.Orders.CreatingOnlineOrder.ExchangeAndQueueName));
+			configurator.Publish<V5.Dto.Orders.CreatingOnlineOrder>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
 		}
 	}
 }
