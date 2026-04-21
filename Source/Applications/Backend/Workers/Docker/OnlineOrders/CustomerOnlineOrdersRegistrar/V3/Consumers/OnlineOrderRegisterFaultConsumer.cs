@@ -43,6 +43,10 @@ namespace CustomerOnlineOrdersRegistrar.V3.Consumers
 		{
 		}
 		
+		/// <summary>
+		/// Обработка входящего сообщения с данными по заказу, которое упало при первичной обработке
+		/// </summary>
+		/// <param name="context">Контекст с данными по заказу</param>
 		public async Task Consume(ConsumeContext<OnlineOrderInfoDto> context)
 		{
 			var message = context.Message;

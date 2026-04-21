@@ -14,6 +14,7 @@ using VodovozBusiness.Controllers;
 
 namespace CustomerOnlineOrdersRegistrar.V4.Factories
 {
+	/// <inheritdoc/>
 	public class OnlineOrderFactoryV4 : IOnlineOrderFactoryV4
 	{
 		private readonly IDiscountController _discountController;
@@ -23,6 +24,7 @@ namespace CustomerOnlineOrdersRegistrar.V4.Factories
 			_discountController = discountController ?? throw new ArgumentNullException(nameof(discountController));
 		}
 		
+		/// <inheritdoc/>
 		public OnlineOrder CreateOnlineOrder(
 			IUnitOfWork uow,
 			ICreatingOnlineOrder creatingOnlineOrder,

@@ -3,6 +3,9 @@ using MassTransit;
 
 namespace CustomerOnlineOrdersRegistrar.V4.Consumers
 {
+	/// <summary>
+	/// Описание настроек обработчика онлайн заказов
+	/// </summary>
 	public class CreatingOnlineOrderConsumerDefinitionV4 : ConsumerDefinition<CreatingOnlineOrderConsumerV4>
 	{
 		public CreatingOnlineOrderConsumerDefinitionV4()

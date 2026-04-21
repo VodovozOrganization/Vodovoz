@@ -2,6 +2,9 @@
 
 namespace CustomerOnlineOrdersRegistrar.V3.Consumers
 {
+	/// <summary>
+	/// Описание настроек обработчика онлайн заказов, упавших при первой обработке
+	/// </summary>
 	public class OnlineOrderRegisterFaultConsumerDefinition : ConsumerDefinition<OnlineOrderRegisterFaultConsumer>
 	{
 		public OnlineOrderRegisterFaultConsumerDefinition()

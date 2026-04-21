@@ -16,6 +16,9 @@ using VodovozBusiness.Services.Orders;
 
 namespace CustomerOnlineOrdersRegistrar.V3.Consumers
 {
+	/// <summary>
+	/// Общий обработчик онлайн заказа
+	/// </summary>
 	public abstract class OnlineOrderConsumerV3
 	{
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
@@ -56,6 +59,16 @@ namespace CustomerOnlineOrdersRegistrar.V3.Consumers
 			_onlineOrderValidator = onlineOrderValidator ?? throw new ArgumentNullException(nameof(onlineOrderValidator));
 		}
 		
+		/// <summary>
+		/// Регистрация нового онлайн заказа
+		/// </summary>
+		/// <param name="message">Данные заказа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>
+		/// (Номер онлайн заказа, код результата)
+		/// код результата:
+		/// 200 - успешное создание онлайн заказа
+		/// </returns>
 		protected virtual async Task<(int OnlineOrderId, int Code)> TryRegisterOnlineOrderAsync(
 			CustomerOrdersApi.Library.Default.Dto.Orders.OnlineOrderInfoDto message,
 			CancellationToken cancellationToken)

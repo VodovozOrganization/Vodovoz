@@ -42,6 +42,10 @@ namespace CustomerOnlineOrdersRegistrar.V5.Consumers
 		{
 		}
 		
+		/// <summary>
+		/// Обработка входящего сообщения с данными по заказу
+		/// </summary>
+		/// <param name="context">Контекст с данными по заказу</param>
 		public async Task Consume(ConsumeContext<CreatingOnlineOrder> context)
 		{
 			var message = context.Message;

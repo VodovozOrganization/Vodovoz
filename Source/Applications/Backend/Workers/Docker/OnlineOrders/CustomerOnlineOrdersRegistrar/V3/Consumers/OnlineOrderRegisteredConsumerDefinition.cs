@@ -2,6 +2,9 @@
 
 namespace CustomerOnlineOrdersRegistrar.V3.Consumers
 {
+	/// <summary>
+	/// Описание настроек обработчика онлайн заказов
+	/// </summary>
 	public class OnlineOrderRegisteredConsumerDefinition : ConsumerDefinition<OnlineOrderRegisteredConsumer>
 	{
 		public OnlineOrderRegisteredConsumerDefinition()

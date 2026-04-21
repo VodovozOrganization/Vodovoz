@@ -17,6 +17,9 @@ using VodovozBusiness.Services.Orders;
 
 namespace CustomerOnlineOrdersRegistrar.V3.Consumers
 {
+	/// <summary>
+	/// Конкретный обработчик онлайн заказа
+	/// </summary>
 	public class OnlineOrderRegisteredConsumer : OnlineOrderConsumerV3, IConsumer<OnlineOrderInfoDto>
 	{
 		private readonly IBus _bus;
@@ -48,6 +51,10 @@ namespace CustomerOnlineOrdersRegistrar.V3.Consumers
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 		}
 		
+		/// <summary>
+		/// Обработка входящего сообщения с данными по заказу
+		/// </summary>
+		/// <param name="context">Контекст с данными по заказу</param>
 		public async Task Consume(ConsumeContext<OnlineOrderInfoDto> context)
 		{
 			var message = context.Message;
