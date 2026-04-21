@@ -45,10 +45,13 @@ namespace Edo.Problem.Routine.Worker
 						.AddEdoProblemRoutine()
 						;
 
-					services.AddHostedService<OrderSelfDeliveryPaidProblemWorker>();
+					services
+						.AddHostedService<OrderSelfDeliveryPaidProblemWorker>()
+						.ConfigureZabbixSenderFromDataBase(nameof(OrderSelfDeliveryPaidProblemWorker));
 
 					services
-						.ConfigureZabbixSenderFromDataBase(nameof(OrderSelfDeliveryPaidProblemWorker));
+						.AddHostedService<FiscalDocumentSendErrorProblemWorker>()
+						.ConfigureZabbixSenderFromDataBase(nameof(FiscalDocumentSendErrorProblemWorker));
 				});
 	}
 }

@@ -32,7 +32,8 @@ namespace Edo.Problem.Routine
 			services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
 			services
-				.AddOrderSelfDeliveryPaidProblem();
+				.AddOrderSelfDeliveryPaidProblem()
+				.AddOrderFiscalDocumentSendErrorProblem();
 
 			return services;
 		}
@@ -41,6 +42,14 @@ namespace Edo.Problem.Routine
 		{
 			services.ConfigureOptions<ConfigureOrderSelfDeliveryPaidProblemWorkerOptions>();
 			services.AddScoped<OrderSelfDeliveryPaidProblemService>();
+
+			return services;
+		}
+
+		private static IServiceCollection AddOrderFiscalDocumentSendErrorProblem(this IServiceCollection services)
+		{
+			services.ConfigureOptions<ConfigureFiscalDocumentSendErrorProblemWorkerOptions>();
+			services.AddScoped<FiscalDocumentSendErrorProblemService>();
 
 			return services;
 		}
