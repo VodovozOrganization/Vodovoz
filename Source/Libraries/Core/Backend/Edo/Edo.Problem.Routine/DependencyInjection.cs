@@ -44,5 +44,14 @@ namespace Edo.Problem.Routine
 
 			return services;
 		}
+
+		public static IServiceCollection AddOrderEdoCodePoolMissingProblem(this IServiceCollection services)
+		{
+			services
+				.AddScoped<OrderEdoCodePoolMissingProblemService>()
+				.AddEdoProblemRegistration();;
+
+			return services;
+		}
 	}
 }

@@ -39,6 +39,39 @@ namespace Vodovoz.Views.TrueMark
 
 			ybuttonLoadCodesToPool.BindCommand(ViewModel.LoadCodesToPoolCommand);
 			ybuttonRefresh.BindCommand(ViewModel.RefreshCommand);
+
+			ConfigureEdoProblemsTable();
+		}
+
+		private void ConfigureEdoProblemsTable()
+		{
+			ytreeviewProblemsData.ColumnsConfig = ColumnsConfigFactory.Create<CodesPoolProblemDataNode>()
+				.AddColumn("ЭДО задача").AddTextRenderer(node => node.EdoTaskId.ToString())
+				.AddColumn("Заказ").AddTextRenderer(node => node.OrderId.ToString())
+				.AddColumn("Дата задачи").AddTextRenderer(node => node.EdoTaskStartDate.ToString("dd.MM.yyyy"))
+				.AddColumn("Ошибка").AddTextRenderer(node => node.ErrorName)
+				.Finish();
+			
+			ytreeviewProblemsData.Binding
+				.AddBinding(ViewModel, vm => vm.CodesPoolProblemData, w => w.ItemsDataSource)
+				.AddBinding(ViewModel, vm => vm.SelectedCodesPoolProblemNode, w => w.SelectedRow)
+				.InitializeFromSource();
+			
+			dateperiodProbles.Binding
+				.AddBinding(ViewModel, vm => vm.EdoProblemStartDate, w => w.StartDate)
+				.AddBinding(ViewModel, vm => vm.EdoProblemEndDate, w => w.EndDate)
+				.InitializeFromSource();
+
+			entryEdoTaskId.Binding
+				.AddBinding(ViewModel, vm => vm.EdoTaskIdForSearch, w => w.Text)
+				.InitializeFromSource();
+			
+			ybuttonRefreshProblemsTask.BindCommand(ViewModel.RefreshProblemsCommand);
+			
+			ybuttonResendTask.Binding
+				.AddBinding(ViewModel, vm => vm.IsResendEnable, w => w.Sensitive)
+				.InitializeFromSource();
+			ybuttonResendTask.BindCommand(ViewModel.ResendEdoTaskCommand);
 		}
 	}
 }
