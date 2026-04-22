@@ -530,45 +530,6 @@ def CleanupAbortedBuildResourcesOnNodes() {
 }
 
 def CheckoutMainRepositoryWithoutSubmodules(referenceRepositoryPath) {
-	// // Для GitHub Organization Scanning, CHANGE_ID содержит номер PR
-	// def branchSpec
-	// def refSpec = ''
-	// if (env.CHANGE_ID) {
-	// 	// Всегда проверяем PR в первую очередь
-	// 	// Маппируем на origin/pr/ID/merge локально, а фетчим из refs/pull/ID/*
-	// 	branchSpec = [[name: "origin/pr/${env.CHANGE_ID}/merge"]]
-	// 	refSpec = "+refs/pull/${env.CHANGE_ID}/*:refs/remotes/origin/pr/${env.CHANGE_ID}/*"
-	// 	echo "Detected PR #${env.CHANGE_ID}, using PR merge refs: ${branchSpec}"
-	// } else if (scm.branches && !scm.branches.isEmpty()) {
-	// 	// Используем ветку из scm configuration
-	// 	branchSpec = scm.branches
-	// 	echo "Using scm.branches: ${branchSpec}"
-	// } else {
-	// 	// Fallback на BRANCH_NAME
-	// 	branchSpec = [[name: "${env.BRANCH_NAME ?: '*/main'}"]]
-	// 	echo "Using fallback branch: ${branchSpec}"
-	// }
-	
-	// checkout changelog: false, poll: false, scm: [
-	// 	$class: 'GitSCM',
-	// 	branches: branchSpec,
-	// 	doGenerateSubmoduleConfigurations: false,
-	// 	userRemoteConfigs: [[
-	// 		url: 'https://github.com/VodovozOrganization/Vodovoz.git',
-	// 		refspec: refSpec ?: '+refs/heads/*:refs/remotes/origin/*'
-	// 	]],
-	// 	extensions: [
-	// 		[$class: 'CloneOption',
-	// 			shallow: false,
-	// 			noTags: false,
-	// 			reference: "${referenceRepositoryPath}/Vodovoz.git"
-	// 		],
-	// 		[$class: 'SubmoduleOption',
-	// 			disableSubmodules: true
-	// 		]
-	// 	]
-	// ]
-
 	checkout changelog: false, poll: false, scm:([
 		$class: 'GitSCM',
 		branches: scm.branches,
@@ -684,52 +645,6 @@ def CloneMirror(String url, String cache, int depth = 0) {
 
 
 def CheckoutInContainer(referenceRepositoryPath) {
-	// // Для GitHub Organization Scanning, CHANGE_ID содержит номер PR
-	// def branchSpec
-	// def refSpec = ''
-	// if (env.CHANGE_ID) {
-	// 	// Всегда проверяем PR в первую очередь
-	// 	// Маппируем на origin/pr/ID/merge локально, а фетчим из refs/pull/ID/*
-	// 	branchSpec = [[name: "origin/pr/${env.CHANGE_ID}/merge"]]
-	// 	refSpec = "+refs/pull/${env.CHANGE_ID}/*:refs/remotes/origin/pr/${env.CHANGE_ID}/*"
-	// 	echo "Detected PR #${env.CHANGE_ID}, using PR merge refs: ${branchSpec}"
-	// } else if (scm.branches && !scm.branches.isEmpty()) {
-	// 	// Используем ветку из scm configuration
-	// 	branchSpec = scm.branches
-	// 	echo "Using scm.branches: ${branchSpec}"
-	// } else {
-	// 	// Fallback на BRANCH_NAME
-	// 	branchSpec = [[name: "${env.BRANCH_NAME ?: '*/main'}"]]
-	// 	echo "Using fallback branch: ${branchSpec}"
-	// }
-
-	// checkout changelog: false, poll: false, scm: [
-	// 	$class: 'GitSCM',
-	// 	branches: branchSpec,
-	// 	doGenerateSubmoduleConfigurations: false,
-
-	// 	userRemoteConfigs: [[
-	// 		url: 'https://github.com/VodovozOrganization/Vodovoz.git',
-	// 		refspec: refSpec ?: '+refs/heads/*:refs/remotes/origin/*'
-	// 		// credentialsId: '21dbdc92-7ffd-47e2-a198-303233bb0fe4'
-	// 	]],
-
-	// 	extensions: [
-
-	// 		// reference clone ТОЛЬКО для основного repo
-	// 		[$class: 'CloneOption',
-	// 			shallow: false,
-	// 			noTags: false,
-	// 			reference: "${referenceRepositoryPath}/Vodovoz.git"
-	// 		],
-
-	// 		// отключаем автоинициализацию сабмодулей
-	// 		[$class: 'SubmoduleOption',
-	// 			disableSubmodules: true
-	// 		]
-	// 	]
-	// ]
-
 	checkout changelog: false, poll: false, scm:([
 		$class: 'GitSCM',
 		branches: scm.branches,
