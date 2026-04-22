@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\TrueMark\TrueMark.Codes.Pool\TrueMark.Codes.Pool.csproj" />
+    <ProjectReference Include="..\Edo.Admin\Edo.Admin.csproj" />
     <ProjectReference Include="..\Edo.Common\Edo.Common.csproj" />
     <ProjectReference Include="..\Edo.Problems\Edo.Problems.csproj" />
     <ProjectReference Include="..\Edo.Tender\Edo.Tender.csproj" />

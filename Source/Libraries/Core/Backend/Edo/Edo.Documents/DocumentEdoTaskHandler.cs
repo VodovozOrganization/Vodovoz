@@ -12,6 +12,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Edo.Admin;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
@@ -28,6 +29,7 @@ namespace Edo.Documents
 		private readonly EdoTaskValidator _edoTaskValidator;
 		private readonly EdoTaskItemTrueMarkStatusProviderFactory _edoTaskTrueMarkCodeCheckerFactory;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
+		private readonly EdoCancellationService _edoCancellationService;
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly IBus _messageBus;
 
@@ -39,6 +41,7 @@ namespace Edo.Documents
 			EdoTaskValidator edoTaskValidator,
 			EdoTaskItemTrueMarkStatusProviderFactory edoTaskTrueMarkCodeCheckerFactory,
 			EdoProblemRegistrar edoProblemRegistrar,
+			EdoCancellationService edoCancellationService,
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			IBus messageBus
 			)
@@ -50,6 +53,7 @@ namespace Edo.Documents
 			_edoTaskValidator = edoTaskValidator ?? throw new ArgumentNullException(nameof(edoTaskValidator));
 			_edoTaskTrueMarkCodeCheckerFactory = edoTaskTrueMarkCodeCheckerFactory ?? throw new ArgumentNullException(nameof(edoTaskTrueMarkCodeCheckerFactory));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
+			_edoCancellationService = edoCancellationService ?? throw new ArgumentNullException(nameof(edoCancellationService));
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
@@ -123,6 +127,14 @@ namespace Edo.Documents
 
 			try
 			{
+				if(_edoCancellationService.IsEdoTaskMustBeCancelled(edoTask))
+				{
+					var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
+				
+					await _edoCancellationService.CancelTask(documentEdoTaskId, reason, false, cancellationToken);
+					return;
+				}
+				
 				var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
 				var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);
 				if(!isValid)
@@ -364,6 +376,14 @@ namespace Edo.Documents
 		{
 			var edoTask = await _uow.Session.GetAsync<DocumentEdoTask>(documentEdoTaskId, cancellationToken);
 
+			if(_edoCancellationService.IsEdoTaskMustBeCancelled(edoTask))
+			{
+				var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
+				
+				await _edoCancellationService.CancelTask(documentEdoTaskId, reason, false, cancellationToken);
+				return;
+			}
+			
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
 			var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);
 			if(!isValid)
@@ -406,6 +426,14 @@ namespace Edo.Documents
 				return;
 			}
 
+			if(_edoCancellationService.IsEdoTaskMustBeCancelled(edoTask))
+			{
+				var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
+				
+				await _edoCancellationService.CancelTask(document.DocumentTaskId, reason, false, cancellationToken);
+				return;
+			}
+			
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
 			var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);
 			if(!isValid)

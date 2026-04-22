@@ -92,7 +92,7 @@ namespace EdoService.Library
 
 				var document = documents.First();
 
-				if(!(document.Type == OutgoingEdoDocumentType.Order))
+				if(document.Type != OutgoingEdoDocumentType.Order)
 				{
 					return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.CreateInvalidOutgoingDocumentType(order.Id, document.Type));
 				}
@@ -403,6 +403,16 @@ namespace EdoService.Library
 				return ValidateOrderForDocumentTypeResult;
 			}
 
+			return Result.Success();
+		}
+
+		public Result SendDocumentTaskCreatedEvent(EdoTask edoTask)
+		{
+			_messageService.PublishSendDocumentTaskCreatedEvent(edoTask.Id)
+				.ConfigureAwait(false)
+				.GetAwaiter()
+				.GetResult();
+			
 			return Result.Success();
 		}
 
