@@ -145,6 +145,7 @@ namespace Edo.Receipt.Sender
 				}
 
 				var hasFailure = edoTask.FiscalDocuments.Any(x => x.Status == Vodovoz.Core.Domain.Edo.FiscalDocumentStatus.Failed);
+				var hasSendErrors = edoTask.FiscalDocuments.Any(x => x.Status == Vodovoz.Core.Domain.Edo.FiscalDocumentStatus.SendError);
 				if(hasFailure)
 				{
 					_logger.LogWarning("Не удалось отправить некоторые чеки по задаче №{edoTaskId}.", edoTask.Id);
@@ -152,6 +153,20 @@ namespace Edo.Receipt.Sender
 						edoTask,
 						cancellationToken
 					);
+					return;
+				}
+				else if(hasSendErrors)
+				{
+					_logger.LogWarning("При отправке чеков в Модуль Кассу по задаче №{edoTaskId} возникли ошибки", edoTask.Id);
+
+					await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
+					await _uow.CommitAsync(cancellationToken);
+
+					await _edoProblemRegistrar.RegisterCustomProblem<NotAllReceiptsWasSended>(
+						edoTask,
+						cancellationToken
+					);
+
 					return;
 				}
 				else
