@@ -6,7 +6,8 @@
 NODE_DOCKER_BUILD = "DOCKER_BUILD"
 PUBLISH_PROFILE = "registry-prod"
 PUBLISH_PROFILE_FILE = "${PUBLISH_PROFILE}.pubxml"
-CHECKOUT_CONTAINER_IMAGE = "docker.vod.qsolution.ru:5100/dotnet5-docker"
+SDK_CONTAINER_IMAGE = "docker.vod.qsolution.ru:5100/dotnet-sdk-docker"
+RUNTIME_CONTAINER_IMAGE = "docker.vod.qsolution.ru:5100/dotnet-runtime-docker"
 DOCKER_REGISTRY_CREDENTIALS_ID = "docker-registry-credentials"
 REFERENCE_REPOSITORY_MOUNT_PATH = "/reference-repository"
 CONTAINERS_PER_NODE = 2
@@ -167,7 +168,7 @@ try {
 											-v ${referenceRepositoryPath}:${REFERENCE_REPOSITORY_MOUNT_PATH}:ro \
 											-v ${workspaceDir}:/work \
 											-w /work \
-											${CHECKOUT_CONTAINER_IMAGE} \
+											${SDK_CONTAINER_IMAGE} \
 											tail -f /dev/null
 										""".stripIndent(),
 										returnStdout: true
@@ -223,7 +224,7 @@ try {
 
 											sh """
 												docker exec ${cid} sh -c 'cat > "${publishDir}/Dockerfile" <<EOF
-FROM mcr.microsoft.com/dotnet/runtime:5.0
+FROM ${RUNTIME_CONTAINER_IMAGE}
 WORKDIR /app
 COPY . .
 ENTRYPOINT ["dotnet","${projectDll}"]
@@ -529,24 +530,15 @@ def CleanupAbortedBuildResourcesOnNodes() {
 }
 
 def CheckoutMainRepositoryWithoutSubmodules(referenceRepositoryPath) {
-	checkout changelog: false, poll: false, scm: [
+	checkout changelog: false, poll: false, scm:([
 		$class: 'GitSCM',
-		branches:  scm.branches,
-		doGenerateSubmoduleConfigurations: false,
-		userRemoteConfigs: [[
-			url: 'https://github.com/VodovozOrganization/Vodovoz.git'
-		]],
-		extensions: [
-			[$class: 'CloneOption',
-				shallow: false,
-				noTags: false,
-				reference: "${referenceRepositoryPath}/Vodovoz.git"
-			],
-			[$class: 'SubmoduleOption',
-				disableSubmodules: true
-			]
-		]
-	]
+		branches: scm.branches,
+		extensions: scm.extensions
+		+ [[$class: 'CloneOption', reference: "${referenceRepositoryPath}/Vodovoz.git"]]
+		+ [[$class: 'SubmoduleOption', disableSubmodules: true]]
+		+ [[$class: 'CleanBeforeCheckout']], 
+		userRemoteConfigs: scm.userRemoteConfigs
+	])
 }
 
 def DeterminePublishingProjectDirs(String profileName) {
@@ -653,32 +645,15 @@ def CloneMirror(String url, String cache, int depth = 0) {
 
 
 def CheckoutInContainer(referenceRepositoryPath) {
-
-	checkout changelog: false, poll: false, scm: [
+	checkout changelog: false, poll: false, scm:([
 		$class: 'GitSCM',
 		branches: scm.branches,
-		doGenerateSubmoduleConfigurations: false,
-
-		userRemoteConfigs: [[
-			url: 'https://github.com/VodovozOrganization/Vodovoz.git'
-			// credentialsId: '21dbdc92-7ffd-47e2-a198-303233bb0fe4'
-		]],
-
-		extensions: [
-
-			// reference clone ТОЛЬКО для основного repo
-			[$class: 'CloneOption',
-				shallow: false,
-				noTags: false,
-				reference: "${referenceRepositoryPath}/Vodovoz.git"
-			],
-
-			// отключаем автоинициализацию сабмодулей
-			[$class: 'SubmoduleOption',
-				disableSubmodules: true
-			]
-		]
-	]
+		extensions: scm.extensions
+		+ [[$class: 'CloneOption', reference: "${referenceRepositoryPath}/Vodovoz.git"]]
+		+ [[$class: 'SubmoduleOption', disableSubmodules: true]]
+		+ [[$class: 'CleanBeforeCheckout']], 
+		userRemoteConfigs: scm.userRemoteConfigs
+	])
 
 	echo "=== Checkout submodules from reference repository ==="
 	echo "referenceRepositoryPath(host): ${referenceRepositoryPath}"
