@@ -69,6 +69,31 @@ namespace Edo.Admin
 			await _uow.CommitAsync(cancellationToken);
 		}
 
+		/// <summary>
+		/// Проверяет, что задача ЭДО должна быть отменена
+		/// </summary>
+		/// <param name="edoTask">Задача ЭДО</param>
+		/// <returns>Результат проверки</returns>
+		public bool IsEdoTaskMustBeCancelled(EdoTask edoTask)
+		{
+			if(!(edoTask is OrderEdoTask orderEdoTask))
+			{
+				return true;
+			}
+
+			return IsOrderPriceInvalid(orderEdoTask);
+		}
+
+		private bool IsOrderPriceInvalid(OrderEdoTask orderEdoTask)
+		{
+			var edoRequest = orderEdoTask.FormalEdoRequest;
+
+			var isOrderPriceInvalid =
+				edoRequest.Order.OrderItems.Any(x => x.ActualSum < 0) || edoRequest.Order.OrderSum <= 0;
+
+			return isOrderPriceInvalid;
+		}
+
 		private async Task CancelOrderTask(OrderEdoTask edoTask,
 			string reason,
 			bool needPublish,
