@@ -3,7 +3,6 @@ using Edo.Problem.Routine.Options;
 using Edo.Problem.Routine.Services;
 using Edo.Problems;
 using Edo.Transport;
-using MessageTransport;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Project.Core;
 using Vodovoz.Core.Data.NHibernate;
@@ -19,14 +18,12 @@ namespace Edo.Problem.Routine
 		/// </summary>
 		/// <param name="services">Коллекция сервисов</param>
 		/// <returns>Коллекция сервисов</returns>
-		public static IServiceCollection AddEdoProblemRoutine(this IServiceCollection services)
+		public static IServiceCollection AddEdoProblemRoutineServices(this IServiceCollection services)
 		{
 			services
 				.AddCoreDataRepositories()
 				.AddCore()
 				.AddEdo()
-				.AddMessageTransportSettings()
-				.AddEdoMassTransit()
 				.AddEdoProblemRegistration();
 
 			services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
@@ -34,6 +31,19 @@ namespace Edo.Problem.Routine
 			services
 				.AddOrderSelfDeliveryPaidProblem()
 				.AddOrderFiscalDocumentSendErrorProblem();
+
+			return services;
+		}
+
+		/// <summary>
+		/// Добавить сервисы обработки проблем в ЭДО в коллекцию сервисов
+		/// </summary>
+		/// <param name="services">Коллекция сервисов</param>
+		/// <returns>Коллекция сервисов</returns>
+		public static IServiceCollection AddEdoProblemRoutine(this IServiceCollection services)
+		{
+			services.AddEdoProblemRoutineServices();
+			services.AddEdoMassTransit();
 
 			return services;
 		}
