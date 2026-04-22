@@ -1,4 +1,4 @@
-using Edo.Common;
+﻿using Edo.Common;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
 using Edo.Problems.Custom.Sources;
@@ -136,7 +136,7 @@ namespace Edo.Receipt.Dispatcher
 				return;
 			}
 			
-			if(CheckOrderItemsAsync(receiptEdoTask))
+			if(!CheckOrderItemsAsync(receiptEdoTask))
 			{
 				var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
 				
@@ -250,7 +250,7 @@ namespace Edo.Receipt.Dispatcher
 				return;
 			}
 
-			if(CheckOrderItemsAsync(receiptEdoTask))
+			if(!CheckOrderItemsAsync(receiptEdoTask))
 			{
 				var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
 				

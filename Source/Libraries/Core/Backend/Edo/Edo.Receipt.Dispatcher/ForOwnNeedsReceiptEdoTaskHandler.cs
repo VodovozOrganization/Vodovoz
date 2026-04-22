@@ -149,7 +149,7 @@ namespace Edo.Receipt.Dispatcher
 
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(receiptEdoTask);
 
-			if(CheckOrderItemsAsync(receiptEdoTask))
+			if(!CheckOrderItemsAsync(receiptEdoTask))
 			{
 				var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
 				

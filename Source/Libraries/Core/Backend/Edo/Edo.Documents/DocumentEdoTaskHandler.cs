@@ -127,7 +127,7 @@ namespace Edo.Documents
 
 			try
 			{
-				if(CheckOrderItemsAsync(edoTask))
+				if(!CheckOrderItemsAsync(edoTask))
 				{
 					var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
 				
@@ -388,7 +388,7 @@ namespace Edo.Documents
 		{
 			var edoTask = await _uow.Session.GetAsync<DocumentEdoTask>(documentEdoTaskId, cancellationToken);
 
-			if(CheckOrderItemsAsync(edoTask))
+			if(!CheckOrderItemsAsync(edoTask))
 			{
 				var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
 				
@@ -438,7 +438,7 @@ namespace Edo.Documents
 				return;
 			}
 
-			if(CheckOrderItemsAsync(edoTask))
+			if(!CheckOrderItemsAsync(edoTask))
 			{
 				var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
 				

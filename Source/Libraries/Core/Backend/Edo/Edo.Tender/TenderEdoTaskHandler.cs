@@ -137,7 +137,7 @@ namespace Edo.Tender
 
 			try
 			{
-				if(CheckOrderItemsAsync(edoTask))
+				if(!CheckOrderItemsAsync(edoTask))
 				{
 					var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
 				
