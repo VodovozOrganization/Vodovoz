@@ -6,7 +6,8 @@
 NODE_DOCKER_BUILD = "DOCKER_BUILD"
 PUBLISH_PROFILE = "registry-dev"
 PUBLISH_PROFILE_FILE = "${PUBLISH_PROFILE}.pubxml"
-CHECKOUT_CONTAINER_IMAGE = "docker.vod.qsolution.ru:5100/dotnet5-docker"
+SDK_CONTAINER_IMAGE = "docker.vod.qsolution.ru:5100/dotnet-sdk-docker"
+RUNTIME_CONTAINER_IMAGE = "docker.vod.qsolution.ru:5100/dotnet-runtime-docker"
 DOCKER_REGISTRY_CREDENTIALS_ID = "docker-registry-credentials"
 REFERENCE_REPOSITORY_MOUNT_PATH = "/reference-repository"
 CONTAINERS_PER_NODE = 2
@@ -167,7 +168,7 @@ try {
 											-v ${referenceRepositoryPath}:${REFERENCE_REPOSITORY_MOUNT_PATH}:ro \
 											-v ${workspaceDir}:/work \
 											-w /work \
-											${CHECKOUT_CONTAINER_IMAGE} \
+											${SDK_CONTAINER_IMAGE} \
 											tail -f /dev/null
 										""".stripIndent(),
 										returnStdout: true
@@ -223,7 +224,7 @@ try {
 
 											sh """
 												docker exec ${cid} sh -c 'cat > "${publishDir}/Dockerfile" <<EOF
-FROM ${CHECKOUT_CONTAINER_IMAGE}
+FROM ${RUNTIME_CONTAINER_IMAGE}
 WORKDIR /app
 COPY . .
 ENTRYPOINT ["dotnet","${projectDll}"]
