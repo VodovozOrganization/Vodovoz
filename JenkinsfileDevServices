@@ -223,7 +223,7 @@ try {
 
 											sh """
 												docker exec ${cid} sh -c 'cat > "${publishDir}/Dockerfile" <<EOF
-FROM mcr.microsoft.com/dotnet/runtime:5.0
+FROM ${CHECKOUT_CONTAINER_IMAGE}
 WORKDIR /app
 COPY . .
 ENTRYPOINT ["dotnet","${projectDll}"]
