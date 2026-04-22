@@ -89,7 +89,7 @@ namespace Edo.Admin
 			var edoRequest = orderEdoTask.FormalEdoRequest;
 
 			var isOrderPriceInvalid =
-				edoRequest.Order.OrderItems.Any(x => x.ActualSum < 0 || edoRequest.Order.OrderSum <= 0);
+				edoRequest.Order.OrderItems.Any(x => x.ActualSum < 0) || edoRequest.Order.OrderSum <= 0;
 
 			return isOrderPriceInvalid;
 		}
