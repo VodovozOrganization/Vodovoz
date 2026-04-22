@@ -530,16 +530,19 @@ def CleanupAbortedBuildResourcesOnNodes() {
 
 def CheckoutMainRepositoryWithoutSubmodules(referenceRepositoryPath) {
 	// Для GitHub Organization Scanning, CHANGE_ID содержит номер PR
-	def branchSpec = scm.branches
-	if (!branchSpec || branchSpec.isEmpty()) {
-		if (env.CHANGE_ID) {
-			// PR: используем refs/pull/ID/merge для слияния с целевой веткой
-			branchSpec = [[name: "+refs/pull/${env.CHANGE_ID}/merge"]]
-		} else {
-			// Обычная ветка
-			branchSpec = [[name: "${env.BRANCH_NAME ?: '*/main'}"]]
-		}
-		echo "Branch spec was empty, using: ${branchSpec}"
+	def branchSpec
+	if (env.CHANGE_ID) {
+		// Всегда проверяем PR в первую очередь
+		branchSpec = [[name: "+refs/pull/${env.CHANGE_ID}/merge"]]
+		echo "Detected PR #${env.CHANGE_ID}, using PR merge refs: ${branchSpec}"
+	} else if (scm.branches && !scm.branches.isEmpty()) {
+		// Используем ветку из scm configuration
+		branchSpec = scm.branches
+		echo "Using scm.branches: ${branchSpec}"
+	} else {
+		// Fallback на BRANCH_NAME
+		branchSpec = [[name: "${env.BRANCH_NAME ?: '*/main'}"]]
+		echo "Using fallback branch: ${branchSpec}"
 	}
 	
 	checkout changelog: false, poll: false, scm: [
@@ -667,16 +670,19 @@ def CloneMirror(String url, String cache, int depth = 0) {
 
 def CheckoutInContainer(referenceRepositoryPath) {
 	// Для GitHub Organization Scanning, CHANGE_ID содержит номер PR
-	def branchSpec = scm.branches
-	if (!branchSpec || branchSpec.isEmpty()) {
-		if (env.CHANGE_ID) {
-			// PR: используем refs/pull/ID/merge для слияния с целевой веткой
-			branchSpec = [[name: "+refs/pull/${env.CHANGE_ID}/merge"]]
-		} else {
-			// Обычная ветка
-			branchSpec = [[name: "${env.BRANCH_NAME ?: '*/main'}"]]
-		}
-		echo "Branch spec was empty, using: ${branchSpec}"
+	def branchSpec
+	if (env.CHANGE_ID) {
+		// Всегда проверяем PR в первую очередь
+		branchSpec = [[name: "+refs/pull/${env.CHANGE_ID}/merge"]]
+		echo "Detected PR #${env.CHANGE_ID}, using PR merge refs: ${branchSpec}"
+	} else if (scm.branches && !scm.branches.isEmpty()) {
+		// Используем ветку из scm configuration
+		branchSpec = scm.branches
+		echo "Using scm.branches: ${branchSpec}"
+	} else {
+		// Fallback на BRANCH_NAME
+		branchSpec = [[name: "${env.BRANCH_NAME ?: '*/main'}"]]
+		echo "Using fallback branch: ${branchSpec}"
 	}
 
 	checkout changelog: false, poll: false, scm: [
