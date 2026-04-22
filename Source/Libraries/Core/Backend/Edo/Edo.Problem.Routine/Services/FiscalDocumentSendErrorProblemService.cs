@@ -1,4 +1,4 @@
-﻿using Edo.Contracts.Messages.Events;
+using Edo.Contracts.Messages.Events;
 using Edo.Problem.Routine.Options;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -66,7 +66,7 @@ namespace Edo.Problem.Routine.Services
 
 				successCount =
 					success
-					? successCount++
+					? ++successCount
 					: successCount;
 			}
 
