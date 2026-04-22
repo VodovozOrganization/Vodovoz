@@ -58,12 +58,12 @@ namespace Vodovoz.Core.Data.Repositories.Document
 		Task<string> GetDocumentNumberByOrderId(IUnitOfWork unitOfWork, int orderId, CancellationToken cancellationToken);
 
 		/// <summary>
-		/// Получить словарь
+		/// Получить словарь идентификаторов заказа и номеров документа
 		/// </summary>
 		/// <param name="unitOfWork">IUnitOfWork</param>
 		/// <param name="orderIds">Идентификаторы заказов</param>
 		/// <param name="cancellationToken">Токен отмены</param>
-		/// <returns>Словарь: ключ - идентификатор заказа, значение - домер документа (при наличии)</returns>
+		/// <returns>Словарь: ключ - идентификатор заказа, значение - номер документа (при наличии)</returns>
 		Task<Dictionary<int, string>> GetDocumentNumbersByOrderIds(IUnitOfWork unitOfWork, IEnumerable<int> orderIds, CancellationToken cancellationToken);
 	}
 }
