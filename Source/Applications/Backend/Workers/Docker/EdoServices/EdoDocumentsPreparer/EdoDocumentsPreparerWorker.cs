@@ -446,12 +446,24 @@ namespace EdoDocumentsPreparer
 			{
 				try
 				{
+					var billActions = uow
+						.GetAll<OrderEdoTrueMarkDocumentsActions>()
+						.Where(x => x.Order.Id == order.Id && x.IsNeedToResendEdoBill)
+						.ToArray();
+
+					foreach(var action in billActions)
+					{
+						action.IsNeedToResendEdoBill = false;
+						await uow.SaveAsync(action);
+					}
+
 					if(order.OrderDocuments
 						   .FirstOrDefault(x =>
 							   _orderDocumentTypesForSendBill.Contains(x.Type)
 							   && x.Order.Id == order.Id) is not IPrintableRDLDocument printableRdlDocument)
 					{
 						_logger.LogWarning("У заказа {OrderId} не найден документ для отправки счета", order.Id);
+						await uow.CommitAsync();
 						continue;
 					}
 
@@ -472,17 +484,6 @@ namespace EdoDocumentsPreparer
 						.OrderBill(order)
 						.MainDocumentId(infoForCreatingEdoBill.MainDocumentId.ToString())
 						.Build();
-
-					var actions = uow
-						.GetAll<OrderEdoTrueMarkDocumentsActions>()
-						.Where(x => x.Order.Id == edoContainer.Order.Id && x.IsNeedToResendEdoBill)
-						.ToArray();
-
-					foreach(var action in actions)
-					{
-						action.IsNeedToResendEdoBill = false;
-						await uow.SaveAsync(action);
-					}
 
 					_logger.LogInformation("Сохраняем контейнер по заказу №{OrderId} для отправки счета", order.Id);
 					await uow.SaveAsync(edoContainer);

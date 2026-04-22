@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
@@ -75,9 +76,12 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 
 			foreach(var order in _orders)
 			{
+				var updNumber = order.OrderDocumentStringNumber(DocumentContainerType.Upd);
+				
 				OrdersToPrint.Add(new OrdersToPrintNode
 				{
-					Id = order.Id,
+					OrderId = order.Id,
+					UpdNumber = updNumber,
 					DeliveryDate = order.DeliveryDate,
 					Selected = true
 				});
@@ -241,7 +245,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 
 			var ordersToPrintIds = OrdersToPrint
 				.Where(x => x.Selected)
-				.Select(x => x.Id)
+				.Select(x => x.OrderId)
 				.ToList();
 
 			int ordersToPrintCount = ordersToPrintIds.Count;
@@ -343,7 +347,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 
 			var ordersToPrintIds = OrdersToPrint
 				.Where(x => x.Selected)
-				.Select(x => x.Id)
+				.Select(x => x.OrderId)
 				.ToList();
 
 			int ordersToPrintCount = ordersToPrintIds.Count;
@@ -569,7 +573,7 @@ namespace Vodovoz.ViewModels.Dialogs.Orders
 
 		private int GetPrintingDocsCount()
 		{
-			var ordersIds = OrdersToPrint.Where(x => x.Selected).Select(x => x.Id).ToList();
+			var ordersIds = OrdersToPrint.Where(x => x.Selected).Select(x => x.OrderId).ToList();
 
 			var docsIds =
 				UoW.Session.Query<BillDocument>()
