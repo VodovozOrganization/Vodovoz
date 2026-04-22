@@ -1,4 +1,5 @@
-﻿Microsoft Visual Studio Solution File, Format Version 12.00
+
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34009.444
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -2972,7 +2973,9 @@ Global
 		{293D7B89-C070-422E-89B5-88650DBB48B0}.Docker|Any CPU.ActiveCfg = Debug|Any CPU
 		{293D7B89-C070-422E-89B5-88650DBB48B0}.Docker|x86.ActiveCfg = Debug|Any CPU
 		{293D7B89-C070-422E-89B5-88650DBB48B0}.LinuxDesktop|Any CPU.ActiveCfg = Debug|Any CPU
+		{293D7B89-C070-422E-89B5-88650DBB48B0}.LinuxDesktop|Any CPU.Build.0 = Debug|Any CPU
 		{293D7B89-C070-422E-89B5-88650DBB48B0}.LinuxDesktop|x86.ActiveCfg = Debug|Any CPU
+		{293D7B89-C070-422E-89B5-88650DBB48B0}.LinuxDesktop|x86.Build.0 = Debug|Any CPU
 		{293D7B89-C070-422E-89B5-88650DBB48B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{293D7B89-C070-422E-89B5-88650DBB48B0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{293D7B89-C070-422E-89B5-88650DBB48B0}.Release|x86.ActiveCfg = Release|Any CPU

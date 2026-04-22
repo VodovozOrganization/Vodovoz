@@ -1457,7 +1457,7 @@ namespace Vodovoz.Domain.Orders
 			var document = OrderDocuments
 				.FirstOrDefault(x => documentTypes.Contains(x.Type) && x.Order.Id == Id);
 
-			return document.DocumentOrganizationCounter?.DocumentNumber ?? Id.ToString();
+			return document?.DocumentOrganizationCounter?.DocumentNumber ?? Id.ToString();
 		}
 
 		#endregion
