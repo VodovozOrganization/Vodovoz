@@ -127,7 +127,7 @@ namespace Edo.Documents
 
 			try
 			{
-				if(!CheckOrderItemsAsync(edoTask))
+				if(_edoCancellationService.IsEdoTaskMustBeCancelled(edoTask))
 				{
 					var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
 				
@@ -234,18 +234,6 @@ namespace Edo.Documents
 				default:
 					throw new EdoException($"Неизвестный тип документа {edoTask.DocumentType}.");
 			}
-		}
-		
-		private bool CheckOrderItemsAsync(EdoTask edoTask)
-		{
-			if(!(edoTask is OrderEdoTask orderEdoTask))
-			{
-				return true;
-			}
-			
-			var edoRequest = orderEdoTask.FormalEdoRequest;
-
-			return edoRequest.Order.OrderItems.All(x => x.Price > 0) && edoRequest.Order.OrderSum > 0;
 		}
 
 		private async Task<OrderEdoDocument> SendDocument(DocumentEdoTask edoTask, CancellationToken cancellationToken)
@@ -388,7 +376,7 @@ namespace Edo.Documents
 		{
 			var edoTask = await _uow.Session.GetAsync<DocumentEdoTask>(documentEdoTaskId, cancellationToken);
 
-			if(!CheckOrderItemsAsync(edoTask))
+			if(_edoCancellationService.IsEdoTaskMustBeCancelled(edoTask))
 			{
 				var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
 				
@@ -438,7 +426,7 @@ namespace Edo.Documents
 				return;
 			}
 
-			if(!CheckOrderItemsAsync(edoTask))
+			if(_edoCancellationService.IsEdoTaskMustBeCancelled(edoTask))
 			{
 				var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
 				
