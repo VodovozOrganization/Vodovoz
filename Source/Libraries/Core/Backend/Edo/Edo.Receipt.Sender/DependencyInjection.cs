@@ -1,4 +1,5 @@
-﻿using Edo.Common;
+﻿using Edo.Admin;
+using Edo.Common;
 using Edo.Problems;
 using Edo.Transport;
 using MassTransit;
@@ -23,6 +24,7 @@ namespace Edo.Receipt.Sender
 
 			services.AddEdo();
 			services.AddEdoProblemRegistration();
+			services.AddEdoAdminServices();
 
 			return services;
 		}
