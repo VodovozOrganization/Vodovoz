@@ -16,13 +16,13 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 
 			Map(x => x.OrderId)
 				.Column("order_id")
-				.Not.Nullable()
-				.ReadOnly();
+				.Not.Nullable();
 
 			References(x => x.Order)
 				.Column("order_id")
 				.NotFound.Ignore()
-				.LazyLoad();
+				.LazyLoad()
+				.ReadOnly();
 		}
 	}
 }

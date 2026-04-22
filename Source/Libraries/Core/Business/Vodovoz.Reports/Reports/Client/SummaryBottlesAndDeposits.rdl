@@ -686,102 +686,131 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="StoredEquipments">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-	GROUP_CONCAT(IF(client_amount_pickedup &gt; 0, CONCAT(name, ': ', ROUND(client_amount_pickedup, 0), 'шт'), NULL) SEPARATOR ', ') as we_have_clients_equip,
+        <CommandText>SELECT
+    GROUP_CONCAT(IF(client_amount_pickedup &gt; 0, CONCAT(name, ': ', ROUND(client_amount_pickedup, 0), 'шт'), NULL) SEPARATOR ', ') as we_have_clients_equip,
     GROUP_CONCAT(IF(duty_and_rent_amount_delivered &gt; 0, CONCAT(name, ': ', ROUND(duty_and_rent_amount_delivered, 0), 'шт'), NULL) SEPARATOR ', ') as client_have_ours_equip
-FROM 
-(
-		SELECT
-			id,
-			name,
-			SUM(client_amount_pickedup) as client_amount_pickedup,
-			SUM(duty_and_rent_amount_delivered) as duty_and_rent_amount_delivered
-		FROM            
-		(
-			SELECT
-				nomenclature.id,
-				nomenclature.name,
-				clientEquipPickedUp.client_amount_pickedup as client_amount_pickedup,
-				OurDutyRentEquipDelivered.duty_amount_delivered as duty_and_rent_amount_delivered
-			FROM
-				orders
-				LEFT JOIN
-				order_equipment ON orders.id = order_equipment.order_id		
-			#Оборудование в собственности клиента
-				LEFT JOIN
-				(
-					SELECT
-						equip_id,
-						ROUND(client_amount_pickedup - client_amount_delivered) as client_amount_pickedup
-					FROM
-						(
-							
-							SELECT
-								equip_id,
-								SUM(client_amount_pickedup) as client_amount_pickedup,
-								SUM(client_amount_delivered) as client_amount_delivered
-							FROM
-							(
-								SELECT
-									inner_order_equipments.id as equip_id,
-									IF(inner_order_equipments.direction = 'PickUp', counterparty_movement_operations.amount, 0) as client_amount_pickedup,
-									IF(inner_order_equipments.direction = 'Deliver', counterparty_movement_operations.amount, 0) as client_amount_delivered
-								FROM
-									counterparty_movement_operations
-									LEFT JOIN
-									order_equipment as inner_order_equipments ON inner_order_equipments.counterparty_movement_operation_id = counterparty_movement_operations.id
-								WHERE
-									inner_order_equipments.own_type = 'Client'
-							) as a
-							GROUP BY equip_id
-						) as t                
-				) as clientEquipPickedUp ON clientEquipPickedUp.equip_id = order_equipment.id
-			#Дежурное оборудование и в аренду - с учётом забора и доставки
-				LEFT JOIN
-				(
-					SELECT
-						equip_id,
-						ROUND(client_amount_delivered - client_amount_pickedup) as duty_amount_delivered
-					FROM
-						(SELECT
-							inner_order_equipments.id as equip_id,
-							IF(inner_order_equipments.direction = 'PickUp', counterparty_movement_operations.amount, 0) as client_amount_pickedup,
-							IF(inner_order_equipments.direction = 'Deliver', counterparty_movement_operations.amount, 0) as client_amount_delivered
-						FROM
-							counterparty_movement_operations
-							LEFT JOIN
-							order_equipment as inner_order_equipments ON inner_order_equipments.counterparty_movement_operation_id = counterparty_movement_operations.id
-						WHERE
-							inner_order_equipments.own_type = 'Duty' OR inner_order_equipments.own_type = 'Rent') as t
-				) as OurDutyRentEquipDelivered ON OurDutyRentEquipDelivered.equip_id = order_equipment.id
-				LEFT JOIN 
-					nomenclature ON nomenclature.id = order_equipment.nomenclature_id			
-			WHERE
-					orders.client_id = @client_id AND (@delivery_point_id = -1 OR orders.delivery_point_id = @delivery_point_id)
-				and	order_equipment.nomenclature_id IS NOT NULL
-			UNION ALL        
-			SELECT
-				nomenclature.id as id,
-                nomenclature.name as name,
-				IF(doc_residue_equipment_deposit_items.direction = 'FromClient', counterparty_movement_operations.amount, 0) as client_amount_pickedup,
-				IF(doc_residue_equipment_deposit_items.direction = 'ToClient', counterparty_movement_operations.amount, 0) as duty_and_rent_amount_delivered
-			FROM
-				counterparty_movement_operations
-			LEFT JOIN
-				doc_residue_equipment_deposit_items ON doc_residue_equipment_deposit_items.counterparty_movement_operation_id = counterparty_movement_operations.id
-			LEFT JOIN
-				doc_residue ON doc_residue.id = doc_residue_equipment_deposit_items.residue_id
-            LEFT JOIN
-                nomenclature ON nomenclature.id = doc_residue_equipment_deposit_items.nomenclature_id
-			WHERE doc_residue.client_id = @client_id AND (@delivery_point_id = -1 OR doc_residue.delivery_point_id = @delivery_point_id)
-		) as all_items        
-	GROUP BY id
-) as main
-WHERE 
-		client_amount_pickedup &gt; 0 
-    or 	duty_and_rent_amount_delivered &gt; 0</CommandText>
+FROM
+    (
+        SELECT
+            id,
+            name,
+            SUM(client_amount_pickedup) as client_amount_pickedup,
+            SUM(duty_and_rent_amount_delivered) as duty_and_rent_amount_delivered
+        FROM
+            (
+                SELECT
+                    nomenclature.id,
+                    nomenclature.name,
+                    clientEquipPickedUp.client_amount_pickedup as client_amount_pickedup,
+                    OurDutyRentEquipDelivered.duty_amount_delivered as duty_and_rent_amount_delivered
+                FROM
+                    orders
+                        LEFT JOIN
+                    order_equipment ON orders.id = order_equipment.order_id
+                        #Оборудование в собственности клиента
+                        LEFT JOIN
+                    (
+                        SELECT
+                            equip_id,
+                            ROUND(sum(client_amount_pickedup) - sum(client_amount_delivered)) as client_amount_pickedup
+                        FROM
+                            (
+                                SELECT
+                                    inner_oe.id as equip_id,
+                                    IF(inner_oe.direction = 'PickUp', cmo.amount, 0) as client_amount_pickedup,
+                                    IF(inner_oe.direction = 'Deliver', cmo.amount, 0) as client_amount_delivered
+                                FROM
+                                    counterparty_movement_operations cmo
+                                        LEFT JOIN
+                                    order_equipment as inner_oe ON inner_oe.counterparty_movement_operation_id = cmo.id
+                                WHERE
+                                    inner_oe.own_type = 'Client'
+                                UNION ALL
+                                #т.к. операции по самовывозам не крепятся к заказам, считаем их отдельно
+                                SELECT
+                                    inner_oe.id as equip_id,
+                                    IF(ssddr.direction = 'PickUp', cmo.amount, 0) as client_amount_pickedup,
+                                    IF(ssddr.direction = 'Deliver', cmo.amount, 0) as client_amount_delivered
+                                FROM
+                                    orders o
+                                        INNER JOIN
+                                    order_equipment inner_oe on o.id = inner_oe.order_id
+                                        INNER JOIN
+                                    store_self_delivery_document ssdd ON ssdd.order_id = o.id
+                                        INNER JOIN
+                                    store_self_delivery_document_returned ssddr ON ssdd.id = ssddr.store_self_delivery_document_id
+                                        INNER JOIN
+                                    counterparty_movement_operations cmo ON ssddr.counterparty_movement_operation_id = cmo.id
+                                WHERE 
+                                    inner_oe.own_type = 'Client'
+                            ) as t
+                        GROUP BY equip_id
+                    ) as clientEquipPickedUp ON clientEquipPickedUp.equip_id = order_equipment.id
+                        #Дежурное оборудование и в аренду - с учётом забора и доставки
+                        LEFT JOIN
+                    (
+                        SELECT
+                            equip_id,
+                            ROUND(sum(client_amount_delivered) - sum(client_amount_pickedup)) as duty_amount_delivered
+                        FROM
+                            (SELECT
+                                 inner_order_equipments.id as equip_id,
+                                 IF(inner_order_equipments.direction = 'PickUp', counterparty_movement_operations.amount, 0) as client_amount_pickedup,
+                                 IF(inner_order_equipments.direction = 'Deliver', counterparty_movement_operations.amount, 0) as client_amount_delivered
+                             FROM
+                                 counterparty_movement_operations
+                                     LEFT JOIN
+                                 order_equipment as inner_order_equipments ON inner_order_equipments.counterparty_movement_operation_id = counterparty_movement_operations.id
+                             WHERE
+                                 inner_order_equipments.own_type = 'Duty' OR inner_order_equipments.own_type = 'Rent'
+                             UNION ALL
+                             #т.к. операции по самовывозам не крепятся к заказам, считаем их отдельно
+                             SELECT
+                                 inner_oe.id as equip_id,
+                                 IF(ssddr.direction = 'PickUp', cmo.amount, 0) as client_amount_pickedup,
+                                 IF(ssddr.direction = 'Deliver', cmo.amount, 0) as client_amount_delivered
+                             FROM
+                                 orders o
+                                     INNER JOIN
+                                 order_equipment inner_oe on o.id = inner_oe.order_id
+                                     INNER JOIN
+                                 store_self_delivery_document ssdd ON ssdd.order_id = o.id
+                                     INNER JOIN
+                                 store_self_delivery_document_returned ssddr ON ssdd.id = ssddr.store_self_delivery_document_id
+                                     INNER JOIN
+                                 counterparty_movement_operations cmo ON ssddr.counterparty_movement_operation_id = cmo.id
+                             WHERE inner_oe.own_type = 'Duty' OR inner_oe.own_type = 'Rent'
+                            ) as t
+                        group by equip_id
+                    ) as OurDutyRentEquipDelivered ON OurDutyRentEquipDelivered.equip_id = order_equipment.id
+                        LEFT JOIN
+                    nomenclature ON nomenclature.id = order_equipment.nomenclature_id
+                WHERE
+                    orders.client_id = @client_id AND (@delivery_point_id = -1 OR orders.delivery_point_id = @delivery_point_id)
+                  and	order_equipment.nomenclature_id IS NOT NULL
+                UNION ALL
+                SELECT
+                    nomenclature.id as id,
+                    nomenclature.name as name,
+                    IF(doc_residue_equipment_deposit_items.direction = 'FromClient', counterparty_movement_operations.amount, 0) as client_amount_pickedup,
+                    IF(doc_residue_equipment_deposit_items.direction = 'ToClient', counterparty_movement_operations.amount, 0) as duty_and_rent_amount_delivered
+                FROM
+                    counterparty_movement_operations
+                        LEFT JOIN
+                    doc_residue_equipment_deposit_items ON doc_residue_equipment_deposit_items.counterparty_movement_operation_id = counterparty_movement_operations.id
+                        LEFT JOIN
+                    doc_residue ON doc_residue.id = doc_residue_equipment_deposit_items.residue_id
+                        LEFT JOIN
+                    nomenclature ON nomenclature.id = doc_residue_equipment_deposit_items.nomenclature_id
+                WHERE doc_residue.client_id = @client_id AND (@delivery_point_id = -1 OR doc_residue.delivery_point_id = @delivery_point_id)
+            ) as all_items
+        GROUP BY id
+    ) as main
+WHERE
+    client_amount_pickedup &gt; 0
+   or 	duty_and_rent_amount_delivered &gt; 0;</CommandText>
         <QueryParameters>
           <QueryParameter Name="client_id">
             <Value>=Parameters!client_id</Value>
@@ -2183,8 +2212,8 @@ Iif({returned} = null and {forfeitCount} = null, "", Iif( Fields!returned.IsMiss
         <Width>513.51pt</Width>
         <Value>="Реестр документов с " + Format(CDate({?startDate}), "d") + " по "+ Format(CDate({?endDate}), "d")</Value>
         <ZIndex>0</ZIndex>
-        <Left>1.5pt</Left>
-        <Top>44.0pt</Top>
+        <Left>1.50pt</Left>
+        <Top>44.00pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -2369,12 +2398,12 @@ ___________(                   )
             </Style>
           </Textbox>
           <Textbox Name="Textbox58" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>28pt</Height>
-            <Width>595pt</Width>
+            <Height>28.00pt</Height>
+            <Width>595.00pt</Width>
             <Value>=First({we_have_clients_equip}, 'StoredEquipments')</Value>
             <ZIndex>0</ZIndex>
-            <Left>210.1pt</Left>
-            <Top>66.6pt</Top>
+            <Left>210.10pt</Left>
+            <Top>66.60pt</Top>
             <Style>
               <TextAlign>Left</TextAlign>
               <BorderStyle />
@@ -2387,12 +2416,12 @@ ___________(                   )
             <CanShrink>false</CanShrink>
           </Textbox>
           <Textbox Name="Textbox59" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>28pt</Height>
-            <Width>595pt</Width>
+            <Height>28.00pt</Height>
+            <Width>595.00pt</Width>
             <Value>=First({client_have_ours_equip}, 'StoredEquipments')</Value>
             <ZIndex>0</ZIndex>
-            <Left>210.1pt</Left>
-            <Top>101.6pt</Top>
+            <Left>210.10pt</Left>
+            <Top>101.60pt</Top>
             <Style>
               <TextAlign>Left</TextAlign>
               <BorderStyle />
