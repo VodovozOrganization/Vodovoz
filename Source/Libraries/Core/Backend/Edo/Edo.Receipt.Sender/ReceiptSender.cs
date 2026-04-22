@@ -62,7 +62,7 @@ namespace Edo.Receipt.Sender
 				return;
 			}
 
-			if(!CheckOrderItemsAsync(edoTask))
+			if(_edoCancellationService.IsEdoTaskMustBeCancelled(edoTask))
 			{
 				var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
 				
@@ -171,18 +171,6 @@ namespace Edo.Receipt.Sender
 			await _uow.CommitAsync(cancellationToken);
 
 			_logger.LogInformation("Все чеки по задаче №{edoTaskId} отправлены успешно.", edoTask.Id);
-		}
-
-		private bool CheckOrderItemsAsync(EdoTask edoTask)
-		{
-			if(!(edoTask is OrderEdoTask orderEdoTask))
-			{
-				return true;
-			}
-			
-			var edoRequest = orderEdoTask.FormalEdoRequest;
-
-			return edoRequest.Order.OrderItems.All(x => x.Price > 0) && edoRequest.Order.OrderSum > 0;
 		}
 		
 		public void Dispose()

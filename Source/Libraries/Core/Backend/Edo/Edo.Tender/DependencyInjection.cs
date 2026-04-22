@@ -21,7 +21,7 @@ namespace Edo.Documents
 
 			services.AddEdo();
 			services.AddEdoProblemRegistration();
-			services.AddEdoAdmin();
+			services.AddEdoAdminServices();
 			
 			return services;
 		}
