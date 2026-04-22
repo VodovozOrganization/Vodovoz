@@ -62,7 +62,7 @@ namespace Edo.Receipt.Sender
 				return;
 			}
 
-			if(CheckOrderItemsAsync(edoTask))
+			if(!CheckOrderItemsAsync(edoTask))
 			{
 				var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
 				
