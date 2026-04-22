@@ -573,7 +573,7 @@ def CheckoutMainRepositoryWithoutSubmodules(referenceRepositoryPath) {
 		$class: 'GitSCM',
 		branches: scm.branches,
 		extensions: scm.extensions
-		+ [[$class: 'CloneOption', reference: "${REFERENCE_REPOSITORY_PATH}/Vodovoz.git"]]
+		+ [[$class: 'CloneOption', reference: "${referenceRepositoryPath}/Vodovoz.git"]]
 		+ [[$class: 'SubmoduleOption', disableSubmodules: true]]
 		+ [[$class: 'CleanBeforeCheckout']], 
 		userRemoteConfigs: scm.userRemoteConfigs
@@ -734,7 +734,7 @@ def CheckoutInContainer(referenceRepositoryPath) {
 		$class: 'GitSCM',
 		branches: scm.branches,
 		extensions: scm.extensions
-		+ [[$class: 'CloneOption', reference: "${REFERENCE_REPOSITORY_PATH}/Vodovoz.git"]]
+		+ [[$class: 'CloneOption', reference: "${referenceRepositoryPath}/Vodovoz.git"]]
 		+ [[$class: 'SubmoduleOption', disableSubmodules: true]]
 		+ [[$class: 'CleanBeforeCheckout']], 
 		userRemoteConfigs: scm.userRemoteConfigs
