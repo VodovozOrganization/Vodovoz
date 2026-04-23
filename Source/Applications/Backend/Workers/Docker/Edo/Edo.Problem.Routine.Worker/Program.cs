@@ -1,4 +1,5 @@
 ﻿using Autofac.Extensions.DependencyInjection;
+using MessageTransport;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -42,13 +43,17 @@ namespace Edo.Problem.Routine.Worker
 						.AddDatabaseConnection()
 						.AddNHibernateConventions()
 						.AddTrackedUoW()
+						.AddMessageTransportSettings()
 						.AddEdoProblemRoutine()
 						;
 
-					services.AddHostedService<OrderSelfDeliveryPaidProblemWorker>();
+					services
+						.AddHostedService<OrderSelfDeliveryPaidProblemWorker>()
+						.ConfigureZabbixSenderFromDataBase(nameof(OrderSelfDeliveryPaidProblemWorker));
 
 					services
-						.ConfigureZabbixSenderFromDataBase(nameof(OrderSelfDeliveryPaidProblemWorker));
+						.AddHostedService<FiscalDocumentSendErrorProblemWorker>()
+						.ConfigureZabbixSenderFromDataBase(nameof(FiscalDocumentSendErrorProblemWorker));
 				});
 	}
 }
