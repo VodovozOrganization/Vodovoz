@@ -1,4 +1,4 @@
-using Edo.Contracts.Messages.Events;
+﻿using Edo.Contracts.Messages.Events;
 using Edo.Problem.Routine.Options;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -52,22 +52,22 @@ namespace Edo.Problem.Routine.Services
 				var tasksIds =
 					await _edoRepository.GetSendErrorFiscalDocumentsEdoTasksIds(uow, _minFiscalDocumentCreationTime, cancellationToken);
 
-				await TryResendFiscalDocuments(tasksIds);
+				await TryResendFiscalDocuments(tasksIds, cancellationToken);
 			}
 		}
 
-		private async Task TryResendFiscalDocuments(IEnumerable<int> receiptEdoTaskIds)
+		private async Task TryResendFiscalDocuments(IEnumerable<int> receiptEdoTaskIds, CancellationToken cancellationToken)
 		{
 			var successCount = 0;
 
 			foreach(var taskId in receiptEdoTaskIds)
 			{
-				var success = await TryResendFiscalDocument(taskId);
+				var success = await TryResendFiscalDocument(taskId, cancellationToken);
 
-				successCount =
-					success
-					? ++successCount
-					: successCount;
+				if(success)
+				{
+					successCount++;
+				}
 			}
 
 			_logger.LogInformation("Повторная отправка фискальных документов завершена. " +
@@ -77,7 +77,7 @@ namespace Edo.Problem.Routine.Services
 				successCount);
 		}
 
-		private async Task<bool> TryResendFiscalDocument(int receiptEdoTaskId)
+		private async Task<bool> TryResendFiscalDocument(int receiptEdoTaskId, CancellationToken cancellationToken)
 		{
 			try
 			{
@@ -85,7 +85,9 @@ namespace Edo.Problem.Routine.Services
 					"Пытаемся повторно отправить фискальный документ с задачей {ReceiptEdoTaskId}",
 					receiptEdoTaskId);
 
-				await _messageBus.Publish(new ReceiptReadyToSendEvent { ReceiptEdoTaskId = receiptEdoTaskId });
+				await _messageBus.Publish(
+					new ReceiptReadyToSendEvent { ReceiptEdoTaskId = receiptEdoTaskId },
+					cancellationToken);
 
 				_logger.LogInformation(
 					"Повторная отправка фискального документа с задачей {ReceiptEdoTaskId} успешно инициирована",
