@@ -457,7 +457,7 @@ namespace EdoDocumentFlowUpdater
 					_logger.LogError(ex, "Не удалось обновить контейнер в хранилище");
 				}
 
-				if(result.IsFailure)
+				if(result != null && result.IsFailure)
 				{
 					var errors = string.Join(", ", result.Errors.Select(e => e.Message));
 					_logger.LogError("Не удалось обновить контейнер, ошибка: {Errors}", errors);
