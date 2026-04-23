@@ -231,5 +231,22 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 
 			return tasks;
 		}
+
+		public async Task<IList<int>> GetSendErrorFiscalDocumentsEdoTasksIds(
+			IUnitOfWork uow,
+			DateTime minFiscalDocumentCreationTime,
+			CancellationToken cancellationToken)
+		{
+			var query =
+				from fiscalDocument in uow.Session.Query<EdoFiscalDocument>()
+				join receiptEdoTask in uow.Session.Query<ReceiptEdoTask>()
+					on fiscalDocument.ReceiptEdoTask.Id equals receiptEdoTask.Id
+				where fiscalDocument.CreationTime >= minFiscalDocumentCreationTime
+					&& fiscalDocument.Status == FiscalDocumentStatus.SendError
+					&& receiptEdoTask.ReceiptStatus == EdoReceiptStatus.Sending
+				select fiscalDocument.ReceiptEdoTask.Id;
+
+			return await query.Distinct().ToListAsync(cancellationToken);
+		}
 	}
 }
