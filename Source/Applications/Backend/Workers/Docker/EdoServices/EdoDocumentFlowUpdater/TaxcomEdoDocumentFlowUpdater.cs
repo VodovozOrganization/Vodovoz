@@ -482,7 +482,7 @@ namespace EdoDocumentFlowUpdater
 				_logger.LogWarning(
 					"Не найдена таска для контейнера с документом {EdoDocumentId} по заказу {OrderId}, возможно это старый контейнер...",
 					container.MainDocumentId,
-					container.Order.Id);
+					container.Order?.Id);
 				return;
 			}
 
