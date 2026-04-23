@@ -29,7 +29,7 @@ namespace Edo.Receipt.Dispatcher
 			services.AddEdo();
 			services.AddEdoProblemRegistration();
 			services.AddCodesPool();
-			services.AddEdoAdmin();
+			services.AddEdoAdminServices();
 
 			return services;
 		}

@@ -1,0 +1,705 @@
+
+
+
+// -- CONFIGS
+
+NODE_DOCKER_BUILD = "DOCKER_BUILD"
+PUBLISH_PROFILE = "registry-prod"
+PUBLISH_PROFILE_FILE = "${PUBLISH_PROFILE}.pubxml"
+SDK_CONTAINER_IMAGE = "docker.vod.qsolution.ru:5100/dotnet-sdk-docker"
+RUNTIME_CONTAINER_IMAGE = "docker.vod.qsolution.ru:5100/dotnet-runtime-docker"
+DOCKER_REGISTRY_CREDENTIALS_ID = "docker-registry-credentials"
+REFERENCE_REPOSITORY_MOUNT_PATH = "/reference-repository"
+CONTAINERS_PER_NODE = 2
+PIPELINE_CONTAINER_LABEL_KEY = "vodovoz.pipeline"
+PIPELINE_CONTAINER_CREATED_LABEL_KEY = "vodovoz.created_at_epoch"
+PIPELINE_CONTAINER_LABEL_PREFIX = "jenkins-services-build"
+PIPELINE_CONTAINER_MAX_AGE_SECONDS = 3600
+
+
+DOCKER_REGISTRY_URL = "docker.vod.qsolution.ru:5100"
+
+
+// -- PIPELINE
+
+PUBLISHING_PROJECT_PATHS = []
+PUBLISHING_PROJECTS = []
+PUBLISHING_PROJECT_QUEUE = []
+AVAILABLE_DOCKER_BUILD_NODES = []
+BUILD_STOP_REQUESTED = false
+PIPELINE_INTERRUPTION = null
+
+try {
+	// 1) Определяем и валидируем список доступных build-нод, считаем лимиты CPU на контейнер.
+	stage('Prepare') {
+		AVAILABLE_DOCKER_BUILD_NODES = getDockerBuildNodesBySecondaryLabel(NODE_DOCKER_BUILD)
+		if (!AVAILABLE_DOCKER_BUILD_NODES) {
+			error("Не найдено доступных нод с меткой ${NODE_DOCKER_BUILD}")
+		}
+
+		AVAILABLE_DOCKER_BUILD_NODES = AssignCpuInfoToDockerBuildNodes(AVAILABLE_DOCKER_BUILD_NODES)
+		AVAILABLE_DOCKER_BUILD_NODES.each { nodeInfo ->
+			echo "Node ${nodeInfo.nodeName} (${nodeInfo.secondaryLabel}): cpuCount=${nodeInfo.cpuCount}, maxCpuCountPerContainer=${nodeInfo.maxCpuCountPerContainer}"
+		}
+	}
+
+	// подготовка референсного репозитория на нодах, чтобы использовать его позже в контейнерах для ускорения git clone
+	stage('Checkout nodes') {
+		def availableNodes = AVAILABLE_DOCKER_BUILD_NODES
+		if (!availableNodes) {
+			error("Не найдено доступных нод с меткой ${NODE_DOCKER_BUILD}")
+		}
+		
+		def parallelCheckouts = [:]
+		
+		availableNodes.each { nodeInfo ->
+			def nodeSelector = "${nodeInfo.secondaryLabel}"
+			echo "nodeSelector='${nodeSelector}'"
+
+			parallelCheckouts[nodeSelector] = {
+				node(nodeSelector) {
+					def referenceRepositoryPath = "${env.JENKINS_HOME_NODE}/workspace/_VODOVOZ_REFERENCE_REPOSITORY"
+					CloneMirror("https://github.com/VodovozOrganization/Vodovoz.git", referenceRepositoryPath)
+				}
+			}
+		}
+		
+		parallel parallelCheckouts
+	}
+
+	stage('Determine projects') {
+		// 2) Один раз определяем список проектов к публикации и наполняем общую очередь задач.
+		def firstNode = AVAILABLE_DOCKER_BUILD_NODES[0]
+		node(firstNode.secondaryLabel) {
+			def referenceRepositoryPath = "${env.JENKINS_HOME_NODE}/workspace/_VODOVOZ_REFERENCE_REPOSITORY"
+
+			ws("${env.WORKSPACE}@determine-projects") {
+				deleteDir()
+				CheckoutMainRepositoryWithoutSubmodules(referenceRepositoryPath)
+
+				def determinedProjectsJson = sh(
+					script: "sh ./determine-projects.sh \"${pwd()}\" \"${PUBLISH_PROFILE_FILE}\"",
+					returnStdout: true
+				).trim()
+
+				if (!determinedProjectsJson) {
+					error("Не найдено проектов с профилем публикации ${PUBLISH_PROFILE_FILE}")
+				}
+
+				def parsedProjects = new groovy.json.JsonSlurperClassic().parseText(determinedProjectsJson)
+				if (!(parsedProjects instanceof List) || parsedProjects.isEmpty()) {
+					error("Не найдено проектов с профилем публикации ${PUBLISH_PROFILE_FILE}")
+				}
+
+				def determinedProjects = parsedProjects.collect { p ->
+					[
+						projectPath: (p.projectPath ?: '').toString(),
+						containerRepository: (p.containerRepository ?: '').toString(),
+						publishImageTag: (p.publishImageTag ?: '').toString()
+					]
+				}
+
+				def invalidProjects = determinedProjects.findAll {
+					!it.projectPath || !it.containerRepository || !it.publishImageTag
+				}
+				if (invalidProjects) {
+					error("Скрипт determine-projects.sh вернул некорректные данные для ${invalidProjects.size()} проект(ов)")
+				}
+
+				PUBLISHING_PROJECTS = determinedProjects
+				PUBLISHING_PROJECT_PATHS = determinedProjects.collect { it.projectPath }
+				PUBLISHING_PROJECT_QUEUE = determinedProjects.collect { it.collectEntries { key, value -> [key, value] } }
+
+				def projectsSummary = PUBLISHING_PROJECTS.collect { p ->
+					"projectPath=${p.projectPath}; containerRepository=${p.containerRepository}; publishImageTag=${p.publishImageTag}"
+				}.join('\n')
+				echo "Найдено проектов для публикации: ${PUBLISHING_PROJECTS.size()}\n${projectsSummary}"
+			}
+		}
+	}
+
+	stage('Checkout and build in containers') {
+		// 3) Запускаем контейнеры-билдеры на всех нодах и параллельно вычитываем общую очередь проектов.
+		def availableNodes = AVAILABLE_DOCKER_BUILD_NODES
+		if (!availableNodes) {
+			error("Не найдено доступных нод с тегом ${NODE_DOCKER_BUILD} для работы в контейнерах")
+		}
+		def parallelBranches = [:]
+		def totalBuilders = availableNodes.size() * CONTAINERS_PER_NODE
+		echo "Total builder containers to run in parallel: ${totalBuilders}"
+		
+		def totalProjects = PUBLISHING_PROJECTS.size()
+
+		availableNodes.eachWithIndex { nodeInfo, nodeIndex ->
+			def nodeSelector = "${nodeInfo.secondaryLabel}"
+			def maxCpuCountPerContainer = (nodeInfo.maxCpuCountPerContainer ?: 1) as int
+			echo "nodeSelector='${nodeSelector}'"
+			echo "maxCpuCountPerContainer=${maxCpuCountPerContainer}"
+
+			for (int i = 1; i <= CONTAINERS_PER_NODE; i++) {
+				def containerIndex = i
+				def builderNumber = nodeIndex * CONTAINERS_PER_NODE + containerIndex
+				def branchName = "${nodeInfo.secondaryLabel} #${containerIndex}"
+				parallelBranches[branchName] = {
+					node(nodeSelector) {
+						def referenceRepositoryPath = "${env.JENKINS_HOME_NODE}/workspace/_VODOVOZ_REFERENCE_REPOSITORY"
+						def workspaceSuffix = "container-${containerIndex}"
+						def cid = null
+						def containerName = "build-${env.BUILD_NUMBER}-${containerIndex}-${nodeSelector.replaceAll('[^a-zA-Z0-9]', '-')}"
+						def pipelineContainerLabel = "${PIPELINE_CONTAINER_LABEL_PREFIX}-${env.BUILD_NUMBER}"
+
+						ws("${env.WORKSPACE}@${workspaceSuffix}") {
+							try {
+								stage("Start container ${branchName}") {
+									def workspaceDir = pwd()
+									def containerCreatedAtEpoch = (System.currentTimeMillis() / 1000L) as long
+									withCredentials([usernamePassword(credentialsId: DOCKER_REGISTRY_CREDENTIALS_ID, usernameVariable: 'DOCKER_REGISTRY_USERNAME', passwordVariable: 'DOCKER_REGISTRY_PASSWORD')]) {
+										sh "echo \"\$DOCKER_REGISTRY_PASSWORD\" | docker login ${DOCKER_REGISTRY_URL} -u \"\$DOCKER_REGISTRY_USERNAME\" --password-stdin"
+									}
+
+									cid = sh(
+										script: """
+											docker run -d \
+											--pull always \
+											--name ${containerName} \
+											--label ${PIPELINE_CONTAINER_LABEL_KEY}=${pipelineContainerLabel} \
+											--label ${PIPELINE_CONTAINER_CREATED_LABEL_KEY}=${containerCreatedAtEpoch} \
+											-v /var/run/docker.sock:/var/run/docker.sock \
+											-v ${referenceRepositoryPath}:${REFERENCE_REPOSITORY_MOUNT_PATH}:ro \
+											-v ${workspaceDir}:/work \
+											-w /work \
+											${SDK_CONTAINER_IMAGE} \
+											tail -f /dev/null
+										""".stripIndent(),
+										returnStdout: true
+									).trim()
+									echo "Started container: ${cid}"
+								}
+
+								stage("Checkout ${branchName}") {
+									withCredentials([usernamePassword(credentialsId: DOCKER_REGISTRY_CREDENTIALS_ID, usernameVariable: 'DOCKER_REGISTRY_USERNAME', passwordVariable: 'DOCKER_REGISTRY_PASSWORD')]) {
+										sh "docker exec ${cid} sh -c 'command -v docker >/dev/null 2>&1 || (apt-get update && apt-get install -y docker.io)'"
+										withEnv(["CID=${cid}", "REGISTRY_URL=${DOCKER_REGISTRY_URL}"]) {
+											sh '''
+												docker exec -e REG_USER="$DOCKER_REGISTRY_USERNAME" -e REG_PASS="$DOCKER_REGISTRY_PASSWORD" -e REGISTRY_URL="$REGISTRY_URL" "$CID" sh -c 'echo "$REG_PASS" | docker login "$REGISTRY_URL" -u "$REG_USER" --password-stdin'
+											'''.stripIndent()
+										}
+									}
+
+									// Checkout выполняется через Jenkins Git plugin на хосте (JENKINS-30600).
+									// Рабочий каталог смонтирован в контейнер как /work, поэтому код доступен внутри.
+									CheckoutInContainer(referenceRepositoryPath)
+								}
+
+							stage("Build ${branchName}") {
+								// Каждый builder берёт следующий проект из общей очереди до её опустошения или stop-сигнала.
+								echo "Builder ${builderNumber}/${totalBuilders} is waiting for work from the shared project queue (${totalProjects} project(s) total)"
+								def processedProjects = 0
+								while (true) {
+									if (isBuildStopRequested() || isBuildInterrupted()) {
+										echo "Build прерван, выход из очереди проектов (Builder ${builderNumber}/${totalBuilders})"
+										break
+									}
+										def projectInfo = takeNextPublishingProject()
+										if (!projectInfo) {
+											echo "Shared queue is empty. Builder ${builderNumber}/${totalBuilders} finished after ${processedProjects} project(s)"
+											break
+										}
+
+										processedProjects++
+										def projectPath = projectInfo.projectPath
+										def imageRepository = projectInfo.containerRepository
+										def imageTag = projectInfo.publishImageTag
+										def projectDll = projectPath.tokenize('/').last().replace('.csproj', '.dll')
+										def publishDir = "/work/.publish/${projectDll.replace('.dll', '')}"
+										def imageFullName = "${DOCKER_REGISTRY_URL}/${imageRepository}:${imageTag}"
+
+										try {
+										stage("${imageRepository}:${imageTag}") {
+											echo "Builder ${builderNumber}/${totalBuilders} picked project ${processedProjects}: ${projectPath} -> ${imageFullName}"
+
+											// Публикуем артефакты .NET и готовим Dockerfile рядом с output.
+											sh "docker exec ${cid} sh -c 'mkdir -p \"${publishDir}\"'"
+											sh "docker exec ${cid} sh -c 'dotnet publish \"${projectPath}\" -c Release -r linux-x64 --self-contained false -o \"${publishDir}\" /maxcpucount:${maxCpuCountPerContainer}'"
+
+											sh """
+												docker exec ${cid} sh -c 'cat > "${publishDir}/Dockerfile" <<EOF
+FROM ${RUNTIME_CONTAINER_IMAGE}
+WORKDIR /app
+COPY . .
+ENTRYPOINT ["dotnet","${projectDll}"]
+EOF'
+											""".stripIndent()
+
+											if (isBuildInterrupted()) {
+												error("Build прерван, пропуск docker build для ${imageFullName}")
+											}
+											// Собираем runtime-образ и публикуем его в registry.
+											sh "docker exec ${cid} sh -c 'docker build --pull --no-cache --force-rm -t \"${imageFullName}\" \"${publishDir}\"'"
+
+											if (isBuildInterrupted()) {
+												error("Build прерван, пропуск docker push для ${imageFullName}")
+											}
+											sh "docker exec ${cid} sh -c 'docker push \"${imageFullName}\"'"
+										}
+									} catch (Exception e) {
+										if (isBuildInterrupted() || e instanceof org.jenkinsci.plugins.workflow.steps.FlowInterruptedException) {
+											requestBuildStop("Build interrupted on ${branchName}")
+											throw e
+										}
+										echo "FAILED ${imageFullName}: ${e.message}"
+										currentBuild.result = 'FAILURE'
+									}
+									}
+								}
+							} finally {
+								if (cid?.trim()) {
+									sh "docker exec ${cid} sh -c 'kill -9 -1' || true"
+									sh "docker rm -f ${cid} || true"
+								} else {
+									sh "docker rm -f ${containerName} || true"
+								}
+								try {
+									deleteDir()
+								} catch (e) {
+									echo "Workspace cleanup failed: ${e}"
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		parallel parallelBranches
+	}
+
+	stage('Prune Docker cache on build nodes') {
+		// 4) Финальная очистка локального Docker cache на build-нодах.
+		def availableNodes = AVAILABLE_DOCKER_BUILD_NODES
+		if (!availableNodes) {
+			error("Не найдено доступных нод с тегом ${NODE_DOCKER_BUILD} для очистки Docker cache")
+		}
+
+		def cleanupBranches = [:]
+		availableNodes.each { nodeInfo ->
+			def nodeSelector = "${nodeInfo.secondaryLabel}"
+			def branchName = "Prune ${nodeSelector}"
+
+			cleanupBranches[branchName] = {
+				node(nodeSelector) {
+					sh '''
+						echo "Pruning dangling images"
+						docker image prune -f || true
+						echo "Pruning BuildKit cache"
+						docker builder prune -af || true
+					'''.stripIndent()
+				}
+			}
+		}
+
+		parallel cleanupBranches
+	}
+
+} catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e) {
+	requestBuildStop("Pipeline interrupted: ${e.getClass().simpleName}")
+	PIPELINE_INTERRUPTION = e
+} finally {
+	if (isBuildStopRequested() || PIPELINE_INTERRUPTION != null) {
+		// Гарантированная очистка контейнеров/кэша/временных workspace при abort/interrupt.
+		stage('Abort cleanup on build nodes') {
+			CleanupAbortedBuildResourcesOnNodes()
+		}
+	}
+}
+
+if (PIPELINE_INTERRUPTION != null) {
+	throw PIPELINE_INTERRUPTION
+}
+
+// -- FUNCTIONS
+
+// Setup
+
+@NonCPS
+def getDockerBuildNodesBySecondaryLabel(dockerBuildLabel) {
+    def nodes = []
+    def usedSecondaryLabels = [] as Set
+
+    Jenkins.instance.computers.each { computer ->
+    	def node = computer.node
+    	if (node == null || !computer.online) {
+    		return
+    	}
+
+    	def labels = (node.labelString ?: '').tokenize(' ') as Set
+    	if (!labels.contains(dockerBuildLabel)) {
+    		return
+    	}
+
+    	if (labels.size() != 2) {
+    		error("Нода '${node.name}' должна иметь ровно 2 метки (включая '${dockerBuildLabel}'), сейчас: ${labels.join(' ')}")
+    	}
+
+    	def secondaryLabels = labels.findAll { it != dockerBuildLabel }
+    	if (secondaryLabels.size() != 1) {
+    		error("Не удалось определить вторую метку для ноды '${node.name}', метки: ${labels.join(' ')}")
+    	}
+
+    	def secondaryLabel = secondaryLabels[0]
+    	if (usedSecondaryLabels.contains(secondaryLabel)) {
+    		error("Вторая метка '${secondaryLabel}' встречается у нескольких нод. Требуется уникальная вторая метка на ноду")
+    	}
+
+    	usedSecondaryLabels.add(secondaryLabel)
+    	nodes.add([nodeName: node.name, secondaryLabel: secondaryLabel])
+    }
+
+    return nodes
+}
+
+def AssignCpuInfoToDockerBuildNodes(nodes) {
+	def updatedNodes = []
+
+	nodes.each { nodeInfo ->
+		def cpuCount = DetectCpuCountOnNode(nodeInfo.secondaryLabel)
+		def maxCpuCountPerContainer = Math.max(1, cpuCount.intdiv(CONTAINERS_PER_NODE as int))
+
+		updatedNodes.add(nodeInfo + [
+			cpuCount: cpuCount,
+			maxCpuCountPerContainer: maxCpuCountPerContainer
+		])
+	}
+
+	return updatedNodes
+}
+
+def DetectCpuCountOnNode(nodeSelector) {
+	def cpuRaw = ''
+
+	node(nodeSelector) {
+		if (isUnix()) {
+			cpuRaw = sh(
+				script: "getconf _NPROCESSORS_ONLN 2>/dev/null || nproc 2>/dev/null || grep -c '^processor' /proc/cpuinfo",
+				returnStdout: true
+			).trim()
+		} else {
+			cpuRaw = powershell(
+				script: '[Environment]::ProcessorCount',
+				returnStdout: true
+			).trim()
+		}
+	}
+
+	if (!cpuRaw?.isInteger()) {
+		error("Не удалось определить количество CPU для ноды '${nodeSelector}'. Получено: '${cpuRaw}'")
+	}
+
+	def cpuCount = cpuRaw.toInteger()
+	if (cpuCount < 1) {
+		error("Некорректное количество CPU для ноды '${nodeSelector}': ${cpuCount}")
+	}
+
+	return cpuCount
+}
+
+// def CheckoutReference(referenceRepositoryPath) {
+@NonCPS
+def takeNextPublishingProject() {
+	synchronized(getPublishingProjectQueueLock()) {
+		if (!PUBLISHING_PROJECT_QUEUE) {
+			return null
+		}
+
+		def nextProject = PUBLISHING_PROJECT_QUEUE.remove(0)
+		return nextProject.collectEntries { key, value -> [key, value] }
+	}
+}
+
+@NonCPS
+def getPublishingProjectQueueLock() {
+	return 'vodovoz-publishing-project-queue-lock'.intern()
+}
+
+@NonCPS
+def getBuildStopLock() {
+	return 'vodovoz-build-stop-lock'.intern()
+}
+
+@NonCPS
+def requestBuildStop(String reason = '') {
+	synchronized(getBuildStopLock()) {
+		BUILD_STOP_REQUESTED = true
+	}
+	if (reason?.trim()) {
+		echo "Build stop requested: ${reason}"
+	}
+}
+
+@NonCPS
+def isBuildStopRequested() {
+	synchronized(getBuildStopLock()) {
+		return BUILD_STOP_REQUESTED
+	}
+}
+
+@NonCPS
+def isBuildInterrupted() {
+	return Thread.currentThread().isInterrupted()
+}
+
+def CleanupAbortedBuildResourcesOnNodes() {
+	def availableNodes = AVAILABLE_DOCKER_BUILD_NODES
+	def pipelineContainerLabel = "${PIPELINE_CONTAINER_LABEL_PREFIX}-${env.BUILD_NUMBER}"
+	def maxContainerAgeSeconds = PIPELINE_CONTAINER_MAX_AGE_SECONDS as int
+	if (!availableNodes) {
+		echo "AVAILABLE_DOCKER_BUILD_NODES is empty, discovering nodes by label ${NODE_DOCKER_BUILD} for cleanup"
+		availableNodes = getDockerBuildNodesBySecondaryLabel(NODE_DOCKER_BUILD)
+	}
+
+	if (!availableNodes) {
+		echo "No available nodes found for abort cleanup"
+		return
+	}
+
+	def cleanupBranches = [:]
+	availableNodes.each { nodeInfo ->
+		def nodeSelector = "${nodeInfo.secondaryLabel}"
+		def branchName = "Abort cleanup ${nodeSelector}"
+
+		cleanupBranches[branchName] = {
+			node(nodeSelector) {
+				def workspaceBase = env.WORKSPACE ?: ''
+				sh """
+					set +e
+					echo "Abort cleanup on node ${nodeSelector}"
+					now_epoch=\$(date +%s)
+					oldest_allowed_epoch=\$((now_epoch - ${maxContainerAgeSeconds}))
+
+					remove_container() {
+						cid="\$1"
+						if [ -z "\$cid" ]; then
+							return 0
+						fi
+						docker exec "\$cid" sh -c 'kill -9 -1' || true
+						docker rm -f "\$cid" || true
+					}
+
+					echo "Removing containers for current build label ${pipelineContainerLabel}"
+					for cid in \$(docker ps -aq --filter 'label=${PIPELINE_CONTAINER_LABEL_KEY}=${pipelineContainerLabel}' 2>/dev/null); do
+						remove_container "\$cid"
+					done
+
+					echo "Removing ${PIPELINE_CONTAINER_LABEL_PREFIX} containers older than ${maxContainerAgeSeconds} second(s)"
+					for cid in \$(docker ps -aq --filter 'label=${PIPELINE_CONTAINER_LABEL_KEY}' 2>/dev/null); do
+						pipeline_label=\$(docker inspect --format '{{ index .Config.Labels "${PIPELINE_CONTAINER_LABEL_KEY}" }}' "\$cid" 2>/dev/null || true)
+						case "\$pipeline_label" in
+							${PIPELINE_CONTAINER_LABEL_PREFIX}-*) ;;
+							*) continue ;;
+						esac
+
+						created_epoch=\$(docker inspect --format '{{ index .Config.Labels "${PIPELINE_CONTAINER_CREATED_LABEL_KEY}" }}' "\$cid" 2>/dev/null || true)
+						case "\$created_epoch" in
+							''|*[!0-9]*) continue ;;
+						esac
+
+						if [ "\$created_epoch" -le "\$oldest_allowed_epoch" ]; then
+							remove_container "\$cid"
+						fi
+					done
+
+					echo "Pruning dangling images"
+					docker image prune -f || true
+
+					echo "Pruning BuildKit cache"
+					docker builder prune -af || true
+				""".stripIndent()
+
+				if (workspaceBase?.trim()) {
+					sh """
+						set +e
+						echo "Removing workspace container dirs under ${workspaceBase}"
+						rm -rf "${workspaceBase}@container-"* || true
+						rm -rf "${workspaceBase}@determine-projects" || true
+					""".stripIndent()
+				}
+			}
+		}
+	}
+
+	parallel cleanupBranches
+}
+
+def CheckoutMainRepositoryWithoutSubmodules(referenceRepositoryPath) {
+	checkout changelog: false, poll: false, scm:([
+		$class: 'GitSCM',
+		branches: scm.branches,
+		extensions: scm.extensions
+		+ [[$class: 'CloneOption', reference: "${referenceRepositoryPath}/Vodovoz.git"]]
+		+ [[$class: 'SubmoduleOption', disableSubmodules: true]]
+		+ [[$class: 'CleanBeforeCheckout']], 
+		userRemoteConfigs: scm.userRemoteConfigs
+	])
+}
+
+def DeterminePublishingProjectDirs(String profileName) {
+	def projectDirsRaw = sh(
+		script: """
+			set -eu
+
+			scriptDir=\"\$PWD\"
+			applicationsPath=\"\$scriptDir/Source/Applications\"
+
+			if [ ! -d \"\$applicationsPath\" ]; then
+				echo \"Error: Directory not found: \$applicationsPath\" >&2
+				exit 1
+			fi
+
+			find \"\$applicationsPath\" -type f -name \"RepositorySettings.props\" |
+				while IFS= read -r filepath; do
+					projectDir=\"\$(dirname \"\$filepath\")\"
+					if [ -f \"\$projectDir/jenkins-ignore\" ]; then
+						continue
+					fi
+					echo \"\${projectDir#\$scriptDir/}\"
+				done |
+				sort -u
+		""".stripIndent(),
+		returnStdout: true
+	).trim()
+
+	if (!projectDirsRaw) {
+		return []
+	}
+
+	return projectDirsRaw.split("\\r?\\n").findAll { it?.trim() }
+}
+
+def DiscoverProjectFilePath(String projectDir) {
+	def projectFile = sh(
+		script: """
+			set -eu
+			ls -1 \"${projectDir}\"/*.csproj 2>/dev/null | head -n 1 || true
+		""".stripIndent(),
+		returnStdout: true
+	).trim()
+
+	if (!projectFile) {
+		error("Не найден .csproj в директории ${projectDir}")
+	}
+
+	return projectFile
+}
+
+def ReadXmlProperty(String filePath, String propertyName) {
+	if (!fileExists(filePath)) {
+		error("Не найден файл: ${filePath}")
+	}
+
+	def xmlText = readFile(file: filePath)
+	def propertyRegex = "(?s)<${propertyName}>(.*?)</${propertyName}>"
+	def matcher = (xmlText =~ propertyRegex)
+	def value = matcher.find() ? matcher.group(1).trim() : ''
+
+	if (!value) {
+		error("В файле ${filePath} не найдено значение PropertyGroup/${propertyName}")
+	}
+
+	return value
+}
+
+def CloneMirror(String url, String cache, int depth = 0) {
+
+    def name = url.tokenize('/').last().replace('.git','')
+    def path = "${cache}/${name}.git"
+
+    if (!fileExists(path)) {
+        sh "git clone --mirror ${url} ${path}"
+    } else {
+        sh "git -C ${path} remote update"
+    }
+
+	// Ищем сабмодули только у корневого репозитория.
+	// Сабмодули внутри сабмодулей (depth > 0) не обрабатываем.
+	if (depth == 0) {
+		def hasModules = sh(
+			script: "git -C ${path} show HEAD:.gitmodules >/dev/null 2>&1",
+			returnStatus: true
+		)
+
+		if (hasModules == 0) {
+
+			def subUrls = sh(
+				script: "git -C ${path} show HEAD:.gitmodules | grep url | awk '{print \$3}'",
+				returnStdout: true
+			).trim().split("\\n")
+
+			for (sub in subUrls) {
+				if (sub?.trim()) {
+					CloneMirror(sub.trim(), cache, depth + 1)
+				}
+			}
+		}
+	}
+}
+
+
+
+def CheckoutInContainer(referenceRepositoryPath) {
+	checkout changelog: false, poll: false, scm:([
+		$class: 'GitSCM',
+		branches: scm.branches,
+		extensions: scm.extensions
+		+ [[$class: 'CloneOption', reference: "${referenceRepositoryPath}/Vodovoz.git"]]
+		+ [[$class: 'SubmoduleOption', disableSubmodules: true]]
+		+ [[$class: 'CleanBeforeCheckout']], 
+		userRemoteConfigs: scm.userRemoteConfigs
+	])
+
+	echo "=== Checkout submodules from reference repository ==="
+	echo "referenceRepositoryPath(host): ${referenceRepositoryPath}"
+	echo "REFERENCE_REPOSITORY_MOUNT_PATH(container): ${REFERENCE_REPOSITORY_MOUNT_PATH}"
+	CheckoutSubmodulesFromReference(referenceRepositoryPath)
+
+	echo "=== Source/Libraries/External directories ==="
+	sh 'find Source/Libraries/External -maxdepth 1 -mindepth 1 -type d | sort || echo "(directory not found)"'
+}
+
+def CheckoutSubmodulesFromReference(referenceRepositoryPath) {
+	sh """
+		set -eu
+
+		referenceRepositoryPath="${referenceRepositoryPath}"
+
+		if ! test -f .gitmodules; then
+			echo "No submodules found in .gitmodules"
+			exit 0
+		fi
+
+		echo "referenceRepositoryPathExists=\$(test -d "\$referenceRepositoryPath" && echo true || echo false); path=\$referenceRepositoryPath"
+
+		git submodule sync --quiet --recursive || true
+
+		git config -f .gitmodules --get-regexp '^submodule\\..*\\.path\$' | while IFS= read -r row; do
+			pathKey="\${row%% *}"
+			submodulePath="\${row#* }"
+			urlKey="\${pathKey%.path}.url"
+			submoduleUrl="\$(git config -f .gitmodules --get "\$urlKey")"
+			repoName="\$(basename "\$submoduleUrl" .git)"
+			referenceMirrorPath="\$referenceRepositoryPath/\$repoName.git"
+
+			echo "Preparing submodule \$submodulePath"
+
+			if test -d "\$referenceMirrorPath"; then
+				git submodule update --init --jobs 4 --reference "\$referenceMirrorPath" -- "\$submodulePath"
+			else
+				git submodule update --init --jobs 4 -- "\$submodulePath"
+			fi
+		done
+	""".stripIndent()
+}
+
+def GetPublishingProjects(){
+	// тут нужно получить список проектов (возвращается список путей относительно корня репозитория))
+	sh 'bash ./get_publishing_projects.sh ${PUBLISH_PROFILE}.pubxml'
+}
+

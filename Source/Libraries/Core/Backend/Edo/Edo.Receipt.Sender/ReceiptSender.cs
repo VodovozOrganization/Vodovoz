@@ -62,7 +62,7 @@ namespace Edo.Receipt.Sender
 				return;
 			}
 
-			if(CheckOrderItemsAsync(edoTask))
+			if(_edoCancellationService.IsEdoTaskMustBeCancelled(edoTask))
 			{
 				var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
 				
@@ -126,7 +126,7 @@ namespace Edo.Receipt.Sender
 					if(result.SendStatus == SendStatus.Error)
 					{
 						edoFiscalDocument.FailureMessage = result.ErrorMessage;
-						edoFiscalDocument.Status = Vodovoz.Core.Domain.Edo.FiscalDocumentStatus.Failed;
+						edoFiscalDocument.Status = Vodovoz.Core.Domain.Edo.FiscalDocumentStatus.SendError;
 						continue;
 					}
 
@@ -145,6 +145,7 @@ namespace Edo.Receipt.Sender
 				}
 
 				var hasFailure = edoTask.FiscalDocuments.Any(x => x.Status == Vodovoz.Core.Domain.Edo.FiscalDocumentStatus.Failed);
+				var hasSendErrors = edoTask.FiscalDocuments.Any(x => x.Status == Vodovoz.Core.Domain.Edo.FiscalDocumentStatus.SendError);
 				if(hasFailure)
 				{
 					_logger.LogWarning("Не удалось отправить некоторые чеки по задаче №{edoTaskId}.", edoTask.Id);
@@ -152,6 +153,20 @@ namespace Edo.Receipt.Sender
 						edoTask,
 						cancellationToken
 					);
+					return;
+				}
+				else if(hasSendErrors)
+				{
+					_logger.LogWarning("При отправке чеков в Модуль Кассу по задаче №{edoTaskId} возникли ошибки", edoTask.Id);
+
+					await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
+					await _uow.CommitAsync(cancellationToken);
+
+					await _edoProblemRegistrar.RegisterCustomProblem<NotAllReceiptsWasSended>(
+						edoTask,
+						cancellationToken
+					);
+
 					return;
 				}
 				else
@@ -171,18 +186,6 @@ namespace Edo.Receipt.Sender
 			await _uow.CommitAsync(cancellationToken);
 
 			_logger.LogInformation("Все чеки по задаче №{edoTaskId} отправлены успешно.", edoTask.Id);
-		}
-
-		private bool CheckOrderItemsAsync(EdoTask edoTask)
-		{
-			if(!(edoTask is OrderEdoTask orderEdoTask))
-			{
-				return true;
-			}
-			
-			var edoRequest = orderEdoTask.FormalEdoRequest;
-
-			return edoRequest.Order.OrderItems.All(x => x.Price > 0) && edoRequest.Order.OrderSum > 0;
 		}
 		
 		public void Dispose()
