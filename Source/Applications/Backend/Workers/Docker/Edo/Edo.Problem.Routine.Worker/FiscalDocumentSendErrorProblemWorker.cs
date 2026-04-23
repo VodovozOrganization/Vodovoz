@@ -42,13 +42,13 @@ namespace Edo.Problem.Routine.Worker
 				await fiscalDocumentSendErrorProblemService.ProcessProblemFiscalDocuments(stoppingToken);
 
 				_logger.LogInformation("Обработка фискальных документов с проблемой отправки успешно завершена");
+
+				await zabbixSender.SendIsHealthyAsync(stoppingToken);
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Ошибка при обработке фискальных документов с проблемой отправки");
 			}
-
-			await zabbixSender.SendIsHealthyAsync(stoppingToken);
 		}
 	}
 }
