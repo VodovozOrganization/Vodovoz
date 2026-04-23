@@ -80,7 +80,7 @@ namespace CustomerAppsApi.Library.Validators
 
 			ValidateSource(dto.Source);
 			ValidateName(dto.Name);
-			ValidateTypeOfOwnership(dto.CodeTypeOfOwnership, dto.ShortTypeOfOwnership, dto.FullTypeOfOwnership);
+			ValidateTypeOfOwnership(dto.ShortTypeOfOwnership, dto.FullTypeOfOwnership);
 			ValidateInn(dto.Inn, dto.ShortTypeOfOwnership);
 			ValidateKpp(dto.Kpp, dto.ShortTypeOfOwnership);
 			ValidateJurAddress(dto.JurAddress);
@@ -393,18 +393,13 @@ namespace CustomerAppsApi.Library.Validators
 			}
 		}
 		
-		private void ValidateTypeOfOwnership(string codeTypeOfOwnership, string shortTypeOfOwnership, string fullTypeOfOwnership)
+		private void ValidateTypeOfOwnership(string shortTypeOfOwnership, string fullTypeOfOwnership)
 		{
 			ValidateShortTypeOfOwnership(shortTypeOfOwnership);
 			
 			if(string.IsNullOrWhiteSpace(fullTypeOfOwnership))
 			{
 				_sb.AppendLine("Не заполнено полное наименование ОПФ");
-			}
-			
-			if(string.IsNullOrWhiteSpace(codeTypeOfOwnership))
-			{
-				_sb.AppendLine("Не заполнен код ОПФ");
 			}
 		}
 		

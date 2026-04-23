@@ -27,7 +27,13 @@ namespace CustomerAppsApi.Library.Repositories
 		int GetCounterpartyBottlesDebt(IUnitOfWork uow, int counterpartyId, int counterpartyDebtCacheMinutes);
 		Email GetEmailForExternalCounterparty(IUnitOfWork uow, int counterpartyId);
 		EmailType GetEmailTypeForReceipts(IUnitOfWork uow);
-		OrganizationOwnershipType GetOrganizationOwnershipTypeByCode(IUnitOfWork uow, string code);
+		/// <summary>
+		/// Поиск ОПФ по сокращенной форме
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="shortType">Сокращенная форма ОПФ</param>
+		/// <returns></returns>
+		IEnumerable<OrganizationOwnershipType> GetOrganizationOwnershipTypeByShortType(IUnitOfWork uow, string shortType);
 		bool CounterpartyExists(IUnitOfWork uow, int counterpartyId);
 		bool CounterpartyExists(IUnitOfWork uow, string inn);
 		/// <summary>

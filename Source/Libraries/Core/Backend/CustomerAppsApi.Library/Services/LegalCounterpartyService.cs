@@ -91,22 +91,26 @@ namespace CustomerAppsApi.Library.Services
 			}
 
 			_logger.LogInformation(
-				"Проверяем наличие в БД ОПФ с кодом {Code} и аббревиатурой {ShortTypeOwnership}",
-				dto.CodeTypeOfOwnership,
-				dto.ShortTypeOfOwnership);
+				"Проверяем наличие в БД ОПФ с аббревиатурой {ShortTypeOwnership}", dto.ShortTypeOfOwnership);
 			
-			var typeOwnership = _counterpartyServiceDataHandler.GetOrganizationOwnershipTypeByCode(_uow, dto.CodeTypeOfOwnership);
+			var typeOwnerships =
+				_counterpartyServiceDataHandler.GetOrganizationOwnershipTypeByShortType(_uow, dto.ShortTypeOfOwnership);
 
+			if(typeOwnerships.Count() > 1)
+			{
+				_logger.LogWarning("Найдено более одной записи с ОПФ {ShortTypeOwnership}", dto.ShortTypeOfOwnership);
+				return ("Произошла ошибка, пожалуйста, обратитесь в тех поддержку", null);
+			}
+
+			var typeOwnership = typeOwnerships.FirstOrDefault();
+			
 			if(typeOwnership is null)
 			{
 				_logger.LogInformation(
-					"Не нашли в БД ОПФ с кодом {Code} и аббревиатурой {ShortTypeOwnership}, создаем...",
-					dto.CodeTypeOfOwnership,
-					dto.ShortTypeOfOwnership);
+					"Не нашли в БД ОПФ с аббревиатурой {ShortTypeOwnership}, создаем...", dto.ShortTypeOfOwnership);
 				
 				typeOwnership = new OrganizationOwnershipType
 				{
-					Code = dto.CodeTypeOfOwnership,
 					Abbreviation = dto.ShortTypeOfOwnership,
 					FullName = dto.FullTypeOfOwnership
 				};
@@ -116,9 +120,7 @@ namespace CustomerAppsApi.Library.Services
 				if(typeOwnership.IsArchive)
 				{
 					_logger.LogInformation(
-						"Нашли в БД архивную ОПФ с кодом {Code} и аббревиатурой {ShortTypeOwnership}, разархивируем...",
-						dto.CodeTypeOfOwnership,
-						dto.ShortTypeOfOwnership);
+						"Нашли в БД архивную ОПФ с аббревиатурой {ShortTypeOwnership}, разархивируем...", dto.ShortTypeOfOwnership);
 					
 					typeOwnership.IsArchive = false;
 				}

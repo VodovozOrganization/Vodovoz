@@ -109,9 +109,9 @@ namespace CustomerAppsApi.Library.Repositories
 			return _emailRepository.GetEmailTypeForReceipts(uow);
 		}
 
-		public OrganizationOwnershipType GetOrganizationOwnershipTypeByCode(IUnitOfWork uow, string code)
+		public IEnumerable<OrganizationOwnershipType> GetOrganizationOwnershipTypeByShortType(IUnitOfWork uow, string shortType)
 		{
-			return _organizationRepository.GetOrganizationOwnershipTypeByCode(uow, code);
+			return _organizationRepository.GetOrganizationOwnershipTypeByAbbreviation(uow, shortType);
 		}
 
 		public bool CounterpartyExists(IUnitOfWork uow, int counterpartyId)
