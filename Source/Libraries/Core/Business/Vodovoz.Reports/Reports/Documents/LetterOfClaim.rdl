@@ -15,7 +15,7 @@
     <PrintOnLastPage>false</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>731.0pt</Height>
+    <Height>720.9pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Textbox Name="AppendixLabel">
@@ -25,7 +25,7 @@
         <Left>0pt</Left>
         <Top>0pt</Top>
         <Style>
-          <FontFamily>Times New Roman</FontFamily>
+          <FontFamily>Arial</FontFamily>
           <FontSize>10pt</FontSize>
           <VerticalAlign>Middle</VerticalAlign>
           <BorderStyle>
@@ -46,7 +46,7 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>482pt</Width>
+            <Width>477.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -59,7 +59,7 @@
                     <Textbox Name="OrgName">
                       <Value>={full_name}</Value>
                       <Style>
-                        <FontFamily>Times New Roman</FontFamily>
+                        <FontFamily>Arial</FontFamily>
                         <FontSize>14pt</FontSize>
                         <FontWeight>Bold</FontWeight>
                         <TextAlign>Center</TextAlign>
@@ -81,10 +81,10 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="OrgDetails">
-                      <Value>=ИНН/ОГРН {inn}/{ogrn} Юридический адрес: {jur_address}, т: 8 {phone}</Value>
+                      <Value>="ИНН/ОГРН " + {inn} + "/" + {ogrn}  + " Юридический адрес: " + {jur_address} + ", т: 8 " + {phone}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
-                        <FontFamily>Times New Roman</FontFamily>
+                        <FontFamily>Arial</FontFamily>
                         <FontSize>9pt</FontSize>
                         <FontStyle>Italic</FontStyle>
                         <TextAlign>Center</TextAlign>
@@ -104,7 +104,7 @@
         </Header>
         <Left>0pt</Left>
         <Top>18pt</Top>
-        <DataSetName >Organization</DataSetName>
+        <DataSetName>Organization</DataSetName>
       </Table>
       <!-- Таблица исходящего номера и адресата (2 колонки × 3 строки, с рамкой) -->
       <Table Name="HeaderInfoTable">
@@ -131,51 +131,155 @@
           <TableRows>
             <!-- Строка 1: Исх. № б/н | получатель -->
             <TableRow>
-              <Height>18pt</Height>
+              <Height>42.0pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="HeaderCell00">
-                      <Value>Исх. № б/н</Value>
+                      <Value>="Исх. № б/н
+
+" 
++ "От «" + Day(Today()) 
++ "» " 
++  Choose(Month(Today()), "января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря") 
++ " " 
++ Year(Today()) &amp; " года"</Value>
                       <Style>
-                        <FontFamily>Times New Roman</FontFamily>
+                        <FontFamily>Arial</FontFamily>
                         <FontSize>10pt</FontSize>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingLeft>4pt</PaddingLeft>
+                        <VerticalAlign>Top</VerticalAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
                         <BorderStyle>
-                          <Default>None</Default>
+                          <Default>Solid</Default>
                           <Right>Solid</Right>
                           <Bottom>Solid</Bottom>
+                          <Left >Solid</Left>
+                          <Top >Solid</Top>
                         </BorderStyle>
                         <BorderColor>
                           <Default>Black</Default>
                         </BorderColor>
                         <BorderWidth>
-                          <Default>0.5pt</Default>
+                          <Default>1pt</Default>
+                          <Left >1pt</Left>
+                          <Right >1pt</Right>
+                          <Top >1pt</Top>
+                          <Bottom >1pt</Bottom>
                         </BorderWidth>
+                        <PaddingRight >2pt</PaddingRight>
+                        <PaddingTop >2pt</PaddingTop>
+                        <PaddingBottom >2pt</PaddingBottom>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="HeaderCell01">
-                      <Value>_________________________ «     »</Value>
+                      <Value>={full_name}
++ "
+"
++ {jur_address}
++ ", "
++ {inn}</Value>
                       <Style>
-                        <FontFamily>Times New Roman</FontFamily>
+                        <FontFamily>Arial</FontFamily>
                         <FontSize>10pt</FontSize>
                         <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingLeft>4pt</PaddingLeft>
+                        <PaddingLeft>2pt</PaddingLeft>
                         <BorderStyle>
-                          <Default>None</Default>
+                          <Default>Solid</Default>
                           <Bottom>Solid</Bottom>
+                          <Left >Solid</Left>
+                          <Right >Solid</Right>
+                          <Top >Solid</Top>
                         </BorderStyle>
                         <BorderColor>
                           <Default>Black</Default>
                         </BorderColor>
                         <BorderWidth>
-                          <Default>0.5pt</Default>
+                          <Default>1pt</Default>
+                          <Left >1pt</Left>
+                          <Right >1pt</Right>
+                          <Top >1pt</Top>
+                          <Bottom >1pt</Bottom>
                         </BorderWidth>
+                        <PaddingRight >2pt</PaddingRight>
+                        <PaddingTop >2pt</PaddingTop>
+                        <PaddingBottom >2pt</PaddingBottom>
+                      </Style>
+                      <CanGrow >true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow >
+              <Height>20.1pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>10pt</FontSize>
+                        <VerticalAlign>Top</VerticalAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Right>Solid</Right>
+                          <Bottom>Solid</Bottom>
+                          <Left >Solid</Left>
+                          <Top >Solid</Top>
+                        </BorderStyle>
+                        <BorderColor>
+                          <Default>Black</Default>
+                        </BorderColor>
+                        <BorderWidth>
+                          <Default>1pt</Default>
+                          <Left >1pt</Left>
+                          <Right >1pt</Right>
+                          <Top >1pt</Top>
+                          <Bottom >1pt</Bottom>
+                        </BorderWidth>
+                        <PaddingRight >2pt</PaddingRight>
+                        <PaddingTop >2pt</PaddingTop>
+                        <PaddingBottom >2pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value></Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>10pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Bottom>Solid</Bottom>
+                          <Left >Solid</Left>
+                          <Right >Solid</Right>
+                          <Top >Solid</Top>
+                        </BorderStyle>
+                        <BorderColor>
+                          <Default>Black</Default>
+                        </BorderColor>
+                        <BorderWidth>
+                          <Default>1pt</Default>
+                          <Left >1pt</Left>
+                          <Right >1pt</Right>
+                          <Top >1pt</Top>
+                          <Bottom >1pt</Bottom>
+                        </BorderWidth>
+                        <PaddingRight >2pt</PaddingRight>
+                        <PaddingTop >2pt</PaddingTop>
+                        <PaddingBottom >2pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -183,289 +287,26 @@
               </TableCells>
             </TableRow>
             <!-- Строка 2: поле номера | контакт получателя -->
-            <TableRow>
-              <Height>18pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="HeaderCell10">
-                      <Value>_________________________</Value>
-                      <Style>
-                        <FontFamily>Times New Roman</FontFamily>
-                        <FontSize>10pt</FontSize>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingLeft>4pt</PaddingLeft>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Right>Solid</Right>
-                          <Bottom>Solid</Bottom>
-                        </BorderStyle>
-                        <BorderColor>
-                          <Default>Black</Default>
-                        </BorderColor>
-                        <BorderWidth>
-                          <Default>0.5pt</Default>
-                        </BorderWidth>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="HeaderCell11">
-                      <Value>_________________________________</Value>
-                      <Style>
-                        <FontFamily>Times New Roman</FontFamily>
-                        <FontSize>10pt</FontSize>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingLeft>4pt</PaddingLeft>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Bottom>Solid</Bottom>
-                        </BorderStyle>
-                        <BorderColor>
-                          <Default>Black</Default>
-                        </BorderColor>
-                        <BorderWidth>
-                          <Default>0.5pt</Default>
-                        </BorderWidth>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
             <!-- Строка 3: дата | адрес получателя -->
-            <TableRow>
-              <Height>19pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="HeaderCell20">
-                      <Value>От «_»  __________  202_  года</Value>
-                      <Style>
-                        <FontFamily>Times New Roman</FontFamily>
-                        <FontSize>10pt</FontSize>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingLeft>4pt</PaddingLeft>
-                        <BorderStyle>
-                          <Default>None</Default>
-                          <Right>Solid</Right>
-                        </BorderStyle>
-                        <BorderColor>
-                          <Default>Black</Default>
-                        </BorderColor>
-                        <BorderWidth>
-                          <Default>0.5pt</Default>
-                        </BorderWidth>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="HeaderCell21">
-                      <Value>,  ____________________________</Value>
-                      <Style>
-                        <FontFamily>Times New Roman</FontFamily>
-                        <FontSize>10pt</FontSize>
-                        <VerticalAlign>Middle</VerticalAlign>
-                        <PaddingLeft>4pt</PaddingLeft>
-                        <BorderStyle>
-                          <Default>None</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
           </TableRows>
         </Header>
         <Left>0pt</Left>
         <Top>75pt</Top>
-        <DataSetName >Organization</DataSetName>
+        <DataSetName>Client</DataSetName>
       </Table>
       <Textbox Name="DocTitle">
-        <Height>22pt</Height>
-        <Width>482pt</Width>
+        <Height>25.76pt</Height>
+        <Width>482.00pt</Width>
         <Value>ПРЕТЕНЗИЯ</Value>
-        <Left>0pt</Left>
-        <Top>148pt</Top>
+        <Left>0.00pt</Left>
+        <Top>139.00pt</Top>
         <Style>
-          <FontFamily>Times New Roman</FontFamily>
+          <FontFamily>Arial</FontFamily>
           <FontSize>12pt</FontSize>
           <FontWeight>Bold</FontWeight>
           <TextAlign>Center</TextAlign>
           <VerticalAlign>Middle</VerticalAlign>
-          <TextDecoration>Underline</TextDecoration>
-          <BorderStyle>
-            <Default>None</Default>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
-      <Textbox Name="Para1">
-        <Height>30pt</Height>
-        <Width>482pt</Width>
-        <Value>="      Настоящим, сообщаем Вам, о наличии за ________________ «__________» задолженности перед" + First({full_name}, 'Organization') + ", возникшей по договору __________ от ______ «___»__________ 202__ г."</Value>
-        <Left>0pt</Left>
-        <Top>175pt</Top>
-        <CanGrow>true</CanGrow>
-        <Style>
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
-          <VerticalAlign>Top</VerticalAlign>
-          <BorderStyle>
-            <Default>None</Default>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
-      <Textbox Name="Para2">
-        <Height>15pt</Height>
-        <Width>482pt</Width>
-        <Value>      Размер задолженности, составляет: _____________ руб. __ коп.</Value>
-        <Left>0.0pt</Left>
-        <Top>219.6pt</Top>
-        <CanGrow>true</CanGrow>
-        <Style>
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
-          <VerticalAlign>Top</VerticalAlign>
-          <BorderStyle>
-            <Default>None</Default>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
-      <Textbox Name="Para3">
-        <Height>42pt</Height>
-        <Width>482pt</Width>
-        <Value>      Согласно, положениям ст. 309, 310, 314 Гражданского кодекса Российской Федерации обязательства сторон договорных правоотношений должны исполняться надлежащим образом в соответствии с требованиями законодательства и условиями договора.</Value>
-        <Left>0.0pt</Left>
-        <Top>239.6pt</Top>
-        <CanGrow>true</CanGrow>
-        <Style>
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
-          <VerticalAlign>Top</VerticalAlign>
-          <BorderStyle>
-            <Default>None</Default>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
-      <Textbox Name="Para4">
-        <Height>15pt</Height>
-        <Width>482pt</Width>
-        <Value>      Обязательство должно исполняться точно в срок, установленный соглашением сторон.</Value>
-        <Left>0.0pt</Left>
-        <Top>286.6pt</Top>
-        <CanGrow>true</CanGrow>
-        <Style>
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
-          <VerticalAlign>Top</VerticalAlign>
-          <BorderStyle>
-            <Default>None</Default>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
-      <Textbox Name="Para5">
-        <Height>28pt</Height>
-        <Width>482pt</Width>
-        <Value>      При этом Российским законодательством не допускается односторонний отказ от исполнения обязательства, а также изменение его условий в одностороннем порядке ст.310 гк рф.</Value>
-        <Left>0.0pt</Left>
-        <Top>306.6pt</Top>
-        <CanGrow>true</CanGrow>
-        <Style>
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
-          <VerticalAlign>Top</VerticalAlign>
-          <BorderStyle>
-            <Default>None</Default>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
-      <Textbox Name="Para6">
-        <Height>30pt</Height>
-        <Width>482pt</Width>
-        <Value>      Предлагаем Вам в добровольном порядке в срок до _____ «___»______________202__ г. погасить возникшую задолженность на общую сумму: _____________ руб. __ коп.</Value>
-        <Left>0.0pt</Left>
-        <Top>339.2pt</Top>
-        <CanGrow>true</CanGrow>
-        <Style>
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
-          <FontWeight>Bold</FontWeight>
-          <VerticalAlign>Top</VerticalAlign>
-          <BorderStyle>
-            <Default>None</Default>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
-      <Textbox Name="Para7">
-        <Height>39.97pt</Height>
-        <Width>479.74pt</Width>
-        <Value>      На основании изложенного и руководствуясь статьями 309, 310, 314 гк рф, просим вас оплатить указанную задолженность. В противном случае мы будем вынуждены обратиться в Арбитражный суд о взыскании задолженности в принудительном порядке и закрыть все поставки нашей продукции.</Value>
-        <Left>0.0pt</Left>
-        <Top>371.0pt</Top>
-        <CanGrow>true</CanGrow>
-        <Style>
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
-          <FontWeight>Bold</FontWeight>
-          <VerticalAlign>Top</VerticalAlign>
-          <BorderStyle>
-            <Default>None</Default>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-          <Color >Red</Color>
-        </Style>
-      </Textbox>
-      <Textbox Name="Para8">
-        <Height>28pt</Height>
-        <Width>482pt</Width>
-        <Value>      В этом случае сумма Вашей задолженности будет увеличена на сумму госпошлины, пени за просрочку оплаты и иных судебных расходов.</Value>
-        <Left>0.0pt</Left>
-        <Top>415.8pt</Top>
-        <CanGrow>true</CanGrow>
-        <Style>
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
-          <VerticalAlign>Top</VerticalAlign>
-          <BorderStyle>
-            <Default>None</Default>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
-      <Textbox Name="Para9">
-        <Height>42pt</Height>
-        <Width>482pt</Width>
-        <Value>      Настоятельно рекомендуем принять участие в мирном урегулировании данного вопроса, что позволит обеим сторонам сэкономить время и деньги, а также создаст предпосылки для дальнейшего плодотворного сотрудничества наших компаний.</Value>
-        <Left>0.0pt</Left>
-        <Top>451.2pt</Top>
-        <CanGrow>true</CanGrow>
-        <Style>
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
-          <VerticalAlign>Top</VerticalAlign>
+          <TextDecoration>None</TextDecoration>
           <BorderStyle>
             <Default>None</Default>
           </BorderStyle>
@@ -479,11 +320,11 @@
         <Value>Приложение:
 Акт сверки
 Счет на оплату</Value>
-        <Left>0.0pt</Left>
-        <Top>501.6pt</Top>
+        <Left>0.7pt</Left>
+        <Top>506.5pt</Top>
         <CanGrow>true</CanGrow>
         <Style>
-          <FontFamily>Times New Roman</FontFamily>
+          <FontFamily>Arial</FontFamily>
           <FontSize>10pt</FontSize>
           <FontStyle>Italic</FontStyle>
           <VerticalAlign>Top</VerticalAlign>
@@ -497,11 +338,11 @@
       <Textbox Name="SignatureLine">
         <Height>15pt</Height>
         <Width>482pt</Width>
-        <Value>="Генеральный директор                                   " + First({leader_short_name}, 'Organization'</Value>
-        <Left>0.0pt</Left>
-        <Top>562.8pt</Top>
+        <Value>="Генеральный директор                                   " + First({leader_short_name}, 'Organization')</Value>
+        <Left>0.7pt</Left>
+        <Top>567.7pt</Top>
         <Style>
-          <FontFamily>Times New Roman</FontFamily>
+          <FontFamily>Arial</FontFamily>
           <FontSize>10pt</FontSize>
           <FontWeight>Bold</FontWeight>
           <VerticalAlign>Middle</VerticalAlign>
@@ -512,31 +353,11 @@
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="ExecutorBlock">
-        <Height>30pt</Height>
-        <Width>220pt</Width>
-        <Value>Исп.Перваков Кирилл Юрьевич 
-Т: (812) 3170000  доб. 1201</Value>
-        <Left>0.0pt</Left>
-        <Top>674.0pt</Top>
-        <CanGrow>true</CanGrow>
-        <Style>
-          <FontFamily>Times New Roman</FontFamily>
-          <FontSize>10pt</FontSize>
-          <BackgroundColor></BackgroundColor>
-          <VerticalAlign>Top</VerticalAlign>
-          <BorderStyle>
-            <Default>None</Default>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
       <Image Name="Image1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>60.21pt</Height>
         <Width>80.53pt</Width>
-        <Left>127.3pt</Left>
-        <Top>534.3pt</Top>
+        <Left>134.3pt</Left>
+        <Top>539.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -546,7 +367,7 @@
         <Source>Database</Source>
         <Value>=First({leader}, "Signatures")</Value>
         <Sizing>Fit</Sizing>
-        <ZIndex>0</ZIndex>
+        <ZIndex>2</ZIndex>
         <Visibility>
           <Hidden>={?hide_signature}</Hidden>
         </Visibility>
@@ -555,8 +376,8 @@
       <Image Name="Image2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>102.39pt</Height>
         <Width>112.93pt</Width>
-        <Left>12.6pt</Left>
-        <Top>573.3pt</Top>
+        <Left>30.4pt</Left>
+        <Top>579.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -571,6 +392,496 @@
         </Visibility>
         <ZIndex>2</ZIndex>
       </Image>
+      <Table Name="Table1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Style>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left >None</Left>
+            <Right >None</Right>
+            <Top >None</Top>
+            <Bottom >None</Bottom>
+          </BorderStyle>
+          <BorderColor>
+            <Default>Black</Default>
+          </BorderColor>
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left >1pt</Left>
+            <Right >1pt</Right>
+            <Top >1pt</Top>
+            <Bottom >1pt</Bottom>
+          </BorderWidth>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>483.6pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <!-- Строка 1: Исх. № б/н | получатель -->
+            <!-- Строка 2: поле номера | контакт получателя -->
+            <TableRow>
+              <Height>22.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>="      Настоящим, сообщаем Вам, о наличии за "
++ First({full_name}, 'Client')
++ " задолженности перед " 
++ First({full_name}, 'Organization') 
++ ", возникшей по договору "
++ First({contract_number}, 'Client')
++ " "
++ First({formatted_contract_date}, 'Client')</Value>
+                      <Style>
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>10pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Right>None</Right>
+                          <Bottom>None</Bottom>
+                          <Left >None</Left>
+                          <Top >None</Top>
+                        </BorderStyle>
+                        <BorderColor>
+                          <Default>Black</Default>
+                        </BorderColor>
+                        <BorderWidth>
+                          <Default>1pt</Default>
+                          <Left >1pt</Left>
+                          <Right >1pt</Right>
+                          <Top >1pt</Top>
+                          <Bottom >1pt</Bottom>
+                        </BorderWidth>
+                        <PaddingRight >2pt</PaddingRight>
+                        <PaddingBottom >2pt</PaddingBottom>
+                        <PaddingTop >2pt</PaddingTop>
+                      </Style>
+                      <CanGrow >true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow >
+              <Height>18pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>="      Размер задолженности, составляет:  " + {?debt_sum_string}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>10pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Right>None</Right>
+                          <Bottom>None</Bottom>
+                          <Left >None</Left>
+                          <Top >None</Top>
+                        </BorderStyle>
+                        <BorderColor>
+                          <Default>Black</Default>
+                        </BorderColor>
+                        <BorderWidth>
+                          <Default>1pt</Default>
+                          <Left >1pt</Left>
+                          <Right >1pt</Right>
+                          <Top >1pt</Top>
+                          <Bottom >1pt</Bottom>
+                        </BorderWidth>
+                        <PaddingRight >2pt</PaddingRight>
+                        <PaddingBottom >2pt</PaddingBottom>
+                        <PaddingTop >2pt</PaddingTop>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow >
+              <Height>41.4pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>      Согласно, положениям ст. 309, 310, 314 Гражданского кодекса Российской Федерации обязательства сторон договорных правоотношений должны исполняться надлежащим образом в соответствии с требованиями законодательства и условиями договора.</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>10pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Right>None</Right>
+                          <Bottom>None</Bottom>
+                          <Left >None</Left>
+                          <Top >None</Top>
+                        </BorderStyle>
+                        <BorderColor>
+                          <Default>Black</Default>
+                        </BorderColor>
+                        <BorderWidth>
+                          <Default>1pt</Default>
+                          <Left >1pt</Left>
+                          <Right >1pt</Right>
+                          <Top >1pt</Top>
+                          <Bottom >1pt</Bottom>
+                        </BorderWidth>
+                        <PaddingRight >2pt</PaddingRight>
+                        <PaddingBottom >2pt</PaddingBottom>
+                        <PaddingTop >2pt</PaddingTop>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow >
+              <Height>21.9pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox9">
+                      <Value>      Обязательство должно исполняться точно в срок, установленный соглашением сторон.</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>10pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Right>None</Right>
+                          <Bottom>None</Bottom>
+                          <Left >None</Left>
+                          <Top >None</Top>
+                        </BorderStyle>
+                        <BorderColor>
+                          <Default>Black</Default>
+                        </BorderColor>
+                        <BorderWidth>
+                          <Default>1pt</Default>
+                          <Left >1pt</Left>
+                          <Right >1pt</Right>
+                          <Top >1pt</Top>
+                          <Bottom >1pt</Bottom>
+                        </BorderWidth>
+                        <PaddingRight >2pt</PaddingRight>
+                        <PaddingBottom >2pt</PaddingBottom>
+                        <PaddingTop >2pt</PaddingTop>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow >
+              <Height>38.4pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>      При этом Российским законодательством не допускается односторонний отказ от исполнения обязательства, а также изменение его условий в одностороннем порядке ст.310 гк рф.</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>10pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Right>None</Right>
+                          <Bottom>None</Bottom>
+                          <Left >None</Left>
+                          <Top >None</Top>
+                        </BorderStyle>
+                        <BorderColor>
+                          <Default>Black</Default>
+                        </BorderColor>
+                        <BorderWidth>
+                          <Default>1pt</Default>
+                          <Left >1pt</Left>
+                          <Right >1pt</Right>
+                          <Top >1pt</Top>
+                          <Bottom >1pt</Bottom>
+                        </BorderWidth>
+                        <PaddingRight >2pt</PaddingRight>
+                        <PaddingBottom >2pt</PaddingBottom>
+                        <PaddingTop >2pt</PaddingTop>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow >
+              <Height>36.6pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>="      Предлагаем Вам в добровольном порядке в срок до " 
++ "«" 
++ Day(DateAdd("m", 1, Today())) 
++ "» " 
++ Choose(Month(DateAdd("m", 1, Today())), "января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря") 
++ " " 
++ Year(DateAdd("m", 1, Today())) 
++ " года "
++ "погасить возникшую задолженность на общую сумму: "
++ {?debt_sum_string}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>10pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Right>None</Right>
+                          <Bottom>None</Bottom>
+                          <Left >None</Left>
+                          <Top >None</Top>
+                        </BorderStyle>
+                        <BorderColor>
+                          <Default>Black</Default>
+                        </BorderColor>
+                        <BorderWidth>
+                          <Default>1pt</Default>
+                          <Left >1pt</Left>
+                          <Right >1pt</Right>
+                          <Top >1pt</Top>
+                          <Bottom >1pt</Bottom>
+                        </BorderWidth>
+                        <PaddingRight >2pt</PaddingRight>
+                        <PaddingBottom >2pt</PaddingBottom>
+                        <FontWeight >Bold</FontWeight>
+                        <PaddingTop >2pt</PaddingTop>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow >
+              <Height>55.9pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>      На основании изложенного и руководствуясь статьями 309, 310, 314 гк рф, просим вас оплатить указанную задолженность. В противном случае мы будем вынуждены обратиться в Арбитражный суд о взыскании задолженности в принудительном порядке и закрыть все поставки нашей продукции.</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>10pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Right>None</Right>
+                          <Bottom>None</Bottom>
+                          <Left >None</Left>
+                          <Top >None</Top>
+                        </BorderStyle>
+                        <BorderColor>
+                          <Default>Black</Default>
+                        </BorderColor>
+                        <BorderWidth>
+                          <Default>1pt</Default>
+                          <Left >1pt</Left>
+                          <Right >1pt</Right>
+                          <Top >1pt</Top>
+                          <Bottom >1pt</Bottom>
+                        </BorderWidth>
+                        <PaddingRight >2pt</PaddingRight>
+                        <PaddingBottom >2pt</PaddingBottom>
+                        <FontWeight >Bold</FontWeight>
+                        <Color >Red</Color>
+                        <PaddingTop >2pt</PaddingTop>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow >
+              <Height>33.4pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>      В этом случае сумма Вашей задолженности будет увеличена на сумму госпошлины, пени за просрочку оплаты и иных судебных расходов.</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>10pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Right>None</Right>
+                          <Bottom>None</Bottom>
+                          <Left >None</Left>
+                          <Top >None</Top>
+                        </BorderStyle>
+                        <BorderColor>
+                          <Default>Black</Default>
+                        </BorderColor>
+                        <BorderWidth>
+                          <Default>1pt</Default>
+                          <Left >1pt</Left>
+                          <Right >1pt</Right>
+                          <Top >1pt</Top>
+                          <Bottom >1pt</Bottom>
+                        </BorderWidth>
+                        <PaddingRight >2pt</PaddingRight>
+                        <PaddingBottom >2pt</PaddingBottom>
+                        <PaddingTop >2pt</PaddingTop>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow >
+              <Height>44.1pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Value>      Настоятельно рекомендуем принять участие в мирном урегулировании данного вопроса, что позволит обеим сторонам сэкономить время и деньги, а также создаст предпосылки для дальнейшего плодотворного сотрудничества наших компаний.</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>10pt</FontSize>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Right>None</Right>
+                          <Bottom>None</Bottom>
+                          <Left >None</Left>
+                          <Top >None</Top>
+                        </BorderStyle>
+                        <BorderColor>
+                          <Default>Black</Default>
+                        </BorderColor>
+                        <BorderWidth>
+                          <Default>1pt</Default>
+                          <Left >1pt</Left>
+                          <Right >1pt</Right>
+                          <Top >1pt</Top>
+                          <Bottom >1pt</Bottom>
+                        </BorderWidth>
+                        <PaddingRight >2pt</PaddingRight>
+                        <PaddingBottom >2pt</PaddingBottom>
+                        <PaddingTop >2pt</PaddingTop>
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <!-- Строка 3: дата | адрес получателя -->
+          </TableRows>
+        </Header>
+        <Left>0.0pt</Left>
+        <Top>172.9pt</Top>
+        <DataSetName>Organization</DataSetName>
+        <ZIndex >1</ZIndex>
+      </Table>
+      <Table Name="Table2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor>
+            <Default>Black</Default>
+          </BorderColor>
+          <BorderWidth>
+            <Default>0.5pt</Default>
+          </BorderWidth>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>251.9pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <!-- Строка 1: Исх. № б/н | получатель -->
+            <TableRow>
+              <Height>33.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox1">
+                      <Value>="Исп. "
++{creator}
++"
+Т: "
++ {creator_phone}</Value>
+                      <Style>
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>10pt</FontSize>
+                        <VerticalAlign>Top</VerticalAlign>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Right>None</Right>
+                          <Bottom>None</Bottom>
+                          <Left >None</Left>
+                          <Top >None</Top>
+                        </BorderStyle>
+                        <BorderColor>
+                          <Default>Black</Default>
+                        </BorderColor>
+                        <BorderWidth>
+                          <Default>1pt</Default>
+                          <Left >1pt</Left>
+                          <Right >1pt</Right>
+                          <Top >1pt</Top>
+                          <Bottom >1pt</Bottom>
+                        </BorderWidth>
+                        <PaddingRight >2pt</PaddingRight>
+                        <PaddingTop >2pt</PaddingTop>
+                        <PaddingBottom >2pt</PaddingBottom>
+                      </Style>
+                      <CanGrow >true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <!-- Строка 2: поле номера | контакт получателя -->
+            <!-- Строка 3: дата | адрес получателя -->
+          </TableRows>
+        </Header>
+        <Left>0.0pt</Left>
+        <Top>681.7pt</Top>
+        <DataSetName>Creator</DataSetName>
+      </Table>
+      <Line Name="Line1" >
+        <Height>0.00pt</Height>
+        <Width>75.27pt</Width>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+        </Style>
+        <Left>203.56pt</Left>
+        <Top>157.90pt</Top>
+        <ZIndex>1</ZIndex>
+      </Line>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -580,10 +891,10 @@
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <DataSets >
+  <DataSets>
     <DataSet Name="Organization">
-      <Query>
-        <DataSourceName></DataSourceName>
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
         <CommandText>select
 	o.full_name as full_name,
 	o.INN as inn,
@@ -600,6 +911,7 @@
            CONCAT(UPPER(LEFT(e.patronymic, 1)), '.'), 
            ''
         ), 
+        ' ', 
         e.last_name
     ) AS leader_short_name
 from organizations o 
@@ -615,7 +927,7 @@ limit 1;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="full_name">
           <DataField>full_name</DataField>
           <TypeName>System.String</TypeName>
@@ -656,7 +968,7 @@ limit 1;</CommandText>
     </DataSet>
     <DataSet Name="Signatures">
       <Query>
-        <DataSourceName></DataSourceName>
+        <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	binary_file as leader
 FROM stored_resource
@@ -683,7 +995,7 @@ WHERE id =
     </DataSet>
     <DataSet Name="Stamp">
       <Query>
-        <DataSourceName></DataSourceName>
+        <DataSourceName>DS1</DataSourceName>
         <CommandText>select sr.binary_file as image
 from organizations o
 join stored_resource sr ON o.stamp_id = sr.id
@@ -701,14 +1013,137 @@ WHERE o.id = @organization_id</CommandText>
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="Client" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>select
+	c.full_name as full_name,
+	c.inn as inn,
+	c.jur_address as jur_address,
+	cc.`number` as contract_number,
+	cc.issue_date  as contract_date,
+	CONCAT(
+        'от «', 
+        DAY(cc.issue_date), 
+        '» ', 
+        CASE MONTH(cc.issue_date)
+            WHEN 1 THEN 'января'
+            WHEN 2 THEN 'февраля'
+            WHEN 3 THEN 'марта'
+            WHEN 4 THEN 'апреля'
+            WHEN 5 THEN 'мая'
+            WHEN 6 THEN 'июня'
+            WHEN 7 THEN 'июля'
+            WHEN 8 THEN 'августа'
+            WHEN 9 THEN 'сентября'
+            WHEN 10 THEN 'октября'
+            WHEN 11 THEN 'ноября'
+            WHEN 12 THEN 'декабря'
+        END, 
+        ' ', 
+        YEAR(cc.issue_date), 
+        ' года'
+    ) AS formatted_contract_date
+from counterparty c
+left join counterparty_contract cc on c.id = cc.counterparty_id and cc.organization_id = @organization_id and cc.contract_type = 'Cashless'
+where
+	c.id = @client_id
+order by cc.id desc
+limit 1
+;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="client_id">
+            <Value>={?client_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="organization_id">
+            <Value>={?organization_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="full_name">
+          <DataField>full_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="inn">
+          <DataField>inn</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="contract_date">
+          <DataField>contract_date</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="formatted_contract_date">
+          <DataField>formatted_contract_date</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="jur_address">
+          <DataField>jur_address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="contract_number">
+          <DataField>contract_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Creator" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>select
+IFNULL(GET_PARAMETER('ClaimDocument.CreatedBy'),'-') as creator,
+IFNULL(GET_PARAMETER('ClaimDocument.CreatorPhone'),'-') as creator_phone
+;</CommandText>
+      </Query>
+      <Fields>
+        <Field Name="creator">
+          <DataField>creator</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="creator_phone">
+          <DataField>creator_phone</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
   </DataSets>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySqlConnector</DataProvider>
+        <ConnectString>database=Vodovoz_;user=;password=;port=3306;server=vod.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
   <ReportParameters >
     <ReportParameter Name="organization_id">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="client_id">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="debt_sum_string">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
+    </ReportParameter>
+    <ReportParameter Name="hide_signature">
+      <DataType>Boolean</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>
