@@ -31,26 +31,28 @@ namespace Edo.Problem.Routine.Worker
 
 		protected override async Task DoWork(CancellationToken stoppingToken)
 		{
-			using(var scope = _serviceScopeFactory.CreateScope())
+			using var scope = _serviceScopeFactory.CreateScope();
+
+			var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
+			var orderStatusProblemService = scope.ServiceProvider.GetRequiredService<OrderStatusProblemService>();
+
+			_logger.LogInformation("Запуск обработки задач ЭДО с активной проблемой статуса заказа");
+
+			try
 			{
-				var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
-				var orderStatusProblemService = scope.ServiceProvider.GetRequiredService<OrderStatusProblemService>();
+				await orderStatusProblemService.ProcessProblemTasks(stoppingToken);
 
-				_logger.LogInformation("Запуск обработки задач ЭДО с активной проблемой статуса заказа");
-
-				try
-				{
-					await orderStatusProblemService.ProcessProblemTasks(stoppingToken);
-
-					_logger.LogInformation("Обработка задач ЭДО с активной проблемой статуса заказа успешно завершена");
-				}
-				catch(Exception ex)
-				{
-					_logger.LogError(ex, "Ошибка при обработке задач ЭДО с активной проблемой статуса заказа");
-				}
+				_logger.LogInformation("Обработка задач ЭДО с активной проблемой статуса заказа успешно завершена");
 
 				await zabbixSender.SendIsHealthyAsync(stoppingToken);
 			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при обработке задач ЭДО с активной проблемой статуса заказа");
+
+				await zabbixSender.SendProblemMessageAsync(ZabixSenderMessageType.Problem,
+					$"Ошибка при обработке задач ЭДО с активной проблемой статуса заказа: {ex.Message}", stoppingToken);
+			}			
 		}
 	}
 }

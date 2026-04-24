@@ -26,7 +26,6 @@ namespace Edo.Problem.Routine.Services
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOptionsMonitor<OrderStatusProblemWorkerOptions> _options;
 		private readonly IEdoTaskValidator _orderStatusValidator;
-		private readonly IEdoTaskValidator _statusValidator;
 		private readonly IServiceProvider _serviceProvider;
 		private readonly IEdoRepository _edoRepository;
 		private readonly IBus _messageBus;
