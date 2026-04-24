@@ -37,6 +37,6 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		/// <param name="deliveryPoint">Точка доставки</param>
 		/// <param name="countLastOrders">Количество последних заказов</param>
 		/// <returns>Среднее количество дней между заказами</returns>
-		double GetOrderFrequency(IUnitOfWork uow, DeliveryPoint deliveryPoint, int? countLastOrders);
+		int? GetOrderFrequency(IUnitOfWork uow, DeliveryPoint deliveryPoint, int? countLastOrders);
 	}
 }

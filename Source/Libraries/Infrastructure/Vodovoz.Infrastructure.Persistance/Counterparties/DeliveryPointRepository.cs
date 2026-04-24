@@ -103,7 +103,7 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 			return list.Count > 0 ? list.Average(x => (decimal)x[1]) : 0;
 		}
 
-		public double GetOrderFrequency(IUnitOfWork uow, DeliveryPoint deliveryPoint, int? countLastOrders)
+		public int? GetOrderFrequency(IUnitOfWork uow, DeliveryPoint deliveryPoint, int? countLastOrders)
 		{
 			Order orderAlias = null;
 
@@ -145,7 +145,7 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 
 			if(deliveryDates.Count < 2)
 			{
-				return -1;
+				return null;
 			}
 
 			double totalDaysBetweenOrders = 0;
@@ -157,7 +157,7 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 
 			double averageDays = totalDaysBetweenOrders / (deliveryDates.Count - 1);
 
-			return averageDays;
+			return (int)Math.Round(averageDays, MidpointRounding.AwayFromZero);
 		}
 
 		public IOrderedEnumerable<DeliveryPointCategory> GetActiveDeliveryPointCategories(IUnitOfWork uow)

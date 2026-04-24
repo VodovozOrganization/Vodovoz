@@ -188,9 +188,9 @@ namespace Vodovoz.SidePanel.InfoViews
 
 			var orderFrequency = _deliveryPointRepository.GetOrderFrequency(InfoProvider.UoW, DeliveryPoint, 5);
 
-			wrapLabelOrderFrequency.LabelProp = orderFrequency == -1
-				? "У клиента один заказ по точке доставки"
-				: $"Раз в {Math.Round(orderFrequency, MidpointRounding.AwayFromZero)} дней";
+			wrapLabelOrderFrequency.LabelProp = orderFrequency.HasValue
+				? $"Раз в {orderFrequency.Value} дней"
+				: "У клиента один заказ по точке доставки";
 
 			var depositsAtDeliveryPoint = _depositRepository.GetDepositsAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint, null);
 			labelDeposits.LabelProp = CurrencyWorks.GetShortCurrencyString(depositsAtDeliveryPoint);
