@@ -62,5 +62,14 @@ namespace Vodovoz.Core.Data.Repositories
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Список идентификаторов задач ЭДО с ошибкой отправки</returns>
 		Task<IList<int>> GetSendErrorFiscalDocumentsEdoTasksIds(IUnitOfWork uow, DateTime minFiscalDocumentCreationTime, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Возвращает список активных задач ЭДО с указанной проблемой
+		/// </summary>
+		/// <param name="unitOfWork">UnitOfWork</param>
+		/// <param name="problemSourceName">Имя источника проблемы</param>
+		/// <param name="minCreationTime">Минимальное время создания задачи</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		Task<IList<OrderEdoTask>> GetProblemEdoTasks(IUnitOfWork unitOfWork, string problemSourceName, DateTime minCreationTime, CancellationToken cancellationToken);
 	}
 }
