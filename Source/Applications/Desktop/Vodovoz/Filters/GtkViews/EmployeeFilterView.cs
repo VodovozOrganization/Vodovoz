@@ -1,10 +1,13 @@
-﻿using System;
+﻿using Gtk;
 using QS.Views.GtkUI;
+using QS.Widgets;
+using System;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
+using Key = Gdk.Key;
 
 namespace Vodovoz.Filters.GtkViews
 {
@@ -108,6 +111,12 @@ namespace Vodovoz.Filters.GtkViews
 			ychkRFcitizenship.Binding
 				.AddBinding(ViewModel, vm => vm.IsRFCitizen, w => w.Active)
 				.InitializeFromSource();
+
+			entryEmployeePhone.ValidationMode = ValidationType.Numeric;
+			entryEmployeePhone.KeyReleaseEvent += OnKeyReleased;
+			entryEmployeePhone.Binding
+				.AddBinding(ViewModel, vm => vm.EmployeePhone, w => w.Text)
+				.InitializeFromSource();
 		}
 
 		private void UpdateViewModelRestrictions(object sender, EventArgs e)
@@ -119,6 +128,14 @@ namespace Vodovoz.Filters.GtkViews
 		{
 			checkSortByPriority.Toggled -= UpdateViewModelRestrictions;
 			base.Destroy();
+		}
+
+		private void OnKeyReleased(object sender, KeyReleaseEventArgs args)
+		{
+			if(args.Event.Key is Key.Return)
+			{
+				ViewModel.Update();
+			}
 		}
 	}
 }
