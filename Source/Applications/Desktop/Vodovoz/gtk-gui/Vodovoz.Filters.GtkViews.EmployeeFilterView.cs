@@ -78,7 +78,7 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.GtkWidgets.yLabel ylabelPlusSeven;
 
-		private global::Gamma.Widgets.yValidatedEntry entryEmployeePhone;
+		private global::QS.Widgets.ValidatedEntry entryEmployeePhone;
 
 		protected virtual void Build()
 		{
@@ -494,7 +494,7 @@ namespace Vodovoz.Filters.GtkViews
 			w34.Expand = false;
 			w34.Fill = false;
 			// Container child yhboxEmployeePhone.Gtk.Box+BoxChild
-			this.entryEmployeePhone = new global::Gamma.Widgets.yValidatedEntry();
+			this.entryEmployeePhone = new global::QS.Widgets.ValidatedEntry();
 			this.entryEmployeePhone.CanFocus = true;
 			this.entryEmployeePhone.Name = "entryEmployeePhone";
 			this.entryEmployeePhone.IsEditable = true;

@@ -204,7 +204,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 
 				var phonesSubquery = QueryOver.Of<Phone>(() => phoneAlias)
 					.Where(() => phoneAlias.Employee.Id == employeeAlias.Id)
-					.And(() => phoneAlias.DigitsNumber == FilterViewModel.EmployeePhone)
+					.AndRestrictionOn(() => phoneAlias.DigitsNumber)
+						.IsLike(FilterViewModel.EmployeePhone, MatchMode.Anywhere)
 					.Select(x => x.Id);
 
 				query.Where(Subqueries.Exists(phonesSubquery.DetachedCriteria));

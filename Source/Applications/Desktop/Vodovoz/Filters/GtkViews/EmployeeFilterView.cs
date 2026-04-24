@@ -1,6 +1,6 @@
 ﻿using Gtk;
 using QS.Views.GtkUI;
-using QSWidgetLib;
+using QS.Widgets;
 using System;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
@@ -112,7 +112,7 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(ViewModel, vm => vm.IsRFCitizen, w => w.Active)
 				.InitializeFromSource();
 
-			entryEmployeePhone.ValidationMode = ValidationType.numeric;
+			entryEmployeePhone.ValidationMode = ValidationType.Numeric;
 			entryEmployeePhone.KeyReleaseEvent += OnKeyReleased;
 			entryEmployeePhone.Binding
 				.AddBinding(ViewModel, vm => vm.EmployeePhone, w => w.Text)

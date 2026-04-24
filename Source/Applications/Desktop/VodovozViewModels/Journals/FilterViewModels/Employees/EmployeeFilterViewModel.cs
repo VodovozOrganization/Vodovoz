@@ -242,7 +242,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 		public string EmployeePhone
 		{
 			get => _employeePhone;
-			set => UpdateFilterField(ref _employeePhone, value);
+			set => SetField(ref _employeePhone, value);
 		}
 
 		public override bool IsShow { get; set; } = true;
