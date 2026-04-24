@@ -9,7 +9,7 @@ namespace Vodovoz.Settings.Database.Edo
 
 		public EdoProblemRoutineSettings(ISettingsController settingsController)
 		{
-			_settingsController = settingsController ?? throw new System.ArgumentNullException(nameof(settingsController));
+			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 		}
 
 		public TimeSpan SelfDeliveryPaidProblemTimeout => _settingsController
@@ -17,5 +17,17 @@ namespace Vodovoz.Settings.Database.Edo
 
 		public TimeSpan SelfDeliveryPaidProblemWorkerInterval => _settingsController
 			.GetValue<TimeSpan>("edo.problem.routine.self-delivery-paid-worker-interval");
+
+		public TimeSpan FiscalDocumentSendErrorProblemTimeout => _settingsController
+			.GetValue<TimeSpan>("edo.problem.routine.fiscal-doc-send-error-problem-timeout");
+
+		public TimeSpan FiscalDocumentSendErrorProblemWorkerInterval => _settingsController
+			.GetValue<TimeSpan>("edo.problem.routine.fiscal-doc-send-error-worker-interval");
+
+		public TimeSpan OrderStatusProblemTimeout => _settingsController
+			.GetValue<TimeSpan>("edo.problem.routine.order-status-problem-timeout");
+
+		public TimeSpan OrderStatusProblemWorkerInterval => _settingsController
+			.GetValue<TimeSpan>("edo.problem.routine.order-status-worker-interval");
 	}
 }
