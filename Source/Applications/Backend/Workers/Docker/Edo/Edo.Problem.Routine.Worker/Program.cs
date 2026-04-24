@@ -54,6 +54,10 @@ namespace Edo.Problem.Routine.Worker
 					services
 						.AddHostedService<FiscalDocumentSendErrorProblemWorker>()
 						.ConfigureZabbixSenderFromDataBase(nameof(FiscalDocumentSendErrorProblemWorker));
+
+					services
+						.AddHostedService<OrderStatusProblemWorker>()
+						.ConfigureZabbixSenderFromDataBase(nameof(OrderStatusProblemWorker));
 				});
 	}
 }
