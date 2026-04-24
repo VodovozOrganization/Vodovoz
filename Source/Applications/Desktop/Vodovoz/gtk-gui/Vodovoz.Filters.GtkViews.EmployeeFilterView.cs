@@ -70,6 +70,16 @@ namespace Vodovoz.Filters.GtkViews
 
 		private global::Gamma.GtkWidgets.yCheckButton checkSortByPriority;
 
+		private global::Gtk.VSeparator vseparator2;
+
+		private global::Gamma.GtkWidgets.yHBox yhboxEmployeePhone;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelEmployeePhone;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelPlusSeven;
+
+		private global::Gamma.Widgets.yValidatedEntry entryEmployeePhone;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -453,11 +463,57 @@ namespace Vodovoz.Filters.GtkViews
 			w31.Position = 2;
 			w31.Expand = false;
 			w31.Fill = false;
-			this.vbox1.Add(this.hboxDriversAndTerminals);
-			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxDriversAndTerminals]));
-			w32.Position = 2;
+			// Container child hboxDriversAndTerminals.Gtk.Box+BoxChild
+			this.vseparator2 = new global::Gtk.VSeparator();
+			this.vseparator2.Name = "vseparator2";
+			this.hboxDriversAndTerminals.Add(this.vseparator2);
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.hboxDriversAndTerminals[this.vseparator2]));
+			w32.Position = 3;
 			w32.Expand = false;
 			w32.Fill = false;
+			// Container child hboxDriversAndTerminals.Gtk.Box+BoxChild
+			this.yhboxEmployeePhone = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxEmployeePhone.Name = "yhboxEmployeePhone";
+			this.yhboxEmployeePhone.Spacing = 6;
+			// Container child yhboxEmployeePhone.Gtk.Box+BoxChild
+			this.ylabelEmployeePhone = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelEmployeePhone.Name = "ylabelEmployeePhone";
+			this.ylabelEmployeePhone.LabelProp = global::Mono.Unix.Catalog.GetString("Номер телефона:");
+			this.yhboxEmployeePhone.Add(this.ylabelEmployeePhone);
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.yhboxEmployeePhone[this.ylabelEmployeePhone]));
+			w33.Position = 0;
+			w33.Expand = false;
+			w33.Fill = false;
+			// Container child yhboxEmployeePhone.Gtk.Box+BoxChild
+			this.ylabelPlusSeven = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelPlusSeven.Name = "ylabelPlusSeven";
+			this.ylabelPlusSeven.LabelProp = global::Mono.Unix.Catalog.GetString("+7");
+			this.yhboxEmployeePhone.Add(this.ylabelPlusSeven);
+			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.yhboxEmployeePhone[this.ylabelPlusSeven]));
+			w34.Position = 1;
+			w34.Expand = false;
+			w34.Fill = false;
+			// Container child yhboxEmployeePhone.Gtk.Box+BoxChild
+			this.entryEmployeePhone = new global::Gamma.Widgets.yValidatedEntry();
+			this.entryEmployeePhone.CanFocus = true;
+			this.entryEmployeePhone.Name = "entryEmployeePhone";
+			this.entryEmployeePhone.IsEditable = true;
+			this.entryEmployeePhone.InvisibleChar = '•';
+			this.yhboxEmployeePhone.Add(this.entryEmployeePhone);
+			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.yhboxEmployeePhone[this.entryEmployeePhone]));
+			w35.Position = 2;
+			w35.Expand = false;
+			w35.Fill = false;
+			this.hboxDriversAndTerminals.Add(this.yhboxEmployeePhone);
+			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.hboxDriversAndTerminals[this.yhboxEmployeePhone]));
+			w36.Position = 4;
+			w36.Expand = false;
+			w36.Fill = false;
+			this.vbox1.Add(this.hboxDriversAndTerminals);
+			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxDriversAndTerminals]));
+			w37.Position = 2;
+			w37.Expand = false;
+			w37.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
