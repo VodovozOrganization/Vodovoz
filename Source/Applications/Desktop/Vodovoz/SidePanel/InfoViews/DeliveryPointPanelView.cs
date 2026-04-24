@@ -185,6 +185,13 @@ namespace Vodovoz.SidePanel.InfoViews
 			lblBottlesQty.LabelProp = $"{bottlesAtDeliveryPoint} шт. (сред. зак.: {bottlesAvgDeliveryPoint:G3})";
 			var bottlesAtCounterparty = _bottlesRepository.GetBottlesDebtAtCounterparty(InfoProvider.UoW, DeliveryPoint.Counterparty);
 			debtByClientLabel.LabelProp = $"{bottlesAtCounterparty} шт.";
+
+			var orderFrequency = _deliveryPointRepository.GetOrderFrequency(InfoProvider.UoW, DeliveryPoint, 5);
+
+			wrapLabelOrderFrequency.LabelProp = orderFrequency == -1
+				? "У клиента один заказ по точке доставки"
+				: $"Раз в {Math.Round(orderFrequency, MidpointRounding.AwayFromZero)} дней";
+
 			var depositsAtDeliveryPoint = _depositRepository.GetDepositsAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint, null);
 			labelDeposits.LabelProp = CurrencyWorks.GetShortCurrencyString(depositsAtDeliveryPoint);
 
