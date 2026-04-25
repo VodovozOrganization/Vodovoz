@@ -131,7 +131,7 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 						)
 					)
 				)
-				.OrderBy(() => orderAlias.DeliveryDate).Asc;
+				.OrderBy(() => orderAlias.DeliveryDate).Desc;
 
 			if(countLastOrders.HasValue)
 			{
@@ -141,6 +141,7 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 			var deliveryDates = query
 				.Select(Projections.Property(() => orderAlias.DeliveryDate))
 				.List<DateTime>()
+				.OrderBy(deliveryDate => deliveryDate)
 				.ToList();
 
 			if(deliveryDates.Count < 2)
