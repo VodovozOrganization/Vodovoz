@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Edo.Admin;
 using Edo.Common;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
@@ -32,6 +33,7 @@ namespace Edo.Tender
 		private readonly ITrueMarkCodesValidator _trueMarkTaskCodesValidator;
 		private readonly TransferRequestCreator _transferRequestCreator;
 		private readonly IBus _messageBus;
+		private readonly EdoCancellationService _edoCancellationService;
 
 		public TenderEdoTaskHandler(
 			ILogger<TenderEdoTaskHandler> logger,
@@ -42,7 +44,8 @@ namespace Edo.Tender
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			ITrueMarkCodesValidator trueMarkTaskCodesValidator,
 			TransferRequestCreator transferRequestCreator,
-			IBus messageBus
+			IBus messageBus, 
+			EdoCancellationService edoCancellationService
 		)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -55,6 +58,7 @@ namespace Edo.Tender
 			_trueMarkTaskCodesValidator = trueMarkTaskCodesValidator ?? throw new ArgumentNullException(nameof(trueMarkTaskCodesValidator));
 			_transferRequestCreator = transferRequestCreator ?? throw new ArgumentNullException(nameof(transferRequestCreator));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_edoCancellationService = edoCancellationService ?? throw new ArgumentNullException(nameof(edoCancellationService));
 		}
 
 		/// <summary>
@@ -133,6 +137,14 @@ namespace Edo.Tender
 
 			try
 			{
+				if(_edoCancellationService.IsEdoTaskMustBeCancelled(edoTask))
+				{
+					var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
+				
+					await _edoCancellationService.CancelTask(tenderEdoTaskId, reason, false, cancellationToken);
+					return;
+				}
+				
 				var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(edoTask);
 				var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken, trueMarkCodesChecker);
 
@@ -296,7 +308,7 @@ namespace Edo.Tender
 				}
 			}
 		}
-
+		
 		public void Dispose()
 		{
 			_uow.Dispose();

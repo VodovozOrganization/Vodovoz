@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Edo.Admin;
 using TrueMark.Codes.Pool;
 using TrueMark.Library;
 using Vodovoz.Core.Data.Repositories;
@@ -47,6 +48,7 @@ namespace Edo.Receipt.Dispatcher
 		private readonly ISaveCodesService _saveCodesService;
 		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IBus _messageBus;
+		private readonly EdoCancellationService _edoCancellationService;
 		private readonly IUnitOfWork _uow;
 		private readonly EdoTaskValidator _edoTaskValidator;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
@@ -71,7 +73,8 @@ namespace Edo.Receipt.Dispatcher
 			IEdoOrderContactProvider edoOrderContactProvider,
 			ISaveCodesService saveCodesService,
 			IOrganizationSettings organizationSettings,
-			IBus messageBus
+			IBus messageBus,
+			EdoCancellationService edoCancellationService
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -91,6 +94,7 @@ namespace Edo.Receipt.Dispatcher
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_edoCancellationService = edoCancellationService ?? throw new ArgumentNullException(nameof(edoCancellationService));
 
 			_maxCodesInReceipt = _edoReceiptSettings.MaxCodesInReceiptCount;
 		}
@@ -145,6 +149,14 @@ namespace Edo.Receipt.Dispatcher
 
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(receiptEdoTask);
 
+			if(_edoCancellationService.IsEdoTaskMustBeCancelled(receiptEdoTask))
+			{
+				var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
+				
+				await _edoCancellationService.CancelTask(receiptEdoTask.Id, reason, false, cancellationToken);
+				return;
+			}
+			
 			var isValid = await _edoTaskValidator.Validate(receiptEdoTask, cancellationToken, trueMarkCodesChecker);
 			if(!isValid)
 			{
@@ -1376,7 +1388,7 @@ namespace Edo.Receipt.Dispatcher
 			var hasReceipt = await _edoRepository.HasReceiptOnSumToday(sum, cancellationToken);
 			return hasReceipt;
 		}
-
+		
 		private void TryRecalculateOrderVat(ReceiptEdoTask receiptEdoTask)
 		{
 			try

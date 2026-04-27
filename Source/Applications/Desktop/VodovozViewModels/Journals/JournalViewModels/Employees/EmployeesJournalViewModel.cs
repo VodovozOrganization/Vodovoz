@@ -14,6 +14,7 @@ using QS.Services;
 using System;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents.DriverTerminal;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
@@ -195,6 +196,19 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Employees
 			if(FilterViewModel?.IsRFCitizen ?? false)
 			{
 				query.Where(e => e.IsRussianCitizen);
+			}
+
+			if(!string.IsNullOrEmpty(FilterViewModel?.EmployeePhone))
+			{
+				Phone phoneAlias = null;
+
+				var phonesSubquery = QueryOver.Of<Phone>(() => phoneAlias)
+					.Where(() => phoneAlias.Employee.Id == employeeAlias.Id)
+					.AndRestrictionOn(() => phoneAlias.DigitsNumber)
+						.IsLike(FilterViewModel.EmployeePhone, MatchMode.Anywhere)
+					.Select(x => x.Id);
+
+				query.Where(Subqueries.Exists(phonesSubquery.DetachedCriteria));
 			}
 
 			var employeeProjection = CustomProjections.Concat_WS(

@@ -74,7 +74,8 @@ namespace Vodovoz.Views.Orders
 				.InitializeFromSource();
 
 			ytreeviewOrders.ColumnsConfig = ColumnsConfigFactory.Create<OrdersToPrintNode>()
-				.AddColumn("Заказ").AddNumericRenderer(node => node.Id)
+				.AddColumn("Заказ").AddNumericRenderer(node => node.OrderId)
+				.AddColumn("УПД").AddTextRenderer(node => node.UpdNumber)
 				.AddColumn("Дата").AddTextRenderer(o => $"{o.DeliveryDate:dd.MM.yyyy}")
 				.AddColumn("Выбрано").AddToggleRenderer(x => x.Selected)
 				.AddColumn("")
