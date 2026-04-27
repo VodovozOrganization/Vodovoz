@@ -96,11 +96,11 @@ namespace ExportTo1c.Library.Exporters
 					var isService = item.Nomenclature.Category == NomenclatureCategory.master
 					                || item.Nomenclature.Category == NomenclatureCategory.service;
 					
-					var vatRateVersion = item.Nomenclature.GetActualVatRateVersion(order.BillDate);
+					var vatRateVersion = item.Nomenclature.GetActualVatRateVersion(order.DeliveryDate);
 
 					if(vatRateVersion == null)
 					{
-						throw new InvalidOperationException($"У номенклатуры #{item.Nomenclature.Id} отсутствует версия НДС на дату счета {order.BillDate}");
+						throw new InvalidOperationException($"У номенклатуры {item.Nomenclature.Name} заказа {order.Id} отсутствует версия НДС на дату доставки {order.DeliveryDate}");
 					}
 					
 					var rowItem = new XElement("Строка",
