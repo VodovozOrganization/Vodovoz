@@ -19,6 +19,7 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Models.TrueMark;
+using Vodovoz.TempAdapters;
 
 namespace Vodovoz.ViewModels.TrueMark.CodesPool
 {
@@ -260,16 +261,19 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 		{
 			var codesPoolProblemDataNodes = new List<CodesPoolProblemDataNode>();
 
+			var startDate = EdoProblemStartDate;
+			var endDate = EdoProblemStartDate == EdoProblemEndDate ? EdoProblemEndDate.Date.AddDays(1).AddMilliseconds(-1) : EdoProblemEndDate;
+			
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot(nameof(CodesPoolViewModel)))
 			{
 				var problemName = _targetProblems.First();
 				
 				var documentTasks =
-					await _edoRepository.GetProblemEdoTasks<DocumentEdoTask>(uow, problemName, EdoProblemStartDate, cancellationToken, EdoProblemEndDate);
+					await _edoRepository.GetProblemEdoTasks<DocumentEdoTask>(uow, problemName, startDate, cancellationToken, endDate);
 				var receiptTasks =
-					await _edoRepository.GetProblemEdoTasks<ReceiptEdoTask>(uow, problemName, EdoProblemStartDate, cancellationToken, EdoProblemEndDate);
+					await _edoRepository.GetProblemEdoTasks<ReceiptEdoTask>(uow, problemName, startDate, cancellationToken, endDate);
 				var tenderTasks =
-					await _edoRepository.GetProblemEdoTasks<TenderEdoTask>(uow, problemName, EdoProblemStartDate, cancellationToken, EdoProblemEndDate);
+					await _edoRepository.GetProblemEdoTasks<TenderEdoTask>(uow, problemName, startDate, cancellationToken, endDate);
 
 				var tasks = documentTasks
 					.Concat<OrderEdoTask>(receiptTasks)
@@ -326,20 +330,30 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 				{
 					await _codePoolMissingProblemService.TryResumeTask(orderEdoTask, cancellationToken);
 					
-					_interactiveService.ShowMessage(ImportanceLevel.Info,
-						$"Задача #{orderEdoTask.Id} запущена на повторную отправку");
+					_guiDispatcher.RunInGuiTread(() =>
+					{
+						_interactiveService.ShowMessage(ImportanceLevel.Info,
+							$"Задача #{orderEdoTask.Id} запущена на повторную отправку");
+						
+					});
 				}
 				else
 				{
-					_interactiveService.ShowMessage(ImportanceLevel.Info,
-						"Данную задачу нельзя переотправить");
+					_guiDispatcher.RunInGuiTread(() =>
+					{
+						_interactiveService.ShowMessage(ImportanceLevel.Info,
+							"Данную задачу нельзя переотправить");
+					});
 				}
 			}
 			catch(Exception e)
 			{
-				_interactiveService.ShowMessage(ImportanceLevel.Error,
-					"Произошла ошибка при переотправке задачи: " + 
-					e.Message);
+				_guiDispatcher.RunInGuiTread(() =>
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Error,
+						"Произошла ошибка при переотправке задачи: " +
+						e.Message);
+				});
 			}
 		}
 

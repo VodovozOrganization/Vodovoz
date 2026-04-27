@@ -42,14 +42,7 @@ namespace Edo.Problem.Routine.Services
 
 		public async Task TryResumeTask(OrderEdoTask edoTask, CancellationToken cancellationToken)
 		{
-			try
-			{
-				await TryResumeTaskAsync(edoTask, cancellationToken);
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex, "Ошибка при обработке задачи ЭДО {EdoTaskId}", edoTask.Id);
-			}
+			await TryResumeTaskAsync(edoTask, cancellationToken);
 		}
 
 		private async Task TryResumeTaskAsync(OrderEdoTask edoTask, CancellationToken cancellationToken)
@@ -64,12 +57,14 @@ namespace Edo.Problem.Routine.Services
 						"Задача ЭДО {EdoTaskId}: пул кодов не прошел проверку по заказу №{OrderId}",
 						edoTask.Id,
 						edoTask.FormalEdoRequest.Order.Id);
-					return;
+					
+					throw new ArgumentException(
+						$"Задача ЭДО {edoTask.Id}: пул кодов не прошел проверку по заказу №{edoTask.FormalEdoRequest.Order.Id}");
 				}
 			}
 
 			_logger.LogInformation(
-				"Задача ЭДО {EdoTaskId}: пул кодов не прошел проверку по заказу №{OrderId}",
+				"Задача ЭДО {EdoTaskId}: пул кодов прошел проверку по заказу №{OrderId}",
 				edoTask.Id,
 				edoTask.FormalEdoRequest.Order.Id);
 
