@@ -1,4 +1,4 @@
-using NHibernate.Criterion;
+﻿using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -295,5 +295,6 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="deliveryPointId">Идентификатор ТД</param>
 		/// <returns></returns>
 		IEnumerable<int> GetClientOrdersIdsForDate(IUnitOfWork uow, DateTime date, int? counterpartyId, int? deliveryPointId);
+		Task<IDictionary<int, CounterpartyOrdersAggregatedNode>> GetCounterpartyOverdueDebtorDebtData(IUnitOfWork uow, int organizationId, int expiredMinDaysAgo = 0, CancellationToken cancellationToken = default);
 	}
 }

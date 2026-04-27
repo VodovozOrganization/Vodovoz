@@ -90,6 +90,11 @@ namespace EmailDebtNotificationWorker
 					services.AddScoped<IReportInfoFactory, DefaultReportInfoFactory>();
 					services.AddScoped<IEmailDebtNotificationService, EmailDebtNotificationService>();
 					services.AddHostedService<EmailDebtNotificationWorker>();
+
+					services
+						.AddHostedService<EmailClaimLettersWorker>()
+						.AddScoped<IEmailClaimLettersService, EmailClaimLettersService>()
+						.ConfigureZabbixSenderFromDataBase(nameof(EmailClaimLettersWorker));
 				});
 	}
 }
