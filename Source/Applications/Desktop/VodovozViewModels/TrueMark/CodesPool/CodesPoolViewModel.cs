@@ -87,6 +87,7 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 			ResendEdoTaskCommand = new AsyncCommand(guiDispatcher, ResendEdoTaskCommandHandler);
 			
 			RefreshCommand.Execute();
+			RefreshProblemsCommand.Execute();
 		}
 
 		public IEnumerable<CodesPoolDataNode> CodesPoolData
@@ -264,11 +265,11 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 				var problemName = _targetProblems.First();
 				
 				var documentTasks =
-					await _edoRepository.GetProblemEdoTasks<DocumentEdoTask>(uow, problemName, EdoProblemStartDate, cancellationToken);
+					await _edoRepository.GetProblemEdoTasks<DocumentEdoTask>(uow, problemName, EdoProblemStartDate, cancellationToken, EdoProblemEndDate);
 				var receiptTasks =
-					await _edoRepository.GetProblemEdoTasks<ReceiptEdoTask>(uow, problemName, EdoProblemStartDate, cancellationToken);
+					await _edoRepository.GetProblemEdoTasks<ReceiptEdoTask>(uow, problemName, EdoProblemStartDate, cancellationToken, EdoProblemEndDate);
 				var tenderTasks =
-					await _edoRepository.GetProblemEdoTasks<TenderEdoTask>(uow, problemName, EdoProblemStartDate, cancellationToken);
+					await _edoRepository.GetProblemEdoTasks<TenderEdoTask>(uow, problemName, EdoProblemStartDate, cancellationToken, EdoProblemEndDate);
 
 				var tasks = documentTasks
 					.Concat<OrderEdoTask>(receiptTasks)
@@ -280,14 +281,32 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 
 				foreach(var edoTask in tasks)
 				{
-					codesPoolProblemDataNodes.Add(new CodesPoolProblemDataNode
+					if(string.IsNullOrEmpty(EdoTaskIdForSearch))
 					{
-						EdoTask = edoTask,
-						EdoTaskId = edoTask.Id,
-						OrderId = edoTask.FormalEdoRequest.Order.Id,
-						ErrorName = problemName,
-						EdoTaskStartDate = edoTask.CreationTime
-					});
+						codesPoolProblemDataNodes.Add(new CodesPoolProblemDataNode
+						{
+							EdoTask = edoTask,
+							EdoTaskId = edoTask.Id,
+							OrderId = edoTask.FormalEdoRequest.Order.Id,
+							ErrorName = problemName,
+							EdoTaskStartDate = edoTask.CreationTime
+						});
+					}
+					else
+					{
+						if(edoTask.Id.ToString().Contains(EdoTaskIdForSearch) ||
+						   edoTask.FormalEdoRequest.Order.Id.ToString().Contains(EdoTaskIdForSearch))
+						{
+							codesPoolProblemDataNodes.Add(new CodesPoolProblemDataNode
+							{
+								EdoTask = edoTask,
+								EdoTaskId = edoTask.Id,
+								OrderId = edoTask.FormalEdoRequest.Order.Id,
+								ErrorName = problemName,
+								EdoTaskStartDate = edoTask.CreationTime
+							});
+						}
+					}
 				}
 			}
 			
@@ -306,6 +325,9 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 				if(SelectedCodesPoolProblemNode.EdoTask is OrderEdoTask orderEdoTask)
 				{
 					await _codePoolMissingProblemService.TryResumeTask(orderEdoTask, cancellationToken);
+					
+					_interactiveService.ShowMessage(ImportanceLevel.Info,
+						$"Задача #{orderEdoTask.Id} запущена на повторную отправку");
 				}
 				else
 				{

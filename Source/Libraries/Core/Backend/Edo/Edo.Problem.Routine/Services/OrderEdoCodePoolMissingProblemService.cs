@@ -33,7 +33,7 @@ namespace Edo.Problem.Routine.Services
 			IBus messageBus)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_unitOfWorkFactory = unitOfWorkFactory  ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_edoCodePoolValidator = (validators ?? throw new ArgumentNullException(nameof(validators)))
 				.FirstOrDefault(v => v.Name == _problemSourceName);
 			_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
@@ -52,7 +52,7 @@ namespace Edo.Problem.Routine.Services
 			}
 		}
 
-		private async Task<bool> TryResumeTaskAsync(OrderEdoTask edoTask, CancellationToken cancellationToken)
+		private async Task TryResumeTaskAsync(OrderEdoTask edoTask, CancellationToken cancellationToken)
 		{
 			if(_edoCodePoolValidator != null)
 			{
@@ -64,20 +64,18 @@ namespace Edo.Problem.Routine.Services
 						"Задача ЭДО {EdoTaskId}: пул кодов не прошел проверку по заказу №{OrderId}",
 						edoTask.Id,
 						edoTask.FormalEdoRequest.Order.Id);
-					return false;
+					return;
 				}
 			}
-			
+
 			_logger.LogInformation(
 				"Задача ЭДО {EdoTaskId}: пул кодов не прошел проверку по заказу №{OrderId}",
 				edoTask.Id,
 				edoTask.FormalEdoRequest.Order.Id);
 
 			await PublishResumeEvent(edoTask, cancellationToken);
-
-			return true;
 		}
-		
+
 		private async Task PublishResumeEvent(OrderEdoTask edoTask, CancellationToken cancellationToken)
 		{
 			switch(edoTask)
@@ -92,10 +90,8 @@ namespace Edo.Problem.Routine.Services
 					await PublishReceiptResumeEvent(receiptTask, cancellationToken);
 					break;
 				default:
-					_logger.LogWarning(
-						"Задача ЭДО {EdoTaskId}: неизвестный тип задачи {TaskType}, не удалось определить событие для возобновления",
-						edoTask.Id, edoTask.GetType().Name);
-					break;
+					throw new ArgumentOutOfRangeException(
+						$"Задача ЭДО {edoTask.Id}: неизвестный тип задачи {edoTask.GetType().Name}, не удалось определить событие для возобновления");
 			}
 		}
 
@@ -107,7 +103,9 @@ namespace Edo.Problem.Routine.Services
 					"Задача ЭДО {EdoTaskId} (DocumentEdoTask) находится на стадии {Stage}. Возобновление возможно только на стадии New",
 					edoTask.Id,
 					edoTask.Stage);
-				return;
+
+				throw new ArgumentException(
+					$"Задача ЭДО {edoTask.Id} (DocumentEdoTask) находится на стадии {edoTask.Stage}. Возобновление возможно только на стадии New");
 			}
 
 			_logger.LogInformation(
@@ -127,7 +125,9 @@ namespace Edo.Problem.Routine.Services
 					"Задача ЭДО {EdoTaskId} (TenderEdoTask) находится на стадии {Stage}. Возобновление возможно только на стадии New",
 					edoTask.Id,
 					edoTask.Stage);
-				return;
+
+				throw new ArgumentException(
+					$"Задача ЭДО {edoTask.Id} (TenderEdoTask) находится на стадии {edoTask.Stage}. Возобновление возможно только на стадии New");
 			}
 
 			_logger.LogInformation(
@@ -147,7 +147,9 @@ namespace Edo.Problem.Routine.Services
 					"Задача ЭДО {EdoTaskId} (ReceiptEdoTask) находится в статусе {ReceiptStatus}. Возобновление возможно только в статусе New",
 					edoTask.Id,
 					edoTask.ReceiptStatus);
-				return;
+
+				throw new ArgumentException(
+					$"Задача ЭДО {edoTask.Id} (ReceiptEdoTask) находится в статусе {edoTask.ReceiptStatus}. Возобновление возможно только на стадии New");
 			}
 
 			_logger.LogInformation(
