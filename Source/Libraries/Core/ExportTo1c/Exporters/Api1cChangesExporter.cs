@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -87,11 +87,6 @@ namespace ExportTo1c.Library.Exporters
 				{
 					var vatRateVersion = item.Nomenclature.GetActualVatRateVersion(order.BillDate);
 
-					if(vatRateVersion == null)
-					{
-						throw new InvalidOperationException($"У номенклатуры #{item.Id} отсутствует версия НДС на дату счета {order.BillDate}");
-					}
-
 					var rowElement = new XElement
 					(
 						"Строка",
@@ -103,7 +98,8 @@ namespace ExportTo1c.Library.Exporters
 						new XAttribute("Цена", item.Price.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("Сумма", item.Sum.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("СуммаНДС", item.CurrentNDS.ToString("F2", CultureInfo.InvariantCulture)),
-						new XAttribute("СтавкаНДС", vatRateVersion.VatRate.GetValue1cComplexAutomation()),
+						new XAttribute("СтавкаНДС", vatRateVersion?.VatRate?.GetValue1cComplexAutomation()
+							?? $"У номенклатуры {item.Nomenclature.Name} заказа {order.Id} отсутствует версия НДС на дату счета {order.BillDate}"),
 						new XAttribute("КатегорияНоменклатуры", item.Nomenclature.Category.GetEnumTitle()),
 						new XAttribute("ОдноразоваяТара", item.Nomenclature.IsDisposableTare)
 					);
