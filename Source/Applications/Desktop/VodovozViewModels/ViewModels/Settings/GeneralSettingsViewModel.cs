@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
@@ -216,7 +216,14 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				.ValidatePresetPermission(Core.Domain.Permissions.CounterpartyPermissions.CanMassiveChangePaymentDeferment);
 			CanMassiveChangeVatRate = _commonServices.CurrentPermissionService
 				.ValidatePresetPermission(Core.Domain.Permissions.CashPermissions.CanMassiveChangeVatRate);
-			
+
+			BlockingDeliveriesNotificationEmails = _generalSettings.BlockingDeliveriesNotificationEmails;
+
+			SaveDaysBeforeBlockingDeliveriesCommand = new DelegateCommand(SaveDaysBeforeBlockingDeliveries);
+			RecalculateDaysBeforeBlockingDeliveriesCommand = new DelegateCommand(RecalculateDaysBeforeBlockingDeliveries);
+
+			SaveBlockingDeliveriesNotificationEmailsCommand = new DelegateCommand(SaveBlockingDeliveriesNotificationEmails);
+
 			InitializeAccountingSettingsViewModels();
 			ConfigureOrderOrganizationsSettings();
 		}
@@ -803,6 +810,9 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private DateTime? _endDateTimeForVatRate;
 		private bool _canMassiveChangeVatRate;
 		private bool _canMassiveChangePaymentDeferment;
+		private int _daysBeforeBlockingDeliveriesTarget;
+		private int _daysBeforeBlockingDeliveriesNew;
+		private string _blockingDeliveriesNotificationEmails;
 
 		public IEnumerable<Subdivision> AuthorsSubdivisions { get; private set; }
 		public IEnumerable<short> AuthorsSets { get; private set; }
@@ -1264,8 +1274,86 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 			}
 		}
-		
+
 		#endregion
+
+		#region Массовое изменение дней отсрочки до автоматической блокировки поставок
+
+		/// <summary>
+		/// Исходное значение дней сверх ПДЗ до блокировки поставок
+		/// </summary>
+		public int DaysBeforeBlockingDeliveriesTarget
+		{ 
+			get => _daysBeforeBlockingDeliveriesTarget; 
+			set => SetField(ref _daysBeforeBlockingDeliveriesTarget, value);
+		}
+
+		/// <summary>
+		/// Новое значение дней сверх ПДЗ до блокировки поставок
+		/// </summary>
+		public int DaysBeforeBlockingDeliveriesNew
+		{
+			get => _daysBeforeBlockingDeliveriesNew;
+			set => SetField(ref _daysBeforeBlockingDeliveriesNew, value);
+		}
+
+		public DelegateCommand RecalculateDaysBeforeBlockingDeliveriesCommand { get; }
+
+		private void RecalculateDaysBeforeBlockingDeliveries()
+		{
+			;
+		}
+
+		public DelegateCommand SaveDaysBeforeBlockingDeliveriesCommand { get; }
+
+		private void SaveDaysBeforeBlockingDeliveries()
+		{
+			throw new NotImplementedException();
+		}
+
+		#endregion Массовое изменение дней отсрочки до автоматической блокировки поставок
+
+		#region Уведомление о блокировке поставок
+
+		/// <summary>
+		/// Почты, для отправки уведомлений о блокировке поставок контрагенту
+		/// </summary>
+		public string BlockingDeliveriesNotificationEmails
+		{
+			get => _blockingDeliveriesNotificationEmails;
+			set => SetField(ref _blockingDeliveriesNotificationEmails, value);
+		}
+
+		public DelegateCommand SaveBlockingDeliveriesNotificationEmailsCommand { get; }
+
+		private void SaveBlockingDeliveriesNotificationEmails()
+		{
+			var validator = new EmailAddressAttribute();
+
+			var emails = BlockingDeliveriesNotificationEmails
+				.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
+				.Select(e => e.Trim())
+				.ToList();
+
+			var invalidEmails = emails
+				.Where(e => !validator.IsValid(e))
+				.ToList();
+
+			if(invalidEmails.Any())
+			{
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Error,
+					$"Некорректные email: {string.Join(", ", invalidEmails)}"
+				);
+				return;
+			}
+
+			_generalSettings.UpdateBlockingDeliveriesNotificationEmails(string.Join(";", emails));
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+		}
+
+		#endregion Уведомление о блокировке поставок		
+
 		public EntityJournalOpener EntityJournalOpener { get; }
 
 		private void InitializeSettingsViewModels()
