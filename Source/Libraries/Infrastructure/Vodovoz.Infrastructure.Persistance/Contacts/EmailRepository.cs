@@ -607,6 +607,10 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				.WithSubquery.WhereNotExists(emailSentTodaySubQuery)
 				.WithSubquery.WhereNotExists(isClientUnsubscribedSubQuery)
 				.Select(Projections.Distinct(Projections.Property(() => counterpartyAlias.Id)))
+				.OrderBy(Projections.SqlFunction(
+					new SQLFunctionTemplate(NHibernateUtil.String, "RAND()"),
+					NHibernateUtil.String))
+				.Asc
 				.Take(maxClients);
 
 			var topClientIds = (await topClientsQuery.ListAsync<object>(cancellationToken))
