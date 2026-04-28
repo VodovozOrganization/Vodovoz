@@ -19,7 +19,8 @@ namespace YooKassaApi.Client
 
 			services.AddHttpClient<IYooKassaApiClient, YooKassaApiClient>((sp, client) =>
 			{
-				var settings = sp.GetRequiredService<IOptions<YooKassaOptions>>().Value;
+				var optionsMonitor = sp.GetRequiredService<IOptionsMonitor<YooKassaOptions>>();
+				var settings = optionsMonitor.CurrentValue;
 
 				client.BaseAddress = new Uri(settings.ApiUrl);
 

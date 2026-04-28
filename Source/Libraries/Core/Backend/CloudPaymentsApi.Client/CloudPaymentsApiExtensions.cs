@@ -19,7 +19,8 @@ namespace CloudPaymentsApi.Client
 
 			services.AddHttpClient<ICloudPaymentsApiClient, CloudPaymentsApiClient>((sp, client) =>
 			{
-				var settings = sp.GetRequiredService<IOptions<CloudPaymentsOptions>>().Value;
+				var optionsMonitor = sp.GetRequiredService<IOptionsMonitor<CloudPaymentsOptions>>();
+				var settings = optionsMonitor.CurrentValue;
 
 				client.BaseAddress = new Uri(settings.ApiUrl);
 

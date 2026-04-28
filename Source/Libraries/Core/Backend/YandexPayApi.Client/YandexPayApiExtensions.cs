@@ -17,7 +17,8 @@ namespace YandexPayApi.Client
 
 			services.AddHttpClient<IYandexPayApiClient, YandexPayApiClient>((sp, client) =>
 			{
-				var settings = sp.GetRequiredService<IOptions<YandexPayOptions>>().Value;
+				var optionsMonitor = sp.GetRequiredService<IOptionsMonitor<YandexPayOptions>>();
+				var settings = optionsMonitor.CurrentValue;
 
 				client.BaseAddress = new Uri(settings.ApiUrl);
 				client.DefaultRequestHeaders.Add("Authorization", $"Api-Key {settings.ApiKey}");

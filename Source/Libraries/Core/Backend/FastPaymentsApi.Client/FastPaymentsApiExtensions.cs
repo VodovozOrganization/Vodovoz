@@ -17,7 +17,8 @@ namespace FastPaymentsApi.Client
 
 			services.AddHttpClient<IFastPaymentsApiClient, FastPaymentsApiClient>((sp, client) =>
 			{
-				var settings = sp.GetRequiredService<IOptions<FastPaymentsOptions>>().Value;
+				var optionsMonitor = sp.GetRequiredService<IOptionsMonitor<FastPaymentsOptions>>();
+				var settings = optionsMonitor.CurrentValue;
 
 				client.BaseAddress = new Uri(settings.ApiUrl);
 				client.Timeout = TimeSpan.FromSeconds(30);
