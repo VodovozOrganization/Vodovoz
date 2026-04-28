@@ -83,5 +83,13 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.StoredEmails
 				References(x => x.OrderDocument).Column("order_document_id");
 			}
 		}
+
+		public class GeneralBillDocumentEmailMap : SubclassMap<GeneralBillDocumentEmail>
+		{
+			public GeneralBillDocumentEmailMap()
+			{
+				DiscriminatorValue(nameof(CounterpartyEmailType.GeneralBillDocument));
+			}
+		}
 	}
 }

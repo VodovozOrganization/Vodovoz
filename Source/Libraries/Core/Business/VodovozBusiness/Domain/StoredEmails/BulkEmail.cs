@@ -5,6 +5,9 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 
 namespace Vodovoz.Domain.StoredEmails
 {
+	/// <summary>
+	/// Массовая рассылка
+	/// </summary>
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "массовая рассылка",
 		Nominative = "массовая рассылка")]
