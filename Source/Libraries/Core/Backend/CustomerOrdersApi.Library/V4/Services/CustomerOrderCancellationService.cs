@@ -78,6 +78,12 @@ namespace CustomerOrdersApi.Library.V4.Services
 		{
 			if(order is null)
 			{
+				if(onlineOrder is not null 
+					&& onlineOrder.OnlineOrderPaymentType is not OnlineOrderPaymentType.PaidOnline)
+				{
+					return Result.Success();
+				}
+				
 				return Result.Failure(OrderErrors.NotFound);
 			}
 
@@ -90,10 +96,11 @@ namespace CustomerOrdersApi.Library.V4.Services
 
 			if(onlineOrder is null)
 			{
-				if(order.PaymentType is PaymentType.Cash
+				if(order.PaymentType 
+					is PaymentType.Cash
+					or PaymentType.SmsQR
 					or PaymentType.Terminal
-					or PaymentType.DriverApplicationQR
-					or PaymentType.SmsQR) 
+					or PaymentType.DriverApplicationQR)
 				{ 
 					return Result.Success();
 				}
@@ -170,27 +177,31 @@ namespace CustomerOrdersApi.Library.V4.Services
 
 			var (order, onlineOrder) = orderSearchResult.Value;
 
+			var canCancelResult = await CanCancel(uow, order, onlineOrder, cancellationToken);
+			if(canCancelResult.IsFailure)
+			{
+				return Result.Failure<string>(canCancelResult.Errors);
+			}
+
+			if(order is null)
+			{
+				if(onlineOrder is not null 
+					&& onlineOrder.OnlineOrderPaymentType is not OnlineOrderPaymentType.PaidOnline)
+				{
+					await CancelOnlineOrder(uow, onlineOrder, cancellationToken);
+					await uow.CommitAsync(cancellationToken);
+
+					return Result.Success("Заказ отменен успешно");
+				}
+
+				return Result.Failure<string>(OrderErrors.CannotCancelOrder);
+			}
+
 			if(order.Client?.Id != counterparty.Id)
 			{
 				_logger.LogWarning("Заказ {OrderId} не принадлежит контрагенту {CounterpartyId}", order.Id, counterparty.Id);
 
 				return Result.Failure<string>(OrderErrors.OrderDoesNotBelongToCounterparty);
-			}
-
-			_logger.LogInformation(
-				"Начало отмены заказа {OrderId}, статус: {Status}, оплачен: {IsPaid}",
-				order.Id,
-				order.OrderStatus.GetEnumTitle(),
-				IsPaidOnline(onlineOrder));
-
-			var canCancelResult = await CanCancel(uow, order, onlineOrder, cancellationToken);
-			if(canCancelResult.IsFailure)
-			{
-				_logger.LogWarning("Заказ {OrderId}: {ErrorMessage}",
-					   order.Id,
-					   canCancelResult.Errors.FirstOrDefault().Message);
-
-				return Result.Failure<string>(canCancelResult.Errors);
 			}
 
 			Result<string> result;
@@ -234,6 +245,38 @@ namespace CustomerOrdersApi.Library.V4.Services
 		   int? onlineOrderId,
 		   CancellationToken cancellationToken)
 		{
+			if(orderId.HasValue && onlineOrderId.HasValue)
+			{
+				var order = await _orderRepository.GetOrderByIdAsync(uow, orderId.Value, cancellationToken);
+				var onlineOrder = _onlineOrderRepository.GetOnlineOrderById(uow, onlineOrderId.Value);
+
+				if(order is not null && onlineOrder is not null)
+				{
+					return Result.Success<(Order, OnlineOrder)>((order, onlineOrder));
+				}
+
+				if(order is null && onlineOrder is null)
+				{
+					_logger.LogWarning("Заказы с OrderId {OrderId} и OnlineOrderId {OnlineOrderId} не найдены",
+						orderId.Value, onlineOrderId.Value);
+
+					return Result.Failure<(Order, OnlineOrder)>(OrderErrors.NotFound);
+				}
+
+				if(order is null && onlineOrder is not null)
+				{
+					_logger.LogInformation("Найден онлайн заказ {OnlineOrderId}, ДВ заказ отсутствует",
+							onlineOrder.Id);
+					return Result.Success<(Order, OnlineOrder)>((null, onlineOrder));
+				}
+
+				if(order is not null && onlineOrder is null)
+				{
+					_logger.LogInformation("Найден ДВ заказ {OrderId}, онлайн заказ отсутствует", order.Id);
+					return Result.Success<(Order, OnlineOrder)>((order, null));
+				}
+			}
+
 			if(orderId.HasValue)
 			{
 				var order = await _orderRepository.GetOrderByIdAsync(uow, orderId.Value, cancellationToken);
@@ -243,15 +286,15 @@ namespace CustomerOrdersApi.Library.V4.Services
 					return Result.Failure<(Order, OnlineOrder)>(OrderErrors.NotFound);
 				}
 
-				if(onlineOrderId.HasValue)
+				var onlineOrder = order.OnlineOrder;
+				if(onlineOrder is not null)
 				{
-					var onlineOrder = _onlineOrderRepository.GetOnlineOrderById(uow, onlineOrderId.Value);
-					if(onlineOrder is not null)
-					{
-						return Result.Success<(Order, OnlineOrder)>((order, onlineOrder));
-					}
+					_logger.LogInformation("Найден заказ {OrderId} со связанным онлайн заказом {OnlineOrderId}",
+						order.Id, onlineOrder.Id);
+					return Result.Success<(Order, OnlineOrder)>((order, onlineOrder));
 				}
 
+				_logger.LogInformation("Найден ДВ заказ {OrderId} без онлайн заказа", order.Id);
 				return Result.Success<(Order, OnlineOrder)>((order, null));
 			}
 
@@ -265,14 +308,23 @@ namespace CustomerOrdersApi.Library.V4.Services
 				}
 
 				var order = GetActiveOrder(onlineOrder);
-				if(order is null)
+				if(order is not null)
 				{
-					_logger.LogWarning("Онлайн заказ {OnlineOrderId} не связан с активным заказом", onlineOrderId.Value);
-					return Result.Failure<(Order, OnlineOrder)>(OnlineOrderErrors.IsOnlineOrderDoesNotHaveALinkedOrder);
+					_logger.LogInformation("Найден онлайн заказ {OnlineOrderId}, связанный с заказом {OrderId}",
+						onlineOrder.Id, order.Id);
+					return Result.Success((order, onlineOrder));
 				}
 
-				_logger.LogInformation("Найден онлайн заказ {OnlineOrderId}, связанный с заказом {OrderId}", onlineOrder.Id, order.Id);
-				return Result.Success((order, onlineOrder));
+				if(onlineOrder.OnlineOrderPaymentType is not OnlineOrderPaymentType.PaidOnline)
+				{
+					_logger.LogInformation("Найден онлайн заказ {OnlineOrderId} с типом оплаты не PaidOnline, без связанного ДВ заказа",
+						onlineOrder.Id);
+					return Result.Success<(Order, OnlineOrder)>((null, onlineOrder));
+				}
+
+				_logger.LogWarning("Онлайн заказ {OnlineOrderId} имеет тип оплаты PaidOnline, но не связан с активным заказом",
+					onlineOrderId.Value);
+				return Result.Failure<(Order, OnlineOrder)>(OnlineOrderErrors.IsOnlineOrderDoesNotHaveALinkedOrder);
 			}
 
 			return Result.Failure<(Order, OnlineOrder)>(OrderErrors.NotFound);
@@ -328,16 +380,20 @@ namespace CustomerOrdersApi.Library.V4.Services
 
 			order.ChangeStatus(OrderStatus.Canceled);
 			await uow.SaveAsync(order, cancellationToken: cancellationToken);
+			await CancelOnlineOrder(uow, onlineOrder, cancellationToken);
 
+			_logger.LogInformation("Заказ {OrderId} успешно отменен", order.Id);
+
+			return Result.Success("Заказ отменен успешно");
+		}
+
+		private static async Task CancelOnlineOrder(IUnitOfWork uow, OnlineOrder onlineOrder, CancellationToken cancellationToken)
+		{
 			if(onlineOrder is not null)
 			{
 				onlineOrder.OnlineOrderStatus = OnlineOrderStatus.Canceled;
 				await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
 			}
-
-			_logger.LogInformation("Заказ {OrderId} успешно отменен", order.Id);
-
-			return Result.Success("Заказ отменен успешно");
 		}
 
 		/// <summary>
@@ -375,12 +431,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 			order.ChangeStatus(OrderStatus.Canceled);
 			await uow.SaveAsync(order, cancellationToken: cancellationToken);
 			await uow.SaveAsync(routeList, cancellationToken: cancellationToken);
-
-			if(onlineOrder is not null)
-			{
-				onlineOrder.OnlineOrderStatus = OnlineOrderStatus.Canceled;
-				await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
-			}
+			await CancelOnlineOrder(uow, onlineOrder, cancellationToken);
 
 			_logger.LogInformation(
 				"Заказ {OrderId} успешно отменен из маршрутного листа",
@@ -430,12 +481,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 				return Result.Failure<string>(refundResult.Errors);
 			}
 
-			if(onlineOrder is not null)
-			{
-				onlineOrder.OnlineOrderStatus = OnlineOrderStatus.Canceled;
-				await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
-			}
-
+			await CancelOnlineOrder(uow, onlineOrder, cancellationToken);
 			await uow.SaveAsync(order, cancellationToken: cancellationToken);
 			await uow.SaveAsync(undelivery, cancellationToken: cancellationToken);
 
@@ -565,12 +611,12 @@ namespace CustomerOrdersApi.Library.V4.Services
 				   or OrderStatus.WaitForPayment
 				   or OrderStatus.Accepted;
 
-		private static bool IsPaidOnline(OnlineOrder order) => order is not null
-			&& order.OnlineOrderPaymentType is OnlineOrderPaymentType.PaidOnline
-			&& order.OnlineOrderPaymentStatus is OnlineOrderPaymentStatus.Paid;
+		private static bool IsPaidOnline(OnlineOrder onlineOrder) => onlineOrder is not null
+			&& onlineOrder.OnlineOrderPaymentType is OnlineOrderPaymentType.PaidOnline
+			&& onlineOrder.OnlineOrderPaymentStatus is OnlineOrderPaymentStatus.Paid;
 
-		private static bool IsUnPaidOnline(OnlineOrder order) => order is not null
-			&& order.OnlineOrderPaymentType is OnlineOrderPaymentType.PaidOnline
-			&& order.OnlineOrderPaymentStatus is not OnlineOrderPaymentStatus.Paid;
+		private static bool IsUnPaidOnline(OnlineOrder onlineOrder) => onlineOrder is not null
+			&& onlineOrder.OnlineOrderPaymentType is OnlineOrderPaymentType.PaidOnline
+			&& onlineOrder.OnlineOrderPaymentStatus is not OnlineOrderPaymentStatus.Paid;
 	}
 }
