@@ -12,8 +12,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\Business\Vodovoz.Core.Application\Vodovoz.Core.Application.csproj" />
-      <ProjectReference Include="..\..\..\..\Applications\Backend\WebAPI\FastPayment\FastPaymentsApi.Contracts\FastPaymentsApi.Contracts.csproj" />
-      <ProjectReference Include="..\..\..\..\Applications\Backend\WebAPI\FastPayment\FastPaymentsAPI.Library\FastPaymentsAPI.Library.csproj" />
       <ProjectReference Include="..\..\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
       <ProjectReference Include="..\..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />
       <ProjectReference Include="..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />

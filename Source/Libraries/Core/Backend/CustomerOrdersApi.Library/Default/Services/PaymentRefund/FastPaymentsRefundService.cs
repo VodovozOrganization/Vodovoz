@@ -3,9 +3,7 @@ using CustomerOrdersApi.Library.V4.Dto.Orders.CancelOrder;
 using FastPaymentsApi.Client;
 using FastPaymentsApi.Contracts.Requests;
 using Microsoft.Extensions.Logging;
-using QS.DomainModel.UoW;
 using System;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
@@ -19,11 +17,9 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 
 		public FastPaymentsRefundService(
 			ILogger<FastPaymentsRefundService> logger,
-			IUnitOfWorkFactory unitOfWorkFactory,
-			IHttpClientFactory httpClientFactory,
 			IFastPaymentsApiClient fastPaymentApiClient,
 			IRefundOperationRepository refundOperationRepository
-		) : base(logger, unitOfWorkFactory, httpClientFactory, refundOperationRepository)
+		) : base(logger, refundOperationRepository)
 		{
 			_fastPaymentApiClient = fastPaymentApiClient ?? throw new ArgumentNullException(nameof(fastPaymentApiClient));
 		}
@@ -37,12 +33,12 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 		{
 			var ticket = request.TransactionId;
 
-			_logger.LogInformation(
+			Logger.LogInformation(
 				"Начало отмены платежа QR для заказа {ExternalOrderId}, Ticket: {Ticket}",
 				request.ExternalOrderId,
 				ticket);
 
-			_logger.LogInformation("Пришел запрос на возврат средств по платежу с сессией: {Ticket}", ticket);
+			Logger.LogInformation("Пришел запрос на возврат средств по платежу с сессией: {Ticket}", ticket);
 
 			var reverseRequest = new ReverseTicketRequestDTO
 			{
@@ -56,34 +52,34 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 
 				if(reverseOrderResponse is null)
 				{
-					_logger.LogError("Получен пустой ответ от API при возврате платежа {Ticket}", ticket);
-					return CreateErrorResult("Ошибка при получении ответа от сервиса платежей");
+					Logger.LogError("Получен пустой ответ от API при возврате платежа {Ticket}", ticket);
+					return RefundResultDto.CreateError("Ошибка при получении ответа от сервиса платежей");
 				}
 
 				if(!string.IsNullOrWhiteSpace(reverseOrderResponse.ErrorMessage))
 				{
-					_logger.LogError(
+					Logger.LogError(
 						"Ошибка при возврате средств по платежу {Ticket}. Ошибка: {ErrorMessage}",
 						ticket,
 						reverseOrderResponse.ErrorMessage);
 
-					return CreateErrorResult($"Ошибка возврата платежа: {reverseOrderResponse.ErrorMessage}");
+					return RefundResultDto.CreateError($"Ошибка возврата платежа: {reverseOrderResponse.ErrorMessage}");
 				}
 
-				_logger.LogInformation(
+				Logger.LogInformation(
 					"Возврат по платежу QR успешно выполнен для заказа {ExternalOrderId}, Ticket: {Ticket}",
 					request.ExternalOrderId,
 					ticket);
 
-				return CreateSuccessResult();
+				return RefundResultDto.CreateSuccess();
 			}
 			catch(Exception ex)
 			{
-				_logger.LogError(ex,
+				Logger.LogError(ex,
 					"Неожиданная ошибка при возврате средств по платежу {Ticket}",
 					ticket);
 
-				return CreateErrorResult($"Неожиданная ошибка: {ex.Message}");
+				return RefundResultDto.CreateError($"Неожиданная ошибка: {ex.Message}");
 			}
 		}
 	}

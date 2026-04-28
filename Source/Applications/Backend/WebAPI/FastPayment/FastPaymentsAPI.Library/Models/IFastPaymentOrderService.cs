@@ -32,9 +32,10 @@ namespace FastPaymentsAPI.Library.Models
 		/// </summary>
 		/// <param name="ticket">Тикет/сессия оплаты</param>
 		/// <param name="organization">Организация</param>
-		/// <param name="amount">Сумма возврата (опционально)</param>
+		/// <param name="amount">Сумма возврата в копейках (опционально)</param>
 		/// <returns>Результат возврата</returns>
 		Task<ReverseOrderResponseDTO> ReverseOrder(string ticket, Organization organization, decimal? amount = null);
+
 		PaidOrderInfoDTO GetPaidOrderInfo(string data);
 	}
 }

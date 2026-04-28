@@ -17,15 +17,15 @@ namespace Vodovoz.Core.Domain.FastPayments
 		Rejected,
 
 		/// <summary>
-		/// Возврат
-		/// </summary>
-		[Display(Name = "Возврат")]
-		Refund,
-
-		/// <summary>
 		/// Исполнен
 		/// </summary>
 		[Display(Name = "Исполнен")]
-		Performed
+		Performed,
+
+		/// <summary>
+		/// Возврат
+		/// </summary>
+		[Display(Name = "Возврат")]
+		Refund
 	}
 }

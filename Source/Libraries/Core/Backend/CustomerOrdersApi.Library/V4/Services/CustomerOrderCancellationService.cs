@@ -557,14 +557,8 @@ namespace CustomerOrdersApi.Library.V4.Services
 				return Result.Failure(OrderErrors.CannotCancelOrderWithError(refundResult.ErrorMessage));
 			}
 
-			if(refundResult.NewPaymentStatus != onlineOrder.OnlineOrderPaymentStatus)
-			{
-				onlineOrder.OnlineOrderPaymentStatus = refundResult.NewPaymentStatus;
-				_logger.LogInformation(
-					"Статус оплаты онлайн заказа {OnlineOrderId} обновлен на {NewStatus}",
-					onlineOrder.Id,
-					refundResult.NewPaymentStatus);
-			}
+			onlineOrder.OnlineOrderPaymentStatus = OnlineOrderPaymentStatus.Refund;
+			await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
 
 			_logger.LogInformation("Возврат для заказа {OrderId} выполнен успешно", order.Id);
 

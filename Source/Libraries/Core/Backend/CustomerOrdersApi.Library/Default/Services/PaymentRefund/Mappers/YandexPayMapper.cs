@@ -41,7 +41,7 @@ namespace CustomerOrdersApi.Library.Default.Services.PaymentRefund.Mappers
 				OrderId = request.TransactionId
 			};
 
-			if(IsFullRefund(request))
+			if(request.IsFullRefund())
 			{
 				refundRequest.TargetCart = new YandexPayTargetCart
 				{
@@ -56,20 +56,19 @@ namespace CustomerOrdersApi.Library.Default.Services.PaymentRefund.Mappers
 		{
 			if(yandexPayResponse is null)
 			{
-				return CreateErrorResult("Пустой ответ от платежной системы");
+				return RefundResultDto.CreateError("Пустой ответ от платежной системы");
 			}
 
 			if(!yandexPayResponse.Success)
 			{
-				return CreateErrorResult(
-					yandexPayResponse.ErrorMessage ?? "Неизвестная ошибка YandexPay",
-					yandexPayResponse.ErrorCode);
+				return RefundResultDto.CreateError(
+					yandexPayResponse.ErrorMessage ?? "Неизвестная ошибка YandexPay");
 			}
 
 			var operation = yandexPayResponse.Data?.Operation;
 			if(operation is null)
 			{
-				return CreateErrorResult("Ответ не содержит данных об операции");
+				return RefundResultDto.CreateError("Ответ не содержит данных об операции");
 			}
 
 			_logger.LogDebug(
@@ -81,27 +80,6 @@ namespace CustomerOrdersApi.Library.Default.Services.PaymentRefund.Mappers
 			{
 				Success = true,
 				RefundId = operation.OperationId
-			};
-		}
-
-		/// <summary>
-		/// Проверяет, является ли возврат полным
-		/// </summary>
-		private static bool IsFullRefund(RefundRequestDto request) => request.Amount == request.OnlineOrder?.OnlineOrderSum;
-
-		/// <summary>
-		/// Создает результат с ошибкой
-		/// </summary>
-		private static RefundResultDto CreateErrorResult(string errorMessage, string errorCode = null)
-		{
-			var fullErrorMessage = string.IsNullOrEmpty(errorCode)
-				? errorMessage
-				: $"{errorMessage} (Код: {errorCode})";
-
-			return new RefundResultDto
-			{
-				Success = false,
-				ErrorMessage = fullErrorMessage
 			};
 		}
 	}

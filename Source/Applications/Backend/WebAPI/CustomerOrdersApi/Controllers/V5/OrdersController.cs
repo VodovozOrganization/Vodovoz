@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Presentation.WebApi.Messages;
+using static NHibernate.Engine.Query.CallableParser;
 using ChangingOrderDtoV5 = CustomerOrdersApi.Library.V5.Dto.Orders.ChangingOrderDto;
 
 namespace CustomerOrdersApi.Controllers.V5
@@ -257,12 +258,10 @@ namespace CustomerOrdersApi.Controllers.V5
 					orderId,
 					error.Message);
 
-				return StatusCode(statusCode, new
-				{
-					title = "One or more validation errors occurred",
-					status = statusCode,
-					detail = error.Message
-				});
+				return Problem(
+					detail: error.Message,
+					statusCode: statusCode,
+					title: "One or more validation errors occurred");
 			}
 			catch(Exception e)
 			{

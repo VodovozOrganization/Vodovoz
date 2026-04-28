@@ -2,10 +2,8 @@
 using CustomerOrdersApi.Library.Default.Services.PaymentRefund.Mappers;
 using CustomerOrdersApi.Library.V4.Dto.Orders.CancelOrder;
 using Microsoft.Extensions.Logging;
-using QS.DomainModel.UoW;
 using System;
 using System.Globalization;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
@@ -22,12 +20,10 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 
 		public YooKassaRefundService(
 			ILogger<YooKassaRefundService> logger,
-			IUnitOfWorkFactory unitOfWorkFactory,
 			IYooKassaApiClient yooKassaClient,
 			IYooKassaMapper mapper,
-			IHttpClientFactory httpClientFactory,
 			IRefundOperationRepository refundOperationRepository
-			) : base(logger, unitOfWorkFactory, httpClientFactory, refundOperationRepository)
+			) : base(logger, refundOperationRepository)
 		{
 			_yooKassaClient = yooKassaClient ?? throw new ArgumentNullException(nameof(yooKassaClient));
 			_mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
@@ -43,20 +39,20 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 
 			if(!paymentResponse.Success || paymentResponse.Data is null)
 			{
-				_logger.LogWarning("Не удалось получить информацию о платеже {TransactionId}: {Error}",
+				Logger.LogWarning("Не удалось получить информацию о платеже {TransactionId}: {Error}",
 					request.TransactionId, paymentResponse.ErrorMessage);
 
-				return CreateErrorResult($"Не удалось получить информацию о платеже: {paymentResponse.ErrorMessage}");
+				return RefundResultDto.CreateError($"Не удалось получить информацию о платеже: {paymentResponse.ErrorMessage}");
 			}
 
 			var payment = paymentResponse.Data;
 
-			if(payment.Status is not YooKassaPaymentStatus.Succeeded)
+			if(payment.Status is not "succeeded")
 			{
-				_logger.LogWarning("Попытка возврата по платежу {TransactionId} со статусом {Status}",
+				Logger.LogWarning("Попытка возврата по платежу {TransactionId} со статусом {Status}",
 					request.TransactionId, payment.Status);
 
-				return CreateErrorResult($"Возврат возможен только для платежей в статусе 'succeeded'. Текущий статус: {payment.Status}");
+				return RefundResultDto.CreateError($"Возврат возможен только для платежей в статусе 'succeeded'. Текущий статус: {payment.Status}");
 			}
 
 			if(payment.RefundedAmount is not null)
@@ -66,10 +62,10 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 
 				if(refundedAmount && refunded > 0)
 				{
-					_logger.LogWarning("Попытка повторного возврата по платежу {TransactionId}. Уже возвращено: {RefundedAmount}",
+					Logger.LogWarning("Попытка повторного возврата по платежу {TransactionId}. Уже возвращено: {RefundedAmount}",
 						request.TransactionId, payment.RefundedAmount.Value);
 
-					return CreateErrorResult($"По данному платежу уже был выполнен возврат на сумму {payment.RefundedAmount.Value} {payment.RefundedAmount.Currency}");
+					return RefundResultDto.CreateError($"По данному платежу уже был выполнен возврат на сумму {payment.RefundedAmount.Value} {payment.RefundedAmount.Currency}");
 				}
 			}
 
@@ -78,16 +74,16 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 
 			if(!paymentAmount)
 			{
-				_logger.LogWarning("Не удалось распарсить сумму платежа: {Amount}", payment.Amount.Value);
-				return CreateErrorResult("Не удалось определить сумму платежа");
+				Logger.LogWarning("Не удалось распарсить сумму платежа: {Amount}", payment.Amount.Value);
+				return RefundResultDto.CreateError("Не удалось определить сумму платежа");
 			}
 
 			if(request.Amount != orderAmount)
 			{
-				_logger.LogWarning("Сумма возврата {RequestAmount} не совпадает с суммой платежа {OrderAmount}",
+				Logger.LogWarning("Сумма возврата {RequestAmount} не совпадает с суммой платежа {OrderAmount}",
 					request.Amount, orderAmount);
 
-				return CreateErrorResult($"Сумма возврата {request.Amount} не совпадает с суммой платежа {orderAmount}. В текущей реализации поддерживается только полный возврат.");
+				return RefundResultDto.CreateError($"Сумма возврата {request.Amount} не совпадает с суммой платежа {orderAmount}. В текущей реализации поддерживается только полный возврат.");
 			}
 
 			var refundRequest = _mapper.MapToRefundRequest(request);
@@ -96,19 +92,19 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 
 			if(!refundResponse.Success || refundResponse.Data is null)
 			{
-				return CreateErrorResult($"Ошибка возврата: {refundResponse.ErrorMessage}");
+				return RefundResultDto.CreateError($"Ошибка возврата: {refundResponse.ErrorMessage}");
 			}
 
 			var result = _mapper.MapToRefundResult(refundResponse);
 
 			if(result.Success)
 			{
-				_logger.LogInformation("Успешно выполнен возврат для платежа {TransactionId}, refundId: {RefundId}",
+				Logger.LogInformation("Успешно выполнен возврат для платежа {TransactionId}, refundId: {RefundId}",
 					request.TransactionId, result.RefundId);
 			}
 			else
 			{
-				_logger.LogWarning("Возврат для платежа {TransactionId} не удался: {ErrorMessage}",
+				Logger.LogWarning("Возврат для платежа {TransactionId} не удался: {ErrorMessage}",
 					request.TransactionId, result.ErrorMessage);
 			}
 

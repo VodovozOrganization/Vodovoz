@@ -51,34 +51,18 @@ namespace CustomerOrdersApi.Library.Default.Services.PaymentRefund.Mappers
 		{
 			if(cloudPaymentsResponse is null)
 			{
-				return CreateErrorResult("Пустой ответ от платежной системы");
+				return RefundResultDto.CreateError("Пустой ответ от платежной системы");
 			}
 
 			if(!cloudPaymentsResponse.Success)
 			{
-				return CreateErrorResult(cloudPaymentsResponse.Message ?? "Неизвестная ошибка CloudPayments");
+				return RefundResultDto.CreateError(cloudPaymentsResponse.Message ?? "Неизвестная ошибка CloudPayments");
 			}
 
 			return new RefundResultDto
 			{
 				Success = cloudPaymentsResponse.Success,
 				RefundId = cloudPaymentsResponse.Model?.TransactionId.ToString(),
-			};
-		}
-
-		/// <summary>
-		/// Создает результат с ошибкой
-		/// </summary>
-		private static RefundResultDto CreateErrorResult(string errorMessage, string errorCode = null)
-		{
-			var fullErrorMessage = string.IsNullOrEmpty(errorCode)
-				? errorMessage
-				: $"{errorMessage} (Код: {errorCode})";
-
-			return new RefundResultDto
-			{
-				Success = false,
-				ErrorMessage = fullErrorMessage
 			};
 		}
 	}

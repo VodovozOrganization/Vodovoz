@@ -58,21 +58,19 @@ namespace CustomerOrdersApi.Library.Default.Services.PaymentRefund.Mappers
 		{
 			if(yooKassaResponse is null)
 			{
-				return CreateErrorResult("Пустой ответ от платежной системы");
+				return RefundResultDto.CreateError("Пустой ответ от платежной системы");
 			}
 
 			if(!yooKassaResponse.Success)
 			{
-				return CreateErrorResult(
-					yooKassaResponse.ErrorMessage ?? "Неизвестная ошибка ЮKassa",
-					yooKassaResponse.ErrorCode,
-					yooKassaResponse.ErrorParameter);
+				return RefundResultDto.CreateError(
+					yooKassaResponse.ErrorMessage ?? "Неизвестная ошибка ЮKassa");
 			}
 
 			var refund = yooKassaResponse.Data;
 			if(refund is null)
 			{
-				return CreateErrorResult("Ответ не содержит данных о возврате");
+				return RefundResultDto.CreateError("Ответ не содержит данных о возврате");
 			}
 
 			_logger.LogDebug(
@@ -84,50 +82,7 @@ namespace CustomerOrdersApi.Library.Default.Services.PaymentRefund.Mappers
 			{
 				Success = refund.Status is YooKassaRefundStatus.Succeeded,
 				RefundId = refund.Id,
-				ErrorMessage = GetErrorMessage(refund)
-			};
-		}
-
-		private static string GetErrorMessage(YooKassaRefundResponse refund)
-		{
-			if(refund.CancellationDetails is not null)
-			{
-				return $"Возврат отменен. Инициатор: {refund.CancellationDetails.Party}, причина: {refund.CancellationDetails.Reason}";
-			}
-
-			if(refund.Status is YooKassaRefundStatus.Canceled)
-			{
-				return "Возврат отменен по неизвестной причине";
-			}
-
-			if(refund.Status is not YooKassaRefundStatus.Succeeded)
-			{
-				return $"Статус возврата: {refund.Status}";
-			}
-
-			return null;
-		}
-
-		private static RefundResultDto CreateErrorResult(string errorMessage, string errorCode = null, string errorParameter = null)
-		{
-			var fullErrorMessage = errorMessage;
-
-			if(!string.IsNullOrEmpty(errorCode))
-			{
-				fullErrorMessage += $" (Код: {errorCode}";
-
-				if(!string.IsNullOrEmpty(errorParameter))
-				{
-					fullErrorMessage += $", параметр: {errorParameter}";
-				}
-
-				fullErrorMessage += ")";
-			}
-
-			return new RefundResultDto
-			{
-				Success = false,
-				ErrorMessage = fullErrorMessage
+				ErrorMessage = refund.GetErrorMessage()
 			};
 		}
 	}

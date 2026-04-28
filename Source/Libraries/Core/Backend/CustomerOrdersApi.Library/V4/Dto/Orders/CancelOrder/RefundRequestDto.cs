@@ -26,5 +26,10 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders.CancelOrder
 		/// Идентификатор транзакции
 		/// </summary>
 		public string TransactionId { get; init; }
+
+		/// <summary>
+		/// Проверяет, является ли возврат полным
+		/// </summary>
+		public bool IsFullRefund() => Amount == OnlineOrder?.OnlineOrderSum;
 	}
 }

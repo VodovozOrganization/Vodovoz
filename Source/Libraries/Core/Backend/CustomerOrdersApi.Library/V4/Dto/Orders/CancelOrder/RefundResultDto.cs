@@ -27,5 +27,21 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders.CancelOrder
 		/// </summary>
 		public OnlineOrderPaymentStatus NewPaymentStatus { get; set; }
 
+		/// <summary>
+		/// Создает результат для успешного возврата
+		/// </summary>
+		public static RefundResultDto CreateSuccess() => new()
+		{
+			Success = true
+		};
+
+		/// <summary>
+		/// Создает результат для ошибки возврата
+		/// </summary>
+		public static RefundResultDto CreateError(string errorMessage) => new()
+		{
+			Success = false,
+			ErrorMessage = errorMessage
+		};
 	}
 }

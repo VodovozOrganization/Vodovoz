@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -632,12 +632,12 @@ namespace FastPaymentsAPI.Controllers
 				else
 				{
 					reverseOrderResponse = await _fastPaymentOrderService.ReverseOrder(ticket, fastPayment.Organization, amount);
-				}
 
-				if(!isDryRun && reverseOrderResponse.ResponseCode == 0)
-				{
-					_logger.LogInformation("Возврат по платежу {Ticket} успешно инициирован, обновляем статус", ticket);
-					_fastPaymentService.UpdateFastPaymentStatus(fastPayment, FastPaymentDTOStatus.Refund, DateTime.Now);
+					if(reverseOrderResponse.ResponseCode == 0)
+					{
+						_logger.LogInformation("Возврат по платежу {Ticket} успешно инициирован, обновляем статус", ticket);
+						_fastPaymentService.UpdateFastPaymentStatus(fastPayment, FastPaymentDTOStatus.Refund, DateTime.Now);
+					}
 				}
 
 				return new ReverseTicketResponseDTO(_responseCodeConverter.ConvertToResponseStatus(reverseOrderResponse.ResponseCode));

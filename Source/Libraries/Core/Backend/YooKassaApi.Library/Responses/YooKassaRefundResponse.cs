@@ -51,5 +51,29 @@ namespace YooKassaApi.Library.Responses
 		/// </summary>
 		[JsonPropertyName("metadata")]
 		public Dictionary<string, string> Metadata { get; set; }
+
+		/// <summary>
+		/// Получить сообщение об ошибке
+		/// </summary>
+		/// <returns>Сообщение с ошибкой</returns>
+		public string GetErrorMessage()
+		{
+			if(CancellationDetails is not null)
+			{
+				return $"Возврат отменен. Инициатор: {CancellationDetails.Party}, причина: {CancellationDetails.Reason}";
+			}
+
+			if(Status is YooKassaRefundStatus.Canceled)
+			{
+				return "Возврат отменен по неизвестной причине";
+			}
+
+			if(Status is not YooKassaRefundStatus.Succeeded)
+			{
+				return $"Статус возврата: {Status}";
+			}
+
+			return null;
+		}
 	}
 }
