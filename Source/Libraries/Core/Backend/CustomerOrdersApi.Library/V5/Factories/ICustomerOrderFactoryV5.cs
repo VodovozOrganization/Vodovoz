@@ -1,10 +1,9 @@
-﻿using CustomerOrdersApi.Library.V4.Dto.Orders;
+﻿using CustomerOrdersApi.Library.V5.Dto.Orders;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
-using DetailedOrderInfoDto = CustomerOrdersApi.Library.V5.Dto.Orders.DetailedOrderInfoDto;
 
 namespace CustomerOrdersApi.Library.V5.Factories
 {

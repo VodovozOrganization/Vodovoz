@@ -1,6 +1,5 @@
 ﻿using CustomerOrdersApi.Library.Common;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
-using CustomerOrdersApi.Library.V4.Services;
+using CustomerOrdersApi.Library.V5.Dto.Orders;
 using CustomerOrdersApi.Library.V5.Services;
 using Gamma.Utilities;
 using MassTransit;

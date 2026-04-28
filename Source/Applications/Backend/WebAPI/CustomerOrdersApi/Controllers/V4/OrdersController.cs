@@ -18,18 +18,15 @@ namespace CustomerOrdersApi.Controllers.V4
 	public class OrdersController : SignatureControllerBase
 	{
 		private readonly ICustomerOrdersServiceV4 _customerOrdersService;
-		private readonly ICustomerOrderCancellationService _orderCancellationService;
 		private readonly IRequestClient<CreatingOnlineOrder> _requestClient;
 
 		public OrdersController(
 			ILogger<OrdersController> logger,
 			ICustomerOrdersServiceV4 customerOrdersService,
-			ICustomerOrderCancellationService orderCancellationService,
 			IRequestClient<CreatingOnlineOrder> requestClient
 			) : base(logger)
 		{
 			_customerOrdersService = customerOrdersService ?? throw new ArgumentNullException(nameof(customerOrdersService));
-			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
 			_requestClient = requestClient ?? throw new ArgumentNullException(nameof(requestClient));
 		}
 
@@ -205,71 +202,6 @@ namespace CustomerOrdersApi.Controllers.V4
 					sourceName);
 				
 				return Problem(ResponseMessage.HasErrorOccurredPleaseTryAgainLater);
-			}
-		}
-
-		[HttpPost]
-		public async Task<IActionResult> CancelOrderAsync(CancelOrderDto cancelOrderDto, CancellationToken cancellationToken)
-		{
-			var sourceName = cancelOrderDto.Source.GetEnumTitle();
-
-			if(!cancelOrderDto.OrderId.HasValue && !cancelOrderDto.OnlineOrderId.HasValue)
-			{
-				_logger.LogWarning(
-					"Поступил запрос от {Source} на отмену заказа без указания OrderId или OnlineOrderId",
-					sourceName);
-
-				return BadRequest("Необходимо указать OrderId или OnlineOrderId");
-			}
-
-			var orderId = cancelOrderDto.OrderId ?? cancelOrderDto.OnlineOrderId;
-
-			try
-			{
-				_logger.LogInformation(
-					"Поступил запрос от {Source} на отмену заказа {OrderId} от клиента {ClientId}",
-					sourceName,
-					orderId,
-					cancelOrderDto.ErpCounterpartyId);
-
-				var result = await _orderCancellationService.ApplyCancellationAsync(
-					cancelOrderDto.Source,
-					cancelOrderDto.ErpCounterpartyId,
-					cancelOrderDto.OrderId,
-					cancelOrderDto.OnlineOrderId,
-					cancellationToken);
-
-				if(result.IsSuccess)
-				{
-					_logger.LogInformation(
-						"Заказ {OrderId} успешно отменен", orderId);
-
-					return Ok(result.Value);
-				}
-
-				var error = result.Errors.FirstOrDefault();
-				var statusCode = GetStatusCodeFromError(error);
-
-				_logger.LogWarning(
-					"Отмена заказа {OrderId} не выполнена: {ErrorMessage}",
-					orderId,
-					error.Message);
-
-				return StatusCode(statusCode, new
-				{
-					title = "One or more validation errors occurred",
-					status = statusCode,
-					detail = error.Message
-				});
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(e,
-					"Ошибка при отмене заказа {OrderId} от {Source}",
-					orderId,
-					sourceName);
-
-				return Problem("Произошла ошибка, пожалуйста, попробуйте позже");
 			}
 		}
 

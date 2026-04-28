@@ -1,7 +1,6 @@
 ﻿using CustomerOrdersApi.Library.Converters;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
-using CustomerOrdersApi.Library.V4.Factories;
-using CustomerOrdersApi.Library.V4.Services;
+using CustomerOrdersApi.Library.V5.Dto.Orders;
+using CustomerOrdersApi.Library.V5.Services;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -21,14 +20,14 @@ namespace CustomerOrdersApi.Library.V5.Factories
 	public class CustomerOrderFactoryV5 : ICustomerOrderFactoryV5
 	{
 		private readonly IExternalOrderStatusConverter _externalOrderStatusConverter;
-		private readonly IInfoMessageFactory _infoMessageFactory;
+		private readonly IInfoMessageFactoryV5 _infoMessageFactory;
 		private readonly IOrderRepository _orderRepository;
 		private readonly ICustomerOrderCancellationService _orderCancellationLogicService;
 		private readonly ICustomerOrderTransferService _orderTransferService;
 
 		public CustomerOrderFactoryV5(
 			IExternalOrderStatusConverter externalOrderStatusConverter,
-			IInfoMessageFactory infoMassageFactory,
+			IInfoMessageFactoryV5 infoMassageFactory,
 			IOrderRepository orderRepository,
 			ICustomerOrderCancellationService orderCancellationLogicService,
 			ICustomerOrderTransferService orderTransferService

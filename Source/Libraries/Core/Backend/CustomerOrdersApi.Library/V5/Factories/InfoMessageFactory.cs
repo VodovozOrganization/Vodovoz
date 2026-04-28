@@ -1,8 +1,8 @@
 ﻿using Vodovoz.Core.Data.InfoMessages;
 
-namespace CustomerOrdersApi.Library.V4.Factories
+namespace CustomerOrdersApi.Library.V5.Factories
 {
-	public class InfoMessageFactory : IInfoMessageFactory
+	public class InfoMessageFactoryV5 : IInfoMessageFactoryV5
 	{
 		public InfoMessage CreateNeedPayOrderInfoMessage()
 		{
@@ -12,6 +12,11 @@ namespace CustomerOrdersApi.Library.V4.Factories
 		public InfoMessage CreateNotPaidOrderInfoMessage()
 		{
 			return InfoMessage.Create("orderDescriptionTop", 2, "Заказ не был оплачен", "Наш менеджер свяжется с Вами в ближайшее время");
+		}
+
+		public InfoMessage CreateRefundPaymentInfoMessage()
+		{
+			return InfoMessage.Create("cancelOrderPopUp", null, default, "В случае отмены заказа, денежные средства будут возвращены в течение 10 дней");
 		}
 	}
 }
