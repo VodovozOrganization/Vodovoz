@@ -21,8 +21,9 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 			ILogger<CloudPaymentsRefundService> logger,
 			ICloudPaymentsApiClient cloudPaymentsClient,
 			ICloudPaymentsMapper mapper,
-			IRefundOperationRepository refundOperationRepository
-			) : base(logger, refundOperationRepository)
+			IRefundOperationRepository refundOperationRepository,
+			IRefundRequestValidator refundRequestValidator
+			) : base(logger, refundOperationRepository, refundRequestValidator)
 		{
 			_cloudPaymentsClient = cloudPaymentsClient ?? throw new ArgumentNullException(nameof(cloudPaymentsClient));
 			_mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));

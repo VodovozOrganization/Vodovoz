@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Orders;
 using YooKassaApi.Client;
-using YooKassaApi.Library.Models;
 
 namespace CustomerOrdersApi.Library.Services.PaymentRefund
 {
@@ -22,8 +21,9 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 			ILogger<YooKassaRefundService> logger,
 			IYooKassaApiClient yooKassaClient,
 			IYooKassaMapper mapper,
-			IRefundOperationRepository refundOperationRepository
-			) : base(logger, refundOperationRepository)
+			IRefundOperationRepository refundOperationRepository,
+			IRefundRequestValidator refundRequestValidator
+			) : base(logger, refundOperationRepository, refundRequestValidator)
 		{
 			_yooKassaClient = yooKassaClient ?? throw new ArgumentNullException(nameof(yooKassaClient));
 			_mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));

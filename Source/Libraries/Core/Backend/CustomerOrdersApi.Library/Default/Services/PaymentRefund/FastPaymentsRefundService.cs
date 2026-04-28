@@ -18,8 +18,9 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 		public FastPaymentsRefundService(
 			ILogger<FastPaymentsRefundService> logger,
 			IFastPaymentsApiClient fastPaymentApiClient,
-			IRefundOperationRepository refundOperationRepository
-		) : base(logger, refundOperationRepository)
+			IRefundOperationRepository refundOperationRepository,
+			IRefundRequestValidator refundRequestValidator
+			) : base(logger, refundOperationRepository, refundRequestValidator)
 		{
 			_fastPaymentApiClient = fastPaymentApiClient ?? throw new ArgumentNullException(nameof(fastPaymentApiClient));
 		}

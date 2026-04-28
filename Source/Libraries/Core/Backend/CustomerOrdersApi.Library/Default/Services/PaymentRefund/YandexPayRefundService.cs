@@ -22,8 +22,9 @@ namespace CustomerOrdersApi.Library.Services.PaymentRefund
 			ILogger<YandexPayRefundService> logger,
 			IYandexPayApiClient yandexPayClient,
 			IYandexPayMapper mapper,
-			IRefundOperationRepository refundOperationRepository
-			) : base(logger, refundOperationRepository)
+			IRefundOperationRepository refundOperationRepository,
+			IRefundRequestValidator refundRequestValidator
+			) : base(logger, refundOperationRepository, refundRequestValidator)
 		{
 			_yandexPayClient = yandexPayClient ?? throw new ArgumentNullException(nameof(yandexPayClient));
 			_mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));

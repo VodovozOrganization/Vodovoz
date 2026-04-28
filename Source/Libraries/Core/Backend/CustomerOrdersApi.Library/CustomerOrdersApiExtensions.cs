@@ -3,6 +3,7 @@ using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.Converters;
 using CustomerOrdersApi.Library.Default.Factories;
 using CustomerOrdersApi.Library.Default.Services;
+using CustomerOrdersApi.Library.Default.Services.PaymentRefund;
 using CustomerOrdersApi.Library.Default.Services.PaymentRefund.Mappers;
 using CustomerOrdersApi.Library.Services.PaymentRefund;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
@@ -192,6 +193,7 @@ namespace CustomerOrdersApi.Library
 		public static IServiceCollection AddPaymentRefundServices(
 			this IServiceCollection services)
 		{
+			services.AddScoped<IRefundRequestValidator, RefundRequestValidator>();
 			services.AddScoped<IPaymentRefundServiceFactory, PaymentRefundServiceFactory>();
 
 			services.AddScoped<ICloudPaymentsMapper, CloudPaymentsMapper>();

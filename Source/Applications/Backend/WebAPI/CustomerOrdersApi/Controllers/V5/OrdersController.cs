@@ -12,7 +12,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Presentation.WebApi.Messages;
-using static NHibernate.Engine.Query.CallableParser;
 using ChangingOrderDtoV5 = CustomerOrdersApi.Library.V5.Dto.Orders.ChangingOrderDto;
 
 namespace CustomerOrdersApi.Controllers.V5

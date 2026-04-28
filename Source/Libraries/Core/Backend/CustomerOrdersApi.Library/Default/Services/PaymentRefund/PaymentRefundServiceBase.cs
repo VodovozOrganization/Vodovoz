@@ -15,13 +15,17 @@ namespace CustomerOrdersApi.Library.Default.Services.PaymentRefund
 	{
 		protected ILogger Logger { get; }
 		protected IRefundOperationRepository RefundOperationRepository { get; }
+		private readonly IRefundRequestValidator _refundRequestValidator;
 
 		protected PaymentRefundServiceBase(
 			ILogger logger,
-			IRefundOperationRepository refundOperationRepository)
+			IRefundOperationRepository refundOperationRepository,
+			IRefundRequestValidator refundRequestValidator
+			)
 		{
 			Logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			RefundOperationRepository = refundOperationRepository ?? throw new ArgumentNullException(nameof(refundOperationRepository));
+			_refundRequestValidator = refundRequestValidator ?? throw new ArgumentNullException(nameof(refundRequestValidator));
 		}
 
 		public abstract bool CanHandle(OnlinePaymentSource paymentSource);
@@ -30,7 +34,7 @@ namespace CustomerOrdersApi.Library.Default.Services.PaymentRefund
 		{
 			try
 			{
-				var validationError = ValidateRequest(request);
+				var validationError = _refundRequestValidator.Validate(request);
 				if(validationError is not null)
 				{
 					return validationError;
@@ -142,7 +146,6 @@ namespace CustomerOrdersApi.Library.Default.Services.PaymentRefund
 			return $"refund_{request.TransactionId}_{timestamp}";
 		}
 
-		/// Переделать на возврат DTO
 		/// <summary>
 		/// Проверяет обязательные параметры запроса
 		/// </summary>
