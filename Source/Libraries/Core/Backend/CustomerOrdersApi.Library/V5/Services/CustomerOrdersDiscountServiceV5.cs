@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using CustomerOrdersApi.Library.Config;
+﻿using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.V5.Dto.Orders;
 using CustomerOrdersApi.Library.V5.Dto.Orders.OrderItem;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Handlers;
