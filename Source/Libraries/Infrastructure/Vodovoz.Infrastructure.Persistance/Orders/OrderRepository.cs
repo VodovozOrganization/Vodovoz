@@ -2733,44 +2733,29 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return notPaidOrdersData;
 		}
 
-		public async Task<IDictionary<int, CounterpartyOrdersAggregatedNode>> GetCounterpartyOverdueDebtorDebtData(
+		public async Task<IDictionary<CounterpartyContractDataNode, CounterpartyOverdueDebtorDebtAggregatedNode>> GetCounterpartyOverdueDebtorDebtData(
 			IUnitOfWork uow,
-			int organizationId,
 			int expiredMinDaysAgo,
+			IEnumerable<OrderStatus> orderStatuses,
+			IEnumerable<RevenueStatus> excludeCounterpartyRevenueStatuses,
 			CancellationToken cancellationToken = default)
 		{
 			var today = DateTime.Today;
 
-			var orderStatuses = new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
-			
 			var ordersDataQuery =
 					from order in uow.Session.Query<Order>()
 					join counterparty in uow.Session.Query<Counterparty>() on order.Client.Id equals counterparty.Id
-					join cc in uow.Session.Query<CounterpartyContract>() on order.Contract.Id equals cc.Id into contacts
+					join c in uow.Session.Query<CounterpartyContract>() on order.Contract.Id equals c.Id into contacts
 					from contract in contacts.DefaultIfEmpty()
-					join o in uow.Session.Query<Organization>() on contract.Organization.Id equals o.Id into organizations
-					from organization in organizations.DefaultIfEmpty()
 
-					let overdueOrdersPartialPaymentsSum =
+					let orderPaymentsSum =
 					(decimal?)(from paymentItem in uow.Session.Query<PaymentItem>()
 							   join cashlessMovementOpetation in uow.Session.Query<CashlessMovementOperation>()
 									on paymentItem.CashlessMovementOperation.Id equals cashlessMovementOpetation.Id
 							   where
 							   paymentItem.Order.Id == order.Id
 							   && cashlessMovementOpetation.CashlessMovementOperationStatus != AllocationStatus.Cancelled
-							   && order.DeliveryDate != null
-							   && order.DeliveryDate.Value.AddDays(counterparty.DelayDaysForBuyers) < today
 							   select cashlessMovementOpetation.Expense)
-							   .Sum() ?? 0
-
-					let overdueOrdersSum =
-					(decimal?)(from orderItem in uow.Session.Query<OrderItem>()
-							   where
-							   orderItem.Order.Id == order.Id
-							   && order.DeliveryDate != null
-							   && order.DeliveryDate.Value.AddDays(counterparty.DelayDaysForBuyers) < today
-							   select
-							   orderItem.ActualSum)
 							   .Sum() ?? 0
 
 					let orderSum =
@@ -2791,7 +2776,9 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						&& order.PaymentType == PaymentType.Cashless
 						&& counterparty.PersonType == PersonType.legal
 						&& !counterparty.IsChainStore
-						&& organization.Id == organizationId
+						&& counterparty.RevenueStatus != null
+						&& !excludeCounterpartyRevenueStatuses.Contains(counterparty.RevenueStatus.Value)
+						&& contract.Id != null
 						&& order.DeliveryDate != null
 						&& orderSum > 0
 						&& isExpired
@@ -2799,22 +2786,26 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					select new CounterpartyOverdueDebtorDebtDataNode
 					{
 						CounterpartyId = counterparty.Id,
-						OrganizationId = organization.Id,
-						OverdueDebtorDebt = overdueOrdersSum - overdueOrdersPartialPaymentsSum,
-						OrderDeliveryDate = order.DeliveryDate.Value
+						OrganizationId = contract.Organization.Id,
+						ContractId = contract.Id,
+						ContractNumber = contract.Number,
+						OverdueDebtorDebt = orderSum - orderPaymentsSum,
+						OrderDeliveryDate = order.DeliveryDate.Value,
+						CounterpartyPaymentDelayDays = counterparty.DelayDaysForBuyers
 					};
 
 			var notPaidOrdersData =
 				(await ordersDataQuery.Where(x => x.OverdueDebtorDebt > 0).ToListAsync(cancellationToken))
-				.GroupBy(x => x.CounterpartyId)
+				.GroupBy(x => new CounterpartyContractDataNode { CounterpartyId = x.CounterpartyId, ContractId = x.ContractId })
+				.Where(x => x.Min(o => o.OrderDeliveryDate.AddDays(expiredMinDaysAgo + x.First().CounterpartyPaymentDelayDays)) <= today)
 				.ToDictionary(
 					x => x.Key,
-					x => new CounterpartyOrdersAggregatedNode
+					x => new CounterpartyOverdueDebtorDebtAggregatedNode
 					{
-						CounterpartyId = x.Key,
+						CounterpartyId = x.Key.CounterpartyId,
 						OrganizationId = x.First().OrganizationId,
 						TotalOverdueDebtorDebt = x.Sum(o => o.OverdueDebtorDebt),
-						MinOrderDeliveryDate = x.Min(o => o.OrderDeliveryDate)
+						ContractNumber = x.First().ContractNumber
 					});
 
 			return notPaidOrdersData;

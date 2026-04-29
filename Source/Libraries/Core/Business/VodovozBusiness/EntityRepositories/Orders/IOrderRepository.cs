@@ -295,6 +295,22 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="deliveryPointId">Идентификатор ТД</param>
 		/// <returns></returns>
 		IEnumerable<int> GetClientOrdersIdsForDate(IUnitOfWork uow, DateTime date, int? counterpartyId, int? deliveryPointId);
-		Task<IDictionary<int, CounterpartyOrdersAggregatedNode>> GetCounterpartyOverdueDebtorDebtData(IUnitOfWork uow, int organizationId, int expiredMinDaysAgo = 0, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Получение данных по просроченной дебиторской задолженности контрагентов , 
+		/// сгруппированные по контрагенту и договору, с учетом минимального количества дней просрочки сверх установленного для КА
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="expiredMinDaysAgo">Минимальное количество дней просрочки</param>
+		/// <param name="orderStatuses">Статусы заказов</param>
+		/// <param name="excludeCounterpartyRevenueStatuses">Статусы контрагентов в налоговой для исключения</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Данные по просроченным долгам контрагента в разрезе организации и договора</returns>
+		Task<IDictionary<CounterpartyContractDataNode, CounterpartyOverdueDebtorDebtAggregatedNode>> GetCounterpartyOverdueDebtorDebtData(
+			IUnitOfWork uow,
+			int expiredMinDaysAgo,
+			IEnumerable<OrderStatus> orderStatuses,
+			IEnumerable<RevenueStatus> excludeCounterpartyRevenueStatuses,
+			CancellationToken cancellationToken = default);
 	}
 }
