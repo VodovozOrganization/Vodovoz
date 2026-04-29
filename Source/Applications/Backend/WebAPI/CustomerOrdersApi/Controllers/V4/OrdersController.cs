@@ -53,7 +53,7 @@ namespace CustomerOrdersApi.Controllers.V4
 				return response.Message.Code switch
 				{
 					200 => Ok(CreatedOnlineOrder.Create(response.Message)),
-					409 => Problem(Messages.DuplicatOrderMessage(creatingOnlineOrder.ExternalOrderId), statusCode: response.Message.Code),
+					409 => Problem(Messages.DuplicateOrderMessage(creatingOnlineOrder.ExternalOrderId), statusCode: response.Message.Code),
 					500 => Problem(Messages.ErrorMessage)
 				};
 			}

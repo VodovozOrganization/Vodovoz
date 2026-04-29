@@ -1,17 +1,16 @@
-﻿using Vodovoz.Domain.Goods;
+﻿using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Domain.Orders
 {
-	public interface IProduct
+	/// <summary>
+	/// Более детальный контракт товара
+	/// </summary>
+	public interface IProduct : IGoods
 	{
 		/// <summary>
 		/// Id сущности
 		/// </summary>
 		int Id { get; }
-		/// <summary>
-		/// Количество
-		/// </summary>
-		decimal Count { get; }
 		/// <summary>
 		/// Скидка
 		/// </summary>
@@ -21,22 +20,6 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		bool IsDiscountInMoney { get; }
 		/// <summary>
-		/// Фикса
-		/// </summary>
-		bool IsFixedPrice { get; }
-		/// <summary>
-		/// Основание скидки <see cref="Vodovoz.Domain.Orders.DiscountReason"/>
-		/// </summary>
-		DiscountReason DiscountReason { get; set; }
-		/// <summary>
-		/// Номенклатура <see cref="Vodovoz.Domain.Goods.Nomenclature"/>
-		/// </summary>
-		Nomenclature Nomenclature { get; }
-		/// <summary>
-		/// Промо набор <see cref="Vodovoz.Domain.Orders.PromotionalSet"/>
-		/// </summary>
-		PromotionalSet PromoSet { get; set; }
-		/// <summary>
 		/// Фактическая сумма
 		/// </summary>
 		decimal ActualSum { get; }
@@ -44,9 +27,5 @@ namespace Vodovoz.Domain.Orders
 		/// Текущее количество
 		/// </summary>
 		decimal CurrentCount { get; }
-		/// <summary>
-		/// Цена
-		/// </summary>
-		decimal Price { get; }
 	}
 }

@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Linq;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Specifications;
 using Vodovoz.Tools.Orders;
 
 namespace Vodovoz.Core.Application.Orders.Services
@@ -23,21 +23,20 @@ namespace Vodovoz.Core.Application.Orders.Services
 		
 		public decimal GetDeliveryPrice(OnlineOrder onlineOrder)
 		{
-			var isDeliveryForFree =
-				onlineOrder.IsSelfDelivery
-				|| onlineOrder.DeliveryPoint != null && onlineOrder.DeliveryPoint.AlwaysFreeDelivery
-				|| !onlineOrder.OnlineOrderItems.Any(n => n.Nomenclature != null && n.Nomenclature.Id != _paidDeliveryId);
+			var isDeliveryForFree = FreeDeliverySpecification
+				.CreateForOnlineOrder(_paidDeliveryId)
+				.IsSatisfiedBy(onlineOrder);
 			
 			if(isDeliveryForFree)
 			{
-				return default;
+				return 0;
 			}
 			
 			var district = onlineOrder.DeliveryPoint?.District;
 
 			if(district is null)
 			{
-				return default;
+				return 0;
 			}
 			
 			_onlineOrderStateKey.InitializeFields(onlineOrder);

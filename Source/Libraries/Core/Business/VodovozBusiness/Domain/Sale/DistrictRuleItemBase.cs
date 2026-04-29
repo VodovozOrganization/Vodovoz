@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text;
 using QS.DomainModel.Entity;
+using Vodovoz.Core.Domain.Goods;
 
 namespace Vodovoz.Domain.Sale
 {

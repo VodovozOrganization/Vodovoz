@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.EntityRepositories.Sale;
+using Vodovoz.Extensions;
 
 namespace Vodovoz.Domain.Sale
 {
@@ -123,6 +125,47 @@ namespace Vodovoz.Domain.Sale
 				case "0,5л": return _water500mlCount.ToString();
 				default: return "";
 			}
+		}
+
+		public virtual string GetBottlesCount(IEnumerable<TareVolume> tareVolumes = null)
+		{
+			var sb = new StringBuilder();
+			
+			if(tareVolumes == null)
+			{
+				tareVolumes = Enum.GetValues(typeof(TareVolume)).Cast<TareVolume>();
+			}
+
+			foreach(var tareVolume in tareVolumes)
+			{
+				switch(tareVolume)
+				{
+					case TareVolume.Vol19L:
+						sb.Append(Water19LCount);
+						sb.Append(TareVolume.Vol19L.GetEnumDisplayName());
+						break;
+					case TareVolume.Vol6L:
+						sb.Append(Water6LCount);
+						sb.Append(TareVolume.Vol6L.GetEnumDisplayName());
+						break;
+					case TareVolume.Vol1500ml:
+						sb.Append(Water1500mlCount);
+						sb.Append(TareVolume.Vol1500ml.GetEnumDisplayName());
+						break;
+					case TareVolume.Vol500ml:
+						sb.Append(Water500mlCount);
+						sb.Append(TareVolume.Vol500ml.GetEnumDisplayName());
+						break;
+					case TareVolume.Vol600ml:
+						sb.Append(Water600mlCount);
+						sb.Append(TareVolume.Vol600ml.GetEnumDisplayName());
+						break;
+				}
+
+				sb.Append(" бутылок");
+			}
+			
+			return sb.ToString();
 		}
 
 		#region Переопределённые методы

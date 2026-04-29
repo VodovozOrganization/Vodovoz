@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomerOrdersApi.Library.V5.Dto.Orders.PromoSets;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 
@@ -54,7 +55,7 @@ namespace CustomerOrdersApi.Library.V5.Dto.Orders
 		/// <summary>
 		/// Промонаборы
 		/// </summary>
-		public IEnumerable<PromoSetDto> PromoSets { get; private set; }
+		public IEnumerable<OrderPromoSetDto> PromoSets { get; private set; }
 
 		public void UpdateOrderRating(OrderRating orderRating, DateTime ratingAvailableFrom)
 		{
@@ -97,7 +98,7 @@ namespace CustomerOrdersApi.Library.V5.Dto.Orders
 				.Where(x => x.PromoSet != null)
 				.ToLookup(x => x.PromoSet.Id);
 			
-			var promoSets = new List<PromoSetDto>();
+			var promoSets = new List<OrderPromoSetDto>();
 
 			foreach(var orderItemGroup in promoSetsGroup)
 			{
@@ -118,7 +119,7 @@ namespace CustomerOrdersApi.Library.V5.Dto.Orders
 				}
 					
 				promoSets.Add(
-					PromoSetDto.Create(
+					OrderPromoSetDto.Create(
 						orderItemGroup.Key,
 						orderItemGroup.Count() / promoItemsCount,
 						promoPrice

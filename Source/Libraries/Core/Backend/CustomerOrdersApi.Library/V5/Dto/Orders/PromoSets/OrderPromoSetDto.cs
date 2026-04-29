@@ -1,0 +1,18 @@
+﻿namespace CustomerOrdersApi.Library.V5.Dto.Orders.PromoSets
+{
+	public class OrderPromoSetDto : PromoSetDto
+	{
+		public static OrderPromoSetDto Create(
+			int promoSetId,
+			int count,
+			decimal price)
+		{
+			return new OrderPromoSetDto
+			{
+				PromoSetId = promoSetId,
+				Count = count,
+				Price = price
+			};
+		}
+	}
+}

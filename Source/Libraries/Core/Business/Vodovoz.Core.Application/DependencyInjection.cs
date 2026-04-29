@@ -98,6 +98,7 @@ namespace Vodovoz.Core.Application
 
 		private static IServiceCollection AddCoreOrderServicesDependencies(this IServiceCollection services) => services
 			.AddScoped<IOnlineOrderDeliveryPriceGetter, OnlineOrderDeliveryPriceGetter>()
+			.AddScoped<IOnlineOrderFromCartDistrictRulesGetter, OnlineOrderFromCartDistrictRulesGetter>()
 			.AddScoped<IOrderFromOnlineOrderCreator, OrderFromOnlineOrderCreator>()
 			.AddScoped<IOrderFromOnlineOrderValidator, OrderFromOnlineOrderValidator>()
 			.AddScoped<IGoodsPriceCalculator, GoodsPriceCalculator>()

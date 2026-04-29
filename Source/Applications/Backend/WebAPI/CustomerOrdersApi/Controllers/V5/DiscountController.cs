@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
-using CustomerOrdersApi.Library.V4.Services;
+using CustomerOrdersApi.Library.V5.Dto.Orders;
+using CustomerOrdersApi.Library.V5.Services;
 using Gamma.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -11,11 +11,11 @@ namespace CustomerOrdersApi.Controllers.V5
 	[ApiVersion("5.0")]
 	public class DiscountController : SignatureControllerBase
 	{
-		private readonly ICustomerOrdersDiscountServiceV4 _discountService;
+		private readonly ICustomerOrdersDiscountServiceV5 _discountService;
 
 		public DiscountController(
 			ILogger<SignatureControllerBase> logger,
-			ICustomerOrdersDiscountServiceV4 discountService
+			ICustomerOrdersDiscountServiceV5 discountService
 			) : base(logger)
 		{
 			_discountService = discountService ?? throw new ArgumentNullException(nameof(discountService));

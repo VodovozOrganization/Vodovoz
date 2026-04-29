@@ -1,7 +1,7 @@
 using System;
 using CustomerOrdersApi.Library.Config;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
-using CustomerOrdersApi.Library.V4.Services;
+using CustomerOrdersApi.Library.V5.Dto.Orders;
+using CustomerOrdersApi.Library.V5.Services;
 using Gamma.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -14,13 +14,13 @@ namespace CustomerOrdersApi.Controllers.V5
 	[ApiVersion("5.0")]
 	public class OrderRatingController : SignatureControllerBase
 	{
-		private readonly ICustomerOrdersServiceV4 _customerOrdersService;
+		private readonly ICustomerOrdersServiceV5 _customerOrdersService;
 		private readonly IMemoryCache _memoryCache;
 		private readonly RequestsMinutesLimitsOptions _requestsMinutesLimitsOptions;
 
 		public OrderRatingController(
 			ILogger<OrderRatingController> logger,
-			ICustomerOrdersServiceV4 customerOrdersService,
+			ICustomerOrdersServiceV5 customerOrdersService,
 			IOptions<RequestsMinutesLimitsOptions> requestsLimitsOptions,
 			IMemoryCache memoryCache) : base(logger)
 		{

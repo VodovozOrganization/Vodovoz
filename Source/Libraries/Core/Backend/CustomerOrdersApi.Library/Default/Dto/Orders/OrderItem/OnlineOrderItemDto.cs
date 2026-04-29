@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 using VodovozBusiness.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.Default.Dto.Orders.OrderItem
@@ -48,6 +49,7 @@ namespace CustomerOrdersApi.Library.Default.Dto.Orders.OrderItem
 		/// </summary>
 		public bool IsFixedPrice { get; set; }
 
+		[JsonIgnore]
 		public decimal PriceWithDiscount
 		{
 			get

@@ -1,7 +1,8 @@
 ﻿using CustomerOrdersApi.HealthCheck;
 using System;
+using CustomerAppsApi.Services;
+using CustomerOrdersApi.Configs;
 using CustomerOrdersApi.Library;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
 using DriverApi.Notifications.Client;
 using MassTransit;
 using MessageTransport;
@@ -74,13 +75,23 @@ namespace CustomerOrdersApi
 
 			services.AddStaticScopeForEntity();
 			services.AddStaticHistoryTracker();
+			
+			services.AddAuthentication("Basic")
+				.AddScheme<BasicAuthenticationOptions, CustomAuthenticationHandler>(
+					"Basic",
+					conf => Configuration.GetSection("BasicAuthenticationOptions").Bind(conf));
 
 			services
 				.AddMemoryCache()
 				.AddMessageTransportSettings()
 				.AddMassTransit(busConf =>
 				{
-					busConf.AddRequestClient<CreatedOnlineOrder>(new Uri($"exchange:{CreatingOnlineOrder.ExchangeAndQueueName}"));
+					busConf.AddRequestClient<Library.V4.Dto.Orders.CreatedOnlineOrder>(
+						new Uri($"exchange:{Library.V4.Dto.Orders.CreatingOnlineOrder.ExchangeAndQueueName}"));
+					
+					busConf.AddRequestClient<Library.V5.Dto.Orders.CreatedOnlineOrder>(
+						new Uri($"exchange:{Library.V5.Dto.Orders.CreatingOnlineOrder.ExchangeAndQueueName}"));
+					
 					busConf.ConfigureRabbitMq();
 				})
 				.AddHttpClient();
@@ -112,6 +123,7 @@ namespace CustomerOrdersApi
 
 			app.UseHttpsRedirection();
 			app.UseRouting();
+			app.UseAuthentication();
 			app.UseAuthorization();
 			app.UseApiVersioning();
 			app.UseVodovozHealthCheck();

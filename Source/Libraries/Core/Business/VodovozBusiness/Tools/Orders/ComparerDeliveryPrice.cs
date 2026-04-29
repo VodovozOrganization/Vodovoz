@@ -3,45 +3,42 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Tools.Orders
 {
 	public abstract class ComparerDeliveryPrice
 	{
+		private bool _initialized;
+		
 		public DateTime? DeliveryDate { get; protected set; }
 		
-		[Display(Name = "Сколько воды многооборотной таре 19л?")]
-		decimal NotDisposableWater19LCount { get; set; }
+		[Display(Name = "Количество воды в многооборотной таре 19л")]
+		public decimal NotDisposableWater19LCount { get; protected set; }
 
-		[Display(Name = "Сколько воды одноразовой таре 19л?")]
-		decimal DisposableWater19LCount { get; set; }
+		[Display(Name = "Количество воды в одноразовой таре 19л")]
+		public decimal DisposableWater19LCount { get; protected set; }
 
-		[Display(Name = "Сколько воды одноразовой таре 6л?")]
-		decimal DisposableWater6LCount { get; set; }
+		[Display(Name = "Количество воды в одноразовой таре 6л")]
+		public decimal DisposableWater6LCount { get; protected set; }
 
-		[Display(Name = "Сколько воды одноразовой таре 1.5л?")]
-		decimal DisposableWater1500mlCount { get; set; }
+		[Display(Name = "Количество воды в одноразовой таре 1.5л")]
+		public decimal DisposableWater1500mlCount { get; protected set; }
 
-		[Display(Name = "Сколько воды одноразовой таре 0.6л?")]
-		decimal DisposableWater600mlCount { get; set; }
+		[Display(Name = "Количество воды в одноразовой таре 0.6л")]
+		public decimal DisposableWater600mlCount { get; protected set; }
 
-		[Display(Name = "Сколько воды одноразовой таре 0.5л?")]
-		decimal DisposableWater500mlCount { get; set; }
-
-		public virtual void InitializeFields(Order order, OrderStatus? requiredStatus = null)
-		{
-			
-		}
-		
-		public virtual void InitializeFields(OnlineOrder onlineOrder)
-		{
-			
-		}
+		[Display(Name = "Количество воды в одноразовой таре 0.5л")]
+		public decimal DisposableWater500mlCount { get; protected set; }
 
 		public virtual bool CompareWithDeliveryPriceRule(IDeliveryPriceRule rule)
 		{
+			if(!_initialized)
+			{
+				throw new InvalidOperationException($"Не произведена инициализация класса {typeof(ComparerDeliveryPrice)}");
+			}
+
 			var totalWater19LCount = DisposableWater19LCount + NotDisposableWater19LCount;
 			var deliveryIsFree =
 				(totalWater19LCount > 0 && totalWater19LCount >= rule.Water19LCount)
@@ -52,8 +49,16 @@ namespace Vodovoz.Tools.Orders
 
 			return !deliveryIsFree;
 		}
+
+		protected virtual void Initialize(IEnumerable<IGoods> products, DateTime? deliveryDate)
+		{
+			DeliveryDate = deliveryDate;
+			CalculateAllWaterCount(products);
+			
+			_initialized = true;
+		}
 		
-		protected virtual void CalculateAllWaterCount(IEnumerable<IProduct> products)
+		protected virtual void CalculateAllWaterCount(IEnumerable<IGoods> products)
 		{
 			ResetCounts();
 			CalculatePromoSetWaterCount(products);
@@ -62,15 +67,15 @@ namespace Vodovoz.Tools.Orders
 		
 		protected virtual void ResetCounts()
 		{
-			DisposableWater19LCount = default;
-			NotDisposableWater19LCount = default;
-			DisposableWater6LCount = default;
-			DisposableWater1500mlCount = default;
-			DisposableWater600mlCount = default;
-			DisposableWater500mlCount = default;
+			DisposableWater19LCount = 0;
+			NotDisposableWater19LCount = 0;
+			DisposableWater6LCount = 0;
+			DisposableWater1500mlCount = 0;
+			DisposableWater600mlCount = 0;
+			DisposableWater500mlCount = 0;
 		}
 
-		protected virtual void CalculatePromoSetWaterCount(IEnumerable<IProduct> products)
+		protected virtual void CalculatePromoSetWaterCount(IEnumerable<IGoods> products)
 		{
 			var water = products.Where(
 					x => x.PromoSet != null &&
@@ -90,7 +95,7 @@ namespace Vodovoz.Tools.Orders
 			}
 		}
 
-		protected virtual void CalculateNotPromoSetWaterCount(IEnumerable<IProduct> products)
+		protected virtual void CalculateNotPromoSetWaterCount(IEnumerable<IGoods> products)
 		{
 			var water = products.Where(
 					x => x.PromoSet == null
@@ -105,7 +110,7 @@ namespace Vodovoz.Tools.Orders
 			}
 		}
 
-		protected virtual void CalculateWaterCount(IProduct item)
+		protected virtual void CalculateWaterCount(IGoods item)
 		{
 			switch(item.Nomenclature.TareVolume)
 			{

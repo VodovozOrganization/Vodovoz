@@ -9,6 +9,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.BasicHandbooks;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
@@ -19,6 +20,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Goods;
 using VodovozBusiness.Domain.Goods;
+using VodovozBusiness.Extensions;
 
 namespace Vodovoz.Domain.Goods
 {
@@ -382,6 +384,16 @@ namespace Vodovoz.Domain.Goods
 		public virtual bool IsBelongsProductGroup(ProductGroup productGroup)
 		{
 			return ProductGroup != null && ProductGroup.IsBelongsOf(productGroup);
+		}
+
+		/// <summary>
+		/// Получение онлайн параметров
+		/// </summary>
+		/// <param name="source">ИПЗ</param>
+		/// <returns></returns>
+		public virtual NomenclatureOnlineParameters GetNomenclatureOnlineParameters(Source source)
+		{
+			return NomenclatureOnlineParameters.FirstOrDefault(x => x.Type == source.ToGoodsOnlineParameterType());
 		}
 		
 		#endregion Методы

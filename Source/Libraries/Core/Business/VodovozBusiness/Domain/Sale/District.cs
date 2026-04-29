@@ -929,6 +929,75 @@ namespace Vodovoz.Domain.Sale
 
 			return 0m;
 		}
+		
+		/// <summary>
+		///	Приоритет от максимального:
+		///	1) Правила доставки на сегодня
+		/// 2) Правила доставки на текущий день недели
+		/// 3) Правила доставки района
+		/// </summary>
+		public virtual IEnumerable<DistrictRuleItemBase> GetDeliveryRules(ComparerDeliveryPrice comparerDeliveryPrice, decimal eShopGoodsSum)
+		{
+			if(comparerDeliveryPrice.DeliveryDate.HasValue)
+			{
+				if(comparerDeliveryPrice.DeliveryDate.Value.Date == DateTime.Today && TodayDistrictRuleItems.Any())
+				{
+					var todayDeliveryRules =
+						TodayDistrictRuleItems.Where(x => comparerDeliveryPrice.CompareWithDeliveryPriceRule(x.DeliveryPriceRule)).ToList();
+
+					if(todayDeliveryRules.Any())
+					{
+						var todayMinEShopGoodsSum =
+							todayDeliveryRules.Max(x => x.DeliveryPriceRule.OrderMinSumEShopGoods);
+
+						if(eShopGoodsSum < todayMinEShopGoodsSum || todayMinEShopGoodsSum == 0)
+						{
+							return todayDeliveryRules;
+						}
+					}
+
+					return Array.Empty<DistrictRuleItemBase>();
+				}
+				
+				var dayOfWeekRules =
+					GetWeekDayRuleItemCollectionByWeekDayName(
+						ConvertDayOfWeekToWeekDayName(comparerDeliveryPrice.DeliveryDate.Value.DayOfWeek));
+				
+				if(dayOfWeekRules.Any())
+				{
+					var dayOfWeekDeliveryRules = 
+						dayOfWeekRules.Where(x => comparerDeliveryPrice.CompareWithDeliveryPriceRule(x.DeliveryPriceRule)).ToList();
+
+					if(dayOfWeekDeliveryRules.Any())
+					{
+						var dayOfWeekEShopGoodsSum =
+							dayOfWeekDeliveryRules.Max(x => x.DeliveryPriceRule.OrderMinSumEShopGoods);
+
+						if(eShopGoodsSum < dayOfWeekEShopGoodsSum || dayOfWeekEShopGoodsSum == 0)
+						{
+							return dayOfWeekDeliveryRules;
+						}
+					}
+
+					return Array.Empty<DistrictRuleItemBase>();
+				}
+			}
+
+			var commonDeliveryRules =
+				CommonDistrictRuleItems.Where(x => comparerDeliveryPrice.CompareWithDeliveryPriceRule(x.DeliveryPriceRule)).ToList();
+
+			if(commonDeliveryRules.Any())
+			{
+				var commonMinEShopGoodsSum = commonDeliveryRules.Max(x => x.DeliveryPriceRule.OrderMinSumEShopGoods);
+
+				if(eShopGoodsSum < commonMinEShopGoodsSum || commonMinEShopGoodsSum == 0)
+				{
+					return commonDeliveryRules;
+				}
+			}
+
+			return Array.Empty<DistrictRuleItemBase>();
+		}
 
 		/// <summary>
 		/// Активная ли версия районов, связанная с этим районом

@@ -62,10 +62,12 @@ namespace CustomerOrdersApi.Library
 		public static IServiceCollection AddVersion5(this IServiceCollection services)
 		{
 			services.AddScoped<ICustomerOrdersServiceV5, CustomerOrdersServiceV5>()
+				.AddScoped<ICustomerCartService, CustomerCartService>()
 				.AddScoped<ICustomerOrderFactoryV5, CustomerOrderFactoryV5>()
 				.AddScoped<ICustomerOrdersDiscountServiceV5, CustomerOrdersDiscountServiceV5>()
 				.AddScoped<ICustomerOrderFixedPriceServiceV5, CustomerOrderFixedPriceServiceV5>()
 				.AddScoped<IInfoMessageFactoryV5, InfoMessageFactoryV5>()
+				.AddScoped<IWarningMessageFactoryV5, WarningMessageFactoryV5>()
 				.AddScoped<ICustomerOrderRepositoryV5, CustomerOrderRepositoryV5>()
 				.AddScoped<ICustomerOnlineOrderRepositoryV5, CustomerOnlineOrderRepositoryV5>()
 				.AddDefault();

@@ -85,6 +85,60 @@ namespace Vodovoz.Core.Application.Orders.Services
 			return TryApplyPromoCode(uow, onlineOrderPromoCode.Source, discountPromoCode, onlineOrderPromoCode.Products);
 		}
 
+		public (bool? PromoCodeValid, bool DiscountApplicable) IsApplicableDiscount(
+			IUnitOfWork uow,
+			Source source,
+			int? counterpartyId,
+			decimal orderSum,
+			DateTime dateTime,
+			IGoods product)
+		{
+			var discount = product.DiscountReason != null
+				? uow.GetById<DiscountReason>(product.DiscountReason.Id)
+				: null;
+			
+			var date = dateTime.Date;
+			var time = dateTime.TimeOfDay;
+			var response = (PromoCodeValid: (bool?)null, DiscountApplicable: true);
+
+			if(discount is null)
+			{
+				response.PromoCodeValid = false;
+				response.DiscountApplicable = false;
+
+				return response;
+			}
+
+			if(!discount.IsPromoCode)
+			{
+				response.PromoCodeValid = null;
+			}
+			else if(date.Date < discount.StartDatePromoCode || date.Date > discount.EndDatePromoCode)
+			{
+				response.PromoCodeValid = false;
+			}
+			else if(time < discount.StartTimePromoCode || time > discount.EndTimePromoCode)
+			{
+				response.PromoCodeValid = false;
+			}
+			else if(orderSum < discount.PromoCodeOrderMinSum)
+			{
+				response.PromoCodeValid = false;
+			}
+			else if(discount.IsOneTimePromoCode
+				&& _discountReasonRepository.HasBeenUsagePromoCode(uow, counterpartyId ?? 0, discount.Id))
+			{
+				response.PromoCodeValid = false;
+			}
+			
+			if(!CanApplicableDiscount(source, discount, product))
+			{
+				response.DiscountApplicable = false;
+			}
+
+			return response;
+		}
+
 		private Result<IEnumerable<IOnlineOrderedProduct>> TryApplyPromoCode(
 			IUnitOfWork uow,
 			Source source,
@@ -167,9 +221,54 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return false;
 			}
 
-			var onlineParameters = nomenclature.NomenclatureOnlineParameters
-				.FirstOrDefault(x => x.Type == source.ToGoodsOnlineParameterType());
+			var onlineParameters = nomenclature.GetNomenclatureOnlineParameters(source);
+			var onlinePrice = onlineParameters?.GetOnlinePrice(product.Count);
 
+			if(onlineParameters?.NomenclatureOnlineDiscount != null
+				|| onlinePrice?.PriceWithoutDiscount != null)
+			{
+				return false;
+			}
+			
+			return product.Count * product.Price != 0;
+		}
+		
+		private bool CanApplicableDiscount(
+			Source source,
+			DiscountReason discountPromoCode,
+			IGoods product)
+		{
+			var nomenclature = product.Nomenclature;
+			
+			if(nomenclature is null)
+			{
+				return false;
+			}
+
+			if(product.PromoSet != null)
+			{
+				return false;
+			}
+
+			if(product.IsFixedPrice)
+			{
+				return false;
+			}
+
+			//TODO уточнить, будет ли промокод применяться теперь при возможности нескольких скидок
+			/*
+			if(product.Discount > 0)
+			{
+				return false;
+			}
+			*/
+
+			if(!IsApplicableDiscount(discountPromoCode, nomenclature))
+			{
+				return false;
+			}
+
+			var onlineParameters = nomenclature.GetNomenclatureOnlineParameters(source);
 			var onlinePrice = onlineParameters?.GetOnlinePrice(product.Count);
 
 			if(onlineParameters?.NomenclatureOnlineDiscount != null
