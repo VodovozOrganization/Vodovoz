@@ -1,6 +1,7 @@
 ﻿using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -47,7 +48,10 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Document
 				.FirstOrDefault(d => d.Order.Id == order.Id && d.Organization.Id == organizationId);
 		}
 
-		public async Task<string> GetDocumentNumberByOrderId(IUnitOfWork unitOfWork, int orderId, CancellationToken cancellationToken)
+		public async Task<string> GetDocumentNumberByOrderId(
+			IUnitOfWork unitOfWork,
+			int orderId,
+			CancellationToken cancellationToken)
 		{
 			return await unitOfWork.Session.Query<OrderDocumentEntity>()
 				.Where(orderDocument => orderDocument.Order.Id == orderId
@@ -56,6 +60,29 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Document
 				.OrderByDescending(orderDocument => orderDocument.Id)
 				.Select(orderDocument => orderDocument.DocumentOrganizationCounter.DocumentNumber)
 				.FirstOrDefaultAsync(cancellationToken);
+		}
+
+		public async Task<Dictionary<int, string>> GetDocumentNumbersByOrderIds(
+			IUnitOfWork unitOfWork,
+			IEnumerable<int> orderIds,
+			CancellationToken cancellationToken)
+		{
+			var documents = await unitOfWork.Session.Query<OrderDocumentEntity>()
+				.Where(orderDocument => orderIds.Contains(orderDocument.Order.Id)
+					&& (orderDocument is UPDDocumentEntity || orderDocument is SpecialUPDDocumentEntity))
+				.OrderByDescending(orderDocument => orderDocument.Id)
+				.Select(orderDocument => new
+				{
+					OrderId = orderDocument.Order.Id,
+					DocumentNumber = orderDocument.DocumentOrganizationCounter != null
+						? orderDocument.DocumentOrganizationCounter.DocumentNumber
+						: null
+				})
+				.ToListAsync(cancellationToken);
+
+			return documents
+				.GroupBy(d => d.OrderId)
+				.ToDictionary(g => g.Key, g => g.FirstOrDefault()?.DocumentNumber ?? string.Empty);
 		}
 	}
 }

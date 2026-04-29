@@ -1,5 +1,4 @@
-﻿using Edo.Contracts.Messages.Events;
-using Gamma.Binding.Core.RecursiveTreeConfig;
+﻿using Gamma.Binding.Core.RecursiveTreeConfig;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
@@ -22,7 +21,6 @@ using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Errors.TrueMark;
 using Vodovoz.Models.TrueMark;
 using VodovozBusiness.Domain.Client.Specifications;
@@ -38,7 +36,6 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 		private readonly ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService _codesProcessingService;
 		private readonly IGenericRepository<GroupGtin> _groupGtinrepository;
 		private readonly IGenericRepository<Gtin> _gtinRepository;
-		private readonly IBus _messageBus;
 		private readonly IGuiDispatcher _guiDispatcher;
 		private readonly IInteractiveService _interactiveService;
 		private readonly ILogger<CodesScanViewModel> _logger;
@@ -61,7 +58,6 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			ISelfDeliveryDocumentItemTrueMarkProductCodesProcessingService codesProcessingService,
 			IGenericRepository<GroupGtin> groupGtinrepository,
 			IGenericRepository<Gtin> gtinRepository,
-			IBus messageBus,
 			IGuiDispatcher guiDispatcher,
 			IInteractiveService interactiveService)
 			: base(navigationManager)
@@ -71,7 +67,6 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 			_codesProcessingService = codesProcessingService ?? throw new ArgumentNullException(nameof(codesProcessingService));
 			_groupGtinrepository = groupGtinrepository ?? throw new ArgumentNullException(nameof(groupGtinrepository));
 			_gtinRepository = gtinRepository ?? throw new ArgumentNullException(nameof(gtinRepository));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 			_guiDispatcher = guiDispatcher ?? throw new ArgumentNullException(nameof(guiDispatcher));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 
@@ -1031,39 +1026,6 @@ namespace Vodovoz.ViewModels.ViewModels.Documents.SelfDeliveryCodesScan
 
 		public Result IsAllTrueMarkProductCodesAdded() =>
 			_codesProcessingService.IsAllTrueMarkProductCodesAdded(_selfDeliveryDocument);
-
-		public PrimaryEdoRequest CreateEdoRequest(IUnitOfWork unitOfWork, Order order)
-		{
-			var codes = _selfDeliveryDocument.Items
-				.SelectMany(x => x.TrueMarkProductCodes)
-				.ToList();
-
-			if(!codes.Any())
-			{
-				return null;
-			}
-
-			var edoRequest = new PrimaryEdoRequest
-			{
-				Time = DateTime.Now,
-				Source = CustomerEdoRequestSource.Selfdelivery,
-				Order = order
-			};
-
-			foreach(var code in codes)
-			{
-				edoRequest.ProductCodes.Add(code);
-			}
-
-			unitOfWork.Save(edoRequest);
-
-			return edoRequest;
-		}
-
-		public async Task SendEdoRequestCreatedEvent(PrimaryEdoRequest orderEdoRequest)
-		{
-			await _messageBus.Publish(new EdoRequestCreatedEvent { Id = orderEdoRequest.Id });
-		}
 
 		public string GetCodesForClipboardCopy() =>
 			string.Join(", ", CodeScanRows.OrderBy(x => x.RowNumber).Select(x => $"\"{x.RawCode}\""));

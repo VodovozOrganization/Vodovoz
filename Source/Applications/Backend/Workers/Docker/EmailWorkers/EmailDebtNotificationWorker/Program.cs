@@ -1,4 +1,5 @@
 ﻿using Autofac.Extensions.DependencyInjection;
+using BitrixApi.Library.Services;
 using EdoService.Library.Services;
 using EmailDebtNotificationWorker.Services;
 using MassTransit;
@@ -86,8 +87,8 @@ namespace EmailDebtNotificationWorker
 					services.AddScoped<IWorkingDayService, WorkingDayService>();
 					services.AddScoped<IDebtorsSettings, DebtorsSettings>();
 					services.AddScoped<IEmailSettings, EmailSettings>();
-					services.AddScoped<PrintableDocumentSaver>();
 					services.AddScoped<IReportInfoFactory, DefaultReportInfoFactory>();
+					services.AddScoped<IEmailAttachmentsCreateService, EmailAttachmentsCreateService>();
 					services.AddScoped<IEmailDebtNotificationService, EmailDebtNotificationService>();
 					services.AddHostedService<EmailDebtNotificationWorker>();
 
