@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using CustomerOrdersApi.Library.V5.Dto.Orders.FixedPrice;
+﻿using CustomerOrdersApi.Library.V5.Dto.Orders.FixedPrice;
+using System.Collections.Generic;
 using Vodovoz.Core.Domain.Results;
 using VodovozBusiness.Domain.Orders;
 
