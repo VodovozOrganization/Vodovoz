@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Edo.Transport;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
@@ -17,12 +18,13 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
-using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
@@ -65,6 +67,7 @@ namespace Vodovoz
 		private readonly IValidationContextFactory _validationContextFactory =  ScopeProvider.Scope.Resolve<IValidationContextFactory>();
 		private IGenericRepository<FormalEdoRequest> _orderEdoRequestRepository;
 		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
+		private readonly MessageService _messageService = ScopeProvider.Scope.Resolve<MessageService>();
 		private CodesScanViewModel _codesScanViewModel;
 		private ValidationContext _validationContext;
 		private ICounterpartyEdoAccountController _edoAccountController;
@@ -414,23 +417,16 @@ namespace Vodovoz
 				MessageDialogHelper.RunInfoDialog("Заказ отгружен полностью.");
 			}
 
-			var edoRequest = _codesScanViewModel?.CreateEdoRequest(UoW, Entity.Order);
+			var edoRequest = CreateEdoRequest();
 			
 			logger.Info("Сохраняем документ самовывоза...");
 			UoWGeneric.Save();
 
-			try
+			if(edoRequest != null)
 			{
-				if(edoRequest != null)
-				{
-					_codesScanViewModel.SendEdoRequestCreatedEvent(edoRequest).GetAwaiter().GetResult();
-				}
+				_messageService.PublishEdoRequestCreatedEvent(edoRequest.Id).GetAwaiter().GetResult();
 			}
-			catch(Exception e)
-			{
-				logger.Error("Произошла ошибка при попытке отправки события создания заявки ЭДО {EdoSendError}", e);
-			}
-			
+
 			//FIXME Необходимо проверить правильность этого кода, так как если заказ именялся то уведомление на его придет и без кода.
 			//А если в каком то месте нужно получать уведомления об изменениях текущего объекта, то логично чтобы этот объект на него и подписался.
 			//OrmMain.NotifyObjectUpdated(new object[] { Entity.Order });
@@ -490,6 +486,29 @@ namespace Vodovoz
 			}
 
 			return Result.Success();
+		}
+
+		public PrimaryEdoRequest CreateEdoRequest()
+		{
+			var codes = Entity.Items
+				.SelectMany(x => x.TrueMarkProductCodes)
+				.ToList();
+
+			var edoRequest = new PrimaryEdoRequest
+			{
+				Time = DateTime.Now,
+				Source = CustomerEdoRequestSource.Selfdelivery,
+				Order = Entity.Order
+			};
+
+			foreach(var code in codes)
+			{
+				edoRequest.ProductCodes.Add(code);
+			}
+
+			UoW.Save(edoRequest);
+
+			return edoRequest;
 		}
 
 		private void UpdateWarehouseGeoGroup()
