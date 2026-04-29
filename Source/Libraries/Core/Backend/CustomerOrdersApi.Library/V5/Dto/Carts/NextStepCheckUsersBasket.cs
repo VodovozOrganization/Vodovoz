@@ -1,12 +1,11 @@
 ﻿using System.Text.Json.Serialization;
-using Newtonsoft.Json.Converters;
 
 namespace CustomerOrdersApi.Library.V5.Dto.Carts
 {
 	/// <summary>
 	/// Шаги по проверкам в корзине
 	/// </summary>
-	[JsonConverter(typeof(StringEnumConverter))]
+	[JsonConverter(typeof(JsonStringEnumConverter))]
 	public enum NextStepCheckUsersBasket
 	{
 		/// <summary>

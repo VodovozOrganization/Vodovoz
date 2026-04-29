@@ -15,7 +15,6 @@ namespace CustomerOrdersApi.Library.V5.Dto.Carts
 		public CheckUsersBasketResponse() { }
 
 		private CheckUsersBasketResponse(
-			Guid checkId,
 			OnlineOrderSumDto orderSum,
 			NextStepCheckUsersBasket nextStep,
 			IEnumerable<CheckedOnlineOrderItemDto> onlineOrderItems,
@@ -24,7 +23,6 @@ namespace CustomerOrdersApi.Library.V5.Dto.Carts
 			IEnumerable<InfoMessage> infoMessages,
 			IEnumerable<WarningMessage> warnings)
 		{
-			CheckId = checkId;
 			OrderSum = orderSum;
 			NextStep = nextStep;
 			OnlineOrderItems = onlineOrderItems;
@@ -33,10 +31,6 @@ namespace CustomerOrdersApi.Library.V5.Dto.Carts
 			InfoMessages = infoMessages;
 			Warnings = warnings;
 		}
-		/// <summary>
-		/// Идентификатор проверки
-		/// </summary>
-		public Guid CheckId { get; }
 		/// <summary>
 		/// Данные по сумме заказа
 		/// </summary>
@@ -67,7 +61,6 @@ namespace CustomerOrdersApi.Library.V5.Dto.Carts
 		public IEnumerable<WarningMessage> Warnings { get; }
 
 		public static CheckUsersBasketResponse Create(
-			Guid checkId,
 			OnlineOrderSumDto orderSum,
 			NextStepCheckUsersBasket nextStep,
 			IEnumerable<CheckedOnlineOrderItemDto> onlineOrderItems,
@@ -75,6 +68,6 @@ namespace CustomerOrdersApi.Library.V5.Dto.Carts
 			IEnumerable<CheckedOnlineRentPackageDto> rentPackages,
 			IEnumerable<InfoMessage> infoMessages,
 			IEnumerable<WarningMessage> warnings
-		) => new CheckUsersBasketResponse(checkId, orderSum, nextStep, onlineOrderItems, promoSets, rentPackages, infoMessages, warnings);
+		) => new CheckUsersBasketResponse(orderSum, nextStep, onlineOrderItems, promoSets, rentPackages, infoMessages, warnings);
 	}
 }

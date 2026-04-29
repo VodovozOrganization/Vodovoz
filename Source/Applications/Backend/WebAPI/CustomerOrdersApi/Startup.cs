@@ -3,6 +3,7 @@ using System;
 using CustomerAppsApi.Services;
 using CustomerOrdersApi.Configs;
 using CustomerOrdersApi.Library;
+using CustomerOrdersApi.Library.Config;
 using DriverApi.Notifications.Client;
 using MassTransit;
 using MessageTransport;
@@ -79,7 +80,7 @@ namespace CustomerOrdersApi
 			services.AddAuthentication("Basic")
 				.AddScheme<BasicAuthenticationOptions, CustomAuthenticationHandler>(
 					"Basic",
-					conf => Configuration.GetSection("BasicAuthenticationOptions").Bind(conf));
+					conf => Configuration.GetSection(SignatureOptions.Path).Bind(conf));
 
 			services
 				.AddMemoryCache()

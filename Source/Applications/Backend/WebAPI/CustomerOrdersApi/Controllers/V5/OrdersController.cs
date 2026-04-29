@@ -3,8 +3,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CustomerOrdersApi.Library.Common;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
-using CustomerOrdersApi.Library.V4.Services;
+using CustomerOrdersApi.Library.V5.Dto.Orders;
+using CustomerOrdersApi.Library.V5.Services;
 using Gamma.Utilities;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
@@ -16,12 +16,12 @@ namespace CustomerOrdersApi.Controllers.V5
 	[ApiVersion("5.0")]
 	public class OrdersController : SignatureControllerBase
 	{
-		private readonly ICustomerOrdersServiceV4 _customerOrdersService;
+		private readonly ICustomerOrdersServiceV5 _customerOrdersService;
 		private readonly IRequestClient<CreatingOnlineOrder> _requestClient;
 
 		public OrdersController(
 			ILogger<OrdersController> logger,
-			ICustomerOrdersServiceV4 customerOrdersService,
+			ICustomerOrdersServiceV5 customerOrdersService,
 			IRequestClient<CreatingOnlineOrder> requestClient
 			) : base(logger)
 		{

@@ -8,12 +8,16 @@ namespace CustomerOrdersApi.Configs
 	public class BasicAuthenticationOptions : AuthenticationSchemeOptions
 	{
 		/// <summary>
-		/// Токен МП
+		/// Подпись МП
 		/// </summary>
-		public string MobileAppToken { get; set; }
+		public string MobileApp { get; set; }
 		/// <summary>
-		/// Токен сайта ВВ
+		/// Подпись сайта
 		/// </summary>
-		public string VodovozWebSiteToken { get; set; }
+		public string VodovozWebSite { get; set; }
+		/// <summary>
+		/// Подпись Кулер сэйл
+		/// </summary>
+		public string KulerSaleWebSite { get; set; }
 	}
 }

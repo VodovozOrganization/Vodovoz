@@ -100,7 +100,6 @@ namespace CustomerOrdersApi.Library.V5.Services
 			var nextStep = SetNextStepAfterChecking(warnings);
 
 			var response = CheckUsersBasketResponse.Create(
-				Guid.NewGuid(),
 				orderSum,
 				nextStep,
 				checkedItems,
@@ -358,7 +357,10 @@ namespace CustomerOrdersApi.Library.V5.Services
 				return null;
 			}
 			
-			var calculatedDeliveryPrice = districtRules.Max(x => x.Price);
+			var calculatedDeliveryPrice = districtRules.Any()
+				? districtRules.Max(x => x.Price)
+				: 0m;
+			
 			var currentDeliveryPriceItem = checkedItems
 				.FirstOrDefault(x => x.NomenclatureId == _nomenclatureSettings.PaidDeliveryNomenclatureId);
 			var currentDeliveryPrice = currentDeliveryPriceItem?.Price;
@@ -403,16 +405,17 @@ namespace CustomerOrdersApi.Library.V5.Services
 				}
 			}
 
-			warningMessage = GetDeliveryChangedWarningMessage(districtRules as IList<DistrictRuleItemBase>);
+			warningMessage = GetDeliveryChangedWarningMessage(districtRules);
 
 			return warningMessage;
 		}
 
-		private WarningMessage GetDeliveryChangedWarningMessage(IList<DistrictRuleItemBase> districtRuleItems)
+		private WarningMessage GetDeliveryChangedWarningMessage(IEnumerable<DistrictRuleItemBase> rules)
 		{
 			var sb = new StringBuilder();
-			
-			districtRuleItems.MergeSort((x, y) =>
+
+			var districtRules = rules.ToList();
+			districtRules.MergeSort((x, y) =>
 			{
 				if(x.Price == y.Price)
 				{
@@ -435,16 +438,16 @@ namespace CustomerOrdersApi.Library.V5.Services
 			
 			var bottlesStingBuilder = new StringBuilder();
 
-			for(var i = 0; i < districtRuleItems.Count; i++)
+			for(var i = 0; i < districtRules.Count; i++)
 			{
 				bottlesStingBuilder.Clear();
 				
-				bottlesStingBuilder.Append($"{districtRuleItems[i].DeliveryPriceRule.Water19LCount - total19L} 19л");
+				bottlesStingBuilder.Append($"{districtRules[i].DeliveryPriceRule.Water19LCount - total19L}шт 19л");
 
 				if(total1500ml != 0)
 				{
 					bottlesStingBuilder.Append(" или ");
-					bottlesStingBuilder.Append($"{districtRuleItems[i].DeliveryPriceRule.Water1500mlCount - total1500ml} 1.5л");
+					bottlesStingBuilder.Append($"{districtRules[i].DeliveryPriceRule.Water1500mlCount - total1500ml}шт 1.5л");
 				}
 
 				bottlesStingBuilder.Append(" бутылок");
@@ -452,9 +455,9 @@ namespace CustomerOrdersApi.Library.V5.Services
 				string deliveryMessage = null;
 				const string message = "добавьте в заказ {0}, чтобы доставка стала {1}";
 				
-				if(i != districtRuleItems.Count - 1)
+				if(i != districtRules.Count - 1)
 				{
-					var deliveryPrice = districtRuleItems[i + 1].Price;
+					var deliveryPrice = districtRules[i + 1].Price;
 					deliveryMessage = $"{deliveryPrice}{CurrencyWorks.CurrencyShortFormat}";
 					sb.AppendLine(string.Format(message, bottlesStingBuilder, deliveryMessage));
 					sb.AppendLine("или");
@@ -478,28 +481,11 @@ namespace CustomerOrdersApi.Library.V5.Services
 			
 			foreach(var (checkedItem, goods) in cartItemsCheck.CombinedItems)
 			{
-				var discountCheck = _discountHandler.IsApplicableDiscount(
-					_uow,
-					request.Source,
-					request.CounterpartyErpId,
-					request.OrderSum.RawSum,
-					DateTime.Now,
-					goods);
-				
-				if(!discountCheck.PromoCodeValid.HasValue || !discountCheck.PromoCodeValid.Value)
+				if(checkedItem.Discount == 0)
 				{
-					warningMessage = _warningMessageFactory.CreatePromoCodeUnavailableMessage();
-					break;
+					continue;
 				}
-			}
-
-			if(warningMessage != null)
-			{
-				return warningMessage;
-			}
-			
-			foreach(var (checkedPromoSet, goods) in cartItemsCheck.CombinedPromoSets)
-			{
+				
 				var discountCheck = _discountHandler.IsApplicableDiscount(
 					_uow,
 					request.Source,
@@ -524,21 +510,20 @@ namespace CustomerOrdersApi.Library.V5.Services
 			Counterparty counterparty,
 			CartItemsCheck cartItemsCheck)
 		{
-			WarningMessage warning = null;
-
-			CheckPriceFromItems(source, deliveryPoint, counterparty, cartItemsCheck, warning);
-			CheckPriceFromPromoSets(source, deliveryPoint, counterparty, cartItemsCheck, warning);
+			var warning = CheckPriceFromItems(source, deliveryPoint, counterparty, cartItemsCheck);
+			warning ??= CheckPriceFromPromoSets(cartItemsCheck);
 
 			return warning;
 		}
 
-		private void CheckPriceFromItems(
+		private WarningMessage CheckPriceFromItems(
 			Source source,
 			DeliveryPoint deliveryPoint,
 			Counterparty counterparty,
-			CartItemsCheck cartItemsCheck,
-			WarningMessage warning)
+			CartItemsCheck cartItemsCheck
+			)
 		{
+			WarningMessage warning = null;
 			foreach(var (checkedItem, product) in cartItemsCheck.CombinedItems)
 			{
 				var price = _goodsPriceCalculator.CalculateItemPrice(
@@ -561,18 +546,16 @@ namespace CustomerOrdersApi.Library.V5.Services
 					warning ??= _warningMessageFactory.CreatePriceChangedMessage();
 				}
 			}
+
+			return warning;
 		}
 		
-		private void CheckPriceFromPromoSets(
-			Source source,
-			DeliveryPoint deliveryPoint,
-			Counterparty counterparty,
-			CartItemsCheck cartItemsCheck,
-			WarningMessage warning)
+		private WarningMessage CheckPriceFromPromoSets(
+			CartItemsCheck cartItemsCheck
+			)
 		{
+			WarningMessage warning = null;
 			var lookupPromoSets = cartItemsCheck.CombinedPromoSets.ToLookup(x => x.CheckedPromoSet);
-			
-			//TODO проверка на халявщика
 			
 			foreach(var groupedPromoSets in lookupPromoSets)
 			{
@@ -586,6 +569,8 @@ namespace CustomerOrdersApi.Library.V5.Services
 					warning ??= _warningMessageFactory.CreatePriceChangedMessage();
 				}
 			}
+			
+			return warning;
 		}
 		
 		private NextStepCheckUsersBasket SetNextStepAfterChecking(IEnumerable<WarningMessage> warnings)

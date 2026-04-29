@@ -16,6 +16,7 @@ using CustomerOrdersApi.Library.V5.Services;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using QS.DomainModel.UoW;
 using RabbitMQ.Client;
 using Vodovoz.Settings.Pacs;
 using VodovozInfrastructure.Cryptography;
@@ -70,6 +71,7 @@ namespace CustomerOrdersApi.Library
 				.AddScoped<IWarningMessageFactoryV5, WarningMessageFactoryV5>()
 				.AddScoped<ICustomerOrderRepositoryV5, CustomerOrderRepositoryV5>()
 				.AddScoped<ICustomerOnlineOrderRepositoryV5, CustomerOnlineOrderRepositoryV5>()
+				.AddScoped(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot())
 				.AddDefault();
 			
 			return services;

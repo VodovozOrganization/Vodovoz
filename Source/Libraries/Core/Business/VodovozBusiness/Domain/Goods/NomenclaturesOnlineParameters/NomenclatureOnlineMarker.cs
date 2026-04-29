@@ -1,13 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using Newtonsoft.Json.Converters;
 
 namespace Vodovoz.Domain.Goods.NomenclaturesOnlineParameters
 {
 	/// <summary>
 	/// Акция в ИПЗ
 	/// </summary>
-	[JsonConverter(typeof(StringEnumConverter))]
+	[JsonConverter(typeof(JsonStringEnumConverter))]
 	public enum NomenclatureOnlineMarker
 	{
 		/// <summary>
