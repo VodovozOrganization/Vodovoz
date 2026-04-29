@@ -488,7 +488,7 @@ namespace Vodovoz
 			return Result.Success();
 		}
 
-		public PrimaryEdoRequest CreateEdoRequest()
+		private PrimaryEdoRequest CreateEdoRequest()
 		{
 			var codes = Entity.Items
 				.SelectMany(x => x.TrueMarkProductCodes)
