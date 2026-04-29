@@ -1,4 +1,6 @@
-﻿namespace Vodovoz.Settings.Counterparty
+﻿using System;
+
+namespace Vodovoz.Settings.Counterparty
 {
 	public interface IDebtorsSettings
 	{
@@ -22,5 +24,20 @@
 		/// Интервал срабатывания воркера по рассылке писем о задолженности в секундах
 		/// </summary>
 		int DebtNotificationWorkerIntervalSeconds { get; }
+
+		/// <summary>
+		/// Количество дней сверх ПДЗ до отправки претензионного письма
+		/// </summary>
+		int OverdueDebtorDebtExpiredDaysAgo { get; }
+
+		/// <summary>
+		/// Интервал работы воркера по рассылке претензионных писем
+		/// </summary>
+		TimeSpan OverdueDebtorDebtInterval { get; }
+
+		/// <summary>
+		/// Максимальное количество претензионных писем, которое может быть отправлено за один цикл воркера
+		/// </summary>
+		int OverdueDebtorDebtLettersCountPerInterval { get; }
 	}
 }

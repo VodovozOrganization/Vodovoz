@@ -23,5 +23,11 @@ namespace Vodovoz.Settings.Database.Counterparty
 		}
 
 		public int DebtNotificationWorkerIntervalSeconds => _settingsController.GetIntValue("DebtNotificationWorkerIntervalSeconds");
+
+		public int OverdueDebtorDebtExpiredDaysAgo => _settingsController.GetIntValue("DebtorsSettings.OverdueDebtorDebtExpiredDaysAgo");
+
+		public TimeSpan OverdueDebtorDebtInterval => _settingsController.GetValue<TimeSpan>("DebtorsSettings.OverdueDebtorDebtInterval");
+
+		public int OverdueDebtorDebtLettersCountPerInterval => _settingsController.GetIntValue("DebtorsSettings.OverdueDebtorDebtLettersCountPerInterval");
 	}
 }
