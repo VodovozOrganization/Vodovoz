@@ -60,7 +60,7 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gtk.Label labelstoname;
 
-		private global::Vodovoz.JournalViewers.NodeViewModelEntry nodestoname;
+		private global::QS.Views.Control.EntityEntry nodestoname;
 
 		private global::Gtk.Table table4;
 
@@ -325,7 +325,7 @@ namespace Vodovoz.Views.Logistic
 			this.labeladdordersscan = new global::Gtk.Label();
 			this.labeladdordersscan.Name = "labeladdordersscan";
 			this.labeladdordersscan.Xalign = 0F;
-			this.labeladdordersscan.LabelProp = global::Mono.Unix.Catalog.GetString("Добавить скан заказ наряда");
+			this.labeladdordersscan.LabelProp = global::Mono.Unix.Catalog.GetString("Добавить скан заказ-наряда");
 			this.table1.Add(this.labeladdordersscan);
 			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.table1[this.labeladdordersscan]));
 			w18.TopAttach = ((uint)(13));
@@ -457,10 +457,9 @@ namespace Vodovoz.Views.Logistic
 			w29.XOptions = ((global::Gtk.AttachOptions)(4));
 			w29.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.nodestoname = new global::Vodovoz.JournalViewers.NodeViewModelEntry();
+			this.nodestoname = new global::QS.Views.Control.EntityEntry();
 			this.nodestoname.Events = ((global::Gdk.EventMask)(256));
 			this.nodestoname.Name = "nodestoname";
-			this.nodestoname.CanEditReference = false;
 			this.table1.Add(this.nodestoname);
 			global::Gtk.Table.TableChild w30 = ((global::Gtk.Table.TableChild)(this.table1[this.nodestoname]));
 			w30.TopAttach = ((uint)(15));
