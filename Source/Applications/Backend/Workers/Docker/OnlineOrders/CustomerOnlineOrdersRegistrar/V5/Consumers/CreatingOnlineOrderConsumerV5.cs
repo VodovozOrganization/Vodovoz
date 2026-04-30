@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using CustomerOnlineOrdersRegistrar.V5.Factories;
-using CustomerOrdersApi.Library.V5.Dto.Orders;
+using CustomerOrders.Contracts.V5.Orders;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;

@@ -87,11 +87,11 @@ namespace CustomerOrdersApi
 				.AddMessageTransportSettings()
 				.AddMassTransit(busConf =>
 				{
-					busConf.AddRequestClient<Library.V4.Dto.Orders.CreatedOnlineOrder>(
-						new Uri($"exchange:{Library.V4.Dto.Orders.CreatingOnlineOrder.ExchangeAndQueueName}"));
+					busConf.AddRequestClient<CustomerOrders.Contracts.V4.Orders.CreatedOnlineOrder>(
+						new Uri($"exchange:{CustomerOrders.Contracts.V4.Orders.CreatingOnlineOrder.ExchangeAndQueueName}"));
 					
-					busConf.AddRequestClient<Library.V5.Dto.Orders.CreatedOnlineOrder>(
-						new Uri($"exchange:{Library.V5.Dto.Orders.CreatingOnlineOrder.ExchangeAndQueueName}"));
+					busConf.AddRequestClient<CustomerOrders.Contracts.V5.Orders.CreatedOnlineOrder>(
+						new Uri($"exchange:{CustomerOrders.Contracts.V5.Orders.CreatingOnlineOrder.ExchangeAndQueueName}"));
 					
 					busConf.ConfigureRabbitMq();
 				})

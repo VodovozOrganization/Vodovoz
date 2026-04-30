@@ -1,12 +1,11 @@
-﻿using Vodovoz.Core.Data.Orders;
-using Vodovoz.Core.Domain.Orders;
+﻿using CustomerOrders.Contracts;
 using Vodovoz.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.Converters
 {
 	public interface IExternalOrderStatusConverter
 	{
-		ExternalOrderStatus ConvertOnlineOrderStatus(OnlineOrderStatus onlineOrderStatus);
-		ExternalOrderStatus ConvertOrderStatus(OrderStatus orderStatus);
+		ExternalCustomerOrderStatus ConvertOnlineOrderStatus(OnlineOrderStatus onlineOrderStatus);
+		ExternalCustomerOrderStatus ConvertOrderStatus(OrderStatus orderStatus);
 	}
 }

@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
+using CustomerOrders.Contracts;
+using CustomerOrders.Contracts.V4.Orders;
+using CustomerOrdersApi.Library.Extensions;
 using CustomerOrdersApi.Library.V4.Factories;
 using CustomerOrdersApi.Library.V4.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
@@ -18,6 +19,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Orders;
+using VodovozBusiness.Extensions;
 using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Cryptography;
 
@@ -302,7 +304,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 		{
 			var negativeRating = _orderSettings.GetOrderRatingForMandatoryProcessing;
 			var orderRating = OrderRating.Create(
-				orderRatingInfo.Source,
+				orderRatingInfo.Source.ToSource(),
 				orderRatingInfo.Rating,
 				orderRatingInfo.Comment,
 				orderRatingInfo.OnlineOrderId,
@@ -326,8 +328,8 @@ namespace CustomerOrdersApi.Library.V4.Services
 			}
 
 			onlineOrder.OnlinePayment = paymentStatusUpdatedDto.OnlinePayment;
-			onlineOrder.OnlinePaymentSource = paymentStatusUpdatedDto.OnlinePaymentSource;
-			onlineOrder.OnlineOrderPaymentStatus = paymentStatusUpdatedDto.OnlineOrderPaymentStatus;
+			onlineOrder.OnlinePaymentSource = paymentStatusUpdatedDto.OnlinePaymentSource.ToOnlinePaymentSource();
+			onlineOrder.OnlineOrderPaymentStatus = paymentStatusUpdatedDto.OnlineOrderPaymentStatus.ToOnlineOrderPaymentStatus();
 			uow.Save(onlineOrder);
 			uow.Commit();
 			return true;
@@ -351,7 +353,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 			}
 
 			var requestForCall = RequestForCall.Create(
-				creatingInfoDto.Source,
+				creatingInfoDto.Source.ToSource(),
 				creatingInfoDto.ContactName,
 				creatingInfoDto.PhoneNumber,
 				nomenclature,
@@ -376,7 +378,9 @@ namespace CustomerOrdersApi.Library.V4.Services
 				return (int.Parse(firstError.Code), firstError.Message, null);
 			}
 			
-			var availablePayments = AvailablePaymentMethods.Create(getAvailablePaymentMethods.Source, onlineOrder.OnlineOrderPaymentType);
+			var availablePayments = AvailablePaymentMethods.Create(
+				getAvailablePaymentMethods.Source,
+				onlineOrder.OnlineOrderPaymentType.ToExternalOrderPaymentType());
 			
 			return (200, null, availablePayments);
 		}
@@ -408,7 +412,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 			return Result.Success(changedOrderDto);
 		}
 
-		private string GetSourceSign(Source source)
+		private string GetSourceSign(ExternalSource source)
 		{
 			return _signaturesSection.GetValue<string>(source.ToString());
 		}

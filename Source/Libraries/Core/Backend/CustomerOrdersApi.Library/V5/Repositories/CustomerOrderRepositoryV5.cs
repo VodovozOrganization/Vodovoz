@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CustomerOrdersApi.Library.V5.Dto.Orders;
+using CustomerOrders.Contracts;
+using CustomerOrders.Contracts.V5.Orders;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Logistic;
@@ -34,32 +35,32 @@ namespace CustomerOrdersApi.Library.V5.Repositories
 				order.OrderStatus == OrderStatus.Canceled
 				|| order.OrderStatus == OrderStatus.DeliveryCanceled
 				|| order.OrderStatus == OrderStatus.NotDelivered
-					? ExternalOrderStatus.Canceled
+					? ExternalCustomerOrderStatus.Canceled
 					: order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList
-						? ExternalOrderStatus.OrderPerformed
+						? ExternalCustomerOrderStatus.OrderPerformed
 						: order.OrderStatus == OrderStatus.Shipped
 						|| order.OrderStatus == OrderStatus.Closed
 						|| order.OrderStatus == OrderStatus.UnloadingOnStock
-							? ExternalOrderStatus.OrderCompleted
+							? ExternalCustomerOrderStatus.OrderCompleted
 							: order.OrderStatus == OrderStatus.WaitForPayment
-								? ExternalOrderStatus.WaitingForPayment
+								? ExternalCustomerOrderStatus.WaitingForPayment
 								: order.OrderStatus == OrderStatus.OnTheWay
-									? ExternalOrderStatus.OrderDelivering
+									? ExternalCustomerOrderStatus.OrderDelivering
 									: order.OrderStatus == OrderStatus.OnLoading
-										? ExternalOrderStatus.OrderCollecting
-										: ExternalOrderStatus.OrderProcessing
+										? ExternalCustomerOrderStatus.OrderCollecting
+										: ExternalCustomerOrderStatus.OrderProcessing
 
 			let ratingAvailable =
 				order.CreateDate.HasValue
 				&& order.CreateDate >= ratingAvailableFrom
 				&& orderRating == null
-				&& (orderStatus == ExternalOrderStatus.OrderCompleted
-					|| orderStatus == ExternalOrderStatus.Canceled
-					|| orderStatus == ExternalOrderStatus.OrderDelivering)
+				&& (orderStatus == ExternalCustomerOrderStatus.OrderCompleted
+					|| orderStatus == ExternalCustomerOrderStatus.Canceled
+					|| orderStatus == ExternalCustomerOrderStatus.OrderDelivering)
 
 			let orderPaymentStatus = order.OnlinePaymentNumber.HasValue
-				? OnlineOrderPaymentStatus.Paid
-				: OnlineOrderPaymentStatus.UnPaid
+				? ExternalOrderPaymentStatus.Paid
+				: ExternalOrderPaymentStatus.UnPaid
 
 			let deliveryScheduleString = order.IsFastDelivery
 				? DeliverySchedule.FastDelivery
@@ -113,32 +114,32 @@ namespace CustomerOrdersApi.Library.V5.Repositories
 				order.OrderStatus == OrderStatus.Canceled
 				|| order.OrderStatus == OrderStatus.DeliveryCanceled
 				|| order.OrderStatus == OrderStatus.NotDelivered
-					? ExternalOrderStatus.Canceled
+					? ExternalCustomerOrderStatus.Canceled
 					: order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList
-						? ExternalOrderStatus.OrderPerformed
+						? ExternalCustomerOrderStatus.OrderPerformed
 						: order.OrderStatus == OrderStatus.Shipped
 						|| order.OrderStatus == OrderStatus.Closed
 						|| order.OrderStatus == OrderStatus.UnloadingOnStock
-							? ExternalOrderStatus.OrderCompleted
+							? ExternalCustomerOrderStatus.OrderCompleted
 							: order.OrderStatus == OrderStatus.WaitForPayment
-								? ExternalOrderStatus.WaitingForPayment
+								? ExternalCustomerOrderStatus.WaitingForPayment
 								: order.OrderStatus == OrderStatus.OnTheWay
-									? ExternalOrderStatus.OrderDelivering
+									? ExternalCustomerOrderStatus.OrderDelivering
 									: order.OrderStatus == OrderStatus.OnLoading
-										? ExternalOrderStatus.OrderCollecting
-										: ExternalOrderStatus.OrderProcessing
+										? ExternalCustomerOrderStatus.OrderCollecting
+										: ExternalCustomerOrderStatus.OrderProcessing
 
 			let ratingAvailable =
 				order.CreateDate.HasValue
 				&& order.CreateDate >= ratingAvailableFrom
 				&& orderRating == null
-				&& (orderStatus == ExternalOrderStatus.OrderCompleted
-					|| orderStatus == ExternalOrderStatus.Canceled
-					|| orderStatus == ExternalOrderStatus.OrderDelivering)
+				&& (orderStatus == ExternalCustomerOrderStatus.OrderCompleted
+					|| orderStatus == ExternalCustomerOrderStatus.Canceled
+					|| orderStatus == ExternalCustomerOrderStatus.OrderDelivering)
 
 			let orderPaymentStatus = order.OnlinePaymentNumber.HasValue
-				? OnlineOrderPaymentStatus.Paid
-				: OnlineOrderPaymentStatus.UnPaid
+				? ExternalOrderPaymentStatus.Paid
+				: ExternalOrderPaymentStatus.UnPaid
 
 			let deliveryScheduleString = order.IsFastDelivery
 				? DeliverySchedule.FastDelivery

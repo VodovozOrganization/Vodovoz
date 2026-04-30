@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
+using CustomerOrders.Contracts.V4.Orders;
 using Vodovoz.Core.Domain.Results;
 
 namespace CustomerOrdersApi.Library.V4.Services

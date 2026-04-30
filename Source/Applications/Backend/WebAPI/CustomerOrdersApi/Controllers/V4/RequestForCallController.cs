@@ -1,5 +1,5 @@
 using System;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
+using CustomerOrders.Contracts.V4.Orders;
 using CustomerOrdersApi.Library.V4.Services;
 using Gamma.Utilities;
 using Microsoft.AspNetCore.Mvc;

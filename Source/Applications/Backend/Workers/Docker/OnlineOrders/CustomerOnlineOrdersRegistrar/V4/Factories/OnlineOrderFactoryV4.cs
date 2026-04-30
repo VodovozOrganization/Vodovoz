@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
-using CustomerOrdersApi.Library.V4.Dto.Orders.OrderItem;
+using CustomerOrders.Contracts.V4.Orders;
+using CustomerOrders.Contracts.V4.Orders.OrderItem;
+using CustomerOrdersApi.Library.Extensions;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
@@ -11,6 +12,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using VodovozBusiness.Controllers;
+using VodovozBusiness.Extensions;
 
 namespace CustomerOnlineOrdersRegistrar.V4.Factories
 {
@@ -33,7 +35,7 @@ namespace CustomerOnlineOrdersRegistrar.V4.Factories
 		{
 			var onlineOrder = new OnlineOrder
 			{
-				Source = creatingOnlineOrder.Source,
+				Source = creatingOnlineOrder.Source.ToSource(),
 				CounterpartyId = creatingOnlineOrder.CounterpartyErpId,
 				ExternalCounterpartyId = creatingOnlineOrder.ExternalCounterpartyId,
 				ExternalOrderId = creatingOnlineOrder.ExternalOrderId,
@@ -47,9 +49,9 @@ namespace CustomerOnlineOrdersRegistrar.V4.Factories
 				BottlesReturn = creatingOnlineOrder.BottlesReturn,
 				Trifle = creatingOnlineOrder.Trifle,
 				ContactPhone = creatingOnlineOrder.ContactPhone,
-				OnlineOrderPaymentType = creatingOnlineOrder.OnlineOrderPaymentType,
-				OnlineOrderPaymentStatus = creatingOnlineOrder.OnlineOrderPaymentStatus,
-				OnlinePaymentSource = creatingOnlineOrder.OnlinePaymentSource,
+				OnlineOrderPaymentType = creatingOnlineOrder.OnlineOrderPaymentType.ToOnlineOrderPaymentType(),
+				OnlineOrderPaymentStatus = creatingOnlineOrder.OnlineOrderPaymentStatus.ToOnlineOrderPaymentStatus(),
+				OnlinePaymentSource = creatingOnlineOrder.OnlinePaymentSource.ToOnlinePaymentSource(),
 				OnlinePayment = creatingOnlineOrder.OnlinePayment,
 				OnlineOrderSum = creatingOnlineOrder.OrderSum,
 				DontArriveBeforeInterval = creatingOnlineOrder.DontArriveBeforeInterval

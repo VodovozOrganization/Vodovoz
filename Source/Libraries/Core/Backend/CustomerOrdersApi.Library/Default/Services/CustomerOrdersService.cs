@@ -1,19 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CustomerOrdersApi.Library.Default.Dto.Orders;
+using CustomerOrders.Contracts;
+using CustomerOrders.Contracts.Default.Orders;
 using CustomerOrdersApi.Library.Default.Factories;
 using CustomerOrdersApi.Library.Default.Repositories;
+using CustomerOrdersApi.Library.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Orders;
+using VodovozBusiness.Extensions;
 using VodovozInfrastructure.Cryptography;
 
 namespace CustomerOrdersApi.Library.Default.Services
@@ -289,7 +291,7 @@ namespace CustomerOrdersApi.Library.Default.Services
 		{
 			var negativeRating = _orderSettings.GetOrderRatingForMandatoryProcessing;
 			var orderRating = OrderRating.Create(
-				orderRatingInfo.Source,
+				orderRatingInfo.Source.ToSource(),
 				orderRatingInfo.Rating,
 				orderRatingInfo.Comment,
 				orderRatingInfo.OnlineOrderId,
@@ -313,8 +315,8 @@ namespace CustomerOrdersApi.Library.Default.Services
 			}
 
 			onlineOrder.OnlinePayment = paymentStatusUpdatedDto.OnlinePayment;
-			onlineOrder.OnlinePaymentSource = paymentStatusUpdatedDto.OnlinePaymentSource;
-			onlineOrder.OnlineOrderPaymentStatus = paymentStatusUpdatedDto.OnlineOrderPaymentStatus;
+			onlineOrder.OnlinePaymentSource = paymentStatusUpdatedDto.OnlinePaymentSource.ToOnlinePaymentSource();
+			onlineOrder.OnlineOrderPaymentStatus = paymentStatusUpdatedDto.OnlineOrderPaymentStatus.ToOnlineOrderPaymentStatus();
 			uow.Save(onlineOrder);
 			uow.Commit();
 			return true;
@@ -338,7 +340,7 @@ namespace CustomerOrdersApi.Library.Default.Services
 			}
 
 			var requestForCall = RequestForCall.Create(
-				creatingInfoDto.Source,
+				creatingInfoDto.Source.ToSource(),
 				creatingInfoDto.ContactName,
 				creatingInfoDto.PhoneNumber,
 				nomenclature,
@@ -349,7 +351,7 @@ namespace CustomerOrdersApi.Library.Default.Services
 			uow.Commit();
 		}
 
-		private string GetSourceSign(Source source)
+		private string GetSourceSign(ExternalSource source)
 		{
 			return _signaturesSection.GetValue<string>(source.ToString());
 		}

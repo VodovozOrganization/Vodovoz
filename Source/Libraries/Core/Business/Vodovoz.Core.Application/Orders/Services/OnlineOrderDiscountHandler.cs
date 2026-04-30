@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomerOrders.Contracts;
+using CustomerOrders.Contracts.Interfaces;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.Handlers;
-using Vodovoz.Nodes;
 using VodovozBusiness.Controllers;
-using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Extensions;
 
 namespace Vodovoz.Core.Application.Orders.Services
 {
@@ -82,63 +82,9 @@ namespace Vodovoz.Core.Application.Orders.Services
 			return TryApplyPromoCode(uow, onlineOrderPromoCode.Source, discountPromoCode, onlineOrderPromoCode.Products);
 		}
 
-		public (bool? PromoCodeValid, bool DiscountApplicable) IsApplicableDiscount(
-			IUnitOfWork uow,
-			Source source,
-			int? counterpartyId,
-			decimal orderSum,
-			DateTime dateTime,
-			IGoods product)
-		{
-			var discount = product.DiscountReason != null
-				? uow.GetById<DiscountReason>(product.DiscountReason.Id)
-				: null;
-			
-			var date = dateTime.Date;
-			var time = dateTime.TimeOfDay;
-			var response = (PromoCodeValid: (bool?)null, DiscountApplicable: true);
-
-			if(discount is null)
-			{
-				response.PromoCodeValid = false;
-				response.DiscountApplicable = false;
-
-				return response;
-			}
-
-			if(!discount.IsPromoCode)
-			{
-				response.PromoCodeValid = null;
-			}
-			else if(date.Date < discount.StartDatePromoCode || date.Date > discount.EndDatePromoCode)
-			{
-				response.PromoCodeValid = false;
-			}
-			else if(time < discount.StartTimePromoCode || time > discount.EndTimePromoCode)
-			{
-				response.PromoCodeValid = false;
-			}
-			else if(orderSum < discount.PromoCodeOrderMinSum)
-			{
-				response.PromoCodeValid = false;
-			}
-			else if(discount.IsOneTimePromoCode
-				&& _discountReasonRepository.HasBeenUsagePromoCode(uow, counterpartyId ?? 0, discount.Id))
-			{
-				response.PromoCodeValid = false;
-			}
-			
-			if(!CanApplicableDiscount(source, discount, product))
-			{
-				response.DiscountApplicable = false;
-			}
-
-			return response;
-		}
-
 		private Result<IEnumerable<IOnlineOrderedProduct>> TryApplyPromoCode(
 			IUnitOfWork uow,
-			Source source,
+			ExternalSource source,
 			DiscountReason discountPromoCode,
 			IEnumerable<IOnlineOrderedProduct> products)
 		{
@@ -156,7 +102,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		}
 
 		private bool TryApplyPromoCode(
-			Source source,
+			ExternalSource source,
 			DiscountReason discountPromoCode,
 			Nomenclature nomenclature,
 			IOnlineOrderedProduct product)
@@ -188,7 +134,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		/// <param name="product"></param>
 		/// <returns></returns>
 		private bool CanApplicableDiscount(
-			Source source,
+			ExternalSource source,
 			DiscountReason discountPromoCode,
 			Nomenclature nomenclature,
 			IOnlineOrderedProduct product)
@@ -218,7 +164,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return false;
 			}
 
-			var onlineParameters = nomenclature.GetNomenclatureOnlineParameters(source);
+			var onlineParameters = nomenclature.GetNomenclatureOnlineParameters(source.ToSource());
 			var onlinePrice = onlineParameters?.GetOnlinePrice(product.Count);
 
 			if(onlineParameters?.NomenclatureOnlineDiscount != null
@@ -231,9 +177,9 @@ namespace Vodovoz.Core.Application.Orders.Services
 		}
 		
 		private bool CanApplicableDiscount(
-			Source source,
+			ExternalSource source,
 			DiscountReason discountPromoCode,
-			IGoods product)
+			VodovozBusiness.Domain.Orders.IGoods product)
 		{
 			var nomenclature = product.Nomenclature;
 			
@@ -265,7 +211,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return false;
 			}
 
-			var onlineParameters = nomenclature.GetNomenclatureOnlineParameters(source);
+			var onlineParameters = nomenclature.GetNomenclatureOnlineParameters(source.ToSource());
 			var onlinePrice = onlineParameters?.GetOnlinePrice(product.Count);
 
 			if(onlineParameters?.NomenclatureOnlineDiscount != null

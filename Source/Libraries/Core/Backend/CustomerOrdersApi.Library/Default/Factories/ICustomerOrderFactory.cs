@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using CustomerOrdersApi.Library.Default.Dto.Orders;
+using CustomerOrders.Contracts.Default.Orders;
 using Vodovoz.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.Default.Factories

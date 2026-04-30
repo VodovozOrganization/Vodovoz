@@ -10,6 +10,7 @@
       <ProjectReference Include="..\..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />
       <ProjectReference Include="..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
       <ProjectReference Include="..\..\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj" />
+      <ProjectReference Include="..\CustomerOrders.Contracts\CustomerOrders.Contracts.csproj" />
     </ItemGroup>
 	
     <ItemGroup>

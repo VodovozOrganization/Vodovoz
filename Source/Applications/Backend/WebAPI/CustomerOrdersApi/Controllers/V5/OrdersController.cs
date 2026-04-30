@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CustomerOrdersApi.Library.Common;
-using CustomerOrdersApi.Library.V5.Dto.Orders;
+using CustomerOrders.Contracts.V5.Orders;
 using CustomerOrdersApi.Library.V5.Services;
 using Gamma.Utilities;
 using MassTransit;

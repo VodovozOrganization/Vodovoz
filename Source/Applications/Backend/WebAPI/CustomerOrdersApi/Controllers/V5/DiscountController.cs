@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
-using CustomerOrdersApi.Library.V5.Dto.Orders;
+using CustomerOrders.Contracts.V5.Orders;
+using CustomerOrders.Contracts.V5.Orders.PromoCodes;
 using CustomerOrdersApi.Library.V5.Services;
 using Gamma.Utilities;
 using Microsoft.AspNetCore.Mvc;

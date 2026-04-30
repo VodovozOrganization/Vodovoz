@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
-using CustomerOrdersApi.Library.V5.Dto.Orders;
-using CustomerOrdersApi.Library.V5.Dto.Orders.OrderItem;
+using System.Linq;
+using CustomerOrders.Contracts.V5.Orders;
+using CustomerOrders.Contracts.V5.Orders.OrderItem;
+using CustomerOrdersApi.Library.Extensions;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
@@ -11,6 +13,8 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using VodovozBusiness.Controllers;
+using VodovozBusiness.Extensions;
+using VodovozBusiness.Nodes;
 
 namespace CustomerOnlineOrdersRegistrar.V5.Factories
 {
@@ -33,7 +37,7 @@ namespace CustomerOnlineOrdersRegistrar.V5.Factories
 		{
 			var onlineOrder = new OnlineOrder
 			{
-				Source = creatingOnlineOrder.Source,
+				Source = creatingOnlineOrder.Source.ToSource(),
 				CounterpartyId = creatingOnlineOrder.CounterpartyErpId,
 				ExternalCounterpartyId = creatingOnlineOrder.ExternalCounterpartyId,
 				ExternalOrderId = creatingOnlineOrder.ExternalOrderId,
@@ -47,9 +51,9 @@ namespace CustomerOnlineOrdersRegistrar.V5.Factories
 				BottlesReturn = creatingOnlineOrder.BottlesReturn,
 				Trifle = creatingOnlineOrder.Trifle,
 				ContactPhone = creatingOnlineOrder.ContactPhone,
-				OnlineOrderPaymentType = creatingOnlineOrder.OnlineOrderPaymentType,
-				OnlineOrderPaymentStatus = creatingOnlineOrder.OnlineOrderPaymentStatus,
-				OnlinePaymentSource = creatingOnlineOrder.OnlinePaymentSource,
+				OnlineOrderPaymentType = creatingOnlineOrder.OnlineOrderPaymentType.ToOnlineOrderPaymentType(),
+				OnlineOrderPaymentStatus = creatingOnlineOrder.OnlineOrderPaymentStatus.ToOnlineOrderPaymentStatus(),
+				OnlinePaymentSource = creatingOnlineOrder.OnlinePaymentSource.ToOnlinePaymentSource(),
 				OnlinePayment = creatingOnlineOrder.OnlinePayment,
 				OnlineOrderSum = creatingOnlineOrder.OrderSum,
 				DontArriveBeforeInterval = creatingOnlineOrder.DontArriveBeforeInterval
@@ -106,11 +110,27 @@ namespace CustomerOnlineOrdersRegistrar.V5.Factories
 
 			foreach(var onlineOrderItemDto in onlineOrderItemsDtos)
 			{
+				//TODO при переделке модели на множественные скидки сделать нормальное их копирование
+				var discounts = new List<DiscountData>();
 				var nomenclature = uow.GetById<Nomenclature>(onlineOrderItemDto.NomenclatureId);
 
 				DiscountReason applicableDiscountReason = null;
+
+				foreach(var receivedDiscountData in onlineOrderItemDto.Discounts)
+				{
+					var discountData = DiscountData.Create(
+						receivedDiscountData.IsDiscountInMoney,
+						receivedDiscountData.Discount,
+						receivedDiscountData.DiscountReasonId.HasValue
+							? uow.GetById<DiscountReason>(receivedDiscountData.DiscountReasonId.Value)
+							: null);
+					
+					discounts.Add(discountData);
+				}
+
+				var firstDiscount = discounts.FirstOrDefault() ?? DiscountData.Create(false, 0, null);
 				
-				if(onlineOrderItemDto.DiscountReasonId.HasValue)
+				/*if(onlineOrderItemDto.DiscountReasonId.HasValue)
 				{
 					applicableDiscountReason = uow.GetById<DiscountReason>(onlineOrderItemDto.DiscountReasonId.Value);
 				}
@@ -124,7 +144,7 @@ namespace CustomerOnlineOrdersRegistrar.V5.Factories
 					{
 						applicableDiscountReason = discountReason;
 					}
-				}
+				}*/
 				
 				PromotionalSet promoSet = null;
 
@@ -136,12 +156,10 @@ namespace CustomerOnlineOrdersRegistrar.V5.Factories
 				var onlineOrderItem = OnlineOrderItem.Create(
 					onlineOrderItemDto.NomenclatureId,
 					onlineOrderItemDto.Count,
-					onlineOrderItemDto.IsDiscountInMoney,
 					onlineOrderItemDto.IsFixedPrice,
-					onlineOrderItemDto.Discount,
 					onlineOrderItemDto.Price,
 					onlineOrderItemDto.PromoSetId,
-					applicableDiscountReason,
+					firstDiscount,
 					nomenclature,
 					promoSet,
 					onlineOrder);

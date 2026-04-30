@@ -1,4 +1,4 @@
-﻿using Vodovoz.Core.Data.InfoMessages;
+﻿using CustomerOrders.Contracts.InfoMessages;
 
 namespace CustomerOrdersApi.Library.V4.Factories
 {

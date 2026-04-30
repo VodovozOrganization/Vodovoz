@@ -1,4 +1,4 @@
-using CustomerOrdersApi.Library.V5.Dto.Orders;
+using CustomerOrders.Contracts.V5.Orders;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Orders;
 

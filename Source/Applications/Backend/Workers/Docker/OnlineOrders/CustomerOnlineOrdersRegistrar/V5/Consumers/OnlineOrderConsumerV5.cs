@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using CustomerOnlineOrdersRegistrar.V5.Factories;
-using CustomerOrdersApi.Library.V5.Dto.Orders;
+using CustomerOrders.Contracts.V5.Orders;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;

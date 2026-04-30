@@ -1,4 +1,4 @@
-﻿using CustomerOrdersApi.Library.V5.Dto.Carts;
+﻿using CustomerOrders.Contracts.V5.Carts;
 
 namespace CustomerOrdersApi.Library.V5.Services
 {

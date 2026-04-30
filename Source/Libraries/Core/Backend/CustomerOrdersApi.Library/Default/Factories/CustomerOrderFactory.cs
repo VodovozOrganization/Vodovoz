@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomerOrders.Contracts;
 using CustomerOrdersApi.Library.Converters;
-using CustomerOrdersApi.Library.Default.Dto.Orders;
+using CustomerOrders.Contracts.Default.Orders;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 
@@ -19,20 +20,19 @@ namespace CustomerOrdersApi.Library.Default.Factories
 		}
 		
 		public DetailedOrderInfoDto CreateDetailedOrderInfo(
-			Order order, OrderRating orderRating, int? onlineOrderId, DateTime ratingAvailableFrom)
+			Order order,
+			OrderRating orderRating,
+			int? onlineOrderId,
+			DateTime ratingAvailableFrom)
 		{
-			var orderInfo = CreateOrderInfoDto(order, onlineOrderId);
-			orderInfo.UpdateOrderRating(orderRating, ratingAvailableFrom);
-			orderInfo.UpdateOrderItems(order.OrderItems);
+			var orderInfo = CreateOrderInfoDto(order, orderRating, ratingAvailableFrom, onlineOrderId);
 			return orderInfo;
 		}
 
 		public DetailedOrderInfoDto CreateDetailedOrderInfo(
 			OnlineOrder onlineOrder, OrderRating orderRating, int? orderId, DateTime ratingAvailableFrom)
 		{
-			var orderInfo = CreateOrderInfoDto(onlineOrder, orderId);
-			orderInfo.UpdateOrderRating(orderRating, ratingAvailableFrom);
-			orderInfo.UpdateOrderItems(onlineOrder.OnlineOrderItems);
+			var orderInfo = CreateOrderInfoDto(onlineOrder, orderRating, ratingAvailableFrom, orderId);
 			return orderInfo;
 		}
 
@@ -47,7 +47,11 @@ namespace CustomerOrdersApi.Library.Default.Factories
 			});
 		}
 		
-		private DetailedOrderInfoDto CreateOrderInfoDto(Order order, int? onlineOrderId)
+		private DetailedOrderInfoDto CreateOrderInfoDto(
+			Order order,
+			OrderRating orderRating,
+			DateTime ratingAvailableFrom,
+			int? onlineOrderId)
 		{
 			var orderInfo = new DetailedOrderInfoDto
 			{
@@ -75,11 +79,18 @@ namespace CustomerOrdersApi.Library.Default.Factories
 					? DeliverySchedule.FastDelivery
 					: order.DeliverySchedule?.DeliveryTime;
 			}
+			
+			UpdateOrderRating(orderInfo, orderRating, ratingAvailableFrom);
+			UpdateOrderItems(orderInfo, order.OrderItems);
 
 			return orderInfo;
 		}
 		
-		private DetailedOrderInfoDto CreateOrderInfoDto(OnlineOrder onlineOrder, int? orderId)
+		private DetailedOrderInfoDto CreateOrderInfoDto(
+			OnlineOrder onlineOrder,
+			OrderRating orderRating,
+			DateTime ratingAvailableFrom,
+			int? orderId)
 		{
 			var orderInfo = new DetailedOrderInfoDto
 			{
@@ -108,7 +119,83 @@ namespace CustomerOrdersApi.Library.Default.Factories
 					: onlineOrder.DeliverySchedule?.DeliveryTime;
 			}
 
+			UpdateOrderRating(orderInfo, orderRating, ratingAvailableFrom);
+			UpdateOrderItems(orderInfo, onlineOrder.OnlineOrderItems);
+			
 			return orderInfo;
+		}
+		
+		private void UpdateOrderRating(DetailedOrderInfoDto orderInfo, OrderRating orderRating, DateTime ratingAvailableFrom)
+		{
+			if(orderRating is null)
+			{
+				orderInfo.IsRatingAvailable =
+					orderInfo.CreationDate >= ratingAvailableFrom
+					&& (orderInfo.OrderStatus == ExternalCustomerOrderStatus.OrderCompleted
+						|| orderInfo.OrderStatus == ExternalCustomerOrderStatus.Canceled
+						|| orderInfo.OrderStatus == ExternalCustomerOrderStatus.OrderDelivering);
+				
+				orderInfo.RatingReasonsIds = new List<int>();
+				return;
+			}
+
+			orderInfo.RatingReasonsIds = orderRating.OrderRatingReasons.Select(x => x.Id).ToList();
+			orderInfo.OrderRatingComment = orderRating.Comment;
+			orderInfo.RatingValue = orderRating.Rating;
+			orderInfo.IsRatingAvailable = false;
+		}
+		
+		private void UpdateOrderItems(DetailedOrderInfoDto orderInfo, IEnumerable<IProduct> orderItems)
+		{
+			orderInfo.OrderItems = orderItems
+				.Where(x => x.PromoSet == null)
+				.Select(orderItem =>
+					OrderItemDto.Create(
+						orderItem.Nomenclature.Id,
+						orderItem.CurrentCount,
+						orderItem.Price,
+						orderItem.IsDiscountInMoney,
+						orderItem.GetDiscount))
+				.ToList();
+
+			UpdatePromoSets(orderInfo, orderItems);
+		}
+
+		private void UpdatePromoSets(DetailedOrderInfoDto orderInfo, IEnumerable<IProduct> orderItems)
+		{
+			var promoSetsGroup = orderItems
+				.Where(x => x.PromoSet != null)
+				.ToLookup(x => x.PromoSet.Id);
+			
+			var promoSets = new List<PromoSetDto>();
+
+			foreach(var orderItemGroup in promoSetsGroup)
+			{
+				var promo = orderItemGroup.First().PromoSet;
+				var promoItemsCount = promo.PromotionalSetItems.Count;
+				var promoPrice = 0m;
+				var i = 0;
+
+				foreach(var product in orderItemGroup)
+				{
+					i++;
+					promoPrice += product.ActualSum;
+
+					if(i >= promoItemsCount)
+					{
+						break;
+					}
+				}
+					
+				promoSets.Add(
+					PromoSetDto.Create(
+						orderItemGroup.Key,
+						orderItemGroup.Count() / promoItemsCount,
+						promoPrice
+					));
+			}
+
+			orderInfo.PromoSets = promoSets;
 		}
 	}
 }

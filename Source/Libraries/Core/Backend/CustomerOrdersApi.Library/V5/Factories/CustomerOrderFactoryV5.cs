@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomerOrders.Contracts;
+using CustomerOrders.Contracts.InfoMessages;
 using CustomerOrdersApi.Library.Converters;
-using CustomerOrdersApi.Library.V5.Dto.Orders;
-using Vodovoz.Core.Data.InfoMessages;
-using Vodovoz.Core.Data.Orders;
+using CustomerOrders.Contracts.V5.Orders;
+using CustomerOrders.Contracts.V5.Orders.PromoSets;
+using CustomerOrdersApi.Library.Extensions;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using VodovozBusiness.Extensions;
 
 namespace CustomerOrdersApi.Library.V5.Factories
 {
@@ -32,18 +35,14 @@ namespace CustomerOrdersApi.Library.V5.Factories
 			int? onlineOrderId,
 			DateTime ratingAvailableFrom)
 		{
-			var orderInfo = CreateOrderInfoDto(order, timers, onlineOrderId);
-			orderInfo.UpdateOrderRating(orderRating, ratingAvailableFrom);
-			orderInfo.UpdateOrderItems(order.OrderItems);
+			var orderInfo = CreateOrderInfoDto(order, timers, orderRating, ratingAvailableFrom, onlineOrderId);
 			return orderInfo;
 		}
 
 		public DetailedOrderInfoDto CreateDetailedOrderInfo(
 			OnlineOrder onlineOrder, OrderRating orderRating, OnlineOrderTimers timers, int? orderId, DateTime ratingAvailableFrom)
 		{
-			var orderInfo = CreateOrderInfoDto(onlineOrder, timers, orderId);
-			orderInfo.UpdateOrderRating(orderRating, ratingAvailableFrom);
-			orderInfo.UpdateOrderItems(onlineOrder.OnlineOrderItems);
+			var orderInfo = CreateOrderInfoDto(onlineOrder, timers, orderRating, ratingAvailableFrom, orderId);
 			return orderInfo;
 		}
 
@@ -58,7 +57,12 @@ namespace CustomerOrdersApi.Library.V5.Factories
 			});
 		}
 		
-		private DetailedOrderInfoDto CreateOrderInfoDto(Order order, OnlineOrderTimers timers, int? onlineOrderId)
+		private DetailedOrderInfoDto CreateOrderInfoDto(
+			Order order,
+			OnlineOrderTimers timers,
+			OrderRating orderRating,
+			DateTime ratingAvailableFrom,
+			int? onlineOrderId)
 		{
 			var orderInfo = new DetailedOrderInfoDto
 			{
@@ -93,11 +97,18 @@ namespace CustomerOrdersApi.Library.V5.Factories
 			}
 
 			UpdateAvailabilityRepeatOrder(orderInfo);
+			UpdateOrderRating(orderInfo, orderRating, ratingAvailableFrom);
+			UpdateOrderItems(orderInfo, order.OrderItems);
 
 			return orderInfo;
 		}
 		
-		private DetailedOrderInfoDto CreateOrderInfoDto(OnlineOrder onlineOrder, OnlineOrderTimers timers, int? orderId)
+		private DetailedOrderInfoDto CreateOrderInfoDto(
+			OnlineOrder onlineOrder,
+			OnlineOrderTimers timers,
+			OrderRating orderRating,
+			DateTime ratingAvailableFrom,
+			int? orderId)
 		{
 			var orderInfo = new DetailedOrderInfoDto
 			{
@@ -109,8 +120,8 @@ namespace CustomerOrdersApi.Library.V5.Factories
 				IsSelfDelivery = onlineOrder.IsSelfDelivery,
 				OrderSum = onlineOrder.OnlineOrderSum,
 				OrderStatus = _externalOrderStatusConverter.ConvertOnlineOrderStatus(onlineOrder.OnlineOrderStatus),
-				OnlinePaymentSource = onlineOrder.OnlinePaymentSource,
-				OnlinePaymentType = onlineOrder.OnlineOrderPaymentType
+				OnlinePaymentSource = onlineOrder.OnlinePaymentSource.ToExternalPaymentSource(),
+				OnlinePaymentType = onlineOrder.OnlineOrderPaymentType.ToExternalOrderPaymentType()
 			};
 			
 			if(timers != null)
@@ -155,16 +166,91 @@ namespace CustomerOrdersApi.Library.V5.Factories
 			}
 			
 			UpdateAvailabilityRepeatOrder(orderInfo);
-
+			UpdateOrderRating(orderInfo, orderRating, ratingAvailableFrom);
+			UpdateOrderItems(orderInfo, onlineOrder.OnlineOrderItems);
+			
 			return orderInfo;
 		}
 
 		private void UpdateAvailabilityRepeatOrder(DetailedOrderInfoDto orderInfo)
 		{
-			if(orderInfo.OrderStatus is ExternalOrderStatus.OrderCompleted or ExternalOrderStatus.Canceled)
+			if(orderInfo.OrderStatus is ExternalCustomerOrderStatus.OrderCompleted or ExternalCustomerOrderStatus.Canceled)
 			{
 				orderInfo.AvailableRepeatOrder = true;
 			}
+		}
+		
+		private void UpdateOrderRating(DetailedOrderInfoDto orderInfo, OrderRating orderRating, DateTime ratingAvailableFrom)
+		{
+			if(orderRating is null)
+			{
+				orderInfo.IsRatingAvailable =
+					orderInfo.CreatedDateTimeUtc >= DateTimeOffset.Parse(ratingAvailableFrom.ToString())
+					&& (orderInfo.OrderStatus == ExternalCustomerOrderStatus.OrderCompleted
+						|| orderInfo.OrderStatus == ExternalCustomerOrderStatus.Canceled
+						|| orderInfo.OrderStatus == ExternalCustomerOrderStatus.OrderDelivering);
+				
+				orderInfo.RatingReasonsIds = new List<int>();
+				return;
+			}
+
+			orderInfo.RatingReasonsIds = orderRating.OrderRatingReasons.Select(x => x.Id).ToList();
+			orderInfo.OrderRatingComment = orderRating.Comment;
+			orderInfo.RatingValue = orderRating.Rating;
+			orderInfo.IsRatingAvailable = false;
+		}
+		
+		private void UpdateOrderItems(DetailedOrderInfoDto orderInfo, IEnumerable<IProduct> orderItems)
+		{
+			orderInfo.OrderItems = orderItems
+				.Where(x => x.PromoSet == null)
+				.Select(orderItem =>
+					OrderItemDto.Create(
+						orderItem.Nomenclature.Id,
+						orderItem.CurrentCount,
+						orderItem.Price,
+						orderItem.IsDiscountInMoney,
+						orderItem.GetDiscount))
+				.ToList();
+
+			UpdatePromoSets(orderInfo, orderItems);
+		}
+
+		private void UpdatePromoSets(DetailedOrderInfoDto orderInfo, IEnumerable<IProduct> orderItems)
+		{
+			var promoSetsGroup = orderItems
+				.Where(x => x.PromoSet != null)
+				.ToLookup(x => x.PromoSet.Id);
+			
+			var promoSets = new List<OrderPromoSetDto>();
+
+			foreach(var orderItemGroup in promoSetsGroup)
+			{
+				var promo = orderItemGroup.First().PromoSet;
+				var promoItemsCount = promo.PromotionalSetItems.Count;
+				var promoPrice = 0m;
+				var i = 0;
+
+				foreach(var product in orderItemGroup)
+				{
+					i++;
+					promoPrice += product.ActualSum;
+
+					if(i >= promoItemsCount)
+					{
+						break;
+					}
+				}
+					
+				promoSets.Add(
+					OrderPromoSetDto.Create(
+						orderItemGroup.Key,
+						orderItemGroup.Count() / promoItemsCount,
+						promoPrice
+					));
+			}
+
+			orderInfo.PromoSets = promoSets;
 		}
 	}
 }

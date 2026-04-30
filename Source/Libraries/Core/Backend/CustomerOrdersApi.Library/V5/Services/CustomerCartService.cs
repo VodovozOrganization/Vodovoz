@@ -2,17 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CustomerOrdersApi.Library.V5.Dto.Carts;
-using CustomerOrdersApi.Library.V5.Dto.Orders;
-using CustomerOrdersApi.Library.V5.Dto.Orders.OrderItem;
-using CustomerOrdersApi.Library.V5.Dto.Orders.PromoSets;
+using CustomerOrders.Contracts;
+using CustomerOrders.Contracts.InfoMessages;
+using CustomerOrders.Contracts.V5.Carts;
+using CustomerOrders.Contracts.V5.Orders;
+using CustomerOrders.Contracts.V5.Orders.Discounts;
+using CustomerOrders.Contracts.V5.Orders.OrderItem;
+using CustomerOrders.Contracts.V5.Orders.PromoSets;
 using CustomerOrdersApi.Library.V5.Factories;
 using QS.DomainModel.UoW;
 using QS.Utilities;
 using QS.Utilities.Extensions;
 using Vodovoz.Core.Application.Orders.Services;
-using Vodovoz.Core.Data.InfoMessages;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.Rent;
@@ -24,11 +25,13 @@ using Vodovoz.Handlers;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Nomenclature;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Extensions;
 using VodovozBusiness.Nodes;
 using VodovozBusiness.Services.Orders;
 
 namespace CustomerOrdersApi.Library.V5.Services
 {
+	//TODO после замены модели сделать нормальную работу по нескольким скидкам
 	/// <inheritdoc/>
 	public class CustomerCartService : ICustomerCartService
 	{
@@ -39,7 +42,7 @@ namespace CustomerOrdersApi.Library.V5.Services
 		private readonly IOnlineOrderFromCartDistrictRulesGetter _deliveryRulesGetter;
 		private readonly IInfoMessageFactoryV5 _infoMessageFactory;
 		private readonly IWarningMessageFactoryV5 _warningMessageFactory;
-		private readonly IOnlineOrderDiscountHandler _discountHandler;
+		private readonly IOnlineOrderDiscountHandlerV5 _discountHandler;
 		private readonly IStockRepository _stockRepository;
 		private readonly IFreeLoaderChecker _freeLoaderChecker;
 
@@ -51,7 +54,7 @@ namespace CustomerOrdersApi.Library.V5.Services
 			IOnlineOrderFromCartDistrictRulesGetter deliveryRulesGetter,
 			IInfoMessageFactoryV5 infoMessageFactory,
 			IWarningMessageFactoryV5 warningMessageFactory,
-			IOnlineOrderDiscountHandler discountHandler,
+			IOnlineOrderDiscountHandlerV5 discountHandler,
 			IStockRepository stockRepository,
 			IFreeLoaderChecker freeLoaderChecker)
 		{
@@ -89,7 +92,7 @@ namespace CustomerOrdersApi.Library.V5.Services
 			var priceWarning = CheckPrices(request.Source, deliveryPoint, counterparty, cartItemsCheck);
 			TryAddWarning(priceWarning, warnings);
 
-			var onlineOrderFromCart = OnlineOrderFromCart.Create(deliveryPoint, cartItemsCheck.Goods, request.IsSelfDelivery, request.DeliveryDate);
+			var onlineOrderFromCart = OnlineOrderFromCart.Create(deliveryPoint, cartItemsCheck.ToOldGoods(), request.IsSelfDelivery, request.DeliveryDate);
 			var deliveryWarning = CheckDelivery(onlineOrderFromCart, checkedItems);
 			TryAddWarning(deliveryWarning, warnings);
 			
@@ -209,16 +212,24 @@ namespace CustomerOrdersApi.Library.V5.Services
 			{
 				var checkedItem = CheckedOnlineOrderItemDto.Create(item);
 				var nomenclature = _uow.GetById<Nomenclature>(item.NomenclatureId);
-				var discountReason = item.DiscountReasonId != null ? _uow.GetById<DiscountReason>(item.DiscountReasonId.Value) : null;
 				
 				if(nomenclature is null || nomenclature.IsArchive)
 				{
 					checkedItem.Status = CartItemStatus.Blocked;
 					continue;
 				}
-				
+
+				var discounts = (
+					from receivedDiscount in item.Discounts
+					let discountReason = receivedDiscount.DiscountReasonId != null
+						? _uow.GetById<DiscountReason>(receivedDiscount.DiscountReasonId.Value)
+						: null
+					select DiscountData.Create(receivedDiscount.IsDiscountInMoney, receivedDiscount.Discount, discountReason)
+					)
+					.ToList();
+
 				AddNomenclaturesCount(nomenclatureIdsAndCounts, checkedItem.NomenclatureId, checkedItem.Count);
-				var goods = Goods.Create(item.Price, item.Count, nomenclature, null, discountReason);
+				var goods = GoodsV5.Create(item.Price, item.Count, nomenclature, null, discounts);
 				checkedItems.Add(checkedItem);
 				cartItemsCheck.AddItem(checkedItem, goods);
 			}
@@ -247,7 +258,15 @@ namespace CustomerOrdersApi.Library.V5.Services
 				foreach(var item in promoSet.ObservablePromotionalSetItems)
 				{
 					AddNomenclaturesCount(nomenclatureIdsAndCounts, item.Nomenclature.Id, item.Count);
-					var goods = Goods.Create(item.Nomenclature.GetPrice(item.Count), item.Count, item.Nomenclature, promoSet, null);
+					var goods = GoodsV5.Create(
+						item.Nomenclature.GetPrice(item.Count),
+						item.Count,
+						item.Nomenclature,
+						promoSet,
+						new List<IDiscountData>
+						{
+							DiscountData.Create(false, 0, null)
+						});
 					cartItemsCheck.AddPromoSet(checkedSet, goods);
 				}
 				
@@ -378,14 +397,12 @@ namespace CustomerOrdersApi.Library.V5.Services
 					checkedItems.Add(new CheckedOnlineOrderItemDto
 					{
 						Count = 1,
-						Discount = 0,
-						DiscountReasonId = null,
-						IsDiscountInMoney = false,
 						IsFixedPrice = false,
 						NomenclatureId = _nomenclatureSettings.PaidDeliveryNomenclatureId,
 						Price = calculatedDeliveryPrice,
 						PriceWithoutDiscount = null,
 						PromoSetId = null,
+						Discounts = new []{ DiscountDto.Create(false, 0, null) },
 						Status = CartItemStatus.Active
 					});
 					break;
@@ -481,23 +498,35 @@ namespace CustomerOrdersApi.Library.V5.Services
 			
 			foreach(var (checkedItem, goods) in cartItemsCheck.CombinedItems)
 			{
-				if(checkedItem.Discount == 0)
+				foreach(var receivedDiscount in checkedItem.Discounts)
 				{
-					continue;
-				}
+					if(receivedDiscount.Discount == 0)
+					{
+						continue;
+					}
+					
+					//TODO переделать на нормальную работу со скидками
+					var oldProduct = Goods.Create(
+						goods.Price,
+						goods.Count,
+						goods.Nomenclature,
+						goods.PromoSet,
+						goods.Discounts.FirstOrDefault()?.DiscountReason
+					);
 				
-				var discountCheck = _discountHandler.IsApplicableDiscount(
-					_uow,
-					request.Source,
-					request.CounterpartyErpId,
-					request.OrderSum.RawSum,
-					DateTime.Now,
-					goods);
+					var discountCheck = _discountHandler.IsApplicableDiscount(
+						_uow,
+						request.Source,
+						request.CounterpartyErpId,
+						request.OrderSum.RawSum,
+						DateTime.Now,
+						oldProduct);
 				
-				if(!discountCheck.PromoCodeValid.HasValue || !discountCheck.PromoCodeValid.Value)
-				{
-					warningMessage = _warningMessageFactory.CreatePromoCodeUnavailableMessage();
-					break;
+					if(!discountCheck.PromoCodeValid.HasValue || !discountCheck.PromoCodeValid.Value)
+					{
+						warningMessage = _warningMessageFactory.CreatePromoCodeUnavailableMessage();
+						break;
+					}
 				}
 			}
 
@@ -505,7 +534,7 @@ namespace CustomerOrdersApi.Library.V5.Services
 		}
 
 		private WarningMessage CheckPrices(
-			Source source,
+			ExternalSource source,
 			DeliveryPoint deliveryPoint,
 			Counterparty counterparty,
 			CartItemsCheck cartItemsCheck)
@@ -517,28 +546,38 @@ namespace CustomerOrdersApi.Library.V5.Services
 		}
 
 		private WarningMessage CheckPriceFromItems(
-			Source source,
+			ExternalSource source,
 			DeliveryPoint deliveryPoint,
 			Counterparty counterparty,
 			CartItemsCheck cartItemsCheck
 			)
 		{
+			
 			WarningMessage warning = null;
 			foreach(var (checkedItem, product) in cartItemsCheck.CombinedItems)
 			{
+				//TODO переделать на нормальную работу со скидками
+				var oldProduct = Goods.Create(
+					product.Price,
+					product.Count,
+					product.Nomenclature,
+					product.PromoSet,
+					product.Discounts.FirstOrDefault()?.DiscountReason
+				);
+				
 				var price = _goodsPriceCalculator.CalculateItemPrice(
-					cartItemsCheck.Goods,
+					cartItemsCheck.ToOldGoods(),
 					deliveryPoint,
 					counterparty,
-					product,
+					oldProduct,
 					false);
 				
-				var onlineParameters = product.Nomenclature.GetNomenclatureOnlineParameters(source);
+				var onlineParameters = product.Nomenclature.GetNomenclatureOnlineParameters(source.ToSource());
 				var onlinePrice = onlineParameters?.GetOnlinePrice(product.Count);
 
 				var priceWithoutDiscount = onlinePrice?.PriceWithoutDiscount;
 				checkedItem.PriceWithoutDiscount = priceWithoutDiscount;
-				checkedItem.Marker = onlineParameters?.NomenclatureOnlineMarker;
+				checkedItem.Marker = onlineParameters?.NomenclatureOnlineMarker.ToExternalProductMarker();
 
 				if(price != product.Price)
 				{

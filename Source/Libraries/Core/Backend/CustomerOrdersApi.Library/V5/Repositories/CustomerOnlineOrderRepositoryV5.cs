@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CustomerOrdersApi.Library.V5.Dto.Orders;
+using CustomerOrders.Contracts;
+using CustomerOrders.Contracts.V5.Orders;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Logistic;
@@ -33,17 +34,17 @@ namespace CustomerOrdersApi.Library.V5.Repositories
 
 				let orderStatus =
 					onlineOrder.OnlineOrderStatus == OnlineOrderStatus.OrderPerformed
-						? ExternalOrderStatus.OrderPerformed
+						? ExternalCustomerOrderStatus.OrderPerformed
 						: onlineOrder.OnlineOrderStatus == OnlineOrderStatus.Canceled
-							? ExternalOrderStatus.Canceled
-							: ExternalOrderStatus.OrderProcessing
+							? ExternalCustomerOrderStatus.Canceled
+							: ExternalCustomerOrderStatus.OrderProcessing
 
 				let ratingAvailable =
 					onlineOrder.Created >= ratingAvailableFrom
 					&& onlineOrderRating == null
-					&& (orderStatus == ExternalOrderStatus.OrderCompleted
-						|| orderStatus == ExternalOrderStatus.Canceled
-						|| orderStatus == ExternalOrderStatus.OrderDelivering)
+					&& (orderStatus == ExternalCustomerOrderStatus.OrderCompleted
+						|| orderStatus == ExternalCustomerOrderStatus.Canceled
+						|| orderStatus == ExternalCustomerOrderStatus.OrderDelivering)
 
 				let payTime = onlineOrder.IsFastDelivery
 					? (int)timer.PayTimeWithFastDelivery.TotalSeconds

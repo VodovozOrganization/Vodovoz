@@ -11,10 +11,10 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Extensions;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Orders;
 using Vodovoz.Settings.Orders;
+using VodovozBusiness.Extensions;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Core.Application.Orders.Services

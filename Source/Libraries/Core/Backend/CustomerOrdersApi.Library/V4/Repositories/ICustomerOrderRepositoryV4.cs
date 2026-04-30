@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
+using CustomerOrders.Contracts.V4.Orders;
 using QS.DomainModel.UoW;
 
 namespace CustomerOrdersApi.Library.V4.Repositories

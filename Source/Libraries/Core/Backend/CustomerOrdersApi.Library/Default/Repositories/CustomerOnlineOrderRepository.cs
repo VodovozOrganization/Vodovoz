@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CustomerOrdersApi.Library.Default.Dto.Orders;
+using CustomerOrders.Contracts;
+using CustomerOrders.Contracts.Default.Orders;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 
@@ -32,17 +32,17 @@ namespace CustomerOrdersApi.Library.Default.Repositories
 				
 				let orderStatus =
 					onlineOrder.OnlineOrderStatus == OnlineOrderStatus.OrderPerformed
-						? ExternalOrderStatus.OrderPerformed
+						? ExternalCustomerOrderStatus.OrderPerformed
 						: onlineOrder.OnlineOrderStatus == OnlineOrderStatus.Canceled
-							? ExternalOrderStatus.Canceled
-							: ExternalOrderStatus.OrderProcessing
+							? ExternalCustomerOrderStatus.Canceled
+							: ExternalCustomerOrderStatus.OrderProcessing
 							
 				let ratingAvailable =
 					onlineOrder.Created >= ratingAvailableFrom
 					&& onlineOrderRating == null
-					&& (orderStatus == ExternalOrderStatus.OrderCompleted
-						|| orderStatus == ExternalOrderStatus.Canceled
-						|| orderStatus == ExternalOrderStatus.OrderDelivering)
+					&& (orderStatus == ExternalCustomerOrderStatus.OrderCompleted
+						|| orderStatus == ExternalCustomerOrderStatus.Canceled
+						|| orderStatus == ExternalCustomerOrderStatus.OrderDelivering)
 
 				select new OrderDto
 				{

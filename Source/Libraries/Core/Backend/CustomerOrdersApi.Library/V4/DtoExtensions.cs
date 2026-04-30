@@ -1,5 +1,7 @@
-﻿using CustomerOrdersApi.Library.V4.Dto.Orders;
+﻿using CustomerOrders.Contracts.V4.Orders;
+using CustomerOrdersApi.Library.Extensions;
 using Vodovoz.Core.Domain.Orders;
+using VodovozBusiness.Extensions;
 
 namespace CustomerOrdersApi.Library.V4
 {
@@ -12,12 +14,12 @@ namespace CustomerOrdersApi.Library.V4
 				OnlineOrderId = source.OnlineOrderId,
 				OnlinePayment = source.OnlinePayment,
 				IsFastDelivery = source.IsFastDelivery,
-				Source = source.Source,
-				PaymentStatus = source.PaymentStatus,
-				OnlinePaymentSource = source.OnlinePaymentSource,
+				Source = source.Source.ToSource(),
+				PaymentStatus = source.PaymentStatus.ToOnlineOrderPaymentStatus(),
+				OnlinePaymentSource = source.OnlinePaymentSource.ToOnlinePaymentSource(),
 				ErpCounterpartyId = source.ErpCounterpartyId,
 				ExternalCounterpartyId = source.ExternalCounterpartyId,
-				OnlineOrderPaymentType = source.OnlineOrderPaymentType,
+				OnlineOrderPaymentType = source.OnlineOrderPaymentType.ToOnlineOrderPaymentType(),
 				UnPaidReason = source.UnPaidReason,
 				DeliveryDate = source.DeliveryDate,
 				DeliveryScheduleId = source.DeliveryScheduleId

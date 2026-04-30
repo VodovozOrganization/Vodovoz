@@ -7,6 +7,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Extensions;
 using Vodovoz.Settings.Orders;
+using VodovozBusiness.Extensions;
 
 namespace VodovozBusiness.Models.Orders
 {

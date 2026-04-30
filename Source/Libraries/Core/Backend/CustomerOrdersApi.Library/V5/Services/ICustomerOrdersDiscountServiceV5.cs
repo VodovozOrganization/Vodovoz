@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using CustomerOrdersApi.Library.V5.Dto.Orders;
+using CustomerOrders.Contracts.V5.Orders.OrderItem;
+using CustomerOrders.Contracts.V5.Orders.PromoCodes;
 using Vodovoz.Core.Domain.Results;
-using VodovozBusiness.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.V5.Services
 {
@@ -33,6 +33,6 @@ namespace CustomerOrdersApi.Library.V5.Services
 		/// </summary>
 		/// <param name="applyPromoCodeDto">Данные запроса</param>
 		/// <returns>Список товаров</returns>
-		Result<IEnumerable<IOnlineOrderedProduct>> ApplyPromoCodeToOnlineOrder(ApplyPromoCodeDto applyPromoCodeDto);
+		Result<IEnumerable<OnlineOrderItemDto>> ApplyPromoCodeToOnlineOrder(ApplyPromoCodeDto applyPromoCodeDto);
 	}
 }

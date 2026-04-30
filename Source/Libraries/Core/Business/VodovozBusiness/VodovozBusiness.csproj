@@ -128,6 +128,7 @@
       <Project>{e2228a2b-4883-4dd8-8a05-23501f7b8a33}</Project>
       <Name>QS.Utilities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Backend\CustomerOrders.Contracts\CustomerOrders.Contracts.csproj" />
     <ProjectReference Include="..\..\Backend\DriverApi.Contracts\DriverApi.Contracts.csproj" />
     <ProjectReference Include="..\..\Backend\Edo\Edo.Common\Edo.Common.csproj" />
     <ProjectReference Include="..\..\Backend\Pacs\Pacs.Core\Pacs.Core.csproj">

@@ -1,5 +1,5 @@
-﻿using CustomerOrdersApi.Library.Config;
-using Vodovoz.Core.Domain.Clients;
+﻿using CustomerOrders.Contracts;
+using CustomerOrdersApi.Library.Config;
 
 namespace CustomerOrdersApi.Library
 {
@@ -14,7 +14,7 @@ namespace CustomerOrdersApi.Library
 		/// <param name="source">Источник</param>
 		/// <param name="signatureOptions">Настройки с данными о подписях</param>
 		/// <returns>Подпись источника</returns>
-		protected string GetSourceSign(Source source, SignatureOptions signatureOptions)
+		protected string GetSourceSign(ExternalSource source, SignatureOptions signatureOptions)
 		{
 			var signature =
 				(string)typeof(SignatureOptions).GetProperty(source.ToString())?

@@ -70,7 +70,7 @@ namespace CustomerOnlineOrdersRegistrar.V3.Consumers
 		/// 200 - успешное создание онлайн заказа
 		/// </returns>
 		protected virtual async Task<(int OnlineOrderId, int Code)> TryRegisterOnlineOrderAsync(
-			CustomerOrdersApi.Library.Default.Dto.Orders.OnlineOrderInfoDto message,
+			CustomerOrders.Contracts.Default.Orders.OnlineOrderInfoDto message,
 			CancellationToken cancellationToken)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot($"Создание онлайн заказа из ИПЗ {message.Source.GetEnumTitle()}");

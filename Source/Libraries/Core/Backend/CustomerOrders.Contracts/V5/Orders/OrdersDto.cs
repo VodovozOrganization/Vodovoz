@@ -1,0 +1,18 @@
+﻿namespace CustomerOrders.Contracts.V5.Orders
+{
+	/// <summary>
+	/// Постраничное представление заказов клиента
+	/// </summary>
+	public class OrdersDto
+	{
+		/// <summary>
+		/// Количество заказов клиента
+		/// </summary>
+		public int OrdersCount { get; set; }
+		
+		/// <summary>
+		/// Заказы
+		/// </summary>
+		public OrderDto[] Orders { get; set; }
+	}
+}

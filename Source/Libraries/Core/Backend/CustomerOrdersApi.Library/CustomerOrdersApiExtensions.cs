@@ -6,7 +6,6 @@ using CustomerOrdersApi.Library.Converters;
 using CustomerOrdersApi.Library.Default.Factories;
 using CustomerOrdersApi.Library.Default.Repositories;
 using CustomerOrdersApi.Library.Default.Services;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
 using CustomerOrdersApi.Library.V4.Factories;
 using CustomerOrdersApi.Library.V4.Repositories;
 using CustomerOrdersApi.Library.V4.Services;
@@ -127,17 +126,17 @@ namespace CustomerOrdersApi.Library
 
 		private static void AddTopologyV3(IRabbitMqBusFactoryConfigurator configurator)
 		{
-			configurator.Send<Default.Dto.Orders.OnlineOrderInfoDto>(
+			configurator.Send<CustomerOrders.Contracts.Default.Orders.OnlineOrderInfoDto>(
 				x => x.UseRoutingKeyFormatter(y => y.Message.FaultedMessage.ToString()));
-			configurator.Message<Default.Dto.Orders.OnlineOrderInfoDto>(
-				x => x.SetEntityName(Default.Dto.Orders.OnlineOrderInfoDto.ExchangeName));
-			configurator.Publish<Default.Dto.Orders.OnlineOrderInfoDto>(x =>
+			configurator.Message<CustomerOrders.Contracts.Default.Orders.OnlineOrderInfoDto>(
+				x => x.SetEntityName(CustomerOrders.Contracts.Default.Orders.OnlineOrderInfoDto.ExchangeName));
+			configurator.Publish<CustomerOrders.Contracts.Default.Orders.OnlineOrderInfoDto>(x =>
 			{
 				x.ExchangeType = ExchangeType.Direct;
 				x.Durable = true;
 				x.AutoDelete = false;
 				x.BindQueue(
-					Default.Dto.Orders.OnlineOrderInfoDto.ExchangeName,
+					CustomerOrders.Contracts.Default.Orders.OnlineOrderInfoDto.ExchangeName,
 					"online-orders",
 					conf =>
 					{
@@ -145,7 +144,7 @@ namespace CustomerOrdersApi.Library
 						conf.RoutingKey = "False";
 					});
 				x.BindQueue(
-					Default.Dto.Orders.OnlineOrderInfoDto.ExchangeName,
+					CustomerOrders.Contracts.Default.Orders.OnlineOrderInfoDto.ExchangeName,
 					"online-orders-fault",
 					conf =>
 					{
@@ -157,8 +156,9 @@ namespace CustomerOrdersApi.Library
 		
 		private static void AddTopologyV4(IRabbitMqBusFactoryConfigurator configurator)
 		{
-			configurator.Message<CreatingOnlineOrder>(x => x.SetEntityName(CreatingOnlineOrder.ExchangeAndQueueName));
-			configurator.Publish<CreatingOnlineOrder>(x =>
+			configurator.Message<CustomerOrders.Contracts.V4.Orders.CreatingOnlineOrder>(
+				x => x.SetEntityName(CustomerOrders.Contracts.V4.Orders.CreatingOnlineOrder.ExchangeAndQueueName));
+			configurator.Publish<CustomerOrders.Contracts.V4.Orders.CreatingOnlineOrder>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
 				x.Durable = true;
@@ -168,9 +168,9 @@ namespace CustomerOrdersApi.Library
 		
 		private static void AddTopologyV5(IRabbitMqBusFactoryConfigurator configurator)
 		{
-			configurator.Message<V5.Dto.Orders.CreatingOnlineOrder>(
-				x => x.SetEntityName(V5.Dto.Orders.CreatingOnlineOrder.ExchangeAndQueueName));
-			configurator.Publish<V5.Dto.Orders.CreatingOnlineOrder>(x =>
+			configurator.Message<CustomerOrders.Contracts.V5.Orders.CreatingOnlineOrder>(
+				x => x.SetEntityName(CustomerOrders.Contracts.V5.Orders.CreatingOnlineOrder.ExchangeAndQueueName));
+			configurator.Publish<CustomerOrders.Contracts.V5.Orders.CreatingOnlineOrder>(x =>
 			{
 				x.ExchangeType = ExchangeType.Fanout;
 				x.Durable = true;

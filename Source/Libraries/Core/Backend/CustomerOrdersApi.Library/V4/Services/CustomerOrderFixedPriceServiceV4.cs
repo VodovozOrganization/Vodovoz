@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomerOrders.Contracts;
+using CustomerOrders.Contracts.Interfaces;
 using CustomerOrdersApi.Library.Config;
-using CustomerOrdersApi.Library.V4.Dto.Orders.FixedPrice;
-using CustomerOrdersApi.Library.V4.Dto.Orders.OrderItem;
+using CustomerOrders.Contracts.V4.Orders.FixedPrice;
+using CustomerOrders.Contracts.V4.Orders.OrderItem;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Handlers;
-using VodovozBusiness.Domain.Orders;
-using VodovozBusiness.Nodes;
 using VodovozInfrastructure.Cryptography;
 
 namespace CustomerOrdersApi.Library.V4.Services
@@ -47,7 +46,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 				applyFixedPriceDto.Signature,
 				new ApplyFixedPriceSignatureParams
 				{
-					OrderId = applyFixedPriceDto.Source == Source.MobileApp
+					OrderId = applyFixedPriceDto.Source == ExternalSource.MobileApp
 						? applyFixedPriceDto.ExternalCounterpartyId.ToString()
 						: applyFixedPriceDto.ExternalOrderId.ToString(),
 					OrderSumInKopecks = (int)(GetOnlineOrderSum(applyFixedPriceDto.OnlineOrderItems) * 100),
