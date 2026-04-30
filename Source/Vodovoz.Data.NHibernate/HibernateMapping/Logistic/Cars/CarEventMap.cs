@@ -21,6 +21,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 			Map(x => x.Odometer).Column("odometer");
 			Map(x => x.CarTechnicalCheckupEndingDate).Column("car_technical_checkup_ending_date");
 			Map(x => x.IsWriteOffDocumentNotRequired).Column("is_write_off_document_not_required");
+			Map(x => x.OrderScanFileName).Column("order_scan_file_name");
 
 			Map(x => x.ActualFuelBalance).Column("actual_fuel_balance");
 			Map(x => x.CurrentFuelBalance).Column("current_fuel_balance");
@@ -31,6 +32,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 			References(x => x.Author).Column("author_id");
 			References(x => x.Car).Column("car_id");
 			References(x => x.Driver).Column("driver_id");
+			//References(x => x.Counterparty).Column("counterparty_id");
 			References(x => x.OriginalCarEvent).Column("original_car_event_id");
 			References(x => x.WriteOffDocument).Column("write_off_document_id");
 			References(x => x.CalibrationFuelOperation).Column("calibration_fuel_operation_id").Cascade.All();

@@ -10,6 +10,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
@@ -36,6 +37,7 @@ namespace Vodovoz.Domain.Logistic
 		private DateTime _endDate;
 		private string _comment;
 		private string _foundation;
+		private Counterparty _counterparty;
 		private bool _doNotShowInOperation;
 		private bool _compensationFromInsuranceByCourt;
 		private decimal _repairCost;
@@ -44,6 +46,7 @@ namespace Vodovoz.Domain.Logistic
 		private DateTime? _carTechnicalCheckupEndingDate;
 		private WriteOffDocument _writeOffDocument;
 		private bool _isWriteOffDocumentNotRequired;
+		private string _orderScanFileName;
 		private decimal? _actualFuelBalance;
 		private decimal? _currentFuelBalance;
 		private decimal? _substractionFuelBalance;
@@ -117,6 +120,13 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _foundation, value);
 		}
 
+		[Display(Name = "Название СТО")]
+		public virtual Counterparty Counterparty
+		{
+			get => _counterparty;
+			set => SetField(ref _counterparty, value);
+		}
+
 		[Display(Name = "Не отражать в эксплуатации ТС")]
 		public virtual bool DoNotShowInOperation
 		{
@@ -183,6 +193,13 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get => _isWriteOffDocumentNotRequired;
 			set => SetField(ref _isWriteOffDocumentNotRequired, value);
+		}
+
+		[Display(Name = "Скан заказ-наряда")]
+		public virtual string OrderScanFileName
+		{
+			get => _orderScanFileName;
+			set => SetField(ref _orderScanFileName, value);
 		}
 
 		#region Калибровка баланса топлива

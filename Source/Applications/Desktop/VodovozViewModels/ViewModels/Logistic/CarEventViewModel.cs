@@ -6,12 +6,16 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.EntitySelector;
+using QS.Project.Services.FileDialog;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading;
+using Vodovoz.Core.Application.FileStorage;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Core.Domain.Warehouses.Documents;
@@ -50,6 +54,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly int _startNewPeriodDay;
 		private bool _canCreateFuelBalanceCalibrationCarEvent;
 		private IInteractiveService _interactiveService;
+		private readonly IFileDialogService _fileDialogService;
+		private readonly ICarEventFileStorageService _carEventFileStorageService;
+		private string _selectedOrderScanFilePath;
+		private string _selectedOrderScanFileName;
 
 		public CarEventViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -64,7 +72,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ViewModelEEVMBuilder<WriteOffDocument> writeOffDocumentViewModelEEVMBuilder,
 			ILifetimeScope lifetimeScope,
 			IFuelRepository fuelRepository,
-			ViewModelEEVMBuilder<CarEventType> carEventViewModelEEVMBuilder)
+			ViewModelEEVMBuilder<CarEventType> carEventViewModelEEVMBuilder,
+			IFileDialogService fileDialogService,
+			ICarEventFileStorageService carEventFileStorageService)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager is null)
@@ -86,6 +96,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_writeOffDocumentViewModelEEVMBuilder = writeOffDocumentViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(writeOffDocumentViewModelEEVMBuilder));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
+			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
+			_carEventFileStorageService = carEventFileStorageService ?? throw new ArgumentNullException(nameof(carEventFileStorageService));
 			_carEventTypeViewModelEEVMBuilder = carEventViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(carEventViewModelEEVMBuilder));
 			CanChangeWithClosedPeriod =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_edit_car_events_in_closed_period");
@@ -168,6 +180,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public bool CanChangeWithClosedPeriod { get; }
 		public bool CanChangeCarEventType { get; }
 		public bool CanAddFine => CanEdit;
+		public bool CanAddOrdersScan =>
+			CanEdit
+			&& Entity.CarEventType?.Id == _carEventSettings.CarRepairEventTypeId;
 		public bool CanAttachFine => CanEdit;
 		public bool CanChangeCarTechnicalCheckupEndDate => CanEdit && IsCarTechnicalCheckupEventType;
 		public bool CanAttachWriteOffDocument =>
@@ -194,6 +209,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public IEmployeeService EmployeeService { get; }
 		public IEmployeeJournalFactory EmployeeJournalFactory { get; }
+		public ILifetimeScope LifetimeScope => _lifetimeScope;
 		public IList<FineItem> FineItems { get; private set; }
 		public bool ShowlabelOriginalCarEvent => UoW.IsNew || Entity.CompensationFromInsuranceByCourt;
 
@@ -517,6 +533,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			OnPropertyChanged(nameof(CanEditFuelBalanceCalibration));
 			OnPropertyChanged(nameof(IsFuelBalanceCalibration));
 			OnPropertyChanged(nameof(CanChangeCarEventType));
+			OnPropertyChanged(nameof(CanAddOrdersScan));
 
 			if(CarEventType?.IsAttachWriteOffDocument == false)
 			{
@@ -576,6 +593,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			CreateAttachFineCommand();
 			CreateAddFineCommand();
+			CreateAddOrdersScanCommand();
 			InfoCommand = new DelegateCommand(ShowHelpInfo);
 		}
 
@@ -595,6 +613,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			return CarEventType?.Id == _carEventSettings.CompensationFromInsuranceByCourtId;
 		}
 
+		public DelegateCommand AddOrdersScan { get; private set; }
+
 		public DelegateCommand AddFineCommand { get; private set; }
 
 		private void CreateAddFineCommand()
@@ -604,6 +624,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				() => CanAddFine
 			);
 			AddFineCommand.CanExecuteChangedWith(this, x => CanAddFine);
+		}
+
+		private void CreateAddOrdersScanCommand()
+		{
+			AddOrdersScan = new DelegateCommand(
+				CreateAddOrdersScan,
+				() => CanAddOrdersScan
+			);
+			AddOrdersScan.CanExecuteChangedWith(this, x => CanAddOrdersScan);
 		}
 
 		public DelegateCommand AttachFineCommand { get; private set; }
@@ -673,6 +702,97 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			{
 				Entity.AddFine(e.Entity as Fine);
 			};
+		}
+
+		public override bool Save(bool close)
+		{
+			if(string.IsNullOrWhiteSpace(_selectedOrderScanFilePath))
+			{
+				return base.Save(close);
+			}
+
+			if(!base.Save(false) || !UploadSelectedOrderScan())
+			{
+				return false;
+			}
+
+			var saved = base.Save(close);
+			ClearSelectedOrderScanIfSaved(saved);
+
+			return saved;
+		}
+
+		private void CreateAddOrdersScan()
+		{
+			var dialogSettings = new DialogSettings()
+			{
+				Title = "Выберите скан заказа",
+				InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+				SelectMultiple = false
+			};
+			dialogSettings.FileFilters.Add(new DialogFileFilter("PDF файлы", "*.pdf"));
+
+			var result = _fileDialogService.RunOpenFileDialog(dialogSettings);
+			if(!result.Successful || string.IsNullOrWhiteSpace(result.Path))
+			{
+				return;
+			}
+
+			if(!string.Equals(Path.GetExtension(result.Path), ".pdf", StringComparison.OrdinalIgnoreCase))
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Можно загрузить только PDF-файл.",
+					"Неверный формат файла");
+				return;
+			}
+
+			_selectedOrderScanFilePath = result.Path;
+			_selectedOrderScanFileName = string.IsNullOrWhiteSpace(Entity.OrderScanFileName)
+				? $"{Guid.NewGuid()}.pdf"
+				: Entity.OrderScanFileName;
+
+			_interactiveService.ShowMessage(
+				ImportanceLevel.Info,
+				"Скан заказ-наряда будет загружен при сохранении события ТС.",
+				"Файл выбран");
+		}
+
+		private bool UploadSelectedOrderScan()
+		{
+			var isNewFile = string.IsNullOrWhiteSpace(Entity.OrderScanFileName);
+
+			using(var fileStream = File.OpenRead(_selectedOrderScanFilePath))
+			{
+				var uploadResult = isNewFile
+					? _carEventFileStorageService.CreateFileAsync(_selectedOrderScanFileName, fileStream, CancellationToken.None)
+						.GetAwaiter()
+						.GetResult()
+					: _carEventFileStorageService.UpdateFileAsync(_selectedOrderScanFileName, fileStream, CancellationToken.None)
+						.GetAwaiter()
+						.GetResult();
+
+				if(uploadResult.IsFailure)
+				{
+					_interactiveService.ShowMessage(
+						ImportanceLevel.Error,
+						$"Не удалось загрузить скан заказ-наряда в S3:\n{uploadResult.GetErrorsString()}",
+						"Ошибка загрузки файла");
+					return false;
+				}
+			}
+
+			Entity.OrderScanFileName = _selectedOrderScanFileName;
+			return true;
+		}
+
+		private void ClearSelectedOrderScanIfSaved(bool saved)
+		{
+			if(saved)
+			{
+				_selectedOrderScanFilePath = null;
+				_selectedOrderScanFileName = null;
+			}
 		}
 
 		private void ObservableFines_ListContentChanged(object sender, EventArgs e)
