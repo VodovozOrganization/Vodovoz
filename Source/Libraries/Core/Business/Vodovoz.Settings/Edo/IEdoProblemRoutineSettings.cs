@@ -26,5 +26,15 @@ namespace Vodovoz.Settings.Edo
 		/// Интервал работы воркера обработки проблем с ошибкой отправки фискального документа
 		/// </summary>
 		TimeSpan FiscalDocumentSendErrorProblemWorkerInterval { get; }
+
+		/// <summary>
+		/// Таймаут обработки проблемы со статусом заказа
+		/// </summary>
+		TimeSpan OrderStatusProblemTimeout { get; }
+
+		/// <summary>
+		/// Интервал работы воркера обработки проблем со статусом заказа
+		/// </summary>
+		TimeSpan OrderStatusProblemWorkerInterval { get; }
 	}
 }

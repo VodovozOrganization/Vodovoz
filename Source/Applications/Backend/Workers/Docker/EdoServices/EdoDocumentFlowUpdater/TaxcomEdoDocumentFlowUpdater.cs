@@ -18,6 +18,7 @@ using TaxcomEdo.Contracts.Documents;
 using Vodovoz.Core.Application.FileStorage;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.EntityRepositories.Edo;
@@ -445,13 +446,20 @@ namespace EdoDocumentFlowUpdater
 
 				using var ms = new MemoryStream(containerRawData.ToArray());
 
-				var result =
-					await _edoContainerFileStorageService.UpdateContainerAsync(container, ms, cancellationToken);
+				Result result = null;
 
-				if(result.IsFailure)
+				try
+				{
+					result = await _edoContainerFileStorageService.UpdateContainerAsync(container, ms, cancellationToken);
+				}
+				catch(Exception ex)
+				{
+					_logger.LogError(ex, "Не удалось обновить контейнер в хранилище");
+				}
+
+				if(result != null && result.IsFailure)
 				{
 					var errors = string.Join(", ", result.Errors.Select(e => e.Message));
-
 					_logger.LogError("Не удалось обновить контейнер, ошибка: {Errors}", errors);
 				}
 			}
@@ -474,7 +482,7 @@ namespace EdoDocumentFlowUpdater
 				_logger.LogWarning(
 					"Не найдена таска для контейнера с документом {EdoDocumentId} по заказу {OrderId}, возможно это старый контейнер...",
 					container.MainDocumentId,
-					container.Order.Id);
+					container.Order?.Id);
 				return;
 			}
 

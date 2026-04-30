@@ -92,10 +92,13 @@ try {
 				}
 
 				def determinedProjects = parsedProjects.collect { p ->
+					def projectPath = (p.projectPath ?: '').toString()
+					def containerBaseImage = ResolveProjectContainerBaseImage(projectPath)
 					[
-						projectPath: (p.projectPath ?: '').toString(),
+						projectPath: projectPath,
 						containerRepository: (p.containerRepository ?: '').toString(),
-						publishImageTag: (p.publishImageTag ?: '').toString()
+						publishImageTag: (p.publishImageTag ?: '').toString(),
+						containerBaseImage: containerBaseImage
 					]
 				}
 
@@ -111,7 +114,8 @@ try {
 				PUBLISHING_PROJECT_QUEUE = determinedProjects.collect { it.collectEntries { key, value -> [key, value] } }
 
 				def projectsSummary = PUBLISHING_PROJECTS.collect { p ->
-					"projectPath=${p.projectPath}; containerRepository=${p.containerRepository}; publishImageTag=${p.publishImageTag}"
+					def baseImagePart = p.containerBaseImage ? "; containerBaseImage=${p.containerBaseImage}" : ''
+					"projectPath=${p.projectPath}; containerRepository=${p.containerRepository}; publishImageTag=${p.publishImageTag}${baseImagePart}"
 				}.join('\n')
 				echo "Найдено проектов для публикации: ${PUBLISHING_PROJECTS.size()}\n${projectsSummary}"
 			}
@@ -210,6 +214,8 @@ try {
 										def projectPath = projectInfo.projectPath
 										def imageRepository = projectInfo.containerRepository
 										def imageTag = projectInfo.publishImageTag
+										def containerBaseImage = projectInfo.containerBaseImage?.toString()?.trim()
+										def runtimeBaseImage = containerBaseImage ?: RUNTIME_CONTAINER_IMAGE
 										def projectDll = projectPath.tokenize('/').last().replace('.csproj', '.dll')
 										def publishDir = "/work/.publish/${projectDll.replace('.dll', '')}"
 										def imageFullName = "${DOCKER_REGISTRY_URL}/${imageRepository}:${imageTag}"
@@ -217,6 +223,7 @@ try {
 										try {
 										stage("${imageRepository}:${imageTag}") {
 											echo "Builder ${builderNumber}/${totalBuilders} picked project ${processedProjects}: ${projectPath} -> ${imageFullName}"
+											echo "Runtime base image for ${projectPath}: ${runtimeBaseImage}"
 
 											// Публикуем артефакты .NET и готовим Dockerfile рядом с output.
 											sh "docker exec ${cid} sh -c 'mkdir -p \"${publishDir}\"'"
@@ -224,7 +231,7 @@ try {
 
 											sh """
 												docker exec ${cid} sh -c 'cat > "${publishDir}/Dockerfile" <<EOF
-FROM ${RUNTIME_CONTAINER_IMAGE}
+FROM ${runtimeBaseImage}
 WORKDIR /app
 COPY . .
 ENTRYPOINT ["dotnet","${projectDll}"]
@@ -605,6 +612,31 @@ def ReadXmlProperty(String filePath, String propertyName) {
 	}
 
 	return value
+}
+
+def ReadOptionalXmlProperty(String filePath, String propertyName) {
+	if (!fileExists(filePath)) {
+		return ''
+	}
+
+	def xmlText = readFile(file: filePath)
+	def propertyRegex = "(?s)<${propertyName}>(.*?)</${propertyName}>"
+	def matcher = (xmlText =~ propertyRegex)
+	def value = matcher.find() ? matcher.group(1).trim() : ''
+
+	return value ?: ''
+}
+
+def ResolveProjectContainerBaseImage(String projectPath) {
+	if (!projectPath?.trim()) {
+		return ''
+	}
+
+	def normalizedProjectPath = projectPath.replace('\\', '/')
+	def projectDir = normalizedProjectPath.contains('/') ? normalizedProjectPath.substring(0, normalizedProjectPath.lastIndexOf('/')) : '.'
+	def propsPath = "${projectDir}/RepositorySettings.props"
+
+	return ReadOptionalXmlProperty(propsPath, 'ContainerBaseImage')
 }
 
 def CloneMirror(String url, String cache, int depth = 0) {

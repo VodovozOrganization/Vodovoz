@@ -550,7 +550,7 @@ namespace Edo.Receipt.Dispatcher
 			
 			if(vatRateVersion == null)
 			{
-				throw new InvalidOperationException($"У товара #{orderItem.Nomenclature.Id} отсутствует версия НДС на дату счета заказа #{orderItem.Order.BillDate}");
+				throw new InvalidOperationException($"У товара #{orderItem.Nomenclature.Id} отсутствует версия НДС на дату доставки #{orderItem.Order.DeliveryDate}");
 			}
 			
 			inventPosition.Vat = vatRateVersion.VatRate.ToFiscalVat();
