@@ -1,9 +1,9 @@
 ﻿namespace VodovozBusiness.EntityRepositories.Nodes
 {
 	/// <summary>
-	/// Данные по контрагенту и договору
+	/// Данные по контрагенту и организации
 	/// </summary>
-	public class CounterpartyContractDataNode
+	public class CounterpartyOrganizationDataNode
 	{
 		/// <summary>
 		/// Id контрагента
@@ -11,8 +11,8 @@
 		public int CounterpartyId { get; set; }
 
 		/// <summary>
-		/// Id договора
+		/// Id организации
 		/// </summary>
-		public int ContractId { get; set; }
+		public int OrganizationId { get; set; }
 	}
 }

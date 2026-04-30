@@ -1,10 +1,18 @@
-﻿namespace VodovozBusiness.EntityRepositories.Nodes
+﻿using System.Collections;
+using System.Collections.Generic;
+
+namespace VodovozBusiness.EntityRepositories.Nodes
 {
 	/// <summary>
 	/// Суммарные данные по просроченной дебиторской задолженности контрагента
 	/// </summary>
 	public class CounterpartyOverdueDebtorDebtAggregatedNode
 	{
+		/// <summary>
+		/// Номера заказов, по которым есть просроченная дебиторская задолженность
+		/// </summary>
+		public IEnumerable<int> OrderIds { get; set; } 
+
 		/// <summary>
 		/// Id контрагента
 		/// </summary>

@@ -298,15 +298,15 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		/// <summary>
 		/// Получение данных по просроченной дебиторской задолженности контрагентов , 
-		/// сгруппированные по контрагенту и договору, с учетом минимального количества дней просрочки сверх установленного для КА
+		/// сгруппированные по контрагенту и организации, с учетом минимального количества дней просрочки сверх установленного для КА
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="expiredMinDaysAgo">Минимальное количество дней просрочки</param>
 		/// <param name="orderStatuses">Статусы заказов</param>
 		/// <param name="excludeCounterpartyRevenueStatuses">Статусы контрагентов в налоговой для исключения</param>
 		/// <param name="cancellationToken">Токен отмены</param>
-		/// <returns>Данные по просроченным долгам контрагента в разрезе организации и договора</returns>
-		Task<IDictionary<CounterpartyContractDataNode, CounterpartyOverdueDebtorDebtAggregatedNode>> GetCounterpartyOverdueDebtorDebtData(
+		/// <returns>Данные по просроченным долгам контрагента в разрезе организации</returns>
+		Task<IDictionary<CounterpartyOrganizationDataNode, CounterpartyOverdueDebtorDebtAggregatedNode>> GetCounterpartyOverdueDebtorDebtData(
 			IUnitOfWork uow,
 			int expiredMinDaysAgo,
 			IEnumerable<OrderStatus> orderStatuses,

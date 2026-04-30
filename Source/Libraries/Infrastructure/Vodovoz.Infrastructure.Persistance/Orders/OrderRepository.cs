@@ -2733,7 +2733,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return notPaidOrdersData;
 		}
 
-		public async Task<IDictionary<CounterpartyContractDataNode, CounterpartyOverdueDebtorDebtAggregatedNode>> GetCounterpartyOverdueDebtorDebtData(
+		public async Task<IDictionary<CounterpartyOrganizationDataNode, CounterpartyOverdueDebtorDebtAggregatedNode>> GetCounterpartyOverdueDebtorDebtData(
 			IUnitOfWork uow,
 			int expiredMinDaysAgo,
 			IEnumerable<OrderStatus> orderStatuses,
@@ -2785,10 +2785,9 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 					select new CounterpartyOverdueDebtorDebtDataNode
 					{
+						OrderId = order.Id,
 						CounterpartyId = counterparty.Id,
 						OrganizationId = contract.Organization.Id,
-						ContractId = contract.Id,
-						ContractNumber = contract.Number,
 						OverdueDebtorDebt = orderSum - orderPaymentsSum,
 						OrderDeliveryDate = order.DeliveryDate.Value,
 						CounterpartyPaymentDelayDays = counterparty.DelayDaysForBuyers
@@ -2796,16 +2795,16 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 			var notPaidOrdersData =
 				(await ordersDataQuery.Where(x => x.OverdueDebtorDebt > 0).ToListAsync(cancellationToken))
-				.GroupBy(x => new CounterpartyContractDataNode { CounterpartyId = x.CounterpartyId, ContractId = x.ContractId })
+				.GroupBy(x => new CounterpartyOrganizationDataNode { CounterpartyId = x.CounterpartyId, OrganizationId = x.OrganizationId })
 				.Where(x => x.Min(o => o.OrderDeliveryDate.AddDays(expiredMinDaysAgo + x.First().CounterpartyPaymentDelayDays)) <= today)
 				.ToDictionary(
 					x => x.Key,
 					x => new CounterpartyOverdueDebtorDebtAggregatedNode
 					{
+						OrderIds = x.Select(o => o.OrderId).Distinct().ToList(),
 						CounterpartyId = x.Key.CounterpartyId,
-						OrganizationId = x.First().OrganizationId,
-						TotalOverdueDebtorDebt = x.Sum(o => o.OverdueDebtorDebt),
-						ContractNumber = x.First().ContractNumber
+						OrganizationId = x.Key.OrganizationId,
+						TotalOverdueDebtorDebt = x.Sum(o => o.OverdueDebtorDebt)
 					});
 
 			return notPaidOrdersData;
