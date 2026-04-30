@@ -262,7 +262,7 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 			var codesPoolProblemDataNodes = new List<CodesPoolProblemDataNode>();
 
 			var startDate = EdoProblemStartDate;
-			var endDate = EdoProblemStartDate == EdoProblemEndDate ? EdoProblemEndDate.Date.AddDays(1).AddMilliseconds(-1) : EdoProblemEndDate;
+			var endDate = EdoProblemEndDate.Date.AddDays(1).AddMilliseconds(-1);
 			
 			using(var uow = UnitOfWorkFactory.CreateWithoutRoot(nameof(CodesPoolViewModel)))
 			{
