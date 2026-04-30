@@ -1,4 +1,4 @@
-﻿using Autofac.Extensions.DependencyInjection;
+using Autofac.Extensions.DependencyInjection;
 using BitrixApi.Library.Services;
 using EdoService.Library.Services;
 using EmailDebtNotificationWorker.Services;
@@ -16,6 +16,7 @@ using RabbitMQ.MailSending;
 using System;
 using System.Text;
 using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Counterparty;
@@ -61,6 +62,12 @@ namespace EmailDebtNotificationWorker
 							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
 							typeof(Vodovoz.Data.NHibernate.HibernateMapping.Counterparty.BulkEmailEventMap).Assembly
 						);
+
+					services
+						.AddDatabaseConfigurationExposer(config =>
+						{
+							config.LinqToHqlGeneratorsRegistry<LinqToHqlGeneratorsRegistry>();
+						});
 
 					services.AddDatabaseConnection();
 					services.AddCore();
