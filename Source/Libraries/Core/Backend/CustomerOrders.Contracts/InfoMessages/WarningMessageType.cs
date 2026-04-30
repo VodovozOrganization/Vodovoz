@@ -18,6 +18,10 @@
 		/// </summary>
 		DeliveryChanged,
 		/// <summary>
+		/// Правила доставки не доступны
+		/// </summary>
+		DeliveryRulesNotAvailable,
+		/// <summary>
 		/// Промо набор недоступен
 		/// </summary>
 		PromoSetInvalid,

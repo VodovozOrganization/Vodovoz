@@ -364,8 +364,6 @@ namespace CustomerOrdersApi.Library.V5.Services
 
 			if(result.IsFailure)
 			{
-				//TODO нужно обговорить этот сценарий, когда не найден наш логистический район
-				//будет отдельное сообщение
 				return _warningMessageFactory.CreateDistrictNotFoundMessage();
 			}
 			

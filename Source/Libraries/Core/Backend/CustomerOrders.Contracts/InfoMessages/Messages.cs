@@ -27,5 +27,12 @@
 		{
 			public const string Title = "Платная доставка";
 		}
+		
+		public static class DeliveryRulesNotAvailable
+		{
+			public const string Title = "Не удалось определить условия доставки";
+			public const string Description =
+				"Заказ будет оформлен, но для уточнения и подтверждения условий доставки по указанному адресу с вами свяжется менеджер";
+		}
 	}
 }

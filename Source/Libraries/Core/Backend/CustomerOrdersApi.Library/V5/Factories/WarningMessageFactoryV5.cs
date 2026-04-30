@@ -8,9 +8,10 @@ namespace CustomerOrdersApi.Library.V5.Factories
 		public WarningMessage CreateDistrictNotFoundMessage()
 		{
 			return WarningMessage.Create(
-				nameof(WarningMessageType.DeliveryChanged),
-				Messages.DeliveryChanged.Title,
-				"Не найден логистический район");
+				nameof(WarningMessageType.DeliveryRulesNotAvailable),
+				Messages.DeliveryRulesNotAvailable.Title,
+				Messages.DeliveryRulesNotAvailable.Description,
+				nameof(WarningMessageButtonType.Accept));
 		}
 
 		/// <inheritdoc/>

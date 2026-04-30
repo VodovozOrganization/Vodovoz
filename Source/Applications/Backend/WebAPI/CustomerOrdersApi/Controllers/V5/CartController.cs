@@ -26,8 +26,8 @@ namespace CustomerOrdersApi.Controllers.V5
 		/// <summary>
 		/// Проверка корзины
 		/// </summary>
-		/// <param name="request"></param>
-		/// <returns></returns>
+		/// <param name="request">Данные заказа из корзины для проверки <see cref="CheckUsersBasketRequest"/></param>
+		/// <returns>Результат проверки <see cref="CheckUsersBasketResponse"/></returns>
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CheckUsersBasketResponse))]
 		[HttpPost]
