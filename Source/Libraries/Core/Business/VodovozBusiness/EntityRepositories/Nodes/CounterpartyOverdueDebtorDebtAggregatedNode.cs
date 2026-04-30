@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Vodovoz.Domain.Client;
 
 namespace VodovozBusiness.EntityRepositories.Nodes
 {
@@ -11,12 +12,12 @@ namespace VodovozBusiness.EntityRepositories.Nodes
 		/// <summary>
 		/// Номера заказов, по которым есть просроченная дебиторская задолженность
 		/// </summary>
-		public IEnumerable<int> OrderIds { get; set; } 
+		public IEnumerable<int> OrderIds { get; set; }
 
 		/// <summary>
-		/// Id контрагента
+		/// Контрагент
 		/// </summary>
-		public int CounterpartyId { get; set; }
+		public Counterparty Counterparty { get; set; }
 
 		/// <summary>
 		/// Id организации
@@ -27,10 +28,5 @@ namespace VodovozBusiness.EntityRepositories.Nodes
 		/// Суммарная просроченная дебиторская задолженность
 		/// </summary>
 		public decimal TotalOverdueDebtorDebt { get; set; }
-
-		/// <summary>
-		/// Номер договора
-		/// </summary>
-		public string ContractNumber { get; set; }
 	}
 }

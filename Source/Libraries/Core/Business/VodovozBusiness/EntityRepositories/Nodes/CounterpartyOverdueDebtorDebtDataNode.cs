@@ -1,4 +1,5 @@
 ﻿using System;
+using Vodovoz.Domain.Client;
 
 namespace VodovozBusiness.EntityRepositories.Nodes
 {
@@ -13,9 +14,9 @@ namespace VodovozBusiness.EntityRepositories.Nodes
 		public int OrderId { get; set; }
 
 		/// <summary>
-		/// Id контрагента
+		/// Контрагент
 		/// </summary>
-		public int CounterpartyId { get; set; }
+		public Counterparty Counterparty { get; set; }
 
 		/// <summary>
 		/// Id организации
