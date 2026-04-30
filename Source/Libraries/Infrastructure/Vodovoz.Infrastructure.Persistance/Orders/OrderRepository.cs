@@ -2786,7 +2786,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					select new CounterpartyOverdueDebtorDebtDataNode
 					{
 						OrderId = order.Id,
-						CounterpartyId = counterparty.Id,
+						Counterparty = counterparty,
 						OrganizationId = contract.Organization.Id,
 						OverdueDebtorDebt = orderSum - orderPaymentsSum,
 						OrderDeliveryDate = order.DeliveryDate.Value,
@@ -2794,15 +2794,15 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					};
 
 			var notPaidOrdersData =
-				(await ordersDataQuery.Where(x => x.OverdueDebtorDebt > 0).ToListAsync(cancellationToken))
-				.GroupBy(x => new CounterpartyOrganizationDataNode { CounterpartyId = x.CounterpartyId, OrganizationId = x.OrganizationId })
+				(await ordersDataQuery.ToListAsync(cancellationToken))
+				.GroupBy(x => new CounterpartyOrganizationDataNode { CounterpartyId = x.Counterparty.Id, OrganizationId = x.OrganizationId })
 				.Where(x => x.Min(o => o.OrderDeliveryDate.AddDays(expiredMinDaysAgo + x.First().CounterpartyPaymentDelayDays)) <= today)
 				.ToDictionary(
 					x => x.Key,
 					x => new CounterpartyOverdueDebtorDebtAggregatedNode
 					{
 						OrderIds = x.Select(o => o.OrderId).Distinct().ToList(),
-						CounterpartyId = x.Key.CounterpartyId,
+						Counterparty = x.First().Counterparty,
 						OrganizationId = x.Key.OrganizationId,
 						TotalOverdueDebtorDebt = x.Sum(o => o.OverdueDebtorDebt)
 					});
