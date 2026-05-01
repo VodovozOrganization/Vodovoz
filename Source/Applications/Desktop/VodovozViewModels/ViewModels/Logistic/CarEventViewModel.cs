@@ -711,9 +711,17 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				return base.Save(close);
 			}
 
-			if(!base.Save(false) || !UploadSelectedOrderScan())
+			if(!base.Save(false))
 			{
 				return false;
+			}
+
+			if(!UploadSelectedOrderScan())
+			{
+				var savedWithoutOrderScan = base.Save(close);
+				ClearSelectedOrderScanIfSaved(savedWithoutOrderScan);
+
+				return savedWithoutOrderScan;
 			}
 
 			var saved = base.Save(close);
