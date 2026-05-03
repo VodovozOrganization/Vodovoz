@@ -89,7 +89,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.StoredEmails
 			public OrganizationBulkEmailMap()
 			{
 				DiscriminatorValue(nameof(CounterpartyEmailType.OrganizationBulk));
-				References(x => x.Organnization).Column("organization_id");
+				Map(x => x.OrganizationId).Column("organization_id");
 			}
 		}
 

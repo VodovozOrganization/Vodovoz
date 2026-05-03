@@ -1,7 +1,6 @@
 ﻿using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.StoredEmails;
 
 namespace VodovozBusiness.Domain.StoredEmails
@@ -21,7 +20,7 @@ namespace VodovozBusiness.Domain.StoredEmails
 		PrepositionalPlural = "массовых рассылках от указанных организаций")]
 	public class OrganizationBulkEmail : CounterpartyEmail
 	{
-		private Organization _organization;
+		private int _organizationId;
 		/// <inheritdoc />
 		public override IEmailableDocument EmailableDocument { get; }
 
@@ -32,10 +31,10 @@ namespace VodovozBusiness.Domain.StoredEmails
 		/// Организация, от которой будет отправлено письмо
 		/// </summary>
 		[Display(Name = "Организация")]
-		public Organization Organnization
+		public virtual int OrganizationId
 		{
-			get => _organization;
-			set => SetField(ref _organization, value);
+			get => _organizationId;
+			set => SetField(ref _organizationId, value);
 		}
 	}
 }

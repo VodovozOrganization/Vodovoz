@@ -3,6 +3,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Linq;
+using NHibernate.Linq;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.BusinessCommon.Domain;
@@ -11,15 +12,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Data.Orders.Default;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Payments;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Core.Domain.TrueMark;
+using Vodovoz.Core.Domain.TrueMark;
+using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -41,23 +49,16 @@ using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
+using Vodovoz.Settings.Organizations;
+using VodovozBusiness.Domain.Client;
 using VodovozBusiness.Domain.Client;
 using VodovozBusiness.Domain.Operations;
+using VodovozBusiness.Domain.Operations;
+using VodovozBusiness.Domain.Settings;
 using VodovozBusiness.EntityRepositories.Nodes;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using Order = Vodovoz.Domain.Orders.Order;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
-using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Payments;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using Vodovoz.Core.Domain.TrueMark;
-using VodovozBusiness.Domain.Operations;
-using System.Threading.Tasks;
-using System.Threading;
-using NHibernate.Linq;
-using Vodovoz.Core.Data.Orders.Default;
-using Vodovoz.Settings.Organizations;
-using VodovozBusiness.Domain.Client;
 
 namespace Vodovoz.Infrastructure.Persistance.Orders
 {
@@ -2788,13 +2789,16 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						OrderId = order.Id,
 						Counterparty = counterparty,
 						OrganizationId = contract.Organization.Id,
+						OrganizationFullName = contract.Organization.FullName,
+						OrganizationEmailForMailing = contract.Organization.EmailForMailing,
+						Contract = contract,
 						OverdueDebtorDebt = orderSum - orderPaymentsSum,
 						OrderDeliveryDate = order.DeliveryDate.Value,
 						CounterpartyPaymentDelayDays = counterparty.DelayDaysForBuyers
 					};
 
 			var notPaidOrdersData =
-				(await ordersDataQuery.ToListAsync(cancellationToken))
+				(await ordersDataQuery.Take(50).ToListAsync(cancellationToken))
 				.GroupBy(x => new CounterpartyOrganizationDataNode { CounterpartyId = x.Counterparty.Id, OrganizationId = x.OrganizationId })
 				.Where(x => x.Min(o => o.OrderDeliveryDate.AddDays(expiredMinDaysAgo + x.First().CounterpartyPaymentDelayDays)) <= today)
 				.ToDictionary(
@@ -2803,7 +2807,10 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					{
 						OrderIds = x.Select(o => o.OrderId).Distinct().ToList(),
 						Counterparty = x.First().Counterparty,
-						OrganizationId = x.Key.OrganizationId,
+						OrganizationId = x.First().OrganizationId,
+						OrganizationFullName = x.First().OrganizationFullName,
+						OrganizationEmailForMailing = x.First().OrganizationEmailForMailing,
+						Contract = x.Last().Contract,
 						TotalOverdueDebtorDebt = x.Sum(o => o.OverdueDebtorDebt)
 					});
 

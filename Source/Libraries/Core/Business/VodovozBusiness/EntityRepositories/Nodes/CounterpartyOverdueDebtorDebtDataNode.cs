@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Organizations;
 
 namespace VodovozBusiness.EntityRepositories.Nodes
 {
@@ -22,6 +24,21 @@ namespace VodovozBusiness.EntityRepositories.Nodes
 		/// Id организации
 		/// </summary>
 		public int OrganizationId { get; set; }
+
+		/// <summary>
+		/// Полное наименование организации
+		/// </summary>
+		public string OrganizationFullName { get; set; }
+
+		/// <summary>
+		/// Адрес электронной почты организации
+		/// </summary>
+		public string OrganizationEmailForMailing { get; set; }
+
+		/// <summary>
+		/// Договор
+		/// </summary>
+		public CounterpartyContract Contract { get; set; }
 
 		/// <summary>
 		/// Просроченная сумма долга по заказу
