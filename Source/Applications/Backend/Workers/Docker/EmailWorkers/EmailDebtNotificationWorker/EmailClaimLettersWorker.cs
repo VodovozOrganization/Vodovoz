@@ -34,6 +34,13 @@ namespace EmailDebtNotificationWorker
 			using var scope = _serviceScopeFactory.CreateScope();
 			var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
 			var emailClaimLettersService = scope.ServiceProvider.GetRequiredService<IEmailClaimLettersService>();
+			var workingDayService = scope.ServiceProvider.GetRequiredService<IWorkingDayService>();
+
+			if(!CanSendNow(workingDayService))
+			{
+				_logger.LogInformation("Сейчас нерабочее время, пропускаем отправку писем с претензиями");
+				return;
+			}
 
 			_logger.LogInformation("Отправляем письма с претензиями");
 
@@ -48,6 +55,13 @@ namespace EmailDebtNotificationWorker
 			}
 
 			_logger.LogInformation("Завершение отправки писем с претензиями");
+		}
+
+		private static bool CanSendNow(IWorkingDayService workingDayService)
+		{
+			var now = DateTime.Now;
+
+			return workingDayService.IsWithinWorkingHours(now);
 		}
 	}
 }
