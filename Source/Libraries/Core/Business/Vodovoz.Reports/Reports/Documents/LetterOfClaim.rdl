@@ -153,24 +153,24 @@
                           <Default>Solid</Default>
                           <Right>Solid</Right>
                           <Bottom>Solid</Bottom>
-                          <Left >Solid</Left>
-                          <Top >Solid</Top>
+                          <Left>Solid</Left>
+                          <Top>Solid</Top>
                         </BorderStyle>
                         <BorderColor>
                           <Default>Black</Default>
                         </BorderColor>
                         <BorderWidth>
                           <Default>1pt</Default>
-                          <Left >1pt</Left>
-                          <Right >1pt</Right>
-                          <Top >1pt</Top>
-                          <Bottom >1pt</Bottom>
+                          <Left>1pt</Left>
+                          <Right>1pt</Right>
+                          <Top>1pt</Top>
+                          <Bottom>1pt</Bottom>
                         </BorderWidth>
-                        <PaddingRight >2pt</PaddingRight>
-                        <PaddingTop >2pt</PaddingTop>
-                        <PaddingBottom >2pt</PaddingBottom>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -191,31 +191,31 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                           <Bottom>Solid</Bottom>
-                          <Left >Solid</Left>
-                          <Right >Solid</Right>
-                          <Top >Solid</Top>
+                          <Left>Solid</Left>
+                          <Right>Solid</Right>
+                          <Top>Solid</Top>
                         </BorderStyle>
                         <BorderColor>
                           <Default>Black</Default>
                         </BorderColor>
                         <BorderWidth>
                           <Default>1pt</Default>
-                          <Left >1pt</Left>
-                          <Right >1pt</Right>
-                          <Top >1pt</Top>
-                          <Bottom >1pt</Bottom>
+                          <Left>1pt</Left>
+                          <Right>1pt</Right>
+                          <Top>1pt</Top>
+                          <Bottom>1pt</Bottom>
                         </BorderWidth>
-                        <PaddingRight >2pt</PaddingRight>
-                        <PaddingTop >2pt</PaddingTop>
-                        <PaddingBottom >2pt</PaddingBottom>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
               </TableCells>
             </TableRow>
-            <TableRow >
+            <TableRow>
               <Height>20.1pt</Height>
               <TableCells>
                 <TableCell>
@@ -231,22 +231,22 @@
                           <Default>Solid</Default>
                           <Right>Solid</Right>
                           <Bottom>Solid</Bottom>
-                          <Left >Solid</Left>
-                          <Top >Solid</Top>
+                          <Left>Solid</Left>
+                          <Top>Solid</Top>
                         </BorderStyle>
                         <BorderColor>
                           <Default>Black</Default>
                         </BorderColor>
                         <BorderWidth>
                           <Default>1pt</Default>
-                          <Left >1pt</Left>
-                          <Right >1pt</Right>
-                          <Top >1pt</Top>
-                          <Bottom >1pt</Bottom>
+                          <Left>1pt</Left>
+                          <Right>1pt</Right>
+                          <Top>1pt</Top>
+                          <Bottom>1pt</Bottom>
                         </BorderWidth>
-                        <PaddingRight >2pt</PaddingRight>
-                        <PaddingTop >2pt</PaddingTop>
-                        <PaddingBottom >2pt</PaddingBottom>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -263,23 +263,23 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                           <Bottom>Solid</Bottom>
-                          <Left >Solid</Left>
-                          <Right >Solid</Right>
-                          <Top >Solid</Top>
+                          <Left>Solid</Left>
+                          <Right>Solid</Right>
+                          <Top>Solid</Top>
                         </BorderStyle>
                         <BorderColor>
                           <Default>Black</Default>
                         </BorderColor>
                         <BorderWidth>
                           <Default>1pt</Default>
-                          <Left >1pt</Left>
-                          <Right >1pt</Right>
-                          <Top >1pt</Top>
-                          <Bottom >1pt</Bottom>
+                          <Left>1pt</Left>
+                          <Right>1pt</Right>
+                          <Top>1pt</Top>
+                          <Bottom>1pt</Bottom>
                         </BorderWidth>
-                        <PaddingRight >2pt</PaddingRight>
-                        <PaddingTop >2pt</PaddingTop>
-                        <PaddingBottom >2pt</PaddingBottom>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -318,7 +318,6 @@
         <Height>44pt</Height>
         <Width>482pt</Width>
         <Value>Приложение:
-Акт сверки
 Счет на оплату</Value>
         <Left>0.7pt</Left>
         <Top>506.5pt</Top>
@@ -396,20 +395,20 @@
         <Style>
           <BorderStyle>
             <Default>None</Default>
-            <Left >None</Left>
-            <Right >None</Right>
-            <Top >None</Top>
-            <Bottom >None</Bottom>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
           </BorderStyle>
           <BorderColor>
             <Default>Black</Default>
           </BorderColor>
           <BorderWidth>
             <Default>1pt</Default>
-            <Left >1pt</Left>
-            <Right >1pt</Right>
-            <Top >1pt</Top>
-            <Bottom >1pt</Bottom>
+            <Left>1pt</Left>
+            <Right>1pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
           </BorderWidth>
         </Style>
         <TableColumns>
@@ -444,30 +443,30 @@
                           <Default>None</Default>
                           <Right>None</Right>
                           <Bottom>None</Bottom>
-                          <Left >None</Left>
-                          <Top >None</Top>
+                          <Left>None</Left>
+                          <Top>None</Top>
                         </BorderStyle>
                         <BorderColor>
                           <Default>Black</Default>
                         </BorderColor>
                         <BorderWidth>
                           <Default>1pt</Default>
-                          <Left >1pt</Left>
-                          <Right >1pt</Right>
-                          <Top >1pt</Top>
-                          <Bottom >1pt</Bottom>
+                          <Left>1pt</Left>
+                          <Right>1pt</Right>
+                          <Top>1pt</Top>
+                          <Bottom>1pt</Bottom>
                         </BorderWidth>
-                        <PaddingRight >2pt</PaddingRight>
-                        <PaddingBottom >2pt</PaddingBottom>
-                        <PaddingTop >2pt</PaddingTop>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingBottom>2pt</PaddingBottom>
+                        <PaddingTop>2pt</PaddingTop>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
               </TableCells>
             </TableRow>
-            <TableRow >
+            <TableRow>
               <Height>18pt</Height>
               <TableCells>
                 <TableCell>
@@ -483,22 +482,22 @@
                           <Default>None</Default>
                           <Right>None</Right>
                           <Bottom>None</Bottom>
-                          <Left >None</Left>
-                          <Top >None</Top>
+                          <Left>None</Left>
+                          <Top>None</Top>
                         </BorderStyle>
                         <BorderColor>
                           <Default>Black</Default>
                         </BorderColor>
                         <BorderWidth>
                           <Default>1pt</Default>
-                          <Left >1pt</Left>
-                          <Right >1pt</Right>
-                          <Top >1pt</Top>
-                          <Bottom >1pt</Bottom>
+                          <Left>1pt</Left>
+                          <Right>1pt</Right>
+                          <Top>1pt</Top>
+                          <Bottom>1pt</Bottom>
                         </BorderWidth>
-                        <PaddingRight >2pt</PaddingRight>
-                        <PaddingBottom >2pt</PaddingBottom>
-                        <PaddingTop >2pt</PaddingTop>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingBottom>2pt</PaddingBottom>
+                        <PaddingTop>2pt</PaddingTop>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -506,7 +505,7 @@
                 </TableCell>
               </TableCells>
             </TableRow>
-            <TableRow >
+            <TableRow>
               <Height>41.4pt</Height>
               <TableCells>
                 <TableCell>
@@ -522,22 +521,22 @@
                           <Default>None</Default>
                           <Right>None</Right>
                           <Bottom>None</Bottom>
-                          <Left >None</Left>
-                          <Top >None</Top>
+                          <Left>None</Left>
+                          <Top>None</Top>
                         </BorderStyle>
                         <BorderColor>
                           <Default>Black</Default>
                         </BorderColor>
                         <BorderWidth>
                           <Default>1pt</Default>
-                          <Left >1pt</Left>
-                          <Right >1pt</Right>
-                          <Top >1pt</Top>
-                          <Bottom >1pt</Bottom>
+                          <Left>1pt</Left>
+                          <Right>1pt</Right>
+                          <Top>1pt</Top>
+                          <Bottom>1pt</Bottom>
                         </BorderWidth>
-                        <PaddingRight >2pt</PaddingRight>
-                        <PaddingBottom >2pt</PaddingBottom>
-                        <PaddingTop >2pt</PaddingTop>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingBottom>2pt</PaddingBottom>
+                        <PaddingTop>2pt</PaddingTop>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -545,7 +544,7 @@
                 </TableCell>
               </TableCells>
             </TableRow>
-            <TableRow >
+            <TableRow>
               <Height>21.9pt</Height>
               <TableCells>
                 <TableCell>
@@ -561,22 +560,22 @@
                           <Default>None</Default>
                           <Right>None</Right>
                           <Bottom>None</Bottom>
-                          <Left >None</Left>
-                          <Top >None</Top>
+                          <Left>None</Left>
+                          <Top>None</Top>
                         </BorderStyle>
                         <BorderColor>
                           <Default>Black</Default>
                         </BorderColor>
                         <BorderWidth>
                           <Default>1pt</Default>
-                          <Left >1pt</Left>
-                          <Right >1pt</Right>
-                          <Top >1pt</Top>
-                          <Bottom >1pt</Bottom>
+                          <Left>1pt</Left>
+                          <Right>1pt</Right>
+                          <Top>1pt</Top>
+                          <Bottom>1pt</Bottom>
                         </BorderWidth>
-                        <PaddingRight >2pt</PaddingRight>
-                        <PaddingBottom >2pt</PaddingBottom>
-                        <PaddingTop >2pt</PaddingTop>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingBottom>2pt</PaddingBottom>
+                        <PaddingTop>2pt</PaddingTop>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -584,7 +583,7 @@
                 </TableCell>
               </TableCells>
             </TableRow>
-            <TableRow >
+            <TableRow>
               <Height>38.4pt</Height>
               <TableCells>
                 <TableCell>
@@ -600,22 +599,22 @@
                           <Default>None</Default>
                           <Right>None</Right>
                           <Bottom>None</Bottom>
-                          <Left >None</Left>
-                          <Top >None</Top>
+                          <Left>None</Left>
+                          <Top>None</Top>
                         </BorderStyle>
                         <BorderColor>
                           <Default>Black</Default>
                         </BorderColor>
                         <BorderWidth>
                           <Default>1pt</Default>
-                          <Left >1pt</Left>
-                          <Right >1pt</Right>
-                          <Top >1pt</Top>
-                          <Bottom >1pt</Bottom>
+                          <Left>1pt</Left>
+                          <Right>1pt</Right>
+                          <Top>1pt</Top>
+                          <Bottom>1pt</Bottom>
                         </BorderWidth>
-                        <PaddingRight >2pt</PaddingRight>
-                        <PaddingBottom >2pt</PaddingBottom>
-                        <PaddingTop >2pt</PaddingTop>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingBottom>2pt</PaddingBottom>
+                        <PaddingTop>2pt</PaddingTop>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -623,7 +622,7 @@
                 </TableCell>
               </TableCells>
             </TableRow>
-            <TableRow >
+            <TableRow>
               <Height>36.6pt</Height>
               <TableCells>
                 <TableCell>
@@ -648,23 +647,23 @@
                           <Default>None</Default>
                           <Right>None</Right>
                           <Bottom>None</Bottom>
-                          <Left >None</Left>
-                          <Top >None</Top>
+                          <Left>None</Left>
+                          <Top>None</Top>
                         </BorderStyle>
                         <BorderColor>
                           <Default>Black</Default>
                         </BorderColor>
                         <BorderWidth>
                           <Default>1pt</Default>
-                          <Left >1pt</Left>
-                          <Right >1pt</Right>
-                          <Top >1pt</Top>
-                          <Bottom >1pt</Bottom>
+                          <Left>1pt</Left>
+                          <Right>1pt</Right>
+                          <Top>1pt</Top>
+                          <Bottom>1pt</Bottom>
                         </BorderWidth>
-                        <PaddingRight >2pt</PaddingRight>
-                        <PaddingBottom >2pt</PaddingBottom>
-                        <FontWeight >Bold</FontWeight>
-                        <PaddingTop >2pt</PaddingTop>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingBottom>2pt</PaddingBottom>
+                        <FontWeight>Bold</FontWeight>
+                        <PaddingTop>2pt</PaddingTop>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -672,7 +671,7 @@
                 </TableCell>
               </TableCells>
             </TableRow>
-            <TableRow >
+            <TableRow>
               <Height>55.9pt</Height>
               <TableCells>
                 <TableCell>
@@ -688,24 +687,24 @@
                           <Default>None</Default>
                           <Right>None</Right>
                           <Bottom>None</Bottom>
-                          <Left >None</Left>
-                          <Top >None</Top>
+                          <Left>None</Left>
+                          <Top>None</Top>
                         </BorderStyle>
                         <BorderColor>
                           <Default>Black</Default>
                         </BorderColor>
                         <BorderWidth>
                           <Default>1pt</Default>
-                          <Left >1pt</Left>
-                          <Right >1pt</Right>
-                          <Top >1pt</Top>
-                          <Bottom >1pt</Bottom>
+                          <Left>1pt</Left>
+                          <Right>1pt</Right>
+                          <Top>1pt</Top>
+                          <Bottom>1pt</Bottom>
                         </BorderWidth>
-                        <PaddingRight >2pt</PaddingRight>
-                        <PaddingBottom >2pt</PaddingBottom>
-                        <FontWeight >Bold</FontWeight>
-                        <Color >Red</Color>
-                        <PaddingTop >2pt</PaddingTop>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingBottom>2pt</PaddingBottom>
+                        <FontWeight>Bold</FontWeight>
+                        <Color>Red</Color>
+                        <PaddingTop>2pt</PaddingTop>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -713,7 +712,7 @@
                 </TableCell>
               </TableCells>
             </TableRow>
-            <TableRow >
+            <TableRow>
               <Height>33.4pt</Height>
               <TableCells>
                 <TableCell>
@@ -729,22 +728,22 @@
                           <Default>None</Default>
                           <Right>None</Right>
                           <Bottom>None</Bottom>
-                          <Left >None</Left>
-                          <Top >None</Top>
+                          <Left>None</Left>
+                          <Top>None</Top>
                         </BorderStyle>
                         <BorderColor>
                           <Default>Black</Default>
                         </BorderColor>
                         <BorderWidth>
                           <Default>1pt</Default>
-                          <Left >1pt</Left>
-                          <Right >1pt</Right>
-                          <Top >1pt</Top>
-                          <Bottom >1pt</Bottom>
+                          <Left>1pt</Left>
+                          <Right>1pt</Right>
+                          <Top>1pt</Top>
+                          <Bottom>1pt</Bottom>
                         </BorderWidth>
-                        <PaddingRight >2pt</PaddingRight>
-                        <PaddingBottom >2pt</PaddingBottom>
-                        <PaddingTop >2pt</PaddingTop>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingBottom>2pt</PaddingBottom>
+                        <PaddingTop>2pt</PaddingTop>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -752,7 +751,7 @@
                 </TableCell>
               </TableCells>
             </TableRow>
-            <TableRow >
+            <TableRow>
               <Height>44.1pt</Height>
               <TableCells>
                 <TableCell>
@@ -768,22 +767,22 @@
                           <Default>None</Default>
                           <Right>None</Right>
                           <Bottom>None</Bottom>
-                          <Left >None</Left>
-                          <Top >None</Top>
+                          <Left>None</Left>
+                          <Top>None</Top>
                         </BorderStyle>
                         <BorderColor>
                           <Default>Black</Default>
                         </BorderColor>
                         <BorderWidth>
                           <Default>1pt</Default>
-                          <Left >1pt</Left>
-                          <Right >1pt</Right>
-                          <Top >1pt</Top>
-                          <Bottom >1pt</Bottom>
+                          <Left>1pt</Left>
+                          <Right>1pt</Right>
+                          <Top>1pt</Top>
+                          <Bottom>1pt</Bottom>
                         </BorderWidth>
-                        <PaddingRight >2pt</PaddingRight>
-                        <PaddingBottom >2pt</PaddingBottom>
-                        <PaddingTop >2pt</PaddingTop>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingBottom>2pt</PaddingBottom>
+                        <PaddingTop>2pt</PaddingTop>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -797,7 +796,7 @@
         <Left>0.0pt</Left>
         <Top>172.9pt</Top>
         <DataSetName>Organization</DataSetName>
-        <ZIndex >1</ZIndex>
+        <ZIndex>1</ZIndex>
       </Table>
       <Table Name="Table2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Style>
@@ -839,24 +838,24 @@
                           <Default>None</Default>
                           <Right>None</Right>
                           <Bottom>None</Bottom>
-                          <Left >None</Left>
-                          <Top >None</Top>
+                          <Left>None</Left>
+                          <Top>None</Top>
                         </BorderStyle>
                         <BorderColor>
                           <Default>Black</Default>
                         </BorderColor>
                         <BorderWidth>
                           <Default>1pt</Default>
-                          <Left >1pt</Left>
-                          <Right >1pt</Right>
-                          <Top >1pt</Top>
-                          <Bottom >1pt</Bottom>
+                          <Left>1pt</Left>
+                          <Right>1pt</Right>
+                          <Top>1pt</Top>
+                          <Bottom>1pt</Bottom>
                         </BorderWidth>
-                        <PaddingRight >2pt</PaddingRight>
-                        <PaddingTop >2pt</PaddingTop>
-                        <PaddingBottom >2pt</PaddingBottom>
+                        <PaddingRight>2pt</PaddingRight>
+                        <PaddingTop>2pt</PaddingTop>
+                        <PaddingBottom>2pt</PaddingBottom>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -870,7 +869,7 @@
         <Top>681.7pt</Top>
         <DataSetName>Creator</DataSetName>
       </Table>
-      <Line Name="Line1" >
+      <Line Name="Line1">
         <Height>0.00pt</Height>
         <Width>75.27pt</Width>
         <Style>
@@ -893,7 +892,7 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="Organization">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select
 	o.full_name as full_name,
@@ -927,7 +926,7 @@ limit 1;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="full_name">
           <DataField>full_name</DataField>
           <TypeName>System.String</TypeName>
@@ -1013,7 +1012,7 @@ WHERE o.id = @organization_id</CommandText>
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="Client" >
+    <DataSet Name="Client">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select
@@ -1087,7 +1086,7 @@ limit 1
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="Creator" >
+    <DataSet Name="Creator">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select
@@ -1116,7 +1115,7 @@ IFNULL(GET_PARAMETER('ClaimDocument.CreatorPhone'),'-') as creator_phone
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="organization_id">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
