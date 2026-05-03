@@ -304,6 +304,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="expiredMinDaysAgo">Минимальное количество дней просрочки</param>
 		/// <param name="orderStatuses">Статусы заказов</param>
 		/// <param name="excludeCounterpartyRevenueStatuses">Статусы контрагентов в налоговой для исключения</param>
+		/// <param name="maxClientsToTake">Максимальное количество клиентов</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Данные по просроченным долгам контрагента в разрезе организации</returns>
 		Task<IDictionary<CounterpartyOrganizationDataNode, CounterpartyOverdueDebtorDebtAggregatedNode>> GetCounterpartyOverdueDebtorDebtData(
@@ -311,6 +312,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			int expiredMinDaysAgo,
 			IEnumerable<OrderStatus> orderStatuses,
 			IEnumerable<RevenueStatus> excludeCounterpartyRevenueStatuses,
+			int? maxClientsToTake = null,
 			CancellationToken cancellationToken = default);
 	}
 }

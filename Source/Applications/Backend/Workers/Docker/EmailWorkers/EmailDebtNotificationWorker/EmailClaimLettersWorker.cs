@@ -27,7 +27,7 @@ namespace EmailDebtNotificationWorker
 			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
 		}
 
-		protected override TimeSpan Interval => _emailClaimLettersOptions.CurrentValue.OverdueDebtorDebtInterval;
+		protected override TimeSpan Interval => _emailClaimLettersOptions.CurrentValue.WorkerInterval;
 
 		protected override async Task DoWork(CancellationToken stoppingToken)
 		{

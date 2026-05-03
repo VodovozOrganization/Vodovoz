@@ -15,9 +15,11 @@ namespace EmailDebtNotificationWorker.Options
 
 		public void Configure(EmailClaimLettersOptions options)
 		{
-			options.OverdueDebtorDebtExpiredDaysAgo = _debtorsSettings.OverdueDebtorDebtExpiredDaysAgo;
-			options.OverdueDebtorDebtInterval = _debtorsSettings.OverdueDebtorDebtInterval;
-			options.OverdueDebtorDebtLettersCountPerInterval = _debtorsSettings.OverdueDebtorDebtLettersCountPerInterval;
+			options.LettersOfClaimTimeoutDays = _debtorsSettings.LettersOfClaimTimeoutDays;
+			options.WorkerInterval = _debtorsSettings.LettersOfClaimWorkerInterval;
+			options.MaxCountPerInterval = _debtorsSettings.LettersOfClaimMaxCountPerInterval;
+			options.MaxCountPerDay = _debtorsSettings.LettersOfClaimMaxCountPerDay;
+			options.ResendIntervalDays = _debtorsSettings.LettersOfClaimResendIntervalDays;
 		}
 	}
 }

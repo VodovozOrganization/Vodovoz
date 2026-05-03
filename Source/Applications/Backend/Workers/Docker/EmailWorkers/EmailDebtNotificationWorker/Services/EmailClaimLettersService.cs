@@ -15,8 +15,8 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.StoredEmails;
+using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Common;
 using VodovozBusiness.Domain.StoredEmails;
@@ -26,9 +26,13 @@ namespace EmailDebtNotificationWorker.Services
 {
 	public class EmailClaimLettersService : IEmailClaimLettersService
 	{
+		private const int _storedEmailSubjectMaxLength = 200;
+		private const string _emailSubject = "Претензия";
+
 		private readonly ILogger<EmailClaimLettersService> _logger;
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IOrderRepository _orderRepository;
+		private readonly IEmailRepository _emailRepository;
 		private readonly IEmailAttachmentsCreateService _emailAttachmentsCreateService;
 		private readonly IEmailSettings _emailSettings;
 		private readonly IBus _bus;
@@ -44,6 +48,7 @@ namespace EmailDebtNotificationWorker.Services
 			ILogger<EmailClaimLettersService> logger,
 			IUnitOfWorkFactory uowFactory,
 			IOrderRepository orderRepository,
+			IEmailRepository emailRepository,
 			IEmailAttachmentsCreateService emailAttachmentsCreateService,
 			IEmailSettings emailSettings,
 			IBus bus,
@@ -52,6 +57,7 @@ namespace EmailDebtNotificationWorker.Services
 			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
 			_uowFactory = uowFactory ?? throw new System.ArgumentNullException(nameof(uowFactory));
 			_orderRepository = orderRepository ?? throw new System.ArgumentNullException(nameof(orderRepository));
+			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_emailAttachmentsCreateService = emailAttachmentsCreateService ?? throw new System.ArgumentNullException(nameof(emailAttachmentsCreateService));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
@@ -60,18 +66,33 @@ namespace EmailDebtNotificationWorker.Services
 
 		public async Task SendClaimLetters(CancellationToken cancellationToken)
 		{
-			using var uow = _uowFactory.CreateWithoutRoot("Получение списка должников в воркере по рассылке писем о претензиях");
+			using var uow = _uowFactory.CreateWithoutRoot(nameof(EmailClaimLettersService));
+
+			var todaySentLetterOfClaimsCount = _emailRepository.GetTodaySentLetterOfClaimsCount(uow);
+
+			if(todaySentLetterOfClaimsCount >= _emailClaimLettersOptions.CurrentValue.MaxCountPerDay)
+			{
+				_logger.LogDebug("Макс. количество писем для рассылки в день {MaxLettersPerDay} уже достигнуто. Сегодня отправлено {TodaySentLetterOfClaimsCount} писем",
+					_emailClaimLettersOptions.CurrentValue.MaxCountPerInterval,
+					todaySentLetterOfClaimsCount);
+				return;
+			}
+
+			var lettersToSendCount = Math.Min(
+				_emailClaimLettersOptions.CurrentValue.MaxCountPerDay - todaySentLetterOfClaimsCount,
+				_emailClaimLettersOptions.CurrentValue.MaxCountPerInterval);
 
 			var overdueDebitorsDebtData = await _orderRepository.GetCounterpartyOverdueDebtorDebtData(
 				uow,
-				_emailClaimLettersOptions.CurrentValue.OverdueDebtorDebtExpiredDaysAgo,
+				_emailClaimLettersOptions.CurrentValue.LettersOfClaimTimeoutDays,
 				_orderStatuses,
 				_excludeCounterpartyRevenueStatuses,
+				lettersToSendCount,
 				cancellationToken);
 
 			if(overdueDebitorsDebtData.Count == 0)
 			{
-				_logger.LogDebug("Нет писем для массовой рассылки");
+				_logger.LogDebug("Нет писем для отправки претензионных писем");
 				return;
 			}
 
@@ -136,10 +157,12 @@ namespace EmailDebtNotificationWorker.Services
 				return false;
 			}
 
-			var storedEmail = CreateStoredEmail("Письмо претензии", emailAddress, client.INN);
+			var emailSubject = $"{_emailSubject} {client.FullName} от {organizationFullName}";
+
+			var storedEmail = CreateStoredEmail(emailSubject, emailAddress);
 			await uow.SaveAsync(storedEmail, cancellationToken: cancellationToken);
 
-			var bulkEmail = new OrganizationBulkEmail
+			var bulkEmail = new LetterOfClaimEmail
 			{
 				StoredEmail = storedEmail,
 				Counterparty = client,
@@ -157,7 +180,7 @@ namespace EmailDebtNotificationWorker.Services
 				organizationEmailForMailing,
 				attachments,
 				emailAddress,
-				"Уведомление о задолженности",
+				emailSubject,
 				GenerateEmailBody(contract, GetUnsubscribeLink(storedEmail.Guid.Value)));
 
 			try
@@ -176,16 +199,20 @@ namespace EmailDebtNotificationWorker.Services
 			return true;
 		}
 
-		private StoredEmails.StoredEmail CreateStoredEmail(string subject, string email, string inn)
+		private StoredEmails.StoredEmail CreateStoredEmail(string subject, string email)
 		{
+			var storedEmailSubject = subject.Length > _storedEmailSubjectMaxLength
+				? subject[.._storedEmailSubjectMaxLength]
+				: subject;
+
 			var storedEmail = new StoredEmails.StoredEmail
 			{
 				State = StoredEmails.StoredEmailStates.PreparingToSend,
 				Author = null,
-				ManualSending = true,
+				ManualSending = false,
 				SendDate = DateTime.Now,
 				StateChangeDate = DateTime.Now,
-				Subject = subject,
+				Subject = storedEmailSubject,
 				RecipientAddress = email,
 				Guid = Guid.NewGuid()
 			};

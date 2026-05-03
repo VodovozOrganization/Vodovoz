@@ -2739,6 +2739,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			int expiredMinDaysAgo,
 			IEnumerable<OrderStatus> orderStatuses,
 			IEnumerable<RevenueStatus> excludeCounterpartyRevenueStatuses,
+			int? maxClientsToTake = null,
 			CancellationToken cancellationToken = default)
 		{
 			var today = DateTime.Today;

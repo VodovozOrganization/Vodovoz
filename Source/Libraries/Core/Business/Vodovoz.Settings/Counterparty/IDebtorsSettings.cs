@@ -28,16 +28,26 @@ namespace Vodovoz.Settings.Counterparty
 		/// <summary>
 		/// Количество дней сверх ПДЗ до отправки претензионного письма
 		/// </summary>
-		int OverdueDebtorDebtExpiredDaysAgo { get; }
+		int LettersOfClaimTimeoutDays { get; }
 
 		/// <summary>
 		/// Интервал работы воркера по рассылке претензионных писем
 		/// </summary>
-		TimeSpan OverdueDebtorDebtInterval { get; }
+		TimeSpan LettersOfClaimWorkerInterval { get; }
 
 		/// <summary>
 		/// Максимальное количество претензионных писем, которое может быть отправлено за один цикл воркера
 		/// </summary>
-		int OverdueDebtorDebtLettersCountPerInterval { get; }
+		int LettersOfClaimMaxCountPerInterval { get; }
+
+		/// <summary>
+		/// Максимальное количество претензионных писем, которое может быть отправлено за один день
+		/// </summary>
+		int LettersOfClaimMaxCountPerDay { get; }
+
+		/// <summary>
+		/// Интервал повторной отправки письма о претензии, если долг не был погашен после предыдущей отправки, в днях
+		/// </summary>
+		int LettersOfClaimResendIntervalDays { get; }
 	}
 }

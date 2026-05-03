@@ -84,11 +84,11 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.StoredEmails
 			}
 		}
 
-		public class OrganizationBulkEmailMap : SubclassMap<OrganizationBulkEmail>
+		public class LetterOfClaimEmailMap : SubclassMap<LetterOfClaimEmail>
 		{
-			public OrganizationBulkEmailMap()
+			public LetterOfClaimEmailMap()
 			{
-				DiscriminatorValue(nameof(CounterpartyEmailType.OrganizationBulk));
+				DiscriminatorValue(nameof(CounterpartyEmailType.LetterOfClaim));
 				Map(x => x.OrganizationId).Column("organization_id");
 			}
 		}

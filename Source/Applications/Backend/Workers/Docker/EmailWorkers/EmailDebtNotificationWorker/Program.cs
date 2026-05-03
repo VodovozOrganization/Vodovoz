@@ -1,6 +1,6 @@
-using Autofac.Extensions.DependencyInjection;
+﻿using Autofac.Extensions.DependencyInjection;
 using BitrixApi.Library.Services;
-using EdoService.Library.Services;
+using EmailDebtNotificationWorker.Options;
 using EmailDebtNotificationWorker.Services;
 using MassTransit;
 using MessageTransport;
@@ -9,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
-using QS.DomainModel.UoW;
 using QS.Project.Core;
 using QS.Report;
 using RabbitMQ.MailSending;
@@ -100,8 +99,9 @@ namespace EmailDebtNotificationWorker
 					services.AddHostedService<EmailDebtNotificationWorker>();
 
 					services
-						.AddHostedService<EmailClaimLettersWorker>()
+						.ConfigureOptions<ConfigureEmailClaimLettersOptions>()
 						.AddScoped<IEmailClaimLettersService, EmailClaimLettersService>()
+						.AddHostedService<EmailClaimLettersWorker>()
 						.ConfigureZabbixSenderFromDataBase(nameof(EmailClaimLettersWorker));
 				});
 	}

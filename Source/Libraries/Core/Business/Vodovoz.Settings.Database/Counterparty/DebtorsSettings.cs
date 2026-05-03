@@ -24,10 +24,14 @@ namespace Vodovoz.Settings.Database.Counterparty
 
 		public int DebtNotificationWorkerIntervalSeconds => _settingsController.GetIntValue("DebtNotificationWorkerIntervalSeconds");
 
-		public int OverdueDebtorDebtExpiredDaysAgo => _settingsController.GetIntValue("DebtorsSettings.OverdueDebtorDebtExpiredDaysAgo");
+		public int LettersOfClaimTimeoutDays => _settingsController.GetIntValue("DebtorsSettings.LettersOfClaimTimeoutDays");
 
-		public TimeSpan OverdueDebtorDebtInterval => _settingsController.GetValue<TimeSpan>("DebtorsSettings.OverdueDebtorDebtInterval");
+		public TimeSpan LettersOfClaimWorkerInterval => _settingsController.GetValue<TimeSpan>("DebtorsSettings.LettersOfClaimWorkerInterval");
 
-		public int OverdueDebtorDebtLettersCountPerInterval => _settingsController.GetIntValue("DebtorsSettings.OverdueDebtorDebtLettersCountPerInterval");
+		public int LettersOfClaimMaxCountPerInterval => _settingsController.GetIntValue("DebtorsSettings.LettersOfClaimMaxCountPerInterval");
+
+		public int LettersOfClaimMaxCountPerDay => _settingsController.GetIntValue("DebtorsSettings.LettersOfClaimMaxCountPerDay"); 
+
+		public int LettersOfClaimResendIntervalDays => _settingsController.GetIntValue("DebtorsSettings.LettersOfClaimResendIntervalDays"); 
 	}
 }
