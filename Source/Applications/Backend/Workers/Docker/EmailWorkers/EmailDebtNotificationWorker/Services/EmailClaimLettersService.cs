@@ -143,7 +143,7 @@ namespace EmailDebtNotificationWorker.Services
 				return false;
 			}
 
-			var attachments = CreateEmailAttachments(client.Id, organizationId, totalOverdueDebtorDebt.ToString("C"), orderIds);
+			var attachments = CreateEmailAttachments(client.Id, organizationId, GetFormattedSum(totalOverdueDebtorDebt), orderIds);
 
 			if(!attachments.Any())
 			{
@@ -371,6 +371,15 @@ namespace EmailDebtNotificationWorker.Services
 				<p><a href='{unsubscribeUrl}' class='unsubscribe'>Отписаться от рассылки</a></p>
 				<p>Вы всегда можете отписаться от нашей рассылки, нажав соответствующую кнопку.</p>
 				<p><em>Это письмо отправлено автоматически.</em></p>";
+		}
+
+		private static string GetFormattedSum(decimal sum)
+		{
+			int rubles = (int)sum;
+			int kopeks = (int)((sum - rubles) * 100);
+			string result = $"{rubles} руб. {kopeks:D2} коп.";
+
+			return result;
 		}
 	}
 }
