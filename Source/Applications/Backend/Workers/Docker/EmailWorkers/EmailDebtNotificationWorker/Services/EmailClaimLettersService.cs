@@ -133,6 +133,16 @@ namespace EmailDebtNotificationWorker.Services
 			decimal totalOverdueDebtorDebt,
 			CancellationToken cancellationToken)
 		{
+			if(string.IsNullOrWhiteSpace(organizationEmailForMailing))
+			{
+				_logger.LogWarning(
+					"Организация {OrganizationId} не имеет email для рассылки, указанного в настройках. " +
+					"Письмо с претензией для контрагента {CounterpartyId} отправлено не будет.",
+					organizationId,
+					client.Id);
+				return false;
+			}
+
 			var attachments = CreateEmailAttachments(client.Id, organizationId, totalOverdueDebtorDebt.ToString("C"), orderIds);
 
 			if(!attachments.Any())
