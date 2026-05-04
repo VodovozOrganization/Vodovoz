@@ -30,6 +30,7 @@ namespace CustomerOrdersApi.Controllers.V5
 		/// <returns>Результат проверки <see cref="CheckUsersBasketResponse"/></returns>
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CheckUsersBasketResponse))]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 		[HttpPost]
 		public IActionResult CheckUsersBasket(CheckUsersBasketRequest request)
 		{
@@ -45,6 +46,36 @@ namespace CustomerOrdersApi.Controllers.V5
 				_logger.LogError(
 					e,
 					"Ошибка при проверке корзины пользователя {ExternalCounterpartyId} от {Source}",
+					request.ExternalCounterpartyId,
+					request.Source.ToString());
+				
+				return Problem(ResponseMessage.HasErrorOccurredPleaseTryAgainLater);
+			}
+		}
+		
+		/// <summary>
+		/// Получение условий для дальнейшего оформления заказа
+		/// </summary>
+		/// <param name="request">Данные заказа из корзины для проверки <see cref="CheckUsersBasketRequest"/></param>
+		/// <returns>Результат проверки <see cref="CheckUsersBasketResponse"/></returns>
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderConditionsResponse))]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[HttpPost]
+		public IActionResult GetOrderConditions(OrderConditionsRequest request)
+		{
+			try
+			{
+				_logger.LogInformation("Поступил запрос получения форм оплат и доп условий по заказу из корзины {@OrdersConditionsRequest}", request);
+
+				var result = _customerCartService.GetOrderConditions(request);
+				return Ok(result);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(
+					e,
+					"Ошибка при получении форм оплат и доп условий по заказу из корзины {ExternalCounterpartyId} от {Source}",
 					request.ExternalCounterpartyId,
 					request.Source.ToString());
 				

@@ -45,6 +45,8 @@ namespace CustomerOrdersApi.Library.V5.Services
 		private readonly IOnlineOrderDiscountHandlerV5 _discountHandler;
 		private readonly IStockRepository _stockRepository;
 		private readonly IFreeLoaderChecker _freeLoaderChecker;
+		private readonly IPaymentMethodsCreator _paymentMethodsCreator;
+		private readonly IDeliveryRulesConditionsCreator _deliveryRulesConditionsCreator;
 
 		public CustomerCartService(
 			IUnitOfWork uow,
@@ -56,7 +58,10 @@ namespace CustomerOrdersApi.Library.V5.Services
 			IWarningMessageFactoryV5 warningMessageFactory,
 			IOnlineOrderDiscountHandlerV5 discountHandler,
 			IStockRepository stockRepository,
-			IFreeLoaderChecker freeLoaderChecker)
+			IFreeLoaderChecker freeLoaderChecker,
+			IPaymentMethodsCreator paymentMethodsCreator,
+			IDeliveryRulesConditionsCreator deliveryRulesConditionsCreator
+			)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
@@ -68,8 +73,11 @@ namespace CustomerOrdersApi.Library.V5.Services
 			_discountHandler = discountHandler ?? throw new ArgumentNullException(nameof(discountHandler));
 			_stockRepository = stockRepository ?? throw new ArgumentNullException(nameof(stockRepository));
 			_freeLoaderChecker = freeLoaderChecker ?? throw new ArgumentNullException(nameof(freeLoaderChecker));
+			_paymentMethodsCreator = paymentMethodsCreator ?? throw new ArgumentNullException(nameof(paymentMethodsCreator));
+			_deliveryRulesConditionsCreator =
+				deliveryRulesConditionsCreator ?? throw new ArgumentNullException(nameof(deliveryRulesConditionsCreator));
 		}
-		
+
 		/// <inheritdoc/>
 		public CheckUsersBasketResponse Check(CheckUsersBasketRequest request)
 		{
@@ -110,6 +118,21 @@ namespace CustomerOrdersApi.Library.V5.Services
 				checkedPackages,
 				infoMessages,
 				warnings);
+			
+			return response;
+		}
+		
+		/// <inheritdoc/>
+		public OrderConditionsResponse GetOrderConditions(OrderConditionsRequest request)
+		{
+			var paymentMethods = _paymentMethodsCreator.GetPaymentMethods(request.Source);
+			var conditions = _deliveryRulesConditionsCreator.Create(_uow, request);
+			var infoMessages = new List<InfoMessage>();
+			
+			var response = OrderConditionsResponse.Create(
+				paymentMethods,
+				conditions,
+				infoMessages);
 			
 			return response;
 		}
