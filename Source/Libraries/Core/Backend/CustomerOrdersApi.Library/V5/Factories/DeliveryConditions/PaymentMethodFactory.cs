@@ -9,8 +9,6 @@ namespace CustomerOrdersApi.Library.V5.Factories.DeliveryConditions
 	/// </summary>
 	public abstract class PaymentMethodFactory
 	{
-		private int _index = 0;
-
 		/// <summary>
 		/// Создание необходимых методов оплат
 		/// </summary>
@@ -18,10 +16,10 @@ namespace CustomerOrdersApi.Library.V5.Factories.DeliveryConditions
 		/// <returns></returns>
 		protected virtual IEnumerable<PaymentMethod> Create(IEnumerable<(PaymentMethodType Type, bool Available)> paymentTypes)
 		{
-			_index = 0;
+			var index = 0;
 			
 			return paymentTypes
-				.Select(x => PaymentMethod.Create(++_index, x.Type, x.Available))
+				.Select(x => PaymentMethod.Create(++index, x.Type, x.Available))
 				.ToList();
 		}
 	}
