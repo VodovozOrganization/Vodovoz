@@ -16,6 +16,11 @@ namespace VodovozBusiness.EntityRepositories.Nodes
 		public int OrderId { get; set; }
 
 		/// <summary>
+		/// Id Контрагента
+		/// </summary>
+		public int CounterpartyId { get; set; }
+
+		/// <summary>
 		/// Контрагент
 		/// </summary>
 		public Counterparty Counterparty { get; set; }

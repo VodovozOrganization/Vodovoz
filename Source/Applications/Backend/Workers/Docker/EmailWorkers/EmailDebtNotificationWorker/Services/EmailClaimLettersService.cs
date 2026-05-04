@@ -1,4 +1,4 @@
-﻿using BitrixApi.Library.Services;
+using BitrixApi.Library.Services;
 using EmailDebtNotificationWorker.Options;
 using Mailjet.Api.Abstractions;
 using MassTransit;
@@ -82,11 +82,12 @@ namespace EmailDebtNotificationWorker.Services
 				_emailClaimLettersOptions.CurrentValue.MaxCountPerDay - todaySentLetterOfClaimsCount,
 				_emailClaimLettersOptions.CurrentValue.MaxCountPerInterval);
 
-			var overdueDebitorsDebtData = await _orderRepository.GetCounterpartyOverdueDebtorDebtData(
+			var overdueDebitorsDebtData = await _orderRepository.GetOverdueDebtorDebtDataForLettersOfClaim(
 				uow,
 				_emailClaimLettersOptions.CurrentValue.LettersOfClaimTimeoutDays,
 				_orderStatuses,
 				_excludeCounterpartyRevenueStatuses,
+				_emailClaimLettersOptions.CurrentValue.ResendIntervalDays,
 				lettersToSendCount,
 				cancellationToken);
 
@@ -96,9 +97,7 @@ namespace EmailDebtNotificationWorker.Services
 				return;
 			}
 
-			var data = overdueDebitorsDebtData.Take(1).ToList();
-
-			foreach(var debtData in data)
+			foreach(var debtData in overdueDebitorsDebtData)
 			{
 				var client = debtData.Value.Counterparty;
 				var organizationId = debtData.Value.OrganizationId;

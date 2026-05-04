@@ -1,8 +1,7 @@
-﻿using DateTimeHelpers;
+using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
-using NHibernate.Linq;
 using NHibernate.Linq;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
@@ -12,26 +11,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Threading.Tasks;
-using Vodovoz.Core.Data.Orders;
 using Vodovoz.Core.Data.Orders.Default;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Payments;
-using Vodovoz.Core.Domain.Payments;
-using Vodovoz.Core.Domain.TrueMark;
-using Vodovoz.Core.Domain.TrueMark;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -42,6 +32,7 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.NHibernateProjections.Orders;
@@ -49,12 +40,9 @@ using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
-using Vodovoz.Settings.Organizations;
-using VodovozBusiness.Domain.Client;
 using VodovozBusiness.Domain.Client;
 using VodovozBusiness.Domain.Operations;
-using VodovozBusiness.Domain.Operations;
-using VodovozBusiness.Domain.Settings;
+using VodovozBusiness.Domain.StoredEmails;
 using VodovozBusiness.EntityRepositories.Nodes;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -2734,17 +2722,82 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return notPaidOrdersData;
 		}
 
-		public async Task<IDictionary<CounterpartyOrganizationDataNode, CounterpartyOverdueDebtorDebtAggregatedNode>> GetCounterpartyOverdueDebtorDebtData(
+		public async Task<IDictionary<CounterpartyOrganizationDataNode, CounterpartyOverdueDebtorDebtAggregatedNode>> GetOverdueDebtorDebtDataForLettersOfClaim(
 			IUnitOfWork uow,
 			int expiredMinDaysAgo,
 			IEnumerable<OrderStatus> orderStatuses,
 			IEnumerable<RevenueStatus> excludeCounterpartyRevenueStatuses,
-			int? maxClientsToTake = null,
+			int letterOfClaimResendIntervalDays,
+			int maxClientsToTake = int.MaxValue,
 			CancellationToken cancellationToken = default)
 		{
 			var today = DateTime.Today;
+			var expiredMaxDate = today.AddDays(-expiredMinDaysAgo);
+			var letterOfClaimMaxSendDate = today.AddDays(-letterOfClaimResendIntervalDays);
 
-			var ordersDataQuery =
+			//Сначала нужно найти клиентов у которых есть просроченная дебиторская задолженность и вышел таймаут для отправки претензионного письма
+			var expiredAndTimedOutCounterpartiesQuery =
+				from order in uow.Session.Query<Order>()
+				join counterparty in uow.Session.Query<Counterparty>() on order.Client.Id equals counterparty.Id
+				join c in uow.Session.Query<CounterpartyContract>() on order.Contract.Id equals c.Id into contacts
+				from contract in contacts.DefaultIfEmpty()
+
+				let orderSum =
+				(decimal?)(from orderItem in uow.Session.Query<OrderItem>()
+						   where
+						   orderItem.Order.Id == order.Id
+						   select
+						   orderItem.ActualSum)
+						   .Sum() ?? 0
+
+				let isExpiredAndClaimeLetterTimeoutLeft =
+					order.DeliveryDate != null
+					&& order.DeliveryDate.Value.AddDays(counterparty.DelayDaysForBuyers) < expiredMaxDate
+
+				let lastLetterOfClaimSendDate =
+					(DateTime?)(from letter in uow.Session.Query<LetterOfClaimEmail>()
+								join storedEmail in uow.Session.Query<StoredEmail>() on letter.StoredEmail.Id equals storedEmail.Id
+								where
+									letter.Counterparty.Id == counterparty.Id
+									&& letter.OrganizationId == contract.Organization.Id
+								orderby letter.Id descending
+								select storedEmail.SendDate)
+								.FirstOrDefault()
+
+				where
+					order.OrderPaymentStatus != OrderPaymentStatus.Paid
+					&& orderStatuses.Contains(order.OrderStatus)
+					&& order.PaymentType == PaymentType.Cashless
+					&& counterparty.PersonType == PersonType.legal
+					&& !counterparty.IsChainStore
+					&& (counterparty.RevenueStatus == null || !excludeCounterpartyRevenueStatuses.Contains(counterparty.RevenueStatus.Value))
+					&& counterparty.CloseDeliveryDebtType != DebtType.Judicial
+					&& contract.Id != null
+					&& order.DeliveryDate != null
+					&& orderSum > 0
+					&& isExpiredAndClaimeLetterTimeoutLeft
+					&& (lastLetterOfClaimSendDate == null || lastLetterOfClaimSendDate < letterOfClaimMaxSendDate)
+
+				select new
+				{
+					CounterpartyId = counterparty.Id,
+					OrganizationId = contract.Organization.Id
+				};
+
+			var expiredAndTimedOutCounterpartiesByOrganization =
+				(await expiredAndTimedOutCounterpartiesQuery.Distinct().Take(maxClientsToTake).ToListAsync(cancellationToken))
+				.ToLookup(x => x.OrganizationId);
+
+			var result = new Dictionary<CounterpartyOrganizationDataNode, CounterpartyOverdueDebtorDebtAggregatedNode>();
+
+			foreach(var counterpartiesByOrganization in expiredAndTimedOutCounterpartiesByOrganization)
+			{
+				var organizationId = counterpartiesByOrganization.Key;
+				var counterpartiesIds = counterpartiesByOrganization.Select(x => x.CounterpartyId).ToList();
+
+				//Для найденных клиентов нужно найти их просроченные заказы и сумму просроченной дебиторской задолженности по каждому заказу,
+				//а также данные по организации и клиенту для отправки письма
+				var notPaidOrdersDataQuery =
 					from order in uow.Session.Query<Order>()
 					join counterparty in uow.Session.Query<Counterparty>() on order.Client.Id equals counterparty.Id
 					join c in uow.Session.Query<CounterpartyContract>() on order.Contract.Id equals c.Id into contacts
@@ -2776,18 +2829,15 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						order.OrderPaymentStatus != OrderPaymentStatus.Paid
 						&& orderStatuses.Contains(order.OrderStatus)
 						&& order.PaymentType == PaymentType.Cashless
-						&& counterparty.PersonType == PersonType.legal
-						&& !counterparty.IsChainStore
-						&& counterparty.RevenueStatus != null
-						&& !excludeCounterpartyRevenueStatuses.Contains(counterparty.RevenueStatus.Value)
-						&& contract.Id != null
-						&& order.DeliveryDate != null
+						&& counterpartiesIds.Contains(counterparty.Id)
+						&& contract.Organization.Id == organizationId
 						&& orderSum > 0
 						&& isExpired
 
 					select new CounterpartyOverdueDebtorDebtDataNode
 					{
 						OrderId = order.Id,
+						CounterpartyId = counterparty.Id,
 						Counterparty = counterparty,
 						OrganizationId = contract.Organization.Id,
 						OrganizationFullName = contract.Organization.FullName,
@@ -2798,12 +2848,12 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						CounterpartyPaymentDelayDays = counterparty.DelayDaysForBuyers
 					};
 
-			var notPaidOrdersData =
-				(await ordersDataQuery.Take(50).ToListAsync(cancellationToken))
-				.GroupBy(x => new CounterpartyOrganizationDataNode { CounterpartyId = x.Counterparty.Id, OrganizationId = x.OrganizationId })
-				.Where(x => x.Min(o => o.OrderDeliveryDate.AddDays(expiredMinDaysAgo + x.First().CounterpartyPaymentDelayDays)) <= today)
+				var notPaidOrdersData = await notPaidOrdersDataQuery.Distinct().ToListAsync(cancellationToken);
+
+				var counterpartiesDebtsByOrganization = notPaidOrdersData
+				.GroupBy(x => (x.CounterpartyId, x.OrganizationId))
 				.ToDictionary(
-					x => x.Key,
+					x => new CounterpartyOrganizationDataNode { CounterpartyId = x.Key.CounterpartyId, OrganizationId = x.Key.OrganizationId },
 					x => new CounterpartyOverdueDebtorDebtAggregatedNode
 					{
 						OrderIds = x.Select(o => o.OrderId).Distinct().ToList(),
@@ -2815,10 +2865,16 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						TotalOverdueDebtorDebt = x.Sum(o => o.OverdueDebtorDebt)
 					});
 
-			return notPaidOrdersData;
+				foreach(var counterpartyDebtByOrganization in counterpartiesDebtsByOrganization)
+				{
+					result.Add(counterpartyDebtByOrganization.Key, counterpartyDebtByOrganization.Value);
+				}
+			}
+
+			return result;
 		}
 
-		public IEnumerable<int> GetClientOrdersIdsForDate(IUnitOfWork uow, DateTime date, int?counterpartyId, int? deliveryPointId)
+		public IEnumerable<int> GetClientOrdersIdsForDate(IUnitOfWork uow, DateTime date, int? counterpartyId, int? deliveryPointId)
 		{
 			var query = uow.Session.Query<VodovozOrder>()
 				.Where(x => x.DeliveryDate == date);
