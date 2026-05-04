@@ -1,4 +1,4 @@
-using NHibernate.Criterion;
+﻿using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -283,9 +283,21 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="organizationId">Id организации</param>
 		/// <param name="orderStatuses">Статусы заказов</param>
 		/// <param name="counterpartyTypes">Типы контагентов</param>
+		/// <param name="excludeCounterpartyRevenueStatuses">Статусы контрагентов в налоговой для исключения</param>
+		/// <param name="excludeCloseDeliveryDebtTypes">Тип задолженности контрагента для исключения</param>
+		/// <param name="tenderCameFromId">Id источника клиента Тендер</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Данные по неоплаченным заказам</returns>
-		Task<IDictionary<int, CounterpartyOrdersAggregatedNode>> GetNotPaidCashlessOrdersData(IUnitOfWork uow, int organizationId, IEnumerable<OrderStatus> orderStatuses, IEnumerable<CounterpartyType> counterpartyTypes, CancellationToken cancellationToken);
+		Task<IDictionary<int, CounterpartyOrdersAggregatedNode>> GetNotPaidCashlessOrdersData(
+			IUnitOfWork uow,
+			int organizationId,
+			IEnumerable<OrderStatus> orderStatuses,
+			IEnumerable<CounterpartyType> counterpartyTypes,
+			IEnumerable<RevenueStatus> excludeCounterpartyRevenueStatuses,
+			IEnumerable<DebtType> excludeCloseDeliveryDebtTypes,
+			int tenderCameFromId,
+			CancellationToken cancellationToken);
+		
 		/// <summary>
 		/// Получение идентификаторов заказов на дату по клиенту и ТД
 		/// </summary>

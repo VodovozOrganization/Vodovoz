@@ -2634,6 +2634,9 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			int organizationId,
 			IEnumerable<OrderStatus> orderStatuses,
 			IEnumerable<CounterpartyType> counterpartyTypes,
+			IEnumerable<RevenueStatus> excludeCounterpartyRevenueStatuses,
+			IEnumerable<DebtType> excludeCloseDeliveryDebtTypes,
+			int tenderCameFromId,
 			CancellationToken cancellationToken)
 		{
 			var today = DateTime.Today;
@@ -2665,8 +2668,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 							   where
 							   paymentItem.Order.Id == order.Id
 							   && cashlessMovementOpetation.CashlessMovementOperationStatus != AllocationStatus.Cancelled
-							   && order.DeliveryDate != null
-							   && order.DeliveryDate.Value.AddDays(counterparty.DelayDaysForBuyers) < today
 							   select cashlessMovementOpetation.Expense)
 							   .Sum() ?? 0
 
@@ -2674,8 +2675,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					(decimal?)(from orderItem in uow.Session.Query<OrderItem>()
 							   where
 							   orderItem.Order.Id == order.Id
-							   && order.DeliveryDate != null
-							   && order.DeliveryDate.Value.AddDays(counterparty.DelayDaysForBuyers) < today
 							   select
 							   orderItem.ActualSum)
 							   .Sum() ?? 0
@@ -2697,9 +2696,12 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						&& orderStatuses.Contains(order.OrderStatus)
 						&& order.PaymentType == PaymentType.Cashless
 						&& counterparty.PersonType == PersonType.legal
-						&& !counterpartyTypes.Contains(counterparty.CounterpartyType)
+						&& counterpartyTypes.Contains(counterparty.CounterpartyType)
+						&& !counterparty.IsChainStore
+						&& (counterparty.RevenueStatus == null || !excludeCounterpartyRevenueStatuses.Contains(counterparty.RevenueStatus.Value))
+						&& (counterparty.CloseDeliveryDebtType == null || !excludeCloseDeliveryDebtTypes.Contains(counterparty.CloseDeliveryDebtType.Value))
+						&& (clientCameFrom.Id == null || clientCameFrom.Id != tenderCameFromId)
 						&& organization.Id == organizationId
-						&& order.DeliveryDate != null
 						&& orderSum > 0
 						&& isExpired
 
