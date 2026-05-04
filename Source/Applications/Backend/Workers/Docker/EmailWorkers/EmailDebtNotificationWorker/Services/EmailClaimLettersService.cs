@@ -93,7 +93,7 @@ namespace EmailDebtNotificationWorker.Services
 
 			if(overdueDebitorsDebtData.Count == 0)
 			{
-				_logger.LogDebug("Нет писем для отправки претензионных писем");
+				_logger.LogDebug("Нет клиентов для отправки претензионных писем");
 				return;
 			}
 
@@ -368,8 +368,8 @@ namespace EmailDebtNotificationWorker.Services
 				<p>Настоятельно рекомендуем принять участие в мирном урегулировании данного вопроса, что позволит обеим сторонам сэкономить время и деньги.</p>
 				<p>И позволит продолжить дальнейшее плодотворное сотрудничество наших компаний!</p>
 				<p>______________</p>
-				<p><a href='{unsubscribeUrl}' class='unsubscribe'>Отписаться от рассылки</a></p>
 				<p>Вы всегда можете отписаться от нашей рассылки, нажав соответствующую кнопку.</p>
+				<p><a href='{unsubscribeUrl}' class='unsubscribe'>Отписаться от рассылки</a></p>
 				<p><em>Это письмо отправлено автоматически.</em></p>";
 		}
 
