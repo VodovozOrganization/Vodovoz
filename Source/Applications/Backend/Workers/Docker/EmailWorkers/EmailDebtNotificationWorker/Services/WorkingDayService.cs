@@ -10,12 +10,14 @@ namespace EmailDebtNotificationWorker.Services
 		private static readonly TimeSpan _workDayStart = TimeSpan.FromHours(9);
 		private static readonly TimeSpan _workDayEnd = TimeSpan.FromHours(18);
 
-		public bool IsWorkingDay(DateTime dateTime)
+		public bool IsOddWeekday(DateTime dateTime)
 		{
 			var moscowDateTime = GetMoscowDateTime(dateTime);
 
-			return moscowDateTime.DayOfWeek >= DayOfWeek.Monday &&
-				   moscowDateTime.DayOfWeek <= DayOfWeek.Friday;
+			return moscowDateTime.DayOfWeek
+				is DayOfWeek.Monday
+				or DayOfWeek.Wednesday
+				or DayOfWeek.Friday;
 		}
 
 		public bool IsWithinWorkingHours(DateTime dateTime)
@@ -31,7 +33,7 @@ namespace EmailDebtNotificationWorker.Services
 		{
 			var moscowDateTime = GetMoscowDateTime(dateTime);
 
-			if(IsWorkingDay(moscowDateTime) && IsWithinWorkingHours(moscowDateTime))
+			if(IsOddWeekday(moscowDateTime) && IsWithinWorkingHours(moscowDateTime))
 			{
 				return moscowDateTime;
 			}
@@ -44,8 +46,9 @@ namespace EmailDebtNotificationWorker.Services
 			var moscowDateTime = GetMoscowDateTime(dateTime);
 			DateTime candidate = moscowDateTime.Date.AddDays(1);
 
-			while(candidate.DayOfWeek == DayOfWeek.Saturday ||
-				  candidate.DayOfWeek == DayOfWeek.Sunday)
+			while(candidate.DayOfWeek 
+				is DayOfWeek.Saturday 
+				or DayOfWeek.Sunday)
 			{
 				candidate = candidate.AddDays(1);
 			}
@@ -58,7 +61,7 @@ namespace EmailDebtNotificationWorker.Services
 			var moscowDateTime = GetMoscowDateTime(dateTime);
 			TimeSpan timeOfDay = moscowDateTime.TimeOfDay;
 
-			if(!IsWorkingDay(moscowDateTime))
+			if(!IsOddWeekday(moscowDateTime))
 			{
 				DateTime nextWorkingDay = GetNextWorkingDay(moscowDateTime);
 				return nextWorkingDay.Date.Add(_workDayStart);

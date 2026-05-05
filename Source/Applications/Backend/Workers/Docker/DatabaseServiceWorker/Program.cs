@@ -1,5 +1,6 @@
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using DatabaseServiceWorker.ClosingDeliveries;
 using DatabaseServiceWorker.ExportTo1c;
 using DatabaseServiceWorker.PowerBiWorker;
 using DatabaseServiceWorker.PowerBiWorker.Exporters;

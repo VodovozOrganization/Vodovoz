@@ -72,7 +72,7 @@ namespace EmailDebtNotificationWorker
 		{
 			var now = DateTime.Now;
 
-			return workingDayService.IsWorkingDay(now) &&
+			return workingDayService.IsOddWeekday(now) &&
 				   workingDayService.IsWithinWorkingHours(now);
 		}
 
