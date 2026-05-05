@@ -93,6 +93,14 @@ namespace Vodovoz.Organizations
 				.AddBinding(ViewModel.Entity, e => e.Prefix, w => w.Text)
 				.InitializeFromSource();
 
+			ycheckbuttonDisableDebtMailing.Binding
+				.AddBinding(ViewModel.Entity, e => e.DisableDebtMailing, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckbuttonDebtMailingWithSignature.Binding
+				.AddBinding(ViewModel.Entity, e => e.DebtMailingWithSignature, w => w.Active)
+				.InitializeFromSource();
+
 			notebookMain.Page = 0;
 			notebookMain.ShowTabs = false;
 			accountsview1.SetAccountOwner(ViewModel.UoW, ViewModel.Entity);
