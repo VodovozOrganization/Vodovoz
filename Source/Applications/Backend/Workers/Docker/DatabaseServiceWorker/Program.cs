@@ -87,8 +87,8 @@ namespace DatabaseServiceWorker
 						// 1с Апи
 						.AddHostedService<ExportTo1cApiWorker>()
 						.ConfigureExportTo1cApiWorker(hostContext)
-						.ConfigureZabbixSenderFromDataBase(nameof(ExportTo1cApiWorker))						
-																	
+						.ConfigureZabbixSenderFromDataBase(nameof(ExportTo1cApiWorker))
+
 
 						// Пока отключаем воркер экпорта в PowerBi
 						// .AddHostedService<PowerBiExportWorker>()
@@ -101,7 +101,7 @@ namespace DatabaseServiceWorker
 						//.AddHostedService<ClosingDeliveriesWorker>()
 						//.AddClosingDeliveriesWorker(hostContext)
 						//.ConfigureZabbixSenderFromDataBase(nameof(ClosingDeliveriesWorker))
-						//;
+						;
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 				});

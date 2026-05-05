@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 
 namespace VodovozBusiness.Services.Orders
 {
+	/// <summary>
+	/// Сервис для закрытия поставок у контрагентов с просроченной задолженностью и открытия поставок у контрагентов с отсутствующей просроченной задолженностью
+	/// </summary>
 	public interface IClosingDeliveriesService
 	{
 		/// <summary>

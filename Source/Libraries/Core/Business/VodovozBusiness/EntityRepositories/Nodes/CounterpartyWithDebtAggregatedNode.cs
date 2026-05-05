@@ -8,9 +8,24 @@ namespace VodovozBusiness.EntityRepositories.Nodes
 	/// </summary>
 	public class CounterpartyWithDebtAggregatedNode
 	{
+		/// <summary>
+		/// Контрагент
+		/// </summary>
 		public Counterparty Counterparty { get; set; }
+
+		/// <summary>
+		/// Id заказа
+		/// </summary>
 		public int OrderId { get; set; }
+
+		/// <summary>
+		/// Просроченная задолженность
+		/// </summary>
 		public decimal Debt { get; set; }
+
+		/// <summary>
+		/// Статус оплаты заказа
+		/// </summary>
 		public OrderPaymentStatus OrderPaymentStatus { get; set; }
 	}
 }

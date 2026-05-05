@@ -1,4 +1,4 @@
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -2742,11 +2742,39 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.ToList();
 		}
 
-		public IQueryable<CounterpartyWithDebtAggregatedNode> GetOverdueDebtQuery(
+		public async Task<IList<CounterpartyWithDebtAggregatedNode>> GetWithoutClosedDeliveriesCounterpartiesOverdueDebts
+			(IUnitOfWork unitOfWork,
+			int daysBeforeClosingDeliveries,
+			int[] organizationsIds,
+			OrderStatus [] orderStatuses,
+			CounterpartyType[] counterpartyTypes,
+			int? counterpartyId = null,
+			CancellationToken cancellationToken = default)
+		{
+			return await GetOverdueDebtQuery(unitOfWork, daysBeforeClosingDeliveries, organizationsIds, orderStatuses, counterpartyTypes, counterpartyId)
+				.Where(x => !x.Counterparty.IsDeliveriesClosed)
+				.ToListAsync(cancellationToken);
+		}
+
+		public async Task<IList<CounterpartyWithDebtAggregatedNode>> GetWithClosedDeliveriesCounterpartyOverdueDebts(
 			IUnitOfWork unitOfWork,
 			int daysBeforeClosingDeliveries,
 			int[] organizationsIds,
-			IEnumerable<OrderStatus> orderStatuses,
+			OrderStatus[] orderStatuses,
+			CounterpartyType[] counterpartyTypes,
+			int counterpartyId,
+			CancellationToken cancellationToken = default)
+		{
+			return await GetOverdueDebtQuery(unitOfWork, daysBeforeClosingDeliveries, organizationsIds, orderStatuses, counterpartyTypes, counterpartyId)
+				.Where(x => x.Counterparty.IsDeliveriesClosed)
+				.ToListAsync(cancellationToken);
+		}
+
+		private IQueryable<CounterpartyWithDebtAggregatedNode> GetOverdueDebtQuery(
+			IUnitOfWork unitOfWork,
+			int daysBeforeClosingDeliveries,
+			int[] organizationsIds,
+			OrderStatus[] orderStatuses,
 			CounterpartyType[] counterpartyTypes,
 			int? counterpartyId = null)
 		{

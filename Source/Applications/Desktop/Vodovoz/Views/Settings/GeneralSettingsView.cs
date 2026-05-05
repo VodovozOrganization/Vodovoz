@@ -289,12 +289,14 @@ namespace Vodovoz.Views.Settings
 
 			yspinbuttonDaysBeforeClosingDeliveries.Binding
 				.AddBinding(ViewModel, vm => vm.DaysBeforeClosingDeliveries, w => w.ValueAsInt)
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangePaymentDeferment, w => w.Sensitive)
 				.InitializeFromSource();
 
 			buttonSaveDaysBeforeClosingDeliveries.BindCommand(ViewModel.SaveDaysBeforeClosingDeliveriesCommand);
 
 			yentryClosingDeliveriesNotificationEmails.Binding
 				.AddBinding(ViewModel, vm => vm.ClosingDeliveriesNotificationEmails, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangePaymentDeferment, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ybuttonSaveClosingDeliveriesNotificationEmails.BindCommand(ViewModel.SaveClosingDeliveriesNotificationEmailsCommand);

@@ -1,5 +1,8 @@
 ﻿namespace DatabaseServiceWorker.Options
 {
+	/// <summary>
+	/// Опции воркера закрытия поставок
+	/// </summary>
 	public class ClosingDeliveriesOptions
 	{
 		/// <summary>

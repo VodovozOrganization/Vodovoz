@@ -61,15 +61,14 @@ namespace Vodovoz.Core.Application.Orders.Services
 		public async Task CheckAndCloseDeliveriesAsync(IUnitOfWork unitOfWork, int? counterpartyId = null, CancellationToken cancellationToken = default)
 		{
 			var ordersWithDebtOverdue = await
-				_orderRepository.GetOverdueDebtQuery(
+				_orderRepository.GetWithoutClosedDeliveriesCounterpartiesOverdueDebts(
 					unitOfWork,
 					_closingDeliveriesSettings.DaysBeforeClosingDeliveries,
 					_organizationsIds,
 					_orderStatuses,
 					_counterpartyTypes,
-					counterpartyId)
-					.Where(x => !x.Counterparty.IsDeliveriesClosed)
-					.ToListAsync(cancellationToken);
+					counterpartyId,
+					cancellationToken);
 
 			var counterpartiesWithDebtOverdueNodes = ordersWithDebtOverdue
 			   .GroupBy(x => x.Counterparty.Id)
@@ -109,15 +108,13 @@ namespace Vodovoz.Core.Application.Orders.Services
 		public async Task CheckAndOpenDeliveriesAsync(IUnitOfWork unitOfWork, int counterpartyId, CancellationToken cancellationToken = default)
 		{
 			var ordersWithDebtOverdue = await
-				_orderRepository.GetOverdueDebtQuery(
+				_orderRepository.GetWithClosedDeliveriesCounterpartyOverdueDebts(
 						unitOfWork,
 						_closingDeliveriesSettings.DaysBeforeClosingDeliveries,
 						_organizationsIds,
 						_orderStatuses,
 						_counterpartyTypes,
-						counterpartyId)
-					.Where(x => x.Counterparty.IsDeliveriesClosed)
-					.ToListAsync(cancellationToken);
+						counterpartyId);
 
 			if(ordersWithDebtOverdue.Any())
 			{

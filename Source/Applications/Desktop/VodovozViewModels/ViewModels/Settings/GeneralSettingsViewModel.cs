@@ -220,11 +220,13 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				.ValidatePresetPermission(Core.Domain.Permissions.CounterpartyPermissions.CanMassiveChangePaymentDeferment);
 			CanMassiveChangeVatRate = _commonServices.CurrentPermissionService
 				.ValidatePresetPermission(Core.Domain.Permissions.CashPermissions.CanMassiveChangeVatRate);
-			
-			DaysBeforeClosingDeliveries = _closingDeliveriesSettings.DaysBeforeClosingDeliveries;			
-			SaveDaysBeforeClosingDeliveriesCommand = new DelegateCommand(SaveDaysBeforeClosingDeliveries);
+
+			DaysBeforeClosingDeliveries = _closingDeliveriesSettings.DaysBeforeClosingDeliveries;
+			SaveDaysBeforeClosingDeliveriesCommand = new DelegateCommand(SaveDaysBeforeClosingDeliveries, () => CanMassiveChangePaymentDeferment);
+			SaveDaysBeforeClosingDeliveriesCommand.CanExecuteChangedWith(this, vm => vm.CanMassiveChangePaymentDeferment);
 			ClosingDeliveriesNotificationEmails = _closingDeliveriesSettings.ClosingDeliveriesNotificationEmails;
-			SaveClosingDeliveriesNotificationEmailsCommand = new DelegateCommand(SaveClosingDeliveriesNotificationEmails);
+			SaveClosingDeliveriesNotificationEmailsCommand = new DelegateCommand(SaveClosingDeliveriesNotificationEmails, () => CanMassiveChangePaymentDeferment);
+			SaveClosingDeliveriesNotificationEmailsCommand.CanExecuteChangedWith(this, vm => vm.CanMassiveChangePaymentDeferment);
 
 			InitializeAccountingSettingsViewModels();
 			ConfigureOrderOrganizationsSettings();
