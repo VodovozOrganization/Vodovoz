@@ -8940,6 +8940,7 @@ Global
 		{9315F39C-5054-410E-B8E9-27C987321B67}.Web|x86.Build.0 = Debug|Any CPU
 		{9315F39C-5054-410E-B8E9-27C987321B67}.WinDesktop|Any CPU.ActiveCfg = Debug|Any CPU
 		{9315F39C-5054-410E-B8E9-27C987321B67}.WinDesktop|x86.ActiveCfg = Debug|Any CPU
+		{9315F39C-5054-410E-B8E9-27C987321B67}.WinDesktop|x86.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
