@@ -221,10 +221,10 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			CanMassiveChangeVatRate = _commonServices.CurrentPermissionService
 				.ValidatePresetPermission(Core.Domain.Permissions.CashPermissions.CanMassiveChangeVatRate);
 			
-			DaysBeforeBlockingDeliveries = _closingDeliveriesSettings.DaysBeforeClosingDeliveries;			
-			SaveDaysBeforeBlockingDeliveriesCommand = new DelegateCommand(SaveDaysBeforeBlockingDeliveries);
-			BlockingDeliveriesNotificationEmails = _closingDeliveriesSettings.ClosingDeliveriesNotificationEmails;
-			SaveBlockingDeliveriesNotificationEmailsCommand = new DelegateCommand(SaveBlockingDeliveriesNotificationEmails);
+			DaysBeforeClosingDeliveries = _closingDeliveriesSettings.DaysBeforeClosingDeliveries;			
+			SaveDaysBeforeClosingDeliveriesCommand = new DelegateCommand(SaveDaysBeforeClosingDeliveries);
+			ClosingDeliveriesNotificationEmails = _closingDeliveriesSettings.ClosingDeliveriesNotificationEmails;
+			SaveClosingDeliveriesNotificationEmailsCommand = new DelegateCommand(SaveClosingDeliveriesNotificationEmails);
 
 			InitializeAccountingSettingsViewModels();
 			ConfigureOrderOrganizationsSettings();
@@ -1284,17 +1284,17 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		/// <summary>
 		/// Дней сверх ПДЗ до блокировки поставок
 		/// </summary>
-		public int DaysBeforeBlockingDeliveries
+		public int DaysBeforeClosingDeliveries
 		{
 			get => _daysBeforeBlockingDeliveriesNew;
 			set => SetField(ref _daysBeforeBlockingDeliveriesNew, value);
 		}
 
-		public DelegateCommand SaveDaysBeforeBlockingDeliveriesCommand { get; }
+		public DelegateCommand SaveDaysBeforeClosingDeliveriesCommand { get; }
 
-		private void SaveDaysBeforeBlockingDeliveries()
+		private void SaveDaysBeforeClosingDeliveries()
 		{
-			_closingDeliveriesSettings.UpdateDaysBeforeClosingDeliveries(DaysBeforeBlockingDeliveries);
+			_closingDeliveriesSettings.UpdateDaysBeforeClosingDeliveries(DaysBeforeClosingDeliveries);
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
 
@@ -1305,19 +1305,19 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		/// <summary>
 		/// Почты, для отправки уведомлений о блокировке поставок контрагенту
 		/// </summary>
-		public string BlockingDeliveriesNotificationEmails
+		public string ClosingDeliveriesNotificationEmails
 		{
 			get => _blockingDeliveriesNotificationEmails;
 			set => SetField(ref _blockingDeliveriesNotificationEmails, value);
 		}
 
-		public DelegateCommand SaveBlockingDeliveriesNotificationEmailsCommand { get; }
+		public DelegateCommand SaveClosingDeliveriesNotificationEmailsCommand { get; }
 
-		private void SaveBlockingDeliveriesNotificationEmails()
+		private void SaveClosingDeliveriesNotificationEmails()
 		{
 			var validator = new EmailAddressAttribute();
 
-			var emails = BlockingDeliveriesNotificationEmails
+			var emails = ClosingDeliveriesNotificationEmails
 				.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
 				.Select(e => e.Trim())
 				.ToList();
