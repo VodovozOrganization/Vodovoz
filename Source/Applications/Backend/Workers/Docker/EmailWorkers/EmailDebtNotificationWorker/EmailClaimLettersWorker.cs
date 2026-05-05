@@ -39,6 +39,7 @@ namespace EmailDebtNotificationWorker
 			if(!CanSendNow(workingDayService))
 			{
 				_logger.LogInformation("Сейчас нерабочее время, пропускаем отправку писем с претензиями");
+				await zabbixSender.SendIsHealthyAsync(stoppingToken);
 				return;
 			}
 
