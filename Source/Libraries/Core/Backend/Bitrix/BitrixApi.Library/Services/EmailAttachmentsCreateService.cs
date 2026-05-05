@@ -15,12 +15,12 @@ namespace BitrixApi.Library.Services
 		private const string _revisionReportIdentifier = "Client.Revision";
 		private const string _notPaidOrdersBillReportIdentifier = "Documents.Bill";
 		private const string _generalBillReportIdentifier = "Documents.GeneralBill";
-		private const string _lettetOfClaimIdentifier = "Documents.LetterOfClaim";
+		private const string _letterOfClaimIdentifier = "Documents.LetterOfClaim";
 
 		private const string _revisionFileName = "Акт_сверки";
 		private const string _notPaidOrdersBillFileName = "Неоплаченные_счета";
 		private const string _generalBillFileName = "Общий_счет";
-		private const string _lettetOfClaimFileName = "Письмо_претензии";
+		private const string _letterOfClaimFileName = "Письмо_претензии";
 
 		private readonly IReportInfoFactory _reportInfoFactory;
 
@@ -75,7 +75,7 @@ namespace BitrixApi.Library.Services
 				?? throw new InvalidOperationException("Не удалось получить информацию по претензионному письму");
 			var pdfBytes = CreatePdfReportBytes(reportInfo);
 
-			return CreateEmailPdfAttachment(pdfBytes, _lettetOfClaimFileName);
+			return CreateEmailPdfAttachment(pdfBytes, _letterOfClaimFileName);
 		}
 
 		private IEnumerable<EmailAttachment> CreateEmailPdfAttachment(byte[] attachmentBytes, string fileName)
@@ -153,8 +153,8 @@ namespace BitrixApi.Library.Services
 		private ReportInfo GetLetterOfClaimReportInfo(int organizationId, int clientId, string debtSumFormatted, bool hideSignature = false)
 		{
 			var reportInfo = _reportInfoFactory.Create();
-			reportInfo.Title = _lettetOfClaimFileName;
-			reportInfo.Identifier = _lettetOfClaimIdentifier;
+			reportInfo.Title = _letterOfClaimFileName;
+			reportInfo.Identifier = _letterOfClaimIdentifier;
 			reportInfo.Parameters = new Dictionary<string, object>
 			{
 				{ "organization_id", organizationId },

@@ -73,7 +73,7 @@ namespace EmailDebtNotificationWorker.Services
 			if(todaySentLetterOfClaimsCount >= _emailClaimLettersOptions.CurrentValue.MaxCountPerDay)
 			{
 				_logger.LogDebug("Макс. количество писем для рассылки в день {MaxLettersPerDay} уже достигнуто. Сегодня отправлено {TodaySentLetterOfClaimsCount} писем",
-					_emailClaimLettersOptions.CurrentValue.MaxCountPerInterval,
+					_emailClaimLettersOptions.CurrentValue.MaxCountPerDay,
 					todaySentLetterOfClaimsCount);
 				return;
 			}

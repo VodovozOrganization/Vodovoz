@@ -40,17 +40,17 @@ namespace Vodovoz.Settings.Database.Counterparty
 
 		public void SetLettersOfClaimTimeoutDays(int value)
 		{
-			_settingsController.CreateOrUpdateSetting("DebtorsSettings.LettersOfClaimTimeoutDays}", value.ToString());
+			_settingsController.CreateOrUpdateSetting("DebtorsSettings.LettersOfClaimTimeoutDays", value.ToString());
 		}
 
 		public void SetClaimDocumentCreatedBy(string value)
 		{
-			_settingsController.CreateOrUpdateSetting("ClaimDocument.CreatedBy}", value);
+			_settingsController.CreateOrUpdateSetting("ClaimDocument.CreatedBy", value);
 		}
 
 		public void SetClaimDocumentCreatorPhone(string value)
 		{
-			_settingsController.CreateOrUpdateSetting("ClaimDocument.CreatorPhone}", value);
+			_settingsController.CreateOrUpdateSetting("ClaimDocument.CreatorPhone", value);
 		}
 	}
 }
