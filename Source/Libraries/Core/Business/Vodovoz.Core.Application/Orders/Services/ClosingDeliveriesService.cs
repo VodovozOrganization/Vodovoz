@@ -69,7 +69,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 					_counterpartyTypes,
 					counterpartyId)
 					.Where(x => !x.Counterparty.IsDeliveriesClosed)
-					.Take(10)
 					.ToListAsync(cancellationToken);
 
 			var counterpartiesWithDebtOverdueNodes = ordersWithDebtOverdue
