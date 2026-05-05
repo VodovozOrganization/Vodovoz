@@ -1,0 +1,85 @@
+﻿using DatabaseServiceWorker.Options;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using QS.DomainModel.UoW;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Vodovoz.Zabbix.Sender;
+using VodovozBusiness.Services.Orders;
+
+namespace DatabaseServiceWorker.ClosingDeliveries
+{
+	public class ClosingDeliveriesWorker : BackgroundService
+	{
+		private readonly ILogger<ClosingDeliveriesWorker> _logger;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly IClosingDeliveriesService _closingDeliveriesService;
+		private readonly IOptions<ClosingDeliveriesOptions> _options;
+		private readonly IZabbixSender _zabbixSender;
+
+		public ClosingDeliveriesWorker(
+			ILogger<ClosingDeliveriesWorker> logger,
+			IUnitOfWorkFactory unitOfWorkFactory,
+			IClosingDeliveriesService closingDeliveriesService,
+			IOptions<ClosingDeliveriesOptions> options,
+			IZabbixSender zabbixSender)
+		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_closingDeliveriesService = closingDeliveriesService ?? throw new ArgumentNullException(nameof(closingDeliveriesService));
+			_options = options ?? throw new ArgumentNullException(nameof(options));
+			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
+		}
+
+
+		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+		{
+			_logger.LogInformation("Воркер закрытия поставок контрагентам запущен");
+
+			while(!stoppingToken.IsCancellationRequested)
+			{
+				await DelayToNextDay(stoppingToken);
+
+				try
+				{
+					_logger.LogInformation("Начинаем закрытие поставок контрагентам");
+
+					using var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot(nameof(ClosingDeliveriesWorker));
+
+					await _closingDeliveriesService.CheckAndCloseDeliveriesAsync(unitOfWork, cancellationToken: stoppingToken);	
+					
+					await unitOfWork.CommitAsync(stoppingToken);
+
+					_logger.LogInformation("Закрытие поставок контрагентам завершено");
+
+					await _zabbixSender.SendIsHealthyAsync(stoppingToken);
+				}
+				catch(Exception ex)
+				{					
+					_logger.LogError(ex, "Ошибка при выполнении закрытия поставок контрагентам ");
+
+					await _zabbixSender.SendProblemMessageAsync(ZabixSenderMessageType.Problem, ex.Message, stoppingToken);
+				}
+			}
+		}
+
+		private async Task DelayToNextDay(CancellationToken token)
+		{
+			var now = DateTime.Now;
+			var startHour = _options.Value.StartHour;
+
+			var nextRun = now.Date.AddHours(startHour);
+
+			if(now >= nextRun)
+			{
+				nextRun = nextRun.AddDays(1);
+			}
+
+			var delay = nextRun - now;
+
+			await Task.Delay(delay, token);
+		}
+	}
+}

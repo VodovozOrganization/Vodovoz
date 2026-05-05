@@ -95,6 +95,10 @@ namespace DatabaseServiceWorker
 						// .ConfigureZabbixSenderFromDataBase(nameof(PowerBiExportWorker))
 						// .AddScoped<IPowerBiConnectionFactory, PowerBiConnectionFactory>()
 						// .AddScoped<IPowerBiExporter, PowerBiExporter>()
+
+						.AddHostedService<ClosingDeliveriesWorker>()
+						.AddClosingDeliveriesWorker(hostContext)
+						.ConfigureZabbixSenderFromDataBase(nameof(ClosingDeliveriesWorker))
 						;
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);

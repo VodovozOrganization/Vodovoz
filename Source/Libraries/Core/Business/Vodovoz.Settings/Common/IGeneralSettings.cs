@@ -69,9 +69,5 @@ namespace Vodovoz.Settings.Common
 		
 		decimal DefaultVatRate { get; }
 		void SaveDefaultVatRate(decimal defaultVatRate);
-
-		string BlockingDeliveriesNotificationEmails { get; }
-
-		void UpdateBlockingDeliveriesNotificationEmails(string value);
 	}
 }

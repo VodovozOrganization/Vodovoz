@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
@@ -23,6 +23,7 @@ using Vodovoz.Settings.Car;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Fuel;
+using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.ViewModels.Accounting.Payments;
 using Vodovoz.ViewModels.Services;
@@ -46,6 +47,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IDebtorsSettings _debtorsSettings;
 		private readonly IValidator _validator;
+		private readonly IClosingDeliveriesSettings _closingDeliveriesSettings;
 		private const int _routeListPrintedFormPhonesLimitSymbols = 500;
 		private readonly ViewModelEEVMBuilder<VatRate> _vatRateEEVMBuilder;
 
@@ -108,7 +110,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			IOrganizationForOrderFromSet organizationForOrderFromSet,
 			IOrganizationSettings organizationSettings,
 			IDebtorsSettings debtorsSettings,
-			IValidator validator) : base(commonServices?.InteractiveService, navigation)
+			IValidator validator,
+			IClosingDeliveriesSettings closingDeliveriesSettings) : base(commonServices?.InteractiveService, navigation)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -123,6 +126,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			OrganizationForOrderFromSet = 
 				organizationForOrderFromSet ?? throw new ArgumentNullException(nameof(organizationForOrderFromSet));
 			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
+			_closingDeliveriesSettings = closingDeliveriesSettings ?? throw new ArgumentNullException(nameof(closingDeliveriesSettings));
 			_vatRateEEVMBuilder = vatRateEevmBuilder ?? throw new ArgumentNullException(nameof(vatRateEevmBuilder));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
@@ -216,12 +220,10 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				.ValidatePresetPermission(Core.Domain.Permissions.CounterpartyPermissions.CanMassiveChangePaymentDeferment);
 			CanMassiveChangeVatRate = _commonServices.CurrentPermissionService
 				.ValidatePresetPermission(Core.Domain.Permissions.CashPermissions.CanMassiveChangeVatRate);
-
-			BlockingDeliveriesNotificationEmails = _generalSettings.BlockingDeliveriesNotificationEmails;
-
+			
+			DaysBeforeBlockingDeliveries = _closingDeliveriesSettings.DaysBeforeClosingDeliveries;			
 			SaveDaysBeforeBlockingDeliveriesCommand = new DelegateCommand(SaveDaysBeforeBlockingDeliveries);
-			RecalculateDaysBeforeBlockingDeliveriesCommand = new DelegateCommand(RecalculateDaysBeforeBlockingDeliveries);
-
+			BlockingDeliveriesNotificationEmails = _closingDeliveriesSettings.ClosingDeliveriesNotificationEmails;
 			SaveBlockingDeliveriesNotificationEmailsCommand = new DelegateCommand(SaveBlockingDeliveriesNotificationEmails);
 
 			InitializeAccountingSettingsViewModels();
@@ -1280,35 +1282,20 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		#region Массовое изменение дней отсрочки до автоматической блокировки поставок
 
 		/// <summary>
-		/// Исходное значение дней сверх ПДЗ до блокировки поставок
+		/// Дней сверх ПДЗ до блокировки поставок
 		/// </summary>
-		public int DaysBeforeBlockingDeliveriesTarget
-		{ 
-			get => _daysBeforeBlockingDeliveriesTarget; 
-			set => SetField(ref _daysBeforeBlockingDeliveriesTarget, value);
-		}
-
-		/// <summary>
-		/// Новое значение дней сверх ПДЗ до блокировки поставок
-		/// </summary>
-		public int DaysBeforeBlockingDeliveriesNew
+		public int DaysBeforeBlockingDeliveries
 		{
 			get => _daysBeforeBlockingDeliveriesNew;
 			set => SetField(ref _daysBeforeBlockingDeliveriesNew, value);
-		}
-
-		public DelegateCommand RecalculateDaysBeforeBlockingDeliveriesCommand { get; }
-
-		private void RecalculateDaysBeforeBlockingDeliveries()
-		{
-			;
 		}
 
 		public DelegateCommand SaveDaysBeforeBlockingDeliveriesCommand { get; }
 
 		private void SaveDaysBeforeBlockingDeliveries()
 		{
-			throw new NotImplementedException();
+			_closingDeliveriesSettings.UpdateDaysBeforeClosingDeliveries(DaysBeforeBlockingDeliveries);
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
 
 		#endregion Массовое изменение дней отсрочки до автоматической блокировки поставок
@@ -1348,7 +1335,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				return;
 			}
 
-			_generalSettings.UpdateBlockingDeliveriesNotificationEmails(string.Join(";", emails));
+			_closingDeliveriesSettings.UpdateClosingDeliveriesNotificationEmails(string.Join(";", emails));
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
 

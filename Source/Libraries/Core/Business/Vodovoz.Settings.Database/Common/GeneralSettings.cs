@@ -9,7 +9,6 @@ namespace Vodovoz.Settings.Database.Common
 	public class GeneralSettings : IGeneralSettings
 	{
 		private readonly ISettingsController _settingsController;
-
 		public const string PaymentWriteOffAllowedFinancialExpenseCategoriesParameterName =
 			"Accounting.PaymentWriteOff.AllowedFinancialExpenseCategories";
 		private const string _routeListPrintedFormPhones = "route_list_printed_form_phones";
@@ -34,7 +33,6 @@ namespace Vodovoz.Settings.Database.Common
 		private const string _fastDeliveryMaximumPermissibleLateMinutes = nameof(FastDeliveryMaximumPermissibleLateMinutes);
 		private const string _defaultPaymentDeferment = "default_payment_deferment";
 		private const string _defaultVatRate = "default_vat_rate";
-		private const string _blockingDeliveriesNotificationEmails = "blocking_deliveries_notification_emails";
 
 		public GeneralSettings(ISettingsController settingsController)
 		{
@@ -225,9 +223,5 @@ namespace Vodovoz.Settings.Database.Common
 		{
 			_settingsController.CreateOrUpdateSetting(_defaultVatRate, defaultVatRate.ToString());
 		}
-
-		public string BlockingDeliveriesNotificationEmails => _settingsController.GetStringValue(_blockingDeliveriesNotificationEmails);
-
-		public void UpdateBlockingDeliveriesNotificationEmails(string value) => _settingsController.CreateOrUpdateSetting(_blockingDeliveriesNotificationEmails, value);
 	}
 }

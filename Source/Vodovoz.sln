@@ -646,6 +646,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Edo.Problem.Routine.Worker"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Edo.Problem.Routine", "Libraries\Core\Backend\Edo\Edo.Problem.Routine\Edo.Problem.Routine.csproj", "{9315F39C-5054-410E-B8E9-27C987321B67}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ClosingDeliveries", "ClosingDeliveries", "{97B0A03A-BBA7-4C84-96FD-3B35DA94B641}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -9182,6 +9184,7 @@ Global
 		{66CE2443-F2D9-4F15-B731-C18765BEA0B4} = {B3F0EEF1-8527-4E0A-ACCB-4061EADD6435}
 		{DA93E815-A4CD-4AAA-947A-659D5263267D} = {A84E7F20-B342-4745-8833-1CCB1ECA702C}
 		{9315F39C-5054-410E-B8E9-27C987321B67} = {23BCCF8C-B42C-46C7-92BA-78F7D0C57FFD}
+		{97B0A03A-BBA7-4C84-96FD-3B35DA94B641} = {286272B6-AAA0-47EF-98AF-F43BB3360F48}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5C28294A-BE19-449D-A626-5F2CC748368D}

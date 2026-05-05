@@ -287,16 +287,12 @@ namespace Vodovoz.Views.Settings
 				.AddFuncBinding(vm => vm.CanEditDebtNotification, w => w.Sensitive)
 				.InitializeFromSource();
 
-			yspinbuttonDaysBeforeBlockingDeliveriesTarget.Binding
-				.AddBinding(ViewModel, vm => vm.DaysBeforeBlockingDeliveriesTarget, w => w.ValueAsInt)
-				.InitializeFromSource();
-
-			yspinbuttonDaysBeforeBlockingDeliveriesNew.Binding
-				.AddBinding(ViewModel, vm => vm.DaysBeforeBlockingDeliveriesNew, w => w.ValueAsInt)
+			yspinbuttonDaysBeforeBlockingDeliveries.Binding
+				.AddBinding(ViewModel, vm => vm.DaysBeforeBlockingDeliveries, w => w.ValueAsInt)
 				.InitializeFromSource();
 
 			buttonSaveDaysBeforeBlockingDeliveries.BindCommand(ViewModel.SaveDaysBeforeBlockingDeliveriesCommand);
-			buttonRecalculateDaysBeforeBlockingDeliveries.BindCommand(ViewModel.RecalculateDaysBeforeBlockingDeliveriesCommand);
+			buttonRecalculateDaysBeforeBlockingDeliveries.Visible = false; //Art8m удали меня
 
 			yentryBlockingDeliveriesNotificationEmails.Binding
 				.AddBinding(ViewModel, vm => vm.BlockingDeliveriesNotificationEmails, w => w.Text)

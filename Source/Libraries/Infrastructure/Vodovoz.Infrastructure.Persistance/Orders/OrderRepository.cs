@@ -1,4 +1,4 @@
-﻿using DateTimeHelpers;
+using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -47,18 +47,7 @@ using VodovozBusiness.EntityRepositories.Nodes;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using Order = Vodovoz.Domain.Orders.Order;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
-using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Payments;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using Vodovoz.Core.Domain.TrueMark;
-using VodovozBusiness.Domain.Operations;
-using System.Threading.Tasks;
-using System.Threading;
-using NHibernate.Linq;
 using Vodovoz.Core.Data.Orders.Default;
-using Vodovoz.Settings.Organizations;
-using VodovozBusiness.Domain.Client;
-
 namespace Vodovoz.Infrastructure.Persistance.Orders
 {
 	internal sealed class OrderRepository : IOrderRepository
@@ -2751,6 +2740,73 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return query
 				.Select(x => x.Id)
 				.ToList();
+		}
+
+		public IQueryable<CounterpartyWithDebtAggregatedNode> GetOverdueDebtQuery(
+			IUnitOfWork unitOfWork,
+			int daysBeforeClosingDeliveries,
+			int[] organizationsIds,
+			IEnumerable<OrderStatus> orderStatuses,
+			CounterpartyType[] counterpartyTypes,
+			int? counterpartyId = null)
+		{
+			var query =
+				from order in unitOfWork.Session.Query<Order>()
+				join counterparty in unitOfWork.Session.Query<Counterparty>()
+					on order.Client.Id equals counterparty.Id
+
+				let deliveryDate = order.DeliveryDate
+
+				where
+					organizationsIds.Contains(order.Contract.Organization.Id)
+					&& orderStatuses.Contains(order.OrderStatus)
+					&& counterpartyTypes.Contains(counterparty.CounterpartyType)
+					&& !counterparty.IsChainStore
+					&& counterparty.ReasonForLeaving != ReasonForLeaving.Tender
+					&& order.PaymentType == PaymentType.Cashless
+					&& order.OrderPaymentStatus != OrderPaymentStatus.Paid
+					&& order.DeliveryDate != null
+					&& order.DeliveryDate.Value
+						.AddDays(order.Client.DelayDaysForBuyers)
+						.AddDays(daysBeforeClosingDeliveries).Date
+						< DateTime.Today
+
+				let orderSum =
+					(decimal?)unitOfWork.Session.Query<OrderItem>()
+						.Where(x => x.Order.Id == order.Id)
+						.Sum(x => x.ActualSum) ?? 0
+
+				let paidSum =
+					(decimal?)(
+						from paymentItem in unitOfWork.Session.Query<PaymentItem>()
+						join op in unitOfWork.Session.Query<CashlessMovementOperation>()
+							on paymentItem.CashlessMovementOperation.Id equals op.Id
+						where
+							paymentItem.Order.Id == order.Id
+							&& op.CashlessMovementOperationStatus != AllocationStatus.Cancelled
+						select op.Expense
+					).Sum() ?? 0
+
+				let debt = orderSum - paidSum
+
+				where
+					orderSum > 0
+					&& debt > 0
+
+				select new CounterpartyWithDebtAggregatedNode
+				{
+					Counterparty = counterparty,
+					OrderId = order.Id,
+					Debt = debt,
+					OrderPaymentStatus = order.OrderPaymentStatus
+				};
+
+			if(counterpartyId != null)
+			{
+				query = query.Where(x => x.Counterparty.Id == counterpartyId);
+			}
+
+			return query;
 		}
 	}
 }
