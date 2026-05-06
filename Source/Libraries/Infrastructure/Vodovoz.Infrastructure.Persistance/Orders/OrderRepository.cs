@@ -1,4 +1,4 @@
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -2739,8 +2739,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			var expiredAndTimedOutCounterpartiesQuery =
 				from order in uow.Session.Query<Order>()
 				join counterparty in uow.Session.Query<Counterparty>() on order.Client.Id equals counterparty.Id
-				join c in uow.Session.Query<CounterpartyContract>() on order.Contract.Id equals c.Id into contacts
-				from contract in contacts.DefaultIfEmpty()
+				join contract in uow.Session.Query<CounterpartyContract>() on order.Contract.Id equals contract.Id
 
 				let orderSum =
 				(decimal?)(from orderItem in uow.Session.Query<OrderItem>()
@@ -2772,7 +2771,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					&& !counterparty.IsChainStore
 					&& (counterparty.RevenueStatus == null || !excludeCounterpartyRevenueStatuses.Contains(counterparty.RevenueStatus.Value))
 					&& counterparty.CloseDeliveryDebtType != DebtType.Judicial
-					&& contract.Id != null
 					&& order.DeliveryDate != null
 					&& orderSum > 0
 					&& isExpiredAndClaimeLetterTimeoutLeft
@@ -2800,8 +2798,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				var notPaidOrdersDataQuery =
 					from order in uow.Session.Query<Order>()
 					join counterparty in uow.Session.Query<Counterparty>() on order.Client.Id equals counterparty.Id
-					join c in uow.Session.Query<CounterpartyContract>() on order.Contract.Id equals c.Id into contacts
-					from contract in contacts.DefaultIfEmpty()
+					join contract in uow.Session.Query<CounterpartyContract>() on order.Contract.Id equals contract.Id
 
 					let orderPaymentsSum =
 					(decimal?)(from paymentItem in uow.Session.Query<PaymentItem>()

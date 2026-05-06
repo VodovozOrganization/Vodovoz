@@ -1,4 +1,4 @@
-using BitrixApi.Library.Services;
+﻿using BitrixApi.Library.Services;
 using EmailDebtNotificationWorker.Options;
 using Mailjet.Api.Abstractions;
 using MassTransit;
@@ -107,7 +107,7 @@ namespace EmailDebtNotificationWorker.Services
 				var orderIds = debtData.Value.OrderIds;
 				var totalOverdueDebtorDebt = debtData.Value.TotalOverdueDebtorDebt;
 
-				bool isEmailSent = await TrySendEmail(
+				var isEmailSent = await TrySendEmail(
 					uow,
 					client,
 					organizationId,
@@ -118,8 +118,6 @@ namespace EmailDebtNotificationWorker.Services
 					totalOverdueDebtorDebt,
 					cancellationToken);
 			}
-
-			await Task.CompletedTask;
 		}
 
 		private async Task<bool> TrySendEmail(

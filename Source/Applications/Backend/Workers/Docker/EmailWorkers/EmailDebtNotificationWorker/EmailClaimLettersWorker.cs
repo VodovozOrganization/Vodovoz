@@ -16,15 +16,18 @@ namespace EmailDebtNotificationWorker
 		private readonly ILogger<EmailClaimLettersWorker> _logger;
 		private readonly IOptionsMonitor<EmailClaimLettersOptions> _emailClaimLettersOptions;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
+		private readonly IZabbixSender _zabbixSender;
 
 		public EmailClaimLettersWorker(
 			ILogger<EmailClaimLettersWorker> logger,
 			IOptionsMonitor<EmailClaimLettersOptions> emailClaimLettersOptions,
-			IServiceScopeFactory serviceScopeFactory)
+			IServiceScopeFactory serviceScopeFactory,
+			IZabbixSender zabbixSender)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_emailClaimLettersOptions = emailClaimLettersOptions ?? throw new ArgumentNullException(nameof(emailClaimLettersOptions));
 			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
+			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 		}
 
 		protected override TimeSpan Interval => _emailClaimLettersOptions.CurrentValue.WorkerInterval;
@@ -32,14 +35,13 @@ namespace EmailDebtNotificationWorker
 		protected override async Task DoWork(CancellationToken stoppingToken)
 		{
 			using var scope = _serviceScopeFactory.CreateScope();
-			var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
 			var emailClaimLettersService = scope.ServiceProvider.GetRequiredService<IEmailClaimLettersService>();
 			var workingDayService = scope.ServiceProvider.GetRequiredService<IWorkingDayService>();
 
 			if(!CanSendNow(workingDayService))
 			{
 				_logger.LogInformation("Сейчас нерабочее время, пропускаем отправку писем с претензиями");
-				await zabbixSender.SendIsHealthyAsync(stoppingToken);
+				await _zabbixSender.SendIsHealthyAsync(stoppingToken);
 				return;
 			}
 
@@ -48,7 +50,7 @@ namespace EmailDebtNotificationWorker
 			try
 			{
 				await emailClaimLettersService.SendClaimLetters(stoppingToken);
-				await zabbixSender.SendIsHealthyAsync(stoppingToken);
+				await _zabbixSender.SendIsHealthyAsync(stoppingToken);
 			}
 			catch(Exception ex)
 			{
