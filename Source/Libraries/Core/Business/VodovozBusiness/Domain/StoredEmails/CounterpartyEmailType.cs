@@ -38,6 +38,12 @@ namespace Vodovoz.Domain.StoredEmails
 		Bulk,
 
 		/// <summary>
+		/// Претензионное письмо
+		/// </summary>
+		[Display(Name = "Претензионное письмо")]
+		LetterOfClaim,
+
+		/// <summary>
 		/// Учётные данные
 		/// </summary>
 		[Display(Name = "Учётные данные")]

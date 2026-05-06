@@ -29,6 +29,13 @@ namespace EmailDebtNotificationWorker.Services
 				&& timeOfDay < _workDayEnd;
 		}
 
+		public bool IsWorkingDay(DateTime dateTime)
+		{
+			var moscowDateTime = GetMoscowDateTime(dateTime);
+			return moscowDateTime.DayOfWeek != DayOfWeek.Saturday
+				&& moscowDateTime.DayOfWeek != DayOfWeek.Sunday;
+		}
+
 		public DateTime GetOptimalSendingTime(DateTime dateTime)
 		{
 			var moscowDateTime = GetMoscowDateTime(dateTime);

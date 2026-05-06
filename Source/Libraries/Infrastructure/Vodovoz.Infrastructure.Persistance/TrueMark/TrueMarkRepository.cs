@@ -423,6 +423,7 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 				join productCode in uow.Session.Query<TrueMarkProductCode>() on identificationCode.Id equals productCode.ResultCode.Id
 				where
 				productCode != null
+				&& gtin == identificationCode.Gtin
 				&& serialNumbers.Contains(identificationCode.SerialNumber)
 				select new { identificationCode.Gtin, identificationCode.SerialNumber, ProductCode = productCode };
 

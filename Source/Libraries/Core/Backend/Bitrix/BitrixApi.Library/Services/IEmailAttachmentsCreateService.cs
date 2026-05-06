@@ -31,5 +31,15 @@ namespace BitrixApi.Library.Services
 		/// <param name="orderIds">Список Id заказов</param>
 		/// <returns>Вложения с файлами</returns>
 		IEnumerable<EmailAttachment> CreateGeneralBillAttachments(int counterpartyId, int organizationId, IEnumerable<int> orderIds);
+
+		/// <summary>
+		/// Создает вложения для письма с претензией по задолженности (Letter of claim)
+		/// </summary>
+		/// <param name="organizationId">Id организации</param>
+		/// <param name="clientId">Id клиента</param>
+		/// <param name="debtSumFormatted">Сумма задолженности в формате строки</param>
+		/// <param name="hideSignature">Флаг скрытия подписи</param>
+		/// <returns>Вложения с файлами</returns>
+		IEnumerable<EmailAttachment> CreateLetterOfClaimAttachments(int organizationId, int clientId, string debtSumFormatted, bool hideSignature = false);
 	}
 }
