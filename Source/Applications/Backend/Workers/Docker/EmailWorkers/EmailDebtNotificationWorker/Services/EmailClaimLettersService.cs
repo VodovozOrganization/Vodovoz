@@ -97,6 +97,8 @@ namespace EmailDebtNotificationWorker.Services
 				return;
 			}
 
+			var emailMessages = new List<SendEmailMessage>();
+
 			foreach(var debtData in overdueDebitorsDebtData)
 			{
 				var client = debtData.Value.Counterparty;
@@ -107,20 +109,41 @@ namespace EmailDebtNotificationWorker.Services
 				var orderIds = debtData.Value.OrderIds;
 				var totalOverdueDebtorDebt = debtData.Value.TotalOverdueDebtorDebt;
 
-				var isEmailSent = await TrySendEmail(
-					uow,
-					client,
-					organizationId,
-					organizationFullName,
-					organizationEmailForMailing,
-					contract,
-					orderIds,
-					totalOverdueDebtorDebt,
-					cancellationToken);
+				try
+				{
+					var emailMessage = await CreateSendEmailMessage(
+						uow,
+						client,
+						organizationId,
+						organizationFullName,
+						organizationEmailForMailing,
+						contract,
+						orderIds,
+						totalOverdueDebtorDebt,
+						cancellationToken);
+
+					emailMessages.Add(emailMessage);
+
+				}
+				catch(Exception ex)
+				{
+					_logger.LogError(ex,
+						"Ошибка при создании и публикации сообщения на отправку письма с претензией для контрагента {CounterpartyId} и организации {OrganizationId}",
+						client.Id,
+						organizationId);
+					continue;
+				}
+			}
+
+			await uow.CommitAsync(cancellationToken);
+
+			foreach(var emailMessage in emailMessages)
+			{
+				await PublishEmailMessage(emailMessage, cancellationToken);
 			}
 		}
 
-		private async Task<bool> TrySendEmail(
+		private async Task<SendEmailMessage> CreateSendEmailMessage(
 			IUnitOfWork uow,
 			Counterparty client,
 			int organizationId,
@@ -138,7 +161,8 @@ namespace EmailDebtNotificationWorker.Services
 					"Письмо с претензией для контрагента {CounterpartyId} отправлено не будет.",
 					organizationId,
 					client.Id);
-				return false;
+				throw new InvalidOperationException(
+					$"Организация {organizationId} не имеет email для рассылки, указанного в настройках");
 			}
 
 			var attachments = CreateEmailAttachments(client.Id, organizationId, GetFormattedSum(totalOverdueDebtorDebt), orderIds);
@@ -150,7 +174,8 @@ namespace EmailDebtNotificationWorker.Services
 					"Письмо не будет отправлено.",
 					client.Id,
 					organizationId);
-				return false;
+				throw new InvalidOperationException(
+					$"Не удалось создать вложения для письма с претензией для контрагента {client.Id} и организации {organizationId}");
 			}
 
 			var emailAddress = SelectEmailForDebtNotification(client);
@@ -161,7 +186,8 @@ namespace EmailDebtNotificationWorker.Services
 					"Клиент {ClientId} {ClientName} не имеет подходящего email для отправки претензионного письма",
 					client.Id,
 					client.FullName);
-				return false;
+				throw new InvalidOperationException(
+					$"Клиент {client.Id} {client.FullName} не имеет подходящего email для отправки претензионного письма");
 			}
 
 			var emailSubject = $"{_emailSubject} {client.FullName} от {organizationFullName}";
@@ -177,7 +203,6 @@ namespace EmailDebtNotificationWorker.Services
 			};
 
 			await uow.SaveAsync(bulkEmail, cancellationToken: cancellationToken);
-			await uow.CommitAsync(cancellationToken);
 
 			var emailMessage = CreateEmailMessage(
 				uow,
@@ -190,6 +215,11 @@ namespace EmailDebtNotificationWorker.Services
 				emailSubject,
 				GenerateEmailBody(contract, GetUnsubscribeLink(storedEmail.Guid.Value)));
 
+			return emailMessage;
+		}
+
+		private async Task PublishEmailMessage(SendEmailMessage emailMessage, CancellationToken cancellationToken)
+		{
 			try
 			{
 				await _bus.Publish(emailMessage, cancellationToken);
@@ -197,13 +227,9 @@ namespace EmailDebtNotificationWorker.Services
 			catch(Exception ex)
 			{
 				_logger.LogError(ex,
-					"Ошибка при публикации сообщения на отправку письма с претензией для контрагента {CounterpartyId} и организации {OrganizationId}",
-					client.Id,
-					organizationId);
-				return false;
+					"Ошибка при публикации сообщения на отправку письма с претензией. StoredEmailId = {StoredEmailId}",
+					emailMessage.Payload.Id);
 			}
-
-			return true;
 		}
 
 		private StoredEmails.StoredEmail CreateStoredEmail(string subject, string email)
