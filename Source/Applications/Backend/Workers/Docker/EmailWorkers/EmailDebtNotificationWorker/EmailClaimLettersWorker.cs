@@ -55,6 +55,7 @@ namespace EmailDebtNotificationWorker
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Ошибка при отправке писем с претензиями");
+				await _zabbixSender.SendProblemMessageAsync(ZabixSenderMessageType.Problem, ex.Message, stoppingToken);
 			}
 
 			_logger.LogInformation("Завершение отправки писем с претензиями");
