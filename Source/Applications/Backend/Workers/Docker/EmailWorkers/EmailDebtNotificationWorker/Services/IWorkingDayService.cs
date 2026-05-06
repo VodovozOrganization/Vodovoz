@@ -12,6 +12,13 @@ namespace EmailDebtNotificationWorker.Services
 		bool IsOddWeekday(DateTime dateTime);
 
 		/// <summary>
+		/// Проверяет, является ли дата рабочим днём (Пн-Пт) по московскому времени
+		/// </summary>
+		/// <param name="dateTime"></param>
+		/// <returns>True если рабочий день (Пн-Пт) по московскому времени</returns>
+		bool IsWorkingDay(DateTime dateTime);
+
+		/// <summary>
 		/// Проверяет, находится ли время в рабочих часах (9:00-18:00) по московскому времени
 		/// </summary>
 		/// <param name="dateTime"></param>

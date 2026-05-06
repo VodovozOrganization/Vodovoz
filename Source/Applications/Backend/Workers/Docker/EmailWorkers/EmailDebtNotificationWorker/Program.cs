@@ -1,6 +1,6 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using BitrixApi.Library.Services;
-using EdoService.Library.Services;
+using EmailDebtNotificationWorker.Options;
 using EmailDebtNotificationWorker.Services;
 using MassTransit;
 using MessageTransport;
@@ -9,13 +9,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
-using QS.DomainModel.UoW;
 using QS.Project.Core;
 using QS.Report;
 using RabbitMQ.MailSending;
 using System;
 using System.Text;
 using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Counterparty;
@@ -62,6 +62,12 @@ namespace EmailDebtNotificationWorker
 							typeof(Vodovoz.Data.NHibernate.HibernateMapping.Counterparty.BulkEmailEventMap).Assembly
 						);
 
+					services
+						.AddDatabaseConfigurationExposer(config =>
+						{
+							config.LinqToHqlGeneratorsRegistry<LinqToHqlGeneratorsRegistry>();
+						});
+
 					services.AddDatabaseConnection();
 					services.AddCore();
 					services.AddInfrastructure();
@@ -91,6 +97,12 @@ namespace EmailDebtNotificationWorker
 					services.AddScoped<IEmailAttachmentsCreateService, EmailAttachmentsCreateService>();
 					services.AddScoped<IEmailDebtNotificationService, EmailDebtNotificationService>();
 					services.AddHostedService<EmailDebtNotificationWorker>();
+
+					services
+						.ConfigureOptions<ConfigureEmailClaimLettersOptions>()
+						.AddScoped<IEmailClaimLettersService, EmailClaimLettersService>()
+						.AddHostedService<EmailClaimLettersWorker>()
+						.ConfigureZabbixSenderFromDataBase(nameof(EmailClaimLettersWorker));
 				});
 	}
 }
