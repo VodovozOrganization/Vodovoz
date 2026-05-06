@@ -57,7 +57,7 @@ namespace Vodovoz.Services.Logistics
 		#region Адреса
 
 		RouteListItem AddAddressFromOrder(IUnitOfWork unitOfWork, RouteList routeList, Order order);
-		RouteListItem AddAddressFromOrder(IUnitOfWork unitOfWork, RouteList routeList, int orderId);
+		Result<RouteListItem> TryAddAddressFromOrder(IUnitOfWork unitOfWork, RouteList routeList, int orderId);
 
 		void UpdateStatus(IUnitOfWork uow, RouteListItem address, RouteListItemStatus status);
 		void CloseAddresses(IUnitOfWork unitOfWork, RouteList routeList);

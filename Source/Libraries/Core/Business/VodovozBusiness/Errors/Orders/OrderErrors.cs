@@ -4,11 +4,11 @@ namespace Vodovoz.Errors.Orders
 {
 	public static partial class OrderErrors
 	{
-		public static Error NotFound =>
+		public static Error NotFound(int? orderId = null) =>
 			new Error(
 				typeof(OrderErrors),
 				nameof(NotFound),
-				"Заказ не найден");
+				orderId.HasValue ? $"Заказ {orderId} не найден" : "Заказ не найден");
 
 		public static Error CantEdit =>
 			new Error(
@@ -107,5 +107,17 @@ namespace Vodovoz.Errors.Orders
 				typeof(OrderErrors),
 				nameof(SplitOrderError),
 				"Произошла ошибка при разбиении заказа");
+		
+		public static Error DeliveryPointEmpty(int orderId) =>
+			new Error(
+				typeof(OrderErrors),
+				nameof(DeliveryPointEmpty),
+				$"В заказе {orderId} не установлена точка доставки");
+		
+		public static Error OrderInUndeliveredStatus(int orderId, string message = null) =>
+			new Error(
+				typeof(OrderErrors),
+				nameof(OrderInUndeliveredStatus),
+				$"Заказ {orderId} находится в отмененном статусе. {message}");
 	}
 }

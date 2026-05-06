@@ -27,6 +27,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Input;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -684,7 +685,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					() => orderDocumentAlias.DocumentOrganizationCounter,
 					() => documentOrganizationCounterAlias
 				)
-				.WhereRestrictionOn(o => o.OrderStatus).Not.IsIn(_orderRepository.GetUndeliveryStatuses())
+				.WhereRestrictionOn(o => o.OrderStatus).Not.IsIn(OrderEntity.UndeliveredStatuses())
 				.And(o => o.PaymentType == PaymentType.Cashless)
 				.And(() => organisationAlias.Id == Entity.Organization.Id);
 

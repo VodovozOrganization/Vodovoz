@@ -87,6 +87,7 @@ using VodovozBusiness.Services.Orders;
 using EnumItemClickedEventArgs = QS.Widgets.EnumItemClickedEventArgs;
 using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
+using VodovozBusiness.Services.Logistics;
 
 namespace Vodovoz
 {
@@ -126,6 +127,7 @@ namespace Vodovoz
 		private IOrderContractUpdater _contractUpdater;
 		private OrderCancellationService _orderCancellationService;
 		private ICarEventSettings _carEventSettings;
+		private IDriverChecker _driverChecker;
 
 		private readonly bool _isOpenFromCash;
 		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(CashPermissions.PresetPermissionsRoles.Cashier);
@@ -240,6 +242,7 @@ namespace Vodovoz
 			_orderCancellationService = _lifetimeScope.Resolve<OrderCancellationService>();
 
 			_carEventSettings = _lifetimeScope.Resolve<ICarEventSettings>();
+			_driverChecker = _lifetimeScope.Resolve<IDriverChecker>();
 		}
 
 		private void ConfigureDlg()
@@ -489,7 +492,7 @@ namespace Vodovoz
 		{
 			if(Entity.Driver != null)
 			{
-				if(!Entity.IsDriversDebtInPermittedRangeVerification())
+				if(!_driverChecker.IsDriversDebtInPermittedRangeVerification(UoW, Entity.Driver, Entity.Id))
 				{
 					Entity.Driver = null;
 				}

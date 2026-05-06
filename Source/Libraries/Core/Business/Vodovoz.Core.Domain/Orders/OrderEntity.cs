@@ -773,6 +773,16 @@ namespace Vodovoz.Core.Domain.Orders
 				OrderStatus.Shipped,
 				OrderStatus.Closed
 			};
+		
+		public static OrderStatus[] UndeliveredStatuses()
+		{
+			return new OrderStatus[]
+			{
+				OrderStatus.NotDelivered,
+				OrderStatus.DeliveryCanceled,
+				OrderStatus.Canceled
+			};
+		}
 
 		#endregion Вычисляемые свойства
 		

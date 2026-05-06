@@ -50,6 +50,7 @@ using Vodovoz.ViewModels.Services.RouteOptimization;
 using Vodovoz.ViewModels.ViewModels.Employees;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using VodovozBusiness.EntityRepositories.Logistic;
+using VodovozBusiness.Services.Logistics;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -77,6 +78,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IWageParameterService _wageParameterService;
 		private readonly IDeliveryRepository _deliveryRepository;
 		private readonly ILogisticRepository _logisticRepository;
+		private readonly IDriverChecker _driverChecker;
 		private bool _canClose = true;
 		private Employee _oldDriver;
 		private DateTime _previousSelectedDate;
@@ -109,7 +111,8 @@ namespace Vodovoz.ViewModels.Logistic
 			RouteGeometryCalculator routeGeometryCalculator,
 			IWageParameterService wageParameterService,
 			IDeliveryRepository deliveryRepository,
-			ILogisticRepository logisticRepository
+			ILogisticRepository logisticRepository,
+			IDriverChecker driverChecker
 			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
@@ -136,6 +139,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_wageParameterService = wageParameterService ?? throw new ArgumentNullException(nameof(wageParameterService));
 			_deliveryRepository = deliveryRepository ?? throw new ArgumentNullException(nameof(deliveryRepository));
 			_logisticRepository = logisticRepository ?? throw new ArgumentNullException(nameof(logisticRepository));
+			_driverChecker = driverChecker ?? throw new ArgumentNullException(nameof(driverChecker));
 
 			if(uowBuilder.IsNewEntity)
 			{
@@ -561,7 +565,7 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			_logger.LogInformation("Вызван метод сохранения МЛ {RouteListId}...", Entity.Id);
 
-			if(!Entity.IsDriversDebtInPermittedRangeVerification())
+			if(!_driverChecker.IsDriversDebtInPermittedRangeVerification(UoW, Entity.Driver, Entity.Id))
 			{
 				return false;
 			}

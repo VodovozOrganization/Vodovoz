@@ -57,6 +57,7 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.NotificationSenders;
+using VodovozBusiness.Services.Logistics;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.TrueMark;
 using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
@@ -94,6 +95,7 @@ namespace Vodovoz
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender;
 		private readonly OrderCancellationService _orderCancellationService;
+		private readonly IDriverChecker _driverChecker;
 		private readonly IRouteListItemTrueMarkProductCodesProcessingService _routeListItemTrueMarkProductCodesProcessingService;
 		private bool _canClose = true;
 		private IEnumerable<object> _selectedRouteListAddressesObjects = Enumerable.Empty<object>();
@@ -131,7 +133,8 @@ namespace Vodovoz
 			IOrderContractUpdater orderContractUpdater,
 			IRouteListService routeListService,
 			IRouteListItemTrueMarkProductCodesProcessingService routeListItemTrueMarkProductCodesProcessingService,
-			OrderCancellationService orderCancellationService
+			OrderCancellationService orderCancellationService,
+			IDriverChecker driverChecker
 			)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
@@ -161,6 +164,7 @@ namespace Vodovoz
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
+			_driverChecker = driverChecker ?? throw new ArgumentNullException(nameof(driverChecker));
 
 			TabName = $"Ведение МЛ №{Entity.Id}";
 
@@ -386,7 +390,7 @@ namespace Vodovoz
 		{
 			if(Entity.Driver != null)
 			{
-				if(!Entity.IsDriversDebtInPermittedRangeVerification())
+				if(!_driverChecker.IsDriversDebtInPermittedRangeVerification(UoW, Entity.Driver, Entity.Id))
 				{
 					Entity.Driver = null;
 				}

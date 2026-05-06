@@ -51,6 +51,7 @@ using Vodovoz.Commons;
 using Vodovoz.Core;
 using Vodovoz.Core.Application;
 using Vodovoz.Core.Application.Entity;
+using Vodovoz.Core.Application.Logistics;
 using Vodovoz.Core.Application.Logistics.Fuel;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Repositories.Logistics;
@@ -104,6 +105,7 @@ using Vodovoz.ViewModels.Services;
 using Vodovoz.ViewModels.Services.DriverSchedule;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.ViewModels.Reports.Payments;
+using VodovozBusiness.Services.Logistics;
 using VodovozInfrastructure;
 using VodovozInfrastructure.Services;
 using DocumentPrinter = Vodovoz.Core.DocumentPrinter;
@@ -259,6 +261,7 @@ namespace Vodovoz
 				.AddScoped<IPasswordValidator, PasswordValidator>()
 				.AddScoped<IPasswordValidationSettings, DefaultPasswordValidationSettings>()
 				.AddScoped<IDriverScheduleService, DriverScheduleService>()
+				.AddScoped<IDriverChecker, DriverChecker>()
 				;
 
 			services.AddStaticHistoryTracker();

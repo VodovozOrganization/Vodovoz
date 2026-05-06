@@ -920,13 +920,13 @@ namespace Vodovoz.Domain.Orders
 
 			var isCashOrderClose = validationContext.Items.ContainsKey("cash_order_close") && (bool)validationContext.Items["cash_order_close"];
 			var isTransferedAddress = validationContext.Items.ContainsKey("AddressStatus") && (RouteListItemStatus)validationContext.Items["AddressStatus"] == RouteListItemStatus.Transfered;
-			var isCancellingOrder = newStatus.HasValue && newStatus.Value.IsIn(_orderRepository.GetUndeliveryStatuses());
+			var isCancellingOrder = newStatus.HasValue && newStatus.Value.IsIn(UndeliveredStatuses());
 
 			if(isCashOrderClose
 				&& !isTransferedAddress
 				&& PaymentTypesNeededOnlineOrder.Contains(PaymentType)
 				&& OnlinePaymentNumber == null
-				&& !_orderRepository.GetUndeliveryStatuses().Contains(OrderStatus)				)
+				&& !UndeliveredStatuses().Contains(OrderStatus)				)
 			{
 				yield return new ValidationResult($"В заказе №{Id} с оплатой по \"{PaymentType.GetEnumDisplayName(true)}\"  отсутствует номер оплаты.");
 			}
@@ -3675,7 +3675,7 @@ namespace Vodovoz.Domain.Orders
 			bool isValidCondition = amountDelivered != 0 || amountDeliveredInDisposableTare != 0;
 			isValidCondition |= returnByStock > 0;
 			isValidCondition |= forfeitQuantity > 0;
-			isValidCondition &= !_orderRepository.GetUndeliveryStatuses().Contains(OrderStatus);
+			isValidCondition &= !UndeliveredStatuses().Contains(OrderStatus);
 
 			if(isValidCondition) {
 				if(BottlesMovementOperation == null) {

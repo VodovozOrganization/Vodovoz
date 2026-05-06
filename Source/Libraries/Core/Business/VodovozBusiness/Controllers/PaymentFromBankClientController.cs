@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.Utilities;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -207,7 +208,7 @@ namespace Vodovoz.Controllers
 
 		private bool HasOrderUndeliveredStatus(OrderStatus orderStatus)
 		{
-			return _orderRepository.GetUndeliveryStatuses().Contains(orderStatus);
+			return OrderEntity.UndeliveredStatuses().Contains(orderStatus);
 		}
 		
 		private bool HasAllocatedSum(IUnitOfWork uow, int orderId, out IList<PaymentItem> paymentItems, out decimal allocatedSum)

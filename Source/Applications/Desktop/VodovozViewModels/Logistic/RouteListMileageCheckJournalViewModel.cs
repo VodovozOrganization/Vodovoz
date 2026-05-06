@@ -24,6 +24,7 @@ using Vodovoz.ViewModels.Infrastructure;
 using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes;
+using VodovozBusiness.Services.Logistics;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -50,7 +51,8 @@ namespace Vodovoz.ViewModels.Logistic
 			IRouteListService routeListService,
 			IEventsQrPlacer eventsQrPlacer,
 			ICustomPrintRdlDocumentsPrinter carLoadDocumentsPrinter,
-			IReportInfoFactory reportInfoFactory
+			IReportInfoFactory reportInfoFactory,
+			IDriverChecker driverChecker
 			)
 			: base(
 				filterViewModel,
@@ -73,7 +75,8 @@ namespace Vodovoz.ViewModels.Logistic
 				routeListService,
 				eventsQrPlacer,
 				carLoadDocumentsPrinter,
-				reportInfoFactory)
+				reportInfoFactory,
+				driverChecker)
 		{
 			TabName = "Контроль за километражем.";
 

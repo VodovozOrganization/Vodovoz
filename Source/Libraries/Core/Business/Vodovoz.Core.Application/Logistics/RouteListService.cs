@@ -7,6 +7,7 @@ using QS.Osrm;
 using QS.Services;
 using QS.Validation;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
@@ -20,6 +21,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Errors.Logistics;
+using Vodovoz.Errors.Orders;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Nomenclature;
@@ -376,7 +378,7 @@ namespace Vodovoz.Core.Application.Logistics
 					{
 						foreach(var item in routeList.Addresses)
 						{
-							bool isInvalidStatus = _orderRepository.GetUndeliveryStatuses().Contains(item.Order.OrderStatus);
+							bool isInvalidStatus = OrderEntity.UndeliveredStatuses().Contains(item.Order.OrderStatus);
 
 							if(!isInvalidStatus)
 							{
@@ -554,7 +556,7 @@ namespace Vodovoz.Core.Application.Logistics
 									continue;
 								}
 
-								bool isInvalidStatus = _orderRepository.GetUndeliveryStatuses().Contains(address.Order.OrderStatus);
+								bool isInvalidStatus = OrderEntity.UndeliveredStatuses().Contains(address.Order.OrderStatus);
 
 								if(!isInvalidStatus)
 								{
@@ -769,7 +771,7 @@ namespace Vodovoz.Core.Application.Logistics
 			}
 
 			var canceledOrdersIds = routeList.Addresses
-				.Where(a => orderRepository.GetUndeliveryStatuses().Contains(a.Order.OrderStatus))
+				.Where(a => OrderEntity.UndeliveredStatuses().Contains(a.Order.OrderStatus))
 				.Select(a => a.Order.Id)
 				.ToArray();
 
@@ -792,7 +794,6 @@ namespace Vodovoz.Core.Application.Logistics
 
 		#endregion Статусы МЛ
 
-
 		#region Адреса в МЛ
 
 		public RouteListItem AddAddressFromOrder(IUnitOfWork unitOfWork, RouteList routeList, Order order)
@@ -811,16 +812,25 @@ namespace Vodovoz.Core.Application.Logistics
 			return item;
 		}
 
-		public RouteListItem AddAddressFromOrder(IUnitOfWork unitOfWork, RouteList routeList, int orderId)
+		public Result<RouteListItem> TryAddAddressFromOrder(IUnitOfWork unitOfWork, RouteList routeList, int orderId)
 		{
 			var order = unitOfWork.GetById<Order>(orderId);
 			if(order == null)
 			{
-				throw new NullReferenceException($"Ошибка добавления заказа в маршрутный лист. Заказ с номером {orderId} не найден.");
+				return Result.Failure<RouteListItem>(OrderErrors.NotFound(orderId));
 			}
 
 			if(order.DeliveryPoint == null)
-				throw new NullReferenceException("В маршрутный нельзя добавить заказ без точки доставки.");
+			{
+				return Result.Failure<RouteListItem>(OrderErrors.DeliveryPointEmpty(orderId));
+			}
+
+			if(OrderEntity.UndeliveredStatuses().Contains(order.OrderStatus))
+			{
+				return Result.Failure<RouteListItem>(
+					OrderErrors.OrderInUndeliveredStatus(orderId, "Обновите данные на карте"));
+			}
+
 			var item = new RouteListItem(routeList, order, RouteListItemStatus.EnRoute)
 			{
 				WithForwarder = routeList.Forwarder != null

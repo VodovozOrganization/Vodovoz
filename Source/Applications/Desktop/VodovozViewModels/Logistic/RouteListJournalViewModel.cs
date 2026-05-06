@@ -50,6 +50,7 @@ using Vodovoz.ViewModels.Print.Store;
 using Order = Vodovoz.Domain.Orders.Order;
 using IWarehousePermissionService = Vodovoz.Infrastructure.Services.IWarehousePermissionService;
 using Vodovoz.Core.Domain.Operations;
+using VodovozBusiness.Services.Logistics;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -60,6 +61,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IEventsQrPlacer _eventsQrPlacer;
 		private readonly ICustomPrintRdlDocumentsPrinter _carLoadDocumentsPrinter;
 		private readonly IReportInfoFactory _reportInfoFactory;
+		private readonly IDriverChecker _driverChecker;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly ICallTaskWorker _callTaskWorker;
@@ -100,6 +102,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IEventsQrPlacer eventsQrPlacer,
 			ICustomPrintRdlDocumentsPrinter carLoadDocumentsPrinter,
 			IReportInfoFactory reportInfoFactory,
+			IDriverChecker driverChecker,
 			Action<RouteListJournalFilterViewModel> filterConfig = null)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
@@ -118,6 +121,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_eventsQrPlacer = eventsQrPlacer ?? throw new ArgumentNullException(nameof(eventsQrPlacer));
 			_carLoadDocumentsPrinter = carLoadDocumentsPrinter ?? throw new ArgumentNullException(nameof(carLoadDocumentsPrinter));
 			_reportInfoFactory = reportInfoFactory ?? throw new ArgumentNullException(nameof(reportInfoFactory));
+			_driverChecker = driverChecker ?? throw new ArgumentNullException(nameof(driverChecker));
 			_routeListDailyNumberProvider = routeListDailyNumberProvider ?? throw new ArgumentNullException(nameof(routeListDailyNumberProvider));
 			_userSettings = userSettings;
 			_storeDocumentHelper = storeDocumentHelper;
@@ -773,7 +777,7 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				var routeList = localUow.GetById<RouteList>(selectedNode.Id);
 
-				if(!routeList.IsDriversDebtInPermittedRangeVerification())
+				if(!_driverChecker.IsDriversDebtInPermittedRangeVerification(localUow, routeList.Driver, routeList.Id))
 				{
 					return;
 				}
@@ -898,7 +902,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 				foreach(var routeList in routeLists)
 				{
-					if(!routeList.IsDriversDebtInPermittedRangeVerification())
+					if(!_driverChecker.IsDriversDebtInPermittedRangeVerification(uowLocal, routeList.Driver, routeList.Id))
 					{
 						return;
 					}

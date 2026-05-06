@@ -772,16 +772,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			};
 		}
 
-		public OrderStatus[] GetUndeliveryStatuses()
-		{
-			return new OrderStatus[]
-				{
-					OrderStatus.NotDelivered,
-					OrderStatus.DeliveryCanceled,
-					OrderStatus.Canceled
-				};
-		}
-
 		public static OrderStatus[] GetUndeliveryAndNewStatuses()
 		{
 			return new[]

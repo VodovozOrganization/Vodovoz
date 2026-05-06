@@ -52,6 +52,8 @@ using VodovozBusiness.Domain.Client;
 using Vodovoz.ViewModels.Services.RouteOptimization;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Osrm;
+using Vodovoz.Core.Domain.Results;
+using VodovozBusiness.Services.Logistics;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -74,6 +76,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IRouteListService _routeListService;
+		private readonly IDriverChecker _driverChecker;
 		private Employee _employee;
 		private bool _excludeTrucks;
 		private Employee _driverFromRouteList;
@@ -127,7 +130,8 @@ namespace Vodovoz.ViewModels.Logistic
 			ICachedDistanceRepository cachedDistanceRepository,
 			IRouteListProfitabilityController routeListProfitabilityController,
 			IOrganizationSettings organizationSettings,
-			IRouteListService routeListService
+			IRouteListService routeListService,
+			IDriverChecker driverChecker
 			)
 			: base(commonServices?.InteractiveService, navigationManager)
 		{
@@ -152,6 +156,7 @@ namespace Vodovoz.ViewModels.Logistic
 			_routeListProfitabilityController = routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
+			_driverChecker = driverChecker ?? throw new ArgumentNullException(nameof(driverChecker));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_atWorkRepository = atWorkRepository ?? throw new ArgumentNullException(nameof(atWorkRepository));
 			OrderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -278,7 +283,9 @@ namespace Vodovoz.ViewModels.Logistic
 					var route = i.RouteList;
 					route.RemoveAddress(i);
 
-					if(!CheckRouteListWasChanged(route))
+					var routeListChangedResult = CheckRouteListWasChanged(route);
+				
+					if(routeListChangedResult.IsFailure)
 					{
 						return;
 					}
@@ -1397,28 +1404,30 @@ namespace Vodovoz.ViewModels.Logistic
 			CanTake = string.Join("\n", text);
 		}
 
-		public bool CheckAlreadyAddedAddress(OrderOnDayNode order)
+		public Result CheckAlreadyAddedAddress(OrderOnDayNode order)
 		{
 			var routeList = _routeListRepository.GetActualRouteListByOrder(UoW, order.OrderId);
 
 			if(routeList != null)
 			{
-				ShowWarningMessage($"Адрес ({order.DeliveryPointCompiledAddress}) уже был кем-то добавлен в МЛ ({routeList.Id}). Обновите данные.");
+				return Result.Failure(new Error(
+					"AddressInOtherRouteList",
+					$"Адрес ({order.DeliveryPointCompiledAddress}) уже был кем-то добавлен в МЛ ({routeList.Id}). Обновите данные."));
 			}
 
-			return routeList == null;
+			return Result.Success();
 		}
 
-		public bool CheckRouteListWasChanged(RouteList routeList)
+		public Result CheckRouteListWasChanged(RouteList routeList)
 		{
 			if(!_routeListRepository.RouteListWasChanged(routeList))
 			{
-				return true;
+				return Result.Success();
 			}
 
-			ShowWarningMessage($"МЛ ({routeList.Id}) уже был кем-то изменен. Обновите данные.");
-
-			return false;
+			return Result.Failure(new Error(
+				"RouteListWasChanged",
+				$"МЛ ({routeList.Id}) уже был кем-то изменен. Обновите данные."));
 		}
 
 		public void RecalculateOnLoadTime()
@@ -1427,14 +1436,19 @@ namespace Vodovoz.ViewModels.Logistic
 			RouteList.RecalculateOnLoadTime(RoutesOnDay, DistanceCalculator);
 		}
 
-		public bool AddOrdersToRouteList(IList<OrderOnDayNode> selectedOrderNodes, RouteList routeList)
+		public IEnumerable<Error> AddOrdersToRouteList(
+			IList<OrderOnDayNode> selectedOrderNodes,
+			RouteList routeList)
 		{
-			if(!routeList.IsDriversDebtInPermittedRangeVerification())
+			var errors = new List<Error>();
+			
+			if(!_driverChecker.IsDriversDebtInPermittedRangeVerification(UoW, routeList.Driver, routeList.Id))
 			{
-				return false;
+				return errors;
 			}
 
-			bool recalculateLoading = false;
+			var recalculateLoading = false;
+			var addedAddresses = 0;
 
 			if(IsAutoroutingModeActive)
 			{
@@ -1446,7 +1460,11 @@ namespace Vodovoz.ViewModels.Logistic
 
 						if(alreadyIn == null)
 						{
-							throw new InvalidProgramException(string.Format("Маршрутный лист, в котором добавлен заказ {0} не найден.", order.OrderId));
+							errors.Add(new Error(
+								"UnknownRouteList",
+								$"Маршрутный лист, в котором добавлен заказ {order.OrderId} не найден"));
+							
+							return errors;
 						}
 
 						if(alreadyIn.Id == routeList.Id) // Уже в нужном маршрутном листе.
@@ -1465,13 +1483,9 @@ namespace Vodovoz.ViewModels.Logistic
 						UoW.Save(alreadyIn);
 					}
 
-					var item = _routeListService.AddAddressFromOrder(UoW, routeList, order.OrderId);
-
-					if(item.IndexInRoute == 0)
-					{
-						recalculateLoading = true;
-					}
+					TryAddAddress(routeList, order.OrderId, errors, ref addedAddresses, ref recalculateLoading);
 				}
+				
 				routeList.RecalculatePlanTime(DistanceCalculator);
 				routeList.RecalculatePlanedDistance(DistanceCalculator);
 
@@ -1481,22 +1495,23 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				foreach(var order in selectedOrderNodes)
 				{
-					if(!CheckAlreadyAddedAddress(order))
+					var alreadyAddedResult = CheckAlreadyAddedAddress(order);
+					
+					if(alreadyAddedResult.IsFailure)
 					{
-						return false;
+						errors.AddRange(alreadyAddedResult.Errors);
+						continue;
 					}
 
-					var item = _routeListService.AddAddressFromOrder(UoW, routeList, order.OrderId);
-
-					if(item.IndexInRoute == 0)
-					{
-						recalculateLoading = true;
-					}
+					TryAddAddress(routeList, order.OrderId, errors, ref addedAddresses, ref recalculateLoading);
 				}
 
-				if(!CheckRouteListWasChanged(routeList))
+				var routeListChangedResult = CheckRouteListWasChanged(routeList);
+				
+				if(routeListChangedResult.IsFailure)
 				{
-					return false;
+					errors.AddRange(routeListChangedResult.Errors);
+					return errors;
 				}
 
 				routeList.RecalculatePlanTime(DistanceCalculator);
@@ -1505,16 +1520,16 @@ namespace Vodovoz.ViewModels.Logistic
 				SaveRouteList(routeList);
 			}
 
-			_logger.LogInformation("В МЛ №{RouteListId} добавлено {SelectedOrdersCount} адресов.", routeList.Id, selectedOrderNodes.Count);
+			_logger.LogInformation("В МЛ №{RouteListId} добавлено {SelectedOrdersCount} адресов.", routeList.Id, addedAddresses);
 
 			if(recalculateLoading)
 			{
 				RecalculateOnLoadTime();
 			}
 
-			bool overweight = routeList.HasOverweight();
-			bool volExcess = routeList.HasVolumeExecess();
-			bool reverseVolExcess = routeList.HasReverseVolumeExcess();
+			var overweight = routeList.HasOverweight();
+			var volExcess = routeList.HasVolumeExecess();
+			var reverseVolExcess = routeList.HasReverseVolumeExcess();
 
 			if(overweight || volExcess || reverseVolExcess)
 			{
@@ -1537,7 +1552,8 @@ namespace Vodovoz.ViewModels.Logistic
 
 				ShowWarningMessage(warningMsg.ToString());
 			}
-			return true;
+			
+			return errors;
 		}
 
 		public bool SaveAutoroutingResults()
@@ -1559,6 +1575,29 @@ namespace Vodovoz.ViewModels.Logistic
 			UoW.Save(routeList);
 			UoW.Commit();
 			HasNoChanges = true;
+		}
+		
+		private void TryAddAddress(
+			RouteList routeList,
+			int orderId,
+			List<Error> errors,
+			ref int addedAddresses,
+			ref bool recalculateLoading)
+		{
+			var addingAddressResult = _routeListService.TryAddAddressFromOrder(UoW, routeList, orderId);
+
+			if(addingAddressResult.IsFailure)
+			{
+				errors.AddRange(addingAddressResult.Errors);
+			}
+			else
+			{
+				addedAddresses++;
+				if(addingAddressResult.Value.IndexInRoute == 0)
+				{
+					recalculateLoading = true;
+				}
+			}
 		}
 
 		private void ReCalculateRouteListProfitability(RouteList routeList)

@@ -32,6 +32,7 @@ using Vodovoz.ViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
+using VodovozBusiness.Services.Logistics;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -67,6 +68,7 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
 		private readonly ICurrentPermissionService _currentPermissionService;
 		private readonly IRouteListService _routeListService;
+		private readonly IDriverChecker _driverChecker;
 
 		public RouteListMileageCheckViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -90,7 +92,8 @@ namespace Vodovoz.ViewModels.Logistic
 			IEmployeeService employeeService,
 			IRouteListProfitabilityController routeListProfitabilityController,
 			ICurrentPermissionService currentPermissionService,
-			IRouteListService routeListService)
+			IRouteListService routeListService,
+			IDriverChecker driverChecker)
 			:base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(lifetimeScope is null)
@@ -117,6 +120,7 @@ namespace Vodovoz.ViewModels.Logistic
 				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
 			_currentPermissionService = currentPermissionService;
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
+			_driverChecker = driverChecker ?? throw new ArgumentNullException(nameof(driverChecker));
 
 			CarEntryViewModel = BuildCarEntryViewModel(lifetimeScope);
 			CanCreateRouteListWithoutOrders = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders);
@@ -254,7 +258,7 @@ namespace Vodovoz.ViewModels.Logistic
 			{
 				if(Entity.Driver != null)
 				{
-					if(!Entity.IsDriversDebtInPermittedRangeVerification())
+					if(!_driverChecker.IsDriversDebtInPermittedRangeVerification(UoW, Entity.Driver, Entity.Id))
 					{
 						Entity.Driver = null;
 					}

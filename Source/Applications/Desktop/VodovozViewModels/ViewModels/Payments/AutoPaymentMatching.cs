@@ -6,24 +6,21 @@ using System.Text.RegularExpressions;
 using MoreLinq;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Documents;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Payments;
-using Vodovoz.EntityRepositories.Orders;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments
 {
 	public class AutoPaymentMatching
 	{
 		private readonly IUnitOfWork _uow;
-		private readonly OrderStatus[] _orderUndeliveredStatuses;
 		private readonly HashSet<int> _addedOrderIdsToAllocate = new HashSet<int>();
 
-		public AutoPaymentMatching(IUnitOfWork uow, IOrderRepository orderRepository)
+		public AutoPaymentMatching(IUnitOfWork uow)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
-			_orderUndeliveredStatuses = (orderRepository ?? throw new ArgumentNullException(nameof(orderRepository)))
-				.GetUndeliveryStatuses();
 		}
 
 		public bool IncomePaymentMatch(Payment payment)
@@ -50,7 +47,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					orders.AddRange(
 						numericOrderIds.Select(orderId => _uow.GetById<Order>(orderId))
 							.Where(order => order != null
-								&& !_orderUndeliveredStatuses.Contains(order.OrderStatus)
+								&& !OrderEntity.UndeliveredStatuses().Contains(order.OrderStatus)
 								&& order.Client.Id == payment.Counterparty.Id
 								&& order.PaymentType == PaymentType.Cashless
 								&& (order.OrderPaymentStatus == OrderPaymentStatus.UnPaid || order.OrderPaymentStatus == OrderPaymentStatus.None)
@@ -78,7 +75,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 						orders.AddRange(
 							orderIdsByDocNumber.Select(orderId => _uow.GetById<Order>(orderId))
 								.Where(order => order != null
-									&& !_orderUndeliveredStatuses.Contains(order.OrderStatus)
+									&& !OrderEntity.UndeliveredStatuses().Contains(order.OrderStatus)
 									&& order.Client.Id == payment.Counterparty.Id
 									&& order.PaymentType == PaymentType.Cashless
 									&& (order.OrderPaymentStatus == OrderPaymentStatus.UnPaid || order.OrderPaymentStatus == OrderPaymentStatus.None)

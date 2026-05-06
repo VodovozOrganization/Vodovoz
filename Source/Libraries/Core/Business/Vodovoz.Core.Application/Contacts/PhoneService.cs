@@ -74,7 +74,7 @@ namespace Vodovoz.Core.Application.Contacts
 
 				if(orderId == 0)
 				{
-					return Result.Failure<string>(Vodovoz.Errors.Orders.OrderErrors.NotFound);
+					return Result.Failure<string>(Vodovoz.Errors.Orders.OrderErrors.NotFound());
 				}
 
 				var routeList = _routeListRepository

@@ -34,7 +34,6 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private readonly IPaymentSettings _paymentSettings;
 		private readonly IPaymentsRepository _paymentsRepository;
 		private readonly ICounterpartyRepository _counterpartyRepository;
-		private readonly IOrderRepository _orderRepository;
 		private readonly IGenericRepository<Organization> _organizationRepository;
 		private readonly IGenericRepository<ProfitCategory> _profitCategoryRepository;
 		private readonly IGenericRepository<Account> _accountRepository;
@@ -61,7 +60,6 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IPaymentSettings paymentSettings,
 			IPaymentsRepository paymentsRepository,
 			ICounterpartyRepository counterpartyRepository,
-			IOrderRepository orderRepository,
 			IGenericRepository<Organization> organizationRepository,
 			IGenericRepository<ProfitCategory> profitCategoryRepository,
 			IGenericRepository<Account> accountRepository,
@@ -81,7 +79,6 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			_paymentSettings = paymentSettings ?? throw new ArgumentNullException(nameof(paymentSettings));
 			_paymentsRepository = paymentsRepository ?? throw new ArgumentNullException(nameof(paymentsRepository));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
-			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_profitCategoryRepository = profitCategoryRepository ?? throw new ArgumentNullException(nameof(profitCategoryRepository));
 			_accountRepository = accountRepository ?? throw new ArgumentNullException(nameof(accountRepository));
@@ -321,7 +318,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			_paymentDuplicates = 0;
 			_paymentsWithNotOurOrganizationReceiver = 0;
 			
-			var autoPaymentMatching = new AutoPaymentMatching(UoW, _orderRepository);
+			var autoPaymentMatching = new AutoPaymentMatching(UoW);
 			var totalCount = Parser.TransferDocuments.Count;
 
 			_progress = 1d / totalCount;

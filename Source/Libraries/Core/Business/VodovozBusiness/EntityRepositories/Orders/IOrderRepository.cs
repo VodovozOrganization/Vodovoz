@@ -129,8 +129,6 @@ namespace Vodovoz.EntityRepositories.Orders
 
 		double GetAvgRangeBetweenOrders(IUnitOfWork uow, DeliveryPoint deliveryPoint, out int? orderCount, DateTime? startDate = null, DateTime? endDate = null);
 
-		OrderStatus[] GetUndeliveryStatuses();
-
 		SmsPaymentStatus? GetOrderSmsPaymentStatus(IUnitOfWork uow, int orderId);
 
 		decimal GetCounterpartyDebt(IUnitOfWork uow, int counterpartyId, int? organizationId = null);

@@ -175,7 +175,7 @@ namespace WarehouseApi.Library.Services
 
 			if(order is null)
 			{
-				var error = OrderErrors.NotFound;
+				var error = OrderErrors.NotFound();
 				var result = Result.Failure<GetOrderResponse>(error);
 				return RequestProcessingResult.CreateFailure(
 					result, 

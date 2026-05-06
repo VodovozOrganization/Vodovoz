@@ -123,7 +123,7 @@ namespace WarehouseApi.Library.Services
 			if(order is null)
 			{
 				_logger.LogWarning($"Заказ с id {orderId} не найден.");
-				return Vodovoz.Errors.Orders.OrderErrors.NotFound;
+				return Vodovoz.Errors.Orders.OrderErrors.NotFound();
 			}
 
 			if(!order.SelfDelivery)

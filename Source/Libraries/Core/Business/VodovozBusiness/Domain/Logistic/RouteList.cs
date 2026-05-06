@@ -860,6 +860,7 @@ namespace Vodovoz.Domain.Logistic
 				msg = "Для маршрутного листа были созданы документы погрузки. Сначала необходимо удалить их.";
 				return false;
 			}
+
 			if(address.Status == RouteListItemStatus.Transfered && address.TransferedTo != null)
 			{
 				var toAddress = routeListItemRepository.GetRouteListItemById(UoW, address.TransferedTo.Id);
@@ -869,7 +870,7 @@ namespace Vodovoz.Domain.Logistic
 
 				UoW.Save(toAddress);
 			}
-			else
+			else if(!OrderEntity.UndeliveredStatuses().Contains(address.Order.OrderStatus))
 			{
 				address.ChangeOrderStatus(OrderStatus.Accepted);
 			}
@@ -1423,48 +1424,6 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			return _deliveryRulesSettings.MaxFastOrdersPerSpecificTime;
-		}
-
-		public virtual bool IsDriversDebtInPermittedRangeVerification()
-		{
-			if(Driver != null)
-			{
-				var maxDriversUnclosedRouteListsCountParameter = GetGeneralSettingsSettings.DriversUnclosedRouteListsHavingDebtMaxCount;
-				var maxDriversRouteListsDebtsSumParameter = GetGeneralSettingsSettings.DriversRouteListsMaxDebtSum;
-
-				var isDriverHasActiveStopListRemoval = Driver.IsDriverHasActiveStopListRemoval(UoW);
-
-				if(isDriverHasActiveStopListRemoval)
-				{
-					return true;
-				}
-
-				var unclosedRouteListsHavingDebtsCount =
-					_routeListRepository.GetUnclosedRouteListsCountHavingDebtByDriver(UoW, Driver.Id, Id);
-				var unclosedRouteListsDebtsSum =
-					_routeListRepository.GetUnclosedRouteListsDebtsSumByDriver(UoW, Driver.Id, Id);
-
-				if(unclosedRouteListsHavingDebtsCount > maxDriversUnclosedRouteListsCountParameter 
-					|| unclosedRouteListsDebtsSum > maxDriversRouteListsDebtsSumParameter)
-				{
-					var messageString =
-						$"Водитель {Driver.FullName} в стоп-листе, т.к. кол-во незакрытых МЛ с долгом {unclosedRouteListsHavingDebtsCount} штук " +
-						$"и суммарный долг водителя по всем МЛ составляет {unclosedRouteListsDebtsSum} рублей.";
-
-					var canEditDriversStopListParameters =
-						ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_edit_drivers_stop_list_parameters");
-
-					if(canEditDriversStopListParameters)
-					{
-						messageString += "\n\nВсе равно продолжить?";
-						return ServicesConfig.InteractiveService.Question(messageString, "Требуется подтверждение");
-					}
-
-					ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Error, messageString);
-					return false;
-				}
-			}
-			return true;
 		}
 
 		#endregion

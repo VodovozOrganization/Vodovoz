@@ -19,6 +19,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using Vodovoz.Additions.Logistic;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -1092,24 +1093,20 @@ namespace Vodovoz.Views.Logistic
 
 		private void AddToRLItem_Activated(object sender, EventArgs e)
 		{
-			bool ordersAdded = false;
+			IEnumerable<Core.Domain.Results.Error> ordersAddedErrors = null;
 			RouteList routeList = ((MenuItemId<RouteList>)sender).ID;
+			
 			try
 			{
-				ordersAdded = ViewModel.AddOrdersToRouteList(GetSelectedOrders(), routeList);
+				ordersAddedErrors = ViewModel.AddOrdersToRouteList(GetSelectedOrders(), routeList);
 			}
 			catch(Exception ex)
 			{
-				MessageDialogHelper.RunErrorDialog(
-					"Возникла ошибка при добавлении адресов, возможно из-за одновременного добавления одного адреса несколькими пользователями.\n" +
-					"Данные для формирования будут автоматически обновлены для продолжения работы.\n" +
-					"Повторите попытку добавления адресов.\n" +
-					$"Текст ошибки: {ex.Message}", "Ошибка при добавлении адресов"
-				);
-				Refresh();
+				ShowErrorMessageFromAddingAddresses(ex.Message);
 				return;
 			}
-			if(ordersAdded)
+			
+			if(!ordersAddedErrors.Any())
 			{
 				UpdateAddressesOnMap();
 				UpdateMarkersInDriverDistricts(routeList.Driver);
@@ -1117,6 +1114,25 @@ namespace Vodovoz.Views.Logistic
 				TurnOffCheckShowOnlyDriverOrders();
 				ViewModel.RouteListProfitabilityController.ReCalculateRouteListProfitability(ViewModel.UoW, routeList);
 			}
+			else
+			{
+				var sb = new StringBuilder();
+				ordersAddedErrors.Select(x => sb.AppendLine(x.Message));
+				
+				ShowErrorMessageFromAddingAddresses(sb.ToString());
+			}
+		}
+
+		private void ShowErrorMessageFromAddingAddresses(string errorMessage)
+		{
+			MessageDialogHelper.RunErrorDialog(
+				"Возникла ошибка при добавлении адресов, возможно из-за одновременного добавления одного адреса несколькими пользователями.\n" +
+				"Данные для формирования будут автоматически обновлены для продолжения работы.\n" +
+				"Повторите попытку добавления адресов.\n" +
+				$"Текст ошибки: { errorMessage }", "Ошибка при добавлении адресов"
+			);
+			
+			Refresh();
 		}
 
 		private void TurnOffCheckShowOnlyDriverOrders()
