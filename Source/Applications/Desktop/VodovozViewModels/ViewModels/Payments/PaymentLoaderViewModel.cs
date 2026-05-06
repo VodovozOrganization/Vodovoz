@@ -1,7 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
 using Microsoft.Extensions.Logging;
 using QS.Banks.Domain;
 using QS.Commands;
@@ -12,6 +8,10 @@ using QS.Services;
 using QS.ViewModels;
 using ResourceLocker.Library;
 using ResourceLocker.Library.Factories;
+using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Vodovoz.Core.Application.Payments;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Core.Domain.Repositories;
@@ -24,6 +24,7 @@ using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.Services;
 using Vodovoz.Settings.Organizations;
+using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments
 {
@@ -40,6 +41,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private readonly IGenericRepository<Account> _accountRepository;
 		private readonly IGenericRepository<BankAccountMovement> _accountMovementRepository;
 		private readonly IGenericRepository<NotAllocatedCounterparty> _notAllocatedCounterpartiesRepository;
+		private readonly IClosingDeliveriesService _closingDeliveriesService;
 		private readonly IResourceLocker _resourceLocker;
 		private IReadOnlyDictionary<string, Organization> _allVodOrganisations;
 		private IReadOnlyDictionary<string, NotAllocatedCounterparty> _allNotAllocatedCounterparties;
@@ -68,7 +70,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IGenericRepository<BankAccountMovement> accountMovementRepository,
 			IGenericRepository<NotAllocatedCounterparty> notAllocatedCounterpartiesRepository,
 			IResourceLockerFactory resourceLockerFactory,
-			IUserRepository userRepository) 
+			IUserRepository userRepository,
+			IClosingDeliveriesService closingDeliveriesService) 
 			: base(unitOfWorkFactory, commonServices?.InteractiveService, navigationManager)
 		{
 			if(commonServices == null)
@@ -88,7 +91,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			_accountMovementRepository = accountMovementRepository ?? throw new ArgumentNullException(nameof(accountMovementRepository));
 			_notAllocatedCounterpartiesRepository =
 				notAllocatedCounterpartiesRepository ?? throw new ArgumentNullException(nameof(notAllocatedCounterpartiesRepository));
-
+			_closingDeliveriesService = closingDeliveriesService ?? throw new ArgumentNullException(nameof(closingDeliveriesService));
 			InteractiveService = commonServices.InteractiveService;
 			UnitOfWorkFactory = unitOfWorkFactory;
 			UoW = UnitOfWorkFactory.CreateWithoutRoot("Выгрузка выписки из банк-клиента");
@@ -159,6 +162,11 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		public bool CanSave => IsNotProcessingMode && !IsSavingState;
 		public bool CanCancel => IsNotProcessingMode && !IsSavingState;
 		public bool CanReadFile => IsNotProcessingMode && !IsSavingState;
+
+		public void CheckAndOpenDeliveries(IUnitOfWork uow, int counterpartyId)
+		{
+			_closingDeliveriesService.CheckAndOpenDeliveriesAsync(uow, counterpartyId).GetAwaiter().GetResult();
+		}
 
 		private void GetOrganisations()
 		{

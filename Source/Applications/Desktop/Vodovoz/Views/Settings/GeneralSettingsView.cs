@@ -1,4 +1,4 @@
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using QS.DomainModel.Entity;
 using QS.Views;
 using System;
@@ -286,6 +286,20 @@ namespace Vodovoz.Views.Settings
 				.AddBinding(vm => vm.DebtNotificationWorkerIsEnabled, w => w.Active)
 				.AddFuncBinding(vm => vm.CanEditDebtNotification, w => w.Sensitive)
 				.InitializeFromSource();
+
+			yspinbuttonDaysBeforeClosingDeliveries.Binding
+				.AddBinding(ViewModel, vm => vm.DaysBeforeClosingDeliveries, w => w.ValueAsInt)
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangePaymentDeferment, w => w.Sensitive)
+				.InitializeFromSource();
+
+			buttonSaveDaysBeforeClosingDeliveries.BindCommand(ViewModel.SaveDaysBeforeClosingDeliveriesCommand);
+
+			yentryClosingDeliveriesNotificationEmails.Binding
+				.AddBinding(ViewModel, vm => vm.ClosingDeliveriesNotificationEmails, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangePaymentDeferment, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ybuttonSaveClosingDeliveriesNotificationEmails.BindCommand(ViewModel.SaveClosingDeliveriesNotificationEmailsCommand);
 		}
 		
 		private void ConfigureEmployeesFixedPrices()

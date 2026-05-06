@@ -82,6 +82,7 @@ namespace Vodovoz.Core.Application
 				.AddScoped<IStagingTrueMarkCodeFactory, StagingTrueMarkCodeFactory>()
 				.AddTrueMarkApiClient()
 				.AddCoreApplicationOrderServices()
+				.AddScoped<IClosingDeliveriesService, ClosingDeliveriesService>()
 				;
 
 			services.TryAddScoped<IFastPaymentSender, FastPaymentSender>();

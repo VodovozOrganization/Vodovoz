@@ -41,6 +41,7 @@ using Vodovoz.Settings.Delivery;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
 using Vodovoz.ViewModels.TempAdapters;
 using VodovozBusiness.Services;
+using VodovozBusiness.Services.Orders;
 using VodOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.ViewModels.Payments
@@ -70,6 +71,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
 		private readonly ViewModelEEVMBuilder<ProfitCategory> _profitCategoryEevmBuilder;
+		private readonly IClosingDeliveriesService _closingDeliveriesService;
 		private IResourceLocker _resourceLocker;
 
 		public ManualPaymentMatchingViewModel(
@@ -86,8 +88,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IOrganizationRepository organizationRepository,
 			IDeliveryScheduleSettings deliveryScheduleSettings,
 			IResourceLockerFactory resourceLockerFactory,
-			IUserRepository userRepository,
-			ViewModelEEVMBuilder<ProfitCategory> profitCategoryEevmBuilder) : base(uowBuilder, uowFactory, commonServices)
+			IUserRepository userRepository,			
+			ViewModelEEVMBuilder<ProfitCategory> profitCategoryEevmBuilder,
+			IClosingDeliveriesService closingDeliveriesService) 
+			: base(uowBuilder, uowFactory, commonServices)
 		{
 			if(resourceLockerFactory == null)
 			{
@@ -107,6 +111,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			_organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 			_profitCategoryEevmBuilder = profitCategoryEevmBuilder ?? throw new ArgumentNullException(nameof(profitCategoryEevmBuilder));
+			_closingDeliveriesService = closingDeliveriesService ?? throw new ArgumentNullException(nameof(closingDeliveriesService));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 
@@ -892,6 +897,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			{
 				return false;
 			}
+
+			UoW.Session.Flush();
+			_closingDeliveriesService.CheckAndOpenDeliveriesAsync(UoW, Entity.Counterparty.Id).GetAwaiter().GetResult();
 
 			return base.Save(close);
 		}
