@@ -1,4 +1,4 @@
-using NHibernate.Criterion;
+﻿using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -295,5 +295,26 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="deliveryPointId">Идентификатор ТД</param>
 		/// <returns></returns>
 		IEnumerable<int> GetClientOrdersIdsForDate(IUnitOfWork uow, DateTime date, int? counterpartyId, int? deliveryPointId);
+
+		/// <summary>
+		/// Получение данных по просроченной дебиторской задолженности контрагентов для формирования претензионных писем, 
+		/// сгруппированные по контрагенту и организации, с учетом минимального количества дней просрочки сверх установленного для КА
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="expiredMinDaysAgo">Минимальное количество дней просрочки</param>
+		/// <param name="orderStatuses">Статусы заказов</param>
+		/// <param name="excludeCounterpartyRevenueStatuses">Статусы контрагентов в налоговой для исключения</param>
+		/// <param name="letterOfClaimResendIntervalDays">Интервал дней для повторной отправки претензии</param>
+		/// <param name="maxClientsToTake">Максимальное количество клиентов</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Данные по просроченным долгам контрагента в разрезе организации</returns>
+		Task<IDictionary<CounterpartyOrganizationDataNode, CounterpartyOverdueDebtorDebtAggregatedNode>> GetOverdueDebtorDebtDataForLettersOfClaim(
+			IUnitOfWork uow,
+			int expiredMinDaysAgo,
+			IEnumerable<OrderStatus> orderStatuses,
+			IEnumerable<RevenueStatus> excludeCounterpartyRevenueStatuses,
+			int letterOfClaimResendIntervalDays,
+			int maxClientsToTake = int.MaxValue,
+			CancellationToken cancellationToken = default);
 	}
 }

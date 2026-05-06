@@ -92,6 +92,10 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private int _kaskoEndingNotifyDaysBefore;
 		private int _carTechnicalCheckupEndingNotifyDaysBefore;
 
+		private int _lettersOfClaimTimeoutDays;
+		private string _claimDocumentCreatedBy;
+		private string _claimDocumentCreatorPhone;
+
 		public GeneralSettingsViewModel(
 			ILogger<GeneralSettingsViewModel> logger,
 			IGeneralSettings generalSettings,
@@ -216,7 +220,11 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				.ValidatePresetPermission(Core.Domain.Permissions.CounterpartyPermissions.CanMassiveChangePaymentDeferment);
 			CanMassiveChangeVatRate = _commonServices.CurrentPermissionService
 				.ValidatePresetPermission(Core.Domain.Permissions.CashPermissions.CanMassiveChangeVatRate);
-			
+
+			CanEditLettersOfClaimSettings =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.CounterpartyPermissions.CanEditDebtNotification);
+			SaveLettersOfClaimSettingsCommand = new DelegateCommand(SaveLettersOfClaimSettings, () => CanEditLettersOfClaimSettings);
+
 			InitializeAccountingSettingsViewModels();
 			ConfigureOrderOrganizationsSettings();
 		}
@@ -416,6 +424,56 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		}
 
 		public bool CanEditDebtNotification { get; }
+
+		#endregion
+
+		#region Настройка автоматической отправки писем с претензиями о долге клиента
+
+		/// <summary>
+		/// Количество дней сверх ПДЗ до отправки претензионного письма
+		/// </summary>
+		public int LettersOfClaimTimeoutDays
+		{
+			get => _lettersOfClaimTimeoutDays;
+			set => SetField(ref _lettersOfClaimTimeoutDays, value);
+		}
+
+		/// <summary>
+		/// Исполнитель, указанный в документе претензия по долгу
+		/// </summary>
+		public string ClaimDocumentCreatedBy
+		{
+			get => _claimDocumentCreatedBy;
+			set => SetField(ref _claimDocumentCreatedBy, value);
+		}
+
+		/// <summary>
+		/// Номер телефона исполнителя, указанный в документе претензия по долгу
+		/// </summary>
+		public string ClaimDocumentCreatorPhone
+		{
+			get => _claimDocumentCreatorPhone;
+			set => SetField(ref _claimDocumentCreatorPhone, value);
+		}
+
+		/// <summary>
+		/// Команда сохранения настроек отправки писем с претензиями о долге клиента
+		/// </summary>
+		public DelegateCommand SaveLettersOfClaimSettingsCommand { get; }
+
+		/// <summary>
+		/// Разрешение на редактирование настроек отправки писем с претензиями о долге клиента
+		/// </summary>
+		public bool CanEditLettersOfClaimSettings { get; }
+
+		private void SaveLettersOfClaimSettings()
+		{
+			_debtorsSettings.SetLettersOfClaimTimeoutDays(LettersOfClaimTimeoutDays);
+			_debtorsSettings.SetClaimDocumentCreatedBy(ClaimDocumentCreatedBy);
+			_debtorsSettings.SetClaimDocumentCreatorPhone(ClaimDocumentCreatorPhone);
+
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+		}
 
 		#endregion
 
