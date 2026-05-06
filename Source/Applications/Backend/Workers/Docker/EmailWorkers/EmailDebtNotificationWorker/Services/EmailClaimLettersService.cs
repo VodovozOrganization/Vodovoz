@@ -327,17 +327,11 @@ namespace EmailDebtNotificationWorker.Services
 			var attachments = new List<EmailAttachment>();
 			try
 			{
-				var generalBillAttachments = _emailAttachmentsCreateService.CreateGeneralBillAttachments(
-					counterpartyId,
-					organizationId,
-					orderIds);
-
 				var letterOfClaimAttachments = _emailAttachmentsCreateService.CreateLetterOfClaimAttachments(
 					organizationId,
 					counterpartyId,
 					totalOverdueDebtorDebtFormatted);
 
-				attachments.AddRange(generalBillAttachments);
 				attachments.AddRange(letterOfClaimAttachments);
 			}
 			catch(Exception ex)
