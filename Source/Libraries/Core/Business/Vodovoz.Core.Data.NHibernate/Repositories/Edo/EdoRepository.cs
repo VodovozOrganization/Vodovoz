@@ -202,7 +202,9 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 			IUnitOfWork uow,
 			string problemSourceName,
 			DateTime minCreationTime,
-			CancellationToken cancellationToken)
+			CancellationToken cancellationToken,
+			DateTime? maxCreationTime = null 
+			)
 			where T : OrderEdoTask
 		{
 			var tasksIdsQuery =
@@ -213,6 +215,7 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 					problem.SourceName == problemSourceName
 					&& problem.State == TaskProblemState.Active
 					&& edoTask.CreationTime >= minCreationTime
+					&& (maxCreationTime == null || edoTask.CreationTime <= maxCreationTime)
 				select edoTask.Id;
 
 			var taskIds = await tasksIdsQuery.Distinct().ToListAsync(cancellationToken);

@@ -2480,6 +2480,10 @@
       <Project>{b657cbf6-c803-4249-894b-87e8e6e94a62}</Project>
       <Name>Edo.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Problem.Routine\Edo.Problem.Routine.csproj">
+      <Project>{9315f39c-5054-410e-b8e9-27c987321b67}</Project>
+      <Name>Edo.Problem.Routine</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Transport\Edo.Transport.csproj">
       <Project>{c17807ce-71ac-4101-901e-657cef7892eb}</Project>
       <Name>Edo.Transport</Name>
