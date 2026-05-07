@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using System;
 using System.Linq;
@@ -105,27 +104,38 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_logger.LogInformation("Закрыты поставки {CounterpartiesCount} контрагентам", counterpartiesWithDebtOverdueNodes.Count());
 		}
 
-		public async Task CheckAndOpenDeliveriesAsync(IUnitOfWork unitOfWork, int counterpartyId, CancellationToken cancellationToken = default)
+		public async Task CheckAndOpenDeliveriesAsync(
+			IUnitOfWork unitOfWork,
+			int counterpartyId,
+			CancellationToken cancellationToken = default)
 		{
-			return;
+			var hasOverdueDebt = await _orderRepository.HasClosedDeliveriesCounterpartyWithOverdueDebtsAsync(
+				unitOfWork,
+				_closingDeliveriesSettings.DaysBeforeClosingDeliveries,
+				_organizationsIds,
+				_orderStatuses,
+				_counterpartyTypes,
+				counterpartyId,
+				cancellationToken);
 
-			var ordersWithDebtOverdue = await
-				_orderRepository.GetWithClosedDeliveriesCounterpartyOverdueDebts(
-						unitOfWork,
-						_closingDeliveriesSettings.DaysBeforeClosingDeliveries,
-						_organizationsIds,
-						_orderStatuses,
-						_counterpartyTypes,
-						counterpartyId);
+			if(hasOverdueDebt)
+			{
+				return;
+			}
 
-			if(ordersWithDebtOverdue.Any())
+			var counterparty = unitOfWork.GetById<Counterparty>(counterpartyId);
+
+			if(counterparty == null)
+			{
+				return;
+			}
+
+			if(!counterparty.IsDeliveriesClosed)
 			{
 				return;
 			}
 
 			var employee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork);
-
-			var counterparty = unitOfWork.GetById<Counterparty>(counterpartyId);
 
 			counterparty.ToggleDeliveryOption(employee, true);
 
