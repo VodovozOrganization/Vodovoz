@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using QS.Banks.Domain;
 using QS.Commands;
 using QS.Dialog;
@@ -163,9 +163,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		public bool CanCancel => IsNotProcessingMode && !IsSavingState;
 		public bool CanReadFile => IsNotProcessingMode && !IsSavingState;
 
-		public void CheckAndOpenDeliveries(IUnitOfWork uow, int counterpartyId)
+		public void CheckAndOpenDeliveries(IUnitOfWork uow, Domain.Client.Counterparty counterparty)
 		{
-			_closingDeliveriesService.CheckAndOpenDeliveriesAsync(uow, counterpartyId).GetAwaiter().GetResult();
+			_closingDeliveriesService.CheckAndOpenDeliveriesAsync(uow, counterparty).GetAwaiter().GetResult();
 		}
 
 		private void GetOrganisations()

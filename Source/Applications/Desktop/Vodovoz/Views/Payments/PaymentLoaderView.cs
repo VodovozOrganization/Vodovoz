@@ -180,7 +180,7 @@ namespace Vodovoz.Views
 						uow.Save(payment);
 
 						uow.Session.Flush();
-						ViewModel.CheckAndOpenDeliveries(uow, payment.Counterparty.Id);						
+						ViewModel.CheckAndOpenDeliveries(uow, payment.Counterparty);						
 
 						uow.Commit();
 						countAll++;

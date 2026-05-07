@@ -1,6 +1,7 @@
 ﻿using QS.DomainModel.UoW;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Domain.Client;
 
 namespace VodovozBusiness.Services.Orders
 {
@@ -17,6 +18,6 @@ namespace VodovozBusiness.Services.Orders
 		/// <summary>
 		/// Открытие поставок у контрагента с отсутствующей просроченной задолженностью
 		/// </summary>
-		Task CheckAndOpenDeliveriesAsync(IUnitOfWork unitOfWork, int counterpartyId, CancellationToken cancellationToken = default);
+		Task CheckAndOpenDeliveriesAsync(IUnitOfWork unitOfWork, Counterparty counterparty, CancellationToken cancellationToken = default);
 	}
 }

@@ -899,7 +899,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			}
 
 			UoW.Session.Flush();
-			_closingDeliveriesService.CheckAndOpenDeliveriesAsync(UoW, Entity.Counterparty.Id).GetAwaiter().GetResult();
+			_closingDeliveriesService.CheckAndOpenDeliveriesAsync(UoW, Entity.Counterparty).GetAwaiter().GetResult();
 
 			return base.Save(close);
 		}
