@@ -23,6 +23,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Contacts;
 using Vodovoz.Settings.Delivery;
+using VodovozBusiness.Domain.StoredEmails;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Contacts
@@ -662,6 +663,22 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 			query.OrderBy(x => x.Id == emailSettings.BulkEmailEventOtherReasonId);
 
 			return query.List();
+		}
+
+		/// <inheritdoc/>
+		public int GetTodaySentLetterOfClaimsCount(IUnitOfWork uow)
+		{
+			var startOfDay = DateTime.Today;
+			var endOfDay = startOfDay.AddDays(1).AddSeconds(-1);
+
+			var query =
+				from letterOfClaimEmails in uow.Session.Query<LetterOfClaimEmail>()
+				join storedEmail in uow.Session.Query<StoredEmail>()
+					on letterOfClaimEmails.StoredEmail.Id equals storedEmail.Id
+				where storedEmail.SendDate >= startOfDay && storedEmail.SendDate <= endOfDay
+				select letterOfClaimEmails;
+
+			return query.Count();
 		}
 
 		#region EmailType

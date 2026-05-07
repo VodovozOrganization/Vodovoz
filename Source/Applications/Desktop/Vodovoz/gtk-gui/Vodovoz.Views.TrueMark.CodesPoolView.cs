@@ -6,17 +6,37 @@ namespace Vodovoz.Views.TrueMark
 	{
 		private global::Gamma.GtkWidgets.yVBox yvboxMain;
 
+		private global::Gamma.GtkWidgets.yHBox yhboxData;
+
+		private global::Gamma.GtkWidgets.yVBox yvbox3;
+
 		private global::Gamma.GtkWidgets.yHBox yhboxButtons;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonLoadCodesToPool;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonRefresh;
 
-		private global::Gamma.GtkWidgets.yHBox yhboxData;
-
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewData;
+
+		private global::Gamma.GtkWidgets.yVBox yvbox2;
+
+		private global::Gamma.GtkWidgets.yHBox yhbox2;
+
+		private global::QS.Widgets.ValidatedEntry entryEdoTaskId;
+
+		private global::Gtk.Label labelDate;
+
+		private global::QS.Widgets.GtkUI.DateRangePicker dateperiodProbles;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonRefreshProblemsTask;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonResendTask;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindowProblems;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewProblemsData;
 
 		protected virtual void Build()
 		{
@@ -29,6 +49,14 @@ namespace Vodovoz.Views.TrueMark
 			this.yvboxMain.Name = "yvboxMain";
 			this.yvboxMain.Spacing = 6;
 			// Container child yvboxMain.Gtk.Box+BoxChild
+			this.yhboxData = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxData.Name = "yhboxData";
+			this.yhboxData.Spacing = 6;
+			// Container child yhboxData.Gtk.Box+BoxChild
+			this.yvbox3 = new global::Gamma.GtkWidgets.yVBox();
+			this.yvbox3.Name = "yvbox3";
+			this.yvbox3.Spacing = 6;
+			// Container child yvbox3.Gtk.Box+BoxChild
 			this.yhboxButtons = new global::Gamma.GtkWidgets.yHBox();
 			this.yhboxButtons.Name = "yhboxButtons";
 			this.yhboxButtons.Spacing = 6;
@@ -55,19 +83,15 @@ namespace Vodovoz.Views.TrueMark
 			this.yhboxButtons.Add(this.ybuttonRefresh);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.ybuttonRefresh]));
 			w3.PackType = ((global::Gtk.PackType)(1));
-			w3.Position = 2;
+			w3.Position = 10;
 			w3.Expand = false;
 			w3.Fill = false;
-			this.yvboxMain.Add(this.yhboxButtons);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxButtons]));
+			this.yvbox3.Add(this.yhboxButtons);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yvbox3[this.yhboxButtons]));
 			w4.Position = 0;
 			w4.Expand = false;
 			w4.Fill = false;
-			// Container child yvboxMain.Gtk.Box+BoxChild
-			this.yhboxData = new global::Gamma.GtkWidgets.yHBox();
-			this.yhboxData.Name = "yhboxData";
-			this.yhboxData.Spacing = 6;
-			// Container child yhboxData.Gtk.Box+BoxChild
+			// Container child yvbox3.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -76,12 +100,97 @@ namespace Vodovoz.Views.TrueMark
 			this.ytreeviewData.CanFocus = true;
 			this.ytreeviewData.Name = "ytreeviewData";
 			this.GtkScrolledWindow.Add(this.ytreeviewData);
-			this.yhboxData.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yhboxData[this.GtkScrolledWindow]));
-			w6.Position = 0;
+			this.yvbox3.Add(this.GtkScrolledWindow);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yvbox3[this.GtkScrolledWindow]));
+			w6.Position = 1;
+			this.yhboxData.Add(this.yvbox3);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yhboxData[this.yvbox3]));
+			w7.Position = 0;
+			// Container child yhboxData.Gtk.Box+BoxChild
+			this.yvbox2 = new global::Gamma.GtkWidgets.yVBox();
+			this.yvbox2.Name = "yvbox2";
+			this.yvbox2.Spacing = 6;
+			// Container child yvbox2.Gtk.Box+BoxChild
+			this.yhbox2 = new global::Gamma.GtkWidgets.yHBox();
+			this.yhbox2.Name = "yhbox2";
+			this.yhbox2.Spacing = 6;
+			// Container child yhbox2.Gtk.Box+BoxChild
+			this.entryEdoTaskId = new global::QS.Widgets.ValidatedEntry();
+			this.entryEdoTaskId.CanFocus = true;
+			this.entryEdoTaskId.Name = "entryEdoTaskId";
+			this.entryEdoTaskId.IsEditable = true;
+			this.entryEdoTaskId.InvisibleChar = '•';
+			this.yhbox2.Add(this.entryEdoTaskId);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.entryEdoTaskId]));
+			w8.Position = 0;
+			w8.Expand = false;
+			w8.Fill = false;
+			// Container child yhbox2.Gtk.Box+BoxChild
+			this.labelDate = new global::Gtk.Label();
+			this.labelDate.Name = "labelDate";
+			this.labelDate.LabelProp = global::Mono.Unix.Catalog.GetString("Дата: ");
+			this.yhbox2.Add(this.labelDate);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.labelDate]));
+			w9.Position = 1;
+			w9.Expand = false;
+			w9.Fill = false;
+			// Container child yhbox2.Gtk.Box+BoxChild
+			this.dateperiodProbles = new global::QS.Widgets.GtkUI.DateRangePicker();
+			this.dateperiodProbles.Events = ((global::Gdk.EventMask)(256));
+			this.dateperiodProbles.Name = "dateperiodProbles";
+			this.dateperiodProbles.StartDate = new global::System.DateTime(0);
+			this.dateperiodProbles.EndDate = new global::System.DateTime(0);
+			this.yhbox2.Add(this.dateperiodProbles);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.dateperiodProbles]));
+			w10.Position = 2;
+			// Container child yhbox2.Gtk.Box+BoxChild
+			this.ybuttonRefreshProblemsTask = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonRefreshProblemsTask.CanFocus = true;
+			this.ybuttonRefreshProblemsTask.Name = "ybuttonRefreshProblemsTask";
+			this.ybuttonRefreshProblemsTask.UseUnderline = true;
+			this.ybuttonRefreshProblemsTask.Label = global::Mono.Unix.Catalog.GetString("Обновить");
+			global::Gtk.Image w11 = new global::Gtk.Image();
+			w11.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-refresh", global::Gtk.IconSize.Menu);
+			this.ybuttonRefreshProblemsTask.Image = w11;
+			this.yhbox2.Add(this.ybuttonRefreshProblemsTask);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.ybuttonRefreshProblemsTask]));
+			w12.Position = 3;
+			w12.Expand = false;
+			w12.Fill = false;
+			// Container child yhbox2.Gtk.Box+BoxChild
+			this.ybuttonResendTask = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonResendTask.CanFocus = true;
+			this.ybuttonResendTask.Name = "ybuttonResendTask";
+			this.ybuttonResendTask.UseUnderline = true;
+			this.ybuttonResendTask.Label = global::Mono.Unix.Catalog.GetString("Переотправить");
+			this.yhbox2.Add(this.ybuttonResendTask);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.yhbox2[this.ybuttonResendTask]));
+			w13.Position = 4;
+			w13.Expand = false;
+			w13.Fill = false;
+			this.yvbox2.Add(this.yhbox2);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.yvbox2[this.yhbox2]));
+			w14.Position = 0;
+			w14.Expand = false;
+			w14.Fill = false;
+			// Container child yvbox2.Gtk.Box+BoxChild
+			this.GtkScrolledWindowProblems = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindowProblems.Name = "GtkScrolledWindowProblems";
+			this.GtkScrolledWindowProblems.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindowProblems.Gtk.Container+ContainerChild
+			this.ytreeviewProblemsData = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewProblemsData.CanFocus = true;
+			this.ytreeviewProblemsData.Name = "ytreeviewProblemsData";
+			this.GtkScrolledWindowProblems.Add(this.ytreeviewProblemsData);
+			this.yvbox2.Add(this.GtkScrolledWindowProblems);
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.yvbox2[this.GtkScrolledWindowProblems]));
+			w16.Position = 1;
+			this.yhboxData.Add(this.yvbox2);
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.yhboxData[this.yvbox2]));
+			w17.Position = 1;
 			this.yvboxMain.Add(this.yhboxData);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxData]));
-			w7.Position = 1;
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.yhboxData]));
+			w18.Position = 0;
 			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{

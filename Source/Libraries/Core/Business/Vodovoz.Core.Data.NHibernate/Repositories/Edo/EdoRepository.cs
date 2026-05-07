@@ -202,7 +202,9 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 			IUnitOfWork uow,
 			string problemSourceName,
 			DateTime minCreationTime,
-			CancellationToken cancellationToken)
+			CancellationToken cancellationToken,
+			DateTime? maxCreationTime = null 
+			)
 			where T : OrderEdoTask
 		{
 			var tasksIdsQuery =
@@ -213,6 +215,7 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 					problem.SourceName == problemSourceName
 					&& problem.State == TaskProblemState.Active
 					&& edoTask.CreationTime >= minCreationTime
+					&& (maxCreationTime == null || edoTask.CreationTime <= maxCreationTime)
 				select edoTask.Id;
 
 			var taskIds = await tasksIdsQuery.Distinct().ToListAsync(cancellationToken);
@@ -247,6 +250,25 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 				select fiscalDocument.ReceiptEdoTask.Id;
 
 			return await query.Distinct().ToListAsync(cancellationToken);
+		}
+
+		public async Task<IList<OrderEdoTask>> GetProblemEdoTasks(
+			IUnitOfWork uow,
+			string problemSourceName,
+			DateTime minCreationTime,
+			CancellationToken cancellationToken)
+		{
+			var query =
+				from problem in uow.Session.Query<EdoTaskProblem>()
+				where problem.SourceName == problemSourceName
+					&& problem.State == TaskProblemState.Active
+					&& problem.EdoTask.CreationTime >= minCreationTime
+					&& problem.EdoTask is OrderEdoTask
+				select (OrderEdoTask)problem.EdoTask;
+
+			return await query
+				.Distinct()
+				.ToListAsync(cancellationToken);
 		}
 	}
 }

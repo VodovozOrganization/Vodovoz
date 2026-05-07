@@ -1,4 +1,4 @@
-﻿using Edo.Common;
+using Edo.Common;
 using Edo.Problem.Routine.Options;
 using Edo.Problem.Routine.Services;
 using Edo.Problems;
@@ -30,7 +30,9 @@ namespace Edo.Problem.Routine
 
 			services
 				.AddOrderSelfDeliveryPaidProblem()
-				.AddOrderFiscalDocumentSendErrorProblem();
+				.AddOrderFiscalDocumentSendErrorProblem()
+				.AddOrderStatusProblem()
+				;
 
 			return services;
 		}
@@ -60,6 +62,23 @@ namespace Edo.Problem.Routine
 		{
 			services.ConfigureOptions<ConfigureFiscalDocumentSendErrorProblemWorkerOptions>();
 			services.AddScoped<FiscalDocumentSendErrorProblemService>();
+
+			return services;
+		}
+
+		private static IServiceCollection AddOrderStatusProblem(this IServiceCollection services)
+		{
+			services.ConfigureOptions<ConfigureOrderStatusProblemWorkerOptions>();
+			services.AddScoped<OrderStatusProblemService>();
+
+			return services;
+		}
+		
+		public static IServiceCollection AddOrderEdoCodePoolMissingProblem(this IServiceCollection services)
+		{
+			services
+				.AddScoped<OrderEdoCodePoolMissingProblemService>()
+				.AddEdoProblemRegistration();;
 
 			return services;
 		}

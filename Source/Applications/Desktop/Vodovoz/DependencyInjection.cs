@@ -42,6 +42,7 @@ using QSProjectsLib;
 using RabbitMQ.MailSending;
 using ResourceLocker.Library;
 using System;
+using Edo.Problem.Routine;
 using TrueMark.Codes.Pool;
 using TrueMarkApi.Client;
 using Vodovoz.Additions;
@@ -259,6 +260,7 @@ namespace Vodovoz
 				.AddScoped<IPasswordValidator, PasswordValidator>()
 				.AddScoped<IPasswordValidationSettings, DefaultPasswordValidationSettings>()
 				.AddScoped<IDriverScheduleService, DriverScheduleService>()
+				.AddOrderEdoCodePoolMissingProblem()
 				;
 
 			services.AddStaticHistoryTracker();

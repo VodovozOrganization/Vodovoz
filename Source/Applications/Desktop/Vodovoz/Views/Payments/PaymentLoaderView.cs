@@ -178,6 +178,10 @@ namespace Vodovoz.Views
 						}
 						
 						uow.Save(payment);
+
+						uow.Session.Flush();
+						ViewModel.CheckAndOpenDeliveries(uow, payment.Counterparty.Id);						
+
 						uow.Commit();
 						countAll++;
 						UpdateProgress($"Сохранен {countAll} платеж из {totalPayments}", progress);
