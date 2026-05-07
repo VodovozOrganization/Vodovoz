@@ -45,7 +45,7 @@ namespace CustomerOrdersApi.HealthCheck
 
 			var result = await HttpResponseHelper.SendRequestAsync<string>(
 				HttpMethod.Get,
-				$"{_baseAddress}/api/GetPromoCodeWarningMessage",
+				$"{_baseAddress}/api/v4/GetPromoCodeWarningMessage",
 				_httpClientFactory,
 				requestDto.ToJsonContent(),
 				cancellationToken);
