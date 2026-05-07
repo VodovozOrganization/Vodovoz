@@ -107,6 +107,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 		public async Task CheckAndOpenDeliveriesAsync(IUnitOfWork unitOfWork, int counterpartyId, CancellationToken cancellationToken = default)
 		{
+			return;
+
 			var ordersWithDebtOverdue = await
 				_orderRepository.GetWithClosedDeliveriesCounterpartyOverdueDebts(
 						unitOfWork,
