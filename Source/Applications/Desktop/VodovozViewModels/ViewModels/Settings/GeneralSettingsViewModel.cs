@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
@@ -232,7 +232,9 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			SaveClosingDeliveriesNotificationEmailsCommand = new DelegateCommand(SaveClosingDeliveriesNotificationEmails, () => CanMassiveChangePaymentDeferment);
 			SaveClosingDeliveriesNotificationEmailsCommand.CanExecuteChangedWith(this, vm => vm.CanMassiveChangePaymentDeferment);
 
-
+			LettersOfClaimTimeoutDays = _debtorsSettings.LettersOfClaimTimeoutDays;
+			ClaimDocumentCreatedBy = _debtorsSettings.ClaimDocumentCreatedBy;
+			ClaimDocumentCreatorPhone = _debtorsSettings.ClaimDocumentCreatorPhone;
 			CanEditLettersOfClaimSettings =
 				_commonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.CounterpartyPermissions.CanEditDebtNotification);
 			SaveLettersOfClaimSettingsCommand = new DelegateCommand(SaveLettersOfClaimSettings, () => CanEditLettersOfClaimSettings);
