@@ -2918,6 +2918,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		{
 			return await GetOverdueDebtQuery(unitOfWork, daysBeforeClosingDeliveries, organizationsIds, orderStatuses, counterpartyTypes, counterpartyId)
 				.Where(x => x.Counterparty.IsDeliveriesClosed)
+				.Select(x => x.Counterparty.Id)
 				.AnyAsync(cancellationToken);
 		}
 

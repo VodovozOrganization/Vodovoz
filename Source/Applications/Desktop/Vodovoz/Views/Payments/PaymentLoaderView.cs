@@ -179,8 +179,11 @@ namespace Vodovoz.Views
 						
 						uow.Save(payment);
 
-						uow.Session.Flush();
-						ViewModel.CheckAndOpenDeliveries(uow, payment.Counterparty);						
+						if(payment.Counterparty != null)
+						{
+							uow.Session.Flush();
+							ViewModel.CheckAndOpenDeliveries(uow, payment.Counterparty.Id);
+						}
 
 						uow.Commit();
 						countAll++;

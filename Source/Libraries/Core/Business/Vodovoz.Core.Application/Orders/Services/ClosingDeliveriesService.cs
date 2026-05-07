@@ -106,9 +106,25 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 		public async Task CheckAndOpenDeliveriesAsync(
 			IUnitOfWork unitOfWork,
-			Counterparty counterparty,
+			int counterpartyId,
 			CancellationToken cancellationToken = default)
 		{
+			var hasOverdueDebt = await _orderRepository.HasClosedDeliveriesCounterpartyWithOverdueDebtsAsync(
+				unitOfWork,
+				_closingDeliveriesSettings.DaysBeforeClosingDeliveries,
+				_organizationsIds,
+				_orderStatuses,
+				_counterpartyTypes,
+				counterpartyId,
+				cancellationToken);
+
+			if(hasOverdueDebt)
+			{
+				return;
+			}
+
+			var counterparty = unitOfWork.GetById<Counterparty>(counterpartyId);
+
 			if(counterparty == null)
 			{
 				return;
@@ -119,27 +135,13 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return;
 			}
 
-			var hasOverdueDebt = await _orderRepository.HasClosedDeliveriesCounterpartyWithOverdueDebtsAsync(
-				unitOfWork,
-				_closingDeliveriesSettings.DaysBeforeClosingDeliveries,
-				_organizationsIds,
-				_orderStatuses,
-				_counterpartyTypes,
-				counterparty.Id,
-				cancellationToken);
-
-			if(hasOverdueDebt)
-			{
-				return;
-			}
-
 			var employee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork);
 
 			counterparty.ToggleDeliveryOption(employee, true);
 
 			await unitOfWork.SaveAsync(counterparty, cancellationToken: cancellationToken);
 
-			_logger.LogInformation("Открыты поставки контрагенту {CounterpartyId}", counterparty.Id);
+			_logger.LogInformation("Открыты поставки контрагенту {CounterpartyId}", counterpartyId);
 		}
 	}
 }

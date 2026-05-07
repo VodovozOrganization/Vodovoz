@@ -173,8 +173,8 @@ namespace Vodovoz.Core.Application.Payments
 
 					unitOfWork.Save(payment);
 
-					unitOfWork.Session.Flush();                    
-					_closingDeliveriesService.CheckAndOpenDeliveriesAsync(unitOfWork, payment.Counterparty).GetAwaiter().GetResult();
+					unitOfWork.Session.Flush();
+					_closingDeliveriesService.CheckAndOpenDeliveriesAsync(unitOfWork, counterpartyId).GetAwaiter().GetResult();
 				}
 				catch(Exception e)
 				{

@@ -163,9 +163,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		public bool CanCancel => IsNotProcessingMode && !IsSavingState;
 		public bool CanReadFile => IsNotProcessingMode && !IsSavingState;
 
-		public void CheckAndOpenDeliveries(IUnitOfWork uow, Domain.Client.Counterparty counterparty)
+		public void CheckAndOpenDeliveries(IUnitOfWork uow, int counterpartyId)
 		{
-			_closingDeliveriesService.CheckAndOpenDeliveriesAsync(uow, counterparty).GetAwaiter().GetResult();
+			_closingDeliveriesService.CheckAndOpenDeliveriesAsync(uow, counterpartyId).GetAwaiter().GetResult();
 		}
 
 		private void GetOrganisations()
