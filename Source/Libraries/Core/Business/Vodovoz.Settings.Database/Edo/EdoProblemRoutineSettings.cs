@@ -23,5 +23,11 @@ namespace Vodovoz.Settings.Database.Edo
 
 		public TimeSpan FiscalDocumentSendErrorProblemWorkerInterval => _settingsController
 			.GetValue<TimeSpan>("edo.problem.routine.fiscal-doc-send-error-worker-interval");
+
+		public TimeSpan OrderStatusProblemTimeout => _settingsController
+			.GetValue<TimeSpan>("edo.problem.routine.order-status-problem-timeout");
+
+		public TimeSpan OrderStatusProblemWorkerInterval => _settingsController
+			.GetValue<TimeSpan>("edo.problem.routine.order-status-worker-interval");
 	}
 }
