@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using QS.Banks.Domain;
 using QS.Commands;
 using QS.Dialog;
