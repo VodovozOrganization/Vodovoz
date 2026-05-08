@@ -49,6 +49,13 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 				.ChildKeyColumn("discount_reason_id")
 				.Cascade.SaveUpdate()                
 				.LazyLoad();
+
+			HasManyToMany(x => x.OriginalDiscountReasons)
+				.Table("original_discount_reasons_order_items")
+				.ParentKeyColumn("order_item_id")
+				.ChildKeyColumn("discount_reason_id")
+				.Cascade.SaveUpdate()
+				.LazyLoad();
 		}
 	}
 }
