@@ -898,7 +898,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				return false;
 			}
 
+			var hasChanges = HasChanges;
 			UoW.Session.Flush();
+			HasChanges = hasChanges;
+			
 			_closingDeliveriesService.CheckAndOpenDeliveriesAsync(UoW, Entity.Counterparty.Id).GetAwaiter().GetResult();
 
 			return base.Save(close);
