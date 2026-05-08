@@ -43,6 +43,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 		private bool _isDriverForOneDay;
 		private bool _isChainStoreDriver;
 		private bool _isRFCitizen;
+		private string _employeePhone;
 		private EmployeesJournalViewModel _journalViewModel;
 
 		public EmployeeFilterViewModel(params EmployeeCategory[] hideEmployeeCategories)
@@ -236,6 +237,12 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Employees
 					Category = EmployeeCategory.driver;
 				}
 			}
+		}
+
+		public string EmployeePhone
+		{
+			get => _employeePhone;
+			set => SetField(ref _employeePhone, value);
 		}
 
 		public override bool IsShow { get; set; } = true;

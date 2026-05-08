@@ -28,7 +28,7 @@ namespace CustomerOrdersApi.HealthCheck
 
 			var result = await HttpResponseHelper.SendRequestAsync<string>(
 				HttpMethod.Post,
-				$"{_baseAddress}/api/CreateRequestForCall",
+				$"{_baseAddress}/api/v4/CreateRequestForCall",
 				_httpClientFactory,
 				requestDto.ToJsonContent(),
 				cancellationToken);

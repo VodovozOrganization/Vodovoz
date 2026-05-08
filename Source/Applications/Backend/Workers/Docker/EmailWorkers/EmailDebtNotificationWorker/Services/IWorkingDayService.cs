@@ -5,6 +5,13 @@ namespace EmailDebtNotificationWorker.Services
 	public interface IWorkingDayService
 	{
 		/// <summary>
+		/// Проверяет, является ли дата рабочим днём и нечетным днем недели по московскому времени
+		/// </summary>
+		/// <param name="dateTime"></param>
+		/// <returns>True если рабочий день (Пн, Ср, Пт) по московскому времени</returns>
+		bool IsOddWeekday(DateTime dateTime);
+
+		/// <summary>
 		/// Проверяет, является ли дата рабочим днём (Пн-Пт) по московскому времени
 		/// </summary>
 		/// <param name="dateTime"></param>

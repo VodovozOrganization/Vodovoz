@@ -42,7 +42,7 @@ namespace CustomerOrdersApi.HealthCheck
 
 			var result = await HttpResponseHelper.SendRequestAsync<AppliedFixedPriceDto>(
 				HttpMethod.Get,
-				$"{_baseAddress}/api/ApplyFixedPriceToOrder",
+				$"{_baseAddress}/api/v4/ApplyFixedPriceToOrder",
 				_httpClientFactory,
 				requestDto.ToJsonContent(),
 				cancellationToken,

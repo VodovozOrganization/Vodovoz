@@ -9,6 +9,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Edo.Admin;
 using Vodovoz.Core.Domain.Edo;
 
 namespace Edo.Receipt.Sender
@@ -21,6 +22,7 @@ namespace Edo.Receipt.Sender
 		private readonly CashboxClientProvider _cashboxClientProvider;
 		private readonly FiscalDocumentFactory _fiscalDocumentFactory;
 		private readonly EdoTaskValidator _edoTaskValidator;
+		private readonly EdoCancellationService _edoCancellationService;
 
 		public ReceiptSender(
 			ILogger<ReceiptSender> logger,
@@ -28,7 +30,8 @@ namespace Edo.Receipt.Sender
 			EdoProblemRegistrar edoProblemRegistrar,
 			CashboxClientProvider cashboxClientProvider,
 			FiscalDocumentFactory fiscalDocumentFactory,
-			EdoTaskValidator edoTaskValidator
+			EdoTaskValidator edoTaskValidator,
+			EdoCancellationService edoCancellationService
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -37,6 +40,7 @@ namespace Edo.Receipt.Sender
 			_cashboxClientProvider = cashboxClientProvider ?? throw new ArgumentNullException(nameof(cashboxClientProvider));
 			_fiscalDocumentFactory = fiscalDocumentFactory ?? throw new ArgumentNullException(nameof(fiscalDocumentFactory));
 			_edoTaskValidator = edoTaskValidator ?? throw new ArgumentNullException(nameof(edoTaskValidator));
+			_edoCancellationService = edoCancellationService ?? throw new ArgumentNullException(nameof(edoCancellationService));
 		}
 
 		public async Task HandleReceiptSendEvent(int edoTaskId, CancellationToken cancellationToken)
@@ -58,6 +62,14 @@ namespace Edo.Receipt.Sender
 				return;
 			}
 
+			if(_edoCancellationService.IsEdoTaskMustBeCancelled(edoTask))
+			{
+				var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
+				
+				await _edoCancellationService.CancelTask(edoTaskId, reason, false, cancellationToken);
+				return;
+			}
+			
 			var isValid = await _edoTaskValidator.Validate(edoTask, cancellationToken);
 			if(!isValid)
 			{
@@ -114,7 +126,7 @@ namespace Edo.Receipt.Sender
 					if(result.SendStatus == SendStatus.Error)
 					{
 						edoFiscalDocument.FailureMessage = result.ErrorMessage;
-						edoFiscalDocument.Status = Vodovoz.Core.Domain.Edo.FiscalDocumentStatus.Failed;
+						edoFiscalDocument.Status = Vodovoz.Core.Domain.Edo.FiscalDocumentStatus.SendError;
 						continue;
 					}
 
@@ -133,6 +145,7 @@ namespace Edo.Receipt.Sender
 				}
 
 				var hasFailure = edoTask.FiscalDocuments.Any(x => x.Status == Vodovoz.Core.Domain.Edo.FiscalDocumentStatus.Failed);
+				var hasSendErrors = edoTask.FiscalDocuments.Any(x => x.Status == Vodovoz.Core.Domain.Edo.FiscalDocumentStatus.SendError);
 				if(hasFailure)
 				{
 					_logger.LogWarning("Не удалось отправить некоторые чеки по задаче №{edoTaskId}.", edoTask.Id);
@@ -140,6 +153,20 @@ namespace Edo.Receipt.Sender
 						edoTask,
 						cancellationToken
 					);
+					return;
+				}
+				else if(hasSendErrors)
+				{
+					_logger.LogWarning("При отправке чеков в Модуль Кассу по задаче №{edoTaskId} возникли ошибки", edoTask.Id);
+
+					await _uow.SaveAsync(edoTask, cancellationToken: cancellationToken);
+					await _uow.CommitAsync(cancellationToken);
+
+					await _edoProblemRegistrar.RegisterCustomProblem<NotAllReceiptsWasSended>(
+						edoTask,
+						cancellationToken
+					);
+
 					return;
 				}
 				else
@@ -160,7 +187,7 @@ namespace Edo.Receipt.Sender
 
 			_logger.LogInformation("Все чеки по задаче №{edoTaskId} отправлены успешно.", edoTask.Id);
 		}
-
+		
 		public void Dispose()
 		{
 			_uow.Dispose();

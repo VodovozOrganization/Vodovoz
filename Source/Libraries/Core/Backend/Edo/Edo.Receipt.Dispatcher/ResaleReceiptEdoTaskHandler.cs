@@ -1,4 +1,4 @@
-using Edo.Common;
+﻿using Edo.Common;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
 using Edo.Problems.Custom.Sources;
@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Edo.Admin;
 using TrueMark.Library;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
@@ -45,6 +46,7 @@ namespace Edo.Receipt.Dispatcher
 		private readonly IOrganizationSettings _organizationSettings;
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly IBus _messageBus;
+		private readonly EdoCancellationService _edoCancellationService;
 		private readonly int _maxCodesInReceipt;
 
 		public ResaleReceiptEdoTaskHandler(
@@ -62,7 +64,8 @@ namespace Edo.Receipt.Dispatcher
 			ISaveCodesService saveCodesService,
 			IOrganizationSettings organizationSettings,
 			ITrueMarkCodeRepository trueMarkCodeRepository,
-			IBus messageBus
+			IBus messageBus,
+			EdoCancellationService  edoCancellationService
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -80,6 +83,7 @@ namespace Edo.Receipt.Dispatcher
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_edoCancellationService = edoCancellationService ?? throw new ArgumentNullException(nameof(edoCancellationService));
 
 			_maxCodesInReceipt = _edoReceiptSettings.MaxCodesInReceiptCount;
 		}
@@ -131,8 +135,15 @@ namespace Edo.Receipt.Dispatcher
 					"значит отправка будет производиться другой задачей", receiptEdoTask.Id);
 				return;
 			}
-
-
+			
+			if(_edoCancellationService.IsEdoTaskMustBeCancelled(receiptEdoTask))
+			{
+				var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
+				
+				await _edoCancellationService.CancelTask(receiptEdoTask.Id, reason, false, cancellationToken);
+				return;
+			}
+			
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(receiptEdoTask);
 
 			var isValid = await _edoTaskValidator.Validate(receiptEdoTask, cancellationToken, trueMarkCodesChecker);
@@ -239,6 +250,14 @@ namespace Edo.Receipt.Dispatcher
 				return;
 			}
 
+			if(_edoCancellationService.IsEdoTaskMustBeCancelled(receiptEdoTask))
+			{
+				var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
+				
+				await _edoCancellationService.CancelTask(receiptEdoTask.Id, reason, false, cancellationToken);
+				return;
+			}
+			
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(receiptEdoTask);
 			var isValid = await _edoTaskValidator.Validate(receiptEdoTask, cancellationToken, trueMarkCodesChecker);
 			if(!isValid)
@@ -531,7 +550,7 @@ namespace Edo.Receipt.Dispatcher
 			
 			if(vatRateVersion == null)
 			{
-				throw new InvalidOperationException($"У товара #{orderItem.Nomenclature.Id} отсутствует версия НДС на дату счета заказа #{orderItem.Order.BillDate}");
+				throw new InvalidOperationException($"У товара #{orderItem.Nomenclature.Id} отсутствует версия НДС на дату доставки #{orderItem.Order.DeliveryDate}");
 			}
 			
 			inventPosition.Vat = vatRateVersion.VatRate.ToFiscalVat();

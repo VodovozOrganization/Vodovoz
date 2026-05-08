@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -85,11 +85,11 @@ namespace ExportTo1c.Library.Exporters
 
 				foreach(var item in items)
 				{
-					var vatRateVersion = item.Nomenclature.GetActualVatRateVersion(order.BillDate);
+					var vatRateVersion = item.Nomenclature.GetActualVatRateVersion(order.DeliveryDate);
 
 					if(vatRateVersion == null)
 					{
-						throw new InvalidOperationException($"У номенклатуры #{item.Id} отсутствует версия НДС на дату счета {order.BillDate}");
+						throw new InvalidOperationException($"У номенклатуры {item.Nomenclature.Name} заказа {order.Id} отсутствует версия НДС на дату доставки {order.DeliveryDate}");
 					}
 
 					var rowElement = new XElement

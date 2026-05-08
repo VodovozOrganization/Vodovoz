@@ -46,28 +46,4 @@ namespace Vodovoz.Domain.StoredEmails
 		/// </summary>
 		public abstract IEmailableDocument EmailableDocument { get; }
 	}
-
-	public enum CounterpartyEmailType
-	{
-		[Display(Name = "Счёт")]
-		BillDocument,
-		[Display(Name = "УПД")]
-		UpdDocument,
-		[Display(Name = "Долг")]
-		DebtBill,
-		[Display(Name = "Массовая рассылка")]
-		Bulk,
-		[Display(Name = "Учётные данные")]
-		Credential,
-		[Display(Name = "Код авторизации")]
-		AuthorizationCode,
-		[Display(Name = "Счёт без отгрузки на долг")]
-		OrderWithoutShipmentForDebt,
-		[Display(Name = "Счёт без отгрузки на постоплату")]
-		OrderWithoutShipmentForPayment,
-		[Display(Name = "Счёт без отгрузки на предоплату")]
-		OrderWithoutShipmentForAdvancePayment,
-		[Display(Name = "Акт приёма-передачи оборудования")]
-		EquipmentTransfer
-	}
 }

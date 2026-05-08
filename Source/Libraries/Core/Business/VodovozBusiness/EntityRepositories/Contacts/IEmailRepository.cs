@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
@@ -42,6 +41,15 @@ namespace Vodovoz.EntityRepositories
 		/// <returns>Словарь: клиент - список его просроченных заказов</returns>
 		Task<Dictionary<Order, (Counterparty Counterparty, Organization Organization)>> GetAllOverdueOrderForDebtNotificationAsync(IUnitOfWork uow, int maxClients, CancellationToken cancellationToken);
 
+		/// <summary>
+		/// Получение списка просроченных заказов, сгруппированных по клиентам и организациям, для рассылки уведомлений о задолженности
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="maxClients">Максимальное количество клиентов для обработки</param>
+		/// <param name="cancellationToken"></param>
+		/// <returns>Словарь: клиент - список его просроченных заказов</returns>
+		Task<Dictionary<(Counterparty Counterparty, Organization Organization), IEnumerable<Order>>> GetAllOverdueOrdersForDebtNotificationAsync(IUnitOfWork uow, int maxClients, CancellationToken cancellationToken);
+
 		#region EmailType
 
 		IList<EmailType> GetEmailTypes(IUnitOfWork uow);
@@ -56,6 +64,13 @@ namespace Vodovoz.EntityRepositories
 		/// <param name="emailId">Идентификатор письма</param>
 		/// <returns></returns>
 		bool HasSendedEmailsForBillExceptOf(int orderId, int emailId);
+
+		/// <summary>
+		/// Возвращает количество претензионных писем, отправленных за текущий день
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <returns>Количество претензионных писем, отправленных за текущий день</returns>
+		int GetTodaySentLetterOfClaimsCount(IUnitOfWork uow);
 
 		#endregion
 	}

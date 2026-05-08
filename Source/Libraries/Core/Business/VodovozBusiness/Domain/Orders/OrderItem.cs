@@ -595,7 +595,7 @@ namespace Vodovoz.Domain.Orders
 			
 			if(vatRateVersion == null)
 			{
-				throw new InvalidOperationException($"У товара #{Nomenclature.Id} отсутствует версия НДС на дату счета заказа #{Order.BillDate}");
+				throw new InvalidOperationException($"У товара #{Nomenclature.Id} отсутствует версия НДС на дату доставки #{Order.DeliveryDate}");
 			}
 			
 			ValueAddedTax =  CanUseVAT() ? vatRateVersion.VatRate.VatNumericValue : 0;

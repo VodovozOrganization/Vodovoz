@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Microsoft.Extensions.Logging;
 using QS.Commands;
 using QS.Dialog;
@@ -23,6 +23,7 @@ using Vodovoz.Settings.Car;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Fuel;
+using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.ViewModels.Accounting.Payments;
 using Vodovoz.ViewModels.Services;
@@ -46,6 +47,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IDebtorsSettings _debtorsSettings;
 		private readonly IValidator _validator;
+		private readonly IClosingDeliveriesSettings _closingDeliveriesSettings;
 		private const int _routeListPrintedFormPhonesLimitSymbols = 500;
 		private readonly ViewModelEEVMBuilder<VatRate> _vatRateEEVMBuilder;
 
@@ -92,6 +94,10 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private int _kaskoEndingNotifyDaysBefore;
 		private int _carTechnicalCheckupEndingNotifyDaysBefore;
 
+		private int _lettersOfClaimTimeoutDays;
+		private string _claimDocumentCreatedBy;
+		private string _claimDocumentCreatorPhone;
+
 		public GeneralSettingsViewModel(
 			ILogger<GeneralSettingsViewModel> logger,
 			IGeneralSettings generalSettings,
@@ -108,7 +114,8 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			IOrganizationForOrderFromSet organizationForOrderFromSet,
 			IOrganizationSettings organizationSettings,
 			IDebtorsSettings debtorsSettings,
-			IValidator validator) : base(commonServices?.InteractiveService, navigation)
+			IValidator validator,
+			IClosingDeliveriesSettings closingDeliveriesSettings) : base(commonServices?.InteractiveService, navigation)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
@@ -123,6 +130,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			OrganizationForOrderFromSet = 
 				organizationForOrderFromSet ?? throw new ArgumentNullException(nameof(organizationForOrderFromSet));
 			_validator = validator ?? throw new ArgumentNullException(nameof(validator));
+			_closingDeliveriesSettings = closingDeliveriesSettings ?? throw new ArgumentNullException(nameof(closingDeliveriesSettings));
 			_vatRateEEVMBuilder = vatRateEevmBuilder ?? throw new ArgumentNullException(nameof(vatRateEevmBuilder));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
@@ -216,7 +224,19 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				.ValidatePresetPermission(Core.Domain.Permissions.CounterpartyPermissions.CanMassiveChangePaymentDeferment);
 			CanMassiveChangeVatRate = _commonServices.CurrentPermissionService
 				.ValidatePresetPermission(Core.Domain.Permissions.CashPermissions.CanMassiveChangeVatRate);
-			
+
+			DaysBeforeClosingDeliveries = _closingDeliveriesSettings.DaysBeforeClosingDeliveries;
+			SaveDaysBeforeClosingDeliveriesCommand = new DelegateCommand(SaveDaysBeforeClosingDeliveries, () => CanMassiveChangePaymentDeferment);
+			SaveDaysBeforeClosingDeliveriesCommand.CanExecuteChangedWith(this, vm => vm.CanMassiveChangePaymentDeferment);
+			ClosingDeliveriesNotificationEmails = _closingDeliveriesSettings.ClosingDeliveriesNotificationEmails;
+			SaveClosingDeliveriesNotificationEmailsCommand = new DelegateCommand(SaveClosingDeliveriesNotificationEmails, () => CanMassiveChangePaymentDeferment);
+			SaveClosingDeliveriesNotificationEmailsCommand.CanExecuteChangedWith(this, vm => vm.CanMassiveChangePaymentDeferment);
+
+
+			CanEditLettersOfClaimSettings =
+				_commonServices.CurrentPermissionService.ValidatePresetPermission(Core.Domain.Permissions.CounterpartyPermissions.CanEditDebtNotification);
+			SaveLettersOfClaimSettingsCommand = new DelegateCommand(SaveLettersOfClaimSettings, () => CanEditLettersOfClaimSettings);
+
 			InitializeAccountingSettingsViewModels();
 			ConfigureOrderOrganizationsSettings();
 		}
@@ -416,6 +436,56 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		}
 
 		public bool CanEditDebtNotification { get; }
+
+		#endregion
+
+		#region Настройка автоматической отправки писем с претензиями о долге клиента
+
+		/// <summary>
+		/// Количество дней сверх ПДЗ до отправки претензионного письма
+		/// </summary>
+		public int LettersOfClaimTimeoutDays
+		{
+			get => _lettersOfClaimTimeoutDays;
+			set => SetField(ref _lettersOfClaimTimeoutDays, value);
+		}
+
+		/// <summary>
+		/// Исполнитель, указанный в документе претензия по долгу
+		/// </summary>
+		public string ClaimDocumentCreatedBy
+		{
+			get => _claimDocumentCreatedBy;
+			set => SetField(ref _claimDocumentCreatedBy, value);
+		}
+
+		/// <summary>
+		/// Номер телефона исполнителя, указанный в документе претензия по долгу
+		/// </summary>
+		public string ClaimDocumentCreatorPhone
+		{
+			get => _claimDocumentCreatorPhone;
+			set => SetField(ref _claimDocumentCreatorPhone, value);
+		}
+
+		/// <summary>
+		/// Команда сохранения настроек отправки писем с претензиями о долге клиента
+		/// </summary>
+		public DelegateCommand SaveLettersOfClaimSettingsCommand { get; }
+
+		/// <summary>
+		/// Разрешение на редактирование настроек отправки писем с претензиями о долге клиента
+		/// </summary>
+		public bool CanEditLettersOfClaimSettings { get; }
+
+		private void SaveLettersOfClaimSettings()
+		{
+			_debtorsSettings.SetLettersOfClaimTimeoutDays(LettersOfClaimTimeoutDays);
+			_debtorsSettings.SetClaimDocumentCreatedBy(ClaimDocumentCreatedBy);
+			_debtorsSettings.SetClaimDocumentCreatorPhone(ClaimDocumentCreatorPhone);
+
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+		}
 
 		#endregion
 
@@ -803,6 +873,9 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private DateTime? _endDateTimeForVatRate;
 		private bool _canMassiveChangeVatRate;
 		private bool _canMassiveChangePaymentDeferment;
+		private int _daysBeforeBlockingDeliveriesTarget;
+		private int _daysBeforeBlockingDeliveriesNew;
+		private string _blockingDeliveriesNotificationEmails;
 
 		public IEnumerable<Subdivision> AuthorsSubdivisions { get; private set; }
 		public IEnumerable<short> AuthorsSets { get; private set; }
@@ -1264,8 +1337,71 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 				_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 			}
 		}
-		
+
 		#endregion
+
+		#region Массовое изменение дней отсрочки до автоматической блокировки поставок
+
+		/// <summary>
+		/// Дней сверх ПДЗ до блокировки поставок
+		/// </summary>
+		public int DaysBeforeClosingDeliveries
+		{
+			get => _daysBeforeBlockingDeliveriesNew;
+			set => SetField(ref _daysBeforeBlockingDeliveriesNew, value);
+		}
+
+		public DelegateCommand SaveDaysBeforeClosingDeliveriesCommand { get; }
+
+		private void SaveDaysBeforeClosingDeliveries()
+		{
+			_closingDeliveriesSettings.UpdateDaysBeforeClosingDeliveries(DaysBeforeClosingDeliveries);
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+		}
+
+		#endregion Массовое изменение дней отсрочки до автоматической блокировки поставок
+
+		#region Уведомление о блокировке поставок
+
+		/// <summary>
+		/// Почты, для отправки уведомлений о блокировке поставок контрагенту
+		/// </summary>
+		public string ClosingDeliveriesNotificationEmails
+		{
+			get => _blockingDeliveriesNotificationEmails;
+			set => SetField(ref _blockingDeliveriesNotificationEmails, value);
+		}
+
+		public DelegateCommand SaveClosingDeliveriesNotificationEmailsCommand { get; }
+
+		private void SaveClosingDeliveriesNotificationEmails()
+		{
+			var validator = new EmailAddressAttribute();
+
+			var emails = ClosingDeliveriesNotificationEmails
+				.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
+				.Select(e => e.Trim())
+				.ToList();
+
+			var invalidEmails = emails
+				.Where(e => !validator.IsValid(e))
+				.ToList();
+
+			if(invalidEmails.Any())
+			{
+				_commonServices.InteractiveService.ShowMessage(
+					ImportanceLevel.Error,
+					$"Некорректные email: {string.Join(", ", invalidEmails)}"
+				);
+				return;
+			}
+
+			_closingDeliveriesSettings.UpdateClosingDeliveriesNotificationEmails(string.Join(";", emails));
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+		}
+
+		#endregion Уведомление о блокировке поставок		
+
 		public EntityJournalOpener EntityJournalOpener { get; }
 
 		private void InitializeSettingsViewModels()

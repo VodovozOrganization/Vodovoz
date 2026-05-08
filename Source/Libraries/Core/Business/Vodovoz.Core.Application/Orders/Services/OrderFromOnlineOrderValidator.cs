@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Core.Infrastructure;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Application.Orders;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
@@ -64,6 +63,11 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_onlineOrder = onlineOrder;
 			_validationResults = new List<Error>();
 			_calculatedOrderItemPrices = new List<ICheckOnlineOrderSum>();
+
+			if(_onlineOrder.IsNeedConfirmationByCall)
+			{
+				_validationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.IsNeedConfirmationByCall);
+			}
 
 			if(_onlineOrder.IsSelfDelivery)
 			{

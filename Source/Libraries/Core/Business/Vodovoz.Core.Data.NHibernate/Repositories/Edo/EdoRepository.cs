@@ -197,5 +197,78 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 				.ToListAsync(cancellationToken);
 			return existingOrders;
 		}
+
+		public async Task<IList<T>> GetProblemEdoTasks<T>(
+			IUnitOfWork uow,
+			string problemSourceName,
+			DateTime minCreationTime,
+			CancellationToken cancellationToken,
+			DateTime? maxCreationTime = null 
+			)
+			where T : OrderEdoTask
+		{
+			var tasksIdsQuery =
+				from problem in uow.Session.Query<EdoTaskProblem>()
+				join edoTask in uow.Session.Query<T>() on problem.EdoTask.Id equals edoTask.Id
+				join edoRequest in uow.Session.Query<FormalEdoRequest>() on edoTask.FormalEdoRequest.Id equals edoRequest.Id
+				where
+					problem.SourceName == problemSourceName
+					&& problem.State == TaskProblemState.Active
+					&& edoTask.CreationTime >= minCreationTime
+					&& (maxCreationTime == null || edoTask.CreationTime <= maxCreationTime)
+				select edoTask.Id;
+
+			var taskIds = await tasksIdsQuery.Distinct().ToListAsync(cancellationToken);
+
+			if(!taskIds.Any())
+			{
+				return new List<T>();
+			}
+
+			var tasks = await uow.Session.Query<T>()
+				.Where(t => taskIds.Contains(t.Id))
+				.Fetch(t => t.FormalEdoRequest)
+				.ThenFetch(r => r.Order)
+				.ThenFetch(o => o.Client)
+				.ToListAsync(cancellationToken);
+
+			return tasks;
+		}
+
+		public async Task<IList<int>> GetSendErrorFiscalDocumentsEdoTasksIds(
+			IUnitOfWork uow,
+			DateTime minFiscalDocumentCreationTime,
+			CancellationToken cancellationToken)
+		{
+			var query =
+				from fiscalDocument in uow.Session.Query<EdoFiscalDocument>()
+				join receiptEdoTask in uow.Session.Query<ReceiptEdoTask>()
+					on fiscalDocument.ReceiptEdoTask.Id equals receiptEdoTask.Id
+				where fiscalDocument.CreationTime >= minFiscalDocumentCreationTime
+					&& fiscalDocument.Status == FiscalDocumentStatus.SendError
+					&& receiptEdoTask.ReceiptStatus == EdoReceiptStatus.Sending
+				select fiscalDocument.ReceiptEdoTask.Id;
+
+			return await query.Distinct().ToListAsync(cancellationToken);
+		}
+
+		public async Task<IList<OrderEdoTask>> GetProblemEdoTasks(
+			IUnitOfWork uow,
+			string problemSourceName,
+			DateTime minCreationTime,
+			CancellationToken cancellationToken)
+		{
+			var query =
+				from problem in uow.Session.Query<EdoTaskProblem>()
+				where problem.SourceName == problemSourceName
+					&& problem.State == TaskProblemState.Active
+					&& problem.EdoTask.CreationTime >= minCreationTime
+					&& problem.EdoTask is OrderEdoTask
+				select (OrderEdoTask)problem.EdoTask;
+
+			return await query
+				.Distinct()
+				.ToListAsync(cancellationToken);
+		}
 	}
 }

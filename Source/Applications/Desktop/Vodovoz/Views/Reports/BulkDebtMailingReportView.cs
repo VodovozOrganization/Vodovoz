@@ -84,7 +84,6 @@ namespace Vodovoz.Views.Reports
 			{
 				ytreeviewReport.ColumnsConfig = FluentColumnsConfig<BulkDebtMailingSummaryReportRow>.Create()
 					.AddColumn("№").AddNumericRenderer(r => ViewModel.SummaryReport.Rows.IndexOf(r) + 1)
-					.AddColumn("Дата").AddTextRenderer(r => r.ActionDatetimeString)
 					.AddColumn("Статус").AddTextRenderer(r => r.StateString)
 					.AddColumn("Количество").AddNumericRenderer(r => r.Count)
 					.AddColumn("")

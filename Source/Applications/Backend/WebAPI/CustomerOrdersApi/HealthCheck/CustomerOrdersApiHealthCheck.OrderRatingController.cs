@@ -33,7 +33,7 @@ namespace CustomerOrdersApi.HealthCheck
 
 			var result = await HttpResponseHelper.SendRequestAsync<string>(
 				HttpMethod.Post,
-				$"{_baseAddress}/api/CreateOrderRating",
+				$"{_baseAddress}/api/v4/CreateOrderRating",
 				_httpClientFactory,
 				requestDto.ToJsonContent(),
 				cancellationToken);
@@ -47,7 +47,7 @@ namespace CustomerOrdersApi.HealthCheck
 
 			var result = await HttpResponseHelper.SendRequestAsync<IEnumerable<OrderRatingReasonDto>>(
 				HttpMethod.Get,
-				$"{_baseAddress}/api/GetOrderRatingReasons?source={requestParameter}",
+				$"{_baseAddress}/api/v4/GetOrderRatingReasons?source={requestParameter}",
 				_httpClientFactory,
 				cancellationToken: cancellationToken);
 

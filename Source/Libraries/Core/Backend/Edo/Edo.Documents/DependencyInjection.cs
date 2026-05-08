@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using QS.DomainModel.UoW;
 using System.Reflection;
+using Edo.Admin;
 using TrueMark.Codes.Pool;
 
 namespace Edo.Documents
@@ -24,7 +25,8 @@ namespace Edo.Documents
 			services.AddEdo();
 			services.AddCodesPool();
 			services.AddEdoProblemRegistration();
-
+			services.AddEdoAdminServices();
+			
 			return services;
 		}
 
