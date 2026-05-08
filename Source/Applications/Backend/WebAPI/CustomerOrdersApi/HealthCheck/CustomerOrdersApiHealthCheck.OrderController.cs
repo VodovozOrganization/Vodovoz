@@ -15,8 +15,10 @@ namespace CustomerOrdersApi.HealthCheck
 		{
 			var cheks = new[]
 			{
-				ExecuteHealthCheckSafelyAsync("Регистрация заказа",
-					checkMethodName => CheckCreateOrder(checkMethodName, cancellationToken)),
+				//пока отключу. Т.к. теперь у нас напрямую летит в рэббит и ждет оформления онлайн заказа,
+				//а т.к. это одно и то же сообщение, то всегда будет ошибка и из-за обработки по одному сообщению, есть риск забивания очереди
+				/*ExecuteHealthCheckSafelyAsync("Регистрация заказа",
+					checkMethodName => CheckCreateOrder(checkMethodName, cancellationToken)),*/
 
 				ExecuteHealthCheckSafelyAsync("Получение детальной информации о заказе",
 					checkMethodName => CheckGetOrderInfo(checkMethodName, cancellationToken)),
@@ -51,7 +53,7 @@ namespace CustomerOrdersApi.HealthCheck
 
 			var result = await HttpResponseHelper.SendRequestAsync<DetailedOrderInfoDto>(
 				HttpMethod.Get,
-				$"{_baseAddress}/api/GetOrderInfo",
+				$"{_baseAddress}/api/v4/GetOrderInfo",
 				_httpClientFactory,
 				requestDto.ToJsonContent(),
 				cancellationToken);
@@ -68,7 +70,7 @@ namespace CustomerOrdersApi.HealthCheck
 
 			var result = await HttpResponseHelper.SendRequestAsync<OrdersDto>(
 				HttpMethod.Get,
-				$"{_baseAddress}/api/GetOrders",
+				$"{_baseAddress}/api/v4/GetOrders",
 				_httpClientFactory,
 				requestDto.ToJsonContent(),
 				cancellationToken);
