@@ -1,4 +1,4 @@
-﻿using Edo.Common;
+using Edo.Common;
 using Edo.Problem.Routine.Options;
 using Edo.Problem.Routine.Services;
 using Edo.Problems;
@@ -70,6 +70,15 @@ namespace Edo.Problem.Routine
 		{
 			services.ConfigureOptions<ConfigureOrderStatusProblemWorkerOptions>();
 			services.AddScoped<OrderStatusProblemService>();
+
+			return services;
+		}
+		
+		public static IServiceCollection AddOrderEdoCodePoolMissingProblem(this IServiceCollection services)
+		{
+			services
+				.AddScoped<OrderEdoCodePoolMissingProblemService>()
+				.AddEdoProblemRegistration();;
 
 			return services;
 		}

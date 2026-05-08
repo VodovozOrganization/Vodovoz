@@ -1,4 +1,4 @@
-using BitrixNotificationsSend.Client;
+﻿using BitrixNotificationsSend.Client;
 using BitrixNotificationsSend.Contracts.Dto;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -13,7 +13,7 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Payments;
-using Vodovoz.Settings.Organizations;
+using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Notifications;
 using VodovozBusiness.EntityRepositories.Nodes;
 
@@ -30,15 +30,29 @@ namespace BitrixNotificationsSend.Library.Services
 
 		private readonly CounterpartyType[] _counterpartyTypes =
 		{
-			CounterpartyType.Supplier,
-			CounterpartyType.Dealer,
-			CounterpartyType.AdvertisingDepartmentClient
+			CounterpartyType.Buyer
+		};
+
+		private readonly DebtType[] _excludeCloseDeliveryDebtTypes =
+		{
+			DebtType.ShortTerm,
+			DebtType.Judicial,
+			DebtType.WriteOff
+		};
+
+		private readonly RevenueStatus[] _excludeCounterpartyRevenueStatuses =
+		{
+			RevenueStatus.Liquidating,
+			RevenueStatus.Liquidated,
+			RevenueStatus.Reorganizing,
+			RevenueStatus.Bankrupt
 		};
 
 		private readonly ILogger<CashlessDebtsNotificationsSendService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IBitrixNotificationsSendClient _bitrixNotificationsSendClient;
 		private readonly IBitrixNotificationsSendSettings _bitrixNotificationsSendSettings;
+		private readonly ICounterpartySettings _counterpartySettings;
 		private readonly ICounterpartyRepository _counterpartyRepository;
 		private readonly IBottlesRepository _bottlesRepository;
 		private readonly IOrderRepository _orderRepository;
@@ -49,6 +63,7 @@ namespace BitrixNotificationsSend.Library.Services
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IBitrixNotificationsSendClient bitrixNotificationsSendClient,
 			IBitrixNotificationsSendSettings bitrixNotificationsSendSettings,
+			ICounterpartySettings counterpartySettings,
 			ICounterpartyRepository counterpartyRepository,
 			IBottlesRepository bottlesRepository,
 			IOrderRepository orderRepository,
@@ -58,6 +73,7 @@ namespace BitrixNotificationsSend.Library.Services
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_bitrixNotificationsSendClient = bitrixNotificationsSendClient ?? throw new ArgumentNullException(nameof(bitrixNotificationsSendClient));
 			_bitrixNotificationsSendSettings = bitrixNotificationsSendSettings ?? throw new ArgumentNullException(nameof(bitrixNotificationsSendSettings));
+			_counterpartySettings = counterpartySettings ?? throw new ArgumentNullException(nameof(counterpartySettings));
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 			_bottlesRepository = bottlesRepository ?? throw new ArgumentNullException(nameof(bottlesRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
@@ -221,6 +237,9 @@ namespace BitrixNotificationsSend.Library.Services
 				organizationId,
 				_orderStatuses,
 				_counterpartyTypes,
+				_excludeCounterpartyRevenueStatuses,
+				_excludeCloseDeliveryDebtTypes,
+				_counterpartySettings.CounterpartyFromTenderId,
 				cancellationToken);
 
 		private async Task<IDictionary<int, CounterpartyPaymentsDataNode[]>> GetCounterpatiesPaymentsData(

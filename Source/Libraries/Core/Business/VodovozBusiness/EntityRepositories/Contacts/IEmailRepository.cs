@@ -65,6 +65,13 @@ namespace Vodovoz.EntityRepositories
 		/// <returns></returns>
 		bool HasSendedEmailsForBillExceptOf(int orderId, int emailId);
 
+		/// <summary>
+		/// Возвращает количество претензионных писем, отправленных за текущий день
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <returns>Количество претензионных писем, отправленных за текущий день</returns>
+		int GetTodaySentLetterOfClaimsCount(IUnitOfWork uow);
+
 		#endregion
 	}
 }

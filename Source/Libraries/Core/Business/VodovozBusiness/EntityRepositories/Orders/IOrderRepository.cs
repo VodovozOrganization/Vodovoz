@@ -1,4 +1,4 @@
-using NHibernate.Criterion;
+﻿using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -283,9 +283,21 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="organizationId">Id организации</param>
 		/// <param name="orderStatuses">Статусы заказов</param>
 		/// <param name="counterpartyTypes">Типы контагентов</param>
+		/// <param name="excludeCounterpartyRevenueStatuses">Статусы контрагентов в налоговой для исключения</param>
+		/// <param name="excludeCloseDeliveryDebtTypes">Тип задолженности контрагента для исключения</param>
+		/// <param name="tenderCameFromId">Id источника клиента Тендер</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Данные по неоплаченным заказам</returns>
-		Task<IDictionary<int, CounterpartyOrdersAggregatedNode>> GetNotPaidCashlessOrdersData(IUnitOfWork uow, int organizationId, IEnumerable<OrderStatus> orderStatuses, IEnumerable<CounterpartyType> counterpartyTypes, CancellationToken cancellationToken);
+		Task<IDictionary<int, CounterpartyOrdersAggregatedNode>> GetNotPaidCashlessOrdersData(
+			IUnitOfWork uow,
+			int organizationId,
+			IEnumerable<OrderStatus> orderStatuses,
+			IEnumerable<CounterpartyType> counterpartyTypes,
+			IEnumerable<RevenueStatus> excludeCounterpartyRevenueStatuses,
+			IEnumerable<DebtType> excludeCloseDeliveryDebtTypes,
+			int tenderCameFromId,
+			CancellationToken cancellationToken);
+		
 		/// <summary>
 		/// Получение идентификаторов заказов на дату по клиенту и ТД
 		/// </summary>
@@ -295,5 +307,64 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="deliveryPointId">Идентификатор ТД</param>
 		/// <returns></returns>
 		IEnumerable<int> GetClientOrdersIdsForDate(IUnitOfWork uow, DateTime date, int? counterpartyId, int? deliveryPointId);
+
+		/// <summary>
+		/// Получение просроченных задолженностей по контрагентам c открытыми поставками
+		/// </summary>
+		/// <param name="unitOfWork">UnitOfWork</param>
+		/// <param name="daysBeforeClosingDeliveries">Количество дней до закрытия поставок</param>
+		/// <param name="organizationsIds">Id организаций</param>
+		/// <param name="orderStatuses">Статусы заказов</param>
+		/// <param name="counterpartyTypes">Типы контрагентов</param>
+		/// <param name="counterpartyId">Id контрагента</param>
+		/// <returns>Данные по задолженности</returns>
+		Task<IList<CounterpartyWithDebtAggregatedNode>> GetWithoutClosedDeliveriesCounterpartiesOverdueDebts(
+			IUnitOfWork unitOfWork, 
+			int daysBeforeClosingDeliveries, 
+			int[] organizationsIds, 
+			OrderStatus[] orderStatuses, 
+			CounterpartyType[] counterpartyTypes, 
+			int? counterpartyId = null,			
+			CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Проверяет наличие просроченной задолженности контрагента c закрытыми поставками
+		/// </summary>
+		/// <param name="unitOfWork">UnitOfWork</param>
+		/// <param name="daysBeforeClosingDeliveries">Количество дней до закрытия поставок</param>
+		/// <param name="organizationsIds">Id организаций</param>
+		/// <param name="orderStatuses">Статусы заказов</param>
+		/// <param name="counterpartyTypes">Типы контрагентов</param>
+		/// <param name="counterpartyId">Id контрагента</param>
+		/// <returns>Данные по задолженности</returns>
+		Task<bool> HasClosedDeliveriesCounterpartyWithOverdueDebtsAsync(
+			IUnitOfWork unitOfWork,
+			int daysBeforeClosingDeliveries, 
+			int[] organizationsIds,
+			OrderStatus[] orderStatuses,
+			CounterpartyType[] counterpartyTypes, 
+			int counterpartyId,
+			CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Получение данных по просроченной дебиторской задолженности контрагентов для формирования претензионных писем, 
+		/// сгруппированные по контрагенту и организации, с учетом минимального количества дней просрочки сверх установленного для КА
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="expiredMinDaysAgo">Минимальное количество дней просрочки</param>
+		/// <param name="orderStatuses">Статусы заказов</param>
+		/// <param name="excludeCounterpartyRevenueStatuses">Статусы контрагентов в налоговой для исключения</param>
+		/// <param name="letterOfClaimResendIntervalDays">Интервал дней для повторной отправки претензии</param>
+		/// <param name="maxClientsToTake">Максимальное количество клиентов</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Данные по просроченным долгам контрагента в разрезе организации</returns>
+		Task<IDictionary<CounterpartyOrganizationDataNode, CounterpartyOverdueDebtorDebtAggregatedNode>> GetOverdueDebtorDebtDataForLettersOfClaim(
+			IUnitOfWork uow,
+			int expiredMinDaysAgo,
+			IEnumerable<OrderStatus> orderStatuses,
+			IEnumerable<RevenueStatus> excludeCounterpartyRevenueStatuses,
+			int letterOfClaimResendIntervalDays,
+			int maxClientsToTake = int.MaxValue,
+			CancellationToken cancellationToken = default);
 	}
 }

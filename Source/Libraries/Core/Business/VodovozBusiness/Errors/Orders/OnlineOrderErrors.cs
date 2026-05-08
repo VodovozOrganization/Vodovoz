@@ -5,6 +5,12 @@ namespace Vodovoz.Errors.Orders
 {
 	public static partial class OnlineOrderErrors
 	{
+		public static Error IsNeedConfirmationByCall =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(IsNeedConfirmationByCall),
+				"Требуется подтверждение по телефону");
+		
 		public static Error IsEmptyCounterparty =>
 			new Error(
 				typeof(OnlineOrderErrors),
