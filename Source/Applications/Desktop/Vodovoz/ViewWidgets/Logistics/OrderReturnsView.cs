@@ -418,31 +418,31 @@ namespace Vodovoz
 				.AddColumn("Скидка \nв рублях?")
 					.AddToggleRenderer(x => x.IsDiscountInMoney)
 						.AddSetter((c, n) => c.Activatable = _canEditPrices)
-				.AddColumn("Основание скидки")
-					.HeaderAlignment(0.5f)
-					.AddComboRenderer(node => node.DiscountReason)
-						.SetDisplayFunc(x => x.Name)
-						.DynamicFillListFunc(item =>
-						{
-							var list = discountReasons.Where(
-								dr => _discountsController.IsApplicableDiscount(dr, item.Nomenclature)).ToList();
-							return list;
-						})
-						.EditedEvent(OnDiscountReasonComboEdited)
-						.AddSetter((c, n) => c.Editable = _canEditPrices)
-						.AddSetter(
-							(c, n) =>
-								c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null && n.OrderItem?.PromoSet == null
-									? GdkColors.DangerBase
-									: GdkColors.PrimaryBase
-						)
-						.AddSetter((c, n) =>
-							{
-								if(n.OrderItem?.PromoSet != null && n.DiscountReason == null && n.Discount > 0)
-								{
-									c.Text = n.OrderItem.PromoSet.DiscountReasonInfo;
-								}
-							})
+				//.AddColumn("Основание скидки")
+				//	.HeaderAlignment(0.5f)
+				//	.AddComboRenderer(node => node.DiscountReasons)
+				//		.SetDisplayFunc(x => x.Name)
+				//		.DynamicFillListFunc(item =>
+				//		{
+				//			var list = discountReasons.Where(
+				//				dr => _discountsController.IsApplicableDiscount(dr, item.Nomenclature)).ToList();
+				//			return list;
+				//		})
+				//		.EditedEvent(OnDiscountReasonComboEdited)
+				//		.AddSetter((c, n) => c.Editable = _canEditPrices)
+				//		.AddSetter(
+				//			(c, n) =>
+				//				c.BackgroundGdk = n.Discount > 0 && n.DiscountReasons == null && n.OrderItem?.PromoSet == null
+				//					? GdkColors.DangerBase
+				//					: GdkColors.PrimaryBase
+				//		)
+				//		.AddSetter((c, n) =>
+				//			{
+				//				if(n.OrderItem?.PromoSet != null && n.DiscountReasons == null && n.Discount > 0)
+				//				{
+				//					c.Text = n.OrderItem.PromoSet.DiscountReasonInfo;
+				//				}
+				//			})
 				.AddColumn("Стоимость")
 					.AddNumericRenderer(node => node.Sum).Digits(2)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName)
@@ -560,27 +560,27 @@ namespace Vodovoz
 				return;
 			}
 
-			var previousDiscountReason = orderItemNode.OrderItem.DiscountReason;
+			//var previousDiscountReason = orderItemNode.OrderItem.DiscountReason;
 
 			Gtk.Application.Invoke((sender, eventArgs) =>
 			{
 				//Дополнительно проверяем основание скидки на null, т.к при двойном щелчке
 				//комбо-бокс не откроется, но событие сработает и прилетит null
-				if(orderItemNode.OrderItem != null && orderItemNode.DiscountReason != null)
-				{
-					if(!_discountsController.SetDiscountFromDiscountReasonForOrderItem(
-						orderItemNode.DiscountReason, orderItemNode.OrderItem, _canEditPrices, out string message))
-					{
-						orderItemNode.OrderItem.DiscountReason = previousDiscountReason;
-					}
+				//if(orderItemNode.OrderItem != null && orderItemNode.DiscountReasons != null)
+				//{
+				//	if(!_discountsController.SetDiscountFromDiscountReasonForOrderItem(
+				//		orderItemNode.DiscountReasons, orderItemNode.OrderItem, _canEditPrices, out string message))
+				//	{
+				//		orderItemNode.OrderItem.DiscountReason = previousDiscountReason;
+				//	}
 
-					if(message != null)
-					{
-						_interactiveService.ShowMessage(ImportanceLevel.Warning,
-							$"На позицию:\n№{index + 1} {message}нельзя применить скидку," +
-							" т.к. она из промонабора или на нее есть фикса.\nОбратитесь к руководителю");
-					}
-				}
+				//	if(message != null)
+				//	{
+				//		_interactiveService.ShowMessage(ImportanceLevel.Warning,
+				//			$"На позицию:\n№{index + 1} {message}нельзя применить скидку," +
+				//			" т.к. она из промонабора или на нее есть фикса.\nОбратитесь к руководителю");
+				//	}
+				//}
 			});
 		}
 

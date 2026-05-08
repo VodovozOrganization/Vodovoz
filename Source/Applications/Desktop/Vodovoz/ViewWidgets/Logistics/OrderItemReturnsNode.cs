@@ -1,4 +1,5 @@
-﻿using Vodovoz.Domain.Goods;
+﻿using QS.Extensions.Observable.Collections.List;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz
@@ -236,21 +237,27 @@ namespace Vodovoz
 			}
 		}
 
-		public DiscountReason DiscountReason
+		public IObservableList<DiscountReason> DiscountReasons
 		{
-			get => IsEquipment ? _orderEquipment.OrderItem?.DiscountReason : _orderItem.DiscountReason; // А тут как?
+			get => IsEquipment ? _orderEquipment.OrderItem?.DiscountReasons : _orderItem.DiscountReasons; // А тут как?
 			set
 			{
 				if(IsEquipment)
 				{
 					if(_orderEquipment.OrderItem != null)
 					{
-						_orderEquipment.OrderItem.DiscountReason = value;
+						foreach(var reason in value)
+						{
+							_orderEquipment.OrderItem.DiscountReasons.Add(reason);
+						}
 					}
 				}
 				else
 				{
-					_orderItem.DiscountReason = value;
+					foreach(var reason in value)
+					{
+						_orderItem.DiscountReasons.Add(reason);
+					}
 				}
 			}
 		}

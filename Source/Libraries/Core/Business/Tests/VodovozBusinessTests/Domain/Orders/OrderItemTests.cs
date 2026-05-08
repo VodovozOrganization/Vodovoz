@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using NSubstitute;
 using NUnit.Framework;
 using Vodovoz.Domain.Client;
@@ -33,6 +34,7 @@ namespace VodovozBusinessTests.Domain.Orders
 		{
 			// arrange
 			DiscountReason discountReason = Substitute.For<DiscountReason>();
+			IEnumerable<DiscountReason> discountReasons = Substitute.For<IEnumerable<DiscountReason>>();
 			Nomenclature nomenclature = Substitute.For<Nomenclature>();
 			Order order = Substitute.For<Order>();
 
@@ -43,7 +45,7 @@ namespace VodovozBusinessTests.Domain.Orders
 				50,
 				true,
 				discountMoney,
-				discountReason,
+				discountReasons,
 				null);
 
 			// act
@@ -59,6 +61,7 @@ namespace VodovozBusinessTests.Domain.Orders
 		{
 			// arrange
 			DiscountReason discountReason = Substitute.For<DiscountReason>();
+			IEnumerable<DiscountReason> discountReasons = Substitute.For<IEnumerable<DiscountReason>>();
 			Nomenclature nomenclature = Substitute.For<Nomenclature>();
 			Order order = Substitute.For<Order>();
 
@@ -69,7 +72,7 @@ namespace VodovozBusinessTests.Domain.Orders
 				50,
 				false,
 				discountPercent,
-				discountReason,
+				discountReasons,
 				null);
 
 			// act
@@ -131,6 +134,7 @@ namespace VodovozBusinessTests.Domain.Orders
 		{
 			// arrange
 			DiscountReason discountReason = new DiscountReason();
+			IEnumerable<DiscountReason> discountReasons = Substitute.For<IEnumerable<DiscountReason>>();
 			var order = new Order();
 
 
@@ -141,7 +145,7 @@ namespace VodovozBusinessTests.Domain.Orders
 				50,
 				true,
 				discountMoney,
-				discountReason,
+				discountReasons,
 				null);
 
 			testedOrderItem.SetDiscountByStock(discountReason, existingDiscountByStock);

@@ -2200,29 +2200,23 @@ namespace Vodovoz
 					.AddSetter((c, n) => c.Activatable = _canChangeDiscountValue)
 				.AddColumn("Основание скидки")
 					.HeaderAlignment(0.5f)
-					.AddComboRenderer(x => x.DiscountReason)
-					.SetDisplayFunc(x => x.Name)
-					.DynamicFillListFunc(item =>
-						{
-							var list = _discountReasons.Where(
-								dr => _discountsController.IsApplicableDiscount(dr, item.Nomenclature)).ToList();
-							return list;
-						})
-					.EditedEvent(OnDiscountReasonComboEdited)
-					.AddSetter((cell, node) => cell.Editable = node.DiscountByStock == 0)
+					.AddTextRenderer(x => x.DiscountReasonsNames)
 					.AddSetter(
 						(c, n) =>
-							c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null && n.PromoSet == null ? colorLightRed : colorPrimaryBase
+							c.BackgroundGdk = n.Discount > 0 && !n.DiscountReasons.Any() && n.PromoSet == null ? colorLightRed : colorPrimaryBase
 					)
 					.AddSetter((c, n) =>
 						{
-							if(n.PromoSet != null && n.DiscountReason == null && n.Discount > 0)
+							if(n.PromoSet != null && !n.DiscountReasons.Any() && n.Discount > 0)
 							{
 								c.Text = n.PromoSet.DiscountReasonInfo;
 							}
 							else if(Entity.OrderStatus == OrderStatus.DeliveryCanceled || Entity.OrderStatus == OrderStatus.NotDelivered)
 							{
-								c.Text = n.OriginalDiscountReason?.Name ?? n.DiscountReason?.Name;
+								c.Text =
+									string.IsNullOrWhiteSpace(n.OriginalDiscountReasonsNames)
+									? n.DiscountReasonsNames
+									: n.OriginalDiscountReasonsNames;
 							}
 						})
 				.AddColumn("Промонаборы").SetTag(nameof(Entity.PromotionalSets))
@@ -2375,41 +2369,6 @@ namespace Vodovoz
 			}
 
 			orderItem.UpdateRentCount(newRentCount);
-		}
-
-		private void OnDiscountReasonComboEdited(object o, EditedArgs args)
-		{
-			var index = int.Parse(args.Path);
-			var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
-			if(!(node is OrderItem orderItem))
-			{
-				return;
-			}
-
-			var previousDiscountReason = orderItem.DiscountReason;
-
-			Gtk.Application.Invoke((sender, eventArgs) =>
-			{
-				//Дополнительно проверяем основание скидки на null, т.к при двойном щелчке
-				//комбо-бокс не откроется, но событие сработает и прилетит null
-				if(orderItem.DiscountReason != null)
-				{
-					if(!_discountsController.SetDiscountFromDiscountReasonForOrderItem(
-						orderItem.DiscountReason, orderItem, _canChangeDiscountValue, out string message))
-					{
-						orderItem.DiscountReason = previousDiscountReason;
-					}
-
-					if(message != null)
-					{
-						ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-							$"На позицию:\n№{index + 1} {message}нельзя применить скидку," +
-							" т.к. она из промонабора или на нее есть фикса.\nОбратитесь к руководителю");
-					}
-				}
-
-				Order?.RecalculateItemsPrice();
-			});
 		}
 
 		private void OnOpCommentChanged(object o, EventArgs args)
@@ -3735,7 +3694,7 @@ namespace Vodovoz
 			Nomenclature nomenclature,
 			decimal count = 0,
 			decimal discount = 0,
-			DiscountReason discountReason = null)
+			IEnumerable<DiscountReason> discountReasons = null)
 		{
 			if(Entity.IsLoadedFrom1C)
 			{
@@ -3780,7 +3739,7 @@ namespace Vodovoz
 				return;
 			}
 
-			Entity.AddNomenclature(UoW, _orderContractUpdater, nomenclature, count, discount, false, discountReason: discountReason);
+			Entity.AddNomenclature(UoW, _orderContractUpdater, nomenclature, count, discount, false, discountReasons: discountReasons);
 		}
 
 		private void TryAddNomenclatureFromPromoSet(PromotionalSet proSet)

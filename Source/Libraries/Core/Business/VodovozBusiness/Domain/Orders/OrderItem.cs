@@ -17,7 +17,6 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.Extensions;
 using Vodovoz.Settings.Nomenclature;
 using VodovozBusiness.Controllers;
-using static VodovozBusiness.Services.Orders.CreateOrderRequest;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -29,12 +28,10 @@ namespace Vodovoz.Domain.Orders
 	{
 		private Order _order;
 		private Equipment _equipment;
-		private DiscountReason _originalDiscountReason;
 		private CounterpartyMovementOperation _counterpartyMovementOperation;
 		private PaidRentPackage _paidRentPackage;
 		private FreeRentPackage _freeRentPackage;
 		private OrderItem _copiedFromUndelivery;
-		private DiscountReason _discountReason;
 		private Nomenclature _nomenclature;
 		private PromotionalSet _promoSet;
 		private IObservableList<DiscountReason> _discountReasons = new ObservableList<DiscountReason>();
@@ -59,13 +56,6 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _equipment;
 			set => SetField(ref _equipment, value);
-		}
-
-		[Display(Name = "Основание скидки на товар до отмены заказа")]
-		public virtual DiscountReason OriginalDiscountReason
-		{
-			get => _originalDiscountReason;
-			set => SetField(ref _originalDiscountReason, value);
 		}
 
 		public virtual CounterpartyMovementOperation CounterpartyMovementOperation
@@ -113,13 +103,6 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _promoSet, value);
 		}
 
-		[Display(Name = "Основание скидки на товар")]
-		public virtual DiscountReason DiscountReason
-		{
-			get => _discountReason;
-			set => SetField(ref _discountReason, value);
-		}
-
 		[Display(Name = "Основания скидки на товар")]
 		public virtual IObservableList<DiscountReason> DiscountReasons
 		{
@@ -127,7 +110,7 @@ namespace Vodovoz.Domain.Orders
 			set => SetField(ref _discountReasons, value);
 		}
 
-		[Display(Name = "Основания скидки на товар")]
+		[Display(Name = "Основания скидки на товар до отмены заказа")]
 		public virtual IObservableList<DiscountReason> OriginalDiscountReasons
 		{
 			get => _originalDiscountReasons;
@@ -935,7 +918,7 @@ namespace Vodovoz.Domain.Orders
 			decimal price,
 			bool isDiscountInMoney,
 			decimal discount,
-			DiscountReason discountReason,
+			IEnumerable<DiscountReason> discountReasons,
 			PromotionalSet promotionalSet)
 		{
 			var newItem = new OrderItem
@@ -948,9 +931,22 @@ namespace Vodovoz.Domain.Orders
 				PromoSet = promotionalSet
 			};
 
-			if(discountReason != null)
+			if(discountReasons != null && discountReasons.Any())
 			{
-				newItem.DiscountReasons.Add(discountReason);
+				foreach(var reason in discountReasons)
+				{
+					if(reason is null)
+					{
+						continue;
+					}
+
+					if(newItem.DiscountReasons.Any(x => x.Id == reason.Id))
+					{
+						continue;
+					}
+
+					newItem.DiscountReasons.Add(reason);
+				}
 			}
 
 			newItem.UpdatePriceWithRecalculate(price);
@@ -977,5 +973,11 @@ namespace Vodovoz.Domain.Orders
 		{
 			return new OrderItem { Id = id };
 		}
+
+		public virtual string DiscountReasonsNames =>
+			string.Join(", ", DiscountReasons.Select(x => x.Name));
+
+		public virtual string OriginalDiscountReasonsNames =>
+			string.Join(", ", OriginalDiscountReasons.Select(x => x.Name));
 	}
 }

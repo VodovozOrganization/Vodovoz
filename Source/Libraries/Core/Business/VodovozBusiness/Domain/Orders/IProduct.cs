@@ -1,4 +1,5 @@
-﻿using Vodovoz.Domain.Goods;
+﻿using QS.Extensions.Observable.Collections.List;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -25,9 +26,9 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		bool IsFixedPrice { get; }
 		/// <summary>
-		/// Основание скидки <see cref="Vodovoz.Domain.Orders.DiscountReason"/>
+		/// Основания скидок <see cref="Vodovoz.Domain.Orders.DiscountReason"/>
 		/// </summary>
-		DiscountReason DiscountReason { get; set; } //Нужно очень хорошо подумать
+		IObservableList<DiscountReason> DiscountReasons { get; }
 		/// <summary>
 		/// Номенклатура <see cref="Vodovoz.Domain.Goods.Nomenclature"/>
 		/// </summary>

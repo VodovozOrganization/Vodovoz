@@ -2109,7 +2109,7 @@ namespace Vodovoz.Domain.Orders
 			decimal discount = 0,
 			bool isDiscountInMoney = false,
 			bool needGetFixedPrice = true,
-			DiscountReason reason = null,
+			IEnumerable<DiscountReason> reasons = null,
 			PromotionalSet proSet = null)
 		{
 			if(nomenclature.Category != NomenclatureCategory.water && !nomenclature.IsDisposableTare)
@@ -2122,11 +2122,11 @@ namespace Vodovoz.Domain.Orders
 				var fixPricedNomenclaturesId = GetNomenclaturesWithFixPrices.Select(n => n.Id);
 				if(fixPricedNomenclaturesId.Contains(nomenclature.Id))
 				{
-					reason = null;
+					reasons = null;
 				}
 			}
 
-			if(discount > 0 && reason == null && proSet == null)
+			if(discount > 0 && (reasons == null || !reasons.Any()) && proSet == null)
 			{
 				throw new ArgumentException("Требуется указать причину скидки (reason), если она (discount) больше 0!");
 			}
@@ -2135,7 +2135,7 @@ namespace Vodovoz.Domain.Orders
 			AddOrderItem(
 				uow,
 				contractUpdater,
-				OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, price, isDiscountInMoney, discount, reason, proSet));
+				OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, price, isDiscountInMoney, discount, reasons, proSet));
 		}
 
 		public virtual void AddFlyerNomenclature(Nomenclature flyerNomenclature)
@@ -2302,7 +2302,7 @@ namespace Vodovoz.Domain.Orders
 			decimal discount = 0,
 			bool discountInMoney = false,
 			bool needGetFixedPrice = true,
-			DiscountReason discountReason = null,
+			IEnumerable<DiscountReason> discountReasons = null,
 			PromotionalSet proSet = null)
 		{
 			switch(nomenclature.Category) {
@@ -2315,7 +2315,7 @@ namespace Vodovoz.Domain.Orders
 						discount,
 						discountInMoney,
 						needGetFixedPrice,
-						discountReason,
+						discountReasons,
 						proSet);
 					break;
 				case NomenclatureCategory.master:
@@ -2324,7 +2324,7 @@ namespace Vodovoz.Domain.Orders
 				default:
 					var canApplyAlternativePrice = HasPermissionsForAlternativePrice && nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
 
-					var orderItem = OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, nomenclature.GetPrice(1, canApplyAlternativePrice), discountInMoney, discount, discountReason, proSet);
+					var orderItem = OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, nomenclature.GetPrice(1, canApplyAlternativePrice), discountInMoney, discount, discountReasons, proSet);
 
 					var acceptableCategories = Nomenclature.GetCategoriesForSale();
 					if(orderItem?.Nomenclature == null
