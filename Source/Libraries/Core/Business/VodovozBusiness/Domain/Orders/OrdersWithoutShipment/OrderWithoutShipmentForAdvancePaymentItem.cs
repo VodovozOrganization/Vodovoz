@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using NHibernate;
 using QS.DomainModel.Entity;
-using Vodovoz.Core.Domain.Goods;
+using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
@@ -96,7 +96,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			get => discount;
 			set {
 				if(value != discount && value == 0) {
-					DiscountReason = null;
+					DiscountReasons.Clear();
 				}
 				if(SetField(ref discount, value)) {
 					RecalculateVAT();
@@ -117,7 +117,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			get => discountMoney;
 			set {
 				if(value != discountMoney && value == 0) {
-					DiscountReason = null;
+					DiscountReasons.Clear();
 				}
 				if(SetField(ref discountMoney, value))
 					RecalculateVAT();
@@ -131,11 +131,11 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			set => SetField(ref discountByStock, value);
 		}
 
-		private DiscountReason discountReason;
-		[Display(Name = "Основание скидки на товар")]
-		public virtual DiscountReason DiscountReason {
-			get => discountReason;
-			set => SetField(ref discountReason, value);
+		private IObservableList<DiscountReason> _discountReasons = new ObservableList<DiscountReason>();
+		[Display(Name = "Основания скидок на товар")]
+		public virtual IObservableList<DiscountReason> DiscountReasons {
+			get => _discountReasons;
+			set => SetField(ref _discountReasons, value);
 		}
 
 		[Display(Name = "Альтернативная цена?")]
@@ -165,7 +165,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				CalculateAndSetDiscount(value);
 				if(DiscountByStock != 0) {
 					DiscountByStock = 0;
-					DiscountReason = null;
+					DiscountReasons.Clear();
 				}
 			}
 		}
@@ -214,7 +214,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 		void RemoveDiscount()
 		{
-			DiscountReason = null;
+			DiscountReasons.Clear();
 			DiscountMoney = 0;
 			Discount = 0;
 		}
@@ -319,12 +319,13 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			return canUseVat;
 		}
 		
-		//Посмотреть
 		public void SetDiscount(bool isDiscountInMoney, decimal discount, DiscountReason discountReason)
 		{
 			IsDiscountInMoney = isDiscountInMoney;
 			Discount = discount;
-			DiscountReason = discountReason;
+
+			DiscountReasons.Clear();
+			DiscountReasons.Add(discountReason);
 		}
 
 		public OrderWithoutShipmentForAdvancePaymentItem() { }
