@@ -39,7 +39,6 @@ namespace Vodovoz.Domain.Orders
 		private GenericObservableList<DiscountReasonNomenclatureCategory> _observableNomenclatureCategories;
 		private GenericObservableList<Nomenclature> _observableNomenclatures;
 		private GenericObservableList<ProductGroup> _observableProductGroups;
-		private IObservableList<OrderItem> _orderItems = new ObservableList<OrderItem>();
 		private bool _isPromoCode;
 		private string _promoCodeName;
 		private bool _isOneTimePromoCode;
@@ -125,15 +124,6 @@ namespace Vodovoz.Domain.Orders
 		public virtual GenericObservableList<ProductGroup> ObservableProductGroups =>
 			_observableProductGroups ??
 			(_observableProductGroups = new GenericObservableList<ProductGroup>(ProductGroups));
-
-		/// <summary>
-		/// Коллекция строк заказа
-		/// </summary>
-		public virtual IObservableList<OrderItem> OrderItems
-		{
-			get => _orderItems;
-			set => SetField(ref _orderItems, value);
-		}
 		
 		/// <summary>
 		/// Основание скидки - Промокод

@@ -43,13 +43,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 				.ParentKeyColumn("discount_reason_id")
 				.ChildKeyColumn("group_id")
 				.LazyLoad();
-
-			HasManyToMany(x => x.OrderItems)
-			   .Table("discount_reasons_order_items")
-			   .ParentKeyColumn("discount_reason_id")
-			   .ChildKeyColumn("order_item_id")
-			   .Inverse()
-			   .LazyLoad();
 		}
 	}
 }
