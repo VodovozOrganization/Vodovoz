@@ -967,7 +967,8 @@ namespace Vodovoz.Domain.Orders
 			bool isDiscountInMoney,
 			decimal discount,
 			IEnumerable<DiscountReason> discountReasons,
-			PromotionalSet promotionalSet)
+			PromotionalSet promotionalSet,
+			bool giftItem = false)
 		{
 			var newItem = new OrderItem
 			{
@@ -976,7 +977,8 @@ namespace Vodovoz.Domain.Orders
 				Equipment = null,
 				Nomenclature = nomenclature,
 				IsDiscountInMoney = isDiscountInMoney,
-				PromoSet = promotionalSet
+				PromoSet = promotionalSet,
+				GiftItem = giftItem
 			};
 
 			newItem.UpdatePriceWithRecalculate(price);
