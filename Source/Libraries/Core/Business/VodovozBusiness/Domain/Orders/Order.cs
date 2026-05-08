@@ -2110,7 +2110,8 @@ namespace Vodovoz.Domain.Orders
 			bool isDiscountInMoney = false,
 			bool needGetFixedPrice = true,
 			DiscountReason reason = null,
-			PromotionalSet proSet = null)
+			PromotionalSet proSet = null,
+			bool giftItem = false)
 		{
 			if(nomenclature.Category != NomenclatureCategory.water && !nomenclature.IsDisposableTare)
 			{
@@ -2135,7 +2136,7 @@ namespace Vodovoz.Domain.Orders
 			AddOrderItem(
 				uow,
 				contractUpdater,
-				OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, price, isDiscountInMoney, discount, reason, proSet));
+				OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, price, isDiscountInMoney, discount, reason, proSet, giftItem));
 		}
 
 		public virtual void AddFlyerNomenclature(Nomenclature flyerNomenclature)
@@ -2303,7 +2304,8 @@ namespace Vodovoz.Domain.Orders
 			bool discountInMoney = false,
 			bool needGetFixedPrice = true,
 			DiscountReason discountReason = null,
-			PromotionalSet proSet = null)
+			PromotionalSet proSet = null,
+			bool giftItem = false)
 		{
 			switch(nomenclature.Category) {
 				case NomenclatureCategory.water:
@@ -2316,7 +2318,8 @@ namespace Vodovoz.Domain.Orders
 						discountInMoney,
 						needGetFixedPrice,
 						discountReason,
-						proSet);
+						proSet,
+						giftItem);
 					break;
 				case NomenclatureCategory.master:
 					contract = CreateServiceContractAddMasterNomenclature(uow, contractUpdater, nomenclature);
@@ -2324,7 +2327,16 @@ namespace Vodovoz.Domain.Orders
 				default:
 					var canApplyAlternativePrice = HasPermissionsForAlternativePrice && nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
 
-					var orderItem = OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, nomenclature.GetPrice(1, canApplyAlternativePrice), discountInMoney, discount, discountReason, proSet);
+					var orderItem = OrderItem.CreateForSaleWithDiscount(
+						this,
+						nomenclature,
+						count,
+						nomenclature.GetPrice(1, canApplyAlternativePrice),
+						discountInMoney,
+						discount,
+						discountReason,
+						proSet,
+						giftItem);
 
 					var acceptableCategories = Nomenclature.GetCategoriesForSale();
 					if(orderItem?.Nomenclature == null

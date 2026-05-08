@@ -142,7 +142,8 @@ namespace CustomerOnlineOrdersRegistrar.Factories.V4
 					applicableDiscountReason,
 					nomenclature,
 					promoSet,
-					onlineOrder);
+					onlineOrder,
+					onlineOrderItemDto.GiftItem);
 
 				onlineOrder.OnlineOrderItems.Add(onlineOrderItem);
 			}
