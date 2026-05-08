@@ -32,7 +32,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Logistic.Cars
 			References(x => x.Author).Column("author_id");
 			References(x => x.Car).Column("car_id");
 			References(x => x.Driver).Column("driver_id");
-			//References(x => x.Counterparty).Column("counterparty_id");
+			References(x => x.Counterparty).Column("counterparty_id");
 			References(x => x.OriginalCarEvent).Column("original_car_event_id");
 			References(x => x.WriteOffDocument).Column("write_off_document_id");
 			References(x => x.CalibrationFuelOperation).Column("calibration_fuel_operation_id").Cascade.All();
