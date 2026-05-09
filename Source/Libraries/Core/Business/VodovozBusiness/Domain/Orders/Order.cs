@@ -504,7 +504,7 @@ namespace Vodovoz.Domain.Orders
 						orderItemsHavingClientsSecondOrderDiscount.Add(item);
 					}
 				}
-				discountsController.RemoveDiscountFromOrder(orderItemsHavingClientsSecondOrderDiscount);
+				discountsController.ClearOrdersItemDiscounts(orderItemsHavingClientsSecondOrderDiscount);
 			}
 		}
 

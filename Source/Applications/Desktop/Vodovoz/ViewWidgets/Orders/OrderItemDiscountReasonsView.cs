@@ -25,9 +25,9 @@ namespace Vodovoz.ViewWidgets.Orders
 				.Finish();
 
 			ytreeviewDiscountReasons.HeadersVisible = true;
+			ytreeviewDiscountReasons.ItemsDataSource = ViewModel.OrderItemDiscountReasons;
 			ytreeviewDiscountReasons.Binding
 				.AddSource(ViewModel)
-				.AddBinding(vm => vm.OrderItemDiscountReasons, w => w.ItemsDataSource)
 				.AddBinding(ViewModel, vm => vm.SelectedDiscountReason, w => w.SelectedRow)
 				.InitializeFromSource();
 

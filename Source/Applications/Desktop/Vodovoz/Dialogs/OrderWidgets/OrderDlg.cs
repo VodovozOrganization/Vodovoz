@@ -4691,7 +4691,7 @@ namespace Vodovoz
 				SetDiscountUnitEditable();
 				spinDiscount.ValueAsDecimal = default(decimal);
 				SetDiscountEditable();
-				_discountsController.RemoveDiscountFromOrder(Entity.ObservableOrderItems);
+				_discountsController.ClearOrdersItemDiscounts(Entity.ObservableOrderItems);
 			}
 		}
 

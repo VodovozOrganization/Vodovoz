@@ -1,9 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
+using Vodovoz.Errors.Orders;
 
 namespace VodovozBusiness.Controllers
 {
@@ -16,11 +18,11 @@ namespace VodovozBusiness.Controllers
 			_fixedPriceController = fixedPriceController ?? throw new ArgumentNullException(nameof(fixedPriceController));
 		}
 
-		public void RemoveDiscountFromOrder(IList<OrderItem> orderItems)
+		public void ClearOrdersItemDiscounts(IList<OrderItem> orderItems)
 		{
 			foreach(var item in orderItems)
 			{
-				RemoveDiscountFromOrderItem(item);
+				ClearOrderItemDiscounts(item);
 			}
 		}
 		
@@ -64,7 +66,7 @@ namespace VodovozBusiness.Controllers
 				return false;
 			}
 
-			SetDiscount(reason, orderItem);
+			AddDiscount(reason, orderItem);
 			return true;
 		}
 
@@ -76,7 +78,7 @@ namespace VodovozBusiness.Controllers
 				return;
 			}
 
-			SetDiscount(reason, orderItem);
+			AddDiscount(reason, orderItem);
 		}
 
 		/// <summary>
@@ -161,7 +163,7 @@ namespace VodovozBusiness.Controllers
 		/// <param name="orderItem">Строка заказа</param>
 		private void SetCustomDiscount(DiscountReason reason, decimal discount, DiscountUnits unit, OrderItem orderItem)
 		{
-			orderItem.SetDiscount(unit == DiscountUnits.money, discount, reason);
+			orderItem.AddDiscount(unit == DiscountUnits.money, discount, reason);
 		}
 
 		/// <summary>
@@ -169,16 +171,24 @@ namespace VodovozBusiness.Controllers
 		/// </summary>
 		/// <param name="reason">Основание скидки</param>
 		/// <param name="item">Элемент, к которому применяется скидка</param>
-		private void SetDiscount(DiscountReason reason, IDiscount item)
+		private Result AddDiscount(DiscountReason reason, IDiscount item)
 		{
-			item.SetDiscount(reason.ValueType == DiscountUnits.money, reason.Value, reason);
+			try
+			{
+				item.AddDiscount(reason.ValueType == DiscountUnits.money, reason.Value, reason);
+				return Result.Success();
+			}
+			catch(Exception ex)
+			{
+				return Result.Failure(DiscountErrors.CreateAddDiscountException(ex.Message));
+			}
 		}
 
 		/// <summary>
 		/// Удаление скидки из строки заказа
 		/// </summary>
 		/// <param name="orderItem">Строка заказа</param>
-		private void RemoveDiscountFromOrderItem(OrderItem orderItem)
+		private void ClearOrderItemDiscounts(OrderItem orderItem)
 		{
 			orderItem.RemoveDiscount();
 		}

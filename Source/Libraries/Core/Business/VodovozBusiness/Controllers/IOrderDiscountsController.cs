@@ -45,6 +45,6 @@ namespace Vodovoz.Controllers
 		/// <summary>
 		/// Удаление скидки из заказа
 		/// </summary>
-		void RemoveDiscountFromOrder(IList<OrderItem> orderItems);
+		void ClearOrdersItemDiscounts(IList<OrderItem> orderItems);
 	}
 }

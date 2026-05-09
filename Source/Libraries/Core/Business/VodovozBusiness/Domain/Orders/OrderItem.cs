@@ -307,6 +307,20 @@ namespace Vodovoz.Domain.Orders
 			RecalculateVAT();
 		}
 
+		/// <summary>
+		/// Удаляет скидки
+		/// </summary>
+		public virtual void RemoveDiscount(int discountReasonId)
+		{
+			if(!DiscountReasons.Any())
+			{
+				return;
+			}
+
+			ClearDiscount();
+			RecalculateVAT();
+		}
+
 		public virtual void SetNomenclature(Nomenclature nomenclature)
 		{
 			Nomenclature = nomenclature;
@@ -769,9 +783,21 @@ namespace Vodovoz.Domain.Orders
 		/// <param name="isDiscountInMoney">true - скидка в деньгах, false - в процентах</param>
 		/// <param name="discount">Значение скидки</param>
 		/// <param name="discountReason">Основание скидки</param>
-		public virtual void SetDiscount(bool isDiscountInMoney, decimal discount, DiscountReason discountReason)
+		public virtual void AddDiscount(bool isDiscountInMoney, decimal discount, DiscountReason discountReason)
 		{
 			IsDiscountInMoney = isDiscountInMoney;
+
+			if(isDiscountInMoney && discount + DiscountMoney > Price * CurrentCount)
+			{
+				throw new InvalidOperationException("Скидка в деньгах не может быть больше стоимости товара");
+			}
+
+			if(!isDiscountInMoney)
+			{
+				var existingDiscountsSum = DiscountReasons.Sum(x => x.ValueType == DiscountUnits.percent ? x.Value : 0);
+				throw new InvalidOperationException("Скидка в процентах не может быть больше 100%");
+			}
+
 			CalculateAndSetDiscount(discount);
 
 			if(discountReason != null && !DiscountReasons.Contains(discountReason))

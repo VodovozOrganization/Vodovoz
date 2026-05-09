@@ -82,7 +82,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				Price = nomenclature.GetPrice(1, canApplyAlternativePrice)
 			};
 
-			oi.SetDiscount(discountInMoney, discount, discountReason);
+			oi.AddDiscount(discountInMoney, discount, discountReason);
 			AddItemWithNomenclatureForSale(oi);
 		}
 

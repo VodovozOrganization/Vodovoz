@@ -6,6 +6,6 @@ namespace Vodovoz.Domain.Orders
 	{
 		bool IsDiscountInMoney { get; }
 		IObservableList<DiscountReason> DiscountReasons { get; }
-		void SetDiscount(bool isDiscountInMoney, decimal discount, DiscountReason discountReason);
+		void AddDiscount(bool isDiscountInMoney, decimal discount, DiscountReason discountReason);
 	}
 }
