@@ -1,12 +1,20 @@
-﻿using System;
+﻿using QS.Views.GtkUI;
+using System;
+using System.ComponentModel;
+using Vodovoz.ViewModels.Widgets.Orders;
 namespace Vodovoz.ViewWidgets.Orders
 {
-	[System.ComponentModel.ToolboxItem(true)]
-	public partial class OrderItemDiscountReasonsView : Gtk.Bin
+	[ToolboxItem(true)]
+	public partial class OrderItemDiscountReasonsView : WidgetViewBase<OrderItemDiscountReasonsViewModel>
 	{
 		public OrderItemDiscountReasonsView()
 		{
-			this.Build();
+			Build();
+		}
+
+		protected override void ConfigureWidget()
+		{
+			base.ConfigureWidget();
 		}
 	}
 }
