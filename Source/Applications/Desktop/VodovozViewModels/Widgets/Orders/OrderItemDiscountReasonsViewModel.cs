@@ -1,6 +1,8 @@
 ﻿using QS.Commands;
+using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
+using QS.Services;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -19,10 +21,16 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 		private IObservableList<DiscountReason> _orderItemDiscountReasons = new ObservableList<DiscountReason>();
 
 		private readonly IOrderDiscountsController _orderDiscountController;
+		private readonly ICommonServices _commonServices;
+		private readonly IInteractiveService _interactiveService;
 
-		public OrderItemDiscountReasonsViewModel(IOrderDiscountsController orderDiscountController)
+		public OrderItemDiscountReasonsViewModel(
+			IOrderDiscountsController orderDiscountController,
+			ICommonServices commonServices)
 		{
 			_orderDiscountController = orderDiscountController ?? throw new ArgumentNullException(nameof(orderDiscountController));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
+			_interactiveService = commonServices.InteractiveService;
 
 			AddDiscountReasonCommand = new DelegateCommand(AddDiscountReason, () => CanAddDiscountReason);
 			AddDiscountReasonCommand.CanExecuteChangedWith(this, x => x.CanAddDiscountReason);
@@ -93,9 +101,13 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 			_applicableDiscountReasons.Clear();
 			if(allDiscountReasons != null)
 			{
-				foreach (var dr in allDiscountReasons)
+				foreach (var discountReason in allDiscountReasons)
 				{
-					_applicableDiscountReasons.Add(dr);
+					if(!_orderDiscountController.IsApplicableDiscount(discountReason, orderItem.Nomenclature))
+					{
+						continue;
+					}
+					_applicableDiscountReasons.Add(discountReason);
 				}
 			}
 
@@ -124,7 +136,17 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 				return;
 			}
 
-			OrderItem.DiscountReasons.Add(NewDiscountReason);
+			var addingDiscountResult =
+				_orderDiscountController.AddtDiscountFromDiscountReasonForOrderItem(NewDiscountReason, OrderItem);
+
+			if(addingDiscountResult.IsFailure)
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Error,
+					string.Join(Environment.NewLine, addingDiscountResult.Errors.Select(e => e.Message)),
+					"Не удалось добавить скидку с указанным основанием");
+				return;
+			}
 
 			OnDiscountReasonsChanged();
 		}
@@ -136,7 +158,7 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 				return;
 			}
 
-			OrderItem.DiscountReasons.Remove(SelectedDiscountReason);
+			_orderDiscountController.RemoveOrdersItemDiscounts(SelectedDiscountReason, OrderItem);
 
 			OnDiscountReasonsChanged();
 		}

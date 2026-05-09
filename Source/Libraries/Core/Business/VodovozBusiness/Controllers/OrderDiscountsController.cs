@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain;
@@ -66,8 +67,33 @@ namespace VodovozBusiness.Controllers
 				return false;
 			}
 
-			AddDiscount(reason, orderItem);
+			ClearOrderItemDiscounts(orderItem);
+			var addDiscountResult = AddDiscount(reason, orderItem);
+
+			if(addDiscountResult.IsFailure)
+			{
+				var error = addDiscountResult.Errors.FirstOrDefault();
+				message = $"{orderItem.Nomenclature.Name} - {error?.Message}\n";
+				return false;
+			}
+
 			return true;
+		}
+
+		public Result AddtDiscountFromDiscountReasonForOrderItem(
+			DiscountReason reason, OrderItem orderItem)
+		{
+			if(!CanSetDiscount(reason, orderItem))
+			{
+				return Result.Failure(DiscountErrors.DiscountForOrderItemNotAllowed);
+			}
+
+			if(OrderItemContainsPromoSetOrFixedPrice(orderItem))
+			{
+				return Result.Failure(DiscountErrors.OrderItemContainsPromoSetOrFixedPrice);
+			}
+
+			return AddDiscount(reason, orderItem);
 		}
 
 		public void SetDiscountFromDiscountReasonForOrderItemWithoutShipment(
@@ -190,7 +216,19 @@ namespace VodovozBusiness.Controllers
 		/// <param name="orderItem">Строка заказа</param>
 		private void ClearOrderItemDiscounts(OrderItem orderItem)
 		{
-			orderItem.RemoveDiscount();
+			orderItem.ClearDiscounts();
+		}
+
+		public void RemoveOrdersItemDiscounts(DiscountReason discountReason, OrderItem orderItem)
+		{
+			var discountsToRemove = orderItem.DiscountReasons.Where(x => x.Id == discountReason.Id).ToList();
+			if(discountsToRemove.Any())
+			{
+				foreach(var discount in discountsToRemove)
+				{
+					orderItem.RemoveDiscount(discount.Id);
+				}
+			}
 		}
 	}
 }

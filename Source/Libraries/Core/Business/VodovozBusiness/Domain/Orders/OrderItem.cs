@@ -216,7 +216,25 @@ namespace Vodovoz.Domain.Orders
 
 		private void RecalculateTotalDiscountFromReasons()
 		{
-			decimal currentPrice = Price * CurrentCount;
+			var currentPrice = CurrentRawPrice;
+			var totalDiscountMoney = CalculateTotalDiscountInMoneyFromAddedReasons();
+
+			if(totalDiscountMoney > currentPrice)
+			{
+				totalDiscountMoney = currentPrice;
+			}
+
+			DiscountMoney = totalDiscountMoney;
+			Discount = currentPrice > 0 ? (100 * DiscountMoney) / currentPrice : 0;
+
+			RecalculateVAT();
+		}
+
+		private decimal CurrentRawPrice => Price * CurrentCount;
+
+		private decimal CalculateTotalDiscountInMoneyFromAddedReasons()
+		{
+			decimal currentPrice = CurrentRawPrice;
 
 			decimal totalPercentDiscount = 0;
 			decimal totalMoneyDiscount = 0;
@@ -241,15 +259,7 @@ namespace Vodovoz.Domain.Orders
 			decimal discountFromPercent = currentPrice * (totalPercentDiscount / 100);
 			decimal totalDiscountMoney = discountFromPercent + totalMoneyDiscount;
 
-			if(totalDiscountMoney > currentPrice)
-			{
-				totalDiscountMoney = currentPrice;
-			}
-
-			DiscountMoney = totalDiscountMoney;
-			Discount = currentPrice > 0 ? (100 * DiscountMoney) / currentPrice : 0;
-
-			RecalculateVAT();
+			return totalDiscountMoney;
 		}
 
 		private void RecalculateDiscountWithPreserveOrRestoreDiscount()
@@ -294,9 +304,9 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
-		/// Удаляет скидки
+		/// Удаляет все скидки
 		/// </summary>
-		public virtual void RemoveDiscount()
+		public virtual void ClearDiscounts()
 		{
 			if(!DiscountReasons.Any())
 			{
@@ -317,8 +327,14 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			ClearDiscount();
-			RecalculateVAT();
+			var reasonsToRemove = DiscountReasons.Where(r => r.Id == discountReasonId).ToList();
+
+			foreach(var reason in reasonsToRemove)
+			{
+				DiscountReasons.Remove(reason);
+			}
+
+			RecalculateTotalDiscountFromReasons();
 		}
 
 		public virtual void SetNomenclature(Nomenclature nomenclature)
@@ -785,25 +801,25 @@ namespace Vodovoz.Domain.Orders
 		/// <param name="discountReason">Основание скидки</param>
 		public virtual void AddDiscount(bool isDiscountInMoney, decimal discount, DiscountReason discountReason)
 		{
+			var alreadyAddedDiscount = CalculateTotalDiscountInMoneyFromAddedReasons();
+			var orderItemCurrentPrice = CurrentRawPrice;
+			var remainingSum = CurrentRawPrice - alreadyAddedDiscount;
+
+			var discountMoneyToAdd = isDiscountInMoney ? discount : orderItemCurrentPrice * discount / 100;
+
 			IsDiscountInMoney = isDiscountInMoney;
 
-			if(isDiscountInMoney && discount + DiscountMoney > Price * CurrentCount)
+			if(discountMoneyToAdd > remainingSum)
 			{
-				throw new InvalidOperationException("Скидка в деньгах не может быть больше стоимости товара");
+				throw new InvalidOperationException("Суммарная скидка не может быть больше стоимости товара");
 			}
-
-			if(!isDiscountInMoney)
-			{
-				var existingDiscountsSum = DiscountReasons.Sum(x => x.ValueType == DiscountUnits.percent ? x.Value : 0);
-				throw new InvalidOperationException("Скидка в процентах не может быть больше 100%");
-			}
-
-			CalculateAndSetDiscount(discount);
 
 			if(discountReason != null && !DiscountReasons.Contains(discountReason))
 			{
 				DiscountReasons.Add(discountReason);
 			}
+
+			RecalculateTotalDiscountFromReasons();
 
 			RecalculateVAT();
 		}
