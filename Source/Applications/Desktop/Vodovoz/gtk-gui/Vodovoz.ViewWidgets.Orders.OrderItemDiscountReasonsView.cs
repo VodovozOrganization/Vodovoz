@@ -12,6 +12,8 @@ namespace Vodovoz.ViewWidgets.Orders
 
 		private global::Gamma.GtkWidgets.yHBox yhboxButtons;
 
+		private global::QS.Widgets.GtkUI.SpecialListComboBox speciallistcomboboxDiscountReason;
+
 		private global::Gamma.GtkWidgets.yButton ybuttonAdd;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonDelete;
@@ -43,38 +45,50 @@ namespace Vodovoz.ViewWidgets.Orders
 			this.yhboxButtons.Name = "yhboxButtons";
 			this.yhboxButtons.Spacing = 6;
 			// Container child yhboxButtons.Gtk.Box+BoxChild
+			this.speciallistcomboboxDiscountReason = new global::QS.Widgets.GtkUI.SpecialListComboBox();
+			this.speciallistcomboboxDiscountReason.Name = "speciallistcomboboxDiscountReason";
+			this.speciallistcomboboxDiscountReason.AddIfNotExist = false;
+			this.speciallistcomboboxDiscountReason.DefaultFirst = false;
+			this.speciallistcomboboxDiscountReason.ShowSpecialStateAll = false;
+			this.speciallistcomboboxDiscountReason.ShowSpecialStateNot = false;
+			this.yhboxButtons.Add(this.speciallistcomboboxDiscountReason);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.speciallistcomboboxDiscountReason]));
+			w3.Position = 0;
+			w3.Expand = false;
+			w3.Fill = false;
+			// Container child yhboxButtons.Gtk.Box+BoxChild
 			this.ybuttonAdd = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonAdd.CanFocus = true;
 			this.ybuttonAdd.Name = "ybuttonAdd";
 			this.ybuttonAdd.UseUnderline = true;
 			this.ybuttonAdd.Label = global::Mono.Unix.Catalog.GetString("Добавить");
-			global::Gtk.Image w3 = new global::Gtk.Image();
-			w3.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
-			this.ybuttonAdd.Image = w3;
+			global::Gtk.Image w4 = new global::Gtk.Image();
+			w4.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.ybuttonAdd.Image = w4;
 			this.yhboxButtons.Add(this.ybuttonAdd);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.ybuttonAdd]));
-			w4.Position = 0;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.ybuttonAdd]));
+			w5.Position = 1;
+			w5.Expand = false;
+			w5.Fill = false;
 			// Container child yhboxButtons.Gtk.Box+BoxChild
 			this.ybuttonDelete = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonDelete.CanFocus = true;
 			this.ybuttonDelete.Name = "ybuttonDelete";
 			this.ybuttonDelete.UseUnderline = true;
 			this.ybuttonDelete.Label = global::Mono.Unix.Catalog.GetString("Удалить");
-			global::Gtk.Image w5 = new global::Gtk.Image();
-			w5.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-delete", global::Gtk.IconSize.Menu);
-			this.ybuttonDelete.Image = w5;
+			global::Gtk.Image w6 = new global::Gtk.Image();
+			w6.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-delete", global::Gtk.IconSize.Menu);
+			this.ybuttonDelete.Image = w6;
 			this.yhboxButtons.Add(this.ybuttonDelete);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.ybuttonDelete]));
-			w6.Position = 1;
-			w6.Expand = false;
-			w6.Fill = false;
-			this.yvboxMainContainer.Add(this.yhboxButtons);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yvboxMainContainer[this.yhboxButtons]));
-			w7.Position = 1;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.yhboxButtons[this.ybuttonDelete]));
+			w7.Position = 2;
 			w7.Expand = false;
 			w7.Fill = false;
+			this.yvboxMainContainer.Add(this.yhboxButtons);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.yvboxMainContainer[this.yhboxButtons]));
+			w8.Position = 1;
+			w8.Expand = false;
+			w8.Fill = false;
 			this.Add(this.yvboxMainContainer);
 			if ((this.Child != null))
 			{
