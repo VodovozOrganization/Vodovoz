@@ -1,8 +1,12 @@
 ﻿using QS.Commands;
 using QS.DomainModel.Entity;
+using QS.Extensions.Observable.Collections.List;
 using QS.ViewModels;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Domain.Orders;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.ViewModels.Widgets.Orders
 {
@@ -11,9 +15,15 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 		private OrderItem _orderItem;
 		private DiscountReason _newDiscountReason;
 		private DiscountReason _selectedDiscountReason;
+		private IList<DiscountReason> _applicableDiscountReasons = new List<DiscountReason>();
+		private IObservableList<DiscountReason> _orderItemDiscountReasons = new ObservableList<DiscountReason>();
 
-		public OrderItemDiscountReasonsViewModel()
+		private readonly IDiscountController _discountController;
+
+		public OrderItemDiscountReasonsViewModel(IDiscountController discountController)
 		{
+			_discountController = discountController ?? throw new ArgumentNullException(nameof(discountController));
+
 			AddDiscountReasonCommand = new DelegateCommand(AddDiscountReason, () => CanAddDiscountReason);
 			AddDiscountReasonCommand.CanExecuteChangedWith(this, x => x.CanAddDiscountReason);
 			DeleteDiscountReasonCommand = new DelegateCommand(DeleteDiscountReason, () => CanDeleteDiscountReason);
@@ -25,28 +35,71 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 
 		public event EventHandler<OrderItemDiscountReasonsChangedEventArgs> DiscountReasonsChanged;
 
+		[PropertyChangedAlso(nameof(AvailableDiscountReasons))]
+		public IObservableList<DiscountReason> OrderItemDiscountReasons
+		{
+			get => _orderItemDiscountReasons;
+			private set => SetField(ref _orderItemDiscountReasons, value);
+		}
+
+		public IList<DiscountReason> AvailableDiscountReasons =>
+			_applicableDiscountReasons
+			.Where(x => !OrderItemDiscountReasons.Contains(x))
+			.ToList();
+
+		[PropertyChangedAlso(nameof(OrderItemDiscountReasons))]
 		public OrderItem OrderItem
 		{
 			get => _orderItem;
-			set => SetField(ref _orderItem, value);
+			private set => SetField(ref _orderItem, value);
 		}
 
+		[PropertyChangedAlso(nameof(CanAddDiscountReason))]
 		public DiscountReason NewDiscountReason
 		{
 			get => _newDiscountReason;
 			set => SetField(ref _newDiscountReason, value);
 		}
 
+		[PropertyChangedAlso(nameof(CanDeleteDiscountReason))]
 		public DiscountReason SelectedDiscountReason
 		{
 			get => _selectedDiscountReason;
 			set => SetField(ref _selectedDiscountReason, value);
 		}
 
-		[PropertyChangedAlso(nameof(NewDiscountReason))]
+		public void Initialize()
+		{
+			Update(null, null);
+		}
+
+		public void Update(OrderItem orderItem, IList<DiscountReason> discountReasons)
+		{
+			OrderItem = orderItem;
+
+			OrderItemDiscountReasons.Clear();
+			if(OrderItem?.DiscountReasons != null)
+			{
+				foreach(var dr in OrderItem.DiscountReasons)
+				{
+					OrderItemDiscountReasons.Add(dr);
+				}
+			}
+
+			_applicableDiscountReasons.Clear();
+			if(discountReasons != null)
+			{
+				foreach (var dr in discountReasons)
+				{
+					_applicableDiscountReasons.Add(dr);
+				}
+			}
+
+			OnPropertyChanged(nameof(OrderItemDiscountReasons));
+		}
+
 		public bool CanAddDiscountReason => NewDiscountReason != null;
 
-		[PropertyChangedAlso(nameof(SelectedDiscountReason))]
 		public bool CanDeleteDiscountReason => SelectedDiscountReason != null;
 
 		private void AddDiscountReason()
@@ -55,7 +108,11 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 			{
 				return;
 			}
+
 			OrderItem.DiscountReasons.Add(NewDiscountReason);
+
+			OnPropertyChanged(nameof(OrderItemDiscountReasons));
+
 			OnDiscountReasonsChanged();
 		}
 
@@ -65,7 +122,11 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 			{
 				return;
 			}
+
 			OrderItem.DiscountReasons.Remove(SelectedDiscountReason);
+
+			OnPropertyChanged(nameof(OrderItemDiscountReasons));
+
 			OnDiscountReasonsChanged();
 		}
 

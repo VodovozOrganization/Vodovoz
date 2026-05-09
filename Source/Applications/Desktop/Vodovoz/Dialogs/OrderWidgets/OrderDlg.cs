@@ -145,6 +145,7 @@ using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
+using Vodovoz.ViewModels.Widgets.Orders;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Client;
 using VodovozBusiness.Domain.Orders;
@@ -205,6 +206,8 @@ namespace Vodovoz
 		private Order _templateOrder;
 
 		private SelectPaymentTypeViewModel _selectPaymentTypeViewModel;
+
+		private OrderItemDiscountReasonsViewModel _orderItemDiscountReasonsViewModel;
 
 		private int _previousDeliveryPointId;
 		private int _paidDeliveryNomenclatureId;
@@ -1227,6 +1230,34 @@ namespace Vodovoz
 			RefreshDebtorDebtNotifier();
 
 			UpdateDocumentsDescription();
+
+			SetOrderItemDiscountReasonsViewModel();
+		}
+
+		private void SetOrderItemDiscountReasonsViewModel()
+		{
+			_orderItemDiscountReasonsViewModel = _lifetimeScope.Resolve<OrderItemDiscountReasonsViewModel>();
+			_orderItemDiscountReasonsViewModel.Initialize();
+			orderitemdiscountreasonsview1.ViewModel = _orderItemDiscountReasonsViewModel;
+		}
+
+		private void UpdateOrderItemDiscountReasonsViewModel()
+		{
+			if(_orderItemDiscountReasonsViewModel is null)
+			{
+				throw new InvalidOperationException("Виджет выбора основания скидки не инициализирован");
+			}
+
+			var items = treeItems.GetSelectedObjects();
+
+			if(items.Count() == 1
+				&& items.First() is OrderItem orderItem)
+			{
+				_orderItemDiscountReasonsViewModel.Update(orderItem, _discountReasons);
+				return;
+			}
+
+			_orderItemDiscountReasonsViewModel.Initialize();
 		}
 
 		private void OnYbuttonSaveWaitUntilClicked(object sender, EventArgs e)
@@ -4880,6 +4911,8 @@ namespace Vodovoz
 			object[] items = treeItems.GetSelectedObjects();
 
 			btnDeleteOrderItem.Sensitive = items.Any();
+
+			UpdateOrderItemDiscountReasonsViewModel();
 		}
 
 		/// <summary>
