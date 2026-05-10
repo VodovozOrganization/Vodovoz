@@ -1163,6 +1163,8 @@ namespace Vodovoz
 			dataSumDifferenceReason.Hide();
 			labelSumDifferenceReason.Hide();
 
+			SetOrderItemDiscountReasonsViewModel();
+
 			UpdateUIState();
 
 			yChkActionBottle.Toggled += (sender, e) =>
@@ -1230,8 +1232,6 @@ namespace Vodovoz
 			RefreshDebtorDebtNotifier();
 
 			UpdateDocumentsDescription();
-
-			SetOrderItemDiscountReasonsViewModel();
 		}
 
 		private void SetOrderItemDiscountReasonsViewModel()
@@ -5144,6 +5144,16 @@ namespace Vodovoz
 		{
 			treeItems.Sensitive = sensitive;
 			hbox12.Sensitive = sensitive;
+
+			ChangeDiscountReasonSensetive(sensitive);
+		}
+
+		private void ChangeDiscountReasonSensetive(bool sensetive)
+		{
+			if(_orderItemDiscountReasonsViewModel != null)
+			{
+				_orderItemDiscountReasonsViewModel.IsEditable = sensetive;
+			}
 		}
 
 		private void SetPadInfoSensitive(bool value)

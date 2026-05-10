@@ -14,6 +14,7 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 {
 	public class OrderItemDiscountReasonsViewModel : WidgetViewModelBase
 	{
+		private bool _isEditable;
 		private OrderItem _orderItem;
 		private DiscountReason _newDiscountReason;
 		private DiscountReason _selectedDiscountReason;
@@ -54,6 +55,12 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 			_applicableDiscountReasons
 			.Where(x => !OrderItemDiscountReasons.Contains(x))
 			.ToList();
+
+		public bool IsEditable
+		{
+			get => _isEditable;
+			set => SetField(ref _isEditable, value);
+		}
 
 		[PropertyChangedAlso(nameof(OrderItemDiscountReasons))]
 		public OrderItem OrderItem

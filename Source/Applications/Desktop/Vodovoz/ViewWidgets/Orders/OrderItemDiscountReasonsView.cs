@@ -17,6 +17,10 @@ namespace Vodovoz.ViewWidgets.Orders
 		{
 			base.ConfigureWidget();
 
+			yvboxMainContainer.Binding
+				.AddBinding(ViewModel, vm => vm.IsEditable, w => w.Sensitive)
+				.InitializeFromSource();
+
 			ytreeviewDiscountReasons.CreateFluentColumnsConfig<DiscountReason>()
 				.AddColumn("Основание скидки")
 					.MinWidth(50)
