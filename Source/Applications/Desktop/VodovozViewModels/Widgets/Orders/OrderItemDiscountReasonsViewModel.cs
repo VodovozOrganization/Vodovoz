@@ -99,6 +99,14 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 			OrderItem = orderItem;
 
 			OrderItemDiscountReasons.Clear();
+			_applicableDiscountReasons.Clear();
+
+			if(orderItem is null)
+			{
+				IsEditable = false;
+				return;
+			}
+
 			if(OrderItem?.DiscountReasons != null)
 			{
 				foreach(var dr in OrderItem.DiscountReasons)
@@ -107,7 +115,6 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 				}
 			}
 
-			_applicableDiscountReasons.Clear();
 			if(allDiscountReasons != null)
 			{
 				foreach (var discountReason in allDiscountReasons)
