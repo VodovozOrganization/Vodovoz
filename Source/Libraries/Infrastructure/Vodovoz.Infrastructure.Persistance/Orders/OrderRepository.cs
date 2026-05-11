@@ -1,4 +1,4 @@
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -2907,7 +2907,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.ToListAsync(cancellationToken);
 		}
 
-		public async Task<IList<CounterpartyWithDebtAggregatedNode>> GetWithClosedDeliveriesCounterpartyOverdueDebts(
+		public async Task<bool> HasClosedDeliveriesCounterpartyWithOverdueDebtsAsync(
 			IUnitOfWork unitOfWork,
 			int daysBeforeClosingDeliveries,
 			int[] organizationsIds,
@@ -2918,7 +2918,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		{
 			return await GetOverdueDebtQuery(unitOfWork, daysBeforeClosingDeliveries, organizationsIds, orderStatuses, counterpartyTypes, counterpartyId)
 				.Where(x => x.Counterparty.IsDeliveriesClosed)
-				.ToListAsync(cancellationToken);
+				.Select(x => x.Counterparty.Id)
+				.AnyAsync(cancellationToken);
 		}
 
 		private IQueryable<CounterpartyWithDebtAggregatedNode> GetOverdueDebtQuery(
@@ -2933,8 +2934,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				from order in unitOfWork.Session.Query<Order>()
 				join counterparty in unitOfWork.Session.Query<Counterparty>()
 					on order.Client.Id equals counterparty.Id
-
-				let deliveryDate = order.DeliveryDate
 
 				where
 					organizationsIds.Contains(order.Contract.Organization.Id)

@@ -1,4 +1,4 @@
-using NHibernate.Criterion;
+﻿using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -328,7 +328,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// Получение просроченной задолженности контрагента c закрытыми поставками
+		/// Проверяет наличие просроченной задолженности контрагента c закрытыми поставками
 		/// </summary>
 		/// <param name="unitOfWork">UnitOfWork</param>
 		/// <param name="daysBeforeClosingDeliveries">Количество дней до закрытия поставок</param>
@@ -337,7 +337,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="counterpartyTypes">Типы контрагентов</param>
 		/// <param name="counterpartyId">Id контрагента</param>
 		/// <returns>Данные по задолженности</returns>
-		Task<IList<CounterpartyWithDebtAggregatedNode>> GetWithClosedDeliveriesCounterpartyOverdueDebts(
+		Task<bool> HasClosedDeliveriesCounterpartyWithOverdueDebtsAsync(
 			IUnitOfWork unitOfWork,
 			int daysBeforeClosingDeliveries, 
 			int[] organizationsIds,
