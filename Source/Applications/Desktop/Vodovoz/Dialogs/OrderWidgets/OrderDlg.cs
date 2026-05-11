@@ -5342,7 +5342,7 @@ namespace Vodovoz
 				if(discount > 0)
 				{
 					var unit = (DiscountUnits)enumDiscountUnit.SelectedItem;
-					_discountsController.SetCustomDiscountForOrder(reason, discount, unit, Entity.ObservableOrderItems.Cast<IDiscount>().ToList());
+					_discountsController.SetCustomDiscount(reason, discount, unit, Entity.ObservableOrderItems.Cast<IDiscount>().ToList());
 				}
 				else
 				{

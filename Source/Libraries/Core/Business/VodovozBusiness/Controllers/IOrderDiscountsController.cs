@@ -16,7 +16,7 @@ namespace Vodovoz.Controllers
 		/// <param name="discount">Скидки</param>
 		/// <param name="unit">Скидка в процентах или рублях</param>
 		/// <param name="orderItems">Список строк заказа</param>
-		void SetCustomDiscountForOrder(DiscountReason reason, decimal discount, DiscountUnits unit, IList<IDiscount> orderItems);
+		void SetCustomDiscount(DiscountReason reason, decimal discount, DiscountUnits unit, IList<IDiscount> orderItems);
 
 		/// <summary>
 		/// Установка скидки исходя из выбранного основания скидки для всего заказа
@@ -59,6 +59,6 @@ namespace Vodovoz.Controllers
 		/// </summary>
 		/// <param name="discountReason">Основание скидки</param>
 		/// <param name="orderItem">Строка заказа</param>
-		void RemoveOrdersItemDiscounts(DiscountReason discountReason, IDiscount orderItem);
+		void RemoveDiscountFromOrdersItem(DiscountReason discountReason, IDiscount orderItem);
 	}
 }

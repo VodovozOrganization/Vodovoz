@@ -174,7 +174,7 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 				return;
 			}
 
-			_orderDiscountController.RemoveOrdersItemDiscounts(SelectedDiscountReason, OrderItem);
+			_orderDiscountController.RemoveDiscountFromOrdersItem(SelectedDiscountReason, OrderItem);
 
 			OnDiscountReasonsChanged();
 		}

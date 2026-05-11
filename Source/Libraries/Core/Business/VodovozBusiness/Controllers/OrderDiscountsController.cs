@@ -27,7 +27,7 @@ namespace VodovozBusiness.Controllers
 			}
 		}
 		
-		public void SetCustomDiscountForOrder(DiscountReason reason, decimal discount, DiscountUnits unit, IList<IDiscount> orderItems)
+		public void SetCustomDiscount(DiscountReason reason, decimal discount, DiscountUnits unit, IList<IDiscount> orderItems)
 		{
 			foreach(var item in orderItems)
 			{
@@ -212,7 +212,7 @@ namespace VodovozBusiness.Controllers
 			orderItem.ClearDiscounts();
 		}
 
-		public void RemoveOrdersItemDiscounts(DiscountReason discountReason, IDiscount orderItem)
+		public void RemoveDiscountFromOrdersItem(DiscountReason discountReason, IDiscount orderItem)
 		{
 			var discountsToRemove = orderItem.DiscountReasons.Where(x => x.Id == discountReason.Id).ToList();
 			if(discountsToRemove.Any())
