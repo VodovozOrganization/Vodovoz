@@ -44,8 +44,9 @@ namespace Vodovoz.Controllers
 		/// </summary>
 		/// <param name="reason">Основание скидки</param>
 		/// <param name="orderItem">Строка заказа</param>
+		/// <param name="isNotCheckPromoSetOrFixedPrice">Можно добавить скидку независимо от наличия промонабора или фиксы</param>
 		/// <returns>Результат операции</returns>
-		Result AddtDiscountFromDiscountReasonForOrderItem(DiscountReason reason, OrderItem orderItem);
+		Result AddtDiscountFromDiscountReasonForOrderItem(DiscountReason reason, OrderItem orderItem, bool isNotCheckPromoSetOrFixedPrice = false);
 
 		/// <summary>
 		/// Установка скидки исходя из выбранного основания скидки для строки счета без отгрузки на предоплату

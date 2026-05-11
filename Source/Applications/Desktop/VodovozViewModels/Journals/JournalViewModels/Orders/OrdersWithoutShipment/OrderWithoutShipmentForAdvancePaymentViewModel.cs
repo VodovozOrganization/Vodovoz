@@ -391,7 +391,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			var permissionService = CommonServices.CurrentPermissionService;
 			
 			_canCreateBillsWithoutShipment = permissionService.ValidatePresetPermission("can_create_bills_without_shipment");
-			CanChangeDiscountValue = permissionService.ValidatePresetPermission("can_set_direct_discount_value");
+			CanChangeDiscountValue = permissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.UserCanSetDirectDiscountValue);
 			_canChoosePremiumDiscount = permissionService.ValidatePresetPermission("can_choose_premium_discount");
 			_canAddOnlineStoreNomenclaturesToOrder =
 				permissionService.ValidatePresetPermission("can_add_online_store_nomenclatures_to_order");

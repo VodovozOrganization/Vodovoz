@@ -84,5 +84,14 @@ namespace Vodovoz.Core.Domain.Permissions
 			Name = "Выбор сотрудника в отчёте по дате создания заказа",
 			Description = "Разрешить выбор сотрудника в отчёте по дате создания заказа")]
 		public static string CanEditEmployeeInOrderCreationDateReport => nameof(CanEditEmployeeInOrderCreationDateReport);
+
+		/// <summary>
+		/// Возможность проставить скидну вне зависимости от основания для скидки
+		/// Пользователь может поставить определенное значение скидки на заказ вне зависимости от основания для скидки
+		/// </summary>
+		[Display(
+			Name = "Возможность проставить скидну вне зависимости от основания для скидки",
+			Description = "Пользователь может поставить определенное значение скидки на заказ вне зависимости от основания для скидки")]
+		public static string UserCanSetDirectDiscountValue => "can_set_direct_discount_value";
 	}
 }

@@ -81,14 +81,14 @@ namespace VodovozBusiness.Controllers
 		}
 
 		public Result AddtDiscountFromDiscountReasonForOrderItem(
-			DiscountReason reason, OrderItem orderItem)
+			DiscountReason reason, OrderItem orderItem, bool isNotCheckPromoSetOrFixedPrice = false)
 		{
 			if(!CanSetDiscount(reason, orderItem))
 			{
 				return Result.Failure(DiscountErrors.DiscountForOrderItemNotAllowed);
 			}
 
-			if(OrderItemContainsPromoSetOrFixedPrice(orderItem))
+			if(!isNotCheckPromoSetOrFixedPrice && OrderItemContainsPromoSetOrFixedPrice(orderItem))
 			{
 				return Result.Failure(DiscountErrors.OrderItemContainsPromoSetOrFixedPrice);
 			}

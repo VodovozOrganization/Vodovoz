@@ -24,6 +24,7 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 		private readonly IOrderDiscountsController _orderDiscountController;
 		private readonly ICommonServices _commonServices;
 		private readonly IInteractiveService _interactiveService;
+		private readonly bool _userCanSetDirectDiscountValue;
 
 		public OrderItemDiscountReasonsViewModel(
 			IOrderDiscountsController orderDiscountController,
@@ -32,6 +33,7 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 			_orderDiscountController = orderDiscountController ?? throw new ArgumentNullException(nameof(orderDiscountController));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_interactiveService = commonServices.InteractiveService;
+			_userCanSetDirectDiscountValue = commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.UserCanSetDirectDiscountValue);
 
 			AddDiscountReasonCommand = new DelegateCommand(AddDiscountReason, () => CanAddDiscountReason);
 			AddDiscountReasonCommand.CanExecuteChangedWith(this, x => x.CanAddDiscountReason);
@@ -144,7 +146,7 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 			}
 
 			var addingDiscountResult =
-				_orderDiscountController.AddtDiscountFromDiscountReasonForOrderItem(NewDiscountReason, OrderItem);
+				_orderDiscountController.AddtDiscountFromDiscountReasonForOrderItem(NewDiscountReason, OrderItem, _userCanSetDirectDiscountValue);
 
 			if(addingDiscountResult.IsFailure)
 			{

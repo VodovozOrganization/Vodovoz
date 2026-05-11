@@ -1326,7 +1326,7 @@ namespace Vodovoz
 			CanFormOrderWithLiquidatedCounterparty = currentPermissionService.ValidatePresetPermission(
 				OrderPermissions.CanFormOrderWithLiquidatedCounterparty);
 
-			_canChangeDiscountValue = currentPermissionService.ValidatePresetPermission("can_set_direct_discount_value");
+			_canChangeDiscountValue = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.UserCanSetDirectDiscountValue);
 			_canChoosePremiumDiscount = currentPermissionService.ValidatePresetPermission("can_choose_premium_discount");
 			_canEditOrderExtraCash = currentPermissionService.ValidatePresetPermission("can_edit_order_extra_cash");
 			_canSetContractCloser = currentPermissionService.ValidatePresetPermission("can_set_contract_closer");
