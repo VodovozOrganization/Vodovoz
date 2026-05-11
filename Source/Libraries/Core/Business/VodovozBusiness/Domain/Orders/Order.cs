@@ -4265,7 +4265,15 @@ namespace Vodovoz.Domain.Orders
 				{
 					item.OriginalDiscountMoney = item.DiscountMoney > 0 ? (decimal?)item.DiscountMoney : null;
 					item.OriginalDiscount = item.Discount > 0 ? (decimal?)item.Discount : null;
-					item.OriginalDiscountReasons = (item.DiscountMoney > 0 || item.Discount > 0) ? item.DiscountReasons : null;
+
+					item.OriginalDiscountReasons.Clear();
+					if(item.DiscountMoney > 0 || item.Discount > 0)
+					{
+						foreach(var discountReason in item.DiscountReasons)
+						{
+							item.OriginalDiscountReasons.Add(discountReason);
+						}
+					}
 				}
 
 				item.SetActualCountZero();
