@@ -495,7 +495,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(!IsSecondOrder)
 			{
-				var orderItemsHavingClientsSecondOrderDiscount = new List<OrderItem>();
+				var orderItemsHavingClientsSecondOrderDiscount = new List<IDiscount>();
 
 				foreach(var item in ObservableOrderItems)
 				{

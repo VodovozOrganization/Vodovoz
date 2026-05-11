@@ -4691,7 +4691,7 @@ namespace Vodovoz
 				SetDiscountUnitEditable();
 				spinDiscount.ValueAsDecimal = default(decimal);
 				SetDiscountEditable();
-				_discountsController.ClearOrdersItemDiscounts(Entity.ObservableOrderItems);
+				_discountsController.ClearOrdersItemDiscounts(Entity.ObservableOrderItems.Cast<IDiscount>().ToList());
 			}
 		}
 
@@ -5342,12 +5342,12 @@ namespace Vodovoz
 				if(discount > 0)
 				{
 					var unit = (DiscountUnits)enumDiscountUnit.SelectedItem;
-					_discountsController.SetCustomDiscountForOrder(reason, discount, unit, Entity.ObservableOrderItems);
+					_discountsController.SetCustomDiscountForOrder(reason, discount, unit, Entity.ObservableOrderItems.Cast<IDiscount>().ToList());
 				}
 				else
 				{
 					_discountsController.SetDiscountFromDiscountReasonForOrder(
-						reason, Entity.ObservableOrderItems, _canChangeDiscountValue, out string messages);
+						reason, Entity.ObservableOrderItems.Cast<IDiscount>().ToList(), _canChangeDiscountValue, out string messages);
 
 					if(messages?.Length > 0)
 					{

@@ -15,7 +15,7 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 	public class OrderItemDiscountReasonsViewModel : WidgetViewModelBase
 	{
 		private bool _isEditable;
-		private OrderItem _orderItem;
+		private IDiscount _orderItem;
 		private DiscountReason _newDiscountReason;
 		private DiscountReason _selectedDiscountReason;
 		private IList<DiscountReason> _applicableDiscountReasons = new List<DiscountReason>();
@@ -65,7 +65,7 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 		}
 
 		[PropertyChangedAlso(nameof(OrderItemDiscountReasons))]
-		public OrderItem OrderItem
+		public IDiscount OrderItem
 		{
 			get => _orderItem;
 			private set => SetField(ref _orderItem, value);
@@ -94,7 +94,7 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 			Update(null, null);
 		}
 
-		public void Update(OrderItem orderItem, IList<DiscountReason> allDiscountReasons)
+		public void Update(IDiscount orderItem, IList<DiscountReason> allDiscountReasons)
 		{
 			OrderItem = orderItem;
 
@@ -153,7 +153,7 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 			}
 
 			var addingDiscountResult =
-				_orderDiscountController.AddtDiscountFromDiscountReasonForOrderItem(NewDiscountReason, OrderItem, _userCanSetDirectDiscountValue);
+				_orderDiscountController.AddDiscountFromDiscountReasonForOrderItem(NewDiscountReason, OrderItem, _userCanSetDirectDiscountValue);
 
 			if(addingDiscountResult.IsFailure)
 			{
@@ -188,11 +188,11 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 
 	public class OrderItemDiscountReasonsChangedEventArgs : EventArgs
 	{
-		public OrderItemDiscountReasonsChangedEventArgs(OrderItem orderItem)
+		public OrderItemDiscountReasonsChangedEventArgs(IDiscount orderItem)
 		{
 			OrderItem = orderItem;
 		}
 
-		public OrderItem OrderItem { get; }
+		public IDiscount OrderItem { get; }
 	}
 }

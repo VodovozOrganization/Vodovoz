@@ -820,8 +820,6 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			RecalculateTotalDiscountFromReasons();
-
-			RecalculateVAT();
 		}
 
 		protected internal virtual void SetDiscount(bool isDiscountInMoney, decimal discount, decimal discountMoney, IList<DiscountReason> discountReasons)
@@ -1016,9 +1014,15 @@ namespace Vodovoz.Domain.Orders
 			return new OrderItem { Id = id };
 		}
 
+		/// <summary>
+		/// Наименования оснований скидки через запятую
+		/// </summary>
 		public virtual string DiscountReasonsNames =>
 			string.Join(", ", DiscountReasons.Select(x => x.Name));
 
+		/// <summary>
+		/// Наименования исходных оснований скидки до отмены заказа через запятую
+		/// </summary>
 		public virtual string OriginalDiscountReasonsNames =>
 			string.Join(", ", OriginalDiscountReasons.Select(x => x.Name));
 	}
