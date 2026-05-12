@@ -226,6 +226,7 @@ namespace Vodovoz.Domain.Orders
 
 			DiscountMoney = totalDiscountMoney;
 			Discount = currentPrice > 0 ? (100 * DiscountMoney) / currentPrice : 0;
+			IsDiscountInMoney = DiscountReasons.Any(x => x.ValueType == DiscountUnits.money);
 
 			RecalculateVAT();
 		}
