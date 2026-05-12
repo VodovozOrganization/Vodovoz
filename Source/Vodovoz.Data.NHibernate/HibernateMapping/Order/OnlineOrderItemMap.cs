@@ -23,11 +23,13 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.NomenclaturePrice).Column("nomenclature_price");
 			Map(x => x.DiscountFromPromoSet).Column("discount_from_promo_set");
 			Map(x => x.IsDiscountInMoneyFromPromoSet).Column("is_discount_in_money_from_promo_set");
+			Map(x => x.DiscountMoneyFromDiscountReasons).Column("discount_money_from_discount_reasons");
+			Map(x => x.DiscountPercentFromDiscountReasons).Column("discount_percent_from_discount_reasons");
+			Map(x => x.IsDiscountInMoneyFromDiscountReasons).Column("is_discount_in_money_from_discount_reasons");
 
 			References(x => x.OnlineOrder).Column("online_order_id");
 			References(x => x.Nomenclature).Column("nomenclature_id");
 			References(x => x.PromoSet).Column("promo_set_id");
-			References(x => x.DiscountReason).Column("discount_reason_id"); // Delete this
 
 			HasManyToMany(x => x.DiscountReasons)
 				.Table("discount_reasons_online_order_items")

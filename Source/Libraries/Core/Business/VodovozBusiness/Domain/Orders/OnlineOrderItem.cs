@@ -2,7 +2,6 @@
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -28,10 +27,12 @@ namespace Vodovoz.Domain.Orders
 		private int? _promoSetId;
 		private OnlineOrder _onlineOrder;
 		private decimal _count = -1;
-		private DiscountReason _discountReason;
 		private Nomenclature _nomenclature;
 		private PromotionalSet _promoSet;
 		private IObservableList<DiscountReason> _discountReasons = new ObservableList<DiscountReason>();
+		private decimal _discountPercentFromDiscountReasons;
+		private decimal _discountMoneyFromDiscountReasons;
+		private bool _isDiscountInMoneyFromDiscountReasons;
 
 		protected OnlineOrderItem() { } 
 
@@ -115,23 +116,43 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		/// <summary>
-		/// Ещё с этим надо разобраться
-		/// </summary>
-		[Display(Name = "Основание скидки на товар")]
-		public virtual DiscountReason DiscountReason
-		{
-			get => _discountReason;
-			set => SetField(ref _discountReason, value);
-		}
-
-		/// <summary>
-		/// Основания скидки на товар
+		/// Основания скидок на товар
 		/// </summary>
 		[Display(Name = "Основания скидки на товар")]
 		public virtual IObservableList<DiscountReason> DiscountReasons
 		{
 			get => _discountReasons;
 			set => SetField(ref _discountReasons, value);
+		}
+
+		/// <summary>
+		/// Сумма скидок из всех полученных оснований, приведенная к деньгам
+		/// </summary>
+		[Display(Name = "Сумма скидок из всех полученных оснований, приведенная к деньгам")]
+		public virtual decimal DiscountMoneyFromDiscountReasons
+		{
+			get => _discountMoneyFromDiscountReasons;
+			set => SetField(ref _discountMoneyFromDiscountReasons, value);
+		}
+
+		/// <summary>
+		/// Сумма скидок из всех полученных оснований, приведенная к процентам
+		/// </summary>
+		[Display(Name = "Сумма скидок из всех полученных оснований, приведенная к процентам")]
+		public virtual decimal DiscountPercentFromDiscountReasons
+		{
+			get => _discountPercentFromDiscountReasons;
+			set => SetField(ref _discountPercentFromDiscountReasons, value);
+		}
+
+		/// <summary>
+		/// Есть ли среди оснований скидки на товар те, которые имеют тип скидки в деньгах
+		/// </summary>
+		[Display(Name = "Есть ли среди оснований скидки на товар те, которые имеют тип скидки в деньгах")]
+		public virtual bool IsDiscountInMoneyFromDiscountReasons
+		{
+			get => _isDiscountInMoneyFromDiscountReasons;
+			set => SetField(ref _isDiscountInMoneyFromDiscountReasons, value);
 		}
 
 		[Display(Name = "Количество из промонабора")]
@@ -150,9 +171,22 @@ namespace Vodovoz.Domain.Orders
 		public virtual OnlineOrderErrorState? OnlineOrderErrorState { get; set; }
 
 		public virtual decimal GetDiscount => IsDiscountInMoney ? MoneyDiscount : PercentDiscount;
+
+		/// <summary>
+		/// Суммарное значение скидок из всех оснований скидки на товар
+		/// Если среди скидок на товар были скидки в деньгах, то все скидки приводятся к деньгам и суммируются
+		/// Если все скидки в процентах, то суммируются все проценты
+		/// </summary>
+		public virtual decimal GetDiscountFromDiscountReasons => IsDiscountInMoneyFromDiscountReasons ? DiscountMoneyFromDiscountReasons : DiscountPercentFromDiscountReasons;
 		public virtual decimal Sum => Math.Round(Price * Count - MoneyDiscount, 2);
 		public virtual decimal ActualSum => Sum;
 		public virtual decimal CurrentCount => Count;
+
+		/// <summary>
+		/// Наименования оснований скидки через запятую
+		/// </summary>
+		public virtual string DiscountReasonsNames =>
+			string.Join(", ", DiscountReasons.Select(x => x.Name));
 
 		[Obsolete("В сигнатуре передается одно основание скидки, нужно использовать другой метод Create()")]
 		public static OnlineOrderItem Create(
@@ -169,27 +203,18 @@ namespace Vodovoz.Domain.Orders
 			OnlineOrder onlineOrder
 		)
 		{
-			var onlineOrderItem = new OnlineOrderItem
-			{
-				NomenclatureId = nomenclatureId,
-				Count = count,
-				IsDiscountInMoney = isDiscountInMoney,
-				IsFixedPrice = isFixedPrice,
-				Price = price,
-				PromoSetId = promoSetId,
-				Nomenclature = nomenclature,
-				PromoSet = promotionalSet,
-				OnlineOrder = onlineOrder
-			};
-
-			if(discountReason != null)
-			{
-				onlineOrderItem.DiscountReasons.Add(discountReason);
-			}
-
-			onlineOrderItem.CalculateDiscount(discount);
-
-			return onlineOrderItem;
+			return Create(
+				nomenclatureId,
+				count,
+				isDiscountInMoney,
+				isFixedPrice,
+				discount,
+				price,
+				promoSetId,
+				new List<DiscountReason> { discountReason },
+				nomenclature,
+				promotionalSet,
+				onlineOrder);
 		}
 		
 		public static OnlineOrderItem Create(
@@ -243,7 +268,7 @@ namespace Vodovoz.Domain.Orders
 				PercentDiscount = 0;
 				return;
 			}
-			
+
 			if(IsDiscountInMoney)
 			{
 				MoneyDiscount = discount > Price * Count ? Price * Count : (discount < 0 ? 0 : discount);
@@ -254,6 +279,48 @@ namespace Vodovoz.Domain.Orders
 				PercentDiscount = discount > 100 ? 100 : (discount < 0 ? 0 : discount);
 				MoneyDiscount = Price * Count * PercentDiscount / 100;
 			}
+
+			var currentPrice = CurrentRawPrice;
+			var totalDiscountMoney = CalculateTotalDiscountInMoneyFromAddedReasons();
+
+			DiscountMoneyFromDiscountReasons =
+				DiscountReasons.All(x => x.ValueType == DiscountUnits.money)
+				? DiscountReasons.Sum(x => x.Value)
+				: totalDiscountMoney;
+
+			DiscountPercentFromDiscountReasons =
+				DiscountReasons.All(x => x.ValueType == DiscountUnits.percent)
+				? DiscountReasons.Sum(x => x.Value)
+				: currentPrice > 0 ? (100 * totalDiscountMoney) / currentPrice : 0;
+
+			IsDiscountInMoneyFromDiscountReasons = DiscountReasons.Any(x => x.ValueType == DiscountUnits.money);
+		}
+
+		private decimal CurrentRawPrice => Price * CurrentCount;
+
+		private decimal CalculateTotalDiscountInMoneyFromAddedReasons()
+		{
+			decimal currentPrice = CurrentRawPrice;
+
+			decimal totalPercentDiscount = 0;
+			decimal totalMoneyDiscount = 0;
+
+			foreach(var reason in DiscountReasons)
+			{
+				if(reason.ValueType == DiscountUnits.money)
+				{
+					totalMoneyDiscount += reason.Value;
+				}
+				else
+				{
+					totalPercentDiscount += reason.Value;
+				}
+			}
+
+			decimal discountFromPercent = currentPrice * (totalPercentDiscount / 100);
+			decimal totalDiscountMoney = discountFromPercent + totalMoneyDiscount;
+
+			return totalDiscountMoney;
 		}
 	}
 }
