@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -909,7 +909,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     orders.id AS order_id,
@@ -919,7 +919,13 @@
     ROUND(SUM(order_items.price * IFNULL(order_items.actual_count, order_items.count)), 2) AS SumWithoutDiscount,
     order_items.discount,
     order_items.discount_money,
-    IFNULL(discount_reasons.name, ps.discount_reason_info) AS discount_name,
+    IFNULL(
+          (SELECT GROUP_CONCAT(dr.name ORDER BY dr.name SEPARATOR ', ')
+           FROM discount_reasons_order_items dri
+           JOIN discount_reasons dr ON dr.id = dri.discount_reason_id
+           WHERE dri.order_item_id = order_items.id),
+          ps.discount_reason_info
+      ) AS discount_name,
     nomenclature.name AS nomenclature_name,
     mu.digits AS digits,
     IFNULL(order_items.actual_count, order_items.count) AS count,
@@ -929,8 +935,6 @@
 FROM
     order_items
         JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
-        LEFT JOIN discount_reasons_order_items droi ON droi.order_item_id = order_items.id
-        LEFT JOIN discount_reasons ON discount_reasons.id = droi.discount_reason_id
         LEFT JOIN promotional_sets ps ON order_items.promotional_set_id = ps.id
         JOIN orders ON orders.id = order_items.order_id
         JOIN counterparty ON counterparty.id = orders.client_id
@@ -954,11 +958,18 @@ WHERE
          )
         )
   AND (
-        ((IFNULL(order_items.discount_reason_id, 0) IN (@discount_reason_include) AND 0 IN (@discount_reason_exclude))
-            OR
-         (IFNULL(order_items.discount_reason_id, 0) NOT IN (@discount_reason_exclude) AND 0 IN (@discount_reason_include)))
-        OR (0 IN (@discount_reason_include) AND 0 IN (@discount_reason_exclude))
-    )
+	  	(0 IN (@discount_reason_include)
+	   	OR EXISTS (
+		       SELECT 1 FROM discount_reasons_order_items dri
+		       WHERE dri.order_item_id = order_items.id
+		         AND dri.discount_reason_id IN (@discount_reason_include)
+		   ))
+		  AND NOT EXISTS (
+		      SELECT 1 FROM discount_reasons_order_items dri
+		      WHERE dri.order_item_id = order_items.id
+		        AND dri.discount_reason_id IN (@discount_reason_exclude)
+		  )
+  )
   AND (
         ((IFNULL(order_items.promotional_set_id, 0) IN (@promotional_set_include) AND 0 IN (@promotional_set_exclude))
             OR
@@ -966,7 +977,10 @@ WHERE
         OR (0 IN (@promotional_set_include) AND 0 IN (@promotional_set_exclude))
     )
   AND order_status not in ('Canceled', 'DeliveryCanceled', 'NotDelivered')
-  AND (discount_reasons.id is not null OR ps.id is not null )
+  AND (
+          EXISTS (SELECT 1 FROM discount_reasons_order_items dri WHERE dri.order_item_id = order_items.id)
+          OR ps.id IS NOT NULL
+    )
   AND order_items.discount &gt; 0
 GROUP BY
     order_items.id;</CommandText>
@@ -994,7 +1008,7 @@ GROUP BY
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="create_date">
           <DataField>create_date</DataField>
           <TypeName>System.DateTime</TypeName>
