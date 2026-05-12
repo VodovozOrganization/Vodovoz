@@ -461,7 +461,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				&& SelectedItem is OrderWithoutShipmentForAdvancePaymentItem orderItem)
 			{
 				OrderItemDiscountReasonsViewModel.Update(orderItem, AllDiscountReasons);
-				OrderItemDiscountReasonsViewModel.IsEditable = true;
 				return;
 			}
 
