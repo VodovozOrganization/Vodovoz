@@ -257,7 +257,7 @@ namespace Vodovoz.Views.Orders
 			w10.RightAttach = ((uint)(4));
 			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableInformation.Gtk.Table+TableChild
-			this.enumCmbRepeatOnlineOrder = global::Gtk.ComboBox.NewText();
+			this.enumCmbRepeatOnlineOrder = new global::Gamma.Widgets.yEnumComboBox();
 			this.enumCmbRepeatOnlineOrder.Name = "enumCmbRepeatOnlineOrder";
 			this.enumCmbRepeatOnlineOrder.ShowSpecialStateAll = false;
 			this.enumCmbRepeatOnlineOrder.ShowSpecialStateNot = true;
