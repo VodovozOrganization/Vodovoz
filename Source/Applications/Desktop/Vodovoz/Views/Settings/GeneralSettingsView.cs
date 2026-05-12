@@ -310,11 +310,13 @@ namespace Vodovoz.Views.Settings
 				.AddBinding(ViewModel, vm => vm.ClaimDocumentCreatedBy, w => w.Text)
 				.AddBinding(ViewModel, vm => vm.CanEditLettersOfClaimSettings, w => w.Sensitive)
 				.InitializeFromSource();
+			yentryClaimDocumentCreatedBy.WidthChars = 40;
 
 			yentryClaimDocumentCreatorPhone.Binding
 				.AddBinding(ViewModel, vm => vm.ClaimDocumentCreatorPhone, w => w.Text)
 				.AddBinding(ViewModel, vm => vm.CanEditLettersOfClaimSettings, w => w.Sensitive)
 				.InitializeFromSource();
+			yentryClaimDocumentCreatorPhone.WidthChars = 40;
 
 			ybuttonSaveLettersOfClaimSettings.BindCommand(ViewModel.SaveLettersOfClaimSettingsCommand);
 		}
