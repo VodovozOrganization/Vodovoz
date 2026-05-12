@@ -219,14 +219,27 @@ namespace Vodovoz.Domain.Orders
 			var currentPrice = CurrentRawPrice;
 			var totalDiscountMoney = CalculateTotalDiscountInMoneyFromAddedReasons();
 
-			if(totalDiscountMoney > currentPrice)
+			DiscountMoney =
+				DiscountReasons.All(x => x.ValueType == DiscountUnits.money)
+				? DiscountReasons.Sum(x => x.Value)
+				: totalDiscountMoney;
+
+			Discount =
+				DiscountReasons.All(x => x.ValueType == DiscountUnits.percent)
+				? DiscountReasons.Sum(x => x.Value)
+				: currentPrice > 0 ? (100 * DiscountMoney) / currentPrice : 0;
+
+			IsDiscountInMoney = DiscountReasons.Any(x => x.ValueType == DiscountUnits.money);
+
+			if(DiscountMoney > currentPrice)
 			{
-				totalDiscountMoney = currentPrice;
+				DiscountMoney = currentPrice;
 			}
 
-			DiscountMoney = totalDiscountMoney;
-			Discount = currentPrice > 0 ? (100 * DiscountMoney) / currentPrice : 0;
-			IsDiscountInMoney = DiscountReasons.Any(x => x.ValueType == DiscountUnits.money);
+			if(Discount > 100)
+			{
+				Discount = 100;
+			}
 
 			RecalculateVAT();
 		}
@@ -250,11 +263,6 @@ namespace Vodovoz.Domain.Orders
 				{
 					totalPercentDiscount += reason.Value;
 				}
-			}
-
-			if(totalPercentDiscount > 100)
-			{
-				totalPercentDiscount = 100;
 			}
 
 			decimal discountFromPercent = currentPrice * (totalPercentDiscount / 100);
