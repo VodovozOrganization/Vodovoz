@@ -113,11 +113,11 @@ namespace Vodovoz.Views.Logistic
 					.EditedEvent((o, args) => OnSpinPriceEdited(o, args, treeItems))
 					.AddSetter((NodeCellRendererSpin<OrderItem> c, OrderItem node) =>
 					{
-						if(ViewModel.Entity.OrderStatus is OrderStatus.NewOrder || (ViewModel.Entity.OrderStatus is OrderStatus.WaitForPayment && !ViewModel.Entity.SelfDelivery))//костыль. на Win10 не видна цветная цена, если виджет засерен
+						if(ViewModel.Entity.OrderStatus == OrderStatus.NewOrder || (ViewModel.Entity.OrderStatus == OrderStatus.WaitForPayment && !ViewModel.Entity.SelfDelivery))//костыль. на Win10 не видна цветная цена, если виджет засерен
 						{
 							c.ForegroundGdk = colorPrimaryText;
 							var fixedPrice = new Order().GetFixedPriceOrNull(node.Nomenclature, node.TotalCountInOrder);
-							if(fixedPrice != null && node.PromoSet is null && node.CopiedFromUndelivery is null)
+							if(fixedPrice != null && node.PromoSet == null && node.CopiedFromUndelivery == null)
 							{
 								c.ForegroundGdk = colorGreen;
 							}
@@ -133,7 +133,7 @@ namespace Vodovoz.Views.Logistic
 					.AddTextRenderer(node => CurrencyWorks.GetShortCurrencyString(node.ActualSum))
 					.AddSetter((c, n) =>
 					{
-						if(ViewModel.Entity.OrderStatus is OrderStatus.DeliveryCanceled || ViewModel.Entity.OrderStatus is OrderStatus.NotDelivered)
+						if(ViewModel.Entity.OrderStatus == OrderStatus.DeliveryCanceled || ViewModel.Entity.OrderStatus == OrderStatus.NotDelivered)
 						{
 							c.Text = CurrencyWorks.GetShortCurrencyString(n.OriginalSum);
 						}
@@ -150,7 +150,7 @@ namespace Vodovoz.Views.Logistic
 					)
 					.AddSetter((c, n) =>
 					{
-						if(ViewModel.Entity.OrderStatus is OrderStatus.DeliveryCanceled || ViewModel.Entity.OrderStatus is OrderStatus.NotDelivered)
+						if(ViewModel.Entity.OrderStatus == OrderStatus.DeliveryCanceled || ViewModel.Entity.OrderStatus == OrderStatus.NotDelivered)
 						{
 							c.Text = n.ManualChangingOriginalDiscount.ToString();
 						}
