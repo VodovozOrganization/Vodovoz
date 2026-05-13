@@ -249,6 +249,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.IsNewEdoProcessing)
 				.Column("is_new_edo_processing");
 
+			Map(x => x.IsWorkingWithoutSeal)
+				.Column("is_working_without_seal");
+
 			References(x => x.WorksThroughOrganization)
 				.Column("works_through_organization_id");
 

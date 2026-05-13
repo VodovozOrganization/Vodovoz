@@ -160,6 +160,7 @@ namespace Vodovoz
 		private bool _deliveryPointsConfigured = false;
 		private bool _documentsConfigured = false;
 		private Organization _vodovozOrganization;
+		private yCheckButton _ycheckWorkingWithoutSeal;
 
 		public ThreadDataLoader<EmailRow> EmailDataLoader { get; private set; }
 
@@ -734,6 +735,8 @@ namespace Vodovoz
 				.InitializeFromSource();
 			ycheckSpecialDocuments.Sensitive = CanEdit;
 
+			ConfigureWorkingWithoutSealCheckButton();
+
 			ycheckAlwaysPrintInvoice.Binding
 				.AddBinding(Entity, e => e.AlwaysPrintInvoice, w => w.Active)
 				.InitializeFromSource();
@@ -828,6 +831,35 @@ namespace Vodovoz
 			}
 
 			Entity.DelayDaysForBuyers = Entity.PersonType == PersonType.legal ? 7 : 0;
+		}
+
+		private void ConfigureWorkingWithoutSealCheckButton()
+		{
+			_ycheckWorkingWithoutSeal = new yCheckButton
+			{
+				Name = "ycheckWorkingWithoutSeal",
+				Label = "Работает без печати",
+				CanFocus = true,
+				DrawIndicator = true,
+				UseUnderline = true
+			};
+
+			table5.Attach(
+				_ycheckWorkingWithoutSeal,
+				2,
+				3,
+				2,
+				3,
+				AttachOptions.Fill,
+				AttachOptions.Fill,
+				0,
+				0);
+
+			_ycheckWorkingWithoutSeal.Binding
+				.AddBinding(Entity, e => e.IsWorkingWithoutSeal, w => w.Active)
+				.InitializeFromSource();
+			_ycheckWorkingWithoutSeal.Sensitive = CanEdit;
+			_ycheckWorkingWithoutSeal.Show();
 		}
 
 		private void UpdateCounterpartyClassificationValues()
