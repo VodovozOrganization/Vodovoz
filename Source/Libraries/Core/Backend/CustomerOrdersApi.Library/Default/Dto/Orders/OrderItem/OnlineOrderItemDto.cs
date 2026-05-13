@@ -51,7 +51,7 @@ namespace CustomerOrdersApi.Library.Default.Dto.Orders.OrderItem
 		/// <summary>
 		/// Этот товар - подарок?
 		/// </summary>
-		public bool GiftItem { get; set; }
+		public bool IsGift { get; set; }
 
 		public decimal PriceWithDiscount
 		{
