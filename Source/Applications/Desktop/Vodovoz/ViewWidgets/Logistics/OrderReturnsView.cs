@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using FluentNHibernate.Data;
 using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate.Criterion;
@@ -54,7 +53,6 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.TempAdapters;
 using Vodovoz.ViewModels.Widgets.Orders;
-using Vodovoz.ViewWidgets.Orders;
 using VodovozBusiness.Services.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -102,7 +100,6 @@ namespace Vodovoz
 		private int? _oldCounterpartyId;
 
 		private OrderItemDiscountReasonsViewModel _orderItemDiscountReasonsViewModel;
-		private IList<DiscountReason> _discountReasons;
 
 		public IUnitOfWork UoW { get; }
 		
@@ -242,8 +239,7 @@ namespace Vodovoz
 		private void SetOrderItemDiscountReasonsViewModel()
 		{
 			_orderItemDiscountReasonsViewModel = _lifetimeScope.Resolve<OrderItemDiscountReasonsViewModel>();
-			_discountReasons = _discountReasonRepository.GetActiveDiscountReasons(UoW);
-			_orderItemDiscountReasonsViewModel.Initialize();
+			_orderItemDiscountReasonsViewModel.Initialize(UoW);
 			orderitemdiscountreasonsview.ViewModel = _orderItemDiscountReasonsViewModel;
 		}
 
@@ -259,12 +255,12 @@ namespace Vodovoz
 			if(items.Count() == 1
 				&& items.First() is OrderItemReturnsNode orderItemNode)
 			{
-				_orderItemDiscountReasonsViewModel.Update(orderItemNode.OrderItem ?? orderItemNode.EquipmentOrderItem, _discountReasons);
-				_orderItemDiscountReasonsViewModel.IsEditable = _canEditPrices && orderItemNode.IsDiscountReasonsEditable;
+				_orderItemDiscountReasonsViewModel.SetOrderItem(orderItemNode.OrderItem ?? orderItemNode.EquipmentOrderItem);
+				_orderItemDiscountReasonsViewModel.IsEditEnabled = _canEditPrices && orderItemNode.IsDiscountReasonsEditable;
 				return;
 			}
 
-			_orderItemDiscountReasonsViewModel.Initialize();
+			_orderItemDiscountReasonsViewModel.ResetOrderItem();
 		}
 
 		public void ConfigureForRouteListAddress(RouteListItem routeListItem)
@@ -289,7 +285,7 @@ namespace Vodovoz
 			ytreeToClient.Sensitive = isSensitive;
 			orderEquipmentItemsView.Sensitive = isSensitive;
 			depositrefunditemsview1.Sensitive = isSensitive;
-			_orderItemDiscountReasonsViewModel.IsEditable = false;
+			_orderItemDiscountReasonsViewModel.IsEditEnabled = false;
 		}
 
 		private void UpdateItemsList()

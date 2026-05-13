@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NHibernate;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Logistic;
@@ -42,6 +43,43 @@ namespace Vodovoz.Infrastructure.Persistance.DiscountReasons
 				.OrderBy(dr => dr.Name)
 				.Asc()
 				.List();
+		}
+
+		public IList<DiscountReason> GetActiveDiscountReasonsFetchReferences(IUnitOfWork uow, bool canChoosePremiumDiscount)
+		{
+			var mainQuery = CreateBaseActiveDiscountReasonsQuery(uow, canChoosePremiumDiscount)
+				.Future<DiscountReason>();
+
+			CreateBaseActiveDiscountReasonsQuery(uow, canChoosePremiumDiscount)
+				.Fetch(SelectMode.Fetch, dr => dr.Nomenclatures)
+				.Future<DiscountReason>();
+
+			CreateBaseActiveDiscountReasonsQuery(uow, canChoosePremiumDiscount)
+				.Fetch(SelectMode.Fetch, dr => dr.NomenclatureCategories)
+				.Future<DiscountReason>();
+
+			CreateBaseActiveDiscountReasonsQuery(uow, canChoosePremiumDiscount)
+				.Fetch(SelectMode.Fetch, dr => dr.ProductGroups)
+				.Future<DiscountReason>();
+
+			return mainQuery.ToList()
+				.Distinct()
+				.OrderBy(dr => dr.Name)
+				.ToList();
+		}
+
+		private IQueryOver<DiscountReason, DiscountReason> CreateBaseActiveDiscountReasonsQuery(
+			IUnitOfWork uow, bool canChoosePremiumDiscount)
+		{
+			var query = uow.Session.QueryOver<DiscountReason>()
+				.Where(dr => !dr.IsArchive);
+
+			if(!canChoosePremiumDiscount)
+			{
+				query = query.And(dr => !dr.IsPremiumDiscount);
+			}
+
+			return query;
 		}
 
 		public bool ExistsActiveDiscountReasonWithName(

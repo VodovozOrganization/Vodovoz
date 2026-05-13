@@ -14,11 +14,9 @@ using QS.Tdi;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Repositories;
@@ -29,7 +27,6 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.Infrastructure.Print;
 using Vodovoz.Services;
 using Vodovoz.Settings.Common;
@@ -63,7 +60,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 		private IGenericRepository<EdoContainer> _edoContainerRepository;
 		private IGenericRepository<OrderEdoTrueMarkDocumentsActions> _orderEdoTrueMarkDocumentsActionsRepository;
 		private bool _canCreateBillsWithoutShipment;
-		private bool _canChoosePremiumDiscount;
 		private bool _canAddOnlineStoreNomenclaturesToOrder;
 		private bool _userHavePermissionToResendEdoDocuments;
 
@@ -81,8 +77,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			IEmployeeService employeeService,
 			ICounterpartyJournalFactory counterpartySelectorFactory,
 			IUserRepository userRepository,
-			IDiscountReasonRepository discountReasonRepository,
-			IOrderDiscountsController discountsController,
 			CommonMessages commonMessages,
 			IGenericRepository<EdoContainer> edoContainerRepository,
 			IGenericRepository<OrderEdoTrueMarkDocumentsActions> orderEdoTrueMarkDocumentsActionsRepository,
@@ -108,12 +102,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
 			_edoContainerRepository = edoContainerRepository ?? throw new ArgumentNullException(nameof(edoContainerRepository));
 			_orderEdoTrueMarkDocumentsActionsRepository = orderEdoTrueMarkDocumentsActionsRepository ?? throw new ArgumentNullException(nameof(orderEdoTrueMarkDocumentsActionsRepository));
-			if(discountReasonRepository == null)
-			{
-				throw new ArgumentNullException(nameof(discountReasonRepository));
-			}
 
-			DiscountsController = discountsController ?? throw new ArgumentNullException(nameof(discountsController));
 			CounterpartyAutocompleteSelectorFactory =
 				(counterpartySelectorFactory ?? throw new ArgumentNullException(nameof(counterpartySelectorFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
@@ -163,9 +152,7 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			TabName = "Счет без отгрузки на предоплату";
 			EntityUoWBuilder = uowBuilder;
 
-			OrderItemDiscountReasonsViewModel.Initialize();
-
-			FillDiscountReasons(discountReasonRepository);
+			OrderItemDiscountReasonsViewModel.Initialize(UoW);
 
 			UpdateEdoContainers();
 			InitializeCommands();
@@ -184,7 +171,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 
 			SendDocViewModel.Update(Entity, email is null ? string.Empty : email.Address);
 		}
-
 
 		public OrderItemDiscountReasonsViewModel OrderItemDiscountReasonsViewModel { get; }
 
@@ -214,8 +200,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			}
 		}
 		
-		public IList<DiscountReason> AllDiscountReasons { get; private set; }
-		public IOrderDiscountsController DiscountsController { get; }
 		public bool CanChangeDiscountValue { get; private set; }
 		public GenericObservableList<EdoContainer> EdoContainers { get; } = new GenericObservableList<EdoContainer>();
 		public bool CanResendEdoBill => _userHavePermissionToResendEdoDocuments && EdoContainers.Any();
@@ -404,7 +388,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			
 			_canCreateBillsWithoutShipment = permissionService.ValidatePresetPermission("can_create_bills_without_shipment");
 			CanChangeDiscountValue = permissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.UserCanSetDirectDiscountValue);
-			_canChoosePremiumDiscount = permissionService.ValidatePresetPermission("can_choose_premium_discount");
 			_canAddOnlineStoreNomenclaturesToOrder =
 				permissionService.ValidatePresetPermission("can_add_online_store_nomenclatures_to_order");
 			_userHavePermissionToResendEdoDocuments =
@@ -419,13 +402,6 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 				OnPropertyChanged(nameof(CanSendBillByEdo));
 				OnPropertyChanged(nameof(CanResendEdoBill));
 			}
-		}
-
-		private void FillDiscountReasons(IDiscountReasonRepository discountReasonRepository)
-		{
-			AllDiscountReasons = _canChoosePremiumDiscount
-				? discountReasonRepository.GetActiveDiscountReasons(UoW)
-				: discountReasonRepository.GetActiveDiscountReasonsWithoutPremiums(UoW);
 		}
 
 		private bool CanAddNomenclaturesToOrder()
@@ -460,11 +436,11 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			if(SelectedItem != null
 				&& SelectedItem is OrderWithoutShipmentForAdvancePaymentItem orderItem)
 			{
-				OrderItemDiscountReasonsViewModel.Update(orderItem, AllDiscountReasons);
+				OrderItemDiscountReasonsViewModel.SetOrderItem(orderItem);
 				return;
 			}
 
-			OrderItemDiscountReasonsViewModel.Initialize();
+			OrderItemDiscountReasonsViewModel.ResetOrderItem();
 		}
 
 		public override void Dispose()

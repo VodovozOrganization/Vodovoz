@@ -93,5 +93,13 @@ namespace Vodovoz.Core.Domain.Permissions
 			Name = "Возможность проставить скидну вне зависимости от основания для скидки",
 			Description = "Пользователь может поставить определенное значение скидки на заказ вне зависимости от основания для скидки")]
 		public static string UserCanSetDirectDiscountValue => "can_set_direct_discount_value";
+
+		/// <summary>
+		/// Пользователь может выбирать премиальные скидки
+		/// </summary>
+		[Display(
+			Name = "Пользователь может выбирать премиальные скидки",
+			Description = "Пользователь может выбирать премиальные скидки")]
+		public static string CanChoosePremiumDiscount => "can_choose_premium_discount";
 	}
 }

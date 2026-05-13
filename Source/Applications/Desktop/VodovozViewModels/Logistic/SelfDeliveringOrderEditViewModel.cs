@@ -15,7 +15,6 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.Presentation.ViewModels.PaymentTypes;
-using Vodovoz.TempAdapters;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.ViewModels.Logistic
@@ -24,7 +23,6 @@ namespace Vodovoz.ViewModels.Logistic
 	{
 		private readonly IInteractiveService _interactiveService;
 		private readonly ICurrentPermissionService _currentPermissionService;
-		private readonly IDiscountReasonRepository _discountReasonRepository;
 		private readonly IOrderContractUpdater _orderContractUpdater;
 		private readonly SelectPaymentTypeViewModel _selectPaymentTypeViewModel;
 		private bool _canEditPriceDiscountFromRouteListAndSelfDelivery;
@@ -38,22 +36,16 @@ namespace Vodovoz.ViewModels.Logistic
 			IOrderDiscountsController discountsController,
 			IInteractiveService interactiveService,
 			ICurrentPermissionService currentPermissionService,
-			IDiscountReasonRepository discountReasonRepository,
 			IOrderContractUpdater orderContractUpdater,
 			SelectPaymentTypeViewModel selectPaymentTypeViewModel,
 			INavigationManager navigation = null) : base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
-			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
 			_selectPaymentTypeViewModel = selectPaymentTypeViewModel ?? throw new ArgumentNullException(nameof(selectPaymentTypeViewModel));;
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 
 			SetPermissions();
-
-			DiscountReasons = _canEditPriceDiscountFromRouteListAndSelfDelivery
-				? _discountReasonRepository.GetActiveDiscountReasons(UoW)
-				: _discountReasonRepository.GetActiveDiscountReasonsWithoutPremiums(UoW);
 
 			CanChangeDiscountValue = _canEditPriceDiscountFromRouteListAndSelfDelivery;
 			DiscountsController = discountsController ?? throw new ArgumentNullException(nameof(discountsController));
@@ -74,7 +66,6 @@ namespace Vodovoz.ViewModels.Logistic
 		public DelegateCommand PaymentTypeCommand { get; }
 		public bool CanChangeDiscountValue { get; }
 		public IOrderDiscountsController DiscountsController { get; }
-		public IList<DiscountReason> DiscountReasons { get; }
 		public ILifetimeScope LifetimeScope { get; }
 
 		public IEnumerable<GeoGroup> GetSelfDeliveryGeoGroups()

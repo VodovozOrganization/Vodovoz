@@ -1238,7 +1238,7 @@ namespace Vodovoz
 		private void SetOrderItemDiscountReasonsViewModel()
 		{
 			_orderItemDiscountReasonsViewModel = _lifetimeScope.Resolve<OrderItemDiscountReasonsViewModel>();
-			_orderItemDiscountReasonsViewModel.Initialize();
+			_orderItemDiscountReasonsViewModel.Initialize(UoW);
 			orderitemdiscountreasonsview1.ViewModel = _orderItemDiscountReasonsViewModel;
 		}
 
@@ -1254,11 +1254,11 @@ namespace Vodovoz
 			if(items.Count() == 1
 				&& items.First() is OrderItem orderItem)
 			{
-				_orderItemDiscountReasonsViewModel.Update(orderItem, _discountReasons);
+				_orderItemDiscountReasonsViewModel.SetOrderItem(orderItem);
 				return;
 			}
 
-			_orderItemDiscountReasonsViewModel.Initialize();
+			_orderItemDiscountReasonsViewModel.ResetOrderItem();
 		}
 
 		private void OnYbuttonSaveWaitUntilClicked(object sender, EventArgs e)
@@ -1328,7 +1328,7 @@ namespace Vodovoz
 				OrderPermissions.CanFormOrderWithLiquidatedCounterparty);
 
 			_canChangeDiscountValue = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.UserCanSetDirectDiscountValue);
-			_canChoosePremiumDiscount = currentPermissionService.ValidatePresetPermission("can_choose_premium_discount");
+			_canChoosePremiumDiscount = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.CanChoosePremiumDiscount);
 			_canEditOrderExtraCash = currentPermissionService.ValidatePresetPermission("can_edit_order_extra_cash");
 			_canSetContractCloser = currentPermissionService.ValidatePresetPermission("can_set_contract_closer");
 			_canSetPaymentAfterLoad = currentPermissionService.ValidatePresetPermission("can_set_payment_after_load");
@@ -2111,9 +2111,8 @@ namespace Vodovoz
 			var colorLightYellow = GdkColors.WarningBase;
 			var colorLightRed = GdkColors.DangerBase;
 
-			_discountReasons = _canChoosePremiumDiscount
-				? _discountReasonRepository.GetActiveDiscountReasons(UoW)
-				: _discountReasonRepository.GetActiveDiscountReasonsWithoutPremiums(UoW);
+			_discountReasons =
+				_discountReasonRepository.GetActiveDiscountReasonsFetchReferences(UoW, _canChoosePremiumDiscount);
 
 			treeItems.CreateFluentColumnsConfig<OrderItem>()
 				.AddColumn("№")
@@ -5157,7 +5156,7 @@ namespace Vodovoz
 
 			if(_orderItemDiscountReasonsViewModel != null)
 			{
-				_orderItemDiscountReasonsViewModel.IsEditable = sensitive;
+				_orderItemDiscountReasonsViewModel.IsEditEnabled = sensitive;
 			}
 		}
 
