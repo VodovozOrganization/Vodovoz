@@ -5151,8 +5151,8 @@ namespace Vodovoz
 		private void UpdateDiscountReasonSensetive()
 		{
 			var sensitive =
-				((Entity.CanEditByStatus && CanEditByPermission) || (IsStatusForEditGoodsInRouteList && _canEditGoodsInRouteList))
-				&& !Entity.IsBottleStock;
+				(Entity.CanEditByStatus && CanEditByPermission)
+				|| (IsStatusForEditGoodsInRouteList && _canEditGoodsInRouteList);
 
 			if(_orderItemDiscountReasonsViewModel != null)
 			{
