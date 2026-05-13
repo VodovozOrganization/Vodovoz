@@ -2146,7 +2146,7 @@ namespace Vodovoz.Domain.Orders
 			bool needGetFixedPrice = true,
 			IEnumerable<DiscountReason> reasons = null,
 			PromotionalSet proSet = null,
-			bool giftItem = false)
+			bool isGift = false)
 		{
 			if(nomenclature.Category != NomenclatureCategory.water && !nomenclature.IsDisposableTare)
 			{
@@ -2171,7 +2171,7 @@ namespace Vodovoz.Domain.Orders
 			AddOrderItem(
 				uow,
 				contractUpdater,
-				OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, price, isDiscountInMoney, discount, reasons, proSet, giftItem));
+				OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, price, isDiscountInMoney, discount, reasons, proSet, isGift));
 		}
 
 		public virtual void AddFlyerNomenclature(Nomenclature flyerNomenclature)
@@ -2340,7 +2340,7 @@ namespace Vodovoz.Domain.Orders
 			bool needGetFixedPrice = true,
 			IEnumerable<DiscountReason> discountReasons = null,
 			PromotionalSet proSet = null,
-			bool giftItem = false)
+			bool isGift = false)
 		{
 			switch(nomenclature.Category) {
 				case NomenclatureCategory.water:
@@ -2354,7 +2354,7 @@ namespace Vodovoz.Domain.Orders
 						needGetFixedPrice,
 						discountReasons,
 						proSet,
-						giftItem);
+						isGift);
 					break;
 				case NomenclatureCategory.master:
 					contract = CreateServiceContractAddMasterNomenclature(uow, contractUpdater, nomenclature);
@@ -2362,7 +2362,7 @@ namespace Vodovoz.Domain.Orders
 				default:
 					var canApplyAlternativePrice = HasPermissionsForAlternativePrice && nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
 
-					var orderItem = OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, nomenclature.GetPrice(1, canApplyAlternativePrice), discountInMoney, discount, discountReasons, proSet, giftItem);
+					var orderItem = OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, nomenclature.GetPrice(1, canApplyAlternativePrice), discountInMoney, discount, discountReasons, proSet, isGift);
 
 					var acceptableCategories = Nomenclature.GetCategoriesForSale();
 					if(orderItem?.Nomenclature == null
@@ -2405,7 +2405,7 @@ namespace Vodovoz.Domain.Orders
 					{
 						item.IsUserPrice = false;
 						item.PromoSet = null;
-						item.DiscountReasons.Clear();
+						item.DiscountReasons = null;
 					}
 				}
 
@@ -4303,15 +4303,7 @@ namespace Vodovoz.Domain.Orders
 				{
 					item.OriginalDiscountMoney = item.DiscountMoney > 0 ? (decimal?)item.DiscountMoney : null;
 					item.OriginalDiscount = item.Discount > 0 ? (decimal?)item.Discount : null;
-
-					item.OriginalDiscountReasons.Clear();
-					if(item.DiscountMoney > 0 || item.Discount > 0)
-					{
-						foreach(var discountReason in item.DiscountReasons)
-						{
-							item.OriginalDiscountReasons.Add(discountReason);
-						}
-					}
+					item.OriginalDiscountReasons = (item.DiscountMoney > 0 || item.Discount > 0) ? item.DiscountReasons : null;
 				}
 
 				item.SetActualCountZero();
