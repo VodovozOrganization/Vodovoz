@@ -143,7 +143,7 @@ namespace CustomerOnlineOrdersRegistrar.V4.Factories
 					nomenclature,
 					promoSet,
 					onlineOrder,
-					onlineOrderItemDto.GiftItem);
+					onlineOrderItemDto.IsGift);
 
 				onlineOrder.OnlineOrderItems.Add(onlineOrderItem);
 			}

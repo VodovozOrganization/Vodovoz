@@ -30,7 +30,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.RentCount).Column("rent_count");
 			Map(x => x.RentEquipmentCount).Column("rent_equipment_count");
 			Map(x => x.IsAlternativePrice).Column("is_alternative_price");
-			Map(x => x.GiftItem).Column("gift_item");
+			Map(x => x.IsGift).Column("is_gift");
 
 
 			References(x => x.CounterpartyMovementOperation).Column("counterparty_movement_operation_id").Cascade.All();
