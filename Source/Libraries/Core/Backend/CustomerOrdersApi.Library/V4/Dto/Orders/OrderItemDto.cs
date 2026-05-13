@@ -8,14 +8,14 @@
 			decimal price,
 			bool isDiscountInMoney,
 			decimal discount,
-			bool isGift)
+			bool giftItem)
 		{
 			NomenclatureId = nomenclatureId;
 			Count = count;
 			Price = price;
 			IsDiscountInMoney = isDiscountInMoney;
 			Discount = discount;
-			IsGift = isGift;
+			GiftItem = giftItem;
 		}
 		
 		/// <summary>
@@ -46,7 +46,7 @@
 		/// <summary>
 		/// Этот товар - подарок?
 		/// </summary>
-		public bool IsGift { get; }
+		public bool GiftItem { get; }
 
 		public static OrderItemDto Create(
 			int nomenclatureId,
@@ -54,7 +54,7 @@
 			decimal price,
 			bool isDiscountInMoney,
 			decimal discount,
-			bool isGift) =>
-			new OrderItemDto(nomenclatureId, count, price, isDiscountInMoney, discount, isGift);
+			bool giftItem) =>
+			new OrderItemDto(nomenclatureId, count, price, isDiscountInMoney, discount, giftItem);
 	}
 }
