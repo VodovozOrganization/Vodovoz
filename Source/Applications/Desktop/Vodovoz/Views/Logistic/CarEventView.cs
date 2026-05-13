@@ -190,16 +190,22 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel.Entity, e => e.SubstractionFuelBalance, w => w.Text, new NullableDecimalToStringConverter())
 				.InitializeFromSource();
 
-			nodestoname.ViewModel = BuildCounterpartyEntryViewModel();
+			serviceStationEntry.ViewModel = BuildCounterpartyEntryViewModel();
 
-			buttonaddordersscan.BindCommand(ViewModel.AddOrdersScan);
+			addWorkOrderScanButton.BindCommand(ViewModel.AddWorkOrderScan);
+			openWorkOrderScanButton.BindCommand(ViewModel.OpenWorkOrderScan);
 
-			buttonaddordersscan.Binding
-				.AddBinding(ViewModel, vm => vm.CanAddOrdersScan, w => w.Visible)
+			addWorkOrderScanButton.Binding
+				.AddBinding(ViewModel, vm => vm.CanAddWorkOrderScan, w => w.Visible)
 				.InitializeFromSource();
 
-			UpdateAddOrdersScanLabelVisibility();
-			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+			openWorkOrderScanButton.Binding
+				.AddBinding(ViewModel, vm => vm.CanOpenWorkOrderScan, w => w.Visible)
+				.InitializeFromSource();
+
+			addWorkOrderScanLabel.Binding
+				.AddBinding(ViewModel, vm => vm.CanShowWorkOrderScanControls, w => w.Visible)
+				.InitializeFromSource();
 
 			buttonAddFine.Clicked += (sender, e) => { ViewModel.AddFineCommand.Execute(); };
 			buttonAddFine.Binding.AddBinding(ViewModel, vm => vm.CanAddFine, w => w.Sensitive).InitializeFromSource();
@@ -224,7 +230,7 @@ namespace Vodovoz.Views.Logistic
 				entityEntryCarEventType.Sensitive =
 				entityentryCar.Sensitive =
 				evmeDriver.Sensitive =
-				nodestoname.Sensitive =
+				serviceStationEntry.Sensitive =
 				ydatepickerStartEventDate.Sensitive =
 				ydatepickerEndEventDate.Sensitive =
 				yspinRepairCost.Sensitive =
@@ -232,7 +238,8 @@ namespace Vodovoz.Views.Logistic
 				ytextviewFoundation.Sensitive =
 				ytextviewCommnet.Sensitive =
 				ytreeviewFines.Sensitive =
-				buttonaddordersscan.Sensitive =
+				addWorkOrderScanButton.Sensitive =
+				openWorkOrderScanButton.Sensitive =
 				buttonAddFine.Sensitive =
 				buttonAttachFine.Sensitive =
 				yspinBtnOdometerReading.Sensitive =
@@ -240,19 +247,6 @@ namespace Vodovoz.Views.Logistic
 				yspinRepairPartsCost.Sensitive =
 				buttonSave.Sensitive = false;
 			}
-		}
-
-		private void OnViewModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-		{
-			if(e.PropertyName == nameof(ViewModel.CanAddOrdersScan))
-			{
-				UpdateAddOrdersScanLabelVisibility();
-			}
-		}
-
-		private void UpdateAddOrdersScanLabelVisibility()
-		{
-			labeladdordersscan.Visible = ViewModel.CanAddOrdersScan;
 		}
 
 		private IEntityEntryViewModel BuildCounterpartyEntryViewModel()
