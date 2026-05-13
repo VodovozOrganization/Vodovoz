@@ -444,6 +444,7 @@ namespace Vodovoz
 			set
 			{
 				Entity.UpdateClient(value, _orderContractUpdater, out var message);
+				ApplyWorkingWithoutSealSignatureType();
 
 				if(!string.IsNullOrWhiteSpace(message))
 				{
@@ -531,6 +532,7 @@ namespace Vodovoz
 			Entity.UpdateClient(UoW.GetById<Counterparty>(client.Id), _orderContractUpdater, out var updateClientMessage);
 			_phonesJournal.FilterViewModel.Counterparty = Counterparty;
 			Entity.UpdatePaymentType(Counterparty.PaymentMethod, _orderContractUpdater);
+			ApplyWorkingWithoutSealSignatureType();
 			IsForRetail = Counterparty.IsForRetail;
 			IsForSalesDepartment = Counterparty.IsForSalesDepartment;
 
@@ -580,6 +582,7 @@ namespace Vodovoz
 				}
 
 				Entity.UpdatePaymentType(Counterparty.PaymentMethod, _orderContractUpdater);
+				ApplyWorkingWithoutSealSignatureType();
 				_orderContractUpdater.UpdateOrCreateContract(UoW, Entity);
 				FillOrderItems(copiedOrder);
 				CheckForStopDelivery();
@@ -658,6 +661,7 @@ namespace Vodovoz
 			if(Counterparty.PersonType == PersonType.legal)
 			{
 				Entity.UpdatePaymentType(Counterparty.PaymentMethod, _orderContractUpdater);
+				ApplyWorkingWithoutSealSignatureType();
 			}
 
 			Entity.UpdateDocuments();
@@ -1037,6 +1041,7 @@ namespace Vodovoz
 						if(Counterparty?.PaymentMethod != PaymentType.DriverApplicationQR)
 						{
 							Entity.UpdatePaymentType(Counterparty.PaymentMethod, _orderContractUpdater);
+							ApplyWorkingWithoutSealSignatureType();
 						}
 						else
 						{
@@ -1292,6 +1297,7 @@ namespace Vodovoz
 		public void UpdateClientDefaultParam()
 		{
 			Entity.UpdateClientDefaultParam();
+			ApplyWorkingWithoutSealSignatureType();
 		}
 
 		private void OnClientBeforeChangeByUser(object sender, BeforeChangeEventArgs e)
@@ -1849,6 +1855,16 @@ namespace Vodovoz
 			}
 
 			enumSignatureType.Binding.InitializeFromSource();
+		}
+
+		private void ApplyWorkingWithoutSealSignatureType()
+		{
+			if(Entity.Id == 0
+				&& Counterparty?.IsWorkingWithoutSeal == true
+				&& PaymentType == PaymentType.Cashless)
+			{
+				Entity.SignatureType = OrderSignatureType.WithoutSeal;
+			}
 		}
 
 		private void OnCheckFastDeliveryToggled(object sender, EventArgs e)
@@ -4025,6 +4041,7 @@ namespace Vodovoz
 					&& PaymentType == PaymentType.Cashless)
 				{
 					Entity.UpdatePaymentType(Counterparty.PaymentMethod, _orderContractUpdater);
+					ApplyWorkingWithoutSealSignatureType();
 					OnEnumPaymentTypeChanged(null, e);
 				}
 
@@ -4353,6 +4370,10 @@ namespace Vodovoz
 			if(!isCashless)
 			{
 				Entity.SignatureType = null;
+			}
+			else
+			{
+				ApplyWorkingWithoutSealSignatureType();
 			}
 
 			enumSignatureType.Visible = labelSignatureType.Visible = isCashless;
@@ -5194,6 +5215,7 @@ namespace Vodovoz
 			if(chkContractCloser.Active)
 			{
 				Entity.UpdatePaymentType(PaymentType.Cashless, _orderContractUpdater);
+				ApplyWorkingWithoutSealSignatureType();
 				UpdateUIState();
 			}
 			else

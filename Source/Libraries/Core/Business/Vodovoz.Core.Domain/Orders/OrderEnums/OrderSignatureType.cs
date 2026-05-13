@@ -11,6 +11,8 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Доверенность на адресе")]
 		ProxyOnDeliveryPoint,
 		[Display(Name = "Подпись/расшифровка")]
-		SignatureTranscript
+		SignatureTranscript,
+		[Display(Name = "Без печати")]
+		WithoutSeal
 	}
 }

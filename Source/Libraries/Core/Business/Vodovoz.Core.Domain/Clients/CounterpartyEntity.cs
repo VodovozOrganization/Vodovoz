@@ -116,6 +116,7 @@ namespace Vodovoz.Core.Domain.Clients
 		private bool _disableDebtMailing;
 		private RevenueStatus? _revenueStatus;
 		private DateTime? _revenueStatusDate;
+		private bool _isWorkingWithoutSeal;
 
 		private OrganizationEntity _worksThroughOrganization;
 		private IList<NomenclatureFixedPriceEntity> _nomenclatureFixedPrices = new List<NomenclatureFixedPriceEntity>();
@@ -1014,6 +1015,13 @@ namespace Vodovoz.Core.Domain.Clients
 		{
 			get => _specialNomenclatures;
 			set => SetField(ref _specialNomenclatures, value);
+		}
+
+		[Display(Name = "Работает без печати")]
+		public virtual bool IsWorkingWithoutSeal
+		{
+			get => _isWorkingWithoutSeal;
+			set => SetField(ref _isWorkingWithoutSeal, value);
 		}
 
 		/// <summary>

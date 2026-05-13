@@ -195,6 +195,10 @@ namespace Vodovoz
 						                                                 && d.DocumentOrganizationCounter != null).DocumentOrganizationCounter.DocumentNumber
 						: "")
 					.AddPixbufRenderer(x => GetRowIcon(x))
+				.AddColumn("Подписание документов").HeaderAlignment(0.5f)
+					.AddTextRenderer(node => node.Order.PaymentType == PaymentType.Cashless
+						? node.Order.SignatureType.GetEnumTitle() ?? string.Empty
+						: string.Empty)
 				.AddColumn("Адрес").HeaderAlignment(0.5f).AddTextRenderer(node =>
 					node.Order.DeliveryPoint == null
 						? string.Empty
