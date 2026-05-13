@@ -197,7 +197,9 @@ namespace Vodovoz
 					.AddPixbufRenderer(x => GetRowIcon(x))
 				.AddColumn("Подписание документов").HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.Order.PaymentType == PaymentType.Cashless
-						? node.Order.SignatureType.GetEnumTitle() ?? string.Empty
+						? (node.Order.SignatureType.HasValue
+							? node.Order.SignatureType.Value.GetEnumTitle()
+							: string.Empty)
 						: string.Empty)
 				.AddColumn("Адрес").HeaderAlignment(0.5f).AddTextRenderer(node =>
 					node.Order.DeliveryPoint == null
