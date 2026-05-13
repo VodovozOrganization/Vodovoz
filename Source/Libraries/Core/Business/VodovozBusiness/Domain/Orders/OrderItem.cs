@@ -941,8 +941,8 @@ namespace Vodovoz.Domain.Orders
 			return newItem;
 		}
 
-		internal static OrderItem CreateForSale(Order order, Nomenclature nomenclature, decimal count, decimal price, bool isGift = false) =>
-			CreateForSale(order, nomenclature, null, count, price, isGift);
+		internal static OrderItem CreateForSale(Order order, Nomenclature nomenclature, decimal count, decimal price, bool giftItem = false) =>
+			CreateForSale(order, nomenclature, null, count, price, giftItem);
 
 		internal static OrderItem CreateForSale(
 			Order order,
@@ -950,7 +950,7 @@ namespace Vodovoz.Domain.Orders
 			Equipment equipment,
 			decimal count,
 			decimal price,
-			bool isGift = false)
+			bool giftItem = false)
 		{
 			var newItem = new OrderItem
 			{
@@ -958,7 +958,7 @@ namespace Vodovoz.Domain.Orders
 				Count = count,
 				Equipment = equipment,
 				Nomenclature = nomenclature,
-				IsGift = isGift
+				GiftItem = giftItem
 			};
 
 			newItem.UpdatePriceWithRecalculate(price);
@@ -975,7 +975,7 @@ namespace Vodovoz.Domain.Orders
 			decimal discount,
 			IEnumerable<DiscountReason> discountReasons,
 			PromotionalSet promotionalSet,
-			bool isGift = false)
+			bool giftItem = false)
 		{
 			var newItem = new OrderItem
 			{
@@ -985,7 +985,7 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = nomenclature,
 				IsDiscountInMoney = isDiscountInMoney,
 				PromoSet = promotionalSet,
-				IsGift = isGift
+				GiftItem = giftItem
 			};
 
 			newItem.UpdatePriceWithRecalculate(price);
