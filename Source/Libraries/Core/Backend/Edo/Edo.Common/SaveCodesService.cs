@@ -48,8 +48,9 @@ namespace Edo.Common
 					continue;
 				}
 
-				productCode.ResultCode = null;
 				await _trueMarkCodesPool.PutCodeAsync(productCode.SourceCode.Id, cancellationToken);
+				productCode.ResultCode = null;
+				productCode.SourceCodeStatus = SourceProductCodeStatus.SavedToPool;
 			}
 		}
 	}
