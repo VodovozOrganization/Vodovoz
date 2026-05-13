@@ -29,7 +29,7 @@ namespace Vodovoz.Core.Domain.Orders
 		private decimal? _valueAddedTax;
 		private bool _isAlternativePrice;
 		private bool _isFixedPrice;
-		private bool _isGift;
+		private bool _giftItem;
 		private int _rentCount;
 		private int _rentEquipmentCount;
 		private decimal _count = -1;
@@ -148,10 +148,10 @@ namespace Vodovoz.Core.Domain.Orders
 		}
 
 		[Display(Name = "Подарок")]
-		public virtual bool IsGift
+		public virtual bool GiftItem
 		{
-			get => _isGift;
-			set => SetField(ref _isGift, value);
+			get => _giftItem;
+			set => SetField(ref _giftItem, value);
 		}
 
 		[Display(Name = "Количество")]

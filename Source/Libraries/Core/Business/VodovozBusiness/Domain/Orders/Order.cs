@@ -2111,7 +2111,7 @@ namespace Vodovoz.Domain.Orders
 			bool needGetFixedPrice = true,
 			DiscountReason reason = null,
 			PromotionalSet proSet = null,
-			bool isGift = false)
+			bool giftItem = false)
 		{
 			if(nomenclature.Category != NomenclatureCategory.water && !nomenclature.IsDisposableTare)
 			{
@@ -2136,7 +2136,7 @@ namespace Vodovoz.Domain.Orders
 			AddOrderItem(
 				uow,
 				contractUpdater,
-				OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, price, isDiscountInMoney, discount, reason, proSet, isGift));
+				OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, price, isDiscountInMoney, discount, reason, proSet, giftItem));
 		}
 
 		public virtual void AddFlyerNomenclature(Nomenclature flyerNomenclature)
@@ -2305,7 +2305,7 @@ namespace Vodovoz.Domain.Orders
 			bool needGetFixedPrice = true,
 			DiscountReason discountReason = null,
 			PromotionalSet proSet = null,
-			bool isGift = false)
+			bool giftItem = false)
 		{
 			switch(nomenclature.Category) {
 				case NomenclatureCategory.water:
@@ -2319,7 +2319,7 @@ namespace Vodovoz.Domain.Orders
 						needGetFixedPrice,
 						discountReason,
 						proSet,
-						isGift);
+						giftItem);
 					break;
 				case NomenclatureCategory.master:
 					contract = CreateServiceContractAddMasterNomenclature(uow, contractUpdater, nomenclature);
@@ -2336,7 +2336,7 @@ namespace Vodovoz.Domain.Orders
 						discount,
 						discountReason,
 						proSet,
-						isGift);
+						giftItem);
 
 					var acceptableCategories = Nomenclature.GetCategoriesForSale();
 					if(orderItem?.Nomenclature == null
