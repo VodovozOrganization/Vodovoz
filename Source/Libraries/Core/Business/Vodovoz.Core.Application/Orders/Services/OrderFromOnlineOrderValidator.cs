@@ -359,7 +359,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 			ValidateDiscountParametersFromNotPromoSet(onlineOrderItem, checkOnlineOrderSum);
 		}
 
-		// Обдумать
 		private void ValidateDiscountParametersFromNotPromoSet(OnlineOrderItem onlineOrderItem, CheckOnlineOrderSum checkOnlineOrderSum)
 		{
 			var applicableDiscounts = onlineOrderItem.DiscountReasons
