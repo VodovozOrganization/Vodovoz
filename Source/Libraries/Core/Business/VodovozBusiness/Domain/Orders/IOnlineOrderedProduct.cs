@@ -41,7 +41,7 @@
 		/// <summary>
 		/// Этот товар - подарок?
 		/// </summary>
-		bool GiftItem { get; set; }
+		bool IsGift { get; set; }
 		/// <summary>
 		/// Очистка данных по скидке
 		/// </summary>

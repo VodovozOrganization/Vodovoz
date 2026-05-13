@@ -51,6 +51,6 @@ namespace Vodovoz.Domain.Orders
 		/// <summary>
 		/// Этот товар - подарок?
 		/// </summary>
-		bool GiftItem { get; }
+		bool IsGift { get; }
 	}
 }
