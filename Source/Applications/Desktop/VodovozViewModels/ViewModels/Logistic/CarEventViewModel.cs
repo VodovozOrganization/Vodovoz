@@ -59,8 +59,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ICarEventFileStorageService _carEventFileStorageService;
 		private readonly IUserRepository _userRepository;
-		private string _selectedWorkOrderScanFilePath;
-		private string _selectedWorkOrderScanFileName;
+		private readonly IList<SelectedWorkOrderScanFile> _selectedWorkOrderScanFiles = new List<SelectedWorkOrderScanFile>();
 
 		public CarEventViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -189,7 +188,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			CanEdit
 			&& Entity.CarEventType?.Id == _carEventSettings.CarRepairEventTypeId;
 		public bool CanOpenWorkOrderScan =>
-			!string.IsNullOrWhiteSpace(Entity.OrderScanFileName)
+			Entity.OrderScanFileInformations.Any()
 			&& Entity.CarEventType?.Id == _carEventSettings.CarRepairEventTypeId;
 		public bool CanShowWorkOrderScanControls => CanAddWorkOrderScan || CanOpenWorkOrderScan;
 		public bool CanAttachFine => CanEdit;
@@ -244,10 +243,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 					UpdateCurrentFuelBalance();
 					UpdateSubstractionFuelBalance();
 					UpdateFuelCost();
-					break;
-				case nameof(Entity.OrderScanFileName):
-					OnPropertyChanged(nameof(CanOpenWorkOrderScan));
-					OnPropertyChanged(nameof(CanShowWorkOrderScanControls));
 					break;
 				case nameof(Entity.ActualFuelBalance):
 					UpdateSubstractionFuelBalance();
@@ -732,7 +727,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public override bool Save(bool close)
 		{
-			if(string.IsNullOrWhiteSpace(_selectedWorkOrderScanFilePath))
+			if(!_selectedWorkOrderScanFiles.Any())
 			{
 				return base.Save(close);
 			}
@@ -752,63 +747,74 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			var dialogSettings = new DialogSettings()
 			{
-				Title = "Выберите скан заказ-наряда",
+				Title = "Выберите сканы заказ-наряда",
 				InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-				SelectMultiple = false
+				SelectMultiple = true
 			};
 			dialogSettings.FileFilters.Add(new DialogFileFilter("PDF файлы", "*.pdf"));
 
 			var result = _fileDialogService.RunOpenFileDialog(dialogSettings);
-			if(!result.Successful || string.IsNullOrWhiteSpace(result.Path))
+			var selectedFilePaths = result.Paths?.ToList() ?? new List<string>();
+
+			if(!result.Successful || !selectedFilePaths.Any())
 			{
 				return;
 			}
 
-			if(!string.Equals(Path.GetExtension(result.Path), ".pdf", StringComparison.OrdinalIgnoreCase))
+			var notPdfFileNames = selectedFilePaths
+				.Where(path => !string.Equals(Path.GetExtension(path), ".pdf", StringComparison.OrdinalIgnoreCase))
+				.Select(Path.GetFileName)
+				.ToList();
+
+			if(notPdfFileNames.Any())
 			{
 				_interactiveService.ShowMessage(
 					ImportanceLevel.Warning,
-					"Можно загрузить только PDF-файл.",
+					$"Можно загрузить только PDF-файлы:\n{string.Join("\n", notPdfFileNames)}",
 					"Неверный формат файла");
 				return;
 			}
 
-			_selectedWorkOrderScanFilePath = result.Path;
-			_selectedWorkOrderScanFileName = string.IsNullOrWhiteSpace(Entity.OrderScanFileName)
-				? $"{Guid.NewGuid()}.pdf"
-				: Entity.OrderScanFileName;
+			foreach(var filePath in selectedFilePaths)
+			{
+				_selectedWorkOrderScanFiles.Add(new SelectedWorkOrderScanFile(filePath, $"{Guid.NewGuid()}.pdf"));
+			}
 
 			_interactiveService.ShowMessage(
 				ImportanceLevel.Info,
-				"Скан заказ-наряда будет загружен при сохранении события ТС.",
-				"Файл выбран");
+				$"Выбранные сканы заказ-наряда ({selectedFilePaths.Count}) будут загружены при сохранении события ТС.",
+				"Файлы выбраны");
 		}
 
 		private bool UploadSelectedWorkOrderScan()
 		{
-			var isNewFile = string.IsNullOrWhiteSpace(Entity.OrderScanFileName);
-
-			using(var fileStream = File.OpenRead(_selectedWorkOrderScanFilePath))
+			foreach(var selectedFile in _selectedWorkOrderScanFiles)
 			{
-				var uploadResult = isNewFile
-					? _carEventFileStorageService.CreateFileAsync(_selectedWorkOrderScanFileName, fileStream, CancellationToken.None)
-						.GetAwaiter()
-						.GetResult()
-					: _carEventFileStorageService.UpdateFileAsync(_selectedWorkOrderScanFileName, fileStream, CancellationToken.None)
+				using(var fileStream = File.OpenRead(selectedFile.Path))
+				{
+					var uploadResult = _carEventFileStorageService.CreateFileAsync(selectedFile.FileName, fileStream, CancellationToken.None)
 						.GetAwaiter()
 						.GetResult();
 
-				if(uploadResult.IsFailure)
-				{
-					_interactiveService.ShowMessage(
-						ImportanceLevel.Error,
-						$"Не удалось загрузить скан заказ-наряда в S3:\n{uploadResult.GetErrorsString()}",
-						"Ошибка загрузки файла");
-					return false;
+					if(uploadResult.IsFailure)
+					{
+						_interactiveService.ShowMessage(
+							ImportanceLevel.Error,
+							$"Не удалось загрузить скан заказ-наряда в S3:\n{uploadResult.GetErrorsString()}",
+							"Ошибка загрузки файла");
+						return false;
+					}
 				}
 			}
 
-			Entity.OrderScanFileName = _selectedWorkOrderScanFileName;
+			foreach(var selectedFile in _selectedWorkOrderScanFiles)
+			{
+				Entity.AddOrderScanFileInformation(selectedFile.FileName);
+			}
+
+			OnPropertyChanged(nameof(CanOpenWorkOrderScan));
+			OnPropertyChanged(nameof(CanShowWorkOrderScanControls));
+
 			return true;
 		}
 
@@ -816,26 +822,20 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			if(saved)
 			{
-				_selectedWorkOrderScanFilePath = null;
-				_selectedWorkOrderScanFileName = null;
+				_selectedWorkOrderScanFiles.Clear();
 			}
 		}
 
 		private void OpenWorkOrderScanFile()
 		{
-			var fileResult = _carEventFileStorageService.GetFileAsync(Entity.OrderScanFileName, CancellationToken.None)
-				.GetAwaiter()
-				.GetResult();
-
-			if(fileResult.IsFailure)
+			foreach(var fileName in Entity.OrderScanFileInformations.Select(fileInformation => fileInformation.FileName))
 			{
-				_interactiveService.ShowMessage(
-					ImportanceLevel.Error,
-					$"Не удалось получить скан заказ-наряда из S3:\n{fileResult.GetErrorsString()}",
-					"Ошибка получения файла");
-				return;
+				OpenWorkOrderScanFile(fileName);
 			}
+		}
 
+		private void OpenWorkOrderScanFile(string fileName)
+		{
 			var vodovozUserTempDirectory = _userRepository.GetTempDirForCurrentUser(UoW);
 
 			if(string.IsNullOrWhiteSpace(vodovozUserTempDirectory))
@@ -846,12 +846,28 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			var tempDirectory = Path.Combine(Path.GetTempPath(), vodovozUserTempDirectory);
 			Directory.CreateDirectory(tempDirectory);
 
-			var tempFilePath = Path.Combine(tempDirectory, Entity.OrderScanFileName);
-
-			using(fileResult.Value)
-			using(var fileStream = File.Create(tempFilePath))
+			var tempFilePath = Path.Combine(tempDirectory, fileName);
+				
+			if(!File.Exists(tempFilePath))
 			{
-				fileResult.Value.CopyTo(fileStream);
+				var fileResult = _carEventFileStorageService.GetFileAsync(fileName, CancellationToken.None)
+					.GetAwaiter()
+					.GetResult();
+
+				if(fileResult.IsFailure)
+				{
+					_interactiveService.ShowMessage(
+						ImportanceLevel.Error,
+						$"Не удалось получить скан заказ-наряда из S3:\n{fileResult.GetErrorsString()}",
+						"Ошибка получения файла");
+					return;
+				}
+
+				using(fileResult.Value)
+				using(var fileStream = File.Create(tempFilePath))
+				{
+					fileResult.Value.CopyTo(fileStream);
+				}
 			}
 
 			var process = new Process
@@ -871,6 +887,18 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				File.Delete(process.StartInfo.FileName);
 				process.Exited -= OnWorkOrderScanProcessExited;
 			}
+		}
+
+		private class SelectedWorkOrderScanFile
+		{
+			public SelectedWorkOrderScanFile(string path, string fileName)
+			{
+				Path = path;
+				FileName = fileName;
+			}
+
+			public string Path { get; }
+			public string FileName { get; }
 		}
 
 		private void ObservableFines_ListContentChanged(object sender, EventArgs e)

@@ -327,7 +327,7 @@ namespace Vodovoz.Views.Logistic
 			this.addWorkOrderScanLabel = new global::Gamma.GtkWidgets.yLabel();
 			this.addWorkOrderScanLabel.Name = "addWorkOrderScanLabel";
 			this.addWorkOrderScanLabel.Xalign = 0F;
-			this.addWorkOrderScanLabel.LabelProp = global::Mono.Unix.Catalog.GetString("Добавить скан заказ-наряда");
+			this.addWorkOrderScanLabel.LabelProp = global::Mono.Unix.Catalog.GetString("Сканы заказ-наряда:");
 			this.table1.Add(this.addWorkOrderScanLabel);
 			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.table1[this.addWorkOrderScanLabel]));
 			w18.TopAttach = ((uint)(13));

@@ -28,6 +28,7 @@ namespace Vodovoz.Domain.Logistic
 
 	public class CarEvent : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
+		private int _id;
 		private DateTime _createDate;
 		private Employee _author;
 		private CarEventType _carEventType;
@@ -46,7 +47,8 @@ namespace Vodovoz.Domain.Logistic
 		private DateTime? _carTechnicalCheckupEndingDate;
 		private WriteOffDocument _writeOffDocument;
 		private bool _isWriteOffDocumentNotRequired;
-		private string _orderScanFileName;
+		private IList<CarEventOrderScanFileInformation> _orderScanFileInformations =
+			new List<CarEventOrderScanFileInformation>();
 		private decimal? _actualFuelBalance;
 		private decimal? _currentFuelBalance;
 		private decimal? _substractionFuelBalance;
@@ -55,7 +57,17 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Свойства
 
-		public virtual int Id { get; set; }
+		public virtual int Id
+		{
+			get => _id;
+			set
+			{
+				if(SetField(ref _id, value))
+				{
+					UpdateOrderScanFileInformations();
+				}
+			}
+		}
 
 		[Display(Name = "Дата создания")]
 		public virtual DateTime CreateDate
@@ -195,11 +207,11 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _isWriteOffDocumentNotRequired, value);
 		}
 
-		[Display(Name = "Скан заказ-наряда")]
-		public virtual string OrderScanFileName
+		[Display(Name = "Сканы заказ-наряда")]
+		public virtual IList<CarEventOrderScanFileInformation> OrderScanFileInformations
 		{
-			get => _orderScanFileName;
-			set => SetField(ref _orderScanFileName, value);
+			get => _orderScanFileInformations;
+			set => SetField(ref _orderScanFileInformations, value);
 		}
 
 		#region Калибровка баланса топлива
@@ -260,6 +272,28 @@ namespace Vodovoz.Domain.Logistic
 				return;
 			}
 			ObservableFines.Add(fine);
+		}
+
+		public virtual void AddOrderScanFileInformation(string fileName)
+		{
+			if(OrderScanFileInformations.Any(fileInformation => fileInformation.FileName == fileName))
+			{
+				return;
+			}
+
+			OrderScanFileInformations.Add(new CarEventOrderScanFileInformation
+			{
+				CarEventId = Id,
+				FileName = fileName
+			});
+		}
+
+		private void UpdateOrderScanFileInformations()
+		{
+			foreach(var fileInformation in OrderScanFileInformations)
+			{
+				fileInformation.CarEventId = Id;
+			}
 		}
 
 		public virtual string GetFineReason()
