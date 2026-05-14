@@ -92,6 +92,8 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckSpecialDocuments;
 
+		private global::Gamma.GtkWidgets.yCheckButton ycheckWorkingWithoutSeal;
+
 		private global::Gamma.GtkWidgets.ySpinButton yspinExpirationDatePercent;
 
 		private global::Gtk.Label GtkLabel70;
@@ -1114,6 +1116,21 @@ namespace Vodovoz
 			w43.XOptions = ((global::Gtk.AttachOptions)(4));
 			w43.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table5.Gtk.Table+TableChild
+			this.ycheckWorkingWithoutSeal = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckWorkingWithoutSeal.CanFocus = true;
+			this.ycheckWorkingWithoutSeal.Name = "ycheckWorkingWithoutSeal";
+			this.ycheckWorkingWithoutSeal.Label = global::Mono.Unix.Catalog.GetString("Работает без печати");
+			this.ycheckWorkingWithoutSeal.DrawIndicator = true;
+			this.ycheckWorkingWithoutSeal.UseUnderline = true;
+			this.table5.Add(this.ycheckWorkingWithoutSeal);
+			global::Gtk.Table.TableChild w44 = ((global::Gtk.Table.TableChild)(this.table5[this.ycheckWorkingWithoutSeal]));
+			w44.TopAttach = ((uint)(2));
+			w44.BottomAttach = ((uint)(3));
+			w44.LeftAttach = ((uint)(2));
+			w44.RightAttach = ((uint)(3));
+			w44.XOptions = ((global::Gtk.AttachOptions)(4));
+			w44.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table5.Gtk.Table+TableChild
 			this.yspinExpirationDatePercent = new global::Gamma.GtkWidgets.ySpinButton(0D, 100D, 1D);
 			this.yspinExpirationDatePercent.CanFocus = true;
 			this.yspinExpirationDatePercent.Name = "yspinExpirationDatePercent";
@@ -1123,13 +1140,13 @@ namespace Vodovoz
 			this.yspinExpirationDatePercent.ValueAsDecimal = 0m;
 			this.yspinExpirationDatePercent.ValueAsInt = 0;
 			this.table5.Add(this.yspinExpirationDatePercent);
-			global::Gtk.Table.TableChild w44 = ((global::Gtk.Table.TableChild)(this.table5[this.yspinExpirationDatePercent]));
-			w44.TopAttach = ((uint)(4));
-			w44.BottomAttach = ((uint)(5));
-			w44.LeftAttach = ((uint)(1));
-			w44.RightAttach = ((uint)(2));
-			w44.XOptions = ((global::Gtk.AttachOptions)(4));
-			w44.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w45 = ((global::Gtk.Table.TableChild)(this.table5[this.yspinExpirationDatePercent]));
+			w45.TopAttach = ((uint)(4));
+			w45.BottomAttach = ((uint)(5));
+			w45.LeftAttach = ((uint)(1));
+			w45.RightAttach = ((uint)(2));
+			w45.XOptions = ((global::Gtk.AttachOptions)(4));
+			w45.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.GtkAlignment50.Add(this.table5);
 			this.frame1.Add(this.GtkAlignment50);
 			this.GtkLabel70 = new global::Gtk.Label();
