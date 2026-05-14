@@ -197,9 +197,24 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 
 		private void AddDiscountReason()
 		{
-			if(NewDiscountReason is null)
+			if(OrderItem is null || NewDiscountReason is null)
 			{
 				return;
+			}
+
+			if(OrderItem.IsDiscountReasonAdded(NewDiscountReason))
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Скидка с указанным основанием уже добавлена");
+				return;
+			}
+
+			if(!OrderItem.IsDiscountValueCanBeAdded(NewDiscountReason.ValueType == DiscountUnits.money, NewDiscountReason.Value))
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Суммарное значение скидок превышает сумму строки заказа. Скидка будет добавлена, но будет пересчитана");
 			}
 
 			var addingDiscountResult =

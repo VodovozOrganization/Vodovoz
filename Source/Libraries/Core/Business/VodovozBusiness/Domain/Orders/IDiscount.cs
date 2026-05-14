@@ -44,6 +44,21 @@ namespace Vodovoz.Domain.Orders
 		void ClearDiscounts();
 
 		/// <summary>
+		/// Проверяет, что скидка была добавлена
+		/// </summary>
+		/// <param name="discountReason">Основание скидки</param>
+		/// <returns>Результат проверки</returns>
+		bool IsDiscountReasonAdded(DiscountReason discountReason);
+
+		/// <summary>
+		/// Проверяет, что скидка может быть добавлена, т.е. сумма всех добавленных скидок не превышает цену товара
+		/// </summary>
+		/// <param name="isDiscountInMoney">Указывает, что скидка задана в денежном выражении</param>
+		/// <param name="discount">Размер скидки</param>
+		/// <returns>Результат проверки</returns>
+		bool IsDiscountValueCanBeAdded(bool isDiscountInMoney, decimal discount);
+
+		/// <summary>
 		/// Удаление одной скидки по основанию скидки
 		/// </summary>
 		/// <param name="discountReasonId">Id основания скидки</param>
