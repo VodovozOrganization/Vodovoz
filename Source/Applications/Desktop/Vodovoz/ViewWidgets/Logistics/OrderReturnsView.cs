@@ -459,7 +459,7 @@ namespace Vodovoz
 						)
 						.AddSetter((c, n) =>
 							{
-								if(n.OrderItem?.PromoSet != null && n.DiscountReasons == null && n.Discount > 0)
+								if(n.OrderItem?.PromoSet != null && !n.DiscountReasons.Any() && n.Discount > 0)
 								{
 									c.Text = n.OrderItem.PromoSet.DiscountReasonInfo;
 								}

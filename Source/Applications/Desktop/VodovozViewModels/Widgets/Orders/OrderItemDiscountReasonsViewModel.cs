@@ -40,7 +40,7 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 		{
 			_orderDiscountController = orderDiscountController ?? throw new ArgumentNullException(nameof(orderDiscountController));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
-			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(_discountReasonRepository));
+			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
 
 			_interactiveService =
 				commonServices.InteractiveService;

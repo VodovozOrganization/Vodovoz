@@ -1174,7 +1174,7 @@ namespace Vodovoz
 				ycomboboxReason.Sensitive = !yChkActionBottle.Active;
 				SetDiscountUnitEditable();
 				SetDiscountEditable();
-				UpdateDiscountReasonSensetive();
+				UpdateDiscountReasonSensitive();
 			};
 			ycheckContactlessDelivery.Binding.AddBinding(Entity, e => e.ContactlessDelivery, w => w.Active).InitializeFromSource();
 
@@ -5073,7 +5073,7 @@ namespace Vodovoz
 			ChangeGoodsSensitive(val
 				|| (IsStatusForEditGoodsInRouteList && _canEditGoodsInRouteList));
 
-			UpdateDiscountReasonSensetive();
+			UpdateDiscountReasonSensitive();
 
 			checkPayAfterLoad.Sensitive = _canSetPaymentAfterLoad && checkSelfDelivery.Active && val;
 
@@ -5148,7 +5148,7 @@ namespace Vodovoz
 			hbox12.Sensitive = sensitive;
 		}
 
-		private void UpdateDiscountReasonSensetive()
+		private void UpdateDiscountReasonSensitive()
 		{
 			var sensitive =
 				(Entity.CanEditByStatus && CanEditByPermission)
@@ -5346,7 +5346,7 @@ namespace Vodovoz
 				if(discount > 0)
 				{
 					var unit = (DiscountUnits)enumDiscountUnit.SelectedItem;
-					_discountsController.SetCustomDiscount(reason, discount, unit, Entity.ObservableOrderItems.Cast<IDiscount>().ToList());
+					_discountsController.SetCustomDiscountForOrderItems(reason, discount, unit, Entity.ObservableOrderItems.Cast<IDiscount>().ToList());
 				}
 				else
 				{

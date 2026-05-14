@@ -361,23 +361,16 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 		private void ValidateDiscountParametersFromNotPromoSet(OnlineOrderItem onlineOrderItem, CheckOnlineOrderSum checkOnlineOrderSum)
 		{
-			var applicableDiscounts = onlineOrderItem.DiscountReasons
-				.Where(reason => _discountController.IsApplicableDiscount(reason, onlineOrderItem.Nomenclature))
-				.ToList();
+			var isAllDiscountReasonsApplicable = onlineOrderItem.DiscountReasons
+				.All(reason => _discountController.IsApplicableDiscount(reason, onlineOrderItem.Nomenclature));
 
-			if(applicableDiscounts.Any())
+			if(isAllDiscountReasonsApplicable)
 			{
-				foreach(var discountReason in applicableDiscounts)
-				{
-					ValidateApplicableDiscountFromNotPromoSet(onlineOrderItem, checkOnlineOrderSum);
-				}
+				ValidateApplicableDiscountFromNotPromoSet(onlineOrderItem, checkOnlineOrderSum);
 			}
 			else if(onlineOrderItem.DiscountReasons.Any())
 			{
-				foreach(var discountReason in onlineOrderItem.DiscountReasons)
-				{
-					ValidateNotApplicableDiscountFromNotPromoSet(onlineOrderItem);
-				}
+				ValidateNotApplicableDiscountFromNotPromoSet(onlineOrderItem);
 			}
 			else if(onlineOrderItem.GetDiscount > 0)
 			{

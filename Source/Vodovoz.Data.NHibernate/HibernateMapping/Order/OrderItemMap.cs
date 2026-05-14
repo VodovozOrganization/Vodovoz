@@ -45,14 +45,14 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 				.Table("discount_reasons_order_items")       
 				.ParentKeyColumn("order_item_id")    
 				.ChildKeyColumn("discount_reason_id")
-				.Cascade.SaveUpdate()                
+				.Cascade.None()
 				.LazyLoad();
 
 			HasManyToMany(x => x.OriginalDiscountReasons)
 				.Table("original_discount_reasons_order_items")
 				.ParentKeyColumn("order_item_id")
 				.ChildKeyColumn("discount_reason_id")
-				.Cascade.SaveUpdate()
+				.Cascade.None()
 				.LazyLoad();
 		}
 	}

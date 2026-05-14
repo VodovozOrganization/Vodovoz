@@ -375,12 +375,12 @@ namespace Vodovoz.Domain.Orders
 			}
 			if(IsDiscountInMoney)
 			{
-				DiscountMoney = value > Price * CurrentCount ? Price * CurrentCount : value;
+				DiscountMoney = value > Price * CurrentCount ? Price * CurrentCount : (value < 0 ? 0 : value);
 				Discount = (100 * DiscountMoney) / (Price * CurrentCount);
 			}
 			else
 			{
-				Discount = value;
+				Discount = value > 100 ? 100 : (value < 0 ? 0 : value);
 				DiscountMoney = Price * CurrentCount * Discount / 100;
 			}
 
@@ -389,12 +389,6 @@ namespace Vodovoz.Domain.Orders
 
 		private decimal GetPercentDiscount() => IsDiscountInMoney ? (100 * DiscountMoney) / (Price * CurrentCount) : Discount;
 
-		/// <summary>
-		/// Устанавливает скидку по акции "Бутыль".
-		/// Применяется мультипликативно поверх существующих скидок.
-		/// </summary>
-		/// <param name="discountReasonForStockBottle">Основание скидки по акции "Бутыль"</param>
-		/// <param name="discountPercent">Процент скидки (0-100)</param>
 		public virtual void SetDiscountByStock(DiscountReason discountReasonForStockBottle, decimal discountPercent)
 		{
 			discountPercent = discountPercent > 100 ? 100 : discountPercent < 0 ? 0 : discountPercent;
@@ -417,7 +411,7 @@ namespace Vodovoz.Domain.Orders
 			{
 				DiscountReasons.Clear();
 			}
-			else if(!DiscountReasons.Any() && PromoSet == null)
+			else if((!DiscountReasons.Any() && PromoSet == null) || (!DiscountReasons.Any() && PromoSet != null && existingPercent == 0))
 			{
 				DiscountReasons.Add(discountReasonForStockBottle);
 			}
@@ -810,15 +804,7 @@ namespace Vodovoz.Domain.Orders
 		/// <param name="discountReason">Основание скидки</param>
 		public virtual void AddDiscount(bool isDiscountInMoney, decimal discount, DiscountReason discountReason)
 		{
-			var alreadyAddedDiscount = CalculateTotalDiscountInMoneyFromAddedReasons();
-			var orderItemCurrentPrice = CurrentRawPrice;
-			var remainingSum = CurrentRawPrice - alreadyAddedDiscount;
-
-			var discountMoneyToAdd = isDiscountInMoney ? discount : orderItemCurrentPrice * discount / 100;
-
-			IsDiscountInMoney = isDiscountInMoney;
-
-			if(discountMoneyToAdd > remainingSum)
+			if(!IsDiscountValueCanBeAdded(isDiscountInMoney, discount))
 			{
 				throw new InvalidOperationException("Суммарная скидка не может быть больше стоимости товара");
 			}
@@ -829,6 +815,26 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			RecalculateTotalDiscountFromReasons();
+		}
+
+		private bool IsDiscountValueCanBeAdded(bool isDiscountInMoney, decimal discount)
+		{
+			var isCalculateInPercent =
+				DiscountReasons.All(x => x.ValueType == DiscountUnits.percent) && !isDiscountInMoney;
+
+			if(isCalculateInPercent)
+			{
+				var totalPercentDiscount = DiscountReasons.Sum(x => x.Value) + discount;
+				if(totalPercentDiscount > 100)
+				{
+					return false;
+				}
+			}
+
+			var alreadyAddedDiscount = CalculateTotalDiscountInMoneyFromAddedReasons();
+			var discountMoneyToAdd = isDiscountInMoney ? discount : CurrentRawPrice * discount / 100;
+
+			return discountMoneyToAdd + alreadyAddedDiscount <= CurrentRawPrice;
 		}
 
 		protected internal virtual void SetDiscount(bool isDiscountInMoney, decimal discount, decimal discountMoney, IList<DiscountReason> discountReasons)

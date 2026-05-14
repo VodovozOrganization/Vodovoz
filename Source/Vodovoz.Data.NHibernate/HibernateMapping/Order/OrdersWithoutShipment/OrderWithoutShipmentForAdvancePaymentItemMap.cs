@@ -30,7 +30,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order.OrdersWithoutShipment
 				.Table("discount_reasons_bill_without_shipment_for_advance_payment_items")
 				.ParentKeyColumn("bill_item_id")
 				.ChildKeyColumn("discount_reason_id")
-				.Cascade.SaveUpdate()
+				.Cascade.None()
 				.LazyLoad();
 		}
 	}

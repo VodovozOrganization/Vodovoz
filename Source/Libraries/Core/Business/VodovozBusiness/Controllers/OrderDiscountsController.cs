@@ -27,7 +27,7 @@ namespace VodovozBusiness.Controllers
 			}
 		}
 		
-		public void SetCustomDiscount(DiscountReason reason, decimal discount, DiscountUnits unit, IList<IDiscount> orderItems)
+		public void SetCustomDiscountForOrderItems(DiscountReason reason, decimal discount, DiscountUnits unit, IList<IDiscount> orderItems)
 		{
 			foreach(var item in orderItems)
 			{

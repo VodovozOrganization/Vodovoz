@@ -10,13 +10,13 @@ namespace Vodovoz.Controllers
 	public interface IOrderDiscountsController : IDiscountController
 	{
 		/// <summary>
-		/// Устанавливает основание скидки с введенными значениями в рублях или процентах для всего заказа
+		/// Устанавливает основание скидки с введенными значениями в рублях или процентах для списка строк заказа
 		/// </summary>
 		/// <param name="reason">Основание скидки</param>
 		/// <param name="discount">Скидки</param>
 		/// <param name="unit">Скидка в процентах или рублях</param>
 		/// <param name="orderItems">Список строк заказа</param>
-		void SetCustomDiscount(DiscountReason reason, decimal discount, DiscountUnits unit, IList<IDiscount> orderItems);
+		void SetCustomDiscountForOrderItems(DiscountReason reason, decimal discount, DiscountUnits unit, IList<IDiscount> orderItems);
 
 		/// <summary>
 		/// Установка скидки исходя из выбранного основания скидки для всего заказа

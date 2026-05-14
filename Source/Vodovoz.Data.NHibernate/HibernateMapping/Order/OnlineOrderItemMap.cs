@@ -35,7 +35,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 				.Table("discount_reasons_online_order_items")
 				.ParentKeyColumn("online_order_item_id")
 				.ChildKeyColumn("discount_reason_id")
-				.Cascade.SaveUpdate()
+				.Cascade.None()
 				.LazyLoad();
 		}
 	}

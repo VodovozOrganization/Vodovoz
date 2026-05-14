@@ -93,7 +93,7 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 				.AddColumn("")
 				.Finish();
 
-            if(ViewModel.Entity.Id != 0)
+			if(ViewModel.Entity.Id != 0)
 			{
 				CustomizeSendDocumentAgainButton();
 			}
@@ -177,21 +177,21 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 					.AddToggleRenderer(x => x.IsDiscountInMoney)
 					.AddSetter((c, n) => c.Activatable = ViewModel.CanChangeDiscountValue)
 					.Editing()
-                .AddColumn("Основание скидки")
-                    .HeaderAlignment(0.5f)
-                    .AddTextRenderer(x => x.DiscountReasonsNames)                    
-                .AddSetter((c, n) =>
-                    c.BackgroundGdk = n.Discount > 0 && !n.DiscountReasons.Any()
-                        ? colorLightRed
-                        : colorWhite)
-                .RowCells()
-                    .XAlign(0.5f)
-                .Finish();
+				.AddColumn("Основание скидки")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.DiscountReasonsNames)                    
+				.AddSetter((c, n) =>
+					c.BackgroundGdk = n.Discount > 0 && !n.DiscountReasons.Any()
+						? colorLightRed
+						: colorWhite)
+				.RowCells()
+					.XAlign(0.5f)
+				.Finish();
 			treeItems.ItemsDataSource = ViewModel.Entity.ObservableOrderWithoutDeliveryForAdvancePaymentItems;
 			treeItems.Selection.Changed += TreeItems_Selection_Changed;
 
-            orderitemdiscountreasonsview.ViewModel = ViewModel.OrderItemDiscountReasonsViewModel;
-        }
+			orderitemdiscountreasonsview.ViewModel = ViewModel.OrderItemDiscountReasonsViewModel;
+		}
 
 		private void CustomizeSendDocumentAgainButton()
 		{

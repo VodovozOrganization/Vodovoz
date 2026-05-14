@@ -231,15 +231,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 		public virtual void AddDiscount(bool isDiscountInMoney, decimal discount, DiscountReason discountReason)
 		{
-			var alreadyAddedDiscount = CalculateTotalDiscountInMoneyFromAddedReasons();
-			var orderItemCurrentPrice = CurrentRawPrice;
-			var remainingSum = CurrentRawPrice - alreadyAddedDiscount;
-
-			var discountMoneyToAdd = isDiscountInMoney ? discount : orderItemCurrentPrice * discount / 100;
-
-			IsDiscountInMoney = isDiscountInMoney;
-
-			if(discountMoneyToAdd > remainingSum)
+			if(!IsDiscountValueCanBeAdded(isDiscountInMoney, discount))
 			{
 				throw new InvalidOperationException("Суммарная скидка не может быть больше стоимости товара");
 			}
@@ -250,6 +242,26 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			}
 
 			RecalculateTotalDiscountFromReasons();
+		}
+
+		private bool IsDiscountValueCanBeAdded(bool isDiscountInMoney, decimal discount)
+		{
+			var isCalculateInPercent =
+				DiscountReasons.All(x => x.ValueType == DiscountUnits.percent) && !isDiscountInMoney;
+
+			if(isCalculateInPercent)
+			{
+				var totalPercentDiscount = DiscountReasons.Sum(x => x.Value) + discount;
+				if(totalPercentDiscount > 100)
+				{
+					return false;
+				}
+			}
+
+			var alreadyAddedDiscount = CalculateTotalDiscountInMoneyFromAddedReasons();
+			var discountMoneyToAdd = isDiscountInMoney ? discount : CurrentRawPrice * discount / 100;
+
+			return discountMoneyToAdd + alreadyAddedDiscount <= CurrentRawPrice;
 		}
 
 		private void RecalculateTotalDiscountFromReasons()
