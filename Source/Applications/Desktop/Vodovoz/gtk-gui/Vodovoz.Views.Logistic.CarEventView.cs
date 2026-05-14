@@ -92,6 +92,8 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yButton openWorkOrderScanButton;
 
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewWorkOrderScans;
+
 		private global::QS.Views.Control.EntityEntry entityentryWriteOffDocument;
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckbuttonIsWriteOffDocumentNotRequired;
@@ -328,14 +330,6 @@ namespace Vodovoz.Views.Logistic
 			this.addWorkOrderScanLabel.Name = "addWorkOrderScanLabel";
 			this.addWorkOrderScanLabel.Xalign = 0F;
 			this.addWorkOrderScanLabel.LabelProp = global::Mono.Unix.Catalog.GetString("Сканы заказ-наряда:");
-			this.table1.Add(this.addWorkOrderScanLabel);
-			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.table1[this.addWorkOrderScanLabel]));
-			w18.TopAttach = ((uint)(13));
-			w18.BottomAttach = ((uint)(14));
-			w18.LeftAttach = ((uint)(1));
-			w18.RightAttach = ((uint)(2));
-			w18.XOptions = ((global::Gtk.AttachOptions)(4));
-			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.labelAuthor = new global::Gtk.Label();
 			this.labelAuthor.Name = "labelAuthor";
@@ -609,7 +603,7 @@ namespace Vodovoz.Views.Logistic
 			this.yhboxRepairPartsCost.Name = "yhboxRepairPartsCost";
 			this.yhboxRepairPartsCost.Spacing = 6;
 			// Container child yhboxRepairPartsCost.Gtk.Box+BoxChild
-			this.table3 = new global::Gtk.Table(((uint)(2)), ((uint)(4)), false);
+			this.table3 = new global::Gtk.Table(((uint)(4)), ((uint)(4)), false);
 			this.table3.Name = "table3";
 			this.table3.RowSpacing = ((uint)(6));
 			this.table3.ColumnSpacing = ((uint)(6));
@@ -641,6 +635,27 @@ namespace Vodovoz.Views.Logistic
 			w68.RightAttach = ((uint)(4));
 			w68.XOptions = ((global::Gtk.AttachOptions)(4));
 			w68.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table3.Gtk.Table+TableChild
+			this.table3.Add(this.addWorkOrderScanLabel);
+			global::Gtk.Table.TableChild w69 = ((global::Gtk.Table.TableChild)(this.table3[this.addWorkOrderScanLabel]));
+			w69.TopAttach = ((uint)(2));
+			w69.BottomAttach = ((uint)(3));
+			w69.LeftAttach = ((uint)(2));
+			w69.RightAttach = ((uint)(4));
+			w69.XOptions = ((global::Gtk.AttachOptions)(4));
+			w69.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table3.Gtk.Table+TableChild
+			this.ytreeviewWorkOrderScans = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewWorkOrderScans.CanFocus = true;
+			this.ytreeviewWorkOrderScans.Name = "ytreeviewWorkOrderScans";
+			this.table3.Add(this.ytreeviewWorkOrderScans);
+			global::Gtk.Table.TableChild w70 = ((global::Gtk.Table.TableChild)(this.table3[this.ytreeviewWorkOrderScans]));
+			w70.TopAttach = ((uint)(3));
+			w70.BottomAttach = ((uint)(4));
+			w70.LeftAttach = ((uint)(2));
+			w70.RightAttach = ((uint)(4));
+			w70.XOptions = ((global::Gtk.AttachOptions)(4));
+			w70.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
 			this.entityentryWriteOffDocument = new global::QS.Views.Control.EntityEntry();
 			this.entityentryWriteOffDocument.Events = ((global::Gdk.EventMask)(256));

@@ -191,6 +191,10 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			Entity.OrderScanFileInformations.Any()
 			&& Entity.CarEventType?.Id == _carEventSettings.CarRepairEventTypeId;
 		public bool CanShowWorkOrderScanControls => CanAddWorkOrderScan || CanOpenWorkOrderScan;
+		public IReadOnlyList<WorkOrderScanFileNode> WorkOrderScanFileNodes =>
+			Entity.OrderScanFileInformations
+				.Select((fileInformation, index) => new WorkOrderScanFileNode(index + 1, fileInformation.FileName))
+				.ToList();
 		public bool CanAttachFine => CanEdit;
 		public bool CanChangeCarTechnicalCheckupEndDate => CanEdit && IsCarTechnicalCheckupEventType;
 		public bool CanAttachWriteOffDocument =>
@@ -814,6 +818,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			OnPropertyChanged(nameof(CanOpenWorkOrderScan));
 			OnPropertyChanged(nameof(CanShowWorkOrderScanControls));
+			OnPropertyChanged(nameof(WorkOrderScanFileNodes));
 
 			return true;
 		}
@@ -834,7 +839,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			}
 		}
 
-		private void OpenWorkOrderScanFile(string fileName)
+		public void OpenWorkOrderScanFile(string fileName)
 		{
 			var vodovozUserTempDirectory = _userRepository.GetTempDirForCurrentUser(UoW);
 
@@ -899,6 +904,19 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 			public string Path { get; }
 			public string FileName { get; }
+		}
+
+		public class WorkOrderScanFileNode
+		{
+			public WorkOrderScanFileNode(int number, string fileName)
+			{
+				Number = number;
+				FileName = fileName;
+			}
+
+			public int Number { get; }
+			public string FileName { get; }
+			public string Title => $"Скан {Number}";
 		}
 
 		private void ObservableFines_ListContentChanged(object sender, EventArgs e)

@@ -193,13 +193,20 @@ namespace Vodovoz.Views.Logistic
 			serviceStationEntry.ViewModel = BuildCounterpartyEntryViewModel();
 
 			addWorkOrderScanButton.BindCommand(ViewModel.AddWorkOrderScan);
-			openWorkOrderScanButton.BindCommand(ViewModel.OpenWorkOrderScan);
 
 			addWorkOrderScanButton.Binding
 				.AddBinding(ViewModel, vm => vm.CanAddWorkOrderScan, w => w.Visible)
 				.InitializeFromSource();
 
-			openWorkOrderScanButton.Binding
+			openWorkOrderScanButton.Visible = false;
+
+			ytreeviewWorkOrderScans.ColumnsConfig =
+				FluentColumnsConfig<CarEventViewModel.WorkOrderScanFileNode>.Create()
+					.AddColumn("Файл").AddTextRenderer(x => x.Title)
+					.Finish();
+			ytreeviewWorkOrderScans.RowActivated += OnWorkOrderScanRowActivated;
+			ytreeviewWorkOrderScans.Binding
+				.AddBinding(ViewModel, vm => vm.WorkOrderScanFileNodes, w => w.ItemsDataSource)
 				.AddBinding(ViewModel, vm => vm.CanOpenWorkOrderScan, w => w.Visible)
 				.InitializeFromSource();
 
@@ -221,6 +228,14 @@ namespace Vodovoz.Views.Logistic
 			UpdateSensitivity();
 		}
 
+		private void OnWorkOrderScanRowActivated(object o, RowActivatedArgs args)
+		{
+			if(ytreeviewWorkOrderScans.GetSelectedObject() is CarEventViewModel.WorkOrderScanFileNode selectedNode)
+			{
+				ViewModel.OpenWorkOrderScanFile(selectedNode.FileName);
+			}
+		}
+
 		private void UpdateSensitivity()
 		{
 			if(!ViewModel.CanEdit)
@@ -240,6 +255,7 @@ namespace Vodovoz.Views.Logistic
 				ytreeviewFines.Sensitive =
 				addWorkOrderScanButton.Sensitive =
 				openWorkOrderScanButton.Sensitive =
+				ytreeviewWorkOrderScans.Sensitive =
 				buttonAddFine.Sensitive =
 				buttonAttachFine.Sensitive =
 				yspinBtnOdometerReading.Sensitive =
