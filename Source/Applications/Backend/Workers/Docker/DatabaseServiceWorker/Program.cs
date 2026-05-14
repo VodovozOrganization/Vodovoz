@@ -1,6 +1,5 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using DatabaseServiceWorker.ClosingDeliveries;
 using DatabaseServiceWorker.ExportTo1c;
 using DatabaseServiceWorker.PowerBiWorker;
 using DatabaseServiceWorker.PowerBiWorker.Exporters;
@@ -96,11 +95,6 @@ namespace DatabaseServiceWorker
 						// .ConfigureZabbixSenderFromDataBase(nameof(PowerBiExportWorker))
 						// .AddScoped<IPowerBiConnectionFactory, PowerBiConnectionFactory>()
 						// .AddScoped<IPowerBiExporter, PowerBiExporter>()
-
-						// Сливаем, запуск после отмешки Яценко В.В.
-						//.AddHostedService<ClosingDeliveriesWorker>()
-						//.AddClosingDeliveriesWorker(hostContext)
-						//.ConfigureZabbixSenderFromDataBase(nameof(ClosingDeliveriesWorker))
 						;
 
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);

@@ -318,7 +318,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="counterpartyTypes">Типы контрагентов</param>
 		/// <param name="counterpartyId">Id контрагента</param>
 		/// <returns>Данные по задолженности</returns>
-		Task<IList<CounterpartyWithDebtAggregatedNode>> GetWithoutClosedDeliveriesCounterpartiesOverdueDebts(
+		Task<IReadOnlyCollection<OverdueDebtOverPeriodLimitAggregateNode>> GetWithoutClosedDeliveriesCounterpartiesOverdueDebts(
 			IUnitOfWork unitOfWork, 
 			int daysBeforeClosingDeliveries, 
 			int[] organizationsIds, 
