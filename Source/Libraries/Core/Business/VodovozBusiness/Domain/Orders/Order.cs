@@ -934,6 +934,13 @@ namespace Vodovoz.Domain.Orders
 			if (ObservableOrderItems.Any(x => x.Discount > 0 && !x.DiscountReasons.Any() && x.PromoSet == null))
 				yield return new ValidationResult("Если в заказе указана скидка на товар, то обязательно должно быть заполнено поле 'Основание'.");
 
+			if(ObservableOrderItems.Any(x => x.ActualSum < 0))
+			{
+				yield return new ValidationResult(
+					"Сумма строки заказа не должна быть отрицательной",
+					new[] { nameof(OrderItems) });
+			}
+
 			if(!SelfDelivery && DeliveryPoint == null)
 				yield return new ValidationResult("В заказе необходимо заполнить точку доставки.",
 					new[] { this.GetPropertyName(o => o.DeliveryPoint) });
