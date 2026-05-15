@@ -213,7 +213,7 @@ namespace EmailDebtNotificationWorker.Services
 				attachments,
 				emailAddress,
 				emailSubject,
-				GenerateEmailBody(contract, GetUnsubscribeLink(storedEmail.Guid.Value)));
+				GenerateEmailBody(client, contract, GetUnsubscribeLink(storedEmail.Guid.Value)));
 
 			return emailMessage;
 		}
@@ -377,12 +377,13 @@ namespace EmailDebtNotificationWorker.Services
 		}
 
 		private static string GenerateEmailBody(
+			Counterparty client,
 			CounterpartyContract contract,
 			string unsubscribeUrl)
 		{
 			return $@"
 				<p>Добрый день!</p>
-				<p>Информируем, что у Вашей компании образовалась просроченная задолженность по договору {contract.Number} от {contract.IssueDate:dd.MM.yyyy}.</p> 
+				<p>Информируем, что у Вашей компании {client.FullName} (ИНН: {client.INN}) образовалась просроченная задолженность по договору {contract.Number} от {contract.IssueDate:dd.MM.yyyy}.</p> 
 				<p>Настоятельно рекомендуем принять участие в мирном урегулировании данного вопроса, что позволит обеим сторонам сэкономить время и деньги.</p>
 				<p>И позволит продолжить дальнейшее плодотворное сотрудничество наших компаний!</p>
 				<p>______________</p>
