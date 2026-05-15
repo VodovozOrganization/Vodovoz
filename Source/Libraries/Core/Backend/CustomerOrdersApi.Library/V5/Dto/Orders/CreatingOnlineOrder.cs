@@ -1,4 +1,4 @@
-﻿using CustomerOrdersApi.Library.V4.Dto.Orders.OrderItem;
+﻿using CustomerOrdersApi.Library.V5.Dto.Orders.OrderItem;
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
@@ -9,7 +9,7 @@ namespace CustomerOrdersApi.Library.V5.Dto.Orders
 {
 	public class CreatingOnlineOrder : ICreatingOnlineOrder
 	{
-		public const string ExchangeAndQueueName = "creating-online-orders";
+		public const string ExchangeAndQueueName = "creating-online-orders-v5";
 		/// <summary>
 		/// Источник заказа
 		/// </summary>

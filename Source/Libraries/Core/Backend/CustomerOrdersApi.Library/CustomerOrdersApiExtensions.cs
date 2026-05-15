@@ -146,7 +146,15 @@ namespace CustomerOrdersApi.Library
 					x.Durable = true;
 					x.AutoDelete = false;
 				});
-								
+
+				configurator.Message<V5.Dto.Orders.CreatingOnlineOrder>(x => x.SetEntityName(V5.Dto.Orders.CreatingOnlineOrder.ExchangeAndQueueName));
+				configurator.Publish<V5.Dto.Orders.CreatingOnlineOrder>(x =>
+				{
+					x.ExchangeType = ExchangeType.Fanout;
+					x.Durable = true;
+					x.AutoDelete = false;
+				});
+
 				configurator.ConfigureEndpoints(context);
 			});
 			

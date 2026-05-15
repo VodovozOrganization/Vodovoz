@@ -1,4 +1,4 @@
-﻿using CustomerOrdersApi.Library.V4.Dto.Orders;
+﻿using CustomerOrdersApi.Library.V5.Dto.Orders;
 using MassTransit;
 
 namespace CustomerOnlineOrdersRegistrar.Consumers

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using CustomerOnlineOrdersRegistrar.Factories.V3;
 using CustomerOnlineOrdersRegistrar.Factories.V4;
+using CustomerOnlineOrdersRegistrar.Factories.V5;
 using CustomerOrdersApi.Library.Default.Dto.Orders;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -27,6 +28,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOnlineOrderFactoryV3 onlineOrderFactoryV3,
 			IOnlineOrderFactoryV4 onlineOrderFactoryV4,
+			IOnlineOrderFactoryV5 onlineOrderFactoryV5,
 			IOrderService orderService,
 			IDeliveryRulesSettings deliveryRulesSettings,
 			IDiscountReasonSettings discountReasonSettings,
@@ -40,6 +42,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 					unitOfWorkFactory,
 					onlineOrderFactoryV3,
 					onlineOrderFactoryV4,
+					onlineOrderFactoryV5,
 					deliveryRulesSettings,
 					discountReasonSettings,
 					onlineOrderRepository,

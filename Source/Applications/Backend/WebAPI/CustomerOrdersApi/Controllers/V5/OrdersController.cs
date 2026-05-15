@@ -1,4 +1,4 @@
-﻿using CustomerOrdersApi.Library.Common;
+using CustomerOrdersApi.Library.Common;
 using CustomerOrdersApi.Library.V5.Dto.Orders;
 using CustomerOrdersApi.Library.V5.Services;
 using Gamma.Utilities;
@@ -53,7 +53,7 @@ namespace CustomerOrdersApi.Controllers.V5
 				}
 
 				_logger.LogInformation("Подпись валидна, отправляем в очередь");
-				var response = await _requestClient.GetResponse<CreatedOnlineOrderResult>(creatingOnlineOrder);
+				var response = await _requestClient.GetResponse<CreatedOnlineOrderResult>(creatingOnlineOrder);				
 
 				return response.Message.Code switch
 				{

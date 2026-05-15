@@ -24,6 +24,7 @@ using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Trackers;
 using VodovozBusiness.Services.Orders;
+using CustomerOnlineOrdersRegistrar.Factories.V5;
 
 namespace CustomerOnlineOrdersRegistrar
 {
@@ -71,10 +72,15 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddScoped<IOnlineOrderService, OnlineOrderService>()
 						.AddScoped<IOnlineOrderFactoryV3, OnlineOrderFactoryV3>()
 						.AddScoped<IOnlineOrderFactoryV4, OnlineOrderFactoryV4>()
+						.AddScoped<IOnlineOrderFactoryV5, OnlineOrderFactoryV5>()
 
 						.AddMessageTransportSettings()
 						.AddMassTransit(busConf =>
 						{
+							// todo Art8m Разбить на два:
+							// CreatingOnlineOrderConsumerV4
+							// CreatingOnlineOrderConsumerV5
+							// со своими defition и очередями
 							busConf.AddConsumer<OnlineOrderRegisteredConsumer, OnlineOrderRegisteredConsumerDefinition>();
 							busConf.AddConsumer<CreatingOnlineOrderConsumer, CreatingOnlineOrderConsumerDefinition>();
 							busConf.ConfigureRabbitMq();

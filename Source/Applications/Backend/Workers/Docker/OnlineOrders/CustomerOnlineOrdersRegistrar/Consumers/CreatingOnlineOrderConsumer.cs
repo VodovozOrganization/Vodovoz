@@ -2,7 +2,8 @@
 using System.Threading.Tasks;
 using CustomerOnlineOrdersRegistrar.Factories.V3;
 using CustomerOnlineOrdersRegistrar.Factories.V4;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
+using CustomerOnlineOrdersRegistrar.Factories.V5;
+using CustomerOrdersApi.Library.V5.Dto.Orders;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -23,6 +24,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOnlineOrderFactoryV3 onlineOrderFactoryV3,
 			IOnlineOrderFactoryV4 onlineOrderFactoryV4,
+			IOnlineOrderFactoryV5 onlineOrderFactoryV5,
 			IDeliveryRulesSettings deliveryRulesSettings,
 			IDiscountReasonSettings discountReasonSettings,
 			IOnlineOrderRepository onlineOrderRepository,
@@ -35,6 +37,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 				unitOfWorkFactory,
 				onlineOrderFactoryV3,
 				onlineOrderFactoryV4,
+				onlineOrderFactoryV5,
 				deliveryRulesSettings,
 				discountReasonSettings,
 				onlineOrderRepository,
@@ -52,7 +55,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			
 			try
 			{
-				var onlineOrderIdWithCode = await TryRegisterOnlineOrderV4Async(message, context.CancellationToken);
+				var onlineOrderIdWithCode = await TryRegisterOnlineOrderV5Async(message, context.CancellationToken);
 				await context.RespondAsync(CreatedOnlineOrderResult.Create(onlineOrderIdWithCode));
 			}
 			catch(Exception e)
