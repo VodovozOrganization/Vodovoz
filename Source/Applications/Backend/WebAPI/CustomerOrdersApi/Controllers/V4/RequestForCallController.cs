@@ -1,10 +1,9 @@
-using System;
+﻿using System;
 using CustomerOrders.Contracts.V4.Orders;
 using CustomerOrdersApi.Library.V4.Services;
 using Gamma.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
 using VodovozHealthCheck.Helpers;
 
 namespace CustomerOrdersApi.Controllers.V4
