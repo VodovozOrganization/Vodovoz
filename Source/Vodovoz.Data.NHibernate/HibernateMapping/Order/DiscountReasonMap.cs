@@ -25,6 +25,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.EndTimePromoCode).Column("end_time_promo_code").CustomType<TimeAsTimeSpanType>();
 			Map(x => x.StartDatePromoCode).Column("start_date_promo_code");
 			Map(x => x.EndDatePromoCode).Column("end_date_promo_code");
+			Map(x => x.IsIncompatibleWithOtherDiscounts).Column("is_incompatible_with_other_discounts");
 
 			HasManyToMany(x => x.NomenclatureCategories)
 				.Table("discount_reasons_nomenclature_categories")

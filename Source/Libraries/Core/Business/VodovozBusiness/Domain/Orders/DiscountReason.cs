@@ -47,6 +47,7 @@ namespace Vodovoz.Domain.Orders
 		private DateTime? _endDatePromoCode;
 		private TimeSpan? _startTimePromoCode;
 		private TimeSpan? _endTimePromoCode;
+		private bool _isIncompatibleWithOtherDiscounts;
 
 		public virtual int Id { get; set; }
 
@@ -204,7 +205,18 @@ namespace Vodovoz.Domain.Orders
 			get => _endTimePromoCode;
 			set => SetField(ref _endTimePromoCode, value);
 		}
-		
+
+		/// <summary>
+		/// Несовместимо с другими основаниями скидок
+		/// </summary>
+		[Display(Name = "Несовместимо с другими основаниями скидок")]
+		public virtual bool IsIncompatibleWithOtherDiscounts
+		{
+			get => _isIncompatibleWithOtherDiscounts;
+			set => SetField(ref _isIncompatibleWithOtherDiscounts, value);
+		}
+
+
 		public virtual bool HasPromoCodeDurationTime => _startTimePromoCode.HasValue || _endTimePromoCode.HasValue;
 		public virtual bool HasOrderMinSum => PromoCodeOrderMinSum > 0;
 		public virtual string StartTimePromoCodeString => StartTimePromoCode.HasValue
