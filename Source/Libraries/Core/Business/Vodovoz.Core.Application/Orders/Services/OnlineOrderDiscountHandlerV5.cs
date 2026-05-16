@@ -85,7 +85,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			return TryApplyPromoCode(uow, onlineOrderPromoCode.Source, discountPromoCode, onlineOrderPromoCode.Products);
 		}
 
-		public (bool? PromoCodeValid, bool DiscountApplicable) IsApplicableDiscount(
+		public IEnumerable<(bool? PromoCodeValid, bool DiscountApplicable)> IsApplicableDiscounts(
 			IUnitOfWork uow,
 			ExternalSource source,
 			int? counterpartyId,
@@ -93,10 +93,41 @@ namespace Vodovoz.Core.Application.Orders.Services
 			DateTime dateTime,
 			IGoods product)
 		{
-			var discount = product.DiscountReason != null
-				? uow.GetById<DiscountReason>(product.DiscountReason.Id)
-				: null;
-			
+			var discounts = product.DiscountReasons;
+
+			var result = new List<(bool? PromoCodeValid, bool DiscountApplicable)>();
+
+			foreach(var discount in discounts)
+			{
+				if(discount is null)
+				{
+					continue;
+				}
+
+				var isApplicableDiscount = IsApplicableDiscount(
+					uow,
+					source,
+					counterpartyId,
+					orderSum,
+					dateTime,
+					product,
+					discount);
+
+				result.Add(isApplicableDiscount);
+			}
+
+			return result;
+		}
+
+		public (bool? PromoCodeValid, bool DiscountApplicable) IsApplicableDiscount(
+			IUnitOfWork uow,
+			ExternalSource source,
+			int? counterpartyId,
+			decimal orderSum,
+			DateTime dateTime,
+			IGoods product,
+			DiscountReason discount)
+		{
 			var date = dateTime.Date;
 			var time = dateTime.TimeOfDay;
 			var response = (PromoCodeValid: (bool?)null, DiscountApplicable: true);
@@ -130,7 +161,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			{
 				response.PromoCodeValid = false;
 			}
-			
+
 			if(!CanApplicableDiscount(source, discount, product))
 			{
 				response.DiscountApplicable = false;
@@ -211,10 +242,11 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return false;
 			}
 
-			if(product.Discounts.Any(x => x.Discount > 0))
-			{
-				return false;
-			}
+			//TODO уточнить, будет ли промокод применяться теперь при возможности нескольких скидок
+			//if(product.Discounts.Any(x => x.Discount > 0))
+			//{
+			//	return false;
+			//}
 
 			if(!IsApplicableDiscount(discountPromoCode, nomenclature))
 			{

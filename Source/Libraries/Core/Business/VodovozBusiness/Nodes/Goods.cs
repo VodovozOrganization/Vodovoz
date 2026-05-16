@@ -1,4 +1,6 @@
-﻿using Vodovoz.Domain.Goods;
+﻿using QS.Extensions.Observable.Collections.List;
+using System.Collections.Generic;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using VodovozBusiness.Domain.Orders;
 
@@ -16,14 +18,14 @@ namespace VodovozBusiness.Nodes
 			decimal count,
 			Nomenclature nomenclature,
 			PromotionalSet promoSet,
-			DiscountReason discountReason,
+			IEnumerable<DiscountReason> discountReasons,
 			bool isFixedPrice)
 		{
 			Price = price;
 			Count = count;
 			Nomenclature = nomenclature;
 			PromoSet = promoSet;
-			DiscountReason = discountReason;
+			DiscountReasons = new ObservableList<DiscountReason>(discountReasons);
 			IsFixedPrice = isFixedPrice;
 		}
 		
@@ -38,15 +40,15 @@ namespace VodovozBusiness.Nodes
 		/// <inheritdoc/>
 		public PromotionalSet PromoSet { get; set; }
 		/// <inheritdoc/>
-		public DiscountReason DiscountReason { get; set; }
+		public IObservableList<DiscountReason> DiscountReasons { get; set; }
 		
 		public static Goods Create(
 			decimal price,
 			decimal count,
 			Nomenclature nomenclature,
 			PromotionalSet promoSet,
-			DiscountReason discountReason,
+			IEnumerable<DiscountReason> discountReasons,
 			bool isFixedPrice = false) =>
-			new Goods(price, count, nomenclature, promoSet, discountReason, isFixedPrice);
+			new Goods(price, count, nomenclature, promoSet, discountReasons, isFixedPrice);
 	}
 }

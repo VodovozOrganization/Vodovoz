@@ -33,7 +33,7 @@ namespace Vodovoz.Handlers
 		/// <param name="dateTime">Дата и время запроса</param>
 		/// <param name="product">Товар</param>
 		/// <returns></returns>
-		(bool? PromoCodeValid, bool DiscountApplicable) IsApplicableDiscount(
+		IEnumerable<(bool? PromoCodeValid, bool DiscountApplicable)> IsApplicableDiscounts(
 			IUnitOfWork uow,
 			ExternalSource source,
 			int? counterpartyId,

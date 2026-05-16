@@ -526,24 +526,28 @@ namespace CustomerOrdersApi.Library.V5.Services
 						continue;
 					}
 					
-					//TODO переделать на нормальную работу со скидками
 					var oldProduct = Goods.Create(
 						goods.Price,
 						goods.Count,
 						goods.Nomenclature,
 						goods.PromoSet,
-						goods.Discounts.FirstOrDefault()?.DiscountReason
+						goods.Discounts.Select(x => x.DiscountReason)
 					);
 				
-					var discountCheck = _discountHandler.IsApplicableDiscount(
+					var discountsCheckData = _discountHandler.IsApplicableDiscounts(
 						_uow,
 						request.Source,
 						request.CounterpartyErpId,
 						request.OrderSum.RawSum,
 						DateTime.Now,
 						oldProduct);
-				
-					if(!discountCheck.PromoCodeValid.HasValue || !discountCheck.PromoCodeValid.Value)
+
+					var isPromoCodeUnavailable =
+						discountsCheckData.Any(x =>
+							(x.PromoCodeValid != null && x.PromoCodeValid == false)
+							|| (x.PromoCodeValid != null && x.PromoCodeValid == true && !x.DiscountApplicable));
+
+					if(isPromoCodeUnavailable)
 					{
 						warningMessage = _warningMessageFactory.CreatePromoCodeUnavailableMessage();
 						break;
@@ -577,13 +581,12 @@ namespace CustomerOrdersApi.Library.V5.Services
 			WarningMessage warning = null;
 			foreach(var (checkedItem, product) in cartItemsCheck.CombinedItems)
 			{
-				//TODO переделать на нормальную работу со скидками
 				var oldProduct = Goods.Create(
 					product.Price,
 					product.Count,
 					product.Nomenclature,
 					product.PromoSet,
-					product.Discounts.FirstOrDefault()?.DiscountReason
+					product.Discounts.Select(x => x.DiscountReason)
 				);
 				
 				var price = _goodsPriceCalculator.CalculateItemPrice(

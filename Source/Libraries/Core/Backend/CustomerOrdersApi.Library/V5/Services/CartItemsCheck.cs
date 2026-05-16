@@ -43,7 +43,7 @@ namespace CustomerOrdersApi.Library.V5.Services
 					goodsV5.Count,
 					goodsV5.Nomenclature,
 					goodsV5.PromoSet,
-					goodsV5.Discounts.FirstOrDefault()?.DiscountReason
+					goodsV5.Discounts.Select(x => x.DiscountReason)
 					);
 				
 				products.Add(product);

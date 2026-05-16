@@ -1,6 +1,4 @@
-﻿using QS.Extensions.Observable.Collections.List;
-using Vodovoz.Domain.Goods;
-using VodovozBusiness.Domain.Orders;
+﻿using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Domain.Orders
 {
