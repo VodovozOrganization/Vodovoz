@@ -54,5 +54,10 @@ namespace Vodovoz.Settings.Orders
 		/// Id оснований для скидки Довоз
 		/// </summary>
 		int[] AdditionalDeliveryDiscountReasonsIds { get; }
+
+		/// <summary>
+		/// Id основания скидки для первого онлайн заказа
+		/// </summary>
+		int FirstOnlineOrderDiscountReasonId { get; }
 	}
 }

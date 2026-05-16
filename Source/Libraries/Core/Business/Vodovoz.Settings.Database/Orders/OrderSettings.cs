@@ -97,5 +97,8 @@ namespace Vodovoz.Settings.Database.Orders
 			.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)
 			.Select(x => int.Parse(x.Trim(' ')))
 			.ToArray();
+
+		public int FirstOnlineOrderDiscountReasonId =>
+			_settingsController.GetIntValue("first_online_order_discount_reason_id");
 	}
 }
