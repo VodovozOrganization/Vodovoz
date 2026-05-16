@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using CustomerOrdersApi.Library.Default.Dto.Orders.FixedPrice;
+using CustomerOrders.Contracts.Default.Orders.FixedPrice;
 using CustomerOrdersApi.Library.Default.Services;
 using Gamma.Utilities;
 using Microsoft.AspNetCore.Mvc;

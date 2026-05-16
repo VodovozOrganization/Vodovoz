@@ -99,6 +99,7 @@ namespace Vodovoz.Core.Application
 
 		private static IServiceCollection AddCoreOrderServicesDependencies(this IServiceCollection services) => services
 			.AddScoped<IOnlineOrderDeliveryPriceGetter, OnlineOrderDeliveryPriceGetter>()
+			.AddScoped<IOnlineOrderFromCartDistrictRulesGetter, OnlineOrderFromCartDistrictRulesGetter>()
 			.AddScoped<IOrderFromOnlineOrderCreator, OrderFromOnlineOrderCreator>()
 			.AddScoped<IOrderFromOnlineOrderValidator, OrderFromOnlineOrderValidator>()
 			.AddScoped<IGoodsPriceCalculator, GoodsPriceCalculator>()
@@ -106,7 +107,9 @@ namespace Vodovoz.Core.Application
 			.AddScoped<IClientDeliveryPointsChecker, ClientDeliveryPointsChecker>()
 			.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
 			.AddScoped<IOnlineOrderDiscountHandler, OnlineOrderDiscountHandler>()
+			.AddScoped<IOnlineOrderDiscountHandlerV5, OnlineOrderDiscountHandlerV5>()
 			.AddScoped<IOnlineOrderFixedPriceHandler, OnlineOrderFixedPriceHandler>()
+			.AddScoped<IOnlineOrderFixedPriceHandlerV5, OnlineOrderFixedPriceHandlerV5>()
 			.AddDriverApiNotificationsSenders()
 			.AddScoped<IOrderOrganizationManager, OrderOrganizationManager>()
 			.AddScoped<IOrderReceiptHandler, OrderReceiptHandler>()

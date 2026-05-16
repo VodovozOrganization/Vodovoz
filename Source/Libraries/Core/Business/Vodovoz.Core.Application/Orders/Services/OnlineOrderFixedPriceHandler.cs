@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomerOrders.Contracts;
+using CustomerOrders.Contracts.Interfaces;
+using CustomerOrders.Contracts.V5.Orders.FixedPrices;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Errors;
 using Vodovoz.Handlers;
-using VodovozBusiness.Domain.Orders;
-using VodovozBusiness.Nodes;
 
 namespace Vodovoz.Core.Application.Orders.Services
 {

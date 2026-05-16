@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomerOrders.Contracts;
+using CustomerOrders.Contracts.Interfaces;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.DiscountReasons;
-using Vodovoz.Errors;
 using Vodovoz.Handlers;
-using Vodovoz.Nodes;
 using VodovozBusiness.Controllers;
-using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Extensions;
 
 namespace Vodovoz.Core.Application.Orders.Services
@@ -87,7 +84,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 		private Result<IEnumerable<IOnlineOrderedProduct>> TryApplyPromoCode(
 			IUnitOfWork uow,
-			Source source,
+			ExternalSource source,
 			DiscountReason discountPromoCode,
 			IEnumerable<IOnlineOrderedProduct> products)
 		{
@@ -105,7 +102,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		}
 
 		private bool TryApplyPromoCode(
-			Source source,
+			ExternalSource source,
 			DiscountReason discountPromoCode,
 			Nomenclature nomenclature,
 			IOnlineOrderedProduct product)
@@ -137,7 +134,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		/// <param name="product"></param>
 		/// <returns></returns>
 		private bool CanApplicableDiscount(
-			Source source,
+			ExternalSource source,
 			DiscountReason discountPromoCode,
 			Nomenclature nomenclature,
 			IOnlineOrderedProduct product)
@@ -167,9 +164,54 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return false;
 			}
 
-			var onlineParameters = nomenclature.NomenclatureOnlineParameters
-				.FirstOrDefault(x => x.Type == source.ToGoodsOnlineParameterType());
+			var onlineParameters = nomenclature.GetNomenclatureOnlineParameters(source.ToSource());
+			var onlinePrice = onlineParameters?.GetOnlinePrice(product.Count);
 
+			if(onlineParameters?.NomenclatureOnlineDiscount != null
+				|| onlinePrice?.PriceWithoutDiscount != null)
+			{
+				return false;
+			}
+			
+			return product.Count * product.Price != 0;
+		}
+		
+		private bool CanApplicableDiscount(
+			ExternalSource source,
+			DiscountReason discountPromoCode,
+			VodovozBusiness.Domain.Orders.IGoods product)
+		{
+			var nomenclature = product.Nomenclature;
+			
+			if(nomenclature is null)
+			{
+				return false;
+			}
+
+			if(product.PromoSet != null)
+			{
+				return false;
+			}
+
+			if(product.IsFixedPrice)
+			{
+				return false;
+			}
+
+			//TODO уточнить, будет ли промокод применяться теперь при возможности нескольких скидок
+			/*
+			if(product.Discount > 0)
+			{
+				return false;
+			}
+			*/
+
+			if(!IsApplicableDiscount(discountPromoCode, nomenclature))
+			{
+				return false;
+			}
+
+			var onlineParameters = nomenclature.GetNomenclatureOnlineParameters(source.ToSource());
 			var onlinePrice = onlineParameters?.GetOnlinePrice(product.Count);
 
 			if(onlineParameters?.NomenclatureOnlineDiscount != null

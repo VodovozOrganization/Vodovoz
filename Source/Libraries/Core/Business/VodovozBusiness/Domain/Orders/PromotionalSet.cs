@@ -134,6 +134,10 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual string Title => $"Промонабор №{Id} \"{Name}\"";
 		public virtual string ShortTitle => $"Промонабор \"{Name}\"";
+		/// <summary>
+		/// Сумма промо набора
+		/// </summary>
+		public virtual decimal Sum => PromotionalSetItems.Sum(x => x.Sum);
 
 		#region IValidatableObject implementation
 

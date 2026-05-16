@@ -6,7 +6,6 @@
 	public class SignatureOptions
 	{
 		public const string Path = "Signatures";
-		
 		/// <summary>
 		/// Подпись МП
 		/// </summary>

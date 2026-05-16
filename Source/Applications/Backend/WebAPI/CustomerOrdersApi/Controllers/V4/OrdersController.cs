@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CustomerOrdersApi.Library.Common;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
+using CustomerOrders.Contracts.V4.Orders;
 using CustomerOrdersApi.Library.V4.Services;
 using Gamma.Utilities;
 using MassTransit;
@@ -53,7 +53,7 @@ namespace CustomerOrdersApi.Controllers.V4
 				return response.Message.Code switch
 				{
 					200 => Ok(CreatedOnlineOrder.Create(response.Message)),
-					409 => Problem(Messages.DuplicatOrderMessage(creatingOnlineOrder.ExternalOrderId), statusCode: response.Message.Code),
+					409 => Problem(Messages.DuplicateOrderMessage(creatingOnlineOrder.ExternalOrderId), statusCode: response.Message.Code),
 					500 => Problem(Messages.ErrorMessage)
 				};
 			}

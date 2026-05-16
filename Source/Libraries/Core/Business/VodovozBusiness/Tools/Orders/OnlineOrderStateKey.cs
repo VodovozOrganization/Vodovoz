@@ -6,11 +6,10 @@ namespace Vodovoz.Tools.Orders
 	{
 		private OnlineOrder OnlineOrder { get; set; }
 
-		public override void InitializeFields(OnlineOrder onlineOrder)
+		public virtual void InitializeFields(OnlineOrder onlineOrder)
 		{
 			OnlineOrder = onlineOrder;
-			DeliveryDate = onlineOrder.DeliveryDate;
-			CalculateAllWaterCount(OnlineOrder.OnlineOrderItems);
+			Initialize(OnlineOrder.OnlineOrderItems, onlineOrder.DeliveryDate);
 		}
 	}
 }

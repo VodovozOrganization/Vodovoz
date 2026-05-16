@@ -1,5 +1,5 @@
-﻿using CustomerOrdersApi.Library.Config;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
+using CustomerOrdersApi.Library.Config;
+using CustomerOrders.Contracts.V4.Orders;
 using CustomerOrdersApi.Library.V4.Services;
 using Gamma.Utilities;
 using Microsoft.AspNetCore.Mvc;

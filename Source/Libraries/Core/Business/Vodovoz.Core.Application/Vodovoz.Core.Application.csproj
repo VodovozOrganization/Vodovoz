@@ -8,6 +8,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
+		<ProjectReference Include="..\..\Backend\CustomerOrders.Contracts\CustomerOrders.Contracts.csproj" />
 		<ProjectReference Include="..\..\Backend\DriverApi.Notifications.Client\DriverApi.Notifications.Client.csproj" />
 		<ProjectReference Include="..\..\Backend\Pacs\Pacs.Admin.Client\Pacs.Admin.Client.csproj" />
 		<ProjectReference Include="..\..\Backend\Pacs\Pacs.Operator.Client\Pacs.Operator.Client.csproj" />

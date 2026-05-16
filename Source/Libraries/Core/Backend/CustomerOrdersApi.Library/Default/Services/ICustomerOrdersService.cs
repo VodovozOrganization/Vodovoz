@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using CustomerOrdersApi.Library.Default.Dto.Orders;
+using CustomerOrders.Contracts.Default.Orders;
 
 namespace CustomerOrdersApi.Library.Default.Services
 {

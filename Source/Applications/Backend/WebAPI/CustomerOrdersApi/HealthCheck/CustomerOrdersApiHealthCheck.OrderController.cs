@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
+using CustomerOrders.Contracts.V4.Orders;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Extensions;
 using VodovozHealthCheck.Helpers;

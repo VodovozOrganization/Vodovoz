@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
+using CustomerOrders.Contracts;
+using CustomerOrders.Contracts.Interfaces;
+using CustomerOrders.Contracts.V5.Orders.FixedPrices;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Errors;
-using VodovozBusiness.Domain.Orders;
-using VodovozBusiness.Nodes;
 
 namespace Vodovoz.Handlers
 {

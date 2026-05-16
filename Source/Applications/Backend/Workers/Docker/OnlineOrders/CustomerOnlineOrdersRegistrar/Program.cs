@@ -1,8 +1,10 @@
 ﻿using Autofac.Extensions.DependencyInjection;
-using CustomerOnlineOrdersRegistrar.Consumers;
-using CustomerOnlineOrdersRegistrar.Factories;
-using CustomerOnlineOrdersRegistrar.Factories.V3;
-using CustomerOnlineOrdersRegistrar.Factories.V4;
+using CustomerOnlineOrdersRegistrar.V3.Consumers;
+using CustomerOnlineOrdersRegistrar.V3.Factories;
+using CustomerOnlineOrdersRegistrar.V4.Consumers;
+using CustomerOnlineOrdersRegistrar.V4.Factories;
+using CustomerOnlineOrdersRegistrar.V5.Consumers;
+using CustomerOnlineOrdersRegistrar.V5.Factories;
 using CustomerOrdersApi.Library;
 using DriverApi.Notifications.Client;
 using MassTransit;
@@ -71,12 +73,14 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddScoped<IOnlineOrderService, OnlineOrderService>()
 						.AddScoped<IOnlineOrderFactoryV3, OnlineOrderFactoryV3>()
 						.AddScoped<IOnlineOrderFactoryV4, OnlineOrderFactoryV4>()
+						.AddScoped<IOnlineOrderFactoryV5, OnlineOrderFactoryV5>()
 
 						.AddMessageTransportSettings()
 						.AddMassTransit(busConf =>
 						{
 							busConf.AddConsumer<OnlineOrderRegisteredConsumer, OnlineOrderRegisteredConsumerDefinition>();
-							busConf.AddConsumer<CreatingOnlineOrderConsumer, CreatingOnlineOrderConsumerDefinition>();
+							busConf.AddConsumer<CreatingOnlineOrderConsumerV4, CreatingOnlineOrderConsumerDefinitionV4>();
+							busConf.AddConsumer<CreatingOnlineOrderConsumerV5, CreatingOnlineOrderConsumerDefinitionV5>();
 							busConf.ConfigureRabbitMq();
 						});
 

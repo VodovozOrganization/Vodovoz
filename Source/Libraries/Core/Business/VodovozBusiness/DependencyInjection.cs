@@ -45,6 +45,7 @@ namespace Vodovoz
 				.AddService<IErrorReporter>(context => ErrorReporter.Instance, serviceLifetime)
 				.AddService<OrderStateKey>(serviceLifetime)
 				.AddService<OnlineOrderStateKey>(serviceLifetime)
+				.AddService<OnlineOrderFromCartStateKey>(serviceLifetime)
 			;
 
 		private static IServiceCollection RegisterClassesByInterfaces(

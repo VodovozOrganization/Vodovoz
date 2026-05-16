@@ -1,19 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CustomerOrdersApi.Library.Default.Dto.Orders;
+using CustomerOrders.Contracts;
+using CustomerOrders.Contracts.Default.Orders;
 using CustomerOrdersApi.Library.Default.Factories;
+using CustomerOrdersApi.Library.Default.Repositories;
+using CustomerOrdersApi.Library.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Data.Orders.Default;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Orders;
+using VodovozBusiness.Extensions;
 using VodovozInfrastructure.Cryptography;
 
 namespace CustomerOrdersApi.Library.Default.Services
@@ -25,7 +27,8 @@ namespace CustomerOrdersApi.Library.Default.Services
 		private readonly ISignatureManager _signatureManager;
 		private readonly ICustomerOrderFactory _customerOrderFactory;
 		private readonly IOrderSettings _orderSettings;
-		private readonly IOrderRepository _orderRepository;
+		private readonly ICustomerOrderRepository _orderRepository;
+		private readonly ICustomerOnlineOrderRepository _customerOnlineOrderRepository;
 		private readonly IOnlineOrderRepository _onlineOrderRepository;
 		private readonly IGenericRepository<OrderRating> _genericRatingRepository;
 		private readonly IConfigurationSection _signaturesSection;
@@ -36,7 +39,8 @@ namespace CustomerOrdersApi.Library.Default.Services
 			ISignatureManager signatureManager,
 			ICustomerOrderFactory customerOrderFactory,
 			IOrderSettings orderSettings,
-			IOrderRepository orderRepository,
+			ICustomerOrderRepository orderRepository,
+			ICustomerOnlineOrderRepository customerOnlineOrderRepository,
 			IOnlineOrderRepository onlineOrderRepository,
 			IGenericRepository<OrderRating> genericRatingRepository,
 			IConfiguration configuration)
@@ -47,6 +51,8 @@ namespace CustomerOrdersApi.Library.Default.Services
 			_customerOrderFactory = customerOrderFactory ?? throw new ArgumentNullException(nameof(customerOrderFactory));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_customerOnlineOrderRepository =
+				customerOnlineOrderRepository ?? throw new ArgumentNullException(nameof(customerOnlineOrderRepository));
 			_onlineOrderRepository = onlineOrderRepository ?? throw new ArgumentNullException(nameof(onlineOrderRepository));
 			_genericRatingRepository = genericRatingRepository ?? throw new ArgumentNullException(nameof(genericRatingRepository));
 
@@ -195,7 +201,7 @@ namespace CustomerOrdersApi.Library.Default.Services
 				_orderRepository.GetCounterpartyOrdersWithoutOnlineOrders(uow, getOrdersDto.CounterpartyErpId, dateAvailabilityRating);
 			var onlineOrdersWithOrders = GetOnlineOrdersWithOrdersInfo(getOrdersDto, uow, dateAvailabilityRating);
 			var onlineOrdersWithoutOrders =
-				_onlineOrderRepository.GetCounterpartyOnlineOrdersWithoutOrder(uow, getOrdersDto.CounterpartyErpId, dateAvailabilityRating);
+				_customerOnlineOrderRepository.GetCounterpartyOnlineOrdersWithoutOrder(uow, getOrdersDto.CounterpartyErpId, dateAvailabilityRating);
 
 			var allOrders = 
 				ordersWithoutOnlineOrders
@@ -285,7 +291,7 @@ namespace CustomerOrdersApi.Library.Default.Services
 		{
 			var negativeRating = _orderSettings.GetOrderRatingForMandatoryProcessing;
 			var orderRating = OrderRating.Create(
-				orderRatingInfo.Source,
+				orderRatingInfo.Source.ToSource(),
 				orderRatingInfo.Rating,
 				orderRatingInfo.Comment,
 				orderRatingInfo.OnlineOrderId,
@@ -309,8 +315,8 @@ namespace CustomerOrdersApi.Library.Default.Services
 			}
 
 			onlineOrder.OnlinePayment = paymentStatusUpdatedDto.OnlinePayment;
-			onlineOrder.OnlinePaymentSource = paymentStatusUpdatedDto.OnlinePaymentSource;
-			onlineOrder.OnlineOrderPaymentStatus = paymentStatusUpdatedDto.OnlineOrderPaymentStatus;
+			onlineOrder.OnlinePaymentSource = paymentStatusUpdatedDto.OnlinePaymentSource.ToOnlinePaymentSource();
+			onlineOrder.OnlineOrderPaymentStatus = paymentStatusUpdatedDto.OnlineOrderPaymentStatus.ToOnlineOrderPaymentStatus();
 			uow.Save(onlineOrder);
 			uow.Commit();
 			return true;
@@ -334,7 +340,7 @@ namespace CustomerOrdersApi.Library.Default.Services
 			}
 
 			var requestForCall = RequestForCall.Create(
-				creatingInfoDto.Source,
+				creatingInfoDto.Source.ToSource(),
 				creatingInfoDto.ContactName,
 				creatingInfoDto.PhoneNumber,
 				nomenclature,
@@ -345,7 +351,7 @@ namespace CustomerOrdersApi.Library.Default.Services
 			uow.Commit();
 		}
 
-		private string GetSourceSign(Source source)
+		private string GetSourceSign(ExternalSource source)
 		{
 			return _signaturesSection.GetValue<string>(source.ToString());
 		}

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using CustomerOrdersApi.Library.Default.Dto.Orders;
+using CustomerOrders.Contracts.Default.Orders;
 using CustomerOrdersApi.Library.Default.Services;
 using Gamma.Utilities;
 using MassTransit;

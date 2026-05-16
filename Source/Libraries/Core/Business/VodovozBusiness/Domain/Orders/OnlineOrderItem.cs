@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -165,6 +166,37 @@ namespace Vodovoz.Domain.Orders
 			};
 
 			onlineOrderItem.CalculateDiscount(discount);
+
+			return onlineOrderItem;
+		}
+		
+		public static OnlineOrderItem Create(
+			int? nomenclatureId,
+			decimal count,
+			bool isFixedPrice,
+			decimal price,
+			int? promoSetId,
+			IDiscountData discount,
+			Nomenclature nomenclature,
+			PromotionalSet promotionalSet,
+			OnlineOrder onlineOrder
+		)
+		{
+			var onlineOrderItem = new OnlineOrderItem
+			{
+				NomenclatureId = nomenclatureId,
+				Count = count,
+				IsDiscountInMoney = discount.IsDiscountInMoney,
+				IsFixedPrice = isFixedPrice,
+				Price = price,
+				PromoSetId = promoSetId,
+				DiscountReason = discount.DiscountReason,
+				Nomenclature = nomenclature,
+				PromoSet = promotionalSet,
+				OnlineOrder = onlineOrder
+			};
+
+			onlineOrderItem.CalculateDiscount(discount.Discount);
 
 			return onlineOrderItem;
 		}

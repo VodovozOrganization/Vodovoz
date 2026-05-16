@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using CustomerOrdersApi.Library.Default.Dto.Orders.FixedPrice;
+using CustomerOrders.Contracts.Default.Orders.FixedPrice;
+using CustomerOrders.Contracts.Interfaces;
 using Vodovoz.Core.Domain.Results;
-using VodovozBusiness.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.Default.Services
 {

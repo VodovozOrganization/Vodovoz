@@ -1,7 +1,9 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using QS.Project.Repositories;
+using QS.Utilities;
 using QS.Utilities.Text;
 using Vodovoz.Domain.Goods;
 
@@ -106,10 +108,12 @@ namespace Vodovoz.Domain.Orders
 				if(IsDiscountInMoney)
 				{
 					DiscountMoney = value;
+					Discount = 0;
 				}
 				else
 				{
 					Discount = value;
+					DiscountMoney = 0;
 				}
 			}
 		}
@@ -117,12 +121,32 @@ namespace Vodovoz.Domain.Orders
 		#endregion
 
 		public virtual string Title => string.Format(
-			"{0} №{1}: {2} ед. {3} со скидкой {4}%",
+			"{0} №{1}: {2} ед. {3} со скидкой {4}{5}",
 			TypeOfEntityRepository.GetRealName(typeof(PromotionalSetItem)).StringToTitleCase(),
 			PromoSet.Id,
 			Count,
 			Nomenclature.Name,
-			Discount
+			IsDiscountInMoney ? DiscountMoney : Discount,
+			IsDiscountInMoney ? CurrencyWorks.CurrencyShortName : "%"
 		);
+
+		/// <summary>
+		/// Сумма строки промо набора
+		/// </summary>
+		public virtual decimal Sum
+		{
+			get
+			{
+				var sum = SumWithoutDiscount;
+				
+				var discountMoney = IsDiscountInMoney
+				? DiscountMoney
+				: Math.Round(sum * Discount / 100, 2);
+				
+				return sum - discountMoney;
+			}
+		}
+
+		private decimal SumWithoutDiscount => Math.Round(Count * Nomenclature.GetPrice(Count, false), 2);
 	}
 }
