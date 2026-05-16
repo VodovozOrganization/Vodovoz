@@ -267,29 +267,73 @@ namespace Vodovoz.Domain.Orders
 			bool isFixedPrice,
 			decimal price,
 			int? promoSetId,
-			IDiscountData discount,
+			IEnumerable<IDiscountData> discounts,
 			Nomenclature nomenclature,
 			PromotionalSet promotionalSet,
 			OnlineOrder onlineOrder
 		)
 		{
+			var isDiscountInMoney =
+				discounts != null && discounts.Any(x => x.IsDiscountInMoney);
+
 			var onlineOrderItem = new OnlineOrderItem
 			{
 				NomenclatureId = nomenclatureId,
 				Count = count,
-				IsDiscountInMoney = discount.IsDiscountInMoney,
+				IsDiscountInMoney = isDiscountInMoney,
 				IsFixedPrice = isFixedPrice,
 				Price = price,
 				PromoSetId = promoSetId,
-				DiscountReason = discount.DiscountReason,
 				Nomenclature = nomenclature,
 				PromoSet = promotionalSet,
 				OnlineOrder = onlineOrder
 			};
 
-			onlineOrderItem.CalculateDiscount(discount.Discount);
+			if(discounts != null)
+			{
+				foreach(var discount in discounts)
+				{
+					if(discount.DiscountReason != null)
+					{
+						onlineOrderItem.DiscountReasons.Add(discount.DiscountReason);
+					}
+				}
+			}
+
+			onlineOrderItem.CalculateDiscount(discounts);
 
 			return onlineOrderItem;
+		}
+
+		private void CalculateDiscount(IEnumerable<IDiscountData> discounts)
+		{
+			if(discounts is null || !discounts.Any())
+			{
+				return;
+			}
+
+			var discountTotalValue = CalculateDiscountsSumValue(discounts);
+			CalculateDiscount(discountTotalValue);
+		}
+
+		private decimal CalculateDiscountsSumValue(IEnumerable<IDiscountData> discounts)
+		{
+			if(discounts is null || !discounts.Any())
+			{
+				return 0;
+			}
+
+			if(discounts.All(x => x.IsDiscountInMoney) || !discounts.All(x => x.IsDiscountInMoney))
+			{
+				return discounts.Sum(x => x.Discount);
+			}
+
+			var percentSum = discounts.Where(x => !x.IsDiscountInMoney).Sum(x => x.Discount);
+			var moneySum = discounts.Where(x => x.IsDiscountInMoney).Sum(x => x.Discount);
+
+			var totalMoneySum = (CurrentRawPrice * percentSum) / 100 + moneySum;
+
+			return totalMoneySum;
 		}
 
 		private void CalculateDiscount(decimal discount)
@@ -312,6 +356,11 @@ namespace Vodovoz.Domain.Orders
 				MoneyDiscount = Price * Count * PercentDiscount / 100;
 			}
 
+			CalculateTotalDiscountFromDiscountReasons();
+		}
+
+		private void CalculateTotalDiscountFromDiscountReasons()
+		{
 			var currentPrice = CurrentRawPrice;
 			var totalDiscountMoney = CalculateTotalDiscountInMoneyFromAddedReasons();
 

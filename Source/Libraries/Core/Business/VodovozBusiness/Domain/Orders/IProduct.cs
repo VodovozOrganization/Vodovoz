@@ -1,4 +1,4 @@
-using QS.Extensions.Observable.Collections.List;
+﻿using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Domain.Goods;
 using VodovozBusiness.Domain.Orders;
 
@@ -21,22 +21,6 @@ namespace Vodovoz.Domain.Orders
 		/// Скидка в деньгах
 		/// </summary>
 		bool IsDiscountInMoney { get; }
-		/// <summary>
-		/// Фикса
-		/// </summary>
-		bool IsFixedPrice { get; }
-		/// <summary>
-		/// Основания скидок <see cref="Vodovoz.Domain.Orders.DiscountReason"/>
-		/// </summary>
-		IObservableList<DiscountReason> DiscountReasons { get; }
-		/// <summary>
-		/// Номенклатура <see cref="Vodovoz.Domain.Goods.Nomenclature"/>
-		/// </summary>
-		Nomenclature Nomenclature { get; }
-		/// <summary>
-		/// Промо набор <see cref="Vodovoz.Domain.Orders.PromotionalSet"/>
-		/// </summary>
-		PromotionalSet PromoSet { get; set; }
 		/// <summary>
 		/// Фактическая сумма
 		/// </summary>

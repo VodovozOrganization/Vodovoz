@@ -1,10 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using CustomerOrders.Contracts.V5.Orders;
+﻿using CustomerOrders.Contracts.V5.Orders;
 using CustomerOrders.Contracts.V5.Orders.OrderItem;
 using CustomerOrdersApi.Library.Extensions;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
@@ -110,41 +110,39 @@ namespace CustomerOnlineOrdersRegistrar.V5.Factories
 
 			foreach(var onlineOrderItemDto in onlineOrderItemsDtos)
 			{
-				//TODO при переделке модели на множественные скидки сделать нормальное их копирование
 				var discounts = new List<DiscountData>();
 				var nomenclature = uow.GetById<Nomenclature>(onlineOrderItemDto.NomenclatureId);
-
-				DiscountReason applicableDiscountReason = null;
-
-				foreach(var receivedDiscountData in onlineOrderItemDto.Discounts)
-				{
-					var discountData = DiscountData.Create(
-						receivedDiscountData.IsDiscountInMoney,
-						receivedDiscountData.Discount,
-						receivedDiscountData.DiscountReasonId.HasValue
-							? uow.GetById<DiscountReason>(receivedDiscountData.DiscountReasonId.Value)
-							: null);
-					
-					discounts.Add(discountData);
-				}
-
-				var firstDiscount = discounts.FirstOrDefault() ?? DiscountData.Create(false, 0, null);
 				
-				/*if(onlineOrderItemDto.DiscountReasonId.HasValue)
+				if(onlineOrderItemDto.Discounts != null && onlineOrderItemDto.Discounts.Any())
 				{
-					applicableDiscountReason = uow.GetById<DiscountReason>(onlineOrderItemDto.DiscountReasonId.Value);
+					foreach(var receivedDiscountData in onlineOrderItemDto.Discounts)
+					{
+						var discountData = DiscountData.Create(
+							receivedDiscountData.IsDiscountInMoney,
+							receivedDiscountData.Discount,
+							receivedDiscountData.DiscountReasonId.HasValue
+								? uow.GetById<DiscountReason>(receivedDiscountData.DiscountReasonId.Value)
+								: null);
+
+						discounts.Add(discountData);
+					}
 				}
 				else if(onlineOrder.IsSelfDelivery
-				        && !onlineOrderItemDto.PromoSetId.HasValue
-				        && nomenclature != null)
+					&& !onlineOrderItemDto.PromoSetId.HasValue
+					&& nomenclature != null)
 				{
 					var discountReason = uow.GetById<DiscountReason>(selfDeliveryDiscountReasonId);
 
-					if(_discountController.IsApplicableDiscount(discountReason, nomenclature))
+					if(discountReason != null && _discountController.IsApplicableDiscount(discountReason, nomenclature))
 					{
-						applicableDiscountReason = discountReason;
+						var discountData = DiscountData.Create(
+							discountReason.ValueType == DiscountUnits.money,
+							discountReason.Value,
+							discountReason);
+
+						discounts.Add(discountData);
 					}
-				}*/
+				}
 				
 				PromotionalSet promoSet = null;
 
@@ -159,7 +157,7 @@ namespace CustomerOnlineOrdersRegistrar.V5.Factories
 					onlineOrderItemDto.IsFixedPrice,
 					onlineOrderItemDto.Price,
 					onlineOrderItemDto.PromoSetId,
-					firstDiscount,
+					discounts,
 					nomenclature,
 					promoSet,
 					onlineOrder);
