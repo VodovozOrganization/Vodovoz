@@ -1,9 +1,12 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
+using Vodovoz.Errors.Orders;
 
 namespace VodovozBusiness.Controllers
 {
@@ -16,15 +19,15 @@ namespace VodovozBusiness.Controllers
 			_fixedPriceController = fixedPriceController ?? throw new ArgumentNullException(nameof(fixedPriceController));
 		}
 
-		public void RemoveDiscountFromOrder(IList<OrderItem> orderItems)
+		public void ClearOrdersItemDiscounts(IList<IDiscount> orderItems)
 		{
 			foreach(var item in orderItems)
 			{
-				RemoveDiscountFromOrderItem(item);
+				ClearOrderItemDiscounts(item);
 			}
 		}
 		
-		public void SetCustomDiscountForOrder(DiscountReason reason, decimal discount, DiscountUnits unit, IList<OrderItem> orderItems)
+		public void SetCustomDiscountForOrderItems(DiscountReason reason, decimal discount, DiscountUnits unit, IList<IDiscount> orderItems)
 		{
 			foreach(var item in orderItems)
 			{
@@ -33,7 +36,7 @@ namespace VodovozBusiness.Controllers
 		}
 
 		public void SetDiscountFromDiscountReasonForOrder(
-			DiscountReason reason, IList<OrderItem> orderItems, bool canChangeDiscountValue, out string messages)
+			DiscountReason reason, IList<IDiscount> orderItems, bool canChangeDiscountValue, out string messages)
 		{
 			messages = null;
 			
@@ -49,7 +52,7 @@ namespace VodovozBusiness.Controllers
 		}
 
 		public bool SetDiscountFromDiscountReasonForOrderItem(
-			DiscountReason reason, OrderItem orderItem, bool canChangeDiscountValue, out string message)
+			DiscountReason reason, IDiscount orderItem, bool canChangeDiscountValue, out string message)
 		{
 			message = null;
 			
@@ -58,25 +61,43 @@ namespace VodovozBusiness.Controllers
 				return false;
 			}
 			
-			if(!canChangeDiscountValue && OrderItemContainsPromoSetOrFixedPrice(orderItem))
+			if(!canChangeDiscountValue
+				&& orderItem is OrderItem oi
+				&& OrderItemContainsPromoSetOrFixedPrice(oi))
 			{
 				message = $"{orderItem.Nomenclature.Name}\n";
 				return false;
 			}
 
-			SetDiscount(reason, orderItem);
+			ClearOrderItemDiscounts(orderItem);
+			var addDiscountResult = AddDiscount(reason, orderItem);
+
+			if(addDiscountResult.IsFailure)
+			{
+				var error = addDiscountResult.Errors.FirstOrDefault();
+				message = $"{orderItem.Nomenclature.Name} - {error?.Message}\n";
+				return false;
+			}
+
 			return true;
 		}
 
-		public void SetDiscountFromDiscountReasonForOrderItemWithoutShipment(
-			DiscountReason reason, OrderWithoutShipmentForAdvancePaymentItem orderItem)
+		public Result AddDiscountFromDiscountReasonForOrderItem(
+			DiscountReason reason, IDiscount orderItem, bool isNotCheckPromoSetOrFixedPrice = false)
 		{
-			if(!CanSetDiscountForOrderWithoutShipment(reason, orderItem))
+			if(!CanSetDiscount(reason, orderItem))
 			{
-				return;
+				return Result.Failure(DiscountErrors.DiscountForOrderItemNotAllowed);
 			}
 
-			SetDiscount(reason, orderItem);
+			if(!isNotCheckPromoSetOrFixedPrice
+				&& orderItem is OrderItem oi
+				&& OrderItemContainsPromoSetOrFixedPrice(oi))
+			{
+				return Result.Failure(DiscountErrors.OrderItemContainsPromoSetOrFixedPrice);
+			}
+
+			return AddDiscount(reason, orderItem);
 		}
 
 		/// <summary>
@@ -85,7 +106,7 @@ namespace VodovozBusiness.Controllers
 		/// <param name="reason">Основание скидки</param>
 		/// <param name="orderItem">Строка заказа</param>
 		/// <returns>true/false</returns>
-		private bool CanSetDiscount(DiscountReason reason, OrderItem orderItem) =>
+		private bool CanSetDiscount(DiscountReason reason, IDiscount orderItem) =>
 			IsApplicableDiscount(reason, orderItem.Nomenclature)
 			&& orderItem.Price * orderItem.CurrentCount != default(decimal);
 
@@ -142,7 +163,7 @@ namespace VodovozBusiness.Controllers
 		/// <param name="discount">Скидка</param>
 		/// <param name="unit">Скидка в процентах или рублях</param>
 		/// <param name="orderItem">Строка заказа</param>
-		private void SetCustomDiscountForOrderItem(DiscountReason reason, decimal discount, DiscountUnits unit, OrderItem orderItem)
+		private void SetCustomDiscountForOrderItem(DiscountReason reason, decimal discount, DiscountUnits unit, IDiscount orderItem)
 		{
 			if(!CanSetDiscount(reason, orderItem))
 			{
@@ -159,9 +180,9 @@ namespace VodovozBusiness.Controllers
 		/// <param name="discount">Скидка</param>
 		/// <param name="unit">Скидка в процентах или рублях</param>
 		/// <param name="orderItem">Строка заказа</param>
-		private void SetCustomDiscount(DiscountReason reason, decimal discount, DiscountUnits unit, OrderItem orderItem)
+		private void SetCustomDiscount(DiscountReason reason, decimal discount, DiscountUnits unit, IDiscount orderItem)
 		{
-			orderItem.SetDiscount(unit == DiscountUnits.money, discount, reason);
+			orderItem.AddDiscount(unit == DiscountUnits.money, discount, reason);
 		}
 
 		/// <summary>
@@ -169,18 +190,38 @@ namespace VodovozBusiness.Controllers
 		/// </summary>
 		/// <param name="reason">Основание скидки</param>
 		/// <param name="item">Элемент, к которому применяется скидка</param>
-		private void SetDiscount(DiscountReason reason, IDiscount item)
+		private Result AddDiscount(DiscountReason reason, IDiscount item)
 		{
-			item.SetDiscount(reason.ValueType == DiscountUnits.money, reason.Value, reason);
+			try
+			{
+				item.AddDiscount(reason.ValueType == DiscountUnits.money, reason.Value, reason);
+				return Result.Success();
+			}
+			catch(Exception ex)
+			{
+				return Result.Failure(DiscountErrors.CreateAddDiscountException(ex.Message));
+			}
 		}
 
 		/// <summary>
 		/// Удаление скидки из строки заказа
 		/// </summary>
 		/// <param name="orderItem">Строка заказа</param>
-		private void RemoveDiscountFromOrderItem(OrderItem orderItem)
+		private void ClearOrderItemDiscounts(IDiscount orderItem)
 		{
-			orderItem.RemoveDiscount();
+			orderItem.ClearDiscounts();
+		}
+
+		public void RemoveDiscountFromOrdersItem(DiscountReason discountReason, IDiscount orderItem)
+		{
+			var discountsToRemove = orderItem.DiscountReasons.Where(x => x.Id == discountReason.Id).ToList();
+			if(discountsToRemove.Any())
+			{
+				foreach(var discount in discountsToRemove)
+				{
+					orderItem.RemoveDiscount(discount.Id);
+				}
+			}
 		}
 	}
 }

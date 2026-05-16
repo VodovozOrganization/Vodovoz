@@ -483,7 +483,7 @@ namespace Vodovoz.Domain.Orders
 			{
 				foreach(var item in ObservableOrderItems)
 				{
-					if(item.DiscountReason?.Id != discountReasonId)
+					if(item.DiscountReasons.All(r => r.Id != discountReasonId))
 					{
 						SetClientSecondOrderDiscount(discountsController, item, discountReasonId);
 					}
@@ -495,16 +495,16 @@ namespace Vodovoz.Domain.Orders
 		{
 			if(!IsSecondOrder)
 			{
-				var orderItemsHavingClientsSecondOrderDiscount = new List<OrderItem>();
+				var orderItemsHavingClientsSecondOrderDiscount = new List<IDiscount>();
 
 				foreach(var item in ObservableOrderItems)
 				{
-					if(item.DiscountReason?.Id == discountReasonId)
+					if(item.DiscountReasons.Any(r => r.Id == discountReasonId))
 					{
 						orderItemsHavingClientsSecondOrderDiscount.Add(item);
 					}
 				}
-				discountsController.RemoveDiscountFromOrder(orderItemsHavingClientsSecondOrderDiscount);
+				discountsController.ClearOrdersItemDiscounts(orderItemsHavingClientsSecondOrderDiscount);
 			}
 		}
 
@@ -515,7 +515,7 @@ namespace Vodovoz.Domain.Orders
 				return;
 			}
 
-			if(orderItem.DiscountReason != null
+			if(orderItem.DiscountReasons.Any()
 				|| orderItem.PromoSet != null)
 			{
 				return;
@@ -931,8 +931,15 @@ namespace Vodovoz.Domain.Orders
 				yield return new ValidationResult($"В заказе №{Id} с оплатой по \"{PaymentType.GetEnumDisplayName(true)}\"  отсутствует номер оплаты.");
 			}
 
-			if (ObservableOrderItems.Any(x => x.Discount > 0 && x.DiscountReason == null && x.PromoSet == null))
+			if (ObservableOrderItems.Any(x => x.Discount > 0 && !x.DiscountReasons.Any() && x.PromoSet == null))
 				yield return new ValidationResult("Если в заказе указана скидка на товар, то обязательно должно быть заполнено поле 'Основание'.");
+
+			if(ObservableOrderItems.Any(x => x.ActualSum < 0))
+			{
+				yield return new ValidationResult(
+					"Сумма строки заказа не должна быть отрицательной",
+					new[] { nameof(OrderItems) });
+			}
 
 			if(!SelfDelivery && DeliveryPoint == null)
 				yield return new ValidationResult("В заказе необходимо заполнить точку доставки.",
@@ -1170,7 +1177,7 @@ namespace Vodovoz.Domain.Orders
 
 			// Отменять заказ с акцией можно
 			if((newStatus == null || !isCancellingOrder)
-				&& OrderItems.Where(oi => oi.DiscountReason?.Id == _orderSettings.ReferFriendDiscountReasonId).Sum(oi => oi.CurrentCount) is decimal referPromoBottlesInOrderCount
+				&& OrderItems.Where(oi => oi.DiscountReasons.Any(i => i.Id == _orderSettings.ReferFriendDiscountReasonId)).Sum(oi => oi.CurrentCount) is decimal referPromoBottlesInOrderCount
 				&& referPromoBottlesInOrderCount > 0)
 			{
 				var referredCounterparties = _orderRepository.GetReferredCounterpartiesCountByReferPromotion(UoW, Client.Id);
@@ -1966,12 +1973,12 @@ namespace Vodovoz.Domain.Orders
 
 			if(doNotCountWaterFromPromoSets)
 			{
-				water19L = water19L.Where(x => x.PromoSet == null);
+				water19L = water19L.Where(x => x.PromoSet is null);
 			}
 
 			if(doNotCountPresentsDiscount)
 			{
-				water19L = water19L.Where(x => x.DiscountReason?.IsPresent != true);
+				water19L = water19L.Where(x => !x.DiscountReasons.Any(r => r.IsPresent is true));
 			}
 			return (int)water19L.Sum(x => x.Count);
 		}
@@ -2109,7 +2116,7 @@ namespace Vodovoz.Domain.Orders
 			decimal discount = 0,
 			bool isDiscountInMoney = false,
 			bool needGetFixedPrice = true,
-			DiscountReason reason = null,
+			IEnumerable<DiscountReason> reasons = null,
 			PromotionalSet proSet = null)
 		{
 			if(nomenclature.Category != NomenclatureCategory.water && !nomenclature.IsDisposableTare)
@@ -2122,11 +2129,11 @@ namespace Vodovoz.Domain.Orders
 				var fixPricedNomenclaturesId = GetNomenclaturesWithFixPrices.Select(n => n.Id);
 				if(fixPricedNomenclaturesId.Contains(nomenclature.Id))
 				{
-					reason = null;
+					reasons = null;
 				}
 			}
 
-			if(discount > 0 && reason == null && proSet == null)
+			if(discount > 0 && (reasons == null || !reasons.Any()) && proSet == null)
 			{
 				throw new ArgumentException("Требуется указать причину скидки (reason), если она (discount) больше 0!");
 			}
@@ -2135,7 +2142,7 @@ namespace Vodovoz.Domain.Orders
 			AddOrderItem(
 				uow,
 				contractUpdater,
-				OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, price, isDiscountInMoney, discount, reason, proSet));
+				OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, price, isDiscountInMoney, discount, reasons, proSet));
 		}
 
 		public virtual void AddFlyerNomenclature(Nomenclature flyerNomenclature)
@@ -2302,7 +2309,7 @@ namespace Vodovoz.Domain.Orders
 			decimal discount = 0,
 			bool discountInMoney = false,
 			bool needGetFixedPrice = true,
-			DiscountReason discountReason = null,
+			IEnumerable<DiscountReason> discountReasons = null,
 			PromotionalSet proSet = null)
 		{
 			switch(nomenclature.Category) {
@@ -2315,7 +2322,7 @@ namespace Vodovoz.Domain.Orders
 						discount,
 						discountInMoney,
 						needGetFixedPrice,
-						discountReason,
+						discountReasons,
 						proSet);
 					break;
 				case NomenclatureCategory.master:
@@ -2324,7 +2331,7 @@ namespace Vodovoz.Domain.Orders
 				default:
 					var canApplyAlternativePrice = HasPermissionsForAlternativePrice && nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
 
-					var orderItem = OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, nomenclature.GetPrice(1, canApplyAlternativePrice), discountInMoney, discount, discountReason, proSet);
+					var orderItem = OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, nomenclature.GetPrice(1, canApplyAlternativePrice), discountInMoney, discount, discountReasons, proSet);
 
 					var acceptableCategories = Nomenclature.GetCategoriesForSale();
 					if(orderItem?.Nomenclature == null
@@ -2367,7 +2374,7 @@ namespace Vodovoz.Domain.Orders
 					{
 						item.IsUserPrice = false;
 						item.PromoSet = null;
-						item.DiscountReason = null;
+						item.DiscountReasons.Clear();
 					}
 				}
 
@@ -4265,7 +4272,15 @@ namespace Vodovoz.Domain.Orders
 				{
 					item.OriginalDiscountMoney = item.DiscountMoney > 0 ? (decimal?)item.DiscountMoney : null;
 					item.OriginalDiscount = item.Discount > 0 ? (decimal?)item.Discount : null;
-					item.OriginalDiscountReason = (item.DiscountMoney > 0 || item.Discount > 0) ? item.DiscountReason : null;
+
+					item.OriginalDiscountReasons.Clear();
+					if(item.DiscountMoney > 0 || item.Discount > 0)
+					{
+						foreach(var discountReason in item.DiscountReasons)
+						{
+							item.OriginalDiscountReasons.Add(discountReason);
+						}
+					}
 				}
 
 				item.SetActualCountZero();

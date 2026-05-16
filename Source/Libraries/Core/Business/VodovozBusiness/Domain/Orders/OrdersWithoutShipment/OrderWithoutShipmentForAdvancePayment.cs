@@ -79,11 +79,10 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				OrderWithoutDeliveryForAdvancePayment = this,
 				Count = count,
 				Nomenclature = nomenclature,
-				Price = nomenclature.GetPrice(1, canApplyAlternativePrice),
-				IsDiscountInMoney = discountInMoney,
-				DiscountSetter = discount,
-				DiscountReason = discountReason
+				Price = nomenclature.GetPrice(1, canApplyAlternativePrice)
 			};
+
+			oi.AddDiscount(discountInMoney, discount, discountReason);
 			AddItemWithNomenclatureForSale(oi);
 		}
 
