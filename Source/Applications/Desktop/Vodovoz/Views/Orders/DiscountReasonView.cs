@@ -90,7 +90,12 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(ViewModel.Entity, e => e.IsPromoCode, w => w.Active)
 				.AddBinding(ViewModel, vm => vm.CanChangeIsPromoCode, w => w.Sensitive)
 				.InitializeFromSource();
-			
+
+			chkIsIncompatibleWithOtherDiscounts.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsIncompatibleWithOtherDiscounts, w => w.Active)
+				.AddBinding(ViewModel, vm => vm.CanEditDiscountReason, w => w.Sensitive)
+				.InitializeFromSource();
+
 			ConfigureApplicabilityDiscountWidgets();
 		}
 
