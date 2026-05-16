@@ -1,11 +1,17 @@
-﻿using System;
-using System.Linq;
+﻿using CustomerOrders.Contracts.V5.Carts;
 using CustomerOrders.Contracts.V5.Orders;
 using CustomerOrders.Contracts.V5.Orders.PromoCodes;
 using CustomerOrdersApi.Library.V5.Services;
 using Gamma.Utilities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
+using System.Net.Mime;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CustomerOrdersApi.Controllers.V5
 {
@@ -96,6 +102,47 @@ namespace CustomerOrdersApi.Controllers.V5
 					"Ошибка при оповещении пользователя о применимости промокода {Promocode} для заказа {ExternalOrderId} от {Source}",
 					promoCodeWarningDto.PromoCode,
 					promoCodeWarningDto.ExternalOrderId,
+					sourceName);
+
+				return Problem();
+			}
+		}
+
+		/// <summary>
+		/// Проверка доступности использования скидки на первый заказ для клиента
+		/// </summary>
+		/// <param name="request">Данные клиента и источника запроса <see cref="FirstOrderDiscountConditionsRequestDto"/></param>
+		/// <returns>Результат проверки <see cref="FirstOrderDiscountConditionsDto"/></returns>
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FirstOrderDiscountConditionsDto))]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[HttpGet]
+		[Authorize]
+		public async Task<IActionResult> GetFirstOrderDiscountConditions([FromBody] FirstOrderDiscountConditionsRequestDto requestDto, CancellationToken cancellationToken)
+		{
+			var sourceName = requestDto.Source.GetEnumTitle();
+
+			try
+			{
+				_logger.LogInformation("Поступил запрос доступности использования скидки на первый заказ для клиента {@FirstOrderDiscountConditionsRequest}, проверяем...", requestDto);
+
+				var result =
+					_discountService.GetFirstOrderDiscountConditions(
+						requestDto.Source,
+						requestDto.ExternalCounterpartyId,
+						requestDto.СounterpartyErpId,
+						cancellationToken); ;
+
+				return Ok(result);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e,
+					"Ошибка при проверке доступности использования скидки на первый заказ для клиента " +
+					"ExternalCounterpartyId = {ExternalClientId}, СounterpartyErpId = {СounterpartyErpId} от {Source}",
+					requestDto.ExternalCounterpartyId,
+					requestDto.СounterpartyErpId,
+					requestDto.ExternalCounterpartyId,
 					sourceName);
 
 				return Problem();

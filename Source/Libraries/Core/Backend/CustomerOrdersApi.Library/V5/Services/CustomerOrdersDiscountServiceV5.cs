@@ -1,14 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using CustomerOrders.Contracts;
+﻿using CustomerOrders.Contracts;
+using CustomerOrders.Contracts.V5.Orders.Discounts;
 using CustomerOrders.Contracts.V5.Orders.OrderItem;
-using CustomerOrdersApi.Library.Config;
 using CustomerOrders.Contracts.V5.Orders.PromoCodes;
+using CustomerOrdersApi.Library.Config;
+using CustomerOrdersApi.Library.Default.Repositories;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Handlers;
+using Vodovoz.Settings.Orders;
+using VodovozBusiness.Extensions;
 using VodovozInfrastructure.Cryptography;
 
 namespace CustomerOrdersApi.Library.V5.Services
@@ -19,6 +26,8 @@ namespace CustomerOrdersApi.Library.V5.Services
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ISignatureManager _signatureManager;
 		private readonly IOnlineOrderDiscountHandlerV5 _onlineOrderDiscountHandler;
+		private readonly ICustomerOnlineOrderRepository _customerOnlineOrderRepository;
+		private readonly IOrderSettings _orderSettings;
 		private readonly SignatureOptions _signatureOptions;
 
 		public CustomerOrdersDiscountServiceV5(
@@ -26,12 +35,16 @@ namespace CustomerOrdersApi.Library.V5.Services
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ISignatureManager signatureManager,
 			IOptions<SignatureOptions> signatureOptions,
-			IOnlineOrderDiscountHandlerV5 onlineOrderDiscountHandler)
+			IOnlineOrderDiscountHandlerV5 onlineOrderDiscountHandler,
+			ICustomerOnlineOrderRepository customerOnlineOrderRepository,
+			IOrderSettings orderSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_signatureManager = signatureManager ?? throw new ArgumentNullException(nameof(signatureManager));
 			_onlineOrderDiscountHandler = onlineOrderDiscountHandler ?? throw new ArgumentNullException(nameof(onlineOrderDiscountHandler));
+			_customerOnlineOrderRepository = customerOnlineOrderRepository ?? throw new ArgumentNullException(nameof(customerOnlineOrderRepository));
+			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
 			_signatureOptions =
 				(signatureOptions ?? throw new ArgumentNullException(nameof(signatureOptions)))
 				.Value;
@@ -87,6 +100,37 @@ namespace CustomerOrdersApi.Library.V5.Services
 			};
 			
 			return _onlineOrderDiscountHandler.TryApplyPromoCode(uow, dto);
+		}
+
+		public async Task<FirstOrderDiscountConditionsDto> GetFirstOrderDiscountConditions(
+			ExternalSource source,
+			Guid externalCounterpartyId,
+			int? counterpartyErpId,
+			CancellationToken cancellationToken)
+		{
+			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Проверка доступности использования скидки на первый заказ для клиента");
+
+			var isClientHasNotCancelledOnlineOrdersFromSource =
+				await _customerOnlineOrderRepository.IsClientHasNotCancelledOnlineOrdersFromSource(
+					uow,
+					externalCounterpartyId,
+					counterpartyErpId,
+					source.ToSource(),
+					cancellationToken);
+
+			var discountReason =
+				uow.GetById<DiscountReason>(_orderSettings.FirstOnlineOrderDiscountReasonId);
+
+			return new FirstOrderDiscountConditionsDto
+			{
+				DiscountIsAvailable = !isClientHasNotCancelledOnlineOrdersFromSource,
+				Discount = new DiscountDto
+				{
+					IsDiscountInMoney = discountReason.ValueType == DiscountUnits.money,
+					Discount = discountReason.Value,
+					DiscountReasonId = discountReason.Id
+				}
+			};
 		}
 	}
 }
