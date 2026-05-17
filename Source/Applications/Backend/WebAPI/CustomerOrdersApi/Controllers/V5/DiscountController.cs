@@ -127,7 +127,7 @@ namespace CustomerOrdersApi.Controllers.V5
 				_logger.LogInformation("Поступил запрос доступности использования скидки на первый заказ для клиента {@FirstOrderDiscountConditionsRequest}, проверяем...", requestDto);
 
 				var result =
-					_discountService.GetFirstOrderDiscountConditions(
+					await _discountService.GetFirstOrderDiscountConditions(
 						requestDto.Source,
 						requestDto.ExternalCounterpartyId,
 						requestDto.СounterpartyErpId,
