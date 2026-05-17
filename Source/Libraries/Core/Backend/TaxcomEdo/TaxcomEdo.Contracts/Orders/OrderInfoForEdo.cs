@@ -35,6 +35,10 @@ namespace TaxcomEdo.Contracts.Orders
 		/// </summary>
 		public DateTime CreationDate { get; set; }
 		/// <summary>
+		/// Организация продавца работает без НДС
+		/// </summary>
+		public bool IsWithoutVat { get; set; }
+		/// <summary>
 		/// Информация о контракте <see cref="CounterpartyContractInfoForEdo"/>
 		/// </summary>
 		public CounterpartyContractInfoForEdo ContractInfoForEdo { get; set; }

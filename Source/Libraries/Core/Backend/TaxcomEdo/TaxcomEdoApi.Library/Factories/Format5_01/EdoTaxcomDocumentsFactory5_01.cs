@@ -81,7 +81,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_01
 
 			upd.Dokument = new FajlDokument
 			{
-				Funkcija = FajlDokumentFunkcija.SChFDOP,
+				Funkcija = orderInfoForEdo.IsWithoutVat ? FajlDokumentFunkcija.DOP : FajlDokumentFunkcija.SChFDOP,
 				PoFaktHZh = "Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)",
 				NaimDokOpr = "Счет-фактура и документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)",
 				KND = FajlDokumentKND.Item1115131,
@@ -301,7 +301,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_01
 			
 			upd.Dokument = new FajlDokument
 			{
-				Funkcija = FajlDokumentFunkcija.SChFDOP,
+				Funkcija = updInfo.IsWithoutVat ? FajlDokumentFunkcija.DOP : FajlDokumentFunkcija.SChFDOP,
 				PoFaktHZh = "Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)",
 				NaimDokOpr = "Счет-фактура и документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)",
 				KND = FajlDokumentKND.Item1115131,

@@ -80,6 +80,7 @@ namespace Edo.Docflow.Factories
 				StringNumber = DocumentNumberBuilder.Build(order, DocumentContainerType.Upd),
 				Sum = products.Sum(x => x.Sum),
 				Date = order.DeliveryDate.Value,
+				IsWithoutVat = order.IsCashlessPaymentTypeAndOrganizationWithoutVAT,
 				Seller = GetSellerInfo(order),
 				Customer = GetCustomerInfo(order, edoAccount),
 				Consignee = GetConsigneeInfo(order.Client, edoAccount, order.DeliveryPoint),
