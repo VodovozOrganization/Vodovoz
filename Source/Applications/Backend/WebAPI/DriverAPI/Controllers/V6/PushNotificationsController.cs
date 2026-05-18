@@ -42,6 +42,7 @@ namespace DriverAPI.Controllers.V6
 		private readonly IGenericRepository<RouteListItem> _routeListItemRepository;
 		private const string _eventTypeName = "EventType";
 		private const string _routeListIdName = "RouteListId";
+		private const string _orderIdName = "OrderId";
 
 
 		/// <summary>
@@ -405,13 +406,15 @@ namespace DriverAPI.Controllers.V6
 			var previousData = new Dictionary<string, string>
 			{
 				{ _eventTypeName, PushNotificationDataEventType.TransferAddressFromHandToHand.ToString() },
-				{ _routeListIdName, previousItemResult.Value.RouteList.Id.ToString() }
+				{ _routeListIdName, previousItemResult.Value.RouteList.Id.ToString() },
+				{ _orderIdName, orderId.ToString() }
 			};
 			
 			var targetData = new Dictionary<string, string>
 			{
 				{ _eventTypeName, PushNotificationDataEventType.TransferAddressFromHandToHand.ToString() },
-				{ _routeListIdName, targetAddress.RouteList.Id.ToString() }
+				{ _routeListIdName, targetAddress.RouteList.Id.ToString() },
+				{ _orderIdName, orderId.ToString() }
 			};
 
 			if(source.IsFailure)
@@ -439,7 +442,8 @@ namespace DriverAPI.Controllers.V6
 			var sourceData = new Dictionary<string, string>
 			{
 				{ _eventTypeName, PushNotificationDataEventType.TransferAddressFromHandToHand.ToString() },
-				{ _routeListIdName,  source.Value.RouteList.Id.ToString() }
+				{ _routeListIdName,  source.Value.RouteList.Id.ToString() },
+				{ _orderIdName, orderId.ToString() }
 			};
 
 			if(previousItemResult.Value.RouteList.Id != source.Value.RouteList.Id)
@@ -508,7 +512,8 @@ namespace DriverAPI.Controllers.V6
 			var data = new Dictionary<string, string>
 			{
 				{ _eventTypeName, PushNotificationDataEventType.RouteListContentChanged.ToString() },
-				{ _routeListIdName, routeListId.ToString() }
+				{ _routeListIdName, routeListId.ToString() },
+				{ _orderIdName, orderId.ToString() }
 			};
 
 			await _firebaseCloudMessagingService.SendMessage(token, $"Уведомление об изменении состава вашего МЛ {routeListId}",
