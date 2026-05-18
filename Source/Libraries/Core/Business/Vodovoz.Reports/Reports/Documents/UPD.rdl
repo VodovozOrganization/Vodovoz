@@ -192,6 +192,7 @@ WHERE
             '    '
     ) AS bottles_in_fact,
     orders.self_delivery AS is_self_delivery,
+    IF(orders.payment_type = 'Cashless' AND COALESCE(vr_organization_status.vat_rate_value, -1) = 0, true, false) AS without_vat,
     counterparty.inn,
     counterparty.kpp
 FROM orders
@@ -203,6 +204,12 @@ FROM orders
      counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
          LEFT JOIN
      organizations ON organizations.id = counterparty_contract.organization_id
+         LEFT JOIN
+     vat_rate_versions vrv_organization_status ON vrv_organization_status.organization_id = organizations.id
+         AND ((vrv_organization_status.start_date &lt;= orders.delivery_date AND vrv_organization_status.end_date IS NULL)
+          OR (vrv_organization_status.start_date &lt;= orders.delivery_date AND vrv_organization_status.end_date &gt;= orders.delivery_date))
+         LEFT JOIN
+     vat_rates vr_organization_status ON vr_organization_status.id = vrv_organization_status.vat_rate_id
          LEFT JOIN
      organization_versions ov
      ON
@@ -368,6 +375,10 @@ WHERE
         <Field Name="payments_info">
           <DataField>payments_info</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="without_vat">
+          <DataField>without_vat</DataField>
+          <TypeName>System.Boolean</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -3947,7 +3958,7 @@ WHERE o.id = @order_id
       <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>13pt</Height>
         <Width>13pt</Width>
-        <Value>=Iif(Parameters!without_vat.Value, "2", "1")</Value>
+        <Value>=Iif(First(Fields!without_vat.Value, "Order"), "2", "1")</Value>
         <ZIndex>0</ZIndex>
         <Left>42.1pt</Left>
         <Top>62.7pt</Top>
@@ -4847,13 +4858,6 @@ WHERE o.id = @order_id
           <Value>true</Value>
         </Values>
       </DefaultValue>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt></Prompt>
-    </ReportParameter>
-    <ReportParameter Name="without_vat">
-      <DataType>Boolean</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>

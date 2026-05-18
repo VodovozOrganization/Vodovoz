@@ -17,6 +17,10 @@ namespace TaxcomEdo.Contracts.Counterparties
 		/// </summary>
 		public OrganizationInfoForEdo OrganizationInfoForEdo { get; set; }
 		/// <summary>
+		/// Организация продавца работает без НДС
+		/// </summary>
+		public bool IsOrganizationWithoutVat { get; set; }
+		/// <summary>
 		/// Номер контракта
 		/// </summary>
 		public string Number { get; set; }

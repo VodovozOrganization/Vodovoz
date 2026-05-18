@@ -21,11 +21,6 @@ namespace Edo.Contracts.Messages.Dto
 		/// Дата документа
 		/// </summary>
 		public DateTime Date { get; set; }
-		/// <summary>
-		/// Организация продавца работает без НДС
-		/// </summary>
-		public bool IsWithoutVat { get; set; }
-		/// <summary>
 		/// Продавец <see cref="SellerInfo"/>
 		/// </summary>
 		public SellerInfo Seller { get; set; }

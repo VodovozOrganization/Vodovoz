@@ -47,8 +47,10 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 			string certificateSubject)
 		{
 			var orderInfoForEdo = infoForCreatingEdoUpd.OrderInfoForEdo;
-			var org = orderInfoForEdo.ContractInfoForEdo.OrganizationInfoForEdo;
+			var contract = orderInfoForEdo.ContractInfoForEdo;
+			var org = contract.OrganizationInfoForEdo;
 			var updDate = orderInfoForEdo.DeliveryDate.ToEdoShortDateString();
+			var isWithoutVat = orderInfoForEdo.PaymentType == "Cashless" && contract.IsOrganizationWithoutVat;
 			
 			var upd = new Fajl
 			{
@@ -79,7 +81,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 
 			upd.Dokument = new FajlDokument
 			{
-				Funkcija = orderInfoForEdo.IsWithoutVat ? FajlDokumentFunkcija.DOP : FajlDokumentFunkcija.SChFDOP,
+				Funkcija = isWithoutVat ? FajlDokumentFunkcija.DOP : FajlDokumentFunkcija.SChFDOP,
 				PoFaktHZh = "Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)",
 				NaimDokOpr = "Счет-фактура и документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)",
 				KND = FajlDokumentKND.Item1115131,
@@ -261,6 +263,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 		{
 			var org = updInfo.Seller.Organization;
 			var updDate = updInfo.Date.ToShortDateString();
+			var isWithoutVat = org.IsWithoutVat;
 			
 			var upd = new Fajl
 			{
@@ -291,7 +294,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 
 			upd.Dokument = new FajlDokument
 			{
-				Funkcija = updInfo.IsWithoutVat ? FajlDokumentFunkcija.DOP : FajlDokumentFunkcija.SChFDOP,
+				Funkcija = isWithoutVat ? FajlDokumentFunkcija.DOP : FajlDokumentFunkcija.SChFDOP,
 				PoFaktHZh = "Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)",
 				NaimDokOpr = _upd,
 				KND = FajlDokumentKND.Item1115131,

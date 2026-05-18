@@ -143,8 +143,7 @@ namespace Vodovoz.Domain.Orders.Documents
 			reportInfo.Parameters = new Dictionary<string, object> {
 				{ "order_id", Order.Id },
 				{ "special", false },
-				{ "hide_signature", HideSignature},
-				{ "without_vat", Order.IsCashlessPaymentTypeAndOrganizationWithoutVAT }
+				{ "hide_signature", HideSignature}
 			};
 			return reportInfo;
 		}
