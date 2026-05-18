@@ -797,7 +797,7 @@ namespace Vodovoz.JournalViewModels
 			var ordersConfig = RegisterEntity<VodovozOrder>(GetOrdersQuery)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
-					() =>_gtkDialogsOpener.CreateOrderDlg(FilterViewModel.IsForRetail, FilterViewModel.IsForSalesDepartment),
+					() => _gtkDialogsOpener.CreateOrderDlg(FilterViewModel.IsForRetail, FilterViewModel.IsForSalesDepartment),
 					//функция диалога открытия документа
 					(OrderJournalNode node) => _gtkDialogsOpener.CreateOrderDlg(node.Id),
 					//функция идентификации документа 
@@ -1470,7 +1470,7 @@ namespace Vodovoz.JournalViewModels
 						}
 						
 						var order = UoW.GetById<VodovozOrder>(selectedNode.Id);
-						_gtkDialogsOpener.OpenCopyLesserOrderDlg(this, order.Id);
+						_gtkDialogsOpener.OpenCopyLesserOrderDlg(this, order);
 					}
 				)
 			);

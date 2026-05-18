@@ -480,8 +480,14 @@ namespace Vodovoz.Views.Orders
 
 		private void OpenOrderDlgAndFillOnlineOrderData()
 		{
-			var navigation = ViewModel.NavigationManager as ITdiCompatibilityNavigation;
-			var page = navigation.OpenTdiTab<OrderDlg, OnlineOrder>(ViewModel, ViewModel.Entity, OpenPageOptions.AsSlave);
+			var page = ViewModel.GtkTabsOpener.OpenOrderDlgForCopyOrderFromOnlineOrderByNavigator(ViewModel, ViewModel.Entity);
+
+			if(page is null)
+			{
+				ViewModel.OrderCreatingState = false;
+				return;
+			}
+			
 			page.PageClosed += OnOrderTabClosed;
 		}
 

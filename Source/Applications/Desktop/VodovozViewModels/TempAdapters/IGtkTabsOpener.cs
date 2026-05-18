@@ -2,6 +2,7 @@
 using QS.DomainModel.UoW;
 using QS.Tdi;
 using System;
+using QS.Navigation;
 using QS.ViewModels.Dialog;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
@@ -16,8 +17,47 @@ namespace Vodovoz.TempAdapters
 		ITdiTab CreateOrderDlg(int? orderId);
 		void OpenOrderDlg(ITdiTab tab, int id);
 		void OpenOrderDlgFromViewModelByNavigator(DialogViewModelBase from, int orderId);
-		void OpenCopyLesserOrderDlg(ITdiTab tab, int copiedOrderId);
-		ITdiTab OpenCopyOrderDlg(ITdiTab tab, int copiedOrderId);
+		/// <summary>
+		/// Открытие OrderDlg для повтора заказа
+		/// </summary>
+		/// <param name="master">Мастер вкладка</param>
+		/// <param name="copiedOrder">Копируемый заказ</param>
+		void OpenCopyLesserOrderDlg(ITdiTab master, Order copiedOrder);
+		/// <summary>
+		/// Открытие OrderDlg для повтора заказа из недовоза
+		/// </summary>
+		/// <param name="master">Мастер вкладка</param>
+		/// <param name="orderDlg">Открытый диалог заказа, если есть</param>
+		/// <param name="copiedOrder">Копируемый заказ</param>
+		bool TryOpenCopyOrderDlg(ITdiTab master, Order copiedOrder, out ITdiTab orderDlg);
+		/// <summary>
+		/// Открытие OrderDlg для повтора заказа с диалога звонка Манго <see cref="CounterpartyOrderViewModel"/>
+		/// Мастер вкладка DialogViewModelBase
+		/// </summary>
+		/// <param name="master">Мастер вкладка</param>
+		/// <param name="copiedOrder">Копируемый заказ</param>
+		/// <param name="openPageOptions">Настройки открытия</param>
+		void OpenOrderDlgForCopyOrderFromMangoByNavigator(
+			DialogViewModelBase master, Order copiedOrder, OpenPageOptions openPageOptions = OpenPageOptions.IgnoreHash);
+		/// <summary>
+		/// Открытие OrderDlg для повтора заказа с диалога звонка Манго <see cref="CounterpartyOrderViewModel"/>
+		/// Мастер вкладка ITdiTab
+		/// </summary>
+		/// <param name="master">Мастер вкладка</param>
+		/// <param name="copiedOrder">Копируемый заказ</param>
+		/// <param name="openPageOptions">Настройки открытия</param>
+		void OpenOrderDlgForCopyOrderFromMangoByNavigator(
+			ITdiTab master, Order copiedOrder, OpenPageOptions openPageOptions = OpenPageOptions.IgnoreHash);
+		/// <summary>
+		/// Открытие OrderDlg для создания заказа из онлайн заказа
+		/// Мастер вкладка DialogViewModelBase
+		/// </summary>
+		/// <param name="master">Мастер вкладка</param>
+		/// <param name="onlineOrder">Онлайн заказ</param>
+		/// <param name="openPageOptions">Настройки открытия</param>
+		/// <returns></returns>
+		ITdiPage OpenOrderDlgForCopyOrderFromOnlineOrderByNavigator(
+			DialogViewModelBase master, OnlineOrder onlineOrder, OpenPageOptions openPageOptions = OpenPageOptions.AsSlave);
 		void OpenRouteListClosingDlgFromViewModelByNavigator(DialogViewModelBase from, int routeListId);
 		ITdiTab OpenRouteListClosingDlg(ITdiTab master, int routelistId);
 		ITdiTab OpenRouteListClosingDlg(ITdiTabParent master, int routelistId);

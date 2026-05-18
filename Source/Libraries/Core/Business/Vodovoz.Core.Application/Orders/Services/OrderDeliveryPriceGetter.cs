@@ -2,9 +2,11 @@
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Errors.Clients;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.Orders;
 
@@ -25,7 +27,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				.PaidDeliveryNomenclatureId;
 		}
 		
-		public decimal GetDeliveryPrice(IUnitOfWork unitOfWork, Order order)
+		public Result<decimal> GetDeliveryPrice(IUnitOfWork unitOfWork, Order order)
 		{
 			#region перенести всё это в OrderStateKey
 
@@ -47,9 +49,17 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 			#endregion
 
-			var district = order.DeliveryPoint != null
-				? unitOfWork.GetById<District>(order.DeliveryPoint.District.Id)
-				: null;
+			District district = null;
+			
+			if(order.DeliveryPoint != null)
+			{
+				if(order.DeliveryPoint.District is null)
+				{
+					return Result.Failure<decimal>(DeliveryPointErrors.CouldNotCalculateDeliveryBecauseDistrictNotFound(order.DeliveryPoint.Id));
+				}
+
+				district = unitOfWork.GetById<District>(order.DeliveryPoint.District.Id);
+			}
 
 			_orderStateKey.InitializeFields(order);
 

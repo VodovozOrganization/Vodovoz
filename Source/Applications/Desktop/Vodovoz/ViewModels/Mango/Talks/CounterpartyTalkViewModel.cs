@@ -22,6 +22,7 @@ using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
+using Vodovoz.TempAdapters;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Complaints;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
@@ -45,6 +46,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ICallTaskRepository _callTaskRepository;
 		private readonly IRouteListService _routeListService;
+		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly OrderCancellationService _orderCancellationService;
 		private IPage<CounterpartyJournalViewModel> _counterpartyJournalPage;
 
@@ -68,6 +70,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			IEmployeeRepository employeeRepository,
 			ICallTaskRepository callTaskRepository,
 			IRouteListService routeListService,
+			IGtkTabsOpener gtkTabsOpener,
 			OrderCancellationService orderCancellationService
 			)
 			: base(tdinavigation, manager)
@@ -86,6 +89,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
+			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
 			if(ActiveCall.CounterpartyIds.Any())
 			{
@@ -95,6 +99,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 				{
 					var model = new CounterpartyOrderViewModel(
 						client,
+						_gtkTabsOpener,
 						_unitOfWorkFactory,
 						tdinavigation,
 						routedListRepository,
@@ -133,7 +138,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 
 		#region Действия View
 
-		public void UpadateCurrentCounterparty(Counterparty counterparty)
+		public void UpdateCurrentCounterparty(Counterparty counterparty)
 		{
 			currentCounterparty = counterparty;
 
@@ -161,6 +166,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 				var model = 
 					new CounterpartyOrderViewModel(
 						client,
+						_gtkTabsOpener,
 						_unitOfWorkFactory,
 						_tdiNavigation,
 						_routedListRepository,
@@ -201,6 +207,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango.Talks
 				var model =
 					new CounterpartyOrderViewModel(
 						client,
+						_gtkTabsOpener,
 						_unitOfWorkFactory,
 						_tdiNavigation,
 						_routedListRepository,

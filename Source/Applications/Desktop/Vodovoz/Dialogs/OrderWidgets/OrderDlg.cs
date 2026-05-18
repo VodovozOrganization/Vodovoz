@@ -1061,7 +1061,12 @@ namespace Vodovoz
 
 				if((DeliveryPoint != null || Entity.SelfDelivery) && Entity.OrderStatus == OrderStatus.NewOrder)
 				{
-					OnFormOrderActions();
+					var updateDeliveryResult = UpdateDelivery(false);
+
+					if(updateDeliveryResult.IsFailure)
+					{
+						throw new AbortCreatingPageException(updateDeliveryResult.Errors.First().Message, "Ошибка");
+					}
 				}
 
 				UpdateOrderAddressTypeUI();
@@ -3132,16 +3137,23 @@ namespace Vodovoz
 				MessageDialogHelper.RunWarningDialog("Точка доставки не попадает ни в один из наших районов доставки. Пожалуйста, согласуйте стоимость доставки с руководителем и клиентом.");
 			}
 
-			OnFormOrderActions();
+			var deliveryCostResult = UpdateDelivery(false); //ничего не делаем с результатом, т.к. выше в валидации и следующей проверке это отработает
 			return Result.Success();
 		}
 
 		/// <summary>
 		/// Действия обрабатываемые при формировании заказа
 		/// </summary>
-		private void OnFormOrderActions()
+		private Result UpdateDelivery(bool showMessage = true)
 		{
-			_orderService.UpdateDeliveryCost(UoW, Entity);
+			var result = _orderService.UpdateDeliveryCost(UoW, Entity);
+
+			if(result.IsFailure && showMessage)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, result.Errors.First().Message);
+			}
+			
+			return result;
 		}
 
 		/// <summary>
@@ -3823,7 +3835,7 @@ namespace Vodovoz
 					);
 				}
 
-				OnFormOrderActions();
+				UpdateDelivery();
 			}
 		}
 
@@ -3985,7 +3997,7 @@ namespace Vodovoz
 
 			if(DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 			{
-				OnFormOrderActions();
+				UpdateDelivery();
 			}
 
 			if(DeliveryPoint != null
@@ -4114,7 +4126,7 @@ namespace Vodovoz
 
 			if(DeliveryDate.HasValue && DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 			{
-				OnFormOrderActions();
+				UpdateDelivery();
 			}
 
 			if(DeliveryPoint != null && DeliveryDate.HasValue)
@@ -4151,7 +4163,7 @@ namespace Vodovoz
 				&& DeliveryPoint != null
 				&& Entity.OrderStatus == OrderStatus.NewOrder)
 			{
-				OnFormOrderActions();
+				UpdateDelivery();
 			}
 
 			AddCommentsFromDeliveryPoint();
@@ -4730,7 +4742,7 @@ namespace Vodovoz
 
 			if(DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 			{
-				OnFormOrderActions();
+				UpdateDelivery();
 			}
 		}
 
@@ -4835,7 +4847,7 @@ namespace Vodovoz
 			if(DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 			{
 				Entity.CheckAndSetOrderIsService();
-				OnFormOrderActions();
+				UpdateDelivery();
 			}
 			_treeItemsNomenclatureColumnWidth = treeItems.ColumnsConfig.GetColumnsByTag(nameof(Nomenclature)).First().Width;
 			treeItems.ExposeEvent += TreeItemsOnExposeEvent;
@@ -4866,7 +4878,7 @@ namespace Vodovoz
 			if(DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 			{
 				Entity.CheckAndSetOrderIsService();
-				OnFormOrderActions();
+				UpdateDelivery();
 			}
 
 			Entity.AddFastDeliveryNomenclatureIfNeeded(UoW, _orderContractUpdater);
@@ -4962,7 +4974,7 @@ namespace Vodovoz
 
 					if(oItem != null && oItem.Count > 0 && DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 					{
-						OnFormOrderActions();
+						UpdateDelivery();
 					}
 
 					if(oItem == null)
@@ -5006,7 +5018,7 @@ namespace Vodovoz
 		{
 			if(DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 			{
-				OnFormOrderActions();
+				UpdateDelivery();
 			}
 		}
 
@@ -5014,7 +5026,7 @@ namespace Vodovoz
 		{
 			if(DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 			{
-				OnFormOrderActions();
+				UpdateDelivery();
 			}
 		}
 
@@ -5022,7 +5034,7 @@ namespace Vodovoz
 		{
 			if(DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 			{
-				OnFormOrderActions();
+				UpdateDelivery();
 			}
 		}
 
@@ -5030,7 +5042,7 @@ namespace Vodovoz
 		{
 			if(DeliveryPoint != null && Entity.OrderStatus == OrderStatus.NewOrder)
 			{
-				OnFormOrderActions();
+				UpdateDelivery();
 			}
 		}
 
