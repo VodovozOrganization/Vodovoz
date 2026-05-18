@@ -181,10 +181,37 @@ namespace Vodovoz.Core.Application.Orders.Services
 		{
 			var archivedNomenclatures = new Dictionary<int, bool>();
 			ValidatePromoSet(uow, archivedNomenclatures);
+			ValidateDiscounts();
 			ValidateOtherItemsWithoutDeliveries(archivedNomenclatures);
 			ValidatePaidDelivery();
 			ValidateFastDelivery();
 			ValidateOnlineRentPackages();
+		}
+
+		private void ValidateDiscounts()
+		{
+			var orderItems = _onlineOrder.OnlineOrderItems;
+
+			foreach(var orderItem in orderItems)
+			{
+				ValidateOnlineOrderItemDiscounts(orderItem);
+			}
+		}
+
+		private void ValidateOnlineOrderItemDiscounts(OnlineOrderItem orderItem)
+		{
+			var discountReasons = orderItem.DiscountReasons;
+
+			var incompatibleWithOtherDiscount =
+				discountReasons.FirstOrDefault(x => x.IsIncompatibleWithOtherDiscounts);
+
+			if(discountReasons.Count > 1
+				&& incompatibleWithOtherDiscount != null)
+			{
+				_validationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.CreateIncompatibleDiscountInOnlineOrderItem(
+					incompatibleWithOtherDiscount.Name,
+					orderItem.Nomenclature.Name));
+			}
 		}
 
 		private void ValidatePromoSet(IUnitOfWork uow, IDictionary<int, bool> archivedNomenclatures)

@@ -829,6 +829,10 @@ namespace Vodovoz.Domain.Orders
 			return discountMoneyToAdd + alreadyAddedDiscount <= CurrentRawPrice;
 		}
 
+		public virtual bool IsDiscountIncompatibleWithAddedDiscounts(DiscountReason discount) =>
+			DiscountReasons.Any(x => x.IsIncompatibleWithOtherDiscounts)
+			|| (DiscountReasons.Any() && discount.IsIncompatibleWithOtherDiscounts);
+
 		public virtual bool IsDiscountReasonAdded(DiscountReason discountReason)
 		{
 			if(discountReason is null)

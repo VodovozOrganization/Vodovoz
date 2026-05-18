@@ -51,6 +51,13 @@ namespace Vodovoz.Domain.Orders
 		bool IsDiscountReasonAdded(DiscountReason discountReason);
 
 		/// <summary>
+		/// Проверяет, что скидка несовместма с уже добавленными скидками в строке
+		/// </summary>
+		/// <param name="discount">Основание скидки</param>
+		/// <returns>Результат проверки</returns>
+		bool IsDiscountIncompatibleWithAddedDiscounts(DiscountReason discount);
+
+		/// <summary>
 		/// Проверяет, что скидка может быть добавлена, т.е. сумма всех добавленных скидок не превышает цену товара
 		/// </summary>
 		/// <param name="isDiscountInMoney">Указывает, что скидка задана в денежном выражении</param>

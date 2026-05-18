@@ -210,6 +210,14 @@ namespace Vodovoz.ViewModels.Widgets.Orders
 				return;
 			}
 
+			if(OrderItem.IsDiscountIncompatibleWithAddedDiscounts(NewDiscountReason))
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"Скидка не может быть добавлена, т.к. она не совместима с уже добавленными скидками");
+				return;
+			}
+
 			if(!OrderItem.IsDiscountValueCanBeAdded(NewDiscountReason.ValueType == DiscountUnits.money, NewDiscountReason.Value))
 			{
 				_interactiveService.ShowMessage(

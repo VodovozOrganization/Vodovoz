@@ -199,7 +199,30 @@ namespace Vodovoz.Errors.Orders
 				nameof(IncorrectDiscountInOnlineOrderPromoSet),
 				$"В переданном промонаборе {promoSetTitle} в позиции {position} {nomenclature}" +
 				$"\nнеправильно указана скидка: должно быть {discountItemFromPromoSet}, а передано {onlineOrderItemDiscount}");
-		
+
+		/// <summary>
+		/// В строке заказа содежратся несовместимые друг с другом скидки
+		/// </summary>
+		public static Error IncompatibleDiscountInOnlineOrderItem =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(IncompatibleDiscountInOnlineOrderItem),
+				"В строке заказа содежратся несовместимые друг с другом скидки");
+
+		/// <summary>
+		/// В строке заказа содежратся несовместимые друг с другом скидки
+		/// </summary>
+		/// <param name="discountReasonName">Наименование несовместимой скидки</param>
+		/// <param name="nomenclature">Номенклатура, в которую добавлена несовместимая скидка</param>
+		/// <returns></returns>
+		public static Error CreateIncompatibleDiscountInOnlineOrderItem(
+			string discountReasonName, string nomenclature) =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(IncompatibleDiscountInOnlineOrderItem),
+				$"В строке заказа с номенклатурой {nomenclature} содержится несколько скидок, " +
+				$"при этом скидка \"{discountReasonName}\" несовместима с другими");
+
 		public static Error IncorrectRentPackageIdInOnlineOrder(int? rentPackageId) =>
 			new Error(
 				typeof(OnlineOrderErrors),
