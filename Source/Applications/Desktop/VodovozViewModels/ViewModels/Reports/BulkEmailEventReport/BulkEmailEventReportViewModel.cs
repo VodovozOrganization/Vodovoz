@@ -100,9 +100,10 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport
 			return itemsQuery
 				.SelectList(list => list
 					.Select(() => bulkEmailEventAlias.ActionTime).WithAlias(() => resultAlias.ActionDateTime)
-					.Select(() => bulkEmailEventAlias.Type).WithAlias(() => resultAlias.BulkEmailEventType)
+					.Select(() => bulkEmailEventAlias.EventType).WithAlias(() => resultAlias.BulkEmailEventType)
 					.Select(() => bulkEmailEventReasonAlias.Name).WithAlias(() => resultAlias.Reason)
 					.Select(() => bulkEmailEventAlias.ReasonDetail).WithAlias(() => resultAlias.OtherReason)
+					.Select(() => bulkEmailEventAlias.CounterpartyEmailType).WithAlias(() => resultAlias.EmailType)
 					.Select(() => counterpartyAlias.Id).WithAlias(() => resultAlias.CounterpartyId)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
 					.SelectSubQuery(phoneSubquery).WithAlias(() => resultAlias.Phone)

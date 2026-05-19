@@ -13,7 +13,7 @@ namespace UnsubscribePage.Models
 	public class UnsubscribeViewModel : IValidatableObject
 	{
 		private IList<BulkEmailEventReason> _reasonsList;
-		private GuidCounterpartyEmailNode _guidCounterpartyEmail;
+		private CounterpartyBulkSubscribeNode _counterpartyBulkSubscribeNode;
 
 		/// <summary>
 		/// Идентификатор события отписки.
@@ -42,10 +42,10 @@ namespace UnsubscribePage.Models
 		public string ReasonsListSerialized { get; set; }
 
 		/// <summary>
-		/// Сериализованный GuidCounterpartyEmail.
+		/// Сериализованный CounterpartyBulkSubscribeNode.
 		/// Нужен для сохранения данных между GET и POST.
 		/// </summary>
-		public string GuidCounterpartyEmailSerialized { get; set; }
+		public string CounterpartyBulkSubscribeNodeSerialized { get; set; }
 
 		/// <summary>
 		/// Список причин отписки.
@@ -59,11 +59,11 @@ namespace UnsubscribePage.Models
 		/// <summary>
 		/// Информация о контрагенте и типе email.
 		/// </summary>
-		public GuidCounterpartyEmailNode GuidCounterpartyEmail =>
-			_guidCounterpartyEmail ??=
-				string.IsNullOrWhiteSpace(GuidCounterpartyEmailSerialized)
+		public CounterpartyBulkSubscribeNode CounterpartyBulkSubscribeNode =>
+			_counterpartyBulkSubscribeNode ??=
+				string.IsNullOrWhiteSpace(CounterpartyBulkSubscribeNodeSerialized)
 					? null
-					: JsonSerializer.Deserialize<GuidCounterpartyEmailNode>(GuidCounterpartyEmailSerialized);
+					: JsonSerializer.Deserialize<CounterpartyBulkSubscribeNode>(CounterpartyBulkSubscribeNodeSerialized);
 
 		/// <summary>
 		/// Выполняет валидацию данных формы.

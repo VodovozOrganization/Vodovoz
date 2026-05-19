@@ -13,8 +13,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport
 		public string Email { get; set; }
 		public string Phone { get; set; }
 		public string ActionDatetimeString => ActionDateTime.ToString();
-		public string StateString => Gamma.Utilities.AttributeUtil.GetEnumTitle(State);
-		public CounterpartyEmailType EmailType { get; set; }
+		public string StateString => State.GetEnumDisplayName();
+		public CounterpartyEmailType EmailType { get; set; } 
 		public string EmailTypeString => EmailType.GetEnumDisplayName();	
 	}
 }

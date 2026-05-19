@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using UnsubscribePage.Models;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
 
@@ -50,23 +51,30 @@ namespace UnsubscribePage.Controllers
 		{
 			var viewModel = _unsubscribeViewModelFactory.CreateNewUnsubscribeViewModel(emailGuid, _emailRepository, _emailSettings);
 
-			if(viewModel.GuidCounterpartyEmail?.CounterpartyId != null)
+			if(viewModel.CounterpartyBulkSubscribeNode is CounterpartyBulkSubscribeNode node)
 			{
 				var unsubscribingEvent = new UnsubscribingBulkEmailEvent
 				{
-					CounterpartyEmailType = viewModel.GuidCounterpartyEmail.CounterpartyEmailType,
+					CounterpartyEmailType = viewModel.CounterpartyBulkSubscribeNode.CounterpartyEmailType,
 
 					Counterparty = new Counterparty
 					{
-						Id = viewModel.GuidCounterpartyEmail.CounterpartyId
+						Id = node.CounterpartyId
 					}
 				};
 
-				using(var unitOfWork = _uowFactory.CreateWithoutRoot("Отписка от массовой рассылки"))
+				using var unitOfWork = _uowFactory.CreateWithoutRoot("Отписка от массовой рассылки");
+
+				if(node.CounterpartyEmailType == CounterpartyEmailType.ClosingDeliveries)
 				{
-					unitOfWork.Save(unsubscribingEvent);
-					unitOfWork.Commit();
+					var counterparty = unitOfWork.GetById<Counterparty>(node.CounterpartyId);
+					counterparty.DisableClosingDeliveriesMailing = true;
+					unitOfWork.Save(counterparty);
 				}
+
+				unitOfWork.Save(unsubscribingEvent);
+
+				unitOfWork.Commit();
 
 				viewModel.EmailEventId = unsubscribingEvent.Id;
 			}

@@ -52,7 +52,7 @@ namespace Vodovoz.Organizations
 				.AddBinding(ViewModel.Entity, e => e.EmailForMailing, w => w.Text)
 				.InitializeFromSource();
 
-			validatedentryEmailForCosingDeliveries.ValidationMode = ValidationType.Email;
+			validatedentryEmailForCosingDeliveries.CustomRegex = ViewModel.RegexForEmailForMailing;
 			validatedentryEmailForCosingDeliveries.Binding
 				.AddBinding(ViewModel.Entity, e => e.ClosingDeliveriesNotificationEmailFrom, w => w.Text)
 				.InitializeFromSource();

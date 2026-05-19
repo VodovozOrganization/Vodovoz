@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -103,6 +103,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 				counterparty.CloseDeliveryComment = closingComment;
 
+				counterparty.ToggleDeliveryOption(employee, true);
 
 				await unitOfWork.SaveAsync(counterparty, cancellationToken: cancellationToken);
 			}

@@ -1,8 +1,9 @@
-﻿using System;
+﻿using QS.DomainModel.Entity;
+using QS.DomainModel.Entity.EntityPermissions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using QS.DomainModel.Entity;
-using QS.DomainModel.Entity.EntityPermissions;
+using Vodovoz.Domain.StoredEmails;
 
 namespace Vodovoz.Domain.Client
 {
@@ -11,11 +12,14 @@ namespace Vodovoz.Domain.Client
 		NominativePlural = "события рассылки"
 	)]
 	[EntityPermission]
-	public abstract class BulkEmailEvent : PropertyChangedBase, IDomainObject, IValidatableObject
+	public abstract partial class BulkEmailEvent : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private DateTime _actionTime;
-		private BulkEmailEventType _type;
+		private BulkEmailEventType _eventType;
 		private Counterparty _counterparty;
+		private BulkEmailEventReason _reason;
+		private string _reasonDetail;
+		private CounterpartyEmailType? _counterpartyEmailType;
 
 		#region Свойства
 
@@ -29,10 +33,10 @@ namespace Vodovoz.Domain.Client
 		}
 
 		[Display(Name = "Тип события")]
-		public virtual BulkEmailEventType Type
+		public virtual BulkEmailEventType EventType
 		{
-			get => _type;
-			set => SetField(ref _type, value);
+			get => _eventType;
+			set => SetField(ref _eventType, value);
 		}
 		
 		[Display(Name = "Контрагент")]
@@ -40,10 +44,7 @@ namespace Vodovoz.Domain.Client
 		{
 			get => _counterparty;
 			set => SetField(ref _counterparty, value);
-		}
-
-		private BulkEmailEventReason _reason;
-		private string _reasonDetail;
+		}		
 
 		[Display(Name = "Причина отписки")]
 		public virtual BulkEmailEventReason Reason
@@ -59,6 +60,13 @@ namespace Vodovoz.Domain.Client
 			set => SetField(ref _reasonDetail, value);
 		}
 
+		[Display(Name = "Тип письма для клиента")]
+		public virtual CounterpartyEmailType? CounterpartyEmailType
+		{
+			get => _counterpartyEmailType;
+			set => SetField(ref _counterpartyEmailType, value);
+		}
+		
 		#endregion
 
 		#region IValidatableObject implementation
@@ -79,22 +87,5 @@ namespace Vodovoz.Domain.Client
 		}
 
 		#endregion
-
-		/// <summary>
-		/// Типы событий рассылки
-		/// </summary>
-		public enum BulkEmailEventType
-		{
-			/// <summary>
-			/// Подписка
-			/// </summary>
-			[Display(Name = "Подписка")]
-			Subscribing,
-			/// <summary>
-			/// Отписка
-			/// </summary>
-			[Display(Name = "Отписка")]
-			Unsubscribing
-		}
 	}
 }

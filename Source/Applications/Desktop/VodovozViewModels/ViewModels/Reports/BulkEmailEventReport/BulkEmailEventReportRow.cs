@@ -1,5 +1,7 @@
 ﻿using System;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.StoredEmails;
+using Vodovoz.Extensions;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport
 {
@@ -11,8 +13,10 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkEmailEventReport
 		public string Phone { get; set; }
 		public string Email { get; set; }
 		public string ActionDatetimeString => ActionDateTime.ToString("g");
-		public BulkEmailEvent.BulkEmailEventType BulkEmailEventType { get; set; }
-		public string BulkEmailEventTypeString => Gamma.Utilities.AttributeUtil.GetEnumTitle(BulkEmailEventType);
+		public BulkEmailEventType BulkEmailEventType { get; set; }
+		public string BulkEmailEventTypeString => BulkEmailEventType.GetEnumDisplayName();
+		public CounterpartyEmailType? EmailType { get; set; }
+		public string EmailTypeString => EmailType?.GetEnumDisplayName() ?? string.Empty;
 		public string Reason { get; set; }
 		public string OtherReason { get; set; }
 

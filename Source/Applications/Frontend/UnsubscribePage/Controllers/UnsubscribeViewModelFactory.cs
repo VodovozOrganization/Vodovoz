@@ -29,7 +29,7 @@ namespace UnsubscribePage.Controllers
 			return new UnsubscribeViewModel
 			{
 				OtherReasonId = emailSettings.BulkEmailEventOtherReasonId,
-				GuidCounterpartyEmailSerialized = JsonSerializer.Serialize(guidCounterpartyEmail),
+				CounterpartyBulkSubscribeNodeSerialized = JsonSerializer.Serialize(guidCounterpartyEmail),
 				ReasonsListSerialized = JsonSerializer.Serialize(reasons)
 			};
 		}

@@ -487,24 +487,12 @@ namespace Vodovoz.Core.Domain.Organizations
 					new[] { nameof(EmailForMailing) });
 			}
 
-			//if(!string.IsNullOrWhiteSpace(ClosingDeliveriesNotificationEmailFrom)
-			//		&& !Regex.IsMatch(ClosingDeliveriesNotificationEmailFrom, @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@vodovoz-spb\.ru\z"))
-			//{
-			//	yield return new ValidationResult(
-			//		"E-mail для рассылки должен быть в домене @vodovoz-spb.ru.",
-			//		new[] { nameof(ClosingDeliveriesNotificationEmailFrom) });
-			//}
-
-			if(!string.IsNullOrWhiteSpace(ClosingDeliveriesNotificationEmailFrom))
+			if(!string.IsNullOrWhiteSpace(ClosingDeliveriesNotificationEmailFrom)
+					&& !Regex.IsMatch(ClosingDeliveriesNotificationEmailFrom, @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@vodovoz-spb\.ru\z"))
 			{
-				var validator = new EmailAddressAttribute();
-
-				if(!validator.IsValid(ClosingDeliveriesNotificationEmailFrom))
-				{
-					yield return new ValidationResult(
-						"Невалидный E-mail организации, с которого будет приходить письмо с уведомлением о закрытии поставок",
-						new[] { nameof(ClosingDeliveriesNotificationEmailFrom) });
-				}
+				yield return new ValidationResult(
+					"E-mail организации, с которого будет приходить письмо с уведомлением о закрытии поставок должен быть в домене @vodovoz-spb.ru.",
+					new[] { nameof(ClosingDeliveriesNotificationEmailFrom) });
 			}
 
 			if(IsUsnMode == IsOsnoMode)
