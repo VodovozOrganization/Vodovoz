@@ -4,6 +4,7 @@ using QS.Navigation;
 using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
 using QSProjectsLib;
+using System.ComponentModel;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Extensions;
@@ -192,23 +193,9 @@ namespace Vodovoz.Views.Logistic
 
 			serviceStationEntry.ViewModel = BuildCounterpartyEntryViewModel();
 
-			addWorkOrderScanButton.BindCommand(ViewModel.AddWorkOrderScan);
-
-			addWorkOrderScanButton.Binding
-				.AddBinding(ViewModel, vm => vm.CanAddWorkOrderScan, w => w.Visible)
-				.InitializeFromSource();
-
-			openWorkOrderScanButton.Visible = false;
-
-			ytreeviewWorkOrderScans.ColumnsConfig =
-				FluentColumnsConfig<CarEventViewModel.WorkOrderScanFileNode>.Create()
-					.AddColumn("Файл").AddTextRenderer(x => x.Title)
-					.Finish();
-			ytreeviewWorkOrderScans.RowActivated += OnWorkOrderScanRowActivated;
-			ytreeviewWorkOrderScans.Binding
-				.AddBinding(ViewModel, vm => vm.WorkOrderScanFileNodes, w => w.ItemsDataSource)
-				.AddBinding(ViewModel, vm => vm.CanOpenWorkOrderScan, w => w.Visible)
-				.InitializeFromSource();
+			workOrderScanFileInformationsView.ViewModel = ViewModel.WorkOrderScanFileInformationsViewModel;
+			UpdateWorkOrderScanFilesVisibility();
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
 
 			addWorkOrderScanLabel.Binding
 				.AddBinding(ViewModel, vm => vm.CanShowWorkOrderScanControls, w => w.Visible)
@@ -228,12 +215,17 @@ namespace Vodovoz.Views.Logistic
 			UpdateSensitivity();
 		}
 
-		private void OnWorkOrderScanRowActivated(object o, RowActivatedArgs args)
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			if(ytreeviewWorkOrderScans.GetSelectedObject() is CarEventViewModel.WorkOrderScanFileNode selectedNode)
+			if(e.PropertyName == nameof(ViewModel.CanShowWorkOrderScanControls))
 			{
-				ViewModel.OpenWorkOrderScanFile(selectedNode.FileName);
+				UpdateWorkOrderScanFilesVisibility();
 			}
+		}
+
+		private void UpdateWorkOrderScanFilesVisibility()
+		{
+			workOrderScanFileInformationsView.Visible = ViewModel.CanShowWorkOrderScanControls;
 		}
 
 		private void UpdateSensitivity()
@@ -253,9 +245,7 @@ namespace Vodovoz.Views.Logistic
 				ytextviewFoundation.Sensitive =
 				ytextviewCommnet.Sensitive =
 				ytreeviewFines.Sensitive =
-				addWorkOrderScanButton.Sensitive =
-				openWorkOrderScanButton.Sensitive =
-				ytreeviewWorkOrderScans.Sensitive =
+				workOrderScanFileInformationsView.Sensitive =
 				buttonAddFine.Sensitive =
 				buttonAttachFine.Sensitive =
 				yspinBtnOdometerReading.Sensitive =
@@ -281,6 +271,12 @@ namespace Vodovoz.Views.Logistic
 					filter.RestrictIncludeArchive = true;
 				})
 				.Finish();
+		}
+
+		public override void Destroy()
+		{
+			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+			base.Destroy();
 		}
 	}
 }

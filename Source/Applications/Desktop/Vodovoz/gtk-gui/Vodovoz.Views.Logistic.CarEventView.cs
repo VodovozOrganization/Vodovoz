@@ -88,11 +88,7 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gtk.Table table3;
 
-		private global::Gamma.GtkWidgets.yButton addWorkOrderScanButton;
-
-		private global::Gamma.GtkWidgets.yButton openWorkOrderScanButton;
-
-		private global::Gamma.GtkWidgets.yTreeView ytreeviewWorkOrderScans;
+		private global::Vodovoz.Presentation.Views.AttachedFileInformationsView workOrderScanFileInformationsView;
 
 		private global::QS.Views.Control.EntityEntry entityentryWriteOffDocument;
 
@@ -607,50 +603,21 @@ namespace Vodovoz.Views.Logistic
 			this.table3.Name = "table3";
 			this.table3.RowSpacing = ((uint)(6));
 			this.table3.ColumnSpacing = ((uint)(6));
-			// Container child table3.Gtk.Table+TableChild
-			this.addWorkOrderScanButton = new global::Gamma.GtkWidgets.yButton();
-			this.addWorkOrderScanButton.CanFocus = true;
-			this.addWorkOrderScanButton.Name = "addWorkOrderScanButton";
-			this.addWorkOrderScanButton.UseUnderline = true;
-			this.addWorkOrderScanButton.Label = global::Mono.Unix.Catalog.GetString("Добавить");
-			this.table3.Add(this.addWorkOrderScanButton);
-			global::Gtk.Table.TableChild w42 = ((global::Gtk.Table.TableChild)(this.table3[this.addWorkOrderScanButton]));
-			w42.TopAttach = ((uint)(1));
-			w42.BottomAttach = ((uint)(2));
-			w42.LeftAttach = ((uint)(2));
-			w42.RightAttach = ((uint)(3));
-			w42.XOptions = ((global::Gtk.AttachOptions)(4));
-			w42.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table3.Gtk.Table+TableChild
-			this.openWorkOrderScanButton = new global::Gamma.GtkWidgets.yButton();
-			this.openWorkOrderScanButton.CanFocus = true;
-			this.openWorkOrderScanButton.Name = "openWorkOrderScanButton";
-			this.openWorkOrderScanButton.UseUnderline = true;
-			this.openWorkOrderScanButton.Label = global::Mono.Unix.Catalog.GetString("Открыть");
-			this.table3.Add(this.openWorkOrderScanButton);
-			global::Gtk.Table.TableChild w68 = ((global::Gtk.Table.TableChild)(this.table3[this.openWorkOrderScanButton]));
-			w68.TopAttach = ((uint)(1));
-			w68.BottomAttach = ((uint)(2));
-			w68.LeftAttach = ((uint)(3));
-			w68.RightAttach = ((uint)(4));
-			w68.XOptions = ((global::Gtk.AttachOptions)(4));
-			w68.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table3.Gtk.Table+TableChild
 			this.table3.Add(this.addWorkOrderScanLabel);
 			global::Gtk.Table.TableChild w69 = ((global::Gtk.Table.TableChild)(this.table3[this.addWorkOrderScanLabel]));
-			w69.TopAttach = ((uint)(2));
-			w69.BottomAttach = ((uint)(3));
+			w69.TopAttach = ((uint)(1));
+			w69.BottomAttach = ((uint)(2));
 			w69.LeftAttach = ((uint)(2));
 			w69.RightAttach = ((uint)(4));
 			w69.XOptions = ((global::Gtk.AttachOptions)(4));
 			w69.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table3.Gtk.Table+TableChild
-			this.ytreeviewWorkOrderScans = new global::Gamma.GtkWidgets.yTreeView();
-			this.ytreeviewWorkOrderScans.CanFocus = true;
-			this.ytreeviewWorkOrderScans.Name = "ytreeviewWorkOrderScans";
-			this.table3.Add(this.ytreeviewWorkOrderScans);
-			global::Gtk.Table.TableChild w70 = ((global::Gtk.Table.TableChild)(this.table3[this.ytreeviewWorkOrderScans]));
-			w70.TopAttach = ((uint)(3));
+			this.workOrderScanFileInformationsView = new global::Vodovoz.Presentation.Views.AttachedFileInformationsView();
+			this.workOrderScanFileInformationsView.Events = ((global::Gdk.EventMask)(256));
+			this.workOrderScanFileInformationsView.Name = "workOrderScanFileInformationsView";
+			this.table3.Add(this.workOrderScanFileInformationsView);
+			global::Gtk.Table.TableChild w70 = ((global::Gtk.Table.TableChild)(this.table3[this.workOrderScanFileInformationsView]));
+			w70.TopAttach = ((uint)(2));
 			w70.BottomAttach = ((uint)(4));
 			w70.LeftAttach = ((uint)(2));
 			w70.RightAttach = ((uint)(4));

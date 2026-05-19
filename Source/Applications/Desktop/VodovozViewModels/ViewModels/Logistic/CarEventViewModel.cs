@@ -12,7 +12,6 @@ using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -23,12 +22,12 @@ using Vodovoz.Core.Domain.Warehouses.Documents;
 using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Fuel;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.FilterViewModels.Employees;
 using Vodovoz.Journals.JournalNodes;
 using Vodovoz.Journals.JournalViewModels.Employees;
+using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using Vodovoz.Services;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.TempAdapters;
@@ -56,10 +55,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		private readonly int _startNewPeriodDay;
 		private bool _canCreateFuelBalanceCalibrationCarEvent;
 		private IInteractiveService _interactiveService;
-		private readonly IFileDialogService _fileDialogService;
 		private readonly ICarEventFileStorageService _carEventFileStorageService;
-		private readonly IUserRepository _userRepository;
-		private readonly IList<SelectedWorkOrderScanFile> _selectedWorkOrderScanFiles = new List<SelectedWorkOrderScanFile>();
 
 		public CarEventViewModel(
 			IEntityUoWBuilder uowBuilder,
@@ -75,9 +71,8 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			ILifetimeScope lifetimeScope,
 			IFuelRepository fuelRepository,
 			ViewModelEEVMBuilder<CarEventType> carEventViewModelEEVMBuilder,
-			IFileDialogService fileDialogService,
 			ICarEventFileStorageService carEventFileStorageService,
-			IUserRepository userRepository)
+			IAttachedFileInformationsViewModelFactory attachedFileInformationsViewModelFactory)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigationManager)
 		{
 			if(navigationManager is null)
@@ -99,10 +94,13 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			_writeOffDocumentViewModelEEVMBuilder = writeOffDocumentViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(writeOffDocumentViewModelEEVMBuilder));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_fuelRepository = fuelRepository ?? throw new ArgumentNullException(nameof(fuelRepository));
-			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
 			_carEventFileStorageService = carEventFileStorageService ?? throw new ArgumentNullException(nameof(carEventFileStorageService));
-			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_carEventTypeViewModelEEVMBuilder = carEventViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(carEventViewModelEEVMBuilder));
+			if(attachedFileInformationsViewModelFactory is null)
+			{
+				throw new ArgumentNullException(nameof(attachedFileInformationsViewModelFactory));
+			}
+
 			CanChangeWithClosedPeriod =
 				commonServices.CurrentPermissionService.ValidatePresetPermission("can_create_edit_car_events_in_closed_period");
 			_canCreateFuelBalanceCalibrationCarEvent = commonServices.CurrentPermissionService.ValidatePresetPermission(
@@ -152,9 +150,19 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			WriteOffDocumentNotRequiredChangedCommand = new DelegateCommand(WriteOffDocumentNotRequiredChanged);
 
 			CanChangeCarEventType = !(IsTechInspectCarEventType && Entity.Id > 0) && CanEditFuelBalanceCalibration;
+
+			WorkOrderScanFileInformationsViewModel = attachedFileInformationsViewModelFactory.Create(
+				UoW,
+				Entity.AddOrderScanFileInformation,
+				DeleteOrderScanFileInformation,
+				Entity.OrderScanFileInformations);
+			WorkOrderScanFileInformationsViewModel.AddFileDialogSettings = CreateWorkOrderScanFileDialogSettings();
+			WorkOrderScanFileInformationsViewModel.ReadOnly = !CanAddWorkOrderScan;
+			InitializeWorkOrderScanFiles();
 		}
 
 		public DelegateCommand WriteOffDocumentNotRequiredChangedCommand { get; }
+		public AttachedFileInformationsViewModel WorkOrderScanFileInformationsViewModel { get; }
 
 		public decimal RepairCost
 		{
@@ -187,14 +195,9 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		public bool CanAddWorkOrderScan =>
 			CanEdit
 			&& Entity.CarEventType?.Id == _carEventSettings.CarRepairEventTypeId;
-		public bool CanOpenWorkOrderScan =>
-			Entity.OrderScanFileInformations.Any()
-			&& Entity.CarEventType?.Id == _carEventSettings.CarRepairEventTypeId;
-		public bool CanShowWorkOrderScanControls => CanAddWorkOrderScan || CanOpenWorkOrderScan;
-		public IReadOnlyList<WorkOrderScanFileNode> WorkOrderScanFileNodes =>
-			Entity.OrderScanFileInformations
-				.Select((fileInformation, index) => new WorkOrderScanFileNode(index + 1, fileInformation.FileName))
-				.ToList();
+		public bool CanShowWorkOrderScanControls =>
+			Entity.CarEventType?.Id == _carEventSettings.CarRepairEventTypeId
+			&& (CanEdit || Entity.OrderScanFileInformations.Any());
 		public bool CanAttachFine => CanEdit;
 		public bool CanChangeCarTechnicalCheckupEndDate => CanEdit && IsCarTechnicalCheckupEventType;
 		public bool CanAttachWriteOffDocument =>
@@ -546,8 +549,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			OnPropertyChanged(nameof(IsFuelBalanceCalibration));
 			OnPropertyChanged(nameof(CanChangeCarEventType));
 			OnPropertyChanged(nameof(CanAddWorkOrderScan));
-			OnPropertyChanged(nameof(CanOpenWorkOrderScan));
 			OnPropertyChanged(nameof(CanShowWorkOrderScanControls));
+			if(WorkOrderScanFileInformationsViewModel != null)
+			{
+				WorkOrderScanFileInformationsViewModel.ReadOnly = !CanAddWorkOrderScan;
+			}
 
 			if(CarEventType?.IsAttachWriteOffDocument == false)
 			{
@@ -607,8 +613,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 		{
 			CreateAttachFineCommand();
 			CreateAddFineCommand();
-			CreateAddWorkOrderScanCommand();
-			CreateOpenWorkOrderScanCommand();
 			InfoCommand = new DelegateCommand(ShowHelpInfo);
 		}
 
@@ -628,9 +632,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			return CarEventType?.Id == _carEventSettings.CompensationFromInsuranceByCourtId;
 		}
 
-		public DelegateCommand AddWorkOrderScan { get; private set; }
-		public DelegateCommand OpenWorkOrderScan { get; private set; }
-
 		public DelegateCommand AddFineCommand { get; private set; }
 
 		private void CreateAddFineCommand()
@@ -640,24 +641,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 				() => CanAddFine
 			);
 			AddFineCommand.CanExecuteChangedWith(this, x => CanAddFine);
-		}
-
-		private void CreateAddWorkOrderScanCommand()
-		{
-			AddWorkOrderScan = new DelegateCommand(
-				CreateAddWorkOrderScan,
-				() => CanAddWorkOrderScan
-			);
-			AddWorkOrderScan.CanExecuteChangedWith(this, x => CanAddWorkOrderScan);
-		}
-
-		private void CreateOpenWorkOrderScanCommand()
-		{
-			OpenWorkOrderScan = new DelegateCommand(
-				OpenWorkOrderScanFile,
-				() => CanOpenWorkOrderScan
-			);
-			OpenWorkOrderScan.CanExecuteChangedWith(this, x => CanOpenWorkOrderScan);
 		}
 
 		public DelegateCommand AttachFineCommand { get; private set; }
@@ -731,23 +714,153 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 
 		public override bool Save(bool close)
 		{
-			if(!_selectedWorkOrderScanFiles.Any())
+			if(!HasWorkOrderScanFileChanges())
 			{
 				return base.Save(close);
 			}
 
-			if(!base.Save(false) || !UploadSelectedWorkOrderScan())
+			if(!base.Save(false) || !SaveWorkOrderScanFiles())
 			{
 				return false;
 			}
 
 			var saved = base.Save(close);
-			ClearSelectedWorkOrderScanIfSaved(saved);
+			ClearWorkOrderScanFilesPersistentInformationIfSaved(saved);
 
 			return saved;
 		}
 
-		private void CreateAddWorkOrderScan()
+		private bool HasWorkOrderScanFileChanges()
+		{
+			return WorkOrderScanFileInformationsViewModel.FilesToAddOnSave.Any()
+				|| WorkOrderScanFileInformationsViewModel.FilesToUpdateOnSave.Any()
+				|| WorkOrderScanFileInformationsViewModel.FilesToDeleteOnSave.Any();
+		}
+
+		private bool SaveWorkOrderScanFiles()
+		{
+			return AddWorkOrderScanFilesIfNeeded()
+				&& UpdateWorkOrderScanFilesIfNeeded()
+				&& DeleteWorkOrderScanFilesIfNeeded();
+		}
+
+		private bool AddWorkOrderScanFilesIfNeeded()
+		{
+			foreach(var fileName in WorkOrderScanFileInformationsViewModel.FilesToAddOnSave)
+			{
+				var result = _carEventFileStorageService.CreateFileAsync(
+						fileName,
+						new MemoryStream(WorkOrderScanFileInformationsViewModel.AttachedFiles[fileName]),
+						CancellationToken.None)
+					.GetAwaiter()
+					.GetResult();
+
+				if(result.IsFailure)
+				{
+					_interactiveService.ShowMessage(
+						ImportanceLevel.Error,
+						$"Не удалось загрузить скан заказ-наряда в S3:\n{result.GetErrorsString()}",
+						"Ошибка загрузки файла");
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		private bool UpdateWorkOrderScanFilesIfNeeded()
+		{
+			foreach(var fileName in WorkOrderScanFileInformationsViewModel.FilesToUpdateOnSave)
+			{
+				var result = _carEventFileStorageService.UpdateFileAsync(
+						fileName,
+						new MemoryStream(WorkOrderScanFileInformationsViewModel.AttachedFiles[fileName]),
+						CancellationToken.None)
+					.GetAwaiter()
+					.GetResult();
+
+				if(result.IsFailure)
+				{
+					_interactiveService.ShowMessage(
+						ImportanceLevel.Error,
+						$"Не удалось обновить скан заказ-наряда в S3:\n{result.GetErrorsString()}",
+						"Ошибка обновления файла");
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		private bool DeleteWorkOrderScanFilesIfNeeded()
+		{
+			foreach(var fileName in WorkOrderScanFileInformationsViewModel.FilesToDeleteOnSave)
+			{
+				var result = _carEventFileStorageService.DeleteFileAsync(fileName, CancellationToken.None)
+					.GetAwaiter()
+					.GetResult();
+
+				if(result.IsFailure)
+				{
+					_interactiveService.ShowMessage(
+						ImportanceLevel.Error,
+						$"Не удалось удалить скан заказ-наряда из S3:\n{result.GetErrorsString()}",
+						"Ошибка удаления файла");
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		private void ClearWorkOrderScanFilesPersistentInformationIfSaved(bool saved)
+		{
+			if(saved)
+			{
+				WorkOrderScanFileInformationsViewModel.ClearPersistentInformationCommand.Execute();
+			}
+		}
+
+		private void DeleteOrderScanFileInformation(string fileName)
+		{
+			var fileInformation = Entity.OrderScanFileInformations.FirstOrDefault(x => x.FileName == fileName);
+
+			if(fileInformation != null)
+			{
+				Entity.OrderScanFileInformations.Remove(fileInformation);
+			}
+		}
+
+		private void InitializeWorkOrderScanFiles()
+		{
+			if(Entity.Id == 0)
+			{
+				return;
+			}
+
+			var loadedFiles = new Dictionary<string, byte[]>();
+
+			foreach(var fileInformation in Entity.OrderScanFileInformations)
+			{
+				var fileResult = _carEventFileStorageService.GetFileAsync(fileInformation.FileName, CancellationToken.None)
+					.GetAwaiter()
+					.GetResult();
+
+				if(fileResult.IsSuccess)
+				{
+					using(fileResult.Value)
+					using(var ms = new MemoryStream())
+					{
+						fileResult.Value.CopyTo(ms);
+						loadedFiles.Add(fileInformation.FileName, ms.ToArray());
+					}
+				}
+			}
+
+			WorkOrderScanFileInformationsViewModel.InitializeLoadedFiles(loadedFiles);
+		}
+
+		private DialogSettings CreateWorkOrderScanFileDialogSettings()
 		{
 			var dialogSettings = new DialogSettings()
 			{
@@ -757,166 +870,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic
 			};
 			dialogSettings.FileFilters.Add(new DialogFileFilter("PDF файлы", "*.pdf"));
 
-			var result = _fileDialogService.RunOpenFileDialog(dialogSettings);
-			var selectedFilePaths = result.Paths?.ToList() ?? new List<string>();
-
-			if(!result.Successful || !selectedFilePaths.Any())
-			{
-				return;
-			}
-
-			var notPdfFileNames = selectedFilePaths
-				.Where(path => !string.Equals(Path.GetExtension(path), ".pdf", StringComparison.OrdinalIgnoreCase))
-				.Select(Path.GetFileName)
-				.ToList();
-
-			if(notPdfFileNames.Any())
-			{
-				_interactiveService.ShowMessage(
-					ImportanceLevel.Warning,
-					$"Можно загрузить только PDF-файлы:\n{string.Join("\n", notPdfFileNames)}",
-					"Неверный формат файла");
-				return;
-			}
-
-			foreach(var filePath in selectedFilePaths)
-			{
-				_selectedWorkOrderScanFiles.Add(new SelectedWorkOrderScanFile(filePath, $"{Guid.NewGuid()}.pdf"));
-			}
-
-			_interactiveService.ShowMessage(
-				ImportanceLevel.Info,
-				$"Выбранные сканы заказ-наряда ({selectedFilePaths.Count}) будут загружены при сохранении события ТС.",
-				"Файлы выбраны");
-		}
-
-		private bool UploadSelectedWorkOrderScan()
-		{
-			foreach(var selectedFile in _selectedWorkOrderScanFiles)
-			{
-				using(var fileStream = File.OpenRead(selectedFile.Path))
-				{
-					var uploadResult = _carEventFileStorageService.CreateFileAsync(selectedFile.FileName, fileStream, CancellationToken.None)
-						.GetAwaiter()
-						.GetResult();
-
-					if(uploadResult.IsFailure)
-					{
-						_interactiveService.ShowMessage(
-							ImportanceLevel.Error,
-							$"Не удалось загрузить скан заказ-наряда в S3:\n{uploadResult.GetErrorsString()}",
-							"Ошибка загрузки файла");
-						return false;
-					}
-				}
-			}
-
-			foreach(var selectedFile in _selectedWorkOrderScanFiles)
-			{
-				Entity.AddOrderScanFileInformation(selectedFile.FileName);
-			}
-
-			OnPropertyChanged(nameof(CanOpenWorkOrderScan));
-			OnPropertyChanged(nameof(CanShowWorkOrderScanControls));
-			OnPropertyChanged(nameof(WorkOrderScanFileNodes));
-
-			return true;
-		}
-
-		private void ClearSelectedWorkOrderScanIfSaved(bool saved)
-		{
-			if(saved)
-			{
-				_selectedWorkOrderScanFiles.Clear();
-			}
-		}
-
-		private void OpenWorkOrderScanFile()
-		{
-			foreach(var fileName in Entity.OrderScanFileInformations.Select(fileInformation => fileInformation.FileName))
-			{
-				OpenWorkOrderScanFile(fileName);
-			}
-		}
-
-		public void OpenWorkOrderScanFile(string fileName)
-		{
-			var vodovozUserTempDirectory = _userRepository.GetTempDirForCurrentUser(UoW);
-
-			if(string.IsNullOrWhiteSpace(vodovozUserTempDirectory))
-			{
-				return;
-			}
-
-			var tempDirectory = Path.Combine(Path.GetTempPath(), vodovozUserTempDirectory);
-			Directory.CreateDirectory(tempDirectory);
-
-			var tempFilePath = Path.Combine(tempDirectory, fileName);
-				
-			if(!File.Exists(tempFilePath))
-			{
-				var fileResult = _carEventFileStorageService.GetFileAsync(fileName, CancellationToken.None)
-					.GetAwaiter()
-					.GetResult();
-
-				if(fileResult.IsFailure)
-				{
-					_interactiveService.ShowMessage(
-						ImportanceLevel.Error,
-						$"Не удалось получить скан заказ-наряда из S3:\n{fileResult.GetErrorsString()}",
-						"Ошибка получения файла");
-					return;
-				}
-
-				using(fileResult.Value)
-				using(var fileStream = File.Create(tempFilePath))
-				{
-					fileResult.Value.CopyTo(fileStream);
-				}
-			}
-
-			var process = new Process
-			{
-				EnableRaisingEvents = true
-			};
-
-			process.StartInfo.FileName = tempFilePath;
-			process.Exited += OnWorkOrderScanProcessExited;
-			process.Start();
-		}
-
-		private void OnWorkOrderScanProcessExited(object sender, EventArgs e)
-		{
-			if(sender is Process process)
-			{
-				File.Delete(process.StartInfo.FileName);
-				process.Exited -= OnWorkOrderScanProcessExited;
-			}
-		}
-
-		private class SelectedWorkOrderScanFile
-		{
-			public SelectedWorkOrderScanFile(string path, string fileName)
-			{
-				Path = path;
-				FileName = fileName;
-			}
-
-			public string Path { get; }
-			public string FileName { get; }
-		}
-
-		public class WorkOrderScanFileNode
-		{
-			public WorkOrderScanFileNode(int number, string fileName)
-			{
-				Number = number;
-				FileName = fileName;
-			}
-
-			public int Number { get; }
-			public string FileName { get; }
-			public string Title => $"Скан {Number}";
+			return dialogSettings;
 		}
 
 		private void ObservableFines_ListContentChanged(object sender, EventArgs e)
