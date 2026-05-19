@@ -1,4 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NHibernate.Util;
@@ -154,7 +154,7 @@ namespace FastDeliveryLateWorker
 
 				var fastDeliveryOrderItem = lateOrder.OrderItems.FirstOrDefault(x => x.Nomenclature.Id == nomenclatureSettings.FastDeliveryNomenclatureId);
 				fastDeliveryOrderItem.SetDiscount(100);
-				fastDeliveryOrderItem.DiscountReason = new DiscountReason { Id = orderSettings.FastDeliveryLateDiscountReasonId };
+				fastDeliveryOrderItem.DiscountReasons.Add(new DiscountReason { Id = orderSettings.FastDeliveryLateDiscountReasonId });
 				uow.Save(fastDeliveryOrderItem);
 
 				uow.Save(complaint);

@@ -37,12 +37,24 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			References(x => x.Equipment).Column("equipment_id");
 			References(x => x.Nomenclature).Column("nomenclature_id");
 			References(x => x.Order).Column("order_id");
-			References(x => x.DiscountReason).Column("discount_reason_id");
-			References(x => x.OriginalDiscountReason).Column("original_discount_reason_id");
 			References(x => x.PromoSet).Column("promotional_set_id");
 			References(x => x.PaidRentPackage).Column("paid_rent_package_id");
 			References(x => x.FreeRentPackage).Column("free_rent_package_id");
 			References(x => x.CopiedFromUndelivery).Column("copied_from_undelivery_id");
+
+			HasManyToMany(x => x.DiscountReasons)
+				.Table("discount_reasons_order_items")       
+				.ParentKeyColumn("order_item_id")    
+				.ChildKeyColumn("discount_reason_id")
+				.Cascade.None()
+				.LazyLoad();
+
+			HasManyToMany(x => x.OriginalDiscountReasons)
+				.Table("original_discount_reasons_order_items")
+				.ParentKeyColumn("order_item_id")
+				.ChildKeyColumn("discount_reason_id")
+				.Cascade.None()
+				.LazyLoad();
 		}
 	}
 }

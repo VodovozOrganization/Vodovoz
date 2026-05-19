@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using NHibernate;
 using QS.DomainModel.Entity;
-using Vodovoz.Core.Domain.Goods;
+using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
@@ -13,6 +13,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		Nominative = "строка счета без отгрузки на предоплату")]
 	public class OrderWithoutShipmentForAdvancePaymentItem : PropertyChangedBase, IDomainObject, IDiscount
 	{
+		private IObservableList<DiscountReason> _discountReasons = new ObservableList<DiscountReason>();
 		private bool _isAlternativePrice;
 
 		public virtual int Id { get; set; }
@@ -96,7 +97,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			get => discount;
 			set {
 				if(value != discount && value == 0) {
-					DiscountReason = null;
+					DiscountReasons.Clear();
 				}
 				if(SetField(ref discount, value)) {
 					RecalculateVAT();
@@ -117,7 +118,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			get => discountMoney;
 			set {
 				if(value != discountMoney && value == 0) {
-					DiscountReason = null;
+					DiscountReasons.Clear();
 				}
 				if(SetField(ref discountMoney, value))
 					RecalculateVAT();
@@ -131,11 +132,10 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			set => SetField(ref discountByStock, value);
 		}
 
-		private DiscountReason discountReason;
-		[Display(Name = "Основание скидки на товар")]
-		public virtual DiscountReason DiscountReason {
-			get => discountReason;
-			set => SetField(ref discountReason, value);
+		[Display(Name = "Основания скидок на товар")]
+		public virtual IObservableList<DiscountReason> DiscountReasons {
+			get => _discountReasons;
+			set => SetField(ref _discountReasons, value);
 		}
 
 		[Display(Name = "Альтернативная цена?")]
@@ -165,7 +165,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 				CalculateAndSetDiscount(value);
 				if(DiscountByStock != 0) {
 					DiscountByStock = 0;
-					DiscountReason = null;
+					DiscountReasons.Clear();
 				}
 			}
 		}
@@ -196,6 +196,11 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			set => CalculateAndSetDiscount(value);
 		}
 
+		/// <summary>
+		/// Текущее количество товара
+		/// </summary>
+		public decimal CurrentCount => Count;
+
 		private void RecalculateDiscount()
 		{
 			if(!NHibernate.NHibernateUtil.IsPropertyInitialized(this, nameof(DiscountMoney))
@@ -207,14 +212,131 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			}
 
 			if(Count == 0)
-				RemoveDiscount();
+			{
+				ClearDiscounts();
+			}
+			else if(DiscountReasons.Any())
+			{
+				RecalculateTotalDiscountFromReasons();
+			}
 			else
-				CalculateAndSetDiscount(DiscountSetter);
+			{
+				var discount = IsDiscountInMoney
+					? DiscountMoney
+					: Discount;
+
+				CalculateAndSetDiscount(discount);
+			}
 		}
 
-		void RemoveDiscount()
+		public virtual void AddDiscount(bool isDiscountInMoney, decimal discount, DiscountReason discountReason)
 		{
-			DiscountReason = null;
+			if(discountReason != null && !IsDiscountReasonAdded(discountReason))
+			{
+				DiscountReasons.Add(discountReason);
+			}
+
+			RecalculateTotalDiscountFromReasons();
+		}
+
+		public virtual bool IsDiscountValueCanBeAdded(bool isDiscountInMoney, decimal discount)
+		{
+			var isCalculateInPercent =
+				DiscountReasons.All(x => x.ValueType == DiscountUnits.percent) && !isDiscountInMoney;
+
+			if(isCalculateInPercent)
+			{
+				var totalPercentDiscount = DiscountReasons.Sum(x => x.Value) + discount;
+				if(totalPercentDiscount > 100)
+				{
+					return false;
+				}
+			}
+
+			var alreadyAddedDiscount = CalculateTotalDiscountInMoneyFromAddedReasons();
+			var discountMoneyToAdd = isDiscountInMoney ? discount : CurrentRawPrice * discount / 100;
+
+			return discountMoneyToAdd + alreadyAddedDiscount <= CurrentRawPrice;
+		}
+
+		public virtual bool IsDiscountReasonAdded(DiscountReason discountReason)
+		{
+			if(discountReason is null)
+			{
+				throw new ArgumentNullException(nameof(discountReason));
+			}
+
+			return DiscountReasons.Any(x => x.Id == discountReason.Id);
+		}
+
+		private void RecalculateTotalDiscountFromReasons()
+		{
+			var currentPrice = CurrentRawPrice;
+			var totalDiscountMoney = CalculateTotalDiscountInMoneyFromAddedReasons();
+
+			if(totalDiscountMoney > currentPrice)
+			{
+				totalDiscountMoney = currentPrice;
+			}
+
+			DiscountMoney = totalDiscountMoney;
+			Discount = currentPrice > 0 ? (100 * DiscountMoney) / currentPrice : 0;
+
+			RecalculateVAT();
+		}
+
+		private decimal CurrentRawPrice => Price * CurrentCount;
+
+		private decimal CalculateTotalDiscountInMoneyFromAddedReasons()
+		{
+			decimal currentPrice = CurrentRawPrice;
+
+			decimal totalPercentDiscount = 0;
+			decimal totalMoneyDiscount = 0;
+
+			foreach(var reason in DiscountReasons)
+			{
+				if(reason.ValueType is DiscountUnits.money)
+				{
+					totalMoneyDiscount += reason.Value;
+				}
+				else
+				{
+					totalPercentDiscount += reason.Value;
+				}
+			}
+
+			if(totalPercentDiscount > 100)
+			{
+				totalPercentDiscount = 100;
+			}
+
+			decimal discountFromPercent = currentPrice * (totalPercentDiscount / 100);
+			decimal totalDiscountMoney = discountFromPercent + totalMoneyDiscount;
+
+			return totalDiscountMoney;
+		}
+
+		public virtual void RemoveDiscount(int discountReasonId)
+		{
+			if(!DiscountReasons.Any())
+			{
+				return;
+			}
+
+			var reasonsToRemove = DiscountReasons.Where(r => r.Id == discountReasonId).ToList();
+
+			foreach(var reason in reasonsToRemove)
+			{
+				DiscountReasons.Remove(reason);
+			}
+
+			RecalculateTotalDiscountFromReasons();
+		}
+
+		public virtual void ClearDiscounts()
+		{
+			DiscountReasons.Clear();
 			DiscountMoney = 0;
 			Discount = 0;
 		}
@@ -318,13 +440,12 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 			return canUseVat;
 		}
-		
-		public void SetDiscount(bool isDiscountInMoney, decimal discount, DiscountReason discountReason)
-		{
-			IsDiscountInMoney = isDiscountInMoney;
-			Discount = discount;
-			DiscountReason = discountReason;
-		}
+
+		/// <summary>
+		/// Наименования оснований скидки через запятую
+		/// </summary>
+		public virtual string DiscountReasonsNames =>
+			string.Join(", ", DiscountReasons.Select(x => x.Name));
 
 		public OrderWithoutShipmentForAdvancePaymentItem() { }
 	}

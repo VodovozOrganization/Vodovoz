@@ -297,7 +297,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				}
 				else
 				{
-					if(product.DiscountReason is null)
+					if(!product.DiscountReasons.Any())
 					{
 						order.AddNomenclature(
 							uow,
@@ -317,8 +317,9 @@ namespace Vodovoz.Core.Application.Orders.Services
 							product.GetDiscount,
 							product.IsDiscountInMoney,
 							product.IsFixedPrice,
-							discountReason: product.DiscountReason,
+							discountReasons: product.DiscountReasons,
 							giftItem: product.GiftItem);
+							);
 					}
 				}
 			}
@@ -341,8 +342,9 @@ namespace Vodovoz.Core.Application.Orders.Services
 					onlineOrderItem.GetDiscount,
 					onlineOrderItem.IsDiscountInMoney,
 					onlineOrderItem.IsFixedPrice,
-					onlineOrderItem.DiscountReason,
+					onlineOrderItem.DiscountReasons,
 					giftItem: onlineOrderItem.GiftItem);
+					);
 			}
 		}
 

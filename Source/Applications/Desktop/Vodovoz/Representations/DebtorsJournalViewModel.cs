@@ -335,7 +335,7 @@ namespace Vodovoz.Representations
 				.And(() => _filterViewModel.LastOrderNomenclature.Id == nomenclatureAlias.Id);
 
 			var lastOrderDiscount = QueryOver.Of(() => orderItemAlias)
-				.JoinAlias(() => orderItemAlias.DiscountReason, () => discountReasonAlias, JoinType.LeftOuterJoin)
+				.JoinQueryOver(() => orderItemAlias.DiscountReasons, () => discountReasonAlias, JoinType.LeftOuterJoin)
 				.Select(Projections.Property(() => discountReasonAlias.Id))
 				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
 				.And(() => _filterViewModel.DiscountReason.Id == discountReasonAlias.Id);
@@ -996,7 +996,7 @@ namespace Vodovoz.Representations
 				.And(() => _filterViewModel.LastOrderNomenclature.Id == nomenclatureAlias.Id);
 
 			var lastOrderDiscount = QueryOver.Of(() => orderItemAlias)
-				.JoinAlias(() => orderItemAlias.DiscountReason, () => discountReasonAlias, JoinType.LeftOuterJoin)
+				.JoinQueryOver(() => orderItemAlias.DiscountReasons, () => discountReasonAlias, JoinType.LeftOuterJoin)
 				.Select(Projections.Property(() => discountReasonAlias.Id))
 				.Where(() => orderItemAlias.Order.Id == orderAlias.Id)
 				.And(() => _filterViewModel.DiscountReason.Id == discountReasonAlias.Id);

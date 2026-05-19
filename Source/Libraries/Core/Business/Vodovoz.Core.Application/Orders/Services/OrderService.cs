@@ -671,7 +671,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			Order order,
 			bool canChangeDiscountValue)
 		{
-			if(order.OrderItems.Any(o => o.DiscountReason?.Id == _orderSettings.ReferFriendDiscountReasonId))
+			if(order.OrderItems.Any(o => o.DiscountReasons.Any(r => r.Id == _orderSettings.ReferFriendDiscountReasonId)))
 			{
 				return;
 			}

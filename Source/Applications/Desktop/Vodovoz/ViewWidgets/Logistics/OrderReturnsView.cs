@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using FluentNHibernate.Data;
 using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate.Criterion;
@@ -53,6 +52,7 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.TempAdapters;
+using Vodovoz.ViewModels.Widgets.Orders;
 using VodovozBusiness.Services.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -98,6 +98,8 @@ namespace Vodovoz
 		private UndeliveryViewModel _undeliveryViewModel;
 		private int? _oldDeliveryPointId;
 		private int? _oldCounterpartyId;
+
+		private OrderItemDiscountReasonsViewModel _orderItemDiscountReasonsViewModel;
 
 		public IUnitOfWork UoW { get; }
 		
@@ -222,6 +224,7 @@ namespace Vodovoz
 			_contractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));;
 			_orderCancellationService = _lifetimeScope.Resolve<OrderCancellationService>();
+			SetOrderItemDiscountReasonsViewModel();
 			CancellationPermit = OrderCancellationPermit.Default();
 		}
 
@@ -232,6 +235,33 @@ namespace Vodovoz
 		public int? OrderId => _routeListItem?.Order?.Id;
 		private bool IsClientSelectedAndOrderCashlessAndPaid =>
 			Client != null && _routeListItem?.Order?.IsOrderCashlessAndPaid == true;
+
+		private void SetOrderItemDiscountReasonsViewModel()
+		{
+			_orderItemDiscountReasonsViewModel = _lifetimeScope.Resolve<OrderItemDiscountReasonsViewModel>();
+			_orderItemDiscountReasonsViewModel.Initialize(UoW);
+			orderitemdiscountreasonsview.ViewModel = _orderItemDiscountReasonsViewModel;
+		}
+
+		private void UpdateOrderItemDiscountReasonsViewModel()
+		{
+			if(_orderItemDiscountReasonsViewModel is null)
+			{
+				throw new InvalidOperationException("Виджет выбора основания скидки не инициализирован");
+			}
+
+			var items = ytreeToClient.GetSelectedObjects();
+
+			if(items.Count() == 1
+				&& items.First() is OrderItemReturnsNode orderItemNode)
+			{
+				_orderItemDiscountReasonsViewModel.SetOrderItem(orderItemNode.OrderItem ?? orderItemNode.EquipmentOrderItem);
+				_orderItemDiscountReasonsViewModel.IsEditEnabled = _canEditPrices && orderItemNode.IsDiscountReasonsEditable;
+				return;
+			}
+
+			_orderItemDiscountReasonsViewModel.ResetOrderItem();
+		}
 
 		public void ConfigureForRouteListAddress(RouteListItem routeListItem)
 		{
@@ -251,9 +281,11 @@ namespace Vodovoz
 
 		private void UpdateListsSentivity()
 		{
-			ytreeToClient.Sensitive =
-				orderEquipmentItemsView.Sensitive =
-					depositrefunditemsview1.Sensitive = _routeListItem.IsDelivered();
+			var isSensitive = _routeListItem.IsDelivered();
+			ytreeToClient.Sensitive = isSensitive;
+			orderEquipmentItemsView.Sensitive = isSensitive;
+			depositrefunditemsview1.Sensitive = isSensitive;
+			_orderItemDiscountReasonsViewModel.IsEditEnabled = false;
 		}
 
 		private void UpdateItemsList()
@@ -379,8 +411,6 @@ namespace Vodovoz
 			orderEquipmentItemsView.Configure(UoW, _routeListItem.Order, _flyerRepository);
 			ConfigureDeliveryPointRefference(Client);
 
-			var discountReasons = _discountReasonRepository.GetActiveDiscountReasons(UoW);
-
 			ytreeToClient.ColumnsConfig = ColumnsConfigFactory.Create<OrderItemReturnsNode>()
 				.AddColumn("Название")
 					.AddTextRenderer(node => node.Name)
@@ -420,25 +450,16 @@ namespace Vodovoz
 						.AddSetter((c, n) => c.Activatable = _canEditPrices)
 				.AddColumn("Основание скидки")
 					.HeaderAlignment(0.5f)
-					.AddComboRenderer(node => node.DiscountReason)
-						.SetDisplayFunc(x => x.Name)
-						.DynamicFillListFunc(item =>
-						{
-							var list = discountReasons.Where(
-								dr => _discountsController.IsApplicableDiscount(dr, item.Nomenclature)).ToList();
-							return list;
-						})
-						.EditedEvent(OnDiscountReasonComboEdited)
-						.AddSetter((c, n) => c.Editable = _canEditPrices)
+					.AddTextRenderer(x => x.DiscountReasonsNames)
 						.AddSetter(
 							(c, n) =>
-								c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null && n.OrderItem?.PromoSet == null
+								c.BackgroundGdk = n.Discount > 0 && !n.DiscountReasons.Any() && n.OrderItem?.PromoSet == null
 									? GdkColors.DangerBase
 									: GdkColors.PrimaryBase
 						)
 						.AddSetter((c, n) =>
 							{
-								if(n.OrderItem?.PromoSet != null && n.DiscountReason == null && n.Discount > 0)
+								if(n.OrderItem?.PromoSet != null && !n.DiscountReasons.Any() && n.Discount > 0)
 								{
 									c.Text = n.OrderItem.PromoSet.DiscountReasonInfo;
 								}
@@ -451,6 +472,8 @@ namespace Vodovoz
 					.AddTextRenderer(node => node.PromoSetName)
 				.AddColumn("")
 				.Finish();
+
+			ytreeToClient.Selection.Changed += OnTreeToClientSelectionChanged;
 
 			yenumcomboOrderPayment.ItemsEnum = typeof(PaymentType);
 			yenumcomboOrderPayment.Binding
@@ -493,6 +516,11 @@ namespace Vodovoz
 
 			OnlineOrderVisible();
 			OnClientEntryViewModelChanged(null, null);
+		}
+
+		private void OnTreeToClientSelectionChanged(object sender, EventArgs e)
+		{
+			UpdateOrderItemDiscountReasonsViewModel();
 		}
 
 		private void Initialize(Order order)
@@ -548,40 +576,6 @@ namespace Vodovoz
 					Restrictions.WhereNot(() => paymentFromAlias.IsArchive),
 					Restrictions.IdEq(selectedPaymentFromId)))
 				.List();
-		}
-
-		private void OnDiscountReasonComboEdited(object o, EditedArgs args)
-		{
-			var index = int.Parse(args.Path);
-			var node = ytreeToClient.YTreeModel.NodeAtPath(new TreePath(args.Path));
-
-			if(!(node is OrderItemReturnsNode orderItemNode))
-			{
-				return;
-			}
-
-			var previousDiscountReason = orderItemNode.OrderItem.DiscountReason;
-
-			Gtk.Application.Invoke((sender, eventArgs) =>
-			{
-				//Дополнительно проверяем основание скидки на null, т.к при двойном щелчке
-				//комбо-бокс не откроется, но событие сработает и прилетит null
-				if(orderItemNode.OrderItem != null && orderItemNode.DiscountReason != null)
-				{
-					if(!_discountsController.SetDiscountFromDiscountReasonForOrderItem(
-						orderItemNode.DiscountReason, orderItemNode.OrderItem, _canEditPrices, out string message))
-					{
-						orderItemNode.OrderItem.DiscountReason = previousDiscountReason;
-					}
-
-					if(message != null)
-					{
-						_interactiveService.ShowMessage(ImportanceLevel.Warning,
-							$"На позицию:\n№{index + 1} {message}нельзя применить скидку," +
-							" т.к. она из промонабора или на нее есть фикса.\nОбратитесь к руководителю");
-					}
-				}
-			});
 		}
 
 		public void FixActualCounts()
