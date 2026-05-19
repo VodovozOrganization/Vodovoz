@@ -491,7 +491,7 @@ namespace Vodovoz.Core.Domain.Organizations
 					&& !Regex.IsMatch(ClosingDeliveriesNotificationEmailFrom, @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@vodovoz-spb\.ru\z"))
 			{
 				yield return new ValidationResult(
-					"E-mail организации, с которого будет приходить письмо с уведомлением о закрытии поставок должен быть в домене @vodovoz-spb.ru.",
+					"E-mail организации, с которого будет приходить письмо с уведомлением о закрытии поставок, быть в домене @vodovoz-spb.ru.",
 					new[] { nameof(ClosingDeliveriesNotificationEmailFrom) });
 			}
 

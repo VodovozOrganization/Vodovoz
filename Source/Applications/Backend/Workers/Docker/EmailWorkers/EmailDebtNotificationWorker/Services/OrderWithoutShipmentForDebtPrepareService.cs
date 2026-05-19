@@ -40,7 +40,7 @@ namespace EmailDebtNotificationWorker.Services
 
 			var dateFrom = DateTime.Now.AddDays(-_daysToCheckExistingBills);
 
-			var existingOrdersForDebt = (await _orderWithoutShipmentForDebtRepository.GetAsync(
+			var existingOrdersWithoutShipmentForDebt = (await _orderWithoutShipmentForDebtRepository.GetAsync(
 				unitOfWork,
 				x => x.CreateDate.Value >= dateFrom
 				  && counterpartyIds.Contains(x.Client.Id),
@@ -56,7 +56,7 @@ namespace EmailDebtNotificationWorker.Services
 				var notificationInfo = new OrderWithoutShipmentForDebtNotificationInfo
 				{
 					OverdueDebtDays = node.OverdueDebtDays,
-					OrderWithoutShipmentForDebt = existingOrdersForDebt.FirstOrDefault(x =>
+					OrderWithoutShipmentForDebt = existingOrdersWithoutShipmentForDebt.FirstOrDefault(x =>
 						x.Client.Id == node.Counterparty.Id
 						&& x.Organization.Id == node.Organization.Id)
 				};

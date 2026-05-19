@@ -295,7 +295,7 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				.FirstOrDefault());
 		}
 
-		public CounterpartyBulkSubscribeNode GetCounterpartyEmailByGuidForUnsubscribing(IUnitOfWork uow, Guid emailGuid)
+		public CounterpartyBulkSubscribeNode GetCounterpartyBulkSubscribeInfoByGuidForUnsubscribing(IUnitOfWork uow, Guid emailGuid)
 		{
 			BulkEmailEvent bulkEmailEventAlias = null;
 			CounterpartyEmail counterpartyEmailAlias = null;

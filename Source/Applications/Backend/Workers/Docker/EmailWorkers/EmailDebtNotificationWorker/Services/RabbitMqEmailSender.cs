@@ -1,5 +1,6 @@
 ﻿using MassTransit;
 using RabbitMQ.MailSending;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,7 +12,7 @@ namespace EmailDebtNotificationWorker.Services
 
 		public RabbitMqEmailSender(IBus bus)
 		{
-			_bus = bus;
+			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 		}
 
 		public Task Send(SendEmailMessage message, CancellationToken cancellationToken)

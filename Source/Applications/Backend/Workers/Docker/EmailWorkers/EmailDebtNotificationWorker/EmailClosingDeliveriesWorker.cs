@@ -1,4 +1,4 @@
-using EmailDebtNotificationWorker.Options;
+﻿using EmailDebtNotificationWorker.Options;
 using EmailDebtNotificationWorker.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -35,7 +35,7 @@ namespace EmailDebtNotificationWorker
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
-			_logger.LogInformation("Воркер закрытия поставок и отправки почты контрагентам запущен");
+			_logger.LogInformation("Воркер закрытия поставок и уведомления контрагентов запущен");
 
 			while(!stoppingToken.IsCancellationRequested)
 			{
@@ -64,21 +64,29 @@ namespace EmailDebtNotificationWorker
 
 				var counterpartiesWithClosingDeliveries = await closingDeliveriesService.CloseDeliveriesForDebtorsAsync(unitOfWork, cancellationToken: stoppingToken);
 
+				_logger.LogInformation("Закрыты поставки {CounterpartiesCount}", counterpartiesWithClosingDeliveries.Count);
+
 				var counterpartiesForClosingDeliveriesMailing = counterpartiesWithClosingDeliveries
 					.Where(x => !x.Organization.DisableClosingDeliveriesMailing && !x.Counterparty.DisableClosingDeliveriesMailing)
 					.ToList();
+				
 
 				if(!counterpartiesForClosingDeliveriesMailing.Any())
 				{
 					await _zabbixSender.SendIsHealthyAsync(stoppingToken);
 
+					_logger.LogInformation("Нет подходящих для отправки почты контрагентов. Ждём следующего запуска.");
+
 					return;
 				}
 
+				_logger.LogInformation("Выбрано {CounterpartiesCount} контрагентов для отправки почты. Подготовка писем для отправки.", counterpartiesForClosingDeliveriesMailing.Count);				
 
 				var notificationInfos = await orderWithoutShipmentForDebtService.PrepareInfo(unitOfWork, counterpartiesForClosingDeliveriesMailing, stoppingToken);				
 
-				await unitOfWork.CommitAsync(stoppingToken);				
+				await unitOfWork.CommitAsync(stoppingToken);
+
+				_logger.LogInformation("Отправка писем контрагентам.");
 
 				await closingDeliveriesNotificationService.SendNotifications(unitOfWork, notificationInfos, stoppingToken);
 

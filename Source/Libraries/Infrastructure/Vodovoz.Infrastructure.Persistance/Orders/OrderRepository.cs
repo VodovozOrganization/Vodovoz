@@ -2901,7 +2901,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			int? counterpartyId = null,
 			CancellationToken cancellationToken = default)
 		{
-			return (await GetOverdueDebtQuery(unitOfWork, daysBeforeClosingDeliveries, organizationsIds, orderStatuses, counterpartyTypes, counterpartyId)				
+			return (await GetOverdueDebtQuery(unitOfWork, daysBeforeClosingDeliveries, organizationsIds, orderStatuses, counterpartyTypes, counterpartyId)
 				.Where(x => !x.Counterparty.IsDeliveriesClosed)
 				.ToListAsync(cancellationToken))
 				.GroupBy(x => new

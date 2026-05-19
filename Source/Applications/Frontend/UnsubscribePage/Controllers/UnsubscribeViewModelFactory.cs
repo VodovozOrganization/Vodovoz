@@ -23,13 +23,13 @@ namespace UnsubscribePage.Controllers
 		{
 			using var unitOfWork = _uowFactory.CreateWithoutRoot("Инициализация страницы отписки");
 
-			var guidCounterpartyEmail = emailRepository.GetCounterpartyEmailByGuidForUnsubscribing(unitOfWork, guid);
+			var сounterpartyBulkSubscribeNode = emailRepository.GetCounterpartyBulkSubscribeInfoByGuidForUnsubscribing(unitOfWork, guid);
 			var reasons = emailRepository.GetUnsubscribingReasons(unitOfWork, emailSettings, isForUnsubscribePage: true);
 
 			return new UnsubscribeViewModel
 			{
 				OtherReasonId = emailSettings.BulkEmailEventOtherReasonId,
-				CounterpartyBulkSubscribeNodeSerialized = JsonSerializer.Serialize(guidCounterpartyEmail),
+				CounterpartyBulkSubscribeNodeSerialized = JsonSerializer.Serialize(сounterpartyBulkSubscribeNode),
 				ReasonsListSerialized = JsonSerializer.Serialize(reasons)
 			};
 		}

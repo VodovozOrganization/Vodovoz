@@ -48,7 +48,7 @@ namespace Vodovoz.Views.Client
 				.AddBinding(ViewModel.Entity, e => e.IsDeliveriesClosed, l => l.Visible)
 				.InitializeFromSource();
 
-			yenumcomboboxDebtType.ItemsEnum = typeof(DebtType);			
+			yenumcomboboxDebtType.ItemsEnum = typeof(DebtType);
 			yenumcomboboxDebtType.Binding
 				.AddBinding(ViewModel, vm => vm.CloseDeliveryDebtType, w => w.SelectedItemOrNull)
 				.AddBinding(ViewModel.Entity, e => e.IsDeliveriesClosed, w => w.Visible)

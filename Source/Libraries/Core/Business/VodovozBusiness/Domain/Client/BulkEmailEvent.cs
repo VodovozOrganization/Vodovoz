@@ -12,7 +12,7 @@ namespace Vodovoz.Domain.Client
 		NominativePlural = "события рассылки"
 	)]
 	[EntityPermission]
-	public abstract partial class BulkEmailEvent : PropertyChangedBase, IDomainObject, IValidatableObject
+	public abstract class BulkEmailEvent : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		private DateTime _actionTime;
 		private BulkEmailEventType _eventType;

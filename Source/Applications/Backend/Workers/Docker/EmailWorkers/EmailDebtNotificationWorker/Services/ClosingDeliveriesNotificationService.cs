@@ -9,16 +9,16 @@ namespace EmailDebtNotificationWorker.Services
 {
 	public class ClosingDeliveriesNotificationService : IClosingDeliveriesNotificationService
 	{
-		private readonly IClientClosingDeliveriesEmailBuilder _clientDebtEmailBuilder;
+		private readonly IClientClosingDeliveriesEmailBuilder _сlientClosingDeliveriesEmailBuilder;
 		private readonly ISummaryClosingDeliveriesEmailBuilder _summaryClosingDeliveriesEmailBuilder;
 		private readonly IEmailSender _emailSender;
 
 		public ClosingDeliveriesNotificationService(
-			IClientClosingDeliveriesEmailBuilder clientDebtEmailBuilder,
+			IClientClosingDeliveriesEmailBuilder сlientClosingDeliveriesEmailBuilder,
 			ISummaryClosingDeliveriesEmailBuilder summaryClosingDeliveriesEmailBuilder,
 			IEmailSender emailSender)
 		{
-			_clientDebtEmailBuilder = clientDebtEmailBuilder ?? throw new System.ArgumentNullException(nameof(clientDebtEmailBuilder));
+			_сlientClosingDeliveriesEmailBuilder = сlientClosingDeliveriesEmailBuilder ?? throw new System.ArgumentNullException(nameof(сlientClosingDeliveriesEmailBuilder));
 			_summaryClosingDeliveriesEmailBuilder = summaryClosingDeliveriesEmailBuilder ?? throw new System.ArgumentNullException(nameof(summaryClosingDeliveriesEmailBuilder));
 			_emailSender = emailSender ?? throw new System.ArgumentNullException(nameof(emailSender));
 		}
@@ -28,24 +28,24 @@ namespace EmailDebtNotificationWorker.Services
 			IReadOnlyCollection<OrderWithoutShipmentForDebtNotificationInfo> notificationInfos,
 			CancellationToken cancellationToken)
 		{
-			var clientEmailMessages = await _clientDebtEmailBuilder.Build(
+			var clientSendEmailMessages = await _сlientClosingDeliveriesEmailBuilder.Build(
 				uow,
 				notificationInfos,
 				cancellationToken);
 
-			foreach(var email in clientEmailMessages)
+			foreach(var sendEmailMessage in clientSendEmailMessages)
 			{
-				await _emailSender.Send(email, cancellationToken);
+				await _emailSender.Send(sendEmailMessage, cancellationToken);
 			}
 
-			var managerEmailMessages = await _summaryClosingDeliveriesEmailBuilder.Build(
+			var summarySendEmailMessages = await _summaryClosingDeliveriesEmailBuilder.Build(
 				uow,
 				notificationInfos,
 				cancellationToken);
 
-			foreach(var managerMessage in managerEmailMessages)
+			foreach(var summarySendEmailMessage in summarySendEmailMessages)
 			{
-				await _emailSender.Send(managerMessage, cancellationToken);
+				await _emailSender.Send(summarySendEmailMessage, cancellationToken);
 			}
 		}
 	}

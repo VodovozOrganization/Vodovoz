@@ -12,6 +12,13 @@ namespace EmailDebtNotificationWorker.Builders
 	/// </summary>
 	public interface ISummaryClosingDeliveriesEmailBuilder
 	{
+		/// <summary>
+		/// Построить письмо с общей информацией по всем клиентам о закрытии поставок, у которых есть задолженность по оплате
+		/// </summary>
+		/// <param name="uow"></param>
+		/// <param name="notificationInfos"></param>
+		/// <param name="cancellationToken"></param>
+		/// <returns></returns>
 		Task<IReadOnlyList<SendEmailMessage>> Build(
 			IUnitOfWork uow,
 			IReadOnlyCollection<OrderWithoutShipmentForDebtNotificationInfo> notificationInfos,

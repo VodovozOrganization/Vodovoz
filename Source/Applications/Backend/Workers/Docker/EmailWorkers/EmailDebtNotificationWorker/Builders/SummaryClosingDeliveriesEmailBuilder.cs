@@ -37,7 +37,7 @@ namespace EmailDebtNotificationWorker.Services
 
 			if(organization is null)
 			{
-				throw new ArgumentException($"Не удалось подобрать орнанизацию с заполненным E-mail, с которого будет отправляться письмо о закрытии поставок");
+				throw new ArgumentException($"Не удалось подобрать орнанизацию с заполненным Email-ами, с которого будет отправляться письмо о закрытии поставок");
 			}
 
 			var emailToSentContacts = _closingDeliveriesSettings.ClosingDeliveriesNotificationEmailsTo
@@ -57,9 +57,9 @@ namespace EmailDebtNotificationWorker.Services
 					SendDate = DateTime.Now,
 					StateChangeDate = DateTime.Now,
 					RecipientAddress = emailToSentContact.Email,
-					Subject = "Просроченная задолженность клиентов",
+					Subject = "Сводка по задолженностям сверх ПДЗ клиентов с закрытыми поставками",
 					Guid = Guid.NewGuid(),
-					Description = "Сводка задолженности"
+					Description = "Сводка по задолженностям сверх ПДЗ"
 				};
 
 				await uow.SaveAsync(storedEmail, cancellationToken: cancellationToken);

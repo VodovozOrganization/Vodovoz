@@ -18,7 +18,7 @@ namespace Vodovoz.Core.Domain.Clients
 		Blocked,
 
 		/// <summary>
-		/// Заблокирован
+		/// Заблокирован роботом
 		/// </summary>
 		/// 
 		[Display(Name = "Заблокирован роботом")]

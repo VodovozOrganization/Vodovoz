@@ -78,13 +78,13 @@ namespace EmailDebtNotificationWorker.Builders
 				throw new InvalidOperationException($"У организации {orderWithoutShipmentForDebt.Organization.Id} не заполнен {nameof(emailSentFrom)}");
 			}
 
-			var orderWihoutShipmentForDebtAttachment = _attachmentsService.CreateOrderWithoutShipmentForDebtAttachments(orderWithoutShipmentForDebt);
+			var orderWithoutShipmentForDebtAttachment = _attachmentsService.CreateOrderWithoutShipmentForDebtAttachments(orderWithoutShipmentForDebt);
 
 			var revisionStartDate = new DateTime(orderWithoutShipmentForDebt.CreateDate.Value.Year, 1, 1);
 			var revisionEndDate = DateTime.Today.AddDays(-1);
 			var revisionAttachment = _attachmentsService.CreateRevisionAttachments(orderWithoutShipmentForDebt.Counterparty.Id, orderWithoutShipmentForDebt.Organization.Id, revisionStartDate, revisionEndDate);
 
-			var attachments = orderWihoutShipmentForDebtAttachment.Concat(revisionAttachment).ToList();
+			var attachments = orderWithoutShipmentForDebtAttachment.Concat(revisionAttachment).ToList();
 
 			if(!attachments.Any())
 			{
@@ -178,37 +178,41 @@ namespace EmailDebtNotificationWorker.Builders
 		{
 			return $@"
 				<p>Уважаемый клиент!</p>
-
 				<p>
 					Сообщаем, что на текущий момент по договору имеется просроченная задолженность. 
 					В связи с тем, что срок просрочки превышает {_closingDeliveriesSettings.DaysBeforeClosingDeliveries} дней, мы вынуждены временно ограничить возможность оформления заказов по безналичному расчету до полного погашения задолженности.
 				</p>
-
 				<p><strong>Общая сумма задолженности по указанным заказам составляет {debt.DebtSum} руб.</strong></p>
-
 				<p>
 					Просим вас произвести оплату в ближайшее время. Счет на оплату приложен к письму.
 				</p>
-
 				<p>
 					Обращаем внимание: в случае отсутствия оплаты в течение 2 дней в ваш адрес будет направлена претензия. 
 					Если оплата уже произведена, пожалуйста, направьте платежное поручение в ответ на данное письмо.
 				</p>
-
 				<p>
 					После поступления оплаты поставки будут возобновлены в полном объеме.
 				</p>
-
 				<p>
 					Если у вас возникнут вопросы по сумме задолженности или срокам оплаты, пожалуйста, свяжитесь с нами — мы будем рады помочь.
 				</p>
-
-				<p>Благодарим за сотрудничество и рассчитываем на скорейшее урегулирование вопроса.</p>
-
-				<p>С уважением,</p>
-				<p><strong>Отдел сопровождения клиентов</strong></p>
-				<p>+7 (812) 317-00-00, доб. 700</p>
-				<p>client.buh@vodovoz-spb.ru</p>";
+				<p>
+					Благодарим за сотрудничество и рассчитываем на скорейшее урегулирование вопроса.
+				</p>
+				<p>
+					С уважением,
+				</p>
+				<p>
+				<strong>
+					Отдел сопровождения клиентов
+				</strong>
+				</p>
+				<p>
+					+7 (812) 317-00-00, доб. 700
+				</p>
+				<p>
+					client.buh@vodovoz-spb.ru
+				</p>";
 		}
 	}
 }
