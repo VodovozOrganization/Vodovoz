@@ -110,26 +110,41 @@ namespace CustomerOrdersApi.Library.V5.Services
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Проверка доступности использования скидки на первый заказ для клиента");
 
+			if(counterpartyErpId is null)
+			{
+				return CreateFirstOrderDiscountConditionsDto(uow, false);
+			}
+
 			var isClientHasNotCancelledOnlineOrdersFromSource =
 				await _customerOnlineOrderRepository.IsClientHasNotCancelledOnlineOrdersFromSource(
 					uow,
 					externalCounterpartyId,
-					counterpartyErpId,
+					counterpartyErpId.Value,
 					source.ToSource(),
 					cancellationToken);
 
+			return CreateFirstOrderDiscountConditionsDto(uow, !isClientHasNotCancelledOnlineOrdersFromSource);
+		}
+
+		private FirstOrderDiscountConditionsDto CreateFirstOrderDiscountConditionsDto(IUnitOfWork uow, bool isDiscountAvailable)
+		{
+			return new FirstOrderDiscountConditionsDto
+			{
+				DiscountIsAvailable = isDiscountAvailable,
+				Discount = GetFirstOrderDiscountData(uow)
+			};
+		}
+
+		private DiscountDto GetFirstOrderDiscountData(IUnitOfWork uow)
+		{
 			var discountReason =
 				uow.GetById<DiscountReason>(_orderSettings.FirstOnlineOrderDiscountReasonId);
 
-			return new FirstOrderDiscountConditionsDto
+			return new DiscountDto
 			{
-				DiscountIsAvailable = !isClientHasNotCancelledOnlineOrdersFromSource,
-				Discount = new DiscountDto
-				{
-					IsDiscountInMoney = discountReason.ValueType == DiscountUnits.money,
-					Discount = discountReason.Value,
-					DiscountReasonId = discountReason.Id
-				}
+				IsDiscountInMoney = discountReason.ValueType == DiscountUnits.money,
+				Discount = discountReason.Value,
+				DiscountReasonId = discountReason.Id
 			};
 		}
 	}
