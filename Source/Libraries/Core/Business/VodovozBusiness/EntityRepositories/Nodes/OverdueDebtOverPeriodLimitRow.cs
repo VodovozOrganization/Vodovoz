@@ -27,7 +27,7 @@ namespace VodovozBusiness.EntityRepositories.Nodes
 		/// <summary>
 		/// Долг
 		/// </summary>
-		public decimal Debt { get; set; }
+		public decimal DebtSum { get; set; }
 		/// </summary>
 
 		/// <summary>

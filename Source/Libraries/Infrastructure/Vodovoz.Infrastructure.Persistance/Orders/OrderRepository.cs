@@ -2914,7 +2914,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					Organization = g.First().Organization,
 					Counterparty = g.First().Counterparty,					
 					OrderIds = g.Select(x => x.OrderId).ToArray(),
-					DebtSum = g.Sum(x => x.Debt),
+					DebtSum = g.Sum(x => x.DebtSum),
 					OverdueDebtDays = (DateTime.Now - g.Min(x => x.DeliveryDate)).Days
 				})				
 				.ToArray();
@@ -2978,18 +2978,18 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						select op.Expense
 					).Sum() ?? 0
 
-				let debt = orderSum - paidSum
+				let debtSum = orderSum - paidSum
 
 				where
 					orderSum > 0
-					&& debt > 0
+					&& debtSum > 0
 
 			select new OverdueDebtOverPeriodLimitRow
 			{
 				Counterparty = counterparty,
 				OrderId = order.Id,				
 				Organization = contract.Organization,
-				Debt = debt,
+				DebtSum = debtSum,
 				DeliveryDate = order.DeliveryDate.Value
 			};
 

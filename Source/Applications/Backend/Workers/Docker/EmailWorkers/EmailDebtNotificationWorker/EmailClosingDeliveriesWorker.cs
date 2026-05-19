@@ -1,4 +1,4 @@
-﻿using EmailDebtNotificationWorker.Options;
+using EmailDebtNotificationWorker.Options;
 using EmailDebtNotificationWorker.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -73,6 +73,8 @@ namespace EmailDebtNotificationWorker
 
 				if(!counterpartiesForClosingDeliveriesMailing.Any())
 				{
+					await unitOfWork.CommitAsync(stoppingToken);
+
 					await _zabbixSender.SendIsHealthyAsync(stoppingToken);
 
 					_logger.LogInformation("Нет подходящих для отправки почты контрагентов. Ждём следующего запуска.");

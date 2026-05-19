@@ -92,7 +92,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 				counterparty.CloseDeliveryDebtType = DebtType.BlockedByRobot;
 				
-				var closingComment = $"Робот; {DateTime.Now:f}";
+				var closingComment = $"Робот; {DateTime.Now:dd.MM.yy HH:mm}";
 
 				var counterpartyOverdueRows = overdueDebtOverPeriodLimitRows.Where(x => x.Counterparty.Id == counterparty.Id);
 

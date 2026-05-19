@@ -49,6 +49,8 @@ namespace EmailDebtNotificationWorker.Services
 
 			var body = BuildBody(notificationInfos);
 
+			var instanceId = GetCurrentDatabaseId(uow);
+
 			foreach(var emailToSentContact in emailToSentContacts)
 			{
 				var storedEmail = new StoredEmail
@@ -83,7 +85,8 @@ namespace EmailDebtNotificationWorker.Services
 					Payload = new EmailPayload
 					{
 						Id = storedEmail.Id,
-						Trackable = true
+						Trackable = true,
+						InstanceId = instanceId
 					}
 				};
 
@@ -91,6 +94,17 @@ namespace EmailDebtNotificationWorker.Services
 			}
 
 			return sendEmailMessages;
+		}
+
+		private static int GetCurrentDatabaseId(IUnitOfWork uow)
+		{
+			var instanceId = Convert.ToInt32(
+				uow.Session
+				.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
+				.List<object>()
+				.FirstOrDefault());
+
+			return instanceId;
 		}
 
 		private string BuildBody(IReadOnlyCollection<OrderWithoutShipmentForDebtNotificationInfo> notificationInfos)

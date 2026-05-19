@@ -14,6 +14,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
+using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Domain.StoredEmails;
 
@@ -24,15 +25,18 @@ namespace EmailDebtNotificationWorker.Builders
 		private readonly ILogger<ClientClosingDeliveriesEmailBuilder> _logger;
 		private readonly IEmailAttachmentsCreateService _attachmentsService;
 		private readonly IClosingDeliveriesSettings _closingDeliveriesSettings;
+		private readonly IEmailSettings _emailSettings;
 
 		public ClientClosingDeliveriesEmailBuilder(
 			ILogger<ClientClosingDeliveriesEmailBuilder> logger,
 			IEmailAttachmentsCreateService attachmentsService,
-			IClosingDeliveriesSettings closingDeliveriesSettings)
+			IClosingDeliveriesSettings closingDeliveriesSettings,
+			IEmailSettings emailSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_attachmentsService = attachmentsService ?? throw new ArgumentNullException(nameof(attachmentsService));
 			_closingDeliveriesSettings = closingDeliveriesSettings ?? throw new ArgumentNullException(nameof(closingDeliveriesSettings));
+			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 		}
 
 		public async Task<IReadOnlyList<SendEmailMessage>> Build(
@@ -115,7 +119,11 @@ namespace EmailDebtNotificationWorker.Builders
 
 			await uow.SaveAsync(closingDeliveriesEmail, cancellationToken: cancellationToken);
 
-			var clientEmailBody = GenerateClientEmailBody(orderWithoutShipmentForDebt);
+			var unsubscribeUrl = GetUnsubscribeLink(storedEmail.Guid.Value);
+
+			var clientEmailBody = GenerateClientEmailBody(orderWithoutShipmentForDebt, unsubscribeUrl);
+
+			var instanceId = GetCurrentDatabaseId(uow);
 
 			var sendEmailMessage = new SendEmailMessage
 			{
@@ -139,7 +147,12 @@ namespace EmailDebtNotificationWorker.Builders
 				Payload = new EmailPayload
 				{
 					Id = storedEmail.Id,
-					Trackable = true
+					Trackable = true,
+					InstanceId = instanceId
+				},
+				Headers = new Dictionary<string, string>
+				{
+					{ "List-Unsubscribe", unsubscribeUrl }
 				}
 			};
 
@@ -174,7 +187,20 @@ namespace EmailDebtNotificationWorker.Builders
 			throw new InvalidOperationException($"Для клиента {client.Id} не удалось подобрать подходящий email для отправки уведомления о блокировке поставок.");
 		}
 
-		private string GenerateClientEmailBody(OrderWithoutShipmentForDebt debt)
+		private string GetUnsubscribeLink(Guid guid) => $"{_emailSettings.UnsubscribeUrl}/{guid}";
+
+		private static int GetCurrentDatabaseId(IUnitOfWork uow)
+		{
+			var instanceId = Convert.ToInt32(
+				uow.Session
+				.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
+				.List<object>()
+				.FirstOrDefault());
+
+			return instanceId;
+		}
+
+		private string GenerateClientEmailBody(OrderWithoutShipmentForDebt debt, string unsubscribeUrl)
 		{
 			return $@"
 				<p>Уважаемый клиент!</p>
@@ -212,6 +238,11 @@ namespace EmailDebtNotificationWorker.Builders
 				</p>
 				<p>
 					client.buh@vodovoz-spb.ru
+				</p>
+				<p style='text-align: right; font-size: 11px; margin-top: 20px;'>
+					<a href='{unsubscribeUrl}' style='font-size: 11px; color: #999; text-decoration: underline;'>
+						Отписаться от рассылки
+					</a>
 				</p>";
 		}
 	}
