@@ -20,7 +20,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			Map(x => x.IsActive).Column("is_active");
 			Map(x => x.IsArchive).Column("is_archive");
 			Map(x => x.PaymentType).Column("payment_type");
-			Map(x => x.RepeatOrder).Column("repeat_order");
+			Map(x => x.DeliveryFrequency).Column("delivery_frequency");
 			
 			HasMany(x => x.TemplateProducts)
 				.Table("online_orders_templates_products")

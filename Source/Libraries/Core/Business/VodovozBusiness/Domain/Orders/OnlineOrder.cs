@@ -58,6 +58,7 @@ namespace Vodovoz.Domain.Orders
 		private Employee _employeeWorkWith;
 		private bool? _isDeliveryPointNotBelongCounterparty;
 		private OnlineOrderCancellationReason _onlineOrderCancellationReason;
+		private int? _templateId;
 		private IList<Order> _orders = new List<Order>();
 		private IList<OnlineOrderItem> _onlineOrderItems = new List<OnlineOrderItem>();
 		private IList<OnlineFreeRentPackage> _onlineRentPackages = new List<OnlineFreeRentPackage>();
@@ -313,6 +314,16 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _isDeliveryPointNotBelongCounterparty;
 			protected set => SetField(ref _isDeliveryPointNotBelongCounterparty, value);
+		}
+
+		/// <summary>
+		/// Идентификатор шаблона
+		/// </summary>
+		[Display(Name = "Идентификатор шаблона")]
+		public virtual int? TemplateId
+		{
+			get => _templateId;
+			set => SetField(ref _templateId, value);
 		}
 
 		/// <summary>

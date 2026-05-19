@@ -1,14 +1,20 @@
-﻿using System.Collections.Generic;
-using NHibernate;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.EntityRepositories.Nodes;
+using VodovozBusiness.Nodes;
 
 namespace VodovozBusiness.EntityRepositories.Orders
 {
 	public interface IOnlineOrderTemplateRepository
 	{
+		Task<OnlineOrdersTemplatesData> GetOnlineOrdersTemplatesDataAsync(IUnitOfWork uow, int[] templatesIds);
+		Task<AggregateOnlineOrderTemplateInfo> GetAggregateOnlineOrderTemplateInfoAsync(IUnitOfWork uow, int templateId);
 		int GetOnlineOrdersTemplatesCount(IUnitOfWork uow, int counterpartyId);
+		IEnumerable<OnlineOrderTemplate> GetActiveOnlineOrdersTemplatesForCreateOrders(IUnitOfWork uow, DateTime date);
 		OnlineOrderTemplateInfo GetOnlineOrderTemplateDataByTemplateId(IUnitOfWork uow, int templateId);
 		IEnumerable<OnlineOrderTemplateCardForListData> GetOnlineOrdersTemplatesDataByCounterpartyId(
 			IUnitOfWork uow, int counterpartyId, int skip, int take);
@@ -18,10 +24,5 @@ namespace VodovozBusiness.EntityRepositories.Orders
 		IEnumerable<OnlineOrderTemplateWeekdayData> GetOnlineOrdersTemplatesWeekdaysDataByTemplateId(
 			IUnitOfWork uow, int templateId);
 		IEnumerable<string> GetOnlineOrdersTemplatesWeekdaysByTemplateId(IUnitOfWork uow, int templateId);
-		IQueryOver GetQueryOverOnlineOrderTemplateDataByTemplateId(int templateId);
-		IQueryOver GetQueryOverOnlineOrderTemplateCounterpartyDataByTemplateId(int templateId);
-		IQueryOver GetQueryOverOnlineOrderTemplateDeliveryPointDataByTemplateId(int templateId);
-		IQueryOver GetQueryOverOnlineOrderTemplateWeekdaysByTemplateId(int templateId);
-		IQueryOver GetQueryOverOnlineOrderTemplateProductsByTemplateId(int templateId);
 	}
 }

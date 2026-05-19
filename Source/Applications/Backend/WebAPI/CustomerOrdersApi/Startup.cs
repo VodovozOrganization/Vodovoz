@@ -1,7 +1,6 @@
 ﻿using CustomerOrdersApi.HealthCheck;
 using CustomerOrdersApi.Library;
 using System;
-using CustomerOrdersApi.Library.V4;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using DriverApi.Notifications.Client;
 using MassTransit;
@@ -12,7 +11,6 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
 using QS.Project.Core;
 using QS.Services;
 using Vodovoz;

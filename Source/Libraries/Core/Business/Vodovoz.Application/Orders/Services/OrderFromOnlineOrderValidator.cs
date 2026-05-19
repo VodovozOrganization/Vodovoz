@@ -303,11 +303,12 @@ namespace Vodovoz.Application.Orders.Services
 
 		private void ValidatePrice(OnlineOrderItem onlineOrderItem, CheckOnlineOrderSum checkOnlineOrderSum)
 		{
-			var price = _priceCalculator.CalculateItemPrice(
+			var price = _priceCalculator.CalculatePrice(
 				_onlineOrder.OnlineOrderItems,
-				_onlineOrder.DeliveryPoint,
 				_onlineOrder.Counterparty,
-				onlineOrderItem,
+				_onlineOrder.DeliveryPoint,
+				onlineOrderItem.Nomenclature,
+				onlineOrderItem.PromoSet != null,
 				false);
 
 			onlineOrderItem.NomenclaturePrice = price;

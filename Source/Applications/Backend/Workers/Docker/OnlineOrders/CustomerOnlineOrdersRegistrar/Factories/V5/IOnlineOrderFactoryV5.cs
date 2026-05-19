@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using CustomerOrdersApi.Library.V5.Dto.Orders;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
-using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Orders;
 using VodovozBusiness.Domain.Orders;
 
@@ -16,6 +15,7 @@ namespace CustomerOnlineOrdersRegistrar.Factories.V5
 		/// <summary>
 		/// Создание сущности шаблона автозаказа из ИПЗ
 		/// </summary>
+		/// <param name="uow">unit of work</param>
 		/// <param name="creatingOnlineOrder">Созданный онлайн заказ</param>
 		/// <param name="creatingTemplate">Данные для шаблона</param>
 		/// <returns></returns>
@@ -24,6 +24,6 @@ namespace CustomerOnlineOrdersRegistrar.Factories.V5
 			IEnumerable<OnlineOrderTemplateProduct> OrderTemplateProducts,
 			IEnumerable<OnlineOrderTemplateWeekday> OrderTemplateWeekDays
 		)
-			CreateOnlineOrderTemplate(OnlineOrder creatingOnlineOrder, CreatingOrderTemplate creatingTemplate);
+			CreateOnlineOrderTemplate(IUnitOfWork uow, OnlineOrder creatingOnlineOrder, CreatingOrderTemplate creatingTemplate);
 	}
 }

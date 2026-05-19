@@ -29,7 +29,8 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
 			IOrderService orderService,
 			IRouteListService routeListService,
-			IOrderFromOnlineOrderValidator onlineOrderValidator)
+			IOrderFromOnlineOrderValidator onlineOrderValidator,
+			IOnlineOrderTemplateFromOnlineOrderValidator onlineOrderTemplateValidator)
 			: base(
 				logger,
 				unitOfWorkFactory,
@@ -41,7 +42,9 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 				onlineOrderCancellationReasonSettings,
 				orderService,
 				routeListService,
-				onlineOrderValidator)
+				onlineOrderValidator,
+				onlineOrderTemplateValidator
+			)
 		{
 		}
 		

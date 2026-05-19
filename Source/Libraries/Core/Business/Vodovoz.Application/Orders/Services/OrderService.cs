@@ -37,6 +37,7 @@ using VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters;
 using VodovozBusiness.Domain.Goods.NomenclaturesOnlineParameters.Specifications;
 using VodovozBusiness.Domain.Goods.Specifications;
 using VodovozBusiness.Domain.Logistic.Specifications;
+using VodovozBusiness.Factories;
 using VodovozBusiness.Services.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -72,6 +73,7 @@ namespace Vodovoz.Application.Orders.Services
 		private readonly IOrderContractUpdater _orderContractUpdater;
 		private readonly IOrderConfirmationService _orderConfirmationService;
 		private readonly IPaymentItemsRepository _paymentItemsRepository;
+		private readonly IOnlineOrderAuthorFactory _onlineOrderAuthorFactory;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -97,7 +99,8 @@ namespace Vodovoz.Application.Orders.Services
 			IGenericRepository<Nomenclature> nomenclatureGenericRepository,
 			IOrderContractUpdater orderContractUpdater,
 			IOrderConfirmationService orderConfirmationService,
-			IPaymentItemsRepository paymentItemsRepository
+			IPaymentItemsRepository paymentItemsRepository,
+			IOnlineOrderAuthorFactory onlineOrderAuthorFactory
 			)
 		{
 			if(nomenclatureSettings is null)
@@ -128,6 +131,7 @@ namespace Vodovoz.Application.Orders.Services
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 			_orderConfirmationService = orderConfirmationService ?? throw new ArgumentNullException(nameof(orderConfirmationService));
 			_paymentItemsRepository = paymentItemsRepository ?? throw new ArgumentNullException(nameof(paymentItemsRepository));
+			_onlineOrderAuthorFactory = onlineOrderAuthorFactory ?? throw new ArgumentNullException(nameof(onlineOrderAuthorFactory));
 			PaidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
 			ForfeitNomenclatureId = nomenclatureSettings.ForfeitId;
 		}
@@ -610,25 +614,10 @@ namespace Vodovoz.Application.Orders.Services
 			CancellationToken cancellationToken
 		)
 		{
-			Employee employee = null;
-			switch(onlineOrder.Source)
-			{
-				case Source.MobileApp:
-					employee = await uow.Session.GetAsync<Employee>(_employeeSettings.MobileAppEmployee, cancellationToken);
-					break;
-				case Source.VodovozWebSite:
-					employee = await uow.Session.GetAsync<Employee>(_employeeSettings.VodovozWebSiteEmployee, cancellationToken);
-					break;
-				case Source.KulerSaleWebSite:
-					employee = await uow.Session.GetAsync<Employee>(_employeeSettings.KulerSaleWebSiteEmployee, cancellationToken);
-					break;
-				case Source.AiBot:
-					employee = await uow.Session.GetAsync<Employee>(_employeeSettings.AiBotEmployee, cancellationToken);
-					break;
-			}
+			var author = await _onlineOrderAuthorFactory.CreateAsync(uow, onlineOrder.Source, cancellationToken);
 
 			// Необходимо сделать асинхронным
-			var order = _orderFromOnlineOrderCreator.CreateOrderFromOnlineOrder(uow, employee, onlineOrder);
+			var order = _orderFromOnlineOrderCreator.CreateOrderFromOnlineOrder(uow, author, onlineOrder);
 
 			// Необходимо сделать асинхронным
 			UpdateDeliveryCost(uow, order);
@@ -645,7 +634,7 @@ namespace Vodovoz.Application.Orders.Services
 
 			var acceptResult = await _orderConfirmationService.TryAcceptOrderCreatedByOnlineOrderAsync(
 				uow,
-				employee,
+				author,
 				order,
 				routeListService,
 				cancellationToken
@@ -656,7 +645,7 @@ namespace Vodovoz.Application.Orders.Services
 				return 0;
 			}
 
-			onlineOrder.SetOrderPerformed(new []{ order }, employee);
+			onlineOrder.SetOrderPerformed(new []{ order }, author);
 			var notification = OnlineOrderStatusUpdatedNotification.Create(onlineOrder);
 
 			await uow.SaveAsync(notification, cancellationToken: cancellationToken);

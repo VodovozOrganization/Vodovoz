@@ -309,6 +309,13 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					.SelectGroup(o => o.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => typeof(OnlineOrder)).WithAlias(() => resultAlias.EntityType)
 					.Select(() => OnlineOrder.OnlineOrderName).WithAlias(() => resultAlias.EntityTypeString)
+					.Select(
+						Projections.Conditional(
+							Restrictions.IsNotNull(Projections.Property(() => onlineOrderAlias.TemplateId)),
+							Projections.Constant(true),
+							Projections.Constant(false)
+							)
+						).WithAlias(() => resultAlias.IsFromTemplate)
 					.Select(orderByStatusProjection).WithAlias(() => resultAlias.OrderByStatusValue)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
 					.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.CompiledAddress)

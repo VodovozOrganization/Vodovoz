@@ -1,12 +1,14 @@
-﻿using System;
+﻿using QS.Views;
+using Vodovoz.ViewModels.ViewModels.Orders;
+
 namespace Vodovoz.Views.Orders
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class OnlineOrderTemplateView : Gtk.Bin
+	public partial class OnlineOrderTemplateView : ViewBase<OnlineOrderTemplateViewModel>
 	{
-		public OnlineOrderTemplateView()
+		public OnlineOrderTemplateView(OnlineOrderTemplateViewModel viewModel) : base(viewModel)
 		{
-			this.Build();
+			Build();
 		}
 	}
 }

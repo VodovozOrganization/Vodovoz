@@ -1,4 +1,5 @@
 ﻿using Autofac.Extensions.DependencyInjection;
+using CustomerOnlineOrdersRegistrar.Configs;
 using CustomerOnlineOrdersRegistrar.Consumers;
 using CustomerOnlineOrdersRegistrar.Factories.V4;
 using CustomerOnlineOrdersRegistrar.Factories.V5;
@@ -80,6 +81,9 @@ namespace CustomerOnlineOrdersRegistrar
 							busConf.AddConsumer<CreatingOnlineOrderWithTemplateConsumer, CreatingOnlineOrderWithTemplateConsumerDefinition>();
 							busConf.ConfigureRabbitMq();
 						});
+					
+					services.Configure<OnlineOrderFromTemplateRegistrarOptions>(
+						hostContext.Configuration.GetSection(OnlineOrderFromTemplateRegistrarOptions.SectionName));
 
 					services.AddStaticScopeForEntity();
 					services.AddStaticHistoryTracker();

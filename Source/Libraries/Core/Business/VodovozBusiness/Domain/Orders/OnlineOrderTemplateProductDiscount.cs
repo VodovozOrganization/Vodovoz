@@ -116,5 +116,15 @@ namespace VodovozBusiness.Domain.Orders
 
 			return productDiscount;
 		}
+		
+		public static OnlineOrderTemplateProductDiscount CreateEmptyDiscount(OnlineOrderTemplateProduct templateProduct)
+		{
+			var productDiscount = new OnlineOrderTemplateProductDiscount
+			{
+				TemplateProduct = templateProduct,
+			};
+			
+			return productDiscount;
+		}
 	}
 }

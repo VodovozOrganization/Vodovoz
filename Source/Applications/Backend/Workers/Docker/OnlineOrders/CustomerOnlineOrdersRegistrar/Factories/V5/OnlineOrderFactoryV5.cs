@@ -7,7 +7,6 @@ using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Core.Data.V5;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
-using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.Rent;
@@ -16,15 +15,20 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Factories;
 
 namespace CustomerOnlineOrdersRegistrar.Factories.V5
 {
 	public class OnlineOrderFactoryV5 : IOnlineOrderFactoryV5
 	{
+		private readonly IOnlineOrderAuthorFactory _onlineOrderAuthorFactory;
 		private readonly IDiscountController _discountController;
 
-		public OnlineOrderFactoryV5(IDiscountController discountController)
+		public OnlineOrderFactoryV5(
+			IOnlineOrderAuthorFactory onlineOrderAuthorFactory,
+			IDiscountController discountController)
 		{
+			_onlineOrderAuthorFactory = onlineOrderAuthorFactory ?? throw new ArgumentNullException(nameof(onlineOrderAuthorFactory));
 			_discountController = discountController ?? throw new ArgumentNullException(nameof(discountController));
 		}
 		
@@ -87,14 +91,30 @@ namespace CustomerOnlineOrdersRegistrar.Factories.V5
 		public (OnlineOrderTemplate OrderTemplate,
 			IEnumerable<OnlineOrderTemplateProduct> OrderTemplateProducts,
 			IEnumerable<OnlineOrderTemplateWeekday> OrderTemplateWeekDays)
-			CreateOnlineOrderTemplate(OnlineOrder creatingOnlineOrder, CreatingOrderTemplate creatingTemplate)
+			CreateOnlineOrderTemplate(
+				IUnitOfWork uow,
+				OnlineOrder creatingOnlineOrder,
+				CreatingOrderTemplate creatingTemplate)
 		{
 			var template = OnlineOrderTemplate.Create(
+				creatingOnlineOrder.Source,
+				creatingOnlineOrder.EmployeeWorkWith?.Id ?? _onlineOrderAuthorFactory.Create(uow, creatingOnlineOrder.Source).Id,
+				creatingOnlineOrder.ExternalCounterpartyId,
 				creatingOnlineOrder.CounterpartyId.Value,
 				creatingOnlineOrder.DeliveryPointId.Value,
 				creatingTemplate.DeliveryScheduleId.Value,
-				creatingTemplate.RepeatOrder.Value,
-				creatingOnlineOrder.OnlineOrderPaymentType
+				creatingOnlineOrder.IsSelfDelivery,
+				creatingOnlineOrder.SelfDeliveryGeoGroupId,
+				creatingOnlineOrder.IsFastDelivery,
+				creatingOnlineOrder.IsNeedConfirmationByCall,
+				creatingOnlineOrder.DontArriveBeforeInterval,
+				creatingOnlineOrder.CallBeforeArrivalMinutes,
+				creatingOnlineOrder.BottlesReturn,
+				creatingTemplate.DeliveryFrequency.Value,
+				creatingOnlineOrder.OnlineOrderPaymentType,
+				creatingOnlineOrder.ContactPhone,
+				creatingOnlineOrder.OnlineOrderComment,
+				creatingOnlineOrder.Trifle
 			);
 			
 			var templateWeekdays = creatingTemplate.Weekdays
@@ -107,10 +127,8 @@ namespace CustomerOnlineOrdersRegistrar.Factories.V5
 				var discounts = new ObservableList<OnlineOrderTemplateProductDiscount>();
 				
 				var product = OnlineOrderTemplateProduct.Create(
-					orderItem.NomenclatureId,
 					orderItem.Count,
 					orderItem.Price,
-					orderItem.PromoSetId,
 					orderItem.Nomenclature,
 					orderItem.PromoSet,
 					template.Id,

@@ -6,6 +6,8 @@ using QS.Project.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Subdivisions;
@@ -67,6 +69,16 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 				.Where(e => externalAppUserAlias.Login == login)
 				.And(e => externalAppUserAlias.ExternalApplicationType == externalApplicationType)
 				.SingleOrDefault();
+		}
+
+		public Employee GetEmployee(IUnitOfWork uow, int id)
+		{
+			return uow.GetById<Employee>(id);
+		}
+		
+		public async Task<Employee> GetEmployeeAsync(IUnitOfWork uow, int id, CancellationToken cancellationToken)
+		{
+			return await uow.Session.GetAsync<Employee>(id, cancellationToken);
 		}
 
 		public IList<Employee> GetEmployeesForUser(IUnitOfWork uow, int userId)

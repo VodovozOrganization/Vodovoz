@@ -2,6 +2,8 @@
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
@@ -16,6 +18,21 @@ namespace Vodovoz.EntityRepositories.Employees
 			IUnitOfWork uow,
 			string login,
 			ExternalApplicationType externalApplicationType = ExternalApplicationType.DriverApp);
+		/// <summary>
+		/// Получение сотрудника по идентификатору
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="id">Идентификатор</param>
+		/// <returns></returns>
+		Employee GetEmployee(IUnitOfWork uow, int id);
+		/// <summary>
+		/// Получение сотрудника по идентификатору
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="id">Идентификатор</param>
+		/// <param name="cancellationToken">Токен отмены операции</param>
+		/// <returns></returns>
+		Task<Employee> GetEmployeeAsync(IUnitOfWork uow, int id, CancellationToken cancellationToken);
 		Employee GetEmployeeByAuthKey(IUnitOfWork uow, string authKey);
 		Employee GetEmployeeByINNAndAccount(IUnitOfWork uow, string inn, string account);
 		Employee GetEmployeeForCurrentUser(IUnitOfWork uow);

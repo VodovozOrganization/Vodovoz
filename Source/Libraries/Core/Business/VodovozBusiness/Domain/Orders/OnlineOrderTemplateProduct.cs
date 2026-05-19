@@ -20,9 +20,7 @@ namespace VodovozBusiness.Domain.Orders
 	[HistoryTrace]
 	public class OnlineOrderTemplateProduct : PropertyChangedBase, IDomainObject, ICalculatingPriceV5
 	{
-		private int? _nomenclatureId;
 		private decimal _price;
-		private int? _promoSetId;
 		private int _templateId;
 		private decimal _count;
 		private Nomenclature _nomenclature;
@@ -44,16 +42,6 @@ namespace VodovozBusiness.Domain.Orders
 		}
 		
 		/// <summary>
-		/// Id номенклатуры
-		/// </summary>
-		[Display(Name = "Id номенклатуры")]
-		public virtual int? NomenclatureId
-		{
-			get => _nomenclatureId;
-			set => SetField(ref _nomenclatureId, value);
-		}
-		
-		/// <summary>
 		/// Цена
 		/// </summary>
 		[Display(Name = "Цена")]
@@ -61,16 +49,6 @@ namespace VodovozBusiness.Domain.Orders
 		{
 			get => _price;
 			set => SetField(ref _price, value);
-		}
-		
-		/// <summary>
-		/// Id промонабора
-		/// </summary>
-		[Display(Name = "Id промонабора")]
-		public virtual int? PromoSetId
-		{
-			get => _promoSetId;
-			set => SetField(ref _promoSetId, value);
 		}
 		
 		/// <summary>
@@ -126,10 +104,8 @@ namespace VodovozBusiness.Domain.Orders
 		public virtual decimal Sum => Math.Round(Price * Count, 2);
 		
 		public static OnlineOrderTemplateProduct Create(
-			int? nomenclatureId,
 			decimal count,
 			decimal price,
-			int? promoSetId,
 			Nomenclature nomenclature,
 			PromotionalSet promotionalSet,
 			int templateId,
@@ -138,10 +114,8 @@ namespace VodovozBusiness.Domain.Orders
 		{
 			var onlineOrderItem = new OnlineOrderTemplateProduct
 			{
-				NomenclatureId = nomenclatureId,
 				Count = count,
 				Price = price,
-				PromoSetId = promoSetId,
 				Nomenclature = nomenclature,
 				PromoSet = promotionalSet,
 				TemplateId = templateId,

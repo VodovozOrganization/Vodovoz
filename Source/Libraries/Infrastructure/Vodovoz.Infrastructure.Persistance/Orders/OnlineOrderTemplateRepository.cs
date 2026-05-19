@@ -1,23 +1,105 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NHibernate;
-using NHibernate.Criterion;
-using NHibernate.Dialect.Function;
-using NHibernate.SqlCommand;
-using NHibernate.Transform;
+using NHibernate.Multi;
 using QS.DomainModel.UoW;
-using QS.Project.DB;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.EntityRepositories.Nodes;
 using VodovozBusiness.EntityRepositories.Orders;
+using VodovozBusiness.Extensions;
+using VodovozBusiness.Nodes;
 
 namespace Vodovoz.Infrastructure.Persistance.Orders
 {
 	public sealed class OnlineOrderTemplateRepository : IOnlineOrderTemplateRepository
 	{
+		private const string _templateBatchKey = "templateInfo";
+		private const string _counterpartyBatchKey = "counterparty";
+		private const string _deliveryPointBatchKey = "deliveryPoint";
+		private const string _weekdaysBatchKey = "weekdays";
+		private const string _productsBatchKey = "products";
+		private readonly IOnlineOrderTemplateQueryOverRepository _queryOverRepository;
+
+		public OnlineOrderTemplateRepository(IOnlineOrderTemplateQueryOverRepository queryOverRepository)
+		{
+			_queryOverRepository = queryOverRepository ?? throw new ArgumentNullException(nameof(queryOverRepository));
+		}
+
+		public async Task<OnlineOrdersTemplatesData> GetOnlineOrdersTemplatesDataAsync(IUnitOfWork uow, int[] templatesIds)
+		{
+			var batch = uow.Session.CreateQueryBatch();
+
+			var templateBatch = _queryOverRepository.GetQueryOverOnlineOrderTemplateData(templatesIds);
+			//var counterpartyBatch = _onlineOrderTemplateRepository.GetQueryOverOnlineOrderTemplateCounterpartyDataByTemplateId(templateId);
+			//var deliveryPointBatch = _onlineOrderTemplateRepository.GetQueryOverOnlineOrderTemplateDeliveryPointDataByTemplateId(templateId);
+			var weekdaysBatch = _queryOverRepository.GetQueryOverOnlineOrderTemplateWeekdays(templatesIds);
+			var templateProductsBatch = _queryOverRepository.GetQueryOverOnlineOrderTemplateProducts(templatesIds);
+
+			batch
+				.Add<OnlineOrderTemplateData>(_templateBatchKey, templateBatch)
+				//.Add<Counterparty>(counterpartyBatchKey, counterpartyBatch)
+				//.Add<DeliveryPoint>(deliveryPointBatchKey, deliveryPointBatch)
+				.Add<OnlineOrderTemplateWeekday>(_weekdaysBatchKey, weekdaysBatch)
+				.Add<OnlineOrderTemplateProduct>(_productsBatchKey, templateProductsBatch)
+				;
+
+			await batch.ExecuteAsync();
+
+			var templates = (await batch
+					.GetResultAsync<OnlineOrderTemplateData>(_templateBatchKey))
+				.ToList();
+			//var counterparty = (await batch.GetResultAsync<Counterparty>(counterpartyBatchKey)).FirstOrDefault();
+			//var deliveryPoint = (await batch.GetResultAsync<DeliveryPoint>(deliveryPointBatchKey)).FirstOrDefault();
+			var weekdays = (await batch
+					.GetResultAsync<OnlineOrderTemplateWeekday>(_weekdaysBatchKey))
+				.ToLookup(x => x.TemplateId);
+
+			var products = (await batch
+					.GetResultAsync<OnlineOrderTemplateProduct>(_productsBatchKey))
+				.ToLookup(x => x.TemplateId);
+
+			return OnlineOrdersTemplatesData.Create(templates, weekdays, products);
+		}
+
+		public async Task<AggregateOnlineOrderTemplateInfo> GetAggregateOnlineOrderTemplateInfoAsync(IUnitOfWork uow, int templateId)
+		{
+			var batch = uow.Session.CreateQueryBatch();
+
+			var templateBatch = _queryOverRepository.GetQueryOverOnlineOrderTemplateDataByTemplateId(templateId);
+			var counterpartyBatch = _queryOverRepository.GetQueryOverOnlineOrderTemplateCounterpartyDataByTemplateId(templateId);
+			var deliveryPointBatch = _queryOverRepository.GetQueryOverOnlineOrderTemplateDeliveryPointDataByTemplateId(templateId);
+			var weekdaysBatch = _queryOverRepository.GetQueryOverOnlineOrderTemplateWeekdaysByTemplateId(templateId);
+			var templateProductsBatch = _queryOverRepository.GetQueryOverOnlineOrderTemplateProductsByTemplateId(templateId);
+
+			batch
+				.Add<OnlineOrderTemplateInfo>(_templateBatchKey, templateBatch)
+				.Add<Counterparty>(_counterpartyBatchKey, counterpartyBatch)
+				.Add<DeliveryPoint>(_deliveryPointBatchKey, deliveryPointBatch)
+				.Add<string>(_weekdaysBatchKey, weekdaysBatch)
+				.Add<OnlineOrderTemplateProduct>(_productsBatchKey, templateProductsBatch)
+				;
+
+			await batch.ExecuteAsync();
+
+			var templateData = (await batch.GetResultAsync<OnlineOrderTemplateInfo>(_templateBatchKey))
+				.FirstOrDefault();
+			var counterparty = (await batch.GetResultAsync<Counterparty>(_counterpartyBatchKey))
+				.FirstOrDefault();
+			var deliveryPoint = (await batch.GetResultAsync<DeliveryPoint>(_deliveryPointBatchKey))
+				.FirstOrDefault();
+			var weekdays = await batch.GetResultAsync<string>(_weekdaysBatchKey);
+			var products = await batch.GetResultAsync<OnlineOrderTemplateProduct>(_productsBatchKey);
+
+			return AggregateOnlineOrderTemplateInfo.Create(templateData, counterparty, deliveryPoint, weekdays, products);
+		}
+		
 		public int GetOnlineOrdersTemplatesCount(IUnitOfWork uow, int counterpartyId)
 		{
 			var templatesCount = (
@@ -28,6 +110,55 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.Count();
 			
 			return templatesCount;
+		}
+
+		public IEnumerable<OnlineOrderTemplate> GetActiveOnlineOrdersTemplatesForCreateOrders(
+			IUnitOfWork uow, DateTime date)
+		{
+			//TODO доработать алгоритм подбора шаблонов за день до доставки
+			var weekDayFromDate = date.DayOfWeek.ConvertToWeekDayName();
+			
+			var templates = (
+				from template in uow.Session.Query<OnlineOrderTemplate>()
+				join weekday in uow.Session.Query<OnlineOrderTemplateWeekday>()
+					on template.Id equals weekday.TemplateId
+					
+				let lastOnlineFromTemplate = (
+					from onlineOrder in uow.Session.Query<OnlineOrder>()
+					where onlineOrder.TemplateId == template.Id
+					orderby onlineOrder.Id descending 
+					select onlineOrder
+					)
+					.FirstOrDefault()
+
+				let needCreateByDay = weekday.Weekday == WeekDayName.Sunday
+					? (int)weekday.Weekday - (int)weekDayFromDate == 6
+					: (int)weekday.Weekday - (int)weekDayFromDate == 1
+					
+				let days = template.DeliveryFrequency == OnlineOrderDeliveryFrequency.OnePerWeek
+					? 7
+					: template.DeliveryFrequency == OnlineOrderDeliveryFrequency.OneEveryTwoWeeks
+						? 14
+						: template.DeliveryFrequency == OnlineOrderDeliveryFrequency.OneEveryThreeWeeks
+							? 21
+							: template.DeliveryFrequency == OnlineOrderDeliveryFrequency.OneEveryFourWeeks
+								? 28
+								: 0
+
+				let needCreateByWeek = lastOnlineFromTemplate != null
+					|| (
+						lastOnlineFromTemplate.Created.Date != date.Date
+							&& lastOnlineFromTemplate.Created.AddDays(days).Date == date.Date
+						)
+				
+				where template.IsActive && needCreateByDay && needCreateByWeek
+
+				select template
+				)
+				.Distinct()
+				.ToList();
+			
+			return templates;
 		}
 
 		public OnlineOrderTemplateInfo GetOnlineOrderTemplateDataByTemplateId(IUnitOfWork uow, int templateId)
@@ -46,7 +177,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					{
 						Id = template.Id,
 						IsActive = template.IsActive,
-						RepeatOrder = template.RepeatOrder.ToString(),
+						RepeatOrder = template.DeliveryFrequency.ToString(),
 						PaymentType = template.PaymentType.ToString(),
 						CounterpartyId = template.CounterpartyId,
 						DeliveryPointId = template.DeliveryPointId,
@@ -59,7 +190,11 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return templates;
 		}
 
-		public IEnumerable<OnlineOrderTemplateCardForListData> GetOnlineOrdersTemplatesDataByCounterpartyId(IUnitOfWork uow, int counterpartyId, int skip, int take)
+		public IEnumerable<OnlineOrderTemplateCardForListData> GetOnlineOrdersTemplatesDataByCounterpartyId(
+			IUnitOfWork uow,
+			int counterpartyId,
+			int skip,
+			int take)
 		{
 			var templates = (
 					from template in uow.Session.Query<OnlineOrderTemplate>()
@@ -73,7 +208,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					{
 						Id = template.Id,
 						IsActive = template.IsActive,
-						RepeatOrder = template.RepeatOrder.ToString(),
+						RepeatOrder = template.DeliveryFrequency.ToString(),
 						DeliveryAddress = deliveryPoint.ShortAddress,
 						DeliverySchedule = $"с {deliverySchedule.From:hh\\:mm} до {deliverySchedule.To:hh\\:mm}"
 					}
@@ -99,7 +234,11 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return products;
 		}
 		
-		public IEnumerable<OnlineOrderTemplateWeekdayData> GetOnlineOrdersTemplatesWeekdaysData(IUnitOfWork uow, int counterpartyId, int skip, int take)
+		public IEnumerable<OnlineOrderTemplateWeekdayData> GetOnlineOrdersTemplatesWeekdaysData(
+			IUnitOfWork uow,
+			int counterpartyId,
+			int skip,
+			int take)
 		{
 			var weekdays = (
 					from template in uow.Session.Query<OnlineOrderTemplate>()
@@ -141,123 +280,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.ToList();
 
 			return weekdays;
-		}
-		
-		public IQueryOver GetQueryOverOnlineOrderTemplateDataByTemplateId(int templateId)
-		{
-			OnlineOrderTemplate templateAlias = null;
-			Counterparty counterpartyAlias = null;
-			DeliveryPoint deliveryPointAlias = null;
-			DeliverySchedule deliveryScheduleAlias = null;
-			OnlineOrderTemplateInfo resultAlias = null;
-
-			var query = QueryOver.Of(() => templateAlias)
-				.JoinEntityAlias(
-					() => counterpartyAlias,
-					() => templateAlias.CounterpartyId == counterpartyAlias.Id,
-					JoinType.LeftOuterJoin)
-				.JoinEntityAlias(
-					() => deliveryPointAlias,
-					() => templateAlias.DeliveryPointId == deliveryPointAlias.Id,
-					JoinType.LeftOuterJoin)
-				.JoinEntityAlias(
-					() => deliveryScheduleAlias,
-					() => templateAlias.DeliveryScheduleId == deliveryScheduleAlias.Id,
-					JoinType.LeftOuterJoin)
-				.Where(() => templateAlias.Id == templateId)
-				.SelectList(list => list
-					.Select(() => templateAlias.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => templateAlias.IsActive).WithAlias(() => resultAlias.IsActive)
-					.Select(
-						Projections.Cast(
-							NHibernateUtil.String,
-							Projections.Property(() => templateAlias.RepeatOrder)))
-						.WithAlias(() => resultAlias.RepeatOrder)
-					.Select(
-						Projections.Cast(
-							NHibernateUtil.String,
-							Projections.Property(() => templateAlias.PaymentType)))
-						.WithAlias(() => resultAlias.PaymentType)
-					.Select(() => templateAlias.CounterpartyId).WithAlias(() => resultAlias.CounterpartyId)
-					.Select(() => templateAlias.DeliveryPointId).WithAlias(() => resultAlias.DeliveryPointId)
-					.Select(() => deliveryPointAlias.ShortAddress).WithAlias(() => resultAlias.DeliveryAddress)
-					.Select(
-						CustomProjections.Concat(
-							Projections.Constant("с "),
-							//TODO: зарегистрировать в основных функциях
-							Projections.SqlFunction(
-								new SQLFunctionTemplate(NHibernateUtil.String, "TIME_FORMAT(?1, ?2)"),
-								NHibernateUtil.String,
-								Projections.Property(() => deliveryScheduleAlias.From),
-								Projections.Constant("%H:%i")),
-							Projections.Constant(" до "),
-							Projections.SqlFunction(
-								new SQLFunctionTemplate(NHibernateUtil.String, "TIME_FORMAT(?1, ?2)"),
-								NHibernateUtil.String,
-								Projections.Property(() => deliveryScheduleAlias.To),
-								Projections.Constant("%H:%i"))))
-						.WithAlias(() => resultAlias.DeliverySchedule)
-				)
-				.TransformUsing(Transformers.AliasToBean<OnlineOrderTemplateInfo>());
-
-			return query;
-		}
-		
-		public IQueryOver GetQueryOverOnlineOrderTemplateCounterpartyDataByTemplateId(int templateId)
-		{
-			OnlineOrderTemplate templateAlias = null;
-			Counterparty counterpartyAlias = null;
-			
-			return QueryOver.Of(() => counterpartyAlias)
-				.JoinEntityAlias(() => templateAlias, () => counterpartyAlias.Id == templateAlias.CounterpartyId)
-				.Where(c => templateAlias.Id == templateId)
-				.Select(Projections.RootEntity());
-		}
-		
-		public IQueryOver GetQueryOverOnlineOrderTemplateDeliveryPointDataByTemplateId(int templateId)
-		{
-			OnlineOrderTemplate templateAlias = null;
-			DeliveryPoint deliveryPointAlias = null;
-			
-			return QueryOver.Of(() => deliveryPointAlias)
-				.JoinEntityAlias(() => templateAlias, () => deliveryPointAlias.Id == templateAlias.DeliveryPointId)
-				.Where(c => templateAlias.Id == templateId)
-				.Select(Projections.RootEntity());
-		}
-		
-		public IQueryOver GetQueryOverOnlineOrderTemplateWeekdaysByTemplateId(int templateId)
-		{
-			OnlineOrderTemplate templateAlias = null;
-			OnlineOrderTemplateWeekday weekdayAlias = null;
-			
-			return QueryOver.Of(() => weekdayAlias)
-					.JoinEntityAlias(() => templateAlias, () => weekdayAlias.TemplateId == templateAlias.Id)
-					.Where(() => templateAlias.Id == templateId)
-					.SelectList(list => list
-						.Select(
-							Projections.Cast(
-								NHibernateUtil.String,
-								Projections.Property(() => weekdayAlias.Weekday))
-						)
-					)
-				;
-		}
-		
-		public IQueryOver GetQueryOverOnlineOrderTemplateProductsByTemplateId(int templateId)
-		{
-			OnlineOrderTemplate templateAlias = null;
-			OnlineOrderTemplateProduct templateProductAlias = null;
-			
-			return QueryOver.Of(() => templateProductAlias)
-					.JoinEntityAlias(
-						() => templateAlias,
-						() => templateAlias.Id == templateProductAlias.TemplateId,
-						NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.Where(() => templateAlias.Id == templateId)
-					.Fetch(SelectMode.Fetch, x => x.Nomenclature)
-					.Fetch(SelectMode.Fetch, x => x.PromoSet)
-					.TransformUsing(Transformers.RootEntity)
-				;
 		}
 	}
 }

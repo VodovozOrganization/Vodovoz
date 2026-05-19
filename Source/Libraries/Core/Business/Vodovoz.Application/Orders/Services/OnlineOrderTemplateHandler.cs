@@ -1,6 +1,4 @@
-﻿using NHibernate;
-using NHibernate.Multi;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +11,6 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Orders;
 using VodovozBusiness.Domain.Orders;
-using VodovozBusiness.EntityRepositories.Nodes;
 using VodovozBusiness.EntityRepositories.Orders;
 using VodovozBusiness.Extensions;
 using VodovozBusiness.Services.Orders.V5;
@@ -38,59 +35,33 @@ namespace Vodovoz.Application.Orders.Services
 		
 		public async Task<OrderTemplateInfoDto> GetFreshOnlineOrderTemplateDataAsync(IUnitOfWork uow, int templateId)
 		{
-			const string templateBatchKey = "templateInfo";
-			const string counterpartyBatchKey = "counterparty";
-			const string deliveryPointBatchKey = "deliveryPoint";
-			const string weekdaysBatchKey = "weekdays";
-			const string productsBatchKey = "products";
-			
-			var batch = uow.Session.CreateQueryBatch();
-
-			var templateBatch = _onlineOrderTemplateRepository.GetQueryOverOnlineOrderTemplateDataByTemplateId(templateId);
-			var counterpartyBatch = _onlineOrderTemplateRepository.GetQueryOverOnlineOrderTemplateCounterpartyDataByTemplateId(templateId);
-			var deliveryPointBatch = _onlineOrderTemplateRepository.GetQueryOverOnlineOrderTemplateDeliveryPointDataByTemplateId(templateId);
-			var weekdaysBatch = _onlineOrderTemplateRepository.GetQueryOverOnlineOrderTemplateWeekdaysByTemplateId(templateId);
-			var templateProductsBatch = _onlineOrderTemplateRepository.GetQueryOverOnlineOrderTemplateProductsByTemplateId(templateId);
-
-			batch
-				.Add<OnlineOrderTemplateInfo>(templateBatchKey, templateBatch)
-				.Add<Counterparty>(counterpartyBatchKey, counterpartyBatch)
-				.Add<DeliveryPoint>(deliveryPointBatchKey, deliveryPointBatch)
-				.Add<string>(weekdaysBatchKey, weekdaysBatch)
-				.Add<OnlineOrderTemplateProduct>(productsBatchKey, templateProductsBatch)
-				;
-
-			await batch.ExecuteAsync();
-
-			var templateData = (await batch.GetResultAsync<OnlineOrderTemplateInfo>(templateBatchKey))
-				.FirstOrDefault();
-			var counterparty = (await batch.GetResultAsync<Counterparty>(counterpartyBatchKey))
-				.FirstOrDefault();
-			var deliveryPoint = (await batch.GetResultAsync<DeliveryPoint>(deliveryPointBatchKey))
-				.FirstOrDefault();
-			var weekdays = await batch.GetResultAsync<string>(weekdaysBatchKey);
-			var items = await batch.GetResultAsync<OnlineOrderTemplateProduct>(productsBatchKey);
+			var data = await _onlineOrderTemplateRepository.GetAggregateOnlineOrderTemplateInfoAsync(uow, templateId);
+			var templateData = data.Template;
+			var counterparty = data.Counterparty;
+			var deliveryPoint = data.DeliveryPoint;
+			var weekdays = data.Weekdays;
+			var products = data.Products;
 
 			if(templateData is null)
 			{
 				return null;
 			}
 
-			var promoSetsIds = items
-				.Where(x => x.PromoSetId.HasValue)
-				.ToLookup(x => x.PromoSetId.Value);
+			var promoSetsIds = products
+				.Where(x => x.PromoSet != null)
+				.ToLookup(x => x.PromoSet.Id);
 
 			var templateProducts = new List<OrderTemplateProductDto>();
 			decimal orderSum = 0;
 
-			var productsWithoutPromoSets = items.Where(x => !x.PromoSetId.HasValue).ToList();
+			var productsWithoutPromoSets = products.Where(x => x.PromoSet is null).ToList();
 
-			ProcessItemsWithoutPromoSets(productsWithoutPromoSets, items, deliveryPoint, counterparty, templateProducts, ref orderSum);
-			ProcessPromoSets(uow, promoSetsIds, templateProducts, items, deliveryPoint, counterparty, ref orderSum);
+			ProcessItemsWithoutPromoSets(productsWithoutPromoSets, products, deliveryPoint, counterparty, templateProducts, ref orderSum);
+			ProcessPromoSets(uow, promoSetsIds, templateProducts, products, deliveryPoint, counterparty, ref orderSum);
 
 			var lastExternalOnlineOrderId = _onlineOrderRepository.GetLastOnlineOrderExternalId(uow, templateData.CounterpartyId);
 
-			var data = OrderTemplateData.Create(
+			var orderTemplateData = OrderTemplateData.Create(
 				templateData.Id,
 				templateData.IsActive,
 				templateData.DeliveryAddress,
@@ -100,7 +71,7 @@ namespace Vodovoz.Application.Orders.Services
 				);
 
 			var onlineOrderTemplateInfo = OrderTemplateInfoDto.Create(
-				data,
+				orderTemplateData,
 				templateData.PaymentType,
 				lastExternalOnlineOrderId,
 				templateProducts,
@@ -166,11 +137,12 @@ namespace Vodovoz.Application.Orders.Services
 		{
 			foreach(var item in productsWithoutPromoSets)
 			{
-				var price =  _priceCalculator.CalculateItemPrice(
+				var price =  _priceCalculator.CalculatePrice(
 					items,
-					deliveryPoint,
 					counterparty,
-					item,
+					deliveryPoint,
+					item.Nomenclature,
+					false,
 					false);
 				
 				var discounts = item.Discounts
@@ -223,11 +195,12 @@ namespace Vodovoz.Application.Orders.Services
 						
 						var orderTemplateProduct = OrderTemplateProductDto.Create(
 							promoItem.Nomenclature.Id,
-							_priceCalculator.CalculateItemPrice(
+							_priceCalculator.CalculatePrice(
 								items,
-								deliveryPoint,
 								counterparty,
-								promoItem,
+								deliveryPoint,
+								promoItem.Nomenclature,
+								true,
 								false),
 							promoItem.Count,
 							promoSet.Id,
@@ -247,7 +220,7 @@ namespace Vodovoz.Application.Orders.Services
 		{
 			DateTime? nextDeliveryDate = null;
 			DayOfWeek? firstTemplateDayOfWeek = null;
-			var enumRepeatOrder = repeatOrder.TryParseAsEnum<RepeatOnlineOrderType>();
+			var deliveryFrequency = repeatOrder.TryParseAsEnum<OnlineOrderDeliveryFrequency>();
 
 			foreach(var templateWeekday in templateWeekdays)
 			{
@@ -275,22 +248,22 @@ namespace Vodovoz.Application.Orders.Services
 			{
 				var days = 0;
 				
-				switch(enumRepeatOrder)
+				switch(deliveryFrequency)
 				{
-					case RepeatOnlineOrderType.OnePerWeek:
+					case OnlineOrderDeliveryFrequency.OnePerWeek:
 						days = 7;
 						break;
-					case RepeatOnlineOrderType.OneEveryTwoWeeks:
+					case OnlineOrderDeliveryFrequency.OneEveryTwoWeeks:
 						days = 14;
 						break;
-					case RepeatOnlineOrderType.OneEveryThreeWeeks:
+					case OnlineOrderDeliveryFrequency.OneEveryThreeWeeks:
 						days = 21;
 						break;
-					case RepeatOnlineOrderType.OneEveryFourWeeks:
+					case OnlineOrderDeliveryFrequency.OneEveryFourWeeks:
 						days = 28;
 						break;
 					default:
-						throw new InvalidOperationException($"Неизвестный интервал повторений автозаказа {enumRepeatOrder}");
+						throw new InvalidOperationException($"Неизвестный интервал периодичности доставки автозаказа {deliveryFrequency}");
 				}
 				
 				nextDeliveryDate = DateTime.Today.AddDays(days - (int)currentDayOfWeek + (int)firstTemplateDayOfWeek.Value);

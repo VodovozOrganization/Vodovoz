@@ -6,6 +6,7 @@ using Vodovoz.Application.Clients;
 using Vodovoz.Application.Clients.Services;
 using Vodovoz.Application.Complaints;
 using Vodovoz.Application.Contacts;
+using Vodovoz.Application.Employees;
 using Vodovoz.Application.FileStorage;
 using Vodovoz.Application.Goods;
 using Vodovoz.Application.Logistics;
@@ -28,6 +29,7 @@ using Vodovoz.Services.Orders;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Settings;
+using VodovozBusiness.Factories;
 using VodovozBusiness.Models.TrueMark;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
@@ -85,6 +87,8 @@ namespace Vodovoz.Application
 			.AddScoped<IOnlineOrderDeliveryPriceGetter, OnlineOrderDeliveryPriceGetter>()
 			.AddScoped<IOrderFromOnlineOrderCreator, OrderFromOnlineOrderCreator>()
 			.AddScoped<IOrderFromOnlineOrderValidator, OrderFromOnlineOrderValidator>()
+			.AddScoped<IOnlineOrderAuthorFactory, OnlineOrderAuthorFactory>()
+			.AddScoped<IOnlineOrderTemplateFromOnlineOrderValidator, OnlineOrderTemplateFromOnlineOrderValidator>()
 			.AddScoped<IGoodsPriceCalculatorV5, GoodsPriceCalculator>()
 			.AddScoped<IOrderDeliveryPriceGetter, OrderDeliveryPriceGetter>()
 			.AddScoped<IClientDeliveryPointsChecker, ClientDeliveryPointsChecker>()
@@ -107,6 +111,7 @@ namespace Vodovoz.Application
 			.AddScoped<IPartitioningOrderService, PartitioningOrderService>()
 			.AddScoped<IUnPaidOnlineOrderHandler, UnPaidOnlineOrderHandler>()
 			.AddScoped<IOrderOnlinePaymentAcceptanceHandler, OrderOnlinePaymentAcceptanceHandler>()
+			.AddScoped<IOnlineOrderFromTemplateCreator, OnlineOrderFromTemplateCreator>()
 			.AddVersion4()
 			.AddVersion5()
 		;

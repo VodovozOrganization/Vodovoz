@@ -180,6 +180,40 @@ namespace Vodovoz.Domain.Orders
 
 			return onlineOrderItem;
 		}
+		
+		public static OnlineOrderItem Create(
+			int? nomenclatureId,
+			decimal count,
+			bool isDiscountInMoney,
+			bool isFixedPrice,
+			decimal percentDiscount,
+			decimal moneyDiscount,
+			decimal price,
+			int? promoSetId,
+			DiscountReason discountReason,
+			Nomenclature nomenclature,
+			PromotionalSet promotionalSet,
+			OnlineOrder onlineOrder
+		)
+		{
+			var onlineOrderItem = new OnlineOrderItem
+			{
+				NomenclatureId = nomenclatureId,
+				Count = count,
+				IsDiscountInMoney = isDiscountInMoney,
+				PercentDiscount = percentDiscount,
+				MoneyDiscount = moneyDiscount,
+				IsFixedPrice = isFixedPrice,
+				Price = price,
+				PromoSetId = promoSetId,
+				DiscountReason = discountReason,
+				Nomenclature = nomenclature,
+				PromoSet = promotionalSet,
+				OnlineOrder = onlineOrder
+			};
+
+			return onlineOrderItem;
+		}
 
 		private void CalculateDiscount(decimal discount)
 		{

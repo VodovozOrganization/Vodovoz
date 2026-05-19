@@ -426,7 +426,7 @@ namespace CustomerOrdersApi.Library.V5.Services
 				return Result.Failure(OnlineOrderTemplateErrors.DeliveryScheduleIdIsNull);
 			}
 			
-			if(!creatingOrder.OrderTemplate.RepeatOrder.HasValue)
+			if(!creatingOrder.OrderTemplate.DeliveryFrequency.HasValue)
 			{
 				return Result.Failure(OnlineOrderTemplateErrors.RepeatOrderIsNull);
 			}

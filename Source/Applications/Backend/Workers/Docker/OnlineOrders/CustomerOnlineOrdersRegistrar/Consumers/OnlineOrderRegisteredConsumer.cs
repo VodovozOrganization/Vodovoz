@@ -34,6 +34,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
 			IRouteListService routeListService,
 			IOrderFromOnlineOrderValidator onlineOrderValidator,
+			IOnlineOrderTemplateFromOnlineOrderValidator onlineOrderTemplateValidator,
 			IBus bus)
 				: base(
 					logger,
@@ -46,7 +47,9 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 					onlineOrderCancellationReasonSettings,
 					orderService,
 					routeListService,
-					onlineOrderValidator)
+					onlineOrderValidator,
+					onlineOrderTemplateValidator
+				)
 		{
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 		}

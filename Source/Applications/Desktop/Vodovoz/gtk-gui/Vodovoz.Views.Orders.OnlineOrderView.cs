@@ -710,7 +710,7 @@ namespace Vodovoz.Views.Orders
 			this.lblTemplateIdTitle = new global::Gamma.GtkWidgets.yLabel();
 			this.lblTemplateIdTitle.Name = "lblTemplateIdTitle";
 			this.lblTemplateIdTitle.Xalign = 1F;
-			this.lblTemplateIdTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Номер автозаказа:");
+			this.lblTemplateIdTitle.LabelProp = global::Mono.Unix.Catalog.GetString("Номер шаблона автозаказа:");
 			this.tableMain.Add(this.lblTemplateIdTitle);
 			global::Gtk.Table.TableChild w47 = ((global::Gtk.Table.TableChild)(this.tableMain[this.lblTemplateIdTitle]));
 			w47.TopAttach = ((uint)(4));

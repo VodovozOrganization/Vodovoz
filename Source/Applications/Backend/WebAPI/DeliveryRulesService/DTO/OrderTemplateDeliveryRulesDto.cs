@@ -15,16 +15,16 @@ namespace DeliveryRulesService.DTO
 		/// </summary>
 		public IList<OrderTemplateDeliveryRuleDto> ScheduleRestrictions { get; set; }
 		/// <summary>
-		/// Возможные повторы заказа
+		/// Периодичность доставки
 		/// </summary>
-		public RepeatOnlineOrderType[] RepeatOrders { get; set; }
+		public OnlineOrderDeliveryFrequency[] DeliveryFrequency { get; set; }
 		
 		public static OrderTemplateDeliveryRulesDto Create(IList<OrderTemplateDeliveryRuleDto> scheduleRestrictions)
 		{
 			return new OrderTemplateDeliveryRulesDto
 			{
 				ScheduleRestrictions = scheduleRestrictions,
-				RepeatOrders = Enum.GetValues<RepeatOnlineOrderType>()
+				DeliveryFrequency = Enum.GetValues<OnlineOrderDeliveryFrequency>()
 			};
 		}
 	}

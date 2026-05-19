@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Text;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -12,6 +14,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using CustomerOnlineOrdersRegistrar.Factories.V4;
 using CustomerOnlineOrdersRegistrar.Factories.V5;
+using CustomerOrdersApi.Library.V5.Dto.Orders;
 using MySqlConnector;
 using QS.Utilities.Debug;
 using Vodovoz.Services.Logistics;
@@ -31,6 +34,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 		private readonly IOrderService _orderService;
 		private readonly IRouteListService _routeListService;
 		private readonly IOrderFromOnlineOrderValidator _onlineOrderValidator;
+		private readonly IOnlineOrderTemplateFromOnlineOrderValidator _onlineOrderTemplateValidator;
 
 		protected ILogger<OnlineOrderConsumer> Logger { get; }
 
@@ -45,7 +49,8 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
 			IOrderService orderService,
 			IRouteListService routeListService,
-			IOrderFromOnlineOrderValidator onlineOrderValidator
+			IOrderFromOnlineOrderValidator onlineOrderValidator,
+			IOnlineOrderTemplateFromOnlineOrderValidator onlineOrderTemplateValidator
 			)
 		{
 			Logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -60,6 +65,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_onlineOrderValidator = onlineOrderValidator ?? throw new ArgumentNullException(nameof(onlineOrderValidator));
+			_onlineOrderTemplateValidator = onlineOrderTemplateValidator ?? throw new ArgumentNullException(nameof(onlineOrderTemplateValidator));
 		}
 		
 		protected virtual async Task<(int OnlineOrderId, int Code)> TryRegisterOnlineOrderV4Async(
@@ -191,27 +197,10 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 				_discountReasonSettings.GetSelfDeliveryDiscountReasonId
 			);
 
-			if(message.OrderTemplate != null)
-			{
-				var (template, orderTemplateProducts, orderTemplateWeekDays) =
-					_onlineOrderFactoryV5.CreateOnlineOrderTemplate(onlineOrder, message.OrderTemplate);
-				await uow.SaveAsync(template, cancellationToken: cancellationToken);
-
-				foreach(var templateProduct in orderTemplateProducts)
-				{
-					templateProduct.TemplateId = template.Id;
-					await uow.SaveAsync(templateProduct, cancellationToken: cancellationToken);
-				}
-				
-				foreach(var templateWeekday in orderTemplateWeekDays)
-				{
-					templateWeekday.TemplateId = template.Id;
-					await uow.SaveAsync(templateWeekday, cancellationToken: cancellationToken);
-				}
-			}
-			
-			var validationResult = _onlineOrderValidator.ValidateOnlineOrder(uow, onlineOrder);
 			var externalOrderId = message.ExternalOrderId;
+			await ProcessTemplateData(uow, onlineOrder, message.OrderTemplate, cancellationToken);
+
+			var validationResult = _onlineOrderValidator.ValidateOnlineOrder(uow, onlineOrder);
 			var needSpecialProcessingDuplicate = NeedSpecialProcessingDuplicate(uow, onlineOrder);
 
 			if(needSpecialProcessingDuplicate != null)
@@ -358,6 +347,70 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			}
 
 			return null;
+		}
+
+		private async Task ProcessTemplateData(
+			IUnitOfWork uow,
+			OnlineOrder onlineOrder,
+			CreatingOrderTemplate templateData,
+			CancellationToken cancellationToken
+		)
+		{
+			var validateTemplateResult = _onlineOrderTemplateValidator.Validate(onlineOrder, templateData);
+
+			if(validateTemplateResult.IsFailure)
+			{
+				var sb = new StringBuilder();
+
+				foreach(var error in validateTemplateResult.Errors)
+				{
+					sb.Append(error.Message);
+					sb.Append(',');
+					sb.Append(' ');
+				}
+				
+				Logger.LogWarning(
+					"Не создали шаблон автозаказа {ExternalOrderId} {Errors}",
+					onlineOrder.ExternalOrderId,
+					sb.ToString().TrimEnd(',', ' ')
+				);
+
+				RemoveTemplateDiscount(onlineOrder.OnlineOrderItems);
+			}
+			else
+			{
+				var (template, orderTemplateProducts, orderTemplateWeekDays) =
+					_onlineOrderFactoryV5.CreateOnlineOrderTemplate(uow, onlineOrder, templateData);
+				await uow.SaveAsync(template, cancellationToken: cancellationToken);
+
+				foreach(var templateProduct in orderTemplateProducts)
+				{
+					templateProduct.TemplateId = template.Id;
+					await uow.SaveAsync(templateProduct, cancellationToken: cancellationToken);
+				}
+				
+				foreach(var templateWeekday in orderTemplateWeekDays)
+				{
+					templateWeekday.TemplateId = template.Id;
+					await uow.SaveAsync(templateWeekday, cancellationToken: cancellationToken);
+				}
+			}
+		}
+
+		private void RemoveTemplateDiscount(IEnumerable<OnlineOrderItem> onlineOrderItems)
+		{
+			foreach(var onlineOrderItem in onlineOrderItems)
+			{
+				if(onlineOrderItem.DiscountReason != null
+					&& onlineOrderItem.DiscountReason.Id == _discountReasonSettings.GetAutoOrderDiscountReasonId)
+				{
+					//TODO заменить на работу по множеству скидок, после мержа соответствующих наработок
+					onlineOrderItem.DiscountReason = null;
+					onlineOrderItem.MoneyDiscount = 0;
+					onlineOrderItem.PercentDiscount = 0;
+					onlineOrderItem.IsDiscountInMoney = false;
+				}
+			}
 		}
 	}
 }
