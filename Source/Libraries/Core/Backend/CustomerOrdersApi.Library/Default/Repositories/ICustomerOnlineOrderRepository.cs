@@ -21,6 +21,6 @@ namespace CustomerOrdersApi.Library.Default.Repositories
 		/// <param name="source">Источник онлайн заказа</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<bool> IsClientHasNotCancelledOnlineOrdersFromSource(IUnitOfWork uow, Guid externalCounterpartyId, int? counterpartyErpId, Source source, CancellationToken cancellationToken = default);
+		Task<bool> IsClientHasNotCancelledOnlineOrdersFromSource(IUnitOfWork uow, Guid externalCounterpartyId, int counterpartyErpId, Source source, CancellationToken cancellationToken = default);
 	}
 }

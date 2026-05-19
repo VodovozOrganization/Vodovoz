@@ -70,7 +70,7 @@ namespace CustomerOrdersApi.Library.Default.Repositories
 		public async Task<bool> IsClientHasNotCancelledOnlineOrdersFromSource(
 			IUnitOfWork uow,
 			Guid externalCounterpartyId,
-			int? counterpartyErpId,
+			int counterpartyErpId,
 			Source source,
 			CancellationToken cancellationToken = default)
 		{
@@ -86,7 +86,8 @@ namespace CustomerOrdersApi.Library.Default.Repositories
 				&& (order.Id == null || !orderNotDeliveredStatuses.Contains(order.OrderStatus))
 				&& onlineOrder.Source == source
 				&& (onlineOrder.ExternalCounterpartyId == externalCounterpartyId
-					|| (counterpartyErpId != null && order.Client.Id == counterpartyErpId.Value))
+					|| onlineOrder.CounterpartyId == counterpartyErpId
+					|| order.Client.Id == counterpartyErpId)
 
 				select onlineOrder;
 
