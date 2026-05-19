@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -77,25 +77,32 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 			// Закрытие поставок, только если есть долг по организации ВВ
 
-			var vodovozRows = overdueDebtOverPeriodLimitRows.Where(x => x.Organization.Id == _organizationSettings.VodovozOrganizationId).ToList();
+			var vodovozOrganizationRows = overdueDebtOverPeriodLimitRows.Where(x => x.Organization.Id == _organizationSettings.VodovozOrganizationId).ToList();			
 
-			if(!vodovozRows.Any())
+			if(!vodovozOrganizationRows.Any())
 			{
-				return vodovozRows;
+				return vodovozOrganizationRows;
 			}
 
 			var employee = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork);
 
-			foreach(var vodovozRow in vodovozRows)
+			foreach(var vodovozOrganizationRow in vodovozOrganizationRows)
 			{
-				var counterparty = vodovozRow.Counterparty;
+				var counterparty = vodovozOrganizationRow.Counterparty;
 
-				counterparty.CloseDeliveryDebtType = DebtType.ShortTerm;
+				counterparty.CloseDeliveryDebtType = DebtType.BlockedByRobot;
+				
+				var closingComment = $"Робот; {DateTime.Now:f}";
 
-				counterparty.CloseDeliveryComment =
-					$"Поставки закрыты автоматически в связи с неоплаченной просроченной дебиторской задолженностью по заказам {string.Join(", ", vodovozRow.OrderIds)}";
+				var counterpartyOverdueRows = overdueDebtOverPeriodLimitRows.Where(x => x.Counterparty.Id == counterparty.Id);
 
-				counterparty.ToggleDeliveryOption(employee, true);
+				foreach(var counterpartyOverdueRow in counterpartyOverdueRows)
+				{
+					closingComment += @$"; Долг по {counterpartyOverdueRow.Organization.Name}: {counterpartyOverdueRow.DebtSum}";
+				}				
+
+				counterparty.CloseDeliveryComment = closingComment;
+
 
 				await unitOfWork.SaveAsync(counterparty, cancellationToken: cancellationToken);
 			}

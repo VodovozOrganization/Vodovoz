@@ -1,4 +1,4 @@
-﻿using EmailDebtNotificationWorker.Options;
+using EmailDebtNotificationWorker.Options;
 using EmailDebtNotificationWorker.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -64,14 +64,19 @@ namespace EmailDebtNotificationWorker
 
 				var counterpartiesWithClosingDeliveries = await closingDeliveriesService.CloseDeliveriesForDebtorsAsync(unitOfWork, cancellationToken: stoppingToken);
 
-				if(!counterpartiesWithClosingDeliveries.Any())
+				var counterpartiesForClosingDeliveriesMailing = counterpartiesWithClosingDeliveries
+					.Where(x => !x.Organization.DisableClosingDeliveriesMailing && !x.Counterparty.DisableClosingDeliveriesMailing)
+					.ToList();
+
+				if(!counterpartiesForClosingDeliveriesMailing.Any())
 				{
 					await _zabbixSender.SendIsHealthyAsync(stoppingToken);
 
 					return;
 				}
 
-				var notificationInfos = await orderWithoutShipmentForDebtService.PrepareInfo(unitOfWork, counterpartiesWithClosingDeliveries, stoppingToken);				
+
+				var notificationInfos = await orderWithoutShipmentForDebtService.PrepareInfo(unitOfWork, counterpartiesForClosingDeliveriesMailing, stoppingToken);				
 
 				await unitOfWork.CommitAsync(stoppingToken);				
 

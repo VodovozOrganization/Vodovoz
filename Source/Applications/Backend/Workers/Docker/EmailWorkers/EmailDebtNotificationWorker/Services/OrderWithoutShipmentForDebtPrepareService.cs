@@ -51,23 +51,23 @@ namespace EmailDebtNotificationWorker.Services
 
 			var author = _employeeRepository.GetEmployeeForCurrentUser(unitOfWork);
 
-			foreach(var context in overdueDebtAggregateNodes)
+			foreach(var node in overdueDebtAggregateNodes)
 			{
 				var notificationInfo = new OrderWithoutShipmentForDebtNotificationInfo
 				{
-					OverdueDebtDays = context.OverdueDebtDays,
+					OverdueDebtDays = node.OverdueDebtDays,
 					OrderWithoutShipmentForDebt = existingOrdersForDebt.FirstOrDefault(x =>
-						x.Client.Id == context.Counterparty.Id
-						&& x.Organization.Id == context.Organization.Id)
+						x.Client.Id == node.Counterparty.Id
+						&& x.Organization.Id == node.Organization.Id)
 				};
 
 				if(notificationInfo.OrderWithoutShipmentForDebt == null)
 				{
 					var newOrderForDebt = new OrderWithoutShipmentForDebt
 					{
-						Client = context.Counterparty,
-						Organization = context.Organization,
-						DebtSum = context.DebtSum,
+						Client = node.Counterparty,
+						Organization = node.Organization,
+						DebtSum = node.DebtSum,
 						Author = author
 					};
 

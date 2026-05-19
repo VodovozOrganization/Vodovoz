@@ -9,10 +9,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Settings.Orders;
+using VodovozBusiness.Domain.StoredEmails;
 
 namespace EmailDebtNotificationWorker.Builders
 {
@@ -37,7 +40,7 @@ namespace EmailDebtNotificationWorker.Builders
 			IReadOnlyCollection<OrderWithoutShipmentForDebtNotificationInfo> notificationInfos,
 			CancellationToken cancellationToken)
 		{
-			if(notificationInfos.Count == 0)
+			if(!notificationInfos.Any())
 			{
 				return Array.Empty<SendEmailMessage>();
 			}
@@ -68,38 +71,49 @@ namespace EmailDebtNotificationWorker.Builders
 			OrderWithoutShipmentForDebt orderWithoutShipmentForDebt,
 			CancellationToken cancellationToken)
 		{
-			var attachments = _attachmentsService
-				.CreateOrderWithoutShipmentForDebtAttachments(orderWithoutShipmentForDebt)
-				.ToList();
+			var emailSentFrom = orderWithoutShipmentForDebt.Organization.ClosingDeliveriesNotificationEmailFrom;
+
+			if(string.IsNullOrWhiteSpace(emailSentFrom))
+			{
+				throw new InvalidOperationException($"У организации {orderWithoutShipmentForDebt.Organization.Id} не заполнен {nameof(emailSentFrom)}");
+			}
+
+			var orderWihoutShipmentForDebtAttachment = _attachmentsService.CreateOrderWithoutShipmentForDebtAttachments(orderWithoutShipmentForDebt);
+
+			var revisionStartDate = new DateTime(orderWithoutShipmentForDebt.CreateDate.Value.Year, 1, 1);
+			var revisionEndDate = DateTime.Today.AddDays(-1);
+			var revisionAttachment = _attachmentsService.CreateRevisionAttachments(orderWithoutShipmentForDebt.Counterparty.Id, orderWithoutShipmentForDebt.Organization.Id, revisionStartDate, revisionEndDate);
+
+			var attachments = orderWihoutShipmentForDebtAttachment.Concat(revisionAttachment).ToList();
 
 			if(!attachments.Any())
 			{
 				throw new InvalidOperationException("Нет вложений");
 			}
 
-			var email = SelectEmail(orderWithoutShipmentForDebt.Client);
+			var emailSentTo = SelectEmail(orderWithoutShipmentForDebt.Client);
 
 			var storedEmail = new StoredEmail
 			{
 				State = StoredEmailStates.WaitingToSend,
 				SendDate = DateTime.Now,
 				StateChangeDate = DateTime.Now,
-				RecipientAddress = email,
-				Subject = $"{orderWithoutShipmentForDebt.Client.FullName} от {orderWithoutShipmentForDebt.Organization.FullName}",
+				RecipientAddress = emailSentTo,
+				Subject = $"{orderWithoutShipmentForDebt.Client.FullName} (ИНН: {orderWithoutShipmentForDebt.Client.INN}) от {orderWithoutShipmentForDebt.Organization.FullName}",
 				Guid = Guid.NewGuid(),
 				Description = "Стоп-отгрузка"
 			};
 
 			await uow.SaveAsync(storedEmail, cancellationToken: cancellationToken);
 
-			var orderWithoutShipmentForDebtEmail = new OrderWithoutShipmentForDebtEmail
+			var closingDeliveriesEmail = new ClosingDeliveriesEmail
 			{
 				OrderWithoutShipmentForDebt = orderWithoutShipmentForDebt,
 				StoredEmail = storedEmail,
 				Counterparty = orderWithoutShipmentForDebt.Client
 			};
 
-			await uow.SaveAsync(orderWithoutShipmentForDebtEmail, cancellationToken: cancellationToken);
+			await uow.SaveAsync(closingDeliveriesEmail, cancellationToken: cancellationToken);
 
 			var clientEmailBody = GenerateClientEmailBody(orderWithoutShipmentForDebt);
 
@@ -108,14 +122,14 @@ namespace EmailDebtNotificationWorker.Builders
 				From = new EmailContact
 				{
 					Name = orderWithoutShipmentForDebt.Organization.FullName,
-					Email = orderWithoutShipmentForDebt.Organization.EmailForMailing
+					Email = emailSentFrom
 				},
 				To = new List<EmailContact>
 				{
 					new()
 					{
 						Name = orderWithoutShipmentForDebt.Client.FullName,
-						Email = email
+						Email = emailSentTo
 					}
 				},
 				Subject = storedEmail.Subject,
@@ -134,8 +148,30 @@ namespace EmailDebtNotificationWorker.Builders
 
 		private string SelectEmail(Counterparty client)
 		{
-			return client.Emails?.LastOrDefault()?.Address
-				?? throw new InvalidOperationException("Нет email");
+			if(client.Emails is null || !client.Emails.Any())
+			{
+				throw new InvalidOperationException($"У клиента {client.Id} отсутствуют любые email.");
+			}
+
+			var billEmail = client.Emails
+				.LastOrDefault(x => x.EmailType?.EmailPurpose is EmailPurpose.ForBills)
+				?.Address;
+
+			if(!string.IsNullOrWhiteSpace(billEmail))
+			{
+				return billEmail;
+			}
+
+			var defaultEmail = client.Emails
+				.LastOrDefault()
+				?.Address;
+
+			if(!string.IsNullOrWhiteSpace(defaultEmail))
+			{
+				return defaultEmail;
+			}
+
+			throw new InvalidOperationException($"Для клиента {client.Id} не удалось подобрать подходящий email для отправки уведомления о блокировке поставок.");
 		}
 
 		private string GenerateClientEmailBody(OrderWithoutShipmentForDebt debt)
@@ -144,29 +180,34 @@ namespace EmailDebtNotificationWorker.Builders
 				<p>Уважаемый клиент!</p>
 
 				<p>
-					Сообщаем, что на текущий момент у вас имеется неоплаченная задолженность по договору.
-					Так как просроченная дебиторская задолженность составляет более {_closingDeliveriesSettings.DaysBeforeClosingDeliveries} дней мы вынуждены заблокировать возможность оформлять заказы по безналичному расчету до полного погашения.
+					Сообщаем, что на текущий момент по договору имеется просроченная задолженность. 
+					В связи с тем, что срок просрочки превышает {_closingDeliveriesSettings.DaysBeforeClosingDeliveries} дней, мы вынуждены временно ограничить возможность оформления заказов по безналичному расчету до полного погашения задолженности.
 				</p>
 
-				<p>Общая задолженность по данным заказам составляет: {debt.DebtSum} руб.</p>
-
-				<p>
-					Просим вас произвести оплату в кратчайшие сроки - счет на оплату прикрепили в приложении.
-					Если оплата уже была направлена, пожалуйста, пришлите платежное поручение.
-				</p>
+				<p><strong>Общая сумма задолженности по указанным заказам составляет {debt.DebtSum} руб.</strong></p>
 
 				<p>
-					После поступления оплаты, поставки будут возобновлены.
-					При возникновении вопросов по сумме или срокам оплаты вы можете связаться с нами — будем рады помочь.
-					Благодарим за сотрудничество и рассчитываем на скорейшее урегулирование вопроса.
+					Просим вас произвести оплату в ближайшее время. Счет на оплату приложен к письму.
 				</p>
+
+				<p>
+					Обращаем внимание: в случае отсутствия оплаты в течение 2 дней в ваш адрес будет направлена претензия. 
+					Если оплата уже произведена, пожалуйста, направьте платежное поручение в ответ на данное письмо.
+				</p>
+
+				<p>
+					После поступления оплаты поставки будут возобновлены в полном объеме.
+				</p>
+
+				<p>
+					Если у вас возникнут вопросы по сумме задолженности или срокам оплаты, пожалуйста, свяжитесь с нами — мы будем рады помочь.
+				</p>
+
+				<p>Благодарим за сотрудничество и рассчитываем на скорейшее урегулирование вопроса.</p>
 
 				<p>С уважением,</p>
-
-				<p>Отдел сопровождения клиентов</p>
-
-				<p>+7(812) 3170000 доб. 700</p>
-
+				<p><strong>Отдел сопровождения клиентов</strong></p>
+				<p>+7 (812) 317-00-00, доб. 700</p>
 				<p>client.buh@vodovoz-spb.ru</p>";
 		}
 	}

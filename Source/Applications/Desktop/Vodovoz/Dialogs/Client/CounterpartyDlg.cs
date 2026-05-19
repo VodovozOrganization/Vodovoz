@@ -774,6 +774,10 @@ namespace Vodovoz
 			ycheckbuttonDisableDebtMailing.Sensitive = 
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CounterpartyPermissions.CanEditDebtNotification);
 
+			ycheckbuttonDisableClosingDeliveriesMailing.Binding
+				.AddBinding(Entity, e => e.DisableClosingDeliveriesMailing, w => w.Active)
+				.InitializeFromSource();
+
 			// Настройка каналов сбыта
 			if(Entity.IsForRetail)
 			{

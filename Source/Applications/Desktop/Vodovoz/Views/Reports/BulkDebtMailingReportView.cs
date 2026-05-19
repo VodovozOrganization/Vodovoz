@@ -77,6 +77,7 @@ namespace Vodovoz.Views.Reports
 					.AddColumn("Имя клиента").AddTextRenderer(n => n.CounterpartyName)
 					.AddColumn("E-mail").AddTextRenderer(r => r.Email)
 					.AddColumn("Телефон").AddTextRenderer(r => r.Phone)
+					.AddColumn("Тип письма").AddTextRenderer(r => r.EmailTypeString)
 					.AddColumn("")
 					.Finish();
 			}

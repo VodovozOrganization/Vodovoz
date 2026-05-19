@@ -45,6 +45,12 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Organizations
 			Map(x => x.EmailForMailing)
 				.Column("email_for_mailing");
 
+			Map(x => x.ClosingDeliveriesNotificationEmailFrom)
+				.Column("closing_deliveries_notification_email_from");
+
+			Map(x => x.DisableClosingDeliveriesMailing)
+				.Column("disable_closing_deliveries_mailing");
+
 			Map(x => x.DisableDebtMailing)
 				.Column("disable_debt_mailing");
 

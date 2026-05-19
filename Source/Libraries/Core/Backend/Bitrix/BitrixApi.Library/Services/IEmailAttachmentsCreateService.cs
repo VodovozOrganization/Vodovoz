@@ -1,4 +1,5 @@
 ﻿using Mailjet.Api.Abstractions;
+using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 
@@ -15,7 +16,7 @@ namespace BitrixApi.Library.Services
 		/// <param name="counterpartyId">Id контрагента</param>
 		/// <param name="organizationId">Id организации</param>
 		/// <returns>Вложения с файлами</returns>
-		IEnumerable<EmailAttachment> CreateRevisionAttachments(int counterpartyId, int organizationId);
+		IEnumerable<EmailAttachment> CreateRevisionAttachments(int counterpartyId, int organizationId, DateTime? startDate = null, DateTime? endDate = null);
 		/// <summary>
 		/// Создает вложения для письма со счетами по заказам
 		/// </summary>

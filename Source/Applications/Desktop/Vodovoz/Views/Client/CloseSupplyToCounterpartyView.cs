@@ -7,6 +7,7 @@ using QS.Project.Services;
 using QS.Navigation;
 using QS.Dialog.GtkUI.FileDialog;
 using Vodovoz.Core.Domain.Clients;
+using DynamicData;
 
 namespace Vodovoz.Views.Client
 {
@@ -47,11 +48,10 @@ namespace Vodovoz.Views.Client
 				.AddBinding(ViewModel.Entity, e => e.IsDeliveriesClosed, l => l.Visible)
 				.InitializeFromSource();
 
-			yenumcomboboxDebtType.ItemsEnum = typeof(DebtType);
+			yenumcomboboxDebtType.ItemsEnum = typeof(DebtType);			
 			yenumcomboboxDebtType.Binding
-				.AddSource(ViewModel.Entity)
-				.AddBinding(e => e.CloseDeliveryDebtType, w => w.SelectedItemOrNull)
-				.AddBinding(e => e.IsDeliveriesClosed, l => l.Visible)
+				.AddBinding(ViewModel, vm => vm.CloseDeliveryDebtType, w => w.SelectedItemOrNull)
+				.AddBinding(ViewModel.Entity, e => e.IsDeliveriesClosed, w => w.Visible)
 				.InitializeFromSource();
 
 			labelCloseDelivery.Binding

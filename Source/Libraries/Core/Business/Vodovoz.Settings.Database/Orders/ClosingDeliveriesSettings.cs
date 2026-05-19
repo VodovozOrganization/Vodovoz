@@ -5,7 +5,7 @@ namespace Vodovoz.Settings.Database.Orders
 {
 	public class ClosingDeliveriesSettings : IClosingDeliveriesSettings
 	{
-		private const string _closingDeliveriesNotificationEmails = "closing_deliveries_notification_emails";
+		private const string _closingDeliveriesNotificationEmailsTo = "closing_deliveries_notification_emails_to";
 		private const string _daysBeforeClosingDeliveries = "days_before_closing_deliveries";
 
 		private readonly ISettingsController _settingsController;
@@ -15,9 +15,9 @@ namespace Vodovoz.Settings.Database.Orders
 			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 		}
 
-		public string ClosingDeliveriesNotificationEmails => _settingsController.GetStringValue(_closingDeliveriesNotificationEmails);
+		public string ClosingDeliveriesNotificationEmailsTo => _settingsController.GetStringValue(_closingDeliveriesNotificationEmailsTo);
 
-		public void UpdateClosingDeliveriesNotificationEmails(string value) => _settingsController.CreateOrUpdateSetting(_closingDeliveriesNotificationEmails, value);
+		public void UpdateClosingDeliveriesNotificationEmails(string value) => _settingsController.CreateOrUpdateSetting(_closingDeliveriesNotificationEmailsTo, value);
 
 		public int DaysBeforeClosingDeliveries => _settingsController.GetIntValue(_daysBeforeClosingDeliveries);
 

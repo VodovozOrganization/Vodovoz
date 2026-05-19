@@ -28,30 +28,35 @@ namespace EmailDebtNotificationWorker.Services
 			IReadOnlyCollection<OrderWithoutShipmentForDebtNotificationInfo> notificationInfos,
 			CancellationToken cancellationToken)
 		{
-			if(string.IsNullOrEmpty(_closingDeliveriesSettings.ClosingDeliveriesNotificationEmails))
+			if(string.IsNullOrEmpty(_closingDeliveriesSettings.ClosingDeliveriesNotificationEmailsTo))
 			{
 				throw new InvalidOperationException("Не настроены адреса для уведомлений о просрочке дебиторской задолженности клиентов");
 			}
 
-			var organization = notificationInfos.First().OrderWithoutShipmentForDebt.Organization;
+			var organization = notificationInfos.First(x => !string.IsNullOrWhiteSpace(x.OrderWithoutShipmentForDebt.Organization.ClosingDeliveriesNotificationEmailFrom)).OrderWithoutShipmentForDebt.Organization;
 
-			var emailContacts = _closingDeliveriesSettings.ClosingDeliveriesNotificationEmails
+			if(organization is null)
+			{
+				throw new ArgumentException($"Не удалось подобрать орнанизацию с заполненным E-mail, с которого будет отправляться письмо о закрытии поставок");
+			}
+
+			var emailToSentContacts = _closingDeliveriesSettings.ClosingDeliveriesNotificationEmailsTo
 					.Split(';')
 					.Select(x => new EmailContact { Email = x.Trim(), Name = "Автоматика" })
 					.ToList();
 
-			var sendEmailMessages = new List<SendEmailMessage>(emailContacts.Count);
+			var sendEmailMessages = new List<SendEmailMessage>(emailToSentContacts.Count);
 
 			var body = BuildBody(notificationInfos);
 
-			foreach(var emailContact in emailContacts)
+			foreach(var emailToSentContact in emailToSentContacts)
 			{
 				var storedEmail = new StoredEmail
 				{
 					State = StoredEmailStates.WaitingToSend,
 					SendDate = DateTime.Now,
 					StateChangeDate = DateTime.Now,
-					RecipientAddress = emailContact.Email,
+					RecipientAddress = emailToSentContact.Email,
 					Subject = "Просроченная задолженность клиентов",
 					Guid = Guid.NewGuid(),
 					Description = "Сводка задолженности"
@@ -64,11 +69,11 @@ namespace EmailDebtNotificationWorker.Services
 					From = new EmailContact
 					{
 						Name = organization.FullName,
-						Email = organization.EmailForMailing,
+						Email = organization.ClosingDeliveriesNotificationEmailFrom,
 					},
 					To = new List<EmailContact>
 					{
-						emailContact
+						emailToSentContact
 					},
 
 					Subject = storedEmail.Subject,

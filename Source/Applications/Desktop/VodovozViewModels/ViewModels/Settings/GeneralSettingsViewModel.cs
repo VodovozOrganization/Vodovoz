@@ -228,7 +228,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			DaysBeforeClosingDeliveries = _closingDeliveriesSettings.DaysBeforeClosingDeliveries;
 			SaveDaysBeforeClosingDeliveriesCommand = new DelegateCommand(SaveDaysBeforeClosingDeliveries, () => CanMassiveChangePaymentDeferment);
 			SaveDaysBeforeClosingDeliveriesCommand.CanExecuteChangedWith(this, vm => vm.CanMassiveChangePaymentDeferment);
-			ClosingDeliveriesNotificationEmails = _closingDeliveriesSettings.ClosingDeliveriesNotificationEmails;
+			ClosingDeliveriesNotificationEmails = _closingDeliveriesSettings.ClosingDeliveriesNotificationEmailsTo;
 			SaveClosingDeliveriesNotificationEmailsCommand = new DelegateCommand(SaveClosingDeliveriesNotificationEmails, () => CanMassiveChangePaymentDeferment);
 			SaveClosingDeliveriesNotificationEmailsCommand.CanExecuteChangedWith(this, vm => vm.CanMassiveChangePaymentDeferment);
 
@@ -1378,12 +1378,12 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		private void SaveClosingDeliveriesNotificationEmails()
 		{
-			var validator = new EmailAddressAttribute();
-
-			var emails = ClosingDeliveriesNotificationEmails
+						var emails = ClosingDeliveriesNotificationEmails
 				.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
 				.Select(e => e.Trim())
 				.ToList();
+
+			var validator = new EmailAddressAttribute();
 
 			var invalidEmails = emails
 				.Where(e => !validator.IsValid(e))

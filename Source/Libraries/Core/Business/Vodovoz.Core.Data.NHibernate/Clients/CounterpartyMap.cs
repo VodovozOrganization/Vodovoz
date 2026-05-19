@@ -246,6 +246,9 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 			Map(x => x.DisableDebtMailing)
 				.Column("disable_debt_mailing");
 
+			Map(x => x.DisableClosingDeliveriesMailing)
+				.Column("disable_closing_deliveries_mailing");
+
 			Map(x => x.IsNewEdoProcessing)
 				.Column("is_new_edo_processing");
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using Vodovoz.Domain.StoredEmails;
+using Vodovoz.Extensions;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport
 {
@@ -13,5 +14,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport
 		public string Phone { get; set; }
 		public string ActionDatetimeString => ActionDateTime.ToString();
 		public string StateString => Gamma.Utilities.AttributeUtil.GetEnumTitle(State);
+		public CounterpartyEmailType EmailType { get; set; }
+		public string EmailTypeString => EmailType.GetEnumDisplayName();	
 	}
 }

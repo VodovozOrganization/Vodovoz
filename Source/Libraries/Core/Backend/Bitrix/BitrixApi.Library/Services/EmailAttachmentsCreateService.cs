@@ -33,9 +33,9 @@ namespace BitrixApi.Library.Services
 		}
 
 		/// <inheritdoc/>
-		public IEnumerable<EmailAttachment> CreateRevisionAttachments(int counterpartyId, int organizationId)
+		public IEnumerable<EmailAttachment> CreateRevisionAttachments(int counterpartyId, int organizationId, DateTime? startDate = null, DateTime? endDate = null)
 		{
-			var reportInfo = GetRevisionReportInfo(counterpartyId, organizationId)
+			var reportInfo = GetRevisionReportInfo(counterpartyId, organizationId, startDate, endDate)
 				?? throw new InvalidOperationException("Не удалось получить информацию по отчету акта сверки");
 			var pdfBytes = CreatePdfReportBytes(reportInfo);
 
