@@ -318,7 +318,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 							product.IsDiscountInMoney,
 							product.IsFixedPrice,
 							discountReasons: product.DiscountReasons,
-							isGift: product.IsGift);
+							giftItem: product.GiftItem);
 					}
 				}
 			}
@@ -342,7 +342,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 					onlineOrderItem.IsDiscountInMoney,
 					onlineOrderItem.IsFixedPrice,
 					onlineOrderItem.DiscountReasons,
-					isGift: onlineOrderItem.IsGift);
+					giftItem: onlineOrderItem.GiftItem);
 			}
 		}
 
