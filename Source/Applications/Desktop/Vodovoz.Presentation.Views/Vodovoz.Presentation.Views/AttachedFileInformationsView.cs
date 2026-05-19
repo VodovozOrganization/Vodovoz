@@ -41,6 +41,8 @@ namespace Vodovoz.Presentation.Views
 		protected override void ConfigureWidget()
 		{
 			buttonScan.Visible = false;
+			GtkScrolledWindow.HeightRequest = 160;
+
 			buttonAdd.Clicked -= OnAddClicked;
 			buttonScan.Clicked -= OnScanClicked;
 			btnOpen.Clicked -= OnOpenClicked;
@@ -102,6 +104,7 @@ namespace Vodovoz.Presentation.Views
 
 		private void OnViewModelFileInformationChanged(object sender, EventArgs e)
 		{
+			treeFiles.ItemsDataSource = ViewModel.FileInformations;
 			treeFiles.QueueDraw();
 		}
 
