@@ -80,7 +80,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 
 			upd.Dokument = new FajlDokument
 			{
-				Funkcija = FajlDokumentFunkcija.DOP,
+				Funkcija = org.IsWithoutVat ? FajlDokumentFunkcija.DOP : FajlDokumentFunkcija.SChFDOP,
 				PoFaktHZh = "Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)",
 				NaimDokOpr = "Счет-фактура и документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)",
 				KND = FajlDokumentKND.Item1115131,
