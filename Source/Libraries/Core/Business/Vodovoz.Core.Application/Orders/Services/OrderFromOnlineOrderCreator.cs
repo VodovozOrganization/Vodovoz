@@ -319,7 +319,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 							product.IsFixedPrice,
 							discountReasons: product.DiscountReasons,
 							giftItem: product.GiftItem);
-							);
 					}
 				}
 			}
@@ -344,7 +343,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 					onlineOrderItem.IsFixedPrice,
 					onlineOrderItem.DiscountReasons,
 					giftItem: onlineOrderItem.GiftItem);
-					);
 			}
 		}
 

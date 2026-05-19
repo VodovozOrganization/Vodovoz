@@ -2119,7 +2119,6 @@ namespace Vodovoz.Domain.Orders
 			IEnumerable<DiscountReason> reasons = null,
 			PromotionalSet proSet = null,
 			bool giftItem = false)
-			)
 		{
 			if(nomenclature.Category != NomenclatureCategory.water && !nomenclature.IsDisposableTare)
 			{
@@ -2314,7 +2313,6 @@ namespace Vodovoz.Domain.Orders
 			IEnumerable<DiscountReason> discountReasons = null,
 			PromotionalSet proSet = null,
 			bool giftItem = false)
-			)
 		{
 			switch(nomenclature.Category) {
 				case NomenclatureCategory.water:
@@ -2329,15 +2327,12 @@ namespace Vodovoz.Domain.Orders
 						discountReasons,
 						proSet,
 						giftItem);
-						discountReasons,
-						proSet);
 					break;
 				case NomenclatureCategory.master:
 					contract = CreateServiceContractAddMasterNomenclature(uow, contractUpdater, nomenclature);
 					break;
 				default:
 					var canApplyAlternativePrice = HasPermissionsForAlternativePrice && nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
-
 					var orderItem = OrderItem.CreateForSaleWithDiscount(
 						this,
 						nomenclature,

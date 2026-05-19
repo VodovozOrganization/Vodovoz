@@ -237,7 +237,8 @@ namespace Vodovoz.Domain.Orders
 			IEnumerable<DiscountReason> discountReasons,
 			Nomenclature nomenclature,
 			PromotionalSet promotionalSet,
-			OnlineOrder onlineOrder
+			OnlineOrder onlineOrder,
+			bool giftItem = false
 		)
 		{
 			var onlineOrderItem = new OnlineOrderItem
