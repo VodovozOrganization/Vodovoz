@@ -239,7 +239,7 @@ namespace Vodovoz.Domain.Orders
 			Nomenclature nomenclature,
 			PromotionalSet promotionalSet,
 			OnlineOrder onlineOrder,
-			bool isGift
+			bool giftItem = false
 		)
 		{
 			var onlineOrderItem = new OnlineOrderItem
