@@ -1398,7 +1398,7 @@ or (First({missing_route_list_expenses_per_kg}, 'Sales') = True)
   </PageFooter>
   <DataSets>
     <DataSet Name="Sales">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>120</Timeout>
         <CommandText>
@@ -1795,10 +1795,22 @@ WHERE
           ('0' IN (@CarTypeOfUse_include) OR (cm.car_type_of_use IN (@CarTypeOfUse_include) AND rl.id IS NOT NULL))
         AND NOT (cm.car_type_of_use IN (@CarTypeOfUse_exclude) AND cm.car_type_of_use IS NOT NULL)
          )
-       AND (
-             (0 IN (@DiscountReason_include) OR (oi.discount_reason_id IN (@DiscountReason_include)))
-				AND (oi.discount_reason_id IS NULL OR NOT (oi.discount_reason_id IN (@DiscountReason_exclude)))
-         )
+       AND
+       (
+       		(
+	       		0 IN (@DiscountReason_include)
+				OR EXISTS (
+					SELECT 1 FROM discount_reasons_order_items dri
+					WHERE dri.order_item_id = oi.id
+					AND dri.discount_reason_id IN (@DiscountReason_include))
+			)
+       		AND NOT EXISTS
+       		(
+	       		SELECT 1 FROM discount_reasons_order_items dri
+	       		WHERE dri.order_item_id = oi.id
+	       		AND dri.discount_reason_id IN (@DiscountReason_exclude)
+       		)
+       )
        AND (
              (0 IN (@Subdivision_include) OR (e.subdivision_id IN (@Subdivision_include)))
 				AND NOT (e.subdivision_id IN (@Subdivision_exclude))
@@ -2048,7 +2060,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="counterparty">
           <DataField>counterparty</DataField>
           <TypeName>System.String</TypeName>

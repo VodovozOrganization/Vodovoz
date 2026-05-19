@@ -316,16 +316,19 @@ namespace Vodovoz.Views.Orders
 				.AddNumericRenderer(node => node.GetDiscount)
 				.AddSetter((cell, node) =>
 				{
-					if(node.DiscountReason != null)
+					if(node.DiscountReasons.Any())
 					{
-						if(node.Nomenclature != null
-							&& !ViewModel.DiscountController.IsApplicableDiscount(node.DiscountReason, node.Nomenclature))
+						foreach(var discountReason in node.DiscountReasons)
 						{
-							cell.CellBackgroundGdk = GdkColors.DangerBase;
-							return;
-						}
+							if(node.Nomenclature != null
+								&& !ViewModel.DiscountController.IsApplicableDiscount(discountReason, node.Nomenclature))
+							{
+								cell.CellBackgroundGdk = GdkColors.DangerBase;
+								return;
+							}
+						}						
 							
-						if(node.GetDiscount != node.DiscountReason.Value)
+						if(node.GetDiscount != node.GetDiscountFromDiscountReasons)
 						{
 							cell.CellBackgroundGdk = GdkColors.DangerBase;
 							return;
@@ -344,32 +347,17 @@ namespace Vodovoz.Views.Orders
 				})
 				.XAlign(0.5f)
 				.AddColumn("Скидка\n(основание скидки)")
-				.AddNumericRenderer(node => node.DiscountReason != null ? node.DiscountReason.Value : 0)
+				.AddNumericRenderer(node => node.DiscountReasons.Any() ? node.GetDiscountFromDiscountReasons : 0)
 				.XAlign(0.5f)
 				.AddColumn("Скидка в рублях?\n(онлайн заказ)")
 				.AddToggleRenderer(node => node.IsDiscountInMoney)
 				.Editing(false)
 				.AddSetter((cell, node) =>
 				{
-					if(node.DiscountReason != null)
+					if(node.DiscountReasons.Any() && (node.IsDiscountInMoney ^ node.IsDiscountInMoneyFromDiscountReasons))
 					{
-						switch(node.DiscountReason.ValueType)
-						{
-							case DiscountUnits.money:
-								if(!node.IsDiscountInMoney)
-								{
-									cell.CellBackgroundGdk = GdkColors.DangerBase;
-									return;
-								}
-								break;
-							case DiscountUnits.percent:
-								if(node.IsDiscountInMoney)
-								{
-									cell.CellBackgroundGdk = GdkColors.DangerBase;
-									return;
-								}
-								break;
-						}
+						cell.CellBackgroundGdk = GdkColors.DangerBase;
+						return;
 					}
 					else
 					{
@@ -383,18 +371,23 @@ namespace Vodovoz.Views.Orders
 					cell.CellBackgroundGdk = GdkColors.PrimaryBase;
 				})
 				.AddColumn("Скидка в рублях?\n(основание скидки)")
-				.AddToggleRenderer(node => node.DiscountReason != null && node.DiscountReason.ValueType == DiscountUnits.money)
+				.AddToggleRenderer(node => node.DiscountReasons.Any() && node.IsDiscountInMoneyFromDiscountReasons)
 				.Editing(false)
 				.AddColumn("Основание скидки")
-				.AddTextRenderer(node => node.DiscountReason != null ? node.DiscountReason.Name : string.Empty)
+				.AddTextRenderer(node => node.DiscountReasons.Any() ? node.DiscountReasonsNames : string.Empty)
 				.AddSetter((cell, node) =>
 				{
 					if(node.Nomenclature != null
-						&& node.DiscountReason != null
-						&& !ViewModel.DiscountController.IsApplicableDiscount(node.DiscountReason, node.Nomenclature))
+						&& node.DiscountReasons.Any())
 					{
-						cell.CellBackgroundGdk = GdkColors.DangerBase;
-						return;
+						foreach(var discountReason in node.DiscountReasons)
+						{
+							if(!ViewModel.DiscountController.IsApplicableDiscount(discountReason, node.Nomenclature))
+							{
+								cell.CellBackgroundGdk = GdkColors.DangerBase;
+								return;
+							}
+						}
 					}
 					
 					cell.CellBackgroundGdk = GdkColors.PrimaryBase;

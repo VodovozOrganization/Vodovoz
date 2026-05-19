@@ -145,6 +145,7 @@ using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
+using Vodovoz.ViewModels.Widgets.Orders;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Client;
 using VodovozBusiness.Domain.Orders;
@@ -205,6 +206,8 @@ namespace Vodovoz
 		private Order _templateOrder;
 
 		private SelectPaymentTypeViewModel _selectPaymentTypeViewModel;
+
+		private OrderItemDiscountReasonsViewModel _orderItemDiscountReasonsViewModel;
 
 		private int _previousDeliveryPointId;
 		private int _paidDeliveryNomenclatureId;
@@ -1160,6 +1163,8 @@ namespace Vodovoz
 			dataSumDifferenceReason.Hide();
 			labelSumDifferenceReason.Hide();
 
+			SetOrderItemDiscountReasonsViewModel();
+
 			UpdateUIState();
 
 			yChkActionBottle.Toggled += (sender, e) =>
@@ -1169,6 +1174,7 @@ namespace Vodovoz
 				ycomboboxReason.Sensitive = !yChkActionBottle.Active;
 				SetDiscountUnitEditable();
 				SetDiscountEditable();
+				UpdateDiscountReasonSensitive();
 			};
 			ycheckContactlessDelivery.Binding.AddBinding(Entity, e => e.ContactlessDelivery, w => w.Active).InitializeFromSource();
 
@@ -1227,6 +1233,32 @@ namespace Vodovoz
 			RefreshDebtorDebtNotifier();
 
 			UpdateDocumentsDescription();
+		}
+
+		private void SetOrderItemDiscountReasonsViewModel()
+		{
+			_orderItemDiscountReasonsViewModel = _lifetimeScope.Resolve<OrderItemDiscountReasonsViewModel>();
+			_orderItemDiscountReasonsViewModel.Initialize(UoW);
+			orderitemdiscountreasonsview1.ViewModel = _orderItemDiscountReasonsViewModel;
+		}
+
+		private void UpdateOrderItemDiscountReasonsViewModel()
+		{
+			if(_orderItemDiscountReasonsViewModel is null)
+			{
+				throw new InvalidOperationException("Виджет выбора основания скидки не инициализирован");
+			}
+
+			var items = treeItems.GetSelectedObjects();
+
+			if(items.Count() == 1
+				&& items.First() is OrderItem orderItem)
+			{
+				_orderItemDiscountReasonsViewModel.SetOrderItem(orderItem);
+				return;
+			}
+
+			_orderItemDiscountReasonsViewModel.ResetOrderItem();
 		}
 
 		private void OnYbuttonSaveWaitUntilClicked(object sender, EventArgs e)
@@ -1295,8 +1327,8 @@ namespace Vodovoz
 			CanFormOrderWithLiquidatedCounterparty = currentPermissionService.ValidatePresetPermission(
 				OrderPermissions.CanFormOrderWithLiquidatedCounterparty);
 
-			_canChangeDiscountValue = currentPermissionService.ValidatePresetPermission("can_set_direct_discount_value");
-			_canChoosePremiumDiscount = currentPermissionService.ValidatePresetPermission("can_choose_premium_discount");
+			_canChangeDiscountValue = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.UserCanSetDirectDiscountValue);
+			_canChoosePremiumDiscount = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.OrderPermissions.CanChoosePremiumDiscount);
 			_canEditOrderExtraCash = currentPermissionService.ValidatePresetPermission("can_edit_order_extra_cash");
 			_canSetContractCloser = currentPermissionService.ValidatePresetPermission("can_set_contract_closer");
 			_canSetPaymentAfterLoad = currentPermissionService.ValidatePresetPermission("can_set_payment_after_load");
@@ -2079,9 +2111,8 @@ namespace Vodovoz
 			var colorLightYellow = GdkColors.WarningBase;
 			var colorLightRed = GdkColors.DangerBase;
 
-			_discountReasons = _canChoosePremiumDiscount
-				? _discountReasonRepository.GetActiveDiscountReasons(UoW)
-				: _discountReasonRepository.GetActiveDiscountReasonsWithoutPremiums(UoW);
+			_discountReasons =
+				_discountReasonRepository.GetActiveDiscountReasonsFetchReferences(UoW, _canChoosePremiumDiscount);
 
 			treeItems.CreateFluentColumnsConfig<OrderItem>()
 				.AddColumn("№")
@@ -2200,29 +2231,23 @@ namespace Vodovoz
 					.AddSetter((c, n) => c.Activatable = _canChangeDiscountValue)
 				.AddColumn("Основание скидки")
 					.HeaderAlignment(0.5f)
-					.AddComboRenderer(x => x.DiscountReason)
-					.SetDisplayFunc(x => x.Name)
-					.DynamicFillListFunc(item =>
-						{
-							var list = _discountReasons.Where(
-								dr => _discountsController.IsApplicableDiscount(dr, item.Nomenclature)).ToList();
-							return list;
-						})
-					.EditedEvent(OnDiscountReasonComboEdited)
-					.AddSetter((cell, node) => cell.Editable = node.DiscountByStock == 0)
+					.AddTextRenderer(x => x.DiscountReasonsNames)
 					.AddSetter(
 						(c, n) =>
-							c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null && n.PromoSet == null ? colorLightRed : colorPrimaryBase
+							c.BackgroundGdk = n.Discount > 0 && !n.DiscountReasons.Any() && n.PromoSet == null ? colorLightRed : colorPrimaryBase
 					)
 					.AddSetter((c, n) =>
 						{
-							if(n.PromoSet != null && n.DiscountReason == null && n.Discount > 0)
+							if(n.PromoSet != null && !n.DiscountReasons.Any() && n.Discount > 0)
 							{
 								c.Text = n.PromoSet.DiscountReasonInfo;
 							}
 							else if(Entity.OrderStatus == OrderStatus.DeliveryCanceled || Entity.OrderStatus == OrderStatus.NotDelivered)
 							{
-								c.Text = n.OriginalDiscountReason?.Name ?? n.DiscountReason?.Name;
+								c.Text =
+									string.IsNullOrWhiteSpace(n.OriginalDiscountReasonsNames)
+									? n.DiscountReasonsNames
+									: n.OriginalDiscountReasonsNames;
 							}
 						})
 				.AddColumn("Промонаборы").SetTag(nameof(Entity.PromotionalSets))
@@ -2375,41 +2400,6 @@ namespace Vodovoz
 			}
 
 			orderItem.UpdateRentCount(newRentCount);
-		}
-
-		private void OnDiscountReasonComboEdited(object o, EditedArgs args)
-		{
-			var index = int.Parse(args.Path);
-			var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
-			if(!(node is OrderItem orderItem))
-			{
-				return;
-			}
-
-			var previousDiscountReason = orderItem.DiscountReason;
-
-			Gtk.Application.Invoke((sender, eventArgs) =>
-			{
-				//Дополнительно проверяем основание скидки на null, т.к при двойном щелчке
-				//комбо-бокс не откроется, но событие сработает и прилетит null
-				if(orderItem.DiscountReason != null)
-				{
-					if(!_discountsController.SetDiscountFromDiscountReasonForOrderItem(
-						orderItem.DiscountReason, orderItem, _canChangeDiscountValue, out string message))
-					{
-						orderItem.DiscountReason = previousDiscountReason;
-					}
-
-					if(message != null)
-					{
-						ServicesConfig.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-							$"На позицию:\n№{index + 1} {message}нельзя применить скидку," +
-							" т.к. она из промонабора или на нее есть фикса.\nОбратитесь к руководителю");
-					}
-				}
-
-				Order?.RecalculateItemsPrice();
-			});
 		}
 
 		private void OnOpCommentChanged(object o, EventArgs args)
@@ -3735,7 +3725,7 @@ namespace Vodovoz
 			Nomenclature nomenclature,
 			decimal count = 0,
 			decimal discount = 0,
-			DiscountReason discountReason = null)
+			IEnumerable<DiscountReason> discountReasons = null)
 		{
 			if(Entity.IsLoadedFrom1C)
 			{
@@ -3780,7 +3770,7 @@ namespace Vodovoz
 				return;
 			}
 
-			Entity.AddNomenclature(UoW, _orderContractUpdater, nomenclature, count, discount, false, discountReason: discountReason);
+			Entity.AddNomenclature(UoW, _orderContractUpdater, nomenclature, count, discount, false, discountReasons: discountReasons);
 		}
 
 		private void TryAddNomenclatureFromPromoSet(PromotionalSet proSet)
@@ -4701,7 +4691,7 @@ namespace Vodovoz
 				SetDiscountUnitEditable();
 				spinDiscount.ValueAsDecimal = default(decimal);
 				SetDiscountEditable();
-				_discountsController.RemoveDiscountFromOrder(Entity.ObservableOrderItems);
+				_discountsController.ClearOrdersItemDiscounts(Entity.ObservableOrderItems.Cast<IDiscount>().ToList());
 			}
 		}
 
@@ -4921,6 +4911,8 @@ namespace Vodovoz
 			object[] items = treeItems.GetSelectedObjects();
 
 			btnDeleteOrderItem.Sensitive = items.Any();
+
+			UpdateOrderItemDiscountReasonsViewModel();
 		}
 
 		/// <summary>
@@ -5081,6 +5073,8 @@ namespace Vodovoz
 			ChangeGoodsSensitive(val
 				|| (IsStatusForEditGoodsInRouteList && _canEditGoodsInRouteList));
 
+			UpdateDiscountReasonSensitive();
+
 			checkPayAfterLoad.Sensitive = _canSetPaymentAfterLoad && checkSelfDelivery.Active && val;
 
 			UpdateButtonState();
@@ -5152,6 +5146,18 @@ namespace Vodovoz
 		{
 			treeItems.Sensitive = sensitive;
 			hbox12.Sensitive = sensitive;
+		}
+
+		private void UpdateDiscountReasonSensitive()
+		{
+			var sensitive =
+				(Entity.CanEditByStatus && CanEditByPermission)
+				|| (IsStatusForEditGoodsInRouteList && _canEditGoodsInRouteList);
+
+			if(_orderItemDiscountReasonsViewModel != null)
+			{
+				_orderItemDiscountReasonsViewModel.IsEditEnabled = sensitive;
+			}
 		}
 
 		private void SetPadInfoSensitive(bool value)
@@ -5340,12 +5346,12 @@ namespace Vodovoz
 				if(discount > 0)
 				{
 					var unit = (DiscountUnits)enumDiscountUnit.SelectedItem;
-					_discountsController.SetCustomDiscountForOrder(reason, discount, unit, Entity.ObservableOrderItems);
+					_discountsController.SetCustomDiscountForOrderItems(reason, discount, unit, Entity.ObservableOrderItems.Cast<IDiscount>().ToList());
 				}
 				else
 				{
 					_discountsController.SetDiscountFromDiscountReasonForOrder(
-						reason, Entity.ObservableOrderItems, _canChangeDiscountValue, out string messages);
+						reason, Entity.ObservableOrderItems.Cast<IDiscount>().ToList(), _canChangeDiscountValue, out string messages);
 
 					if(messages?.Length > 0)
 					{

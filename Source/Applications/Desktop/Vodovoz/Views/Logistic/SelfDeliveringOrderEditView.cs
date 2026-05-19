@@ -1,17 +1,14 @@
-﻿using Autofac;
-using Gamma.GtkWidgets;
+﻿using Gamma.GtkWidgets;
 using Gamma.GtkWidgets.Cells;
 using Gamma.Utilities;
 using Gtk;
-using QS.Dialog;
-using QS.Project.Services;
 using QS.Utilities;
 using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -164,38 +161,31 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("Скидка \nв рублях?")
 					.AddToggleRenderer(x => x.IsDiscountInMoney)
 					.AddSetter((c, n) => c.Activatable = ViewModel.CanChangeDiscountValue)
-				.AddColumn("Основание скидки")
-					.HeaderAlignment(0.5f)
-					.AddComboRenderer(x => x.DiscountReason)
-					.SetDisplayFunc(x => x.Name)
-					.DynamicFillListFunc(item =>
+				.AddColumn("Основания скидки")
+			.HeaderAlignment(0.5f)
+			.AddTextRenderer(node => GetDiscountReasonsString(node.DiscountReasons))
+				.AddSetter((c, n) =>
+				{
+					if(n.Discount > 0 && !n.DiscountReasons.Any() && n.PromoSet is null)
 					{
-						var list = ViewModel.DiscountReasons.Where(
-								dr => ViewModel.DiscountsController.IsApplicableDiscount(dr, item.Nomenclature)).ToList();
-						return list;
-					})
-					.EditedEvent(OnDiscountReasonComboEdited)
-					.AddSetter((c, n) => c.Editable = ViewModel.CanChangeDiscountValue)
-					.AddSetter((c, n) => { c.Sensitive = false; })
-					.AddSetter(
-						(c, n) =>
-							c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null && n.PromoSet == null ? colorLightRed : colorPrimaryBase
-					)
-					.AddSetter((c, n) =>
+						c.BackgroundGdk = colorLightRed;
+					}
+					else
 					{
-						if(n.PromoSet != null && n.DiscountReason == null && n.Discount > 0)
-						{
-							c.Text = n.PromoSet.DiscountReasonInfo;
-						}
-						else if(ViewModel.Entity.OrderStatus == OrderStatus.DeliveryCanceled || ViewModel.Entity.OrderStatus == OrderStatus.NotDelivered)
-						{
-							c.Text = n.OriginalDiscountReason?.Name ?? n.DiscountReason?.Name;
-						}
-					})
+						c.BackgroundGdk = colorPrimaryBase;
+					}
+
+					if(ViewModel.Entity.OrderStatus is OrderStatus.DeliveryCanceled || ViewModel.Entity.OrderStatus is OrderStatus.NotDelivered)
+					{
+						c.Text = GetDiscountReasonsString(n.DiscountReasons);
+					}
+				})
+				.AddSetter((c, n) => { c.Editable = false; })
 				.RowCells()
 					.XAlign(0.5f)
 				.Finish();
 		}
+
 		private void OnSpinPriceEdited(object o, EditedArgs args, yTreeView treeItems)
 		{ 
 			decimal.TryParse(args.NewText, NumberStyles.Any, CultureInfo.InvariantCulture, out var newPrice);
@@ -207,21 +197,15 @@ namespace Vodovoz.Views.Logistic
 
 			orderItem.SetPrice(newPrice);
 		}
-		private void OnDiscountReasonComboEdited(object o, EditedArgs args)
+
+		private string GetDiscountReasonsString(IEnumerable<DiscountReason> discountReasons)
 		{
-			var index = int.Parse(args.Path);
-			var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
-			if(!(node is OrderItem orderItem))
+			if(discountReasons is null || !discountReasons.Any())
 			{
-				return;
+				return string.Empty;
 			}
 
-			var previousDiscountReason = orderItem.DiscountReason;
-
-			Gtk.Application.Invoke((sender, eventArgs) =>
-			{
-				ViewModel.ApplyDiscountReasonToOrderItem(orderItem, index);
-			});
+			return string.Join(", ", discountReasons.Select(r => r.Name));
 		}
 	}
 }

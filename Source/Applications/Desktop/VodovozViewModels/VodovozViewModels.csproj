@@ -1165,6 +1165,7 @@
     <Compile Include="Widgets\Cash\VatRateOrganizationVersionViewModel.cs" />
     <Compile Include="Widgets\OrderDateFilterViewModel.cs" />
     <Compile Include="Widgets\Goods\NomenclatureMinimumBalanceByWarehouseViewModel.cs" />
+    <Compile Include="Widgets\Orders\OrderItemDiscountReasonsViewModel.cs" />
     <Compile Include="Widgets\OrganizationForOrderOrganizationSettingsViewModel.cs" />
     <Compile Include="Widgets\Print\DocumentsPrinterSettingsViewModel.cs" />
     <Compile Include="Widgets\Search\CompositeAlgebraicSearchCriterion.cs" />

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Linq;
 using Gamma.ColumnConfig;
@@ -179,17 +179,9 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 					.Editing()
 				.AddColumn("Основание скидки")
 					.HeaderAlignment(0.5f)
-					.AddComboRenderer(node => node.DiscountReason)
-					.SetDisplayFunc(x => x.Name)
-					.DynamicFillListFunc(item =>
-					{
-						var list = ViewModel.DiscountReasons.Where(
-							dr => ViewModel.DiscountsController.IsApplicableDiscount(dr, item.Nomenclature)).ToList();
-						return list;
-					})
-					.EditedEvent(OnDiscountReasonComboEdited)
+					.AddTextRenderer(x => x.DiscountReasonsNames)                    
 				.AddSetter((c, n) =>
-					c.BackgroundGdk = n.Discount > 0 && n.DiscountReason == null
+					c.BackgroundGdk = n.Discount > 0 && !n.DiscountReasons.Any()
 						? colorLightRed
 						: colorWhite)
 				.RowCells()
@@ -197,6 +189,8 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 				.Finish();
 			treeItems.ItemsDataSource = ViewModel.Entity.ObservableOrderWithoutDeliveryForAdvancePaymentItems;
 			treeItems.Selection.Changed += TreeItems_Selection_Changed;
+
+			orderitemdiscountreasonsview.ViewModel = ViewModel.OrderItemDiscountReasonsViewModel;
 		}
 
 		private void CustomizeSendDocumentAgainButton()
@@ -210,21 +204,6 @@ namespace Vodovoz.Views.Orders.OrdersWithoutShipment
 
 			ybuttonSendDocumentAgain.Sensitive = ViewModel.CanResendEdoBill;
 			ybuttonSendDocumentAgain.Label = "Отправить повторно";
-		}
-
-		private void OnDiscountReasonComboEdited(object o, EditedArgs args)
-		{
-			Gtk.Application.Invoke((sender, eventArgs) =>
-			{
-				var node = treeItems.YTreeModel.NodeAtPath(new TreePath(args.Path));
-				
-				//Дополнительно проверяем основание скидки на null, т.к при двойном щелчке
-				//комбо-бокс не откроется, но событие сработает и прилетит null
-				if(node is OrderWithoutShipmentForAdvancePaymentItem item && item.DiscountReason != null)
-				{
-					ViewModel.DiscountsController.SetDiscountFromDiscountReasonForOrderItemWithoutShipment(item.DiscountReason, item);
-				}
-			});
 		}
 
 		private void TreeItems_Selection_Changed(object sender, EventArgs e)
