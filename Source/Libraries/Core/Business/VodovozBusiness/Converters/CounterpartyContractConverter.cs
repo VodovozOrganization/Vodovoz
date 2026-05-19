@@ -23,8 +23,7 @@ namespace Vodovoz.Converters
 				Id = contract.Id,
 				Number = contract.Number,
 				IssueDate = contract.IssueDate,
-				OrganizationInfoForEdo = organizationInfo,
-				IsOrganizationWithoutVat = contract.Organization.GetActualVatRateVersion(dateTime)?.VatRate.VatRateValue == 0
+				OrganizationInfoForEdo = organizationInfo
 			};
 		}
 	}

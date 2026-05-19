@@ -50,7 +50,7 @@ namespace TaxcomEdoApi.Library.Factories.Format5_03
 			var contract = orderInfoForEdo.ContractInfoForEdo;
 			var org = contract.OrganizationInfoForEdo;
 			var updDate = orderInfoForEdo.DeliveryDate.ToEdoShortDateString();
-			var isWithoutVat = orderInfoForEdo.PaymentType == "Cashless" && contract.IsOrganizationWithoutVat;
+			var isWithoutVat = orderInfoForEdo.PaymentType == "Cashless" && org.IsWithoutVat;
 			
 			var upd = new Fajl
 			{
