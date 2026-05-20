@@ -44,7 +44,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 			if(isDeliveryForFree)
 			{
-				return default;
+				return Result.Success(0m);
 			}
 
 			#endregion
@@ -68,7 +68,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 					.Sum(x => x.Nomenclature?.OnlineStoreExternalId != null ? x.ActualSum : 0m))
 				?? 0m;
 
-			return price;
+			return Result.Success(price);
 		}
 	}
 }
