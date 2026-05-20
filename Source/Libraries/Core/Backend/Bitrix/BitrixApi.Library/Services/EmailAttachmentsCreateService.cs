@@ -6,6 +6,7 @@ using RdlEngine;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 
 namespace BitrixApi.Library.Services
 {
@@ -16,11 +17,13 @@ namespace BitrixApi.Library.Services
 		private const string _notPaidOrdersBillReportIdentifier = "Documents.Bill";
 		private const string _generalBillReportIdentifier = "Documents.GeneralBill";
 		private const string _letterOfClaimIdentifier = "Documents.LetterOfClaim";
+		private const string _orderWithoutShipmentForDebtIdentifier = "Documents.BillWithoutShipmentForDebt";
 
 		private const string _revisionFileName = "Акт_сверки";
 		private const string _notPaidOrdersBillFileName = "Неоплаченные_счета";
 		private const string _generalBillFileName = "Общий_счет";
 		private const string _letterOfClaimFileName = "Письмо_претензии";
+		private const string _orderWithoutShipmentForDebtFileName = "Счет без отгрузки на долг";
 
 		private readonly IReportInfoFactory _reportInfoFactory;
 
@@ -30,9 +33,9 @@ namespace BitrixApi.Library.Services
 		}
 
 		/// <inheritdoc/>
-		public IEnumerable<EmailAttachment> CreateRevisionAttachments(int counterpartyId, int organizationId)
+		public IEnumerable<EmailAttachment> CreateRevisionAttachments(int counterpartyId, int organizationId, DateTime? startDate = null, DateTime? endDate = null)
 		{
-			var reportInfo = GetRevisionReportInfo(counterpartyId, organizationId)
+			var reportInfo = GetRevisionReportInfo(counterpartyId, organizationId, startDate, endDate)
 				?? throw new InvalidOperationException("Не удалось получить информацию по отчету акта сверки");
 			var pdfBytes = CreatePdfReportBytes(reportInfo);
 
@@ -76,6 +79,17 @@ namespace BitrixApi.Library.Services
 			var pdfBytes = CreatePdfReportBytes(reportInfo);
 
 			return CreateEmailPdfAttachment(pdfBytes, _letterOfClaimFileName);
+		}
+
+		/// <inheritdoc/>
+		public IEnumerable<EmailAttachment> CreateOrderWithoutShipmentForDebtAttachments(OrderWithoutShipmentForDebt orderWithoutShipmentForDebt)
+		{
+			var reportInfo = GetOrderWithoutShipmentForDebtReportInfo(orderWithoutShipmentForDebt)
+				?? throw new InvalidOperationException("Не удалось получить информацию по счету без отгрузки на долг");
+
+			var pdfBytes = CreatePdfReportBytes(reportInfo);
+
+			return CreateEmailPdfAttachment(pdfBytes, _orderWithoutShipmentForDebtFileName);
 		}
 
 		private IEnumerable<EmailAttachment> CreateEmailPdfAttachment(byte[] attachmentBytes, string fileName)
@@ -162,6 +176,24 @@ namespace BitrixApi.Library.Services
 				{ "debt_sum_string", debtSumFormatted },
 				{ "hide_signature", hideSignature },
 			};
+			return reportInfo;
+		}
+
+		private ReportInfo GetOrderWithoutShipmentForDebtReportInfo(OrderWithoutShipmentForDebt orderWithoutShipmentForDebt, bool hideSignature = false, bool special = false)
+		{
+			var reportInfo = _reportInfoFactory.Create();
+			reportInfo.Title = _orderWithoutShipmentForDebtFileName;
+			reportInfo.Identifier = _orderWithoutShipmentForDebtIdentifier;
+			reportInfo.Parameters = new Dictionary<string, object>
+			{
+				{ "bill_ws_for_debt_id", orderWithoutShipmentForDebt.Id },
+				{ "special_contract_number", orderWithoutShipmentForDebt.SpecialContractNumber },
+				{ "organization_id", orderWithoutShipmentForDebt.Organization.Id },
+				{ "hide_signature", hideSignature },
+				{ "special", special },
+				{ "author", orderWithoutShipmentForDebt.Author }
+			};
+
 			return reportInfo;
 		}
 

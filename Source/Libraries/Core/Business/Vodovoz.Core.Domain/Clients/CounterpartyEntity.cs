@@ -114,6 +114,7 @@ namespace Vodovoz.Core.Domain.Clients
 		private bool _excludeFromAutoCalls;
 		private bool _hideDeliveryPointForBill;
 		private bool _disableDebtMailing;
+		private bool _disableClosingDeliveriesMailing;
 		private RevenueStatus? _revenueStatus;
 		private DateTime? _revenueStatusDate;
 		private bool _isWorkingWithoutSeal;
@@ -975,6 +976,16 @@ namespace Vodovoz.Core.Domain.Clients
 		{
 			get => _disableDebtMailing;
 			set => SetField(ref _disableDebtMailing, value);
+		}
+
+		/// <summary>
+		/// Запретить рассылку писем о блокировке поставок"
+		/// </summary>
+		[Display(Name = "Запретить рассылку писем о блокировке поставок")]
+		public virtual bool DisableClosingDeliveriesMailing
+		{
+			get => _disableClosingDeliveriesMailing;
+			set => SetField(ref _disableClosingDeliveriesMailing, value);
 		}
 
 		/// <summary>

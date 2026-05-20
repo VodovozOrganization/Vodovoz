@@ -100,5 +100,14 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.StoredEmails
 				DiscriminatorValue(nameof(CounterpartyEmailType.GeneralBillDocument));
 			}
 		}
+
+		public class ClosingDeliveriesEmailMap : SubclassMap<ClosingDeliveriesEmail>
+		{
+			public ClosingDeliveriesEmailMap()
+			{
+				DiscriminatorValue(nameof(CounterpartyEmailType.ClosingDeliveries));
+				References(x => x.OrderWithoutShipmentForDebt).Column("bill_ws_for_debt_id");
+			}
+		}
 	}
 }

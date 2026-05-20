@@ -295,7 +295,7 @@ namespace Vodovoz.Views.Settings
 			buttonSaveDaysBeforeClosingDeliveries.BindCommand(ViewModel.SaveDaysBeforeClosingDeliveriesCommand);
 
 			yentryClosingDeliveriesNotificationEmails.Binding
-				.AddBinding(ViewModel, vm => vm.ClosingDeliveriesNotificationEmails, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.ClosingDeliveriesNotificationEmailsTo, w => w.Text)
 				.AddBinding(ViewModel, vm => vm.CanMassiveChangePaymentDeferment, w => w.Sensitive)
 				.InitializeFromSource();
 

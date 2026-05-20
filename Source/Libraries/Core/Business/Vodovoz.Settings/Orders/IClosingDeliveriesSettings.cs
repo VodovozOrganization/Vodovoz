@@ -6,9 +6,9 @@
 	public interface IClosingDeliveriesSettings
 	{
 		/// <summary>
-		/// Почта, на которую будут приходить уведомления о закрытии поставок. Несколько адресов можно указать через точку с запятой.
+		/// Почта, на которую будут приходить уведомления о закрытии поставок нашимм сотрудникам. Несколько адресов можно указать через точку с запятой.
 		/// </summary>
-		string ClosingDeliveriesNotificationEmails { get; }
+		string ClosingDeliveriesNotificationEmailsTo { get; }
 
 		/// <summary>
 		/// Дней сверх просрочки до закрытия поставок

@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Edo.Common.Services;
 using EdoService.Library;
 using Gamma.ColumnConfig;
@@ -160,6 +160,7 @@ namespace Vodovoz
 		private bool _deliveryPointsConfigured = false;
 		private bool _documentsConfigured = false;
 		private Organization _vodovozOrganization;
+		private bool _disableClosingDeliveriesMailingInitValue;
 
 		public ThreadDataLoader<EmailRow> EmailDataLoader { get; private set; }
 
@@ -779,6 +780,10 @@ namespace Vodovoz
 			ycheckbuttonDisableDebtMailing.Sensitive = 
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CounterpartyPermissions.CanEditDebtNotification);
 
+			ycheckbuttonDisableClosingDeliveriesMailing.Binding
+				.AddBinding(Entity, e => e.DisableClosingDeliveriesMailing, w => w.Active)
+				.InitializeFromSource();			
+
 			// Настройка каналов сбыта
 			if(Entity.IsForRetail)
 			{
@@ -823,6 +828,8 @@ namespace Vodovoz
 
 			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? new LogisticsRequirements(), _commonServices);
 			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
+
+			_disableClosingDeliveriesMailingInitValue = Entity.DisableClosingDeliveriesMailing;
 		}
 
 		private void OnPersonTypeChanged()
@@ -1634,6 +1641,7 @@ namespace Vodovoz
 				}
 
 				RemoveEmptyEmailsAndPhones();
+				SaveEmailSubscriptions();
 
 				if(!ServicesConfig.ValidationService.Validate(Entity, _validationContext))
 				{
@@ -1663,6 +1671,23 @@ namespace Vodovoz
 			finally
 			{
 				SetSensetivity(true);
+			}
+		}
+
+		private void SaveEmailSubscriptions()
+		{
+			if(_disableClosingDeliveriesMailingInitValue == Entity.DisableClosingDeliveriesMailing)
+			{
+				return;
+			}
+
+			if(Entity.DisableClosingDeliveriesMailing)
+			{
+				UnsubscribeForDeliveriesClosingEmails();
+			}
+			else
+			{
+				SubscribeForDeliveriesClosingEmails();
 			}
 		}
 
@@ -2477,6 +2502,36 @@ namespace Vodovoz
 			}
 
 			return bank;
+		}
+
+		private void UnsubscribeForDeliveriesClosingEmails()
+		{
+			var unsubscribingReason = _emailRepository.GetBulkEmailEventOperatorReason(UoW, _emailSettings);
+
+			var unsubscribingEvent = new UnsubscribingBulkEmailEvent
+			{
+				Reason = unsubscribingReason,
+				ReasonDetail = CurrentEmployee.GetPersonNameWithInitials(),
+				Counterparty = Entity,
+				CounterpartyEmailType = CounterpartyEmailType.ClosingDeliveries
+			};
+
+			UoW.Save(unsubscribingEvent);
+		}
+
+		private void SubscribeForDeliveriesClosingEmails()
+		{
+			var subscribingReason = _emailRepository.GetBulkEmailEventOperatorReason(UoW, _emailSettings);
+
+			var subscribingEvent = new SubscribingBulkEmailEvent
+			{
+				Reason = subscribingReason,
+				ReasonDetail = CurrentEmployee.GetPersonNameWithInitials(),
+				Counterparty = Entity,
+				CounterpartyEmailType = CounterpartyEmailType.ClosingDeliveries
+			};
+
+			UoW.Save(subscribingEvent);
 		}
 
 		public override void Destroy()

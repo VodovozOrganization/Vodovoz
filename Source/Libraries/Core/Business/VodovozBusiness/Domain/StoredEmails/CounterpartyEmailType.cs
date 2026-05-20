@@ -77,6 +77,12 @@ namespace Vodovoz.Domain.StoredEmails
 		/// Акт приёма-передачи оборудования
 		/// </summary>
 		[Display(Name = "Акт приёма-передачи оборудования")]
-		EquipmentTransfer
+		EquipmentTransfer,
+
+		/// <summary>
+		/// Закрытие поставок
+		/// </summary>
+		[Display(Name = "Закрытие поставок")]
+		ClosingDeliveries
 	}
 }

@@ -228,7 +228,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			DaysBeforeClosingDeliveries = _closingDeliveriesSettings.DaysBeforeClosingDeliveries;
 			SaveDaysBeforeClosingDeliveriesCommand = new DelegateCommand(SaveDaysBeforeClosingDeliveries, () => CanMassiveChangePaymentDeferment);
 			SaveDaysBeforeClosingDeliveriesCommand.CanExecuteChangedWith(this, vm => vm.CanMassiveChangePaymentDeferment);
-			ClosingDeliveriesNotificationEmails = _closingDeliveriesSettings.ClosingDeliveriesNotificationEmails;
+			ClosingDeliveriesNotificationEmailsTo = _closingDeliveriesSettings.ClosingDeliveriesNotificationEmailsTo;
 			SaveClosingDeliveriesNotificationEmailsCommand = new DelegateCommand(SaveClosingDeliveriesNotificationEmails, () => CanMassiveChangePaymentDeferment);
 			SaveClosingDeliveriesNotificationEmailsCommand.CanExecuteChangedWith(this, vm => vm.CanMassiveChangePaymentDeferment);
 
@@ -877,7 +877,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private bool _canMassiveChangePaymentDeferment;
 		private int _daysBeforeBlockingDeliveriesTarget;
 		private int _daysBeforeBlockingDeliveriesNew;
-		private string _blockingDeliveriesNotificationEmails;
+		private string _closingDeliveriesNotificationEmailsTo;
 
 		public IEnumerable<Subdivision> AuthorsSubdivisions { get; private set; }
 		public IEnumerable<short> AuthorsSets { get; private set; }
@@ -1366,24 +1366,24 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		#region Уведомление о блокировке поставок
 
 		/// <summary>
-		/// Почты, для отправки уведомлений о блокировке поставок контрагенту
+		/// Почты, на которые будут отправляться уведомления о блокировке поставок контрагентам
 		/// </summary>
-		public string ClosingDeliveriesNotificationEmails
+		public string ClosingDeliveriesNotificationEmailsTo
 		{
-			get => _blockingDeliveriesNotificationEmails;
-			set => SetField(ref _blockingDeliveriesNotificationEmails, value);
+			get => _closingDeliveriesNotificationEmailsTo;
+			set => SetField(ref _closingDeliveriesNotificationEmailsTo, value);
 		}
 
 		public DelegateCommand SaveClosingDeliveriesNotificationEmailsCommand { get; }
 
 		private void SaveClosingDeliveriesNotificationEmails()
 		{
-			var validator = new EmailAddressAttribute();
-
-			var emails = ClosingDeliveriesNotificationEmails
+			var emails = ClosingDeliveriesNotificationEmailsTo
 				.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
 				.Select(e => e.Trim())
 				.ToList();
+
+			var validator = new EmailAddressAttribute();
 
 			var invalidEmails = emails
 				.Where(e => !validator.IsValid(e))

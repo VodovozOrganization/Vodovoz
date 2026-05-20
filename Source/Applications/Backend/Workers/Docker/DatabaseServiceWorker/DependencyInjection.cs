@@ -8,10 +8,6 @@ using Vodovoz.Controllers;
 using Vodovoz.Settings.Database.Fuel;
 using Vodovoz.Settings.Fuel;
 using FuelControl.Library;
-using QS.Project.Core;
-using VodovozBusiness.Services.Orders;
-using Vodovoz.Core.Application.Orders.Services;
-using Vodovoz.Data.NHibernate.NhibernateExtensions;
 
 namespace DatabaseServiceWorker
 {
@@ -44,9 +40,5 @@ namespace DatabaseServiceWorker
 		public static IServiceCollection ConfigureFuelTransactionsControlWorker(this IServiceCollection services, HostBuilderContext context) => services
 			.Configure<FuelTransactionsControlOptions>(context.Configuration.GetSection(nameof(FuelTransactionsControlOptions)));
 
-		public static IServiceCollection AddClosingDeliveriesWorker(this IServiceCollection services, HostBuilderContext context) => services
-			.Configure<ClosingDeliveriesOptions>(context.Configuration.GetSection(nameof(ClosingDeliveriesOptions)))
-			.AddScoped<IClosingDeliveriesService, ClosingDeliveriesService>()
-			.AddDatabaseConfigurationExposer(config => config.LinqToHqlGeneratorsRegistry<LinqToHqlGeneratorsRegistry>());
 	}
 }
