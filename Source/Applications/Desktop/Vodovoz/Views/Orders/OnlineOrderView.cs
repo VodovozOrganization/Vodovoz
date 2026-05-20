@@ -359,13 +359,10 @@ namespace Vodovoz.Views.Orders
 						cell.CellBackgroundGdk = GdkColors.DangerBase;
 						return;
 					}
-					else
+					else if(!node.DiscountReasons.Any() && node.IsDiscountInMoney)
 					{
-						if(node.IsDiscountInMoney)
-						{
-							cell.CellBackgroundGdk = GdkColors.DangerBase;
-							return;
-						}
+						cell.CellBackgroundGdk = GdkColors.DangerBase;
+						return;
 					}
 					
 					cell.CellBackgroundGdk = GdkColors.PrimaryBase;
