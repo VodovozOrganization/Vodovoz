@@ -21,6 +21,7 @@ using Vodovoz.Application.Orders.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Orders;
@@ -74,12 +75,19 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddScoped<IOnlineOrderFactoryV5, OnlineOrderFactoryV5>()
 
 						.AddMessageTransportSettings()
+						.AddHostedService<OnlineOrderFromTemplateRegistrar>()
 						.AddMassTransit(busConf =>
 						{
 							//busConf.AddConsumer<OnlineOrderRegisteredConsumer, OnlineOrderRegisteredConsumerDefinition>();
 							//busConf.AddConsumer<CreatingOnlineOrderConsumer, CreatingOnlineOrderConsumerDefinition>();
-							busConf.AddConsumer<CreatingOnlineOrderWithTemplateConsumer, CreatingOnlineOrderWithTemplateConsumerDefinition>();
+							//busConf.AddConsumer<CreatingOnlineOrderWithTemplateConsumer, CreatingOnlineOrderWithTemplateConsumerDefinition>();
 							busConf.ConfigureRabbitMq();
+						});
+					
+					services
+						.AddDatabaseConfigurationExposer(config =>
+						{
+							config.LinqToHqlGeneratorsRegistry<LinqToHqlGeneratorsRegistry>();
 						});
 					
 					services.Configure<OnlineOrderFromTemplateRegistrarOptions>(

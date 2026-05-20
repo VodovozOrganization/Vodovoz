@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
@@ -16,20 +17,24 @@ namespace Vodovoz.Application.Orders.Services
 {
 	public class OnlineOrderFromTemplateCreator : IOnlineOrderFromTemplateCreator
 	{
+		private readonly ILogger<OnlineOrderFromTemplateCreator> _logger;
 		private readonly IOnlineOrderFactory _onlineOrderFactory;
 		private readonly IOnlineOrderTemplateRepository _onlineOrderTemplateRepository;
 
 		public OnlineOrderFromTemplateCreator(
+			ILogger<OnlineOrderFromTemplateCreator> logger,
 			IOnlineOrderFactory onlineOrderFactory,
 			IOnlineOrderTemplateRepository onlineOrderTemplateRepository
 			)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_onlineOrderFactory = onlineOrderFactory ?? throw new ArgumentNullException(nameof(onlineOrderFactory));
 			_onlineOrderTemplateRepository = onlineOrderTemplateRepository ?? throw new ArgumentNullException(nameof(onlineOrderTemplateRepository));
 		}
 		
 		public async Task Create(IUnitOfWork uow, CancellationToken cancellation)
 		{
+			_logger.LogInformation("Начинаем работу по созданию онлайн заказов из шаблонов");
 			var activeTemplates =
 				_onlineOrderTemplateRepository.GetActiveOnlineOrdersTemplatesForCreateOrders(uow, DateTime.Now);
 
@@ -38,6 +43,8 @@ namespace Vodovoz.Application.Orders.Services
 
 			var weekdays = templatesWithWeekDaysAndProducts.WeekdaysLookup;
 			var products = templatesWithWeekDaysAndProducts.ProductsLookup;
+			
+			_logger.LogInformation("Всего шаблонов на обработку: {TemplatesCount}", templatesWithWeekDaysAndProducts.Templates.Count);
 
 			foreach(var template in templatesWithWeekDaysAndProducts.Templates)
 			{
@@ -55,6 +62,9 @@ namespace Vodovoz.Application.Orders.Services
 					var savedTemplate = uow.GetById<OnlineOrderTemplate>(template.Id);
 					savedTemplate.UpdateState(false, true);
 					
+					_logger.LogInformation("Архивируем шаблон {TemplateId}", template.Id);
+					
+					//TODO создавать уведомления по необходимости
 					//var notification = ;
 					//await uow.SaveAsync(notification, cancellationToken: cancellation);
 					await uow.SaveAsync(savedTemplate, cancellationToken: cancellation);
@@ -90,6 +100,12 @@ namespace Vodovoz.Application.Orders.Services
 				if(product.Nomenclature.IsArchive
 					|| (product.PromoSet != null && product.PromoSet.IsArchive))
 				{
+					_logger.LogInformation(
+						"Товар с номенклатурой {Nomenclature} или промонабор {PromoSet} заархивирован. Шаблон {TemplateId} будет заархивирован",
+						product.Nomenclature.ToString(),
+						product.PromoSet?.Title,
+						template.Id);
+					
 					template.State = OrderTemplateDataState.NeedArchive;
 				}
 			}

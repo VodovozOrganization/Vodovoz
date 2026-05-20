@@ -59,7 +59,7 @@ namespace Vodovoz.Application.Orders.Services
 			ProcessItemsWithoutPromoSets(productsWithoutPromoSets, products, deliveryPoint, counterparty, templateProducts, ref orderSum);
 			ProcessPromoSets(uow, promoSetsIds, templateProducts, products, deliveryPoint, counterparty, ref orderSum);
 
-			var lastExternalOnlineOrderId = _onlineOrderRepository.GetLastOnlineOrderExternalId(uow, templateData.CounterpartyId);
+			var lastOnlineOrderIdFromTemplate = _onlineOrderRepository.GetLastOnlineOrderIdFromTemplate(uow, templateData.CounterpartyId);
 
 			var orderTemplateData = OrderTemplateData.Create(
 				templateData.Id,
@@ -73,7 +73,7 @@ namespace Vodovoz.Application.Orders.Services
 			var onlineOrderTemplateInfo = OrderTemplateInfoDto.Create(
 				orderTemplateData,
 				templateData.PaymentType,
-				lastExternalOnlineOrderId,
+				lastOnlineOrderIdFromTemplate,
 				templateProducts,
 				orderSum);
 

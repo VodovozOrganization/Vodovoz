@@ -7,11 +7,13 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
-using Vodovoz.Application.Orders.Services;
 using VodovozBusiness.Services.Orders;
 
 namespace CustomerOnlineOrdersRegistrar
 {
+	/// <summary>
+	/// Воркер для периодичного создания онлайн заказов из шаблонов 
+	/// </summary>
 	public class OnlineOrderFromTemplateRegistrar : BackgroundService
 	{
 		private readonly ILogger<OnlineOrderFromTemplateRegistrar> _logger;
@@ -41,7 +43,7 @@ namespace CustomerOnlineOrdersRegistrar
 		{
 			try
 			{
-				using var uow = scope.ServiceProvider.GetService<IUnitOfWork>();
+				using var uow = scope.ServiceProvider.GetService<IUnitOfWorkFactory>().CreateWithoutRoot("Сервис создания автозаказов из шаблонов");
 				var onlineOrderCreator = scope.ServiceProvider.GetService<IOnlineOrderFromTemplateCreator>();
 				await onlineOrderCreator.Create(uow, stoppingToken);
 			}

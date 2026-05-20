@@ -18,9 +18,9 @@ namespace Vodovoz.Core.Data.V5
 		/// </summary>
 		public string PaymentType { get; set; }
 		/// <summary>
-		/// Идентификатор последнего онлайн заказа
+		/// Идентификатор последнего онлайн заказа по шаблону
 		/// </summary>
-		public Guid? LastOnlineOrderExternalId { get; set; }
+		public int? LastOnlineOrderIdFromTemplate { get; set; }
 		/// <summary>
 		/// Список различных сообщений для ИПЗ
 		/// </summary>
@@ -29,7 +29,7 @@ namespace Vodovoz.Core.Data.V5
 		public static OrderTemplateInfoDto Create(
 			OrderTemplateData template,
 			string paymentType,
-			Guid? lastOnlineOrderExternalId,
+			int? lastOnlineOrderIdFromTemplate,
 			IEnumerable<OrderTemplateProductDto> templateProducts,
 			decimal orderSum)
 		{
@@ -37,12 +37,12 @@ namespace Vodovoz.Core.Data.V5
 			{
 				OrderTemplateId = template.OrderTemplateId,
 				Weekdays = template.Weekdays,
-				RepeatOrder = template.RepeatOrder,
+				DeliveryFrequency = template.DeliveryFrequency,
 				PaymentType = paymentType,
 				DeliveryAddress = template.DeliveryAddress,
 				DeliverySchedule = template.DeliverySchedule,
 				IsActive = template.IsActive,
-				LastOnlineOrderExternalId = lastOnlineOrderExternalId,
+				LastOnlineOrderIdFromTemplate = lastOnlineOrderIdFromTemplate,
 				TemplateProducts = templateProducts,
 				OrderSum = orderSum,
 				InfoMessages = new List<InfoMessage>()

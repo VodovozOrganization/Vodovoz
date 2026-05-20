@@ -228,11 +228,11 @@ namespace Vodovoz.EntityRepositories.Orders
 			return onlineOrders.ToList();
 		}
 
-		public Guid? GetLastOnlineOrderExternalId(IUnitOfWork uow, int сounterpartyId)
+		public int? GetLastOnlineOrderIdFromTemplate(IUnitOfWork uow, int templateId)
 		{
 			var onlineOrders =
 				from onlineOrder in uow.Session.Query<OnlineOrder>()
-				where onlineOrder.CounterpartyId == сounterpartyId
+				where onlineOrder.TemplateId == templateId
 				select onlineOrder;
 
 			var lastOnlineOrder = onlineOrders
@@ -240,7 +240,7 @@ namespace Vodovoz.EntityRepositories.Orders
 				.Take(1)
 				.FirstOrDefault();
 
-			return lastOnlineOrder?.ExternalOrderId;
+			return lastOnlineOrder?.Id;
 		}
 	}
 }

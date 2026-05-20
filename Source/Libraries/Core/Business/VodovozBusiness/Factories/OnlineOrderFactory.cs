@@ -20,7 +20,6 @@ namespace Vodovoz.Factories
 				CounterpartyId = templateData.Counterparty.Id,
 				Counterparty = templateData.Counterparty,
 				ExternalCounterpartyId = templateData.ExternalCounterpartyId,
-				ExternalOrderId = Guid.NewGuid(), //null вопрос, какой ставить externalId если это наша генерация заказа
 				DeliveryPointId = templateData.DeliveryPoint.Id,
 				DeliveryPoint = templateData.DeliveryPoint,
 				DeliveryDate = templateData.DeliveryDate,

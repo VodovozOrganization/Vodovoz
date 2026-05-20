@@ -32,7 +32,7 @@ namespace Vodovoz.Domain.Orders
 		private Counterparty _counterparty;
 		private int? _deliveryPointId;
 		private DeliveryPoint _deliveryPoint;
-		private Guid _externalOrderId;
+		private Guid? _externalOrderId;
 		private Guid? _externalCounterpartyId;
 		private bool _isSelfDelivery;
 		private int? _selfDeliveryGeoGroupId;
@@ -87,7 +87,7 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		[Display(Name = "Номер заказа из ИПЗ")]
-		public virtual Guid ExternalOrderId
+		public virtual Guid? ExternalOrderId
 		{
 			get => _externalOrderId;
 			set => SetField(ref _externalOrderId, value);

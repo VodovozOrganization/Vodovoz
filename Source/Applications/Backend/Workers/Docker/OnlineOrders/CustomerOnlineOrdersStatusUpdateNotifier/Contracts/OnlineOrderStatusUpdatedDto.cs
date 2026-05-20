@@ -12,7 +12,7 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier.Contracts
 		/// <summary>
 		/// Номер заказа в ИПЗ
 		/// </summary>
-		public Guid ExternalOrderId { get; set; }
+		public Guid? ExternalOrderId { get; set; }
 		/// <summary>
 		/// Номер онлайн заказа в ДВ
 		/// </summary>

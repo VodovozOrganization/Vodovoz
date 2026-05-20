@@ -17,6 +17,6 @@ namespace Vodovoz.EntityRepositories.Orders
 		IEnumerable<OnlineOrder> GetOnlineOrdersDuplicates(IUnitOfWork uow, OnlineOrder currentOnlineOrder, DateTime? createdAt = null);
 		OnlineOrder GetOnlineOrderById(IUnitOfWork uow, int onlineOrderId);
 		IEnumerable<OnlineOrder> GetWaitingForPaymentOnlineOrders(IUnitOfWork uow);
-		Guid? GetLastOnlineOrderExternalId(IUnitOfWork uow, int templateCounterpartyId);
+		int? GetLastOnlineOrderIdFromTemplate(IUnitOfWork uow, int templateId);
 	}
 }

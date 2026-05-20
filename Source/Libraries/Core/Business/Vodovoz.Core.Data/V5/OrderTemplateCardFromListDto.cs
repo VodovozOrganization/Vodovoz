@@ -24,7 +24,7 @@ namespace Vodovoz.Core.Data.V5
 				DeliveryAddress = template.DeliveryAddress,
 				Weekdays = template.Weekdays,
 				DeliverySchedule = template.DeliverySchedule,
-				RepeatOrder = template.RepeatOrder,
+				DeliveryFrequency = template.DeliveryFrequency,
 				NextDeliveryDate = nextDeliveryDate
 			};
 		}

@@ -131,9 +131,9 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					)
 					.FirstOrDefault()
 
-				let needCreateByDay = weekday.Weekday == WeekDayName.Sunday
-					? (int)weekday.Weekday - (int)weekDayFromDate == 6
-					: (int)weekday.Weekday - (int)weekDayFromDate == 1
+				let needCreateByDay = weekDayFromDate == WeekDayName.Sunday
+					? (byte)weekDayFromDate - weekday.DayNumber == 6
+					: weekday.DayNumber - (byte)weekDayFromDate == 1
 					
 				let days = template.DeliveryFrequency == OnlineOrderDeliveryFrequency.OnePerWeek
 					? 7
@@ -145,13 +145,15 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 								? 28
 								: 0
 
-				let needCreateByWeek = lastOnlineFromTemplate != null
-					|| (
-						lastOnlineFromTemplate.Created.Date != date.Date
-							&& lastOnlineFromTemplate.Created.AddDays(days).Date == date.Date
-						)
+				let needCreateByWeek = lastOnlineFromTemplate == null
+				//не работает запрос с AddDate, починить
+					/*|| (
+						//lastOnlineFromTemplate.Created.Date != date.Date
+							&& lastOnlineFromTemplate != null && lastOnlineFromTemplate.Created.Date.AddDays(days) == date.Date
+						)*/
 				
 				where template.IsActive && needCreateByDay && needCreateByWeek
+				//добавить условие по уже созданному онлайн заказу на этот день, т.е. не создавать из шаблона, если у клиента есть заказ на этот день и ТД
 
 				select template
 				)

@@ -15,6 +15,8 @@ namespace VodovozBusiness.Nodes
 	/// </summary>
 	public class OnlineOrderTemplateData
 	{
+		protected OnlineOrderTemplateData() { }
+		
 		private OnlineOrderTemplateData(
 			int id,
 			Source source,

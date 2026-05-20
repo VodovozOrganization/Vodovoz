@@ -28,9 +28,9 @@ namespace Vodovoz.Core.Data.V5
 		/// </summary>
 		public IEnumerable<string> Weekdays { get; set; }
 		/// <summary>
-		/// Интервал повторов
+		/// Периодичность доставки
 		/// </summary>
-		public string RepeatOrder { get; set; }
+		public string DeliveryFrequency { get; set; }
 
 		public static OrderTemplateData Create(
 			int orderTemplateId,
@@ -38,7 +38,7 @@ namespace Vodovoz.Core.Data.V5
 			string deliveryAddress,
 			string deliverySchedule,
 			IEnumerable<string> weekdays,
-			string repeatOrder)
+			string deliveryFrequency)
 		{
 			return new OrderTemplateData
 			{
@@ -47,7 +47,7 @@ namespace Vodovoz.Core.Data.V5
 				DeliveryAddress = deliveryAddress,
 				DeliverySchedule = deliverySchedule,
 				Weekdays = weekdays,
-				RepeatOrder = repeatOrder
+				DeliveryFrequency = deliveryFrequency
 			};
 		}
 	}

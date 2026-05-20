@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
 using VodovozBusiness.Errors.Orders;
@@ -39,6 +40,11 @@ namespace Vodovoz.Application.Orders.Services
 			if(creatingTemplate.DeliveryScheduleId is null)
 			{
 				_validationResults.Add(OnlineOrderTemplateErrors.IsEmptyDeliverySchedule);
+			}
+			
+			if(onlineOrder.OnlineOrderPaymentType == OnlineOrderPaymentType.PaidOnline)
+			{
+				_validationResults.Add(OnlineOrderTemplateErrors.CantCreateForPaidOnline);
 			}
 			
 			if(!creatingTemplate.DeliveryFrequency.HasValue)

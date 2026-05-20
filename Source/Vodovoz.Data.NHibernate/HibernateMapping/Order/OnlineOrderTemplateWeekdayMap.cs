@@ -13,6 +13,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order
 			
 			Map(x => x.TemplateId).Column("template_id").Not.Nullable();
 			Map(x => x.Weekday).Column("weekday").Not.Nullable();
+			Map(x => x.DayNumber).Column("day_number").Not.Nullable();
 		}
 	}
 }

@@ -28,6 +28,12 @@ namespace VodovozBusiness.Errors.Orders
 				nameof(IsEmptyDeliveryPoint),
 				"Нельзя подключить автозаказ без данных по точке доставки");
 		
+		public static Error CantCreateForPaidOnline =>
+			new Error(
+				typeof(OnlineOrderTemplateErrors),
+				nameof(CantCreateForPaidOnline),
+				"Функция автозаказа недоступна для оплаты онлайн");
+		
 		public static Error IsEmptyCounterparty =>
 			new Error(
 				typeof(OnlineOrderTemplateErrors),

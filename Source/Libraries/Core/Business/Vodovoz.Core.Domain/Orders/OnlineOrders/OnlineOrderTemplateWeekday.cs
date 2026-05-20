@@ -16,6 +16,7 @@ namespace Vodovoz.Core.Domain.Orders.OnlineOrders
 	{
 		private int _templateId;
 		private WeekDayName _weekday;
+		private byte _dayNumber;
 
 		public virtual int Id { get; set; }
 
@@ -39,11 +40,22 @@ namespace Vodovoz.Core.Domain.Orders.OnlineOrders
 			set => SetField(ref _weekday, value);
 		}
 
+		/// <summary>
+		/// Порядковый номер дня
+		/// </summary>
+		[Display(Name = "Порядковый номер дня")]
+		public virtual byte DayNumber
+		{
+			get => _dayNumber;
+			protected set => SetField(ref _dayNumber, value);
+		}
+
 		public static OnlineOrderTemplateWeekday Create(int templateId, WeekDayName weekday) =>
 			new OnlineOrderTemplateWeekday
 		{
 			TemplateId = templateId,
-			Weekday = weekday
+			Weekday = weekday,
+			DayNumber = (byte)weekday
 		};
 	}
 }
