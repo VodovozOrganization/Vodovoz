@@ -17,6 +17,7 @@ using CustomerOnlineOrdersRegistrar.Factories.V5;
 using CustomerOrdersApi.Library.V5.Dto.Orders;
 using MySqlConnector;
 using QS.Utilities.Debug;
+using Vodovoz.Core.Data.Orders;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Orders;
 

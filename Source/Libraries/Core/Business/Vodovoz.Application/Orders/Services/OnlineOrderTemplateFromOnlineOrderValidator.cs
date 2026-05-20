@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using CustomerOrdersApi.Library.V5.Dto.Orders;
+using Vodovoz.Core.Data.Orders;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Errors.Orders;
+using VodovozBusiness.Errors.Orders;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Application.Orders.Services
@@ -21,19 +21,45 @@ namespace Vodovoz.Application.Orders.Services
 			
 			_validationResults = new List<Error>();
 
+			if(onlineOrder.IsSelfDelivery)
+			{
+				_validationResults.Add(OnlineOrderTemplateErrors.CantCreateForSelfDelivery);
+			}
+
 			if(onlineOrder.Counterparty is null)
 			{
-				_validationResults.Add(OnlineOrderErrors.IsEmptyCounterparty);
+				_validationResults.Add(OnlineOrderTemplateErrors.IsEmptyCounterparty);
 			}
 
 			if(onlineOrder.DeliveryPoint is null)
 			{
-				_validationResults.Add(OnlineOrderErrors.IsEmptyDeliveryPoint);
+				_validationResults.Add(OnlineOrderTemplateErrors.IsEmptyDeliveryPoint);
 			}
 
-			if(onlineOrder.DeliverySchedule is null)
+			if(creatingTemplate.DeliveryScheduleId is null)
 			{
-				_validationResults.Add(OnlineOrderErrors.IsEmptyDeliverySchedule);
+				_validationResults.Add(OnlineOrderTemplateErrors.IsEmptyDeliverySchedule);
+			}
+			
+			if(!creatingTemplate.DeliveryFrequency.HasValue)
+			{
+				_validationResults.Add(OnlineOrderTemplateErrors.IsEmptyDeliveryFrequency);
+			}
+			
+			if(creatingTemplate.Weekdays is null || !creatingTemplate.Weekdays.Any())
+			{
+				_validationResults.Add(OnlineOrderTemplateErrors.IsEmptyWeekdays);
+			}
+
+			if(onlineOrder.OnlineOrderItems
+				.Any(onlineOrderItem => onlineOrderItem.PromoSet != null && onlineOrderItem.PromoSet.PromotionalSetForNewClients))
+			{
+				_validationResults.Add(OnlineOrderTemplateErrors.CantCreateWithPromosetForNewClients);
+			}
+
+			if(onlineOrder.OnlineRentPackages.Any())
+			{
+				_validationResults.Add(OnlineOrderTemplateErrors.CantCreateWithFreeRentPackages);
 			}
 			
 			return !_validationResults.Any() ? Result.Success() : Result.Failure(_validationResults);

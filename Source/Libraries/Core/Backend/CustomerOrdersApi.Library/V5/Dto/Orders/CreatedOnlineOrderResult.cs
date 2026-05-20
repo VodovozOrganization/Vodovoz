@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace CustomerOrdersApi.Library.V5.Dto.Orders
+﻿namespace CustomerOrdersApi.Library.V5.Dto.Orders
 {
 	/// <summary>
 	/// Результат создания онлайн заказа

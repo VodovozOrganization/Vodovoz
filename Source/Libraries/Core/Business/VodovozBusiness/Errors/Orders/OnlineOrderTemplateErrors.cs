@@ -22,40 +22,40 @@ namespace VodovozBusiness.Errors.Orders
 				nameof(CantCreateWithFreeRentPackages),
 				"Оборудование/Пакеты аренды не подходят под условия подключения автозаказа");
 		
-		public static Error DeliveryPointIdIsNull =>
+		public static Error IsEmptyDeliveryPoint =>
 			new Error(
 				typeof(OnlineOrderTemplateErrors),
-				nameof(DeliveryPointIdIsNull),
+				nameof(IsEmptyDeliveryPoint),
 				"Нельзя подключить автозаказ без данных по точке доставки");
 		
-		public static Error CounterpartyIdIsNull =>
+		public static Error IsEmptyCounterparty =>
 			new Error(
 				typeof(OnlineOrderTemplateErrors),
-				nameof(CounterpartyIdIsNull),
+				nameof(IsEmptyCounterparty),
 				"Нельзя подключить автозаказ без данных по клиенту");
 		
-		public static Error DeliveryScheduleIdIsNull =>
+		public static Error IsEmptyDeliverySchedule =>
 			new Error(
 				typeof(OnlineOrderTemplateErrors),
-				nameof(DeliveryScheduleIdIsNull),
+				nameof(IsEmptyDeliverySchedule),
 				"Нельзя подключить автозаказ без данных по интервалу доставки");
 		
 		public static Error DeliveryScheduleIsNotSuitableForSelectedWeekdays(string deliverySchedule) =>
 			new Error(
 				typeof(OnlineOrderTemplateErrors),
-				nameof(DeliveryScheduleIdIsNull),
+				nameof(DeliveryScheduleIsNotSuitableForSelectedWeekdays),
 				$"Выбранный интервал доставки {deliverySchedule} не подходит для выбранных дней поставок автозаказа");
 		
-		public static Error RepeatOrderIsNull =>
+		public static Error IsEmptyDeliveryFrequency =>
 			new Error(
 				typeof(OnlineOrderTemplateErrors),
-				nameof(RepeatOrderIsNull),
-				"Нельзя подключить автозаказ без данных по интервалу повторений");
+				nameof(IsEmptyDeliveryFrequency),
+				"Нельзя подключить автозаказ без данных по периодичности доставки");
 		
-		public static Error WeekdaysEmpty =>
+		public static Error IsEmptyWeekdays =>
 			new Error(
 				typeof(OnlineOrderTemplateErrors),
-				nameof(WeekdaysEmpty),
+				nameof(IsEmptyWeekdays),
 				"Нельзя подключить автозаказ без данных по дням заказа");
 	}
 }

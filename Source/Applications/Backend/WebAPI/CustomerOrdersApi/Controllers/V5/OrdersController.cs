@@ -50,24 +50,7 @@ namespace CustomerOrdersApi.Controllers.V5
 					return InvalidSignature(creatingOnlineOrder.Signature, generatedSignature);
 				}
 
-				_logger.LogInformation("Подпись валидна, проверяем автозаказ...");
-				var canCreateOnlineOrder = _customerOrdersService.CanCreateOnlineOrderWithOrderTemplateData(creatingOnlineOrder);
-
-				if(canCreateOnlineOrder.IsFailure)
-				{
-					var message = canCreateOnlineOrder.Errors.First().Message;
-					
-					_logger.LogWarning("Отменили регистрацию заказа {ExternalOrderId} от пользователя {ExternalCounterpartyId} " +
-						"клиента {ClientId} из-за автозаказа {OrderTemplateMessage}",
-						creatingOnlineOrder.ExternalOrderId,
-						creatingOnlineOrder.ExternalCounterpartyId,
-						creatingOnlineOrder.CounterpartyErpId,
-						message);
-					
-					return Problem(message, statusCode: 400, type: "OnlineOrderTemplateError", title: "Нельзя создать автозаказ");
-				}
-				
-				_logger.LogInformation("Отправляем в очередь");
+				_logger.LogInformation("Подпись валидна, отправляем в очередь...");
 				var response = await _requestClient.GetResponse<CreatedOnlineOrderResult>(creatingOnlineOrder);
 
 				return response.Message.Code switch

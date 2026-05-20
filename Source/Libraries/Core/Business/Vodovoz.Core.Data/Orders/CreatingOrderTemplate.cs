@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Core.Domain.Sale;
 
-namespace CustomerOrdersApi.Library.V5.Dto.Orders
+namespace Vodovoz.Core.Data.Orders
 {
 	/// <summary>
 	/// Данные по созданию шаблона автозаказа
