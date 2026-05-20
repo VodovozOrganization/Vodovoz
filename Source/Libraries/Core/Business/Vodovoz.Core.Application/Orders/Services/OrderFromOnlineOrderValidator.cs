@@ -4,12 +4,14 @@ using System.Linq;
 using Core.Infrastructure;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Extensions;
 using Vodovoz.Services.Orders;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
@@ -481,6 +483,13 @@ namespace Vodovoz.Core.Application.Orders.Services
 					|| onlineOrderItem.NomenclatureId == _nomenclatureSettings.FastDeliveryNomenclatureId)
 				{
 					continue;
+				}
+
+				if(onlineOrderItem.Nomenclature.Category == NomenclatureCategory.master)
+				{
+					_validationResults.Add(
+						Vodovoz.Errors.Orders.OnlineOrderErrors.IsServiceNomenclatureInOnlineOrder(
+							onlineOrderItem.NomenclatureId, onlineOrderItem.Nomenclature.Category.GetEnumDisplayName()));
 				}
 				
 				var checkOnlineOrderSum = CheckOnlineOrderSum.Create(onlineOrderItem.Nomenclature.Id, onlineOrderItem.Count, 0, 0);

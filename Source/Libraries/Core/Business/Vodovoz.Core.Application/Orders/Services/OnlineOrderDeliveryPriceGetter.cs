@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.Orders;
@@ -25,6 +26,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		{
 			var isDeliveryForFree =
 				onlineOrder.IsSelfDelivery
+				|| onlineOrder.OnlineOrderItems.Any(n => n.Nomenclature is { Category: NomenclatureCategory.master })
 				|| onlineOrder.DeliveryPoint != null && onlineOrder.DeliveryPoint.AlwaysFreeDelivery
 				|| !onlineOrder.OnlineOrderItems.Any(n => n.Nomenclature != null && n.Nomenclature.Id != _paidDeliveryId);
 			
