@@ -4,6 +4,8 @@ namespace Vodovoz.Views.Logistic
 {
 	public partial class CarEventView
 	{
+		private global::Gtk.ScrolledWindow scrolledwindowCarEvent;
+
 		private global::Gtk.VBox vbox1;
 
 		private global::Gtk.HBox hbox1;
@@ -141,6 +143,12 @@ namespace Vodovoz.Views.Logistic
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Views.Logistic.CarEventView";
 			// Container child Vodovoz.Views.Logistic.CarEventView.Gtk.Container+ContainerChild
+			this.scrolledwindowCarEvent = new global::Gtk.ScrolledWindow();
+			this.scrolledwindowCarEvent.Name = "scrolledwindowCarEvent";
+			this.scrolledwindowCarEvent.HscrollbarPolicy = ((global::Gtk.PolicyType)(1));
+			this.scrolledwindowCarEvent.VscrollbarPolicy = ((global::Gtk.PolicyType)(1));
+			this.scrolledwindowCarEvent.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child scrolledwindowCarEvent.Gtk.Container+ContainerChild
 			this.vbox1 = new global::Gtk.VBox();
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
@@ -899,7 +907,8 @@ namespace Vodovoz.Views.Logistic
 			w67.Position = 5;
 			w67.Expand = false;
 			w67.Fill = false;
-			this.Add(this.vbox1);
+			this.scrolledwindowCarEvent.AddWithViewport(this.vbox1);
+			this.Add(this.scrolledwindowCarEvent);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
