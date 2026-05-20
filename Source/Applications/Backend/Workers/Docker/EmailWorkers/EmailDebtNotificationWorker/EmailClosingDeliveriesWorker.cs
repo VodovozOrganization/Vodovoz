@@ -1,4 +1,4 @@
-using EmailDebtNotificationWorker.Options;
+﻿using EmailDebtNotificationWorker.Options;
 using EmailDebtNotificationWorker.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -41,7 +41,7 @@ namespace EmailDebtNotificationWorker
 			{
 				await DelayToNextDay(stoppingToken);
 
-				await RunClosingCycleAsync(stoppingToken);
+				await RunClosingCycleAsync(stoppingToken);							
 			}
 
 			_logger.LogInformation("Воркер закрытия поставок и отправки почты  контрагентам остановлен");
@@ -119,6 +119,8 @@ namespace EmailDebtNotificationWorker
 			}
 
 			var delay = nextRun - now;
+
+			_logger.LogInformation("Воркер закрытия поставок и отправки почты контрагентам: текущее время {CurrentTime}, час запуска {StartHour}, следующий запуск в {NextRunTime} (через {Delay})", now, startHour, nextRun, delay);
 
 			await Task.Delay(delay, token);
 		}
