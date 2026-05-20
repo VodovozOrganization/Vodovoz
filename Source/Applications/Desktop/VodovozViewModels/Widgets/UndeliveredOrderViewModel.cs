@@ -325,7 +325,11 @@ namespace Vodovoz.ViewModels.Widgets
 		/// <param name="order">Заказ, из которого копируются свойства.</param>
 		private void CreateNewOrder(Order order)
 		{
-			_newOrderDlg = _gtkTabsOpener.OpenCopyOrderDlg(Tab, order.Id);
+			if(!_gtkTabsOpener.TryOpenCopyOrderDlg(Tab, order, out _newOrderDlg))
+			{
+				return;
+			}
+
 			_newOrderDlg.TabClosed -= OnNewOrderDlgClosed;
 			_newOrderDlg.TabClosed += OnNewOrderDlgClosed;
 		}

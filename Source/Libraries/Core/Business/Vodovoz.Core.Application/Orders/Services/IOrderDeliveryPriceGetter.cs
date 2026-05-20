@@ -1,10 +1,11 @@
 ﻿using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Core.Application.Orders.Services
 {
 	public interface IOrderDeliveryPriceGetter
 	{
-		decimal GetDeliveryPrice(IUnitOfWork unitOfWork, Order order);
+		Result<decimal> GetDeliveryPrice(IUnitOfWork unitOfWork, Order order);
 	}
 }

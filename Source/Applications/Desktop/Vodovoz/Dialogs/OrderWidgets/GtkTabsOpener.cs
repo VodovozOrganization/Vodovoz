@@ -9,7 +9,6 @@ using QS.Tdi;
 using QS.ViewModels.Dialog;
 using QSOrmProject;
 using System;
-using System.Linq;
 using Vodovoz.Dialogs.DocumentDialogs;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain.Client;
@@ -25,8 +24,12 @@ namespace Vodovoz.Dialogs.OrderWidgets
 {
 	public class GtkTabsOpener : IGtkTabsOpener
 	{
-		private ITdiTab FindTabByTag(string tag) =>
-			TDIMain.MainNotebook.Tabs.FirstOrDefault(x => x.TdiTab is TdiTabBase tab && tab.Tag?.ToString() == tag)?.TdiTab;
+		private readonly CopyOrderDlgOpener _copyOrderDlgOpener;
+
+		public GtkTabsOpener(CopyOrderDlgOpener copyOrderDlgOpener)
+		{
+			_copyOrderDlgOpener = copyOrderDlgOpener ?? throw new ArgumentNullException(nameof(copyOrderDlgOpener));
+		}
 
 		public string GenerateDialogHashName<T>(int id)
 			where T : IDomainObject => DialogHelper.GenerateDialogHashName<T>(id);
@@ -69,43 +72,34 @@ namespace Vodovoz.Dialogs.OrderWidgets
 				() => CreateOrderDlg(id)
 			);
 		}
+		
+		public void OpenCopyLesserOrderDlg(ITdiTab tab, Order copiedOrder) => _copyOrderDlgOpener.OpenCopyLesserOrderDlg(tab, copiedOrder);
 
 		public void OpenOrderDlgFromViewModelByNavigator(DialogViewModelBase from, int orderId)
 		{
 			Startup.MainWin.NavigationManager.OpenTdiTab<OrderDlg, int>(from, orderId);
 		}
-
-		public void OpenCopyLesserOrderDlg(ITdiTab tab, int copiedOrderId)
+		
+		public void OpenOrderDlgForCopyOrderFromMangoByNavigator(
+			DialogViewModelBase master, Order copiedOrder, OpenPageOptions openPageOptions = OpenPageOptions.IgnoreHash)
 		{
-			var dlg = new OrderDlg();
-			dlg.CopyLesserOrderFrom(copiedOrderId);
-
-			tab.TabParent.OpenTab(
-				DialogHelper.GenerateDialogHashName<Order>(65656),
-				() => dlg
-			);
+			_copyOrderDlgOpener.OpenOrderDlgForCopyOrderFromMangoByNavigator(master, copiedOrder, openPageOptions);
+		}
+		
+		public void OpenOrderDlgForCopyOrderFromMangoByNavigator(
+			ITdiTab master, Order copiedOrder, OpenPageOptions openPageOptions = OpenPageOptions.IgnoreHash)
+		{
+			_copyOrderDlgOpener.OpenOrderDlgForCopyOrderFromMangoByNavigator(master, copiedOrder, openPageOptions);
 		}
 
-		public ITdiTab OpenCopyOrderDlg(ITdiTab tab, int copiedOrderId)
+		public ITdiPage OpenOrderDlgForCopyOrderFromOnlineOrderByNavigator(DialogViewModelBase master, OnlineOrder onlineOrder,
+			OpenPageOptions openPageOptions = OpenPageOptions.AsSlave)
 		{
-			var tag = $"NewCopyFromOrder_{copiedOrderId}_Dlg";
-
-			var existsTab = FindTabByTag(tag);
-
-			if(existsTab == null)
-			{
-				var dlg = new OrderDlg();
-				dlg.CopyOrderFrom(copiedOrderId);
-				dlg.Tag = tag;
-				tab.TabParent.OpenTab(() => dlg, tab);
-				return FindTabByTag(tag);
-			}
-			else
-			{
-				TDIMain.MainNotebook.CurrentPage = TDIMain.MainNotebook.PageNum(existsTab as OrderDlg);
-				return existsTab;
-			}
+			return _copyOrderDlgOpener.OpenOrderDlgForCopyOrderFromOnlineOrderByNavigator(master, onlineOrder, openPageOptions);
 		}
+
+		public bool TryOpenCopyOrderDlg(ITdiTab tab, Order copiedOrder, out ITdiTab orderDlg) =>
+			_copyOrderDlgOpener.TryOpenCopyOrderDlg(tab, copiedOrder, out orderDlg);
 
 		public void OpenRouteListClosingDlgFromViewModelByNavigator(DialogViewModelBase from, int routeListId)
 		{

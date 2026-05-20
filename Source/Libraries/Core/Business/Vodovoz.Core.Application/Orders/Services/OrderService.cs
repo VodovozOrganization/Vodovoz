@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Office2010.Excel;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -29,7 +28,6 @@ using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.EntityRepositories.Undeliveries;
 using Vodovoz.Services.Logistics;
-using Vodovoz.Services.Orders;
 using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
@@ -136,11 +134,19 @@ namespace Vodovoz.Core.Application.Orders.Services
 		public int PaidDeliveryNomenclatureId { get; }
 		public int ForfeitNomenclatureId { get; }
 
-		public void UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order)
+		public Result UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order)
 		{
-			var deliveryPrice = _orderDeliveryPriceGetter.GetDeliveryPrice(unitOfWork, order);
+			var deliveryPriceResult = _orderDeliveryPriceGetter.GetDeliveryPrice(unitOfWork, order);
+
+			if(deliveryPriceResult.IsFailure)
+			{
+				return Result.Failure(deliveryPriceResult.Errors);
+			}
+			
 			order.UpdateDeliveryItem(
-				unitOfWork, _orderContractUpdater, unitOfWork.GetById<Nomenclature>(PaidDeliveryNomenclatureId), deliveryPrice);
+				unitOfWork, _orderContractUpdater, unitOfWork.GetById<Nomenclature>(PaidDeliveryNomenclatureId), deliveryPriceResult.Value);
+			
+			return Result.Success();
 		}
 
 		/// <summary>
@@ -174,7 +180,13 @@ namespace Vodovoz.Core.Application.Orders.Services
 				}
 
 				order.RecalculateItemsPrice();
-				UpdateDeliveryCost(unitOfWork, order);
+				var deliveryCostResult = UpdateDeliveryCost(unitOfWork, order);
+
+				if(!deliveryCostResult.IsFailure)
+				{
+					throw new InvalidOperationException(deliveryCostResult.Errors.First().Message);
+				}
+				
 				return order.OrderSum;
 			}
 		}
@@ -238,7 +250,12 @@ namespace Vodovoz.Core.Application.Orders.Services
 				}
 
 				order.RecalculateItemsPrice();
-				UpdateDeliveryCost(unitOfWork, order);
+				var deliveryCostResult = UpdateDeliveryCost(unitOfWork, order);
+
+				if(!deliveryCostResult.IsFailure)
+				{
+					throw new InvalidOperationException(deliveryCostResult.Errors.First().Message);
+				}
 
 				return
 				(
@@ -436,7 +453,14 @@ namespace Vodovoz.Core.Application.Orders.Services
 			}
 			order.BottlesReturn = createOrderRequest.BottlesReturn;
 			order.RecalculateItemsPrice();
-			UpdateDeliveryCost(unitOfWork, order);
+			
+			var deliveryCostResult = UpdateDeliveryCost(unitOfWork, order);
+
+			if(!deliveryCostResult.IsFailure)
+			{
+				throw new InvalidOperationException(deliveryCostResult.Errors.First().Message);
+			}
+			
 			AddLogisticsRequirements(order);
 			order.AddDeliveryPointCommentToOrder();
 
@@ -579,7 +603,14 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 			order.BottlesReturn = createOrderRequest.BottlesReturn;
 			order.RecalculateItemsPrice();
-			UpdateDeliveryCost(unitOfWork, order);
+			
+			var deliveryCostResult = UpdateDeliveryCost(unitOfWork, order);
+
+			if(!deliveryCostResult.IsFailure)
+			{
+				throw new InvalidOperationException(deliveryCostResult.Errors.First().Message);
+			}
+
 			AddLogisticsRequirements(order);
 			order.AddDeliveryPointCommentToOrder();
 
@@ -632,7 +663,12 @@ namespace Vodovoz.Core.Application.Orders.Services
 			var order = _orderFromOnlineOrderCreator.CreateOrderFromOnlineOrder(uow, employee, onlineOrder);
 
 			// Необходимо сделать асинхронным
-			UpdateDeliveryCost(uow, order);
+			var deliveryCostResult = UpdateDeliveryCost(uow, order);
+
+			if(!deliveryCostResult.IsFailure)
+			{
+				return 0;
+			}
 
 			// Необходимо сделать асинхронным
 			AddLogisticsRequirements(order);
