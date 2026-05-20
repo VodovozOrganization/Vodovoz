@@ -665,8 +665,9 @@ namespace Vodovoz.Core.Application.Orders.Services
 			// Необходимо сделать асинхронным
 			var deliveryCostResult = UpdateDeliveryCost(uow, order);
 
-			if(!deliveryCostResult.IsFailure)
+			if(deliveryCostResult.IsFailure)
 			{
+				_logger.LogError("Не удалось получить стоимость доставки для онлайн-заказа {OnlineOrderId}", onlineOrder.Id);
 				return 0;
 			}
 
@@ -690,6 +691,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 			if(acceptResult.IsFailure)
 			{
+				_logger.LogError("Не удалось принять заказ в ДВ для онлайн-заказа {OnlineOrderId}", onlineOrder.Id);
 				return 0;
 			}
 
