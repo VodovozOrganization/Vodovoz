@@ -2915,7 +2915,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					Counterparty = g.First().Counterparty,					
 					OrderIds = g.Select(x => x.OrderId).ToArray(),
 					DebtSum = g.Sum(x => x.DebtSum),
-					OverdueDebtDays = (DateTime.Now - g.Min(x => x.DeliveryDate)).Days
+					OverdueDebtDays = (DateTime.Now - g.Min(x => x.DeliveryDate)).Days,
+					OldestDebtOrderDate = g.Min(x => x.DeliveryDate)
 				})				
 				.ToArray();
 		}

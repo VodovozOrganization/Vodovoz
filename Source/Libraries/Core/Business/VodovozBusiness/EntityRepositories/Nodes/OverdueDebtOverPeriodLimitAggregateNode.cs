@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Organizations;
 
@@ -28,6 +29,11 @@ namespace VodovozBusiness.EntityRepositories.Nodes
 		/// Количество дней просроченной задолженности
 		/// </summary>
 		public int OverdueDebtDays { get; set; }
+
+		/// <summary>
+		/// Дата самого старого заказа с задолженностью
+		/// </summary>
+		public DateTime OldestDebtOrderDate { get; set; }
 
 		/// <summary>
 		/// Организация

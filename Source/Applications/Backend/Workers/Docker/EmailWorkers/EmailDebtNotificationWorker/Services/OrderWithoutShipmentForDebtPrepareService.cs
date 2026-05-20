@@ -56,6 +56,7 @@ namespace EmailDebtNotificationWorker.Services
 				var notificationInfo = new OrderWithoutShipmentForDebtNotificationInfo
 				{
 					OverdueDebtDays = node.OverdueDebtDays,
+					OldestDebtOrderDate = node.OldestDebtOrderDate,
 					OrderWithoutShipmentForDebt = existingOrdersWithoutShipmentForDebt.FirstOrDefault(x =>
 						x.Client.Id == node.Counterparty.Id
 						&& x.Organization.Id == node.Organization.Id)

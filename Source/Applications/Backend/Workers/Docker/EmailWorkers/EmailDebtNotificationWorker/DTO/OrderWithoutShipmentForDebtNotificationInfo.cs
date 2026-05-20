@@ -1,4 +1,5 @@
-﻿using Vodovoz.Domain.Orders.OrdersWithoutShipment;
+﻿using System;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 
 namespace EmailDebtNotificationWorker.DTO
 {
@@ -16,5 +17,10 @@ namespace EmailDebtNotificationWorker.DTO
 		/// Дни просроченной задолженности
 		/// </summary>
 		public int OverdueDebtDays { get; set; }
+
+		/// <summary>
+		/// Дата самого старого заказа с задолженностью
+		/// </summary>
+		public DateTime OldestDebtOrderDate { get; set; }
 	}
 }

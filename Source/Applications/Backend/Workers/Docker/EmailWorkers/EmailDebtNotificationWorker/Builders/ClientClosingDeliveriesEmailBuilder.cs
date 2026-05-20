@@ -53,17 +53,15 @@ namespace EmailDebtNotificationWorker.Builders
 
 			foreach(var info in notificationInfos)
 			{
-				var orderWithoutShipmentForDebt = info.OrderWithoutShipmentForDebt;
-
 				try
 				{
-					var sendEmailMessage = await Create(uow, orderWithoutShipmentForDebt, cancellationToken);
+					var sendEmailMessage = await Create(uow, info, cancellationToken);
 
 					sendEmailMessages.Add(sendEmailMessage);
 				}
 				catch(Exception ex)
 				{
-					_logger.LogError(ex, "Ошибка подготовки письма клиенту для счета без отгрузки на долг {OrderWithoutShipmentForDebt}", orderWithoutShipmentForDebt.Id);
+					_logger.LogError(ex, "Ошибка подготовки письма клиенту для счета без отгрузки на долг {OrderWithoutShipmentForDebt}", info.OrderWithoutShipmentForDebt.Id);
 				}
 			}
 
@@ -72,9 +70,11 @@ namespace EmailDebtNotificationWorker.Builders
 
 		private async Task<SendEmailMessage> Create(
 			IUnitOfWork uow,
-			OrderWithoutShipmentForDebt orderWithoutShipmentForDebt,
+			OrderWithoutShipmentForDebtNotificationInfo notificationInfo,
 			CancellationToken cancellationToken)
 		{
+			var orderWithoutShipmentForDebt = notificationInfo.OrderWithoutShipmentForDebt;
+
 			var emailSentFrom = orderWithoutShipmentForDebt.Organization.ClosingDeliveriesNotificationEmailFrom;
 
 			if(string.IsNullOrWhiteSpace(emailSentFrom))
@@ -84,7 +84,7 @@ namespace EmailDebtNotificationWorker.Builders
 
 			var orderWithoutShipmentForDebtAttachment = _attachmentsService.CreateOrderWithoutShipmentForDebtAttachments(orderWithoutShipmentForDebt);
 
-			var revisionStartDate = new DateTime(orderWithoutShipmentForDebt.CreateDate.Value.Year, 1, 1);
+			var revisionStartDate = new DateTime(notificationInfo.OldestDebtOrderDate.Year, 1, 1);
 			var revisionEndDate = DateTime.Today.AddDays(-1);
 			var revisionAttachment = _attachmentsService.CreateRevisionAttachments(orderWithoutShipmentForDebt.Counterparty.Id, orderWithoutShipmentForDebt.Organization.Id, revisionStartDate, revisionEndDate);
 
