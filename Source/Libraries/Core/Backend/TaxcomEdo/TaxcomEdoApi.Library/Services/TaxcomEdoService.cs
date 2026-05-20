@@ -253,65 +253,7 @@ namespace TaxcomEdoApi.Library.Services
 				throw new InvalidOperationException("В конфиге не найдена должность подписанта!");
 			}
 
-			switch(updFormat)
-			{
-				case "5.01":
-					return CreateSendCustomerInformation5_01(docflowId, organization, jobPosition).ToXmlString();
-				default:
-					return CreateSendCustomerInformation5_03(docflowId, organization, jobPosition).ToXmlString();
-			}
-		}
-
-		private SendCustomerInformationEvent CreateSendCustomerInformation5_01(string docflowId, string organization, string jobPosition)
-		{
-			return new SendCustomerInformationEvent
-			{
-				InternalId = docflowId,
-				Signers = new[]
-				{
-					new TaxcomEdo.Contracts.Documents.Events.Signer
-					{
-						Item = new SignerCertificate
-						{
-							Thumbprint = _certificate.Thumbprint,
-							SerialNumber = _certificate.SerialNumber
-						}
-					}
-				},
-				AdditionalData =  new []
-				{
-					new AdditionalParameter
-					{
-						Name = "Покупатель.НаименованиеЭкономическогоСубъектаСоставителя",
-						Value = organization
-					},
-					new AdditionalParameter
-					{
-						Name = "СодержаниеФактаХозЖизни.СодержаниеОперации",
-						Value = "Товары/Услуги получены, претензий нет"
-					},
-					new AdditionalParameter
-					{
-						Name = "Подписант.ОблПолн",
-						Value = "3"
-					},
-					new AdditionalParameter
-					{
-						Name = "Подписант.Статус",
-						Value = "5"
-					},
-					new AdditionalParameter
-					{
-						Name = "Подписант.Должн",
-						Value = jobPosition
-					},
-					new AdditionalParameter
-					{
-						Name = "Подписант.ОснПолн",
-						Value = "Должностные обязанности"
-					}
-				}
-			};
+			return CreateSendCustomerInformation5_03(docflowId, organization, jobPosition).ToXmlString();
 		}
 		
 		private SendCustomerInformationEvent CreateSendCustomerInformation5_03(string docflowId, string organization, string jobPosition)
