@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Edo.Common.Services;
 using EdoService.Library;
 using Gamma.ColumnConfig;
@@ -1640,8 +1640,7 @@ namespace Vodovoz
 					Entity.PayerSpecialKPP = null;
 				}
 
-				RemoveEmptyEmailsAndPhones();
-				SaveEmailSubscriptions();
+				RemoveEmptyEmailsAndPhones();				
 
 				if(!ServicesConfig.ValidationService.Validate(Entity, _validationContext))
 				{
@@ -1661,6 +1660,7 @@ namespace Vodovoz
 
 				_logger.Info("Сохраняем контрагента...");
 				UoW.Save();
+				SaveEmailSubscriptions();
 				AddAttachedFilesIfNeeded();
 				UpdateAttachedFilesIfNeeded();
 				DeleteAttachedFilesIfNeeded();
@@ -1681,13 +1681,18 @@ namespace Vodovoz
 				return;
 			}
 
-			if(Entity.DisableClosingDeliveriesMailing)
+			using(var unitOfWork = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Подписка на рассылку"))
 			{
-				UnsubscribeForDeliveriesClosingEmails();
-			}
-			else
-			{
-				SubscribeForDeliveriesClosingEmails();
+				if(Entity.DisableClosingDeliveriesMailing)
+				{
+					UnsubscribeForDeliveriesClosingEmails(unitOfWork);
+				}
+				else
+				{
+					SubscribeForDeliveriesClosingEmails(unitOfWork);
+				}
+
+				unitOfWork.Commit();
 			}
 		}
 
@@ -2504,7 +2509,7 @@ namespace Vodovoz
 			return bank;
 		}
 
-		private void UnsubscribeForDeliveriesClosingEmails()
+		private void UnsubscribeForDeliveriesClosingEmails(IUnitOfWork unitOfWork)
 		{
 			var unsubscribingReason = _emailRepository.GetBulkEmailEventOperatorReason(UoW, _emailSettings);
 
@@ -2516,10 +2521,10 @@ namespace Vodovoz
 				CounterpartyEmailType = CounterpartyEmailType.ClosingDeliveries
 			};
 
-			UoW.Save(unsubscribingEvent);
+			unitOfWork.Save(unsubscribingEvent);
 		}
 
-		private void SubscribeForDeliveriesClosingEmails()
+		private void SubscribeForDeliveriesClosingEmails(IUnitOfWork unitOfWork)
 		{
 			var subscribingReason = _emailRepository.GetBulkEmailEventOperatorReason(UoW, _emailSettings);
 
@@ -2531,7 +2536,7 @@ namespace Vodovoz
 				CounterpartyEmailType = CounterpartyEmailType.ClosingDeliveries
 			};
 
-			UoW.Save(subscribingEvent);
+			unitOfWork.Save(subscribingEvent);
 		}
 
 		public override void Destroy()
