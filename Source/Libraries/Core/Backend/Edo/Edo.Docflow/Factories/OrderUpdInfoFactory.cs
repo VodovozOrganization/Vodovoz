@@ -111,7 +111,7 @@ namespace Edo.Docflow.Factories
 		}
 
 		private SellerInfo GetSellerInfo(OrderEntity order) =>
-			new SellerInfo { Organization = GetOrganizationInfo(order.Contract.Organization) };
+			new SellerInfo { Organization = GetOrganizationInfo(order.Contract.Organization, order.DeliveryDate) };
 
 		private CustomerInfo GetCustomerInfo(OrderEntity order, CounterpartyEdoAccountEntity edoAccount) =>
 			new CustomerInfo { Organization = GetCustomerOrganizationInfo(order.Client, edoAccount) };
@@ -247,7 +247,7 @@ namespace Edo.Docflow.Factories
 			return additionalInformation;
 		}
 
-		private OrganizationInfo GetOrganizationInfo(OrganizationEntity organization)
+		private OrganizationInfo GetOrganizationInfo(OrganizationEntity organization, DateTime? date)
 		{
 			var organizationInfo = new OrganizationInfo
 			{
@@ -261,6 +261,7 @@ namespace Edo.Docflow.Factories
 				OGRN = organization.OGRN,
 				OGRNDate = organization.OGRNDate,
 				EdoAccountId = organization.TaxcomEdoSettings.EdoAccount,
+				IsWithoutVat = organization.GetActualVatRateVersion(date)?.VatRate.VatRateValue == 0
 			};
 
 			return organizationInfo;

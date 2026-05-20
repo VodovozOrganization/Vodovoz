@@ -1,84 +1,95 @@
-using QS.DomainModel.UoW;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text.Json;
 using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories;
-using Vodovoz.Settings.Common;
 
 namespace UnsubscribePage.Models
 {
+	/// <summary>
+	/// ViewModel страницы отписки от email-рассылки.
+	/// </summary>
 	public class UnsubscribeViewModel : IValidatableObject
 	{
 		private IList<BulkEmailEventReason> _reasonsList;
-		private readonly IUnitOfWorkFactory _uowFactory;
+		private CounterpartyBulkSubscribeNode _counterpartyBulkSubscribeNode;
 
-		public UnsubscribeViewModel() { }
-
-		public UnsubscribeViewModel(IUnitOfWorkFactory uowFactory, Guid guid, IEmailRepository emailRepository, IEmailSettings emailSettings)
-		{
-			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			Initialize(guid, emailRepository, emailSettings);
-		}
-
-		private void Initialize(Guid guid, IEmailRepository emailRepository, IEmailSettings emailSettings)
-		{
-			OtherReasonId = emailSettings.BulkEmailEventOtherReasonId;
-			using(var unitOfWork = _uowFactory.CreateWithoutRoot("Инициализация страницы отписки"))
-			{
-				CounterpartyId = emailRepository.GetCounterpartyIdByEmailGuidForUnsubscribing(unitOfWork, guid);
-				_reasonsList = emailRepository.GetUnsubscribingReasons(unitOfWork, emailSettings, isForUnsubscribePage: true);
-			}
-			ReasonsListSerialized = JsonSerializer.Serialize<IList<BulkEmailEventReason>>(_reasonsList);
-		}
-
-		public int CounterpartyId { get; set; }
+		/// <summary>
+		/// Идентификатор события отписки.
+		/// </summary>
 		public int EmailEventId { get; set; }
-		public string ReasonsListSerialized { get; set; }
+
+		/// <summary>
+		/// Идентификатор выбранной причины отписки.
+		/// </summary>
 		public int SelectedReasonId { get; set; }
+
+		/// <summary>
+		/// Идентификатор причины "Другое".
+		/// </summary>
 		public int OtherReasonId { get; set; }
+
+		/// <summary>
+		/// Текст причины, введённой пользователем.
+		/// </summary>
 		public string OtherReason { get; set; }
+
+		/// <summary>
+		/// Сериализованный список причин отписки.
+		/// Нужен для сохранения данных между GET и POST.
+		/// </summary>
+		public string ReasonsListSerialized { get; set; }
+
+		/// <summary>
+		/// Сериализованный CounterpartyBulkSubscribeNode.
+		/// Нужен для сохранения данных между GET и POST.
+		/// </summary>
+		public string CounterpartyBulkSubscribeNodeSerialized { get; set; }
+
+		/// <summary>
+		/// Список причин отписки.
+		/// </summary>
 		public IList<BulkEmailEventReason> ReasonsList =>
-			_reasonsList ??= ReasonsListSerialized == null ? null : JsonSerializer.Deserialize<IList<BulkEmailEventReason>>(ReasonsListSerialized);
+			_reasonsList ??=
+				string.IsNullOrWhiteSpace(ReasonsListSerialized)
+					? new List<BulkEmailEventReason>()
+					: JsonSerializer.Deserialize<IList<BulkEmailEventReason>>(ReasonsListSerialized);
 
-		public void SaveUnsubscribe(BulkEmailEventReason reason = null)
-		{
-			UnsubscribingBulkEmailEvent unsubscribingEvent = new UnsubscribingBulkEmailEvent
-			{
-				Id = EmailEventId,
-				Reason = reason,
-				ReasonDetail = reason?.Id == OtherReasonId ? OtherReason : null,
-				Counterparty = new Counterparty
-				{
-					Id = CounterpartyId
-				}
-			};
+		/// <summary>
+		/// Информация о контрагенте и типе email.
+		/// </summary>
+		public CounterpartyBulkSubscribeNode CounterpartyBulkSubscribeNode =>
+			_counterpartyBulkSubscribeNode ??=
+				string.IsNullOrWhiteSpace(CounterpartyBulkSubscribeNodeSerialized)
+					? null
+					: JsonSerializer.Deserialize<CounterpartyBulkSubscribeNode>(CounterpartyBulkSubscribeNodeSerialized);
 
-			using(var unitOfWork = _uowFactory.CreateWithoutRoot("Отписка от массовой рассылки"))
-			{
-				unitOfWork.Save(unsubscribingEvent);
-				unitOfWork.Commit();
-			}
-
-			EmailEventId = unsubscribingEvent.Id;
-		}
-
+		/// <summary>
+		/// Выполняет валидацию данных формы.
+		/// </summary>
+		/// <param name="validationContext">Контекст валидации.</param>
+		/// <returns>Коллекция ошибок валидации.</returns>
 		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			var selectedReason = ReasonsList?.FirstOrDefault(x => x.Id == SelectedReasonId);
+			var selectedReason = ReasonsList?
+				.FirstOrDefault(x => x.Id == SelectedReasonId);
 
-			List<ValidationResult> errors = new List<ValidationResult>();
-
-			if(selectedReason != null && selectedReason.Id == OtherReasonId && string.IsNullOrWhiteSpace(OtherReason))
-			{
-				errors.Add(new ValidationResult("Введите текст в поле для другой причины\"", new[] { nameof(OtherReason) }));
-			}
+			var errors = new List<ValidationResult>();
 
 			if(selectedReason == null)
 			{
-				errors.Add(new ValidationResult("Выберите один из вариантов", new[] { nameof(SelectedReasonId) }));
+				errors.Add(new ValidationResult(
+					"Выберите один из вариантов",
+					new[] { nameof(SelectedReasonId) }));
+			}
+
+			if(selectedReason?.Id == OtherReasonId
+				&& string.IsNullOrWhiteSpace(OtherReason))
+			{
+				errors.Add(new ValidationResult(
+					"Введите текст в поле для другой причины",
+					new[] { nameof(OtherReason) }));
 			}
 
 			return errors;

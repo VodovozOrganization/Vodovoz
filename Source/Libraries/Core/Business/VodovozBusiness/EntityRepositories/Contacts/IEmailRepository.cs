@@ -25,9 +25,13 @@ namespace Vodovoz.EntityRepositories
 		bool NeedSendDocumentsByEmailOnFinish(IUnitOfWork uow, Order currentOrder, IDeliveryScheduleSettings deliveryScheduleSettings, bool isForBill = false);
 		bool CanSendByTimeout(string address, int orderId, OrderDocumentType type);
 		int GetCurrentDatabaseId(IUnitOfWork uow);
-		int GetCounterpartyIdByEmailGuidForUnsubscribing(IUnitOfWork uow, Guid emailGuid);
+
+		/// <summary>
+		/// Получение данных для отписки от рассылки по email, используя guid из ссылки в письме
+		/// </summary>
+		CounterpartyBulkSubscribeNode GetCounterpartyBulkSubscribeInfoByGuidForUnsubscribing(IUnitOfWork uow, Guid emailGuid);
 		IList<BulkEmailEventReason> GetUnsubscribingReasons(IUnitOfWork uow, IEmailSettings emailSettings, bool isForUnsubscribePage = false);
-		BulkEmailEvent GetLastBulkEmailEvent(IUnitOfWork uow, int counterpartyId);
+		BulkEmailEvent GetLastBulkEmailEvent(IUnitOfWork uow, int counterpartyId, CounterpartyEmailType? counterpartyEmailType = null);
 		BulkEmailEventReason GetBulkEmailEventOtherReason(IUnitOfWork uoW, IEmailSettings emailSettings);
 		BulkEmailEventReason GetBulkEmailEventOperatorReason(IUnitOfWork uoW, IEmailSettings emailSettings);
 		Email GetEmailForExternalCounterparty(IUnitOfWork uow, int counterpartyId);

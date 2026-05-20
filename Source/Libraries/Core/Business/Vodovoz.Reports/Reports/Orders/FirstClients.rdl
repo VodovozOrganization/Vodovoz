@@ -816,7 +816,8 @@
     (
         SELECT GROUP_CONCAT(DISTINCT IFNULL(ps.discount_reason_info, IFNULL(d.name, '')) SEPARATOR ', ')
         FROM order_items i
-                 LEFT JOIN discount_reasons d ON i.discount_reason_id = d.id
+                 LEFT JOIN discount_reasons_order_items droi ON droi.order_item_id = i.id
+                 LEFT JOIN discount_reasons d ON droi.discount_reason_id = d.id
                  LEFT JOIN promotional_sets ps on i.promotional_set_id = ps.id
         WHERE i.order_id = o.id
           AND
@@ -824,7 +825,11 @@
                     d.id is not null OR i.promotional_set_id is not null
                 )
     ) AS discount,
-    SUM(ROUND(IFNULL(i.actual_count, i.count) * i.price - i.discount_money, 2)) AS order_sum,
+    (
+      SELECT ROUND(SUM(IFNULL(oi2.actual_count, oi2.count) * oi2.price - oi2.discount_money), 2)
+      FROM order_items oi2
+      WHERE oi2.order_id = o.id
+    ) AS order_sum,
     ROUND((SELECT
          SUM(order_items.count)
      FROM
@@ -842,7 +847,6 @@ FROM
     orders o
         INNER JOIN order_items i ON o.id = i.order_id
         INNER JOIN nomenclature ON nomenclature.id = i.nomenclature_id
-        LEFT JOIN discount_reasons d ON i.discount_reason_id = d.id
         INNER JOIN counterparty c ON o.id = c.first_order_id
         INNER JOIN delivery_points dp ON dp.id = o.delivery_point_id
         LEFT JOIN employees e ON e.id = o.author_employee_id
@@ -853,13 +857,20 @@ FROM
         LEFT JOIN phones c_ph ON c_ph.counterparty_id = c.id AND c_ph.is_archive = 0
 WHERE
     o.delivery_date BETWEEN @start_date AND @end_date
-  AND(
-    CASE
-        WHEN @discount_id = 0 AND !@has_promotional_sets THEN d.id is not null
-        WHEN @discount_id = 0 AND @has_promotional_sets THEN d.id is not null OR i.promotional_set_id is not null
-        WHEN @discount_id != 0 AND !@has_promotional_sets THEN d.id = @discount_id
-        WHEN @discount_id != 0 AND @has_promotional_sets THEN d.id = @discount_id OR i.promotional_set_id is not null
-        END)
+  AND (CASE
+      WHEN @discount_id = 0 AND !@has_promotional_sets
+          THEN EXISTS (SELECT 1 FROM discount_reasons_order_items droi WHERE droi.order_item_id = i.id)
+      WHEN @discount_id = 0 AND @has_promotional_sets
+          THEN EXISTS (SELECT 1 FROM discount_reasons_order_items droi WHERE droi.order_item_id = i.id)
+               OR i.promotional_set_id IS NOT NULL
+      WHEN @discount_id != 0 AND !@has_promotional_sets
+          THEN EXISTS (SELECT 1 FROM discount_reasons_order_items droi
+                       WHERE droi.order_item_id = i.id AND droi.discount_reason_id = @discount_id)
+      WHEN @discount_id != 0 AND @has_promotional_sets
+          THEN EXISTS (SELECT 1 FROM discount_reasons_order_items droi
+                       WHERE droi.order_item_id = i.id AND droi.discount_reason_id = @discount_id)
+               OR i.promotional_set_id IS NOT NULL
+  END)
   AND (@district_id = '' OR districts.id = @district_id)
   AND (@order_status = 'All' OR (o.order_status = @order_status) )
   AND (@payment_type = 'All' OR (o.payment_type  = @payment_type) )
@@ -946,7 +957,7 @@ GROUP BY o.id DESC;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Stats">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     GROUP_CONCAT(concat_ws(': ' ,stats.came_from ,stats.orders_count ) SEPARATOR ' | ') as stats
@@ -959,7 +970,6 @@ FROM
             orders o
                 INNER JOIN order_items i ON o.id = i.order_id
                 INNER JOIN nomenclature ON nomenclature.id = i.nomenclature_id
-                LEFT JOIN discount_reasons d ON i.discount_reason_id = d.id
                 INNER JOIN counterparty c ON o.id = c.first_order_id
                 INNER JOIN delivery_points dp ON dp.id = o.delivery_point_id
                 LEFT JOIN counterparty_camefrom cc ON cc.id = c.counterparty_camefrom_id
@@ -970,13 +980,20 @@ FROM
                 LEFT JOIN phones c_ph ON c_ph.counterparty_id = c.id AND c_ph.is_archive = 0
         WHERE
             o.delivery_date BETWEEN @start_date AND @end_date
-          AND(
-            CASE
-                WHEN @discount_id = 0 AND !@has_promotional_sets THEN d.id is not null
-                WHEN @discount_id = 0 AND @has_promotional_sets THEN d.id is not null OR i.promotional_set_id is not null
-                WHEN @discount_id != 0 AND !@has_promotional_sets THEN d.id = @discount_id
-                WHEN @discount_id != 0 AND @has_promotional_sets THEN d.id = @discount_id OR i.promotional_set_id is not null
-                END)
+		  AND (CASE
+		      WHEN @discount_id = 0 AND !@has_promotional_sets
+		          THEN EXISTS (SELECT 1 FROM discount_reasons_order_items droi WHERE droi.order_item_id = i.id)
+		      WHEN @discount_id = 0 AND @has_promotional_sets
+		          THEN EXISTS (SELECT 1 FROM discount_reasons_order_items droi WHERE droi.order_item_id = i.id)
+		               OR i.promotional_set_id IS NOT NULL
+		      WHEN @discount_id != 0 AND !@has_promotional_sets
+		          THEN EXISTS (SELECT 1 FROM discount_reasons_order_items droi
+		                       WHERE droi.order_item_id = i.id AND droi.discount_reason_id = @discount_id)
+		      WHEN @discount_id != 0 AND @has_promotional_sets
+		          THEN EXISTS (SELECT 1 FROM discount_reasons_order_items droi
+		                       WHERE droi.order_item_id = i.id AND droi.discount_reason_id = @discount_id)
+		               OR i.promotional_set_id IS NOT NULL
+		  END)
           AND (@district_id = '' OR districts.id = @district_id)
         GROUP BY cc.id DESC
     ) as stats;</CommandText>
@@ -998,14 +1015,14 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="stats">
           <DataField>stats</DataField>
         </Field>
       </Fields>
     </DataSet>
     <DataSet Name="promo_stats">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     GROUP_CONCAT(concat_ws(': ' ,stats.promo_name ,stats.promo_count ) SEPARATOR ' | ') as stats
@@ -1033,8 +1050,10 @@ WHERE
 		dp.id = o.delivery_point_id
 	INNER JOIN districts ON
 		districts.id = dp.district_id
+    LEFT JOIN discount_reasons_order_items droi 
+        ON droi.order_item_id = oi.id
 	LEFT JOIN discount_reasons dr ON
-		oi.discount_reason_id = dr.id
+		droi.discount_reason_id = dr.id
 	LEFT JOIN promotional_sets ps ON
 		oi.promotional_set_id = ps.id
 	WHERE
@@ -1094,7 +1113,7 @@ ORDER BY
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="stats">
           <DataField>stats</DataField>
         </Field>

@@ -99,7 +99,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport
 				return new List<BulkDebtMailingReportRow>();
 			}
 
-			var emailTypes = new[] { CounterpartyEmailType.Bulk, CounterpartyEmailType.GeneralBillDocument };
+			var emailTypes = new[] { CounterpartyEmailType.Bulk, CounterpartyEmailType.GeneralBillDocument, CounterpartyEmailType.ClosingDeliveries };
 
 			CounterpartyEmail counterpartyEmailAlias = null;
 			StoredEmail storedEmailAlias = null;
@@ -133,6 +133,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport
 					.Select(() => storedEmailAlias.State).WithAlias(() => resultAlias.State)
 					.Select(() => counterpartyAlias.Id).WithAlias(() => resultAlias.CounterpartyId)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
+					.Select(() => counterpartyEmailAlias.Type).WithAlias(() => resultAlias.EmailType)
 					.Select(() => storedEmailAlias.RecipientAddress).WithAlias(() => resultAlias.Email)
 					.SelectSubQuery(phoneSubquery).WithAlias(() => resultAlias.Phone)
 				).OrderBy(() => storedEmailAlias.SendDate).Desc
@@ -151,7 +152,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport
 				return new List<BulkDebtMailingSummaryReportRow>();
 			}
 
-			var emailTypes = new[] { CounterpartyEmailType.Bulk, CounterpartyEmailType.GeneralBillDocument };
+			var emailTypes = new[] { CounterpartyEmailType.Bulk, CounterpartyEmailType.GeneralBillDocument, CounterpartyEmailType.ClosingDeliveries };
 
 			CounterpartyEmail counterpartyEmailAlias = null;
 			StoredEmail storedEmailAlias = null;

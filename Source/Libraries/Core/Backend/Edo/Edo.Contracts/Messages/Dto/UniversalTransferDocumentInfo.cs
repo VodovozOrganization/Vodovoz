@@ -17,14 +17,17 @@ namespace Edo.Contracts.Messages.Dto
 		/// Сумма документа
 		/// </summary>
 		public decimal Sum { get; set; }
+		
 		/// <summary>
 		/// Дата документа
 		/// </summary>
 		public DateTime Date { get; set; }
+		
 		/// <summary>
 		/// Продавец <see cref="SellerInfo"/>
 		/// </summary>
 		public SellerInfo Seller { get; set; }
+		
 		/// <summary>
 		/// Грузоотправитель <see cref="ShipperInfo"/>
 		/// Не обязателен для заполнения, если это та же организация, что и Продавец

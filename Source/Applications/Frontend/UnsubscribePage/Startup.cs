@@ -86,7 +86,7 @@ namespace UnsubscribePage
 			}
 			else
 			{
-				app.UseExceptionHandler("/Home/Error");
+				app.UseExceptionHandler("/Unsubscribe/Error");
 			}
 
 			app.UseStaticFiles();

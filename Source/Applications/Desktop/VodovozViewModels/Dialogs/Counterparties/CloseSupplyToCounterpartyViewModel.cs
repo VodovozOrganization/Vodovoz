@@ -20,6 +20,8 @@ using Vodovoz.Presentation.ViewModels.AttachedFiles;
 using System.Threading;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Application.FileStorage;
+using QS.Dialog;
+using Vodovoz.Extensions;
 
 namespace Vodovoz.ViewModels.Dialogs.Counterparties
 {
@@ -224,6 +226,27 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 		public bool CanEditCloseComment => CanCloseDelivery && !string.IsNullOrWhiteSpace(Entity.CloseDeliveryComment);
 
 		public AttachedFileInformationsViewModel AttachedFileInformationsViewModel { get; }
+
+		public DebtType? CloseDeliveryDebtType
+		{ 
+			get => Entity.CloseDeliveryDebtType;
+			set
+			{
+				if(value == Entity.CloseDeliveryDebtType)
+				{
+					return;
+				}
+
+				if(value == DebtType.BlockedByRobot)
+				{
+					_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, $"Нельзя вручную выбрать тип задолженности {DebtType.BlockedByRobot.GetEnumDisplayName()}");
+					OnPropertyChanged(nameof(CloseDeliveryDebtType));
+					return;
+				}
+
+				Entity.CloseDeliveryDebtType = value;
+			}
+		}
 
 		private void EditCloseComment()
 		{
