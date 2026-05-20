@@ -10,7 +10,7 @@ namespace Vodovoz.Errors.Orders
 				new Error(
 					typeof(DiscountErrors),
 					nameof(NotFound),
-					"Промокод не найден");
+					"Промокод не найден или недействителен");
 
 			public static Error ExpiredDateDuration =>
 				new Error(
