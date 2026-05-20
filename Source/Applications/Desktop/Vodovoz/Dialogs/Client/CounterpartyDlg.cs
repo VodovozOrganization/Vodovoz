@@ -734,6 +734,11 @@ namespace Vodovoz
 				.InitializeFromSource();
 			ycheckSpecialDocuments.Sensitive = CanEdit;
 
+			ycheckWorkingWithoutSeal.Binding
+				.AddBinding(Entity, e => e.IsWorkingWithoutSeal, w => w.Active)
+				.InitializeFromSource();
+			ycheckWorkingWithoutSeal.Sensitive = CanEdit;
+
 			ycheckAlwaysPrintInvoice.Binding
 				.AddBinding(Entity, e => e.AlwaysPrintInvoice, w => w.Active)
 				.InitializeFromSource();
