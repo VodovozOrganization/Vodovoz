@@ -443,6 +443,11 @@ namespace Vodovoz.Infrastructure.Persistance.Goods
 				.SelectList(list => list
 					.Select(p => p.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+					.Select(Projections.Conditional(
+							Restrictions.Eq(Projections.Property(() => nomenclatureAlias.Category), NomenclatureCategory.master),
+							Projections.Constant(true),
+							Projections.Constant(false))
+								).WithAlias(() => resultAlias.IsService)
 					.Select(p => p.NomenclatureOnlineAvailability).WithAlias(() => resultAlias.AvailableForSale)
 					.Select(p => p.NomenclatureOnlineMarker).WithAlias(() => resultAlias.Marker)
 					.Select(p => p.NomenclatureOnlineDiscount).WithAlias(() => resultAlias.PercentDiscount))

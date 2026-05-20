@@ -47,7 +47,6 @@ using VodovozBusiness.EntityRepositories.Nodes;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using Order = Vodovoz.Domain.Orders.Order;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
-using Vodovoz.Core.Data.Orders.Default;
 namespace Vodovoz.Infrastructure.Persistance.Orders
 {
 	internal sealed class OrderRepository : IOrderRepository
@@ -2368,7 +2367,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				from orderItems in uow.Session.Query<OrderItem>()
 				where orderItems.Order.Client.Id == order.Client.Id
 				&& orderItems.Order.Id != order.Id
-				&& orderItems.DiscountReason.Id == referFriendReasonId
+				&& orderItems.DiscountReasons.Any(r => r.Id == referFriendReasonId)
 				&& GetStatusesForCalculationAlreadyReceivedBottlesCountByReferPromotion().Contains(orderItems.Order.OrderStatus)
 				select (orderItems.ActualCount ?? orderItems.Count)
 			)
@@ -2479,10 +2478,10 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		{
 			var discounts =
 				from orderItem in uow.Session.Query<OrderItem>()
+				from discountReason in orderItem.DiscountReasons
 				join nomenclature in uow.Session.Query<Nomenclature>() on orderItem.Nomenclature.Id equals nomenclature.Id
 				join order in uow.Session.Query<Order>() on orderItem.Order.Id equals order.Id
 				join counterparty in uow.Session.Query<Counterparty>() on order.Client.Id equals counterparty.Id
-				join discountReason in uow.Session.Query<DiscountReason>() on orderItem.DiscountReason.Id equals discountReason.Id
 				join un in uow.Session.Query<MeasurementUnits>() on nomenclature.Unit.Id equals un.Id into units
 				from unit in units.DefaultIfEmpty()
 				where 
@@ -2893,18 +2892,33 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.ToList();
 		}
 
-		public async Task<IList<CounterpartyWithDebtAggregatedNode>> GetWithoutClosedDeliveriesCounterpartiesOverdueDebts
+		public async Task<IReadOnlyCollection<OverdueDebtOverPeriodLimitAggregateNode>> GetWithoutClosedDeliveriesCounterpartiesOverdueDebts
 			(IUnitOfWork unitOfWork,
 			int daysBeforeClosingDeliveries,
 			int[] organizationsIds,
-			OrderStatus [] orderStatuses,
+			OrderStatus[] orderStatuses,
 			CounterpartyType[] counterpartyTypes,
 			int? counterpartyId = null,
 			CancellationToken cancellationToken = default)
 		{
-			return await GetOverdueDebtQuery(unitOfWork, daysBeforeClosingDeliveries, organizationsIds, orderStatuses, counterpartyTypes, counterpartyId)
+			return (await GetOverdueDebtQuery(unitOfWork, daysBeforeClosingDeliveries, organizationsIds, orderStatuses, counterpartyTypes, counterpartyId)
 				.Where(x => !x.Counterparty.IsDeliveriesClosed)
-				.ToListAsync(cancellationToken);
+				.ToListAsync(cancellationToken))
+				.GroupBy(x => new
+				{
+					OrganizationId = x.Organization.Id,
+					CounterpartyId = x.Counterparty.Id
+				})
+				.Select(g => new OverdueDebtOverPeriodLimitAggregateNode
+				{
+					Organization = g.First().Organization,
+					Counterparty = g.First().Counterparty,					
+					OrderIds = g.Select(x => x.OrderId).ToArray(),
+					DebtSum = g.Sum(x => x.DebtSum),
+					OverdueDebtDays = (DateTime.Now - g.Min(x => x.DeliveryDate)).Days,
+					OldestDebtOrderDate = g.Min(x => x.DeliveryDate)
+				})				
+				.ToArray();
 		}
 
 		public async Task<bool> HasClosedDeliveriesCounterpartyWithOverdueDebtsAsync(
@@ -2922,7 +2936,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.AnyAsync(cancellationToken);
 		}
 
-		private IQueryable<CounterpartyWithDebtAggregatedNode> GetOverdueDebtQuery(
+		private IQueryable<OverdueDebtOverPeriodLimitRow> GetOverdueDebtQuery(
 			IUnitOfWork unitOfWork,
 			int daysBeforeClosingDeliveries,
 			int[] organizationsIds,
@@ -2932,8 +2946,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		{
 			var query =
 				from order in unitOfWork.Session.Query<Order>()
-				join counterparty in unitOfWork.Session.Query<Counterparty>()
-					on order.Client.Id equals counterparty.Id
+				join counterparty in unitOfWork.Session.Query<Counterparty>() on order.Client.Id equals counterparty.Id
+				join contract in unitOfWork.Session.Query<CounterpartyContract>() on order.Contract.Id equals contract.Id
 
 				where
 					organizationsIds.Contains(order.Contract.Organization.Id)
@@ -2965,19 +2979,20 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						select op.Expense
 					).Sum() ?? 0
 
-				let debt = orderSum - paidSum
+				let debtSum = orderSum - paidSum
 
 				where
 					orderSum > 0
-					&& debt > 0
+					&& debtSum > 0
 
-				select new CounterpartyWithDebtAggregatedNode
-				{
-					Counterparty = counterparty,
-					OrderId = order.Id,
-					Debt = debt,
-					OrderPaymentStatus = order.OrderPaymentStatus
-				};
+			select new OverdueDebtOverPeriodLimitRow
+			{
+				Counterparty = counterparty,
+				OrderId = order.Id,				
+				Organization = contract.Organization,
+				DebtSum = debtSum,
+				DeliveryDate = order.DeliveryDate.Value
+			};
 
 			if(counterpartyId != null)
 			{

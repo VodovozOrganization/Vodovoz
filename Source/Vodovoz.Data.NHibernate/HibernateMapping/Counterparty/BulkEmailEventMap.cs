@@ -11,9 +11,10 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 
 			Id(x => x.Id).Column("id").GeneratedBy.Native();
 
-			DiscriminateSubClassesOnColumn("type");
+			DiscriminateSubClassesOnColumn("event_type");
 
-			Map(x => x.Type).Column("type").ReadOnly();
+			Map(x => x.EventType).Column("event_type").ReadOnly();
+			Map(x => x.CounterpartyEmailType).Column("counterparty_email_type");
 			Map(x => x.ActionTime).Column("action_time").ReadOnly();
 			Map(x => x.ReasonDetail).Column("reason_detail");
 
@@ -25,7 +26,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 		{
 			public SubscribingBulkEmailEventMap()
 			{
-				DiscriminatorValue(nameof(BulkEmailEvent.BulkEmailEventType.Subscribing));
+				DiscriminatorValue(nameof(BulkEmailEventType.Subscribing));
 			}
 		}
 
@@ -33,7 +34,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Counterparty
 		{
 			public UnsubscribingBulkEmailEventMap()
 			{
-				DiscriminatorValue(nameof(BulkEmailEvent.BulkEmailEventType.Unsubscribing));
+				DiscriminatorValue(nameof(BulkEmailEventType.Unsubscribing));
 			}
 		}
 	}

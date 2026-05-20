@@ -33,5 +33,9 @@
 		/// Номер кабинета в ЭДО
 		/// </summary>
 		public string TaxcomEdoAccountId { get; set; }
+		/// <summary>
+		/// Организация работает без НДС
+		/// </summary>
+		public bool IsWithoutVat { get; set; }
 	}
 }

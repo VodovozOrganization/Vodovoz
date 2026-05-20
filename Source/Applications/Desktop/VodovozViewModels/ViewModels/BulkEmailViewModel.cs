@@ -132,14 +132,14 @@ namespace Vodovoz.ViewModels.ViewModels
 			var lastBulkEmailEventTypeSubquery = QueryOver.Of<BulkEmailEvent>(() => bulkEmailEventAlias)
 				.Where(() => bulkEmailEventAlias.Counterparty.Id == counterpartyAlias.Id)
 				.OrderBy(x => x.ActionTime).Desc
-				.Select(Projections.Property<BulkEmailEvent>(p => p.Type))
+				.Select(Projections.Property<BulkEmailEvent>(p => p.EventType))
 				.Take(1);
 
 			if(IncludeOldUnsubscribed)
 			{
 				var lastBulkEmailEventActionTimeSubquery = QueryOver.Of<BulkEmailEvent>(() => bulkEmailEventAlias)
 					.Where(() => bulkEmailEventAlias.Counterparty.Id == counterpartyAlias.Id)
-					.And(() => bulkEmailEventAlias.Type == BulkEmailEvent.BulkEmailEventType.Unsubscribing)
+					.And(() => bulkEmailEventAlias.EventType == BulkEmailEventType.Unsubscribing)
 					.OrderBy(x => x.ActionTime).Desc
 					.Select(Projections.Property<BulkEmailEvent>(p => p.ActionTime))
 					.Take(1);
@@ -147,7 +147,7 @@ namespace Vodovoz.ViewModels.ViewModels
 				query.Where(Restrictions.Disjunction()
 					.Add(Restrictions.IsNull(Projections.SubQuery(lastBulkEmailEventTypeSubquery)))
 					.Add(Restrictions.Not(Restrictions.Eq(Projections.SubQuery(lastBulkEmailEventTypeSubquery),
-						BulkEmailEvent.BulkEmailEventType.Unsubscribing.ToString())))
+						BulkEmailEventType.Unsubscribing.ToString())))
 					.Add(Restrictions.Ge(Projections.SubQuery(lastBulkEmailEventActionTimeSubquery),
 						DateTime.Today.AddMonths(-MonthsSinceUnsubscribing))));
 			}
@@ -156,7 +156,7 @@ namespace Vodovoz.ViewModels.ViewModels
 				query.Where(Restrictions.Disjunction()
 					.Add(Restrictions.IsNull(Projections.SubQuery(lastBulkEmailEventTypeSubquery)))
 					.Add(Restrictions.Not(Restrictions.Eq(Projections.SubQuery(lastBulkEmailEventTypeSubquery),
-					BulkEmailEvent.BulkEmailEventType.Unsubscribing.ToString()))));
+					BulkEmailEventType.Unsubscribing.ToString()))));
 			}
 
 			_counterpartiesToSent = query.List();

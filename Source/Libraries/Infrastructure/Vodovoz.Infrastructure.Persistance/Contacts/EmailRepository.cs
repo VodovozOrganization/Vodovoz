@@ -295,37 +295,52 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				.FirstOrDefault());
 		}
 
-		public int GetCounterpartyIdByEmailGuidForUnsubscribing(IUnitOfWork uow, Guid emailGuid)
+		public CounterpartyBulkSubscribeNode GetCounterpartyBulkSubscribeInfoByGuidForUnsubscribing(IUnitOfWork uow, Guid emailGuid)
 		{
 			BulkEmailEvent bulkEmailEventAlias = null;
 			CounterpartyEmail counterpartyEmailAlias = null;
 			StoredEmail storedEmailAlias = null;
-			GuidCounterpartyEmailNode resultAlias = null;
+			CounterpartyBulkSubscribeNode resultAlias = null;
 
-			var guidCounterpartyEmail = uow.Session.QueryOver(() => counterpartyEmailAlias)
-				.JoinEntityAlias(() => bulkEmailEventAlias, () => counterpartyEmailAlias.Counterparty.Id == bulkEmailEventAlias.Counterparty.Id, JoinType.LeftOuterJoin)
+			var result = uow.Session.QueryOver(() => counterpartyEmailAlias)
+				.JoinEntityAlias(() => bulkEmailEventAlias, 
+					() => counterpartyEmailAlias.Counterparty.Id == bulkEmailEventAlias.Counterparty.Id
+						&& counterpartyEmailAlias.Type == bulkEmailEventAlias.CounterpartyEmailType,
+					JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => counterpartyEmailAlias.StoredEmail, () => storedEmailAlias)
 				.Where(() => storedEmailAlias.Guid == emailGuid)
-				.OrderBy(() => bulkEmailEventAlias.ActionTime).Desc
+				.OrderBy(Projections.Conditional(
+					Restrictions.IsNotNull(Projections.Property(() => bulkEmailEventAlias.ActionTime)),
+					Projections.Property(() => bulkEmailEventAlias.ActionTime),
+					Projections.Constant(DateTime.MinValue)
+				)).Desc
 				.SelectList(list => list
-					.Select(() => counterpartyEmailAlias.Counterparty.Id).WithAlias(() => resultAlias.CounterpartyId)
-					.Select(() => bulkEmailEventAlias.Type).WithAlias(() => resultAlias.BulkEmailEventType))
-				.TransformUsing(Transformers.AliasToBean<GuidCounterpartyEmailNode>())
+					.Select(() => counterpartyEmailAlias.Counterparty.Id).WithAlias(() => resultAlias.CounterpartyId)					
+					.Select(() => bulkEmailEventAlias.EventType).WithAlias(() => resultAlias.BulkEmailEventType)
+					.Select(() => counterpartyEmailAlias.Type).WithAlias(() => resultAlias.CounterpartyEmailType))
+				.TransformUsing(Transformers.AliasToBean<CounterpartyBulkSubscribeNode>())
 				.Take(1)
-				.List<GuidCounterpartyEmailNode>()
+				.List<CounterpartyBulkSubscribeNode>()
 				.SingleOrDefault();
 
-			return guidCounterpartyEmail == null || guidCounterpartyEmail.BulkEmailEventType == BulkEmailEvent.BulkEmailEventType.Unsubscribing
-			? 0
-			: guidCounterpartyEmail.CounterpartyId;
+			return result?.BulkEmailEventType == BulkEmailEventType.Unsubscribing
+				? null
+				: result;
 		}
 
-		public BulkEmailEvent GetLastBulkEmailEvent(IUnitOfWork uow, int counterpartyId)
+		public BulkEmailEvent GetLastBulkEmailEvent(IUnitOfWork uow, int counterpartyId, CounterpartyEmailType? counterpartyEmailType = null)
 		{
 			BulkEmailEvent bulkEmailEventAlias = null;
 
-			return uow.Session.QueryOver(() => bulkEmailEventAlias)
-				.Where(() => bulkEmailEventAlias.Counterparty.Id == counterpartyId)
+			var query = uow.Session.QueryOver(() => bulkEmailEventAlias)
+				.Where(() => bulkEmailEventAlias.Counterparty.Id == counterpartyId);
+
+			if(counterpartyEmailType != null)
+			{
+				query.Where(() => bulkEmailEventAlias.CounterpartyEmailType == counterpartyEmailType);
+			}
+
+			return query
 				.OrderBy(() => bulkEmailEventAlias.ActionTime).Desc
 				.Take(1)
 				.SingleOrDefault();
@@ -450,7 +465,7 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 
 			var isClientUnsubscribedSubQuery = QueryOver.Of(() => bulkEmailEventAlias)
 				.Where(() => bulkEmailEventAlias.Counterparty.Id == counterpartyAlias.Id)
-				.Where(() => bulkEmailEventAlias.Type == BulkEmailEvent.BulkEmailEventType.Unsubscribing)
+				.Where(() => bulkEmailEventAlias.EventType == BulkEmailEventType.Unsubscribing)
 				.WithSubquery.WhereProperty(() => bulkEmailEventAlias.Id).Eq(lastEventIdSubQuery)
 				.Select(bee => bee.Id);
 
@@ -557,7 +572,7 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 
 			var isClientUnsubscribedSubQuery = QueryOver.Of(() => bulkEmailEventAlias)
 				.Where(() => bulkEmailEventAlias.Counterparty.Id == counterpartyAlias.Id)
-				.Where(() => bulkEmailEventAlias.Type == BulkEmailEvent.BulkEmailEventType.Unsubscribing)
+				.Where(() => bulkEmailEventAlias.EventType == BulkEmailEventType.Unsubscribing)
 				.WithSubquery.WhereProperty(() => bulkEmailEventAlias.Id).Eq(lastEventIdSubQuery)
 				.Select(bee => bee.Id);
 

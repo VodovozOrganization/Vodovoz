@@ -1,4 +1,6 @@
-﻿using Vodovoz.Domain.Goods;
+﻿using QS.Extensions.Observable.Collections.List;
+using System.Linq;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz
@@ -8,18 +10,29 @@ namespace Vodovoz
 		private OrderItem _orderItem;
 		private OrderEquipment _orderEquipment;
 
-		public OrderItem OrderItem => _orderItem;
-
 		public OrderItemReturnsNode(OrderItem item)
 		{
 			_orderItem = item;
 			PromoSetName = _orderItem.PromoSet?.Name;
+			DiscountReasons = _orderItem.DiscountReasons;
+			IsDiscountReasonsEditable = true;
 		}
 
 		public OrderItemReturnsNode(OrderEquipment equipment)
 		{
 			_orderEquipment = equipment;
+			DiscountReasons = _orderEquipment.OrderItem?.DiscountReasons ?? new ObservableList<DiscountReason>();
+			IsDiscountReasonsEditable = _orderEquipment.OrderItem != null;
 		}
+
+		public OrderItem OrderItem => _orderItem;
+		public OrderItem EquipmentOrderItem => _orderEquipment?.OrderItem;
+
+		public IObservableList<DiscountReason> DiscountReasons { get; }
+
+		public string DiscountReasonsNames => string.Join(", ", DiscountReasons.Select(dr => dr.Name));
+
+		public bool IsDiscountReasonsEditable { get; }
 
 		public bool IsEquipment => _orderEquipment != null;
 
@@ -233,25 +246,6 @@ namespace Vodovoz
 				}
 
 				return _orderItem.DiscountMoney;
-			}
-		}
-
-		public DiscountReason DiscountReason
-		{
-			get => IsEquipment ? _orderEquipment.OrderItem?.DiscountReason : _orderItem.DiscountReason;
-			set
-			{
-				if(IsEquipment)
-				{
-					if(_orderEquipment.OrderItem != null)
-					{
-						_orderEquipment.OrderItem.DiscountReason = value;
-					}
-				}
-				else
-				{
-					_orderItem.DiscountReason = value;
-				}
 			}
 		}
 

@@ -1,5 +1,6 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using BitrixApi.Library.Services;
+using EmailDebtNotificationWorker.Builders;
 using EmailDebtNotificationWorker.Options;
 using EmailDebtNotificationWorker.Services;
 using MassTransit;
@@ -14,6 +15,7 @@ using QS.Report;
 using RabbitMQ.MailSending;
 using System;
 using System.Text;
+using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Infrastructure.Persistance;
@@ -22,6 +24,7 @@ using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Database.Common;
 using Vodovoz.Settings.Database.Counterparty;
 using Vodovoz.Zabbix.Sender;
+using VodovozBusiness.Services.Orders;
 using AssemblyFinder = Vodovoz.Data.NHibernate.AssemblyFinder;
 
 namespace EmailDebtNotificationWorker
@@ -103,6 +106,18 @@ namespace EmailDebtNotificationWorker
 						.AddScoped<IEmailClaimLettersService, EmailClaimLettersService>()
 						.AddHostedService<EmailClaimLettersWorker>()
 						.ConfigureZabbixSenderFromDataBase(nameof(EmailClaimLettersWorker));
+
+					services
+						.Configure<EmailClosingDeliveriesOptions>(hostContext.Configuration.GetSection(EmailClosingDeliveriesOptions.SectionName))												
+						.AddScoped<IClosingDeliveriesService, ClosingDeliveriesService>()
+						.AddScoped<IOrderWithoutShipmentForDebtPrepareService, OrderWithoutShipmentForDebtPrepareService>()						
+						.AddScoped<IClosingDeliveriesNotificationService, ClosingDeliveriesNotificationService>()
+						.AddScoped<IClientClosingDeliveriesEmailBuilder, ClientClosingDeliveriesEmailBuilder>()
+						.AddScoped<ISummaryClosingDeliveriesEmailBuilder, SummaryClosingDeliveriesEmailBuilder>()
+						.AddScoped<IEmailSender, RabbitMqEmailSender>()
+						.AddHostedService<EmailClosingDeliveriesWorker>()
+						.ConfigureZabbixSenderFromDataBase(nameof(EmailClosingDeliveriesWorker))
+						;
 				});
 	}
 }

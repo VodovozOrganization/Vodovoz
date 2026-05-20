@@ -35,7 +35,8 @@ namespace BitrixNotificationsSend.Library.Services
 
 		private readonly DebtType[] _excludeCloseDeliveryDebtTypes =
 		{
-			DebtType.ShortTerm,
+			DebtType.Blocked,
+			DebtType.BlockedByRobot,
 			DebtType.Judicial,
 			DebtType.WriteOff
 		};

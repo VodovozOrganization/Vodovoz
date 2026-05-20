@@ -698,8 +698,8 @@ namespace VodovozBusinessTests.Domain.Orders
 			var discountController = Substitute.For<IOrderDiscountsController>();
 
 			// act
-			discountController.SetCustomDiscountForOrder(
-				discountReason, discountInMoney, DiscountUnits.money, testOrder.ObservableOrderItems);
+			discountController.SetCustomDiscountForOrderItems(
+				discountReason, discountInMoney, DiscountUnits.money, testOrder.ObservableOrderItems.Cast<IDiscount>().ToList());
 
 			// assert
 			for(int i = 0; i < testOrder.OrderItems.Count; i++)
@@ -729,8 +729,8 @@ namespace VodovozBusinessTests.Domain.Orders
 			var discountController = Substitute.For<IOrderDiscountsController>();
 
 			// act
-			discountController.SetCustomDiscountForOrder(
-				discountReason, discountInPercent, DiscountUnits.percent, testOrder.ObservableOrderItems);
+			discountController.SetCustomDiscountForOrderItems(
+				discountReason, discountInPercent, DiscountUnits.percent, testOrder.ObservableOrderItems.Cast<IDiscount>().ToList());
 
 			// assert
 			for(int i = 0; i < testOrder.OrderItems.Count; i++)

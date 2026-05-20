@@ -10,6 +10,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Core.Domain.Repositories;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents.WriteOffDocuments;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic.Cars;
@@ -27,6 +28,7 @@ namespace Vodovoz.Domain.Logistic
 
 	public class CarEvent : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
+		private int _id;
 		private DateTime _createDate;
 		private Employee _author;
 		private CarEventType _carEventType;
@@ -36,6 +38,7 @@ namespace Vodovoz.Domain.Logistic
 		private DateTime _endDate;
 		private string _comment;
 		private string _foundation;
+		private Counterparty _counterparty;
 		private bool _doNotShowInOperation;
 		private bool _compensationFromInsuranceByCourt;
 		private decimal _repairCost;
@@ -44,6 +47,8 @@ namespace Vodovoz.Domain.Logistic
 		private DateTime? _carTechnicalCheckupEndingDate;
 		private WriteOffDocument _writeOffDocument;
 		private bool _isWriteOffDocumentNotRequired;
+		private IList<CarEventOrderScanFileInformation> _orderScanFileInformations =
+			new List<CarEventOrderScanFileInformation>();
 		private decimal? _actualFuelBalance;
 		private decimal? _currentFuelBalance;
 		private decimal? _substractionFuelBalance;
@@ -52,7 +57,17 @@ namespace Vodovoz.Domain.Logistic
 
 		#region Свойства
 
-		public virtual int Id { get; set; }
+		public virtual int Id
+		{
+			get => _id;
+			set
+			{
+				if(SetField(ref _id, value))
+				{
+					UpdateOrderScanFileInformations();
+				}
+			}
+		}
 
 		[Display(Name = "Дата создания")]
 		public virtual DateTime CreateDate
@@ -115,6 +130,13 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get => _foundation;
 			set => SetField(ref _foundation, value);
+		}
+
+		[Display(Name = "Название СТО")]
+		public virtual Counterparty Counterparty
+		{
+			get => _counterparty;
+			set => SetField(ref _counterparty, value);
 		}
 
 		[Display(Name = "Не отражать в эксплуатации ТС")]
@@ -185,6 +207,13 @@ namespace Vodovoz.Domain.Logistic
 			set => SetField(ref _isWriteOffDocumentNotRequired, value);
 		}
 
+		[Display(Name = "Сканы заказ-наряда")]
+		public virtual IList<CarEventOrderScanFileInformation> OrderScanFileInformations
+		{
+			get => _orderScanFileInformations;
+			set => SetField(ref _orderScanFileInformations, value);
+		}
+
 		#region Калибровка баланса топлива
 
 		[Display(Name = "Актуальный баланс топлива")]
@@ -243,6 +272,28 @@ namespace Vodovoz.Domain.Logistic
 				return;
 			}
 			ObservableFines.Add(fine);
+		}
+
+		public virtual void AddOrderScanFileInformation(string fileName)
+		{
+			if(OrderScanFileInformations.Any(fileInformation => fileInformation.FileName == fileName))
+			{
+				return;
+			}
+
+			OrderScanFileInformations.Add(new CarEventOrderScanFileInformation
+			{
+				CarEventId = Id,
+				FileName = fileName
+			});
+		}
+
+		private void UpdateOrderScanFileInformations()
+		{
+			foreach(var fileInformation in OrderScanFileInformations)
+			{
+				fileInformation.CarEventId = Id;
+			}
 		}
 
 		public virtual string GetFineReason()

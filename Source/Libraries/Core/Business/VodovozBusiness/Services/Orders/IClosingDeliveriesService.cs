@@ -1,6 +1,8 @@
 ﻿using QS.DomainModel.UoW;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using VodovozBusiness.EntityRepositories.Nodes;
 
 namespace VodovozBusiness.Services.Orders
 {
@@ -12,7 +14,7 @@ namespace VodovozBusiness.Services.Orders
 		/// <summary>
 		/// Закрытие поставок у контрагентов с просроченной задолженностью
 		/// </summary>
-		Task CheckAndCloseDeliveriesAsync(IUnitOfWork unitOfWork, int? counterpartyId = null, CancellationToken cancellationToken = default);
+		Task<IReadOnlyCollection<OverdueDebtOverPeriodLimitAggregateNode>> CloseDeliveriesForDebtorsAsync(IUnitOfWork unitOfWork, int? counterpartyId = null, CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Открытие поставок у контрагента с отсутствующей просроченной задолженностью

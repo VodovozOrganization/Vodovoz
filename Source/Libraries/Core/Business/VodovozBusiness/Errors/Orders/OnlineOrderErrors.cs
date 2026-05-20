@@ -138,6 +138,12 @@ namespace Vodovoz.Errors.Orders
 				nameof(IsIncorrectNomenclatureInOnlineOrder),
 				$"Номенклатура с Id {nomenclatureId} не найдена в базе");
 		
+		public static Error IsServiceNomenclatureInOnlineOrder(int? nomenclatureId, string category) =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(IsIncorrectNomenclatureInOnlineOrder),
+				$"Номенклатура с Id {nomenclatureId} это {category}. Такие заказы падают на ручную обработку");
+		
 		public static Error IsArchivedNomenclatureInOnlineOrder(string nomenclature) =>
 			new Error(
 				typeof(OnlineOrderErrors),

@@ -38,6 +38,8 @@ namespace Vodovoz.Core.Domain.Organizations
 		private string _oKVED;
 		private string _email;
 		private string _emailForMailing;
+		private string _closingDeliveriesNotificationEmailFrom;
+		private bool _disableClosingDeliveriesMailing;
 		private int? _cashBoxId;
 		private bool _withoutVAT;
 		private bool _disableDebtMailing;
@@ -66,6 +68,7 @@ namespace Vodovoz.Core.Domain.Organizations
 			OGRN = string.Empty;
 			Email = string.Empty;
 			EmailForMailing = string.Empty;
+			ClosingDeliveriesNotificationEmailFrom = string.Empty;
 		}
 
 		/// <summary>
@@ -176,6 +179,26 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _emailForMailing;
 			set => SetField(ref _emailForMailing, value);
+		}
+
+		/// <summary>
+		/// E-mail организации, с которого будет приходить письмо с уведомлением о закрытии поставок
+		/// </summary>
+		[Display(Name = "E-mail организации, с которого будет приходить письмо с уведомлением о закрытии поставок")]
+		public virtual string ClosingDeliveriesNotificationEmailFrom
+		{
+			get => _closingDeliveriesNotificationEmailFrom;
+			set => SetField(ref _closingDeliveriesNotificationEmailFrom, value);
+		}
+
+		/// <summary>
+		/// Запретить рассылку писем о блокировке поставок"
+		/// </summary>
+		[Display(Name = "Запретить рассылку писем о блокировке поставок")]
+		public virtual bool DisableClosingDeliveriesMailing
+		{
+			get => _disableClosingDeliveriesMailing;
+			set => SetField(ref _disableClosingDeliveriesMailing, value);
 		}
 
 		/// <summary>
@@ -461,7 +484,15 @@ namespace Vodovoz.Core.Domain.Organizations
 			{
 				yield return new ValidationResult(
 					"E-mail для рассылки должен быть в домене @vodovoz-spb.ru.",
-					new[] { nameof(Email) });
+					new[] { nameof(EmailForMailing) });
+			}
+
+			if(!string.IsNullOrWhiteSpace(ClosingDeliveriesNotificationEmailFrom)
+					&& !Regex.IsMatch(ClosingDeliveriesNotificationEmailFrom, @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@vodovoz-spb\.ru\z"))
+			{
+				yield return new ValidationResult(
+					"E-mail организации, с которого будет приходить письмо с уведомлением о закрытии поставок, быть в домене @vodovoz-spb.ru.",
+					new[] { nameof(ClosingDeliveriesNotificationEmailFrom) });
 			}
 
 			if(IsUsnMode == IsOsnoMode)
