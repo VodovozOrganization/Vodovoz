@@ -60,8 +60,10 @@ namespace Vodovoz.Infrastructure.Persistance.DiscountReasons
 		{
 			var discount = (
 				from discountReason in uow.Session.Query<DiscountReason>()
-				where discountReason.IsPromoCode && discountReason.PromoCodeName.ToLower() == promoCode.ToLower()
-					select discountReason)
+				where discountReason.IsPromoCode
+					&& !discountReason.IsArchive
+					&& discountReason.PromoCodeName.ToLower() == promoCode.ToLower()
+				select discountReason)
 				.SingleOrDefault();
 			
 			return discount;
