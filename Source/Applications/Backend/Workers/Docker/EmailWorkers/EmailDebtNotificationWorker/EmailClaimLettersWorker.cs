@@ -3,6 +3,7 @@ using EmailDebtNotificationWorker.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using QS.Services;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,7 +23,8 @@ namespace EmailDebtNotificationWorker
 			ILogger<EmailClaimLettersWorker> logger,
 			IOptionsMonitor<EmailClaimLettersOptions> emailClaimLettersOptions,
 			IServiceScopeFactory serviceScopeFactory,
-			IZabbixSender zabbixSender)
+			IZabbixSender zabbixSender,
+			IUserService userService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_emailClaimLettersOptions = emailClaimLettersOptions ?? throw new ArgumentNullException(nameof(emailClaimLettersOptions));
