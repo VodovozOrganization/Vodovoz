@@ -323,7 +323,8 @@ namespace Vodovoz.EntityRepositories.Orders
 			int daysBeforeClosingDeliveries, 
 			int[] organizationsIds, 
 			OrderStatus[] orderStatuses, 
-			CounterpartyType[] counterpartyTypes, 
+			CounterpartyType[] counterpartyTypes,
+			int tenderCameFromId,
 			int? counterpartyId = null,			
 			CancellationToken cancellationToken = default);
 
@@ -342,7 +343,8 @@ namespace Vodovoz.EntityRepositories.Orders
 			int daysBeforeClosingDeliveries, 
 			int[] organizationsIds,
 			OrderStatus[] orderStatuses,
-			CounterpartyType[] counterpartyTypes, 
+			CounterpartyType[] counterpartyTypes,
+			int tenderCameFromId,
 			int counterpartyId,
 			CancellationToken cancellationToken = default);
 

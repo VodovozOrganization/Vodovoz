@@ -1,4 +1,5 @@
 ﻿using BitrixApi.Library.Services;
+using EmailDebtNotificationWorker.Repositories;
 using Mailjet.Api.Abstractions;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -36,7 +37,7 @@ namespace EmailDebtNotificationWorker.Services
 		private readonly IEmailSettings _emailSettings;
 		private readonly IEmailAttachmentsCreateService _emailAttachmentsCreateService;
 		private readonly IBus _bus;
-
+		private readonly IDatabaseRepository _databaseRepository;
 		private const int _maxEmailsPerMinute = 5;
 
 		public EmailDebtNotificationService(
@@ -47,7 +48,8 @@ namespace EmailDebtNotificationWorker.Services
 			IEmployeeRepository employeeRepository,
 			IEmailSettings emailSettings,
 			IEmailAttachmentsCreateService emailAttachmentsCreateService,
-			IBus bus
+			IBus bus,
+			IDatabaseRepository databaseRepository
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -58,6 +60,7 @@ namespace EmailDebtNotificationWorker.Services
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_emailAttachmentsCreateService = emailAttachmentsCreateService ?? throw new ArgumentNullException(nameof(emailAttachmentsCreateService));
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
+			_databaseRepository = databaseRepository ?? throw new ArgumentNullException(nameof(databaseRepository));
 		}
 
 		public async Task ScheduleDebtNotificationsAsync(CancellationToken cancellationToken)
@@ -211,17 +214,6 @@ namespace EmailDebtNotificationWorker.Services
 			return storedEmail;
 		}
 
-		private static int GetCurrentDatabaseId(IUnitOfWork uow)
-		{
-			var instanceId = Convert.ToInt32(
-				uow.Session
-				.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
-				.List<object>()
-				.FirstOrDefault());
-
-			return instanceId;
-		}
-
 		private string? SelectEmailForDebtNotification(Counterparty client)
 		{
 			if(client.Emails is null || !client.Emails.Any())
@@ -292,7 +284,7 @@ namespace EmailDebtNotificationWorker.Services
 			string messageText
 			)
 		{
-			var instanceId = GetCurrentDatabaseId(uow);
+			var instanceId = _databaseRepository.GetCurrentDatabaseId(uow);
 
 			var unsubscribeUrl = storedEmail.Guid.HasValue
 				? GetUnsubscribeLink(storedEmail.Guid.Value)
