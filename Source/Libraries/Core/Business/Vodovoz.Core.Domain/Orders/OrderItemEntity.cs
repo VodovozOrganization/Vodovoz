@@ -309,15 +309,30 @@ namespace Vodovoz.Core.Domain.Orders
 		/// <param name="discountMoney">Скидка в деньгах</param>
 		/// <param name="discountPercent">Скидка в процентах</param>
 		/// <param name="isDiscountInMoney">Флаг, указывающий, что скидка расчитывается в деньгах</param>
-		public virtual void SetAtOnceDiscountValues(decimal discountMoney, decimal discountPercent, bool isDiscountInMoney)
+		public virtual void SetDiscountValuesBatch(decimal discountMoney, decimal discountPercent, bool isDiscountInMoney)
 		{
+			var isDiscountMoneyChanged = _discountMoney != discountMoney;
+			var isDiscountPercentChanged = _discount != discountPercent;
+			var isDiscountInMoneyChanged = _isDiscountInMoney != isDiscountInMoney;
+
 			_discountMoney = discountMoney;
 			_discount = discountPercent;
 			_isDiscountInMoney = isDiscountInMoney;
 
-			OnPropertyChanged(nameof(DiscountMoney));
-			OnPropertyChanged(nameof(Discount));
-			OnPropertyChanged(nameof(IsDiscountInMoney));
+			if(isDiscountMoneyChanged)
+			{
+				OnPropertyChanged(nameof(DiscountMoney));
+			}
+
+			if(isDiscountPercentChanged)
+			{
+				OnPropertyChanged(nameof(Discount));
+			}
+
+			if(isDiscountInMoneyChanged)
+			{
+				OnPropertyChanged(nameof(IsDiscountInMoney));
+			}
 		}
 	}
 }

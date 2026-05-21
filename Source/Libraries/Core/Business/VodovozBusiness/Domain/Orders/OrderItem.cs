@@ -223,7 +223,7 @@ namespace Vodovoz.Domain.Orders
 			var discount =
 				DiscountReasons.All(x => x.ValueType == DiscountUnits.percent)
 				? DiscountReasons.Sum(x => x.Value)
-				: currentPrice > 0 ? (100 * DiscountMoney) / currentPrice : 0;
+				: currentPrice > 0 ? (100 * discountMoney) / currentPrice : 0;
 
 			var isDiscountInMoney = DiscountReasons.Any(x => x.ValueType == DiscountUnits.money);
 
@@ -237,7 +237,7 @@ namespace Vodovoz.Domain.Orders
 				discount = 100;
 			}
 
-			SetAtOnceDiscountValues(discountMoney, discount, isDiscountInMoney);
+			SetDiscountValuesBatch(discountMoney, discount, isDiscountInMoney);
 
 			RecalculateVAT();
 		}
