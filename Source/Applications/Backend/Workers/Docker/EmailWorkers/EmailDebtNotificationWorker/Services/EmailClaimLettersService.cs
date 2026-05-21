@@ -1,5 +1,6 @@
 ﻿using BitrixApi.Library.Services;
 using EmailDebtNotificationWorker.Options;
+using EmailDebtNotificationWorker.Repositories;
 using Mailjet.Api.Abstractions;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -37,7 +38,7 @@ namespace EmailDebtNotificationWorker.Services
 		private readonly IEmailSettings _emailSettings;
 		private readonly IBus _bus;
 		private readonly IOptionsMonitor<EmailClaimLettersOptions> _emailClaimLettersOptions;
-
+		private readonly IDatabaseRepository _databaseRepository;
 		private readonly OrderStatus[] _orderStatuses =
 			new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
 
@@ -52,7 +53,8 @@ namespace EmailDebtNotificationWorker.Services
 			IEmailAttachmentsCreateService emailAttachmentsCreateService,
 			IEmailSettings emailSettings,
 			IBus bus,
-			IOptionsMonitor<EmailClaimLettersOptions> emailClaimLettersOptions)
+			IOptionsMonitor<EmailClaimLettersOptions> emailClaimLettersOptions,
+			IDatabaseRepository databaseRepository)
 		{
 			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
 			_uowFactory = uowFactory ?? throw new System.ArgumentNullException(nameof(uowFactory));
@@ -62,6 +64,7 @@ namespace EmailDebtNotificationWorker.Services
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 			_emailClaimLettersOptions = emailClaimLettersOptions ?? throw new System.ArgumentNullException(nameof(emailClaimLettersOptions));
+			_databaseRepository = databaseRepository ?? throw new ArgumentNullException(nameof(databaseRepository));
 		}
 
 		public async Task SendClaimLetters(CancellationToken cancellationToken)
@@ -265,7 +268,7 @@ namespace EmailDebtNotificationWorker.Services
 			string messageText
 			)
 		{
-			var instanceId = GetCurrentDatabaseId(uow);
+			var instanceId = _databaseRepository.GetCurrentDatabaseId(uow);
 
 			var unsubscribeUrl = storedEmail.Guid.HasValue
 				? GetUnsubscribeLink(storedEmail.Guid.Value)
@@ -303,17 +306,6 @@ namespace EmailDebtNotificationWorker.Services
 			};
 
 			return sendEmailMessage;
-		}
-
-		private static int GetCurrentDatabaseId(IUnitOfWork uow)
-		{
-			var instanceId = Convert.ToInt32(
-				uow.Session
-				.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
-				.List<object>()
-				.FirstOrDefault());
-
-			return instanceId;
 		}
 
 		private string GetUnsubscribeLink(Guid guid) => $"{_emailSettings.UnsubscribeUrl}/{guid}";

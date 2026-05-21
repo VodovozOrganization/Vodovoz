@@ -5,24 +5,23 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace EmailDebtNotificationWorker.Builders
+namespace EmailDebtNotificationWorker.Services.ClosingDeliveries
 {
 	/// <summary>
-	/// Билдер писем для уведомления клиентов о закрытии поставок
+	/// Подготовка общих информационных писем по всем клиентам о закрытии поставок
 	/// </summary>
-	public interface IClientClosingDeliveriesEmailBuilder
+	public interface ISummaryClosingDeliveriesEmailPreparer
 	{
 		/// <summary>
-		/// Создать письма для уведомления клиентов о закрытии поставок
+		/// Подготовкить письма с общей информацией по всем клиентам о закрытии поставок, у которых есть задолженность по оплате
 		/// </summary>
 		/// <param name="uow"></param>
 		/// <param name="notificationInfos"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
-		Task<IReadOnlyList<SendEmailMessage>> Build(
+		Task<IReadOnlyList<SendEmailMessage>> PrepareSummaryEmails(
 			IUnitOfWork uow,
 			IReadOnlyCollection<OrderWithoutShipmentForDebtNotificationInfo> notificationInfos,
 			CancellationToken cancellationToken);
-
 	}
 }

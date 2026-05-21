@@ -1,5 +1,6 @@
 ﻿using BitrixApi.Library.Services;
 using EmailDebtNotificationWorker.DTO;
+using EmailDebtNotificationWorker.Repositories;
 using Mailjet.Api.Abstractions;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -11,35 +12,37 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Domain.StoredEmails;
 
-namespace EmailDebtNotificationWorker.Builders
+namespace EmailDebtNotificationWorker.Services.ClosingDeliveries
 {
-	public class ClientClosingDeliveriesEmailBuilder : IClientClosingDeliveriesEmailBuilder
+	public class ClientClosingDeliveriesEmailPreparer : IClientClosingDeliveriesEmailPreparer
 	{
-		private readonly ILogger<ClientClosingDeliveriesEmailBuilder> _logger;
+		private readonly ILogger<ClientClosingDeliveriesEmailPreparer> _logger;
 		private readonly IEmailAttachmentsCreateService _attachmentsService;
 		private readonly IClosingDeliveriesSettings _closingDeliveriesSettings;
 		private readonly IEmailSettings _emailSettings;
+		private readonly IDatabaseRepository _databaseRepository;
 
-		public ClientClosingDeliveriesEmailBuilder(
-			ILogger<ClientClosingDeliveriesEmailBuilder> logger,
+		public ClientClosingDeliveriesEmailPreparer(
+			ILogger<ClientClosingDeliveriesEmailPreparer> logger,
 			IEmailAttachmentsCreateService attachmentsService,
 			IClosingDeliveriesSettings closingDeliveriesSettings,
-			IEmailSettings emailSettings)
+			IEmailSettings emailSettings,
+			IDatabaseRepository databaseRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_attachmentsService = attachmentsService ?? throw new ArgumentNullException(nameof(attachmentsService));
 			_closingDeliveriesSettings = closingDeliveriesSettings ?? throw new ArgumentNullException(nameof(closingDeliveriesSettings));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
+			_databaseRepository = databaseRepository ?? throw new ArgumentNullException(nameof(databaseRepository));
 		}
 
-		public async Task<IReadOnlyList<SendEmailMessage>> Build(
+		public async Task<IReadOnlyList<SendEmailMessage>> PrepareClientEmails(
 			IUnitOfWork uow,
 			IReadOnlyCollection<OrderWithoutShipmentForDebtNotificationInfo> notificationInfos,
 			CancellationToken cancellationToken)
@@ -55,7 +58,7 @@ namespace EmailDebtNotificationWorker.Builders
 			{
 				try
 				{
-					var sendEmailMessage = await Create(uow, info, cancellationToken);
+					var sendEmailMessage = await PrepareClientEmail(uow, info, cancellationToken);
 
 					sendEmailMessages.Add(sendEmailMessage);
 				}
@@ -68,8 +71,8 @@ namespace EmailDebtNotificationWorker.Builders
 			return sendEmailMessages;
 		}
 
-		private async Task<SendEmailMessage> Create(
-			IUnitOfWork uow,
+		private async Task<SendEmailMessage> PrepareClientEmail(
+			IUnitOfWork unitOfWork,
 			OrderWithoutShipmentForDebtNotificationInfo notificationInfo,
 			CancellationToken cancellationToken)
 		{
@@ -108,7 +111,7 @@ namespace EmailDebtNotificationWorker.Builders
 				Description = "Стоп-отгрузка"
 			};
 
-			await uow.SaveAsync(storedEmail, cancellationToken: cancellationToken);
+			await unitOfWork.SaveAsync(storedEmail, cancellationToken: cancellationToken);
 
 			var closingDeliveriesEmail = new ClosingDeliveriesEmail
 			{
@@ -117,13 +120,13 @@ namespace EmailDebtNotificationWorker.Builders
 				Counterparty = orderWithoutShipmentForDebt.Client
 			};
 
-			await uow.SaveAsync(closingDeliveriesEmail, cancellationToken: cancellationToken);
+			await unitOfWork.SaveAsync(closingDeliveriesEmail, cancellationToken: cancellationToken);
 
 			var unsubscribeUrl = GetUnsubscribeLink(storedEmail.Guid.Value);
 
 			var clientEmailBody = GenerateClientEmailBody(orderWithoutShipmentForDebt, unsubscribeUrl);
 
-			var instanceId = GetCurrentDatabaseId(uow);
+			var instanceId = _databaseRepository.GetCurrentDatabaseId(unitOfWork);
 
 			var sendEmailMessage = new SendEmailMessage
 			{
@@ -188,17 +191,6 @@ namespace EmailDebtNotificationWorker.Builders
 		}
 
 		private string GetUnsubscribeLink(Guid guid) => $"{_emailSettings.UnsubscribeUrl}/{guid}";
-
-		private static int GetCurrentDatabaseId(IUnitOfWork uow)
-		{
-			var instanceId = Convert.ToInt32(
-				uow.Session
-				.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
-				.List<object>()
-				.FirstOrDefault());
-
-			return instanceId;
-		}
 
 		private string GenerateClientEmailBody(OrderWithoutShipmentForDebt debt, string unsubscribeUrl)
 		{

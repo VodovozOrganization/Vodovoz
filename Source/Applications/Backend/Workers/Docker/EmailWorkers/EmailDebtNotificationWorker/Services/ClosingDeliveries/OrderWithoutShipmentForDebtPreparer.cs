@@ -8,22 +8,26 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories.Employees;
+using Vodovoz.Settings.Organizations;
 using VodovozBusiness.EntityRepositories.Nodes;
 
-namespace EmailDebtNotificationWorker.Services
+namespace EmailDebtNotificationWorker.Services.ClosingDeliveries
 {
-	public class OrderWithoutShipmentForDebtPrepareService : IOrderWithoutShipmentForDebtPrepareService
+	public class OrderWithoutShipmentForDebtPreparer : IOrderWithoutShipmentForDebtPreparer
 	{
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IGenericRepository<OrderWithoutShipmentForDebt> _orderWithoutShipmentForDebtRepository;
+		private readonly IOrganizationSettings _organizationSettings;
 		private const int _daysToCheckExistingBills = 3;
 
-		public OrderWithoutShipmentForDebtPrepareService(
+		public OrderWithoutShipmentForDebtPreparer(
 			IEmployeeRepository employeeRepository,
-			IGenericRepository<OrderWithoutShipmentForDebt> orderWithoutShipmentForDebtRepository)
+			IGenericRepository<OrderWithoutShipmentForDebt> orderWithoutShipmentForDebtRepository,
+			IOrganizationSettings organizationSettings)
 		{
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_orderWithoutShipmentForDebtRepository = orderWithoutShipmentForDebtRepository ?? throw new ArgumentNullException(nameof(orderWithoutShipmentForDebtRepository));
+			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 		}
 
 		public async Task<IReadOnlyList<OrderWithoutShipmentForDebtNotificationInfo>> PrepareInfo(
@@ -53,6 +57,19 @@ namespace EmailDebtNotificationWorker.Services
 
 			foreach(var node in overdueDebtAggregateNodes)
 			{
+				// Если по ВВ нет долга, то и по остальным не отправляем
+				if(node.Organization.Id != _organizationSettings.VodovozOrganizationId)
+				{
+					var vodovozNode = overdueDebtAggregateNodes.FirstOrDefault(
+						x => x.Organization.Id == _organizationSettings.VodovozOrganizationId
+						&& x.Counterparty.Id == node.Counterparty.Id);
+					
+					if(vodovozNode is null)
+					{
+						continue;
+					}
+				}
+
 				var notificationInfo = new OrderWithoutShipmentForDebtNotificationInfo
 				{
 					OverdueDebtDays = node.OverdueDebtDays,

@@ -11,6 +11,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
 using VodovozBusiness.EntityRepositories.Nodes;
@@ -25,7 +26,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IEmployeeRepository _employeeRepository;
-
+		private readonly ICounterpartySettings _counterpartySettings;
 		private readonly int[] _organizationsIds;
 
 		private readonly OrderStatus[] _orderStatuses =
@@ -46,7 +47,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IOrganizationSettings organizationSettings,
 			IGenericRepository<CounterpartyEntity> counterpartyRepository,
 			IOrderRepository orderRepository,
-			IEmployeeRepository employeeRepository)
+			IEmployeeRepository employeeRepository,
+			ICounterpartySettings counterpartySettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_closingDeliveriesSettings = closingDeliveriesSettings ?? throw new ArgumentNullException(nameof(closingDeliveriesSettings));
@@ -54,6 +56,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_organizationsIds = new[] { organizationSettings.VodovozOrganizationId, organizationSettings.KulerServiceOrganizationId };
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_counterpartySettings = counterpartySettings ?? throw new ArgumentNullException(nameof(counterpartySettings));
 		}
 
 		public async Task<IReadOnlyCollection<OverdueDebtOverPeriodLimitAggregateNode>> CloseDeliveriesForDebtorsAsync(IUnitOfWork unitOfWork, int? counterpartyId = null, CancellationToken cancellationToken = default)
@@ -65,7 +68,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 					_organizationsIds,
 					_orderStatuses,
 					_counterpartyTypes,
-					counterpartyId,
+					_counterpartySettings.CounterpartyFromTenderId,
+					counterpartyId,					
 					cancellationToken);
 
 			if(!overdueDebtOverPeriodLimitRows.Any())
@@ -77,7 +81,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 			// Закрытие поставок, только если есть долг по организации ВВ
 
-			var vodovozOrganizationRows = overdueDebtOverPeriodLimitRows.Where(x => x.Organization.Id == _organizationSettings.VodovozOrganizationId).ToList();			
+			var vodovozOrganizationRows = overdueDebtOverPeriodLimitRows.Where(x => x.Organization.Id == _organizationSettings.VodovozOrganizationId).ToList();
 
 			if(!vodovozOrganizationRows.Any())
 			{
@@ -124,6 +128,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				_organizationsIds,
 				_orderStatuses,
 				_counterpartyTypes,
+				_counterpartySettings.CounterpartyFromTenderId,
 				counterpartyId,
 				cancellationToken);
 

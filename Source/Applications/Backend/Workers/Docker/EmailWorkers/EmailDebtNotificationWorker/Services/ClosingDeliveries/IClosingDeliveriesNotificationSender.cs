@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace EmailDebtNotificationWorker.Services
+namespace EmailDebtNotificationWorker.Services.ClosingDeliveries
 {
 	/// <summary>
 	/// Сервис для отправки уведомлений о закрытии поставок
 	/// </summary>
-	public interface IClosingDeliveriesNotificationService
+	public interface IClosingDeliveriesNotificationSender
 	{
 		/// <summary>
 		/// Отправка уведомлений о закрытии поставок

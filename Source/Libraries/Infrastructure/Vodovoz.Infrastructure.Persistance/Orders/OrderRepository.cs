@@ -2898,10 +2898,11 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			int[] organizationsIds,
 			OrderStatus[] orderStatuses,
 			CounterpartyType[] counterpartyTypes,
+			int tenderCameFromId,
 			int? counterpartyId = null,
 			CancellationToken cancellationToken = default)
 		{
-			return (await GetOverdueDebtQuery(unitOfWork, daysBeforeClosingDeliveries, organizationsIds, orderStatuses, counterpartyTypes, counterpartyId)
+			return (await GetOverdueDebtQuery(unitOfWork, daysBeforeClosingDeliveries, organizationsIds, orderStatuses, counterpartyTypes, tenderCameFromId, counterpartyId)
 				.Where(x => !x.Counterparty.IsDeliveriesClosed)
 				.ToListAsync(cancellationToken))
 				.GroupBy(x => new
@@ -2927,10 +2928,11 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			int[] organizationsIds,
 			OrderStatus[] orderStatuses,
 			CounterpartyType[] counterpartyTypes,
+			int tenderCameFromId,
 			int counterpartyId,
 			CancellationToken cancellationToken = default)
 		{
-			return await GetOverdueDebtQuery(unitOfWork, daysBeforeClosingDeliveries, organizationsIds, orderStatuses, counterpartyTypes, counterpartyId)
+			return await GetOverdueDebtQuery(unitOfWork, daysBeforeClosingDeliveries, organizationsIds, orderStatuses, counterpartyTypes, tenderCameFromId, counterpartyId)
 				.Where(x => x.Counterparty.IsDeliveriesClosed)
 				.Select(x => x.Counterparty.Id)
 				.AnyAsync(cancellationToken);
@@ -2942,6 +2944,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			int[] organizationsIds,
 			OrderStatus[] orderStatuses,
 			CounterpartyType[] counterpartyTypes,
+			int tenderCameFromId,
 			int? counterpartyId = null)
 		{
 			var query =
@@ -2955,6 +2958,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					&& counterpartyTypes.Contains(counterparty.CounterpartyType)
 					&& !counterparty.IsChainStore
 					&& counterparty.ReasonForLeaving != ReasonForLeaving.Tender
+					&& counterparty.CameFrom.Id != tenderCameFromId
 					&& order.PaymentType == PaymentType.Cashless
 					&& order.OrderPaymentStatus != OrderPaymentStatus.Paid
 					&& order.DeliveryDate != null
