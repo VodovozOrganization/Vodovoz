@@ -1,8 +1,9 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using BitrixApi.Library.Services;
-using EmailDebtNotificationWorker.Builders;
 using EmailDebtNotificationWorker.Options;
+using EmailDebtNotificationWorker.Repositories;
 using EmailDebtNotificationWorker.Services;
+using EmailDebtNotificationWorker.Services.ClosingDeliveries;
 using MassTransit;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;
@@ -93,6 +94,8 @@ namespace EmailDebtNotificationWorker
 							transportSettings);
 						});
 
+					services.AddScoped<IDatabaseRepository, DataBaseRepositiry>();
+
 					services.AddScoped<IWorkingDayService, WorkingDayService>();
 					services.AddScoped<IDebtorsSettings, DebtorsSettings>();
 					services.AddScoped<IEmailSettings, EmailSettings>();
@@ -107,17 +110,17 @@ namespace EmailDebtNotificationWorker
 						.AddHostedService<EmailClaimLettersWorker>()
 						.ConfigureZabbixSenderFromDataBase(nameof(EmailClaimLettersWorker));
 
-					services
-						.Configure<EmailClosingDeliveriesOptions>(hostContext.Configuration.GetSection(EmailClosingDeliveriesOptions.SectionName))												
-						.AddScoped<IClosingDeliveriesService, ClosingDeliveriesService>()
-						.AddScoped<IOrderWithoutShipmentForDebtPrepareService, OrderWithoutShipmentForDebtPrepareService>()						
-						.AddScoped<IClosingDeliveriesNotificationService, ClosingDeliveriesNotificationService>()
-						.AddScoped<IClientClosingDeliveriesEmailBuilder, ClientClosingDeliveriesEmailBuilder>()
-						.AddScoped<ISummaryClosingDeliveriesEmailBuilder, SummaryClosingDeliveriesEmailBuilder>()
-						.AddScoped<IEmailSender, RabbitMqEmailSender>()
-						.AddHostedService<EmailClosingDeliveriesWorker>()
-						.ConfigureZabbixSenderFromDataBase(nameof(EmailClosingDeliveriesWorker))
-						;
+					// Пока отключаем до реализации других задач
+					//services
+					//	.Configure<EmailClosingDeliveriesOptions>(hostContext.Configuration.GetSection(EmailClosingDeliveriesOptions.SectionName))
+					//	.AddScoped<IClosingDeliveriesService, ClosingDeliveriesService>()
+					//	.AddScoped<IOrderWithoutShipmentForDebtPreparer, OrderWithoutShipmentForDebtPreparer>()
+					//	.AddScoped<IClosingDeliveriesNotificationSender, ClosingDeliveriesNotificationSender>()
+					//	.AddScoped<IClientClosingDeliveriesEmailPreparer, ClientClosingDeliveriesEmailPreparer>()
+					//	.AddScoped<ISummaryClosingDeliveriesEmailPreparer, SummaryClosingDeliveriesEmailPreparer>()
+					//	.AddHostedService<EmailClosingDeliveriesWorker>()
+					//	.ConfigureZabbixSenderFromDataBase(nameof(EmailClosingDeliveriesWorker))
+					//	;
 				});
 	}
 }

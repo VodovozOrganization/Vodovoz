@@ -1,5 +1,5 @@
-﻿using EmailDebtNotificationWorker.Builders;
-using EmailDebtNotificationWorker.DTO;
+﻿using EmailDebtNotificationWorker.DTO;
+using EmailDebtNotificationWorker.Repositories;
 using Mailjet.Api.Abstractions;
 using QS.DomainModel.UoW;
 using RabbitMQ.MailSending;
@@ -12,18 +12,22 @@ using System.Threading.Tasks;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Settings.Orders;
 
-namespace EmailDebtNotificationWorker.Services
+namespace EmailDebtNotificationWorker.Services.ClosingDeliveries
 {
-	public class SummaryClosingDeliveriesEmailBuilder : ISummaryClosingDeliveriesEmailBuilder
+	public class SummaryClosingDeliveriesEmailPreparer : ISummaryClosingDeliveriesEmailPreparer
 	{
 		private readonly IClosingDeliveriesSettings _closingDeliveriesSettings;
+		private readonly IDatabaseRepository _databaseRepository;
 
-		public SummaryClosingDeliveriesEmailBuilder(IClosingDeliveriesSettings closingDeliveriesSettings)
+		public SummaryClosingDeliveriesEmailPreparer(
+			IClosingDeliveriesSettings closingDeliveriesSettings,
+			IDatabaseRepository databaseRepository)
 		{
 			_closingDeliveriesSettings = closingDeliveriesSettings ?? throw new ArgumentNullException(nameof(closingDeliveriesSettings));
+			_databaseRepository = databaseRepository ?? throw new ArgumentNullException(nameof(databaseRepository));
 		}
 
-		public async Task<IReadOnlyList<SendEmailMessage>> Build(
+		public async Task<IReadOnlyList<SendEmailMessage>> PrepareSummaryEmails(
 			IUnitOfWork uow,
 			IReadOnlyCollection<OrderWithoutShipmentForDebtNotificationInfo> notificationInfos,
 			CancellationToken cancellationToken)
@@ -49,7 +53,7 @@ namespace EmailDebtNotificationWorker.Services
 
 			var body = BuildBody(notificationInfos);
 
-			var instanceId = GetCurrentDatabaseId(uow);
+			var instanceId = _databaseRepository.GetCurrentDatabaseId(uow);			
 
 			foreach(var emailToSentContact in emailToSentContacts)
 			{
@@ -94,17 +98,6 @@ namespace EmailDebtNotificationWorker.Services
 			}
 
 			return sendEmailMessages;
-		}
-
-		private static int GetCurrentDatabaseId(IUnitOfWork uow)
-		{
-			var instanceId = Convert.ToInt32(
-				uow.Session
-				.CreateSQLQuery("SELECT GET_CURRENT_DATABASE_ID()")
-				.List<object>()
-				.FirstOrDefault());
-
-			return instanceId;
 		}
 
 		private string BuildBody(IReadOnlyCollection<OrderWithoutShipmentForDebtNotificationInfo> notificationInfos)
