@@ -189,7 +189,7 @@ namespace Vodovoz.Domain.Orders
 			}
 			else if(DiscountReasons.Any())
 			{
-				RecalculateTotalDiscountFromReasons();
+				RecalculateTotalDiscount();
 			}
 			else
 			{
@@ -214,22 +214,26 @@ namespace Vodovoz.Domain.Orders
 			return true;
 		}
 
-		private void RecalculateTotalDiscountFromReasons()
+		private void RecalculateTotalDiscount(bool isUpdateFromDiscountReasons = false)
 		{
 			var currentPrice = CurrentRawPrice;
-			var totalDiscountMoney = CalculateTotalDiscountInMoneyFromAddedReasons();
 
-			DiscountMoney =
-				DiscountReasons.All(x => x.ValueType == DiscountUnits.money)
-				? DiscountReasons.Sum(x => x.Value)
-				: totalDiscountMoney;
+			if(isUpdateFromDiscountReasons)
+			{
+				var totalDiscountMoney = CalculateTotalDiscountInMoneyFromAddedReasons();
 
-			Discount =
-				DiscountReasons.All(x => x.ValueType == DiscountUnits.percent)
-				? DiscountReasons.Sum(x => x.Value)
-				: currentPrice > 0 ? (100 * DiscountMoney) / currentPrice : 0;
+				DiscountMoney =
+					DiscountReasons.All(x => x.ValueType == DiscountUnits.money)
+					? DiscountReasons.Sum(x => x.Value)
+					: totalDiscountMoney;
 
-			IsDiscountInMoney = DiscountReasons.Any(x => x.ValueType == DiscountUnits.money);
+				Discount =
+					DiscountReasons.All(x => x.ValueType == DiscountUnits.percent)
+					? DiscountReasons.Sum(x => x.Value)
+					: currentPrice > 0 ? (100 * DiscountMoney) / currentPrice : 0;
+
+				IsDiscountInMoney = DiscountReasons.Any(x => x.ValueType == DiscountUnits.money);
+			}
 
 			if(DiscountMoney > currentPrice)
 			{
@@ -343,7 +347,7 @@ namespace Vodovoz.Domain.Orders
 				DiscountReasons.Remove(reason);
 			}
 
-			RecalculateTotalDiscountFromReasons();
+			RecalculateTotalDiscount(true);
 		}
 
 		public virtual void SetNomenclature(Nomenclature nomenclature)
@@ -809,7 +813,7 @@ namespace Vodovoz.Domain.Orders
 				DiscountReasons.Add(discountReason);
 			}
 
-			RecalculateTotalDiscountFromReasons();
+			RecalculateTotalDiscount(true);
 		}
 
 		public virtual bool IsDiscountValueCanBeAdded(bool isDiscountInMoney, decimal discount)
