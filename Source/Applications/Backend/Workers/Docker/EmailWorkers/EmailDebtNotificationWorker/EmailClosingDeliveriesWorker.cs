@@ -11,6 +11,7 @@ using Vodovoz.Zabbix.Sender;
 using VodovozBusiness.Services.Orders;
 using System.Linq;
 using EmailDebtNotificationWorker.Services.ClosingDeliveries;
+using QS.Services;
 
 namespace EmailDebtNotificationWorker
 {
@@ -25,7 +26,8 @@ namespace EmailDebtNotificationWorker
 			ILogger<EmailClosingDeliveriesWorker> logger,
 			IOptions<EmailClosingDeliveriesOptions> options,
 			IServiceScopeFactory scopeFactory,
-			IZabbixSender zabbixSender)
+			IZabbixSender zabbixSender,
+			IUserService userService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_options = options ?? throw new ArgumentNullException(nameof(options));

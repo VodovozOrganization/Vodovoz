@@ -1,4 +1,4 @@
-﻿using Autofac.Extensions.DependencyInjection;
+using Autofac.Extensions.DependencyInjection;
 using BitrixApi.Library.Services;
 using EmailDebtNotificationWorker.Options;
 using EmailDebtNotificationWorker.Repositories;
@@ -27,6 +27,7 @@ using Vodovoz.Settings.Database.Counterparty;
 using Vodovoz.Zabbix.Sender;
 using VodovozBusiness.Services.Orders;
 using AssemblyFinder = Vodovoz.Data.NHibernate.AssemblyFinder;
+using QS.HistoryLog;
 
 namespace EmailDebtNotificationWorker
 {
@@ -80,6 +81,7 @@ namespace EmailDebtNotificationWorker
 					services.AddTrackedUoW();
 					services.ConfigureZabbixSenderFromDataBase(nameof(EmailDebtNotificationWorker));
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
+					services.AddStaticHistoryTracker();
 
 					services
 						.AddMassTransit(busConf =>
