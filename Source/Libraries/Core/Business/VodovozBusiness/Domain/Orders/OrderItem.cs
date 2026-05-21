@@ -215,27 +215,29 @@ namespace Vodovoz.Domain.Orders
 			var currentPrice = CurrentRawPrice;
 			var totalDiscountMoney = CalculateTotalDiscountInMoneyFromAddedReasons();
 
-			DiscountMoney =
+			var discountMoney =
 				DiscountReasons.All(x => x.ValueType == DiscountUnits.money)
 				? DiscountReasons.Sum(x => x.Value)
 				: totalDiscountMoney;
 
-			Discount =
+			var discount =
 				DiscountReasons.All(x => x.ValueType == DiscountUnits.percent)
 				? DiscountReasons.Sum(x => x.Value)
 				: currentPrice > 0 ? (100 * DiscountMoney) / currentPrice : 0;
 
-			IsDiscountInMoney = DiscountReasons.Any(x => x.ValueType == DiscountUnits.money);
+			var isDiscountInMoney = DiscountReasons.Any(x => x.ValueType == DiscountUnits.money);
 
-			if(DiscountMoney > currentPrice)
+			if(discountMoney > currentPrice)
 			{
-				DiscountMoney = currentPrice;
+				discountMoney = currentPrice;
 			}
 
-			if(Discount > 100)
+			if(discount > 100)
 			{
-				Discount = 100;
+				discount = 100;
 			}
+
+			SetAtOnceDiscountValues(discountMoney, discount, isDiscountInMoney);
 
 			RecalculateVAT();
 		}

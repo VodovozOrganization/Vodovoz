@@ -301,5 +301,23 @@ namespace Vodovoz.Core.Domain.Orders
 				IncludeNDS = Math.Round(ActualSum * ValueAddedTax.Value / (1 + ValueAddedTax.Value), 2);
 			}
 		}
+
+		/// <summary>
+		/// Устанавливает значения скидки строки заказа без вызова событий изменения свойств. 
+		/// События вызываются только после установки всех значений
+		/// </summary>
+		/// <param name="discountMoney">Скидка в деньгах</param>
+		/// <param name="discountPercent">Скидка в процентах</param>
+		/// <param name="isDiscountInMoney">Флаг, указывающий, что скидка расчитывается в деньгах</param>
+		public virtual void SetAtOnceDiscountValues(decimal discountMoney, decimal discountPercent, bool isDiscountInMoney)
+		{
+			_discountMoney = discountMoney;
+			_discount = discountPercent;
+			_isDiscountInMoney = isDiscountInMoney;
+
+			OnPropertyChanged(nameof(DiscountMoney));
+			OnPropertyChanged(nameof(Discount));
+			OnPropertyChanged(nameof(IsDiscountInMoney));
+		}
 	}
 }
