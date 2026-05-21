@@ -234,6 +234,18 @@ namespace Vodovoz.Domain.Orders
 
 				IsDiscountInMoney = DiscountReasons.Any(x => x.ValueType == DiscountUnits.money);
 			}
+			else
+			{
+				DiscountMoney = 
+					IsDiscountInMoney
+					? DiscountMoney
+					: currentPrice > 0 ? (currentPrice * Discount) / 100 : 0;
+
+				Discount =
+					IsDiscountInMoney
+					? currentPrice > 0 ? (100 * DiscountMoney) / currentPrice : 0
+					: Discount;
+			}
 
 			if(DiscountMoney > currentPrice)
 			{
