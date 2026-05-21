@@ -187,10 +187,6 @@ namespace Vodovoz.Domain.Orders
 					ClearDiscount();
 				}
 			}
-			else if(DiscountReasons.Any())
-			{
-				RecalculateTotalDiscountFromReasons();
-			}
 			else
 			{
 				var discount = IsDiscountInMoney
