@@ -236,15 +236,8 @@ namespace Vodovoz.Domain.Orders
 			}
 			else
 			{
-				DiscountMoney = 
-					IsDiscountInMoney
-					? DiscountMoney
-					: currentPrice > 0 ? (currentPrice * Discount) / 100 : 0;
-
-				Discount =
-					IsDiscountInMoney
-					? currentPrice > 0 ? (100 * DiscountMoney) / currentPrice : 0
-					: Discount;
+				var discount = IsDiscountInMoney ? DiscountMoney : Discount;
+				CalculateAndSetDiscount(discount);
 			}
 
 			if(DiscountMoney > currentPrice)
