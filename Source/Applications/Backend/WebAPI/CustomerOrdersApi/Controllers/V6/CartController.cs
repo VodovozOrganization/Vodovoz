@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.Mime;
 using CustomerOrders.Contracts.V5.Carts;
-using CustomerOrdersApi.Library.V5.Services;
+using CustomerOrdersApi.Library.V6.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
