@@ -1,5 +1,4 @@
 ﻿using EmailDebtNotificationWorker.Options;
-using EmailDebtNotificationWorker.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -11,6 +10,7 @@ using System.Threading.Tasks;
 using Vodovoz.Zabbix.Sender;
 using VodovozBusiness.Services.Orders;
 using System.Linq;
+using EmailDebtNotificationWorker.Services.ClosingDeliveries;
 
 namespace EmailDebtNotificationWorker
 {
@@ -56,9 +56,9 @@ namespace EmailDebtNotificationWorker
 				using var scope = _scopeFactory.CreateScope();
 
 				var closingDeliveriesService = scope.ServiceProvider.GetRequiredService<IClosingDeliveriesService>();				
-				var orderWithoutShipmentForDebtService = scope.ServiceProvider.GetRequiredService<IOrderWithoutShipmentForDebtPrepareService>();
+				var orderWithoutShipmentForDebtPreparer = scope.ServiceProvider.GetRequiredService<IOrderWithoutShipmentForDebtPreparer>();
 				var unitOfWorkFactory = scope.ServiceProvider.GetRequiredService<IUnitOfWorkFactory>();
-				var closingDeliveriesNotificationService = scope.ServiceProvider.GetRequiredService<IClosingDeliveriesNotificationService>();
+				var closingDeliveriesNotificationSender = scope.ServiceProvider.GetRequiredService<IClosingDeliveriesNotificationSender>();
 
 				using var unitOfWork = unitOfWorkFactory.CreateWithoutRoot(nameof(EmailClosingDeliveriesWorker));
 
@@ -84,13 +84,13 @@ namespace EmailDebtNotificationWorker
 
 				_logger.LogInformation("Выбрано {CounterpartiesCount} контрагентов для отправки почты. Подготовка писем для отправки.", counterpartiesForClosingDeliveriesMailing.Count);				
 
-				var notificationInfos = await orderWithoutShipmentForDebtService.PrepareInfo(unitOfWork, counterpartiesForClosingDeliveriesMailing, stoppingToken);				
+				var notificationInfos = await orderWithoutShipmentForDebtPreparer.PrepareInfo(unitOfWork, counterpartiesForClosingDeliveriesMailing, stoppingToken);				
 
 				await unitOfWork.CommitAsync(stoppingToken);
 
 				_logger.LogInformation("Отправка писем контрагентам.");
 
-				await closingDeliveriesNotificationService.SendNotifications(unitOfWork, notificationInfos, stoppingToken);
+				await closingDeliveriesNotificationSender.SendNotifications(unitOfWork, notificationInfos, stoppingToken);
 
 				await unitOfWork.CommitAsync(stoppingToken);				
 
