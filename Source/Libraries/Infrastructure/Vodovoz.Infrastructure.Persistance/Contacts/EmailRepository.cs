@@ -562,7 +562,7 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 			var emailSentTodaySubQuery = QueryOver.Of(() => counterpartyEmailAlias)
 				.JoinAlias(() => counterpartyEmailAlias.StoredEmail, () => storedEmailAlias)
 				.Where(() => counterpartyEmailAlias.Counterparty.Id == counterpartyAlias.Id)
-				.Where(() => counterpartyEmailAlias.Type == CounterpartyEmailType.GeneralBillDocument)
+				.Where(() => counterpartyEmailAlias.Type == CounterpartyEmailType.InformationLetter)
 				.Where(() => storedEmailAlias.SendDate < today.AddDays(1))
 				.Select(Projections.Property(() => counterpartyEmailAlias.Id));
 
@@ -609,6 +609,7 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				.Where(() => orderAlias.OrderStatus.IsIn(deliveredOrderStatuses))
 				.Where(() => counterpartyAlias.PersonType == PersonType.legal)
 				.Where(() => counterpartyAlias.CloseDeliveryDebtType == null)
+				.Where(() => organizationAlias.EmailForInformationLetters != null)
 				.WhereNot(() => organizationAlias.DisableDebtMailing)
 				.WhereNot(() => counterpartyAlias.DisableDebtMailing)
 				.WhereNot(() => counterpartyAlias.IsArchive)
@@ -646,6 +647,7 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				.Where(() => orderAlias.DeliveryDate != null)
 				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
 				.Where(() => orderAlias.OrderStatus.IsIn(deliveredOrderStatuses))
+				.Where(() => organizationAlias.EmailForInformationLetters != null)
 				.WhereNot(() => organizationAlias.DisableDebtMailing)
 				.Where(Restrictions.Le(dateAddExpression, currentDate))
 				.Where(Restrictions.Gt(Projections.SubQuery(orderItemsSumSubquery), 0m))

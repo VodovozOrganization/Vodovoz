@@ -20,21 +20,10 @@ namespace VodovozBusiness.Domain.StoredEmails
 		PrepositionalPlural = "претензионных письмах")]
 	public class LetterOfClaimEmail : CounterpartyEmail
 	{
-		private int _organizationId;
 		/// <inheritdoc />
 		public override IEmailableDocument EmailableDocument { get; }
 
 		/// <inheritdoc />
 		public override CounterpartyEmailType Type => CounterpartyEmailType.LetterOfClaim;
-
-		/// <summary>
-		/// Организация, от которой будет отправлено письмо
-		/// </summary>
-		[Display(Name = "Организация")]
-		public virtual int OrganizationId
-		{
-			get => _organizationId;
-			set => SetField(ref _organizationId, value);
-		}
 	}
 }

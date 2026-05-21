@@ -39,6 +39,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		private string _email;
 		private string _emailForMailing;
 		private string _closingDeliveriesNotificationEmailFrom;
+		private string _emailForInformationLetters;
 		private bool _disableClosingDeliveriesMailing;
 		private int? _cashBoxId;
 		private bool _withoutVAT;
@@ -189,6 +190,16 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _closingDeliveriesNotificationEmailFrom;
 			set => SetField(ref _closingDeliveriesNotificationEmailFrom, value);
+		}
+
+		/// <summary>
+		/// E-mail для рассылки информационных писем
+		/// </summary>
+		[Display(Name = "E-mail для рассылки информационных писем")]
+		public virtual string EmailForInformationLetters
+		{
+			get => _emailForInformationLetters;
+			set => SetField(ref _emailForInformationLetters, value);
 		}
 
 		/// <summary>

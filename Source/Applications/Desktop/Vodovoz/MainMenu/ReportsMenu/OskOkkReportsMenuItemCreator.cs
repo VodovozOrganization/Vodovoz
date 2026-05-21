@@ -52,7 +52,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 			menu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет по забору тары", OnReturnedTareReportPressed));
 			menu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет о событиях рассылки", OnBulkEmailEventsReportPressed));
 			menu.Add(_concreteMenuItemCreator.CreateMenuItem("Ежедневный отчет ОКС", OnOksDailyReportPressed));
-			menu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет о рассылке писем о задолженности", OnBulkDebtMailingReportPressed));
+			menu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет по рассылкам писем", OnBulkDebtMailingReportPressed));
 
 			return oskOkkReportsMenuItem;
 		}

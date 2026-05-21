@@ -14,9 +14,11 @@ using Vodovoz.Core.Data.Repositories.Document;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Settings.Common;
 
 namespace EmailDebtNotificationWorker.Services
@@ -30,6 +32,7 @@ namespace EmailDebtNotificationWorker.Services
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IEmailRepository _emailRepository;
 		private readonly IDocumentOrganizationCounterRepository _documentOrganizationCounterRepository;
+		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IEmailSettings _emailSettings;
 		private readonly IEmailAttachmentsCreateService _emailAttachmentsCreateService;
 		private readonly IBus _bus;
@@ -41,6 +44,7 @@ namespace EmailDebtNotificationWorker.Services
 			IUnitOfWorkFactory uowFactory,
 			IEmailRepository emailRepository,
 			IDocumentOrganizationCounterRepository documentOrganizationCounterRepository,
+			IEmployeeRepository employeeRepository,
 			IEmailSettings emailSettings,
 			IEmailAttachmentsCreateService emailAttachmentsCreateService,
 			IBus bus
@@ -50,6 +54,7 @@ namespace EmailDebtNotificationWorker.Services
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
 			_documentOrganizationCounterRepository = documentOrganizationCounterRepository ?? throw new ArgumentNullException(nameof(documentOrganizationCounterRepository));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_emailAttachmentsCreateService = emailAttachmentsCreateService ?? throw new ArgumentNullException(nameof(emailAttachmentsCreateService));
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
@@ -119,7 +124,7 @@ namespace EmailDebtNotificationWorker.Services
 				throw new ArgumentNullException(nameof(orders));
 			}
 
-			var emailSubject = "У вас имеется просроченная дебиторская задолженность!";
+			var emailSubject = $"{client.FullName} ({client.INN}). У вас имеется просроченная задолженность!";
 
 			var emailAddress = SelectEmailForDebtNotification(client);
 			if(string.IsNullOrWhiteSpace(emailAddress))
@@ -143,7 +148,21 @@ namespace EmailDebtNotificationWorker.Services
 
 			await uow.SaveAsync(storedEmail, cancellationToken: cancellationToken);
 
-			var bulkEmail = new GeneralBillDocumentEmail
+			var totalDebt = orders.Sum(o => o.OrderSum);
+
+			var author = _employeeRepository.GetEmployeeForCurrentUser(uow);
+
+			var orderWithoutShipmentForDebt = new OrderWithoutShipmentForDebt
+			{
+				Client = client,
+				Organization = organization,
+				DebtSum = totalDebt,
+				Author = author
+			};
+
+			await uow.SaveAsync(orderWithoutShipmentForDebt, cancellationToken: cancellationToken);
+
+			var bulkEmail = new InformationLetterEmail
 			{
 				StoredEmail = storedEmail,
 				Counterparty = client
@@ -161,12 +180,13 @@ namespace EmailDebtNotificationWorker.Services
 			var unsubscribeUrl = GetUnsubscribeLink(storedEmail.Guid.Value);
 			var messageText = GenerateDebtEmailBody(client, orders, documentNumbersDict, unsubscribeUrl);
 
-		await PublishDebtEmailMessageAsync(
+			await PublishDebtEmailMessageAsync(
 				uow,
 				storedEmail,
 				client,
 				organization,
 				orders,
+				orderWithoutShipmentForDebt,
 				emailAddress,
 				emailSubject,
 				messageText,
@@ -239,6 +259,7 @@ namespace EmailDebtNotificationWorker.Services
 			Counterparty client,
 			Organization organization,
 			IEnumerable<Order> orders,
+			OrderWithoutShipmentForDebt orderWithoutShipmentForDebt,
 			string emailAddress,
 			string emailSubject,
 			string messageText,
@@ -251,6 +272,7 @@ namespace EmailDebtNotificationWorker.Services
 				client,
 				organization,
 				orders,
+				orderWithoutShipmentForDebt,
 				emailAddress,
 				emailSubject,
 				messageText);
@@ -264,6 +286,7 @@ namespace EmailDebtNotificationWorker.Services
 			Counterparty client,
 			Organization organization,
 			IEnumerable<Order> orders,
+			OrderWithoutShipmentForDebt orderWithoutShipmentForDebt,
 			string emailAddress,
 			string emailSubject,
 			string messageText
@@ -275,24 +298,48 @@ namespace EmailDebtNotificationWorker.Services
 				? GetUnsubscribeLink(storedEmail.Guid.Value)
 				: string.Empty;
 
-			var attachment = _emailAttachmentsCreateService.CreateGeneralBillAttachments(
+			var today = DateTime.Today;
+			var yesterday = today.AddDays(-1);
+
+			DateTime startDateForRevision;
+			if(orders != null && orders.Any())
+			{
+				var earliestDeliveryDate = orders.Min(o => o.DeliveryDate ?? today);
+				startDateForRevision = new DateTime(earliestDeliveryDate.Year, 1, 1);
+			}
+			else
+			{
+				startDateForRevision = new DateTime(today.Year, 1, 1);
+			}
+
+			var endDateForRevision = yesterday;
+
+			var orderWithoutShipmentAttachments = _emailAttachmentsCreateService.CreateOrderWithoutShipmentForDebtAttachments(
+				orderWithoutShipmentForDebt);
+
+			var revisionAttachments = _emailAttachmentsCreateService.CreateRevisionAttachments(
 				client.Id,
 				organization.Id,
-				orders.Select(x => x.Id));
+				startDateForRevision,
+				endDateForRevision);
+
+
+			var allAttachments = orderWithoutShipmentAttachments.Concat(revisionAttachments).ToList();
 
 			var sendEmailMessage = new SendEmailMessage()
 			{
 				From = new EmailContact
 				{
 					Name = organization.FullName,
-					Email = organization.EmailForMailing,
+					Email = organization.EmailForInformationLetters,
 				},
 				To = new List<EmailContact>
 				{
 					new()
 					{
 						Name = client.FullName,
-						Email = emailAddress
+						//Email = emailAddress
+						Email = "work.semen.sd@gmail.com"
 					}
 				},
 				Subject = emailSubject,
@@ -304,7 +351,7 @@ namespace EmailDebtNotificationWorker.Services
 					Trackable = true,
 					InstanceId = instanceId
 				},
-				Attachments = attachment.ToList(),
+				Attachments = allAttachments,
 				Headers = new Dictionary<string, string>
 				{
 					{ "List-Unsubscribe", unsubscribeUrl }

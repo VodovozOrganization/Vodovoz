@@ -1,7 +1,5 @@
-﻿using FluentNHibernate.Data;
-using QS.Views.GtkUI;
+﻿using QS.Views.GtkUI;
 using QS.Widgets;
-using ReactiveUI.Validation.Extensions;
 using System;
 using System.ComponentModel;
 using Vodovoz.Core.Domain.Clients;
@@ -59,6 +57,11 @@ namespace Vodovoz.Organizations
 
 			ycheckbuttonDisableClosingDeliveriesMailing.Binding
 				.AddBinding(ViewModel.Entity, e => e.DisableClosingDeliveriesMailing, w => w.Active)
+				.InitializeFromSource();
+
+			validatedentryEmailForInformationLetters.CustomRegex = ViewModel.RegexForEmailForMailing;
+			validatedentryEmailForInformationLetters.Binding
+				.AddBinding(ViewModel.Entity, e => e.EmailForInformationLetters, w => w.Text)
 				.InitializeFromSource();
 
 			validatedentryInn.ValidationMode = ValidationType.Numeric;
