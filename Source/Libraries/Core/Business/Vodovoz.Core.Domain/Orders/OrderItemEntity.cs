@@ -308,7 +308,7 @@ namespace Vodovoz.Core.Domain.Orders
 		/// </summary>
 		/// <param name="discountMoney">Скидка в деньгах</param>
 		/// <param name="discountPercent">Скидка в процентах</param>
-		/// <param name="isDiscountInMoney">Флаг, указывающий, что скидка расчитывается в деньгах</param>
+		/// <param name="isDiscountInMoney">Флаг, указывающий, что скидка рассчитывается в деньгах</param>
 		public virtual void SetDiscountValuesBatch(decimal discountMoney, decimal discountPercent, bool isDiscountInMoney)
 		{
 			var isDiscountMoneyChanged = _discountMoney != discountMoney;
