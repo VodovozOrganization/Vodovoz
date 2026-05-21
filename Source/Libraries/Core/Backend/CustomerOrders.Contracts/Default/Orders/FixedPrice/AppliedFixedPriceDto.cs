@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using CustomerOrders.Contracts.Interfaces;
 
 namespace CustomerOrders.Contracts.Default.Orders.FixedPrice
@@ -8,6 +8,6 @@ namespace CustomerOrders.Contracts.Default.Orders.FixedPrice
 		/// <summary>
 		/// Список товаров с фиксой
 		/// </summary>
-		public IEnumerable<IOnlineOrderedProductWithFixedPrice> OnlineOrderItems { get; set; }
+		public IEnumerable<IOnlineOrderedProductWithFixedPriceV4> OnlineOrderItems { get; set; }
 	}
 }

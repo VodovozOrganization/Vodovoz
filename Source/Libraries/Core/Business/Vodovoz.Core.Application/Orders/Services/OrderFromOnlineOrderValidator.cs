@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Core.Infrastructure;
@@ -11,19 +11,20 @@ using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories.Orders;
+using Vodovoz.Models.Orders;
 using Vodovoz.Services.Orders;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
-using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Services.Orders;
+using VodovozBusiness.Services.Orders.V5;
 
 namespace Vodovoz.Core.Application.Orders.Services
 {
 	public class OrderFromOnlineOrderValidator : IOrderFromOnlineOrderValidator
 	{
-		private readonly IGoodsPriceCalculator _priceCalculator;
+		private readonly IGoodsPriceCalculatorV5 _priceCalculator;
 		private readonly IOnlineOrderDeliveryPriceGetter _deliveryPriceGetter;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IClientDeliveryPointsChecker _clientDeliveryPointsChecker;
@@ -37,7 +38,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private List<ICheckOnlineOrderSum> _calculatedOrderItemPrices;
 
 		public OrderFromOnlineOrderValidator(
-			IGoodsPriceCalculator goodsPriceCalculator,
+			IGoodsPriceCalculatorV5 goodsPriceCalculator,
 			IOnlineOrderDeliveryPriceGetter deliveryPriceGetter,
 			INomenclatureSettings nomenclatureSettings,
 			IClientDeliveryPointsChecker clientDeliveryPointsChecker,
@@ -333,11 +334,12 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 		private void ValidatePrice(OnlineOrderItem onlineOrderItem, CheckOnlineOrderSum checkOnlineOrderSum)
 		{
-			var price = _priceCalculator.CalculateItemPrice(
+			var price = _priceCalculator.CalculatePrice(
 				_onlineOrder.OnlineOrderItems,
-				_onlineOrder.DeliveryPoint,
 				_onlineOrder.Counterparty,
-				onlineOrderItem,
+				_onlineOrder.DeliveryPoint,
+				onlineOrderItem.Nomenclature,
+				onlineOrderItem.PromoSet != null,
 				false);
 
 			onlineOrderItem.NomenclaturePrice = price;

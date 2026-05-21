@@ -8,6 +8,7 @@ using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Counterparties;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -184,6 +185,17 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				select deliveryPoint.Id;
 
 			return query.Any();
+		}
+
+		public District GetDistrictDeliveryPoint(IUnitOfWork uow, int deliveryPointId)
+		{
+			return (
+					from deliveryPoint in uow.Session.Query<DeliveryPoint>()
+					join district in uow.Session.Query<District>()
+						on deliveryPoint.District.Id equals district.Id
+					where deliveryPoint.Id == deliveryPointId
+					select district)
+				.FirstOrDefault();
 		}
 
 		private string GetBuildingNumber(string building)

@@ -2,12 +2,14 @@
 	<toolbar name='toolbarSub'>
 		<toolitem name='ActionAddOrder' action='ActionAddOrder'/>
 		<toolitem name='ActionOrdersTable' action='ActionOrdersTable'/>
-		<toolitem name='OnlineOrdersJournalAction' action='OnlineOrdersJournalAction'/>
 		<toolitem name='CounterpartiesJournalAction' action='CounterpartiesJournalAction'/>
         <toolitem name='ActionWarehouseStock' action='ActionWarehouseStock'/>
         <toolitem name='ActionDeliveryPrice' action='ActionDeliveryPrice'/>
         <toolitem name='ActionUndeliveredOrders' action='ActionUndeliveredOrders'/>
 		<toolitem name='ActionCashReceiptsJournal' action='ActionCashReceiptsJournal'/>
 		<toolitem name='ActionOrdersWithReceiptJournal' action='ActionOrdersWithReceiptJournal'/>
+		<toolitem name='OnlineOrdersJournalAction' action='OnlineOrdersJournalAction'/>
+		<toolitem name='ExternalCounterpartiesMatchingJournalAction' action='ExternalCounterpartiesMatchingJournalAction'/>
+		<toolitem name='OnlineOrderTemplatesJournalAction' action='OnlineOrderTemplatesJournalAction'/>
 	</toolbar>
 </ui>

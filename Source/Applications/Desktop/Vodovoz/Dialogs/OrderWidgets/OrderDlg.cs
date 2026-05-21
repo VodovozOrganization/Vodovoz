@@ -149,7 +149,6 @@ using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Client;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.EntityRepositories.Edo;
-using VodovozBusiness.Models.Orders;
 using VodovozBusiness.Nodes;
 using VodovozBusiness.NotificationSenders;
 using VodovozBusiness.Services;

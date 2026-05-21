@@ -122,6 +122,20 @@ namespace Vodovoz.Views.Orders
 				.AddBinding(ViewModel.Entity, e => e.IsNeedConfirmationByCall, w => w.Active)
 				.InitializeFromSource();
 			
+			chkIsFromTemplate.Sensitive = false;
+			chkIsFromTemplate.Binding
+				.AddBinding(ViewModel, vm => vm.IsFromTemplate, w => w.Active)
+				.InitializeFromSource();
+			
+			lblTemplateIdTitle.Binding
+				.AddBinding(ViewModel, vm => vm.IsFromTemplate, w => w.Visible)
+				.InitializeFromSource();
+			
+			lblTemplateId.Binding
+				.AddBinding(ViewModel, vm => vm.IsFromTemplate, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.TemplateIdString, w => w.LabelProp)
+				.InitializeFromSource();
+			
 			lblSelfDeliveryGeoGroupTitle.Binding
 				.AddBinding(ViewModel, vm => vm.CanShowSelfDeliveryGeoGroup, w => w.Visible)
 				.InitializeFromSource();

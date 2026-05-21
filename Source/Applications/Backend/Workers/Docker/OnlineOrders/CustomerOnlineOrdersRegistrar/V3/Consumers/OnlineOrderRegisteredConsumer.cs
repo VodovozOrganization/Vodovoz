@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using CustomerOnlineOrdersRegistrar.V3.Factories;
 using CustomerOrders.Contracts.Default.Orders;
@@ -35,18 +35,22 @@ namespace CustomerOnlineOrdersRegistrar.V3.Consumers
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
 			IRouteListService routeListService,
 			IOrderFromOnlineOrderValidator onlineOrderValidator,
+			IOnlineOrderTemplateFromOnlineOrderValidator onlineOrderTemplateValidator,
 			IBus bus)
 				: base(
 					logger,
 					unitOfWorkFactory,
-					onlineOrderFactory,
+					onlineOrderFactoryV4,
+					onlineOrderFactoryV5,
 					deliveryRulesSettings,
 					discountReasonSettings,
 					onlineOrderRepository,
 					onlineOrderCancellationReasonSettings,
 					orderService,
 					routeListService,
-					onlineOrderValidator)
+					onlineOrderValidator,
+					onlineOrderTemplateValidator
+				)
 		{
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 		}
@@ -67,7 +71,7 @@ namespace CustomerOnlineOrdersRegistrar.V3.Consumers
 			
 			try
 			{
-				await TryRegisterOnlineOrderAsync(message, context.CancellationToken);
+				await TryRegisterOnlineOrderV4Async(message, context.CancellationToken);
 				return;
 			}
 			catch(Exception e)

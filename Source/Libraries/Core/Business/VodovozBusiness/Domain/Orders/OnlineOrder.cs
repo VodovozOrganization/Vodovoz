@@ -35,7 +35,7 @@ namespace Vodovoz.Domain.Orders
 		private Counterparty _counterparty;
 		private int? _deliveryPointId;
 		private DeliveryPoint _deliveryPoint;
-		private Guid _externalOrderId;
+		private Guid? _externalOrderId;
 		private Guid? _externalCounterpartyId;
 		private bool _isSelfDelivery;
 		private int? _selfDeliveryGeoGroupId;
@@ -61,6 +61,7 @@ namespace Vodovoz.Domain.Orders
 		private Employee _employeeWorkWith;
 		private bool? _isDeliveryPointNotBelongCounterparty;
 		private OnlineOrderCancellationReason _onlineOrderCancellationReason;
+		private int? _templateId;
 		private IList<Order> _orders = new List<Order>();
 		private IList<OnlineOrderItem> _onlineOrderItems = new List<OnlineOrderItem>();
 		private IList<OnlineFreeRentPackage> _onlineRentPackages = new List<OnlineFreeRentPackage>();
@@ -93,7 +94,7 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		[Display(Name = "Номер заказа из ИПЗ")]
-		public virtual Guid ExternalOrderId
+		public virtual Guid? ExternalOrderId
 		{
 			get => _externalOrderId;
 			set => SetField(ref _externalOrderId, value);
@@ -356,6 +357,16 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual IEnumerable<IGoods> Goods => OnlineOrderItems;
 		
+		/// <summary>
+		/// Идентификатор шаблона
+		/// </summary>
+		[Display(Name = "Идентификатор шаблона")]
+		public virtual int? TemplateId
+		{
+			get => _templateId;
+			set => SetField(ref _templateId, value);
+		}
+
 		/// <summary>
 		/// Заказ не оплачен онлайн и время на оплату не истекло
 		/// </summary>

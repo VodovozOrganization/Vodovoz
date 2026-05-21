@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using CustomerOrders.Contracts;
@@ -17,18 +17,18 @@ namespace CustomerOrdersApi.Library.V4.Services
 {
 	public class CustomerOrderFixedPriceServiceV4 : SignatureService, ICustomerOrderFixedPriceServiceV4
 	{
-		private readonly ILogger<CustomerOrdersServiceV4> _logger;
+		private readonly ILogger<CustomerOrderFixedPriceServiceV4> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ISignatureManager _signatureManager;
-		private readonly IOnlineOrderFixedPriceHandler _onlineOrderFixedPriceHandler;
+		private readonly IOnlineOrderFixedPriceHandlerV4 _onlineOrderFixedPriceHandler;
 		private readonly SignatureOptions _signatureOptions;
 
 		public CustomerOrderFixedPriceServiceV4(
-			ILogger<CustomerOrdersServiceV4> logger,
+			ILogger<CustomerOrderFixedPriceServiceV4> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ISignatureManager signatureManager,
 			IOptions<SignatureOptions> signatureOptions,
-			IOnlineOrderFixedPriceHandler onlineOrderFixedPriceHandler)
+			IOnlineOrderFixedPriceHandlerV4 onlineOrderFixedPriceHandler)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -56,11 +56,11 @@ namespace CustomerOrdersApi.Library.V4.Services
 				out generatedSignature);
 		}
 		
-		public Result<IEnumerable<IOnlineOrderedProductWithFixedPrice>> ApplyFixedPriceToOnlineOrder(ApplyFixedPriceDto applyFixedPriceDto)
+		public Result<IEnumerable<IOnlineOrderedProductWithFixedPriceV4>> ApplyFixedPriceToOnlineOrder(ApplyFixedPriceDto applyFixedPriceDto)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot($"Применение фиксы к онлайн заказу {applyFixedPriceDto.ExternalOrderId}");
 
-			var node = new CanApplyOnlineOrderFixedPrice
+			var node = new CanApplyOnlineOrderFixedPriceV4
 			{
 				IsSelfDelivery =	applyFixedPriceDto.IsSelfDelivery,
 				DeliveryPointId = applyFixedPriceDto.ErpDeliveryPointId,
@@ -71,7 +71,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 			return _onlineOrderFixedPriceHandler.TryApplyFixedPrice(uow, node);
 		}
 		
-		private decimal GetOnlineOrderSum(IEnumerable<OnlineOrderItemDto> orderItems)
+		private decimal GetOnlineOrderSum(IEnumerable<OnlineOrderItemDtoV4> orderItems)
 		{
 			return orderItems.Sum(x =>
 				x.IsDiscountInMoney

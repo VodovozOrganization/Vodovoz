@@ -1,10 +1,8 @@
-﻿using Autofac.Extensions.DependencyInjection;
-using CustomerOnlineOrdersRegistrar.V3.Consumers;
-using CustomerOnlineOrdersRegistrar.V3.Factories;
-using CustomerOnlineOrdersRegistrar.V4.Consumers;
-using CustomerOnlineOrdersRegistrar.V4.Factories;
-using CustomerOnlineOrdersRegistrar.V5.Consumers;
-using CustomerOnlineOrdersRegistrar.V5.Factories;
+using Autofac.Extensions.DependencyInjection;
+using CustomerOnlineOrdersRegistrar.Configs;
+using CustomerOnlineOrdersRegistrar.Consumers;
+using CustomerOnlineOrdersRegistrar.Factories.V4;
+using CustomerOnlineOrdersRegistrar.Factories.V5;
 using CustomerOrdersApi.Library;
 using DriverApi.Notifications.Client;
 using MassTransit;
@@ -23,6 +21,7 @@ using Vodovoz.Core.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Trackers;
@@ -63,26 +62,35 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddBusiness(hostContext.Configuration)
 						.AddDriverApiNotificationsSenders()
 						.AddInfrastructure()
-						.AddVersion3()
 						.AddVersion4()
-						.AddCoreApplicationOrderServices()
+						.AddVersion5()
+						.AddApplicationOrderServices()
 						.AddOsrm()
 
 						.AddScoped<IRouteListService, RouteListService>()
 						.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
 						.AddScoped<IOnlineOrderService, OnlineOrderService>()
-						.AddScoped<IOnlineOrderFactoryV3, OnlineOrderFactoryV3>()
 						.AddScoped<IOnlineOrderFactoryV4, OnlineOrderFactoryV4>()
 						.AddScoped<IOnlineOrderFactoryV5, OnlineOrderFactoryV5>()
 
 						.AddMessageTransportSettings()
+						.AddHostedService<OnlineOrderFromTemplateRegistrar>()
 						.AddMassTransit(busConf =>
 						{
-							busConf.AddConsumer<OnlineOrderRegisteredConsumer, OnlineOrderRegisteredConsumerDefinition>();
-							busConf.AddConsumer<CreatingOnlineOrderConsumerV4, CreatingOnlineOrderConsumerDefinitionV4>();
-							busConf.AddConsumer<CreatingOnlineOrderConsumerV5, CreatingOnlineOrderConsumerDefinitionV5>();
+							//busConf.AddConsumer<OnlineOrderRegisteredConsumer, OnlineOrderRegisteredConsumerDefinition>();
+							//busConf.AddConsumer<CreatingOnlineOrderConsumer, CreatingOnlineOrderConsumerDefinition>();
+							//busConf.AddConsumer<CreatingOnlineOrderWithTemplateConsumer, CreatingOnlineOrderWithTemplateConsumerDefinition>();
 							busConf.ConfigureRabbitMq();
 						});
+					
+					services
+						.AddDatabaseConfigurationExposer(config =>
+						{
+							config.LinqToHqlGeneratorsRegistry<LinqToHqlGeneratorsRegistry>();
+						});
+					
+					services.Configure<OnlineOrderFromTemplateRegistrarOptions>(
+						hostContext.Configuration.GetSection(OnlineOrderFromTemplateRegistrarOptions.SectionName));
 
 					services.AddStaticScopeForEntity();
 					services.AddStaticHistoryTracker();

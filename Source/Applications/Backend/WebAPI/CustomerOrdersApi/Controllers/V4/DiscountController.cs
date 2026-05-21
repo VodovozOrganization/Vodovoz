@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using CustomerOrders.Contracts.V4.Orders;
 using CustomerOrdersApi.Library.V4.Services;
@@ -14,7 +14,7 @@ namespace CustomerOrdersApi.Controllers.V4
 		private readonly ICustomerOrdersDiscountServiceV4 _discountService;
 
 		public DiscountController(
-			ILogger<SignatureControllerBase> logger,
+			ILogger<DiscountController> logger,
 			ICustomerOrdersDiscountServiceV4 discountService
 			) : base(logger)
 		{

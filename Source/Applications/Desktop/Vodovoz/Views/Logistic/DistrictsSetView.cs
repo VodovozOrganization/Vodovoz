@@ -17,6 +17,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using Vodovoz.Additions.Logistic;
+using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Infrastructure;

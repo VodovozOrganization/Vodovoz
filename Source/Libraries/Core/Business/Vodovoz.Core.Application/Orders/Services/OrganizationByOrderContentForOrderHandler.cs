@@ -8,7 +8,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.Settings.Nomenclature;
 using VodovozBusiness.Domain.Settings;
-using VodovozBusiness.Models.Orders;
+using Vodovoz.Models.Orders;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Core.Application.Orders.Services

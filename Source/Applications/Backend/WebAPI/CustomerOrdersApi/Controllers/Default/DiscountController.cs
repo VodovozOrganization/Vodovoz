@@ -14,7 +14,7 @@ namespace CustomerOrdersApi.Controllers.Default
 		private readonly ICustomerOrdersDiscountService _discountService;
 
 		public DiscountController(
-			ILogger<SignatureControllerBase> logger,
+			ILogger<DiscountController> logger,
 			ICustomerOrdersDiscountService discountService
 			) : base(logger)
 		{

@@ -1,4 +1,4 @@
-﻿namespace CustomerOrders.Contracts.Default.Orders
+namespace CustomerOrders.Contracts.Default.Orders
 {
 	/// <summary>
 	/// Постраничное представление заказов клиента

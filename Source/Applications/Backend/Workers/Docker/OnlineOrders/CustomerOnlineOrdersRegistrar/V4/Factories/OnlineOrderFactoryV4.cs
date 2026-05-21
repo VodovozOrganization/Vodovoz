@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using CustomerOrders.Contracts.V4.Orders;
 using CustomerOrders.Contracts.V4.Orders.OrderItem;
@@ -14,9 +14,14 @@ using Vodovoz.Domain.Sale;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Extensions;
 
+<<<<<<<< HEAD:Source/Applications/Backend/Workers/Docker/OnlineOrders/CustomerOnlineOrdersRegistrar/V4/Factories/OnlineOrderFactoryV4.cs
 namespace CustomerOnlineOrdersRegistrar.V4.Factories
 {
 	/// <inheritdoc/>
+========
+namespace CustomerOnlineOrdersRegistrar.Factories.V4
+{
+>>>>>>>> origin/5696_AddCreatingOnlineOrderFromTemplate:Source/Applications/Backend/Workers/Docker/OnlineOrders/CustomerOnlineOrdersRegistrar/Factories/V4/OnlineOrderFactoryV4.cs
 	public class OnlineOrderFactoryV4 : IOnlineOrderFactoryV4
 	{
 		private readonly IDiscountController _discountController;
@@ -99,7 +104,7 @@ namespace CustomerOnlineOrdersRegistrar.V4.Factories
 			IUnitOfWork uow,
 			OnlineOrder onlineOrder,
 			int selfDeliveryDiscountReasonId,
-			IEnumerable<OnlineOrderItemDto> onlineOrderItemsDtos)
+			IEnumerable<OnlineOrderItemDtoV4> onlineOrderItemsDtos)
 		{
 			if(onlineOrderItemsDtos is null)
 			{

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace CustomerOrders.Contracts.Default.Orders
 {

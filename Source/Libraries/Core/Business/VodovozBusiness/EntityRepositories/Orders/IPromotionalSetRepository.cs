@@ -30,5 +30,12 @@ namespace Vodovoz.EntityRepositories.Orders
 			IUnitOfWork uow,
 			GoodsOnlineParameterType parameterType,
 			IEnumerable<int> warehouses);
+		/// <summary>
+		/// Есть ли среди списка идентификаторов промонаборов промики для новых клиентов
+		/// </summary>
+		/// <param name="uow">Unit Of Work</param>
+		/// <param name="promotionalSetIds">Идентификаторы промонаборов</param>
+		/// <returns></returns>
+		bool IsPromoSetsForNewClients(IUnitOfWork uow, IEnumerable<int> promotionalSetIds);
 	}
 }

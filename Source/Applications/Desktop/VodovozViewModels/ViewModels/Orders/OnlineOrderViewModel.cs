@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -102,6 +102,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public DelegateCommand GetToWorkCommand { get; private set; }
 		public DelegateCommand CancelOnlineOrderCommand { get; private set; }
 		public DelegateCommand OpenExternalCounterpartyMatchingCommand { get; private set; }
+		public DelegateCommand ToOrderTemplateCommand { get; private set; }
 		public DelegateCommand CallClientCommand { get; private set; }
 		public DelegateCommand AddOperatorCommentCommand { get; private set; }
 		public DelegateCommand AddFailedCallCommentCommand { get; private set; }
@@ -223,6 +224,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			!Entity.CallBeforeArrivalMinutes.HasValue
 				? "Не нужен"
 				: $"{ Entity.CallBeforeArrivalMinutes }мин.";
+
+		public bool IsFromTemplate => Entity.TemplateId != null;
+		public string TemplateIdString => Entity.TemplateId.HasValue ? Entity.TemplateId.ToString() : "Нет номера шаблона автозаказа";
 
 		public string OnlineOrderPaymentType => Entity.OnlineOrderPaymentType.GetEnumDisplayName();
 		public string OnlineOrderDeliveryDate => Entity.DeliveryDate.ToShortDateString();

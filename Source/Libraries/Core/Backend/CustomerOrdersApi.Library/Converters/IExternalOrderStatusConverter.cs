@@ -1,4 +1,4 @@
-﻿using CustomerOrders.Contracts;
+using CustomerOrders.Contracts;
 using Vodovoz.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.Converters

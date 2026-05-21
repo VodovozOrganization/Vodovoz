@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Domain.Sale
+namespace Vodovoz.Core.Domain.Sale
 {
 	public enum WeekDayName
 	{

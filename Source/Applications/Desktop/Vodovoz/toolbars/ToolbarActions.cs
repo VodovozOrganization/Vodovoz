@@ -13,21 +13,16 @@ using QSReport;
 using System;
 using QS.Report;
 using Vodovoz;
-using Vodovoz.Core.Data.Repositories.Cash;
-using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Employees;
-using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Dialogs.Sale;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Suppliers;
-using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.FilterViewModels;
 using Vodovoz.FilterViewModels.Goods;
 using Vodovoz.FilterViewModels.Organization;
-using Vodovoz.Infrastructure;
 using Vodovoz.Journals.FilterViewModels;
 using Vodovoz.Journals.JournalViewModels;
 using Vodovoz.Journals.JournalViewModels.Employees;
@@ -52,6 +47,7 @@ using Vodovoz.ViewModels.Journals.FilterViewModels.Employees;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
+using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Employees;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
@@ -81,7 +77,9 @@ public partial class MainWindow : Window
 	Action ActionUndeliveredOrders;
 	Action ActionCashReceiptsJournal;
 	Action ActionOrdersWithReceiptJournal;
-	Action OnlineOrdersJournalAction;
+	public Action OnlineOrdersJournalAction { get; private set; }
+	public Action ExternalCounterpartiesMatchingJournalAction { get; private set; }
+	public Action OnlineOrderTemplatesJournalAction { get; private set; }
 
 	Action ActionServiceClaims;
 	Action ActionServiceDeliveryRules;
@@ -204,6 +202,10 @@ public partial class MainWindow : Window
 		ActionCashReceiptsJournal = new Action(nameof(ActionCashReceiptsJournal), "Журнал чеков", null, "table");
 		ActionOrdersWithReceiptJournal = new Action(nameof(ActionOrdersWithReceiptJournal), "Журнал заказов с чеками", null, "table");
 		OnlineOrdersJournalAction = new Action(nameof(OnlineOrdersJournalAction), "Журнал онлайн заказов", null, null);
+		ExternalCounterpartiesMatchingJournalAction =
+			new Action(nameof(ExternalCounterpartiesMatchingJournalAction), "Сопоставление клиентов из внешних источников", null, null);
+		OnlineOrderTemplatesJournalAction =
+			new Action(nameof(OnlineOrderTemplatesJournalAction), "Журнал шаблонов автозаказов", null, null);
 
 		//Работа с клиентами
 		ActionCallTasks = new Action("ActionCallTasks", "Журнал задач", null, "table");
@@ -325,6 +327,8 @@ public partial class MainWindow : Window
 		w1.Add(ActionCashReceiptsJournal, null);
 		w1.Add(ActionOrdersWithReceiptJournal, null);
 		w1.Add(OnlineOrdersJournalAction, null);
+		w1.Add(ExternalCounterpartiesMatchingJournalAction, null);
+		w1.Add(OnlineOrderTemplatesJournalAction, null);
 		
 		//Сервис
 		w1.Add(ActionServiceClaims, null);
@@ -450,6 +454,8 @@ public partial class MainWindow : Window
 		ActionCashReceiptsJournal.Activated += ActionCashReceiptsJournalActivated;
 		ActionOrdersWithReceiptJournal.Activated += ActionOrdersWithReceiptJournalActivated;
 		OnlineOrdersJournalAction.Activated += OnOnlineOrdersJournalActionActivated;
+		ExternalCounterpartiesMatchingJournalAction.Activated += OnExternalCounterpartiesMatchingJournalActionActivated;
+		OnlineOrderTemplatesJournalAction.Activated += OnOnlineOrderTemplatesJournalActionActivated;
 
 		//Сервис
 		ActionServiceClaims.Activated += ActionServiceClaimsActivated;
@@ -557,6 +563,26 @@ public partial class MainWindow : Window
 		ActionEdoProblemJournal.Activated += OnActionEdoProblemJournalActivated;
 		
 		#endregion
+	}
+
+	/// <summary>
+	/// Сопоставление клиентов из внешних источников
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	private void OnExternalCounterpartiesMatchingJournalActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<ExternalCounterpartiesMatchingJournalViewModel>(null);
+	}
+	
+	/// <summary>
+	/// Журнал шаблонов автозаказов
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+	private void OnOnlineOrderTemplatesJournalActionActivated(object sender, EventArgs e)
+	{
+		NavigationManager.OpenViewModel<OnlineOrderTemplatesJournalViewModel>(null);
 	}
 
 	private void OnActionDriversStopListsActivated(object sender, EventArgs e)

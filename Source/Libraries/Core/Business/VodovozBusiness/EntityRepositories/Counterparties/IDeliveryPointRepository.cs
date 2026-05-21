@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Sale;
 
 namespace Vodovoz.EntityRepositories.Counterparties
 {
@@ -29,5 +30,12 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		bool CheckingAnAddressForDeliveryForNewCustomers( IUnitOfWork uow, DeliveryPoint deliveryPoint );
 		IEnumerable<DeliveryPointForSendNode> GetActiveDeliveryPointsForSendByCounterpartyId(IUnitOfWork uow, int counterpartyId);
 		bool ClientDeliveryPointExists(IUnitOfWork uow, int counterpartyId, int deliveryPointId);
+		/// <summary>
+		/// Получение района точки доставки
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="deliveryPointId">Идентификатор ТД</param>
+		/// <returns></returns>
+		District GetDistrictDeliveryPoint(IUnitOfWork uow, int deliveryPointId);
 	}
 }

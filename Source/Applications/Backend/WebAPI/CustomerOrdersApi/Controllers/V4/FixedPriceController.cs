@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using CustomerOrders.Contracts.V4.Orders.FixedPrice;
 using CustomerOrdersApi.Library.V4.Services;
@@ -17,7 +17,7 @@ namespace CustomerOrdersApi.Controllers.V4
 		private readonly ICustomerOrderFixedPriceServiceV4 _fixedPriceService;
 
 		public FixedPriceController(
-			ILogger<SignatureControllerBase> logger,
+			ILogger<FixedPriceController> logger,
 			ICustomerOrderFixedPriceServiceV4 fixedPriceService) : base(logger)
 		{
 			_fixedPriceService = fixedPriceService ?? throw new ArgumentNullException(nameof(fixedPriceService));

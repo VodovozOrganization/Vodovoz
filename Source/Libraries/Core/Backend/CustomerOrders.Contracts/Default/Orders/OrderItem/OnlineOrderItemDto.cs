@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text.Json.Serialization;
 using CustomerOrders.Contracts.Interfaces;
 
@@ -7,7 +7,7 @@ namespace CustomerOrders.Contracts.Default.Orders.OrderItem
 	/// <summary>
 	/// Товар онлайн заказа
 	/// </summary>
-	public class OnlineOrderItemDto : IOnlineOrderedProduct
+	public class OnlineOrderItemDto : IOnlineOrderedProductV4
 	{
 		/// <summary>
 		/// Id номенклатуры в ДВ

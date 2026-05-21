@@ -13,5 +13,6 @@ namespace Vodovoz.Settings.Database.Orders
 		}
 		
 		public int GetSelfDeliveryDiscountReasonId => _settingsController.GetIntValue("DiscountReason.SelfDeliveryDiscountReasonId");
+		public int GetAutoOrderDiscountReasonId => _settingsController.GetIntValue("DiscountReason.AutoOrderDiscountReasonId");
 	}
 }

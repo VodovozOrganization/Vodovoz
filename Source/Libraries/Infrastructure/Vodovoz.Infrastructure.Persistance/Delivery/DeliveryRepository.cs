@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using NHibernate;
 using NHibernate.Criterion;

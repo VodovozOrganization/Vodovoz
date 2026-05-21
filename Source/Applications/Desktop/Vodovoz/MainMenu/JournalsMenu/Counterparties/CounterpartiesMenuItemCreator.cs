@@ -14,6 +14,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Organizations;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Retail;
+using Action = Gtk.Action;
 
 namespace Vodovoz.MainMenu.JournalsMenu.Counterparties
 {
@@ -23,7 +24,6 @@ namespace Vodovoz.MainMenu.JournalsMenu.Counterparties
 	public class CounterpartiesMenuItemCreator : MenuItemCreator
 	{
 		private readonly ConcreteMenuItemCreator _concreteMenuItemCreator;
-		private MenuItem _externalCounterpartiesMatchingMenuItem;
 		private MenuItem _counterpartyClassificationCalculationMenuItem;
 
 		public CounterpartiesMenuItemCreator(ConcreteMenuItemCreator concreteMenuItemCreator)
@@ -221,25 +221,14 @@ namespace Vodovoz.MainMenu.JournalsMenu.Counterparties
 
 		private void AddFourthSection(Menu counterpartiesMenu)
 		{
-			_externalCounterpartiesMatchingMenuItem = _concreteMenuItemCreator
-				.CreateMenuItem("Сопоставление клиентов из внешних источников", OnExternalCounterpartiesMatchingPressed);
-			counterpartiesMenu.Add(_externalCounterpartiesMatchingMenuItem);
+			counterpartiesMenu.Add(_concreteMenuItemCreator
+				.CreateMenuItem(Startup.MainWin.ExternalCounterpartiesMatchingJournalAction));
 
 			counterpartiesMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Подтипы контрагентов", OnCounterpartySubtypesPressed));
 
 			_counterpartyClassificationCalculationMenuItem = _concreteMenuItemCreator
 				.CreateMenuItem("Пересчёт классификации", OnCounterpartyClassificationCalculationPressed);
 			counterpartiesMenu.Add(_counterpartyClassificationCalculationMenuItem);
-		}
-
-		/// <summary>
-		/// Сопоставление клиентов из внешних источников
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void OnExternalCounterpartiesMatchingPressed(object sender, ButtonPressEventArgs e)
-		{
-			Startup.MainWin.NavigationManager.OpenViewModel<ExternalCounterpartiesMatchingJournalViewModel>(null);
 		}
 
 		/// <summary>
@@ -267,7 +256,8 @@ namespace Vodovoz.MainMenu.JournalsMenu.Counterparties
 		private void Configure()
 		{
 			var permissionService = ServicesConfig.CommonServices.CurrentPermissionService;
-			_externalCounterpartiesMatchingMenuItem.Sensitive =
+			
+			Startup.MainWin.ExternalCounterpartiesMatchingJournalAction.Sensitive =
 				permissionService.ValidatePresetPermission("can_matching_counterparties_from_external_sources");
 			
 			_counterpartyClassificationCalculationMenuItem.Sensitive = 
