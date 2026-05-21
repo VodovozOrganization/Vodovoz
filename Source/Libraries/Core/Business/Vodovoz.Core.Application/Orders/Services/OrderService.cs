@@ -456,7 +456,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			
 			var deliveryCostResult = UpdateDeliveryCost(unitOfWork, order);
 
-			if(!deliveryCostResult.IsFailure)
+			if(deliveryCostResult.IsFailure)
 			{
 				throw new InvalidOperationException(deliveryCostResult.Errors.First().Message);
 			}
@@ -606,7 +606,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			
 			var deliveryCostResult = UpdateDeliveryCost(unitOfWork, order);
 
-			if(!deliveryCostResult.IsFailure)
+			if(deliveryCostResult.IsFailure)
 			{
 				throw new InvalidOperationException(deliveryCostResult.Errors.First().Message);
 			}
