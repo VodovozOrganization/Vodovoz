@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.Utilities;
 using System;
 using Vodovoz.Core.Domain.FastPayments;
@@ -93,6 +93,10 @@ namespace PayPageAPI.Models
 			else if(organization.Id == _organizationSettings.KulerServiceOrganizationId)
 			{
 				OfertaUrl = "pdf/offer_kuler_service.pdf";
+			}
+			else if(organization.Id == _organizationSettings.GubernatorovOrganizationId)
+			{
+				OfertaUrl = "pdf/offer_gubernatorov.pdf";
 			}
 			else
 			{
