@@ -16,6 +16,9 @@ namespace Vodovoz.Views.Logistic
 {
 	public partial class DriverScheduleView : TabViewBase<DriverScheduleViewModel>
 	{
+		private bool _isSynchronizingDriverScheduleVerticalScroll;
+		private bool _isLockingFixedPartHorizontalScroll;
+
 		public DriverScheduleView(DriverScheduleViewModel viewModel) : base(viewModel)
 		{
 			Build();
@@ -86,6 +89,7 @@ namespace Vodovoz.Views.Logistic
 
 			ConfigureFixedTreeView();
 			ConfigureDynamicTreeView();
+			ConfigureDriverScheduleScrolling();
 			ApplyFixedColumnsVisibility();
 		}
 
@@ -196,6 +200,12 @@ namespace Vodovoz.Views.Logistic
 			ytreeviewFixedPart.EnableGridLines = TreeViewGridLines.Both;
 			ytreeviewFixedPart.KeyPressEvent += OnFixedTreeViewKeyPress;
 			ytreeviewFixedPart.Selection.Changed += (sender, e) => SynchronizeSelection(ytreeviewFixedPart, ytreeviewDynamicPart);
+
+			GLib.Idle.Add(() =>
+			{
+				UpdateFixedPartWidthRequest();
+				return false;
+			});
 		}
 
 		private void ConfigureDynamicTreeView()
@@ -210,7 +220,7 @@ namespace Vodovoz.Views.Logistic
 				var date = weekStart.AddDays(dayIndex);
 				var dayName = dayNames[dayIndex];
 				var dayColumnTitle = date.Date == DateTime.Today
-					? $"{ViewModel.GetShortDayString(date)}\nСегодня"
+					? $"{ViewModel.GetShortDayString(date)} Сегодня"
 					: ViewModel.GetShortDayString(date);
 
 				columnsConfig.AddColumn(dayColumnTitle)
@@ -268,6 +278,87 @@ namespace Vodovoz.Views.Logistic
 			ytreeviewDynamicPart.ScrollEvent += OnTreeViewScroll;
 			ytreeviewDynamicPart.KeyPressEvent += OnDynamicTreeViewKeyPress;
 			ytreeviewDynamicPart.Selection.Changed += (sender, e) => SynchronizeSelection(ytreeviewDynamicPart, ytreeviewFixedPart);
+		}
+
+		private void ConfigureDriverScheduleScrolling()
+		{
+			scrolledwindowDriverSchedule.VscrollbarPolicy = PolicyType.Never;
+			scrolledwindowDriverSchedule.HscrollbarPolicy = PolicyType.Never;
+
+			GtkScrolledWindow.VscrollbarPolicy = PolicyType.Never;
+			GtkScrolledWindow.HscrollbarPolicy = PolicyType.Always;
+
+			GtkScrolledWindow1.VscrollbarPolicy = PolicyType.Automatic;
+			GtkScrolledWindow1.HscrollbarPolicy = PolicyType.Automatic;
+
+			GtkScrolledWindow1.Vadjustment.ValueChanged += (sender, args) =>
+				SynchronizeDriverScheduleVerticalScroll(GtkScrolledWindow1, GtkScrolledWindow);
+
+			GtkScrolledWindow.Hadjustment.ValueChanged += (sender, args) =>
+				LockFixedPartHorizontalScroll();
+
+			scrolledwindowDriverSchedule.SizeAllocated += (sender, args) =>
+				UpdateDriverScheduleInnerScrollHeight(args.Allocation.Height);
+
+			UpdateDriverScheduleInnerScrollHeight(scrolledwindowDriverSchedule.Allocation.Height);
+		}
+
+		private void UpdateFixedPartWidthRequest()
+		{
+			if(ytreeviewFixedPart == null || GtkScrolledWindow == null)
+			{
+				return;
+			}
+
+			var requisition = ytreeviewFixedPart.SizeRequest();
+			if(requisition.Width > 0)
+			{
+				GtkScrolledWindow.WidthRequest = requisition.Width + 4;
+			}
+		}
+
+		private void LockFixedPartHorizontalScroll()
+		{
+			if(_isLockingFixedPartHorizontalScroll || GtkScrolledWindow?.Hadjustment == null)
+			{
+				return;
+			}
+
+			_isLockingFixedPartHorizontalScroll = true;
+			GtkScrolledWindow.Hadjustment.Value = GtkScrolledWindow.Hadjustment.Lower;
+			_isLockingFixedPartHorizontalScroll = false;
+		}
+
+		private void UpdateDriverScheduleInnerScrollHeight(int availableHeight)
+		{
+			if(availableHeight <= 0)
+			{
+				return;
+			}
+
+			var scrollHeight = Math.Max(1, availableHeight - 2);
+			GtkScrolledWindow.HeightRequest = scrollHeight;
+			GtkScrolledWindow1.HeightRequest = scrollHeight;
+		}
+
+		private void SynchronizeDriverScheduleVerticalScroll(ScrolledWindow source, ScrolledWindow target)
+		{
+			if(_isSynchronizingDriverScheduleVerticalScroll)
+			{
+				return;
+			}
+
+			if(source?.Vadjustment == null || target?.Vadjustment == null)
+			{
+				return;
+			}
+
+			_isSynchronizingDriverScheduleVerticalScroll = true;
+
+			var maxValue = Math.Max(target.Vadjustment.Lower, target.Vadjustment.Upper - target.Vadjustment.PageSize);
+			target.Vadjustment.Value = Math.Min(source.Vadjustment.Value, maxValue);
+
+			_isSynchronizingDriverScheduleVerticalScroll = false;
 		}
 
 		/// <summary>
