@@ -303,20 +303,9 @@ namespace Vodovoz.Models.CashReceipts
 		private void SetVatProperties(OrderItem orderItem, InventPosition inventPosition)
 		{
 			var organization = orderItem.Order.Contract?.Organization;
+			var actualVatVersion = orderItem.Nomenclature.GetEffectiveVatRateVersion(organization, orderItem.Order.DeliveryDate);
 
-			if(organization != null)
-			{
-				var actualVatVersion = organization.IsUsnMode
-					? organization.GetActualVatRateVersion(orderItem.Order.DeliveryDate)
-					: orderItem.Nomenclature.GetActualVatRateVersion(orderItem.Order.DeliveryDate);
-
-				if(actualVatVersion?.VatRate.VatRateValue == 0)
-				{
-					inventPosition.VatTag = (int)VatTag.VatFree;
-					return;
-				}
-			}
-			else if(orderItem.Nomenclature.GetActualVatRateVersion(orderItem.Order.DeliveryDate)?.VatRate.VatRateValue == 0)
+			if(actualVatVersion?.VatRate.VatRateValue == 0)
 			{
 				inventPosition.VatTag = (int)VatTag.VatFree;
 				return;
