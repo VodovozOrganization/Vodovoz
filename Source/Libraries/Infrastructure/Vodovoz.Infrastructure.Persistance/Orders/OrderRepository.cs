@@ -2902,8 +2902,14 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			int? counterpartyId = null,
 			CancellationToken cancellationToken = default)
 		{
-			return (await GetOverdueDebtQuery(unitOfWork, daysBeforeClosingDeliveries, organizationsIds, orderStatuses, counterpartyTypes, tenderCameFromId, counterpartyId)
-				.Where(x => !x.Counterparty.IsDeliveriesClosed)
+			return (await GetOverdueDebtQuery(unitOfWork, daysBeforeClosingDeliveries, organizationsIds, orderStatuses, counterpartyId)
+				.Where(x =>
+					!x.Counterparty.IsDeliveriesClosed
+					&& !x.Counterparty.IsChainStore
+					&& x.Counterparty.ReasonForLeaving != ReasonForLeaving.Tender
+					&& x.Counterparty.CameFrom.Id != tenderCameFromId
+					&& counterpartyTypes.Contains(x.Counterparty.CounterpartyType)
+				)
 				.ToListAsync(cancellationToken))
 				.GroupBy(x => new
 				{
@@ -2927,12 +2933,10 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			int daysBeforeClosingDeliveries,
 			int[] organizationsIds,
 			OrderStatus[] orderStatuses,
-			CounterpartyType[] counterpartyTypes,
-			int tenderCameFromId,
 			int counterpartyId,
 			CancellationToken cancellationToken = default)
 		{
-			return await GetOverdueDebtQuery(unitOfWork, daysBeforeClosingDeliveries, organizationsIds, orderStatuses, counterpartyTypes, tenderCameFromId, counterpartyId)
+			return await GetOverdueDebtQuery(unitOfWork, daysBeforeClosingDeliveries, organizationsIds, orderStatuses, counterpartyId)
 				.Where(x => x.Counterparty.IsDeliveriesClosed)
 				.Select(x => x.Counterparty.Id)
 				.AnyAsync(cancellationToken);
@@ -2943,8 +2947,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			int daysBeforeClosingDeliveries,
 			int[] organizationsIds,
 			OrderStatus[] orderStatuses,
-			CounterpartyType[] counterpartyTypes,
-			int tenderCameFromId,
 			int? counterpartyId = null)
 		{
 			var query =
@@ -2955,10 +2957,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				where
 					organizationsIds.Contains(order.Contract.Organization.Id)
 					&& orderStatuses.Contains(order.OrderStatus)
-					&& counterpartyTypes.Contains(counterparty.CounterpartyType)
-					&& !counterparty.IsChainStore
-					&& counterparty.ReasonForLeaving != ReasonForLeaving.Tender
-					&& counterparty.CameFrom.Id != tenderCameFromId
 					&& order.PaymentType == PaymentType.Cashless
 					&& order.OrderPaymentStatus != OrderPaymentStatus.Paid
 					&& order.DeliveryDate != null
