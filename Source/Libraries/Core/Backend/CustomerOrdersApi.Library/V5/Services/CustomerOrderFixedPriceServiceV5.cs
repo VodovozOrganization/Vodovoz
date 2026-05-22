@@ -1,31 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using CustomerOrders.Contracts;
+using CustomerOrders.Contracts.V5.Orders.FixedPrice;
+using CustomerOrders.Contracts.V5.Orders.FixedPrices;
+using CustomerOrders.Contracts.V5.Orders.OrderItem;
 using CustomerOrdersApi.Library.Config;
-using CustomerOrdersApi.Library.V5.Dto.Orders.FixedPrice;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
-using Vodovoz.Application.Orders.Services.V5;
-using Vodovoz.Core.Data.V5;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Handlers;
-using VodovozBusiness.Domain.Orders.V5;
 using VodovozInfrastructure.Cryptography;
 
 namespace CustomerOrdersApi.Library.V5.Services
 {
 	public class CustomerOrderFixedPriceServiceV5 : SignatureService, ICustomerOrderFixedPriceServiceV5
 	{
-		private readonly ILogger<CustomerOrdersServiceV5> _logger;
+		private readonly ILogger<CustomerOrderFixedPriceServiceV5> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ISignatureManager _signatureManager;
 		private readonly IOnlineOrderFixedPriceHandlerV5 _onlineOrderFixedPriceHandler;
 		private readonly SignatureOptions _signatureOptions;
 
 		public CustomerOrderFixedPriceServiceV5(
-			ILogger<CustomerOrdersServiceV5> logger,
+			ILogger<CustomerOrderFixedPriceServiceV5> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ISignatureManager signatureManager,
 			IOptions<SignatureOptions> signatureOptions,
@@ -47,34 +45,29 @@ namespace CustomerOrdersApi.Library.V5.Services
 				applyFixedPriceDto.Signature,
 				new ApplyFixedPriceSignatureParams
 				{
-					OrderId = applyFixedPriceDto.Source == Source.MobileApp
+					OrderId = applyFixedPriceDto.Source == ExternalSource.MobileApp
 						? applyFixedPriceDto.ExternalCounterpartyId.ToString()
 						: applyFixedPriceDto.ExternalOrderId.ToString(),
-					OrderSumInKopecks = (int)(GetOnlineOrderSum(applyFixedPriceDto.OnlineOrderItems) * 100),
+					OrderSumInKopecks = (int)(applyFixedPriceDto.OrderSum * 100),
 					ShopId = (int)applyFixedPriceDto.Source,
 					Sign = sourceSign
 				},
 				out generatedSignature);
 		}
 		
-		public Result<IEnumerable<IOnlineOrderedProductWithFixedPriceV5>> ApplyFixedPriceToOnlineOrder(ApplyFixedPriceDto applyFixedPriceDto)
+		public Result<IEnumerable<OnlineOrderItemWithFixedPriceV5>> ApplyFixedPriceToOnlineOrder(ApplyFixedPriceDto applyFixedPriceDto)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot($"Применение фиксы к онлайн заказу {applyFixedPriceDto.ExternalOrderId}");
 
 			var node = new CanApplyOnlineOrderFixedPriceV5
 			{
-				IsSelfDelivery = applyFixedPriceDto.IsSelfDelivery,
+				IsSelfDelivery =	applyFixedPriceDto.IsSelfDelivery,
 				DeliveryPointId = applyFixedPriceDto.ErpDeliveryPointId,
 				CounterpartyId = applyFixedPriceDto.ErpCounterpartyId,
 				OnlineOrderItems = applyFixedPriceDto.OnlineOrderItems
 			};
 			
 			return _onlineOrderFixedPriceHandler.TryApplyFixedPrice(uow, node);
-		}
-		
-		private decimal GetOnlineOrderSum(IEnumerable<OnlineOrderItemDtoV5> orderItems)
-		{
-			return orderItems.Sum(x => x.Count * x.Price - x.Discount());
 		}
 	}
 }

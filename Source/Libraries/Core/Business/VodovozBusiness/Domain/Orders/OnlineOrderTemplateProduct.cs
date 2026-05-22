@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using NPOI.SS.Formula.Functions;
 using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
-using VodovozBusiness.Domain.Orders.V5;
+using VodovozBusiness.Nodes;
 
 namespace VodovozBusiness.Domain.Orders
 {
@@ -18,7 +19,7 @@ namespace VodovozBusiness.Domain.Orders
 		PrepositionalPlural = "Товарах автозаказов с ИПЗ"
 	)]
 	[HistoryTrace]
-	public class OnlineOrderTemplateProduct : PropertyChangedBase, IDomainObject, ICalculatingPriceV5
+	public class OnlineOrderTemplateProduct : PropertyChangedBase, IDomainObject, ICalculatingPriceWithManyDiscounts
 	{
 		private decimal _price;
 		private int _templateId;
@@ -91,13 +92,11 @@ namespace VodovozBusiness.Domain.Orders
 			set => SetField(ref _discounts, value);
 		}
 		
-		IEnumerable<IProductDiscountData> ICalculatingPriceV5.Discounts => Discounts
-			.Select(x => new ProductDiscountData
-			{
-				Discount = x.IsDiscountInMoney ? x.MoneyDiscount : x.PercentDiscount,
-				IsDiscountInMoney = x.IsDiscountInMoney,
-				DiscountReason = x.DiscountReason
-			});
+		IEnumerable<IDiscountData> ICalculatingPriceWithManyDiscounts.Discounts => Discounts
+			.Select(x => DiscountData.Create(
+				x.IsDiscountInMoney,
+				x.IsDiscountInMoney ? x.MoneyDiscount : x.PercentDiscount,
+				x.DiscountReason));
 
 		public virtual bool IsFixedPrice { get; }
 		

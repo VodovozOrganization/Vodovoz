@@ -12,6 +12,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Extensions;
+using VodovozBusiness.Nodes;
 
 namespace CustomerOnlineOrdersRegistrar.V3.Factories
 {
@@ -128,12 +129,10 @@ namespace CustomerOnlineOrdersRegistrar.V3.Factories
 				var onlineOrderItem = OnlineOrderItem.Create(
 					onlineOrderItemDto.NomenclatureId,
 					onlineOrderItemDto.Count,
-					onlineOrderItemDto.IsDiscountInMoney,
 					onlineOrderItemDto.IsFixedPrice,
-					onlineOrderItemDto.Discount,
 					onlineOrderItemDto.Price,
 					onlineOrderItemDto.PromoSetId,
-					applicableDiscountReason,
+					DiscountData.Create(onlineOrderItemDto.IsDiscountInMoney, onlineOrderItemDto.Discount, applicableDiscountReason),
 					nomenclature,
 					promoSet,
 					onlineOrder);

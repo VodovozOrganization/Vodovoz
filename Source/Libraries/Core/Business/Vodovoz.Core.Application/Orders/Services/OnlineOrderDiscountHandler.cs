@@ -4,11 +4,6 @@ using System.Linq;
 using CustomerOrders.Contracts;
 using CustomerOrders.Contracts.Interfaces;
 using QS.DomainModel.UoW;
-<<<<<<<< HEAD:Source/Libraries/Core/Business/Vodovoz.Core.Application/Orders/Services/OnlineOrderDiscountHandler.cs
-========
-using Vodovoz.Core.Data.V4;
-using Vodovoz.Core.Domain.Clients;
->>>>>>>> origin/5696_AddCreatingOnlineOrderFromTemplate:Source/Libraries/Core/Business/Vodovoz.Core.Application/Orders/Services/V4/OnlineOrderDiscountHandlerV4.cs
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
@@ -16,19 +11,14 @@ using Vodovoz.EntityRepositories.DiscountReasons;
 using Vodovoz.Handlers;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Extensions;
-using VodovozBusiness.Nodes.V4;
 
-<<<<<<<< HEAD:Source/Libraries/Core/Business/Vodovoz.Core.Application/Orders/Services/OnlineOrderDiscountHandler.cs
 namespace Vodovoz.Core.Application.Orders.Services
-========
-namespace Vodovoz.Application.Orders.Services.V4
->>>>>>>> origin/5696_AddCreatingOnlineOrderFromTemplate:Source/Libraries/Core/Business/Vodovoz.Core.Application/Orders/Services/V4/OnlineOrderDiscountHandlerV4.cs
 {
-	public class OnlineOrderDiscountHandlerV4 : DiscountController, IOnlineOrderDiscountHandlerV4
+	public class OnlineOrderDiscountHandler : DiscountController, IOnlineOrderDiscountHandler
 	{
 		private readonly IDiscountReasonRepository _discountReasonRepository;
 
-		public OnlineOrderDiscountHandlerV4(
+		public OnlineOrderDiscountHandler(
 			IDiscountReasonRepository discountReasonRepository)
 		{
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
@@ -53,7 +43,7 @@ namespace Vodovoz.Application.Orders.Services.V4
 		/// <param name="onlineOrderPromoCode">Данные, необходимые для проверки промокода и товары
 		/// <see cref="CanApplyOnlineOrderPromoCodeV4"/></param>
 		/// <returns></returns>
-		public Result<IEnumerable<IOnlineOrderedProductV4>> TryApplyPromoCode(IUnitOfWork uow, CanApplyOnlineOrderPromoCodeV4 onlineOrderPromoCode)
+		public Result<IEnumerable<IOnlineOrderedProduct>> TryApplyPromoCode(IUnitOfWork uow, CanApplyOnlineOrderPromoCode onlineOrderPromoCode)
 		{
 			var discountPromoCode = _discountReasonRepository.GetActivePromoCode(uow, onlineOrderPromoCode.PromoCode);
 			var date = onlineOrderPromoCode.Time.Date;
@@ -62,41 +52,41 @@ namespace Vodovoz.Application.Orders.Services.V4
 
 			if(discountPromoCode is null)
 			{
-				return Result.Failure<IEnumerable<IOnlineOrderedProductV4>>(Vodovoz.Errors.Orders.DiscountErrors.PromoCode.NotFound);
+				return Result.Failure<IEnumerable<IOnlineOrderedProduct>>(Vodovoz.Errors.Orders.DiscountErrors.PromoCode.NotFound);
 			}
 
 			if(date.Date < discountPromoCode.StartDatePromoCode || date.Date > discountPromoCode.EndDatePromoCode)
 			{
-				return Result.Failure<IEnumerable<IOnlineOrderedProductV4>>(Vodovoz.Errors.Orders.DiscountErrors.PromoCode.ExpiredDateDuration);
+				return Result.Failure<IEnumerable<IOnlineOrderedProduct>>(Vodovoz.Errors.Orders.DiscountErrors.PromoCode.ExpiredDateDuration);
 			}
 
 			if(time < discountPromoCode.StartTimePromoCode || time > discountPromoCode.EndTimePromoCode)
 			{
-				return Result.Failure<IEnumerable<IOnlineOrderedProductV4>>(
+				return Result.Failure<IEnumerable<IOnlineOrderedProduct>>(
 					Vodovoz.Errors.Orders.DiscountErrors.PromoCode.ExpiredTimeDuration(
 						discountPromoCode.StartTimePromoCodeString, discountPromoCode.EndTimePromoCodeString));
 			}
 
 			if(orderSum < discountPromoCode.PromoCodeOrderMinSum)
 			{
-				return Result.Failure<IEnumerable<IOnlineOrderedProductV4>>(Vodovoz.Errors.Orders.DiscountErrors.PromoCode.InvalidMinimalOrderSum);
+				return Result.Failure<IEnumerable<IOnlineOrderedProduct>>(Vodovoz.Errors.Orders.DiscountErrors.PromoCode.InvalidMinimalOrderSum);
 			}
 
 			if(discountPromoCode.IsOneTimePromoCode
 				&& _discountReasonRepository.HasBeenUsagePromoCode(uow, onlineOrderPromoCode.CounterpartyId, discountPromoCode.Id))
 			{
-				return Result.Failure<IEnumerable<IOnlineOrderedProductV4>>(
+				return Result.Failure<IEnumerable<IOnlineOrderedProduct>>(
 					Vodovoz.Errors.Orders.DiscountErrors.PromoCode.UsageLimitHasBeenExceeded);
 			}
 
 			return TryApplyPromoCode(uow, onlineOrderPromoCode.Source, discountPromoCode, onlineOrderPromoCode.Products);
 		}
 
-		private Result<IEnumerable<IOnlineOrderedProductV4>> TryApplyPromoCode(
+		private Result<IEnumerable<IOnlineOrderedProduct>> TryApplyPromoCode(
 			IUnitOfWork uow,
 			ExternalSource source,
 			DiscountReason discountPromoCode,
-			IEnumerable<IOnlineOrderedProductV4> products)
+			IEnumerable<IOnlineOrderedProduct> products)
 		{
 			var promoCodeApplied = false;
 			
@@ -108,14 +98,14 @@ namespace Vodovoz.Application.Orders.Services.V4
 
 			return promoCodeApplied
 				? Result.Success(products)
-				: Result.Failure<IEnumerable<IOnlineOrderedProductV4>>(Vodovoz.Errors.Orders.DiscountErrors.PromoCode.UnsuitableItemsInCart);
+				: Result.Failure<IEnumerable<IOnlineOrderedProduct>>(Vodovoz.Errors.Orders.DiscountErrors.PromoCode.UnsuitableItemsInCart);
 		}
 
 		private bool TryApplyPromoCode(
 			ExternalSource source,
 			DiscountReason discountPromoCode,
 			Nomenclature nomenclature,
-			IOnlineOrderedProductV4 product)
+			IOnlineOrderedProduct product)
 		{
 			if(!CanApplicableDiscount(source, discountPromoCode, nomenclature, product))
 			{
@@ -147,7 +137,7 @@ namespace Vodovoz.Application.Orders.Services.V4
 			ExternalSource source,
 			DiscountReason discountPromoCode,
 			Nomenclature nomenclature,
-			IOnlineOrderedProductV4 product)
+			IOnlineOrderedProduct product)
 		{
 			if(nomenclature is null)
 			{
@@ -233,7 +223,7 @@ namespace Vodovoz.Application.Orders.Services.V4
 			return product.Count * product.Price != 0;
 		}
 
-		private void ApplyPromoCode(DiscountReason discountPromoCode, IOnlineOrderedProductV4 product)
+		private void ApplyPromoCode(DiscountReason discountPromoCode, IOnlineOrderedProduct product)
 		{
 			product.DiscountReasonId = discountPromoCode.Id;
 			product.IsDiscountInMoney = discountPromoCode.ValueType == DiscountUnits.money;
@@ -249,7 +239,7 @@ namespace Vodovoz.Application.Orders.Services.V4
 			}
 		}
 
-		private decimal GetOnlineOrderSum(IEnumerable<IOnlineOrderedProductV4> products)
+		private decimal GetOnlineOrderSum(IEnumerable<IOnlineOrderedProduct> products)
 		{
 			return products.Sum(x =>
 				x.IsDiscountInMoney

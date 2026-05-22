@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using CustomerOrders.Contracts;
+using CustomerOrders.Contracts.V5.Orders.OrderItem;
+using CustomerOrders.Contracts.V5.Orders.PromoCodes;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Data.V5;
 using Vodovoz.Core.Domain.Results;
 using VodovozBusiness.Controllers;
-using VodovozBusiness.Handlers.V5;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Handlers
 {
@@ -17,8 +20,25 @@ namespace Vodovoz.Handlers
 		/// </summary>
 		/// <param name="uow">unit of work</param>
 		/// <param name="onlineOrderPromoCode">Данные, необходимые для проверки промокода и товары
-		/// <see cref="ICanApplyOnlineOrderPromoCodeV5"/></param>
+		/// <see cref="CanApplyOnlineOrderPromoCode"/></param>
 		/// <returns></returns>
-		Result<IEnumerable<IOnlineOrderedProductV5>> TryApplyPromoCode(IUnitOfWork uow, ICanApplyOnlineOrderPromoCodeV5 onlineOrderPromoCode);
+		Result<IEnumerable<OnlineOrderItemDto>> TryApplyPromoCode(IUnitOfWork uow, CanApplyOnlineOrderPromoCodeV5 onlineOrderPromoCode);
+		/// <summary>
+		/// Проверка применимости промокода с корзины
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="source">ИПЗ</param>
+		/// <param name="counterpartyId">Идентификатор клиента</param>
+		/// <param name="orderSum">Сумма заказа</param>
+		/// <param name="dateTime">Дата и время запроса</param>
+		/// <param name="product">Товар</param>
+		/// <returns></returns>
+		(bool? PromoCodeValid, bool DiscountApplicable) IsApplicableDiscount(
+			IUnitOfWork uow,
+			ExternalSource source,
+			int? counterpartyId,
+			decimal orderSum,
+			DateTime dateTime,
+			IGoods product);
 	}
 }

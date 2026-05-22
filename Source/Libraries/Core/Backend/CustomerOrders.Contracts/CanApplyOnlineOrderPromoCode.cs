@@ -1,20 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-<<<<<<<< HEAD:Source/Libraries/Core/Backend/CustomerOrders.Contracts/CanApplyOnlineOrderPromoCode.cs
 using CustomerOrders.Contracts.Interfaces;
 
 namespace CustomerOrders.Contracts
-========
-using Vodovoz.Core.Data.V4;
-using Vodovoz.Core.Domain.Clients;
-
-namespace VodovozBusiness.Nodes.V4
->>>>>>>> origin/5696_AddCreatingOnlineOrderFromTemplate:Source/Libraries/Core/Business/VodovozBusiness/Nodes/V4/CanApplyOnlineOrderPromoCodeV4.cs
 {
 	/// <summary>
 	/// Данные для проверки промокода и товаров онлайн заказа
 	/// </summary>
-	public class CanApplyOnlineOrderPromoCodeV4
+	public class CanApplyOnlineOrderPromoCode
 	{
 		/// <summary>
 		/// Время, когда пришел запрос
@@ -27,7 +20,7 @@ namespace VodovozBusiness.Nodes.V4
 		/// <summary>
 		/// Товары онлайн заказа
 		/// </summary>
-		public IEnumerable<IOnlineOrderedProductV4> Products { get; set; }
+		public IEnumerable<IOnlineOrderedProduct> Products { get; set; }
 		/// <summary>
 		/// Промокод
 		/// </summary>

@@ -12,7 +12,6 @@ using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Handlers;
 using VodovozInfrastructure.Cryptography;
-using OnlineOrderItemDto = CustomerOrdersApi.Library.Default.Dto.Orders.OrderItem.OnlineOrderItemDto;
 
 namespace CustomerOrdersApi.Library.Default.Services
 {
@@ -21,7 +20,7 @@ namespace CustomerOrdersApi.Library.Default.Services
 		private readonly ILogger<CustomerOrdersDiscountService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ISignatureManager _signatureManager;
-		private readonly IOnlineOrderDiscountHandlerV4 _onlineOrderDiscountHandler;
+		private readonly IOnlineOrderDiscountHandler _onlineOrderDiscountHandler;
 		private readonly SignatureOptions _signatureOptions;
 
 		public CustomerOrdersDiscountService(
@@ -29,7 +28,7 @@ namespace CustomerOrdersApi.Library.Default.Services
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ISignatureManager signatureManager,
 			IOptions<SignatureOptions> signatureOptions,
-			IOnlineOrderDiscountHandlerV4 onlineOrderDiscountHandler)
+			IOnlineOrderDiscountHandler onlineOrderDiscountHandler)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -75,11 +74,11 @@ namespace CustomerOrdersApi.Library.Default.Services
 				out generatedSignature);
 		}
 
-		public Result<IEnumerable<IOnlineOrderedProductV4>> ApplyPromoCodeToOnlineOrder(ApplyPromoCodeDto applyPromoCodeDto)
+		public Result<IEnumerable<IOnlineOrderedProduct>> ApplyPromoCodeToOnlineOrder(ApplyPromoCodeDto applyPromoCodeDto)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Применение промокода к онлайн заказу");
 
-			var dto = new CanApplyOnlineOrderPromoCodeV4
+			var dto = new CanApplyOnlineOrderPromoCode
 			{
 				PromoCode =	applyPromoCodeDto.PromoCode,
 				Time = applyPromoCodeDto.RequestTime.ToLocalTime(),

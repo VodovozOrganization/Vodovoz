@@ -13,15 +13,11 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Extensions;
+using VodovozBusiness.Nodes;
 
-<<<<<<<< HEAD:Source/Applications/Backend/Workers/Docker/OnlineOrders/CustomerOnlineOrdersRegistrar/V4/Factories/OnlineOrderFactoryV4.cs
 namespace CustomerOnlineOrdersRegistrar.V4.Factories
 {
 	/// <inheritdoc/>
-========
-namespace CustomerOnlineOrdersRegistrar.Factories.V4
-{
->>>>>>>> origin/5696_AddCreatingOnlineOrderFromTemplate:Source/Applications/Backend/Workers/Docker/OnlineOrders/CustomerOnlineOrdersRegistrar/Factories/V4/OnlineOrderFactoryV4.cs
 	public class OnlineOrderFactoryV4 : IOnlineOrderFactoryV4
 	{
 		private readonly IDiscountController _discountController;
@@ -104,7 +100,7 @@ namespace CustomerOnlineOrdersRegistrar.Factories.V4
 			IUnitOfWork uow,
 			OnlineOrder onlineOrder,
 			int selfDeliveryDiscountReasonId,
-			IEnumerable<OnlineOrderItemDtoV4> onlineOrderItemsDtos)
+			IEnumerable<OnlineOrderItemDto> onlineOrderItemsDtos)
 		{
 			if(onlineOrderItemsDtos is null)
 			{
@@ -143,12 +139,10 @@ namespace CustomerOnlineOrdersRegistrar.Factories.V4
 				var onlineOrderItem = OnlineOrderItem.Create(
 					onlineOrderItemDto.NomenclatureId,
 					onlineOrderItemDto.Count,
-					onlineOrderItemDto.IsDiscountInMoney,
 					onlineOrderItemDto.IsFixedPrice,
-					onlineOrderItemDto.Discount,
 					onlineOrderItemDto.Price,
 					onlineOrderItemDto.PromoSetId,
-					applicableDiscountReason,
+					DiscountData.Create(onlineOrderItemDto.IsDiscountInMoney, onlineOrderItemDto.Discount, applicableDiscountReason),
 					nomenclature,
 					promoSet,
 					onlineOrder);

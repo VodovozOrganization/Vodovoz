@@ -16,7 +16,8 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.Extensions;
 using Vodovoz.Settings.Nomenclature;
 using VodovozBusiness.Controllers;
-using VodovozBusiness.Domain.Orders.V5;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Nodes;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -24,7 +25,7 @@ namespace Vodovoz.Domain.Orders
 		NominativePlural = "строки заказа",
 		Nominative = "строка заказа")]
 	[HistoryTrace]
-	public class OrderItem : OrderItemEntity, IOrderItemWageCalculationSource, IDiscount, IProduct, ICalculatingPriceV5
+	public class OrderItem : OrderItemEntity, IOrderItemWageCalculationSource, IDiscount, IProduct, ICalculatingPriceWithManyDiscounts
 	{
 		private Order _order;
 		private Equipment _equipment;
@@ -144,14 +145,9 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual decimal GetDiscount => IsDiscountInMoney ? DiscountMoney : Discount;
 		
-		public virtual IEnumerable<IProductDiscountData> Discounts => new[]
+		public virtual IEnumerable<IDiscountData> Discounts => new[]
 		{
-			new ProductDiscountData
-			{
-				Discount = GetDiscount,
-				IsDiscountInMoney = IsDiscountInMoney,
-				DiscountReason = DiscountReason
-			}
+			DiscountData.Create(IsDiscountInMoney, GetDiscount, DiscountReason)
 		};
 
 		public virtual void UpdateRentCount(int rentCount)

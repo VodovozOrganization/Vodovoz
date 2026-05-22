@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Core.Infrastructure;
-using Vodovoz.Core.Data.V5;
+using CustomerOrders.Contracts.V5.Orders.Discounts;
+using CustomerOrders.Contracts.V5.Orders.Templates;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
@@ -13,18 +14,18 @@ using Vodovoz.EntityRepositories.Orders;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.EntityRepositories.Orders;
 using VodovozBusiness.Extensions;
-using VodovozBusiness.Services.Orders.V5;
+using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Application.Orders.Services
 {
 	public class OnlineOrderTemplateHandler
 	{
-		private readonly IGoodsPriceCalculatorV5 _priceCalculator;
+		private readonly IGoodsPriceCalculator _priceCalculator;
 		private readonly IOnlineOrderRepository _onlineOrderRepository;
 		private readonly IOnlineOrderTemplateRepository _onlineOrderTemplateRepository;
 
 		public OnlineOrderTemplateHandler(
-			IGoodsPriceCalculatorV5 priceCalculator,
+			IGoodsPriceCalculator priceCalculator,
 			IOnlineOrderRepository onlineOrderRepository,
 			IOnlineOrderTemplateRepository onlineOrderTemplateRepository)
 		{
@@ -147,9 +148,9 @@ namespace Vodovoz.Application.Orders.Services
 				
 				var discounts = item.Discounts
 					.Select(x =>
-						DiscountData.Create(
-							x.IsDiscountInMoney ? x.MoneyDiscount : x.PercentDiscount,
+						DiscountDto.Create(
 							x.IsDiscountInMoney,
+							x.IsDiscountInMoney ? x.MoneyDiscount : x.PercentDiscount,
 							x.DiscountReason.Id))
 					.ToArray();
 
@@ -191,7 +192,7 @@ namespace Vodovoz.Application.Orders.Services
 				{
 					foreach(var promoItem in promoSet.PromotionalSetItems)
 					{
-						var discounts = new[] { DiscountData.Create(promoItem.Discount, promoItem.IsDiscountInMoney) };
+						var discounts = new[] { DiscountDto.Create(promoItem.Discount, promoItem.IsDiscountInMoney) };
 						
 						var orderTemplateProduct = OrderTemplateProductDto.Create(
 							promoItem.Nomenclature.Id,

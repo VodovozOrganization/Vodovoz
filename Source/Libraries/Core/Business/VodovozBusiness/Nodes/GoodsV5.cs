@@ -8,7 +8,7 @@ namespace VodovozBusiness.Nodes
 	/// <summary>
 	/// Товар
 	/// </summary>
-	public class GoodsV5 : IGoodsV5
+	public class GoodsV5 : IGoodsWithManyDiscounts
 	{
 		public GoodsV5(){ }
 

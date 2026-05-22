@@ -1,14 +1,10 @@
-using Microsoft.Extensions.Configuration;
 using System.Linq;
+using Microsoft.Extensions.Configuration;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using CustomerOrdersApi.Library.V4.Dto.Orders.FixedPrice;
-using Vodovoz.Application.Orders.Services.V5;
-using VodovozBusiness.Domain.Orders;
-using VodovozBusiness.Domain.Orders.V5;
-using VodovozBusiness.Nodes;
+using CustomerOrders.Contracts.V5.Orders.FixedPrice;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Extensions;
 using VodovozHealthCheck.Helpers;
@@ -36,10 +32,6 @@ namespace CustomerOrdersApi.HealthCheck
 			{
 				PropertyNameCaseInsensitive = true,
 				PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-				Converters =
-				{
-					new InterfaceToImplementationJsonConverter<IOnlineOrderedProductWithFixedPriceV5, OnlineOrderItemWithFixedPriceV5>()
-				}
 			};
 
 			var result = await HttpResponseHelper.SendRequestAsync<AppliedFixedPriceDto>(

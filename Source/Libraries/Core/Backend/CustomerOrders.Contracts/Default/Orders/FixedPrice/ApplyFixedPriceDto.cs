@@ -40,6 +40,6 @@ namespace CustomerOrders.Contracts.Default.Orders.FixedPrice
 		/// <summary>
 		/// Список товаров
 		/// </summary>
-		public IEnumerable<OnlineOrderItemDtoV4> OnlineOrderItems { get; set; }
+		public IEnumerable<OnlineOrderItemDto> OnlineOrderItems { get; set; }
 	}
 }

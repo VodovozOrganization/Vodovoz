@@ -71,17 +71,17 @@ namespace Vodovoz.Factories
 				//TODO 5695: Пока делаем лишь одну скидку
 				var firstDiscount = product.Discounts.FirstOrDefault()
 					?? OnlineOrderTemplateProductDiscount.CreateEmptyDiscount(product);
-				
+
 				var onlineOrderItem = OnlineOrderItem.Create(
 					product.Nomenclature.Id,
 					product.Count,
-					firstDiscount.IsDiscountInMoney,
 					product.IsFixedPrice,
-					firstDiscount.PercentDiscount,
-					firstDiscount.MoneyDiscount,
 					product.Price,
 					product.PromoSet?.Id,
-					firstDiscount.DiscountReason,
+					DiscountData.Create(
+						firstDiscount.IsDiscountInMoney,
+						firstDiscount.IsDiscountInMoney ? firstDiscount.MoneyDiscount : firstDiscount.PercentDiscount,
+						firstDiscount.DiscountReason),
 					product.Nomenclature,
 					product.PromoSet,
 					onlineOrder);

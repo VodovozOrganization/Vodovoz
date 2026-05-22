@@ -1,14 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-<<<<<<<< HEAD:Source/Libraries/Core/Backend/CustomerOrders.Contracts/V4/Orders/OrderDto.cs
 using CustomerOrders.Contracts.InfoMessages;
 
 namespace CustomerOrders.Contracts.V4.Orders
-========
-using Vodovoz.Core.Domain.Orders;
-
-namespace Vodovoz.Core.Data.V5
->>>>>>>> origin/5696_AddCreatingOnlineOrderFromTemplate:Source/Libraries/Core/Business/Vodovoz.Core.Data/V5/OrderDto.cs
 {
 	/// <summary>
 	/// Информация о заказе

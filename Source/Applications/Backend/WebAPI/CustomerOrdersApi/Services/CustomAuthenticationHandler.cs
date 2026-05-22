@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using CustomerOrders.Contracts;
 using CustomerOrdersApi.Configs;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Vodovoz.Core.Domain.Clients;
 
 namespace CustomerAppsApi.Services
 {
@@ -61,11 +61,11 @@ namespace CustomerAppsApi.Services
  
 		private AuthenticateResult ValidateToken(string[] sourceAndToken)
 		{
-			Source? source = null;
+			ExternalSource? source = null;
 			
 			try
 			{
-				source = Enum.Parse<Source>(sourceAndToken[0]);
+				source = Enum.Parse<ExternalSource>(sourceAndToken[0]);
 			}
 			catch(Exception e)
 			{
@@ -82,8 +82,9 @@ namespace CustomerAppsApi.Services
 			
 			var isValid = source switch
 			{
-				Source.MobileApp => Options.MobileApp == token,
-				Source.VodovozWebSite => Options.VodovozWebSite == token,
+				ExternalSource.MobileApp => Options.MobileApp == token,
+				ExternalSource.VodovozWebSite => Options.VodovozWebSite == token,
+				ExternalSource.AiBot => Options.VodovozWebSite == token,
 				_ => false
 			};
 

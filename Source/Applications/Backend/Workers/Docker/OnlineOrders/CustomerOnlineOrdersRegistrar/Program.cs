@@ -1,8 +1,8 @@
 using Autofac.Extensions.DependencyInjection;
 using CustomerOnlineOrdersRegistrar.Configs;
-using CustomerOnlineOrdersRegistrar.Consumers;
-using CustomerOnlineOrdersRegistrar.Factories.V4;
-using CustomerOnlineOrdersRegistrar.Factories.V5;
+using CustomerOnlineOrdersRegistrar.V3.Factories;
+using CustomerOnlineOrdersRegistrar.V4.Factories;
+using CustomerOnlineOrdersRegistrar.V5.Factories;
 using CustomerOrdersApi.Library;
 using DriverApi.Notifications.Client;
 using MassTransit;
@@ -62,14 +62,16 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddBusiness(hostContext.Configuration)
 						.AddDriverApiNotificationsSenders()
 						.AddInfrastructure()
+						.AddVersion3()
 						.AddVersion4()
 						.AddVersion5()
-						.AddApplicationOrderServices()
+						.AddCoreApplicationOrderServices()
 						.AddOsrm()
 
 						.AddScoped<IRouteListService, RouteListService>()
 						.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
 						.AddScoped<IOnlineOrderService, OnlineOrderService>()
+						.AddScoped<IOnlineOrderFactoryV3, OnlineOrderFactoryV3>()
 						.AddScoped<IOnlineOrderFactoryV4, OnlineOrderFactoryV4>()
 						.AddScoped<IOnlineOrderFactoryV5, OnlineOrderFactoryV5>()
 

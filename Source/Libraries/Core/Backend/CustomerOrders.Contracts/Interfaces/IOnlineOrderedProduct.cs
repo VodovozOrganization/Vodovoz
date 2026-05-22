@@ -1,10 +1,6 @@
-<<<<<<<< HEAD:Source/Libraries/Core/Backend/CustomerOrders.Contracts/Interfaces/IOnlineOrderedProduct.cs
-﻿namespace CustomerOrders.Contracts.Interfaces
-========
-﻿namespace Vodovoz.Core.Data.V4
->>>>>>>> origin/5696_AddCreatingOnlineOrderFromTemplate:Source/Libraries/Core/Business/Vodovoz.Core.Data/V4/IOnlineOrderedProductV4.cs
+namespace CustomerOrders.Contracts.Interfaces
 {
-	public interface IOnlineOrderedProductV4
+	public interface IOnlineOrderedProduct
 	{
 		/// <summary>
 		/// Id номенклатуры в ДВ

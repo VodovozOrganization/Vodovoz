@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Core.Infrastructure;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Application.Orders;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Service;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Models.Orders;
 using Vodovoz.Services.Orders;
@@ -18,13 +16,12 @@ using Vodovoz.Settings.Orders;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Services.Orders;
-using VodovozBusiness.Services.Orders.V5;
 
 namespace Vodovoz.Core.Application.Orders.Services
 {
 	public class OrderFromOnlineOrderValidator : IOrderFromOnlineOrderValidator
 	{
-		private readonly IGoodsPriceCalculatorV5 _priceCalculator;
+		private readonly IGoodsPriceCalculator _priceCalculator;
 		private readonly IOnlineOrderDeliveryPriceGetter _deliveryPriceGetter;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IClientDeliveryPointsChecker _clientDeliveryPointsChecker;
@@ -38,7 +35,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private List<ICheckOnlineOrderSum> _calculatedOrderItemPrices;
 
 		public OrderFromOnlineOrderValidator(
-			IGoodsPriceCalculatorV5 goodsPriceCalculator,
+			IGoodsPriceCalculator goodsPriceCalculator,
 			IOnlineOrderDeliveryPriceGetter deliveryPriceGetter,
 			INomenclatureSettings nomenclatureSettings,
 			IClientDeliveryPointsChecker clientDeliveryPointsChecker,

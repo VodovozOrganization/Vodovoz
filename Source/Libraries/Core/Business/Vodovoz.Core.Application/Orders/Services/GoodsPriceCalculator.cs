@@ -2,29 +2,19 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Service;
 using VodovozBusiness.Domain.Orders;
-using VodovozBusiness.Domain.Orders.V5;
-using VodovozBusiness.Services.Orders.V5;
+using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Core.Application.Orders.Services
 {
 	/// <inheritdoc/>
 	public class GoodsPriceCalculator : IGoodsPriceCalculator
-	/// <inheritdoc/>
-	public class GoodsPriceCalculator : IGoodsPriceCalculatorV5
 	{
 		/// <inheritdoc/>
-		public decimal CalculateItemPrice(
-			IEnumerable<IGoods> products,
-		/// <inheritdoc/>
 		public virtual decimal CalculatePrice(
-			IEnumerable<ICalculatingPriceV5> products,
+			IEnumerable<ICalculatingPriceWithManyDiscounts> products,
 			Counterparty counterparty,
 			DeliveryPoint deliveryPoint,
-			Counterparty counterparty,
-			IGoods currentProduct,
-			bool hasPermissionsForAlternativePrice)
 			Nomenclature nomenclature,
 			bool isPromoSet,
 			bool hasPermissionsForAlternativePrice,
@@ -56,9 +46,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 			return nomenclature.GetPrice(count, canApplyAlternativePrice);
 		}
 
-		private decimal GetTotalWater19LCount(IEnumerable<IGoods> products, bool doNotCalculateWaterFromPromoSets = false)
 		protected virtual decimal GetTotalWater19LCount(
-			IEnumerable<ICalculatingPriceV5> products,
+			IEnumerable<ICalculatingPriceWithManyDiscounts> products,
 			bool doNotCalculateWaterFromPromoSets = false,
 			bool doNotCountPresentsDiscount = false)
 		{
@@ -79,13 +68,9 @@ namespace Vodovoz.Core.Application.Orders.Services
 			return (int)water19L.Sum(x => x.Count);
 		}
 		
-		private NomenclatureFixedPrice GetFixedPriceOrNull(
-			IEnumerable<IGoods> products,
 		protected virtual NomenclatureFixedPrice GetFixedPriceOrNull(
 			Counterparty counterparty,
 			DeliveryPoint deliveryPoint,
-			Counterparty counterparty,
-			IGoods currentProduct)
 			Nomenclature nomenclature,
 			bool isPromoSet,
 			decimal bottlesCount,

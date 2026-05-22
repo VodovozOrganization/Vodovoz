@@ -20,7 +20,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 		private readonly ILogger<CustomerOrderFixedPriceServiceV4> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ISignatureManager _signatureManager;
-		private readonly IOnlineOrderFixedPriceHandlerV4 _onlineOrderFixedPriceHandler;
+		private readonly IOnlineOrderFixedPriceHandler _onlineOrderFixedPriceHandler;
 		private readonly SignatureOptions _signatureOptions;
 
 		public CustomerOrderFixedPriceServiceV4(
@@ -28,7 +28,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ISignatureManager signatureManager,
 			IOptions<SignatureOptions> signatureOptions,
-			IOnlineOrderFixedPriceHandlerV4 onlineOrderFixedPriceHandler)
+			IOnlineOrderFixedPriceHandler onlineOrderFixedPriceHandler)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -56,11 +56,11 @@ namespace CustomerOrdersApi.Library.V4.Services
 				out generatedSignature);
 		}
 		
-		public Result<IEnumerable<IOnlineOrderedProductWithFixedPriceV4>> ApplyFixedPriceToOnlineOrder(ApplyFixedPriceDto applyFixedPriceDto)
+		public Result<IEnumerable<IOnlineOrderedProductWithFixedPrice>> ApplyFixedPriceToOnlineOrder(ApplyFixedPriceDto applyFixedPriceDto)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot($"Применение фиксы к онлайн заказу {applyFixedPriceDto.ExternalOrderId}");
 
-			var node = new CanApplyOnlineOrderFixedPriceV4
+			var node = new CanApplyOnlineOrderFixedPrice
 			{
 				IsSelfDelivery =	applyFixedPriceDto.IsSelfDelivery,
 				DeliveryPointId = applyFixedPriceDto.ErpDeliveryPointId,
@@ -71,7 +71,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 			return _onlineOrderFixedPriceHandler.TryApplyFixedPrice(uow, node);
 		}
 		
-		private decimal GetOnlineOrderSum(IEnumerable<OnlineOrderItemDtoV4> orderItems)
+		private decimal GetOnlineOrderSum(IEnumerable<OnlineOrderItemDto> orderItems)
 		{
 			return orderItems.Sum(x =>
 				x.IsDiscountInMoney

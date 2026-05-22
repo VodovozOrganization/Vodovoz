@@ -45,7 +45,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 	{
 		private readonly ICommonServices _commonServices;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
-		private readonly IGoodsPriceCalculatorV5 _goodsPriceCalculator;
+		private readonly IGoodsPriceCalculator _goodsPriceCalculator;
 		private readonly ViewModelEEVMBuilder<DeliveryPoint> _deliveryPointViewModelBuilder;
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel;
 		private readonly Employee _currentEmployee;
@@ -75,7 +75,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			ICommonServices commonServices,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
-			IGoodsPriceCalculatorV5 goodsPriceCalculator,
+			IGoodsPriceCalculator goodsPriceCalculator,
 			ViewModelEEVMBuilder<DeliveryPoint> deliveryPointViewModelBuilder,
 			DeliveryPointJournalFilterViewModel deliveryPointJournalFilterViewModel
 			) : base(navigationManager)

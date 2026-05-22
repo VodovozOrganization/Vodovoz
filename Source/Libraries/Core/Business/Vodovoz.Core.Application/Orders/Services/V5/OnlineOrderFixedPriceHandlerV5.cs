@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomerOrders.Contracts.V5.Orders.FixedPrices;
+using CustomerOrders.Contracts.V5.Orders.OrderItem;
 using QS.DomainModel.UoW;
-using Vodovoz.Core.Data.V5;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Handlers;
-using VodovozBusiness.Domain.Orders.V5;
-using VodovozBusiness.Handlers.V5;
 
-namespace Vodovoz.Application.Orders.Services.V5
+namespace Vodovoz.Core.Application.Orders.Services.V5
 {
 	public class OnlineOrderFixedPriceHandlerV5 : IOnlineOrderFixedPriceHandlerV5
 	{
@@ -57,9 +56,9 @@ namespace Vodovoz.Application.Orders.Services.V5
 			return fixedPrices.Any();
 		}
 
-		public Result<IEnumerable<IOnlineOrderedProductWithFixedPriceV5>> TryApplyFixedPrice(
+		public Result<IEnumerable<OnlineOrderItemWithFixedPriceV5>> TryApplyFixedPrice(
 			IUnitOfWork uow,
-			ICanApplyOnlineOrderFixedPriceV5 canApplyOnlineOrderFixedPrice)
+			CanApplyOnlineOrderFixedPriceV5 canApplyOnlineOrderFixedPrice)
 		{
 			if(!HasFixedPrices(
 				uow,
@@ -68,17 +67,17 @@ namespace Vodovoz.Application.Orders.Services.V5
 				canApplyOnlineOrderFixedPrice.IsSelfDelivery,
 				out var fixedPrices))
 			{
-				return Result.Failure<IEnumerable<IOnlineOrderedProductWithFixedPriceV5>>(Vodovoz.Errors.Orders.FixedPriceErrors.NotFound);
+				return Result.Failure<IEnumerable<OnlineOrderItemWithFixedPriceV5>>(Vodovoz.Errors.Orders.FixedPriceErrors.NotFound);
 			}
 
 			return TryApplyFixedPrice(canApplyOnlineOrderFixedPrice, fixedPrices);
 		}
 
-		private Result<IEnumerable<IOnlineOrderedProductWithFixedPriceV5>> TryApplyFixedPrice(
-			ICanApplyOnlineOrderFixedPriceV5 canApplyOnlineOrderFixedPrice,
+		private Result<IEnumerable<OnlineOrderItemWithFixedPriceV5>> TryApplyFixedPrice(
+			CanApplyOnlineOrderFixedPriceV5 canApplyOnlineOrderFixedPrice,
 			IEnumerable<NomenclatureFixedPrice> fixedPrices)
 		{
-			var itemsWithFixedPrice = new List<IOnlineOrderedProductWithFixedPriceV5>();
+			var itemsWithFixedPrice = new List<OnlineOrderItemWithFixedPriceV5>();
 
 			foreach(var onlineItem in canApplyOnlineOrderFixedPrice.OnlineOrderItems)
 			{
@@ -109,7 +108,7 @@ namespace Vodovoz.Application.Orders.Services.V5
 			return Result.Success(itemsWithFixedPrice.AsEnumerable());
 		}
 
-		private bool CanApplyFixedPrice(IOnlineOrderedProductV5 onlineItem, NomenclatureFixedPrice fixedPrice)
+		private bool CanApplyFixedPrice(OnlineOrderItemDto onlineItem, NomenclatureFixedPrice fixedPrice)
 		{
 			if(onlineItem.PromoSetId.HasValue)
 			{

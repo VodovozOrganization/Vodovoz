@@ -12,6 +12,14 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 {
 	public class OnlineOrderTemplateChangedNotifier : BackgroundService
 	{
+		protected override Task ExecuteAsync(CancellationToken stoppingToken)
+		{
+			throw new NotImplementedException();
+		}
+
+		//Пока закрываю, до момента выдачи ТЗ по отправке уведомлений/пушей ао автозаказам
+		
+		/* 
 		private readonly ILogger<OnlineOrderTemplateChangedNotifier> _logger;
 		private readonly IOptionsMonitor<> _options;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
@@ -99,6 +107,6 @@ namespace CustomerOnlineOrdersStatusUpdateNotifier
 					UpdateNotification(uow, notification, httpCode);
 				}
 			}
-		}
+		}*/
 	}
 }

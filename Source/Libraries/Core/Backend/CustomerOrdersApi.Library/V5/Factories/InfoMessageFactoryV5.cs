@@ -1,6 +1,7 @@
 ﻿using Vodovoz.Core.Data;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Extensions;
+using InfoMessage = CustomerOrders.Contracts.InfoMessages.InfoMessage;
 
 namespace CustomerOrdersApi.Library.V5.Factories
 {
@@ -16,7 +17,7 @@ namespace CustomerOrdersApi.Library.V5.Factories
 			return InfoMessage.Create("orderDescriptionTop", 2, "Заказ не был оплачен", "Наш менеджер свяжется с Вами в ближайшее время");
 		}
 
-		public InfoMessage CreateAutoOrderDiscountInfoMessage(decimal discount, DiscountUnits units)
+		/*public InfoMessage CreateAutoOrderDiscountInfoMessage(decimal discount, DiscountUnits units)
 		{
 			return InfoMessage.Create(
 				"orderDescriptionTop",
@@ -31,6 +32,6 @@ namespace CustomerOrdersApi.Library.V5.Factories
 						InfoMessageParameterAction.Create("OpenModal", "OrderTemplateInfo")),
 					InfoMessageParameter.Create("Discount", discount + units.GetEnumDisplayName())
 				});
-		}
+		}*/
 	}
 }

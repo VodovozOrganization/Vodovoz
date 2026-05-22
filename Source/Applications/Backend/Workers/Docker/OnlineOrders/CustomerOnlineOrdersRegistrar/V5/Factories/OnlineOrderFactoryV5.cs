@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using CustomerOrders.Contracts.V5.Orders;
 using CustomerOrders.Contracts.V5.Orders.OrderItem;
+using CustomerOrders.Contracts.V5.Orders.Templates;
 using CustomerOrdersApi.Library.Extensions;
 using QS.DomainModel.UoW;
+using QS.Extensions.Observable.Collections.List;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.Rent;
@@ -13,7 +16,9 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using VodovozBusiness.Controllers;
+using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Extensions;
+using VodovozBusiness.Factories;
 using VodovozBusiness.Nodes;
 
 namespace CustomerOnlineOrdersRegistrar.V5.Factories
@@ -21,10 +26,14 @@ namespace CustomerOnlineOrdersRegistrar.V5.Factories
 	/// <inheritdoc/>
 	public class OnlineOrderFactoryV5 : IOnlineOrderFactoryV5
 	{
+		private readonly IOnlineOrderAuthorFactory _onlineOrderAuthorFactory;
 		private readonly IDiscountController _discountController;
 
-		public OnlineOrderFactoryV5(IDiscountController discountController)
+		public OnlineOrderFactoryV5(
+			IOnlineOrderAuthorFactory onlineOrderAuthorFactory,
+			IDiscountController discountController)
 		{
+			_onlineOrderAuthorFactory = onlineOrderAuthorFactory ?? throw new ArgumentNullException(nameof(onlineOrderAuthorFactory));
 			_discountController = discountController ?? throw new ArgumentNullException(nameof(discountController));
 		}
 		
@@ -83,6 +92,72 @@ namespace CustomerOnlineOrdersRegistrar.V5.Factories
 			onlineOrder.Created = DateTime.Now;
 
 			return onlineOrder;
+		}
+		
+		public (OnlineOrderTemplate OrderTemplate,
+			IEnumerable<OnlineOrderTemplateProduct> OrderTemplateProducts,
+			IEnumerable<OnlineOrderTemplateWeekday> OrderTemplateWeekDays)
+			CreateOnlineOrderTemplate(
+				IUnitOfWork uow,
+				OnlineOrder creatingOnlineOrder,
+				CreatingOrderTemplate creatingTemplate)
+		{
+			var template = OnlineOrderTemplate.Create(
+				creatingOnlineOrder.Source,
+				creatingOnlineOrder.EmployeeWorkWith?.Id ?? _onlineOrderAuthorFactory.Create(uow, creatingOnlineOrder.Source).Id,
+				creatingOnlineOrder.ExternalCounterpartyId,
+				creatingOnlineOrder.CounterpartyId.Value,
+				creatingOnlineOrder.DeliveryPointId.Value,
+				creatingTemplate.DeliveryScheduleId.Value,
+				creatingOnlineOrder.IsSelfDelivery,
+				creatingOnlineOrder.SelfDeliveryGeoGroupId,
+				creatingOnlineOrder.IsFastDelivery,
+				creatingOnlineOrder.IsNeedConfirmationByCall,
+				creatingOnlineOrder.DontArriveBeforeInterval,
+				creatingOnlineOrder.CallBeforeArrivalMinutes,
+				creatingOnlineOrder.BottlesReturn,
+				creatingTemplate.DeliveryFrequency.Value.ToOnlineOrderDeliveryFrequency(),
+				creatingOnlineOrder.OnlineOrderPaymentType,
+				creatingOnlineOrder.ContactPhone,
+				creatingOnlineOrder.OnlineOrderComment,
+				creatingOnlineOrder.Trifle
+			);
+			
+			var templateWeekdays = creatingTemplate.Weekdays
+				.Select(x => OnlineOrderTemplateWeekday.Create(template.Id, x.ToWeekDayName()));
+
+			//TODO 5965: подумать насчет расчета и идентификатора шаблона
+			var templateProducts = new ObservableList<OnlineOrderTemplateProduct>();
+			foreach(var orderItem in creatingOnlineOrder.OnlineOrderItems)
+			{
+				var discounts = new ObservableList<OnlineOrderTemplateProductDiscount>();
+				
+				var product = OnlineOrderTemplateProduct.Create(
+					orderItem.Count,
+					orderItem.Price,
+					orderItem.Nomenclature,
+					orderItem.PromoSet,
+					template.Id,
+					discounts
+				);
+				
+				foreach(var discountData in orderItem.Discounts)
+				{
+					var discount = OnlineOrderTemplateProductDiscount.Create(
+						product,
+						orderItem.Count,
+						orderItem.Price,
+						discountData.Discount,
+						discountData.IsDiscountInMoney,
+						discountData.DiscountReason);
+					
+					discounts.Add(discount);
+				}
+				
+				templateProducts.Add(product);
+			}
+
+			return (template, templateProducts, templateWeekdays);
 		}
 
 		private void UpdateOnlineComment(OnlineOrder onlineOrder, string onlineOrderComment)

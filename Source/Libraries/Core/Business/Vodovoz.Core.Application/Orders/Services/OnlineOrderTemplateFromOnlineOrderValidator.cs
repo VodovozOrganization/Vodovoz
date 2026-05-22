@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using CustomerOrders.Contracts.V5.Orders;
+using CustomerOrders.Contracts.V5.Orders.Templates;
 using Vodovoz.Core.Data.Orders;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Results;

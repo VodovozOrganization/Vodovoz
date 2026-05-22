@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using RevenueService.Client;
 using Sms.Internal.Client;
 using TrueMarkApi.Client;
+using Vodovoz.Application.Orders.Services.V4;
 using Vodovoz.Core.Application.Clients;
 using Vodovoz.Core.Application.Clients.Services;
 using Vodovoz.Core.Application.Complaints;
@@ -15,6 +16,7 @@ using Vodovoz.Core.Application.Goods;
 using Vodovoz.Core.Application.Logistics;
 using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
+using Vodovoz.Core.Application.Orders.Services.V5;
 using Vodovoz.Core.Application.Payments;
 using Vodovoz.Core.Application.Receipts;
 using Vodovoz.Core.Application.Services.Subdivisions;
@@ -23,7 +25,6 @@ using Vodovoz.Core.Application.Users;
 using Vodovoz.Core.Application.Warehouses;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Core.Domain.Warehouses;
-using Vodovoz.Domain.Service;
 using Vodovoz.Handlers;
 using Vodovoz.Services;
 using Vodovoz.Services.Logistics;
@@ -106,8 +107,8 @@ namespace Vodovoz.Core.Application
 			.AddScoped<IClientDeliveryPointsChecker, ClientDeliveryPointsChecker>()
 			.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
 			.AddScoped<IOnlineOrderDiscountHandler, OnlineOrderDiscountHandler>()
-			.AddScoped<IOnlineOrderDiscountHandlerV5, OnlineOrderDiscountHandlerV5>()
 			.AddScoped<IOnlineOrderFixedPriceHandler, OnlineOrderFixedPriceHandler>()
+			.AddScoped<IOnlineOrderDiscountHandlerV5, OnlineOrderDiscountHandlerV5>()
 			.AddScoped<IOnlineOrderFixedPriceHandlerV5, OnlineOrderFixedPriceHandlerV5>()
 			.AddDriverApiNotificationsSenders()
 			.AddScoped<IOrderOrganizationManager, OrderOrganizationManager>()

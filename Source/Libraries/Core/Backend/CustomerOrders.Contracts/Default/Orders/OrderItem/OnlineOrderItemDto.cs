@@ -7,7 +7,7 @@ namespace CustomerOrders.Contracts.Default.Orders.OrderItem
 	/// <summary>
 	/// Товар онлайн заказа
 	/// </summary>
-	public class OnlineOrderItemDto : IOnlineOrderedProductV4
+	public class OnlineOrderItemDto : IOnlineOrderedProduct
 	{
 		/// <summary>
 		/// Id номенклатуры в ДВ

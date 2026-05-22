@@ -124,7 +124,7 @@ namespace CustomerOrders.Contracts.V4.Orders
 		/// <summary>
 		/// Список товаров
 		/// </summary>
-		IList<OnlineOrderItemDtoV4> OnlineOrderItems { get; set; }
+		IList<OnlineOrderItemDto> OnlineOrderItems { get; set; }
 
 		/// <summary>
 		/// Список пакетов аренды

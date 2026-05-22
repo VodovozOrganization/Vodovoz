@@ -27,22 +27,19 @@ namespace CustomerOnlineOrdersRegistrar.V3.Consumers
 			IOnlineOrderRepository onlineOrderRepository,
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
 			IRouteListService routeListService,
-			IOrderFromOnlineOrderValidator onlineOrderValidator,
-			IOnlineOrderTemplateFromOnlineOrderValidator onlineOrderTemplateValidator
+			IOrderFromOnlineOrderValidator onlineOrderValidator
 			)
 			: base(
 				logger,
 				unitOfWorkFactory,
-				onlineOrderFactoryV4,
-				onlineOrderFactoryV5,
+				onlineOrderFactory,
 				deliveryRulesSettings,
 				discountReasonSettings,
 				onlineOrderRepository,
 				onlineOrderCancellationReasonSettings,
 				orderService,
 				routeListService,
-				onlineOrderValidator,
-				onlineOrderTemplateValidator
+				onlineOrderValidator
 				)
 		{
 		}
@@ -58,7 +55,7 @@ namespace CustomerOnlineOrdersRegistrar.V3.Consumers
 			
 			try
 			{
-				await TryRegisterOnlineOrderV4Async(message, context.CancellationToken);
+				await TryRegisterOnlineOrderAsync(message, context.CancellationToken);
 				return;
 			}
 			catch(Exception e)

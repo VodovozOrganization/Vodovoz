@@ -1,17 +1,11 @@
-<<<<<<<< HEAD:Source/Libraries/Core/Backend/CustomerOrders.Contracts/OnlineOrderItemWithFixedPrice.cs
-﻿using CustomerOrders.Contracts.Interfaces;
+using CustomerOrders.Contracts.Interfaces;
 
 namespace CustomerOrders.Contracts
-========
-﻿using VodovozBusiness.Domain.Orders.V4;
-
-namespace VodovozBusiness.Nodes.V4
->>>>>>>> origin/5696_AddCreatingOnlineOrderFromTemplate:Source/Libraries/Core/Business/VodovozBusiness/Nodes/V4/OnlineOrderItemWithFixedPriceV4.cs
 {
 	/// <summary>
 	/// Позиция онлайн заказа с фиксой
 	/// </summary>
-	public class OnlineOrderItemWithFixedPriceV4 :  IOnlineOrderedProductWithFixedPriceV4
+	public class OnlineOrderItemWithFixedPrice :  IOnlineOrderedProductWithFixedPrice
 	{
 		/// <summary>
 		/// Id номенклатуры в ДВ

@@ -4,15 +4,14 @@ using System.Linq;
 using CustomerOrders.Contracts;
 using CustomerOrders.Contracts.Interfaces;
 using CustomerOrders.Contracts.V4.Orders;
-using CustomerOrdersApi.Library.Config;
 using CustomerOrders.Contracts.V4.Orders.OrderItem;
+using CustomerOrdersApi.Library.Config;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Handlers;
 using VodovozInfrastructure.Cryptography;
-using OnlineOrderItemDtoV4 = CustomerOrdersApi.Library.V4.Dto.Orders.OrderItem.OnlineOrderItemDtoV4;
 
 namespace CustomerOrdersApi.Library.V4.Services
 {
@@ -21,7 +20,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 		private readonly ILogger<CustomerOrdersDiscountServiceV4> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ISignatureManager _signatureManager;
-		private readonly IOnlineOrderDiscountHandlerV4 _onlineOrderDiscountHandler;
+		private readonly IOnlineOrderDiscountHandler _onlineOrderDiscountHandler;
 		private readonly SignatureOptions _signatureOptions;
 
 		public CustomerOrdersDiscountServiceV4(
@@ -29,7 +28,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ISignatureManager signatureManager,
 			IOptions<SignatureOptions> signatureOptions,
-			IOnlineOrderDiscountHandlerV4 onlineOrderDiscountHandler)
+			IOnlineOrderDiscountHandler onlineOrderDiscountHandler)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -75,11 +74,11 @@ namespace CustomerOrdersApi.Library.V4.Services
 				out generatedSignature);
 		}
 
-		public Result<IEnumerable<IOnlineOrderedProductV4>> ApplyPromoCodeToOnlineOrder(ApplyPromoCodeDto applyPromoCodeDto)
+		public Result<IEnumerable<IOnlineOrderedProduct>> ApplyPromoCodeToOnlineOrder(ApplyPromoCodeDto applyPromoCodeDto)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Применение промокода к онлайн заказу");
 
-			var dto = new CanApplyOnlineOrderPromoCodeV4
+			var dto = new CanApplyOnlineOrderPromoCode
 			{
 				Source = applyPromoCodeDto.Source,
 				PromoCode =	applyPromoCodeDto.PromoCode,
@@ -91,7 +90,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 			return _onlineOrderDiscountHandler.TryApplyPromoCode(uow, dto);
 		}
 
-		private decimal GetOnlineOrderSum(IEnumerable<OnlineOrderItemDtoV4> orderItems)
+		private decimal GetOnlineOrderSum(IEnumerable<OnlineOrderItemDto> orderItems)
 		{
 			return orderItems.Sum(x =>
 				x.IsDiscountInMoney

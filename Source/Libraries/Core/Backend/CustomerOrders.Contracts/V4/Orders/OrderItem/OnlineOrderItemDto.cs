@@ -1,17 +1,13 @@
 ﻿using System;
-<<<<<<<< HEAD:Source/Libraries/Core/Backend/CustomerOrders.Contracts/V4/Orders/OrderItem/OnlineOrderItemDto.cs
 using System.Text.Json.Serialization;
 using CustomerOrders.Contracts.Interfaces;
-========
-using Vodovoz.Core.Data.V4;
->>>>>>>> origin/5696_AddCreatingOnlineOrderFromTemplate:Source/Libraries/Core/Backend/CustomerOrders.Contracts/V4/Orders/OrderItem/OnlineOrderItemDtoV4.cs
 
 namespace CustomerOrders.Contracts.V4.Orders.OrderItem
 {
 	/// <summary>
 	/// Товар онлайн заказа
 	/// </summary>
-	public class OnlineOrderItemDtoV4 : IOnlineOrderedProductV4
+	public class OnlineOrderItemDto : IOnlineOrderedProduct
 	{
 		/// <summary>
 		/// Id номенклатуры в ДВ

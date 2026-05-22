@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
+using CustomerOrders.Contracts.V5.Orders.FixedPrices;
+using CustomerOrders.Contracts.V5.Orders.OrderItem;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Goods;
-using VodovozBusiness.Domain.Orders.V5;
-using VodovozBusiness.Handlers.V5;
 
 namespace Vodovoz.Handlers
 {
@@ -32,9 +32,9 @@ namespace Vodovoz.Handlers
 		/// </summary>
 		/// <param name="uow">unit of work</param>
 		/// <param name="canApplyOnlineOrderFixedPrice">Данные, необходимые для проверки фиксы и товары
-		/// <see cref="ICanApplyOnlineOrderFixedPriceV5"/></param>
+		/// <see cref="CanApplyOnlineOrderFixedPriceV5"/></param>
 		/// <returns></returns>
-		Result<IEnumerable<IOnlineOrderedProductWithFixedPriceV5>> TryApplyFixedPrice(
-			IUnitOfWork uow, ICanApplyOnlineOrderFixedPriceV5 canApplyOnlineOrderFixedPrice);
+		Result<IEnumerable<OnlineOrderItemWithFixedPriceV5>> TryApplyFixedPrice(
+			IUnitOfWork uow, CanApplyOnlineOrderFixedPriceV5 canApplyOnlineOrderFixedPrice);
 	}
 }

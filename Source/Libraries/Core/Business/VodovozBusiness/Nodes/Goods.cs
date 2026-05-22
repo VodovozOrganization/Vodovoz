@@ -26,7 +26,7 @@ namespace VodovozBusiness.Nodes
 			DiscountReason = discountReason;
 			IsFixedPrice = isFixedPrice;
 		}
-		
+
 		/// <inheritdoc/>
 		public decimal Price { get; }
 		/// <inheritdoc/>

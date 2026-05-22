@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using CustomerOrders.Contracts;
+using CustomerOrders.Contracts.V5.Orders.OrderItem;
+using CustomerOrders.Contracts.V5.Orders.PromoCodes;
 using CustomerOrdersApi.Library.Config;
-using CustomerOrdersApi.Library.V5.Dto.Orders;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
-using Vodovoz.Application.Orders.Services.V5;
-using Vodovoz.Core.Data.V5;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Handlers;
 using VodovozInfrastructure.Cryptography;
@@ -17,14 +15,14 @@ namespace CustomerOrdersApi.Library.V5.Services
 {
 	public class CustomerOrdersDiscountServiceV5 : SignatureService, ICustomerOrdersDiscountServiceV5
 	{
-		private readonly ILogger<CustomerOrdersServiceV5> _logger;
+		private readonly ILogger<CustomerOrdersDiscountServiceV5> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ISignatureManager _signatureManager;
 		private readonly IOnlineOrderDiscountHandlerV5 _onlineOrderDiscountHandler;
 		private readonly SignatureOptions _signatureOptions;
 
 		public CustomerOrdersDiscountServiceV5(
-			ILogger<CustomerOrdersServiceV5> logger,
+			ILogger<CustomerOrdersDiscountServiceV5> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ISignatureManager signatureManager,
 			IOptions<SignatureOptions> signatureOptions,
@@ -47,10 +45,10 @@ namespace CustomerOrdersApi.Library.V5.Services
 				applyPromoCodeDto.Signature,
 				new ApplyPromoCodeSignatureParams
 				{
-					OrderId = applyPromoCodeDto.Source == Source.MobileApp
+					OrderId = applyPromoCodeDto.Source == ExternalSource.MobileApp
 						? applyPromoCodeDto.ExternalCounterpartyId.ToString()
 						: applyPromoCodeDto.ExternalOrderId.ToString(),
-					OrderSumInKopecks = (int)(GetOnlineOrderSum(applyPromoCodeDto.OnlineOrderItems) * 100),
+					OrderSumInKopecks = (int)(applyPromoCodeDto.OrderSum * 100),
 					ShopId = (int)applyPromoCodeDto.Source,
 					PromoCode = applyPromoCodeDto.PromoCode,
 					Sign = sourceSign
@@ -74,7 +72,7 @@ namespace CustomerOrdersApi.Library.V5.Services
 				out generatedSignature);
 		}
 
-		public Result<IEnumerable<IOnlineOrderedProductV5>> ApplyPromoCodeToOnlineOrder(ApplyPromoCodeDto applyPromoCodeDto)
+		public Result<IEnumerable<OnlineOrderItemDto>> ApplyPromoCodeToOnlineOrder(ApplyPromoCodeDto applyPromoCodeDto)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Применение промокода к онлайн заказу");
 
@@ -84,15 +82,11 @@ namespace CustomerOrdersApi.Library.V5.Services
 				PromoCode =	applyPromoCodeDto.PromoCode,
 				Time = applyPromoCodeDto.RequestTime.ToLocalTime(),
 				CounterpartyId = applyPromoCodeDto.ErpCounterpartyId.Value,
-				Products = applyPromoCodeDto.OnlineOrderItems
+				Products = applyPromoCodeDto.OnlineOrderItems,
+				OrderSum = applyPromoCodeDto.OrderSum
 			};
 			
 			return _onlineOrderDiscountHandler.TryApplyPromoCode(uow, dto);
-		}
-
-		private decimal GetOnlineOrderSum(IEnumerable<OnlineOrderItemDtoV5> orderItems)
-		{
-			return orderItems.Sum(x => x.Count * x.Price - x.Discount());
 		}
 	}
 }

@@ -27,21 +27,19 @@ namespace CustomerOnlineOrdersRegistrar.V4.Consumers
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
 			IOrderService orderService,
 			IRouteListService routeListService,
-			IOrderFromOnlineOrderValidator onlineOrderValidator,
-			IOnlineOrderTemplateFromOnlineOrderValidator onlineOrderTemplateValidator)
+			IOrderFromOnlineOrderValidator onlineOrderValidator
+			)
 			: base(
 				logger,
 				unitOfWorkFactory,
-				onlineOrderFactoryV4,
-				onlineOrderFactoryV5,
+				onlineOrderFactory,
 				deliveryRulesSettings,
 				discountReasonSettings,
 				onlineOrderRepository,
 				onlineOrderCancellationReasonSettings,
 				orderService,
 				routeListService,
-				onlineOrderValidator,
-				onlineOrderTemplateValidator
+				onlineOrderValidator
 			)
 		{
 		}
@@ -57,7 +55,7 @@ namespace CustomerOnlineOrdersRegistrar.V4.Consumers
 			
 			try
 			{
-				var onlineOrderIdWithCode = await TryRegisterOnlineOrderV4Async(message, context.CancellationToken);
+				var onlineOrderIdWithCode = await TryRegisterOnlineOrderAsync(message, context.CancellationToken);
 				await context.RespondAsync(CreatedOnlineOrderResult.Create(onlineOrderIdWithCode));
 			}
 			catch(Exception e)

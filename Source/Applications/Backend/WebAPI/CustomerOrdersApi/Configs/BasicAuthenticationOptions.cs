@@ -16,6 +16,10 @@ namespace CustomerOrdersApi.Configs
 		/// </summary>
 		public string VodovozWebSite { get; set; }
 		/// <summary>
+		/// Подпись ИИ бота
+		/// </summary>
+		public string AiBot { get; set; }
+		/// <summary>
 		/// Подпись Кулер сэйл
 		/// </summary>
 		public string KulerSaleWebSite { get; set; }

@@ -5,6 +5,7 @@ using QS.DomainModel.Entity;
 using QS.HistoryLog;
 using Vodovoz.Domain.Goods;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Nodes;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -15,7 +16,7 @@ namespace Vodovoz.Domain.Orders
 		PrepositionalPlural = "Строках онлайн заказа"
 	)]
 	[HistoryTrace]
-	public class OnlineOrderItem : PropertyChangedBase, IDomainObject, IProduct, ICalculatingPriceV5
+	public class OnlineOrderItem : PropertyChangedBase, IDomainObject, IProduct, ICalculatingPriceWithManyDiscounts
 	{
 		private int? _nomenclatureId;
 		private decimal _price;
@@ -135,51 +136,14 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual decimal GetDiscount => IsDiscountInMoney ? MoneyDiscount : PercentDiscount;
 
-		public virtual IEnumerable<IProductDiscountData> Discounts => new[]
+		public virtual IEnumerable<IDiscountData> Discounts => new[]
 		{
-			new ProductDiscountData
-			{
-				Discount = GetDiscount,
-				IsDiscountInMoney = IsDiscountInMoney,
-				DiscountReason = DiscountReason
-			}
+			DiscountData.Create(IsDiscountInMoney, GetDiscount, DiscountReason)
 		};
+		
 		public virtual decimal Sum => Math.Round(Price * Count - MoneyDiscount, 2);
 		public virtual decimal ActualSum => Sum;
 		public virtual decimal CurrentCount => Count;
-		
-		public static OnlineOrderItem Create(
-			int? nomenclatureId,
-			decimal count,
-			bool isDiscountInMoney,
-			bool isFixedPrice,
-			decimal discount,
-			decimal price,
-			int? promoSetId,
-			DiscountReason discountReason,
-			Nomenclature nomenclature,
-			PromotionalSet promotionalSet,
-			OnlineOrder onlineOrder
-		)
-		{
-			var onlineOrderItem = new OnlineOrderItem
-			{
-				NomenclatureId = nomenclatureId,
-				Count = count,
-				IsDiscountInMoney = isDiscountInMoney,
-				IsFixedPrice = isFixedPrice,
-				Price = price,
-				PromoSetId = promoSetId,
-				DiscountReason = discountReason,
-				Nomenclature = nomenclature,
-				PromoSet = promotionalSet,
-				OnlineOrder = onlineOrder
-			};
-
-			onlineOrderItem.CalculateDiscount(discount);
-
-			return onlineOrderItem;
-		}
 		
 		public static OnlineOrderItem Create(
 			int? nomenclatureId,

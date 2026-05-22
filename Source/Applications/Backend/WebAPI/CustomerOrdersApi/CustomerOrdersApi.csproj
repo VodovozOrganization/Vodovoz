@@ -38,5 +38,10 @@
       <ProjectReference Include="..\Vodovoz.Presentation.WebApi\Vodovoz.Presentation.WebApi.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="HealthCheck\V4\" />
+      <Folder Include="HealthCheck\V5\" />
+    </ItemGroup>
+
 </Project>
 
