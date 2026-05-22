@@ -367,7 +367,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// Получить первый доставленный заказ из массива идентификаторов заказа
+		/// Получить первый доставленный заказ из массива идентификаторов заказов
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="orderIds">Массив идентификаторов заказов</param>

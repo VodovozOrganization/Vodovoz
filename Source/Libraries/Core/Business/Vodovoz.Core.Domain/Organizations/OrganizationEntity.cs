@@ -194,7 +194,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		/// <summary>
 		/// E-mail организации, с которого будет приходить письмо с претензией
 		/// </summary>
-		[Display(Name = "EE-mail организации, с которого будет приходить письмо с претензией")]
+		[Display(Name = "E-mail организации, с которого будет приходить письмо с претензией")]
 		public virtual string EmailForClaimLetters
 		{
 			get => _closingDeliveriesNotificationEmailFrom;
