@@ -41,13 +41,16 @@ namespace DriverAPI.Library.V6.Converters
 		/// </summary>
 		/// <param name="routeList">Маршрутный лист ДВ</param>
 		/// <param name="itemsToReturn">Оборудование на возврат</param>
-		/// <returns></returns>
-		public RouteListDto ConvertToAPIRouteList(RouteList routeList, IEnumerable<KeyValuePair<string, int>> itemsToReturn, IEnumerable<KeyValuePair<int, string>> spectiaConditionsToAccept)
+		/// <param name="specialConditionsToAccept"></param>
+		/// <param name="permittedDistance">Разрешенное расстояние от ERP</param>
+		/// <returns>RouteListDto</returns>
+		public RouteListDto ConvertToAPIRouteList(RouteList routeList, IEnumerable<KeyValuePair<string, int>> itemsToReturn, IEnumerable<KeyValuePair<int, string>> specialConditionsToAccept, int permittedDistance)
 		{
-			var result = new RouteListDto()
+			var result = new RouteListDto
 			{
 				ForwarderFullName = routeList.Forwarder?.FullName ?? "Нет",
-				CompletionStatus = _routeListCompletionStatusConverter.ConvertToAPIRouteListCompletionStatus(routeList.Status)
+				CompletionStatus = _routeListCompletionStatusConverter.ConvertToAPIRouteListCompletionStatus(routeList.Status),
+				PermittedDistance = permittedDistance
 			};
 
 			if(result.CompletionStatus == RouteListDtoCompletionStatus.Completed)
@@ -56,7 +59,7 @@ namespace DriverAPI.Library.V6.Converters
 					.Where(x => x.Nomenclature.IsWater19L)
 					.Sum(x => x.Amount);
 
-				result.CompletedRouteList = new CompletedRouteListDto()
+				result.CompletedRouteList = new CompletedRouteListDto
 				{
 					RouteListId = routeList.Id,
 					RouteListStatus = _routeListStatusConverter.ConvertToAPIRouteListStatus(routeList.Status),
@@ -81,9 +84,8 @@ namespace DriverAPI.Library.V6.Converters
 					FullBottlesToReturn = (int)fullBottlesToReturn,
 					EmptyBottlesToReturn = routeList.Addresses
 						.Sum(rla => rla.DriverBottlesReturned ?? 0),
+					OrdersReturnItems = itemsToReturn.Select(pair => new OrdersReturnItemDto() { Name = pair.Key, Count = pair.Value })
 				};
-
-				result.CompletedRouteList.OrdersReturnItems = itemsToReturn.Select(pair => new OrdersReturnItemDto() { Name = pair.Key, Count = pair.Value });
 			}
 			else
 			{
@@ -101,7 +103,7 @@ namespace DriverAPI.Library.V6.Converters
 						RouteListId = routeList.Id,
 						RouteListStatus = _routeListStatusConverter.ConvertToAPIRouteListStatus(routeList.Status),
 						RouteListAddresses = routelistAddresses,
-						SpecialConditionsToAccept = ConvertToApiDto(spectiaConditionsToAccept)
+						SpecialConditionsToAccept = ConvertToApiDto(specialConditionsToAccept)
 					};
 				}
 			}
