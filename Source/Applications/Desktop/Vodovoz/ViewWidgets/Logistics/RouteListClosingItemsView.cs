@@ -195,12 +195,14 @@ namespace Vodovoz
 						                                                 && d.DocumentOrganizationCounter != null).DocumentOrganizationCounter.DocumentNumber
 						: "")
 					.AddPixbufRenderer(x => GetRowIcon(x))
-				.AddColumn("Подписание документов").HeaderAlignment(0.5f)
+				.AddColumn("Подписание\nдокументов").HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.Order.PaymentType == PaymentType.Cashless
 						? (node.Order.SignatureType.HasValue
 							? node.Order.SignatureType.Value.GetEnumTitle()
 							: string.Empty)
 						: string.Empty)
+					.WrapWidth(100)
+					.WrapMode(Pango.WrapMode.WordChar)
 				.AddColumn("Адрес").HeaderAlignment(0.5f).AddTextRenderer(node =>
 					node.Order.DeliveryPoint == null
 						? string.Empty
