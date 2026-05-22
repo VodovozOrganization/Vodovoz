@@ -17,7 +17,6 @@ using QS.Project.Services;
 using QS.Services;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
-using Vodovoz.Core.Data.V5;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
@@ -37,7 +36,6 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Services.Orders;
-using VodovozBusiness.Services.Orders.V5;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {
