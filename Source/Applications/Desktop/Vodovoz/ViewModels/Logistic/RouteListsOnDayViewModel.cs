@@ -1375,6 +1375,9 @@ namespace Vodovoz.ViewModels.Logistic
 			var drivers = _employeeRepository.GetWorkingDriversAtDay(UoW, DateForRouting);
 
 			var cars = CarRepository.GetCarsByDrivers(UoW, drivers.Select(x => x.Id).ToArray());
+			var driverIds = drivers.Select(x => x.Id).ToArray();
+			var driverSchedules = _employeeRepository.GetDriverSchedulesAtDay(UoW, driverIds, DateForRouting);
+			var driverIdsWithEvents = _employeeRepository.GetDriverIdsWithDriverScheduleEventsAtDay(UoW, driverIds, DateForRouting);
 
 
 			if(drivers.Count > 0)
@@ -1382,6 +1385,32 @@ namespace Vodovoz.ViewModels.Logistic
 				foreach(var driver in drivers)
 				{
 					var car = cars.SingleOrDefault(x => x.Driver.Id == driver.Id);
+					var driverSchedule = driverSchedules.FirstOrDefault(x => x.Driver.Id == driver.Id);
+					var scheduleItem = driverSchedule?.Days?.FirstOrDefault(x => x.Date.Date == DateForRouting.Date);
+
+					if(driverIdsWithEvents.Contains(driver.Id))
+					{
+						continue;
+					}
+
+					if(scheduleItem?.CarEventType != null && scheduleItem.CarEventType.Id > 0)
+					{
+						continue;
+					}
+
+					if(scheduleItem != null)
+					{
+						totalBottles += scheduleItem.MorningBottles + scheduleItem.EveningBottles;
+						totalAddresses += scheduleItem.MorningAddresses + scheduleItem.EveningAddresses;
+						continue;
+					}
+
+					if(driverSchedule != null)
+					{
+						totalBottles += driverSchedule.MorningBottlesPotential + driverSchedule.EveningBottlesPotential;
+						totalAddresses += driverSchedule.MorningAddressesPotential + driverSchedule.EveningAddressesPotential;
+						continue;
+					}
 
 					if(car != null)
 					{

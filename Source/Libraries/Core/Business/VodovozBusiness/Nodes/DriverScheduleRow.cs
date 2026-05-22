@@ -369,6 +369,8 @@ namespace VodovozBusiness.Nodes
 		{
 			if(!IsValidDayIndex(dayIndex) 
 				|| !CanEditDay(dayIndex) 
+				|| Days[dayIndex].IsCarEventTypeFromJournal
+				|| Days[dayIndex].IsVirtualCarEventType
 				|| Days[dayIndex].HasActiveRouteList)
 			{
 				return;

@@ -28,6 +28,11 @@ namespace Vodovoz.Views.Logistic
 					RefreshTreeViews();
 					ConfigureDynamicTreeView();
 				}
+
+				if(IsColumnVisibilityProperty(e.PropertyName))
+				{
+					ApplyFixedColumnsVisibility();
+				}
 			};
 		}
 
@@ -76,9 +81,44 @@ namespace Vodovoz.Views.Logistic
 				.InitializeFromSource();
 
 			ybuttonApplyFilters.BindCommand(ViewModel.ApplyFiltersCommand);
+			ConfigureDriverSearchBinding();
+			ConfigureColumnVisibilityBindings();
 
 			ConfigureFixedTreeView();
 			ConfigureDynamicTreeView();
+			ApplyFixedColumnsVisibility();
+		}
+
+		private void ConfigureDriverSearchBinding()
+		{
+			yentryDriverSearch.Binding
+				.AddBinding(ViewModel, vm => vm.DriverSearchText, w => w.Text)
+				.InitializeFromSource();
+		}
+
+		private void ConfigureColumnVisibilityBindings()
+		{
+			ycheckShowCarTypeOfUseColumn.Binding
+				.AddBinding(ViewModel, vm => vm.ShowCarTypeOfUseColumn, w => w.Active)
+				.InitializeFromSource();
+			ycheckShowCarOwnTypeColumn.Binding
+				.AddBinding(ViewModel, vm => vm.ShowCarOwnTypeColumn, w => w.Active)
+				.InitializeFromSource();
+			ycheckShowDriverCarOwnTypeColumn.Binding
+				.AddBinding(ViewModel, vm => vm.ShowDriverCarOwnTypeColumn, w => w.Active)
+				.InitializeFromSource();
+			ycheckShowPhoneColumn.Binding
+				.AddBinding(ViewModel, vm => vm.ShowPhoneColumn, w => w.Active)
+				.InitializeFromSource();
+			ycheckShowDistrictColumn.Binding
+				.AddBinding(ViewModel, vm => vm.ShowDistrictColumn, w => w.Active)
+				.InitializeFromSource();
+			ycheckShowArrivalTimeColumn.Binding
+				.AddBinding(ViewModel, vm => vm.ShowArrivalTimeColumn, w => w.Active)
+				.InitializeFromSource();
+			ycheckShowLastModifiedDateTimeColumn.Binding
+				.AddBinding(ViewModel, vm => vm.ShowLastModifiedDateTimeColumn, w => w.Active)
+				.InitializeFromSource();
 		}
 
 		private void ConfigureFixedTreeView()
@@ -169,8 +209,11 @@ namespace Vodovoz.Views.Logistic
 			{
 				var date = weekStart.AddDays(dayIndex);
 				var dayName = dayNames[dayIndex];
+				var dayColumnTitle = date.Date == DateTime.Today
+					? $"{ViewModel.GetShortDayString(date)}\nСегодня"
+					: ViewModel.GetShortDayString(date);
 
-				columnsConfig.AddColumn($"{ViewModel.GetShortDayString(date)}")
+				columnsConfig.AddColumn(dayColumnTitle)
 					.HeaderAlignment(0.5f)
 					.AddComboRenderer(CreatePropertyExpression<DriverScheduleRow, CarEventType>($"{dayName}CarEventType"))
 					.SetDisplayFunc(x => x == null ? "Нет" : x.ShortName)
@@ -418,6 +461,31 @@ namespace Vodovoz.Views.Logistic
 
 			ytreeviewFixedPart.QueueDraw();
 			ytreeviewDynamicPart.QueueDraw();
+		}
+
+		private bool IsColumnVisibilityProperty(string propertyName) =>
+			propertyName == nameof(DriverScheduleViewModel.ShowCarTypeOfUseColumn)
+			|| propertyName == nameof(DriverScheduleViewModel.ShowCarOwnTypeColumn)
+			|| propertyName == nameof(DriverScheduleViewModel.ShowDriverCarOwnTypeColumn)
+			|| propertyName == nameof(DriverScheduleViewModel.ShowPhoneColumn)
+			|| propertyName == nameof(DriverScheduleViewModel.ShowDistrictColumn)
+			|| propertyName == nameof(DriverScheduleViewModel.ShowArrivalTimeColumn)
+			|| propertyName == nameof(DriverScheduleViewModel.ShowLastModifiedDateTimeColumn);
+
+		private void ApplyFixedColumnsVisibility()
+		{
+			if(ytreeviewFixedPart?.Columns == null || ytreeviewFixedPart.Columns.Length < 13)
+			{
+				return;
+			}
+
+			ytreeviewFixedPart.Columns[0].Visible = ViewModel.ShowCarTypeOfUseColumn;
+			ytreeviewFixedPart.Columns[1].Visible = ViewModel.ShowCarOwnTypeColumn;
+			ytreeviewFixedPart.Columns[4].Visible = ViewModel.ShowDriverCarOwnTypeColumn;
+			ytreeviewFixedPart.Columns[5].Visible = ViewModel.ShowPhoneColumn;
+			ytreeviewFixedPart.Columns[6].Visible = ViewModel.ShowDistrictColumn;
+			ytreeviewFixedPart.Columns[7].Visible = ViewModel.ShowArrivalTimeColumn;
+			ytreeviewFixedPart.Columns[12].Visible = ViewModel.ShowLastModifiedDateTimeColumn;
 		}
 	}
 }

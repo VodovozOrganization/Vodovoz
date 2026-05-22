@@ -23,6 +23,25 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 		private const int _columnsPerDay = 5;
 		private const int _daysInWeek = 7;
 		private const int _commentColumn = _firstDayColumn + _daysInWeek * _columnsPerDay;
+		private static readonly string[] _carEventTypeNamesAllowedToCreateFromDriverSchedule =
+		{
+			"вод/тел",
+			"отпуск",
+			"больничный",
+			"выходной"
+		};
+		private static readonly string[] _carEventTypeNamesAllowedToShowInDriverSchedule =
+		{
+			"вод/тел",
+			"отпуск",
+			"больничный",
+			"выходной",
+			"ремонт",
+			"ДТП",
+			"ТО",
+			"куз. ремонт",
+			"М - мойка"
+		};
 
 		private enum ExportColumn
 		{
@@ -198,7 +217,10 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			IList<CarEvent> carEvents,
 			DateTime startDate)
 		{
-			var driverCarEvents = carEvents.Where(ce => ce.Driver?.Id == node.DriverId).ToList();
+			var driverCarEvents = carEvents
+				.Where(ce => ce.Driver?.Id == node.DriverId)
+				.Where(ce => IsAllowedToShowInDriverSchedule(ce.CarEventType))
+				.ToList();
 			var eventWithComment = driverCarEvents.FirstOrDefault(carEvent => !string.IsNullOrEmpty(carEvent.Comment));
 
 			if(eventWithComment != null)
@@ -443,7 +465,12 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 				var day = driverNode.Days[dayIndex];
 				var eventType = day.CarEventType;
 
-				if(eventType == null || eventType.Id == 0)
+				if(eventType == null
+					|| eventType.Id <= 0
+					|| day.HasActiveRouteList
+					|| day.IsCarEventTypeFromJournal
+					|| day.IsVirtualCarEventType
+					|| !IsAllowedToCreateFromDriverSchedule(eventType))
 				{
 					if(currentGroup != null)
 					{
@@ -487,7 +514,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 
 		private void CreateOrUpdateCarEvent(IUnitOfWork uow, Car car, DriverScheduleRow driverNode, CarEventGroup group, int currentUserId)
 		{
-			if(group.CarEventType?.Id <= 0)
+			if(group.CarEventType?.Id <= 0 || !IsAllowedToCreateFromDriverSchedule(group.CarEventType))
 			{
 				return;
 			}
@@ -523,6 +550,28 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 				existingEvent.Comment = commentToSave;
 				uow.Save(existingEvent);
 			}
+		}
+
+		private bool IsAllowedToCreateFromDriverSchedule(CarEventType eventType)
+		{
+			return IsAllowedCarEventType(eventType, _carEventTypeNamesAllowedToCreateFromDriverSchedule);
+		}
+
+		private bool IsAllowedToShowInDriverSchedule(CarEventType eventType)
+		{
+			return IsAllowedCarEventType(eventType, _carEventTypeNamesAllowedToShowInDriverSchedule);
+		}
+
+		private bool IsAllowedCarEventType(CarEventType eventType, string[] allowedNames)
+		{
+			if(eventType == null)
+			{
+				return false;
+			}
+
+			return allowedNames.Any(allowedName =>
+				string.Equals(eventType.ShortName, allowedName, StringComparison.OrdinalIgnoreCase)
+				|| string.Equals(eventType.Name, allowedName, StringComparison.OrdinalIgnoreCase));
 		}
 
 		private Schedule CreateNewSchedule(
@@ -576,7 +625,15 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 					driverSchedule.Days.Add(scheduleItem);
 				}
 
-				if((dayScheduleNode.CarEventType?.Id ?? 0) > 0)
+				if(dayScheduleNode.IsCarEventTypeFromJournal || dayScheduleNode.IsVirtualCarEventType)
+				{
+					scheduleItem.CarEventType = null;
+					scheduleItem.MorningAddresses = 0;
+					scheduleItem.MorningBottles = 0;
+					scheduleItem.EveningAddresses = 0;
+					scheduleItem.EveningBottles = 0;
+				}
+				else if((dayScheduleNode.CarEventType?.Id ?? 0) > 0)
 				{
 					scheduleItem.CarEventType = dayScheduleNode.CarEventType;
 					scheduleItem.MorningAddresses = 0;
