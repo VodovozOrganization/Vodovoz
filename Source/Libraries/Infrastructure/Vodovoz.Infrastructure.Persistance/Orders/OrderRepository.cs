@@ -2872,6 +2872,19 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return result;
 		}
 
+		public async Task<Order> GetEarliestOrder(IUnitOfWork uow, IEnumerable<int> orderIds, CancellationToken cancellationToken)
+		{
+			Order orderAlias = null;
+
+			var earliestOrder = await uow.Session.QueryOver(() => orderAlias)
+				.WhereRestrictionOn(() => orderAlias.Id).IsIn(orderIds.ToArray())
+				.OrderBy(() => orderAlias.DeliveryDate).Asc
+				.Take(1)
+				.SingleOrDefaultAsync(cancellationToken);
+
+			return earliestOrder;
+		}
+
 		public IEnumerable<int> GetClientOrdersIdsForDate(IUnitOfWork uow, DateTime date, int? counterpartyId, int? deliveryPointId)
 		{
 			var query = uow.Session.Query<VodovozOrder>()

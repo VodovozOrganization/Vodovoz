@@ -368,5 +368,17 @@ namespace Vodovoz.EntityRepositories.Orders
 			int letterOfClaimResendIntervalDays,
 			int maxClientsToTake = int.MaxValue,
 			CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Получить первый доставленный заказ из массива идентификаторов заказа
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderIds">Массив идентификаторов заказов</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Наиболее ранний заказ</returns>
+		Task<Order> GetEarliestOrder(
+			IUnitOfWork uow,
+			IEnumerable<int> orderIds,
+			CancellationToken cancellationToken);
 	}
 }

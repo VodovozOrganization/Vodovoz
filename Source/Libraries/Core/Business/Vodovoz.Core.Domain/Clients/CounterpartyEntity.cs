@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Goods;
@@ -115,6 +114,7 @@ namespace Vodovoz.Core.Domain.Clients
 		private bool _hideDeliveryPointForBill;
 		private bool _disableDebtMailing;
 		private bool _disableClosingDeliveriesMailing;
+		private bool _disableClaimMailing;
 		private RevenueStatus? _revenueStatus;
 		private DateTime? _revenueStatusDate;
 		private bool _isWorkingWithoutSeal;
@@ -979,10 +979,20 @@ namespace Vodovoz.Core.Domain.Clients
 		}
 
 		/// <summary>
-		/// Запретить рассылку писем о блокировке поставок"
+		/// Запретить рассылку писем о блокировке поставок
 		/// </summary>
 		[Display(Name = "Запретить рассылку писем о блокировке поставок")]
 		public virtual bool DisableClosingDeliveriesMailing
+		{
+			get => _disableClosingDeliveriesMailing;
+			set => SetField(ref _disableClosingDeliveriesMailing, value);
+		}
+
+		/// <summary>
+		/// Запретить отправку претензий
+		/// </summary>
+		[Display(Name = "Запретить отправку претензий")]
+		public virtual bool DisableClaimMailing
 		{
 			get => _disableClosingDeliveriesMailing;
 			set => SetField(ref _disableClosingDeliveriesMailing, value);

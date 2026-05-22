@@ -5,6 +5,7 @@ using Mailjet.Api.Abstractions;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using RabbitMQ.MailSending;
 using System;
@@ -21,6 +22,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Common;
 using VodovozBusiness.Domain.StoredEmails;
+using Order = Vodovoz.Domain.Orders.Order;
 using StoredEmails = Vodovoz.Domain.StoredEmails;
 
 namespace EmailDebtNotificationWorker.Services
@@ -168,7 +170,16 @@ namespace EmailDebtNotificationWorker.Services
 					$"Организация {organizationId} не имеет email для рассылки, указанного в настройках");
 			}
 
-			var attachments = CreateEmailAttachments(client.Id, organizationId, GetFormattedSum(totalOverdueDebtorDebt), orderIds);
+			var earliestOrder = await _orderRepository.GetEarliestOrder(uow, orderIds, cancellationToken);
+			var earliestOrderDate = earliestOrder?.DeliveryDate ?? DateTime.Today;
+
+			var emailSubject = $"{_emailSubject} {client.FullName} (ИНН: {client.INN}) от {organizationFullName}";
+
+			var attachments = CreateEmailAttachments(
+				client.Id,
+				organizationId,
+				GetFormattedSum(totalOverdueDebtorDebt),
+				earliestOrderDate);
 
 			if(!attachments.Any())
 			{
@@ -192,8 +203,6 @@ namespace EmailDebtNotificationWorker.Services
 				throw new InvalidOperationException(
 					$"Клиент {client.Id} {client.FullName} не имеет подходящего email для отправки претензионного письма");
 			}
-
-			var emailSubject = $"{_emailSubject} {client.FullName} от {organizationFullName}";
 
 			var storedEmail = CreateStoredEmail(emailSubject, emailAddress);
 			await uow.SaveAsync(storedEmail, cancellationToken: cancellationToken);
@@ -235,15 +244,15 @@ namespace EmailDebtNotificationWorker.Services
 			}
 		}
 
-		private StoredEmails.StoredEmail CreateStoredEmail(string subject, string email)
+		private static StoredEmail CreateStoredEmail(string subject, string email)
 		{
 			var storedEmailSubject = subject.Length > _storedEmailSubjectMaxLength
 				? subject[.._storedEmailSubjectMaxLength]
 				: subject;
 
-			var storedEmail = new StoredEmails.StoredEmail
+			var storedEmail = new StoredEmail
 			{
-				State = StoredEmails.StoredEmailStates.PreparingToSend,
+				State = StoredEmailStates.PreparingToSend,
 				Author = null,
 				ManualSending = false,
 				SendDate = DateTime.Now,
@@ -314,7 +323,7 @@ namespace EmailDebtNotificationWorker.Services
 			int counterpartyId,
 			int organizationId,
 			string totalOverdueDebtorDebtFormatted,
-			IEnumerable<int> orderIds)
+			DateTime earliestOrderDate)
 		{
 			var attachments = new List<EmailAttachment>();
 			try
@@ -325,6 +334,19 @@ namespace EmailDebtNotificationWorker.Services
 					totalOverdueDebtorDebtFormatted);
 
 				attachments.AddRange(letterOfClaimAttachments);
+
+				var today = DateTime.Today;
+				var yesterday = today.AddDays(-1);
+				var startDateForRevision = new DateTime(earliestOrderDate.Year, 1, 1);
+				var endDateForRevision = yesterday;
+
+				var revisionAttachments = _emailAttachmentsCreateService.CreateRevisionAttachments(
+					counterpartyId,
+					organizationId,
+					startDateForRevision,
+					endDateForRevision);
+
+				attachments.AddRange(revisionAttachments);
 			}
 			catch(Exception ex)
 			{

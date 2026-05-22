@@ -6,7 +6,6 @@ using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Vodovoz.Core.Domain.Cash;
@@ -39,6 +38,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		private string _email;
 		private string _emailForMailing;
 		private string _closingDeliveriesNotificationEmailFrom;
+		private string _emailForClaimLetters;
 		private bool _disableClosingDeliveriesMailing;
 		private int? _cashBoxId;
 		private bool _withoutVAT;
@@ -186,6 +186,16 @@ namespace Vodovoz.Core.Domain.Organizations
 		/// </summary>
 		[Display(Name = "E-mail организации, с которого будет приходить письмо с уведомлением о закрытии поставок")]
 		public virtual string ClosingDeliveriesNotificationEmailFrom
+		{
+			get => _closingDeliveriesNotificationEmailFrom;
+			set => SetField(ref _closingDeliveriesNotificationEmailFrom, value);
+		}
+
+		/// <summary>
+		/// E-mail организации, с которого будет приходить письмо с претензией
+		/// </summary>
+		[Display(Name = "EE-mail организации, с которого будет приходить письмо с претензией")]
+		public virtual string EmailForClaimLetters
 		{
 			get => _closingDeliveriesNotificationEmailFrom;
 			set => SetField(ref _closingDeliveriesNotificationEmailFrom, value);

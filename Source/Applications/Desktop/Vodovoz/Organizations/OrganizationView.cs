@@ -61,6 +61,11 @@ namespace Vodovoz.Organizations
 				.AddBinding(ViewModel.Entity, e => e.DisableClosingDeliveriesMailing, w => w.Active)
 				.InitializeFromSource();
 
+			validatedentryEmailForClaimLetters.CustomRegex = ViewModel.RegexForEmailForMailing;
+			validatedentryEmailForClaimLetters.Binding
+				.AddBinding(ViewModel.Entity, e => e.EmailForClaimLetters, w => w.Text)
+				.InitializeFromSource();
+
 			validatedentryInn.ValidationMode = ValidationType.Numeric;
 			validatedentryInn.Binding
 				.AddBinding(ViewModel.Entity, e => e.INN, w => w.Text)
