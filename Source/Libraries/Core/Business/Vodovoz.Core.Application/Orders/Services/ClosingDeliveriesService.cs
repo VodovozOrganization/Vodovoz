@@ -127,8 +127,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 				_closingDeliveriesSettings.DaysBeforeClosingDeliveries,
 				_organizationsIds,
 				_orderStatuses,
-				_counterpartyTypes,
-				_counterpartySettings.CounterpartyFromTenderId,
 				counterpartyId,
 				cancellationToken);
 
