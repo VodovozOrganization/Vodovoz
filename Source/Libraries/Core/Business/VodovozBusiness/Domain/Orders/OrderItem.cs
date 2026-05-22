@@ -986,6 +986,8 @@ namespace Vodovoz.Domain.Orders
 				PromoSet = promotionalSet
 			};
 
+			newItem.UpdatePriceWithRecalculate(price);
+
 			if(discountReasons != null && discountReasons.Any())
 			{
 				foreach(var reason in discountReasons)
@@ -1004,7 +1006,6 @@ namespace Vodovoz.Domain.Orders
 				}
 			}
 
-			newItem.UpdatePriceWithRecalculate(price);
 			newItem.CalculateAndSetDiscount(discount);
 
 			return newItem;
