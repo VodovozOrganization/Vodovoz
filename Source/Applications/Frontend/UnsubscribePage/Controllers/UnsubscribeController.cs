@@ -65,10 +65,16 @@ namespace UnsubscribePage.Controllers
 
 				using var unitOfWork = _uowFactory.CreateWithoutRoot("Отписка от массовой рассылки");
 
-				if(node.CounterpartyEmailType == CounterpartyEmailType.ClosingDeliveries)
+				if(node.CounterpartyEmailType is CounterpartyEmailType.ClosingDeliveries)
 				{
 					var counterparty = unitOfWork.GetById<Counterparty>(node.CounterpartyId);
 					counterparty.DisableClosingDeliveriesMailing = true;
+					unitOfWork.Save(counterparty);
+				}
+				else if(node.CounterpartyEmailType is CounterpartyEmailType.InformationLetter)
+				{
+					var counterparty = unitOfWork.GetById<Counterparty>(node.CounterpartyId);
+					counterparty.DisableDebtMailing = true;
 					unitOfWork.Save(counterparty);
 				}
 
