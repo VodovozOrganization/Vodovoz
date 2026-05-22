@@ -2736,6 +2736,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			var expiredMaxDate = today.AddDays(-expiredMinDaysAgo);
 			var letterOfClaimMaxSendDate = today.AddDays(-letterOfClaimResendIntervalDays);
 
+			var excludeDebtTypes = new[] { DebtType.Judicial, DebtType.WriteOff };
+
 			//Сначала нужно найти клиентов у которых есть просроченная дебиторская задолженность и вышел таймаут для отправки претензионного письма
 			var expiredAndTimedOutCounterpartiesQuery =
 				from order in uow.Session.Query<Order>()
@@ -2770,8 +2772,9 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					&& order.PaymentType == PaymentType.Cashless
 					&& counterparty.PersonType == PersonType.legal
 					&& !counterparty.IsChainStore
+					&& !counterparty.DisableClaimMailing
 					&& (counterparty.RevenueStatus == null || !excludeCounterpartyRevenueStatuses.Contains(counterparty.RevenueStatus.Value))
-					&& counterparty.CloseDeliveryDebtType != DebtType.Judicial
+					&& !excludeDebtTypes.Contains(counterparty.CloseDeliveryDebtType.Value)
 					&& order.DeliveryDate != null
 					&& orderSum > 0
 					&& isExpiredAndClaimeLetterTimeoutLeft
@@ -2829,6 +2832,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						&& order.PaymentType == PaymentType.Cashless
 						&& counterpartiesIds.Contains(counterparty.Id)
 						&& contract.Organization.Id == organizationId
+						&& !counterparty.DisableClaimMailing
 						&& orderSum > 0
 						&& isExpired
 
