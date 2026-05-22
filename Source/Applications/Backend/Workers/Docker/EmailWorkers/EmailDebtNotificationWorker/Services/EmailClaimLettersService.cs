@@ -16,6 +16,7 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Orders;
@@ -39,6 +40,7 @@ namespace EmailDebtNotificationWorker.Services
 		private readonly IBus _bus;
 		private readonly IOptionsMonitor<EmailClaimLettersOptions> _emailClaimLettersOptions;
 		private readonly IDatabaseRepository _databaseRepository;
+		private readonly IClaimLetterBillWithoutShipmentService _claimLetterBillWithoutShipmentService;
 		private readonly OrderStatus[] _orderStatuses =
 			new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
 
@@ -54,7 +56,8 @@ namespace EmailDebtNotificationWorker.Services
 			IEmailSettings emailSettings,
 			IBus bus,
 			IOptionsMonitor<EmailClaimLettersOptions> emailClaimLettersOptions,
-			IDatabaseRepository databaseRepository)
+			IDatabaseRepository databaseRepository,
+			IClaimLetterBillWithoutShipmentService claimLetterBillWithoutShipmentService)
 		{
 			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
 			_uowFactory = uowFactory ?? throw new System.ArgumentNullException(nameof(uowFactory));
@@ -65,6 +68,7 @@ namespace EmailDebtNotificationWorker.Services
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 			_emailClaimLettersOptions = emailClaimLettersOptions ?? throw new System.ArgumentNullException(nameof(emailClaimLettersOptions));
 			_databaseRepository = databaseRepository ?? throw new ArgumentNullException(nameof(databaseRepository));
+			_claimLetterBillWithoutShipmentService = claimLetterBillWithoutShipmentService ?? throw new ArgumentNullException(nameof(claimLetterBillWithoutShipmentService));
 		}
 
 		public async Task SendClaimLetters(CancellationToken cancellationToken)
@@ -168,7 +172,14 @@ namespace EmailDebtNotificationWorker.Services
 					$"Организация {organizationId} не имеет email для рассылки, указанного в настройках");
 			}
 
-			var attachments = CreateEmailAttachments(client.Id, organizationId, GetFormattedSum(totalOverdueDebtorDebt), orderIds);
+			var billWithoutShipment = await _claimLetterBillWithoutShipmentService.GetOrCreateAsync(
+				uow,
+				client,
+				organizationId,
+				totalOverdueDebtorDebt,
+				cancellationToken);
+
+			var attachments = CreateEmailAttachments(client.Id, organizationId, GetFormattedSum(totalOverdueDebtorDebt), orderIds, billWithoutShipment);
 
 			if(!attachments.Any())
 			{
@@ -314,27 +325,21 @@ namespace EmailDebtNotificationWorker.Services
 			int counterpartyId,
 			int organizationId,
 			string totalOverdueDebtorDebtFormatted,
-			IEnumerable<int> orderIds)
+			IEnumerable<int> orderIds,
+			OrderWithoutShipmentForDebt billWithoutShipment)
 		{
 			var attachments = new List<EmailAttachment>();
-			try
-			{
-				var letterOfClaimAttachments = _emailAttachmentsCreateService.CreateLetterOfClaimAttachments(
-					organizationId,
-					counterpartyId,
-					totalOverdueDebtorDebtFormatted);
 
-				attachments.AddRange(letterOfClaimAttachments);
-			}
-			catch(Exception ex)
-			{
-				_logger.LogError(ex,
-					"Ошибка при создании вложений для письма с претензией для контрагента {CounterpartyId} и организации {OrganizationId}",
-					counterpartyId,
-					organizationId);
+			var letterOfClaimAttachments = _emailAttachmentsCreateService.CreateLetterOfClaimAttachments(
+				organizationId,
+				counterpartyId,
+				totalOverdueDebtorDebtFormatted);
 
-				return Enumerable.Empty<EmailAttachment>();
-			}
+			attachments.AddRange(letterOfClaimAttachments);
+
+			var billAttachments = _emailAttachmentsCreateService.CreateOrderWithoutShipmentForDebtAttachments(billWithoutShipment);
+
+			attachments.AddRange(billAttachments);
 
 			return attachments;
 		}
