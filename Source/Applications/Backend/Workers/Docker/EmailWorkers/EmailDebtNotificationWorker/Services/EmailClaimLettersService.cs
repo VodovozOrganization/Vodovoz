@@ -1,4 +1,4 @@
-﻿using BitrixApi.Library.Services;
+using BitrixApi.Library.Services;
 using EmailDebtNotificationWorker.Options;
 using EmailDebtNotificationWorker.Repositories;
 using Mailjet.Api.Abstractions;
@@ -128,7 +128,6 @@ namespace EmailDebtNotificationWorker.Services
 						cancellationToken);
 
 					emailMessages.Add(emailMessage);
-
 				}
 				catch(Exception ex)
 				{

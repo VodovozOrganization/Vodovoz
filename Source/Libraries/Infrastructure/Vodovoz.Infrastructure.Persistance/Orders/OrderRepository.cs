@@ -2843,7 +2843,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						Counterparty = counterparty,
 						OrganizationId = contract.Organization.Id,
 						OrganizationFullName = contract.Organization.FullName,
-						OrganizationEmailForMailing = contract.Organization.EmailForMailing,
+						OrganizationEmailForMailing = contract.Organization.EmailForClaimLetters,
 						Contract = contract,
 						OverdueDebtorDebt = orderSum - orderPaymentsSum,
 						OrderDeliveryDate = order.DeliveryDate.Value,
