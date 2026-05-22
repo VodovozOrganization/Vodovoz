@@ -65,7 +65,7 @@ namespace EmailDebtNotificationWorker.Services
 
 		public async Task ScheduleDebtNotificationsAsync(CancellationToken cancellationToken)
 		{
-			using var uow = _uowFactory.CreateWithoutRoot("Получение списка должников в воркере по рассылке писем о задолженнности");
+			using var uow = _uowFactory.CreateWithoutRoot(nameof(EmailDebtNotificationService));
 
 			var overdueOrdersByClient = await _emailRepository.GetAllOverdueOrdersForDebtNotificationAsync(uow, _maxEmailsPerMinute, cancellationToken);
 			if(!overdueOrdersByClient.Any())
