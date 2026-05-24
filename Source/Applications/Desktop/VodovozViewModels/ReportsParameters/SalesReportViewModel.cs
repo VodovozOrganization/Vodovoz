@@ -1,5 +1,6 @@
 ﻿using DateTimeHelpers;
 using Gamma.Utilities;
+using Org.BouncyCastle.Asn1.Pkcs;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -118,6 +119,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		}
 
 		public virtual LeftRightListViewModel<GroupingNode> GroupingSelectViewModel => _groupViewModel;
+
+		public IList<SalesReportGrouping> SelectedGroupings { get; private set; }
 
 		public IncludeExludeFiltersViewModel FilterViewModel => _filterViewModel;
 
@@ -478,6 +481,8 @@ $@"<b>1.</b> Подсчет продаж ведется на основе зак
 
 				var filters = BuildFiltersFromViewModel();
 
+				UpdateSelectedGroupings();
+
 				var data = await _salesReportService.GetSalesReportDataAsync(
 					_unitOfWork,
 					StartDate.Value,
@@ -491,8 +496,10 @@ $@"<b>1.</b> Подсчет продаж ведется на основе зак
 				var dataBottles = await _salesReportService.GetBottlesDataAsync(
 					_unitOfWork, countOfOrders);
 
-				/*// Обновляем UI
-				UpdateTreeView(data);*/
+				var tree = BuildTree(data, SelectedGroupings, 0);
+
+				/*// 3. Обновляем TreeView
+				UpdateTreeView(tree);*/
 			}
 			catch(Exception ex)
 			{
@@ -508,7 +515,7 @@ $@"<b>1.</b> Подсчет продаж ведется на основе зак
 		{
 			var filters = new SalesReportFilters();
 
-			if(FilterViewModel == null)
+			if(FilterViewModel is null)
 			{
 				return filters;
 			}
@@ -727,5 +734,63 @@ $@"<b>1.</b> Подсчет продаж ведется на основе зак
 
 			return filters;
 		}
+
+		private void UpdateSelectedGroupings()
+		{
+			SelectedGroupings = GroupingSelectViewModel.GetRightItems()
+				.Select(item => new SalesReportGrouping { Type = item.GroupType })
+				.ToList();
+
+			if(!SelectedGroupings.Any())
+			{
+				SelectedGroupings = new List<SalesReportGrouping>
+				{
+					new SalesReportGrouping { Type = GroupingType.NomenclatureType },
+					new SalesReportGrouping { Type = GroupingType.Nomenclature }
+				};
+			}
+		}
+
+		private IList<SalesReportTreeNode> BuildTree(
+			IEnumerable<SalesReportDataNode> data,
+			IList<SalesReportGrouping> groupings,
+			int level)
+		{
+			if(level >= groupings.Count)
+			{
+				return data.Select(item => new SalesReportTreeNode
+				{
+					Name = $"{item.NomenclatureName} | {item.TotalCount} шт. | {item.TotalSum:C}",
+					Data = item,
+					Level = level,
+					TotalCount = item.TotalCount,
+					TotalSum = item.TotalSum
+				}).ToList();
+			}
+
+			var grouping = groupings[level];
+			var groups = data.GroupBy(x => grouping.GetGroupKey(x));
+
+			var nodes = new List<SalesReportTreeNode>();
+
+			foreach(var group in groups)
+			{
+				var children = BuildTree(group, groupings, level + 1);
+
+				var node = new SalesReportTreeNode
+				{
+					Name = group.Key,
+					Level = level,
+					Children = children,
+					TotalCount = children.Sum(c => c.TotalCount),
+					TotalSum = children.Sum(c => c.TotalSum)
+				};
+
+				nodes.Add(node);
+			}
+
+			return nodes;
+		}
+
 	}
 }
