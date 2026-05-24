@@ -15,16 +15,20 @@ namespace Vodovoz.ViewModels.Services.SalesReport
 		private readonly ISalesReportRepository _salesReportRepository;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 
-		public SalesReportService(ISalesReportRepository salesReportRepository)
+		public SalesReportService(
+			ISalesReportRepository salesReportRepository,
+			INomenclatureSettings nomenclatureSettings
+			)
 		{
 			_salesReportRepository = salesReportRepository ?? throw new ArgumentNullException(nameof(salesReportRepository));
+			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 		}
 
 		public async Task<IList<SalesReportDataNode>> GetSalesReportDataAsync(
 			IUnitOfWork uow,
 			DateTime startDate,
 			DateTime endDate,
-			string orderDateType,
+			OrderDateFilterType orderDateType,
 			SalesReportFilters filters,
 			CancellationToken cancellationToken = default)
 		{
@@ -48,7 +52,7 @@ namespace Vodovoz.ViewModels.Services.SalesReport
 
 			if(orderIds is null || !orderIds.Any())
 			{
-				return new BottlesDataNode { Plan = 0, Fact = 0 };
+				return new BottlesDataNode { Plan = 0, FactFromRouteList = 0, FactFromSelfDelivery = 0};
 			}
 
 			return await _salesReportRepository.GetBottlesData(

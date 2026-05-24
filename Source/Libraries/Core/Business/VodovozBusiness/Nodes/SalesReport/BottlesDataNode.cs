@@ -5,21 +5,21 @@
 		/// <summary>
 		/// Плановое количество бутылей на возврат (из заказов)
 		/// </summary>
-		public decimal Plan { get; set; }
+		public int Plan { get; set; }
 
 		/// <summary>
 		/// Фактическое количество бутылей, возвращенных из маршрутных листов
 		/// </summary>
-		public decimal FactFromRouteList { get; set; }
+		public int FactFromRouteList { get; set; }
 
 		/// <summary>
 		/// Фактическое количество бутылей, возвращенных по документам самовывоза
 		/// </summary>
-		public decimal FactFromSelfDelivery { get; set; }
+		public int FactFromSelfDelivery { get; set; }
 
 		/// <summary>
 		/// Общее фактическое количество возвращенных бутылей
 		/// </summary>
-		public decimal Fact => FactFromRouteList + FactFromSelfDelivery;
+		public int Fact => FactFromRouteList + FactFromSelfDelivery;
 	}
 }

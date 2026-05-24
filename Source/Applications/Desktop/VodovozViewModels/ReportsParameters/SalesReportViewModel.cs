@@ -14,8 +14,17 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Client.ClientClassification;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
@@ -23,7 +32,9 @@ using Vodovoz.Reports.Editing;
 using Vodovoz.Reports.Editing.Modifiers;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.ReportsParameters.Profitability;
+using Vodovoz.ViewModels.Services.SalesReport;
 using Vodovoz.ViewModels.Widgets;
+using VodovozBusiness.Nodes.SalesReport;
 
 namespace Vodovoz.ViewModels.ReportsParameters
 {
@@ -39,6 +50,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		private readonly ILeftRightListViewModelFactory _leftRightListViewModelFactory;
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IInteractiveService _interactiveService;
+		private readonly ISalesReportService _salesReportService;
 		private readonly bool _canViewReportSalesWithCashReceipts;
 
 		private IncludeExludeFiltersViewModel _filterViewModel;
@@ -56,6 +68,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeRepository employeeRepository,
 			IInteractiveService interactiveService,
+			ISalesReportService salesReportService,
 			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory,
 			ILeftRightListViewModelFactory leftRightListViewModelFactory,
 			IReportInfoFactory reportInfoFactory,
@@ -77,6 +90,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			_canViewReportSalesWithCashReceipts =  currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanViewReportSalesWithCashReceipts);
 
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_salesReportService = salesReportService ?? throw new ArgumentNullException(nameof(salesReportService));
 			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));
 			_leftRightListViewModelFactory = leftRightListViewModelFactory ?? throw new ArgumentNullException(nameof(leftRightListViewModelFactory));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
@@ -144,6 +158,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				}
 			}
 		}
+
+		public bool IsLoading { get; set; }
 
 		public bool CanShowPhones => IsDetailed && _canSeePhones;
 
@@ -281,6 +297,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 		private void ShowInfoWindow()
 		{
+			GenerateDetailedReportAsync().GetAwaiter().GetResult();
+
 			var info = 
 $@"<b>1.</b> Подсчет продаж ведется на основе заказов. В отчете учитываются заказы со статусами:
 	'{OrderStatus.Accepted.GetEnumTitle()}'
@@ -450,6 +468,264 @@ $@"<b>1.</b> Подсчет продаж ведется на основе зак
 				result = modifier;
 			}
 			return result;
+		}
+
+		private async Task GenerateDetailedReportAsync()
+		{
+			try
+			{
+				IsLoading = true;
+
+				var filters = BuildFiltersFromViewModel();
+
+				var data = await _salesReportService.GetSalesReportDataAsync(
+					_unitOfWork,
+					StartDate.Value,
+					EndDate.Value,
+					OrderDateFilterViewModel.SelectedOrderDateFilterType,
+					filters);
+
+				var countOfOrders = data.Select(d => d.OrderId)
+					  .Distinct();
+
+				var dataBottles = await _salesReportService.GetBottlesDataAsync(
+					_unitOfWork, countOfOrders);
+
+				/*// Обновляем UI
+				UpdateTreeView(data);*/
+			}
+			catch(Exception ex)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error, $"Ошибка: {ex.Message}");
+			}
+			finally
+			{
+				IsLoading = false;
+			}
+		}
+
+		private SalesReportFilters BuildFiltersFromViewModel()
+		{
+			var filters = new SalesReportFilters();
+
+			if(FilterViewModel == null)
+			{
+				return filters;
+			}
+
+			foreach(var filter in FilterViewModel.Filters)
+			{
+				switch(filter)
+				{
+					case IncludeExcludeEnumFilter<NomenclatureCategory> categoryFilter:
+						filters.NomenclatureCategoryInclude = categoryFilter.IncludedElements
+							.Select(x => (NomenclatureCategory)Enum.Parse(typeof(NomenclatureCategory), x.Number))
+							.ToArray();
+						filters.NomenclatureCategoryExclude = categoryFilter.ExcludedElements
+							.Select(x => (NomenclatureCategory)Enum.Parse(typeof(NomenclatureCategory), x.Number))
+							.ToArray();
+						break;
+
+					case IncludeExcludeEntityFilter<Nomenclature> nomenclatureFilter:
+						filters.NomenclatureInclude = nomenclatureFilter.IncludedElements.Select(e => int.Parse(e.Number)).ToArray();
+						filters.NomenclatureExclude = nomenclatureFilter.ExcludedElements.Select(e => int.Parse(e.Number)).ToArray();
+						break;
+
+					case IncludeExcludeEntityFilter<ProductGroup> productGroupFilter:
+						filters.ProductGroupInclude = productGroupFilter.IncludedElements.Select(e => int.Parse(e.Number)).ToArray();
+						filters.ProductGroupExclude = productGroupFilter.ExcludedElements.Select(e => int.Parse(e.Number)).ToArray();
+						break;
+
+					case IncludeExcludeEnumFilter<CounterpartyType> counterpartyTypeFilter:
+						var typesToInclude = counterpartyTypeFilter.IncludedElements.Where(x => x.Parent == null).ToArray();
+						var subtypesToInclude = counterpartyTypeFilter.IncludedElements.Where(x => x.Parent != null).ToArray();
+
+						if(typesToInclude.Any())
+						{
+							filters.CounterpartyTypeInclude = typesToInclude
+								.Select(x => (CounterpartyType)Enum.Parse(typeof(CounterpartyType), x.Number))
+								.ToArray();
+						}
+
+						if(subtypesToInclude.Any())
+						{
+							filters.CounterpartySubtypeInclude = subtypesToInclude
+								.Select(x => int.Parse(x.Number))
+								.ToArray();
+						}
+
+						var typesToExclude = counterpartyTypeFilter.ExcludedElements.Where(x => x.Parent == null).ToArray();
+						var subtypesToExclude = counterpartyTypeFilter.ExcludedElements.Where(x => x.Parent != null).ToArray();
+
+						if(typesToExclude.Any())
+						{
+							filters.CounterpartyTypeExclude = typesToExclude
+								.Select(x => (CounterpartyType)Enum.Parse(typeof(CounterpartyType), x.Number))
+								.ToArray();
+						}
+
+						if(subtypesToExclude.Any())
+						{
+							filters.CounterpartySubtypeExclude = subtypesToExclude
+								.Select(x => int.Parse(x.Number))
+								.ToArray();
+						}
+						break;
+
+					case IncludeExcludeEntityFilter<Counterparty> counterpartyFilter:
+						filters.CounterpartyInclude = counterpartyFilter.IncludedElements.Select(e => int.Parse(e.Number)).ToArray();
+						filters.CounterpartyExclude = counterpartyFilter.ExcludedElements.Select(e => int.Parse(e.Number)).ToArray();
+						break;
+
+					case IncludeExcludeEntityFilter<Organization> organizationFilter:
+						filters.OrganizationInclude = organizationFilter.IncludedElements.Select(e => int.Parse(e.Number)).ToArray();
+						filters.OrganizationExclude = organizationFilter.ExcludedElements.Select(e => int.Parse(e.Number)).ToArray();
+						break;
+
+					case IncludeExcludeEntityFilter<DiscountReason> discountReasonFilter:
+						filters.DiscountReasonInclude = discountReasonFilter.IncludedElements.Select(e => int.Parse(e.Number)).ToArray();
+						filters.DiscountReasonExclude = discountReasonFilter.ExcludedElements.Select(e => int.Parse(e.Number)).ToArray();
+						break;
+
+					case IncludeExcludeEntityFilter<Subdivision> subdivisionFilter:
+						filters.SubdivisionInclude = subdivisionFilter.IncludedElements.Select(e => int.Parse(e.Number)).ToArray();
+						filters.SubdivisionExclude = subdivisionFilter.ExcludedElements.Select(e => int.Parse(e.Number)).ToArray();
+						break;
+
+					case IncludeExcludeEntityFilter<Employee> employeeFilter when filter.Title == "Авторы заказов":
+						filters.OrderAuthorInclude = employeeFilter.IncludedElements.Select(e => int.Parse(e.Number)).ToArray();
+						filters.OrderAuthorExclude = employeeFilter.ExcludedElements.Select(e => int.Parse(e.Number)).ToArray();
+						break;
+
+					case IncludeExcludeEntityFilter<GeoGroup> geoGroupFilter:
+						filters.GeoGroupInclude = geoGroupFilter.IncludedElements.Select(e => int.Parse(e.Number)).ToArray();
+						filters.GeoGroupExclude = geoGroupFilter.ExcludedElements.Select(e => int.Parse(e.Number)).ToArray();
+						break;
+
+					case IncludeExcludeEnumFilter<PaymentType> paymentTypeFilter:
+						var paymentTypesToInclude = paymentTypeFilter.IncludedElements.Where(x => x.Parent == null).ToArray();
+						var terminalSourcesToInclude = paymentTypeFilter.IncludedElements
+							.Where(x => x.Parent != null && x.Parent.Number == PaymentType.Terminal.ToString())
+							.ToArray();
+						var paymentFromsToInclude = paymentTypeFilter.IncludedElements
+							.Where(x => x.Parent != null && x.Parent.Number == PaymentType.PaidOnline.ToString())
+							.ToArray();
+
+						if(paymentTypesToInclude.Any())
+						{
+							filters.PaymentTypeInclude = paymentTypesToInclude
+								.Select(x => (PaymentType)Enum.Parse(typeof(PaymentType), x.Number))
+								.ToArray();
+						}
+
+						if(terminalSourcesToInclude.Any())
+						{
+							filters.PaymentByTerminalSourceInclude = terminalSourcesToInclude
+								.Select(x => (PaymentByTerminalSource)Enum.Parse(typeof(PaymentByTerminalSource), x.Number))
+								.ToArray();
+						}
+
+						if(paymentFromsToInclude.Any())
+						{
+							filters.PaymentFromInclude = paymentFromsToInclude
+								.Select(x => int.Parse(x.Number))
+								.ToArray();
+						}
+
+						var paymentTypesToExclude = paymentTypeFilter.ExcludedElements.Where(x => x.Parent == null).ToArray();
+						var terminalSourcesToExclude = paymentTypeFilter.ExcludedElements
+							.Where(x => x.Parent != null && x.Parent.Number == PaymentType.Terminal.ToString())
+							.ToArray();
+						var paymentFromsToExclude = paymentTypeFilter.ExcludedElements
+							.Where(x => x.Parent != null && x.Parent.Number == PaymentType.PaidOnline.ToString())
+							.ToArray();
+
+						if(paymentTypesToExclude.Any())
+						{
+							filters.PaymentTypeExclude = paymentTypesToExclude
+								.Select(x => (PaymentType)Enum.Parse(typeof(PaymentType), x.Number))
+								.ToArray();
+						}
+
+						if(terminalSourcesToExclude.Any())
+						{
+							filters.PaymentByTerminalSourceExclude = terminalSourcesToExclude
+								.Select(x => (PaymentByTerminalSource)Enum.Parse(typeof(PaymentByTerminalSource), x.Number))
+								.ToArray();
+						}
+
+						if(paymentFromsToExclude.Any())
+						{
+							filters.PaymentFromExclude = paymentFromsToExclude
+								.Select(x => int.Parse(x.Number))
+								.ToArray();
+						}
+						break;
+
+					case IncludeExcludeEntityFilter<PromotionalSet> promotionalSetFilter:
+						filters.PromotionalSetInclude = promotionalSetFilter.IncludedElements.Select(e => int.Parse(e.Number)).ToArray();
+						filters.PromotionalSetExclude = promotionalSetFilter.ExcludedElements.Select(e => int.Parse(e.Number)).ToArray();
+						break;
+
+					case IncludeExcludeEnumFilter<OrderStatus> orderStatusFilter:
+						filters.OrderStatusInclude = orderStatusFilter.IncludedElements
+							.Select(x => (OrderStatus)Enum.Parse(typeof(OrderStatus), x.Number))
+							.ToArray();
+						filters.OrderStatusExclude = orderStatusFilter.ExcludedElements
+							.Select(x => (OrderStatus)Enum.Parse(typeof(OrderStatus), x.Number))
+							.ToArray();
+						break;
+
+					case IncludeExcludeEnumFilter<CounterpartyCompositeClassification> classificationFilter:
+						filters.CounterpartyCompositeClassificationInclude = classificationFilter.IncludedElements
+							.Select(x => (CounterpartyCompositeClassification)Enum.Parse(typeof(CounterpartyCompositeClassification), x.Number))
+							.ToArray();
+						filters.CounterpartyCompositeClassificationExclude = classificationFilter.ExcludedElements
+							.Select(x => (CounterpartyCompositeClassification)Enum.Parse(typeof(CounterpartyCompositeClassification), x.Number))
+							.ToArray();
+						break;
+
+					case IncludeExcludeEntityFilter<Employee> managerFilter when filter.Title == "Менеджеры КА":
+						filters.SalesManagerInclude = managerFilter.IncludedElements.Select(e => int.Parse(e.Number)).ToArray();
+						filters.SalesManagerExclude = managerFilter.ExcludedElements.Select(e => int.Parse(e.Number)).ToArray();
+						break;
+
+					case IncludeExcludeBoolParamsFilter boolParamsFilter:
+						foreach(var element in boolParamsFilter.IncludedElements)
+						{
+							switch(element.Number)
+							{
+								case "is_self_delivery":
+									filters.IsSelfDelivery = true;
+									break;
+								case "only_with_cash_receipts":
+									filters.OnlyWithCashReceipts = true;
+									break;
+								case "only_orders_from_route_lists":
+									filters.OnlyOrdersFromRouteLists = true;
+									break;
+							}
+						}
+						foreach(var element in boolParamsFilter.ExcludedElements)
+						{
+							switch(element.Number)
+							{
+								case "is_self_delivery":
+									filters.IsSelfDelivery = false;
+									break;
+								case "only_with_cash_receipts":
+									filters.OnlyWithCashReceipts = false;
+									break;
+								case "only_orders_from_route_lists":
+									filters.OnlyOrdersFromRouteLists = false;
+									break;
+							}
+						}
+						break;
+				}
+			}
+
+			return filters;
 		}
 	}
 }

@@ -10,30 +10,30 @@ namespace Vodovoz.ViewModels.Services.SalesReport
 	public interface ISalesReportService
 	{
 		/// <summary>
-		/// 
+		/// Получить данные для отчета по продажам в виде списка нод SalesReportDataNode
 		/// </summary>
-		/// <param name="uow"></param>
-		/// <param name="startDate"></param>
-		/// <param name="endDate"></param>
-		/// <param name="orderDateType"></param>
-		/// <param name="filters"></param>
-		/// <param name="cancellationToken"></param>
-		/// <returns></returns>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="startDate">Дата начала периода</param>
+		/// <param name="endDate">Дата окончания периода</param>
+		/// <param name="orderDateType">Тип даты заказа</param>
+		/// <param name="filters">Фильтры для отчета</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Список нод для отчета по продажам</returns>
 		Task<IList<SalesReportDataNode>> GetSalesReportDataAsync(
 			IUnitOfWork uow,
 			DateTime startDate,
 			DateTime endDate,
-			string orderDateType,
+			OrderDateFilterType orderDateType,
 			SalesReportFilters filters,
 			CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// 
+		/// Получить данные для бутылей в виде ноды BottlesDataNode
 		/// </summary>
-		/// <param name="uow"></param>
-		/// <param name="orderIds"></param>
-		/// <param name="cancellationToken"></param>
-		/// <returns></returns>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="orderIds">Коллекция идентификаторов заказов</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Нода бутылей для отчета по продажам</returns>
 		Task<BottlesDataNode> GetBottlesDataAsync(
 			IUnitOfWork uow,
 			IEnumerable<int> orderIds,

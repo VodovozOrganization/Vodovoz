@@ -38,7 +38,7 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 			IUnitOfWork uow,
 			DateTime startDate,
 			DateTime endDate,
-			string orderDateType,
+			OrderDateFilterType orderDateType,
 			SalesReportFilters filters,
 			CancellationToken cancellationToken)
 		{
@@ -57,16 +57,16 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 			IUnitOfWork uow,
 			DateTime startDate,
 			DateTime endDate,
-			string orderDateType,
+			OrderDateFilterType orderDateType,
 			SalesReportFilters filters)
 		{
 			switch(orderDateType)
 			{
-				case "DeliveryDate":
+				case OrderDateFilterType.DeliveryDate:
 					return GetOrderIdsByDeliveryDate(uow, startDate, endDate, filters);
-				case "CreationDate":
+				case OrderDateFilterType.CreationDate:
 					return GetOrderIdsByCreationDate(uow, startDate, endDate, filters);
-				case "PaymentDate":
+				case OrderDateFilterType.PaymentDate:
 					return GetOrderIdsByPaymentDate(uow, startDate, endDate, filters);
 				default:
 					return GetOrderIdsByDeliveryDate(uow, startDate, endDate, filters);
