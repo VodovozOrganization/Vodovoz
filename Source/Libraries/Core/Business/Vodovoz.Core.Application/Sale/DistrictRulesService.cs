@@ -6,7 +6,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using VodovozBusiness.Services.Sale;
 
-namespace Vodovoz.Application.Sale
+namespace Vodovoz.Core.Application.Sale
 {
 	public class DistrictRulesService : IDistrictRulesService
 	{

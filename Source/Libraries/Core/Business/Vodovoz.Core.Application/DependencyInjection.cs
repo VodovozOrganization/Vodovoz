@@ -20,6 +20,7 @@ using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Core.Application.Orders.Services.V5;
 using Vodovoz.Core.Application.Payments;
 using Vodovoz.Core.Application.Receipts;
+using Vodovoz.Core.Application.Sale;
 using Vodovoz.Core.Application.Services.Subdivisions;
 using Vodovoz.Core.Application.TrueMark;
 using Vodovoz.Core.Application.Users;
@@ -34,11 +35,13 @@ using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Settings;
 using VodovozBusiness.Employees;
+using VodovozBusiness.Factories;
 using VodovozBusiness.Models.TrueMark;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Clients;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.Receipts;
+using VodovozBusiness.Services.Sale;
 using VodovozBusiness.Services.Subdivisions;
 using VodovozBusiness.Services.TrueMark;
 
@@ -82,6 +85,7 @@ namespace Vodovoz.Core.Application
 				.AddScoped<SelfdeliveryCancellationService>()
 				.AddScoped<IExternalCounterpartyHandler, ExternalCounterpartyHandler>()
 				.AddScoped<IStagingTrueMarkCodeFactory, StagingTrueMarkCodeFactory>()
+				.AddScoped<IDistrictRulesService, DistrictRulesService>()
 				.AddTrueMarkApiClient()
 				.AddCoreApplicationOrderServices()
 				;
@@ -131,6 +135,7 @@ namespace Vodovoz.Core.Application
 			.AddScoped<IUnPaidOnlineOrderHandler, UnPaidOnlineOrderHandler>()
 			.AddScoped<IOrderOnlinePaymentAcceptanceHandler, OrderOnlinePaymentAcceptanceHandler>()
 			.AddScoped<IOnlineOrderTemplateHandler, OnlineOrderTemplateHandler>()
+			.AddScoped<IOnlineOrderAuthorFactory, OnlineOrderAuthorFactory>()
 		;
 
 		private static IServiceCollection ConfigureFileOptions(this IServiceCollection services)

@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using QS.DomainModel.UoW;
-using Vodovoz.Application.Sale;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Delivery;
 using VodovozBusiness.Services.Sale;

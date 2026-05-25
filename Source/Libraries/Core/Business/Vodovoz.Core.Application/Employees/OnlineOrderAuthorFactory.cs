@@ -8,7 +8,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Settings.Employee;
 using VodovozBusiness.Factories;
 
-namespace Vodovoz.Application.Employees
+namespace Vodovoz.Core.Application.Employees
 {
 	public class OnlineOrderAuthorFactory : IOnlineOrderAuthorFactory
 	{
