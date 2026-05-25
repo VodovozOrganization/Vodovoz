@@ -19,8 +19,10 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 {
 	public class DriverScheduleService : IDriverScheduleService
 	{
+		private const int _firstDayColumn = 14;
 		private const int _columnsPerDay = 5;
 		private const int _daysInWeek = 7;
+		private const int _commentColumn = _firstDayColumn + _daysInWeek * _columnsPerDay;
 		private static readonly string[] _carEventTypeNamesAllowedToCreateFromDriverSchedule =
 		{
 			"вод/тел",
@@ -56,13 +58,6 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			EveningAddressesPotential = 11,
 			EveningBottlesPotential = 12,
 			LastModifiedDateTime = 13
-		}
-
-		private class ExportColumnDefinition
-		{
-			public ExportColumn Column { get; set; }
-			public string Header { get; set; }
-			public bool Visible { get; set; }
 		}
 
 		private readonly ILogisticRepository _logisticRepository;
@@ -660,40 +655,19 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 		public byte[] ExportToExcel(
 		   IEnumerable<DriverScheduleRow> scheduleRows,
 		   DateTime startDate,
-		   DateTime endDate,
-		   (
-			   bool ShowCarTypeOfUseColumn,
-			   bool ShowCarOwnTypeColumn,
-			   bool ShowDriverCarOwnTypeColumn,
-			   bool ShowPhoneColumn,
-			   bool ShowDistrictColumn,
-			   bool ShowArrivalTimeColumn,
-			   bool ShowLastModifiedDateTimeColumn
-		   )? columnVisibility = null)
+		   DateTime endDate)
 		{
 			if(scheduleRows == null)
 			{
 				throw new ArgumentNullException(nameof(scheduleRows));
 			}
 
-			var visibleColumns = columnVisibility ?? (
-				true,
-				true,
-				true,
-				true,
-				true,
-				true,
-				true);
-			var fixedColumns = GetExportColumnDefinitions(visibleColumns)
-				.Where(x => x.Visible)
-				.ToList();
-
 			using(var workbook = new XLWorkbook())
 			{
 				var worksheet = workbook.Worksheets.Add("График водителей");
 
-				FillExcelHeaders(worksheet, startDate, fixedColumns);
-				FillExcelData(worksheet, scheduleRows, startDate, fixedColumns);
+				FillExcelHeaders(worksheet, startDate);
+				FillExcelData(worksheet, scheduleRows, startDate);
 
 				using(var stream = new MemoryStream())
 				{
@@ -703,53 +677,28 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			}
 		}
 
-		private IEnumerable<ExportColumnDefinition> GetExportColumnDefinitions(
-			(
-				bool ShowCarTypeOfUseColumn,
-				bool ShowCarOwnTypeColumn,
-				bool ShowDriverCarOwnTypeColumn,
-				bool ShowPhoneColumn,
-				bool ShowDistrictColumn,
-				bool ShowArrivalTimeColumn,
-				bool ShowLastModifiedDateTimeColumn
-			) columnVisibility)
-		{
-			return new[]
-			{
-				new ExportColumnDefinition { Column = ExportColumn.CarTypeOfUse, Header = "Т", Visible = columnVisibility.ShowCarTypeOfUseColumn },
-				new ExportColumnDefinition { Column = ExportColumn.CarOwnType, Header = "П", Visible = columnVisibility.ShowCarOwnTypeColumn },
-				new ExportColumnDefinition { Column = ExportColumn.RegNumber, Header = "Гос. номер", Visible = true },
-				new ExportColumnDefinition { Column = ExportColumn.DriverFullName, Header = "ФИО водителя", Visible = true },
-				new ExportColumnDefinition { Column = ExportColumn.DriverCarOwnType, Header = "Принадлежность", Visible = columnVisibility.ShowDriverCarOwnTypeColumn },
-				new ExportColumnDefinition { Column = ExportColumn.Phone, Header = "Телефон", Visible = columnVisibility.ShowPhoneColumn },
-				new ExportColumnDefinition { Column = ExportColumn.District, Header = "Район проживания", Visible = columnVisibility.ShowDistrictColumn },
-				new ExportColumnDefinition { Column = ExportColumn.ArrivalTime, Header = "Время приезда", Visible = columnVisibility.ShowArrivalTimeColumn },
-				new ExportColumnDefinition { Column = ExportColumn.MorningAddressesPotential, Header = "Потенциал Утро (адр.)", Visible = true },
-				new ExportColumnDefinition { Column = ExportColumn.MorningBottlesPotential, Header = "Потенциал Утро (бут.)", Visible = true },
-				new ExportColumnDefinition { Column = ExportColumn.EveningAddressesPotential, Header = "Потенциал Вечер (адр.)", Visible = true },
-				new ExportColumnDefinition { Column = ExportColumn.EveningBottlesPotential, Header = "Потенциал Вечер (бут.)", Visible = true },
-				new ExportColumnDefinition { Column = ExportColumn.LastModifiedDateTime, Header = "Дата посл. изм.", Visible = columnVisibility.ShowLastModifiedDateTimeColumn }
-			};
-		}
-
-		private void FillExcelHeaders(
-			IXLWorksheet worksheet,
-			DateTime startDate,
-			IList<ExportColumnDefinition> fixedColumns)
+		private void FillExcelHeaders(IXLWorksheet worksheet, DateTime startDate)
 		{
 			int row = 1;
-			int column = 1;
 
-			foreach(var fixedColumn in fixedColumns)
-			{
-				worksheet.Cell(row, column).Value = fixedColumn.Header;
-				column++;
-			}
+			worksheet.Cell(row, (int)ExportColumn.CarTypeOfUse).Value = "Т";
+			worksheet.Cell(row, (int)ExportColumn.CarOwnType).Value = "П";
+			worksheet.Cell(row, (int)ExportColumn.RegNumber).Value = "Гос. номер";
+			worksheet.Cell(row, (int)ExportColumn.DriverFullName).Value = "ФИО водителя";
+			worksheet.Cell(row, (int)ExportColumn.DriverCarOwnType).Value = "Принадлежность";
+			worksheet.Cell(row, (int)ExportColumn.Phone).Value = "Телефон";
+			worksheet.Cell(row, (int)ExportColumn.District).Value = "Район проживания";
+			worksheet.Cell(row, (int)ExportColumn.ArrivalTime).Value = "Время приезда";
+			worksheet.Cell(row, (int)ExportColumn.MorningAddressesPotential).Value = "Потенциал Утро (адр.)";
+			worksheet.Cell(row, (int)ExportColumn.MorningBottlesPotential).Value = "Потенциал Утро (бут.)";
+			worksheet.Cell(row, (int)ExportColumn.EveningAddressesPotential).Value = "Потенциал Вечер (адр.)";
+			worksheet.Cell(row, (int)ExportColumn.EveningBottlesPotential).Value = "Потенциал Вечер (бут.)";
+			worksheet.Cell(row, (int)ExportColumn.LastModifiedDateTime).Value = "Дата посл. изм.";
 
 			for(int dayIndex = 0; dayIndex < _daysInWeek; dayIndex++)
 			{
 				var date = startDate.AddDays(dayIndex);
-				int dayColumn = fixedColumns.Count + 1 + dayIndex * _columnsPerDay;
+				int dayColumn = _firstDayColumn + dayIndex * _columnsPerDay;
 
 				worksheet.Cell(row, dayColumn).Value = "'" + GetShortDayString(date);
 				worksheet.Cell(row, dayColumn + 1).Value = "Адр У";
@@ -758,28 +707,35 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 				worksheet.Cell(row, dayColumn + 4).Value = "Бут В";
 			}
 
-			worksheet.Cell(row, fixedColumns.Count + _daysInWeek * _columnsPerDay + 1).Value = "Комментарий";
+			worksheet.Cell(row, _commentColumn).Value = "Комментарий";
 		}
 
-		private void FillExcelData(
-			IXLWorksheet worksheet,
-			IEnumerable<DriverScheduleRow> scheduleRows,
-			DateTime startDate,
-			IList<ExportColumnDefinition> fixedColumns)
+		private void FillExcelData(IXLWorksheet worksheet, IEnumerable<DriverScheduleRow> scheduleRows, DateTime startDate)
 		{
 			int row = 2;
 
 			foreach(var node in scheduleRows)
 			{
-				for(var fixedColumnIndex = 0; fixedColumnIndex < fixedColumns.Count; fixedColumnIndex++)
-				{
-					FillFixedExcelCell(worksheet.Cell(row, fixedColumnIndex + 1), node, fixedColumns[fixedColumnIndex].Column);
-				}
+				worksheet.Cell(row, (int)ExportColumn.CarTypeOfUse).Value = node.CarTypeOfUseString;
+				worksheet.Cell(row, (int)ExportColumn.CarOwnType).Value = node.CarOwnTypeString;
+				worksheet.Cell(row, (int)ExportColumn.RegNumber).Value = node.RegNumber ?? "";
+				worksheet.Cell(row, (int)ExportColumn.DriverFullName).Value = node.DriverFullName;
+				worksheet.Cell(row, (int)ExportColumn.DriverCarOwnType).Value = node.DriverCarOwnTypeString;
+				worksheet.Cell(row, (int)ExportColumn.Phone).Value = node.DriverPhone ?? "";
+				worksheet.Cell(row, (int)ExportColumn.District).Value = node.DistrictString;
+				worksheet.Cell(row, (int)ExportColumn.ArrivalTime).Value = node.ArrivalTime.HasValue
+					? node.ArrivalTime.Value.ToString(@"hh\:mm")
+					: "";
+				worksheet.Cell(row, (int)ExportColumn.MorningAddressesPotential).Value = node.MorningAddresses;
+				worksheet.Cell(row, (int)ExportColumn.MorningBottlesPotential).Value = node.MorningBottles;
+				worksheet.Cell(row, (int)ExportColumn.EveningAddressesPotential).Value = node.EveningAddresses;
+				worksheet.Cell(row, (int)ExportColumn.EveningBottlesPotential).Value = node.EveningBottles;
+				worksheet.Cell(row, (int)ExportColumn.LastModifiedDateTime).Value = node.LastModifiedDateTimeString;
 
 				for(int dayIndex = 0; dayIndex < _daysInWeek; dayIndex++)
 				{
 					var day = node.Days[dayIndex];
-					int dayColumn = fixedColumns.Count + 1 + dayIndex * _columnsPerDay;
+					int dayColumn = _firstDayColumn + dayIndex * _columnsPerDay;
 
 					if(node is DriverScheduleTotalAddressesRow)
 					{
@@ -800,57 +756,11 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 					worksheet.Cell(row, dayColumn + 4).Value = day.EveningBottles;
 				}
 
-				worksheet.Cell(row, fixedColumns.Count + _daysInWeek * _columnsPerDay + 1).Value = node.OriginalComment ?? "";
+				worksheet.Cell(row, _commentColumn).Value = node.OriginalComment ?? "";
 				row++;
 			}
 
 			worksheet.Columns().AdjustToContents();
-		}
-
-		private void FillFixedExcelCell(IXLCell cell, DriverScheduleRow node, ExportColumn column)
-		{
-			switch(column)
-			{
-				case ExportColumn.CarTypeOfUse:
-					cell.Value = node.CarTypeOfUseString;
-					break;
-				case ExportColumn.CarOwnType:
-					cell.Value = node.CarOwnTypeString;
-					break;
-				case ExportColumn.RegNumber:
-					cell.Value = node.RegNumber ?? "";
-					break;
-				case ExportColumn.DriverFullName:
-					cell.Value = node.DriverFullName;
-					break;
-				case ExportColumn.DriverCarOwnType:
-					cell.Value = node.DriverCarOwnTypeString;
-					break;
-				case ExportColumn.Phone:
-					cell.Value = node.DriverPhone ?? "";
-					break;
-				case ExportColumn.District:
-					cell.Value = node.DistrictString;
-					break;
-				case ExportColumn.ArrivalTime:
-					cell.Value = node.ArrivalTime.HasValue ? node.ArrivalTime.Value.ToString(@"hh\:mm") : "";
-					break;
-				case ExportColumn.MorningAddressesPotential:
-					cell.Value = node.MorningAddresses;
-					break;
-				case ExportColumn.MorningBottlesPotential:
-					cell.Value = node.MorningBottles;
-					break;
-				case ExportColumn.EveningAddressesPotential:
-					cell.Value = node.EveningAddresses;
-					break;
-				case ExportColumn.EveningBottlesPotential:
-					cell.Value = node.EveningBottles;
-					break;
-				case ExportColumn.LastModifiedDateTime:
-					cell.Value = node.LastModifiedDateTimeString;
-					break;
-			}
 		}
 
 		public IEnumerable<SubdivisionNode> GetSubdivisions(
