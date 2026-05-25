@@ -1,6 +1,8 @@
 ﻿using Autofac;
 using ClosedXML.Report;
+using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
@@ -166,13 +168,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport
 			Organization organizationAlias = null;
 			BulkDebtMailingSummaryReportRow resultAlias = null;
 
-			var organizationSubquery = QueryOver.Of<Organization>(() => organizationAlias)
-				.Where(() => organizationAlias.Id == counterpartyEmailAlias.OrganizationId)
-				.Select(o => o.Name);
-
 			var itemsQuery = UoW.Session.QueryOver(() => counterpartyEmailAlias)
 				.Left.JoinAlias(() => counterpartyEmailAlias.StoredEmail, () => storedEmailAlias)
 				.Left.JoinAlias(() => counterpartyEmailAlias.Counterparty, () => counterpartyAlias)
+				.JoinEntityAlias(() => organizationAlias,
+					() => organizationAlias.Id == counterpartyEmailAlias.OrganizationId,
+					JoinType.LeftOuterJoin)
 				.WhereRestrictionOn(() => counterpartyEmailAlias.Type).IsIn(_emailTypes)
 				.Where(() => storedEmailAlias.SendDate >= EventActionTimeFrom.Value.Date)
 				.Where(() => storedEmailAlias.SendDate <= EventActionTimeTo.Value.Date.Add(new TimeSpan(0, 23, 59, 59)));
@@ -186,7 +187,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport
 				.SelectList(list => list
 					.SelectGroup(() => counterpartyEmailAlias.Type).WithAlias(() => resultAlias.EmailType)
 					.SelectGroup(() => storedEmailAlias.State).WithAlias(() => resultAlias.State)
-					.SelectSubQuery(organizationSubquery).WithAlias(() => resultAlias.OrganizationName)
+					.Select(() => organizationAlias.Name).WithAlias(() => resultAlias.OrganizationName)
 					.SelectCount(() => counterpartyEmailAlias.Id).WithAlias(() => resultAlias.Count)
 				)
 				.OrderBy(() => storedEmailAlias.SendDate).Desc
