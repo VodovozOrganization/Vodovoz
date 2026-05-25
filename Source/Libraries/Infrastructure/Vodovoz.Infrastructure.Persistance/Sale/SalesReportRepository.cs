@@ -1,4 +1,4 @@
-﻿using Core.Infrastructure;
+using Core.Infrastructure;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -339,6 +339,7 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 			PromotionalSet promotionalSetAlias = null;
 			CounterpartyClassification counterpartyClassificationAlias = null;
 			CounterpartySubtype counterpartySubtypeAlias = null;
+			District districtAlias = null;
 			GeoGroup geoGroupAlias = null;
 			Car carAlias = null;
 			CarModel carModelAlias = null;
@@ -355,7 +356,8 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 				.Left.JoinAlias(() => authorAlias.Subdivision, () => subdivisionAlias)
 				.Left.JoinAlias(() => orderItemAlias.PromoSet, () => promotionalSetAlias)
 				.Left.JoinAlias(() => counterpartyAlias.CounterpartySubtype, () => counterpartySubtypeAlias)
-				.Left.JoinAlias(() => deliveryPointAlias.District.GeographicGroup, () => geoGroupAlias)
+				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
+				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geoGroupAlias)
 				.JoinEntityAlias(() => routeListItemAlias,
 					() => routeListItemAlias.Order.Id == orderAlias.Id,
 					JoinType.LeftOuterJoin)
@@ -513,7 +515,7 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 				var includeSubquery = QueryOver.Of<OrderItem>()
 					.Where(oi => oi.Id == orderItemAlias.Id)
 					.JoinQueryOver(oi => oi.DiscountReasons, () => discountReasonAlias)
-					.Where(() => discountReasonAlias.Id.IsIn(filters.DiscountReasonInclude))
+					.Where(Restrictions.In(Projections.Property(() => discountReasonAlias.Id), filters.DiscountReasonInclude))
 					.Select(Projections.Constant(1));
 
 				query.WithSubquery.WhereExists(includeSubquery);
@@ -523,7 +525,7 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 				var excludeSubquery = QueryOver.Of<OrderItem>()
 					.Where(oi => oi.Id == orderItemAlias.Id)
 					.JoinQueryOver(oi => oi.DiscountReasons, () => discountReasonAlias)
-					.Where(() => discountReasonAlias.Id.IsIn(filters.DiscountReasonExclude))
+					.Where(Restrictions.In(Projections.Property(() => discountReasonAlias.Id), filters.DiscountReasonExclude))
 					.Select(Projections.Constant(1));
 
 				query.WithSubquery.WhereNotExists(excludeSubquery);
@@ -779,14 +781,16 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 				FiscalDocumentStatus.Completed
 			};
 
-			var subquery = QueryOver.Of<Order>()
-				.Where(o => o.Id == orderAlias.Id)
-				.And(Subqueries.WhereExists(
-					QueryOver.Of<EdoFiscalDocument>()
-						.JoinAlias(efd => efd.ReceiptEdoTask, () => null)
-						.Where(efd => efd.Status.IsIn(allowdStatuses))
-						.Select(Projections.Constant(1))
-				));
+			EdoFiscalDocument fiscalDocumentAlias = null;
+			EdoTask edoTaskAlias = null;
+			FormalEdoRequest formalRequestAlias = null;
+
+			var subquery = QueryOver.Of(() => fiscalDocumentAlias)
+				.JoinAlias(() => fiscalDocumentAlias.ReceiptEdoTask, () => edoTaskAlias)
+				.JoinEntityAlias(() => formalRequestAlias, () => formalRequestAlias.Task.Id == edoTaskAlias.Id)
+				.Where(() => formalRequestAlias.Order.Id == orderAlias.Id)
+				.WhereRestrictionOn(() => fiscalDocumentAlias.Status).IsIn(allowdStatuses)
+				.Select(Projections.Constant(1));
 
 			if(onlyWithCashReceipts)
 			{
