@@ -1,4 +1,5 @@
-﻿using CustomerOrders.Contracts.V5.Carts;
+﻿using System.Threading.Tasks;
+using CustomerOrders.Contracts.V5.Carts;
 
 namespace CustomerOrdersApi.Library.V5.Services
 {
@@ -12,12 +13,12 @@ namespace CustomerOrdersApi.Library.V5.Services
 		/// </summary>
 		/// <param name="request">Данные заказа из корзины</param>
 		/// <returns></returns>
-		CheckUsersBasketResponse Check(CheckUsersBasketRequest request);
+		Task<CheckUsersBasketResponse> CheckAsync(CheckUsersBasketRequest request);
 		/// <summary>
 		/// Получение форм оплат и доп условий заказа из корзины
 		/// </summary>
 		/// <param name="request">Данные запроса <see cref="OrderConditionsRequest"/></param>
 		/// <returns>Данные для ответа <see cref="OrderConditionsResponse"/></returns>
-		OrderConditionsResponse GetOrderConditions(OrderConditionsRequest request);
+		Task<OrderConditionsResponse> GetOrderConditionsAsync(OrderConditionsRequest request);
 	}
 }

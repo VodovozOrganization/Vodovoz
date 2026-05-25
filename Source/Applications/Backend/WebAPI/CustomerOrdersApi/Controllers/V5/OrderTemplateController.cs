@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Data.Bindings;
 using System.Linq;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using Core.Infrastructure;
 using CustomerOrders.Contracts.V5.Orders.Templates;
-using CustomerOrdersApi.Library.V5.Factories;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
-using Vodovoz.Application.Orders.Services;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.Domain.Orders;
-using Vodovoz.Settings.Orders;
-using VodovozBusiness.EntityRepositories.Orders;
+using VodovozBusiness.Services.Orders;
 
 namespace CustomerOrdersApi.Controllers.V5
 {
@@ -23,29 +21,20 @@ namespace CustomerOrdersApi.Controllers.V5
 	[Authorize]
 	public class OrderTemplateController : VersionedController
 	{
-		private readonly IDiscountReasonSettings _discountReasonSettings;
 		private readonly IUnitOfWorkFactory _uowFactory;
-		private readonly IOnlineOrderTemplateRepository _onlineOrderTemplateRepository;
 		private readonly IGenericRepository<OnlineOrderTemplate> _orderTemplateRepository;
-		private readonly OnlineOrderTemplateHandler _onlineOrderTemplateHandler;
-		private readonly IInfoMessageFactoryV5 _infoMessageFactoryV5;
+		private readonly IOnlineOrderTemplateHandler _onlineOrderTemplateHandler;
 
 		public OrderTemplateController(
 			ILogger<OrderTemplateController> logger,
-			IDiscountReasonSettings discountReasonSettings,
 			IUnitOfWorkFactory uowFactory,
-			IOnlineOrderTemplateRepository onlineOrderTemplateRepository,
 			IGenericRepository<OnlineOrderTemplate> orderTemplateRepository,
-			OnlineOrderTemplateHandler onlineOrderTemplateHandler,
-			IInfoMessageFactoryV5 infoMessageFactoryV5
+			IOnlineOrderTemplateHandler onlineOrderTemplateHandler
 			) : base(logger)
 		{
-			_discountReasonSettings = discountReasonSettings ?? throw new ArgumentNullException(nameof(discountReasonSettings));
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
-			_onlineOrderTemplateRepository = onlineOrderTemplateRepository ?? throw new ArgumentNullException(nameof(onlineOrderTemplateRepository));
 			_orderTemplateRepository = orderTemplateRepository ?? throw new ArgumentNullException(nameof(orderTemplateRepository));
 			_onlineOrderTemplateHandler = onlineOrderTemplateHandler ?? throw new ArgumentNullException(nameof(onlineOrderTemplateHandler));
-			_infoMessageFactoryV5 = infoMessageFactoryV5 ?? throw new ArgumentNullException(nameof(infoMessageFactoryV5));
 		}
 
 		/// <summary>
@@ -54,9 +43,13 @@ namespace CustomerOrdersApi.Controllers.V5
 		/// <param name="orderTemplateDto">Данные запроса на получение информации о шаблоне <see cref="GetOrderTemplateInfoDto"/></param>
 		/// <returns>
 		/// 200 с информацией о шаблоне <see cref="OrderTemplateInfoDto"/>
+		/// 404 - не найден шаблон
 		/// 500 - ошибка
 		/// </returns>
 		[HttpGet]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderTemplateInfoDto))]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 		public async Task<IActionResult> GetOrderTemplateInfo([FromBody] GetOrderTemplateInfoDto orderTemplateDto)
 		{
 			var sourceName = orderTemplateDto.Source.GetEnumTitle();
@@ -99,6 +92,9 @@ namespace CustomerOrdersApi.Controllers.V5
 		/// 500 - ошибка
 		/// </returns>
 		[HttpGet]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderTemplatesDto))]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 		public IActionResult GetOrderTemplates([FromBody] GetOrderTemplatesDto orderTemplatesDto)
 		{
 			var sourceName = "Неизвестный источник";
@@ -139,9 +135,13 @@ namespace CustomerOrdersApi.Controllers.V5
 		/// <param name="updateOrderTemplateDto">Информация для обновления шаблона <see cref="UpdateOrderTemplateDto"/></param>
 		/// <returns>
 		/// 200 - успех
+		/// 404 - не найден шаблон
 		/// 500 - в случае ошибки
 		/// </returns>
 		[HttpPatch]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OkResult))]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 		public async Task<IActionResult> UpdateOrderTemplate([FromBody] UpdateOrderTemplateDto updateOrderTemplateDto)
 		{
 			var sourceName = updateOrderTemplateDto.Source.GetEnumTitle();
@@ -176,47 +176,6 @@ namespace CustomerOrdersApi.Controllers.V5
 				_logger.LogError(e,
 					"Ошибка при обновлении шаблона {OrderTemplateId} от {Source}",
 					orderTemplateId,
-					sourceName);
-
-				return Problem();
-			}
-		}
-		
-		/// <summary>
-		/// Получение информации о скидке при автозаказе
-		/// </summary>
-		/// <param name="templateDiscountInfoDto">Данные запроса получения инфы о скидке при автозаказе</param>
-		/// <returns>
-		/// 200 с сообщением о скидке<see cref="OrderTemplatesDto"/>
-		/// 500 - ошибка
-		/// </returns>
-		[HttpGet]
-		public IActionResult GetOrderTemplateDiscountMessage([FromBody] GetTemplateDiscountInfoDto templateDiscountInfoDto)
-		{
-			var sourceName = templateDiscountInfoDto.Source.GetEnumTitle();
-			
-			try
-			{
-				_logger.LogInformation(
-					"Поступил запрос от {Source} и клиента {CounterpartyId} на получение сообщения о скидке для автозаказа",
-					sourceName,
-					templateDiscountInfoDto.CounterpartyErpId);
-				
-				using var uow = _uowFactory.CreateWithoutRoot("Получение информации о скидке при автозаказе");
-				var orderTemplateDiscount = uow.GetById<DiscountReason>(_discountReasonSettings.GetAutoOrderDiscountReasonId);
-
-				if(orderTemplateDiscount is null)
-				{
-					return Problem("Не найдена скидка на автозаказ");
-				}
-				
-				return Ok(_infoMessageFactoryV5.CreateAutoOrderDiscountInfoMessage(orderTemplateDiscount.Value, orderTemplateDiscount.ValueType));
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(e,
-					"Ошибка при получении сообщения о скидке для автозаказа клиента {CounterpartyId} от {Source}",
-					templateDiscountInfoDto.CounterpartyErpId,
 					sourceName);
 
 				return Problem();

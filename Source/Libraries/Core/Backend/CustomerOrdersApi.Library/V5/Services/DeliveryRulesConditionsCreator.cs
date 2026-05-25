@@ -38,28 +38,14 @@ namespace CustomerOrdersApi.Library.V5.Services
 
 			if(!hasRealOrder)
 			{
-				if(request.IsSelfDelivery)
-				{
-					return DeliveryRulesConditions.Create(
-						_additionalConditionsFactory.CreateForNewClient(),
-						false);
-				}
-				
 				return DeliveryRulesConditions.Create(
 					_additionalConditionsFactory.CreateForNewClient(),
-					true);
+					request.IsSelfDelivery);
 			}
 
-			if(request.IsSelfDelivery)
-			{
-				return DeliveryRulesConditions.Create(
-					_additionalConditionsFactory.CreateDefault(),
-					false);
-			}
-			
 			return DeliveryRulesConditions.Create(
 				_additionalConditionsFactory.CreateDefault(),
-				true);
+				request.IsSelfDelivery);
 		}
 	}
 }

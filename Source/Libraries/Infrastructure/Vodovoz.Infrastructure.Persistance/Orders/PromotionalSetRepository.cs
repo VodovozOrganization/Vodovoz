@@ -161,7 +161,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.List<PromotionalSetItemBalanceNode>();
 		}
 
-		public bool IsPromoSetsForNewClients(IUnitOfWork uow, IEnumerable<int> promotionalSetIds)
+		public bool HasPromoSetsForNewClients(IUnitOfWork uow, IEnumerable<int> promotionalSetIds)
 		{
 			return (
 				from promoset in uow.Session.Query<PromotionalSet>()

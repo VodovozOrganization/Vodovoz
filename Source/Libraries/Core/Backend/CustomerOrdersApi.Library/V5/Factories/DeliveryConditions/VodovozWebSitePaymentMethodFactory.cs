@@ -16,11 +16,11 @@ namespace CustomerOrdersApi.Library.V5.Factories.DeliveryConditions
 		{
 			return Create(new []
 			{
-				(PaymentMethodType.Cash, true),
-				(PaymentMethodType.Terminal, true),
-				(PaymentMethodType.Online, true),
-				(PaymentMethodType.Sbp, true),
-				(PaymentMethodType.YandexSplit, true),
+				(nameof(PaymentMethodType.Cash), true),
+				(nameof(PaymentMethodType.Terminal), true),
+				(nameof(PaymentMethodType.Online), true),
+				(nameof(PaymentMethodType.Sbp), true),
+				(nameof(PaymentMethodType.YandexSplit), true)
 			});
 		}
 	}

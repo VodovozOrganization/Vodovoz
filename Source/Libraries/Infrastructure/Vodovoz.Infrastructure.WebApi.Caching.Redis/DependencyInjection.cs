@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using StackExchange.Redis;
 using Vodovoz.Presentation.WebApi.Caching;
 using Vodovoz.Presentation.WebApi.Caching.Idempotency;
 
@@ -20,6 +22,13 @@ namespace Vodovoz.Infrastructure.WebApi.Caching.Redis
 					var connection = configuration.GetConnectionString("Redis");
 					redisOptions.Configuration = connection;
 				});
+		
+		public static IServiceCollection AddGarnetCaching(
+			this IServiceCollection services,
+			Func<IServiceProvider, string> connectionStringFunc)
+			=> services
+				.AddSingleton<IConnectionMultiplexer>(sp => ConnectionMultiplexer.Connect(connectionStringFunc.Invoke(sp)))
+				.AddScoped<IGarnetCacheService, GarnetCacheService>();
 
 		public static IServiceCollection AddCaching(this IServiceCollection services)
 			=> services

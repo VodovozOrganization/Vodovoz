@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using RevenueService.Client;
 using Sms.Internal.Client;
 using TrueMarkApi.Client;
+using Vodovoz.Application.Orders.Services;
 using Vodovoz.Application.Orders.Services.V4;
 using Vodovoz.Core.Application.Clients;
 using Vodovoz.Core.Application.Clients.Services;
@@ -102,6 +103,7 @@ namespace Vodovoz.Core.Application
 			.AddScoped<IOnlineOrderFromCartDistrictRulesGetter, OnlineOrderFromCartDistrictRulesGetter>()
 			.AddScoped<IOrderFromOnlineOrderCreator, OrderFromOnlineOrderCreator>()
 			.AddScoped<IOrderFromOnlineOrderValidator, OrderFromOnlineOrderValidator>()
+			.AddScoped<IOnlineOrderTemplateFromOnlineOrderValidator, OnlineOrderTemplateFromOnlineOrderValidator>()
 			.AddScoped<IGoodsPriceCalculator, GoodsPriceCalculator>()
 			.AddScoped<IOrderDeliveryPriceGetter, OrderDeliveryPriceGetter>()
 			.AddScoped<IClientDeliveryPointsChecker, ClientDeliveryPointsChecker>()
@@ -128,6 +130,7 @@ namespace Vodovoz.Core.Application
 			.AddScoped<IPartitioningOrderService, PartitioningOrderService>()
 			.AddScoped<IUnPaidOnlineOrderHandler, UnPaidOnlineOrderHandler>()
 			.AddScoped<IOrderOnlinePaymentAcceptanceHandler, OrderOnlinePaymentAcceptanceHandler>()
+			.AddScoped<IOnlineOrderTemplateHandler, OnlineOrderTemplateHandler>()
 		;
 
 		private static IServiceCollection ConfigureFileOptions(this IServiceCollection services)

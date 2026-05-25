@@ -1,11 +1,11 @@
-﻿using QS.DomainModel.UoW;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Core.Infrastructure;
 using CustomerOrders.Contracts.V5.Orders.Discounts;
 using CustomerOrders.Contracts.V5.Orders.Templates;
+using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
@@ -16,9 +16,9 @@ using VodovozBusiness.EntityRepositories.Orders;
 using VodovozBusiness.Extensions;
 using VodovozBusiness.Services.Orders;
 
-namespace Vodovoz.Application.Orders.Services
+namespace Vodovoz.Core.Application.Orders.Services
 {
-	public class OnlineOrderTemplateHandler
+	public class OnlineOrderTemplateHandler : IOnlineOrderTemplateHandler
 	{
 		private readonly IGoodsPriceCalculator _priceCalculator;
 		private readonly IOnlineOrderRepository _onlineOrderRepository;

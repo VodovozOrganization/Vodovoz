@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CustomerOrders.Contracts.InfoMessages;
 using CustomerOrders.Contracts.V5.Orders;
 using CustomerOrders.Contracts.V5.Orders.OrderItem;
@@ -14,6 +15,7 @@ namespace CustomerOrders.Contracts.V5.Carts
 		public CheckUsersBasketResponse() { }
 
 		private CheckUsersBasketResponse(
+			Guid checkId,
 			OnlineOrderSumDto orderSum,
 			NextStepCheckUsersBasket nextStep,
 			IEnumerable<CheckedOnlineOrderItemDto> onlineOrderItems,
@@ -22,6 +24,7 @@ namespace CustomerOrders.Contracts.V5.Carts
 			IEnumerable<InfoMessage> infoMessages,
 			IEnumerable<WarningMessage> warnings)
 		{
+			CheckId = checkId;
 			OrderSum = orderSum;
 			NextStep = nextStep;
 			OnlineOrderItems = onlineOrderItems;
@@ -30,6 +33,11 @@ namespace CustomerOrders.Contracts.V5.Carts
 			InfoMessages = infoMessages;
 			Warnings = warnings;
 		}
+		
+		/// <summary>
+		/// Идентификатор проверки
+		/// </summary>
+		public Guid CheckId { get; }
 		/// <summary>
 		/// Данные по сумме заказа
 		/// </summary>
@@ -60,6 +68,7 @@ namespace CustomerOrders.Contracts.V5.Carts
 		public IEnumerable<WarningMessage> Warnings { get; }
 
 		public static CheckUsersBasketResponse Create(
+			Guid checkId,
 			OnlineOrderSumDto orderSum,
 			NextStepCheckUsersBasket nextStep,
 			IEnumerable<CheckedOnlineOrderItemDto> onlineOrderItems,
@@ -67,6 +76,6 @@ namespace CustomerOrders.Contracts.V5.Carts
 			IEnumerable<CheckedOnlineRentPackageDto> rentPackages,
 			IEnumerable<InfoMessage> infoMessages,
 			IEnumerable<WarningMessage> warnings
-		) => new CheckUsersBasketResponse(orderSum, nextStep, onlineOrderItems, promoSets, rentPackages, infoMessages, warnings);
+		) => new CheckUsersBasketResponse(checkId, orderSum, nextStep, onlineOrderItems, promoSets, rentPackages, infoMessages, warnings);
 	}
 }

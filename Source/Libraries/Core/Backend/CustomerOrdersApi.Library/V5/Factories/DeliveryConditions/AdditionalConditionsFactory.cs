@@ -29,9 +29,9 @@ namespace CustomerOrdersApi.Library.V5.Factories.DeliveryConditions
 		private AdditionalCondition CreateConfirmByPhone(bool isActive, bool editable)
 		{
 			return AdditionalCondition.Create(
-				AdditionalConditionType.ConfirmOrderByPhone,
+				nameof(AdditionalConditionType.ConfirmOrderByPhone),
 				"Подтвердить заказ по телефону",
-				AdditionalConditionWidgetType.CheckBox,
+				nameof(AdditionalConditionWidgetType.CheckBox),
 				isActive,
 				editable
 			);
@@ -40,9 +40,9 @@ namespace CustomerOrdersApi.Library.V5.Factories.DeliveryConditions
 		private AdditionalCondition DontArriveBeforeInterval(bool isActive = false, bool editable = true)
 		{
 			return AdditionalCondition.Create(
-				AdditionalConditionType.DontArriveBeforeInterval,
+				nameof(AdditionalConditionType.DontArriveBeforeInterval),
 				"Не приезжать ранее интервала доставки",
-				AdditionalConditionWidgetType.CheckBox,
+				nameof(AdditionalConditionWidgetType.CheckBox),
 				isActive,
 				editable
 			);

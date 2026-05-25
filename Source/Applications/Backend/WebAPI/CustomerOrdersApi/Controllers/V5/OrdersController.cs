@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CustomerOrders.Contracts.V5.Orders;
 using CustomerOrdersApi.Library.Common;
 using CustomerOrdersApi.Library.V5.Services;
 using Gamma.Utilities;
 using MassTransit;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Vodovoz.Presentation.WebApi.Messages;
@@ -57,7 +57,7 @@ namespace CustomerOrdersApi.Controllers.V5
 				return response.Message.Code switch
 				{
 					200 => Ok(CreatedOnlineOrder.Create(response.Message)),
-					409 => Problem(Messages.DuplicatOrderMessage(creatingOnlineOrder.ExternalOrderId), statusCode: response.Message.Code),
+					409 => Problem(Messages.DuplicateOrderMessage(creatingOnlineOrder.ExternalOrderId), statusCode: response.Message.Code),
 					_ => Problem(Messages.ErrorMessage)
 				};
 			}
@@ -176,7 +176,7 @@ namespace CustomerOrdersApi.Controllers.V5
 		}
 		
 		[HttpPost]
-		public IActionResult ChangeOrder(ChangingOrderDto changingOrderDto)
+		public async Task<IActionResult> ChangeOrder(ChangingOrderDto changingOrderDto, CancellationToken cancellationToken)
 		{
 			var sourceName = changingOrderDto.Source.GetEnumTitle();
 
@@ -184,7 +184,7 @@ namespace CustomerOrdersApi.Controllers.V5
 			{
 				_logger.LogInformation("Поступил запрос на изменение заказа {@ChangeOrderRequest}", changingOrderDto);
 
-				var result = _customerOrdersService.UpdateOrder(changingOrderDto);
+				var result = await _customerOrdersService.UpdateOrderAsync(changingOrderDto, cancellationToken);
 
 				if(result.IsSuccess)
 				{

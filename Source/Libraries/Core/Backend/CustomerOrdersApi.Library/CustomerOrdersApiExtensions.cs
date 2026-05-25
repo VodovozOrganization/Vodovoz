@@ -19,6 +19,7 @@ using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.UoW;
 using RabbitMQ.Client;
 using Vodovoz.Application.Orders.Services;
+using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Settings.Pacs;
 using VodovozInfrastructure.Cryptography;
 
@@ -30,6 +31,7 @@ namespace CustomerOrdersApi.Library
 		{
 			services.Configure<RequestsMinutesLimitsOptions>(config.GetSection(RequestsMinutesLimitsOptions.Position));
 			services.Configure<SignatureOptions>(config.GetSection(SignatureOptions.Path));
+			services.Configure<CacheOptions>(config.GetSection(CacheOptions.Path));
 			
 			return services;
 		}
@@ -65,9 +67,11 @@ namespace CustomerOrdersApi.Library
 		{
 			services.AddScoped<ICustomerOrdersServiceV5, CustomerOrdersServiceV5>()
 				.AddScoped<ICustomerCartService, CustomerCartService>()
+				.AddScoped<ICheckUserBasketCacheService, CheckUserBasketCacheService>()
 				.AddScoped<ICustomerOrderFactoryV5, CustomerOrderFactoryV5>()
 				.AddScoped<IPaymentMethodsCreator, PaymentMethodsCreator>()
 				.AddScoped<IDeliveryRulesConditionsCreator, DeliveryRulesConditionsCreator>()
+				.AddScoped<IOnlineOrderTemplateConditionsCreator, OnlineOrderTemplateConditionsCreator>()
 				.AddScoped<ICustomerOrdersDiscountServiceV5, CustomerOrdersDiscountServiceV5>()
 				.AddScoped<ICustomerOrderFixedPriceServiceV5, CustomerOrderFixedPriceServiceV5>()
 				.AddScoped<IInfoMessageFactoryV5, InfoMessageFactoryV5>()
@@ -78,7 +82,6 @@ namespace CustomerOrdersApi.Library
 				.AddScoped<ICustomerOrderRepositoryV5, CustomerOrderRepositoryV5>()
 				.AddScoped<ICustomerOnlineOrderRepositoryV5, CustomerOnlineOrderRepositoryV5>()
 				.AddScoped(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot())
-				.AddScoped<OnlineOrderTemplateHandler>()
 				.AddDefault();
 			
 			return services;

@@ -5,6 +5,7 @@
     </PropertyGroup>
 	
     <ItemGroup>
+      <ProjectReference Include="..\..\..\Infrastructure\Vodovoz.Infrastructure.WebApi.Caching.Redis\Vodovoz.Infrastructure.WebApi.Caching.Redis.csproj" />
       <ProjectReference Include="..\..\Business\Vodovoz.Core.Application\Vodovoz.Core.Application.csproj" />
       <ProjectReference Include="..\..\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
       <ProjectReference Include="..\..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />

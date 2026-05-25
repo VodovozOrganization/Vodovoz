@@ -14,12 +14,12 @@ namespace CustomerOrdersApi.Library.V5.Factories.DeliveryConditions
 		/// </summary>
 		/// <param name="paymentTypes">Список доступных методов оплат для ИПЗ</param>
 		/// <returns></returns>
-		protected virtual IEnumerable<PaymentMethod> Create(IEnumerable<(PaymentMethodType Type, bool Available)> paymentTypes)
+		protected virtual IEnumerable<PaymentMethod> Create(IEnumerable<(string PaymentType, bool Available)> paymentTypes)
 		{
 			var index = 0;
 			
 			return paymentTypes
-				.Select(x => PaymentMethod.Create(++index, x.Type, x.Available))
+				.Select(x => PaymentMethod.Create(++index, x.PaymentType, x.Available))
 				.ToList();
 		}
 	}

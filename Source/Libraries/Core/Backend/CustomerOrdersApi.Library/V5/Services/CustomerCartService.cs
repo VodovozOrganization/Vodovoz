@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using CustomerOrders.Contracts;
 using CustomerOrders.Contracts.InfoMessages;
 using CustomerOrders.Contracts.V5.Carts;
@@ -10,6 +11,7 @@ using CustomerOrders.Contracts.V5.Orders.Discounts;
 using CustomerOrders.Contracts.V5.Orders.OrderItem;
 using CustomerOrders.Contracts.V5.Orders.PromoSets;
 using CustomerOrdersApi.Library.V5.Factories;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using QS.Utilities;
 using QS.Utilities.Extensions;
@@ -23,6 +25,7 @@ using Vodovoz.EntityRepositories.Stock;
 using Vodovoz.Handlers;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Nomenclature;
+using Vodovoz.Settings.Orders;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Extensions;
 using VodovozBusiness.Nodes;
@@ -34,9 +37,11 @@ namespace CustomerOrdersApi.Library.V5.Services
 	/// <inheritdoc/>
 	public class CustomerCartService : ICustomerCartService
 	{
+		private readonly ILogger<CustomerCartService> _logger;
 		private readonly IUnitOfWork _uow;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IGeneralSettings _generalSettings;
+		private readonly IDiscountReasonSettings _discountReasonSettings;
 		private readonly IGoodsPriceCalculator _goodsPriceCalculator;
 		private readonly IOnlineOrderFromCartDistrictRulesGetter _deliveryRulesGetter;
 		private readonly IInfoMessageFactoryV5 _infoMessageFactory;
@@ -46,11 +51,15 @@ namespace CustomerOrdersApi.Library.V5.Services
 		private readonly IFreeLoaderChecker _freeLoaderChecker;
 		private readonly IPaymentMethodsCreator _paymentMethodsCreator;
 		private readonly IDeliveryRulesConditionsCreator _deliveryRulesConditionsCreator;
+		private readonly IOnlineOrderTemplateConditionsCreator _templateConditionsCreator;
+		private readonly ICheckUserBasketCacheService _checkUserBasketCacheService;
 
 		public CustomerCartService(
+			ILogger<CustomerCartService> logger,
 			IUnitOfWork uow,
 			INomenclatureSettings nomenclatureSettings,
 			IGeneralSettings generalSettings,
+			IDiscountReasonSettings discountReasonSettings,
 			IGoodsPriceCalculator goodsPriceCalculator,
 			IOnlineOrderFromCartDistrictRulesGetter deliveryRulesGetter,
 			IInfoMessageFactoryV5 infoMessageFactory,
@@ -59,12 +68,16 @@ namespace CustomerOrdersApi.Library.V5.Services
 			IStockRepository stockRepository,
 			IFreeLoaderChecker freeLoaderChecker,
 			IPaymentMethodsCreator paymentMethodsCreator,
-			IDeliveryRulesConditionsCreator deliveryRulesConditionsCreator
+			IDeliveryRulesConditionsCreator deliveryRulesConditionsCreator,
+			IOnlineOrderTemplateConditionsCreator templateConditionsCreator,
+			ICheckUserBasketCacheService checkUserBasketCacheService
 			)
 		{
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
+			_discountReasonSettings = discountReasonSettings ?? throw new ArgumentNullException(nameof(discountReasonSettings));
 			_goodsPriceCalculator = goodsPriceCalculator ?? throw new ArgumentNullException(nameof(goodsPriceCalculator));
 			_deliveryRulesGetter = deliveryRulesGetter ?? throw new ArgumentNullException(nameof(deliveryRulesGetter));
 			_infoMessageFactory = infoMessageFactory ?? throw new ArgumentNullException(nameof(infoMessageFactory));
@@ -75,10 +88,12 @@ namespace CustomerOrdersApi.Library.V5.Services
 			_paymentMethodsCreator = paymentMethodsCreator ?? throw new ArgumentNullException(nameof(paymentMethodsCreator));
 			_deliveryRulesConditionsCreator =
 				deliveryRulesConditionsCreator ?? throw new ArgumentNullException(nameof(deliveryRulesConditionsCreator));
+			_templateConditionsCreator = templateConditionsCreator ?? throw new ArgumentNullException(nameof(templateConditionsCreator));
+			_checkUserBasketCacheService = checkUserBasketCacheService ?? throw new ArgumentNullException(nameof(checkUserBasketCacheService));
 		}
 
 		/// <inheritdoc/>
-		public CheckUsersBasketResponse Check(CheckUsersBasketRequest request)
+		public async Task<CheckUsersBasketResponse> CheckAsync(CheckUsersBasketRequest request)
 		{
 			var infoMessages = new List<InfoMessage>();
 			var warnings = new List<WarningMessage>();
@@ -108,8 +123,11 @@ namespace CustomerOrdersApi.Library.V5.Services
 
 			var orderSum = CalculateOrderSum(checkedItems, checkedPromoSets, checkedPackages);
 			var nextStep = SetNextStepAfterChecking(warnings);
+			
+			var checkId = Guid.NewGuid();
 
 			var response = CheckUsersBasketResponse.Create(
+				checkId,
 				orderSum,
 				nextStep,
 				checkedItems,
@@ -117,22 +135,39 @@ namespace CustomerOrdersApi.Library.V5.Services
 				checkedPackages,
 				infoMessages,
 				warnings);
-			
+
+			await _checkUserBasketCacheService.TryCacheVerificationAsync(CheckUsersBasketCachedValue.Create(checkId, request, response));
+
 			return response;
 		}
-		
+
 		/// <inheritdoc/>
-		public OrderConditionsResponse GetOrderConditions(OrderConditionsRequest request)
+		public async Task<OrderConditionsResponse> GetOrderConditionsAsync(OrderConditionsRequest request)
 		{
+			var discount = _uow.GetById<DiscountReason>(_discountReasonSettings.GetAutoOrderDiscountReasonId);
+
+			if(discount is null)
+			{
+				throw new InvalidOperationException("В базе не установлен параметр, отвечающий за идентификатор скидки по автозаказу");
+			}
+
 			var paymentMethods = _paymentMethodsCreator.GetPaymentMethods(request.Source);
 			var conditions = _deliveryRulesConditionsCreator.Create(_uow, request);
-			var infoMessages = new List<InfoMessage>();
-			
+			var discountData = DiscountDto.Create(discount.ValueType == DiscountUnits.money, discount.Value, discount.Id);
+			var templateConditions = await _templateConditionsCreator.CreateAsync(_uow, request.CheckId, discountData);
+			var infoMessages = templateConditions.IsAvailable
+				? new List<InfoMessage>
+					{
+						_infoMessageFactory.CreateAutoOrderDiscountInfoMessage(discount.Value, discount.ValueType)
+					}
+				: new List<InfoMessage>();
+
 			var response = OrderConditionsResponse.Create(
 				paymentMethods,
+				templateConditions,
 				conditions,
 				infoMessages);
-			
+
 			return response;
 		}
 

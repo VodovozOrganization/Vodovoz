@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Mime;
+using System.Threading.Tasks;
 using CustomerOrders.Contracts.V5.Carts;
 using CustomerOrdersApi.Library.V5.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -18,7 +19,8 @@ namespace CustomerOrdersApi.Controllers.V5
 
 		public CartController(
 			ILogger<CartController> logger,
-			ICustomerCartService customerCartService) : base(logger)
+			ICustomerCartService customerCartService
+			) : base(logger)
 		{
 			_customerCartService = customerCartService ?? throw new ArgumentNullException(nameof(customerCartService));
 		}
@@ -32,13 +34,13 @@ namespace CustomerOrdersApi.Controllers.V5
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CheckUsersBasketResponse))]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 		[HttpPost]
-		public IActionResult CheckUsersBasket(CheckUsersBasketRequest request)
+		public async Task<IActionResult> CheckUsersBasket(CheckUsersBasketRequest request)
 		{
 			try
 			{
 				_logger.LogInformation("Поступил запрос проверки корзины {@CheckUsersBasketRequest}", request);
 
-				var result = _customerCartService.Check(request);
+				var result = await _customerCartService.CheckAsync(request);
 				return Ok(result);
 			}
 			catch(Exception e)
@@ -62,13 +64,13 @@ namespace CustomerOrdersApi.Controllers.V5
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderConditionsResponse))]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 		[HttpPost]
-		public IActionResult GetOrderConditions(OrderConditionsRequest request)
+		public async Task<IActionResult> GetOrderConditions(OrderConditionsRequest request)
 		{
 			try
 			{
 				_logger.LogInformation("Поступил запрос получения форм оплат и доп условий по заказу из корзины {@OrdersConditionsRequest}", request);
 
-				var result = _customerCartService.GetOrderConditions(request);
+				var result = await _customerCartService.GetOrderConditionsAsync(request);
 				return Ok(result);
 			}
 			catch(Exception e)

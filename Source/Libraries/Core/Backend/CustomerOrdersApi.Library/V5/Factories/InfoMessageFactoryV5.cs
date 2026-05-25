@@ -1,5 +1,4 @@
-﻿using Vodovoz.Core.Data;
-using Vodovoz.Domain.Orders;
+﻿using Vodovoz.Domain.Orders;
 using Vodovoz.Extensions;
 using InfoMessage = CustomerOrders.Contracts.InfoMessages.InfoMessage;
 
@@ -17,21 +16,13 @@ namespace CustomerOrdersApi.Library.V5.Factories
 			return InfoMessage.Create("orderDescriptionTop", 2, "Заказ не был оплачен", "Наш менеджер свяжется с Вами в ближайшее время");
 		}
 
-		/*public InfoMessage CreateAutoOrderDiscountInfoMessage(decimal discount, DiscountUnits units)
+		public InfoMessage CreateAutoOrderDiscountInfoMessage(decimal discount, DiscountUnits units)
 		{
 			return InfoMessage.Create(
-				"orderDescriptionTop",
+				"autoOrderBottom",
 				2,
-				null,
-				"Подключая {OrderTemplateLabel}, вы экономите время и до {Discount} на покупках!",
-				new []
-				{
-					InfoMessageParameter.Create(
-						"OrderTemplateLabel",
-						"автозаказ",
-						InfoMessageParameterAction.Create("OpenModal", "OrderTemplateInfo")),
-					InfoMessageParameter.Create("Discount", discount + units.GetEnumDisplayName())
-				});
-		}*/
+				$"{discount}{units.GetEnumDisplayName()} скидка при автозаказе",
+				$"Подключая автозаказ, Вы экономите время и до {discount}{units.GetEnumDisplayName()} на покупках!");
+		}
 	}
 }

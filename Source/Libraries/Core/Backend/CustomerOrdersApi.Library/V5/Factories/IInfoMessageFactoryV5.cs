@@ -7,6 +7,6 @@ namespace CustomerOrdersApi.Library.V5.Factories
 	{
 		InfoMessage CreateNeedPayOrderInfoMessage();
 		InfoMessage CreateNotPaidOrderInfoMessage();
-		//InfoMessage CreateAutoOrderDiscountInfoMessage(decimal discount, DiscountUnits units);
+		InfoMessage CreateAutoOrderDiscountInfoMessage(decimal discount, DiscountUnits units);
 	}
 }

@@ -8,7 +8,7 @@
 		/// <summary>
 		/// Тип
 		/// </summary>
-		public AdditionalConditionType Type { get; set; }
+		public string Type { get; set; }
 		/// <summary>
 		/// Название
 		/// </summary>
@@ -24,12 +24,12 @@
 		/// <summary>
 		/// Тип виджета
 		/// </summary>
-		public AdditionalConditionWidgetType WidgetType { get; set; }
+		public string WidgetType { get; set; }
 
 		public static AdditionalCondition Create(
-			AdditionalConditionType type,
+			string type,
 			string name,
-			AdditionalConditionWidgetType widgetType,
+			string widgetType,
 			bool isActive,
 			bool editable)
 		{

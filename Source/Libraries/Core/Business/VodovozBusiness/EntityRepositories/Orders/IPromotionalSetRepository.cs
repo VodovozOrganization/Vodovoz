@@ -36,6 +36,6 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="uow">Unit Of Work</param>
 		/// <param name="promotionalSetIds">Идентификаторы промонаборов</param>
 		/// <returns></returns>
-		bool IsPromoSetsForNewClients(IUnitOfWork uow, IEnumerable<int> promotionalSetIds);
+		bool HasPromoSetsForNewClients(IUnitOfWork uow, IEnumerable<int> promotionalSetIds);
 	}
 }

@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Osrm;
 using QS.HistoryLog;
 using QS.Project.Core;
@@ -29,6 +30,7 @@ using Vodovoz.Presentation.WebApi;
 using Vodovoz.Services.Logistics;
 using VodovozBusiness.Services.Orders;
 using Vodovoz.Core.Application;
+using Vodovoz.Infrastructure.WebApi.Caching.Redis;
 
 namespace CustomerOrdersApi
 {
@@ -71,6 +73,10 @@ namespace CustomerOrdersApi
 				.AddVersion5()
 				.AddVersioning()
 				.AddOsrm()
+				.AddGarnetCaching(sp => sp
+					.GetRequiredService<IOptions<CacheOptions>>()
+					.Value
+					.Garnet)
 
 				.AddScoped<IRouteListService, RouteListService>()
 				.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()

@@ -12,7 +12,7 @@
 		/// <summary>
 		/// Форма оплаты
 		/// </summary>
-		public PaymentMethodType MethodType { get; set; }
+		public string MethodType { get; set; }
 		/// <summary>
 		/// Доступность
 		/// </summary>
@@ -20,7 +20,7 @@
 
 		public static PaymentMethod Create(
 			int id,
-			PaymentMethodType methodType,
+			string methodType,
 			bool available = true)
 		{
 			return new PaymentMethod

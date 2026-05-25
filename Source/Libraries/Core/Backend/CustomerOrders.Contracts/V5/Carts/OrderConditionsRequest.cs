@@ -12,6 +12,10 @@ namespace CustomerOrders.Contracts.V5.Carts
 		/// </summary>
 		public ExternalSource Source { get; set; }
 		/// <summary>
+		/// Идентификатор проверки
+		/// </summary>
+		public Guid? CheckId { get; set; }
+		/// <summary>
 		/// Id контрагента в ДВ
 		/// </summary>
 		public int? CounterpartyErpId { get; set; }

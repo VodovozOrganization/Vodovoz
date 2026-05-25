@@ -17,18 +17,24 @@ namespace CustomerOrders.Contracts.V5.Carts
 		/// </summary>
 		public DeliveryRulesConditions DeliveryRulesConditions { get; set; }
 		/// <summary>
+		/// Условия по автозаказу
+		/// </summary>
+		public OnlineAutoOrderConditions OnlineAutoOrder { get; set; }
+		/// <summary>
 		/// Информационные сообщения
 		/// </summary>
 		public IEnumerable<InfoMessage> InfoMessages { get; set; }
 
 		public static OrderConditionsResponse Create(
 			IEnumerable<PaymentMethod> paymentMethods,
+			OnlineAutoOrderConditions onlineAutoOrder,
 			DeliveryRulesConditions deliveryRulesConditions,
 			IEnumerable<InfoMessage> infoMessages)
 		{
 			return new OrderConditionsResponse
 			{
 				PaymentMethods = paymentMethods,
+				OnlineAutoOrder = onlineAutoOrder,
 				DeliveryRulesConditions = deliveryRulesConditions,
 				InfoMessages = infoMessages
 			};
