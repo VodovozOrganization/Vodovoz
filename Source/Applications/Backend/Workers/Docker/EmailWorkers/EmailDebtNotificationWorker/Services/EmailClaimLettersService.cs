@@ -19,6 +19,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Common;
 using VodovozBusiness.Domain.StoredEmails;
@@ -36,6 +37,7 @@ namespace EmailDebtNotificationWorker.Services
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IEmailRepository _emailRepository;
+		private readonly ICounterpartyRepository _counterpartyRepository;
 		private readonly IEmailAttachmentsCreateService _emailAttachmentsCreateService;
 		private readonly IEmailSettings _emailSettings;
 		private readonly IBus _bus;
@@ -52,20 +54,22 @@ namespace EmailDebtNotificationWorker.Services
 			IUnitOfWorkFactory uowFactory,
 			IOrderRepository orderRepository,
 			IEmailRepository emailRepository,
+			ICounterpartyRepository counterpartyRepository,
 			IEmailAttachmentsCreateService emailAttachmentsCreateService,
 			IEmailSettings emailSettings,
 			IBus bus,
 			IOptionsMonitor<EmailClaimLettersOptions> emailClaimLettersOptions,
 			IDatabaseRepository databaseRepository)
 		{
-			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
-			_uowFactory = uowFactory ?? throw new System.ArgumentNullException(nameof(uowFactory));
-			_orderRepository = orderRepository ?? throw new System.ArgumentNullException(nameof(orderRepository));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
-			_emailAttachmentsCreateService = emailAttachmentsCreateService ?? throw new System.ArgumentNullException(nameof(emailAttachmentsCreateService));
+			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
+			_emailAttachmentsCreateService = emailAttachmentsCreateService ?? throw new ArgumentNullException(nameof(emailAttachmentsCreateService));
 			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
-			_emailClaimLettersOptions = emailClaimLettersOptions ?? throw new System.ArgumentNullException(nameof(emailClaimLettersOptions));
+			_emailClaimLettersOptions = emailClaimLettersOptions ?? throw new ArgumentNullException(nameof(emailClaimLettersOptions));
 			_databaseRepository = databaseRepository ?? throw new ArgumentNullException(nameof(databaseRepository));
 		}
 
@@ -389,14 +393,17 @@ namespace EmailDebtNotificationWorker.Services
 			return null;
 		}
 
-		private static string GenerateEmailBody(
+		private string GenerateEmailBody(
+			IUnitOfWork uow,
 			Counterparty client,
 			CounterpartyContract contract,
 			string unsubscribeUrl)
 		{
+			var debt = _counterpartyRepository.GetDebtByOrganization(uow, client.Id, contract.Organization.Id);
+
 			return $@"
 				<p>Добрый день!</p>
-				<p>Информируем, что у Вашей компании {client.FullName} (ИНН: {client.INN}) образовалась просроченная задолженность по договору {contract.Number} от {contract.IssueDate:dd.MM.yyyy}.</p> 
+				<p>Информируем, что у Вашей компании {client.FullName} (ИНН: {client.INN}) образовалась просроченная задолженность по договору {contract.Number} от {contract.IssueDate:dd.MM.yyyy} на сумму {debt} руб.</p> 
 				<p>Настоятельно рекомендуем принять участие в мирном урегулировании данного вопроса, что позволит обеим сторонам сэкономить время и деньги.</p>
 				<p>И позволит продолжить дальнейшее плодотворное сотрудничество наших компаний!</p>
 				<p>______________</p>
