@@ -1,4 +1,4 @@
-using BitrixApi.Library.Services;
+﻿using BitrixApi.Library.Services;
 using EmailDebtNotificationWorker.Options;
 using EmailDebtNotificationWorker.Repositories;
 using Mailjet.Api.Abstractions;
@@ -228,7 +228,7 @@ namespace EmailDebtNotificationWorker.Services
 				attachments,
 				emailAddress,
 				emailSubject,
-				GenerateEmailBody(client, contract, GetUnsubscribeLink(storedEmail.Guid.Value)));
+				GenerateEmailBody(uow, client, contract, GetUnsubscribeLink(storedEmail.Guid.Value)));
 
 			return emailMessage;
 		}
