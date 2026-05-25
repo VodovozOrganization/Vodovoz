@@ -52,6 +52,12 @@ namespace Vodovoz.Settings.Logistics
 		/// <summary>
 		/// Разрешенное расстояние из ERP
 		/// </summary>
-		int PermittedDistance { get; set; }
+		int PermittedDistance { get; }
+
+		/// <summary>
+		/// Сохранить разрешенное расстояние из ERP
+		/// </summary>
+		/// <param name="permittedDistance">Разрешенное расстояние в метрах</param>
+		void SavePermittedDistance(int permittedDistance);
 	}
 }

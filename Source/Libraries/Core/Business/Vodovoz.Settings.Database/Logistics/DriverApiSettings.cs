@@ -7,6 +7,7 @@ namespace Vodovoz.Settings.Database.Logistics
 	{
 		private readonly ISettingsController _settingsController;
 		private readonly string _permittedDistanceName = "PermittedDistance";
+		private int _permittedDistance;
 
 		public DriverApiSettings(ISettingsController settingsController)
 		{
@@ -33,10 +34,11 @@ namespace Vodovoz.Settings.Database.Logistics
 
 		public int DriverApiUserId => _settingsController.GetIntValue("DriverApiUserId");
 
-		public int PermittedDistance
+		public int PermittedDistance => _settingsController.GetValue<int>(_permittedDistanceName);
+
+		public void SavePermittedDistance(int permittedDistance)
 		{
-			get => _settingsController.GetValue<int>(_permittedDistanceName);
-			set => _settingsController.CreateOrUpdateSetting(_permittedDistanceName, value.ToString());
+			_settingsController.CreateOrUpdateSetting(_permittedDistanceName, permittedDistance.ToString());
 		}
 	}
 }

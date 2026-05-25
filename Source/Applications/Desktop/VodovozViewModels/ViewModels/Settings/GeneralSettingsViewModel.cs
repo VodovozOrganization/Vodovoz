@@ -759,7 +759,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 		private void SaveMaximumPermittedDistanceMeters()
 		{
-			_driverApiSettings.PermittedDistance = MaximumPermittedDistanceMeters;
+			_driverApiSettings.SavePermittedDistance(MaximumPermittedDistanceMeters);
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
 

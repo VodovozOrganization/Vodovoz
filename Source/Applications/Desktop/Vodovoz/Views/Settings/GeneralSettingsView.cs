@@ -648,13 +648,12 @@ namespace Vodovoz.Views.Settings
 
 			ybuttonSaveFastDeliveryMaximumPermissibleLate.Clicked += (s, e) => ViewModel.SaveFastDeliveryMaximumPermissibleLateCommand.Execute();
 
-			frameMaximumPermittedDistance.Sensitive = ViewModel.CanEditMaximumPermittedDistanceFromSetting;
-
-			ytableFrameMaximumPermittedDistance.Sensitive = ViewModel.CanEditMaximumPermittedDistanceFromSetting;
-
 			yspinbuttonMaximumPermittedDistance.Binding
 				.AddBinding(ViewModel, vm => vm.MaximumPermittedDistanceMeters, w => w.ValueAsInt)
+				.AddBinding(ViewModel, vm => vm.CanEditMaximumPermittedDistanceFromSetting, w => w.Sensitive)
 				.InitializeFromSource();
+
+			ybuttonSaveMaximumPermittedDistance.Sensitive = ViewModel.CanEditMaximumPermittedDistanceFromSetting;
 
 			ybuttonSaveMaximumPermittedDistance.Clicked += (s, e) => ViewModel.SaveMaximumPermittedDistanceMetersCommand.Execute();
 		}
