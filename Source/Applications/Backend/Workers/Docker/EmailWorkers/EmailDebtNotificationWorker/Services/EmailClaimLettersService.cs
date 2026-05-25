@@ -22,6 +22,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Common;
 using VodovozBusiness.Domain.StoredEmails;
+using VodovozBusiness.EntityRepositories.Nodes;
 using StoredEmails = Vodovoz.Domain.StoredEmails;
 
 namespace EmailDebtNotificationWorker.Services
@@ -104,43 +105,11 @@ namespace EmailDebtNotificationWorker.Services
 				return;
 			}
 
-			var emailMessages = new List<SendEmailMessage>();
+			var debtDataWithBills = await PrepareDebtDataWithBillsAsync(uow, overdueDebitorsDebtData, cancellationToken);
 
-			foreach(var debtData in overdueDebitorsDebtData)
-			{
-				var client = debtData.Value.Counterparty;
-				var organizationId = debtData.Value.OrganizationId;
-				var organizationFullName = debtData.Value.OrganizationFullName;
-				var organizationEmailForMailing = debtData.Value.OrganizationEmailForMailing;
-				var contract = debtData.Value.Contract;
-				var orderIds = debtData.Value.OrderIds;
-				var totalOverdueDebtorDebt = debtData.Value.TotalOverdueDebtorDebt;
+			await uow.CommitAsync(cancellationToken);
 
-				try
-				{
-					var emailMessage = await CreateSendEmailMessage(
-						uow,
-						client,
-						organizationId,
-						organizationFullName,
-						organizationEmailForMailing,
-						contract,
-						orderIds,
-						totalOverdueDebtorDebt,
-						cancellationToken);
-
-					emailMessages.Add(emailMessage);
-
-				}
-				catch(Exception ex)
-				{
-					_logger.LogError(ex,
-						"Ошибка при создании и публикации сообщения на отправку письма с претензией для контрагента {CounterpartyId} и организации {OrganizationId}",
-						client.Id,
-						organizationId);
-					continue;
-				}
-			}
+			var emailMessages = await PrepareEmailMessagesAsync(uow, debtDataWithBills, cancellationToken);
 
 			await uow.CommitAsync(cancellationToken);
 
@@ -148,6 +117,75 @@ namespace EmailDebtNotificationWorker.Services
 			{
 				await PublishEmailMessage(emailMessage, cancellationToken);
 			}
+		}
+
+		private async Task<List<(CounterpartyOverdueDebtorDebtAggregatedNode DebtData, OrderWithoutShipmentForDebt Bill)>> PrepareDebtDataWithBillsAsync(
+			IUnitOfWork uow,
+			IDictionary<CounterpartyOrganizationDataNode, CounterpartyOverdueDebtorDebtAggregatedNode> overdueDebitorsDebtData,
+			CancellationToken cancellationToken)
+		{
+			var debtDataWithBills = new List<(CounterpartyOverdueDebtorDebtAggregatedNode DebtData, OrderWithoutShipmentForDebt Bill)>();
+
+			foreach(var debtData in overdueDebitorsDebtData)
+			{
+				try
+				{
+					var bill = await _claimLetterBillWithoutShipmentService.GetOrCreateAsync(
+						uow,
+						debtData.Value.Counterparty,
+						debtData.Value.OrganizationId,
+						debtData.Value.TotalOverdueDebtorDebt,
+						cancellationToken);
+
+					debtDataWithBills.Add((debtData.Value, bill));
+				}
+				catch(Exception ex)
+				{
+					_logger.LogError(ex,
+						"Ошибка при подготовке счета без отгрузки на долг для контрагента {CounterpartyId} и организации {OrganizationId}",
+						debtData.Value.Counterparty.Id,
+						debtData.Value.OrganizationId);
+				}
+			}
+
+			return debtDataWithBills;
+		}
+
+		private async Task<List<SendEmailMessage>> PrepareEmailMessagesAsync(
+			IUnitOfWork uow,
+			IEnumerable<(CounterpartyOverdueDebtorDebtAggregatedNode DebtData, OrderWithoutShipmentForDebt Bill)> debtDataWithBills,
+			CancellationToken cancellationToken)
+		{
+			var emailMessages = new List<SendEmailMessage>();
+
+			foreach(var (data, bill) in debtDataWithBills)
+			{
+				try
+				{
+					var emailMessage = await CreateSendEmailMessage(
+						uow,
+						data.Counterparty,
+						data.OrganizationId,
+						data.OrganizationFullName,
+						data.OrganizationEmailForMailing,
+						data.Contract,
+						data.OrderIds,
+						data.TotalOverdueDebtorDebt,
+						bill,
+						cancellationToken);
+
+					emailMessages.Add(emailMessage);
+				}
+				catch(Exception ex)
+				{
+					_logger.LogError(ex,
+						"Ошибка при создании и публикации сообщения на отправку письма с претензией для контрагента {CounterpartyId} и организации {OrganizationId}",
+						data.Counterparty.Id,
+						data.OrganizationId);
+				}
+			}
+
+			return emailMessages;
 		}
 
 		private async Task<SendEmailMessage> CreateSendEmailMessage(
@@ -159,6 +197,7 @@ namespace EmailDebtNotificationWorker.Services
 			CounterpartyContract contract,
 			IEnumerable<int> orderIds,
 			decimal totalOverdueDebtorDebt,
+			OrderWithoutShipmentForDebt billWithoutShipment,
 			CancellationToken cancellationToken)
 		{
 			if(string.IsNullOrWhiteSpace(organizationEmailForMailing))
@@ -171,13 +210,6 @@ namespace EmailDebtNotificationWorker.Services
 				throw new InvalidOperationException(
 					$"Организация {organizationId} не имеет email для рассылки, указанного в настройках");
 			}
-
-			var billWithoutShipment = await _claimLetterBillWithoutShipmentService.GetOrCreateAsync(
-				uow,
-				client,
-				organizationId,
-				totalOverdueDebtorDebt,
-				cancellationToken);
 
 			var attachments = CreateEmailAttachments(client.Id, organizationId, GetFormattedSum(totalOverdueDebtorDebt), orderIds, billWithoutShipment);
 
