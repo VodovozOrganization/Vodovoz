@@ -18,6 +18,7 @@ namespace Vodovoz.Views.Logistic
 	{
 		private bool _isSynchronizingDriverScheduleVerticalScroll;
 		private bool _isLockingFixedPartHorizontalScroll;
+		private ScrolledWindow _filtersScrolledWindow;
 
 		public DriverScheduleView(DriverScheduleViewModel viewModel) : base(viewModel)
 		{
@@ -41,7 +42,8 @@ namespace Vodovoz.Views.Logistic
 
 		private void Configure()
 		{
-			leftsidepanel5.Panel = yvboxFilters;
+			ConfigureFiltersScrolling();
+			leftsidepanel5.Panel = _filtersScrolledWindow ?? (Widget)yvboxFilters;
 			leftsidepanel5.Title = "Параметры";
 
 			var weekPicker = new MonthPickerView(ViewModel.WeekPickerViewModel);
@@ -91,6 +93,37 @@ namespace Vodovoz.Views.Logistic
 			ConfigureDynamicTreeView();
 			ConfigureDriverScheduleScrolling();
 			ApplyFixedColumnsVisibility();
+		}
+
+		private void ConfigureFiltersScrolling()
+		{
+			if(_filtersScrolledWindow != null || yvboxFilters?.Parent != yhbox4)
+			{
+				return;
+			}
+
+			var filtersWidth = Math.Max(335, yvboxFilters.SizeRequest().Width + 22);
+			yhbox4.Remove(yvboxFilters);
+
+			var viewport = new Viewport
+			{
+				ShadowType = ShadowType.None
+			};
+			viewport.Add(yvboxFilters);
+
+			_filtersScrolledWindow = new ScrolledWindow
+			{
+				Name = "scrolledwindowFilters",
+				WidthRequest = filtersWidth,
+				HscrollbarPolicy = PolicyType.Never,
+				VscrollbarPolicy = PolicyType.Automatic,
+				ShadowType = ShadowType.None
+			};
+			_filtersScrolledWindow.Add(viewport);
+
+			yhbox4.PackStart(_filtersScrolledWindow, false, true, 0);
+			yhbox4.ReorderChild(_filtersScrolledWindow, 0);
+			_filtersScrolledWindow.ShowAll();
 		}
 
 		private void ConfigureDriverSearchBinding()

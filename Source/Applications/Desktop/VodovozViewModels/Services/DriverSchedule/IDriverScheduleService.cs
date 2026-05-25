@@ -56,7 +56,16 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 		byte[] ExportToExcel(
 			IEnumerable<DriverScheduleRow> scheduleRows,
 			DateTime startDate,
-			DateTime endDate);
+			DateTime endDate,
+			(
+				bool ShowCarTypeOfUseColumn,
+				bool ShowCarOwnTypeColumn,
+				bool ShowDriverCarOwnTypeColumn,
+				bool ShowPhoneColumn,
+				bool ShowDistrictColumn,
+				bool ShowArrivalTimeColumn,
+				bool ShowLastModifiedDateTimeColumn
+			)? columnVisibility = null);
 
 		/// <summary>
 		/// Получает список подразделений для фильтра

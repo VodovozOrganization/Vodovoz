@@ -440,7 +440,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 					var excelData = _driverScheduleService.ExportToExcel(
 						DriverScheduleRows,
 						StartDate,
-						EndDate);
+						EndDate,
+						(
+							ShowCarTypeOfUseColumn,
+							ShowCarOwnTypeColumn,
+							ShowDriverCarOwnTypeColumn,
+							ShowPhoneColumn,
+							ShowDistrictColumn,
+							ShowArrivalTimeColumn,
+							ShowLastModifiedDateTimeColumn
+						));
 
 					System.IO.File.WriteAllBytes(result.Path, excelData);
 
