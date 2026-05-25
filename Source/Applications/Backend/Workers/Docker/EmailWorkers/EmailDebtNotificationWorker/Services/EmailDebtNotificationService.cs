@@ -1,4 +1,4 @@
-﻿using BitrixApi.Library.Services;
+using BitrixApi.Library.Services;
 using EmailDebtNotificationWorker.Repositories;
 using Mailjet.Api.Abstractions;
 using MassTransit;
@@ -168,6 +168,7 @@ namespace EmailDebtNotificationWorker.Services
 			var bulkEmail = new InformationLetterEmail
 			{
 				StoredEmail = storedEmail,
+				OrganizationId = organization.Id,
 				Counterparty = client
 			};
 
