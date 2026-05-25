@@ -498,6 +498,16 @@ $@"<b>1.</b> Подсчет продаж ведется на основе зак
 
 				var tree = BuildTree(data, SelectedGroupings, 0);
 
+				var totalNode = new SalesReportTreeNode
+				{
+					Name = "Итого:",
+					Level = 0,
+					Children = tree,
+					TotalCount = tree.Sum(n => n.TotalCount),
+					TotalSum = tree.Sum(n => n.TotalSum),
+					IsTotalNode = true
+				};
+
 				/*// 3. Обновляем TreeView
 				UpdateTreeView(tree);*/
 			}

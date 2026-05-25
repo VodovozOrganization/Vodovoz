@@ -1,5 +1,4 @@
-﻿using System;
-using Vodovoz.Reports.Editing.Modifiers;
+﻿using Vodovoz.Reports.Editing.Modifiers;
 
 namespace VodovozBusiness.Nodes.SalesReport
 {

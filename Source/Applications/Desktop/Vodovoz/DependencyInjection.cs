@@ -108,6 +108,7 @@ using Vodovoz.ViewModels.ViewModels.Reports.Payments;
 using VodovozInfrastructure;
 using VodovozInfrastructure.Services;
 using DocumentPrinter = Vodovoz.Core.DocumentPrinter;
+using Vodovoz.ViewModels.Services.SalesReport;
 
 namespace Vodovoz
 {
@@ -260,6 +261,7 @@ namespace Vodovoz
 				.AddScoped<IPasswordValidator, PasswordValidator>()
 				.AddScoped<IPasswordValidationSettings, DefaultPasswordValidationSettings>()
 				.AddScoped<IDriverScheduleService, DriverScheduleService>()
+				.AddScoped<ISalesReportService, SalesReportService>()
 				.AddOrderEdoCodePoolMissingProblem()
 				;
 

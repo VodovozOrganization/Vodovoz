@@ -52,7 +52,12 @@ namespace Vodovoz.ViewModels.Services.SalesReport
 
 			if(orderIds is null || !orderIds.Any())
 			{
-				return new BottlesDataNode { Plan = 0, FactFromRouteList = 0, FactFromSelfDelivery = 0};
+				return new BottlesDataNode
+				{
+					Plan = 0,
+					FactFromRouteList = 0,
+					FactFromSelfDelivery = 0
+				};
 			}
 
 			return await _salesReportRepository.GetBottlesData(

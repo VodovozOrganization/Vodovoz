@@ -1,5 +1,4 @@
-using Core.Infrastructure;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
@@ -187,7 +186,6 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 				.WhereRestrictionOn(o => o.Id).IsIn(orderIds.ToArray())
 				.Select(Projections.Id());
 		}
-
 
 		private QueryOver<Order, Order> GetSbpPaymentOrderQuery(
 			DateTime startDate,
@@ -557,26 +555,24 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 			}
 
 			query.SelectList(list => list
-				.Select(() => counterpartyAlias.Id).WithAlias(() => resultAlias.CounterpartyId)
-				.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
-				.Select(() => counterpartyAlias.CounterpartyType).WithAlias(() => resultAlias.CounterpartyType)
-				.Select(() => organizationAlias.Name).WithAlias(() => resultAlias.Organization)
-				.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.DeliveryPoint)
-				.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
-				.Select(() => orderAlias.PaymentType).WithAlias(() => resultAlias.PaymentType)
-				.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)
-				.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteList)
-				.Select(() => orderItemAlias.Id).WithAlias(() => resultAlias.OrderItemId)
-				.Select(() => nomenclatureAlias.OfficialName).WithAlias(() => resultAlias.NomenclatureName)
-				.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
-				.Select(() => nomenclatureAlias.IsDisposableTare).WithAlias(() => resultAlias.IsDisposableTare)
-				.Select(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-				.Select(() => subdivisionAlias.Name).WithAlias(() => resultAlias.AuthorSubdivision)
-				.Select(() => subdivisionAlias.Id).WithAlias(() => resultAlias.AuthorSubdivisionId)
-				.Select(() => managerAlias.Name).WithAlias(() => resultAlias.SalesManagerName)
-				.Select(() => authorAlias.Name).WithAlias(() => resultAlias.OrderAuthorName)
-				.Select(() => promotionalSetAlias.Name).WithAlias(() => resultAlias.PromotionalSet)
-				.Select(() => authorAlias.LastName).WithAlias(() => resultAlias.OrderAuthor)
+				.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+				.SelectGroup(() => counterpartyAlias.Id).WithAlias(() => resultAlias.CounterpartyId)
+				.SelectGroup(() => counterpartyAlias.Name).WithAlias(() => resultAlias.Counterparty)
+				.SelectGroup(() => counterpartyAlias.CounterpartyType).WithAlias(() => resultAlias.CounterpartyType)
+				.SelectGroup(() => organizationAlias.Name).WithAlias(() => resultAlias.Organization)
+				.SelectGroup(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.DeliveryPoint)
+				.SelectGroup(() => orderAlias.PaymentType).WithAlias(() => resultAlias.PaymentType)
+				.SelectGroup(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)
+				.SelectGroup(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteList)
+				.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+				.SelectGroup(() => nomenclatureAlias.OfficialName).WithAlias(() => resultAlias.NomenclatureName)
+				.SelectGroup(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
+				.SelectGroup(() => subdivisionAlias.Name).WithAlias(() => resultAlias.AuthorSubdivision)
+				.SelectGroup(() => subdivisionAlias.Id).WithAlias(() => resultAlias.AuthorSubdivisionId)
+				.SelectGroup(() => managerAlias.Name).WithAlias(() => resultAlias.SalesManagerName)
+				.SelectGroup(() => authorAlias.Name).WithAlias(() => resultAlias.OrderAuthorName)
+				.SelectGroup(() => promotionalSetAlias.Name).WithAlias(() => resultAlias.PromotionalSet)
+				.SelectGroup(() => authorAlias.LastName).WithAlias(() => resultAlias.OrderAuthor)
 				.Select(Projections.SqlFunction(
 					new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT('Заказ №', ?1)"),
 					NHibernateUtil.String,
