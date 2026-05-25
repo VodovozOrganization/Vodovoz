@@ -225,17 +225,6 @@ namespace Vodovoz.Core.Domain.Goods
 		public virtual bool IsDeposit => Category == NomenclatureCategory.deposit;
 
 		/// <summary>
-		/// Возвращает актуальную версию НДС с учётом режима налогообложения организации.
-		/// Для залогов всегда используется НДС из номенклатуры независимо от режима организации.
-		/// </summary>
-		public virtual VatRateVersion GetEffectiveVatRateVersion(OrganizationEntity organization, DateTime? date)
-		{
-			if(organization != null && organization.IsUsnMode && !IsDeposit)
-				return organization.GetActualVatRateVersion(date);
-			return GetActualVatRateVersion(date);
-		}
-
-		/// <summary>
 		/// Подлежит учету в Честном Знаке
 		/// </summary>
 		[Display(Name = "Подлежит учету в Честном Знаке")]
@@ -1439,7 +1428,16 @@ namespace Vodovoz.Core.Domain.Goods
 			return VatRateVersions.FirstOrDefault(x => 
 				x.StartDate <= targetDate && (x.EndDate == null || x.EndDate >= targetDate));
 		}
-		
+
+		/// <summary>
+		/// Возвращает актуальную версию НДС с учётом режима налогообложения организации.
+		/// Для залогов всегда используется НДС из номенклатуры независимо от режима организации.
+		/// </summary>
+		public virtual VatRateVersion GetEffectiveVatRateVersion(OrganizationEntity organization = null, DateTime? date = null) =>
+			organization != null && organization.IsUsnMode && !IsDeposit
+			? organization.GetActualVatRateVersion(date)
+			: GetActualVatRateVersion(date);
+
 		public override string ToString() => $"id = {Id} Name = {Name}";
 
 		#region Statics
