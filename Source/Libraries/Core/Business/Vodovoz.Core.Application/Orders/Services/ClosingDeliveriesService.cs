@@ -29,6 +29,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly ICounterpartySettings _counterpartySettings;
 		private readonly int[] _organizationsIds;
 
+		private const decimal _debtThreshold = 100m;
+
 		private readonly OrderStatus[] _orderStatuses =
 		{
 			OrderStatus.Shipped,
@@ -79,9 +81,19 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return overdueDebtOverPeriodLimitRows;
 			}
 
+			var filteredRows = overdueDebtOverPeriodLimitRows
+				.Where(x => x.DebtSum > _debtThreshold)
+				.ToList();
+
+			if(!filteredRows.Any())
+			{
+				_logger.LogInformation("Нет контрагентов с просроченной дебиторской задолженностью свыше {DebtThreshold} руб.", _debtThreshold);
+				return filteredRows;
+			}
+
 			// Закрытие поставок, только если есть долг по организации ВВ
 
-			var vodovozOrganizationRows = overdueDebtOverPeriodLimitRows.Where(x => x.Organization.Id == _organizationSettings.VodovozOrganizationId).ToList();
+			var vodovozOrganizationRows = filteredRows.Where(x => x.Organization.Id == _organizationSettings.VodovozOrganizationId).ToList();
 
 			if(!vodovozOrganizationRows.Any())
 			{
@@ -98,7 +110,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				
 				var closingComment = $"Робот; {DateTime.Now:dd.MM.yy HH:mm}";
 
-				var counterpartyOverdueRows = overdueDebtOverPeriodLimitRows.Where(x => x.Counterparty.Id == counterparty.Id);
+				var counterpartyOverdueRows = filteredRows.Where(x => x.Counterparty.Id == counterparty.Id);
 
 				foreach(var counterpartyOverdueRow in counterpartyOverdueRows)
 				{
@@ -112,9 +124,9 @@ namespace Vodovoz.Core.Application.Orders.Services
 				await unitOfWork.SaveAsync(counterparty, cancellationToken: cancellationToken);
 			}
 
-			_logger.LogInformation("Закрыты поставки {CounterpartiesCount} контрагентам", overdueDebtOverPeriodLimitRows.Count());
+			_logger.LogInformation("Закрыты поставки {CounterpartiesCount} контрагентам", filteredRows.Count());
 
-			return overdueDebtOverPeriodLimitRows;
+			return filteredRows;
 		}
 
 		public async Task CheckAndOpenDeliveriesAsync(

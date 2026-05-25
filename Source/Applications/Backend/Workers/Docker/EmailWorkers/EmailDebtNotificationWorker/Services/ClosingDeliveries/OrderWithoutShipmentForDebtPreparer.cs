@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
+using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Settings.Organizations;
 using VodovozBusiness.EntityRepositories.Nodes;
@@ -16,16 +17,19 @@ namespace EmailDebtNotificationWorker.Services.ClosingDeliveries
 	public class OrderWithoutShipmentForDebtPreparer : IOrderWithoutShipmentForDebtPreparer
 	{
 		private readonly IEmployeeRepository _employeeRepository;
+		private readonly ICounterpartyRepository _counterpartyRepository;
 		private readonly IGenericRepository<OrderWithoutShipmentForDebt> _orderWithoutShipmentForDebtRepository;
 		private readonly IOrganizationSettings _organizationSettings;
 		private const int _daysToCheckExistingBills = 3;
 
 		public OrderWithoutShipmentForDebtPreparer(
 			IEmployeeRepository employeeRepository,
+			ICounterpartyRepository counterpartyRepository,
 			IGenericRepository<OrderWithoutShipmentForDebt> orderWithoutShipmentForDebtRepository,
 			IOrganizationSettings organizationSettings)
 		{
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 			_orderWithoutShipmentForDebtRepository = orderWithoutShipmentForDebtRepository ?? throw new ArgumentNullException(nameof(orderWithoutShipmentForDebtRepository));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 		}
@@ -70,6 +74,8 @@ namespace EmailDebtNotificationWorker.Services.ClosingDeliveries
 					}
 				}
 
+				var debt = _counterpartyRepository.GetDebtByOrganization(unitOfWork, node.Counterparty.Id, node.Organization.Id);
+
 				var notificationInfo = new OrderWithoutShipmentForDebtNotificationInfo
 				{
 					OverdueDebtDays = node.OverdueDebtDays,
@@ -85,7 +91,7 @@ namespace EmailDebtNotificationWorker.Services.ClosingDeliveries
 					{
 						Client = node.Counterparty,
 						Organization = node.Organization,
-						DebtSum = node.DebtSum,
+						DebtSum = debt,
 						Author = author
 					};
 
