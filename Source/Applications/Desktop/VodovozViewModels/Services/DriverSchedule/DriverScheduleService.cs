@@ -385,6 +385,15 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			}
 		}
 
+		public IList<int> GetDriverIdsWithDriverScheduleEventsAtDay(IUnitOfWork uow, int[] driverIds, DateTime date)
+		{
+			return _logisticRepository.GetDriverIdsWithCarEventsAtDay(
+				uow,
+				driverIds,
+				date,
+				_carEventTypeNamesAllowedToShowInDriverSchedule);
+		}
+
 		private void UpdateExistingSchedule(
 			Schedule schedule,
 			DriverScheduleRow node)

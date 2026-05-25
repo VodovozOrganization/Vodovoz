@@ -47,6 +47,15 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			int currentUserId);
 
 		/// <summary>
+		/// Получает идентификаторы водителей с событиями ТС, которые должны учитываться в графике водителей.
+		/// </summary>
+		/// <param name="uow">Unit of Work</param>
+		/// <param name="driverIds">Идентификаторы водителей</param>
+		/// <param name="date">Дата события</param>
+		/// <returns>Идентификаторы водителей с событиями ТС</returns>
+		IList<int> GetDriverIdsWithDriverScheduleEventsAtDay(IUnitOfWork uow, int[] driverIds, DateTime date);
+
+		/// <summary>
 		/// Экспортирует график водителей в Excel
 		/// </summary>
 		/// <param name="scheduleRows"></param>

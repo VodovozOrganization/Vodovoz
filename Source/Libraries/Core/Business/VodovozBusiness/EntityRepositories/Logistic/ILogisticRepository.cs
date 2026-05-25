@@ -80,5 +80,24 @@ namespace VodovozBusiness.EntityRepositories.Logistic
 		/// <param name="endDate"></param>
 		/// <returns></returns>
 		IList<DriverSchedule> GetDriverSchedules(IUnitOfWork uow, int[] driverIds, DateTime startDate, DateTime endDate);
+
+		/// <summary>
+		/// Получить графики водителей за указанный день.
+		/// </summary>
+		/// <param name="uow">Unit of Work</param>
+		/// <param name="driverIds">Идентификаторы водителей</param>
+		/// <param name="date">Дата графика</param>
+		/// <returns>Графики водителей</returns>
+		IList<DriverSchedule> GetDriverSchedulesAtDay(IUnitOfWork uow, int[] driverIds, DateTime date);
+
+		/// <summary>
+		/// Получить идентификаторы водителей с событиями ТС за указанный день.
+		/// </summary>
+		/// <param name="uow">Unit of Work</param>
+		/// <param name="driverIds">Идентификаторы водителей</param>
+		/// <param name="date">Дата события</param>
+		/// <param name="carEventTypeNames">Названия типов событий для фильтрации</param>
+		/// <returns>Идентификаторы водителей с событиями ТС</returns>
+		IList<int> GetDriverIdsWithCarEventsAtDay(IUnitOfWork uow, int[] driverIds, DateTime date, string[] carEventTypeNames);
 	}
 }

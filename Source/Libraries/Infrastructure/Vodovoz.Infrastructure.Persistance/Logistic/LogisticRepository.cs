@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Employees;
@@ -148,6 +149,52 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				.WhereRestrictionOn(() => employeeAlias.Id).IsIn(driverIds)
 				.TransformUsing(Transformers.DistinctRootEntity)
 				.List();
+		}
+
+		public IList<DriverSchedule> GetDriverSchedulesAtDay(IUnitOfWork uow, int[] driverIds, DateTime date)
+		{
+			if(!driverIds.Any())
+			{
+				return new List<DriverSchedule>();
+			}
+
+			Employee employeeAlias = null;
+			DriverScheduleItem driverScheduleItemAlias = null;
+
+			return uow.Session.QueryOver<DriverSchedule>()
+				.Left.JoinAlias(ds => ds.Driver, () => employeeAlias)
+				.Left.JoinAlias(ds => ds.Days, () => driverScheduleItemAlias,
+					() => driverScheduleItemAlias.Date == date.Date)
+				.WhereRestrictionOn(() => employeeAlias.Id).IsIn(driverIds)
+				.TransformUsing(Transformers.DistinctRootEntity)
+				.List();
+		}
+
+		public IList<int> GetDriverIdsWithCarEventsAtDay(
+			IUnitOfWork uow,
+			int[] driverIds,
+			DateTime date,
+			string[] carEventTypeNames)
+		{
+			if(!driverIds.Any() || carEventTypeNames == null || !carEventTypeNames.Any())
+			{
+				return new List<int>();
+			}
+
+			CarEvent carEventAlias = null;
+			CarEventType carEventTypeAlias = null;
+			Employee driverAlias = null;
+
+			return uow.Session.QueryOver(() => carEventAlias)
+				.Left.JoinAlias(() => carEventAlias.Driver, () => driverAlias)
+				.Left.JoinAlias(() => carEventAlias.CarEventType, () => carEventTypeAlias)
+				.WhereRestrictionOn(() => driverAlias.Id).IsIn(driverIds)
+				.Where(() => carEventAlias.StartDate <= date.Date && carEventAlias.EndDate >= date.Date)
+				.And(Restrictions.Or(
+					Restrictions.On(() => carEventTypeAlias.ShortName).IsIn(carEventTypeNames),
+					Restrictions.On(() => carEventTypeAlias.Name).IsIn(carEventTypeNames)))
+				.SelectList(list => list.SelectGroup(() => driverAlias.Id))
+				.List<int>();
 		}
 
 		public IList<Subdivision> GetSubdivisionsForDriverSchedule(IUnitOfWork uow, CarTypeOfUse[] carTypeOfUses, DateTime startDate, DateTime endDate)

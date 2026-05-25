@@ -48,7 +48,9 @@ using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.Logistic;
 using Vodovoz.ViewModels.Dialogs.Logistic;
+using Vodovoz.ViewModels.Services.DriverSchedule;
 using VodovozBusiness.Domain.Client;
+using VodovozBusiness.EntityRepositories.Logistic;
 using Vodovoz.ViewModels.Services.RouteOptimization;
 using Order = Vodovoz.Domain.Orders.Order;
 using QS.Osrm;
@@ -68,6 +70,8 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IEmployeeService _employeeService;
 		private readonly IEmployeeRepository _employeeRepository;
+		private readonly ILogisticRepository _logisticRepository;
+		private readonly IDriverScheduleService _driverScheduleService;
 		private readonly IOsrmSettings _osrmSettings;
 		private readonly IOsrmClient _osrmClient;
 		private readonly ICachedDistanceRepository _cachedDistanceRepository;
@@ -119,6 +123,8 @@ namespace Vodovoz.ViewModels.Logistic
 			IEmployeeJournalFactory employeeJournalFactory,
 			IEmployeeService employeeService,
 			IEmployeeRepository employeeRepository,
+			ILogisticRepository logisticRepository,
+			IDriverScheduleService driverScheduleService,
 			IGeographicGroupRepository geographicGroupRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
 			IRouteOptimizer routeOptimizer,
@@ -144,6 +150,8 @@ namespace Vodovoz.ViewModels.Logistic
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
+			_logisticRepository = logisticRepository ?? throw new ArgumentNullException(nameof(logisticRepository));
+			_driverScheduleService = driverScheduleService ?? throw new ArgumentNullException(nameof(driverScheduleService));
 			ScheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			Optimizer = routeOptimizer ?? throw new ArgumentNullException(nameof(routeOptimizer));
 			_osrmSettings = osrmSettings ?? throw new ArgumentNullException(nameof(osrmSettings));
@@ -1376,8 +1384,8 @@ namespace Vodovoz.ViewModels.Logistic
 
 			var cars = CarRepository.GetCarsByDrivers(UoW, drivers.Select(x => x.Id).ToArray());
 			var driverIds = drivers.Select(x => x.Id).ToArray();
-			var driverSchedules = _employeeRepository.GetDriverSchedulesAtDay(UoW, driverIds, DateForRouting);
-			var driverIdsWithEvents = _employeeRepository.GetDriverIdsWithDriverScheduleEventsAtDay(UoW, driverIds, DateForRouting);
+			var driverSchedules = _logisticRepository.GetDriverSchedulesAtDay(UoW, driverIds, DateForRouting);
+			var driverIdsWithEvents = _driverScheduleService.GetDriverIdsWithDriverScheduleEventsAtDay(UoW, driverIds, DateForRouting);
 
 
 			if(drivers.Count > 0)

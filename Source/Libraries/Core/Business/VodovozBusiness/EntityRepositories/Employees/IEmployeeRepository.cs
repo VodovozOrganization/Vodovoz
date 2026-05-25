@@ -1,12 +1,10 @@
-﻿using NHibernate.Criterion;
-using QS.DomainModel.UoW;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using NHibernate.Criterion;
+using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Goods;
-using VodovozBusiness.Domain.Logistic.Drivers;
 
 namespace Vodovoz.EntityRepositories.Employees
 {
@@ -21,8 +19,6 @@ namespace Vodovoz.EntityRepositories.Employees
 		Employee GetEmployeeByINNAndAccount(IUnitOfWork uow, string inn, string account);
 		Employee GetEmployeeForCurrentUser(IUnitOfWork uow);
 		IList<Employee> GetWorkingDriversAtDay(IUnitOfWork uow, DateTime date);
-		IList<DriverSchedule> GetDriverSchedulesAtDay(IUnitOfWork uow, int[] driverIds, DateTime date);
-		IList<int> GetDriverIdsWithDriverScheduleEventsAtDay(IUnitOfWork uow, int[] driverIds, DateTime date);
 		IList<Employee> GetEmployeesForUser(IUnitOfWork uow, int userId);
 		IList<EmployeeWorkChart> GetWorkChartForEmployeeByDate(IUnitOfWork uow, Employee employee, DateTime date);
 		string GetEmployeePushTokenByOrderId(

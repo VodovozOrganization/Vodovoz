@@ -1,15 +1,13 @@
-﻿using NHibernate.Criterion;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Employees;
-using Vodovoz.Core.Domain.Logistics.Cars;
-using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Core.Domain.Subdivisions;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain;
@@ -18,25 +16,12 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.Employees;
-using VodovozBusiness.Domain.Logistic.Drivers;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Employees
 {
 	internal sealed class EmployeeRepository : IEmployeeRepository
 	{
-		private static readonly string[] _driverScheduleCarEventTypeNames =
-		{
-			"вод/тел",
-			"отпуск",
-			"больничный",
-			"выходной",
-			"ремонт",
-			"ДТП",
-			"ТО",
-			"куз. ремонт",
-			"М - мойка"
-		};
-
 		public EmployeeRepository()
 		{
 
@@ -117,48 +102,6 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 				.List<Employee>();
 		}
 
-		public IList<DriverSchedule> GetDriverSchedulesAtDay(IUnitOfWork uow, int[] driverIds, DateTime date)
-		{
-			if(!driverIds.Any())
-			{
-				return new List<DriverSchedule>();
-			}
-
-			Employee employeeAlias = null;
-			DriverScheduleItem driverScheduleItemAlias = null;
-
-			return uow.Session.QueryOver<DriverSchedule>()
-				.Left.JoinAlias(ds => ds.Driver, () => employeeAlias)
-				.Left.JoinAlias(ds => ds.Days, () => driverScheduleItemAlias,
-					() => driverScheduleItemAlias.Date == date.Date)
-				.WhereRestrictionOn(() => employeeAlias.Id).IsIn(driverIds)
-				.TransformUsing(Transformers.DistinctRootEntity)
-				.List();
-		}
-
-		public IList<int> GetDriverIdsWithDriverScheduleEventsAtDay(IUnitOfWork uow, int[] driverIds, DateTime date)
-		{
-			if(!driverIds.Any())
-			{
-				return new List<int>();
-			}
-
-			CarEvent carEventAlias = null;
-			CarEventType carEventTypeAlias = null;
-			Employee driverAlias = null;
-
-			return uow.Session.QueryOver(() => carEventAlias)
-				.Left.JoinAlias(() => carEventAlias.Driver, () => driverAlias)
-				.Left.JoinAlias(() => carEventAlias.CarEventType, () => carEventTypeAlias)
-				.WhereRestrictionOn(() => driverAlias.Id).IsIn(driverIds)
-				.Where(() => carEventAlias.StartDate <= date.Date && carEventAlias.EndDate >= date.Date)
-				.And(Restrictions.Or(
-					Restrictions.On(() => carEventTypeAlias.ShortName).IsIn(_driverScheduleCarEventTypeNames),
-					Restrictions.On(() => carEventTypeAlias.Name).IsIn(_driverScheduleCarEventTypeNames)))
-				.SelectList(list => list.SelectGroup(() => driverAlias.Id))
-				.List<int>();
-		}
-
 		public Employee GetEmployeeByINNAndAccount(IUnitOfWork uow, string inn, string account)
 		{
 			IList<Account> accountsAlias = null;
@@ -190,7 +133,7 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 			int orderId,
 			ExternalApplicationType externalApplicationType = ExternalApplicationType.DriverApp)
 		{
-			Domain.Orders.Order vodovozOrderAlias = null;
+			Order vodovozOrderAlias = null;
 			RouteListItem routeListAddressAlias = null;
 			RouteList routeListAlias = null;
 			Employee employeeAlias = null;
