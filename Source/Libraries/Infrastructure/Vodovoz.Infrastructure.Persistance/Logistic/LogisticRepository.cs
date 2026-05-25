@@ -151,12 +151,9 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				.List();
 		}
 
-		public IList<DriverSchedule> GetDriverSchedulesAtDay(IUnitOfWork uow, int[] driverIds, DateTime date)
+		public IList<DriverSchedule> GetDriverSchedulesAtDay(IUnitOfWork uow, IEnumerable<int> driverIds, DateTime date)
 		{
-			if(!driverIds.Any())
-			{
-				return new List<DriverSchedule>();
-			}
+			var driverIdsArray = driverIds.ToArray();
 
 			Employee employeeAlias = null;
 			DriverScheduleItem driverScheduleItemAlias = null;
@@ -165,21 +162,19 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				.Left.JoinAlias(ds => ds.Driver, () => employeeAlias)
 				.Left.JoinAlias(ds => ds.Days, () => driverScheduleItemAlias,
 					() => driverScheduleItemAlias.Date == date.Date)
-				.WhereRestrictionOn(() => employeeAlias.Id).IsIn(driverIds)
+				.WhereRestrictionOn(() => employeeAlias.Id).IsIn(driverIdsArray)
 				.TransformUsing(Transformers.DistinctRootEntity)
 				.List();
 		}
 
 		public IList<int> GetDriverIdsWithCarEventsAtDay(
 			IUnitOfWork uow,
-			int[] driverIds,
+			IEnumerable<int> driverIds,
 			DateTime date,
-			string[] carEventTypeNames)
+			IEnumerable<string> carEventTypeNames)
 		{
-			if(!driverIds.Any() || carEventTypeNames == null || !carEventTypeNames.Any())
-			{
-				return new List<int>();
-			}
+			var driverIdsArray = driverIds.ToArray();
+			var carEventTypeNamesArray = carEventTypeNames.ToArray();
 
 			CarEvent carEventAlias = null;
 			CarEventType carEventTypeAlias = null;
@@ -188,11 +183,11 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 			return uow.Session.QueryOver(() => carEventAlias)
 				.Left.JoinAlias(() => carEventAlias.Driver, () => driverAlias)
 				.Left.JoinAlias(() => carEventAlias.CarEventType, () => carEventTypeAlias)
-				.WhereRestrictionOn(() => driverAlias.Id).IsIn(driverIds)
+				.WhereRestrictionOn(() => driverAlias.Id).IsIn(driverIdsArray)
 				.Where(() => carEventAlias.StartDate <= date.Date && carEventAlias.EndDate >= date.Date)
 				.And(Restrictions.Or(
-					Restrictions.On(() => carEventTypeAlias.ShortName).IsIn(carEventTypeNames),
-					Restrictions.On(() => carEventTypeAlias.Name).IsIn(carEventTypeNames)))
+					Restrictions.On(() => carEventTypeAlias.ShortName).IsIn(carEventTypeNamesArray),
+					Restrictions.On(() => carEventTypeAlias.Name).IsIn(carEventTypeNamesArray)))
 				.SelectList(list => list.SelectGroup(() => driverAlias.Id))
 				.List<int>();
 		}

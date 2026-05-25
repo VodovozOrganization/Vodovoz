@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Domain.Logistic.Cars;
 using VodovozBusiness.Nodes;
+using Schedule = VodovozBusiness.Domain.Logistic.Drivers.DriverSchedule;
 
 namespace Vodovoz.ViewModels.Services.DriverSchedule
 {
@@ -47,13 +48,29 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			int currentUserId);
 
 		/// <summary>
+		/// Получает графики водителей за указанный день.
+		/// </summary>
+		/// <param name="uow">Unit of Work</param>
+		/// <param name="driverIds">Идентификаторы водителей</param>
+		/// <param name="date">Дата графика</param>
+		/// <returns>Графики водителей</returns>
+		IList<Schedule> GetDriverSchedulesAtDay(IUnitOfWork uow, IEnumerable<int> driverIds, DateTime date);
+
+		/// <summary>
 		/// Получает идентификаторы водителей с событиями ТС, которые должны учитываться в графике водителей.
 		/// </summary>
 		/// <param name="uow">Unit of Work</param>
 		/// <param name="driverIds">Идентификаторы водителей</param>
 		/// <param name="date">Дата события</param>
 		/// <returns>Идентификаторы водителей с событиями ТС</returns>
-		IList<int> GetDriverIdsWithDriverScheduleEventsAtDay(IUnitOfWork uow, int[] driverIds, DateTime date);
+		IList<int> GetDriverIdsWithDriverScheduleEventsAtDay(IUnitOfWork uow, IEnumerable<int> driverIds, DateTime date);
+
+		/// <summary>
+		/// Проверяет, можно ли создать событие указанного типа из графика водителей.
+		/// </summary>
+		/// <param name="eventType">Тип события ТС</param>
+		/// <returns>true, если событие можно создать из графика водителей</returns>
+		bool CanCreateCarEventTypeFromDriverSchedule(CarEventType eventType);
 
 		/// <summary>
 		/// Экспортирует график водителей в Excel

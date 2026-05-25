@@ -107,6 +107,7 @@ namespace Vodovoz.Views.Logistic
 
 			var viewport = new Viewport
 			{
+				BorderWidth = 3,
 				ShadowType = ShadowType.None
 			};
 			viewport.Add(yvboxFilters);

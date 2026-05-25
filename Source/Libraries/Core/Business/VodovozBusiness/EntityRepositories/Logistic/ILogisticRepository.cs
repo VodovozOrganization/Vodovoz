@@ -88,7 +88,7 @@ namespace VodovozBusiness.EntityRepositories.Logistic
 		/// <param name="driverIds">Идентификаторы водителей</param>
 		/// <param name="date">Дата графика</param>
 		/// <returns>Графики водителей</returns>
-		IList<DriverSchedule> GetDriverSchedulesAtDay(IUnitOfWork uow, int[] driverIds, DateTime date);
+		IList<DriverSchedule> GetDriverSchedulesAtDay(IUnitOfWork uow, IEnumerable<int> driverIds, DateTime date);
 
 		/// <summary>
 		/// Получить идентификаторы водителей с событиями ТС за указанный день.
@@ -98,6 +98,10 @@ namespace VodovozBusiness.EntityRepositories.Logistic
 		/// <param name="date">Дата события</param>
 		/// <param name="carEventTypeNames">Названия типов событий для фильтрации</param>
 		/// <returns>Идентификаторы водителей с событиями ТС</returns>
-		IList<int> GetDriverIdsWithCarEventsAtDay(IUnitOfWork uow, int[] driverIds, DateTime date, string[] carEventTypeNames);
+		IList<int> GetDriverIdsWithCarEventsAtDay(
+			IUnitOfWork uow,
+			IEnumerable<int> driverIds,
+			DateTime date,
+			IEnumerable<string> carEventTypeNames);
 	}
 }

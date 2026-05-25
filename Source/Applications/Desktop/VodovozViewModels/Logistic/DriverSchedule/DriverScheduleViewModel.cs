@@ -25,14 +25,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 {
 	public class DriverScheduleViewModel : DialogTabViewModelBase
 	{
-		private static readonly string[] _carEventTypeNamesAllowedToCreateFromDriverSchedule =
-		{
-			"вод/тел",
-			"отпуск",
-			"больничный",
-			"выходной"
-		};
-
 		private readonly ILogger<DriverScheduleViewModel> _logger;
 		private readonly ICarEventSettings _carEventSettings;
 		private readonly IInteractiveService _interactiveService;
@@ -49,7 +41,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		private DateTime _startDate;
 		private DateTime _endDate;
 		private ObservableList<DriverScheduleRow> _driverScheduleRows;
-		private List<DriverScheduleRow> _allDriverScheduleRows = new List<DriverScheduleRow>();
+		private List<DriverScheduleRow> _loadedDriverScheduleRows = new List<DriverScheduleRow>();
 		private string _driverSearchText;
 		private bool _showCarTypeOfUseColumn = true;
 		private bool _showCarOwnTypeColumn = true;
@@ -303,20 +295,16 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		private void LoadDriverScheduleRows()
 		{
-			_allDriverScheduleRows = GenerateRows().ToList();
+			_loadedDriverScheduleRows = GenerateRows()
+				.Where(row => !(row is DriverScheduleTotalRow))
+				.ToList();
+
 			ApplyDriverSearch();
 		}
 
 		private void ApplyDriverSearch()
 		{
-			if(_allDriverScheduleRows == null)
-			{
-				DriverScheduleRows = new ObservableList<DriverScheduleRow>();
-				return;
-			}
-
-			var driverRows = _allDriverScheduleRows
-				.Where(row => !(row is DriverScheduleTotalRow));
+			var driverRows = _loadedDriverScheduleRows.AsEnumerable();
 
 			if(!string.IsNullOrWhiteSpace(DriverSearchText))
 			{
@@ -369,17 +357,14 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 				.ToList();
 
 			AvailableCarEventTypes.AddRange(carEventTypes
-				.Where(x => _carEventTypeNamesAllowedToCreateFromDriverSchedule.Any(allowedName =>
-					string.Equals(x.ShortName, allowedName, StringComparison.OrdinalIgnoreCase)
-					|| string.Equals(x.Name, allowedName, StringComparison.OrdinalIgnoreCase))));
+				.Where(x => _driverScheduleService.CanCreateCarEventTypeFromDriverSchedule(x)));
 		}
 
 		private void SaveDriverSchedule()
 		{
 			try
 			{
-				var rowsToSave = _allDriverScheduleRows ?? DriverScheduleRows;
-				var changedRows = rowsToSave
+				var changedRows = _loadedDriverScheduleRows
 					.Where(r => !(r is DriverScheduleTotalRow) && r.HasChanges)
 					.ToList();
 
@@ -417,7 +402,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		private void Export()
 		{
-			if(DriverScheduleRows == null || DriverScheduleRows.Count == 0)
+			if(_loadedDriverScheduleRows == null || _loadedDriverScheduleRows.Count == 0)
 			{
 				_interactiveService.ShowMessage(
 					ImportanceLevel.Warning,
@@ -437,8 +422,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			{
 				try
 				{
+					var rowsToExport = new List<DriverScheduleRow>(_loadedDriverScheduleRows);
+					AddTotalRows(rowsToExport);
+
 					var excelData = _driverScheduleService.ExportToExcel(
-						DriverScheduleRows,
+						rowsToExport,
 						StartDate,
 						EndDate);
 

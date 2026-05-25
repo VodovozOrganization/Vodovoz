@@ -23,25 +23,25 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 		private const int _columnsPerDay = 5;
 		private const int _daysInWeek = 7;
 		private const int _commentColumn = _firstDayColumn + _daysInWeek * _columnsPerDay;
-		private static readonly string[] _carEventTypeNamesAllowedToCreateFromDriverSchedule =
-		{
-			"вод/тел",
-			"отпуск",
-			"больничный",
-			"выходной"
-		};
-		private static readonly string[] _carEventTypeNamesAllowedToShowInDriverSchedule =
-		{
-			"вод/тел",
-			"отпуск",
-			"больничный",
-			"выходной",
-			"ремонт",
-			"ДТП",
-			"ТО",
-			"куз. ремонт",
-			"М - мойка"
-		};
+		private static readonly HashSet<string> _carEventTypeNamesAllowedToCreateFromDriverSchedule =
+			new HashSet<string>(
+				new[] { "вод/тел", "отпуск", "больничный", "выходной" },
+				StringComparer.OrdinalIgnoreCase);
+		private static readonly HashSet<string> _carEventTypeNamesAllowedToShowInDriverSchedule =
+			new HashSet<string>(
+				new[]
+				{
+					"вод/тел",
+					"отпуск",
+					"больничный",
+					"выходной",
+					"ремонт",
+					"ДТП",
+					"ТО",
+					"куз. ремонт",
+					"М - мойка"
+				},
+				StringComparer.OrdinalIgnoreCase);
 
 		private enum ExportColumn
 		{
@@ -221,6 +221,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 				.Where(ce => ce.Driver?.Id == node.DriverId)
 				.Where(ce => IsAllowedToShowInDriverSchedule(ce.CarEventType))
 				.ToList();
+
 			var eventWithComment = driverCarEvents.FirstOrDefault(carEvent => !string.IsNullOrEmpty(carEvent.Comment));
 
 			if(eventWithComment != null)
@@ -385,13 +386,34 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			}
 		}
 
-		public IList<int> GetDriverIdsWithDriverScheduleEventsAtDay(IUnitOfWork uow, int[] driverIds, DateTime date)
+		public IList<Schedule> GetDriverSchedulesAtDay(IUnitOfWork uow, IEnumerable<int> driverIds, DateTime date)
 		{
+			var driverIdsArray = driverIds?.ToArray() ?? Array.Empty<int>();
+
+			return driverIdsArray.Any()
+				? _logisticRepository.GetDriverSchedulesAtDay(uow, driverIdsArray, date)
+				: new List<Schedule>();
+		}
+
+		public IList<int> GetDriverIdsWithDriverScheduleEventsAtDay(IUnitOfWork uow, IEnumerable<int> driverIds, DateTime date)
+		{
+			var driverIdsArray = driverIds?.ToArray() ?? Array.Empty<int>();
+
+			if(!driverIdsArray.Any() || !_carEventTypeNamesAllowedToShowInDriverSchedule.Any())
+			{
+				return new List<int>();
+			}
+
 			return _logisticRepository.GetDriverIdsWithCarEventsAtDay(
 				uow,
-				driverIds,
+				driverIdsArray,
 				date,
 				_carEventTypeNamesAllowedToShowInDriverSchedule);
+		}
+
+		public bool CanCreateCarEventTypeFromDriverSchedule(CarEventType eventType)
+		{
+			return IsAllowedToCreateFromDriverSchedule(eventType);
 		}
 
 		private void UpdateExistingSchedule(
@@ -571,16 +593,15 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			return IsAllowedCarEventType(eventType, _carEventTypeNamesAllowedToShowInDriverSchedule);
 		}
 
-		private bool IsAllowedCarEventType(CarEventType eventType, string[] allowedNames)
+		private bool IsAllowedCarEventType(CarEventType eventType, HashSet<string> allowedNames)
 		{
 			if(eventType == null)
 			{
 				return false;
 			}
 
-			return allowedNames.Any(allowedName =>
-				string.Equals(eventType.ShortName, allowedName, StringComparison.OrdinalIgnoreCase)
-				|| string.Equals(eventType.Name, allowedName, StringComparison.OrdinalIgnoreCase));
+			return allowedNames.Contains(eventType.ShortName)
+				|| allowedNames.Contains(eventType.Name);
 		}
 
 		private Schedule CreateNewSchedule(
@@ -662,9 +683,9 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 		}
 
 		public byte[] ExportToExcel(
-		   IEnumerable<DriverScheduleRow> scheduleRows,
-		   DateTime startDate,
-		   DateTime endDate)
+			IEnumerable<DriverScheduleRow> scheduleRows,
+			DateTime startDate,
+			DateTime endDate)
 		{
 			if(scheduleRows == null)
 			{
