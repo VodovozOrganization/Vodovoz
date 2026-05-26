@@ -655,7 +655,7 @@ namespace Vodovoz.Views.Settings
 
 			ybuttonSaveMaximumPermittedDistance.Sensitive = ViewModel.CanEditMaximumPermittedDistanceFromSetting;
 
-			ybuttonSaveMaximumPermittedDistance.Clicked += (s, e) => ViewModel.SaveMaximumPermittedDistanceMetersCommand.Execute();
+			ybuttonSaveMaximumPermittedDistance.BindCommand(ViewModel.SaveMaximumPermittedDistanceMetersCommand);
 		}
 
 		private void ConfigureMaxDailyFuelLimits()
