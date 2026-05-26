@@ -26,9 +26,13 @@ namespace Vodovoz.Views.Logistic
 		private const int _lastModifiedDateTimeColumnIndex = 12;
 		private const int _totalTitleColumnIndex = 13;
 		private const int _fixedColumnsCount = 14;
+		private const int _daysInSchedule = 7;
+		private const int _dynamicColumnsPerDay = 5;
+		private const int _todayHighlightLineWidth = 2;
 
 		private bool _isSynchronizingDriverScheduleVerticalScroll;
 		private bool _isLockingFixedPartHorizontalScroll;
+		private bool _isDynamicTreeViewHighlightConfigured;
 		private ScrolledWindow _filtersScrolledWindow;
 
 		public DriverScheduleView(DriverScheduleViewModel viewModel) : base(viewModel)
@@ -327,6 +331,122 @@ namespace Vodovoz.Views.Logistic
 			ytreeviewDynamicPart.ScrollEvent += OnTreeViewScroll;
 			ytreeviewDynamicPart.KeyPressEvent += OnDynamicTreeViewKeyPress;
 			ytreeviewDynamicPart.Selection.Changed += (sender, e) => SynchronizeSelection(ytreeviewDynamicPart, ytreeviewFixedPart);
+
+			ConfigureDynamicTreeViewTodayHighlight();
+		}
+
+		private void ConfigureDynamicTreeViewTodayHighlight()
+		{
+			if(_isDynamicTreeViewHighlightConfigured)
+			{
+				return;
+			}
+
+			ytreeviewDynamicPart.ExposeEvent += OnDynamicTreeViewExposeEvent;
+			_isDynamicTreeViewHighlightConfigured = true;
+		}
+
+		private void OnDynamicTreeViewExposeEvent(object sender, ExposeEventArgs args)
+		{
+			if(args.Event.Window != ytreeviewDynamicPart.BinWindow)
+			{
+				return;
+			}
+
+			DrawTodayColumnsBorders(args.Event.Window);
+		}
+
+		private void DrawTodayColumnsBorders(Gdk.Window window)
+		{
+			var todayIndex = (DateTime.Today.Date - ViewModel.StartDate.Date).Days;
+
+			if(todayIndex < 0 || todayIndex >= _daysInSchedule)
+			{
+				return;
+			}
+
+			var columns = ytreeviewDynamicPart.Columns;
+			var firstColumnIndex = todayIndex * _dynamicColumnsPerDay;
+			var lastColumnIndex = firstColumnIndex + _dynamicColumnsPerDay - 1;
+
+			if(columns == null || columns.Length <= lastColumnIndex)
+			{
+				return;
+			}
+
+			if(!ytreeviewDynamicPart.GetVisibleRange(out TreePath startPath, out TreePath endPath))
+			{
+				return;
+			}
+
+			var firstColumn = columns[firstColumnIndex];
+			var lastColumn = columns[lastColumnIndex];
+			var firstCellArea = ytreeviewDynamicPart.GetCellArea(startPath, firstColumn);
+			var lastCellArea = ytreeviewDynamicPart.GetCellArea(startPath, lastColumn);
+			var lastVisibleRowArea = ytreeviewDynamicPart.GetCellArea(endPath, firstColumn);
+
+			var leftX = firstCellArea.X;
+			var rightX = lastCellArea.X + lastCellArea.Width;
+			var topY = firstCellArea.Y;
+			var bottomY = lastVisibleRowArea.Y + lastVisibleRowArea.Height;
+
+			using(var gc = new Gdk.GC(window))
+			{
+				gc.RgbFgColor = new Gdk.Color(0, 0, 0);
+				gc.SetLineAttributes(
+					_todayHighlightLineWidth,
+					Gdk.LineStyle.Solid,
+					Gdk.CapStyle.NotLast,
+					Gdk.JoinStyle.Miter);
+
+				DrawTodayColumnVerticalBorders(window, gc, columns, startPath, firstColumnIndex, lastColumnIndex, topY, bottomY);
+				DrawTodayColumnRowBorders(window, gc, startPath, endPath, firstColumn, leftX, rightX);
+			}
+		}
+
+		private void DrawTodayColumnVerticalBorders(
+			Gdk.Window window,
+			Gdk.GC gc,
+			TreeViewColumn[] columns,
+			TreePath startPath,
+			int firstColumnIndex,
+			int lastColumnIndex,
+			int topY,
+			int bottomY)
+		{
+			for(var columnIndex = firstColumnIndex; columnIndex <= lastColumnIndex; columnIndex++)
+			{
+				var columnArea = ytreeviewDynamicPart.GetCellArea(startPath, columns[columnIndex]);
+				window.DrawLine(gc, columnArea.X, topY, columnArea.X, bottomY);
+			}
+
+			var lastColumnArea = ytreeviewDynamicPart.GetCellArea(startPath, columns[lastColumnIndex]);
+			window.DrawLine(gc, lastColumnArea.X + lastColumnArea.Width, topY, lastColumnArea.X + lastColumnArea.Width, bottomY);
+		}
+
+		private void DrawTodayColumnRowBorders(
+			Gdk.Window window,
+			Gdk.GC gc,
+			TreePath startPath,
+			TreePath endPath,
+			TreeViewColumn firstColumn,
+			int leftX,
+			int rightX)
+		{
+			var path = startPath.Copy();
+
+			while(path.Compare(endPath) <= 0)
+			{
+				var rowArea = ytreeviewDynamicPart.GetCellArea(path, firstColumn);
+				window.DrawLine(gc, leftX, rowArea.Y, rightX, rowArea.Y);
+
+				if(path.Compare(endPath) == 0)
+				{
+					window.DrawLine(gc, leftX, rowArea.Y + rowArea.Height, rightX, rowArea.Y + rowArea.Height);
+				}
+
+				path.Next();
+			}
 		}
 
 		private void ConfigureDriverScheduleScrolling()
