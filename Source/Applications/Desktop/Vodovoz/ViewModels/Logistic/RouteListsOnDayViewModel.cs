@@ -33,7 +33,6 @@ using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories;
-using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Sale;
@@ -68,7 +67,6 @@ namespace Vodovoz.ViewModels.Logistic
 		private readonly int _closingDocumentDeliveryScheduleId;
 		private readonly IEmployeeJournalFactory _employeeJournalFactory;
 		private readonly IEmployeeService _employeeService;
-		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IDriverScheduleService _driverScheduleService;
 		private readonly IOsrmSettings _osrmSettings;
 		private readonly IOsrmClient _osrmClient;
@@ -120,7 +118,6 @@ namespace Vodovoz.ViewModels.Logistic
 			IUserRepository userRepository,
 			IEmployeeJournalFactory employeeJournalFactory,
 			IEmployeeService employeeService,
-			IEmployeeRepository employeeRepository,
 			IDriverScheduleService driverScheduleService,
 			IGeographicGroupRepository geographicGroupRepository,
 			IScheduleRestrictionRepository scheduleRestrictionRepository,
@@ -146,7 +143,6 @@ namespace Vodovoz.ViewModels.Logistic
 			_userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 			_employeeJournalFactory = employeeJournalFactory ?? throw new ArgumentNullException(nameof(employeeJournalFactory));
 			_employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_driverScheduleService = driverScheduleService ?? throw new ArgumentNullException(nameof(driverScheduleService));
 			ScheduleRestrictionRepository = scheduleRestrictionRepository ?? throw new ArgumentNullException(nameof(scheduleRestrictionRepository));
 			Optimizer = routeOptimizer ?? throw new ArgumentNullException(nameof(routeOptimizer));
@@ -1373,59 +1369,11 @@ namespace Vodovoz.ViewModels.Logistic
 
 		public void GetWorkDriversInfo()
 		{
-			int totalBottles = 0;
-			int totalAddresses = 0;
+			var canEditAfter13 = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(
+				Vodovoz.Core.Domain.Permissions.LogisticPermissions.CanEditEventsAndCapacitiesAfter13);
+			var totals = _driverScheduleService.GetDriverScheduleTotalsAtDay(UoW, DateForRouting, canEditAfter13);
 
-			var drivers = _employeeRepository.GetWorkingDriversAtDay(UoW, DateForRouting);
-
-			var cars = CarRepository.GetCarsByDrivers(UoW, drivers.Select(x => x.Id).ToArray());
-			var driverIds = drivers.Select(x => x.Id).ToArray();
-			var driverSchedules = _driverScheduleService.GetDriverSchedulesAtDay(UoW, driverIds, DateForRouting);
-			var driverIdsWithEvents = _driverScheduleService.GetDriverIdsWithDriverScheduleEventsAtDay(UoW, driverIds, DateForRouting);
-
-
-			if(drivers.Count > 0)
-			{
-				foreach(var driver in drivers)
-				{
-					var car = cars.SingleOrDefault(x => x.Driver.Id == driver.Id);
-					var driverSchedule = driverSchedules.FirstOrDefault(x => x.Driver.Id == driver.Id);
-					var scheduleItem = driverSchedule?.Days?.FirstOrDefault(x => x.Date.Date == DateForRouting.Date);
-
-					if(driverIdsWithEvents.Contains(driver.Id))
-					{
-						continue;
-					}
-
-					if(scheduleItem?.CarEventType != null && scheduleItem.CarEventType.Id > 0)
-					{
-						continue;
-					}
-
-					if(scheduleItem != null)
-					{
-						totalBottles += scheduleItem.MorningBottles + scheduleItem.EveningBottles;
-						totalAddresses += scheduleItem.MorningAddresses + scheduleItem.EveningAddresses;
-						continue;
-					}
-
-					if(driverSchedule != null)
-					{
-						totalBottles += driverSchedule.MorningBottlesPotential + driverSchedule.EveningBottlesPotential;
-						totalAddresses += driverSchedule.MorningAddressesPotential + driverSchedule.EveningAddressesPotential;
-						continue;
-					}
-
-					if(car != null)
-					{
-						totalBottles += car.MaxBottles;
-					}
-
-					totalAddresses += driver.MaxRouteAddresses;
-				}
-			}
-
-			var text = new List<string> { "Можем вывезти:", $"Бутылей - {totalBottles}", $"Адресов - {totalAddresses}" };
+			var text = new List<string> { "Можем вывезти:", $"Бутылей - {totals.TotalBottles}", $"Адресов - {totals.TotalAddresses}" };
 
 			CanTake = string.Join("\n", text);
 		}

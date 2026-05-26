@@ -66,6 +66,18 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 		IList<int> GetDriverIdsWithDriverScheduleEventsAtDay(IUnitOfWork uow, IEnumerable<int> driverIds, DateTime date);
 
 		/// <summary>
+		/// Получает итоговые возможности водителей по адресам и бутылям на указанную дату.
+		/// </summary>
+		/// <param name="uow">Unit of Work</param>
+		/// <param name="date">Дата графика</param>
+		/// <param name="canEditAfter13">Может ли пользователь менять мощности после 13:00</param>
+		/// <returns>Итоговое количество бутылей и адресов</returns>
+		DriverScheduleTotals GetDriverScheduleTotalsAtDay(
+			IUnitOfWork uow,
+			DateTime date,
+			bool canEditAfter13);
+
+		/// <summary>
 		/// Проверяет, можно ли создать событие указанного типа из графика водителей.
 		/// </summary>
 		/// <param name="eventType">Тип события ТС</param>

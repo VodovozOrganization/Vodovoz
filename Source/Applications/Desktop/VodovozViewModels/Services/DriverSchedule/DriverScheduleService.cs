@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Excel;
 using QS.DomainModel.UoW;
+using QS.Utilities.Enums;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -409,6 +410,75 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 				driverIdsArray,
 				date,
 				_carEventTypeNamesAllowedToShowInDriverSchedule);
+		}
+
+		public DriverScheduleTotals GetDriverScheduleTotalsAtDay(
+			IUnitOfWork uow,
+			DateTime date,
+			bool canEditAfter13)
+		{
+			var startDate = GetWeekStart(date);
+			var endDate = startDate.AddDays(_daysInWeek - 1);
+			var selectedCarTypeOfUse = EnumHelper.GetValuesList<CarTypeOfUse>()
+				.Where(typeOfUse => typeOfUse != CarTypeOfUse.Loader && typeOfUse != CarTypeOfUse.Truck)
+				.ToArray();
+			var selectedCarOwnTypes = EnumHelper.GetValuesList<CarOwnType>().ToArray();
+			var selectedSubdivisionIds = _logisticRepository
+				.GetSubdivisionsForDriverSchedule(uow, selectedCarTypeOfUse, startDate, endDate)
+				.Select(subdivision => subdivision.Id)
+				.ToArray();
+
+			if(!selectedSubdivisionIds.Any())
+			{
+				return new DriverScheduleTotals(0, 0);
+			}
+
+			var rows = LoadScheduleData(
+					uow,
+					startDate,
+					endDate,
+					selectedSubdivisionIds,
+					selectedCarOwnTypes,
+					selectedCarTypeOfUse,
+					canEditAfter13,
+					new List<CarEventType>())
+				.ToList();
+
+			var dayIndex = (int)(date.Date - startDate).TotalDays;
+			var totalBottlesRow = rows.OfType<DriverScheduleTotalBottlesRow>().FirstOrDefault();
+			var totalAddressesRow = rows.OfType<DriverScheduleTotalAddressesRow>().FirstOrDefault();
+
+			return new DriverScheduleTotals(
+				GetBottlesTotal(totalBottlesRow, dayIndex),
+				GetAddressesTotal(totalAddressesRow, dayIndex));
+		}
+
+		private static DateTime GetWeekStart(DateTime date)
+		{
+			var daysFromMonday = ((int)date.DayOfWeek + 6) % _daysInWeek;
+			return date.Date.AddDays(-daysFromMonday);
+		}
+
+		private static int GetBottlesTotal(DriverScheduleRow row, int dayIndex)
+		{
+			return IsValidDay(row, dayIndex)
+				? row.Days[dayIndex].MorningBottles + row.Days[dayIndex].EveningBottles
+				: 0;
+		}
+
+		private static int GetAddressesTotal(DriverScheduleRow row, int dayIndex)
+		{
+			return IsValidDay(row, dayIndex)
+				? row.Days[dayIndex].MorningAddresses + row.Days[dayIndex].EveningAddresses
+				: 0;
+		}
+
+		private static bool IsValidDay(DriverScheduleRow row, int dayIndex)
+		{
+			return row?.Days != null
+				&& dayIndex >= 0
+				&& dayIndex < row.Days.Length
+				&& row.Days[dayIndex] != null;
 		}
 
 		public bool CanCreateCarEventTypeFromDriverSchedule(CarEventType eventType)
