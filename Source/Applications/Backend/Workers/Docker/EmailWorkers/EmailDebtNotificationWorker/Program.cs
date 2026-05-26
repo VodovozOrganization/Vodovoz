@@ -1,4 +1,4 @@
-using Autofac.Extensions.DependencyInjection;
+﻿using Autofac.Extensions.DependencyInjection;
 using BitrixApi.Library.Services;
 using EmailDebtNotificationWorker.Options;
 using EmailDebtNotificationWorker.Repositories;
@@ -28,6 +28,8 @@ using Vodovoz.Zabbix.Sender;
 using VodovozBusiness.Services.Orders;
 using AssemblyFinder = Vodovoz.Data.NHibernate.AssemblyFinder;
 using QS.HistoryLog;
+using EmailDebtNotificationWorker.Services.ClaimLetters;
+using EmailDebtNotificationWorker.Services.InformationLetters;
 
 namespace EmailDebtNotificationWorker
 {

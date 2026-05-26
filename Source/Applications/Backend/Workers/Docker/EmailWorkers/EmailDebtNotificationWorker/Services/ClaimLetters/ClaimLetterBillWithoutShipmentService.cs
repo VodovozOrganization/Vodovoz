@@ -1,4 +1,4 @@
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System;
 using System.Linq;
 using System.Threading;
@@ -9,7 +9,7 @@ using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Employees;
 
-namespace EmailDebtNotificationWorker.Services
+namespace EmailDebtNotificationWorker.Services.ClaimLetters
 {
 	public class ClaimLetterBillWithoutShipmentService : IClaimLetterBillWithoutShipmentService
 	{
@@ -26,7 +26,7 @@ namespace EmailDebtNotificationWorker.Services
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 		}
 
-		public async Task<OrderWithoutShipmentForDebt> GetOrCreateAsync(
+		public async Task<OrderWithoutShipmentForDebt> GetOrCreateOrderWithoutShipmentForDebtAsync(
 			IUnitOfWork uow,
 			Counterparty client,
 			int organizationId,
@@ -62,8 +62,6 @@ namespace EmailDebtNotificationWorker.Services
 				DebtSum = debtSum,
 				Author = author
 			};
-
-			await uow.SaveAsync(newBill, cancellationToken: cancellationToken);
 
 			return newBill;
 		}

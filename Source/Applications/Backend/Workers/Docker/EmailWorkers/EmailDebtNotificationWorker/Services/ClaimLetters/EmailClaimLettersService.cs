@@ -1,11 +1,10 @@
-using BitrixApi.Library.Services;
+﻿using BitrixApi.Library.Services;
 using EmailDebtNotificationWorker.Options;
 using EmailDebtNotificationWorker.Repositories;
 using Mailjet.Api.Abstractions;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using RabbitMQ.MailSending;
 using System;
@@ -24,11 +23,9 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Common;
 using VodovozBusiness.Domain.StoredEmails;
-using Order = Vodovoz.Domain.Orders.Order;
 using VodovozBusiness.EntityRepositories.Nodes;
-using StoredEmails = Vodovoz.Domain.StoredEmails;
 
-namespace EmailDebtNotificationWorker.Services
+namespace EmailDebtNotificationWorker.Services.ClaimLetters
 {
 	public class EmailClaimLettersService : IEmailClaimLettersService
 	{
@@ -47,10 +44,21 @@ namespace EmailDebtNotificationWorker.Services
 		private readonly IDatabaseRepository _databaseRepository;
 		private readonly IClaimLetterBillWithoutShipmentService _claimLetterBillWithoutShipmentService;
 		private readonly OrderStatus[] _orderStatuses =
-			new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
+			new[]
+			{
+				OrderStatus.Shipped,
+				OrderStatus.UnloadingOnStock,
+				OrderStatus.Closed
+			};
 
 		private readonly RevenueStatus[] _excludeCounterpartyRevenueStatuses =
-			new[] { RevenueStatus.Liquidating, RevenueStatus.Liquidated, RevenueStatus.Reorganizing, RevenueStatus.Bankrupt };
+			new[]
+			{
+				RevenueStatus.Liquidating,
+				RevenueStatus.Liquidated,
+				RevenueStatus.Reorganizing,
+				RevenueStatus.Bankrupt
+			};
 
 		public EmailClaimLettersService(
 			ILogger<EmailClaimLettersService> logger,
@@ -113,8 +121,6 @@ namespace EmailDebtNotificationWorker.Services
 
 			var debtDataWithBills = await PrepareDebtDataWithBillsAsync(uow, overdueDebitorsDebtData, cancellationToken);
 
-			await uow.CommitAsync(cancellationToken);
-
 			var emailMessages = await PrepareEmailMessagesAsync(uow, debtDataWithBills, cancellationToken);
 
 			await uow.CommitAsync(cancellationToken);
@@ -136,12 +142,14 @@ namespace EmailDebtNotificationWorker.Services
 			{
 				try
 				{
-					var bill = await _claimLetterBillWithoutShipmentService.GetOrCreateAsync(
+					var bill = await _claimLetterBillWithoutShipmentService.GetOrCreateOrderWithoutShipmentForDebtAsync(
 						uow,
 						debtData.Value.Counterparty,
 						debtData.Value.OrganizationId,
 						debtData.Value.TotalOverdueDebtorDebt,
 						cancellationToken);
+
+					await uow.SaveAsync(bill, cancellationToken: cancellationToken);
 
 					debtDataWithBills.Add((debtData.Value, bill));
 				}
@@ -219,15 +227,15 @@ namespace EmailDebtNotificationWorker.Services
 
 			var earliestOrder = await _orderRepository.GetEarliestOrder(uow, orderIds, cancellationToken);
 			var earliestOrderDate = earliestOrder?.DeliveryDate ?? DateTime.Today;
-			var attachments = CreateEmailAttachments(client.Id, organizationId, GetFormattedSum(totalOverdueDebtorDebt), orderIds, billWithoutShipment);
-
-			var emailSubject = $"{_emailSubject} {client.FullName} (ИНН: {client.INN}) от {organizationFullName}";
 
 			var attachments = CreateEmailAttachments(
 				client.Id,
 				organizationId,
 				GetFormattedSum(totalOverdueDebtorDebt),
-				earliestOrderDate);
+				earliestOrderDate,
+				billWithoutShipment);
+
+			var emailSubject = $"{_emailSubject} {client.FullName} (ИНН: {client.INN}) от {organizationFullName}";
 
 			if(!attachments.Any())
 			{
@@ -371,25 +379,32 @@ namespace EmailDebtNotificationWorker.Services
 			int counterpartyId,
 			int organizationId,
 			string totalOverdueDebtorDebtFormatted,
-			DateTime earliestOrderDate)
-			IEnumerable<int> orderIds,
+			DateTime earliestOrderDate,
 			OrderWithoutShipmentForDebt billWithoutShipment)
 		{
 			var attachments = new List<EmailAttachment>();
 
-				attachments.AddRange(letterOfClaimAttachments);
-
-				var today = DateTime.Today;
-				var yesterday = today.AddDays(-1);
-				var startDateForRevision = new DateTime(earliestOrderDate.Year, 1, 1);
-				var endDateForRevision = yesterday;
-
+			var today = DateTime.Today;
+			var yesterday = today.AddDays(-1);
+			var startDateForRevision = new DateTime(earliestOrderDate.Year, 1, 1);
+			var endDateForRevision = yesterday;
+			try
+			{
 				var revisionAttachments = _emailAttachmentsCreateService.CreateRevisionAttachments(
 					counterpartyId,
 					organizationId,
 					startDateForRevision,
 					endDateForRevision);
 
+				var letterOfClaimAttachments = _emailAttachmentsCreateService.CreateLetterOfClaimAttachments(
+					organizationId,
+					counterpartyId,
+					totalOverdueDebtorDebtFormatted);
+
+				var billAttachments = _emailAttachmentsCreateService.CreateOrderWithoutShipmentForDebtAttachments(billWithoutShipment);
+
+				attachments.AddRange(billAttachments);
+				attachments.AddRange(letterOfClaimAttachments);
 				attachments.AddRange(revisionAttachments);
 			}
 			catch(Exception ex)
@@ -398,16 +413,7 @@ namespace EmailDebtNotificationWorker.Services
 					"Ошибка при создании вложений для письма с претензией для контрагента {CounterpartyId} и организации {OrganizationId}",
 					counterpartyId,
 					organizationId);
-			var letterOfClaimAttachments = _emailAttachmentsCreateService.CreateLetterOfClaimAttachments(
-				organizationId,
-				counterpartyId,
-				totalOverdueDebtorDebtFormatted);
-
-			attachments.AddRange(letterOfClaimAttachments);
-
-			var billAttachments = _emailAttachmentsCreateService.CreateOrderWithoutShipmentForDebtAttachments(billWithoutShipment);
-
-			attachments.AddRange(billAttachments);
+			}
 
 			return attachments;
 		}

@@ -1,4 +1,5 @@
 ﻿using EmailDebtNotificationWorker.Services;
+using EmailDebtNotificationWorker.Services.InformationLetters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using QS.Services;
