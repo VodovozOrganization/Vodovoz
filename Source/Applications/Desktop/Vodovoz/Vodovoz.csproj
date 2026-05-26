@@ -2162,6 +2162,8 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Reports.OrderDateFilterView.cs" />
     <Compile Include="Views\Orders\OnlineOrderTemplateView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Orders.OnlineOrderTemplateView.cs" />
+    <Compile Include="Filters\GtkViews\OnlineOrderTemplatesJournalFilterView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Filters.GtkViews.OnlineOrderTemplatesJournalFilterView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
