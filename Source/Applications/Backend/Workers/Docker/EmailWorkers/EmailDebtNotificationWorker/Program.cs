@@ -108,6 +108,7 @@ namespace EmailDebtNotificationWorker
 
 					services
 						.ConfigureOptions<ConfigureEmailClaimLettersOptions>()
+						.AddScoped<IClaimLetterBillWithoutShipmentService, ClaimLetterBillWithoutShipmentService>()
 						.AddScoped<IEmailClaimLettersService, EmailClaimLettersService>()
 						.AddHostedService<EmailClaimLettersWorker>()
 						.ConfigureZabbixSenderFromDataBase(nameof(EmailClaimLettersWorker));
