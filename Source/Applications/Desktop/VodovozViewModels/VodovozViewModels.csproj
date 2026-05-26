@@ -116,6 +116,7 @@
     <Compile Include="Journals\JournalNodes\Payments\NotAllocatedCounterpartiesJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Payments\ProfitCategoriesJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\Orders\OnlineOrderNotificationSettingJournalNode.cs" />
+    <Compile Include="Journals\JournalNodes\Refunds\RefundJournalNode.cs" />
     <Compile Include="Journals\JournalNodes\WageCalculation\CallCenterMotivationCoefficientJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Banks\BanksJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Cash\VatRateJournalViewModel.cs" />
@@ -123,6 +124,7 @@
     <Compile Include="Journals\JournalViewModels\Edo\EdoProcessJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\OnlineOrderNotificationSettingJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Employees\FineCategoryJournalViewModel.cs" />
+    <Compile Include="Journals\JournalViewModels\Refund\RefundJournalViewModel.cs" />
     <Compile Include="Journals\Nodes\Cash\VatRateJournalNode.cs" />
     <Compile Include="Journals\JournalViewModels\Orders\OrderForRouteListJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\WageCalculation\CallCenterMotivation\CallCenterMotivationCoefficientJournalViewModel.cs" />
@@ -932,6 +934,7 @@
     <Compile Include="ViewModels\Profitability\ProfitabilityConstantsDataViewModel.cs" />
     <Compile Include="ViewModels\Profitability\ProfitabilityConstantsViewModel.cs" />
     <Compile Include="ViewModels\Proposal\ApplicationDevelopmentProposalViewModel.cs" />
+    <Compile Include="ViewModels\Refunds\RefundViewModel.cs" />
     <Compile Include="ViewModels\Reports\BulkDebtMailingReport\BulkDebtMailingReportRow.cs" />
     <Compile Include="ViewModels\Reports\BulkDebtMailingReport\BulkDebtMailingReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\BulkDebtMailingReport\BulkDebtMailingReport.cs" />
