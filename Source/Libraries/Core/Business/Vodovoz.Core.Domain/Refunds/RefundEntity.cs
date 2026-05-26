@@ -40,7 +40,8 @@ namespace Vodovoz.Core.Domain.Refunds
 			get => _date;
 			set => SetField(ref _date, value);
 		}
-		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			var uowFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
 			var profitCategoryRepository = validationContext.GetRequiredService<IGenericRepository<ProfitCategory>>();
