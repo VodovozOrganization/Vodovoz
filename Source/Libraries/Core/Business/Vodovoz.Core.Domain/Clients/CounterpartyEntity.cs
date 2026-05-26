@@ -994,8 +994,8 @@ namespace Vodovoz.Core.Domain.Clients
 		[Display(Name = "Запретить отправку претензий")]
 		public virtual bool DisableClaimMailing
 		{
-			get => _disableClosingDeliveriesMailing;
-			set => SetField(ref _disableClosingDeliveriesMailing, value);
+			get => _disableClaimMailing;
+			set => SetField(ref _disableClaimMailing, value);
 		}
 
 		/// <summary>
