@@ -5,6 +5,7 @@ using Gtk;
 using QS.Dialog;
 using QS.Views.GtkUI;
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using Vodovoz.Core.Domain.Logistics.Cars;
 using Vodovoz.Domain.Logistic.Cars;
@@ -16,6 +17,16 @@ namespace Vodovoz.Views.Logistic
 {
 	public partial class DriverScheduleView : TabViewBase<DriverScheduleViewModel>
 	{
+		private const int _carTypeOfUseColumnIndex = 0;
+		private const int _carOwnTypeColumnIndex = 1;
+		private const int _driverCarOwnTypeColumnIndex = 4;
+		private const int _phoneColumnIndex = 5;
+		private const int _districtColumnIndex = 6;
+		private const int _arrivalTimeColumnIndex = 7;
+		private const int _lastModifiedDateTimeColumnIndex = 12;
+		private const int _totalTitleColumnIndex = 13;
+		private const int _fixedColumnsCount = 14;
+
 		private bool _isSynchronizingDriverScheduleVerticalScroll;
 		private bool _isLockingFixedPartHorizontalScroll;
 		private ScrolledWindow _filtersScrolledWindow;
@@ -223,6 +234,10 @@ namespace Vodovoz.Views.Logistic
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.LastModifiedDateTimeString)
 					.Editable()
+					.XAlign(0.5f)
+				.AddColumn("")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(node => GetTotalTitle(node))
 					.XAlign(0.5f)
 				.Finish();
 
@@ -516,10 +531,7 @@ namespace Vodovoz.Views.Logistic
 
 				if(path != null && focusedColumn != null)
 				{
-					var columns = treeView.Columns;
-					var currentColumnIndex = Array.IndexOf(columns, focusedColumn);
-
-					if(currentColumnIndex < columns.Length - 1)
+					if(!IsLastVisibleColumn(treeView, focusedColumn))
 					{
 						args.RetVal = false;
 						return;
@@ -563,7 +575,13 @@ namespace Vodovoz.Views.Logistic
 				{
 					var selectedPath = ytreeviewDynamicPart.Selection.GetSelectedRows()[0];
 					ytreeviewFixedPart.Selection.SelectPath(selectedPath);
-					ytreeviewFixedPart.SetCursor(selectedPath, ytreeviewFixedPart.Columns[ytreeviewFixedPart.Columns.Length - 1], false);
+
+					var lastVisibleColumn = GetLastVisibleColumn(ytreeviewFixedPart);
+					if(lastVisibleColumn != null)
+					{
+						ytreeviewFixedPart.SetCursor(selectedPath, lastVisibleColumn, false);
+					}
+
 					ytreeviewFixedPart.GrabFocus();
 					args.RetVal = true;
 				}
@@ -599,18 +617,41 @@ namespace Vodovoz.Views.Logistic
 
 		private void ApplyFixedColumnsVisibility()
 		{
-			if(ytreeviewFixedPart?.Columns == null || ytreeviewFixedPart.Columns.Length < 13)
+			if(ytreeviewFixedPart?.Columns == null || ytreeviewFixedPart.Columns.Length < _fixedColumnsCount)
 			{
 				return;
 			}
 
-			ytreeviewFixedPart.Columns[0].Visible = ViewModel.ShowCarTypeOfUseColumn;
-			ytreeviewFixedPart.Columns[1].Visible = ViewModel.ShowCarOwnTypeColumn;
-			ytreeviewFixedPart.Columns[4].Visible = ViewModel.ShowDriverCarOwnTypeColumn;
-			ytreeviewFixedPart.Columns[5].Visible = ViewModel.ShowPhoneColumn;
-			ytreeviewFixedPart.Columns[6].Visible = ViewModel.ShowDistrictColumn;
-			ytreeviewFixedPart.Columns[7].Visible = ViewModel.ShowArrivalTimeColumn;
-			ytreeviewFixedPart.Columns[12].Visible = ViewModel.ShowLastModifiedDateTimeColumn;
+			ytreeviewFixedPart.Columns[_carTypeOfUseColumnIndex].Visible = ViewModel.ShowCarTypeOfUseColumn;
+			ytreeviewFixedPart.Columns[_carOwnTypeColumnIndex].Visible = ViewModel.ShowCarOwnTypeColumn;
+			ytreeviewFixedPart.Columns[_driverCarOwnTypeColumnIndex].Visible = ViewModel.ShowDriverCarOwnTypeColumn;
+			ytreeviewFixedPart.Columns[_phoneColumnIndex].Visible = ViewModel.ShowPhoneColumn;
+			ytreeviewFixedPart.Columns[_districtColumnIndex].Visible = ViewModel.ShowDistrictColumn;
+			ytreeviewFixedPart.Columns[_arrivalTimeColumnIndex].Visible = ViewModel.ShowArrivalTimeColumn;
+			ytreeviewFixedPart.Columns[_lastModifiedDateTimeColumnIndex].Visible = ViewModel.ShowLastModifiedDateTimeColumn;
+			ytreeviewFixedPart.Columns[_totalTitleColumnIndex].Visible = !ViewModel.ShowLastModifiedDateTimeColumn;
+
+			GLib.Idle.Add(() =>
+			{
+				UpdateFixedPartWidthRequest();
+				return false;
+			});
+		}
+
+		private static string GetTotalTitle(DriverScheduleRow row)
+		{
+			var totalRow = row as DriverScheduleTotalRow;
+			return totalRow?.TotalTitle ?? "";
+		}
+
+		private static bool IsLastVisibleColumn(TreeView treeView, TreeViewColumn column)
+		{
+			return column != null && column == GetLastVisibleColumn(treeView);
+		}
+
+		private static TreeViewColumn GetLastVisibleColumn(TreeView treeView)
+		{
+			return treeView?.Columns?.LastOrDefault(column => column.Visible);
 		}
 	}
 }
