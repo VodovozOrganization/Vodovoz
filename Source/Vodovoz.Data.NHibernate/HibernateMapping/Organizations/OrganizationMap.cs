@@ -24,6 +24,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Organizations
 			Map(x => x.DisableClosingDeliveriesMailing).Column("disable_closing_deliveries_mailing");
 			Map(x => x.EmailForClaimLetters).Column("email_for_claim_letters");
 			Map(x => x.DisableDebtMailing).Column("disable_debt_mailing");
+			Map(x => x.DisableClaimMailing).Column("disable_claim_mailing");
 			Map(x => x.DebtMailingWithSignature).Column("debt_mailing_with_signature");
 			Map(x => x.IsNeedCashlessMovementControl).Column("is_need_cashless_movement_control");
 			Map(x => x.CashBoxId).Column("cash_box_id");

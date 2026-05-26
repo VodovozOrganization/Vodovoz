@@ -2743,6 +2743,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				from order in uow.Session.Query<Order>()
 				join counterparty in uow.Session.Query<Counterparty>() on order.Client.Id equals counterparty.Id
 				join contract in uow.Session.Query<CounterpartyContract>() on order.Contract.Id equals contract.Id
+				join organization in uow.Session.Query<Organization>() on contract.Organization.Id equals organization.Id
 
 				let orderSum =
 				(decimal?)(from orderItem in uow.Session.Query<OrderItem>()
@@ -2773,6 +2774,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					&& counterparty.PersonType == PersonType.legal
 					&& !counterparty.IsChainStore
 					&& !counterparty.DisableClaimMailing
+					&& !organization.DisableClaimMailing
 					&& (counterparty.RevenueStatus == null || !excludeCounterpartyRevenueStatuses.Contains(counterparty.RevenueStatus.Value))
 					&& !excludeDebtTypes.Contains(counterparty.CloseDeliveryDebtType.Value)
 					&& order.DeliveryDate != null
@@ -2803,6 +2805,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					from order in uow.Session.Query<Order>()
 					join counterparty in uow.Session.Query<Counterparty>() on order.Client.Id equals counterparty.Id
 					join contract in uow.Session.Query<CounterpartyContract>() on order.Contract.Id equals contract.Id
+					join organization in uow.Session.Query<Organization>() on contract.Organization.Id equals organization.Id
 
 					let orderPaymentsSum =
 					(decimal?)(from paymentItem in uow.Session.Query<PaymentItem>()
@@ -2833,6 +2836,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						&& counterpartiesIds.Contains(counterparty.Id)
 						&& contract.Organization.Id == organizationId
 						&& !counterparty.DisableClaimMailing
+						&& !organization.DisableClaimMailing
 						&& orderSum > 0
 						&& isExpired
 

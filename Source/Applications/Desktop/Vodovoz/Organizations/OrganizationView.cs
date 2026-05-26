@@ -61,6 +61,19 @@ namespace Vodovoz.Organizations
 				.AddBinding(ViewModel.Entity, e => e.DisableClosingDeliveriesMailing, w => w.Active)
 				.InitializeFromSource();
 
+			ycheckbuttonDisableClaimMailing.Binding
+				.AddBinding(ViewModel.Entity, e => e.DisableClaimMailing, w => w.Active)
+				.InitializeFromSource();
+
+
+			ycheckbuttonDisableDebtMailing.Binding
+				.AddBinding(ViewModel.Entity, e => e.DisableDebtMailing, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckbuttonDebtMailingWithSignature.Binding
+				.AddBinding(ViewModel.Entity, e => e.DebtMailingWithSignature, w => w.Active)
+				.InitializeFromSource();
+
 			validatedentryEmailForClaimLetters.CustomRegex = ViewModel.RegexForEmailForMailing;
 			validatedentryEmailForClaimLetters.Binding
 				.AddBinding(ViewModel.Entity, e => e.EmailForClaimLetters, w => w.Text)
@@ -106,14 +119,6 @@ namespace Vodovoz.Organizations
 			
 			yentryPrefix.Binding
 				.AddBinding(ViewModel.Entity, e => e.Prefix, w => w.Text)
-				.InitializeFromSource();
-
-			ycheckbuttonDisableDebtMailing.Binding
-				.AddBinding(ViewModel.Entity, e => e.DisableDebtMailing, w => w.Active)
-				.InitializeFromSource();
-
-			ycheckbuttonDebtMailingWithSignature.Binding
-				.AddBinding(ViewModel.Entity, e => e.DebtMailingWithSignature, w => w.Active)
 				.InitializeFromSource();
 
 			notebookMain.Page = 0;

@@ -43,6 +43,7 @@ namespace Vodovoz.Core.Domain.Organizations
 		private int? _cashBoxId;
 		private bool _withoutVAT;
 		private bool _disableDebtMailing;
+		private bool _disableClaimMailing;
 		private bool _debtMailingWithSignature;
 		private int? _avangardShopId;
 		private bool _isNeedCashlessMovementControl;
@@ -230,6 +231,16 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _disableDebtMailing;
 			set => SetField(ref _disableDebtMailing, value);
+		}
+
+		/// <summary>
+		/// Запретить отправку претензий
+		/// </summary>
+		[Display(Name = "Запретить отправку претензий")]
+		public virtual bool DisableClaimMailing
+		{
+			get => _disableClaimMailing;
+			set => SetField(ref _disableClaimMailing, value);
 		}
 
 		/// <summary>

@@ -57,6 +57,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Organizations
 			Map(x => x.DisableDebtMailing)
 				.Column("disable_debt_mailing");
 
+			Map(x => x.DisableClaimMailing)
+				.Column("disable_claim_mailing");
+
 			Map(x => x.DebtMailingWithSignature)
 				.Column("debt_mailing_with_signature");
 			
