@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NHibernate;
+using NHibernate.Criterion;
 using NHibernate.Multi;
 using QS.DomainModel.UoW;
+using QS.Project.DB;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Core.Domain.Sale;
 using Vodovoz.Domain.Client;
@@ -115,7 +117,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		public IEnumerable<OnlineOrderTemplate> GetActiveOnlineOrdersTemplatesForCreateOrders(
 			IUnitOfWork uow, DateTime date)
 		{
-			//TODO доработать алгоритм подбора шаблонов за день до доставки
 			var weekDayFromDate = date.DayOfWeek.ConvertToWeekDayName();
 			
 			var templates = (
@@ -130,37 +131,53 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					select onlineOrder
 					)
 					.FirstOrDefault()
+					
+				let lastOnlineOrder = (
+						from onlineOrder in uow.Session.Query<OnlineOrder>()
+						where onlineOrder.Counterparty.Id == template.CounterpartyId
+							&& onlineOrder.DeliveryPoint.Id == template.DeliveryPointId
+							&& onlineOrder.DeliverySchedule.Id == template.DeliveryScheduleId
+							&& onlineOrder.DeliveryDate == date.AddDays(1).Date
+						orderby onlineOrder.Id descending 
+						select onlineOrder
+					)
+					.FirstOrDefault()
 
 				let needCreateByDay = weekDayFromDate == WeekDayName.Sunday
 					? (byte)weekDayFromDate - weekday.DayNumber == 6
 					: weekday.DayNumber - (byte)weekDayFromDate == 1
-					
-				let days = template.DeliveryFrequency == OnlineOrderDeliveryFrequency.OnePerWeek
-					? 7
-					: template.DeliveryFrequency == OnlineOrderDeliveryFrequency.OneEveryTwoWeeks
-						? 14
-						: template.DeliveryFrequency == OnlineOrderDeliveryFrequency.OneEveryThreeWeeks
-							? 21
-							: template.DeliveryFrequency == OnlineOrderDeliveryFrequency.OneEveryFourWeeks
-								? 28
-								: 0
-
-				let needCreateByWeek = lastOnlineFromTemplate == null
-				//не работает запрос с AddDate, починить
-					/*|| (
-						//lastOnlineFromTemplate.Created.Date != date.Date
-							&& lastOnlineFromTemplate != null && lastOnlineFromTemplate.Created.Date.AddDays(days) == date.Date
-						)*/
 				
-				where template.IsActive && needCreateByDay && needCreateByWeek
-				//добавить условие по уже созданному онлайн заказу на этот день, т.е. не создавать из шаблона, если у клиента есть заказ на этот день и ТД
+				where template.IsActive && needCreateByDay && lastOnlineOrder == null
 
-				select template
+				select new ValueTuple<OnlineOrderTemplate, OnlineOrder>(template, lastOnlineFromTemplate)
 				)
 				.Distinct()
 				.ToList();
-			
-			return templates;
+
+			return (
+				from template in templates
+
+				let days = template.Item1.DeliveryFrequency == OnlineOrderDeliveryFrequency.OnePerWeek
+					? 7
+					: template.Item1.DeliveryFrequency == OnlineOrderDeliveryFrequency.OneEveryTwoWeeks
+						? 14
+						: template.Item1.DeliveryFrequency == OnlineOrderDeliveryFrequency.OneEveryThreeWeeks
+							? 21
+							: template.Item1.DeliveryFrequency == OnlineOrderDeliveryFrequency.OneEveryFourWeeks
+								? 28
+								: 0
+
+				//не нашел решения, как заставить работать AddDays(days) в трансляторе HQL, с подзапросом
+				//поэтому вынес после sql
+				let needCreateByWeek = template.Item2 == null
+					|| (
+						template.Item2.Created.Date != date.Date
+						&& template.Item2.Created.AddDays(days).Date == date.Date
+					)
+
+				where needCreateByWeek
+				select template.Item1)
+				.ToList();
 		}
 
 		public OnlineOrderTemplateInfo GetOnlineOrderTemplateDataByTemplateId(IUnitOfWork uow, int templateId)

@@ -5,7 +5,7 @@
 	/// </summary>
 	public class OnlineOrderFromTemplateRegistrarOptions
 	{
-		public const string SectionName = "OnlineOrderFromTemplateRegistrar";
+		public const string SectionName = "OnlineOrderFromTemplateRegistrarOptions";
 		
 		/// <summary>
 		/// Задержка между запусками в секундах

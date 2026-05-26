@@ -106,6 +106,7 @@ namespace Vodovoz.Core.Application
 			.AddScoped<IOnlineOrderDeliveryPriceGetter, OnlineOrderDeliveryPriceGetter>()
 			.AddScoped<IOnlineOrderFromCartDistrictRulesGetter, OnlineOrderFromCartDistrictRulesGetter>()
 			.AddScoped<IOrderFromOnlineOrderCreator, OrderFromOnlineOrderCreator>()
+			.AddScoped<IOnlineOrderFromTemplateCreator, OnlineOrderFromTemplateCreator>()
 			.AddScoped<IOrderFromOnlineOrderValidator, OrderFromOnlineOrderValidator>()
 			.AddScoped<IOnlineOrderTemplateFromOnlineOrderValidator, OnlineOrderTemplateFromOnlineOrderValidator>()
 			.AddScoped<IGoodsPriceCalculator, GoodsPriceCalculator>()

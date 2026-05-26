@@ -18,8 +18,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QS.DomainModel.UoW;
 using RabbitMQ.Client;
-using Vodovoz.Application.Orders.Services;
-using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Settings.Pacs;
 using VodovozInfrastructure.Cryptography;
 
