@@ -44,7 +44,7 @@ namespace Vodovoz.Core.Domain.Refunds
 		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			var uowFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
-			var profitCategoryRepository = validationContext.GetRequiredService<IGenericRepository<ProfitCategory>>();
+			var refundRepository = validationContext.GetRequiredService<IGenericRepository<RefundEntity>>();
 
 			if(Order == null)
 			{
