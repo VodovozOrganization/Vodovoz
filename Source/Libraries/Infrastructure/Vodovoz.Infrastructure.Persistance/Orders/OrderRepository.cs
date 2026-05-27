@@ -1296,9 +1296,9 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		}
 
 		public IEnumerable<VodovozOrder> GetCashlessOrdersForEdoSendUpd(
-			IUnitOfWork uow, DateTime startDate, int organizationId, int closingDocumentDeliveryScheduleId)
+			IUnitOfWork uow, DateTime startDate, int closingDocumentDeliveryScheduleId)
 		{
-			return GetOrdersForFirstUpdSending(uow, startDate, organizationId, closingDocumentDeliveryScheduleId);
+			return GetOrdersForFirstUpdSending(uow, startDate, closingDocumentDeliveryScheduleId);
 		}
 
 		public IEnumerable<int> GetNewEdoProcessOrders(IUnitOfWork uow, IEnumerable<int> orderIds)
@@ -1322,7 +1322,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return query.Distinct().ToList();
 		}
 
-		public IList<VodovozOrder> GetOrdersForEdoSendBills(IUnitOfWork uow, DateTime startDate, int organizationId, int closingDocumentDeliveryScheduleId)
+		public IList<VodovozOrder> GetOrdersForEdoSendBills(IUnitOfWork uow, DateTime startDate, int closingDocumentDeliveryScheduleId)
 		{
 			Counterparty counterpartyAlias = null;
 			CounterpartyContract counterpartyContractAlias = null;
@@ -1353,7 +1353,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 			query
 				.And(() => orderAlias.PaymentType == PaymentType.Cashless)
-				.And(() => counterpartyContractAlias.Organization.Id == organizationId)
 				.And(orderStatusRestriction)
 				.And(prohibitedOrderStatusRestriction)
 				.And(() => counterpartyAlias.NeedSendBillByEdo)
@@ -2377,8 +2376,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return alreadyReceivedBottlesByReferPromotion ?? 0;
 		}
 
-		private IEnumerable<VodovozOrder> GetOrdersForFirstUpdSending(
-			IUnitOfWork uow, DateTime startDate, int organizationId, int closingDocumentDeliveryScheduleId)
+		private IEnumerable<VodovozOrder> GetOrdersForFirstUpdSending(IUnitOfWork uow, DateTime startDate, int closingDocumentDeliveryScheduleId)
 		{
 			Counterparty counterpartyAlias = null;
 			CounterpartyContract counterpartyContractAlias = null;
@@ -2422,7 +2420,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 			var result = query.Where(() => counterpartyAlias.PersonType == PersonType.legal)
 				.And(() => orderAlias.PaymentType == PaymentType.Cashless)
-				.And(() => counterpartyContractAlias.Organization.Id == organizationId)
 				.And(Restrictions.IsNull(Projections.Property(() => edoContainerAlias.Id)))
 				.And(Restrictions.Disjunction()
 					.Add(() => (

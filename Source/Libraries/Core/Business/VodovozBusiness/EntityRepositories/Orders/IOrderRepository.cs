@@ -169,7 +169,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			IUnitOfWork uow, int counterpartyId, int organizationId, int closingDocumentDeliveryScheduleId);
 		PaymentType GetCurrentOrderPaymentTypeInDB(IUnitOfWork uow, int orderId);
 		IEnumerable<Order> GetCashlessOrdersForEdoSendUpd(
-			IUnitOfWork uow, DateTime startDate, int organizationId, int closingDocumentDeliveryScheduleId);
+			IUnitOfWork uow, DateTime startDate, int closingDocumentDeliveryScheduleId);
 		IEnumerable<int> GetNewEdoProcessOrders(IUnitOfWork uow, IEnumerable<int> orderIds);
 		IList<EdoContainer> GetPreparingToSendEdoContainers(IUnitOfWork uow, DateTime startDate, int organizationId);
 		EdoContainer GetEdoContainerByMainDocumentId(IUnitOfWork uow, string mainDocId);
@@ -198,7 +198,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<OrderItem> GetIsAccountableInTrueMarkOrderItems(IUnitOfWork uow, int orderId);
 		IList<TrueMarkCancellationDto> GetOrdersForCancellationInTrueMark(IUnitOfWork uow, DateTime startDate, int organizationId);
 		IList<OrderOnDayNode> GetOrdersOnDay(IUnitOfWork uow, OrderOnDayFilters orderOnDayFilters);
-		IList<Order> GetOrdersForEdoSendBills(IUnitOfWork uow, DateTime startDate, int organizationId, int closingDocumentDeliveryScheduleId);
+		IList<Order> GetOrdersForEdoSendBills(IUnitOfWork uow, DateTime startDate, int closingDocumentDeliveryScheduleId);
 		OrderStatus[] GetStatusesForOrderCancelationWithCancellation();
 		IEnumerable<OrderDto> GetCounterpartyOrdersFromOnlineOrders(IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
 		IEnumerable<OrderDto> GetCounterpartyOrdersWithoutOnlineOrders(IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);

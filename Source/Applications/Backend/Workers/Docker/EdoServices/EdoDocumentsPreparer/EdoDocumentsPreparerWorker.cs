@@ -20,7 +20,6 @@ using Vodovoz.Converters;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
@@ -125,41 +124,8 @@ namespace EdoDocumentsPreparer
 
 					using var uow = _unitOfWorkFactory.CreateWithoutRoot();
 
-					var mainOrganization = (await GetOrganizations(uow, new[] { _edoOptions.OurMainEdoAccountId }, stoppingToken)).SingleOrDefault();
-
-					if(mainOrganization != null)
-					{
-						await PrepareUpdDocumentsForSend(uow, mainOrganization.Id);						
-					}
-					else
-					{
-						var errorMessage = "Не настроена основная организация";
-
-						_logger.LogError(errorMessage);
-
-						await _zabbixSender.SendProblemMessageAsync(ZabixSenderMessageType.Problem, errorMessage, stoppingToken);
-					}
-
-					var edoAccountIds = _edoOptions.OurEdoAccountsIds;
-					var organizations = await GetOrganizations(uow, edoAccountIds, stoppingToken);
-
-					if(organizations != null)
-					{
-						foreach(var organization in organizations)
-						{
-							await PrepareBillsForSend(uow, organization.Id, stoppingToken);
-
-							await PrepareBillsWithoutShipmentForSend(uow, organization);
-						}
-					}
-					else
-					{
-						var errorMessage = "Не настроены дополнительные организации";
-
-						_logger.LogError(errorMessage);
-
-						await _zabbixSender.SendProblemMessageAsync(ZabixSenderMessageType.Problem, errorMessage, stoppingToken);
-					}
+					await PrepareBillsForSend(uow, stoppingToken);
+					await PrepareBillsWithoutShipmentForSend(uow);
 
 					await _zabbixSender.SendIsHealthyAsync(stoppingToken);
 				}
@@ -170,7 +136,8 @@ namespace EdoDocumentsPreparer
 			}
 		}
 
-		private async Task PrepareUpdDocumentsForSend(IUnitOfWork uow, int organizationId)
+		//отключил, т.к. по ОСУ больше не работаем
+		private async Task PrepareUpdDocumentsForSend(IUnitOfWork uow)
 		{
 			const string document = "УПД";
 			_logger.LogInformation("Получаем заказы по которым надо создать и отправить {Document}", document);
@@ -182,7 +149,6 @@ namespace EdoDocumentsPreparer
 					_orderRepository.GetCashlessOrdersForEdoSendUpd(
 						uow,
 						startDate,
-						organizationId,
 						_deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId);
 
 				var bulkAccountingEdoTasks =
@@ -415,7 +381,7 @@ namespace EdoDocumentsPreparer
 			}
 		}
 
-		private async Task PrepareBillsForSend(IUnitOfWork uow, int organizationId, CancellationToken cancellationToken)
+		private async Task PrepareBillsForSend(IUnitOfWork uow, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Получаем заказы по которым нужно отправить счёт");
 
@@ -424,8 +390,8 @@ namespace EdoDocumentsPreparer
 				var startDate = DateTime.Today.AddDays(_documentFlowOptions.AddDaysForBillsPreparing);
 				var newOrdersToSend =
 					_orderRepository.GetOrdersForEdoSendBills(
-						uow, startDate, organizationId, _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId);
-				var ordersToResend = _orderRepository.GetOrdersForResendBills(uow, organizationId);
+						uow, startDate, _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId);
+				var ordersToResend = _orderRepository.GetOrdersForResendBills(uow);
 
 				var orders = newOrdersToSend.Union(ordersToResend).ToList();
 
@@ -486,8 +452,8 @@ namespace EdoDocumentsPreparer
 						.Build();
 
 					_logger.LogInformation("Сохраняем контейнер по заказу №{OrderId} для отправки счета", order.Id);
-					await uow.SaveAsync(edoContainer);
-					await uow.CommitAsync();
+					await uow.SaveAsync(edoContainer, cancellationToken: cancellationToken);
+					await uow.CommitAsync(cancellationToken);
 
 					if(!await CheckCounterpartyConsentForEdo(uow, edoContainer, order.Id, order.Contract.Organization.Id, "Счет"))
 					{
@@ -518,7 +484,7 @@ namespace EdoDocumentsPreparer
 			}
 		}
 
-		private async Task PrepareBillsWithoutShipmentForSend(IUnitOfWork uow, Organization organization)
+		private async Task PrepareBillsWithoutShipmentForSend(IUnitOfWork uow)
 		{
 			_logger.LogInformation("Получаем заказы по которым нужно отправить счёта без отгрузки");
 
@@ -540,7 +506,7 @@ namespace EdoDocumentsPreparer
 						.Empty();
 
 					var infoForCreatingBillWithoutShipmentEdo =
-						GetBillWithoutShipmentDataForSend(action, edoContainerBuilder, organization, now);
+						GetBillWithoutShipmentDataForSend(action, edoContainerBuilder, now);
 
 					if(infoForCreatingBillWithoutShipmentEdo is null)
 					{
@@ -564,7 +530,7 @@ namespace EdoDocumentsPreparer
 						uow,
 						edoContainer,
 						infoForCreatingBillWithoutShipmentEdo.OrderWithoutShipmentInfo.Id,
-						organization.Id,
+						infoForCreatingBillWithoutShipmentEdo.OrderWithoutShipmentInfo.OrganizationInfoForEdo.Id,
 						infoForCreatingBillWithoutShipmentEdo.GetBillWithoutShipmentInfoTitle()))
 					{
 						continue;
@@ -610,7 +576,6 @@ namespace EdoDocumentsPreparer
 		private InfoForCreatingBillWithoutShipmentEdo GetBillWithoutShipmentDataForSend(
 			OrderEdoTrueMarkDocumentsActions orderEdoActions,
 			EdoContainerBuilder edoContainerBuilder,
-			Organization organization,
 			DateTime now)
 		{
 			OrderWithoutShipmentInfo orderWithoutShipmentInfo = null;
@@ -620,7 +585,7 @@ namespace EdoDocumentsPreparer
 			{
 				orderWithoutShipmentInfo =
 					_orderWithoutShipmentConverter.ConvertOrderWithoutShipmentForDebtToOrderWithoutShipmentInfo(
-						orderWithoutShipmentForDebt, organization, now);
+						orderWithoutShipmentForDebt, now);
 
 				if(orderWithoutShipmentForDebt is ISignableDocument signableRdlDocument)
 				{
@@ -636,7 +601,7 @@ namespace EdoDocumentsPreparer
 			{
 				orderWithoutShipmentInfo =
 					_orderWithoutShipmentConverter.ConvertOrderWithoutShipmentForPaymentToOrderWithoutShipmentInfo(
-						orderWithoutShipmentForPayment, organization, now);
+						orderWithoutShipmentForPayment, now);
 
 				if(orderWithoutShipmentForPayment is ISignableDocument signableRdlDocument)
 				{
@@ -652,7 +617,7 @@ namespace EdoDocumentsPreparer
 			{
 				orderWithoutShipmentInfo =
 					_orderWithoutShipmentConverter.ConvertOrderWithoutShipmentForAdvancePaymentToOrderWithoutShipmentInfo(
-						orderWithoutShipmentForAdvancePayment, organization, now);
+						orderWithoutShipmentForAdvancePayment, now);
 
 				if(orderWithoutShipmentForAdvancePayment is ISignableDocument signableRdlDocument)
 				{
@@ -696,7 +661,13 @@ namespace EdoDocumentsPreparer
 				|| edoAccount.ConsentForEdoStatus != ConsentForEdoStatus.Agree)
 			{
 				await TrySaveContainerByErrorState(
-					uow, edoContainer, documentId, document, "У клиента не заполнен номер кабинета или нет согласия на ЭДО", task);
+					uow,
+					edoContainer,
+					documentId,
+					document,
+					$"У клиента не заполнен номер кабинета или нет согласия на ЭДО по организации {organizationId}",
+					task);
+				
 				return false;
 			}
 
