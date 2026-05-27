@@ -10,6 +10,7 @@ using System.Linq;
 using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Organizations;
 
 namespace Vodovoz.Core.Domain.Goods
 {
@@ -217,6 +218,11 @@ namespace Vodovoz.Core.Domain.Goods
 				}
 			}
 		}
+
+		/// <summary>
+		/// Является ли номенклатура залогом
+		/// </summary>
+		public virtual bool IsDeposit => Category == NomenclatureCategory.deposit;
 
 		/// <summary>
 		/// Подлежит учету в Честном Знаке
@@ -1422,7 +1428,16 @@ namespace Vodovoz.Core.Domain.Goods
 			return VatRateVersions.FirstOrDefault(x => 
 				x.StartDate <= targetDate && (x.EndDate == null || x.EndDate >= targetDate));
 		}
-		
+
+		/// <summary>
+		/// Возвращает актуальную версию НДС с учётом режима налогообложения организации.
+		/// Для залогов всегда используется НДС из номенклатуры независимо от режима организации.
+		/// </summary>
+		public virtual VatRateVersion GetEffectiveVatRateVersion(OrganizationEntity organization = null, DateTime? date = null) =>
+			organization != null && organization.IsUsnMode && !IsDeposit
+			? organization.GetActualVatRateVersion(date)
+			: GetActualVatRateVersion(date);
+
 		public override string ToString() => $"id = {Id} Name = {Name}";
 
 		#region Statics
