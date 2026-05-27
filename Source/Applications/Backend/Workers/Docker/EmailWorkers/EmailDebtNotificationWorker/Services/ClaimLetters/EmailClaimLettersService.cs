@@ -1,4 +1,4 @@
-﻿using BitrixApi.Library.Services;
+using BitrixApi.Library.Services;
 using EmailDebtNotificationWorker.Options;
 using EmailDebtNotificationWorker.Repositories;
 using Mailjet.Api.Abstractions;
@@ -43,22 +43,20 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 		private readonly IOptionsMonitor<EmailClaimLettersOptions> _emailClaimLettersOptions;
 		private readonly IDatabaseRepository _databaseRepository;
 		private readonly IClaimLetterBillWithoutShipmentService _claimLetterBillWithoutShipmentService;
-		private readonly OrderStatus[] _orderStatuses =
-			new[]
-			{
-				OrderStatus.Shipped,
-				OrderStatus.UnloadingOnStock,
-				OrderStatus.Closed
-			};
+		private readonly OrderStatus[] _orderStatuses =new[]
+		{
+			OrderStatus.Shipped,
+			OrderStatus.UnloadingOnStock,
+			OrderStatus.Closed
+		};
 
-		private readonly RevenueStatus[] _excludeCounterpartyRevenueStatuses =
-			new[]
-			{
-				RevenueStatus.Liquidating,
-				RevenueStatus.Liquidated,
-				RevenueStatus.Reorganizing,
-				RevenueStatus.Bankrupt
-			};
+		private readonly RevenueStatus[] _excludeCounterpartyRevenueStatuses = new[]
+		{
+			RevenueStatus.Liquidating,
+			RevenueStatus.Liquidated,
+			RevenueStatus.Reorganizing,
+			RevenueStatus.Bankrupt
+		};
 
 		public EmailClaimLettersService(
 			ILogger<EmailClaimLettersService> logger,
@@ -121,6 +119,8 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 
 			var debtDataWithBills = await PrepareDebtDataWithBillsAsync(uow, overdueDebitorsDebtData, cancellationToken);
 
+			await uow.CommitAsync(cancellationToken);
+
 			var emailMessages = await PrepareEmailMessagesAsync(uow, debtDataWithBills, cancellationToken);
 
 			await uow.CommitAsync(cancellationToken);
@@ -144,12 +144,10 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 				{
 					var bill = await _claimLetterBillWithoutShipmentService.GetOrCreateOrderWithoutShipmentForDebtAsync(
 						uow,
-						debtData.Value.Counterparty,
+						debtData.Value.CounterpartyId,
 						debtData.Value.OrganizationId,
 						debtData.Value.TotalOverdueDebtorDebt,
 						cancellationToken);
-
-					await uow.SaveAsync(bill, cancellationToken: cancellationToken);
 
 					debtDataWithBills.Add((debtData.Value, bill));
 				}
@@ -157,7 +155,7 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 				{
 					_logger.LogError(ex,
 						"Ошибка при подготовке счета без отгрузки на долг для контрагента {CounterpartyId} и организации {OrganizationId}",
-						debtData.Value.Counterparty.Id,
+						debtData.Value.CounterpartyId,
 						debtData.Value.OrganizationId);
 				}
 			}
@@ -176,13 +174,16 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 			{
 				try
 				{
+					var client = await uow.Session.GetAsync<Counterparty>(data.CounterpartyId, cancellationToken);
+					var contract = await uow.Session.GetAsync<CounterpartyContract>(data.Contractd, cancellationToken);
+
 					var emailMessage = await CreateSendEmailMessage(
 						uow,
-						data.Counterparty,
+						client,
 						data.OrganizationId,
 						data.OrganizationFullName,
 						data.OrganizationEmailForMailing,
-						data.Contract,
+						contract,
 						data.OrderIds,
 						data.TotalOverdueDebtorDebt,
 						bill,
@@ -194,7 +195,7 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 				{
 					_logger.LogError(ex,
 						"Ошибка при создании и публикации сообщения на отправку письма с претензией для контрагента {CounterpartyId} и организации {OrganizationId}",
-						data.Counterparty.Id,
+						data.CounterpartyId,
 						data.OrganizationId);
 				}
 			}

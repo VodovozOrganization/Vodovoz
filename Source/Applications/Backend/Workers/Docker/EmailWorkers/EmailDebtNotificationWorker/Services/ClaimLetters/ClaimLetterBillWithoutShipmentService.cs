@@ -28,7 +28,7 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 
 		public async Task<OrderWithoutShipmentForDebt> GetOrCreateOrderWithoutShipmentForDebtAsync(
 			IUnitOfWork uow,
-			Counterparty client,
+			int clientId,
 			int organizationId,
 			decimal debtSum,
 			CancellationToken cancellationToken)
@@ -38,7 +38,7 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 			var existingBills = (await _orderWithoutShipmentForDebtRepository.GetAsync(
 				uow,
 				x => x.CreateDate.Value >= dateFrom
-					&& x.Client.Id == client.Id
+					&& x.Client.Id == clientId
 					&& x.Organization.Id == organizationId,
 				cancellationToken: cancellationToken))
 			.Value;
@@ -53,6 +53,9 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 			var organization = uow.GetById<Organization>(organizationId)
 				?? throw new InvalidOperationException($"Организация с Id {organizationId} не найдена");
 
+			var client = uow.GetById<Counterparty>(clientId)
+				?? throw new InvalidOperationException($"Клиент с Id {organizationId} не найден");
+
 			var author = _employeeRepository.GetEmployeeForCurrentUser(uow);
 
 			var newBill = new OrderWithoutShipmentForDebt
@@ -62,6 +65,8 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 				DebtSum = debtSum,
 				Author = author
 			};
+
+			await uow.SaveAsync(newBill, cancellationToken: cancellationToken);
 
 			return newBill;
 		}

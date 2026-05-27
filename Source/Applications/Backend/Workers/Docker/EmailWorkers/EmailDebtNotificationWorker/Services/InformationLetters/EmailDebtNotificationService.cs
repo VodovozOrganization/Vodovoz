@@ -20,7 +20,7 @@ using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
 
-namespace EmailDebtNotificationWorker.Services
+namespace EmailDebtNotificationWorker.Services.InformationLetters
 {
 	/// <summary>
 	/// Сервис планирования и отправки email сообщений клиентам о задолженностях
