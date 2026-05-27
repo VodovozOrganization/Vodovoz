@@ -23,9 +23,17 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 	{
 		public IList<CarEvent> GetCarEventsByDriverIds(IUnitOfWork uow, int[] driverIds, DateTime startDate, DateTime endDate)
 		{
+			if(driverIds == null || !driverIds.Any())
+			{
+				return new List<CarEvent>();
+			}
+
+			var periodStart = startDate.Date;
+			var periodEnd = endDate.Date.AddDays(1).AddTicks(-1);
+
 			return uow.Session.QueryOver<CarEvent>()
 				.WhereRestrictionOn(e => e.Driver.Id).IsIn(driverIds)
-				.Where(e => e.StartDate <= endDate && e.EndDate >= startDate)
+				.Where(e => e.StartDate <= periodEnd && e.EndDate >= periodStart)
 				.List();
 		}
 
@@ -173,8 +181,15 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 			DateTime date,
 			IEnumerable<string> carEventTypeNames)
 		{
-			var driverIdsArray = driverIds.ToArray();
-			var carEventTypeNamesArray = carEventTypeNames.ToArray();
+			var driverIdsArray = driverIds?.ToArray() ?? Array.Empty<int>();
+			var carEventTypeNamesArray = carEventTypeNames?.ToArray() ?? Array.Empty<string>();
+			var dayStart = date.Date;
+			var dayEnd = dayStart.AddDays(1).AddTicks(-1);
+
+			if(!driverIdsArray.Any() || !carEventTypeNamesArray.Any())
+			{
+				return new List<int>();
+			}
 
 			CarEvent carEventAlias = null;
 			CarEventType carEventTypeAlias = null;
@@ -184,7 +199,7 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 				.Left.JoinAlias(() => carEventAlias.Driver, () => driverAlias)
 				.Left.JoinAlias(() => carEventAlias.CarEventType, () => carEventTypeAlias)
 				.WhereRestrictionOn(() => driverAlias.Id).IsIn(driverIdsArray)
-				.Where(() => carEventAlias.StartDate <= date.Date && carEventAlias.EndDate >= date.Date)
+				.Where(() => carEventAlias.StartDate <= dayEnd && carEventAlias.EndDate >= dayStart)
 				.And(Restrictions.Or(
 					Restrictions.On(() => carEventTypeAlias.ShortName).IsIn(carEventTypeNamesArray),
 					Restrictions.On(() => carEventTypeAlias.Name).IsIn(carEventTypeNamesArray)))

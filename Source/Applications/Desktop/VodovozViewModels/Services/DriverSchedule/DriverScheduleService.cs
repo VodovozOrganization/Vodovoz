@@ -25,24 +25,22 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 		private const int _daysInWeek = 7;
 		private const int _commentColumn = _firstDayColumn + _daysInWeek * _columnsPerDay;
 		private static readonly HashSet<string> _carEventTypeNamesAllowedToCreateFromDriverSchedule =
-			new HashSet<string>(
-				new[] { "вод/тел", "отпуск", "больничный", "выходной" },
-				StringComparer.OrdinalIgnoreCase);
-		private static readonly HashSet<string> _carEventTypeNamesAllowedToShowInDriverSchedule =
-			new HashSet<string>(
-				new[]
-				{
-					"вод/тел",
-					"отпуск",
-					"больничный",
-					"выходной",
-					"ремонт",
-					"ДТП",
-					"ТО",
-					"куз. ремонт",
-					"М - мойка"
-				},
-				StringComparer.OrdinalIgnoreCase);
+			CreateCarEventTypeNamesSet("вод/тел", "отпуск", "больничный", "выходной");
+		private static readonly HashSet<string> _carEventTypeNamesAllowedToShowInDriverSchedule = CreateCarEventTypeNamesSet(
+			"вод/тел",
+			"отпуск",
+			"больничный",
+			"выходной",
+			"ремонт",
+			"ДТП",
+			"ТО",
+			"куз. ремонт",
+			"куз ремонт",
+			"кузовной ремонт",
+			"КР",
+			"М - мойка",
+			"М",
+			"мойка");
 
 		private enum ExportColumn
 		{
@@ -240,6 +238,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 				{
 					node.Days[dayIndex].CarEventType = applicableEvent.CarEventType;
 					node.Days[dayIndex].IsCarEventTypeFromJournal = true;
+					ClearDayPotential(node.Days[dayIndex]);
 				}
 			}
 		}
@@ -264,10 +263,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 
 					if(dayNode.IsCarEventTypeFromJournal || dayNode.IsVirtualCarEventType || item.CarEventType != null)
 					{
-						dayNode.MorningAddresses = 0;
-						dayNode.MorningBottles = 0;
-						dayNode.EveningAddresses = 0;
-						dayNode.EveningBottles = 0;
+						ClearDayPotential(dayNode);
 					}
 					else
 					{
@@ -278,6 +274,14 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 					}
 				}
 			}
+		}
+
+		private static void ClearDayPotential(DriverScheduleDayRow dayNode)
+		{
+			dayNode.MorningAddresses = 0;
+			dayNode.MorningBottles = 0;
+			dayNode.EveningAddresses = 0;
+			dayNode.EveningBottles = 0;
 		}
 
 		private List<DriverScheduleRow> AddTotalRows(
@@ -400,16 +404,18 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 		{
 			var driverIdsArray = driverIds?.ToArray() ?? Array.Empty<int>();
 
-			if(!driverIdsArray.Any() || !_carEventTypeNamesAllowedToShowInDriverSchedule.Any())
+			if(!driverIdsArray.Any())
 			{
 				return new List<int>();
 			}
 
-			return _logisticRepository.GetDriverIdsWithCarEventsAtDay(
-				uow,
-				driverIdsArray,
-				date,
-				_carEventTypeNamesAllowedToShowInDriverSchedule);
+			return _logisticRepository.GetCarEventsByDriverIds(uow, driverIdsArray, date.Date, date.Date)
+				.Where(carEvent => carEvent.Driver != null)
+				.Where(carEvent => carEvent.StartDate.Date <= date.Date && carEvent.EndDate.Date >= date.Date)
+				.Where(carEvent => IsAllowedToShowInDriverSchedule(carEvent.CarEventType))
+				.Select(carEvent => carEvent.Driver.Id)
+				.Distinct()
+				.ToList();
 		}
 
 		public DriverScheduleTotals GetDriverScheduleTotalsAtDay(
@@ -670,8 +676,31 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 				return false;
 			}
 
-			return allowedNames.Contains(eventType.ShortName)
-				|| allowedNames.Contains(eventType.Name);
+			return IsAllowedCarEventTypeName(eventType.ShortName, allowedNames)
+				|| IsAllowedCarEventTypeName(eventType.Name, allowedNames);
+		}
+
+		private static bool IsAllowedCarEventTypeName(string eventTypeName, HashSet<string> allowedNames)
+		{
+			var normalizedEventTypeName = NormalizeCarEventTypeName(eventTypeName);
+
+			return !string.IsNullOrEmpty(normalizedEventTypeName)
+				&& allowedNames.Contains(normalizedEventTypeName);
+		}
+
+		private static HashSet<string> CreateCarEventTypeNamesSet(params string[] names)
+		{
+			return new HashSet<string>(
+				names.Select(NormalizeCarEventTypeName),
+				StringComparer.OrdinalIgnoreCase);
+		}
+
+		private static string NormalizeCarEventTypeName(string eventTypeName)
+		{
+			return eventTypeName?
+				.Trim()
+				.Replace('ё', 'е')
+				.Replace('Ё', 'Е');
 		}
 
 		private Schedule CreateNewSchedule(
