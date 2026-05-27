@@ -41,6 +41,8 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			"М - мойка",
 			"М",
 			"мойка");
+		private static readonly HashSet<string> _carEventTypeNamesNotClearingPotentialInDriverSchedule =
+			CreateCarEventTypeNamesSet("М - мойка", "М", "мойка");
 
 		private enum ExportColumn
 		{
@@ -238,7 +240,11 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 				{
 					node.Days[dayIndex].CarEventType = applicableEvent.CarEventType;
 					node.Days[dayIndex].IsCarEventTypeFromJournal = true;
-					ClearDayPotential(node.Days[dayIndex]);
+
+					if(ShouldClearDayPotential(applicableEvent.CarEventType))
+					{
+						ClearDayPotential(node.Days[dayIndex]);
+					}
 				}
 			}
 		}
@@ -263,17 +269,34 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 
 					if(dayNode.IsCarEventTypeFromJournal || dayNode.IsVirtualCarEventType || item.CarEventType != null)
 					{
-						ClearDayPotential(dayNode);
+						if(ShouldClearDayPotential(dayNode.CarEventType ?? item.CarEventType))
+						{
+							ClearDayPotential(dayNode);
+						}
+						else
+						{
+							ApplyScheduleItemPotential(dayNode, item);
+						}
 					}
 					else
 					{
-						dayNode.MorningAddresses = item.MorningAddresses;
-						dayNode.MorningBottles = item.MorningBottles;
-						dayNode.EveningAddresses = item.EveningAddresses;
-						dayNode.EveningBottles = item.EveningBottles;
+						ApplyScheduleItemPotential(dayNode, item);
 					}
 				}
 			}
+		}
+
+		private static bool ShouldClearDayPotential(CarEventType eventType)
+		{
+			return !IsAllowedCarEventType(eventType, _carEventTypeNamesNotClearingPotentialInDriverSchedule);
+		}
+
+		private static void ApplyScheduleItemPotential(DriverScheduleDayRow dayNode, DriverScheduleItem item)
+		{
+			dayNode.MorningAddresses = item.MorningAddresses;
+			dayNode.MorningBottles = item.MorningBottles;
+			dayNode.EveningAddresses = item.EveningAddresses;
+			dayNode.EveningBottles = item.EveningBottles;
 		}
 
 		private static void ClearDayPotential(DriverScheduleDayRow dayNode)
@@ -669,7 +692,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			return IsAllowedCarEventType(eventType, _carEventTypeNamesAllowedToShowInDriverSchedule);
 		}
 
-		private bool IsAllowedCarEventType(CarEventType eventType, HashSet<string> allowedNames)
+		private static bool IsAllowedCarEventType(CarEventType eventType, HashSet<string> allowedNames)
 		{
 			if(eventType == null)
 			{
@@ -757,28 +780,51 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 				if(dayScheduleNode.IsCarEventTypeFromJournal || dayScheduleNode.IsVirtualCarEventType)
 				{
 					scheduleItem.CarEventType = null;
-					scheduleItem.MorningAddresses = 0;
-					scheduleItem.MorningBottles = 0;
-					scheduleItem.EveningAddresses = 0;
-					scheduleItem.EveningBottles = 0;
+
+					if(ShouldClearDayPotential(dayScheduleNode.CarEventType))
+					{
+						ClearScheduleItemPotential(scheduleItem);
+					}
+					else
+					{
+						ApplyDayPotential(scheduleItem, dayScheduleNode);
+					}
 				}
 				else if((dayScheduleNode.CarEventType?.Id ?? 0) > 0)
 				{
 					scheduleItem.CarEventType = dayScheduleNode.CarEventType;
-					scheduleItem.MorningAddresses = 0;
-					scheduleItem.MorningBottles = 0;
-					scheduleItem.EveningAddresses = 0;
-					scheduleItem.EveningBottles = 0;
+
+					if(ShouldClearDayPotential(dayScheduleNode.CarEventType))
+					{
+						ClearScheduleItemPotential(scheduleItem);
+					}
+					else
+					{
+						ApplyDayPotential(scheduleItem, dayScheduleNode);
+					}
 				}
 				else
 				{
 					scheduleItem.CarEventType = null;
-					scheduleItem.MorningAddresses = dayScheduleNode.MorningAddresses;
-					scheduleItem.MorningBottles = dayScheduleNode.MorningBottles;
-					scheduleItem.EveningAddresses = dayScheduleNode.EveningAddresses;
-					scheduleItem.EveningBottles = dayScheduleNode.EveningBottles;
+					ApplyDayPotential(scheduleItem, dayScheduleNode);
 				}
 			}
+		}
+
+		private static void ApplyDayPotential(DriverScheduleItem scheduleItem, DriverScheduleDayRow dayNode)
+		{
+			scheduleItem.MorningAddresses = dayNode.MorningAddresses;
+			scheduleItem.MorningBottles = dayNode.MorningBottles;
+			scheduleItem.EveningAddresses = dayNode.EveningAddresses;
+			scheduleItem.EveningBottles = dayNode.EveningBottles;
+		}
+
+		private static void ClearScheduleItemPotential(DriverScheduleItem scheduleItem)
+		{
+			scheduleItem.MorningAddresses = 0;
+			scheduleItem.MorningBottles = 0;
+			scheduleItem.EveningAddresses = 0;
+			scheduleItem.EveningBottles = 0;
 		}
 
 		public byte[] ExportToExcel(
