@@ -2233,10 +2233,16 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return result;
 		}
 
-		public IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByOrdersIds(IUnitOfWork uow, IEnumerable<int> orderIds)
+		public IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByOrdersIds(
+			IUnitOfWork uow,
+			IEnumerable<int> orderIds,
+			int organizationId)
 		{
+			var orderIdsList = orderIds.ToList();
+
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
+			CounterpartyContract contractAlias = null;
 			Counterparty clientAlias = null;
 			OrderWithAllocation resultAlias = null;
 
@@ -2246,8 +2252,10 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+				.JoinAlias(o => o.Contract, () => contractAlias)
 				.JoinAlias(o => o.Client, () => clientAlias)
-				.WhereRestrictionOn(o => o.Id).IsInG(orderIds)
+				.WhereRestrictionOn(o => o.Id).IsInG(orderIdsList)
+				.And(() => contractAlias.Organization.Id == organizationId)
 				.SelectList(list => list
 					.SelectGroup(o => o.Id).WithAlias(() => resultAlias.OrderId)
 					.Select(o => o.DeliveryDate).WithAlias(() => resultAlias.OrderDeliveryDate)
@@ -2263,10 +2271,16 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return query.List<OrderWithAllocation>();
 		}
 
-		public IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByCounterparty(IUnitOfWork uow, int counterpartyId, IEnumerable<int> exceptOrderIds)
+		public IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByCounterparty(
+			IUnitOfWork uow,
+			int counterpartyId,
+			IEnumerable<int> exceptOrderIds,
+			int organizationId)
 		{
+			var exceptOrderIdsList = exceptOrderIds.ToList();
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
+			CounterpartyContract contractAlias = null;
 			Counterparty clientAlias = null;
 			OrderWithAllocation resultAlias = null;
 
@@ -2276,12 +2290,13 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+				.JoinAlias(o => o.Contract, () => contractAlias)
 				.JoinAlias(o => o.Client, () => clientAlias)
-				.WhereRestrictionOn(o => o.Id).Not.IsInG(exceptOrderIds)
 				.AndRestrictionOn(o => o.OrderStatus).Not.IsIn(
 					new[] { OrderStatus.NewOrder, OrderStatus.Canceled, OrderStatus.DeliveryCanceled, OrderStatus.NotDelivered })
 				.And(o => o.Client.Id == counterpartyId)
 				.And(o => o.PaymentType == PaymentType.Cashless)
+				.And(() => contractAlias.Organization.Id == organizationId)
 				.SelectList(list => list
 					.SelectGroup(o => o.Id).WithAlias(() => resultAlias.OrderId)
 					.Select(o => o.DeliveryDate).WithAlias(() => resultAlias.OrderDeliveryDate)
@@ -2295,6 +2310,11 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				)
 				.TransformUsing(Transformers.AliasToBean<OrderWithAllocation>());
 
+			if(exceptOrderIdsList.Any())
+			{
+				query.WhereRestrictionOn(o => o.Id).Not.IsInG(exceptOrderIdsList);
+			}
+
 			return query.List<OrderWithAllocation>();
 		}
 
@@ -2302,8 +2322,11 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			IUnitOfWork uow,
 			int counterpartyId,
 			string counterpartyInn,
-			IEnumerable<int> exceptOrderIds)
+			IEnumerable<int> exceptOrderIds,
+			int organizationId)
 		{
+			var exceptOrderIdsList = exceptOrderIds.ToList();
+
 			var query =
 				from payment in uow.Session.Query<Payment>()
 				join paymentItem in uow.Session.Query<PaymentItem>()
@@ -2316,8 +2339,9 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				where payment.CounterpartyInn == counterpartyInn
 					&& paymentItem.PaymentItemStatus != AllocationStatus.Cancelled
 					&& order.Client.Id != counterpartyId
-					&& !exceptOrderIds.Contains(order.Id)
+					&& !exceptOrderIdsList.Contains(order.Id)
 					&& order.PaymentType == PaymentType.Cashless
+					&& order.Contract.Organization.Id == organizationId
 				group paymentItem by paymentItem.Order.Id
 				into orderGroup
 

@@ -42,8 +42,17 @@ namespace Vodovoz.EntityRepositories.Payments
 			IUnitOfWork uow, int counterpartyId, int organizationId, bool allocateCompletedPayments);
 		IQueryOver<Payment, Payment> GetAllUnallocatedBalances(IUnitOfWork uow, int closingDocumentDeliveryScheduleId);
 		bool PaymentFromAvangardExists(IUnitOfWork uow, DateTime paidDate, int orderNum, decimal orderSum);
-		IQueryable<PaymentNode> GetCounterpartyPaymentNodes(IUnitOfWork uow, int counterpartyId, string counterpartyInn);
-		IQueryable<decimal> GetCounterpartyPaymentsSums(IUnitOfWork uow, int counterpartyId, string counterpartyInn);
+		IQueryable<PaymentNode> GetCounterpartyPaymentNodes(IUnitOfWork uow, int counterpartyId, string counterpartyInn, int organizationId);
+		IQueryable<decimal> GetCounterpartyPaymentsSums(IUnitOfWork uow, int counterpartyId, string counterpartyInn, int organizationId);
+
+		/// <summary>
+		/// Возвращает активные списания с баланса клиента по контрагенту и организации.
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="counterpartyId">Id контрагента</param>
+		/// <param name="organizationId">Id организации</param>
+		/// <returns>Списания с баланса клиента</returns>
+		IQueryable<PaymentWriteOffNode> GetCounterpartyPaymentWriteOffNodes(IUnitOfWork uow, int counterpartyId, int organizationId);
 
 		/// <summary>
 		/// Возвращает данные по платежам контрагентов по организации

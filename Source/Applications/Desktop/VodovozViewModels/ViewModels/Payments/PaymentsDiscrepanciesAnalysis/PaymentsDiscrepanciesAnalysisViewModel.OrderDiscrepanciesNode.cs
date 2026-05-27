@@ -8,6 +8,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 		public class OrderDiscrepanciesNode
 		{
 			public int OrderId { get; set; }
+			public string DocumentName { get; set; }
 			public DateTime? OrderDeliveryDateInDatabase { get; set; }
 			public DateTime? OrderDeliveryDateInDocument { get; set; }
 			public OrderStatus? OrderStatus { get; set; }

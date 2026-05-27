@@ -9,7 +9,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			public int OrderId { get; set; }
 			public DateTime? OrderDeliveryDate { get; set; }
 			public decimal OrderSum { get; set; }
-
+			public string DocumentName { get; set; }
+			public bool IsRecognizedOrder { get; set; }
 		}
 	}
 }

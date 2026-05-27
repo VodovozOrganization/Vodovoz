@@ -401,7 +401,8 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 			int counterpartyId,
 			OrderStatus[] orderStatuses,
 			bool isExcludePaidOrders = false,
-			DateTime maxDeliveryDate = default)
+			DateTime maxDeliveryDate = default,
+			int organizationId = 0)
 		{
 			var ordersActualSums = from order in unitOfWork.Session.Query<Domain.Orders.Order>()
 								   join counterparty in unitOfWork.GetAll<Counterparty>() on order.Client.Id equals counterparty.Id
@@ -412,6 +413,7 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 								   && counterparty.PersonType == PersonType.legal
 								   && counterparty.Id == counterpartyId
 								   && (maxDeliveryDate == default || order.DeliveryDate != null && order.DeliveryDate <= maxDeliveryDate)
+								   && (organizationId == 0 || order.Contract.Organization.Id == organizationId)
 								   let orderSum = (decimal?)order.OrderItems.Sum(oi => oi.ActualSum) ?? 0m
 								   select orderSum;
 
@@ -422,7 +424,8 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 			IUnitOfWork unitOfWork,
 			OrderStatus[] orderStatuses,
 			int counterpartyId = default,
-			DateTime maxDeliveryDate = default)
+			DateTime maxDeliveryDate = default,
+			int organizationId = 0)
 		{
 			var notPaidOrders =
 				from order in unitOfWork.Session.Query<Domain.Orders.Order>()
@@ -438,6 +441,7 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 													  where
 													  paymentItem.Order.Id == order.Id
 													  && operation.CashlessMovementOperationStatus != AllocationStatus.Cancelled
+													  && (organizationId == 0 || operation.Organization.Id == organizationId)
 													  select (decimal?)operation.Expense ?? 0m).Sum() ?? 0m
 
 				where
@@ -447,6 +451,7 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				&& counterparty.PersonType == PersonType.legal
 				&& (counterpartyId == default || counterparty.Id == counterpartyId)
 				&& (maxDeliveryDate == default || order.DeliveryDate != null && order.DeliveryDate <= maxDeliveryDate)
+				&& (organizationId == 0 || order.Contract.Organization.Id == organizationId)
 				&& orderActualSum > 0
 				select new
 				{
@@ -467,6 +472,7 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 															   where
 															   operation.Counterparty.Id == ordersByCounterparty.Key
 															   && operation.CashlessMovementOperationStatus != AllocationStatus.Cancelled
+															   && (organizationId == 0 || operation.Organization.Id == organizationId)
 															   select (decimal?)operation.Income ?? 0m).Sum() ?? 0m
 
 				let paymentsFromBankClientSums = (decimal?)(from paymentItem in unitOfWork.Session.Query<PaymentItem>()
@@ -475,6 +481,7 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 															where
 															payment.Counterparty.Id == ordersByCounterparty.Key
 															&& paymentItem.PaymentItemStatus != AllocationStatus.Cancelled
+															&& (organizationId == 0 || payment.Organization.Id == organizationId)
 															select (decimal?)paymentItem.Sum ?? 0m).Sum() ?? 0m
 				select new CounterpartyCashlessBalanceNode
 				{
@@ -738,4 +745,3 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 		}
 	}
 }
-
