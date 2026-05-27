@@ -24,8 +24,7 @@ namespace Vodovoz.Views.Logistic
 		private const int _districtColumnIndex = 6;
 		private const int _arrivalTimeColumnIndex = 7;
 		private const int _lastModifiedDateTimeColumnIndex = 12;
-		private const int _totalTitleColumnIndex = 13;
-		private const int _fixedColumnsCount = 14;
+		private const int _fixedColumnsCount = 13;
 		private const int _daysInSchedule = 7;
 		private const int _dynamicColumnsPerDay = 5;
 		private const int _todayHighlightLineWidth = 2;
@@ -57,6 +56,7 @@ namespace Vodovoz.Views.Logistic
 
 		private void Configure()
 		{
+			HideDriverScheduleUntilRendered();
 			ConfigureFiltersScrolling();
 			leftsidepanel5.Panel = _filtersScrolledWindow ?? (Widget)yvboxFilters;
 			leftsidepanel5.Title = "Параметры";
@@ -107,7 +107,64 @@ namespace Vodovoz.Views.Logistic
 			ConfigureFixedTreeView();
 			ConfigureDynamicTreeView();
 			ConfigureDriverScheduleScrolling();
-			ApplyFixedColumnsVisibility();
+			ApplyFixedColumnsVisibility(false);
+			Shown += OnDriverScheduleViewShown;
+		}
+
+		private void HideDriverScheduleUntilRendered()
+		{
+			if(hboxDriverSchedule == null)
+			{
+				return;
+			}
+
+			hboxDriverSchedule.NoShowAll = true;
+			hboxDriverSchedule.Hide();
+		}
+
+		private void OnDriverScheduleViewShown(object sender, EventArgs args)
+		{
+			Shown -= OnDriverScheduleViewShown;
+			QueueShowDriverScheduleAfterRender();
+		}
+
+		private void QueueShowDriverScheduleAfterRender()
+		{
+			GLib.Idle.Add(() =>
+			{
+				PrepareDriverScheduleLayout();
+
+				GLib.Idle.Add(() =>
+				{
+					PrepareDriverScheduleLayout();
+
+					hboxDriverSchedule.NoShowAll = false;
+					hboxDriverSchedule.ShowAll();
+
+					GLib.Idle.Add(() =>
+					{
+						PrepareDriverScheduleLayout();
+						ytreeviewFixedPart?.QueueDraw();
+						ytreeviewDynamicPart?.QueueDraw();
+
+						return false;
+					});
+
+					return false;
+				});
+
+				return false;
+			});
+		}
+
+		private void PrepareDriverScheduleLayout()
+		{
+			UpdateFixedPartWidthRequest();
+			LockFixedPartHorizontalScroll();
+			ResetDynamicPartHorizontalScroll();
+
+			GtkScrolledWindow?.QueueResize();
+			GtkScrolledWindow1?.QueueResize();
 		}
 
 		private void ConfigureFiltersScrolling()
@@ -168,9 +225,6 @@ namespace Vodovoz.Views.Logistic
 				.InitializeFromSource();
 			ycheckShowArrivalTimeColumn.Binding
 				.AddBinding(ViewModel, vm => vm.ShowArrivalTimeColumn, w => w.Active)
-				.InitializeFromSource();
-			ycheckShowLastModifiedDateTimeColumn.Binding
-				.AddBinding(ViewModel, vm => vm.ShowLastModifiedDateTimeColumn, w => w.Active)
 				.InitializeFromSource();
 		}
 
@@ -239,10 +293,6 @@ namespace Vodovoz.Views.Logistic
 					.AddTextRenderer(node => node.LastModifiedDateTimeString)
 					.Editable()
 					.XAlign(0.5f)
-				.AddColumn("")
-					.HeaderAlignment(0.5f)
-					.AddTextRenderer(node => GetTotalTitle(node))
-					.XAlign(0.5f)
 				.Finish();
 
 			ytreeviewFixedPart.ColumnsConfig = columnsConfig;
@@ -251,6 +301,7 @@ namespace Vodovoz.Views.Logistic
 			ytreeviewFixedPart.BorderWidth = 0;
 			ytreeviewFixedPart.RulesHint = true;
 			ytreeviewFixedPart.EnableGridLines = TreeViewGridLines.Both;
+			ytreeviewFixedPart.ScrollEvent += OnFixedTreeViewScroll;
 			ytreeviewFixedPart.KeyPressEvent += OnFixedTreeViewKeyPress;
 			ytreeviewFixedPart.Selection.Changed += (sender, e) => SynchronizeSelection(ytreeviewFixedPart, ytreeviewDynamicPart);
 
@@ -272,9 +323,7 @@ namespace Vodovoz.Views.Logistic
 			{
 				var date = weekStart.AddDays(dayIndex);
 				var dayName = dayNames[dayIndex];
-				var dayColumnTitle = date.Date == DateTime.Today
-					? $"{ViewModel.GetShortDayString(date)} Сегодня"
-					: ViewModel.GetShortDayString(date);
+				var dayColumnTitle = ViewModel.GetShortDayString(date);
 
 				columnsConfig.AddColumn(dayColumnTitle)
 					.HeaderAlignment(0.5f)
@@ -399,54 +448,22 @@ namespace Vodovoz.Views.Logistic
 					Gdk.CapStyle.NotLast,
 					Gdk.JoinStyle.Miter);
 
-				DrawTodayColumnVerticalBorders(window, gc, columns, startPath, firstColumnIndex, lastColumnIndex, topY, bottomY);
-				DrawTodayColumnRowBorders(window, gc, startPath, endPath, firstColumn, leftX, rightX);
+				DrawTodayColumnsOuterBorder(window, gc, leftX, rightX, topY, bottomY);
 			}
 		}
 
-		private void DrawTodayColumnVerticalBorders(
+		private static void DrawTodayColumnsOuterBorder(
 			Gdk.Window window,
 			Gdk.GC gc,
-			TreeViewColumn[] columns,
-			TreePath startPath,
-			int firstColumnIndex,
-			int lastColumnIndex,
+			int leftX,
+			int rightX,
 			int topY,
 			int bottomY)
 		{
-			for(var columnIndex = firstColumnIndex; columnIndex <= lastColumnIndex; columnIndex++)
-			{
-				var columnArea = ytreeviewDynamicPart.GetCellArea(startPath, columns[columnIndex]);
-				window.DrawLine(gc, columnArea.X, topY, columnArea.X, bottomY);
-			}
-
-			var lastColumnArea = ytreeviewDynamicPart.GetCellArea(startPath, columns[lastColumnIndex]);
-			window.DrawLine(gc, lastColumnArea.X + lastColumnArea.Width, topY, lastColumnArea.X + lastColumnArea.Width, bottomY);
-		}
-
-		private void DrawTodayColumnRowBorders(
-			Gdk.Window window,
-			Gdk.GC gc,
-			TreePath startPath,
-			TreePath endPath,
-			TreeViewColumn firstColumn,
-			int leftX,
-			int rightX)
-		{
-			var path = startPath.Copy();
-
-			while(path.Compare(endPath) <= 0)
-			{
-				var rowArea = ytreeviewDynamicPart.GetCellArea(path, firstColumn);
-				window.DrawLine(gc, leftX, rowArea.Y, rightX, rowArea.Y);
-
-				if(path.Compare(endPath) == 0)
-				{
-					window.DrawLine(gc, leftX, rowArea.Y + rowArea.Height, rightX, rowArea.Y + rowArea.Height);
-				}
-
-				path.Next();
-			}
+			window.DrawLine(gc, leftX, topY, rightX, topY);
+			window.DrawLine(gc, leftX, bottomY, rightX, bottomY);
+			window.DrawLine(gc, leftX, topY, leftX, bottomY);
+			window.DrawLine(gc, rightX, topY, rightX, bottomY);
 		}
 
 		private void ConfigureDriverScheduleScrolling()
@@ -486,6 +503,51 @@ namespace Vodovoz.Views.Logistic
 			}
 		}
 
+		private void QueueFixedPartResizeAndRedraw()
+		{
+			GLib.Idle.Add(() =>
+			{
+				if(ytreeviewFixedPart?.Columns != null)
+				{
+					foreach(var column in ytreeviewFixedPart.Columns)
+					{
+						column.QueueResize();
+					}
+
+					ytreeviewFixedPart.QueueResize();
+				}
+
+				GtkScrolledWindow?.QueueResize();
+
+				GLib.Idle.Add(() =>
+				{
+					UpdateFixedPartWidthRequest();
+					LockFixedPartHorizontalScroll();
+
+					ytreeviewFixedPart?.QueueDraw();
+					GtkScrolledWindow?.QueueDraw();
+
+					return false;
+				});
+
+				return false;
+			});
+		}
+
+		private void QueueFixedPartWidthRequestUpdate()
+		{
+			GLib.Idle.Add(() =>
+			{
+				UpdateFixedPartWidthRequest();
+				LockFixedPartHorizontalScroll();
+
+				ytreeviewFixedPart?.QueueDraw();
+				GtkScrolledWindow?.QueueDraw();
+
+				return false;
+			});
+		}
+
 		private void LockFixedPartHorizontalScroll()
 		{
 			if(_isLockingFixedPartHorizontalScroll || GtkScrolledWindow?.Hadjustment == null)
@@ -496,6 +558,16 @@ namespace Vodovoz.Views.Logistic
 			_isLockingFixedPartHorizontalScroll = true;
 			GtkScrolledWindow.Hadjustment.Value = GtkScrolledWindow.Hadjustment.Lower;
 			_isLockingFixedPartHorizontalScroll = false;
+		}
+
+		private void ResetDynamicPartHorizontalScroll()
+		{
+			if(GtkScrolledWindow1?.Hadjustment == null)
+			{
+				return;
+			}
+
+			GtkScrolledWindow1.Hadjustment.Value = GtkScrolledWindow1.Hadjustment.Lower;
 		}
 
 		private void UpdateDriverScheduleInnerScrollHeight(int availableHeight)
@@ -639,6 +711,32 @@ namespace Vodovoz.Views.Logistic
 			}
 		}
 
+		private void OnFixedTreeViewScroll(object sender, ScrollEventArgs args)
+		{
+			var state = args.Event.State;
+			bool isShiftPressed = (state & Gdk.ModifierType.ShiftMask) != 0;
+
+			if(isShiftPressed || GtkScrolledWindow1?.Vadjustment == null)
+			{
+				return;
+			}
+
+			var vadj = GtkScrolledWindow1.Vadjustment;
+			var maxValue = Math.Max(vadj.Lower, vadj.Upper - vadj.PageSize);
+			var step = vadj.StepIncrement > 0 ? vadj.StepIncrement * 3 : 30;
+
+			if(args.Event.Direction == Gdk.ScrollDirection.Up)
+			{
+				vadj.Value = Math.Max(vadj.Lower, vadj.Value - step);
+				args.RetVal = true;
+			}
+			else if(args.Event.Direction == Gdk.ScrollDirection.Down)
+			{
+				vadj.Value = Math.Min(maxValue, vadj.Value + step);
+				args.RetVal = true;
+			}
+		}
+
 		// Перемещение стрелками между FixedTreeView и DynamicTreeView
 		[GLib.ConnectBefore]
 		private void OnFixedTreeViewKeyPress(object o, KeyPressEventArgs args)
@@ -732,10 +830,9 @@ namespace Vodovoz.Views.Logistic
 			|| propertyName == nameof(DriverScheduleViewModel.ShowDriverCarOwnTypeColumn)
 			|| propertyName == nameof(DriverScheduleViewModel.ShowPhoneColumn)
 			|| propertyName == nameof(DriverScheduleViewModel.ShowDistrictColumn)
-			|| propertyName == nameof(DriverScheduleViewModel.ShowArrivalTimeColumn)
-			|| propertyName == nameof(DriverScheduleViewModel.ShowLastModifiedDateTimeColumn);
+			|| propertyName == nameof(DriverScheduleViewModel.ShowArrivalTimeColumn);
 
-		private void ApplyFixedColumnsVisibility()
+		private void ApplyFixedColumnsVisibility(bool resizeAndRedraw = true)
 		{
 			if(ytreeviewFixedPart?.Columns == null || ytreeviewFixedPart.Columns.Length < _fixedColumnsCount)
 			{
@@ -748,20 +845,16 @@ namespace Vodovoz.Views.Logistic
 			ytreeviewFixedPart.Columns[_phoneColumnIndex].Visible = ViewModel.ShowPhoneColumn;
 			ytreeviewFixedPart.Columns[_districtColumnIndex].Visible = ViewModel.ShowDistrictColumn;
 			ytreeviewFixedPart.Columns[_arrivalTimeColumnIndex].Visible = ViewModel.ShowArrivalTimeColumn;
-			ytreeviewFixedPart.Columns[_lastModifiedDateTimeColumnIndex].Visible = ViewModel.ShowLastModifiedDateTimeColumn;
-			ytreeviewFixedPart.Columns[_totalTitleColumnIndex].Visible = !ViewModel.ShowLastModifiedDateTimeColumn;
+			ytreeviewFixedPart.Columns[_lastModifiedDateTimeColumnIndex].Visible = true;
 
-			GLib.Idle.Add(() =>
+			if(resizeAndRedraw)
 			{
-				UpdateFixedPartWidthRequest();
-				return false;
-			});
-		}
-
-		private static string GetTotalTitle(DriverScheduleRow row)
-		{
-			var totalRow = row as DriverScheduleTotalRow;
-			return totalRow?.TotalTitle ?? "";
+				QueueFixedPartResizeAndRedraw();
+			}
+			else
+			{
+				QueueFixedPartWidthRequestUpdate();
+			}
 		}
 
 		private static bool IsLastVisibleColumn(TreeView treeView, TreeViewColumn column)

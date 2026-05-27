@@ -78,8 +78,6 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yCheckButton ycheckShowArrivalTimeColumn;
 
-		private global::Gamma.GtkWidgets.yCheckButton ycheckShowLastModifiedDateTimeColumn;
-
 		private global::Gamma.GtkWidgets.yButton ybuttonApplyFilters;
 
 		private global::Gamma.Widgets.SidePanels.LeftSidePanel leftsidepanel5;
@@ -446,19 +444,6 @@ namespace Vodovoz.Views.Logistic
 			w109.Position = 6;
 			w109.Expand = false;
 			w109.Fill = false;
-			// Container child yvboxColumnVisibility.Gtk.Box+BoxChild
-			this.ycheckShowLastModifiedDateTimeColumn = new global::Gamma.GtkWidgets.yCheckButton();
-			this.ycheckShowLastModifiedDateTimeColumn.CanFocus = true;
-			this.ycheckShowLastModifiedDateTimeColumn.Name = "ycheckShowLastModifiedDateTimeColumn";
-			this.ycheckShowLastModifiedDateTimeColumn.Active = true;
-			this.ycheckShowLastModifiedDateTimeColumn.Label = global::Mono.Unix.Catalog.GetString("\u0414\u0430\u0442\u0430 \u043f\u043e\u0441\u043b\u0435\u0434\u043d\u0435\u0433\u043e \u0438\u0437\u043c\u0435\u043d\u0435\u043d\u0438\u044f");
-			this.ycheckShowLastModifiedDateTimeColumn.DrawIndicator = true;
-			this.ycheckShowLastModifiedDateTimeColumn.UseUnderline = true;
-			this.yvboxColumnVisibility.Add(this.ycheckShowLastModifiedDateTimeColumn);
-			global::Gtk.Box.BoxChild w110 = ((global::Gtk.Box.BoxChild)(this.yvboxColumnVisibility[this.ycheckShowLastModifiedDateTimeColumn]));
-			w110.Position = 7;
-			w110.Expand = false;
-			w110.Fill = false;
 			this.yvboxFilters.Add(this.yvboxColumnVisibility);
 			global::Gtk.Box.BoxChild w111 = ((global::Gtk.Box.BoxChild)(this.yvboxFilters[this.yvboxColumnVisibility]));
 			w111.Position = 1;

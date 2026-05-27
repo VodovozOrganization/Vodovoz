@@ -49,7 +49,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		private bool _showPhoneColumn = true;
 		private bool _showDistrictColumn = true;
 		private bool _showArrivalTimeColumn = true;
-		private bool _showLastModifiedDateTimeColumn = true;
 
 		public DriverScheduleViewModel(
 			ILogger<DriverScheduleViewModel> logger,
@@ -208,12 +207,6 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		{
 			get => _showArrivalTimeColumn;
 			set => SetField(ref _showArrivalTimeColumn, value);
-		}
-
-		public bool ShowLastModifiedDateTimeColumn
-		{
-			get => _showLastModifiedDateTimeColumn;
-			set => SetField(ref _showLastModifiedDateTimeColumn, value);
 		}
 
 		public List<CarEventType> AvailableCarEventTypes { get; } = new List<CarEventType>();
