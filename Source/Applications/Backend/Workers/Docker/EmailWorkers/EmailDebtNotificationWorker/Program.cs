@@ -1,9 +1,13 @@
-﻿using Autofac.Extensions.DependencyInjection;
+using Autofac.Extensions.DependencyInjection;
 using BitrixApi.Library.Services;
 using EmailDebtNotificationWorker.Options;
 using EmailDebtNotificationWorker.Repositories;
-using EmailDebtNotificationWorker.Services;
-using EmailDebtNotificationWorker.Services.ClosingDeliveries;
+using EmailDebtNotificationWorker.Services.ClaimLetters;
+using EmailDebtNotificationWorker.Services.Common;
+using EmailDebtNotificationWorker.Services.Common.Factories;
+using EmailDebtNotificationWorker.Services.Common.Generators;
+using EmailDebtNotificationWorker.Services.Common.Selectors;
+using EmailDebtNotificationWorker.Services.InformationLetters;
 using MassTransit;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;
@@ -11,12 +15,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Report;
 using RabbitMQ.MailSending;
 using System;
 using System.Text;
-using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Infrastructure.Persistance;
@@ -25,11 +29,7 @@ using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Database.Common;
 using Vodovoz.Settings.Database.Counterparty;
 using Vodovoz.Zabbix.Sender;
-using VodovozBusiness.Services.Orders;
 using AssemblyFinder = Vodovoz.Data.NHibernate.AssemblyFinder;
-using QS.HistoryLog;
-using EmailDebtNotificationWorker.Services.ClaimLetters;
-using EmailDebtNotificationWorker.Services.InformationLetters;
 
 namespace EmailDebtNotificationWorker
 {
@@ -105,6 +105,10 @@ namespace EmailDebtNotificationWorker
 					services.AddScoped<IEmailSettings, EmailSettings>();
 					services.AddScoped<IReportInfoFactory, DefaultReportInfoFactory>();
 					services.AddScoped<IEmailAttachmentsCreateService, EmailAttachmentsCreateService>();
+					services.AddScoped<IClientEmailSelector, ClientEmailSelector>();
+					services.AddScoped<IEmailLinkGenerator, EmailLinkGenerator>();
+					services.AddScoped<IEmailBodyGenerator, EmailBodyGenerator>();
+					services.AddScoped<IEmailMessageFactory, EmailMessageFactory>();
 					services.AddScoped<IEmailDebtNotificationService, EmailDebtNotificationService>();
 					services.AddHostedService<EmailDebtNotificationWorker>();
 
