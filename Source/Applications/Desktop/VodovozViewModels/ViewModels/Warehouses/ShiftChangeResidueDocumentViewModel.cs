@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using DynamicData;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -249,51 +250,49 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 							case nameof(Nomenclature):
 								if(parameterSet.FilterType == SelectableFilterType.Include)
 								{
-									foreach(SelectableEntityParameter<Nomenclature> value in parameterSet.OutputParameters.Where(x => x.Selected))
-									{
-										nomenclaturesToInclude.Add(value.EntityId);
-									}
+									nomenclaturesToInclude.AddRange(parameterSet.OutputParameters
+										.Where(x => x.Selected)
+										.Cast<SelectableEntityParameter<Nomenclature>>()
+										.Select(value => value.EntityId));
 								}
 								else
 								{
-									foreach(SelectableEntityParameter<Nomenclature> value in parameterSet.OutputParameters.Where(x => x.Selected))
-									{
-										nomenclaturesToExclude.Add(value.EntityId);
-									}
+									nomenclaturesToExclude.AddRange(parameterSet.OutputParameters
+										.Where(x => x.Selected)
+										.Cast<SelectableEntityParameter<Nomenclature>>()
+										.Select(value => value.EntityId));
 								}
 								break;
 							case nameof(NomenclatureCategory):
 								if(parameterSet.FilterType == SelectableFilterType.Include)
 								{
-									foreach(var selectableParameter in parameterSet.OutputParameters.Where(x => x.Selected))
-									{
-										var value = (SelectableEnumParameter<NomenclatureCategory>)selectableParameter;
-										nomenclatureCategoryToInclude.Add((NomenclatureCategory)value.Value);
-									}
+									nomenclatureCategoryToInclude.AddRange(parameterSet.OutputParameters
+										.Where(x => x.Selected)
+										.Cast<SelectableEnumParameter<NomenclatureCategory>>()
+										.Select(value => (NomenclatureCategory)value.Value));
 								}
 								else
 								{
-									foreach(var selectableParameter in parameterSet.OutputParameters.Where(x => x.Selected))
-									{
-										var value = (SelectableEnumParameter<NomenclatureCategory>)selectableParameter;
-										nomenclatureCategoryToExclude.Add((NomenclatureCategory)value.Value);
-									}
+									nomenclatureCategoryToExclude.AddRange(parameterSet.GetSelectedParameters()
+										.Where(x => x.Selected)
+										.Cast<SelectableEnumParameter<NomenclatureCategory>>()
+										.Select(value => (NomenclatureCategory)value.Value));
 								}
 								break;
 							case nameof(ProductGroup):
 								if(parameterSet.FilterType == SelectableFilterType.Include)
 								{
-									foreach(SelectableEntityParameter<ProductGroup> value in parameterSet.OutputParameters.Where(x => x.Selected))
-									{
-										productGroupToInclude.Add(value.EntityId);
-									}
+									productGroupToInclude.AddRange(parameterSet.GetSelectedParameters()
+										.Where(x => x.Selected)
+										.Cast<SelectableEntityParameter<ProductGroup>>()
+										.Select(value => value.EntityId));
 								}
 								else
 								{
-									foreach(SelectableEntityParameter<ProductGroup> value in parameterSet.OutputParameters.Where(x => x.Selected))
-									{
-										productGroupToExclude.Add(value.EntityId);
-									}
+									productGroupToExclude.AddRange(parameterSet.GetSelectedParameters()
+										.Where(x => x.Selected)
+										.Cast<SelectableEntityParameter<ProductGroup>>()
+										.Select(value => value.EntityId));
 								}
 								break;
 						}
