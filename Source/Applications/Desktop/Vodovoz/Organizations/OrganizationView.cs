@@ -1,7 +1,5 @@
-﻿using FluentNHibernate.Data;
 using QS.Views.GtkUI;
 using QS.Widgets;
-using ReactiveUI.Validation.Extensions;
 using System;
 using System.ComponentModel;
 using Vodovoz.Core.Domain.Clients;
@@ -77,6 +75,11 @@ namespace Vodovoz.Organizations
 			validatedentryEmailForClaimLetters.CustomRegex = ViewModel.RegexForEmailForMailing;
 			validatedentryEmailForClaimLetters.Binding
 				.AddBinding(ViewModel.Entity, e => e.EmailForClaimLetters, w => w.Text)
+				.InitializeFromSource();
+
+			validatedentryEmailForInformationLetters.CustomRegex = ViewModel.RegexForEmailForMailing;
+			validatedentryEmailForInformationLetters.Binding
+				.AddBinding(ViewModel.Entity, e => e.EmailForInformationLetters, w => w.Text)
 				.InitializeFromSource();
 
 			validatedentryInn.ValidationMode = ValidationType.Numeric;

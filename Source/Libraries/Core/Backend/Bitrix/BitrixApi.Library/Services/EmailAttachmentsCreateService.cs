@@ -23,7 +23,7 @@ namespace BitrixApi.Library.Services
 		private const string _notPaidOrdersBillFileName = "Неоплаченные_счета";
 		private const string _generalBillFileName = "Общий_счет";
 		private const string _letterOfClaimFileName = "Письмо_претензии";
-		private const string _orderWithoutShipmentForDebtFileName = "Счет без отгрузки на долг";
+		private const string _orderWithoutShipmentForDebtFileName = "Счет_на_долг";
 
 		private readonly IReportInfoFactory _reportInfoFactory;
 

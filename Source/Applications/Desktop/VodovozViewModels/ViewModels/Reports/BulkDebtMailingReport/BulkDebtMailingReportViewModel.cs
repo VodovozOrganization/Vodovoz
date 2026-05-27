@@ -1,6 +1,8 @@
 ﻿using Autofac;
 using ClosedXML.Report;
+using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.Commands;
 using QS.Dialog;
@@ -11,8 +13,10 @@ using QS.Project.Services.FileDialog;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Vodovoz.Domain.Contacts;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.TempAdapters;
 
@@ -29,6 +33,14 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport
 		private DelegateCommand _exportCommand;
 		private DelegateCommand _generateSummaryCommand;
 		private DelegateCommand _exportSummaryCommand;
+		private readonly CounterpartyEmailType[] _emailTypes = new[]
+		{
+			CounterpartyEmailType.Bulk,
+			CounterpartyEmailType.GeneralBillDocument,
+			CounterpartyEmailType.ClosingDeliveries,
+			CounterpartyEmailType.LetterOfClaim,
+			CounterpartyEmailType.InformationLetter
+		};
 		
 		public BulkDebtMailingReportViewModel(
 			ILifetimeScope lifetimeScope,
@@ -46,7 +58,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport
 				(counterpartyJournalFactory ?? throw new ArgumentNullException(nameof(counterpartyJournalFactory)))
 				.CreateCounterpartyAutocompleteSelectorFactory(lifetimeScope);
 
-			Title = "Отчет о рассылке писем о задолженности";
+			Title = "Отчет по рассылкам писем";
 
 			EventActionTimeFrom = DateTime.Now.Date;
 			EventActionTimeTo = DateTime.Now.Date.Add(new TimeSpan(0, 23, 59, 59));
@@ -99,8 +111,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport
 				return new List<BulkDebtMailingReportRow>();
 			}
 
-			var emailTypes = new[] { CounterpartyEmailType.Bulk, CounterpartyEmailType.GeneralBillDocument, CounterpartyEmailType.ClosingDeliveries };
-
 			CounterpartyEmail counterpartyEmailAlias = null;
 			StoredEmail storedEmailAlias = null;
 			Domain.Client.Counterparty counterpartyAlias = null;
@@ -111,7 +121,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport
 			var itemsQuery = UoW.Session.QueryOver(() => counterpartyEmailAlias)
 				.Left.JoinAlias(() => counterpartyEmailAlias.StoredEmail, () => storedEmailAlias)
 				.Left.JoinAlias(() => counterpartyEmailAlias.Counterparty, () => counterpartyAlias)
-				.WhereRestrictionOn(() => counterpartyEmailAlias.Type).IsIn(emailTypes)
+				.WhereRestrictionOn(() => counterpartyEmailAlias.Type).IsIn(_emailTypes)
 				.Where(() => storedEmailAlias.SendDate >= EventActionTimeFrom.Value.Date)
 				.Where(() => storedEmailAlias.SendDate <= EventActionTimeTo.Value.Date.Add(new TimeSpan(0, 23, 59, 59)));
 
@@ -152,17 +162,19 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport
 				return new List<BulkDebtMailingSummaryReportRow>();
 			}
 
-			var emailTypes = new[] { CounterpartyEmailType.Bulk, CounterpartyEmailType.GeneralBillDocument, CounterpartyEmailType.ClosingDeliveries };
-
 			CounterpartyEmail counterpartyEmailAlias = null;
 			StoredEmail storedEmailAlias = null;
 			Domain.Client.Counterparty counterpartyAlias = null;
+			Organization organizationAlias = null;
 			BulkDebtMailingSummaryReportRow resultAlias = null;
 
 			var itemsQuery = UoW.Session.QueryOver(() => counterpartyEmailAlias)
 				.Left.JoinAlias(() => counterpartyEmailAlias.StoredEmail, () => storedEmailAlias)
 				.Left.JoinAlias(() => counterpartyEmailAlias.Counterparty, () => counterpartyAlias)
-				.WhereRestrictionOn(() => counterpartyEmailAlias.Type).IsIn(emailTypes)
+				.JoinEntityAlias(() => organizationAlias,
+					() => organizationAlias.Id == counterpartyEmailAlias.OrganizationId,
+					JoinType.LeftOuterJoin)
+				.WhereRestrictionOn(() => counterpartyEmailAlias.Type).IsIn(_emailTypes)
 				.Where(() => storedEmailAlias.SendDate >= EventActionTimeFrom.Value.Date)
 				.Where(() => storedEmailAlias.SendDate <= EventActionTimeTo.Value.Date.Add(new TimeSpan(0, 23, 59, 59)));
 
@@ -173,16 +185,36 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport
 
 			var result = itemsQuery
 				.SelectList(list => list
+					.SelectGroup(() => counterpartyEmailAlias.Type).WithAlias(() => resultAlias.EmailType)
 					.SelectGroup(() => storedEmailAlias.State).WithAlias(() => resultAlias.State)
+					.Select(() => organizationAlias.Name).WithAlias(() => resultAlias.OrganizationName)
 					.SelectCount(() => counterpartyEmailAlias.Id).WithAlias(() => resultAlias.Count)
 				)
 				.OrderBy(() => storedEmailAlias.SendDate).Desc
 				.TransformUsing(Transformers.AliasToBean<BulkDebtMailingSummaryReportRow>())
 				.List<BulkDebtMailingSummaryReportRow>();
 
+			var finalResult = new List<BulkDebtMailingSummaryReportRow>();
+
+			var groupsByTypeAndOrg = result.GroupBy(x => new { x.EmailType, x.OrganizationName });
+			foreach(var group in groupsByTypeAndOrg.OrderBy(g => g.Key.EmailType).ThenBy(g => g.Key.OrganizationName))
+			{
+				finalResult.AddRange(group.OrderBy(x => x.State));
+
+				var totalForGroup = group.Sum(x => x.Count);
+				var totalRow = new BulkDebtMailingSummaryReportRow
+				{
+					EmailType = group.Key.EmailType,
+					StateString = "Всего отправлено",
+					OrganizationName = group.Key.OrganizationName,
+					Count = totalForGroup
+				};
+				finalResult.Add(totalRow);
+			}
+
 			IsSummaryReportSelected = true;
 
-			return result;
+			return finalResult;
 		}
 
 		private string GenerateSelectedFiltersString()

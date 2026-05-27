@@ -75,6 +75,9 @@ namespace UnsubscribePage.Controllers
 					case CounterpartyEmailType.LetterOfClaim:
 						counterparty.DisableClaimMailing = true;
 						break;
+					case CounterpartyEmailType.InformationLetter:
+						counterparty.DisableDebtMailing = true;
+						break;
 				}
 
 				unitOfWork.Save(counterparty);

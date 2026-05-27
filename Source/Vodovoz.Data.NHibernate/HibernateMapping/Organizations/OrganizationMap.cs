@@ -1,4 +1,4 @@
-﻿using FluentNHibernate.Mapping;
+using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Organizations
@@ -22,6 +22,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Organizations
 			Map(x => x.EmailForMailing).Column("email_for_mailing");
 			Map(x => x.ClosingDeliveriesNotificationEmailFrom).Column("closing_deliveries_notification_email_from");
 			Map(x => x.DisableClosingDeliveriesMailing).Column("disable_closing_deliveries_mailing");
+			Map(x => x.EmailForInformationLetters).Column("email_for_information_letters");
 			Map(x => x.EmailForClaimLetters).Column("email_for_claim_letters");
 			Map(x => x.DisableDebtMailing).Column("disable_debt_mailing");
 			Map(x => x.DisableClaimMailing).Column("disable_claim_mailing");

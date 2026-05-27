@@ -13,9 +13,11 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories.Document;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
+using Vodovoz.EntityRepositories.Employees;
 
 namespace EmailDebtNotificationWorker.Services.InformationLetters
 {
@@ -27,6 +29,7 @@ namespace EmailDebtNotificationWorker.Services.InformationLetters
 		private readonly ILogger<EmailDebtNotificationService> _logger;
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IEmailRepository _emailRepository;
+		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IDocumentOrganizationCounterRepository _documentOrganizationCounterRepository;
 		private readonly IEmailAttachmentsCreateService _emailAttachmentsCreateService;
 		private readonly IEmailBodyGenerator _emailBodyGenerator;
@@ -40,6 +43,7 @@ namespace EmailDebtNotificationWorker.Services.InformationLetters
 			ILogger<EmailDebtNotificationService> logger,
 			IUnitOfWorkFactory uowFactory,
 			IEmailRepository emailRepository,
+			IEmployeeRepository employeeRepository,
 			IDocumentOrganizationCounterRepository documentOrganizationCounterRepository,
 			IEmailAttachmentsCreateService emailAttachmentsCreateService,
 			IEmailBodyGenerator emailBodyGenerator,
@@ -52,6 +56,7 @@ namespace EmailDebtNotificationWorker.Services.InformationLetters
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_documentOrganizationCounterRepository = documentOrganizationCounterRepository ?? throw new ArgumentNullException(nameof(documentOrganizationCounterRepository));
 			_emailAttachmentsCreateService = emailAttachmentsCreateService ?? throw new ArgumentNullException(nameof(emailAttachmentsCreateService));
 			_emailBodyGenerator = emailBodyGenerator ?? throw new ArgumentNullException(nameof(emailBodyGenerator));
@@ -125,7 +130,7 @@ namespace EmailDebtNotificationWorker.Services.InformationLetters
 				throw new ArgumentNullException(nameof(orders));
 			}
 
-			var emailSubject = "У вас имеется просроченная дебиторская задолженность!";
+			var emailSubject = $"{client.FullName} ({client.INN}). У вас имеется просроченная задолженность!";
 
 			var emailAddress = _clientEmailSelector.SelectEmailForDebtNotification(client);
 			if(string.IsNullOrWhiteSpace(emailAddress))
@@ -149,9 +154,24 @@ namespace EmailDebtNotificationWorker.Services.InformationLetters
 
 			await uow.SaveAsync(storedEmail, cancellationToken: cancellationToken);
 
-			var bulkEmail = new GeneralBillDocumentEmail
+			var totalDebt = orders.Sum(o => o.OrderSum);
+
+			var author = _employeeRepository.GetEmployeeForCurrentUser(uow);
+
+			var orderWithoutShipmentForDebt = new OrderWithoutShipmentForDebt
+			{
+				Client = client,
+				Organization = organization,
+				DebtSum = totalDebt,
+				Author = author
+			};
+
+			await uow.SaveAsync(orderWithoutShipmentForDebt, cancellationToken: cancellationToken);
+
+			var bulkEmail = new InformationLetterEmail
 			{
 				StoredEmail = storedEmail,
+				OrganizationId = organization.Id,
 				Counterparty = client
 			};
 
@@ -173,6 +193,7 @@ namespace EmailDebtNotificationWorker.Services.InformationLetters
 					client,
 					organization,
 					orders,
+					orderWithoutShipmentForDebt,
 					emailAddress,
 					emailSubject,
 					messageText,
@@ -185,6 +206,7 @@ namespace EmailDebtNotificationWorker.Services.InformationLetters
 			Counterparty client,
 			Organization organization,
 			IEnumerable<Order> orders,
+			OrderWithoutShipmentForDebt orderWithoutShipmentForDebt,
 			string emailAddress,
 			string emailSubject,
 			string messageText,
@@ -196,13 +218,40 @@ namespace EmailDebtNotificationWorker.Services.InformationLetters
 				organization.Id,
 				orders.Select(x => x.Id));
 
+			var today = DateTime.Today;
+			var yesterday = today.AddDays(-1);
+
+			DateTime startDateForRevision;
+			if(orders != null && orders.Any())
+			{
+				var earliestDeliveryDate = orders.Min(o => o.DeliveryDate ?? today);
+				startDateForRevision = new DateTime(earliestDeliveryDate.Year, 1, 1);
+			}
+			else
+			{
+				startDateForRevision = new DateTime(today.Year, 1, 1);
+			}
+
+			var endDateForRevision = yesterday;
+
+			var orderWithoutShipmentAttachments = _emailAttachmentsCreateService.CreateOrderWithoutShipmentForDebtAttachments(
+				orderWithoutShipmentForDebt);
+
+			var revisionAttachments = _emailAttachmentsCreateService.CreateRevisionAttachments(
+				client.Id,
+				organization.Id,
+				startDateForRevision,
+				endDateForRevision);
+
+			var allAttachments = orderWithoutShipmentAttachments.Concat(revisionAttachments).ToList();
+
 			var emailMessage = _emailMessageFactory.CreateSendEmailMessage(
 				uow,
 				storedEmail,
 				client,
 				organization.FullName,
 				organization.EmailForMailing,
-				attachment,
+				allAttachments,
 				emailAddress,
 				emailSubject,
 				messageText);
