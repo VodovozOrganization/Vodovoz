@@ -99,7 +99,6 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 			var overdueDebitorsDebtData = (await _orderRepository.GetOverdueDebtorDebtDataForLettersOfClaim(
 				uow,
 				_emailClaimLettersOptions.CurrentValue.LettersOfClaimTimeoutDays,
-				_orderStatuses,
 				_excludeCounterpartyRevenueStatuses,
 				_emailClaimLettersOptions.CurrentValue.ResendIntervalDays,
 				lettersToSendCount,
