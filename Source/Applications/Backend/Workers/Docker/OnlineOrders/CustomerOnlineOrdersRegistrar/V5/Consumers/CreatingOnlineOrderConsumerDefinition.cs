@@ -1,7 +1,7 @@
 ﻿using CustomerOrdersApi.Library.V5.Dto.Orders;
 using MassTransit;
 
-namespace CustomerOnlineOrdersRegistrar.Consumers
+namespace CustomerOnlineOrdersRegistrar.V5.Consumers
 {
 	public class CreatingOnlineOrderConsumerDefinition : ConsumerDefinition<CreatingOnlineOrderConsumer>
 	{

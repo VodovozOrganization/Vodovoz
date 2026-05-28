@@ -9,7 +9,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Domain.Results;
 using Vodovoz.Presentation.WebApi.Messages;
 
 namespace CustomerOrdersApi.Controllers.V4
@@ -188,10 +187,8 @@ namespace CustomerOrdersApi.Controllers.V4
 					return Ok(result.Value);
 				}
 
-				var firstError = result.Errors.FirstOrDefault();
-				var statusCode = GetStatusCodeFromError(firstError);
-
-				return Problem(firstError.Message, statusCode: statusCode);
+				var firstError = result.Errors.First();
+				return Problem(firstError.Message, statusCode: int.Parse(firstError.Code));
 			}
 			catch(Exception e)
 			{
@@ -203,16 +200,6 @@ namespace CustomerOrdersApi.Controllers.V4
 				
 				return Problem(ResponseMessage.HasErrorOccurredPleaseTryAgainLater);
 			}
-		}
-
-		private static int GetStatusCodeFromError(Error error)
-		{
-			if(error is null || string.IsNullOrEmpty(error.Code))
-			{
-				return 400;
-			}
-
-			return int.TryParse(error.Code, out var code) ? code : 400;
 		}
 	}
 }

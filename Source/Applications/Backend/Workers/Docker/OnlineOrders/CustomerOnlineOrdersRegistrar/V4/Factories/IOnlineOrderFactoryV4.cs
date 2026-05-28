@@ -1,10 +1,10 @@
-﻿using CustomerOrdersApi.Library.V5.Dto.Orders;
+﻿using CustomerOrdersApi.Library.V4.Dto.Orders;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Orders;
 
-namespace CustomerOnlineOrdersRegistrar.Factories.V5
+namespace CustomerOnlineOrdersRegistrar.V4.Factories
 {
-	public interface IOnlineOrderFactoryV5
+	public interface IOnlineOrderFactoryV4
 	{
 		OnlineOrder CreateOnlineOrder(
 			IUnitOfWork uow, ICreatingOnlineOrder creatingOnlineOrder, int fastDeliveryScheduleId, int selfDeliveryDiscountReasonId);

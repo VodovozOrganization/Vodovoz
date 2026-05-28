@@ -111,54 +111,67 @@ namespace CustomerOrdersApi.Library
 							});
 						}
 					});
-								
-				configurator.Send<Default.Dto.Orders.OnlineOrderInfoDto>(
-					x => x.UseRoutingKeyFormatter(y => y.Message.FaultedMessage.ToString()));
-				configurator.Message<Default.Dto.Orders.OnlineOrderInfoDto>(
-					x => x.SetEntityName(Default.Dto.Orders.OnlineOrderInfoDto.ExchangeName));
-				configurator.Publish<Default.Dto.Orders.OnlineOrderInfoDto>(x =>
-				{
-					x.ExchangeType = ExchangeType.Direct;
-					x.Durable = true;
-					x.AutoDelete = false;
-					x.BindQueue(
-						Default.Dto.Orders.OnlineOrderInfoDto.ExchangeName,
-						"online-orders",
-						conf =>
-						{
-							conf.ExchangeType = ExchangeType.Direct;
-							conf.RoutingKey = "False";
-						});
-					x.BindQueue(
-						Default.Dto.Orders.OnlineOrderInfoDto.ExchangeName,
-						"online-orders-fault",
-						conf =>
-						{
-							conf.ExchangeType = ExchangeType.Direct;
-							conf.RoutingKey = "True";
-						});
-				});
-				
-				configurator.Message<CreatingOnlineOrder>(x => x.SetEntityName(CreatingOnlineOrder.ExchangeAndQueueName));
-				configurator.Publish<CreatingOnlineOrder>(x =>
-				{
-					x.ExchangeType = ExchangeType.Fanout;
-					x.Durable = true;
-					x.AutoDelete = false;
-				});
 
-				configurator.Message<V5.Dto.Orders.CreatingOnlineOrder>(x => x.SetEntityName(V5.Dto.Orders.CreatingOnlineOrder.ExchangeAndQueueName));
-				configurator.Publish<V5.Dto.Orders.CreatingOnlineOrder>(x =>
-				{
-					x.ExchangeType = ExchangeType.Fanout;
-					x.Durable = true;
-					x.AutoDelete = false;
-				});
+				AddTopologyV3(configurator);
+				AddTopologyV4(configurator);
+				AddTopologyV5(configurator);
 
 				configurator.ConfigureEndpoints(context);
 			});
 			
 			return busConf;
+		}
+
+		private static void AddTopologyV3(IRabbitMqBusFactoryConfigurator configurator)
+		{
+			configurator.Send<Default.Dto.Orders.OnlineOrderInfoDto>(
+				x => x.UseRoutingKeyFormatter(y => y.Message.FaultedMessage.ToString()));
+			configurator.Message<Default.Dto.Orders.OnlineOrderInfoDto>(
+				x => x.SetEntityName(Default.Dto.Orders.OnlineOrderInfoDto.ExchangeName));
+			configurator.Publish<Default.Dto.Orders.OnlineOrderInfoDto>(x =>
+			{
+				x.ExchangeType = ExchangeType.Direct;
+				x.Durable = true;
+				x.AutoDelete = false;
+				x.BindQueue(
+					Default.Dto.Orders.OnlineOrderInfoDto.ExchangeName,
+					"online-orders",
+					conf =>
+					{
+						conf.ExchangeType = ExchangeType.Direct;
+						conf.RoutingKey = "False";
+					});
+				x.BindQueue(
+					Default.Dto.Orders.OnlineOrderInfoDto.ExchangeName,
+					"online-orders-fault",
+					conf =>
+					{
+						conf.ExchangeType = ExchangeType.Direct;
+						conf.RoutingKey = "True";
+					});
+			});
+		}
+
+		private static void AddTopologyV4(IRabbitMqBusFactoryConfigurator configurator)
+		{
+			configurator.Message<CreatingOnlineOrder>(x => x.SetEntityName(CreatingOnlineOrder.ExchangeAndQueueName));
+			configurator.Publish<CreatingOnlineOrder>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+		}
+
+		private static void AddTopologyV5(IRabbitMqBusFactoryConfigurator configurator)
+		{
+			configurator.Message<V5.Dto.Orders.CreatingOnlineOrder>(x => x.SetEntityName(V5.Dto.Orders.CreatingOnlineOrder.ExchangeAndQueueName));
+			configurator.Publish<V5.Dto.Orders.CreatingOnlineOrder>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
 		}
 
 		public static UpdateOnlineOrderFromChangeRequest ToUpdateOnlineOrderFromChangeRequest(this ChangingOrderDto source)

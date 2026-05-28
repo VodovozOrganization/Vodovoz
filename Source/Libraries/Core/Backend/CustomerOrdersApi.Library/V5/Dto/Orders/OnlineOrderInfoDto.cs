@@ -12,7 +12,7 @@ namespace CustomerOrdersApi.Library.V5.Dto.Orders
 	/// </summary>
 	public class OnlineOrderInfoDto : ICreatingOnlineOrder
 	{
-		public const string ExchangeName = "online-order-received";
+		public const string ExchangeName = "online-order-received-v5";
 		/// <summary>
 		/// Заказ не прошел сохранение
 		/// </summary>

@@ -1,7 +1,7 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
-using CustomerOrdersApi.Library.V4.Dto.Orders.OrderItem;
+using CustomerOrdersApi.Library.V5.Dto.Orders;
+using CustomerOrdersApi.Library.V5.Dto.Orders.OrderItem;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
@@ -12,13 +12,13 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using VodovozBusiness.Controllers;
 
-namespace CustomerOnlineOrdersRegistrar.Factories.V4
+namespace CustomerOnlineOrdersRegistrar.V5.Factories
 {
-	public class OnlineOrderFactoryV4 : IOnlineOrderFactoryV4
+	public class OnlineOrderFactoryV5 : IOnlineOrderFactoryV5
 	{
 		private readonly IDiscountController _discountController;
 
-		public OnlineOrderFactoryV4(IDiscountController discountController)
+		public OnlineOrderFactoryV5(IDiscountController discountController)
 		{
 			_discountController = discountController ?? throw new ArgumentNullException(nameof(discountController));
 		}

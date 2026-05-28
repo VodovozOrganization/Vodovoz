@@ -1,8 +1,9 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using CustomerOrdersApi.Library.Default.Dto.Orders;
-using CustomerOrdersApi.Library.Default.Dto.Orders.OrderItem;
+using CustomerOrdersApi.Library.V4.Dto.Orders;
+using CustomerOrdersApi.Library.V4.Dto.Orders.OrderItem;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.Rent;
@@ -11,59 +12,68 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using VodovozBusiness.Controllers;
 
-namespace CustomerOnlineOrdersRegistrar.Factories.V3
+namespace CustomerOnlineOrdersRegistrar.V4.Factories
 {
-	public class OnlineOrderFactoryV3 : IOnlineOrderFactoryV3
+	public class OnlineOrderFactoryV4 : IOnlineOrderFactoryV4
 	{
 		private readonly IDiscountController _discountController;
 
-		public OnlineOrderFactoryV3(IDiscountController discountController)
+		public OnlineOrderFactoryV4(IDiscountController discountController)
 		{
 			_discountController = discountController ?? throw new ArgumentNullException(nameof(discountController));
 		}
 		
 		public OnlineOrder CreateOnlineOrder(
 			IUnitOfWork uow,
-			OnlineOrderInfoDto orderInfoDto,
+			ICreatingOnlineOrder creatingOnlineOrder,
 			int fastDeliveryScheduleId,
 			int selfDeliveryDiscountReasonId)
 		{
 			var onlineOrder = new OnlineOrder
 			{
-				Source = orderInfoDto.Source,
-				CounterpartyId = orderInfoDto.CounterpartyErpId,
-				ExternalCounterpartyId = orderInfoDto.ExternalCounterpartyId,
-				ExternalOrderId = orderInfoDto.ExternalOrderId,
-				DeliveryPointId = orderInfoDto.DeliveryPointId,
-				DeliveryDate = orderInfoDto.DeliveryDate,
-				CallBeforeArrivalMinutes = orderInfoDto.CallBeforeArrivalMinutes,
-				SelfDeliveryGeoGroupId = orderInfoDto.SelfDeliveryGeoGroupId,
-				IsSelfDelivery = orderInfoDto.IsSelfDelivery,
-				IsFastDelivery = orderInfoDto.IsFastDelivery,
-				IsNeedConfirmationByCall = orderInfoDto.IsNeedConfirmationByCall,
-				BottlesReturn = orderInfoDto.BottlesReturn,
-				Trifle = orderInfoDto.Trifle,
-				ContactPhone = orderInfoDto.ContactPhone,
-				OnlineOrderPaymentType = orderInfoDto.OnlineOrderPaymentType,
-				OnlineOrderStatus = OnlineOrderStatus.New,
-				OnlineOrderPaymentStatus = orderInfoDto.OnlineOrderPaymentStatus,
-				OnlinePaymentSource = orderInfoDto.OnlinePaymentSource,
-				OnlinePayment = orderInfoDto.OnlinePayment,
-				OnlineOrderSum = orderInfoDto.OrderSum,
-				DontArriveBeforeInterval = orderInfoDto.DontArriveBeforeInterval
+				Source = creatingOnlineOrder.Source,
+				CounterpartyId = creatingOnlineOrder.CounterpartyErpId,
+				ExternalCounterpartyId = creatingOnlineOrder.ExternalCounterpartyId,
+				ExternalOrderId = creatingOnlineOrder.ExternalOrderId,
+				DeliveryPointId = creatingOnlineOrder.DeliveryPointId,
+				DeliveryDate = creatingOnlineOrder.DeliveryDate,
+				CallBeforeArrivalMinutes = creatingOnlineOrder.CallBeforeArrivalMinutes,
+				SelfDeliveryGeoGroupId = creatingOnlineOrder.SelfDeliveryGeoGroupId,
+				IsSelfDelivery = creatingOnlineOrder.IsSelfDelivery,
+				IsFastDelivery = creatingOnlineOrder.IsFastDelivery,
+				IsNeedConfirmationByCall = creatingOnlineOrder.IsNeedConfirmationByCall,
+				BottlesReturn = creatingOnlineOrder.BottlesReturn,
+				Trifle = creatingOnlineOrder.Trifle,
+				ContactPhone = creatingOnlineOrder.ContactPhone,
+				OnlineOrderPaymentType = creatingOnlineOrder.OnlineOrderPaymentType,
+				OnlineOrderPaymentStatus = creatingOnlineOrder.OnlineOrderPaymentStatus,
+				OnlinePaymentSource = creatingOnlineOrder.OnlinePaymentSource,
+				OnlinePayment = creatingOnlineOrder.OnlinePayment,
+				OnlineOrderSum = creatingOnlineOrder.OrderSum,
+				DontArriveBeforeInterval = creatingOnlineOrder.DontArriveBeforeInterval
 			};
 
-			onlineOrder.DeliveryScheduleId = onlineOrder.IsFastDelivery ? fastDeliveryScheduleId : orderInfoDto.DeliveryScheduleId;
+			onlineOrder.DeliveryScheduleId = onlineOrder.IsFastDelivery ? fastDeliveryScheduleId : creatingOnlineOrder.DeliveryScheduleId;
 
 			if(!onlineOrder.IsFastDelivery && onlineOrder.DeliveryScheduleId == fastDeliveryScheduleId)
 			{
 				onlineOrder.IsFastDelivery = true;
 			}
 
-			UpdateOnlineComment(onlineOrder, orderInfoDto.OnlineOrderComment);
-			InitializeOnlineOrderReferences(uow, onlineOrder, orderInfoDto);
-			AddOrderItems(uow, onlineOrder, selfDeliveryDiscountReasonId, orderInfoDto.OnlineOrderItems);
-			AddRentPackages(uow, onlineOrder, orderInfoDto.OnlineRentPackages);
+			if(onlineOrder.OnlineOrderPaymentStatus == OnlineOrderPaymentStatus.UnPaid
+				&& onlineOrder.OnlineOrderPaymentType == OnlineOrderPaymentType.PaidOnline)
+			{
+				onlineOrder.OnlineOrderStatus = OnlineOrderStatus.WaitingForPayment;
+			}
+			else
+			{
+				onlineOrder.OnlineOrderStatus = OnlineOrderStatus.New;
+			}
+
+			UpdateOnlineComment(onlineOrder, creatingOnlineOrder.OnlineOrderComment);
+			InitializeOnlineOrderReferences(uow, onlineOrder, creatingOnlineOrder);
+			AddOrderItems(uow, onlineOrder, selfDeliveryDiscountReasonId, creatingOnlineOrder.OnlineOrderItems);
+			AddRentPackages(uow, onlineOrder, creatingOnlineOrder.OnlineRentPackages);
 			onlineOrder.Created = DateTime.Now;
 
 			return onlineOrder;
@@ -160,26 +170,26 @@ namespace CustomerOnlineOrdersRegistrar.Factories.V3
 			}
 		}
 		
-		private void InitializeOnlineOrderReferences(IUnitOfWork uow, OnlineOrder onlineOrder, OnlineOrderInfoDto orderInfoDto)
+		private void InitializeOnlineOrderReferences(IUnitOfWork uow, OnlineOrder onlineOrder, ICreatingOnlineOrder creatingOnlineOrder)
 		{
-			if(orderInfoDto.CounterpartyErpId.HasValue)
+			if(creatingOnlineOrder.CounterpartyErpId.HasValue)
 			{
-				onlineOrder.Counterparty = uow.GetById<Counterparty>(orderInfoDto.CounterpartyErpId.Value);
+				onlineOrder.Counterparty = uow.GetById<Counterparty>(creatingOnlineOrder.CounterpartyErpId.Value);
 			}
 			
-			if(orderInfoDto.DeliveryPointId.HasValue)
+			if(creatingOnlineOrder.DeliveryPointId.HasValue)
 			{
-				onlineOrder.DeliveryPoint = uow.GetById<DeliveryPoint>(orderInfoDto.DeliveryPointId.Value);
+				onlineOrder.DeliveryPoint = uow.GetById<DeliveryPoint>(creatingOnlineOrder.DeliveryPointId.Value);
 			}
 			
-			if(orderInfoDto.DeliveryScheduleId.HasValue)
+			if(creatingOnlineOrder.DeliveryScheduleId.HasValue)
 			{
-				onlineOrder.DeliverySchedule = uow.GetById<DeliverySchedule>(orderInfoDto.DeliveryScheduleId.Value);
+				onlineOrder.DeliverySchedule = uow.GetById<DeliverySchedule>(creatingOnlineOrder.DeliveryScheduleId.Value);
 			}
 			
-			if(orderInfoDto.SelfDeliveryGeoGroupId.HasValue)
+			if(creatingOnlineOrder.SelfDeliveryGeoGroupId.HasValue)
 			{
-				onlineOrder.SelfDeliveryGeoGroup = uow.GetById<GeoGroup>(orderInfoDto.SelfDeliveryGeoGroupId.Value);
+				onlineOrder.SelfDeliveryGeoGroup = uow.GetById<GeoGroup>(creatingOnlineOrder.SelfDeliveryGeoGroupId.Value);
 			}
 		}
 	}

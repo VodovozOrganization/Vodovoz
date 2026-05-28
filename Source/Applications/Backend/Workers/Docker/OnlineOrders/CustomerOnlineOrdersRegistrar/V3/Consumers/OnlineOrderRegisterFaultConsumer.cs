@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using CustomerOnlineOrdersRegistrar.Factories.V3;
-using CustomerOnlineOrdersRegistrar.Factories.V4;
-using CustomerOnlineOrdersRegistrar.Factories.V5;
+using CustomerOnlineOrdersRegistrar.V3.Factories;
 using CustomerOrdersApi.Library.Default.Dto.Orders;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -15,16 +13,14 @@ using Vodovoz.Settings.OnlineOrders;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Services.Orders;
 
-namespace CustomerOnlineOrdersRegistrar.Consumers
+namespace CustomerOnlineOrdersRegistrar.V3.Consumers
 {
 	public class OnlineOrderRegisterFaultConsumer : OnlineOrderConsumer, IConsumer<OnlineOrderInfoDto>
 	{
 		public OnlineOrderRegisterFaultConsumer(
 			ILogger<OnlineOrderRegisterFaultConsumer> logger,
-			IUnitOfWorkFactory unitOfWorkFactory,
-			IOnlineOrderFactoryV3 onlineOrderFactoryV3,
-			IOnlineOrderFactoryV4 onlineOrderFactoryV4,
-			IOnlineOrderFactoryV5 onlineOrderFactoryV5,
+			IUnitOfWorkFactory unitOfWorkFactory,			
+			IOnlineOrderFactoryV3 onlineOrderFactory,			
 			IOrderService orderService,
 			IDeliveryRulesSettings deliveryRulesSettings,
 			IDiscountReasonSettings discountReasonSettings,
@@ -35,10 +31,8 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			)
 			: base(
 				logger,
-				unitOfWorkFactory,
-				onlineOrderFactoryV3,
-				onlineOrderFactoryV4,
-				onlineOrderFactoryV5,
+				unitOfWorkFactory,				
+				onlineOrderFactory,
 				deliveryRulesSettings,
 				discountReasonSettings,
 				onlineOrderRepository,
@@ -56,7 +50,7 @@ namespace CustomerOnlineOrdersRegistrar.Consumers
 			
 			try
 			{
-				await TryRegisterOnlineOrderV3Async(message, context.CancellationToken);
+				await TryRegisterOnlineOrderAsync(message, context.CancellationToken);
 				return;
 			}
 			catch(Exception e)

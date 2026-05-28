@@ -1,7 +1,7 @@
 ﻿using Autofac.Extensions.DependencyInjection;
-using CustomerOnlineOrdersRegistrar.Consumers;
-using CustomerOnlineOrdersRegistrar.Factories.V3;
-using CustomerOnlineOrdersRegistrar.Factories.V4;
+using CustomerOnlineOrdersRegistrar.V3.Factories;
+using CustomerOnlineOrdersRegistrar.V4.Factories;
+using CustomerOnlineOrdersRegistrar.V5.Factories;
 using CustomerOrdersApi.Library;
 using DriverApi.Notifications.Client;
 using MassTransit;
@@ -14,9 +14,9 @@ using Osrm;
 using QS.HistoryLog;
 using QS.Project.Core;
 using Vodovoz;
+using Vodovoz.Core.Application;
 using Vodovoz.Core.Application.Logistics;
 using Vodovoz.Core.Application.Orders.Services;
-using Vodovoz.Core.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
@@ -24,7 +24,6 @@ using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Trackers;
 using VodovozBusiness.Services.Orders;
-using CustomerOnlineOrdersRegistrar.Factories.V5;
 
 namespace CustomerOnlineOrdersRegistrar
 {
@@ -38,7 +37,8 @@ namespace CustomerOnlineOrdersRegistrar
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
 				.UseServiceProviderFactory(new AutofacServiceProviderFactory())
-				.ConfigureLogging((ctx, builder) => {
+				.ConfigureLogging((ctx, builder) =>
+				{
 					builder.AddNLog();
 					builder.AddConfiguration(ctx.Configuration.GetSection("NLog"));
 				})
@@ -77,12 +77,10 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddMessageTransportSettings()
 						.AddMassTransit(busConf =>
 						{
-							// todo Art8m Разбить на два:
-							// CreatingOnlineOrderConsumerV4
-							// CreatingOnlineOrderConsumerV5
-							// со своими defition и очередями
-							busConf.AddConsumer<OnlineOrderRegisteredConsumer, OnlineOrderRegisteredConsumerDefinition>();
-							busConf.AddConsumer<CreatingOnlineOrderConsumer, CreatingOnlineOrderConsumerDefinition>();
+							// Версия 3 не используется на проде, оставлена для совместимости
+							//busConf.AddConsumer<V3.Consumers.OnlineOrderRegisteredConsumer, V3.Consumers.OnlineOrderRegisteredConsumerDefinition>();
+							busConf.AddConsumer<V4.Consumers.CreatingOnlineOrderConsumer, V4.Consumers.CreatingOnlineOrderConsumerDefinition>();
+							busConf.AddConsumer<V5.Consumers.CreatingOnlineOrderConsumer, V5.Consumers.CreatingOnlineOrderConsumerDefinition>();
 							busConf.ConfigureRabbitMq();
 						});
 
