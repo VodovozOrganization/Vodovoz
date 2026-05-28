@@ -340,7 +340,7 @@ namespace Vodovoz.Infrastructure.Persistance.Payments
 			return query;
 		}
 
-		public IQueryable<PaymentWriteOffNode> GetCounterpartyPaymentWriteOffNodes(
+		public IList<PaymentWriteOffNode> GetCounterpartyPaymentWriteOffNodes(
 			IUnitOfWork uow,
 			int counterpartyId,
 			int organizationId)
@@ -361,7 +361,7 @@ namespace Vodovoz.Infrastructure.Persistance.Payments
 					Reason = paymentWriteOff.Reason
 				};
 
-			return query;
+			return query.ToList();
 		}
 
 		public async Task<IDictionary<int, CounterpartyPaymentsDataNode[]>> GetCounterpatiesPaymentsData(

@@ -745,8 +745,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 		private IList<PaymentWriteOffNode> GetCounterpartyPaymentWriteOffsFromDatabase(int counterpartyId, int organizationId)
 		{
 			return _paymentsRepository
-				.GetCounterpartyPaymentWriteOffNodes(_unitOfWork, counterpartyId, organizationId)
-				.ToList();
+				.GetCounterpartyPaymentWriteOffNodes(_unitOfWork, counterpartyId, organizationId);
 		}
 
 		private IList<OtherWriteOffDiscrepanciesNode> CreateOtherWriteOffDiscrepanciesNodes(
@@ -1140,7 +1139,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 		{
 			var sum = _counterpartyRepository
 				.GetCounterpartyOrdersActuaSums(_unitOfWork, counterpartyId, _availableOrderStatuses, false, organizationId: SelectedOrganization.Id)
-				.ToList().Sum();
+				.AsEnumerable()
+				.Sum();
 
 			return sum;
 		}
@@ -1149,7 +1149,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 		{
 			var sum = _paymentsRepository
 				.GetCounterpartyPaymentsSums(_unitOfWork, counterpartyId, counterpartyInn, SelectedOrganization.Id)
-				.ToList().Sum();
+				.AsEnumerable()
+				.Sum();
 
 			return sum;
 		}
@@ -1163,7 +1164,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 					counterpartyId,
 					organizationId: SelectedOrganization.Id)
 				.Select(x => x.Balance)
-				.ToList().Sum();
+				.AsEnumerable()
+				.Sum();
 
 			return sum;
 		}
@@ -1178,7 +1180,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 					CounterpartySettlementsReconciliation1C.OldOrdersMaxDate,
 					SelectedOrganization.Id)
 				.Select(x => x.Balance)
-				.ToList().Sum();
+				.AsEnumerable()
+				.Sum();
 
 			return sum;
 		}

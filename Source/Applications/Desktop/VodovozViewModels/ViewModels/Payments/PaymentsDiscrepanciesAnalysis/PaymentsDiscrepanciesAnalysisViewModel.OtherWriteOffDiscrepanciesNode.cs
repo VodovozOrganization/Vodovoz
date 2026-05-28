@@ -4,6 +4,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 {
 	public partial class PaymentsDiscrepanciesAnalysisViewModel
 	{
+		/// <summary>
+		/// Строка сверки прочего списания из акта 1С со списанием в ДВ.
+		/// </summary>
 		public class OtherWriteOffDiscrepanciesNode
 		{
 			public string DocumentName { get; set; }

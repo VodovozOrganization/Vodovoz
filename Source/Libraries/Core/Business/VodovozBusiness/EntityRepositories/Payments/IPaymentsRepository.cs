@@ -52,7 +52,7 @@ namespace Vodovoz.EntityRepositories.Payments
 		/// <param name="counterpartyId">Id контрагента</param>
 		/// <param name="organizationId">Id организации</param>
 		/// <returns>Списания с баланса клиента</returns>
-		IQueryable<PaymentWriteOffNode> GetCounterpartyPaymentWriteOffNodes(IUnitOfWork uow, int counterpartyId, int organizationId);
+		IList<PaymentWriteOffNode> GetCounterpartyPaymentWriteOffNodes(IUnitOfWork uow, int counterpartyId, int organizationId);
 
 		/// <summary>
 		/// Возвращает данные по платежам контрагентов по организации

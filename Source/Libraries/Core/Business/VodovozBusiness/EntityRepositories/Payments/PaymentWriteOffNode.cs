@@ -2,6 +2,9 @@ using System;
 
 namespace Vodovoz.EntityRepositories.Payments
 {
+	/// <summary>
+	/// Данные списания с баланса клиента для сверки с актом 1С.
+	/// </summary>
 	public class PaymentWriteOffNode
 	{
 		public int Id { get; set; }
