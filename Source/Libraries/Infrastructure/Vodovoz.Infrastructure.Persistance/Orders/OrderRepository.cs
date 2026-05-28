@@ -1,4 +1,4 @@
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -804,7 +804,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				OrderStatus.Accepted,
 				OrderStatus.InTravelList,
 				OrderStatus.OnLoading,
-				OrderStatus.OnTheWay
+				//OrderStatus.OnTheWay Пока в статусе "В Пути" запрещено отменять и переносить заказы
 			};
 		}
 
