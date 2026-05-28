@@ -250,43 +250,31 @@ namespace Vodovoz.ViewModels.ViewModels.Warehouses
 							case nameof(Nomenclature):
 								if(parameterSet.FilterType == SelectableFilterType.Include)
 								{
-									nomenclaturesToInclude.AddRange(parameterSet.GetSelectedParameters()
-										.Cast<SelectableEntityParameter<Nomenclature>>()
-										.Select(value => value.EntityId));
+									nomenclaturesToInclude.AddRange(parameterSet.GetSelectedEntityIds<Nomenclature>());
 								}
 								else
 								{
-									nomenclaturesToExclude.AddRange(parameterSet.GetSelectedParameters()
-										.Cast<SelectableEntityParameter<Nomenclature>>()
-										.Select(value => value.EntityId));
+									nomenclaturesToExclude.AddRange(parameterSet.GetSelectedEntityIds<Nomenclature>());
 								}
 								break;
 							case nameof(NomenclatureCategory):
 								if(parameterSet.FilterType == SelectableFilterType.Include)
 								{
-									nomenclatureCategoryToInclude.AddRange(parameterSet.GetSelectedParameters()
-										.Cast<SelectableEnumParameter<NomenclatureCategory>>()
-										.Select(value => (NomenclatureCategory)value.Value));
+									nomenclatureCategoryToInclude.AddRange(parameterSet.GetSelectedEnumValues<NomenclatureCategory>());
 								}
 								else
 								{
-									nomenclatureCategoryToExclude.AddRange(parameterSet.GetSelectedParameters()
-										.Cast<SelectableEnumParameter<NomenclatureCategory>>()
-										.Select(value => (NomenclatureCategory)value.Value));
+									nomenclatureCategoryToExclude.AddRange(parameterSet.GetSelectedEnumValues<NomenclatureCategory>());
 								}
 								break;
 							case nameof(ProductGroup):
 								if(parameterSet.FilterType == SelectableFilterType.Include)
 								{
-									productGroupToInclude.AddRange(parameterSet.GetSelectedParameters()
-										.Cast<SelectableEntityParameter<ProductGroup>>()
-										.Select(value => value.EntityId));
+									productGroupToInclude.AddRange(parameterSet.GetSelectedEntityIds<ProductGroup>());
 								}
 								else
 								{
-									productGroupToExclude.AddRange(parameterSet.GetSelectedParameters()
-										.Cast<SelectableEntityParameter<ProductGroup>>()
-										.Select(value => value.EntityId));
+									productGroupToExclude.AddRange(parameterSet.GetSelectedEntityIds<ProductGroup>());
 								}
 								break;
 						}
