@@ -1,7 +1,6 @@
 ﻿using System;
 using TrueMark.Contracts;
 using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Models.TrueMark;
 
 namespace Vodovoz.Core.Application.TrueMark
@@ -53,7 +52,8 @@ namespace Vodovoz.Core.Application.TrueMark
 				IsInvalid = false,
 				RawCode = stagingCode.RawCode,
 				Gtin = stagingCode.Gtin,
-				SerialNumber = stagingCode.SerialNumber
+				SerialNumber = stagingCode.SerialNumber,
+				CheckCode = stagingCode.CheckCode
 			};
 		}
 	}
