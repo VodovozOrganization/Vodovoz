@@ -274,54 +274,43 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport
 							template.SaveAs(result.Path);
 						}
 					}
-				},
-				() => true)
+				})
 			);
 
 		public DelegateCommand GenerateCommand => _generateCommand ?? (_generateCommand = new DelegateCommand(
 				() =>
 				{
+					if(!HasDates)
+					{
+						base.ShowWarningMessage("Для генерации отчета необходимо выбрать период",
+							"Предупреждение");
+						return;
+					}
+
 					Report = new BulkDebtMailingReport
 					{
 						Rows = GenerateReportRows(),
 						SelectedFilters = GenerateSelectedFiltersString()
 					};
-				},
-				() => true)
-			);
-
-		public DelegateCommand ExportSummaryCommand => _exportSummaryCommand ?? (_exportSummaryCommand = new DelegateCommand(
-				() =>
-				{
-					var dialogSettings = new DialogSettings
-					{
-						Title = "Сохранить",
-						DefaultFileExtention = ".xlsx",
-						FileName = $"Сводный отчет о рассылке писем о задолженности {DateTime.Now:yyyy-MM-dd-HH-mm}.xlsx"
-					};
-
-					var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
-					if(result.Successful)
-					{
-						var template = new XLTemplate(_templateSummaryReportPath);
-						template.AddVariable(SummaryReport);
-						template.Generate();
-						template.SaveAs(result.Path);
-					}
-				},
-				() => true)
+				})
 			);
 
 		public DelegateCommand GenerateSummaryCommand => _generateSummaryCommand ?? (_generateSummaryCommand = new DelegateCommand(
 				() =>
 				{
+					if(!HasDates)
+					{
+						base.ShowWarningMessage("Для генерации отчета необходимо выбрать период",
+							"Предупреждение");
+						return;
+					}
+
 					SummaryReport = new BulkDebtMailingSummaryReport
 					{
 						Rows = GenerateSummaryReportRows(),
 						SelectedFilters = GenerateSelectedFiltersString()
 					};
-				},
-				() => true)
+				})
 			);
 
 		#endregion

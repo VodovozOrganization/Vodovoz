@@ -1,4 +1,4 @@
-﻿using Core.Infrastructure;
+using Core.Infrastructure;
 using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
@@ -2721,7 +2721,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return notPaidOrdersData;
 		}
 
-		public async Task<IDictionary<CounterpartyOrganizationDataNode, CounterpartyOverdueDebtorDebtAggregatedNode>> GetOverdueDebtorDebtDataForLettersOfClaim(
+		public async Task<IEnumerable<CounterpartyOverdueDebtorDebtAggregatedNode>> GetOverdueDebtorDebtDataForLettersOfClaim(
 			IUnitOfWork uow,
 			int expiredMinDaysAgo,
 			IEnumerable<OrderStatus> orderStatuses,
@@ -2861,21 +2861,17 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 			var result = allData
 				.GroupBy(x => new { x.CounterpartyId, x.OrganizationId })
-				.ToDictionary(
-					g => new CounterpartyOrganizationDataNode
-					{
-						CounterpartyId = g.Key.CounterpartyId,
-						OrganizationId = g.Key.OrganizationId
-					},
-					g => new CounterpartyOverdueDebtorDebtAggregatedNode
-					{
-						OrderIds = g.Select(x => x.OrderId).Distinct().ToList(),
-						OrganizationId = g.First().OrganizationId,
-						OrganizationFullName = g.First().OrganizationFullName,
-						OrganizationEmailForMailing = g.First().OrganizationEmailForMailing,
-						Contractd = g.First().ContractId,
-						TotalOverdueDebtorDebt = g.Sum(x => x.OverdueDebtorDebt)
-					});
+				.Select(g => new CounterpartyOverdueDebtorDebtAggregatedNode
+				{
+					OrderIds = g.Select(x => x.OrderId).Distinct().ToList(),
+					OrganizationId = g.First().OrganizationId,
+					CounterpartyId = g.First().CounterpartyId,
+					OrganizationFullName = g.First().OrganizationFullName,
+					OrganizationEmailForMailing = g.First().OrganizationEmailForMailing,
+					Contractd = g.First().ContractId,
+					TotalOverdueDebtorDebt = g.Sum(x => x.OverdueDebtorDebt)
+				})
+				.ToList();
 
 			return result;
 		}

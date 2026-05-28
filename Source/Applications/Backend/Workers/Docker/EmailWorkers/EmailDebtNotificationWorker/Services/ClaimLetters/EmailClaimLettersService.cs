@@ -102,14 +102,14 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 				_emailClaimLettersOptions.CurrentValue.MaxCountPerDay - todaySentLetterOfClaimsCount,
 				_emailClaimLettersOptions.CurrentValue.MaxCountPerInterval);
 
-			var overdueDebitorsDebtData = await _orderRepository.GetOverdueDebtorDebtDataForLettersOfClaim(
+			var overdueDebitorsDebtData = (await _orderRepository.GetOverdueDebtorDebtDataForLettersOfClaim(
 				uow,
 				_emailClaimLettersOptions.CurrentValue.LettersOfClaimTimeoutDays,
 				_orderStatuses,
 				_excludeCounterpartyRevenueStatuses,
 				_emailClaimLettersOptions.CurrentValue.ResendIntervalDays,
 				lettersToSendCount,
-				cancellationToken);
+				cancellationToken)).ToList();
 
 			if(overdueDebitorsDebtData.Count == 0)
 			{
@@ -133,7 +133,7 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 
 		private async Task<List<(CounterpartyOverdueDebtorDebtAggregatedNode DebtData, OrderWithoutShipmentForDebt Bill)>> PrepareDebtDataWithBillsAsync(
 			IUnitOfWork uow,
-			IDictionary<CounterpartyOrganizationDataNode, CounterpartyOverdueDebtorDebtAggregatedNode> overdueDebitorsDebtData,
+			List<CounterpartyOverdueDebtorDebtAggregatedNode> overdueDebitorsDebtData,
 			CancellationToken cancellationToken)
 		{
 			var debtDataWithBills = new List<(CounterpartyOverdueDebtorDebtAggregatedNode DebtData, OrderWithoutShipmentForDebt Bill)>();
@@ -144,19 +144,21 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 				{
 					var bill = await _claimLetterBillWithoutShipmentService.GetOrCreateOrderWithoutShipmentForDebtAsync(
 						uow,
-						debtData.Value.CounterpartyId,
-						debtData.Value.OrganizationId,
-						debtData.Value.TotalOverdueDebtorDebt,
+						debtData.CounterpartyId,
+						debtData.OrganizationId,
+						debtData.TotalOverdueDebtorDebt,
 						cancellationToken);
 
-					debtDataWithBills.Add((debtData.Value, bill));
+					await uow.SaveAsync(bill, cancellationToken: cancellationToken);
+
+					debtDataWithBills.Add((debtData, bill));
 				}
 				catch(Exception ex)
 				{
 					_logger.LogError(ex,
 						"Ошибка при подготовке счета без отгрузки на долг для контрагента {CounterpartyId} и организации {OrganizationId}",
-						debtData.Value.CounterpartyId,
-						debtData.Value.OrganizationId);
+						debtData.CounterpartyId,
+						debtData.OrganizationId);
 				}
 			}
 

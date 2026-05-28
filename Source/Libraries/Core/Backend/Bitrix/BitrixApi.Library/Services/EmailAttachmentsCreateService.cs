@@ -35,7 +35,13 @@ namespace BitrixApi.Library.Services
 		/// <inheritdoc/>
 		public IEnumerable<EmailAttachment> CreateRevisionAttachments(int counterpartyId, int organizationId, DateTime? startDate = null, DateTime? endDate = null)
 		{
-			var reportInfo = GetRevisionReportInfo(counterpartyId, organizationId, startDate, endDate)
+			var cashlessPaymentStart = new DateTime(2020, 8, 12);
+
+			var actualStartDate = startDate.HasValue && startDate.Value < cashlessPaymentStart
+				? cashlessPaymentStart
+				: startDate;
+
+			var reportInfo = GetRevisionReportInfo(counterpartyId, organizationId, actualStartDate, endDate)
 				?? throw new InvalidOperationException("Не удалось получить информацию по отчету акта сверки");
 			var pdfBytes = CreatePdfReportBytes(reportInfo);
 

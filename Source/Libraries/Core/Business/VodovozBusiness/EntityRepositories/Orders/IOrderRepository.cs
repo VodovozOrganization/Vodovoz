@@ -357,7 +357,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="maxClientsToTake">Максимальное количество клиентов</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Данные по просроченным долгам контрагента в разрезе организации</returns>
-		Task<IDictionary<CounterpartyOrganizationDataNode, CounterpartyOverdueDebtorDebtAggregatedNode>> GetOverdueDebtorDebtDataForLettersOfClaim(
+		Task<IEnumerable<CounterpartyOverdueDebtorDebtAggregatedNode>> GetOverdueDebtorDebtDataForLettersOfClaim(
 			IUnitOfWork uow,
 			int expiredMinDaysAgo,
 			IEnumerable<OrderStatus> orderStatuses,

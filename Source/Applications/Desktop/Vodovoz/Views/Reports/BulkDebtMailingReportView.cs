@@ -39,6 +39,11 @@ namespace Vodovoz.Views.Reports
 		{
 			ViewModel.GenerateCommand.Execute();
 
+			if(ViewModel.Report is null)
+			{
+				return;
+			}
+
 			ConfigureReportTreeView();
 
 			ytreeviewReport.ItemsDataSource = ViewModel.Report.Rows;
@@ -48,6 +53,11 @@ namespace Vodovoz.Views.Reports
 		private void OnYbtnRunSummaryReportClicked(object sender, System.EventArgs e)
 		{
 			ViewModel.GenerateSummaryCommand.Execute();
+
+			if(ViewModel.SummaryReport is null)
+			{
+				return;
+			}
 
 			ConfigureReportTreeView();
 
