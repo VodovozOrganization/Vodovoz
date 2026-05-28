@@ -5989,6 +5989,7 @@ namespace Vodovoz
 			   && !Entity.OrderItems.Any(x => x.IsMasterNomenclature && x.Nomenclature.Id != _nomenclatureSettings.MasterCallNomenclatureId))
 			{
 				Entity.OrderAddressType = OrderAddressType.StorageLogistics;
+				_logger.Info($"Сотрудник {_currentEmployee.FullName} в заказе {Entity.Id} для клиента {Counterparty.Name} дата доставки {Entity.DeliveryDate} переключил тип адреса на Складcкая логистика");
 				Entity.UpdateDeliveryPoint(null, _orderContractUpdater);
 				Entity.DeliverySchedule = null;
 			}
