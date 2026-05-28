@@ -11,12 +11,20 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 {
 	public partial class PaymentsDiscrepanciesAnalysisViewModel
 	{
+		/// <summary>
+		/// Помощник чтения xlsx-файлов актов сверки 1С и разбора значений из строк.
+		/// </summary>
 		public static class XlsParseHelper
 		{
 			private const string _numberPattern = @"([0-9]{1,})";
 			private const string _floatingPointNumberPattern = @"^-?[\d\s]+([\.,]\d+)?$";
 			private const string _datePattern = @"([0-9]{2}.[0-9]{2}.[0-9]{4})";
 
+			/// <summary>
+			/// Возвращает значения ячеек строк из xlsx-файла.
+			/// </summary>
+			/// <param name="fileName">Путь к xlsx-файлу.</param>
+			/// <returns>Значения ячеек, сгруппированные по строкам.</returns>
 			public static IList<IList<string>> GetRowsFromXls(string fileName)
 			{
 				if(!IsXlsxFile(fileName))
@@ -43,6 +51,11 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				return xlsxRowValues;
 			}
 
+			/// <summary>
+			/// Извлекает первый номер из строки.
+			/// </summary>
+			/// <param name="str">Строка для разбора.</param>
+			/// <returns>Первый найденный номер или <c>null</c>, если номер не найден.</returns>
 			public static int? ParseNumberFromString(string str)
 			{
 				if(str is null)
@@ -60,6 +73,11 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				return null;
 			}
 
+			/// <summary>
+			/// Извлекает десятичное число из строки.
+			/// </summary>
+			/// <param name="str">Строка для разбора.</param>
+			/// <returns>Десятичное число или <c>null</c>, если число не найдено.</returns>
 			public static decimal? ParseFloatingPointNumberFromString(string str)
 			{
 				if(str is null)
@@ -82,6 +100,11 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				return null;
 			}
 
+			/// <summary>
+			/// Извлекает дату из строки.
+			/// </summary>
+			/// <param name="str">Строка для разбора.</param>
+			/// <returns>Дата или <c>null</c>, если дата не найдена.</returns>
 			public static DateTime? ParseDateFromString(string str)
 			{
 				if(str is null)
@@ -99,6 +122,11 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				return null;
 			}
 
+			/// <summary>
+			/// Извлекает ИНН клиента из строки.
+			/// </summary>
+			/// <param name="str">Строка для разбора.</param>
+			/// <returns>ИНН клиента или <c>null</c>, если ИНН не найден.</returns>
 			public static string ParseClientInnFromString(string str)
 			{
 				if(str is null)

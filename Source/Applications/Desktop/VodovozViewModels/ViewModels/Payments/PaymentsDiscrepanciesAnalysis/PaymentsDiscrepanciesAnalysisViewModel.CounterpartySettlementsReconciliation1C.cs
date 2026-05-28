@@ -11,6 +11,9 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 		/// </summary>
 		public class CounterpartySettlementsReconciliation1C
 		{
+			/// <summary>
+			/// Максимальная дата старых заказов, которые учитываются отдельно в сверке.
+			/// </summary>
 			public static readonly DateTime OldOrdersMaxDate = new DateTime(2020, 08, 12);
 
 			private const string _openingBalancePrefix = "Сальдо начальное";
@@ -46,18 +49,58 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 			#region Properties
 
+			/// <summary>
+			/// ИНН контрагента из акта сверки 1С.
+			/// </summary>
 			public string CounterpartyInn { get; }
+
+			/// <summary>
+			/// Продажи из акта сверки 1С, распознанные как заказы.
+			/// </summary>
 			public IList<OrderReconciliation1C> Orders { get; }
+
+			/// <summary>
+			/// Дебетовые движения из акта сверки 1С, которые не распознаны как продажи.
+			/// </summary>
 			public IList<OtherWriteOffReconciliation1C> OtherWriteOffs { get; }
+
+			/// <summary>
+			/// Кредитовые движения из акта сверки 1С, распознанные как платежи.
+			/// </summary>
 			public IList<PaymentReconciliation1C> Payments { get; }
+
+			/// <summary>
+			/// Кредитовые движения из акта сверки 1С, которые не распознаны как платежи.
+			/// </summary>
 			public IList<OtherIncomeReconciliation1C> OtherIncomes { get; }
+
+			/// <summary>
+			/// Общая сумма продаж по акту сверки 1С.
+			/// </summary>
 			public decimal OrdersTotalSum { get; }
+
+			/// <summary>
+			/// Общая сумма платежей по акту сверки 1С.
+			/// </summary>
 			public decimal PaymentsTotalSum { get; }
+
+			/// <summary>
+			/// Баланс контрагента по данным акта сверки 1С.
+			/// </summary>
 			public decimal CounterpartyBalance => PaymentsTotalSum - OrdersTotalSum;
+
+			/// <summary>
+			/// Баланс контрагента по старым движениям из акта сверки 1С.
+			/// </summary>
 			public decimal CounterpartyOldBalance { get; }
 
 			#endregion Properties
 
+			/// <summary>
+			/// Создает сверку взаиморасчетов по контрагенту из xlsx-файла акта сверки 1С.
+			/// </summary>
+			/// <param name="fileName">Путь к xlsx-файлу акта сверки 1С.</param>
+			/// <returns>Сверка взаиморасчетов по контрагенту 1С.</returns>
 			public static CounterpartySettlementsReconciliation1C CreateFromXlsx(string fileName)
 			{
 				var rowsFromXls = XlsParseHelper.GetRowsFromXls(fileName);
@@ -513,11 +556,29 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 			private class MovementLayout
 			{
+				/// <summary>
+				/// Индекс колонки с датой движения.
+				/// </summary>
 				public int DateIndex { get; set; } = -1;
+
+				/// <summary>
+				/// Индекс колонки с наименованием документа.
+				/// </summary>
 				public int DocumentIndex { get; set; } = -1;
+
+				/// <summary>
+				/// Индекс колонки с дебетом.
+				/// </summary>
 				public int DebitIndex { get; set; } = -1;
+
+				/// <summary>
+				/// Индекс колонки с кредитом.
+				/// </summary>
 				public int CreditIndex { get; set; } = -1;
 
+				/// <summary>
+				/// Признак корректного определения колонок движения.
+				/// </summary>
 				public bool IsValid =>
 					DateIndex >= 0
 					&& DocumentIndex >= 0
@@ -527,17 +588,47 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 			private class ReconciliationMovement
 			{
+				/// <summary>
+				/// Дата строки движения.
+				/// </summary>
 				public DateTime Date { get; set; }
+
+				/// <summary>
+				/// Наименование документа движения.
+				/// </summary>
 				public string DocumentName { get; set; }
+
+				/// <summary>
+				/// Номер документа движения.
+				/// </summary>
 				public int? DocumentNumber { get; set; }
+
+				/// <summary>
+				/// Дата документа движения.
+				/// </summary>
 				public DateTime? DocumentDate { get; set; }
+
+				/// <summary>
+				/// Сумма дебета.
+				/// </summary>
 				public decimal? Debit { get; set; }
+
+				/// <summary>
+				/// Сумма кредита.
+				/// </summary>
 				public decimal? Credit { get; set; }
 			}
 
 			private class TurnoverSummary
 			{
+				/// <summary>
+				/// Итоговая сумма дебета за период.
+				/// </summary>
 				public decimal Debit { get; set; }
+
+				/// <summary>
+				/// Итоговая сумма кредита за период.
+				/// </summary>
 				public decimal Credit { get; set; }
 			}
 		}
