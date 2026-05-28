@@ -41,12 +41,6 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 		private readonly IBus _bus;
 		private readonly IOptionsMonitor<EmailClaimLettersOptions> _emailClaimLettersOptions;
 		private readonly IClaimLetterBillWithoutShipmentService _claimLetterBillWithoutShipmentService;
-		private readonly OrderStatus[] _orderStatuses =new[]
-		{
-			OrderStatus.Shipped,
-			OrderStatus.UnloadingOnStock,
-			OrderStatus.Closed
-		};
 
 		private readonly RevenueStatus[] _excludeCounterpartyRevenueStatuses = new[]
 		{
@@ -111,7 +105,7 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 				lettersToSendCount,
 				cancellationToken)).ToList();
 
-			if(overdueDebitorsDebtData.Count == 0)
+			if(!overdueDebitorsDebtData.Any())
 			{
 				_logger.LogDebug("Нет клиентов для отправки претензионных писем");
 				return;

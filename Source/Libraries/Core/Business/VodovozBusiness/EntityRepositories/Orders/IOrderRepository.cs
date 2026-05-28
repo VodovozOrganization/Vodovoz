@@ -351,7 +351,6 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="expiredMinDaysAgo">Минимальное количество дней просрочки</param>
-		/// <param name="orderStatuses">Статусы заказов</param>
 		/// <param name="excludeCounterpartyRevenueStatuses">Статусы контрагентов в налоговой для исключения</param>
 		/// <param name="letterOfClaimResendIntervalDays">Интервал дней для повторной отправки претензии</param>
 		/// <param name="maxClientsToTake">Максимальное количество клиентов</param>
@@ -360,7 +359,6 @@ namespace Vodovoz.EntityRepositories.Orders
 		Task<IEnumerable<CounterpartyOverdueDebtorDebtAggregatedNode>> GetOverdueDebtorDebtDataForLettersOfClaim(
 			IUnitOfWork uow,
 			int expiredMinDaysAgo,
-			IEnumerable<OrderStatus> orderStatuses,
 			IEnumerable<RevenueStatus> excludeCounterpartyRevenueStatuses,
 			int letterOfClaimResendIntervalDays,
 			int maxClientsToTake = int.MaxValue,

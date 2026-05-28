@@ -44,15 +44,5 @@ namespace VodovozBusiness.EntityRepositories.Nodes
 		/// Просроченная сумма долга по заказу
 		/// </summary>
 		public decimal OverdueDebtorDebt { get; set; }
-
-		/// <summary>
-		/// Отсрочка дней покупателям
-		/// </summary>
-		public int CounterpartyPaymentDelayDays { get; set; }
-
-		/// <summary>
-		/// Дата доставки заказа
-		/// </summary>
-		public DateTime OrderDeliveryDate { get; set; }
 	}
 }

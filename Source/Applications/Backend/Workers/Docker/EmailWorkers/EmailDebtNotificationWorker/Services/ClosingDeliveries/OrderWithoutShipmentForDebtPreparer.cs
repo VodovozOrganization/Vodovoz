@@ -1,4 +1,4 @@
-﻿using EmailDebtNotificationWorker.DTO;
+using EmailDebtNotificationWorker.DTO;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
-using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Settings.Organizations;
 using VodovozBusiness.EntityRepositories.Nodes;
@@ -17,19 +16,16 @@ namespace EmailDebtNotificationWorker.Services.ClosingDeliveries
 	public class OrderWithoutShipmentForDebtPreparer : IOrderWithoutShipmentForDebtPreparer
 	{
 		private readonly IEmployeeRepository _employeeRepository;
-		private readonly ICounterpartyRepository _counterpartyRepository;
 		private readonly IGenericRepository<OrderWithoutShipmentForDebt> _orderWithoutShipmentForDebtRepository;
 		private readonly IOrganizationSettings _organizationSettings;
 		private const int _daysToCheckExistingBills = 3;
 
 		public OrderWithoutShipmentForDebtPreparer(
 			IEmployeeRepository employeeRepository,
-			ICounterpartyRepository counterpartyRepository,
 			IGenericRepository<OrderWithoutShipmentForDebt> orderWithoutShipmentForDebtRepository,
 			IOrganizationSettings organizationSettings)
 		{
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 			_orderWithoutShipmentForDebtRepository = orderWithoutShipmentForDebtRepository ?? throw new ArgumentNullException(nameof(orderWithoutShipmentForDebtRepository));
 			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 		}
@@ -74,13 +70,11 @@ namespace EmailDebtNotificationWorker.Services.ClosingDeliveries
 					}
 				}
 
-				var debt = _counterpartyRepository.GetDebtByOrganization(unitOfWork, node.Counterparty.Id, node.Organization.Id);
-
 				var notificationInfo = new OrderWithoutShipmentForDebtNotificationInfo
 				{
 					OverdueDebtDays = node.OverdueDebtDays,
 					OldestDebtOrderDate = node.OldestDebtOrderDate,
-					OrderWithoutShipmentForDebt = existingOrdersWithoutShipmentForDebt.FirstOrDefault(x =>
+					OrderWithoutShipmentForDebt = existingOrdersWithoutShipmentForDebt.LastOrDefault(x =>
 						x.Client.Id == node.Counterparty.Id
 						&& x.Organization.Id == node.Organization.Id)
 				};
@@ -91,7 +85,7 @@ namespace EmailDebtNotificationWorker.Services.ClosingDeliveries
 					{
 						Client = node.Counterparty,
 						Organization = node.Organization,
-						DebtSum = debt,
+						DebtSum = node.DebtSum,
 						Author = author
 					};
 

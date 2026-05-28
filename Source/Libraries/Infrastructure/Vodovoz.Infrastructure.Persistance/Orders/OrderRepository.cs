@@ -1,4 +1,4 @@
-using Core.Infrastructure;
+﻿using Core.Infrastructure;
 using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
@@ -2724,7 +2724,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		public async Task<IEnumerable<CounterpartyOverdueDebtorDebtAggregatedNode>> GetOverdueDebtorDebtDataForLettersOfClaim(
 			IUnitOfWork uow,
 			int expiredMinDaysAgo,
-			IEnumerable<OrderStatus> orderStatuses,
 			IEnumerable<RevenueStatus> excludeCounterpartyRevenueStatuses,
 			int letterOfClaimResendIntervalDays,
 			int maxClientsToTake = int.MaxValue,
@@ -2769,7 +2768,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
 				.Where(Restrictions.In(
 					Projections.Property(() => orderAlias.OrderStatus),
-					orderStatuses.ToArray()))
+					debtOrderStatuses.ToArray()))
 				.Select(Projections.Sum(
 					Projections.SqlFunction(
 						new SQLFunctionTemplate(NHibernateUtil.Decimal, "(?1 * IFNULL(?2, ?3) - ?4)"),
@@ -2792,7 +2791,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
 				.Where(Restrictions.In(
 					Projections.Property(() => orderAlias.OrderStatus),
-					orderStatuses.ToArray()))
+					debtOrderStatuses.ToArray()))
 				.Where(() => cashlessMovementOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
 				.Select(Projections.Sum(() => cashlessMovementOperationAlias.Expense));
 
@@ -2811,13 +2810,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				Projections.SubQuery(orderPaymentsSumSubquery)
 			);
 
-			var expiredDateProjection = Projections.SqlFunction(
-				new SQLFunctionTemplate(NHibernateUtil.DateTime, "DATE_ADD(?1, INTERVAL ?2 DAY)"),
-				NHibernateUtil.DateTime,
-				Projections.Property(() => orderAlias.DeliveryDate),
-				Projections.Property(() => counterpartyAlias.DelayDaysForBuyers)
-			);
-
 			var allData = await uow.Session.QueryOver(() => orderAlias)
 				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.JoinAlias(() => orderAlias.Contract, () => contractAlias)
@@ -2832,29 +2824,31 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.Where(() => !organizationAlias.DisableClaimMailing)
 				.Where(Restrictions.In(
 					Projections.Property(() => orderAlias.OrderStatus),
-					orderStatuses.ToArray()))
+					debtOrderStatuses.ToArray()))
 				.Where(Restrictions.Or(
 					Restrictions.IsNull(Projections.Property(() => counterpartyAlias.RevenueStatus)),
 					Restrictions.Not(Restrictions.In(Projections.Property(() => counterpartyAlias.RevenueStatus), excludeCounterpartyRevenueStatuses.ToArray()))
 				))
-				.Where(Restrictions.Not(Restrictions.In(
-					Projections.Property(() => counterpartyAlias.CloseDeliveryDebtType),
-					excludeDebtTypes.ToArray())))
-				.Where(Restrictions.Gt(debtProjection, 0m))
-				.Where(Restrictions.Le(expiredDateProjection, expiredMaxDate))
 				.Where(Restrictions.Disjunction()
-					.Add(Restrictions.IsNull(Projections.SubQuery(lastLetterOfClaimDateSubquery)))
-					.Add(Restrictions.Lt(Projections.SubQuery(lastLetterOfClaimDateSubquery), letterOfClaimMaxSendDate)))
-				.SelectList(list => list
-					.SelectGroup(() => counterpartyAlias.Id).WithAlias(() => resultAlias.CounterpartyId)
-					.SelectGroup(() => organizationAlias.Id).WithAlias(() => resultAlias.OrganizationId)
+					.Add(Restrictions.IsNull(Projections.Property(() => counterpartyAlias.CloseDeliveryDebtType)))
+					.Add(Restrictions.Not(Restrictions.In(
+						Projections.Property(() => counterpartyAlias.CloseDeliveryDebtType),
+						excludeDebtTypes.ToArray()
+					)))
+				)
+				.Where(Restrictions.Gt(debtProjection, 0m))
+				 .Where(Restrictions.Disjunction()
+					 .Add(Restrictions.IsNull(Projections.SubQuery(lastLetterOfClaimDateSubquery)))
+					 .Add(Restrictions.Lt(Projections.SubQuery(lastLetterOfClaimDateSubquery), letterOfClaimMaxSendDate)))
+				 .SelectList(list => list
+					.Select(() => counterpartyAlias.Id).WithAlias(() => resultAlias.CounterpartyId)
+					.Select(() => organizationAlias.Id).WithAlias(() => resultAlias.OrganizationId)
 					.Select(() => organizationAlias.FullName).WithAlias(() => resultAlias.OrganizationFullName)
 					.Select(() => organizationAlias.EmailForClaimLetters).WithAlias(() => resultAlias.OrganizationEmailForMailing)
 					.Select(() => contractAlias.Id).WithAlias(() => resultAlias.ContractId)
 					.Select(debtProjection).WithAlias(() => resultAlias.OverdueDebtorDebt)
-					.Select(Projections.Property(() => orderAlias.DeliveryDate)).WithAlias(() => resultAlias.OrderDeliveryDate)
-					.Select(Projections.Property(() => counterpartyAlias.DelayDaysForBuyers)).WithAlias(() => resultAlias.CounterpartyPaymentDelayDays)
-					.Select(Projections.Property(() => orderAlias.Id)).WithAlias(() => resultAlias.OrderId))
+					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+					)
 				.TransformUsing(Transformers.AliasToBean<CounterpartyOverdueDebtorDebtDataNode>())
 				.Take(maxClientsToTake)
 				.ListAsync<CounterpartyOverdueDebtorDebtDataNode>(cancellationToken);
@@ -2864,13 +2858,14 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.Select(g => new CounterpartyOverdueDebtorDebtAggregatedNode
 				{
 					OrderIds = g.Select(x => x.OrderId).Distinct().ToList(),
-					OrganizationId = g.First().OrganizationId,
-					CounterpartyId = g.First().CounterpartyId,
+					OrganizationId = g.Key.OrganizationId,
+					CounterpartyId = g.Key.CounterpartyId,
 					OrganizationFullName = g.First().OrganizationFullName,
 					OrganizationEmailForMailing = g.First().OrganizationEmailForMailing,
 					Contractd = g.First().ContractId,
 					TotalOverdueDebtorDebt = g.Sum(x => x.OverdueDebtorDebt)
 				})
+				.Where(x => x.TotalOverdueDebtorDebt > 100m)
 				.ToList();
 
 			return result;
