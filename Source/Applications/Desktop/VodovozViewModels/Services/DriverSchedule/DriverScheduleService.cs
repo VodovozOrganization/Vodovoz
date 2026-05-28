@@ -24,6 +24,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 		private const int _columnsPerDay = 5;
 		private const int _daysInWeek = 7;
 		private const int _commentColumn = _firstDayColumn + _daysInWeek * _columnsPerDay;
+		private const string _driverScheduleCarEventFoundation = "Создано из графика водителей";
 		private static readonly HashSet<string> _carEventTypeNamesAllowedToCreateFromDriverSchedule =
 			CreateCarEventTypeNamesSet("вод/тел", "отпуск", "больничный", "выходной");
 		private static readonly HashSet<string> _carEventTypeNamesAllowedToShowInDriverSchedule = CreateCarEventTypeNamesSet(
@@ -233,8 +234,12 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			for(int dayIndex = 0; dayIndex < 7; dayIndex++)
 			{
 				var dayDate = startDate.AddDays(dayIndex);
-				var applicableEvent = driverCarEvents.FirstOrDefault(ce =>
-					ce.StartDate.Date <= dayDate && ce.EndDate.Date >= dayDate);
+				var applicableEvent = driverCarEvents
+					.Where(ce => ce.StartDate.Date <= dayDate && ce.EndDate.Date >= dayDate)
+					.OrderByDescending(ce => IsAllowedToCreateFromDriverSchedule(ce.CarEventType))
+					.ThenByDescending(ce => ce.CarEventType?.AreaOfResponsibility == AreaOfResponsibility.LogisticDepartment)
+					.ThenByDescending(ce => ce.StartDate)
+					.FirstOrDefault();
 
 				if(applicableEvent != null && !node.Days[dayIndex].IsVirtualCarEventType)
 				{
@@ -573,6 +578,14 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			}
 
 			var eventGroups = GroupConsecutiveCarEvents(driverNode);
+			var existingCarEvents = _logisticRepository
+				.GetCarEventsByDriverIds(
+					uow,
+					new[] { driverNode.DriverId },
+					driverNode.StartDate,
+					driverNode.StartDate.AddDays(_daysInWeek - 1))
+				.Where(carEvent => carEvent.Car?.Id == car.Id)
+				.ToList();
 
 			foreach(var group in eventGroups)
 			{
@@ -581,7 +594,7 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 					continue;
 				}
 
-				CreateOrUpdateCarEvent(uow, car, driverNode, group, currentUserId);
+				CreateOrUpdateCarEvent(uow, car, driverNode, group, currentUserId, existingCarEvents);
 			}
 		}
 
@@ -642,7 +655,13 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			return groups;
 		}
 
-		private void CreateOrUpdateCarEvent(IUnitOfWork uow, Car car, DriverScheduleRow driverNode, CarEventGroup group, int currentUserId)
+		private void CreateOrUpdateCarEvent(
+			IUnitOfWork uow,
+			Car car,
+			DriverScheduleRow driverNode,
+			CarEventGroup group,
+			int currentUserId,
+			IList<CarEvent> existingCarEvents)
 		{
 			if(group.CarEventType?.Id <= 0 || !IsAllowedToCreateFromDriverSchedule(group.CarEventType))
 			{
@@ -650,8 +669,21 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 			}
 
 			var endOfDay = new DateTime(group.EndDate.Year, group.EndDate.Month, group.EndDate.Day, 23, 59, 59);
+			var existingSameTypeEvents = existingCarEvents
+				.Where(carEvent => carEvent.CarEventType?.Id == group.CarEventType.Id)
+				.Where(carEvent => carEvent.StartDate <= endOfDay && carEvent.EndDate >= group.StartDate.Date)
+				.ToList();
 
-			var existingEvent = _logisticRepository.GetCarEventByCarId(uow, car.Id, group, endOfDay);
+			var existingEvent = existingSameTypeEvents.FirstOrDefault(IsCreatedFromDriverSchedule);
+			var existingNotDriverScheduleEvent = existingSameTypeEvents.FirstOrDefault(carEvent => !IsCreatedFromDriverSchedule(carEvent));
+			var existingDriverScheduleEventCoversGroup = existingEvent != null
+				&& existingEvent.StartDate.Date <= group.StartDate.Date
+				&& existingEvent.EndDate >= endOfDay;
+
+			if(existingNotDriverScheduleEvent != null || existingDriverScheduleEventCoversGroup)
+			{
+				return;
+			}
 
 			var commentToSave = driverNode.IsCommentEdited
 				? driverNode.EditedComment
@@ -667,19 +699,29 @@ namespace Vodovoz.ViewModels.Services.DriverSchedule
 					StartDate = group.StartDate,
 					EndDate = group.EndDate.AddHours(23).AddMinutes(59).AddSeconds(59),
 					Comment = commentToSave,
-					Foundation = "Создано из графика водителей",
+					Foundation = _driverScheduleCarEventFoundation,
 					CreateDate = DateTime.Now,
 					Author = _employeeService.GetEmployeeForUser(uow, currentUserId)
 				};
 
 				uow.Session.Save(newEvent);
+				existingCarEvents.Add(newEvent);
 			}
 			else
 			{
+				existingEvent.StartDate = group.StartDate.Date;
 				existingEvent.EndDate = endOfDay;
 				existingEvent.Comment = commentToSave;
 				uow.Save(existingEvent);
 			}
+		}
+
+		private static bool IsCreatedFromDriverSchedule(CarEvent carEvent)
+		{
+			return string.Equals(
+				carEvent?.Foundation,
+				_driverScheduleCarEventFoundation,
+				StringComparison.Ordinal);
 		}
 
 		private bool IsAllowedToCreateFromDriverSchedule(CarEventType eventType)

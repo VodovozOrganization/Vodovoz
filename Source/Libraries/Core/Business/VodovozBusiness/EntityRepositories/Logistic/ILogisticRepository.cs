@@ -13,16 +13,6 @@ namespace VodovozBusiness.EntityRepositories.Logistic
 	public interface ILogisticRepository
 	{
 		/// <summary>
-		/// Получить событие по автомобилю водителя за указанный период и группу событий
-		/// </summary>
-		/// <param name="uow"></param>
-		/// <param name="carId"></param>
-		/// <param name="startDate"></param>
-		/// <param name="endDate"></param>
-		/// <returns></returns>
-		CarEvent GetCarEventByCarId(IUnitOfWork uow, int carId, CarEventGroup group, DateTime endDate);
-
-		/// <summary>
 		/// Получить день расписания водителя за указанный день.
 		/// На одного водителя может быть только 1 день расписания
 		/// </summary>

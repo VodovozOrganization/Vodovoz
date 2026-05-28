@@ -265,15 +265,6 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 			return query;
 		}
 
-		public CarEvent GetCarEventByCarId(IUnitOfWork uow, int carId, CarEventGroup group, DateTime endDate)
-		{
-			return uow.Session.QueryOver<CarEvent>()
-				.Where(e => e.Car.Id == carId)
-				.Where(e => e.CarEventType.Id == group.CarEventType.Id)
-				.Where(e => e.StartDate >= group.StartDate.Date && e.StartDate <= endDate)
-				.SingleOrDefault();
-		}
-
 		public DriverScheduleItem GetDriverScheduleItemByDriverId(IUnitOfWork uow, int driverId, DateTime date)
 		{
 			DriverScheduleItem itemAlias = null;
