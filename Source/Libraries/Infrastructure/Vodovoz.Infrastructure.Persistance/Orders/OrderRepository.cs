@@ -2238,8 +2238,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			IEnumerable<int> orderIds,
 			int organizationId)
 		{
-			var orderIdsList = orderIds.ToList();
-
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
 			CounterpartyContract contractAlias = null;
@@ -2254,7 +2252,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				.JoinAlias(o => o.OrderItems, () => orderItemAlias)
 				.JoinAlias(o => o.Contract, () => contractAlias)
 				.JoinAlias(o => o.Client, () => clientAlias)
-				.WhereRestrictionOn(o => o.Id).IsInG(orderIdsList)
+				.WhereRestrictionOn(o => o.Id).IsInG(orderIds)
 				.And(() => contractAlias.Organization.Id == organizationId)
 				.SelectList(list => list
 					.SelectGroup(o => o.Id).WithAlias(() => resultAlias.OrderId)
@@ -2277,7 +2275,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			IEnumerable<int> exceptOrderIds,
 			int organizationId)
 		{
-			var exceptOrderIdsList = exceptOrderIds.ToList();
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
 			CounterpartyContract contractAlias = null;
@@ -2310,9 +2307,9 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				)
 				.TransformUsing(Transformers.AliasToBean<OrderWithAllocation>());
 
-			if(exceptOrderIdsList.Any())
+			if(exceptOrderIds.Any())
 			{
-				query.WhereRestrictionOn(o => o.Id).Not.IsInG(exceptOrderIdsList);
+				query.WhereRestrictionOn(o => o.Id).Not.IsInG(exceptOrderIds);
 			}
 
 			return query.List<OrderWithAllocation>();
@@ -2325,8 +2322,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			IEnumerable<int> exceptOrderIds,
 			int organizationId)
 		{
-			var exceptOrderIdsList = exceptOrderIds.ToList();
-
 			var query =
 				from payment in uow.Session.Query<Payment>()
 				join paymentItem in uow.Session.Query<PaymentItem>()
@@ -2339,7 +2334,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				where payment.CounterpartyInn == counterpartyInn
 					&& paymentItem.PaymentItemStatus != AllocationStatus.Cancelled
 					&& order.Client.Id != counterpartyId
-					&& !exceptOrderIdsList.Contains(order.Id)
+					&& !exceptOrderIds.Contains(order.Id)
 					&& order.PaymentType == PaymentType.Cashless
 					&& order.Contract.Organization.Id == organizationId
 				group paymentItem by paymentItem.Order.Id
