@@ -250,6 +250,21 @@ namespace Vodovoz.Infrastructure.Report.SelectableParametersFilter
 			return result;
 		}
 
+		public IEnumerable<int> GetSelectedEntityIds<TEntity>()
+			where TEntity : class, IDomainObject
+		{
+			return GetSelectedParameters()
+				.OfType<SelectableEntityParameter<TEntity>>()
+				.Select(value => value.EntityId);
+		}
+
+		public IEnumerable<TEnum> GetSelectedEnumValues<TEnum>()
+		{
+			return GetSelectedParameters()
+				.OfType<SelectableEnumParameter<TEnum>>()
+				.Select(value => (TEnum)value.Value);
+		}
+
 		private object[] GetValidSelectedValues(IEnumerable<object> selectedValues)
 		{
 			if(!selectedValues.Any())
