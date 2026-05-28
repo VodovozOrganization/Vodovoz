@@ -6,6 +6,7 @@
 		int CompensationFromInsuranceByCourtId { get; }
 		int TechInspectCarEventTypeId { get; }
 		int CarTechnicalCheckupEventTypeId { get; }
+		int CarRepairEventTypeId { get; }
 
 		int CarTransferEventTypeId { get; }
 		int CarReceptionEventTypeId { get; }

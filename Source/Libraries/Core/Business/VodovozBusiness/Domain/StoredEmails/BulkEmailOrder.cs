@@ -1,9 +1,11 @@
 ﻿using QS.DomainModel.Entity;
+using System;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.StoredEmails
 {
+	[Obsolete("По задаче 5740 отказались от функционала задачи 4675, поэтому данный класс больше не нужен. Снести в будущем")]
 	public class BulkEmailOrder : PropertyChangedBase, IDomainObject
 	{
 		private int _id;

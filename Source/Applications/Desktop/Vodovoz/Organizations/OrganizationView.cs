@@ -1,4 +1,5 @@
-﻿using QS.Views.GtkUI;
+﻿using FluentNHibernate.Data;
+using QS.Views.GtkUI;
 using QS.Widgets;
 using ReactiveUI.Validation.Extensions;
 using System;
@@ -51,6 +52,15 @@ namespace Vodovoz.Organizations
 				.AddBinding(ViewModel.Entity, e => e.EmailForMailing, w => w.Text)
 				.InitializeFromSource();
 
+			validatedentryEmailForCosingDeliveries.CustomRegex = ViewModel.RegexForEmailForMailing;
+			validatedentryEmailForCosingDeliveries.Binding
+				.AddBinding(ViewModel.Entity, e => e.ClosingDeliveriesNotificationEmailFrom, w => w.Text)
+				.InitializeFromSource();
+
+			ycheckbuttonDisableClosingDeliveriesMailing.Binding
+				.AddBinding(ViewModel.Entity, e => e.DisableClosingDeliveriesMailing, w => w.Active)
+				.InitializeFromSource();
+
 			validatedentryInn.ValidationMode = ValidationType.Numeric;
 			validatedentryInn.Binding
 				.AddBinding(ViewModel.Entity, e => e.INN, w => w.Text)
@@ -91,6 +101,14 @@ namespace Vodovoz.Organizations
 			
 			yentryPrefix.Binding
 				.AddBinding(ViewModel.Entity, e => e.Prefix, w => w.Text)
+				.InitializeFromSource();
+
+			ycheckbuttonDisableDebtMailing.Binding
+				.AddBinding(ViewModel.Entity, e => e.DisableDebtMailing, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckbuttonDebtMailingWithSignature.Binding
+				.AddBinding(ViewModel.Entity, e => e.DebtMailingWithSignature, w => w.Active)
 				.InitializeFromSource();
 
 			notebookMain.Page = 0;

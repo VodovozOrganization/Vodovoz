@@ -99,21 +99,21 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport
 				return new List<BulkDebtMailingReportRow>();
 			}
 
-			BulkEmail bulkEmailAlias = null;
-			BulkEmailOrder bulkEmailOrderAlias = null;
+			var emailTypes = new[] { CounterpartyEmailType.Bulk, CounterpartyEmailType.GeneralBillDocument, CounterpartyEmailType.ClosingDeliveries };
+
+			CounterpartyEmail counterpartyEmailAlias = null;
 			StoredEmail storedEmailAlias = null;
 			Domain.Client.Counterparty counterpartyAlias = null;
 			Phone phoneAlias = null;
-			Order orderAlias = null;
 			BulkDebtMailingReportRow resultAlias = null;
 
-			var itemsQuery = UoW.Session.QueryOver(() => bulkEmailOrderAlias)
-				.Left.JoinAlias(() => bulkEmailOrderAlias.BulkEmail, () => bulkEmailAlias)
-				.Left.JoinAlias(() => bulkEmailAlias.StoredEmail, () => storedEmailAlias)
-				.Left.JoinAlias(() => bulkEmailAlias.Counterparty, () => counterpartyAlias)
-				.Left.JoinAlias(() => bulkEmailOrderAlias.Order, () => orderAlias)
-				.Where(() => storedEmailAlias.SendDate >= EventActionTimeFrom.Value.Date
-							 && storedEmailAlias.SendDate <= EventActionTimeTo.Value.Date.Add(new TimeSpan(0, 23, 59, 59)));
+
+			var itemsQuery = UoW.Session.QueryOver(() => counterpartyEmailAlias)
+				.Left.JoinAlias(() => counterpartyEmailAlias.StoredEmail, () => storedEmailAlias)
+				.Left.JoinAlias(() => counterpartyEmailAlias.Counterparty, () => counterpartyAlias)
+				.WhereRestrictionOn(() => counterpartyEmailAlias.Type).IsIn(emailTypes)
+				.Where(() => storedEmailAlias.SendDate >= EventActionTimeFrom.Value.Date)
+				.Where(() => storedEmailAlias.SendDate <= EventActionTimeTo.Value.Date.Add(new TimeSpan(0, 23, 59, 59)));
 
 			if(Counterparty != null)
 			{
@@ -133,6 +133,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport
 					.Select(() => storedEmailAlias.State).WithAlias(() => resultAlias.State)
 					.Select(() => counterpartyAlias.Id).WithAlias(() => resultAlias.CounterpartyId)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
+					.Select(() => counterpartyEmailAlias.Type).WithAlias(() => resultAlias.EmailType)
 					.Select(() => storedEmailAlias.RecipientAddress).WithAlias(() => resultAlias.Email)
 					.SelectSubQuery(phoneSubquery).WithAlias(() => resultAlias.Phone)
 				).OrderBy(() => storedEmailAlias.SendDate).Desc
@@ -151,18 +152,19 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport
 				return new List<BulkDebtMailingSummaryReportRow>();
 			}
 
-			BulkEmail bulkEmailAlias = null;
-			BulkEmailOrder bulkEmailOrderAlias = null;
+			var emailTypes = new[] { CounterpartyEmailType.Bulk, CounterpartyEmailType.GeneralBillDocument, CounterpartyEmailType.ClosingDeliveries };
+
+			CounterpartyEmail counterpartyEmailAlias = null;
 			StoredEmail storedEmailAlias = null;
 			Domain.Client.Counterparty counterpartyAlias = null;
 			BulkDebtMailingSummaryReportRow resultAlias = null;
 
-			var itemsQuery = UoW.Session.QueryOver(() => bulkEmailOrderAlias)
-				.Left.JoinAlias(() => bulkEmailOrderAlias.BulkEmail, () => bulkEmailAlias)
-				.Left.JoinAlias(() => bulkEmailAlias.StoredEmail, () => storedEmailAlias)
-				.Left.JoinAlias(() => bulkEmailAlias.Counterparty, () => counterpartyAlias)
-				.Where(() => storedEmailAlias.SendDate >= EventActionTimeFrom.Value.Date
-							 && storedEmailAlias.SendDate <= EventActionTimeTo.Value.Date.Add(new TimeSpan(0, 23, 59, 59)));
+			var itemsQuery = UoW.Session.QueryOver(() => counterpartyEmailAlias)
+				.Left.JoinAlias(() => counterpartyEmailAlias.StoredEmail, () => storedEmailAlias)
+				.Left.JoinAlias(() => counterpartyEmailAlias.Counterparty, () => counterpartyAlias)
+				.WhereRestrictionOn(() => counterpartyEmailAlias.Type).IsIn(emailTypes)
+				.Where(() => storedEmailAlias.SendDate >= EventActionTimeFrom.Value.Date)
+				.Where(() => storedEmailAlias.SendDate <= EventActionTimeTo.Value.Date.Add(new TimeSpan(0, 23, 59, 59)));
 
 			if(Counterparty != null)
 			{
@@ -171,9 +173,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.BulkDebtMailingReport
 
 			var result = itemsQuery
 				.SelectList(list => list
-					.SelectGroup(() => storedEmailAlias.SendDate.Date).WithAlias(() => resultAlias.ActionDateTime)
 					.SelectGroup(() => storedEmailAlias.State).WithAlias(() => resultAlias.State)
-					.SelectCount(() => bulkEmailOrderAlias.Id).WithAlias(() => resultAlias.Count)
+					.SelectCount(() => counterpartyEmailAlias.Id).WithAlias(() => resultAlias.Count)
 				)
 				.OrderBy(() => storedEmailAlias.SendDate).Desc
 				.TransformUsing(Transformers.AliasToBean<BulkDebtMailingSummaryReportRow>())

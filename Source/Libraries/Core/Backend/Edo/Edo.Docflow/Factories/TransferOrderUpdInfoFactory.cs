@@ -230,9 +230,7 @@ namespace Edo.Docflow.Factories
 
 				var sum = price * quantity;
 				
-				var vatRateVersion = transferOrder.Seller != null && transferOrder.Seller.IsUsnMode 
-					? transferOrder.Seller.GetActualVatRateVersion(transferOrder.Date)
-					: nomenclature.GetActualVatRateVersion(transferOrder.Date);
+				var vatRateVersion = nomenclature.GetEffectiveVatRateVersion(transferOrder.Seller, transferOrder.Date);
 				
 				if(vatRateVersion == null)
 				{

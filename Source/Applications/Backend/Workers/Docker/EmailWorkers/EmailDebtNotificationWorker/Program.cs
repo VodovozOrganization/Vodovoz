@@ -1,6 +1,9 @@
-﻿using Autofac.Extensions.DependencyInjection;
-using EdoService.Library.Services;
+using Autofac.Extensions.DependencyInjection;
+using BitrixApi.Library.Services;
+using EmailDebtNotificationWorker.Options;
+using EmailDebtNotificationWorker.Repositories;
 using EmailDebtNotificationWorker.Services;
+using EmailDebtNotificationWorker.Services.ClosingDeliveries;
 using MassTransit;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;
@@ -8,20 +11,23 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
-using QS.DomainModel.UoW;
 using QS.Project.Core;
 using QS.Report;
 using RabbitMQ.MailSending;
 using System;
 using System.Text;
+using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Data.NHibernate;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Database.Common;
 using Vodovoz.Settings.Database.Counterparty;
 using Vodovoz.Zabbix.Sender;
+using VodovozBusiness.Services.Orders;
 using AssemblyFinder = Vodovoz.Data.NHibernate.AssemblyFinder;
+using QS.HistoryLog;
 
 namespace EmailDebtNotificationWorker
 {
@@ -61,6 +67,12 @@ namespace EmailDebtNotificationWorker
 							typeof(Vodovoz.Data.NHibernate.HibernateMapping.Counterparty.BulkEmailEventMap).Assembly
 						);
 
+					services
+						.AddDatabaseConfigurationExposer(config =>
+						{
+							config.LinqToHqlGeneratorsRegistry<LinqToHqlGeneratorsRegistry>();
+						});
+
 					services.AddDatabaseConnection();
 					services.AddCore();
 					services.AddInfrastructure();
@@ -69,6 +81,7 @@ namespace EmailDebtNotificationWorker
 					services.AddTrackedUoW();
 					services.ConfigureZabbixSenderFromDataBase(nameof(EmailDebtNotificationWorker));
 					Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
+					services.AddStaticHistoryTracker();
 
 					services
 						.AddMassTransit(busConf =>
@@ -83,13 +96,33 @@ namespace EmailDebtNotificationWorker
 							transportSettings);
 						});
 
+					services.AddScoped<IDatabaseRepository, DataBaseRepositiry>();
+
 					services.AddScoped<IWorkingDayService, WorkingDayService>();
 					services.AddScoped<IDebtorsSettings, DebtorsSettings>();
 					services.AddScoped<IEmailSettings, EmailSettings>();
-					services.AddScoped<PrintableDocumentSaver>();
 					services.AddScoped<IReportInfoFactory, DefaultReportInfoFactory>();
+					services.AddScoped<IEmailAttachmentsCreateService, EmailAttachmentsCreateService>();
 					services.AddScoped<IEmailDebtNotificationService, EmailDebtNotificationService>();
 					services.AddHostedService<EmailDebtNotificationWorker>();
+
+					services
+						.ConfigureOptions<ConfigureEmailClaimLettersOptions>()
+						.AddScoped<IEmailClaimLettersService, EmailClaimLettersService>()
+						.AddHostedService<EmailClaimLettersWorker>()
+						.ConfigureZabbixSenderFromDataBase(nameof(EmailClaimLettersWorker));
+
+					// Пока отключаем до реализации других задач
+					//services
+					//	.Configure<EmailClosingDeliveriesOptions>(hostContext.Configuration.GetSection(EmailClosingDeliveriesOptions.SectionName))
+					//	.AddScoped<IClosingDeliveriesService, ClosingDeliveriesService>()
+					//	.AddScoped<IOrderWithoutShipmentForDebtPreparer, OrderWithoutShipmentForDebtPreparer>()
+					//	.AddScoped<IClosingDeliveriesNotificationSender, ClosingDeliveriesNotificationSender>()
+					//	.AddScoped<IClientClosingDeliveriesEmailPreparer, ClientClosingDeliveriesEmailPreparer>()
+					//	.AddScoped<ISummaryClosingDeliveriesEmailPreparer, SummaryClosingDeliveriesEmailPreparer>()
+					//	.AddHostedService<EmailClosingDeliveriesWorker>()
+					//	.ConfigureZabbixSenderFromDataBase(nameof(EmailClosingDeliveriesWorker))
+					//	;
 				});
 	}
 }

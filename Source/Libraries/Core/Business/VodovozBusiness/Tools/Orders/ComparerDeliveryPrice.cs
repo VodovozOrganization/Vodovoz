@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -94,7 +94,7 @@ namespace Vodovoz.Tools.Orders
 		{
 			var water = products.Where(
 					x => x.PromoSet == null
-						&& x.DiscountReason?.IsPresent != true
+						&& !x.DiscountReasons.Any(r => r.IsPresent)
 						&& x.Nomenclature != null
 						&& x.Nomenclature.Category == NomenclatureCategory.water)
 				.ToList();

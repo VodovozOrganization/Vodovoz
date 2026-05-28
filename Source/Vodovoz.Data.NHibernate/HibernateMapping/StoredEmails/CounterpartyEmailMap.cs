@@ -83,5 +83,31 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.StoredEmails
 				References(x => x.OrderDocument).Column("order_document_id");
 			}
 		}
+
+		public class LetterOfClaimEmailMap : SubclassMap<LetterOfClaimEmail>
+		{
+			public LetterOfClaimEmailMap()
+			{
+				DiscriminatorValue(nameof(CounterpartyEmailType.LetterOfClaim));
+				Map(x => x.OrganizationId).Column("organization_id");
+			}
+		}
+
+		public class GeneralBillDocumentEmailMap : SubclassMap<GeneralBillDocumentEmail>
+		{
+			public GeneralBillDocumentEmailMap()
+			{
+				DiscriminatorValue(nameof(CounterpartyEmailType.GeneralBillDocument));
+			}
+		}
+
+		public class ClosingDeliveriesEmailMap : SubclassMap<ClosingDeliveriesEmail>
+		{
+			public ClosingDeliveriesEmailMap()
+			{
+				DiscriminatorValue(nameof(CounterpartyEmailType.ClosingDeliveries));
+				References(x => x.OrderWithoutShipmentForDebt).Column("bill_ws_for_debt_id");
+			}
+		}
 	}
 }

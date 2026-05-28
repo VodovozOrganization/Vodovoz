@@ -11,7 +11,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     bwsfd.id AS bwsfd_id,
@@ -46,7 +46,11 @@
                 )
             SEPARATOR '; '
         ) AS client_contact,
-    CONCAT(employees.last_name, ' ', employees.name, ' ', employees.patronymic) AS author,
+    CONCAT_WS(' ', 
+        employees.last_name, 
+        employees.name, 
+        employees.patronymic
+    ) AS author,
     (NUMBER_TO_STRING_DESCRIPTION(debt_sum)) AS bill_sum_string
 FROM
     bills_without_shipment_for_debt bwsfd
@@ -64,7 +68,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="bwsfd_id">
           <DataField>bwsfd_id</DataField>
           <TypeName>System.UInt32</TypeName>

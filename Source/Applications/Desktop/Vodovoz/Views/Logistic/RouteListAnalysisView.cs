@@ -1,4 +1,5 @@
 ﻿using Gamma.GtkWidgets;
+using Gamma.Utilities;
 using Gdk;
 using Gtk;
 using QS.Views.GtkUI;
@@ -6,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Logistic;
@@ -94,6 +96,14 @@ namespace Vodovoz.Views.Logistic
 				.AddColumn("№ п/п").AddNumericRenderer(x => x.IndexInRoute + 1)
 				.AddColumn("Заказ")
 					.AddTextRenderer(n => n.Order.Id.ToString())
+				.AddColumn("Подписание\nдокументов")
+					.AddTextRenderer(n => n.Order.PaymentType == PaymentType.Cashless
+						? (n.Order.SignatureType.HasValue
+							? n.Order.SignatureType.Value.GetEnumTitle()
+							: string.Empty)
+						: string.Empty)
+					.WrapWidth(100)
+					.WrapMode(Pango.WrapMode.WordChar)
 				.AddColumn("Адрес")
 					.AddTextRenderer(n => n.Order.DeliveryPoint == null ? "Требуется точка доставки" : n.Order.DeliveryPoint.ShortAddress)
 				.AddColumn("Время")

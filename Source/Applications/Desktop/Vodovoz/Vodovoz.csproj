@@ -428,6 +428,7 @@
     <Compile Include="Commons\DeprecatedObservableListTreeModel.cs" />
     <Compile Include="Commons\GtkClipboard.cs" />
     <Compile Include="Commons\VodovozTreeModelProvider.cs" />
+    <Compile Include="Dialogs\OrderWidgets\CopyOrderDlgOpener.cs" />
     <Compile Include="Extensions\EntryExtension.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Common.AddOrRemoveIDomainObjectView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PACS.PacsMissingCallsReport.cs" />
@@ -2159,12 +2160,15 @@
     <Compile Include="gtk-gui\Vodovoz.Views.WageCalculation.WageDistrictLevelRatesAssigningView.cs" />
     <Compile Include="ViewWidgets\Reports\OrderDateFilterView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Reports.OrderDateFilterView.cs" />
+    <Compile Include="ViewWidgets\Orders\OrderItemDiscountReasonsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Orders.OrderItemDiscountReasonsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Cash\Payments\" />
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
+    <Folder Include="ViewWidgets\Orders\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
@@ -2479,6 +2483,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Common\Edo.Common.csproj">
       <Project>{b657cbf6-c803-4249-894b-87e8e6e94a62}</Project>
       <Name>Edo.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Problem.Routine\Edo.Problem.Routine.csproj">
+      <Project>{9315f39c-5054-410e-b8e9-27c987321b67}</Project>
+      <Name>Edo.Problem.Routine</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Transport\Edo.Transport.csproj">
       <Project>{c17807ce-71ac-4101-901e-657cef7892eb}</Project>

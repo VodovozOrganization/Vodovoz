@@ -77,6 +77,7 @@ namespace Vodovoz.Views.Reports
 					.AddColumn("Имя клиента").AddTextRenderer(n => n.CounterpartyName)
 					.AddColumn("E-mail").AddTextRenderer(r => r.Email)
 					.AddColumn("Телефон").AddTextRenderer(r => r.Phone)
+					.AddColumn("Тип письма").AddTextRenderer(r => r.EmailTypeString)
 					.AddColumn("")
 					.Finish();
 			}
@@ -84,7 +85,6 @@ namespace Vodovoz.Views.Reports
 			{
 				ytreeviewReport.ColumnsConfig = FluentColumnsConfig<BulkDebtMailingSummaryReportRow>.Create()
 					.AddColumn("№").AddNumericRenderer(r => ViewModel.SummaryReport.Rows.IndexOf(r) + 1)
-					.AddColumn("Дата").AddTextRenderer(r => r.ActionDatetimeString)
 					.AddColumn("Статус").AddTextRenderer(r => r.StateString)
 					.AddColumn("Количество").AddNumericRenderer(r => r.Count)
 					.AddColumn("")

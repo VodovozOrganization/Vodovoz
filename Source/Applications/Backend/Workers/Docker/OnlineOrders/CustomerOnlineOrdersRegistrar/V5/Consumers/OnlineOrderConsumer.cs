@@ -114,7 +114,7 @@ namespace CustomerOnlineOrdersRegistrar.V5.Consumers
 				return (onlineOrder.Id, 200);
 			}
 
-			if(onlineOrder.IsNeedConfirmationByCall || validationResult.IsFailure)
+			if(validationResult.IsFailure)
 			{
 				Logger.LogInformation("Отправляем онлайн заказ {ExternalOrderId} на ручное...", externalOrderId);
 				return (onlineOrder.Id, 200);

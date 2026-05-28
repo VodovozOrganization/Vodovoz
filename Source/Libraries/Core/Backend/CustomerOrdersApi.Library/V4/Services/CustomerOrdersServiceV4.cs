@@ -242,6 +242,7 @@ namespace CustomerOrdersApi.Library.V4.Services
 					var orderDto = ordersFromOnlineOrdersGroup.First();
 					onlineOrderInfo = new OrderDto
 					{
+						OrderId = orderDto.OrderId,
 						OnlineOrderId = orderDto.OnlineOrderId,
 						DeliveryDate = orderDto.DeliveryDate,
 						CreatedDateTimeUtc = orderDto.CreatedDateTimeUtc,

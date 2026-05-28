@@ -12,15 +12,24 @@ namespace Vodovoz.Core.Domain.Clients
 	public enum DebtType
 	{
 		/// <summary>
-		/// Краткосрочный
+		/// Заблокирован
 		/// </summary>
-		[Display(Name = "Краткосрочный")]
-		ShortTerm,
+		[Display(Name = "Заблокирован")]
+		Blocked,
+
+		/// <summary>
+		/// Заблокирован роботом
+		/// </summary>
+		/// 
+		[Display(Name = "Заблокирован роботом")]
+		BlockedByRobot,
+
 		/// <summary>
 		/// Судебный
 		/// </summary>
 		[Display(Name = "Судебный")]
 		Judicial,
+
 		/// <summary>
 		/// Списание
 		/// </summary>

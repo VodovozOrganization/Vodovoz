@@ -6,6 +6,12 @@ namespace Vodovoz.Errors.Orders
 {
 	public static partial class OnlineOrderErrors
 	{
+		public static Error IsNeedConfirmationByCall =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(IsNeedConfirmationByCall),
+				"Требуется подтверждение по телефону");
+		
 		public static Error IsEmptyCounterparty =>
 			new Error(
 				typeof(OnlineOrderErrors),
@@ -141,6 +147,12 @@ namespace Vodovoz.Errors.Orders
 				typeof(OnlineOrderErrors),
 				nameof(IsIncorrectNomenclatureInOnlineOrder),
 				$"Номенклатура с Id {nomenclatureId} не найдена в базе");
+		
+		public static Error IsServiceNomenclatureInOnlineOrder(int? nomenclatureId, string category) =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(IsIncorrectNomenclatureInOnlineOrder),
+				$"Номенклатура с Id {nomenclatureId} это {category}. Такие заказы падают на ручную обработку");
 		
 		public static Error IsArchivedNomenclatureInOnlineOrder(string nomenclature) =>
 			new Error(

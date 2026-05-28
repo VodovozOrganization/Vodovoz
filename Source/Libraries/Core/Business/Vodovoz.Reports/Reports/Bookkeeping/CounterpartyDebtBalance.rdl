@@ -1297,7 +1297,8 @@
         DATEDIFF(NOW(), o.delivery_date) AS max_delay_days_fact,
         CASE WHEN c.close_delivery_debt_type = 'Judicial' THEN "Судеб-ный"
               WHEN c.close_delivery_debt_type = 'WriteOff' THEN "Списа-ние"
-              WHEN c.close_delivery_debt_type = 'ShortTerm' THEN "Кратко-срочный"
+              WHEN c.close_delivery_debt_type = 'Blocked' THEN "Заблокирован"
+              WHEN c.close_delivery_debt_type = 'BlockedByRobot' THEN "Заблокирован роботом"
          	  ELSE ""
          	  END as counterparty_debt_type,        
         CASE c.revenue_status

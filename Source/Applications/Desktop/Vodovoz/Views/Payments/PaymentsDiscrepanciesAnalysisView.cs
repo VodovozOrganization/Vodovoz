@@ -180,6 +180,15 @@ namespace Vodovoz.Views.Payments
 					.AddTextRenderer(n => n.OrderPaymentStatus.HasValue
 						? n.OrderPaymentStatus.GetEnumTitle()
 						: string.Empty)
+					.AddSetter((cell, node) =>
+					{
+						cell.ForegroundGdk = _primaryTextColor;
+
+						if(node.OrderPaymentStatus != OrderPaymentStatus.UnPaid && node.AllocatedSum == 0)
+						{
+							cell.ForegroundGdk = _dangerTextColor;
+						}
+					})
 				.AddColumn("Клиент")
 					.AddTextRenderer(n => n.OrderClientNameInDatabase)
 					.AddSetter((spin, node) =>

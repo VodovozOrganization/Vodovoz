@@ -69,6 +69,9 @@ namespace CustomerOrdersApi
 				.AddVersion5()
 				.AddVersioning()
 				.AddOsrm()
+				.AddSwaggerGen(opt =>
+					opt.CustomSchemaIds(type => type.FullName))
+
 				.AddScoped<IRouteListService, RouteListService>()
 				.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
 				.AddScoped<IOnlineOrderService, OnlineOrderService>()

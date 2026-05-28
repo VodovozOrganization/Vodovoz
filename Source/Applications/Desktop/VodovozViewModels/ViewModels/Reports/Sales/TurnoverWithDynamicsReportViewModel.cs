@@ -718,6 +718,7 @@ namespace Vodovoz.ViewModels.Reports.Sales
 			RouteListItem notTransferedRouteListItemAlias = null;
 			Car carAlias = null;
 			CarModel carModelAlias = null;
+			DiscountReason discountReasonAlias = null;
 
 			TurnoverWithDynamicsReport.OrderItemNode resultNodeAlias = null;
 
@@ -1163,16 +1164,26 @@ namespace Vodovoz.ViewModels.Reports.Sales
 
 			if(includedDiscountReasons.Any())
 			{
-				query.Where(Restrictions.In(
-					Projections.Property(() => orderItemAlias.DiscountReason.Id),
-					includedDiscountReasons));
+				var subQuery = QueryOver.Of<OrderItem>()
+					.Where(x => x.Id == orderItemAlias.Id)
+					.JoinQueryOver(x => x.DiscountReasons, () => discountReasonAlias)
+					.WhereRestrictionOn(() => discountReasonAlias.Id).IsIn(includedDiscountReasons)
+					.Select(x => x.Id)
+					.Take(1);
+
+				query = query.WithSubquery.WhereExists(subQuery);
 			}
 
 			if(excludedDiscountReasons.Any())
 			{
-				query.Where(Restrictions.Not(Restrictions.In(
-					Projections.Property(() => orderItemAlias.DiscountReason.Id),
-					excludedDiscountReasons)));
+				var subQuery = QueryOver.Of<OrderItem>()
+				   .Where(x => x.Id == orderItemAlias.Id)
+				   .JoinQueryOver(x => x.DiscountReasons, () => discountReasonAlias)
+				   .WhereRestrictionOn(() => discountReasonAlias.Id).IsIn(excludedDiscountReasons)
+				   .Select(x => x.Id)
+				   .Take(1);
+
+				query = query.WithSubquery.WhereNotExists(subQuery);
 			}
 
 			#endregion DiscountReasons

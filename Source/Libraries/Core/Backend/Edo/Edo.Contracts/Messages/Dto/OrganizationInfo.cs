@@ -35,5 +35,9 @@ namespace Edo.Contracts.Messages.Dto
 		/// Номер кабинета в ЭДО
 		/// </summary>
 		public string EdoAccountId { get; set; }
+		/// <summary>
+		/// Организация работает без НДС
+		/// </summary>
+		public bool IsWithoutVat { get; set; }
 	}
 }

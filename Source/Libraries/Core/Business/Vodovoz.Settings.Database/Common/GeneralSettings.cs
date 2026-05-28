@@ -9,7 +9,6 @@ namespace Vodovoz.Settings.Database.Common
 	public class GeneralSettings : IGeneralSettings
 	{
 		private readonly ISettingsController _settingsController;
-
 		public const string PaymentWriteOffAllowedFinancialExpenseCategoriesParameterName =
 			"Accounting.PaymentWriteOff.AllowedFinancialExpenseCategories";
 		private const string _routeListPrintedFormPhones = "route_list_printed_form_phones";

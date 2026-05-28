@@ -23,6 +23,7 @@ using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Contacts;
 using Vodovoz.Settings.Delivery;
+using VodovozBusiness.Domain.StoredEmails;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Contacts
@@ -294,37 +295,52 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				.FirstOrDefault());
 		}
 
-		public int GetCounterpartyIdByEmailGuidForUnsubscribing(IUnitOfWork uow, Guid emailGuid)
+		public CounterpartyBulkSubscribeNode GetCounterpartyBulkSubscribeInfoByGuidForUnsubscribing(IUnitOfWork uow, Guid emailGuid)
 		{
 			BulkEmailEvent bulkEmailEventAlias = null;
 			CounterpartyEmail counterpartyEmailAlias = null;
 			StoredEmail storedEmailAlias = null;
-			GuidCounterpartyEmailNode resultAlias = null;
+			CounterpartyBulkSubscribeNode resultAlias = null;
 
-			var guidCounterpartyEmail = uow.Session.QueryOver(() => counterpartyEmailAlias)
-				.JoinEntityAlias(() => bulkEmailEventAlias, () => counterpartyEmailAlias.Counterparty.Id == bulkEmailEventAlias.Counterparty.Id, JoinType.LeftOuterJoin)
+			var result = uow.Session.QueryOver(() => counterpartyEmailAlias)
+				.JoinEntityAlias(() => bulkEmailEventAlias, 
+					() => counterpartyEmailAlias.Counterparty.Id == bulkEmailEventAlias.Counterparty.Id
+						&& counterpartyEmailAlias.Type == bulkEmailEventAlias.CounterpartyEmailType,
+					JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => counterpartyEmailAlias.StoredEmail, () => storedEmailAlias)
 				.Where(() => storedEmailAlias.Guid == emailGuid)
-				.OrderBy(() => bulkEmailEventAlias.ActionTime).Desc
+				.OrderBy(Projections.Conditional(
+					Restrictions.IsNotNull(Projections.Property(() => bulkEmailEventAlias.ActionTime)),
+					Projections.Property(() => bulkEmailEventAlias.ActionTime),
+					Projections.Constant(DateTime.MinValue)
+				)).Desc
 				.SelectList(list => list
-					.Select(() => counterpartyEmailAlias.Counterparty.Id).WithAlias(() => resultAlias.CounterpartyId)
-					.Select(() => bulkEmailEventAlias.Type).WithAlias(() => resultAlias.BulkEmailEventType))
-				.TransformUsing(Transformers.AliasToBean<GuidCounterpartyEmailNode>())
+					.Select(() => counterpartyEmailAlias.Counterparty.Id).WithAlias(() => resultAlias.CounterpartyId)					
+					.Select(() => bulkEmailEventAlias.EventType).WithAlias(() => resultAlias.BulkEmailEventType)
+					.Select(() => counterpartyEmailAlias.Type).WithAlias(() => resultAlias.CounterpartyEmailType))
+				.TransformUsing(Transformers.AliasToBean<CounterpartyBulkSubscribeNode>())
 				.Take(1)
-				.List<GuidCounterpartyEmailNode>()
+				.List<CounterpartyBulkSubscribeNode>()
 				.SingleOrDefault();
 
-			return guidCounterpartyEmail == null || guidCounterpartyEmail.BulkEmailEventType == BulkEmailEvent.BulkEmailEventType.Unsubscribing
-			? 0
-			: guidCounterpartyEmail.CounterpartyId;
+			return result?.BulkEmailEventType == BulkEmailEventType.Unsubscribing
+				? null
+				: result;
 		}
 
-		public BulkEmailEvent GetLastBulkEmailEvent(IUnitOfWork uow, int counterpartyId)
+		public BulkEmailEvent GetLastBulkEmailEvent(IUnitOfWork uow, int counterpartyId, CounterpartyEmailType? counterpartyEmailType = null)
 		{
 			BulkEmailEvent bulkEmailEventAlias = null;
 
-			return uow.Session.QueryOver(() => bulkEmailEventAlias)
-				.Where(() => bulkEmailEventAlias.Counterparty.Id == counterpartyId)
+			var query = uow.Session.QueryOver(() => bulkEmailEventAlias)
+				.Where(() => bulkEmailEventAlias.Counterparty.Id == counterpartyId);
+
+			if(counterpartyEmailType != null)
+			{
+				query.Where(() => bulkEmailEventAlias.CounterpartyEmailType == counterpartyEmailType);
+			}
+
+			return query
 				.OrderBy(() => bulkEmailEventAlias.ActionTime).Desc
 				.Take(1)
 				.SingleOrDefault();
@@ -449,7 +465,7 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 
 			var isClientUnsubscribedSubQuery = QueryOver.Of(() => bulkEmailEventAlias)
 				.Where(() => bulkEmailEventAlias.Counterparty.Id == counterpartyAlias.Id)
-				.Where(() => bulkEmailEventAlias.Type == BulkEmailEvent.BulkEmailEventType.Unsubscribing)
+				.Where(() => bulkEmailEventAlias.EventType == BulkEmailEventType.Unsubscribing)
 				.WithSubquery.WhereProperty(() => bulkEmailEventAlias.Id).Eq(lastEventIdSubQuery)
 				.Select(bee => bee.Id);
 
@@ -519,6 +535,134 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 			return result;
 		}
 
+		public async Task<Dictionary<(Counterparty Counterparty, Organization Organization), IEnumerable<Order>>> GetAllOverdueOrdersForDebtNotificationAsync(
+			IUnitOfWork uow,
+			int maxClients,
+			CancellationToken cancellationToken)
+		{
+			var currentDate = DateTime.UtcNow.Date;
+			var today = DateTime.Today;
+
+			var deliveredOrderStatuses = new[]
+			{
+				OrderStatus.Shipped, 
+				OrderStatus.UnloadingOnStock, 
+				OrderStatus.Closed
+			};
+
+			Counterparty counterpartyAlias = null;
+			CounterpartyContract contractAlias = null;
+			Order orderAlias = null;
+			Organization organizationAlias = null;
+			BulkEmailEvent bulkEmailEventAlias = null;
+			OrderItem orderItemAlias = null;
+			CounterpartyEmail counterpartyEmailAlias = null;
+			StoredEmail storedEmailAlias = null;
+
+			var emailSentTodaySubQuery = QueryOver.Of(() => counterpartyEmailAlias)
+				.JoinAlias(() => counterpartyEmailAlias.StoredEmail, () => storedEmailAlias)
+				.Where(() => counterpartyEmailAlias.Counterparty.Id == counterpartyAlias.Id)
+				.Where(() => counterpartyEmailAlias.Type == CounterpartyEmailType.GeneralBillDocument)
+				.Where(() => storedEmailAlias.SendDate < today.AddDays(1))
+				.Select(Projections.Property(() => counterpartyEmailAlias.Id));
+
+			var lastEventIdSubQuery = QueryOver.Of<BulkEmailEvent>()
+				.Where(bee2 => bee2.Counterparty.Id == counterpartyAlias.Id)
+				.Select(Projections.Max<BulkEmailEvent>(bee2 => bee2.Id));
+
+			var isClientUnsubscribedSubQuery = QueryOver.Of(() => bulkEmailEventAlias)
+				.Where(() => bulkEmailEventAlias.Counterparty.Id == counterpartyAlias.Id)
+				.Where(() => bulkEmailEventAlias.EventType == BulkEmailEventType.Unsubscribing)
+				.WithSubquery.WhereProperty(() => bulkEmailEventAlias.Id).Eq(lastEventIdSubQuery)
+				.Select(bee => bee.Id);
+
+			var orderItemsSumSubquery = QueryOver.Of(() => orderItemAlias)
+			   .Where(() => orderItemAlias.Order.Id == orderAlias.Id)
+			   .Select(Projections.SqlFunction(
+				   new SQLFunctionTemplate(NHibernateUtil.Decimal, "COALESCE(SUM(?1 * IFNULL(?2, ?3) - ?4), 0)"),
+				   NHibernateUtil.Decimal,
+				   Projections.Property(() => orderItemAlias.Price),
+				   Projections.Property(() => orderItemAlias.ActualCount),
+				   Projections.Property(() => orderItemAlias.Count),
+				   Projections.Property(() => orderItemAlias.DiscountMoney)
+			   ));
+
+			var dateAddExpression = Projections.SqlFunction(
+				new SQLFunctionTemplate(
+					NHibernateUtil.DateTime,
+					"DATE_ADD(?1, INTERVAL ?2 + 1 DAY)"
+				),
+				NHibernateUtil.DateTime,
+				Projections.Property(() => orderAlias.DeliveryDate),
+				Projections.Property(() => counterpartyAlias.DelayDaysForBuyers)
+			);
+
+			// из-за того, что версия NHibernate не умеет работать с Take()
+			// внутри подзапросов .WithSubquery, то пришлось повторять много кода
+			var topClientsQuery = uow.Session.QueryOver(() => orderAlias)
+				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.JoinAlias(() => orderAlias.Contract, () => contractAlias)
+				.JoinAlias(() => contractAlias.Organization, () => organizationAlias)
+				.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
+				.Where(() => orderAlias.DeliveryDate != null)
+				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
+				.Where(() => orderAlias.OrderStatus.IsIn(deliveredOrderStatuses))
+				.Where(() => counterpartyAlias.PersonType == PersonType.legal)
+				.Where(() => counterpartyAlias.CloseDeliveryDebtType == null)
+				.WhereNot(() => organizationAlias.DisableDebtMailing)
+				.WhereNot(() => counterpartyAlias.DisableDebtMailing)
+				.WhereNot(() => counterpartyAlias.IsArchive)
+				.Where(Restrictions.Le(dateAddExpression, currentDate))
+				.Where(Restrictions.Gt(Projections.SubQuery(orderItemsSumSubquery), 0m))
+				.WithSubquery.WhereExists(
+					QueryOver.Of<Email>()
+						.Where(email => email.Counterparty.Id == counterpartyAlias.Id)
+						.And(email => email.EmailType == null || email.EmailType.Id != _emailTypeSettings.ArchiveId)
+						.Select(email => email.Id)
+				)
+				.WithSubquery.WhereNotExists(emailSentTodaySubQuery)
+				.WithSubquery.WhereNotExists(isClientUnsubscribedSubQuery)
+				.Select(Projections.Distinct(Projections.Property(() => counterpartyAlias.Id)))
+				.OrderBy(Projections.SqlFunction(
+					new SQLFunctionTemplate(NHibernateUtil.String, "RAND()"),
+					NHibernateUtil.String))
+				.Asc
+				.Take(maxClients);
+
+			var topClientIds = (await topClientsQuery.ListAsync<object>(cancellationToken))
+				.Select(id => (int)id)
+				.ToList();
+
+			if(!topClientIds.Any())
+			{
+				return new Dictionary<(Counterparty, Organization), IEnumerable<Order>>();
+			}
+
+			var query = uow.Session.QueryOver(() => orderAlias)
+				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.JoinAlias(() => orderAlias.Contract, () => contractAlias)
+				.JoinAlias(() => contractAlias.Organization, () => organizationAlias)
+				.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
+				.Where(() => orderAlias.DeliveryDate != null)
+				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
+				.Where(() => orderAlias.OrderStatus.IsIn(deliveredOrderStatuses))
+				.WhereNot(() => organizationAlias.DisableDebtMailing)
+				.Where(Restrictions.Le(dateAddExpression, currentDate))
+				.Where(Restrictions.Gt(Projections.SubQuery(orderItemsSumSubquery), 0m))
+				.WhereRestrictionOn(() => counterpartyAlias.Id).IsIn(topClientIds);
+
+			var orders = await query.ListAsync(cancellationToken);
+
+			var groupedOrders = orders
+				.GroupBy(order => (Counterparty: order.Client, order.Contract.Organization))
+				.ToDictionary(
+					group => group.Key,
+					group => group.AsEnumerable()
+				);
+
+			return groupedOrders;
+		}
+
 		public IList<BulkEmailEventReason> GetUnsubscribingReasons(IUnitOfWork uow, IEmailSettings emailSettings, bool isForUnsubscribePage = false)
 		{
 			BulkEmailEventReason bulkEmailEventReasonAlias = null;
@@ -534,6 +678,22 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 			query.OrderBy(x => x.Id == emailSettings.BulkEmailEventOtherReasonId);
 
 			return query.List();
+		}
+
+		/// <inheritdoc/>
+		public int GetTodaySentLetterOfClaimsCount(IUnitOfWork uow)
+		{
+			var startOfDay = DateTime.Today;
+			var endOfDay = startOfDay.AddDays(1).AddSeconds(-1);
+
+			var query =
+				from letterOfClaimEmails in uow.Session.Query<LetterOfClaimEmail>()
+				join storedEmail in uow.Session.Query<StoredEmail>()
+					on letterOfClaimEmails.StoredEmail.Id equals storedEmail.Id
+				where storedEmail.SendDate >= startOfDay && storedEmail.SendDate <= endOfDay
+				select letterOfClaimEmails;
+
+			return query.Count();
 		}
 
 		#region EmailType

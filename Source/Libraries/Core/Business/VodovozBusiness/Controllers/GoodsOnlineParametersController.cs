@@ -55,7 +55,7 @@ namespace Vodovoz.Controllers
 			{
 				stocksForShowAndSellParams.TryGetValue(parameter.Key, out var balance);
 
-				if(balance <= 0)
+				if(balance <= 0 && !parameter.Value.IsService)
 				{
 					parameter.Value.AvailableForSale = GoodsOnlineAvailability.Show;
 				}

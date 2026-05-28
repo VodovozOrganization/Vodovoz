@@ -1,4 +1,4 @@
-using Gamma.ColumnConfig;
+﻿using Gamma.ColumnConfig;
 using QS.DomainModel.Entity;
 using QS.Views;
 using System;
@@ -286,6 +286,39 @@ namespace Vodovoz.Views.Settings
 				.AddBinding(vm => vm.DebtNotificationWorkerIsEnabled, w => w.Active)
 				.AddFuncBinding(vm => vm.CanEditDebtNotification, w => w.Sensitive)
 				.InitializeFromSource();
+
+			yspinbuttonDaysBeforeClosingDeliveries.Binding
+				.AddBinding(ViewModel, vm => vm.DaysBeforeClosingDeliveries, w => w.ValueAsInt)
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangePaymentDeferment, w => w.Sensitive)
+				.InitializeFromSource();
+
+			buttonSaveDaysBeforeClosingDeliveries.BindCommand(ViewModel.SaveDaysBeforeClosingDeliveriesCommand);
+
+			yentryClosingDeliveriesNotificationEmails.Binding
+				.AddBinding(ViewModel, vm => vm.ClosingDeliveriesNotificationEmailsTo, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanMassiveChangePaymentDeferment, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ybuttonSaveClosingDeliveriesNotificationEmails.BindCommand(ViewModel.SaveClosingDeliveriesNotificationEmailsCommand);
+
+			yspinbuttonLettersOfClaimTimeoutDays.Binding
+				.AddBinding(ViewModel, vm => vm.LettersOfClaimTimeoutDays, w => w.ValueAsInt)
+				.AddBinding(ViewModel, vm => vm.CanEditLettersOfClaimSettings, w => w.Sensitive)
+				.InitializeFromSource();
+
+			yentryClaimDocumentCreatedBy.Binding
+				.AddBinding(ViewModel, vm => vm.ClaimDocumentCreatedBy, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanEditLettersOfClaimSettings, w => w.Sensitive)
+				.InitializeFromSource();
+			yentryClaimDocumentCreatedBy.WidthChars = 40;
+
+			yentryClaimDocumentCreatorPhone.Binding
+				.AddBinding(ViewModel, vm => vm.ClaimDocumentCreatorPhone, w => w.Text)
+				.AddBinding(ViewModel, vm => vm.CanEditLettersOfClaimSettings, w => w.Sensitive)
+				.InitializeFromSource();
+			yentryClaimDocumentCreatorPhone.WidthChars = 40;
+
+			ybuttonSaveLettersOfClaimSettings.BindCommand(ViewModel.SaveLettersOfClaimSettingsCommand);
 		}
 		
 		private void ConfigureEmployeesFixedPrices()

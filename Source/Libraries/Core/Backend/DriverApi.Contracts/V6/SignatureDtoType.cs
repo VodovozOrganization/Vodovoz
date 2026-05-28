@@ -23,6 +23,10 @@ namespace DriverApi.Contracts.V6
 		/// <summary>
 		/// Подпись клиента
 		/// </summary>
-		SignatureTranscript
+		SignatureTranscript,
+		/// <summary>
+		/// Без печати
+		/// </summary>
+		WithoutSeal
 	}
 }

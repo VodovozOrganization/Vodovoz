@@ -1,9 +1,16 @@
-﻿namespace UnsubscribePage.Models
+﻿/// <summary>
+/// ViewModel страницы ошибки.
+/// </summary>
+public class ErrorViewModel
 {
-	public class ErrorViewModel
-	{
-		public string RequestId { get; set; }
+	/// <summary>
+	/// Идентификатор HTTP-запроса.
+	/// Используется для поиска ошибки в логах.
+	/// </summary>
+	public string RequestId { get; set; }
 
-		public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
-	}
+	/// <summary>
+	/// Нужно ли отображать RequestId.
+	/// </summary>
+	public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 }
