@@ -1,11 +1,10 @@
-﻿using NHibernate.Criterion;
-using QS.DomainModel.UoW;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using NHibernate.Criterion;
+using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.EntityRepositories.Employees
 {

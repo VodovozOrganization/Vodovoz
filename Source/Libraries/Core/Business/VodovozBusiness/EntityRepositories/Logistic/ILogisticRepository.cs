@@ -13,16 +13,6 @@ namespace VodovozBusiness.EntityRepositories.Logistic
 	public interface ILogisticRepository
 	{
 		/// <summary>
-		/// Получить событие по автомобилю водителя за указанный период и группу событий
-		/// </summary>
-		/// <param name="uow"></param>
-		/// <param name="carId"></param>
-		/// <param name="startDate"></param>
-		/// <param name="endDate"></param>
-		/// <returns></returns>
-		CarEvent GetCarEventByCarId(IUnitOfWork uow, int carId, CarEventGroup group, DateTime endDate);
-
-		/// <summary>
 		/// Получить день расписания водителя за указанный день.
 		/// На одного водителя может быть только 1 день расписания
 		/// </summary>
@@ -80,5 +70,28 @@ namespace VodovozBusiness.EntityRepositories.Logistic
 		/// <param name="endDate"></param>
 		/// <returns></returns>
 		IList<DriverSchedule> GetDriverSchedules(IUnitOfWork uow, int[] driverIds, DateTime startDate, DateTime endDate);
+
+		/// <summary>
+		/// Получить графики водителей за указанный день.
+		/// </summary>
+		/// <param name="uow">Unit of Work</param>
+		/// <param name="driverIds">Идентификаторы водителей</param>
+		/// <param name="date">Дата графика</param>
+		/// <returns>Графики водителей</returns>
+		IList<DriverSchedule> GetDriverSchedulesAtDay(IUnitOfWork uow, IEnumerable<int> driverIds, DateTime date);
+
+		/// <summary>
+		/// Получить идентификаторы водителей с событиями ТС за указанный день.
+		/// </summary>
+		/// <param name="uow">Unit of Work</param>
+		/// <param name="driverIds">Идентификаторы водителей</param>
+		/// <param name="date">Дата события</param>
+		/// <param name="carEventTypeNames">Названия типов событий для фильтрации</param>
+		/// <returns>Идентификаторы водителей с событиями ТС</returns>
+		IList<int> GetDriverIdsWithCarEventsAtDay(
+			IUnitOfWork uow,
+			IEnumerable<int> driverIds,
+			DateTime date,
+			IEnumerable<string> carEventTypeNames);
 	}
 }

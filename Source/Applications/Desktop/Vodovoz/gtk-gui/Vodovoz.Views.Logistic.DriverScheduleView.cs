@@ -32,6 +32,12 @@ namespace Vodovoz.Views.Logistic
 
 		private global::Gamma.GtkWidgets.yHBox yhboxWeek;
 
+		private global::Gamma.GtkWidgets.yVBox yvboxDriverSearch;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelDriverSearch;
+
+		private global::Gamma.GtkWidgets.yEntry yentryDriverSearch;
+
 		private global::Gamma.GtkWidgets.yVBox yvboxCarTypeOfUse;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelTypeOfUse;
@@ -55,6 +61,22 @@ namespace Vodovoz.Views.Logistic
 		private global::Gtk.ScrolledWindow GtkScrolledWindow3;
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewSubdivison;
+
+		private global::Gamma.GtkWidgets.yVBox yvboxColumnVisibility;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelColumnVisibility;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckShowCarTypeOfUseColumn;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckShowCarOwnTypeColumn;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckShowDriverCarOwnTypeColumn;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckShowPhoneColumn;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckShowDistrictColumn;
+
+		private global::Gamma.GtkWidgets.yCheckButton ycheckShowArrivalTimeColumn;
 
 		private global::Gamma.GtkWidgets.yButton ybuttonApplyFilters;
 
@@ -197,6 +219,35 @@ namespace Vodovoz.Views.Logistic
 			w12.Expand = false;
 			w12.Fill = false;
 			// Container child yvbox2.Gtk.Box+BoxChild
+			this.yvboxDriverSearch = new global::Gamma.GtkWidgets.yVBox();
+			this.yvboxDriverSearch.Name = "yvboxDriverSearch";
+			this.yvboxDriverSearch.Spacing = 3;
+			// Container child yvboxDriverSearch.Gtk.Box+BoxChild
+			this.ylabelDriverSearch = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelDriverSearch.Name = "ylabelDriverSearch";
+			this.ylabelDriverSearch.Xalign = 0F;
+			this.ylabelDriverSearch.LabelProp = global::Mono.Unix.Catalog.GetString("\u0412\u043e\u0434\u0438\u0442\u0435\u043b\u044c:");
+			this.yvboxDriverSearch.Add(this.ylabelDriverSearch);
+			global::Gtk.Box.BoxChild w100 = ((global::Gtk.Box.BoxChild)(this.yvboxDriverSearch[this.ylabelDriverSearch]));
+			w100.Position = 0;
+			w100.Expand = false;
+			w100.Fill = false;
+			// Container child yvboxDriverSearch.Gtk.Box+BoxChild
+			this.yentryDriverSearch = new global::Gamma.GtkWidgets.yEntry();
+			this.yentryDriverSearch.TooltipMarkup = "\u041f\u043e\u0438\u0441\u043a \u043f\u043e \u0424\u0418\u041e \u0432\u043e\u0434\u0438\u0442\u0435\u043b\u044f";
+			this.yentryDriverSearch.CanFocus = true;
+			this.yentryDriverSearch.Name = "yentryDriverSearch";
+			this.yentryDriverSearch.IsEditable = true;
+			this.yentryDriverSearch.InvisibleChar = '\u2022';
+			this.yvboxDriverSearch.Add(this.yentryDriverSearch);
+			global::Gtk.Box.BoxChild w101 = ((global::Gtk.Box.BoxChild)(this.yvboxDriverSearch[this.yentryDriverSearch]));
+			w101.Position = 1;
+			this.yvbox2.Add(this.yvboxDriverSearch);
+			global::Gtk.Box.BoxChild w102 = ((global::Gtk.Box.BoxChild)(this.yvbox2[this.yvboxDriverSearch]));
+			w102.Position = 1;
+			w102.Expand = false;
+			w102.Fill = false;
+			// Container child yvbox2.Gtk.Box+BoxChild
 			this.yvboxCarTypeOfUse = new global::Gamma.GtkWidgets.yVBox();
 			this.yvboxCarTypeOfUse.HeightRequest = 100;
 			this.yvboxCarTypeOfUse.Name = "yvboxCarTypeOfUse";
@@ -230,7 +281,7 @@ namespace Vodovoz.Views.Logistic
 			w17.Position = 1;
 			this.yvbox2.Add(this.yvboxCarTypeOfUse);
 			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.yvbox2[this.yvboxCarTypeOfUse]));
-			w18.Position = 1;
+			w18.Position = 2;
 			w18.Expand = false;
 			// Container child yvbox2.Gtk.Box+BoxChild
 			this.yvboxCarOwnType = new global::Gamma.GtkWidgets.yVBox();
@@ -265,7 +316,7 @@ namespace Vodovoz.Views.Logistic
 			w23.Position = 1;
 			this.yvbox2.Add(this.yvboxCarOwnType);
 			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.yvbox2[this.yvboxCarOwnType]));
-			w24.Position = 2;
+			w24.Position = 3;
 			w24.Expand = false;
 			// Container child yvbox2.Gtk.Box+BoxChild
 			this.yvboxSubdivison = new global::Gamma.GtkWidgets.yVBox();
@@ -297,10 +348,107 @@ namespace Vodovoz.Views.Logistic
 			w27.Position = 1;
 			this.yvbox2.Add(this.yvboxSubdivison);
 			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.yvbox2[this.yvboxSubdivison]));
-			w28.Position = 3;
+			w28.Position = 4;
 			this.yvboxFilters.Add(this.yvbox2);
 			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.yvboxFilters[this.yvbox2]));
 			w29.Position = 0;
+			// Container child yvboxFilters.Gtk.Box+BoxChild
+			this.yvboxColumnVisibility = new global::Gamma.GtkWidgets.yVBox();
+			this.yvboxColumnVisibility.Name = "yvboxColumnVisibility";
+			this.yvboxColumnVisibility.Spacing = 2;
+			// Container child yvboxColumnVisibility.Gtk.Box+BoxChild
+			this.ylabelColumnVisibility = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelColumnVisibility.Name = "ylabelColumnVisibility";
+			this.ylabelColumnVisibility.Xalign = 0F;
+			this.ylabelColumnVisibility.LabelProp = global::Mono.Unix.Catalog.GetString("\u041e\u0442\u043e\u0431\u0440\u0430\u0436\u0430\u0442\u044c \u0441\u0442\u043e\u043b\u0431\u0446\u044b:");
+			this.yvboxColumnVisibility.Add(this.ylabelColumnVisibility);
+			global::Gtk.Box.BoxChild w103 = ((global::Gtk.Box.BoxChild)(this.yvboxColumnVisibility[this.ylabelColumnVisibility]));
+			w103.Position = 0;
+			w103.Expand = false;
+			w103.Fill = false;
+			// Container child yvboxColumnVisibility.Gtk.Box+BoxChild
+			this.ycheckShowCarTypeOfUseColumn = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckShowCarTypeOfUseColumn.CanFocus = true;
+			this.ycheckShowCarTypeOfUseColumn.Name = "ycheckShowCarTypeOfUseColumn";
+			this.ycheckShowCarTypeOfUseColumn.Active = true;
+			this.ycheckShowCarTypeOfUseColumn.Label = global::Mono.Unix.Catalog.GetString("\u0422");
+			this.ycheckShowCarTypeOfUseColumn.DrawIndicator = true;
+			this.ycheckShowCarTypeOfUseColumn.UseUnderline = true;
+			this.yvboxColumnVisibility.Add(this.ycheckShowCarTypeOfUseColumn);
+			global::Gtk.Box.BoxChild w104 = ((global::Gtk.Box.BoxChild)(this.yvboxColumnVisibility[this.ycheckShowCarTypeOfUseColumn]));
+			w104.Position = 1;
+			w104.Expand = false;
+			w104.Fill = false;
+			// Container child yvboxColumnVisibility.Gtk.Box+BoxChild
+			this.ycheckShowCarOwnTypeColumn = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckShowCarOwnTypeColumn.CanFocus = true;
+			this.ycheckShowCarOwnTypeColumn.Name = "ycheckShowCarOwnTypeColumn";
+			this.ycheckShowCarOwnTypeColumn.Active = true;
+			this.ycheckShowCarOwnTypeColumn.Label = global::Mono.Unix.Catalog.GetString("\u041f");
+			this.ycheckShowCarOwnTypeColumn.DrawIndicator = true;
+			this.ycheckShowCarOwnTypeColumn.UseUnderline = true;
+			this.yvboxColumnVisibility.Add(this.ycheckShowCarOwnTypeColumn);
+			global::Gtk.Box.BoxChild w105 = ((global::Gtk.Box.BoxChild)(this.yvboxColumnVisibility[this.ycheckShowCarOwnTypeColumn]));
+			w105.Position = 2;
+			w105.Expand = false;
+			w105.Fill = false;
+			// Container child yvboxColumnVisibility.Gtk.Box+BoxChild
+			this.ycheckShowDriverCarOwnTypeColumn = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckShowDriverCarOwnTypeColumn.CanFocus = true;
+			this.ycheckShowDriverCarOwnTypeColumn.Name = "ycheckShowDriverCarOwnTypeColumn";
+			this.ycheckShowDriverCarOwnTypeColumn.Active = true;
+			this.ycheckShowDriverCarOwnTypeColumn.Label = global::Mono.Unix.Catalog.GetString("\u041f\u0440\u0438\u043d\u0430\u0434\u043b\u0435\u0436\u043d\u043e\u0441\u0442\u044c");
+			this.ycheckShowDriverCarOwnTypeColumn.DrawIndicator = true;
+			this.ycheckShowDriverCarOwnTypeColumn.UseUnderline = true;
+			this.yvboxColumnVisibility.Add(this.ycheckShowDriverCarOwnTypeColumn);
+			global::Gtk.Box.BoxChild w106 = ((global::Gtk.Box.BoxChild)(this.yvboxColumnVisibility[this.ycheckShowDriverCarOwnTypeColumn]));
+			w106.Position = 3;
+			w106.Expand = false;
+			w106.Fill = false;
+			// Container child yvboxColumnVisibility.Gtk.Box+BoxChild
+			this.ycheckShowPhoneColumn = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckShowPhoneColumn.CanFocus = true;
+			this.ycheckShowPhoneColumn.Name = "ycheckShowPhoneColumn";
+			this.ycheckShowPhoneColumn.Active = true;
+			this.ycheckShowPhoneColumn.Label = global::Mono.Unix.Catalog.GetString("\u0422\u0435\u043b\u0435\u0444\u043e\u043d");
+			this.ycheckShowPhoneColumn.DrawIndicator = true;
+			this.ycheckShowPhoneColumn.UseUnderline = true;
+			this.yvboxColumnVisibility.Add(this.ycheckShowPhoneColumn);
+			global::Gtk.Box.BoxChild w107 = ((global::Gtk.Box.BoxChild)(this.yvboxColumnVisibility[this.ycheckShowPhoneColumn]));
+			w107.Position = 4;
+			w107.Expand = false;
+			w107.Fill = false;
+			// Container child yvboxColumnVisibility.Gtk.Box+BoxChild
+			this.ycheckShowDistrictColumn = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckShowDistrictColumn.CanFocus = true;
+			this.ycheckShowDistrictColumn.Name = "ycheckShowDistrictColumn";
+			this.ycheckShowDistrictColumn.Active = true;
+			this.ycheckShowDistrictColumn.Label = global::Mono.Unix.Catalog.GetString("\u0420\u0430\u0439\u043e\u043d \u043f\u0440\u043e\u0436\u0438\u0432\u0430\u043d\u0438\u044f");
+			this.ycheckShowDistrictColumn.DrawIndicator = true;
+			this.ycheckShowDistrictColumn.UseUnderline = true;
+			this.yvboxColumnVisibility.Add(this.ycheckShowDistrictColumn);
+			global::Gtk.Box.BoxChild w108 = ((global::Gtk.Box.BoxChild)(this.yvboxColumnVisibility[this.ycheckShowDistrictColumn]));
+			w108.Position = 5;
+			w108.Expand = false;
+			w108.Fill = false;
+			// Container child yvboxColumnVisibility.Gtk.Box+BoxChild
+			this.ycheckShowArrivalTimeColumn = new global::Gamma.GtkWidgets.yCheckButton();
+			this.ycheckShowArrivalTimeColumn.CanFocus = true;
+			this.ycheckShowArrivalTimeColumn.Name = "ycheckShowArrivalTimeColumn";
+			this.ycheckShowArrivalTimeColumn.Active = true;
+			this.ycheckShowArrivalTimeColumn.Label = global::Mono.Unix.Catalog.GetString("\u0412\u0440\u0435\u043c\u044f \u043f\u0440\u0438\u0435\u0437\u0434\u0430");
+			this.ycheckShowArrivalTimeColumn.DrawIndicator = true;
+			this.ycheckShowArrivalTimeColumn.UseUnderline = true;
+			this.yvboxColumnVisibility.Add(this.ycheckShowArrivalTimeColumn);
+			global::Gtk.Box.BoxChild w109 = ((global::Gtk.Box.BoxChild)(this.yvboxColumnVisibility[this.ycheckShowArrivalTimeColumn]));
+			w109.Position = 6;
+			w109.Expand = false;
+			w109.Fill = false;
+			this.yvboxFilters.Add(this.yvboxColumnVisibility);
+			global::Gtk.Box.BoxChild w111 = ((global::Gtk.Box.BoxChild)(this.yvboxFilters[this.yvboxColumnVisibility]));
+			w111.Position = 1;
+			w111.Expand = false;
+			w111.Fill = false;
 			// Container child yvboxFilters.Gtk.Box+BoxChild
 			this.ybuttonApplyFilters = new global::Gamma.GtkWidgets.yButton();
 			this.ybuttonApplyFilters.CanFocus = true;

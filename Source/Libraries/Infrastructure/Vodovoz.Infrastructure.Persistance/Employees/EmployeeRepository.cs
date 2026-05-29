@@ -1,11 +1,11 @@
-﻿using NHibernate.Criterion;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
 using QS.Project.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Subdivisions;
@@ -16,6 +16,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.Employees;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Employees
 {
@@ -132,7 +133,7 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 			int orderId,
 			ExternalApplicationType externalApplicationType = ExternalApplicationType.DriverApp)
 		{
-			Domain.Orders.Order vodovozOrderAlias = null;
+			Order vodovozOrderAlias = null;
 			RouteListItem routeListAddressAlias = null;
 			RouteList routeListAlias = null;
 			Employee employeeAlias = null;
