@@ -38,5 +38,25 @@ namespace Vodovoz.ViewModels.Services.SalesReport
 			IUnitOfWork uow,
 			IEnumerable<int> orderIds,
 			CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Экспортировать дерево отчета в Excel
+		/// </summary>
+		/// <param name="tree"></param>
+		/// <param name="startDate"></param>
+		/// <param name="endDate"></param>
+		/// <param name="groupingTitle"></param>
+		/// <param name="ordersCount"></param>
+		/// <param name="planBottles"></param>
+		/// <param name="factBottles"></param>
+		/// <returns></returns>
+		byte[] ExportToExcel(
+			IList<SalesReportTreeNode> tree,
+			DateTime startDate,
+			DateTime endDate,
+			string groupingTitle,
+			int ordersCount,
+			int planBottles,
+			int factBottles);
 	}
 }

@@ -5,6 +5,7 @@ using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
+using QS.Project.Services.FileDialog;
 using QS.Report;
 using QS.Report.ViewModels;
 using QS.Services;
@@ -52,10 +53,14 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IInteractiveService _interactiveService;
 		private readonly ISalesReportService _salesReportService;
+		private readonly IFileDialogService _fileDialogService;
 		private readonly bool _canViewReportSalesWithCashReceipts;
 
+		private int _ordersCount;
 		private IncludeExludeFiltersViewModel _filterViewModel;
 		private LeftRightListViewModel<GroupingNode> _groupViewModel;
+		private IList<SalesReportTreeNode> _treeNodes;
+		private BottlesDataNode _bottlesDataNode;
 
 		private readonly bool _userIsSalesRepresentative;
 		private readonly bool _canSeePhones;
@@ -70,6 +75,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			IEmployeeRepository employeeRepository,
 			IInteractiveService interactiveService,
 			ISalesReportService salesReportService,
+			IFileDialogService fileDialogService,
 			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory,
 			ILeftRightListViewModelFactory leftRightListViewModelFactory,
 			IReportInfoFactory reportInfoFactory,
@@ -92,6 +98,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_salesReportService = salesReportService ?? throw new ArgumentNullException(nameof(salesReportService));
+			_fileDialogService = fileDialogService ?? throw new ArgumentException(nameof(fileDialogService));
 			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));
 			_leftRightListViewModelFactory = leftRightListViewModelFactory ?? throw new ArgumentNullException(nameof(leftRightListViewModelFactory));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
@@ -116,6 +123,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 			ShowInfoCommand = new DelegateCommand(ShowInfoWindow);
 			GenerateReportCommand = new DelegateCommand(GenerateReport);
+			ExportToExcelCommand = new DelegateCommand(ExportToExcel);
 		}
 
 		public virtual LeftRightListViewModel<GroupingNode> GroupingSelectViewModel => _groupViewModel;
@@ -129,6 +137,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		public DelegateCommand ShowInfoCommand { get; }
 
 		public DelegateCommand GenerateReportCommand { get; }
+
+		public DelegateCommand ExportToExcelCommand { get; }
 
 		public DateTime? StartDate
 		{
@@ -493,7 +503,7 @@ $@"<b>1.</b> Подсчет продаж ведется на основе зак
 				var countOfOrders = data.Select(d => d.OrderId)
 					  .Distinct();
 
-				var dataBottles = await _salesReportService.GetBottlesDataAsync(
+				_bottlesDataNode = await _salesReportService.GetBottlesDataAsync(
 					_unitOfWork, countOfOrders);
 
 				var tree = BuildTree(data, SelectedGroupings, 0);
@@ -508,6 +518,10 @@ $@"<b>1.</b> Подсчет продаж ведется на основе зак
 					IsTotalNode = true
 				};
 
+				_treeNodes = new List<SalesReportTreeNode> { totalNode };
+				_ordersCount = countOfOrders.Count();
+
+				//ExportToExcel();
 				/*// 3. Обновляем TreeView
 				UpdateTreeView(tree);*/
 			}
@@ -518,6 +532,48 @@ $@"<b>1.</b> Подсчет продаж ведется на основе зак
 			finally
 			{
 				IsLoading = false;
+			}
+		}
+
+		private void ExportToExcel()
+		{
+			if(_treeNodes == null || !_treeNodes.Any())
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Нет данных для экспорта");
+				return;
+			}
+
+			var dialogSettings = new DialogSettings
+			{
+				Title = "Сохранить отчет",
+				DefaultFileExtention = ".xlsx",
+				FileName = $"Отчет_по_продажам_{StartDate:dd.MM.yyyy}_{EndDate:dd.MM.yyyy}.xlsx"
+			};
+
+			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
+			if(result.Successful)
+			{
+				try
+				{
+					var groupingTitle = string.Join(" | ", SelectedGroupings.Select(g => g.Type.GetEnumTitle()));
+					var excelData = _salesReportService.ExportToExcel(
+						_treeNodes.FirstOrDefault().Children,
+						StartDate.Value,
+						EndDate.Value,
+						groupingTitle,
+						_ordersCount,
+						_bottlesDataNode.Plan,
+						_bottlesDataNode.Fact);
+
+					File.WriteAllBytes(result.Path, excelData);
+
+					_interactiveService.ShowMessage(ImportanceLevel.Info, "Файл успешно сохранен");
+				}
+				catch(Exception ex)
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Error, $"Ошибка при экспорте:\n{ex.Message}");
+					//_logger.LogError(ex, "Ошибка при экспорте отчета по продажам");
+				}
 			}
 		}
 

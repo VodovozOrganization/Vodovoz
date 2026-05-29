@@ -23,7 +23,7 @@ namespace VodovozBusiness.Nodes.SalesReport
 				case GroupingType.Nomenclature:
 					return node.NomenclatureName ?? "Не указана";
 				case GroupingType.NomenclatureType:
-					return node.NomenclatureCategory.ToString();
+					return node.NomenclatureCategoryString;
 				case GroupingType.NomenclatureGroup1:
 					return node.NomenGroupLevel1Name ?? "Без группы";
 				case GroupingType.NomenclatureGroup2:

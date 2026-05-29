@@ -573,10 +573,7 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 				.SelectGroup(() => authorAlias.Name).WithAlias(() => resultAlias.OrderAuthorName)
 				.SelectGroup(() => promotionalSetAlias.Name).WithAlias(() => resultAlias.PromotionalSet)
 				.SelectGroup(() => authorAlias.LastName).WithAlias(() => resultAlias.OrderAuthor)
-				.Select(Projections.SqlFunction(
-					new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT('Заказ №', ?1)"),
-					NHibernateUtil.String,
-					Projections.Property(() => orderAlias.Id))).WithAlias(() => resultAlias.OrdDetails)
+				.Select(() => nomenclatureAlias.IsDisposableTare).WithAlias(() => resultAlias.IsDisposableTare)
 				.Select(Projections.SqlFunction(
 					new SQLFunctionTemplate(NHibernateUtil.Decimal, "COALESCE(?1, ?2)"),
 					NHibernateUtil.Decimal,

@@ -2,6 +2,7 @@
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
+using Gamma.Utilities;
 
 namespace VodovozBusiness.Nodes.SalesReport
 {
@@ -76,11 +77,6 @@ namespace VodovozBusiness.Nodes.SalesReport
 		/// Краткое ФИО автора заказа
 		/// </summary>
 		public string OrderAuthor { get; set; }
-
-		/// <summary>
-		/// Детали заказа в формате: "Номер заказа\nДата доставки\nКраткое ФИО автора"
-		/// </summary>
-		public string OrdDetails { get; set; }
 
 		/// <summary>
 		/// Суммарное количество единиц товара (с учетом фактического или планового)
@@ -166,5 +162,24 @@ namespace VodovozBusiness.Nodes.SalesReport
 		/// Полное ФИО автора заказа
 		/// </summary>
 		public string OrderAuthorName { get; set; }
+
+		public string NomenclatureCategoryString
+		{
+			get
+			{
+				switch(NomenclatureCategory)
+				{
+					case NomenclatureCategory.water:
+						return IsDisposableTare ? "Вода в одноразовой таре" : "Вода в многооборотной таре";
+					default:
+						return NomenclatureCategory.GetEnumTitle();
+				}
+			}
+		}
+
+		/// <summary>
+		/// Детали заказа в формате: "Номер заказа\nДата доставки\nКраткое ФИО автора"
+		/// </summary>
+		public string OrdDetails => $"{OrderId}\n{DeliveryDate:dd.MM.yyyy}\n{OrderAuthor}";
 	}
 }
