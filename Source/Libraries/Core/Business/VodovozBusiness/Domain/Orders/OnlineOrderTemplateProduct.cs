@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using NPOI.SS.Formula.Functions;
 using QS.DomainModel.Entity;
 using QS.Extensions.Observable.Collections.List;
 using QS.HistoryLog;
@@ -103,21 +102,21 @@ namespace VodovozBusiness.Domain.Orders
 		public virtual decimal Sum => Math.Round(Price * Count, 2);
 		
 		public static OnlineOrderTemplateProduct Create(
+			int templateId,
 			decimal count,
 			decimal price,
 			Nomenclature nomenclature,
 			PromotionalSet promotionalSet,
-			int templateId,
 			IObservableList<OnlineOrderTemplateProductDiscount> discounts
 		)
 		{
 			var onlineOrderItem = new OnlineOrderTemplateProduct
 			{
+				TemplateId = templateId,
 				Count = count,
 				Price = price,
 				Nomenclature = nomenclature,
 				PromoSet = promotionalSet,
-				TemplateId = templateId,
 				Discounts = discounts
 			};
 

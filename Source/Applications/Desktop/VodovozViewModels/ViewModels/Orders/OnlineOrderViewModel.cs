@@ -102,7 +102,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public DelegateCommand GetToWorkCommand { get; private set; }
 		public DelegateCommand CancelOnlineOrderCommand { get; private set; }
 		public DelegateCommand OpenExternalCounterpartyMatchingCommand { get; private set; }
-		public DelegateCommand ToOrderTemplateCommand { get; private set; }
+		public DelegateCommand OpenTemplateCommand { get; private set; }
 		public DelegateCommand CallClientCommand { get; private set; }
 		public DelegateCommand AddOperatorCommentCommand { get; private set; }
 		public DelegateCommand AddFailedCallCommentCommand { get; private set; }
@@ -297,6 +297,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			CreateCallClientCommand();
 			CreateAddFailedCallCommentCommand();
 			CreateAddOperatorCommentCommand();
+			CreateOpenTemplateCommandCommand();
 		}
 
 		private void CreateGetToWorkCommand()
@@ -466,6 +467,24 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
 				ConvertOperatorCommentFromEntity();
 			});
+		}
+		
+		private void CreateOpenTemplateCommandCommand()
+		{
+			OpenTemplateCommand = new DelegateCommand(OpenTemplate);
+		}
+
+		private void OpenTemplate()
+		{
+			if(!Entity.TemplateId.HasValue)
+			{
+				return;
+			}
+			
+			NavigationManager.OpenViewModel<OnlineOrderTemplateViewModel, IEntityUoWBuilder>(
+				this,
+				EntityUoWBuilder.ForOpen(Entity.TemplateId.Value),
+				OpenPageOptions.AsSlave);
 		}
 
 		private void CreatePropertyChangeRelations()

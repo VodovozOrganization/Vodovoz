@@ -79,7 +79,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			CreatePopupActions();
 			StartAutoRefresh();
 		}
-		
+
 		public override string FooterInfo
 		{
 			get
@@ -158,10 +158,16 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 
 			#region Фильтрация
 
-			if(_filterViewModel.OnlineRequestsType.HasValue
-				&& _filterViewModel.OnlineRequestsType == OnlineRequestsType.RequestsForCall)
+			if(_filterViewModel.OnlineRequestsType.HasValue)
 			{
-				query.Where(o => o.Id == null);
+				if(_filterViewModel.OnlineRequestsType == OnlineRequestsType.RequestsForCall)
+				{
+					query.Where(o => o.Id == null);
+				}
+				else if(_filterViewModel.OnlineRequestsType == OnlineRequestsType.AutoOrder)
+				{
+					query.Where(o => o.TemplateId != null);
+				}
 			}
 
 			if(_filterViewModel.RestrictStatus.HasValue)
@@ -343,14 +349,11 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			query.SelectList(list => list
 					.SelectGroup(o => o.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => typeof(OnlineOrder)).WithAlias(() => resultAlias.EntityType)
-					.Select(() => OnlineOrder.OnlineOrderName).WithAlias(() => resultAlias.EntityTypeString)
-					.Select(
-						Projections.Conditional(
-							Restrictions.IsNotNull(Projections.Property(() => onlineOrderAlias.TemplateId)),
-							Projections.Constant(true),
-							Projections.Constant(false)
-							)
-						).WithAlias(() => resultAlias.IsFromTemplate)
+					.Select(Projections.Conditional(
+						Restrictions.IsNotNull(Projections.Property(() => onlineOrderAlias.TemplateId)),
+						Projections.Constant(OnlineOrder.AutoOrderName),
+						Projections.Constant(OnlineOrder.OnlineOrderName)
+						)).WithAlias(() => resultAlias.EntityTypeString)
 					.Select(orderByStatusProjection).WithAlias(() => resultAlias.OrderByStatusValue)
 					.Select(() => counterpartyAlias.Name).WithAlias(() => resultAlias.CounterpartyName)
 					.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.CompiledAddress)
@@ -421,7 +424,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			#region Фильтрация
 			
 			if((_filterViewModel.OnlineRequestsType.HasValue
-				&& _filterViewModel.OnlineRequestsType == OnlineRequestsType.OnlineOrders)
+				&& (_filterViewModel.OnlineRequestsType == OnlineRequestsType.OnlineOrders
+					|| _filterViewModel.OnlineRequestsType == OnlineRequestsType.AutoOrder))
 				|| _filterViewModel.OnlineOrderPaymentStatus.HasValue
 				|| _filterViewModel.RestrictPaymentType.HasValue
 				|| _filterViewModel.RestrictOnlinePaymentSource.HasValue

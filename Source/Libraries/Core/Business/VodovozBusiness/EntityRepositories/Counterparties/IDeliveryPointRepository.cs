@@ -4,6 +4,7 @@ using System.Linq;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
+using VodovozBusiness.Nodes;
 
 namespace Vodovoz.EntityRepositories.Counterparties
 {
@@ -23,7 +24,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		/// <returns></returns>
 		IOrderedEnumerable<DeliveryPointCategory> GetActiveDeliveryPointCategories(IUnitOfWork uow);
 
-		IList<DeliveryPoint> GetDeliveryPointsByCounterpartyId(IUnitOfWork uow, int counterpartyId);
+		IEnumerable<ClientDeliveryPointNode> GetCounterpartyDeliveryPointsData(IUnitOfWork uow, int counterpartyId);
 
 		IEnumerable<string> GetAddressesWithFixedPrices(int counterpartyId);
 

@@ -5,11 +5,13 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Counterparties;
+using VodovozBusiness.Nodes;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Counterparties
@@ -101,11 +103,34 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 			return uow.Session.QueryOver<DeliveryPointCategory>().Where(c => !c.IsArchive).List().OrderBy(c => c.Name);
 		}
 
-		public IList<DeliveryPoint> GetDeliveryPointsByCounterpartyId(IUnitOfWork uow, int counterpartyId)
+		public IEnumerable<ClientDeliveryPointNode> GetCounterpartyDeliveryPointsData(IUnitOfWork uow, int counterpartyId)
 		{
-			var result = uow.Session.QueryOver<DeliveryPoint>()
-				.Where(dp => dp.Counterparty.Id == counterpartyId)
-				.List<DeliveryPoint>();
+			var result = (
+				from deliveryPoint in uow.Session.Query<DeliveryPoint>()
+				
+				let hasFixedPrices = (
+					from fixedPrice in uow.Session.Query<NomenclatureFixedPrice>()
+					where fixedPrice.DeliveryPoint.Id == deliveryPoint.Id
+					select fixedPrice
+					).Any()
+				
+				let hasTemplates = (
+					from template in uow.Session.Query<OnlineOrderTemplate>()
+					where template.DeliveryPointId == deliveryPoint.Id
+					select template
+				).Any()
+				
+				where deliveryPoint.Counterparty.Id == counterpartyId
+				
+				select new ClientDeliveryPointNode
+				{
+					DeliveryPointId = deliveryPoint.Id,
+					Address = deliveryPoint.CompiledAddress,
+					IsActive = deliveryPoint.IsActive,
+					HasFixedPrices = hasFixedPrices,
+					HasTemplates = hasTemplates
+				}
+			).ToList();
 
 			return result;
 		}

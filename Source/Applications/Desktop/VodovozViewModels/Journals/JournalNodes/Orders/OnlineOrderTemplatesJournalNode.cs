@@ -1,12 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using Core.Infrastructure;
 using QS.Project.Journal;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
+using Vodovoz.Core.Domain.Sale;
+using Vodovoz.Extensions;
 
 namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders
 {
 	public class OnlineOrderTemplatesJournalNode : JournalEntityNodeBase
 	{
+		private string _weekdays;
+		private string _weekdaysFromDb;
+
 		/// <summary>
 		/// Заголовок(для EntityEntry, EntityViewModelEntry)
 		/// </summary>
@@ -19,10 +27,6 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders
 		/// Адрес доставки
 		/// </summary>
 		public string CompiledAddress { get; set; }
-		/// <summary>
-		/// Дата доставки
-		/// </summary>
-		public DateTime DeliveryDate { get; set; }
 		/// <summary>
 		/// Телефон для связи
 		/// </summary>
@@ -51,17 +55,55 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders
 		/// Время доставки
 		/// </summary>
 		public string DeliveryTime { get; set; }
+
 		/// <summary>
-		/// Дни недели
+		/// Дни недели из базы данных
 		/// </summary>
-		public string Weekdays { get; set; }
+		public string WeekdaysFromDB
+		{
+			get => _weekdaysFromDb;
+			set
+			{
+				_weekdaysFromDb = value;
+				UpdateWeekdays(_weekdaysFromDb);
+			}
+		}
+
 		/// <summary>
-		/// Номер последнего заказа
+		/// Номер последнего заказа из шаблона
 		/// </summary>
-		public int? LastOrderId { get; set; }
+		public int? LastOnlineOrderIdFromTemplate { get; set; }
 		/// <summary>
-		/// Статус
+		/// Дни недели по-русски
 		/// </summary>
-		public OnlineOrderTemplateStatus Status => IsActive ? OnlineOrderTemplateStatus.Active : OnlineOrderTemplateStatus.Inactive;
+		public string Weekdays { get; private set; }
+		
+		private void UpdateWeekdays(string weekdays)
+		{
+			if(string.IsNullOrWhiteSpace(weekdays))
+			{
+				Weekdays = "Незаполненные дни недели";
+				return;
+			}
+			
+			var sb = new StringBuilder();
+			var parsedWeekdays = WeekdaysFromDB.Split('\n');
+
+			for(var i = 0; i < parsedWeekdays.Length; i++)
+			{
+				var weekday = parsedWeekdays[i];
+				var weekdayEnum = weekday.TryParseAsEnum<WeekDayName>();
+
+				if(i == parsedWeekdays.Length - 1)
+				{
+					sb.Append(weekdayEnum is null ? weekday : weekdayEnum.Value.GetEnumDisplayName());
+					continue;
+				}
+					
+				sb.AppendLine(weekdayEnum is null ? weekday : weekdayEnum.Value.GetEnumDisplayName());
+			}
+				
+			Weekdays = sb.ToString();
+		}
 	}
 }

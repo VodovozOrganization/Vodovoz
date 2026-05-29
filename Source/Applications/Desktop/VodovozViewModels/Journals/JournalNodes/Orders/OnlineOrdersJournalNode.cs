@@ -24,10 +24,6 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders
 		/// </summary>
 		public string EntityTypeString { get; set; }
 		/// <summary>
-		/// Автозаказ
-		/// </summary>
-		public bool IsFromTemplate { get; set; }
-		/// <summary>
 		/// Адрес доставки
 		/// </summary>
 		public string CompiledAddress { get; set; }

@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Linq;
 using NHibernate;
+using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
+using QS.Project.DB;
 using QS.Project.Journal;
 using QS.Services;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Orders;
 using Vodovoz.ViewModels.Journals.JournalNodes.Orders;
 using Vodovoz.ViewModels.ViewModels.Orders;
@@ -41,17 +44,24 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 
 		protected override IQueryOver<OnlineOrderTemplate> ItemsQuery(IUnitOfWork uow)
 		{
+			OnlineOrderTemplate templateAlias = null;
 			Counterparty counterpartyAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			DeliverySchedule deliveryScheduleAlias = null;
 			OnlineOrderTemplateWeekday weekdayAlias = null;
 			OnlineOrderTemplatesJournalNode resultAlias = null;
 			
-			var query = uow.Session.QueryOver<OnlineOrderTemplate>()
-				.Left.JoinAlias(t => t.CounterpartyId, () => counterpartyAlias)
-				.Left.JoinAlias(t => t.DeliveryPointId, () => deliveryPointAlias)
-				.Left.JoinAlias(t => t.DeliveryScheduleId, () => deliveryScheduleAlias)
-				.Left.JoinAlias(t => t.Weekdays, () => weekdayAlias);
+			var query = uow.Session.QueryOver(() => templateAlias)
+				.JoinEntityAlias(() => counterpartyAlias, () => templateAlias.CounterpartyId == counterpartyAlias.Id)
+				.JoinEntityAlias(() => deliveryPointAlias, () => templateAlias.DeliveryPointId == deliveryPointAlias.Id)
+				.JoinEntityAlias(() => deliveryScheduleAlias, () => templateAlias.DeliveryScheduleId == deliveryScheduleAlias.Id)
+				.JoinEntityAlias(() => weekdayAlias, () => templateAlias.Id == weekdayAlias.TemplateId);
+
+			var lastOnlineOrderFromTemplate = QueryOver.Of<OnlineOrder>()
+				.Where(o => o.TemplateId == templateAlias.Id)
+				.OrderBy(o => o.DeliveryDate).Desc
+				.Select(o => o.Id)
+				.Take(1);
 
 			if(_filterViewModel != null)
 			{
@@ -77,10 +87,10 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					query.Where(t => t.PaymentType == paymentType.Value);
 				}
 				
-				var status = _filterViewModel.Status;
+				var status = _filterViewModel.TemplateStatus;
 				if(status.HasValue)
 				{
-					if(_filterViewModel.Status == OnlineOrderTemplateStatus.Active)
+					if(_filterViewModel.TemplateStatus == OnlineOrderTemplateStatus.Active)
 					{
 						query.Where(t => t.IsActive);
 					}
@@ -90,24 +100,35 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 					}
 				}
 
-				if(!_filterViewModel.ShowArchived)
+				if(_filterViewModel.Archive.HasValue)
 				{
-					query.Where(t => !t.IsArchive);
+					if(_filterViewModel.Archive.Value)
+					{
+						query.Where(t => t.IsArchive);
+					}
+					else
+					{
+						query.Where(t => !t.IsArchive);
+					}
 				}
 			}
 			
 			query.SelectList(list => list
 				.SelectGroup(t => t.Id).WithAlias(() => resultAlias.Id)
-				.Select(() => counterpartyAlias.FullName).WithAlias(() => resultAlias.CounterpartyName) //сделать проекцию имя + id
-				.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.CompiledAddress) //сделать проекцию адрес + id
-				.Select(() => deliveryScheduleAlias.Id).WithAlias(() => resultAlias.DeliveryTime) //сделать проекцию на время доставки
+				.Select(() => counterpartyAlias.FullName).WithAlias(() => resultAlias.CounterpartyName)
+				.Select(() => deliveryPointAlias.CompiledAddress).WithAlias(() => resultAlias.CompiledAddress)
+				.Select(() => deliveryScheduleAlias.Name).WithAlias(() => resultAlias.DeliveryTime)
+				.Select(CustomProjections.GroupConcat(() => weekdayAlias.Weekday, separator: "\n")).WithAlias(() => resultAlias.WeekdaysFromDB)
 				.Select(t => t.IsSelfDelivery).WithAlias(() => resultAlias.IsSelfDelivery)
 				.Select(t => t.ContactPhone).WithAlias(() => resultAlias.ContactPhone)
 				.Select(t => t.DeliveryFrequency).WithAlias(() => resultAlias.DeliveryFrequency)
 				.Select(t => t.PaymentType).WithAlias(() => resultAlias.PaymentType)
 				.Select(t => t.IsActive).WithAlias(() => resultAlias.IsActive)
+				.SelectSubQuery(lastOnlineOrderFromTemplate).WithAlias(() => resultAlias.LastOnlineOrderIdFromTemplate)
 			)
 			.TransformUsing(Transformers.AliasToBean<OnlineOrderTemplatesJournalNode>());
+
+			var list2 = query.List<OnlineOrderTemplatesJournalNode>();
 			
 			return query;
 		}
@@ -187,9 +208,12 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			var canUpdate = _permissionResult.CanUpdate;
 			
 			var archiveAction = new JournalAction("Архивировать",
-				(selected) => canUpdate && selected.Any(),
-				(selected) => true,
-				(selected) =>
+				selected => canUpdate
+					&& selected
+						.Cast<OnlineOrderTemplatesJournalNode>()
+						.Any(x => !x.IsArchive),
+				selected => true,
+				selected =>
 				{
 					if(!_interactiveService.Question("Архивирование нельзя будет отменить. Вы уверены?"))
 					{
@@ -225,6 +249,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Orders
 			filterParams?.Invoke(_filterViewModel);
 			_filterViewModel.OnFiltered += OnFilterViewModelFiltered;
 			JournalFilter = _filterViewModel;
+			JournalFilter.IsShow = true;
 		}
 		
 		private void OnFilterViewModelFiltered(object sender, EventArgs e)

@@ -1,7 +1,8 @@
-using Autofac.Extensions.DependencyInjection;
+﻿using Autofac.Extensions.DependencyInjection;
 using CustomerOnlineOrdersRegistrar.Configs;
 using CustomerOnlineOrdersRegistrar.V3.Factories;
 using CustomerOnlineOrdersRegistrar.V4.Factories;
+using CustomerOnlineOrdersRegistrar.V5.Consumers;
 using CustomerOnlineOrdersRegistrar.V5.Factories;
 using CustomerOrdersApi.Library;
 using DriverApi.Notifications.Client;
@@ -81,7 +82,7 @@ namespace CustomerOnlineOrdersRegistrar
 						{
 							//busConf.AddConsumer<OnlineOrderRegisteredConsumer, OnlineOrderRegisteredConsumerDefinition>();
 							//busConf.AddConsumer<CreatingOnlineOrderConsumer, CreatingOnlineOrderConsumerDefinition>();
-							//busConf.AddConsumer<CreatingOnlineOrderWithTemplateConsumer, CreatingOnlineOrderWithTemplateConsumerDefinition>();
+							busConf.AddConsumer<CreatingOnlineOrderConsumerV5, CreatingOnlineOrderConsumerDefinitionV5>();
 							busConf.ConfigureRabbitMq();
 						});
 					

@@ -194,7 +194,7 @@ namespace Vodovoz.Filters.GtkViews
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
-			this.paymentTypeCmb = global::Gtk.ComboBox.NewText();
+			this.paymentTypeCmb = new Gamma.Widgets.yEnumComboBox();
 			this.paymentTypeCmb.Name = "paymentTypeCmb";
 			this.paymentTypeCmb.ShowSpecialStateAll = false;
 			this.paymentTypeCmb.ShowSpecialStateNot = false;
@@ -207,7 +207,7 @@ namespace Vodovoz.Filters.GtkViews
 			w13.XOptions = ((global::Gtk.AttachOptions)(4));
 			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableMain.Gtk.Table+TableChild
-			this.templateStateCmb = global::Gtk.ComboBox.NewText();
+			this.templateStateCmb = new Gamma.Widgets.yEnumComboBox();
 			this.templateStateCmb.Name = "templateStateCmb";
 			this.templateStateCmb.ShowSpecialStateAll = false;
 			this.templateStateCmb.ShowSpecialStateNot = false;

@@ -7,6 +7,8 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Enums
 		[Display(Name = "Онлайн заказы")]
 		OnlineOrders,
 		[Display(Name = "Заявки на звонок")]
-		RequestsForCall
+		RequestsForCall,
+		[Display(Name = "Автозаказ")]
+		AutoOrder
 	}
 }

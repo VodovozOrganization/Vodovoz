@@ -49,24 +49,24 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			var oId = !ignoreCurrentOrder ? -1 : currOrder.Id;
 
 			var subQuerySimilarDP = QueryOver.Of(() => deliveryPointAlias)
-											   .Where(p => p.City == dp.City)
-											   .Where(p => p.Street == dp.Street)
-											   .Where(p => p.Building == dp.Building)
-											   .Where(p => p.Room == dp.Room)
-											   .Select(Projections.Property(() => deliveryPointAlias.Id))
-											   ;
+			   .Where(p => p.City == dp.City)
+			   .Where(p => p.Street == dp.Street)
+			   .Where(p => p.Building == dp.Building)
+			   .Where(p => p.Room == dp.Room)
+			   .Select(Projections.Property(() => deliveryPointAlias.Id)
+			);
 
 			var result = uow.Session.QueryOver(() => promotionalSetAlias)
-									.JoinAlias(() => promotionalSetAlias.Orders, () => ordersAlias)
-									.JoinAlias(() => ordersAlias.DeliveryPoint, () => deliveryPointAlias)
-									.Where(() => ordersAlias.Id != oId)
-									.Where(() => ordersAlias.OrderStatus.IsIn(GetAcceptableStatuses()))
-									.WithSubquery.WhereProperty(() => deliveryPointAlias.Id).In(subQuerySimilarDP)
-									.SelectList(list => list.Select(() => promotionalSetAlias.Id)
-															.Select(() => ordersAlias.Id))
-									.List<object[]>()
-									.GroupBy(x => (int)x[0])
-									.ToDictionary(g => g.Key, g => g.Select(x => (int)x[1]).ToArray());
+				.JoinAlias(() => promotionalSetAlias.Orders, () => ordersAlias)
+				.JoinAlias(() => ordersAlias.DeliveryPoint, () => deliveryPointAlias)
+				.Where(() => ordersAlias.Id != oId)
+				.Where(() => ordersAlias.OrderStatus.IsIn(GetAcceptableStatuses()))
+				.WithSubquery.WhereProperty(() => deliveryPointAlias.Id).In(subQuerySimilarDP)
+				.SelectList(list => list.Select(() => promotionalSetAlias.Id)
+										.Select(() => ordersAlias.Id))
+				.List<object[]>()
+				.GroupBy(x => (int)x[0])
+				.ToDictionary(g => g.Key, g => g.Select(x => (int)x[1]).ToArray());
 			return result;
 		}
 

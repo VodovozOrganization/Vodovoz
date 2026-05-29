@@ -13,6 +13,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.Factories;
 using Vodovoz.Infrastructure;
+using VodovozBusiness.Nodes;
 
 namespace Vodovoz
 {
@@ -31,13 +32,16 @@ namespace Vodovoz
 			_deliveryPointRepository = _lifetimeScope.Resolve<IDeliveryPointRepository>();
 			Build();
 
-			treeDeliveryPoints.ColumnsConfig = FluentColumnsConfig<DeliveryPoint>.Create()
-				.AddColumn("Адрес").AddTextRenderer(node => node.CompiledAddress).WrapMode(Pango.WrapMode.WordChar).WrapWidth(1000)
-				.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
+			treeDeliveryPoints.ColumnsConfig = FluentColumnsConfig<ClientDeliveryPointNode>.Create()
+				.AddColumn("Адрес").AddTextRenderer(node => node.Address).WrapMode(Pango.WrapMode.WordChar).WrapWidth(1000)
+				.AddColumn("Номер").AddNumericRenderer(node => node.DeliveryPointId)
 				.AddColumn("Фикс. цены").AddToggleRenderer(node => node.HasFixedPrices).Editing(false)
+				.AddColumn("Шаблоны\nавтозаказов").AddToggleRenderer(node => node.HasFixedPrices).Editing(false)
 				.AddColumn("")
-				.RowCells().AddSetter<CellRendererText>((c, n) => c.ForegroundGdk = n.IsActive ? GdkColors.PrimaryText : GdkColors.DangerText)
+				.RowCells().AddSetter<CellRendererText>((c, n) =>
+					c.ForegroundGdk = n.IsActive ? GdkColors.PrimaryText : GdkColors.DangerText)
 				.Finish();
+			
 			_canDeleteByPresetPermission =
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission("can_delete_counterparty_and_deliverypoint");
 			_permissionResult = ServicesConfig.CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(DeliveryPoint));
@@ -119,8 +123,8 @@ namespace Vodovoz
 
 		private void UpdateNodes()
 		{
-			var result = _deliveryPointRepository.GetDeliveryPointsByCounterpartyId(UoW, _counterparty.Id);
-			treeDeliveryPoints.SetItemsSource(result);
+			var result = _deliveryPointRepository.GetCounterpartyDeliveryPointsData(UoW, _counterparty.Id);
+			treeDeliveryPoints.ItemsDataSource = result;
 		}
 
 		private void UpdateNodesAndSelectEditedRow()

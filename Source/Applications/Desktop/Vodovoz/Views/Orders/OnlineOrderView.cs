@@ -49,6 +49,10 @@ namespace Vodovoz.Views.Orders
 			btnCancelOnlineOrder.Binding
 				.AddBinding(ViewModel, vm => vm.CanCancelOnlineOrder, w => w.Sensitive)
 				.InitializeFromSource();
+			
+			btnToOrderTemplate.Binding
+				.AddBinding(ViewModel, vm => vm.IsFromTemplate, w => w.Sensitive)
+				.InitializeFromSource();
 
 			ConfigureInfo();
 			ConfigureItemsWidgets();

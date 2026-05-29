@@ -61,6 +61,8 @@ using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
 using VodovozBusiness.Controllers;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Sale;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using Nomenclature = Vodovoz.Domain.Goods.Nomenclature;
@@ -75,7 +77,7 @@ namespace Vodovoz.Domain.Orders
 	)]
 	[HistoryTrace]
 	[EntityPermission]
-	public class Order : OrderEntity, IValidatableObject
+	public class Order : OrderEntity, IValidatableObject, IAddProductSource
 	{
 		public const string DontArriveBeforeIntervalString = "Не приезжать раньше интервала!";
 		private static Logger logger = LogManager.GetCurrentClassLogger();
@@ -395,6 +397,21 @@ namespace Vodovoz.Domain.Orders
 			get => _onlineOrder;
 			set => SetField(ref _onlineOrder, value);
 		}
+
+		#endregion
+
+		#region IAddProductSource
+
+		public object Source => this;
+		public Counterparty Counterparty => Client;
+
+		public PaymentTypeSource PaymentTypeSource => PaymentType == PaymentType.Cashless ? PaymentTypeSource.Cashless : PaymentTypeSource.Other;
+
+		bool IAddProductSource.HasDepositItems => HasDepositItems();
+
+		bool IAddProductSource.HasNonPaidDeliveryItems => HasNonPaidDeliveryItems();
+
+		public ICollection<IProduct> Products => ObservableOrderItems;
 
 		#endregion
 

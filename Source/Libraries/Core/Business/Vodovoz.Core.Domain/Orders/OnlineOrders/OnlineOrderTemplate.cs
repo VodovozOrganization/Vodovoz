@@ -42,7 +42,7 @@ namespace Vodovoz.Core.Domain.Orders.OnlineOrders
 		private IObservableList<int> _templateProducts = new ObservableList<int>();
 		private IObservableList<int> _weekdays = new ObservableList<int>();
 
-		protected OnlineOrderTemplate() { }
+		public OnlineOrderTemplate() { }
 		
 		protected OnlineOrderTemplate(
 			Source source,
@@ -329,15 +329,17 @@ namespace Vodovoz.Core.Domain.Orders.OnlineOrders
 		/// <param name="isArchive">Признак архивности</param>
 		public virtual void UpdateState(bool isActive, bool isArchive)
 		{
-			//TODO 5696 запретить разархивирование шаблонов, чтобы старые шаблоны нельзя было вернуть в строй
 			if(isArchive)
 			{
 				Archive();
 			}
+			else if(IsArchive)
+			{
+				// возможно стоит ответить, что нельзя разархивировать
+			}
 			else
 			{
 				IsActive = isActive;
-				IsArchive = isArchive;
 			}
 		}
 		

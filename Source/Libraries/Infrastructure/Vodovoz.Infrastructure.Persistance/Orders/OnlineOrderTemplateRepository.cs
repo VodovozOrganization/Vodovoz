@@ -131,7 +131,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					select onlineOrder
 					)
 					.FirstOrDefault()
-					
+
 				let lastOnlineOrder = (
 						from onlineOrder in uow.Session.Query<OnlineOrder>()
 						where onlineOrder.Counterparty.Id == template.CounterpartyId
@@ -146,9 +146,10 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				let needCreateByDay = weekDayFromDate == WeekDayName.Sunday
 					? (byte)weekDayFromDate - weekday.DayNumber == 6
 					: weekday.DayNumber - (byte)weekDayFromDate == 1
-				
-				where template.IsActive && needCreateByDay && lastOnlineOrder == null
 
+				where template.IsActive && needCreateByDay
+
+				//добавить в валидатор доп условие по уже созданному онлайну(не автозаказу) на эту дату, от этого клиента, ТД и время
 				select new ValueTuple<OnlineOrderTemplate, OnlineOrder>(template, lastOnlineFromTemplate)
 				)
 				.Distinct()
@@ -169,11 +170,18 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 				//не нашел решения, как заставить работать AddDays(days) в трансляторе HQL, с подзапросом
 				//поэтому вынес после sql
+				/* т.к. помимо дней у нас есть еще периодичность доставки, то необходимость создания будет определяться как
+				 * Онлайн заказа по этому шаблону нет
+				 * ИЛИ
+				 * Дата доставки онлайн заказа не равна дате плюс один день(создаем за день до доставки), т.е. мы не создали уже свежий
+				 * И
+				 * Либо день доставки онлайна не равен дню от даты плюс один день
+				 * Либо дата плюс один день равна дате доставки онлайна плюс количество дней по периодичности доставки
+				 */
 				let needCreateByWeek = template.Item2 == null
-					|| (
-						template.Item2.Created.Date != date.Date
-						&& template.Item2.Created.AddDays(days).Date == date.Date
-					)
+					|| template.Item2.DeliveryDate.Date != date.AddDays(1).Date
+					&& (template.Item2.DeliveryDate.DayOfWeek != date.AddDays(1).DayOfWeek
+						|| date.AddDays(1).Date == template.Item2.DeliveryDate.AddDays(days))
 
 				where needCreateByWeek
 				select template.Item1)

@@ -26,7 +26,6 @@ namespace Vodovoz.JournalColumnsConfigs
 							? _greenCircle
 							: _emptyImg)
 				.AddColumn("Тип").AddTextRenderer(node => node.EntityTypeString)
-				.AddColumn("Автозаказ").AddTextRenderer(node => node.IsFromTemplate.ConvertToYesOrNo())
 				.AddColumn("Дата создания").AddTextRenderer(node => node.CreationDate.ToString("G"))
 				.AddColumn("Дата доставки").AddTextRenderer(node =>
 						node.DeliveryDate.HasValue ? node.DeliveryDate.Value.ToShortDateString() : string.Empty)

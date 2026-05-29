@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Input;
 using Autofac;
+using DocumentFormat.OpenXml.Vml.Spreadsheet;
 using FluentNHibernate.Data;
 using Gamma.Widgets;
 using Microsoft.Extensions.Logging;
@@ -12,14 +13,19 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
 using QS.Navigation;
+using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Services;
 using QS.Services;
+using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
+using RestSharp.Validation;
+using Vodovoz.Core.Application.Orders.Validators;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -34,13 +40,15 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
+using Vodovoz.ViewModels.ViewModels.Orders;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.ViewModels.ViewModels.Orders
 {
-	public class OnlineOrderTemplateViewModel : DialogViewModelBase
+	public class OnlineOrderTemplateViewModel : DialogTabViewModelBase
 	{
+		private readonly IEntityUoWBuilder _entityUoWBuilder;
 		private readonly ICommonServices _commonServices;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IGoodsPriceCalculator _goodsPriceCalculator;
@@ -68,6 +76,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
 		public OnlineOrderTemplateViewModel(
 			ILogger<OnlineOrderTemplateViewModel> logger,
+			IEntityUoWBuilder entityUoWBuilder,
 			INavigationManager navigationManager,
 			ILifetimeScope lifetimeScope,
 			ICommonServices commonServices,
@@ -76,8 +85,9 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			IGoodsPriceCalculator goodsPriceCalculator,
 			ViewModelEEVMBuilder<DeliveryPoint> deliveryPointViewModelBuilder,
 			DeliveryPointJournalFilterViewModel deliveryPointJournalFilterViewModel
-			) : base(navigationManager)
+			) : base(unitOfWorkFactory, commonServices?.InteractiveService, navigationManager)
 		{
+			_entityUoWBuilder = entityUoWBuilder ?? throw new ArgumentNullException(nameof(entityUoWBuilder));
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_goodsPriceCalculator = goodsPriceCalculator ?? throw new ArgumentNullException(nameof(goodsPriceCalculator));
@@ -85,7 +95,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			_deliveryPointJournalFilterViewModel =
 				deliveryPointJournalFilterViewModel ?? throw new ArgumentNullException(nameof(deliveryPointJournalFilterViewModel));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
-			UoW = _unitOfWorkFactory.CreateWithoutRoot();
+			UoW = _entityUoWBuilder.CreateUoW<OnlineOrderTemplate>(_unitOfWorkFactory);
 			
 			_currentEmployee =
 				(employeeService ?? throw new ArgumentNullException(nameof(employeeService)))
@@ -342,160 +352,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			}
 		}
 		
-		private void TryAddProduct(
-			Nomenclature nomenclature,
-			decimal count = 0,
-			decimal discount = 0,
-			IEnumerable<DiscountReason> discountReasons = null
-			)
-		{
-			/*if(PaymentType == PaymentType.Cashless)
-			{
-				if(nomenclature.Category == NomenclatureCategory.deposit
-					&& !Order.HasDepositItems()
-					&& Order.HasNonPaidDeliveryItems())
-				{
-					MessageDialogHelper.RunWarningDialog("Нельзя добавить залоговую позицию, если в заказе уже есть незалоговые позиции.");
-					return;
-				}
-
-				if(nomenclature.Category != NomenclatureCategory.deposit 
-					&& Order.HasDepositItems()
-					&& Order.HasNonPaidDeliveryItems())
-				{
-					MessageDialogHelper.RunWarningDialog("Нельзя добавить незалоговую позицию, если в заказе уже есть залоговые позиции.");
-					return;
-				}
-			}*/
-
-			/*
-			if(Entity.OrderItems.Any(x => !Nomenclature.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
-				&& nomenclature.Category == NomenclatureCategory.master)
-			{
-				MessageDialogHelper.RunInfoDialog("В не сервисный заказ нельзя добавить сервисную услугу");
-				return;
-			}
-
-			if(Entity.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master)
-				&& !Nomenclature.GetCategoriesForMaster().Contains(nomenclature.Category))
-			{
-				MessageDialogHelper.RunInfoDialog("В сервисный заказ нельзя добавить не сервисную услугу");
-				return;
-			}
-			*/
-			
-			/*if(nomenclature.OnlineStore != null && !_canAddOnlineStoreNomenclaturesToOrder)
-			{
-				MessageDialogHelper.RunWarningDialog("У вас недостаточно прав для добавления на продажу номенклатуры интернет магазина");
-				return;
-			}*/
-
-			AddProduct(UoW, nomenclature, count, discount);
-		}
-		
-		public virtual void AddProduct(
-			IUnitOfWork uow,
-			Nomenclature nomenclature,
-			decimal count = 0,
-			decimal discount = 0,
-			bool discountInMoney = false,
-			bool needGetFixedPrice = true,
-			IEnumerable<DiscountReason> discountReasons = null,
-			PromotionalSet proSet = null)
-		{
-			switch(nomenclature.Category) {
-				case NomenclatureCategory.water:
-					AddWaterForSale(
-						uow,
-						nomenclature,
-						count,
-						discount,
-						discountInMoney,
-						needGetFixedPrice,
-						discountReasons?.FirstOrDefault(),
-						proSet);
-					break;
-				case NomenclatureCategory.master:
-					return;
-					break;
-				default:
-					var canApplyAlternativePrice = HasPermissionsForAlternativePrice && nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
-
-					var product = OnlineOrderTemplateProduct.Create(
-						count,
-						nomenclature.GetPrice(1, canApplyAlternativePrice),
-						nomenclature,
-						proSet,
-						0,//templateId,
-						new ObservableList<OnlineOrderTemplateProductDiscount>()
-						);
-
-					var acceptableCategories = Nomenclature.GetCategoriesForSale();
-					
-					if(product?.Nomenclature is null || !acceptableCategories.Contains(product.Nomenclature.Category))
-					{
-						return;
-					}
-					
-					AddOrderItem(uow, product);
-
-					break;
-			}
-		}
-		
-		public virtual void AddWaterForSale(
-			IUnitOfWork uow,
-			Nomenclature nomenclature,
-			decimal count,
-			decimal discount = 0,
-			bool isDiscountInMoney = false,
-			bool needGetFixedPrice = true,
-			DiscountReason reason = null,
-			PromotionalSet proSet = null)
-		{
-			if(nomenclature.Category != NomenclatureCategory.water && !nomenclature.IsDisposableTare)
-			{
-				return;
-			}
-
-			//Если номенклатура промонабора добавляется по фиксе (без скидки), то у нового OrderItem убирается поле discountReason
-			if(proSet != null && discount == 0)
-			{
-				var fixPricedNomenclaturesId = new[] { 1 };//GetNomenclaturesWithFixPrices.Select(n => n.Id);
-				if(fixPricedNomenclaturesId.Contains(nomenclature.Id))
-				{
-					reason = null;
-				}
-			}
-
-			if(discount > 0 && reason == null && proSet == null)
-			{
-				throw new ArgumentException("Требуется указать причину скидки (reason), если она (discount) больше 0!");
-			}
-
-			var price = _goodsPriceCalculator.CalculatePrice(
-				Products,
-				Counterparty,
-				DeliveryPoint,
-				nomenclature,
-				proSet != null,
-				HasPermissionsForAlternativePrice,
-				count,
-				needGetFixedPrice);
-			
-			AddOrderItem(
-				uow,
-				OnlineOrderTemplateProduct.Create(
-					count,
-					price,
-					nomenclature,
-					proSet,
-					0,//templateId,
-					new ObservableList<OnlineOrderTemplateProductDiscount>()
-					)
-				);
-		}
-		
 		public virtual void AddOrderItem(
 			IUnitOfWork uow,
 			OnlineOrderTemplateProduct product,
@@ -704,5 +560,20 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			
 			return _commonServices.InteractiveService.Question(sb.ToString());
 		}
+	}
+}
+
+
+public class OnlineOrderTemplateAddProductValidator : IAddProductValidator
+	{
+		public Result Validate()
+		{
+			throw new NotImplementedException();
+		}
+	}
+
+public class TemplateProductHandler : ProductHandler
+	{
+		
 	}
 }

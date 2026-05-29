@@ -1,4 +1,6 @@
 ﻿using System;
+using Autofac;
+using QS.Navigation;
 using QS.Project.Filter;
 using QS.Project.Journal;
 using QS.ViewModels.Control.EEVM;
@@ -19,24 +21,40 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 		private readonly ViewModelEEVMBuilder<DeliveryPoint> _deliveryPointViewModelBuilder;
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel;
 		private int? _templateId;
-		private bool _showArchived;
-		private string _phone;
+		private bool? _archive;
+		private string _contactPhone;
 		private Counterparty _counterparty;
 		private DeliveryPoint _deliveryPoint;
 		private OnlineOrderPaymentType? _paymentType;
-		private OnlineOrderTemplateStatus? _status;
+		private OnlineOrderTemplateStatus? _templateStatus;
 
 		public OnlineOrderTemplatesJournalFilterViewModel(
+			ILifetimeScope lifetimeScope,
+			INavigationManager navigationManager,
 			ViewModelEEVMBuilder<DeliveryPoint> deliveryPointViewModelBuilder,
 			DeliveryPointJournalFilterViewModel deliveryPointJournalFilterViewModel
 			)
 		{
+			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
+			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_deliveryPointViewModelBuilder = deliveryPointViewModelBuilder ?? throw new ArgumentNullException(nameof(deliveryPointViewModelBuilder));
 			_deliveryPointJournalFilterViewModel =
 				deliveryPointJournalFilterViewModel ?? throw new ArgumentNullException(nameof(deliveryPointJournalFilterViewModel));
+
+			Initialize();
 		}
-		
+
+		private void Initialize()
+		{
+			//PaymentTypes = (OnlineOrderPaymentType[])Enum.GetValues(typeof(OnlineOrderPaymentType));
+			//Statuses = (OnlineOrderTemplateStatus[])Enum.GetValues(typeof(OnlineOrderTemplateStatus));
+		}
+
 		public JournalViewModelBase Journal { get; private set; }
+		public ILifetimeScope LifetimeScope { get; private set; }
+		//public IEnumerable<OnlineOrderPaymentType> PaymentTypes { get; private set; }
+		//public IEnumerable<OnlineOrderTemplateStatus> Statuses { get; private set; }
+		public INavigationManager NavigationManager { get; }
 
 		/// <summary>
 		/// Идентификатор шаблона
@@ -55,8 +73,25 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 			get => _counterparty;
 			set
 			{
-				UpdateFilterField(ref _counterparty, value);
-				//_deliveryPointJournalFilterViewModel.Counterparty = value;
+				if(SetField(ref _counterparty, value))
+				{
+					_deliveryPointJournalFilterViewModel.Counterparty = value;
+
+					if(value is null)
+					{
+						Update();
+						return;
+					}
+
+					if(DeliveryPoint != null && DeliveryPoint.Counterparty.Id != Counterparty.Id)
+					{
+						DeliveryPoint = null;
+					}
+					else
+					{
+						Update();
+					}
+				}
 			}
 		}
 
@@ -72,10 +107,10 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 		/// <summary>
 		/// Телефон
 		/// </summary>
-		public string Phone
+		public string ContactPhone
 		{
-			get => _phone;
-			set => SetField(ref _phone, value);
+			get => _contactPhone;
+			set => SetField(ref _contactPhone, value);
 		}
 		
 		/// <summary>
@@ -90,23 +125,30 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 		/// <summary>
 		/// Статус шаблона
 		/// </summary>
-		public OnlineOrderTemplateStatus? Status
+		public OnlineOrderTemplateStatus? TemplateStatus
 		{
-			get => _status;
-			set => UpdateFilterField(ref _status, value);
+			get => _templateStatus;
+			set => UpdateFilterField(ref _templateStatus, value);
 		}
 		
 		/// <summary>
-		/// Показать архивные
+		/// Архивные
 		/// </summary>
-		public bool ShowArchived
+		public bool? Archive
 		{
-			get => _showArchived;
-			set => UpdateFilterField(ref _showArchived, value);
+			get => _archive;
+			set => UpdateFilterField(ref _archive, value);
 		}
 		
+		/// <summary>
+		/// Вью модель поля с ТД
+		/// </summary>
 		public IEntityEntryViewModel DeliveryPointViewModel { get; private set; }
 
+		/// <summary>
+		/// Установка родительского журнала
+		/// </summary>
+		/// <param name="journal"></param>
 		public void SetJournal(JournalViewModelBase journal)
 		{
 			Journal = journal;
@@ -136,6 +178,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Orders
 		public override void Dispose()
 		{
 			Journal = null;
+			LifetimeScope = null;
 			base.Dispose();
 		}
 	}
