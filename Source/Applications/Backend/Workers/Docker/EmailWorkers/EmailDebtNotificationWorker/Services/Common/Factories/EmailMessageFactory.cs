@@ -57,8 +57,7 @@ namespace EmailDebtNotificationWorker.Services.Common.Factories
 					new()
 					{
 						Name = client.FullName,
-						//Email = emailAddress
-						Email = "work.semen.sd@gmail.com"
+						Email = emailAddress
 					}
 				},
 				Subject = emailSubject,
