@@ -647,6 +647,15 @@ namespace Vodovoz.Views.Settings
 				.InitializeFromSource();
 
 			ybuttonSaveFastDeliveryMaximumPermissibleLate.Clicked += (s, e) => ViewModel.SaveFastDeliveryMaximumPermissibleLateCommand.Execute();
+
+			yspinbuttonMaximumPermittedDistance.Binding
+				.AddBinding(ViewModel, vm => vm.MaximumPermittedDistanceMeters, w => w.ValueAsInt)
+				.AddBinding(ViewModel, vm => vm.CanEditMaximumPermittedDistanceFromSetting, w => w.Sensitive)
+				.InitializeFromSource();
+
+			ybuttonSaveMaximumPermittedDistance.Sensitive = ViewModel.CanEditMaximumPermittedDistanceFromSetting;
+
+			ybuttonSaveMaximumPermittedDistance.BindCommand(ViewModel.SaveMaximumPermittedDistanceMetersCommand);
 		}
 
 		private void ConfigureMaxDailyFuelLimits()

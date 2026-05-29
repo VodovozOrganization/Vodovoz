@@ -20,6 +20,14 @@ namespace Vodovoz.Core.Domain.Permissions
 		public static string CanEditFastDeliveryIntervalFromSetting => nameof(CanEditFastDeliveryIntervalFromSetting);
 
 		/// <summary>
+		/// Возможность изменять ограничение расстояния до точки доставки для закрытия заказа
+		/// </summary>
+		[Display(
+			Name = "Возможность изменять ограничение расстояния до точки доставки для закрытия заказа",
+			Description = "Доступ к настройке Ограничение расстояния для закрытия заказа")]
+		public static string CanEditMaximumPermittedDistanceFromSetting => nameof(CanEditMaximumPermittedDistanceFromSetting);
+
+		/// <summary>
 		/// Возможность работать с графиком водителей
 		/// </summary>
 		[Display(

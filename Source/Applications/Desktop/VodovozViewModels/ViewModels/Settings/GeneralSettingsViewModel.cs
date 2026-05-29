@@ -23,6 +23,7 @@ using Vodovoz.Settings.Car;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Fuel;
+using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
 using Vodovoz.ViewModels.Accounting.Payments;
@@ -37,6 +38,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private const int _billAdditionalInfoMaxLength = 200;
 
 		private readonly IGeneralSettings _generalSettings;
+		private readonly IDriverApiSettings _driverApiSettings;
 		private readonly IFuelControlSettings _fuelControlSettings;
 		private readonly ICarInsuranceSettings _carInsuranceSettings;
 		private readonly ILogger<GeneralSettingsViewModel> _logger;
@@ -84,6 +86,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private bool _isIntervalFromAddedInFirstRouteList;
 		private bool _isIntervalFromRouteListItemTransfered;
 		private int _fastDeliveryMaximumPermissibleLateMinutes;
+		private int _maximumPermittedDistanceMeters;
 
 		private int _largusMaxDailyFuelLimit;
 		private int _truckMaxDailyFuelLimit;
@@ -101,6 +104,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		public GeneralSettingsViewModel(
 			ILogger<GeneralSettingsViewModel> logger,
 			IGeneralSettings generalSettings,
+			IDriverApiSettings driverApiSettings,
 			IFuelControlSettings fuelControlSettings,
 			ICarInsuranceSettings carInsuranceSettings,
 			ICommonServices commonServices,
@@ -133,6 +137,7 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			_closingDeliveriesSettings = closingDeliveriesSettings ?? throw new ArgumentNullException(nameof(closingDeliveriesSettings));
 			_vatRateEEVMBuilder = vatRateEevmBuilder ?? throw new ArgumentNullException(nameof(vatRateEevmBuilder));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
+			_driverApiSettings = driverApiSettings ?? throw new ArgumentNullException(nameof(driverApiSettings));
 			_fuelControlSettings = fuelControlSettings ?? throw new ArgumentNullException(nameof(fuelControlSettings));
 			_carInsuranceSettings = carInsuranceSettings ?? throw new ArgumentNullException(nameof(carInsuranceSettings));
 			TabName = "Общие настройки";
@@ -199,10 +204,14 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 
 			SetFastDeliveryIntervalFrom(_generalSettings.FastDeliveryIntervalFrom);
 			CanEditFastDeliveryIntervalFromSetting = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.CanEditFastDeliveryIntervalFromSetting);
+			CanEditMaximumPermittedDistanceFromSetting = _commonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.CanEditMaximumPermittedDistanceFromSetting);
 			SaveFastDeliveryIntervalFromCommand = new DelegateCommand(SaveFastDeliveryIntervalFrom, () => CanEditFastDeliveryIntervalFromSetting);
 
 			_fastDeliveryMaximumPermissibleLateMinutes = _generalSettings.FastDeliveryMaximumPermissibleLateMinutes;
 			SaveFastDeliveryMaximumPermissibleLateCommand = new DelegateCommand(SaveFastDeliveryMaximumPermissibleLate, () => CanEditFastDeliveryIntervalFromSetting);
+
+			_maximumPermittedDistanceMeters = _driverApiSettings.PermittedDistance;
+			SaveMaximumPermittedDistanceMetersCommand = new DelegateCommand(SaveMaximumPermittedDistanceMeters, () => CanEditMaximumPermittedDistanceFromSetting);
 
 			_largusMaxDailyFuelLimit = _fuelControlSettings.LargusMaxDailyFuelLimit;
 			_truckMaxDailyFuelLimit = _fuelControlSettings.TruckMaxDailyFuelLimit;
@@ -699,6 +708,12 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 			set => SetField(ref _fastDeliveryMaximumPermissibleLateMinutes, value);
 		}
 
+		public int MaximumPermittedDistanceMeters
+		{
+			get => _maximumPermittedDistanceMeters;
+			set => SetField(ref _maximumPermittedDistanceMeters, value);
+		}
+
 		private FastDeliveryIntervalFromEnum FastDeliveryIntervalFrom =>
 			IsIntervalFromOrderCreated
 				? FastDeliveryIntervalFromEnum.OrderCreated
@@ -735,6 +750,16 @@ namespace Vodovoz.ViewModels.ViewModels.Settings
 		private void SaveFastDeliveryMaximumPermissibleLate()
 		{
 			_generalSettings.UpdateFastDeliveryMaximumPermissibleLateMinutes(FastDeliveryMaximumPermissibleLateMinutes);
+			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
+		}
+
+		public DelegateCommand SaveMaximumPermittedDistanceMetersCommand { get; }
+
+		public bool CanEditMaximumPermittedDistanceFromSetting { get; }
+
+		private void SaveMaximumPermittedDistanceMeters()
+		{
+			_driverApiSettings.SavePermittedDistance(MaximumPermittedDistanceMeters);
 			_commonServices.InteractiveService.ShowMessage(ImportanceLevel.Info, "Сохранено!");
 		}
 

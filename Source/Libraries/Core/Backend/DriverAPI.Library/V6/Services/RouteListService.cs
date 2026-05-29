@@ -21,6 +21,7 @@ using IDomainRouteListTransferService = Vodovoz.Services.Logistics.IRouteListTra
 using IDomainRouteListService = Vodovoz.Services.Logistics.IRouteListService;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Settings.Logistics;
 
 namespace DriverAPI.Library.V6.Services
 {
@@ -40,6 +41,7 @@ namespace DriverAPI.Library.V6.Services
 		private readonly PaymentTypeConverter _paymentTypeConverter;
 		private readonly IFastPaymentService _fastPaymentService;
 		private readonly ICallTaskWorker _callTaskWorker;
+		private readonly IDriverApiSettings _driverApiSettings;
 		private readonly IUnitOfWork _unitOfWork;
 
 		public RouteListService(ILogger<RouteListService> logger,
@@ -56,7 +58,9 @@ namespace DriverAPI.Library.V6.Services
 			IGenericRepository<Order> orderRepository,
 			PaymentTypeConverter paymentTypeConverter,
 			IFastPaymentService fastPaymentService,
-			ICallTaskWorker callTaskWorker)
+			ICallTaskWorker callTaskWorker,
+			IDriverApiSettings driverApiSettings
+			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
@@ -73,6 +77,7 @@ namespace DriverAPI.Library.V6.Services
 			_paymentTypeConverter = paymentTypeConverter ?? throw new ArgumentNullException(nameof(paymentTypeConverter));
 			_fastPaymentService = fastPaymentService ?? throw new ArgumentNullException(nameof(fastPaymentService));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+			_driverApiSettings = driverApiSettings ?? throw new ArgumentNullException(nameof(driverApiSettings));
 		}
 
 		public RouteListDto GetRouteList(int routeListId)
@@ -80,14 +85,16 @@ namespace DriverAPI.Library.V6.Services
 			var routeList = _routeListRepository.GetRouteListById(_unitOfWork, routeListId)
 				?? throw new DataNotFoundException(nameof(routeListId), $"Маршрутный лист {routeListId} не найден");
 
-			IDictionary<int, string> spectiaConditionsToAccept = new Dictionary<int, string>();
+			IDictionary<int, string> specialConditionsToAccept = new Dictionary<int, string>();
 
 			if(!routeList.SpecialConditionsAccepted)
 			{
-				spectiaConditionsToAccept = _domainRouteListSpecialConditionsService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeListId);
+				specialConditionsToAccept = _domainRouteListSpecialConditionsService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeListId);
 			}
 
-			return _routeListConverter.ConvertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeListId), spectiaConditionsToAccept);
+			var permittedDistance = _driverApiSettings.PermittedDistance;
+
+			return _routeListConverter.ConvertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeListId), specialConditionsToAccept, permittedDistance);
 		}
 
 		public IEnumerable<RouteListDto> GetRouteLists(int[] routeListsIds)
@@ -106,7 +113,9 @@ namespace DriverAPI.Library.V6.Services
 						spectiaConditionsToAccept = _domainRouteListSpecialConditionsService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeList.Id);
 					}
 
-					routeLists.Add(_routeListConverter.ConvertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeList.Id), spectiaConditionsToAccept));
+					var permittedDistance = _driverApiSettings.PermittedDistance;
+
+					routeLists.Add(_routeListConverter.ConvertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeList.Id), spectiaConditionsToAccept, permittedDistance));
 				}
 				catch(ConverterException e)
 				{
