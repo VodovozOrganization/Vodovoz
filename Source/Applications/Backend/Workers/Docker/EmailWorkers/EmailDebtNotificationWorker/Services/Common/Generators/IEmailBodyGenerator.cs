@@ -25,13 +25,13 @@ namespace EmailDebtNotificationWorker.Services.Common.Generators
 		/// Создает и возвращает тело информационного письма с задолженностью
 		/// </summary>
 		/// <param name="client">Клиент</param>
-		/// <param name="orders">Коллекция заказов</param>
+		/// <param name="ordersWithDebt">Коллекция пар заказов с долгом</param>
 		/// <param name="documentNumbersDict">Словарь с номерами документов</param>
 		/// <param name="unsubscribeUrl">Ссылка для отписки</param>
 		/// <returns>Тело информационного письма с задолженностью</returns>
 		string GenerateDebtEmailBody(
 			Counterparty client,
-			IEnumerable<Order> orders,
+			IList<(Order Order, decimal Debt)> ordersWithDebt,
 			Dictionary<int, string> documentNumbersDict,
 			string unsubscribeUrl);
 

@@ -12,6 +12,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
+using VodovozBusiness.EntityRepositories.Nodes;
 
 namespace Vodovoz.EntityRepositories
 {
@@ -52,7 +53,7 @@ namespace Vodovoz.EntityRepositories
 		/// <param name="maxClients">Максимальное количество клиентов для обработки</param>
 		/// <param name="cancellationToken"></param>
 		/// <returns>Словарь: клиент - список его просроченных заказов</returns>
-		Task<Dictionary<(Counterparty Counterparty, Organization Organization), IEnumerable<Order>>> GetAllOverdueOrdersForDebtNotificationAsync(IUnitOfWork uow, int maxClients, CancellationToken cancellationToken);
+		Task<IList<OrderWithDebtNode>> GetAllOverdueOrdersForDebtNotificationAsync(IUnitOfWork uow, int maxClients, CancellationToken cancellationToken);
 
 		#region EmailType
 

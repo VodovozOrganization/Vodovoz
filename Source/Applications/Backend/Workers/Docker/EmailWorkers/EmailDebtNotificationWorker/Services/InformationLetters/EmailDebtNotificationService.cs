@@ -70,30 +70,30 @@ namespace EmailDebtNotificationWorker.Services.InformationLetters
 		{
 			using var uow = _uowFactory.CreateWithoutRoot("Получение списка должников в воркере по рассылке писем о задолженнности");
 
-			var overdueOrdersByClient = await _emailRepository.GetAllOverdueOrdersForDebtNotificationAsync(uow, _maxEmailsPerMinute, cancellationToken);
-			if(!overdueOrdersByClient.Any())
+			var overdueOrders = (await _emailRepository.GetAllOverdueOrdersForDebtNotificationAsync(uow, _maxEmailsPerMinute, cancellationToken)).ToList();
+			if(!overdueOrders.Any())
 			{
 				_logger.LogDebug("Нет писем для массовой рассылки");
 				return;
 			}
 
-			_logger.LogInformation("В процессе {Count} писем для рассылки",
-				overdueOrdersByClient.Keys.Count);
+			var groupedOverdueOrders = overdueOrders
+				.GroupBy(x => (x.CounterpartyId, x.OrganizationId))
+				.ToDictionary(g => g.Key, g => g.Select(x => (x.OrderId, x.Debt)).ToList());
 
-			var clientByOrganizationDict = overdueOrdersByClient.Keys;
-			foreach(var clientByOrganization in clientByOrganizationDict)
+			_logger.LogInformation("В процессе {Count} писем для рассылки",
+				groupedOverdueOrders.Count);
+
+			foreach(var orderWithDebtNode in groupedOverdueOrders)
 			{
 				try
 				{
 					using var clientUow = _uowFactory.CreateWithoutRoot($"Отправка письма клиенту в воркере по рассылке писем о задолженнности");
 
-					var client = clientByOrganization.Counterparty;
-					var organization = clientByOrganization.Organization;
+					var clientId = orderWithDebtNode.Key.CounterpartyId;
+					var organizationId = orderWithDebtNode.Key.OrganizationId;
 
-					if(overdueOrdersByClient.TryGetValue(clientByOrganization, out var orders))
-					{
-						await ProcessSingleClientEmailAsync(clientUow, client, organization, orders, cancellationToken);
-					}
+					await ProcessSingleClientEmailAsync(clientUow, clientId, organizationId, orderWithDebtNode.Value, cancellationToken);
 				}
 				catch(Exception ex)
 				{
@@ -104,30 +104,47 @@ namespace EmailDebtNotificationWorker.Services.InformationLetters
 
 		private async Task ProcessSingleClientEmailAsync(
 			IUnitOfWork uow,
-			Counterparty client,
-			Organization organization,
-			IEnumerable <Order> orders,
+			int clientId,
+			int organizationId,
+			IList<(int OrderIds, decimal Debt)> ordersIdsWithDebt,
 			CancellationToken cancellationToken
 			)
 		{
+			var client = await uow.Session.GetAsync<Counterparty>(clientId, cancellationToken);
 			if(client is null)
 			{
 				_logger.LogWarning("Попытка отправить письмо несуществующему клиенту");
-				throw new ArgumentNullException(nameof(client));
+				throw new InvalidOperationException(nameof(client));
 			}
 
+			var organization = await uow.Session.GetAsync<Organization>(organizationId, cancellationToken);
 			if(organization is null)
 			{
 				_logger.LogWarning("Попытка отправить письмо клиенту {ClientId} от несуществующей организации", client.Id);
-				throw new ArgumentNullException(nameof(organization));
+				throw new InvalidOperationException(nameof(organization));
 			}
 
-			if(orders is null)
+			if(ordersIdsWithDebt is null)
 			{
-				_logger.LogWarning("Попытка отправить письмо клиенту {ClientId} от организации {OrganizationId} по несуществующему заказу",
+				_logger.LogWarning("Попытка отправить письмо клиенту {ClientId} от организации {OrganizationId} по несуществующим заказам",
 					client.Id,
 					organization.Id);
-				throw new ArgumentNullException(nameof(orders));
+				throw new ArgumentNullException(nameof(ordersIdsWithDebt));
+			}
+
+			var orderIds = ordersIdsWithDebt.Select(x => x.OrderIds).ToList();
+
+			var orders = await uow.Session.QueryOver<Order>()
+				.WhereRestrictionOn(o => o.Id).IsIn(orderIds)
+				.ListAsync(cancellationToken);
+
+			if(!orders.Any())
+			{
+				_logger.LogWarning("Попытка отправить письмо клиенту {ClientId} от организации {OrganizationId} по несуществующим заказам",
+						client.Id,
+						organization.Id);
+
+				throw new InvalidOperationException(nameof(orders));
 			}
 
 			var emailSubject = $"{client.FullName} ({client.INN}). У вас имеется просроченная задолженность!";
@@ -154,7 +171,7 @@ namespace EmailDebtNotificationWorker.Services.InformationLetters
 
 			await uow.SaveAsync(storedEmail, cancellationToken: cancellationToken);
 
-			var totalDebt = orders.Sum(o => o.OrderSum);
+			var totalDebt = ordersIdsWithDebt.Sum(o => o.Debt);
 
 			var author = _employeeRepository.GetEmployeeForCurrentUser(uow);
 
@@ -181,11 +198,15 @@ namespace EmailDebtNotificationWorker.Services.InformationLetters
 
 			var documentNumbersDict = await _documentOrganizationCounterRepository.GetDocumentNumbersByOrderIds(
 				uow,
-				orders.Select(x => x.Id),
+				orderIds,
 				cancellationToken);
 
+			var ordersWithDebts = (from order in orders
+								  join debt in ordersIdsWithDebt on order.Id equals debt.OrderIds
+								  select (order, debt.Debt)).ToList();
+
 			var unsubscribeUrl = _emailLinkGenerator.GetUnsubscribeLink(storedEmail.Guid.Value);
-			var messageText = _emailBodyGenerator.GenerateDebtEmailBody(client, orders, documentNumbersDict, unsubscribeUrl);
+			var messageText = _emailBodyGenerator.GenerateDebtEmailBody(client, ordersWithDebts, documentNumbersDict, unsubscribeUrl);
 
 			await PublishDebtEmailMessageAsync(
 					uow,

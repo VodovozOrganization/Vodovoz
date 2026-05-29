@@ -12,18 +12,22 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Contacts;
 using Vodovoz.Settings.Delivery;
+using VodovozBusiness.Domain.Operations;
 using VodovozBusiness.Domain.StoredEmails;
+using VodovozBusiness.EntityRepositories.Nodes;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Contacts
@@ -535,7 +539,7 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 			return result;
 		}
 
-		public async Task<Dictionary<(Counterparty Counterparty, Organization Organization), IEnumerable<Order>>> GetAllOverdueOrdersForDebtNotificationAsync(
+		public async Task<IList<OrderWithDebtNode>> GetAllOverdueOrdersForDebtNotificationAsync(
 			IUnitOfWork uow,
 			int maxClients,
 			CancellationToken cancellationToken)
@@ -556,8 +560,11 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 			Organization organizationAlias = null;
 			BulkEmailEvent bulkEmailEventAlias = null;
 			OrderItem orderItemAlias = null;
+			PaymentItem paymentItemAlias = null;
+			CashlessMovementOperation cashlessMovementOperationAlias = null;
 			CounterpartyEmail counterpartyEmailAlias = null;
 			StoredEmail storedEmailAlias = null;
+			OrderWithDebtNode resultAlias = null;
 
 			var emailSentTodaySubQuery = QueryOver.Of(() => counterpartyEmailAlias)
 				.JoinAlias(() => counterpartyEmailAlias.StoredEmail, () => storedEmailAlias)
@@ -586,6 +593,19 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				   Projections.Property(() => orderItemAlias.Count),
 				   Projections.Property(() => orderItemAlias.DiscountMoney)
 			   ));
+
+			var orderPaymentsSumSubquery = QueryOver.Of(() => paymentItemAlias)
+			   .JoinAlias(() => paymentItemAlias.CashlessMovementOperation, () => cashlessMovementOperationAlias)
+			   .Where(() => paymentItemAlias.Order.Id == orderAlias.Id)
+			   .Where(() => cashlessMovementOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
+			   .Select(Projections.Sum(() => cashlessMovementOperationAlias.Expense));
+
+			var debtProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0) - IFNULL(?2, 0)"),
+				NHibernateUtil.Decimal,
+				Projections.SubQuery(orderItemsSumSubquery),
+				Projections.SubQuery(orderPaymentsSumSubquery)
+			);
 
 			var dateAddExpression = Projections.SqlFunction(
 				new SQLFunctionTemplate(
@@ -636,10 +656,10 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 
 			if(!topClientIds.Any())
 			{
-				return new Dictionary<(Counterparty, Organization), IEnumerable<Order>>();
+				return new List<OrderWithDebtNode>();
 			}
 
-			var query = uow.Session.QueryOver(() => orderAlias)
+			var result = await uow.Session.QueryOver(() => orderAlias)
 				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
 				.JoinAlias(() => orderAlias.Contract, () => contractAlias)
 				.JoinAlias(() => contractAlias.Organization, () => organizationAlias)
@@ -651,18 +671,17 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				.WhereNot(() => organizationAlias.DisableDebtMailing)
 				.Where(Restrictions.Le(dateAddExpression, currentDate))
 				.Where(Restrictions.Gt(Projections.SubQuery(orderItemsSumSubquery), 0m))
-				.WhereRestrictionOn(() => counterpartyAlias.Id).IsIn(topClientIds);
+				.Where(Restrictions.Gt(debtProjection, 0m))
+				.SelectList(list => list
+					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+					.Select(() => counterpartyAlias.Id).WithAlias(() => resultAlias.CounterpartyId)
+					.Select(() => organizationAlias.Id).WithAlias(() => resultAlias.OrganizationId)
+					.Select(debtProjection).WithAlias(() => resultAlias.Debt)
+				)
+				.TransformUsing(Transformers.AliasToBean<OrderWithDebtNode>())
+				.ListAsync<OrderWithDebtNode>(cancellationToken);
 
-			var orders = await query.ListAsync(cancellationToken);
-
-			var groupedOrders = orders
-				.GroupBy(order => (Counterparty: order.Client, order.Contract.Organization))
-				.ToDictionary(
-					group => group.Key,
-					group => group.AsEnumerable()
-				);
-
-			return groupedOrders;
+			return result;
 		}
 
 		public IList<BulkEmailEventReason> GetUnsubscribingReasons(IUnitOfWork uow, IEmailSettings emailSettings, bool isForUnsubscribePage = false)
