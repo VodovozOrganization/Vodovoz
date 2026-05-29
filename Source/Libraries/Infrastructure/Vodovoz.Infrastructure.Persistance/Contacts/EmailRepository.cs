@@ -546,6 +546,7 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 		{
 			var currentDate = DateTime.UtcNow.Date;
 			var today = DateTime.Today;
+			var cashlessPaymentStart = new DateTime(2020, 8, 12);
 
 			var deliveredOrderStatuses = new[]
 			{
@@ -625,6 +626,7 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				.JoinAlias(() => contractAlias.Organization, () => organizationAlias)
 				.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
 				.Where(() => orderAlias.DeliveryDate != null)
+				.Where(() => orderAlias.DeliveryDate > cashlessPaymentStart)
 				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
 				.Where(() => orderAlias.OrderStatus.IsIn(deliveredOrderStatuses))
 				.Where(() => counterpartyAlias.PersonType == PersonType.legal)
@@ -665,12 +667,14 @@ namespace Vodovoz.Infrastructure.Persistance.Contacts
 				.JoinAlias(() => contractAlias.Organization, () => organizationAlias)
 				.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
 				.Where(() => orderAlias.DeliveryDate != null)
+				.Where(() => orderAlias.DeliveryDate > cashlessPaymentStart)
 				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
 				.Where(() => orderAlias.OrderStatus.IsIn(deliveredOrderStatuses))
 				.Where(() => organizationAlias.EmailForInformationLetters != null)
 				.WhereNot(() => organizationAlias.DisableDebtMailing)
 				.Where(Restrictions.Le(dateAddExpression, currentDate))
 				.Where(Restrictions.Gt(Projections.SubQuery(orderItemsSumSubquery), 0m))
+				.WhereRestrictionOn(() => counterpartyAlias.Id).IsIn(topClientIds)
 				.Where(Restrictions.Gt(debtProjection, 0m))
 				.SelectList(list => list
 					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)

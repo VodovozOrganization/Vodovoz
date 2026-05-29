@@ -71,7 +71,6 @@ namespace UnsubscribePage.Controllers
 					case CounterpartyEmailType.ClosingDeliveries:
 						counterparty.DisableClosingDeliveriesMailing = true;
 						break;
-
 					case CounterpartyEmailType.LetterOfClaim:
 						counterparty.DisableClaimMailing = true;
 						break;
