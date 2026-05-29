@@ -795,6 +795,19 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			};
 		}
 
+		public OrderStatus[] GetStatusesForTransferOrCancellationOnlineOrder()
+		{
+			return new[]
+			{
+				OrderStatus.NewOrder,
+				OrderStatus.WaitForPayment,
+				OrderStatus.Accepted,
+				OrderStatus.InTravelList,
+				OrderStatus.OnLoading,
+				//OrderStatus.OnTheWay Пока в статусе "В Пути" запрещено отменять и переносить заказы
+			};
+		}
+
 		public SmsPaymentStatus? GetOrderSmsPaymentStatus(IUnitOfWork uow, int orderId)
 		{
 			SmsPayment smsPaymentAlias = null;
@@ -1205,6 +1218,11 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		public VodovozOrder GetOrder(IUnitOfWork unitOfWork, int orderId)
 		{
 			return unitOfWork.GetById<VodovozOrder>(orderId);
+		}
+
+		public async Task<VodovozOrder> GetOrderByIdAsync(IUnitOfWork unitOfWork, int orderId, CancellationToken cancellationToken)
+		{
+			return await unitOfWork.Session.GetAsync<VodovozOrder>(orderId, cancellationToken);
 		}
 
 		public int? GetMaxOrderDailyNumberForDate(IUnitOfWorkFactory uowFactory, DateTime deliveryDate)

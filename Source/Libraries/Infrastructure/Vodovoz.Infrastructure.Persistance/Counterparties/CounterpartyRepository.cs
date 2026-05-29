@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
@@ -21,6 +21,8 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Counterparties;
 using VodovozBusiness.Domain.Operations;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace Vodovoz.Infrastructure.Persistance.Counterparties
 {
@@ -308,6 +310,11 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				.Where(() => edoAccountAlias.PersonalAccountIdInEdo == edxClientId)
 				.Take(1)
 				.SingleOrDefault();
+		}
+
+		public async Task<Counterparty> GetCounterpartyByIdAsync(IUnitOfWork uow, int clientId, CancellationToken cancellationToken)
+		{
+			return await uow.Session.GetAsync<Counterparty>(clientId, cancellationToken);
 		}
 
 		public EdoOperator GetEdoOperatorByCode(IUnitOfWork uow, string edoOperatorCode)

@@ -92,7 +92,10 @@ namespace Vodovoz.Presentation.WebApi
 				config.SubstituteApiVersionInUrl = true;
 			});
 
-			services.AddSwaggerGen();
+			services.AddSwaggerGen(c =>
+			{
+				c.CustomSchemaIds(type => type.FullName);
+			});
 
 			services.ConfigureOptions<ConfigureSwaggerOptions>();
 

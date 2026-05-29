@@ -19,7 +19,7 @@ namespace Vodovoz.Application
 
 			services.Replace(ServiceDescriptor.Scoped<IFastPaymentSender, FastPaymentSenderFramework>());
 			services.Replace(ServiceDescriptor.Scoped<SmsClientChannelFactory, SmsClientChannelFactory>());
-			
+
 			return services;
 		}
 	}

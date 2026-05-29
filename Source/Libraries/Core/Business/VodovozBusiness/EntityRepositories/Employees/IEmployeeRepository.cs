@@ -2,6 +2,9 @@
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
@@ -51,5 +54,22 @@ namespace Vodovoz.EntityRepositories.Employees
 		/// <param name="isExcludeSelectedInFilterWageDistrictLevelRates">Исключить сотрудников с указанной ставкой по зарплатным районам и уровням</param>
 		/// <returns></returns>
 		IList<EmployeeNode> GetDriverForwarderEmployeesHavingWageDistrictLevelRates(IUnitOfWork uow, EmployeeCategory? category, int? wageDistrictLevelRatesIdFilter, bool isExcludeSelectedInFilterWageDistrictLevelRates);
+
+		/// <summary>
+		/// Получить сотрудника для установки в заказ по источнику ИПЗ
+		/// </summary>
+		/// <param name="unitOfWork">IUnitOfWork</param>
+		/// <param name="source">Внешний источник</param>
+		/// <returns>Сотрудник для установки в заказ</returns>
+		Employee GetEmployeeBySource(IUnitOfWork unitOfWork, Source source);
+
+		/// <summary>
+		/// Получить сотрудника для установки в заказ по источнику ИПЗ асинхронно
+		/// </summary>
+		/// <param name="unitOfWork">IUnitOfWork</param>
+		/// <param name="source">Внешний источник</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Сотрудник для установки в заказ</returns>
+		Task<Employee> GetEmployeeBySourceAsync(IUnitOfWork unitOfWork, Source source, CancellationToken cancellationToken);
 	}
 }
