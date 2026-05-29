@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -638,11 +638,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 			CancellationToken cancellationToken
 		)
 		{
-			if(onlineOrder.IsNeedConfirmationByCall)
-			{
-				return 0;
-			}
-
 			Employee employee = await _employeeRepository.GetEmployeeBySourceAsync(
 				uow,
 				onlineOrder.Source,
