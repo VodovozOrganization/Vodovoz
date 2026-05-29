@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using QS.Utilities;
 using System;
 using Vodovoz.Core.Domain.FastPayments;
@@ -45,7 +45,6 @@ namespace PayPageAPI.Models
 		public string SumString => _orderSum.ToShortCurrencyString();
 		public string StatusString => _fastPaymentStatus.GetEnumTitle();
 		public bool IsNotProcessingStatus => _fastPaymentStatus != FastPaymentStatus.Processing;
-		public bool IsNotProcessingOrNotPaymentByCard => _fastPaymentStatus != FastPaymentStatus.Processing || !IsPaymentByCard;
 		public bool IsPerformedStatus => _fastPaymentStatus == FastPaymentStatus.Performed;
 		public string PayOrderTitle => IsOnlineOrder ? $"Оплата онлайн-заказа №{OrderNum}" : $"Оплата заказа №{OrderNum}";
 		public string PaymentAttemptMessage => IsOnlineOrder
@@ -93,6 +92,10 @@ namespace PayPageAPI.Models
 			else if(organization.Id == _organizationSettings.KulerServiceOrganizationId)
 			{
 				OfertaUrl = "pdf/offer_kuler_service.pdf";
+			}
+			else if(organization.Id == _organizationSettings.GubernatorovOrganizationId)
+			{
+				OfertaUrl = "pdf/offer_gubernatorov.pdf";
 			}
 			else
 			{
