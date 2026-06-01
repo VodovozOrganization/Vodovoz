@@ -86,6 +86,9 @@ namespace FastPaymentsAPI.Library.Managers
 				case FastPaymentDTOStatus.Rejected:
 					fastPayment.SetRejectedStatus();
 					break;
+				case FastPaymentDTOStatus.Refund:
+					fastPayment.SetRefundStatus();
+					break;
 				default:
 					throw new InvalidOperationException("Неизвестный статус оплаты");
 			}

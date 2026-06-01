@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Application.Errors;
-using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
@@ -54,7 +53,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly IOrderDailyNumberController _orderDailyNumberController;
 		private readonly IPaymentFromBankClientController _paymentFromBankClientController;
 		private readonly IOrderFromOnlineOrderCreator _orderFromOnlineOrderCreator;
-		private readonly IEmployeeSettings _employeeSettings;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IGenericRepository<DiscountReason> _discountReasonRepository;
 		private readonly IOrderSettings _orderSettings;
@@ -80,7 +78,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IOrderDailyNumberController orderDailyNumberController,
 			IPaymentFromBankClientController paymentFromBankClientController,
 			IOrderFromOnlineOrderCreator orderFromOnlineOrderCreator,
-			IEmployeeSettings employeeSettings,
 			INomenclatureRepository nomenclatureRepository,
 			IGenericRepository<DiscountReason> discountReasonRepository,
 			IOrderSettings orderSettings,
@@ -110,7 +107,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_orderDailyNumberController = orderDailyNumberController ?? throw new ArgumentNullException(nameof(orderDailyNumberController));
 			_paymentFromBankClientController = paymentFromBankClientController ?? throw new ArgumentNullException(nameof(paymentFromBankClientController));
 			_orderFromOnlineOrderCreator = orderFromOnlineOrderCreator ?? throw new ArgumentNullException(nameof(orderFromOnlineOrderCreator));
-			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
@@ -642,22 +638,10 @@ namespace Vodovoz.Core.Application.Orders.Services
 			CancellationToken cancellationToken
 		)
 		{
-			Employee employee = null;
-			switch(onlineOrder.Source)
-			{
-				case Source.MobileApp:
-					employee = await uow.Session.GetAsync<Employee>(_employeeSettings.MobileAppEmployee, cancellationToken);
-					break;
-				case Source.VodovozWebSite:
-					employee = await uow.Session.GetAsync<Employee>(_employeeSettings.VodovozWebSiteEmployee, cancellationToken);
-					break;
-				case Source.KulerSaleWebSite:
-					employee = await uow.Session.GetAsync<Employee>(_employeeSettings.KulerSaleWebSiteEmployee, cancellationToken);
-					break;
-				case Source.AiBot:
-					employee = await uow.Session.GetAsync<Employee>(_employeeSettings.AiBotEmployee, cancellationToken);
-					break;
-			}
+			Employee employee = await _employeeRepository.GetEmployeeBySourceAsync(
+				uow,
+				onlineOrder.Source,
+				cancellationToken);
 
 			// Необходимо сделать асинхронным
 			var order = _orderFromOnlineOrderCreator.CreateOrderFromOnlineOrder(uow, employee, onlineOrder);

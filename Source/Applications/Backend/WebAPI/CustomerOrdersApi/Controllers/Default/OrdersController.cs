@@ -1,11 +1,11 @@
-﻿using System;
-using System.Threading.Tasks;
 using CustomerOrdersApi.Library.Default.Dto.Orders;
 using CustomerOrdersApi.Library.Default.Services;
 using Gamma.Utilities;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 using VodovozHealthCheck.Helpers;
 
 namespace CustomerOrdersApi.Controllers.Default
@@ -144,7 +144,7 @@ namespace CustomerOrdersApi.Controllers.Default
 				return Problem();
 			}
 		}
-		
+
 		/*[HttpPost]
 		public IActionResult UpdateOnlineOrderPaymentStatus(OnlineOrderPaymentStatusUpdatedDto paymentStatusUpdatedDto)
 		{
