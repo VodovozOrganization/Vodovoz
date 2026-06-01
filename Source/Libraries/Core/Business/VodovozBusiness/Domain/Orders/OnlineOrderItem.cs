@@ -25,6 +25,7 @@ namespace Vodovoz.Domain.Orders
 		private decimal _percentDiscount;
 		private decimal _moneyDiscount;
 		private int? _promoSetId;
+		private bool _giftItem;
 		private OnlineOrder _onlineOrder;
 		private decimal _count = -1;
 		private Nomenclature _nomenclature;
@@ -170,6 +171,13 @@ namespace Vodovoz.Domain.Orders
 		[Display(Name = "Тип ошибки валидации онлайн товара")]
 		public virtual OnlineOrderErrorState? OnlineOrderErrorState { get; set; }
 
+		[Display(Name = "Подарок")]
+		public virtual bool GiftItem
+		{
+			get => _giftItem;
+			set => SetField(ref _giftItem, value);
+		}
+
 		public virtual decimal GetDiscount => IsDiscountInMoney ? MoneyDiscount : PercentDiscount;
 
 		/// <summary>
@@ -200,7 +208,8 @@ namespace Vodovoz.Domain.Orders
 			DiscountReason discountReason,
 			Nomenclature nomenclature,
 			PromotionalSet promotionalSet,
-			OnlineOrder onlineOrder
+			OnlineOrder onlineOrder,
+			bool giftItem = false
 		)
 		{
 			return Create(
@@ -228,7 +237,8 @@ namespace Vodovoz.Domain.Orders
 			IEnumerable<DiscountReason> discountReasons,
 			Nomenclature nomenclature,
 			PromotionalSet promotionalSet,
-			OnlineOrder onlineOrder
+			OnlineOrder onlineOrder,
+			bool giftItem = false
 		)
 		{
 			var onlineOrderItem = new OnlineOrderItem
@@ -241,7 +251,8 @@ namespace Vodovoz.Domain.Orders
 				PromoSetId = promoSetId,
 				Nomenclature = nomenclature,
 				PromoSet = promotionalSet,
-				OnlineOrder = onlineOrder
+				OnlineOrder = onlineOrder,
+				GiftItem = giftItem
 			};
 
 			if(discountReasons != null)

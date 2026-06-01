@@ -2117,7 +2117,8 @@ namespace Vodovoz.Domain.Orders
 			bool isDiscountInMoney = false,
 			bool needGetFixedPrice = true,
 			IEnumerable<DiscountReason> reasons = null,
-			PromotionalSet proSet = null)
+			PromotionalSet proSet = null,
+			bool giftItem = false)
 		{
 			if(nomenclature.Category != NomenclatureCategory.water && !nomenclature.IsDisposableTare)
 			{
@@ -2142,7 +2143,7 @@ namespace Vodovoz.Domain.Orders
 			AddOrderItem(
 				uow,
 				contractUpdater,
-				OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, price, isDiscountInMoney, discount, reasons, proSet));
+				OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, price, isDiscountInMoney, discount, reasons, proSet, giftItem));
 		}
 
 		public virtual void AddFlyerNomenclature(Nomenclature flyerNomenclature)
@@ -2310,7 +2311,8 @@ namespace Vodovoz.Domain.Orders
 			bool discountInMoney = false,
 			bool needGetFixedPrice = true,
 			IEnumerable<DiscountReason> discountReasons = null,
-			PromotionalSet proSet = null)
+			PromotionalSet proSet = null,
+			bool giftItem = false)
 		{
 			switch(nomenclature.Category) {
 				case NomenclatureCategory.water:
@@ -2323,15 +2325,24 @@ namespace Vodovoz.Domain.Orders
 						discountInMoney,
 						needGetFixedPrice,
 						discountReasons,
-						proSet);
+						proSet,
+						giftItem);
 					break;
 				case NomenclatureCategory.master:
 					contract = CreateServiceContractAddMasterNomenclature(uow, contractUpdater, nomenclature);
 					break;
 				default:
 					var canApplyAlternativePrice = HasPermissionsForAlternativePrice && nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
-
-					var orderItem = OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, nomenclature.GetPrice(1, canApplyAlternativePrice), discountInMoney, discount, discountReasons, proSet);
+					var orderItem = OrderItem.CreateForSaleWithDiscount(
+						this,
+						nomenclature,
+						count,
+						nomenclature.GetPrice(1, canApplyAlternativePrice),
+						discountInMoney,
+						discount,
+						discountReasons,
+						proSet,
+						giftItem);
 
 					var acceptableCategories = Nomenclature.GetCategoriesForSale();
 					if(orderItem?.Nomenclature == null

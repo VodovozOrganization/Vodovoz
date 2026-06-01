@@ -67,6 +67,9 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 			Map(x => x.IsAlternativePrice)
 				.Column("is_alternative_price");
 
+			Map(x => x.GiftItem)
+				.Column("gift_item");
+
 
 			References(x => x.Order)
 				.Column("order_id");
