@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace EmailDebtNotificationWorker.Services
+namespace EmailDebtNotificationWorker.Services.ClaimLetters
 {
 	/// <summary>
 	/// Сервис для отправки претензионных писем должникам, у которых просрочка по платежу больше, чем заданное количество дней сверх ПДЗ

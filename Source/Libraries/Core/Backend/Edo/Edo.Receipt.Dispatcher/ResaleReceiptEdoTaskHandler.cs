@@ -544,9 +544,7 @@ namespace Edo.Receipt.Dispatcher
 
 			var organization = orderItem.Order.Contract?.Organization;
 
-			var vatRateVersion = organization != null && organization.IsUsnMode 
-				? organization.GetActualVatRateVersion(orderItem.Order.DeliveryDate)
-				: orderItem.Nomenclature.GetActualVatRateVersion(orderItem.Order.DeliveryDate);
+			var vatRateVersion = orderItem.Nomenclature.GetEffectiveVatRateVersion(organization, orderItem.Order.DeliveryDate);
 			
 			if(vatRateVersion == null)
 			{

@@ -2,7 +2,6 @@
 using System.Linq;
 using TaxcomEdo.Contracts.OrdersWithoutShipment;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
-using Vodovoz.Domain.Organizations;
 using VodovozBusiness.Controllers;
 
 namespace Vodovoz.Converters
@@ -24,52 +23,55 @@ namespace Vodovoz.Converters
 		}
 		
 		public OrderWithoutShipmentInfo ConvertOrderWithoutShipmentForDebtToOrderWithoutShipmentInfo(
-			OrderWithoutShipmentForDebt orderForDebt, Organization organization, DateTime dateTime)
+			OrderWithoutShipmentForDebt orderForDebt, DateTime dateTime)
 		{
 			var counterpartyInfo = _counterpartyConverter.ConvertCounterpartyToCounterpartyInfoForEdo(
 				orderForDebt.Client,
-				_counterpartyEdoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(orderForDebt.Client, organization.Id));
+				_counterpartyEdoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(orderForDebt.Client, orderForDebt.Organization.Id));
 			
 			return new OrderWithoutShipmentForDebtInfo
 			{
 				Id = orderForDebt.Id,
 				CreationDate = orderForDebt.CreateDate ?? default,
 				CounterpartyInfoForEdo = counterpartyInfo,
-				OrganizationInfoForEdo = _organizationConverter.ConvertOrganizationToOrganizationInfoForEdo(organization, dateTime),
+				OrganizationInfoForEdo = _organizationConverter.ConvertOrganizationToOrganizationInfoForEdo(orderForDebt.Organization, dateTime),
 				Sum = orderForDebt.DebtSum
 			};
 		}
 		
 		public OrderWithoutShipmentInfo ConvertOrderWithoutShipmentForPaymentToOrderWithoutShipmentInfo(
-			OrderWithoutShipmentForPayment orderForPayment, Organization organization, DateTime dateTime)
+			OrderWithoutShipmentForPayment orderForPayment, DateTime dateTime)
 		{
 			var counterpartyInfo = _counterpartyConverter.ConvertCounterpartyToCounterpartyInfoForEdo(
 				orderForPayment.Client,
-				_counterpartyEdoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(orderForPayment.Client, organization.Id));
+				_counterpartyEdoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(
+					orderForPayment.Client, orderForPayment.Organization.Id));
 			
 			return new OrderWithoutShipmentForPaymentInfo
 			{
 				Id = orderForPayment.Id,
 				CreationDate = orderForPayment.CreateDate ?? default,
 				CounterpartyInfoForEdo = counterpartyInfo,
-				OrganizationInfoForEdo = _organizationConverter.ConvertOrganizationToOrganizationInfoForEdo(organization, dateTime),
+				OrganizationInfoForEdo = _organizationConverter.ConvertOrganizationToOrganizationInfoForEdo(orderForPayment.Organization, dateTime),
 				Sum = orderForPayment.OrderWithoutDeliveryForPaymentItems.Sum(x => x.Order.OrderSum)
 			};
 		}
 		
 		public OrderWithoutShipmentInfo ConvertOrderWithoutShipmentForAdvancePaymentToOrderWithoutShipmentInfo(
-			OrderWithoutShipmentForAdvancePayment orderForAdvancePayment, Organization organization, DateTime dateTime)
+			OrderWithoutShipmentForAdvancePayment orderForAdvancePayment, DateTime dateTime)
 		{
 			var counterpartyInfo = _counterpartyConverter.ConvertCounterpartyToCounterpartyInfoForEdo(
 				orderForAdvancePayment.Client,
-				_counterpartyEdoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(orderForAdvancePayment.Client, organization.Id));
+				_counterpartyEdoAccountController.GetDefaultCounterpartyEdoAccountByOrganizationId(
+					orderForAdvancePayment.Client, orderForAdvancePayment.Organization.Id));
 			
 			return new OrderWithoutShipmentForAdvancePaymentInfo
 			{
 				Id = orderForAdvancePayment.Id,
 				CreationDate = orderForAdvancePayment.CreateDate ?? default,
 				CounterpartyInfoForEdo = counterpartyInfo,
-				OrganizationInfoForEdo = _organizationConverter.ConvertOrganizationToOrganizationInfoForEdo(organization, dateTime),
+				OrganizationInfoForEdo = _organizationConverter.ConvertOrganizationToOrganizationInfoForEdo(
+					orderForAdvancePayment.Organization, dateTime),
 				Sum = orderForAdvancePayment.OrderWithoutDeliveryForAdvancePaymentItems.Sum(x => x.Sum)
 			};
 		}

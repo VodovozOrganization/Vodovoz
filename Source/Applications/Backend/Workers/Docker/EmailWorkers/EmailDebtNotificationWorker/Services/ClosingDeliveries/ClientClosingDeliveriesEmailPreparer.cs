@@ -1,7 +1,8 @@
 ﻿using BitrixApi.Library.Services;
 using EmailDebtNotificationWorker.DTO;
-using EmailDebtNotificationWorker.Repositories;
-using Mailjet.Api.Abstractions;
+using EmailDebtNotificationWorker.Services.Common.Factories;
+using EmailDebtNotificationWorker.Services.Common.Generators;
+using EmailDebtNotificationWorker.Services.Common.Selectors;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using RabbitMQ.MailSending;
@@ -10,11 +11,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Domain.Contacts;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Orders.OrdersWithoutShipment;
-using Vodovoz.Domain.StoredEmails;
-using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Domain.StoredEmails;
 
@@ -25,21 +21,28 @@ namespace EmailDebtNotificationWorker.Services.ClosingDeliveries
 		private readonly ILogger<ClientClosingDeliveriesEmailPreparer> _logger;
 		private readonly IEmailAttachmentsCreateService _attachmentsService;
 		private readonly IClosingDeliveriesSettings _closingDeliveriesSettings;
-		private readonly IEmailSettings _emailSettings;
-		private readonly IDatabaseRepository _databaseRepository;
+		private readonly IEmailMessageFactory _emailMessageFactory;
+		private readonly IEmailBodyGenerator _emailBodyGenerator;
+		private readonly IEmailLinkGenerator _emailLinkGenerator;
+		private readonly IClientEmailSelector _clientEmailSelector;
 
 		public ClientClosingDeliveriesEmailPreparer(
 			ILogger<ClientClosingDeliveriesEmailPreparer> logger,
 			IEmailAttachmentsCreateService attachmentsService,
 			IClosingDeliveriesSettings closingDeliveriesSettings,
-			IEmailSettings emailSettings,
-			IDatabaseRepository databaseRepository)
+			IEmailMessageFactory emailMessageFactory,
+			IEmailBodyGenerator emailBodyGenerator,
+			IEmailLinkGenerator emailLinkGenerator,
+			IClientEmailSelector clientEmailSelector
+			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_attachmentsService = attachmentsService ?? throw new ArgumentNullException(nameof(attachmentsService));
 			_closingDeliveriesSettings = closingDeliveriesSettings ?? throw new ArgumentNullException(nameof(closingDeliveriesSettings));
-			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
-			_databaseRepository = databaseRepository ?? throw new ArgumentNullException(nameof(databaseRepository));
+			_emailMessageFactory = emailMessageFactory ?? throw new ArgumentNullException(nameof(emailMessageFactory));
+			_emailBodyGenerator = emailBodyGenerator ?? throw new ArgumentNullException(nameof(emailBodyGenerator));
+			_emailLinkGenerator = emailLinkGenerator ?? throw new ArgumentNullException(nameof(emailLinkGenerator));
+			_clientEmailSelector = clientEmailSelector ?? throw new ArgumentNullException(nameof(clientEmailSelector));
 		}
 
 		public async Task<IReadOnlyList<SendEmailMessage>> PrepareClientEmails(
@@ -98,18 +101,16 @@ namespace EmailDebtNotificationWorker.Services.ClosingDeliveries
 				throw new InvalidOperationException("Нет вложений");
 			}
 
-			var emailSentTo = SelectEmail(orderWithoutShipmentForDebt.Client);
-
-			var storedEmail = new StoredEmail
+			var emailSentTo = _clientEmailSelector.SelectEmailForDebtNotification(orderWithoutShipmentForDebt.Client);
+			if(string.IsNullOrWhiteSpace(emailSentTo))
 			{
-				State = StoredEmailStates.WaitingToSend,
-				SendDate = DateTime.Now,
-				StateChangeDate = DateTime.Now,
-				RecipientAddress = emailSentTo,
-				Subject = $"{orderWithoutShipmentForDebt.Client.FullName} (ИНН: {orderWithoutShipmentForDebt.Client.INN}) от {orderWithoutShipmentForDebt.Organization.FullName}",
-				Guid = Guid.NewGuid(),
-				Description = "Стоп-отгрузка"
-			};
+				throw new InvalidOperationException($"У клиента {orderWithoutShipmentForDebt.Client.Id} не заполнена электронная почта");
+			}
+
+			var storedEmail = _emailMessageFactory.CreateStoredEmail(
+				$"{orderWithoutShipmentForDebt.Client.FullName} (ИНН: {orderWithoutShipmentForDebt.Client.INN}) от {orderWithoutShipmentForDebt.Organization.FullName}",
+				emailSentTo,
+				"Стоп-отгрузка");
 
 			await unitOfWork.SaveAsync(storedEmail, cancellationToken: cancellationToken);
 
@@ -122,120 +123,25 @@ namespace EmailDebtNotificationWorker.Services.ClosingDeliveries
 
 			await unitOfWork.SaveAsync(closingDeliveriesEmail, cancellationToken: cancellationToken);
 
-			var unsubscribeUrl = GetUnsubscribeLink(storedEmail.Guid.Value);
+			var unsubscribeUrl = _emailLinkGenerator.GetUnsubscribeLink(storedEmail.Guid.Value);
 
-			var clientEmailBody = GenerateClientEmailBody(orderWithoutShipmentForDebt, unsubscribeUrl);
+			var clientEmailBody = _emailBodyGenerator.GenerateClosingDeliveriesEmailBody(
+				orderWithoutShipmentForDebt.DebtSum,
+				_closingDeliveriesSettings.DaysBeforeClosingDeliveries,
+				unsubscribeUrl);
 
-			var instanceId = _databaseRepository.GetCurrentDatabaseId(unitOfWork);
-
-			var sendEmailMessage = new SendEmailMessage
-			{
-				From = new EmailContact
-				{
-					Name = orderWithoutShipmentForDebt.Organization.FullName,
-					Email = emailSentFrom
-				},
-				To = new List<EmailContact>
-				{
-					new()
-					{
-						Name = orderWithoutShipmentForDebt.Client.FullName,
-						Email = emailSentTo
-					}
-				},
-				Subject = storedEmail.Subject,
-				TextPart = clientEmailBody,
-				HTMLPart = clientEmailBody,
-				Attachments = attachments,
-				Payload = new EmailPayload
-				{
-					Id = storedEmail.Id,
-					Trackable = true,
-					InstanceId = instanceId
-				},
-				Headers = new Dictionary<string, string>
-				{
-					{ "List-Unsubscribe", unsubscribeUrl }
-				}
-			};
+			var sendEmailMessage = _emailMessageFactory.CreateSendEmailMessage(
+				unitOfWork,
+				storedEmail,
+				orderWithoutShipmentForDebt.Client,
+				orderWithoutShipmentForDebt.Organization.FullName,
+				emailSentFrom,
+				attachments,
+				emailSentTo,
+				storedEmail.Subject,
+				clientEmailBody);
 
 			return sendEmailMessage;
-		}
-
-		private string SelectEmail(Counterparty client)
-		{
-			if(client.Emails is null || !client.Emails.Any())
-			{
-				throw new InvalidOperationException($"У клиента {client.Id} отсутствуют любые email.");
-			}
-
-			var billEmail = client.Emails
-				.LastOrDefault(x => x.EmailType?.EmailPurpose is EmailPurpose.ForBills)
-				?.Address;
-
-			if(!string.IsNullOrWhiteSpace(billEmail))
-			{
-				return billEmail;
-			}
-
-			var defaultEmail = client.Emails
-				.LastOrDefault()
-				?.Address;
-
-			if(!string.IsNullOrWhiteSpace(defaultEmail))
-			{
-				return defaultEmail;
-			}
-
-			throw new InvalidOperationException($"Для клиента {client.Id} не удалось подобрать подходящий email для отправки уведомления о блокировке поставок.");
-		}
-
-		private string GetUnsubscribeLink(Guid guid) => $"{_emailSettings.UnsubscribeUrl}/{guid}";
-
-		private string GenerateClientEmailBody(OrderWithoutShipmentForDebt debt, string unsubscribeUrl)
-		{
-			return $@"
-				<p>Уважаемый клиент!</p>
-				<p>
-					Сообщаем, что на текущий момент по договору имеется просроченная задолженность. 
-					В связи с тем, что срок просрочки превышает {_closingDeliveriesSettings.DaysBeforeClosingDeliveries} дней, мы вынуждены временно ограничить возможность оформления заказов по безналичному расчету до полного погашения задолженности.
-				</p>
-				<p><strong>Общая сумма задолженности по указанным заказам составляет {debt.DebtSum} руб.</strong></p>
-				<p>
-					Просим вас произвести оплату в ближайшее время. Счет на оплату приложен к письму.
-				</p>
-				<p>
-					Обращаем внимание: в случае отсутствия оплаты в течение 2 дней в ваш адрес будет направлена претензия. 
-					Если оплата уже произведена, пожалуйста, направьте платежное поручение в ответ на данное письмо.
-				</p>
-				<p>
-					После поступления оплаты поставки будут возобновлены в полном объеме.
-				</p>
-				<p>
-					Если у вас возникнут вопросы по сумме задолженности или срокам оплаты, пожалуйста, свяжитесь с нами — мы будем рады помочь.
-				</p>
-				<p>
-					Благодарим за сотрудничество и рассчитываем на скорейшее урегулирование вопроса.
-				</p>
-				<p>
-					С уважением,
-				</p>
-				<p>
-				<strong>
-					Отдел сопровождения клиентов
-				</strong>
-				</p>
-				<p>
-					+7 (812) 317-00-00, доб. 700
-				</p>
-				<p>
-					client.buh@vodovoz-spb.ru
-				</p>
-				<p style='text-align: right; font-size: 11px; margin-top: 20px;'>
-					<a href='{unsubscribeUrl}' style='font-size: 11px; color: #999; text-decoration: underline;'>
-						Отписаться от рассылки
-					</a>
-				</p>";
 		}
 	}
 }

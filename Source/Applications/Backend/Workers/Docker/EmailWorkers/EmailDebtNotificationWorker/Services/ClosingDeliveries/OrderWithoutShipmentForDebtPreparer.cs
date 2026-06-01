@@ -1,4 +1,4 @@
-﻿using EmailDebtNotificationWorker.DTO;
+using EmailDebtNotificationWorker.DTO;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -74,7 +74,7 @@ namespace EmailDebtNotificationWorker.Services.ClosingDeliveries
 				{
 					OverdueDebtDays = node.OverdueDebtDays,
 					OldestDebtOrderDate = node.OldestDebtOrderDate,
-					OrderWithoutShipmentForDebt = existingOrdersWithoutShipmentForDebt.FirstOrDefault(x =>
+					OrderWithoutShipmentForDebt = existingOrdersWithoutShipmentForDebt.LastOrDefault(x =>
 						x.Client.Id == node.Counterparty.Id
 						&& x.Organization.Id == node.Organization.Id)
 				};

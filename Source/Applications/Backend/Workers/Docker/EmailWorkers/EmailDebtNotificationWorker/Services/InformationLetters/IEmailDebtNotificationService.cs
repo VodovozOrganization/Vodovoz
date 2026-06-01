@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace EmailDebtNotificationWorker.Services
+namespace EmailDebtNotificationWorker.Services.InformationLetters
 {
 	public interface IEmailDebtNotificationService
 	{

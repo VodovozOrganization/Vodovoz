@@ -31,6 +31,8 @@ namespace DriverAPI.Library.V6.Converters
 					return SignatureDtoType.ProxyOnDeliveryPoint;
 				case OrderSignatureType.SignatureTranscript:
 					return SignatureDtoType.SignatureTranscript;
+				case OrderSignatureType.WithoutSeal:
+					return SignatureDtoType.WithoutSeal;
 				default:
 					throw new ConverterException(nameof(signatureType), signatureType, $"Значение {signatureType} не поддерживается");
 			}

@@ -395,10 +395,8 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 			}
 
 			var organization = OrderWithoutDeliveryForAdvancePayment.Organization;
-			
-			var vatRateVersion = organization != null && organization.IsUsnMode
-				? organization.GetActualVatRateVersion(OrderWithoutDeliveryForAdvancePayment.DocumentDate)
-				: Nomenclature.GetActualVatRateVersion(OrderWithoutDeliveryForAdvancePayment.DocumentDate);
+
+			var vatRateVersion = Nomenclature.GetEffectiveVatRateVersion(organization, OrderWithoutDeliveryForAdvancePayment.DocumentDate);
 
 			if (vatRateVersion == null)
 			{

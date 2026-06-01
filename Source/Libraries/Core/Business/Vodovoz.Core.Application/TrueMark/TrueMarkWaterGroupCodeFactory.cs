@@ -1,5 +1,4 @@
-﻿using iTextSharp.text.pdf;
-using System;
+﻿using System;
 using TrueMark.Contracts;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.TrueMark;
@@ -54,7 +53,8 @@ namespace Vodovoz.Core.Application.TrueMark
 				IsInvalid = false,
 				RawCode = stagingCode.RawCode,
 				GTIN = stagingCode.Gtin,
-				SerialNumber = stagingCode.SerialNumber
+				SerialNumber = stagingCode.SerialNumber,
+				CheckCode = stagingCode.CheckCode
 			};
 		}
 	}

@@ -169,7 +169,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			IUnitOfWork uow, int counterpartyId, int organizationId, int closingDocumentDeliveryScheduleId);
 		PaymentType GetCurrentOrderPaymentTypeInDB(IUnitOfWork uow, int orderId);
 		IEnumerable<Order> GetCashlessOrdersForEdoSendUpd(
-			IUnitOfWork uow, DateTime startDate, int organizationId, int closingDocumentDeliveryScheduleId);
+			IUnitOfWork uow, DateTime startDate, int closingDocumentDeliveryScheduleId);
 		IEnumerable<int> GetNewEdoProcessOrders(IUnitOfWork uow, IEnumerable<int> orderIds);
 		IList<EdoContainer> GetPreparingToSendEdoContainers(IUnitOfWork uow, DateTime startDate, int organizationId);
 		EdoContainer GetEdoContainerByMainDocumentId(IUnitOfWork uow, string mainDocId);
@@ -198,7 +198,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		IList<OrderItem> GetIsAccountableInTrueMarkOrderItems(IUnitOfWork uow, int orderId);
 		IList<TrueMarkCancellationDto> GetOrdersForCancellationInTrueMark(IUnitOfWork uow, DateTime startDate, int organizationId);
 		IList<OrderOnDayNode> GetOrdersOnDay(IUnitOfWork uow, OrderOnDayFilters orderOnDayFilters);
-		IList<Order> GetOrdersForEdoSendBills(IUnitOfWork uow, DateTime startDate, int organizationId, int closingDocumentDeliveryScheduleId);
+		IList<Order> GetOrdersForEdoSendBills(IUnitOfWork uow, DateTime startDate, int closingDocumentDeliveryScheduleId);
 		OrderStatus[] GetStatusesForOrderCancelationWithCancellation();
 		IEnumerable<OrderDto> GetCounterpartyOrdersFromOnlineOrders(IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
 		IEnumerable<OrderDto> GetCounterpartyOrdersWithoutOnlineOrders(IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
@@ -351,19 +351,29 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="expiredMinDaysAgo">Минимальное количество дней просрочки</param>
-		/// <param name="orderStatuses">Статусы заказов</param>
 		/// <param name="excludeCounterpartyRevenueStatuses">Статусы контрагентов в налоговой для исключения</param>
 		/// <param name="letterOfClaimResendIntervalDays">Интервал дней для повторной отправки претензии</param>
 		/// <param name="maxClientsToTake">Максимальное количество клиентов</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Данные по просроченным долгам контрагента в разрезе организации</returns>
-		Task<IDictionary<CounterpartyOrganizationDataNode, CounterpartyOverdueDebtorDebtAggregatedNode>> GetOverdueDebtorDebtDataForLettersOfClaim(
+		Task<IEnumerable<CounterpartyOverdueDebtorDebtAggregatedNode>> GetOverdueDebtorDebtDataForLettersOfClaim(
 			IUnitOfWork uow,
 			int expiredMinDaysAgo,
-			IEnumerable<OrderStatus> orderStatuses,
 			IEnumerable<RevenueStatus> excludeCounterpartyRevenueStatuses,
 			int letterOfClaimResendIntervalDays,
 			int maxClientsToTake = int.MaxValue,
 			CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Получить первый доставленный заказ из массива идентификаторов заказов
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderIds">Массив идентификаторов заказов</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Наиболее ранний заказ</returns>
+		Task<Order> GetEarliestOrder(
+			IUnitOfWork uow,
+			IEnumerable<int> orderIds,
+			CancellationToken cancellationToken);
 	}
 }

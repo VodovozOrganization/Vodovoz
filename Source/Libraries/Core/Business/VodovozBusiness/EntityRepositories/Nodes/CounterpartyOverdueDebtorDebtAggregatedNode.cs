@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Organizations;
+﻿using System.Collections.Generic;
 
 namespace VodovozBusiness.EntityRepositories.Nodes
 {
@@ -16,9 +13,9 @@ namespace VodovozBusiness.EntityRepositories.Nodes
 		public IEnumerable<int> OrderIds { get; set; }
 
 		/// <summary>
-		/// Контрагент
+		/// Id клиента
 		/// </summary>
-		public Counterparty Counterparty { get; set; }
+		public int CounterpartyId { get; set; }
 
 		/// <summary>
 		/// Id организации
@@ -36,9 +33,9 @@ namespace VodovozBusiness.EntityRepositories.Nodes
 		public string OrganizationEmailForMailing { get; set; }
 
 		/// <summary>
-		/// Договор
+		/// Идентификатор договора
 		/// </summary>
-		public CounterpartyContract Contract { get; set; }
+		public int ContractId { get; set; }
 
 		/// <summary>
 		/// Суммарная просроченная дебиторская задолженность

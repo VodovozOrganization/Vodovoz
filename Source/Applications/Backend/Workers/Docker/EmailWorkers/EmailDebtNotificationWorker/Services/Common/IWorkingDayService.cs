@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EmailDebtNotificationWorker.Services
+namespace EmailDebtNotificationWorker.Services.Common
 {
 	public interface IWorkingDayService
 	{
