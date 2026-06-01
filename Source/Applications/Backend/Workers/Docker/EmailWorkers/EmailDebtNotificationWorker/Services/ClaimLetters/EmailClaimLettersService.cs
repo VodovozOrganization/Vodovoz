@@ -1,4 +1,4 @@
-using BitrixApi.Library.Services;
+﻿using BitrixApi.Library.Services;
 using EmailDebtNotificationWorker.Options;
 using EmailDebtNotificationWorker.Services.Common.Factories;
 using EmailDebtNotificationWorker.Services.Common.Generators;
@@ -172,8 +172,8 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 					var client = await uow.Session.GetAsync<Counterparty>(data.CounterpartyId, cancellationToken) 
 						?? throw new InvalidOperationException($"Клиент с Id {data.CounterpartyId} не найден");
 
-					var contract = await uow.Session.GetAsync<CounterpartyContract>(data.Contractd, cancellationToken)
-						?? throw new InvalidOperationException($"Договор с Id {data.Contractd} не найден");
+					var contract = await uow.Session.GetAsync<CounterpartyContract>(data.ContractId, cancellationToken)
+						?? throw new InvalidOperationException($"Договор с Id {data.ContractId} не найден");
 
 					var emailMessage = await CreateSendEmailMessage(
 						uow,

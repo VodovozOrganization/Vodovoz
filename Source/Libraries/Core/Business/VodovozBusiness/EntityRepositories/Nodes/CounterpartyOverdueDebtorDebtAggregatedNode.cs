@@ -35,7 +35,7 @@ namespace VodovozBusiness.EntityRepositories.Nodes
 		/// <summary>
 		/// Идентификатор договора
 		/// </summary>
-		public int Contractd { get; set; }
+		public int ContractId { get; set; }
 
 		/// <summary>
 		/// Суммарная просроченная дебиторская задолженность

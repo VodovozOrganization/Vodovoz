@@ -2862,7 +2862,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					CounterpartyId = g.Key.CounterpartyId,
 					OrganizationFullName = g.First().OrganizationFullName,
 					OrganizationEmailForMailing = g.First().OrganizationEmailForMailing,
-					Contractd = g.First().ContractId,
+					ContractId = g.First().ContractId,
 					TotalOverdueDebtorDebt = g.Sum(x => x.OverdueDebtorDebt)
 				})
 				.Where(x => x.TotalOverdueDebtorDebt > 100m)
