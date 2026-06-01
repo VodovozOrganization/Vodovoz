@@ -24,7 +24,7 @@ namespace EmailDebtNotificationWorker.Services.InformationLetters
 	/// <summary>
 	/// Сервис планирования и отправки email сообщений клиентам о задолженностях
 	/// </summary>
-	public partial class EmailDebtNotificationService : IEmailDebtNotificationService
+	public class EmailDebtNotificationService : IEmailDebtNotificationService
 	{
 		private readonly ILogger<EmailDebtNotificationService> _logger;
 		private readonly IUnitOfWorkFactory _uowFactory;

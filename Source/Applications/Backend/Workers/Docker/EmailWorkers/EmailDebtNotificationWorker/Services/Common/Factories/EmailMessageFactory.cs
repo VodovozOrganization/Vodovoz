@@ -87,7 +87,7 @@ namespace EmailDebtNotificationWorker.Services.Common.Factories
 
 			var storedEmail = new StoredEmail
 			{
-				State = StoredEmailStates.PreparingToSend,
+				State = StoredEmailStates.WaitingToSend,
 				Author = null,
 				ManualSending = false,
 				SendDate = DateTime.Now,
