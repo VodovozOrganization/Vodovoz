@@ -357,7 +357,10 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
 				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geoGroupAlias)
 				.JoinEntityAlias(() => routeListItemAlias,
-					() => routeListItemAlias.Order.Id == orderAlias.Id,
+					() => routeListItemAlias.Order.Id == orderAlias.Id
+						&& routeListItemAlias.Status != RouteListItemStatus.Transfered
+						&& routeListItemAlias.Status != RouteListItemStatus.Canceled
+						&& routeListItemAlias.Status != RouteListItemStatus.Overdue,
 					JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => counterpartyClassificationAlias,
 					() => counterpartyClassificationAlias.CounterpartyId == counterpartyAlias.Id,
@@ -554,6 +557,9 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 				}
 			}
 
+			query.OrderBy(() => orderAlias.Id).Asc()
+				.ThenBy(() => orderItemAlias.Id).Asc();
+
 			query.SelectList(list => list
 				.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
 				.SelectGroup(() => counterpartyAlias.Id).WithAlias(() => resultAlias.CounterpartyId)
@@ -573,7 +579,7 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 				.SelectGroup(() => authorAlias.Name).WithAlias(() => resultAlias.OrderAuthorName)
 				.SelectGroup(() => promotionalSetAlias.Name).WithAlias(() => resultAlias.PromotionalSet)
 				.SelectGroup(() => authorAlias.LastName).WithAlias(() => resultAlias.OrderAuthor)
-				.Select(() => nomenclatureAlias.IsDisposableTare).WithAlias(() => resultAlias.IsDisposableTare)
+				.SelectGroup(() => nomenclatureAlias.IsDisposableTare).WithAlias(() => resultAlias.IsDisposableTare)
 				.Select(Projections.SqlFunction(
 					new SQLFunctionTemplate(NHibernateUtil.Decimal, "COALESCE(?1, ?2)"),
 					NHibernateUtil.Decimal,
@@ -581,7 +587,7 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 					Projections.Property(() => orderItemAlias.Count))).WithAlias(() => resultAlias.TotalCount)
 				.Select(Projections.SqlFunction(
 					new SQLFunctionTemplate(NHibernateUtil.Decimal,
-						"TRUNCATE(ROUND(COALESCE(?1, ?2) * ?3 - COALESCE(?4, 0), 2), 2)"),
+						"TRUNCATE(COALESCE(?1, ?2) * ?3 - COALESCE(?4, 0), 2)"),
 					NHibernateUtil.Decimal,
 					Projections.Property(() => orderItemAlias.ActualCount),
 					Projections.Property(() => orderItemAlias.Count),
