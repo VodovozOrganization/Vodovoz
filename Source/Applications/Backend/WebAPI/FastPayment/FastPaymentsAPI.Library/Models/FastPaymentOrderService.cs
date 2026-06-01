@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
-using FastPaymentsApi.Contracts;
+﻿using FastPaymentsApi.Contracts;
 using FastPaymentsApi.Contracts.Requests;
 using FastPaymentsApi.Contracts.Responses;
 using FastPaymentsAPI.Library.Managers;
 using FastPaymentsAPI.Library.Validators;
-using Mailjet.Api.Abstractions;
-using MassTransit;
 using QS.DomainModel.UoW;
-using RabbitMQ.MailSending;
+using System;
+using System.IO;
+using System.Threading.Tasks;
+using System.Xml.Serialization;
 using Vodovoz.Core.Data.Orders;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
@@ -78,7 +74,12 @@ namespace FastPaymentsAPI.Library.Models
 		{
 			return _orderRequestManager.CancelPayment(ticket, organization);
 		}
-		
+
+		public Task<ReverseOrderResponseDTO> ReverseOrder(string ticket, Organization organization, decimal? amount = null)
+		{
+			return _orderRequestManager.ReverseOrder(ticket, organization, amount);
+		}
+
 		public PaidOrderInfoDTO GetPaidOrderInfo(string data)
 		{
 			using TextReader reader = new StringReader(data);

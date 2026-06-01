@@ -67,7 +67,7 @@ namespace FastPaymentsAPI.Controllers
 		public async Task<QRResponseDTO> RegisterOrderForGetQR([FromBody] OrderDTO orderDto)
 		{
 			var orderId = orderDto.OrderId;
-			_logger.LogInformation($"Поступил запрос отправки QR-кода для заказа №{orderId}");
+			_logger.LogInformation("Поступил запрос отправки QR-кода для заказа №{OrderId}", orderId);
 			
 			var response = new QRResponseDTO();
 			var paramsValidationResult = _fastPaymentOrderService.ValidateParameters(orderId);
@@ -594,7 +594,61 @@ namespace FastPaymentsAPI.Controllers
 				return new CancelTicketResponseDTO(e.Message);
 			}
 		}
-		
+
+		/// <summary>
+		/// Эндпойнт для возврата денежных средств по платежу
+		/// </summary>
+		/// <param name="reverseTicketRequestDto">Dto с сессией, по которой надо сделать возврат</param>
+		/// <returns></returns>
+		[HttpPost]
+		public async Task<ReverseTicketResponseDTO> ReverseOrder([FromBody] ReverseTicketRequestDTO reverseTicketRequestDto)
+		{
+			var ticket = reverseTicketRequestDto.Ticket;
+			var amount = reverseTicketRequestDto.Amount;
+
+			try
+			{
+				_logger.LogInformation("Пришел запрос на возврат средств по платежу с сессией: {Ticket}, сумма: {Amount}",
+					ticket, amount?.ToString() ?? "полная");
+
+				var fastPayment = _fastPaymentService.GetFastPaymentByTicket(ticket);
+
+				if(fastPayment == null)
+				{
+					_logger.LogError("Платеж с сессией: {Ticket} не найден в базе", ticket);
+					return new ReverseTicketResponseDTO("Не найден платеж в базе");
+				}
+
+				_logger.LogInformation("Посылаем запрос в банк на возврат средств по сессии оплаты: {Ticket}", ticket);
+
+				var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
+
+				ReverseOrderResponseDTO reverseOrderResponse;
+
+				if(isDryRun)
+				{
+					reverseOrderResponse = new ReverseOrderResponseDTO { ResponseCode = 0 };
+				}
+				else
+				{
+					reverseOrderResponse = await _fastPaymentOrderService.ReverseOrder(ticket, fastPayment.Organization, amount);
+
+					if(reverseOrderResponse.ResponseCode == 0)
+					{
+						_logger.LogInformation("Возврат по платежу {Ticket} успешно инициирован, обновляем статус", ticket);
+						_fastPaymentService.UpdateFastPaymentStatus(fastPayment, FastPaymentDTOStatus.Refund, DateTime.Now);
+					}
+				}
+
+				return new ReverseTicketResponseDTO(_responseCodeConverter.ConvertToResponseStatus(reverseOrderResponse.ResponseCode));
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e, "При инициализации возврата средств по сессии оплаты {Ticket} произошла ошибка", ticket);
+				return new ReverseTicketResponseDTO(e.Message);
+			}
+		}
+
 		/// <summary>
 		/// Получение информации об оплате
 		/// </summary>
