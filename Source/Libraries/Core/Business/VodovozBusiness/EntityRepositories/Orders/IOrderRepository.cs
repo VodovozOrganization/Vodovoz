@@ -333,6 +333,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="orderStatuses">Статусы заказов</param>
 		/// <param name="counterpartyTypes">Типы контрагентов</param>
 		/// <param name="counterpartyId">Id контрагента</param>
+		/// <param name="debtThreshold">Задолженность свыше</param>
 		/// <returns>Данные по задолженности</returns>
 		Task<IReadOnlyCollection<OverdueDebtOverPeriodLimitAggregateNode>> GetWithoutClosedDeliveriesCounterpartiesOverdueDebts(
 			IUnitOfWork unitOfWork, 
@@ -341,6 +342,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			OrderStatus[] orderStatuses, 
 			CounterpartyType[] counterpartyTypes,
 			int tenderCameFromId,
+			decimal debtThreshold,
 			int? counterpartyId = null,			
 			CancellationToken cancellationToken = default);
 

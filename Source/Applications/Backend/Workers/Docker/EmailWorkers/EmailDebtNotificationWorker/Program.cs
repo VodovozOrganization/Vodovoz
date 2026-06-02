@@ -3,6 +3,7 @@ using BitrixApi.Library.Services;
 using EmailDebtNotificationWorker.Options;
 using EmailDebtNotificationWorker.Repositories;
 using EmailDebtNotificationWorker.Services.ClaimLetters;
+using EmailDebtNotificationWorker.Services.ClosingDeliveries;
 using EmailDebtNotificationWorker.Services.Common;
 using EmailDebtNotificationWorker.Services.Common.Factories;
 using EmailDebtNotificationWorker.Services.Common.Generators;
@@ -21,6 +22,7 @@ using QS.Report;
 using RabbitMQ.MailSending;
 using System;
 using System.Text;
+using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Infrastructure.Persistance;
@@ -29,6 +31,7 @@ using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Database.Common;
 using Vodovoz.Settings.Database.Counterparty;
 using Vodovoz.Zabbix.Sender;
+using VodovozBusiness.Services.Orders;
 using AssemblyFinder = Vodovoz.Data.NHibernate.AssemblyFinder;
 
 namespace EmailDebtNotificationWorker

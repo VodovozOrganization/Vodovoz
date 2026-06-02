@@ -1,4 +1,4 @@
-using QS.Banks.Domain;
+﻿using QS.Banks.Domain;
 using QS.DomainModel.Entity;
 using QS.DomainModel.Entity.EntityPermissions;
 using QS.Extensions.Observable.Collections.List;
@@ -209,8 +209,8 @@ namespace Vodovoz.Core.Domain.Organizations
 		[Display(Name = "E-mail организации, с которого будет приходить письмо с претензией")]
 		public virtual string EmailForClaimLetters
 		{
-			get => _closingDeliveriesNotificationEmailFrom;
-			set => SetField(ref _closingDeliveriesNotificationEmailFrom, value);
+			get => _emailForClaimLetters;
+			set => SetField(ref _emailForClaimLetters, value);
 		}
 
 		/// <summary>
