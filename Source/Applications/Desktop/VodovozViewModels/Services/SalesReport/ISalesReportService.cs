@@ -42,21 +42,24 @@ namespace Vodovoz.ViewModels.Services.SalesReport
 		/// <summary>
 		/// Экспортировать дерево отчета в Excel
 		/// </summary>
-		/// <param name="tree"></param>
-		/// <param name="startDate"></param>
-		/// <param name="endDate"></param>
-		/// <param name="groupingTitle"></param>
-		/// <param name="ordersCount"></param>
-		/// <param name="planBottles"></param>
-		/// <param name="factBottles"></param>
-		/// <returns></returns>
-		byte[] ExportToExcel(
+		/// <param name="tree">Иерархическая структура нод отчёта о продажах</param>
+		/// <param name="startDate">Начальный период отчета</param>
+		/// <param name="endDate">Конечный период отчета</param>
+		/// <param name="groupingTitle">Заголовок группировки данных</param>
+		/// <param name="ordersCount">Количество заказов</param>
+		/// <param name="planBottles">Планируемое количество бутылей</param>
+		/// <param name="factBottles">Фактическое количество бутылей</param>
+		/// <param name="outputFilePath">Путь к файлу</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		Task ExportToExcel(
 			IList<SalesReportTreeNode> tree,
 			DateTime startDate,
 			DateTime endDate,
 			string groupingTitle,
 			int ordersCount,
 			int planBottles,
-			int factBottles);
+			int factBottles,
+			string outputFilePath,
+			CancellationToken cancellationToken = default);
 	}
 }

@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
@@ -808,11 +808,18 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 			int defaultBottleNomenclatureId,
 			CancellationToken cancellationToken)
 		{
-			BottlesDataNode resultAlias = null;
 			Order orderAlias = null;
 			RouteListItem routeListItemAlias = null;
 			SelfDeliveryDocument selfDeliveryDocAlias = null;
 			SelfDeliveryDocumentItem selfDeliveryItemAlias = null;
+			BottlesDataNode resultAlias = null;
+
+			var orderIdsArray = orderIds.ToArray();
+
+			var routeListFactSubquery = QueryOver.Of(() => routeListItemAlias)
+				.Where(() => routeListItemAlias.Order.Id == orderAlias.Id)
+				.Where(() => routeListItemAlias.TransferedTo == null)
+				.Select(Projections.Sum(() => routeListItemAlias.BottlesReturned));
 
 			var selfDeliveryFactSubquery = QueryOver.Of(() => selfDeliveryDocAlias)
 				.JoinAlias(() => selfDeliveryDocAlias.Items, () => selfDeliveryItemAlias)
@@ -820,40 +827,23 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 				.Where(() => selfDeliveryItemAlias.Nomenclature.Id == defaultBottleNomenclatureId)
 				.Select(Projections.Sum(() => selfDeliveryItemAlias.Amount));
 
-			var routeListFactSubquery = QueryOver.Of(() => routeListItemAlias)
-				.Where(() => routeListItemAlias.Order.Id == orderAlias.Id)
-				.Where(() => routeListItemAlias.Status == RouteListItemStatus.Completed)
-				.Where(() => routeListItemAlias.TransferedTo == null)
-				.Select(Projections.Sum(() => routeListItemAlias.BottlesReturned));
-
 			var query = uow.Session.QueryOver(() => orderAlias)
-				.WhereRestrictionOn(o => o.Id).IsIn(orderIds.ToArray())
+				.WhereRestrictionOn(o => o.Id).IsIn(orderIdsArray)
 				.SelectList(list => list
 					.SelectSum(() => orderAlias.BottlesReturn).WithAlias(() => resultAlias.Plan)
-					.SelectSubQuery(routeListFactSubquery).WithAlias(() => resultAlias.FactFromRouteList)
-					.SelectSubQuery(selfDeliveryFactSubquery).WithAlias(() => resultAlias.FactFromSelfDelivery)
+					.Select(
+						Projections.SqlFunction(
+							new SQLFunctionTemplate(NHibernateUtil.Int32, "ROUND(SUM(IFNULL(?1, IFNULL(?2, 0))), 0)"),
+							NHibernateUtil.Int32,
+							Projections.SubQuery(routeListFactSubquery),
+							Projections.SubQuery(selfDeliveryFactSubquery)))
+						.WithAlias(() => resultAlias.Fact)
 				)
-				.TransformUsing(Transformers.AliasToBean<BottlesDataNode>())
-				.Take(1);
+				.TransformUsing(Transformers.AliasToBean<BottlesDataNode>());
 
 			var result = await query.SingleOrDefaultAsync<BottlesDataNode>(cancellationToken);
 
-			if(result is null)
-			{
-				return new BottlesDataNode
-				{
-					Plan = 0,
-					FactFromRouteList = 0,
-					FactFromSelfDelivery = 0
-				};
-			}
-
-			return new BottlesDataNode
-			{
-				Plan = result.Plan,
-				FactFromRouteList = result.FactFromRouteList,
-				FactFromSelfDelivery = result.FactFromSelfDelivery
-			};
+			return result ?? new BottlesDataNode { Plan = 0, Fact = 0 };
 		}
 	}
 }

@@ -554,16 +554,17 @@ $@"<b>1.</b> Подсчет продаж ведется на основе зак
 				try
 				{
 					var groupingTitle = string.Join(" | ", SelectedGroupings.Select(g => g.Type.GetEnumTitle()));
-					var excelData = _salesReportService.ExportToExcel(
+					_salesReportService.ExportToExcel(
 						_treeNodes.FirstOrDefault().Children,
 						StartDate.Value,
 						EndDate.Value,
 						groupingTitle,
 						_ordersCount,
 						_bottlesDataNode.Plan,
-						_bottlesDataNode.Fact);
-
-					File.WriteAllBytes(result.Path, excelData);
+						_bottlesDataNode.Fact,
+						result.Path)
+						.GetAwaiter()
+						.GetResult();
 
 					_interactiveService.ShowMessage(ImportanceLevel.Info, "Файл успешно сохранен");
 				}
