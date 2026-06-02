@@ -1,16 +1,14 @@
-using Edo.Common;
-using Edo.Contracts.Messages.Events;
-using Edo.Problems.Custom.Sources;
-using Edo.Problems;
-using Edo.Problems.Exception;
-using MassTransit;
-using NHibernate;
-using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Edo.Common;
+using Edo.Contracts.Messages.Events;
+using Edo.Problems;
+using Edo.Problems.Custom.Sources;
+using MassTransit;
+using QS.DomainModel.UoW;
 using TrueMark.Codes.Pool;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
@@ -28,6 +26,7 @@ namespace Edo.Documents
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly TransferRequestCreator _transferRequestCreator;
 		private readonly ITrueMarkCodesPool _trueMarkCodesPool;
+		private readonly ITrueMarkCodesPoolCodeProvider _trueMarkCodesPoolCodeProvider;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly IBus _messageBus;
 
@@ -37,6 +36,7 @@ namespace Edo.Documents
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			TransferRequestCreator transferRequestCreator,
 			ITrueMarkCodesPool trueMarkCodesPool,
+			ITrueMarkCodesPoolCodeProvider trueMarkCodesPoolCodeProvider,
 			EdoProblemRegistrar edoProblemRegistrar,
 			IBus messageBus
 			)
@@ -46,6 +46,7 @@ namespace Edo.Documents
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_transferRequestCreator = transferRequestCreator ?? throw new ArgumentNullException(nameof(transferRequestCreator));
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
+			_trueMarkCodesPoolCodeProvider = trueMarkCodesPoolCodeProvider ?? throw new ArgumentNullException(nameof(trueMarkCodesPoolCodeProvider));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
@@ -125,7 +126,7 @@ namespace Edo.Documents
 								)
 								.FirstOrDefault();
 							
-							var newCode = await LoadCodeFromPool(gtin, cancellationToken);
+							var newCode = await LoadCodeFromPool(gtin, GetOrderOrganizationInn(documentEdoTask), cancellationToken);
 							codeResult.EdoTaskItem.ProductCode.ResultCode = newCode;
 							codeResult.EdoTaskItem.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
 						}
@@ -352,7 +353,10 @@ namespace Edo.Documents
 								}
 								else
 								{
-									var newCode = await LoadCodeFromPool(availableGtin, cancellationToken);
+									var newCode = await LoadCodeFromPool(
+										availableGtin,
+										GetOrderOrganizationInn(documentEdoTask),
+										cancellationToken);
 									availableCode.ProductCode.ResultCode = newCode;
 									availableCode.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
 								}
@@ -391,7 +395,10 @@ namespace Edo.Documents
 							if(unscannedCode.ProductCode.ResultCode == null)
 							{
 								var forUnscannedAvailableGtins = orderItem.Nomenclature.Gtins;
-								var newCode = await LoadCodeFromPool(forUnscannedAvailableGtins, cancellationToken);
+								var newCode = await LoadCodeFromPool(
+									forUnscannedAvailableGtins,
+									GetOrderOrganizationInn(documentEdoTask),
+									cancellationToken);
 								unscannedCode.ProductCode.ResultCode = newCode;
 								unscannedCode.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
 							}
@@ -412,7 +419,10 @@ namespace Edo.Documents
 						// если не отсканированных нет, но назначить код все еще есть необходимость
 						// то создаем новый taskItem и назначаем код из пула в него и в инвентарную позицию УПД
 						var forNewAvailableGtins = orderItem.Nomenclature.Gtins;
-						var forNewCode = await LoadCodeFromPool(forNewAvailableGtins, cancellationToken);
+						var forNewCode = await LoadCodeFromPool(
+							forNewAvailableGtins,
+							GetOrderOrganizationInn(documentEdoTask),
+							cancellationToken);
 						
 						var newAutoTrueMarkProductCode = new AutoTrueMarkProductCode
 						{
@@ -467,72 +477,58 @@ namespace Edo.Documents
 			}
 		}
 
-		private async Task<TrueMarkWaterIdentificationCode> LoadCodeFromPool(GtinEntity gtin, CancellationToken cancellationToken)
+		private async Task<TrueMarkWaterIdentificationCode> LoadCodeFromPool(
+			GtinEntity gtin,
+			string organizationInn,
+			CancellationToken cancellationToken)
 		{
-			int codeId = 0;
-			var problemGtins = new List<EdoProblemGtinItem>();
-			EdoCodePoolMissingCodeException exception = null;
-
 			try
 			{
-				codeId = await _trueMarkCodesPool.TakeCode(gtin.GtinNumber, cancellationToken);
+				return await _trueMarkCodesPoolCodeProvider.TakeValidCodeAsync(
+					_trueMarkCodesPool,
+					gtin,
+					organizationInn,
+					cancellationToken);
 			}
 			catch(EdoCodePoolMissingCodeException ex)
 			{
-				exception = ex;
-				if(!problemGtins.Any(x => x.Gtin == gtin))
+				throw new EdoProblemException(ex, new[]
 				{
-					problemGtins.Add(new EdoProblemGtinItem
+					new EdoProblemGtinItem
 					{
 						Gtin = gtin
-					});
-				}
+					}
+				});
 			}
-
-			if(codeId == 0)
-			{
-				throw new EdoProblemException(exception, problemGtins);
-			}
-
-			return await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(codeId, cancellationToken);
 		}
 		
 		private async Task<TrueMarkWaterIdentificationCode> LoadCodeFromPool(
 			IEnumerable<GtinEntity> gtins,
+			string organizationInn,
 			CancellationToken cancellationToken)
 		{
-			int codeId = 0;
-			var problemGtins = new List<EdoProblemGtinItem>();
-			EdoCodePoolMissingCodeException exception = null;
+			var orderedGtins = gtins.OrderBy(g => g.Priority).ToList();
 
-			foreach(var gtin in gtins.OrderBy(g => g.Priority))
+			try
 			{
-				try
-				{
-					codeId = await _trueMarkCodesPool.TakeCode(gtin.GtinNumber, cancellationToken);
-					
-					break;
-				}
-				catch (EdoCodePoolMissingCodeException ex)
-				{
-					exception = ex;
-
-					if (!problemGtins.Any(x => x.Gtin == gtin))
-					{
-						problemGtins.Add(new EdoProblemGtinItem
-						{
-							Gtin = gtin
-						});
-					}
-				}
+				return await _trueMarkCodesPoolCodeProvider.TakeValidCodeAsync(
+					_trueMarkCodesPool,
+					orderedGtins,
+					organizationInn,
+					cancellationToken);
 			}
-
-			if (codeId == 0)
+			catch(EdoCodePoolMissingCodeException ex)
 			{
-				throw new EdoProblemException(exception, problemGtins);
+				throw new EdoProblemException(ex, orderedGtins.Select(gtin => new EdoProblemGtinItem
+				{
+					Gtin = gtin
+				}));
 			}
+		}
 
-			return await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(codeId, cancellationToken);
+		private static string GetOrderOrganizationInn(DocumentEdoTask documentEdoTask)
+		{
+			return documentEdoTask.FormalEdoRequest.Order.Contract.Organization.INN;
 		}
 
 		private async Task<IDictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>>> TakeGroupCodesWithTaskItems(
