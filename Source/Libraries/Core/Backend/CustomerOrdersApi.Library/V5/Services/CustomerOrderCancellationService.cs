@@ -186,7 +186,8 @@ namespace CustomerOrdersApi.Library.V5.Services
 
 			if(order is null)
 			{
-				if(onlineOrder is not null 
+				if(onlineOrder is not null
+					&& onlineOrder.OnlineOrderStatus is not OnlineOrderStatus.Canceled
 					&& onlineOrder.OnlineOrderPaymentType is not OnlineOrderPaymentType.PaidOnline)
 				{
 					await CancelOnlineOrder(uow, onlineOrder, cancellationToken);
