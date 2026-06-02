@@ -116,6 +116,7 @@ namespace EmailDebtNotificationWorker.Services.ClosingDeliveries
 
 			var closingDeliveriesEmail = new ClosingDeliveriesEmail
 			{
+				OrganizationId = orderWithoutShipmentForDebt.Organization.Id,
 				OrderWithoutShipmentForDebt = orderWithoutShipmentForDebt,
 				StoredEmail = storedEmail,
 				Counterparty = orderWithoutShipmentForDebt.Client

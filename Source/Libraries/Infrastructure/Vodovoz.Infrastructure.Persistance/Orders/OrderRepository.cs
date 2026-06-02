@@ -2929,6 +2929,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			OrderStatus[] orderStatuses,
 			CounterpartyType[] counterpartyTypes,
 			int tenderCameFromId,
+			decimal debtThreshold,
 			int? counterpartyId = null,
 			CancellationToken cancellationToken = default)
 		{
@@ -2939,6 +2940,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					&& x.Counterparty.ReasonForLeaving != ReasonForLeaving.Tender
 					&& x.Counterparty.CameFrom.Id != tenderCameFromId
 					&& counterpartyTypes.Contains(x.Counterparty.CounterpartyType)
+					&& x.DebtSum > debtThreshold
 				)
 				.ToListAsync(cancellationToken))
 				.GroupBy(x => new
