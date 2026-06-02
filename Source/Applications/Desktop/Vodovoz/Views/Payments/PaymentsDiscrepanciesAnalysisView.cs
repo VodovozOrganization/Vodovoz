@@ -2,6 +2,7 @@
 using Gamma.Utilities;
 using Gdk;
 using Gtk;
+using QS.Views.Control;
 using QS.Views.Dialog;
 using System;
 using System.ComponentModel;
@@ -58,6 +59,8 @@ namespace Vodovoz.Views.Payments
 				.AddBinding(ViewModel, vm => vm.CanReadFile, w => w.Sensitive)
 				.InitializeFromSource();
 			ybuttonReadFile.Clicked += (s, e) => ViewModel.AnalyseDiscrepanciesCommand.Execute();
+
+			ConfigureOrganizationEntry();
 
 			ycheckbuttonClientDiscrepanciesOnly.Binding
 				.AddBinding(ViewModel, vm => vm.IsDiscrepanciesOnly, w => w.Active)
@@ -129,7 +132,9 @@ namespace Vodovoz.Views.Payments
 
 			ConfigureFileChooser();
 			ConfigureOrdersTree();
+			ConfigureOtherWriteOffsTree();
 			ConfigurePaymentsTree();
+			ConfigureOtherIncomesTree();
 			ConfigureCounterpartiesTree();
 		}
 
@@ -146,11 +151,28 @@ namespace Vodovoz.Views.Payments
 				.InitializeFromSource();
 		}
 
+		private void ConfigureOrganizationEntry()
+		{
+			var organizationLabel = new Label("Организация:");
+			var organizationEntry = new EntityEntry
+			{
+				ViewModel = ViewModel.OrganizationViewModel,
+				WidthRequest = 320
+			};
+
+			yhboxFileActions.PackStart(organizationLabel, false, false, 0);
+			yhboxFileActions.PackStart(organizationEntry, false, false, 0);
+			yhboxFileActions.ReorderChild(organizationLabel, 0);
+			yhboxFileActions.ReorderChild(organizationEntry, 1);
+			organizationLabel.Show();
+			organizationEntry.Show();
+		}
+
 		private void ConfigureOrdersTree()
 		{
 			ytreeviewOrdersData.ColumnsConfig = FluentColumnsConfig<OrderDiscrepanciesNode>.Create()
-				.AddColumn("№ заказа")
-					.AddNumericRenderer(n => n.OrderId)
+				.AddColumn("Документ")
+					.AddTextRenderer(n => string.IsNullOrWhiteSpace(n.DocumentName) ? n.OrderId.ToString() : n.DocumentName)
 				.AddColumn("Дата заказа")
 					.AddTextRenderer(n =>
 						n.OrderDeliveryDate.HasValue ?
@@ -218,6 +240,44 @@ namespace Vodovoz.Views.Payments
 			ytreeviewOrdersData.ItemsDataSource = ViewModel.OrdersNodes;
 		}
 
+		private void ConfigureOtherWriteOffsTree()
+		{
+			ytreeviewOtherWriteOffsData.ColumnsConfig = FluentColumnsConfig<OtherWriteOffDiscrepanciesNode>.Create()
+				.AddColumn("Документ 1С")
+					.AddTextRenderer(n => n.DocumentName)
+				.AddColumn("Дата 1С")
+					.AddTextRenderer(n => n.DocumentDate.HasValue ? n.DocumentDate.Value.ToShortDateString() : string.Empty)
+				.AddColumn("№ 1С")
+					.AddTextRenderer(n => n.DocumentNumber.HasValue ? n.DocumentNumber.Value.ToString() : string.Empty)
+				.AddColumn("Сумма по акту")
+					.AddNumericRenderer(n => n.DocumentWriteOffSum)
+					.Digits(2)
+				.AddColumn("№ списания")
+					.AddTextRenderer(n => n.PaymentWriteOffNumber.HasValue ? n.PaymentWriteOffNumber.Value.ToString() : string.Empty)
+				.AddColumn("Дата списания")
+					.AddTextRenderer(n => n.PaymentWriteOffDate.HasValue ? n.PaymentWriteOffDate.Value.ToShortDateString() : string.Empty)
+				.AddColumn("Сумма по ДВ")
+					.AddNumericRenderer(n => n.ProgramWriteOffSum)
+					.Digits(2)
+					.AddSetter((spin, node) =>
+					{
+						spin.ForegroundGdk = _primaryTextColor;
+
+						if(node.WriteOffDiscrepancy)
+						{
+							spin.ForegroundGdk = _dangerTextColor;
+						}
+					})
+				.AddColumn("Причина")
+					.AddTextRenderer(n => n.Reason)
+				.AddColumn("Сверка")
+					.AddTextRenderer(n => n.IsMatchedWithoutNumber ? "без номера" : string.Empty)
+				.AddColumn("")
+				.Finish();
+
+			ytreeviewOtherWriteOffsData.ItemsDataSource = ViewModel.OtherWriteOffNodes;
+		}
+
 		private void ConfigurePaymentsTree()
 		{
 			ytreeviewPaymentsData.ColumnsConfig = FluentColumnsConfig<PaymentDiscrepanciesNode>.Create()
@@ -253,6 +313,24 @@ namespace Vodovoz.Views.Payments
 			ytreeviewPaymentsData.ItemsDataSource = ViewModel.PaymentsNodes;
 		}
 
+		private void ConfigureOtherIncomesTree()
+		{
+			ytreeviewOtherIncomesData.ColumnsConfig = FluentColumnsConfig<OtherIncomeNode>.Create()
+				.AddColumn("Документ 1С")
+					.AddTextRenderer(n => n.DocumentName)
+				.AddColumn("Дата")
+					.AddTextRenderer(n => n.DocumentDate.HasValue ? n.DocumentDate.Value.ToShortDateString() : string.Empty)
+				.AddColumn("№")
+					.AddTextRenderer(n => n.DocumentNumber.HasValue ? n.DocumentNumber.Value.ToString() : string.Empty)
+				.AddColumn("Сумма")
+					.AddNumericRenderer(n => n.IncomeSum)
+					.Digits(2)
+				.AddColumn("")
+				.Finish();
+
+			ytreeviewOtherIncomesData.ItemsDataSource = ViewModel.OtherIncomeNodes;
+		}
+
 		private void ConfigureCounterpartiesTree()
 		{
 			ytreeviewCounterpartiesData.ColumnsConfig = FluentColumnsConfig<CounterpartyBalanceNode>.Create()
@@ -285,7 +363,9 @@ namespace Vodovoz.Views.Payments
 		public override void Destroy()
 		{
 			ytreeviewOrdersData.Destroy();
+			ytreeviewOtherWriteOffsData.Destroy();
 			ytreeviewPaymentsData.Destroy();
+			ytreeviewOtherIncomesData.Destroy();
 			ytreeviewCounterpartiesData.Destroy();
 
 			base.Destroy();
