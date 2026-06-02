@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -68,7 +68,6 @@ namespace Vodovoz.ViewModels.Services.SalesReport
 				_nomenclatureSettings.DefaultBottleNomenclatureId,
 				cancellationToken);
 		}
-
 		public byte[] ExportToExcel(
 			IList<SalesReportTreeNode> tree,
 			DateTime startDate,

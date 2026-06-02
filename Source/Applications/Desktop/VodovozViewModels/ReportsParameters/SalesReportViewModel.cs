@@ -1,6 +1,5 @@
 ﻿using DateTimeHelpers;
 using Gamma.Utilities;
-using Org.BouncyCastle.Asn1.Pkcs;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.Entity;
@@ -15,7 +14,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
@@ -857,6 +855,5 @@ $@"<b>1.</b> Подсчет продаж ведется на основе зак
 
 			return nodes;
 		}
-
 	}
 }

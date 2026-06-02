@@ -1,4 +1,4 @@
-﻿using NHibernate;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.SqlCommand;
@@ -570,6 +570,7 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 				.SelectGroup(() => orderAlias.PaymentType).WithAlias(() => resultAlias.PaymentType)
 				.SelectGroup(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.DeliveryDate)
 				.SelectGroup(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteList)
+				.SelectGroup(() => orderItemAlias.Id).WithAlias(() => resultAlias.OrderItemId)
 				.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
 				.SelectGroup(() => nomenclatureAlias.OfficialName).WithAlias(() => resultAlias.NomenclatureName)
 				.SelectGroup(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
