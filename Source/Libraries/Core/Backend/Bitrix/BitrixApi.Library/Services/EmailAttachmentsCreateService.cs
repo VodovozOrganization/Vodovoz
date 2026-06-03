@@ -23,7 +23,7 @@ namespace BitrixApi.Library.Services
 		private const string _notPaidOrdersBillFileName = "Неоплаченные_счета";
 		private const string _generalBillFileName = "Общий_счет";
 		private const string _letterOfClaimFileName = "Письмо_претензии";
-		private const string _orderWithoutShipmentForDebtFileName = "Счет без отгрузки на долг";
+		private const string _orderWithoutShipmentForDebtFileName = "Счет_на_долг";
 
 		private readonly IReportInfoFactory _reportInfoFactory;
 
@@ -35,7 +35,13 @@ namespace BitrixApi.Library.Services
 		/// <inheritdoc/>
 		public IEnumerable<EmailAttachment> CreateRevisionAttachments(int counterpartyId, int organizationId, DateTime? startDate = null, DateTime? endDate = null)
 		{
-			var reportInfo = GetRevisionReportInfo(counterpartyId, organizationId, startDate, endDate)
+			var cashlessPaymentStart = new DateTime(2020, 8, 12);
+
+			var actualStartDate = startDate.HasValue && startDate.Value < cashlessPaymentStart
+				? cashlessPaymentStart
+				: startDate;
+
+			var reportInfo = GetRevisionReportInfo(counterpartyId, organizationId, actualStartDate, endDate)
 				?? throw new InvalidOperationException("Не удалось получить информацию по отчету акта сверки");
 			var pdfBytes = CreatePdfReportBytes(reportInfo);
 

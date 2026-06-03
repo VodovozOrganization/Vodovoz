@@ -784,6 +784,10 @@ namespace Vodovoz
 				.AddBinding(Entity, e => e.DisableClosingDeliveriesMailing, w => w.Active)
 				.InitializeFromSource();			
 
+			ycheckbuttonDisableClaimMailing.Binding
+				.AddBinding(Entity, e => e.DisableClaimMailing, w => w.Active)
+				.InitializeFromSource();			
+
 			// Настройка каналов сбыта
 			if(Entity.IsForRetail)
 			{

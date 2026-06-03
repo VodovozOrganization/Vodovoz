@@ -40,6 +40,15 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		private IList<int> _selectedSubdivisionIds;
 		private DateTime _startDate;
 		private DateTime _endDate;
+		private ObservableList<DriverScheduleRow> _driverScheduleRows;
+		private List<DriverScheduleRow> _loadedDriverScheduleRows = new List<DriverScheduleRow>();
+		private string _driverSearchText;
+		private bool _showCarTypeOfUseColumn = true;
+		private bool _showCarOwnTypeColumn = true;
+		private bool _showDriverCarOwnTypeColumn = true;
+		private bool _showPhoneColumn = true;
+		private bool _showDistrictColumn = true;
+		private bool _showArrivalTimeColumn = true;
 
 		public DriverScheduleViewModel(
 			ILogger<DriverScheduleViewModel> logger,
@@ -82,7 +91,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 			InitializeSubdivisions();
 
-			DriverScheduleRows = GenerateRows();
+			LoadDriverScheduleRows();
 			LoadAvailableCarEventTypes();
 
 			SaveCommand = new DelegateCommand(SaveDriverSchedule, () => CanSave);
@@ -97,8 +106,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 			ApplyFiltersCommand = new DelegateCommand(() =>
 			{
-				DriverScheduleRows = GenerateRows();
-				OnPropertyChanged(nameof(DriverScheduleRows));
+				LoadDriverScheduleRows();
 			});
 		}
 
@@ -147,7 +155,60 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 		public bool CanSave => CanEdit;
 		public bool AskSaveOnClose => CanEdit;
 
-		public ObservableList<DriverScheduleRow> DriverScheduleRows { get; private set; }
+		public ObservableList<DriverScheduleRow> DriverScheduleRows
+		{
+			get => _driverScheduleRows;
+			private set => SetField(ref _driverScheduleRows, value);
+		}
+
+		public string DriverSearchText
+		{
+			get => _driverSearchText;
+			set
+			{
+				if(SetField(ref _driverSearchText, value))
+				{
+					ApplyDriverSearch();
+				}
+			}
+		}
+
+		public bool ShowCarTypeOfUseColumn
+		{
+			get => _showCarTypeOfUseColumn;
+			set => SetField(ref _showCarTypeOfUseColumn, value);
+		}
+
+		public bool ShowCarOwnTypeColumn
+		{
+			get => _showCarOwnTypeColumn;
+			set => SetField(ref _showCarOwnTypeColumn, value);
+		}
+
+		public bool ShowDriverCarOwnTypeColumn
+		{
+			get => _showDriverCarOwnTypeColumn;
+			set => SetField(ref _showDriverCarOwnTypeColumn, value);
+		}
+
+		public bool ShowPhoneColumn
+		{
+			get => _showPhoneColumn;
+			set => SetField(ref _showPhoneColumn, value);
+		}
+
+		public bool ShowDistrictColumn
+		{
+			get => _showDistrictColumn;
+			set => SetField(ref _showDistrictColumn, value);
+		}
+
+		public bool ShowArrivalTimeColumn
+		{
+			get => _showArrivalTimeColumn;
+			set => SetField(ref _showArrivalTimeColumn, value);
+		}
+
 		public List<CarEventType> AvailableCarEventTypes { get; } = new List<CarEventType>();
 
 		public IStringHandler StringHandler { get; }
@@ -225,6 +286,56 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			}
 		}
 
+		private void LoadDriverScheduleRows()
+		{
+			_loadedDriverScheduleRows = GenerateRows()
+				.Where(row => !(row is DriverScheduleTotalRow))
+				.ToList();
+
+			ApplyDriverSearch();
+		}
+
+		private void ApplyDriverSearch()
+		{
+			var driverRows = _loadedDriverScheduleRows.AsEnumerable();
+
+			if(!string.IsNullOrWhiteSpace(DriverSearchText))
+			{
+				var searchText = DriverSearchText.Trim();
+				driverRows = driverRows.Where(row =>
+					(row.DriverFullName ?? string.Empty).IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0);
+			}
+
+			var rows = driverRows.ToList();
+			AddTotalRows(rows);
+
+			DriverScheduleRows = new ObservableList<DriverScheduleRow>(rows);
+		}
+
+		private void AddTotalRows(List<DriverScheduleRow> rows)
+		{
+			var totalAddresses = new DriverScheduleTotalAddressesRow
+			{
+				StartDate = StartDate
+			};
+
+			var totalBottles = new DriverScheduleTotalBottlesRow
+			{
+				StartDate = StartDate
+			};
+
+			for(var dayIndex = 0; dayIndex < 7; dayIndex++)
+			{
+				totalAddresses.Days[dayIndex].Date = StartDate.AddDays(dayIndex);
+				totalBottles.Days[dayIndex].Date = StartDate.AddDays(dayIndex);
+			}
+
+			rows.Add(totalAddresses);
+			rows.Add(totalBottles);
+
+			_driverScheduleService.RecalculateTotalRows(rows);
+		}
+
 		private void LoadAvailableCarEventTypes()
 		{
 			var noneEventType = new CarEventType { Id = -1, ShortName = "Нет", Name = "Нет" };
@@ -233,16 +344,20 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 			var allowedIds = _carEventSettings.AllowedCarEventTypeIdsForDriverSchedule;
 
-			AvailableCarEventTypes.AddRange(UoW.GetAll<CarEventType>()
-				.Where(x => !x.IsArchive && allowedIds.Contains(x.Id))
-				.ToList());
+			var carEventTypes = UoW.GetAll<CarEventType>()
+				.Where(x => !x.IsArchive
+					&& allowedIds.Contains(x.Id))
+				.ToList();
+
+			AvailableCarEventTypes.AddRange(carEventTypes
+				.Where(x => _driverScheduleService.CanCreateCarEventTypeFromDriverSchedule(x)));
 		}
 
 		private void SaveDriverSchedule()
 		{
 			try
 			{
-				var changedRows = DriverScheduleRows
+				var changedRows = _loadedDriverScheduleRows
 					.Where(r => !(r is DriverScheduleTotalRow) && r.HasChanges)
 					.ToList();
 
@@ -280,7 +395,7 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 
 		private void Export()
 		{
-			if(DriverScheduleRows == null || DriverScheduleRows.Count == 0)
+			if(_loadedDriverScheduleRows == null || _loadedDriverScheduleRows.Count == 0)
 			{
 				_interactiveService.ShowMessage(
 					ImportanceLevel.Warning,
@@ -300,8 +415,11 @@ namespace Vodovoz.ViewModels.ViewModels.Logistic.DriverSchedule
 			{
 				try
 				{
+					var rowsToExport = new List<DriverScheduleRow>(_loadedDriverScheduleRows);
+					AddTotalRows(rowsToExport);
+
 					var excelData = _driverScheduleService.ExportToExcel(
-						DriverScheduleRows,
+						rowsToExport,
 						StartDate,
 						EndDate);
 

@@ -368,20 +368,27 @@ namespace VodovozBusiness.Nodes
 		public void SetDayCarEventType(int dayIndex, CarEventType value)
 		{
 			if(!IsValidDayIndex(dayIndex) 
-				|| !CanEditDay(dayIndex) 
-				|| Days[dayIndex].HasActiveRouteList)
+				|| !CanEditDay(dayIndex))
 			{
 				return;
 			}
 
-			Days[dayIndex].CarEventType = value;
+			var day = Days[dayIndex];
+
+			if(day.IsVirtualCarEventType || day.HasActiveRouteList)
+			{
+				return;
+			}
+
+			day.CarEventType = value;
+			day.IsCarEventTypeFromJournal = false;
 
 			if(value != null && value.Id > 0)
 			{
-				Days[dayIndex].MorningAddresses = 0;
-				Days[dayIndex].MorningBottles = 0;
-				Days[dayIndex].EveningAddresses = 0;
-				Days[dayIndex].EveningBottles = 0;
+				day.MorningAddresses = 0;
+				day.MorningBottles = 0;
+				day.EveningAddresses = 0;
+				day.EveningBottles = 0;
 			}
 
 			UpdateHasChanges();

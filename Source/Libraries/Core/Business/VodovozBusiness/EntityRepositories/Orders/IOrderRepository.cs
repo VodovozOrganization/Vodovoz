@@ -225,10 +225,10 @@ namespace Vodovoz.EntityRepositories.Orders
 		IEnumerable<Order> GetOrdersFromOnlineOrder(IUnitOfWork uow, int onlineOrderId);
 		OrderStatus[] GetStatusesForEditGoodsInOrderInRouteList();
 		OrderStatus[] GetStatusesForFreeBalanceOperations();
-		IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByOrdersIds(IUnitOfWork uow, IEnumerable<int> orderIds);
-		IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByCounterparty(IUnitOfWork uow, int counterpartyId, IEnumerable<int> orderIds);
+		IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByOrdersIds(IUnitOfWork uow, IEnumerable<int> orderIds, int organizationId);
+		IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByCounterparty(IUnitOfWork uow, int counterpartyId, IEnumerable<int> orderIds, int organizationId);
 		IList<OrderWithAllocation> GetAllocationsToOrdersWithAnotherClient(
-			IUnitOfWork uow, int counterpartyId, string counterpartyInn, IEnumerable<int> exceptOrderIds);
+		IUnitOfWork uow, int counterpartyId, string counterpartyInn, IEnumerable<int> exceptOrderIds, int organizationId);
 		int GetReferredCounterpartiesCountByReferPromotion(IUnitOfWork uow, int referrerId);
 		int GetAlreadyReceivedBottlesCountByReferPromotion(IUnitOfWork uow, Order order, int referFriendReasonId);
 		bool HasSignedUpdDocumentFromEdo(IUnitOfWork uow, int orderId);
@@ -333,6 +333,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="orderStatuses">Статусы заказов</param>
 		/// <param name="counterpartyTypes">Типы контрагентов</param>
 		/// <param name="counterpartyId">Id контрагента</param>
+		/// <param name="debtThreshold">Задолженность свыше</param>
 		/// <returns>Данные по задолженности</returns>
 		Task<IReadOnlyCollection<OverdueDebtOverPeriodLimitAggregateNode>> GetWithoutClosedDeliveriesCounterpartiesOverdueDebts(
 			IUnitOfWork unitOfWork, 
@@ -341,6 +342,7 @@ namespace Vodovoz.EntityRepositories.Orders
 			OrderStatus[] orderStatuses, 
 			CounterpartyType[] counterpartyTypes,
 			int tenderCameFromId,
+			decimal debtThreshold,
 			int? counterpartyId = null,			
 			CancellationToken cancellationToken = default);
 
@@ -367,19 +369,29 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="expiredMinDaysAgo">Минимальное количество дней просрочки</param>
-		/// <param name="orderStatuses">Статусы заказов</param>
 		/// <param name="excludeCounterpartyRevenueStatuses">Статусы контрагентов в налоговой для исключения</param>
 		/// <param name="letterOfClaimResendIntervalDays">Интервал дней для повторной отправки претензии</param>
 		/// <param name="maxClientsToTake">Максимальное количество клиентов</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Данные по просроченным долгам контрагента в разрезе организации</returns>
-		Task<IDictionary<CounterpartyOrganizationDataNode, CounterpartyOverdueDebtorDebtAggregatedNode>> GetOverdueDebtorDebtDataForLettersOfClaim(
+		Task<IEnumerable<CounterpartyOverdueDebtorDebtAggregatedNode>> GetOverdueDebtorDebtDataForLettersOfClaim(
 			IUnitOfWork uow,
 			int expiredMinDaysAgo,
-			IEnumerable<OrderStatus> orderStatuses,
 			IEnumerable<RevenueStatus> excludeCounterpartyRevenueStatuses,
 			int letterOfClaimResendIntervalDays,
 			int maxClientsToTake = int.MaxValue,
 			CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Получить первый доставленный заказ из массива идентификаторов заказов
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderIds">Массив идентификаторов заказов</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Наиболее ранний заказ</returns>
+		Task<Order> GetEarliestOrder(
+			IUnitOfWork uow,
+			IEnumerable<int> orderIds,
+			CancellationToken cancellationToken);
 	}
 }

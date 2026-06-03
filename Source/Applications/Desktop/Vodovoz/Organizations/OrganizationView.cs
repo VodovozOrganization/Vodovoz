@@ -1,7 +1,5 @@
-﻿using FluentNHibernate.Data;
 using QS.Views.GtkUI;
 using QS.Widgets;
-using ReactiveUI.Validation.Extensions;
 using System;
 using System.ComponentModel;
 using Vodovoz.Core.Domain.Clients;
@@ -61,6 +59,29 @@ namespace Vodovoz.Organizations
 				.AddBinding(ViewModel.Entity, e => e.DisableClosingDeliveriesMailing, w => w.Active)
 				.InitializeFromSource();
 
+			ycheckbuttonDisableClaimMailing.Binding
+				.AddBinding(ViewModel.Entity, e => e.DisableClaimMailing, w => w.Active)
+				.InitializeFromSource();
+
+
+			ycheckbuttonDisableDebtMailing.Binding
+				.AddBinding(ViewModel.Entity, e => e.DisableDebtMailing, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckbuttonDebtMailingWithSignature.Binding
+				.AddBinding(ViewModel.Entity, e => e.DebtMailingWithSignature, w => w.Active)
+				.InitializeFromSource();
+
+			validatedentryEmailForClaimLetters.CustomRegex = ViewModel.RegexForEmailForMailing;
+			validatedentryEmailForClaimLetters.Binding
+				.AddBinding(ViewModel.Entity, e => e.EmailForClaimLetters, w => w.Text)
+				.InitializeFromSource();
+
+			validatedentryEmailForInformationLetters.CustomRegex = ViewModel.RegexForEmailForMailing;
+			validatedentryEmailForInformationLetters.Binding
+				.AddBinding(ViewModel.Entity, e => e.EmailForInformationLetters, w => w.Text)
+				.InitializeFromSource();
+
 			validatedentryInn.ValidationMode = ValidationType.Numeric;
 			validatedentryInn.Binding
 				.AddBinding(ViewModel.Entity, e => e.INN, w => w.Text)
@@ -101,14 +122,6 @@ namespace Vodovoz.Organizations
 			
 			yentryPrefix.Binding
 				.AddBinding(ViewModel.Entity, e => e.Prefix, w => w.Text)
-				.InitializeFromSource();
-
-			ycheckbuttonDisableDebtMailing.Binding
-				.AddBinding(ViewModel.Entity, e => e.DisableDebtMailing, w => w.Active)
-				.InitializeFromSource();
-
-			ycheckbuttonDebtMailingWithSignature.Binding
-				.AddBinding(ViewModel.Entity, e => e.DebtMailingWithSignature, w => w.Active)
 				.InitializeFromSource();
 
 			notebookMain.Page = 0;

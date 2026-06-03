@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EmailDebtNotificationWorker.Services
+namespace EmailDebtNotificationWorker.Services.Common
 {
 	/// <summary>
 	/// Сервис для работы с рабочими днями и временем

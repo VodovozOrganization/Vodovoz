@@ -20,6 +20,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Settings.Employee;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Employees
 {
@@ -137,7 +138,7 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 			int orderId,
 			ExternalApplicationType externalApplicationType = ExternalApplicationType.DriverApp)
 		{
-			Domain.Orders.Order vodovozOrderAlias = null;
+			Order vodovozOrderAlias = null;
 			RouteListItem routeListAddressAlias = null;
 			RouteList routeListAlias = null;
 			Employee employeeAlias = null;

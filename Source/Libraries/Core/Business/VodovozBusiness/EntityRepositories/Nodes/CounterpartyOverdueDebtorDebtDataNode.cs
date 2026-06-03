@@ -21,11 +21,6 @@ namespace VodovozBusiness.EntityRepositories.Nodes
 		public int CounterpartyId { get; set; }
 
 		/// <summary>
-		/// Контрагент
-		/// </summary>
-		public Counterparty Counterparty { get; set; }
-
-		/// <summary>
 		/// Id организации
 		/// </summary>
 		public int OrganizationId { get; set; }
@@ -41,23 +36,13 @@ namespace VodovozBusiness.EntityRepositories.Nodes
 		public string OrganizationEmailForMailing { get; set; }
 
 		/// <summary>
-		/// Договор
+		/// Идентификатор договора
 		/// </summary>
-		public CounterpartyContract Contract { get; set; }
+		public int ContractId { get; set; }
 
 		/// <summary>
 		/// Просроченная сумма долга по заказу
 		/// </summary>
 		public decimal OverdueDebtorDebt { get; set; }
-
-		/// <summary>
-		/// Отсрочка дней покупателям
-		/// </summary>
-		public int CounterpartyPaymentDelayDays { get; set; }
-
-		/// <summary>
-		/// Дата доставки заказа
-		/// </summary>
-		public DateTime OrderDeliveryDate { get; set; }
 	}
 }

@@ -15,6 +15,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.StoredEmails
 			DiscriminateSubClassesOnColumn("type");
 
 			Map(x => x.Type).Column("type").ReadOnly();
+			Map(x => x.OrganizationId).Column("organization_id");
 
 			References(x => x.StoredEmail).Column("stored_email_id");
 			References(x => x.Counterparty).Column("counterparty_id");
@@ -89,7 +90,6 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.StoredEmails
 			public LetterOfClaimEmailMap()
 			{
 				DiscriminatorValue(nameof(CounterpartyEmailType.LetterOfClaim));
-				Map(x => x.OrganizationId).Column("organization_id");
 			}
 		}
 
@@ -98,6 +98,14 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.StoredEmails
 			public GeneralBillDocumentEmailMap()
 			{
 				DiscriminatorValue(nameof(CounterpartyEmailType.GeneralBillDocument));
+			}
+		}
+
+		public class InformationLetterEmailMap : SubclassMap<InformationLetterEmail>
+		{
+			public InformationLetterEmailMap()
+			{
+				DiscriminatorValue(nameof(CounterpartyEmailType.InformationLetter));
 			}
 		}
 

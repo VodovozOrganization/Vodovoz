@@ -1,6 +1,8 @@
 ﻿using BitrixApi.Library.Services;
 using EmailDebtNotificationWorker.Options;
-using EmailDebtNotificationWorker.Repositories;
+using EmailDebtNotificationWorker.Services.Common.Factories;
+using EmailDebtNotificationWorker.Services.Common.Generators;
+using EmailDebtNotificationWorker.Services.Common.Selectors;
 using Mailjet.Api.Abstractions;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -13,58 +15,67 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.StoredEmails;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Settings.Common;
 using VodovozBusiness.Domain.StoredEmails;
-using StoredEmails = Vodovoz.Domain.StoredEmails;
+using VodovozBusiness.EntityRepositories.Nodes;
 
-namespace EmailDebtNotificationWorker.Services
+namespace EmailDebtNotificationWorker.Services.ClaimLetters
 {
 	public class EmailClaimLettersService : IEmailClaimLettersService
 	{
-		private const int _storedEmailSubjectMaxLength = 200;
 		private const string _emailSubject = "Претензия";
 
 		private readonly ILogger<EmailClaimLettersService> _logger;
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IEmailRepository _emailRepository;
+		private readonly IEmailMessageFactory _emailMessageFactory;
+		private readonly IEmailBodyGenerator _emailBodyGenerator;
+		private readonly IEmailLinkGenerator _emailLinkGenerator;
+		private readonly IClientEmailSelector _clientEmailSelector;
 		private readonly IEmailAttachmentsCreateService _emailAttachmentsCreateService;
-		private readonly IEmailSettings _emailSettings;
 		private readonly IBus _bus;
 		private readonly IOptionsMonitor<EmailClaimLettersOptions> _emailClaimLettersOptions;
-		private readonly IDatabaseRepository _databaseRepository;
-		private readonly OrderStatus[] _orderStatuses =
-			new[] { OrderStatus.Shipped, OrderStatus.UnloadingOnStock, OrderStatus.Closed };
+		private readonly IClaimLetterBillWithoutShipmentService _claimLetterBillWithoutShipmentService;
 
-		private readonly RevenueStatus[] _excludeCounterpartyRevenueStatuses =
-			new[] { RevenueStatus.Liquidating, RevenueStatus.Liquidated, RevenueStatus.Reorganizing, RevenueStatus.Bankrupt };
+		private readonly RevenueStatus[] _excludeCounterpartyRevenueStatuses = new[]
+		{
+			RevenueStatus.Liquidating,
+			RevenueStatus.Liquidated,
+			RevenueStatus.Reorganizing,
+			RevenueStatus.Bankrupt
+		};
 
 		public EmailClaimLettersService(
 			ILogger<EmailClaimLettersService> logger,
 			IUnitOfWorkFactory uowFactory,
 			IOrderRepository orderRepository,
 			IEmailRepository emailRepository,
+			IEmailBodyGenerator emailBodyGenerator,
+			IEmailLinkGenerator emailLinkGenerator,
+			IClientEmailSelector clientEmailSelector,
 			IEmailAttachmentsCreateService emailAttachmentsCreateService,
-			IEmailSettings emailSettings,
+			IEmailMessageFactory emailMessageFactory,
 			IBus bus,
 			IOptionsMonitor<EmailClaimLettersOptions> emailClaimLettersOptions,
-			IDatabaseRepository databaseRepository)
+			IClaimLetterBillWithoutShipmentService claimLetterBillWithoutShipmentService)
 		{
-			_logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
-			_uowFactory = uowFactory ?? throw new System.ArgumentNullException(nameof(uowFactory));
-			_orderRepository = orderRepository ?? throw new System.ArgumentNullException(nameof(orderRepository));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_emailRepository = emailRepository ?? throw new ArgumentNullException(nameof(emailRepository));
-			_emailAttachmentsCreateService = emailAttachmentsCreateService ?? throw new System.ArgumentNullException(nameof(emailAttachmentsCreateService));
-			_emailSettings = emailSettings ?? throw new ArgumentNullException(nameof(emailSettings));
+			_emailBodyGenerator = emailBodyGenerator ?? throw new ArgumentNullException(nameof(emailBodyGenerator));
+			_emailLinkGenerator = emailLinkGenerator ?? throw new ArgumentNullException(nameof(emailLinkGenerator));
+			_clientEmailSelector = clientEmailSelector ?? throw new ArgumentNullException(nameof(clientEmailSelector));
+			_emailAttachmentsCreateService = emailAttachmentsCreateService ?? throw new ArgumentNullException(nameof(emailAttachmentsCreateService));
+			_emailMessageFactory = emailMessageFactory ?? throw new ArgumentNullException(nameof(emailMessageFactory));
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
-			_emailClaimLettersOptions = emailClaimLettersOptions ?? throw new System.ArgumentNullException(nameof(emailClaimLettersOptions));
-			_databaseRepository = databaseRepository ?? throw new ArgumentNullException(nameof(databaseRepository));
+			_emailClaimLettersOptions = emailClaimLettersOptions ?? throw new ArgumentNullException(nameof(emailClaimLettersOptions));
+			_claimLetterBillWithoutShipmentService = claimLetterBillWithoutShipmentService ?? throw new ArgumentNullException(nameof(claimLetterBillWithoutShipmentService));
 		}
 
 		public async Task SendClaimLetters(CancellationToken cancellationToken)
@@ -85,58 +96,25 @@ namespace EmailDebtNotificationWorker.Services
 				_emailClaimLettersOptions.CurrentValue.MaxCountPerDay - todaySentLetterOfClaimsCount,
 				_emailClaimLettersOptions.CurrentValue.MaxCountPerInterval);
 
-			var overdueDebitorsDebtData = await _orderRepository.GetOverdueDebtorDebtDataForLettersOfClaim(
+			var overdueDebitorsDebtData = (await _orderRepository.GetOverdueDebtorDebtDataForLettersOfClaim(
 				uow,
 				_emailClaimLettersOptions.CurrentValue.LettersOfClaimTimeoutDays,
-				_orderStatuses,
 				_excludeCounterpartyRevenueStatuses,
 				_emailClaimLettersOptions.CurrentValue.ResendIntervalDays,
 				lettersToSendCount,
-				cancellationToken);
+				cancellationToken)).ToList();
 
-			if(overdueDebitorsDebtData.Count == 0)
+			if(!overdueDebitorsDebtData.Any())
 			{
 				_logger.LogDebug("Нет клиентов для отправки претензионных писем");
 				return;
 			}
 
-			var emailMessages = new List<SendEmailMessage>();
+			var debtDataWithBills = await PrepareDebtDataWithBillsAsync(uow, overdueDebitorsDebtData, cancellationToken);
 
-			foreach(var debtData in overdueDebitorsDebtData)
-			{
-				var client = debtData.Value.Counterparty;
-				var organizationId = debtData.Value.OrganizationId;
-				var organizationFullName = debtData.Value.OrganizationFullName;
-				var organizationEmailForMailing = debtData.Value.OrganizationEmailForMailing;
-				var contract = debtData.Value.Contract;
-				var orderIds = debtData.Value.OrderIds;
-				var totalOverdueDebtorDebt = debtData.Value.TotalOverdueDebtorDebt;
+			await uow.CommitAsync(cancellationToken);
 
-				try
-				{
-					var emailMessage = await CreateSendEmailMessage(
-						uow,
-						client,
-						organizationId,
-						organizationFullName,
-						organizationEmailForMailing,
-						contract,
-						orderIds,
-						totalOverdueDebtorDebt,
-						cancellationToken);
-
-					emailMessages.Add(emailMessage);
-
-				}
-				catch(Exception ex)
-				{
-					_logger.LogError(ex,
-						"Ошибка при создании и публикации сообщения на отправку письма с претензией для контрагента {CounterpartyId} и организации {OrganizationId}",
-						client.Id,
-						organizationId);
-					continue;
-				}
-			}
+			var emailMessages = await PrepareEmailMessagesAsync(uow, debtDataWithBills, cancellationToken);
 
 			await uow.CommitAsync(cancellationToken);
 
@@ -144,6 +122,83 @@ namespace EmailDebtNotificationWorker.Services
 			{
 				await PublishEmailMessage(emailMessage, cancellationToken);
 			}
+		}
+
+		private async Task<List<(CounterpartyOverdueDebtorDebtAggregatedNode DebtData, OrderWithoutShipmentForDebt Bill)>> PrepareDebtDataWithBillsAsync(
+			IUnitOfWork uow,
+			List<CounterpartyOverdueDebtorDebtAggregatedNode> overdueDebitorsDebtData,
+			CancellationToken cancellationToken)
+		{
+			var debtDataWithBills = new List<(CounterpartyOverdueDebtorDebtAggregatedNode DebtData, OrderWithoutShipmentForDebt Bill)>();
+
+			foreach(var debtData in overdueDebitorsDebtData)
+			{
+				try
+				{
+					var bill = await _claimLetterBillWithoutShipmentService.GetOrCreateOrderWithoutShipmentForDebtAsync(
+						uow,
+						debtData.CounterpartyId,
+						debtData.OrganizationId,
+						debtData.TotalOverdueDebtorDebt,
+						cancellationToken);
+
+					await uow.SaveAsync(bill, cancellationToken: cancellationToken);
+
+					debtDataWithBills.Add((debtData, bill));
+				}
+				catch(Exception ex)
+				{
+					_logger.LogError(ex,
+						"Ошибка при подготовке счета без отгрузки на долг для контрагента {CounterpartyId} и организации {OrganizationId}",
+						debtData.CounterpartyId,
+						debtData.OrganizationId);
+				}
+			}
+
+			return debtDataWithBills;
+		}
+
+		private async Task<List<SendEmailMessage>> PrepareEmailMessagesAsync(
+			IUnitOfWork uow,
+			IEnumerable<(CounterpartyOverdueDebtorDebtAggregatedNode DebtData, OrderWithoutShipmentForDebt Bill)> debtDataWithBills,
+			CancellationToken cancellationToken)
+		{
+			var emailMessages = new List<SendEmailMessage>();
+
+			foreach(var (data, bill) in debtDataWithBills)
+			{
+				try
+				{
+					var client = await uow.Session.GetAsync<Counterparty>(data.CounterpartyId, cancellationToken) 
+						?? throw new InvalidOperationException($"Клиент с Id {data.CounterpartyId} не найден");
+
+					var contract = await uow.Session.GetAsync<CounterpartyContract>(data.ContractId, cancellationToken)
+						?? throw new InvalidOperationException($"Договор с Id {data.ContractId} не найден");
+
+					var emailMessage = await CreateSendEmailMessage(
+						uow,
+						client,
+						data.OrganizationId,
+						data.OrganizationFullName,
+						data.OrganizationEmailForMailing,
+						contract,
+						data.OrderIds,
+						data.TotalOverdueDebtorDebt,
+						bill,
+						cancellationToken);
+
+					emailMessages.Add(emailMessage);
+				}
+				catch(Exception ex)
+				{
+					_logger.LogError(ex,
+						"Ошибка при создании и публикации сообщения на отправку письма с претензией для контрагента {CounterpartyId} и организации {OrganizationId}",
+						data.CounterpartyId,
+						data.OrganizationId);
+				}
+			}
+
+			return emailMessages;
 		}
 
 		private async Task<SendEmailMessage> CreateSendEmailMessage(
@@ -155,6 +210,7 @@ namespace EmailDebtNotificationWorker.Services
 			CounterpartyContract contract,
 			IEnumerable<int> orderIds,
 			decimal totalOverdueDebtorDebt,
+			OrderWithoutShipmentForDebt billWithoutShipment,
 			CancellationToken cancellationToken)
 		{
 			if(string.IsNullOrWhiteSpace(organizationEmailForMailing))
@@ -168,7 +224,15 @@ namespace EmailDebtNotificationWorker.Services
 					$"Организация {organizationId} не имеет email для рассылки, указанного в настройках");
 			}
 
-			var attachments = CreateEmailAttachments(client.Id, organizationId, GetFormattedSum(totalOverdueDebtorDebt), orderIds);
+			var earliestOrder = await _orderRepository.GetEarliestOrder(uow, orderIds, cancellationToken);
+			var earliestOrderDate = earliestOrder?.DeliveryDate ?? DateTime.Today;
+
+			var attachments = CreateEmailAttachments(
+				client.Id,
+				organizationId,
+				GetFormattedSum(totalOverdueDebtorDebt),
+				earliestOrderDate,
+				billWithoutShipment);
 
 			if(!attachments.Any())
 			{
@@ -181,7 +245,9 @@ namespace EmailDebtNotificationWorker.Services
 					$"Не удалось создать вложения для письма с претензией для контрагента {client.Id} и организации {organizationId}");
 			}
 
-			var emailAddress = SelectEmailForDebtNotification(client);
+			var emailSubject = $"{_emailSubject} {client.FullName} (ИНН: {client.INN}) от {organizationFullName}";
+
+			var emailAddress = _clientEmailSelector.SelectEmailForDebtNotification(client);
 
 			if(string.IsNullOrWhiteSpace(emailAddress))
 			{
@@ -193,9 +259,8 @@ namespace EmailDebtNotificationWorker.Services
 					$"Клиент {client.Id} {client.FullName} не имеет подходящего email для отправки претензионного письма");
 			}
 
-			var emailSubject = $"{_emailSubject} {client.FullName} от {organizationFullName}";
+			var storedEmail = _emailMessageFactory.CreateStoredEmail(emailSubject, emailAddress);
 
-			var storedEmail = CreateStoredEmail(emailSubject, emailAddress);
 			await uow.SaveAsync(storedEmail, cancellationToken: cancellationToken);
 
 			var bulkEmail = new LetterOfClaimEmail
@@ -207,7 +272,9 @@ namespace EmailDebtNotificationWorker.Services
 
 			await uow.SaveAsync(bulkEmail, cancellationToken: cancellationToken);
 
-			var emailMessage = CreateEmailMessage(
+			var messageText = _emailBodyGenerator.GenerateClaimEmailBody(client, contract, billWithoutShipment.DebtSum, _emailLinkGenerator.GetUnsubscribeLink(storedEmail.Guid.Value));
+
+			var emailMessage = _emailMessageFactory.CreateSendEmailMessage(
 				uow,
 				storedEmail,
 				client,
@@ -216,7 +283,7 @@ namespace EmailDebtNotificationWorker.Services
 				attachments,
 				emailAddress,
 				emailSubject,
-				GenerateEmailBody(client, contract, GetUnsubscribeLink(storedEmail.Guid.Value)));
+				messageText);
 
 			return emailMessage;
 		}
@@ -235,96 +302,37 @@ namespace EmailDebtNotificationWorker.Services
 			}
 		}
 
-		private StoredEmails.StoredEmail CreateStoredEmail(string subject, string email)
-		{
-			var storedEmailSubject = subject.Length > _storedEmailSubjectMaxLength
-				? subject[.._storedEmailSubjectMaxLength]
-				: subject;
-
-			var storedEmail = new StoredEmails.StoredEmail
-			{
-				State = StoredEmails.StoredEmailStates.PreparingToSend,
-				Author = null,
-				ManualSending = false,
-				SendDate = DateTime.Now,
-				StateChangeDate = DateTime.Now,
-				Subject = storedEmailSubject,
-				RecipientAddress = email,
-				Guid = Guid.NewGuid()
-			};
-
-			return storedEmail;
-		}
-
-		private SendEmailMessage CreateEmailMessage(
-			IUnitOfWork uow,
-			StoredEmail storedEmail,
-			Counterparty client,
-			string organizationFullName,
-			string organizationEmailForMailing,
-			IEnumerable<EmailAttachment> attachments,
-			string emailAddress,
-			string emailSubject,
-			string messageText
-			)
-		{
-			var instanceId = _databaseRepository.GetCurrentDatabaseId(uow);
-
-			var unsubscribeUrl = storedEmail.Guid.HasValue
-				? GetUnsubscribeLink(storedEmail.Guid.Value)
-				: string.Empty;
-
-			var sendEmailMessage = new SendEmailMessage()
-			{
-				From = new EmailContact
-				{
-					Name = organizationFullName,
-					Email = organizationEmailForMailing,
-				},
-				To = new List<EmailContact>
-				{
-					new()
-					{
-						Name = client.FullName,
-						Email = emailAddress
-					}
-				},
-				Subject = emailSubject,
-				TextPart = messageText,
-				HTMLPart = messageText,
-				Payload = new EmailPayload
-				{
-					Id = storedEmail.Id,
-					Trackable = true,
-					InstanceId = instanceId
-				},
-				Attachments = attachments.ToList(),
-				Headers = new Dictionary<string, string>
-				{
-					{ "List-Unsubscribe", unsubscribeUrl }
-				}
-			};
-
-			return sendEmailMessage;
-		}
-
-		private string GetUnsubscribeLink(Guid guid) => $"{_emailSettings.UnsubscribeUrl}/{guid}";
-
 		private IEnumerable<EmailAttachment> CreateEmailAttachments(
 			int counterpartyId,
 			int organizationId,
 			string totalOverdueDebtorDebtFormatted,
-			IEnumerable<int> orderIds)
+			DateTime earliestOrderDate,
+			OrderWithoutShipmentForDebt billWithoutShipment)
 		{
 			var attachments = new List<EmailAttachment>();
+
+			var today = DateTime.Today;
+			var yesterday = today.AddDays(-1);
+			var startDateForRevision = new DateTime(earliestOrderDate.Year, 1, 1);
+			var endDateForRevision = yesterday;
 			try
 			{
+				var revisionAttachments = _emailAttachmentsCreateService.CreateRevisionAttachments(
+					counterpartyId,
+					organizationId,
+					startDateForRevision,
+					endDateForRevision);
+
 				var letterOfClaimAttachments = _emailAttachmentsCreateService.CreateLetterOfClaimAttachments(
 					organizationId,
 					counterpartyId,
 					totalOverdueDebtorDebtFormatted);
 
+				var billAttachments = _emailAttachmentsCreateService.CreateOrderWithoutShipmentForDebtAttachments(billWithoutShipment);
+
+				attachments.AddRange(billAttachments);
 				attachments.AddRange(letterOfClaimAttachments);
+				attachments.AddRange(revisionAttachments);
 			}
 			catch(Exception ex)
 			{
@@ -332,56 +340,9 @@ namespace EmailDebtNotificationWorker.Services
 					"Ошибка при создании вложений для письма с претензией для контрагента {CounterpartyId} и организации {OrganizationId}",
 					counterpartyId,
 					organizationId);
-
-				return Enumerable.Empty<EmailAttachment>();
 			}
 
 			return attachments;
-		}
-
-		private string? SelectEmailForDebtNotification(Counterparty client)
-		{
-			if(client.Emails is null || !client.Emails.Any())
-			{
-				_logger.LogWarning("Клиент {ClientId} не имеет email адресов", client.Id);
-				return null;
-			}
-
-			var billEmail = client.Emails
-				.LastOrDefault(x => x.EmailType?.EmailPurpose is EmailPurpose.ForBills)
-				?.Address;
-
-			if(!string.IsNullOrWhiteSpace(billEmail))
-			{
-				return billEmail;
-			}
-
-			var defaultEmail = client.Emails
-				.LastOrDefault()
-				?.Address;
-
-			if(!string.IsNullOrWhiteSpace(defaultEmail))
-			{
-				return defaultEmail;
-			}
-
-			return null;
-		}
-
-		private static string GenerateEmailBody(
-			Counterparty client,
-			CounterpartyContract contract,
-			string unsubscribeUrl)
-		{
-			return $@"
-				<p>Добрый день!</p>
-				<p>Информируем, что у Вашей компании {client.FullName} (ИНН: {client.INN}) образовалась просроченная задолженность по договору {contract.Number} от {contract.IssueDate:dd.MM.yyyy}.</p> 
-				<p>Настоятельно рекомендуем принять участие в мирном урегулировании данного вопроса, что позволит обеим сторонам сэкономить время и деньги.</p>
-				<p>И позволит продолжить дальнейшее плодотворное сотрудничество наших компаний!</p>
-				<p>______________</p>
-				<p>Вы всегда можете отписаться от нашей рассылки, нажав соответствующую кнопку.</p>
-				<p><a href='{unsubscribeUrl}' class='unsubscribe'>Отписаться от рассылки</a></p>
-				<p><em>Это письмо отправлено автоматически.</em></p>";
 		}
 
 		private static string GetFormattedSum(decimal sum)
