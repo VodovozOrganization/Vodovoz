@@ -1,5 +1,4 @@
-﻿using Core.Infrastructure;
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
