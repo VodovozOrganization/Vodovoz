@@ -8,6 +8,7 @@ using QS.DomainModel.UoW;
 using TrueMark.Codes.Pool;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Settings.Edo;
 
 namespace Edo.Common
 {
@@ -15,15 +16,18 @@ namespace Edo.Common
 	{
 		private readonly IUnitOfWork _uow;
 		private readonly ITrueMarkCodesValidator _trueMarkCodesValidator;
+		private readonly IEdoSettings _edoSettings;
 		private readonly ILogger<TrueMarkCodesPoolCodeProvider> _logger;
 
 		public TrueMarkCodesPoolCodeProvider(
 			IUnitOfWork uow,
 			ITrueMarkCodesValidator trueMarkCodesValidator,
+			IEdoSettings edoSettings,
 			ILogger<TrueMarkCodesPoolCodeProvider> logger)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_trueMarkCodesValidator = trueMarkCodesValidator ?? throw new ArgumentNullException(nameof(trueMarkCodesValidator));
+			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
@@ -33,6 +37,11 @@ namespace Edo.Common
 			string organizationInn,
 			CancellationToken cancellationToken)
 		{
+			if(codesPool is null)
+			{
+				throw new ArgumentNullException(nameof(codesPool));
+			}
+
 			if(gtin is null)
 			{
 				throw new ArgumentNullException(nameof(gtin));
@@ -57,17 +66,18 @@ namespace Edo.Common
 				throw new ArgumentNullException(nameof(gtins));
 			}
 
-			var gtinsList = gtins.ToList();
-			EdoCodePoolMissingCodeException exception = null;
+			var takeValidCodeAttempts = _edoSettings.CodePoolTakeValidCodeAttempts;
+			var checkedGtins = new List<string>();
 
 			_logger.LogInformation(
-				"Начат подбор валидного кода из пула для GTIN: {Gtins}. Организация: {OrganizationInn}.",
-				string.Join(", ", gtinsList.Select(x => x.GtinNumber)),
+				"Начат подбор валидного кода из пула. Организация: {OrganizationInn}.",
 				organizationInn);
 
-			foreach(var gtin in gtinsList)
+			foreach(var gtin in gtins)
 			{
-				while(true)
+				checkedGtins.Add(gtin.GtinNumber);
+
+				for(var attempt = 1; attempt <= takeValidCodeAttempts; attempt++)
 				{
 					int codeId;
 
@@ -75,18 +85,16 @@ namespace Edo.Common
 					{
 						codeId = await codesPool.TakeCode(gtin.GtinNumber, cancellationToken);
 					}
-					catch(EdoCodePoolMissingCodeException ex)
+					catch(EdoCodePoolMissingCodeException)
 					{
-						_logger.LogInformation(
-							"В пуле не найден код для GTIN {Gtin}.",
+						_logger.LogInformation("В пуле не найден код для GTIN {Gtin}.",
 							gtin.GtinNumber);
 
-						exception = ex;
 						break;
 					}
 
 					_logger.LogInformation(
-						"Из пула получен код ЧЗ Id {CodeId} для GTIN {Gtin}. Выполняется актуальная валидация.",
+						"Из пула получен код ЧЗ Id {CodeId} для GTIN {Gtin}. Выполняется проверка валидности.",
 						codeId,
 						gtin.GtinNumber);
 
@@ -102,31 +110,40 @@ namespace Edo.Common
 					if(validationResult.IsValid)
 					{
 						_logger.LogInformation(
-							"Код ЧЗ Id {CodeId} из пула прошел актуальную валидацию.",
+							"Код ЧЗ Id {CodeId} из пула прошел проверку валидности.",
 							code.Id);
 
 						return code;
 					}
 
 					_logger.LogWarning(
-						"Код ЧЗ Id {CodeId} из пула не прошел актуальную валидацию. " +
+						"Код ЧЗ Id {CodeId} из пула не прошел проверку валидности. " +
 						"GTIN наш: {IsOurGtin}; владелец наша организация: {IsOwnedByOurOrganization}; " +
-						"код в обороте: {IsIntroduced}; просрочен: {IsExpired}.",
+						"код в обороте: {IsIntroduced}; просрочен: {IsExpired}; попытка: {Attempt}/{AttemptsLimit}.",
 						code.Id,
 						validationResult.IsOurGtin,
 						validationResult.IsOwnedByOurOrganization,
 						validationResult.IsIntroduced,
-						validationResult.IsExpired);
+						validationResult.IsExpired,
+						attempt,
+						takeValidCodeAttempts);
 				}
+
+				_logger.LogWarning(
+					"В пуле не найден валидный код для GTIN {Gtin} за {AttemptsLimit} попыток.",
+					gtin.GtinNumber,
+					takeValidCodeAttempts);
 			}
 
+			var gtinsDescription = string.Join(", ", checkedGtins);
+
 			_logger.LogWarning(
-				"В пуле не найден валидный код для GTIN: {Gtins}. Организация: {OrganizationInn}.",
-				string.Join(", ", gtinsList.Select(x => x.GtinNumber)),
+				"В пуле не найден валидный код из коллекции GTIN'ов: {Gtins}. Организация: {OrganizationInn}.",
+				gtinsDescription,
 				organizationInn);
 
-			throw exception ?? new EdoCodePoolMissingCodeException(
-				$"В пуле не найден валидный код для GTIN: {string.Join(", ", gtinsList.Select(x => x.GtinNumber))}.");
+			throw new EdoCodePoolMissingCodeException(
+				$"В пуле не найден валидный код для следующих GTIN: {gtinsDescription}.");
 		}
 
 		private async Task<TrueMarkCodeValidationResult> ValidateAsync(

@@ -10,7 +10,7 @@ namespace Edo.Common
 	public interface ITrueMarkCodesPoolCodeProvider
 	{
 		/// <summary>
-		/// Забирает из пула первый актуально валидный код по GTIN.
+		/// Забирает из пула первый актуальный валидный код по GTIN.
 		/// </summary>
 		/// <param name="codesPool">Пул кодов маркировки.</param>
 		/// <param name="gtin">GTIN номенклатуры.</param>
@@ -24,10 +24,10 @@ namespace Edo.Common
 			CancellationToken cancellationToken);
 
 		/// <summary>
-		/// Забирает из пула первый актуально валидный код по одному из переданных GTIN.
+		/// Забирает из пула первый актуальный валидный код по одному из переданных GTIN.
 		/// </summary>
 		/// <param name="codesPool">Пул кодов маркировки.</param>
-		/// <param name="gtins">GTIN для подбора кода.</param>
+		/// <param name="gtins">Коллекция GTIN'ов для подбора кода.</param>
 		/// <param name="organizationInn">ИНН организации заказа.</param>
 		/// <param name="cancellationToken">Токен отмены операции.</param>
 		/// <returns>Валидный код маркировки.</returns>

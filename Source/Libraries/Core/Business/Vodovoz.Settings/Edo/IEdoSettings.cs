@@ -22,6 +22,12 @@ namespace Vodovoz.Settings.Edo
 		int CodePoolCheckCodesDepth { get; }
 		int CodePoolCheckIntervalMinutes { get; }
 		int CodePoolPromoteWithExtraSeconds { get; }
+		
+		/// <summary>
+		/// Максимальное количество попыток подбора валидного кода из пула по одному GTIN
+		/// </summary>
+		int CodePoolTakeValidCodeAttempts { get; }
+		
 		int[] OrganizationsHavingAccountsInTrueMark { get; }
 		bool CodePoolLoaderToNewPool { get; }
 

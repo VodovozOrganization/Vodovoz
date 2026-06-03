@@ -9,6 +9,7 @@ using QS.DomainModel.UoW;
 using TrueMark.Codes.Pool;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Settings.Edo;
 using Xunit;
 
 namespace Receipt.Dispatcher.Tests
@@ -19,6 +20,7 @@ namespace Receipt.Dispatcher.Tests
 
 		private readonly ISession _session;
 		private readonly ITrueMarkCodesValidator _trueMarkCodesValidator;
+		private readonly IEdoSettings _edoSettings;
 		private readonly ITrueMarkCodesPool _codesPool;
 		private readonly TrueMarkCodesPoolCodeProvider _provider;
 
@@ -27,14 +29,17 @@ namespace Receipt.Dispatcher.Tests
 			var uow = Substitute.For<IUnitOfWork>();
 			_session = Substitute.For<ISession>();
 			_trueMarkCodesValidator = Substitute.For<ITrueMarkCodesValidator>();
+			_edoSettings = Substitute.For<IEdoSettings>();
 			_codesPool = Substitute.For<ITrueMarkCodesPool>();
 			var logger = Substitute.For<ILogger<TrueMarkCodesPoolCodeProvider>>();
 			
 			uow.Session.Returns(_session);
+			_edoSettings.CodePoolTakeValidCodeAttempts.Returns(20);
 
 			_provider = new TrueMarkCodesPoolCodeProvider(
 				uow,
 				_trueMarkCodesValidator,
+				_edoSettings,
 				logger);
 		}
 
@@ -141,6 +146,77 @@ namespace Receipt.Dispatcher.Tests
 				_provider.TakeValidCodeAsync(_codesPool, gtin, _organizationInn, cancellationToken));
 
 			await _trueMarkCodesValidator.DidNotReceive()
+				.ValidateAsync(Arg.Any<IEnumerable<TrueMarkWaterIdentificationCode>>(), _organizationInn, cancellationToken);
+		}
+
+		[Fact]
+		public async Task TakeValidCodeAsync_WhenAttemptsLimitReached_ThrowsEdoCodePoolMissingCodeException()
+		{
+			// Arrange
+			var cancellationToken = CancellationToken.None;
+			var gtin = CreateGtin("4600000000001");
+			var firstInvalidCode = CreateCode(1, gtin.GtinNumber);
+			var secondInvalidCode = CreateCode(2, gtin.GtinNumber);
+
+			_edoSettings.CodePoolTakeValidCodeAttempts.Returns(2);
+			_codesPool.TakeCode(gtin.GtinNumber, cancellationToken)
+				.Returns(Task.FromResult(firstInvalidCode.Id), Task.FromResult(secondInvalidCode.Id));
+			_session.GetAsync<TrueMarkWaterIdentificationCode>(firstInvalidCode.Id, cancellationToken)
+				.Returns(Task.FromResult(firstInvalidCode));
+			_session.GetAsync<TrueMarkWaterIdentificationCode>(secondInvalidCode.Id, cancellationToken)
+				.Returns(Task.FromResult(secondInvalidCode));
+			_trueMarkCodesValidator
+				.ValidateAsync(Arg.Any<IEnumerable<TrueMarkWaterIdentificationCode>>(), _organizationInn, cancellationToken)
+				.Returns(
+					Task.FromResult(CreateValidationResult(firstInvalidCode, isValid: false)),
+					Task.FromResult(CreateValidationResult(secondInvalidCode, isValid: false)));
+
+			// Act & Assert
+			await Assert.ThrowsAsync<EdoCodePoolMissingCodeException>(() =>
+				_provider.TakeValidCodeAsync(_codesPool, gtin, _organizationInn, cancellationToken));
+
+			await _codesPool.Received(2).TakeCode(gtin.GtinNumber, cancellationToken);
+			await _trueMarkCodesValidator.Received(2)
+				.ValidateAsync(Arg.Any<IEnumerable<TrueMarkWaterIdentificationCode>>(), _organizationInn, cancellationToken);
+		}
+
+		[Fact]
+		public async Task TakeValidCodeAsync_WhenAttemptsLimitReachedForFirstGtin_TriesNextGtin()
+		{
+			// Arrange
+			var cancellationToken = CancellationToken.None;
+			var firstGtin = CreateGtin("4600000000001");
+			var secondGtin = CreateGtin("4600000000002");
+			var invalidCode = CreateCode(1, firstGtin.GtinNumber);
+			var validCode = CreateCode(2, secondGtin.GtinNumber);
+
+			_edoSettings.CodePoolTakeValidCodeAttempts.Returns(1);
+			_codesPool.TakeCode(firstGtin.GtinNumber, cancellationToken)
+				.Returns(Task.FromResult(invalidCode.Id));
+			_codesPool.TakeCode(secondGtin.GtinNumber, cancellationToken)
+				.Returns(Task.FromResult(validCode.Id));
+			_session.GetAsync<TrueMarkWaterIdentificationCode>(invalidCode.Id, cancellationToken)
+				.Returns(Task.FromResult(invalidCode));
+			_session.GetAsync<TrueMarkWaterIdentificationCode>(validCode.Id, cancellationToken)
+				.Returns(Task.FromResult(validCode));
+			_trueMarkCodesValidator
+				.ValidateAsync(Arg.Any<IEnumerable<TrueMarkWaterIdentificationCode>>(), _organizationInn, cancellationToken)
+				.Returns(
+					Task.FromResult(CreateValidationResult(invalidCode, isValid: false)),
+					Task.FromResult(CreateValidationResult(validCode, isValid: true)));
+
+			// Act
+			var result = await _provider.TakeValidCodeAsync(
+				_codesPool,
+				new[] { firstGtin, secondGtin },
+				_organizationInn,
+				cancellationToken);
+
+			// Assert
+			Assert.Same(validCode, result);
+			await _codesPool.Received(1).TakeCode(firstGtin.GtinNumber, cancellationToken);
+			await _codesPool.Received(1).TakeCode(secondGtin.GtinNumber, cancellationToken);
+			await _trueMarkCodesValidator.Received(2)
 				.ValidateAsync(Arg.Any<IEnumerable<TrueMarkWaterIdentificationCode>>(), _organizationInn, cancellationToken);
 		}
 
