@@ -72,7 +72,6 @@ namespace EmailDebtNotificationWorker
 					.Where(x => !x.Organization.DisableClosingDeliveriesMailing && !x.Counterparty.DisableClosingDeliveriesMailing)
 					.ToList();
 				
-
 				if(!counterpartiesForClosingDeliveriesMailing.Any())
 				{
 					await unitOfWork.CommitAsync(stoppingToken);

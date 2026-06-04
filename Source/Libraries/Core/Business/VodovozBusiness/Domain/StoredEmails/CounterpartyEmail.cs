@@ -12,6 +12,7 @@ namespace Vodovoz.Domain.StoredEmails
 	{
 		private StoredEmail _storedEmail;
 		private Counterparty _counterparty;
+		private int? _organizationId;
 
 		public virtual int Id { get; set; }
 
@@ -33,6 +34,16 @@ namespace Vodovoz.Domain.StoredEmails
 		{
 			get => _counterparty;
 			set => SetField(ref _counterparty, value);
+		}
+
+		/// <summary>
+		/// Организация, от которой будет отправлено письмо
+		/// </summary>
+		[Display(Name = "Организация")]
+		public virtual int? OrganizationId
+		{
+			get => _organizationId;
+			set => SetField(ref _organizationId, value);
 		}
 
 		/// <summary>

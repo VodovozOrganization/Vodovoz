@@ -56,6 +56,12 @@ namespace Vodovoz.Views.Payments
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewOrdersData;
 
+		private global::Gamma.GtkWidgets.yLabel ylabelOtherWriteOffsData;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindowOtherWriteOffsData;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewOtherWriteOffsData;
+
 		private global::Gamma.GtkWidgets.yTable ytableByCounterpartySummary;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelClientByDocument;
@@ -93,6 +99,12 @@ namespace Vodovoz.Views.Payments
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewPaymentsData;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelOtherIncomesData;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindowOtherIncomesData;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewOtherIncomesData;
 
 		private global::Gtk.Label label1;
 
@@ -357,6 +369,32 @@ namespace Vodovoz.Views.Payments
 			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.yvboxOrdersData[this.GtkScrolledWindow]));
 			w22.Position = 1;
 			// Container child yvboxOrdersData.Gtk.Box+BoxChild
+			this.ylabelOtherWriteOffsData = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelOtherWriteOffsData.Name = "ylabelOtherWriteOffsData";
+			this.ylabelOtherWriteOffsData.Xalign = 0F;
+			this.ylabelOtherWriteOffsData.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Остальные списания:</b>");
+			this.ylabelOtherWriteOffsData.UseMarkup = true;
+			this.yvboxOrdersData.Add(this.ylabelOtherWriteOffsData);
+			global::Gtk.Box.BoxChild wOrdersOtherWriteOffsLabel = ((global::Gtk.Box.BoxChild)(this.yvboxOrdersData[this.ylabelOtherWriteOffsData]));
+			wOrdersOtherWriteOffsLabel.Position = 2;
+			wOrdersOtherWriteOffsLabel.Expand = false;
+			wOrdersOtherWriteOffsLabel.Fill = false;
+			// Container child yvboxOrdersData.Gtk.Box+BoxChild
+			this.GtkScrolledWindowOtherWriteOffsData = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindowOtherWriteOffsData.Name = "GtkScrolledWindowOtherWriteOffsData";
+			this.GtkScrolledWindowOtherWriteOffsData.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindowOtherWriteOffsData.Gtk.Container+ContainerChild
+			this.ytreeviewOtherWriteOffsData = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewOtherWriteOffsData.HeightRequest = 140;
+			this.ytreeviewOtherWriteOffsData.CanFocus = true;
+			this.ytreeviewOtherWriteOffsData.Name = "ytreeviewOtherWriteOffsData";
+			this.GtkScrolledWindowOtherWriteOffsData.Add(this.ytreeviewOtherWriteOffsData);
+			this.yvboxOrdersData.Add(this.GtkScrolledWindowOtherWriteOffsData);
+			global::Gtk.Box.BoxChild wOrdersOtherWriteOffsData = ((global::Gtk.Box.BoxChild)(this.yvboxOrdersData[this.GtkScrolledWindowOtherWriteOffsData]));
+			wOrdersOtherWriteOffsData.Position = 3;
+			wOrdersOtherWriteOffsData.Expand = false;
+			wOrdersOtherWriteOffsData.Fill = false;
+			// Container child yvboxOrdersData.Gtk.Box+BoxChild
 			this.ytableByCounterpartySummary = new global::Gamma.GtkWidgets.yTable();
 			this.ytableByCounterpartySummary.Name = "ytableByCounterpartySummary";
 			this.ytableByCounterpartySummary.NRows = ((uint)(3));
@@ -523,7 +561,7 @@ namespace Vodovoz.Views.Payments
 			w36.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.yvboxOrdersData.Add(this.ytableByCounterpartySummary);
 			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.yvboxOrdersData[this.ytableByCounterpartySummary]));
-			w37.Position = 2;
+			w37.Position = 4;
 			w37.Expand = false;
 			w37.Fill = false;
 			this.yhboxByCounterpartyData.Add(this.yvboxOrdersData);
@@ -556,6 +594,32 @@ namespace Vodovoz.Views.Payments
 			this.yvboxPaymentsData.Add(this.GtkScrolledWindow1);
 			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.yvboxPaymentsData[this.GtkScrolledWindow1]));
 			w41.Position = 1;
+			// Container child yvboxPaymentsData.Gtk.Box+BoxChild
+			this.ylabelOtherIncomesData = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelOtherIncomesData.Name = "ylabelOtherIncomesData";
+			this.ylabelOtherIncomesData.Xalign = 0F;
+			this.ylabelOtherIncomesData.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Остальные приходы:</b>");
+			this.ylabelOtherIncomesData.UseMarkup = true;
+			this.yvboxPaymentsData.Add(this.ylabelOtherIncomesData);
+			global::Gtk.Box.BoxChild wPaymentsOtherIncomesLabel = ((global::Gtk.Box.BoxChild)(this.yvboxPaymentsData[this.ylabelOtherIncomesData]));
+			wPaymentsOtherIncomesLabel.Position = 2;
+			wPaymentsOtherIncomesLabel.Expand = false;
+			wPaymentsOtherIncomesLabel.Fill = false;
+			// Container child yvboxPaymentsData.Gtk.Box+BoxChild
+			this.GtkScrolledWindowOtherIncomesData = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindowOtherIncomesData.Name = "GtkScrolledWindowOtherIncomesData";
+			this.GtkScrolledWindowOtherIncomesData.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindowOtherIncomesData.Gtk.Container+ContainerChild
+			this.ytreeviewOtherIncomesData = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewOtherIncomesData.HeightRequest = 140;
+			this.ytreeviewOtherIncomesData.CanFocus = true;
+			this.ytreeviewOtherIncomesData.Name = "ytreeviewOtherIncomesData";
+			this.GtkScrolledWindowOtherIncomesData.Add(this.ytreeviewOtherIncomesData);
+			this.yvboxPaymentsData.Add(this.GtkScrolledWindowOtherIncomesData);
+			global::Gtk.Box.BoxChild wPaymentsOtherIncomesData = ((global::Gtk.Box.BoxChild)(this.yvboxPaymentsData[this.GtkScrolledWindowOtherIncomesData]));
+			wPaymentsOtherIncomesData.Position = 3;
+			wPaymentsOtherIncomesData.Expand = false;
+			wPaymentsOtherIncomesData.Fill = false;
 			this.yhboxByCounterpartyData.Add(this.yvboxPaymentsData);
 			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.yhboxByCounterpartyData[this.yvboxPaymentsData]));
 			w42.Position = 1;

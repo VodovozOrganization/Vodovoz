@@ -8,7 +8,6 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.EntityRepositories.Employees
 {

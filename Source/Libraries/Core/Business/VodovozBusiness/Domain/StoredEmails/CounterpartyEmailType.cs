@@ -83,6 +83,12 @@ namespace Vodovoz.Domain.StoredEmails
 		/// Закрытие поставок
 		/// </summary>
 		[Display(Name = "Закрытие поставок")]
-		ClosingDeliveries
+		ClosingDeliveries,
+
+		/// <summary>
+		/// Информационное письмо
+		/// </summary>
+		[Display(Name = "Информационное письмо")]
+		InformationLetter
 	}
 }

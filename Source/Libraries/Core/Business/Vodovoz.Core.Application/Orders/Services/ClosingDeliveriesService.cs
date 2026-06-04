@@ -29,6 +29,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly ICounterpartySettings _counterpartySettings;
 		private readonly int[] _organizationsIds;
 
+		private const decimal _debtThreshold = 100m;
+
 		private readonly OrderStatus[] _orderStatuses =
 		{
 			OrderStatus.Shipped,
@@ -69,7 +71,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 					_orderStatuses,
 					_counterpartyTypes,
 					_counterpartySettings.CounterpartyFromTenderId,
-					counterpartyId,					
+					_debtThreshold,
+					counterpartyId,
 					cancellationToken);
 
 			if(!overdueDebtOverPeriodLimitRows.Any())
@@ -112,7 +115,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				await unitOfWork.SaveAsync(counterparty, cancellationToken: cancellationToken);
 			}
 
-			_logger.LogInformation("Закрыты поставки {CounterpartiesCount} контрагентам", overdueDebtOverPeriodLimitRows.Count());
+			_logger.LogInformation("Закрыты поставки {CounterpartiesCount} контрагентам", vodovozOrganizationRows.Count());
 
 			return overdueDebtOverPeriodLimitRows;
 		}
