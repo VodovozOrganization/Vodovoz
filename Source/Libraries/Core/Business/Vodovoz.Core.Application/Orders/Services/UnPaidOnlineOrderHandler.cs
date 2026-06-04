@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
+using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
@@ -33,6 +34,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly IOrderFromOnlineOrderValidator _onlineOrderValidator;
 		private readonly IOrderService _orderService;
 		private readonly IRouteListService _routeListService;
+		private readonly ICustomerOrderTransferService _orderTransferLogicService;
 		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _outboxNotificationPublisher;
 
 		public UnPaidOnlineOrderHandler(
@@ -44,6 +46,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IOrderFromOnlineOrderValidator onlineOrderValidator,
 			IOrderService orderService,
 			IRouteListService routeListService,
+			ICustomerOrderTransferService orderTransferLogicService,
 			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> outboxNotificationPublisher
 			)
 		{
@@ -56,6 +59,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_onlineOrderValidator = onlineOrderValidator ?? throw new ArgumentNullException(nameof(onlineOrderValidator));
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
+			_orderTransferLogicService = orderTransferLogicService ?? throw new ArgumentNullException(nameof(orderTransferLogicService));
 			_outboxNotificationPublisher = outboxNotificationPublisher ?? throw new ArgumentNullException(nameof(outboxNotificationPublisher));
 		}
 
@@ -129,7 +133,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.HasTimeToPayOrderExpired);
 			}
 			
-			if(onlineOrder.OnlineOrderPaymentStatus == OnlineOrderPaymentStatus.Paid)
+			if(onlineOrder.OnlineOrderPaymentStatus is OnlineOrderPaymentStatus.Paid)
 			{
 				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.IsOnlineOrderPaid);
 			}
@@ -155,7 +159,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.OnlineOrderNotFound);
 			}
 			
-			if(data.PaymentStatus == OnlineOrderPaymentStatus.Paid && !data.OnlinePayment.HasValue)
+			if(data.PaymentStatus is OnlineOrderPaymentStatus.Paid && !data.OnlinePayment.HasValue)
 			{
 				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.OnlineOrderIsPaidButOnlinePaymentIsEmpty);
 			}
@@ -165,8 +169,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.IsUnknownDeliverySchedule);
 			}
 			
-			//у оплаченных мы меняем только информацию по доставке в нужных состояниях
-			if(onlineOrder.OnlineOrderPaymentStatus == OnlineOrderPaymentStatus.Paid)
+			if(onlineOrder.OnlineOrderPaymentStatus is OnlineOrderPaymentStatus.Paid)
 			{
 				return await TryUpdatePaidOnlineOrder(uow, orders, onlineOrder, deliverySchedule, data, cancellationToken);
 			}
@@ -174,11 +177,11 @@ namespace Vodovoz.Core.Application.Orders.Services
 			{
 				if(orders.Any())
 				{
-					return await TryUpdateUnPaidOnlineOrderWithOrders(uow, orders, onlineOrder, data, cancellationToken);
+					return await TryUpdateUnPaidOnlineOrderWithOrders(uow, orders, onlineOrder, data, deliverySchedule, cancellationToken);
 				}
 				
-				if(onlineOrder.OnlineOrderStatus == OnlineOrderStatus.Canceled
-					&& data.PaymentStatus == OnlineOrderPaymentStatus.Paid)
+				if(onlineOrder.OnlineOrderStatus is OnlineOrderStatus.Canceled
+					&& data.PaymentStatus is OnlineOrderPaymentStatus.Paid)
 				{
 					onlineOrder.UpdateOnlineOrderPaymentData(
 						data.OnlineOrderPaymentType,
@@ -200,10 +203,23 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_logger.LogInformation("Полностью обновляем онлайн заказ {OnlineOrderId}", onlineOrder.Id);
 			onlineOrder.UpdateOnlineOrder(deliverySchedule, data);
 
-			if(onlineOrder.OnlineOrderStatus == OnlineOrderStatus.New
+			if(onlineOrder.OnlineOrderStatus is OnlineOrderStatus.New
 				&& onlineOrder.EmployeeWorkWith is null
 				&& !orders.Any())
 			{
+				if(!string.IsNullOrEmpty(data.TransactionId))
+				{
+					var onlinePayment = new OnlinePayment
+					{
+						ExternalId = onlineOrder.OnlinePayment.Value,
+						TransactionId = data.TransactionId,
+						PaymentSource = onlineOrder.OnlinePaymentSource,
+						Date = DateTime.Now
+					};
+
+					uow.Save(onlinePayment);
+				}
+
 				var validationResult = _onlineOrderValidator.ValidateOnlineOrder(uow, onlineOrder, true);
 
 				if(validationResult.IsFailure)
@@ -234,18 +250,25 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IEnumerable<Order> orders,
 			OnlineOrder onlineOrder,
 			UpdateOnlineOrderFromChangeRequest data,
+			DeliverySchedule deliverySchedule,
 			CancellationToken cancellationToken)
 		{
+			var transferResult = await TryApplyDeliveryTransferAsync(uow, onlineOrder, deliverySchedule, data, cancellationToken);
+			if(transferResult.IsFailure || transferResult.Value)
+			{
+				return transferResult;
+			}
+
 			var needUpdate = true;
 
 			foreach(var order in orders)
 			{
 				if(OrderEntity.GetOnClosingOrderStatuses.Contains(order.OrderStatus)
-					&& (order.PaymentType == PaymentType.Cash
-						|| order.PaymentType == PaymentType.DriverApplicationQR
-						|| order.PaymentType == PaymentType.SmsQR
-						|| order.PaymentType == PaymentType.PaidOnline
-						|| order.PaymentType == PaymentType.Terminal)
+					&& (order.PaymentType is PaymentType.Cash
+						|| order.PaymentType is PaymentType.DriverApplicationQR
+						|| order.PaymentType is PaymentType.SmsQR
+						|| order.PaymentType is PaymentType.PaidOnline
+						|| order.PaymentType is PaymentType.Terminal)
 					&& !order.OnlinePaymentNumber.HasValue)
 				{
 					needUpdate &= true;
@@ -273,7 +296,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				data.OnlinePayment);
 
 			if(data.OnlinePayment.HasValue
-				&& data.PaymentStatus == OnlineOrderPaymentStatus.Paid
+				&& data.PaymentStatus is OnlineOrderPaymentStatus.Paid
 				&& data.OnlineOrderPaymentType.HasValue)
 			{
 				_onlinePaymentAcceptanceHandler.AcceptOnlinePayment(
@@ -297,29 +320,107 @@ namespace Vodovoz.Core.Application.Orders.Services
 			CancellationToken cancellationToken)
 		{
 			_logger.LogWarning("Пришел запрос на изменение оплаченного онлайна {OnlineOrderId}", onlineOrder.Id);
-				
-			if(orders.Any())
+
+			if(!orders.Any())
 			{
-				_logger.LogWarning("Оплаченный онлайн {OnlineOrderId} с уже выставленными заказом(ми), бракуем", onlineOrder.Id);
-				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.IsOrderAlreadyProcessingAndCannotChanged);
+				_logger.LogInformation("Оплаченный онлайн {OnlineOrderId} без выставленных заказов", onlineOrder.Id);
+
+				if(onlineOrder.EmployeeWorkWith != null)
+				{
+					return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.IsOrderAlreadyProcessingAndCannotChanged);
+				}
+
+				onlineOrder.UpdateOnlineOrderDeliveryData(
+					deliverySchedule,
+					data.DeliveryScheduleId,
+					data.DeliveryDate,
+					data.IsFastDelivery);
+
+				await SaveOnlineOrder(uow, onlineOrder, cancellationToken);
+				return Result.Success();
 			}
 
-			if(onlineOrder.EmployeeWorkWith != null)
+			var transferResult = await TryApplyDeliveryTransferAsync(uow, onlineOrder, deliverySchedule, data, cancellationToken);
+			if(transferResult.IsFailure || transferResult.Value)
 			{
-				return Result.Failure(Vodovoz.Errors.Orders.OnlineOrderErrors.IsOrderAlreadyProcessingAndCannotChanged);
+				return transferResult;
 			}
-				
-			onlineOrder.UpdateOnlineOrderDeliveryData(
-				deliverySchedule,
-				data.DeliveryScheduleId,
-				data.DeliveryDate,
-				data.IsFastDelivery);
+			else
+			{
+				_logger.LogInformation(
+					"Параметры доставки не изменились для оплаченного онлайна {OnlineOrderId}, обновляем метаданные",
+					onlineOrder.Id);
 
+				onlineOrder.UpdateOnlineOrderDeliveryData(
+					deliverySchedule,
+					data.DeliveryScheduleId,
+					data.DeliveryDate,
+					data.IsFastDelivery);
 			await TryNotifyCustomerAboutOrderPaidAsync(uow, data, cancellationToken);
 
 			await SaveOnlineOrder(uow, onlineOrder, cancellationToken);			
-
+			}
+			await uow.CommitAsync(cancellationToken);
 			return Result.Success();
+		}
+
+		private Order GetActiveOrder(OnlineOrder onlineOrder)
+		{
+			var undeliveryStatuses = _orderRepository.GetUndeliveryStatuses();
+			return onlineOrder.Orders.FirstOrDefault(x => !undeliveryStatuses.Contains(x.OrderStatus));
+		}
+
+		private async Task<Result<bool>> TryApplyDeliveryTransferAsync(
+			IUnitOfWork uow,
+			OnlineOrder onlineOrder,
+			DeliverySchedule deliverySchedule,
+			UpdateOnlineOrderFromChangeRequest data,
+			CancellationToken cancellationToken)
+		{
+			var activeOrder = GetActiveOrder(onlineOrder);
+			if(activeOrder is null)
+			{
+				return Result.Failure<bool>(Vodovoz.Errors.Orders.OnlineOrderErrors.IsOnlineOrderDoesNotHaveALinkedOrder);
+			}
+
+			var deliveryParametersChanged = _orderTransferLogicService.IsDeliveryParametersChanged(
+				activeOrder,
+				data.DeliveryDate,
+				data.DeliveryScheduleId);
+
+			if(!deliveryParametersChanged)
+			{
+				return Result.Success(false);
+			}
+
+			_logger.LogInformation(
+				"Параметры доставки оплаченного онлайна {OnlineOrderId} изменились, применяем перенос",
+				onlineOrder.Id);
+
+			var transferResult = await _orderTransferLogicService.ApplyTransferAsync(
+				uow,
+				activeOrder,
+				onlineOrder,
+				data.DeliveryDate,
+				deliverySchedule,
+				data.Source,
+				cancellationToken);
+
+			await uow.CommitAsync(cancellationToken);
+
+			if(transferResult.IsFailure)
+			{
+				var errorMessage = transferResult.Errors.FirstOrDefault()?.Message ?? "Неизвестная ошибка";
+				_logger.LogError(
+					"Ошибка при переносе заказа {OrderId} оплаченного онлайна {OnlineOrderId}: {ErrorMessage}",
+					activeOrder.Id,
+					onlineOrder.Id,
+					errorMessage);
+
+				return Result.Failure<bool>(Vodovoz.Errors.Orders.OnlineOrderErrors.CantUpdateOrder(errorMessage));
+			}
+
+			return Result.Success(true);
 		}
 
 		private void TransferToManualProcessing(

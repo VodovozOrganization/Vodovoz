@@ -149,7 +149,7 @@ namespace Edo.Receipt.Dispatcher
 
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(receiptEdoTask);
 
-			if(CheckOrderItemsAsync(receiptEdoTask))
+			if(_edoCancellationService.IsEdoTaskMustBeCancelled(receiptEdoTask))
 			{
 				var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
 				
@@ -1360,9 +1360,7 @@ namespace Edo.Receipt.Dispatcher
 
 			var organization = order.Contract?.Organization;
 
-			var vatRateVersion = organization != null && organization.IsUsnMode 
-				? organization.GetActualVatRateVersion(order.DeliveryDate)
-				: nomenclature.GetActualVatRateVersion(order.DeliveryDate);
+			var vatRateVersion = nomenclature.GetEffectiveVatRateVersion(organization, order.DeliveryDate);
 			
 			if(vatRateVersion == null)
 			{
@@ -1387,18 +1385,6 @@ namespace Edo.Receipt.Dispatcher
 
 			var hasReceipt = await _edoRepository.HasReceiptOnSumToday(sum, cancellationToken);
 			return hasReceipt;
-		}
-
-		private bool CheckOrderItemsAsync(EdoTask edoTask)
-		{
-			if(!(edoTask is OrderEdoTask orderEdoTask))
-			{
-				return true;
-			}
-			
-			var edoRequest = orderEdoTask.FormalEdoRequest;
-
-			return edoRequest.Order.OrderItems.All(x => x.Price > 0) && edoRequest.Order.OrderSum > 0;
 		}
 		
 		private void TryRecalculateOrderVat(ReceiptEdoTask receiptEdoTask)

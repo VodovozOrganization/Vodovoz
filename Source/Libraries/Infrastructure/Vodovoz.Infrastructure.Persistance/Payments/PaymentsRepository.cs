@@ -294,7 +294,11 @@ namespace Vodovoz.Infrastructure.Persistance.Payments
 			return payment != null;
 		}
 
-		public IQueryable<PaymentNode> GetCounterpartyPaymentNodes(IUnitOfWork unitOfWork, int counterpartyId, string counterpartyInn)
+		public IQueryable<PaymentNode> GetCounterpartyPaymentNodes(
+			IUnitOfWork unitOfWork,
+			int counterpartyId,
+			string counterpartyInn,
+			int organizationId)
 		{
 			var query = from payment in unitOfWork.Session.Query<Payment>()
 						join c in unitOfWork.Session.Query<Counterparty>() on payment.Counterparty.Id equals c.Id into counterparties
@@ -302,6 +306,7 @@ namespace Vodovoz.Infrastructure.Persistance.Payments
 						where
 						(counterparty.INN == counterpartyInn || counterparty.Id == counterpartyId)
 						&& payment.Status != PaymentState.Cancelled
+						&& payment.Organization.Id == organizationId
 						select new PaymentNode
 						{
 							PaymentNum = payment.PaymentNum,
@@ -319,15 +324,44 @@ namespace Vodovoz.Infrastructure.Persistance.Payments
 			return query;
 		}
 
-		public IQueryable<decimal> GetCounterpartyPaymentsSums(IUnitOfWork uow, int counterpartyId, string counterpartyInn)
+		public IQueryable<decimal> GetCounterpartyPaymentsSums(
+			IUnitOfWork uow,
+			int counterpartyId,
+			string counterpartyInn,
+			int organizationId)
 		{
 			var query = from payment in uow.Session.Query<Payment>()
 						where
 						payment.Status != PaymentState.Cancelled
 						&& (payment.Counterparty.Id == counterpartyId || payment.CounterpartyInn == counterpartyInn)
+						&& payment.Organization.Id == organizationId
 						select payment.Total;
 
 			return query;
+		}
+
+		public IList<PaymentWriteOffNode> GetCounterpartyPaymentWriteOffNodes(
+			IUnitOfWork uow,
+			int counterpartyId,
+			int organizationId)
+		{
+			var query =
+				from paymentWriteOff in uow.Session.Query<PaymentWriteOff>()
+				join cashlessMovementOperation in uow.Session.Query<CashlessMovementOperation>()
+					on paymentWriteOff.CashlessMovementOperation.Id equals cashlessMovementOperation.Id
+				where paymentWriteOff.CounterpartyId == counterpartyId
+					&& paymentWriteOff.OrganizationId == organizationId
+					&& cashlessMovementOperation.CashlessMovementOperationStatus != AllocationStatus.Cancelled
+				select new PaymentWriteOffNode
+				{
+					Id = paymentWriteOff.Id,
+					PaymentNumber = paymentWriteOff.PaymentNumber,
+					Date = paymentWriteOff.Date,
+					Sum = paymentWriteOff.Sum,
+					Reason = paymentWriteOff.Reason
+				};
+
+			return query.ToList();
 		}
 
 		public async Task<IDictionary<int, CounterpartyPaymentsDataNode[]>> GetCounterpatiesPaymentsData(

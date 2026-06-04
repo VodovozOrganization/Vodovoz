@@ -11,7 +11,6 @@ namespace CustomerOrdersApi.Controllers.Default
 	/// <summary>
 	/// Контроллер для работы с фиксой
 	/// </summary>
-	[ApiVersion("3.0")]
 	public class FixedPriceController : SignatureControllerBase
 	{
 		private readonly ICustomerOrderFixedPriceService _fixedPriceService;

@@ -1,7 +1,7 @@
-﻿using Autofac.Extensions.DependencyInjection;
-using CustomerOnlineOrdersRegistrar.Consumers;
-using CustomerOnlineOrdersRegistrar.Factories.V3;
-using CustomerOnlineOrdersRegistrar.Factories.V4;
+using Autofac.Extensions.DependencyInjection;
+using CustomerOnlineOrdersRegistrar.V3.Factories;
+using CustomerOnlineOrdersRegistrar.V4.Factories;
+using CustomerOnlineOrdersRegistrar.V5.Factories;
 using CustomerOrdersApi.Library;
 using DriverApi.Notifications.Client;
 using MassTransit;
@@ -18,7 +18,9 @@ using QS.Project.Core;
 using QS.Project.Domain;
 using QS.Project.HibernateMapping;
 using Vodovoz;
+using Vodovoz.Core.Application;
 using Vodovoz.Core.Application.Logistics;
+using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
@@ -66,6 +68,7 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddInfrastructure()
 						.AddVersion3()
 						.AddVersion4()
+						.AddVersion5()
 						.AddCoreApplicationOrderServices()
 						.AddOsrm()
 
@@ -73,12 +76,15 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
 						.AddScoped<IOnlineOrderFactoryV3, OnlineOrderFactoryV3>()
 						.AddScoped<IOnlineOrderFactoryV4, OnlineOrderFactoryV4>()
+						.AddScoped<IOnlineOrderFactoryV5, OnlineOrderFactoryV5>()
 
 						.AddMessageTransportSettings()
 						.AddMassTransit(busConf =>
 						{
-							busConf.AddConsumer<OnlineOrderRegisteredConsumer, OnlineOrderRegisteredConsumerDefinition>();
-							busConf.AddConsumer<CreatingOnlineOrderConsumer, CreatingOnlineOrderConsumerDefinition>();
+							// Версия 3 не используется на проде, оставлена для совместимости
+							//busConf.AddConsumer<V3.Consumers.OnlineOrderRegisteredConsumer, V3.Consumers.OnlineOrderRegisteredConsumerDefinition>();
+							busConf.AddConsumer<V4.Consumers.CreatingOnlineOrderConsumer, V4.Consumers.CreatingOnlineOrderConsumerDefinition>();
+							busConf.AddConsumer<V5.Consumers.CreatingOnlineOrderConsumer, V5.Consumers.CreatingOnlineOrderConsumerDefinition>();
 							busConf.ConfigureRabbitMq();
 						})
 						;

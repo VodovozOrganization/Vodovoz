@@ -39,6 +39,11 @@ namespace Vodovoz.Views.Reports
 		{
 			ViewModel.GenerateCommand.Execute();
 
+			if(ViewModel.Report is null)
+			{
+				return;
+			}
+
 			ConfigureReportTreeView();
 
 			ytreeviewReport.ItemsDataSource = ViewModel.Report.Rows;
@@ -48,6 +53,11 @@ namespace Vodovoz.Views.Reports
 		private void OnYbtnRunSummaryReportClicked(object sender, System.EventArgs e)
 		{
 			ViewModel.GenerateSummaryCommand.Execute();
+
+			if(ViewModel.SummaryReport is null)
+			{
+				return;
+			}
 
 			ConfigureReportTreeView();
 
@@ -77,6 +87,7 @@ namespace Vodovoz.Views.Reports
 					.AddColumn("Имя клиента").AddTextRenderer(n => n.CounterpartyName)
 					.AddColumn("E-mail").AddTextRenderer(r => r.Email)
 					.AddColumn("Телефон").AddTextRenderer(r => r.Phone)
+					.AddColumn("Тип письма").AddTextRenderer(r => r.EmailTypeString)
 					.AddColumn("")
 					.Finish();
 			}
@@ -84,7 +95,8 @@ namespace Vodovoz.Views.Reports
 			{
 				ytreeviewReport.ColumnsConfig = FluentColumnsConfig<BulkDebtMailingSummaryReportRow>.Create()
 					.AddColumn("№").AddNumericRenderer(r => ViewModel.SummaryReport.Rows.IndexOf(r) + 1)
-					.AddColumn("Дата").AddTextRenderer(r => r.ActionDatetimeString)
+					.AddColumn("Тип письма").AddTextRenderer(r => r.EmailTypeString)
+					.AddColumn("Организация").AddTextRenderer(r => r.OrganizationName)
 					.AddColumn("Статус").AddTextRenderer(r => r.StateString)
 					.AddColumn("Количество").AddNumericRenderer(r => r.Count)
 					.AddColumn("")

@@ -74,6 +74,7 @@ namespace Vodovoz.Domain.Client
 		private GenericObservableList<ISupplierPriceNode> _observablePriceNodes;
 		private CounterpartySubtype _counterpartySubtype;
 		private Counterparty _refferer;
+		private bool _isWorkingWithoutSeal;
 
 		#region Свойства
 
@@ -356,6 +357,13 @@ namespace Vodovoz.Domain.Client
 		{
 			get => _refferer;
 			set => SetField(ref _refferer, value);
+		}
+
+		[Display(Name = "Работает без печати")]
+		public virtual bool IsWorkingWithoutSeal
+		{
+			get => _isWorkingWithoutSeal;
+			set => SetField(ref _isWorkingWithoutSeal, value);
 		}
 
 		#endregion Свойства

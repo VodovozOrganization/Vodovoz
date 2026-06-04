@@ -82,6 +82,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 					resultOrder.UpdateDocuments();
 					_orderContractUpdater.ForceUpdateContract(uow, resultOrder, partOrderWithGoods.Organization);
+					resultOrder.UpdateAddressType();
+					resultOrder.CheckAndSetOrderIsService();
 					
 					_orderConfirmationService.AcceptOrder(uow, employee, resultOrder, false);
 

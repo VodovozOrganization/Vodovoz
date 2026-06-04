@@ -6,12 +6,12 @@ using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Notifications.Infrastructure;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Vodovoz.Presentation.WebApi.Messages;
 using CustomerNotifications.Contracts;
+using System.Threading.Tasks;
+using System.Threading;
+using System;
+using System.Linq;
 
 namespace CustomerOrdersApi.Controllers.V4
 {

@@ -249,10 +249,8 @@ namespace Vodovoz.Core.Domain.Orders
 			}
 
 			var organization = Order.Contract?.Organization;
-			
-			var vatRateVersion =  organization != null && organization.IsUsnMode 
-				? Order.Contract.Organization.GetActualVatRateVersion(Order.DeliveryDate)
-				: Nomenclature.GetActualVatRateVersion(Order.DeliveryDate);
+
+			var vatRateVersion = Nomenclature.GetEffectiveVatRateVersion(organization, Order.DeliveryDate);
 			
 			if(vatRateVersion == null)
 			{
@@ -275,9 +273,7 @@ namespace Vodovoz.Core.Domain.Orders
 
 			if(Order.Contract?.Organization != null)
 			{
-				canUseVAT = Order.Contract.Organization.IsUsnMode 
-					? Order.Contract.Organization.GetActualVatRateVersion(Order.DeliveryDate)?.VatRate.VatNumericValue != 0
-					: Nomenclature.GetActualVatRateVersion(Order.DeliveryDate)?.VatRate.VatNumericValue != 0;
+				canUseVAT = Nomenclature.GetEffectiveVatRateVersion(Order.Contract.Organization, Order.DeliveryDate)?.VatRate.VatNumericValue != 0;
 			}
 
 			return canUseVAT;
@@ -299,6 +295,39 @@ namespace Vodovoz.Core.Domain.Orders
 			if(CanUseVAT() && ValueAddedTax.HasValue)
 			{
 				IncludeNDS = Math.Round(ActualSum * ValueAddedTax.Value / (1 + ValueAddedTax.Value), 2);
+			}
+		}
+
+		/// <summary>
+		/// Устанавливает значения скидки строки заказа без вызова событий изменения свойств. 
+		/// События вызываются только после установки всех значений
+		/// </summary>
+		/// <param name="discountMoney">Скидка в деньгах</param>
+		/// <param name="discountPercent">Скидка в процентах</param>
+		/// <param name="isDiscountInMoney">Флаг, указывающий, что скидка рассчитывается в деньгах</param>
+		public virtual void SetDiscountValuesBatch(decimal discountMoney, decimal discountPercent, bool isDiscountInMoney)
+		{
+			var isDiscountMoneyChanged = _discountMoney != discountMoney;
+			var isDiscountPercentChanged = _discount != discountPercent;
+			var isDiscountInMoneyChanged = _isDiscountInMoney != isDiscountInMoney;
+
+			_discountMoney = discountMoney;
+			_discount = discountPercent;
+			_isDiscountInMoney = isDiscountInMoney;
+
+			if(isDiscountMoneyChanged)
+			{
+				OnPropertyChanged(nameof(DiscountMoney));
+			}
+
+			if(isDiscountPercentChanged)
+			{
+				OnPropertyChanged(nameof(Discount));
+			}
+
+			if(isDiscountInMoneyChanged)
+			{
+				OnPropertyChanged(nameof(IsDiscountInMoney));
 			}
 		}
 	}

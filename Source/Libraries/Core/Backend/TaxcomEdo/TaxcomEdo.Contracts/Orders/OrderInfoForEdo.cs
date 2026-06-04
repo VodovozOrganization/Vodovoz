@@ -35,6 +35,10 @@ namespace TaxcomEdo.Contracts.Orders
 		/// </summary>
 		public DateTime CreationDate { get; set; }
 		/// <summary>
+		/// Тип оплаты заказа
+		/// </summary>
+		public string PaymentType { get; set; }
+		/// <summary>
 		/// Информация о контракте <see cref="CounterpartyContractInfoForEdo"/>
 		/// </summary>
 		public CounterpartyContractInfoForEdo ContractInfoForEdo { get; set; }

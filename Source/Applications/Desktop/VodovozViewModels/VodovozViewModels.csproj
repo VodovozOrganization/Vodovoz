@@ -159,6 +159,7 @@
     <Compile Include="Services\RouteOptimization\ProposedRoutePoint.cs" />
     <Compile Include="Services\RouteOptimization\RouteOptimizer.cs" />
     <Compile Include="Store\Reports\DevectiveItemsReport.SummaryByOldNomenclatureWithTypeDefectRow.cs" />
+    <Compile Include="TrueMark\CodesPool\CodesPoolProblemDataNode.cs" />
     <Compile Include="TrueMark\CodesPool\CodesPoolViewModel.CodesPoolDataNode.cs" />
     <Compile Include="TrueMark\CodesPool\CodesPoolViewModel.cs" />
     <Compile Include="Dialogs\Mango\DialogType.cs" />
@@ -902,6 +903,10 @@
     <Compile Include="TempAdapters\IGtkTabsOpener.cs" />
     <Compile Include="ViewModels\Payments\NotAllocatedCounterpartyViewModel.cs" />
     <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.OrderDiscrepanciesNode.cs" />
+    <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.OtherIncomeNode.cs" />
+    <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.OtherIncomeReconciliation1C.cs" />
+    <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.OtherWriteOffDiscrepanciesNode.cs" />
+    <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.OtherWriteOffReconciliation1C.cs" />
     <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.PaymentDiscrepanciesNode.cs" />
     <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.CounterpartyBalance1C.cs" />
     <Compile Include="ViewModels\Payments\PaymentsDiscrepanciesAnalysis\PaymentsDiscrepanciesAnalysisViewModel.CounterpartyBalanceNode.cs" />
@@ -1164,6 +1169,7 @@
     <Compile Include="Widgets\Cash\VatRateOrganizationVersionViewModel.cs" />
     <Compile Include="Widgets\OrderDateFilterViewModel.cs" />
     <Compile Include="Widgets\Goods\NomenclatureMinimumBalanceByWarehouseViewModel.cs" />
+    <Compile Include="Widgets\Orders\OrderItemDiscountReasonsViewModel.cs" />
     <Compile Include="Widgets\OrganizationForOrderOrganizationSettingsViewModel.cs" />
     <Compile Include="Widgets\Print\DocumentsPrinterSettingsViewModel.cs" />
     <Compile Include="Widgets\Search\CompositeAlgebraicSearchCriterion.cs" />
@@ -1263,6 +1269,10 @@
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\DriverApi.Contracts\DriverApi.Contracts.csproj">
       <Project>{a5057b0f-1022-4d60-818e-b8f68890a2aa}</Project>
       <Name>DriverApi.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Problem.Routine\Edo.Problem.Routine.csproj">
+      <Project>{9315f39c-5054-410e-b8e9-27c987321b67}</Project>
+      <Name>Edo.Problem.Routine</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Transport\Edo.Transport.csproj">
       <Project>{c17807ce-71ac-4101-901e-657cef7892eb}</Project>

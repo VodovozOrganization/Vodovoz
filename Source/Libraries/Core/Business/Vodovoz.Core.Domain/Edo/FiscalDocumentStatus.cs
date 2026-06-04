@@ -23,6 +23,9 @@ namespace Vodovoz.Core.Domain.Edo
 		Completed,
 
 		[Display(Name = "Проблема")]
-		Failed
+		Failed,
+
+		[Display(Name = "Ошибка отправки")]
+		SendError
 	}
 }

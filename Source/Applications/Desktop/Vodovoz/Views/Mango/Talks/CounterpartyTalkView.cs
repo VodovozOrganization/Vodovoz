@@ -72,7 +72,7 @@ namespace Vodovoz.Views.Mango.Talks
 				else
 				{
 					Counterparty counterparty = (place.CurrentPageWidget as CounterpartyOrderView).ViewModel.Client;
-					ViewModel.UpadateCurrentCounterparty(counterparty);
+					ViewModel.UpdateCurrentCounterparty(counterparty);
 					lastPage = args.PageNum;
 				}
 			}

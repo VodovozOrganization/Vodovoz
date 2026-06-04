@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Vodovoz.Core.Domain.Common;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Goods;
@@ -114,8 +113,11 @@ namespace Vodovoz.Core.Domain.Clients
 		private bool _excludeFromAutoCalls;
 		private bool _hideDeliveryPointForBill;
 		private bool _disableDebtMailing;
+		private bool _disableClosingDeliveriesMailing;
+		private bool _disableClaimMailing;
 		private RevenueStatus? _revenueStatus;
 		private DateTime? _revenueStatusDate;
+		private bool _isWorkingWithoutSeal;
 
 		private OrganizationEntity _worksThroughOrganization;
 		private IList<NomenclatureFixedPriceEntity> _nomenclatureFixedPrices = new List<NomenclatureFixedPriceEntity>();
@@ -977,6 +979,26 @@ namespace Vodovoz.Core.Domain.Clients
 		}
 
 		/// <summary>
+		/// Запретить рассылку писем о блокировке поставок
+		/// </summary>
+		[Display(Name = "Запретить рассылку писем о блокировке поставок")]
+		public virtual bool DisableClosingDeliveriesMailing
+		{
+			get => _disableClosingDeliveriesMailing;
+			set => SetField(ref _disableClosingDeliveriesMailing, value);
+		}
+
+		/// <summary>
+		/// Запретить отправку претензий
+		/// </summary>
+		[Display(Name = "Запретить отправку претензий")]
+		public virtual bool DisableClaimMailing
+		{
+			get => _disableClaimMailing;
+			set => SetField(ref _disableClaimMailing, value);
+		}
+
+		/// <summary>
 		/// Информация о прикрепленных файлах
 		/// </summary>
 		[Display(Name = "Информация о прикрепленных файлах")]
@@ -1014,6 +1036,13 @@ namespace Vodovoz.Core.Domain.Clients
 		{
 			get => _specialNomenclatures;
 			set => SetField(ref _specialNomenclatures, value);
+		}
+
+		[Display(Name = "Работает без печати")]
+		public virtual bool IsWorkingWithoutSeal
+		{
+			get => _isWorkingWithoutSeal;
+			set => SetField(ref _isWorkingWithoutSeal, value);
 		}
 
 		/// <summary>

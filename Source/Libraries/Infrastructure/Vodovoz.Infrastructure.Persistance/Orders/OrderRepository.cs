@@ -12,18 +12,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Data.Orders;
+using Vodovoz.Core.Data.Orders.Default;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Payments;
-using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -34,6 +32,7 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.Domain.Sale;
+using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Domain.TrueMark;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.NHibernateProjections.Orders;
@@ -43,22 +42,11 @@ using Vodovoz.Settings.Orders;
 using Vodovoz.Settings.Organizations;
 using VodovozBusiness.Domain.Client;
 using VodovozBusiness.Domain.Operations;
+using VodovozBusiness.Domain.StoredEmails;
 using VodovozBusiness.EntityRepositories.Nodes;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
 using Order = Vodovoz.Domain.Orders.Order;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
-using Vodovoz.Core.Domain.Edo;
-using Vodovoz.Core.Domain.Payments;
-using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using Vodovoz.Core.Domain.TrueMark;
-using VodovozBusiness.Domain.Operations;
-using System.Threading.Tasks;
-using System.Threading;
-using NHibernate.Linq;
-using Vodovoz.Core.Data.Orders.Default;
-using Vodovoz.Settings.Organizations;
-using VodovozBusiness.Domain.Client;
-
 namespace Vodovoz.Infrastructure.Persistance.Orders
 {
 	internal sealed class OrderRepository : IOrderRepository
@@ -807,6 +795,19 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			};
 		}
 
+		public OrderStatus[] GetStatusesForTransferOrCancellationOnlineOrder()
+		{
+			return new[]
+			{
+				OrderStatus.NewOrder,
+				OrderStatus.WaitForPayment,
+				OrderStatus.Accepted,
+				OrderStatus.InTravelList,
+				OrderStatus.OnLoading,
+				//OrderStatus.OnTheWay Пока в статусе "В Пути" запрещено отменять и переносить заказы
+			};
+		}
+
 		public SmsPaymentStatus? GetOrderSmsPaymentStatus(IUnitOfWork uow, int orderId)
 		{
 			SmsPayment smsPaymentAlias = null;
@@ -1219,6 +1220,11 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return unitOfWork.GetById<VodovozOrder>(orderId);
 		}
 
+		public async Task<VodovozOrder> GetOrderByIdAsync(IUnitOfWork unitOfWork, int orderId, CancellationToken cancellationToken)
+		{
+			return await unitOfWork.Session.GetAsync<VodovozOrder>(orderId, cancellationToken);
+		}
+
 		public int? GetMaxOrderDailyNumberForDate(IUnitOfWorkFactory uowFactory, DateTime deliveryDate)
 		{
 			int? dailyNumber;
@@ -1307,9 +1313,9 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		}
 
 		public IEnumerable<VodovozOrder> GetCashlessOrdersForEdoSendUpd(
-			IUnitOfWork uow, DateTime startDate, int organizationId, int closingDocumentDeliveryScheduleId)
+			IUnitOfWork uow, DateTime startDate, int closingDocumentDeliveryScheduleId)
 		{
-			return GetOrdersForFirstUpdSending(uow, startDate, organizationId, closingDocumentDeliveryScheduleId);
+			return GetOrdersForFirstUpdSending(uow, startDate, closingDocumentDeliveryScheduleId);
 		}
 
 		public IEnumerable<int> GetNewEdoProcessOrders(IUnitOfWork uow, IEnumerable<int> orderIds)
@@ -1333,7 +1339,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return query.Distinct().ToList();
 		}
 
-		public IList<VodovozOrder> GetOrdersForEdoSendBills(IUnitOfWork uow, DateTime startDate, int organizationId, int closingDocumentDeliveryScheduleId)
+		public IList<VodovozOrder> GetOrdersForEdoSendBills(IUnitOfWork uow, DateTime startDate, int closingDocumentDeliveryScheduleId)
 		{
 			Counterparty counterpartyAlias = null;
 			CounterpartyContract counterpartyContractAlias = null;
@@ -1364,7 +1370,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 			query
 				.And(() => orderAlias.PaymentType == PaymentType.Cashless)
-				.And(() => counterpartyContractAlias.Organization.Id == organizationId)
 				.And(orderStatusRestriction)
 				.And(prohibitedOrderStatusRestriction)
 				.And(() => counterpartyAlias.NeedSendBillByEdo)
@@ -2245,10 +2250,14 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return result;
 		}
 
-		public IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByOrdersIds(IUnitOfWork uow, IEnumerable<int> orderIds)
+		public IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByOrdersIds(
+			IUnitOfWork uow,
+			IEnumerable<int> orderIds,
+			int organizationId)
 		{
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
+			CounterpartyContract contractAlias = null;
 			Counterparty clientAlias = null;
 			OrderWithAllocation resultAlias = null;
 
@@ -2258,8 +2267,10 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+				.JoinAlias(o => o.Contract, () => contractAlias)
 				.JoinAlias(o => o.Client, () => clientAlias)
 				.WhereRestrictionOn(o => o.Id).IsInG(orderIds)
+				.And(() => contractAlias.Organization.Id == organizationId)
 				.SelectList(list => list
 					.SelectGroup(o => o.Id).WithAlias(() => resultAlias.OrderId)
 					.Select(o => o.DeliveryDate).WithAlias(() => resultAlias.OrderDeliveryDate)
@@ -2275,10 +2286,15 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return query.List<OrderWithAllocation>();
 		}
 
-		public IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByCounterparty(IUnitOfWork uow, int counterpartyId, IEnumerable<int> exceptOrderIds)
+		public IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByCounterparty(
+			IUnitOfWork uow,
+			int counterpartyId,
+			IEnumerable<int> exceptOrderIds,
+			int organizationId)
 		{
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
+			CounterpartyContract contractAlias = null;
 			Counterparty clientAlias = null;
 			OrderWithAllocation resultAlias = null;
 
@@ -2288,12 +2304,13 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+				.JoinAlias(o => o.Contract, () => contractAlias)
 				.JoinAlias(o => o.Client, () => clientAlias)
-				.WhereRestrictionOn(o => o.Id).Not.IsInG(exceptOrderIds)
 				.AndRestrictionOn(o => o.OrderStatus).Not.IsIn(
 					new[] { OrderStatus.NewOrder, OrderStatus.Canceled, OrderStatus.DeliveryCanceled, OrderStatus.NotDelivered })
 				.And(o => o.Client.Id == counterpartyId)
 				.And(o => o.PaymentType == PaymentType.Cashless)
+				.And(() => contractAlias.Organization.Id == organizationId)
 				.SelectList(list => list
 					.SelectGroup(o => o.Id).WithAlias(() => resultAlias.OrderId)
 					.Select(o => o.DeliveryDate).WithAlias(() => resultAlias.OrderDeliveryDate)
@@ -2307,6 +2324,11 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				)
 				.TransformUsing(Transformers.AliasToBean<OrderWithAllocation>());
 
+			if(exceptOrderIds.Any())
+			{
+				query.WhereRestrictionOn(o => o.Id).Not.IsInG(exceptOrderIds);
+			}
+
 			return query.List<OrderWithAllocation>();
 		}
 
@@ -2314,7 +2336,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			IUnitOfWork uow,
 			int counterpartyId,
 			string counterpartyInn,
-			IEnumerable<int> exceptOrderIds)
+			IEnumerable<int> exceptOrderIds,
+			int organizationId)
 		{
 			var query =
 				from payment in uow.Session.Query<Payment>()
@@ -2330,6 +2353,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					&& order.Client.Id != counterpartyId
 					&& !exceptOrderIds.Contains(order.Id)
 					&& order.PaymentType == PaymentType.Cashless
+					&& order.Contract.Organization.Id == organizationId
 				group paymentItem by paymentItem.Order.Id
 				into orderGroup
 
@@ -2379,7 +2403,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				from orderItems in uow.Session.Query<OrderItem>()
 				where orderItems.Order.Client.Id == order.Client.Id
 				&& orderItems.Order.Id != order.Id
-				&& orderItems.DiscountReason.Id == referFriendReasonId
+				&& orderItems.DiscountReasons.Any(r => r.Id == referFriendReasonId)
 				&& GetStatusesForCalculationAlreadyReceivedBottlesCountByReferPromotion().Contains(orderItems.Order.OrderStatus)
 				select (orderItems.ActualCount ?? orderItems.Count)
 			)
@@ -2388,8 +2412,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return alreadyReceivedBottlesByReferPromotion ?? 0;
 		}
 
-		private IEnumerable<VodovozOrder> GetOrdersForFirstUpdSending(
-			IUnitOfWork uow, DateTime startDate, int organizationId, int closingDocumentDeliveryScheduleId)
+		private IEnumerable<VodovozOrder> GetOrdersForFirstUpdSending(IUnitOfWork uow, DateTime startDate, int closingDocumentDeliveryScheduleId)
 		{
 			Counterparty counterpartyAlias = null;
 			CounterpartyContract counterpartyContractAlias = null;
@@ -2433,7 +2456,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 			var result = query.Where(() => counterpartyAlias.PersonType == PersonType.legal)
 				.And(() => orderAlias.PaymentType == PaymentType.Cashless)
-				.And(() => counterpartyContractAlias.Organization.Id == organizationId)
 				.And(Restrictions.IsNull(Projections.Property(() => edoContainerAlias.Id)))
 				.And(Restrictions.Disjunction()
 					.Add(() => (
@@ -2490,10 +2512,10 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		{
 			var discounts =
 				from orderItem in uow.Session.Query<OrderItem>()
+				from discountReason in orderItem.DiscountReasons
 				join nomenclature in uow.Session.Query<Nomenclature>() on orderItem.Nomenclature.Id equals nomenclature.Id
 				join order in uow.Session.Query<Order>() on orderItem.Order.Id equals order.Id
 				join counterparty in uow.Session.Query<Counterparty>() on order.Client.Id equals counterparty.Id
-				join discountReason in uow.Session.Query<DiscountReason>() on orderItem.DiscountReason.Id equals discountReason.Id
 				join un in uow.Session.Query<MeasurementUnits>() on nomenclature.Unit.Id equals un.Id into units
 				from unit in units.DefaultIfEmpty()
 				where 
@@ -2634,6 +2656,9 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			int organizationId,
 			IEnumerable<OrderStatus> orderStatuses,
 			IEnumerable<CounterpartyType> counterpartyTypes,
+			IEnumerable<RevenueStatus> excludeCounterpartyRevenueStatuses,
+			IEnumerable<DebtType> excludeCloseDeliveryDebtTypes,
+			int tenderCameFromId,
 			CancellationToken cancellationToken)
 		{
 			var today = DateTime.Today;
@@ -2665,8 +2690,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 							   where
 							   paymentItem.Order.Id == order.Id
 							   && cashlessMovementOpetation.CashlessMovementOperationStatus != AllocationStatus.Cancelled
-							   && order.DeliveryDate != null
-							   && order.DeliveryDate.Value.AddDays(counterparty.DelayDaysForBuyers) < today
 							   select cashlessMovementOpetation.Expense)
 							   .Sum() ?? 0
 
@@ -2674,8 +2697,6 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					(decimal?)(from orderItem in uow.Session.Query<OrderItem>()
 							   where
 							   orderItem.Order.Id == order.Id
-							   && order.DeliveryDate != null
-							   && order.DeliveryDate.Value.AddDays(counterparty.DelayDaysForBuyers) < today
 							   select
 							   orderItem.ActualSum)
 							   .Sum() ?? 0
@@ -2697,9 +2718,12 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 						&& orderStatuses.Contains(order.OrderStatus)
 						&& order.PaymentType == PaymentType.Cashless
 						&& counterparty.PersonType == PersonType.legal
-						&& !counterpartyTypes.Contains(counterparty.CounterpartyType)
+						&& counterpartyTypes.Contains(counterparty.CounterpartyType)
+						&& !counterparty.IsChainStore
+						&& (counterparty.RevenueStatus == null || !excludeCounterpartyRevenueStatuses.Contains(counterparty.RevenueStatus.Value))
+						&& (counterparty.CloseDeliveryDebtType == null || !excludeCloseDeliveryDebtTypes.Contains(counterparty.CloseDeliveryDebtType.Value))
+						&& (clientCameFrom.Id == null || clientCameFrom.Id != tenderCameFromId)
 						&& organization.Id == organizationId
-						&& order.DeliveryDate != null
 						&& orderSum > 0
 						&& isExpired
 
@@ -2732,8 +2756,171 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 			return notPaidOrdersData;
 		}
-		
-		public IEnumerable<int> GetClientOrdersIdsForDate(IUnitOfWork uow, DateTime date, int?counterpartyId, int? deliveryPointId)
+
+		public async Task<IEnumerable<CounterpartyOverdueDebtorDebtAggregatedNode>> GetOverdueDebtorDebtDataForLettersOfClaim(
+			IUnitOfWork uow,
+			int expiredMinDaysAgo,
+			IEnumerable<RevenueStatus> excludeCounterpartyRevenueStatuses,
+			int letterOfClaimResendIntervalDays,
+			int maxClientsToTake = int.MaxValue,
+			CancellationToken cancellationToken = default)
+		{
+			var today = DateTime.Today;
+			var expiredMaxDate = today.AddDays(-expiredMinDaysAgo);
+			var letterOfClaimMaxSendDate = today.AddDays(-letterOfClaimResendIntervalDays);
+			var cashlessPaymentStart = new DateTime(2020, 8, 12);
+
+			var excludeDebtTypes = new[]
+			{
+				DebtType.Judicial,
+				DebtType.WriteOff
+			};
+
+			var debtOrderStatuses = new[]
+			{
+				OrderStatus.Shipped,
+				OrderStatus.UnloadingOnStock,
+				OrderStatus.Closed
+			};
+
+			Order orderAlias = null;
+			Counterparty counterpartyAlias = null;
+			CounterpartyContract contractAlias = null;
+			Organization organizationAlias = null;
+			OrderItem orderItemAlias = null;
+			PaymentItem paymentItemAlias = null;
+			CashlessMovementOperation cashlessMovementOperationAlias = null;
+			LetterOfClaimEmail letterOfClaimAlias = null;
+			StoredEmail storedEmailAlias = null;
+			CounterpartyOverdueDebtorDebtDataNode resultAlias = null;
+
+			var notPaidOrdersSumSubquery = QueryOver.Of(() => orderItemAlias)
+				.JoinAlias(() => orderItemAlias.Order, () => orderAlias)
+				.JoinAlias(() => orderAlias.Contract, () => contractAlias)
+				.JoinAlias(() => contractAlias.Organization, () => organizationAlias)
+				.Where(() => orderAlias.Client.Id == counterpartyAlias.Id)
+				.Where(() => organizationAlias.Id == organizationAlias.Id)
+				.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
+				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
+				.Where(Restrictions.In(
+					Projections.Property(() => orderAlias.OrderStatus),
+					debtOrderStatuses.ToArray()))
+				.Select(Projections.Sum(
+					Projections.SqlFunction(
+						new SQLFunctionTemplate(NHibernateUtil.Decimal, "(?1 * IFNULL(?2, ?3) - ?4)"),
+						NHibernateUtil.Decimal,
+						Projections.Property(() => orderItemAlias.Price),
+						Projections.Property(() => orderItemAlias.ActualCount),
+						Projections.Property(() => orderItemAlias.Count),
+						Projections.Property(() => orderItemAlias.DiscountMoney)
+					)
+				));
+
+			var orderPaymentsSumSubquery = QueryOver.Of(() => paymentItemAlias)
+				.JoinAlias(() => paymentItemAlias.CashlessMovementOperation, () => cashlessMovementOperationAlias)
+				.JoinAlias(() => paymentItemAlias.Order, () => orderAlias)
+				.JoinAlias(() => orderAlias.Contract, () => contractAlias)
+				.JoinAlias(() => contractAlias.Organization, () => organizationAlias)
+				.Where(() => orderAlias.Client.Id == counterpartyAlias.Id)
+				.Where(() => organizationAlias.Id == organizationAlias.Id)
+				.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
+				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
+				.Where(Restrictions.In(
+					Projections.Property(() => orderAlias.OrderStatus),
+					debtOrderStatuses.ToArray()))
+				.Where(() => cashlessMovementOperationAlias.CashlessMovementOperationStatus != AllocationStatus.Cancelled)
+				.Select(Projections.Sum(() => cashlessMovementOperationAlias.Expense));
+
+			var lastLetterOfClaimDateSubquery = QueryOver.Of(() => letterOfClaimAlias)
+				.JoinAlias(() => letterOfClaimAlias.StoredEmail, () => storedEmailAlias)
+				.Where(() => letterOfClaimAlias.Counterparty.Id == counterpartyAlias.Id)
+				.Where(() => letterOfClaimAlias.OrganizationId == organizationAlias.Id)
+				.OrderBy(() => letterOfClaimAlias.Id).Desc
+				.Select(Projections.Property(() => storedEmailAlias.SendDate))
+				.Take(1);
+
+			var debtProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.Decimal, "IFNULL(?1, 0) - IFNULL(?2, 0)"),
+				NHibernateUtil.Decimal,
+				Projections.SubQuery(notPaidOrdersSumSubquery),
+				Projections.SubQuery(orderPaymentsSumSubquery)
+			);
+
+			var allData = await uow.Session.QueryOver(() => orderAlias)
+				.JoinAlias(() => orderAlias.Client, () => counterpartyAlias)
+				.JoinAlias(() => orderAlias.Contract, () => contractAlias)
+				.JoinAlias(() => contractAlias.Organization, () => organizationAlias)
+				.Where(() => orderAlias.OrderPaymentStatus != OrderPaymentStatus.Paid)
+				.Where(() => orderAlias.DeliveryDate > cashlessPaymentStart)
+				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
+				.Where(() => orderAlias.DeliveryDate != null)
+				.Where(() => counterpartyAlias.PersonType == PersonType.legal)
+				.Where(() => !counterpartyAlias.IsChainStore)
+				.Where(() => !counterpartyAlias.DisableClaimMailing)
+				.Where(() => !organizationAlias.DisableClaimMailing)
+				.Where(Restrictions.In(
+					Projections.Property(() => orderAlias.OrderStatus),
+					debtOrderStatuses.ToArray()))
+				.Where(Restrictions.Or(
+					Restrictions.IsNull(Projections.Property(() => counterpartyAlias.RevenueStatus)),
+					Restrictions.Not(Restrictions.In(Projections.Property(() => counterpartyAlias.RevenueStatus), excludeCounterpartyRevenueStatuses.ToArray()))
+				))
+				.Where(Restrictions.Disjunction()
+					.Add(Restrictions.IsNull(Projections.Property(() => counterpartyAlias.CloseDeliveryDebtType)))
+					.Add(Restrictions.Not(Restrictions.In(
+						Projections.Property(() => counterpartyAlias.CloseDeliveryDebtType),
+						excludeDebtTypes.ToArray()
+					)))
+				)
+				.Where(Restrictions.Gt(debtProjection, 0m))
+				 .Where(Restrictions.Disjunction()
+					 .Add(Restrictions.IsNull(Projections.SubQuery(lastLetterOfClaimDateSubquery)))
+					 .Add(Restrictions.Lt(Projections.SubQuery(lastLetterOfClaimDateSubquery), letterOfClaimMaxSendDate)))
+				 .SelectList(list => list
+					.Select(() => counterpartyAlias.Id).WithAlias(() => resultAlias.CounterpartyId)
+					.Select(() => organizationAlias.Id).WithAlias(() => resultAlias.OrganizationId)
+					.Select(() => organizationAlias.FullName).WithAlias(() => resultAlias.OrganizationFullName)
+					.Select(() => organizationAlias.EmailForClaimLetters).WithAlias(() => resultAlias.OrganizationEmailForMailing)
+					.Select(() => contractAlias.Id).WithAlias(() => resultAlias.ContractId)
+					.Select(debtProjection).WithAlias(() => resultAlias.OverdueDebtorDebt)
+					.Select(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
+					)
+				.TransformUsing(Transformers.AliasToBean<CounterpartyOverdueDebtorDebtDataNode>())
+				.Take(maxClientsToTake)
+				.ListAsync<CounterpartyOverdueDebtorDebtDataNode>(cancellationToken);
+
+			var result = allData
+				.GroupBy(x => new { x.CounterpartyId, x.OrganizationId })
+				.Select(g => new CounterpartyOverdueDebtorDebtAggregatedNode
+				{
+					OrderIds = g.Select(x => x.OrderId).Distinct().ToList(),
+					OrganizationId = g.Key.OrganizationId,
+					CounterpartyId = g.Key.CounterpartyId,
+					OrganizationFullName = g.First().OrganizationFullName,
+					OrganizationEmailForMailing = g.First().OrganizationEmailForMailing,
+					ContractId = g.First().ContractId,
+					TotalOverdueDebtorDebt = g.Sum(x => x.OverdueDebtorDebt)
+				})
+				.Where(x => x.TotalOverdueDebtorDebt > 100m)
+				.ToList();
+
+			return result;
+		}
+
+		public async Task<Order> GetEarliestOrder(IUnitOfWork uow, IEnumerable<int> orderIds, CancellationToken cancellationToken)
+		{
+			Order orderAlias = null;
+
+			var earliestOrder = await uow.Session.QueryOver(() => orderAlias)
+				.WhereRestrictionOn(() => orderAlias.Id).IsIn(orderIds.ToArray())
+				.OrderBy(() => orderAlias.DeliveryDate).Asc
+				.Take(1)
+				.SingleOrDefaultAsync(cancellationToken);
+
+			return earliestOrder;
+		}
+
+		public IEnumerable<int> GetClientOrdersIdsForDate(IUnitOfWork uow, DateTime date, int? counterpartyId, int? deliveryPointId)
 		{
 			var query = uow.Session.Query<VodovozOrder>()
 				.Where(x => x.DeliveryDate == date);
@@ -2751,6 +2938,120 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return query
 				.Select(x => x.Id)
 				.ToList();
+		}
+
+		public async Task<IReadOnlyCollection<OverdueDebtOverPeriodLimitAggregateNode>> GetWithoutClosedDeliveriesCounterpartiesOverdueDebts
+			(IUnitOfWork unitOfWork,
+			int daysBeforeClosingDeliveries,
+			int[] organizationsIds,
+			OrderStatus[] orderStatuses,
+			CounterpartyType[] counterpartyTypes,
+			int tenderCameFromId,
+			decimal debtThreshold,
+			int? counterpartyId = null,
+			CancellationToken cancellationToken = default)
+		{
+			return (await GetOverdueDebtQuery(unitOfWork, daysBeforeClosingDeliveries, organizationsIds, orderStatuses, counterpartyId)
+				.Where(x =>
+					!x.Counterparty.IsDeliveriesClosed
+					&& !x.Counterparty.IsChainStore
+					&& x.Counterparty.ReasonForLeaving != ReasonForLeaving.Tender
+					&& x.Counterparty.CameFrom.Id != tenderCameFromId
+					&& counterpartyTypes.Contains(x.Counterparty.CounterpartyType)
+					&& x.DebtSum > debtThreshold
+				)
+				.ToListAsync(cancellationToken))
+				.GroupBy(x => new
+				{
+					OrganizationId = x.Organization.Id,
+					CounterpartyId = x.Counterparty.Id
+				})
+				.Select(g => new OverdueDebtOverPeriodLimitAggregateNode
+				{
+					Organization = g.First().Organization,
+					Counterparty = g.First().Counterparty,					
+					OrderIds = g.Select(x => x.OrderId).ToArray(),
+					DebtSum = g.Sum(x => x.DebtSum),
+					OverdueDebtDays = (DateTime.Now - g.Min(x => x.DeliveryDate)).Days,
+					OldestDebtOrderDate = g.Min(x => x.DeliveryDate)
+				})				
+				.ToArray();
+		}
+
+		public async Task<bool> HasClosedDeliveriesCounterpartyWithOverdueDebtsAsync(
+			IUnitOfWork unitOfWork,
+			int daysBeforeClosingDeliveries,
+			int[] organizationsIds,
+			OrderStatus[] orderStatuses,
+			int counterpartyId,
+			CancellationToken cancellationToken = default)
+		{
+			return await GetOverdueDebtQuery(unitOfWork, daysBeforeClosingDeliveries, organizationsIds, orderStatuses, counterpartyId)
+				.Where(x => x.Counterparty.IsDeliveriesClosed)
+				.Select(x => x.Counterparty.Id)
+				.AnyAsync(cancellationToken);
+		}
+
+		private IQueryable<OverdueDebtOverPeriodLimitRow> GetOverdueDebtQuery(
+			IUnitOfWork unitOfWork,
+			int daysBeforeClosingDeliveries,
+			int[] organizationsIds,
+			OrderStatus[] orderStatuses,
+			int? counterpartyId = null)
+		{
+			var query =
+				from order in unitOfWork.Session.Query<Order>()
+				join counterparty in unitOfWork.Session.Query<Counterparty>() on order.Client.Id equals counterparty.Id
+				join contract in unitOfWork.Session.Query<CounterpartyContract>() on order.Contract.Id equals contract.Id
+
+				where
+					organizationsIds.Contains(order.Contract.Organization.Id)
+					&& orderStatuses.Contains(order.OrderStatus)
+					&& order.PaymentType == PaymentType.Cashless
+					&& order.OrderPaymentStatus != OrderPaymentStatus.Paid
+					&& order.DeliveryDate != null
+					&& order.DeliveryDate.Value
+						.AddDays(order.Client.DelayDaysForBuyers)
+						.AddDays(daysBeforeClosingDeliveries).Date
+						< DateTime.Today
+
+				let orderSum =
+					(decimal?)unitOfWork.Session.Query<OrderItem>()
+						.Where(x => x.Order.Id == order.Id)
+						.Sum(x => x.ActualSum) ?? 0
+
+				let paidSum =
+					(decimal?)(
+						from paymentItem in unitOfWork.Session.Query<PaymentItem>()
+						join op in unitOfWork.Session.Query<CashlessMovementOperation>()
+							on paymentItem.CashlessMovementOperation.Id equals op.Id
+						where
+							paymentItem.Order.Id == order.Id
+							&& op.CashlessMovementOperationStatus != AllocationStatus.Cancelled
+						select op.Expense
+					).Sum() ?? 0
+
+				let debtSum = orderSum - paidSum
+
+				where
+					orderSum > 0
+					&& debtSum > 0
+
+			select new OverdueDebtOverPeriodLimitRow
+			{
+				Counterparty = counterparty,
+				OrderId = order.Id,				
+				Organization = contract.Organization,
+				DebtSum = debtSum,
+				DeliveryDate = order.DeliveryDate.Value
+			};
+
+			if(counterpartyId != null)
+			{
+				query = query.Where(x => x.Counterparty.Id == counterpartyId);
+			}
+
+			return query;
 		}
 	}
 }

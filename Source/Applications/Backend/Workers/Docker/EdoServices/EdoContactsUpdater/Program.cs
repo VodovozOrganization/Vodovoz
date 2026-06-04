@@ -1,9 +1,9 @@
 using Autofac.Extensions.DependencyInjection;
 using Edo.Common;
-using Edo.Problems.Routine;
 using Edo.Transport;
 using EdoContactsUpdater.Configs;
 using EdoContactsUpdater.Converters;
+using EdoContactsUpdater.Worker;
 using EdoService.Library;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
@@ -132,7 +132,7 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			return onlineOrders.FirstOrDefault();
 		}
-
+		
 		public IEnumerable<OnlineOrder> GetOnlineOrdersDuplicates(
 			IUnitOfWork uow, OnlineOrder currentOnlineOrder, DateTime? createdAt = null)
 		{

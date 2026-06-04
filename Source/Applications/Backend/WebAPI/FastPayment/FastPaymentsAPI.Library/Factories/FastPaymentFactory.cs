@@ -89,6 +89,19 @@ namespace FastPaymentsAPI.Library.Factories
 			};
 		}
 
+		public ReverseOrderRequestDTO GetReverseOrderRequestDTO(string ticket, int shopId, decimal? amount = null)
+		{
+			var signatureSection = _configuration.GetSection($"{_signature}{shopId}");
+
+			return new ReverseOrderRequestDTO
+			{
+				Ticket = ticket,
+				ShopId = signatureSection.GetValue<long>("ShopId"),
+				ShopPasswd = signatureSection.GetValue<string>("ShopPasswd"),
+				Amount = amount
+			};
+		}
+
 		public OrderSignatureParams GetSignatureParamsForRegisterOrder(int orderId, decimal orderSum, int shopId)
 		{
 			var signatureSection = _configuration.GetSection($"{_signature}{shopId}");

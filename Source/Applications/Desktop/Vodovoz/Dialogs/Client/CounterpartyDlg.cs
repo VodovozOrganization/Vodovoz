@@ -160,6 +160,7 @@ namespace Vodovoz
 		private bool _deliveryPointsConfigured = false;
 		private bool _documentsConfigured = false;
 		private Organization _vodovozOrganization;
+		private bool _disableClosingDeliveriesMailingInitValue;
 
 		public ThreadDataLoader<EmailRow> EmailDataLoader { get; private set; }
 
@@ -734,6 +735,11 @@ namespace Vodovoz
 				.InitializeFromSource();
 			ycheckSpecialDocuments.Sensitive = CanEdit;
 
+			ycheckWorkingWithoutSeal.Binding
+				.AddBinding(Entity, e => e.IsWorkingWithoutSeal, w => w.Active)
+				.InitializeFromSource();
+			ycheckWorkingWithoutSeal.Sensitive = CanEdit;
+
 			ycheckAlwaysPrintInvoice.Binding
 				.AddBinding(Entity, e => e.AlwaysPrintInvoice, w => w.Active)
 				.InitializeFromSource();
@@ -773,6 +779,14 @@ namespace Vodovoz
 				.InitializeFromSource();
 			ycheckbuttonDisableDebtMailing.Sensitive = 
 				ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.CounterpartyPermissions.CanEditDebtNotification);
+
+			ycheckbuttonDisableClosingDeliveriesMailing.Binding
+				.AddBinding(Entity, e => e.DisableClosingDeliveriesMailing, w => w.Active)
+				.InitializeFromSource();			
+
+			ycheckbuttonDisableClaimMailing.Binding
+				.AddBinding(Entity, e => e.DisableClaimMailing, w => w.Active)
+				.InitializeFromSource();			
 
 			// Настройка каналов сбыта
 			if(Entity.IsForRetail)
@@ -818,6 +832,8 @@ namespace Vodovoz
 
 			logisticsRequirementsView.ViewModel = new LogisticsRequirementsViewModel(Entity.LogisticsRequirements ?? new LogisticsRequirements(), _commonServices);
 			logisticsRequirementsView.ViewModel.Entity.PropertyChanged += OnLogisticsRequirementsSelectionChanged;
+
+			_disableClosingDeliveriesMailingInitValue = Entity.DisableClosingDeliveriesMailing;
 		}
 
 		private void OnPersonTypeChanged()
@@ -1628,7 +1644,7 @@ namespace Vodovoz
 					Entity.PayerSpecialKPP = null;
 				}
 
-				RemoveEmptyEmailsAndPhones();
+				RemoveEmptyEmailsAndPhones();				
 
 				if(!ServicesConfig.ValidationService.Validate(Entity, _validationContext))
 				{
@@ -1648,6 +1664,7 @@ namespace Vodovoz
 
 				_logger.Info("Сохраняем контрагента...");
 				UoW.Save();
+				SaveEmailSubscriptions();
 				AddAttachedFilesIfNeeded();
 				UpdateAttachedFilesIfNeeded();
 				DeleteAttachedFilesIfNeeded();
@@ -1658,6 +1675,28 @@ namespace Vodovoz
 			finally
 			{
 				SetSensetivity(true);
+			}
+		}
+
+		private void SaveEmailSubscriptions()
+		{
+			if(_disableClosingDeliveriesMailingInitValue == Entity.DisableClosingDeliveriesMailing)
+			{
+				return;
+			}
+
+			using(var unitOfWork = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot("Подписка на рассылку"))
+			{
+				if(Entity.DisableClosingDeliveriesMailing)
+				{
+					UnsubscribeForDeliveriesClosingEmails(unitOfWork);
+				}
+				else
+				{
+					SubscribeForDeliveriesClosingEmails(unitOfWork);
+				}
+
+				unitOfWork.Commit();
 			}
 		}
 
@@ -2472,6 +2511,36 @@ namespace Vodovoz
 			}
 
 			return bank;
+		}
+
+		private void UnsubscribeForDeliveriesClosingEmails(IUnitOfWork unitOfWork)
+		{
+			var unsubscribingReason = _emailRepository.GetBulkEmailEventOperatorReason(UoW, _emailSettings);
+
+			var unsubscribingEvent = new UnsubscribingBulkEmailEvent
+			{
+				Reason = unsubscribingReason,
+				ReasonDetail = CurrentEmployee.GetPersonNameWithInitials(),
+				Counterparty = Entity,
+				CounterpartyEmailType = CounterpartyEmailType.ClosingDeliveries
+			};
+
+			unitOfWork.Save(unsubscribingEvent);
+		}
+
+		private void SubscribeForDeliveriesClosingEmails(IUnitOfWork unitOfWork)
+		{
+			var subscribingReason = _emailRepository.GetBulkEmailEventOperatorReason(UoW, _emailSettings);
+
+			var subscribingEvent = new SubscribingBulkEmailEvent
+			{
+				Reason = subscribingReason,
+				ReasonDetail = CurrentEmployee.GetPersonNameWithInitials(),
+				Counterparty = Entity,
+				CounterpartyEmailType = CounterpartyEmailType.ClosingDeliveries
+			};
+
+			unitOfWork.Save(subscribingEvent);
 		}
 
 		public override void Destroy()

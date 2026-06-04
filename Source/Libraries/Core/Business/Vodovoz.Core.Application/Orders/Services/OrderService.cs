@@ -1,4 +1,4 @@
-﻿using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Clients;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -54,7 +54,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly IOrderDailyNumberController _orderDailyNumberController;
 		private readonly IPaymentFromBankClientController _paymentFromBankClientController;
 		private readonly IOrderFromOnlineOrderCreator _orderFromOnlineOrderCreator;
-		private readonly IEmployeeSettings _employeeSettings;
 		private readonly INomenclatureRepository _nomenclatureRepository;
 		private readonly IGenericRepository<DiscountReason> _discountReasonRepository;
 		private readonly IOrderSettings _orderSettings;
@@ -80,7 +79,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IOrderDailyNumberController orderDailyNumberController,
 			IPaymentFromBankClientController paymentFromBankClientController,
 			IOrderFromOnlineOrderCreator orderFromOnlineOrderCreator,
-			IEmployeeSettings employeeSettings,
 			INomenclatureRepository nomenclatureRepository,
 			IGenericRepository<DiscountReason> discountReasonRepository,
 			IOrderSettings orderSettings,
@@ -109,7 +107,6 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_orderDailyNumberController = orderDailyNumberController ?? throw new ArgumentNullException(nameof(orderDailyNumberController));
 			_paymentFromBankClientController = paymentFromBankClientController ?? throw new ArgumentNullException(nameof(paymentFromBankClientController));
 			_orderFromOnlineOrderCreator = orderFromOnlineOrderCreator ?? throw new ArgumentNullException(nameof(orderFromOnlineOrderCreator));
-			_employeeSettings = employeeSettings ?? throw new ArgumentNullException(nameof(employeeSettings));
 			_nomenclatureRepository = nomenclatureRepository ?? throw new ArgumentNullException(nameof(nomenclatureRepository));
 			_discountReasonRepository = discountReasonRepository ?? throw new ArgumentNullException(nameof(discountReasonRepository));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
@@ -133,11 +130,19 @@ namespace Vodovoz.Core.Application.Orders.Services
 		public int PaidDeliveryNomenclatureId { get; }
 		public int ForfeitNomenclatureId { get; }
 
-		public void UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order)
+		public Result UpdateDeliveryCost(IUnitOfWork unitOfWork, Order order)
 		{
-			var deliveryPrice = _orderDeliveryPriceGetter.GetDeliveryPrice(unitOfWork, order);
+			var deliveryPriceResult = _orderDeliveryPriceGetter.GetDeliveryPrice(unitOfWork, order);
+
+			if(deliveryPriceResult.IsFailure)
+			{
+				return Result.Failure(deliveryPriceResult.Errors);
+			}
+			
 			order.UpdateDeliveryItem(
-				unitOfWork, _orderContractUpdater, unitOfWork.GetById<Nomenclature>(PaidDeliveryNomenclatureId), deliveryPrice);
+				unitOfWork, _orderContractUpdater, unitOfWork.GetById<Nomenclature>(PaidDeliveryNomenclatureId), deliveryPriceResult.Value);
+			
+			return Result.Success();
 		}
 
 		/// <summary>
@@ -171,7 +176,13 @@ namespace Vodovoz.Core.Application.Orders.Services
 				}
 
 				order.RecalculateItemsPrice();
-				UpdateDeliveryCost(unitOfWork, order);
+				var deliveryCostResult = UpdateDeliveryCost(unitOfWork, order);
+
+				if(!deliveryCostResult.IsFailure)
+				{
+					throw new InvalidOperationException(deliveryCostResult.Errors.First().Message);
+				}
+				
 				return order.OrderSum;
 			}
 		}
@@ -235,7 +246,12 @@ namespace Vodovoz.Core.Application.Orders.Services
 				}
 
 				order.RecalculateItemsPrice();
-				UpdateDeliveryCost(unitOfWork, order);
+				var deliveryCostResult = UpdateDeliveryCost(unitOfWork, order);
+
+				if(!deliveryCostResult.IsFailure)
+				{
+					throw new InvalidOperationException(deliveryCostResult.Errors.First().Message);
+				}
 
 				return
 				(
@@ -433,7 +449,14 @@ namespace Vodovoz.Core.Application.Orders.Services
 			}
 			order.BottlesReturn = createOrderRequest.BottlesReturn;
 			order.RecalculateItemsPrice();
-			UpdateDeliveryCost(unitOfWork, order);
+			
+			var deliveryCostResult = UpdateDeliveryCost(unitOfWork, order);
+
+			if(deliveryCostResult.IsFailure)
+			{
+				throw new InvalidOperationException(deliveryCostResult.Errors.First().Message);
+			}
+			
 			AddLogisticsRequirements(order);
 			order.AddDeliveryPointCommentToOrder();
 
@@ -576,7 +599,14 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 			order.BottlesReturn = createOrderRequest.BottlesReturn;
 			order.RecalculateItemsPrice();
-			UpdateDeliveryCost(unitOfWork, order);
+			
+			var deliveryCostResult = UpdateDeliveryCost(unitOfWork, order);
+
+			if(deliveryCostResult.IsFailure)
+			{
+				throw new InvalidOperationException(deliveryCostResult.Errors.First().Message);
+			}
+
 			AddLogisticsRequirements(order);
 			order.AddDeliveryPointCommentToOrder();
 
@@ -608,28 +638,22 @@ namespace Vodovoz.Core.Application.Orders.Services
 			CancellationToken cancellationToken
 		)
 		{
-			Employee employee = null;
-			switch(onlineOrder.Source)
-			{
-				case Source.MobileApp:
-					employee = await uow.Session.GetAsync<Employee>(_employeeSettings.MobileAppEmployee, cancellationToken);
-					break;
-				case Source.VodovozWebSite:
-					employee = await uow.Session.GetAsync<Employee>(_employeeSettings.VodovozWebSiteEmployee, cancellationToken);
-					break;
-				case Source.KulerSaleWebSite:
-					employee = await uow.Session.GetAsync<Employee>(_employeeSettings.KulerSaleWebSiteEmployee, cancellationToken);
-					break;
-				case Source.AiBot:
-					employee = await uow.Session.GetAsync<Employee>(_employeeSettings.AiBotEmployee, cancellationToken);
-					break;
-			}
+			Employee employee = await _employeeRepository.GetEmployeeBySourceAsync(
+				uow,
+				onlineOrder.Source,
+				cancellationToken);
 
 			// Необходимо сделать асинхронным
 			var order = _orderFromOnlineOrderCreator.CreateOrderFromOnlineOrder(uow, employee, onlineOrder);
 
 			// Необходимо сделать асинхронным
-			UpdateDeliveryCost(uow, order);
+			var deliveryCostResult = UpdateDeliveryCost(uow, order);
+
+			if(deliveryCostResult.IsFailure)
+			{
+				_logger.LogError("Не удалось получить стоимость доставки для онлайн-заказа {OnlineOrderId}", onlineOrder.Id);
+				return 0;
+			}
 
 			// Необходимо сделать асинхронным
 			AddLogisticsRequirements(order);
@@ -651,6 +675,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 			if(acceptResult.IsFailure)
 			{
+				_logger.LogError("Не удалось принять заказ в ДВ для онлайн-заказа {OnlineOrderId}", onlineOrder.Id);
 				return 0;
 			}
 
@@ -666,7 +691,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			Order order,
 			bool canChangeDiscountValue)
 		{
-			if(order.OrderItems.Any(o => o.DiscountReason?.Id == _orderSettings.ReferFriendDiscountReasonId))
+			if(order.OrderItems.Any(o => o.DiscountReasons.Any(r => r.Id == _orderSettings.ReferFriendDiscountReasonId)))
 			{
 				return;
 			}

@@ -406,6 +406,7 @@ namespace Vodovoz.JournalViewModels
 			GeoGroup selfDeliveryGeographicalGroupAlias = null;
 			EdoContainer edoContainerAlias = null;
 			EdoContainer innerEdoContainerAlias = null;
+			DocumentEdoTask documentTask = null;
 			FormalEdoRequest edoRequestAlias = null;
 			PrimaryEdoRequest edoRequestAlias2 = null;
 			ManualEdoRequest edoRequestAlias3 = null;
@@ -683,30 +684,18 @@ namespace Vodovoz.JournalViewModels
 					.WithSubquery.WhereProperty(() => edoContainerAlias.Id).Eq(edoUpdLastRecordIdByOrderSubquery)
 					.Select(Projections.Property(() => edoContainerAlias.EdoDocFlowStatus));
 
-			var edoUpdLastStatusNewDocflowSubquery = QueryOver.Of(() => edoRequestAlias)
+			var edoUpdLastDocumentIdNewDocflowSubquery = QueryOver.Of(() => documentTask)
 				.JoinEntityAlias(
-					() => edoRequestAlias2,
-					() => edoRequestAlias2.Order.Id == edoRequestAlias.Order.Id
-						&& edoRequestAlias2.Id > edoRequestAlias.Id,
-					NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinEntityAlias(
-					() => edoRequestAlias3,
-					() => edoRequestAlias3.Order.Id == edoRequestAlias.Order.Id
-						&& edoRequestAlias3.Id > edoRequestAlias.Id,
-					NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinEntityAlias(() => orderEdoDocumentAlias, () => edoRequestAlias.Task.Id == orderEdoDocumentAlias.DocumentTaskId)
-				.JoinEntityAlias(
-					() => orderEdoDocumentAlias2,
-					() => orderEdoDocumentAlias2.DocumentTaskId == orderEdoDocumentAlias.DocumentTaskId
-						&& orderEdoDocumentAlias2.Id > orderEdoDocumentAlias.Id,
-					NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					() => edoRequestAlias,
+					() => documentTask.Id == edoRequestAlias.Task.Id)
+				.JoinEntityAlias(() => orderEdoDocumentAlias, () => documentTask.Id == orderEdoDocumentAlias.DocumentTaskId)
 				.Where(() => edoRequestAlias.Order.Id == orderAlias.Id)
-				.And(() => edoRequestAlias.DocumentType == EdoDocumentType.UPD)
-				.And(() => edoRequestAlias2.Id == null)
-				.And(() => edoRequestAlias3.Id == null)
-				.And(() => orderEdoDocumentAlias2.Id == null)
-				.Select(Projections.Property(() => orderEdoDocumentAlias.Status))
-				.Take(1);
+				.And(() => orderEdoDocumentAlias.DocumentType == EdoDocumentType.UPD)
+				.Select(Projections.Max(()=> orderEdoDocumentAlias.Id));
+			
+			var edoUpdLastStatusNewDocflowSubquery = QueryOver.Of(() => orderEdoDocumentAlias)
+				.WithSubquery.WhereProperty(() => orderEdoDocumentAlias.Id).Eq(edoUpdLastDocumentIdNewDocflowSubquery)
+				.Select(Projections.Property(() => orderEdoDocumentAlias.Status));
 
 			if(FilterViewModel.EdoDocFlowStatus is EdoDocFlowStatus edoDocFlowStatus)
 			{
@@ -808,7 +797,7 @@ namespace Vodovoz.JournalViewModels
 			var ordersConfig = RegisterEntity<VodovozOrder>(GetOrdersQuery)
 				.AddDocumentConfiguration(
 					//функция диалога создания документа
-					() =>_gtkDialogsOpener.CreateOrderDlg(FilterViewModel.IsForRetail, FilterViewModel.IsForSalesDepartment),
+					() => _gtkDialogsOpener.CreateOrderDlg(FilterViewModel.IsForRetail, FilterViewModel.IsForSalesDepartment),
 					//функция диалога открытия документа
 					(OrderJournalNode node) => _gtkDialogsOpener.CreateOrderDlg(node.Id),
 					//функция идентификации документа 
@@ -1481,7 +1470,7 @@ namespace Vodovoz.JournalViewModels
 						}
 						
 						var order = UoW.GetById<VodovozOrder>(selectedNode.Id);
-						_gtkDialogsOpener.OpenCopyLesserOrderDlg(this, order.Id);
+						_gtkDialogsOpener.OpenCopyLesserOrderDlg(this, order);
 					}
 				)
 			);

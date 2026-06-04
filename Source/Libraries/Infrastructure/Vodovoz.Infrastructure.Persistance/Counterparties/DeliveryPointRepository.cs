@@ -1,14 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Counterparties;
+using Vodovoz.Settings.Delivery;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Infrastructure.Persistance.Counterparties
@@ -16,10 +19,15 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 	internal sealed class DeliveryPointRepository : IDeliveryPointRepository
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
 
-		public DeliveryPointRepository(IUnitOfWorkFactory uowFactory)
+		public DeliveryPointRepository(
+			IUnitOfWorkFactory uowFactory,
+			IDeliveryScheduleSettings deliveryScheduleSettings
+			)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(_deliveryScheduleSettings));
 		}
 
 		/// <summary>
@@ -93,6 +101,64 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				Projections.Sum(() => orderItemAlias.Count)).List<object[]>();
 
 			return list.Count > 0 ? list.Average(x => (decimal)x[1]) : 0;
+		}
+
+		public int? GetOrderFrequency(IUnitOfWork uow, DeliveryPoint deliveryPoint, int? countLastOrders)
+		{
+			Order orderAlias = null;
+
+			var closingDocumentDeliveryScheduleId = _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId;
+
+			var validStatuses = new[]
+			{
+				OrderStatus.UnloadingOnStock,
+				OrderStatus.Shipped,
+				OrderStatus.Closed
+			};
+
+			var query = uow.Session.QueryOver(() => orderAlias)
+				.Where(() => orderAlias.DeliveryPoint.Id == deliveryPoint.Id)
+				.WhereRestrictionOn(() => orderAlias.OrderStatus).IsIn(validStatuses)
+				.Where(() => orderAlias.DeliveryDate != null)
+				.Where(() => orderAlias.DeliverySchedule.Id != closingDocumentDeliveryScheduleId)
+				.Where(
+					Restrictions.Or(
+						Restrictions.Where(() => orderAlias.SelfDelivery),
+						Subqueries.Exists(
+							DetachedCriteria.For<RouteListItem>()
+								.Add(Restrictions.Where<RouteListItem>(rli => rli.Order.Id == orderAlias.Id))
+								.SetProjection(Projections.Id())
+						)
+					)
+				)
+				.OrderBy(() => orderAlias.DeliveryDate).Desc;
+
+			if(countLastOrders.HasValue)
+			{
+				query.Take(countLastOrders.Value);
+			}
+
+			var deliveryDates = query
+				.Select(Projections.Property(() => orderAlias.DeliveryDate))
+				.List<DateTime>()
+				.OrderBy(deliveryDate => deliveryDate)
+				.ToList();
+
+			if(deliveryDates.Count < 2)
+			{
+				return null;
+			}
+
+			double totalDaysBetweenOrders = 0;
+
+			for(int i = 1; i < deliveryDates.Count; i++)
+			{
+				totalDaysBetweenOrders += (deliveryDates[i] - deliveryDates[i - 1]).TotalDays;
+			}
+
+			double averageDays = totalDaysBetweenOrders / (deliveryDates.Count - 1);
+
+			return (int)Math.Round(averageDays, MidpointRounding.AwayFromZero);
 		}
 
 		public IOrderedEnumerable<DeliveryPointCategory> GetActiveDeliveryPointCategories(IUnitOfWork uow)

@@ -192,6 +192,7 @@ WHERE
             '    '
     ) AS bottles_in_fact,
     orders.self_delivery AS is_self_delivery,
+    IF(orders.payment_type = 'Cashless' AND COALESCE(vr_organization_status.vat_rate_value, -1) = 0, true, false) AS without_vat,
     counterparty.inn,
     counterparty.kpp
 FROM orders
@@ -203,6 +204,12 @@ FROM orders
      counterparty_contract ON orders.counterparty_contract_id = counterparty_contract.id
          LEFT JOIN
      organizations ON organizations.id = counterparty_contract.organization_id
+         LEFT JOIN
+     vat_rate_versions vrv_organization_status ON vrv_organization_status.organization_id = organizations.id
+         AND ((vrv_organization_status.start_date &lt;= orders.delivery_date AND vrv_organization_status.end_date IS NULL)
+          OR (vrv_organization_status.start_date &lt;= orders.delivery_date AND vrv_organization_status.end_date &gt;= orders.delivery_date))
+         LEFT JOIN
+     vat_rates vr_organization_status ON vr_organization_status.id = vrv_organization_status.vat_rate_id
          LEFT JOIN
      organization_versions ov
      ON
@@ -368,6 +375,10 @@ WHERE
         <Field Name="payments_info">
           <DataField>payments_info</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="without_vat">
+          <DataField>without_vat</DataField>
+          <TypeName>System.Boolean</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -754,7 +765,7 @@ WHERE o.id = @order_id
       <Textbox Name="Textbox45">
         <Height>21.72pt</Height>
         <Width>220.21pt</Width>
-        <Value>Приложение №1 к постановлению Правительства Российской Федерации от 26 декабря 2011 г. № 1137 (в редакции постановления Правительства Российской Федерации от 16 августа 2024г. №1096)</Value>
+        <Value>Приложение №1 к постановлению Правительства Российской Федерации от 26 декабря 2011 г. № 1137 (в редакции постановления Правительства Российской Федерации от 23.01.2026 № 26)</Value>
         <ZIndex>0</ZIndex>
         <Left>582.89pt</Left>
         <Top>3.00pt</Top>
@@ -3530,7 +3541,7 @@ WHERE o.id = @order_id
           <Textbox Name="Textbox127" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>9.00pt</Height>
             <Width>290.55pt</Width>
-            <Value>(реквизиты свидетельства о государственной регистрации индивидуального предпринимателя)</Value>
+            <Value>(основной государственный регистрационный номер индивидуального предпринимателя и дата присвоения такого номера)</Value>
             <ZIndex>0</ZIndex>
             <Left>500.60pt</Left>
             <Top>32.90pt</Top>
@@ -3540,7 +3551,7 @@ WHERE o.id = @order_id
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <FontSize>6pt</FontSize>
+              <FontSize>5pt</FontSize>
               <TextAlign>Center</TextAlign>
             </Style>
           </Textbox>
@@ -3947,7 +3958,7 @@ WHERE o.id = @order_id
       <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>13pt</Height>
         <Width>13pt</Width>
-        <Value>1</Value>
+        <Value>=Iif(First(Fields!without_vat.Value, "Order"), "2", "1")</Value>
         <ZIndex>0</ZIndex>
         <Left>42.1pt</Left>
         <Top>62.7pt</Top>
@@ -4499,7 +4510,7 @@ WHERE o.id = @order_id
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox12">
-                      <Value>К счету-фактуре (счетам-фактурам), выставленному (выставленным) при получении оплаты, частичной оплаты или иных платежей в счет предстоящих поставок товаров (выполнения работ, оказания услуг), передачи имущественных прав</Value>
+                      <Value>К счету-фактуре (счетам-фактурам), выставленному (выставленным) при получении оплаты, частичной оплаты или иных платежей в счет предстоящих поставок товаров (выполнения работ, оказания услуг), передачи имущественных прав №______ от _________, исправление №_______ от _________</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>None</Default>

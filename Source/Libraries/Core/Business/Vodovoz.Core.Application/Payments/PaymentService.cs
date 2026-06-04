@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +8,6 @@ using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
@@ -35,17 +33,20 @@ namespace Vodovoz.Core.Application.Payments
 		private readonly IGenericRepository<Order> _orderRepository;
 		private readonly IPaymentItemsRepository _paymentItemsRepository;
 		private readonly IPaymentSettings _paymentSettings;
+		private readonly IClosingDeliveriesService _closingDeliveriesService;
 
 		public PaymentService(
 			IGenericRepository<Payment> paymentRepository,
 			IGenericRepository<Order> orderRepository,
 			IDeliveryScheduleSettings deliveryScheduleSettings,
 			IPaymentItemsRepository paymentItemsRepository,
-			IPaymentSettings paymentSettings)
+			IPaymentSettings paymentSettings,
+			IClosingDeliveriesService closingDeliveriesService)
 		{
 			_paymentRepository = paymentRepository ?? throw new ArgumentNullException(nameof(paymentRepository));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_paymentSettings = paymentSettings ?? throw new ArgumentNullException(nameof(paymentSettings));
+			_closingDeliveriesService = closingDeliveriesService ?? throw new ArgumentNullException(nameof(closingDeliveriesService));
 			_paymentItemsRepository = paymentItemsRepository ?? throw new ArgumentNullException(nameof(paymentItemsRepository));
 
 			_closingDocumentDeliveryScheduleId =
@@ -171,6 +172,9 @@ namespace Vodovoz.Core.Application.Payments
 					}
 
 					unitOfWork.Save(payment);
+
+					unitOfWork.Session.Flush();
+					_closingDeliveriesService.CheckAndOpenDeliveriesAsync(unitOfWork, counterpartyId).GetAwaiter().GetResult();
 				}
 				catch(Exception e)
 				{

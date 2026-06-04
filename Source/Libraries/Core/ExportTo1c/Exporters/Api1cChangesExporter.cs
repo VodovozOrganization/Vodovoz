@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -85,11 +85,11 @@ namespace ExportTo1c.Library.Exporters
 
 				foreach(var item in items)
 				{
-					var vatRateVersion = item.Nomenclature.GetActualVatRateVersion(order.BillDate);
+					var vatRateVersion = item.Nomenclature.GetActualVatRateVersion(order.DeliveryDate);
 
 					if(vatRateVersion == null)
 					{
-						throw new InvalidOperationException($"У номенклатуры #{item.Id} отсутствует версия НДС на дату счета {order.BillDate}");
+						throw new InvalidOperationException($"У номенклатуры {item.Nomenclature.Name} заказа {order.Id} отсутствует версия НДС на дату доставки {order.DeliveryDate}");
 					}
 
 					var rowElement = new XElement
@@ -101,7 +101,7 @@ namespace ExportTo1c.Library.Exporters
 						new XAttribute("Количество", item.CurrentCount.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("ЕдиницаИзмерения", item.Nomenclature.Unit.Name),
 						new XAttribute("Цена", item.Price.ToString("F2", CultureInfo.InvariantCulture)),
-						new XAttribute("Сумма", item.Sum.ToString("F2", CultureInfo.InvariantCulture)),
+						new XAttribute("Сумма", item.ActualSum.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("СуммаНДС", item.CurrentNDS.ToString("F2", CultureInfo.InvariantCulture)),
 						new XAttribute("СтавкаНДС", vatRateVersion.VatRate.GetValue1cComplexAutomation()),
 						new XAttribute("КатегорияНоменклатуры", item.Nomenclature.Category.GetEnumTitle()),

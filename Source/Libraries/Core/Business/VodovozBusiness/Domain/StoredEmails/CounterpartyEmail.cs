@@ -12,6 +12,7 @@ namespace Vodovoz.Domain.StoredEmails
 	{
 		private StoredEmail _storedEmail;
 		private Counterparty _counterparty;
+		private int? _organizationId;
 
 		public virtual int Id { get; set; }
 
@@ -36,6 +37,16 @@ namespace Vodovoz.Domain.StoredEmails
 		}
 
 		/// <summary>
+		/// Организация, от которой будет отправлено письмо
+		/// </summary>
+		[Display(Name = "Организация")]
+		public virtual int? OrganizationId
+		{
+			get => _organizationId;
+			set => SetField(ref _organizationId, value);
+		}
+
+		/// <summary>
 		/// Тип почтового отправления
 		/// </summary>
 		[Display(Name = "Тип почтового отправления")]
@@ -45,29 +56,5 @@ namespace Vodovoz.Domain.StoredEmails
 		/// Отправляемый документ
 		/// </summary>
 		public abstract IEmailableDocument EmailableDocument { get; }
-	}
-
-	public enum CounterpartyEmailType
-	{
-		[Display(Name = "Счёт")]
-		BillDocument,
-		[Display(Name = "УПД")]
-		UpdDocument,
-		[Display(Name = "Долг")]
-		DebtBill,
-		[Display(Name = "Массовая рассылка")]
-		Bulk,
-		[Display(Name = "Учётные данные")]
-		Credential,
-		[Display(Name = "Код авторизации")]
-		AuthorizationCode,
-		[Display(Name = "Счёт без отгрузки на долг")]
-		OrderWithoutShipmentForDebt,
-		[Display(Name = "Счёт без отгрузки на постоплату")]
-		OrderWithoutShipmentForPayment,
-		[Display(Name = "Счёт без отгрузки на предоплату")]
-		OrderWithoutShipmentForAdvancePayment,
-		[Display(Name = "Акт приёма-передачи оборудования")]
-		EquipmentTransfer
 	}
 }

@@ -36,6 +36,7 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 
 		private FileInformation _selectedFile;
 		private IEnumerable<FileInformation> _fileInformations;
+		private DialogSettings _addFileDialogSettings;
 
 		private bool _readOnly;
 
@@ -88,6 +89,11 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 
 		public Action<string> AddFileCallback { get; set; }
 		public Action<string> DeleteFileCallback { get; set; }
+		public DialogSettings AddFileDialogSettings
+		{
+			get => _addFileDialogSettings;
+			set => SetField(ref _addFileDialogSettings, value);
+		}
 
 		[PropertyChangedAlso(
 			nameof(CanAdd),
@@ -181,7 +187,9 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 
 		private void AddHandler()
 		{
-			var result = _fileDialogService.RunOpenFileDialog();
+			var result = AddFileDialogSettings is null
+				? _fileDialogService.RunOpenFileDialog()
+				: _fileDialogService.RunOpenFileDialog(AddFileDialogSettings);
 
 			if(!result.Successful)
 			{
@@ -232,6 +240,9 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 				{
 					AddFileCallback?.Invoke(fileName);
 				}
+
+				SelectedFile = FileInformations.FirstOrDefault(fi => fi.FileName == fileName);
+				FireOnFileInformationChanged();
 			}
 			catch(UnauthorizedAccessException)
 			{
@@ -351,6 +362,9 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 				{
 					AddFileCallback?.Invoke(fileName);
 				}
+
+				SelectedFile = FileInformations.FirstOrDefault(fi => fi.FileName == fileName);
+				FireOnFileInformationChanged();
 			}
 		}
 

@@ -15,6 +15,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.StoredEmails
 			DiscriminateSubClassesOnColumn("type");
 
 			Map(x => x.Type).Column("type").ReadOnly();
+			Map(x => x.OrganizationId).Column("organization_id");
 
 			References(x => x.StoredEmail).Column("stored_email_id");
 			References(x => x.Counterparty).Column("counterparty_id");
@@ -81,6 +82,39 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.StoredEmails
 				DiscriminatorValue(nameof(CounterpartyEmailType.Bulk));
 
 				References(x => x.OrderDocument).Column("order_document_id");
+			}
+		}
+
+		public class LetterOfClaimEmailMap : SubclassMap<LetterOfClaimEmail>
+		{
+			public LetterOfClaimEmailMap()
+			{
+				DiscriminatorValue(nameof(CounterpartyEmailType.LetterOfClaim));
+			}
+		}
+
+		public class GeneralBillDocumentEmailMap : SubclassMap<GeneralBillDocumentEmail>
+		{
+			public GeneralBillDocumentEmailMap()
+			{
+				DiscriminatorValue(nameof(CounterpartyEmailType.GeneralBillDocument));
+			}
+		}
+
+		public class InformationLetterEmailMap : SubclassMap<InformationLetterEmail>
+		{
+			public InformationLetterEmailMap()
+			{
+				DiscriminatorValue(nameof(CounterpartyEmailType.InformationLetter));
+			}
+		}
+
+		public class ClosingDeliveriesEmailMap : SubclassMap<ClosingDeliveriesEmail>
+		{
+			public ClosingDeliveriesEmailMap()
+			{
+				DiscriminatorValue(nameof(CounterpartyEmailType.ClosingDeliveries));
+				References(x => x.OrderWithoutShipmentForDebt).Column("bill_ws_for_debt_id");
 			}
 		}
 	}

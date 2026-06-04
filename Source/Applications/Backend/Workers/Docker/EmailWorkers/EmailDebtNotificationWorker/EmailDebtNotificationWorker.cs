@@ -1,6 +1,8 @@
-﻿using EmailDebtNotificationWorker.Services;
+﻿using EmailDebtNotificationWorker.Services.Common;
+using EmailDebtNotificationWorker.Services.InformationLetters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using QS.Services;
 using System;
 using System.Text;
 using System.Threading;
@@ -23,7 +25,8 @@ namespace EmailDebtNotificationWorker
 		public EmailDebtNotificationWorker(
 			ILogger<EmailDebtNotificationWorker> logger,
 			IDebtorsSettings debtorsParameters,
-			IServiceScopeFactory scopeFactory
+			IServiceScopeFactory scopeFactory,
+			IUserService userService
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -72,7 +75,7 @@ namespace EmailDebtNotificationWorker
 		{
 			var now = DateTime.Now;
 
-			return workingDayService.IsWorkingDay(now) &&
+			return workingDayService.IsOddWeekday(now) &&
 				   workingDayService.IsWithinWorkingHours(now);
 		}
 

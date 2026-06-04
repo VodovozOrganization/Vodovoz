@@ -17,6 +17,7 @@ namespace Vodovoz.Settings.Database.Logistics
 		public int CarEventStartNewPeriodDay => _settingsController.GetIntValue("CarEventStartNewPeriodDay");
 		public int TechInspectCarEventTypeId => _settingsController.GetIntValue(nameof(TechInspectCarEventTypeId));
 		public int CarTechnicalCheckupEventTypeId => _settingsController.GetIntValue("CarTechnicalCheckup.EventTypeId");
+		public int CarRepairEventTypeId => _settingsController.GetIntValue(nameof(CarRepairEventTypeId));
 
 		public int CarTransferEventTypeId => _settingsController.GetIntValue(nameof(CarTransferEventTypeId));
 		public int CarReceptionEventTypeId => _settingsController.GetIntValue(nameof(CarReceptionEventTypeId));

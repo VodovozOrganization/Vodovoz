@@ -80,7 +80,7 @@ namespace Vodovoz.Core.Application
 				.AddScoped<IExternalCounterpartyHandler, ExternalCounterpartyHandler>()
 				.AddScoped<IStagingTrueMarkCodeFactory, StagingTrueMarkCodeFactory>()
 				.AddTrueMarkApiClient()
-				.AddCoreApplicationOrderServices()
+				.AddCoreApplicationOrderServices()				
 				;
 
 			services.TryAddScoped<IFastPaymentSender, FastPaymentSender>();
@@ -93,6 +93,7 @@ namespace Vodovoz.Core.Application
 			.AddScoped<IOrderService, OrderService>()
 			.AddScoped<IPaymentService, PaymentService>()
 			.AddCoreOrderServicesDependencies()
+			.AddScoped<IClosingDeliveriesService, ClosingDeliveriesService>()
 			;
 
 		private static IServiceCollection AddCoreOrderServicesDependencies(this IServiceCollection services) => services
@@ -122,6 +123,7 @@ namespace Vodovoz.Core.Application
 			.AddScoped<IOrderConfirmationService, OrderConfirmationService>()
 			.AddScoped<IPartitioningOrderService, PartitioningOrderService>()
 			.AddScoped<IUnPaidOnlineOrderHandler, UnPaidOnlineOrderHandler>()
+			.AddScoped<ICustomerOrderTransferService, CustomerOrderTransferService>()
 			.AddScoped<IOrderOnlinePaymentAcceptanceHandler, OrderOnlinePaymentAcceptanceHandler>()
 		;
 
