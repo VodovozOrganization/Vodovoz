@@ -49,7 +49,7 @@ namespace CustomerOrdersApi.Library.V5.Factories
 			OnlineOrder onlineOrder,
 			DateTime ratingAvailableFrom)
 		{
-			var orderInfo = CreateOrderInfoDto(order, timers, onlineOrder.Id);
+			var orderInfo = CreateOrderInfoDto(order, timers, onlineOrder?.Id);
 			orderInfo.UpdateOrderRating(orderRating, ratingAvailableFrom);
 			orderInfo.UpdateOrderItems(order.OrderItems);
 
