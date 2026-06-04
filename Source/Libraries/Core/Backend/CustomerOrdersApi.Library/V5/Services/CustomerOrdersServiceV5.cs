@@ -164,7 +164,10 @@ namespace CustomerOrdersApi.Library.V5.Services
 
 		#endregion
 
-		public DetailedOrderInfoDto GetDetailedOrderInfo(GetDetailedOrderInfoDto getDetailedOrderInfoDto)
+		public async Task<DetailedOrderInfoDto> GetDetailedOrderInfo(
+			GetDetailedOrderInfoDto getDetailedOrderInfoDto,
+			CancellationToken cancellationToken
+			)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot();
 			
@@ -188,13 +191,15 @@ namespace CustomerOrdersApi.Library.V5.Services
 						x => x.Order.Id == order.Id)
 					.FirstOrDefault();
 			
-				return _customerOrderFactory.CreateDetailedOrderInfo(
+				return await _customerOrderFactory.CreateDetailedOrderInfo(
 					uow,
 					order,
 					orderRating,
 					timers,
 					onlineOrder,
-					ratingAvailableFrom);
+					ratingAvailableFrom,
+					cancellationToken
+				);
 			}
 			
 			orderRating = _genericRatingRepository.Get(
@@ -202,13 +207,15 @@ namespace CustomerOrdersApi.Library.V5.Services
 					x => x.OnlineOrder.Id == onlineOrder.Id)
 				.FirstOrDefault();
 			
-			return _customerOrderFactory.CreateDetailedOrderInfo(
+			return await _customerOrderFactory.CreateDetailedOrderInfo(
 				uow,
 				onlineOrder,
 				orderRating,
 				timers,
 				getDetailedOrderInfoDto.OrderId,
-				ratingAvailableFrom);
+				ratingAvailableFrom,
+				cancellationToken
+			);
 		}
 
 		public OrdersDto GetOrders(GetOrdersDto getOrdersDto)
