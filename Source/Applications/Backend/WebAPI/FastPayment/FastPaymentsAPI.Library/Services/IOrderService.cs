@@ -8,5 +8,6 @@ namespace FastPaymentsAPI.Library.Services
 		Task<OrderRegistrationResponseDTO> RegisterOrderAsync(string xmlStringOrderRegistrationRequestDTO);
 		Task<OrderInfoResponseDTO> GetOrderInfoAsync(string xmlStringOrderInfoDTO);
 		Task<CancelPaymentResponseDTO> CancelPaymentAsync(string xmlStringFromCancelPaymentRequestDTO);
+		Task<ReverseOrderResponseDTO> ReverseOrderAsync(string xmlStringReverseOrderRequestDTO);
 	}
 }

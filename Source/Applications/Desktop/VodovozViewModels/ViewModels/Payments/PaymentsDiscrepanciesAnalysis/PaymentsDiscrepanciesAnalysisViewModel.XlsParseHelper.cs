@@ -2,6 +2,7 @@
 using DocumentFormat.OpenXml.Spreadsheet;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -10,12 +11,20 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 {
 	public partial class PaymentsDiscrepanciesAnalysisViewModel
 	{
+		/// <summary>
+		/// Помощник чтения xlsx-файлов актов сверки 1С и разбора значений из строк.
+		/// </summary>
 		public static class XlsParseHelper
 		{
 			private const string _numberPattern = @"([0-9]{1,})";
-			private const string _floatingPointNumberPattern = @"^-?\d*\,{0,1}\d+$";
+			private const string _floatingPointNumberPattern = @"^-?[\d\s]+([\.,]\d+)?$";
 			private const string _datePattern = @"([0-9]{2}.[0-9]{2}.[0-9]{4})";
 
+			/// <summary>
+			/// Возвращает значения ячеек строк из xlsx-файла.
+			/// </summary>
+			/// <param name="fileName">Путь к xlsx-файлу.</param>
+			/// <returns>Значения ячеек, сгруппированные по строкам.</returns>
 			public static IList<IList<string>> GetRowsFromXls(string fileName)
 			{
 				if(!IsXlsxFile(fileName))
@@ -42,6 +51,11 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				return xlsxRowValues;
 			}
 
+			/// <summary>
+			/// Извлекает первый номер из строки.
+			/// </summary>
+			/// <param name="str">Строка для разбора.</param>
+			/// <returns>Первый найденный номер или <c>null</c>, если номер не найден.</returns>
 			public static int? ParseNumberFromString(string str)
 			{
 				if(str is null)
@@ -59,6 +73,11 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				return null;
 			}
 
+			/// <summary>
+			/// Извлекает десятичное число из строки.
+			/// </summary>
+			/// <param name="str">Строка для разбора.</param>
+			/// <returns>Десятичное число или <c>null</c>, если число не найдено.</returns>
 			public static decimal? ParseFloatingPointNumberFromString(string str)
 			{
 				if(str is null)
@@ -70,12 +89,22 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 
 				if(matches.Count > 0)
 				{
-					return decimal.Parse(matches[0].Value);
+					var normalizedValue = matches[0].Value
+						.Replace(" ", string.Empty)
+						.Replace("\u00A0", string.Empty)
+						.Replace(",", ".");
+
+					return decimal.Parse(normalizedValue, CultureInfo.InvariantCulture);
 				}
 
 				return null;
 			}
 
+			/// <summary>
+			/// Извлекает дату из строки.
+			/// </summary>
+			/// <param name="str">Строка для разбора.</param>
+			/// <returns>Дата или <c>null</c>, если дата не найдена.</returns>
 			public static DateTime? ParseDateFromString(string str)
 			{
 				if(str is null)
@@ -93,6 +122,11 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 				return null;
 			}
 
+			/// <summary>
+			/// Извлекает ИНН клиента из строки.
+			/// </summary>
+			/// <param name="str">Строка для разбора.</param>
+			/// <returns>ИНН клиента или <c>null</c>, если ИНН не найден.</returns>
 			public static string ParseClientInnFromString(string str)
 			{
 				if(str is null)
@@ -142,15 +176,44 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			private static IList<string> GetRowCellsValues(Row row, SharedStringTable sharedStringTable)
 			{
 				var rowData = new List<string>();
+				var firstCell = row.Elements<Cell>().FirstOrDefault();
+				var currentColumnIndex = GetColumnIndex(firstCell?.CellReference?.Value);
 
 				foreach(Cell cell in row.Elements<Cell>())
 				{
+					var cellColumnIndex = GetColumnIndex(cell.CellReference?.Value);
+					while(currentColumnIndex < cellColumnIndex)
+					{
+						rowData.Add(string.Empty);
+						currentColumnIndex++;
+					}
+
 					var cellValue = GetCellValue(cell, sharedStringTable);
 
 					rowData.Add(cellValue);
+					currentColumnIndex++;
 				}
 
 				return rowData;
+			}
+
+			private static int GetColumnIndex(string cellReference)
+			{
+				if(string.IsNullOrWhiteSpace(cellReference))
+				{
+					return 0;
+				}
+
+				var columnName = new string(cellReference.TakeWhile(char.IsLetter).ToArray());
+				var columnIndex = 0;
+
+				foreach(var letter in columnName)
+				{
+					columnIndex *= 26;
+					columnIndex += char.ToUpperInvariant(letter) - 'A' + 1;
+				}
+
+				return columnIndex - 1;
 			}
 
 			private static string GetCellValue(Cell cell, SharedStringTable sharedStringTable)

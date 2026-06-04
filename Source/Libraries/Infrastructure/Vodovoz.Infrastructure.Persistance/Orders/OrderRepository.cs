@@ -1,5 +1,4 @@
-﻿using Core.Infrastructure;
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -796,6 +795,19 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			};
 		}
 
+		public OrderStatus[] GetStatusesForTransferOrCancellationOnlineOrder()
+		{
+			return new[]
+			{
+				OrderStatus.NewOrder,
+				OrderStatus.WaitForPayment,
+				OrderStatus.Accepted,
+				OrderStatus.InTravelList,
+				OrderStatus.OnLoading,
+				//OrderStatus.OnTheWay Пока в статусе "В Пути" запрещено отменять и переносить заказы
+			};
+		}
+
 		public SmsPaymentStatus? GetOrderSmsPaymentStatus(IUnitOfWork uow, int orderId)
 		{
 			SmsPayment smsPaymentAlias = null;
@@ -1206,6 +1218,11 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 		public VodovozOrder GetOrder(IUnitOfWork unitOfWork, int orderId)
 		{
 			return unitOfWork.GetById<VodovozOrder>(orderId);
+		}
+
+		public async Task<VodovozOrder> GetOrderByIdAsync(IUnitOfWork unitOfWork, int orderId, CancellationToken cancellationToken)
+		{
+			return await unitOfWork.Session.GetAsync<VodovozOrder>(orderId, cancellationToken);
 		}
 
 		public int? GetMaxOrderDailyNumberForDate(IUnitOfWorkFactory uowFactory, DateTime deliveryDate)
@@ -2233,10 +2250,14 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return result;
 		}
 
-		public IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByOrdersIds(IUnitOfWork uow, IEnumerable<int> orderIds)
+		public IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByOrdersIds(
+			IUnitOfWork uow,
+			IEnumerable<int> orderIds,
+			int organizationId)
 		{
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
+			CounterpartyContract contractAlias = null;
 			Counterparty clientAlias = null;
 			OrderWithAllocation resultAlias = null;
 
@@ -2246,8 +2267,10 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+				.JoinAlias(o => o.Contract, () => contractAlias)
 				.JoinAlias(o => o.Client, () => clientAlias)
 				.WhereRestrictionOn(o => o.Id).IsInG(orderIds)
+				.And(() => contractAlias.Organization.Id == organizationId)
 				.SelectList(list => list
 					.SelectGroup(o => o.Id).WithAlias(() => resultAlias.OrderId)
 					.Select(o => o.DeliveryDate).WithAlias(() => resultAlias.OrderDeliveryDate)
@@ -2263,10 +2286,15 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return query.List<OrderWithAllocation>();
 		}
 
-		public IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByCounterparty(IUnitOfWork uow, int counterpartyId, IEnumerable<int> exceptOrderIds)
+		public IList<OrderWithAllocation> GetOrdersWithAllocationsOnDayByCounterparty(
+			IUnitOfWork uow,
+			int counterpartyId,
+			IEnumerable<int> exceptOrderIds,
+			int organizationId)
 		{
 			VodovozOrder orderAlias = null;
 			OrderItem orderItemAlias = null;
+			CounterpartyContract contractAlias = null;
 			Counterparty clientAlias = null;
 			OrderWithAllocation resultAlias = null;
 
@@ -2276,12 +2304,13 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+				.JoinAlias(o => o.Contract, () => contractAlias)
 				.JoinAlias(o => o.Client, () => clientAlias)
-				.WhereRestrictionOn(o => o.Id).Not.IsInG(exceptOrderIds)
 				.AndRestrictionOn(o => o.OrderStatus).Not.IsIn(
 					new[] { OrderStatus.NewOrder, OrderStatus.Canceled, OrderStatus.DeliveryCanceled, OrderStatus.NotDelivered })
 				.And(o => o.Client.Id == counterpartyId)
 				.And(o => o.PaymentType == PaymentType.Cashless)
+				.And(() => contractAlias.Organization.Id == organizationId)
 				.SelectList(list => list
 					.SelectGroup(o => o.Id).WithAlias(() => resultAlias.OrderId)
 					.Select(o => o.DeliveryDate).WithAlias(() => resultAlias.OrderDeliveryDate)
@@ -2295,6 +2324,11 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				)
 				.TransformUsing(Transformers.AliasToBean<OrderWithAllocation>());
 
+			if(exceptOrderIds.Any())
+			{
+				query.WhereRestrictionOn(o => o.Id).Not.IsInG(exceptOrderIds);
+			}
+
 			return query.List<OrderWithAllocation>();
 		}
 
@@ -2302,7 +2336,8 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			IUnitOfWork uow,
 			int counterpartyId,
 			string counterpartyInn,
-			IEnumerable<int> exceptOrderIds)
+			IEnumerable<int> exceptOrderIds,
+			int organizationId)
 		{
 			var query =
 				from payment in uow.Session.Query<Payment>()
@@ -2318,6 +2353,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					&& order.Client.Id != counterpartyId
 					&& !exceptOrderIds.Contains(order.Id)
 					&& order.PaymentType == PaymentType.Cashless
+					&& order.Contract.Organization.Id == organizationId
 				group paymentItem by paymentItem.Order.Id
 				into orderGroup
 
@@ -2911,6 +2947,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			OrderStatus[] orderStatuses,
 			CounterpartyType[] counterpartyTypes,
 			int tenderCameFromId,
+			decimal debtThreshold,
 			int? counterpartyId = null,
 			CancellationToken cancellationToken = default)
 		{
@@ -2921,6 +2958,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					&& x.Counterparty.ReasonForLeaving != ReasonForLeaving.Tender
 					&& x.Counterparty.CameFrom.Id != tenderCameFromId
 					&& counterpartyTypes.Contains(x.Counterparty.CounterpartyType)
+					&& x.DebtSum > debtThreshold
 				)
 				.ToListAsync(cancellationToken))
 				.GroupBy(x => new

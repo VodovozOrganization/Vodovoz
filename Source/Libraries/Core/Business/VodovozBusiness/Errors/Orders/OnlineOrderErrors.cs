@@ -1,4 +1,5 @@
-﻿using Vodovoz.Core.Domain.Results;
+﻿using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Results;
 using VodovozInfrastructure.Extensions;
 
 namespace Vodovoz.Errors.Orders
@@ -83,17 +84,26 @@ namespace Vodovoz.Errors.Orders
 			new Error("400", "Онлайн заказ не находится в ожидании оплаты");
 		public static Error IsOrderAlreadyProcessingAndCannotChanged =>
 			new Error("400", "Заказ уже в обработке и не может быть изменен");
+		public static Error IsOnlineOrderDoesNotHaveALinkedOrder =>
+			new Error("400", "Онлайн заказ не имеет привязанного заказа");
 		public static Error IsOnlineOrderPaid =>
 			new Error("400", "Онлайн заказ уже оплачен");
 		public static Error CantChangePaymentType =>
 			new Error("400", "Нельзя менять тип оплаты");
 		public static Error IsUnknownDeliverySchedule =>
 			new Error("400", "Неизвестный график доставки");
+		public static Error OnlineOrderPaymentNumberNotFound =>
+			new Error("400", "Оплата по онлайн заказу не найдена");
 		public static Error HasTimeToPayOrderExpired =>
 			new Error("408", "Время на оплату заказа истекло. В ближайшее время с Вами свяжется менеджер для оформления заказа");
 		public static Error IsOnlineOrderTimersEmpty =>
 			new Error("500", "Не найдены таймеры для онлайн заказов");
-		
+
+		public static Error CantUpdateOrder(string errorMessage) =>
+			new Error(
+				"400",
+				$"Не удалось обновить заказ: {errorMessage}");
+
 		public static Error IncorrectPricePaidDelivery(decimal price, decimal onlineOrderItemPrice) =>
 			new Error(
 				typeof(OnlineOrderErrors),
@@ -255,5 +265,9 @@ namespace Vodovoz.Errors.Orders
 				typeof(OnlineOrderErrors),
 				nameof(ClientDontPayOrder),
 				"Заказ не был оплачен в отведенный срок");
+		public static Error EmployeeNotFound(Source source) =>
+			new Error(
+				"400",
+				$"Не удалось получить информацию о пользователе из источника {source}");
 	}
 }
