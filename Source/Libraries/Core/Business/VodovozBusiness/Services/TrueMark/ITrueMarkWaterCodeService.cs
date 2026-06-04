@@ -18,7 +18,6 @@ namespace VodovozBusiness.Services.TrueMark
 		IList<SourceProductCodeStatus> SuccessfullyUsedProductCodesStatuses { get; }
 
 		Result<TrueMarkAnyCode> TryGetSavedTrueMarkCodeByScannedCode(IUnitOfWork uow, string scannedCode);
-		Task<Result<TrueMarkAnyCode>> GetTrueMarkCodeByScannedCode(IUnitOfWork uow, string scannedCode, CancellationToken cancellationToken = default);
 
 
 		/// <summary>
