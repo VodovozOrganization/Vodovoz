@@ -74,7 +74,12 @@ namespace CustomerOrdersApi.Library.V5.Services
 			_paymentRefundServiceFactory = paymentRefundServiceFactory ?? throw new ArgumentNullException(nameof(paymentRefundServiceFactory));
 		}
 
-		public async Task<Result> CanCancel(IUnitOfWork uow, Order order, OnlineOrder onlineOrder, CancellationToken cancellationToken)
+		public async Task<Result> CanCancel(
+			IUnitOfWork uow, 
+			Order order, 
+			OnlineOrder onlineOrder, 
+			CancellationToken cancellationToken
+		)
 		{
 			if(order is null)
 			{
@@ -129,7 +134,8 @@ namespace CustomerOrdersApi.Library.V5.Services
 			var onlinePayment = await _onlinePaymentRepository.GetByExternalIdAsync(
 				uow,
 				onlineOrder.OnlinePayment.Value,
-				cancellationToken);
+				cancellationToken
+			);
 
 			if(onlinePayment is null)
 			{
