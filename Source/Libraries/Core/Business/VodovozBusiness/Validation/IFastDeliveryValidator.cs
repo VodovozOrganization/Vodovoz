@@ -5,6 +5,6 @@ namespace Vodovoz.Validation
 {
 	public interface IFastDeliveryValidator
 	{
-		Result ValidateOrder(Order order);
+		Result ValidateOrder(Order order, bool isSkipOrderDeliveryDateCheck = false);
 	}
 }
