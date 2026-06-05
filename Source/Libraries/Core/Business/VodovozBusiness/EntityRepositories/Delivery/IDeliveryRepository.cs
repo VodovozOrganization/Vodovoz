@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Orders;
@@ -61,6 +62,13 @@ namespace Vodovoz.EntityRepositories.Delivery
 		);
 
 		District GetAccurateDistrict(IUnitOfWork uow, decimal latitude, decimal longitude);
+
+		/// <summary>
+		/// Возвращает список номенклатур для дополнительной загрузки, которые были сохранены в БД
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <returns>Список номенклатур</returns>
+		IList<int> GetAdditionalLoadingNomenclatureIds(IUnitOfWork uow);
 
 		FastDeliveryAvailabilityHistory GetRouteListsForFastDeliveryForOrder(
 			IUnitOfWork uow,

@@ -234,6 +234,11 @@ namespace Vodovoz.Infrastructure.Persistance.Delivery
 
 		#region Fast Delivery
 
+		public IList<int> GetAdditionalLoadingNomenclatureIds(IUnitOfWork uow) =>
+			uow.GetAll<AdditionalLoadingNomenclatureDistribution>()
+			.Select(d => d.Nomenclature.Id)
+			.ToList();
+
 		public FastDeliveryAvailabilityHistory GetRouteListsForFastDeliveryForOrder(
 			IUnitOfWork uow,
 			double latitude,
