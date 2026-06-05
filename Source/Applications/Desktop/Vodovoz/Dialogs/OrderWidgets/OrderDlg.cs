@@ -287,6 +287,7 @@ namespace Vodovoz
 		private bool _isEditOrderClicked;
 		private int _treeItemsNomenclatureColumnWidth;
 		private IList<DiscountReason> _discountReasons;
+		private IList<int> _additionalLoadingNomenclatureIds;
 		private Employee _currentEmployee;
 		private bool _canChangeDiscountValue;
 		private bool _canChoosePremiumDiscount;
@@ -1883,6 +1884,8 @@ namespace Vodovoz
 					return;
 				}
 
+				DeliveryDate = DateTime.Today;
+
 				if(Entity.DeliverySchedule?.Id != _deliveryRulesSettings.FastDeliveryScheduleId)
 				{
 					Entity.DeliverySchedule = UoW.GetById<DeliverySchedule>(_deliveryRulesSettings.FastDeliveryScheduleId);
@@ -1891,6 +1894,8 @@ namespace Vodovoz
 				Entity.AddFastDeliveryNomenclatureIfNeeded(UoW, _orderContractUpdater);
 				return;
 			}
+
+			DeliveryDate = null;
 
 			if(Entity.DeliverySchedule?.Id == _deliveryRulesSettings.FastDeliveryScheduleId)
 			{
@@ -1913,7 +1918,7 @@ namespace Vodovoz
 
 		private void OnButtonFastDeliveryCheckClicked(object sender, EventArgs e)
 		{
-			var fastDeliveryValidationResult = _fastDeliveryValidator.ValidateOrder(Entity);
+			var fastDeliveryValidationResult = _fastDeliveryValidator.ValidateOrder(Entity, true);
 
 			if(fastDeliveryValidationResult.IsFailure)
 			{
@@ -2135,6 +2140,9 @@ namespace Vodovoz
 			_discountReasons =
 				_discountReasonRepository.GetActiveDiscountReasonsFetchReferences(UoW, _canChoosePremiumDiscount);
 
+			_additionalLoadingNomenclatureIds =
+				_deliveryRepository.GetAdditionalLoadingNomenclatureIds(UoW);
+
 			treeItems.CreateFluentColumnsConfig<OrderItem>()
 				.AddColumn("№")
 					.HeaderAlignment(0.5f)
@@ -2274,6 +2282,10 @@ namespace Vodovoz
 				.AddColumn("Промонаборы").SetTag(nameof(Entity.PromotionalSets))
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.PromoSet == null ? "" : node.PromoSet.Name)
+				.AddColumn("Доступна для ДЗЧ")
+					.HeaderAlignment(0.5f)
+					.AddToggleRenderer(x => _additionalLoadingNomenclatureIds.Contains(x.Nomenclature.Id))
+					.Editing(false)
 				.RowCells()
 					.XAlign(0.5f)
 				.Finish();
