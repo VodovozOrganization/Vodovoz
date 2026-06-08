@@ -604,5 +604,10 @@ namespace Vodovoz.Infrastructure.Persistance.Goods
 				.Where(() => orderItemAlias.Nomenclature.Id == nomenclatureId)
 				.RowCount() > 0;
 		}
+
+		public IList<int> GetFlyerNomenclatureIds(IUnitOfWork uow) =>
+			uow.Session.Query<Flyer>()
+			.Select(f => f.FlyerNomenclature.Id)
+			.ToList();
 	}
 }

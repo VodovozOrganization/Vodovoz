@@ -142,6 +142,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
@@ -2291,7 +2292,7 @@ namespace Vodovoz
 				.AddColumn("Доступна для ДЗЧ")
 					.SetTag(isFastDeliveryEnableColumnName)
 					.HeaderAlignment(0.5f)
-					.AddToggleRenderer(x => _additionalLoadingNomenclatureIds.Contains(x.Nomenclature.Id))
+					.AddToggleRenderer(x => IsOrderItemAvailabelToFastDelivery(x))
 					.Editing(false)
 				.AddColumn("")
 				.RowCells()
@@ -5492,7 +5493,7 @@ namespace Vodovoz
 		protected void OnYBtnAddCurrentContractClicked(object sender, EventArgs e)
 		{
 			Order.AddContractDocument(Order.Contract);
-		}
+		}		
 
 		protected void OnBtnFormClicked(object sender, EventArgs e)
 		{
@@ -5511,6 +5512,15 @@ namespace Vodovoz
 
 			if(!CheckDepositOrderCanBeFormed())
 			{
+				return;
+			}
+
+			if(IsFastDeliveryAvailabilityMustBeChecked)
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"В вашем заказе присутствуют товары, участвующие в Доставке за час\nПройдите проверку Доставки за час",
+					"Не удалось сформировать");
 				return;
 			}
 
@@ -6267,5 +6277,41 @@ namespace Vodovoz
 			return result;
 		}
 		#endregion CustomCancellationConfirmationDialog
+
+		private bool IsFastDeliveryAvailabilityMustBeChecked =>
+			Entity.DeliveryPoint?.District?.TariffZone?.IsFastDeliveryAvailableAtCurrentTime == true
+			&& IsOrderContainsOnlyFastDeliveryItems()
+			&& !IsFastDeliveryAvailabilityChecked;
+
+		private bool IsOrderContainsOnlyFastDeliveryItems()
+		{
+			var flyerNomenclatures = _nomenclatureRepository.GetFlyerNomenclatureIds(UoW);
+
+			return !IsOrderContainsNotFlyerEquipments(flyerNomenclatures)
+				&& Entity.OrderItems.Any()
+				&& Entity.OrderItems.All(x => IsOrderItemAvailabelToFastDeliveryOrPaidDeliveryOrFlyer(x, flyerNomenclatures));
+		}
+
+		private bool IsFastDeliveryAvailabilityChecked =>
+			Entity.Client?.Id != null
+			&& Entity.DeliveryPoint?.Id != null
+			&& _deliveryRepository.IsFastDeliveryForClientAndAddressCheckedToday(UoW, Entity.Client.Id, DeliveryPoint.Id);
+
+		private bool IsOrderItemAvailabelToFastDelivery(OrderItem orderItem) =>
+			_additionalLoadingNomenclatureIds.Contains(orderItem.Nomenclature.Id);
+
+		private bool IsOrderItemPaidDelivery(OrderItem orderItem) =>
+			_nomenclatureSettings.PaidDeliveriesNomenclaturesIds.Contains(orderItem.Nomenclature.Id);
+
+		private bool IsOrderItemAvailabelToFastDeliveryOrPaidDeliveryOrFlyer(OrderItem orderItem, IEnumerable<int> flyerNomenclatures) =>
+			IsOrderItemAvailabelToFastDelivery(orderItem)
+			|| IsOrderItemPaidDelivery(orderItem)
+			|| IsFlyerNomenclature(orderItem.Nomenclature.Id, flyerNomenclatures);
+
+		private bool IsFlyerNomenclature(int nomenclatureId, IEnumerable<int> flyerNomenclatures) =>
+			flyerNomenclatures.Contains(nomenclatureId);
+
+		private bool IsOrderContainsNotFlyerEquipments(IEnumerable<int> flyerNomenclatures) =>
+			Entity.ObservableOrderEquipments.Any(x => !IsFlyerNomenclature(x.Nomenclature.Id, flyerNomenclatures));
 	}
 }

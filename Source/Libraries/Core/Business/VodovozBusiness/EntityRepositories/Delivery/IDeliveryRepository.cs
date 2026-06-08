@@ -96,5 +96,14 @@ namespace Vodovoz.EntityRepositories.Delivery
 		IList<Order> GetFastDeliveryLateOrders(IUnitOfWork uow, DateTime fromDateTime, IGeneralSettings generalSettings,
 			int complaintDetalizationId);
 		ServiceDistrict GetServiceDistrictByCoordinates(IUnitOfWork unitOfWork, decimal latitude, decimal longitude);
+
+		/// <summary>
+		/// Проверяет, выполнялась ли сегодня проверка доступности ДЗЧ для данного клиента и адреса доставки
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="clientId">Id клиента</param>
+		/// <param name="deliveryPointId">Id точки доставки</param>
+		/// <returns>Результат проверки</returns>
+		bool IsFastDeliveryForClientAndAddressCheckedToday(IUnitOfWork uow, int clientId, int deliveryPointId);
 	}
 }
