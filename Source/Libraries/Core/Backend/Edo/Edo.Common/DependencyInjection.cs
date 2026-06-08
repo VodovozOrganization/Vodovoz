@@ -17,6 +17,7 @@ namespace Edo.Common
 			services.TryAddScoped<EdoTaskItemTrueMarkStatusProvider>();
 			services.TryAddScoped<EdoTaskItemTrueMarkStatusProviderFactory>();
 			services.TryAddScoped<ITrueMarkCodesValidator, TrueMarkTaskCodesValidator>();
+			services.TryAddScoped<ITrueMarkCodesPoolCodeProvider, TrueMarkCodesPoolCodeProvider>();
 			services.TryAddScoped<IEdoOrderContactProvider, EdoOrderContactProvider>();
 			services.TryAddScoped<ISaveCodesService, SaveCodesService>();
 			services.TryAddScoped<IClientsTrueMarkRegistrationCheckService, ClientsTrueMarkRegistrationCheckService>();

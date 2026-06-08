@@ -1,4 +1,10 @@
-﻿using Edo.Admin;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Edo.Admin;
 using Edo.Common;
 using Edo.Problems;
 using Edo.Problems.Custom;
@@ -7,16 +13,9 @@ using Edo.Problems.Validation;
 using Edo.Receipt.Dispatcher;
 using MassTransit;
 using Microsoft.Extensions.Logging;
-using NHibernate.Util;
 using NSubstitute;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Net.Http;
-using System.Threading.Tasks;
 using TrueMark.Codes.Pool;
 using TrueMark.Library;
 using TrueMarkApi.Client;
@@ -531,6 +530,7 @@ namespace Receipt.Dispatcher.Tests
 				edoReceiptSettings,
 				localCodesValidator,
 				Substitute.For<ITrueMarkCodesPool>() as ReceiptTrueMarkCodesPool, 
+				Substitute.For<ITrueMarkCodesPoolCodeProvider>(),
 				tag1260Checker,
 				trueMarkCodeRepository,
 				productCodeRepository ?? Substitute.For<IGenericRepository<TrueMarkProductCode>>(),
