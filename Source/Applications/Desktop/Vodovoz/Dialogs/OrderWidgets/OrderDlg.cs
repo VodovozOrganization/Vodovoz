@@ -6288,7 +6288,7 @@ namespace Vodovoz
 		private bool IsFastDeliveryAvailabilityMustBeChecked =>
 			Entity.DeliveryPoint?.District?.TariffZone?.IsFastDeliveryAvailableAtCurrentTime == true
 			&& IsOrderItemsAllFastDeliveryCompatible()
-			&& !IsFastDeliveryAvailabilityChecked;
+			&& !CheckIsFastDeliveryAvailabilityChecked();
 
 		private bool IsOrderItemsAllFastDeliveryCompatible()
 		{
@@ -6299,7 +6299,7 @@ namespace Vodovoz
 				&& Entity.OrderItems.All(x => IsOrderItemAvailableToFastDeliveryOrPaidDeliveryOrFlyer(x, flyerNomenclatures));
 		}
 
-		private bool IsFastDeliveryAvailabilityChecked =>			
+		private bool CheckIsFastDeliveryAvailabilityChecked() =>
 			Entity.Client?.Id != null
 			&& Entity.DeliveryPoint?.Id != null
 			&& (_isFastDeliveryAvailabilityChecked
