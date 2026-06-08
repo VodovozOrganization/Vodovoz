@@ -321,6 +321,7 @@ namespace Vodovoz
 		private bool _allowLoadSelfDelivery;
 		private bool _acceptCashlessPaidSelfDelivery;
 		private bool _canEditGoodsInRouteList;
+		private bool _isFastDeliveryAvailabilityChecked;
 		public bool IsStatusForEditGoodsInRouteList => 
 			_orderRepository.GetStatusesForEditGoodsInOrderInRouteList().Contains(Entity.OrderStatus);
 
@@ -1936,6 +1937,8 @@ namespace Vodovoz
 				DeliveryPoint.District.TariffZone.Id,
 				fastDeliveryOrder: Entity
 			);
+
+			_isFastDeliveryAvailabilityChecked = true;
 
 			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(ServicesConfig.UnitOfWorkFactory);
 			fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryAvailabilityHistory);
@@ -4102,6 +4105,8 @@ namespace Vodovoz
 			SetSensitivityOfPaymentType();
 
 			UpdateClientSecondOrderDiscount();
+
+			_isFastDeliveryAvailabilityChecked = false;
 		}
 
 		private void UpdateBarterPaymentTypeVisible()
@@ -4179,6 +4184,8 @@ namespace Vodovoz
 			SetNearestDeliveryDateLoaderFunc();
 
 			RefreshBottlesDebtNotifier();
+
+			_isFastDeliveryAvailabilityChecked = false;
 		}
 
 		private void RemoveFlyers()
@@ -6292,10 +6299,11 @@ namespace Vodovoz
 				&& Entity.OrderItems.All(x => IsOrderItemAvailabelToFastDeliveryOrPaidDeliveryOrFlyer(x, flyerNomenclatures));
 		}
 
-		private bool IsFastDeliveryAvailabilityChecked =>
+		private bool IsFastDeliveryAvailabilityChecked =>			
 			Entity.Client?.Id != null
 			&& Entity.DeliveryPoint?.Id != null
-			&& _deliveryRepository.IsFastDeliveryForClientAndAddressCheckedToday(UoW, Entity.Client.Id, DeliveryPoint.Id);
+			&& (_isFastDeliveryAvailabilityChecked
+				|| _deliveryRepository.IsFastDeliveryAvailabilityForClientAndAddressCheckedToday(UoW, Entity.Client.Id, DeliveryPoint.Id));
 
 		private bool IsOrderItemAvailabelToFastDelivery(OrderItem orderItem) =>
 			_additionalLoadingNomenclatureIds.Contains(orderItem.Nomenclature.Id);

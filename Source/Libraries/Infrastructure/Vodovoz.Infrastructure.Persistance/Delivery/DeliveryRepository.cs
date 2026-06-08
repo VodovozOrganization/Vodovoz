@@ -239,7 +239,7 @@ namespace Vodovoz.Infrastructure.Persistance.Delivery
 			.Select(d => d.Nomenclature.Id)
 			.ToList();
 
-		public bool IsFastDeliveryForClientAndAddressCheckedToday(IUnitOfWork uow, int clientId, int deliveryPointId)
+		public bool IsFastDeliveryAvailabilityForClientAndAddressCheckedToday(IUnitOfWork uow, int clientId, int deliveryPointId)
 		{
 			var today = DateTime.Today;
 			var count = uow.Session.QueryOver<FastDeliveryAvailabilityHistory>()

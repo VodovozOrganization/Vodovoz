@@ -104,6 +104,6 @@ namespace Vodovoz.EntityRepositories.Delivery
 		/// <param name="clientId">Id клиента</param>
 		/// <param name="deliveryPointId">Id точки доставки</param>
 		/// <returns>Результат проверки</returns>
-		bool IsFastDeliveryForClientAndAddressCheckedToday(IUnitOfWork uow, int clientId, int deliveryPointId);
+		bool IsFastDeliveryAvailabilityForClientAndAddressCheckedToday(IUnitOfWork uow, int clientId, int deliveryPointId);
 	}
 }
