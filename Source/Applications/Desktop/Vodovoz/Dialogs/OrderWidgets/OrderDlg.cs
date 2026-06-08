@@ -2143,6 +2143,8 @@ namespace Vodovoz
 			_additionalLoadingNomenclatureIds =
 				_deliveryRepository.GetAdditionalLoadingNomenclatureIds(UoW);
 
+			var isFastDeliveryEnableColumnName = "IsFastDeliveryEnableColumn";
+
 			treeItems.CreateFluentColumnsConfig<OrderItem>()
 				.AddColumn("№")
 					.HeaderAlignment(0.5f)
@@ -2261,6 +2263,8 @@ namespace Vodovoz
 				.AddColumn("Основание скидки")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.DiscountReasonsNames)
+					.WrapMode(Pango.WrapMode.Word)
+					.WrapWidth(350)
 					.AddSetter(
 						(c, n) =>
 							c.BackgroundGdk = n.Discount > 0 && !n.DiscountReasons.Any() && n.PromoSet == null ? colorLightRed : colorPrimaryBase
@@ -2282,10 +2286,14 @@ namespace Vodovoz
 				.AddColumn("Промонаборы").SetTag(nameof(Entity.PromotionalSets))
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.PromoSet == null ? "" : node.PromoSet.Name)
+					.WrapMode(Pango.WrapMode.Word)
+					.WrapWidth(300)
 				.AddColumn("Доступна для ДЗЧ")
+					.SetTag(isFastDeliveryEnableColumnName)
 					.HeaderAlignment(0.5f)
 					.AddToggleRenderer(x => _additionalLoadingNomenclatureIds.Contains(x.Nomenclature.Id))
 					.Editing(false)
+				.AddColumn("")
 				.RowCells()
 					.XAlign(0.5f)
 				.Finish();
@@ -2293,6 +2301,15 @@ namespace Vodovoz
 			treeItems.Selection.Mode = SelectionMode.Multiple;
 			treeItems.Selection.Changed += TreeItems_Selection_Changed;
 			treeItems.ColumnsConfig.GetColumnsByTag(nameof(Entity.PromotionalSets)).FirstOrDefault().Visible = Entity.PromotionalSets.Count > 0;
+			
+			var isFastDeliveryEnableColumn =
+				treeItems.ColumnsConfig.GetColumnsByTag(isFastDeliveryEnableColumnName).FirstOrDefault();
+
+			if(isFastDeliveryEnableColumn != null)
+			{
+				isFastDeliveryEnableColumn.Sizing = TreeViewColumnSizing.Fixed;
+				isFastDeliveryEnableColumn.FixedWidth = 120;
+			}
 
 			treeDocuments.ColumnsConfig = ColumnsConfigFactory.Create<OrderDocument>()
 				.AddColumn("Документ").AddTextRenderer(node => node.Name)
