@@ -2295,7 +2295,7 @@ namespace Vodovoz
 				.AddColumn("Доступна для ДЗЧ")
 					.SetTag(isFastDeliveryEnableColumnName)
 					.HeaderAlignment(0.5f)
-					.AddToggleRenderer(x => IsOrderItemAvailabelToFastDelivery(x))
+					.AddToggleRenderer(x => IsOrderItemAvailableToFastDelivery(x))
 					.Editing(false)
 				.AddColumn("")
 				.RowCells()
@@ -6287,16 +6287,16 @@ namespace Vodovoz
 
 		private bool IsFastDeliveryAvailabilityMustBeChecked =>
 			Entity.DeliveryPoint?.District?.TariffZone?.IsFastDeliveryAvailableAtCurrentTime == true
-			&& IsOrderContainsOnlyFastDeliveryItems()
+			&& IsOrderItemsAllFastDeliveryCompatible()
 			&& !IsFastDeliveryAvailabilityChecked;
 
-		private bool IsOrderContainsOnlyFastDeliveryItems()
+		private bool IsOrderItemsAllFastDeliveryCompatible()
 		{
 			var flyerNomenclatures = _nomenclatureRepository.GetFlyerNomenclatureIds(UoW);
 
 			return !IsOrderContainsNotFlyerEquipments(flyerNomenclatures)
 				&& Entity.OrderItems.Any()
-				&& Entity.OrderItems.All(x => IsOrderItemAvailabelToFastDeliveryOrPaidDeliveryOrFlyer(x, flyerNomenclatures));
+				&& Entity.OrderItems.All(x => IsOrderItemAvailableToFastDeliveryOrPaidDeliveryOrFlyer(x, flyerNomenclatures));
 		}
 
 		private bool IsFastDeliveryAvailabilityChecked =>			
@@ -6305,14 +6305,14 @@ namespace Vodovoz
 			&& (_isFastDeliveryAvailabilityChecked
 				|| _deliveryRepository.IsFastDeliveryAvailabilityForClientAndAddressCheckedToday(UoW, Entity.Client.Id, DeliveryPoint.Id));
 
-		private bool IsOrderItemAvailabelToFastDelivery(OrderItem orderItem) =>
+		private bool IsOrderItemAvailableToFastDelivery(OrderItem orderItem) =>
 			_additionalLoadingNomenclatureIds.Contains(orderItem.Nomenclature.Id);
 
 		private bool IsOrderItemPaidDelivery(OrderItem orderItem) =>
 			_nomenclatureSettings.PaidDeliveriesNomenclaturesIds.Contains(orderItem.Nomenclature.Id);
 
-		private bool IsOrderItemAvailabelToFastDeliveryOrPaidDeliveryOrFlyer(OrderItem orderItem, IEnumerable<int> flyerNomenclatures) =>
-			IsOrderItemAvailabelToFastDelivery(orderItem)
+		private bool IsOrderItemAvailableToFastDeliveryOrPaidDeliveryOrFlyer(OrderItem orderItem, IEnumerable<int> flyerNomenclatures) =>
+			IsOrderItemAvailableToFastDelivery(orderItem)
 			|| IsOrderItemPaidDelivery(orderItem)
 			|| IsFlyerNomenclature(orderItem.Nomenclature.Id, flyerNomenclatures);
 
