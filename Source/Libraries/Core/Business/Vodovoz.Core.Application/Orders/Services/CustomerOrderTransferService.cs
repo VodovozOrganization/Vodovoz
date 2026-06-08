@@ -474,7 +474,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			var guilty = new GuiltyInUndelivery
 			{
 				UndeliveredOrder = undelivery,
-				GuiltySide = GuiltyTypes.None
+				GuiltySide = GuiltyTypes.Client
 			};
 
 			undelivery.GuiltyInUndelivery.Add(guilty);
