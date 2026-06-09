@@ -50,7 +50,6 @@ namespace Vodovoz.Reports
 		protected void OnButtonCreateReportClicked(object sender, EventArgs e)
 		{
 			ViewModel.GenerateReportCommand.Execute();
-			ViewModel.ExportToExcelCommand.Execute();
 		}
 	}
 }

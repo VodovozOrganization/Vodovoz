@@ -24,6 +24,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		private MenuItem _orderCreationDateMenuItem;
 		private MenuItem _planImplementationMenuItem;
 		private MenuItem _setBillsMenuItem;
+		private MenuItem _salesReportDetailedtItem;
 		private readonly bool _userIsSalesRepresentative;
 
 		public SalesReportsMenuItemCreator(ConcreteMenuItemCreator concreteMenuItemCreator)
@@ -43,20 +44,21 @@ namespace Vodovoz.MainMenu.ReportsMenu
 			
 			salesReportsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет по продажам", OnSalesReportPressed));
 
+			_salesReportDetailedtItem = _concreteMenuItemCreator.CreateMenuItem(
+				"Подробный отчет по продажам", OnSalesReportDetailedPressed);
+			salesReportsMenu.Add(_salesReportDetailedtItem);
+
 			_orderCreationDateMenuItem = _concreteMenuItemCreator.CreateMenuItem(
 				"Отчет по дате создания заказа", OnOrderCreationDateReportPressed);
 			salesReportsMenu.Add(_orderCreationDateMenuItem);
-			_orderCreationDateMenuItem.Visible = !_userIsSalesRepresentative;
 
 			_planImplementationMenuItem = _concreteMenuItemCreator.CreateMenuItem(
 				"Отчёт о выполнении плана", OnPlanImplementationReportPressed);
 			salesReportsMenu.Add(_planImplementationMenuItem);
-			_planImplementationMenuItem.Visible = !_userIsSalesRepresentative;
 
 			_setBillsMenuItem = _concreteMenuItemCreator.CreateMenuItem(
 				"Отчет по выставленным счетам", OnSetBillsReportPressed);
 			salesReportsMenu.Add(_setBillsMenuItem);
-			_setBillsMenuItem.Visible = !_userIsSalesRepresentative;
 			
 			salesReportsMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
 				"Отчет по продажам с рентабельностью", OnProfitabilitySalesReportPressed));
@@ -66,6 +68,8 @@ namespace Vodovoz.MainMenu.ReportsMenu
 				"Аналитика продаж КБ", OnSalesBySubdivisionsAnalyticsPressed));
 			salesReportsMenu.Add(_concreteMenuItemCreator.CreateMenuItem(
 				"Отчет по мотивации КЦ", OnCallCenterMotivationPressed));
+
+			Configure();
 
 			return salesReportsMenuItem;
 		}
@@ -78,6 +82,16 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		private void OnSalesReportPressed(object sender, ButtonPressEventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<RdlViewerViewModel, Type>(null, typeof(SalesReportViewModel));
+		}
+
+		/// <summary>
+		/// Подробный отчет по продажам
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void OnSalesReportDetailedPressed(object sender, ButtonPressEventArgs e)
+		{
+			Startup.MainWin.NavigationManager.OpenViewModel<SalesReportDetailedViewModel>(null, OpenPageOptions.IgnoreHash);
 		}
 
 		/// <summary>
@@ -151,6 +165,18 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		private void OnCallCenterMotivationPressed(object sender, ButtonPressEventArgs e)
 		{
 			Startup.MainWin.NavigationManager.OpenViewModel<CallCenterMotivationReportViewModel>(null, OpenPageOptions.IgnoreHash);
+		}
+
+		private void Configure()
+		{
+			_orderCreationDateMenuItem.Visible = !_userIsSalesRepresentative;
+
+			_planImplementationMenuItem.Visible = !_userIsSalesRepresentative;
+
+			_setBillsMenuItem.Visible = !_userIsSalesRepresentative;
+
+			_salesReportDetailedtItem.Sensitive =
+				Startup.MainWin.CurrentPermissionService.ValidatePresetPermission(ReportPermissions.Sales.CanAccessSalesReports);
 		}
 	}
 }
