@@ -101,6 +101,7 @@ namespace DriverAPI.Library.V6.Services
 		{
 			var vodovozRouteLists = _routeListRepository.GetRouteListsByIds(_unitOfWork, routeListsIds);
 			var routeLists = new List<RouteListDto>();
+			var permittedDistance = _driverApiSettings.PermittedDistance;
 
 			foreach(var routeList in vodovozRouteLists)
 			{
@@ -112,8 +113,6 @@ namespace DriverAPI.Library.V6.Services
 					{
 						spectiaConditionsToAccept = _domainRouteListSpecialConditionsService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeList.Id);
 					}
-
-					var permittedDistance = _driverApiSettings.PermittedDistance;
 
 					routeLists.Add(_routeListConverter.ConvertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeList.Id), spectiaConditionsToAccept, permittedDistance));
 				}
