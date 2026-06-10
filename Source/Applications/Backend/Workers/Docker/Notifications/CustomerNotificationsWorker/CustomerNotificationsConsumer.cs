@@ -63,7 +63,7 @@ namespace CustomerNotificationsWorker
 				mediaType: null,
 				OutboxJsonSerializerOptions.Instance);
 
-			var response = await httpClient.PutAsync(
+			var response = await httpClient.PostAsync(
 				GetUriString(customerEvent.EventSource.Value),
 				content,
 				cancellationToken);

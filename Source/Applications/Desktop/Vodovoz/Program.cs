@@ -301,6 +301,7 @@ namespace Vodovoz
 					#region Adapters & Factories
 
 					builder.RegisterType<GtkTabsOpener>().As<IGtkTabsOpener>();
+					builder.RegisterType<CopyOrderDlgOpener>().AsSelf();
 					builder.RegisterType<RdlPreviewOpener>().As<IRDLPreviewOpener>();
 					builder.RegisterType<GtkReportViewOpener>().As<IReportViewOpener>().SingleInstance();
 					builder.RegisterType<RoboatsJournalsFactory>().AsSelf().InstancePerLifetimeScope();

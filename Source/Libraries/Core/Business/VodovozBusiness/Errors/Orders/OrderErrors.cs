@@ -1,4 +1,8 @@
-﻿using Vodovoz.Core.Domain.Results;
+using Gamma.Utilities;
+using System;
+using Vodovoz.Core.Domain.Results;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Errors.Orders
 {
@@ -78,6 +82,17 @@ namespace Vodovoz.Errors.Orders
 				nameof(NotInOnTheWayStatus),
 				"Заказ не в статусе в пути");
 
+		public static Error OrderDoesNotBelongToCounterparty =>
+			new Error(
+				typeof(OrderErrors),
+				nameof(OrderDoesNotBelongToCounterparty),
+				"Заказ не принадлежит клиенту");
+
+		public static Error CannotTransferFastDeliveryOrder =>
+			new Error(
+				typeof(OrderErrors),
+				nameof(CannotTransferFastDeliveryOrder),
+				"Нельзя перенести заказ с ДЗЧ");
 		public static Error FastDelivery19LBottlesLimitError(int water19lInOrder, int fastDelivery19LBottlesLimit) =>
 			new Error(
 				typeof(OrderErrors),
@@ -107,6 +122,82 @@ namespace Vodovoz.Errors.Orders
 				typeof(OrderErrors),
 				nameof(SplitOrderError),
 				"Произошла ошибка при разбиении заказа");
+		public static Error CannotCancelOrder =>
+			new Error(
+				"400",
+				"Невозможно отменить заказ");
+
+		public static Error CannotCancelOrderWithDetails(string details) =>
+			new Error(
+				"400",
+				$"Невозможно отменить заказ: {details}");
+
+		public static Error RouteListItemNotFound(int orderId) =>
+			new Error(
+				"400",
+				$"Позиция маршрутного листа не найдена для заказа {orderId}");
+
+
+		public static Error CannotCancelOrderWithError(string errorMessage) =>
+			new Error(
+				"400",
+				$"Невозможно отменить заказ: {errorMessage}");
+
+
+		public static Error CannotCancelOrderInStatus(OrderStatus status) =>
+			new Error(
+				"408",
+				$"Невозможно отменить заказ в статусе '{status.GetEnumTitle()}'");
+
+		public static Error CannotTransferOrderInStatus(OrderStatus status) =>
+			new Error(
+				"408",
+				$"Невозможно перенести заказ в статусе '{status.GetEnumTitle()}'");
+
+		public static Error CannotCancelOrderWithPaymentType(PaymentType type) =>
+			new Error(
+				"408",
+				$"Невозможно отменить заказ с типом оплаты '{type.GetEnumTitle()}'");
+
+		public static Error UnsupportedOrderStatusForTransfer(OrderStatus status) =>
+			new Error(
+				"400",
+				$"Не поддерживаемый статус для переноса заказа: {status.GetEnumTitle()}");
+
+		public static Error UnsupportedOrderStatusForCancellation(OrderStatus status) =>
+			new Error(
+				"400",
+				$"Не поддерживаемый статус для отмены заказа: {status.GetEnumTitle()}");
+
+		public static Error DeliveryScheduleNotFound =>
+			new Error(
+				"400",
+				$"Расписание доставки не найдено");
+
+		public static Error InvalidDeliveryDate(DateTime date) =>
+			new Error(
+				"400",
+				$"Дата доставки {date:dd.MM.yyyy} не может быть раньше сегодняшнего дня");
+
+		public static Error SameDeliveryParameters =>
+			new Error(
+				"400",
+				"Заказ уже запланирован на указанную дату и время доставки");
+
+		public static Error TransferFailed(string reason) =>
+			new Error(
+				"500",
+				$"Ошибка при переносе заказа: {reason}");
+
+		public static Error DeliveryScheduleAlreadyPassed(string deliveryTime) =>
+			new Error(
+				"400", 
+				$"Интервал доставки {deliveryTime} уже закончился для сегодняшней даты");
+
+		public static Error DeliveryDateExceedsMaxPeriod(DateTime deliveryDate, int maxDays) =>
+			new Error(
+				"400",
+				$"Дата доставки {deliveryDate:dd.MM.yyyy} превышает максимальный срок переноса в {maxDays} дней. ");
 
 		public static Error OrderDoesNotBelongToCounterparty =>
 			new Error(

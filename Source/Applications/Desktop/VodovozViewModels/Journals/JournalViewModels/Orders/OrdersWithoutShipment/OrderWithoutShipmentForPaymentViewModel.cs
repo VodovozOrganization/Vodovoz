@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using EdoService.Library;
 using Gamma.Utilities;
 using NHibernate.Criterion;
@@ -299,6 +299,15 @@ namespace Vodovoz.ViewModels.Orders.OrdersWithoutShipment
 			
 			if(SelectedNode.IsSelected)
 			{
+				if(!order.OrderItems.Any())
+				{
+					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning, "Невозможно добавить заказ без позиций с товарами.");
+
+					SelectedNode.IsSelected = false;
+
+					return;
+				}
+
 				Entity.AddOrder(order);
 			}
 			else

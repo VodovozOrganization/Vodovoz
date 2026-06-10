@@ -1,4 +1,5 @@
 ﻿using Gamma.GtkWidgets;
+using Gamma.Utilities;
 using Gdk;
 using Gtk;
 using QS.Commands;
@@ -281,6 +282,14 @@ namespace Vodovoz.Logistic
 						: "")
 				.AddColumn("Заказ")
 					.AddTextRenderer(node => node.RouteListItem.Order.Id.ToString())
+				.AddColumn("Подписание\nдокументов")
+					.AddTextRenderer(node => node.RouteListItem.Order.PaymentType == PaymentType.Cashless
+						? (node.RouteListItem.Order.SignatureType.HasValue
+							? node.RouteListItem.Order.SignatureType.Value.GetEnumTitle()
+							: string.Empty)
+						: string.Empty)
+					.WrapWidth(100)
+					.WrapMode(Pango.WrapMode.WordChar)
 				.AddColumn("Адрес")
 					.AddTextRenderer(node => node.RouteListItem.Order.DeliveryPoint == null ? "Требуется точка доставки" : node.RouteListItem.Order.DeliveryPoint.ShortAddress)
 				.AddColumn("Ожидает до")

@@ -141,7 +141,7 @@ namespace Vodovoz.EntityRepositories.Orders
 
 			return onlineOrders.FirstOrDefault();
 		}
-
+		
 		public IEnumerable<OnlineOrder> GetOnlineOrdersDuplicates(
 			IUnitOfWork uow, OnlineOrder currentOnlineOrder, DateTime? createdAt = null)
 		{

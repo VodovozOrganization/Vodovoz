@@ -48,6 +48,7 @@ namespace Vodovoz.Converters
 				StringNumber = order.OrderDocumentStringNumber(documentContainerType),
 				CreationDate = order.CreateDate ?? default,
 				DeliveryDate = order.DeliveryDate ?? default,
+				PaymentType = order.PaymentType.ToString(),
 				OrderSum = order.OrderSum,
 				CounterpartyExternalOrderId = order.CounterpartyExternalOrderId,
 				CounterpartyInfoForEdo = counterpartyInfo,

@@ -21,9 +21,13 @@ namespace Vodovoz.Core.Domain.Orders
 		/// </summary>
 		public int? OnlinePayment { get; set; }
 		/// <summary>
+		/// Идентификатор транзакции в платёжной системе
+		/// </summary>
+		public string TransactionId { get; set; }
+		/// <summary>
 		/// Id клиента из ДВ
 		/// </summary>
-		public int ErpCounterpartyId { get; set; }
+		public int? ErpCounterpartyId { get; set; }
 		/// <summary>
 		/// Id пользователя в ИПЗ
 		/// </summary>

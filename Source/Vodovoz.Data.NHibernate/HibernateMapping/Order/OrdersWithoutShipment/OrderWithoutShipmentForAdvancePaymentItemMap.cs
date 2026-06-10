@@ -25,7 +25,13 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Order.OrdersWithoutShipment
 
 			References(x => x.Nomenclature).Column("nomenclature_id");
 			References(x => x.OrderWithoutDeliveryForAdvancePayment).Column("bill_ws_for_advance_payment_id");
-			References(x => x.DiscountReason).Column("discount_reason_id");
+
+			HasManyToMany(x => x.DiscountReasons)
+				.Table("discount_reasons_bill_without_shipment_for_advance_payment_items")
+				.ParentKeyColumn("bill_item_id")
+				.ChildKeyColumn("discount_reason_id")
+				.Cascade.None()
+				.LazyLoad();
 		}
 	}
 }

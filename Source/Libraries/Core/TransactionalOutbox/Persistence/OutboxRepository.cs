@@ -11,6 +11,7 @@ namespace TransactionalOutbox.Persistence
 {
     public class OutboxRepository : IOutboxRepository
     {
+		private const int _daysForOutboxStorage = 3;
         public async Task<bool> IsUniqueAsync(IDbConnection conn, string deduplicationKey, IDbTransaction transaction = null)
         {
             const string sql = @"
@@ -94,7 +95,8 @@ namespace TransactionalOutbox.Persistence
                 @"
                 DELETE FROM outbox_messages
                 WHERE sent_at IS NOT NULL
-                  AND sent_at < UTC_TIMESTAMP() - INTERVAL 1 DAY",
+                  AND sent_at < UTC_TIMESTAMP() - INTERVAL @_daysForOutboxStorage DAY",
+                new { _daysForOutboxStorage },
                 transaction: transaction
             );
         }

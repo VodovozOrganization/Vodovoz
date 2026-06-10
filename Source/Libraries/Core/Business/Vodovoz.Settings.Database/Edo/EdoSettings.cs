@@ -31,6 +31,7 @@ namespace Vodovoz.Settings.Database.Edo
 		public int CodePoolCheckCodesDepth => _settingsController.GetIntValue("TrueMarkCodePoolCheckCodesDepth");
 		public int CodePoolCheckIntervalMinutes => _settingsController.GetIntValue("TrueMarkCodePoolCheckIntervalMinutes");
 		public int CodePoolPromoteWithExtraSeconds => _settingsController.GetIntValue("TrueMarkCodePoolPromoteWithExtraSeconds");
+		public int CodePoolTakeValidCodeAttempts => _settingsController.GetIntValue("TrueMarkCodePoolTakeValidCodeAttempts");
 		public int[] OrganizationsHavingAccountsInTrueMark => _settingsController
 			.GetStringValue("TrueMark.OrganizationsHavingAccountsInTrueMark")
 			.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using QS.DomainModel.UoW;
@@ -29,5 +29,14 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		bool CheckingAnAddressForDeliveryForNewCustomers( IUnitOfWork uow, DeliveryPoint deliveryPoint );
 		IEnumerable<DeliveryPointForSendNode> GetActiveDeliveryPointsForSendByCounterpartyId(IUnitOfWork uow, int counterpartyId);
 		bool ClientDeliveryPointExists(IUnitOfWork uow, int counterpartyId, int deliveryPointId);
+		
+		/// <summary>
+		/// Получить частоту заказов клиентом по ТД
+		/// </summary>
+		/// <param name="uow">IUnitOfWork</param>
+		/// <param name="deliveryPoint">Точка доставки</param>
+		/// <param name="countLastOrders">Количество последних заказов</param>
+		/// <returns>Среднее количество дней между заказами</returns>
+		int? GetOrderFrequency(IUnitOfWork uow, DeliveryPoint deliveryPoint, int? countLastOrders);
 	}
 }

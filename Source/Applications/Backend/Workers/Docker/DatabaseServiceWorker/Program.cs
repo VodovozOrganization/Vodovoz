@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using DatabaseServiceWorker.ExportTo1c;
 using DatabaseServiceWorker.PowerBiWorker;
@@ -86,8 +86,8 @@ namespace DatabaseServiceWorker
 						// 1с Апи
 						.AddHostedService<ExportTo1cApiWorker>()
 						.ConfigureExportTo1cApiWorker(hostContext)
-						.ConfigureZabbixSenderFromDataBase(nameof(ExportTo1cApiWorker))						
-																	
+						.ConfigureZabbixSenderFromDataBase(nameof(ExportTo1cApiWorker))
+
 
 						// Пока отключаем воркер экпорта в PowerBi
 						// .AddHostedService<PowerBiExportWorker>()

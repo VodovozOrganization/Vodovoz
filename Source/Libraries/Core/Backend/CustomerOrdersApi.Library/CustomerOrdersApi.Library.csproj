@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
@@ -16,6 +16,10 @@
       <ProjectReference Include="..\..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />
       <ProjectReference Include="..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
       <ProjectReference Include="..\..\Infrastructure\VodovozInfrastructure\VodovozInfrastructure.csproj" />
+      <ProjectReference Include="..\CloudPaymentsApi.Client\CloudPaymentsApi.Client.csproj" />
+      <ProjectReference Include="..\FastPaymentsApi.Client\FastPaymentsApi.Client.csproj" />
+      <ProjectReference Include="..\YandexPayApi.Client\YandexPayApi.Client.csproj" />
+      <ProjectReference Include="..\YooKassaApi.Client\YooKassaApi.Client.csproj" />
     </ItemGroup>
 
     <ItemGroup>

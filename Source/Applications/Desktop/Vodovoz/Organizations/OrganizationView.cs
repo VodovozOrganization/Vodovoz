@@ -1,6 +1,5 @@
-﻿using QS.Views.GtkUI;
+using QS.Views.GtkUI;
 using QS.Widgets;
-using ReactiveUI.Validation.Extensions;
 using System;
 using System.ComponentModel;
 using Vodovoz.Core.Domain.Clients;
@@ -49,6 +48,38 @@ namespace Vodovoz.Organizations
 			validatedentryEmailForMailing.CustomRegex = ViewModel.RegexForEmailForMailing;
 			validatedentryEmailForMailing.Binding
 				.AddBinding(ViewModel.Entity, e => e.EmailForMailing, w => w.Text)
+				.InitializeFromSource();
+
+			validatedentryEmailForCosingDeliveries.CustomRegex = ViewModel.RegexForEmailForMailing;
+			validatedentryEmailForCosingDeliveries.Binding
+				.AddBinding(ViewModel.Entity, e => e.ClosingDeliveriesNotificationEmailFrom, w => w.Text)
+				.InitializeFromSource();
+
+			ycheckbuttonDisableClosingDeliveriesMailing.Binding
+				.AddBinding(ViewModel.Entity, e => e.DisableClosingDeliveriesMailing, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckbuttonDisableClaimMailing.Binding
+				.AddBinding(ViewModel.Entity, e => e.DisableClaimMailing, w => w.Active)
+				.InitializeFromSource();
+
+
+			ycheckbuttonDisableDebtMailing.Binding
+				.AddBinding(ViewModel.Entity, e => e.DisableDebtMailing, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckbuttonDebtMailingWithSignature.Binding
+				.AddBinding(ViewModel.Entity, e => e.DebtMailingWithSignature, w => w.Active)
+				.InitializeFromSource();
+
+			validatedentryEmailForClaimLetters.CustomRegex = ViewModel.RegexForEmailForMailing;
+			validatedentryEmailForClaimLetters.Binding
+				.AddBinding(ViewModel.Entity, e => e.EmailForClaimLetters, w => w.Text)
+				.InitializeFromSource();
+
+			validatedentryEmailForInformationLetters.CustomRegex = ViewModel.RegexForEmailForMailing;
+			validatedentryEmailForInformationLetters.Binding
+				.AddBinding(ViewModel.Entity, e => e.EmailForInformationLetters, w => w.Text)
 				.InitializeFromSource();
 
 			validatedentryInn.ValidationMode = ValidationType.Numeric;

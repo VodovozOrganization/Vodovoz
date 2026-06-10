@@ -1,12 +1,17 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
 using QS.Navigation;
+using QS.ViewModels.Control.EEVM;
 using QS.Views.GtkUI;
 using QSProjectsLib;
+using System.ComponentModel;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Extensions;
+using Vodovoz.Filters.ViewModels;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
+using Vodovoz.JournalViewModels;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 
 namespace Vodovoz.Views.Logistic
@@ -144,14 +149,12 @@ namespace Vodovoz.Views.Logistic
 			ytreeviewFines.Binding.AddBinding(ViewModel, vm => vm.FineItems, w => w.ItemsDataSource).InitializeFromSource();
 
 			yspinBtnOdometerReading.Adjustment = new Adjustment(1D, 0D, 10_000_000D, 1D, 100D, 100D);
+			yspinBtnOdometerReading.Visible = true;
 			yspinBtnOdometerReading.Binding
 				.AddBinding(ViewModel.Entity, e => e.Odometer, w => w.ValueAsInt)
-				.AddBinding(ViewModel, vm => vm.IsTechInspectCarEventType, w => w.Visible)
 				.InitializeFromSource();
 
-			ylblOdometerReading.Binding
-				.AddBinding(ViewModel, vm => vm.IsTechInspectCarEventType, w => w.Visible)
-				.InitializeFromSource();
+			ylblOdometerReading.Visible = true;
 
 			ylabelActualFuelBalance.Binding
 				.AddBinding(ViewModel, vm => vm.IsFuelBalanceCalibration, w => w.Visible)
@@ -188,6 +191,16 @@ namespace Vodovoz.Views.Logistic
 				.AddBinding(ViewModel.Entity, e => e.SubstractionFuelBalance, w => w.Text, new NullableDecimalToStringConverter())
 				.InitializeFromSource();
 
+			serviceStationEntry.ViewModel = BuildCounterpartyEntryViewModel();
+
+			workOrderScanFileInformationsView.ViewModel = ViewModel.WorkOrderScanFileInformationsViewModel;
+			UpdateWorkOrderScanFilesVisibility();
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+
+			addWorkOrderScanLabel.Binding
+				.AddBinding(ViewModel, vm => vm.CanShowWorkOrderScanControls, w => w.Visible)
+				.InitializeFromSource();
+
 			buttonAddFine.Clicked += (sender, e) => { ViewModel.AddFineCommand.Execute(); };
 			buttonAddFine.Binding.AddBinding(ViewModel, vm => vm.CanAddFine, w => w.Sensitive).InitializeFromSource();
 
@@ -202,6 +215,19 @@ namespace Vodovoz.Views.Logistic
 			UpdateSensitivity();
 		}
 
+		private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(ViewModel.CanShowWorkOrderScanControls))
+			{
+				UpdateWorkOrderScanFilesVisibility();
+			}
+		}
+
+		private void UpdateWorkOrderScanFilesVisibility()
+		{
+			workOrderScanFileInformationsView.Visible = ViewModel.CanShowWorkOrderScanControls;
+		}
+
 		private void UpdateSensitivity()
 		{
 			if(!ViewModel.CanEdit)
@@ -211,6 +237,7 @@ namespace Vodovoz.Views.Logistic
 				entityEntryCarEventType.Sensitive =
 				entityentryCar.Sensitive =
 				evmeDriver.Sensitive =
+				serviceStationEntry.Sensitive =
 				ydatepickerStartEventDate.Sensitive =
 				ydatepickerEndEventDate.Sensitive =
 				yspinRepairCost.Sensitive =
@@ -218,6 +245,7 @@ namespace Vodovoz.Views.Logistic
 				ytextviewFoundation.Sensitive =
 				ytextviewCommnet.Sensitive =
 				ytreeviewFines.Sensitive =
+				workOrderScanFileInformationsView.Sensitive =
 				buttonAddFine.Sensitive =
 				buttonAttachFine.Sensitive =
 				yspinBtnOdometerReading.Sensitive =
@@ -225,6 +253,30 @@ namespace Vodovoz.Views.Logistic
 				yspinRepairPartsCost.Sensitive =
 				buttonSave.Sensitive = false;
 			}
+		}
+
+		private IEntityEntryViewModel BuildCounterpartyEntryViewModel()
+		{
+			return new LegacyEEVMBuilderFactory<CarEvent>(
+					ViewModel,
+					null,
+					ViewModel.Entity,
+					ViewModel.UoW,
+					ViewModel.NavigationManager,
+					ViewModel.LifetimeScope)
+				.ForProperty(x => x.Counterparty)
+				.UseTdiDialog<CounterpartyDlg>()
+				.UseViewModelJournalAndAutocompleter<CounterpartyJournalViewModel, CounterpartyJournalFilterViewModel>(filter =>
+				{
+					filter.RestrictIncludeArchive = true;
+				})
+				.Finish();
+		}
+
+		public override void Destroy()
+		{
+			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+			base.Destroy();
 		}
 	}
 }

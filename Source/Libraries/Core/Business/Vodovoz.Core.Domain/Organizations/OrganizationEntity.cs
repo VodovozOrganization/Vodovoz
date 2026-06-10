@@ -6,7 +6,6 @@ using QS.HistoryLog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Vodovoz.Core.Domain.Cash;
@@ -38,9 +37,14 @@ namespace Vodovoz.Core.Domain.Organizations
 		private string _oKVED;
 		private string _email;
 		private string _emailForMailing;
+		private string _closingDeliveriesNotificationEmailFrom;
+		private string _emailForInformationLetters;
+		private string _emailForClaimLetters;
+		private bool _disableClosingDeliveriesMailing;
 		private int? _cashBoxId;
 		private bool _withoutVAT;
 		private bool _disableDebtMailing;
+		private bool _disableClaimMailing;
 		private bool _debtMailingWithSignature;
 		private int? _avangardShopId;
 		private bool _isNeedCashlessMovementControl;
@@ -66,6 +70,7 @@ namespace Vodovoz.Core.Domain.Organizations
 			OGRN = string.Empty;
 			Email = string.Empty;
 			EmailForMailing = string.Empty;
+			ClosingDeliveriesNotificationEmailFrom = string.Empty;
 		}
 
 		/// <summary>
@@ -179,6 +184,46 @@ namespace Vodovoz.Core.Domain.Organizations
 		}
 
 		/// <summary>
+		/// E-mail организации, с которого будет приходить письмо с уведомлением о закрытии поставок
+		/// </summary>
+		[Display(Name = "E-mail организации, с которого будет приходить письмо с уведомлением о закрытии поставок")]
+		public virtual string ClosingDeliveriesNotificationEmailFrom
+		{
+			get => _closingDeliveriesNotificationEmailFrom;
+			set => SetField(ref _closingDeliveriesNotificationEmailFrom, value);
+		}
+
+		/// <summary>
+		/// E-mail для рассылки информационных писем
+		/// </summary>
+		[Display(Name = "E-mail для рассылки информационных писем")]
+		public virtual string EmailForInformationLetters
+		{
+			get => _emailForInformationLetters;
+			set => SetField(ref _emailForInformationLetters, value);
+		}
+
+		/// <summary>
+		/// E-mail организации, с которого будет приходить письмо с претензией
+		/// </summary>
+		[Display(Name = "E-mail организации, с которого будет приходить письмо с претензией")]
+		public virtual string EmailForClaimLetters
+		{
+			get => _emailForClaimLetters;
+			set => SetField(ref _emailForClaimLetters, value);
+		}
+
+		/// <summary>
+		/// Запретить рассылку писем о блокировке поставок"
+		/// </summary>
+		[Display(Name = "Запретить рассылку писем о блокировке поставок")]
+		public virtual bool DisableClosingDeliveriesMailing
+		{
+			get => _disableClosingDeliveriesMailing;
+			set => SetField(ref _disableClosingDeliveriesMailing, value);
+		}
+
+		/// <summary>
 		/// ID Кассового аппарата
 		/// </summary>
 		[Display(Name = "ID Кассового аппарата")]
@@ -197,6 +242,16 @@ namespace Vodovoz.Core.Domain.Organizations
 		{
 			get => _disableDebtMailing;
 			set => SetField(ref _disableDebtMailing, value);
+		}
+
+		/// <summary>
+		/// Запретить отправку претензий
+		/// </summary>
+		[Display(Name = "Запретить отправку претензий")]
+		public virtual bool DisableClaimMailing
+		{
+			get => _disableClaimMailing;
+			set => SetField(ref _disableClaimMailing, value);
 		}
 
 		/// <summary>
@@ -461,7 +516,15 @@ namespace Vodovoz.Core.Domain.Organizations
 			{
 				yield return new ValidationResult(
 					"E-mail для рассылки должен быть в домене @vodovoz-spb.ru.",
-					new[] { nameof(Email) });
+					new[] { nameof(EmailForMailing) });
+			}
+
+			if(!string.IsNullOrWhiteSpace(ClosingDeliveriesNotificationEmailFrom)
+					&& !Regex.IsMatch(ClosingDeliveriesNotificationEmailFrom, @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@vodovoz-spb\.ru\z"))
+			{
+				yield return new ValidationResult(
+					"E-mail организации, с которого будет приходить письмо с уведомлением о закрытии поставок, быть в домене @vodovoz-spb.ru.",
+					new[] { nameof(ClosingDeliveriesNotificationEmailFrom) });
 			}
 
 			if(IsUsnMode == IsOsnoMode)

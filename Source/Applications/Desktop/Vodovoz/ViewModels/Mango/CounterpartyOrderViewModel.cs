@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using QS.ViewModels.Dialog;
 using Vodovoz.Core.Application.Orders;
 using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
@@ -28,6 +29,7 @@ using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Employee;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
+using Vodovoz.TempAdapters;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.ViewModels.Complaints;
@@ -41,6 +43,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 	{
 		#region Свойства
 		public Counterparty Client { get; private set; }
+		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ITdiCompatibilityNavigation _tdiNavigation;
 		private MangoManager MangoManager { get; set; }
@@ -92,6 +95,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 
 		public CounterpartyOrderViewModel(
 			Counterparty client,
+			IGtkTabsOpener gtkTabsOpener,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ITdiCompatibilityNavigation tdinavigation,
 			IRouteListRepository routedListRepository,
@@ -110,6 +114,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			int count = 5)
 		{
 			Client = client;
+			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_tdiNavigation = tdinavigation;
 			_routedListRepository = routedListRepository ?? throw new ArgumentNullException(nameof(routedListRepository));
@@ -226,10 +231,12 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			var page = _tdiNavigation.OpenTdiTab<OrderDlg, int>(null, id, OpenPageOptions.IgnoreHash);
 		}
 
-		public void RepeatOrder(int orderId)
+		public void RepeatOrder(Order order)
 		{
-			if(orderId != 0)
-				_tdiNavigation.OpenTdiTab<OrderDlg, int, bool>(null, orderId, true, OpenPageOptions.IgnoreHash);
+			if(order.Id != 0)
+			{
+				_gtkTabsOpener.OpenOrderDlgForCopyOrderFromMangoByNavigator((DialogViewModelBase)null, order);
+			}
 		}
 
 		public void OpenRoutedList(Order order)

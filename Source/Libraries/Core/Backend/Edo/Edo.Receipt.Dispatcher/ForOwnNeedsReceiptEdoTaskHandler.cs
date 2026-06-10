@@ -41,6 +41,7 @@ namespace Edo.Receipt.Dispatcher
 		private readonly IEdoReceiptSettings _edoReceiptSettings;
 		private readonly ITrueMarkCodesValidator _localCodesValidator;
 		private readonly ReceiptTrueMarkCodesPool _trueMarkCodesPool;
+		private readonly ITrueMarkCodesPoolCodeProvider _trueMarkCodesPoolCodeProvider;
 		private readonly Tag1260Checker _tag1260Checker;
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly IGenericRepository<TrueMarkProductCode> _productCodeRepository;
@@ -67,6 +68,7 @@ namespace Edo.Receipt.Dispatcher
 			IEdoReceiptSettings edoReceiptSettings,
 			ITrueMarkCodesValidator localCodesValidator,
 			ReceiptTrueMarkCodesPool trueMarkCodesPool,
+			ITrueMarkCodesPoolCodeProvider trueMarkCodesPoolCodeProvider,
 			Tag1260Checker tag1260Checker,
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			IGenericRepository<TrueMarkProductCode> productCodeRepository,
@@ -87,6 +89,7 @@ namespace Edo.Receipt.Dispatcher
 			_edoReceiptSettings = edoReceiptSettings ?? throw new ArgumentNullException(nameof(edoReceiptSettings));
 			_localCodesValidator = localCodesValidator ?? throw new ArgumentNullException(nameof(localCodesValidator));
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
+			_trueMarkCodesPoolCodeProvider = trueMarkCodesPoolCodeProvider ?? throw new ArgumentNullException(nameof(trueMarkCodesPoolCodeProvider));
 			_tag1260Checker = tag1260Checker ?? throw new ArgumentNullException(nameof(tag1260Checker));
 			_productCodeRepository = productCodeRepository ?? throw new ArgumentNullException(nameof(productCodeRepository));
 			_edoOrderContactProvider = edoOrderContactProvider ?? throw new ArgumentNullException(nameof(edoOrderContactProvider));
@@ -149,7 +152,7 @@ namespace Edo.Receipt.Dispatcher
 
 			var trueMarkCodesChecker = _edoTaskTrueMarkCodeCheckerFactory.Create(receiptEdoTask);
 
-			if(CheckOrderItemsAsync(receiptEdoTask))
+			if(_edoCancellationService.IsEdoTaskMustBeCancelled(receiptEdoTask))
 			{
 				var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
 				
@@ -392,7 +395,10 @@ namespace Edo.Receipt.Dispatcher
 								)
 								.FirstOrDefault();
 
-							var newCode = await LoadCodeFromPool(gtin, cancellationToken);
+							var newCode = await LoadCodeFromPool(
+								gtin,
+								GetOrderOrganizationInn(receiptEdoTask),
+								cancellationToken);
 							codeResult.EdoTaskItem.ProductCode.ResultCode = newCode;
 						}
 					}
@@ -977,7 +983,6 @@ namespace Edo.Receipt.Dispatcher
 			)
 		{
 			EdoTaskItem matchEdoTaskItem = null;
-			int codeIdFromPool;
 
 			var inventPosition = CreateInventPosition(orderItem);
 			inventPosition.Quantity = 1;
@@ -1045,7 +1050,10 @@ namespace Edo.Receipt.Dispatcher
 				if(matchEdoTaskItem != null)
 				{
 					// запись кода из пула в result
-					var identificationCode = await LoadCodeFromPool(gtin, cancellationToken);
+					var identificationCode = await LoadCodeFromPool(
+						gtin,
+						GetOrderOrganizationInn(receiptEdoTask),
+						cancellationToken);
 					matchEdoTaskItem.ProductCode.ResultCode = identificationCode;
 					matchEdoTaskItem.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
 					await _uow.SaveAsync(matchEdoTaskItem, cancellationToken: cancellationToken);
@@ -1071,7 +1079,10 @@ namespace Edo.Receipt.Dispatcher
 					// запись кода из пула в result
 					try
 					{
-						identificationCode = await LoadCodeFromPool(gtin, cancellationToken);
+						identificationCode = await LoadCodeFromPool(
+							gtin,
+							GetOrderOrganizationInn(receiptEdoTask),
+							cancellationToken);
 					}
 					catch
 					{
@@ -1092,7 +1103,10 @@ namespace Edo.Receipt.Dispatcher
 			}
 
 			// Если ничего не смогли подобрать, то создаем новую запись
-			var code = await LoadCodeFromPool(orderItem.Nomenclature, cancellationToken);
+			var code = await LoadCodeFromPool(
+				orderItem.Nomenclature,
+				GetOrderOrganizationInn(receiptEdoTask),
+				cancellationToken);
 
 			var newProductCode = new AutoTrueMarkProductCode
 			{
@@ -1117,69 +1131,58 @@ namespace Edo.Receipt.Dispatcher
 			return inventPosition;
 		}
 
-		private async Task<TrueMarkWaterIdentificationCode> LoadCodeFromPool(NomenclatureEntity nomenclature, CancellationToken cancellationToken)
+		private async Task<TrueMarkWaterIdentificationCode> LoadCodeFromPool(
+			NomenclatureEntity nomenclature,
+			string organizationInn,
+			CancellationToken cancellationToken)
 		{
-			int codeId = 0;
-			var problemGtins = new List<EdoProblemGtinItem>();
-			EdoCodePoolMissingCodeException exception = null;
-
-			foreach(var gtin in nomenclature.Gtins)
-			{
-				try
-				{
-					codeId = await _trueMarkCodesPool.TakeCode(gtin.GtinNumber, cancellationToken);
-					
-					break;
-				}
-				catch(EdoCodePoolMissingCodeException ex) 
-				{
-					exception = ex;
-					if(!problemGtins.Any(x => x.Gtin == gtin))
-					{
-						problemGtins.Add(new EdoProblemGtinItem
-						{
-							Gtin = gtin
-						});
-					}
-				}
-			}
-
-			if(codeId == 0)
-			{
-				throw new EdoProblemException(exception, problemGtins);
-			}
-
-			return await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(codeId, cancellationToken);
-		}
-
-		private async Task<TrueMarkWaterIdentificationCode> LoadCodeFromPool(GtinEntity gtin, CancellationToken cancellationToken)
-		{
-			int codeId = 0;
-			var problemGtins = new List<EdoProblemGtinItem>();
-			EdoCodePoolMissingCodeException exception = null;
+			var gtins = nomenclature.Gtins.ToList();
 
 			try
 			{
-				codeId = await _trueMarkCodesPool.TakeCode(gtin.GtinNumber, cancellationToken);
+				return await _trueMarkCodesPoolCodeProvider.TakeValidCodeAsync(
+					_trueMarkCodesPool,
+					gtins,
+					organizationInn,
+					cancellationToken);
 			}
 			catch(EdoCodePoolMissingCodeException ex)
 			{
-				exception = ex;
-				if(!problemGtins.Any(x => x.Gtin == gtin))
+				throw new EdoProblemException(ex, gtins.Select(gtin => new EdoProblemGtinItem
 				{
-					problemGtins.Add(new EdoProblemGtinItem
+					Gtin = gtin
+				}));
+			}
+		}
+
+		private async Task<TrueMarkWaterIdentificationCode> LoadCodeFromPool(
+			GtinEntity gtin,
+			string organizationInn,
+			CancellationToken cancellationToken)
+		{
+			try
+			{
+				return await _trueMarkCodesPoolCodeProvider.TakeValidCodeAsync(
+					_trueMarkCodesPool,
+					gtin,
+					organizationInn,
+					cancellationToken);
+			}
+			catch(EdoCodePoolMissingCodeException ex)
+			{
+				throw new EdoProblemException(ex, new[]
+				{
+					new EdoProblemGtinItem
 					{
 						Gtin = gtin
-					});
-				}
+					}
+				});
 			}
+		}
 
-			if(codeId == 0)
-			{
-				throw new EdoProblemException(exception, problemGtins);
-			}
-
-			return await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(codeId, cancellationToken);
+		private string GetOrderOrganizationInn(ReceiptEdoTask receiptEdoTask)
+		{
+			return receiptEdoTask.FormalEdoRequest.Order.Contract.Organization.INN;
 		}
 
 		private enum IndustryRequisitePrepareResult
@@ -1360,9 +1363,7 @@ namespace Edo.Receipt.Dispatcher
 
 			var organization = order.Contract?.Organization;
 
-			var vatRateVersion = organization != null && organization.IsUsnMode 
-				? organization.GetActualVatRateVersion(order.DeliveryDate)
-				: nomenclature.GetActualVatRateVersion(order.DeliveryDate);
+			var vatRateVersion = nomenclature.GetEffectiveVatRateVersion(organization, order.DeliveryDate);
 			
 			if(vatRateVersion == null)
 			{
@@ -1387,18 +1388,6 @@ namespace Edo.Receipt.Dispatcher
 
 			var hasReceipt = await _edoRepository.HasReceiptOnSumToday(sum, cancellationToken);
 			return hasReceipt;
-		}
-
-		private bool CheckOrderItemsAsync(EdoTask edoTask)
-		{
-			if(!(edoTask is OrderEdoTask orderEdoTask))
-			{
-				return true;
-			}
-			
-			var edoRequest = orderEdoTask.FormalEdoRequest;
-
-			return edoRequest.Order.OrderItems.All(x => x.Price > 0) && edoRequest.Order.OrderSum > 0;
 		}
 		
 		private void TryRecalculateOrderVat(ReceiptEdoTask receiptEdoTask)

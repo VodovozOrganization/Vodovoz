@@ -22,6 +22,7 @@ using Vodovoz.Extensions;
 using Vodovoz.Filters.ViewModels;
 using Vodovoz.Services;
 using Vodovoz.Services.Orders;
+using Vodovoz.TempAdapters;
 using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Mango;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Client;
@@ -49,6 +50,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		public OnlineOrderViewModel(
 			ILogger<OnlineOrderViewModel> logger,
 			ILifetimeScope scope,
+			IGtkTabsOpener gtkTabsOpener,
 			IEntityUoWBuilder uowBuilder,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			ICommonServices commonServices,
@@ -86,6 +88,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			ExternalCounterpartyMatchingRepository =
 				externalCounterpartyMatchingRepository ?? throw new ArgumentNullException(nameof(externalCounterpartyMatchingRepository));
 			_lifetimeScope = scope ?? throw new ArgumentNullException(nameof(scope));
+			GtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			OrderOrganizationManager = orderOrganizationManager ?? throw new ArgumentNullException(nameof(orderOrganizationManager));
 			GetTimers();
 			SetPermissions();
@@ -97,6 +100,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			InitViewModelProperty();
 		}
 
+		public IGtkTabsOpener GtkTabsOpener { get; }
 		public DelegateCommand GetToWorkCommand { get; private set; }
 		public DelegateCommand CancelOnlineOrderCommand { get; private set; }
 		public DelegateCommand OpenExternalCounterpartyMatchingCommand { get; private set; }

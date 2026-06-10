@@ -1,4 +1,4 @@
-﻿using CustomerNotifications.Application;
+using CustomerNotifications.Application;
 using CustomerNotifications.Application.Builders;
 using CustomerNotifications.Contracts;
 using CustomerNotifications.Transport;
@@ -7,6 +7,8 @@ using CustomerOrdersApi.Library;
 using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using CustomerOrdersApi.Services;
+using CustomerOrdersApi.Library.V5.Dto.Orders;
+using CustomerOrdersApi.Library.V5.Services;
 using DriverApi.Notifications.Client;
 using MassTransit;
 using MessageTransport;
@@ -33,6 +35,7 @@ using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Presentation.WebApi;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Trackers;
+using VodovozBusiness.Services.Orders;
 using VodovozHealthCheck;
 
 namespace CustomerOrdersApi
@@ -72,15 +75,21 @@ namespace CustomerOrdersApi
 				.AddDriverApiNotificationsSenders()
 				.AddCoreApplicationOrderServices()
 				.AddInfrastructure()
+				.AddCoreDataRepositories()
 				.AddConfig(Configuration)
 				.AddVersion3()
 				.AddVersion4()
+				.AddVersion5()
 				.AddVersioning()
 				.AddOsrm()
+				.AddSwaggerGen(opt =>
+					opt.CustomSchemaIds(type => type.FullName))
 
 				.AddScoped<IRouteListService, RouteListService>()
 				.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
-				;
+				.AddScoped<ICustomerOrderCancellationService, CustomerOrderCancellationService>()
+				.AddPaymentApiClients(Configuration)
+				.AddPaymentRefundServices();
 
 			services.AddStaticScopeForEntity();
 			services.AddStaticHistoryTracker();
@@ -99,8 +108,7 @@ namespace CustomerOrdersApi
 				});
 
 			services
-				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>,
-					OutBoxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, OutBoxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
 				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
 				.AddCustomerNotificationsSettingsProvider()
 

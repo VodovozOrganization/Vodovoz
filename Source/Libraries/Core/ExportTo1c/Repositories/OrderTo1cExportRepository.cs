@@ -36,24 +36,24 @@ namespace ExportTo1c.Library.Repositories
 				return new List<OrderTo1cExport>();
 			}
 
+			// Выгружаем только новый безнал, либо любой тип оплаты, если уже выгружался ранее(мог измениться тип оплаты (н-р: с безнала на нал)
+
 			var result = await (
-					from orderTo1cExport in unitOfWork.Session.Query<OrderTo1cExport>()
-					join o in unitOfWork.Session.Query<OrderEntity>() on orderTo1cExport.OrderId equals o.Id into orders
-					from order in orders.DefaultIfEmpty()
-					
-					let hasExport = orderTo1cExport.LastExportDate != null
-					let hasNewOrderChanges = !hasExport || orderTo1cExport.LastOrderChangeDate > orderTo1cExport.LastExportDate
-					let allowedForFirstExport =
-						order == null // Удалили заказ
-						|| order.PaymentType == PaymentType.Cashless
-					
-					// Выгружаем только новый безнал, либо любой тип оплаты, если уже выгружался ранее (мог измениться тип оплаты (н-р: с безнала на нал)
-					where hasNewOrderChanges
-					      && (allowedForFirstExport || hasExport) 
-					      
-					select orderTo1cExport
-				)
-				.ToListAsync(cancellationToken);
+				from orderTo1cExport in unitOfWork.Session.Query<OrderTo1cExport>()
+				join o in unitOfWork.Session.Query<OrderEntity>()
+					on orderTo1cExport.OrderId equals o.Id into orders
+				from order in orders.DefaultIfEmpty()
+
+				let lastExportDate = orderTo1cExport.LastExportDate
+				let isFirstExport = lastExportDate == null
+				let isCashless = order != null && order.PaymentType == PaymentType.Cashless
+				let hasChanges = orderTo1cExport.LastOrderChangeDate > lastExportDate
+
+				where (isFirstExport && isCashless) || (!isFirstExport && hasChanges)
+
+				select orderTo1cExport
+			)
+			.ToListAsync(cancellationToken);
 
 			return result;
 		}

@@ -21,7 +21,8 @@ namespace Vodovoz.Converters
 				Inn = organization.INN,
 				Kpp = organization.KPP,
 				TaxcomEdoAccountId = organization.TaxcomEdoSettings.EdoAccount,
-				JurAddress = organizationVersion?.JurAddress
+				JurAddress = organizationVersion?.JurAddress,
+				IsWithoutVat = organization.GetActualVatRateVersion(dateTime)?.VatRate.VatRateValue == 0
 			};
 		}
 	}

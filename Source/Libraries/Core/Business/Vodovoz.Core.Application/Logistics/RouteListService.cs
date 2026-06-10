@@ -826,9 +826,6 @@ namespace Vodovoz.Core.Application.Logistics
 
 			routeList.ObservableAddresses.Add(item);
 
-			var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, order.OnlineOrder?.Source, order.OnlineOrder?.Id, order.Id);
-			_customerNotificationPublisher.TryPublish(unitOfWork, customerCourierAssignedEvent);
-
 			return item;
 		}
 
@@ -848,9 +845,6 @@ namespace Vodovoz.Core.Application.Logistics
 			};
 
 			routeList.ObservableAddresses.Add(item);
-
-			var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, order.OnlineOrder?.Source, order.OnlineOrder?.Id, order.Id);
-			_customerNotificationPublisher.TryPublish(unitOfWork, customerCourierAssignedEvent);
 
 			return item;
 		}

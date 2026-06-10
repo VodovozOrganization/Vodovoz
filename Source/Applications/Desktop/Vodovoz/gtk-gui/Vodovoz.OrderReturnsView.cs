@@ -82,6 +82,8 @@ namespace Vodovoz
 
 		private global::Gtk.Label GtkLabel15;
 
+		private global::Vodovoz.ViewWidgets.Orders.OrderItemDiscountReasonsView orderitemdiscountreasonsview;
+
 		private global::Gtk.Frame frame3;
 
 		private global::Gtk.Alignment GtkAlignment13;
@@ -122,6 +124,7 @@ namespace Vodovoz
 			this.entityVMEntryDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
 			this.entityVMEntryDeliveryPoint.Name = "entityVMEntryDeliveryPoint";
 			this.entityVMEntryDeliveryPoint.CanEditReference = true;
+			this.entityVMEntryDeliveryPoint.CanDisposeEntitySelectorFactory = false;
 			this.entityVMEntryDeliveryPoint.CanOpenWithoutTabParent = false;
 			this.table1.Add(this.entityVMEntryDeliveryPoint);
 			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.entityVMEntryDeliveryPoint]));
@@ -461,9 +464,16 @@ namespace Vodovoz
 			this.hbox7.Add(this.frame2);
 			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.frame2]));
 			w37.Position = 0;
+			// Container child hbox7.Gtk.Box+BoxChild
+			this.orderitemdiscountreasonsview = new global::Vodovoz.ViewWidgets.Orders.OrderItemDiscountReasonsView();
+			this.orderitemdiscountreasonsview.Events = ((global::Gdk.EventMask)(256));
+			this.orderitemdiscountreasonsview.Name = "orderitemdiscountreasonsview";
+			this.hbox7.Add(this.orderitemdiscountreasonsview);
+			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.orderitemdiscountreasonsview]));
+			w38.Position = 1;
 			this.vbox1.Add(this.hbox7);
-			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox7]));
-			w38.Position = 3;
+			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox7]));
+			w39.Position = 3;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.frame3 = new global::Gtk.Frame();
 			this.frame3.Name = "frame3";
@@ -483,8 +493,8 @@ namespace Vodovoz
 			this.depositrefunditemsview1.Name = "depositrefunditemsview1";
 			this.depositrefunditemsview1.Sensitive = false;
 			this.vbox3.Add(this.depositrefunditemsview1);
-			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.depositrefunditemsview1]));
-			w39.Position = 0;
+			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.depositrefunditemsview1]));
+			w40.Position = 0;
 			this.GtkAlignment13.Add(this.vbox3);
 			this.frame3.Add(this.GtkAlignment13);
 			this.GtkLabel19 = new global::Gtk.Label();
@@ -493,8 +503,8 @@ namespace Vodovoz
 			this.GtkLabel19.UseMarkup = true;
 			this.frame3.LabelWidget = this.GtkLabel19;
 			this.vbox1.Add(this.frame3);
-			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.frame3]));
-			w42.Position = 4;
+			global::Gtk.Box.BoxChild w43 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.frame3]));
+			w43.Position = 4;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
