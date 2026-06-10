@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Vodovoz.Core.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.V4.Dto.Orders
@@ -9,29 +9,9 @@ namespace CustomerOrdersApi.Library.V4.Dto.Orders
 	public class GetOrdersDto : GetCounterpartyOrdersDto
 	{
 		/// <summary>
-		/// Источник запроса
-		/// </summary>
-		public Source Source { get; set; }
-
-		/// <summary>
 		/// Контрольная сумма запроса
 		/// </summary>
 		public string Signature { get; set; }
-
-		/// <summary>
-		/// Id клиента из ДВ
-		/// </summary>
-		public int CounterpartyErpId { get; set; }
-
-		/// <summary>
-		/// Номер страницы
-		/// </summary>
-		public int Page { get; set; }
-
-		/// <summary>
-		/// Количество заказов для отображения на странице
-		/// </summary>
-		public int OrdersCountOnPage { get; set; }
 
 		/// <summary>
 		/// Статус заказа(фильтр)

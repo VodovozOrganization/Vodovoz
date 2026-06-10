@@ -1,11 +1,10 @@
-using CustomerNotifications.Application;
+﻿using CustomerNotifications.Application;
 using CustomerNotifications.Application.Builders;
 using CustomerNotifications.Contracts;
 using CustomerNotifications.Transport;
 using CustomerOrdersApi.HealthCheck;
 using CustomerOrdersApi.Library;
 using CustomerOrdersApi.Library.Config;
-using CustomerOrdersApi.Library.V4.Dto.Orders;
 using CustomerOrdersApi.Services;
 using CustomerOrdersApi.Library.V5.Dto.Orders;
 using CustomerOrdersApi.Library.V5.Services;

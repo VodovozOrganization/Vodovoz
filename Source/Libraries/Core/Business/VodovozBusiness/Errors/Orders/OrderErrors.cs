@@ -1,4 +1,4 @@
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
 using System;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
@@ -198,11 +198,5 @@ namespace Vodovoz.Errors.Orders
 			new Error(
 				"400",
 				$"Дата доставки {deliveryDate:dd.MM.yyyy} превышает максимальный срок переноса в {maxDays} дней. ");
-
-		public static Error OrderDoesNotBelongToCounterparty =>
-			new Error(
-				typeof(OnlineOrderErrors),
-				nameof(OrderDoesNotBelongToCounterparty),
-				"Заказ не относится к указанному клиенту");
 	}
 }
