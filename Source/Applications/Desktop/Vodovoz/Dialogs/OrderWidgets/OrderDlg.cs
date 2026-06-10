@@ -289,6 +289,7 @@ namespace Vodovoz
 		private int _treeItemsNomenclatureColumnWidth;
 		private IList<DiscountReason> _discountReasons;
 		private IList<int> _additionalLoadingNomenclatureIds;
+		private IList<int> _activeFlyersNomenclatureIds;
 		private Employee _currentEmployee;
 		private bool _canChangeDiscountValue;
 		private bool _canChoosePremiumDiscount;
@@ -2146,6 +2147,9 @@ namespace Vodovoz
 
 			_additionalLoadingNomenclatureIds =
 				_deliveryRepository.GetAdditionalLoadingNomenclatureIds(UoW);
+
+			_activeFlyersNomenclatureIds =
+				_flyerRepository.GetAllActiveFlyersNomenclaturesIdsByDate(UoW, DateTime.Today);
 
 			var isFastDeliveryEnableColumnName = "IsFastDeliveryEnableColumn";
 
@@ -6292,11 +6296,9 @@ namespace Vodovoz
 
 		private bool IsOrderItemsAllFastDeliveryCompatible()
 		{
-			var flyerNomenclatures = _nomenclatureRepository.GetFlyerNomenclatureIds(UoW);
-
-			return !IsOrderContainsNotFlyerEquipments(flyerNomenclatures)
+			return IsOrderEquipmentsEmptyOrActiveFlyers()
 				&& Entity.OrderItems.Any()
-				&& Entity.OrderItems.All(x => IsOrderItemAvailableToFastDeliveryOrPaidDeliveryOrFlyer(x, flyerNomenclatures));
+				&& Entity.OrderItems.All(x => IsOrderItemAvailableToFastDeliveryOrPaidDelivery(x));
 		}
 
 		private bool CheckIsFastDeliveryAvailabilityChecked() =>
@@ -6305,21 +6307,25 @@ namespace Vodovoz
 			&& (_isFastDeliveryAvailabilityChecked
 				|| _deliveryRepository.IsFastDeliveryAvailabilityForClientAndAddressCheckedToday(UoW, Entity.Client.Id, DeliveryPoint.Id));
 
+		private bool IsOrderItemAvailableToFastDeliveryOrPaidDelivery(OrderItem orderItem) =>
+			IsOrderItemAvailableToFastDelivery(orderItem)
+			|| IsOrderItemPaidDelivery(orderItem);
+
 		private bool IsOrderItemAvailableToFastDelivery(OrderItem orderItem) =>
-			_additionalLoadingNomenclatureIds.Contains(orderItem.Nomenclature.Id);
+			IsAdditionalLoadingNomenclature(orderItem.Nomenclature.Id)
+			|| IsActiveFlyerNomenclature(orderItem.Nomenclature.Id);
+
+		private bool IsAdditionalLoadingNomenclature(int nomenclatureId) =>
+			_additionalLoadingNomenclatureIds.Contains(nomenclatureId);
+
+		private bool IsActiveFlyerNomenclature(int nomenclatureId) =>
+			_activeFlyersNomenclatureIds.Contains(nomenclatureId);
 
 		private bool IsOrderItemPaidDelivery(OrderItem orderItem) =>
 			_nomenclatureSettings.PaidDeliveriesNomenclaturesIds.Contains(orderItem.Nomenclature.Id);
 
-		private bool IsOrderItemAvailableToFastDeliveryOrPaidDeliveryOrFlyer(OrderItem orderItem, IEnumerable<int> flyerNomenclatures) =>
-			IsOrderItemAvailableToFastDelivery(orderItem)
-			|| IsOrderItemPaidDelivery(orderItem)
-			|| IsFlyerNomenclature(orderItem.Nomenclature.Id, flyerNomenclatures);
-
-		private bool IsFlyerNomenclature(int nomenclatureId, IEnumerable<int> flyerNomenclatures) =>
-			flyerNomenclatures.Contains(nomenclatureId);
-
-		private bool IsOrderContainsNotFlyerEquipments(IEnumerable<int> flyerNomenclatures) =>
-			Entity.ObservableOrderEquipments.Any(x => !IsFlyerNomenclature(x.Nomenclature.Id, flyerNomenclatures));
+		private bool IsOrderEquipmentsEmptyOrActiveFlyers() =>
+			!Entity.ObservableOrderEquipments.Any()
+			|| Entity.ObservableOrderEquipments.All(x => IsActiveFlyerNomenclature(x.Nomenclature.Id));
 	}
 }

@@ -112,12 +112,5 @@ namespace Vodovoz.EntityRepositories.Goods
 		/// <param name="nomenclatureId">ID номенклатуры</param>
 		/// <returns></returns>
 		bool CheckAnyOrderWithNomenclature(IUnitOfWork unitOfWork, int nomenclatureId);
-
-		/// <summary>
-		/// Возвращает список идентификаторов номенклатур, которые являются рекламными листовками
-		/// </summary>
-		/// <param name="uow">UnitOfWork</param>
-		/// <returns>Список идентификаторов номенклатур</returns>
-		IList<int> GetFlyerNomenclatureIds(IUnitOfWork uow);
 	}
 }
