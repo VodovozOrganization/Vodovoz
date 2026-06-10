@@ -1,8 +1,6 @@
 ﻿using Gamma.ColumnConfig;
 using Gtk;
 using QS.Views.GtkUI;
-using System;
-using System.ComponentModel;
 using Vodovoz.ViewModels.ReportsParameters;
 using Vodovoz.ViewWidgets.Reports;
 using VodovozBusiness.Nodes.SalesReport;
@@ -49,6 +47,7 @@ namespace Vodovoz.ReportsParameters.Sales
 
 			buttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);
 			buttonInfo.BindCommand(ViewModel.ShowInfoCommand);
+			ybuttonExport.BindCommand(ViewModel.ExportToExcelCommand);
 
 			ConfigureDetailedTreeView();
 		}
