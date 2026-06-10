@@ -323,71 +323,139 @@ namespace Vodovoz.Controllers
 			#region ToDeliver
 
 			sbyte amountSign = -1;
-			var desiredAmounts = new Dictionary<int, NomenclatureAmountNode>();
-
-			var currentGoodsToDeliverAmountNodes =
-				changedRouteListItem.Order.GetAllGoodsToDeliver(!forceUsePlanCount);
 
 			foreach(var node in oldGoodsToDeliverAmountNodes)
 			{
-				AddDesiredAmount(
-					desiredAmounts,
-					node.Nomenclature,
-					(currentGoodsToDeliverAmountNodes
-						.SingleOrDefault(x => x.NomenclatureId == node.NomenclatureId)?.Amount ?? 0) * amountSign);
+				decimal count;
+
+				var foundInChanged = changedRouteListItem.Order.OrderItems
+					.Select(i => new NomenclatureAmountNode
+					{
+						NomenclatureId = i.Nomenclature.Id,
+						Nomenclature = i.Nomenclature,
+						Amount = forceUsePlanCount ? i.Count : i.CurrentCount
+					})
+					.Concat(changedRouteListItem.Order.OrderEquipments
+						.Where(e => e.Direction == Direction.Deliver)
+						.Select(e => new NomenclatureAmountNode
+						{
+							NomenclatureId = e.Nomenclature.Id,
+							Nomenclature = e.Nomenclature,
+							Amount = forceUsePlanCount ? e.Count : e.CurrentCount
+						}))
+					.Where(n => n.Nomenclature.Id == node.NomenclatureId)
+					.GroupBy(n => n.Nomenclature.Id)
+					.Select(n => new NomenclatureAmountNode
+					{
+						NomenclatureId = n.Key,
+						Nomenclature = n.First().Nomenclature,
+						Amount = n.Sum(s => s.Amount)
+					})
+					.SingleOrDefault();
+
+				if(foundInChanged != null)
+				{
+					if(foundInChanged.Amount == node.Amount)
+					{
+						continue;
+					}
+
+					count = foundInChanged.Amount - node.Amount;
+				}
+				else
+				{
+					count = -node.Amount;
+				}
+
+				var routeListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem();
+				routeListKeepingDocumentItem.RouteListAddressKeepingDocument = routeListKeepingDocument;
+				routeListKeepingDocumentItem.Nomenclature = uow.GetById<Nomenclature>(node.Nomenclature.Id);
+				routeListKeepingDocumentItem.Amount = count * amountSign;
+				routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
+				routeListKeepingDocumentItem.CreateOrUpdateOperation();
+				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem
+					.DeliveryFreeBalanceOperation);
+				newItems.Add(routeListKeepingDocumentItem);
 			}
 
-			var newItemsToDeliver = currentGoodsToDeliverAmountNodes
+			var newItemsToDeliver = changedRouteListItem.Order.GetAllGoodsToDeliver(true)
 				.Where(x => oldGoodsToDeliverAmountNodes.All(a => a.Nomenclature.Id != x.Nomenclature.Id));
 
 			foreach(var item in newItemsToDeliver)
 			{
-				AddDesiredAmount(desiredAmounts, item.Nomenclature, item.Amount * amountSign);
+				var routeListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem();
+				routeListKeepingDocumentItem.RouteListAddressKeepingDocument = routeListKeepingDocument;
+				routeListKeepingDocumentItem.Nomenclature = item.Nomenclature;
+				routeListKeepingDocumentItem.Amount = item.Amount * amountSign;
+				routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
+				routeListKeepingDocumentItem.CreateOrUpdateOperation();
+				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem
+					.DeliveryFreeBalanceOperation);
+				newItems.Add(routeListKeepingDocumentItem);
 			}
 
 			#endregion
 
 			#region Pickup
 
-			var currentEquipmentsToPickupAmountNodes = changedRouteListItem.Order.OrderEquipments
-				.Where(x => x.Direction == Direction.PickUp)
-				.GroupBy(n => n.Nomenclature.Id)
-				.Select(n => new NomenclatureAmountNode
-				{
-					NomenclatureId = n.Key,
-					Nomenclature = n.First().Nomenclature,
-					Amount = n.Sum(s => forceUsePlanCount ? s.Count : s.CurrentCount)
-				})
-				.ToList();
-
 			foreach(var node in oldEquipmentToPickupAmountNodes)
 			{
-				AddDesiredAmount(
-					desiredAmounts,
-					node.Nomenclature,
-					currentEquipmentsToPickupAmountNodes
-						.SingleOrDefault(x => x.NomenclatureId == node.NomenclatureId)?.Amount ?? 0);
+				decimal count;
+
+				var foundInChanged = changedRouteListItem.Order.OrderEquipments
+					.Where(x => x.Direction == Direction.PickUp)
+					.GroupBy(n => n.Nomenclature.Id)
+					.Select(n => new NomenclatureAmountNode
+					{
+						NomenclatureId = n.Key,
+						Nomenclature = n.First().Nomenclature,
+						Amount = n.Sum(s => forceUsePlanCount ? s.Count : s.CurrentCount)
+					})
+					.ToList()
+					.SingleOrDefault(x => x.Nomenclature.Id == node.NomenclatureId);
+
+				if(foundInChanged != null)
+				{
+					if(foundInChanged.Amount == node.Amount)
+					{
+						continue;
+					}
+
+					count = foundInChanged.Amount - node.Amount;
+				}
+				else
+				{
+					count = -node.Amount;
+				}
+
+				var routeListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem();
+				routeListKeepingDocumentItem.RouteListAddressKeepingDocument = routeListKeepingDocument;
+				routeListKeepingDocumentItem.Nomenclature = uow.GetById<Nomenclature>(node.Nomenclature.Id);
+				routeListKeepingDocumentItem.Amount = count;
+				routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
+				routeListKeepingDocumentItem.CreateOrUpdateOperation();
+				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem
+					.DeliveryFreeBalanceOperation);
+				newItems.Add(routeListKeepingDocumentItem);
 			}
 
-			var newEquipmentsToPickup = currentEquipmentsToPickupAmountNodes
+			var newEquipmentsToPickup = changedRouteListItem.Order.OrderEquipments
+				.Where(x => x.Direction == Direction.PickUp)
 				.Where(x => oldEquipmentToPickupAmountNodes
 					.All(old => old.Nomenclature.Id != x.Nomenclature.Id))
 				.ToList();
 
 			foreach(var item in newEquipmentsToPickup)
 			{
-				AddDesiredAmount(desiredAmounts, item.Nomenclature, item.Amount);
-			}
-
-			foreach(var item in desiredAmounts.Values)
-			{
-				CreateRouteListKeepingDocumentItemForDifference(
-					uow,
-					changedRouteListItem,
-					routeListKeepingDocument,
-					newItems,
-					item.Nomenclature,
-					item.Amount);
+				var routeListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem();
+				routeListKeepingDocumentItem.RouteListAddressKeepingDocument = routeListKeepingDocument;
+				routeListKeepingDocumentItem.Nomenclature = item.Nomenclature;
+				routeListKeepingDocumentItem.Amount = forceUsePlanCount ? item.Count : item.CurrentCount;
+				routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
+				routeListKeepingDocumentItem.CreateOrUpdateOperation();
+				changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(routeListKeepingDocumentItem
+					.DeliveryFreeBalanceOperation);
+				newItems.Add(routeListKeepingDocumentItem);
 			}
 
 			#endregion
@@ -395,57 +463,6 @@ namespace Vodovoz.Controllers
 			uow.Save(routeListKeepingDocument);
 
 			return newItems;
-		}
-
-		private void AddDesiredAmount(Dictionary<int, NomenclatureAmountNode> desiredAmounts, Nomenclature nomenclature, decimal amount)
-		{
-			if(desiredAmounts.TryGetValue(nomenclature.Id, out var existing))
-			{
-				existing.Amount += amount;
-				return;
-			}
-
-			desiredAmounts.Add(
-				nomenclature.Id,
-				new NomenclatureAmountNode
-				{
-					NomenclatureId = nomenclature.Id,
-					Nomenclature = nomenclature,
-					Amount = amount
-				});
-		}
-
-		private void CreateRouteListKeepingDocumentItemForDifference(
-			IUnitOfWork uow,
-			RouteListItem changedRouteListItem,
-			RouteListAddressKeepingDocument routeListKeepingDocument,
-			HashSet<RouteListAddressKeepingDocumentItem> newItems,
-			Nomenclature nomenclature,
-			decimal desiredAmount)
-		{
-			var existingAmount = routeListKeepingDocument.Items
-				.Where(x => x.Nomenclature.Id == nomenclature.Id)
-				.Sum(x => x.Amount);
-
-			var amount = desiredAmount - existingAmount;
-
-			if(amount == 0)
-			{
-				return;
-			}
-
-			var routeListKeepingDocumentItem = new RouteListAddressKeepingDocumentItem
-			{
-				RouteListAddressKeepingDocument = routeListKeepingDocument,
-				Nomenclature = uow.GetById<Nomenclature>(nomenclature.Id),
-				Amount = amount
-			};
-
-			routeListKeepingDocument.Items.Add(routeListKeepingDocumentItem);
-			routeListKeepingDocumentItem.CreateOrUpdateOperation();
-			changedRouteListItem.RouteList.ObservableDeliveryFreeBalanceOperations.Add(
-				routeListKeepingDocumentItem.DeliveryFreeBalanceOperation);
-			newItems.Add(routeListKeepingDocumentItem);
 		}
 
 		public void RemoveRouteListKeepingDocument(IUnitOfWork uow, RouteListItem routeListItem, bool needRouteListUpdate = false)
