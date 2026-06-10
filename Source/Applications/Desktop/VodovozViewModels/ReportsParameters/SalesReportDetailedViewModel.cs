@@ -57,7 +57,8 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		private DateTime? _startDate;
 		private DateTime? _endDate;
 		private bool _showPhones;
-		private bool _isLoading;
+		private bool _reportIsNotLoading = true;
+		private bool _reportIsNotExported = true;
 		private readonly bool _canSeePhones;
 		private readonly bool _userIsSalesRepresentative;
 		private readonly bool _canAccessSalesReports;
@@ -149,15 +150,19 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			set => SetField(ref _showPhones, value);
 		}
 
-		public bool IsLoading
+		public bool ReportIsNotLoaded
 		{
-			get => _isLoading;
-			set => SetField(ref _isLoading, value);
+			get => _reportIsNotLoading;
+			set => SetField(ref _reportIsNotLoading, value);
+		}
+
+		public bool ReportIsNotExported
+		{
+			get => _reportIsNotExported;
+			set => SetField(ref _reportIsNotExported, value);
 		}
 
 		public bool CanShowPhones => _canSeePhones;
-
-		public bool CanAccessSalesReports => _canAccessSalesReports;
 
 		private void SetupFilter()
 		{
@@ -287,15 +292,14 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				return;
 			}
 
-			GenerateDetailedReportAsync().GetAwaiter().GetResult();
+			Task.Run(async () => GenerateDetailedReportAsync());
 		}
 
 		private async Task GenerateDetailedReportAsync()
 		{
 			try
 			{
-				IsLoading = true;
-
+				ReportIsNotLoaded = false;
 				var filters = BuildFiltersFromViewModel();
 
 				UpdateSelectedGroupings();
@@ -328,8 +332,6 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				_ordersCount = countOfOrders.Count();
 
 				DisplayNodes = FlattenTreeToDisplayNodes(_nodes);
-
-				OnPropertyChanged(nameof(DisplayNodes));
 			}
 			catch(Exception ex)
 			{
@@ -337,7 +339,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			}
 			finally
 			{
-				IsLoading = false;
+				ReportIsNotLoaded = true;
 			}
 		}
 
@@ -357,29 +359,48 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			};
 
 			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
-			if(result.Successful)
+
+			if(!result.Successful)
 			{
-				try
+				return;
+			}
+
+			try
+			{
+				ReportIsNotExported = false;
+
+				var groupingTitle = string.Join(" | ", SelectedGroupings.Select(g => g.Type.GetEnumTitle()));
+
+				var exportResult = Task.Run(() => _salesReportService.ExportToExcel(
+					_nodes.Children,
+					StartDate.Value,
+					EndDate.Value,
+					groupingTitle,
+					_ordersCount,
+					_bottlesDataNode.Plan,
+					_bottlesDataNode.Fact,
+					result.Path,
+					ShowPhones));
+
+				if(exportResult.Result.IsSuccess)
 				{
-					var groupingTitle = string.Join(" | ", SelectedGroupings.Select(g => g.Type.GetEnumTitle()));
-
-					_salesReportService.ExportToExcel(
-						_nodes.Children,
-						StartDate.Value,
-						EndDate.Value,
-						groupingTitle,
-						_ordersCount,
-						_bottlesDataNode.Plan,
-						_bottlesDataNode.Fact,
-						result.Path);
-
 					_interactiveService.ShowMessage(ImportanceLevel.Info, "Файл успешно сохранен");
 				}
-				catch(Exception ex)
+				else
 				{
-					_interactiveService.ShowMessage(ImportanceLevel.Error, $"Ошибка при экспорте:\n{ex.Message}");
-					_logger.LogError(ex, "Ошибка при экспорте отчета по продажам");
+					_interactiveService.ShowMessage(
+						ImportanceLevel.Error,
+						exportResult.Result.Errors?.FirstOrDefault().Message);
 				}
+			}
+			catch(Exception ex)
+			{
+				_interactiveService.ShowMessage(ImportanceLevel.Error, $"Ошибка при экспорте:\n{ex.Message}");
+				_logger.LogError(ex, "Ошибка при экспорте отчета по продажам");
+			}
+			finally
+			{
+				ReportIsNotExported = true;
 			}
 		}
 
@@ -395,6 +416,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 					Code = string.Empty,
 					Counterparty = string.Empty,
 					DeliveryPoint = string.Empty,
+					Phones = string.Empty,
 					OrderDetails = string.Empty,
 					Nomenclature = rootNode.Name,
 					Count = rootNode.TotalCount,
@@ -412,6 +434,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 						Code = string.Empty,
 						Counterparty = string.Empty,
 						DeliveryPoint = string.Empty,
+						Phones = string.Empty,
 						OrderDetails = string.Empty,
 						Nomenclature = child.Name,
 						Count = child.TotalCount,
@@ -430,6 +453,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 						Counterparty = data.Counterparty,
 						DeliveryPoint = data.DeliveryPoint,
 						OrderDetails = data.OrdDetails,
+						Phones = data.Phones,
 						Nomenclature = data.NomenclatureName,
 						Count = data.TotalCount,
 						Sum = data.TotalSum
@@ -454,6 +478,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 						Code = string.Empty,
 						Counterparty = string.Empty,
 						DeliveryPoint = string.Empty,
+						Phones = string.Empty,
 						OrderDetails = string.Empty,
 						Nomenclature = child.Name,
 						Count = child.TotalCount,
@@ -471,6 +496,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 						Code = data.CounterpartyId.ToString(),
 						Counterparty = data.Counterparty,
 						DeliveryPoint = data.DeliveryPoint,
+						Phones = data.Phones,
 						OrderDetails = data.OrdDetails,
 						Nomenclature = data.NomenclatureName,
 						Count = data.TotalCount,
@@ -806,6 +832,21 @@ $@"<b>1.</b> Подсчет продаж ведется на основе зак
 Детальный отчет аналогичен обычному, лишь предоставляет расширенную информацию.";
 
 			_interactiveService.ShowMessage(ImportanceLevel.Info, info, "Справка по работе с отчетом");
+		}
+
+		public override void Dispose()
+		{
+			base.Dispose();
+
+			if(_filterViewModel != null)
+			{
+				_filterViewModel.SelectionChanged -= OnFilterViewModelSelectionChanged;
+			}
+
+			if(_groupViewModel?.RightItems != null)
+			{
+				_groupViewModel.RightItems.ContentChanged -= OnGroupingsRightItemsListContentChanged;
+			}
 		}
 	}
 }

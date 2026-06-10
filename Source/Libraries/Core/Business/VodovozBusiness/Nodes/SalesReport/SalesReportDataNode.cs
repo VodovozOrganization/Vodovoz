@@ -34,6 +34,11 @@ namespace VodovozBusiness.Nodes.SalesReport
 		public string DeliveryPoint { get; set; }
 
 		/// <summary>
+		/// Телефоны контрагента или точки доставки
+		/// </summary>
+		public string Phones { get; set; }
+
+		/// <summary>
 		/// Идентификатор заказа
 		/// </summary>
 		public int OrderId { get; set; }

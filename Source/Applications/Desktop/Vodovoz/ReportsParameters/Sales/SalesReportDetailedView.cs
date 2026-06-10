@@ -24,10 +24,10 @@ namespace Vodovoz.ReportsParameters.Sales
 				.AddBinding(vm => vm.EndDate, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
-			/*ycheckbuttonPhones.Binding
+			ycheckbuttonPhones.Binding
 				.AddBinding(ViewModel, vm => vm.CanShowPhones, w => w.Sensitive)
 				.AddBinding(ViewModel, vm => vm.ShowPhones, w => w.Active)
-				.InitializeFromSource();*/
+				.InitializeFromSource();
 
 			ycheckbuttonDetail.Active = true;
 			ycheckbuttonDetail.Sensitive = false;
@@ -45,44 +45,95 @@ namespace Vodovoz.ReportsParameters.Sales
 			orderdatefilterview1.ViewModel = ViewModel.OrderDateFilterViewModel;
 			leftrightlistview.ViewModel = ViewModel.GroupingSelectViewModel;
 
-			buttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);
 			buttonInfo.BindCommand(ViewModel.ShowInfoCommand);
+
+			buttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);
+			buttonCreateReport.Binding
+				.AddBinding(ViewModel, vw => vw.ReportIsNotLoaded, w => w.Sensitive)
+				.InitializeFromSource();
+
 			ybuttonExport.BindCommand(ViewModel.ExportToExcelCommand);
+			ybuttonExport.Binding
+				.AddBinding(ViewModel, vw => vw.ReportIsNotExported, w => w.Sensitive)
+				.InitializeFromSource();
 
 			ConfigureDetailedTreeView();
+
+			ViewModel.PropertyChanged += OnViewModelPropertyChanged;
 		}
 
 		private void ConfigureDetailedTreeView()
 		{
-			var columns = FluentColumnsConfig<SalesReportDisplayNode>.Create()
-				.AddColumn("Код")
-					.AddTextRenderer(x => x.Code)
-				.AddColumn("Клиент")
-					.AddTextRenderer(x => x.Counterparty)
-					.WrapWidth(200)
-					.WrapMode(Pango.WrapMode.WordChar)
-				.AddColumn("Точка доставки")
-					.AddTextRenderer(x => x.DeliveryPoint)
-					.WrapWidth(250)
-					.WrapMode(Pango.WrapMode.WordChar)
-				.AddColumn("Заказ/Дата/Автор")
-					.AddTextRenderer(x => x.OrderDetails)
-					.WrapWidth(150)
-					.WrapMode(Pango.WrapMode.WordChar)
-				.AddColumn("Номенклатура")
-					.AddTextRenderer(x => x.Nomenclature)
-					.WrapWidth(200)
-					.WrapMode(Pango.WrapMode.WordChar)
-				.AddColumn("Кол-во")
-					.AddNumericRenderer(x => x.Count)
-				.AddColumn("Сумма")
-					.AddNumericRenderer(x => x.Sum)
-					.Digits(2)
-				.AddColumn("")
-				.Finish();
+			var config = FluentColumnsConfig<SalesReportDisplayNode>.Create();
 
-			ytreeviewDetailedReport.ColumnsConfig = columns;
+			config.AddColumn("Код")
+				.AddTextRenderer(x => x.Code);
+
+			config.AddColumn("Клиент")
+				.AddTextRenderer(x => x.Counterparty)
+				.WrapWidth(200)
+				.WrapMode(Pango.WrapMode.WordChar);
+
+			config.AddColumn("Точка доставки")
+				.AddTextRenderer(x => x.DeliveryPoint)
+				.WrapWidth(250)
+				.WrapMode(Pango.WrapMode.WordChar);
+
+			config.AddColumn("Заказ/Дата/Автор")
+				.AddTextRenderer(x => x.OrderDetails)
+				.WrapWidth(150)
+				.WrapMode(Pango.WrapMode.WordChar);
+
+			if(ViewModel.ShowPhones)
+			{
+				config.AddColumn("Телефоны")
+					.AddTextRenderer(x => x.Phones)
+					.WrapWidth(120)
+					.WrapMode(Pango.WrapMode.WordChar);
+			}
+
+			config.AddColumn("Номенклатура")
+				.AddTextRenderer(x => x.Nomenclature)
+				.WrapWidth(200)
+				.WrapMode(Pango.WrapMode.WordChar);
+
+			config.AddColumn("Кол-во")
+				.AddNumericRenderer(x => x.Count);
+
+			config.AddColumn("Сумма")
+				.AddNumericRenderer(x => x.Sum)
+				.Digits(2);
+
+			config.AddColumn("");
+
+			ytreeviewDetailedReport.ColumnsConfig = config.Finish();
 			ytreeviewDetailedReport.EnableGridLines = TreeViewGridLines.Both;
+		}
+
+		private void OnViewModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(ViewModel.ShowPhones))
+			{
+				ApplyPhoneColumnVisibility();
+			}
+		}
+
+		private void ApplyPhoneColumnVisibility()
+		{
+			if(ytreeviewDetailedReport?.ColumnsConfig is null)
+			{
+				return;
+			}
+
+			ConfigureDetailedTreeView();
+			ytreeviewDetailedReport.QueueDraw();
+		}
+
+		public override void Destroy()
+		{
+			base.Destroy();
+
+			ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
 		}
 	}
 }

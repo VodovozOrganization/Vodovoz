@@ -15,6 +15,7 @@ using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
+using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.FastPayments;
@@ -329,6 +330,8 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 			Nomenclature nomenclatureAlias = null;
 			Counterparty counterpartyAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
+			Phone phoneClientAlias = null;
+			Phone phoneDeliveryPointAlias = null;
 			Employee authorAlias = null;
 			Employee managerAlias = null;
 			Subdivision subdivisionAlias = null;
@@ -356,6 +359,8 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 				.Left.JoinAlias(() => counterpartyAlias.CounterpartySubtype, () => counterpartySubtypeAlias)
 				.Left.JoinAlias(() => deliveryPointAlias.District, () => districtAlias)
 				.Left.JoinAlias(() => districtAlias.GeographicGroup, () => geoGroupAlias)
+				.Left.JoinAlias(() => counterpartyAlias.Phones, () => phoneClientAlias, () => !phoneClientAlias.IsArchive)
+				.Left.JoinAlias(() => deliveryPointAlias.Phones, () => phoneDeliveryPointAlias, () => !phoneDeliveryPointAlias.IsArchive)
 				.JoinEntityAlias(() => routeListItemAlias,
 					() => routeListItemAlias.Order.Id == orderAlias.Id
 						&& routeListItemAlias.Status != RouteListItemStatus.Transfered
@@ -557,6 +562,30 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 				}
 			}
 
+			var phoneProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String,
+					"CONCAT('+7', IF(?1 IS NULL, ?2, ?3))"),
+				NHibernateUtil.String,
+				Projections.Property(() => deliveryPointAlias.Id),
+				Projections.Property(() => phoneClientAlias.DigitsNumber),
+				Projections.Property(() => phoneDeliveryPointAlias.DigitsNumber));
+
+			var totalCountProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.Decimal, 
+					"COALESCE(?1, ?2)"),
+				NHibernateUtil.Decimal,
+				Projections.Property(() => orderItemAlias.ActualCount),
+				Projections.Property(() => orderItemAlias.Count));
+
+			var totalSumProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.Decimal,
+					"TRUNCATE(COALESCE(?1, ?2) * ?3 - COALESCE(?4, 0), 2)"),
+				NHibernateUtil.Decimal,
+				Projections.Property(() => orderItemAlias.ActualCount),
+				Projections.Property(() => orderItemAlias.Count),
+				Projections.Property(() => orderItemAlias.Price),
+				Projections.Property(() => orderItemAlias.DiscountMoney));
+
 			query.OrderBy(() => orderAlias.Id).Asc()
 				.ThenBy(() => orderItemAlias.Id).Asc();
 
@@ -581,19 +610,9 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 				.SelectGroup(() => promotionalSetAlias.Name).WithAlias(() => resultAlias.PromotionalSet)
 				.SelectGroup(() => authorAlias.LastName).WithAlias(() => resultAlias.OrderAuthor)
 				.SelectGroup(() => nomenclatureAlias.IsDisposableTare).WithAlias(() => resultAlias.IsDisposableTare)
-				.Select(Projections.SqlFunction(
-					new SQLFunctionTemplate(NHibernateUtil.Decimal, "COALESCE(?1, ?2)"),
-					NHibernateUtil.Decimal,
-					Projections.Property(() => orderItemAlias.ActualCount),
-					Projections.Property(() => orderItemAlias.Count))).WithAlias(() => resultAlias.TotalCount)
-				.Select(Projections.SqlFunction(
-					new SQLFunctionTemplate(NHibernateUtil.Decimal,
-						"TRUNCATE(COALESCE(?1, ?2) * ?3 - COALESCE(?4, 0), 2)"),
-					NHibernateUtil.Decimal,
-					Projections.Property(() => orderItemAlias.ActualCount),
-					Projections.Property(() => orderItemAlias.Count),
-					Projections.Property(() => orderItemAlias.Price),
-					Projections.Property(() => orderItemAlias.DiscountMoney))).WithAlias(() => resultAlias.TotalSum)
+				.Select(phoneProjection).WithAlias(() => resultAlias.Phones)
+				.Select(totalCountProjection).WithAlias(() => resultAlias.TotalCount)
+				.Select(totalSumProjection).WithAlias(() => resultAlias.TotalSum)
 			)
 			.TransformUsing(Transformers.AliasToBean<SalesReportDataNode>());
 

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Results;
 using VodovozBusiness.Nodes.SalesReport;
 
 namespace Vodovoz.ViewModels.Services.SalesReport
@@ -50,7 +51,9 @@ namespace Vodovoz.ViewModels.Services.SalesReport
 		/// <param name="planBottles">Планируемое количество бутылей</param>
 		/// <param name="factBottles">Фактическое количество бутылей</param>
 		/// <param name="outputFilePath">Путь к файлу</param>
-		void ExportToExcel(
+		/// <param name="showPhones">Показывать ли колонку "Телефоны"</param>
+		/// <returns>Результат экспорта</returns>
+		Result ExportToExcel(
 			IList<SalesReportTreeNode> tree,
 			DateTime startDate,
 			DateTime endDate,
@@ -58,6 +61,7 @@ namespace Vodovoz.ViewModels.Services.SalesReport
 			int ordersCount,
 			int planBottles,
 			int factBottles,
-			string outputFilePath);
+			string outputFilePath,
+			bool showPhones);
 	}
 }

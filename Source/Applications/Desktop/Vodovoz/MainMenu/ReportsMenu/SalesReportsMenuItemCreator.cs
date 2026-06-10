@@ -24,7 +24,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 		private MenuItem _orderCreationDateMenuItem;
 		private MenuItem _planImplementationMenuItem;
 		private MenuItem _setBillsMenuItem;
-		private MenuItem _salesReportDetailedtItem;
+		private MenuItem _salesReportDetailedItem;
 		private readonly bool _userIsSalesRepresentative;
 
 		public SalesReportsMenuItemCreator(ConcreteMenuItemCreator concreteMenuItemCreator)
@@ -44,9 +44,9 @@ namespace Vodovoz.MainMenu.ReportsMenu
 			
 			salesReportsMenu.Add(_concreteMenuItemCreator.CreateMenuItem("Отчет по продажам", OnSalesReportPressed));
 
-			_salesReportDetailedtItem = _concreteMenuItemCreator.CreateMenuItem(
+			_salesReportDetailedItem = _concreteMenuItemCreator.CreateMenuItem(
 				"Подробный отчет по продажам", OnSalesReportDetailedPressed);
-			salesReportsMenu.Add(_salesReportDetailedtItem);
+			salesReportsMenu.Add(_salesReportDetailedItem);
 
 			_orderCreationDateMenuItem = _concreteMenuItemCreator.CreateMenuItem(
 				"Отчет по дате создания заказа", OnOrderCreationDateReportPressed);
@@ -175,7 +175,7 @@ namespace Vodovoz.MainMenu.ReportsMenu
 
 			_setBillsMenuItem.Visible = !_userIsSalesRepresentative;
 
-			_salesReportDetailedtItem.Sensitive =
+			_salesReportDetailedItem.Sensitive =
 				Startup.MainWin.CurrentPermissionService.ValidatePresetPermission(ReportPermissions.Sales.CanAccessSalesReports);
 		}
 	}

@@ -31,6 +31,11 @@
         public string OrderDetails { get; set; }
 
 		/// <summary>
+		/// Телефоны
+		/// </summary>
+        public string Phones { get; set; }
+
+		/// <summary>
 		/// Номенклатура
 		/// </summary>
         public string Nomenclature { get; set; }
