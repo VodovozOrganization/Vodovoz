@@ -50,8 +50,7 @@ namespace Vodovoz.ViewModels.Services.SalesReport
 		/// <param name="planBottles">Планируемое количество бутылей</param>
 		/// <param name="factBottles">Фактическое количество бутылей</param>
 		/// <param name="outputFilePath">Путь к файлу</param>
-		/// <param name="cancellationToken">Токен отмены</param>
-		Task ExportToExcel(
+		void ExportToExcel(
 			IList<SalesReportTreeNode> tree,
 			DateTime startDate,
 			DateTime endDate,
@@ -59,7 +58,6 @@ namespace Vodovoz.ViewModels.Services.SalesReport
 			int ordersCount,
 			int planBottles,
 			int factBottles,
-			string outputFilePath,
-			CancellationToken cancellationToken = default);
+			string outputFilePath);
 	}
 }

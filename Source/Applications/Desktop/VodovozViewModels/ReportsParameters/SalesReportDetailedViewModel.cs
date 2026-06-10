@@ -58,9 +58,9 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		private DateTime? _endDate;
 		private bool _showPhones;
 		private bool _isLoading;
-		private bool _canSeePhones;
-		private bool _userIsSalesRepresentative;
-		private bool _canAccessSalesReports;
+		private readonly bool _canSeePhones;
+		private readonly bool _userIsSalesRepresentative;
+		private readonly bool _canAccessSalesReports;
 		private readonly bool _canViewReportSalesWithCashReceipts;
 
 		public SalesReportDetailedViewModel(
@@ -362,6 +362,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				try
 				{
 					var groupingTitle = string.Join(" | ", SelectedGroupings.Select(g => g.Type.GetEnumTitle()));
+
 					_salesReportService.ExportToExcel(
 						_nodes.Children,
 						StartDate.Value,
@@ -370,9 +371,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 						_ordersCount,
 						_bottlesDataNode.Plan,
 						_bottlesDataNode.Fact,
-						result.Path)
-						.GetAwaiter()
-						.GetResult();
+						result.Path);
 
 					_interactiveService.ShowMessage(ImportanceLevel.Info, "Файл успешно сохранен");
 				}

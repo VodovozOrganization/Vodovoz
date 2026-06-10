@@ -597,18 +597,6 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 			)
 			.TransformUsing(Transformers.AliasToBean<SalesReportDataNode>());
 
-			/*const int pageSize = 10_000;
-			var allResults = new List<SalesReportDataNode>();
-			int offset = 0;
-
-			while(true)
-			{
-				var page = await query.Skip(offset).Take(pageSize).ListAsync<SalesReportDataNode>(cancellationToken);
-				if(page.Count == 0) break;
-				allResults.AddRange(page);
-				offset += pageSize;
-			}*/
-
 			var allResults = await query.ListAsync<SalesReportDataNode>(cancellationToken);
 
 			return allResults;

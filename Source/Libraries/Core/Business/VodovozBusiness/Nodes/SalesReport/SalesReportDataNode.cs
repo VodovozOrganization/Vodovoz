@@ -34,11 +34,6 @@ namespace VodovozBusiness.Nodes.SalesReport
 		public string DeliveryPoint { get; set; }
 
 		/// <summary>
-		/// Телефоны контрагента или точки доставки
-		/// </summary>
-		public string Phone { get; set; }
-
-		/// <summary>
 		/// Идентификатор заказа
 		/// </summary>
 		public int OrderId { get; set; }
@@ -109,11 +104,6 @@ namespace VodovozBusiness.Nodes.SalesReport
 		public int AuthorSubdivisionId { get; set; }
 
 		/// <summary>
-		/// Количество знаков после запятой для единицы измерения номенклатуры
-		/// </summary>
-		public uint Digits { get; set; }
-
-		/// <summary>
 		/// Наименование группы номенклатуры 1-го уровня
 		/// </summary>
 		public string NomenGroupLevel1Name { get; set; }
@@ -163,6 +153,9 @@ namespace VodovozBusiness.Nodes.SalesReport
 		/// </summary>
 		public string OrderAuthorName { get; set; }
 
+		/// <summary>
+		/// Категория номенклатуры строкой
+		/// </summary>
 		public string NomenclatureCategoryString
 		{
 			get
