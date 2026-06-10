@@ -100,8 +100,7 @@ namespace CustomerOrdersApi
 				});
 
 			services
-				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>,
-					OutBoxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, OutBoxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
 				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
 				.AddCustomerNotificationsSettingsProvider()
 

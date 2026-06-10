@@ -1,8 +1,11 @@
-using Autofac.Extensions.DependencyInjection;
+﻿using Autofac.Extensions.DependencyInjection;
+using CustomerNotifications.Application.Builders;
+using CustomerNotifications.Contracts;
 using CustomerOnlineOrdersRegistrar.V3.Factories;
 using CustomerOnlineOrdersRegistrar.V4.Factories;
 using CustomerOnlineOrdersRegistrar.V5.Factories;
 using CustomerOrdersApi.Library;
+using DocumentFormat.OpenXml.Drawing.Charts;
 using DriverApi.Notifications.Client;
 using MassTransit;
 using MessageTransport;
@@ -10,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using Notifications.Infrastructure;
 using Osrm;
 using QS.Attachments.Domain;
 using QS.Banks.Domain;
@@ -17,11 +21,10 @@ using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Project.Domain;
 using QS.Project.HibernateMapping;
+using TransactionalOutbox.Abstractions;
 using Vodovoz;
 using Vodovoz.Core.Application;
 using Vodovoz.Core.Application.Logistics;
-using Vodovoz.Core.Application.Orders.Services;
-using Vodovoz.Core.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Data.NHibernate;
@@ -29,6 +32,7 @@ using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Trackers;
 using AssemblyFinder = Vodovoz.Data.NHibernate.AssemblyFinder;
+using CustomerNotifications.Application;
 
 namespace CustomerOnlineOrdersRegistrar
 {
@@ -87,6 +91,10 @@ namespace CustomerOnlineOrdersRegistrar
 							busConf.AddConsumer<V5.Consumers.CreatingOnlineOrderConsumer, V5.Consumers.CreatingOnlineOrderConsumerDefinition>();
 							busConf.ConfigureRabbitMq();
 						})
+
+						.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, OutBoxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+						.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
+						.AddCustomerNotificationsSettingsProvider()
 						;
 
 					services.AddStaticScopeForEntity();
