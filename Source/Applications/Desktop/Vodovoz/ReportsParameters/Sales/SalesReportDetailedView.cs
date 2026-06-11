@@ -52,7 +52,7 @@ namespace Vodovoz.ReportsParameters.Sales
 				.AddBinding(ViewModel, vw => vw.ReportIsNotLoaded, w => w.Sensitive)
 				.InitializeFromSource();
 
-			ybuttonExport.BindCommand(ViewModel.ExportToExcelCommand);
+			ybuttonExport.BindCommand(ViewModel.ExportReportCommand);
 			ybuttonExport.Binding
 				.AddBinding(ViewModel, vw => vw.ReportIsNotExported, w => w.Sensitive)
 				.InitializeFromSource();
@@ -72,7 +72,8 @@ namespace Vodovoz.ReportsParameters.Sales
 			config.AddColumn("Клиент")
 				.AddTextRenderer(x => x.Counterparty)
 				.WrapWidth(200)
-				.WrapMode(Pango.WrapMode.WordChar);
+				.WrapMode(Pango.WrapMode.WordChar)
+				.AddSetter((cell, node) => ApplyBoldStyle(cell, node, node.Counterparty));
 
 			config.AddColumn("Точка доставки")
 				.AddTextRenderer(x => x.DeliveryPoint)
@@ -95,19 +96,29 @@ namespace Vodovoz.ReportsParameters.Sales
 			config.AddColumn("Номенклатура")
 				.AddTextRenderer(x => x.Nomenclature)
 				.WrapWidth(200)
-				.WrapMode(Pango.WrapMode.WordChar);
+				.WrapMode(Pango.WrapMode.WordChar)
+				.AddSetter((cell, node) => ApplyBoldStyle(cell, node, node.Nomenclature));
 
 			config.AddColumn("Кол-во")
-				.AddNumericRenderer(x => x.Count);
+				.AddNumericRenderer(x => x.Count)
+				.AddSetter((cell, node) => ApplyBoldStyle(cell, node, node.Count.ToString("F2")));
 
 			config.AddColumn("Сумма")
 				.AddNumericRenderer(x => x.Sum)
-				.Digits(2);
+				.AddSetter((cell, node) => ApplyBoldStyle(cell, node, node.Sum.ToString("F2")));
 
 			config.AddColumn("");
 
 			ytreeviewDetailedReport.ColumnsConfig = config.Finish();
 			ytreeviewDetailedReport.EnableGridLines = TreeViewGridLines.Both;
+		}
+
+		private void ApplyBoldStyle(CellRendererText cell, SalesReportDisplayNode node, string value)
+		{
+			if(string.IsNullOrEmpty(node.Code))
+			{
+				cell.Markup = $@"<b>{value}</b>";
+			}
 		}
 
 		private void OnViewModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

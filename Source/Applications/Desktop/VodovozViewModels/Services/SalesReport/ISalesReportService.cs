@@ -63,5 +63,20 @@ namespace Vodovoz.ViewModels.Services.SalesReport
 			int factBottles,
 			string outputFilePath,
 			bool showPhones);
+
+		/// <summary>
+		/// Экспортировать дерево отчета в PDF
+		/// </summary>
+		/// <param name="tree">Иерархическая структура нод отчёта о продажах</param>
+		/// <param name="startDate">Начальный период отчета</param>
+		/// <param name="endDate">Конечный период отчета</param>
+		/// <param name="groupingTitle">Заголовок группировки данных</param>
+		/// <param name="ordersCount">Количество заказов</param>
+		/// <param name="planBottles">Планируемое количество бутылей</param>
+		/// <param name="factBottles">Фактическое количество бутылей</param>
+		/// <param name="outputFilePath">Путь к файлу</param>
+		/// <param name="showPhones">Показывать ли колонку "Телефоны"</param>
+		/// <returns>Результат экспорта</returns>
+		Result ExportToPdf(IList<SalesReportTreeNode> tree, DateTime startDate, DateTime endDate, string groupingTitle, int ordersCount, int planBottles, int factBottles, string outputFilePath, bool showPhones);
 	}
 }

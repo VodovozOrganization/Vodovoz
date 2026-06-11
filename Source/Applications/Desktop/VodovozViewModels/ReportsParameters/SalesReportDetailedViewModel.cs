@@ -11,10 +11,12 @@ using QS.ViewModels;
 using QS.ViewModels.Widgets;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Employees;
@@ -109,7 +111,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 			ShowInfoCommand = new DelegateCommand(ShowInfoWindow);
 			GenerateReportCommand = new DelegateCommand(GenerateReport);
-			ExportToExcelCommand = new DelegateCommand(ExportToExcel);
+			ExportReportCommand = new DelegateCommand(ExportReport);
 		}
 
 		public virtual LeftRightListViewModel<GroupingNode> GroupingSelectViewModel => _groupViewModel;
@@ -130,7 +132,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 		public DelegateCommand GenerateReportCommand { get; }
 
-		public DelegateCommand ExportToExcelCommand { get; }
+		public DelegateCommand ExportReportCommand { get; }
 
 		public DateTime? StartDate
 		{
@@ -343,7 +345,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			}
 		}
 
-		private void ExportToExcel()
+		private void ExportReport()
 		{
 			if(_nodes is null)
 			{
@@ -355,8 +357,11 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			{
 				Title = "Сохранить отчет",
 				DefaultFileExtention = ".xlsx",
-				FileName = $"Отчет_по_продажам_{StartDate:dd.MM.yyyy}_{EndDate:dd.MM.yyyy}.xlsx"
+				FileName = $"Отчет_по_продажам_{StartDate:dd.MM.yyyy}_{EndDate:dd.MM.yyyy}"
 			};
+
+			dialogSettings.FileFilters.Add(new DialogFileFilter("Excel файлы (*.xlsx)", "*.xlsx"));
+			dialogSettings.FileFilters.Add(new DialogFileFilter("PDF файлы (*.pdf)", "*.pdf"));
 
 			var result = _fileDialogService.RunSaveFileDialog(dialogSettings);
 
@@ -365,24 +370,48 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				return;
 			}
 
+			var filePath = result.Path;
+			var extension = Path.GetExtension(filePath).ToLower();
+			var isPdf = extension == ".pdf";
+
 			try
 			{
 				ReportIsNotExported = false;
 
 				var groupingTitle = string.Join(" | ", SelectedGroupings.Select(g => g.Type.GetEnumTitle()));
 
-				var exportResult = Task.Run(() => _salesReportService.ExportToExcel(
-					_nodes.Children,
-					StartDate.Value,
-					EndDate.Value,
-					groupingTitle,
-					_ordersCount,
-					_bottlesDataNode.Plan,
-					_bottlesDataNode.Fact,
-					result.Path,
-					ShowPhones));
+				Task<Result> exportTask;
 
-				if(exportResult.Result.IsSuccess)
+				if(isPdf)
+				{
+					exportTask = Task.Run(() => _salesReportService.ExportToPdf(
+						_nodes.Children,
+						StartDate.Value,
+						EndDate.Value,
+						groupingTitle,
+						_ordersCount,
+						_bottlesDataNode.Plan,
+						_bottlesDataNode.Fact,
+						filePath,
+						ShowPhones));
+				}
+				else
+				{
+					exportTask = Task.Run(() => _salesReportService.ExportToExcel(
+						_nodes.Children,
+						StartDate.Value,
+						EndDate.Value,
+						groupingTitle,
+						_ordersCount,
+						_bottlesDataNode.Plan,
+						_bottlesDataNode.Fact,
+						filePath,
+						ShowPhones));
+				}
+
+				var exportResult = exportTask.Result;
+
+				if(exportResult.IsSuccess)
 				{
 					_interactiveService.ShowMessage(ImportanceLevel.Info, "Файл успешно сохранен");
 				}
@@ -390,7 +419,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				{
 					_interactiveService.ShowMessage(
 						ImportanceLevel.Error,
-						exportResult.Result.Errors?.FirstOrDefault().Message);
+						exportResult.Errors?.FirstOrDefault().Message);
 				}
 			}
 			catch(Exception ex)
@@ -408,22 +437,6 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		{
 			var result = new ObservableList<SalesReportDisplayNode>();
 
-			if(rootNode != null)
-			{
-				result.Add(new SalesReportDisplayNode
-				{
-					Level = rootNode.Level,
-					Code = string.Empty,
-					Counterparty = string.Empty,
-					DeliveryPoint = string.Empty,
-					Phones = string.Empty,
-					OrderDetails = string.Empty,
-					Nomenclature = rootNode.Name,
-					Count = rootNode.TotalCount,
-					Sum = rootNode.TotalSum
-				});
-			}
-
 			foreach(var child in rootNode.Children)
 			{
 				if(child.Children != null && child.Children.Any())
@@ -432,11 +445,11 @@ namespace Vodovoz.ViewModels.ReportsParameters
 					{
 						Level = child.Level + 1,
 						Code = string.Empty,
-						Counterparty = string.Empty,
+						Counterparty = child.Name, 
 						DeliveryPoint = string.Empty,
 						Phones = string.Empty,
 						OrderDetails = string.Empty,
-						Nomenclature = child.Name,
+						Nomenclature = string.Empty,
 						Count = child.TotalCount,
 						Sum = child.TotalSum
 					});
@@ -461,6 +474,24 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				}
 			}
 
+			if(rootNode != null)
+			{
+				result.Add(new SalesReportDisplayNode
+				{
+					Level = rootNode.Level,
+					Code = string.Empty,
+					Counterparty = string.Empty,
+					DeliveryPoint = string.Empty,
+					Phones = string.Empty,
+					OrderDetails = string.Empty,
+					Nomenclature = rootNode.Name,
+					Count = rootNode.TotalCount,
+					Sum = rootNode.TotalSum
+				});
+			}
+
+			AddSummaryInfo(result);
+
 			return result;
 		}
 
@@ -476,11 +507,11 @@ namespace Vodovoz.ViewModels.ReportsParameters
 					{
 						Level = level,
 						Code = string.Empty,
-						Counterparty = string.Empty,
+						Counterparty = child.Name,
 						DeliveryPoint = string.Empty,
 						Phones = string.Empty,
 						OrderDetails = string.Empty,
-						Nomenclature = child.Name,
+						Nomenclature = string.Empty,
 						Count = child.TotalCount,
 						Sum = child.TotalSum
 					});
@@ -506,6 +537,51 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			}
 
 			return result;
+		}
+
+		private void AddSummaryInfo(ObservableList<SalesReportDisplayNode> result)
+		{
+			result.Add(new SalesReportDisplayNode
+			{
+				Level = 0,
+				Code = string.Empty,
+				Counterparty = string.Empty,
+				DeliveryPoint = string.Empty,
+				Phones = string.Empty,
+				OrderDetails = string.Empty,
+				Nomenclature = $"Количество заказов:",
+				Count = _ordersCount,
+				Sum = 0,
+				IsSummaryInfo = true
+			});
+
+			result.Add(new SalesReportDisplayNode
+			{
+				Level = 0,
+				Code = string.Empty,
+				Counterparty = string.Empty,
+				DeliveryPoint = string.Empty,
+				Phones = string.Empty,
+				OrderDetails = string.Empty,
+				Nomenclature = $"Фактически забранная тара:",
+				Count = _bottlesDataNode?.Fact ?? 0,
+				Sum = 0,
+				IsSummaryInfo = true
+			});
+
+			result.Add(new SalesReportDisplayNode
+			{
+				Level = 0,
+				Code = string.Empty,
+				Counterparty = string.Empty,
+				DeliveryPoint = string.Empty,
+				Phones = string.Empty,
+				OrderDetails = string.Empty,
+				Nomenclature = $"Планируемая тара:",
+				Count = _bottlesDataNode?.Plan ?? 0,
+				Sum = 0,
+				IsSummaryInfo = true
+			});
 		}
 
 		private SalesReportFilters BuildFiltersFromViewModel()

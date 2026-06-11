@@ -57,10 +57,10 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 		{
 			switch(orderDateType)
 			{
-				case OrderDateFilterType.DeliveryDate:
-					return GetOrderQueryByDeliveryDate(startDate, endDate, filters);
 				case OrderDateFilterType.CreationDate:
 					return GetOrderQueryByCreationDate(startDate, endDate, filters);
+				case OrderDateFilterType.DeliveryDate:
+					return GetOrderQueryByDeliveryDate(startDate, endDate, filters);
 				case OrderDateFilterType.PaymentDate:
 					return await GetOrderQueryByPaymentDateAsync(uow, startDate, endDate, filters, cancellationToken);
 				default:
@@ -92,8 +92,10 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 		{
 			Order orderAlias = null;
 
+			var inclusiveEndDate = endDate.Date.AddDays(1);
+
 			var query = QueryOver.Of<Order>(() => orderAlias)
-				.Where(o => o.CreateDate >= startDate && o.CreateDate <= endDate)
+				.Where(o => o.CreateDate >= startDate && o.CreateDate < inclusiveEndDate)
 				.Where(o => !o.IsContractCloser)
 				.Select(Projections.Id());
 

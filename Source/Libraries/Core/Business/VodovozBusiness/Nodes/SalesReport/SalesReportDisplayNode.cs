@@ -49,5 +49,10 @@
 		/// Сумма
 		/// </summary>
         public decimal Sum { get; set; }
-    }
+
+		/// <summary>
+		/// Является ли узел сводным
+		/// </summary>
+		public bool IsSummaryInfo { get; set; }
+	}
 }
