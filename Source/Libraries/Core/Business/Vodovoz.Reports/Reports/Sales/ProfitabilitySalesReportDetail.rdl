@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <Description></Description>
   <Author></Author>
@@ -3105,7 +3105,14 @@ SELECT
 			)
 		)
 	) AS administrative_expenses_per_kg_last_calc,
-	(SELECT IFNULL(administrative_expenses_per_kg_last_calc, '-')) AS administrative_expenses_per_kg,
+	(
+        SELECT 
+            IF(
+                ng.id = 3850, #Не учитываем номенклатуру от Диллеров
+                '-',
+                IFNULL(administrative_expenses_per_kg_last_calc, '-')
+            )
+    ) AS administrative_expenses_per_kg,
 	(SELECT administrative_expenses_per_kg_source IS NULL) AS missing_administrative_expenses_per_kg_on_date,
 	IFNULL(group_levels.level_1_id, 0) as nomen_group_level_1_id,
     IFNULL(group_levels.level_1_name, 'Без группы') as nomen_group_level_1_name,
@@ -3269,9 +3276,8 @@ FROM
 			FROM counterparty_classification cc2
 			ORDER BY cc2.id DESC 
 			LIMIT 1)
-	LEFT JOIN
-	promotional_sets ps ON ps.id = oi.promotional_set_id
-    LEFT JOIN route_lists rl ON rl.id = rla.route_list_id
+	LEFT JOIN promotional_sets ps ON ps.id = oi.promotional_set_id
+    INNER JOIN route_lists rl ON rl.id = rla.route_list_id
 	LEFT JOIN cars car ON rl.car_id = car.id 
 	LEFT JOIN car_models cm ON car.model_id = cm.id 
 		left join 
