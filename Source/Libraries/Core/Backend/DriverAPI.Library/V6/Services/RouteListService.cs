@@ -1,13 +1,21 @@
-﻿using DriverApi.Contracts.V6;
+﻿using CustomerNotifications.Contracts;
+using DriverApi.Contracts.V6;
+using DriverApi.Contracts.V6.Requests;
 using DriverApi.Contracts.V6.Responses;
 using DriverAPI.Library.Exceptions;
 using DriverAPI.Library.V6.Converters;
 using Microsoft.Extensions.Logging;
+using Notifications.Infrastructure;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.FastPayments;
+using Vodovoz.Core.Domain.Logistics.Drivers;
+using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
@@ -16,11 +24,10 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
+using Vodovoz.Tools.CallTasks;
+using IDomainRouteListService = Vodovoz.Services.Logistics.IRouteListService;
 using IDomainRouteListSpecialConditionsService = Vodovoz.Services.Logistics.IRouteListSpecialConditionsService;
 using IDomainRouteListTransferService = Vodovoz.Services.Logistics.IRouteListTransferService;
-using IDomainRouteListService = Vodovoz.Services.Logistics.IRouteListService;
-using Vodovoz.Tools.CallTasks;
-using Vodovoz.Core.Domain.Orders;
 
 namespace DriverAPI.Library.V6.Services
 {
@@ -40,6 +47,7 @@ namespace DriverAPI.Library.V6.Services
 		private readonly PaymentTypeConverter _paymentTypeConverter;
 		private readonly IFastPaymentService _fastPaymentService;
 		private readonly ICallTaskWorker _callTaskWorker;
+		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private readonly IUnitOfWork _unitOfWork;
 
 		public RouteListService(ILogger<RouteListService> logger,
@@ -56,7 +64,8 @@ namespace DriverAPI.Library.V6.Services
 			IGenericRepository<Order> orderRepository,
 			PaymentTypeConverter paymentTypeConverter,
 			IFastPaymentService fastPaymentService,
-			ICallTaskWorker callTaskWorker)
+			ICallTaskWorker callTaskWorker,
+			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
@@ -73,9 +82,10 @@ namespace DriverAPI.Library.V6.Services
 			_paymentTypeConverter = paymentTypeConverter ?? throw new ArgumentNullException(nameof(paymentTypeConverter));
 			_fastPaymentService = fastPaymentService ?? throw new ArgumentNullException(nameof(fastPaymentService));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 		}
 
-		public RouteListDto GetRouteList(int routeListId)
+		public async Task<RouteListDto> GetRouteList(int routeListId, CancellationToken cancellationToken = default)
 		{
 			var routeList = _routeListRepository.GetRouteListById(_unitOfWork, routeListId)
 				?? throw new DataNotFoundException(nameof(routeListId), $"Маршрутный лист {routeListId} не найден");
@@ -87,10 +97,25 @@ namespace DriverAPI.Library.V6.Services
 				spectiaConditionsToAccept = _domainRouteListSpecialConditionsService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeListId);
 			}
 
-			return _routeListConverter.ConvertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeListId), spectiaConditionsToAccept);
+			DriversSelectedAddress lastSelectedAddress = null;
+
+			if(routeList.Status == RouteListStatus.EnRoute)
+			{
+				lastSelectedAddress = await _routeListRepository.GetLastSelectedAddressForRouteList(
+					_unitOfWork,
+					routeList.Driver.Id,
+					routeList.Id,
+					cancellationToken);
+			}
+
+			return _routeListConverter.ConvertToAPIRouteList(
+				routeList,
+				_routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeListId),
+				spectiaConditionsToAccept,
+				lastSelectedAddress?.NextAddressId);
 		}
 
-		public IEnumerable<RouteListDto> GetRouteLists(int[] routeListsIds)
+		public async Task<IEnumerable<RouteListDto>> GetRouteLists(int[] routeListsIds, CancellationToken cancellationToken = default)
 		{
 			var vodovozRouteLists = _routeListRepository.GetRouteListsByIds(_unitOfWork, routeListsIds);
 			var routeLists = new List<RouteListDto>();
@@ -106,7 +131,24 @@ namespace DriverAPI.Library.V6.Services
 						spectiaConditionsToAccept = _domainRouteListSpecialConditionsService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeList.Id);
 					}
 
-					routeLists.Add(_routeListConverter.ConvertToAPIRouteList(routeList, _routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeList.Id), spectiaConditionsToAccept));
+					DriversSelectedAddress lastSelectedAddress = null;
+
+					if(routeList.Status == RouteListStatus.EnRoute)
+					{
+						lastSelectedAddress = await _routeListRepository.GetLastSelectedAddressForRouteList(
+							_unitOfWork,
+							routeList.Driver.Id,
+							routeList.Id,
+							cancellationToken);
+					}
+
+					var routeListDto = _routeListConverter.ConvertToAPIRouteList(
+						routeList,
+						_routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeList.Id),
+						spectiaConditionsToAccept,
+						lastSelectedAddress?.NextAddressId);
+
+					routeLists.Add(routeListDto);
 				}
 				catch(ConverterException e)
 				{
@@ -470,6 +512,158 @@ namespace DriverAPI.Library.V6.Services
 			}
 
 			return result;
+		}
+
+		/// <inheritdoc />
+		public async Task<Result> SelectNextAddress(
+			SelectAddressRequest selectAddressRequest,
+			int requestedByDriverId,
+			CancellationToken cancellationToken)
+		{
+			var routeListAddress =
+				_routeListItemRepository.GetRouteListItemById(_unitOfWork, selectAddressRequest.NextAddressId);
+
+			if(routeListAddress is null)
+			{
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotFound);
+			}
+
+			if(routeListAddress.Status != RouteListItemStatus.EnRoute)
+			{
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotEnRouteState);
+			}
+
+			var routeList = routeListAddress.RouteList;
+
+			if(routeList is null)
+			{
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.NotFound);
+			}
+
+			if(routeList.Status != RouteListStatus.EnRoute)
+			{
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.NotEnRouteState);
+			}
+
+			var order = routeListAddress.Order;
+
+			if(order is null)
+			{
+				return Result.Failure(Vodovoz.Errors.Orders.OrderErrors.NotFound);
+			}
+
+			if(order.OrderStatus != OrderStatus.OnTheWay)
+			{
+				return Result.Failure(Vodovoz.Errors.Orders.OrderErrors.NotInOnTheWayStatus);
+			}
+
+			var driver = routeList.Driver;
+
+			if(driver is null)
+			{
+				return Result.Failure(Vodovoz.Errors.Employees.DriverErrors.NotFound);
+			}
+
+			if(driver.Id != requestedByDriverId)
+			{
+				_logger.LogWarning(
+					"Сотрудник {RequestedByDriverId} пытается выбрать следующим адрес {NextAddressId} в МЛ {RouteListId} водителя {DriverId}",
+					requestedByDriverId,
+					routeListAddress.Id,
+					routeList.Id,
+					routeList.Driver.Id);
+
+				return Result.Failure(Errors.Security.Authorization.RouteListAccessDenied);
+			}
+
+			if(selectAddressRequest.PreviousUncompletedAddressId.HasValue
+				&& selectAddressRequest.NextAddressId == selectAddressRequest.PreviousUncompletedAddressId.Value)
+			{
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NextAddressSameAsUncompletedPrevious);
+			}
+
+			var lastSelectedAddress =
+				await _routeListRepository.GetLastSelectedAddressForRouteList(
+				_unitOfWork,
+				driver.Id,
+				routeList.Id,
+				cancellationToken);
+
+			if(lastSelectedAddress != null && lastSelectedAddress.NextAddressId == selectAddressRequest.NextAddressId)
+			{
+				return Result.Failure(Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.AlreadySelectedAsNext);
+			}
+
+			var driversSelectedAddress = new DriversSelectedAddress
+			{
+				DriverId = routeList.Driver.Id,
+				NextAddressId = routeListAddress.Id,
+				PreviousUncompletedAddressId = selectAddressRequest.PreviousUncompletedAddressId,
+				SelectedAt = DateTime.Now
+			};
+
+			await _unitOfWork.SaveAsync(driversSelectedAddress, cancellationToken: cancellationToken);
+
+			try
+			{
+				var courierOnTheWayEvent = new CustomerNotificationDomainEvent(
+					CustomerNotificationEventType.CourierOnTheWay,
+					order.OnlineOrder?.Source,
+					order.OnlineOrder?.Id,
+					order.Id);
+
+				var isCourierOnTheWayEventPublished =
+					await _customerNotificationPublisher.TryPublishAsync(_unitOfWork, courierOnTheWayEvent, cancellationToken);
+
+				if(!isCourierOnTheWayEventPublished)
+				{
+					_logger.LogError(
+						"Ошибка при отправке уведомления о том, что курьер в пути. RouteListAddressId: {RouteListAddressId}, PreviousUncompletedAddressId: {PreviousUncompletedAddressId}",
+						selectAddressRequest.NextAddressId,
+						selectAddressRequest.PreviousUncompletedAddressId);
+				}
+
+				if(selectAddressRequest.PreviousUncompletedAddressId.HasValue)
+				{
+					var previousAddress =
+						_routeListItemRepository.GetRouteListItemById(_unitOfWork, selectAddressRequest.PreviousUncompletedAddressId.Value);
+
+					var previousOrder = previousAddress?.Order;
+
+					if (previousOrder != null)
+					{
+						var courierIsLateEvent = new CustomerNotificationDomainEvent(
+							CustomerNotificationEventType.CourierIsLate,
+							previousOrder.OnlineOrder?.Source,
+							previousOrder.OnlineOrder?.Id,
+							previousOrder.Id);
+
+						var isCourierIsLateEventPublished =
+							await _customerNotificationPublisher.TryPublishAsync(_unitOfWork, courierIsLateEvent, cancellationToken);
+
+						if(!isCourierIsLateEventPublished)
+						{
+							_logger.LogError(
+								"Ошибка при отправке уведомления о задержке курьера. RouteListAddressId: {RouteListAddressId}, PreviousUncompletedAddressId: {PreviousUncompletedAddressId}",
+								selectAddressRequest.NextAddressId,
+								selectAddressRequest.PreviousUncompletedAddressId);
+						}
+					}
+				}
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(
+					ex,
+					"Ошибка при отправке уведомления о выборе следующего адреса. " +
+					"RouteListAddressId: {RouteListAddressId}, PreviousUncompletedAddressId: {PreviousUncompletedAddressId}",
+					selectAddressRequest.NextAddressId,
+					selectAddressRequest.PreviousUncompletedAddressId);
+			}
+
+			await _unitOfWork.CommitAsync(cancellationToken);
+
+			return Result.Success();
 		}
 	}
 }

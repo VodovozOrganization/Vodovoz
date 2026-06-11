@@ -1,4 +1,5 @@
-﻿using DriverAPI.Data;
+﻿using CustomerNotifications.Contracts;
+using DriverAPI.Data;
 using DriverAPI.HealthChecks;
 using DriverAPI.Library;
 using DriverAPI.Library.Helpers;
@@ -11,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Notifications.Infrastructure;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
@@ -19,6 +21,7 @@ using QS.Project.DB;
 using QS.Project.Services.Interactive;
 using System;
 using System.Text;
+using TransactionalOutbox.Abstractions;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;
@@ -29,6 +32,8 @@ using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Trackers;
 using VodovozHealthCheck;
+using CustomerNotifications.Application;
+using CustomerNotifications.Application.Builders;
 
 namespace DriverAPI
 {
@@ -106,6 +111,12 @@ namespace DriverAPI
 			services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
 				.AddRoles<IdentityRole>()
 				.AddEntityFrameworkStores<ApplicationDbContext>();
+
+			services
+				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>,
+					OutBoxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
+				.AddCustomerNotificationsSettingsProvider();
 
 			services.Configure<IdentityOptions>(options =>
 			{

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Logistics.Drivers;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
@@ -117,5 +118,43 @@ namespace Vodovoz.EntityRepositories.Logistic
 		/// <param name="endDate">Конец периода</param>
 		/// <returns>Словарь, где ключ - идентификатор водителя, значение - множество дат с активными маршрутными листами</returns>
 		Dictionary<int, HashSet<DateTime>> GetDriverIdsWithActiveRouteListByDates(IUnitOfWork uow, int[] driverIds, DateTime startDate, DateTime endDate);
+
+		/// <summary>
+		/// Возвращает последний выбранный адрес водителя в указанном маршрутном листе
+		/// </summary>
+		/// <param name="uow">UnitofWork</param>
+		/// <param name="driverId">Идентификатор водителя</param>
+		/// <param name="routeListId">Идентификатор маршрутного листа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Последняя запись о выборе адреса или null</returns>
+		Task<DriversSelectedAddress> GetLastSelectedAddressForRouteList(IUnitOfWork uow, int driverId, int routeListId, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Возвращает координаты водителя, которые были получены после указанного времени для данного маршрутного листа
+		/// </summary>
+		/// <param name="uow">UnitofWork</param>
+		/// <param name="routeListId">Идентификатор маршрутного листа</param>
+		/// <param name="startFrom">Время начала</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Координаты водителя</returns>
+		Task<TrackPoint> GetDriverLastCoordinate(IUnitOfWork uow, int routeListId, DateTime startFrom, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Возвращает адрес маршрутного листа в статусе "В пути" для данного заказа, если такой существует
+		/// </summary>
+		/// <param name="uow">UnitofWork</param>
+		/// <param name="orderId">Номер заказа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Адрес МЛ</returns>
+		Task<RouteListItem> GetEnRouteRouteListItemByOrderId(IUnitOfWork uow, int orderId, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Проверка, что заказ когда-либо был выбран следующим в маршрутном листе
+		/// </summary>
+		/// <param name="uow">UnitofWork</param>
+		/// <param name="orderId">Номер заказа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
+		Task<bool> IsOrderEverWasSelectedAsNext(IUnitOfWork uow, int orderId, CancellationToken cancellationToken = default);
 	}
 }
