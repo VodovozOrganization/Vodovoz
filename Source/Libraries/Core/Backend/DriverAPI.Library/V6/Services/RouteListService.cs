@@ -630,7 +630,7 @@ namespace DriverAPI.Library.V6.Services
 
 					var previousOrder = previousAddress?.Order;
 
-					if (previousOrder != null)
+					if (previousOrder != null && previousOrder.OrderStatus == OrderStatus.OnTheWay)
 					{
 						var courierIsLateEvent = new CustomerNotificationDomainEvent(
 							CustomerNotificationEventType.CourierIsLate,
