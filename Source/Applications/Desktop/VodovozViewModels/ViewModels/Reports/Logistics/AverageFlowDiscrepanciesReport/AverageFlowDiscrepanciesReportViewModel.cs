@@ -255,7 +255,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 					continue;
 				}
 
-				row.CarTypeOfUseString = car.CarModel?.CarTypeOfUse.GetEnumTitle();
+				row.CarTypeOfUse = car.CarModel?.CarTypeOfUse;
 				row.DriverFullName = car.Driver?.FullName ?? string.Empty;
 				row.GeographicGroups = string.Join(", ", car.GeographicGroups.Select(g => g.Name));
 			}

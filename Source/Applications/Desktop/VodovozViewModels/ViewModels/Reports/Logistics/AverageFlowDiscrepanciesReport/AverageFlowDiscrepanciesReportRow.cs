@@ -1,4 +1,6 @@
 ﻿using System;
+using Gamma.Utilities;
+using Vodovoz.Domain.Logistic.Cars;
 
 namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanciesReport
 {
@@ -14,7 +16,12 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 		/// <summary>
 		/// Тип автомобиля
 		/// </summary>
-		public string CarTypeOfUseString { get; internal set; }
+		public CarTypeOfUse? CarTypeOfUse { get; internal set; }
+		
+		/// <summary>
+		/// Тип автомобиля
+		/// </summary>
+		public string CarTypeOfUseString => CarTypeOfUse?.GetEnumTitle();
 
 		/// <summary>
 		/// ФИО закрепленного за автомобилем водителя
@@ -53,6 +60,14 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 			ConfirmedDistance.HasValue && RecalculatedDistance.HasValue && ConfirmedDistance != 0
 				? $"{(100 * RecalculatedDistance / ConfirmedDistance): # ##0.00}"
 				: string.Empty;
+
+		/// <summary>
+		/// Полезный Пробег в процентах
+		/// </summary>
+		public decimal? UsefulMileagePercentValue =>
+			ConfirmedDistance.HasValue && RecalculatedDistance.HasValue && ConfirmedDistance != 0
+				? 100 * RecalculatedDistance / ConfirmedDistance
+				: null;
 
 		/// <summary>
 		/// Пересчитанное расстояние
