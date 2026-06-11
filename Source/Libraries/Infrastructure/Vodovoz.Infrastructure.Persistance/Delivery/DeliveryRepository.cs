@@ -234,6 +234,22 @@ namespace Vodovoz.Infrastructure.Persistance.Delivery
 
 		#region Fast Delivery
 
+		public IList<int> GetAdditionalLoadingNomenclatureIds(IUnitOfWork uow) =>
+			uow.GetAll<AdditionalLoadingNomenclatureDistribution>()
+			.Select(d => d.Nomenclature.Id)
+			.ToList();
+
+		public bool IsFastDeliveryAvailabilityForClientAndAddressCheckedToday(IUnitOfWork uow, int clientId, int deliveryPointId)
+		{
+			var today = DateTime.Today;
+			var count = uow.Session.QueryOver<FastDeliveryAvailabilityHistory>()
+				.Where(h => h.VerificationDate >= today)
+				.And(h => h.Counterparty.Id == clientId)
+				.And(h => h.DeliveryPoint.Id == deliveryPointId)
+				.RowCount();
+			return count > 0;
+		}
+
 		public FastDeliveryAvailabilityHistory GetRouteListsForFastDeliveryForOrder(
 			IUnitOfWork uow,
 			double latitude,

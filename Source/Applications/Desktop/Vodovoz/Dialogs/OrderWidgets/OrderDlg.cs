@@ -142,6 +142,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
@@ -287,6 +288,8 @@ namespace Vodovoz
 		private bool _isEditOrderClicked;
 		private int _treeItemsNomenclatureColumnWidth;
 		private IList<DiscountReason> _discountReasons;
+		private IList<int> _additionalLoadingNomenclatureIds;
+		private IList<int> _activeFlyersNomenclatureIds;
 		private Employee _currentEmployee;
 		private bool _canChangeDiscountValue;
 		private bool _canChoosePremiumDiscount;
@@ -319,6 +322,7 @@ namespace Vodovoz
 		private bool _allowLoadSelfDelivery;
 		private bool _acceptCashlessPaidSelfDelivery;
 		private bool _canEditGoodsInRouteList;
+		private bool _isFastDeliveryAvailabilityChecked;
 		public bool IsStatusForEditGoodsInRouteList => 
 			_orderRepository.GetStatusesForEditGoodsInOrderInRouteList().Contains(Entity.OrderStatus);
 
@@ -1883,6 +1887,8 @@ namespace Vodovoz
 					return;
 				}
 
+				DeliveryDate = DateTime.Today;
+
 				if(Entity.DeliverySchedule?.Id != _deliveryRulesSettings.FastDeliveryScheduleId)
 				{
 					Entity.DeliverySchedule = UoW.GetById<DeliverySchedule>(_deliveryRulesSettings.FastDeliveryScheduleId);
@@ -1891,6 +1897,8 @@ namespace Vodovoz
 				Entity.AddFastDeliveryNomenclatureIfNeeded(UoW, _orderContractUpdater);
 				return;
 			}
+
+			DeliveryDate = null;
 
 			if(Entity.DeliverySchedule?.Id == _deliveryRulesSettings.FastDeliveryScheduleId)
 			{
@@ -1913,7 +1921,7 @@ namespace Vodovoz
 
 		private void OnButtonFastDeliveryCheckClicked(object sender, EventArgs e)
 		{
-			var fastDeliveryValidationResult = _fastDeliveryValidator.ValidateOrder(Entity);
+			var fastDeliveryValidationResult = _fastDeliveryValidator.ValidateOrder(Entity, true);
 
 			if(fastDeliveryValidationResult.IsFailure)
 			{
@@ -1930,6 +1938,8 @@ namespace Vodovoz
 				DeliveryPoint.District.TariffZone.Id,
 				fastDeliveryOrder: Entity
 			);
+
+			_isFastDeliveryAvailabilityChecked = true;
 
 			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(ServicesConfig.UnitOfWorkFactory);
 			fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryAvailabilityHistory);
@@ -2135,6 +2145,14 @@ namespace Vodovoz
 			_discountReasons =
 				_discountReasonRepository.GetActiveDiscountReasonsFetchReferences(UoW, _canChoosePremiumDiscount);
 
+			_additionalLoadingNomenclatureIds =
+				_deliveryRepository.GetAdditionalLoadingNomenclatureIds(UoW);
+
+			_activeFlyersNomenclatureIds =
+				_flyerRepository.GetAllActiveFlyersNomenclaturesIdsByDate(UoW, DateTime.Today);
+
+			var isFastDeliveryEnableColumnName = "IsFastDeliveryEnableColumn";
+
 			treeItems.CreateFluentColumnsConfig<OrderItem>()
 				.AddColumn("№")
 					.HeaderAlignment(0.5f)
@@ -2253,6 +2271,8 @@ namespace Vodovoz
 				.AddColumn("Основание скидки")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.DiscountReasonsNames)
+					.WrapMode(Pango.WrapMode.Word)
+					.WrapWidth(350)
 					.AddSetter(
 						(c, n) =>
 							c.BackgroundGdk = n.Discount > 0 && !n.DiscountReasons.Any() && n.PromoSet == null ? colorLightRed : colorPrimaryBase
@@ -2274,6 +2294,14 @@ namespace Vodovoz
 				.AddColumn("Промонаборы").SetTag(nameof(Entity.PromotionalSets))
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(node => node.PromoSet == null ? "" : node.PromoSet.Name)
+					.WrapMode(Pango.WrapMode.Word)
+					.WrapWidth(300)
+				.AddColumn("Доступна для ДЗЧ")
+					.SetTag(isFastDeliveryEnableColumnName)
+					.HeaderAlignment(0.5f)
+					.AddToggleRenderer(x => IsOrderItemAvailableToFastDelivery(x))
+					.Editing(false)
+				.AddColumn("")
 				.RowCells()
 					.XAlign(0.5f)
 				.Finish();
@@ -2281,6 +2309,15 @@ namespace Vodovoz
 			treeItems.Selection.Mode = SelectionMode.Multiple;
 			treeItems.Selection.Changed += TreeItems_Selection_Changed;
 			treeItems.ColumnsConfig.GetColumnsByTag(nameof(Entity.PromotionalSets)).FirstOrDefault().Visible = Entity.PromotionalSets.Count > 0;
+			
+			var isFastDeliveryEnableColumn =
+				treeItems.ColumnsConfig.GetColumnsByTag(isFastDeliveryEnableColumnName).FirstOrDefault();
+
+			if(isFastDeliveryEnableColumn != null)
+			{
+				isFastDeliveryEnableColumn.Sizing = TreeViewColumnSizing.Fixed;
+				isFastDeliveryEnableColumn.FixedWidth = 120;
+			}
 
 			treeDocuments.ColumnsConfig = ColumnsConfigFactory.Create<OrderDocument>()
 				.AddColumn("Документ").AddTextRenderer(node => node.Name)
@@ -4072,6 +4109,8 @@ namespace Vodovoz
 			SetSensitivityOfPaymentType();
 
 			UpdateClientSecondOrderDiscount();
+
+			_isFastDeliveryAvailabilityChecked = false;
 		}
 
 		private void UpdateBarterPaymentTypeVisible()
@@ -4149,6 +4188,8 @@ namespace Vodovoz
 			SetNearestDeliveryDateLoaderFunc();
 
 			RefreshBottlesDebtNotifier();
+
+			_isFastDeliveryAvailabilityChecked = false;
 		}
 
 		private void RemoveFlyers()
@@ -5463,7 +5504,7 @@ namespace Vodovoz
 		protected void OnYBtnAddCurrentContractClicked(object sender, EventArgs e)
 		{
 			Order.AddContractDocument(Order.Contract);
-		}
+		}		
 
 		protected void OnBtnFormClicked(object sender, EventArgs e)
 		{
@@ -5482,6 +5523,15 @@ namespace Vodovoz
 
 			if(!CheckDepositOrderCanBeFormed())
 			{
+				return;
+			}
+
+			if(IsFastDeliveryAvailabilityMustBeChecked)
+			{
+				_interactiveService.ShowMessage(
+					ImportanceLevel.Warning,
+					"В вашем заказе присутствуют товары, участвующие в Доставке за час\nПройдите проверку Доставки за час",
+					"Не удалось сформировать");
 				return;
 			}
 
@@ -6238,5 +6288,44 @@ namespace Vodovoz
 			return result;
 		}
 		#endregion CustomCancellationConfirmationDialog
+
+		private bool IsFastDeliveryAvailabilityMustBeChecked =>
+			Entity.DeliveryPoint?.District?.TariffZone?.IsFastDeliveryAvailableAtCurrentTime == true
+			&& IsOrderItemsAllFastDeliveryCompatible()
+			&& !CheckIsFastDeliveryAvailabilityChecked();
+
+		private bool IsOrderItemsAllFastDeliveryCompatible()
+		{
+			return IsOrderEquipmentsEmptyOrActiveFlyers()
+				&& Entity.OrderItems.Any()
+				&& Entity.OrderItems.All(x => IsOrderItemAvailableToFastDeliveryOrPaidDelivery(x));
+		}
+
+		private bool CheckIsFastDeliveryAvailabilityChecked() =>
+			Entity.Client?.Id != null
+			&& Entity.DeliveryPoint?.Id != null
+			&& (_isFastDeliveryAvailabilityChecked
+				|| _deliveryRepository.IsFastDeliveryAvailabilityForClientAndAddressCheckedToday(UoW, Entity.Client.Id, DeliveryPoint.Id));
+
+		private bool IsOrderItemAvailableToFastDeliveryOrPaidDelivery(OrderItem orderItem) =>
+			IsOrderItemAvailableToFastDelivery(orderItem)
+			|| IsOrderItemPaidDelivery(orderItem);
+
+		private bool IsOrderItemAvailableToFastDelivery(OrderItem orderItem) =>
+			IsAdditionalLoadingNomenclature(orderItem.Nomenclature.Id)
+			|| IsActiveFlyerNomenclature(orderItem.Nomenclature.Id);
+
+		private bool IsAdditionalLoadingNomenclature(int nomenclatureId) =>
+			_additionalLoadingNomenclatureIds.Contains(nomenclatureId);
+
+		private bool IsActiveFlyerNomenclature(int nomenclatureId) =>
+			_activeFlyersNomenclatureIds.Contains(nomenclatureId);
+
+		private bool IsOrderItemPaidDelivery(OrderItem orderItem) =>
+			_nomenclatureSettings.PaidDeliveriesNomenclaturesIds.Contains(orderItem.Nomenclature.Id);
+
+		private bool IsOrderEquipmentsEmptyOrActiveFlyers() =>
+			!Entity.ObservableOrderEquipments.Any()
+			|| Entity.ObservableOrderEquipments.All(x => IsActiveFlyerNomenclature(x.Nomenclature.Id));
 	}
 }
