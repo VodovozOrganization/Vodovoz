@@ -55,14 +55,6 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 				: string.Empty;
 
 		/// <summary>
-		/// Полезный Пробег в процентах
-		/// </summary>
-		public decimal? UsefulMileagePercentValue =>
-			ConfirmedDistance.HasValue && RecalculatedDistance.HasValue && ConfirmedDistance != 0
-				? 100 * RecalculatedDistance / ConfirmedDistance
-				: null;
-
-		/// <summary>
 		/// Пересчитанное расстояние
 		/// </summary>
 		public decimal? RecalculatedDistance { get; internal set; }
