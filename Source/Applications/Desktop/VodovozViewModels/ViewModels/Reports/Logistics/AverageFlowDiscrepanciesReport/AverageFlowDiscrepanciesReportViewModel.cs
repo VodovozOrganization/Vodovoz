@@ -10,6 +10,7 @@ using QS.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Gamma.Utilities;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Settings.Car;
@@ -180,6 +181,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 
 				select new AverageFlowDiscrepanciesReportRow
 				{
+					CarId = carEvent.Car.Id,
 					CalibrationDate = carEvent.CreateDate,
 					ActualBalance = carEvent.ActualFuelBalance ?? 0,
 					CurrentBalance = carEvent.CurrentFuelBalance ?? 0,
@@ -204,6 +206,7 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 					var singleRow = row.Value.Single();
 					singleRow = new AverageFlowDiscrepanciesReportRow
 					{
+						CarId = singleRow.CarId,
 						Car = singleRow.Car,
 						CalibrationDate= singleRow.CalibrationDate,
 						IsSingleCalibrationForPeriod = true
@@ -226,7 +229,36 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Logistics.AverageFlowDiscrepanci
 				row.Value.Remove(row.Value.Last());
 			}
 
-			return eventsDict.SelectMany(ed => ed.Value).ToList();
+			var resultRows = eventsDict.SelectMany(ed => ed.Value).ToList();
+			FillCarInfo(resultRows);
+
+			return resultRows;
+		}
+
+		private void FillCarInfo(IEnumerable<AverageFlowDiscrepanciesReportRow> rows)
+		{
+			var carIds = rows.Select(x => x.CarId).Distinct().ToArray();
+
+			if(!carIds.Any())
+			{
+				return;
+			}
+
+			var cars = UoW.Session.Query<Car>()
+				.Where(c => carIds.Contains(c.Id))
+				.ToDictionary(c => c.Id);
+
+			foreach(var row in rows)
+			{
+				if(!cars.TryGetValue(row.CarId, out var car))
+				{
+					continue;
+				}
+
+				row.CarTypeOfUseString = car.CarModel?.CarTypeOfUse.GetEnumTitle();
+				row.DriverFullName = car.Driver?.FullName ?? string.Empty;
+				row.GeographicGroups = string.Join(", ", car.GeographicGroups.Select(g => g.Name));
+			}
 		}
 
 		public AverageFlowDiscrepanciesReport Report { get; set; } = new AverageFlowDiscrepanciesReport();
