@@ -4,7 +4,6 @@ using CustomerNotifications.Contracts;
 using CustomerNotifications.Transport;
 using CustomerOrdersApi.HealthCheck;
 using CustomerOrdersApi.Library;
-using CustomerOrdersApi.Library.V5.Dto.Orders;
 using CustomerOrdersApi.Library.V5.Services;
 using DriverApi.Notifications.Client;
 using MassTransit;
@@ -33,6 +32,8 @@ using Vodovoz.Services.Logistics;
 using Vodovoz.Trackers;
 using VodovozBusiness.Services.Orders;
 using VodovozHealthCheck;
+using CreatingOnlineOrderV5 = CustomerOrdersApi.Library.V5.Dto.Orders.CreatingOnlineOrder;
+using CreatingOnlineOrderV6 = CustomerOrdersApi.Library.V6.Dto.Orders.CreatingOnlineOrder;
 
 namespace CustomerOrdersApi
 {
@@ -72,6 +73,7 @@ namespace CustomerOrdersApi
 				.AddVersion3()
 				.AddVersion4()
 				.AddVersion5()
+				.AddVersion6()
 				.AddVersioning()
 				.AddOsrm()
 				.AddSwaggerGen(opt =>
@@ -91,7 +93,8 @@ namespace CustomerOrdersApi
 				.AddMessageTransportSettings()
 				.AddMassTransit(busConf =>
 				{
-					busConf.AddRequestClient<CreatedOnlineOrder>(new Uri($"exchange:{CreatingOnlineOrder.ExchangeAndQueueName}"));
+					busConf.AddRequestClient<CreatingOnlineOrderV5>(new Uri($"exchange:{CreatingOnlineOrderV5.ExchangeAndQueueName}"));
+					busConf.AddRequestClient<CreatingOnlineOrderV6>(new Uri($"exchange:{CreatingOnlineOrderV6.ExchangeAndQueueName}"));
 					busConf.ConfigureRabbitMq();					
 				})
 				.AddMassTransit<ICustomerNotificationsBus>(busConf =>
@@ -102,9 +105,7 @@ namespace CustomerOrdersApi
 			services
 				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, OutBoxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
 				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
-				.AddCustomerNotificationsSettingsProvider()
-
-					;
+				.AddCustomerNotificationsSettingsProvider();
 
 			services.ConfigureHealthCheckService<CustomerOrdersApiHealthCheck, ServiceInfoProvider>();
 		}
