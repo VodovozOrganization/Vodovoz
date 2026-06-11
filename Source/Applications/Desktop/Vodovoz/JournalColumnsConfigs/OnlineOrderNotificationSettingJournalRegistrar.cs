@@ -10,8 +10,10 @@ namespace Vodovoz.JournalColumnsConfigs
 	{
 		public override IColumnsConfig Configure(FluentColumnsConfig<OnlineOrderNotificationSettingJournalNode> config) =>
 			config.AddColumn("Номер").AddNumericRenderer(node => node.Id)
-				.AddColumn("Статус онлайн заказа").AddTextRenderer(node => node.ExternalOrderStatus.GetEnumDisplayName(false))
+				.AddColumn("Событие для отправки уведомления").AddTextRenderer(node => node.CustomerNotificationEventType.GetEnumDisplayName(false))
 				.AddColumn("Текст уведомления").AddTextRenderer(node => node.NotificationText)
+				.AddColumn("Не отправлять").AddToggleRenderer(node => node.NotificationDisabled).Editing(false)
+				.AddColumn("Разрешить повторные отправки").AddToggleRenderer(node => node.AllowDuplicateNotifications).Editing(false)
 				.AddColumn("")
 				.Finish();
 	}

@@ -10,5 +10,6 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Orders
 		public string UndeliveryObject { get; set; }
 		public string UndeliveryKind { get; set; }
 		public bool IsArchive { get; set; }
+		public string CustomerNotificationText { get; set; }
 	}
 }

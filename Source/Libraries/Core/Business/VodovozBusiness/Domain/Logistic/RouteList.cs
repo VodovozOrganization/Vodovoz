@@ -46,11 +46,9 @@ using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Permissions;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.EntityRepositories.Subdivisions;
-using Vodovoz.Factories;
 using Vodovoz.Models;
 using Vodovoz.Repository.Store;
 using Vodovoz.Services;
-using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Cash;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
@@ -58,9 +56,7 @@ using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools;
-using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Logistic;
-using VodovozBusiness.Services.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Domain.Logistic
@@ -932,7 +928,9 @@ namespace Vodovoz.Domain.Logistic
 		{
 			Status = RouteListStatus.EnRoute;
 			ClosingFilled = false;
-			foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed)) {
+
+			foreach(var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed))
+			{
 				item.Order.OrderStatus = OrderStatus.OnTheWay;
 			}
 

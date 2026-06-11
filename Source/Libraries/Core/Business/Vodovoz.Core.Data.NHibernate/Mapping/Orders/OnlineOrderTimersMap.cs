@@ -28,6 +28,10 @@ namespace Vodovoz.Core.Data.NHibernate.Mapping.Orders
 				.Column("time_for_transfer_to_manual_processing_with_fast_delivery")
 				.CustomType<TimeAsTimeSpanType>()
 				.Not.Nullable();
+			Map(x => x.TimeForWaitingBeforeSendPaymentNotification)
+				.Column("time_for_waiting_before_send_payment_notification")
+				.CustomType<TimeAsTimeSpanType>()
+				.Not.Nullable();
 		}
 	}
 }

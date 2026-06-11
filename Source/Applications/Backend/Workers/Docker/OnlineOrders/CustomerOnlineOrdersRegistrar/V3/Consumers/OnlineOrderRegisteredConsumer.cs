@@ -31,8 +31,7 @@ namespace CustomerOnlineOrdersRegistrar.V3.Consumers
 			IOnlineOrderRepository onlineOrderRepository,
 			IOnlineOrderCancellationReasonSettings onlineOrderCancellationReasonSettings,
 			IRouteListService routeListService,
-			IOrderFromOnlineOrderValidator onlineOrderValidator,
-			IBus bus)
+			IOrderFromOnlineOrderValidator onlineOrderValidator)
 				: base(
 					logger,
 					unitOfWorkFactory,
@@ -45,7 +44,6 @@ namespace CustomerOnlineOrdersRegistrar.V3.Consumers
 					routeListService,
 					onlineOrderValidator)
 		{
-			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 		}
 		
 		public async Task Consume(ConsumeContext<OnlineOrderInfoDto> context)
