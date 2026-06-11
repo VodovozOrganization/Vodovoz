@@ -12,5 +12,7 @@ namespace Vodovoz.Settings.Database.Reports
 			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 		}
 		public int GetDefaultOrderChangesOrganizationId => _settingsController.GetIntValue("order_changes_default_organization_id");
+
+		public int GetDealerNomenclatureGroupId => _settingsController.GetIntValue(nameof(GetDealerNomenclatureGroupId));
 	}
 }
