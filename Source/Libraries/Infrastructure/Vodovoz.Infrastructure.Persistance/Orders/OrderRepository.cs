@@ -2012,7 +2012,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					on onlineOrder.Id equals orderRating.OnlineOrder.Id into orderRatings
 				from orderRating in orderRatings.DefaultIfEmpty()
 				from deliverySchedule in schedules.DefaultIfEmpty()
-				where order.Client.Id == counterpartyId
+
 				let address = order.DeliveryPoint != null ? order.DeliveryPoint.ShortAddress : null
 				let deliveryPointId = order.DeliveryPoint != null ? order.DeliveryPoint.Id : (int?)null
 				let orderStatus =
