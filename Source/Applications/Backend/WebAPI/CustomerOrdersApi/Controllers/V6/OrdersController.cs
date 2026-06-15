@@ -146,7 +146,7 @@ namespace CustomerOrdersApi.Controllers.V6
 					getOrdersDto.CounterpartyErpId,
 					getOrdersDto.Page);
 				
-				var orders = _customerOrdersService.GetOrders(getOrdersDto, cancellationToken);
+				var orders = await _customerOrdersService.GetOrders(getOrdersDto, cancellationToken);
 				
 				return Ok(orders);
 			}
