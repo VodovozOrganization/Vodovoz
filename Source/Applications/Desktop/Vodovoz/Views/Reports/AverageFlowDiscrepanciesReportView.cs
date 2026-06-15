@@ -77,6 +77,13 @@ namespace Vodovoz.Views.Reports
 			carModelSelectionFilterView.Show();
 
 			buttonInfo.BindCommand(ViewModel.ShowHelpInfoCommand);
+			eventboxArrow.ButtonPressEvent += OnEventboxArrowButtonPressEvent;
+		}
+
+		private void OnEventboxArrowButtonPressEvent(object o, ButtonPressEventArgs args)
+		{
+			parametersContainer.Visible = !parametersContainer.Visible;
+			arrowSlider.ArrowType = parametersContainer.Visible ? ArrowType.Left : ArrowType.Right;
 		}
 	}
 }
