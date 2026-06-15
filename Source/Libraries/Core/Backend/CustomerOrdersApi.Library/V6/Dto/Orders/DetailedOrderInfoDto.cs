@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Data.Orders.V4;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 
@@ -10,7 +9,7 @@ namespace CustomerOrdersApi.Library.V6.Dto.Orders
 	/// <summary>
 	/// Детальная информация о заказе
 	/// </summary>
-	public class DetailedOrderInfoDto : OrderDto
+	public class DetailedOrderInfoDto : ActiveOrderDto
 	{
 		/// <summary>
 		/// Значение таймера для оплаты заказа

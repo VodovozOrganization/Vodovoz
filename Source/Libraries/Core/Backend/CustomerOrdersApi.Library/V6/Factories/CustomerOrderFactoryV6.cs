@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Data.InfoMessages;
+using Vodovoz.Core.Data.Orders.V6;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
@@ -49,12 +50,16 @@ namespace CustomerOrdersApi.Library.V6.Factories
 			OnlineOrderTimers timers,
 			OnlineOrder onlineOrder,
 			DateTime ratingAvailableFrom,
+			bool establishedRoute,
+			bool isOrderWasSelectedAsNext,
 			CancellationToken cancellationToken
 		)
 		{
 			var orderInfo = CreateOrderInfoDto(order, timers, onlineOrder?.Id);
 			orderInfo.UpdateOrderRating(orderRating, ratingAvailableFrom);
 			orderInfo.UpdateOrderItems(order.OrderItems);
+			orderInfo.UpdateTrackingAvailability(establishedRoute);
+			orderInfo.UpdateTextStatusMessage(establishedRoute, isOrderWasSelectedAsNext);
 
 			await UpdateAvailableOperations(uow, orderInfo, order, onlineOrder, cancellationToken);
 
@@ -79,6 +84,36 @@ namespace CustomerOrdersApi.Library.V6.Factories
 			await UpdateAvailableOperations(uow, orderInfo, activeOrder, onlineOrder, cancellationToken);
 
 			return orderInfo;
+		}
+
+		public ActiveOrderDto CreateActiveOrderInfo(
+			OrderDto orderDto,
+			bool establishedRoute,
+			bool isOrderWasSelectedAsNext)
+		{
+			var activeOrder = new ActiveOrderDto
+			{
+				OrderId = orderDto.OrderId,
+				OnlineOrderId = orderDto.OnlineOrderId,
+				CreatedDateTimeUtc = orderDto.CreatedDateTimeUtc,
+				DeliveryDate = orderDto.DeliveryDate,
+				IsSelfDelivery = orderDto.IsSelfDelivery,
+				OrderSum = orderDto.OrderSum,
+				OrderStatus = orderDto.OrderStatus,
+				OrderPaymentStatus = orderDto.OrderPaymentStatus,
+				DeliverySchedule = orderDto.DeliverySchedule,
+				DeliveryAddress = orderDto.DeliveryAddress,
+				RatingValue = orderDto.RatingValue,
+				IsRatingAvailable = orderDto.IsRatingAvailable,
+				IsNeedPay = orderDto.IsNeedPay,
+				DeliveryPointId = orderDto.DeliveryPointId,
+				InfoMessages = orderDto.InfoMessages
+			};
+
+			activeOrder.UpdateTrackingAvailability(establishedRoute);
+			activeOrder.UpdateTextStatusMessage(establishedRoute, isOrderWasSelectedAsNext);
+
+			return activeOrder;
 		}
 
 		public IEnumerable<OrderRatingReasonDto> GetOrderRatingReasonDtos(IEnumerable<OrderRatingReason> orderRatingReasons)

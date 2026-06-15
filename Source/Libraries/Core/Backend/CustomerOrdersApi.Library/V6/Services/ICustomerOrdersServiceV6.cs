@@ -58,8 +58,20 @@ namespace CustomerOrdersApi.Library.V6.Services
 		/// Получение заказов клиента
 		/// </summary>
 		/// <param name="getOrdersDto">Данные для получения заказов клиента</param>
+		/// <param name="cancellationToken">Токен для отмены операции</param>
 		/// <returns>Заказы клиента <see cref="GetOrdersDto"/></returns>
-		OrdersDto GetOrders(GetOrdersDto getOrdersDto);
+		Task<OrdersDto> GetOrders(
+			GetOrdersDto getOrdersDto,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получение текущих активных заказов клиента
+		/// </summary>
+		/// <param name="getCounterpartyOrdersDto">Данные для получения заказов клиента</param>
+		/// <param name="cancellationToken">Токен для отмены операции</param>
+		/// <returns>Активные заказы клиента <see cref="ActiveOrdersDto"/></returns>
+		Task<ActiveOrdersDto> GetCurrentClientOrders(GetCounterpartyOrdersDto getCounterpartyOrdersDto, CancellationToken cancellationToken = default);
+
 		/// <summary>
 		/// Получение списка причин оценки заказа
 		/// </summary>
@@ -89,5 +101,13 @@ namespace CustomerOrdersApi.Library.V6.Services
 		/// <param name="cancellationToken">Токен для отмены операции</param>
 		/// <returns></returns>
 		Task<Result<ChangedOrderDto>> UpdateOrderAsync(ChangingOrderDto changingOrderDto, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получение координат курьера для заказа
+		/// </summary>
+		/// <param name="getCourierCoordinatesDto">Данные по заказу</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Данные координат курьера</returns>
+		Task<Result<CourierCoordinatesDto>> GetCourierCoordinates(GetCourierCoordinatesDto getCourierCoordinatesDto, CancellationToken cancellationToken = default);
 	}
 }

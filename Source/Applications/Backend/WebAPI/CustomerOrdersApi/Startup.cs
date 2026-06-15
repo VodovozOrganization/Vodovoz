@@ -4,6 +4,8 @@ using CustomerNotifications.Contracts;
 using CustomerNotifications.Transport;
 using CustomerOrdersApi.HealthCheck;
 using CustomerOrdersApi.Library;
+using CustomerOrdersApi.Library.Config;
+using CustomerOrdersApi.Services;
 using CustomerOrdersApi.Library.V5.Services;
 using DriverApi.Notifications.Client;
 using MassTransit;
@@ -26,6 +28,7 @@ using Vodovoz.Core.Application;
 using Vodovoz.Core.Application.Logistics;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Presentation.WebApi;
 using Vodovoz.Services.Logistics;
@@ -61,6 +64,10 @@ namespace CustomerOrdersApi
 					typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
 				)
 				.AddDatabaseConnection()
+				.AddDatabaseConfigurationExposer(config =>
+				{
+					config.LinqToHqlGeneratorsRegistry<LinqToHqlGeneratorsRegistry>();
+				})
 				.AddCore()
 				.AddTrackedUoW()
 				.AddOrderTrackerFor1c()
@@ -107,6 +114,15 @@ namespace CustomerOrdersApi
 				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
 				.AddCustomerNotificationsSettingsProvider();
 
+			services
+				.Configure<CourierCoordinatesOptions>(
+					Configuration.GetSection(nameof(CourierCoordinatesOptions)));
+
+			services.AddAuthentication("Basic")
+				.AddScheme<SignatureOptions, CustomAuthenticationHandler>(
+				"Basic",
+				conf => Configuration.GetSection(SignatureOptions.Path).Bind(conf));
+
 			services.ConfigureHealthCheckService<CustomerOrdersApiHealthCheck, ServiceInfoProvider>();
 		}
 
@@ -134,6 +150,7 @@ namespace CustomerOrdersApi
 
 			app.UseHttpsRedirection();
 			app.UseRouting();
+			app.UseAuthentication();
 			app.UseAuthorization();
 			app.UseApiVersioning();
 			app.UseVodovozHealthCheck();

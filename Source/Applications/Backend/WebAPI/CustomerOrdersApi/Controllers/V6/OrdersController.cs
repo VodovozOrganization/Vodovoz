@@ -3,13 +3,17 @@ using CustomerOrdersApi.Library.V6.Dto.Orders;
 using CustomerOrdersApi.Library.V6.Services;
 using Gamma.Utilities;
 using MassTransit;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
+using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Errors.Orders;
 using Vodovoz.Presentation.WebApi.Messages;
 
 namespace CustomerOrdersApi.Controllers.V6
@@ -72,7 +76,16 @@ namespace CustomerOrdersApi.Controllers.V6
 			}
 		}
 
+		/// <summary>
+		/// Получение детальной информации о заказе
+		/// </summary>
+		/// <param name="getDetailedOrderInfoDto">Данные для получения деталей заказа</param>
+		/// <param name="cancellationToken">Токен для отмены операции</param>
+		/// <returns>Детальная информация о заказе <see cref="DetailedOrderInfoDto"/></returns>
 		[HttpGet]
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DetailedOrderInfoDto))]
 		public async Task<IActionResult> GetOrderInfo(
 			[FromBody] GetDetailedOrderInfoDto getDetailedOrderInfoDto,
 			CancellationToken cancellationToken
@@ -111,7 +124,7 @@ namespace CustomerOrdersApi.Controllers.V6
 		}
 		
 		[HttpGet]
-		public IActionResult GetOrders([FromBody] GetOrdersDto getOrdersDto)
+		public async Task<IActionResult> GetOrders([FromBody] GetOrdersDto getOrdersDto, CancellationToken cancellationToken)
 		{
 			var sourceName = getOrdersDto.Source.GetEnumTitle();
 			
@@ -133,7 +146,7 @@ namespace CustomerOrdersApi.Controllers.V6
 					getOrdersDto.CounterpartyErpId,
 					getOrdersDto.Page);
 				
-				var orders = _customerOrdersService.GetOrders(getOrdersDto);
+				var orders = _customerOrdersService.GetOrders(getOrdersDto, cancellationToken);
 				
 				return Ok(orders);
 			}
@@ -147,7 +160,46 @@ namespace CustomerOrdersApi.Controllers.V6
 				return Problem();
 			}
 		}
-		
+
+		/// <summary>
+		/// Получение текущих активных заказов клиента
+		/// </summary>
+		/// <param name="getCounterpartyOrdersDto">Данные для получения заказов клиента</param>
+		/// <param name="cancellationToken">Токен для отмены операции</param>
+		/// <returns>Активные заказы клиента <see cref="ActiveOrdersDto"/> со статусами <c>OrderPerformed</c> и <c>OrderDelivering</c></returns>
+		[HttpGet]
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ActiveOrdersDto))]
+		[Authorize]
+		public async Task<IActionResult> GetCurrentClientOrders(
+			[FromBody] GetCounterpartyOrdersDto getCounterpartyOrdersDto,
+			CancellationToken cancellationToken)
+		{
+			var sourceName = getCounterpartyOrdersDto.Source.GetEnumTitle();
+
+			try
+			{
+				_logger.LogInformation(
+					"Поступил запрос от {Source} на получение текущих активных заказов клиента {CounterpartyId}",
+					sourceName,
+					getCounterpartyOrdersDto.CounterpartyErpId);
+
+				var orders = await _customerOrdersService.GetCurrentClientOrders(getCounterpartyOrdersDto, cancellationToken);
+
+				return Ok(orders);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e,
+					"Ошибка при получении текущих заказов клиента {CounterpartyId} от {Source}",
+					getCounterpartyOrdersDto.CounterpartyErpId,
+					sourceName);
+
+				return Problem();
+			}
+		}
+
 		[HttpGet]
 		public IActionResult GetAvailablePaymentMethods([FromBody] GetAvailablePaymentMethodsDto getAvailablePaymentMethods)
 		{
@@ -209,6 +261,78 @@ namespace CustomerOrdersApi.Controllers.V6
 				
 				return Problem(ResponseMessage.HasErrorOccurredPleaseTryAgainLater);
 			}
+		}
+
+		/// <summary>
+		/// Получение координат курьера и точки доставки
+		/// </summary>
+		/// <param name="getCourierCoordinatesDto">Данные для получения координат</param>
+		/// <param name="cancellationToken">Токен для отмены операции</param>
+		/// <returns>Координаты курьера <see cref="CourierCoordinatesDto"/></returns>
+		[HttpGet]
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CourierCoordinatesDto))]
+		[Authorize]
+		public async Task<IActionResult> GetCourierCoordinates(
+			[FromBody] GetCourierCoordinatesDto getCourierCoordinatesDto,
+			CancellationToken cancellationToken)
+		{
+			var sourceName = getCourierCoordinatesDto.Source.GetEnumTitle();
+
+			try
+			{
+				_logger.LogInformation(
+					"Поступил запрос от {Source} на получение координат курьера. " +
+					"Клиент: {CounterpartyId} " +
+					"Идентификатор клиента в ИПЗ: {ExternalCounterpartyId} " +
+					"Номер заказа: {OrderId} " +
+					"Номер онлайн заказа: {OnlineOrderId}",
+					sourceName,
+					getCourierCoordinatesDto.CounterpartyErpId,
+					getCourierCoordinatesDto.ExternalCounterpartyId,
+					getCourierCoordinatesDto.OrderId,
+					getCourierCoordinatesDto.OnlineOrderId);
+
+				var courierCoordinatesResult = await _customerOrdersService.GetCourierCoordinates(getCourierCoordinatesDto, cancellationToken);
+
+				if(courierCoordinatesResult.IsFailure)
+				{
+					var firstError = courierCoordinatesResult.Errors.First();
+					return Problem(firstError.Message, statusCode: GetStatusCode(courierCoordinatesResult));
+				}
+
+				return Ok(courierCoordinatesResult);
+			}
+			catch(Exception e)
+			{
+				_logger.LogError(e,
+					"Ошибка при получении координат курьера по запросу клиента {CounterpartyId} от {Source}",
+					getCourierCoordinatesDto.CounterpartyErpId,
+					sourceName);
+
+				return Problem();
+			}
+		}
+
+		private static int GetStatusCode(Result result)
+		{
+			if(result.IsSuccess)
+			{
+				return StatusCodes.Status200OK;
+			}
+
+			var firstError = result.Errors.FirstOrDefault();
+
+			if(firstError != null
+				&& (firstError.Code == OrderErrors.NotFound
+					|| firstError.Code == OnlineOrderErrors.OnlineOrderNotFound
+					|| firstError.Code == OnlineOrderErrors.ErpOrderForOnlineOrderNotFound))
+			{
+				return StatusCodes.Status404NotFound;
+			}
+
+			return StatusCodes.Status400BadRequest;
 		}
 
 		[HttpPost]

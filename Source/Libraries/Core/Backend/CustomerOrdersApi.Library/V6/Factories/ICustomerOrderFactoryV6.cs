@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Data.Orders.V6;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 
@@ -18,8 +19,11 @@ namespace CustomerOrdersApi.Library.V6.Factories
 			OnlineOrderTimers timers,
 			OnlineOrder onlineOrder,
 			DateTime ratingAvailableFrom,
+			bool establishedRoute,
+			bool isOrderWasSelectedAsNext,
 			CancellationToken cancellationToken
 			);
+
 		Task<DetailedOrderInfoDto> CreateDetailedOrderInfo(
 			IUnitOfWork uow,
 			OnlineOrder onlineOrder,
@@ -29,6 +33,13 @@ namespace CustomerOrdersApi.Library.V6.Factories
 			DateTime ratingAvailableFrom,
 			CancellationToken cancellationToken
 			);
+
+		ActiveOrderDto CreateActiveOrderInfo(
+			OrderDto orderDto,
+			bool establishedRoute,
+			bool isOrderWasSelectedAsNext
+			);
+
 		IEnumerable<OrderRatingReasonDto> GetOrderRatingReasonDtos(IEnumerable<OrderRatingReason> orderRatingReasons);
 	}
 }
