@@ -5,6 +5,7 @@ namespace CustomerOrdersApi.Controllers.Default
 {
 	[ApiController]
 	[Route("api/[action]")]
+	[ApiExplorerSettings(IgnoreApi = true)]
 	public class SignatureControllerBase : ControllerBase
 	{
 		private const string _invalidSignature = "Неккоректная контрольная сумма";
