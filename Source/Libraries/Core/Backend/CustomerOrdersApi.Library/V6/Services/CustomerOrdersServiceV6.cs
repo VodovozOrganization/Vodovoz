@@ -211,7 +211,6 @@ namespace CustomerOrdersApi.Library.V6.Services
 				var (establishedRoute, _, _) = await GetEstablishedRoute(uow, order, cancellationToken);
 				var isOrderWasSelectedAsNext =
 					establishedRoute || await _routeListRepository.IsOrderEverWasSelectedAsNext(uow, order.Id, cancellationToken);
-				var clientCoordinates = GetClientCoordinates(order);
 
 				return await _customerOrderFactory.CreateDetailedOrderInfo(
 					uow,
@@ -364,6 +363,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 					var orderDto = ordersFromOnlineOrdersGroup.First();
 					onlineOrderInfo = new OrderDto
 					{
+						OrderId = orderDto.OrderId,
 						OnlineOrderId = orderDto.OnlineOrderId,
 						DeliveryDate = orderDto.DeliveryDate,
 						CreatedDateTimeUtc = orderDto.CreatedDateTimeUtc,
