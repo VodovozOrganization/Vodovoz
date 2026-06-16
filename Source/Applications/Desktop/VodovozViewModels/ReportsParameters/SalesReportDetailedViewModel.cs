@@ -842,7 +842,10 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			}
 
 			var grouping = groupings[level];
-			var groups = data.GroupBy(x => grouping.GetGroupKey(x));
+
+			var groups = data
+				.GroupBy(x => grouping.GetGroupKey(x))
+				.OrderBy(g => g.Key);
 
 			var nodes = new List<SalesReportTreeNode>();
 

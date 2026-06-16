@@ -588,9 +588,6 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 				Projections.Property(() => orderItemAlias.Price),
 				Projections.Property(() => orderItemAlias.DiscountMoney));
 
-			query.OrderBy(() => orderAlias.Id).Asc()
-				.ThenBy(() => orderItemAlias.Id).Asc();
-
 			query.SelectList(list => list
 				.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
 				.SelectGroup(() => counterpartyAlias.Id).WithAlias(() => resultAlias.CounterpartyId)
