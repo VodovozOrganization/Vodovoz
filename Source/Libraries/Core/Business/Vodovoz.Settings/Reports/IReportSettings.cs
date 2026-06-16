@@ -8,8 +8,8 @@
 		int GetDefaultOrderChangesOrganizationId { get; }
 
 		/// <summary>
-		/// Получить идентификатор группы номенклатуры для группы "Диллеры"
+		/// Список идентификаторов номенклатур для исключения затрат ОХР
 		/// </summary>
-		int GetDealerNomenclatureGroupId { get; }
+		int[] DealerNomenclatureIds { get; }
 	}
 }

@@ -137,7 +137,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			set => SetField(ref _isDetailed, value);
 		}
 
-		public virtual int DealerNomenclatureGroupId => _reportSettings.GetDealerNomenclatureGroupId;
+		public virtual int[] DealerNomenclatureIds => _reportSettings.DealerNomenclatureIds;
 
 		public virtual LeftRightListViewModel<GroupingNode> GroupingSelectViewModel
 		{
@@ -230,7 +230,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			_parameters.Add("order_date_type", OrderDateFilterViewModel.SelectedOrderDateFilterType);
 			_parameters.Add("creation_date", DateTime.Now);
 			_parameters.Add("filters", sb.Length > 0 ? sb.ToString() : "Не выбраны");
-			_parameters.Add("dealer_id", DealerNomenclatureGroupId);
+			_parameters.Add("nomenclature_ids", DealerNomenclatureIds);
 
 			var groupParameters = GetGroupingParameters();
 

@@ -1560,7 +1560,7 @@ SELECT
 			)
 		)
 	) AS warehouse_expenses_per_kg_last_calc,
-	(SELECT IF(w.type_of_use = 'Production', 0, IFNULL(warehouse_expenses_per_kg_last_calc, '-'))) AS warehouse_expenses_per_kg,
+	(SELECT IF(w.type_of_use = 'Production', '-', IFNULL(warehouse_expenses_per_kg_last_calc, '-'))) AS warehouse_expenses_per_kg,
 	(SELECT warehouse_expenses_per_kg_source IS NULL) AS missing_warehouse_expenses_per_kg_on_date,
 	#административные расходы на килограмм
 	(
@@ -1586,7 +1586,7 @@ SELECT
 	(
     SELECT 
       IF(
-        ng.id = @dealer_id,
+        n.id IN (@nomenclature_ids),
         '-',
         IFNULL(administrative_expenses_per_kg_last_calc, '-')
         )
@@ -1708,11 +1708,13 @@ FROM
     districts distr ON dp.district_id = distr.id
     LEFT JOIN
     store_car_load_documents scld ON scld.route_list_id = rla.route_list_id
-    LEFT JOIN route_lists rl ON rl.id = rla.route_list_id
-	LEFT JOIN cars car ON rl.car_id = car.id 
-	LEFT JOIN car_models cm ON car.model_id = cm.id 
+    LEFT JOIN 
+    store_self_delivery_document ssdd ON ssdd.order_id = o.id
     LEFT JOIN
-    warehouses w ON w.id = scld.warehouse_id
+    warehouses w ON w.id = COALESCE(scld.warehouse_id, ssdd.warehouse_id)
+    LEFT JOIN route_lists rl ON rl.id = rla.route_list_id
+    LEFT JOIN cars car ON rl.car_id = car.id 
+    LEFT JOIN car_models cm ON car.model_id = cm.id 
     LEFT JOIN
     geo_groups gg ON gg.id = distr.geo_group_id
     LEFT JOIN
@@ -2073,8 +2075,8 @@ WHERE
           <QueryParameter Name="only_orders_from_route_lists">
             <Value>={?only_orders_from_route_lists}</Value>
           </QueryParameter>
-          <QueryParameter Name="dealer_id">
-            <Value>={?dealer_id}</Value>
+          <QueryParameter Name="nomenclature_ids">
+            <Value>={?nomenclature_ids}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -2651,11 +2653,11 @@ WHERE
       <MultiValue>false</MultiValue>
       <Prompt />
     </ReportParameter>
-    <ReportParameter Name="dealer_id">
+    <ReportParameter Name="nomenclature_ids">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
+      <MultiValue>true</MultiValue>
       <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
