@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.FastPayments;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Store;
 using Vodovoz.Settings.Nomenclature;
@@ -18,6 +19,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly ISelfDeliveryRepository _selfDeliveryRepository;
 		private readonly ICashRepository _cashRepository;
+		private readonly IFastPaymentRepository _fastPaymentRepository;
 		private readonly IOrderContractUpdater _contractUpdater;
 
 		public OrderOnlinePaymentAcceptanceHandler(
@@ -25,12 +27,14 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IRouteListItemRepository routeListItemRepository,
 			ISelfDeliveryRepository selfDeliveryRepository,
 			ICashRepository cashRepository,
+			IFastPaymentRepository fastPaymentRepository,
 			IOrderContractUpdater contractUpdater)
 		{
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_selfDeliveryRepository = selfDeliveryRepository ?? throw new ArgumentNullException(nameof(selfDeliveryRepository));
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
+			_fastPaymentRepository = fastPaymentRepository ?? throw new ArgumentNullException(nameof(fastPaymentRepository));
 			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
 		}
 
@@ -72,10 +76,24 @@ namespace Vodovoz.Core.Application.Orders.Services
 					order.ChangeStatus(OrderStatus.OnLoading);
 					order.IsSelfDeliveryPaid = true;
 				}
-			
+
+				//Проверяем два дня, текущий и прошлый, если платеж создали ночью на стыке дней, а оплатили после
+				var today = DateTime.Today;
+				var fastPayment = _fastPaymentRepository.GetFastPaymentByExternalId(uow, paymentNumber, today)
+					?? _fastPaymentRepository.GetFastPaymentByExternalId(uow, paymentNumber, today.AddDays(-1));
 				order.OnlinePaymentNumber = paymentNumber;
-				order.UpdatePaymentType(paymentType, _contractUpdater);
-				order.UpdatePaymentByCardFrom(paymentFrom, _contractUpdater);
+
+				if(fastPayment is null)
+				{
+					order.UpdatePaymentType(paymentType, _contractUpdater);
+					order.UpdatePaymentByCardFrom(paymentFrom, _contractUpdater);
+				}
+				else
+				{
+					order.UpdatePaymentType(paymentType, _contractUpdater, false);
+					order.UpdatePaymentByCardFrom(paymentFrom, _contractUpdater, false);
+					_contractUpdater.ForceUpdateContract(uow, order, fastPayment.Organization);
+				}
 
 				foreach(var routeListItem in _routeListItemRepository.GetRouteListItemsForOrder(uow, order.Id))
 				{
