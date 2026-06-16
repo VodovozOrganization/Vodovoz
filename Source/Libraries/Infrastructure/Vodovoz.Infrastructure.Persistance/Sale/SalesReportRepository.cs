@@ -42,7 +42,8 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 			SalesReportFilters filters,
 			CancellationToken cancellationToken)
 		{
-			var orderQuery = await GetOrderQueryByDateTypeAsync(uow, startDate, endDate, orderDateType, filters, cancellationToken);
+			var inclusiveEndDate = endDate.Date.AddHours(23).AddMinutes(59).AddSeconds(59);
+			var orderQuery = await GetOrderQueryByDateTypeAsync(uow, startDate, inclusiveEndDate, orderDateType, filters, cancellationToken);
 
 			return await GetSalesDataByOrderQueryAsync(uow, orderQuery, filters, cancellationToken);
 		}
@@ -75,7 +76,7 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 		{
 			Order orderAlias = null;
 
-			var query = QueryOver.Of<Order>(() => orderAlias)
+			var query = QueryOver.Of(() => orderAlias)
 				.Where(o => o.DeliveryDate >= startDate && o.DeliveryDate <= endDate)
 				.Where(o => !o.IsContractCloser)
 				.Select(Projections.Id());
@@ -92,40 +93,9 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 		{
 			Order orderAlias = null;
 
-			var inclusiveEndDate = endDate.Date.AddDays(1);
-
-			var query = QueryOver.Of<Order>(() => orderAlias)
-				.Where(o => o.CreateDate >= startDate && o.CreateDate < inclusiveEndDate)
+			var query = QueryOver.Of(() => orderAlias)
+				.Where(o => o.CreateDate >= startDate && o.CreateDate < endDate)
 				.Where(o => !o.IsContractCloser)
-				.Select(Projections.Id());
-
-			ApplyOrderFilters(query, filters);
-
-			return query;
-		}
-
-		private QueryOver<Order, Order> GetCashlessPaymentOrderQuery(
-			DateTime startDate,
-			DateTime endDate,
-			SalesReportFilters filters)
-		{
-			Order orderAlias = null;
-			PaymentItem paymentItemAlias = null;
-			Payment paymentFromBankAlias = null;
-
-			var subquery = QueryOver.Of<PaymentItem>(() => paymentItemAlias)
-				.JoinAlias(() => paymentItemAlias.Payment, () => paymentFromBankAlias)
-				.Where(() => paymentItemAlias.Order.Id == orderAlias.Id)
-				.Where(() => paymentItemAlias.PaymentItemStatus == AllocationStatus.Accepted)
-				.Where(() => paymentFromBankAlias.Date >= startDate)
-				.Where(() => paymentFromBankAlias.Date <= endDate)
-				.Select(Projections.Constant(1));
-
-			var query = QueryOver.Of<Order>(() => orderAlias)
-				.Where(o => o.PaymentType == PaymentType.Cashless)
-				.Where(o => o.OrderPaymentStatus == OrderPaymentStatus.Paid)
-				.Where(o => !o.IsContractCloser)
-				.WithSubquery.WhereExists(subquery)
 				.Select(Projections.Id());
 
 			ApplyOrderFilters(query, filters);
@@ -142,37 +112,41 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 		{
 			var orderIds = new HashSet<int>();
 
-			var cashlessQuery = GetCashlessPaymentOrderQuery(startDate, endDate, filters);
+			var cashlessQuery = GetCashlessPaymentOrderQuery(startDate, endDate);
 			var cashlessIds = await cashlessQuery
 				.GetExecutableQueryOver(uow.Session)
 				.ListAsync<int>(cancellationToken);
+
 			foreach(var id in cashlessIds)
 			{
 				orderIds.Add(id);
 			}
 
-			var sbpQuery = GetSbpPaymentOrderQuery(startDate, endDate, filters);
+			var sbpQuery = GetSbpPaymentOrderQuery(startDate, endDate);
 			var sbpIds = await sbpQuery
 				.GetExecutableQueryOver(uow.Session)
 				.ListAsync<int>(cancellationToken);
+
 			foreach(var id in sbpIds)
 			{
 				orderIds.Add(id);
 			}
 
-			var cashTerminalQuery = GetCashAndTerminalPaymentOrderQuery(startDate, endDate, filters);
+			var cashTerminalQuery = GetCashAndTerminalPaymentOrderQuery(startDate, endDate);
 			var cashTerminalIds = await cashTerminalQuery
 				.GetExecutableQueryOver(uow.Session)
 				.ListAsync<int>(cancellationToken);
+
 			foreach(var id in cashTerminalIds)
 			{
 				orderIds.Add(id);
 			}
 
-			var otherQuery = GetOtherPaymentOrderQuery(startDate, endDate, filters);
+			var otherQuery = GetOtherPaymentOrderQuery(startDate, endDate);
 			var otherIds = await otherQuery
 				.GetExecutableQueryOver(uow.Session)
 				.ListAsync<int>(cancellationToken);
+
 			foreach(var id in otherIds)
 			{
 				orderIds.Add(id);
@@ -185,15 +159,38 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 					.Select(Projections.Id());
 			}
 
-			return QueryOver.Of<Order>()
+			var query = QueryOver.Of<Order>()
 				.WhereRestrictionOn(o => o.Id).IsIn(orderIds.ToArray())
 				.Select(Projections.Id());
+
+			ApplyOrderFilters(query, filters);
+
+			return query;
 		}
 
-		private QueryOver<Order, Order> GetSbpPaymentOrderQuery(
-			DateTime startDate,
-			DateTime endDate,
-			SalesReportFilters filters)
+		private QueryOver<Order, Order> GetCashlessPaymentOrderQuery(DateTime startDate, DateTime endDate)
+		{
+			Order orderAlias = null;
+			PaymentItem paymentItemAlias = null;
+			Payment paymentFromBankAlias = null;
+
+			var query = QueryOver.Of(() => orderAlias)
+				.JoinEntityAlias(() => paymentItemAlias,
+					() => paymentItemAlias.Order.Id == orderAlias.Id
+						&& paymentItemAlias.PaymentItemStatus == AllocationStatus.Accepted,
+					JoinType.InnerJoin)
+				.JoinAlias(() => paymentItemAlias.Payment, () => paymentFromBankAlias)
+				.Where(() => !orderAlias.IsContractCloser)
+				.Where(() => orderAlias.PaymentType == PaymentType.Cashless)
+				.Where(() => orderAlias.OrderPaymentStatus == OrderPaymentStatus.Paid)
+				.Where(() => paymentFromBankAlias.Date >= startDate)
+				.Where(() => paymentFromBankAlias.Date <= endDate)
+				.Select(Projections.Distinct(Projections.Id()));
+
+			return query;
+		}
+
+		private QueryOver<Order, Order> GetSbpPaymentOrderQuery(DateTime startDate, DateTime endDate)
 		{
 			Order orderAlias = null;
 			FastPayment fastPaymentAlias = null;
@@ -201,63 +198,51 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 			var sbpPaymentTypes = new[] { PaymentType.DriverApplicationQR, PaymentType.SmsQR };
 			var onlinePaymentFromIds = new[] { 11, 12, 13 };
 
-			var subquery = QueryOver.Of<FastPayment>(() => fastPaymentAlias)
-				.Where(() => fastPaymentAlias.Order.Id == orderAlias.Id)
-				.Where(() => fastPaymentAlias.FastPaymentStatus == FastPaymentStatus.Performed)
+			var query = QueryOver.Of(() => orderAlias)
+				.JoinEntityAlias(() => fastPaymentAlias,
+					() => fastPaymentAlias.Order.Id == orderAlias.Id
+						&& fastPaymentAlias.FastPaymentStatus == FastPaymentStatus.Performed
+						&& fastPaymentAlias.PaidDate >= startDate 
+						&& fastPaymentAlias.PaidDate <= endDate,
+					JoinType.LeftOuterJoin)
 				.Where(() => fastPaymentAlias.PaidDate >= startDate)
 				.Where(() => fastPaymentAlias.PaidDate <= endDate)
-				.Select(Projections.Constant(1));
-
-			var query = QueryOver.Of<Order>(() => orderAlias)
-				.Where(o => !o.IsContractCloser)
 				.Where(
-					Restrictions.Disjunction()
-						.Add(Restrictions.In(Projections.Property(() => orderAlias.PaymentType), sbpPaymentTypes))
-						.Add(
-							Restrictions.And(
-								Restrictions.Where(() => orderAlias.PaymentType == PaymentType.PaidOnline),
-								Restrictions.In(Projections.Property(() => orderAlias.PaymentByCardFrom.Id), onlinePaymentFromIds)
-							)
+					Restrictions.Or(
+						Restrictions.In(Projections.Property(() => orderAlias.PaymentType), sbpPaymentTypes),
+						Restrictions.And(
+							Restrictions.Where(() => orderAlias.PaymentType == PaymentType.PaidOnline),
+							Restrictions.In(Projections.Property(() => orderAlias.PaymentByCardFrom.Id), onlinePaymentFromIds)
 						)
+					)
 				)
-				.WithSubquery.WhereExists(subquery)
 				.Select(Projections.Id());
-
-			ApplyOrderFilters(query, filters);
 
 			return query;
 		}
 
-		private QueryOver<Order, Order> GetCashAndTerminalPaymentOrderQuery(
-			DateTime startDate,
-			DateTime endDate,
-			SalesReportFilters filters)
+		private QueryOver<Order, Order> GetCashAndTerminalPaymentOrderQuery(DateTime startDate, DateTime endDate)
 		{
 			Order orderAlias = null;
 			var cashPaymentTypes = new[] { PaymentType.Cash, PaymentType.Terminal };
 
-			var query = QueryOver.Of<Order>(() => orderAlias)
+			var query = QueryOver.Of(() => orderAlias)
 				.Where(o => o.DeliveryDate >= startDate && o.DeliveryDate <= endDate)
 				.Where(o => !o.IsContractCloser)
 				.Where(Restrictions.In(Projections.Property(() => orderAlias.PaymentType), cashPaymentTypes))
 				.Select(Projections.Id());
 
-			ApplyOrderFilters(query, filters);
-
 			return query;
 		}
 
-		private QueryOver<Order, Order> GetOtherPaymentOrderQuery(
-			DateTime startDate,
-			DateTime endDate,
-			SalesReportFilters filters)
+		private QueryOver<Order, Order> GetOtherPaymentOrderQuery(DateTime startDate, DateTime endDate)
 		{
 			Order orderAlias = null;
 
 			var otherPaymentTypes = new[] { PaymentType.Barter, PaymentType.ContractDocumentation };
 			var onlinePaymentFromIds = new[] { 1, 2, 3, 9, 14, 15, 16 };
 
-			var query = QueryOver.Of<Order>(() => orderAlias)
+			var query = QueryOver.Of(() => orderAlias)
 				.Where(o => o.CreateDate >= startDate && o.CreateDate <= endDate)
 				.Where(o => !o.IsContractCloser)
 				.Where(
@@ -271,8 +256,6 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 						)
 				)
 				.Select(Projections.Id());
-
-			ApplyOrderFilters(query, filters);
 
 			return query;
 		}
@@ -349,10 +332,10 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+				.JoinAlias(o => o.Author, () => authorAlias)
 				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
 				.Left.JoinAlias(o => o.Client, () => counterpartyAlias)
 				.Left.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias)
-				.Left.JoinAlias(o => o.Author, () => authorAlias)
 				.Left.JoinAlias(o => o.Contract, () => contractAlias)
 				.Left.JoinAlias(() => contractAlias.Organization, () => organizationAlias)
 				.Left.JoinAlias(() => counterpartyAlias.SalesManager, () => managerAlias)
@@ -395,7 +378,12 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 			}
 			if(filters.NomenclatureCategoryExclude != null && filters.NomenclatureCategoryExclude.Any())
 			{
-				query.WhereRestrictionOn(() => nomenclatureAlias.Category).Not.IsIn(filters.NomenclatureCategoryExclude);
+				query.Where(
+					Restrictions.Or(
+						Restrictions.Not(Restrictions.On(() => nomenclatureAlias.Category).IsIn(filters.NomenclatureCategoryExclude)),
+						Restrictions.IsNull(Projections.Property(() => nomenclatureAlias.Category))
+					)
+				);
 			}
 
 			// Фильтр по контрагентам
@@ -440,7 +428,12 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 			}
 			if(filters.OrganizationExclude != null && filters.OrganizationExclude.Any())
 			{
-				query.WhereRestrictionOn(() => organizationAlias.Id).Not.IsIn(filters.OrganizationExclude);
+				query.Where(
+					Restrictions.Or(
+						Restrictions.Not(Restrictions.On(() => organizationAlias.Id).IsIn(filters.OrganizationExclude)),
+						Restrictions.IsNull(Projections.Property(() => organizationAlias.Id))
+					)
+				);
 			}
 
 			// Фильтр по подразделениям автора
@@ -470,7 +463,12 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 			}
 			if(filters.SalesManagerExclude != null && filters.SalesManagerExclude.Any())
 			{
-				query.WhereRestrictionOn(() => managerAlias.Id).Not.IsIn(filters.SalesManagerExclude);
+				query.Where(
+					Restrictions.Or(
+						Restrictions.Not(Restrictions.On(() => managerAlias.Id).IsIn(filters.SalesManagerExclude)),
+						Restrictions.IsNull(Projections.Property(() => managerAlias.Id))
+					)
+				);
 			}
 
 			// Фильтр по гео-группам
@@ -480,7 +478,14 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 			}
 			if(filters.GeoGroupExclude != null && filters.GeoGroupExclude.Any())
 			{
-				query.WhereRestrictionOn(() => geoGroupAlias.Id).Not.IsIn(filters.GeoGroupExclude);
+				query.Where(
+				   Restrictions.Or(
+					   Restrictions.Not(Restrictions.On(() => geoGroupAlias.Id).IsIn(filters.GeoGroupExclude)),
+					   Restrictions.Or(
+						   Restrictions.IsNull(Projections.Property(() => deliveryPointAlias.Id)),
+						   Restrictions.IsNull(Projections.Property(() => geoGroupAlias.Id)))
+				   )
+			   );
 			}
 
 			ApplyPaymentTypeFilters(query, filters, orderAlias);
@@ -494,7 +499,12 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 			}
 			if(filters.PromotionalSetExclude != null && filters.PromotionalSetExclude.Any())
 			{
-				query.WhereRestrictionOn(() => promotionalSetAlias.Id).Not.IsIn(filters.PromotionalSetExclude);
+				query.Where(
+				   Restrictions.Or(
+					   Restrictions.Not(Restrictions.On(() => promotionalSetAlias.Id).IsIn(filters.PromotionalSetExclude)),
+					   Restrictions.IsNull(Projections.Property(() => promotionalSetAlias.Id))
+				   )
+			   );
 			}
 
 			// Фильтр по группам товаров
@@ -504,7 +514,12 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 			}
 			if(filters.ProductGroupExclude != null && filters.ProductGroupExclude.Any())
 			{
-				query.WhereRestrictionOn(() => nomenclatureAlias.ProductGroup.Id).Not.IsIn(filters.ProductGroupExclude);
+				query.Where(
+					Restrictions.Or(
+						Restrictions.Not(Restrictions.On(() => nomenclatureAlias.ProductGroup.Id).IsIn(filters.ProductGroupExclude)),
+						Restrictions.IsNull(Projections.Property(() => nomenclatureAlias.ProductGroup.Id))
+					)
+				);
 			}
 
 			// Фильтр по статусам заказа

@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
@@ -61,6 +62,9 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		private bool _showPhones;
 		private bool _reportIsNotLoading = true;
 		private bool _reportIsNotExported = true;
+		private CancellationTokenSource _cancellationTokenSource;
+		private bool _isGeneratingReport;
+		private readonly object _lockObject = new object();
 		private readonly bool _canSeePhones;
 		private readonly bool _userIsSalesRepresentative;
 		private readonly bool _canAccessSalesReports;
@@ -294,29 +298,61 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				return;
 			}
 
-			Task.Run(async () => GenerateDetailedReportAsync());
+			lock(_lockObject)
+			{
+				if(_isGeneratingReport)
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Warning, "Отчет уже формируется. Пожалуйста, подождите.");
+					return;
+				}
+
+				if(_cancellationTokenSource != null)
+				{
+					_cancellationTokenSource.Cancel();
+					_cancellationTokenSource.Dispose();
+					_cancellationTokenSource = null;
+				}
+
+				_cancellationTokenSource = new CancellationTokenSource();
+				_isGeneratingReport = true;
+			}
+
+			Task.Run(async () => await GenerateDetailedReportAsync(_cancellationTokenSource.Token), _cancellationTokenSource.Token);
 		}
 
-		private async Task GenerateDetailedReportAsync()
+		private async Task GenerateDetailedReportAsync(CancellationToken cancellationToken)
 		{
 			try
 			{
-				ReportIsNotLoaded = false;
-				var filters = BuildFiltersFromViewModel();
+				cancellationToken.ThrowIfCancellationRequested();
 
+				ReportIsNotLoaded = false;
+
+				var filters = BuildFiltersFromViewModel();
 				UpdateSelectedGroupings();
+
+				cancellationToken.ThrowIfCancellationRequested();
 
 				var data = await _salesReportService.GetSalesReportDataAsync(
 					_unitOfWork,
 					StartDate.Value,
 					EndDate.Value,
 					OrderDateFilterViewModel.SelectedOrderDateFilterType,
-					filters);
+					filters,
+					cancellationToken);
+
+				cancellationToken.ThrowIfCancellationRequested();
 
 				var countOfOrders = data.Select(d => d.OrderId).Distinct();
 
-				_bottlesDataNode = await _salesReportService.GetBottlesDataAsync(
-					_unitOfWork, countOfOrders);
+				var bottlesTask = _salesReportService.GetBottlesDataAsync(
+					_unitOfWork, countOfOrders, cancellationToken);
+
+				cancellationToken.ThrowIfCancellationRequested();
+
+				_bottlesDataNode = await bottlesTask;
+
+				cancellationToken.ThrowIfCancellationRequested();
 
 				var tree = BuildTree(data, SelectedGroupings, 0);
 
@@ -333,14 +369,30 @@ namespace Vodovoz.ViewModels.ReportsParameters
 				_nodes = totalNode;
 				_ordersCount = countOfOrders.Count();
 
+				cancellationToken.ThrowIfCancellationRequested();
+
 				DisplayNodes = FlattenTreeToDisplayNodes(_nodes);
+			}
+			catch(OperationCanceledException)
+			{
+				_logger.LogInformation("Генерация отчета была отменена пользователем");
 			}
 			catch(Exception ex)
 			{
-				_interactiveService.ShowMessage(ImportanceLevel.Error, $"Ошибка: {ex.Message}");
+				if(!cancellationToken.IsCancellationRequested)
+				{
+					_interactiveService.ShowMessage(ImportanceLevel.Error, $"Ошибка: {ex.Message}");
+				}
 			}
 			finally
 			{
+				lock(_lockObject)
+				{
+					_isGeneratingReport = false;
+					_cancellationTokenSource?.Dispose();
+					_cancellationTokenSource = null;
+				}
+
 				ReportIsNotLoaded = true;
 			}
 		}
@@ -925,6 +977,13 @@ $@"<b>1.</b> Подсчет продаж ведется на основе зак
 			if(_groupViewModel?.RightItems != null)
 			{
 				_groupViewModel.RightItems.ContentChanged -= OnGroupingsRightItemsListContentChanged;
+			}
+
+			if(_cancellationTokenSource != null)
+			{
+				_cancellationTokenSource.Cancel();
+				_cancellationTokenSource.Dispose();
+				_cancellationTokenSource = null;
 			}
 		}
 	}
