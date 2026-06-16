@@ -52,6 +52,7 @@ namespace Vodovoz.Domain.Logistic
 			.Resolve<IRouteListItemRepository>();
 		private IOrderService _orderService => ScopeProvider.Scope
 			.Resolve<IOrderService>();
+	
 
 		private Order _order;
 		private RouteList _routeList;
@@ -640,7 +641,6 @@ namespace Vodovoz.Domain.Logistic
 			IUnitOfWork uow,
 			RouteListItemStatus status,
 			ICallTaskWorker callTaskWorker,
-			IOnlineOrderService onlineOrderService,
 			bool isEditAtCashier = false)
 		{
 			if(Status == status)
@@ -673,7 +673,6 @@ namespace Vodovoz.Domain.Logistic
 				case RouteListItemStatus.EnRoute:
 					Order.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, callTaskWorker);
 					RestoreOrder(status);
-					onlineOrderService.NotifyClientOfOnlineOrderStatusChange(uow, Order.OnlineOrder);
 					break;
 				case RouteListItemStatus.Overdue:
 					Order.OverdueDelivery(uow, callTaskWorker);

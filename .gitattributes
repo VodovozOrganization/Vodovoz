@@ -1,3 +1,4 @@
 *.cs text eol=lf
 *.csproj text eol=lf
 *.sln text eol=lf
+*.stetic text diff merge

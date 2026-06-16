@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using CustomerOrdersApi.Library.V5.Dto.Orders;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
