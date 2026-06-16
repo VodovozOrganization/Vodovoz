@@ -175,6 +175,11 @@ namespace Vodovoz.Core.Application.Orders.Services
 			}
 			else
 			{
+				if(data.PaymentStatus is OnlineOrderPaymentStatus.Paid)
+				{
+					await TryNotifyCustomerAboutOrderPaidAsync(uow, data, cancellationToken);
+				}
+
 				if(orders.Any())
 				{
 					return await TryUpdateUnPaidOnlineOrderWithOrders(uow, orders, onlineOrder, data, deliverySchedule, cancellationToken);
@@ -337,6 +342,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 					data.IsFastDelivery);
 
 				await SaveOnlineOrder(uow, onlineOrder, cancellationToken);
+
 				return Result.Success();
 			}
 
@@ -356,9 +362,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 					data.DeliveryScheduleId,
 					data.DeliveryDate,
 					data.IsFastDelivery);
-			await TryNotifyCustomerAboutOrderPaidAsync(uow, data, cancellationToken);
 
-			await SaveOnlineOrder(uow, onlineOrder, cancellationToken);			
+				await SaveOnlineOrder(uow, onlineOrder, cancellationToken);
 			}
 			await uow.CommitAsync(cancellationToken);
 			return Result.Success();

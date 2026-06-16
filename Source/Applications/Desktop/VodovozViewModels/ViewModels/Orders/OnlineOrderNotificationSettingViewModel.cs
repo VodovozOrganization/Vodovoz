@@ -39,6 +39,11 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				{
 					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
 						"Вы добавляете дубль: настройка с таким событием уже существует в справочнике.");
+
+					if(UoW?.Session != null)
+					{
+						UoW.Session.Clear();
+					}
 				}
 				else
 				{
