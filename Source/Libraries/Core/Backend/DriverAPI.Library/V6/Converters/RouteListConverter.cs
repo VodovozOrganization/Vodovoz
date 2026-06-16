@@ -42,7 +42,7 @@ namespace DriverAPI.Library.V6.Converters
 		/// <param name="routeList">Маршрутный лист ДВ</param>
 		/// <param name="itemsToReturn">Оборудование на возврат</param>
 		/// <param name="spectiaConditionsToAccept">Специальные состояния для принятия</param>
-		/// <param name="lastSelectedAddressId">Подследний выбранный следующим для доставки адрес МЛ</param>
+		/// <param name="lastSelectedAddressId">Последний выбранный следующим для доставки адрес МЛ</param>
 		/// <returns></returns>
 		public RouteListDto ConvertToAPIRouteList(
 			RouteList routeList,

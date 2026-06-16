@@ -36,8 +36,8 @@ namespace CustomerOrdersApi.Library.V6.Services
 			OrderStatus.Closed
 		};
 
-		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ILogger<CustomerOrdersServiceV6> _logger;
+		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ISignatureManager _signatureManager;
 		private readonly ICustomerOrderFactoryV6 _customerOrderFactory;
 		private readonly IOrderSettings _orderSettings;
@@ -50,8 +50,8 @@ namespace CustomerOrdersApi.Library.V6.Services
 		private readonly IConfigurationSection _signaturesSection;
 
 		public CustomerOrdersServiceV6(
-			IUnitOfWorkFactory unitOfWorkFactory,
 			ILogger<CustomerOrdersServiceV6> logger,
+			IUnitOfWorkFactory unitOfWorkFactory,
 			ISignatureManager signatureManager,
 			ICustomerOrderFactoryV6 customerOrderFactory,
 			IOrderSettings orderSettings,
@@ -63,8 +63,8 @@ namespace CustomerOrdersApi.Library.V6.Services
 			IConfiguration configuration,
 			IOptionsMonitor<CourierCoordinatesOptions> courierCoordinatesOptions)
 		{
-			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_signatureManager = signatureManager ?? throw new ArgumentNullException(nameof(signatureManager));
 			_customerOrderFactory = customerOrderFactory ?? throw new ArgumentNullException(nameof(customerOrderFactory));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));

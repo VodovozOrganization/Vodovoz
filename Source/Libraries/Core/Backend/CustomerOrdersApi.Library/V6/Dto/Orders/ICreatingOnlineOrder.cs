@@ -6,6 +6,9 @@ using Vodovoz.Core.Domain.Orders;
 
 namespace CustomerOrdersApi.Library.V6.Dto.Orders
 {
+	/// <summary>
+	/// Информация для создания онлайн заказа из ИПЗ
+	/// </summary>
 	public interface ICreatingOnlineOrder
 	{
 		/// <summary>

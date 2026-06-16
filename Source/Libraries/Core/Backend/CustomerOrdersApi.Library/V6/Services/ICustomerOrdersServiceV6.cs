@@ -6,6 +6,9 @@ using Vodovoz.Core.Domain.Results;
 
 namespace CustomerOrdersApi.Library.V6.Services
 {
+	/// <summary>
+	/// Сервис для работы с заказами клиента
+	/// </summary>
 	public interface ICustomerOrdersServiceV6
 	{
 		/// <summary>
@@ -15,6 +18,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 		/// <param name="generatedSignature">Сгенерированная контрольная сумма Erp, для проверки</param>
 		/// <returns><c>true</c> - валидный запрос, <c>false</c> - невалидный запрос</returns>
 		bool ValidateOrderSignature(ICreatingOnlineOrder creatingOnlineOrder, out string generatedSignature);
+
 		/// <summary>
 		/// Проверка контрольной суммы запроса оценки заказа
 		/// </summary>
@@ -22,6 +26,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 		/// <param name="generatedSignature">Сгенерированная контрольная сумма Erp, для проверки</param>
 		/// <returns><c>true</c> - валидный запрос, <c>false</c> - невалидный запрос</returns>
 		bool ValidateOrderRatingSignature(OrderRatingInfoForCreateDto orderRatingInfo, out string generatedSignature);
+
 		/// <summary>
 		/// Проверка контрольной суммы запроса получения деталей заказа
 		/// </summary>
@@ -29,6 +34,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 		/// <param name="generatedSignature">Сгенерированная контрольная сумма Erp, для проверки</param>
 		/// <returns><c>true</c> - валидный запрос, <c>false</c> - невалидный запрос</returns>
 		bool ValidateOrderInfoSignature(GetDetailedOrderInfoDto getDetailedOrderInfoDto, out string generatedSignature);
+
 		/// <summary>
 		/// Проверка контрольной суммы запроса заказов клиента
 		/// </summary>
@@ -36,6 +42,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 		/// <param name="generatedSignature">Сгенерированная контрольная сумма Erp, для проверки</param>
 		/// <returns><c>true</c> - валидный запрос, <c>false</c> - невалидный запрос</returns>
 		bool ValidateCounterpartyOrdersSignature(GetOrdersDto getOrdersDto, out string generatedSignature);
+
 		/// <summary>
 		/// Проверка контрольной суммы запроса заявки на звонок
 		/// </summary>
@@ -49,9 +56,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 		/// </summary>
 		/// <param name="getDetailedOrderInfoDto">Данные для получения деталей заказа</param>
 		/// <returns>Детали заказа <see cref="DetailedOrderInfoDto"/></returns>
-		Task<DetailedOrderInfoDto> GetDetailedOrderInfo(
-			GetDetailedOrderInfoDto getDetailedOrderInfoDto,
-			CancellationToken cancellationToken
+		Task<DetailedOrderInfoDto> GetDetailedOrderInfo(GetDetailedOrderInfoDto getDetailedOrderInfoDto, CancellationToken cancellationToken
 		);
 
 		/// <summary>
@@ -60,9 +65,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 		/// <param name="getOrdersDto">Данные для получения заказов клиента</param>
 		/// <param name="cancellationToken">Токен для отмены операции</param>
 		/// <returns>Заказы клиента <see cref="GetOrdersDto"/></returns>
-		Task<OrdersDto> GetOrders(
-			GetOrdersDto getOrdersDto,
-			CancellationToken cancellationToken);
+		Task<OrdersDto> GetOrders(GetOrdersDto getOrdersDto, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Получение текущих активных заказов клиента
@@ -92,8 +95,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 		/// </summary>
 		/// <param name="getAvailablePaymentMethods">Данные для получения доступных способов оплат</param>
 		/// <returns></returns>
-		(int HttpCode, string Message, AvailablePaymentMethods AvailablePayments) GetAvailablePaymentMethods(
-			GetAvailablePaymentMethodsDto getAvailablePaymentMethods);
+		(int HttpCode, string Message, AvailablePaymentMethods AvailablePayments) GetAvailablePaymentMethods(GetAvailablePaymentMethodsDto getAvailablePaymentMethods);
 		/// <summary>
 		/// Обновление заказа
 		/// </summary>
