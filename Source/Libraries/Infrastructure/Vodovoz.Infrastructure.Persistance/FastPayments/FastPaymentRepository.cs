@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
 using QS.DomainModel.UoW;
+using QS.Project.DB;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain.FastPayments;
 using Vodovoz.EntityRepositories.FastPayments;
@@ -91,6 +92,19 @@ namespace Vodovoz.Infrastructure.Persistance.FastPayments
 				.Where(fp => fp.FastPaymentStatus == FastPaymentStatus.Performed)
 				.And(fp => fp.ExternalId == externalId)
 				.SingleOrDefault();
+		}
+		
+		public FastPayment GetFastPaymentByExternalId(IUnitOfWork uow, int externalId, DateTime? creationDate = null)
+		{
+			var query = uow.Session.Query<FastPayment>()
+				.Where(fp => fp.ExternalId == externalId);
+
+			if(creationDate.HasValue)
+			{
+				query = query.Where(fp => fp.CreationDate.Date == creationDate.Value);
+			}
+			
+			return query.SingleOrDefault();
 		}
 
 		public IList<FastPayment> GetAllPaymentsByOnlineOrder(IUnitOfWork uow, int orderId)
