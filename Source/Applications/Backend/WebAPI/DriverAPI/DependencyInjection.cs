@@ -1,4 +1,6 @@
-﻿using DriverAPI.Data;
+﻿using CustomerNotifications.Application.Builders;
+using CustomerNotifications.Contracts;
+using DriverAPI.Data;
 using DriverAPI.HealthChecks;
 using DriverAPI.Library;
 using DriverAPI.Library.Helpers;
@@ -11,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Notifications.Infrastructure;
 using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.HistoryLog;
@@ -19,6 +22,7 @@ using QS.Project.DB;
 using QS.Project.Services.Interactive;
 using System;
 using System.Text;
+using TransactionalOutbox.Abstractions;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;
@@ -143,6 +147,12 @@ namespace DriverAPI
 						)),
 					};
 				});
+
+			// Уведомления клиентов
+
+			services.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, OutBoxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+					.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
+					.AddCustomerNotificationsSettingsProvider();
 
 			// Регистрация контроллеров
 
