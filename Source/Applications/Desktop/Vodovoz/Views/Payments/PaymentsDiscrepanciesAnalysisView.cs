@@ -178,7 +178,7 @@ namespace Vodovoz.Views.Payments
 						n.OrderDeliveryDate.HasValue ?
 							n.OrderDeliveryDate.Value.ToShortDateString()
 							: string.Empty)
-				.AddColumn("Статус заказа")
+				.AddColumn("Статус\nзаказа")
 					.AddTextRenderer(n => n.OrderStatus.HasValue ? n.OrderStatus.GetEnumTitle() : string.Empty)
 				.AddColumn("Сумма по акту")
 					.AddNumericRenderer(n => n.DocumentOrderSum)
@@ -195,10 +195,10 @@ namespace Vodovoz.Views.Payments
 							spin.ForegroundGdk = _dangerTextColor;
 						}
 					})
-				.AddColumn("Распределенная сумма")
+				.AddColumn("Распределенная\nсумма")
 					.AddNumericRenderer(n => n.AllocatedSum)
 					.Digits(2)
-				.AddColumn("Статус оплаты заказа")
+				.AddColumn("Статус\nоплаты заказа")
 					.AddTextRenderer(n => n.OrderPaymentStatus.HasValue
 						? n.OrderPaymentStatus.GetEnumTitle()
 						: string.Empty)
@@ -213,6 +213,8 @@ namespace Vodovoz.Views.Payments
 					})
 				.AddColumn("Клиент")
 					.AddTextRenderer(n => n.OrderClientNameInDatabase)
+					.WrapMode(WrapMode.WordChar)
+					.WrapWidth(350)
 					.AddSetter((spin, node) =>
 					{
 						spin.ForegroundGdk = _primaryTextColor;
@@ -293,16 +295,40 @@ namespace Vodovoz.Views.Payments
 				.AddColumn("Сумма по ДВ")
 					.AddNumericRenderer(n => n.ProgramPaymentSum)
 					.Digits(2)
-				.AddColumn("Распределено на клиента")
-					.AddTextRenderer(n => n.CounterpartyId.ToString())
-					.AddTextRenderer(n => n.CounterpartyName)
 					.AddSetter((spin, node) =>
 					{
 						spin.ForegroundGdk = _primaryTextColor;
 
-						if(ViewModel.SelectedClient != null && node.CounterpartyInn != ViewModel.SelectedClient.INN)
+						if(node.ProgramPaymentSum != node.DocumentPaymentSum)
 						{
 							spin.ForegroundGdk = _dangerTextColor;
+						}
+					})
+				.AddColumn("Распределено на клиента")
+					.AddTextRenderer(n => n.CounterpartyId.ToString())
+					.AddTextRenderer(n => n.CounterpartyName)
+					.WrapMode(WrapMode.WordChar)
+					.WrapWidth(350)
+					.AddSetter((cell, node) =>
+					{
+						cell.ForegroundGdk = _primaryTextColor;
+
+						if(ViewModel.SelectedClient != null && node.PaymentCounterpartyInn != ViewModel.SelectedClient.INN)
+						{
+							cell.ForegroundGdk = _dangerTextColor;
+						}
+					})
+				.AddColumn("ИНН из операции")
+					.AddTextRenderer(n => n.OperationCounterpartyInn)
+					.AddSetter((cell, node) =>
+					{
+						cell.ForegroundGdk = _primaryTextColor;
+
+						if(ViewModel.SelectedClient != null
+							&& !string.IsNullOrWhiteSpace(node.OperationCounterpartyInn)
+							&& node.OperationCounterpartyInn != ViewModel.SelectedClient.INN)
+						{
+							cell.ForegroundGdk = _dangerTextColor;
 						}
 					})
 				.AddColumn("Назначение платежа")
