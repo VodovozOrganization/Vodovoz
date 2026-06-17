@@ -61,7 +61,6 @@ namespace Vodovoz.Core.Application
 				.AddScoped<IRouteListService, RouteListService>()
 				.AddScoped<IRouteListTransferService, RouteListTransferService>()
 				.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
-				.AddScoped<IOnlineOrderService, OnlineOrderService>()
 				.AddScoped<IRouteListTransferService, RouteListTransferService>()
 				.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
 				.AddScoped<IPhoneService, PhoneService>()

@@ -1,5 +1,4 @@
 ﻿using Gamma.Utilities;
-using MassTransit;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -14,15 +13,14 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Vodovoz.Controllers;
-using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.Presentation.ViewModels.Common;
 using Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters;
 using Vodovoz.Reports.Editing;
 using Vodovoz.Reports.Editing.Modifiers;
+using Vodovoz.Settings.Reports;
 using Vodovoz.Tools;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Widgets;
@@ -40,10 +38,10 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 		private LeftRightListViewModel<GroupingNode> _groupViewModel;
 		private readonly bool _userIsSalesRepresentative;
 		private readonly IEmployeeRepository _employeeRepository;
-		private readonly IGenericRepository<CarModel> _carModelsRepository;
 		private readonly IIncludeExcludeSalesFilterFactory _includeExcludeSalesFilterFactory;
 		private readonly ILeftRightListViewModelFactory _leftRightListViewModelFactory;
 		private readonly IInteractiveService _interactiveService;
+		private readonly IReportSettings _reportSettings;
 		private readonly IUnitOfWork _unitOfWork;
 		private DelegateCommand _loadReportCommand;
 		private DelegateCommand _showInfoCommand;
@@ -57,12 +55,12 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			RdlViewerViewModel rdlViewerViewModel,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeRepository employeeRepository,
-			IGenericRepository<CarModel> carModelsRepository,
 			IIncludeExcludeSalesFilterFactory includeExcludeSalesFilterFactory,
 			ILeftRightListViewModelFactory leftRightListViewModelFactory,
 			IReportInfoFactory reportInfoFactory,
 			IUserService userService,
 			IInteractiveService interactiveService,
+			IReportSettings reportSettings,
 			ICurrentPermissionService currentPermissionService
 			) : base(rdlViewerViewModel, reportInfoFactory)
 		{
@@ -87,10 +85,10 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			}
 
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			_carModelsRepository = carModelsRepository ?? throw new ArgumentNullException(nameof(carModelsRepository));
 			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));
 			_leftRightListViewModelFactory = leftRightListViewModelFactory ?? throw new ArgumentNullException(nameof(leftRightListViewModelFactory));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
+			_reportSettings = reportSettings ?? throw new ArgumentNullException(nameof(reportSettings));
 
 			Title = "Отчет по продажам с рентабельностью";
 
@@ -138,6 +136,8 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			get => _isDetailed;
 			set => SetField(ref _isDetailed, value);
 		}
+
+		public virtual int[] DealerNomenclatureIds => _reportSettings.DealerNomenclatureIds;
 
 		public virtual LeftRightListViewModel<GroupingNode> GroupingSelectViewModel
 		{
@@ -230,6 +230,7 @@ namespace Vodovoz.ViewModels.ReportsParameters.Profitability
 			_parameters.Add("order_date_type", OrderDateFilterViewModel.SelectedOrderDateFilterType);
 			_parameters.Add("creation_date", DateTime.Now);
 			_parameters.Add("filters", sb.Length > 0 ? sb.ToString() : "Не выбраны");
+			_parameters.Add("nomenclature_ids", DealerNomenclatureIds);
 
 			var groupParameters = GetGroupingParameters();
 

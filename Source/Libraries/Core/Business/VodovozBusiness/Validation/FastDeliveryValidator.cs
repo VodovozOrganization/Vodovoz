@@ -15,9 +15,9 @@ namespace Vodovoz.Validation
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 		}
 		
-		public Result ValidateOrder(Order order)
+		public Result ValidateOrder(Order order, bool isSkipOrderDeliveryDateCheck = false)
 		{
-			if(!order.DeliveryDate.HasValue || order.DeliveryDate.Value.Date != DateTime.Now.Date)
+			if(!isSkipOrderDeliveryDateCheck && (!order.DeliveryDate.HasValue || order.DeliveryDate.Value.Date != DateTime.Now.Date))
 			{
 				return Result.Failure(Errors.Orders.FastDeliveryErrors.InvalidDate);
 			}

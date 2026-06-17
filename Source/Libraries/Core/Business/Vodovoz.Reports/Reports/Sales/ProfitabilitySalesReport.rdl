@@ -1560,7 +1560,7 @@ SELECT
 			)
 		)
 	) AS warehouse_expenses_per_kg_last_calc,
-	(SELECT IF(w.type_of_use = 'Production', 0, IFNULL(warehouse_expenses_per_kg_last_calc, '-'))) AS warehouse_expenses_per_kg,
+	(SELECT IF(w.type_of_use = 'Production', '-', IFNULL(warehouse_expenses_per_kg_last_calc, '-'))) AS warehouse_expenses_per_kg,
 	(SELECT warehouse_expenses_per_kg_source IS NULL) AS missing_warehouse_expenses_per_kg_on_date,
 	#административные расходы на килограмм
 	(
@@ -1583,16 +1583,31 @@ SELECT
 			)
 		)
 	) AS administrative_expenses_per_kg_last_calc,
-	(SELECT IFNULL(administrative_expenses_per_kg_last_calc, '-')) AS administrative_expenses_per_kg,
+	(
+    SELECT 
+      IF(
+        n.id IN (@nomenclature_ids),
+        '-',
+        IFNULL(administrative_expenses_per_kg_last_calc, '-')
+        )
+  ) AS administrative_expenses_per_kg,
 	(SELECT administrative_expenses_per_kg_source IS NULL) AS missing_administrative_expenses_per_kg_on_date,
 	IFNULL(group_levels.level_1_id, 0) as nomen_group_level_1_id,
-    IFNULL(group_levels.level_1_name, 'Без группы') as nomen_group_level_1_name,
-    IFNULL(group_levels.level_2_id, 0) as nomen_group_level_2_id,
-    IFNULL(group_levels.level_2_name, 'Без группы') as nomen_group_level_2_name,
-    IFNULL(group_levels.level_3_id, 0) as nomen_group_level_3_id,
-    IFNULL(group_levels.level_3_name, 'Без группы') as nomen_group_level_3_name,
-    (SELECT weight * items_count) AS total_weight,
-	(SELECT IF(warehouse_expenses_per_kg = '-', '-', CAST(weight * warehouse_expenses_per_kg AS DECIMAL(12,2)))) AS warehouse_spending,
+  IFNULL(group_levels.level_1_name, 'Без группы') as nomen_group_level_1_name,
+  IFNULL(group_levels.level_2_id, 0) as nomen_group_level_2_id,
+  IFNULL(group_levels.level_2_name, 'Без группы') as nomen_group_level_2_name,
+  IFNULL(group_levels.level_3_id, 0) as nomen_group_level_3_id,
+  IFNULL(group_levels.level_3_name, 'Без группы') as nomen_group_level_3_name,
+  (SELECT weight * items_count) AS total_weight,
+	(
+      SELECT 
+          IF(
+              w.type_of_use = 'Production'
+              OR warehouse_expenses_per_kg = '-',
+              '-',
+              CAST(weight * warehouse_expenses_per_kg AS DECIMAL(12,2))
+          )
+  ) AS warehouse_spending,
 	(SELECT IF(administrative_expenses_per_kg = '-', '-', CAST(weight * administrative_expenses_per_kg AS DECIMAL(12,2)))) AS administrative_spending,
 	(SELECT IF(route_list_expenses_per_kg = '-', '-', CAST(weight * route_list_expenses_per_kg AS DECIMAL(12,2)))) AS delivery_spending,
 	(SELECT 
@@ -1693,11 +1708,13 @@ FROM
     districts distr ON dp.district_id = distr.id
     LEFT JOIN
     store_car_load_documents scld ON scld.route_list_id = rla.route_list_id
-    LEFT JOIN route_lists rl ON rl.id = rla.route_list_id
-	LEFT JOIN cars car ON rl.car_id = car.id 
-	LEFT JOIN car_models cm ON car.model_id = cm.id 
+    LEFT JOIN 
+    store_self_delivery_document ssdd ON ssdd.order_id = o.id
     LEFT JOIN
-    warehouses w ON w.id = scld.warehouse_id
+    warehouses w ON w.id = COALESCE(scld.warehouse_id, ssdd.warehouse_id)
+    LEFT JOIN route_lists rl ON rl.id = rla.route_list_id
+    LEFT JOIN cars car ON rl.car_id = car.id 
+    LEFT JOIN car_models cm ON car.model_id = cm.id 
     LEFT JOIN
     geo_groups gg ON gg.id = distr.geo_group_id
     LEFT JOIN
@@ -2057,6 +2074,9 @@ WHERE
           </QueryParameter>
           <QueryParameter Name="only_orders_from_route_lists">
             <Value>={?only_orders_from_route_lists}</Value>
+          </QueryParameter>
+          <QueryParameter Name="nomenclature_ids">
+            <Value>={?nomenclature_ids}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -2632,6 +2652,13 @@ WHERE
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="nomenclature_ids">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt></Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

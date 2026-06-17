@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using QS.Osrm;
 using QS.Services;
 using QS.Validation;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Documents;
@@ -25,6 +25,10 @@ using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Tools.CallTasks;
 using VodovozBusiness.Services.Orders;
+using CustomerNotifications.Contracts;
+using CustomerNotifications.Contracts.Extensions;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
+using Notifications.Infrastructure;
 
 namespace Vodovoz.Core.Application.Logistics
 {
@@ -42,7 +46,7 @@ namespace Vodovoz.Core.Application.Logistics
 		private readonly IEmployeeRepository _employeeRepository;
 		private readonly ITrackRepository _trackRepository;
 		private readonly IRouteListSpecialConditionsService _routeListSpecialConditionsService;
-		private readonly IOnlineOrderService _onlineOrderService;
+		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private readonly IOrderService _orderService;
 		private readonly IOsrmSettings _osrmSettings;
 		private readonly IOsrmClient _osrmClient;
@@ -60,7 +64,7 @@ namespace Vodovoz.Core.Application.Logistics
 			IEmployeeRepository employeeRepository,
 			ITrackRepository trackRepository,
 			IRouteListSpecialConditionsService routeListSpecialConditionsService,
-			IOnlineOrderService onlineOrderService,
+			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
 			IOrderService orderService,
 			IOsrmSettings osrmSettings,
 			IOsrmClient osrmClient)
@@ -79,10 +83,23 @@ namespace Vodovoz.Core.Application.Logistics
 			_trackRepository = trackRepository ?? throw new ArgumentNullException(nameof(trackRepository));
 			_routeListSpecialConditionsService =
 				routeListSpecialConditionsService ?? throw new ArgumentNullException(nameof(routeListSpecialConditionsService));
-			_onlineOrderService = onlineOrderService ?? throw new ArgumentNullException(nameof(onlineOrderService));
+			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 			_osrmSettings = osrmSettings ?? throw new ArgumentNullException(nameof(osrmSettings));
 			_osrmClient = osrmClient ?? throw new ArgumentNullException(nameof(osrmClient));
+		}
+
+		private void SendCustomerNotification(IUnitOfWork unitOfWork, Order order)
+		{
+			var eventType = order.OrderStatus.ToCustomerNotificationEventType();
+
+			if(eventType is null)
+			{
+				return;
+			}
+
+			var customerNotificationEvent = new CustomerNotificationDomainEvent(eventType.Value, order.OnlineOrder?.Source, order.OnlineOrder?.Id, order.Id);
+			_customerNotificationPublisher.TryPublish(unitOfWork, customerNotificationEvent);
 		}
 
 		#region Статусы МЛ
@@ -381,7 +398,8 @@ namespace Vodovoz.Core.Application.Logistics
 							if(!isInvalidStatus)
 							{
 								item.Order.OrderStatus = OrderStatus.OnTheWay;
-								_onlineOrderService.NotifyClientOfOnlineOrderStatusChange(unitOfWork, item.Order.OnlineOrder);
+								
+								SendCustomerNotification(unitOfWork, item.Order);
 							}
 						}
 
@@ -558,8 +576,8 @@ namespace Vodovoz.Core.Application.Logistics
 
 								if(!isInvalidStatus)
 								{
-									address.Order.OrderStatus = OrderStatus.OnTheWay;
-									_onlineOrderService.NotifyClientOfOnlineOrderStatusChange(unitOfWork, address.Order.OnlineOrder);
+									address.Order.OrderStatus = OrderStatus.OnTheWay;									
+									SendCustomerNotification(unitOfWork, address.Order);
 								}
 							}
 						}
@@ -827,21 +845,27 @@ namespace Vodovoz.Core.Application.Logistics
 			};
 
 			routeList.ObservableAddresses.Add(item);
+
 			return item;
 		}
 
 		public void ChangeAddressStatus(IUnitOfWork unitOfWork, RouteList routeList, int routeListAddressid, RouteListItemStatus newAddressStatus, 
 			ICallTaskWorker callTaskWorker)
 		{
-			UpdateStatus(unitOfWork, routeList.Addresses.First(a => a.Id == routeListAddressid), newAddressStatus);
+			var address = routeList.Addresses.First(a => a.Id == routeListAddressid);
+			UpdateStatus(unitOfWork, address, newAddressStatus);
+			SendCustomerNotification(unitOfWork, address.Order);
+
 			UpdateStatus(unitOfWork, routeList);
 		}
 
 		public void ChangeAddressStatusAndCreateTask(IUnitOfWork unitOfWork, RouteList routeList, int routeListAddressid,
 			RouteListItemStatus newAddressStatus, ICallTaskWorker callTaskWorker, bool isEditAtCashier = false)
 		{
-			routeList.Addresses.First(a => a.Id == routeListAddressid)
-				.UpdateStatusAndCreateTask(unitOfWork, newAddressStatus, callTaskWorker, _onlineOrderService, isEditAtCashier);
+			var address = routeList.Addresses.First(a => a.Id == routeListAddressid);
+			address.UpdateStatusAndCreateTask(unitOfWork, newAddressStatus, callTaskWorker, isEditAtCashier);
+			SendCustomerNotification(unitOfWork, address.Order);
+
 			UpdateStatus(unitOfWork, routeList);
 		}
 
@@ -886,11 +910,18 @@ namespace Vodovoz.Core.Application.Logistics
 
 					address.RestoreOrder();
 					_orderService.AutoCancelAutoTransfer(uow, address.Order);
+
+					var customerDeliveryCompletedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.DeliveryCompleted, address.Order.OnlineOrder?.Source, address.Order.OnlineOrder?.Id, address.Order.Id);
+					_customerNotificationPublisher.TryPublish(uow, customerDeliveryCompletedEvent);
+
 					break;
 				case RouteListItemStatus.EnRoute:
 					address.Order.ChangeStatus(OrderStatus.OnTheWay);
 					address.RestoreOrder();
-					_onlineOrderService.NotifyClientOfOnlineOrderStatusChange(uow, address.Order.OnlineOrder);
+
+					var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, address.Order.OnlineOrder?.Source, address.Order.OnlineOrder?.Id, address.Order.Id);
+					_customerNotificationPublisher.TryPublish(uow, customerCourierAssignedEvent);
+
 					break;
 				case RouteListItemStatus.Overdue:
 					address.Order.ChangeStatus(OrderStatus.NotDelivered);
@@ -949,7 +980,12 @@ namespace Vodovoz.Core.Application.Logistics
 				{
 					if(address.Status == RouteListItemStatus.EnRoute)
 					{
-						address.UpdateStatusAndCreateTask(unitOfWork, RouteListItemStatus.Completed, callTaskWorker, _onlineOrderService);
+						address.UpdateStatusAndCreateTask(unitOfWork, RouteListItemStatus.Completed, callTaskWorker);
+
+						var customerDeliveryCompletedEvent = new CustomerNotificationDomainEvent(
+							CustomerNotificationEventType.DeliveryCompleted, address.Order.OnlineOrder?.Source, address.Order.OnlineOrder?.Id, address.Order.Id);
+
+						_customerNotificationPublisher.TryPublish(unitOfWork, customerDeliveryCompletedEvent);
 					}
 
 					address.Order.ChangeStatusAndCreateTasks(OrderStatus.Closed, callTaskWorker);

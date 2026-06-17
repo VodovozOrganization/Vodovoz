@@ -1,0 +1,6 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>outbox_worker</ContainerRepository>
+  </PropertyGroup>
+</Project>
+

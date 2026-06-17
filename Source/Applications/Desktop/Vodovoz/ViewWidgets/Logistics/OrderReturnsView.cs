@@ -1,7 +1,9 @@
 ﻿using Autofac;
+using CustomerNotifications.Contracts;
 using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate.Criterion;
+using Notifications.Infrastructure;
 using QS.Dialog;
 using QS.Dialog.GtkUI;
 using QS.DomainModel.Entity;
@@ -25,6 +27,7 @@ using Vodovoz.Core.Application.Orders;
 using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -65,6 +68,7 @@ namespace Vodovoz
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IOrderContractUpdater _contractUpdater;
 		private readonly IRouteListService _routeListService;
+		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private readonly ICounterpartyService _counterpartyService;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IEmployeeService _employeeService;
@@ -186,7 +190,8 @@ namespace Vodovoz
 			ITdiCompatibilityNavigation tdiNavigationManager,
 			ILifetimeScope lifetimeScope,
 			IOrderContractUpdater orderContractUpdater,
-			IRouteListService routeListService
+			IRouteListService routeListService,
+			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher
 			)
 		{
 			if(currentPermissionService is null)
@@ -222,7 +227,8 @@ namespace Vodovoz
 			_tdiNavigationManager = tdiNavigationManager ?? throw new ArgumentNullException(nameof(tdiNavigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_contractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
-			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));;
+			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
+			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 			_orderCancellationService = _lifetimeScope.Resolve<OrderCancellationService>();
 			SetOrderItemDiscountReasonsViewModel();
 			CancellationPermit = OrderCancellationPermit.Default();
@@ -699,6 +705,20 @@ namespace Vodovoz
 
 			UoW.Save(_routeListItem);
 			CancellationPermit = e.CancellationPermit;
+
+			if(e.UndeliveredOrder.NewOrder != null)
+			{
+				var customerOrderRescheduledEvent = new CustomerNotificationDomainEvent(
+					CustomerNotificationEventType.OrderRescheduled, 
+					e.UndeliveredOrder.OldOrder.OnlineOrder?.Source, 
+					e.UndeliveredOrder.OldOrder.OnlineOrder?.Id, 
+					e.UndeliveredOrder.OldOrder?.Id, 
+					e.UndeliveredOrder.NewOrder.Id,
+					e.UndeliveredOrder.UndeliveryDetalization?.Name // Пока будут заполнять //e.UndeliveredOrder.UndeliveryDetalization?.CustomerNotificationText
+					);
+
+				_customerNotificationPublisher.TryPublish(UoW, customerOrderRescheduledEvent);
+			}
 		}
 
 		protected void OnButtonDeliveredClicked(object sender, EventArgs e)
@@ -707,6 +727,7 @@ namespace Vodovoz
 				_callTaskWorker, true);
 			_routeListItem.RestoreOrder();
 			_routeListItem.FirstFillClosing(_wageParameterService);
+
 			UpdateListsSentivity();
 			UpdateButtonsState();
 		}

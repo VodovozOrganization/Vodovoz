@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomerNotifications.Contracts;
+using Notifications.Infrastructure;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Cash;
@@ -21,12 +24,14 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly ICashRepository _cashRepository;
 		private readonly IFastPaymentRepository _fastPaymentRepository;
 		private readonly IOrderContractUpdater _contractUpdater;
+		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 
 		public OrderOnlinePaymentAcceptanceHandler(
 			INomenclatureSettings nomenclatureSettings,
 			IRouteListItemRepository routeListItemRepository,
 			ISelfDeliveryRepository selfDeliveryRepository,
 			ICashRepository cashRepository,
+			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
 			IFastPaymentRepository fastPaymentRepository,
 			IOrderContractUpdater contractUpdater)
 		{
@@ -36,6 +41,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
 			_fastPaymentRepository = fastPaymentRepository ?? throw new ArgumentNullException(nameof(fastPaymentRepository));
 			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
+			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 		}
 
 		public void AcceptOnlinePayment(
@@ -75,6 +81,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 				{
 					order.ChangeStatus(OrderStatus.OnLoading);
 					order.IsSelfDeliveryPaid = true;
+					var customerNotificationEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, onlineOrderId: order.OnlineOrder?.Id, orderId: order.Id);
+					_customerNotificationPublisher.TryPublish(uow, customerNotificationEvent);
 				}
 
 				//Проверяем два дня, текущий и прошлый, если платеж создали ночью на стыке дней, а оплатили после

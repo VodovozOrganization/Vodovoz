@@ -16,6 +16,7 @@ namespace Vodovoz.Domain.Orders
 		private string _name;
 		bool _isArchive;
 		private UndeliveryKind _complaintKind;
+		private string _customerNotificationText;
 
 		public virtual int Id { get; set; }
 
@@ -38,6 +39,13 @@ namespace Vodovoz.Domain.Orders
 		{
 			get => _isArchive;
 			set => SetField(ref _isArchive, value);
+		}
+
+		[Display(Name = "Текст сообщения клиенту")]
+		public virtual string CustomerNotificationText
+		{
+			get => _customerNotificationText;
+			set => SetField(ref _customerNotificationText, value);
 		}
 
 		public virtual string Title => Name;
