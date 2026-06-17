@@ -4664,7 +4664,8 @@ namespace Vodovoz
 						e.UndeliveredOrder.OldOrder.OnlineOrder?.Id,
 						e.UndeliveredOrder.OldOrder.Id,
 						e.UndeliveredOrder.NewOrder.Id,
-						e.UndeliveredOrder.UndeliveryDetalization?.CustomerNotificationText);
+						e.UndeliveredOrder.UndeliveryDetalization?.Name // Пока будут заполнять //e.UndeliveredOrder.UndeliveryDetalization?.CustomerNotificationText
+						);
 					_customerNotificationPublisher.TryPublish(UoW, customerOrderRescheduledEvent);
 
 					UoW.Commit();

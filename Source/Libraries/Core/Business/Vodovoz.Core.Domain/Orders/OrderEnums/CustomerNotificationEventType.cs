@@ -16,7 +16,7 @@ namespace Vodovoz.Core.Domain.Orders.OrderEnums
 		/// <summary>
 		/// Курьер в пути к клиенту
 		/// </summary>
-		[Display(Name = "Курьер в пути к клиенту")]
+		[Display(Name = "Курьер уже в пути")]
 		CourierOnTheWay,
 
 		/// <summary>
@@ -28,25 +28,41 @@ namespace Vodovoz.Core.Domain.Orders.OrderEnums
 		/// <summary>
 		/// Доставка выполнена
 		/// </summary>
-		[Display(Name = "Доставка выполнена")]
+		[Display(Name = "Заказ доставлен")]
 		DeliveryCompleted,
 
 		/// <summary>
 		/// Заказ оплачен
 		/// </summary>
-		[Display(Name = "Заказ оплачен")]
+		[Display(Name = "Оплата прошла успешно")]
 		OrderPaid,
 		
 		/// <summary>
 		/// Заказ ожидает оплаты
 		/// </summary>
-		[Display(Name = "Заказ ожидает оплаты")]
+		[Display(Name = "Ожидается оплата")]
 		OrderAwaitingPayment,
 		
 		/// <summary>
 		/// Заказ перенесен на другое время
 		/// </summary>
-		[Display(Name = "Заказ перенесен на другое время")]
-		OrderRescheduled
+		[Display(Name = "Доставка перенесена")]
+		OrderRescheduled,
+
+		#region Устаревшие, для совместимости на время перехода на новые типы, удалить после обновления
+
+		[Display(Name = "!Устаревший! Заказ обрабатывается")]
+		OrderProcessing,
+
+		[Display(Name = "!Устаревший! Заказ выполнен")]
+		OrderPerformed,
+
+		[Display(Name = "!Устаревший! Заказ отменен")]
+		OrderCanceled,
+
+		[Display(Name = "!Устаревший! Заказ в доставке")]
+		OrderDelivering
+
+		#endregion Устаревшие, для совместимости на время перехода на новые типы, удалить после обновления
 	}
 }
