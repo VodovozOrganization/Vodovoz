@@ -11,6 +11,7 @@ using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Logistic.Organizations;
+using Vodovoz.Domain.Cash;
 
 namespace Vodovoz.Domain.Organizations
 {
@@ -27,6 +28,7 @@ namespace Vodovoz.Domain.Organizations
 		private GenericObservableList<OrganizationVersion> _observableOrganizationVersions;
 		private IList<OrganizationVersion> _organizationVersions = new List<OrganizationVersion>();
 		private string _suffix;
+		private IncomeCategory _defaultCashIncomeCategory;
 
 		[Display(Name = "Телефоны")]
 		public virtual new IList<Phone> Phones {
@@ -46,7 +48,14 @@ namespace Vodovoz.Domain.Organizations
 			get => _suffix;
 			set => SetField(ref _suffix, value);
 		}
-		
+
+		[Display(Name = "Статья дохода для наличной формы оплаты по умолчанию")]
+		public virtual IncomeCategory DefaultCashIncomeCategory
+		{
+			get => _defaultCashIncomeCategory;
+			set => SetField(ref _defaultCashIncomeCategory, value);
+		}
+
 		public virtual GenericObservableList<OrganizationVersion> ObservableOrganizationVersions => _observableOrganizationVersions
 			?? (_observableOrganizationVersions = new GenericObservableList<OrganizationVersion>(OrganizationVersions));
 		
@@ -61,6 +70,21 @@ namespace Vodovoz.Domain.Organizations
 		public virtual void SetActiveOrganizationVersion(OrganizationVersion organizationVersion)
 		{
 			_activeOrganizationVersion = organizationVersion;
+		}
+
+		public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			foreach (var result in base.Validate(validationContext))
+			{
+				yield return result;
+			}
+
+			if(DefaultCashIncomeCategory == null)
+			{
+				yield return new ValidationResult(
+					"Необходимо выбрать статью дохода для наличной формы оплаты по умолчанию.",
+					new[] { nameof(DefaultCashIncomeCategory) });
+			}
 		}
 	}
 }
