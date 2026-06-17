@@ -662,7 +662,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 					paymentDiscrepanciesNode.IsManuallyCreated = paymentDatabase.IsManuallyCreated;
 					paymentDiscrepanciesNode.CounterpartyId = paymentDatabase.CounterpartyId;
 					paymentDiscrepanciesNode.CounterpartyName = paymentDatabase.CounterpartyName;
-					paymentDiscrepanciesNode.CounterpartyInn = paymentDatabase.CounterpartyInn;
+					paymentDiscrepanciesNode.PaymentCounterpartyInn = paymentDatabase.PaymentCounterpartyInn;
+					paymentDiscrepanciesNode.OperationCounterpartyInn = paymentDatabase.OperationCounterpartyInn;
 					paymentDiscrepanciesNode.PaymentPurpose = paymentDatabase.PaymentPurpose;
 
 					if(paymentDatabase.PayerName != paymentDatabase.CounterpartyName
@@ -681,7 +682,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 						IsManuallyCreated = paymentDatabase.IsManuallyCreated,
 						CounterpartyId = paymentDatabase.CounterpartyId,
 						CounterpartyName = paymentDatabase.CounterpartyName,
-						CounterpartyInn = paymentDatabase.CounterpartyInn,
+						PaymentCounterpartyInn = paymentDatabase.PaymentCounterpartyInn,
+						OperationCounterpartyInn = paymentDatabase.OperationCounterpartyInn,
 						PaymentPurpose = paymentDatabase.PaymentPurpose
 					};
 
