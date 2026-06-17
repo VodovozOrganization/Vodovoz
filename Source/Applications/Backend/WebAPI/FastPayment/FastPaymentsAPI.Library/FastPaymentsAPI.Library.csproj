@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\..\..\Libraries\Core\Notifications\CustomerNotifications.Application\CustomerNotifications.Application.csproj" />
       <ProjectReference Include="..\..\..\..\..\Libraries\External\QSProjects\Modules\QS.Banks\QS.Banks.csproj" />
       <ProjectReference Include="..\..\..\..\..\Libraries\External\QSProjects\QS.Project.Core\QS.Project.Core.csproj" />
       <ProjectReference Include="..\..\..\..\..\Libraries\External\QSProjects\QS.Project\QS.Project.csproj" />
