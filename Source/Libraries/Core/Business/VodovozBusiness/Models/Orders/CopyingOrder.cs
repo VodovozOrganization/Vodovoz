@@ -75,6 +75,7 @@ namespace Vodovoz.Models.Orders
 			}
 			else
 			{
+				_resultOrder.OurOrganization = _copiedOrder.OurOrganization;
 				_resultOrder.UpdateClient(_copiedOrder.Client, _contractUpdater, out var message);
 				_resultOrder.SelfDelivery = _copiedOrder.SelfDelivery;
 				_resultOrder.UpdateDeliveryPoint(_copiedOrder.DeliveryPoint, _contractUpdater);
@@ -98,6 +99,9 @@ namespace Vodovoz.Models.Orders
 				_resultOrder.ContactPhone = _copiedOrder.ContactPhone;
 				_resultOrder.LogisticsRequirements = _copiedOrder.LogisticsRequirements;
 				_resultOrder.IsSecondOrder = _copiedOrder.IsSecondOrder;
+				_resultOrder.CallBeforeArrivalMinutes = _copiedOrder.CallBeforeArrivalMinutes;
+				_resultOrder.IsDoNotMakeCallBeforeArrival = _copiedOrder.IsDoNotMakeCallBeforeArrival;
+				_resultOrder.SelfDeliveryGeoGroup = _copiedOrder.SelfDeliveryGeoGroup;
 			}
 
 			return this;
