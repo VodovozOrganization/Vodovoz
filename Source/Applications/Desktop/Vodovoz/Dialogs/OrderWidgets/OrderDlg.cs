@@ -1926,6 +1926,8 @@ namespace Vodovoz
 
 		private void OnButtonFastDeliveryCheckClicked(object sender, EventArgs e)
 		{
+			_isFastDeliveryAvailabilityChecked = true;
+
 			var fastDeliveryValidationResult = _fastDeliveryValidator.ValidateOrder(Entity, true);
 
 			if(fastDeliveryValidationResult.IsFailure)
@@ -1943,8 +1945,6 @@ namespace Vodovoz
 				DeliveryPoint.District.TariffZone.Id,
 				fastDeliveryOrder: Entity
 			);
-
-			_isFastDeliveryAvailabilityChecked = true;
 
 			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(ServicesConfig.UnitOfWorkFactory);
 			fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryAvailabilityHistory);
@@ -6310,7 +6310,7 @@ namespace Vodovoz
 		#endregion CustomCancellationConfirmationDialog
 
 		private bool IsFastDeliveryAvailabilityMustBeChecked =>
-			Entity.DeliveryPoint?.District?.TariffZone?.IsFastDeliveryAvailableAtCurrentTime == true
+			_fastDeliveryValidator.ValidateOrder(Entity, true).IsSuccess
 			&& IsOrderItemsAllFastDeliveryCompatible()
 			&& !CheckIsFastDeliveryAvailabilityChecked();
 
