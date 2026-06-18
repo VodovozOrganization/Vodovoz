@@ -2,6 +2,7 @@
 using Notifications.Infrastructure;
 using QS.DomainModel.UoW;
 using System;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Controllers;
@@ -43,7 +44,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 		}
 
-		public async Task<Result> TryAcceptOrderCreatedByOnlineOrderAsync(
+		public async Task<Result<bool>> TryAcceptOrderCreatedByOnlineOrderAsync(
 			IUnitOfWork uow,
 			Employee employee,
 			Order order,
@@ -51,39 +52,42 @@ namespace Vodovoz.Core.Application.Orders.Services
 			CancellationToken cancellationToken
 		)
 		{
+			Result<bool> addingFastDeliveryOrderToRouteListResult = null;
+
 			if(!order.SelfDelivery)
 			{
 				var fastDeliveryResult = await _fastDeliveryHandler.CheckFastDeliveryAsync(uow, order, cancellationToken);
 
 				if(fastDeliveryResult.IsFailure)
 				{
-					return fastDeliveryResult;
+					return Result.Failure<bool>(fastDeliveryResult.Errors);
 				}
 
 				// Необходимо сделать асинхронным
-				var addingToRouteListResult = _fastDeliveryHandler.TryAddOrderToRouteListAndNotifyDriver(
+				addingFastDeliveryOrderToRouteListResult = _fastDeliveryHandler.TryAddOrderToRouteList(
 					uow,
 					order,
 					routeListService, 
 					_callTaskWorker,
 					employee);
 				
-				if(addingToRouteListResult.IsFailure)
+				if(addingFastDeliveryOrderToRouteListResult.IsFailure)
 				{
-					return addingToRouteListResult;
-				}
-
-				if(addingToRouteListResult.Value)
-				{
-					var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, order.OnlineOrder?.Source, order.OnlineOrder?.Id, order.Id);
-					await _customerNotificationPublisher.TryPublishAsync(uow, customerCourierAssignedEvent, cancellationToken);
+					return addingFastDeliveryOrderToRouteListResult;
 				}
 			}
 
 			// Необходимо сделать асинхронным
 			AcceptOrder(uow, employee, order);
 
-			return Result.Success();
+			if(addingFastDeliveryOrderToRouteListResult is null)
+			{
+				return Result.Success(false);
+			}
+			else
+			{
+				return addingFastDeliveryOrderToRouteListResult;
+			}			
 		}
 
 		public void AcceptOrder(IUnitOfWork uow, Employee employee, Order order, bool needUpdateContract = true)

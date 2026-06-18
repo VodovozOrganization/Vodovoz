@@ -137,7 +137,7 @@ namespace Vodovoz.Controllers
 			return Result.Success();
 		}
 
-		public Result<bool> TryAddOrderToRouteListAndNotifyDriver(
+		public Result<bool> TryAddOrderToRouteList(
 			IUnitOfWork uow,
 			Order order,
 			IRouteListService routeListService,
@@ -171,7 +171,6 @@ namespace Vodovoz.Controllers
 					uow, fastDeliveryAddress, DeliveryFreeBalanceType.Decrease, employee: employee);
 			}
 			
-			NotifyDriverOfFastDeliveryOrderAdded(order.Id);
 			return Result.Success(fastDeliveryAddress != null);
 		}
 

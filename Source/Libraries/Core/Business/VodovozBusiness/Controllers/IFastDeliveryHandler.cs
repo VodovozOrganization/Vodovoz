@@ -39,7 +39,7 @@ namespace Vodovoz.Controllers
 		/// <param name="routeListService">Сервис работы с МЛ</param>
 		/// <param name="callTaskWorker">Обработчик для создания внутренних заявок на звонок</param>
 		/// <param name="employee">Сотрудник, проводящий операцию</param>
-		Result<bool> TryAddOrderToRouteListAndNotifyDriver(
+		Result<bool> TryAddOrderToRouteList(
 			IUnitOfWork uow,
 			Order order,
 			IRouteListService routeListService,

@@ -74,6 +74,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly IOrderConfirmationService _orderConfirmationService;
 		private readonly IPaymentItemsRepository _paymentItemsRepository;
 		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
+		private readonly IFastDeliveryHandler _fastDeliveryHandler;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -99,7 +100,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IOrderContractUpdater orderContractUpdater,
 			IOrderConfirmationService orderConfirmationService,
 			IPaymentItemsRepository paymentItemsRepository,
-			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher)
+			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
+			IFastDeliveryHandler fastDeliveryHandler)
 		{
 			if(nomenclatureSettings is null)
 			{
@@ -129,6 +131,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_orderConfirmationService = orderConfirmationService ?? throw new ArgumentNullException(nameof(orderConfirmationService));
 			_paymentItemsRepository = paymentItemsRepository ?? throw new ArgumentNullException(nameof(paymentItemsRepository));
 			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
+			_fastDeliveryHandler = fastDeliveryHandler ?? throw new ArgumentNullException(nameof(fastDeliveryHandler));
 			PaidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
 			ForfeitNomenclatureId = nomenclatureSettings.ForfeitId;
 		}
@@ -689,10 +692,15 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 			await uow.CommitAsync(cancellationToken);
 
-			var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, order.OnlineOrder?.Source, order.OnlineOrder?.Id, order.Id);
-			await _customerNotificationPublisher.TryPublishAsync(uow, customerCourierAssignedEvent, cancellationToken);
+			if(acceptResult.Value)
+			{
+				_fastDeliveryHandler.NotifyDriverOfFastDeliveryOrderAdded(order.Id);
 
-			await uow.CommitAsync(cancellationToken);
+				var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, order.OnlineOrder?.Source, order.OnlineOrder?.Id, order.Id);
+				await _customerNotificationPublisher.TryPublishAsync(uow, customerCourierAssignedEvent, cancellationToken);				
+
+				await uow.CommitAsync(cancellationToken);
+			}
 
 			return order.Id;
 		}
