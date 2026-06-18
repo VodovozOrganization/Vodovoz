@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Infrastructure\BackendInfrastructure\BackendInfrastructure.csproj" />
+		<ProjectReference Include="..\..\Vodovoz.Zabbix.Sender\Vodovoz.Zabbix.Sender.csproj" />
+		<ProjectReference Include="..\..\..\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />
+		<ProjectReference Include="..\Edo.Common\Edo.Common.csproj" />
+		<ProjectReference Include="..\Edo.Problem.Routine\Edo.Problem.Routine.csproj" />
+	</ItemGroup>
+
+</Project>

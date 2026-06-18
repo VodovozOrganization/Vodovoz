@@ -36,5 +36,15 @@ namespace Vodovoz.Settings.Edo
 		/// Интервал работы воркера обработки проблем со статусом заказа
 		/// </summary>
 		TimeSpan OrderStatusProblemWorkerInterval { get; }
+
+		/// <summary>
+		/// Таймаут обработки проблемы отложенной ночной отправки чеков
+		/// </summary>
+		TimeSpan ReceiptNightSendProblemTimeout { get; }
+
+		/// <summary>
+		/// Интервал работы воркера обработки проблемы отложенной ночной отправки чеков
+		/// </summary>
+		TimeSpan ReceiptNightSendProblemWorkerInterval { get; }
 	}
 }
