@@ -1,3 +1,7 @@
+﻿using CustomerNotifications.Application;
+using CustomerNotifications.Application.Builders;
+using CustomerNotifications.Contracts;
+using CustomerNotifications.Transport;
 using CustomerOrdersApi.HealthCheck;
 using CustomerOrdersApi.Library;
 using CustomerOrdersApi.Library.V5.Dto.Orders;
@@ -11,15 +15,16 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Notifications.Infrastructure;
 using Osrm;
 using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Services;
 using System;
+using TransactionalOutbox.Abstractions;
 using Vodovoz;
 using Vodovoz.Core.Application;
 using Vodovoz.Core.Application.Logistics;
-using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate;
 using Vodovoz.Infrastructure.Persistance;
@@ -74,7 +79,6 @@ namespace CustomerOrdersApi
 
 				.AddScoped<IRouteListService, RouteListService>()
 				.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
-				.AddScoped<IOnlineOrderService, OnlineOrderService>()
 				.AddScoped<ICustomerOrderCancellationService, CustomerOrderCancellationService>()
 				.AddPaymentApiClients(Configuration)
 				.AddPaymentRefundServices();
@@ -88,10 +92,20 @@ namespace CustomerOrdersApi
 				.AddMassTransit(busConf =>
 				{
 					busConf.AddRequestClient<CreatedOnlineOrder>(new Uri($"exchange:{CreatingOnlineOrder.ExchangeAndQueueName}"));
-					busConf.ConfigureRabbitMq();
+					busConf.ConfigureRabbitMq();					
 				})
-				.AddHttpClient();
-			
+				.AddMassTransit<ICustomerNotificationsBus>(busConf =>
+				{
+					busConf.ConfigureCustomerNotificationsRabbitMq(services, Configuration);
+				});
+
+			services
+				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, OutBoxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
+				.AddCustomerNotificationsSettingsProvider()
+
+					;
+
 			services.ConfigureHealthCheckService<CustomerOrdersApiHealthCheck, ServiceInfoProvider>();
 		}
 

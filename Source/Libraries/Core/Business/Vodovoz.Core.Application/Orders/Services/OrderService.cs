@@ -1,4 +1,5 @@
-﻿using Gamma.Utilities;
+using Vodovoz.Core.Domain.Clients;
+using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -93,8 +94,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IGenericRepository<Nomenclature> nomenclatureGenericRepository,
 			IOrderContractUpdater orderContractUpdater,
 			IOrderConfirmationService orderConfirmationService,
-			IPaymentItemsRepository paymentItemsRepository
-			)
+			IPaymentItemsRepository paymentItemsRepository)
 		{
 			if(nomenclatureSettings is null)
 			{
@@ -680,9 +680,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			}
 
 			onlineOrder.SetOrderPerformed(new []{ order }, employee);
-			var notification = OnlineOrderStatusUpdatedNotification.Create(onlineOrder);
 
-			await uow.SaveAsync(notification, cancellationToken: cancellationToken);
 			await uow.CommitAsync(cancellationToken);
 
 			return order.Id;

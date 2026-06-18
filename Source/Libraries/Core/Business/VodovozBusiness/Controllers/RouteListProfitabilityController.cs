@@ -10,7 +10,6 @@ using Vodovoz.Domain.Profitability;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Profitability;
 using Vodovoz.Factories;
-using Vodovoz.Services;
 using Vodovoz.Settings.Nomenclature;
 
 namespace Vodovoz.Controllers
@@ -158,7 +157,6 @@ namespace Vodovoz.Controllers
 		/// <param name="uow">unit of work</param>
 		/// <param name="routeList">МЛ</param>
 		/// <param name="routeListProfitability">Рентабельность МЛ</param>
-		/// <param name="nearestProfitabilityConstants">Ближайшие контсанты рентабельности</param>
 		private void CalculateRouteListProfitabilityGrossMargin(
 			IUnitOfWork uow,
 			RouteList routeList,
@@ -170,7 +168,7 @@ namespace Vodovoz.Controllers
 			routeListProfitability.GrossMarginSum = routeListProfitability.SalesSum - routeListProfitability.ExpensesSum;
 			routeListProfitability.GrossMarginPercents = routeListProfitability.SalesSum != 0
 				? Math.Round(routeListProfitability.GrossMarginSum.Value / routeListProfitability.SalesSum.Value * 100, 2)
-				: default(decimal);
+				: default;
 		}
 
 		private void CalculateGeneralDataRouteListProfitability(

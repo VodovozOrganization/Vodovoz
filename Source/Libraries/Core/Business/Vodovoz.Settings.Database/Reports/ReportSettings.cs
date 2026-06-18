@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Vodovoz.Settings.Reports;
 
 namespace Vodovoz.Settings.Database.Reports
@@ -12,5 +13,11 @@ namespace Vodovoz.Settings.Database.Reports
 			_settingsController = settingsController ?? throw new ArgumentNullException(nameof(settingsController));
 		}
 		public int GetDefaultOrderChangesOrganizationId => _settingsController.GetIntValue("order_changes_default_organization_id");
+
+		public int[] DealerNomenclatureIds => _settingsController
+			.GetStringValue(nameof(DealerNomenclatureIds))
+			.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)
+			.Select(x => int.Parse(x.Trim(' ')))
+			.ToArray();
 	}
 }

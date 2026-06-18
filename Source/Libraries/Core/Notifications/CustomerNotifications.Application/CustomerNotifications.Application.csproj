@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Business\Vodovoz.Core.Domain\Vodovoz.Core.Domain.csproj" />
+    <ProjectReference Include="..\..\Business\VodovozBusiness\VodovozBusiness.csproj" />
+    <ProjectReference Include="..\..\TransactionalOutbox\TransactionalOutbox.csproj" />
+    <ProjectReference Include="..\CustomerNotifications.Contracts\CustomerNotifications.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

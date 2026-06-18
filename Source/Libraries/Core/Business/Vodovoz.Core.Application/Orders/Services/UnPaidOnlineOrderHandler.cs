@@ -1,11 +1,15 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using CustomerNotifications.Contracts;
+using Microsoft.Extensions.Logging;
+using Notifications.Infrastructure;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Client;
@@ -31,6 +35,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly IOrderService _orderService;
 		private readonly IRouteListService _routeListService;
 		private readonly ICustomerOrderTransferService _orderTransferLogicService;
+		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _outboxNotificationPublisher;
 
 		public UnPaidOnlineOrderHandler(
 			ILogger<UnPaidOnlineOrderHandler> logger,
@@ -41,7 +46,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IOrderFromOnlineOrderValidator onlineOrderValidator,
 			IOrderService orderService,
 			IRouteListService routeListService,
-			ICustomerOrderTransferService orderTransferLogicService
+			ICustomerOrderTransferService orderTransferLogicService,
+			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> outboxNotificationPublisher
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -54,6 +60,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_orderTransferLogicService = orderTransferLogicService ?? throw new ArgumentNullException(nameof(orderTransferLogicService));
+			_outboxNotificationPublisher = outboxNotificationPublisher ?? throw new ArgumentNullException(nameof(outboxNotificationPublisher));
 		}
 
 		public async Task TryMoveToManualProcessingWaitingForPaymentOnlineOrders(IUnitOfWork uow, CancellationToken cancellationToken)
@@ -168,6 +175,11 @@ namespace Vodovoz.Core.Application.Orders.Services
 			}
 			else
 			{
+				if(data.PaymentStatus is OnlineOrderPaymentStatus.Paid)
+				{
+					await TryNotifyCustomerAboutOrderPaidAsync(uow, data, cancellationToken);
+				}
+
 				if(orders.Any())
 				{
 					return await TryUpdateUnPaidOnlineOrderWithOrders(uow, orders, onlineOrder, data, deliverySchedule, cancellationToken);
@@ -232,7 +244,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 					_routeListService,
 					cancellationToken
 				);
-			}
+			}			
 
 			await SaveOnlineOrder(uow, onlineOrder, cancellationToken);
 			return Result.Success();
@@ -330,6 +342,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 					data.IsFastDelivery);
 
 				await SaveOnlineOrder(uow, onlineOrder, cancellationToken);
+
 				return Result.Success();
 			}
 
@@ -350,9 +363,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 					data.DeliveryDate,
 					data.IsFastDelivery);
 
-				await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
+				await SaveOnlineOrder(uow, onlineOrder, cancellationToken);
 			}
-
 			await uow.CommitAsync(cancellationToken);
 			return Result.Success();
 		}
@@ -431,6 +443,87 @@ namespace Vodovoz.Core.Application.Orders.Services
 		{
 			await uow.SaveAsync(onlineOrder, cancellationToken: cancellationToken);
 			await uow.CommitAsync(cancellationToken);
+		}
+
+		public async Task SendWaitingForPaymentNotificationsAsync(IUnitOfWork uow, CancellationToken cancellationToken)
+		{
+			_logger.LogInformation("Проверяем онлайн заказы, ожидающих оплаты для уведомлений...");
+
+			try
+			{
+				var waitingForPaymentOnlineOrders = _onlineOrderRepository.GetWaitingForPaymentOnlineOrders(uow);
+				_logger.LogInformation("Найдено {WaitingForPaymentCount} онлайн заказов для уведомлений", waitingForPaymentOnlineOrders.Count());
+
+				if(!waitingForPaymentOnlineOrders.Any())
+				{
+					return;
+				}
+
+				var onlineOrderTimers = uow.GetAll<OnlineOrderTimers>().FirstOrDefault();
+
+				if(onlineOrderTimers is null)
+				{
+					_logger.LogWarning("Не найдены таймеры онлайн заказов");
+
+					return;
+				}
+
+				foreach(var onlineOrder in waitingForPaymentOnlineOrders)
+				{
+					var isNotified = await TryNotifyCustomerAboutWaitingForPayment(uow, onlineOrder, onlineOrderTimers.TimeForWaitingBeforeSendPaymentNotification, cancellationToken);
+					
+					if(isNotified)
+					{
+						await uow.CommitAsync(cancellationToken);
+
+						_logger.LogInformation("Уведомление клиенту о неоплаченном онлайн заказе №{OnlineOrderId} поставлено в очередь на отправку", onlineOrder.Id);
+					}
+					else
+					{
+						_logger.LogInformation("Уведомление клиенту о неоплаченном онлайн заказе №{OnlineOrderId} не требует отправки", onlineOrder.Id);
+					}					
+				}				
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при обработке онлайн заказов, ожидающих оплаты для уведомлений");
+			}
+		}
+
+		private async Task<bool> TryNotifyCustomerAboutWaitingForPayment(IUnitOfWork unitOfWork, OnlineOrder onlineOrder, TimeSpan timeForWaitingBeforeSendPaymentNotification, CancellationToken cancellationToken)
+		{
+			if(onlineOrder == null)
+			{  
+				return false;
+			}
+
+			var needNotification = onlineOrder.Created < DateTime.Now - timeForWaitingBeforeSendPaymentNotification;
+
+			if(!needNotification)
+			{
+				return false;
+			}
+
+			var customerOrderAwaitingPaymentEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.OrderAwaitingPayment, onlineOrder.Source, onlineOrder.Id);
+
+			return await _outboxNotificationPublisher.TryPublishAsync(unitOfWork, customerOrderAwaitingPaymentEvent, cancellationToken);
+		}
+
+		private async Task<bool> TryNotifyCustomerAboutOrderPaidAsync(IUnitOfWork uow, UpdateOnlineOrderFromChangeRequest data, CancellationToken cancellationToken)
+		{
+			var needCustomerOrderPaidNotification =
+				data.PaymentStatus == OnlineOrderPaymentStatus.Paid
+				&& data.OnlinePayment != null
+				&& data.OnlineOrderPaymentType != null
+				&& data.OnlineOrderId != null;
+
+			if(needCustomerOrderPaidNotification)
+			{
+				var customerOrderPaidEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.OrderPaid, data.Source, data.OnlineOrderId.Value);
+				return await _outboxNotificationPublisher.TryPublishAsync(uow, customerOrderPaidEvent, cancellationToken);
+			}
+
+			return false;
 		}
 	}
 }

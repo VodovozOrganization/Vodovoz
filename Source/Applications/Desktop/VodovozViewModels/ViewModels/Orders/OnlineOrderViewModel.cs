@@ -13,7 +13,6 @@ using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
-using Vodovoz.Application.Mango;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -91,7 +90,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			_lifetimeScope = scope ?? throw new ArgumentNullException(nameof(scope));
 			GtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			OrderOrganizationManager = orderOrganizationManager ?? throw new ArgumentNullException(nameof(orderOrganizationManager));
-
 			GetTimers();
 			SetPermissions();
 			CreateCommands();
@@ -257,9 +255,6 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			Entity.EmployeeWorkWith != null && Entity.EmployeeWorkWith.Id == _currentEmployee.Id;
 		private bool OrderIsNullAndOnlineOrderNotCanceledStatus =>
 			!Entity.Orders.Any() && Entity.OnlineOrderStatus != OnlineOrderStatus.Canceled;
-		
-		public OnlineOrderStatusUpdatedNotification CreateNewNotification() =>
-			OnlineOrderStatusUpdatedNotification.Create(Entity);
 
 		public void ShowMessage(string message, string title = null)
 		{
@@ -340,15 +335,13 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 					
 					var oldStatus = Entity.OnlineOrderStatus;
 					Entity.OnlineOrderStatus = OnlineOrderStatus.Canceled;
-					var notification = CreateNewNotification();
-					UoW.Save(notification);
 					
 					if(!Save())
 					{
 						Entity.OnlineOrderStatus = oldStatus;
 						return;
 					}
-					
+
 					Close(false, CloseSource.Save);
 				});
 		}

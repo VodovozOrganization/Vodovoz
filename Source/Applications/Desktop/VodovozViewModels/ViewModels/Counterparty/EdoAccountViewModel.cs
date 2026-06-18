@@ -255,20 +255,6 @@ namespace Vodovoz.ViewModels.ViewModels.Counterparty
 
 			foreach(var edoOperator in contactResult.Contacts)
 			{
-				var isNotExistsCounterpartyEdoAccount = Counterparty.CounterpartyEdoAccounts
-					.FirstOrDefault(x => x.PersonalAccountIdInEdo == edoOperator.EdxClientId) == null;
-
-				if(isNotExistsCounterpartyEdoAccount)
-				{
-					Counterparty.CounterpartyEdoAccounts.Add(new CounterpartyEdoAccount
-					{
-						PersonalAccountIdInEdo = edoOperator.EdxClientId,
-						EdoOperator = GetEdoOperatorByEdoAccountId(edoOperator.EdxClientId),
-						Counterparty = Counterparty,
-						OrganizationId = _organizationId
-					});
-				}
-
 				var isNotExistsCounterpartyEdoOperator = Counterparty.CounterpartyEdoOperators
 						.FirstOrDefault(x => x.PersonalAccountIdInEdo == edoOperator.EdxClientId) == null;
 
