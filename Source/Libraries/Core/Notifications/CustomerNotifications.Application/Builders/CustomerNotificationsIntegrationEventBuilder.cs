@@ -59,7 +59,6 @@ namespace CustomerNotifications.Application.Builders
 
 			using(var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot(nameof(CustomerNotificationsIntegrationEventBuilder)))
 			{
-
 				if(domainEvent.OnlineOrderId != null)
 				{
 					onlineOrder = unitOfWork.GetById<OnlineOrder>(domainEvent.OnlineOrderId.Value);
