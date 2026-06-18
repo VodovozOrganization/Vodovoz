@@ -6311,6 +6311,7 @@ namespace Vodovoz
 
 		private bool IsFastDeliveryAvailabilityMustBeChecked =>
 			_fastDeliveryValidator.ValidateOrder(Entity, true).IsSuccess
+			&& ybuttonFastDeliveryCheck.Sensitive
 			&& IsOrderItemsAllFastDeliveryCompatible()
 			&& !CheckIsFastDeliveryAvailabilityChecked();
 
