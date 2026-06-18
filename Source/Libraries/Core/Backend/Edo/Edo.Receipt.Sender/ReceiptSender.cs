@@ -10,7 +10,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Edo.Admin;
+using Edo.Common;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Settings.Edo;
 
 namespace Edo.Receipt.Sender
 {
@@ -23,6 +25,7 @@ namespace Edo.Receipt.Sender
 		private readonly FiscalDocumentFactory _fiscalDocumentFactory;
 		private readonly EdoTaskValidator _edoTaskValidator;
 		private readonly EdoCancellationService _edoCancellationService;
+		private readonly IEdoReceiptSettings _edoReceiptSettings;
 
 		public ReceiptSender(
 			ILogger<ReceiptSender> logger,
@@ -31,7 +34,8 @@ namespace Edo.Receipt.Sender
 			CashboxClientProvider cashboxClientProvider,
 			FiscalDocumentFactory fiscalDocumentFactory,
 			EdoTaskValidator edoTaskValidator,
-			EdoCancellationService edoCancellationService
+			EdoCancellationService edoCancellationService,
+			IEdoReceiptSettings edoReceiptSettings
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -41,6 +45,7 @@ namespace Edo.Receipt.Sender
 			_fiscalDocumentFactory = fiscalDocumentFactory ?? throw new ArgumentNullException(nameof(fiscalDocumentFactory));
 			_edoTaskValidator = edoTaskValidator ?? throw new ArgumentNullException(nameof(edoTaskValidator));
 			_edoCancellationService = edoCancellationService ?? throw new ArgumentNullException(nameof(edoCancellationService));
+			_edoReceiptSettings = edoReceiptSettings ?? throw new ArgumentNullException(nameof(edoReceiptSettings));
 		}
 
 		public async Task HandleReceiptSendEvent(int edoTaskId, CancellationToken cancellationToken)
@@ -108,6 +113,24 @@ namespace Edo.Receipt.Sender
 			if(edoTask.CashboxId == null)
 			{
 				throw new InvalidOperationException("Не указана касса для отправки чека. Должна проверяться валидацией задачи");
+			}
+
+			if(ReceiptSendPauseTimeHelper.IsNightPauseTime(
+				DateTime.Now.TimeOfDay,
+				_edoReceiptSettings.ReceiptSendPauseStartTime,
+				_edoReceiptSettings.ReceiptSendPauseEndTime))
+			{
+				_logger.LogInformation(
+					"Отправка чека по задаче №{edoTaskId} отложена до утра. Текущее время попадает в ночное окно {Start}-{End}.",
+					edoTask.Id,
+					_edoReceiptSettings.ReceiptSendPauseStartTime,
+					_edoReceiptSettings.ReceiptSendPauseEndTime);
+
+				await _edoProblemRegistrar.RegisterCustomProblem<ReceiptSendPausedByNightTime>(
+					edoTask,
+					cancellationToken);
+
+				return;
 			}
 
 			try
@@ -187,7 +210,7 @@ namespace Edo.Receipt.Sender
 
 			_logger.LogInformation("Все чеки по задаче №{edoTaskId} отправлены успешно.", edoTask.Id);
 		}
-		
+
 		public void Dispose()
 		{
 			_uow.Dispose();
