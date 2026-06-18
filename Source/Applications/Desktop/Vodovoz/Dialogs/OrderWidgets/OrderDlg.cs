@@ -3055,11 +3055,19 @@ namespace Vodovoz
 			Entity.AcceptOrder(_currentEmployee, CallTaskWorker);
 			treeItems.Selection.UnselectAll();
 
-			var addingToRouteListResult = _fastDeliveryHandler.TryAddOrderToRouteListAndNotifyDriver(UoW, Entity, _routeListService, CallTaskWorker);
+			var addingToRouteListResult = _fastDeliveryHandler.TryAddOrderToRouteList(UoW, Entity, _routeListService, CallTaskWorker);
 			
 			if(addingToRouteListResult.IsFailure)
 			{
 				return (false, addingToRouteListResult);
+			}
+
+			if(addingToRouteListResult.Value)
+			{
+                _fastDeliveryHandler.NotifyDriverOfFastDeliveryOrderAdded(Entity.Id);
+
+                var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, Entity.OnlineOrder?.Source, Entity.OnlineOrder?.Id, Entity.Id);
+				_customerNotificationPublisher.TryPublish(UoW, customerCourierAssignedEvent);
 			}
 
 			OpenNewOrderForDailyRentEquipmentReturnIfNeeded();
