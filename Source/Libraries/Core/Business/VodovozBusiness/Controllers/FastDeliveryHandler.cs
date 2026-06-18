@@ -1,4 +1,4 @@
-using CustomerNotifications.Contracts;
+﻿using CustomerNotifications.Contracts;
 using Notifications.Infrastructure;
 using QS.DomainModel.UoW;
 using System;
@@ -137,7 +137,7 @@ namespace Vodovoz.Controllers
 			return Result.Success();
 		}
 
-		public Result TryAddOrderToRouteListAndNotifyDriver(
+		public Result<bool> TryAddOrderToRouteListAndNotifyDriver(
 			IUnitOfWork uow,
 			Order order,
 			IRouteListService routeListService,
@@ -152,16 +152,13 @@ namespace Vodovoz.Controllers
 
 				if(RouteListToAddFastDeliveryOrder.Status != RouteListStatus.EnRoute)
 				{
-					return Result.Failure(Errors.Orders.FastDeliveryErrors.RouteListForFastDeliveryNotOnTheWay(
+					return Result.Failure<bool>(Errors.Orders.FastDeliveryErrors.RouteListForFastDeliveryNotOnTheWay(
 						RouteListToAddFastDeliveryOrder.Id, RouteListToAddFastDeliveryOrder.Status));
 				}
 
 				fastDeliveryAddress = routeListService.AddAddressFromOrder(uow, RouteListToAddFastDeliveryOrder, order);
 				
 				order.ChangeStatusAndCreateTasks(OrderStatus.OnTheWay, callTaskWorker);
-
-				var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, order.OnlineOrder?.Source, order.OnlineOrder?.Id, order.Id);
-				_customerNotificationPublisher.TryPublish(uow, customerCourierAssignedEvent);
 
 				order.UpdateDocuments();
 			}
@@ -175,7 +172,7 @@ namespace Vodovoz.Controllers
 			}
 			
 			NotifyDriverOfFastDeliveryOrderAdded(order.Id);
-			return Result.Success();
+			return Result.Success(fastDeliveryAddress != null);
 		}
 
 		public void NotifyDriverOfFastDeliveryOrderAdded(int orderId)

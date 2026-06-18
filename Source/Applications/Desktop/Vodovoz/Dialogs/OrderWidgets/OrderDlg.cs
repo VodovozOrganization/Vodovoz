@@ -1,4 +1,4 @@
-﻿using Autofac;
+using Autofac;
 using Core.Infrastructure;
 using CustomerNotifications.Contracts;
 using DriverApi.Contracts.V6;
@@ -3060,6 +3060,12 @@ namespace Vodovoz
 			if(addingToRouteListResult.IsFailure)
 			{
 				return (false, addingToRouteListResult);
+			}
+
+			if(addingToRouteListResult.Value)
+			{
+				var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, Entity.OnlineOrder?.Source, Entity.OnlineOrder?.Id, Entity.Id);
+				_customerNotificationPublisher.TryPublish(UoW, customerCourierAssignedEvent);
 			}
 
 			OpenNewOrderForDailyRentEquipmentReturnIfNeeded();
