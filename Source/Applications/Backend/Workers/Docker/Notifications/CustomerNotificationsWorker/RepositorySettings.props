@@ -1,6 +1,6 @@
 ﻿<Project>
   <PropertyGroup>
-    <ContainerRepository>customer_notification_worker</ContainerRepository>
+    <ContainerRepository>customer_notifications_worker</ContainerRepository>
   </PropertyGroup>
 </Project>
 

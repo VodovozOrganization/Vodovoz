@@ -1,10 +1,14 @@
-﻿using FastPaymentsAPI.Library.Converters;
+﻿using CustomerNotifications.Application.Builders;
+using CustomerNotifications.Contracts;
+using FastPaymentsAPI.Library.Converters;
 using FastPaymentsAPI.Library.Factories;
 using FastPaymentsAPI.Library.Managers;
 using FastPaymentsAPI.Library.Models;
 using FastPaymentsAPI.Library.Settings;
 using FastPaymentsAPI.Library.Validators;
 using Microsoft.Extensions.DependencyInjection;
+using Notifications.Infrastructure;
+using TransactionalOutbox.Abstractions;
 using Vodovoz.Core.Application;
 using Vodovoz.Services;
 using Vodovoz.Settings.FastPayments;
@@ -59,7 +63,14 @@ namespace FastPaymentsAPI.Library
 				.AddSingleton<IFastPaymentManager, FastPaymentManager>()
 				.AddSingleton<IErrorHandler, ErrorHandler>()
 				.AddSingleton(_ => new FastPaymentFileCache("/tmp/VodovozFastPaymentServiceTemp.txt"))
-				.AddScoped<IOrderRequestManager, OrderRequestManager>();
+				.AddScoped<IOrderRequestManager, OrderRequestManager>()
+
+				// Уведомления клиентов
+
+				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, OutBoxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
+				.AddCustomerNotificationsSettingsProvider();
+			;
 
 			return services;
 		}
