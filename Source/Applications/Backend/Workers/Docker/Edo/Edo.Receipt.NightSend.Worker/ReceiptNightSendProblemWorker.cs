@@ -11,7 +11,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Edo;
 using Vodovoz.Zabbix.Sender;
 
-namespace Edo.Receipt.NightSend
+namespace Edo.Receipt.NightSend.Worker
 {
 	public class ReceiptNightSendProblemWorker : TimerBackgroundServiceBase
 	{
@@ -69,6 +69,5 @@ namespace Edo.Receipt.NightSend
 					stoppingToken);
 			}
 		}
-
 	}
 }

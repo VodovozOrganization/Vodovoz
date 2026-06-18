@@ -1,7 +1,6 @@
 using System;
 using System.Text;
 using Autofac.Extensions.DependencyInjection;
-using Edo.Receipt.NightSend;
 using MessageTransport;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

@@ -1,7 +1,7 @@
 using Edo.Problem.Routine;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Edo.Receipt.NightSend
+namespace Edo.Receipt.NightSend.Worker
 {
 	public static class DependencyInjection
 	{
