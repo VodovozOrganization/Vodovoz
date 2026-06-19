@@ -1626,21 +1626,23 @@ namespace Vodovoz
 				return;
 			}
 
-			Income cashIncome = null;
-			Expense cashExpense = null;
-
 			var inputCashOrder = (decimal)spinCashOrder.Value;
-			try
+			var organizationDebts = GetCashDebtsByOrganizations().ToList();
+
+			messages.AddRange(
+				Entity.ManualCashOperations(organizationDebts, out var cashIncomes, out var cashExpenses, inputCashOrder, _financialCategoriesGroupsSettings));
+
+			if(cashIncomes.Any())
 			{
-				messages.AddRange(Entity.ManualCashOperations(ref cashIncome, ref cashExpense, inputCashOrder, _financialCategoriesGroupsSettings));
-			}
-			catch(MissingOrdersWithCashlessPaymentTypeException ex)
-			{
-				MessageDialogHelper.RunErrorDialog(ex.Message);
+				Entity.IsManualAccounting = true;
+				messages.AddRange(cashIncomes.Select(income =>
+					$"Создан приходный ордер на сумму {income.Money:C0} по организации \"{income.Organisation?.Name}\""));
 			}
 
-			if (cashIncome != null) UoW.Save(cashIncome);
-			if (cashExpense != null) UoW.Save(cashExpense);
+			foreach(var cashIncome in cashIncomes)
+			{
+				UoW.Save(cashIncome);
+			}
 
 			Entity.UpdateRouteListDebt();
 
@@ -1649,7 +1651,9 @@ namespace Vodovoz
 			CalculateTotal();
 
 			if(messages.Any())
+			{
 				MessageDialogHelper.RunInfoDialog(string.Format("Были выполнены следующие действия:\n*{0}", string.Join("\n*", messages)));
+			}
 		}
 
 		private void EmployeeAdvanceOrder(decimal cashInput)

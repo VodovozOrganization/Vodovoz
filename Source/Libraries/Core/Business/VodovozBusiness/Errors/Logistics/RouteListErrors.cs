@@ -57,6 +57,13 @@ namespace Vodovoz.Errors.Logistics
 				nameof(CashierIsEmpty),
 				"Должен быть заполнен кассир");
 
+		[Display(Name = "У кассира не указано подразделение")]
+		public static Error CashierSubdivisionIsEmpty =>
+			new Error(
+				typeof(RouteListErrors),
+				nameof(CashierSubdivisionIsEmpty),
+				"У кассира не указано подразделение");
+
 		public static Error IncorrectStatusForAccept =>
 			new Error(
 				typeof(RouteListErrors),

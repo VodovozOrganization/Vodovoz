@@ -196,7 +196,7 @@ namespace Vodovoz.Infrastructure.Persistance.Cash
 							|| item.RouteList.Status == RouteListStatus.Closed)))
 				.Where(item => item.Order.Contract != null && item.Order.Contract.Organization != null)
 				.GroupBy(item => new { item.Order.Contract.Organization.Id, item.Order.Contract.Organization.Name })
-				.Select(g => new RouteListDebtByOrganizationNode
+				.Select(g => new
 				{
 					OrganizationId = g.Key.Id,
 					OrganizationName = g.Key.Name,
@@ -210,7 +210,7 @@ namespace Vodovoz.Infrastructure.Persistance.Cash
 					&& income.TypeOperation == IncomeType.DriverReport
 					&& income.Organisation != null)
 				.GroupBy(income => new { income.Organisation.Id, income.Organisation.Name })
-				.Select(g => new RouteListDebtByOrganizationNode
+				.Select(g => new
 				{
 					OrganizationId = g.Key.Id,
 					OrganizationName = g.Key.Name,
@@ -224,7 +224,7 @@ namespace Vodovoz.Infrastructure.Persistance.Cash
 					&& expense.TypeOperation == ExpenseType.Expense
 					&& expense.Organisation != null)
 				.GroupBy(expense => new { expense.Organisation.Id, expense.Organisation.Name })
-				.Select(g => new RouteListDebtByOrganizationNode
+				.Select(g => new
 				{
 					OrganizationId = g.Key.Id,
 					OrganizationName = g.Key.Name,
@@ -249,13 +249,14 @@ namespace Vodovoz.Infrastructure.Persistance.Cash
 				var expense = expenseByOrganization.FirstOrDefault(x => x.OrganizationId == organizationId);
 
 				var organizationName = totalCash?.OrganizationName ?? income?.OrganizationName ?? expense?.OrganizationName;
-				var routeListRevenue = (income?.DebtSum ?? 0) - (expense?.DebtSum ?? 0);
 
 				debtsByOrganizations.Add(new RouteListDebtByOrganizationNode
 				{
 					OrganizationId = organizationId,
 					OrganizationName = organizationName,
-					DebtSum = (totalCash?.DebtSum ?? 0) - routeListRevenue
+					OrdersCashSum = totalCash?.DebtSum ?? 0,
+					IncomeSum = income?.DebtSum ?? 0,
+					ExpenseSum = expense?.DebtSum ?? 0
 				});
 			}
 

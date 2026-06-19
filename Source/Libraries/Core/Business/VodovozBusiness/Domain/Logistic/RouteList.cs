@@ -31,6 +31,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Profitability;
 using Vodovoz.Domain.Sale;
@@ -57,6 +58,7 @@ using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools;
 using Vodovoz.Tools.Logistic;
+using VodovozBusiness.EntityRepositories.Nodes;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Domain.Logistic
@@ -1804,8 +1806,15 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		public virtual string[] ManualCashOperations(
-			ref Income cashIncome, ref Expense cashExpense, decimal casheInput, IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
+			IList<RouteListDebtByOrganizationNode> organizationDebts,
+			out List<Income> cashIncomes,
+			out List<Expense> cashExpenses,
+			decimal casheInput,
+			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
 		{
+			cashIncomes = new List<Income>();
+			cashExpenses = new List<Expense>();
+
 			var messages = new List<string>();
 
 			if(Cashier?.Subdivision == null) {
@@ -1813,39 +1822,127 @@ namespace Vodovoz.Domain.Logistic
 				return messages.ToArray();
 			}
 
-			if(casheInput > 0) {
-				cashIncome = new Income {
-					IncomeCategoryId = financialCategoriesGroupsSettings.RouteListClosingFinancialIncomeCategoryId,
-					TypeOperation = IncomeType.DriverReport,
-					Date = DateTime.Now,
-					Casher = this.Cashier,
-					Employee = Driver,
-					Description = $"Дополнение к МЛ №{this.Id} от {Date:d}",
-					Money = Math.Round(casheInput, 0, MidpointRounding.AwayFromZero),
-					RouteListClosing = this,
-					RelatedToSubdivision = Cashier.Subdivision
-				};
-
-				messages.Add($"Создан приходный ордер на сумму {cashIncome.Money:C0}");
-				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, this, cashIncome, cashIncome.Money);
-			} else {
-				cashExpense = new Expense {
-					ExpenseCategoryId = financialCategoriesGroupsSettings.RouteListClosingFinancialExpenseCategoryId,
-					TypeOperation = ExpenseType.Expense,
-					Date = DateTime.Now,
-					Casher = this.Cashier,
-					Employee = Driver,
-					Description = $"Дополнение к МЛ #{this.Id} от {Date:d}",
-					Money = Math.Round(-casheInput, 0, MidpointRounding.AwayFromZero),
-					RouteListClosing = this,
-					RelatedToSubdivision = Cashier.Subdivision
-				};
-				messages.Add($"Создан расходный ордер на сумму {cashExpense.Money:C0}");
-				routeListCashOrganisationDistributor.DistributeExpenseCash(UoW, this, cashExpense, cashExpense.Money);
+			if(casheInput > 0)
+			{
+				cashIncomes = DistributeManualIncomeByOrganizationDebts(organizationDebts, casheInput, financialCategoriesGroupsSettings);
+				messages.AddRange(cashIncomes.Select(income =>
+					$"Создан приходный ордер на сумму {income.Money:C0} по организации \"{income.Organisation?.Name}\""));
 			}
-			IsManualAccounting = true;
+			else if(casheInput < 0)
+			{
+				cashExpenses = DistributeManualExpenseByOrganizationOverpayments(organizationDebts, -casheInput, financialCategoriesGroupsSettings);
+				messages.AddRange(cashExpenses.Select(expense =>
+					$"Создан расходный ордер на сумму {expense.Money:C0} по организации \"{expense.Organisation?.Name}\""));
+			}
+
+			if(cashIncomes.Any() || cashExpenses.Any())
+			{
+				IsManualAccounting = true;
+			}
+
 			return messages.ToArray();
 		}
+
+		private List<Income> DistributeManualIncomeByOrganizationDebts(
+			IList<RouteListDebtByOrganizationNode> organizationDebts,
+			decimal casheInput,
+			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
+		{
+			var incomes = new List<Income>();
+			var debtOrganizations = (organizationDebts ?? Array.Empty<RouteListDebtByOrganizationNode>())
+				.Where(x => x.DebtSum > 0)
+				.ToList();
+
+			var remainder = casheInput;
+
+			foreach(var debtOrganization in debtOrganizations)
+			{
+				if(remainder <= 0)
+				{
+					break;
+				}
+
+				var amount = Math.Min(remainder, debtOrganization.DebtSum);
+				incomes.Add(CreateManualIncome(amount, GetOrganizationById(debtOrganization.OrganizationId), financialCategoriesGroupsSettings));
+				remainder -= amount;
+			}
+
+			if(remainder > 0)
+			{
+				var organization = debtOrganizations.Any()
+					? GetOrganizationById(debtOrganizations.First().OrganizationId)
+					: _organizationRepository.GetCommonOrganisation(UoW);
+
+				incomes.Add(CreateManualIncome(remainder, organization, financialCategoriesGroupsSettings));
+			}
+
+			return incomes;
+		}
+
+		private List<Expense> DistributeManualExpenseByOrganizationOverpayments(
+			IList<RouteListDebtByOrganizationNode> organizationDebts, decimal casheInput, IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
+		{
+			var expenses = new List<Expense>();
+			var overpaidOrganizations = (organizationDebts ?? Array.Empty<RouteListDebtByOrganizationNode>())
+				.Where(x => x.DebtSum < 0)
+				.ToList();
+
+			var remainder = casheInput;
+
+			foreach(var overpaidOrganization in overpaidOrganizations)
+			{
+				if(remainder <= 0)
+				{
+					break;
+				}
+
+				var overpaymentSum = -overpaidOrganization.DebtSum;
+				var amount = Math.Min(remainder, overpaymentSum);
+				expenses.Add(CreateManualExpense(amount, GetOrganizationById(overpaidOrganization.OrganizationId), financialCategoriesGroupsSettings));
+				remainder -= amount;
+			}
+
+			if(remainder > 0)
+			{
+				var organization = overpaidOrganizations.Any()
+					? GetOrganizationById(overpaidOrganizations.First().OrganizationId)
+					: _organizationRepository.GetCommonOrganisation(UoW);
+
+				expenses.Add(CreateManualExpense(remainder, organization, financialCategoriesGroupsSettings));
+			}
+
+			return expenses;
+		}
+
+		private Organization GetOrganizationById(int organizationId) => UoW.GetById<Organization>(organizationId);
+
+		private Income CreateManualIncome(decimal amount, Organization organization, IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings) =>
+			new Income {
+				IncomeCategoryId = financialCategoriesGroupsSettings.RouteListClosingFinancialIncomeCategoryId,
+				TypeOperation = IncomeType.DriverReport,
+				Date = DateTime.Now,
+				Casher = Cashier,
+				Employee = Driver,
+				Organisation = organization,
+				Description = $"Дополнение к МЛ №{Id} от {Date:d}",
+				Money = Math.Round(amount, 0, MidpointRounding.AwayFromZero),
+				RouteListClosing = this,
+				RelatedToSubdivision = Cashier.Subdivision
+			};
+
+		private Expense CreateManualExpense(decimal amount, Organization organization, IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings) =>
+			new Expense {
+				ExpenseCategoryId = financialCategoriesGroupsSettings.RouteListClosingFinancialExpenseCategoryId,
+				TypeOperation = ExpenseType.Expense,
+				Date = DateTime.Now,
+				Casher = Cashier,
+				Employee = Driver,
+				Organisation = organization,
+				Description = $"Дополнение к МЛ #{Id} от {Date:d}",
+				Money = Math.Round(amount, 0, MidpointRounding.AwayFromZero),
+				RouteListClosing = this,
+				RelatedToSubdivision = Cashier.Subdivision
+			};
 
 		public virtual string EmployeeAdvanceOperation(ref Expense cashExpense, decimal cashInput, IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
 		{
