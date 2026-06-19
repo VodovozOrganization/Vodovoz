@@ -89,7 +89,8 @@ namespace Vodovoz.Infrastructure.Persistance.FastPayments
 		public FastPayment GetPerformedFastPaymentByExternalId(IUnitOfWork uow, int externalId, DateTime? creationDate = null)
 		{
 			var query = uow.Session.Query<FastPayment>()
-				.Where(fp => fp.ExternalId == externalId);
+				.Where(fp => fp.ExternalId == externalId)
+				.Where(fp => fp.FastPaymentStatus == FastPaymentStatus.Performed);
 
 			if(creationDate.HasValue)
 			{
