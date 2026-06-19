@@ -72,12 +72,7 @@ namespace FastPaymentsAPI.Library.Managers
 							SetPaymentByCardFrom(uow, fastPayment);
 						}
 
-						_onlinePaymentAcceptanceHandler.AcceptOnlinePayment(
-							uow,
-							new[] { fastPayment.Order },
-							fastPayment.ExternalId,
-							fastPayment.PaymentType,
-							fastPayment.PaymentByCardFrom);
+						_onlinePaymentAcceptanceHandler.AcceptOnlinePayment(uow, fastPayment);
 					}
 
 					fastPayment.SetPerformedStatusForOnlineOrder(statusDate);

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.FastPayments;
 using Vodovoz.Domain.Orders;
 
 namespace VodovozBusiness.Services.Orders
@@ -24,5 +25,14 @@ namespace VodovozBusiness.Services.Orders
 			int paymentNumber,
 			PaymentType paymentType,
 			PaymentFrom paymentFrom);
+		
+		/// <summary>
+		/// Принятие онлайн оплаты заказом 
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="fastPayment">Быстрый платеж</param>
+		void AcceptOnlinePayment(
+			IUnitOfWork uow,
+			FastPayment fastPayment);
 	}
 }

@@ -87,8 +87,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 				//Проверяем два дня, текущий и прошлый, если платеж создали ночью на стыке дней, а оплатили после
 				var today = DateTime.Today;
-				var fastPayment = _fastPaymentRepository.GetFastPaymentByExternalId(uow, paymentNumber, today)
-					?? _fastPaymentRepository.GetFastPaymentByExternalId(uow, paymentNumber, today.AddDays(-1));
+				var fastPayment = _fastPaymentRepository.GetPerformedFastPaymentByExternalId(uow, paymentNumber, today)
+					?? _fastPaymentRepository.GetPerformedFastPaymentByExternalId(uow, paymentNumber, today.AddDays(-1));
 				order.OnlinePaymentNumber = paymentNumber;
 
 				if(fastPayment is null)
@@ -111,6 +111,57 @@ namespace Vodovoz.Core.Application.Orders.Services
 			
 				uow.Save(order);
 			}
+		}
+		
+		public void AcceptOnlinePayment(
+			IUnitOfWork uow,
+			Vodovoz.Domain.FastPayments.FastPayment fastPayment)
+		{
+			var order = fastPayment.Order;
+
+			if(order is null)
+			{
+				return;
+			}
+			
+			var selfDeliveryOrderPaymentTypes = new[] { PaymentType.Cash, PaymentType.SmsQR };
+
+			if(selfDeliveryOrderPaymentTypes.Contains(order.PaymentType)
+				&& order.SelfDelivery
+				&& order.OrderStatus == OrderStatus.WaitForPayment
+				&& order.PayAfterShipment)
+			{
+				order.TryCloseSelfDeliveryPayAfterShipmentOrder(
+					uow,
+					_nomenclatureSettings,
+					_routeListItemRepository,
+					_selfDeliveryRepository,
+					_cashRepository);
+				order.IsSelfDeliveryPaid = true;
+			}
+			
+			if(selfDeliveryOrderPaymentTypes.Contains(order.PaymentType)
+				&& order.SelfDelivery
+				&& order.OrderStatus == OrderStatus.WaitForPayment
+				&& !order.PayAfterShipment)
+			{
+				order.ChangeStatus(OrderStatus.OnLoading);
+				order.IsSelfDeliveryPaid = true;
+				var customerNotificationEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, onlineOrderId: order.OnlineOrder?.Id, orderId: order.Id);
+				_customerNotificationPublisher.TryPublish(uow, customerNotificationEvent);
+			}
+
+			order.UpdatePaymentType(fastPayment.PaymentType, _contractUpdater, false);
+			order.UpdatePaymentByCardFrom(fastPayment.PaymentByCardFrom, _contractUpdater, false);
+			_contractUpdater.ForceUpdateContract(uow, order, fastPayment.Organization);
+
+			foreach(var routeListItem in _routeListItemRepository.GetRouteListItemsForOrder(uow, order.Id))
+			{
+				routeListItem.RecalculateTotalCash();
+				uow.Save(routeListItem);
+			}
+		
+			uow.Save(order);
 		}
 	}
 }
