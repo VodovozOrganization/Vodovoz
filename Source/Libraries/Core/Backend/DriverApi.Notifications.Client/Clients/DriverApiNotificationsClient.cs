@@ -98,29 +98,37 @@ namespace DriverApi.Notifications.Client.Clients
 
 		public async Task<Result> NotifyOfRouteListChanged(NotificationRouteListChangesRequest changesRequest)
 		{
-			using(var response = await _httpClient.PostAsJsonAsync(_driverApiSettings.NotifyOfRouteListChangedUri, changesRequest))
+			try
 			{
-				var responseBody = await response.Content.ReadAsStringAsync();
+				using(var response = await _httpClient.PostAsJsonAsync(_driverApiSettings.NotifyOfRouteListChangedUri, changesRequest))
+				{
+					var responseBody = await response.Content.ReadAsStringAsync();
 
-				if(response.IsSuccessStatusCode && string.IsNullOrWhiteSpace(responseBody))
-				{
-					return Result.Success();
-				}
+					if(response.IsSuccessStatusCode && string.IsNullOrWhiteSpace(responseBody))
+					{
+						return Result.Success();
+					}
 
-				if(string.IsNullOrWhiteSpace(responseBody))
-				{
-					return Result.Failure(CommonErrors.DriverApiClientErrors.ApiError(response.ReasonPhrase));
-				}
+					if(string.IsNullOrWhiteSpace(responseBody))
+					{
+						return Result.Failure(CommonErrors.DriverApiClientErrors.ApiError(response.ReasonPhrase));
+					}
 
-				try
-				{
-					var problemDetails = JsonSerializer.Deserialize<ProblemDetails>(responseBody);
-					return Result.Failure(CommonErrors.DriverApiClientErrors.OrderWithGoodsTransferingIsTransferedNotNotified(problemDetails.Detail));
+					try
+					{
+						var problemDetails = JsonSerializer.Deserialize<ProblemDetails>(responseBody);
+						return Result.Failure(CommonErrors.DriverApiClientErrors.OrderWithGoodsTransferingIsTransferedNotNotified(problemDetails.Detail));
+					}
+					catch(Exception ex)
+					{
+						return Result.Failure(CommonErrors.DriverApiClientErrors.ApiError(ex.Message));
+					}
 				}
-				catch(Exception ex)
-				{
-					return Result.Failure(CommonErrors.DriverApiClientErrors.ApiError(ex.Message));
-				}
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Ошибка при уведомлении водителя о изменении МЛ");
+				return Result.Failure(CommonErrors.DriverApiClientErrors.ApiError(ex.Message));
 			}
 		}
 	}
