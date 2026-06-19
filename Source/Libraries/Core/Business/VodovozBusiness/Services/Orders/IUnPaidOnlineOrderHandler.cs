@@ -19,5 +19,10 @@ namespace VodovozBusiness.Services.Orders
 			Vodovoz.Domain.Logistic.DeliverySchedule deliverySchedule,
 			UpdateOnlineOrderFromChangeRequest data,
 			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Отправляет уведомление клиенту о заказе, ожидающем оплаты.
+		/// </summary>
+		Task SendWaitingForPaymentNotificationsAsync(IUnitOfWork uow, CancellationToken cancellationToken); 
 	}
 }

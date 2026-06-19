@@ -200,8 +200,8 @@ namespace Vodovoz.ViewModels.ViewModels.Reports.Orders
 			row.AppendChild(GetStringCell(node.Counterparty));
 			row.AppendChild(GetStringCell(node.Inn));
 			row.AppendChild(GetCurrencyFormatCell(node.Sum));
-			row.AppendChild(GetStringCell(((node.OrderPaymentStatus != OrderPaymentStatus.None) ? node.OrderPaymentStatus.GetEnumDisplayName() : "")));
-			row.AppendChild(GetStringCell(node.EdoDocFlowStatus?.GetEnumDisplayName()));
+			row.AppendChild(GetStringCell(node.OrderPaymentStatus != OrderPaymentStatus.None ? node.OrderPaymentStatus.GetEnumDisplayName() : ""));
+			row.AppendChild(GetStringCell(node.EdoDocFlowStatusString));
 			row.AppendChild(GetStringCell(node.IsSelfDelivery ? "-" : node.DistrictName));
 			row.AppendChild(GetStringCell(node.Address));
 			row.AppendChild(GetStringCell(node.LastEditor));

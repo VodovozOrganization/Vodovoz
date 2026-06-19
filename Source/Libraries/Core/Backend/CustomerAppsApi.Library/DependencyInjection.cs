@@ -83,8 +83,7 @@ namespace CustomerAppsApi.Library
 				.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
 				.AddScoped<IDeliveryPointBuildingNumberParser, DeliveryPointBuildingNumberParser>()
 				.AddScoped<IDeliveryPointBuildingNumberHandler, DeliveryPointBuildingNumberHandler>()
-				.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>()
-				.AddScoped<IOnlineOrderService, OnlineOrderService>();
+				.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>();
 
 			return services;
 		}

@@ -1,5 +1,6 @@
 ﻿using Autofac;
-using FluentNHibernate.Data;
+using CustomerNotifications.Contracts;
+using Notifications.Infrastructure;
 using QS.DomainModel.NotifyChange;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -14,6 +15,7 @@ using System.Linq;
 using QS.ViewModels.Dialog;
 using Vodovoz.Core.Application.Orders;
 using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Logistic;
@@ -58,6 +60,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 		private readonly IRouteListService _routeListService;
 
 		private readonly OrderCancellationService _orderCancellationService;
+		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private IUnitOfWork UoW;
 		
 		private List<DeliveryPoint> _deliveryPoints = new List<DeliveryPoint>();
@@ -107,6 +110,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			ICallTaskRepository callTaskRepository,
 			IRouteListService routeListService,
 			OrderCancellationService orderCancellationService,
+			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
 			int count = 5)
 		{
 			Client = client;
@@ -125,7 +129,7 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 			_callTaskRepository = callTaskRepository ?? throw new ArgumentNullException(nameof(callTaskRepository));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
 			_orderCancellationService = orderCancellationService ?? throw new ArgumentNullException(nameof(orderCancellationService));
-
+			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 			UoW = _unitOfWorkFactory.CreateWithoutRoot();
 			LatestOrder = _orderRepository.GetLatestOrdersForCounterparty(UoW, client, count).ToList();
 
@@ -344,6 +348,20 @@ namespace Vodovoz.ViewModels.Dialogs.Mango
 				routeListItem.SetOrderActualCountsToZeroOnCanceled();
 				UoW.Save(routeListItem.RouteList);
 				UoW.Save(routeListItem);
+			}
+
+			if(e.UndeliveredOrder.NewOrder != null)
+			{
+				var customerOrderRescheduledEvent = new CustomerNotificationDomainEvent(
+					CustomerNotificationEventType.OrderRescheduled, 
+					e.UndeliveredOrder.OldOrder.OnlineOrder?.Source,
+					e.UndeliveredOrder.OldOrder.OnlineOrder?.Id, 
+					e.UndeliveredOrder.OldOrder?.Id, 
+					e.UndeliveredOrder.NewOrder.Id,
+					e.UndeliveredOrder.UndeliveryDetalization?.Name // Пока будут заполнять //e.UndeliveredOrder.UndeliveryDetalization?.CustomerNotificationText
+					);
+
+				_customerNotificationPublisher.TryPublish(UoW, customerOrderRescheduledEvent);
 			}
 
 			UoW.Commit();

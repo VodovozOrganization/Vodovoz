@@ -43,12 +43,17 @@ namespace CustomerOrdersApi.Library.V5.Services
 		/// <param name="generatedSignature">Сгенерированная контрольная сумма Erp, для проверки</param>
 		/// <returns><c>true</c> - валидный запрос, <c>false</c> - невалидный запрос</returns>
 		bool ValidateRequestForCallSignature(CreatingRequestForCallDto creatingInfoDto, out string generatedSignature);
+
 		/// <summary>
 		/// Получение деталей заказа
 		/// </summary>
 		/// <param name="getDetailedOrderInfoDto">Данные для получения деталей заказа</param>
 		/// <returns>Детали заказа <see cref="DetailedOrderInfoDto"/></returns>
-		DetailedOrderInfoDto GetDetailedOrderInfo(GetDetailedOrderInfoDto getDetailedOrderInfoDto);
+		Task<DetailedOrderInfoDto> GetDetailedOrderInfo(
+			GetDetailedOrderInfoDto getDetailedOrderInfoDto,
+			CancellationToken cancellationToken
+		);
+
 		/// <summary>
 		/// Получение заказов клиента
 		/// </summary>

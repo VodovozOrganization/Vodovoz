@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Data.InfoMessages;
 using Vodovoz.Core.Domain.Orders;
@@ -41,37 +42,41 @@ namespace CustomerOrdersApi.Library.V5.Factories
 			_orderTransferService = orderTransferService ?? throw new ArgumentNullException(nameof(orderTransferService));
 		}
 
-		public DetailedOrderInfoDto CreateDetailedOrderInfo(
+		public async Task<DetailedOrderInfoDto> CreateDetailedOrderInfo(
 			IUnitOfWork uow,
 			Order order,
 			OrderRating orderRating,
 			OnlineOrderTimers timers,
 			OnlineOrder onlineOrder,
-			DateTime ratingAvailableFrom)
+			DateTime ratingAvailableFrom,
+			CancellationToken cancellationToken
+		)
 		{
-			var orderInfo = CreateOrderInfoDto(order, timers, onlineOrder.Id);
+			var orderInfo = CreateOrderInfoDto(order, timers, onlineOrder?.Id);
 			orderInfo.UpdateOrderRating(orderRating, ratingAvailableFrom);
 			orderInfo.UpdateOrderItems(order.OrderItems);
 
-			UpdateAvailableOperations(uow, orderInfo, order, onlineOrder, CancellationToken.None);
+			await UpdateAvailableOperations(uow, orderInfo, order, onlineOrder, cancellationToken);
 
 			return orderInfo;
 		}
 
-		public DetailedOrderInfoDto CreateDetailedOrderInfo(
+		public async Task<DetailedOrderInfoDto> CreateDetailedOrderInfo(
 			IUnitOfWork uow,
 			OnlineOrder onlineOrder,
 			OrderRating orderRating,
 			OnlineOrderTimers timers,
 			int? orderId,
-			DateTime ratingAvailableFrom)
+			DateTime ratingAvailableFrom,
+			CancellationToken cancellationToken
+		)
 		{
 			var orderInfo = CreateOrderInfoDto(onlineOrder, timers, orderId);
 			orderInfo.UpdateOrderRating(orderRating, ratingAvailableFrom);
 			orderInfo.UpdateOrderItems(onlineOrder.OnlineOrderItems);
 
 			var activeOrder = GetActiveOrder(onlineOrder);
-			UpdateAvailableOperations(uow, orderInfo, activeOrder, onlineOrder, CancellationToken.None);
+			await UpdateAvailableOperations(uow, orderInfo, activeOrder, onlineOrder, cancellationToken);
 
 			return orderInfo;
 		}
@@ -207,14 +212,21 @@ namespace CustomerOrdersApi.Library.V5.Factories
 		/// <summary>
 		/// Обновляет доступность операций (отмена, перенос) и добавляет информационные сообщения
 		/// </summary>
-		private async void UpdateAvailableOperations(
+		private async Task UpdateAvailableOperations(
 			IUnitOfWork uow,
 			DetailedOrderInfoDto orderInfo,
 			Order order,
 			OnlineOrder onlineOrder,
-			CancellationToken cancellationToken)
+			CancellationToken cancellationToken
+		)
 		{
-			var cancelResult = await _orderCancellationLogicService.CanCancel(uow, order, onlineOrder, cancellationToken);
+			var cancelResult = await _orderCancellationLogicService.CanCancel(
+				uow, 
+				order, 
+				onlineOrder, 
+				cancellationToken
+			);
+
 			orderInfo.AvailableCancelOrder = cancelResult.IsSuccess;
 
 			if(orderInfo.AvailableCancelOrder && (order is not null || onlineOrder is not null))

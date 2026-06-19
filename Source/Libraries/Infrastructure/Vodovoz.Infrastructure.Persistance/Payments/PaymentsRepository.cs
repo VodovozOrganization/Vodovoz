@@ -300,26 +300,35 @@ namespace Vodovoz.Infrastructure.Persistance.Payments
 			string counterpartyInn,
 			int organizationId)
 		{
-			var query = from payment in unitOfWork.Session.Query<Payment>()
-						join c in unitOfWork.Session.Query<Counterparty>() on payment.Counterparty.Id equals c.Id into counterparties
-						from counterparty in counterparties.DefaultIfEmpty()
-						where
-						(counterparty.INN == counterpartyInn || counterparty.Id == counterpartyId)
-						&& payment.Status != PaymentState.Cancelled
-						&& payment.Organization.Id == organizationId
-						select new PaymentNode
-						{
-							PaymentNum = payment.PaymentNum,
-							PaymentDate = payment.Date,
-							CounterpartyId = counterparty.Id,
-							CounterpartyInn = counterparty.INN,
-							CounterpartyName = counterparty.Name,
-							CounterpartyFullName = counterparty.FullName,
-							PayerName = payment.CounterpartyName,
-							IsManuallyCreated = payment.IsManuallyCreated,
-							PaymentPurpose = payment.PaymentPurpose,
-							PaymentSum = payment.Total
-						};
+			var query =
+				from payment in unitOfWork.Session.Query<Payment>()
+				join incomeOperation in unitOfWork.Session.Query<CashlessMovementOperation>()
+					on payment.CashlessMovementOperation.Id equals incomeOperation.Id into incomeOperations
+				from operation in incomeOperations.DefaultIfEmpty() 
+				join operationCounterparty in unitOfWork.Session.Query<Counterparty>()
+					on operation.Counterparty.Id equals operationCounterparty.Id into operationCounterparties
+				from operationCounterparty in operationCounterparties.DefaultIfEmpty()
+				join c in unitOfWork.Session.Query<Counterparty>()
+					on payment.Counterparty.Id equals c.Id into paymentCounterparties
+				from paymentCounterparty in paymentCounterparties.DefaultIfEmpty()
+				where
+					(paymentCounterparty.INN == counterpartyInn || paymentCounterparty.Id == counterpartyId)
+					&& payment.Status != PaymentState.Cancelled
+					&& payment.Organization.Id == organizationId
+				select new PaymentNode
+				{
+					PaymentNum = payment.PaymentNum,
+					PaymentDate = payment.Date,
+					CounterpartyId = paymentCounterparty.Id,
+					PaymentCounterpartyInn = paymentCounterparty.INN,
+					OperationCounterpartyInn = operationCounterparty.INN,
+					CounterpartyName = paymentCounterparty.Name,
+					CounterpartyFullName = paymentCounterparty.FullName,
+					PayerName = payment.CounterpartyName,
+					IsManuallyCreated = payment.IsManuallyCreated,
+					PaymentPurpose = payment.PaymentPurpose,
+					PaymentSum = payment.Total
+				};
 
 			return query;
 		}

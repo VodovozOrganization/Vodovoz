@@ -1,5 +1,5 @@
 ﻿using QS.Views.GtkUI;
-using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.ViewModels.ViewModels.Orders;
 
 namespace Vodovoz.Views.Orders
@@ -14,21 +14,40 @@ namespace Vodovoz.Views.Orders
 
 		private void Configure()
 		{
-			yenumcmbNotificationEvent.ItemsEnum = typeof(ExternalOrderStatus);
+			yenumcmbNotificationEvent.ItemsEnum = typeof(CustomerNotificationEventType);
 			yenumcmbNotificationEvent.Binding
-				.AddBinding(ViewModel.Entity, e => e.ExternalOrderStatus, w => w.SelectedItem)
+				.AddBinding(ViewModel.Entity, e => e.CustomerNotificationEventType, w => w.SelectedItem)
 				.InitializeFromSource();
 
 			yentryNotificationText.Binding
 				.AddBinding(ViewModel.Entity, e => e.NotificationText, w => w.Text)
 				.InitializeFromSource();
+			
+			yenumcmbNotificationClassification.ItemsEnum = typeof(CustomerNotificationClassification);
+			yenumcmbNotificationClassification.Binding
+				.AddBinding(ViewModel.Entity, e => e.NotificationClassification, w => w.SelectedItem)
+				.InitializeFromSource();
+
+			yenumcmbCustomerNotificationPushType.ItemsEnum = typeof(CustomerNotificationPushType);
+			yenumcmbCustomerNotificationPushType.Binding
+				.AddBinding(ViewModel.Entity, e => e.PushType, w => w.SelectedItem)
+				.InitializeFromSource();
+
+			yenumcmbCustomerNotificationTargetType.ItemsEnum = typeof(CustomerNotificationTargetType);
+			yenumcmbCustomerNotificationTargetType.Binding
+				.AddBinding(ViewModel.Entity, e => e.PushTarget, w => w.SelectedItem)
+				.InitializeFromSource();
+
+			ycheckNotificationDisabled.Binding
+				.AddBinding(ViewModel.Entity, e => e.NotificationDisabled, w => w.Active)
+				.InitializeFromSource();
+
+			ycheckAllowDuplicates.Binding
+				.AddBinding(ViewModel.Entity, e => e.AllowDuplicateNotifications, w => w.Active)
+				.InitializeFromSource();
 
 			buttonSave.BindCommand(ViewModel.SaveCommand);
 			buttonCancel.BindCommand(ViewModel.CloseCommand);
-			
-			ylabelNotificationType.Visible = false;
-			yenumcmbNotificationType.Visible = false;
-			ycheckNotificationDisabled.Visible = false;
 		}
 	}
 }

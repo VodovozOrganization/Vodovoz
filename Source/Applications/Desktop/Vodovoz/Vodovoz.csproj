@@ -2625,9 +2625,25 @@
       <Project>{42efc426-2c88-4608-8191-dbca4172a695}</Project>
       <Name>VodovozInfrastructure</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Notifications\CustomerNotifications.Application\CustomerNotifications.Application.csproj">
+      <Project>{0B386CE3-047F-54B5-0F40-3741094071F0}</Project>
+      <Name>CustomerNotifications.Application</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Notifications\CustomerNotifications.Contracts\CustomerNotifications.Contracts.csproj">
+      <Project>{CDDE0D70-E3C3-A1D6-147E-E805A70744E6}</Project>
+      <Name>CustomerNotifications.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\Notifications\Notifications.Infrastructure\Notifications.Infrastructure.csproj">
+      <Project>{F002AF1D-1958-EF09-F21A-0221E7874DE1}</Project>
+      <Name>Notifications.Infrastructure</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\ResourceLocker\ResourceLocker.Library.csproj">
       <Project>{bf89316b-1a47-7797-6a98-7a3fad52b2e0}</Project>
       <Name>ResourceLocker.Library</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Libraries\Core\TransactionalOutbox\TransactionalOutbox.csproj">
+      <Project>{CCD24DF5-779F-4EC0-B2B9-AE81058B6076}</Project>
+      <Name>TransactionalOutbox</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Vodovoz.Trackers\Vodovoz.Trackers.csproj">
       <Project>{7ac1f7e4-7cab-8fea-ae2c-f6e09cb92a69}</Project>

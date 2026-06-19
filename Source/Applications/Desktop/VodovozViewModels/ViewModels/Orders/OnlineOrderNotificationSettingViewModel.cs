@@ -38,7 +38,12 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				if (sqlException != null && sqlException.ErrorCode == MySqlErrorCode.DuplicateKeyEntry)
 				{
 					CommonServices.InteractiveService.ShowMessage(ImportanceLevel.Warning,
-						"Вы добавляете дубль: настройка с таким статусом заказа уже существует в справочнике.");
+						"Вы добавляете дубль: настройка с таким событием уже существует в справочнике.");
+
+					if(UoW?.Session != null)
+					{
+						UoW.Session.Clear();
+					}
 				}
 				else
 				{

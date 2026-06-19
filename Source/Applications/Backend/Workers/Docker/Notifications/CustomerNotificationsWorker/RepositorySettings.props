@@ -1,0 +1,6 @@
+﻿<Project>
+  <PropertyGroup>
+    <ContainerRepository>customer_notifications_worker</ContainerRepository>
+  </PropertyGroup>
+</Project>
+

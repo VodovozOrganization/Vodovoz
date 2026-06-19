@@ -1,8 +1,12 @@
-﻿using System;
+﻿using CustomerNotifications.Contracts;
+using Notifications.Infrastructure;
+using QS.DomainModel.UoW;
+using System;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using QS.DomainModel.UoW;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Employees;
@@ -20,13 +24,15 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly IOrderDailyNumberController _orderDailyNumberController;
 		private readonly IPaymentFromBankClientController _paymentFromBankClientController;
 		private readonly IOrderContractUpdater _orderContractUpdater;
+		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 
 		public OrderConfirmationService(
 			IFastDeliveryHandler fastDeliveryHandler,
 			ICallTaskWorker callTaskWorker,
 			IOrderDailyNumberController orderDailyNumberController,
 			IPaymentFromBankClientController paymentFromBankClientController,
-			IOrderContractUpdater orderContractUpdater
+			IOrderContractUpdater orderContractUpdater,
+			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher
 			)
 		{
 			_fastDeliveryHandler = fastDeliveryHandler ?? throw new ArgumentNullException(nameof(fastDeliveryHandler));
@@ -35,9 +41,10 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_paymentFromBankClientController =
 				paymentFromBankClientController ?? throw new ArgumentNullException(nameof(paymentFromBankClientController));
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
+			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 		}
 
-		public async Task<Result> TryAcceptOrderCreatedByOnlineOrderAsync(
+		public async Task<Result<bool>> TryAcceptOrderCreatedByOnlineOrderAsync(
 			IUnitOfWork uow,
 			Employee employee,
 			Order order,
@@ -45,33 +52,42 @@ namespace Vodovoz.Core.Application.Orders.Services
 			CancellationToken cancellationToken
 		)
 		{
+			Result<bool> addingFastDeliveryOrderToRouteListResult = null;
+
 			if(!order.SelfDelivery)
 			{
 				var fastDeliveryResult = await _fastDeliveryHandler.CheckFastDeliveryAsync(uow, order, cancellationToken);
 
 				if(fastDeliveryResult.IsFailure)
 				{
-					return fastDeliveryResult;
+					return Result.Failure<bool>(fastDeliveryResult.Errors);
 				}
 
 				// Необходимо сделать асинхронным
-				var addingToRouteListResult = _fastDeliveryHandler.TryAddOrderToRouteListAndNotifyDriver(
+				addingFastDeliveryOrderToRouteListResult = _fastDeliveryHandler.TryAddOrderToRouteList(
 					uow,
 					order,
 					routeListService, 
 					_callTaskWorker,
 					employee);
 				
-				if(addingToRouteListResult.IsFailure)
+				if(addingFastDeliveryOrderToRouteListResult.IsFailure)
 				{
-					return addingToRouteListResult;
+					return addingFastDeliveryOrderToRouteListResult;
 				}
 			}
 
 			// Необходимо сделать асинхронным
 			AcceptOrder(uow, employee, order);
 
-			return Result.Success();
+			if(addingFastDeliveryOrderToRouteListResult is null)
+			{
+				return Result.Success(false);
+			}
+			else
+			{
+				return addingFastDeliveryOrderToRouteListResult;
+			}			
 		}
 
 		public void AcceptOrder(IUnitOfWork uow, Employee employee, Order order, bool needUpdateContract = true)

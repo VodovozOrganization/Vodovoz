@@ -1,8 +1,8 @@
-﻿using System;
+﻿using NHibernate;
+using QS.DomainModel.UoW;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using NHibernate;
-using QS.DomainModel.UoW;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
@@ -14,7 +14,6 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Errors.Logistics;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Cash;
-using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Core.Application.Logistics
 {
@@ -27,7 +26,6 @@ namespace Vodovoz.Core.Application.Logistics
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IGenericRepository<RouteListAddressKeepingDocument> _routeListAddressKeepingDocumentsRepository;
 		private readonly IRouteListProfitabilityController _routeListProfitabilityController;
-		private readonly IOnlineOrderService _onlineOrderService;
 		private readonly IRouteListAddressKeepingDocumentController _routeListAddressKeepingDocumentController;
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
 		private readonly IAddressTransferController _addressTransferController;
@@ -41,7 +39,6 @@ namespace Vodovoz.Core.Application.Logistics
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IGenericRepository<RouteListAddressKeepingDocument> routeListAddressKeepingDocumentsRepository,
 			IRouteListProfitabilityController routeListProfitabilityController,
-			IOnlineOrderService onlineOrderService,
 			IWageParameterService wageParameterService,
 			IRouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
@@ -58,7 +55,6 @@ namespace Vodovoz.Core.Application.Logistics
 			                                              throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentsRepository));
 			_routeListProfitabilityController =
 				routeListProfitabilityController ?? throw new ArgumentNullException(nameof(routeListProfitabilityController));
-			_onlineOrderService = onlineOrderService ?? throw new ArgumentNullException(nameof(onlineOrderService));
 			_routeListAddressKeepingDocumentController = routeListAddressKeepingDocumentController ??
 			                                             throw new ArgumentNullException(nameof(routeListAddressKeepingDocumentController));
 			_financialCategoriesGroupsSettings =
@@ -263,7 +259,6 @@ namespace Vodovoz.Core.Application.Logistics
 			}
 
 			order.ChangeStatus(OrderStatus.OnTheWay);
-			_onlineOrderService.NotifyClientOfOnlineOrderStatusChange(unitOfWork, order.OnlineOrder);
 
 			unitOfWork.Save(order);
 			unitOfWork.Save(newRouteListItem);

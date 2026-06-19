@@ -18,23 +18,22 @@ namespace ResourceLocker.Library
 			return services;
 		}
 		
-		public static IServiceCollection AddVodovozDesktopResourceLocker(this IServiceCollection services)
-		{
-			services.AddVodovozDesktopLockerConnection();
-			services.AddGarnetResourceLockerFactory();
-			services.AddSingleton<IResourceLockerUniqueKeyProvider, VodovozDesktopResourceLockerUniqueKeyProvider>();
-			services.AddTransient<IResourceLockerValueProvider, VodovozDesktopResourceLockerValueProvider>();
-
-			return services;
-		}
-
-		public static IServiceCollection AddVodovozDesktopLockerConnection(this IServiceCollection services)
+		public static IServiceCollection AddVodovozDesktopGarnetRedisConnection(this IServiceCollection services)
 		{
 			services.AddSingleton<IConnectionMultiplexer>(sp =>
 			{
 				var garnetSettings = sp.GetRequiredService<IGarnetSettings>();
 				return ConnectionMultiplexer.Connect(garnetSettings.ConnectionString);
 			});
+
+			return services;
+		}
+		
+		public static IServiceCollection AddVodovozDesktopResourceLocker(this IServiceCollection services)
+		{
+			services.AddGarnetResourceLockerFactory();
+			services.AddSingleton<IResourceLockerUniqueKeyProvider, VodovozDesktopResourceLockerUniqueKeyProvider>();
+			services.AddTransient<IResourceLockerValueProvider, VodovozDesktopResourceLockerValueProvider>();
 
 			return services;
 		}

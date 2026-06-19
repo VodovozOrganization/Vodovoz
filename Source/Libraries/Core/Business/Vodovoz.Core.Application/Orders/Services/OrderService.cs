@@ -1,5 +1,7 @@
-﻿using Gamma.Utilities;
+﻿using CustomerNotifications.Contracts;
+using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
+using Notifications.Infrastructure;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -8,9 +10,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Application.Errors;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
+using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
@@ -69,6 +73,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly IOrderContractUpdater _orderContractUpdater;
 		private readonly IOrderConfirmationService _orderConfirmationService;
 		private readonly IPaymentItemsRepository _paymentItemsRepository;
+		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
+		private readonly IFastDeliveryHandler _fastDeliveryHandler;
 
 		public OrderService(
 			ILogger<OrderService> logger,
@@ -93,8 +99,9 @@ namespace Vodovoz.Core.Application.Orders.Services
 			IGenericRepository<Nomenclature> nomenclatureGenericRepository,
 			IOrderContractUpdater orderContractUpdater,
 			IOrderConfirmationService orderConfirmationService,
-			IPaymentItemsRepository paymentItemsRepository
-			)
+			IPaymentItemsRepository paymentItemsRepository,
+			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
+			IFastDeliveryHandler fastDeliveryHandler)
 		{
 			if(nomenclatureSettings is null)
 			{
@@ -123,6 +130,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_orderContractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
 			_orderConfirmationService = orderConfirmationService ?? throw new ArgumentNullException(nameof(orderConfirmationService));
 			_paymentItemsRepository = paymentItemsRepository ?? throw new ArgumentNullException(nameof(paymentItemsRepository));
+			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
+			_fastDeliveryHandler = fastDeliveryHandler ?? throw new ArgumentNullException(nameof(fastDeliveryHandler));
 			PaidDeliveryNomenclatureId = nomenclatureSettings.PaidDeliveryNomenclatureId;
 			ForfeitNomenclatureId = nomenclatureSettings.ForfeitId;
 		}
@@ -680,10 +689,18 @@ namespace Vodovoz.Core.Application.Orders.Services
 			}
 
 			onlineOrder.SetOrderPerformed(new []{ order }, employee);
-			var notification = OnlineOrderStatusUpdatedNotification.Create(onlineOrder);
 
-			await uow.SaveAsync(notification, cancellationToken: cancellationToken);
 			await uow.CommitAsync(cancellationToken);
+
+			if(acceptResult.Value)
+			{
+				_fastDeliveryHandler.NotifyDriverOfFastDeliveryOrderAdded(order.Id);
+
+				var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, order.OnlineOrder?.Source, order.OnlineOrder?.Id, order.Id);
+				await _customerNotificationPublisher.TryPublishAsync(uow, customerCourierAssignedEvent, cancellationToken);				
+
+				await uow.CommitAsync(cancellationToken);
+			}
 
 			return order.Id;
 		}
