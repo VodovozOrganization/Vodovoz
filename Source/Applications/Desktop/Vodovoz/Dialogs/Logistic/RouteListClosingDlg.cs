@@ -81,6 +81,7 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
+using VodovozBusiness.EntityRepositories.Nodes;
 using VodovozBusiness.Services.Orders;
 using EnumItemClickedEventArgs = QS.Widgets.EnumItemClickedEventArgs;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -438,6 +439,9 @@ namespace Vodovoz
 			ybuttonCashChangeReturn.Clicked += OnYbuttonCashChangeReturnClicked;
 
 			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
+
+			ytextviewOrganizationsDebts.WidthRequest = 300;
+			ytextviewOrganizationsDebts.Editable = false;
 		}
 
 		private void OnBottlesReturnedEdited(object sender, int bottlesReturned)
@@ -663,6 +667,9 @@ namespace Vodovoz
 		private decimal GetRouteListCashExpenses() => _cashRepository.GetRouteListCashExpensesSum(UoW, Entity.Id);
 		private decimal GetRouteListCashReturn() => _cashRepository.GetRouteListCashReturnSum(UoW, Entity.Id);
 		private decimal GetRouteListAdvanceReport() => _cashRepository.GetRouteListAdvancsReportsSum(UoW, Entity.Id);
+
+		private IEnumerable<RouteListDebtByOrganizationNode> GetCashDebtsByOrganizations() =>
+			_cashRepository.GetRouteListCashDebtByOrganizationNodes(UoW, Entity.Id);
 
 		private decimal GetTerminalOrdersSum()
 		{
@@ -990,6 +997,7 @@ namespace Vodovoz
 			var routeListCashAdvance = GetRouteListCashExpenses();
 			var routeListCashReturn = GetRouteListCashReturn();
 			var routeListAdvancesReturn = GetRouteListAdvanceReport();
+			var cashDebtsByOrganizations = GetCashDebtsByOrganizations();
 
 			var routeListDebt = Entity.RouteListDebt;
 			decimal unclosedAdvanceMoney = default(decimal);
@@ -1037,8 +1045,10 @@ namespace Vodovoz
 			);
 			labelGivenChange.Markup = $"Выдано по МЛ (сдача): {routeListCashAdvance.ToShortCurrencyString()}";
 			labelReceivedChange.Markup = $"Сдано сдача по МЛ: {(routeListCashReturn + routeListAdvancesReturn).ToShortCurrencyString()}";
-			labelRouteListDebt.Markup = $"Долг по МЛ: <b>{routeListDebt.ToShortCurrencyString()}</b>";			
+			labelRouteListDebt.Markup = $"Долг по МЛ: <b>{routeListDebt.ToShortCurrencyString()}</b>";
 
+			ylabelOrganizationsDebts.Markup = $"<span foreground='{GdkColors.DangerText.ToHtmlColor()}'><b>Долг по организациям:</b></span>";
+			ytextviewOrganizationsDebts.Buffer.Text = string.Join("\n", cashDebtsByOrganizations.Select(x => x.DebtInfo));
 			ylabelUnclosedAdvancesMoney.Markup =
 				unclosedAdvanceMoney > 0m
 				? $"<span foreground='{GdkColors.DangerText.ToHtmlColor()}'><b>Общий долг водителя: {unclosedAdvanceMoney.ToShortCurrencyString()}</b></span>"

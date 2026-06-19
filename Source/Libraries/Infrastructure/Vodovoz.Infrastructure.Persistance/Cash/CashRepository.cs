@@ -12,6 +12,7 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
+using VodovozBusiness.EntityRepositories.Nodes;
 
 namespace Vodovoz.Infrastructure.Persistance.Cash
 {
@@ -177,6 +178,12 @@ namespace Vodovoz.Infrastructure.Persistance.Cash
 								.Select(Projections.Sum<Income>(o => o.Money)).SingleOrDefault<decimal>();
 
 			return income - expense;
+		}
+
+		public IList<RouteListDebtByOrganizationNode> GetRouteListCashDebtByOrganizationNodes(IUnitOfWork uow, int routeListId)
+		{
+			var debtsByOrganizations = new List<RouteListDebtByOrganizationNode>();
+			return debtsByOrganizations;
 		}
 
 		public IEnumerable<(int SubdivisionId, decimal Income, decimal Expense)> CashForSubdivisionsByDate(
