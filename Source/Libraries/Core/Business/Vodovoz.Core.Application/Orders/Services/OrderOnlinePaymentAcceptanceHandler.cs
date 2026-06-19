@@ -151,6 +151,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 				_customerNotificationPublisher.TryPublish(uow, customerNotificationEvent);
 			}
 
+			order.OnlinePaymentNumber = fastPayment.ExternalId;
 			order.UpdatePaymentType(fastPayment.PaymentType, _contractUpdater, false);
 			order.UpdatePaymentByCardFrom(fastPayment.PaymentByCardFrom, _contractUpdater, false);
 			_contractUpdater.ForceUpdateContract(uow, order, fastPayment.Organization);
