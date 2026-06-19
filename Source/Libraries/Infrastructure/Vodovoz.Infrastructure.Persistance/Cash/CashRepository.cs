@@ -1,5 +1,6 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Linq;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
@@ -8,7 +9,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.CashTransfer;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
@@ -182,7 +185,80 @@ namespace Vodovoz.Infrastructure.Persistance.Cash
 
 		public IList<RouteListDebtByOrganizationNode> GetRouteListCashDebtByOrganizationNodes(IUnitOfWork uow, int routeListId)
 		{
+			var totalCashByOrganizationFuture = uow.Session.Query<RouteListItem>()
+				.Where(item => item.RouteList.Id == routeListId)
+				.Where(item => item.Order.PaymentType == PaymentType.Cash)
+				.Where(item =>
+					item.Status == RouteListItemStatus.Completed
+					|| (item.Status == RouteListItemStatus.EnRoute
+						&& (item.RouteList.Status == RouteListStatus.EnRoute
+							|| item.RouteList.Status == RouteListStatus.OnClosing
+							|| item.RouteList.Status == RouteListStatus.Closed)))
+				.Where(item => item.Order.Contract != null && item.Order.Contract.Organization != null)
+				.GroupBy(item => new { item.Order.Contract.Organization.Id, item.Order.Contract.Organization.Name })
+				.Select(g => new RouteListDebtByOrganizationNode
+				{
+					OrganizationId = g.Key.Id,
+					OrganizationName = g.Key.Name,
+					DebtSum = g.Sum(item => item.TotalCash)
+				})
+				.ToFuture();
+
+			var incomeByOrganizationFuture = uow.Session.Query<Income>()
+				.Where(income =>
+					income.RouteListClosing.Id == routeListId
+					&& income.TypeOperation == IncomeType.DriverReport
+					&& income.Organisation != null)
+				.GroupBy(income => new { income.Organisation.Id, income.Organisation.Name })
+				.Select(g => new RouteListDebtByOrganizationNode
+				{
+					OrganizationId = g.Key.Id,
+					OrganizationName = g.Key.Name,
+					DebtSum = g.Sum(income => income.Money)
+				})
+				.ToFuture();
+
+			var expenseByOrganizationFuture = uow.Session.Query<Expense>()
+				.Where(expense =>
+					expense.RouteListClosing.Id == routeListId
+					&& expense.TypeOperation == ExpenseType.Expense
+					&& expense.Organisation != null)
+				.GroupBy(expense => new { expense.Organisation.Id, expense.Organisation.Name })
+				.Select(g => new RouteListDebtByOrganizationNode
+				{
+					OrganizationId = g.Key.Id,
+					OrganizationName = g.Key.Name,
+					DebtSum = g.Sum(expense => expense.Money)
+				})
+				.ToFuture();
+
+			var totalCashByOrganization = totalCashByOrganizationFuture.ToList();
+			var incomeByOrganization = incomeByOrganizationFuture.ToList();
+			var expenseByOrganization = expenseByOrganizationFuture.ToList();
+
+			var organizationIds = totalCashByOrganization.Select(x => x.OrganizationId)
+				.Union(incomeByOrganization.Select(x => x.OrganizationId))
+				.Union(expenseByOrganization.Select(x => x.OrganizationId));
+
 			var debtsByOrganizations = new List<RouteListDebtByOrganizationNode>();
+
+			foreach(var organizationId in organizationIds)
+			{
+				var totalCash = totalCashByOrganization.FirstOrDefault(x => x.OrganizationId == organizationId);
+				var income = incomeByOrganization.FirstOrDefault(x => x.OrganizationId == organizationId);
+				var expense = expenseByOrganization.FirstOrDefault(x => x.OrganizationId == organizationId);
+
+				var organizationName = totalCash?.OrganizationName ?? income?.OrganizationName ?? expense?.OrganizationName;
+				var routeListRevenue = (income?.DebtSum ?? 0) - (expense?.DebtSum ?? 0);
+
+				debtsByOrganizations.Add(new RouteListDebtByOrganizationNode
+				{
+					OrganizationId = organizationId,
+					OrganizationName = organizationName,
+					DebtSum = (totalCash?.DebtSum ?? 0) - routeListRevenue
+				});
+			}
+
 			return debtsByOrganizations;
 		}
 
