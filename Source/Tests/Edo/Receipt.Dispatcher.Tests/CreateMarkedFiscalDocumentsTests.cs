@@ -518,6 +518,7 @@ namespace Receipt.Dispatcher.Tests
 			var saveCodesService = Substitute.For<ISaveCodesService>();
 			var bus = Substitute.For<IBus>();
 			var edoCancellationService = Substitute.For<EdoCancellationService>();
+			var fiscalInventPositionRepository = Substitute.For<IGenericRepository<FiscalInventPosition>>();
 
 			return new ForOwnNeedsReceiptEdoTaskHandler(
 				logger,
@@ -538,7 +539,8 @@ namespace Receipt.Dispatcher.Tests
 				saveCodesService,
 				Substitute.For<IOrganizationSettings>(),
 				bus,
-				edoCancellationService);
+				edoCancellationService,
+				fiscalInventPositionRepository);
 		}
 
 		private EdoTaskValidator CreateEdoTaskValidatorFixture(IUnitOfWorkFactory unitOfWorkFactory, EdoProblemRegistrar edoProblemRegistrar)
