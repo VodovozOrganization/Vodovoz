@@ -4,6 +4,7 @@ using System.Linq;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
@@ -58,7 +59,7 @@ namespace Vodovoz.Domain.Cash
 							? address.TotalCash - addressDistributedSum
 							: amount;
 
-						var newOperation = CreateOrganisationCashMovementOperation(uow, address);
+						var newOperation = CreateOrganisationCashMovementOperation(uow, address, income.Organisation);
 						newOperation.Amount = sum;
 						var doc =
 							CreateRouteListItemCashDistributionDocument(newOperation, address, income);
@@ -89,7 +90,7 @@ namespace Vodovoz.Domain.Cash
 			var operation = new OrganisationCashMovementOperation
 			{
 				OperationTime = DateTime.Now,
-				Organisation = _organizationRepository.GetCommonOrganisation(uow),
+				Organisation = income.Organisation ?? _organizationRepository.GetCommonOrganisation(uow),
 				Amount = amount
 			};
 
@@ -154,7 +155,7 @@ namespace Vodovoz.Domain.Cash
 						? -amount
 						: -addressDistributedSum;
 
-					var newOperation = CreateOrganisationCashMovementOperation(uow, address);
+					var newOperation = CreateOrganisationCashMovementOperation(uow, address, expense.Organisation);
 					newOperation.Amount = sum;
 					var routeListItemCashdistributionDoc =
 						CreateRouteListItemCashDistributionDocument(newOperation, address, expense);
@@ -179,7 +180,7 @@ namespace Vodovoz.Domain.Cash
 			var operation = new OrganisationCashMovementOperation
 			{
 				OperationTime = DateTime.Now,
-				Organisation = _organizationRepository.GetCommonOrganisation(uow),
+				Organisation = expense.Organisation ?? _organizationRepository.GetCommonOrganisation(uow),
 				Amount = -amount
 			};
 
@@ -190,7 +191,9 @@ namespace Vodovoz.Domain.Cash
 		}
 
 		private OrganisationCashMovementOperation CreateOrganisationCashMovementOperation(
-			IUnitOfWork uow, RouteListItem address)
+			IUnitOfWork uow,
+			RouteListItem address,
+			Organization organization = null)
 		{
 			var hasReceipt = _orderRepository.OrderHasSentReceipt(uow, address.Order.Id);
 
@@ -199,7 +202,7 @@ namespace Vodovoz.Domain.Cash
 				OperationTime = DateTime.Now,
 				Organisation = hasReceipt
 					? address.Order.Contract.Organization
-					: _organizationRepository.GetCommonOrganisation(uow)
+					: organization ?? _organizationRepository.GetCommonOrganisation(uow)
 			};
 		}
 

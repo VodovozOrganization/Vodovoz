@@ -1,4 +1,5 @@
-﻿using QS.DomainModel.UoW;
+﻿using FluentNHibernate.Testing.Values;
+using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,19 +12,22 @@ using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Errors.Logistics;
 using Vodovoz.Settings.Cash;
 using VodovozBusiness.EntityRepositories.Nodes;
+using static MassTransit.Monitoring.Performance.BuiltInCounters;
 
 namespace VodovozBusiness.Services.Cash
 {
-	public class RouteListCashDistributionService : IRouteListCashDistributionService
+	public class RouteListCashProcessingService : IRouteListCashProcessingService
 	{
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly ICashRepository _cashRepository;
+		private readonly IRouteListCashOrganisationDistributor _routeListCashOrganisationDistributor;
 
-		public RouteListCashDistributionService(
+		public RouteListCashProcessingService(
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			IOrganizationRepository organizationRepository,
-			ICashRepository cashRepository)
+			ICashRepository cashRepository,
+			IRouteListCashOrganisationDistributor routeListCashOrganisationDistributor)
 		{
 			_financialCategoriesGroupsSettings =
 				financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
@@ -31,9 +35,11 @@ namespace VodovozBusiness.Services.Cash
 				organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_cashRepository =
 				cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
+			_routeListCashOrganisationDistributor =
+				routeListCashOrganisationDistributor ?? throw new ArgumentNullException(nameof(routeListCashOrganisationDistributor));
 		}
 
-		public virtual Result<List<Income>> ManualCashIncomeDistribution(
+		public virtual Result<List<Income>> CreateManualCashIncome(
 			IUnitOfWork uow,
 			RouteList routeList,
 			decimal casheInput)
@@ -65,16 +71,48 @@ namespace VodovozBusiness.Services.Cash
 
 			var organizationDebts = GetCashDebtsByOrganizations(uow, routeList.Id);
 
-			var cashIncomes = DistributeCashIncomeByOrganizationDebts(uow, routeList, organizationDebts, casheInput);
+			var cashIncomes = CreateAndDistributeCashIncomesByOrganizationsDebts(uow, routeList, organizationDebts, casheInput);
 
 			return Result.Success(cashIncomes);
 		}
 
-		private List<Income> DistributeCashIncomeByOrganizationDebts(
+		public virtual Result<(List<Income> Incomes, List<Expense> Expenses)> CreateAutomaticallyCashIncomesAndExpenses(
+			IUnitOfWork uow,
+			RouteList routeList)
+		{
+			if(uow is null)
+			{
+				throw new ArgumentNullException(nameof(uow));
+			}
+
+			if(routeList is null)
+			{
+				throw new ArgumentNullException(nameof(routeList));
+			}
+
+			if(routeList.Cashier is null)
+			{
+				return Result.Failure<(List<Income> Incomes, List<Expense> Expenses)> (RouteListErrors.CashierIsEmpty);
+			}
+
+			if(routeList.Cashier?.Subdivision == null)
+			{
+				return Result.Failure<(List<Income> Incomes, List<Expense> Expenses)>(RouteListErrors.CashierSubdivisionIsEmpty);
+			}
+
+			var organizationDebts = GetCashDebtsByOrganizations(uow, routeList.Id);
+
+			var cashIncomes = CreateAndDistributeCashIncomesByOrganizationsDebts(uow, routeList, organizationDebts);
+			var cashExpenses = CreateAndDistributeCashExpensesByOrganizationsOverpayments(uow, routeList, organizationDebts);
+
+			return Result.Success((cashIncomes, cashExpenses));
+		}
+
+		private List<Income> CreateAndDistributeCashIncomesByOrganizationsDebts(
 			IUnitOfWork uow,
 			RouteList routeList,
 			IList<RouteListDebtByOrganizationNode> organizationDebts,
-			decimal casheInput)
+			decimal? casheInput = null)
 		{
 			var incomes = new List<Income>();
 
@@ -82,14 +120,9 @@ namespace VodovozBusiness.Services.Cash
 				.Where(x => x.DebtSum > 0)
 				.ToList();
 
-			if(!detsByOrganizations.Any())
-			{
-				return incomes;
-			}
-
 			var organizations = GetOrganizationsByIds(uow, detsByOrganizations.Select(x => x.OrganizationId));
 
-			var remainder = casheInput;
+			var remainder = casheInput is null ? detsByOrganizations.Sum(x => x.DebtSum) : casheInput.Value;
 
 			foreach(var debtByOrganization in detsByOrganizations)
 			{
@@ -101,7 +134,10 @@ namespace VodovozBusiness.Services.Cash
 				var organization = organizations.First(o => o.Id == debtByOrganization.OrganizationId);
 
 				var amount = Math.Min(remainder, debtByOrganization.DebtSum);
-				incomes.Add(CreateIncome(routeList, organization, amount));
+
+				var cashIncome = CreateAndDistributeIncome(uow, routeList, organization, amount);
+				incomes.Add(cashIncome);
+
 				remainder -= amount;
 			}
 
@@ -116,17 +152,18 @@ namespace VodovozBusiness.Services.Cash
 					organization = GetOrganizationById(uow, maxCashOrganizationId);
 				}
 
-				incomes.Add(CreateIncome(routeList, organization, remainder));
+				var cashIncome = CreateAndDistributeIncome(uow, routeList, organization, remainder);
+				incomes.Add(cashIncome);
 			}
 
 			return incomes;
 		}
 
-		private List<Expense> DistributeCashExpenseByOrganizationOverpayments(
+		private List<Expense> CreateAndDistributeCashExpensesByOrganizationsOverpayments(
 			IUnitOfWork uow,
 			RouteList routeList,
 			IList<RouteListDebtByOrganizationNode> organizationDebts,
-			decimal casheInput)
+			decimal? casheInput = null)
 		{
 			var expenses = new List<Expense>();
 
@@ -134,12 +171,7 @@ namespace VodovozBusiness.Services.Cash
 				.Where(x => x.DebtSum < 0)
 				.ToList();
 
-			if(!overpaymentsByOrganizations.Any())
-			{
-				return expenses;
-			}
-
-			var remainder = casheInput;
+			var remainder = casheInput is null ? overpaymentsByOrganizations.Sum(x => Math.Abs(x.DebtSum)) : casheInput.Value;
 
 			var organizations = GetOrganizationsByIds(uow, overpaymentsByOrganizations.Select(x => x.OrganizationId));
 
@@ -152,9 +184,10 @@ namespace VodovozBusiness.Services.Cash
 
 				var organization = organizations.First(o => o.Id == overpaymentByOrganization.OrganizationId);
 
-				var overpaymentSum = -overpaymentByOrganization.DebtSum;
+				var overpaymentSum = Math.Abs(overpaymentByOrganization.DebtSum);
 				var amount = Math.Min(remainder, overpaymentSum);
-				expenses.Add(CreateExpense(routeList, organization, amount));
+				var cashExpense = CreateAndDistributeExpense(uow, routeList, organization, amount);
+				expenses.Add(cashExpense);
 				remainder -= amount;
 			}
 
@@ -169,7 +202,9 @@ namespace VodovozBusiness.Services.Cash
 					organization = GetOrganizationById(uow, maxCashOrganizationId);
 				}
 
-				expenses.Add(CreateExpense(routeList, organization, remainder));
+				var cashExpense = CreateExpense(routeList, organization, remainder);
+				expenses.Add(cashExpense);
+				_routeListCashOrganisationDistributor.DistributeExpenseCash(uow, routeList, cashExpense, cashExpense.Money);
 			}
 
 			return expenses;
@@ -189,6 +224,22 @@ namespace VodovozBusiness.Services.Cash
 
 		private IList<Organization> GetOrganizationsByIds(IUnitOfWork uow, IEnumerable<int> organizationIds) =>
 			_organizationRepository.GetOrganizationsByIds(uow, organizationIds);
+
+		private Income CreateAndDistributeIncome(IUnitOfWork uow, RouteList routeList, Organization organization, decimal amount)
+		{
+			var cashIncome = CreateIncome(routeList, organization, amount);
+			uow.Save(cashIncome);
+			_routeListCashOrganisationDistributor.DistributeIncomeCash(uow, routeList, cashIncome, cashIncome.Money);
+			return cashIncome;
+		}
+
+		private Expense CreateAndDistributeExpense(IUnitOfWork uow, RouteList routeList, Organization organization, decimal amount)
+		{
+			var cashExpense = CreateExpense(routeList, organization, amount);
+			uow.Save(cashExpense);
+			_routeListCashOrganisationDistributor.DistributeExpenseCash(uow, routeList, cashExpense, cashExpense.Money);
+			return cashExpense;
+		}
 
 		private Income CreateIncome(RouteList routeList, Organization organization, decimal amount) =>
 			new Income

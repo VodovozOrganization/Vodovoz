@@ -125,7 +125,7 @@ namespace Vodovoz
 		private IFlyerRepository _flyerRepository;
 		private IOrderContractUpdater _contractUpdater;
 		private OrderCancellationService _orderCancellationService;
-		IRouteListCashDistributionService _routeListCashDistributionService;
+		IRouteListCashProcessingService _routeListCashProcessingService;
 		private ICarEventSettings _carEventSettings;
 
 		private readonly bool _isOpenFromCash;
@@ -240,7 +240,7 @@ namespace Vodovoz
 			
 			_routeListService = _lifetimeScope.Resolve<IRouteListService>();
 			_orderCancellationService = _lifetimeScope.Resolve<OrderCancellationService>();
-			_routeListCashDistributionService = _lifetimeScope.Resolve<IRouteListCashDistributionService>();
+			_routeListCashProcessingService = _lifetimeScope.Resolve<IRouteListCashProcessingService>();
 
 			_carEventSettings = _lifetimeScope.Resolve<ICarEventSettings>();
 		}
@@ -1625,7 +1625,8 @@ namespace Vodovoz
 		{
 			var messages = new List<string>();
 
-			if(!TrySetCashier()) {
+			if(!TrySetCashier())
+			{
 				return;
 			}
 
@@ -1637,7 +1638,7 @@ namespace Vodovoz
 			}
 
 			var cashIncomesResult =
-				_routeListCashDistributionService.ManualCashIncomeDistribution(UoW, Entity, inputCashOrder);
+				_routeListCashProcessingService.CreateManualCashIncome(UoW, Entity, inputCashOrder);
 
 			if(cashIncomesResult.IsFailure)
 			{
@@ -1655,11 +1656,6 @@ namespace Vodovoz
 			Entity.IsManualAccounting = true;
 			messages.AddRange(cashIncomes.Select(income =>
 				$"Создан приходный ордер на сумму {income.Money:C0} по организации \"{income.Organisation?.Name}\""));
-
-			foreach(var cashIncome in cashIncomes)
-			{
-				UoW.Save(cashIncome);
-			}
 
 			Entity.UpdateRouteListDebt();
 
@@ -1834,8 +1830,29 @@ namespace Vodovoz
 				}
 			}
 
-			var operationsResultMessage = Entity.UpdateCashOperations(_financialCategoriesGroupsSettings);
-			messages.AddRange(operationsResultMessage);
+			var cashOrdersResult = _routeListCashProcessingService.CreateAutomaticallyCashIncomesAndExpenses(UoW, Entity);
+
+			if(cashOrdersResult.IsFailure)
+			{
+				MessageDialogHelper.RunErrorDialog(cashOrdersResult.Errors.FirstOrDefault());
+				return;
+			}
+
+			var incomes = cashOrdersResult.Value.Incomes;
+			var expenses = cashOrdersResult.Value.Expenses;
+
+			if(!incomes.Any() && !expenses.Any())
+			{
+				return;
+			}
+
+			messages.AddRange(incomes.Select(income =>
+				$"Создан приходный ордер на сумму {income.Money:C0} по организации \"{income.Organisation?.Name}\""));
+
+			messages.AddRange(expenses.Select(expense =>
+				$"Создан расходный ордер на сумму {expense.Money:C0} по организации \"{expense.Organisation?.Name}\""));
+
+			UoW.Save();
 
 			CalculateTotal();
 
