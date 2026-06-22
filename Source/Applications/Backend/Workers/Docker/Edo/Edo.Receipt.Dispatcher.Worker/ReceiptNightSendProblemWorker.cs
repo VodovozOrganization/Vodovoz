@@ -11,7 +11,7 @@ using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Edo;
 using Vodovoz.Zabbix.Sender;
 
-namespace Edo.Receipt.NightSend.Worker
+namespace Edo.Receipt.Dispatcher.Worker
 {
 	public class ReceiptNightSendProblemWorker : TimerBackgroundServiceBase
 	{
