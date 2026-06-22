@@ -82,6 +82,7 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
 using VodovozBusiness.EntityRepositories.Nodes;
+using VodovozBusiness.Services.Cash;
 using VodovozBusiness.Services.Orders;
 using EnumItemClickedEventArgs = QS.Widgets.EnumItemClickedEventArgs;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -124,6 +125,7 @@ namespace Vodovoz
 		private IFlyerRepository _flyerRepository;
 		private IOrderContractUpdater _contractUpdater;
 		private OrderCancellationService _orderCancellationService;
+		IRouteListCashDistributionService _routeListCashDistributionService;
 		private ICarEventSettings _carEventSettings;
 
 		private readonly bool _isOpenFromCash;
@@ -238,6 +240,7 @@ namespace Vodovoz
 			
 			_routeListService = _lifetimeScope.Resolve<IRouteListService>();
 			_orderCancellationService = _lifetimeScope.Resolve<OrderCancellationService>();
+			_routeListCashDistributionService = _lifetimeScope.Resolve<IRouteListCashDistributionService>();
 
 			_carEventSettings = _lifetimeScope.Resolve<ICarEventSettings>();
 		}
@@ -1627,17 +1630,31 @@ namespace Vodovoz
 			}
 
 			var inputCashOrder = (decimal)spinCashOrder.Value;
-			var organizationDebts = GetCashDebtsByOrganizations().ToList();
 
-			messages.AddRange(
-				Entity.ManualCashOperations(organizationDebts, out var cashIncomes, out var cashExpenses, inputCashOrder, _financialCategoriesGroupsSettings));
-
-			if(cashIncomes.Any())
+			if(inputCashOrder <= 0)
 			{
-				Entity.IsManualAccounting = true;
-				messages.AddRange(cashIncomes.Select(income =>
-					$"Создан приходный ордер на сумму {income.Money:C0} по организации \"{income.Organisation?.Name}\""));
+				return;
 			}
+
+			var cashIncomesResult =
+				_routeListCashDistributionService.ManualCashIncomeDistribution(UoW, Entity, inputCashOrder);
+
+			if(cashIncomesResult.IsFailure)
+			{
+				MessageDialogHelper.RunErrorDialog(cashIncomesResult.Errors.FirstOrDefault());
+				return;
+			}
+
+			var cashIncomes = cashIncomesResult.Value;
+
+			if(cashIncomes is null || !cashIncomes.Any())
+			{
+				return;
+			}
+
+			Entity.IsManualAccounting = true;
+			messages.AddRange(cashIncomes.Select(income =>
+				$"Создан приходный ордер на сумму {income.Money:C0} по организации \"{income.Organisation?.Name}\""));
 
 			foreach(var cashIncome in cashIncomes)
 			{

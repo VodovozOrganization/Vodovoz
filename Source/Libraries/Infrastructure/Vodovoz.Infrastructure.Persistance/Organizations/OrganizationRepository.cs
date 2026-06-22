@@ -139,9 +139,9 @@ namespace Vodovoz.Infrastructure.Persistance.Organizations
 
 		public IList<Organization> GetOrganizationsByIds(IUnitOfWork uow, IEnumerable<int> organizationIds)
 		{
-			return uow.Session.QueryOver<Organization>()
+			return uow.Session.Query<Organization>()
 				.Where(org => organizationIds.Contains(org.Id))
-				.List();
+				.ToList();
 		}
 	}
 }

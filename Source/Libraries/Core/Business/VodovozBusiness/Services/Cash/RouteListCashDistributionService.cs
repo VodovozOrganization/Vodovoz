@@ -1,5 +1,4 @@
-﻿using FluentNHibernate.Data;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +14,7 @@ using VodovozBusiness.EntityRepositories.Nodes;
 
 namespace VodovozBusiness.Services.Cash
 {
-	public class RouteListCashDistributionService
+	public class RouteListCashDistributionService : IRouteListCashDistributionService
 	{
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
 		private readonly IOrganizationRepository _organizationRepository;
@@ -39,12 +38,17 @@ namespace VodovozBusiness.Services.Cash
 			RouteList routeList,
 			decimal casheInput)
 		{
+			if(uow is null)
+			{
+				throw new ArgumentNullException(nameof(uow));
+			}
+
 			if(routeList is null)
 			{
 				throw new ArgumentNullException(nameof(routeList));
 			}
 
-			if(casheInput < 0)
+			if(casheInput <= 0)
 			{
 				throw new ArgumentException("Сумма должна быть положительной", nameof(casheInput));
 			}
@@ -118,7 +122,7 @@ namespace VodovozBusiness.Services.Cash
 			return incomes;
 		}
 
-		private List<Expense> DistributeManualExpenseByOrganizationOverpayments(
+		private List<Expense> DistributeCashExpenseByOrganizationOverpayments(
 			IUnitOfWork uow,
 			RouteList routeList,
 			IList<RouteListDebtByOrganizationNode> organizationDebts,

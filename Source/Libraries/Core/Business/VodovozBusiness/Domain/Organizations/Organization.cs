@@ -6,12 +6,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using QS.Extensions.Observable.Collections.List;
-using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Organizations;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Logistic.Organizations;
-using Vodovoz.Domain.Cash;
 
 namespace Vodovoz.Domain.Organizations
 {
@@ -28,7 +26,7 @@ namespace Vodovoz.Domain.Organizations
 		private GenericObservableList<OrganizationVersion> _observableOrganizationVersions;
 		private IList<OrganizationVersion> _organizationVersions = new List<OrganizationVersion>();
 		private string _suffix;
-		private IncomeCategory _defaultCashIncomeCategory;
+		private FinancialIncomeCategory _defaultCashIncomeCategory;
 
 		[Display(Name = "Телефоны")]
 		public virtual new IList<Phone> Phones {
@@ -50,7 +48,7 @@ namespace Vodovoz.Domain.Organizations
 		}
 
 		[Display(Name = "Статья дохода для наличной формы оплаты по умолчанию")]
-		public virtual IncomeCategory DefaultCashIncomeCategory
+		public virtual FinancialIncomeCategory DefaultCashIncomeCategory
 		{
 			get => _defaultCashIncomeCategory;
 			set => SetField(ref _defaultCashIncomeCategory, value);
