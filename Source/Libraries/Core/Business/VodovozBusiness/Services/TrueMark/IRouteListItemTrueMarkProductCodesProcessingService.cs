@@ -74,6 +74,18 @@ namespace VodovozBusiness.Services.TrueMark
 		Task<Result> AddProductCodesToRouteListItemAndDeleteStagingCodes(IUnitOfWork uow, RouteListItem routeListItem, CancellationToken cancellationToken = default);
 
 		/// <summary>
+		/// Добавляет имеющиеся коды Честного Знака из промежуточного хранения к строке маршрутного листа и удаляет их
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="routeListItem">Адрес МЛ</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
+		Task<Result> AddAvailableProductCodesToRouteListItemAndDeleteStagingCodes(
+			IUnitOfWork uow,
+			RouteListItem routeListItem,
+			CancellationToken cancellationToken = default);
+
+		/// <summary>
 		/// Проверяет, что все коды Честного Знака для промежуточного хранения добавлены к строке маршрутного листа
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
