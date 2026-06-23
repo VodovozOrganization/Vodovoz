@@ -60,6 +60,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		private DateTime? _startDate;
 		private DateTime? _endDate;
 		private bool _showPhones;
+		private bool _isOnlyForExport;
 		private bool _reportIsNotLoading = true;
 		private bool _reportIsNotExported = true;
 		private CancellationTokenSource _cancellationTokenSource;
@@ -154,6 +155,12 @@ namespace Vodovoz.ViewModels.ReportsParameters
 		{
 			get => _showPhones;
 			set => SetField(ref _showPhones, value);
+		}
+
+		public bool IsOnlyForExport
+		{
+			get => _isOnlyForExport;
+			set => SetField(ref _isOnlyForExport, value);
 		}
 
 		public bool ReportIsNotLoaded
@@ -371,7 +378,10 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 				cancellationToken.ThrowIfCancellationRequested();
 
-				DisplayNodes = FlattenTreeToDisplayNodes(_nodes);
+				if(!IsOnlyForExport) 
+				{
+					DisplayNodes = FlattenTreeToDisplayNodes(_nodes);
+				}
 			}
 			catch(OperationCanceledException)
 			{

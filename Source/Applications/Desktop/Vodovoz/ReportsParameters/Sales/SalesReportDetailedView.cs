@@ -37,7 +37,6 @@ namespace Vodovoz.ReportsParameters.Sales
 			vboxParameters.Add(filterView);
 			filterView.Show();
 
-
 			ytreeviewDetailedReport.Binding
 				.AddBinding(ViewModel, x => x.DisplayNodes, x => x.ItemsDataSource)
 				.InitializeFromSource();
@@ -46,6 +45,10 @@ namespace Vodovoz.ReportsParameters.Sales
 			leftrightlistview.ViewModel = ViewModel.GroupingSelectViewModel;
 
 			buttonInfo.BindCommand(ViewModel.ShowInfoCommand);
+
+			ycheckbuttonOnlyForExport.Binding
+				.AddBinding(ViewModel, vw => vw.IsOnlyForExport, w => w.Active)
+				.InitializeFromSource();
 
 			buttonCreateReport.BindCommand(ViewModel.GenerateReportCommand);
 			buttonCreateReport.Binding
