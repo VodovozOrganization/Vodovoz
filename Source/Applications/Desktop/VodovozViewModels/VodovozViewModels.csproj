@@ -131,6 +131,7 @@
     <Compile Include="Journals\JournalViewModels\Payments\NotAllocatedCounterpartiesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Payments\ProfitCategoriesJournalViewModel.cs" />
     <Compile Include="Logistic\DriverSchedule\DriverScheduleViewModel.cs" />
+    <Compile Include="ReportsParameters\SalesReportDetailedViewModel.cs" />
     <Compile Include="Services\DriverSchedule\DriverScheduleService.cs" />
     <Compile Include="Services\DriverSchedule\IDriverScheduleService.cs" />
     <Compile Include="Logistic\Reports\CarIsNotAtLineReport.UiRow.cs" />
@@ -138,6 +139,8 @@
     <Compile Include="Logistic\SelfDeliveringOrderEditViewModel.cs" />
     <Compile Include="ReportsParameters\Bookkeeping\CounterpartyCashlessDebtsReportViewModel.CounterpartyCashlessDebtsReportType.cs" />
     <Compile Include="ReportsParameters\Production\ProducedProductionReportViewModel.ProducedProductionReportMeasurementUnit.cs" />
+    <Compile Include="Services\SalesReport\ISalesReportService.cs" />
+    <Compile Include="Services\SalesReport\SalesReportService.cs" />
     <Compile Include="Store\Reports\DefectiveItemsReport.SummaryByNomenclatureRow.cs" />
     <Compile Include="Store\Reports\DefectiveItemsReport.SummaryByOldNomenclatureRow.cs" />
     <Compile Include="Store\Reports\DevectiveItemsReport.SummaryByNomenclatureWithTypeDefectRow.cs" />
