@@ -263,7 +263,7 @@ namespace Vodovoz.Core.Application.Logistics
 			IWageParameterService wageParameterService,
 			ICallTaskWorker callTaskWorker)
 		{
-			if(routeList.GetCarVersion.CarOwnType is CarOwnType.Company)
+			if(routeList.NeedMileageCheck)
 			{
 				ChangeStatusAndCreateTask(unitOfWork, routeList, RouteListStatus.MileageCheck, callTaskWorker);
 			}
@@ -606,6 +606,9 @@ namespace Vodovoz.Core.Application.Logistics
 						routeList.Status == RouteListStatus.Delivered
 						 && (routeList.GetCarVersion.CarOwnType == CarOwnType.Company && routeList.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck
 						     || routeList.Driver.VisitingMaster || !routeList.NeedMileageCheckByWage)
+						|| routeList.Status == RouteListStatus.Confirmed
+						    && routeList.GetCarVersion.CarOwnType == CarOwnType.Company &&
+						        routeList.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck
 						|| routeList.Status == RouteListStatus.MileageCheck || routeList.Status == RouteListStatus.Delivered
 						|| routeList.Status == RouteListStatus.Closed)
 					{
@@ -623,11 +626,7 @@ namespace Vodovoz.Core.Application.Logistics
 
 					break;
 				case RouteListStatus.MileageCheck:
-					if(routeList.Status == RouteListStatus.Delivered 
-						|| routeList.Status == RouteListStatus.OnClosing
-						|| routeList.Status == RouteListStatus.Confirmed
-							&& routeList.GetCarVersion.CarOwnType == CarOwnType.Company &&
-								routeList.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck)
+					if(routeList.Status == RouteListStatus.Delivered || routeList.Status == RouteListStatus.OnClosing)
 					{
 						routeList.Status = newStatus;
 						foreach(var item in routeList.Addresses.Where(x =>

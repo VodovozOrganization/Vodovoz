@@ -657,7 +657,8 @@ namespace Vodovoz.ViewModels.Logistic
 				"Открыть диалог проверки километража",
 				selectedItems => selectedItems.FirstOrDefault() is RouteListJournalNode node
 					&& _mileageCheckDlgStatuses.Contains(node.StatusEnum)
-					&& node.CarOwnType is CarOwnType.Company,
+					&& node.CarOwnType == CarOwnType.Company
+					&& node.CarTypeOfUse != CarTypeOfUse.Truck,
 				selectedItems => true,
 				selectedItems =>
 				{
