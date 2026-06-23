@@ -29,5 +29,11 @@ namespace Vodovoz.Settings.Database.Edo
 
 		public TimeSpan OrderStatusProblemWorkerInterval => _settingsController
 			.GetValue<TimeSpan>("edo.problem.routine.order-status-worker-interval");
+
+		public TimeSpan ReceiptNightSendProblemTimeout => _settingsController
+			.GetValue<TimeSpan>("edo.problem.routine.receipt-night-send-problem-timeout");
+
+		public TimeSpan ReceiptNightSendProblemWorkerInterval => _settingsController
+			.GetValue<TimeSpan>("edo.problem.routine.receipt-night-send-worker-interval");
 	}
 }
