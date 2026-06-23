@@ -134,6 +134,7 @@ using Vodovoz.Validation;
 using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Dialogs.Orders;
+using Vodovoz.ViewModels.Edo;
 using Vodovoz.ViewModels.Infrastructure.InfoProviders;
 using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -1244,6 +1245,11 @@ namespace Vodovoz
 			OnEnumPaymentTypeChanged(null, EventArgs.Empty);
 			UpdateCallBeforeArrivalVisibility();
 			SetNearestDeliveryDateLoaderFunc();
+
+
+			var edoForOrderViewModel = ScopeProvider.Scope.Resolve<EdoForOrderViewModel>();
+			edoForOrderViewModel.Setup(UoW, Entity);
+			edofororderview1.ViewModel = edoForOrderViewModel;
 
 			UpdateOrderItemsOriginalValues();
 
@@ -3567,6 +3573,14 @@ namespace Vodovoz
 			btnOpnPrnDlg.Sensitive = Entity.OrderDocuments
 				.OfType<PrintableOrderDocument>()
 				.Any(doc => doc.PrintType == PrinterType.RDL || doc.PrintType == PrinterType.ODT);
+		}
+
+		protected void OnToggleEdoToggled(object sender, EventArgs e)
+		{
+			if(toggleEdo.Active)
+			{
+				ntbOrderEdit.CurrentPage = 6;
+			}
 		}
 
 		#endregion
@@ -6316,9 +6330,6 @@ namespace Vodovoz
 			return result;
 		}
 
-		protected void OnToggleEdoToggled(object sender, EventArgs e)
-		{
-		}
 		#endregion CustomCancellationConfirmationDialog
 
 		private bool IsFastDeliveryAvailabilityMustBeChecked =>

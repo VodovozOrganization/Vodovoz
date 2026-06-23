@@ -144,7 +144,7 @@ namespace EdoService.Library
 				return null;
 			}
 
-			var edoTasks = _edoRepository.GetEdoTaskByOrderAsync(uow, order.Id);
+			var edoTasks = _edoRepository.GetEdoTaskByOrder(uow, order.Id);
 			if(!edoTasks.Any())
 			{
 				return null;

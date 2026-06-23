@@ -24,7 +24,11 @@ namespace Vodovoz.Core.Data.Repositories
 		/// <param name="orderId"></param>
 		/// <returns></returns>
 		IEnumerable<OrderEdoDocument> GetOrderEdoDocumentsByOrderId(IUnitOfWork uow, int orderId);
-		IEnumerable<OrderEdoTask> GetEdoTaskByOrderAsync(IUnitOfWork uow, int orderId);
+		IEnumerable<OrderEdoTask> GetEdoTaskByOrder(IUnitOfWork uow, int orderId);
+		IEnumerable<OrderEdoTaskNode> GetEdoTasksForOrder(IUnitOfWork uow, int orderId);
+		IEnumerable<TransferEdoTaskNode> GetTransferEdoTasksForOrder(IUnitOfWork uow, int orderId);
+		IEnumerable<EdoProblemNode> GetEdoProblemsForOrder(IUnitOfWork uow, int orderId);
+		IEnumerable<EdoDocflowForOrderNode> GetEdoDocflowsForOrder(IUnitOfWork uow, int orderId);
 
 		/// <summary>
 		/// Возвращает задачи по ЭДО, которые связаны с клиентами, подключенными к системе TrueMark, и по которым истекло время ожидания ответа от клиента

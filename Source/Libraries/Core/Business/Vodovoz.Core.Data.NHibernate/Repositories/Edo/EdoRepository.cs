@@ -2,12 +2,15 @@
 using NHibernate.Criterion;
 using NHibernate.Linq;
 using NHibernate.SqlCommand;
+using NHibernate.Transform;
+using NHibernate.Type;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Vodovoz.Core.Data.NHibernate.Extensions;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
@@ -85,7 +88,7 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 			}
 		}
 
-		public IEnumerable<OrderEdoTask> GetEdoTaskByOrderAsync(
+		public IEnumerable<OrderEdoTask> GetEdoTaskByOrder(
 			IUnitOfWork uow,
 			int orderId
 			)
@@ -100,6 +103,304 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 				.List()
 				;
 			return edoTasks;
+		}
+
+		public IEnumerable<OrderEdoTaskNode> GetEdoTasksForOrder(IUnitOfWork uow, int orderId)
+		{
+			FormalEdoRequest edoRequestAlias = null;
+			OrderEdoTask orderEdoTaskAlias = null;
+			OrderEdoTaskNode resultAlias = null;
+
+			var edoTasks = uow.Session.QueryOver(() => orderEdoTaskAlias)
+				.Left.JoinAlias(() => orderEdoTaskAlias.FormalEdoRequest, () => edoRequestAlias)
+				.Where(() => edoRequestAlias.Order.Id == orderId)
+				.SelectList(list => list
+					.Select(() => edoRequestAlias.Time).WithAlias(() => resultAlias.RequestTime)
+					.Select(() => edoRequestAlias.Source).WithAlias(() => resultAlias.RequestSource)
+					.Select(() => orderEdoTaskAlias.Id).WithAlias(() => resultAlias.EdoTaskId)
+					.Select(() => orderEdoTaskAlias.Status).WithAlias(() => resultAlias.EdoTaskStatus)
+					.Select(Projections.SqlProjection(
+						"{alias}.`type` as EdoTaskType",
+						new[] { "EdoTaskType" },
+						new IType[] { NHibernateUtil.String }
+					)).WithAlias(() => resultAlias.EdoTaskTypeName)
+				)
+				.TransformUsing(Transformers.AliasToBean<OrderEdoTaskNode>())
+				.List<OrderEdoTaskNode>()
+				;
+			return edoTasks;
+		}
+
+		public IEnumerable<TransferEdoTaskNode> GetTransferEdoTasksForOrder(IUnitOfWork uow, int orderId)
+		{
+			OrderEdoTask orderEdoTaskAlias = null;
+			FormalEdoRequest edoRequestAlias = null;
+			TransferEdoRequestIteration transferIterationAlias = null;
+			TransferEdoRequest transferRequestAlias = null;
+			TransferEdoTask transferEdoTaskAlias = null;
+			OrganizationEntity organizationFromAlias = null;
+			OrganizationEntity organizationToAlias = null;
+			TransferEdoTaskNode resultAlias = null;
+
+			var edoTasks = uow.Session.QueryOver(() => transferEdoTaskAlias)
+				.JoinEntityAlias(
+					() => transferRequestAlias,
+					() => transferEdoTaskAlias.Id == transferRequestAlias.TransferEdoTask.Id,
+					JoinType.LeftOuterJoin
+				)
+				.JoinEntityAlias(
+					() => transferIterationAlias, 
+					() => transferIterationAlias.Id == transferRequestAlias.Iteration.Id,
+					JoinType.LeftOuterJoin
+				)
+				.JoinEntityAlias(
+					() => orderEdoTaskAlias,
+					() => orderEdoTaskAlias.Id == transferIterationAlias.OrderEdoTask.Id,
+					JoinType.LeftOuterJoin
+				)
+				.Left.JoinAlias(() => orderEdoTaskAlias.FormalEdoRequest, () => edoRequestAlias)
+				.JoinEntityAlias(
+					() => organizationFromAlias,
+					() => organizationFromAlias.Id == transferRequestAlias.FromOrganizationId,
+					JoinType.LeftOuterJoin
+				)
+				.JoinEntityAlias(
+					() => organizationToAlias,
+					() => organizationToAlias.Id == transferRequestAlias.ToOrganizationId,
+					JoinType.LeftOuterJoin
+				)
+				.Where(() => edoRequestAlias.Order.Id == orderId)
+				.SelectList(list => list
+					.SelectGroup(() => transferEdoTaskAlias.Id).WithAlias(() => resultAlias.TransferTaskId)
+					.Select(() => orderEdoTaskAlias.Id).WithAlias(() => resultAlias.OrderTaskId)
+					.Select(() => transferIterationAlias.Time).WithAlias(() => resultAlias.RequestTime)
+					.Select(() => organizationFromAlias.Id).WithAlias(() => resultAlias.OrganizationFromId)
+					.Select(() => organizationFromAlias.Name).WithAlias(() => resultAlias.OrganizationFrom)
+					.Select(() => organizationToAlias.Id).WithAlias(() => resultAlias.OrganizationToId)
+					.Select(() => organizationToAlias.Name).WithAlias(() => resultAlias.OrganizationTo)
+					.Select(() => transferEdoTaskAlias.Status).WithAlias(() => resultAlias.Status)
+				)
+				.TransformUsing(Transformers.AliasToBean<TransferEdoTaskNode>())
+				.List<TransferEdoTaskNode>()
+			;
+			return edoTasks;
+		}
+
+		public IEnumerable<EdoProblemNode> GetEdoProblemsForOrder(IUnitOfWork uow, int orderId)
+		{
+			OrderEdoTask orderEdoTaskAlias = null;
+			FormalEdoRequest edoRequestAlias = null;
+			EdoTaskProblem edoTaskProblemAlias = null;
+			EdoTaskProblemCustomSourceEntity customProblemDescriptionSourceAlias = null;
+			EdoTaskProblemValidatorSourceEntity validatorDescriptionSourceAlias = null;
+			EdoTaskProblemExceptionSourceEntity exceptionDescriptionSourceAlias = null;
+			TransferEdoRequestIteration transferIterationAlias = null;
+			TransferEdoRequest transferRequestAlias = null;
+			TransferEdoTask transferEdoTaskAlias = null;
+			EdoProblemNode resultAlias = null;
+
+			var edoTasksProblems = uow.Session.QueryOver(() => edoTaskProblemAlias)
+				.Left.JoinAlias(() => edoTaskProblemAlias.EdoTask, () => orderEdoTaskAlias)
+				.Left.JoinAlias(() => orderEdoTaskAlias.FormalEdoRequest, () => edoRequestAlias)
+				.JoinEntityAlias(
+					() => customProblemDescriptionSourceAlias,
+					() => customProblemDescriptionSourceAlias.Name == edoTaskProblemAlias.SourceName,
+					JoinType.LeftOuterJoin
+				)
+				.JoinEntityAlias(
+					() => validatorDescriptionSourceAlias,
+					() => validatorDescriptionSourceAlias.Name == edoTaskProblemAlias.SourceName,
+					JoinType.LeftOuterJoin
+				)
+				.JoinEntityAlias(
+					() => exceptionDescriptionSourceAlias,
+					() => exceptionDescriptionSourceAlias.Name == edoTaskProblemAlias.SourceName,
+					JoinType.LeftOuterJoin
+				)
+				.Where(() => edoRequestAlias.Order.Id == orderId)
+				.SelectList(list => list
+					.SelectGroup(() => edoTaskProblemAlias.Id)
+					.Select(() => orderEdoTaskAlias.Id).WithAlias(() => resultAlias.OrderTaskId)
+					.Select(() => edoTaskProblemAlias.CreationTime).WithAlias(() => resultAlias.Time)
+					.Select(() => edoTaskProblemAlias.State).WithAlias(() => resultAlias.State)
+
+					.Select(
+						Projections.Conditional(
+							Restrictions.IsNotNull(
+								Projections.Property(() => exceptionDescriptionSourceAlias.Name)
+							),
+							Projections.Constant("Исключение"),
+							Projections.SqlFunction(
+								"coalesce",
+								NHibernateUtil.String,
+								Projections.Property(() => customProblemDescriptionSourceAlias.Message),
+								Projections.Property(() => validatorDescriptionSourceAlias.Message)
+							)
+						)
+					).WithAlias(() => resultAlias.Message)
+
+					.Select(
+						Projections.SqlFunction(
+							"coalesce",
+							NHibernateUtil.String,
+							Projections.Property(() => customProblemDescriptionSourceAlias.Description),
+							Projections.Property(() => validatorDescriptionSourceAlias.Description),
+							Projections.Property(() => exceptionDescriptionSourceAlias.Description)
+						)
+					).WithAlias(() => resultAlias.Description)
+
+					.Select(
+						Projections.SqlFunction(
+							"coalesce",
+							NHibernateUtil.String,
+							Projections.Property(() => customProblemDescriptionSourceAlias.Recommendation),
+							Projections.Property(() => validatorDescriptionSourceAlias.Recommendation),
+							Projections.Property(() => exceptionDescriptionSourceAlias.Recommendation)
+						)
+					).WithAlias(() => resultAlias.Recommendation)
+				)
+				.TransformUsing(Transformers.AliasToBean<EdoProblemNode>())
+				.List<EdoProblemNode>();
+
+
+			var edoTransferTasksProblems = uow.Session.QueryOver(() => edoTaskProblemAlias)
+				.Left.JoinAlias(() => edoTaskProblemAlias.EdoTask, () => transferEdoTaskAlias)
+				.JoinEntityAlias(
+					() => transferRequestAlias,
+					() => transferEdoTaskAlias.Id == transferRequestAlias.TransferEdoTask.Id,
+					JoinType.LeftOuterJoin
+				)
+				.JoinEntityAlias(
+					() => transferIterationAlias,
+					() => transferIterationAlias.Id == transferRequestAlias.Iteration.Id,
+					JoinType.LeftOuterJoin
+				)
+				.JoinEntityAlias(
+					() => orderEdoTaskAlias,
+					() => orderEdoTaskAlias.Id == transferIterationAlias.OrderEdoTask.Id,
+					JoinType.LeftOuterJoin
+				)
+				.Left.JoinAlias(() => orderEdoTaskAlias.FormalEdoRequest, () => edoRequestAlias)
+				.JoinEntityAlias(
+					() => customProblemDescriptionSourceAlias,
+					() => customProblemDescriptionSourceAlias.Name == edoTaskProblemAlias.SourceName,
+					JoinType.LeftOuterJoin
+				)
+				.JoinEntityAlias(
+					() => validatorDescriptionSourceAlias,
+					() => validatorDescriptionSourceAlias.Name == edoTaskProblemAlias.SourceName,
+					JoinType.LeftOuterJoin
+				)
+				.JoinEntityAlias(
+					() => exceptionDescriptionSourceAlias,
+					() => exceptionDescriptionSourceAlias.Name == edoTaskProblemAlias.SourceName,
+					JoinType.LeftOuterJoin
+				)
+				.Where(() => edoRequestAlias.Order.Id == orderId)
+				.SelectList(list => list
+					.SelectGroup(() => edoTaskProblemAlias.Id)
+					.Select(() => transferEdoTaskAlias.Id).WithAlias(() => resultAlias.TransferTaskId)
+					.Select(() => edoTaskProblemAlias.CreationTime).WithAlias(() => resultAlias.Time)
+					.Select(() => edoTaskProblemAlias.State).WithAlias(() => resultAlias.State)
+
+					.Select(
+						Projections.Conditional(
+							Restrictions.IsNotNull(
+								Projections.Property(() => exceptionDescriptionSourceAlias.Name)
+							),
+							Projections.Constant("Исключение"),
+							Projections.SqlFunction(
+								"coalesce",
+								NHibernateUtil.String,
+								Projections.Property(() => customProblemDescriptionSourceAlias.Message),
+								Projections.Property(() => validatorDescriptionSourceAlias.Message)
+							)
+						)
+					).WithAlias(() => resultAlias.Message)
+
+					.Select(
+						Projections.SqlFunction(
+							"coalesce",
+							NHibernateUtil.String,
+							Projections.Property(() => customProblemDescriptionSourceAlias.Description),
+							Projections.Property(() => validatorDescriptionSourceAlias.Description),
+							Projections.Property(() => exceptionDescriptionSourceAlias.Description)
+						)
+					).WithAlias(() => resultAlias.Description)
+
+					.Select(
+						Projections.SqlFunction(
+							"coalesce",
+							NHibernateUtil.String,
+							Projections.Property(() => customProblemDescriptionSourceAlias.Recommendation),
+							Projections.Property(() => validatorDescriptionSourceAlias.Recommendation),
+							Projections.Property(() => exceptionDescriptionSourceAlias.Recommendation)
+						)
+					).WithAlias(() => resultAlias.Recommendation)
+				)
+				.TransformUsing(Transformers.AliasToBean<EdoProblemNode>())
+				.List<EdoProblemNode>();
+
+			return edoTasksProblems.Union(edoTransferTasksProblems);
+		}
+
+		public IEnumerable<EdoDocflowForOrderNode> GetEdoDocflowsForOrder(IUnitOfWork uow, int orderId)
+		{
+			var sql = @"
+select
+	eod.document_task_id as :document_task_id,
+	eod.transfer_task_id as :transfer_task_id,
+	eod.edo_type as :edo_type,
+	td.id as :taxcom_document_id,
+	td.docflow_id as :taxcom_docflow_id,
+	(
+		SELECT tda.state 
+		FROM taxcom_docflow_actions tda 
+		WHERE tda.taxcom_docflow_id = td.id
+		ORDER BY tda.`time` DESC
+		LIMIT 1
+	) as :last_taxcom_state
+from taxcom_docflows td
+left join edo_outgoing_documents eod on eod.id = td.edo_document_id
+left join edo_customer_requests ecr on ecr.order_task_id = eod.document_task_id
+where eod.`type` = 'Order' and ecr.order_id = :order_id
+union all
+select
+	eod.document_task_id as :document_task_id,
+	eod.transfer_task_id as :transfer_task_id,
+	eod.edo_type as :edo_type,
+	td.id as :taxcom_document_id,
+	td.docflow_id as :taxcom_docflow_id,
+	(
+		SELECT tda.state 
+		FROM taxcom_docflow_actions tda 
+		WHERE tda.taxcom_docflow_id = td.id
+		ORDER BY tda.`time` DESC
+		LIMIT 1
+	) as :last_taxcom_state
+from taxcom_docflows td
+left join edo_outgoing_documents eod on eod.id = td.edo_document_id
+left join edo_transfer_requests etr on etr.transfer_edo_task_id = eod.transfer_task_id
+left join edo_transfer_request_iterations etri on etri.id = etr.iteration_id
+left join edo_customer_requests ecr on ecr.order_task_id = etri.order_edo_task_id
+where eod.`type` = 'Transfer' and ecr.order_id = :order_id
+;
+";
+
+			var query = uow.Session.CreateSQLQuery(sql)
+					.MapParametersToNode<EdoDocflowForOrderNode>()
+					.Map("document_task_id", x => x.OrderTaskId, NHibernateUtil.Int32)
+					.Map("transfer_task_id", x => x.TransferTaskId, NHibernateUtil.Int32)
+					.Map("edo_type", x => x.EdoType, new EnumStringType<EdoType>())
+					.Map("taxcom_document_id", x => x.TaxcomDocumentId, NHibernateUtil.Int32)
+					.Map("taxcom_docflow_id", x => x.TaxcomDocflowId, NHibernateUtil.String)
+					.Map("last_taxcom_state", x => x.TaxcomDocflowStatus, new EnumStringType<EdoDocFlowStatus>())
+					.SetResultTransformer();
+
+			query.SetParameter("order_id", orderId);
+			var result = query.List<EdoDocflowForOrderNode>();
+
+			return result;
 		}
 
 		public IEnumerable<OrderEdoDocument> GetOrderEdoDocumentsByOrderId(IUnitOfWork uow, int orderId)
