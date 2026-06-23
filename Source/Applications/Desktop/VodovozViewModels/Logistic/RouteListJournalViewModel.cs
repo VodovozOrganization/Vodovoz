@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -16,6 +12,11 @@ using QS.Project.Journal;
 using QS.Report;
 using QS.Services;
 using QS.Tdi;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
@@ -47,9 +48,8 @@ using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Print.Store;
-using Order = Vodovoz.Domain.Orders.Order;
 using IWarehousePermissionService = Vodovoz.Infrastructure.Services.IWarehousePermissionService;
-using Vodovoz.Core.Domain.Operations;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Logistic
 {
