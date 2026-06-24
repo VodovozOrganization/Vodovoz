@@ -38,6 +38,7 @@ using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.EntityRepositories.Payments;
 using Vodovoz.NHibernateProjections.Orders;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Payments;
 using Vodovoz.ViewModels.TempAdapters;
 using VodovozBusiness.Services;
@@ -72,6 +73,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
 		private readonly ViewModelEEVMBuilder<ProfitCategory> _profitCategoryEevmBuilder;
 		private readonly IClosingDeliveriesService _closingDeliveriesService;
+		private readonly IOrganizationSettings _organizationSettings;
 		private IResourceLocker _resourceLocker;
 
 		public ManualPaymentMatchingViewModel(
@@ -88,9 +90,10 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			IOrganizationRepository organizationRepository,
 			IDeliveryScheduleSettings deliveryScheduleSettings,
 			IResourceLockerFactory resourceLockerFactory,
-			IUserRepository userRepository,			
+			IUserRepository userRepository,
 			ViewModelEEVMBuilder<ProfitCategory> profitCategoryEevmBuilder,
-			IClosingDeliveriesService closingDeliveriesService) 
+			IClosingDeliveriesService closingDeliveriesService,
+			IOrganizationSettings organizationSettings)
 			: base(uowBuilder, uowFactory, commonServices)
 		{
 			if(resourceLockerFactory == null)
@@ -112,6 +115,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 			_profitCategoryEevmBuilder = profitCategoryEevmBuilder ?? throw new ArgumentNullException(nameof(profitCategoryEevmBuilder));
 			_closingDeliveriesService = closingDeliveriesService ?? throw new ArgumentNullException(nameof(closingDeliveriesService));
+			_organizationSettings = organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			LifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 
@@ -672,6 +676,19 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 			CounterpartyContract contractAlias = null;
 			OrderDocument orderDocumentAlias = null;
 			DocumentOrganizationCounter documentOrganizationCounterAlias = null;
+			
+			ICriterion organizationRestrictions = null;
+
+			if(Entity.Organization.Id == _organizationSettings.VodovozOrganizationId)
+			{
+				organizationRestrictions = Restrictions.Or(
+					Restrictions.Where(() => organisationAlias.Id == Entity.Organization.Id),
+					Restrictions.IsNull(Projections.Property(() => organisationAlias.Id)));
+			}
+			else
+			{
+				organizationRestrictions = Restrictions.Where(() =>  organisationAlias.Id == Entity.Organization.Id);
+			}
 
 			var incomePaymentQuery = UoW.Session.QueryOver(() => orderAlias)
 				.Left.JoinAlias(o => o.Contract, () => contractAlias)
@@ -691,7 +708,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				)
 				.WhereRestrictionOn(o => o.OrderStatus).Not.IsIn(_orderRepository.GetUndeliveryStatuses())
 				.And(o => o.PaymentType == PaymentType.Cashless)
-				.And(() => organisationAlias.Id == Entity.Organization.Id);
+				.And(organizationRestrictions);
 
 			if(Entity.Counterparty != null)
 			{
@@ -742,6 +759,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				.SelectList(list => list
 					.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => documentOrganizationCounterAlias.DocumentNumber).WithAlias(() => resultAlias.UpdDocumentName)
+					.Select(() => organisationAlias.Name).WithAlias(() => resultAlias.Organization)
 					.Select(() => orderAlias.OrderStatus).WithAlias(() => resultAlias.OrderStatus)
 					.Select(() => orderAlias.OrderPaymentStatus).WithAlias(() => resultAlias.OrderPaymentStatus)
 					.Select(() => orderAlias.DeliveryDate).WithAlias(() => resultAlias.OrderDate)
@@ -946,6 +964,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 		public bool Calculate { get; set; }
 		public OrderPaymentStatus OrderPaymentStatus { get; set; }
 		public bool IsClosingDocumentsOrder { get; set; }
+		public string Organization { get; set; }
 	}
 
 	public class ManualPaymentMatchingViewModelAllocatedNode
