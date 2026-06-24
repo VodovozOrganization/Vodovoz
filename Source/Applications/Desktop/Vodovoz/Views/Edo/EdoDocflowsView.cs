@@ -38,7 +38,6 @@ namespace Vodovoz.Views.Edo
 				.AddBinding(vm => vm.Docflows, w => w.ItemsDataSource)
 				.AddBinding(vm => vm.SelectedDocflow, w => w.SelectedRow)
 				.InitializeFromSource();
-			treeviewEdoDocflows.Guid = Guid.NewGuid();
 
 			buttonOpenDocflow.Visible = false;
 			//buttonsResendToEdo.BindCommand(ViewModel.ResendCommand);
