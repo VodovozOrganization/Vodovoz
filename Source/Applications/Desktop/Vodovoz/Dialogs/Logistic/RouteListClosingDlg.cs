@@ -1264,7 +1264,8 @@ namespace Vodovoz
 			}
 
 			var cash = _cashRepository.CurrentRouteListCash(UoW, Entity.Id);
-			if(Entity.Total != cash) {
+			if(Entity.Total != cash) 
+			{
 				MessageDialogHelper.RunWarningDialog($"Невозможно подтвердить МЛ, сумма МЛ ({CurrencyWorks.GetShortCurrencyString(Entity.Total)}) не соответствует кассе ({CurrencyWorks.GetShortCurrencyString(cash)}).");
 				if(Entity.Status == RouteListStatus.OnClosing && Entity.ConfirmedDistance <= 0 && Entity.NeedMileageCheck && MessageDialogHelper.RunQuestionDialog("По МЛ не принят километраж, перевести в статус проверки километража?")) {
 					_routeListService.ChangeStatusAndCreateTask(UoW, Entity, RouteListStatus.MileageCheck, CallTaskWorker);
@@ -1289,14 +1290,20 @@ namespace Vodovoz
 				PerformanceHelper.AddTimePoint("Создано задание на обзвон");
 			}
 
-			if(Entity.Status == RouteListStatus.Delivered) {
-				if(routelistdiscrepancyview.Items.Any(discrepancy => discrepancy.Remainder != 0)
-				&& !Entity.DifferencesConfirmed) {
+			if(Entity.Status == RouteListStatus.Delivered) 
+			{
+				if(routelistdiscrepancyview.Items.Any(discrepancy => discrepancy.Remainder != 0) && !Entity.DifferencesConfirmed) 
+				{
 					_routeListService.ChangeStatusAndCreateTask(UoW, Entity, RouteListStatus.OnClosing, CallTaskWorker);
-				} else {
-					if(Entity.GetCarVersion.IsCompanyCar && Entity.Car.CarModel.CarTypeOfUse != CarTypeOfUse.Truck) {
+				} 
+				else 
+				{
+					if(Entity.GetCarVersion.IsCompanyCar) 
+					{
 						_routeListService.ChangeStatusAndCreateTask(UoW, Entity, RouteListStatus.MileageCheck, CallTaskWorker);
-					} else {
+					} 
+					else 
+					{
 						_routeListService.ChangeStatusAndCreateTask(UoW, Entity, RouteListStatus.Closed, CallTaskWorker);
 					}
 				}

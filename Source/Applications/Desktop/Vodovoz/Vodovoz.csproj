@@ -430,6 +430,7 @@
     <Compile Include="Commons\VodovozTreeModelProvider.cs" />
     <Compile Include="Dialogs\OrderWidgets\CopyOrderDlgOpener.cs" />
     <Compile Include="Extensions\EntryExtension.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.SalesReportDetailedView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Common.AddOrRemoveIDomainObjectView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.PACS.PacsMissingCallsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Employees.FineCategoryView.cs" />
@@ -719,6 +720,7 @@
     <Compile Include="ReportsParameters\PACS\PacsMissingCallsReport.cs" />
     <Compile Include="ReportsParameters\Sales\ProfitabilitySalesReportView.cs" />
     <Compile Include="ReportsParameters\Sales\SalaryRateFilterNode.cs" />
+    <Compile Include="ReportsParameters\Sales\SalesReportDetailedView.cs" />
     <Compile Include="Representations\ContractsVMNode.cs" />
     <Compile Include="SidePanel\InfoProviders\IEdoLightsMatrixInfoProvider.cs" />
     <Compile Include="SidePanel\InfoViews\CarsMonitoringInfoPanelView.DataNode.cs" />
@@ -2180,7 +2182,6 @@
     <Folder Include="Cash\Payments\" />
     <Folder Include="Infrastructure\Mango\" />
     <Folder Include="ViewModels\Goods\" />
-    <Folder Include="ViewWidgets\Orders\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="appsettings.json">
