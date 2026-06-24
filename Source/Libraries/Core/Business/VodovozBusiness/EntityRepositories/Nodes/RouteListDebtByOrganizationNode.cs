@@ -6,9 +6,9 @@
 	public class RouteListDebtByOrganizationNode
 	{
 		/// <summary>
-		/// Id организации
+		/// Id организации. <see langword="null"/>, если организация не указана
 		/// </summary>
-		public int OrganizationId { get; set; }
+		public int? OrganizationId { get; set; }
 
 		/// <summary>
 		/// Наименование организации
@@ -38,6 +38,6 @@
 			OrdersCashSum - IncomeSum + ExpenseSum;
 
 		public string DebtInfo =>
-			$"{OrganizationName}: {DebtSum:#,##0.00 'р.'}";
+			$"{OrganizationName ?? "Не указано"}: {DebtSum:#,##0.00 'р.'}";
 	}
 }

@@ -7,6 +7,7 @@ using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Client;
@@ -15,6 +16,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.Settings.Organizations;
 using VodovozBusiness.EntityRepositories.Nodes;
 
 namespace Vodovoz.Infrastructure.Persistance.Cash
@@ -183,9 +185,15 @@ namespace Vodovoz.Infrastructure.Persistance.Cash
 			return income - expense;
 		}
 
-		public IList<RouteListDebtByOrganizationNode> GetRouteListCashDebtByOrganizationNodes(IUnitOfWork uow, int routeListId)
+		public IList<RouteListDebtByOrganizationNode> GetRouteListCashDebtByOrganizationNodes(
+			IUnitOfWork uow,
+			IOrganizationSettings organizationSettings,
+			int routeListId,
+			Func<IUnitOfWork, int, bool> hasSentReceiptFunc)
 		{
-			var totalCashByOrganizationFuture = uow.Session.Query<RouteListItem>()
+			var defaultOrganization = uow.GetById<Organization>(organizationSettings.CommonCashDistributionOrganisationId);
+
+			var ordersCashRawFuture = uow.Session.Query<RouteListItem>()
 				.Where(item => item.RouteList.Id == routeListId)
 				.Where(item => item.Order.PaymentType == PaymentType.Cash)
 				.Where(item =>
@@ -195,70 +203,71 @@ namespace Vodovoz.Infrastructure.Persistance.Cash
 							|| item.RouteList.Status == RouteListStatus.OnClosing
 							|| item.RouteList.Status == RouteListStatus.Closed)))
 				.Where(item => item.Order.Contract != null && item.Order.Contract.Organization != null)
-				.GroupBy(item => new { item.Order.Contract.Organization.Id, item.Order.Contract.Organization.Name })
-				.Select(g => new
+				.Select(item => new
 				{
-					OrganizationId = g.Key.Id,
-					OrganizationName = g.Key.Name,
-					DebtSum = g.Sum(item => item.TotalCash)
+					OrderId = item.Order.Id,
+					ContractOrganizationId = item.Order.Contract.Organization.Id,
+					ContractOrganizationName = item.Order.Contract.Organization.Name,
+					OrdersCashSum = item.TotalCash
 				})
 				.ToFuture();
 
-			var incomeByOrganizationFuture = uow.Session.Query<Income>()
+			var incomeFuture = uow.Session.Query<Income>()
 				.Where(income =>
 					income.RouteListClosing.Id == routeListId
-					&& income.TypeOperation == IncomeType.DriverReport
-					&& income.Organisation != null)
-				.GroupBy(income => new { income.Organisation.Id, income.Organisation.Name })
-				.Select(g => new
+					&& income.TypeOperation == IncomeType.DriverReport)
+				.Select(income => new RouteListDebtByOrganizationNode
 				{
-					OrganizationId = g.Key.Id,
-					OrganizationName = g.Key.Name,
-					DebtSum = g.Sum(income => income.Money)
+					OrganizationId = income.Organisation == null ? (int?)null : income.Organisation.Id,
+					OrganizationName = income.Organisation == null ? null : income.Organisation.Name,
+					IncomeSum = income.Money
 				})
 				.ToFuture();
 
-			var expenseByOrganizationFuture = uow.Session.Query<Expense>()
+			var expenseFuture = uow.Session.Query<Expense>()
 				.Where(expense =>
 					expense.RouteListClosing.Id == routeListId
-					&& expense.TypeOperation == ExpenseType.Expense
-					&& expense.Organisation != null)
-				.GroupBy(expense => new { expense.Organisation.Id, expense.Organisation.Name })
-				.Select(g => new
+					&& expense.TypeOperation == ExpenseType.Expense)
+				.Select(expense => new RouteListDebtByOrganizationNode
 				{
-					OrganizationId = g.Key.Id,
-					OrganizationName = g.Key.Name,
-					DebtSum = g.Sum(expense => expense.Money)
+					OrganizationId = expense.Organisation == null ? (int?)null : expense.Organisation.Id,
+					OrganizationName = expense.Organisation == null ? null : expense.Organisation.Name,
+					ExpenseSum = expense.Money
 				})
 				.ToFuture();
 
-			var totalCashByOrganization = totalCashByOrganizationFuture.ToList();
-			var incomeByOrganization = incomeByOrganizationFuture.ToList();
-			var expenseByOrganization = expenseByOrganizationFuture.ToList();
+			var ordersCashRaw = ordersCashRawFuture.ToList();
+			var incomeRows = incomeFuture.ToList();
+			var expenseRows = expenseFuture.ToList();
 
-			var organizationIds = totalCashByOrganization.Select(x => x.OrganizationId)
-				.Union(incomeByOrganization.Select(x => x.OrganizationId))
-				.Union(expenseByOrganization.Select(x => x.OrganizationId));
-
-			var debtsByOrganizations = new List<RouteListDebtByOrganizationNode>();
-
-			foreach(var organizationId in organizationIds)
-			{
-				var totalCash = totalCashByOrganization.FirstOrDefault(x => x.OrganizationId == organizationId);
-				var income = incomeByOrganization.FirstOrDefault(x => x.OrganizationId == organizationId);
-				var expense = expenseByOrganization.FirstOrDefault(x => x.OrganizationId == organizationId);
-
-				var organizationName = totalCash?.OrganizationName ?? income?.OrganizationName ?? expense?.OrganizationName;
-
-				debtsByOrganizations.Add(new RouteListDebtByOrganizationNode
+			// Если по заказу нет чека,то считаем, что данный заказ на дефолтную организацию, независимо от организации в договоре заказа
+			var ordersCash = ordersCashRaw
+				.Select(x =>
 				{
-					OrganizationId = organizationId,
-					OrganizationName = organizationName,
-					OrdersCashSum = totalCash?.DebtSum ?? 0,
-					IncomeSum = income?.DebtSum ?? 0,
-					ExpenseSum = expense?.DebtSum ?? 0
-				});
-			}
+					var hasSentReceipt = hasSentReceiptFunc.Invoke(uow, x.OrderId);
+
+					return new RouteListDebtByOrganizationNode
+					{
+						OrganizationId = hasSentReceipt ? x.ContractOrganizationId : defaultOrganization.Id,
+						OrganizationName = hasSentReceipt ? x.ContractOrganizationName : defaultOrganization.Name,
+						OrdersCashSum = x.OrdersCashSum
+					};
+				})
+				.ToList();
+
+			var debtsByOrganizations = ordersCash
+				.Concat(incomeRows)
+				.Concat(expenseRows)
+				.GroupBy(x => x.OrganizationId)
+				.Select(g => new RouteListDebtByOrganizationNode
+				{
+					OrganizationId = g.Key,
+					OrganizationName = g.Key == null ? "Без организации" : g.Select(x => x.OrganizationName).First(name => name != null),
+					OrdersCashSum = g.Sum(x => x.OrdersCashSum),
+					IncomeSum = g.Sum(x => x.IncomeSum),
+					ExpenseSum = g.Sum(x => x.ExpenseSum)
+				})
+				.ToList();
 
 			return debtsByOrganizations;
 		}

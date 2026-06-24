@@ -1,7 +1,8 @@
-﻿using System;
+﻿using QS.DomainModel.UoW;
+using System;
 using System.Collections.Generic;
-using QS.DomainModel.UoW;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Settings.Organizations;
 using VodovozBusiness.EntityRepositories.Nodes;
 
 namespace Vodovoz.EntityRepositories.Cash
@@ -41,8 +42,10 @@ namespace Vodovoz.EntityRepositories.Cash
 		/// Возвращает список задолженностей по организациям для указанного маршрутного листа
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
+		/// <param name="organizationSettings">Настройки организации</param>
 		/// <param name="routeList">Id маршрутного листа</param>
+		/// <param name="hasSentReceiptFunc">Функция для проверки наличия чека по заказу</param>
 		/// <returns>Данные по долгам</returns>
-		IList<RouteListDebtByOrganizationNode> GetRouteListCashDebtByOrganizationNodes(IUnitOfWork uow, int routeListId);
+		IList<RouteListDebtByOrganizationNode> GetRouteListCashDebtByOrganizationNodes(IUnitOfWork uow, IOrganizationSettings organizationSettings, int routeListId, Func<IUnitOfWork, int, bool> hasSentReceiptFunc);
 	}
 }

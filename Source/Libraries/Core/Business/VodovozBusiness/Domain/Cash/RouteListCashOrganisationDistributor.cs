@@ -8,7 +8,6 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
-using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Cash
 {

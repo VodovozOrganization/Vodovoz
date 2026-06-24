@@ -69,6 +69,7 @@ using Vodovoz.Settings.Fuel;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
@@ -97,6 +98,7 @@ namespace Vodovoz
 		private ILogger<RouteListClosingDlg> _logger;
 
 		private IOrderSettings _orderSettings;
+		private IOrganizationSettings _organizationSettings;
 		private IDeliveryRulesSettings _deliveryRulesSettings;
 		private INomenclatureSettings _nomenclatureSettings;
 		private IRouteListRepository _routeListRepository;
@@ -205,6 +207,7 @@ namespace Vodovoz
 			_nomenclatureOnlineSettings = _lifetimeScope.Resolve<INomenclatureOnlineSettings>();
 
 			_orderSettings = _lifetimeScope.Resolve<IOrderSettings>();
+			_organizationSettings = _lifetimeScope.Resolve<IOrganizationSettings>();
 			_deliveryRulesSettings = _lifetimeScope.Resolve<IDeliveryRulesSettings>();
 			_nomenclatureSettings = _lifetimeScope.Resolve<INomenclatureSettings>();
 			_routeListRepository = _lifetimeScope.Resolve<IRouteListRepository>();
@@ -672,7 +675,7 @@ namespace Vodovoz
 		private decimal GetRouteListAdvanceReport() => _cashRepository.GetRouteListAdvancsReportsSum(UoW, Entity.Id);
 
 		private IEnumerable<RouteListDebtByOrganizationNode> GetCashDebtsByOrganizations() =>
-			_cashRepository.GetRouteListCashDebtByOrganizationNodes(UoW, Entity.Id);
+			_cashRepository.GetRouteListCashDebtByOrganizationNodes(UoW, _organizationSettings, Entity.Id, _orderRepository.OrderHasSentReceipt);
 
 		private decimal GetTerminalOrdersSum()
 		{

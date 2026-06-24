@@ -1,5 +1,4 @@
-﻿using FluentNHibernate.Testing.Values;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,11 +7,12 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
 using Vodovoz.Errors.Logistics;
 using Vodovoz.Settings.Cash;
+using Vodovoz.Settings.Organizations;
 using VodovozBusiness.EntityRepositories.Nodes;
-using static MassTransit.Monitoring.Performance.BuiltInCounters;
 
 namespace VodovozBusiness.Services.Cash
 {
@@ -21,12 +21,16 @@ namespace VodovozBusiness.Services.Cash
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
 		private readonly IOrganizationRepository _organizationRepository;
 		private readonly ICashRepository _cashRepository;
+		private readonly IOrderRepository _orderRepository;
+		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IRouteListCashOrganisationDistributor _routeListCashOrganisationDistributor;
 
 		public RouteListCashProcessingService(
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			IOrganizationRepository organizationRepository,
 			ICashRepository cashRepository,
+			IOrderRepository orderRepository,
+			IOrganizationSettings organizationSettings,
 			IRouteListCashOrganisationDistributor routeListCashOrganisationDistributor)
 		{
 			_financialCategoriesGroupsSettings =
@@ -35,6 +39,10 @@ namespace VodovozBusiness.Services.Cash
 				organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
 			_cashRepository =
 				cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
+			_orderRepository =
+				orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_organizationSettings =
+				organizationSettings ?? throw new ArgumentNullException(nameof(organizationSettings));
 			_routeListCashOrganisationDistributor =
 				routeListCashOrganisationDistributor ?? throw new ArgumentNullException(nameof(routeListCashOrganisationDistributor));
 		}
@@ -120,7 +128,10 @@ namespace VodovozBusiness.Services.Cash
 				.Where(x => x.DebtSum > 0)
 				.ToList();
 
-			var organizations = GetOrganizationsByIds(uow, detsByOrganizations.Select(x => x.OrganizationId));
+			var organizations =
+				GetOrganizationsByIds(
+					uow,
+					detsByOrganizations.Where(x => x.OrganizationId != null).Select(x => x.OrganizationId.Value));
 
 			var remainder = casheInput is null ? detsByOrganizations.Sum(x => x.DebtSum) : casheInput.Value;
 
@@ -131,7 +142,7 @@ namespace VodovozBusiness.Services.Cash
 					break;
 				}
 
-				var organization = organizations.First(o => o.Id == debtByOrganization.OrganizationId);
+				var organization = organizations.FirstOrDefault(o => o.Id == debtByOrganization.OrganizationId);
 
 				var amount = Math.Min(remainder, debtByOrganization.DebtSum);
 
@@ -173,7 +184,10 @@ namespace VodovozBusiness.Services.Cash
 
 			var remainder = casheInput is null ? overpaymentsByOrganizations.Sum(x => Math.Abs(x.DebtSum)) : casheInput.Value;
 
-			var organizations = GetOrganizationsByIds(uow, overpaymentsByOrganizations.Select(x => x.OrganizationId));
+			var organizations =
+				GetOrganizationsByIds(
+					uow,
+					overpaymentsByOrganizations.Where(x => x.OrganizationId != null).Select(x => x.OrganizationId.Value));
 
 			foreach(var overpaymentByOrganization in overpaymentsByOrganizations)
 			{
@@ -182,7 +196,7 @@ namespace VodovozBusiness.Services.Cash
 					break;
 				}
 
-				var organization = organizations.First(o => o.Id == overpaymentByOrganization.OrganizationId);
+				var organization = organizations.FirstOrDefault(o => o.Id == overpaymentByOrganization.OrganizationId);
 
 				var overpaymentSum = Math.Abs(overpaymentByOrganization.DebtSum);
 				var amount = Math.Min(remainder, overpaymentSum);
@@ -211,13 +225,13 @@ namespace VodovozBusiness.Services.Cash
 		}
 
 		private IList<RouteListDebtByOrganizationNode> GetCashDebtsByOrganizations(IUnitOfWork uow, int routeListId) =>
-			_cashRepository.GetRouteListCashDebtByOrganizationNodes(uow, routeListId);
+			_cashRepository.GetRouteListCashDebtByOrganizationNodes(uow, _organizationSettings, routeListId, _orderRepository.OrderHasSentReceipt);
 
 		private static int GetMaxCashOrganizationId(IList<RouteListDebtByOrganizationNode> organizationDebts) =>
 			organizationDebts
 			.OrderByDescending(x => x.OrdersCashSum)
 			.First()
-			.OrganizationId;
+			.OrganizationId.Value;
 
 		private Organization GetOrganizationById(IUnitOfWork uow, int organizationId) =>
 			_organizationRepository.GetOrganizationById(uow, organizationId);
@@ -244,7 +258,7 @@ namespace VodovozBusiness.Services.Cash
 		private Income CreateIncome(RouteList routeList, Organization organization, decimal amount) =>
 			new Income
 			{
-				IncomeCategoryId = organization.DefaultCashIncomeCategory.Id,
+				IncomeCategoryId = organization?.DefaultCashIncomeCategory?.Id ?? _financialCategoriesGroupsSettings.RouteListClosingFinancialIncomeCategoryId,
 				TypeOperation = IncomeType.DriverReport,
 				Date = DateTime.Now,
 				Casher = routeList.Cashier,
