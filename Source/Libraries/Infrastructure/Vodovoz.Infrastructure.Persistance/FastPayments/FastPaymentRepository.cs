@@ -86,18 +86,11 @@ namespace Vodovoz.Infrastructure.Persistance.FastPayments
 				.SingleOrDefault();
 		}
 
-		public FastPayment GetPerformedFastPaymentByExternalId(IUnitOfWork uow, int externalId)
-		{
-			return uow.Session.QueryOver<FastPayment>()
-				.Where(fp => fp.FastPaymentStatus == FastPaymentStatus.Performed)
-				.And(fp => fp.ExternalId == externalId)
-				.SingleOrDefault();
-		}
-		
-		public FastPayment GetFastPaymentByExternalId(IUnitOfWork uow, int externalId, DateTime? creationDate = null)
+		public FastPayment GetPerformedFastPaymentByExternalId(IUnitOfWork uow, int externalId, DateTime? creationDate = null)
 		{
 			var query = uow.Session.Query<FastPayment>()
-				.Where(fp => fp.ExternalId == externalId);
+				.Where(fp => fp.ExternalId == externalId)
+				.Where(fp => fp.FastPaymentStatus == FastPaymentStatus.Performed);
 
 			if(creationDate.HasValue)
 			{
@@ -106,7 +99,7 @@ namespace Vodovoz.Infrastructure.Persistance.FastPayments
 			
 			return query.SingleOrDefault();
 		}
-
+		
 		public IList<FastPayment> GetAllPaymentsByOnlineOrder(IUnitOfWork uow, int orderId)
 		{
 			var result = uow.Session.QueryOver<FastPayment>()

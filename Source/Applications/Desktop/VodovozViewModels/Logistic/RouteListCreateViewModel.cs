@@ -755,15 +755,15 @@ namespace Vodovoz.ViewModels.Logistic
 				confirmRecalculateRoute = true;
 			}
 
-			var confirmSendMileageCheck = false;
+			var confirmSendOnClosing = false;
 
 			if(Entity.GetCarVersion.IsCompanyCar
 				&& Entity.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck
 				&& !Entity.NeedToLoad
 				&& _interactiveService.Question(
-					$"Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{RouteListStatus.MileageCheck.GetEnumDisplayName()}'?"))
+					$"Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{RouteListStatus.OnClosing.GetEnumDisplayName()}'?"))
 			{
-				confirmSendMileageCheck = true;
+				confirmSendOnClosing = true;
 			}
 
 			var confirmSenEnRoute = false;
@@ -789,7 +789,7 @@ namespace Vodovoz.ViewModels.Logistic
 						_orderRepository,
 						skipOverfillValidation,
 						confirmRecalculateRoute,
-						confirmSendMileageCheck,
+						confirmSendOnClosing,
 						confirmSenEnRoute);
 
 					SetSensetivity(false);
@@ -889,7 +889,7 @@ namespace Vodovoz.ViewModels.Logistic
 			IOrderRepository orderRepository,
 			bool skipOverfillValidation = false,
 			bool confirmRecalculateRoute = false,
-			bool confirmSendMileageCheck = false,
+			bool confirmSendOnClosing = false,
 			bool confirmSenEnRoute = false)
 		{
 			var validationResult = _routeListService.ValidateForAccept(routeList, orderRepository, skipOverfillValidation);
@@ -967,9 +967,9 @@ namespace Vodovoz.ViewModels.Logistic
 
 			_logger.LogInformation("Операции по свободным остаткам МЛ {RouteListId} созданы.", routeList.Id);
 
-			if(routeList.GetCarVersion.IsCompanyCar && routeList.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck && !routeList.NeedToLoad)
+			if(routeList.NeedMileageCheck && !routeList.NeedToLoad)
 			{
-				if(confirmSendMileageCheck)
+				if(confirmSendOnClosing)
 				{
 					_routeListService.CompleteRouteAndCreateTask(unitOfWork, routeList, _wageParameterService, _callTaskWorker);
 				}

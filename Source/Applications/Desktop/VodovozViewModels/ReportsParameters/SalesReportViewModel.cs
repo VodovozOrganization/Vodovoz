@@ -74,7 +74,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			}
 
 			CanAccessSalesReports = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanAccessSalesReports);
-			_canViewReportSalesWithCashReceipts =  currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanViewReportSalesWithCashReceipts);
+			_canViewReportSalesWithCashReceipts = currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.ReportPermissions.Sales.CanViewReportSalesWithCashReceipts);
 
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_includeExcludeSalesFilterFactory = includeExcludeSalesFilterFactory ?? throw new ArgumentNullException(nameof(includeExcludeSalesFilterFactory));
@@ -178,7 +178,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 			{
 				additionalParams.Add("Только с чеками", "only_with_cash_receipts");
 			}
-			
+
 			additionalParams.Add("Только заказы в МЛ", "only_orders_from_route_lists");
 
 			_filterViewModel.AddFilter("Дополнительные фильтры", additionalParams);
@@ -222,7 +222,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 				var nomenclatureGroup = leftGroupingItems
 					.FirstOrDefault(x => (x as LeftRightListItemViewModel<GroupingNode>).Content.GroupType == GroupingType.Nomenclature);
-				
+
 				//Сначала организация, потом номенклатура
 
 				foreach(var item in GroupingSelectViewModel.LeftItems.ToArray())
@@ -242,7 +242,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 						GroupingSelectViewModel.LeftItems.Remove(item);
 					}
 				}
-				
+
 				foreach(var item in GroupingSelectViewModel.LeftItems.ToArray())
 				{
 					if(item != nomenclatureGroup)
@@ -281,7 +281,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 
 		private void ShowInfoWindow()
 		{
-			var info = 
+			var info =
 $@"<b>1.</b> Подсчет продаж ведется на основе заказов. В отчете учитываются заказы со статусами:
 	'{OrderStatus.Accepted.GetEnumTitle()}'
 	'{OrderStatus.InTravelList.GetEnumTitle()}'
@@ -358,7 +358,7 @@ $@"<b>1.</b> Подсчет продаж ведется на основе зак
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Заполните дату начала выборки");
 				return;
 			}
-			
+
 			if(EndDate == null || EndDate == default(DateTime))
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Заполните дату окончания выборки");

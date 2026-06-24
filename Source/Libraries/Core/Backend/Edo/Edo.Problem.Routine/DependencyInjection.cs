@@ -31,6 +31,7 @@ namespace Edo.Problem.Routine
 			services
 				.AddOrderSelfDeliveryPaidProblem()
 				.AddOrderFiscalDocumentSendErrorProblem()
+				.AddReceiptNightSendProblem()
 				.AddOrderStatusProblem()
 				;
 
@@ -70,6 +71,14 @@ namespace Edo.Problem.Routine
 		{
 			services.ConfigureOptions<ConfigureOrderStatusProblemWorkerOptions>();
 			services.AddScoped<OrderStatusProblemService>();
+
+			return services;
+		}
+
+		private static IServiceCollection AddReceiptNightSendProblem(this IServiceCollection services)
+		{
+			services.ConfigureOptions<ConfigureReceiptNightSendProblemWorkerOptions>();
+			services.AddScoped<ReceiptNightSendProblemService>();
 
 			return services;
 		}

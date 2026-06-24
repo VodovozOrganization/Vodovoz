@@ -677,7 +677,7 @@ namespace Vodovoz.Domain.Logistic
 			.Count();
 
 		public virtual bool NeedMileageCheck =>
-			GetCarVersion.CarOwnType == CarOwnType.Company && Car.CarModel.CarTypeOfUse != CarTypeOfUse.Truck;
+			GetCarVersion.CarOwnType == CarOwnType.Company;
 
 		public virtual decimal PhoneSum {
 			get {
