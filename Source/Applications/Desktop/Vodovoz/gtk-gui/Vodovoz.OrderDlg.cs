@@ -2504,7 +2504,9 @@ namespace Vodovoz
 			w180.Expand = false;
 			w180.Fill = false;
 			// Container child yhbox5.Gtk.Box+BoxChild
-			this.orderitemdiscountreasonsview1 = null;
+			this.orderitemdiscountreasonsview1 = new global::Vodovoz.ViewWidgets.Orders.OrderItemDiscountReasonsView();
+			this.orderitemdiscountreasonsview1.Events = ((global::Gdk.EventMask)(256));
+			this.orderitemdiscountreasonsview1.Name = "orderitemdiscountreasonsview1";
 			this.yhbox5.Add(this.orderitemdiscountreasonsview1);
 			global::Gtk.Box.BoxChild w181 = ((global::Gtk.Box.BoxChild)(this.yhbox5[this.orderitemdiscountreasonsview1]));
 			w181.Position = 1;
