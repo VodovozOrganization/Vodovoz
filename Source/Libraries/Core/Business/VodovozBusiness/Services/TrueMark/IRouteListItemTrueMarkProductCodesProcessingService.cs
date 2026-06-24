@@ -65,24 +65,18 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <returns>Результат удаления кода</returns>
 		Task<Result> RemoveStagingTrueMarkCode(IUnitOfWork uow, string scannedCode, int routeListItemId, int orderItemId, CancellationToken cancellationToken = default);
 
+		/// <summary>
 		/// Добавляет коды Честного Знака из промежуточного хранения к строке маршрутного листа и удаляет их
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="routeListItem">Адрес МЛ</param>
+		/// <param name="addOnlyAvailableCodes">Переносить только имеющиеся коды без требования полного количества</param>
 		/// <param name="cancellationToken">Токен отмены</param>
-		/// <returns></returns>
-		Task<Result> AddProductCodesToRouteListItemAndDeleteStagingCodes(IUnitOfWork uow, RouteListItem routeListItem, CancellationToken cancellationToken = default);
-
-		/// <summary>
-		/// Добавляет имеющиеся коды Честного Знака из промежуточного хранения к строке маршрутного листа и удаляет их
-		/// </summary>
-		/// <param name="uow">UnitOfWork</param>
-		/// <param name="routeListItem">Адрес МЛ</param>
-		/// <param name="cancellationToken">Токен отмены</param>
-		/// <returns></returns>
-		Task<Result> AddAvailableProductCodesToRouteListItemAndDeleteStagingCodes(
+		/// <returns>Результат переноса кодов</returns>
+		Task<Result> AddProductCodesToRouteListItemAndDeleteStagingCodes(
 			IUnitOfWork uow,
 			RouteListItem routeListItem,
+			bool addOnlyAvailableCodes = false,
 			CancellationToken cancellationToken = default);
 
 		/// <summary>

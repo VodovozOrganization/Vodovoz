@@ -108,8 +108,8 @@ namespace Vodovoz
 		private RouteListItemStatus _routeListItemStatusToChange;
 		private UndeliveryViewModel _undeliveryViewModel;
 
-		private HashSet<RouteListItem> _routeListItemsToAddCodesFromStagingCodes = new HashSet<RouteListItem>();
-		private HashSet<RouteListItem> _routeListItemsToAddAvailableCodesFromStagingCodes = new HashSet<RouteListItem>();
+		private readonly Dictionary<RouteListItem, bool> _addOnlyAvailableStagingCodesByRouteListItem =
+			new Dictionary<RouteListItem, bool>();
 
 		public RouteListKeepingViewModel(
 			ILogger<RouteListKeepingViewModel> logger,
@@ -639,10 +639,9 @@ namespace Vodovoz
 			var order = rli.RouteListItem.Order;
 
 			if(newStatus != RouteListItemStatus.Completed
-				&& _routeListItemsToAddCodesFromStagingCodes.Contains(rli.RouteListItem))
+				&& _addOnlyAvailableStagingCodesByRouteListItem.ContainsKey(rli.RouteListItem))
 			{
-				_routeListItemsToAddCodesFromStagingCodes.Remove(rli.RouteListItem);
-				_routeListItemsToAddAvailableCodesFromStagingCodes.Remove(rli.RouteListItem);
+				_addOnlyAvailableStagingCodesByRouteListItem.Remove(rli.RouteListItem);
 			}
 
 			if(newStatus == RouteListItemStatus.Completed
@@ -691,8 +690,7 @@ namespace Vodovoz
 						if(canCompleteWhenNotAllTrueMarkCodesAdded
 							&& IsNotAllCodesAddedProblem(isAllStagingCodesAddedResult))
 						{
-							_routeListItemsToAddCodesFromStagingCodes.Add(rli.RouteListItem);
-							_routeListItemsToAddAvailableCodesFromStagingCodes.Add(rli.RouteListItem);
+							_addOnlyAvailableStagingCodesByRouteListItem[rli.RouteListItem] = true;
 							return true;
 						}
 
@@ -703,8 +701,7 @@ namespace Vodovoz
 						return false;
 					}
 
-					_routeListItemsToAddCodesFromStagingCodes.Add(rli.RouteListItem);
-					_routeListItemsToAddAvailableCodesFromStagingCodes.Remove(rli.RouteListItem);
+					_addOnlyAvailableStagingCodesByRouteListItem[rli.RouteListItem] = false;
 				}
 			}
 
@@ -774,10 +771,10 @@ namespace Vodovoz
 			message = string.Empty;
 			var routeListItemsWithAddedCodes = new List<RouteListItem>();
 
-			foreach(var routeListItem in _routeListItemsToAddCodesFromStagingCodes)
+			foreach(var addOnlyAvailableCodesByRouteListItem in _addOnlyAvailableStagingCodesByRouteListItem)
 			{
-				var addOnlyAvailableCodes =
-					_routeListItemsToAddAvailableCodesFromStagingCodes.Contains(routeListItem);
+				var routeListItem = addOnlyAvailableCodesByRouteListItem.Key;
+				var addOnlyAvailableCodes = addOnlyAvailableCodesByRouteListItem.Value;
 
 				if(!AddProductCodesToRouteListItemFromStagingCodes(routeListItem, addOnlyAvailableCodes, out var addCodesMessage))
 				{
@@ -800,8 +797,7 @@ namespace Vodovoz
 
 			foreach(var routeListItem in routeListItemsWithAddedCodes)
 			{
-				_routeListItemsToAddCodesFromStagingCodes.Remove(routeListItem);
-				_routeListItemsToAddAvailableCodesFromStagingCodes.Remove(routeListItem);
+				_addOnlyAvailableStagingCodesByRouteListItem.Remove(routeListItem);
 			}
 
 			return true;
@@ -815,13 +811,12 @@ namespace Vodovoz
 			message = string.Empty;
 			var order = routeListItem.Order;
 
-			var addCodesResult = addOnlyAvailableCodes
-				? _routeListItemTrueMarkProductCodesProcessingService
-					.AddAvailableProductCodesToRouteListItemAndDeleteStagingCodes(UoW, routeListItem)
-					.GetAwaiter().GetResult()
-				: _routeListItemTrueMarkProductCodesProcessingService
-					.AddProductCodesToRouteListItemAndDeleteStagingCodes(UoW, routeListItem)
-					.GetAwaiter().GetResult();
+			var addCodesResult = _routeListItemTrueMarkProductCodesProcessingService
+				.AddProductCodesToRouteListItemAndDeleteStagingCodes(
+					UoW,
+					routeListItem,
+					addOnlyAvailableCodes: addOnlyAvailableCodes)
+				.GetAwaiter().GetResult();
 
 			if(addCodesResult.IsFailure)
 			{
