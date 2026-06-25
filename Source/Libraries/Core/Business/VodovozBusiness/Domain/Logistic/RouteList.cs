@@ -84,8 +84,6 @@ namespace Vodovoz.Domain.Logistic
 			.Resolve<IDeliveryRepository>();
 		private IGeneralSettings GetGeneralSettingsSettings => ScopeProvider.Scope
 			.Resolve<IGeneralSettings>();
-		private IRouteListCashOrganisationDistributor routeListCashOrganisationDistributor => ScopeProvider.Scope
-			.Resolve<IRouteListCashOrganisationDistributor>();
 		private IExpenseCashOrganisationDistributor expenseCashOrganisationDistributor => ScopeProvider.Scope
 			.Resolve<IExpenseCashOrganisationDistributor>();
 		private ICarUnloadRepository _carUnloadRepository => ScopeProvider.Scope

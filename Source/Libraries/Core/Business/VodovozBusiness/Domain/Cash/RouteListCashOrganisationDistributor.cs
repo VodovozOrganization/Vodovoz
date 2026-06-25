@@ -93,7 +93,7 @@ namespace Vodovoz.Domain.Cash
 				Amount = amount
 			};
 
-			var address = routeList.Addresses.FirstOrDefault(x => x.TotalCash > 0) ?? throw new MissingOrdersWithCashlessPaymentTypeException(routeList);
+			var address = routeList.Addresses.FirstOrDefault(x => x.TotalCash > 0) ?? throw new MissingOrdersWithCashPaymentTypeException(routeList);
 			var document = CreateRouteListItemCashDistributionDocument(operation, address, income);
 
 			Save(uow, operation, document);

@@ -53,7 +53,7 @@ namespace Vodovoz.ViewModels.Organizations
 			VatRateOrganizationVersionViewModel = _vatRateVersionViewModelFactory.CreateVatRateVersionViewModel(Entity,this, vatRateEevmBuilder, UoW, CanEdit);
 			VatRateOrganizationVersionViewModel.IsWidgetVisible = !Entity.IsOsnoMode;
 
-			FinancialIncomeCategoryEntryViewModel = BuildCarEventTypeEntryViewModel();
+			FinancialIncomeCategoryEntryViewModel = BuildDefaultCashIncomeCategoryEntryViewModel();
 
 			SaveCommand = new DelegateCommand(
 				() => Save(true),
@@ -105,7 +105,7 @@ namespace Vodovoz.ViewModels.Organizations
 			}
 		}
 
-		private IEntityEntryViewModel BuildCarEventTypeEntryViewModel()
+		private IEntityEntryViewModel BuildDefaultCashIncomeCategoryEntryViewModel()
 		{
 			var viewModel = _financialIncomeCategoryViewModelEEVMBuilder
 				.SetUnitOfWork(UoW)

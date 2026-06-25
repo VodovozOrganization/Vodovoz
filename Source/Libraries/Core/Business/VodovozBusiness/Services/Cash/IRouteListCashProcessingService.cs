@@ -26,6 +26,6 @@ namespace VodovozBusiness.Services.Cash
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="routeList">Маршрутный лист</param>
 		/// <returns>Результат пересчета</returns>
-		Result<IEnumerable<string>> RecalculateRouteListCahsBalance(IUnitOfWork uow, RouteList routeList);
+		Result<IEnumerable<string>> RecalculateRouteListCashBalance(IUnitOfWork uow, RouteList routeList);
 	}
 }

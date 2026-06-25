@@ -107,6 +107,12 @@ namespace Vodovoz.Errors.Logistics
 				nameof(InsufficientFreeVolumeForReturn),
 				$"Объём возвращаемого груза превышен на {needFreeVolume}");
 
+		public static Error MissingCashPaymentTypeOrders =>
+			new Error(
+				typeof(RouteListErrors),
+				nameof(MissingCashPaymentTypeOrders),
+				"В МЛ отсутствуют заказы с наличной формой оплаты");
+
 		public static string[] OverfilledErrorCodes => new[]
 		{
 			Error.GenerateCode(

@@ -1297,7 +1297,7 @@ namespace Vodovoz
 			}
 
 			var updateCashBalanceResult =
-				_routeListCashProcessingService.RecalculateRouteListCahsBalance(UoW, Entity);
+				_routeListCashProcessingService.RecalculateRouteListCashBalance(UoW, Entity);
 
 			if(updateCashBalanceResult.IsFailure)
 			{
@@ -1849,7 +1849,7 @@ namespace Vodovoz
 				}
 			}
 
-			var cashOrdersResult = _routeListCashProcessingService.RecalculateRouteListCahsBalance(UoW, Entity);
+			var cashOrdersResult = _routeListCashProcessingService.RecalculateRouteListCashBalance(UoW, Entity);
 
 			if(cashOrdersResult.IsFailure)
 			{

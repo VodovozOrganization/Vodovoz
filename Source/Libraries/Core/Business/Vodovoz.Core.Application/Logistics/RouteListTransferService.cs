@@ -15,7 +15,6 @@ using Vodovoz.Errors.Logistics;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Cash;
 using VodovozBusiness.Services.Cash;
-using static MassTransit.Monitoring.Performance.BuiltInCounters;
 
 namespace Vodovoz.Core.Application.Logistics
 {
@@ -394,7 +393,7 @@ namespace Vodovoz.Core.Application.Logistics
 			if(sourceRouteList.Status == RouteListStatus.Closed)
 			{
 				var updateCashBalanceResult =
-					_routeListCashProcessingService.RecalculateRouteListCahsBalance(unitOfWork, sourceRouteList);
+					_routeListCashProcessingService.RecalculateRouteListCashBalance(unitOfWork, sourceRouteList);
 
 				if(updateCashBalanceResult.IsFailure)
 				{
@@ -409,7 +408,7 @@ namespace Vodovoz.Core.Application.Logistics
 			if(targetRouteList.Status == RouteListStatus.Closed)
 			{
 				var updateCashBalanceResult =
-					_routeListCashProcessingService.RecalculateRouteListCahsBalance(unitOfWork, targetRouteList);
+					_routeListCashProcessingService.RecalculateRouteListCashBalance(unitOfWork, targetRouteList);
 
 				if(updateCashBalanceResult.IsFailure)
 				{
