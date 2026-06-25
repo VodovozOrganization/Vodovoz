@@ -386,6 +386,11 @@ namespace Vodovoz.Core.Application.Logistics
 
 			UpdateTransferDocuments(unitOfWork, address, newAddress, addressTransferType.Value);
 
+			if(sourceRouteList.Status == RouteListStatus.Closed || targetRouteList.Status == RouteListStatus.Closed)
+			{
+				FlushSessionWithoutCommit(unitOfWork);
+			}
+
 			if(sourceRouteList.Status == RouteListStatus.Closed)
 			{
 				var updateCashBalanceResult =
