@@ -2180,6 +2180,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderView.cs" />
     <Compile Include="Views\Edo\EdoInOrderActionsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderActionsView.cs" />
+    <Compile Include="Views\Edo\EdoInOrderDocumentView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderDocumentView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
