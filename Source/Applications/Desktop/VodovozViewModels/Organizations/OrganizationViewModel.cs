@@ -6,14 +6,14 @@ using QS.Navigation;
 using QS.Project.Domain;
 using QS.Services;
 using QS.ViewModels;
+using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
 using System;
-using QS.ViewModels.Control.EEVM;
 using Vodovoz.Core.Domain.Cash;
+using Vodovoz.Domain.Cash.FinancialCategoriesGroups;
 using Vodovoz.Domain.Organizations;
+using Vodovoz.ViewModels.Cash.FinancialCategoriesGroups;
 using Vodovoz.ViewModels.Factories;
-using Vodovoz.ViewModels.Journals.JournalViewModels.Cash;
-using Vodovoz.ViewModels.ViewModels.Cash;
 using Vodovoz.ViewModels.Widgets.Cash;
 using Vodovoz.ViewModels.Widgets.Organizations;
 
@@ -26,6 +26,7 @@ namespace Vodovoz.ViewModels.Organizations
 		private readonly ILogger<OrganizationViewModel> _logger;
 		private readonly IOrganizationVersionsViewModelFactory _organizationVersionsViewModelFactory;
 		private readonly IVatRateVersionViewModelFactory _vatRateVersionViewModelFactory;
+		private readonly ViewModelEEVMBuilder<FinancialIncomeCategory> _financialIncomeCategoryViewModelEEVMBuilder;
 
 		public OrganizationViewModel(
 			ILogger<OrganizationViewModel> logger,
@@ -35,18 +36,24 @@ namespace Vodovoz.ViewModels.Organizations
 			ICommonServices commonServices,
 			INavigationManager navigation, 
 			IVatRateVersionViewModelFactory vatRateVersionViewModelFactory,
-			ViewModelEEVMBuilder<VatRate> vatRateEevmBuilder)
+			ViewModelEEVMBuilder<VatRate> vatRateEevmBuilder,
+			ViewModelEEVMBuilder<FinancialIncomeCategory> financialIncomeCategoryViewModelEEVMBuilder)
 			: base(uowBuilder, unitOfWorkFactory, commonServices, navigation)
 		{
 			_logger = logger
 				?? throw new ArgumentNullException(nameof(logger));
 			_organizationVersionsViewModelFactory = organizationVersionsViewModelFactory
 				?? throw new ArgumentNullException(nameof(organizationVersionsViewModelFactory));
-			_vatRateVersionViewModelFactory = vatRateVersionViewModelFactory ?? throw new ArgumentNullException(nameof(vatRateVersionViewModelFactory));
-
+			_vatRateVersionViewModelFactory = vatRateVersionViewModelFactory
+				?? throw new ArgumentNullException(nameof(vatRateVersionViewModelFactory));
+			_financialIncomeCategoryViewModelEEVMBuilder = financialIncomeCategoryViewModelEEVMBuilder
+				?? throw new ArgumentNullException(nameof(financialIncomeCategoryViewModelEEVMBuilder));
+			
 			OrganizationVersionsViewModel = _organizationVersionsViewModelFactory.CreateOrganizationVersionsViewModel(Entity, CanEdit);
 			VatRateOrganizationVersionViewModel = _vatRateVersionViewModelFactory.CreateVatRateVersionViewModel(Entity,this, vatRateEevmBuilder, UoW, CanEdit);
 			VatRateOrganizationVersionViewModel.IsWidgetVisible = !Entity.IsOsnoMode;
+
+			FinancialIncomeCategoryEntryViewModel = BuildCarEventTypeEntryViewModel();
 
 			SaveCommand = new DelegateCommand(
 				() => Save(true),
@@ -63,6 +70,8 @@ namespace Vodovoz.ViewModels.Organizations
 
 		public OrganizationVersionsViewModel OrganizationVersionsViewModel { get; }
 		public VatRateOrganizationVersionViewModel VatRateOrganizationVersionViewModel { get; }
+		public IEntityEntryViewModel FinancialIncomeCategoryEntryViewModel { get; }
+
 		public DelegateCommand SaveCommand { get; }
 		public DelegateCommand CancelCommand { get; }
 
@@ -95,7 +104,25 @@ namespace Vodovoz.ViewModels.Organizations
 				return false;
 			}
 		}
-		
 
+		private IEntityEntryViewModel BuildCarEventTypeEntryViewModel()
+		{
+			var viewModel = _financialIncomeCategoryViewModelEEVMBuilder
+				.SetUnitOfWork(UoW)
+				.SetViewModel(this)
+				.ForProperty(Entity, x => x.DefaultCashIncomeCategory)
+				.UseViewModelJournalAndAutocompleter<FinancialCategoriesGroupsJournalViewModel, FinancialCategoriesJournalFilterViewModel>(
+				filter =>
+				{
+					filter.RestrictFinancialSubtype = FinancialSubType.Income;
+					filter.RestrictNodeSelectTypes.Add(typeof(FinancialIncomeCategory));
+				})
+				.UseViewModelDialog<FinancialIncomeCategoryViewModel>()
+				.Finish();
+
+			viewModel.CanViewEntity = CommonServices.CurrentPermissionService.ValidateEntityPermission(typeof(FinancialIncomeCategory)).CanUpdate;
+
+			return viewModel;
+		}
 	}
 }
