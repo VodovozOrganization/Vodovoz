@@ -246,9 +246,8 @@ namespace VodovozBusiness.Services.Cash
 					organization = GetOrganizationById(uow, maxCashOrganizationId);
 				}
 
-				var cashExpense = CreateExpense(routeList, organization, remainder);
+				var cashExpense = CreateAndDistributeExpense(uow, routeList, organization, remainder);
 				expenses.Add(cashExpense);
-				_routeListCashOrganisationDistributor.DistributeExpenseCash(uow, routeList, cashExpense, cashExpense.Money);
 			}
 
 			return expenses;
