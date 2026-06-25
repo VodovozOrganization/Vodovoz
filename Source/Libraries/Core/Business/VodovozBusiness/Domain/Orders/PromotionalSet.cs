@@ -8,6 +8,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Goods.PromotionalSetsOnlineParameters;
 using Vodovoz.Settings.Nomenclature;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -19,7 +20,7 @@ namespace Vodovoz.Domain.Orders
 	)]
 	[HistoryTrace]
 	[EntityPermission]
-	public class PromotionalSet : BusinessObjectBase<PromotionalSet>, IDomainObject, IValidatableObject, INamed, IArchivable
+	public class PromotionalSet : BusinessObjectBase<PromotionalSet>, IDomainObject, IValidatableObject, INamed, IArchivable, IPromoSetForNewClient
 	{
 		private const int _onlineNameLimit = 45;
 		private string _name;

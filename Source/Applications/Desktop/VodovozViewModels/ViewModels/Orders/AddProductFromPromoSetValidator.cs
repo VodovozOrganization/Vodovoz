@@ -22,7 +22,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				addNonServiceProductToServiceSourceValidator ?? throw new ArgumentNullException(nameof(addNonServiceProductToServiceSourceValidator));
 		}
 		
-		public Result Validate(Nomenclature addingNomenclature, IAddProductSource source)
+		public Result Validate(Nomenclature addingNomenclature, IAddSaleItemSource source)
 		{
 			if(source.IsLoadedFrom1C)
 			{

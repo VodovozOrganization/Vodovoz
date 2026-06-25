@@ -829,16 +829,12 @@
     <Compile Include="ViewModels\Logistic\CarViewModel.cs" />
     <Compile Include="ViewModels\Orders\AddMasterServiceHandler.cs" />
     <Compile Include="ViewModels\Orders\AddProductFromPromoSetValidator.cs" />
-    <Compile Include="ViewModels\Orders\AddPromoSetValidator.cs" />
     <Compile Include="ViewModels\Orders\AddWaterProductHandler.cs" />
+    <Compile Include="ViewModels\Orders\FixedPriceHandler.cs" />
     <Compile Include="ViewModels\Orders\OnlineOrderNotificationSettingViewModel.cs" />
     <Compile Include="ViewModels\Orders\OnlineOrderTemplatePromotionalSetHandler.cs" />
     <Compile Include="ViewModels\Orders\OnlineOrderTemplateViewModel.cs" />
     <Compile Include="ViewModels\Orders\OrderAddProductValidator.cs" />
-    <Compile Include="ViewModels\Orders\OrderProductHandler.cs" />
-    <Compile Include="ViewModels\Orders\OrderPromotionalSetHandler.cs" />
-    <Compile Include="ViewModels\Orders\ProductHandler.cs" />
-    <Compile Include="ViewModels\Orders\PromotionalSetHandler.cs" />
     <Compile Include="ViewModels\Orders\ServiceDistrictsSetActivationViewModel.cs" />
     <Compile Include="ViewModels\Orders\ServiceDistrictsSetViewModel.cs" />
     <Compile Include="ViewModels\Orders\OnlineOrderCancellationReasonViewModel.cs" />

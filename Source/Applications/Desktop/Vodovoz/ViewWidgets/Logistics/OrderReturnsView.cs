@@ -53,6 +53,7 @@ using Vodovoz.ViewModels.Journals.JournalNodes.Goods;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Goods;
 using Vodovoz.ViewModels.Orders;
 using Vodovoz.ViewModels.TempAdapters;
+using VodovozBusiness.Handlers;
 using VodovozBusiness.Services.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 
@@ -65,6 +66,7 @@ namespace Vodovoz
 		private readonly ILifetimeScope _lifetimeScope;
 		private readonly IOrderContractUpdater _contractUpdater;
 		private readonly IRouteListService _routeListService;
+		private readonly IOrderProductHandler _productHandler;
 		private readonly ICounterpartyService _counterpartyService;
 		private readonly IInteractiveService _interactiveService;
 		private readonly IEmployeeService _employeeService;
@@ -184,7 +186,8 @@ namespace Vodovoz
 			ITdiCompatibilityNavigation tdiNavigationManager,
 			ILifetimeScope lifetimeScope,
 			IOrderContractUpdater orderContractUpdater,
-			IRouteListService routeListService
+			IRouteListService routeListService,
+			IOrderProductHandler productHandler
 			)
 		{
 			if(currentPermissionService is null)
@@ -220,7 +223,8 @@ namespace Vodovoz
 			_tdiNavigationManager = tdiNavigationManager ?? throw new ArgumentNullException(nameof(tdiNavigationManager));
 			_lifetimeScope = lifetimeScope ?? throw new ArgumentNullException(nameof(lifetimeScope));
 			_contractUpdater = orderContractUpdater ?? throw new ArgumentNullException(nameof(orderContractUpdater));
-			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));;
+			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
+			_productHandler = productHandler ?? throw new ArgumentNullException(nameof(productHandler));
 			_orderCancellationService = _lifetimeScope.Resolve<OrderCancellationService>();
 			CancellationPermit = OrderCancellationPermit.Default();
 		}
@@ -301,10 +305,10 @@ namespace Vodovoz
 				return;
 			}
 
-			Nomenclature nomenclature = UoW.Session.Get<Nomenclature>(selectedNodes.First().Id);
-			CounterpartyContract contract = _routeListItem.Order.Contract;
+			var nomenclature = UoW.Session.Get<Nomenclature>(selectedNodes.First().Id);
+			var contract = Order.Contract;
 
-			if(_routeListItem.Order.IsLoadedFrom1C
+			if(Order.IsLoadedFrom1C
 				|| nomenclature is null
 				|| contract is null)
 			{
@@ -330,21 +334,23 @@ namespace Vodovoz
 				}
 			}
 
-			if(_routeListItem.Order.OrderItems.Any(x => !Nomenclature.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
+			if(Order.OrderItems.Any(x => !NomenclatureEntity.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
 			   && nomenclature.Category == NomenclatureCategory.master)
 			{
 				MessageDialogHelper.RunInfoDialog("В не сервисный заказ нельзя добавить сервисную услугу");
 				return;
 			}
 
-			if(_routeListItem.Order.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master)
-			   && !Nomenclature.GetCategoriesForMaster().Contains(nomenclature.Category))
+			if(Order.OrderItems.Any(x => x.Nomenclature.Category == NomenclatureCategory.master)
+			   && !NomenclatureEntity.GetCategoriesForMaster().Contains(nomenclature.Category))
 			{
 				MessageDialogHelper.RunInfoDialog("В сервисный заказ нельзя добавить не сервисную услугу");
 				return;
 			}
-
-			switch(nomenclature.Category)
+			
+			_productHandler.AddSaleItem(nomenclature, 0, 0);
+			//TODO проверить и заменить на общий метод AddSaleItem
+			/*switch(nomenclature.Category)
 			{
 				case NomenclatureCategory.water:
 					_routeListItem.Order.AddWaterForSale(UoW, _contractUpdater, nomenclature, 0, 0);
@@ -355,7 +361,7 @@ namespace Vodovoz
 				default:
 					_routeListItem.Order.AddAnyGoodsNomenclatureForSale(UoW, _contractUpdater, nomenclature, true);
 					break;
-			}
+			}*/
 
 			UpdateItemsList();
 		}
@@ -373,6 +379,8 @@ namespace Vodovoz
 			}
 
 			Initialize(_routeListItem.Order);
+			//TODO возможно стоит инициализировать каждый раз
+			_productHandler.Initialize(UoW, Order);
 
 			clientEntry.ViewModel = GetClientEntityEntryViewModel();
 
@@ -858,18 +866,18 @@ namespace Vodovoz
 			if(ytreeToClient.GetSelectedObject() is OrderItemReturnsNode selectedItemNode
 				&& selectedItemNode.OrderItem != null)
 			{
-				_routeListItem.Order.RemoveItemFromClosingOrder(UoW, _contractUpdater, selectedItemNode.OrderItem);
+				_productHandler.RemoveItemFromClosingOrder(selectedItemNode.OrderItem);
 				UpdateItemsList();
 			}
 		}
 
-		void OrderEquipmentItemsView_OnDeleteEquipment(object sender, OrderEquipment e)
+		void OrderEquipmentItemsView_OnDeleteEquipment(object sender, OrderEquipment equipment)
 		{
 			//Если оборудование добавлено в изменении заказа то базовое количество равно 0,
 			//значит такое оборудование можно удалять из изменения заказа
-			if(e.OrderItem == null && e.Count == 0)
+			if(equipment.OrderItem == null && equipment.Count == 0)
 			{
-				_routeListItem.Order.RemoveEquipment(UoW, _contractUpdater, e);
+				_productHandler.RemoveEquipment(equipment);
 			}
 		}
 

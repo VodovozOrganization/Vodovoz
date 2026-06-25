@@ -33,7 +33,7 @@ namespace Vodovoz.Core.Domain.Orders
 		private int _rentEquipmentCount;
 		private decimal _count = -1;
 
-		private OrderRentType _rentType;
+		private SaleRentType _rentType;
 		private OrderItemRentSubType _orderItemRentSubType;
 
 		private OrderEntity _order;
@@ -157,7 +157,7 @@ namespace Vodovoz.Core.Domain.Orders
 		#region Аренда
 
 		[Display(Name = "Тип аренды")]
-		public virtual OrderRentType RentType
+		public virtual SaleRentType RentType
 		{
 			get => _rentType;
 			set => SetField(ref _rentType, value);

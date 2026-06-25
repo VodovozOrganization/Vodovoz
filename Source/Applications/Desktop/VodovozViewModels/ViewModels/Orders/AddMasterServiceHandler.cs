@@ -25,7 +25,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			int count,
 			int quantityOfFollowingNomenclatures = 0)
 		{
-			if(nomenclature.Category != NomenclatureCategory.master) {
+			/*if(nomenclature.Category != NomenclatureCategory.master) {
 				return;
 			}
 
@@ -49,7 +49,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 						false,
 						1);
 				}
-			}
+			}*/
 		}
 	}
 }

@@ -51,6 +51,7 @@ using Vodovoz.Controllers;
 using Vodovoz.Core.Application.Orders;
 using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
+using Vodovoz.Core.Application.Orders.Validators;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Edo;
@@ -149,6 +150,7 @@ using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Client;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.EntityRepositories.Edo;
+using VodovozBusiness.Handlers;
 using VodovozBusiness.Nodes;
 using VodovozBusiness.NotificationSenders;
 using VodovozBusiness.Services;
@@ -304,6 +306,8 @@ namespace Vodovoz
 		private IDeliveryPointRepository _deliveryPointRepository;
 		private IOrderContractUpdater _orderContractUpdater;
 		private ICounterpartyEdoAccountController _counterpartyEdoAccountController;
+		private IOrderProductHandler _productHandler;
+		private IAddPromoSetValidator _addPromoSetValidator;
 		private IUnitOfWorkGeneric<Order> _slaveUnitOfWork = null;
 		private OrderDlg _slaveOrderDlg = null;
 		private bool _canEditOrderExtraCash;
@@ -587,7 +591,7 @@ namespace Vodovoz
 		{
 			Entity.IsCopiedFromUndelivery = true;
 
-			var orderCopyModel = new OrderCopyModel(_nomenclatureSettings, _flyerRepository, _orderContractUpdater);
+			var orderCopyModel = new OrderCopyModel(_nomenclatureSettings, _flyerRepository, _orderContractUpdater, _productHandler);
 			var copying = orderCopyModel.StartCopyOrder(UoW, orderId, Entity)
 				.CopyFields()
 				.CopyStockBottle()
@@ -640,7 +644,7 @@ namespace Vodovoz
 		//Копирование меньшего количества полей чем в CopyOrderFrom для пункта "Повторить заказ" в журнале заказов
 		public void CopyLesserOrderFrom(int orderId)
 		{
-			var orderCopyModel = new OrderCopyModel(_nomenclatureSettings, _flyerRepository, _orderContractUpdater);
+			var orderCopyModel = new OrderCopyModel(_nomenclatureSettings, _flyerRepository, _orderContractUpdater, _productHandler);
 			var copying = orderCopyModel.StartCopyOrder(UoW, orderId, Entity)
 				.CopyFields(
 					x => x.Client,
@@ -692,6 +696,9 @@ namespace Vodovoz
 			_paymentFromBankClientController = _lifetimeScope.Resolve<IPaymentFromBankClientController>();
 			_exportsOrderTo1cReporitory = _lifetimeScope.Resolve<IGenericRepository<OrderTo1cExport>>();
 			_cashReceiptRepository = _lifetimeScope.Resolve<ICashReceiptRepository>();
+			_productHandler = _lifetimeScope.Resolve<IOrderProductHandler>();
+			_productHandler.Initialize(UoW, Entity);
+			_addPromoSetValidator = _lifetimeScope.Resolve<IAddPromoSetValidatorFactory>().CreateForOrder();
 
 			_justCreated = UoWGeneric.IsNew;
 
@@ -1417,13 +1424,13 @@ namespace Vodovoz
 				case nameof(Entity.OrderAddressType):
 					UpdateOrderAddressTypeUI();
 					CurrentObjectChanged?.Invoke(this, new CurrentObjectChangedArgs(Entity.OrderAddressType));
-					Entity.UpdateMasterCallNomenclatureIfNeeded(UoW, _orderContractUpdater);
+					_productHandler.UpdateMasterCallNomenclatureIfNeeded();
 					break;
 				case nameof(Counterparty.IsChainStore):
 					UpdateOrderAddressTypeWithUI();
 					break;
 				case nameof(Order.SelfDelivery):
-					Entity.UpdateMasterCallNomenclatureIfNeeded(UoW, _orderContractUpdater);
+					_productHandler.UpdateMasterCallNomenclatureIfNeeded();
 					UpdateCallBeforeArrival();
 					break;
 				case nameof(Order.IsFastDelivery):
@@ -1834,7 +1841,7 @@ namespace Vodovoz
 					Entity.DeliverySchedule = UoW.GetById<DeliverySchedule>(_deliveryRulesSettings.FastDeliveryScheduleId);
 				}
 
-				Entity.AddFastDeliveryNomenclatureIfNeeded(UoW, _orderContractUpdater);
+				_productHandler.AddFastDeliveryNomenclatureIfNeeded();
 				return;
 			}
 
@@ -1843,8 +1850,7 @@ namespace Vodovoz
 				Entity.DeliverySchedule = null;
 			}
 
-			Entity.RemoveFastDeliveryNomenclature(UoW, _orderContractUpdater);
-
+			_productHandler.RemoveFastDeliveryNomenclature();
 			speciallistcomboboxCallBeforeArrivalMinutes.SelectedItem = null;
 		}
 
@@ -2100,7 +2106,7 @@ namespace Vodovoz
 					{
 						bool result = true;
 
-						if(node.RentType != OrderRentType.None)
+						if(node.RentType != SaleRentType.None)
 						{
 							result = false;
 						}
@@ -3587,9 +3593,28 @@ namespace Vodovoz
 			{
 				return;
 			}
+			
 
-			if(CanAddNomenclaturesToOrder() && Entity.CanAddPromotionalSet(proSet, _freeLoaderChecker, _promotionalSetRepository))
+			if(CanAddNomenclaturesToOrder())
 			{
+				var canAddPromoSetResult = _addPromoSetValidator.CanAddPromotionalSet(UoW, Entity, proSet);
+
+				if(canAddPromoSetResult.IsFailure)
+				{
+					var message = canAddPromoSetResult.Errors.First().Message;
+					_interactiveService.ShowMessage(ImportanceLevel.Warning, message);
+					return;
+				}
+
+				if(canAddPromoSetResult.IsSuccess)
+				{
+					if(!string.IsNullOrWhiteSpace(canAddPromoSetResult.Value)
+						&& !_interactiveService.Question(canAddPromoSetResult.Value))
+					{
+						return;
+					}
+				}
+				
 				ActivatePromotionalSet(proSet);
 			}
 
@@ -3779,7 +3804,13 @@ namespace Vodovoz
 				return;
 			}
 
-			Entity.AddNomenclature(UoW, _orderContractUpdater, nomenclature, count, discount, false, discountReason: discountReason);
+			_productHandler.AddSaleItem(
+				nomenclature,
+				count,
+				discount,
+				false,
+				discountReasons: new []{ discountReason }
+			);
 		}
 
 		private void TryAddNomenclatureFromPromoSet(PromotionalSet proSet)
@@ -3809,9 +3840,7 @@ namespace Vodovoz
 						return;
 					}
 
-					Entity.AddNomenclature(
-						UoW,
-						_orderContractUpdater,
+					_productHandler.AddSaleItem(
 						proSetItem.Nomenclature,
 						proSetItem.Count,
 						proSetItem.IsDiscountInMoney ? proSetItem.DiscountMoney : proSetItem.Discount,
@@ -3841,7 +3870,7 @@ namespace Vodovoz
 				switch(orderItem.Nomenclature.Category)
 				{
 					case NomenclatureCategory.additional:
-						Entity.AddNomenclatureForSaleFromPreviousOrder(UoW, _orderContractUpdater, orderItem);
+						_productHandler.AddNomenclatureForSaleFromPreviousOrder(orderItem);
 						continue;
 					case NomenclatureCategory.water:
 						TryAddNomenclature(orderItem.Nomenclature, orderItem.Count);
@@ -3883,18 +3912,18 @@ namespace Vodovoz
 				return;
 			}
 
-			Entity.RemoveItem(UoW, _orderContractUpdater, item);
+			_productHandler.RemoveItem(item);
 		}
 
-		private void OrderEquipmentItemsView_OnDeleteEquipment(object sender, OrderEquipment e)
+		private void OrderEquipmentItemsView_OnDeleteEquipment(object sender, OrderEquipment equipment)
 		{
-			if(e.OrderItem != null)
+			if(equipment.OrderItem != null)
 			{
-				RemoveOrderItem(e.OrderItem);
+				RemoveOrderItem(equipment.OrderItem);
 			}
 			else
 			{
-				Entity.RemoveEquipment(UoW, _orderContractUpdater, e);
+				_productHandler.RemoveEquipment(equipment);
 			}
 		}
 
@@ -4868,8 +4897,8 @@ namespace Vodovoz
 				OnFormOrderActions();
 			}
 
-			Entity.AddFastDeliveryNomenclatureIfNeeded(UoW, _orderContractUpdater);
-			Entity.UpdateMasterCallNomenclatureIfNeeded(UoW, _orderContractUpdater);
+			_productHandler.AddFastDeliveryNomenclatureIfNeeded();
+			_productHandler.UpdateMasterCallNomenclatureIfNeeded();
 
 			UpdateClientSecondOrderDiscount();
 			UpdateUIState();
@@ -5709,7 +5738,7 @@ namespace Vodovoz
 				.Where(oe => oe.OwnType == OwnTypes.Rent
 					&& oe.Reason == Reason.Rent
 					&& oe.Direction == Core.Domain.Orders.Direction.Deliver
-					&& oe.OrderRentDepositItem?.RentType == OrderRentType.DailyRent)
+					&& oe.OrderRentDepositItem?.RentType == SaleRentType.DailyRent)
 				.Select(oe => (oe.Nomenclature, oe.Count)).ToList();
 
 			foreach(var equipmentItem in equipmentItems)
@@ -5822,6 +5851,7 @@ namespace Vodovoz
 
 		private void AddPaidRent(RentType rentType, PaidRentPackage paidRentPackage, Nomenclature equipmentNomenclature)
 		{
+			//TODO также возможно стоит вынести зависимые методы
 			if(rentType == RentType.FreeRent)
 			{
 				throw new InvalidOperationException($"Не правильный тип аренды {RentType.FreeRent}, возможен только {RentType.NonfreeRent} или {RentType.DailyRent}");
@@ -5845,10 +5875,10 @@ namespace Vodovoz
 			switch(rentType)
 			{
 				case RentType.NonfreeRent:
-					Entity.AddNonFreeRent(UoW, _orderContractUpdater, paidRentPackage, equipmentNomenclature);
+					_productHandler.AddNonFreeRent(paidRentPackage, equipmentNomenclature);
 					break;
 				case RentType.DailyRent:
-					Entity.AddDailyRent(UoW, _orderContractUpdater, paidRentPackage, equipmentNomenclature);
+					_productHandler.AddDailyRent(paidRentPackage, equipmentNomenclature);
 					break;
 			}
 		}
@@ -5931,7 +5961,8 @@ namespace Vodovoz
 				}
 			}
 
-			Entity.AddFreeRent(UoW, _orderContractUpdater, freeRentPackage, equipmentNomenclature);
+			//TODO возможно стоит вынести общий метод с проверками в обработчик
+			_productHandler.AddFreeRent(freeRentPackage, equipmentNomenclature);
 		}
 
 		protected void OnYbuttonToStorageLogicAddressTypeClicked(object sender, EventArgs e)

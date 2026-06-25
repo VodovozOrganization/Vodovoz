@@ -4,6 +4,7 @@ using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Nodes;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.EntityRepositories.Orders
 {
@@ -18,11 +19,11 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// </summary>
 		/// <returns>Словарь</returns>
 		/// <param name="uow">Unit Of Work</param>
-		/// <param name="currOrder">Заказ, из которого берётся точка доставки</param>
+		/// <param name="saleItemSource">Источник продажи, из которого берётся точка доставки</param>
 		/// <param name="ignoreCurrentOrder">Если <c>true</c>, то в выборке будет
 		/// игнорироваться заказ передаваемы в качестве параметра <paramref name="currOrder"/></param>
-		Dictionary<int, int[]> GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(
-			IUnitOfWork uow, Order currOrder, bool ignoreCurrentOrder = false);
+		IDictionary<int, int[]> GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(
+			IUnitOfWork uow, IAddSaleItemSource saleItemSource, bool ignoreCurrentOrder = false);
 		bool AddressHasAlreadyBeenUsedForPromoForNewClients(IUnitOfWork uow, DeliveryPoint deliveryPoint);
 		IEnumerable<PromotionalSetOnlineParametersNode> GetActivePromotionalSetsOnlineParametersForSend(
 			IUnitOfWork uow, GoodsOnlineParameterType parameterType);

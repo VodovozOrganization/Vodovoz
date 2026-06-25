@@ -1,4 +1,5 @@
-﻿using Vodovoz.Core.Application.Orders.Validators;
+﻿using Vodovoz.Core.Application.Orders.Services.ItemsHandlers;
+using Vodovoz.Core.Application.Orders.Validators;
 using Vodovoz.EntityRepositories.Goods;
 using Vodovoz.Settings.Nomenclature;
 using VodovozBusiness.Factories;
@@ -6,11 +7,11 @@ using VodovozBusiness.Handlers;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 
-namespace Vodovoz.ViewModels.ViewModels.Orders
+namespace Vodovoz.Core.Application.Templates
 {
-	public class OnlineOrderTemplatePromotionalSetHandler : PromotionalSetHandler
+	public class OnlineOrderTemplateProductHandler : ProductHandler, IOnlineOrderTemplateProductHandler
 	{
-		public OnlineOrderTemplatePromotionalSetHandler(
+		public OnlineOrderTemplateProductHandler(
 			ISaleItemFactory saleItemFactory,
 			INomenclatureSettings nomenclatureSettings,
 			INomenclatureService nomenclatureService,
@@ -27,6 +28,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 				fixedPriceHandler,
 				addProductValidator)
 		{
+			
 		}
 	}
 }

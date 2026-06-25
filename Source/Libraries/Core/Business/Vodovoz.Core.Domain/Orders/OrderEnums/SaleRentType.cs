@@ -2,7 +2,7 @@
 
 namespace Vodovoz.Domain.Orders
 {
-	public enum OrderRentType
+	public enum SaleRentType
 	{
 		[Display(Name = "Нет аренды")]
 		None,

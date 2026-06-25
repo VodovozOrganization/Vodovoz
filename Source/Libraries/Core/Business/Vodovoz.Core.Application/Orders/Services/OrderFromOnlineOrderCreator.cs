@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Application.Orders.Services.ItemsHandlers;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
@@ -24,6 +25,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IPhoneRepository _phoneRepository;
 		private readonly IOrderContractUpdater _contractUpdater;
+		private readonly ProductHandler _productHandler;
 
 		public OrderFromOnlineOrderCreator(
 			ILogger<OrderFromOnlineOrderCreator> logger,
@@ -31,7 +33,8 @@ namespace Vodovoz.Core.Application.Orders.Services
 			INomenclatureRepository nomenclatureRepository,
 			INomenclatureSettings nomenclatureSettings,
 			IPhoneRepository phoneRepository,
-			IOrderContractUpdater contractUpdater)
+			IOrderContractUpdater contractUpdater,
+			ProductHandler productHandler)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_orderSettings = orderSettings ?? throw new ArgumentNullException(nameof(orderSettings));
@@ -39,6 +42,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 			_nomenclatureSettings = nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_phoneRepository = phoneRepository ?? throw new ArgumentNullException(nameof(phoneRepository));
 			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
+			_productHandler = productHandler ?? throw new ArgumentNullException(nameof(productHandler));
 		}
 
 		public Order CreateOrderFromOnlineOrder(IUnitOfWork uow, Employee orderCreator, OnlineOrder onlineOrder)
@@ -246,16 +250,17 @@ namespace Vodovoz.Core.Application.Orders.Services
 				{
 					foreach(var proSetItem in promoSet.PromotionalSetItems)
 					{
-						order.AddNomenclature(
+						_productHandler.AddSaleItem(
 							uow,
-							_contractUpdater,
+							order,
 							proSetItem.Nomenclature,
 							proSetItem.Count,
 							proSetItem.IsDiscountInMoney ? proSetItem.DiscountMoney : proSetItem.Discount,
 							proSetItem.IsDiscountInMoney,
 							true,
 							null,
-							proSetItem.PromoSet);
+							proSetItem.PromoSet
+						);
 					}
 					
 					order.ObservablePromotionalSets.Add(promoSet);
@@ -288,30 +293,32 @@ namespace Vodovoz.Core.Application.Orders.Services
 					&& onlineOrderItem.OnlineOrderErrorState.HasValue
 					&& onlineOrderItem.OnlineOrderErrorState == OnlineOrderErrorState.WrongDiscountParametersOrIsNotApplicable)
 				{
-					order.AddNomenclature(uow, _contractUpdater, product.Nomenclature, product.Count);
+					_productHandler.AddSaleItem(uow, order, product.Nomenclature, product.Count);
 				}
 				else
 				{
 					if(product.DiscountReason is null)
 					{
-						order.AddNomenclature(
+						_productHandler.AddSaleItem(
 							uow,
-							_contractUpdater,
+							order,
 							product.Nomenclature,
 							product.Count,
-							needGetFixedPrice: product.IsFixedPrice);
+							needGetFixedPrice: product.IsFixedPrice
+						);
 					}
 					else
 					{
-						order.AddNomenclature(
+						_productHandler.AddSaleItem(
 							uow,
-							_contractUpdater,
+							order,
 							product.Nomenclature,
 							product.Count,
 							product.GetDiscount,
 							product.IsDiscountInMoney,
 							product.IsFixedPrice,
-							discountReason: product.DiscountReason);
+							new []{ product.DiscountReason }
+						);
 					}
 				}
 			}
@@ -325,16 +332,17 @@ namespace Vodovoz.Core.Application.Orders.Services
 				{
 					continue;
 				}
-				
-				order.AddNomenclature(
+
+				_productHandler.AddSaleItem(
 					uow,
-					_contractUpdater,
+					order,
 					onlineOrderItem.Nomenclature,
 					onlineOrderItem.Count,
 					onlineOrderItem.GetDiscount,
 					onlineOrderItem.IsDiscountInMoney,
 					onlineOrderItem.IsFixedPrice,
-					onlineOrderItem.DiscountReason);
+					new []{ onlineOrderItem.DiscountReason }
+				);
 			}
 		}
 

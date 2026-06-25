@@ -8,7 +8,7 @@ namespace Vodovoz.Core.Application.Orders.Validators
 {
 	public class AddServiceProductToNonServiceSourceValidator
 	{
-		public Result Validate(Nomenclature addingNomenclature, IAddProductSource source)
+		public Result Validate(Nomenclature addingNomenclature, IAddSaleItemSource source)
 		{
 			if(source.Products.Any(x => !NomenclatureEntity.GetCategoriesForMaster().Contains(x.Nomenclature.Category))
 				&& addingNomenclature.Category == NomenclatureCategory.master)

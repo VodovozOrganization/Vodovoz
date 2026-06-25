@@ -31,11 +31,11 @@ public class OrderAddProductValidator : IAddProductValidator
 			addOnlineStoreProductValidator ?? throw new ArgumentNullException(nameof(addOnlineStoreProductValidator));
 	}
 
-	public Result Validate(Nomenclature addingNomenclature, IAddProductSource source)
+	public Result Validate(Nomenclature addingNomenclature, IAddSaleItemSource source)
 	{
 		if(source.IsLoadedFrom1C)
 		{
-			return Result.Failure(new Error("CantAddProductTo1COrder", "Нельзя добавлять товары в заказ с 1С"));
+			return Result.Failure(new Error("CantAddProductTo1COrder", "Нельзя добавлять товары в заказ из 1С"));
 		}
 
 		var res = _addDepositProductValidator.Validate(addingNomenclature, source);

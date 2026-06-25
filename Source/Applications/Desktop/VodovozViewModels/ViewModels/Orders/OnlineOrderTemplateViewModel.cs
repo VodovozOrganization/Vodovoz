@@ -22,6 +22,7 @@ using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
 using RestSharp.Validation;
 using Vodovoz.Core.Application.Orders.Validators;
+using Vodovoz.Core.Application.Templates;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
@@ -52,6 +53,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 		private readonly ICommonServices _commonServices;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IGoodsPriceCalculator _goodsPriceCalculator;
+		private readonly OnlineOrderTemplateProductHandler _productHandler;
 		private readonly ViewModelEEVMBuilder<DeliveryPoint> _deliveryPointViewModelBuilder;
 		private readonly DeliveryPointJournalFilterViewModel _deliveryPointJournalFilterViewModel;
 		private readonly Employee _currentEmployee;
@@ -83,6 +85,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IEmployeeService employeeService,
 			IGoodsPriceCalculator goodsPriceCalculator,
+			OnlineOrderTemplateProductHandler productHandler,
 			ViewModelEEVMBuilder<DeliveryPoint> deliveryPointViewModelBuilder,
 			DeliveryPointJournalFilterViewModel deliveryPointJournalFilterViewModel
 			) : base(unitOfWorkFactory, commonServices?.InteractiveService, navigationManager)
@@ -91,6 +94,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
 			_goodsPriceCalculator = goodsPriceCalculator ?? throw new ArgumentNullException(nameof(goodsPriceCalculator));
+			_productHandler = productHandler ?? throw new ArgumentNullException(nameof(productHandler));
 			_deliveryPointViewModelBuilder = deliveryPointViewModelBuilder ?? throw new ArgumentNullException(nameof(deliveryPointViewModelBuilder));
 			_deliveryPointJournalFilterViewModel =
 				deliveryPointJournalFilterViewModel ?? throw new ArgumentNullException(nameof(deliveryPointJournalFilterViewModel));
@@ -348,7 +352,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 
 			foreach(var node in selectedNodes)
 			{
-				TryAddProduct(UoW.Session.Get<Nomenclature>(node.Id));
+				//_productHandler.TryAddProduct(UoW, Entity, UoW.Session.Get<Nomenclature>(node.Id));
 			}
 		}
 		
@@ -561,19 +565,12 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			return _commonServices.InteractiveService.Question(sb.ToString());
 		}
 	}
-}
-
-
-public class OnlineOrderTemplateAddProductValidator : IAddProductValidator
+	
+	public class OnlineOrderTemplateAddProductValidator : IAddProductValidator
 	{
-		public Result Validate()
+		public Result Validate(Nomenclature addingNomenclature, IAddSaleItemSource source)
 		{
 			throw new NotImplementedException();
 		}
-	}
-
-public class TemplateProductHandler : ProductHandler
-	{
-		
 	}
 }

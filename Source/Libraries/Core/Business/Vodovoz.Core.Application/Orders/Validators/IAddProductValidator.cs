@@ -6,6 +6,6 @@ namespace Vodovoz.Core.Application.Orders.Validators
 {
 	public interface IAddProductValidator
 	{
-		Result Validate(Nomenclature addingNomenclature, IAddProductSource source);
+		Result Validate(Nomenclature addingNomenclature, IAddSaleItemSource source);
 	}
 }

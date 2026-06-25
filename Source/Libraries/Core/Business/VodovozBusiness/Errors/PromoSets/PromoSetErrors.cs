@@ -8,6 +8,14 @@ namespace VodovozBusiness.Errors.PromoSets
 			new Error(
 				typeof(PromoSetErrors),
 				nameof(HasPreviousShipmentToAnotherIndividualClient),
-				"По этому адресу уже была ранее отгрузка промонабора на другое физ.лицо");
+				"По этому адресу уже была ранее отгрузка промонабора на другое физ.лицо"
+				);
+		
+		public static Error CantAddTwoPromoSetsForNewClients =>
+			new Error(
+				typeof(PromoSetErrors),
+				nameof(CantAddTwoPromoSetsForNewClients),
+				"Нельзя добавить два промо-набора для новых клиентов"
+				);
 	}
 }

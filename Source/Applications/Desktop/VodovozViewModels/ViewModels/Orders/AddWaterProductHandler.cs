@@ -29,7 +29,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			PromotionalSet proSet = null
 		)
 		{
-			if(nomenclature.Category != NomenclatureCategory.water && !nomenclature.IsDisposableTare)
+			/*if(nomenclature.Category != NomenclatureCategory.water && !nomenclature.IsDisposableTare)
 			{
 				return;
 			}
@@ -68,7 +68,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 					0,//templateId,
 					new ObservableList<OnlineOrderTemplateProductDiscount>()
 				)
-			);
+			);*/
 		}
 	}
 
@@ -84,7 +84,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			OrderItem orderItem,
 			bool forceUseAlternativePrice = false)
 		{
-			if(ObservableOrderItems.Contains(orderItem)) {
+			/*if(ObservableOrderItems.Contains(orderItem)) {
 				return;
 			}
 
@@ -109,7 +109,7 @@ namespace Vodovoz.ViewModels.ViewModels.Orders
 			if(orderItems.Any(x => x.Nomenclature.Id == _nomenclatureSettings.MasterCallNomenclatureId))
 			{
 				_nomenclatureService.CalculateMasterCallNomenclaturePriceIfNeeded(UoW, this);
-			}
+			}*/
 		}
 	}
 }

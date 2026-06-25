@@ -2,6 +2,7 @@
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using VodovozBusiness.Domain.Orders;
 
 namespace VodovozBusiness.Services
 {
@@ -9,6 +10,6 @@ namespace VodovozBusiness.Services
 	{
 		Result Archive(IUnitOfWork unitOfWork, int nomenclatureId);
 		Result Archive(IUnitOfWork unitOfWork, Nomenclature nomenclature);
-		void CalculateMasterCallNomenclaturePriceIfNeeded(IUnitOfWork unitOfWork, Order order);
+		void CalculateMasterCallNomenclaturePriceIfNeeded(IUnitOfWork unitOfWork, IAddSaleItemSource source);
 	}
 }

@@ -8,6 +8,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.Settings.Nomenclature;
+using VodovozBusiness.Handlers;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Models.Orders
@@ -20,6 +21,7 @@ namespace Vodovoz.Models.Orders
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IFlyerRepository _flyerRepository;
 		private readonly IOrderContractUpdater _contractUpdater;
+		private readonly IOrderProductHandler _productHandler;
 		private readonly int _paidDeliveryNomenclatureId;
 		private readonly IList<int> _flyersNomenclaturesIds;
 		private readonly int _fastDeliveryNomenclatureId;
@@ -32,7 +34,8 @@ namespace Vodovoz.Models.Orders
 			Order resultOrder,
 			INomenclatureSettings nomenclatureSettings,
 			IFlyerRepository flyerRepository,
-			IOrderContractUpdater contractUpdater)
+			IOrderContractUpdater contractUpdater,
+			IOrderProductHandler productHandler)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_copiedOrder = copiedOrder ?? throw new ArgumentNullException(nameof(copiedOrder));
@@ -47,6 +50,7 @@ namespace Vodovoz.Models.Orders
 				nomenclatureSettings ?? throw new ArgumentNullException(nameof(nomenclatureSettings));
 			_flyerRepository = flyerRepository ?? throw new ArgumentNullException(nameof(flyerRepository));
 			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
+			_productHandler = productHandler ?? throw new ArgumentNullException(nameof(productHandler));
 
 			_paidDeliveryNomenclatureId = _nomenclatureSettings.PaidDeliveryNomenclatureId;
 			_fastDeliveryNomenclatureId = _nomenclatureSettings.FastDeliveryNomenclatureId;
@@ -405,7 +409,7 @@ namespace Vodovoz.Models.Orders
 				CopyingDiscounts(orderItem, newOrderItem, _needCopyStockBottleDiscount);
 			}
 
-			_resultOrder.AddOrderItem(_uow, _contractUpdater, newOrderItem);
+			_productHandler.AddSaleItem(newOrderItem);
 		}
 
 		private void CopyingDiscounts(OrderItem orderItemFrom, OrderItem orderItemTo, bool withStockBottleDiscount)

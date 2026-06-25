@@ -87,6 +87,7 @@ using VodovozBusiness.Services.Orders;
 using EnumItemClickedEventArgs = QS.Widgets.EnumItemClickedEventArgs;
 using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
+using VodovozBusiness.Handlers;
 
 namespace Vodovoz
 {
@@ -126,6 +127,7 @@ namespace Vodovoz
 		private IOrderContractUpdater _contractUpdater;
 		private OrderCancellationService _orderCancellationService;
 		private ICarEventSettings _carEventSettings;
+		private IOrderProductHandler _productHandler;
 
 		private readonly bool _isOpenFromCash;
 		private readonly bool _isRoleCashier = ServicesConfig.CommonServices.CurrentPermissionService.ValidatePresetPermission(CashPermissions.PresetPermissionsRoles.Cashier);
@@ -240,6 +242,7 @@ namespace Vodovoz
 			_orderCancellationService = _lifetimeScope.Resolve<OrderCancellationService>();
 
 			_carEventSettings = _lifetimeScope.Resolve<ICarEventSettings>();
+			_productHandler = _lifetimeScope.Resolve<IOrderProductHandler>();
 		}
 
 		private void ConfigureDlg()
@@ -816,7 +819,8 @@ namespace Vodovoz
 				NavigationManager,
 				_lifetimeScope,
 				_contractUpdater,
-				_routeListService);
+				_routeListService,
+				_productHandler);
 			
 			dlg.ConfigureForRouteListAddress(node);
 			dlg.TabClosed += OnOrderReturnsViewTabClosed;

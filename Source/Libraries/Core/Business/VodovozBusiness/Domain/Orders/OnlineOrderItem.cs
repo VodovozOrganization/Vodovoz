@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QS.DomainModel.Entity;
 using QS.HistoryLog;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Goods.Rent;
 using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Nodes;
 
@@ -145,6 +147,23 @@ namespace Vodovoz.Domain.Orders
 		public virtual decimal ActualSum => Sum;
 		public virtual decimal CurrentCount => Count;
 		
+		public OrderItemRentSubType OrderItemRentSubType { get; }
+		
+		public virtual bool IsMasterNomenclature => Nomenclature != null && Nomenclature.Category == NomenclatureCategory.master;
+		public virtual PaidRentPackage PaidRentPackage => null;
+		public virtual FreeRentPackage FreeRentPackage => null;
+		public virtual SaleRentType RentType => SaleRentType.None;
+		public virtual bool IsUserPrice { get; }
+		public virtual void SetPrice(decimal price)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual void RecalculatePrice()
+		{
+			throw new NotImplementedException();
+		}
+
 		public static OnlineOrderItem Create(
 			int? nomenclatureId,
 			decimal count,
@@ -196,5 +215,8 @@ namespace Vodovoz.Domain.Orders
 				MoneyDiscount = Price * Count * PercentDiscount / 100;
 			}
 		}
+
+		public bool IsCopiedFromUndelivery { get; }
+		public bool IsAlternativePrice { get; set; }
 	}
 }

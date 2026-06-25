@@ -8,7 +8,7 @@ namespace Vodovoz.Core.Application.Orders.Validators
 	{
 		public Result Validate(
 			Nomenclature addingNomenclature,
-			IAddProductSource source,
+			IAddSaleItemSource source,
 			bool canAddOnlineStoreNomenclatures = false)
 		{
 			if(addingNomenclature.OnlineStore != null && !canAddOnlineStoreNomenclatures)

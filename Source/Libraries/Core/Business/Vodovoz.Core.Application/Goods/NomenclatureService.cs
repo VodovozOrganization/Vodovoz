@@ -12,6 +12,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Delivery;
 using Vodovoz.Settings.Nomenclature;
+using VodovozBusiness.Domain.Orders;
 using VodovozBusiness.Domain.Service;
 using VodovozBusiness.Services;
 
@@ -186,26 +187,25 @@ namespace Vodovoz.Core.Application.Goods
 			}
 		}
 
-		public void CalculateMasterCallNomenclaturePriceIfNeeded(IUnitOfWork unitOfWork, Order order)
+		public void CalculateMasterCallNomenclaturePriceIfNeeded(IUnitOfWork unitOfWork, IAddSaleItemSource source)
 		{
-			var masterCallOrerItem = order.OrderItems.FirstOrDefault(x => x.Nomenclature.Id == _masterCallNomenclatureId);
+			var masterCallItem = source.Products.FirstOrDefault(x => x.Nomenclature.Id == _masterCallNomenclatureId);
 
-			if(masterCallOrerItem is null)
+			if(masterCallItem is null)
 			{
 				return;
 			}
 
-			if(masterCallOrerItem.IsUserPrice)
+			if(masterCallItem.IsUserPrice)
 			{
 				return;
 			}
 
-			var deliveryPoint = order.DeliveryPoint;
+			var deliveryPoint = source.DeliveryPoint;
 
-			if(deliveryPoint is null || order.DeliveryDate is null)
+			if(deliveryPoint is null || source.DeliveryDate is null)
 			{
-				masterCallOrerItem.SetPrice(masterCallOrerItem.Nomenclature.GetPrice(1));
-				
+				masterCallItem.SetPrice(masterCallItem.Nomenclature.GetPrice(1));
 				return;
 			}
 
@@ -213,23 +213,22 @@ namespace Vodovoz.Core.Application.Goods
 
 			if(serviceDistrict is null)
 			{
-				masterCallOrerItem.SetPrice(masterCallOrerItem.Nomenclature.GetPrice(1));
-
+				masterCallItem.SetPrice(masterCallItem.Nomenclature.GetPrice(1));
 				return;
 			}
 
 			decimal price = 0;
 
-			if(order.OrderItems.Any(x => x.Nomenclature.MasterServiceType ==  MasterServiceType.Cleaning))
+			if(source.Products.Any(x => x.Nomenclature.MasterServiceType ==  MasterServiceType.Cleaning))
 			{
-				price = GetMasterServiceTypePrice(serviceDistrict, MasterServiceType.Cleaning, order.DeliveryDate.Value);
+				price = GetMasterServiceTypePrice(serviceDistrict, MasterServiceType.Cleaning, source.DeliveryDate.Value);
 			}
-			else if(order.OrderItems.Any(x => x.Nomenclature.MasterServiceType == MasterServiceType.Repair))
+			else if(source.Products.Any(x => x.Nomenclature.MasterServiceType == MasterServiceType.Repair))
 			{
-				price = GetMasterServiceTypePrice(serviceDistrict, MasterServiceType.Repair, order.DeliveryDate.Value);
+				price = GetMasterServiceTypePrice(serviceDistrict, MasterServiceType.Repair, source.DeliveryDate.Value);
 			}
 
-			masterCallOrerItem.SetPrice(price);
+			masterCallItem.SetPrice(price);
 		}
 
 		private decimal GetMasterServiceTypePrice(ServiceDistrict serviceDistrict, MasterServiceType masterServiceType, DateTime deliveryDate)

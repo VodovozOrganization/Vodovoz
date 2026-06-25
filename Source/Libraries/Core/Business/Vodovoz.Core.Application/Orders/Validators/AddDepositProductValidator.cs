@@ -8,13 +8,13 @@ namespace Vodovoz.Core.Application.Orders.Validators
 {
 	public class AddDepositProductValidator
 	{
-		public Result Validate(Nomenclature addingNomenclature, IAddProductSource source)
+		public Result Validate(Nomenclature addingNomenclature, IAddSaleItemSource source)
 		{
 			if(source.PaymentTypeSource == PaymentTypeSource.Cashless)
 			{
 				if(addingNomenclature.Category == NomenclatureCategory.deposit
-					&& !source.HasDepositItems
-					&& source.HasNonPaidDeliveryItems)
+					&& !source.HasDeposits
+					&& source.HasNonPaidDeliveries)
 				{
 					return Result.Failure(
 						new Error(
@@ -23,8 +23,8 @@ namespace Vodovoz.Core.Application.Orders.Validators
 				}
 
 				if(addingNomenclature.Category != NomenclatureCategory.deposit
-					&& source.HasDepositItems
-					&& source.HasNonPaidDeliveryItems)
+					&& source.HasDeposits
+					&& source.HasNonPaidDeliveries)
 				{
 					return Result.Failure(
 						new Error(

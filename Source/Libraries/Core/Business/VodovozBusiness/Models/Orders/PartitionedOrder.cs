@@ -5,6 +5,7 @@ using QS.DomainModel.UoW;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Flyers;
 using Vodovoz.Settings.Nomenclature;
+using VodovozBusiness.Handlers;
 using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Models.Orders
@@ -15,6 +16,7 @@ namespace Vodovoz.Models.Orders
 		private readonly Order _copiedOrder;
 		private readonly Order _resultOrder;
 		private readonly IOrderContractUpdater _contractUpdater;
+		private readonly IProductHandler _productHandler;
 		private readonly int _paidDeliveryNomenclatureId;
 		private readonly IList<int> _flyersNomenclaturesIds;
 		private bool _needCopyStockBottleDiscount;
@@ -25,12 +27,14 @@ namespace Vodovoz.Models.Orders
 			Order resultOrder,
 			INomenclatureSettings nomenclatureSettings,
 			IFlyerRepository flyerRepository,
-			IOrderContractUpdater contractUpdater)
+			IOrderContractUpdater contractUpdater,
+			IProductHandler productHandler)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_copiedOrder = copiedOrder ?? throw new ArgumentNullException(nameof(copiedOrder));
 			_resultOrder = resultOrder ?? throw new ArgumentNullException(nameof(resultOrder));
 			_contractUpdater = contractUpdater ?? throw new ArgumentNullException(nameof(contractUpdater));
+			_productHandler = productHandler ?? throw new ArgumentNullException(nameof(productHandler));
 
 			if(nomenclatureSettings is null)
 			{
@@ -230,7 +234,7 @@ namespace Vodovoz.Models.Orders
 				CopyingDiscounts(orderItem, newOrderItem, _needCopyStockBottleDiscount);
 			}
 
-			_resultOrder.AddOrderItem(_uow, _contractUpdater, newOrderItem);
+			_productHandler.AddSaleItem(_uow, _resultOrder, newOrderItem);
 		}
 
 		private void CopyingDiscounts(OrderItem orderItemFrom, OrderItem orderItemTo, bool withStockBottleDiscount)

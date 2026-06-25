@@ -77,7 +77,7 @@ namespace Vodovoz.Domain.Orders
 	)]
 	[HistoryTrace]
 	[EntityPermission]
-	public class Order : OrderEntity, IValidatableObject, IAddProductSource
+	public class Order : OrderEntity, IValidatableObject, IAddSaleItemSource
 	{
 		public const string DontArriveBeforeIntervalString = "Не приезжать раньше интервала!";
 		private static Logger logger = LogManager.GetCurrentClassLogger();
@@ -402,16 +402,23 @@ namespace Vodovoz.Domain.Orders
 
 		#region IAddProductSource
 
-		public object Source => this;
-		public Counterparty Counterparty => Client;
+		public virtual object Source => this;
+		public virtual Counterparty Counterparty => Client;
 
-		public PaymentTypeSource PaymentTypeSource => PaymentType == PaymentType.Cashless ? PaymentTypeSource.Cashless : PaymentTypeSource.Other;
+		public virtual PaymentTypeSource PaymentTypeSource => PaymentType == PaymentType.Cashless ? PaymentTypeSource.Cashless : PaymentTypeSource.Other;
+		public virtual bool IsSelfDelivery => SelfDelivery;
 
-		bool IAddProductSource.HasDepositItems => HasDepositItems();
+		public virtual bool HasDeposits => HasDepositItems();
 
-		bool IAddProductSource.HasNonPaidDeliveryItems => HasNonPaidDeliveryItems();
+		public virtual bool HasNonPaidDeliveries => HasNonPaidDeliveryItems();
 
-		public ICollection<IProduct> Products => ObservableOrderItems;
+		public virtual ICollection<IProduct> Products => new List<IProduct>();//ObservableOrderItems;
+
+		public void OnSumPropertiesChanged()
+		{
+			OnPropertyChanged(nameof(OrderSum));
+			OnPropertyChanged(nameof(OrderCashSum));
+		}
 
 		#endregion
 
@@ -1522,121 +1529,10 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion
 
-		#region Добавление/удаление товаров
-		
-		public virtual void UpdateDeliveryItem(
-			IUnitOfWork uow,
-			IOrderContractUpdater contractUpdater,
-			Nomenclature nomenclature,
-			decimal price)
-		{
-			//Т.к. запускается пересчет различных параметров, который может привести к добавлению платной доставки
-			//создание строки с платной доставкой лучше запускать до ее поиска в коллекции
-			var newDeliveryItem = OrderItem.CreateDeliveryOrderItem(this, nomenclature, price);
-			var currentDeliveryItem = ObservableOrderItems.SingleOrDefault(x => x.Nomenclature.Id == PaidDeliveryNomenclatureId);
-
-			if(price > 0)
-			{
-				AddOrUpdateDeliveryItem(uow, contractUpdater, currentDeliveryItem, newDeliveryItem, price);
-				return;
-			}
-			
-			if(currentDeliveryItem != null)
-			{
-				RemoveOrderItem(uow, contractUpdater, currentDeliveryItem);
-			}
-		}
-
-		public virtual void AddOrderItem(
-			IUnitOfWork uow,
-			IOrderContractUpdater contractUpdater,
-			OrderItem orderItem,
-			bool forceUseAlternativePrice = false)
-		{
-			if(ObservableOrderItems.Contains(orderItem)) {
-				return;
-			}
-
-			var curCount = orderItem.Nomenclature.IsWater19L
-				? GetTotalWater19LCount(true, true)
-				: orderItem.Count;
-			
-			var isAlternativePriceCopiedFromUndelivery = orderItem.CopiedFromUndelivery != null && orderItem.IsAlternativePrice;
-			var canApplyAlternativePrice =
-				isAlternativePriceCopiedFromUndelivery
-					|| (HasPermissionsForAlternativePrice
-						&& orderItem.Nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= curCount)
-						&& orderItem.GetWaterFixedPrice() == null);
-
-			orderItem.IsAlternativePrice = canApplyAlternativePrice;
-
-			ObservableOrderItems.Add(orderItem);
-			Recalculate();
-			contractUpdater.UpdateContract(uow, this);
-
-			if(orderItems.Any(x => x.Nomenclature.Id == _nomenclatureSettings.MasterCallNomenclatureId))
-			{
-				_nomenclatureService.CalculateMasterCallNomenclaturePriceIfNeeded(UoW, this);
-			}
-		}
-
-		public virtual void RemoveOrderItem(IUnitOfWork uow, IOrderContractUpdater contractUpdater, OrderItem orderItem)
-		{
-			if(!ObservableOrderItems.Contains(orderItem)) {
-				return;
-			}
-
-			if (orderItem.PromoSet != null)
-			{
-				var itemsToRemove = ObservableOrderItems.Where(oi => oi.PromoSet == orderItem.PromoSet).ToList();
-				foreach (var item in itemsToRemove)
-				{
-					ObservableOrderItems.Remove(item);
-				}
-			}
-			else
-			{
-				ObservableOrderItems.Remove(orderItem);
-			}
-
-			//Если была удалена последняя номенклатура "мастер" - переходит в стандартный тип адреса
-			if(OrderItems.All(x => !(x.IsMasterNomenclature && x.Nomenclature.Id != _nomenclatureSettings.MasterCallNomenclatureId))
-				&& orderItem.IsMasterNomenclature
-				&& orderItem.Nomenclature.Id != _nomenclatureSettings.MasterCallNomenclatureId)
-			{
-				OrderAddressType = OrderAddressType.Delivery;
-			}
-
-			contractUpdater.UpdateContract(uow, this);
-		}
-
 		public virtual void SetOrderItemCount(OrderItem orderItem, decimal newCount)
 		{
 			orderItem?.SetCount(newCount);
 		}
-		
-		private void AddOrUpdateDeliveryItem(
-			IUnitOfWork uow,
-			IOrderContractUpdater contractUpdater,
-			OrderItem currentDeliveryItem,
-			OrderItem newDeliveryItem,
-			decimal price)
-		{
-			if(currentDeliveryItem is null)
-			{
-				AddOrderItem(uow, contractUpdater, newDeliveryItem);
-				return;
-			}
-
-			if(currentDeliveryItem.Price == price)
-			{
-				return;
-			}
-
-			currentDeliveryItem.SetPrice(price);
-		}
-
-		#endregion
 
 		#region Функции
 		
@@ -1993,6 +1889,13 @@ namespace Vodovoz.Domain.Orders
 			return (int)water19L.Sum(x => x.Count);
 		}
 
+		public decimal TotalItemCount(INomenclatureCount addingItem)
+		{
+			return addingItem.Nomenclature.IsWater19L
+				? GetTotalWater19LCount(true, true)
+				: addingItem.Count;
+		}
+
 		public virtual void AddEquipmentNomenclatureToClient(Nomenclature nomenclature, IUnitOfWork UoW)
 		{
 			ObservableOrderEquipments.Add(
@@ -2043,116 +1946,6 @@ namespace Vodovoz.Domain.Orders
 				}
 			);
 			UpdateDocuments();
-		}
-
-		public virtual void AddAnyGoodsNomenclatureForSale(
-			IUnitOfWork uow,
-			IOrderContractUpdater contractUpdater,
-			Nomenclature nomenclature,
-			bool isChangeOrder = false,
-			int? cnt = null)
-		{
-			var acceptableCategories = Nomenclature.GetCategoriesForSale();
-			if(!acceptableCategories.Contains(nomenclature.Category))
-			{
-				return;
-			}
-
-			var count = (nomenclature.Category == NomenclatureCategory.service
-				|| nomenclature.Category == NomenclatureCategory.deposit) && !isChangeOrder ? 1 : 0;
-
-			if(cnt.HasValue)
-			{
-				count = cnt.Value;
-			}
-
-			var canApplyAlternativePrice = HasPermissionsForAlternativePrice
-				&& nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
-
-			AddOrderItem(
-				uow,
-				contractUpdater,
-				OrderItem.CreateForSale(this, nomenclature, count, nomenclature.GetPrice(1, canApplyAlternativePrice)));
-		}
-
-		/// <summary>
-		/// Добавление в заказ номенклатуры типа "Сервисное обслуживание"
-		/// </summary>
-		/// <param name="uow">unit of work"</param>
-		/// <param name="contractUpdater">Сервис обновления договора заказа</param>
-		/// <param name="nomenclature">Номенклатура типа "Сервисное обслуживание"</param>
-		/// <param name="count">Количество</param>
-		/// <param name="quantityOfFollowingNomenclatures">Колличество номенклатуры, указанной в параметрах БД,
-		/// которые будут добавлены в заказ вместе с мастером</param>
-		public virtual void AddMasterNomenclature(
-			IUnitOfWork uow,
-			IOrderContractUpdater contractUpdater,
-			Nomenclature nomenclature,
-			int count,
-			int quantityOfFollowingNomenclatures = 0)
-		{
-			if(nomenclature.Category != NomenclatureCategory.master) {
-				return;
-			}
-
-			var canApplyAlternativePrice = HasPermissionsForAlternativePrice
-			    && nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
-
-			AddOrderItem(
-				uow,
-				contractUpdater,
-				OrderItem.CreateForSale(this, nomenclature, count, nomenclature.GetPrice(1, canApplyAlternativePrice)));
-
-			if(quantityOfFollowingNomenclatures > 0)
-			{
-				Nomenclature followingNomenclature = _nomenclatureRepository.GetNomenclatureToAddWithMaster(UoW);
-				if(!ObservableOrderItems.Any(i => i.Nomenclature.Id == followingNomenclature.Id))
-				{
-					AddAnyGoodsNomenclatureForSale(
-						uow,
-						contractUpdater,
-						followingNomenclature,
-						false,
-						1);
-				}
-			}
-		}
-
-		public virtual void AddWaterForSale(
-			IUnitOfWork uow,
-			IOrderContractUpdater contractUpdater,
-			Nomenclature nomenclature,
-			decimal count,
-			decimal discount = 0,
-			bool isDiscountInMoney = false,
-			bool needGetFixedPrice = true,
-			DiscountReason reason = null,
-			PromotionalSet proSet = null)
-		{
-			if(nomenclature.Category != NomenclatureCategory.water && !nomenclature.IsDisposableTare)
-			{
-				return;
-			}
-
-			//Если номенклатура промонабора добавляется по фиксе (без скидки), то у нового OrderItem убирается поле discountReason
-			if(proSet != null && discount == 0) {
-				var fixPricedNomenclaturesId = GetNomenclaturesWithFixPrices.Select(n => n.Id);
-				if(fixPricedNomenclaturesId.Contains(nomenclature.Id))
-				{
-					reason = null;
-				}
-			}
-
-			if(discount > 0 && reason == null && proSet == null)
-			{
-				throw new ArgumentException("Требуется указать причину скидки (reason), если она (discount) больше 0!");
-			}
-
-			var price = GetWaterPrice(nomenclature, proSet, count, needGetFixedPrice);
-			AddOrderItem(
-				uow,
-				contractUpdater,
-				OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, price, isDiscountInMoney, discount, reason, proSet));
 		}
 
 		public virtual void AddFlyerNomenclature(Nomenclature flyerNomenclature)
@@ -2289,91 +2082,6 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		/// <summary>
-		/// Добавить оборудование из выбранного предыдущего заказа.
-		/// </summary>
-		/// <param name="uow">IUnitOfWork</param>
-		/// <param name="contractUpdater">Сервис обновления договора заказа</param>
-		/// <param name="orderItem">Элемент заказа.</param>
-		public virtual void AddNomenclatureForSaleFromPreviousOrder(
-			IUnitOfWork uow,
-			IOrderContractUpdater contractUpdater,
-			OrderItem orderItem)
-		{
-			if(orderItem.Nomenclature.Category != NomenclatureCategory.additional)
-			{
-				return;
-			}
-
-			AddOrderItem(
-				uow,
-				contractUpdater,
-				OrderItem.CreateForSale(this, orderItem.Nomenclature, orderItem.Count, orderItem.Price));
-		}
-
-		public virtual void AddNomenclature(
-			IUnitOfWork uow,
-			IOrderContractUpdater contractUpdater,
-			Nomenclature nomenclature,
-			decimal count = 0,
-			decimal discount = 0,
-			bool discountInMoney = false,
-			bool needGetFixedPrice = true,
-			DiscountReason discountReason = null,
-			PromotionalSet proSet = null)
-		{
-			switch(nomenclature.Category) {
-				case NomenclatureCategory.water:
-					AddWaterForSale(
-						uow,
-						contractUpdater,
-						nomenclature,
-						count,
-						discount,
-						discountInMoney,
-						needGetFixedPrice,
-						discountReason,
-						proSet);
-					break;
-				case NomenclatureCategory.master:
-					contract = CreateServiceContractAddMasterNomenclature(uow, contractUpdater, nomenclature);
-					break;
-				default:
-					var canApplyAlternativePrice = HasPermissionsForAlternativePrice && nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
-
-					var orderItem = OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, nomenclature.GetPrice(1, canApplyAlternativePrice), discountInMoney, discount, discountReason, proSet);
-
-					var acceptableCategories = Nomenclature.GetCategoriesForSale();
-					if(orderItem?.Nomenclature == null
-						|| !acceptableCategories.Contains(orderItem.Nomenclature.Category))
-					{
-						return;
-					}
-					AddOrderItem(uow, contractUpdater, orderItem);
-
-					break;
-			}
-		}
-
-		/// <summary>
-		/// Попытка найти и удалить промонабор, если нет больше позиций
-		/// заказа с промонабором
-		/// </summary>
-		/// <param name="orderItem">Позиция заказа</param>
-		public virtual void TryToRemovePromotionalSet(OrderItem orderItem)
-		{
-			var proSetFromOrderItem = orderItem.PromoSet;
-			if(proSetFromOrderItem != null) {
-				var proSetToRemove = ObservablePromotionalSets.FirstOrDefault(s => s == proSetFromOrderItem);
-				if(proSetToRemove != null && !OrderItems.Any(i => i.PromoSet == proSetToRemove)) {
-					foreach(PromotionalSetActionBase action in proSetToRemove.ObservablePromotionalSetActions) {
-						action.Deactivate(this);
-					}
-					ObservablePromotionalSets.Remove(proSetToRemove);
-				}
-			}
-		}
-
 		private void ObservablePromotionalSets_ElementRemoved(object aList, int[] aIdx, object aObject)
 		{
 			if(aObject is PromotionalSet proSet)
@@ -2421,75 +2129,6 @@ namespace Vodovoz.Domain.Orders
 		public virtual bool HasNonPaidDeliveryItems() =>
 			OrderItems.Any(x =>
 				_nomenclatureSettings.PaidDeliveryNomenclatureId != x.Nomenclature.Id);
-
-
-		/// <summary>
-		/// Проверка на возможность добавления промонабора в заказ
-		/// </summary>
-		/// <returns><c>true</c>, если можно добавить промонабор,
-		/// <c>false</c> если нельзя.</returns>
-		/// <param name="proSet">Промонабор (промонабор)</param>
-		public virtual bool CanAddPromotionalSet(
-			PromotionalSet proSet,
-			IFreeLoaderChecker freeLoaderChecker,
-			IPromotionalSetRepository promotionalSetRepository)
-		{
-			if(PromotionalSets.Any(x => x.PromotionalSetForNewClients && proSet.PromotionalSetForNewClients))
-			{
-				InteractiveService.ShowMessage(
-					ImportanceLevel.Warning,
-					"В заказ нельзя добавить два промо-набора для новых клиентов");
-				return false;
-			}
-
-			if(SelfDelivery)
-			{
-				return true;
-			}
-
-			if(proSet.PromotionalSetForNewClients
-				&& freeLoaderChecker.CheckFreeLoaderOrderByNaturalClientToOfficeOrStore(UoW, SelfDelivery, Client, DeliveryPoint))
-			{
-				var message = "По этому адресу уже была ранее отгрузка промонабора на другое физ.лицо.";
-				InteractiveService.ShowMessage(ImportanceLevel.Warning, message);
-				return false;
-			}
-
-			var proSetDict = promotionalSetRepository.GetPromotionalSetsAndCorrespondingOrdersForDeliveryPoint(UoW, this);
-
-			if(!proSet.PromotionalSetForNewClients | !proSetDict.Any())
-			{
-				return true;
-			}
-
-			var address = string.Join(", ", DeliveryPoint.City, DeliveryPoint.Street, DeliveryPoint.Building, DeliveryPoint.Room);
-			var sb = new StringBuilder(
-				$"Для адреса \"{address}\", найдены схожие точки доставки, на которые уже создавались заказы с промо-наборами:\n");
-			foreach(var d in proSetDict) {
-				var proSetTitle = UoW.GetById<PromotionalSet>(d.Key).ShortTitle;
-				var orders = string.Join(
-					" ,",
-					UoW.GetById<Order>(d.Value).Select(o => o.Title)
-				);
-				sb.AppendLine($"– {proSetTitle}: {orders}");
-			}
-			sb.AppendLine($"Вы уверены, что хотите добавить \"{proSet.Title}\"");
-			return InteractiveService.Question(sb.ToString());
-		}
-
-		private CounterpartyContract CreateServiceContractAddMasterNomenclature(
-			IUnitOfWork uow,
-			IOrderContractUpdater contractUpdater,
-			Nomenclature nomenclature)
-		{
-			//TODO: проверить целесообразность этой установки, т.к. при добавлении номенклатуры обновляется и сам договор
-			if(Contract == null)
-			{
-				contractUpdater.ForceUpdateContract(uow, this);
-			}
-			AddMasterNomenclature(uow, contractUpdater, nomenclature, 1);
-			return Contract;
-		}
 
 		public virtual void ClearOrderItemsList()
 		{
@@ -2774,69 +2413,6 @@ namespace Vodovoz.Domain.Orders
 				.Sum(item => item.Count);
 
 			return waterItemsCount - BottlesReturn ?? 0;
-		}
-
-		public virtual void RemoveItemFromClosingOrder(IUnitOfWork uow, IOrderContractUpdater contractUpdater, OrderItem item)
-		{
-			if((item.Count != 0 && item.Price != 0) || OrderEquipments.Any(x => x.OrderItem == item))
-			{
-				return;
-			}
-
-			RemoveOrderItem(uow, contractUpdater, item);
-		}
-
-		public virtual void RemoveItem(IUnitOfWork uow, IOrderContractUpdater contractUpdater, OrderItem item)
-		{
-			RemoveOrderItem(uow, contractUpdater, item);
-			DeleteOrderEquipmentOnOrderItem(item);
-			UpdateDocuments();
-			_nomenclatureService.CalculateMasterCallNomenclaturePriceIfNeeded(UoW, this);
-		}
-
-		public virtual void RemoveEquipment(IUnitOfWork uow, IOrderContractUpdater contractUpdater, OrderEquipment item)
-		{
-			var rentDepositOrderItem = item.OrderRentDepositItem;
-			var rentServiceOrderItem = item.OrderRentServiceItem;
-			var totalEquipmentCountForDeposit = 0;
-			var totalEquipmentCountForService = 0;
-
-			if(rentDepositOrderItem != null)
-			{
-				totalEquipmentCountForDeposit = GetRentEquipmentTotalCountForDepositItem(rentDepositOrderItem);
-			}
-			if(rentServiceOrderItem != null)
-			{
-				totalEquipmentCountForService = GetRentEquipmentTotalCountForServiceItem(rentServiceOrderItem);
-			}
-
-			if(totalEquipmentCountForDeposit == item.Count || totalEquipmentCountForService == item.Count)
-			{
-				ObservableOrderEquipments.Remove(item);
-				RemoveOrderItem(uow, contractUpdater, rentDepositOrderItem);
-				RemoveOrderItem(uow, contractUpdater, rentServiceOrderItem);
-			}
-			else
-			{
-				ObservableOrderEquipments.Remove(item);
-				UpdateRentsCount();
-			}
-
-			UpdateDocuments();
-		}
-
-		/// <summary>
-		/// Удаляет оборудование в заказе связанное с товаром в заказе
-		/// </summary>
-		/// <param name="orderItem">Товар в заказе по которому будет удалятся оборудование</param>
-		private void DeleteOrderEquipmentOnOrderItem(OrderItem orderItem)
-		{
-			var orderEquipments = ObservableOrderEquipments
-				.Where(x => x.OrderItem == orderItem)
-				.ToList();
-			foreach(var orderEquipment in orderEquipments) {
-				ObservableOrderEquipments.Remove(orderEquipment);
-			}
 		}
 
 		public virtual void RemoveDepositItem(OrderDepositItem item)
@@ -4420,232 +3996,6 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion
 
-		#region Аренда
-
-        #region NonFreeRent
-
-        public virtual void AddNonFreeRent(
-			IUnitOfWork uow,
-			IOrderContractUpdater contractUpdater,
-			PaidRentPackage paidRentPackage,
-			Nomenclature equipmentNomenclature)
-		{
-			OrderItem orderRentDepositItem = GetExistingNonFreeRentDepositItem(paidRentPackage);
-			if(orderRentDepositItem == null) {
-				orderRentDepositItem = OrderItem.CreateNewNonFreeRentDepositItem(this, paidRentPackage);
-				AddOrderItem(uow, contractUpdater, orderRentDepositItem);
-			}
-
-			OrderItem orderRentServiceItem = GetExistingNonFreeRentServiceItem(paidRentPackage);
-			if(orderRentServiceItem == null) {
-				orderRentServiceItem = OrderItem.CreateNewNonFreeRentServiceItem(this, paidRentPackage);
-				AddOrderItem(uow, contractUpdater, orderRentServiceItem);
-			}
-
-			OrderEquipment orderRentEquipment = GetExistingRentEquipmentItem(equipmentNomenclature, orderRentDepositItem, orderRentServiceItem);
-			if (orderRentEquipment == null) {
-				orderRentEquipment = CreateNewRentEquipmentItem(equipmentNomenclature, orderRentDepositItem, orderRentServiceItem);
-				ObservableOrderEquipments.Add(orderRentEquipment);
-			} else {
-				orderRentEquipment.Count++;
-			}
-
-			UpdateRentsCount();
-
-			OnPropertyChanged(nameof(OrderSum));
-			OnPropertyChanged(nameof(OrderCashSum));
-		}
-
-		private OrderItem GetExistingNonFreeRentDepositItem(PaidRentPackage paidRentPackage)
-		{
-			OrderItem orderRentDepositItem = OrderItems
-				.Where(x => x.PaidRentPackage != null && x.PaidRentPackage.Id == paidRentPackage.Id)
-				.Where(x => x.RentType == OrderRentType.NonFreeRent)
-				.Where(x => x.OrderItemRentSubType == OrderItemRentSubType.RentDepositItem)
-				.FirstOrDefault();
-			return orderRentDepositItem;
-		}
-
-		private OrderItem GetExistingNonFreeRentServiceItem(PaidRentPackage paidRentPackage)
-		{
-			OrderItem orderRentServiceItem = OrderItems
-				.Where(x => x.PaidRentPackage != null && x.PaidRentPackage.Id == paidRentPackage.Id)
-				.Where(x => x.RentType == OrderRentType.NonFreeRent)
-				.Where(x => x.OrderItemRentSubType == OrderItemRentSubType.RentServiceItem)
-				.FirstOrDefault();
-			return orderRentServiceItem;
-		}
-
-		#endregion NonFreeRent
-
-		#region DailyRent
-
-		public virtual void AddDailyRent(
-			IUnitOfWork uow,
-			IOrderContractUpdater contractUpdater,
-			PaidRentPackage paidRentPackage,
-			Nomenclature equipmentNomenclature)
-		{
-			var orderRentDepositItem = GetExistingDailyRentDepositItem(paidRentPackage);
-			if(orderRentDepositItem == null) {
-				orderRentDepositItem = OrderItem.CreateNewDailyRentDepositItem(this, paidRentPackage);
-				AddOrderItem(uow, contractUpdater, orderRentDepositItem);
-			}
-
-			var orderRentServiceItem = GetExistingDailyRentServiceItem(paidRentPackage);
-			if(orderRentServiceItem == null) {
-				orderRentServiceItem = OrderItem.CreateNewDailyRentServiceItem(this, paidRentPackage);
-				AddOrderItem(uow, contractUpdater, orderRentServiceItem);
-			}
-
-			OrderEquipment orderRentEquipment = GetExistingRentEquipmentItem(equipmentNomenclature, orderRentDepositItem, orderRentServiceItem);
-			if (orderRentEquipment == null) {
-				orderRentEquipment = CreateNewRentEquipmentItem(equipmentNomenclature, orderRentDepositItem, orderRentServiceItem);
-				ObservableOrderEquipments.Add(orderRentEquipment);
-			} else {
-				orderRentEquipment.Count++;
-			}
-
-			UpdateRentsCount();
-
-			OnPropertyChanged(nameof(OrderSum));
-			OnPropertyChanged(nameof(OrderCashSum));
-		}
-
-		private OrderItem GetExistingDailyRentDepositItem(PaidRentPackage paidRentPackage)
-		{
-			OrderItem orderRentDepositItem = OrderItems
-				.Where(x => x.PaidRentPackage != null && x.PaidRentPackage.Id == paidRentPackage.Id)
-				.Where(x => x.RentType == OrderRentType.DailyRent)
-				.Where(x => x.OrderItemRentSubType == OrderItemRentSubType.RentDepositItem)
-				.FirstOrDefault();
-			return orderRentDepositItem;
-		}
-
-		private OrderItem GetExistingDailyRentServiceItem(PaidRentPackage paidRentPackage)
-		{
-			OrderItem orderRentServiceItem = OrderItems
-				.Where(x => x.PaidRentPackage != null && x.PaidRentPackage.Id == paidRentPackage.Id)
-				.Where(x => x.RentType == OrderRentType.DailyRent)
-				.Where(x => x.OrderItemRentSubType == OrderItemRentSubType.RentServiceItem)
-				.FirstOrDefault();
-			return orderRentServiceItem;
-		}
-
-		#endregion DailyRent
-
-		#region FreeRent
-
-		public virtual void AddFreeRent(
-			IUnitOfWork uow,
-			IOrderContractUpdater contractUpdater,
-			FreeRentPackage freeRentPackage,
-			Nomenclature equipmentNomenclature)
-		{
-			var orderRentDepositItem = GetExistingFreeRentDepositItem(freeRentPackage);
-			if(orderRentDepositItem == null) {
-				orderRentDepositItem = OrderItem.CreateNewFreeRentDepositItem(this, freeRentPackage);
-				AddOrderItem(uow, contractUpdater, orderRentDepositItem);
-			}
-
-			var orderRentEquipment = GetExistingRentEquipmentItem(equipmentNomenclature, orderRentDepositItem);
-			if (orderRentEquipment == null) {
-				orderRentEquipment = CreateNewRentEquipmentItem(equipmentNomenclature, orderRentDepositItem);
-				ObservableOrderEquipments.Add(orderRentEquipment);
-			} else {
-				orderRentEquipment.Count++;
-			}
-
-			UpdateRentsCount();
-
-			OnPropertyChanged(nameof(OrderSum));
-			OnPropertyChanged(nameof(OrderCashSum));
-		}
-
-		private OrderItem GetExistingFreeRentDepositItem(FreeRentPackage freeRentPackage)
-		{
-			OrderItem orderRentDepositItem = OrderItems
-				.Where(x => x.FreeRentPackage != null && x.FreeRentPackage.Id == freeRentPackage.Id)
-				.Where(x => x.RentType == OrderRentType.FreeRent)
-				.Where(x => x.OrderItemRentSubType == OrderItemRentSubType.RentDepositItem)
-				.FirstOrDefault();
-			return orderRentDepositItem;
-		}
-
-		#endregion FreeRent
-
-		private OrderEquipment GetExistingRentEquipmentItem(Nomenclature nomenclature, OrderItem rentDepositItem, OrderItem rentServiceItem = null)
-		{
-			OrderEquipment rentEquipment = OrderEquipments
-				.Where(x => x.Reason == Reason.Rent)
-				.Where(x => x.Nomenclature == nomenclature)
-				.Where(x => x.OrderRentDepositItem == rentDepositItem)
-				.Where(x => x.OrderRentServiceItem == rentServiceItem)
-				.FirstOrDefault();
-			return rentEquipment;
-		}
-
-		private OrderEquipment CreateNewRentEquipmentItem(Nomenclature nomenclature, OrderItem rentDepositItem, OrderItem rentServiceItem = null)
-		{
-			OrderEquipment rentEquipment = new OrderEquipment {
-				Order = this,
-				Count = 1,
-				Direction = Direction.Deliver,
-				Nomenclature = nomenclature,
-				Reason = Reason.Rent,
-				DirectionReason = DirectionReason.Rent,
-				OwnType = OwnTypes.Rent,
-				OrderRentDepositItem = rentDepositItem,
-				OrderRentServiceItem = rentServiceItem
-			};
-			return rentEquipment;
-		}
-
-		public virtual void UpdateRentsCount()
-		{
-			var orderRentalItems = OrderItems.Where(x => x.OrderItemRentSubType != OrderItemRentSubType.None).ToList();
-
-			foreach(var orderItem in orderRentalItems)
-			{
-				if(!OrderItems.Contains(orderItem))
-				{
-					continue;
-				}
-
-				switch(orderItem.OrderItemRentSubType)
-				{
-					case OrderItemRentSubType.RentServiceItem:
-						var totalEquipmentCountForService = GetRentEquipmentTotalCountForServiceItem(orderItem);
-						orderItem.SetRentEquipmentCount(totalEquipmentCountForService);
-						break;
-					case OrderItemRentSubType.RentDepositItem:
-						var totalEquipmentCountForDeposit = GetRentEquipmentTotalCountForDepositItem(orderItem);
-						orderItem.SetRentEquipmentCount(totalEquipmentCountForDeposit);
-						break;
-				}
-			}
-		}
-
-		private int GetRentEquipmentTotalCountForDepositItem(OrderItem orderRentDepositItem)
-		{
-			var totalCount = orderEquipments
-				.Where(x => x.OrderRentDepositItem == orderRentDepositItem)
-				.Sum(x => x.Count);
-
-			return totalCount;
-		}
-
-		private int GetRentEquipmentTotalCountForServiceItem(OrderItem orderRentServiceItem)
-		{
-			var totalCount = orderEquipments
-				.Where(x => x.OrderRentServiceItem == orderRentServiceItem)
-				.Sum(x => x.Count);
-
-			return totalCount;
-		}
-
-		#endregion Аренда
-
 		#region Акции
 
 		/// <summary>
@@ -4700,14 +4050,12 @@ namespace Vodovoz.Domain.Orders
 
 		private void ObservableOrderDepositItems_ListContentChanged(object sender, EventArgs e)
 		{
-			OnPropertyChanged(nameof(OrderSum));
-			OnPropertyChanged(nameof(OrderCashSum));
+			OnSumPropertiesChanged();
 		}
 
 		protected internal virtual void ObservableOrderItems_ListContentChanged(object sender, EventArgs e)
 		{
-			OnPropertyChanged(nameof(OrderSum));
-			OnPropertyChanged(nameof(OrderCashSum));
+			OnSumPropertiesChanged();
 			UpdateDocuments();
 		}
 
@@ -4721,6 +4069,51 @@ namespace Vodovoz.Domain.Orders
 		{
 			RecalculateItemsPrice();
 			UpdateRentsCount();
+		}
+		
+		public virtual void UpdateRentsCount()
+		{
+			var orderRentalItems = OrderItems.Where(x => x.OrderItemRentSubType != OrderItemRentSubType.None).ToList();
+
+			foreach(var orderItem in orderRentalItems)
+			{
+				if(!OrderItems.Contains(orderItem))
+				{
+					continue;
+				}
+
+				switch(orderItem.OrderItemRentSubType)
+				{
+					case OrderItemRentSubType.RentServiceItem:
+						var totalEquipmentCountForService = GetRentEquipmentTotalCountForServiceItem(orderItem);
+						orderItem.SetRentEquipmentCount(totalEquipmentCountForService);
+						break;
+					case OrderItemRentSubType.RentDepositItem:
+						var totalEquipmentCountForDeposit = GetRentEquipmentTotalCountForDepositItem(orderItem);
+						orderItem.SetRentEquipmentCount(totalEquipmentCountForDeposit);
+						break;
+				}
+			}
+			
+			OnSumPropertiesChanged();
+		}
+		
+		public int GetRentEquipmentTotalCountForDepositItem(OrderItem orderRentDepositItem)
+		{
+			var totalCount = orderEquipments
+				.Where(x => x.OrderRentDepositItem == orderRentDepositItem)
+				.Sum(x => x.Count);
+
+			return totalCount;
+		}
+
+		public int GetRentEquipmentTotalCountForServiceItem(OrderItem orderRentServiceItem)
+		{
+			var totalCount = orderEquipments
+				.Where(x => x.OrderRentServiceItem == orderRentServiceItem)
+				.Sum(x => x.Count);
+
+			return totalCount;
 		}
 
 		#endregion
@@ -4964,29 +4357,6 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual void AddFastDeliveryNomenclatureIfNeeded(IUnitOfWork uow, IOrderContractUpdater contractUpdater)
-		{
-			if(IsFastDelivery && orderItems.All(x => x.Nomenclature.Id != FastDeliveryNomenclature.Id))
-			{
-				var canApplyAlternativePrice = HasPermissionsForAlternativePrice
-					&& FastDeliveryNomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= 1);
-
-				AddOrderItem(
-					uow,
-					contractUpdater,
-					OrderItem.CreateForSale(
-						this, FastDeliveryNomenclature, 1, FastDeliveryNomenclature.GetPrice(1, canApplyAlternativePrice)));
-			}
-		}
-
-		public virtual void RemoveFastDeliveryNomenclature(IUnitOfWork uow, IOrderContractUpdater contractUpdater)
-		{
-			var fastDeliveryItemToRemove =
-					ObservableOrderItems.SingleOrDefault(x => x.Nomenclature.Id == FastDeliveryNomenclature.Id);
-
-			RemoveOrderItem(uow, contractUpdater, fastDeliveryItemToRemove);
-		}
-
 		public virtual void ResetOrderItemsActualCounts()
 		{
 			foreach(var orderItem in ObservableOrderItems)
@@ -5073,54 +4443,6 @@ namespace Vodovoz.Domain.Orders
 		#endregion Правила сервисной доставка
 
 		public virtual bool IsOldServiceOrder => OrderAddressType == OrderAddressType.Service && CreateDate < new DateTime(2024, 10, 24);
-
-		/// <summary>
-		/// Добавление/удаление номенклатуры для вызова мастера в зависимости от типа адреса
-		/// </summary>
-		public virtual void UpdateMasterCallNomenclatureIfNeeded(IUnitOfWork unitOfWork, IOrderContractUpdater contractUpdater)
-		{
-			var masterCallNomenclature = _nomenclatureRepository.GetMasterCallNomenclature(unitOfWork);
-
-			if(OrderAddressType == OrderAddressType.Service
-				&& !SelfDelivery)
-			{
-				AddMasterCallNomenclatureIfNeeded(unitOfWork, contractUpdater, masterCallNomenclature);
-			}
-			else
-			{
-				RemoveMasterCallNomenclature(unitOfWork, contractUpdater, masterCallNomenclature);
-			}
-		}
-
-		private void AddMasterCallNomenclatureIfNeeded(
-			IUnitOfWork uow,
-			IOrderContractUpdater contractUpdater,
-			Nomenclature masterCallNomenclature)
-		{
-			if(OrderItems.Any(x => x.Nomenclature.Id == masterCallNomenclature.Id))
-			{
-				return;
-			}
-
-			var canApplyAlternativePrice = HasPermissionsForAlternativePrice
-				&& masterCallNomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= 1);
-
-			AddOrderItem(
-				uow,
-				contractUpdater,
-				OrderItem.CreateForSale(this, masterCallNomenclature, 1, 0));
-		}
-
-		private void RemoveMasterCallNomenclature(
-			IUnitOfWork uow,
-			IOrderContractUpdater contractUpdater,
-			Nomenclature masterCallNomenclature)
-		{
-			var fastDeliveryItemToRemove =
-					ObservableOrderItems.SingleOrDefault(x => x.Nomenclature.Id == masterCallNomenclature.Id);
-
-			RemoveOrderItem(uow, contractUpdater, fastDeliveryItemToRemove);
-		}
 
 		#region Obsolete
 

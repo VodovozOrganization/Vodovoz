@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using CustomerOrders.Contracts.V5.Orders;
@@ -133,11 +133,11 @@ namespace CustomerOnlineOrdersRegistrar.V5.Factories
 				var discounts = new ObservableList<OnlineOrderTemplateProductDiscount>();
 				
 				var product = OnlineOrderTemplateProduct.Create(
+					template.Id,
 					orderItem.Count,
 					orderItem.Price,
 					orderItem.Nomenclature,
 					orderItem.PromoSet,
-					template.Id,
 					discounts
 				);
 				

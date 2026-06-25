@@ -150,6 +150,8 @@ namespace Vodovoz.Domain.Orders
 			DiscountData.Create(IsDiscountInMoney, GetDiscount, DiscountReason)
 		};
 
+		public bool IsCopiedFromUndelivery => CopiedFromUndelivery != null;
+
 		public virtual void UpdateRentCount(int rentCount)
 		{
 			if(RentCount == rentCount)
@@ -344,7 +346,7 @@ namespace Vodovoz.Domain.Orders
 					return false;
 				}
 
-				if(RentType != OrderRentType.None)
+				if(RentType != SaleRentType.None)
 				{
 					return false;
 				}
@@ -722,7 +724,7 @@ namespace Vodovoz.Domain.Orders
 				Order = order,
 				Count = 1,
 				RentCount = 1,
-				RentType = OrderRentType.DailyRent,
+				RentType = SaleRentType.DailyRent,
 				OrderItemRentSubType = OrderItemRentSubType.RentServiceItem,
 				PaidRentPackage = paidRentPackage,
 				Nomenclature = paidRentPackage.RentServiceDaily
@@ -739,7 +741,7 @@ namespace Vodovoz.Domain.Orders
 			{
 				Order = order,
 				Count = 1,
-				RentType = OrderRentType.DailyRent,
+				RentType = SaleRentType.DailyRent,
 				OrderItemRentSubType = OrderItemRentSubType.RentDepositItem,
 				PaidRentPackage = paidRentPackage,
 				Nomenclature = paidRentPackage.DepositService
@@ -757,7 +759,7 @@ namespace Vodovoz.Domain.Orders
 				Order = order,
 				Count = 1,
 				RentCount = 1,
-				RentType = OrderRentType.NonFreeRent,
+				RentType = SaleRentType.NonFreeRent,
 				OrderItemRentSubType = OrderItemRentSubType.RentServiceItem,
 				PaidRentPackage = paidRentPackage,
 				Nomenclature = paidRentPackage.RentServiceMonthly
@@ -774,7 +776,7 @@ namespace Vodovoz.Domain.Orders
 			{
 				Order = order,
 				Count = 1,
-				RentType = OrderRentType.NonFreeRent,
+				RentType = SaleRentType.NonFreeRent,
 				OrderItemRentSubType = OrderItemRentSubType.RentDepositItem,
 				PaidRentPackage = paidRentPackage,
 				Nomenclature = paidRentPackage.DepositService
@@ -791,7 +793,7 @@ namespace Vodovoz.Domain.Orders
 			{
 				Order = order,
 				Count = 1,
-				RentType = OrderRentType.FreeRent,
+				RentType = SaleRentType.FreeRent,
 				OrderItemRentSubType = OrderItemRentSubType.RentDepositItem,
 				FreeRentPackage = freeRentPackage,
 				Nomenclature = freeRentPackage.DepositService
