@@ -22,6 +22,7 @@ using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Settings;
 using VodovozHealthCheck;
+using CustomerAppsApiHealthCheck = CustomerAppsApi.V2.HealthChecks.CustomerAppsApiHealthCheck;
 
 namespace CustomerAppsApi
 {
