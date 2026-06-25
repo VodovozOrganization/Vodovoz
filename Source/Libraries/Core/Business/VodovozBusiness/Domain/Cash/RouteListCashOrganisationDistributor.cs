@@ -167,6 +167,11 @@ namespace Vodovoz.Domain.Cash
 						break;
 					}
 				}
+
+				if(amount > 0)
+				{
+					DistributeExpenseCashRemainingAmount(uow, routeList, expense, amount);
+				}
 			}
 			else
 			{
