@@ -2176,6 +2176,10 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoReceiptsInOrderView.cs" />
     <Compile Include="Views\Edo\EdoTaskInOrderResolveView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoTaskInOrderResolveView.cs" />
+    <Compile Include="Views\Edo\EdoInOrderView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderView.cs" />
+    <Compile Include="Views\Edo\EdoInOrderActionsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderActionsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -2498,7 +2502,7 @@
       <Name>Edo.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Problem.Routine\Edo.Problem.Routine.csproj">
-      <Project>{9315f39c-5054-410e-b8e9-27c987321b67}</Project>
+      <Project>{B131BA90-BEDF-4236-B67F-39D1D810B12B}</Project>
       <Name>Edo.Problem.Routine</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\Core\Backend\Edo\Edo.Transport\Edo.Transport.csproj">
