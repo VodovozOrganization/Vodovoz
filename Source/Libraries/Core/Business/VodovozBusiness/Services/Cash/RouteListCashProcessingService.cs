@@ -184,14 +184,9 @@ namespace VodovozBusiness.Services.Cash
 
 			if(remainder > 0)
 			{
-				int maxCashOrganizationId = GetMaxCashOrganizationId(organizationDebts);
-
-				var organization = organizations.FirstOrDefault(x => x.Id == maxCashOrganizationId);
-
-				if(organization is null)
-				{
-					organization = GetOrganizationById(uow, maxCashOrganizationId);
-				}
+				var organization =
+					organizations.FirstOrDefault(x => x.Id == CommonCashOrganizationId)
+					?? GetOrganizationById(uow, CommonCashOrganizationId);
 
 				var cashIncome = CreateAndDistributeIncome(uow, routeList, organization, remainder);
 				incomes.Add(cashIncome);
@@ -237,14 +232,9 @@ namespace VodovozBusiness.Services.Cash
 
 			if(remainder > 0)
 			{
-				int maxCashOrganizationId = GetMaxCashOrganizationId(organizationDebts);
-
-				var organization = organizations.FirstOrDefault(x => x.Id == maxCashOrganizationId);
-
-				if(organization is null)
-				{
-					organization = GetOrganizationById(uow, maxCashOrganizationId);
-				}
+				var organization =
+					organizations.FirstOrDefault(x => x.Id == CommonCashOrganizationId)
+					?? GetOrganizationById(uow, CommonCashOrganizationId);
 
 				var cashExpense = CreateAndDistributeExpense(uow, routeList, organization, remainder);
 				expenses.Add(cashExpense);
@@ -256,11 +246,7 @@ namespace VodovozBusiness.Services.Cash
 		private IList<RouteListDebtByOrganizationNode> GetCashDebtsByOrganizations(IUnitOfWork uow, int routeListId) =>
 			_cashRepository.GetRouteListCashDebtByOrganizationNodes(uow, _organizationSettings, routeListId, _orderRepository.OrderHasSentReceipt);
 
-		private static int GetMaxCashOrganizationId(IList<RouteListDebtByOrganizationNode> organizationDebts) =>
-			organizationDebts
-			.OrderByDescending(x => x.OrdersCashSum)
-			.First()
-			.OrganizationId.Value;
+		private int CommonCashOrganizationId => _organizationSettings.CommonCashDistributionOrganisationId;
 
 		private Organization GetOrganizationById(IUnitOfWork uow, int organizationId) =>
 			_organizationRepository.GetOrganizationById(uow, organizationId);
