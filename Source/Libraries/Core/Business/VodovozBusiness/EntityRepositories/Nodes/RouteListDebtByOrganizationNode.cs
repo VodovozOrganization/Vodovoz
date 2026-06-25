@@ -28,7 +28,6 @@
 		/// <summary>
 		/// Сумма наличных по расходным ордерам
 		/// </summary>
-
 		public decimal ExpenseSum { get; set; }
 
 		/// <summary>

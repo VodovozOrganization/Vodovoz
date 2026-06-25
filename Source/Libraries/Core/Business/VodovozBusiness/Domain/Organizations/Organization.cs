@@ -47,6 +47,9 @@ namespace Vodovoz.Domain.Organizations
 			set => SetField(ref _suffix, value);
 		}
 
+		/// <summary>
+		/// Статья дохода для наличной формы оплаты по умолчанию
+		/// </summary>
 		[Display(Name = "Статья дохода для наличной формы оплаты по умолчанию")]
 		public virtual FinancialIncomeCategory DefaultCashIncomeCategory
 		{

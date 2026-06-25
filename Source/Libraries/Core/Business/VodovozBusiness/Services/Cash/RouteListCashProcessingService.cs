@@ -90,7 +90,7 @@ namespace VodovozBusiness.Services.Cash
 			}
 			catch(Exception ex)
 			{
-				throw ex;
+				throw;
 			}
 		}
 
@@ -131,7 +131,7 @@ namespace VodovozBusiness.Services.Cash
 			}
 			catch(Exception ex)
 			{
-				throw ex;
+				throw;
 			}
 		}
 

@@ -16,9 +16,9 @@ namespace VodovozBusiness.Services.Cash
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="routeList">Маршрутный лист</param>
-		/// <param name="casheInput">Сумма наличных платежей</param>
+		/// <param name="cashInput">Сумма наличных платежей</param>
 		/// <returns></returns>
-		Result<List<Income>> CreateManualCashIncome(IUnitOfWork uow, RouteList routeList, decimal casheInput);
+		Result<List<Income>> CreateManualCashIncome(IUnitOfWork uow, RouteList routeList, decimal cashInput);
 
 		/// <summary>
 		/// Пересчет суммы наличных платежей по маршуртному листу для выравнивания баланса
