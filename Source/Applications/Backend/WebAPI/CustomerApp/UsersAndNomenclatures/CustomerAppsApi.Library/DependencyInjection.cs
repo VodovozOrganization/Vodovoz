@@ -1,11 +1,9 @@
-﻿using CustomerAppsApi.Factories;
-using CustomerAppsApi.Library.Converters;
-using CustomerAppsApi.Library.Factories;
-using CustomerAppsApi.Library.Models;
-using CustomerAppsApi.Library.Repositories;
-using CustomerAppsApi.Library.Services;
-using CustomerAppsApi.Library.Validators;
-using CustomerAppsApi.Models;
+﻿using CustomerAppsApi.Library.V1.Converters;
+using CustomerAppsApi.Library.V1.Factories;
+using CustomerAppsApi.Library.V1.Models;
+using CustomerAppsApi.Library.V1.Repositories;
+using CustomerAppsApi.Library.V1.Services;
+using CustomerAppsApi.Library.V1.Validators;
 using Microsoft.Extensions.DependencyInjection;
 using QS.Utilities.Numeric;
 using Vodovoz.Core.Application.Clients.Services;

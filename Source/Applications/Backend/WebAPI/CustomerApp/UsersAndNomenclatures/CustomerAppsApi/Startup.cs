@@ -1,6 +1,6 @@
-﻿using CustomerAppsApi.HealthChecks;
-using CustomerAppsApi.Library;
+﻿using CustomerAppsApi.Library;
 using CustomerAppsApi.Middleware;
+using CustomerAppsApi.V1.HealthChecks;
 using MassTransit;
 using MessageTransport;
 using Microsoft.AspNetCore.Builder;

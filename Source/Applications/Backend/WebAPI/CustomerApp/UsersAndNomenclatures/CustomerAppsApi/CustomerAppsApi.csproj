@@ -39,4 +39,9 @@
       <ProjectReference Include="..\CustomerAppsApi.Library\CustomerAppsApi.Library.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="V1\" />
+      <Folder Include="V2\" />
+    </ItemGroup>
+
 </Project>
