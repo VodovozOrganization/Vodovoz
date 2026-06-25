@@ -47,7 +47,7 @@ namespace VodovozBusiness.Services.Cash
 				routeListCashOrganisationDistributor ?? throw new ArgumentNullException(nameof(routeListCashOrganisationDistributor));
 		}
 
-		public virtual Result<List<Income>> CreateManualCashIncome(
+		public Result<List<Income>> CreateManualCashIncome(
 			IUnitOfWork uow,
 			RouteList routeList,
 			decimal casheInput)
@@ -84,7 +84,37 @@ namespace VodovozBusiness.Services.Cash
 			return Result.Success(cashIncomes);
 		}
 
-		public virtual Result<(List<Income> Incomes, List<Expense> Expenses)> CreateAutomaticallyCashIncomesAndExpenses(
+		public Result<IEnumerable<string>> RecalculateRouteListCahsBalance(
+			IUnitOfWork uow,
+			RouteList routeList)
+		{
+			var createdOperationsResult = CreateAutomaticallyCashIncomesAndExpenses(uow, routeList);
+
+			if(createdOperationsResult.IsFailure)
+			{
+				return Result.Failure<IEnumerable<string>>(createdOperationsResult.Errors);
+			}
+
+			var incomes = createdOperationsResult.Value.Incomes;
+			var expenses = createdOperationsResult.Value.Expenses;
+
+			if(!incomes.Any() && !expenses.Any())
+			{
+				return Result.Success(Enumerable.Empty<string>());
+			}
+
+			var messages = new List<string>();
+
+			messages.AddRange(incomes.Select(income =>
+				$"Создан приходный ордер на сумму {income.Money:C0} по организации \"{income.Organisation?.Name}\""));
+
+			messages.AddRange(expenses.Select(expense =>
+				$"Создан расходный ордер на сумму {expense.Money:C0} по организации \"{expense.Organisation?.Name}\""));
+
+			return Result.Success(messages.AsEnumerable());
+		}
+
+		private Result<(List<Income> Incomes, List<Expense> Expenses)> CreateAutomaticallyCashIncomesAndExpenses(
 			IUnitOfWork uow,
 			RouteList routeList)
 		{

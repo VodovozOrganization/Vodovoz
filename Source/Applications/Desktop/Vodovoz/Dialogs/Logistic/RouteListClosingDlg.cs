@@ -1296,7 +1296,16 @@ namespace Vodovoz
 				Entity.RecountMileage();
 			}
 
-			Entity.UpdateMovementOperations(_financialCategoriesGroupsSettings);
+			var updateCashBalanceResult =
+				_routeListCashProcessingService.RecalculateRouteListCahsBalance(UoW, Entity);
+
+			if(updateCashBalanceResult.IsFailure)
+			{
+				MessageDialogHelper.RunErrorDialog(string.Join("\n", updateCashBalanceResult.Errors));
+				return;
+			}
+
+			Entity.UpdateOperations();
 
 			PerformanceHelper.AddTimePoint("Обновлены операции перемещения");
 
@@ -1840,7 +1849,7 @@ namespace Vodovoz
 				}
 			}
 
-			var cashOrdersResult = _routeListCashProcessingService.CreateAutomaticallyCashIncomesAndExpenses(UoW, Entity);
+			var cashOrdersResult = _routeListCashProcessingService.RecalculateRouteListCahsBalance(UoW, Entity);
 
 			if(cashOrdersResult.IsFailure)
 			{
@@ -1848,19 +1857,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var incomes = cashOrdersResult.Value.Incomes;
-			var expenses = cashOrdersResult.Value.Expenses;
-
-			if(!incomes.Any() && !expenses.Any())
-			{
-				return;
-			}
-
-			messages.AddRange(incomes.Select(income =>
-				$"Создан приходный ордер на сумму {income.Money:C0} по организации \"{income.Organisation?.Name}\""));
-
-			messages.AddRange(expenses.Select(expense =>
-				$"Создан расходный ордер на сумму {expense.Money:C0} по организации \"{expense.Organisation?.Name}\""));
+			messages.AddRange(cashOrdersResult.Value);
 
 			UoW.Save();
 

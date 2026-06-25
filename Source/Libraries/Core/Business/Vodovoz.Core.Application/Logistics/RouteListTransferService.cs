@@ -14,6 +14,8 @@ using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Errors.Logistics;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Cash;
+using VodovozBusiness.Services.Cash;
+using static MassTransit.Monitoring.Performance.BuiltInCounters;
 
 namespace Vodovoz.Core.Application.Logistics
 {
@@ -30,6 +32,7 @@ namespace Vodovoz.Core.Application.Logistics
 		private readonly IFinancialCategoriesGroupsSettings _financialCategoriesGroupsSettings;
 		private readonly IAddressTransferController _addressTransferController;
 		private readonly IRouteListService _routeListService;
+		private readonly IRouteListCashProcessingService _routeListCashProcessingService;
 
 		public RouteListTransferService(
 			IRouteListRepository routeListRepository,
@@ -43,7 +46,8 @@ namespace Vodovoz.Core.Application.Logistics
 			IRouteListAddressKeepingDocumentController routeListAddressKeepingDocumentController,
 			IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings,
 			IAddressTransferController addressTransferController,
-			IRouteListService routeListService)
+			IRouteListService routeListService,
+			IRouteListCashProcessingService routeListCashProcessingService)
 		{
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
@@ -61,6 +65,7 @@ namespace Vodovoz.Core.Application.Logistics
 				financialCategoriesGroupsSettings ?? throw new ArgumentNullException(nameof(financialCategoriesGroupsSettings));
 			_addressTransferController = addressTransferController ?? throw new ArgumentNullException(nameof(addressTransferController));
 			_routeListService = routeListService ?? throw new ArgumentNullException(nameof(routeListService));
+			_routeListCashProcessingService = routeListCashProcessingService ?? throw new ArgumentNullException(nameof(routeListCashProcessingService));
 		}
 
 		public Result<IEnumerable<string>> TransferAddressesFrom(IUnitOfWork unitOfWork,
@@ -383,12 +388,32 @@ namespace Vodovoz.Core.Application.Logistics
 
 			if(sourceRouteList.Status == RouteListStatus.Closed)
 			{
-				messages.AddRange(sourceRouteList.UpdateMovementOperations(_financialCategoriesGroupsSettings));
+				var updateCashBalanceResult =
+					_routeListCashProcessingService.RecalculateRouteListCahsBalance(unitOfWork, sourceRouteList);
+
+				if(updateCashBalanceResult.IsFailure)
+				{
+					return Result.Failure<IEnumerable<string>>(updateCashBalanceResult.Errors);
+				}
+				
+				messages.AddRange(updateCashBalanceResult.Value);
+
+				sourceRouteList.UpdateOperations();
 			}
 
 			if(targetRouteList.Status == RouteListStatus.Closed)
 			{
-				messages.AddRange(targetRouteList.UpdateMovementOperations(_financialCategoriesGroupsSettings));
+				var updateCashBalanceResult =
+					_routeListCashProcessingService.RecalculateRouteListCahsBalance(unitOfWork, targetRouteList);
+
+				if(updateCashBalanceResult.IsFailure)
+				{
+					return Result.Failure<IEnumerable<string>>(updateCashBalanceResult.Errors);
+				}
+
+				messages.AddRange(updateCashBalanceResult.Value);
+
+				targetRouteList.UpdateOperations();
 			}
 
 			unitOfWork.Save(sourceRouteList);

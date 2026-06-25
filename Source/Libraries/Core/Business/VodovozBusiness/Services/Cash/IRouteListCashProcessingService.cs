@@ -21,11 +21,11 @@ namespace VodovozBusiness.Services.Cash
 		Result<List<Income>> CreateManualCashIncome(IUnitOfWork uow, RouteList routeList, decimal casheInput);
 
 		/// <summary>
-		/// Автоматическое создание приходных и расходных ордеров по наличным платежам по маршуртному листу
+		/// Пересчет суммы наличных платежей по маршуртному листу для выравнивания баланса
 		/// </summary>
-		/// <param name="uow"></param>
-		/// <param name="routeList"></param>
-		/// <returns></returns>
-		Result<(List<Income> Incomes, List<Expense> Expenses)> CreateAutomaticallyCashIncomesAndExpenses(IUnitOfWork uow, RouteList routeList);
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="routeList">Маршрутный лист</param>
+		/// <returns>Результат пересчета</returns>
+		Result<IEnumerable<string>> RecalculateRouteListCahsBalance(IUnitOfWork uow, RouteList routeList);
 	}
 }
