@@ -1304,7 +1304,7 @@ namespace Vodovoz
 			this.yhboxCashOrders.Name = "yhboxCashOrders";
 			this.yhboxCashOrders.Spacing = 6;
 			// Container child yhboxCashOrders.Gtk.Box+BoxChild
-			this.spinCashOrder = new global::Gamma.GtkWidgets.ySpinButtonCurrencyFormat(-100000D, 100000D, 1D);
+			this.spinCashOrder = new global::Gamma.GtkWidgets.ySpinButtonCurrencyFormat(0D, 100000D, 1D);
 			this.spinCashOrder.CanDefault = true;
 			this.spinCashOrder.Name = "spinCashOrder";
 			this.spinCashOrder.Adjustment.PageIncrement = 10D;
