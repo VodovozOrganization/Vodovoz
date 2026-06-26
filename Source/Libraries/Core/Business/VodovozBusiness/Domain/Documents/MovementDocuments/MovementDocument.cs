@@ -346,7 +346,6 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 		{
 			if(Id == 0)
 			{
-
 				if(DocumentType == MovementDocumentType.InnerTransfer)
 				{
 					yield return new ValidationResult(
@@ -355,32 +354,9 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 					);
 				}
 
-				if(!(validationContext.GetService(typeof(IWarehouseRepository)) is IWarehouseRepository warehouseRepository))
+				foreach(var validationResult in CheckStock(validationContext))
 				{
-					throw new ArgumentException($"Для валидации отправки должен быть доступен репозиторий {nameof(IWarehouseRepository)}");
-				}
-
-				var uowFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
-				using(var uow = uowFactory.CreateWithoutRoot())
-				{
-					var operationType = GetOperationTypeByStorageFrom();
-					var storageId = GetStorageFromId();
-					var bulkItems = Items.Where(x => !x.Nomenclature.HasInventoryAccounting).ToList();
-					var amountOnStock =
-						warehouseRepository.GetWarehouseNomenclatureStock(
-							uow, operationType, storageId, bulkItems.Select(x => x.Nomenclature.Id));
-					foreach(var item in bulkItems)
-					{
-						var stock = amountOnStock.First(x => x.NomenclatureId == item.Nomenclature.Id).Stock;
-						if(item.SentAmount > stock)
-						{
-							yield return new ValidationResult
-							(   
-								$"Нельзя отгружать больше чем есть на складе {Environment.NewLine} " +
-								$"На складе: {item.Nomenclature.Name} {stock} {item.Nomenclature?.Unit?.Name}"
-							);
-						}
-					}
+					yield return validationResult;
 				}
 			}
 
@@ -434,7 +410,116 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 					new[] { nameof(Items) });
 			}
 		}
+
+		#region CheckStock
+
+		private IEnumerable<ValidationResult> CheckStock(ValidationContext validationContext)
+		{
+			if(!(validationContext.GetService(typeof(IWarehouseRepository)) is IWarehouseRepository warehouseRepository))
+			{
+				throw new ArgumentException($"Для валидации отправки должен быть доступен репозиторий {nameof(IWarehouseRepository)}");
+			}
+
+			if(!(validationContext.GetService(
+				typeof(INomenclatureInstanceRepository)) is INomenclatureInstanceRepository nomenclatureInstanceRepository))
+			{
+				throw new ArgumentException(
+					$"Для валидации отправки должен быть доступен репозиторий {nameof(INomenclatureInstanceRepository)}");
+			}
+
+			var uowFactory = validationContext.GetRequiredService<IUnitOfWorkFactory>();
+			using(var uow = uowFactory.CreateWithoutRoot())
+			{
+				var items = Items
+					.ToLookup(x => x.Nomenclature.HasInventoryAccounting);
+
+				foreach(var bulkValidationResult in CheckBulkItemsStock(uow, warehouseRepository, items[false]))
+				{
+					yield return bulkValidationResult;
+				}
+
+				foreach(var instanceValidationResult in CheckInstanceItemsStock(uow, nomenclatureInstanceRepository, items[true]))
+				{
+					yield return instanceValidationResult;
+				}
+			}
+		}
+
+		private IEnumerable<ValidationResult> CheckBulkItemsStock(
+			IUnitOfWork uow,
+			IWarehouseRepository warehouseRepository,
+			IEnumerable<MovementDocumentItem> bulkItems)
+		{
+			var operationType = GetOperationTypeByStorageFrom();
+			var storageId = GetStorageFromId();
+
+			var bulkAmountOnStock = warehouseRepository
+				.GetWarehouseNomenclatureStock(
+					uow, operationType, storageId, bulkItems.Select(x => x.Nomenclature.Id))
+				.ToDictionary(x => x.NomenclatureId);
+
+			foreach(var item in bulkItems)
+			{
+				var stock = 0m;
+
+				if(bulkAmountOnStock.TryGetValue(item.Nomenclature.Id, out var stockNode))
+				{
+					stock = stockNode.Stock;
+				}
+
+				if(item.SentAmount > stock)
+				{
+					yield return new ValidationResult
+					(
+						$"Нельзя отгружать больше чем есть на складе {Environment.NewLine} " +
+						$"На складе: {item.Nomenclature.Name} {stock} {item.Nomenclature?.Unit?.Name}"
+					);
+				}
+			}
+		}
 		
+		private IEnumerable<ValidationResult> CheckInstanceItemsStock(
+			IUnitOfWork uow,
+			INomenclatureInstanceRepository nomenclatureInstanceRepository,
+			IEnumerable<MovementDocumentItem> instanceItems)
+		{
+			var storageId = GetStorageFromId();
+
+			if(instanceItems.Any())
+			{
+				var instancesOnStock = nomenclatureInstanceRepository
+					.GetInventoryInstancesByStorage(
+						uow,
+						StorageFrom,
+						storageId,
+						instancesToInclude: instanceItems.Select(x => x.NomenclatureInstanceId.Value)
+							.ToArray())
+					.ToDictionary(x => x.InstanceId);
+
+				foreach(var item in instanceItems)
+				{
+					var instanceId = item.NomenclatureInstanceId.Value;
+					var stock = 0m;
+
+					if(instancesOnStock.TryGetValue(instanceId, out var stockNode))
+					{
+						stock = stockNode.Balance;
+					}
+
+					if(item.SentAmount > stock)
+					{
+						yield return new ValidationResult
+						(
+							$"Нельзя отгружать больше чем есть на складе {Environment.NewLine} " +
+							$"На складе: {item.Nomenclature.Name} инв {item.InventoryNumber} {stock} {item.Nomenclature?.Unit?.Name}"
+						);
+					}
+				}
+			}
+		}
+
+		#endregion
+
 		#region ValidateStorages
 
 		private IEnumerable<ValidationResult> ValidateStorages()
