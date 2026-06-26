@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
@@ -77,7 +78,7 @@ namespace VodovozBusiness.Services.Cash
 				return Result.Failure<IEnumerable<Income>>(RouteListErrors.CashierSubdivisionIsEmpty);
 			}
 
-			var organizationDebts = GetCashDebtsByOrganizations(uow, routeList.Id);
+			var organizationDebts = GetRouteListCashDebtsByOrganizations(uow, routeList);
 
 			try
 			{
@@ -143,7 +144,7 @@ namespace VodovozBusiness.Services.Cash
 
 			if(routeList.Cashier is null)
 			{
-				return Result.Failure<(List<Income> Incomes, List<Expense> Expenses)> (RouteListErrors.CashierIsEmpty);
+				return Result.Failure<(List<Income> Incomes, List<Expense> Expenses)>(RouteListErrors.CashierIsEmpty);
 			}
 
 			if(routeList.Cashier?.Subdivision == null)
@@ -151,7 +152,7 @@ namespace VodovozBusiness.Services.Cash
 				return Result.Failure<(List<Income> Incomes, List<Expense> Expenses)>(RouteListErrors.CashierSubdivisionIsEmpty);
 			}
 
-			var organizationDebts = GetCashDebtsByOrganizations(uow, routeList.Id);
+			var organizationDebts = GetRouteListCashDebtsByOrganizations(uow, routeList);
 
 			var cashIncomes = CreateAndDistributeCashIncomesByOrganizationsDebts(uow, routeList, organizationDebts);
 			var cashExpenses = CreateAndDistributeCashExpensesByOrganizationsOverpayments(uow, routeList, organizationDebts);
@@ -202,7 +203,7 @@ namespace VodovozBusiness.Services.Cash
 			{
 				var organization =
 					organizations.FirstOrDefault(x => x.Id == CommonCashOrganizationId)
-					?? GetOrganizationById(uow, CommonCashOrganizationId);
+					?? GetCommonCashDistributionOrganisation(uow);
 
 				var cashIncome = CreateAndDistributeIncome(uow, routeList, organization, remainder);
 				incomes.Add(cashIncome);
@@ -253,7 +254,7 @@ namespace VodovozBusiness.Services.Cash
 			{
 				var organization =
 					organizations.FirstOrDefault(x => x.Id == CommonCashOrganizationId)
-					?? GetOrganizationById(uow, CommonCashOrganizationId);
+					?? GetCommonCashDistributionOrganisation(uow);
 
 				var cashExpense = CreateAndDistributeExpense(uow, routeList, organization, remainder);
 				expenses.Add(cashExpense);
@@ -262,13 +263,10 @@ namespace VodovozBusiness.Services.Cash
 			return expenses;
 		}
 
-		private IList<RouteListDebtByOrganizationNode> GetCashDebtsByOrganizations(IUnitOfWork uow, int routeListId) =>
-			_cashRepository.GetRouteListCashDebtByOrganizationNodes(uow, _organizationSettings, routeListId, _orderRepository.OrderHasSentReceipt);
-
 		private int CommonCashOrganizationId => _organizationSettings.CommonCashDistributionOrganisationId;
 
-		private Organization GetOrganizationById(IUnitOfWork uow, int organizationId) =>
-			_organizationRepository.GetOrganizationById(uow, organizationId);
+		private Organization GetCommonCashDistributionOrganisation(IUnitOfWork uow) =>
+			_organizationRepository.GetCommonOrganisation(uow);
 
 		private IList<Organization> GetOrganizationsByIds(IUnitOfWork uow, IEnumerable<int> organizationIds) =>
 			_organizationRepository.GetOrganizationsByIds(uow, organizationIds);
@@ -320,5 +318,69 @@ namespace VodovozBusiness.Services.Cash
 				RouteListClosing = routeList,
 				RelatedToSubdivision = routeList.Cashier.Subdivision
 			};
+
+		public IList<RouteListDebtByOrganizationNode> GetRouteListCashDebtsByOrganizations(
+			IUnitOfWork uow,
+			RouteList routeList)
+		{
+			var ordersCash = GetRouteListOrdersCashByOrganizations(uow, routeList);
+
+			var cashIncomesExpensesByOrganization =
+				_cashRepository.GetRouteListDriversCashIncomesExpensesByOrganizationNodes(uow, routeList.Id);
+
+			var debtsByOrganizations = ordersCash
+				.Concat(cashIncomesExpensesByOrganization)
+				.GroupBy(x => x.OrganizationId)
+				.Select(g => new RouteListDebtByOrganizationNode
+				{
+					OrganizationId = g.Key,
+					OrganizationName = g.Key == null ? "Без организации" : g.Select(x => x.OrganizationName).First(name => name != null),
+					OrdersCashSum = g.Sum(x => x.OrdersCashSum),
+					IncomeSum = g.Sum(x => x.IncomeSum),
+					ExpenseSum = g.Sum(x => x.ExpenseSum)
+				})
+				.ToList();
+
+			return debtsByOrganizations;
+		}
+
+		private List<RouteListDebtByOrganizationNode> GetRouteListOrdersCashByOrganizations(IUnitOfWork uow, RouteList routeList)
+		{
+			var commonCashDistributionOrganisation = GetCommonCashDistributionOrganisation(uow);
+
+			var ordersCashRaw =
+				routeList.Addresses
+				.Where(item =>
+					item.Status == RouteListItemStatus.Completed
+					|| (item.Status == RouteListItemStatus.EnRoute
+						&& (routeList.Status == RouteListStatus.EnRoute
+							|| routeList.Status == RouteListStatus.OnClosing
+							|| routeList.Status == RouteListStatus.Closed)))
+				.Where(item => item.Order.PaymentType == PaymentType.Cash)
+				.Where(item => item.Order.Contract != null && item.Order.Contract.Organization != null)
+				.Select(item => new
+				{
+					OrderId = item.Order.Id,
+					ContractOrganizationId = item.Order.Contract.Organization.Id,
+					ContractOrganizationName = item.Order.Contract.Organization.Name,
+					OrdersCashSum = item.TotalCash
+				});
+
+			// Если по заказу нет чека,то считаем, что данный заказ на дефолтную организацию, независимо от организации в договоре заказа
+			var ordersCash = ordersCashRaw
+				.Select(x =>
+				{
+					var hasSentReceipt = _orderRepository.OrderHasSentReceipt(uow, x.OrderId);
+
+					return new RouteListDebtByOrganizationNode
+					{
+						OrganizationId = hasSentReceipt ? x.ContractOrganizationId : commonCashDistributionOrganisation.Id,
+						OrganizationName = hasSentReceipt ? x.ContractOrganizationName : commonCashDistributionOrganisation.Name,
+						OrdersCashSum = x.OrdersCashSum
+					};
+				})
+				.ToList();
+			return ordersCash;
+		}
 	}
 }

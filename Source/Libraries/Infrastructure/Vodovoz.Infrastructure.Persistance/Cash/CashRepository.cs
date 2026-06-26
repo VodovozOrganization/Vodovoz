@@ -185,33 +185,10 @@ namespace Vodovoz.Infrastructure.Persistance.Cash
 			return income - expense;
 		}
 
-		public IList<RouteListDebtByOrganizationNode> GetRouteListCashDebtByOrganizationNodes(
+		public IList<RouteListDebtByOrganizationNode> GetRouteListDriversCashIncomesExpensesByOrganizationNodes(
 			IUnitOfWork uow,
-			IOrganizationSettings organizationSettings,
-			int routeListId,
-			Func<IUnitOfWork, int, bool> hasSentReceiptFunc)
+			int routeListId)
 		{
-			var defaultOrganization = uow.GetById<Organization>(organizationSettings.CommonCashDistributionOrganisationId);
-
-			var ordersCashRawFuture = uow.Session.Query<RouteListItem>()
-				.Where(item => item.RouteList.Id == routeListId)
-				.Where(item => item.Order.PaymentType == PaymentType.Cash)
-				.Where(item =>
-					item.Status == RouteListItemStatus.Completed
-					|| (item.Status == RouteListItemStatus.EnRoute
-						&& (item.RouteList.Status == RouteListStatus.EnRoute
-							|| item.RouteList.Status == RouteListStatus.OnClosing
-							|| item.RouteList.Status == RouteListStatus.Closed)))
-				.Where(item => item.Order.Contract != null && item.Order.Contract.Organization != null)
-				.Select(item => new
-				{
-					OrderId = item.Order.Id,
-					ContractOrganizationId = item.Order.Contract.Organization.Id,
-					ContractOrganizationName = item.Order.Contract.Organization.Name,
-					OrdersCashSum = item.TotalCash
-				})
-				.ToFuture();
-
 			var incomeFuture = uow.Session.Query<Income>()
 				.Where(income =>
 					income.RouteListClosing.Id == routeListId
@@ -236,40 +213,22 @@ namespace Vodovoz.Infrastructure.Persistance.Cash
 				})
 				.ToFuture();
 
-			var ordersCashRaw = ordersCashRawFuture.ToList();
 			var incomeRows = incomeFuture.ToList();
 			var expenseRows = expenseFuture.ToList();
 
-			// Если по заказу нет чека,то считаем, что данный заказ на дефолтную организацию, независимо от организации в договоре заказа
-			var ordersCash = ordersCashRaw
-				.Select(x =>
-				{
-					var hasSentReceipt = hasSentReceiptFunc.Invoke(uow, x.OrderId);
-
-					return new RouteListDebtByOrganizationNode
-					{
-						OrganizationId = hasSentReceipt ? x.ContractOrganizationId : defaultOrganization.Id,
-						OrganizationName = hasSentReceipt ? x.ContractOrganizationName : defaultOrganization.Name,
-						OrdersCashSum = x.OrdersCashSum
-					};
-				})
-				.ToList();
-
-			var debtsByOrganizations = ordersCash
-				.Concat(incomeRows)
+			var incomesExpensesByOrganizations = incomeRows
 				.Concat(expenseRows)
 				.GroupBy(x => x.OrganizationId)
 				.Select(g => new RouteListDebtByOrganizationNode
 				{
 					OrganizationId = g.Key,
 					OrganizationName = g.Key == null ? "Без организации" : g.Select(x => x.OrganizationName).First(name => name != null),
-					OrdersCashSum = g.Sum(x => x.OrdersCashSum),
 					IncomeSum = g.Sum(x => x.IncomeSum),
 					ExpenseSum = g.Sum(x => x.ExpenseSum)
 				})
 				.ToList();
 
-			return debtsByOrganizations;
+			return incomesExpensesByOrganizations;
 		}
 
 		public IEnumerable<(int SubdivisionId, decimal Income, decimal Expense)> CashForSubdivisionsByDate(

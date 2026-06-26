@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Settings.Organizations;
+using VodovozBusiness.EntityRepositories.Nodes;
 
 namespace VodovozBusiness.Services.Cash
 {
@@ -27,5 +29,13 @@ namespace VodovozBusiness.Services.Cash
 		/// <param name="routeList">Маршрутный лист</param>
 		/// <returns>Результат пересчета</returns>
 		Result<IEnumerable<string>> RecalculateRouteListCashBalance(IUnitOfWork uow, RouteList routeList);
+
+		/// <summary>
+		/// Возвращает список задолженностей по организациям для указанного маршрутного листа
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="routeList">Маршрутный лист</param>
+		/// <returns>Данные по долгам</returns>
+		IList<RouteListDebtByOrganizationNode> GetRouteListCashDebtsByOrganizations(IUnitOfWork uow, RouteList routeList);
 	}
 }

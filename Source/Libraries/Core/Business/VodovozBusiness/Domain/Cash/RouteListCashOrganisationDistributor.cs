@@ -188,7 +188,9 @@ namespace Vodovoz.Domain.Cash
 				Amount = -amount
 			};
 
-			var address = routeList.Addresses.First(x => x.TotalCash > 0);
+			var address =
+				routeList.Addresses.FirstOrDefault(x => x.TotalCash > 0)
+				?? routeList.Addresses.First(x => x.Order.PaymentType == Client.PaymentType.Cash);
 			var document = CreateRouteListItemCashDistributionDocument(operation, address, expense);
 
 			Save(uow, operation, document);

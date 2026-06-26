@@ -39,13 +39,11 @@ namespace Vodovoz.EntityRepositories.Cash
 		void DeleteFuelExpenseCashDistributionDocuments(IUnitOfWork uow, IEnumerable<int> documentIds);
 
 		/// <summary>
-		/// Возвращает список задолженностей по организациям для указанного маршрутного листа
+		/// Возвращает суммы по приходным и расходным ордерам по организациям для указанного маршрутного листа
 		/// </summary>
 		/// <param name="uow">UnitOfWork</param>
-		/// <param name="organizationSettings">Настройки организации</param>
-		/// <param name="routeList">Id маршрутного листа</param>
-		/// <param name="hasSentReceiptFunc">Функция для проверки наличия чека по заказу</param>
-		/// <returns>Данные по долгам</returns>
-		IList<RouteListDebtByOrganizationNode> GetRouteListCashDebtByOrganizationNodes(IUnitOfWork uow, IOrganizationSettings organizationSettings, int routeListId, Func<IUnitOfWork, int, bool> hasSentReceiptFunc);
+		/// <param name="routeListId">Id маршрутного листа</param>
+		/// <returns>Суммы приходных и расходных ордеров по организациям</returns>
+		IList<RouteListDebtByOrganizationNode> GetRouteListDriversCashIncomesExpensesByOrganizationNodes(IUnitOfWork uow, int routeListId);
 	}
 }

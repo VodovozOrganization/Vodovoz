@@ -675,7 +675,7 @@ namespace Vodovoz
 		private decimal GetRouteListAdvanceReport() => _cashRepository.GetRouteListAdvancsReportsSum(UoW, Entity.Id);
 
 		private IEnumerable<RouteListDebtByOrganizationNode> GetCashDebtsByOrganizations() =>
-			_cashRepository.GetRouteListCashDebtByOrganizationNodes(UoW, _organizationSettings, Entity.Id, _orderRepository.OrderHasSentReceipt);
+			_routeListCashProcessingService.GetRouteListCashDebtsByOrganizations(UoW, Entity);
 
 		private decimal GetTerminalOrdersSum()
 		{
