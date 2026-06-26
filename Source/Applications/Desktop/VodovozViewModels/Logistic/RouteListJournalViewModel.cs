@@ -544,7 +544,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 					bool isSlaveTabActive = false;
 
-					using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot())
+					using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot($"Возврат МЛ в путь из {nameof(RouteListJournalViewModel)}"))
 					{
 						foreach(var routeListId in routeListIds)
 						{
@@ -587,7 +587,7 @@ namespace Vodovoz.ViewModels.Logistic
 					var routeListIds = selectedItems.Cast<RouteListJournalNode>().Select(x => x.Id).ToArray();
 					bool isSlaveTabActive = false;
 
-					using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot())
+					using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot($"Возврат МЛ в сдается из {nameof(RouteListJournalViewModel)}"))
 					{
 						var routeLists = uowLocal.Session.QueryOver<RouteList>()
 							.Where(x => x.Id.IsIn(routeListIds))
@@ -768,7 +768,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		private void SendToLoadingAndPrint(RouteListJournalNode selectedNode, Warehouse warehouse)
 		{
-			using(var localUow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var localUow = UnitOfWorkFactory.CreateWithoutRoot($"Отправка МЛ на погрузку из {nameof(RouteListJournalViewModel)}"))
 			{
 				var routeList = localUow.GetById<RouteList>(selectedNode.Id);
 
@@ -886,7 +886,7 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			var routeListIds = selectedNodes.Select(x => x.Id).ToArray();
 
-			using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot($"Отправка МЛ на погрузку из {nameof(RouteListJournalViewModel)}"))
 			{
 				var routeLists = uowLocal.Session.QueryOver<RouteList>()
 					.Where(x => x.Id.IsIn(routeListIds))
