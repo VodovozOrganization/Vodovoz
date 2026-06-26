@@ -1,24 +1,23 @@
 using System;
-using CustomerAppsApi.Library.V1.Dto.Counterparties;
-using CustomerAppsApi.Library.V1.Models;
+using CustomerAppsApi.Library.V2.Dto.Counterparties;
+using CustomerAppsApi.Library.V2.Models;
 using Gamma.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace CustomerAppsApi.V2.Controllers
 {
-	[ApiController]
-	[Route("/api/[action]")]
-	public class OrdersController : ControllerBase
+	[Authorize]
+	[ApiVersion("2.0")]
+	public class OrdersController : VersionedController
 	{
-		private readonly ILogger<CounterpartyController> _logger;
 		private readonly IOrderModel _orderModel;
 
 		public OrdersController(
 			ILogger<CounterpartyController> logger,
-			IOrderModel orderModel)
+			IOrderModel orderModel) : base(logger)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_orderModel = orderModel ?? throw new ArgumentNullException(nameof(orderModel));
 		}
 		

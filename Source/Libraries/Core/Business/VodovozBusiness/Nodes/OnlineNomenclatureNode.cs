@@ -16,6 +16,7 @@ namespace Vodovoz.Nodes
 		/// Id каталога в ИПЗ
 		/// </summary>
 		public Guid OnlineCatalogGuid { get; set; }
+		public NomenclatureCategory NomenclatureCategory { get; set; }
 		/// <summary>
 		/// Группа товара в ИПЗ
 		/// </summary>

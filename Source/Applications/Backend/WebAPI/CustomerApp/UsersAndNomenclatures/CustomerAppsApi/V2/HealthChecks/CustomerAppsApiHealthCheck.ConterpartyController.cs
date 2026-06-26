@@ -1,7 +1,7 @@
 ﻿using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using CustomerAppsApi.Library.V1.Dto.Counterparties;
+using CustomerAppsApi.Library.V2.Dto.Counterparties;
 using Microsoft.Extensions.Configuration;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Extensions;
@@ -32,7 +32,7 @@ namespace CustomerAppsApi.V2.HealthChecks
 
 			var result = await HttpResponseHelper.SendRequestAsync<CounterpartyIdentificationDto>(
 				HttpMethod.Post,
-				$"{_baseAddress}/api/GetCounterparty",
+				$"{_baseAddress}/api/{_version}/GetCounterparty",
 				_httpClientFactory,
 				requestDto.ToJsonContent(),
 				cancellationToken);
@@ -48,7 +48,7 @@ namespace CustomerAppsApi.V2.HealthChecks
 
 			var result = await HttpResponseHelper.SendRequestAsync<CounterpartyRegistrationDto>(
 				HttpMethod.Post,
-				$"{_baseAddress}/api/RegisterCounterparty",
+				$"{_baseAddress}/api/{_version}/RegisterCounterparty",
 				_httpClientFactory,
 				requestDto.ToJsonContent(),
 				cancellationToken);
@@ -64,7 +64,7 @@ namespace CustomerAppsApi.V2.HealthChecks
 
 			var result = await HttpResponseHelper.SendRequestAsync<CounterpartyUpdateDto>(
 				HttpMethod.Post,
-				$"{_baseAddress}/api/UpdateCounterpartyInfo",
+				$"{_baseAddress}/api/{_version}/UpdateCounterpartyInfo",
 				_httpClientFactory,
 				requestDto.ToJsonContent(),
 				cancellationToken);

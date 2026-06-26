@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
-using Vodovoz.Domain.Client;
 using Vodovoz.EntityRepositories.Operations;
 
 namespace CustomerAppsApi.Library.V2.Repositories
@@ -26,10 +25,6 @@ namespace CustomerAppsApi.Library.V2.Repositories
 		public int GetCounterpartyBottlesDebt(IUnitOfWork uow, int counterpartyId, int counterpartyDebtCacheMinutes)
 		{
 			var bottlesDebt = 0;
-			var counterparty = new Counterparty
-			{
-				Id = counterpartyId
-			};
 
 			try
 			{
@@ -44,11 +39,11 @@ namespace CustomerAppsApi.Library.V2.Repositories
 				_logger.LogError(
 					"Не удалось получить данные из кэша по клиенту {CounterpartyId}, отправляем данные из БД",
 					counterpartyId);
-				return _bottlesRepository.GetBottlesDebtAtCounterparty(uow, counterparty);
+				return _bottlesRepository.GetBottlesDebtAtCounterparty(uow, counterpartyId);
 			}
 
 			_logger.LogInformation("Получаем данные по клиенту {CounterpartyId} из БД", counterpartyId);
-			bottlesDebt = _bottlesRepository.GetBottlesDebtAtCounterparty(uow, counterparty);
+			bottlesDebt = _bottlesRepository.GetBottlesDebtAtCounterparty(uow, counterpartyId);
 
 			_logger.LogInformation("Обновляем кэш по клиенту {CounterpartyId}", counterpartyId);
 			_memoryCache.Set(

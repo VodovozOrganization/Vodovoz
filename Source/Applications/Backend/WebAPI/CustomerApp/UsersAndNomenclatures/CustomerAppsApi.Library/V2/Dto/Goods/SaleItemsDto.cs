@@ -3,17 +3,17 @@
 namespace CustomerAppsApi.Library.V2.Dto.Goods
 {
 	/// <summary>
-	/// Номенклатуры
+	/// Продаваемые позиции
 	/// </summary>
-	public class NomenclaturesDto
+	public class SaleItemsDto
 	{
 		/// <summary>
 		/// Сообщение об ошибке
 		/// </summary>
 		public string ErrorMessage { get; set; }
 		/// <summary>
-		/// Список номенклатур
+		/// Список продаваемых позиций
 		/// </summary>
-		public IList<OnlineNomenclatureDto> OnlineNomenclatures { get; set; }
+		public IEnumerable<object> SaleItems { get; set; }
 	}
 }

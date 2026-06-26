@@ -1,8 +1,9 @@
 ﻿using System;
-using CustomerAppsApi.Library.V1.Dto.Goods;
-using CustomerAppsApi.Library.V1.Models;
-using CustomerAppsApi.Library.V1.Services;
+using CustomerAppsApi.Library.V2.Dto.Goods;
+using CustomerAppsApi.Library.V2.Models;
+using CustomerAppsApi.Library.V2.Services;
 using Gamma.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Vodovoz.Core.Domain.Clients;
@@ -10,11 +11,10 @@ using VodovozHealthCheck.Helpers;
 
 namespace CustomerAppsApi.V2.Controllers
 {
-	[ApiController]
-	[Route("/api/")]
-	public class NomenclatureController : ControllerBase
+	[Authorize]
+	[ApiVersion("2.0")]
+	public class NomenclatureController : VersionedController
 	{
-		private readonly ILogger<CounterpartyController> _logger;
 		private readonly INomenclatureModel _nomenclatureModel;
 		private readonly PricesFrequencyRequestsHandler _pricesFrequencyRequestsHandler;
 		private readonly NomenclaturesFrequencyRequestsHandler _nomenclaturesFrequencyRequestsHandler;
@@ -24,8 +24,8 @@ namespace CustomerAppsApi.V2.Controllers
 			INomenclatureModel nomenclatureModel,
 			PricesFrequencyRequestsHandler pricesFrequencyRequestsHandler,
 			NomenclaturesFrequencyRequestsHandler nomenclaturesFrequencyRequestsHandler)
+			: base(logger) 
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_nomenclatureModel = nomenclatureModel ?? throw new ArgumentNullException(nameof(nomenclatureModel));
 			_pricesFrequencyRequestsHandler =
 				pricesFrequencyRequestsHandler ?? throw new ArgumentNullException(nameof(pricesFrequencyRequestsHandler));
@@ -33,7 +33,7 @@ namespace CustomerAppsApi.V2.Controllers
 				nomenclaturesFrequencyRequestsHandler ?? throw new ArgumentNullException(nameof(nomenclaturesFrequencyRequestsHandler));
 		}
 
-		[HttpGet("GetNomenclaturesPricesAndStocks")]
+		[HttpGet]
 		public NomenclaturesPricesAndStockDto GetNomenclaturesPricesAndStocks([FromQuery] Source source)
 		{
 			var sourceName = source.GetEnumTitle();
@@ -72,8 +72,8 @@ namespace CustomerAppsApi.V2.Controllers
 			}
 		}
 		
-		[HttpGet("GetNomenclatures")]
-		public NomenclaturesDto GetNomenclatures([FromQuery] Source source)
+		[HttpGet]
+		public SaleItemsDto GetNomenclatures([FromQuery] Source source)
 		{
 			var sourceName = source.GetEnumTitle();
 			try
@@ -86,7 +86,7 @@ namespace CustomerAppsApi.V2.Controllers
 
 				if(!canRequest)
 				{
-					return new NomenclaturesDto
+					return new SaleItemsDto
 					{
 						ErrorMessage = "Превышен интервал обращений"
 					};
@@ -104,7 +104,7 @@ namespace CustomerAppsApi.V2.Controllers
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка при получении номенклатур для источника {Source}", sourceName);
-				return new NomenclaturesDto
+				return new SaleItemsDto
 				{
 					ErrorMessage = e.Message
 				};

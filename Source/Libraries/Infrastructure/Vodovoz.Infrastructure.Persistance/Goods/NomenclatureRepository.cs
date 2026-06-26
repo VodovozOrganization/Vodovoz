@@ -473,7 +473,7 @@ namespace Vodovoz.Infrastructure.Persistance.Goods
 				.TransformUsing(Transformers.AliasToBean<NomenclatureOnlinePriceNode>())
 				.List<NomenclatureOnlinePriceNode>();
 		}
-
+		
 		public IList<OnlineNomenclatureNode> GetNomenclaturesForSend(IUnitOfWork uow, GoodsOnlineParameterType parameterType)
 		{
 			Nomenclature nomenclatureAlias = null;

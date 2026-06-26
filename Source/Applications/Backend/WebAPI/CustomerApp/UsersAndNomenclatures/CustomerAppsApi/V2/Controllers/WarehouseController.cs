@@ -1,7 +1,8 @@
 ﻿using System;
-using CustomerAppsApi.Library.V1.Models;
-using CustomerAppsApi.Library.V1.Services;
+using CustomerAppsApi.Library.V2.Models;
+using CustomerAppsApi.Library.V2.Services;
 using Gamma.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Vodovoz.Core.Domain.Clients;
@@ -9,11 +10,10 @@ using VodovozHealthCheck.Helpers;
 
 namespace CustomerAppsApi.V2.Controllers
 {
-	[ApiController]
-	[Route("/api/")]
-	public class WarehouseController : ControllerBase
+	[Authorize]
+	[ApiVersion("2.0")]
+	public class WarehouseController : VersionedController
 	{
-		private readonly ILogger<WarehouseController> _logger;
 		private readonly IWarehouseModel _warehouseModel;
 		private readonly SelfDeliveriesAddressesFrequencyRequestsHandler _selfDeliveriesAddressesFrequencyRequestsHandler;
 
@@ -21,15 +21,15 @@ namespace CustomerAppsApi.V2.Controllers
 			ILogger<WarehouseController> logger,
 			IWarehouseModel counterpartyModel,
 			SelfDeliveriesAddressesFrequencyRequestsHandler selfDeliveriesAddressesFrequencyRequestsHandler)
+			: base(logger)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_warehouseModel = counterpartyModel ?? throw new ArgumentNullException(nameof(counterpartyModel));
 			_selfDeliveriesAddressesFrequencyRequestsHandler =
 				selfDeliveriesAddressesFrequencyRequestsHandler
 				?? throw new ArgumentNullException(nameof(selfDeliveriesAddressesFrequencyRequestsHandler));
 		}
 
-		[HttpGet("GetSelfDeliveriesAddresses")]
+		[HttpGet]
 		public IActionResult GetSelfDeliveriesAddresses([FromQuery] Source source)
 		{
 			var sourceName = source.GetEnumTitle();

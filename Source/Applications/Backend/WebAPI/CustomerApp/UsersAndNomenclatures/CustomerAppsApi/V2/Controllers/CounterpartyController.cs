@@ -1,29 +1,27 @@
 ﻿using System;
-using CustomerAppsApi.Library.V1.Dto.Counterparties;
-using CustomerAppsApi.Library.V1.Models;
+using CustomerAppsApi.Library.V2.Dto.Counterparties;
+using CustomerAppsApi.Library.V2.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using VodovozHealthCheck.Helpers;
 
 namespace CustomerAppsApi.V2.Controllers
 {
-	[ApiController]
-	[Route("/api/")]
-	public class CounterpartyController : ControllerBase
+	[Authorize]
+	[ApiVersion("2.0")]
+	public class CounterpartyController : VersionedController
 	{
-		private readonly ILogger<CounterpartyController> _logger;
 		private readonly ICounterpartyModel _counterpartyModel;
 
 		public CounterpartyController(
 			ILogger<CounterpartyController> logger,
-			ICounterpartyModel counterpartyModel)
+			ICounterpartyModel counterpartyModel) : base(logger)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_counterpartyModel = counterpartyModel ?? throw new ArgumentNullException(nameof(counterpartyModel));
 		}
 
 		[HttpPost]
-		[Route("GetCounterparty")]
 		public CounterpartyIdentificationDto GetCounterparty(CounterpartyContactInfoDto counterpartyContactInfoDto)
 		{
 			try
@@ -41,7 +39,6 @@ namespace CustomerAppsApi.V2.Controllers
 		}
 		
 		[HttpPost]
-		[Route("RegisterCounterparty")]
 		public CounterpartyRegistrationDto RegisterCounterparty(CounterpartyDto counterpartyDto)
 		{
 			try
@@ -61,7 +58,6 @@ namespace CustomerAppsApi.V2.Controllers
 		}
 		
 		[HttpPost]
-		[Route("UpdateCounterpartyInfo")]
 		public CounterpartyUpdateDto UpdateCounterpartyInfo(CounterpartyDto counterpartyDto)
 		{
 			try

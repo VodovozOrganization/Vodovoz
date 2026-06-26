@@ -1,6 +1,7 @@
 ﻿using System;
-using CustomerAppsApi.Library.V1.Dto;
-using CustomerAppsApi.Library.V1.Models;
+using CustomerAppsApi.Library.V2.Dto;
+using CustomerAppsApi.Library.V2.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Vodovoz.Core.Domain.Clients;
@@ -8,28 +9,26 @@ using VodovozHealthCheck.Helpers;
 
 namespace CustomerAppsApi.V2.Controllers
 {
-	[ApiController]
-	[Route("/api/")]
-	public class DeliveryPointController : ControllerBase
+	[Authorize]
+	[ApiVersion("2.0")]
+	public class DeliveryPointController : VersionedController
 	{
-		private readonly ILogger<DeliveryPointController> _logger;
 		private readonly IDeliveryPointService _deliveryPointService;
 
 		public DeliveryPointController(
 			ILogger<DeliveryPointController> logger,
-			IDeliveryPointService deliveryPointService)
+			IDeliveryPointService deliveryPointService) : base(logger)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_deliveryPointService = deliveryPointService ?? throw new ArgumentNullException(nameof(deliveryPointService));
 		}
 
-		[HttpGet("GetDeliveryPoints")]
+		[HttpGet]
 		public DeliveryPointsDto GetDeliveryPoints([FromQuery] Source source, int counterpartyErpId)
 		{
 			return _deliveryPointService.GetDeliveryPoints(source, counterpartyErpId);
 		}
 		
-		[HttpPost("AddDeliveryPoint")]
+		[HttpPost]
 		public IActionResult AddDeliveryPoint(NewDeliveryPointInfoDto newDeliveryPointInfoDto)
 		{
 			var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
@@ -50,7 +49,7 @@ namespace CustomerAppsApi.V2.Controllers
 			return Created("", deliveryPointDto);
 		}
 
-		[HttpPost("UpdateOnlineComment")]
+		[HttpPost]
 		public IActionResult UpdateOnlineComment(UpdatingDeliveryPointCommentDto updatingComment)
 		{
 			var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);

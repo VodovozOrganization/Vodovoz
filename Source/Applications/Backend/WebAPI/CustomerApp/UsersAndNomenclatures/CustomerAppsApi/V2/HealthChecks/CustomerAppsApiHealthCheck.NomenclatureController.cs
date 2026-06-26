@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using CustomerAppsApi.Library.V1.Dto.Goods;
+using CustomerAppsApi.Library.V2.Dto.Goods;
 using Microsoft.Extensions.Configuration;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Helpers;
@@ -30,7 +30,7 @@ namespace CustomerAppsApi.V2.HealthChecks
 
 			var result = await HttpResponseHelper.SendRequestAsync<NomenclaturesPricesAndStockDto>(
 				HttpMethod.Get,
-				$"{_baseAddress}/api/GetNomenclaturesPricesAndStocks?source={source}",
+				$"{_baseAddress}/api/{_version}/GetNomenclaturesPricesAndStocks?source={source}",
 				_httpClientFactory,
 				cancellationToken: cancellationToken);
 
@@ -43,13 +43,13 @@ namespace CustomerAppsApi.V2.HealthChecks
 		{
 			var source = _healthSection.GetSection("GetNomenclaturesPricesAndStocksSource").Get<string>();
 
-			var result = await HttpResponseHelper.SendRequestAsync<NomenclaturesDto>(
+			var result = await HttpResponseHelper.SendRequestAsync<SaleItemsDto>(
 				HttpMethod.Get,
-				$"{_baseAddress}/api/GetNomenclatures?source={source}",
+				$"{_baseAddress}/api/{_version}/GetNomenclatures?source={source}",
 				_httpClientFactory,
 				cancellationToken: cancellationToken);
 
-			var isHealthy = result.Data?.OnlineNomenclatures?.Any() ?? false;
+			var isHealthy = result.Data?.SaleItems?.Any() ?? false;
 
 			return VodovozHealthResultDto.FromCondition(checkMethodName, isHealthy, result.ErrorMessage ?? result.Data?.ErrorMessage);
 		}

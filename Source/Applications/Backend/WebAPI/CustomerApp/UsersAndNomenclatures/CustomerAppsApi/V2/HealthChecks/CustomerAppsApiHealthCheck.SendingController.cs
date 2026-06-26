@@ -1,7 +1,7 @@
 ﻿using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using CustomerAppsApi.Library.V1.Dto;
+using CustomerAppsApi.Library.V2.Dto;
 using Microsoft.Extensions.Configuration;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Extensions;
@@ -28,7 +28,7 @@ namespace CustomerAppsApi.V2.HealthChecks
 
 			var result = await HttpResponseHelper.SendRequestAsync<string>(
 				HttpMethod.Post,
-				$"{_baseAddress}/api/SendCodeToEmail",
+				$"{_baseAddress}/api/{_version}/SendCodeToEmail",
 				_httpClientFactory,
 				requestBody.ToJsonContent(),
 				cancellationToken);

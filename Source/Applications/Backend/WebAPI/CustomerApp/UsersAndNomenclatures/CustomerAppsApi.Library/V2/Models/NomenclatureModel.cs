@@ -14,21 +14,21 @@ namespace CustomerAppsApi.Library.V2.Models
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly IGoodsOnlineParametersController _goodsOnlineParametersController;
 		private readonly ISourceConverter _sourceConverter;
-		private readonly INomenclatureFactory _nomenclatureFactory;
+		private readonly ISaleItemFactory _saleItemFactory;
 		private readonly INomenclatureOnlineCharacteristicsConverter _nomenclatureOnlineCharacteristicsConverter;
 
 		public NomenclatureModel(
 			IUnitOfWork unitOfWork,
 			IGoodsOnlineParametersController goodsOnlineParametersController,
 			ISourceConverter sourceConverter,
-			INomenclatureFactory nomenclatureFactory,
+			ISaleItemFactory saleItemFactory,
 			INomenclatureOnlineCharacteristicsConverter nomenclatureOnlineCharacteristicsConverter)
 		{
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_goodsOnlineParametersController =
 				goodsOnlineParametersController ?? throw new ArgumentNullException(nameof(goodsOnlineParametersController));
 			_sourceConverter = sourceConverter ?? throw new ArgumentNullException(nameof(sourceConverter));
-			_nomenclatureFactory = nomenclatureFactory ?? throw new ArgumentNullException(nameof(nomenclatureFactory));
+			_saleItemFactory = saleItemFactory ?? throw new ArgumentNullException(nameof(saleItemFactory));
 			_nomenclatureOnlineCharacteristicsConverter =
 				nomenclatureOnlineCharacteristicsConverter ?? throw new ArgumentNullException(nameof(nomenclatureOnlineCharacteristicsConverter));
 		}
@@ -38,16 +38,16 @@ namespace CustomerAppsApi.Library.V2.Models
 			var parameterType = _sourceConverter.ConvertToNomenclatureOnlineParameterType(source);
 			var parametersData = _goodsOnlineParametersController.GetNomenclaturesOnlineParametersForSend(_unitOfWork, parameterType);
 
-			return _nomenclatureFactory.CreateNomenclaturesPricesAndStockDto(parametersData);
+			return _saleItemFactory.CreateNomenclaturesPricesAndStockDto(parametersData);
 		}
 		
-		public NomenclaturesDto GetNomenclatures(Source source)
+		public SaleItemsDto GetNomenclatures(Source source)
 		{
 			var parameterType = _sourceConverter.ConvertToNomenclatureOnlineParameterType(source);
 			var nomenclatureCharacteristics =
 				_goodsOnlineParametersController.GetNomenclaturesForSend(_unitOfWork, parameterType);
 
-			return _nomenclatureFactory.CreateNomenclaturesDto(_nomenclatureOnlineCharacteristicsConverter, nomenclatureCharacteristics);
+			return _saleItemFactory.CreateSaleItemsDto(nomenclatureCharacteristics);
 		}
 	}
 }

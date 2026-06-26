@@ -3,7 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using CustomerAppsApi.Library.V1.Dto;
+using CustomerAppsApi.Library.V2.Dto;
 using Microsoft.Extensions.Configuration;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Extensions;
@@ -35,7 +35,7 @@ namespace CustomerAppsApi.V2.HealthChecks
 
 			var result = await HttpResponseHelper.SendRequestAsync<DeliveryPointsDto>(
 				HttpMethod.Get,
-				$"{_baseAddress}/api/GetDeliveryPoints?source={source}&counterpartyErpId={counterpartyErpId}",
+				$"{_baseAddress}/api/{_version}/GetDeliveryPoints?source={source}&counterpartyErpId={counterpartyErpId}",
 				_httpClientFactory,
 				cancellationToken: cancellationToken);
 
@@ -50,7 +50,7 @@ namespace CustomerAppsApi.V2.HealthChecks
 
 			var result = await HttpResponseHelper.SendRequestAsync<CreatedDeliveryPointDto>(
 				HttpMethod.Post,
-				$"{_baseAddress}/api/AddDeliveryPoint",
+				$"{_baseAddress}/api/{_version}/AddDeliveryPoint",
 				_httpClientFactory,
 				requestDto.ToJsonContent(),
 				cancellationToken);
@@ -66,7 +66,7 @@ namespace CustomerAppsApi.V2.HealthChecks
 
 			var result = await HttpResponseHelper.SendRequestAsync<object>(
 				HttpMethod.Post,
-				$"{_baseAddress}/api/UpdateOnlineComment",
+				$"{_baseAddress}/api/{_version}/UpdateOnlineComment",
 				_httpClientFactory,
 				requestDto.ToJsonContent(),
 				cancellationToken);

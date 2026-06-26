@@ -1,7 +1,7 @@
 ﻿using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using CustomerAppsApi.Library.V1.Dto.Counterparties;
+using CustomerAppsApi.Library.V2.Dto.Counterparties;
 using Microsoft.Extensions.Configuration;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Extensions;
@@ -29,7 +29,7 @@ namespace CustomerAppsApi.V2.HealthChecks
 
 			var result = await HttpResponseHelper.SendRequestAsync<bool>(
 				HttpMethod.Get,
-				$"{_baseAddress}/api/CanCounterpartyOrderPromoSetForNewClients",
+				$"{_baseAddress}/api/{_version}/CanCounterpartyOrderPromoSetForNewClients",
 				_httpClientFactory,
 				requestDto.ToJsonContent(),
 				cancellationToken);

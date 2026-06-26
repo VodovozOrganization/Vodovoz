@@ -1,53 +1,10 @@
-﻿using System;
-using System.Text.Json.Serialization;
-using Vodovoz.Converters;
+﻿using System.Text.Json.Serialization;
 using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Nodes;
 
-namespace CustomerAppsApi.Library.V2.Dto.Goods
+namespace CustomerAppsApi.Library.V2.Dto.Goods.Attributes
 {
-	/// <summary>
-	/// Номенклатуры продающиеся в ИПЗ
-	/// </summary>
-	public class OnlineNomenclatureDto
+	public class EquipmentSaleItemAttributes
 	{
-		/// <summary>
-		/// Id номенклатуры в ДВ
-		/// </summary>
-		public int ErpId { get; set; }
-		/// <summary>
-		/// Guid онлайн каталога в ИПЗ
-		/// </summary>
-		public Guid OnlineCatalogGuid { get; set; }
-		/// <summary>
-		/// Группа товара в ИПЗ
-		/// </summary>
-		public string OnlineGroup { get; set; }
-		/// <summary>
-		/// Тип товара в ИПЗ
-		/// </summary>
-		public string OnlineCategory { get; set; }
-		/// <summary>
-		/// Наименование товара в ИПЗ
-		/// </summary>
-		public string OnlineName { get; set; }
-		/// <summary>
-		/// Объем тары
-		/// </summary>
-		[JsonConverter(typeof(JsonStringEnumConverter))]
-		public TareVolume? TareVolume { get; set; }
-		/// <summary>
-		/// Одноразовая тара
-		/// </summary>
-		public bool IsDisposableTare { get; set; }
-		/// <summary>
-		/// Новая бутыль
-		/// </summary>
-		public bool IsNewBottle { get; set; }
-		/// <summary>
-		/// Газированная вода
-		/// </summary>
-		public bool IsSparklingWater { get; set; }
 		/// <summary>
 		/// Тип установки оборудования(кулер, пурифайер)
 		/// </summary>
@@ -185,58 +142,5 @@ namespace CustomerAppsApi.Library.V2.Dto.Goods
 		/// Строковое представление температуры охлаждения
 		/// </summary>
 		public string CoolingTemperatureString { get; set; }
-
-		public static OnlineNomenclatureDto Create(
-			INomenclatureOnlineCharacteristicsConverter onlineCharacteristicsConverter, OnlineNomenclatureNode node)
-		{
-			return new OnlineNomenclatureDto
-			{
-				ErpId = node.ErpId,
-				OnlineCatalogGuid = node.OnlineCatalogGuid,
-				OnlineGroup = node.OnlineGroup,
-				OnlineCategory = node.OnlineCategory,
-				OnlineName = node.OnlineName,
-				TareVolume = node.TareVolume,
-				IsDisposableTare = node.IsDisposableTare,
-				IsNewBottle = node.IsNewBottle,
-				IsSparklingWater = node.IsSparklingWater,
-				EquipmentInstallationType = node.EquipmentInstallationType,
-				EquipmentWorkloadType = node.EquipmentWorkloadType,
-				PumpType = node.PumpType,
-				CupHolderBracingType = node.CupHolderBracingType,
-				HasHeating = node.HasHeating,
-				HeatingPower = node.HeatingPower,
-				HeatingProductivity = node.HeatingProductivity,
-				ProtectionOnHotWaterTap = node.ProtectionOnHotWaterTap,
-				HasCooling = node.HasCooling,
-				CoolingPower = node.CoolingPower,
-				CoolingProductivity = node.CoolingProductivity,
-				CoolingType = node.CoolingType,
-				LockerRefrigeratorType = node.LockerRefrigeratorType,
-				LockerRefrigeratorVolume = node.LockerRefrigeratorVolume,
-				TapType = node.TapType,
-				GlassHolderType = node.GlassHolderType,
-				HeatingTemperatureFrom = node.HeatingTemperatureFrom,
-				HeatingTemperatureTo = node.HeatingTemperatureTo,
-				CoolingTemperatureFrom = node.CoolingTemperatureFrom,
-				CoolingTemperatureTo = node.CoolingTemperatureTo,
-				Length = node.Length,
-				Width = node.Width,
-				Height = node.Height,
-				Weight = node.Weight,
-				Size = onlineCharacteristicsConverter.GetSizeString(node.Length, node.Width, node.Height),
-				WeightString = onlineCharacteristicsConverter.GetWeightString(node.Weight),
-				HeatingProductivityString = onlineCharacteristicsConverter.GetProductivityString(
-					node.HeatingProductivityComparisionSign, node.HeatingProductivity, node.HeatingProductivityUnits),
-				HeatingPowerString = onlineCharacteristicsConverter.GetPowerString(node.HeatingPower, node.HeatingPowerUnits),
-				CoolingProductivityString = onlineCharacteristicsConverter.GetProductivityString(
-					node.CoolingProductivityComparisionSign, node.CoolingProductivity, node.CoolingProductivityUnits),
-				CoolingPowerString = onlineCharacteristicsConverter.GetPowerString(node.CoolingPower, node.CoolingPowerUnits),
-				HeatingTemperatureString =
-					onlineCharacteristicsConverter.GetTemperatureString(node.HeatingTemperatureFrom, node.HeatingTemperatureTo),
-				CoolingTemperatureString =
-					onlineCharacteristicsConverter.GetTemperatureString(node.CoolingTemperatureFrom, node.CoolingTemperatureTo)
-			};
-		}
 	}
 }

@@ -1,27 +1,26 @@
 ﻿using System;
-using CustomerAppsApi.Library.V1.Dto;
-using CustomerAppsApi.Library.V1.Models;
-using CustomerAppsApi.Library.V1.Validators;
+using CustomerAppsApi.Library.V2.Dto;
+using CustomerAppsApi.Library.V2.Models;
+using CustomerAppsApi.Library.V2.Validators;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using VodovozHealthCheck.Helpers;
 
 namespace CustomerAppsApi.V2.Controllers
 {
-	[ApiController]
-	[Route("/api/[action]")]
-	public class SendingController : ControllerBase
+	[Authorize]
+	[ApiVersion("2.0")]
+	public class SendingController : VersionedController
 	{
-		private readonly ILogger<SendingController> _logger;
 		private readonly ISendingService _sendingService;
 		private readonly ICounterpartyModelValidator _counterpartyModelValidator;
 
 		public SendingController(
 			ILogger<SendingController> logger,
 			ISendingService sendingService,
-			ICounterpartyModelValidator counterpartyModelValidator)
+			ICounterpartyModelValidator counterpartyModelValidator) : base(logger)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_sendingService = sendingService ?? throw new ArgumentNullException(nameof(sendingService));
 			_counterpartyModelValidator = counterpartyModelValidator ?? throw new ArgumentNullException(nameof(counterpartyModelValidator));
 		}

@@ -1,7 +1,7 @@
 ﻿using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using CustomerAppsApi.Library.V1.Dto.Counterparties;
+using CustomerAppsApi.Library.V2.Dto.Counterparties;
 using Microsoft.Extensions.Configuration;
 using VodovozHealthCheck.Dto;
 using VodovozHealthCheck.Helpers;
@@ -27,7 +27,7 @@ namespace CustomerAppsApi.V2.HealthChecks
 
 			var result = await HttpResponseHelper.SendRequestAsync<CounterpartyBottlesDebtDto>(
 				HttpMethod.Get,
-				$"{_baseAddress}/api/GetCounterpartyBottlesDebt?erpCounterpartyId={requestParameter}",
+				$"{_baseAddress}/api/{_version}/GetCounterpartyBottlesDebt?erpCounterpartyId={requestParameter}",
 				_httpClientFactory,
 				cancellationToken: cancellationToken);
 

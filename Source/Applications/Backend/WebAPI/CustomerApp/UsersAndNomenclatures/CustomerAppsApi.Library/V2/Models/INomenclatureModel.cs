@@ -6,6 +6,6 @@ namespace CustomerAppsApi.Library.V2.Models
 	public interface INomenclatureModel
 	{
 		NomenclaturesPricesAndStockDto GetNomenclaturesPricesAndStocks(Source source);
-		NomenclaturesDto GetNomenclatures(Source source);
+		SaleItemsDto GetNomenclatures(Source source);
 	}
 }

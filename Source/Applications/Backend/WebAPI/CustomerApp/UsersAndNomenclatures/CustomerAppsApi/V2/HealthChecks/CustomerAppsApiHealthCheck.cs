@@ -15,6 +15,8 @@ namespace CustomerAppsApi.V2.HealthChecks
 {
 	public partial class CustomerAppsApiHealthCheck : VodovozHealthCheckBase
 	{
+		private const string _version = "v2";
+		
 		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly IConfiguration _configuration;
 		private readonly IConfigurationSection _healthSection;
@@ -46,8 +48,6 @@ namespace CustomerAppsApi.V2.HealthChecks
 						CheckDeliveryPointController(cancellationToken),
 						CheckNomenclatureController(cancellationToken),
 						CheckOrdersController(cancellationToken),
-						CheckPromotionalSetController(cancellationToken),
-						CheckRentPackagesController(cancellationToken),
 						CheckSendingController(cancellationToken),
 						CheckWarehouseController(cancellationToken)
 					};

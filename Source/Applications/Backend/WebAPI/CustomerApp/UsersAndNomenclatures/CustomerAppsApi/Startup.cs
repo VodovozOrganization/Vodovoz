@@ -1,10 +1,12 @@
-﻿using CustomerAppsApi.Library;
+﻿using CustomerAppsApi.Configs;
+using CustomerAppsApi.Library;
 using CustomerAppsApi.Middleware;
-using CustomerAppsApi.V1.HealthChecks;
+using CustomerAppsApi.Services;
 using MassTransit;
 using MessageTransport;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -17,12 +19,13 @@ using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Services;
 using RabbitMQ.MailSending;
+using Vodovoz;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Presentation.WebApi;
 using Vodovoz.Settings;
 using VodovozHealthCheck;
-using CustomerAppsApiHealthCheck = CustomerAppsApi.V2.HealthChecks.CustomerAppsApiHealthCheck;
 
 namespace CustomerAppsApi
 {
@@ -64,12 +67,17 @@ namespace CustomerAppsApi
 				)
 				.AddDatabaseConnection()
 				.AddCore()
+				.AddBusiness(Configuration)
 				.AddTrackedUoW()
 				.AddInfrastructure()
 				.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot())
-				.ConfigureHealthCheckService<CustomerAppsApiHealthCheck, ServiceInfoProvider>()
+				.ConfigureHealthCheckService<V1.HealthChecks.CustomerAppsApiHealthCheck, V1.HealthChecks.ServiceInfoProvider>()
 				.AddHttpClient()
-				.AddCustomerApiLibrary()
+				.AddVersion1()
+				.AddVersion2()
+				.AddVersioning()
+				.AddSwaggerGen(opt =>
+					opt.CustomSchemaIds(type => type.FullName))
 				.AddOsrm()
 				.AddRabbitConfig(Configuration)
 				.AddMessageTransportSettings()
@@ -79,6 +87,11 @@ namespace CustomerAppsApi
 				})
 				.AddControllers()
 				;
+			
+			services.AddAuthentication("Basic")
+				.AddScheme<BasicAuthenticationOptions, CustomAuthenticationHandler>(
+					"Basic",
+					conf => Configuration.GetSection(BasicAuthenticationOptions.Path).Bind(conf));
 
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 
@@ -95,13 +108,24 @@ namespace CustomerAppsApi
 			{
 				app.UseDeveloperExceptionPage();
 				app.UseSwagger();
-				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CustomerAppsApi v1"));
+				app.UseSwaggerUI(options =>
+				{
+					var provider = app.ApplicationServices.GetRequiredService<IApiVersionDescriptionProvider>();
+
+					foreach(var description in provider.ApiVersionDescriptions)
+					{
+						options.SwaggerEndpoint(
+							$"/swagger/{description.GroupName}/swagger.json",
+							description.ApiVersion.ToString());
+					}
+				});
 			}
 
 			app.UseMiddleware<ResponseLoggingMiddleware>();
 			app.UseHttpsRedirection();
 			app.UseRouting();
-
+			app.UseAuthorization();
+			app.UseApiVersioning();
 			app.UseVodovozHealthCheck();
 
 			app.UseEndpoints(endpoints => { endpoints.MapControllers(); });

@@ -29,7 +29,7 @@ namespace CustomerAppsApi.V2.HealthChecks
 
 			var result = await HttpResponseHelper.SendRequestAsync<IEnumerable<SelfDeliveryAddressDto>>(
 				HttpMethod.Get,
-				$"{_baseAddress}/api/GetSelfDeliveriesAddresses?source={source}",
+				$"{_baseAddress}/api/{_version}/GetSelfDeliveriesAddresses?source={source}",
 				_httpClientFactory,
 				cancellationToken: cancellationToken);
 

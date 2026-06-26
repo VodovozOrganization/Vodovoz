@@ -1,28 +1,26 @@
 using System;
-using CustomerAppsApi.Library.V1.Dto.Counterparties;
-using CustomerAppsApi.Library.V1.Models;
+using CustomerAppsApi.Library.V2.Dto.Counterparties;
+using CustomerAppsApi.Library.V2.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace CustomerAppsApi.V2.Controllers
 {
-	[ApiController]
-	[Route("/api/")]
-	public class CounterpartyDebtController : ControllerBase
+	[Authorize]
+	[ApiVersion("2.0")]
+	public class CounterpartyDebtController : VersionedController
 	{
-		private readonly ILogger<CounterpartyController> _logger;
 		private readonly ICounterpartyModel _counterpartyModel;
-		
+
 		public CounterpartyDebtController(
 			ILogger<CounterpartyController> logger,
-			ICounterpartyModel counterpartyModel)
+			ICounterpartyModel counterpartyModel) : base(logger)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_counterpartyModel = counterpartyModel ?? throw new ArgumentNullException(nameof(counterpartyModel));
 		}
 		
 		[HttpGet]
-		[Route("GetCounterpartyBottlesDebt")]
 		public CounterpartyBottlesDebtDto GetCounterpartyBottlesDebt([FromQuery] int erpCounterpartyId)
 		{
 			try
