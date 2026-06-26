@@ -36,6 +36,9 @@
 		public decimal DebtSum =>
 			OrdersCashSum - IncomeSum + ExpenseSum;
 
+		/// <summary>
+		/// Информация о задолженности в виде строки: "Наименование организации: сумма долга"
+		/// </summary>
 		public string DebtInfo =>
 			$"{OrganizationName ?? "Не указано"}: {DebtSum:#,##0.00 'р.'}";
 	}

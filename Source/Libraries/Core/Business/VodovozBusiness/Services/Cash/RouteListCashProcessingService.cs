@@ -47,7 +47,7 @@ namespace VodovozBusiness.Services.Cash
 				routeListCashOrganisationDistributor ?? throw new ArgumentNullException(nameof(routeListCashOrganisationDistributor));
 		}
 
-		public Result<List<Income>> CreateManualCashIncome(
+		public Result<IEnumerable<Income>> CreateManualCashIncome(
 			IUnitOfWork uow,
 			RouteList routeList,
 			decimal cashInput)
@@ -69,12 +69,12 @@ namespace VodovozBusiness.Services.Cash
 
 			if(routeList.Cashier is null)
 			{
-				return Result.Failure<List<Income>>(RouteListErrors.CashierIsEmpty);
+				return Result.Failure<IEnumerable<Income>>(RouteListErrors.CashierIsEmpty);
 			}
 
 			if(routeList.Cashier?.Subdivision == null)
 			{
-				return Result.Failure<List<Income>>(RouteListErrors.CashierSubdivisionIsEmpty);
+				return Result.Failure<IEnumerable<Income>>(RouteListErrors.CashierSubdivisionIsEmpty);
 			}
 
 			var organizationDebts = GetCashDebtsByOrganizations(uow, routeList.Id);
@@ -82,15 +82,11 @@ namespace VodovozBusiness.Services.Cash
 			try
 			{
 				var cashIncomes = CreateAndDistributeCashIncomesByOrganizationsDebts(uow, routeList, organizationDebts, cashInput);
-				return Result.Success(cashIncomes);
+				return Result.Success(cashIncomes.AsEnumerable());
 			}
 			catch(MissingOrdersWithCashPaymentTypeException ex)
 			{
-				return Result.Failure<List<Income>>(RouteListErrors.MissingCashPaymentTypeOrders);
-			}
-			catch(Exception ex)
-			{
-				throw;
+				return Result.Failure<IEnumerable<Income>>(RouteListErrors.MissingCashPaymentTypeOrders);
 			}
 		}
 
@@ -128,10 +124,6 @@ namespace VodovozBusiness.Services.Cash
 			catch(MissingOrdersWithCashPaymentTypeException ex)
 			{
 				return Result.Failure<IEnumerable<string>>(RouteListErrors.MissingCashPaymentTypeOrders);
-			}
-			catch(Exception ex)
-			{
-				throw;
 			}
 		}
 
@@ -184,7 +176,10 @@ namespace VodovozBusiness.Services.Cash
 					uow,
 					debtsByOrganizations.Where(x => x.OrganizationId != null).Select(x => x.OrganizationId.Value));
 
-			var remainder = cashInput is null ? debtsByOrganizations.Sum(x => x.DebtSum) : cashInput.Value;
+			var remainder =
+				cashInput is null
+				? debtsByOrganizations.Sum(x => x.DebtSum)
+				: cashInput.Value;
 
 			foreach(var debtByOrganization in debtsByOrganizations)
 			{
@@ -228,7 +223,10 @@ namespace VodovozBusiness.Services.Cash
 				.Where(x => x.DebtSum < 0)
 				.ToList();
 
-			var remainder = cashInput is null ? overpaymentsByOrganizations.Sum(x => Math.Abs(x.DebtSum)) : cashInput.Value;
+			var remainder =
+				cashInput is null ?
+				overpaymentsByOrganizations.Sum(x => Math.Abs(x.DebtSum))
+				: cashInput.Value;
 
 			var organizations =
 				GetOrganizationsByIds(
@@ -280,6 +278,7 @@ namespace VodovozBusiness.Services.Cash
 			var cashIncome = CreateIncome(routeList, organization, amount);
 			uow.Save(cashIncome);
 			_routeListCashOrganisationDistributor.DistributeIncomeCash(uow, routeList, cashIncome, cashIncome.Money);
+
 			return cashIncome;
 		}
 
@@ -288,6 +287,7 @@ namespace VodovozBusiness.Services.Cash
 			var cashExpense = CreateExpense(routeList, organization, amount);
 			uow.Save(cashExpense);
 			_routeListCashOrganisationDistributor.DistributeExpenseCash(uow, routeList, cashExpense, cashExpense.Money);
+
 			return cashExpense;
 		}
 
