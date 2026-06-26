@@ -5,6 +5,7 @@ using Gamma.ColumnConfig;
 using Gtk;
 using QS.Journal.GtkUI;
 using QS.Views.Dialog;
+using QS.Views.GtkUI;
 using System;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
@@ -12,7 +13,7 @@ using Vodovoz.ViewModels.TrueMark;
 namespace Vodovoz.Views.TrueMark
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class OrderCodesView : DialogViewBase<OrderCodesViewModel>
+	public partial class OrderCodesView : WidgetViewBase<OrderCodesViewModel>
 	{
 		//driver popup
 		private Menu _driverPopup = new Menu();
@@ -43,16 +44,14 @@ namespace Vodovoz.Views.TrueMark
 		private Menu _stagingPopup = new Menu();
 		private MenuItem _stagingCopyCodes = new MenuItem("Копировать коды");
 
+		public OrderCodesView()
+		{
+
+		}
+
 		public OrderCodesView(OrderCodesViewModel viewModel) : base(viewModel)
 		{
 			this.Build();
-
-			ybuttonRefresh.BindCommand(ViewModel.RefreshCommand);
-
-			entryOrder.IsEditable = false;
-			entryOrder.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.OrderId, w => w.Text, new IntToStringConverter())
-				.InitializeFromSource();
 
 			ylabelTotalCodesValue.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CodesRequired, w => w.LabelProp, new TextToBoldTextConverter())

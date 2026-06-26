@@ -3,6 +3,7 @@ using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
+using QS.ViewModels;
 using QS.ViewModels.Dialog;
 using System;
 using System.Collections.Generic;
@@ -21,15 +22,36 @@ using Vodovoz.ViewModels.ViewModels.Employees;
 
 namespace Vodovoz.ViewModels.TrueMark
 {
-	public class OrderCodesViewModel : DialogViewModelBase
+	public class OrderCodesDialogViewModel : DialogViewModelBase
+	{
+
+		public OrderCodesDialogViewModel(
+			int orderId,
+			OrderCodesViewModel orderCodesViewModel,
+			INavigationManager navigation
+			) : base(navigation)
+		{
+			OrderCodesViewModel = orderCodesViewModel ?? throw new ArgumentNullException(nameof(orderCodesViewModel));
+
+			Title = $"Коды ЧЗ для заказа {orderId}";
+
+			OrderCodesViewModel.OrderId = orderId;
+		}
+
+		public OrderCodesViewModel OrderCodesViewModel { get; }
+	}
+
+	public class OrderCodesViewModel : WidgetViewModelBase
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IClipboard _clipboard;
 		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
+		private readonly INavigationManager _navigation;
 		private readonly IRouteListItemRepository _routeListItemRepository;
 		private readonly IGenericRepository<Employee> _employeeRepository;
+		private int _orderId;
 		private int _codesRequired;
 		private int _codesProvided;
 		private int _codesProvidedFromScan;
@@ -58,7 +80,6 @@ namespace Vodovoz.ViewModels.TrueMark
 		private string _parsedSearchCodeSerialNumber;
 
 		public OrderCodesViewModel(
-			int orderId,
 			IUnitOfWorkFactory uowFactory,
 			ITrueMarkRepository trueMarkRepository,
 			IGtkTabsOpener gtkTabsOpener,
@@ -67,14 +88,14 @@ namespace Vodovoz.ViewModels.TrueMark
 			INavigationManager navigation,
 			IRouteListItemRepository routeListItemRepository,
 			IGenericRepository<Employee> employeeRepository
-			) : base(navigation)
+			) : base()
 		{
-			OrderId = orderId;
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_clipboard = clipboard ?? throw new ArgumentNullException(nameof(clipboard));
 			_trueMarkWaterCodeParser = trueMarkWaterCodeParser ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeParser));
+			_navigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
 			_routeListItemRepository = routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_scannedByDriverCodes = new List<OrderCodeItemViewModel>();
@@ -88,7 +109,6 @@ namespace Vodovoz.ViewModels.TrueMark
 			_scannedStagingCodes = new List<OrderCodeItemViewModel>();
 			_scannedStagingCodesSelected = Enumerable.Empty<OrderCodeItemViewModel>();
 
-			Title = $"Коды ЧЗ для заказа {orderId}";
 
 			CreateCommands();
 			Reload();
@@ -110,7 +130,17 @@ namespace Vodovoz.ViewModels.TrueMark
 		public ICommand OpenFromWarehouseAuthorCommand { get; private set; }
 		public ICommand OpenFromSelfdeliveryAuthorCommand { get; private set; }
 
-		public int OrderId { get; private set; }
+		public virtual int OrderId
+		{
+			get => _orderId;
+			set
+			{
+				if(SetField(ref _orderId, value))
+				{
+					Reload();
+				}
+			}
+		}
 
 		public virtual int CodesRequired
 		{
@@ -886,7 +916,7 @@ namespace Vodovoz.ViewModels.TrueMark
 				return;
 			}
 			var entityId = EntityUoWBuilder.ForOpen(selectedItem.SourceDocumentId.Value);
-			NavigationManager.OpenViewModel<RouteListKeepingViewModel, IEntityUoWBuilder>(this, entityId);
+			_navigation.OpenViewModel<RouteListKeepingViewModel, IEntityUoWBuilder>(null, entityId);
 		}
 
 		private void OpenCarLoadDocument()
@@ -917,7 +947,7 @@ namespace Vodovoz.ViewModels.TrueMark
 				return;
 			}
 			var entityId = EntityUoWBuilder.ForOpen(selectedItem.CodeAuthorId.Value);
-			NavigationManager.OpenViewModel<EmployeeViewModel, IEntityUoWBuilder>(this, entityId);
+			_navigation.OpenViewModel<EmployeeViewModel, IEntityUoWBuilder>(null, entityId);
 		}
 
 		private bool OnlyOneSelected(IEnumerable<OrderCodeItemViewModel> selected)

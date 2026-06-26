@@ -8,39 +8,41 @@ namespace Vodovoz.Views.Edo
 
 		private global::Gamma.GtkWidgets.yHBox hboxButtons;
 
-		private global::Gamma.GtkWidgets.yToggleButton toggleButtonHelp;
+		private global::Gamma.GtkWidgets.yButton buttonRefresh;
 
 		private global::Gtk.VSeparator vseparator1;
 
 		private global::Gamma.GtkWidgets.yHBox hboxDialogButtons;
 
-		private global::Gamma.GtkWidgets.yButton buttonRefresh;
+		private global::Gamma.GtkWidgets.yToggleButton toggleButtonHelp;
 
-		private global::Gamma.GtkWidgets.yButton buttonResend;
+		private global::Gamma.GtkWidgets.yButton buttonDocuments;
 
-		private global::Gamma.GtkWidgets.yNotebook ynotebook1;
+		private global::Gamma.GtkWidgets.yButton buttonCodes;
 
-		private global::Gamma.GtkWidgets.yVBox vboxDialog;
+		private global::Gtk.Frame frameDocTypes1;
 
-		private global::Gamma.GtkWidgets.yHBox hboxEdoData;
-
-		private global::Gamma.GtkWidgets.yVBox vboxTables;
-
-		private global::Gamma.GtkWidgets.yLabel labelEdoTasks;
-
-		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
-
-		private global::Gamma.GtkWidgets.yTreeView treeViewEdoTasks;
-
-		private global::Gamma.GtkWidgets.yLabel labelEdoTransferTasks;
+		private global::Gtk.Alignment GtkAlignment3;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow2;
 
-		private global::Gamma.GtkWidgets.yTreeView treeViewEdoTransferTasks;
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewDocTypes1;
 
-		private global::Gtk.VSeparator vseparator2;
+		private global::Gtk.Label GtkLabel5;
 
-		private global::Vodovoz.Views.Edo.EdoTaskInOrderResolveView edotaskinorderresolveview1;
+		private global::Gamma.GtkWidgets.yNotebook ynotebook1;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow;
+
+		private global::Gamma.GtkWidgets.yTextView textViewHelp;
+
+		private global::Gtk.Label labelHelp;
+
+		private global::Gamma.GtkWidgets.yVBox vboxDocumentsTab;
+
+		private global::Gamma.GtkWidgets.yHBox yhboxDocs;
+
+		private global::Gamma.GtkWidgets.yVBox yvboxDocPlaceholder;
 
 		private global::Gtk.HSeparator hseparator1;
 
@@ -64,13 +66,9 @@ namespace Vodovoz.Views.Edo
 
 		private global::Gamma.GtkWidgets.yTextView textViewProblemRecommendation;
 
-		private global::Gtk.Label labelDialog;
+		private global::Gtk.Label labelDocuments;
 
-		private global::Gtk.ScrolledWindow GtkScrolledWindow;
-
-		private global::Gamma.GtkWidgets.yTextView textViewHelp;
-
-		private global::Gtk.Label labelHelp;
+		private global::Gtk.Label labelCodes;
 
 		protected virtual void Build()
 		{
@@ -87,16 +85,16 @@ namespace Vodovoz.Views.Edo
 			this.hboxButtons.Name = "hboxButtons";
 			this.hboxButtons.Spacing = 6;
 			// Container child hboxButtons.Gtk.Box+BoxChild
-			this.toggleButtonHelp = new global::Gamma.GtkWidgets.yToggleButton();
-			this.toggleButtonHelp.CanFocus = true;
-			this.toggleButtonHelp.Name = "toggleButtonHelp";
-			this.toggleButtonHelp.UseUnderline = true;
-			this.toggleButtonHelp.Label = global::Mono.Unix.Catalog.GetString("Справка");
+			this.buttonRefresh = new global::Gamma.GtkWidgets.yButton();
+			this.buttonRefresh.CanFocus = true;
+			this.buttonRefresh.Name = "buttonRefresh";
+			this.buttonRefresh.UseUnderline = true;
+			this.buttonRefresh.Label = global::Mono.Unix.Catalog.GetString("Обновить");
 			global::Gtk.Image w1 = new global::Gtk.Image();
-			w1.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-help", global::Gtk.IconSize.Menu);
-			this.toggleButtonHelp.Image = w1;
-			this.hboxButtons.Add(this.toggleButtonHelp);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.toggleButtonHelp]));
+			w1.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-refresh", global::Gtk.IconSize.Menu);
+			this.buttonRefresh.Image = w1;
+			this.hboxButtons.Add(this.buttonRefresh);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.buttonRefresh]));
 			w2.Position = 0;
 			w2.Expand = false;
 			w2.Fill = false;
@@ -113,139 +111,144 @@ namespace Vodovoz.Views.Edo
 			this.hboxDialogButtons.Name = "hboxDialogButtons";
 			this.hboxDialogButtons.Spacing = 6;
 			// Container child hboxDialogButtons.Gtk.Box+BoxChild
-			this.buttonRefresh = new global::Gamma.GtkWidgets.yButton();
-			this.buttonRefresh.CanFocus = true;
-			this.buttonRefresh.Name = "buttonRefresh";
-			this.buttonRefresh.UseUnderline = true;
-			this.buttonRefresh.Label = global::Mono.Unix.Catalog.GetString("Обновить");
+			this.toggleButtonHelp = new global::Gamma.GtkWidgets.yToggleButton();
+			this.toggleButtonHelp.CanFocus = true;
+			this.toggleButtonHelp.Name = "toggleButtonHelp";
+			this.toggleButtonHelp.UseUnderline = true;
+			this.toggleButtonHelp.Label = global::Mono.Unix.Catalog.GetString("Справка");
 			global::Gtk.Image w4 = new global::Gtk.Image();
-			w4.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-refresh", global::Gtk.IconSize.Menu);
-			this.buttonRefresh.Image = w4;
-			this.hboxDialogButtons.Add(this.buttonRefresh);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hboxDialogButtons[this.buttonRefresh]));
+			w4.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-help", global::Gtk.IconSize.Menu);
+			this.toggleButtonHelp.Image = w4;
+			this.hboxDialogButtons.Add(this.toggleButtonHelp);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hboxDialogButtons[this.toggleButtonHelp]));
 			w5.Position = 0;
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child hboxDialogButtons.Gtk.Box+BoxChild
-			this.buttonResend = new global::Gamma.GtkWidgets.yButton();
-			this.buttonResend.CanFocus = true;
-			this.buttonResend.Name = "buttonResend";
-			this.buttonResend.UseUnderline = true;
-			this.buttonResend.Label = global::Mono.Unix.Catalog.GetString("Переотправить");
-			this.hboxDialogButtons.Add(this.buttonResend);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hboxDialogButtons[this.buttonResend]));
+			this.buttonDocuments = new global::Gamma.GtkWidgets.yButton();
+			this.buttonDocuments.CanFocus = true;
+			this.buttonDocuments.Name = "buttonDocuments";
+			this.buttonDocuments.UseUnderline = true;
+			this.buttonDocuments.Label = global::Mono.Unix.Catalog.GetString("Документы");
+			this.hboxDialogButtons.Add(this.buttonDocuments);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hboxDialogButtons[this.buttonDocuments]));
 			w6.Position = 1;
 			w6.Expand = false;
 			w6.Fill = false;
-			this.hboxButtons.Add(this.hboxDialogButtons);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.hboxDialogButtons]));
+			// Container child hboxDialogButtons.Gtk.Box+BoxChild
+			this.buttonCodes = new global::Gamma.GtkWidgets.yButton();
+			this.buttonCodes.CanFocus = true;
+			this.buttonCodes.Name = "buttonCodes";
+			this.buttonCodes.UseUnderline = true;
+			this.buttonCodes.Label = global::Mono.Unix.Catalog.GetString("Коды маркировки");
+			this.hboxDialogButtons.Add(this.buttonCodes);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hboxDialogButtons[this.buttonCodes]));
 			w7.Position = 2;
-			this.vboxMain.Add(this.hboxButtons);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hboxButtons]));
-			w8.Position = 0;
-			w8.Expand = false;
-			w8.Fill = false;
-			// Container child vboxMain.Gtk.Box+BoxChild
-			this.ynotebook1 = new global::Gamma.GtkWidgets.yNotebook();
-			this.ynotebook1.CanFocus = true;
-			this.ynotebook1.Name = "ynotebook1";
-			this.ynotebook1.CurrentPage = 0;
-			// Container child ynotebook1.Gtk.Notebook+NotebookChild
-			this.vboxDialog = new global::Gamma.GtkWidgets.yVBox();
-			this.vboxDialog.Name = "vboxDialog";
-			this.vboxDialog.Spacing = 6;
-			// Container child vboxDialog.Gtk.Box+BoxChild
-			this.hboxEdoData = new global::Gamma.GtkWidgets.yHBox();
-			this.hboxEdoData.Name = "hboxEdoData";
-			this.hboxEdoData.Spacing = 6;
-			// Container child hboxEdoData.Gtk.Box+BoxChild
-			this.vboxTables = new global::Gamma.GtkWidgets.yVBox();
-			this.vboxTables.Name = "vboxTables";
-			this.vboxTables.Spacing = 6;
-			// Container child vboxTables.Gtk.Box+BoxChild
-			this.labelEdoTasks = new global::Gamma.GtkWidgets.yLabel();
-			this.labelEdoTasks.Name = "labelEdoTasks";
-			this.labelEdoTasks.Xalign = 0F;
-			this.labelEdoTasks.LabelProp = global::Mono.Unix.Catalog.GetString("Задачи на документооборот с клиентом:");
-			this.vboxTables.Add(this.labelEdoTasks);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vboxTables[this.labelEdoTasks]));
-			w9.Position = 0;
-			w9.Expand = false;
-			w9.Fill = false;
-			// Container child vboxTables.Gtk.Box+BoxChild
-			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
-			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
-			this.treeViewEdoTasks = new global::Gamma.GtkWidgets.yTreeView();
-			this.treeViewEdoTasks.CanFocus = true;
-			this.treeViewEdoTasks.Name = "treeViewEdoTasks";
-			this.GtkScrolledWindow1.Add(this.treeViewEdoTasks);
-			this.vboxTables.Add(this.GtkScrolledWindow1);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vboxTables[this.GtkScrolledWindow1]));
-			w11.Position = 1;
-			// Container child vboxTables.Gtk.Box+BoxChild
-			this.labelEdoTransferTasks = new global::Gamma.GtkWidgets.yLabel();
-			this.labelEdoTransferTasks.Name = "labelEdoTransferTasks";
-			this.labelEdoTransferTasks.Xalign = 0F;
-			this.labelEdoTransferTasks.LabelProp = global::Mono.Unix.Catalog.GetString("Задачи на внутренний трансфер между организациями:");
-			this.vboxTables.Add(this.labelEdoTransferTasks);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vboxTables[this.labelEdoTransferTasks]));
-			w12.Position = 2;
-			w12.Expand = false;
-			w12.Fill = false;
-			// Container child vboxTables.Gtk.Box+BoxChild
+			w7.Expand = false;
+			w7.Fill = false;
+			// Container child hboxDialogButtons.Gtk.Box+BoxChild
+			this.frameDocTypes1 = new global::Gtk.Frame();
+			this.frameDocTypes1.Name = "frameDocTypes1";
+			this.frameDocTypes1.ShadowType = ((global::Gtk.ShadowType)(0));
+			// Container child frameDocTypes1.Gtk.Container+ContainerChild
+			this.GtkAlignment3 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment3.Name = "GtkAlignment3";
+			this.GtkAlignment3.LeftPadding = ((uint)(12));
+			// Container child GtkAlignment3.Gtk.Container+ContainerChild
 			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
 			this.GtkScrolledWindow2.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow2.Gtk.Container+ContainerChild
-			this.treeViewEdoTransferTasks = new global::Gamma.GtkWidgets.yTreeView();
-			this.treeViewEdoTransferTasks.CanFocus = true;
-			this.treeViewEdoTransferTasks.Name = "treeViewEdoTransferTasks";
-			this.GtkScrolledWindow2.Add(this.treeViewEdoTransferTasks);
-			this.vboxTables.Add(this.GtkScrolledWindow2);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vboxTables[this.GtkScrolledWindow2]));
-			w14.Position = 3;
-			this.hboxEdoData.Add(this.vboxTables);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hboxEdoData[this.vboxTables]));
-			w15.Position = 0;
-			// Container child hboxEdoData.Gtk.Box+BoxChild
-			this.vseparator2 = new global::Gtk.VSeparator();
-			this.vseparator2.Name = "vseparator2";
-			this.hboxEdoData.Add(this.vseparator2);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hboxEdoData[this.vseparator2]));
+			this.ytreeviewDocTypes1 = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeviewDocTypes1.CanFocus = true;
+			this.ytreeviewDocTypes1.Name = "ytreeviewDocTypes1";
+			this.GtkScrolledWindow2.Add(this.ytreeviewDocTypes1);
+			this.GtkAlignment3.Add(this.GtkScrolledWindow2);
+			this.frameDocTypes1.Add(this.GtkAlignment3);
+			this.GtkLabel5 = new global::Gtk.Label();
+			this.GtkLabel5.Name = "GtkLabel5";
+			this.GtkLabel5.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Типы документов:</b>");
+			this.GtkLabel5.UseMarkup = true;
+			this.frameDocTypes1.LabelWidget = this.GtkLabel5;
+			this.hboxDialogButtons.Add(this.frameDocTypes1);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hboxDialogButtons[this.frameDocTypes1]));
+			w11.Position = 3;
+			w11.Expand = false;
+			w11.Fill = false;
+			this.hboxButtons.Add(this.hboxDialogButtons);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hboxButtons[this.hboxDialogButtons]));
+			w12.Position = 2;
+			w12.Expand = false;
+			w12.Fill = false;
+			this.vboxMain.Add(this.hboxButtons);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.hboxButtons]));
+			w13.Position = 0;
+			w13.Expand = false;
+			w13.Fill = false;
+			// Container child vboxMain.Gtk.Box+BoxChild
+			this.ynotebook1 = new global::Gamma.GtkWidgets.yNotebook();
+			this.ynotebook1.WidthRequest = 0;
+			this.ynotebook1.HeightRequest = 0;
+			this.ynotebook1.CanFocus = true;
+			this.ynotebook1.Name = "ynotebook1";
+			this.ynotebook1.CurrentPage = 1;
+			this.ynotebook1.ShowBorder = false;
+			// Container child ynotebook1.Gtk.Notebook+NotebookChild
+			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
+			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
+			this.textViewHelp = new global::Gamma.GtkWidgets.yTextView();
+			this.textViewHelp.CanFocus = true;
+			this.textViewHelp.Name = "textViewHelp";
+			this.GtkScrolledWindow.Add(this.textViewHelp);
+			this.ynotebook1.Add(this.GtkScrolledWindow);
+			// Notebook tab
+			this.labelHelp = new global::Gtk.Label();
+			this.labelHelp.Name = "labelHelp";
+			this.labelHelp.LabelProp = global::Mono.Unix.Catalog.GetString("Справка");
+			this.ynotebook1.SetTabLabel(this.GtkScrolledWindow, this.labelHelp);
+			this.labelHelp.ShowAll();
+			// Container child ynotebook1.Gtk.Notebook+NotebookChild
+			this.vboxDocumentsTab = new global::Gamma.GtkWidgets.yVBox();
+			this.vboxDocumentsTab.WidthRequest = 0;
+			this.vboxDocumentsTab.HeightRequest = 0;
+			this.vboxDocumentsTab.Sensitive = false;
+			this.vboxDocumentsTab.Name = "vboxDocumentsTab";
+			this.vboxDocumentsTab.Spacing = 6;
+			// Container child vboxDocumentsTab.Gtk.Box+BoxChild
+			this.yhboxDocs = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxDocs.Name = "yhboxDocs";
+			this.yhboxDocs.Spacing = 6;
+			// Container child yhboxDocs.Gtk.Box+BoxChild
+			this.yvboxDocPlaceholder = new global::Gamma.GtkWidgets.yVBox();
+			this.yvboxDocPlaceholder.Name = "yvboxDocPlaceholder";
+			this.yvboxDocPlaceholder.Spacing = 6;
+			this.yhboxDocs.Add(this.yvboxDocPlaceholder);
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.yhboxDocs[this.yvboxDocPlaceholder]));
 			w16.Position = 1;
-			w16.Expand = false;
-			w16.Fill = false;
-			// Container child hboxEdoData.Gtk.Box+BoxChild
-			this.edotaskinorderresolveview1 = new global::Vodovoz.Views.Edo.EdoTaskInOrderResolveView();
-			this.edotaskinorderresolveview1.Events = ((global::Gdk.EventMask)(256));
-			this.edotaskinorderresolveview1.Name = "edotaskinorderresolveview1";
-			this.hboxEdoData.Add(this.edotaskinorderresolveview1);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hboxEdoData[this.edotaskinorderresolveview1]));
-			w17.Position = 2;
-			this.vboxDialog.Add(this.hboxEdoData);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.hboxEdoData]));
-			w18.Position = 0;
-			// Container child vboxDialog.Gtk.Box+BoxChild
+			this.vboxDocumentsTab.Add(this.yhboxDocs);
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vboxDocumentsTab[this.yhboxDocs]));
+			w17.Position = 1;
+			// Container child vboxDocumentsTab.Gtk.Box+BoxChild
 			this.hseparator1 = new global::Gtk.HSeparator();
 			this.hseparator1.Name = "hseparator1";
-			this.vboxDialog.Add(this.hseparator1);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.hseparator1]));
-			w19.Position = 1;
-			w19.Expand = false;
-			w19.Fill = false;
-			// Container child vboxDialog.Gtk.Box+BoxChild
+			this.vboxDocumentsTab.Add(this.hseparator1);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vboxDocumentsTab[this.hseparator1]));
+			w18.Position = 3;
+			w18.Expand = false;
+			w18.Fill = false;
+			// Container child vboxDocumentsTab.Gtk.Box+BoxChild
 			this.labelProblems = new global::Gamma.GtkWidgets.yLabel();
 			this.labelProblems.Name = "labelProblems";
 			this.labelProblems.Xalign = 0F;
 			this.labelProblems.LabelProp = global::Mono.Unix.Catalog.GetString("Проблемы:");
-			this.vboxDialog.Add(this.labelProblems);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.labelProblems]));
-			w20.Position = 2;
-			w20.Expand = false;
-			w20.Fill = false;
-			// Container child vboxDialog.Gtk.Box+BoxChild
+			this.vboxDocumentsTab.Add(this.labelProblems);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vboxDocumentsTab[this.labelProblems]));
+			w19.Position = 4;
+			w19.Expand = false;
+			w19.Fill = false;
+			// Container child vboxDocumentsTab.Gtk.Box+BoxChild
 			this.yhbox4 = new global::Gamma.GtkWidgets.yHBox();
 			this.yhbox4.Name = "yhbox4";
 			this.yhbox4.Spacing = 6;
@@ -259,16 +262,16 @@ namespace Vodovoz.Views.Edo
 			this.treeViewProblems.Name = "treeViewProblems";
 			this.GtkScrolledWindow3.Add(this.treeViewProblems);
 			this.yhbox4.Add(this.GtkScrolledWindow3);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.yhbox4[this.GtkScrolledWindow3]));
-			w22.Position = 0;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.yhbox4[this.GtkScrolledWindow3]));
+			w21.Position = 0;
 			// Container child yhbox4.Gtk.Box+BoxChild
 			this.vseparator3 = new global::Gtk.VSeparator();
 			this.vseparator3.Name = "vseparator3";
 			this.yhbox4.Add(this.vseparator3);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.yhbox4[this.vseparator3]));
-			w23.Position = 1;
-			w23.Expand = false;
-			w23.Fill = false;
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.yhbox4[this.vseparator3]));
+			w22.Position = 1;
+			w22.Expand = false;
+			w22.Fill = false;
 			// Container child yhbox4.Gtk.Box+BoxChild
 			this.vboxProblemDetails = new global::Gamma.GtkWidgets.yVBox();
 			this.vboxProblemDetails.Name = "vboxProblemDetails";
@@ -279,10 +282,10 @@ namespace Vodovoz.Views.Edo
 			this.labelProblemDescription.Xalign = 0F;
 			this.labelProblemDescription.LabelProp = global::Mono.Unix.Catalog.GetString("Описание:");
 			this.vboxProblemDetails.Add(this.labelProblemDescription);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vboxProblemDetails[this.labelProblemDescription]));
-			w24.Position = 0;
-			w24.Expand = false;
-			w24.Fill = false;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vboxProblemDetails[this.labelProblemDescription]));
+			w23.Position = 0;
+			w23.Expand = false;
+			w23.Fill = false;
 			// Container child vboxProblemDetails.Gtk.Box+BoxChild
 			this.textViewProblemDescription = new global::Gamma.GtkWidgets.yTextView();
 			this.textViewProblemDescription.CanFocus = true;
@@ -290,18 +293,18 @@ namespace Vodovoz.Views.Edo
 			this.textViewProblemDescription.Editable = false;
 			this.textViewProblemDescription.WrapMode = ((global::Gtk.WrapMode)(2));
 			this.vboxProblemDetails.Add(this.textViewProblemDescription);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vboxProblemDetails[this.textViewProblemDescription]));
-			w25.Position = 1;
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vboxProblemDetails[this.textViewProblemDescription]));
+			w24.Position = 1;
 			// Container child vboxProblemDetails.Gtk.Box+BoxChild
 			this.labelProblemRecomendation = new global::Gamma.GtkWidgets.yLabel();
 			this.labelProblemRecomendation.Name = "labelProblemRecomendation";
 			this.labelProblemRecomendation.Xalign = 0F;
 			this.labelProblemRecomendation.LabelProp = global::Mono.Unix.Catalog.GetString("Рекомендация:");
 			this.vboxProblemDetails.Add(this.labelProblemRecomendation);
-			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vboxProblemDetails[this.labelProblemRecomendation]));
-			w26.Position = 2;
-			w26.Expand = false;
-			w26.Fill = false;
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vboxProblemDetails[this.labelProblemRecomendation]));
+			w25.Position = 2;
+			w25.Expand = false;
+			w25.Fill = false;
 			// Container child vboxProblemDetails.Gtk.Box+BoxChild
 			this.textViewProblemRecommendation = new global::Gamma.GtkWidgets.yTextView();
 			this.textViewProblemRecommendation.CanFocus = true;
@@ -309,42 +312,35 @@ namespace Vodovoz.Views.Edo
 			this.textViewProblemRecommendation.Editable = false;
 			this.textViewProblemRecommendation.WrapMode = ((global::Gtk.WrapMode)(2));
 			this.vboxProblemDetails.Add(this.textViewProblemRecommendation);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vboxProblemDetails[this.textViewProblemRecommendation]));
-			w27.Position = 3;
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vboxProblemDetails[this.textViewProblemRecommendation]));
+			w26.Position = 3;
 			this.yhbox4.Add(this.vboxProblemDetails);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.yhbox4[this.vboxProblemDetails]));
-			w28.Position = 2;
-			this.vboxDialog.Add(this.yhbox4);
-			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vboxDialog[this.yhbox4]));
-			w29.Position = 3;
-			this.ynotebook1.Add(this.vboxDialog);
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.yhbox4[this.vboxProblemDetails]));
+			w27.Position = 2;
+			this.vboxDocumentsTab.Add(this.yhbox4);
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vboxDocumentsTab[this.yhbox4]));
+			w28.Position = 5;
+			this.ynotebook1.Add(this.vboxDocumentsTab);
+			global::Gtk.Notebook.NotebookChild w29 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebook1[this.vboxDocumentsTab]));
+			w29.Position = 1;
 			// Notebook tab
-			this.labelDialog = new global::Gtk.Label();
-			this.labelDialog.Name = "labelDialog";
-			this.labelDialog.LabelProp = global::Mono.Unix.Catalog.GetString("Диалог");
-			this.ynotebook1.SetTabLabel(this.vboxDialog, this.labelDialog);
-			this.labelDialog.ShowAll();
-			// Container child ynotebook1.Gtk.Notebook+NotebookChild
-			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
-			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.textViewHelp = new global::Gamma.GtkWidgets.yTextView();
-			this.textViewHelp.CanFocus = true;
-			this.textViewHelp.Name = "textViewHelp";
-			this.GtkScrolledWindow.Add(this.textViewHelp);
-			this.ynotebook1.Add(this.GtkScrolledWindow);
-			global::Gtk.Notebook.NotebookChild w32 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebook1[this.GtkScrolledWindow]));
-			w32.Position = 1;
+			this.labelDocuments = new global::Gtk.Label();
+			this.labelDocuments.Name = "labelDocuments";
+			this.labelDocuments.LabelProp = global::Mono.Unix.Catalog.GetString("Документы");
+			this.ynotebook1.SetTabLabel(this.vboxDocumentsTab, this.labelDocuments);
+			this.labelDocuments.ShowAll();
 			// Notebook tab
-			this.labelHelp = new global::Gtk.Label();
-			this.labelHelp.Name = "labelHelp";
-			this.labelHelp.LabelProp = global::Mono.Unix.Catalog.GetString("Справка");
-			this.ynotebook1.SetTabLabel(this.GtkScrolledWindow, this.labelHelp);
-			this.labelHelp.ShowAll();
+			global::Gtk.Label w30 = new global::Gtk.Label();
+			w30.Visible = true;
+			this.ynotebook1.Add(w30);
+			this.labelCodes = new global::Gtk.Label();
+			this.labelCodes.Name = "labelCodes";
+			this.labelCodes.LabelProp = global::Mono.Unix.Catalog.GetString("Коды маркировки");
+			this.ynotebook1.SetTabLabel(w30, this.labelCodes);
+			this.labelCodes.ShowAll();
 			this.vboxMain.Add(this.ynotebook1);
-			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.ynotebook1]));
-			w33.Position = 1;
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vboxMain[this.ynotebook1]));
+			w31.Position = 1;
 			this.Add(this.vboxMain);
 			if ((this.Child != null))
 			{
