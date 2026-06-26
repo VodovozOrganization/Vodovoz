@@ -16,7 +16,7 @@ namespace Vodovoz.Views.Edo
 		protected override void ConfigureWidget()
 		{
 			base.ConfigureWidget();
-
+			/*
 			toggleButtonHelp.Toggled += ButtonHelpToggled;
 			ynotebook1.ShowTabs = false;
 
@@ -125,7 +125,7 @@ namespace Vodovoz.Views.Edo
 			edotaskinorderresolveview1.ViewModel = ViewModel.EdoTaskInOrderResolveViewModel;
 
 			buttonRefresh.BindCommand(ViewModel.RefreshCommand);
-			buttonResend.Visible = false;
+			buttonResend.Visible = false;*/
 		}
 
 		private void ButtonHelpToggled(object sender, EventArgs e)
