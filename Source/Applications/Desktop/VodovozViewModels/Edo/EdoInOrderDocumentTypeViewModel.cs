@@ -5,6 +5,7 @@ namespace Vodovoz.ViewModels.Edo
 {
 	public class EdoInOrderDocumentTypeViewModel : ViewModelBase
 	{
+		public int Quantity { get; set; }
 		public string Title { get; }
 		public EdoInOrderDocumentGroupType DocumentGroupType { get; }
 

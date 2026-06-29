@@ -23,6 +23,10 @@ namespace Vodovoz.Views.Edo
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.Title)
 					.XAlign(0.5f)
+				.AddColumn("Кол-во")
+					.HeaderAlignment(0.5f)
+					.AddNumericRenderer(x => x.Quantity).Editing(false)
+					.XAlign(0.5f)
 				.Finish();
 			ytreeviewDocTypes.Binding
 				.AddSource(ViewModel)
@@ -31,15 +35,15 @@ namespace Vodovoz.Views.Edo
 				.InitializeFromSource();
 
 			ytreeviewDocuments.ColumnsConfig = FluentColumnsConfig<EdoInOrderDocumentHistoryRowViewModel>.Create()
-				.AddColumn("Время начала:")
+				.AddColumn("Время начала")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.TimeString)
 					.XAlign(0.5f)
-				.AddColumn("Кто запустил:")
+				.AddColumn("Кто запустил")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.SourceString)
 					.XAlign(0.5f)
-				.AddColumn("Статус:")
+				.AddColumn("Статус")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.StatusString)
 					.XAlign(0.5f)
@@ -53,14 +57,15 @@ namespace Vodovoz.Views.Edo
 							c.CellBackgroundGdk = GdkColors.PrimaryBase;
 						}
 					})
-				.AddColumn("Документ:")
+				.AddColumn("Документ")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.DocumentTypeString)
 					.XAlign(0.5f)
-				.AddColumn("Кодов:")
+				.AddColumn("Кодов")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.CodesQuantityString)
 					.XAlign(0.5f)
+				.AddColumn("")
 				.Finish();
 			ytreeviewDocuments.Binding
 				.AddSource(ViewModel)
@@ -68,6 +73,8 @@ namespace Vodovoz.Views.Edo
 				.AddBinding(vm => vm.SelectedDocument, w => w.SelectedRow)
 				.InitializeFromSource();
 
+			pipelineDocumentStages.HorizontalAlignment = 0f;
+			pipelineDocumentStages.VerticalAlignment = 0f;
 			pipelineDocumentStages.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.PipelineViewModel, w => w.ViewModel)

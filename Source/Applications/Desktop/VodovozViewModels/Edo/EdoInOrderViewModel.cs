@@ -18,6 +18,7 @@ namespace Vodovoz.ViewModels.Edo
 		private int _orderId;
 		private IUnitOfWork _uow;
 		private bool _loaded;
+		private IList<EdoInOrderDocumentTypeViewModel> _documentGroupTypes;
 		private EdoInOrderDocumentTypeViewModel _selectedDocumentType;
 		private IList<EdoInOrderDocumentHistoryRowViewModel> _allDocuments;
 		private IList<EdoInOrderDocumentHistoryRowViewModel> _documents;
@@ -30,14 +31,13 @@ namespace Vodovoz.ViewModels.Edo
 		{
 			_documents = new List<EdoInOrderDocumentHistoryRowViewModel>();
 			_edoRepository = edoRepository ?? throw new System.ArgumentNullException(nameof(edoRepository));
-
-			DocumentGroupTypes = Enum.GetValues(typeof(EdoInOrderDocumentGroupType))
-				.Cast<EdoInOrderDocumentGroupType>()
-				.Select(x => new EdoInOrderDocumentTypeViewModel(x))
-				.ToList();
 		}
 
-		public virtual IList<EdoInOrderDocumentTypeViewModel> DocumentGroupTypes { get; set; }
+		public virtual IList<EdoInOrderDocumentTypeViewModel> DocumentGroupTypes
+		{
+			get => _documentGroupTypes;
+			set => SetField(ref _documentGroupTypes, value);
+		}
 
 		public virtual EdoInOrderDocumentTypeViewModel SelectedDocumentGroupType
 		{
@@ -98,6 +98,27 @@ namespace Vodovoz.ViewModels.Edo
 		{
 			var documents = _edoRepository.GetEdoInOrderDocuments(_uow, _orderId);
 			_allDocuments = documents.Select(x => new EdoInOrderDocumentHistoryRowViewModel(x)).ToList();
+
+
+			var documentGroupTypes = Enum.GetValues(typeof(EdoInOrderDocumentGroupType))
+				.Cast<EdoInOrderDocumentGroupType>()
+				.Select(x => new EdoInOrderDocumentTypeViewModel(x))
+				.ToList();
+
+			var documentsByGroupType = _allDocuments.GroupBy(x => x.DocumentGroupType)
+				.ToDictionary(key => key.Key, value => value.Count());
+			foreach(var documentGroupType in documentGroupTypes)
+			{
+				if(documentsByGroupType.TryGetValue(documentGroupType.DocumentGroupType, out int docsQuantity))
+				{
+					documentGroupType.Quantity = docsQuantity;
+				}
+			}
+
+			DocumentGroupTypes = documentGroupTypes
+				.OrderByDescending(x => x.Quantity)
+				.ThenBy(x => (int)x.DocumentGroupType)
+				.ToList();
 		}
 
 		private void SelectDocumentsByGroup()
