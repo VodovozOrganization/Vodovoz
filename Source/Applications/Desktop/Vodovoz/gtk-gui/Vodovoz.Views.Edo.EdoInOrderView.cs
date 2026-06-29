@@ -264,6 +264,7 @@ namespace Vodovoz.Views.Edo
 			w15.Position = 1;
 			// Container child yhboxDocumentsTables.Gtk.Box+BoxChild
 			this.pipelineDocumentStages = new global::QS.Widgets.GtkUI.Pipeline.PipelineView();
+			this.pipelineDocumentStages.HeightRequest = 150;
 			this.pipelineDocumentStages.Name = "pipelineDocumentStages";
 			this.yhboxDocumentsTables.Add(this.pipelineDocumentStages);
 			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.yhboxDocumentsTables[this.pipelineDocumentStages]));
@@ -292,6 +293,7 @@ namespace Vodovoz.Views.Edo
 			this.yvboxDocumentsTab.Add(this.edoinorderdocumentview1);
 			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.yvboxDocumentsTab[this.edoinorderdocumentview1]));
 			w21.Position = 1;
+			w21.Expand = false;
 			// Container child yvboxDocumentsTab.Gtk.Box+BoxChild
 			this.frameProblems = new global::Gtk.Frame();
 			this.frameProblems.Name = "frameProblems";
