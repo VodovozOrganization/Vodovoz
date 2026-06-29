@@ -1,4 +1,4 @@
-using Core.Infrastructure;
+﻿using Core.Infrastructure;
 using Edo.Common;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
@@ -659,6 +659,7 @@ namespace Edo.Receipt.Dispatcher
 					var expandedOrderItemsForOrderItemList = expandedOrderItemsForOrderItem.ToList();
 					var orderItemsCount = expandedOrderItemsForOrderItemList.Count;
 
+					if(orderItemsCount < individualCodesInGroupCount)
 					{
 						// если кол-во товаров в OrderItem меньше чем кодов в группе, то
 						// продолжаем искать другие OrderItem, где будет достаточное кол-во товаров
