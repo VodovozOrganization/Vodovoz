@@ -332,14 +332,14 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 
 				if(getSavedTrueMarkCodeResult.IsFailure)
 				{
-					return;
+					continue;
 				}
 
 				var savedCode = getSavedTrueMarkCodeResult.Value;
 
 				if(savedCode.IsTrueMarkTransportCode)
 				{
-					return;
+					continue;
 				}
 
 				var scannedCode = trueMarkAnyCode;
@@ -349,14 +349,14 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 
 				if(string.IsNullOrWhiteSpace(newCheckCode))
 				{
-					return;
+					continue;
 				}
 
 				var savedCheckCode = savedCode.Match(transportCode => null, groupCode => groupCode.CheckCode, unitCode => unitCode.CheckCode);
 
 				if(!string.IsNullOrWhiteSpace(savedCheckCode))
 				{
-					return;
+					continue;
 				}
 
 				savedCode.Match(

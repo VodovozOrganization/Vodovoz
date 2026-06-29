@@ -632,7 +632,7 @@ namespace Edo.Receipt.Dispatcher
 					.FirstOrDefault();
 
 				// Уже используется в каком-то чеке, пропускаем
-				if(savedFiscalInventPosition !=  null)
+				if(savedFiscalInventPosition != null)
 				{
 					groupCodesWithTaskItems.Remove(groupCode);
 					continue;
