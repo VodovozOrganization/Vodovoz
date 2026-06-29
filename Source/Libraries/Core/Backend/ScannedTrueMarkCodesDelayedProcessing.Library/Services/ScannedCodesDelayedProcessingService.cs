@@ -342,39 +342,37 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 					continue;
 				}
 
-				var scannedCode = trueMarkAnyCode;
-
-				var newCheckCode = scannedCode.Match(transportCode => null, groupCode => groupCode.CheckCode, unitCode => unitCode.CheckCode);
-				var newRawCode = scannedCode.Match(transportCode => null, groupCode => groupCode.RawCode, unitCode => unitCode.RawCode);
-
-				if(string.IsNullOrWhiteSpace(newCheckCode))
-				{
-					continue;
-				}
-
-				var savedCheckCode = savedCode.Match(transportCode => null, groupCode => groupCode.CheckCode, unitCode => unitCode.CheckCode);
+				var savedCheckCode = savedCode.Match(transportCode => null, groupCode => groupCode.CheckCode, waterCode => waterCode.CheckCode);
 
 				if(!string.IsNullOrWhiteSpace(savedCheckCode))
 				{
 					continue;
 				}
 
-				savedCode.Match(
-					transportCode => true,
+				var newCheckCode = trueMarkAnyCode.Match(transportCode => null, groupCode => groupCode.CheckCode, waterCode => waterCode.CheckCode);
+
+				if(string.IsNullOrWhiteSpace(newCheckCode))
+				{
+					continue;
+				}
+
+				var newRawCode = trueMarkAnyCode.Match(transportCode => null, groupCode => groupCode.RawCode, waterCode => waterCode.RawCode);
+
+				await savedCode.Match(
+					transportCode => Task.CompletedTask,
 					groupCode =>
 					{
 						groupCode.CheckCode = newCheckCode;
 						groupCode.RawCode = newRawCode;
-						unitOfWork.Save(groupCode);
-						return true;
+						return unitOfWork.SaveAsync(groupCode, cancellationToken: cancellationToken);
 					},
-					unitCode =>
+					waterCode =>
 					{
-						unitCode.CheckCode = newCheckCode;
-						unitCode.RawCode = newRawCode;
-						unitOfWork.Save(unitCode);
-						return true;
-					});
+						waterCode.CheckCode = newCheckCode;
+						waterCode.RawCode = newRawCode;
+						return unitOfWork.SaveAsync(waterCode, cancellationToken: cancellationToken);
+					}
+				);
 			}
 		}
 

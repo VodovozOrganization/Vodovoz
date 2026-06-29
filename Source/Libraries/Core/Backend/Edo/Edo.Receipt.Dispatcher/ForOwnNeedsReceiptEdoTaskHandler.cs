@@ -1,4 +1,5 @@
 ﻿using Core.Infrastructure;
+using Edo.Admin;
 using Edo.Common;
 using Edo.Contracts.Messages.Events;
 using Edo.Problems;
@@ -14,7 +15,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Edo.Admin;
 using TrueMark.Codes.Pool;
 using TrueMark.Library;
 using Vodovoz.Core.Data.Repositories;
@@ -29,6 +29,7 @@ using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Client;
 using Vodovoz.Settings.Edo;
 using Vodovoz.Settings.Organizations;
+using VodovozBusiness.Services.TrueMark;
 
 namespace Edo.Receipt.Dispatcher
 {
@@ -50,7 +51,7 @@ namespace Edo.Receipt.Dispatcher
 		private readonly IOrganizationSettings _organizationSettings;
 		private readonly IBus _messageBus;
 		private readonly EdoCancellationService _edoCancellationService;
-		private readonly IGenericRepository<FiscalInventPosition> _fiscalInventPositionRepository;
+		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly IUnitOfWork _uow;
 		private readonly EdoTaskValidator _edoTaskValidator;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
@@ -78,8 +79,7 @@ namespace Edo.Receipt.Dispatcher
 			IOrganizationSettings organizationSettings,
 			IBus messageBus,
 			EdoCancellationService edoCancellationService,
-			IGenericRepository<FiscalInventPosition> fiscalInventPositionRepository
-			)
+			ITrueMarkWaterCodeService trueMarkWaterCodeService)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
@@ -100,8 +100,8 @@ namespace Edo.Receipt.Dispatcher
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 			_edoCancellationService = edoCancellationService ?? throw new ArgumentNullException(nameof(edoCancellationService));
-			_fiscalInventPositionRepository = fiscalInventPositionRepository ?? throw new ArgumentNullException(nameof(fiscalInventPositionRepository));
 			_maxCodesInReceipt = _edoReceiptSettings.MaxCodesInReceiptCount;
+			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 		}
 
 		public async Task HandleNewReceipt(ReceiptEdoTask receiptEdoTask, CancellationToken cancellationToken)
@@ -623,17 +623,10 @@ namespace Edo.Receipt.Dispatcher
 				var groupCode = groupCodeWithTaskItems.Key;
 				var affectedTaskItems = groupCodeWithTaskItems.Value;
 
-				var savedFiscalInventPosition = (await _fiscalInventPositionRepository.GetAsync(
-					_uow,
-					x => x.GroupCode != null && x.GroupCode.Id == groupCode.Id,
-					limit: 1,
-					cancellationToken: cancellationToken))
-					.Value
-					.FirstOrDefault();
-
-				// Уже используется в каком-то чеке, пропускаем
-				if(savedFiscalInventPosition != null)
+				var isGroupCodeUsedInEdoDocument = _trueMarkCodeRepository.IsGroupCodeUsedInEdoDocument(groupCode.Id);
+				if(isGroupCodeUsedInEdoDocument)
 				{
+					// Уже используется в каком-то ЭДО документе, пропускаем
 					groupCodesWithTaskItems.Remove(groupCode);
 					continue;
 				}
@@ -731,14 +724,10 @@ namespace Edo.Receipt.Dispatcher
 
 				if(orderItemsForInventoryPosition.Count < individualCodesInGroupCount)
 				{
-					_logger.LogWarning("Для группового кода Id {groupCodeId} GTIN {groupCodeGTIN} не хватает товаров в заказе.",
+					_logger.LogWarning("Для группового кода Id {groupCodeId} GTIN {groupCodeGTIN} не хватает товаров в заказе. Дизагрегируем",
 						groupCode.Id, groupCode.GTIN);
 
-					foreach(var innerCode in remainGroupCodeItem.Key.InnerWaterCodes)
-					{
-						innerCode.ParentWaterGroupCodeId = null;
-						await _uow.SaveAsync(innerCode, cancellationToken: cancellationToken);
-					}
+					await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, remainGroupCodeItem.Key, cancellationToken);
 
 					continue;
 				}
@@ -1069,8 +1058,7 @@ namespace Edo.Receipt.Dispatcher
 					&& x.ProductCode.SourceCode.IsInvalid == false
 					&& x.ProductCode.ResultCode == null
 					&& (x.ProductCode.Problem.IsIn(ProductCodeProblem.Defect, ProductCodeProblem.Duplicate)
-						|| x.ProductCode.SourceCodeStatus == SourceProductCodeStatus.SavedToPool)
-					&& x.ProductCode.SourceCode.CheckCode != null);
+						|| x.ProductCode.SourceCodeStatus == SourceProductCodeStatus.SavedToPool));
 
 			foreach(var gtin in orderItem.Nomenclature.Gtins)
 			{
@@ -1086,8 +1074,7 @@ namespace Edo.Receipt.Dispatcher
 						GetOrderOrganizationInn(receiptEdoTask),
 						cancellationToken);
 
-					identificationCode.ParentWaterGroupCodeId = null;
-					await _uow.SaveAsync(identificationCode, cancellationToken: cancellationToken);
+					await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, identificationCode, cancellationToken);
 
 					matchEdoTaskItem.ProductCode.ResultCode = identificationCode;
 					matchEdoTaskItem.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
@@ -1119,8 +1106,7 @@ namespace Edo.Receipt.Dispatcher
 							GetOrderOrganizationInn(receiptEdoTask),
 							cancellationToken);
 
-						identificationCode.ParentWaterGroupCodeId = null;
-						await _uow.SaveAsync(identificationCode, cancellationToken: cancellationToken);
+						await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, identificationCode, cancellationToken);
 					}
 					catch
 					{
@@ -1146,8 +1132,7 @@ namespace Edo.Receipt.Dispatcher
 				GetOrderOrganizationInn(receiptEdoTask),
 				cancellationToken);
 
-			code.ParentWaterGroupCodeId = null;
-			await _uow.SaveAsync(code, cancellationToken: cancellationToken);
+			await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, code, cancellationToken);
 
 			var newProductCode = new AutoTrueMarkProductCode
 			{
