@@ -43,11 +43,14 @@ namespace Vodovoz.Views.Edo
 			// Container child Vodovoz.Views.Edo.EdoInOrderTransferStageView.Gtk.Container+ContainerChild
 			this.frameMain = new global::Gtk.Frame();
 			this.frameMain.Name = "frameMain";
-			this.frameMain.ShadowType = ((global::Gtk.ShadowType)(0));
+			this.frameMain.BorderWidth = ((uint)(1));
 			// Container child frameMain.Gtk.Container+ContainerChild
 			this.GtkAlignment = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
 			this.GtkAlignment.Name = "GtkAlignment";
-			this.GtkAlignment.LeftPadding = ((uint)(12));
+			this.GtkAlignment.LeftPadding = ((uint)(3));
+			this.GtkAlignment.TopPadding = ((uint)(3));
+			this.GtkAlignment.RightPadding = ((uint)(3));
+			this.GtkAlignment.BottomPadding = ((uint)(3));
 			// Container child GtkAlignment.Gtk.Container+ContainerChild
 			this.yvboxTransfer = new global::Gamma.GtkWidgets.yVBox();
 			this.yvboxTransfer.Name = "yvboxTransfer";
@@ -78,24 +81,6 @@ namespace Vodovoz.Views.Edo
 			// Container child yhboxTransferTasks.Gtk.Box+BoxChild
 			this.pipelineDocumentStages = new global::QS.Widgets.GtkUI.Pipeline.PipelineView();
 			this.pipelineDocumentStages.Name = "pipelineDocumentStages";
-			this.pipelineDocumentStages.HorizontalAlignment = 0F;
-			this.pipelineDocumentStages.VerticalAlignment = 0F;
-			this.pipelineDocumentStages.LineHeight = 0;
-			this.pipelineDocumentStages.PipelineSidePadding = 0;
-			this.pipelineDocumentStages.PipelineVerticalPadding = 0;
-			this.pipelineDocumentStages.MinStageGap = 0;
-			this.pipelineDocumentStages.LineSideInset = 0;
-			this.pipelineDocumentStages.ConnectorDrawHeight = 0;
-			this.pipelineDocumentStages.TitleHeight = 0;
-			this.pipelineDocumentStages.TitleBottomSpacing = 0;
-			this.pipelineDocumentStages.StageCircleRadius = 0;
-			this.pipelineDocumentStages.StagePadding = 0;
-			this.pipelineDocumentStages.StageAdditionalInfoHeight = 0;
-			this.pipelineDocumentStages.StageNameHeight = 0;
-			this.pipelineDocumentStages.StageInnerSpacing = 0;
-			this.pipelineDocumentStages.StageTextHorizontalPadding = 0;
-			this.pipelineDocumentStages.StageNormalBorderWidth = 0D;
-			this.pipelineDocumentStages.StageActiveBorderWidth = 0D;
 			this.yhboxTransferTasks.Add(this.pipelineDocumentStages);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yhboxTransferTasks[this.pipelineDocumentStages]));
 			w4.Position = 1;

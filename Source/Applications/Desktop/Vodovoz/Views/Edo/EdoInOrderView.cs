@@ -18,19 +18,19 @@ namespace Vodovoz.Views.Edo
 		{
 			base.ConfigureWidget();
 
-			ytreeviewDocTypes1.ColumnsConfig = FluentColumnsConfig<EdoInOrderDocumentTypeViewModel>.Create()
+			ytreeviewDocTypes.ColumnsConfig = FluentColumnsConfig<EdoInOrderDocumentTypeViewModel>.Create()
 				.AddColumn("Тип документа")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.Title)
 					.XAlign(0.5f)
 				.Finish();
-			ytreeviewDocTypes1.Binding
+			ytreeviewDocTypes.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.DocumentGroupTypes, w => w.ItemsDataSource)
 				.AddBinding(vm => vm.SelectedDocumentGroupType, w => w.SelectedRow)
 				.InitializeFromSource();
 
-			ytreeview1.ColumnsConfig = FluentColumnsConfig<EdoInOrderDocumentHistoryRowViewModel>.Create()
+			ytreeviewDocuments.ColumnsConfig = FluentColumnsConfig<EdoInOrderDocumentHistoryRowViewModel>.Create()
 				.AddColumn("Время начала:")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.TimeString)
@@ -62,7 +62,7 @@ namespace Vodovoz.Views.Edo
 					.AddTextRenderer(x => x.CodesQuantityString)
 					.XAlign(0.5f)
 				.Finish();
-			ytreeview1.Binding
+			ytreeviewDocuments.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.Documents, w => w.ItemsDataSource)
 				.AddBinding(vm => vm.SelectedDocument, w => w.SelectedRow)
@@ -72,7 +72,6 @@ namespace Vodovoz.Views.Edo
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.PipelineViewModel, w => w.ViewModel)
 				.InitializeFromSource();
-
 		}
 
 		void IActivatableOrderTab.Activate()

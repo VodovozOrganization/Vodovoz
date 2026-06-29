@@ -23,11 +23,14 @@ namespace Vodovoz.Views.Edo
 			// Container child Vodovoz.Views.Edo.EdoInOrderDocumentView.Gtk.Container+ContainerChild
 			this.frameMain = new global::Gtk.Frame();
 			this.frameMain.Name = "frameMain";
-			this.frameMain.ShadowType = ((global::Gtk.ShadowType)(0));
+			this.frameMain.BorderWidth = ((uint)(1));
 			// Container child frameMain.Gtk.Container+ContainerChild
 			this.GtkAlignment = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
 			this.GtkAlignment.Name = "GtkAlignment";
-			this.GtkAlignment.LeftPadding = ((uint)(12));
+			this.GtkAlignment.LeftPadding = ((uint)(3));
+			this.GtkAlignment.TopPadding = ((uint)(3));
+			this.GtkAlignment.RightPadding = ((uint)(3));
+			this.GtkAlignment.BottomPadding = ((uint)(3));
 			// Container child GtkAlignment.Gtk.Container+ContainerChild
 			this.yvboxDocument = new global::Gamma.GtkWidgets.yVBox();
 			this.yvboxDocument.Name = "yvboxDocument";
