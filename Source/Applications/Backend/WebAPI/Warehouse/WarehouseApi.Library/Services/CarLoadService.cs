@@ -874,7 +874,7 @@ namespace WarehouseApi.Library.Services
 				var edoRequest = new PrimaryEdoRequest
 				{
 					Time = DateTime.Now,
-					Source = CustomerEdoRequestSource.Warehouse,
+					Source = EdoRequestSource.Warehouse,
 					DocumentType = EdoDocumentType.UPD,
 					Order = orders.Where(x => x.Id == orderId).FirstOrDefault(),
 				};

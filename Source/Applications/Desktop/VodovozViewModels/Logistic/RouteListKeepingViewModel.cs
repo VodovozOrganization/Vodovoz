@@ -1062,7 +1062,7 @@ namespace Vodovoz
 			return new PrimaryEdoRequest
 			{
 				Order = item.RouteListItem.Order,
-				Source = CustomerEdoRequestSource.Manual,
+				Source = EdoRequestSource.Manual,
 				Time = DateTime.Now,
 				DocumentType = EdoDocumentType.UPD,
 				Type = CustomerEdoRequestType.Order,

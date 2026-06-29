@@ -10,7 +10,7 @@ namespace Vodovoz.Core.Domain.Edo
 		Nominative = "источник заявки на отправку документов ЭДО",
 		NominativePlural = "источники заявок на отправку документов ЭДО"
 	)]
-	public enum CustomerEdoRequestSource
+	public enum EdoRequestSource
 	{
 		/// <summary>
 		/// Не указано

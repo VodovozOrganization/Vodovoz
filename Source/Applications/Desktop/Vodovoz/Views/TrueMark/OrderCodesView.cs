@@ -506,27 +506,27 @@ namespace Vodovoz.Views.TrueMark
 
 		protected override void OnDestroyed()
 		{
-			_driverPopup.Destroy();
-			_driverCopySourceCodes.Destroy();
-			_driverCopyResultCodes.Destroy();
-			_driverOpenDocument.Destroy();
-			_driverOpenAuthor.Destroy();
-			_warehousePopup.Destroy();
-			_warehouseCopySourceCodes.Destroy();
-			_warehouseCopyResultCodes.Destroy();
-			_warehouseOpenDocument.Destroy();
-			_warehouseOpenAuthor.Destroy();
-			_selfdeliveryPopup.Destroy();
-			_selfdeliveryCopySourceCodes.Destroy();
-			_selfdeliveryCopyResultCodes.Destroy();
-			_selfdeliveryOpenDocument.Destroy();
-			_selfdeliveryOpenAuthor.Destroy();
-			_poolPopup.Destroy();
-			_poolCopyCodes.Destroy();
-			ytreeviewDriver.Destroy();
-			ytreeviewWarehouse.Destroy();
-			ytreeviewSelfdelivery.Destroy();
-			ytreeviewPool.Destroy();
+			_driverPopup?.Destroy();
+			_driverCopySourceCodes?.Destroy();
+			_driverCopyResultCodes?.Destroy();
+			_driverOpenDocument?.Destroy();
+			_driverOpenAuthor?.Destroy();
+			_warehousePopup?.Destroy();
+			_warehouseCopySourceCodes?.Destroy();
+			_warehouseCopyResultCodes?.Destroy();
+			_warehouseOpenDocument?.Destroy();
+			_warehouseOpenAuthor?.Destroy();
+			_selfdeliveryPopup?.Destroy();
+			_selfdeliveryCopySourceCodes?.Destroy();
+			_selfdeliveryCopyResultCodes?.Destroy();
+			_selfdeliveryOpenDocument?.Destroy();
+			_selfdeliveryOpenAuthor?.Destroy();
+			_poolPopup?.Destroy();
+			_poolCopyCodes?.Destroy();
+			ytreeviewDriver?.Destroy();
+			ytreeviewWarehouse?.Destroy();
+			ytreeviewSelfdelivery?.Destroy();
+			ytreeviewPool?.Destroy();
 
 			base.OnDestroyed();
 		}

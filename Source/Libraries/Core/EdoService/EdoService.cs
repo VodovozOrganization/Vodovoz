@@ -181,7 +181,7 @@ namespace EdoService.Library
 			{
 				Type = CustomerEdoRequestType.Order,
 				Time = DateTime.Now,
-				Source = CustomerEdoRequestSource.Manual,
+				Source = EdoRequestSource.Manual,
 				DocumentType = EdoDocumentType.UPD,
 				Order = order
 			};

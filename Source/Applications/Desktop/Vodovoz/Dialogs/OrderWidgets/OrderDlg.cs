@@ -151,6 +151,7 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using Vodovoz.ViewModels.Widgets.Orders;
+using Vodovoz.Views.Edo;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Client;
 using VodovozBusiness.Domain.Orders;
@@ -1247,8 +1248,8 @@ namespace Vodovoz
 			SetNearestDeliveryDateLoaderFunc();
 
 
-			var edoForOrderViewModel = ScopeProvider.Scope.Resolve<EdoForOrderViewModel>();
-			edoForOrderViewModel.Setup(UoW, Entity);
+			var edoForOrderViewModel = ScopeProvider.Scope.Resolve<EdoInOrderViewModel>();
+			edoForOrderViewModel.Setup(UoW, Entity.Id);
 			edofororderview1.ViewModel = edoForOrderViewModel;
 
 			UpdateOrderItemsOriginalValues();
@@ -3580,6 +3581,10 @@ namespace Vodovoz
 			if(toggleEdo.Active)
 			{
 				ntbOrderEdit.CurrentPage = 6;
+				if(ntbOrderEdit.CurrentPageWidget is IActivatableOrderTab activatableTab)
+				{
+					activatableTab.Activate();
+				}
 			}
 		}
 

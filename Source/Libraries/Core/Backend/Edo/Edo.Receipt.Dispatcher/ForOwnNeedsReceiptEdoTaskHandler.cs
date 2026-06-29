@@ -167,7 +167,7 @@ namespace Edo.Receipt.Dispatcher
 			}
 
 			// принудительная отправка чека
-			var hasManualSend = receiptEdoTask.FormalEdoRequest.Source == CustomerEdoRequestSource.Manual;
+			var hasManualSend = receiptEdoTask.FormalEdoRequest.Source == EdoRequestSource.Manual;
 			if(hasManualSend)
 			{
 				await PrepareReceipt(receiptEdoTask, trueMarkCodesChecker, cancellationToken);

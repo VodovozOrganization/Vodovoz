@@ -132,7 +132,7 @@ namespace Edo.Transfer.Routine.Services
 			var edoRequest = new EquipmentTransferEdoRequest
 			{
 				Time = DateTime.Now,
-				Source = CustomerEdoRequestSource.Manual,
+				Source = EdoRequestSource.Manual,
 				DocumentType = EdoDocumentType.InformalOrderDocument,
 				Order = order,
 			};

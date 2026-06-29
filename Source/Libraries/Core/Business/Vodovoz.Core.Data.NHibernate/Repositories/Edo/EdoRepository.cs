@@ -571,5 +571,62 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 				.Distinct()
 				.ToListAsync(cancellationToken);
 		}
+
+		public IEnumerable<EdoInOrderDocumentNode> GetEdoInOrderDocuments(IUnitOfWork uow, int orderId)
+		{
+			var sql = @"
+select
+	ecr.`time` as :request_time,
+	ecr.id as :request_id,
+	ecr.source as :request_source,
+	null as :order_document_type,
+	et.id as :task_id,
+	et.`type` as :task_type,
+	et.status as :task_status,
+	document_task_stage as :task_upd_stage,
+	receipt_status as :task_receipt_stage,
+	tender_task_stage as :task_tender_stage
+from edo_customer_requests ecr
+left join edo_tasks et on et.id = ecr.order_task_id
+where ecr.order_id = :order_id
+	and et.`type` in ('Document', 'Receipt', 'Tender', 'InformalOrderDocument', 'SaveCode', 'Withdrawal')
+union all
+select
+	eir.`time` as :request_time,
+	eir.id as :request_id,
+	eir.source as :request_source,
+	eir.order_document_type as :order_document_type,
+	et.id as :task_id,
+	et.`type` as :task_type,
+	et.status as :task_status,
+	null as :task_upd_stage,
+	null as :task_receipt_stage,
+	null as :task_tender_stage
+from edo_informal_requests eir
+left join edo_tasks et on et.id = eir.order_document_task_id 
+where eir.order_id = :order_id
+	and et.`type` in ('Document', 'Receipt', 'Tender', 'InformalOrderDocument', 'SaveCode', 'Withdrawal')
+;
+";
+
+			var query = uow.Session.CreateSQLQuery(sql)
+				.MapParametersToNode<EdoInOrderDocumentNode>()
+				.Map("request_time", x => x.RequestTime, NHibernateUtil.DateTime)
+				.Map("request_id", x => x.RequestId, NHibernateUtil.Int32)
+				.Map("request_source", x => x.RequestSource, new EnumStringType<EdoRequestSource>())
+				.Map("order_document_type", x => x.InformalOrderDocumentType, new EnumStringType<OrderDocumentType>())
+				.Map("task_id", x => x.TaskId, NHibernateUtil.Int32)
+				.Map("task_type", x => x.TaskType, new EnumStringType<EdoTaskType>())
+				.Map("task_status", x => x.TaskStatus, new EnumStringType<EdoTaskStatus>())
+				.Map("task_upd_stage", x => x.TaskUpdStage, new EnumStringType<DocumentEdoTaskStage>())
+				.Map("task_receipt_stage", x => x.TaskReceiptStage, new EnumStringType<EdoReceiptStatus>())
+				.Map("task_tender_stage", x => x.TaskTenderStage, new EnumStringType<TenderEdoTaskStage>())
+				.SetResultTransformer();
+
+			query.SetParameter("order_id", orderId);
+			var result = query.List<EdoInOrderDocumentNode>();
+
+			return result;
+		}
 	}
 }

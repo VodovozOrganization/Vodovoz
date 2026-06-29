@@ -13,6 +13,7 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.ViewModels.Edo
 {
+
 	public class EdoForOrderViewModel : WidgetViewModelBase
 	{
 		private readonly IEdoRepository _edoRepository;

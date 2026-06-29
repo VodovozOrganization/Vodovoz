@@ -440,7 +440,7 @@ namespace DriverAPI.Library.V6.Services
 			var edoRequest = new PrimaryEdoRequest
 			{
 				Time = DateTime.Now,
-				Source = CustomerEdoRequestSource.Driver,
+				Source = EdoRequestSource.Driver,
 				DocumentType = EdoDocumentType.UPD,
 				Order = vodovozOrder,
 			};
