@@ -353,11 +353,11 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 						new[] { nameof(DocumentType) }
 					);
 				}
+			}
 
-				foreach(var validationResult in CheckStock(validationContext))
-				{
-					yield return validationResult;
-				}
+			foreach(var validationResult in CheckStock(validationContext))
+			{
+				yield return validationResult;
 			}
 
 			if(!Items.Any())
@@ -461,13 +461,19 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 			foreach(var item in bulkItems)
 			{
 				var stock = 0m;
+				var sentAmount = item.SentAmount;
 
 				if(bulkAmountOnStock.TryGetValue(item.Nomenclature.Id, out var stockNode))
 				{
+					if(item.WriteOffOperation != null)
+					{
+						sentAmount += item.WriteOffOperation.Amount;
+					}
+					
 					stock = stockNode.Stock;
 				}
 
-				if(item.SentAmount > stock)
+				if(sentAmount > stock)
 				{
 					yield return new ValidationResult
 					(
@@ -500,13 +506,19 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 				{
 					var instanceId = item.NomenclatureInstanceId.Value;
 					var stock = 0m;
+					var sentAmount = item.SentAmount;
 
 					if(instancesOnStock.TryGetValue(instanceId, out var stockNode))
 					{
+						if(item.WriteOffOperation != null)
+						{
+							sentAmount += item.WriteOffOperation.Amount;
+						}
+						
 						stock = stockNode.Balance;
 					}
 
-					if(item.SentAmount > stock)
+					if(sentAmount > stock)
 					{
 						yield return new ValidationResult
 						(
