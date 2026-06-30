@@ -269,6 +269,7 @@ namespace Vodovoz.Views.Edo
 			this.yhboxDocumentsTables.Add(this.pipelineDocumentStages);
 			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.yhboxDocumentsTables[this.pipelineDocumentStages]));
 			w16.Position = 2;
+			w16.Expand = false;
 			this.yvboxDocumentsHistory.Add(this.yhboxDocumentsTables);
 			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.yvboxDocumentsHistory[this.yhboxDocumentsTables]));
 			w17.Position = 1;

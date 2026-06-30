@@ -84,6 +84,7 @@ namespace Vodovoz.Views.Edo
 			this.yhboxTransferTasks.Add(this.pipelineDocumentStages);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.yhboxTransferTasks[this.pipelineDocumentStages]));
 			w4.Position = 1;
+			w4.Expand = false;
 			this.yvboxTransfer.Add(this.yhboxTransferTasks);
 			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.yvboxTransfer[this.yhboxTransferTasks]));
 			w5.Position = 0;
@@ -109,6 +110,7 @@ namespace Vodovoz.Views.Edo
 			w6.Fill = false;
 			// Container child yvbox4.Gtk.Box+BoxChild
 			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow1.HeightRequest = 40;
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
 			this.GtkScrolledWindow1.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
 			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
