@@ -99,7 +99,6 @@
     <Compile Include="Cash\Transfer\Journal\TransferDocumentsJournalViewModel.cs" />
     <Compile Include="Cash\TransferExpenseViewModel.cs" />
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
-    <Compile Include="Edo\EdoForOrderViewModel.cs" />
     <Compile Include="Edo\EdoInOrderDocumentActionsViewModel.cs" />
     <Compile Include="Edo\EdoInOrderDocumentHistoryRowViewModel.cs" />
     <Compile Include="Edo\EdoInOrderDocumentGroupType.cs" />

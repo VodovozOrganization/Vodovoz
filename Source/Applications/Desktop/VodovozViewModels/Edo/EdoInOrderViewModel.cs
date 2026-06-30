@@ -1,12 +1,10 @@
-﻿using Gamma.Utilities;
-using QS.Commands;
+﻿using QS.Commands;
 using QS.DomainModel.UoW;
 using QS.ViewModels;
 using QS.ViewModels.Widgets.Pipeline;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
 using Vodovoz.Core.Data.Repositories;
@@ -449,7 +447,6 @@ namespace Vodovoz.ViewModels.Edo
 
 				HasProblems = true;
 			}
-
 		}
 
 		private void ShowProblemDetails()
@@ -467,28 +464,5 @@ namespace Vodovoz.ViewModels.Edo
 				ProblemItems = SelectedProblem.ProblemItems;
 			}
 		}
-
-
-
-
-
-
-
-
-
-
-	}
-
-	public class EnumPipelineStageViewModel : PipelineStageViewModel
-	{
-		public EnumPipelineStageViewModel(Enum content)
-		{
-			Content = content ?? throw new ArgumentNullException(nameof(content));
-
-			Id = content.ToString();
-			Name = content.GetEnumTitle();
-		}
-
-		public Enum Content { get; }
 	}
 }

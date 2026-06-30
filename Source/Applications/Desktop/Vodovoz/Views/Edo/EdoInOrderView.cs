@@ -3,6 +3,7 @@ using QS.Views.GtkUI;
 using System;
 using System.ComponentModel;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Edo;
 namespace Vodovoz.Views.Edo
@@ -197,10 +198,5 @@ namespace Vodovoz.Views.Edo
 		{
 			ViewModel.Load();
 		}
-	}
-
-	public interface IActivatableOrderTab
-	{
-		void Activate();
 	}
 }
