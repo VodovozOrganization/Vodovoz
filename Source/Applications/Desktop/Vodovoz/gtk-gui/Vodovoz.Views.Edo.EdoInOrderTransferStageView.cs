@@ -96,6 +96,7 @@ namespace Vodovoz.Views.Edo
 			this.yhboxTransferContent.Spacing = 6;
 			// Container child yhboxTransferContent.Gtk.Box+BoxChild
 			this.yvbox4 = new global::Gamma.GtkWidgets.yVBox();
+			this.yvbox4.HeightRequest = 60;
 			this.yvbox4.Name = "yvbox4";
 			this.yvbox4.Spacing = 6;
 			// Container child yvbox4.Gtk.Box+BoxChild
@@ -110,7 +111,6 @@ namespace Vodovoz.Views.Edo
 			w6.Fill = false;
 			// Container child yvbox4.Gtk.Box+BoxChild
 			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow1.HeightRequest = 40;
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
 			this.GtkScrolledWindow1.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
 			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
