@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Edo.Admin;
+﻿using Edo.Admin;
 using Edo.Common;
 using Edo.Problems;
 using Edo.Problems.Custom;
@@ -16,6 +10,12 @@ using Microsoft.Extensions.Logging;
 using NSubstitute;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Net.Http;
+using System.Threading.Tasks;
 using TrueMark.Codes.Pool;
 using TrueMark.Library;
 using TrueMarkApi.Client;
@@ -30,6 +30,7 @@ using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Settings.Edo;
 using Vodovoz.Settings.Organizations;
+using VodovozBusiness.Services.TrueMark;
 using Xunit;
 
 namespace Receipt.Dispatcher.Tests
@@ -518,7 +519,7 @@ namespace Receipt.Dispatcher.Tests
 			var saveCodesService = Substitute.For<ISaveCodesService>();
 			var bus = Substitute.For<IBus>();
 			var edoCancellationService = Substitute.For<EdoCancellationService>();
-			var fiscalInventPositionRepository = Substitute.For<IGenericRepository<FiscalInventPosition>>();
+			var trueMarkWaterCodeService = Substitute.For<ITrueMarkWaterCodeService>();
 
 			return new ForOwnNeedsReceiptEdoTaskHandler(
 				logger,
@@ -540,7 +541,7 @@ namespace Receipt.Dispatcher.Tests
 				Substitute.For<IOrganizationSettings>(),
 				bus,
 				edoCancellationService,
-				fiscalInventPositionRepository);
+				trueMarkWaterCodeService);
 		}
 
 		private EdoTaskValidator CreateEdoTaskValidatorFixture(IUnitOfWorkFactory unitOfWorkFactory, EdoProblemRegistrar edoProblemRegistrar)

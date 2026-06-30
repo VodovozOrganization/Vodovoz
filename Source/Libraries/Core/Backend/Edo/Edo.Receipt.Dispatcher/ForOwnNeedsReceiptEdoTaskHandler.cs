@@ -724,7 +724,7 @@ namespace Edo.Receipt.Dispatcher
 
 				if(orderItemsForInventoryPosition.Count < individualCodesInGroupCount)
 				{
-					_logger.LogWarning("Для группового кода Id {groupCodeId} GTIN {groupCodeGTIN} не хватает товаров в заказе. Дизагрегируем",
+					_logger.LogWarning("Для группового кода Id {groupCodeId} GTIN {groupCodeGTIN} не хватает товаров в заказе. Дезагрегируем",
 						groupCode.Id, groupCode.GTIN);
 
 					await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, remainGroupCodeItem.Key, cancellationToken);
@@ -890,7 +890,7 @@ namespace Edo.Receipt.Dispatcher
 			{
 				var parentCode = await _trueMarkCodeRepository.GetGroupCode(parentCodesId.Value, cancellationToken);
 
-				if(parentCode == null || parentCode.CheckCode is null)
+				if(parentCode == null)
 				{
 					continue;
 				}

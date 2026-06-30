@@ -134,7 +134,7 @@ namespace VodovozBusiness.Services.TrueMark
 		Task<Result> DeleteAllTrueMarkStagingCodesByRelatedDocument(IUnitOfWork uow, StagingTrueMarkCodeRelatedDocumentType relatedDocumentType, int relatedDocumentId, CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// Дизагрегация связанных кодов (очистка parent кодов)
+		/// Дезагрегация связанных кодов (очистка parent кодов)
 		/// </summary>
 		/// <param name="anyCode">Любой из кодов честного знака</param>
 		/// <param name="cancellationToken">Токен отмены</param>
