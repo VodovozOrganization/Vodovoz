@@ -70,6 +70,8 @@ namespace Vodovoz.Views.Edo
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.PipelineViewModel, w => w.ViewModel)
 				.InitializeFromSource();
+
+			yhboxTransferContent.HeightRequest = 140;
 		}
 	}
 }

@@ -39,11 +39,13 @@ namespace Vodovoz.ViewModels.Edo
 
 		public EdoInOrderViewModel(
 			IEdoRepository edoRepository,
+			EdoInOrderDocumentActionsViewModel edoInOrderDocumentActionsViewModel,
 			OrderCodesViewModel orderCodesViewModel
 			)
 		{
 			_documents = new List<EdoInOrderDocumentHistoryRowViewModel>();
 			_edoRepository = edoRepository ?? throw new System.ArgumentNullException(nameof(edoRepository));
+			EdoInOrderDocumentActionsViewModel = edoInOrderDocumentActionsViewModel ?? throw new ArgumentNullException(nameof(edoInOrderDocumentActionsViewModel));
 			OrderCodesViewModel = orderCodesViewModel ?? throw new ArgumentNullException(nameof(orderCodesViewModel));
 
 			_allProblems = new List<EdoInOrderProblemNode>();
@@ -52,7 +54,8 @@ namespace Vodovoz.ViewModels.Edo
 		}
 
 		public ICommand RefreshCommnand { get; }
-		public OrderCodesViewModel OrderCodesViewModel { get; set; }
+		public EdoInOrderDocumentActionsViewModel EdoInOrderDocumentActionsViewModel { get; }
+		public OrderCodesViewModel OrderCodesViewModel { get; }
 
 		public virtual IList<EdoInOrderDocumentTypeViewModel> DocumentGroupTypes
 		{
@@ -87,6 +90,7 @@ namespace Vodovoz.ViewModels.Edo
 				{
 					SelectDocument();
 					SelectProblemsByDocument();
+					EdoInOrderDocumentActionsViewModel.SelectedDocument = _selectedDocument;
 				}
 			}
 		}
@@ -440,7 +444,12 @@ namespace Vodovoz.ViewModels.Edo
 				;
 
 			Problems = new List<EdoInOrderProblemViewModel>(viewModels);
-			HasProblems = true;
+			if(viewModels.Any())
+			{
+
+				HasProblems = true;
+			}
+
 		}
 
 		private void ShowProblemDetails()

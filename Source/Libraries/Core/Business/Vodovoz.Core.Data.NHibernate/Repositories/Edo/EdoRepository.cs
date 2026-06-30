@@ -376,7 +376,8 @@ select
 	et.status as :task_status,
 	document_task_stage as :task_upd_stage,
 	receipt_status as :task_receipt_stage,
-	tender_task_stage as :task_tender_stage
+	tender_task_stage as :task_tender_stage,
+	(select count(*) from true_mark_product_codes tmpc where tmpc.customer_request_id = ecr.id) as :codes_count
 from edo_customer_requests ecr
 left join edo_tasks et on et.id = ecr.order_task_id
 where ecr.order_id = :order_id
@@ -392,7 +393,8 @@ select
 	et.status as :task_status,
 	null as :task_upd_stage,
 	null as :task_receipt_stage,
-	null as :task_tender_stage
+	null as :task_tender_stage,
+	null as :codes_count
 from edo_informal_requests eir
 left join edo_tasks et on et.id = eir.order_document_task_id 
 where eir.order_id = :order_id
@@ -412,6 +414,7 @@ where eir.order_id = :order_id
 				.Map("task_upd_stage", x => x.TaskUpdStage, new EnumStringType<DocumentEdoTaskStage>())
 				.Map("task_receipt_stage", x => x.TaskReceiptStage, new EnumStringType<EdoReceiptStatus>())
 				.Map("task_tender_stage", x => x.TaskTenderStage, new EnumStringType<TenderEdoTaskStage>())
+				.Map("codes_count", x => x.CodesQuantity, NHibernateUtil.Int32)
 				.SetResultTransformer();
 
 			query.SetParameter("order_id", orderId);

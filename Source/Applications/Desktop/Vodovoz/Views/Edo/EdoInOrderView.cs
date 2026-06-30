@@ -91,7 +91,6 @@ namespace Vodovoz.Views.Edo
 				.AddBinding(vm => vm.PipelineViewModel, w => w.ViewModel)
 				.InitializeFromSource();
 
-			frameProblems.Visible= false;
 			ytreeviewProblems.ColumnsConfig = FluentColumnsConfig<EdoInOrderProblemViewModel>.Create()
 				.AddColumn("Время")
 					.HeaderAlignment(0.5f)
@@ -142,8 +141,9 @@ namespace Vodovoz.Views.Edo
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.ProblemItems, w => w.ItemsDataSource)
 				.InitializeFromSource();
+			frameProblems.Visible = false;
 
-
+			edoinorderactionsview.ViewModel = ViewModel.EdoInOrderDocumentActionsViewModel;
 
 			ordercodesview1.ViewModel = ViewModel.OrderCodesViewModel;
 

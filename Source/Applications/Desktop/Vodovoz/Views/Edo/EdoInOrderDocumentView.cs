@@ -32,6 +32,16 @@ namespace Vodovoz.Views.Edo
 			}
 		}
 
+		protected override void ConfigureWidget()
+		{
+			base.ConfigureWidget();
+
+			if(ViewModel == null)
+			{
+				CloseStageView();
+			}
+		}
+
 		private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			if(e.PropertyName == nameof(EdoInOrderDocumentViewModel.StageViewModel))

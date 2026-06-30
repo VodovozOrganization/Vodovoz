@@ -94,10 +94,9 @@ namespace Vodovoz.ViewModels.Edo
 				case EdoInOrderDocumentType.Upd:
 				case EdoInOrderDocumentType.Receipt:
 				case EdoInOrderDocumentType.Tender:
+				case EdoInOrderDocumentType.SaveCode:
 					return EdoInOrderDocumentGroupType.Primary;
 				case EdoInOrderDocumentType.Withdrawal:
-					return EdoInOrderDocumentGroupType.Withdrawal;
-				case EdoInOrderDocumentType.SaveCode:
 					return EdoInOrderDocumentGroupType.Withdrawal;
 				case EdoInOrderDocumentType.Bill:
 					return EdoInOrderDocumentGroupType.Bill;

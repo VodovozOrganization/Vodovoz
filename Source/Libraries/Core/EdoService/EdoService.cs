@@ -1,6 +1,8 @@
 ﻿using Core.Infrastructure;
+using Edo.Contracts.Messages.Events;
 using Edo.Transport;
 using EdoService.Library.Factories;
+using MassTransit;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
@@ -31,6 +33,7 @@ namespace EdoService.Library
 		private readonly IOrderRepository _orderRepository;
 		private readonly IEdoRepository _edoRepository;
 		private readonly MessageService _messageService;
+		private readonly IBus _messageBus;
 		private readonly IEnumerable<IInformalEdoRequestFactory> _requestFactories;
 
 		private static EdoDocFlowStatus[] _successfulEdoStatuses => new[]
@@ -51,6 +54,7 @@ namespace EdoService.Library
 			IOrderRepository orderRepository,
 			IEdoRepository edoRepository,
 			MessageService messageService,
+			IBus messageBus,
 			IEnumerable<IInformalEdoRequestFactory> requestFactories
 			)
 		{
@@ -58,6 +62,7 @@ namespace EdoService.Library
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 			_messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
+			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 			_requestFactories = requestFactories ?? throw new ArgumentNullException(nameof(requestFactories));
 		}
 
@@ -480,6 +485,52 @@ namespace EdoService.Library
 
 				_messageService.PublishInformalEdoRequestCreatedEvent(informalRequest.Id)
 					.GetAwaiter().GetResult();
+			}
+		}
+
+
+		public void RehandleNewUpdDocumentWithProblem(int updEdoTaskId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var task = uow.Session.Get<DocumentEdoTask>(updEdoTaskId);
+				if(task == null)
+				{
+					return;
+				}
+
+				if(task.Status != EdoTaskStatus.Problem && task.Stage != DocumentEdoTaskStage.New)
+				{
+					return;
+				}
+
+				var message = new DocumentTaskCreatedEvent { 
+					Id = updEdoTaskId,
+				};
+				_messageBus.Publish(message);
+			}
+		}
+
+		public void RehandleNewReceiptDocumentWithProblem(int receiptEdoTaskId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot())
+			{
+				var task = uow.Session.Get<ReceiptEdoTask>(receiptEdoTaskId);
+				if(task == null)
+				{
+					return;
+				}
+
+				if(task.Status != EdoTaskStatus.Problem && task.ReceiptStatus != EdoReceiptStatus.New)
+				{
+					return;
+				}
+
+				var message = new ReceiptTaskCreatedEvent
+				{
+					ReceiptEdoTaskId = receiptEdoTaskId,
+				};
+				_messageBus.Publish(message);
 			}
 		}
 	}
