@@ -1,8 +1,9 @@
 ﻿using System;
+using Vodovoz.Settings.Resources;
 
 namespace Vodovoz.Settings.Database.Resources
 {
-	public class FinancialResourcesSettings
+	public class FinancialResourcesSettings : IFinancialResourcesSettings
 	{
 		private readonly ISettingsController _settingsController;
 
