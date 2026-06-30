@@ -196,9 +196,7 @@ namespace VodovozBusiness.Services.TrueMark
 			Order order,
 			IEnumerable<StagingTrueMarkCode> stagingCodes)
 		{
-			var orderItemStaginCodes = stagingCodes
-				.GroupBy(x => x.OrderItemId)
-				.ToDictionary(x => x.Key, x => x.ToList());
+			var stagingCodesByOrderItemId = stagingCodes.ToLookup(x => x.OrderItemId);
 
 			foreach(var orderItem in order.OrderItems)
 			{
@@ -207,7 +205,9 @@ namespace VodovozBusiness.Services.TrueMark
 					continue;
 				}
 
-				if(!orderItemStaginCodes.TryGetValue(orderItem.Id, out var stagingCodesForOrderItem))
+				var stagingCodesForOrderItem = stagingCodesByOrderItemId[orderItem.Id];
+
+				if(!stagingCodesForOrderItem.Any())
 				{
 					var error = TrueMarkCodeErrors.NotAllCodesAdded;
 					return Result.Failure(error);
@@ -237,6 +237,7 @@ namespace VodovozBusiness.Services.TrueMark
 		public async Task<Result> AddProductCodesToRouteListItemAndDeleteStagingCodes(
 			IUnitOfWork uow,
 			RouteListItem routeListItem,
+			bool addOnlyAvailableCodes = false,
 			CancellationToken cancellationToken = default)
 		{
 			if(uow is null)
@@ -253,14 +254,29 @@ namespace VodovozBusiness.Services.TrueMark
 
 			var stagingCodes =
 				await _trueMarkWaterCodeService.GetAllTrueMarkStagingCodesByRelatedDocument(
-				uow,
-				StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
-				routeListItem.Id,
-				cancellationToken);
+					uow,
+					StagingTrueMarkCodeRelatedDocumentType.RouteListItem,
+					routeListItem.Id,
+					cancellationToken);
 
-			var orderItemStaginCodes = stagingCodes
-				.GroupBy(x => x.OrderItemId)
-				.ToDictionary(x => x.Key, x => x.ToList());
+			if(addOnlyAvailableCodes && !stagingCodes.Any())
+			{
+				return Result.Failure(TrueMarkCodeErrors.NotAllCodesAdded);
+			}
+
+			var validateStagingCodesResult =
+				await ValidateStagingCodesCanBeAddedToRouteListItem(
+					uow,
+					routeListItem,
+					stagingCodes,
+					cancellationToken);
+
+			if(validateStagingCodesResult.IsFailure)
+			{
+				return validateStagingCodesResult;
+			}
+
+			var stagingCodesByOrderItemId = stagingCodes.ToLookup(x => x.OrderItemId);
 
 			foreach(var orderItem in order.OrderItems)
 			{
@@ -269,10 +285,16 @@ namespace VodovozBusiness.Services.TrueMark
 					continue;
 				}
 
-				if(!orderItemStaginCodes.TryGetValue(orderItem.Id, out var stagingCodesForOrderItem))
+				var stagingCodesForOrderItem = stagingCodesByOrderItemId[orderItem.Id];
+
+				if(!stagingCodesForOrderItem.Any())
 				{
-					var error = TrueMarkCodeErrors.NotAllCodesAdded;
-					return Result.Failure(error);
+					if(!addOnlyAvailableCodes)
+					{
+						return Result.Failure(TrueMarkCodeErrors.NotAllCodesAdded);
+					}
+
+					continue;
 				}
 
 				var stagingCodesForOrderItemCount = stagingCodesForOrderItem
@@ -282,14 +304,15 @@ namespace VodovozBusiness.Services.TrueMark
 
 				if(stagingCodesForOrderItemCount < orderItemCount)
 				{
-					var error = TrueMarkCodeErrors.NotAllCodesAdded;
-					return Result.Failure(error);
+					if(!addOnlyAvailableCodes)
+					{
+						return Result.Failure(TrueMarkCodeErrors.NotAllCodesAdded);
+					}
 				}
 
 				if(stagingCodesForOrderItemCount > orderItemCount)
 				{
-					var error = TrueMarkCodeErrors.TrueMarkCodesCountMoreThenInOrderItem;
-					return Result.Failure(error);
+					return Result.Failure(TrueMarkCodeErrors.TrueMarkCodesCountMoreThenInOrderItem);
 				}
 
 				var addProductCodesResult =
@@ -302,18 +325,19 @@ namespace VodovozBusiness.Services.TrueMark
 
 				if(addProductCodesResult.IsFailure)
 				{
-					var error = addProductCodesResult.Errors.FirstOrDefault();
-					return Result.Failure(error);
+					return addProductCodesResult;
 				}
 			}
 
-			var allCodesAddedToOrderResult =
-				IsAllRouteListItemTrueMarkProductCodesAddedToOrder(uow, routeListItem.Order.Id);
-
-			if(allCodesAddedToOrderResult.IsFailure)
+			if(!addOnlyAvailableCodes)
 			{
-				var error = allCodesAddedToOrderResult.Errors.FirstOrDefault();
-				return Result.Failure(error);
+				var allCodesAddedToOrderResult =
+					IsAllRouteListItemTrueMarkProductCodesAddedToOrder(uow, routeListItem.Order.Id);
+
+				if(allCodesAddedToOrderResult.IsFailure)
+				{
+					return allCodesAddedToOrderResult;
+				}
 			}
 
 			var deleteStagingCodesResult =
@@ -325,8 +349,40 @@ namespace VodovozBusiness.Services.TrueMark
 
 			if(deleteStagingCodesResult.IsFailure)
 			{
-				var error = deleteStagingCodesResult.Errors.FirstOrDefault();
-				return Result.Failure(error);
+				return deleteStagingCodesResult;
+			}
+
+			return Result.Success();
+		}
+
+		private async Task<Result> ValidateStagingCodesCanBeAddedToRouteListItem(
+			IUnitOfWork uow,
+			RouteListItem routeListItem,
+			IEnumerable<StagingTrueMarkCode> stagingCodes,
+			CancellationToken cancellationToken)
+		{
+			var orderItemsById = routeListItem.Order.OrderItems.ToDictionary(x => x.Id);
+
+			foreach(var stagingCode in stagingCodes)
+			{
+				if(stagingCode.OrderItemId is null
+					|| !orderItemsById.TryGetValue(stagingCode.OrderItemId.Value, out var orderItem))
+				{
+					var error = TrueMarkCodeErrors.GtinNomenclatureNotFoundInOrder;
+					return Result.Failure(error);
+				}
+
+				var isCodeCanBeAddedResult =
+					await IsStagingTrueMarkCodeCanBeAdded(
+						uow,
+						stagingCode,
+						orderItem,
+						cancellationToken);
+
+				if(isCodeCanBeAddedResult.IsFailure)
+				{
+					return isCodeCanBeAddedResult;
+				}
 			}
 
 			return Result.Success();

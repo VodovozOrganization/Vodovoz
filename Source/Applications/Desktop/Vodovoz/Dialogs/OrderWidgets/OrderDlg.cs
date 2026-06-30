@@ -1561,7 +1561,7 @@ namespace Vodovoz
 
 				OrderEdoTrueMarkDocumentsActions resendAction;
 
-				using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
+				using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot($"Переотправка счета из {nameof(OrderDlg)}"))
 				{
 					var resendActionQuery = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
 							.Where(x => x.Order.Id == Entity.Id);
@@ -5237,7 +5237,7 @@ namespace Vodovoz
 			btnAddM2ProxyForThisOrder.Sensitive = val;
 			btnRemExistingDocument.Sensitive = val;
 			RouteListStatus? rlStatus = null;
-			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot($"Получение списка МЛ из {nameof(OrderDlg)}"))
 			{
 				if(Entity.Id != 0)
 				{
@@ -5765,7 +5765,7 @@ namespace Vodovoz
 			if(Order.Id != 0)
 			{
 				// Нужна новая сессия, чтобы получить изначальную коллекцию товаров заказа
-				using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+				using(var uow = _unitOfWorkFactory.CreateWithoutRoot($"Получение изначальной коллекции товаров заказа из {nameof(OrderDlg)}"))
 				{
 					var dbOrderItems = _orderRepository.GetOrderItems(uow, Order.Id)
 					.Select(oi => new { oi.Nomenclature.Id, oi.Count, oi.Sum })

@@ -633,7 +633,7 @@ namespace Vodovoz.ViewModels.Widgets
 				var entityUoWBuilder = EntityUoWBuilder.ForCreate();
 				var fineViewModel = NavigationManager.OpenViewModel<FineViewModel, IEntityUoWBuilder>(null, entityUoWBuilder).ViewModel;
 
-				using(var uow = _uowFactory.CreateWithoutRoot())
+				using(var uow = _uowFactory.CreateWithoutRoot($"Получение недовоза из {nameof(UndeliveredOrderViewModel)} при добавлении штрафа"))
 				{
 					fineViewModel.UndeliveredOrder = uow.GetById<UndeliveredOrder>(Entity.Id);
 				}

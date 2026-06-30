@@ -19,6 +19,7 @@ using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.Presentation.ViewModels.Factories;
 using Vodovoz.Presentation.ViewModels.Widgets.Profitability;
+using Vodovoz.Settings.Resources;
 using VodovozBusiness.Extensions;
 using VodovozInfrastructure.StringHandlers;
 
@@ -26,7 +27,6 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 {
 	public class CompanyBalanceByDateViewModel : UowDialogViewModelBase, IAskSaveOnCloseViewModel
 	{
-		private const string _bankStatementsDirectory = @"Z:\SystemStatements\activities\CurrentStatements";
 		private const string _xlsxFileFilter = "XLSX File (*.xlsx)";
 		private readonly IInteractiveService _interactiveService;
 		private readonly IFileDialogService _fileDialogService;
@@ -34,6 +34,7 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 		private readonly IGenericRepository<CompanyBalanceByDay> _companyBalanceByDayRepository;
 		private readonly BankStatementHandler _bankStatementHandler;
 		private readonly IPermissionResult _permissionResult;
+		private readonly string _bankStatementsDirectory;
 
 		public CompanyBalanceByDateViewModel(
 			IUnitOfWorkFactory unitOfWorkFactory,
@@ -45,7 +46,9 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 			BankStatementHandler bankStatementHandler,
 			IDatePickerViewModelFactory datePickerViewModelFactory,
 			ICurrentPermissionService permissionService,
-			IStringHandler stringHandler) : base(unitOfWorkFactory, navigation)
+			IStringHandler stringHandler,
+			IFinancialResourcesSettings financialResourcesSettings
+			) : base(unitOfWorkFactory, navigation)
 		{
 			if(datePickerViewModelFactory == null)
 			{
@@ -57,6 +60,11 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 				throw new ArgumentNullException(nameof(permissionService));
 			}
 
+			if(financialResourcesSettings is null)
+			{
+				throw new ArgumentNullException(nameof(financialResourcesSettings));
+			}
+
 			_permissionResult = permissionService.ValidateEntityPermission(typeof(CompanyBalanceByDay));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_fileDialogService = fileDialogService ?? throw new ArgumentNullException(nameof(fileDialogService));
@@ -64,7 +72,10 @@ namespace Vodovoz.Presentation.ViewModels.Organisations
 			_companyBalanceByDayRepository =
 				companyBalanceByDayRepository ?? throw new ArgumentNullException(nameof(companyBalanceByDayRepository));
 			_bankStatementHandler = bankStatementHandler ?? throw new ArgumentNullException(nameof(bankStatementHandler));
+
 			StringHandler = stringHandler ?? throw new ArgumentNullException(nameof(stringHandler));
+
+			_bankStatementsDirectory = financialResourcesSettings.BankStatementsDirectory;
 
 			if(!_permissionResult.CanRead)
 			{

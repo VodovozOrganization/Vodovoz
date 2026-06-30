@@ -135,7 +135,7 @@ namespace Vodovoz.ViewModels.Orders
 			}
 			else
 			{
-				UoW = _unitOfWorkFactory.CreateWithoutRoot();
+				UoW = _unitOfWorkFactory.CreateWithoutRoot($"Окно создания недовоза - {nameof(UndeliveryViewModel)}");
 			}
 
 			_currentUser = _employeeRepository.GetEmployeeForCurrentUser(UoW);
