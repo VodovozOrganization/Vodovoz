@@ -110,6 +110,7 @@ namespace Vodovoz.Views.Edo
 			// Container child yvbox4.Gtk.Box+BoxChild
 			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
+			this.GtkScrolledWindow1.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
 			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
 			this.ytreeviewTransferedCodes = new global::Gamma.GtkWidgets.yTreeView();
@@ -123,7 +124,6 @@ namespace Vodovoz.Views.Edo
 			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.yhboxTransferContent[this.yvbox4]));
 			w9.Position = 0;
 			w9.Expand = false;
-			w9.Fill = false;
 			// Container child yhboxTransferContent.Gtk.Box+BoxChild
 			this.yhboxTransferStage = new global::Gamma.GtkWidgets.yHBox();
 			this.yhboxTransferStage.Name = "yhboxTransferStage";
