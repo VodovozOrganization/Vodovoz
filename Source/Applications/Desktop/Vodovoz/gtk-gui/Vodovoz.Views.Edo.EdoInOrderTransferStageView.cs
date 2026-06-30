@@ -92,11 +92,11 @@ namespace Vodovoz.Views.Edo
 			w5.Fill = false;
 			// Container child yvboxTransfer.Gtk.Box+BoxChild
 			this.yhboxTransferContent = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxTransferContent.HeightRequest = 140;
 			this.yhboxTransferContent.Name = "yhboxTransferContent";
 			this.yhboxTransferContent.Spacing = 6;
 			// Container child yhboxTransferContent.Gtk.Box+BoxChild
 			this.yvbox4 = new global::Gamma.GtkWidgets.yVBox();
-			this.yvbox4.HeightRequest = 60;
 			this.yvbox4.Name = "yvbox4";
 			this.yvbox4.Spacing = 6;
 			// Container child yvbox4.Gtk.Box+BoxChild
