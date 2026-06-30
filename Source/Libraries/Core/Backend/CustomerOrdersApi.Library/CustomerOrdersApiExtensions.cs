@@ -3,6 +3,8 @@ using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.Converters;
 using CustomerOrdersApi.Library.Default.Factories;
 using CustomerOrdersApi.Library.Default.Services;
+using CustomerOrdersApi.Library.SiteOrdersImport.Config;
+using CustomerOrdersApi.Library.SiteOrdersImport.Services;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using CustomerOrdersApi.Library.V4.Factories;
 using CustomerOrdersApi.Library.V4.Services;
@@ -35,7 +37,22 @@ namespace CustomerOrdersApi.Library
 		{
 			services.Configure<RequestsMinutesLimitsOptions>(config.GetSection(RequestsMinutesLimitsOptions.Position));
 			services.Configure<SignatureOptions>(config.GetSection(SignatureOptions.Path));
-			
+
+			return services;
+		}
+
+		/// <summary>
+		/// Регистрирует приём выгрузки заказов и брошенных корзин с сайта (I-5840).
+		/// </summary>
+		public static IServiceCollection AddSiteOrdersImport(this IServiceCollection services, IConfiguration config)
+		{
+			services.Configure<SiteOrdersImportOptions>(config.GetSection(SiteOrdersImportOptions.Path));
+
+			services
+				.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>()
+				.AddScoped<ISiteImportTokenValidator, SiteImportTokenValidator>()
+				.AddScoped<ISiteOrdersImportService, SiteOrdersImportService>();
+
 			return services;
 		}
 		
