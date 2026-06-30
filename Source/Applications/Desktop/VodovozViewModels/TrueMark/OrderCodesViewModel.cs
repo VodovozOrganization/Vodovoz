@@ -24,7 +24,6 @@ namespace Vodovoz.ViewModels.TrueMark
 {
 	public class OrderCodesDialogViewModel : DialogViewModelBase
 	{
-
 		public OrderCodesDialogViewModel(
 			int orderId,
 			OrderCodesViewModel orderCodesViewModel,

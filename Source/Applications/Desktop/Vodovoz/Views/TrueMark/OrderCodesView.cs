@@ -4,7 +4,6 @@ using Gamma.Binding.Core.RecursiveTreeConfig;
 using Gamma.ColumnConfig;
 using Gtk;
 using QS.Journal.GtkUI;
-using QS.Views.Dialog;
 using QS.Views.GtkUI;
 using System;
 using Vodovoz.Infrastructure;
@@ -46,12 +45,12 @@ namespace Vodovoz.Views.TrueMark
 
 		public OrderCodesView()
 		{
-
+			this.Build();
 		}
 
-		public OrderCodesView(OrderCodesViewModel viewModel) : base(viewModel)
+		protected override void ConfigureWidget()
 		{
-			this.Build();
+			base.ConfigureWidget();
 
 			ylabelTotalCodesValue.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CodesRequired, w => w.LabelProp, new TextToBoldTextConverter())
@@ -99,10 +98,10 @@ namespace Vodovoz.Views.TrueMark
 			ytreeviewDriver.AfterModelChanged += TreeViewAfterModelChanged;
 			ytreeviewDriver.Binding.AddSource(ViewModel)
 				.AddFuncBinding(
-					vm => new RecursiveTreeModel<OrderCodeItemViewModel>(vm.ScannedByDriverCodes, driverRecursiveConfig), 
+					vm => new RecursiveTreeModel<OrderCodeItemViewModel>(vm.ScannedByDriverCodes, driverRecursiveConfig),
 					w => w.YTreeModel
 				)
-				.AddBinding(vm => vm.ScannedByDriverCodesSelected, w => w.SelectedRows, 
+				.AddBinding(vm => vm.ScannedByDriverCodesSelected, w => w.SelectedRows,
 					new ArrayToEnumerableConverter<OrderCodeItemViewModel>())
 				.InitializeFromSource();
 			ytreeviewDriver.Selection.Mode = SelectionMode.Multiple;
@@ -169,7 +168,7 @@ namespace Vodovoz.Views.TrueMark
 			ytreeviewWarehouse.AfterModelChanged += TreeViewAfterModelChanged;
 			ytreeviewWarehouse.Binding.AddSource(ViewModel)
 				.AddFuncBinding(
-					vm => new RecursiveTreeModel<OrderCodeItemViewModel>(vm.ScannedByWarehouseCodes, warehouseRecursiveConfig), 
+					vm => new RecursiveTreeModel<OrderCodeItemViewModel>(vm.ScannedByWarehouseCodes, warehouseRecursiveConfig),
 					w => w.YTreeModel
 				)
 				.AddBinding(vm => vm.ScannedByWarehouseCodesSelected, w => w.SelectedRows,
@@ -241,7 +240,7 @@ namespace Vodovoz.Views.TrueMark
 			ytreeviewSelfdelivery.AfterModelChanged += TreeViewAfterModelChanged;
 			ytreeviewSelfdelivery.Binding.AddSource(ViewModel)
 				.AddFuncBinding(
-					vm => new RecursiveTreeModel<OrderCodeItemViewModel>(vm.ScannedBySelfdeliveryCodes, selfdeliveryRecursiveConfig), 
+					vm => new RecursiveTreeModel<OrderCodeItemViewModel>(vm.ScannedBySelfdeliveryCodes, selfdeliveryRecursiveConfig),
 					w => w.YTreeModel
 				)
 				.AddBinding(vm => vm.ScannedBySelfdeliveryCodesSelected, w => w.SelectedRows,

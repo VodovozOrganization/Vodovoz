@@ -104,7 +104,11 @@
     <Compile Include="Edo\EdoInOrderDocumentGroupType.cs" />
     <Compile Include="Edo\EdoInOrderDocumentType.cs" />
     <Compile Include="Edo\EdoInOrderDocumentTypeViewModel.cs" />
+    <Compile Include="Edo\EdoInOrderDocumentViewModel.cs" />
+    <Compile Include="Edo\EdoInOrderTransferRowViewModel.cs" />
+    <Compile Include="Edo\EdoInOrderTransferStageViewModel.cs" />
     <Compile Include="Edo\EdoInOrderViewModel.cs" />
+    <Compile Include="Edo\EdoInOrderProblemViewModel.cs" />
     <Compile Include="Employees\FineCategoryViewModel.cs" />
     <Compile Include="Factories\IVatRateVersionViewModelFactory.cs" />
     <Compile Include="Factories\VatRateVersionViewModelFactory.cs" />

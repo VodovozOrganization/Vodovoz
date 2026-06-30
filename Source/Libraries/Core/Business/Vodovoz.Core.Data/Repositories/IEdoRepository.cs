@@ -26,8 +26,6 @@ namespace Vodovoz.Core.Data.Repositories
 		IEnumerable<OrderEdoDocument> GetOrderEdoDocumentsByOrderId(IUnitOfWork uow, int orderId);
 		IEnumerable<OrderEdoTask> GetEdoTaskByOrder(IUnitOfWork uow, int orderId);
 		IEnumerable<OrderEdoTaskNode> GetEdoTasksForOrder(IUnitOfWork uow, int orderId);
-		IEnumerable<TransferEdoTaskNode> GetTransferEdoTasksForOrder(IUnitOfWork uow, int orderId);
-		IEnumerable<EdoProblemNode> GetEdoProblemsForOrder(IUnitOfWork uow, int orderId);
 		IEnumerable<EdoDocflowForOrderNode> GetEdoDocflowsForOrder(IUnitOfWork uow, int orderId);
 
 		/// <summary>
@@ -104,5 +102,7 @@ namespace Vodovoz.Core.Data.Repositories
 			IUnitOfWork uow,
 			int orderId
 		);
+		IEnumerable<EdoInOrderProblemNode> GetEdoProblemsForOrder(IUnitOfWork uow, int orderId);
+		IEnumerable<EdoInOrderTransferNode> GetTransferEdoTasksForOrder(IUnitOfWork uow, int orderId);
 	}
 }

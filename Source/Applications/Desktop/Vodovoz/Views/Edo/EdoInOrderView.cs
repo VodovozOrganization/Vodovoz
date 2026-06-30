@@ -1,6 +1,7 @@
 ﻿using Gamma.ColumnConfig;
 using QS.Views.GtkUI;
 using System;
+using System.ComponentModel;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Infrastructure;
 using Vodovoz.ViewModels.Edo;
@@ -18,6 +19,7 @@ namespace Vodovoz.Views.Edo
 		{
 			base.ConfigureWidget();
 
+			ytreeviewDocTypes.HeightRequest = 140;
 			ytreeviewDocTypes.ColumnsConfig = FluentColumnsConfig<EdoInOrderDocumentTypeViewModel>.Create()
 				.AddColumn("Тип документа")
 					.HeaderAlignment(0.5f)
@@ -28,6 +30,7 @@ namespace Vodovoz.Views.Edo
 					.AddNumericRenderer(x => x.Quantity).Editing(false)
 					.XAlign(0.5f)
 				.Finish();
+			ytreeviewDocTypes.Selection.Mode = Gtk.SelectionMode.Single;
 			ytreeviewDocTypes.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.DocumentGroupTypes, w => w.ItemsDataSource)
@@ -67,18 +70,127 @@ namespace Vodovoz.Views.Edo
 					.XAlign(0.5f)
 				.AddColumn("")
 				.Finish();
+			ytreeviewDocuments.Selection.Mode = Gtk.SelectionMode.Single;
 			ytreeviewDocuments.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.Documents, w => w.ItemsDataSource)
 				.AddBinding(vm => vm.SelectedDocument, w => w.SelectedRow)
 				.InitializeFromSource();
 
+			pipelineDocumentStages.PipelineVerticalPadding = 5;
+			pipelineDocumentStages.PipelineSidePadding = 10;
 			pipelineDocumentStages.HorizontalAlignment = 0f;
 			pipelineDocumentStages.VerticalAlignment = 0f;
+			pipelineDocumentStages.HeightRequest = 0;
+			pipelineDocumentStages.StageCircleRadius = 16;
+			pipelineDocumentStages.StageAdditionalInfoHeight = 14;
+			pipelineDocumentStages.TitleHeight = 12;
+			pipelineDocumentStages.TitleBottomSpacing = 4;
 			pipelineDocumentStages.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.PipelineViewModel, w => w.ViewModel)
 				.InitializeFromSource();
+
+			frameProblems.Visible= false;
+			ytreeviewProblems.ColumnsConfig = FluentColumnsConfig<EdoInOrderProblemViewModel>.Create()
+				.AddColumn("Время")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.CreationTime).Editable(false)
+					.XAlign(0.5f)
+				.AddColumn("Состояние")
+					.HeaderAlignment(0.5f)
+					.AddNumericRenderer(x => x.State).Editing(false)
+					.XAlign(0.5f)
+					.AddSetter((c, n) =>
+					{
+						if(n.ProblemNode.State == TaskProblemState.Active)
+						{
+							c.BackgroundGdk = GdkColors.DangerBase;
+						}
+						else
+						{
+							c.BackgroundGdk = GdkColors.SuccessBase;
+						}
+					})
+				.AddColumn("Название")
+					.HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.Message).Editable(false)
+					.XAlign(0.5f)
+				.AddColumn("")
+				.Finish();
+
+			ytreeviewProblems.Selection.Mode = Gtk.SelectionMode.Single;
+			ytreeviewProblems.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.Problems, w => w.ItemsDataSource)
+				.AddBinding(vm => vm.SelectedProblem, w => w.SelectedRow)
+				.InitializeFromSource();
+
+			textViewProblemDescription.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ProblemDescription, w => w.Buffer.Text)
+				.InitializeFromSource();
+			textViewProblemRecommendation.Binding.AddSource(ViewModel)
+				.AddBinding(vm => vm.ProblemRecommendation, w => w.Buffer.Text)
+				.InitializeFromSource();
+
+			ytreeviewProblemItems.ColumnsConfig = FluentColumnsConfig<string>.Create()
+				.AddColumn("")
+				.HeaderAlignment(0.5f)
+				.AddTextRenderer(x => x).Editable(false)
+				.XAlign(0.5f)
+				.Finish();
+			ytreeviewProblemItems.Binding
+				.AddSource(ViewModel)
+				.AddBinding(vm => vm.ProblemItems, w => w.ItemsDataSource)
+				.InitializeFromSource();
+
+
+
+			ordercodesview1.ViewModel = ViewModel.OrderCodesViewModel;
+
+			buttonRefresh.BindCommand(ViewModel.RefreshCommnand);
+
+			radiobuttonHelp.Toggled += RadiobuttonHelpToggled;
+			radiobuttonDocuments.Toggled += RadiobuttonDocumentsToggled;
+			radiobuttonCodes.Toggled += RadiobuttonCodesToggled;
+			radiobuttonDocuments.Click();
+
+			ViewModel.PropertyChanged += ViewModelPropertyChanged;
+		}
+
+		private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(ViewModel.HasProblems))
+			{
+				frameProblems.Visible = ViewModel.HasProblems;
+			}
+
+			if(e.PropertyName == nameof(ViewModel.DocumentViewModel))
+			{
+				edoinorderdocumentview1.ViewModel = ViewModel.DocumentViewModel;
+			}
+		}
+
+		private void RadiobuttonHelpToggled(object sender, EventArgs e)
+		{
+			if(radiobuttonHelp.Active)
+			{
+				ynotebookEdoInOrder.CurrentPage = 0;
+			}
+		}
+
+		private void RadiobuttonDocumentsToggled(object sender, EventArgs e)
+		{
+			if(radiobuttonDocuments.Active)
+			{
+				ynotebookEdoInOrder.CurrentPage = 1;
+			}
+		}
+		private void RadiobuttonCodesToggled(object sender, EventArgs e)
+		{
+			if(radiobuttonCodes.Active)
+			{
+				ynotebookEdoInOrder.CurrentPage = 2;
+			}
 		}
 
 		void IActivatableOrderTab.Activate()

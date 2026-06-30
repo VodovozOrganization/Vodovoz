@@ -9,7 +9,7 @@ namespace Vodovoz.Core.Domain.Edo
 		private int _fromOrganizationId;
 		private int _toOrganizationId;
 		private IObservableList<TransferEdoRequest> _transferEdoRequests = new ObservableList<TransferEdoRequest>();
-		private TransferEdoTaskStatus _transferStatus;
+		private EdoTransferTaskStage _transferStatus;
 		private DateTime? _transferStartTime;
 		private int? _transferOrderId;
 
@@ -35,7 +35,7 @@ namespace Vodovoz.Core.Domain.Edo
 		}
 
 		[Display(Name = "Статус переноса")]
-		public virtual TransferEdoTaskStatus TransferStatus
+		public virtual EdoTransferTaskStage TransferStatus
 		{
 			get => _transferStatus;
 			set => SetField(ref _transferStatus, value);

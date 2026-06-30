@@ -1,5 +1,5 @@
-﻿using QS.ViewModels;
-using Gamma.Utilities;
+﻿using Gamma.Utilities;
+using QS.ViewModels;
 
 namespace Vodovoz.ViewModels.Edo
 {

@@ -23,10 +23,10 @@ namespace Vodovoz.ViewModels.Edo
 		private EdoTaskInOrderViewModel _selectedTask;
 		private IObservableList<TransferEdoTaskInOrderViewModel> _transferEdoTasks;
 		private TransferEdoTaskInOrderViewModel _selectedTransferTask;
-		private IEnumerable<TransferEdoTaskNode> _allTransferEdoTasks;
-		private IObservableList<EdoProblemInOrderViewModel> _problems;
-		private EdoProblemInOrderViewModel _selectedProblem;
-		private IEnumerable<EdoProblemNode> _allProblems;
+		private IEnumerable<EdoInOrderTransferNode> _allTransferEdoTasks;
+		private IObservableList<EdoInOrderProblemViewModel> _problems;
+		private EdoInOrderProblemViewModel _selectedProblem;
+		private IEnumerable<EdoInOrderProblemNode> _allProblems;
 		private string _problemDescription;
 		private string _problemRecommendation;
 
@@ -38,9 +38,9 @@ namespace Vodovoz.ViewModels.Edo
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 			EdoTaskInOrderResolveViewModel = edoTaskInOrderResolveViewModel ?? throw new ArgumentNullException(nameof(edoTaskInOrderResolveViewModel));
 			_edoTasks = new ObservableList<EdoTaskInOrderViewModel>();
+			_allTransferEdoTasks = new List<EdoInOrderTransferNode>();
 			_transferEdoTasks = new ObservableList<TransferEdoTaskInOrderViewModel>();
-			_allTransferEdoTasks = new List<TransferEdoTaskNode>();
-			_allProblems = new List<EdoProblemNode>();
+			_allProblems = new List<EdoInOrderProblemNode>();
 
 			RefreshCommand = new DelegateCommand(Refresh);
 		}
@@ -124,13 +124,13 @@ namespace Vodovoz.ViewModels.Edo
 			TransferEdoTasks = new ObservableList<TransferEdoTaskInOrderViewModel>(viewModels);
 		}
 
-		public virtual IObservableList<EdoProblemInOrderViewModel> Problems
+		public virtual IObservableList<EdoInOrderProblemViewModel> Problems
 		{
 			get => _problems;
 			set => SetField(ref _problems, value);
 		}
 
-		public virtual EdoProblemInOrderViewModel SelectedProblem
+		public virtual EdoInOrderProblemViewModel SelectedProblem
 		{
 			get => _selectedProblem;
 			set
@@ -175,7 +175,7 @@ namespace Vodovoz.ViewModels.Edo
 			{
 				if(SelectedTransferTask == null)
 				{
-					Problems = new ObservableList<EdoProblemInOrderViewModel>();
+					Problems = new ObservableList<EdoInOrderProblemViewModel>();
 					EdoTaskInOrderResolveViewModel.Clear();
 				}
 				return;
@@ -183,10 +183,10 @@ namespace Vodovoz.ViewModels.Edo
 
 			var viewModels = _allProblems
 				.Where(x => x.OrderTaskId == SelectedTask.TaskId)
-				.Select(x => new EdoProblemInOrderViewModel(x))
+				.Select(x => new EdoInOrderProblemViewModel(x))
 				;
 
-			Problems = new ObservableList<EdoProblemInOrderViewModel>(viewModels);
+			Problems = new ObservableList<EdoInOrderProblemViewModel>(viewModels);
 
 			EdoTaskInOrderResolveViewModel.FilterByOrderTask(SelectedTask.TaskId);
 		}
@@ -197,7 +197,7 @@ namespace Vodovoz.ViewModels.Edo
 			{
 				if(SelectedTask == null)
 				{
-					Problems = new ObservableList<EdoProblemInOrderViewModel>();
+					Problems = new ObservableList<EdoInOrderProblemViewModel>();
 					EdoTaskInOrderResolveViewModel.Clear();
 				}
 				return;
@@ -205,10 +205,10 @@ namespace Vodovoz.ViewModels.Edo
 
 			var viewModels = _allProblems
 				.Where(x => x.TransferTaskId == SelectedTransferTask.TaskId)
-				.Select(x => new EdoProblemInOrderViewModel(x))
+				.Select(x => new EdoInOrderProblemViewModel(x))
 				;
 
-			Problems = new ObservableList<EdoProblemInOrderViewModel>(viewModels);
+			Problems = new ObservableList<EdoInOrderProblemViewModel>(viewModels);
 
 			EdoTaskInOrderResolveViewModel.FilterByTransferTask(SelectedTransferTask.TaskId);
 		}
@@ -237,7 +237,7 @@ namespace Vodovoz.ViewModels.Edo
 
 	public class TransferEdoTaskInOrderViewModel : ViewModelBase
 	{
-		public TransferEdoTaskInOrderViewModel(TransferEdoTaskNode transferTaskNode)
+		public TransferEdoTaskInOrderViewModel(EdoInOrderTransferNode transferTaskNode)
 		{
 			TransferTaskNode = transferTaskNode ?? throw new ArgumentNullException(nameof(transferTaskNode));
 			RequestTime = TransferTaskNode.RequestTime.ToString("dd.MM.yyyy HH.mm");
@@ -247,7 +247,7 @@ namespace Vodovoz.ViewModels.Edo
 			Status = TransferTaskNode.Status.GetEnumTitle();
 		}
 
-		public TransferEdoTaskNode TransferTaskNode { get; }
+		public EdoInOrderTransferNode TransferTaskNode { get; }
 
 		public string RequestTime { get; }
 		public int TaskId { get; }
@@ -255,27 +255,6 @@ namespace Vodovoz.ViewModels.Edo
 		public string To { get; }
 		public string Status { get; }
 
-	}
-
-	public class EdoProblemInOrderViewModel : ViewModelBase
-	{
-		public EdoProblemInOrderViewModel(EdoProblemNode problemNode)
-		{
-			ProblemNode = problemNode ?? throw new ArgumentNullException(nameof(problemNode));
-			CreationTime = ProblemNode.Time.ToString("dd.MM.yyyy HH.mm");
-			State = ProblemNode.State.GetEnumTitle();
-			Message = ProblemNode.Message;
-			Description = ProblemNode.Description;
-			Recomendation = ProblemNode.Recommendation;
-		}
-
-		public EdoProblemNode ProblemNode { get; }
-
-		public string CreationTime { get; }
-		public string State { get; }
-		public string Message { get; }
-		public string Description { get; }
-		public string Recomendation { get; }
 	}
 
 	public class EdoTaskInOrderResolveViewModel : WidgetViewModelBase
