@@ -36,5 +36,19 @@ namespace Edo.Common
 			IEnumerable<GtinEntity> gtins,
 			string organizationInn,
 			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Забирает из пула пачку актуальных валидных кодов по GTIN и количеству.
+		/// </summary>
+		/// <param name="codesPool">Пул кодов маркировки.</param>
+		/// <param name="gtinCounts">Словарь GTIN -> количество.</param>
+		/// <param name="organizationInn">ИНН организации заказа.</param>
+		/// <param name="cancellationToken">Токен отмены операции.</param>
+		/// <returns>Словарь с результатами подбора кодов.</returns>
+		Task<IDictionary<string, IList<TrueMarkWaterIdentificationCode>>> TakeValidCodesBatchAsync(
+		   ITrueMarkCodesPool codesPool,
+		   IDictionary<string, int> gtinCounts,
+		   string organizationInn,
+		   CancellationToken cancellationToken);
 	}
 }

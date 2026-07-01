@@ -1,10 +1,12 @@
 ﻿using MySqlConnector;
 using NHibernate;
 using QS.DomainModel.UoW;
+using QS.Utilities.Debug;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using QS.Utilities.Debug;
 
 namespace TrueMark.Codes.Pool
 {
@@ -95,15 +97,33 @@ namespace TrueMark.Codes.Pool
 			return (int)codeId;
 		}
 
+		public virtual async Task<IList<int>> TakeCodes(string gtin, int count, CancellationToken cancellationToken)
+		{
+			if(count <= 0)
+			{
+				throw new ArgumentException("Количество кодов должно быть больше 0", nameof(count));
+			}
+
+			var selectCodesQuery = GetSelectCodesQuery(gtin, count);
+			var codeIdsToTake = await selectCodesQuery.ListAsync<uint>(cancellationToken);
+
+			if(!codeIdsToTake.Any())
+			{
+				throw new EdoCodePoolMissingCodeException($"В пуле не найдены коды для gtin {gtin}");
+			}
+
+			var deleteQuery = GetDeleteCodesQuery(codeIdsToTake);
+			var deletedCodeIds = await deleteQuery.ListAsync<uint>(cancellationToken);
+
+			return deletedCodeIds.Select(id => (int)id).ToList();
+		}
+
 		private IQuery GetSelectCodeQuery(string gtin)
 		{
 			var sql = $@"
-				SELECT pool.id
-				FROM {_poolTableName} pool
-					INNER JOIN true_mark_identification_code code ON code.id = pool.code_id 
-				WHERE pool.promoted 
-					AND code.gtin = :gtin
-				ORDER BY pool.adding_time DESC 
+				SELECT id FROM {_poolTableName}
+				WHERE gtin = :gtin AND promoted = 1
+				ORDER BY adding_time DESC 
 				LIMIT 1
 				FOR UPDATE SKIP LOCKED";
 
@@ -115,13 +135,39 @@ namespace TrueMark.Codes.Pool
 		private IQuery GetTakeCodeQuery(uint codeId)
 		{
 			var sql = $@"
-			DELETE FROM {_poolTableName}
-			WHERE id = :code_id
-			RETURNING code_id";
+				DELETE FROM {_poolTableName}
+				WHERE id = :code_id
+				RETURNING code_id";
 
 			var query = UoW.Session.CreateSQLQuery(sql)
 				.SetParameter("code_id", codeId);
 			return query;
+		}
+
+		private IQuery GetSelectCodesQuery(string gtin, int count)
+		{
+			var sql = $@"
+				SELECT id FROM {_poolTableName}
+				WHERE gtin = :gtin AND promoted = 1
+				ORDER BY adding_time DESC 
+				LIMIT :count
+				FOR UPDATE SKIP LOCKED";
+
+			var query = UoW.Session.CreateSQLQuery(sql)
+				.SetParameter("gtin", gtin)
+				.SetParameter("count", count);
+			return query;
+		}
+
+		private IQuery GetDeleteCodesQuery(IEnumerable<uint> codeIds)
+		{
+			var ids = string.Join(",", codeIds);
+			var sql = $@"
+				DELETE FROM {_poolTableName}
+				WHERE id IN ({ids})
+				RETURNING code_id";
+
+			return UoW.Session.CreateSQLQuery(sql);
 		}
 
 		private void SetSessionTimeout(IUnitOfWork uow)

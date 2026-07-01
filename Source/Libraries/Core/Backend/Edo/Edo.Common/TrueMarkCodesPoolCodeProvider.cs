@@ -98,12 +98,8 @@ namespace Edo.Common
 						codeId,
 						gtin.GtinNumber);
 
-					var code = await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(codeId, cancellationToken);
-
-					if(code is null)
-					{
-						throw new InvalidOperationException($"Не найден код ЧЗ с Id {codeId}, полученный из пула.");
-					}
+					var code = await _uow.Session.GetAsync<TrueMarkWaterIdentificationCode>(codeId, cancellationToken) 
+						?? throw new InvalidOperationException($"Не найден код ЧЗ с Id {codeId}, полученный из пула.");
 
 					var validationResult = await ValidateAsync(code, organizationInn, cancellationToken);
 
@@ -144,6 +140,130 @@ namespace Edo.Common
 
 			throw new EdoCodePoolMissingCodeException(
 				$"В пуле не найден валидный код для следующих GTIN: {gtinsDescription}.");
+		}
+
+		public async Task<IDictionary<string, IList<TrueMarkWaterIdentificationCode>>> TakeValidCodesBatchAsync(
+			ITrueMarkCodesPool codesPool,
+			IDictionary<string, int> gtinCounts,
+			string organizationInn,
+			CancellationToken cancellationToken)
+		{
+			if(codesPool is null)
+			{
+				throw new ArgumentNullException(nameof(codesPool));
+			}
+
+			if(gtinCounts is null)
+			{
+				throw new ArgumentNullException(nameof(gtinCounts));
+			}
+
+			var result = new Dictionary<string, IList<TrueMarkWaterIdentificationCode>>();
+			var allCodeIds = new List<int>();
+			var gtinCodeMap = new Dictionary<string, List<int>>();
+
+			_logger.LogInformation(
+				"Начат пакетный подбор {TotalCount} кодов из пула для {GtinCount} GTIN. Организация: {OrganizationInn}.",
+				gtinCounts.Values.Sum(),
+				gtinCounts.Count,
+				organizationInn);
+
+			foreach(var gtinCount in gtinCounts)
+			{
+				var gtin = gtinCount.Key;
+				var count = gtinCount.Value;
+
+				try
+				{
+					var codeIds = await codesPool.TakeCodes(gtin, count, cancellationToken);
+
+					if(!codeIds.Any())
+					{
+						_logger.LogWarning("Не найдены коды для GTIN {Gtin}.", gtin);
+						result[gtin] = new List<TrueMarkWaterIdentificationCode>();
+						continue;
+					}
+
+					_logger.LogInformation(
+						"Для GTIN {Gtin} получено {Count} кодов из {Requested}.",
+						gtin,
+						codeIds.Count,
+						count);
+
+					gtinCodeMap[gtin] = codeIds.ToList();
+					allCodeIds.AddRange(codeIds);
+				}
+				catch(EdoCodePoolMissingCodeException ex)
+				{
+					_logger.LogWarning(
+						"Не удалось получить коды для GTIN {Gtin}: {Error}",
+						gtin,
+						ex.Message);
+					result[gtin] = new List<TrueMarkWaterIdentificationCode>();
+				}
+			}
+
+			if(allCodeIds.Any())
+			{
+				TrueMarkWaterIdentificationCode codeAlias = null;
+
+				var codes = await _uow.Session
+					.QueryOver(() => codeAlias)
+					.WhereRestrictionOn(() => codeAlias.Id)
+					.IsIn(allCodeIds.ToArray())
+					.ListAsync(cancellationToken);
+
+				var validationResult = await _trueMarkCodesValidator.ValidateAsync(
+					codes,
+					organizationInn,
+					cancellationToken);
+
+				var validCodesByGtin = validationResult.CodeResults
+					.Where(r => r.IsValid)
+					.GroupBy(r => r.Code.Gtin)
+					.ToDictionary(g => g.Key, g => g.Select(r => r.Code).ToList());
+
+				foreach(var gtin in gtinCounts.Keys)
+				{
+					if(result.ContainsKey(gtin) && !result[gtin].Any())
+					{
+						continue;
+					}
+
+					if(validCodesByGtin.TryGetValue(gtin, out var validCodes))
+					{
+						result[gtin] = validCodes;
+
+						var requestedCount = gtinCounts[gtin];
+						if(validCodes.Count < requestedCount)
+						{
+							_logger.LogWarning(
+								"Для GTIN {Gtin} валидны только {ValidCount} из {Requested} кодов.",
+								gtin,
+								validCodes.Count,
+								requestedCount);
+						}
+					}
+					else
+					{
+						_logger.LogWarning("Не найдены валидные коды для GTIN {Gtin}.", gtin);
+						result[gtin] = new List<TrueMarkWaterIdentificationCode>();
+					}
+				}
+
+				var invalidCodes = validationResult.CodeResults
+					.Where(r => !r.IsValid)
+					.ToList();
+
+				if(invalidCodes.Any())
+				{
+					_logger.LogWarning(
+						"Обнаружено {Count} невалидных кодов.",
+						invalidCodes.Count);
+				}
+			}
+
+			return result;
 		}
 
 		private async Task<TrueMarkCodeValidationResult> ValidateAsync(
