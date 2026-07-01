@@ -177,13 +177,7 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 				.Take(1)
 				.Future<int>();
 
-			var transfer = _uow.Session.QueryOver<TransferOrderTrueMarkCode>()
-				.Where(x => x.GroupCode != null && x.GroupCode.Id == groupCodeId)
-				.Select(x => x.Id)
-				.Take(1)
-				.Future<int>();
-
-			return fiscalPositions.Any() || updPositions.Any() || transfer.Any();
+			return fiscalPositions.Any() || updPositions.Any();
 		}
 	}
 }
