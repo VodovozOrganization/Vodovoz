@@ -10,6 +10,7 @@ using NLog.Extensions.Logging;
 using QS.Project.Core;
 using System;
 using System.Text;
+using Vodovoz.Core.Application.TrueMark;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure;
@@ -53,6 +54,8 @@ namespace Edo.Document.Worker
 						.AddEdoDocuments()
 
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
+						
+						.AddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>()
 						;
 
 					services.AddHostedService<InitDbConnectionOnHostStartedService>();

@@ -30,6 +30,7 @@ using System.Threading.Tasks;
 using Taxcom.Docflow.Utility;
 using TaxcomEdo.Client;
 using TrueMark.Codes.Pool;
+using Vodovoz.Core.Application.TrueMark;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
@@ -95,6 +96,7 @@ namespace CustomTaskDebugExecutor
 			services.AddEdo();
 			services.AddEdoProblemRegistration();
 			services.AddCodesPool();
+			services.AddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>();
 
 			services.AddEdoTransfer();
 
