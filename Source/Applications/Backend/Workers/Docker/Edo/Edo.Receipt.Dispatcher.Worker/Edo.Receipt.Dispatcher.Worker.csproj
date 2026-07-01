@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
+<Project Sdk="Microsoft.NET.Sdk.Worker">
 
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
@@ -36,6 +36,7 @@
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Receipt.Dispatcher\Edo.Receipt.Dispatcher.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\BackendInfrastructure\BackendInfrastructure.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Vodovoz.Zabbix.Sender\Vodovoz.Zabbix.Sender.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Application\Vodovoz.Core.Application.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Settings\Vodovoz.Settings.csproj" />
 		<ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport\MessageTransport.csproj" />

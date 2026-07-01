@@ -49,6 +49,7 @@
 	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Edo\Edo.Withdrawal\Edo.Withdrawal.csproj" />
 	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport\MessageTransport.csproj" />
 	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\TaxcomEdo\Taxcom.Docflow.Utility\Taxcom.Docflow.Utility.csproj" />
+	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Application\Vodovoz.Core.Application.csproj" />
 	  <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Business\Vodovoz.Core.Data.NHibernate\Vodovoz.Core.Data.NHibernate.csproj" />
 	</ItemGroup>
 	

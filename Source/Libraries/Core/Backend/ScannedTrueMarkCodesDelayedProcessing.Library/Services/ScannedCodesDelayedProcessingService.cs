@@ -1,4 +1,5 @@
-﻿using Edo.Transport;
+﻿using Edo.Common;
+using Edo.Transport;
 using FluentNHibernate.Conventions;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -197,6 +198,8 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				scannedTrueMarkAnyCodesData =
 					await RemoveLowLevelCodesScannedDuplicates(uow, scannedTrueMarkAnyCodesData, cancellationToken);
 
+				await AddCheckCodeToSavedCodeFromScannedCode(uow, scannedTrueMarkAnyCodesData, cancellationToken);
+
 				scannedTrueMarkAnyCodesData =
 					await RemoveExistingTransportGroupCodesAndCheckIdentificationCodes(uow, scannedTrueMarkAnyCodesData, cancellationToken);
 
@@ -311,6 +314,67 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			}
 
 			return codesData;
+		}
+
+		private async Task AddCheckCodeToSavedCodeFromScannedCode(
+			IUnitOfWork unitOfWork,
+			IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode> codesData,
+			CancellationToken cancellationToken)
+		{
+			var codesToRemove = new List<DriversScannedTrueMarkCode>();
+
+			foreach(var codeData in codesData)
+			{
+				var driversScannedCode = codeData.Key;
+				var trueMarkAnyCode = codeData.Value;
+
+				var getSavedTrueMarkCodeResult =
+					_trueMarkWaterCodeService.TryGetSavedTrueMarkAnyCode(unitOfWork, trueMarkAnyCode);
+
+				if(getSavedTrueMarkCodeResult.IsFailure)
+				{
+					continue;
+				}
+
+				var savedCode = getSavedTrueMarkCodeResult.Value;
+
+				if(savedCode.IsTrueMarkTransportCode)
+				{
+					continue;
+				}
+
+				var savedCheckCode = savedCode.Match(transportCode => null, groupCode => groupCode.CheckCode, waterCode => waterCode.CheckCode);
+
+				if(!string.IsNullOrWhiteSpace(savedCheckCode))
+				{
+					continue;
+				}
+
+				var newCheckCode = trueMarkAnyCode.Match(transportCode => null, groupCode => groupCode.CheckCode, waterCode => waterCode.CheckCode);
+
+				if(string.IsNullOrWhiteSpace(newCheckCode))
+				{
+					continue;
+				}
+
+				var newRawCode = trueMarkAnyCode.Match(transportCode => null, groupCode => groupCode.RawCode, waterCode => waterCode.RawCode);
+
+				await savedCode.Match(
+					transportCode => Task.CompletedTask,
+					groupCode =>
+					{
+						groupCode.CheckCode = newCheckCode;
+						groupCode.RawCode = newRawCode;
+						return unitOfWork.SaveAsync(groupCode, cancellationToken: cancellationToken);
+					},
+					waterCode =>
+					{
+						waterCode.CheckCode = newCheckCode;
+						waterCode.RawCode = newRawCode;
+						return unitOfWork.SaveAsync(waterCode, cancellationToken: cancellationToken);
+					}
+				);
+			}
 		}
 
 		private async Task<IDictionary<DriversScannedTrueMarkCode, TrueMarkAnyCode>> RemoveLowLevelCodesScannedDuplicates(

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Edo.Admin;
+﻿using Edo.Admin;
 using Edo.Common;
 using Edo.Problems;
 using Edo.Problems.Custom;
@@ -16,6 +10,12 @@ using Microsoft.Extensions.Logging;
 using NSubstitute;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Net.Http;
+using System.Threading.Tasks;
 using TrueMark.Codes.Pool;
 using TrueMark.Library;
 using TrueMarkApi.Client;
@@ -518,6 +518,7 @@ namespace Receipt.Dispatcher.Tests
 			var saveCodesService = Substitute.For<ISaveCodesService>();
 			var bus = Substitute.For<IBus>();
 			var edoCancellationService = Substitute.For<EdoCancellationService>();
+			var trueMarkWaterCodeService = Substitute.For<ITrueMarkWaterCodeService>();
 
 			return new ForOwnNeedsReceiptEdoTaskHandler(
 				logger,
@@ -538,7 +539,8 @@ namespace Receipt.Dispatcher.Tests
 				saveCodesService,
 				Substitute.For<IOrganizationSettings>(),
 				bus,
-				edoCancellationService);
+				edoCancellationService,
+				trueMarkWaterCodeService);
 		}
 
 		private EdoTaskValidator CreateEdoTaskValidatorFixture(IUnitOfWorkFactory unitOfWorkFactory, EdoProblemRegistrar edoProblemRegistrar)
