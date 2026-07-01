@@ -34,6 +34,7 @@ using Vodovoz.Core.Application.TrueMark;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Core.Application;
 
 namespace CustomTaskDebugExecutor
 {
@@ -96,7 +97,7 @@ namespace CustomTaskDebugExecutor
 			services.AddEdo();
 			services.AddEdoProblemRegistration();
 			services.AddCodesPool();
-			services.AddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>();
+			services.AddCoreApplicationServices();
 
 			services.AddEdoTransfer();
 
