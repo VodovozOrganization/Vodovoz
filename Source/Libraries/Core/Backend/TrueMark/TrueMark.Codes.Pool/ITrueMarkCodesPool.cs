@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -43,5 +44,6 @@ namespace TrueMark.Codes.Pool
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
 		Task<IList<int>> TakeCodes(string gtin, int count, CancellationToken cancellationToken);
+		Task UpdateCodeExpirationAsync(int codeId, DateTime expirationDate, CancellationToken cancellationToken);
 	}
 }

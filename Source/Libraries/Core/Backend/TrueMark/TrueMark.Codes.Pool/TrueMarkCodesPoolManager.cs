@@ -15,7 +15,7 @@ namespace TrueMark.Codes.Pool
 	/// - продвижения кодов в верх пула <br/>
 	/// - удаления <br/>
 	/// </summary>
-	public class TrueMarkCodesPoolManager
+	public class TrueMarkCodesPoolManager : ITrueMarkCodesPoolManager
 	{
 		private const string _poolTableName = "true_mark_codes_pool_new";
 
@@ -58,6 +58,86 @@ namespace TrueMark.Codes.Pool
 				.SetParameter("count", count)
 				.SetParameter("promoted", promoted);
 			return query;
+		}
+
+		public async Task<IEnumerable<int>> SelectCodesForCheckAsync(int count, CancellationToken cancellationToken)
+		{
+			using(var uow = CreateUow())
+			{
+				var sql = $@"
+					SELECT code_id FROM {_poolTableName}
+					WHERE promoted = 0
+					ORDER BY adding_time DESC
+					LIMIT :count
+					;";
+				var query = uow.Session.CreateSQLQuery(sql)
+					.SetParameter("count", count);
+				var result = await query.ListAsync<uint>(cancellationToken);
+				return result.Select(x => (int)x);
+			}
+		}
+
+		public async Task UpdateCodeExpirationAsync(int codeId, DateTime expirationDate, CancellationToken cancellationToken)
+		{
+			using(var uow = CreateUow())
+			{
+				var sql = $@"
+					UPDATE {_poolTableName}
+					SET expiration_date = :expirationDate
+					WHERE code_id = :codeId
+					;";
+				var query = uow.Session.CreateSQLQuery(sql)
+					.SetParameter("codeId", codeId)
+					.SetParameter("expirationDate", expirationDate);
+
+				await query.ExecuteUpdateAsync(cancellationToken);
+			}
+		}
+
+		public async Task UpdateCodesExpirationAsync(
+			IDictionary<int, DateTime> codeExpirationMap,
+			CancellationToken cancellationToken)
+		{
+			using(var uow = CreateUow())
+			{
+				uow.OpenTransaction();
+
+				foreach(var kvp in codeExpirationMap)
+				{
+					var sql = $@"
+						UPDATE {_poolTableName}
+						SET expiration_date = :expirationDate
+						WHERE code_id = :codeId
+						;";
+					var query = uow.Session.CreateSQLQuery(sql)
+						.SetParameter("codeId", kvp.Key)
+						.SetParameter("expirationDate", kvp.Value);
+
+					await query.ExecuteUpdateAsync(cancellationToken);
+				}
+
+				await uow.CommitAsync(cancellationToken);
+			}
+		}
+
+		public async Task<int> DeleteExpiredCodesAsync(CancellationToken cancellationToken)
+		{
+			using(var uow = CreateUow())
+			{
+				uow.OpenTransaction();
+
+				var sql = $@"
+					DELETE FROM {_poolTableName}
+					WHERE expiration_date IS NOT NULL 
+						AND expiration_date < NOW()
+						AND promoted = 0
+					;";
+				var query = uow.Session.CreateSQLQuery(sql);
+				var deletedCount = await query.ExecuteUpdateAsync(cancellationToken);
+
+				await uow.CommitAsync(cancellationToken);
+				return deletedCount;
+			}
 		}
 
 		public void PromoteCodes(IEnumerable<int> codeIds, int extraSecond)
@@ -210,8 +290,7 @@ namespace TrueMark.Codes.Pool
 						tmic.gtin,
 						Count(pool.code_id)
 					FROM {_poolTableName} pool
-					INNER JOIN true_mark_identification_code tmic ON tmic.id = pool.code_id
-					GROUP BY tmic.gtin
+					GROUP BY pool.gtin
 					;";
 			var query = uow.Session.CreateSQLQuery(sql);
 			return query;
