@@ -1,4 +1,5 @@
-﻿using Edo.Contracts.Messages.Events;
+﻿using Edo.Common;
+using Edo.Contracts.Messages.Events;
 using MassTransit;
 using MassTransit.Initializers;
 using Microsoft.Extensions.Logging;

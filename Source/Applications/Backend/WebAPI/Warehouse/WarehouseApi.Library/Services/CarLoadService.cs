@@ -1,4 +1,5 @@
-﻿using Edo.Contracts.Messages.Events;
+﻿using Edo.Common;
+using Edo.Contracts.Messages.Events;
 using Gamma.Utilities;
 using MassTransit;
 using Microsoft.Extensions.Logging;
@@ -25,7 +26,6 @@ using Vodovoz.Errors;
 using Vodovoz.Errors.Orders;
 using Vodovoz.Models;
 using VodovozBusiness.Domain.Client.Specifications;
-using VodovozBusiness.Services.TrueMark;
 using WarehouseApi.Contracts.V1.Dto;
 using WarehouseApi.Contracts.V1.Responses;
 using WarehouseApi.Library.Converters;

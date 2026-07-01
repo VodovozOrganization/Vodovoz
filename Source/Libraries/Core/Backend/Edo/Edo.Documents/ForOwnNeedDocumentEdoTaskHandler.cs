@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -27,6 +27,7 @@ namespace Edo.Documents
 		private readonly TransferRequestCreator _transferRequestCreator;
 		private readonly ITrueMarkCodesPool _trueMarkCodesPool;
 		private readonly ITrueMarkCodesPoolCodeProvider _trueMarkCodesPoolCodeProvider;
+		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly IBus _messageBus;
 
@@ -37,6 +38,7 @@ namespace Edo.Documents
 			TransferRequestCreator transferRequestCreator,
 			ITrueMarkCodesPool trueMarkCodesPool,
 			ITrueMarkCodesPoolCodeProvider trueMarkCodesPoolCodeProvider,
+			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			EdoProblemRegistrar edoProblemRegistrar,
 			IBus messageBus
 			)
@@ -47,6 +49,7 @@ namespace Edo.Documents
 			_transferRequestCreator = transferRequestCreator ?? throw new ArgumentNullException(nameof(transferRequestCreator));
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
 			_trueMarkCodesPoolCodeProvider = trueMarkCodesPoolCodeProvider ?? throw new ArgumentNullException(nameof(trueMarkCodesPoolCodeProvider));
+			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 		}
@@ -296,8 +299,24 @@ namespace Edo.Documents
 								continue;
 							}
 
-							// установка в ResultCode всем ProductCode в группе
+							var isGroupCodeUsedInEdoDocument = _trueMarkCodeRepository.IsGroupCodeUsedInEdoDocument(groupCode.Id);
+							if(isGroupCodeUsedInEdoDocument)
+							{
+								// Уже используется в каком-то ЭДО документе, пропускаем
+								groupCodesWithTaskItems.Remove(groupCode);
+								continue;
+							}
+
 							var groupTaskItems = groupCodesWithTaskItems[groupCode];
+
+							if(availableQuantity < groupTaskItems.Count())
+							{
+								groupCodesWithTaskItems.Remove(groupCode);
+								await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, groupCode, cancellationToken);
+								continue;
+							}
+
+							// установка в ResultCode всем ProductCode в группе
 							foreach(var groupTaskItem in groupTaskItems)
 							{
 								groupTaskItem.ProductCode.ResultCode = groupTaskItem.ProductCode.SourceCode;
@@ -357,6 +376,7 @@ namespace Edo.Documents
 										availableGtin,
 										GetOrderOrganizationInn(documentEdoTask),
 										cancellationToken);
+									await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, individualCode, cancellationToken);
 									availableCode.ProductCode.ResultCode = newCode;
 									availableCode.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
 								}
@@ -399,6 +419,7 @@ namespace Edo.Documents
 									forUnscannedAvailableGtins,
 									GetOrderOrganizationInn(documentEdoTask),
 									cancellationToken);
+								await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, newCode, cancellationToken);
 								unscannedCode.ProductCode.ResultCode = newCode;
 								unscannedCode.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
 							}
@@ -423,7 +444,8 @@ namespace Edo.Documents
 							forNewAvailableGtins,
 							GetOrderOrganizationInn(documentEdoTask),
 							cancellationToken);
-						
+						await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, forNewCode, cancellationToken);
+
 						var newAutoTrueMarkProductCode = new AutoTrueMarkProductCode
 						{
 							ResultCode = forNewCode,
