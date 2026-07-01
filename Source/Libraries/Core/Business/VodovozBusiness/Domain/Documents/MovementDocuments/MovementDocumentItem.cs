@@ -76,6 +76,7 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 
 		public virtual string Name => Nomenclature != null ? Nomenclature.Name : string.Empty;
 		public virtual string InventoryNumber => string.Empty;
+		public virtual int? NomenclatureInstanceId => null;
 
 		public virtual bool CanEditAmount => Nomenclature != null && !Nomenclature.IsSerial;
 
