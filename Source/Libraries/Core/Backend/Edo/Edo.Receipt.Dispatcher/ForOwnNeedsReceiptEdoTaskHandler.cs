@@ -29,7 +29,6 @@ using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Client;
 using Vodovoz.Settings.Edo;
 using Vodovoz.Settings.Organizations;
-using VodovozBusiness.Services.TrueMark;
 
 namespace Edo.Receipt.Dispatcher
 {

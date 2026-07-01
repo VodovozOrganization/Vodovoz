@@ -16,7 +16,6 @@ using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
-using VodovozBusiness.Services.TrueMark;
 
 namespace Edo.Documents
 {

@@ -1,4 +1,5 @@
 ﻿using DriverApi.Notifications.Client;
+using Edo.Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using RevenueService.Client;
@@ -38,7 +39,6 @@ using VodovozBusiness.Services.Clients;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.Receipts;
 using VodovozBusiness.Services.Subdivisions;
-using VodovozBusiness.Services.TrueMark;
 
 namespace Vodovoz.Core.Application
 {

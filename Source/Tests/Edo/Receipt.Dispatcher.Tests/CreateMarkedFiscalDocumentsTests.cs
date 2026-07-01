@@ -30,7 +30,6 @@ using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Settings.Edo;
 using Vodovoz.Settings.Organizations;
-using VodovozBusiness.Services.TrueMark;
 using Xunit;
 
 namespace Receipt.Dispatcher.Tests

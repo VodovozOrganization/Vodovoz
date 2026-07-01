@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Edo.Common;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -19,7 +20,6 @@ using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Edo;
 using VodovozBusiness.Domain.Client.Specifications;
 using VodovozBusiness.Models.TrueMark;
-using VodovozBusiness.Services.TrueMark;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
 
 namespace Vodovoz.Core.Application.TrueMark
