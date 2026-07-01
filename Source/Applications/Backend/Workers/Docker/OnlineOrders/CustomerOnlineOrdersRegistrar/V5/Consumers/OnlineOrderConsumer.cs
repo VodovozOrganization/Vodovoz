@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using CustomerOrdersApi.Library.V5.Dto.Orders;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
@@ -83,9 +83,6 @@ namespace CustomerOnlineOrdersRegistrar.V5.Consumers
 					var cancellationReasonId = _onlineOrderCancellationReasonSettings.GetDuplicateOnlineOrderCancellationReasonId;
 					onlineOrder.OnlineOrderCancellationReason = await uow.Session
 						.GetAsync<OnlineOrderCancellationReason>(cancellationReasonId, cancellationToken);
-
-					var notification = OnlineOrderStatusUpdatedNotification.Create(onlineOrder);
-					await uow.SaveAsync(notification, cancellationToken: cancellationToken);
 				}
 				else
 				{
