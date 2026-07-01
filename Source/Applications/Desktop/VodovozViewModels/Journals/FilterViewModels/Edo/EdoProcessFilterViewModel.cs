@@ -9,7 +9,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Edo
 		private int? _orderId;
 		private DateTime _deliveryDateFrom;
 		private DateTime _deliveryDateTo;
-		private CustomerEdoRequestSource? _requestSource;
+		private EdoRequestSource? _requestSource;
 		private EdoTaskType? _edoTaskType;
 		private EdoTaskStatus? _edoTaskStatus;
 		private DocumentEdoTaskStage? _documentTaskStage;
@@ -41,7 +41,7 @@ namespace Vodovoz.ViewModels.Journals.FilterViewModels.Edo
 			set => UpdateFilterField(ref _deliveryDateTo, value);
 		}
 
-		public virtual CustomerEdoRequestSource? RequestSource
+		public virtual EdoRequestSource? RequestSource
 		{
 			get => _requestSource;
 			set => UpdateFilterField(ref _requestSource, value);

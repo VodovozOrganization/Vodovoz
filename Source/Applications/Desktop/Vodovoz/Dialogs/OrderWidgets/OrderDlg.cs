@@ -66,6 +66,7 @@ using Vodovoz.Cores;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.Email;
+using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -134,6 +135,7 @@ using Vodovoz.Validation;
 using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Dialogs.Orders;
+using Vodovoz.ViewModels.Edo;
 using Vodovoz.ViewModels.Infrastructure.InfoProviders;
 using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -150,6 +152,7 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using Vodovoz.ViewModels.Widgets.Orders;
+using Vodovoz.Views.Edo;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Client;
 using VodovozBusiness.Domain.Orders;
@@ -1244,6 +1247,11 @@ namespace Vodovoz
 			OnEnumPaymentTypeChanged(null, EventArgs.Empty);
 			UpdateCallBeforeArrivalVisibility();
 			SetNearestDeliveryDateLoaderFunc();
+
+
+			var edoForOrderViewModel = ScopeProvider.Scope.Resolve<EdoInOrderViewModel>();
+			edoForOrderViewModel.Setup(UoW, Entity.Id);
+			edofororderview1.ViewModel = edoForOrderViewModel;
 
 			UpdateOrderItemsOriginalValues();
 
@@ -3567,6 +3575,18 @@ namespace Vodovoz
 			btnOpnPrnDlg.Sensitive = Entity.OrderDocuments
 				.OfType<PrintableOrderDocument>()
 				.Any(doc => doc.PrintType == PrinterType.RDL || doc.PrintType == PrinterType.ODT);
+		}
+
+		protected void OnToggleEdoToggled(object sender, EventArgs e)
+		{
+			if(toggleEdo.Active)
+			{
+				ntbOrderEdit.CurrentPage = 6;
+				if(ntbOrderEdit.CurrentPageWidget is IActivatableOrderTab activatableTab)
+				{
+					activatableTab.Activate();
+				}
+			}
 		}
 
 		#endregion
@@ -6315,6 +6335,7 @@ namespace Vodovoz
 
 			return result;
 		}
+
 		#endregion CustomCancellationConfirmationDialog
 
 		private bool IsFastDeliveryAvailabilityMustBeChecked =>

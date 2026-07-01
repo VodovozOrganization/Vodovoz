@@ -8,7 +8,7 @@ namespace Vodovoz.Core.Domain.Edo
 		New,
 		[Display(Name = "Трансфер")]
 		Transfering,
-		[Display(Name = "Отправка")]
+		[Display(Name = "Отправляется")]
 		Sending,
 		[Display(Name = "Отправлен")]
 		Sent,
