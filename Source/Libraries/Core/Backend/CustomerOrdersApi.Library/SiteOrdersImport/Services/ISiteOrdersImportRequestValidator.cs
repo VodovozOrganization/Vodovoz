@@ -1,5 +1,6 @@
 using CustomerOrdersApi.Library.SiteOrdersImport.Dto;
 using System;
+using Vodovoz.Core.Domain.Results;
 
 namespace CustomerOrdersApi.Library.SiteOrdersImport.Services
 {
@@ -9,11 +10,26 @@ namespace CustomerOrdersApi.Library.SiteOrdersImport.Services
 	public interface ISiteOrdersImportRequestValidator
 	{
 		/// <summary>
-		/// Проверяет обязательные поля пакета и токен авторизации на указанную дату.
+		/// Проверяет подпись пакета на указанную дату.
 		/// </summary>
 		/// <param name="request">Пакет выгрузки с сайта.</param>
-		/// <param name="date">Дата, на которую проверяется токен (используется в формате "yyyy.MM.dd").</param>
-		/// <returns>Результат проверки с типом ошибки для HTTP-ответа.</returns>
-		SiteOrdersImportRequestValidationResult Validate(OrdersImportRequest request, DateTime date);
+		/// <param name="date">Дата, на которую проверяется подпись.</param>
+		/// <param name="generatedSignature">Сгенерированная на нашей стороне подпись.</param>
+		/// <returns><c>true</c>, если подпись корректна.</returns>
+		bool ValidateSignature(OrdersImportRequest request, DateTime date, out string generatedSignature);
+
+		/// <summary>
+		/// Проверяет обязательные поля пакета.
+		/// </summary>
+		/// <param name="request">Пакет выгрузки с сайта.</param>
+		/// <returns>Результат проверки.</returns>
+		Result Validate(OrdersImportRequest request);
+
+		/// <summary>
+		/// Проверяет обязательные поля записи пакета.
+		/// </summary>
+		/// <param name="item">Запись пакета выгрузки.</param>
+		/// <returns>Результат проверки.</returns>
+		Result ValidateItem(OrderImportItem item);
 	}
 }

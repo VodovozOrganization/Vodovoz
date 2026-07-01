@@ -1,6 +1,6 @@
 ﻿namespace VodovozInfrastructure.Cryptography
 {
-	public class CounterpartyOrdersSignatureParams : SignatureParams
+	public class CounterpartyOrdersSignatureParams : ShopIdSignatureParams
 	{
 		[PositionForGenerateSignature(2)]
 		public string CounterpartyId { get; set; }

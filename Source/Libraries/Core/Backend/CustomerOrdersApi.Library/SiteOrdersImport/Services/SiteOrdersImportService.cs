@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using NHibernate.Linq;
 using Vodovoz.Core.Domain.Orders.SiteOrdersImport;
 
 namespace CustomerOrdersApi.Library.SiteOrdersImport.Services
@@ -18,24 +19,21 @@ namespace CustomerOrdersApi.Library.SiteOrdersImport.Services
 	/// </summary>
 	public class SiteOrdersImportService : ISiteOrdersImportService
 	{
-		private static readonly HashSet<string> _availableEntityTypes = new(StringComparer.Ordinal)
-		{
-			"order",
-			"abandoned_cart"
-		};
-
 		private readonly ILogger<SiteOrdersImportService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
+		private readonly ISiteOrdersImportRequestValidator _requestValidator;
 
 		public SiteOrdersImportService(
 			ILogger<SiteOrdersImportService> logger,
-			IUnitOfWorkFactory unitOfWorkFactory)
+			IUnitOfWorkFactory unitOfWorkFactory,
+			ISiteOrdersImportRequestValidator requestValidator)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+			_requestValidator = requestValidator ?? throw new ArgumentNullException(nameof(requestValidator));
 		}
 
-		public Task<OrdersImportResponse> ImportAsync(OrdersImportRequest request, CancellationToken cancellationToken)
+		public async Task<OrdersImportResponse> ImportAsync(OrdersImportRequest request, CancellationToken cancellationToken)
 		{
 			if(request is null)
 			{
@@ -61,11 +59,24 @@ namespace CustomerOrdersApi.Library.SiteOrdersImport.Services
 
 				var orderId = item?.OrderId ?? 0;
 				var entityType = item?.EntityType;
+				var validationResult = _requestValidator.ValidateItem(item);
+
+				if(validationResult.IsFailure)
+				{
+					_logger.LogWarning(
+						"Запись пакета {BatchId} не прошла проверку: order_id={OrderId}, entity_type={EntityType}, error={Error}",
+						request.BatchId,
+						orderId,
+						entityType,
+						validationResult.GetErrorsString());
+
+					errorOrderIds.Add(orderId);
+					continue;
+				}
 
 				try
 				{
-					ValidateItem(item);
-					Save(request, item);
+					await Save(request, item);
 					importedOrderIds.Add(item.OrderId);
 				}
 				catch(Exception e)
@@ -89,38 +100,15 @@ namespace CustomerOrdersApi.Library.SiteOrdersImport.Services
 				ErrorOrderIds = errorOrderIds
 			};
 
-			return Task.FromResult(response);
+			return response;
 		}
 
-		private static void ValidateItem(OrderImportItem item)
-		{
-			if(item is null)
-			{
-				throw new InvalidOperationException("Запись пакета выгрузки не заполнена.");
-			}
-
-			if(item.OrderId <= 0)
-			{
-				throw new InvalidOperationException("В записи пакета выгрузки не заполнен order_id.");
-			}
-
-			if(string.IsNullOrWhiteSpace(item.EntityType) || !_availableEntityTypes.Contains(item.EntityType))
-			{
-				throw new InvalidOperationException("В записи пакета выгрузки entity_type должен быть order или abandoned_cart.");
-			}
-
-			if(item.Payload.ValueKind == JsonValueKind.Undefined)
-			{
-				throw new InvalidOperationException("В записи пакета выгрузки не заполнен payload.");
-			}
-		}
-
-		private void Save(OrdersImportRequest request, OrderImportItem item)
+		private async Task Save(OrdersImportRequest request, OrderImportItem item)
 		{
 			using var unitOfWork = _unitOfWorkFactory.CreateWithoutRoot("Приём выгрузки заказов с сайта");
-			var entity = unitOfWork
+			var entity = await unitOfWork
 				             .GetAll<SiteOrderImportItem>()
-				             .FirstOrDefault(x => x.SiteOrderId == item.OrderId && x.EntityType == item.EntityType)
+				             .FirstOrDefaultAsync(x => x.SiteOrderId == item.OrderId && x.EntityType == item.EntityType)
 			             ?? new SiteOrderImportItem
 			             {
 				             SiteOrderId = item.OrderId,
@@ -135,8 +123,8 @@ namespace CustomerOrdersApi.Library.SiteOrdersImport.Services
 			entity.Payload = SerializePayload(item.Payload);
 			entity.ReceivedAt = DateTime.Now;
 
-			unitOfWork.Save(entity);
-			unitOfWork.Commit();
+			await unitOfWork.SaveAsync(entity);
+			await unitOfWork.CommitAsync();
 		}
 
 		private static string SerializePayload(JsonElement payload)

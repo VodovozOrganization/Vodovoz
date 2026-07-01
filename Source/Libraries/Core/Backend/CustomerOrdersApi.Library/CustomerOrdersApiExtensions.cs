@@ -40,19 +40,6 @@ namespace CustomerOrdersApi.Library
 			return services;
 		}
 
-		/// <summary>
-		/// Регистрирует приём выгрузки заказов и брошенных корзин с сайта.
-		/// </summary>
-		public static IServiceCollection AddSiteOrdersImport(this IServiceCollection services)
-		{
-			services
-				.AddScoped<IMD5HexHashFromString, MD5HexHashFromString>()
-				.AddScoped<ISiteOrdersImportRequestValidator, SiteOrdersImportRequestValidator>()
-				.AddScoped<ISiteOrdersImportService, SiteOrdersImportService>();
-
-			return services;
-		}
-		
 		public static IServiceCollection AddVersion3(this IServiceCollection services)
 		{
 			services.AddScoped<ICustomerOrdersService, CustomerOrdersService>()
@@ -71,6 +58,8 @@ namespace CustomerOrdersApi.Library
 				.AddScoped<ICustomerOrdersDiscountServiceV4, CustomerOrdersDiscountServiceV4>()
 				.AddScoped<ICustomerOrderFixedPriceServiceV4, CustomerOrderFixedPriceServiceV4>()
 				.AddScoped<IInfoMessageFactory, InfoMessageFactory>()
+				.AddScoped<ISiteOrdersImportRequestValidator, SiteOrdersImportRequestValidator>()
+				.AddScoped<ISiteOrdersImportService, SiteOrdersImportService>()
 				.AddDefault();
 			
 			return services;
@@ -83,6 +72,8 @@ namespace CustomerOrdersApi.Library
 				.AddScoped<ICustomerOrdersDiscountServiceV5, CustomerOrdersDiscountServiceV5>()
 				.AddScoped<ICustomerOrderFixedPriceServiceV5, CustomerOrderFixedPriceServiceV5>()
 				.AddScoped<IInfoMessageFactoryV5, InfoMessageFactoryV5>()
+				.AddScoped<ISiteOrdersImportRequestValidator, SiteOrdersImportRequestValidator>()
+				.AddScoped<ISiteOrdersImportService, SiteOrdersImportService>()
 				.AddDefault();
 			
 			return services;

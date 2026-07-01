@@ -69,7 +69,6 @@ namespace CustomerOrdersApi
 				.AddInfrastructure()
 				.AddCoreDataRepositories()
 				.AddConfig(Configuration)
-				.AddSiteOrdersImport()
 				.AddVersion3()
 				.AddVersion4()
 				.AddVersion5()
