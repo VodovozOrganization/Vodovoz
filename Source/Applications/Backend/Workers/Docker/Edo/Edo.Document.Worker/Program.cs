@@ -15,7 +15,6 @@ using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Persistance;
-using Vodovoz.Core.Application;
 
 
 namespace Edo.Document.Worker
@@ -53,9 +52,10 @@ namespace Edo.Document.Worker
 						.AddTrackedUoW()
 						.AddMessageTransportSettings()
 						.AddEdoDocuments()
-						.AddCoreApplicationServices()
 
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
+						
+						.AddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>()
 						;
 
 					services.AddHostedService<InitDbConnectionOnHostStartedService>();
