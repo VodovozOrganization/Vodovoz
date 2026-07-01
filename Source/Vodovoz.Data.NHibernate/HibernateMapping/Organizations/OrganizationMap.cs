@@ -1,4 +1,4 @@
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Organizations;
 
 namespace Vodovoz.Data.NHibernate.HibernateMapping.Organizations
@@ -39,7 +39,8 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Organizations
 
 			References(x => x.Stamp).Column("stamp_id");
 			References(x => x.DefaultAccount).Column("default_account_id");
-			
+			References(x => x.DefaultCashIncomeCategory).Column("default_cash_income_category_id");
+
 			HasOne(x => x.TaxcomEdoSettings)
 				.PropertyRef(x => x.OrganizationId);
 

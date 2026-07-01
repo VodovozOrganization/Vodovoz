@@ -108,7 +108,7 @@ namespace Vodovoz.Cash
 			specialListCmbOrganisation.Binding
 				.AddBinding(ViewModel, vm => vm.CachedOrganizations, w => w.ItemsList)
 				.AddBinding(ViewModel, vm => vm.IsNew, w => w.Sensitive)
-				.AddBinding(ViewModel, vm => vm.IsReturnOperation, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.IsOrganizationVisible, w => w.Visible)
 				.AddBinding(ViewModel.Entity, e => e.Organisation, w => w.SelectedItem)
 				.InitializeFromSource();
 
@@ -165,7 +165,7 @@ namespace Vodovoz.Cash
 				.InitializeFromSource();
 
 			ylabel1.Binding
-				.AddBinding(ViewModel, vm => vm.IsReturnOperation, w => w.Visible)
+				.AddBinding(ViewModel, vm => vm.IsOrganizationVisible, w => w.Visible)
 				.InitializeFromSource();
 
 			labelIncomeTitle.Binding
