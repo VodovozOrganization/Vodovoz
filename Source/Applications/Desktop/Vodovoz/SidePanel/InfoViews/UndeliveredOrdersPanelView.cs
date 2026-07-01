@@ -46,7 +46,7 @@ namespace Vodovoz.SidePanel.InfoViews
 					.AddSetter<CellRenderer>((c, n) => c.CellBackgroundGdk = (int)n[2] % 2 == 0 ? GdkColors.PrimaryBase : GdkColors.InsensitiveBase)
 				.Finish();
 			
-			_uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot();
+			_uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot($"Инициализация панели недовозов из {nameof(UndeliveredOrdersPanelView)}");
 		}
 
 		List<object[]> guilties = new List<object[]>();

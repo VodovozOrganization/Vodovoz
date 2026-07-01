@@ -69,6 +69,7 @@ using Vodovoz.Settings.Fuel;
 using Vodovoz.Settings.Logistics;
 using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
+using Vodovoz.Settings.Organizations;
 using Vodovoz.TempAdapters;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Interactive.YesNoCancelQuestion;
@@ -81,6 +82,8 @@ using Vodovoz.ViewModels.Logistic;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewWidgets.Logistics;
+using VodovozBusiness.EntityRepositories.Nodes;
+using VodovozBusiness.Services.Cash;
 using VodovozBusiness.Services.Orders;
 using EnumItemClickedEventArgs = QS.Widgets.EnumItemClickedEventArgs;
 using Order = Vodovoz.Domain.Orders.Order;
@@ -95,6 +98,7 @@ namespace Vodovoz
 		private ILogger<RouteListClosingDlg> _logger;
 
 		private IOrderSettings _orderSettings;
+		private IOrganizationSettings _organizationSettings;
 		private IDeliveryRulesSettings _deliveryRulesSettings;
 		private INomenclatureSettings _nomenclatureSettings;
 		private IRouteListRepository _routeListRepository;
@@ -123,6 +127,7 @@ namespace Vodovoz
 		private IFlyerRepository _flyerRepository;
 		private IOrderContractUpdater _contractUpdater;
 		private OrderCancellationService _orderCancellationService;
+		IRouteListCashProcessingService _routeListCashProcessingService;
 		private ICarEventSettings _carEventSettings;
 
 		private readonly bool _isOpenFromCash;
@@ -202,6 +207,7 @@ namespace Vodovoz
 			_nomenclatureOnlineSettings = _lifetimeScope.Resolve<INomenclatureOnlineSettings>();
 
 			_orderSettings = _lifetimeScope.Resolve<IOrderSettings>();
+			_organizationSettings = _lifetimeScope.Resolve<IOrganizationSettings>();
 			_deliveryRulesSettings = _lifetimeScope.Resolve<IDeliveryRulesSettings>();
 			_nomenclatureSettings = _lifetimeScope.Resolve<INomenclatureSettings>();
 			_routeListRepository = _lifetimeScope.Resolve<IRouteListRepository>();
@@ -237,6 +243,7 @@ namespace Vodovoz
 			
 			_routeListService = _lifetimeScope.Resolve<IRouteListService>();
 			_orderCancellationService = _lifetimeScope.Resolve<OrderCancellationService>();
+			_routeListCashProcessingService = _lifetimeScope.Resolve<IRouteListCashProcessingService>();
 
 			_carEventSettings = _lifetimeScope.Resolve<ICarEventSettings>();
 		}
@@ -438,6 +445,9 @@ namespace Vodovoz
 			ybuttonCashChangeReturn.Clicked += OnYbuttonCashChangeReturnClicked;
 
 			btnCopyEntityId.Clicked += OnBtnCopyEntityIdClicked;
+
+			ytextviewOrganizationsDebts.WidthRequest = 300;
+			ytextviewOrganizationsDebts.Editable = false;
 		}
 
 		private void OnBottlesReturnedEdited(object sender, int bottlesReturned)
@@ -663,6 +673,9 @@ namespace Vodovoz
 		private decimal GetRouteListCashExpenses() => _cashRepository.GetRouteListCashExpensesSum(UoW, Entity.Id);
 		private decimal GetRouteListCashReturn() => _cashRepository.GetRouteListCashReturnSum(UoW, Entity.Id);
 		private decimal GetRouteListAdvanceReport() => _cashRepository.GetRouteListAdvancsReportsSum(UoW, Entity.Id);
+
+		private IEnumerable<RouteListDebtByOrganizationNode> GetCashDebtsByOrganizations() =>
+			_routeListCashProcessingService.GetRouteListCashDebtsByOrganizations(UoW, Entity);
 
 		private decimal GetTerminalOrdersSum()
 		{
@@ -990,6 +1003,7 @@ namespace Vodovoz
 			var routeListCashAdvance = GetRouteListCashExpenses();
 			var routeListCashReturn = GetRouteListCashReturn();
 			var routeListAdvancesReturn = GetRouteListAdvanceReport();
+			var cashDebtsByOrganizations = GetCashDebtsByOrganizations();
 
 			var routeListDebt = Entity.RouteListDebt;
 			decimal unclosedAdvanceMoney = default(decimal);
@@ -1037,8 +1051,10 @@ namespace Vodovoz
 			);
 			labelGivenChange.Markup = $"Выдано по МЛ (сдача): {routeListCashAdvance.ToShortCurrencyString()}";
 			labelReceivedChange.Markup = $"Сдано сдача по МЛ: {(routeListCashReturn + routeListAdvancesReturn).ToShortCurrencyString()}";
-			labelRouteListDebt.Markup = $"Долг по МЛ: <b>{routeListDebt.ToShortCurrencyString()}</b>";			
+			labelRouteListDebt.Markup = $"Долг по МЛ: <b>{routeListDebt.ToShortCurrencyString()}</b>";
 
+			ylabelOrganizationsDebts.Markup = $"<span foreground='{GdkColors.DangerText.ToHtmlColor()}'><b>Долг по организациям:</b></span>";
+			ytextviewOrganizationsDebts.Buffer.Text = string.Join("\n", cashDebtsByOrganizations.Select(x => x.DebtInfo));
 			ylabelUnclosedAdvancesMoney.Markup =
 				unclosedAdvanceMoney > 0m
 				? $"<span foreground='{GdkColors.DangerText.ToHtmlColor()}'><b>Общий долг водителя: {unclosedAdvanceMoney.ToShortCurrencyString()}</b></span>"
@@ -1264,7 +1280,8 @@ namespace Vodovoz
 			}
 
 			var cash = _cashRepository.CurrentRouteListCash(UoW, Entity.Id);
-			if(Entity.Total != cash) {
+			if(Entity.Total != cash) 
+			{
 				MessageDialogHelper.RunWarningDialog($"Невозможно подтвердить МЛ, сумма МЛ ({CurrencyWorks.GetShortCurrencyString(Entity.Total)}) не соответствует кассе ({CurrencyWorks.GetShortCurrencyString(cash)}).");
 				if(Entity.Status == RouteListStatus.OnClosing && Entity.ConfirmedDistance <= 0 && Entity.NeedMileageCheck && MessageDialogHelper.RunQuestionDialog("По МЛ не принят километраж, перевести в статус проверки километража?")) {
 					_routeListService.ChangeStatusAndCreateTask(UoW, Entity, RouteListStatus.MileageCheck, CallTaskWorker);
@@ -1279,7 +1296,16 @@ namespace Vodovoz
 				Entity.RecountMileage();
 			}
 
-			Entity.UpdateMovementOperations(_financialCategoriesGroupsSettings);
+			var updateCashBalanceResult =
+				_routeListCashProcessingService.RecalculateRouteListCashBalance(UoW, Entity);
+
+			if(updateCashBalanceResult.IsFailure)
+			{
+				MessageDialogHelper.RunErrorDialog(string.Join("\n", updateCashBalanceResult.Errors));
+				return;
+			}
+
+			Entity.UpdateOperations();
 
 			PerformanceHelper.AddTimePoint("Обновлены операции перемещения");
 
@@ -1289,14 +1315,20 @@ namespace Vodovoz
 				PerformanceHelper.AddTimePoint("Создано задание на обзвон");
 			}
 
-			if(Entity.Status == RouteListStatus.Delivered) {
-				if(routelistdiscrepancyview.Items.Any(discrepancy => discrepancy.Remainder != 0)
-				&& !Entity.DifferencesConfirmed) {
+			if(Entity.Status == RouteListStatus.Delivered) 
+			{
+				if(routelistdiscrepancyview.Items.Any(discrepancy => discrepancy.Remainder != 0) && !Entity.DifferencesConfirmed) 
+				{
 					_routeListService.ChangeStatusAndCreateTask(UoW, Entity, RouteListStatus.OnClosing, CallTaskWorker);
-				} else {
-					if(Entity.GetCarVersion.IsCompanyCar && Entity.Car.CarModel.CarTypeOfUse != CarTypeOfUse.Truck) {
+				} 
+				else 
+				{
+					if(Entity.GetCarVersion.IsCompanyCar) 
+					{
 						_routeListService.ChangeStatusAndCreateTask(UoW, Entity, RouteListStatus.MileageCheck, CallTaskWorker);
-					} else {
+					} 
+					else 
+					{
 						_routeListService.ChangeStatusAndCreateTask(UoW, Entity, RouteListStatus.Closed, CallTaskWorker);
 					}
 				}
@@ -1612,25 +1644,37 @@ namespace Vodovoz
 		{
 			var messages = new List<string>();
 
-			if(!TrySetCashier()) {
+			if(!TrySetCashier())
+			{
 				return;
 			}
 
-			Income cashIncome = null;
-			Expense cashExpense = null;
-
 			var inputCashOrder = (decimal)spinCashOrder.Value;
-			try
+
+			if(inputCashOrder <= 0)
 			{
-				messages.AddRange(Entity.ManualCashOperations(ref cashIncome, ref cashExpense, inputCashOrder, _financialCategoriesGroupsSettings));
-			}
-			catch(MissingOrdersWithCashlessPaymentTypeException ex)
-			{
-				MessageDialogHelper.RunErrorDialog(ex.Message);
+				return;
 			}
 
-			if (cashIncome != null) UoW.Save(cashIncome);
-			if (cashExpense != null) UoW.Save(cashExpense);
+			var cashIncomesResult =
+				_routeListCashProcessingService.CreateManualCashIncome(UoW, Entity, inputCashOrder);
+
+			if(cashIncomesResult.IsFailure)
+			{
+				MessageDialogHelper.RunErrorDialog(cashIncomesResult.Errors.FirstOrDefault());
+				return;
+			}
+
+			var cashIncomes = cashIncomesResult.Value;
+
+			if(cashIncomes is null || !cashIncomes.Any())
+			{
+				return;
+			}
+
+			Entity.IsManualAccounting = true;
+			messages.AddRange(cashIncomes.Select(income =>
+				$"Создан приходный ордер на сумму {income.Money:C0} по организации \"{income.Organisation?.Name}\""));
 
 			Entity.UpdateRouteListDebt();
 
@@ -1639,7 +1683,9 @@ namespace Vodovoz
 			CalculateTotal();
 
 			if(messages.Any())
+			{
 				MessageDialogHelper.RunInfoDialog(string.Format("Были выполнены следующие действия:\n*{0}", string.Join("\n*", messages)));
+			}
 		}
 
 		private void EmployeeAdvanceOrder(decimal cashInput)
@@ -1803,8 +1849,17 @@ namespace Vodovoz
 				}
 			}
 
-			var operationsResultMessage = Entity.UpdateCashOperations(_financialCategoriesGroupsSettings);
-			messages.AddRange(operationsResultMessage);
+			var cashOrdersResult = _routeListCashProcessingService.RecalculateRouteListCashBalance(UoW, Entity);
+
+			if(cashOrdersResult.IsFailure)
+			{
+				MessageDialogHelper.RunErrorDialog(cashOrdersResult.Errors.FirstOrDefault());
+				return;
+			}
+
+			messages.AddRange(cashOrdersResult.Value);
+
+			UoW.Save();
 
 			CalculateTotal();
 

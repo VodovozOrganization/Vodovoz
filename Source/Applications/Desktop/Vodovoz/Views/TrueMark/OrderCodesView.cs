@@ -4,7 +4,7 @@ using Gamma.Binding.Core.RecursiveTreeConfig;
 using Gamma.ColumnConfig;
 using Gtk;
 using QS.Journal.GtkUI;
-using QS.Views.Dialog;
+using QS.Views.GtkUI;
 using System;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Converters;
@@ -12,7 +12,7 @@ using Vodovoz.ViewModels.TrueMark;
 namespace Vodovoz.Views.TrueMark
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class OrderCodesView : DialogViewBase<OrderCodesViewModel>
+	public partial class OrderCodesView : WidgetViewBase<OrderCodesViewModel>
 	{
 		//driver popup
 		private Menu _driverPopup = new Menu();
@@ -43,16 +43,14 @@ namespace Vodovoz.Views.TrueMark
 		private Menu _stagingPopup = new Menu();
 		private MenuItem _stagingCopyCodes = new MenuItem("Копировать коды");
 
-		public OrderCodesView(OrderCodesViewModel viewModel) : base(viewModel)
+		public OrderCodesView()
 		{
 			this.Build();
+		}
 
-			ybuttonRefresh.BindCommand(ViewModel.RefreshCommand);
-
-			entryOrder.IsEditable = false;
-			entryOrder.Binding.AddSource(ViewModel)
-				.AddBinding(vm => vm.OrderId, w => w.Text, new IntToStringConverter())
-				.InitializeFromSource();
+		protected override void ConfigureWidget()
+		{
+			base.ConfigureWidget();
 
 			ylabelTotalCodesValue.Binding.AddSource(ViewModel)
 				.AddBinding(vm => vm.CodesRequired, w => w.LabelProp, new TextToBoldTextConverter())
@@ -100,10 +98,10 @@ namespace Vodovoz.Views.TrueMark
 			ytreeviewDriver.AfterModelChanged += TreeViewAfterModelChanged;
 			ytreeviewDriver.Binding.AddSource(ViewModel)
 				.AddFuncBinding(
-					vm => new RecursiveTreeModel<OrderCodeItemViewModel>(vm.ScannedByDriverCodes, driverRecursiveConfig), 
+					vm => new RecursiveTreeModel<OrderCodeItemViewModel>(vm.ScannedByDriverCodes, driverRecursiveConfig),
 					w => w.YTreeModel
 				)
-				.AddBinding(vm => vm.ScannedByDriverCodesSelected, w => w.SelectedRows, 
+				.AddBinding(vm => vm.ScannedByDriverCodesSelected, w => w.SelectedRows,
 					new ArrayToEnumerableConverter<OrderCodeItemViewModel>())
 				.InitializeFromSource();
 			ytreeviewDriver.Selection.Mode = SelectionMode.Multiple;
@@ -170,7 +168,7 @@ namespace Vodovoz.Views.TrueMark
 			ytreeviewWarehouse.AfterModelChanged += TreeViewAfterModelChanged;
 			ytreeviewWarehouse.Binding.AddSource(ViewModel)
 				.AddFuncBinding(
-					vm => new RecursiveTreeModel<OrderCodeItemViewModel>(vm.ScannedByWarehouseCodes, warehouseRecursiveConfig), 
+					vm => new RecursiveTreeModel<OrderCodeItemViewModel>(vm.ScannedByWarehouseCodes, warehouseRecursiveConfig),
 					w => w.YTreeModel
 				)
 				.AddBinding(vm => vm.ScannedByWarehouseCodesSelected, w => w.SelectedRows,
@@ -242,7 +240,7 @@ namespace Vodovoz.Views.TrueMark
 			ytreeviewSelfdelivery.AfterModelChanged += TreeViewAfterModelChanged;
 			ytreeviewSelfdelivery.Binding.AddSource(ViewModel)
 				.AddFuncBinding(
-					vm => new RecursiveTreeModel<OrderCodeItemViewModel>(vm.ScannedBySelfdeliveryCodes, selfdeliveryRecursiveConfig), 
+					vm => new RecursiveTreeModel<OrderCodeItemViewModel>(vm.ScannedBySelfdeliveryCodes, selfdeliveryRecursiveConfig),
 					w => w.YTreeModel
 				)
 				.AddBinding(vm => vm.ScannedBySelfdeliveryCodesSelected, w => w.SelectedRows,
@@ -507,27 +505,27 @@ namespace Vodovoz.Views.TrueMark
 
 		protected override void OnDestroyed()
 		{
-			_driverPopup.Destroy();
-			_driverCopySourceCodes.Destroy();
-			_driverCopyResultCodes.Destroy();
-			_driverOpenDocument.Destroy();
-			_driverOpenAuthor.Destroy();
-			_warehousePopup.Destroy();
-			_warehouseCopySourceCodes.Destroy();
-			_warehouseCopyResultCodes.Destroy();
-			_warehouseOpenDocument.Destroy();
-			_warehouseOpenAuthor.Destroy();
-			_selfdeliveryPopup.Destroy();
-			_selfdeliveryCopySourceCodes.Destroy();
-			_selfdeliveryCopyResultCodes.Destroy();
-			_selfdeliveryOpenDocument.Destroy();
-			_selfdeliveryOpenAuthor.Destroy();
-			_poolPopup.Destroy();
-			_poolCopyCodes.Destroy();
-			ytreeviewDriver.Destroy();
-			ytreeviewWarehouse.Destroy();
-			ytreeviewSelfdelivery.Destroy();
-			ytreeviewPool.Destroy();
+			_driverPopup?.Destroy();
+			_driverCopySourceCodes?.Destroy();
+			_driverCopyResultCodes?.Destroy();
+			_driverOpenDocument?.Destroy();
+			_driverOpenAuthor?.Destroy();
+			_warehousePopup?.Destroy();
+			_warehouseCopySourceCodes?.Destroy();
+			_warehouseCopyResultCodes?.Destroy();
+			_warehouseOpenDocument?.Destroy();
+			_warehouseOpenAuthor?.Destroy();
+			_selfdeliveryPopup?.Destroy();
+			_selfdeliveryCopySourceCodes?.Destroy();
+			_selfdeliveryCopyResultCodes?.Destroy();
+			_selfdeliveryOpenDocument?.Destroy();
+			_selfdeliveryOpenAuthor?.Destroy();
+			_poolPopup?.Destroy();
+			_poolCopyCodes?.Destroy();
+			ytreeviewDriver?.Destroy();
+			ytreeviewWarehouse?.Destroy();
+			ytreeviewSelfdelivery?.Destroy();
+			ytreeviewPool?.Destroy();
 
 			base.OnDestroyed();
 		}

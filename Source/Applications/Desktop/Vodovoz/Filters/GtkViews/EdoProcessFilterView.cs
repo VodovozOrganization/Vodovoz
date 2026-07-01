@@ -27,8 +27,8 @@ namespace Vodovoz.Filters.GtkViews
 				.AddBinding(vm => vm.DeliveryDateTo, w => w.EndDateOrNull)
 				.InitializeFromSource();
 
-			yenumRequestSource.ItemsEnum = typeof(CustomerEdoRequestSource);
-			yenumRequestSource.HiddenItems = new object[] { CustomerEdoRequestSource.None };
+			yenumRequestSource.ItemsEnum = typeof(EdoRequestSource);
+			yenumRequestSource.HiddenItems = new object[] { EdoRequestSource.None };
 			yenumRequestSource.ShowSpecialStateNot = true;
 			yenumRequestSource.Binding.AddSource(ViewModel)
 				.AddBinding(e => e.RequestSource, w => w.SelectedItemOrNull)

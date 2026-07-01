@@ -57,6 +57,13 @@ namespace Vodovoz.Errors.Logistics
 				nameof(CashierIsEmpty),
 				"Должен быть заполнен кассир");
 
+		[Display(Name = "У кассира не указано подразделение")]
+		public static Error CashierSubdivisionIsEmpty =>
+			new Error(
+				typeof(RouteListErrors),
+				nameof(CashierSubdivisionIsEmpty),
+				"У кассира не указано подразделение");
+
 		public static Error IncorrectStatusForAccept =>
 			new Error(
 				typeof(RouteListErrors),
@@ -99,6 +106,12 @@ namespace Vodovoz.Errors.Logistics
 				typeof(RouteListErrors),
 				nameof(InsufficientFreeVolumeForReturn),
 				$"Объём возвращаемого груза превышен на {needFreeVolume}");
+
+		public static Error MissingCashPaymentTypeOrders =>
+			new Error(
+				typeof(RouteListErrors),
+				nameof(MissingCashPaymentTypeOrders),
+				"В МЛ отсутствуют заказы с наличной формой оплаты");
 
 		public static string[] OverfilledErrorCodes => new[]
 		{

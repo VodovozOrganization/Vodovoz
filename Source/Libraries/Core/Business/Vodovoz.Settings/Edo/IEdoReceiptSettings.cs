@@ -1,4 +1,6 @@
-﻿namespace Vodovoz.Settings.Edo
+using System;
+
+namespace Vodovoz.Settings.Edo
 {
 	public interface IEdoReceiptSettings
 	{
@@ -19,5 +21,15 @@
 		/// Максимальное количество кодов ЧЗ в одном чеке
 		/// </summary>
 		int MaxCodesInReceiptCount { get; }
+
+		/// <summary>
+		/// Начало ночной паузы отправки чеков
+		/// </summary>
+		TimeSpan ReceiptSendPauseStartTime { get; }
+
+		/// <summary>
+		/// Окончание ночной паузы отправки чеков
+		/// </summary>
+		TimeSpan ReceiptSendPauseEndTime { get; }
 	}
 }

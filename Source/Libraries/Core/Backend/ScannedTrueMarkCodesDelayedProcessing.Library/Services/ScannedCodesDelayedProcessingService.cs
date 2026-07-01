@@ -592,7 +592,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			var edoRequest = new PrimaryEdoRequest
 			{
 				Time = DateTime.Now,
-				Source = CustomerEdoRequestSource.Driver,
+				Source = EdoRequestSource.Driver,
 				DocumentType = EdoDocumentType.UPD,
 				Order = routeListAddress.Order,
 			};

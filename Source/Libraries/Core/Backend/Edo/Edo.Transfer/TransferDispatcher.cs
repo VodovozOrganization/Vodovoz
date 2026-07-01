@@ -48,7 +48,7 @@ namespace Edo.Transfer
 			if(task == null)
 			{
 				task = CreateTransferTask(direction);
-				task.TransferStatus = TransferEdoTaskStatus.WaitingRequests;
+				task.TransferStatus = EdoTransferTaskStage.WaitingRequests;
 			}
 
 			await AddRequests(task, requestsGroup, cancellationToken);
@@ -63,7 +63,7 @@ namespace Edo.Transfer
 			)
 		{
 			var task = CreateTransferTask(requestsGroup.Key);
-			task.TransferStatus = TransferEdoTaskStatus.PreparingToSend;
+			task.TransferStatus = EdoTransferTaskStage.PreparingToSend;
 
 			await AddRequests(task, requestsGroup, cancellationToken);
 			await MoveToPrepareToSend(task, cancellationToken);
@@ -125,7 +125,7 @@ namespace Edo.Transfer
 
 		public async Task MoveToPrepareToSend(TransferEdoTask transferEdoTask, CancellationToken cancellationToken)
 		{
-			transferEdoTask.TransferStatus = TransferEdoTaskStatus.PreparingToSend;
+			transferEdoTask.TransferStatus = EdoTransferTaskStage.PreparingToSend;
 			await _uow.SaveAsync(transferEdoTask, cancellationToken: cancellationToken);
 		}
 	}

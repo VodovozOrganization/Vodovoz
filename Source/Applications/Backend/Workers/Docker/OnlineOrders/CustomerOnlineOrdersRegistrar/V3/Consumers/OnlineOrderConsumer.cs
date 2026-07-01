@@ -82,10 +82,7 @@ namespace CustomerOnlineOrdersRegistrar.V3.Consumers
 					onlineOrder.OnlineOrderStatus = OnlineOrderStatus.Canceled;
 					var cancellationReasonId = _onlineOrderCancellationReasonSettings.GetDuplicateOnlineOrderCancellationReasonId;
 					onlineOrder.OnlineOrderCancellationReason = await uow.Session
-						.GetAsync<OnlineOrderCancellationReason>(cancellationReasonId, cancellationToken);
-					
-					var notification = OnlineOrderStatusUpdatedNotification.Create(onlineOrder);
-					await uow.SaveAsync(notification, cancellationToken: cancellationToken);
+						.GetAsync<OnlineOrderCancellationReason>(cancellationReasonId, cancellationToken);				
 				}
 				else
 				{

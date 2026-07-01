@@ -9,6 +9,8 @@ namespace Edo.Transport
 	/// <summary>
 	/// Сервис для отправки сообщений в шину сообщений
 	/// </summary>
+	[Obsolete("Не используйте этот сервис. Разные сообщения отправляйте в отдельных сервисах " +
+		"согласно их назначения, или в сервисах где создается документ соотвествующий сообщению")]
 	public class MessageService
 	{
 		private readonly ILogger<MessageService> _logger;

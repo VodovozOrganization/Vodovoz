@@ -474,7 +474,7 @@ namespace WarehouseApi.Library.Services
 			var edoRequest = new PrimaryEdoRequest
 			{
 				Time = DateTime.Now,
-				Source = CustomerEdoRequestSource.Selfdelivery,
+				Source = EdoRequestSource.Selfdelivery,
 				Order = selfDeliveryDocument.Order
 			};
 
