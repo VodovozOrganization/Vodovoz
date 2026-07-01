@@ -274,8 +274,8 @@ namespace VodovozBusiness.Services.Cash
 		private Income CreateAndDistributeIncome(IUnitOfWork uow, RouteList routeList, Organization organization, decimal amount)
 		{
 			var cashIncome = CreateIncome(routeList, organization, amount);
-			uow.Save(cashIncome);
 			_routeListCashOrganisationDistributor.DistributeIncomeCash(uow, routeList, cashIncome, cashIncome.Money);
+			uow.Save(cashIncome);
 
 			return cashIncome;
 		}
@@ -283,8 +283,8 @@ namespace VodovozBusiness.Services.Cash
 		private Expense CreateAndDistributeExpense(IUnitOfWork uow, RouteList routeList, Organization organization, decimal amount)
 		{
 			var cashExpense = CreateExpense(routeList, organization, amount);
-			uow.Save(cashExpense);
 			_routeListCashOrganisationDistributor.DistributeExpenseCash(uow, routeList, cashExpense, cashExpense.Money);
+			uow.Save(cashExpense);
 
 			return cashExpense;
 		}
