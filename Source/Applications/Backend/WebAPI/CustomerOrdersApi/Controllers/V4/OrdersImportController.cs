@@ -5,14 +5,15 @@ using Microsoft.Extensions.Logging;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CustomerOrdersApi.Controllers.Default
+namespace CustomerOrdersApi.Controllers.V4
 {
 	/// <summary>
 	/// Приём выгрузки заказов и брошенных корзин с сайта.
 	/// Сайт сам инициирует POST в ночном окне на этот endpoint.
 	/// </summary>
 	[ApiController]
-	[Route("api/orders/import")]
+	[ApiVersion("4.0")]
+	[Route("api/v{version:apiVersion}/orders/import")]
 	public class OrdersImportController : OrdersImportControllerBase
 	{
 		public OrdersImportController(

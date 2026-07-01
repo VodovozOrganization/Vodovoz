@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace CustomerOrdersApi.Library.SiteOrdersImport.Services
 {
 	/// <summary>
-	/// Приём и обработка пакета выгрузки заказов и брошенных корзин с сайта (I-5840).
+	/// Приём и обработка пакета выгрузки заказов и брошенных корзин с сайта.
 	/// </summary>
 	public interface ISiteOrdersImportService
 	{

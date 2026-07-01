@@ -7,6 +7,7 @@ namespace Vodovoz.Core.Data.NHibernate.Orders.SiteOrdersImport
 	{
 		public SiteOrderImportItemMap()
 		{
+			Schema("Vodovoz_old_monitoring");
 			Table("site_orders_import_items");
 
 			HibernateMapping.DefaultAccess.CamelCaseField(Prefix.Underscore);

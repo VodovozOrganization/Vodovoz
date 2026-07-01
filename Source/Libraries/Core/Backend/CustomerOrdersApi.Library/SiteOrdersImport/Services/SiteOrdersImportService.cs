@@ -12,7 +12,7 @@ using Vodovoz.Core.Domain.Orders.SiteOrdersImport;
 namespace CustomerOrdersApi.Library.SiteOrdersImport.Services
 {
 	/// <summary>
-	/// Приём пакета выгрузки с сайта (I-5840): каждая запись идемпотентно сохраняется в БД.
+	/// Приём пакета выгрузки с сайта: каждая запись идемпотентно сохраняется в БД.
 	/// Полезная нагрузка хранится сырым JSON по контракту v1; идемпотентность — по паре
 	/// «идентификатор записи на сайте + тип сущности», повтор пакета/записи обновляет существующую строку.
 	/// </summary>
@@ -44,7 +44,6 @@ namespace CustomerOrdersApi.Library.SiteOrdersImport.Services
 
 			var importedOrderIds = new List<long>();
 			var errorOrderIds = new List<long>();
-
 			var items = request.Items ?? Array.Empty<OrderImportItem>();
 
 			_logger.LogInformation(
