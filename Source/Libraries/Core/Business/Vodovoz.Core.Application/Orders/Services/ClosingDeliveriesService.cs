@@ -29,7 +29,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 		private readonly ICounterpartySettings _counterpartySettings;
 		private readonly int[] _organizationsIds;
 
-		private const decimal _debtThreshold = 100m;
+		private const decimal _debtThreshold = 0m;
 
 		private readonly OrderStatus[] _orderStatuses =
 		{
