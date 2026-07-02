@@ -1,5 +1,5 @@
 ﻿using Autofac.Extensions.DependencyInjection;
-using Edo.Common;
+using Edo.Common.Services;
 using Edo.Documents;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;
@@ -10,7 +10,6 @@ using NLog.Extensions.Logging;
 using QS.Project.Core;
 using System;
 using System.Text;
-using Vodovoz.Core.Application.TrueMark;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure;

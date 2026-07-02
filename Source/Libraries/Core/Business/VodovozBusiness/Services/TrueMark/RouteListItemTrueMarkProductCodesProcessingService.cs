@@ -17,7 +17,6 @@ using Vodovoz.EntityRepositories.Orders;
 using VodovozBusiness.Domain.Client.Specifications;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
 using NomenclatureErrors = Vodovoz.Errors.Goods.NomenclatureErrors;
-using Edo.Common;
 
 namespace VodovozBusiness.Services.TrueMark
 {

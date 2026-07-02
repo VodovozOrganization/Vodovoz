@@ -8,7 +8,7 @@ using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
-namespace Edo.Common
+namespace VodovozBusiness.Services.TrueMark
 {
 	public interface ITrueMarkWaterCodeService
 	{
