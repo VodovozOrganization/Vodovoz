@@ -1301,7 +1301,7 @@ namespace Vodovoz
 
 			if(updateCashBalanceResult.IsFailure)
 			{
-				MessageDialogHelper.RunErrorDialog(string.Join("\n", updateCashBalanceResult.Errors));
+				MessageDialogHelper.RunErrorDialog(string.Join("\n", updateCashBalanceResult.Errors.Select(x => x.Message)));
 				return;
 			}
 
@@ -1661,7 +1661,7 @@ namespace Vodovoz
 
 			if(cashIncomesResult.IsFailure)
 			{
-				MessageDialogHelper.RunErrorDialog(cashIncomesResult.Errors.FirstOrDefault());
+				MessageDialogHelper.RunErrorDialog(cashIncomesResult.Errors.Select(x => x.Message).FirstOrDefault());
 				return;
 			}
 

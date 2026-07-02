@@ -1,5 +1,4 @@
-﻿using Edo.Common;
-using Edo.Transport;
+﻿using Edo.Transport;
 using FluentNHibernate.Conventions;
 using MassTransit;
 using Microsoft.Extensions.Logging;

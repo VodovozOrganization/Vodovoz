@@ -1,5 +1,4 @@
-﻿using Edo.Common;
-using QS.DomainModel.UoW;
+﻿using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +8,7 @@ using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
+using VodovozBusiness.Services.TrueMark;
 using WarehouseApi.Contracts.V1.Dto;
 
 namespace WarehouseApi.Library.Extensions

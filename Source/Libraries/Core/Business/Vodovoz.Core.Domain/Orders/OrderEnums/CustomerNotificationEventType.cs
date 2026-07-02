@@ -47,22 +47,6 @@ namespace Vodovoz.Core.Domain.Orders.OrderEnums
 		/// Заказ перенесен на другое время
 		/// </summary>
 		[Display(Name = "Доставка перенесена")]
-		OrderRescheduled,
-
-		#region Устаревшие, для совместимости на время перехода на новые типы, удалить после обновления
-
-		[Display(Name = "!Устаревший! Заказ обрабатывается")]
-		OrderProcessing,
-
-		[Display(Name = "!Устаревший! Заказ выполнен")]
-		OrderPerformed,
-
-		[Display(Name = "!Устаревший! Заказ отменен")]
-		OrderCanceled,
-
-		[Display(Name = "!Устаревший! Заказ в доставке")]
-		OrderDelivering
-
-		#endregion Устаревшие, для совместимости на время перехода на новые типы, удалить после обновления
+		OrderRescheduled
 	}
 }
