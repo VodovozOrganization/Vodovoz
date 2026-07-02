@@ -38,8 +38,8 @@ namespace CustomerAppsApi.Library.V2.Factories
 			var allSaleItems = new List<object>();
 			
 			allSaleItems.AddRange(CreateSaleItemList(saleItems.Nomenclatures));
+			allSaleItems.AddRange(CreatePromoSetSaleItems(saleItems.PromoSets));
 			allSaleItems.AddRange(CreateFreeRentPackageSaleItems(saleItems.RentPackages, availableWaterIds));
-			allSaleItems.AddRange(CreateSaleItemList(saleItems.Nomenclatures));
 			
 			return new SaleItemsDto
 			{
@@ -161,7 +161,7 @@ namespace CustomerAppsApi.Library.V2.Factories
 			return serviceItem;
 		}
 		
-		public IEnumerable<object> CreatePromoSetSaleItems(IEnumerable<PromotionalSetDto> promoSetsData)
+		private IEnumerable<object> CreatePromoSetSaleItems(IEnumerable<PromotionalSetDto> promoSetsData)
 		{
 			return promoSetsData.Select(data => new PromoSetSaleItemDto
 				{
