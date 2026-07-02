@@ -1674,7 +1674,7 @@ namespace Vodovoz
 
 			Entity.IsManualAccounting = true;
 			messages.AddRange(cashIncomes.Select(income =>
-				$"Создан приходный ордер на сумму {income.Money:C0} по организации \"{income.Organisation?.Name}\""));
+				$"Создан приходный ордер на сумму {income.Money:C2} по организации \"{income.Organisation?.Name}\""));
 
 			Entity.UpdateRouteListDebt();
 
