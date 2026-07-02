@@ -1,4 +1,8 @@
-﻿using NHibernate;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using NHibernate;
+using NHibernate.Criterion;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using QS.Navigation;
@@ -6,22 +10,28 @@ using QS.Project.Domain;
 using QS.Project.Journal;
 using QS.Project.Journal.DataLoader;
 using QS.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.CashTransfer;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.EntityRepositories.Subdivisions;
 using Vodovoz.SidePanel.InfoProviders;
 
 namespace Vodovoz.ViewModels.Cash.Transfer.Journal
 {
 	public class TransferDocumentsJournalViewModel : FilterableMultipleEntityJournalViewModelBase<DocumentNode, TransferDocumentsJournalFilterViewModel>
 	{
+		private static readonly Type[] _cashDocumentTypes =
+		{
+			typeof(Income), typeof(Expense), typeof(AdvanceReport)
+		};
+		
 		private readonly IDictionary<Type, IPermissionResult> _domainObjectsPermissions;
 
 		private readonly ICashRepository _cashRepository;
+		private readonly ISubdivisionRepository _subdivisionRepository;
 		private readonly ICurrentPermissionService _currentPermissionService;
+		private readonly Lazy<int[]> _availableCashSubdivisionIds;
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
@@ -31,6 +41,7 @@ namespace Vodovoz.ViewModels.Cash.Transfer.Journal
 			ICommonServices commonServices,
 			INavigationManager navigationManager,
 			ICashRepository cashRepository,
+			ISubdivisionRepository subdivisionRepository,
 			ICurrentPermissionService currentPermissionService)
 			: base(filterViewModel, unitOfWorkFactory, commonServices)
 		{
@@ -44,7 +55,9 @@ namespace Vodovoz.ViewModels.Cash.Transfer.Journal
 
 			NavigationManager = navigationManager ?? throw new ArgumentNullException(nameof(navigationManager));
 			_cashRepository = cashRepository ?? throw new ArgumentNullException(nameof(cashRepository));
+			_subdivisionRepository = subdivisionRepository ?? throw new ArgumentNullException(nameof(subdivisionRepository));
 			_currentPermissionService = currentPermissionService ?? throw new ArgumentNullException(nameof(currentPermissionService));
+			_availableCashSubdivisionIds = new Lazy<int[]>(GetAvailableCashSubdivisionIds);
 
 			_domainObjectsPermissions = InitializePermissionsMatrix(DomainObjectsTypes);
 
@@ -250,6 +263,11 @@ namespace Vodovoz.ViewModels.Cash.Transfer.Journal
 					() => incomeTransferDocumentAlias.TransferedSum,
 					() => incomeTransferDocumentAlias.Comment));
 
+			SetQueryFilterByAvailableCashSubdivisions(
+				query,
+				Projections.Property(() => incomeTransferDocumentAlias.CashSubdivisionFrom.Id),
+				Projections.Property(() => incomeTransferDocumentAlias.CashSubdivisionTo.Id));
+
 			query.Left.JoinAlias(() => incomeTransferDocumentAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => incomeTransferDocumentAlias.CashierSender, () => cashierSenderAlias)
 				.Left.JoinAlias(() => incomeTransferDocumentAlias.CashierReceiver, () => cashierReceiverAlias)
@@ -310,6 +328,11 @@ namespace Vodovoz.ViewModels.Cash.Transfer.Journal
 					() => commonTransferDocumentAlias.TransferedSum,
 					() => commonTransferDocumentAlias.Comment));
 
+			SetQueryFilterByAvailableCashSubdivisions(
+				query,
+				Projections.Property(() => commonTransferDocumentAlias.CashSubdivisionFrom.Id),
+				Projections.Property(() => commonTransferDocumentAlias.CashSubdivisionTo.Id));
+
 			query.Left.JoinAlias(() => commonTransferDocumentAlias.Author, () => authorAlias)
 				.Left.JoinAlias(() => commonTransferDocumentAlias.CashierSender, () => cashierSenderAlias)
 				.Left.JoinAlias(() => commonTransferDocumentAlias.CashierReceiver, () => cashierReceiverAlias)
@@ -338,6 +361,45 @@ namespace Vodovoz.ViewModels.Cash.Transfer.Journal
 
 			return query.OrderBy(x => x.CreationDate).Desc
 				.TransformUsing(Transformers.AliasToBean<DocumentNode>());
+		}
+
+		private void SetQueryFilterByAvailableCashSubdivisions<TCashTransferDocumentBase>(
+			IQueryOver<TCashTransferDocumentBase, TCashTransferDocumentBase> query,
+			IProjection cashSubdivisionFromId,
+			IProjection cashSubdivisionToId)
+			where TCashTransferDocumentBase : CashTransferDocumentBase
+		{
+			var availableCashSubdivisionIds = _availableCashSubdivisionIds.Value;
+
+			if(!availableCashSubdivisionIds.Any())
+			{
+				query.Where(x => x.Id == -1);
+			}
+			else
+			{
+				query.Where(GetAvailableCashSubdivisionsRestriction(
+					cashSubdivisionFromId,
+					cashSubdivisionToId,
+					availableCashSubdivisionIds));
+			}
+		}
+		
+		private ICriterion GetAvailableCashSubdivisionsRestriction(
+			IProjection cashSubdivisionFromId,
+			IProjection cashSubdivisionToId,
+			int[] availableCashSubdivisionIds)
+		{
+			return Restrictions.Disjunction()
+				.Add(Restrictions.In(cashSubdivisionFromId, availableCashSubdivisionIds))
+				.Add(Restrictions.In(cashSubdivisionToId, availableCashSubdivisionIds));
+		}
+
+		private int[] GetAvailableCashSubdivisionIds()
+		{
+			return _subdivisionRepository.GetAvailableSubdivionsForUser(UoW, _cashDocumentTypes)
+				.Select(x => x.Id)
+				.Distinct()
+				.ToArray();
 		}
 
 		#endregion Queries
