@@ -673,7 +673,7 @@ namespace Vodovoz.ViewModels.ReportsParameters
 						filters.NomenclatureExclude = nomenclatureFilter.ExcludedElements.Select(e => int.Parse(e.Number)).ToArray();
 						break;
 
-					case IncludeExcludeEntityFilter<ProductGroup> productGroupFilter:
+					case IncludeExcludeEntityWithHierarchyFilter<ProductGroup> productGroupFilter:
 						filters.ProductGroupInclude = productGroupFilter.IncludedElements.Select(e => int.Parse(e.Number)).ToArray();
 						filters.ProductGroupExclude = productGroupFilter.ExcludedElements.Select(e => int.Parse(e.Number)).ToArray();
 						break;
