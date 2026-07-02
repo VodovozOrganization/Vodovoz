@@ -3,6 +3,7 @@ using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Library.Converters;
 using CustomerOrdersApi.Library.Default.Factories;
 using CustomerOrdersApi.Library.Default.Services;
+using CustomerOrdersApi.Library.SiteOrdersImport.Services;
 using CustomerOrdersApi.Library.V4.Dto.Orders;
 using CustomerOrdersApi.Library.V4.Factories;
 using CustomerOrdersApi.Library.V4.Services;
@@ -35,10 +36,10 @@ namespace CustomerOrdersApi.Library
 		{
 			services.Configure<RequestsMinutesLimitsOptions>(config.GetSection(RequestsMinutesLimitsOptions.Position));
 			services.Configure<SignatureOptions>(config.GetSection(SignatureOptions.Path));
-			
+
 			return services;
 		}
-		
+
 		public static IServiceCollection AddVersion3(this IServiceCollection services)
 		{
 			services.AddScoped<ICustomerOrdersService, CustomerOrdersService>()
@@ -57,6 +58,8 @@ namespace CustomerOrdersApi.Library
 				.AddScoped<ICustomerOrdersDiscountServiceV4, CustomerOrdersDiscountServiceV4>()
 				.AddScoped<ICustomerOrderFixedPriceServiceV4, CustomerOrderFixedPriceServiceV4>()
 				.AddScoped<IInfoMessageFactory, InfoMessageFactory>()
+				.AddScoped<ISiteOrdersImportRequestValidator, SiteOrdersImportRequestValidator>()
+				.AddScoped<ISiteOrdersImportService, SiteOrdersImportService>()
 				.AddDefault();
 			
 			return services;
@@ -69,6 +72,8 @@ namespace CustomerOrdersApi.Library
 				.AddScoped<ICustomerOrdersDiscountServiceV5, CustomerOrdersDiscountServiceV5>()
 				.AddScoped<ICustomerOrderFixedPriceServiceV5, CustomerOrderFixedPriceServiceV5>()
 				.AddScoped<IInfoMessageFactoryV5, InfoMessageFactoryV5>()
+				.AddScoped<ISiteOrdersImportRequestValidator, SiteOrdersImportRequestValidator>()
+				.AddScoped<ISiteOrdersImportService, SiteOrdersImportService>()
 				.AddDefault();
 			
 			return services;
