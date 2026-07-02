@@ -462,14 +462,14 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 			{
 				var stock = 0m;
 				var sentAmount = item.SentAmount;
+				
+				if(item.WriteOffOperation != null)
+				{
+					sentAmount += item.WriteOffOperation.Amount;
+				}
 
 				if(bulkAmountOnStock.TryGetValue(item.Nomenclature.Id, out var stockNode))
 				{
-					if(item.WriteOffOperation != null)
-					{
-						sentAmount += item.WriteOffOperation.Amount;
-					}
-					
 					stock = stockNode.Stock;
 				}
 
@@ -507,14 +507,14 @@ namespace Vodovoz.Domain.Documents.MovementDocuments
 					var instanceId = item.NomenclatureInstanceId.Value;
 					var stock = 0m;
 					var sentAmount = item.SentAmount;
+					
+					if(item.WriteOffOperation != null)
+					{
+						sentAmount += item.WriteOffOperation.Amount;
+					}
 
 					if(instancesOnStock.TryGetValue(instanceId, out var stockNode))
 					{
-						if(item.WriteOffOperation != null)
-						{
-							sentAmount += item.WriteOffOperation.Amount;
-						}
-						
 						stock = stockNode.Balance;
 					}
 
