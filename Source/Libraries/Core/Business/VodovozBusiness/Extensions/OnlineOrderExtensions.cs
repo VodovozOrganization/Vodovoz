@@ -27,6 +27,8 @@ namespace VodovozBusiness.Extensions
 						return ExternalOrderStatus.OrderPerformed;
 					case OnlineOrderStatus.Canceled:
 						return ExternalOrderStatus.Canceled;
+					case OnlineOrderStatus.WaitingForPayment:
+						return ExternalOrderStatus.WaitingForPayment;
 				}
 			}
 
