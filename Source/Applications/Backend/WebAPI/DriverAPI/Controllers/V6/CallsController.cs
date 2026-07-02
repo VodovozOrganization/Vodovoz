@@ -104,6 +104,11 @@ namespace DriverAPI.Controllers.V6
 							return StatusCodes.Status403Forbidden;
 						}
 
+						if(firstError == Library.Errors.PhoneNumberErrors.InvalidFormat)
+						{
+							return StatusCodes.Status400BadRequest;
+						}
+
 						return StatusCodes.Status500InternalServerError;
 					});
 			}
@@ -111,12 +116,12 @@ namespace DriverAPI.Controllers.V6
 			{
 				_logger.LogError(
 					ex,
-					"Произошла ошибка при запросе звонка на номер {ClientPhoneNumber} для маршрутного листа {RouteListId}: {ExceptionMessage}",
+					"Произошла ошибка при запросе звонка на номер клиента {ClientPhoneNumber} для маршрутного листа {RouteListId}: {ExceptionMessage}",
 					getCallRequest.Number,
 					getCallRequest.RouteListId,
 					ex.Message);
 
-				return Problem($"Произошла ошибка при запросе звонка на номер {getCallRequest.Number} для маршрутного листа {getCallRequest.RouteListId}");
+				return Problem($"Произошла ошибка при запросе звонка на номер клиента {getCallRequest.Number} для маршрутного листа {getCallRequest.RouteListId}");
 			}
 		}
 	}

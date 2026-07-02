@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
@@ -14,6 +15,8 @@ namespace DriverAPI.Library.V6.Services
 	/// <inheritdoc/>
 	public class CallsService : ICallsService
 	{
+		private const string _phoneNumberPattern = @"^7\d{10}$";
+
 		private readonly ILogger<CallsService> _logger;
 		private readonly IUnitOfWork _uow;
 		private readonly IMangoCallsService _mangoCallsService;
@@ -46,6 +49,13 @@ namespace DriverAPI.Library.V6.Services
 				throw new ArgumentException($"'{nameof(toNumber)}' cannot be null or whitespace.", nameof(toNumber));
 			}
 
+			var phoneNumberValidationResult = ValidatePhoneNumber(toNumber);
+
+			if(phoneNumberValidationResult.IsFailure)
+			{
+				return Result.Failure<Guid>(phoneNumberValidationResult.Errors);
+			}
+
 			var routeList =
 				await _routeListRepository.GetRouteListByIdAsync(_uow, routeListId);
 
@@ -73,6 +83,23 @@ namespace DriverAPI.Library.V6.Services
 			var extension = "1234";
 			var lineNumber = "79000000001";
 			return await _mangoCallsService.MakeWebhookCall(extension, toNumber, lineNumber, cancellationToken);
+		}
+
+		private Result ValidatePhoneNumber(string phoneNumber)
+		{
+			if(!Regex.IsMatch(phoneNumber, _phoneNumberPattern))
+			{
+				var formatMessage = "\"Начинается с 7 и содержит 11 цифр\"";
+
+				_logger.LogError(
+					"Номер телефона {PhoneNumber} не соответствует формату {FormatMessage}",
+					phoneNumber,
+					formatMessage);
+
+				return Result.Failure(Errors.PhoneNumberErrors.CreateInvalidFormat(phoneNumber, formatMessage));
+			}
+
+			return Result.Success();
 		}
 	}
 }
