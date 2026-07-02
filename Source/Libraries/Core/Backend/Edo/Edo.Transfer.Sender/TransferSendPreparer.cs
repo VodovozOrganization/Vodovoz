@@ -71,14 +71,14 @@ namespace Edo.Transfer.Sender
 				return;
 			}
 
-			if(transferEdoTask.TransferStatus <= TransferEdoTaskStatus.WaitingRequests)
+			if(transferEdoTask.TransferStatus <= EdoTransferTaskStage.WaitingRequests)
 			{
 				_logger.LogWarning("Задача на трансфер Id {TransferEdoTaskId} еще ожидает заполнения запросами на трансфер", 
 					transferEdoTaskId);
 				return;
 			}
 
-			if(transferEdoTask.TransferStatus > TransferEdoTaskStatus.PreparingToSend)
+			if(transferEdoTask.TransferStatus > EdoTransferTaskStage.PreparingToSend)
 			{
 				_logger.LogWarning("Задача на трансфер Id {TransferEdoTaskId} уже была подготовлена к отправке",
 					transferEdoTaskId);
@@ -88,7 +88,7 @@ namespace Edo.Transfer.Sender
 			try
 			{
 				await CreateTransferOrder(transferEdoTask, cancellationToken);
-				transferEdoTask.TransferStatus = TransferEdoTaskStatus.ReadyToSend;
+				transferEdoTask.TransferStatus = EdoTransferTaskStage.ReadyToSend;
 			}
 			catch(EdoProblemException ex)
 			{

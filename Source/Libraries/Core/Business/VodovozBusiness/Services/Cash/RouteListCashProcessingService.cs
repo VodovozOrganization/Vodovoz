@@ -115,10 +115,10 @@ namespace VodovozBusiness.Services.Cash
 				var messages = new List<string>();
 
 				messages.AddRange(incomes.Select(income =>
-					$"Создан приходный ордер на сумму {income.Money:C0} по организации \"{income.Organisation?.Name}\""));
+					$"Создан приходный ордер на сумму {income.Money:C2} по организации \"{income.Organisation?.Name}\""));
 
 				messages.AddRange(expenses.Select(expense =>
-					$"Создан расходный ордер на сумму {expense.Money:C0} по организации \"{expense.Organisation?.Name}\""));
+					$"Создан расходный ордер на сумму {expense.Money:C2} по организации \"{expense.Organisation?.Name}\""));
 
 				return Result.Success(messages.AsEnumerable());
 			}
@@ -274,8 +274,8 @@ namespace VodovozBusiness.Services.Cash
 		private Income CreateAndDistributeIncome(IUnitOfWork uow, RouteList routeList, Organization organization, decimal amount)
 		{
 			var cashIncome = CreateIncome(routeList, organization, amount);
-			uow.Save(cashIncome);
 			_routeListCashOrganisationDistributor.DistributeIncomeCash(uow, routeList, cashIncome, cashIncome.Money);
+			uow.Save(cashIncome);
 
 			return cashIncome;
 		}
@@ -283,8 +283,8 @@ namespace VodovozBusiness.Services.Cash
 		private Expense CreateAndDistributeExpense(IUnitOfWork uow, RouteList routeList, Organization organization, decimal amount)
 		{
 			var cashExpense = CreateExpense(routeList, organization, amount);
-			uow.Save(cashExpense);
 			_routeListCashOrganisationDistributor.DistributeExpenseCash(uow, routeList, cashExpense, cashExpense.Money);
+			uow.Save(cashExpense);
 
 			return cashExpense;
 		}
@@ -299,7 +299,7 @@ namespace VodovozBusiness.Services.Cash
 				Employee = routeList.Driver,
 				Organisation = organization,
 				Description = $"Дополнение к МЛ №{routeList.Id} от {routeList.Date:d}",
-				Money = Math.Round(amount, 0, MidpointRounding.AwayFromZero),
+				Money = Math.Round(amount, 2, MidpointRounding.AwayFromZero),
 				RouteListClosing = routeList,
 				RelatedToSubdivision = routeList.Cashier.Subdivision
 			};
@@ -314,7 +314,7 @@ namespace VodovozBusiness.Services.Cash
 				Employee = routeList.Driver,
 				Organisation = organization,
 				Description = $"Дополнение к МЛ №{routeList.Id} от {routeList.Date:d}",
-				Money = Math.Round(amount, 0, MidpointRounding.AwayFromZero),
+				Money = Math.Round(amount, 2, MidpointRounding.AwayFromZero),
 				RouteListClosing = routeList,
 				RelatedToSubdivision = routeList.Cashier.Subdivision
 			};

@@ -1,6 +1,5 @@
-﻿using System;
-using System.Text;
-using Autofac.Extensions.DependencyInjection;
+﻿using Autofac.Extensions.DependencyInjection;
+using Edo.Common.Services;
 using Edo.Problem.Routine;
 using MessageTransport;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +12,8 @@ using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Project.Domain;
 using QS.Project.HibernateMapping;
+using System;
+using System.Text;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure;
@@ -58,6 +59,8 @@ namespace Edo.Receipt.Dispatcher.Worker
 						.AddEdoProblemRoutineServices()
 
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
+						
+						.AddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>()
 					;
 
 					services

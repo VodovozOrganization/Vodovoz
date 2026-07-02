@@ -1301,7 +1301,7 @@ namespace Vodovoz
 
 			if(updateCashBalanceResult.IsFailure)
 			{
-				MessageDialogHelper.RunErrorDialog(string.Join("\n", updateCashBalanceResult.Errors));
+				MessageDialogHelper.RunErrorDialog(string.Join("\n", updateCashBalanceResult.Errors.Select(x => x.Message)));
 				return;
 			}
 
@@ -1661,7 +1661,7 @@ namespace Vodovoz
 
 			if(cashIncomesResult.IsFailure)
 			{
-				MessageDialogHelper.RunErrorDialog(cashIncomesResult.Errors.FirstOrDefault());
+				MessageDialogHelper.RunErrorDialog(cashIncomesResult.Errors.Select(x => x.Message).FirstOrDefault());
 				return;
 			}
 
@@ -1674,7 +1674,7 @@ namespace Vodovoz
 
 			Entity.IsManualAccounting = true;
 			messages.AddRange(cashIncomes.Select(income =>
-				$"Создан приходный ордер на сумму {income.Money:C0} по организации \"{income.Organisation?.Name}\""));
+				$"Создан приходный ордер на сумму {income.Money:C2} по организации \"{income.Organisation?.Name}\""));
 
 			Entity.UpdateRouteListDebt();
 

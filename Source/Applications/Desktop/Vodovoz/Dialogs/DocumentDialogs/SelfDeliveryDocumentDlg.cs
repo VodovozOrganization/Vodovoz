@@ -300,7 +300,7 @@ namespace Vodovoz
 
 		private void OpenOrderCodesDialog(object sender, EventArgs e)
 		{
-			NavigationManager.OpenViewModel<OrderCodesViewModel, int>(null, Entity.Order.Id, OpenPageOptions.IgnoreHash);
+			NavigationManager.OpenViewModel<OrderCodesDialogViewModel, int>(null, Entity.Order.Id, OpenPageOptions.IgnoreHash);
 		}
 
 		private void OnYbuttonScanCodesOnClicked(object sender, EventArgs e)
@@ -497,7 +497,7 @@ namespace Vodovoz
 			var edoRequest = new PrimaryEdoRequest
 			{
 				Time = DateTime.Now,
-				Source = CustomerEdoRequestSource.Selfdelivery,
+				Source = EdoRequestSource.Selfdelivery,
 				Order = Entity.Order
 			};
 

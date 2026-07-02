@@ -17,8 +17,8 @@ using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Edo;
-using VodovozBusiness.Models.TrueMark;
 using VodovozBusiness.Domain.Client.Specifications;
+using VodovozBusiness.Models.TrueMark;
 using VodovozBusiness.Services.TrueMark;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
 
@@ -78,7 +78,7 @@ namespace Vodovoz.Core.Application.TrueMark
 				?? throw new ArgumentNullException(nameof(uow));
 			_trueMarkApiClient = trueMarkApiClient
 				?? throw new ArgumentNullException(nameof(trueMarkApiClient));
-			_ourCodesChecker = ourCodesChecker 
+			_ourCodesChecker = ourCodesChecker
 				?? throw new ArgumentNullException(nameof(ourCodesChecker));
 			_trueMarkCodesChecker = trueMarkCodesChecker
 				?? throw new ArgumentNullException(nameof(trueMarkCodesChecker));
@@ -327,7 +327,7 @@ namespace Vodovoz.Core.Application.TrueMark
 		}
 
 		private IEnumerable<TrueMarkProductCode> TrueMarkProductCodesHavingRequiredResultCode(
-			int resultCodeId, 
+			int resultCodeId,
 			int exceptProductCodeId = 0
 			)
 		{
@@ -1363,7 +1363,7 @@ namespace Vodovoz.Core.Application.TrueMark
 			IEnumerable<StagingTrueMarkCode> stagingCodes,
 			CancellationToken cancellationToken)
 		{
-			var transportSagingCodes  = stagingCodes
+			var transportSagingCodes = stagingCodes
 				.Where(x => x.CodeType == StagingTrueMarkCodeType.Transport)
 				.ToList();
 
@@ -1381,7 +1381,7 @@ namespace Vodovoz.Core.Application.TrueMark
 			{
 				var transportCodesData =
 					await GetSavedOrCreateTrueMarkAnyCodesByTransportStagingCodes(uow, transportSagingCodes, cancellationToken);
-				
+
 				foreach(var transportCodeData in transportCodesData)
 				{
 					if(codesData.ContainsKey(transportCodeData.Key))

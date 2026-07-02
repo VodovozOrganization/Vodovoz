@@ -1,6 +1,7 @@
 ﻿using Autofac.Extensions.DependencyInjection;
 using Edo.CodesSaver;
 using Edo.Common;
+using Edo.Common.Services;
 using Edo.Docflow;
 using Edo.Documents;
 using Edo.InformalOrderDocuments;
@@ -95,6 +96,7 @@ namespace CustomTaskDebugExecutor
 			services.AddEdo();
 			services.AddEdoProblemRegistration();
 			services.AddCodesPool();
+			services.AddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>();
 
 			services.AddEdoTransfer();
 

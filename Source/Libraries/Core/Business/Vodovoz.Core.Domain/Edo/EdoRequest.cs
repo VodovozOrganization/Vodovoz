@@ -15,7 +15,7 @@ namespace Vodovoz.Core.Domain.Edo
 	{
 		private int _id;
 		private DateTime _time;
-		private CustomerEdoRequestSource _source;
+		private EdoRequestSource _source;
 		private OrderEdoTask _task;
 		private CustomerEdoRequestType _type;
 		private EdoDocumentType _documentType;
@@ -43,7 +43,7 @@ namespace Vodovoz.Core.Domain.Edo
 		/// Источник
 		/// </summary>
 		[Display(Name = "Источник")]
-		public virtual CustomerEdoRequestSource Source
+		public virtual EdoRequestSource Source
 		{
 			get => _source;
 			set => SetField(ref _source, value);
