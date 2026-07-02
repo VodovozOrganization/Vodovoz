@@ -405,6 +405,8 @@ namespace Vodovoz.ViewModels.Cash
 			CommonServices.CurrentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanDelete)
 			&& IsDriverReport;
 
+		public bool IsOrganizationVisible => IsDriverReport || IsReturnOperation;
+
 		public bool IsReturnOperation => Entity.TypeOperation == IncomeType.Return;
 
 		public bool IsReturnOperationOrNew => IsReturnOperation && IsNew;

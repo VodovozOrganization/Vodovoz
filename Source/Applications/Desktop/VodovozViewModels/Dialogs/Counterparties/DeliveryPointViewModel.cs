@@ -381,15 +381,36 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 				{
 					return base.Save(close);
 				}
+								
+				if(!Entity.CoordinatesExist)
+				{
+					if(Entity.Counterparty?.CounterpartyType is CounterpartyType.Buyer)
+					{
+						ShowWarningMessage("Заполните координаты точки доставки.");
+						return false;
+					}
 
-				if(!Entity.CoordinatesExist &&
-				   !CommonServices.InteractiveService.Question(
-					   "Адрес точки доставки не найден на карте, вы точно хотите сохранить точку доставки?"))
+					if(!CommonServices.InteractiveService.Question(
+						   "Адрес точки доставки не найден на карте, вы точно хотите сохранить точку доставки?"))
+					{
+						return false;
+					}
+				}
+
+				var accurateDistrict = Entity.CoordinatesExist
+					? _deliveryRepository.GetAccurateDistrict(UoW, Entity.Latitude.Value, Entity.Longitude.Value)
+					: null;
+
+				if(Entity.CoordinatesExist
+				   && accurateDistrict == null
+				   && !CommonServices.InteractiveService.Question(
+					   "Координаты точки доставки не входят в район доставки. Вы уверены?",
+					   "Проверьте координаты!"))
 				{
 					return false;
 				}
-
-				if(Entity.District == null && !CommonServices.InteractiveService.Question(
+				
+				if(!Entity.CoordinatesExist && Entity.District == null && !CommonServices.InteractiveService.Question(
 					"Район доставки не найден. Это приведёт к невозможности отображения заказа на " +
 					"эту точку доставки у логистов при составлении маршрутного листа. Укажите правильные координаты.\n" +
 					"Продолжить сохранение точки доставки?",
@@ -404,19 +425,6 @@ namespace Vodovoz.ViewModels.Dialogs.Counterparties
 				{
 					var createDeliveryPoint = AskQuestion($"Уточните с клиентом: по данному адресу находится юр.лицо. Вы уверены, что хотите сохранить этот адрес для физ.лица?");
 					if(!createDeliveryPoint)
-					{
-						return false;
-					}
-				}
-
-				if(Entity.CoordinatesExist)
-				{
-					var accurateDistrict = _deliveryRepository.GetAccurateDistrict(UoW, Entity.Latitude.Value, Entity.Longitude.Value);
-
-					if(accurateDistrict == null
-						&& !CommonServices.InteractiveService.Question(
-							"Точный район доставки по координатам не определён. Сохранить ТД без точного района?",
-							"Проверьте координаты!"))
 					{
 						return false;
 					}

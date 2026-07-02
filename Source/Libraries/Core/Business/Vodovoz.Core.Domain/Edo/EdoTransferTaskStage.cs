@@ -2,7 +2,7 @@
 
 namespace Vodovoz.Core.Domain.Edo
 {
-	public enum TransferEdoTaskStatus
+	public enum EdoTransferTaskStage
 	{
 		[Display(Name = "Ожидает запросов")]
 		WaitingRequests,

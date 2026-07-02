@@ -132,5 +132,12 @@ namespace VodovozBusiness.Services.TrueMark
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Результат удаления кодов</returns>
 		Task<Result> DeleteAllTrueMarkStagingCodesByRelatedDocument(IUnitOfWork uow, StagingTrueMarkCodeRelatedDocumentType relatedDocumentType, int relatedDocumentId, CancellationToken cancellationToken = default);
+
+		/// <summary>
+		/// Дезагрегация связанных кодов (очистка parent кодов)
+		/// </summary>
+		/// <param name="anyCode">Любой из кодов честного знака</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		Task DisaggregateRelatedCodesAsync(IUnitOfWork unitOfWork, TrueMarkAnyCode anyCode, CancellationToken cancellationToken);
 	}
 }

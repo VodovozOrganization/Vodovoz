@@ -1,6 +1,5 @@
 ﻿using QS.DomainModel.Entity;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Client.ClientClassification

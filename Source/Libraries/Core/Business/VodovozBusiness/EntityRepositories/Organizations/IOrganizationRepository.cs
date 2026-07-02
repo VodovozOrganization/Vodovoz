@@ -36,5 +36,13 @@ namespace Vodovoz.EntityRepositories.Organizations
 		/// <returns></returns>
 		IEnumerable<(string OrganizationName, Account Account)> GetActiveAccountsOrganizationsWithCashlessControl(
 			IUnitOfWork uow, DateTime startDate, DateTime endDate, int? bankId, int? accountId);
+
+		/// <summary>
+		/// Получение списка организаций по их идентификаторам
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="organizationIds">Идентификаторы организаций</param>
+		/// <returns>Список организаций</returns>
+		IList<Organization> GetOrganizationsByIds(IUnitOfWork uow, IEnumerable<int> organizationIds);
 	}
 }

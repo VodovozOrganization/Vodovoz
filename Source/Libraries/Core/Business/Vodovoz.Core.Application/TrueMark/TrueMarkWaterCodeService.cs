@@ -17,8 +17,8 @@ using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Edo;
-using VodovozBusiness.Models.TrueMark;
 using VodovozBusiness.Domain.Client.Specifications;
+using VodovozBusiness.Models.TrueMark;
 using VodovozBusiness.Services.TrueMark;
 using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
 
@@ -1555,6 +1555,56 @@ namespace Vodovoz.Core.Application.TrueMark
 			}
 
 			return codesData;
+		}
+
+		public async Task DisaggregateRelatedCodesAsync(
+			IUnitOfWork unitOfWork,
+			TrueMarkAnyCode anyCode,
+			CancellationToken cancellationToken = default)
+		{
+			if(anyCode == null)
+			{
+				return;
+			}
+
+			var root = GetParentGroupCode(unitOfWork, anyCode);
+
+			var allCodes = root.Match(
+				transportCode => transportCode.GetAllCodes(),
+				groupCode => groupCode.GetAllCodes(),
+				waterCode => new TrueMarkAnyCode[] { waterCode })
+			.ToArray();
+
+			foreach(var code in allCodes)
+			{
+				await DisaggregateSingleCodeAsync(unitOfWork, code, cancellationToken);
+			}
+		}
+
+		private async Task DisaggregateSingleCodeAsync(
+			IUnitOfWork unitOfWork,
+			TrueMarkAnyCode code,
+			CancellationToken cancellationToken)
+		{
+			await code.Match(
+				transportCode =>
+				{
+					transportCode.ParentTransportCodeId = null;
+					return unitOfWork.SaveAsync(transportCode, cancellationToken: cancellationToken);
+				},
+				groupCode =>
+				{
+					groupCode.ParentTransportCodeId = null;
+					groupCode.ParentWaterGroupCodeId = null;
+					return unitOfWork.SaveAsync(groupCode, cancellationToken: cancellationToken);
+				},
+				waterCode =>
+				{
+					waterCode.ParentTransportCodeId = null;
+					waterCode.ParentWaterGroupCodeId = null;
+					return unitOfWork.SaveAsync(waterCode, cancellationToken: cancellationToken);
+				}
+			);
 		}
 	}
 }

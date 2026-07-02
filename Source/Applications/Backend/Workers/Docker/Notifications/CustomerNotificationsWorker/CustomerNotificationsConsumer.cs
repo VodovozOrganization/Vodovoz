@@ -54,13 +54,7 @@ namespace CustomerNotificationsWorker
 				throw new ArgumentNullException(nameof(customerEvent));
 			}
 
-			var source = customerEvent.EventSource.Value;
-
-			if(source == Source.VodovozWebSite)
-			{
-				// Пока не отправляются на сайт
-				return;
-			}
+			var source = customerEvent.EventSource;
 
 			var serializerOptions = OutboxJsonSerializerOptions.Instance;
 
@@ -75,7 +69,7 @@ namespace CustomerNotificationsWorker
 				requestJson = JsonSerializer.Serialize(customerEvent.Payload, serializerOptions);
 			}
 
-			var uri = GetUriString(source);
+			var uri = GetUriString(source.Value);
 
 			_logger.LogInformation(
 				"Отправка HTTP-запроса. URL: {Url}, JSON: {RequestJson}",

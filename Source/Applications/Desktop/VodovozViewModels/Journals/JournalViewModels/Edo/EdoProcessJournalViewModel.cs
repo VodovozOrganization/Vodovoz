@@ -176,7 +176,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 									Id = orderId
 								},
 								Time = DateTime.Now,
-								Source = CustomerEdoRequestSource.Manual,
+								Source = EdoRequestSource.Manual,
 								DocumentType = EdoDocumentType.UPD
 							};
 
@@ -234,7 +234,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 									Id = orderId
 								},
 								Time = DateTime.Now,
-								Source = CustomerEdoRequestSource.Manual,
+								Source = EdoRequestSource.Manual,
 								DocumentType = EdoDocumentType.UPD
 							};
 
@@ -316,7 +316,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 					{
 						return;
 					}
-					NavigationManager.OpenViewModel<OrderCodesViewModel, int>(null, selectedNode.OrderId, OpenPageOptions.IgnoreHash);
+					NavigationManager.OpenViewModel<OrderCodesDialogViewModel, int>(null, selectedNode.OrderId, OpenPageOptions.IgnoreHash);
 				}
 			);
 
@@ -427,7 +427,7 @@ order by o.delivery_date desc
 					.Map("delivery_date", x => x.DeliveryDate, NHibernateUtil.DateTime)
 					.Map("order_status", x => x.OrderStatus, new EnumStringType<OrderStatus>())
 					.Map("customer_request_time", x => x.CustomerRequestTime, NHibernateUtil.DateTime)
-					.Map("customer_request_source", x => x.CustomerRequestSource, new EnumStringType<CustomerEdoRequestSource>())
+					.Map("customer_request_source", x => x.CustomerRequestSource, new EnumStringType<EdoRequestSource>())
 					.Map("order_task_id", x => x.OrderTaskId, NHibernateUtil.Int32)
 					.Map("order_task_type", x => x.OrderTaskType, new EnumStringType<EdoTaskType>())
 					.Map("order_task_status", x => x.OrderTaskStatus, new EnumStringType<EdoTaskStatus>())
@@ -453,7 +453,7 @@ order by o.delivery_date desc
 					query.SetParameter(
 						"filter_request_source", 
 						_filterViewModel.RequestSource.Value, 
-						new EnumStringType<CustomerEdoRequestSource>()
+						new EnumStringType<EdoRequestSource>()
 					);
 				}
 

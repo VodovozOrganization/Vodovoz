@@ -9,7 +9,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 	{
 		private DateTime? _customerRequestTime;
 		private OrderStatus? _orderStatus;
-		private CustomerEdoRequestSource? _customerRequestSource;
+		private EdoRequestSource? _customerRequestSource;
 		private EdoTaskType? _orderTaskType;
 		private EdoTaskStatus? _orderTaskStatus;
 		private DocumentEdoTaskStage? _orderTaskDocumentStage;
@@ -44,7 +44,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Edo
 		}
 
 		public string CustomerRequestSourceTitle { get; set; }
-		public CustomerEdoRequestSource? CustomerRequestSource
+		public EdoRequestSource? CustomerRequestSource
 		{
 			get => _customerRequestSource;
 			set
