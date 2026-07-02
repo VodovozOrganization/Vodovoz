@@ -6,15 +6,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
-using QS.DomainModel.UoW;
 using System;
 using System.Linq;
 using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
-using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Errors.Logistics;
 using Vodovoz.Presentation.WebApi.Common;
 
@@ -27,11 +24,9 @@ namespace DriverAPI.Controllers.V6
 	[Authorize(Roles = nameof(ApplicationUserRole.Driver))]
 	public class CallsController : VersionedController
 	{
-		private readonly IUnitOfWork _uow;
 		private readonly ICallsService _callsService;
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly IEmployeeService _employeeService;
-		private readonly IGenericRepository<RouteList> _routeListRepository;
 
 		/// <summary>
 		/// Конструктор
@@ -56,6 +51,7 @@ namespace DriverAPI.Controllers.V6
 		/// Смены типа оплаты заказа
 		/// </summary>
 		/// <param name="getCallRequest">Модель данных входящего запроса</param>
+		/// <param name="cancellationToken">Токен отмены</param>
 		[HttpPost]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
