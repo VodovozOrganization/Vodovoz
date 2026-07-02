@@ -85,5 +85,17 @@ namespace Vodovoz.Settings.Database.Mango
 		public int GrpcKeepAliveTimeoutMs => _settingsController.GetIntValue("Mango.Grpc.KeepAliveTimeoutMs");
 		public bool GrpcKeepAlivePermitWithoutCalls => _settingsController.GetBoolValue("Mango.Grpc.KeepAlivePermitWithoutCalls");
 		public int GrpcMaxPingWithoutData => _settingsController.GetIntValue("Mango.Grpc.MaxPingWithoutData");
+
+		public string DriversCallsLineNumber
+		{
+			get
+			{
+				if(TestMode)
+				{
+					return _settingsController.GetStringValue("Mango.Test.DriversCallsLineNumber");
+				}
+				return _settingsController.GetStringValue("Mango.Work.DriversCallsLineNumber");
+			}
+		}
 	}
 }

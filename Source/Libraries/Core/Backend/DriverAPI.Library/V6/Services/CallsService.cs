@@ -9,6 +9,7 @@ using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Errors.Logistics;
+using Vodovoz.Settings.Mango;
 
 namespace DriverAPI.Library.V6.Services
 {
@@ -21,19 +22,22 @@ namespace DriverAPI.Library.V6.Services
 		private readonly IUnitOfWork _uow;
 		private readonly IMangoCallsService _mangoCallsService;
 		private readonly IRouteListRepository _routeListRepository;
+		private readonly IMangoSettings _mangoSettings;
 
 		/// <inheritdoc/>
 		public CallsService(
 			ILogger<CallsService> logger,
 			IUnitOfWork uow,
 			IMangoCallsService mangoCallsService,
-			IRouteListRepository routeListRepository
+			IRouteListRepository routeListRepository,
+			IMangoSettings mangoSettings
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_mangoCallsService = mangoCallsService ?? throw new ArgumentNullException(nameof(mangoCallsService));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			_mangoSettings = mangoSettings ?? throw new ArgumentNullException(nameof(mangoSettings));
 		}
 
 		/// <inheritdoc/>
@@ -81,8 +85,7 @@ namespace DriverAPI.Library.V6.Services
 			}
 
 			var extension = "1234";
-			var lineNumber = "79000000001";
-			return await _mangoCallsService.MakeWebhookCall(extension, toNumber, lineNumber, cancellationToken);
+			return await _mangoCallsService.MakeWebhookCall(extension, toNumber, _mangoSettings.DriversCallsLineNumber, cancellationToken);
 		}
 
 		private Result ValidatePhoneNumber(string phoneNumber)
