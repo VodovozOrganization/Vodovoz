@@ -2,6 +2,7 @@
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.Linq;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.Entity;
@@ -1182,6 +1183,12 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 		{
 			return uow.GetById<RouteList>(routeListsId);
 		}
+
+		/// <inheritdoc/>
+		public async Task<RouteList> GetRouteListByIdAsync(IUnitOfWork uow, int routeListsId) =>
+			await uow.Session.Query<RouteList>()
+			.Where(x => x.Id == routeListsId)
+			.FirstOrDefaultAsync();
 
 		public IEnumerable<KeyValuePair<string, int>> GetDeliveryItemsToReturn(IUnitOfWork unitOfWork, int routeListsId)
 		{

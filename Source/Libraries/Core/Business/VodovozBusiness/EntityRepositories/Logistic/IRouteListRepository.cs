@@ -117,5 +117,13 @@ namespace Vodovoz.EntityRepositories.Logistic
 		/// <param name="endDate">Конец периода</param>
 		/// <returns>Словарь, где ключ - идентификатор водителя, значение - множество дат с активными маршрутными листами</returns>
 		Dictionary<int, HashSet<DateTime>> GetDriverIdsWithActiveRouteListByDates(IUnitOfWork uow, int[] driverIds, DateTime startDate, DateTime endDate);
+
+		/// <summary>
+		/// Асинхронно получает маршрутный лист по его номеру (идентификатору)
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="routeListsId">Номер маршрутного листа</param>
+		/// <returns>Маршрутный лист</returns>
+		Task<RouteList> GetRouteListByIdAsync(IUnitOfWork uow, int routeListsId);
 	}
 }
