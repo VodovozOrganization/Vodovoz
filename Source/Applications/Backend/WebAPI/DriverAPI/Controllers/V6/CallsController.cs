@@ -90,7 +90,9 @@ namespace DriverAPI.Controllers.V6
 							return StatusCodes.Status404NotFound;
 						}
 
-						if(firstError == RouteListErrors.NotEnRouteState)
+						if(firstError == RouteListErrors.NotEnRouteState
+							|| firstError == Library.Errors.PhoneNumberErrors.InvalidFormat
+							|| firstError == Library.Errors.PhoneNumberErrors.ActiveMangoExtensionNumberNotFound)
 						{
 							return StatusCodes.Status400BadRequest;
 						}
@@ -98,11 +100,6 @@ namespace DriverAPI.Controllers.V6
 						if(firstError == Library.Errors.Security.Authorization.RouteListAccessDenied)
 						{
 							return StatusCodes.Status403Forbidden;
-						}
-
-						if(firstError == Library.Errors.PhoneNumberErrors.InvalidFormat)
-						{
-							return StatusCodes.Status400BadRequest;
 						}
 
 						return StatusCodes.Status500InternalServerError;

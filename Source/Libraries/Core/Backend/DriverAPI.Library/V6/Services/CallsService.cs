@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Employees;
+using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Errors.Logistics;
 using Vodovoz.Settings.Mango;
@@ -22,6 +23,7 @@ namespace DriverAPI.Library.V6.Services
 		private readonly IUnitOfWork _uow;
 		private readonly IMangoCallsService _mangoCallsService;
 		private readonly IRouteListRepository _routeListRepository;
+		private readonly IEmployeeRepository _employeeRepository;
 		private readonly IMangoSettings _mangoSettings;
 
 		/// <inheritdoc/>
@@ -30,6 +32,7 @@ namespace DriverAPI.Library.V6.Services
 			IUnitOfWork uow,
 			IMangoCallsService mangoCallsService,
 			IRouteListRepository routeListRepository,
+			IEmployeeRepository employeeRepository,
 			IMangoSettings mangoSettings
 			)
 		{
@@ -37,6 +40,7 @@ namespace DriverAPI.Library.V6.Services
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_mangoCallsService = mangoCallsService ?? throw new ArgumentNullException(nameof(mangoCallsService));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
+			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 			_mangoSettings = mangoSettings ?? throw new ArgumentNullException(nameof(mangoSettings));
 		}
 
@@ -84,8 +88,22 @@ namespace DriverAPI.Library.V6.Services
 				return Result.Failure<Guid>(Errors.Security.Authorization.RouteListAccessDenied);
 			}
 
-			var extension = "1234";
-			return await _mangoCallsService.MakeWebhookCall(extension, toNumber, _mangoSettings.DriversCallsLineNumber, cancellationToken);
+			var extension = await _employeeRepository.GetActiveDriverMangoExtensionNumber(_uow, driver.Id, cancellationToken);
+
+			if(extension is null || extension.ExtensionNumber is null)
+			{
+				_logger.LogError(
+					"У водителя с id {DriverId} не найден активный добавочный номер Mango",
+					driver.Id);
+
+				return Result.Failure<Guid>(Errors.PhoneNumberErrors.CreateActiveMangoExtensionNumberNotFound(driver.Id));
+			}
+			
+			return await _mangoCallsService.MakeWebhookCall(
+				extension.ExtensionNumber.ToString(),
+				toNumber,
+				_mangoSettings.DriversCallsLineNumber,
+				cancellationToken);
 		}
 
 		private Result ValidatePhoneNumber(string phoneNumber)

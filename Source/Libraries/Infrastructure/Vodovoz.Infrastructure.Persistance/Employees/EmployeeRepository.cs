@@ -1,4 +1,5 @@
 ﻿using NHibernate.Criterion;
+using NHibernate.Linq;
 using NHibernate.Transform;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
@@ -11,6 +12,7 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Mango;
 using Vodovoz.Core.Domain.Subdivisions;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Domain;
@@ -388,5 +390,11 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 
 			return await unitOfWork.Session.GetAsync<Employee>(employeeId, cancellationToken);
 		}
+
+		public Task<DriverMangoExtensionNumber> GetActiveDriverMangoExtensionNumber(IUnitOfWork uow, int driverId, CancellationToken cancellationToken) =>
+			uow.Session.Query<DriverMangoExtensionNumber>()
+			.Where(x => x.DriverId == driverId)
+			.Where(x => x.Status == DriversMangoExtensionNumbersStatus.Active)
+			.FirstOrDefaultAsync(cancellationToken);
 	}
 }

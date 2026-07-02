@@ -25,5 +25,21 @@ namespace DriverAPI.Library.Errors
 			new Error(typeof(PhoneNumberErrors),
 				nameof(InvalidFormat),
 				$"Номер телефона {phoneNumber} должен соответствовать формату: {formatMessage}");
+
+		/// <summary>
+		/// Не найден активный добавочный номер Mango
+		/// </summary>
+		public static Error ActiveMangoExtensionNumberNotFound =>
+			new Error(typeof(PhoneNumberErrors),
+				nameof(ActiveMangoExtensionNumberNotFound),
+				"Не найден активный добавочный номер Mango");
+
+		/// <summary>
+		/// Не найден активный добавочный номер Mango
+		/// </summary>
+		public static Error CreateActiveMangoExtensionNumberNotFound(int employeeId) =>
+			new Error(typeof(PhoneNumberErrors),
+				nameof(ActiveMangoExtensionNumberNotFound),
+				$"Не найден активный добавочный номер Mango для сотрудника с ID {employeeId}");
 	}
 }
