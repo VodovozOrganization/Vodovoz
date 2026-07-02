@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomerAppsApi.Library.V2.Dto;
 using CustomerAppsApi.Library.V2.Dto.Goods;
 using CustomerAppsApi.Library.V2.Dto.Goods.Attributes;
+using CustomerAppsApi.Library.V2.Extensions;
 using Vodovoz.Converters;
 using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
-using Vodovoz.Nodes;
 
 namespace CustomerAppsApi.Library.V2.Factories
 {
@@ -22,161 +22,197 @@ namespace CustomerAppsApi.Library.V2.Factories
 				nomenclatureOnlineCharacteristicsConverter ?? throw new ArgumentNullException(nameof(nomenclatureOnlineCharacteristicsConverter));
 		}
 		
-		public NomenclaturesPricesAndStockDto CreateNomenclaturesPricesAndStockDto(NomenclatureOnlineParametersData parametersData)
+		public IEnumerable<SaleItemPricesDto> CreateSelItemPricesDto(
+			IEnumerable<NomenclatureOnlineParametersDto> nomenclatureParameters,
+			IEnumerable<NomenclatureOnlinePriceDto> nomenclaturePrices
+			)
 		{
-			return new NomenclaturesPricesAndStockDto
-			{
-				PricesAndStocks = CreateNomenclaturePricesAndStockDto(parametersData)
-			};
+			return CreateSelItemPricesDto(
+				nomenclatureParameters,
+				nomenclaturePrices.ToLookup(x => x.NomenclatureOnlineParametersId)
+				);
 		}
-		
-		public SaleItemsDto CreateSaleItemsDto(IEnumerable<OnlineNomenclatureNode> onlineNomenclatures)
+
+		public SaleItemsDto CreateSaleItemsDto(AggregatedSaleItems saleItems, IEnumerable<int> availableWaterIds)
 		{
+			var allSaleItems = new List<object>();
+			
+			allSaleItems.AddRange(CreateSaleItemList(saleItems.Nomenclatures));
+			allSaleItems.AddRange(CreateFreeRentPackageSaleItems(saleItems.RentPackages, availableWaterIds));
+			allSaleItems.AddRange(CreateSaleItemList(saleItems.Nomenclatures));
+			
 			return new SaleItemsDto
 			{
-				SaleItems = new List<object>(onlineNomenclatures.Select(CreateSaleItem))
+				SaleItems = allSaleItems
 			};
 		}
 
-		public object CreateWaterSaleItem(OnlineNomenclatureNode nomenclatureNode)
+		public SaleItemsPricesAndStockDto CreateSaleItemsPricesAndStockDto(IEnumerable<SaleItemPricesDto> saleItemPrices)
+		{
+			return new SaleItemsPricesAndStockDto
+			{
+				PricesAndStocks = saleItemPrices
+			};
+		}
+		
+		private IEnumerable<SaleItemPricesDto> CreateSelItemPricesDto(
+			IEnumerable<NomenclatureOnlineParametersDto> nomenclatureParameters,
+			ILookup<int, NomenclatureOnlinePriceDto> nomenclaturePrices
+		)
+		{
+			return (
+				from nomenclatureParameter in nomenclatureParameters
+				let prices = nomenclaturePrices[nomenclatureParameter.Id]
+				select new SaleItemPricesDto
+				{
+					ErpId = nomenclatureParameter.NomenclatureId,
+					Type = nomenclatureParameter.Category.ToSaleItemType(),
+					AvailableForSale = nomenclatureParameter.AvailableForSale,
+					Marker = nomenclatureParameter.Marker,
+					PercentDiscount = nomenclatureParameter.PercentDiscount,
+					Prices = prices.Select(x =>
+						new SaleItemPriceDto
+						{
+							MinCount = x.MinCount,
+							Price = x.Price,
+							PriceWithoutDiscount = x.PriceWithoutDiscount
+						})
+				}).ToList();
+		}
+
+		private IEnumerable<object> CreateSaleItemList(IEnumerable<OnlineNomenclatureDto> onlineNomenclatures)
+		{
+			return new List<object>(onlineNomenclatures.Select(CreateSaleItem));
+		}
+
+		private object CreateWaterSaleItem(OnlineNomenclatureDto nomenclatureDto)
 		{
 			var waterItem = new WaterSaleItemDto();
-			FillSaleItem(waterItem, nomenclatureNode);
+			FillSaleItem(waterItem, nomenclatureDto);
 			waterItem.Attributes = new WaterSaleItemAttributes
 			{
-				IsDisposableTare = nomenclatureNode.IsDisposableTare,
-				IsNewBottle = nomenclatureNode.IsNewBottle,
-				IsSparklingWater = nomenclatureNode.IsSparklingWater,
-				TareVolume = nomenclatureNode.TareVolume,
+				IsDisposableTare = nomenclatureDto.IsDisposableTare,
+				IsNewBottle = nomenclatureDto.IsNewBottle,
+				IsSparklingWater = nomenclatureDto.IsSparklingWater,
+				TareVolume = nomenclatureDto.TareVolume,
 			};
 			
 			return waterItem;
 		}
 		
-		public object CreateServiceSaleItem(OnlineNomenclatureNode nomenclatureNode)
+		private object CreateServiceSaleItem(OnlineNomenclatureDto nomenclatureDto)
 		{
 			var serviceItem = new ServiceSaleItemDto();
-			FillSaleItem(serviceItem, nomenclatureNode);
+			FillSaleItem(serviceItem, nomenclatureDto);
 			serviceItem.Attributes = new ServiceSaleItemAttributes();
 			
 			return serviceItem;
 		}
 		
-		public object CreateEquipmentSaleItem(OnlineNomenclatureNode nomenclatureNode)
+		private object CreateEquipmentSaleItem(OnlineNomenclatureDto nomenclatureDto)
 		{
 			var equipmentSaleItem = new EquipmentSaleItemDto();
-			FillSaleItem(equipmentSaleItem, nomenclatureNode);
+			FillSaleItem(equipmentSaleItem, nomenclatureDto);
 			equipmentSaleItem.Attributes = new EquipmentSaleItemAttributes
 			{
-				EquipmentInstallationType = nomenclatureNode.EquipmentInstallationType,
-					EquipmentWorkloadType = nomenclatureNode.EquipmentWorkloadType,
-					PumpType = nomenclatureNode.PumpType,
-					CupHolderBracingType = nomenclatureNode.CupHolderBracingType,
-					HasHeating = nomenclatureNode.HasHeating,
-					HeatingPower = nomenclatureNode.HeatingPower,
-					HeatingProductivity = nomenclatureNode.HeatingProductivity,
-					ProtectionOnHotWaterTap = nomenclatureNode.ProtectionOnHotWaterTap,
-					HasCooling = nomenclatureNode.HasCooling,
-					CoolingPower = nomenclatureNode.CoolingPower,
-					CoolingProductivity = nomenclatureNode.CoolingProductivity,
-					CoolingType = nomenclatureNode.CoolingType,
-					LockerRefrigeratorType = nomenclatureNode.LockerRefrigeratorType,
-					LockerRefrigeratorVolume = nomenclatureNode.LockerRefrigeratorVolume,
-					TapType = nomenclatureNode.TapType,
-					GlassHolderType = nomenclatureNode.GlassHolderType,
-					HeatingTemperatureFrom = nomenclatureNode.HeatingTemperatureFrom,
-					HeatingTemperatureTo = nomenclatureNode.HeatingTemperatureTo,
-					CoolingTemperatureFrom = nomenclatureNode.CoolingTemperatureFrom,
-					CoolingTemperatureTo = nomenclatureNode.CoolingTemperatureTo,
-					Length = nomenclatureNode.Length,
-					Width = nomenclatureNode.Width,
-					Height = nomenclatureNode.Height,
-					Weight = nomenclatureNode.Weight,
-					Size = _onlineCharacteristicsConverter.GetSizeString(nomenclatureNode.Length, nomenclatureNode.Width, nomenclatureNode.Height),
-					WeightString = _onlineCharacteristicsConverter.GetWeightString(nomenclatureNode.Weight),
-					HeatingProductivityString = _onlineCharacteristicsConverter.GetProductivityString(
-						nomenclatureNode.HeatingProductivityComparisionSign,
-						nomenclatureNode.HeatingProductivity,
-						nomenclatureNode.HeatingProductivityUnits),
-					HeatingPowerString =
-						_onlineCharacteristicsConverter.GetPowerString(nomenclatureNode.HeatingPower, nomenclatureNode.HeatingPowerUnits),
-					CoolingProductivityString = _onlineCharacteristicsConverter.GetProductivityString(
-						nomenclatureNode.CoolingProductivityComparisionSign,
-						nomenclatureNode.CoolingProductivity,
-						nomenclatureNode.CoolingProductivityUnits),
-					CoolingPowerString =
-						_onlineCharacteristicsConverter.GetPowerString(nomenclatureNode.CoolingPower, nomenclatureNode.CoolingPowerUnits),
-					HeatingTemperatureString =
-						_onlineCharacteristicsConverter.GetTemperatureString(
-							nomenclatureNode.HeatingTemperatureFrom, nomenclatureNode.HeatingTemperatureTo),
-					CoolingTemperatureString =
-						_onlineCharacteristicsConverter.GetTemperatureString(
-							nomenclatureNode.CoolingTemperatureFrom, nomenclatureNode.CoolingTemperatureTo)
+				EquipmentInstallationType = nomenclatureDto.EquipmentInstallationType,
+				EquipmentWorkloadType = nomenclatureDto.EquipmentWorkloadType,
+				PumpType = nomenclatureDto.PumpType,
+				CupHolderBracingType = nomenclatureDto.CupHolderBracingType,
+				HasHeating = nomenclatureDto.HasHeating,
+				HeatingPower = nomenclatureDto.HeatingPower,
+				HeatingProductivity = nomenclatureDto.HeatingProductivity,
+				ProtectionOnHotWaterTap = nomenclatureDto.ProtectionOnHotWaterTap,
+				HasCooling = nomenclatureDto.HasCooling,
+				CoolingPower = nomenclatureDto.CoolingPower,
+				CoolingProductivity = nomenclatureDto.CoolingProductivity,
+				CoolingType = nomenclatureDto.CoolingType,
+				LockerRefrigeratorType = nomenclatureDto.LockerRefrigeratorType,
+				LockerRefrigeratorVolume = nomenclatureDto.LockerRefrigeratorVolume,
+				TapType = nomenclatureDto.TapType,
+				GlassHolderType = nomenclatureDto.GlassHolderType,
+				HeatingTemperatureFrom = nomenclatureDto.HeatingTemperatureFrom,
+				HeatingTemperatureTo = nomenclatureDto.HeatingTemperatureTo,
+				CoolingTemperatureFrom = nomenclatureDto.CoolingTemperatureFrom,
+				CoolingTemperatureTo = nomenclatureDto.CoolingTemperatureTo,
+				Length = nomenclatureDto.Length,
+				Width = nomenclatureDto.Width,
+				Height = nomenclatureDto.Height,
+				Weight = nomenclatureDto.Weight,
+				Size = nomenclatureDto.Size,
+				WeightString = nomenclatureDto.WeightString,
+				HeatingProductivityString = nomenclatureDto.HeatingProductivityString,
+				HeatingPowerString = nomenclatureDto.HeatingPowerString,
+				CoolingProductivityString = nomenclatureDto.CoolingProductivityString,
+				CoolingPowerString = nomenclatureDto.CoolingPowerString,
+				HeatingTemperatureString = nomenclatureDto.HeatingTemperatureString,
+				CoolingTemperatureString = nomenclatureDto.CoolingTemperatureString
 			};
 			
 			return equipmentSaleItem;
 		}
 		
-		public object CreateOtherSaleItem(OnlineNomenclatureNode nomenclatureNode)
+		private object CreateOtherSaleItem(OnlineNomenclatureDto nomenclatureDto)
 		{
 			var serviceItem = new OtherSaleItemDto();
-			FillSaleItem(serviceItem, nomenclatureNode);
+			FillSaleItem(serviceItem, nomenclatureDto);
 			serviceItem.Attributes = new OtherSaleItemAttributes();
 			
 			return serviceItem;
 		}
 		
-		public IEnumerable<object> CreatePromoSetSaleItems(PromotionalSetOnlineParametersData parametersData)
+		public IEnumerable<object> CreatePromoSetSaleItems(IEnumerable<PromotionalSetDto> promoSetsData)
 		{
-			return parametersData.PromotionalSetOnlineParametersNodes.Select(keyPairValue => new PromoSetSaleItemDto
+			return promoSetsData.Select(data => new PromoSetSaleItemDto
 				{
-					ErpId = keyPairValue.Value.PromotionalSetId,
-					OnlineName = keyPairValue.Value.PromotionalSetOnlineName,
+					ErpId = data.Id,
+					OnlineName = data.OnlineName,
 					OnlineCategory = null,
 					OnlineGroup = null,
 					OnlineCatalogGuid = null,
 					Attributes = new PromoSetSaleItemAttributes
 					{
-						ForNewClients = keyPairValue.Value.PromotionalSetForNewClients,
-						BottlesCountForCalculatingDeliveryPrice = keyPairValue.Value.BottlesCountForCalculatingDeliveryPrice,
-						PromotionalNomenclatures =
-							CreatePromotionalNomenclatureDto(keyPairValue.Value.PromotionalSetId, parametersData.PromotionalSetItemBalanceNodes)
+						ForNewClients = data.ForNewClients,
 					}
 				})
 				.Cast<object>()
 				.ToList();
 		}
 		
-		public object CreateFreeRentPackageSaleItems(FreeRentPackageWithOnlineParametersNode packageNode)
+		private IEnumerable<object> CreateFreeRentPackageSaleItems(IEnumerable<FreeRentPackageDto> packages, IEnumerable<int> availableWaterIds)
+		{
+			return packages.Select(x => CreateFreeRentPackageSaleItem(x, availableWaterIds));
+		}
+		
+		private object CreateFreeRentPackageSaleItem(FreeRentPackageDto package, IEnumerable<int> availableWaterIds)
 		{
 			return new FreeRentPackageSaleItemDto
 			{
-				ErpId = packageNode.Id,
-				OnlineName = packageNode.OnlineName,
+				ErpId = package.ErpId,
+				OnlineName = package.OnlineName,
 				OnlineCategory = null,
 				OnlineGroup = null,
 				OnlineCatalogGuid = null,
 				Attributes = new FreeRentPackageAttributes
 				{
-					Deposit = packageNode.Deposit,
-					MinWaterAmount = packageNode.MinWaterAmount,
-					DepositServiceId = packageNode.DepositServiceId
+					MinWaterAmount = package.MinWaterAmount,
+					AvailableWaterIds = availableWaterIds
 				}
 			};
 		}
 
-		private void FillSaleItem(SaleItemDto saleItem, OnlineNomenclatureNode nomenclatureNode)
+		private void FillSaleItem(SaleItemDto saleItem, OnlineNomenclatureDto nomenclatureDto)
 		{
-			saleItem.ErpId = nomenclatureNode.ErpId;
-			saleItem.OnlineCatalogGuid = nomenclatureNode.OnlineCatalogGuid;
-			saleItem.OnlineCategory = nomenclatureNode.OnlineCategory;
-			saleItem.OnlineGroup = nomenclatureNode.OnlineGroup;
-			saleItem.OnlineName = nomenclatureNode.OnlineName;
+			saleItem.ErpId = nomenclatureDto.ErpId;
+			saleItem.OnlineCatalogGuid = nomenclatureDto.OnlineCatalogGuid;
+			saleItem.OnlineCategory = nomenclatureDto.OnlineCategory;
+			saleItem.OnlineGroup = nomenclatureDto.OnlineGroup;
+			saleItem.OnlineName = nomenclatureDto.OnlineName;
 		}
 
-		private object CreateSaleItem(OnlineNomenclatureNode nomenclatureNode)
+		private object CreateSaleItem(OnlineNomenclatureDto nomenclatureNode)
 		{
-			switch(nomenclatureNode.NomenclatureCategory)
+			switch(nomenclatureNode.Category)
 			{
 				case NomenclatureCategory.water:
 					return CreateWaterSaleItem(nomenclatureNode);
@@ -188,68 +224,6 @@ namespace CustomerAppsApi.Library.V2.Factories
 				default:
 					return CreateOtherSaleItem(nomenclatureNode);
 			}
-		}
-		
-		private IList<NomenclaturePricesAndStockDto> CreateNomenclaturePricesAndStockDto(NomenclatureOnlineParametersData parametersData)
-		{
-			return parametersData.NomenclatureOnlineParametersNodes.Select(parametersNode => new NomenclaturePricesAndStockDto
-				{
-					NomenclatureErpId = parametersNode.Value.NomenclatureId,
-					AvailableForSale = parametersNode.Value.AvailableForSale,
-					Marker = parametersNode.Value.Marker,
-					PercentDiscount = parametersNode.Value.PercentDiscount,
-					Prices = CreateNomenclaturePricesDto(parametersNode.Value.Id, parametersData.NomenclatureOnlinePricesNodes)
-				})
-				.ToList();
-		}
-		
-		private IList<NomenclaturePricesDto> CreateNomenclaturePricesDto(
-			int parametersId, ILookup<int, NomenclatureOnlinePriceNode> onlinePrices)
-		{
-			var prices = onlinePrices[parametersId];
-			return !prices.Any()
-				? new List<NomenclaturePricesDto>()
-				: prices.Select(CreateNomenclaturePricesDto).ToList();
-		}
-
-		private NomenclaturePricesDto CreateNomenclaturePricesDto(NomenclatureOnlinePriceNode onlinePrice)
-		{
-			return new NomenclaturePricesDto
-			{
-				MinCount = onlinePrice.MinCount,
-				Price = onlinePrice.Price,
-				PriceWithoutDiscount = onlinePrice.PriceWithoutDiscount
-			};
-		}
-
-		private NomenclaturePricesDto CreateNomenclaturePricesDto(NomenclatureOnlinePrice onlinePrice)
-		{
-			return new NomenclaturePricesDto
-			{
-				MinCount = onlinePrice.NomenclaturePrice.MinCount,
-				Price = onlinePrice.NomenclaturePrice.Price,
-				PriceWithoutDiscount = onlinePrice.PriceWithoutDiscount
-			};
-		}
-		
-		private IList<PromotionalNomenclatureDto> CreatePromotionalNomenclatureDto(
-			int promoSetId, ILookup<int, PromotionalSetItemBalanceNode> promoSetItems)
-		{
-			var items = promoSetItems[promoSetId];
-			return !items.Any()
-				? new List<PromotionalNomenclatureDto>()
-				: items.Select(CreatePromotionalNomenclatureDto).ToList();
-		}
-
-		private PromotionalNomenclatureDto CreatePromotionalNomenclatureDto(PromotionalSetItemBalanceNode promoSetItem)
-		{
-			return new PromotionalNomenclatureDto
-			{
-				Count = promoSetItem.Count,
-				Discount = promoSetItem.Discount,
-				ErpNomenclatureId = promoSetItem.NomenclatureId,
-				IsDiscountMoney = promoSetItem.IsDiscountMoney
-			};
 		}
 	}
 }

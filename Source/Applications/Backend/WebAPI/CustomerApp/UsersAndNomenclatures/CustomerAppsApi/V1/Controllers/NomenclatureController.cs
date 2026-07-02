@@ -14,13 +14,13 @@ namespace CustomerAppsApi.V1.Controllers
 	[Route("/api/")]
 	public class NomenclatureController : ControllerBase
 	{
-		private readonly ILogger<CounterpartyController> _logger;
+		private readonly ILogger<NomenclatureController> _logger;
 		private readonly INomenclatureModel _nomenclatureModel;
 		private readonly PricesFrequencyRequestsHandler _pricesFrequencyRequestsHandler;
 		private readonly NomenclaturesFrequencyRequestsHandler _nomenclaturesFrequencyRequestsHandler;
 
 		public NomenclatureController(
-			ILogger<CounterpartyController> logger,
+			ILogger<NomenclatureController> logger,
 			INomenclatureModel nomenclatureModel,
 			PricesFrequencyRequestsHandler pricesFrequencyRequestsHandler,
 			NomenclaturesFrequencyRequestsHandler nomenclaturesFrequencyRequestsHandler)

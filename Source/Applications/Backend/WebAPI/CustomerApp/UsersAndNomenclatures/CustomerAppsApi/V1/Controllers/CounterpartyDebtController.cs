@@ -10,11 +10,11 @@ namespace CustomerAppsApi.V1.Controllers
 	[Route("/api/")]
 	public class CounterpartyDebtController : ControllerBase
 	{
-		private readonly ILogger<CounterpartyController> _logger;
+		private readonly ILogger<CounterpartyDebtController> _logger;
 		private readonly ICounterpartyModel _counterpartyModel;
 		
 		public CounterpartyDebtController(
-			ILogger<CounterpartyController> logger,
+			ILogger<CounterpartyDebtController> logger,
 			ICounterpartyModel counterpartyModel)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));

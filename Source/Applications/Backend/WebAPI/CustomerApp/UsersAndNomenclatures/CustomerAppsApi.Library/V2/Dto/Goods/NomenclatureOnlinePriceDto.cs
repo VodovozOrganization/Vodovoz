@@ -1,14 +1,22 @@
 ﻿namespace CustomerAppsApi.Library.V2.Dto.Goods
 {
 	/// <summary>
-	/// Dto для отправки данных о ценах в ИПЗ
+	/// Данные по цене
 	/// </summary>
-	public class NomenclaturePricesDto
+	public class NomenclatureOnlinePriceDto
 	{
+		/// <summary>
+		/// Идентификатор цены
+		/// </summary>
+		public int Id { get; set; }
+		/// <summary>
+		/// Идентификатор онлайн параметров
+		/// </summary>
+		public int NomenclatureOnlineParametersId { get; set; }
 		/// <summary>
 		/// Минимальное количество
 		/// </summary>
-		public decimal MinCount { get; set; }
+		public int MinCount { get; set; }
 		/// <summary>
 		/// Цена
 		/// </summary>

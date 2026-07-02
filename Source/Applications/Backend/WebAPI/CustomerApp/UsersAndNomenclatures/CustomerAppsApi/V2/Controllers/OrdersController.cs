@@ -15,7 +15,7 @@ namespace CustomerAppsApi.V2.Controllers
 		private readonly IOrderModel _orderModel;
 
 		public OrdersController(
-			ILogger<CounterpartyController> logger,
+			ILogger<OrdersController> logger,
 			IOrderModel orderModel) : base(logger)
 		{
 			_orderModel = orderModel ?? throw new ArgumentNullException(nameof(orderModel));

@@ -1,12 +1,12 @@
 ﻿using Vodovoz.Core.Domain.Goods.NomenclaturesOnlineParameters;
 using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 
-namespace Vodovoz.Nodes
+namespace CustomerAppsApi.Library.V1.Dto.Goods
 {
 	/// <summary>
 	/// Данные онлайн параметров номенклатуры
 	/// </summary>
-	public class NomenclatureOnlineParametersNode
+	public class NomenclatureOnlineParametersDto
 	{
 		/// <summary>
 		/// Идентификатор параметра

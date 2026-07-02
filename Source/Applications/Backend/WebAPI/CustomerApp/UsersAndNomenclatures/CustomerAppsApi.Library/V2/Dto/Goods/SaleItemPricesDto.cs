@@ -5,15 +5,16 @@ using Vodovoz.Domain.Goods.NomenclaturesOnlineParameters;
 
 namespace CustomerAppsApi.Library.V2.Dto.Goods
 {
-	/// <summary>
-	/// Цены номенклатуры
-	/// </summary>
-	public class NomenclaturePricesAndStockDto
+	public class SaleItemPricesDto
 	{
 		/// <summary>
-		/// Id номенклатуры в ДВ
+		/// Id сущности в ДВ
 		/// </summary>
-		public int NomenclatureErpId { get; set; }
+		public int ErpId { get; set; }
+		/// <summary>
+		/// Тип товара/услуги
+		/// </summary>
+		public SaleItemType Type { get; set; }
 		/// <summary>
 		/// Доступность для продажи
 		/// </summary>
@@ -31,6 +32,6 @@ namespace CustomerAppsApi.Library.V2.Dto.Goods
 		/// <summary>
 		/// Список цен
 		/// </summary>
-		public IList<NomenclaturePricesDto> Prices { get; set; }
+		public IEnumerable<SaleItemPriceDto> Prices { get; set; }
 	}
 }

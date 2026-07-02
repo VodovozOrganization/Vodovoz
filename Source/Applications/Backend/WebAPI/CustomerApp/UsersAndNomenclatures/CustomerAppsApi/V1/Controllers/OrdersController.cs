@@ -11,11 +11,11 @@ namespace CustomerAppsApi.V1.Controllers
 	[Route("/api/[action]")]
 	public class OrdersController : ControllerBase
 	{
-		private readonly ILogger<CounterpartyController> _logger;
+		private readonly ILogger<OrdersController> _logger;
 		private readonly IOrderModel _orderModel;
 
 		public OrdersController(
-			ILogger<CounterpartyController> logger,
+			ILogger<OrdersController> logger,
 			IOrderModel orderModel)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));

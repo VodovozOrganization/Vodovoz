@@ -1,38 +1,36 @@
 ﻿using System;
 using CustomerAppsApi.Library.V1.Converters;
 using CustomerAppsApi.Library.V1.Dto;
-using CustomerAppsApi.Library.V1.Factories;
+using CustomerAppsApi.Library.V1.Repositories;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.EntityRepositories.RentPackages;
 
 namespace CustomerAppsApi.Library.V1.Models
 {
 	public class RentPackageModel : IRentPackageModel
 	{
 		private readonly IUnitOfWork _unitOfWork;
-		private readonly IRentPackageRepository _rentPackageRepository;
+		private readonly ICustomerAppRentPackageRepository _rentPackageRepository;
 		private readonly ISourceConverter _sourceConverter;
-		private readonly IRentPackageFactory _rentPackageFactory;
 
 		public RentPackageModel(
 			IUnitOfWork unitOfWork,
-			IRentPackageRepository rentPackageRepository,
-			ISourceConverter sourceConverter,
-			IRentPackageFactory rentPackageFactory)
+			ICustomerAppRentPackageRepository rentPackageRepository,
+			ISourceConverter sourceConverter
+			)
 		{
 			_unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 			_rentPackageRepository = rentPackageRepository ?? throw new ArgumentNullException(nameof(rentPackageRepository));
 			_sourceConverter = sourceConverter ?? throw new ArgumentNullException(nameof(sourceConverter));
-			_rentPackageFactory = rentPackageFactory ?? throw new ArgumentNullException(nameof(rentPackageFactory));
 		}
 
 		public FreeRentPackagesDto GetFreeRentPackages(Source source)
 		{
 			var parameterType = _sourceConverter.ConvertToNomenclatureOnlineParameterType(source);
-			var packageNodes = _rentPackageRepository.GetFreeRentPackagesForSend(_unitOfWork, parameterType);
-
-			return _rentPackageFactory.CreateFreeRentPackagesDto(packageNodes);
+			return new FreeRentPackagesDto
+			{
+				RentPackages = _rentPackageRepository.GetFreeRentPackagesForSend(_unitOfWork, parameterType)
+			};
 		}
 	}
 }

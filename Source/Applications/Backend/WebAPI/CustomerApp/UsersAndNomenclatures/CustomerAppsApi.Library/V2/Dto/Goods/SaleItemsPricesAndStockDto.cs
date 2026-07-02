@@ -5,12 +5,12 @@ namespace CustomerAppsApi.Library.V2.Dto.Goods
 	/// <summary>
 	/// Список цен номенклатур
 	/// </summary>
-	public class NomenclaturesPricesAndStockDto
+	public class SaleItemsPricesAndStockDto
 	{
 		/// <summary>
 		/// Список
 		/// </summary>
-		public IList<NomenclaturePricesAndStockDto> PricesAndStocks { get; set; }
+		public IEnumerable<SaleItemPricesDto> PricesAndStocks { get; set; }
 		/// <summary>
 		/// Сообщение об ошибке
 		/// </summary>

@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 using Gamma.Utilities;
 using Vodovoz.Core.Domain.Goods;
 
-namespace CustomerAppsApi.Library.V1.Dto.Goods
+namespace CustomerAppsApi.Library.V2.Dto.Goods
 {
 	/// <summary>
 	/// Номенклатуры продающиеся в ИПЗ
@@ -37,6 +37,10 @@ namespace CustomerAppsApi.Library.V1.Dto.Goods
 		/// Guid онлайн каталога в ИПЗ
 		/// </summary>
 		public Guid OnlineCatalogGuid { get; set; }
+		/// <summary>
+		/// Тип номенклатуры
+		/// </summary>
+		public NomenclatureCategory Category { get; set; }
 		/// <summary>
 		/// Группа товара в ИПЗ
 		/// </summary>

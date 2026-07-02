@@ -10,7 +10,5 @@ namespace CustomerAppsApi.Library.V2.Dto
 		[JsonConverter(typeof(JsonStringEnumConverter))]
 		public GoodsOnlineAvailability? OnlineAvailability { get; set; }
 		public int MinWaterAmount { get; set; }
-		public decimal Deposit { get; set; }
-		public int DepositServiceId { get; set; }
 	}
 }

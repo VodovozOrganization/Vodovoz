@@ -14,6 +14,6 @@ namespace CustomerAppsApi.Library.V1.Dto.Goods
 		/// <summary>
 		/// Список номенклатур
 		/// </summary>
-		public IList<OnlineNomenclatureDto> OnlineNomenclatures { get; set; }
+		public IEnumerable<OnlineNomenclatureDto> OnlineNomenclatures { get; set; }
 	}
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using CustomerAppsApi.Library.V2.Services;
+using Microsoft.Extensions.DependencyInjection;
 using QS.Utilities.Numeric;
 using Vodovoz.Core.Application.Clients.Services;
 using Vodovoz.Core.Application.Orders.Services;
@@ -28,12 +29,14 @@ namespace CustomerAppsApi.Library
 				.AddScoped<V1.Models.ISendingService, V1.Models.SendingService>()
 				.AddScoped<V1.Models.IDeliveryPointService, V1.Models.DeliveryPointService>()
 				.AddScoped<V1.Repositories.ICachedBottlesDebtRepository, V1.Repositories.CachedBottlesDebtRepository>()
+				.AddScoped<V1.Repositories.ICustomerAppRentPackageRepository, V1.Repositories.CustomerAppRentPackageRepository>()
+				.AddScoped<V1.Repositories.ISaleItemRepository, V1.Repositories.SaleItemRepository>()
+				.AddScoped<V1.Repositories.ICustomerAppPromotionalSetRepository, V1.Repositories.CustomerAppPromotionalSetRepository>()
 				.AddScoped<V1.Factories.IRegisteredNaturalCounterpartyDtoFactory, V1.Factories.RegisteredNaturalCounterpartyDtoFactory>()
 				.AddScoped<V1.Factories.ICounterpartyModelFactory, V1.Factories.CounterpartyModelFactory>()
 				.AddScoped<V1.Factories.ICounterpartyFactory, V1.Factories.CounterpartyFactory>()
 				.AddScoped<V1.Factories.INomenclatureFactory, V1.Factories.NomenclatureFactory>()
 				.AddScoped<V1.Factories.IPromotionalSetFactory, V1.Factories.PromotionalSetFactory>()
-				.AddScoped<V1.Factories.IRentPackageFactory, V1.Factories.RentPackageFactory>()
 				.AddScoped<V1.Factories.IDeliveryPointFactory, V1.Factories.DeliveryPointFactory>()
 				.AddScoped<V1.Converters.ICameFromConverter, V1.Converters.CameFromConverter>()
 				.AddScoped<V1.Converters.ISourceConverter, V1.Converters.SourceConverter>()
@@ -66,6 +69,7 @@ namespace CustomerAppsApi.Library
 				.AddScoped<V2.Models.ISendingService, V2.Models.SendingService>()
 				.AddScoped<V2.Models.IDeliveryPointService, V2.Models.DeliveryPointService>()
 				.AddScoped<V2.Repositories.ICachedBottlesDebtRepository, V2.Repositories.CachedBottlesDebtRepository>()
+				.AddScoped<V2.Repositories.ISaleItemRepository, V2.Repositories.SaleItemRepository>()
 				.AddScoped<V2.Factories.IRegisteredNaturalCounterpartyDtoFactory, V2.Factories.RegisteredNaturalCounterpartyDtoFactory>()
 				.AddScoped<V2.Factories.ICounterpartyModelFactory, V2.Factories.CounterpartyModelFactory>()
 				.AddScoped<V2.Factories.ICounterpartyFactory, V2.Factories.CounterpartyFactory>()
@@ -74,7 +78,7 @@ namespace CustomerAppsApi.Library
 				.AddScoped<V2.Converters.ICameFromConverter, V2.Converters.CameFromConverter>()
 				.AddScoped<V2.Converters.ISourceConverter, V2.Converters.SourceConverter>()
 				.AddScoped<V2.Models.ICounterpartyModel, V2.Models.CounterpartyModel>()
-				.AddScoped<V2.Models.INomenclatureModel, V2.Models.NomenclatureModel>()
+				.AddScoped<ISaleItemService, SaleItemService>()
 				.AddScoped<V2.Models.IOrderModel, V2.Models.OrderModel>()
 				.AddScoped<V2.Models.IWarehouseModel, V2.Models.WarehouseModel>()
 				.AddScoped<V2.Validators.ICounterpartyModelValidator, V2.Validators.CounterpartyModelValidator>()

@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Threading.Tasks;
 using CustomerAppsApi.Library.V2.Dto.Goods;
-using CustomerAppsApi.Library.V2.Models;
 using CustomerAppsApi.Library.V2.Services;
 using Gamma.Utilities;
 using Microsoft.AspNetCore.Authorization;
@@ -13,20 +13,20 @@ namespace CustomerAppsApi.V2.Controllers
 {
 	[Authorize]
 	[ApiVersion("2.0")]
-	public class NomenclatureController : VersionedController
+	public class SaleItemController : VersionedController
 	{
-		private readonly INomenclatureModel _nomenclatureModel;
+		private readonly ISaleItemService _saleItemService;
 		private readonly PricesFrequencyRequestsHandler _pricesFrequencyRequestsHandler;
 		private readonly NomenclaturesFrequencyRequestsHandler _nomenclaturesFrequencyRequestsHandler;
 
-		public NomenclatureController(
-			ILogger<CounterpartyController> logger,
-			INomenclatureModel nomenclatureModel,
+		public SaleItemController(
+			ILogger<SaleItemController> logger,
+			ISaleItemService saleItemService,
 			PricesFrequencyRequestsHandler pricesFrequencyRequestsHandler,
 			NomenclaturesFrequencyRequestsHandler nomenclaturesFrequencyRequestsHandler)
 			: base(logger) 
 		{
-			_nomenclatureModel = nomenclatureModel ?? throw new ArgumentNullException(nameof(nomenclatureModel));
+			_saleItemService = saleItemService ?? throw new ArgumentNullException(nameof(saleItemService));
 			_pricesFrequencyRequestsHandler =
 				pricesFrequencyRequestsHandler ?? throw new ArgumentNullException(nameof(pricesFrequencyRequestsHandler));
 			_nomenclaturesFrequencyRequestsHandler =
@@ -34,7 +34,7 @@ namespace CustomerAppsApi.V2.Controllers
 		}
 
 		[HttpGet]
-		public NomenclaturesPricesAndStockDto GetNomenclaturesPricesAndStocks([FromQuery] Source source)
+		public async Task<SaleItemsPricesAndStockDto> GetSaleItemsPricesAndStocks([FromQuery] Source source)
 		{
 			var sourceName = source.GetEnumTitle();
 			try
@@ -42,18 +42,17 @@ namespace CustomerAppsApi.V2.Controllers
 				_logger.LogInformation("Поступил запрос на выборку цен и остатков от источника {Source}", sourceName);
 
 				var isDryRun = HttpResponseHelper.IsHealthCheckRequest(Request);
-
 				var canRequest = isDryRun || _pricesFrequencyRequestsHandler.CanRequest(source, sourceName);
 
 				if(!canRequest)
 				{
-					return new NomenclaturesPricesAndStockDto
+					return new SaleItemsPricesAndStockDto
 					{
 						ErrorMessage = "Превышен интервал обращений"
 					};
 				}
 
-				var pricesAndStocks = _nomenclatureModel.GetNomenclaturesPricesAndStocks(source);
+				var pricesAndStocks = await _saleItemService.GetSaleItemsPricesAndStocks(source);
 
 				if(!isDryRun)
 				{
@@ -65,7 +64,7 @@ namespace CustomerAppsApi.V2.Controllers
 			catch(Exception e)
 			{
 				_logger.LogError(e, "Ошибка при получении цен и остатков для источника {Source}", sourceName);
-				return new NomenclaturesPricesAndStockDto
+				return new SaleItemsPricesAndStockDto
 				{
 					ErrorMessage = e.Message
 				};
@@ -73,7 +72,7 @@ namespace CustomerAppsApi.V2.Controllers
 		}
 		
 		[HttpGet]
-		public SaleItemsDto GetNomenclatures([FromQuery] Source source)
+		public async Task<SaleItemsDto> GetSaleItems([FromQuery] Source source)
 		{
 			var sourceName = source.GetEnumTitle();
 			try
@@ -92,14 +91,14 @@ namespace CustomerAppsApi.V2.Controllers
 					};
 				}
 
-				var nomenclatures = _nomenclatureModel.GetNomenclatures(source);
+				var saleItems = await _saleItemService.GetSaleItems(source);
 
 				if(!isDryRun)
 				{
 					_nomenclaturesFrequencyRequestsHandler.TryUpdate(source);
 				}
 
-				return nomenclatures;
+				return saleItems;
 			}
 			catch(Exception e)
 			{

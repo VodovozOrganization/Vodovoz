@@ -3,6 +3,9 @@ using Vodovoz.Core.Domain.Goods;
 
 namespace CustomerAppsApi.Library.V2.Dto.Goods.Attributes
 {
+	/// <summary>
+	/// Характеристики воды и лимонадов
+	/// </summary>
 	public class WaterSaleItemAttributes
 	{
 		/// <summary>

@@ -15,13 +15,13 @@ namespace CustomerAppsApi.V1.Controllers
 	[Route("/api/")]
 	public class PromotionalSetController : ControllerBase
 	{
-		private readonly ILogger<CounterpartyController> _logger;
+		private readonly ILogger<PromotionalSetController> _logger;
 		private readonly IPromotionalSetModel _promotionalSetModel;
 		private readonly IConfigurationSection _requestsLimitsSection;
 		private static readonly ConcurrentDictionary<Source, DateTime> _requestTimes = new ConcurrentDictionary<Source, DateTime>();
 
 		public PromotionalSetController(
-			ILogger<CounterpartyController> logger,
+			ILogger<PromotionalSetController> logger,
 			IPromotionalSetModel promotionalSetModel,
 			IConfiguration configuration)
 		{

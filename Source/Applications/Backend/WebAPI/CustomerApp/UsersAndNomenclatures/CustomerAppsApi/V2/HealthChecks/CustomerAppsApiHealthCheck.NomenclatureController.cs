@@ -28,7 +28,7 @@ namespace CustomerAppsApi.V2.HealthChecks
 		{
 			var source = _healthSection.GetSection("GetNomenclaturesPricesAndStocksSource").Get<string>();
 
-			var result = await HttpResponseHelper.SendRequestAsync<NomenclaturesPricesAndStockDto>(
+			var result = await HttpResponseHelper.SendRequestAsync<SaleItemsPricesAndStockDto>(
 				HttpMethod.Get,
 				$"{_baseAddress}/api/{_version}/GetNomenclaturesPricesAndStocks?source={source}",
 				_httpClientFactory,

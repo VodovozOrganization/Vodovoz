@@ -1,8 +1,11 @@
-﻿namespace CustomerAppsApi.Library.V2.Dto.Goods
+﻿using System.Text.Json.Serialization;
+
+namespace CustomerAppsApi.Library.V2.Dto.Goods
 {
 	/// <summary>
 	/// Тип продаваемой позиции
 	/// </summary>
+	[JsonConverter(typeof(JsonStringEnumConverter))]
 	public enum SaleItemType
 	{
 		/// <summary>

@@ -20,6 +20,7 @@ using QS.Project.Core;
 using QS.Services;
 using RabbitMQ.MailSending;
 using Vodovoz;
+using Vodovoz.Core.Application;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
 using Vodovoz.Infrastructure.Persistance;
@@ -67,6 +68,7 @@ namespace CustomerAppsApi
 				)
 				.AddDatabaseConnection()
 				.AddCore()
+				.AddCoreApplicationServices()
 				.AddBusiness(Configuration)
 				.AddTrackedUoW()
 				.AddInfrastructure()
@@ -124,6 +126,7 @@ namespace CustomerAppsApi
 			app.UseMiddleware<ResponseLoggingMiddleware>();
 			app.UseHttpsRedirection();
 			app.UseRouting();
+			app.UseAuthentication();
 			app.UseAuthorization();
 			app.UseApiVersioning();
 			app.UseVodovozHealthCheck();

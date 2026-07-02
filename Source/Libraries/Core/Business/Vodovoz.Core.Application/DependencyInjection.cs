@@ -35,6 +35,7 @@ using VodovozBusiness.Employees;
 using VodovozBusiness.Models.TrueMark;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Clients;
+using VodovozBusiness.Services.Clients.DeliveryPoints;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.Receipts;
 using VodovozBusiness.Services.Subdivisions;
@@ -78,6 +79,7 @@ namespace Vodovoz.Core.Application
 				.AddScoped<OrderCancellationService>()
 				.AddScoped<SelfdeliveryCancellationService>()
 				.AddScoped<IExternalCounterpartyHandler, ExternalCounterpartyHandler>()
+				.AddScoped<IDeliveryPointBuildingNumberHandler, DeliveryPointBuildingNumberHandler>()
 				.AddScoped<IStagingTrueMarkCodeFactory, StagingTrueMarkCodeFactory>()
 				.AddTrueMarkApiClient()
 				.AddCoreApplicationOrderServices()				

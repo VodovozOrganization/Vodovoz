@@ -14,7 +14,7 @@ namespace CustomerAppsApi.V2.Controllers
 		private readonly ICounterpartyModel _counterpartyModel;
 
 		public CounterpartyDebtController(
-			ILogger<CounterpartyController> logger,
+			ILogger<CounterpartyDebtController> logger,
 			ICounterpartyModel counterpartyModel) : base(logger)
 		{
 			_counterpartyModel = counterpartyModel ?? throw new ArgumentNullException(nameof(counterpartyModel));
