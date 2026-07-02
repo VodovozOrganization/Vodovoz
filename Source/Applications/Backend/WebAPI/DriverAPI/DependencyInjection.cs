@@ -25,6 +25,7 @@ using System.Text;
 using TransactionalOutbox.Abstractions;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Domain.Cash;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Presentation.WebApi;
@@ -101,7 +102,9 @@ namespace DriverAPI
 
 				.AddScoped<ICallTaskWorker, CallTaskWorker>()
 				.AddScoped<ICallTaskFactory>(context => CallTaskSingletonFactory.GetInstance())
-				.AddDriverApiHostedServices();
+				.AddDriverApiHostedServices()
+				
+				.AddScoped<IRouteListCashOrganisationDistributor, RouteListCashOrganisationDistributor>();
 
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 			services.AddStaticHistoryTracker();

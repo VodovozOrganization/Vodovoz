@@ -151,7 +151,7 @@ namespace Edo.Withdrawal.Routine.Services
 			var withdrawalRequest = new WithdrawalEdoRequest
 			{
 				Time = DateTime.Now,
-				Source = CustomerEdoRequestSource.Manual,
+				Source = EdoRequestSource.Manual,
 				Type = CustomerEdoRequestType.Order,
 				DocumentType = EdoDocumentType.UPD,
 				Order = order,

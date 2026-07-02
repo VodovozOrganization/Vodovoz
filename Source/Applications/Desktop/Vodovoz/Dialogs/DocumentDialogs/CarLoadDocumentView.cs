@@ -91,7 +91,7 @@ namespace Vodovoz
 			{
 				return;
 			}
-			_navigator.OpenViewModel<OrderCodesViewModel, int>(null, selectedItem.OrderId.Value, OpenPageOptions.IgnoreHash);
+			_navigator.OpenViewModel<OrderCodesDialogViewModel, int>(null, selectedItem.OrderId.Value, OpenPageOptions.IgnoreHash);
 		}
 
 		public void FillItemsByWarehouse()

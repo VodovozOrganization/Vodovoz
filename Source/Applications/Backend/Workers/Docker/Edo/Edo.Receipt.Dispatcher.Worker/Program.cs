@@ -1,17 +1,24 @@
 ﻿using Autofac.Extensions.DependencyInjection;
+using Edo.Common.Services;
+using Edo.Problem.Routine;
 using MessageTransport;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using QS.Banks.Domain;
+using QS.BusinessCommon.HMap;
+using QS.HistoryLog;
 using QS.Project.Core;
+using QS.Project.Domain;
+using QS.Project.HibernateMapping;
 using System;
 using System.Text;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Infrastructure;
 using Vodovoz.Infrastructure.Persistance;
+using Vodovoz.Zabbix.Sender;
 
 namespace Edo.Receipt.Dispatcher.Worker
 {
@@ -35,12 +42,12 @@ namespace Edo.Receipt.Dispatcher.Worker
 				{
 					services
 						.AddMappingAssemblies(
-							typeof(QS.Project.HibernateMapping.UserBaseMap).Assembly,
-							typeof(QS.Banks.Domain.Bank).Assembly,
-							typeof(QS.HistoryLog.HistoryMain).Assembly,
-							typeof(QS.Project.Domain.TypeOfEntity).Assembly,
-							typeof(Vodovoz.Core.Data.NHibernate.AssemblyFinder).Assembly,
-							typeof(QS.BusinessCommon.HMap.MeasurementUnitsMap).Assembly
+							typeof(UserBaseMap).Assembly,
+							typeof(Bank).Assembly,
+							typeof(HistoryMain).Assembly,
+							typeof(TypeOfEntity).Assembly,
+							typeof(AssemblyFinder).Assembly,
+							typeof(MeasurementUnitsMap).Assembly
 						)
 						.AddDatabaseConnection()
 						.AddNHibernateConventions()
@@ -49,9 +56,16 @@ namespace Edo.Receipt.Dispatcher.Worker
 						.AddTrackedUoW()
 						.AddMessageTransportSettings()
 						.AddEdoReceiptDispatcher()
+						.AddEdoProblemRoutineServices()
 
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
+						
+						.AddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>()
 					;
+
+					services
+						.AddHostedService<ReceiptNightSendProblemWorker>()
+						.ConfigureZabbixSenderFromDataBase(nameof(ReceiptNightSendProblemWorker));
 
 					services.AddHostedService<InitDbConnectionOnHostStartedService>();
 				});

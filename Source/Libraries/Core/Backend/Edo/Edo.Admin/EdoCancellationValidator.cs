@@ -55,10 +55,10 @@ namespace Edo.Admin
 			}
 
 			var canCancel = edoTask.TransferStatus.IsIn(
-				TransferEdoTaskStatus.WaitingRequests,
-				TransferEdoTaskStatus.PreparingToSend,
-				TransferEdoTaskStatus.ReadyToSend,
-				TransferEdoTaskStatus.InProgress
+				EdoTransferTaskStage.WaitingRequests,
+				EdoTransferTaskStage.PreparingToSend,
+				EdoTransferTaskStage.ReadyToSend,
+				EdoTransferTaskStage.InProgress
 			);
 			return canCancel;
 		}

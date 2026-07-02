@@ -79,5 +79,17 @@ namespace EdoService.Library
 		/// <param name="edoTask"></param>
 		/// <returns></returns>
 		Result SendDocumentTaskCreatedEvent(EdoTask edoTask);
+
+		/// <summary>
+		/// Запускает переобработку задачи на отправку УПД, 
+		/// которая попала в проблему в статусе New
+		/// </summary>
+		void RehandleNewUpdDocumentWithProblem(int updEdoTaskId);
+
+		/// <summary>
+		/// Запускает переобработку задачи на отправку чека, 
+		/// которая попала в проблему в статусе New
+		/// </summary>
+		void RehandleNewReceiptDocumentWithProblem(int receiptEdoTaskId);
 	}
 }
