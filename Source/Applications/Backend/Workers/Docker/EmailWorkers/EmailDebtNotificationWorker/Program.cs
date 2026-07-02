@@ -1,4 +1,4 @@
-using Autofac.Extensions.DependencyInjection;
+﻿using Autofac.Extensions.DependencyInjection;
 using BitrixApi.Library.Services;
 using EmailDebtNotificationWorker.Options;
 using EmailDebtNotificationWorker.Repositories;
@@ -122,17 +122,16 @@ namespace EmailDebtNotificationWorker
 						.AddHostedService<EmailClaimLettersWorker>()
 						.ConfigureZabbixSenderFromDataBase(nameof(EmailClaimLettersWorker));
 
-					// Пока отключаем до реализации других задач
-					//services
-					//	.Configure<EmailClosingDeliveriesOptions>(hostContext.Configuration.GetSection(EmailClosingDeliveriesOptions.SectionName))
-					//	.AddScoped<IClosingDeliveriesService, ClosingDeliveriesService>()
-					//	.AddScoped<IOrderWithoutShipmentForDebtPreparer, OrderWithoutShipmentForDebtPreparer>()
-					//	.AddScoped<IClosingDeliveriesNotificationSender, ClosingDeliveriesNotificationSender>()
-					//	.AddScoped<IClientClosingDeliveriesEmailPreparer, ClientClosingDeliveriesEmailPreparer>()
-					//	.AddScoped<ISummaryClosingDeliveriesEmailPreparer, SummaryClosingDeliveriesEmailPreparer>()
-					//	.AddHostedService<EmailClosingDeliveriesWorker>()
-					//	.ConfigureZabbixSenderFromDataBase(nameof(EmailClosingDeliveriesWorker))
-					//	;
+					services
+						.Configure<EmailClosingDeliveriesOptions>(hostContext.Configuration.GetSection(EmailClosingDeliveriesOptions.SectionName))
+						.AddScoped<IClosingDeliveriesService, ClosingDeliveriesService>()
+						.AddScoped<IOrderWithoutShipmentForDebtPreparer, OrderWithoutShipmentForDebtPreparer>()
+						.AddScoped<IClosingDeliveriesNotificationSender, ClosingDeliveriesNotificationSender>()
+						.AddScoped<IClientClosingDeliveriesEmailPreparer, ClientClosingDeliveriesEmailPreparer>()
+						.AddScoped<ISummaryClosingDeliveriesEmailPreparer, SummaryClosingDeliveriesEmailPreparer>()
+						.AddHostedService<EmailClosingDeliveriesWorker>()
+						.ConfigureZabbixSenderFromDataBase(nameof(EmailClosingDeliveriesWorker))
+						;
 				});
 	}
 }
