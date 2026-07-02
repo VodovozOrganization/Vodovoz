@@ -78,7 +78,7 @@ namespace Vodovoz.Core.Application.TrueMark
 				?? throw new ArgumentNullException(nameof(uow));
 			_trueMarkApiClient = trueMarkApiClient
 				?? throw new ArgumentNullException(nameof(trueMarkApiClient));
-			_ourCodesChecker = ourCodesChecker 
+			_ourCodesChecker = ourCodesChecker
 				?? throw new ArgumentNullException(nameof(ourCodesChecker));
 			_trueMarkCodesChecker = trueMarkCodesChecker
 				?? throw new ArgumentNullException(nameof(trueMarkCodesChecker));
@@ -327,7 +327,7 @@ namespace Vodovoz.Core.Application.TrueMark
 		}
 
 		private IEnumerable<TrueMarkProductCode> TrueMarkProductCodesHavingRequiredResultCode(
-			int resultCodeId, 
+			int resultCodeId,
 			int exceptProductCodeId = 0
 			)
 		{
@@ -1363,7 +1363,7 @@ namespace Vodovoz.Core.Application.TrueMark
 			IEnumerable<StagingTrueMarkCode> stagingCodes,
 			CancellationToken cancellationToken)
 		{
-			var transportSagingCodes  = stagingCodes
+			var transportSagingCodes = stagingCodes
 				.Where(x => x.CodeType == StagingTrueMarkCodeType.Transport)
 				.ToList();
 
@@ -1381,7 +1381,7 @@ namespace Vodovoz.Core.Application.TrueMark
 			{
 				var transportCodesData =
 					await GetSavedOrCreateTrueMarkAnyCodesByTransportStagingCodes(uow, transportSagingCodes, cancellationToken);
-				
+
 				foreach(var transportCodeData in transportCodesData)
 				{
 					if(codesData.ContainsKey(transportCodeData.Key))
@@ -1555,56 +1555,6 @@ namespace Vodovoz.Core.Application.TrueMark
 			}
 
 			return codesData;
-		}
-
-		public async Task DisaggregateRelatedCodesAsync(
-			IUnitOfWork unitOfWork,
-			TrueMarkAnyCode anyCode,
-			CancellationToken cancellationToken = default)
-		{
-			if(anyCode == null)
-			{
-				return;
-			}
-
-			var root = GetParentGroupCode(unitOfWork, anyCode);
-
-			var allCodes = root.Match(
-				transportCode => transportCode.GetAllCodes(),
-				groupCode => groupCode.GetAllCodes(),
-				waterCode => new TrueMarkAnyCode[] { waterCode })
-			.ToArray();
-
-			foreach(var code in allCodes)
-			{
-				await DisaggregateSingleCodeAsync(unitOfWork, code, cancellationToken);
-			}
-		}
-
-		private async Task DisaggregateSingleCodeAsync(
-			IUnitOfWork unitOfWork,
-			TrueMarkAnyCode code,
-			CancellationToken cancellationToken)
-		{
-			await code.Match(
-				transportCode =>
-				{
-					transportCode.ParentTransportCodeId = null;
-					return unitOfWork.SaveAsync(transportCode, cancellationToken: cancellationToken);
-				},
-				groupCode =>
-				{
-					groupCode.ParentTransportCodeId = null;
-					groupCode.ParentWaterGroupCodeId = null;
-					return unitOfWork.SaveAsync(groupCode, cancellationToken: cancellationToken);
-				},
-				waterCode =>
-				{
-					waterCode.ParentTransportCodeId = null;
-					waterCode.ParentWaterGroupCodeId = null;
-					return unitOfWork.SaveAsync(waterCode, cancellationToken: cancellationToken);
-				}
-			);
 		}
 	}
 }
