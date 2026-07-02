@@ -2,7 +2,6 @@
 using QS.DomainModel.Entity;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,7 +22,7 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			IncludedElements.ListContentChanged += (s, e) => OnPropertyChanged(nameof(IncludedCount));
 			ExcludedElements.ListContentChanged += (s, e) => OnPropertyChanged(nameof(ExcludedCount));
 			FilteredElements.ElementAdded += OnFilteredElementsAdded;
-			FilteredElements.ElementRemoved -= OnFilteredElementsElementRemoved;
+			FilteredElements.ElementRemoved += OnFilteredElementsElementRemoved;
 
 			GetReportParametersFunc = DefaultGetReportParameters;
 
@@ -148,26 +147,12 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 		private void RefreshIncludedElements(GenericObservableList<IncludeExcludeElement> filteredElements)
 		{
+			var elementLookup = BuildElementLookup(filteredElements);
+
 			for(var i = 0; i < IncludedElements.Count; i++)
 			{
-				IncludeExcludeElement replacement = null;
-
-				foreach(var element in filteredElements)
-				{
-					if(element.Number == IncludedElements[i].Number)
-					{
-						replacement = element;
-
-						break;
-					}
-
-					if(element.Children.Count > 0)
-					{
-						RefreshIncludedElements(element.Children);
-					}
-				}
-
-				if(replacement != null)
+				string key = IncludedElements[i].Number;
+				if(elementLookup.TryGetValue(key, out var replacement))
 				{
 					replacement.Include = true;
 					IncludedElements[i] = replacement;
@@ -177,26 +162,12 @@ namespace Vodovoz.Presentation.ViewModels.Common
 
 		private void RefreshExcludedElements(GenericObservableList<IncludeExcludeElement> filteredElements)
 		{
+			var elementLookup = BuildElementLookup(filteredElements);
+
 			for(var i = 0; i < ExcludedElements.Count; i++)
 			{
-				IncludeExcludeElement replacement = null;
-
-				foreach(var element in filteredElements)
-				{
-					if(element.Number == ExcludedElements[i].Number)
-					{
-						replacement = element;
-
-						break;
-					}
-
-					if(element.Children.Count > 0)
-					{
-						RefreshExcludedElements(element.Children);
-					}
-				}
-
-				if(replacement != null)
+				string key = ExcludedElements[i].Number;
+				if(elementLookup.TryGetValue(key, out var replacement))
 				{
 					replacement.Exclude = true;
 					ExcludedElements[i] = replacement;
@@ -204,8 +175,33 @@ namespace Vodovoz.Presentation.ViewModels.Common
 			}
 		}
 
+		private Dictionary<string, IncludeExcludeElement> BuildElementLookup(
+			GenericObservableList<IncludeExcludeElement> filteredElements)
+		{
+			var lookup = new Dictionary<string, IncludeExcludeElement>();
+			BuildLookupRecursive(filteredElements, lookup);
+			return lookup;
+		}
+
+		private void BuildLookupRecursive(
+			GenericObservableList<IncludeExcludeElement> elements,
+			Dictionary<string, IncludeExcludeElement> lookup)
+		{
+			foreach(var element in elements)
+			{
+				lookup[element.Number] = element;
+
+				if(element.Children?.Count > 0)
+				{
+					BuildLookupRecursive(element.Children, lookup);
+				}
+			}
+		}
+
 		private void OnElementUnExcluded(IncludeExcludeElement sender, EventArgs eventArgs)
 		{
+			UncheckChildrenRecursive(sender, isExclude: true);
+
 			ExcludedElements.Remove(sender);
 			OnPropertyChanged(nameof(ExcludedCount));
 		}
@@ -217,9 +213,39 @@ namespace Vodovoz.Presentation.ViewModels.Common
 				return;
 			}
 
+			UncheckChildrenRecursive(sender, isExclude: false);
+
 			IncludedElements.Remove(sender);
 
 			OnPropertyChanged(nameof(IncludedCount));
+		}
+
+		private void UncheckChildrenRecursive(IncludeExcludeElement element, bool isExclude)
+		{
+			if(element.Children is null)
+			{
+				return;
+			}
+
+			foreach(var child in element.Children)
+			{
+				if(isExclude)
+				{
+					if(child.Exclude)
+					{
+						child.Exclude = false;
+					}
+				}
+				else
+				{
+					if(child.Include)
+					{
+						child.Include = false;
+					}
+				}
+
+				UncheckChildrenRecursive(child, isExclude);
+			}
 		}
 
 		private void OnElementExcluded(IncludeExcludeElement sender, EventArgs eventArgs)
