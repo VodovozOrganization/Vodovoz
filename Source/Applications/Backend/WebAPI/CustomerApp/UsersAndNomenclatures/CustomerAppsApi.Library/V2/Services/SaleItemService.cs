@@ -129,9 +129,11 @@ namespace CustomerAppsApi.Library.V2.Services
 			{
 				var items = promotionalSetItems[promoSetParameter.ErpId];
 				
+				var promoSetPrices = CalculatePromoSetPrices(items);
+				
 				var prices = new[]
 				{
-					SaleItemPriceDto.CreatePromoSetItem(promoSetParameter.ErpId, CalculatePromoSetPrice(items))
+					SaleItemPriceDto.CreatePromoSetItem(promoSetParameter.ErpId, promoSetPrices.Sum, promoSetPrices.SumWithoutDiscount),
 				};
 				
 				promoSetParameter.Prices = prices;
@@ -140,16 +142,23 @@ namespace CustomerAppsApi.Library.V2.Services
 			return aggregatedData.PromoSetParameters;
 		}
 
-		private decimal CalculatePromoSetPrice(IEnumerable<PromotionalSetItemBalanceDto> items)
+		private (decimal SumWithoutDiscount, decimal Sum) CalculatePromoSetPrices(IEnumerable<PromotionalSetItemBalanceDto> items)
 		{
-			return (
-				from item in items
-				let sumWithoutDiscount = item.Count * item.NomenclaturePrice
-				let discountMoney = item.IsDiscountMoney
+			var sum = 0m;
+			var sumWithoutDiscount = 0m;
+			
+			foreach(var item in items)
+			{
+				sumWithoutDiscount += item.Count * item.NomenclaturePrice;
+				
+				var discountMoney = item.IsDiscountMoney
 					? item.Discount
-					: sumWithoutDiscount * item.Discount / 100
-				select Math.Round(sumWithoutDiscount - discountMoney, 2))
-				.Sum();
+					: sumWithoutDiscount * item.Discount / 100;
+				
+				sum += Math.Round(sumWithoutDiscount - discountMoney, 2);
+			}
+
+			return (sumWithoutDiscount, sum);
 		}
 	}
 }

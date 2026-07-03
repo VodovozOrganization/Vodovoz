@@ -12,16 +12,6 @@ namespace CustomerAppsApi.Library.V2.Factories
 {
 	public class SaleItemFactory : ISaleItemFactory
 	{
-		private readonly INomenclatureOnlineCharacteristicsConverter _onlineCharacteristicsConverter;
-
-		public SaleItemFactory(
-			INomenclatureOnlineCharacteristicsConverter nomenclatureOnlineCharacteristicsConverter
-			)
-		{
-			_onlineCharacteristicsConverter =
-				nomenclatureOnlineCharacteristicsConverter ?? throw new ArgumentNullException(nameof(nomenclatureOnlineCharacteristicsConverter));
-		}
-		
 		public IEnumerable<SaleItemPricesDto> CreateSelItemPricesDto(
 			IEnumerable<NomenclatureOnlineParametersDto> nomenclatureParameters,
 			IEnumerable<NomenclatureOnlinePriceDto> nomenclaturePrices
