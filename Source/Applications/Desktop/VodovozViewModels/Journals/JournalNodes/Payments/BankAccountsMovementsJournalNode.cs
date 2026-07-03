@@ -22,7 +22,7 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Payments
 		public string GetDiscrepancyDescription()
 		{
 			const string messageTemplateWithSimpleDates = "Есть расхождения по {0}. Перезагрузите выписку за {1}";
-			const string messageTemplateWithDifferentDates = "Есть расхождения по {0}. Перезагрузите выписку c {1} по {2}";
+			const string messageTemplateWithDifferentDates = "Есть расхождения по {0}. Перезагрузите выписку(и) c {1} по {2}";
 			
 			if(!HasDiscrepancy)
 			{
@@ -67,21 +67,12 @@ namespace Vodovoz.ViewModels.Journals.JournalNodes.Payments
 					{
 						return $"Загрузите файл выписки за {StartDate.ToShortDateString()}";
 					}
-					
-					if(StartDate == EndDate)
-					{
-						return string.Format(messageTemplateWithSimpleDates, "остатку", StartDate.ToShortDateString());
-					}
 
-					if(StartDate != EndDate)
-					{
-						return string.Format(
+					return string.Format(
 							messageTemplateWithDifferentDates,
 							"остатку",
-							StartDate.ToShortDateString(),
+							StartDate.AddDays(-1).ToShortDateString(),
 							EndDate.ToShortDateString());
-					}
-					break;
 			}
 			
 			return null;
