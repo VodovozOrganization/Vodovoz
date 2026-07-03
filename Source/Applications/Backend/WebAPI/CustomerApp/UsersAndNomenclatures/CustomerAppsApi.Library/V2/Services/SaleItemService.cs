@@ -149,13 +149,14 @@ namespace CustomerAppsApi.Library.V2.Services
 			
 			foreach(var item in items)
 			{
-				sumWithoutDiscount += item.Count * item.NomenclaturePrice;
+				var itemSumWithoutDiscount = item.Count * item.NomenclaturePrice;
 				
 				var discountMoney = item.IsDiscountMoney
 					? item.Discount
-					: sumWithoutDiscount * item.Discount / 100;
+					: itemSumWithoutDiscount * item.Discount / 100;
 				
-				sum += Math.Round(sumWithoutDiscount - discountMoney, 2);
+				sum += Math.Round(itemSumWithoutDiscount - discountMoney, 2);
+				sumWithoutDiscount += itemSumWithoutDiscount;
 			}
 
 			return (sumWithoutDiscount, sum);
