@@ -224,7 +224,7 @@ namespace Vodovoz.Domain.Orders
 				nomenclature,
 				promotionalSet,
 				onlineOrder,
-				isGift);
+				giftItem);
 		}
 		
 		public static OnlineOrderItem Create(
