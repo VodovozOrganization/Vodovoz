@@ -330,6 +330,11 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 			Car carAlias = null;
 			CarModel carModelAlias = null;
 
+			var lastClassificationCalculationSettingsId = uow.GetAll<CounterpartyClassification>()
+				.OrderByDescending(c => c.Id)
+				.Select(c => c.ClassificationCalculationSettingsId)
+				.FirstOrDefault();
+
 			var query = uow.Session.QueryOver(() => orderAlias)
 				.JoinAlias(o => o.OrderItems, () => orderItemAlias)
 				.JoinAlias(o => o.Author, () => authorAlias)
@@ -353,7 +358,8 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 						&& routeListItemAlias.Status != RouteListItemStatus.Overdue,
 					JoinType.LeftOuterJoin)
 				.JoinEntityAlias(() => counterpartyClassificationAlias,
-					() => counterpartyClassificationAlias.CounterpartyId == counterpartyAlias.Id,
+					() => counterpartyClassificationAlias.CounterpartyId == counterpartyAlias.Id
+						&& counterpartyClassificationAlias.ClassificationCalculationSettingsId == lastClassificationCalculationSettingsId,
 					JoinType.LeftOuterJoin)
 				.Left.JoinAlias(() => routeListItemAlias.RouteList, () => routeListAlias)
 				.Left.JoinAlias(() => routeListAlias.Car, () => carAlias)
@@ -603,6 +609,12 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 				Projections.Property(() => orderItemAlias.Price),
 				Projections.Property(() => orderItemAlias.DiscountMoney));
 
+			var counterpartyClassificationProjection = Projections.SqlFunction(
+				new SQLFunctionTemplate(NHibernateUtil.String, "CONCAT(?1, ?2)"),
+				NHibernateUtil.String,
+				Projections.Property(() => counterpartyClassificationAlias.ClassificationByBottlesCount),
+				Projections.Property(() => counterpartyClassificationAlias.ClassificationByOrdersCount));
+
 			query.SelectList(list => list
 				.SelectGroup(() => orderAlias.Id).WithAlias(() => resultAlias.OrderId)
 				.SelectGroup(() => counterpartyAlias.Id).WithAlias(() => resultAlias.CounterpartyId)
@@ -624,6 +636,7 @@ namespace Vodovoz.Infrastructure.Persistance.Sale
 				.SelectGroup(() => promotionalSetAlias.Name).WithAlias(() => resultAlias.PromotionalSet)
 				.SelectGroup(() => authorAlias.LastName).WithAlias(() => resultAlias.OrderAuthor)
 				.SelectGroup(() => nomenclatureAlias.IsDisposableTare).WithAlias(() => resultAlias.IsDisposableTare)
+				.Select(Projections.GroupProperty(counterpartyClassificationProjection)).WithAlias(() => resultAlias.CounterpartyClassification)
 				.Select(phoneProjection).WithAlias(() => resultAlias.Phones)
 				.Select(totalCountProjection).WithAlias(() => resultAlias.TotalCount)
 				.Select(totalSumProjection).WithAlias(() => resultAlias.TotalSum)
