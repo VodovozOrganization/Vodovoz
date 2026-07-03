@@ -223,7 +223,8 @@ namespace Vodovoz.Domain.Orders
 				new List<DiscountReason> { discountReason },
 				nomenclature,
 				promotionalSet,
-				onlineOrder);
+				onlineOrder,
+				giftItem);
 		}
 		
 		public static OnlineOrderItem Create(
