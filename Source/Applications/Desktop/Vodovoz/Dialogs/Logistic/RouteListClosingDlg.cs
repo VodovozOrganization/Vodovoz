@@ -1296,15 +1296,6 @@ namespace Vodovoz
 				Entity.RecountMileage();
 			}
 
-			var updateCashBalanceResult =
-				_routeListCashProcessingService.RecalculateRouteListCashBalance(UoW, Entity);
-
-			if(updateCashBalanceResult.IsFailure)
-			{
-				MessageDialogHelper.RunErrorDialog(string.Join("\n", updateCashBalanceResult.Errors.Select(x => x.Message)));
-				return;
-			}
-
 			Entity.UpdateOperations();
 
 			PerformanceHelper.AddTimePoint("Обновлены операции перемещения");
