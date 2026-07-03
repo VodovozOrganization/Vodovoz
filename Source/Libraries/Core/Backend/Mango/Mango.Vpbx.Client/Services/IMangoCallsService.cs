@@ -14,9 +14,8 @@ namespace Mango.Vpbx.Client.Services
 		/// </summary>
 		/// <param name="extension">Дополнительный номер сотрудника</param>
 		/// <param name="toNumber">Номер телефона получателя</param>
-		/// <param name="lineNumber">Номер линии</param>
 		/// <param name="cancellationToken">Токен отмены операции</param>
 		/// <returns>Значение id команды на звонок</returns>
-		Task<Guid> MakeWebhookCall(string extension, string toNumber, string lineNumber, CancellationToken cancellationToken);
+		Task<Guid> MakeWebhookCall(string extension, string toNumber, CancellationToken cancellationToken);
 	}
 }

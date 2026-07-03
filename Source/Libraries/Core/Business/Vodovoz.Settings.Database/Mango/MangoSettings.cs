@@ -97,5 +97,17 @@ namespace Vodovoz.Settings.Database.Mango
 				return _settingsController.GetStringValue("Mango.Work.DriversCallsLineNumber");
 			}
 		}
+
+		public string WebhookCallsUrl
+		{
+			get
+			{
+				if(TestMode)
+				{
+					return _settingsController.GetStringValue("Mango.Test.WebhookCallsUrl");
+				}
+				return _settingsController.GetStringValue("Mango.Work.WebhookCallsUrl");
+			}
+		}
 	}
 }

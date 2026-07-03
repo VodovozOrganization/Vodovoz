@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Settings.Mango;
 
 namespace Mango.Vpbx.Client.Services
 {
@@ -10,18 +10,18 @@ namespace Mango.Vpbx.Client.Services
 	public class MangoCallsService : IMangoCallsService
 	{
 		private readonly ILogger<MangoCallsService> _logger;
-		private readonly IMangoSettings _mangoSettings;
+		private readonly HttpClient _httpClient;
 
 		public MangoCallsService(
 			ILogger<MangoCallsService> logger,
-			IMangoSettings mangoSettings)
+			HttpClient httpClient)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_mangoSettings = mangoSettings ?? throw new ArgumentNullException(nameof(mangoSettings));
+			_httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 		}
 
 		/// <inheritdoc/>
-		public Task<Guid> MakeWebhookCall(string extension, string toNumber, string lineNumber, CancellationToken cancellationToken)
+		public Task<Guid> MakeWebhookCall(string extension, string toNumber, CancellationToken cancellationToken)
 		{
 			throw new NotImplementedException();
 		}
