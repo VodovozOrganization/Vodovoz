@@ -15,7 +15,7 @@ namespace CustomerOrdersApi.Controllers.V4
 	/// </summary>
 	[ApiController]
 	[ApiVersion("4.0")]
-	[Route("api/v{version:apiVersion}/orders/import")]
+	[Route("api/v{version:apiVersion}/orders/[action]")]
 	public class OrdersImportController : SignatureControllerBase
 	{
 		private readonly ISiteOrdersImportRequestValidator _requestValidator;
