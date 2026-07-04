@@ -509,7 +509,7 @@ namespace Vodovoz.ViewModels.Warehouses
 				return false;
 			}
 
-			if(UoW.IsNew && Entity.HasItemsWithZeroPrimeCostOrSum)
+			if(Entity.HasItemsWithZeroPrimeCostOrSum)
 			{
 				ShowWarningMessage(
 					"В табличной части есть позиции с нулевой ценой закупки или суммой. " +
