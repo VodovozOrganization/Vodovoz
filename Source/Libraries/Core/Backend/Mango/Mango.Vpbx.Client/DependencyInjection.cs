@@ -7,11 +7,13 @@ namespace Mango.Vpbx.Client
 {
 	public static class DependencyInjection
 	{
+		/// <summary>
+		/// Добавляет сервисы клиента Mango Vpbx (virtual Private Branch Exchange виртуальная частная автоматическая телефонная станция) в контейнер зависимостей.
+		/// </summary>
+		/// <param name="services">Сервисы</param>
+		/// <returns>Сервисы</returns>
 		public static IServiceCollection AddMangoVpbxClientServices(this IServiceCollection services)
 		{
-			services
-				.AddScoped<IMangoWebhookCallsService, MangoWebhookCallsService>();
-
 			services
 				.AddHttpClient<IMangoWebhookCallsService, MangoWebhookCallsService>((sp, client) =>
 				{

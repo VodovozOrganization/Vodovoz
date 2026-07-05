@@ -24,7 +24,7 @@ namespace Vodovoz.Core.Domain.Mango
 		private int _id;
 		private int _driverId;
 		private uint? _extensionNumber;
-		private DriversMangoExtensionNumbersStatus _status;
+		private DriverMangoExtensionNumberStatus _status;
 		private DateTime _activatedAt;
 		private DateTime? _deactivatedAt;
 
@@ -61,8 +61,8 @@ namespace Vodovoz.Core.Domain.Mango
 		/// <summary>
 		/// Добавочный номер
 		/// </summary>
-		[Display(Name = "Добавочный номер")]
-		public virtual DriversMangoExtensionNumbersStatus Status
+		[Display(Name = "Статус")]
+		public virtual DriverMangoExtensionNumberStatus Status
 		{
 			get => _status;
 			set => SetField(ref _status, value);
@@ -87,23 +87,5 @@ namespace Vodovoz.Core.Domain.Mango
 			get => _deactivatedAt;
 			set => SetField(ref _deactivatedAt, value);
 		}
-	}
-
-	/// <summary>
-	/// Статус добавочного номера Манго для водителей
-	/// </summary>
-	public enum DriversMangoExtensionNumbersStatus
-	{
-		/// <summary>
-		/// Активен
-		/// </summary>
-		[Display(Name = "Активен")]
-		Active,
-
-		/// <summary>
-		/// Деактивирован
-		/// </summary>
-		[Display(Name = "Деактивирован")]
-		Deactivated
 	}
 }

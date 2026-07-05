@@ -1185,10 +1185,10 @@ namespace Vodovoz.Infrastructure.Persistance.Logistic
 		}
 
 		/// <inheritdoc/>
-		public async Task<RouteList> GetRouteListByIdAsync(IUnitOfWork uow, int routeListsId) =>
+		public async Task<RouteList> GetRouteListByIdAsync(IUnitOfWork uow, int routeListsId, CancellationToken cancellationToken) =>
 			await uow.Session.Query<RouteList>()
 			.Where(x => x.Id == routeListsId)
-			.FirstOrDefaultAsync();
+			.FirstOrDefaultAsync(cancellationToken);
 
 		public IEnumerable<KeyValuePair<string, int>> GetDeliveryItemsToReturn(IUnitOfWork unitOfWork, int routeListsId)
 		{

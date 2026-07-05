@@ -394,7 +394,7 @@ namespace Vodovoz.Infrastructure.Persistance.Employees
 		public Task<DriverMangoExtensionNumber> GetActiveDriverMangoExtensionNumber(IUnitOfWork uow, int driverId, CancellationToken cancellationToken) =>
 			uow.Session.Query<DriverMangoExtensionNumber>()
 			.Where(x => x.DriverId == driverId)
-			.Where(x => x.Status == DriversMangoExtensionNumbersStatus.Active)
+			.Where(x => x.Status == DriverMangoExtensionNumberStatus.Active)
 			.FirstOrDefaultAsync(cancellationToken);
 	}
 }

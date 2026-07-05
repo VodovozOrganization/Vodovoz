@@ -124,6 +124,6 @@ namespace Vodovoz.EntityRepositories.Logistic
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="routeListsId">Номер маршрутного листа</param>
 		/// <returns>Маршрутный лист</returns>
-		Task<RouteList> GetRouteListByIdAsync(IUnitOfWork uow, int routeListsId);
+		Task<RouteList> GetRouteListByIdAsync(IUnitOfWork uow, int routeListsId, CancellationToken cancellationToken);
 	}
 }
