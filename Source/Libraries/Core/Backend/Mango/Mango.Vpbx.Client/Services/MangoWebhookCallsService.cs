@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 namespace Mango.Vpbx.Client.Services
 {
 	/// <inheritdoc/>
-	public class MangoCallsService : IMangoCallsService
+	public class MangoWebhookCallsService : IMangoWebhookCallsService
 	{
-		private readonly ILogger<MangoCallsService> _logger;
+		private readonly ILogger<MangoWebhookCallsService> _logger;
 		private readonly HttpClient _httpClient;
 
-		public MangoCallsService(
-			ILogger<MangoCallsService> logger,
+		public MangoWebhookCallsService(
+			ILogger<MangoWebhookCallsService> logger,
 			HttpClient httpClient)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -21,7 +21,7 @@ namespace Mango.Vpbx.Client.Services
 		}
 
 		/// <inheritdoc/>
-		public async Task MakeWebhookCall(string extension, string toNumber, CancellationToken cancellationToken)
+		public async Task MakeCall(string extension, string toNumber, CancellationToken cancellationToken)
 		{
 			var requestUri = new Uri($"{_httpClient.BaseAddress}&EmployeeNUM={extension}&TelNumbr={toNumber}");
 

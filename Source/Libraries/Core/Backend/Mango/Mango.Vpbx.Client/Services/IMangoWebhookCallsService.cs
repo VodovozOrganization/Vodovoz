@@ -7,7 +7,7 @@ namespace Mango.Vpbx.Client.Services
 	/// <summary>
 	/// Сервис для звонков в Mango
 	/// </summary>
-	public interface IMangoCallsService
+	public interface IMangoWebhookCallsService
 	{
 		/// <summary>
 		/// Отправляет команду на звонок через Mango с использованием вебхука
@@ -16,6 +16,6 @@ namespace Mango.Vpbx.Client.Services
 		/// <param name="toNumber">Номер телефона получателя</param>
 		/// <param name="cancellationToken">Токен отмены операции</param>
 		/// <returns>Значение id команды на звонок</returns>
-		Task MakeWebhookCall(string extension, string toNumber, CancellationToken cancellationToken);
+		Task MakeCall(string extension, string toNumber, CancellationToken cancellationToken);
 	}
 }

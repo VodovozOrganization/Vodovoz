@@ -10,7 +10,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Errors.Logistics;
-using Vodovoz.Settings.Mango;
 
 namespace DriverAPI.Library.V6.Services
 {
@@ -21,7 +20,7 @@ namespace DriverAPI.Library.V6.Services
 
 		private readonly ILogger<CallsService> _logger;
 		private readonly IUnitOfWork _uow;
-		private readonly IMangoCallsService _mangoCallsService;
+		private readonly IMangoWebhookCallsService _mangoWebhookCallsService;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IEmployeeRepository _employeeRepository;
 
@@ -29,14 +28,14 @@ namespace DriverAPI.Library.V6.Services
 		public CallsService(
 			ILogger<CallsService> logger,
 			IUnitOfWork uow,
-			IMangoCallsService mangoCallsService,
+			IMangoWebhookCallsService mangoWebhookCallsService,
 			IRouteListRepository routeListRepository,
 			IEmployeeRepository employeeRepository
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
-			_mangoCallsService = mangoCallsService ?? throw new ArgumentNullException(nameof(mangoCallsService));
+			_mangoWebhookCallsService = mangoWebhookCallsService ?? throw new ArgumentNullException(nameof(mangoWebhookCallsService));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
 		}
@@ -95,8 +94,8 @@ namespace DriverAPI.Library.V6.Services
 
 				return Result.Failure(Errors.PhoneNumberErrors.CreateActiveMangoExtensionNumberNotFound(driver.Id));
 			}
-			
-			await _mangoCallsService.MakeWebhookCall(
+
+			await _mangoWebhookCallsService.MakeCall(
 				extension.ExtensionNumber.ToString(),
 				toNumber,
 				cancellationToken);

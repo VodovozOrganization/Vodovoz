@@ -10,10 +10,10 @@ namespace Mango.Vpbx.Client
 		public static IServiceCollection AddMangoVpbxClientServices(this IServiceCollection services)
 		{
 			services
-				.AddScoped<IMangoCallsService, MangoCallsService>();
+				.AddScoped<IMangoWebhookCallsService, MangoWebhookCallsService>();
 
 			services
-				.AddHttpClient<IMangoCallsService, MangoCallsService>((sp, client) =>
+				.AddHttpClient<IMangoWebhookCallsService, MangoWebhookCallsService>((sp, client) =>
 				{
 					var mangoSettings = sp.GetRequiredService<IMangoSettings>();
 					client.BaseAddress = new Uri(mangoSettings.WebhookCallsUrl);
