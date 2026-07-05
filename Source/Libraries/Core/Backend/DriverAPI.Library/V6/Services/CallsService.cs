@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.Errors.Logistics;
@@ -61,7 +62,7 @@ namespace DriverAPI.Library.V6.Services
 			}
 
 			var routeList =
-				await _routeListRepository.GetRouteListByIdAsync(_uow, routeListId);
+				await _routeListRepository.GetRouteListByIdAsync(_uow, routeListId, cancellationToken);
 
 			if(routeList is null)
 			{
@@ -70,6 +71,16 @@ namespace DriverAPI.Library.V6.Services
 					routeListId);
 
 				return Result.Failure(RouteListErrors.CreateNotFound(routeListId));
+			}
+
+			if(routeList.Status != RouteListStatus.EnRoute)
+			{
+				_logger.LogError(
+					"Маршрутный лист с номером {RouteListId} находится в статусе {RouteListStatus}, а не в статусе EnRoute",
+					routeListId,
+					routeList.Status);
+
+				return Result.Failure(RouteListErrors.NotEnRouteState);
 			}
 
 			if(routeList.Driver is null

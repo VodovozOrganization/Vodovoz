@@ -18,7 +18,7 @@ using Vodovoz.Presentation.WebApi.Common;
 namespace DriverAPI.Controllers.V6
 {
 	/// <summary>
-	/// Контроллер оплат СБП
+	/// Контроллер звонков Манго
 	/// </summary>
 	[ApiVersion("6.0")]
 	[Authorize(Roles = nameof(ApplicationUserRole.Driver))]
