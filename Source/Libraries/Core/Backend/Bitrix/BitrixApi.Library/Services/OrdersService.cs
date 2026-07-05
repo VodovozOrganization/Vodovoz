@@ -46,8 +46,19 @@ namespace BitrixApi.Library.Services
 		{
 			var phoneDigitsNumber = phone.NormalizePhone();
 
+			var counterpartyIdsByCounterpartyPhone =
+				(await _counterpartyRepository.GetCounterpartyIdsByCounterpartyPhoneNumber(_uow, phoneDigitsNumber, cancellationToken))
+				.ToArray();
+
+			var deliveryPointIdsWithCounterpartyIds =
+				(await _counterpartyRepository.GetDeliveryPointIdsWithCounterpartyIdsByDeliveryPointPhoneNumber(
+					_uow, phoneDigitsNumber, cancellationToken))
+				.ToArray();
+
 			var counterpartyIds =
-				(await _counterpartyRepository.GetCounterpartyIdsByPhoneNumber(_uow, phoneDigitsNumber, cancellationToken))
+				counterpartyIdsByCounterpartyPhone
+				.Concat(deliveryPointIdsWithCounterpartyIds.Select(x => x.CounterpartyId))
+				.Distinct()
 				.ToArray();
 
 			if(!counterpartyIds.Any())
@@ -69,10 +80,22 @@ namespace BitrixApi.Library.Services
 				return Result.Failure<GetOrdersResponse>(CounterpartyErrors.MoreThanOneFoundByPhoneNumber);
 			}
 
-			var orderIds =
-				(await _orderRepository.GetOrderIdsByCounterpartyFromDate(
+			var counterpartyId = counterpartyIds.First();
+
+			// Если телефон добавлен к самому контрагенту - возвращаем все его заказы независимо от точки доставки,
+			// если только к точкам доставки - ограничиваем выборку заказами на эти точки
+			var orderIds = counterpartyIdsByCounterpartyPhone.Any()
+				? (await _orderRepository.GetOrderIdsByCounterpartyFromDate(
 					_uow,
-					counterpartyIds.First(),
+					counterpartyId,
+					startDate,
+					_orderRepository.GetUndeliveryStatuses(),
+					cancellationToken))
+				.ToArray()
+				: (await _orderRepository.GetOrderIdsByCounterpartyAndDeliveryPointsFromDate(
+					_uow,
+					counterpartyId,
+					deliveryPointIdsWithCounterpartyIds.Select(x => x.DeliveryPointId).ToArray(),
 					startDate,
 					_orderRepository.GetUndeliveryStatuses(),
 					cancellationToken))
