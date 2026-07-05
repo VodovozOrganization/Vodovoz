@@ -59,6 +59,16 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		/// <returns>Объект контрагента</returns>
 		Task<Counterparty> GetCounterpartyByIdAsync(IUnitOfWork uow, int clientId, CancellationToken cancellationToken);
 
+		/// <summary>
+		/// Получение идентификаторов контрагентов по номеру телефона.
+		/// Телефон ищется как среди телефонов контрагента, так и среди телефонов его точек доставки
+		/// </summary>
+		/// <param name="uow">Unit of work</param>
+		/// <param name="phoneDigitsNumber">Номер телефона в виде 10 цифр (без 7 в начале)</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Идентификаторы найденных контрагентов</returns>
+		Task<IEnumerable<int>> GetCounterpartyIdsByPhoneNumber(IUnitOfWork uow, string phoneDigitsNumber, CancellationToken cancellationToken);
+
 		EdoOperator GetEdoOperatorByCode(IUnitOfWork uow, string edoOperatorCode);
 		IList<EdoContainer> GetEdoContainersByCounterpartyId(IUnitOfWork uow, int counterpartyId);
 		IQueryable<int> GetLastClassificationCalculationSettingsId(IUnitOfWork uow);

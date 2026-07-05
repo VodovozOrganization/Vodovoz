@@ -3053,5 +3053,24 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 
 			return query;
 		}
+
+		public async Task<IEnumerable<int>> GetOrderIdsByCounterpartyFromDate(
+			IUnitOfWork uow,
+			int counterpartyId,
+			DateTime startDate,
+			IEnumerable<OrderStatus> excludedOrderStatuses,
+			CancellationToken cancellationToken)
+		{
+			var orderIds =
+				await (from order in uow.Session.Query<Order>()
+					   where order.Client.Id == counterpartyId
+						   && order.CreateDate >= startDate
+						   && !excludedOrderStatuses.Contains(order.OrderStatus)
+					   select order.Id)
+				.Distinct()
+				.ToListAsync(cancellationToken);
+
+			return orderIds;
+		}
 	}
 }

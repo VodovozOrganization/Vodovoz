@@ -1,6 +1,7 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
+using NHibernate.Linq;
 using NHibernate.Transform;
 using QS.Banks.Domain;
 using QS.DomainModel.UoW;
@@ -315,6 +316,34 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 		public async Task<Counterparty> GetCounterpartyByIdAsync(IUnitOfWork uow, int clientId, CancellationToken cancellationToken)
 		{
 			return await uow.Session.GetAsync<Counterparty>(clientId, cancellationToken);
+		}
+
+		public async Task<IEnumerable<int>> GetCounterpartyIdsByPhoneNumber(IUnitOfWork uow, string phoneDigitsNumber, CancellationToken cancellationToken)
+		{
+			var counterpartyIdsByCounterpartyPhone =
+				(from phone in uow.Session.Query<Phone>()
+				 where !phone.IsArchive
+					 && phone.DigitsNumber == phoneDigitsNumber
+					 && phone.Counterparty != null
+				 select phone.Counterparty.Id)
+				.ToFuture();
+
+			var counterpartyIdsByDeliveryPointPhone =
+				(from phone in uow.Session.Query<Phone>()
+				 where !phone.IsArchive
+					 && phone.DigitsNumber == phoneDigitsNumber
+					 && phone.DeliveryPoint != null
+					 && phone.DeliveryPoint.Counterparty != null
+				 select phone.DeliveryPoint.Counterparty.Id)
+				.ToFuture();
+
+			var counterpartyIds =
+				(await counterpartyIdsByCounterpartyPhone.GetEnumerableAsync(cancellationToken))
+				.Concat(await counterpartyIdsByDeliveryPointPhone.GetEnumerableAsync(cancellationToken))
+				.Distinct()
+				.ToArray();
+
+			return counterpartyIds;
 		}
 
 		public EdoOperator GetEdoOperatorByCode(IUnitOfWork uow, string edoOperatorCode)

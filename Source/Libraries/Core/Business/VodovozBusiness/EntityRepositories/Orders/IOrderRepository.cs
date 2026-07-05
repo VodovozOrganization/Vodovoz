@@ -393,5 +393,22 @@ namespace Vodovoz.EntityRepositories.Orders
 			IUnitOfWork uow,
 			IEnumerable<int> orderIds,
 			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получение идентификаторов заказов контрагента,
+		/// созданных начиная с указанной даты и не находящихся в исключаемых статусах
+		/// </summary>
+		/// <param name="uow">Unit of work</param>
+		/// <param name="counterpartyId">Идентификатор контрагента</param>
+		/// <param name="startDate">Дата, начиная с которой ищутся заказы (по дате создания заказа)</param>
+		/// <param name="excludedOrderStatuses">Статусы заказов, исключаемые из выборки</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Идентификаторы найденных заказов</returns>
+		Task<IEnumerable<int>> GetOrderIdsByCounterpartyFromDate(
+			IUnitOfWork uow,
+			int counterpartyId,
+			DateTime startDate,
+			IEnumerable<OrderStatus> excludedOrderStatuses,
+			CancellationToken cancellationToken);
 	}
 }
