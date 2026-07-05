@@ -48,7 +48,7 @@ namespace DriverAPI.Controllers.V6
 		}
 
 		/// <summary>
-		/// Смены типа оплаты заказа
+		/// Отправка запроса на звонок через вебхук Манго
 		/// </summary>
 		/// <param name="getCallRequest">Модель данных входящего запроса</param>
 		/// <param name="cancellationToken">Токен отмены</param>
@@ -85,19 +85,19 @@ namespace DriverAPI.Controllers.V6
 
 						var firstError = result.Errors.First();
 
-						if(firstError == RouteListErrors.NotFound)
+						if(firstError.Code == RouteListErrors.NotFound)
 						{
 							return StatusCodes.Status404NotFound;
 						}
 
-						if(firstError == RouteListErrors.NotEnRouteState
-							|| firstError == Library.Errors.PhoneNumberErrors.InvalidFormat
-							|| firstError == Library.Errors.PhoneNumberErrors.ActiveMangoExtensionNumberNotFound)
+						if(firstError.Code == RouteListErrors.NotEnRouteState
+							|| firstError.Code == Library.Errors.PhoneNumberErrors.InvalidFormat
+							|| firstError.Code == Library.Errors.PhoneNumberErrors.ActiveMangoExtensionNumberNotFound)
 						{
 							return StatusCodes.Status400BadRequest;
 						}
 
-						if(firstError == Library.Errors.Security.Authorization.RouteListAccessDenied)
+						if(firstError.Code == Library.Errors.Security.Authorization.RouteListAccessDenied)
 						{
 							return StatusCodes.Status403Forbidden;
 						}

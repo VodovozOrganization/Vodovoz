@@ -21,9 +21,18 @@ namespace Mango.Vpbx.Client.Services
 		}
 
 		/// <inheritdoc/>
-		public Task<Guid> MakeWebhookCall(string extension, string toNumber, CancellationToken cancellationToken)
+		public async Task MakeWebhookCall(string extension, string toNumber, CancellationToken cancellationToken)
 		{
-			throw new NotImplementedException();
+			var requestUri = new Uri($"{_httpClient.BaseAddress}&EmployeeNUM={extension}&TelNumbr={toNumber}");
+
+			_logger.LogInformation(
+				"Отправка команды на звонок с использованием вебхука с добавочного номера {Extension} на номер {ToNumber}",
+				extension,
+				toNumber);
+
+			var response = await _httpClient.GetAsync(requestUri, cancellationToken);
+
+			response.EnsureSuccessStatusCode();
 		}
 	}
 }

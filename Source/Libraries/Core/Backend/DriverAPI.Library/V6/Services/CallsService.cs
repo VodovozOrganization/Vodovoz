@@ -24,7 +24,6 @@ namespace DriverAPI.Library.V6.Services
 		private readonly IMangoCallsService _mangoCallsService;
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IEmployeeRepository _employeeRepository;
-		private readonly IMangoSettings _mangoSettings;
 
 		/// <inheritdoc/>
 		public CallsService(
@@ -32,8 +31,7 @@ namespace DriverAPI.Library.V6.Services
 			IUnitOfWork uow,
 			IMangoCallsService mangoCallsService,
 			IRouteListRepository routeListRepository,
-			IEmployeeRepository employeeRepository,
-			IMangoSettings mangoSettings
+			IEmployeeRepository employeeRepository
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -41,11 +39,10 @@ namespace DriverAPI.Library.V6.Services
 			_mangoCallsService = mangoCallsService ?? throw new ArgumentNullException(nameof(mangoCallsService));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_employeeRepository = employeeRepository ?? throw new ArgumentNullException(nameof(employeeRepository));
-			_mangoSettings = mangoSettings ?? throw new ArgumentNullException(nameof(mangoSettings));
 		}
 
 		/// <inheritdoc/>
-		public async Task<Result<Guid>> MakeWebhookCall(int routeListId, Employee driver, string toNumber, CancellationToken cancellationToken)
+		public async Task<Result> MakeWebhookCall(int routeListId, Employee driver, string toNumber, CancellationToken cancellationToken)
 		{
 			if(driver is null)
 			{
@@ -61,7 +58,7 @@ namespace DriverAPI.Library.V6.Services
 
 			if(phoneNumberValidationResult.IsFailure)
 			{
-				return Result.Failure<Guid>(phoneNumberValidationResult.Errors);
+				return Result.Failure(phoneNumberValidationResult.Errors);
 			}
 
 			var routeList =
@@ -73,7 +70,7 @@ namespace DriverAPI.Library.V6.Services
 					"Маршрутный лист с номером {RouteListId} не найден",
 					routeListId);
 
-				return Result.Failure<Guid>(RouteListErrors.CreateNotFound(routeListId));
+				return Result.Failure(RouteListErrors.CreateNotFound(routeListId));
 			}
 
 			if(routeList.Driver is null
@@ -85,7 +82,7 @@ namespace DriverAPI.Library.V6.Services
 					routeListId,
 					routeList.Driver?.Id);
 
-				return Result.Failure<Guid>(Errors.Security.Authorization.RouteListAccessDenied);
+				return Result.Failure(Errors.Security.Authorization.RouteListAccessDenied);
 			}
 
 			var extension = await _employeeRepository.GetActiveDriverMangoExtensionNumber(_uow, driver.Id, cancellationToken);
@@ -96,14 +93,15 @@ namespace DriverAPI.Library.V6.Services
 					"У водителя с id {DriverId} не найден активный добавочный номер Mango",
 					driver.Id);
 
-				return Result.Failure<Guid>(Errors.PhoneNumberErrors.CreateActiveMangoExtensionNumberNotFound(driver.Id));
+				return Result.Failure(Errors.PhoneNumberErrors.CreateActiveMangoExtensionNumberNotFound(driver.Id));
 			}
 			
-			return await _mangoCallsService.MakeWebhookCall(
+			await _mangoCallsService.MakeWebhookCall(
 				extension.ExtensionNumber.ToString(),
 				toNumber,
-				_mangoSettings.DriversCallsLineNumber,
 				cancellationToken);
+
+			return Result.Success();
 		}
 
 		private Result ValidatePhoneNumber(string phoneNumber)

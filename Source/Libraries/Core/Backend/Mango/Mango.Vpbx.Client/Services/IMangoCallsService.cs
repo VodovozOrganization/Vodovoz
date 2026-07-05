@@ -16,6 +16,6 @@ namespace Mango.Vpbx.Client.Services
 		/// <param name="toNumber">Номер телефона получателя</param>
 		/// <param name="cancellationToken">Токен отмены операции</param>
 		/// <returns>Значение id команды на звонок</returns>
-		Task<Guid> MakeWebhookCall(string extension, string toNumber, CancellationToken cancellationToken);
+		Task MakeWebhookCall(string extension, string toNumber, CancellationToken cancellationToken);
 	}
 }

@@ -19,6 +19,6 @@ namespace DriverAPI.Library.V6.Services
 		/// <param name="toNumber">Номер телефона, на который нужно позвонить</param>
 		/// <param name="cancellationToken">Токен отмены операции</param>
 		/// <returns>Результат операции со значением id команды на звонок</returns>
-		Task<Result<Guid>> MakeWebhookCall(int routeListId, Employee driver, string toNumber, CancellationToken cancellationToken);
+		Task<Result> MakeWebhookCall(int routeListId, Employee driver, string toNumber, CancellationToken cancellationToken);
 	}
 }
