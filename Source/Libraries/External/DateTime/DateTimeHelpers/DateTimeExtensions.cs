@@ -118,6 +118,13 @@ namespace DateTimeHelpers
 		{
 			return new DateTime(dateTime.Year, 12, 31);
 		}
+		
+		public static DateTime LastDayOfMonth(this DateTime dateTime)
+		{
+			return new DateTime(dateTime.Year, dateTime.Month, 1)
+				.AddMonths(1)
+				.AddDays(-1);
+		}
 
 		public static DateTime FirstDayOfMonth(this DateTime dateTime)
 		{
