@@ -6,7 +6,7 @@ namespace DateTimeHelpers
 	{
 		protected DateTimeYearSlice(DateTime startDate, DateTime endDate) : base(startDate, endDate)
 		{
-			SliceType = DateTimeSliceType.Week;
+			SliceType = DateTimeSliceType.Year;
 		}
 		
 		public override string ToString() => StartDate.ToString("yyyy");
