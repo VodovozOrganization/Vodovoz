@@ -51,7 +51,9 @@ namespace EmailDebtNotificationWorker.Services.ClosingDeliveries
 
 			var sendEmailMessages = new List<SendEmailMessage>(emailToSentContacts.Count);
 
-			var body = BuildBody(notificationInfos);
+			var daysBeforeClosingDeliveriesForSummaryEmail = _closingDeliveriesSettings.DaysBeforeClosingDeliveries + 1;
+
+			var body = BuildBody(notificationInfos, daysBeforeClosingDeliveriesForSummaryEmail);
 
 			var instanceId = _databaseRepository.GetCurrentDatabaseId(uow);			
 
@@ -100,7 +102,7 @@ namespace EmailDebtNotificationWorker.Services.ClosingDeliveries
 			return sendEmailMessages;
 		}
 
-		private string BuildBody(IReadOnlyCollection<OrderWithoutShipmentForDebtNotificationInfo> notificationInfos)
+		private string BuildBody(IReadOnlyCollection<OrderWithoutShipmentForDebtNotificationInfo> notificationInfos, int daysBeforeClosingDeliveriesForSummaryEmail)
 		{
 			var sb = new StringBuilder();
 
@@ -120,7 +122,7 @@ namespace EmailDebtNotificationWorker.Services.ClosingDeliveries
 						<td>{order.Client.Id}</td>
 						<td>{order.Client.INN}</td>
 						<td>{order.Client.FullName}</td>
-						<td>{info.OverdueDebtDays}</td>
+						<td>{daysBeforeClosingDeliveriesForSummaryEmail}</td>
 						<td>{order.DebtSum}</td>
 					</tr>");
 
