@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TransactionalOutbox.Abstractions;
 using TransactionalOutbox.Persistence;
+using NLog.Extensions.Logging;
 
 namespace OutboxWorker
 {
@@ -18,6 +19,10 @@ namespace OutboxWorker
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
+				.ConfigureLogging((ctx, builder) =>
+				{
+					builder.AddNLog(ctx.Configuration.GetSection("NLog"));
+				})
 				.ConfigureServices((hostContext, services) =>
 				{
 					services.Configure<CustomerNotificationTransportSettings>(hostContext.Configuration.GetSection("CustomerNotificationTransportSettings"));
