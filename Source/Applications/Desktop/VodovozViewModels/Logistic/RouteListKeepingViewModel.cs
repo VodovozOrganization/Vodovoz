@@ -1,10 +1,18 @@
-﻿using CustomerNotifications.Contracts;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using CustomerNotifications.Contracts;
 using DriverApi.Contracts.V6;
 using DriverApi.Contracts.V6.Requests;
 using Edo.Transport;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using MoreLinq;
+using NHibernate.Exceptions;
 using Notifications.Infrastructure;
 using QS.Commands;
 using QS.Dialog;
@@ -19,13 +27,6 @@ using QS.Tdi;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Extension;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Vodovoz.Controllers;
 using Vodovoz.Core.Application.Orders;
 using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
@@ -33,6 +34,8 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
+using Vodovoz.Core.Domain.Permissions;
+using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -43,6 +46,7 @@ using Vodovoz.EntityRepositories.Employees;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.TrueMark;
+using Vodovoz.Errors.Logistics;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Edo;
@@ -61,6 +65,7 @@ using VodovozBusiness.Controllers;
 using VodovozBusiness.NotificationSenders;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.TrueMark;
+using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
 using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
 
 namespace Vodovoz
@@ -103,7 +108,8 @@ namespace Vodovoz
 		private RouteListItemStatus _routeListItemStatusToChange;
 		private UndeliveryViewModel _undeliveryViewModel;
 
-		private HashSet<RouteListItem> _routeListItemsToAddCodesFromStagingCodes = new HashSet<RouteListItem>();
+		private readonly Dictionary<RouteListItem, bool> _addOnlyAvailableStagingCodesByRouteListItem =
+			new Dictionary<RouteListItem, bool>();
 
 		public RouteListKeepingViewModel(
 			ILogger<RouteListKeepingViewModel> logger,
@@ -170,11 +176,11 @@ namespace Vodovoz
 
 			_permissionResult = _currentPermissionService.ValidateEntityPermission(typeof(RouteList));
 			AllEditing = Entity.Status == RouteListStatus.EnRoute && _permissionResult.CanUpdate;
-			IsUserLogist = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.IsLogistician);
+			IsUserLogist = _currentPermissionService.ValidatePresetPermission(LogisticPermissions.IsLogistician);
 			LogisticanEditing = IsUserLogist && AllEditing;
 			IsOrderWaitUntilActive = _generalSettings.GetIsOrderWaitUntilActive;
 
-			CanCreateRouteListWithoutOrders = _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders);
+			CanCreateRouteListWithoutOrders = _currentPermissionService.ValidatePresetPermission(LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders);
 			
 			ActiveShifts = _deliveryShiftRepository.ActiveShifts(UoW);
 
@@ -295,10 +301,10 @@ namespace Vodovoz
 		public bool CanReturnRouteListToEnRouteStatus =>
 			Entity.Status == RouteListStatus.OnClosing
 			&& IsUserLogist
-			&& _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanReturnRouteListToEnRouteStatus);
+			&& _currentPermissionService.ValidatePresetPermission(LogisticPermissions.RouteList.CanReturnRouteListToEnRouteStatus);
 
 		public bool CanChangeDeliveryTime => SelectedRouteListAddresses.Count() == 1
-			&& _currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanChangeDeliveryTime)
+			&& _currentPermissionService.ValidatePresetPermission(LogisticPermissions.RouteList.CanChangeDeliveryTime)
 			&& AllEditing;
 
 		public IList<DeliveryShift> ActiveShifts { get; }
@@ -633,16 +639,18 @@ namespace Vodovoz
 			var order = rli.RouteListItem.Order;
 
 			if(newStatus != RouteListItemStatus.Completed
-				&& _routeListItemsToAddCodesFromStagingCodes.Contains(rli.RouteListItem))
+				&& _addOnlyAvailableStagingCodesByRouteListItem.ContainsKey(rli.RouteListItem))
 			{
-				_routeListItemsToAddCodesFromStagingCodes.Remove(rli.RouteListItem);
+				_addOnlyAvailableStagingCodesByRouteListItem.Remove(rli.RouteListItem);
 			}
 
 			if(newStatus == RouteListItemStatus.Completed
-				&& order.IsOrderContainsIsAccountableInTrueMarkItems
-				&& !_currentPermissionService.ValidatePresetPermission(
-				   Core.Domain.Permissions.LogisticPermissions.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded))
+				&& order.IsOrderContainsIsAccountableInTrueMarkItems)
 			{
+				var canCompleteWhenNotAllTrueMarkCodesAdded =
+					_currentPermissionService.ValidatePresetPermission(
+						LogisticPermissions.RouteListItem.CanSetCompletedStatusWhenNotAllTrueMarkCodesAdded);
+
 				int requiredCodesCount = _trueMarkRepository.GetCodesRequiredByOrder(UoW, order.Id);
 
 				var driverCodes = _trueMarkRepository.GetCodesFromDriverByOrder(UoW, order.Id);
@@ -679,6 +687,13 @@ namespace Vodovoz
 
 					if(isAllStagingCodesAddedResult.IsFailure)
 					{
+						if(canCompleteWhenNotAllTrueMarkCodesAdded
+							&& IsNotAllCodesAddedProblem(isAllStagingCodesAddedResult))
+						{
+							_addOnlyAvailableStagingCodesByRouteListItem[rli.RouteListItem] = true;
+							return true;
+						}
+
 						var orderPurpose = order.IsOrderForResale ? "на перепродажу" : "на тендер";
 						message =
 							$"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", "
@@ -686,12 +701,15 @@ namespace Vodovoz
 						return false;
 					}
 
-					_routeListItemsToAddCodesFromStagingCodes.Add(rli.RouteListItem);
+					_addOnlyAvailableStagingCodesByRouteListItem[rli.RouteListItem] = false;
 				}
 			}
 
 			return true;
 		}
+
+		private static bool IsNotAllCodesAddedProblem(Result result) =>
+			result.Errors.All(x => x == TrueMarkCodeErrors.NotAllCodesAdded);
 
 		private void OnUndeliveryViewModelSaved(object sender, UndeliveryOnOrderCloseEventArgs e)
 		{
@@ -717,7 +735,7 @@ namespace Vodovoz
 					ImportanceLevel.Error,
 					string.Join(", ",
 					result.Errors
-					.Where(x => x.Code == Errors.Logistics.RouteListErrors.RouteListItem.TransferTypeNotSet)
+					.Where(x => x.Code == RouteListErrors.RouteListItem.TransferTypeNotSet)
 					.Select(x => x.Message))
 					);
 			}
@@ -753,9 +771,12 @@ namespace Vodovoz
 			message = string.Empty;
 			var routeListItemsWithAddedCodes = new List<RouteListItem>();
 
-			foreach(var routeListItem in _routeListItemsToAddCodesFromStagingCodes)
+			foreach(var addOnlyAvailableCodesByRouteListItem in _addOnlyAvailableStagingCodesByRouteListItem)
 			{
-				if(!AddProductCodesToRouteListItemFromStagingCodes(routeListItem, out var addCodesMessage))
+				var routeListItem = addOnlyAvailableCodesByRouteListItem.Key;
+				var addOnlyAvailableCodes = addOnlyAvailableCodesByRouteListItem.Value;
+
+				if(!AddProductCodesToRouteListItemFromStagingCodes(routeListItem, addOnlyAvailableCodes, out var addCodesMessage))
 				{
 					message = addCodesMessage;
 					return false;
@@ -776,31 +797,52 @@ namespace Vodovoz
 
 			foreach(var routeListItem in routeListItemsWithAddedCodes)
 			{
-				_routeListItemsToAddCodesFromStagingCodes.Remove(routeListItem);
+				_addOnlyAvailableStagingCodesByRouteListItem.Remove(routeListItem);
 			}
 
 			return true;
 		}
 
-		private bool AddProductCodesToRouteListItemFromStagingCodes(RouteListItem routeListItem, out string message)
+		private bool AddProductCodesToRouteListItemFromStagingCodes(
+			RouteListItem routeListItem,
+			bool addOnlyAvailableCodes,
+			out string message)
 		{
 			message = string.Empty;
 			var order = routeListItem.Order;
 
 			var addCodesResult = _routeListItemTrueMarkProductCodesProcessingService
-				.AddProductCodesToRouteListItemAndDeleteStagingCodes(UoW, routeListItem)
+				.AddProductCodesToRouteListItemAndDeleteStagingCodes(
+					UoW,
+					routeListItem,
+					addOnlyAvailableCodes: addOnlyAvailableCodes)
 				.GetAwaiter().GetResult();
 
 			if(addCodesResult.IsFailure)
 			{
-				var orderPurpose = order.IsOrderForResale ? "на перепродажу" : "на тендер";
-				message = $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", "
-					+ $"т.к. данный заказ на {orderPurpose}, но количество добавленных кодов не соответствует заказу";
+				message = GetAddProductCodesFromStagingCodesErrorMessage(order, addCodesResult);
 
 				return false;
 			}
 
 			return true;
+		}
+
+		private static string GetAddProductCodesFromStagingCodesErrorMessage(Order order, Result addCodesResult)
+		{
+			var orderPurpose = order.IsOrderForResale ? "на перепродажу" : "на тендер";
+			var errorMessages = addCodesResult.Errors
+				.Select(x => x.Message)
+				.Where(x => !string.IsNullOrWhiteSpace(x))
+				.Distinct()
+				.ToArray();
+
+			var errorDetails = errorMessages.Any()
+				? $": {string.Join("; ", errorMessages)}"
+				: string.Empty;
+
+			return $"Заказ {order.Id} не может быть переведен в статус \"Доставлен\", "
+				+ $"т.к. данный заказ на {orderPurpose}, но добавленные коды не удалось перенести{errorDetails}";
 		}
 
 		private void OnForwarderChanged(object sender, EventArgs e)
@@ -835,7 +877,7 @@ namespace Vodovoz
 			ValidationContext = new ValidationContext(Entity, _serviceProvider, new Dictionary<object, object>
 			{
 				{ "uowFactory", UnitOfWorkFactory },
-				{Core.Domain.Permissions.LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders, CanCreateRouteListWithoutOrders},
+				{ LogisticPermissions.RouteList.CanCreateRouteListWithoutOrders, CanCreateRouteListWithoutOrders },
 			});
 
 			return base.BeforeValidation();
@@ -895,7 +937,7 @@ namespace Vodovoz
 
 				Entity.CalculateWages(_wageParameterService);
 			}
-			catch(NHibernate.Exceptions.GenericADOException ex) when(
+			catch(GenericADOException ex) when(
 				ex.InnerException?.Message.Contains("Lock wait timeout exceeded") == true ||
 				ex.InnerException?.Message.Contains("Deadlock found when trying to get lock") == true)
 			{
@@ -974,7 +1016,7 @@ namespace Vodovoz
 
 		protected void ChangeDeliveryTimeHandler()
 		{
-			if(_currentPermissionService.ValidatePresetPermission(Vodovoz.Core.Domain.Permissions.LogisticPermissions.RouteList.CanChangeDeliveryTime))
+			if(_currentPermissionService.ValidatePresetPermission(LogisticPermissions.RouteList.CanChangeDeliveryTime))
 			{
 				if(SelectedRouteListAddresses.Count() != 1)
 				{
@@ -1062,7 +1104,7 @@ namespace Vodovoz
 			return new PrimaryEdoRequest
 			{
 				Order = item.RouteListItem.Order,
-				Source = CustomerEdoRequestSource.Manual,
+				Source = EdoRequestSource.Manual,
 				Time = DateTime.Now,
 				DocumentType = EdoDocumentType.UPD,
 				Type = CustomerEdoRequestType.Order,
@@ -1100,7 +1142,7 @@ namespace Vodovoz
 				return;
 			}
 			var selectedAddress = SelectedRouteListAddressesObjects.FirstOrDefault() as RouteListKeepingItemNode;
-			NavigationManager.OpenViewModel<OrderCodesViewModel, int>(null, selectedAddress.RouteListItem.Order.Id, OpenPageOptions.IgnoreHash);
+			NavigationManager.OpenViewModel<OrderCodesDialogViewModel, int>(null, selectedAddress.RouteListItem.Order.Id, OpenPageOptions.IgnoreHash);
 		}
 
 		protected bool CanOpenOrderCodes()

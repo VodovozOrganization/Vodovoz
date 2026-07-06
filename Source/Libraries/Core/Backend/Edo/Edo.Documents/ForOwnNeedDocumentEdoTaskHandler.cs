@@ -1,4 +1,5 @@
 ﻿using Edo.Common;
+using Edo.Common.Services;
 using Edo.Contracts.Messages.Events;
 using Edo.Documents.Services;
 using Edo.Problems;
@@ -33,6 +34,7 @@ namespace Edo.Documents
 		private readonly TransferRequestCreator _transferRequestCreator;
 		private readonly ITrueMarkCodesPool _trueMarkCodesPool;
 		private readonly ITrueMarkCodesPoolCodeProvider _trueMarkCodesPoolCodeProvider;
+		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly IUpdDocumentBuilder _updDocumentBuilder;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly IBus _messageBus;
@@ -46,6 +48,7 @@ namespace Edo.Documents
 			ITrueMarkCodesPool trueMarkCodesPool,
 			ITrueMarkCodesPoolCodeProvider trueMarkCodesPoolCodeProvider,
 			IUpdDocumentBuilder updDocumentBuilder,
+			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			EdoProblemRegistrar edoProblemRegistrar,
 			IBus messageBus
 			)
@@ -57,6 +60,7 @@ namespace Edo.Documents
 			_transferRequestCreator = transferRequestCreator ?? throw new ArgumentNullException(nameof(transferRequestCreator));
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
 			_trueMarkCodesPoolCodeProvider = trueMarkCodesPoolCodeProvider ?? throw new ArgumentNullException(nameof(trueMarkCodesPoolCodeProvider));
+			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_updDocumentBuilder = updDocumentBuilder ?? throw new ArgumentNullException(nameof(updDocumentBuilder));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
@@ -313,8 +317,24 @@ namespace Edo.Documents
 								continue;
 							}
 
-							// установка в ResultCode всем ProductCode в группе
+							var isGroupCodeUsedInEdoDocument = _trueMarkCodeRepository.IsGroupCodeUsedInEdoDocument(groupCode.Id);
+							if(isGroupCodeUsedInEdoDocument)
+							{
+								// Уже используется в каком-то ЭДО документе, пропускаем
+								groupCodesWithTaskItems.Remove(groupCode);
+								continue;
+							}
+
 							var groupTaskItems = groupCodesWithTaskItems[groupCode];
+
+							if(availableQuantity < groupTaskItems.Count())
+							{
+								groupCodesWithTaskItems.Remove(groupCode);
+								await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, groupCode, cancellationToken);
+								continue;
+							}
+
+							// установка в ResultCode всем ProductCode в группе
 							foreach(var groupTaskItem in groupTaskItems)
 							{
 								groupTaskItem.ProductCode.ResultCode = groupTaskItem.ProductCode.SourceCode;

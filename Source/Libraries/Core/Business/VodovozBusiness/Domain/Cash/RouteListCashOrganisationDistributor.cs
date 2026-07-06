@@ -4,10 +4,10 @@ using System.Linq;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.EntityRepositories.Organizations;
-using Vodovoz.Services;
 
 namespace Vodovoz.Domain.Cash
 {
@@ -58,7 +58,7 @@ namespace Vodovoz.Domain.Cash
 							? address.TotalCash - addressDistributedSum
 							: amount;
 
-						var newOperation = CreateOrganisationCashMovementOperation(uow, address);
+						var newOperation = CreateOrganisationCashMovementOperation(uow, address, income.Organisation);
 						newOperation.Amount = sum;
 						var doc =
 							CreateRouteListItemCashDistributionDocument(newOperation, address, income);
@@ -89,11 +89,11 @@ namespace Vodovoz.Domain.Cash
 			var operation = new OrganisationCashMovementOperation
 			{
 				OperationTime = DateTime.Now,
-				Organisation = _organizationRepository.GetCommonOrganisation(uow),
+				Organisation = income.Organisation ?? _organizationRepository.GetCommonOrganisation(uow),
 				Amount = amount
 			};
 
-			var address = routeList.Addresses.FirstOrDefault(x => x.TotalCash > 0) ?? throw new MissingOrdersWithCashlessPaymentTypeException(routeList);
+			var address = routeList.Addresses.FirstOrDefault(x => x.TotalCash > 0) ?? throw new MissingOrdersWithCashPaymentTypeException(routeList);
 			var document = CreateRouteListItemCashDistributionDocument(operation, address, income);
 
 			Save(uow, operation, document);
@@ -154,7 +154,7 @@ namespace Vodovoz.Domain.Cash
 						? -amount
 						: -addressDistributedSum;
 
-					var newOperation = CreateOrganisationCashMovementOperation(uow, address);
+					var newOperation = CreateOrganisationCashMovementOperation(uow, address, expense.Organisation);
 					newOperation.Amount = sum;
 					var routeListItemCashdistributionDoc =
 						CreateRouteListItemCashDistributionDocument(newOperation, address, expense);
@@ -166,6 +166,11 @@ namespace Vodovoz.Domain.Cash
 					{
 						break;
 					}
+				}
+
+				if(amount > 0)
+				{
+					DistributeExpenseCashRemainingAmount(uow, routeList, expense, amount);
 				}
 			}
 			else
@@ -179,18 +184,24 @@ namespace Vodovoz.Domain.Cash
 			var operation = new OrganisationCashMovementOperation
 			{
 				OperationTime = DateTime.Now,
-				Organisation = _organizationRepository.GetCommonOrganisation(uow),
+				Organisation = expense.Organisation ?? _organizationRepository.GetCommonOrganisation(uow),
 				Amount = -amount
 			};
 
-			var address = routeList.Addresses.First(x => x.TotalCash > 0);
+			var address =
+				routeList.Addresses.FirstOrDefault(x => x.TotalCash > 0)
+				?? routeList.Addresses.FirstOrDefault(x => x.Order.PaymentType == Client.PaymentType.Cash)
+				?? throw new MissingOrdersWithCashPaymentTypeException(routeList);
+
 			var document = CreateRouteListItemCashDistributionDocument(operation, address, expense);
 
 			Save(uow, operation, document);
 		}
 
 		private OrganisationCashMovementOperation CreateOrganisationCashMovementOperation(
-			IUnitOfWork uow, RouteListItem address)
+			IUnitOfWork uow,
+			RouteListItem address,
+			Organization organization = null)
 		{
 			var hasReceipt = _orderRepository.OrderHasSentReceipt(uow, address.Order.Id);
 
@@ -199,7 +210,7 @@ namespace Vodovoz.Domain.Cash
 				OperationTime = DateTime.Now,
 				Organisation = hasReceipt
 					? address.Order.Contract.Organization
-					: _organizationRepository.GetCommonOrganisation(uow)
+					: organization ?? _organizationRepository.GetCommonOrganisation(uow)
 			};
 		}
 

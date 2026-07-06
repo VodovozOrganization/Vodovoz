@@ -1,15 +1,15 @@
-﻿using Vodovoz.Core.Domain.Clients;
+﻿using CustomerNotifications.Contracts;
 using CustomerNotificationsWorker.Config;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Net.Http;
-using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using TransactionalOutbox.Serialization;
-using CustomerNotifications.Contracts;
+using Vodovoz.Core.Domain.Clients;
 
 namespace CustomerNotificationsWorker
 {
@@ -50,23 +50,55 @@ namespace CustomerNotificationsWorker
 		private async Task NotifyCustomerAsync(CustomerNotificationIntegrationEvent customerEvent, CancellationToken cancellationToken)
 		{
 			if(customerEvent is null)
-			{ 
-				throw new ArgumentNullException(nameof(customerEvent), "Источник уведомления не может быть null.");
+			{
+				throw new ArgumentNullException(nameof(customerEvent));
 			}
 
+			var source = customerEvent.EventSource;
+
+			var serializerOptions = OutboxJsonSerializerOptions.Instance;
+
+			string requestJson;
+
+			if(source == Source.VodovozWebSite)
+			{
+				requestJson = JsonSerializer.Serialize(customerEvent.WebSitePayload, serializerOptions);
+			}
+			else
+			{
+				requestJson = JsonSerializer.Serialize(customerEvent.Payload, serializerOptions);
+			}
+
+			var uri = GetUriString(source.Value);
+
+			_logger.LogInformation(
+				"Отправка HTTP-запроса. URL: {Url}, JSON: {RequestJson}",
+				uri,
+				requestJson);
+
+			var content = new StringContent(
+				requestJson,
+				System.Text.Encoding.UTF8,
+				"application/json");
+
 			var httpClient = _httpClientFactory.CreateClient();
-
 			httpClient.Timeout = TimeSpan.FromSeconds(_httpClientTimeoutInSeconds);
+			HttpResponseMessage response;
 
-			var content = JsonContent.Create(				
-				customerEvent.Payload,
-				mediaType: null,
-				OutboxJsonSerializerOptions.Instance);
-
-			var response = await httpClient.PostAsync(
-				GetUriString(customerEvent.EventSource.Value),
-				content,
-				cancellationToken);
+			if(source == Source.VodovozWebSite)
+			{
+				response = await httpClient.PutAsync(
+					uri,
+					content,
+					cancellationToken);
+			}
+			else
+			{
+				response = await httpClient.PostAsync(
+					uri,
+					content,
+					cancellationToken);
+			}
 
 			if(!response.IsSuccessStatusCode)
 			{

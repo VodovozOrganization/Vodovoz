@@ -1,7 +1,9 @@
-﻿using System;
+﻿using QS.DomainModel.UoW;
+using System;
 using System.Collections.Generic;
-using QS.DomainModel.UoW;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Settings.Organizations;
+using VodovozBusiness.EntityRepositories.Nodes;
 
 namespace Vodovoz.EntityRepositories.Cash
 {
@@ -35,5 +37,13 @@ namespace Vodovoz.EntityRepositories.Cash
 		IList<int> GetCashTransferDocumentsIdsByExpenseId(IUnitOfWork uow, int expenseId);
 		IList<int> GetCashDistributionDocumentsIdsByFuelDocumentId(IUnitOfWork uow, int fuelDocumentId);
 		void DeleteFuelExpenseCashDistributionDocuments(IUnitOfWork uow, IEnumerable<int> documentIds);
+
+		/// <summary>
+		/// Возвращает суммы по приходным и расходным ордерам по организациям для указанного маршрутного листа
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="routeListId">Id маршрутного листа</param>
+		/// <returns>Суммы приходных и расходных ордеров по организациям</returns>
+		IList<RouteListDebtByOrganizationNode> GetRouteListDriversCashIncomesExpensesByOrganizationNodes(IUnitOfWork uow, int routeListId);
 	}
 }

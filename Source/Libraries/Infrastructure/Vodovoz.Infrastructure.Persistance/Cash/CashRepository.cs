@@ -1,17 +1,23 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Linq;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Cash.CashTransfer;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.EntityRepositories.Cash;
+using Vodovoz.Settings.Organizations;
+using VodovozBusiness.EntityRepositories.Nodes;
 
 namespace Vodovoz.Infrastructure.Persistance.Cash
 {
@@ -177,6 +183,52 @@ namespace Vodovoz.Infrastructure.Persistance.Cash
 								.Select(Projections.Sum<Income>(o => o.Money)).SingleOrDefault<decimal>();
 
 			return income - expense;
+		}
+
+		public IList<RouteListDebtByOrganizationNode> GetRouteListDriversCashIncomesExpensesByOrganizationNodes(
+			IUnitOfWork uow,
+			int routeListId)
+		{
+			var incomeFuture = uow.Session.Query<Income>()
+				.Where(income =>
+					income.RouteListClosing.Id == routeListId
+					&& income.TypeOperation == IncomeType.DriverReport)
+				.Select(income => new RouteListDebtByOrganizationNode
+				{
+					OrganizationId = income.Organisation == null ? (int?)null : income.Organisation.Id,
+					OrganizationName = income.Organisation == null ? null : income.Organisation.Name,
+					IncomeSum = income.Money
+				})
+				.ToFuture();
+
+			var expenseFuture = uow.Session.Query<Expense>()
+				.Where(expense =>
+					expense.RouteListClosing.Id == routeListId
+					&& expense.TypeOperation == ExpenseType.Expense)
+				.Select(expense => new RouteListDebtByOrganizationNode
+				{
+					OrganizationId = expense.Organisation == null ? (int?)null : expense.Organisation.Id,
+					OrganizationName = expense.Organisation == null ? null : expense.Organisation.Name,
+					ExpenseSum = expense.Money
+				})
+				.ToFuture();
+
+			var incomeRows = incomeFuture.ToList();
+			var expenseRows = expenseFuture.ToList();
+
+			var incomesExpensesByOrganizations = incomeRows
+				.Concat(expenseRows)
+				.GroupBy(x => x.OrganizationId)
+				.Select(g => new RouteListDebtByOrganizationNode
+				{
+					OrganizationId = g.Key,
+					OrganizationName = g.Key == null ? "Без организации" : g.Select(x => x.OrganizationName).First(name => name != null),
+					IncomeSum = g.Sum(x => x.IncomeSum),
+					ExpenseSum = g.Sum(x => x.ExpenseSum)
+				})
+				.ToList();
+
+			return incomesExpensesByOrganizations;
 		}
 
 		public IEnumerable<(int SubdivisionId, decimal Income, decimal Expense)> CashForSubdivisionsByDate(

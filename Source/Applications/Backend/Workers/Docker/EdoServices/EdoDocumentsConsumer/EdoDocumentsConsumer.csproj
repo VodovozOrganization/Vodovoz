@@ -4,6 +4,7 @@
         <TargetFramework>net5.0</TargetFramework>
         <UserSecretsId>dotnet-EdoDocumentsConsumer-F4F944B7-313F-42DE-AFCF-66C79FB4603B</UserSecretsId>
 		<RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
+		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
 </PropertyGroup>
 
     <ItemGroup>

@@ -440,7 +440,7 @@ namespace DriverAPI.Library.V6.Services
 			var edoRequest = new PrimaryEdoRequest
 			{
 				Time = DateTime.Now,
-				Source = CustomerEdoRequestSource.Driver,
+				Source = EdoRequestSource.Driver,
 				DocumentType = EdoDocumentType.UPD,
 				Order = vodovozOrder,
 			};
@@ -659,7 +659,7 @@ namespace DriverAPI.Library.V6.Services
 				return await _routeListItemTrueMarkProductCodesProcessingService.AddProductCodesToRouteListItemAndDeleteStagingCodes(
 					_uow,
 					routeListAddress,
-					cancellationToken);
+					cancellationToken: cancellationToken);
 			}
 
 			return await ProcessOwnUseOrderScannedCodesAsync(completeOrderInfo, routeListAddress);

@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Vodovoz.Core.Application.BankStatements;
 using Vodovoz.Presentation.ViewModels;
 using Vodovoz.Presentation.ViewModels.Factories;
+using Vodovoz.ViewModels.Edo;
 using Vodovoz.ViewModels.Factories;
 using Vodovoz.ViewModels.Options;
 using Vodovoz.ViewModels.Services.RouteOptimization;
@@ -20,6 +21,8 @@ namespace Vodovoz.ViewModels
 				.AddGeoCoderClient()
 				.AddPresentationViewModels()
 				.AddEdoServicesLibrary()
-				.ConfigureOptions<ConfigureGeoCoderApiOptions>();
+				.ConfigureOptions<ConfigureGeoCoderApiOptions>()
+				.AddScoped<EdoInOrderDocumentActionsViewModel>()
+			;
 	}
 }

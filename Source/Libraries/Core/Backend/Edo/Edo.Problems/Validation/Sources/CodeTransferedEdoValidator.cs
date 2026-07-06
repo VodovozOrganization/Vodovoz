@@ -49,7 +49,7 @@ namespace Edo.Problems.Validation.Sources
 				return false;
 			}
 
-			return transferTask.TransferStatus == TransferEdoTaskStatus.InProgress;
+			return transferTask.TransferStatus == EdoTransferTaskStage.InProgress;
 		}
 
 		public override async Task<EdoValidationResult> ValidateAsync(EdoTask edoTask, IServiceProvider serviceProvider, CancellationToken cancellationToken)

@@ -1,5 +1,5 @@
 ﻿using Autofac.Extensions.DependencyInjection;
-using Edo.Common;
+using Edo.Common.Services;
 using Edo.Documents;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;
@@ -53,6 +53,8 @@ namespace Edo.Document.Worker
 						.AddEdoDocuments()
 
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
+						
+						.AddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>()
 						;
 
 					services.AddHostedService<InitDbConnectionOnHostStartedService>();
