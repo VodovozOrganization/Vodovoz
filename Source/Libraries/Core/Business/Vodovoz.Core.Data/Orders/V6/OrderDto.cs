@@ -94,9 +94,14 @@ namespace Vodovoz.Core.Data.Orders.V6
 		/// Обновление значения доступности отслеживания положения курьера на карте
 		/// </summary>
 		/// <param name="establishedRoute">Установлен ли маршрут</param>
-		public void UpdateTrackingAvailability(bool establishedRoute)
+		/// <param name="driversCoordinatesLastUpdateTime">Время последнего обновления координат водителя</param>
+		/// <param name="trackingLostTimeout">Таймаут потери отслеживания</param>
+		public void UpdateTrackingAvailability(bool establishedRoute, DateTime? driversCoordinatesLastUpdateTime, TimeSpan trackingLostTimeout)
 		{
-			if(IsSelfDelivery || OrderStatus != ExternalOrderStatus.OrderDelivering)
+			if(IsSelfDelivery
+				|| OrderStatus != ExternalOrderStatus.OrderDelivering
+				|| !driversCoordinatesLastUpdateTime.HasValue
+				|| DateTime.Now - driversCoordinatesLastUpdateTime.Value > trackingLostTimeout)
 			{
 				IsCourierTrackingAvailable = false;
 				return;

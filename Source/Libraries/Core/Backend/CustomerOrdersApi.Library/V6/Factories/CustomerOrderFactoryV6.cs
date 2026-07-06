@@ -1,6 +1,8 @@
-﻿using CustomerOrdersApi.Library.Converters;
+﻿using CustomerOrdersApi.Library.Config;
+using CustomerOrdersApi.Library.Converters;
 using CustomerOrdersApi.Library.V6.Dto.Orders;
 using CustomerOrdersApi.Library.V6.Services;
+using Microsoft.Extensions.Options;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -26,13 +28,15 @@ namespace CustomerOrdersApi.Library.V6.Factories
 		private readonly IOrderRepository _orderRepository;
 		private readonly ICustomerOrderCancellationService _orderCancellationLogicService;
 		private readonly ICustomerOrderTransferService _orderTransferService;
+		private readonly IOptionsMonitor<CourierCoordinatesOptions> _courierCoordinatesOptions;
 
 		public CustomerOrderFactoryV6(
 			IExternalOrderStatusConverter externalOrderStatusConverter,
 			IInfoMessageFactoryV6 infoMassageFactory,
 			IOrderRepository orderRepository,
 			ICustomerOrderCancellationService orderCancellationLogicService,
-			ICustomerOrderTransferService orderTransferService
+			ICustomerOrderTransferService orderTransferService,
+			IOptionsMonitor<CourierCoordinatesOptions> courierCoordinatesOptions
 			)
 		{
 			_externalOrderStatusConverter =
@@ -41,6 +45,7 @@ namespace CustomerOrdersApi.Library.V6.Factories
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_orderCancellationLogicService = orderCancellationLogicService ?? throw new ArgumentNullException(nameof(orderCancellationLogicService));
 			_orderTransferService = orderTransferService ?? throw new ArgumentNullException(nameof(orderTransferService));
+			_courierCoordinatesOptions = courierCoordinatesOptions ?? throw new ArgumentNullException(nameof(courierCoordinatesOptions));
 		}
 
 		public async Task<DetailedOrderInfoDto> CreateDetailedOrderInfo(
@@ -52,13 +57,14 @@ namespace CustomerOrdersApi.Library.V6.Factories
 			DateTime ratingAvailableFrom,
 			bool establishedRoute,
 			bool isOrderWasSelectedAsNext,
+			DateTime? driversCoordinatesLastUpdateTime,
 			CancellationToken cancellationToken
 		)
 		{
 			var orderInfo = CreateOrderInfoDto(order, timers, onlineOrder?.Id);
 			orderInfo.UpdateOrderRating(orderRating, ratingAvailableFrom);
 			orderInfo.UpdateOrderItems(order.OrderItems);
-			orderInfo.UpdateTrackingAvailability(establishedRoute);
+			orderInfo.UpdateTrackingAvailability(establishedRoute, driversCoordinatesLastUpdateTime, _courierCoordinatesOptions.CurrentValue.TrackingLostTimeout);
 			orderInfo.UpdateTextStatusMessage(establishedRoute, isOrderWasSelectedAsNext);
 
 			await UpdateAvailableOperations(uow, orderInfo, order, onlineOrder, cancellationToken);
@@ -89,7 +95,9 @@ namespace CustomerOrdersApi.Library.V6.Factories
 		public ActiveOrderDto CreateActiveOrderInfo(
 			OrderDto orderDto,
 			bool establishedRoute,
-			bool isOrderWasSelectedAsNext)
+			bool isOrderWasSelectedAsNext,
+			DateTime? driversCoordinatesLastUpdateTime
+			)
 		{
 			var activeOrder = new ActiveOrderDto
 			{
@@ -110,7 +118,7 @@ namespace CustomerOrdersApi.Library.V6.Factories
 				InfoMessages = orderDto.InfoMessages
 			};
 
-			activeOrder.UpdateTrackingAvailability(establishedRoute);
+			activeOrder.UpdateTrackingAvailability(establishedRoute, driversCoordinatesLastUpdateTime, _courierCoordinatesOptions.CurrentValue.TrackingLostTimeout);
 			activeOrder.UpdateTextStatusMessage(establishedRoute, isOrderWasSelectedAsNext);
 
 			return activeOrder;

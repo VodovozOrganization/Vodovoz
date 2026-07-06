@@ -208,7 +208,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 						x => x.Order.Id == order.Id)
 					.FirstOrDefault();
 
-				var (establishedRoute, _, _) = await GetEstablishedRoute(uow, order, cancellationToken);
+				var (establishedRoute, _, driversCoordinatesLastUpdateTime) = await GetDriverPositionData(uow, order, cancellationToken);
 				var isOrderWasSelectedAsNext =
 					establishedRoute || await _routeListRepository.IsOrderEverWasSelectedAsNext(uow, order.Id, cancellationToken);
 
@@ -221,6 +221,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 					ratingAvailableFrom,
 					establishedRoute,
 					isOrderWasSelectedAsNext,
+					driversCoordinatesLastUpdateTime,
 					cancellationToken
 					);
 			}
@@ -258,8 +259,8 @@ namespace CustomerOrdersApi.Library.V6.Services
 
 			foreach(var orderDto in orderDtos)
 			{
-				var (establishedRoute, _, _) = await GetEstablishedRoute(uow, orderDto, cancellationToken);
-				orderDto.UpdateTrackingAvailability(establishedRoute);
+				var (establishedRoute, _, driversCoordinatesLastUpdateTime) = await GetDriverPositionData(uow, orderDto, cancellationToken);
+				orderDto.UpdateTrackingAvailability(establishedRoute, driversCoordinatesLastUpdateTime, _courierCoordinatesOptions.CurrentValue.TrackingLostTimeout);
 			}
 
 			return new OrdersDto
@@ -297,6 +298,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 			foreach(var orderDto in activeOrders)
 			{
 				bool establishedRoute = false;
+				DateTime? driversCoordinatesLastUpdateTime = null;
 				bool isOrderWasSelectedAsNext = false;
 
 				if(orderDto.OrderId.HasValue)
@@ -305,14 +307,21 @@ namespace CustomerOrdersApi.Library.V6.Services
 
 					if(order != null)
 					{
-						var (estRoute, _, _) = await GetEstablishedRoute(uow, order, cancellationToken);
+						var (estRoute, _, coordinatesLastUpdateTime) = await GetDriverPositionData(uow, order, cancellationToken);
 						establishedRoute = estRoute;
+						driversCoordinatesLastUpdateTime = coordinatesLastUpdateTime;
 						isOrderWasSelectedAsNext =
 							establishedRoute || await _routeListRepository.IsOrderEverWasSelectedAsNext(uow, order.Id, cancellationToken);
 					}
 				}
 
-				var activeOrderDto = _customerOrderFactory.CreateActiveOrderInfo(orderDto, establishedRoute, isOrderWasSelectedAsNext);
+				var activeOrderDto =
+					_customerOrderFactory.CreateActiveOrderInfo(
+						orderDto,
+						establishedRoute,
+						isOrderWasSelectedAsNext,
+						driversCoordinatesLastUpdateTime);
+
 				activeOrderDtos.Add(activeOrderDto);
 			}
 
@@ -654,7 +663,33 @@ namespace CustomerOrdersApi.Library.V6.Services
 			{
 				return (false, null, null);
 			}
+			
+			(CoordinatesDto courierCoordinate, DateTime? coordinatesLastUpdateTime) =
+				await GetDriverLastCoordinate(uow, routeListId, selectedAt, cancellationToken);
 
+			return (true, courierCoordinate, coordinatesLastUpdateTime);
+		}
+
+		private async Task<(bool EstablishedRoute, CoordinatesDto CourierCoordinate, DateTime? coordinatesLastUpdateTime)> GetDriverPositionData(
+			IUnitOfWork uow,
+			OrderDto order,
+			CancellationToken cancellationToken = default)
+		{
+			var (establishedRoute, routeListId, selectedAt) = await GetEstablishedRoute(uow, order, cancellationToken);
+
+			if(!establishedRoute)
+			{
+				return (false, null, null);
+			}
+
+			(CoordinatesDto courierCoordinate, DateTime? coordinatesLastUpdateTime) =
+				await GetDriverLastCoordinate(uow, routeListId, selectedAt, cancellationToken);
+
+			return (true, courierCoordinate, coordinatesLastUpdateTime);
+		}
+
+		private async Task<(CoordinatesDto courierCoordinate, DateTime? coordinatesLastUpdateTime)> GetDriverLastCoordinate(IUnitOfWork uow, int? routeListId, DateTime? selectedAt, CancellationToken cancellationToken)
+		{
 			var trackPoint = await _routeListRepository.GetDriverLastCoordinate(uow, routeListId.Value, selectedAt.Value, cancellationToken);
 
 			CoordinatesDto courierCoordinate = null;
@@ -669,8 +704,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 			}
 
 			var coordinatesLastUpdateTime = trackPoint?.ReceiveTimeStamp;
-
-			return (true, courierCoordinate, coordinatesLastUpdateTime);
+			return (courierCoordinate, coordinatesLastUpdateTime);
 		}
 
 		private async Task<(bool EstablishedRoute, int? RouteListId, DateTime? SelectedAt)> GetEstablishedRoute(

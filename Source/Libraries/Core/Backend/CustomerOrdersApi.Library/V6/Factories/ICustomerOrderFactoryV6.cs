@@ -21,6 +21,7 @@ namespace CustomerOrdersApi.Library.V6.Factories
 			DateTime ratingAvailableFrom,
 			bool establishedRoute,
 			bool isOrderWasSelectedAsNext,
+			DateTime? driversCoordinatesLastUpdateTime,
 			CancellationToken cancellationToken
 			);
 
@@ -37,7 +38,8 @@ namespace CustomerOrdersApi.Library.V6.Factories
 		ActiveOrderDto CreateActiveOrderInfo(
 			OrderDto orderDto,
 			bool establishedRoute,
-			bool isOrderWasSelectedAsNext
+			bool isOrderWasSelectedAsNext,
+			DateTime? driversCoordinatesLastUpdateTime
 			);
 
 		IEnumerable<OrderRatingReasonDto> GetOrderRatingReasonDtos(IEnumerable<OrderRatingReason> orderRatingReasons);
