@@ -1,4 +1,5 @@
-﻿using CustomerNotifications.Contracts;
+using CustomerNotifications.Application.Builders;
+using CustomerNotifications.Contracts;
 using DriverAPI.Data;
 using DriverAPI.HealthChecks;
 using DriverAPI.Library;
@@ -24,6 +25,7 @@ using System.Text;
 using TransactionalOutbox.Abstractions;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Domain.Cash;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Presentation.WebApi;
@@ -102,7 +104,9 @@ namespace DriverAPI
 
 				.AddScoped<ICallTaskWorker, CallTaskWorker>()
 				.AddScoped<ICallTaskFactory>(context => CallTaskSingletonFactory.GetInstance())
-				.AddDriverApiHostedServices();
+				.AddDriverApiHostedServices()
+				
+				.AddScoped<IRouteListCashOrganisationDistributor, RouteListCashOrganisationDistributor>();
 
 			Vodovoz.Data.NHibernate.DependencyInjection.AddStaticScopeForEntity(services);
 			services.AddStaticHistoryTracker();
@@ -154,6 +158,12 @@ namespace DriverAPI
 						)),
 					};
 				});
+
+			// Уведомления клиентов
+
+			services.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, OutBoxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+					.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
+					.AddCustomerNotificationsSettingsProvider();
 
 			// Регистрация контроллеров
 

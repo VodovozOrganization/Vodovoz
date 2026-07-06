@@ -13,7 +13,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments.PaymentsDiscrepanciesAnalysis
 			public string PayerName { get; set; }
 			public int CounterpartyId { get; set; }
 			public string CounterpartyName { get; set; }
-			public string CounterpartyInn { get; set; }
+			public string PaymentCounterpartyInn { get; set; }
+			public string OperationCounterpartyInn { get; set; }
 			public bool IsManuallyCreated { get; set; }
 			public string PaymentPurpose { get; set; }
 		}

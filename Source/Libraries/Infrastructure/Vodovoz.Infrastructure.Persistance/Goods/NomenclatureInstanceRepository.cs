@@ -27,12 +27,12 @@ namespace Vodovoz.Infrastructure.Persistance.Goods
 			IUnitOfWork uow,
 			StorageType storageType,
 			int storageId,
-			IEnumerable<int> instancesToInclude,
-			IEnumerable<int> instancesToExclude,
-			IEnumerable<NomenclatureCategory> nomenclatureTypeToInclude,
-			IEnumerable<NomenclatureCategory> nomenclatureTypeToExclude,
-			IEnumerable<int> productGroupToInclude,
-			IEnumerable<int> productGroupToExclude,
+			IEnumerable<int> instancesToInclude = null,
+			IEnumerable<int> instancesToExclude = null,
+			IEnumerable<NomenclatureCategory> nomenclatureTypeToInclude = null,
+			IEnumerable<NomenclatureCategory> nomenclatureTypeToExclude = null,
+			IEnumerable<int> productGroupToInclude = null,
+			IEnumerable<int> productGroupToExclude = null,
 			DateTime? onDate = null)
 		{
 			WarehouseInstanceGoodsAccountingOperation warehouseInstanceOperationAlias = null;

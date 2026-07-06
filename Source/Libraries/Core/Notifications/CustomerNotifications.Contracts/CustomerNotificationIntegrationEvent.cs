@@ -16,5 +16,10 @@ namespace CustomerNotifications.Contracts
 		/// Сообщение для отправки уведомления клиенту о статусе заказа
 		/// </summary>
 		public CustomerNotificationMessage Payload { get; set; }
+
+		/// <summary>
+		/// Сообщение для отправки уведомления клиенту о статусе заказа на сайт
+		/// </summary>
+		public WebSiteMessage WebSitePayload { get; set; }
 	}
 }

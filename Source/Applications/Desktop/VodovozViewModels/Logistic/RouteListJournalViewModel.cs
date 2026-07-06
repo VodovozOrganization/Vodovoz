@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -16,6 +12,11 @@ using QS.Project.Journal;
 using QS.Report;
 using QS.Services;
 using QS.Tdi;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Vodovoz.Core.Domain.Operations;
 using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Documents;
@@ -47,9 +48,8 @@ using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalNodes;
 using Vodovoz.ViewModels.Print.Store;
-using Order = Vodovoz.Domain.Orders.Order;
 using IWarehousePermissionService = Vodovoz.Infrastructure.Services.IWarehousePermissionService;
-using Vodovoz.Core.Domain.Operations;
+using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.ViewModels.Logistic
 {
@@ -544,7 +544,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 					bool isSlaveTabActive = false;
 
-					using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot())
+					using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot($"Возврат МЛ в путь из {nameof(RouteListJournalViewModel)}"))
 					{
 						foreach(var routeListId in routeListIds)
 						{
@@ -587,7 +587,7 @@ namespace Vodovoz.ViewModels.Logistic
 					var routeListIds = selectedItems.Cast<RouteListJournalNode>().Select(x => x.Id).ToArray();
 					bool isSlaveTabActive = false;
 
-					using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot())
+					using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot($"Возврат МЛ в сдается из {nameof(RouteListJournalViewModel)}"))
 					{
 						var routeLists = uowLocal.Session.QueryOver<RouteList>()
 							.Where(x => x.Id.IsIn(routeListIds))
@@ -657,8 +657,7 @@ namespace Vodovoz.ViewModels.Logistic
 				"Открыть диалог проверки километража",
 				selectedItems => selectedItems.FirstOrDefault() is RouteListJournalNode node
 					&& _mileageCheckDlgStatuses.Contains(node.StatusEnum)
-					&& node.CarOwnType == CarOwnType.Company
-					&& node.CarTypeOfUse != CarTypeOfUse.Truck,
+					&& node.CarOwnType is CarOwnType.Company,
 				selectedItems => true,
 				selectedItems =>
 				{
@@ -769,7 +768,7 @@ namespace Vodovoz.ViewModels.Logistic
 
 		private void SendToLoadingAndPrint(RouteListJournalNode selectedNode, Warehouse warehouse)
 		{
-			using(var localUow = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var localUow = UnitOfWorkFactory.CreateWithoutRoot($"Отправка МЛ на погрузку из {nameof(RouteListJournalViewModel)}"))
 			{
 				var routeList = localUow.GetById<RouteList>(selectedNode.Id);
 
@@ -887,7 +886,7 @@ namespace Vodovoz.ViewModels.Logistic
 		{
 			var routeListIds = selectedNodes.Select(x => x.Id).ToArray();
 
-			using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uowLocal = UnitOfWorkFactory.CreateWithoutRoot($"Отправка МЛ на погрузку из {nameof(RouteListJournalViewModel)}"))
 			{
 				var routeLists = uowLocal.Session.QueryOver<RouteList>()
 					.Where(x => x.Id.IsIn(routeListIds))

@@ -16,7 +16,14 @@ namespace Vodovoz.EntityRepositories.FastPayments
 		bool FastPaymentWithTicketExists(IUnitOfWork uow, string ticket);
 		IEnumerable<FastPayment> GetAllProcessingFastPayments(IUnitOfWork uow);
 		FastPayment GetProcessingPaymentForOrder(IUnitOfWork uow, int orderId);
-		FastPayment GetPerformedFastPaymentByExternalId(IUnitOfWork uow, int externalId);
+		/// <summary>
+		/// Получение успешного(оплаченного) быстрого платежа по номеру и дате создания(опционально)
+		/// </summary>
+		/// <param name="uow">unit of work</param>
+		/// <param name="externalId">Номер оплаты</param>
+		/// <param name="creationDate">Дата создания платежа</param>
+		/// <returns></returns>
+		FastPayment GetPerformedFastPaymentByExternalId(IUnitOfWork uow, int externalId, DateTime? creationDate = null);
 		IList<FastPayment> GetAllPaymentsByOnlineOrder(IUnitOfWork uow, int orderId);
 		FastPaymentNotification GetNotificationsForPayment(IUnitOfWork uow, FastPaymentNotificationType notificationType, int orderId);
 		IEnumerable<FastPaymentNotification> GetActiveNotifications(IUnitOfWork uow);

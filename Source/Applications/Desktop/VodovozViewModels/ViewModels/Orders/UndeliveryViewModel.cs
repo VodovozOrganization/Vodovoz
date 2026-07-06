@@ -135,7 +135,7 @@ namespace Vodovoz.ViewModels.Orders
 			}
 			else
 			{
-				UoW = _unitOfWorkFactory.CreateWithoutRoot();
+				UoW = _unitOfWorkFactory.CreateWithoutRoot($"Окно создания недовоза - {nameof(UndeliveryViewModel)}");
 			}
 
 			_currentUser = _employeeRepository.GetEmployeeForCurrentUser(UoW);
@@ -335,8 +335,9 @@ namespace Vodovoz.ViewModels.Orders
 						Entity.OldOrder.OnlineOrder?.Source, 
 						Entity.OldOrder.OnlineOrder?.Id, 
 						Entity.OldOrder.Id, 
-						Entity.NewOrder.Id,
-						Entity.UndeliveryDetalization?.CustomerNotificationText);
+						Entity.NewOrder.Id,						
+						Entity.UndeliveryDetalization?.Name // Пока будут заполнять //Entity.UndeliveryDetalization?.CustomerNotificationText
+						);
 
 					_customerNotificationPublisher.TryPublish(UoW, customerOrderRescheduledEvent);
 				}

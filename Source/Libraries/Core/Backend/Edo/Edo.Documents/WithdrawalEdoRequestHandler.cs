@@ -235,7 +235,7 @@ namespace Edo.Documents
 			var withdrawalRequest = new WithdrawalEdoRequest
 			{
 				Time = DateTime.Now,
-				Source = CustomerEdoRequestSource.Manual,
+				Source = EdoRequestSource.Manual,
 				Type = CustomerEdoRequestType.Order,
 				DocumentType = EdoDocumentType.UPD,
 				Order = order,

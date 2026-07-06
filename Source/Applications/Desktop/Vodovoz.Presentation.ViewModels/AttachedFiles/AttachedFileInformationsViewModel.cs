@@ -291,21 +291,20 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 				return;
 			}
 
-			var tempFilePath = Path.Combine(Path.GetTempPath(), vodovozUserTempDirectory, SelectedFile.FileName);
+			var tempDirectory = Path.Combine(vodovozUserTempDirectory, Guid.NewGuid().ToString());
+			Directory.CreateDirectory(tempDirectory);
 
-			if(!File.Exists(tempFilePath))
-			{
-				File.WriteAllBytes(tempFilePath, AttachedFiles[SelectedFile.FileName]);
-			}
+			var tempFilePath = Path.Combine(tempDirectory, SelectedFile.FileName);
+			File.WriteAllBytes(tempFilePath, AttachedFiles[SelectedFile.FileName]);
 
 			var process = new Process
 			{
-				EnableRaisingEvents = true
+				StartInfo = new ProcessStartInfo(tempFilePath)
+				{
+					UseShellExecute = true
+				}
 			};
 
-			process.StartInfo.FileName = Path.Combine(vodovozUserTempDirectory, SelectedFile.FileName);
-
-			process.Exited += OnProcessExited;
 			process.Start();
 		}
 
@@ -378,14 +377,6 @@ namespace Vodovoz.Presentation.ViewModels.AttachedFiles
 
 		#endregion Command Handlers
 
-		private void OnProcessExited(object sender, EventArgs e)
-		{
-			if(sender is Process process)
-			{
-				File.Delete(process.StartInfo.FileName);
-				process.Exited -= OnProcessExited;
-			}
-		}
 
 		#region FileInformations Changed Notification
 

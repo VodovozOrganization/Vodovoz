@@ -1,4 +1,4 @@
-using QS.Views.GtkUI;
+﻿using QS.Views.GtkUI;
 using QS.Widgets;
 using System;
 using System.ComponentModel;
@@ -123,6 +123,8 @@ namespace Vodovoz.Organizations
 			yentryPrefix.Binding
 				.AddBinding(ViewModel.Entity, e => e.Prefix, w => w.Text)
 				.InitializeFromSource();
+
+			entityentryDefaultCashIncomeCategory.ViewModel = ViewModel.FinancialIncomeCategoryEntryViewModel;
 
 			notebookMain.Page = 0;
 			notebookMain.ShowTabs = false;

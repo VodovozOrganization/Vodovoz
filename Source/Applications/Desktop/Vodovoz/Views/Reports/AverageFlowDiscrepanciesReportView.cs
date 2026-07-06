@@ -32,6 +32,9 @@ namespace Vodovoz.Views.Reports
 
 			ytreeviewReport.ColumnsConfig = FluentColumnsConfig<AverageFlowDiscrepanciesReportRow>.Create()
 				.AddColumn("Авто").AddTextRenderer(ev => ev.Car)
+				.AddColumn("Тип\nавтомобиля").AddTextRenderer(ev => ev.CarTypeOfUseString)
+				.AddColumn("ФИО последнего\nводителя").AddTextRenderer(ev => ev.DriverFullName)
+				.AddColumn("Прикрепление\nк площадке").AddTextRenderer(ev => ev.GeographicGroups)
 				.AddColumn("Начальная калибровка").AddDateRenderer(ev => ev.CalibrationDate)
 				.AddColumn("Конечная калибровка").AddDateRenderer(ev => ev.NextCalibrationDate)
 				.AddColumn("Начальный баланс").AddNumericRenderer(ev => ev.CurrentBalance).Digits(2)
@@ -74,6 +77,13 @@ namespace Vodovoz.Views.Reports
 			carModelSelectionFilterView.Show();
 
 			buttonInfo.BindCommand(ViewModel.ShowHelpInfoCommand);
+			eventboxArrow.ButtonPressEvent += OnEventboxArrowButtonPressEvent;
+		}
+
+		private void OnEventboxArrowButtonPressEvent(object o, ButtonPressEventArgs args)
+		{
+			parametersContainer.Visible = !parametersContainer.Visible;
+			arrowSlider.ArrowType = parametersContainer.Visible ? ArrowType.Left : ArrowType.Right;
 		}
 	}
 }

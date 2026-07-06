@@ -263,7 +263,7 @@ namespace Vodovoz.Core.Application.Logistics
 			IWageParameterService wageParameterService,
 			ICallTaskWorker callTaskWorker)
 		{
-			if(routeList.NeedMileageCheck)
+			if(routeList.NeedMileageCheck && routeList.Car.CarModel.CarTypeOfUse != CarTypeOfUse.Truck)
 			{
 				ChangeStatusAndCreateTask(unitOfWork, routeList, RouteListStatus.MileageCheck, callTaskWorker);
 			}
@@ -607,8 +607,8 @@ namespace Vodovoz.Core.Application.Logistics
 						 && (routeList.GetCarVersion.CarOwnType == CarOwnType.Company && routeList.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck
 						     || routeList.Driver.VisitingMaster || !routeList.NeedMileageCheckByWage)
 						|| routeList.Status == RouteListStatus.Confirmed
-						    && routeList.GetCarVersion.CarOwnType == CarOwnType.Company &&
-						        routeList.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck
+							&& routeList.GetCarVersion.CarOwnType == CarOwnType.Company &&
+								routeList.Car.CarModel.CarTypeOfUse == CarTypeOfUse.Truck
 						|| routeList.Status == RouteListStatus.MileageCheck || routeList.Status == RouteListStatus.Delivered
 						|| routeList.Status == RouteListStatus.Closed)
 					{

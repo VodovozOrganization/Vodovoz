@@ -92,7 +92,7 @@ namespace Vodovoz.Views.Warehouse
 					.AddNumericRenderer(i => i.PrimeCost)
 					.Digits(2)
 					.Editing()
-					.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
+					.Adjustment (new Adjustment (0, 0, 1000000, 0.01, 100, 0))
 					.AddTextRenderer(i => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn("Сумма")
 					.HeaderAlignment(0.5f)

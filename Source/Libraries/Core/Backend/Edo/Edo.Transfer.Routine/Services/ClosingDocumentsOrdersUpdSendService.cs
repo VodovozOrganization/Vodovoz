@@ -1,4 +1,4 @@
-using Edo.Transfer.Routine.Options;
+﻿using Edo.Transfer.Routine.Options;
 using Edo.Transport;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -157,7 +157,7 @@ namespace Edo.Transfer.Routine.Services
 			var edoRequest = new PrimaryEdoRequest
 			{
 				Time = DateTime.Now,
-				Source = CustomerEdoRequestSource.Manual,
+				Source = EdoRequestSource.Manual,
 				DocumentType = EdoDocumentType.UPD,
 				Order = order,
 			};

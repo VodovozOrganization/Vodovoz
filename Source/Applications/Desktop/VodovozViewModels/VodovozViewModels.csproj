@@ -99,6 +99,16 @@
     <Compile Include="Cash\Transfer\Journal\TransferDocumentsJournalViewModel.cs" />
     <Compile Include="Cash\TransferExpenseViewModel.cs" />
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
+    <Compile Include="Edo\EdoInOrderDocumentActionsViewModel.cs" />
+    <Compile Include="Edo\EdoInOrderDocumentHistoryRowViewModel.cs" />
+    <Compile Include="Edo\EdoInOrderDocumentGroupType.cs" />
+    <Compile Include="Edo\EdoInOrderDocumentType.cs" />
+    <Compile Include="Edo\EdoInOrderDocumentTypeViewModel.cs" />
+    <Compile Include="Edo\EdoInOrderDocumentViewModel.cs" />
+    <Compile Include="Edo\EdoInOrderTransferRowViewModel.cs" />
+    <Compile Include="Edo\EdoInOrderTransferStageViewModel.cs" />
+    <Compile Include="Edo\EdoInOrderViewModel.cs" />
+    <Compile Include="Edo\EdoInOrderProblemViewModel.cs" />
     <Compile Include="Employees\FineCategoryViewModel.cs" />
     <Compile Include="Factories\IVatRateVersionViewModelFactory.cs" />
     <Compile Include="Factories\VatRateVersionViewModelFactory.cs" />
@@ -131,6 +141,7 @@
     <Compile Include="Journals\JournalViewModels\Payments\NotAllocatedCounterpartiesJournalViewModel.cs" />
     <Compile Include="Journals\JournalViewModels\Payments\ProfitCategoriesJournalViewModel.cs" />
     <Compile Include="Logistic\DriverSchedule\DriverScheduleViewModel.cs" />
+    <Compile Include="ReportsParameters\SalesReportDetailedViewModel.cs" />
     <Compile Include="Services\DriverSchedule\DriverScheduleService.cs" />
     <Compile Include="Services\DriverSchedule\IDriverScheduleService.cs" />
     <Compile Include="Logistic\Reports\CarIsNotAtLineReport.UiRow.cs" />
@@ -138,6 +149,8 @@
     <Compile Include="Logistic\SelfDeliveringOrderEditViewModel.cs" />
     <Compile Include="ReportsParameters\Bookkeeping\CounterpartyCashlessDebtsReportViewModel.CounterpartyCashlessDebtsReportType.cs" />
     <Compile Include="ReportsParameters\Production\ProducedProductionReportViewModel.ProducedProductionReportMeasurementUnit.cs" />
+    <Compile Include="Services\SalesReport\ISalesReportService.cs" />
+    <Compile Include="Services\SalesReport\SalesReportService.cs" />
     <Compile Include="Store\Reports\DefectiveItemsReport.SummaryByNomenclatureRow.cs" />
     <Compile Include="Store\Reports\DefectiveItemsReport.SummaryByOldNomenclatureRow.cs" />
     <Compile Include="Store\Reports\DevectiveItemsReport.SummaryByNomenclatureWithTypeDefectRow.cs" />

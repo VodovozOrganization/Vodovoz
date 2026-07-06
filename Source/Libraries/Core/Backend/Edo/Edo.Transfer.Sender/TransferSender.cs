@@ -53,7 +53,7 @@ namespace Edo.Transfer.Sender
 				Status = EdoDocumentStatus.NotStarted
 			};
 
-			transferTask.TransferStatus = TransferEdoTaskStatus.InProgress;
+			transferTask.TransferStatus = EdoTransferTaskStage.InProgress;
 			transferTask.TransferStartTime = DateTime.Now;
 
 			await _uow.SaveAsync(transferDocument, cancellationToken: cancellationToken);

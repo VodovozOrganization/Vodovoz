@@ -1,4 +1,5 @@
 ﻿using QS.ViewModels;
+using VodovozBusiness.Nodes.SalesReport;
 
 namespace Vodovoz.ViewModels.Widgets
 {
@@ -53,12 +54,5 @@ namespace Vodovoz.ViewModels.Widgets
 			get => _orderDateFilterType;
 			set => SetField(ref _orderDateFilterType, value);
 		}
-	}
-
-	public enum OrderDateFilterType
-	{
-		CreationDate,
-		DeliveryDate,
-		PaymentDate
 	}
 }

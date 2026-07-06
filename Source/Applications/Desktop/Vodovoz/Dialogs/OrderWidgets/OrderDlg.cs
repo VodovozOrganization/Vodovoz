@@ -66,6 +66,7 @@ using Vodovoz.Cores;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Client;
 using Vodovoz.Dialogs.Email;
+using Vodovoz.Dialogs.OrderWidgets;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
@@ -134,6 +135,7 @@ using Vodovoz.Validation;
 using Vodovoz.ViewModels.Dialogs.Counterparties;
 using Vodovoz.ViewModels.Dialogs.Email;
 using Vodovoz.ViewModels.Dialogs.Orders;
+using Vodovoz.ViewModels.Edo;
 using Vodovoz.ViewModels.Infrastructure.InfoProviders;
 using Vodovoz.ViewModels.Infrastructure.Print;
 using Vodovoz.ViewModels.Journals.FilterViewModels.Goods;
@@ -150,6 +152,7 @@ using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
 using Vodovoz.ViewModels.Widgets.EdoLightsMatrix;
 using Vodovoz.ViewModels.Widgets.Orders;
+using Vodovoz.Views.Edo;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Client;
 using VodovozBusiness.Domain.Orders;
@@ -1245,6 +1248,11 @@ namespace Vodovoz
 			UpdateCallBeforeArrivalVisibility();
 			SetNearestDeliveryDateLoaderFunc();
 
+
+			var edoForOrderViewModel = ScopeProvider.Scope.Resolve<EdoInOrderViewModel>();
+			edoForOrderViewModel.Setup(UoW, Entity.Id);
+			edofororderview1.ViewModel = edoForOrderViewModel;
+
 			UpdateOrderItemsOriginalValues();
 
 			RefreshBottlesDebtNotifier();
@@ -1554,7 +1562,7 @@ namespace Vodovoz
 
 				OrderEdoTrueMarkDocumentsActions resendAction;
 
-				using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
+				using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot($"Переотправка счета из {nameof(OrderDlg)}"))
 				{
 					var resendActionQuery = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
 							.Where(x => x.Order.Id == Entity.Id);
@@ -1926,6 +1934,8 @@ namespace Vodovoz
 
 		private void OnButtonFastDeliveryCheckClicked(object sender, EventArgs e)
 		{
+			_isFastDeliveryAvailabilityChecked = true;
+
 			var fastDeliveryValidationResult = _fastDeliveryValidator.ValidateOrder(Entity, true);
 
 			if(fastDeliveryValidationResult.IsFailure)
@@ -1943,8 +1953,6 @@ namespace Vodovoz
 				DeliveryPoint.District.TariffZone.Id,
 				fastDeliveryOrder: Entity
 			);
-
-			_isFastDeliveryAvailabilityChecked = true;
 
 			var fastDeliveryAvailabilityHistoryModel = new FastDeliveryAvailabilityHistoryModel(ServicesConfig.UnitOfWorkFactory);
 			fastDeliveryAvailabilityHistoryModel.SaveFastDeliveryAvailabilityHistory(fastDeliveryAvailabilityHistory);
@@ -3055,11 +3063,19 @@ namespace Vodovoz
 			Entity.AcceptOrder(_currentEmployee, CallTaskWorker);
 			treeItems.Selection.UnselectAll();
 
-			var addingToRouteListResult = _fastDeliveryHandler.TryAddOrderToRouteListAndNotifyDriver(UoW, Entity, _routeListService, CallTaskWorker);
+			var addingToRouteListResult = _fastDeliveryHandler.TryAddOrderToRouteList(UoW, Entity, _routeListService, CallTaskWorker);
 			
 			if(addingToRouteListResult.IsFailure)
 			{
 				return (false, addingToRouteListResult);
+			}
+
+			if(addingToRouteListResult.Value)
+			{
+                _fastDeliveryHandler.NotifyDriverOfFastDeliveryOrderAdded(Entity.Id);
+
+                var customerCourierAssignedEvent = new CustomerNotificationDomainEvent(CustomerNotificationEventType.CourierAssigned, Entity.OnlineOrder?.Source, Entity.OnlineOrder?.Id, Entity.Id);
+				_customerNotificationPublisher.TryPublish(UoW, customerCourierAssignedEvent);
 			}
 
 			OpenNewOrderForDailyRentEquipmentReturnIfNeeded();
@@ -3559,6 +3575,18 @@ namespace Vodovoz
 			btnOpnPrnDlg.Sensitive = Entity.OrderDocuments
 				.OfType<PrintableOrderDocument>()
 				.Any(doc => doc.PrintType == PrinterType.RDL || doc.PrintType == PrinterType.ODT);
+		}
+
+		protected void OnToggleEdoToggled(object sender, EventArgs e)
+		{
+			if(toggleEdo.Active)
+			{
+				ntbOrderEdit.CurrentPage = 6;
+				if(ntbOrderEdit.CurrentPageWidget is IActivatableOrderTab activatableTab)
+				{
+					activatableTab.Activate();
+				}
+			}
 		}
 
 		#endregion
@@ -4664,7 +4692,8 @@ namespace Vodovoz
 						e.UndeliveredOrder.OldOrder.OnlineOrder?.Id,
 						e.UndeliveredOrder.OldOrder.Id,
 						e.UndeliveredOrder.NewOrder.Id,
-						e.UndeliveredOrder.UndeliveryDetalization?.CustomerNotificationText);
+						e.UndeliveredOrder.UndeliveryDetalization?.Name // Пока будут заполнять //e.UndeliveredOrder.UndeliveryDetalization?.CustomerNotificationText
+						);
 					_customerNotificationPublisher.TryPublish(UoW, customerOrderRescheduledEvent);
 
 					UoW.Commit();
@@ -5209,7 +5238,7 @@ namespace Vodovoz
 			btnAddM2ProxyForThisOrder.Sensitive = val;
 			btnRemExistingDocument.Sensitive = val;
 			RouteListStatus? rlStatus = null;
-			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot())
+			using(var uow = ServicesConfig.UnitOfWorkFactory.CreateWithoutRoot($"Получение списка МЛ из {nameof(OrderDlg)}"))
 			{
 				if(Entity.Id != 0)
 				{
@@ -5737,7 +5766,7 @@ namespace Vodovoz
 			if(Order.Id != 0)
 			{
 				// Нужна новая сессия, чтобы получить изначальную коллекцию товаров заказа
-				using(var uow = _unitOfWorkFactory.CreateWithoutRoot())
+				using(var uow = _unitOfWorkFactory.CreateWithoutRoot($"Получение изначальной коллекции товаров заказа из {nameof(OrderDlg)}"))
 				{
 					var dbOrderItems = _orderRepository.GetOrderItems(uow, Order.Id)
 					.Select(oi => new { oi.Nomenclature.Id, oi.Count, oi.Sum })
@@ -6306,10 +6335,12 @@ namespace Vodovoz
 
 			return result;
 		}
+
 		#endregion CustomCancellationConfirmationDialog
 
 		private bool IsFastDeliveryAvailabilityMustBeChecked =>
-			Entity.DeliveryPoint?.District?.TariffZone?.IsFastDeliveryAvailableAtCurrentTime == true
+			_fastDeliveryValidator.ValidateOrder(Entity, true).IsSuccess
+			&& ybuttonFastDeliveryCheck.Sensitive
 			&& IsOrderItemsAllFastDeliveryCompatible()
 			&& !CheckIsFastDeliveryAvailabilityChecked();
 

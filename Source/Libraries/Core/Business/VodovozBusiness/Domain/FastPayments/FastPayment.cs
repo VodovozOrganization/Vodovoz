@@ -1,20 +1,12 @@
 ﻿using NHibernate.Type;
 using QS.DomainModel.Entity;
-using QS.DomainModel.UoW;
 using QS.HistoryLog;
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using Vodovoz.Core.Domain.FastPayments;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Organizations;
-using Vodovoz.EntityRepositories.Cash;
-using Vodovoz.EntityRepositories.Logistic;
-using Vodovoz.EntityRepositories.Store;
-using Vodovoz.Services;
-using Vodovoz.Settings.Nomenclature;
-using VodovozBusiness.Services.Orders;
 
 namespace Vodovoz.Domain.FastPayments
 {
@@ -170,55 +162,6 @@ namespace Vodovoz.Domain.FastPayments
 		public virtual void SetProcessingStatus()
 		{
 			FastPaymentStatus = FastPaymentStatus.Processing;
-		}
-		
-		public virtual void SetPerformedStatusForOrder(
-			IUnitOfWork uow,
-			DateTime paidDate,
-			INomenclatureSettings nomenclatureSettings,
-			IRouteListItemRepository routeListItemRepository,
-			ISelfDeliveryRepository selfDeliveryRepository,
-			ICashRepository cashRepository,
-			IOrderContractUpdater contractUpdater)
-		{
-			FastPaymentStatus = FastPaymentStatus.Performed;
-
-			var selfDeliveryOrderPaymentTypes = new PaymentType[] { PaymentType.Cash, PaymentType.SmsQR };
-
-			if(selfDeliveryOrderPaymentTypes.Contains(Order.PaymentType)
-				&& Order.SelfDelivery
-				&& Order.OrderStatus == OrderStatus.WaitForPayment
-				&& Order.PayAfterShipment)
-			{
-				Order.TryCloseSelfDeliveryPayAfterShipmentOrder(
-					uow,
-					nomenclatureSettings,
-					routeListItemRepository,
-					selfDeliveryRepository,
-					cashRepository);
-				Order.IsSelfDeliveryPaid = true;
-			}
-
-			if(selfDeliveryOrderPaymentTypes.Contains(Order.PaymentType)
-				&& Order.SelfDelivery
-				&& Order.OrderStatus == OrderStatus.WaitForPayment
-				&& !Order.PayAfterShipment)
-			{
-				Order.ChangeStatus(OrderStatus.OnLoading);
-				Order.IsSelfDeliveryPaid = true;
-			}
-			
-			PaidDate = paidDate;
-			Order.OnlinePaymentNumber = ExternalId;
-			Order.UpdatePaymentType(PaymentType, contractUpdater, false);
-			Order.UpdatePaymentByCardFrom(PaymentByCardFrom, contractUpdater, false);
-			contractUpdater.ForceUpdateContract(uow, Order, Organization);
-
-			foreach(var routeListItem in routeListItemRepository.GetRouteListItemsForOrder(uow, Order.Id))
-			{
-				routeListItem.RecalculateTotalCash();
-				uow.Save(routeListItem);
-			}
 		}
 
 		/// <summary>
