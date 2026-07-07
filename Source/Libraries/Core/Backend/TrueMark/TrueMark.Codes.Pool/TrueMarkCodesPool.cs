@@ -63,7 +63,12 @@ namespace TrueMark.Codes.Pool
 
 		private IQuery GetPutCodeQuery(int codeId)
 		{
-			var sql = $@"INSERT INTO {_poolTableName} (code_id) VALUES(:code_id)";
+			var sql = $@"
+				INSERT INTO {_poolTableName} (code_id, gtin)
+				SELECT :code_id, tmic.gtin
+				FROM true_mark_identification_code tmic
+				WHERE tmic.id = :code_id";
+
 			var query = UoW.Session.CreateSQLQuery(sql)
 				.SetParameter("code_id", codeId);
 			return query;

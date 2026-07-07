@@ -1,4 +1,5 @@
 ﻿using Edo.Common;
+using Edo.Common.Services;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -22,6 +23,7 @@ namespace Edo.Documents.Services
 		private readonly ITrueMarkCodesPool _trueMarkCodesPool;
 		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly ITrueMarkCodesPoolCodeProvider _trueMarkCodesPoolCodeProvider;
+		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly ILogger<UpdDocumentBuilder> _logger;
 
 		public UpdDocumentBuilder(
@@ -29,12 +31,14 @@ namespace Edo.Documents.Services
 			ITrueMarkCodesPool trueMarkCodesPool,
 			ITrueMarkCodeRepository trueMarkCodeRepository,
 			ITrueMarkCodesPoolCodeProvider trueMarkCodesPoolCodeProvider,
+			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			ILogger<UpdDocumentBuilder> logger)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
 			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_trueMarkCodesPoolCodeProvider = trueMarkCodesPoolCodeProvider ?? throw new ArgumentNullException(nameof(trueMarkCodesPoolCodeProvider));
+			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
@@ -110,10 +114,11 @@ namespace Edo.Documents.Services
 
 				if(orderItem.Nomenclature.IsAccountableInTrueMark)
 				{
-					ProcessAccountableOrderItemAsync(
+					await ProcessAccountableOrderItemAsync(
 						context,
 						orderItem,
-						codeItemsToAssign);
+						codeItemsToAssign,
+						cancellationToken);
 				}
 
 				var inventPosition = new EdoUpdInventPosition
@@ -160,10 +165,11 @@ namespace Edo.Documents.Services
 			return false;
 		}
 
-		private void ProcessAccountableOrderItemAsync(
+		private async Task ProcessAccountableOrderItemAsync(
 			UpdDocumentCreationContext context,
 			OrderItemEntity orderItem,
-			List<EdoUpdInventPositionCode> codeItemsToAssign)
+			List<EdoUpdInventPositionCode> codeItemsToAssign,
+			CancellationToken cancellationToken)
 		{
 			int assignedQuantity = 0;
 
@@ -175,7 +181,14 @@ namespace Edo.Documents.Services
 				var availableQuantity = (int)(orderItem.CurrentCount - assignedQuantity);
 
 				// сначала ищем и назначем из групповых кодов
-				if(TryAssignGroupCode(context, orderItem, availableQuantity, codeItemsToAssign, out var assignedGroupCount))
+				var (groupSuccess, assignedGroupCount) = await TryAssignGroupCodeAsync(
+					context,
+					orderItem,
+					availableQuantity,
+					codeItemsToAssign,
+					cancellationToken);
+
+				if(groupSuccess)
 				{
 					assignedQuantity += assignedGroupCount;
 					continue;
@@ -210,15 +223,13 @@ namespace Edo.Documents.Services
 			}
 		}
 
-		private bool TryAssignGroupCode(
+		private async Task<(bool Success, int AssignedCount)> TryAssignGroupCodeAsync(
 			UpdDocumentCreationContext context,
 			OrderItemEntity orderItem,
 			int availableQuantity,
 			List<EdoUpdInventPositionCode> codeItemsToAssign,
-			out int assignedCount)
+			CancellationToken cancellationToken)
 		{
-			assignedCount = 0;
-
 			var availableGroupGtins = orderItem.Nomenclature.GroupGtins
 				.Where(x => x.CodesCount <= availableQuantity)
 				.OrderByDescending(x => x.CodesCount);
@@ -233,8 +244,24 @@ namespace Edo.Documents.Services
 					continue;
 				}
 
+				var isGroupCodeUsedInEdoDocument = _trueMarkCodeRepository.IsGroupCodeUsedInEdoDocument(groupCode.Id);
+				if(isGroupCodeUsedInEdoDocument)
+				{
+					// Уже используется в каком-то ЭДО документе, пропускаем
+					context.GroupCodesWithTaskItems.Remove(groupCode);
+					continue;
+				}
+
 				// установка в ResultCode всем ProductCode в группе
 				var groupTaskItems = context.GroupCodesWithTaskItems[groupCode];
+
+				if(availableQuantity < groupTaskItems.Count())
+				{
+					context.GroupCodesWithTaskItems.Remove(groupCode);
+					await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, groupCode, cancellationToken);
+					continue;
+				}
+
 				foreach(var groupTaskItem in groupTaskItems)
 				{
 					groupTaskItem.ProductCode.ResultCode = groupTaskItem.ProductCode.SourceCode;
@@ -258,11 +285,10 @@ namespace Edo.Documents.Services
 				};
 				codeItemsToAssign.Add(codeItem);
 
-				assignedCount = codesInGroup;
-				return true;
+				return (true, codesInGroup);
 			}
 
-			return false;
+			return (false, 0);
 		}
 
 		private bool TryAssignExistingIndividualCode(
