@@ -1,4 +1,4 @@
-using Edo.Common;
+﻿using Edo.Common;
 using Edo.Common.Services;
 using Edo.Contracts.Messages.Events;
 using Edo.Documents.Services;
@@ -228,7 +228,6 @@ namespace Edo.Documents
 
 			await _messageBus.Publish(message, cancellationToken);
 		}
-
 
 		private async Task<TrueMarkWaterIdentificationCode> LoadCodeFromPool(
 			GtinEntity gtin,

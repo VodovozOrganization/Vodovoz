@@ -328,11 +328,9 @@ namespace Edo.Documents.Services
 					}
 					else
 					{
-						// Если код требует замены - добавляем в словарь необходимых кодов
 						AddCodeRequirement(context, availableGtin, orderItem, codeItemsToAssign);
 						availableCode.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
 
-						// Удаляем код из необработанных
 						context.UnprocessedCodes.Remove(availableCode);
 
 						assignedCount = 1;
@@ -502,9 +500,10 @@ namespace Edo.Documents.Services
 				return;
 			}
 
-			// Создаем копию словаря для мутации
 			var availableCodes = loadedCodesByGtin
 				.ToDictionary(kv => kv.Key, kv => kv.Value.ToList());
+
+			var codesToDisaggregate = new List<TrueMarkWaterIdentificationCode>();
 
 			foreach(var pendingItem in context.PendingCodeItems)
 			{
@@ -514,6 +513,7 @@ namespace Edo.Documents.Services
 				{
 					var code = codes.First();
 					codes.RemoveAt(0);
+					codesToDisaggregate.Add(code);
 
 					var taskItem = await CreateTaskItemAsync(
 						context.DocumentEdoTask,
@@ -540,7 +540,18 @@ namespace Edo.Documents.Services
 				}
 			}
 
-			// Возвращаем неиспользованные коды в пул
+			if(codesToDisaggregate.Any())
+			{
+				_logger.LogInformation(
+					"Выполняем дизагрегацию для {Count} кодов",
+					codesToDisaggregate.Count);
+
+				foreach(var code in codesToDisaggregate)
+				{
+					await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, code, cancellationToken);
+				}
+			}
+
 			await ReturnUnusedCodesAsync(availableCodes, cancellationToken);
 		}
 
