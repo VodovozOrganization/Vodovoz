@@ -1765,6 +1765,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Logistic.CarsMonitoringView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.TurnoverWithDynamicsReportView.cs" />
     <Compile Include="Views\Reports\TurnoverWithDynamicsReportView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Sales.MarketingReportView.cs" />
+    <Compile Include="Views\Reports\MarketingReportView.cs" />
     <Compile Include="Views\Sale\DeliveryPriceRuleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Sale.DeliveryPriceRuleView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.WayBillReportGroupPrint.cs" />

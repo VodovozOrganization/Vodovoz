@@ -176,6 +176,26 @@ namespace Vodovoz.Presentation.ViewModels.Common.IncludeExcludeFilters
 			return includeExludeFiltersViewModel;
 		}
 
+		public IncludeExludeFiltersViewModel CreateMarketingReportIncludeExcludeFilter(IUnitOfWork unitOfWork, int? onlyEmployeeId)
+		{
+			var includeExludeFiltersViewModel = CreateDefaultIncludeExludeFiltersViewModel();
+
+			var statusesToSelect = new[]
+			{
+				OrderStatus.Accepted,
+				OrderStatus.InTravelList,
+				OrderStatus.OnLoading,
+				OrderStatus.OnTheWay,
+				OrderStatus.Shipped,
+				OrderStatus.UnloadingOnStock,
+				OrderStatus.Closed
+			};
+
+			AddOrderStatusFilter(includeExludeFiltersViewModel, statusesToSelect);
+
+			return includeExludeFiltersViewModel;
+		}
+
 		private void AddWarehouseFilter(IUnitOfWork unitOfWork, IncludeExludeFiltersViewModel includeExludeFiltersViewModel)
 		{
 			includeExludeFiltersViewModel.AddFilter(unitOfWork, _warehouseRepository);
