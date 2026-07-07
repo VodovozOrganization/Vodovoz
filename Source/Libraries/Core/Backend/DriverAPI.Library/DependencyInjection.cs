@@ -35,6 +35,7 @@ using SmsPaymentServiceV5 = DriverAPI.Library.V5.Services.SmsPaymentService;
 using TrackPointsServiceV5 = DriverAPI.Library.V5.Services.TrackPointsService;
 using Osrm;
 using Vodovoz.Core.Application;
+using Mango.Vpbx.Client;
 
 namespace DriverAPI.Library
 {
@@ -88,6 +89,9 @@ namespace DriverAPI.Library
 				.AddMessageTransportSettings()
 				.AddEdoMassTransit();
 
+			services
+				.AddMangoVpbxClientServices();
+
 			return services;
 		}
 
@@ -120,6 +124,7 @@ namespace DriverAPI.Library
 				.AddScoped<ISmsPaymentService, SmsPaymentService>()
 				.AddScoped<IDriverComplaintService, DriverComplaintService>()
 				.AddScoped<IFastPaymentService, FastPaymentService>()
+				.AddScoped<ICallsService, CallsService>()
 				.AddTrueMarkCodesCheckDependencies();
 		}
 
