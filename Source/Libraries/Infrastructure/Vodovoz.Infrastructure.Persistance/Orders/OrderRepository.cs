@@ -17,12 +17,14 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Mango;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
@@ -3052,6 +3054,31 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			}
 
 			return query;
+		}
+
+		public Task<DriverMangoExtensionNumber> GetDriversMangoExtensionNumberByOrderId(
+			IUnitOfWork uow,
+			int orderId,
+			CancellationToken cancellationToken)
+		{
+			var routeListItemStatuses =
+				new[] { RouteListItemStatus.EnRoute, RouteListItemStatus.Completed };
+
+			var query =
+				from order in uow.Session.Query<Order>()
+				join routeListItem in uow.Session.Query<RouteListItem>()
+					on order.Id equals routeListItem.Order.Id
+				join routeList in uow.Session.Query<RouteList>()
+					on routeListItem.RouteList.Id equals routeList.Id
+				join driverMangoExtensionNumber in uow.Session.Query<DriverMangoExtensionNumber>()
+					on routeList.Driver.Id equals driverMangoExtensionNumber.DriverId
+				where
+					order.Id == orderId
+					&& routeListItemStatuses.Contains(routeListItem.Status)
+					&& driverMangoExtensionNumber.Status == DriverMangoExtensionNumberStatus.Active
+				select driverMangoExtensionNumber;
+
+			return query.FirstOrDefaultAsync(cancellationToken);
 		}
 	}
 }
