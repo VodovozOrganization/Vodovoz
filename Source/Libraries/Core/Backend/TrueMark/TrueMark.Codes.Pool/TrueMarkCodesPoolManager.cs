@@ -77,23 +77,6 @@ namespace TrueMark.Codes.Pool
 			}
 		}
 
-		public async Task UpdateCodeExpirationAsync(int codeId, DateTime expirationDate, CancellationToken cancellationToken)
-		{
-			using(var uow = CreateUow())
-			{
-				var sql = $@"
-					UPDATE {_poolTableName}
-					SET expiration_date = :expirationDate
-					WHERE code_id = :codeId
-					;";
-				var query = uow.Session.CreateSQLQuery(sql)
-					.SetParameter("codeId", codeId)
-					.SetParameter("expirationDate", expirationDate);
-
-				await query.ExecuteUpdateAsync(cancellationToken);
-			}
-		}
-
 		public async Task UpdateCodesExpirationAsync(
 			IDictionary<int, DateTime> codeExpirationMap,
 			CancellationToken cancellationToken)

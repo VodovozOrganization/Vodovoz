@@ -95,15 +95,6 @@ namespace TrueMark.Codes.Pool
 		Task<IEnumerable<int>> SelectCodesForCheckAsync(int count, CancellationToken cancellationToken);
 
 		/// <summary>
-		/// Обновляет дату истечения срока действия кода
-		/// </summary>
-		/// <param name="codeId">Идентификатор кода</param>
-		/// <param name="expirationDate">Новая дата истечения срока действия</param>
-		/// <param name="cancellationToken">Токен отмены</param>
-		/// <returns>Результат операции</returns>
-		Task UpdateCodeExpirationAsync(int codeId, DateTime expirationDate, CancellationToken cancellationToken);
-
-		/// <summary>
 		/// Обновляет даты истечения срока действия кодов на основе словаря, где ключ - идентификатор кода, а значение - новая дата истечения срока действия
 		/// </summary>
 		/// <param name="codeExpirationMap">Словарь с обновленными датами истечения срока действия</param>

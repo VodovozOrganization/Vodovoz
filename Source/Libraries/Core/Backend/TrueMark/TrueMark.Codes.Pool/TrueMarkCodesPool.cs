@@ -74,20 +74,6 @@ namespace TrueMark.Codes.Pool
 			return query;
 		}
 
-		public virtual async Task UpdateCodeExpirationAsync(int codeId, DateTime expirationDate, CancellationToken cancellationToken)
-		{
-			var sql = $@"
-				UPDATE {_poolTableName}
-				SET expiration_date = :expirationDate
-				WHERE id = :codeId";
-
-			var query = UoW.Session.CreateSQLQuery(sql)
-				.SetParameter("codeId", codeId)
-				.SetParameter("expirationDate", expirationDate);
-
-			await query.ExecuteUpdateAsync(cancellationToken);
-		}
-
 		public virtual int TakeCode(string gtin)
 		{
 			var selectCodeQuery = GetSelectCodeQuery(gtin);
