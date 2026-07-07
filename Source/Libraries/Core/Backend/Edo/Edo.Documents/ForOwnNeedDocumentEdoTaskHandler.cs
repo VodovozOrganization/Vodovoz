@@ -377,7 +377,7 @@ namespace Edo.Documents
 										availableGtin,
 										GetOrderOrganizationInn(documentEdoTask),
 										cancellationToken);
-									await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, individualCode, cancellationToken);
+									await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, newCode, cancellationToken);
 									availableCode.ProductCode.ResultCode = newCode;
 									availableCode.ProductCode.SourceCodeStatus = SourceProductCodeStatus.Changed;
 								}
