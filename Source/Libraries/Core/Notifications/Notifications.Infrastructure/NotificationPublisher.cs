@@ -24,6 +24,11 @@ namespace Notifications.Infrastructure
 		{
 			var integrationEvent = await _customerNotificationsIntegrationEventBuilder.BuildAsync(domainEvent, cancellationToken);
 
+			if(integrationEvent == null)
+			{
+				return;
+			}
+
 			await _bus.Publish(integrationEvent, cancellationToken);
 		}
 	}
