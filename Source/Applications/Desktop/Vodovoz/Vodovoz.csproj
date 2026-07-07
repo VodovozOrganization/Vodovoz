@@ -9,7 +9,7 @@
     <AssemblyName>Vodovoz</AssemblyName>
     <StartupObject>Vodovoz.Program</StartupObject>
     <ApplicationIcon>icons\logo.ico</ApplicationIcon>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <TargetOS>Linux</TargetOS>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -2204,6 +2204,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Condition=" '$(TargetOS)' == 'Win' " Include="libs/OnlyWin/sqlite3.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Condition=" '$(TargetOS)' == 'Win' " Include="libs/Google.OrTools/Win/Google.OrTools.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Condition=" '$(TargetOS)' == 'Win' " Include="libs/Google.OrTools/Win/Google.Protobuf.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Condition=" '$(TargetOS)' == 'Linux' " Include="libs/Google.OrTools/Linux/libGoogle.OrTools.so">
