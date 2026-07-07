@@ -58,11 +58,10 @@ namespace DriverAPI.Controllers.V6
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		public async Task<IActionResult> GetCall([FromBody] GetCallRequest getCallRequest, CancellationToken cancellationToken)
 		{
-			_logger.LogInformation("Запрос на звонок на номер: {ClientPhoneNumber}, маршрутный лист {RouteListId} от пользователя {Username} | User token: {AccessToken} | X-Idempotency-Key: {XIdempotencyKey} | X-Action-Time-Utc: {XActionTimeUtc}",
+			_logger.LogInformation("Запрос на звонок на номер: {ClientPhoneNumber}, маршрутный лист {RouteListId} от пользователя {Username} | X-Idempotency-Key: {XIdempotencyKey} | X-Action-Time-Utc: {XActionTimeUtc}",
 				getCallRequest.Number,
 				getCallRequest.RouteListId,
 				HttpContext.User.Identity?.Name ?? "Unknown",
-				Request.Headers[HeaderNames.Authorization],
 				HttpContext.Request.Headers["X-Idempotency-Key"],
 				HttpContext.Request.Headers["X-Action-Time-Utc"]);
 
