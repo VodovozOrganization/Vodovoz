@@ -64,7 +64,8 @@ namespace CustomerOrdersApi.Library.V5.Factories
 
 			await UpdateAvailableOperations(uow, orderInfo, order, onlineOrder, cancellationToken);
 
-			if(driversMangoExtensionNumber != null)
+			if(driversMangoExtensionNumber != null
+				&& driversMangoExtensionNumber.Status == DriverMangoExtensionNumberStatus.Active)
 			{
 				orderInfo.DriversMangoNumber =
 					_mangoSettings.DriversCallsLineNumber + ",," + driversMangoExtensionNumber.ExtensionNumber;
