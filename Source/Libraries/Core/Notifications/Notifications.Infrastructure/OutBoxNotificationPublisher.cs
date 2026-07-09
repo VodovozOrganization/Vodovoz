@@ -46,11 +46,16 @@ namespace Notifications.Infrastructure
 				}
 			}
 
-            OutboxMessage outboxMessage;
-
             var integrationEvent = await _integrationEventBuilder.BuildAsync(domainEvent, cancellationToken);
 
-            if(_sessionLastEvents.TryGetValue(domainEvent.GetAggregateId(), out var existing))
+			if(integrationEvent == null)
+			{
+				return false;
+			}
+
+			OutboxMessage outboxMessage;
+
+			if(_sessionLastEvents.TryGetValue(domainEvent.GetAggregateId(), out var existing))
             {
                 existing.SavePayload(integrationEvent);
 
