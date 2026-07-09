@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Orders.V6;
+using Vodovoz.Core.Domain.Mango;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 
@@ -19,6 +20,7 @@ namespace CustomerOrdersApi.Library.V6.Factories
 			OnlineOrderTimers timers,
 			OnlineOrder onlineOrder,
 			DateTime ratingAvailableFrom,
+			DriverMangoExtensionNumber driversMangoExtensionNumber,
 			bool establishedRoute,
 			bool isOrderWasSelectedAsNext,
 			DateTime? driversCoordinatesLastUpdateTime,
