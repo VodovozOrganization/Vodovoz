@@ -1,8 +1,9 @@
-﻿using CustomerNotifications.Transport;
+using CustomerNotifications.Transport;
 using CustomerNotificationsWorker.Config;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NLog.Extensions.Logging;
 
 namespace CustomerNotificationsWorker
 {
@@ -15,6 +16,10 @@ namespace CustomerNotificationsWorker
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
+				.ConfigureLogging((ctx, builder) =>
+				{
+					builder.AddNLog(ctx.Configuration.GetSection("NLog"));
+				})
 				.ConfigureServices((hostContext, services) =>
 				{
 					services.Configure<CustomerNotificationTransportSettings>(

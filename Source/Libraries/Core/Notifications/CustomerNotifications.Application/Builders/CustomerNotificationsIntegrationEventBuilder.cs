@@ -47,6 +47,12 @@ namespace CustomerNotifications.Application.Builders
 				throw new ArgumentNullException(nameof(domainEvent));
 			}
 
+			// Пока пуши только в мобильном приложении
+			if(domainEvent.EventSource != Source.MobileApp)
+			{
+				return null;
+			}
+
 			var notificationText = _customerNotificationSettingsProvider.GetNotificationText(domainEvent);
 
 			if(string.IsNullOrEmpty(notificationText))

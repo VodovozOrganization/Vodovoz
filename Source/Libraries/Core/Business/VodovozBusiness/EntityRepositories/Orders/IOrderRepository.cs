@@ -1,4 +1,4 @@
-﻿using NHibernate.Criterion;
+using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Data.Orders.Default;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Mango;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
@@ -393,6 +394,15 @@ namespace Vodovoz.EntityRepositories.Orders
 			IUnitOfWork uow,
 			IEnumerable<int> orderIds,
 			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получение добавочного номера Mango водителя, доставляющего заказ с указанным номером
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Номер заказа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Добавочный номер Mango водителя</returns>
+		Task<DriverMangoExtensionNumber> GetDriversMangoExtensionNumberByOrderId(IUnitOfWork uow, int orderId, CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Получение идентификаторов заказов контрагента,
