@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Vodovoz.Core.Application.Payments;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Core.Domain.Repositories;
@@ -306,6 +307,11 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				}
 			}
 
+			if(!ValidateParsedDocuments())
+			{
+				return;
+			}
+
 			if(!HandleBankAccountMovements())
 			{
 				return;
@@ -341,6 +347,46 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				totalCount,
 				autoPaymentMatching,
 				Parser.TransferDocuments);
+		}
+
+		private bool ValidateParsedDocuments()
+		{
+			var documentsWithoutPayerInn = Parser.TransferDocuments
+				.Where(x => !string.IsNullOrWhiteSpace(x.RecipientInn)
+					&& _allVodOrganisations.ContainsKey(x.RecipientInn)
+					&& string.IsNullOrWhiteSpace(x.PayerInn))
+				.ToList();
+
+			if(!documentsWithoutPayerInn.Any())
+			{
+				return true;
+			}
+
+			var message = new StringBuilder();
+			message.AppendLine("В выписке найдены платежи с незаполненным ИНН плательщика.");
+			message.AppendLine("Загрузка остановлена. Исправьте файл выписки или обработайте эти платежи отдельно.");
+			message.AppendLine();
+
+
+			const int maxProblemsDocumentsForAlertCount = 10;
+			
+			foreach(var document in documentsWithoutPayerInn.Take(maxProblemsDocumentsForAlertCount))
+			{
+				message.AppendLine(
+					$"Документ №{document.DocNum} от {document.Date:d}, сумма {document.Total:N2}, " +
+					$"получатель ИНН {document.RecipientInn}");
+			}
+
+			if(documentsWithoutPayerInn.Count > maxProblemsDocumentsForAlertCount)
+			{
+				message.AppendLine($"И еще {documentsWithoutPayerInn.Count - maxProblemsDocumentsForAlertCount} платежей.");
+			}
+
+			InteractiveService.ShowMessage(ImportanceLevel.Warning, message.ToString(), "Ошибка в выписке");
+			UpdateProgress?.Invoke("Загрузка остановлена: в выписке есть платежи без ИНН плательщика", 1);
+			IsNotProcessingMode = true;
+
+			return false;
 		}
 		
 		private bool HandleBankAccountMovements()
