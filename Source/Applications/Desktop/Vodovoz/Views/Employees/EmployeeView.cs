@@ -316,9 +316,6 @@ namespace Vodovoz.Views.Employees
 				.InitializeFromSource();
 
 			entityentryPhoneForCounterpartyCalls.ViewModel = ViewModel.PhoneForCounterpartyCallsViewModel;
-			entityentryPhoneForCounterpartyCalls.Binding
-				.AddBinding(ViewModel.Entity, e => e.CanRecieveCounterpartyCalls, w => w.ViewModel.IsEditable)
-				.InitializeFromSource();
 
 			ConfigureWorkSchedules();
 			ConfigureDistrictPriorities();

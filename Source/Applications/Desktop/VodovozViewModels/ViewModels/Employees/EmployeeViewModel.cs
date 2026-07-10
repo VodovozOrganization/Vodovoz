@@ -263,8 +263,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				.Finish();
 
 			PhoneForCounterpartyCallsViewModel.CanViewEntity = false;
-
-			Entity.PropertyChanged += OnEntityPropertyChanged;
 		}
 
 		public ILifetimeScope LifetimeScope { get; private set; }
@@ -949,12 +947,6 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 					break;
 				case nameof(Entity.Status):
 					_statusChangedByUser = true;
-					break;
-				case nameof(Entity.CanRecieveCounterpartyCalls):
-					if(!Entity.CanRecieveCounterpartyCalls)
-					{
-						Entity.PhoneForCounterpartyCalls = null;
-					}
 					break;
 				default:
 					break;

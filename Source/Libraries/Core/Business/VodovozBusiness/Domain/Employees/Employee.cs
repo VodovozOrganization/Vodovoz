@@ -77,7 +77,6 @@ namespace Vodovoz.Domain.Employees
 		private GenericObservableList<DriverDistrictPrioritySet> _observableDriverDistrictPrioritySets;
 		private GenericObservableList<DriverWorkScheduleSet> _observableDriverWorkScheduleSets;
 		private IWageCalculationRepository _wageCalculationRepository;
-		private bool _canRecieveCounterpartyCalls;
 		private Phone _phoneForCounterpartyCalls;
 		private District _district;
 
@@ -172,13 +171,6 @@ namespace Vodovoz.Domain.Employees
 		{
 			get => _phones;
 			set => SetField(ref _phones, value);
-		}
-
-		[Display(Name = "Водитель может принимать звонки от контрагентов")]
-		public virtual bool CanRecieveCounterpartyCalls
-		{
-			get => _canRecieveCounterpartyCalls;
-			set => SetField(ref _canRecieveCounterpartyCalls, value);
 		}
 
 		[Display(Name = "Телефон для приема звонков от контрагентов")]
@@ -439,13 +431,13 @@ namespace Vodovoz.Domain.Employees
 						@"Обязательно должны быть выбраны поля 'Управляет а\м' для типа и принадлежности авто",
 						new[] { nameof(DriverOfCarTypeOfUse), nameof(DriverOfCarOwnType) });
 				}
-			}
-			
-			if(CanRecieveCounterpartyCalls && PhoneForCounterpartyCalls == null)
-			{
-				yield return new ValidationResult(
-					"При включенной настройке возможности принимать звонки контрагента - требуется установка телефона для связи с водителем",
-					new[] { nameof(CanRecieveCounterpartyCalls), nameof(PhoneForCounterpartyCalls) });
+
+				if(PhoneForCounterpartyCalls == null)
+				{
+					yield return new ValidationResult(
+						"Не указан номер телефона водителя для приема звонка контрагента",
+						new[] { nameof(PhoneForCounterpartyCalls) });
+				}
 			}
 
 			if(Subdivision == null || Subdivision.Id == subdivisionSettings.GetParentVodovozSubdivisionId())
