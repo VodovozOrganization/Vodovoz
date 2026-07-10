@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Core.Infrastructure;
 using QS.DomainModel.UoW;
+using Vodovoz.Core.Application.Orders.Delivery;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Interfaces.Orders;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.OnlineOrders;
 using Vodovoz.Core.Domain.Results;
@@ -25,7 +27,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 	public class OrderFromOnlineOrderValidator : IOrderFromOnlineOrderValidator
 	{
 		private readonly IGoodsPriceCalculator _priceCalculator;
-		private readonly IOnlineOrderDeliveryPriceGetter _deliveryPriceGetter;
+		private readonly IDeliveryPriceGetter<OnlineOrderDeliveryPriceContext> _deliveryPriceGetter;
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IClientDeliveryPointsChecker _clientDeliveryPointsChecker;
 		private readonly IDiscountController _discountController;
@@ -39,7 +41,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 
 		public OrderFromOnlineOrderValidator(
 			IGoodsPriceCalculator goodsPriceCalculator,
-			IOnlineOrderDeliveryPriceGetter deliveryPriceGetter,
+			IDeliveryPriceGetter<OnlineOrderDeliveryPriceContext> deliveryPriceGetter,
 			INomenclatureSettings nomenclatureSettings,
 			IClientDeliveryPointsChecker clientDeliveryPointsChecker,
 			IDiscountController discountController,
@@ -523,7 +525,21 @@ namespace Vodovoz.Core.Application.Orders.Services
 				_onlineOrder.OnlineOrderItems
 					.SingleOrDefault(x => x.PromoSet is null && x.NomenclatureId == _nomenclatureSettings.PaidDeliveryNomenclatureId);
 
-			var deliveryPrice = _deliveryPriceGetter.GetDeliveryPrice(_onlineOrder);
+			var deliveryPriceResult = _deliveryPriceGetter.GetDeliveryPrice(
+				DeliveryPriceGetterContext<OnlineOrderDeliveryPriceContext>.Create(
+					OnlineOrderDeliveryPriceContext.Create(_onlineOrder)));
+
+			var deliveryPrice = 0m;
+			
+			if(deliveryPriceResult.IsFailure)
+			{
+				_validationResults.Add(Vodovoz.Errors.Orders.OnlineOrderErrors.ErrorCalculatingPaidDelivery());
+			}
+			else
+			{
+				deliveryPrice = deliveryPriceResult.Value;
+			}
+			
 			var needPaidDelivery = deliveryPrice > 0;
 			var checkOnlineOrderSum = CheckOnlineOrderSum.Create(
 				_nomenclatureSettings.PaidDeliveryNomenclatureId, 1, deliveryPrice, 0);
