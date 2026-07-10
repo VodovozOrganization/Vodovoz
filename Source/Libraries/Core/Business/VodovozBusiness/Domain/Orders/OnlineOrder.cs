@@ -10,6 +10,8 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Orders.Delivery;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -21,7 +23,7 @@ namespace Vodovoz.Domain.Orders
 	)]
 	[HistoryTrace]
 	[EntityPermission]
-	public class OnlineOrder : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class OnlineOrder : PropertyChangedBase, IDomainObject, IValidatableObject, IFreeDeliveryPrice
 	{
 		public const string OnlineOrderName = "Онлайн заказ";
 		public const int CommentMaxLength = 750;
@@ -347,6 +349,12 @@ namespace Vodovoz.Domain.Orders
 			get => _operatorComments;
 			set => SetField(ref _operatorComments, value);
 		}
+
+		#region IFreeDelivery implementation
+
+		public virtual IEnumerable<IGoods> Goods => OnlineOrderItems;
+
+		#endregion
 		
 		/// <summary>
 		/// Заказ не оплачен онлайн и время на оплату не истекло

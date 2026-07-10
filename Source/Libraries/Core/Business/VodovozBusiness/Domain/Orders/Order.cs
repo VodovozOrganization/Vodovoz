@@ -61,6 +61,8 @@ using Vodovoz.Settings.Orders;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Tools.Orders;
 using VodovozBusiness.Controllers;
+using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Orders.Delivery;
 using VodovozBusiness.Services;
 using VodovozBusiness.Services.Orders;
 using Nomenclature = Vodovoz.Domain.Goods.Nomenclature;
@@ -75,7 +77,7 @@ namespace Vodovoz.Domain.Orders
 	)]
 	[HistoryTrace]
 	[EntityPermission]
-	public class Order : OrderEntity, IValidatableObject
+	public class Order : OrderEntity, IValidatableObject, IOrderFreeDeliveryPrice
 	{
 		public const string DontArriveBeforeIntervalString = "Не приезжать раньше интервала!";
 		private static Logger logger = LogManager.GetCurrentClassLogger();
@@ -710,6 +712,21 @@ namespace Vodovoz.Domain.Orders
 		}
 		
 		public virtual IEnumerable<PartOrderWithGoods> OrganizationsByOrderItems { get; protected set; }
+
+		#region IFreeDeliveryPrice implementation
+
+		public virtual bool IsSelfDelivery => SelfDelivery;
+		public virtual IEnumerable<IGoods> Goods => OrderItems;
+
+		#endregion
+
+		#region IOrderFreeDelivery implementation
+
+		IEnumerable<OrderEquipment> IOrderFreeDeliveryPrice.ObservableOrderEquipments => ObservableOrderEquipments;
+
+		IEnumerable<OrderDepositItem> IOrderFreeDeliveryPrice.ObservableOrderDepositItems => ObservableOrderDepositItems;
+
+		#endregion
 
 		#region IValidatableObject implementation
 

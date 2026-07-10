@@ -13,6 +13,7 @@ using System.Text;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.WageCalculation;
 using Vodovoz.Tools.Orders;
+using VodovozBusiness.Extensions;
 
 namespace Vodovoz.Domain.Sale
 {
@@ -867,53 +868,66 @@ namespace Vodovoz.Domain.Sale
 		/// 2) Правила доставки на текущий день недели
 		/// 3) Правила доставки района
 		/// </summary>
-		public virtual decimal GetDeliveryPrice(ComparerDeliveryPrice comparerDeliveryPrice, decimal eShopGoodsSum)
+		public virtual decimal GetDeliveryPrice(
+			DeliveryDateComparerDeliveryPrice comparerDeliveryPrice,
+			decimal eShopGoodsSum
+			)
 		{
+			var deliveryPrice = 0m;
+			
 			if(comparerDeliveryPrice.DeliveryDate.HasValue)
 			{
 				if(comparerDeliveryPrice.DeliveryDate.Value.Date == DateTime.Today && TodayDistrictRuleItems.Any())
 				{
-					var todayDeliveryRules =
-						TodayDistrictRuleItems.Where(x => comparerDeliveryPrice.CompareWithDeliveryPriceRule(x.DeliveryPriceRule)).ToList();
-
-					if(todayDeliveryRules.Any())
-					{
-						var todayMinEShopGoodsSum =
-							todayDeliveryRules.Max(x => x.DeliveryPriceRule.OrderMinSumEShopGoods);
-
-						if(eShopGoodsSum < todayMinEShopGoodsSum || todayMinEShopGoodsSum == 0)
-						{
-							return todayDeliveryRules.Max(x => x.Price);
-						}
-					}
-
-					return 0m;
+					return TryGetTodayDeliveryPrice(comparerDeliveryPrice, eShopGoodsSum);
 				}
 				
-				var dayOfWeekRules =
-					GetWeekDayRuleItemCollectionByWeekDayName(
-						ConvertDayOfWeekToWeekDayName(comparerDeliveryPrice.DeliveryDate.Value.DayOfWeek));
-				
-				if(dayOfWeekRules.Any())
+				var weekDay = comparerDeliveryPrice.DeliveryDate.Value.DayOfWeek.ConvertToWeekDayName();
+				if(TryGetDayOfWeekDeliveryPrice(comparerDeliveryPrice, eShopGoodsSum, weekDay, ref deliveryPrice))
 				{
-					var dayOfWeekDeliveryRules = 
-						dayOfWeekRules.Where(x => comparerDeliveryPrice.CompareWithDeliveryPriceRule(x.DeliveryPriceRule)).ToList();
-
-					if(dayOfWeekDeliveryRules.Any())
-					{
-						var dayOfWeekEShopGoodsSum =
-							dayOfWeekDeliveryRules.Max(x => x.DeliveryPriceRule.OrderMinSumEShopGoods);
-
-						if(eShopGoodsSum < dayOfWeekEShopGoodsSum || dayOfWeekEShopGoodsSum == 0)
-						{
-							return dayOfWeekDeliveryRules.Max(x => x.Price);
-						}
-					}
-
-					return 0m;
+					return deliveryPrice;
 				}
 			}
 
+			if(TryGetCommonDeliveryPrice(comparerDeliveryPrice, eShopGoodsSum, ref deliveryPrice))
+			{
+				return deliveryPrice;
+			}
+
+			return 0m;
+		}
+		
+		public virtual decimal GetDeliveryPrice(
+			WeekDayName weekDayName,
+			ComparerDeliveryPrice comparerDeliveryPrice,
+			decimal eShopGoodsSum
+			)
+		{
+			var deliveryPrice = 0m;
+			
+			if(weekDayName == WeekDayName.Today && TodayDistrictRuleItems.Any())
+			{
+				return TryGetTodayDeliveryPrice(comparerDeliveryPrice, eShopGoodsSum);
+			}
+			
+			if(TryGetDayOfWeekDeliveryPrice(comparerDeliveryPrice, eShopGoodsSum, weekDayName, ref deliveryPrice))
+			{
+				return deliveryPrice;
+			}
+
+			if(TryGetCommonDeliveryPrice(comparerDeliveryPrice, eShopGoodsSum, ref deliveryPrice))
+			{
+				return deliveryPrice;
+			}
+
+			return 0m;
+		}
+
+		private bool TryGetCommonDeliveryPrice(
+			ComparerDeliveryPrice comparerDeliveryPrice,
+			decimal eShopGoodsSum,
+			ref decimal deliveryPrice)
+		{
 			var commonDeliveryRules =
 				CommonDistrictRuleItems.Where(x => comparerDeliveryPrice.CompareWithDeliveryPriceRule(x.DeliveryPriceRule)).ToList();
 
@@ -923,11 +937,57 @@ namespace Vodovoz.Domain.Sale
 
 				if(eShopGoodsSum < commonMinEShopGoodsSum || commonMinEShopGoodsSum == 0)
 				{
-					return commonDeliveryRules.Max(x => x.Price);
+					deliveryPrice = commonDeliveryRules.Max(x => x.Price);
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		private decimal TryGetTodayDeliveryPrice(ComparerDeliveryPrice comparerDeliveryPrice, decimal eShopGoodsSum)
+		{
+			var todayDeliveryRules =
+				TodayDistrictRuleItems.Where(x => comparerDeliveryPrice.CompareWithDeliveryPriceRule(x.DeliveryPriceRule)).ToList();
+
+			if(todayDeliveryRules.Any())
+			{
+				var todayMinEShopGoodsSum =
+					todayDeliveryRules.Max(x => x.DeliveryPriceRule.OrderMinSumEShopGoods);
+
+				if(eShopGoodsSum < todayMinEShopGoodsSum || todayMinEShopGoodsSum == 0)
+				{
+					return todayDeliveryRules.Max(x => x.Price);
 				}
 			}
 
 			return 0m;
+		}
+		
+		private bool TryGetDayOfWeekDeliveryPrice(
+			ComparerDeliveryPrice comparerDeliveryPrice,
+			decimal eShopGoodsSum,
+			WeekDayName weekDayName,
+			ref decimal deliveryPrice)
+		{
+			var dayOfWeekRules =
+				GetWeekDayRuleItemCollectionByWeekDayName(weekDayName)
+					.Where(x => comparerDeliveryPrice.CompareWithDeliveryPriceRule(x.DeliveryPriceRule))
+					.ToList();
+
+			if(dayOfWeekRules.Any())
+			{
+				var dayOfWeekEShopGoodsSum =
+					dayOfWeekRules.Max(x => x.DeliveryPriceRule.OrderMinSumEShopGoods);
+
+				if(eShopGoodsSum < dayOfWeekEShopGoodsSum || dayOfWeekEShopGoodsSum == 0)
+				{
+					deliveryPrice = dayOfWeekRules.Max(x => x.Price);
+					return true;
+				}
+			}
+
+			return false;
 		}
 
 		/// <summary>
@@ -1041,21 +1101,6 @@ namespace Vodovoz.Domain.Sale
 		}
 
 		#endregion
-
-		public static WeekDayName ConvertDayOfWeekToWeekDayName(DayOfWeek dayOfWeek)
-		{
-			switch(dayOfWeek)
-			{
-				case DayOfWeek.Monday: return WeekDayName.Monday;
-				case DayOfWeek.Tuesday: return WeekDayName.Tuesday;
-				case DayOfWeek.Wednesday: return WeekDayName.Wednesday;
-				case DayOfWeek.Thursday: return WeekDayName.Thursday;
-				case DayOfWeek.Friday: return WeekDayName.Friday;
-				case DayOfWeek.Saturday: return WeekDayName.Saturday;
-				case DayOfWeek.Sunday: return WeekDayName.Sunday;
-				default: throw new ArgumentOutOfRangeException();
-			}
-		}
 
 		public static District GetDistrictFromActiveDistrictsSetOrNull(IUnitOfWork uow, District district)
 		{

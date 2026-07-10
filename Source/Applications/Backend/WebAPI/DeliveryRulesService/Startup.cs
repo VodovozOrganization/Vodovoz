@@ -1,6 +1,7 @@
 ﻿using DeliveryRulesService.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -23,7 +24,7 @@ namespace DeliveryRulesService
 		{
 			ErrorReporter.Instance.AutomaticallySendEnabled = false;
 			ErrorReporter.Instance.SendedLogRowCount = 100;
-			services.AddDeliveryRulesService();
+			services.AddDeliveryRulesService(Configuration);
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -35,11 +36,22 @@ namespace DeliveryRulesService
 			{
 				app.UseDeveloperExceptionPage();
 				app.UseSwagger();
-				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DeliveryRulesService v1"));
+				app.UseSwaggerUI(options =>
+				{
+					var provider = app.ApplicationServices.GetRequiredService<IApiVersionDescriptionProvider>();
+
+					foreach(var description in provider.ApiVersionDescriptions)
+					{
+						options.SwaggerEndpoint(
+							$"/swagger/{description.GroupName}/swagger.json",
+							description.ApiVersion.ToString());
+					}
+				});
 			}
 
 			app.UseHttpsRedirection();
 			app.UseRouting();
+			app.UseAuthentication();
 			app.UseAuthorization();
 
 			app.UseVodovozHealthCheck();

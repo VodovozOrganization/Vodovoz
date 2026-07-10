@@ -1,20 +1,31 @@
-﻿using DeliveryRulesService.Cache;
+﻿using System;
+using DeliveryRulesService.Cache;
 using DeliveryRulesService.HealthChecks;
 using DeliveryRulesService.Workers;
 using Fias.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.OpenApi.Models;
 using Osrm;
-using QS.DomainModel.UoW;
 using QS.Project.Core;
 using QS.Services;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using DeliveryRulesService.Factories;
+using DeliveryRulesService.Options;
+using DeliveryRulesService.V2.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Vodovoz.Core.Application.Orders.Delivery;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
+using Vodovoz.Core.Domain.Interfaces.Orders;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models;
+using Vodovoz.Presentation.WebApi;
 using Vodovoz.Settings.Common;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
@@ -24,23 +35,32 @@ namespace DeliveryRulesService
 {
 	public static class DependencyInjection
 	{
-		public static IServiceCollection AddDeliveryRulesService(this IServiceCollection services)
+		public static IServiceCollection AddDeliveryRulesService(
+			this IServiceCollection services,
+			IConfiguration configuration
+			)
 		{
 			services
-				.AddSwaggerGen(c =>
-				{
-					c.SwaggerDoc("v1", new OpenApiInfo { Title = "DeliveryRulesService", Version = "v1" });
-				})
+				.AddSwaggerGen(opt =>
+					opt.CustomSchemaIds(type => type.FullName))
 				.AddMvc()
 				.AddControllersAsServices();
 
 			services
 				.AddControllers()
-				.AddJsonOptions(j =>
+				//TODO после отключения первой версии можно убрать настройки, чтобы по умолчанию был CamelCase
+				.AddJsonOptions(options =>
 				{
-					//Необходимо для сериализации свойств как PascalCase
-					j.JsonSerializerOptions.PropertyNamingPolicy = null;
-				});
+					// глобальные настройки
+					options.JsonSerializerOptions.Converters.Add(
+						new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, false));
+				})
+				
+				.AddJsonOptions("v1", options => {
+					// Настройки для версии 1: PascalCase для имён свойств
+					options.JsonSerializerOptions.PropertyNamingPolicy = null;
+				})
+				;
 
 			services
 				.AddMappingAssemblies(
@@ -61,6 +81,7 @@ namespace DeliveryRulesService
 				.AddHttpClient()
 				.AddFiasClient()
 				.AddOsrm()
+				.AddVersioning()
 				;
 
 			services.Replace(ServiceDescriptor.Scoped(typeof(IOsrmSettings), typeof(DeliveryRulesOsrmSettings)));
@@ -74,7 +95,15 @@ namespace DeliveryRulesService
 				.AddScoped<ICallTaskWorker, CallTaskWorker>()
 				.AddScoped<IFastDeliveryAvailabilityHistoryModel, FastDeliveryAvailabilityHistoryModel>()
 				.AddInfrastructure()
-				.AddHostedServices();
+				.AddHostedServices()
+				.AddScoped<ICartItemFactory, CartItemFactory>()
+				.AddScoped<IDeliveryPriceGetter<DeliveryRulesRequestDeliveryPriceGetterContext>, DeliveryRulesRequestDeliveryPriceGetter>()
+				.AddScoped<CustomerCartWaterCounts>()
+				.AddAuthentication("Basic")
+				.AddScheme<BasicAuthenticationOptions, CustomAuthenticationHandler>(
+					"Basic",
+					conf => configuration.GetSection(BasicAuthenticationOptions.Path).Bind(conf))
+				;
 
 			return services;
 		}
@@ -91,5 +120,20 @@ namespace DeliveryRulesService
 
 		public static IServiceCollection AddHostedServices(this IServiceCollection services) =>
 			services.AddHostedService<DistrictCacheWorker>();
+		
+		private static IMvcBuilder AddJsonOptions(
+			this IMvcBuilder builder,
+			string settingsName,
+			Action<JsonOptions> configure)
+		{
+			builder.Services.Configure(settingsName, configure);
+			builder.Services.AddSingleton<IConfigureOptions<MvcOptions>>(sp =>
+			{
+				var options = sp.GetRequiredService<IOptionsMonitor<JsonOptions>>();
+				var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
+				return new ConfigureMvcJsonOptions(settingsName, options, loggerFactory);
+			});
+			return builder;
+		}
 	}
 }

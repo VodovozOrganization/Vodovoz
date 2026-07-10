@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vodovoz.Domain.Goods;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -187,6 +188,12 @@ namespace Vodovoz.Domain.Orders
 		/// </summary>
 		public virtual string DiscountReasonsNames =>
 			string.Join(", ", DiscountReasons.Select(x => x.Name));
+		
+		#region IGoods implementation
+
+		IEnumerable<DiscountReason> IGoods.DiscountReasons => DiscountReasons;
+
+		#endregion
 
 		[Obsolete("В сигнатуре передается одно основание скидки, нужно использовать другой метод Create()")]
 		public static OnlineOrderItem Create(

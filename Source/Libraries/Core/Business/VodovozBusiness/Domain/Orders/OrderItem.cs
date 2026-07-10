@@ -17,6 +17,7 @@ using Vodovoz.Domain.WageCalculation.CalculationServices.RouteList;
 using Vodovoz.Extensions;
 using Vodovoz.Settings.Nomenclature;
 using VodovozBusiness.Controllers;
+using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -459,6 +460,12 @@ namespace Vodovoz.Domain.Orders
 		public virtual bool IsMasterNomenclature => Nomenclature.Category == NomenclatureCategory.master;
 
 		#endregion IOrderItemWageCalculationSource implementation
+
+		#region IGoods implementation
+
+		IEnumerable<DiscountReason> IGoods.DiscountReasons => DiscountReasons;
+
+		#endregion
 
 		#endregion
 

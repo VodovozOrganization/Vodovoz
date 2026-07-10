@@ -13,6 +13,7 @@ using Vodovoz.Core.Application.FastPayment;
 using Vodovoz.Core.Application.FileStorage;
 using Vodovoz.Core.Application.Goods;
 using Vodovoz.Core.Application.Logistics;
+using Vodovoz.Core.Application.Orders.Delivery;
 using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Core.Application.Payments;
@@ -21,6 +22,7 @@ using Vodovoz.Core.Application.Services.Subdivisions;
 using Vodovoz.Core.Application.TrueMark;
 using Vodovoz.Core.Application.Users;
 using Vodovoz.Core.Application.Warehouses;
+using Vodovoz.Core.Domain.Interfaces.Orders;
 using Vodovoz.Core.Domain.Users;
 using Vodovoz.Core.Domain.Warehouses;
 using Vodovoz.Domain.Service;
@@ -79,6 +81,8 @@ namespace Vodovoz.Core.Application
 				.AddScoped<SelfdeliveryCancellationService>()
 				.AddScoped<IExternalCounterpartyHandler, ExternalCounterpartyHandler>()
 				.AddScoped<IStagingTrueMarkCodeFactory, StagingTrueMarkCodeFactory>()
+				.AddScoped<CustomerCartWaterCounts>()
+				.AddScoped<IDeliveryPriceGetter<DeliveryRulesRequestDeliveryPriceGetterContext>, DeliveryRulesRequestDeliveryPriceGetter>()
 				.AddTrueMarkApiClient()
 				.AddCoreApplicationOrderServices()				
 				;
@@ -97,11 +101,11 @@ namespace Vodovoz.Core.Application
 			;
 
 		private static IServiceCollection AddCoreOrderServicesDependencies(this IServiceCollection services) => services
-			.AddScoped<IOnlineOrderDeliveryPriceGetter, OnlineOrderDeliveryPriceGetter>()
+			.AddScoped<IDeliveryPriceGetter<OnlineOrderDeliveryPriceContext>, OnlineOrderDeliveryPriceGetter>()
+			.AddScoped<IDeliveryPriceGetter<OrderDeliveryPriceContext>, OrderDeliveryPriceGetter>()
 			.AddScoped<IOrderFromOnlineOrderCreator, OrderFromOnlineOrderCreator>()
 			.AddScoped<IOrderFromOnlineOrderValidator, OrderFromOnlineOrderValidator>()
 			.AddScoped<IGoodsPriceCalculator, GoodsPriceCalculator>()
-			.AddScoped<IOrderDeliveryPriceGetter, OrderDeliveryPriceGetter>()
 			.AddScoped<IClientDeliveryPointsChecker, ClientDeliveryPointsChecker>()
 			.AddScoped<IFreeLoaderChecker, FreeLoaderChecker>()
 			.AddScoped<IOnlineOrderDiscountHandler, OnlineOrderDiscountHandler>()
