@@ -12,6 +12,7 @@ using QS.Services;
 using QS.Tdi;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
+using QS.ViewModels.Dialog;
 using QS.ViewModels.Extension;
 using System;
 using System.Collections.Generic;
@@ -21,8 +22,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using QS.ViewModels.Dialog;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Application.Errors;
+using Vodovoz.Core.Application.FileStorage;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Core.Domain.Users.Settings;
 using Vodovoz.Domain;
@@ -59,8 +61,6 @@ using Vodovoz.ViewModels.ViewModels.Organizations;
 using VodovozInfrastructure.Endpoints;
 using EmployeeSettings = Vodovoz.Settings.Employee;
 using PhoneViewModel = Vodovoz.ViewModels.ViewModels.Counterparty.PhoneViewModel;
-using Vodovoz.Core.Application.Errors;
-using Vodovoz.Core.Application.FileStorage;
 
 namespace Vodovoz.ViewModels.ViewModels.Employees
 {
@@ -1407,6 +1407,24 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				{
 					return false;
 				}
+			}
+
+			if(Entity.Category == EmployeeCategory.driver
+				&& Entity.Status != EmployeeStatus.IsFired
+				&& Entity.PhoneForCounterpartyCalls is null)
+			{
+				var firstPhone = Entity.Phones.FirstOrDefault(x => !x.IsArchive);
+
+				if(firstPhone is null)
+				{
+					CommonServices.InteractiveService.ShowMessage(
+						ImportanceLevel.Error,
+						"У водителя должен присутствовать хотя бы один не архивный номер телефона");
+
+					return false;
+				}
+
+				Entity.PhoneForCounterpartyCalls = firstPhone;
 			}
 
 			if(!Validate())

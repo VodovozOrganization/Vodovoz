@@ -432,11 +432,28 @@ namespace Vodovoz.Domain.Employees
 						new[] { nameof(DriverOfCarTypeOfUse), nameof(DriverOfCarOwnType) });
 				}
 
-				if(PhoneForCounterpartyCalls == null)
+				if(PhoneForCounterpartyCalls == null && Status != EmployeeStatus.IsFired)
 				{
 					yield return new ValidationResult(
 						"Не указан номер телефона водителя для приема звонка контрагента",
 						new[] { nameof(PhoneForCounterpartyCalls) });
+				}
+
+				if(PhoneForCounterpartyCalls != null && Status != EmployeeStatus.IsFired)
+				{
+					if(PhoneForCounterpartyCalls.IsArchive)
+					{
+						yield return new ValidationResult(
+							"Архивный номер телефона водителя не может быть указан для приема звонка контрагента",
+							new[] { nameof(PhoneForCounterpartyCalls) });
+					}
+
+					if(!Phones.Contains(PhoneForCounterpartyCalls))
+					{
+						yield return new ValidationResult(
+							"Номер телефона водителя для приема звонка контрагента должен быть выбран из списка номеров водителя",
+							new[] { nameof(PhoneForCounterpartyCalls) });
+					}
 				}
 			}
 
