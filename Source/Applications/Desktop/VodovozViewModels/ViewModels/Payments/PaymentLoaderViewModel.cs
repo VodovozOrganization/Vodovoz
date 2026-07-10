@@ -259,15 +259,20 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 					continue;
 				}
 
-				var counterparty = _counterpartyRepository.GetCounterpartyByINN(UoW, doc.PayerInn);
+				var counterparty = string.IsNullOrWhiteSpace(doc.PayerInn)
+					? null
+					: _counterpartyRepository.GetCounterpartyByINN(UoW, doc.PayerInn);
 				var curPayment = new Payment(doc, _allVodOrganisations[doc.RecipientInn], counterparty);
 
-				if(_allVodOrganisations.ContainsKey(doc.RecipientInn) && _allVodOrganisations.ContainsKey(doc.PayerInn))
+				if(string.IsNullOrWhiteSpace(doc.PayerInn))
 				{
 					curPayment.OtherIncome(otherProfitCategory);
 				}
-				else if(_allVodOrganisations.ContainsKey(doc.RecipientInn)
-					&& _allNotAllocatedCounterparties.TryGetValue(doc.PayerInn, out var notAllocatedCounterparty))
+				else if(_allVodOrganisations.ContainsKey(doc.PayerInn))
+				{
+					curPayment.OtherIncome(otherProfitCategory);
+				}
+				else if(_allNotAllocatedCounterparties.TryGetValue(doc.PayerInn, out var notAllocatedCounterparty))
 				{
 					curPayment.OtherIncome(notAllocatedCounterparty.ProfitCategory);
 				}
@@ -307,11 +312,6 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				}
 			}
 
-			if(!ValidateParsedDocument())
-			{
-				return;
-			}
-
 			if(!HandleBankAccountMovements())
 			{
 				return;
@@ -319,11 +319,14 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 			UpdateProgress?.Invoke("Сопоставляем полученные платежи...", _progress);
 			MatchPayments();
+			ShowPaymentsWithoutPayerInnWarning();
 			
-			var paymentsSum = ObservablePayments.Sum(x => x.Total);
+			var paymentsToLoadCount = ObservablePayments.Count;
+			var paymentsToLoadSum = ObservablePayments.Sum(x => x.Total);
 			UpdateProgress?.Invoke(
-				$"Загрузка завершена. Обработано платежей {_processedPayments} на сумму: {paymentsSum}р." +
-				$" из них платежей не к нашим организациям или исходящих: {_paymentsWithNotOurOrganizationReceiver} и не загружено дублей: {_paymentDuplicates}",
+				$"Загрузка завершена. Прочитано платежей из файла: {_processedPayments}. " +
+				$"К загрузке: {paymentsToLoadCount} на сумму: {paymentsToLoadSum}р. " +
+				$"Пропущено: не к нашим организациям или исходящих: {_paymentsWithNotOurOrganizationReceiver}, дублей: {_paymentDuplicates}",
 				_progress = 1);
 			
 			IsNotProcessingMode = true;
@@ -349,49 +352,72 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				Parser.TransferDocuments);
 		}
 
-		private bool ValidateParsedDocument()
+		private void ShowPaymentsWithoutPayerInnWarning()
 		{
-			return ValidatePayerInn();
+			var paymentsWithoutPayerInn = GetPaymentsWithoutPayerInn();
+
+			if(!paymentsWithoutPayerInn.Any())
+			{
+				return;
+			}
+
+			var message = new StringBuilder();
+			message.AppendLine("В выписке найдены платежи с незаполненным ИНН плательщика.");
+			message.AppendLine("Они будут обработаны как прочие приходы.");
+			message.AppendLine();
+			AppendPaymentsWithoutPayerInn(message, paymentsWithoutPayerInn);
+
+			InteractiveService.ShowMessage(ImportanceLevel.Warning, message.ToString(), "Выписка содержит платежи без ИНН");
 		}
 
-		private bool ValidatePayerInn()
+		public bool ConfirmPaymentsWithoutPayerInnUpload()
 		{
-			var documentsWithoutPayerInn = Parser.TransferDocuments
-				.Where(x => !string.IsNullOrWhiteSpace(x.RecipientInn)
-					&& _allVodOrganisations.ContainsKey(x.RecipientInn)
-					&& string.IsNullOrWhiteSpace(x.PayerInn))
-				.ToList();
+			var paymentsWithoutPayerInn = GetPaymentsWithoutPayerInn();
 
-			if(!documentsWithoutPayerInn.Any())
+			if(!paymentsWithoutPayerInn.Any())
 			{
 				return true;
 			}
 
 			var message = new StringBuilder();
-			message.AppendLine("В выписке найдены платежи с незаполненным ИНН плательщика.");
-			message.AppendLine("Загрузка остановлена. Исправьте файл выписки или обработайте эти платежи отдельно.");
+			message.AppendLine("Следующие платежи без ИНН плательщика будут записаны в прочие приходы:");
 			message.AppendLine();
+			AppendPaymentsWithoutPayerInn(message, paymentsWithoutPayerInn);
+			message.AppendLine();
+			message.AppendLine("Вы уверены?");
 
+			return InteractiveService.Question(message.ToString(), "Подтвердите загрузку выписки");
+		}
 
+		private IList<Payment> GetPaymentsWithoutPayerInn()
+		{
+			return ObservablePayments
+				.Where(x => string.IsNullOrWhiteSpace(x.CounterpartyInn))
+				.ToList();
+		}
+
+		private void AppendPaymentsWithoutPayerInn(StringBuilder message, IList<Payment> payments)
+		{
 			const int maxProblemsDocumentsForAlertCount = 10;
-			
-			foreach(var document in documentsWithoutPayerInn.Take(maxProblemsDocumentsForAlertCount))
+
+			foreach(var payment in payments.Take(maxProblemsDocumentsForAlertCount))
 			{
 				message.AppendLine(
-					$"Документ №{document.DocNum} от {document.Date:d}, сумма {document.Total:N2}, " +
-					$"получатель ИНН {document.RecipientInn}");
+					$"Платеж №{payment.PaymentNum} от {payment.Date:d}, сумма {payment.Total:N2}, " +
+					$"плательщик: {GetPaymentPayerName(payment)}, назначение: {payment.PaymentPurpose}");
 			}
 
-			if(documentsWithoutPayerInn.Count > maxProblemsDocumentsForAlertCount)
+			if(payments.Count > maxProblemsDocumentsForAlertCount)
 			{
-				message.AppendLine($"И еще {documentsWithoutPayerInn.Count - maxProblemsDocumentsForAlertCount} платежей.");
+				message.AppendLine($"И еще {payments.Count - maxProblemsDocumentsForAlertCount} платежей.");
 			}
+		}
 
-			InteractiveService.ShowMessage(ImportanceLevel.Warning, message.ToString(), "Ошибка в выписке");
-			UpdateProgress?.Invoke("Загрузка остановлена: в выписке есть платежи без ИНН плательщика", 1);
-			IsNotProcessingMode = true;
-
-			return false;
+		private string GetPaymentPayerName(Payment payment)
+		{
+			return string.IsNullOrWhiteSpace(payment.CounterpartyName)
+				? "не указан"
+				: payment.CounterpartyName;
 		}
 		
 		private bool HandleBankAccountMovements()
