@@ -307,7 +307,7 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				}
 			}
 
-			if(!ValidateParsedDocuments())
+			if(!ValidateParsedDocument())
 			{
 				return;
 			}
@@ -349,7 +349,12 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 				Parser.TransferDocuments);
 		}
 
-		private bool ValidateParsedDocuments()
+		private bool ValidateParsedDocument()
+		{
+			return ValidatePayerInn();
+		}
+
+		private bool ValidatePayerInn()
 		{
 			var documentsWithoutPayerInn = Parser.TransferDocuments
 				.Where(x => !string.IsNullOrWhiteSpace(x.RecipientInn)
