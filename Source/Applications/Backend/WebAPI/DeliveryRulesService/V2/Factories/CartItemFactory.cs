@@ -2,11 +2,9 @@
 using DeliveryRulesService.V2.DTO;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Application.Orders.Cart;
-using Vodovoz.Core.Application.Orders.Delivery;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Tools.Orders;
 using VodovozBusiness.Domain.Orders.Cart;
 
 namespace DeliveryRulesService.Factories
@@ -14,6 +12,7 @@ namespace DeliveryRulesService.Factories
 	/// <inheritdoc/>
 	public class CartItemFactory : ICartItemFactory
 	{
+		/// <inheritdoc/>
 		public ICartItem CreateCartItem(IUnitOfWork uow, SaleItemDto saleItem)
 		{
 			switch(saleItem.Type)

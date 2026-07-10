@@ -2,6 +2,7 @@
 
 namespace DeliveryRulesService.Factories
 {
+	//TODO по результатам ответа Кости оставить и использовать или удалить класс
 	public class InfoMessageFactory
 	{
 		public InfoMessage CreatePaidDeliveryMessage(string message)
