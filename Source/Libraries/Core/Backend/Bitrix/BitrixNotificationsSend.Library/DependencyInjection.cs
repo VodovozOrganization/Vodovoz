@@ -10,10 +10,12 @@ namespace BitrixNotificationsSend.Library
 		public static IServiceCollection AddBitrixNotificationsSendServices(this IServiceCollection services)
 		{
 			services.ConfigureOptions<ConfigureCashlessDebtsNotificationsSendOptions>();
+			services.ConfigureOptions<ConfigurePlannedOrdersNotificationsSendOptions>();
 
 			services.AddBitrixNotificationsSendClient();
 
 			services.AddTransient<CashlessDebtsNotificationsSendService>();
+			services.AddTransient<PlannedOrdersNotificationsSendService>();
 
 			return services;
 		}
