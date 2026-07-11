@@ -21,5 +21,23 @@ namespace BitrixNotificationsSend.Client.Errors
 				typeof(BitrixNotificationsSendErrors),
 				nameof(CreateSendCounterpartiesCashlessDebtsNotificationError),
 				$"Ошибка при отправке уведомления о долгах по безналу клиентов в Битрикс24: {message}");
+
+		/// <summary>
+		/// Ошибка при отправке уведомления по плановым заказам клиентов в Битрикс24
+		/// </summary>
+		public static Error SendPlannedOrdersNotificationError =>
+			new Error(
+				typeof(BitrixNotificationsSendErrors),
+				nameof(SendPlannedOrdersNotificationError),
+				"Ошибка при отправке уведомления по плановым заказам клиентов в Битрикс24");
+
+		/// <summary>
+		/// Ошибка при отправке уведомления по плановым заказам клиентов в Битрикс24
+		/// </summary>
+		public static Error CreateSendPlannedOrdersNotificationError(string message) =>
+			new Error(
+				typeof(BitrixNotificationsSendErrors),
+				nameof(SendPlannedOrdersNotificationError),
+				$"Ошибка при отправке уведомления по плановым заказам клиентов в Битрикс24: {message}");
 	}
 }
