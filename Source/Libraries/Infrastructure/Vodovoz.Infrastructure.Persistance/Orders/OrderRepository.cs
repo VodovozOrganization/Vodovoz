@@ -3118,7 +3118,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					OrdersCount = ordersGroup.Count()
 				};
 
-			return await query.ToListAsync(cancellationToken);
+			return await query.WithOptions(x => x.SetTimeout(300)).ToListAsync(cancellationToken);
 		}
 
 		public async Task<IList<PlannedOrdersAggregatedNode>> GetSelfDeliveryOrdersAggregatedData(
@@ -3149,7 +3149,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 					OrdersCount = ordersGroup.Count()
 				};
 
-			return await query.ToListAsync(cancellationToken);
+			return await query.WithOptions(x => x.SetTimeout(120)).ToListAsync(cancellationToken);
 		}
 
 		public async Task<IList<int>> GetDeliveryPointIdsWithUpcomingOrders(

@@ -20,6 +20,15 @@ namespace Vodovoz.Settings.Database.Notifications
 		public TimeSpan CashlessDebtsNotificationsSendInterval =>
 			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}CashlessDebtsNotificationsSendInterval");
 
+		public string BitrixBaseUrl =>
+			_settingsController.GetStringValue($"{_parametersPrefix}BitrixBaseUrl");
+
+		public string BitrixToken =>
+			_settingsController.GetStringValue($"{_parametersPrefix}BitrixToken");
+
+		public TimeSpan ClientTimeout =>
+			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}ClientTimeout");
+
 		public TimeSpan PlannedOrdersNotificationsSendInterval =>
 			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}PlannedOrdersNotificationsSendInterval");
 
@@ -34,14 +43,5 @@ namespace Vodovoz.Settings.Database.Notifications
 
 		public string PlannedOrdersBitrixToken =>
 			_settingsController.GetStringValue($"{_parametersPrefix}PlannedOrdersBitrixToken");
-
-		public string BitrixBaseUrl =>
-			_settingsController.GetStringValue($"{_parametersPrefix}BitrixBaseUrl");
-
-		public string BitrixToken =>
-			_settingsController.GetStringValue($"{_parametersPrefix}BitrixToken");
-
-		public TimeSpan ClientTimeout =>
-			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}ClientTimeout");
 	}
 }

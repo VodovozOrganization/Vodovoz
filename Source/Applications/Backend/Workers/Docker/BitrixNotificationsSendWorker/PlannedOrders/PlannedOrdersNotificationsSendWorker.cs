@@ -35,7 +35,7 @@ namespace BitrixNotificationsSendWorker.PlannedOrders
 		protected override async Task DoWork(CancellationToken stoppingToken)
 		{
 			using var scope = _serviceScopeFactory.CreateScope();
-			var zabbixSender = scope.ServiceProvider.GetService<IZabbixSender>();
+			var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
 
 			try
 			{
@@ -45,7 +45,7 @@ namespace BitrixNotificationsSendWorker.PlannedOrders
 				{
 					_logger.LogInformation("Запуск отправки данных по плановым заказам клиентов");
 
-					var notificationsSendService = scope.ServiceProvider.GetService<PlannedOrdersNotificationsSendService>();
+					var notificationsSendService = scope.ServiceProvider.GetRequiredService<PlannedOrdersNotificationsSendService>();
 
 					var isSent = await notificationsSendService.SendNotifications(stoppingToken);
 
