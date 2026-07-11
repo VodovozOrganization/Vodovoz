@@ -17,6 +17,31 @@ namespace Vodovoz.Settings.Notifications
 		TimeSpan CashlessDebtsNotificationsSendInterval { get; }
 
 		/// <summary>
+		/// Интервал проверки необходимости отправки уведомлений по плановым заказам в Битрикс24
+		/// </summary>
+		TimeSpan PlannedOrdersNotificationsSendInterval { get; }
+
+		/// <summary>
+		/// Время начала интервала отправки уведомлений по плановым заказам в Битрикс24 (по Москве)
+		/// </summary>
+		TimeSpan PlannedOrdersSendTimeFrom { get; }
+
+		/// <summary>
+		/// Время окончания интервала отправки уведомлений по плановым заказам в Битрикс24 (по Москве)
+		/// </summary>
+		TimeSpan PlannedOrdersSendTimeTo { get; }
+
+		/// <summary>
+		/// Адрес базового URL Битрикс24 для отправки уведомлений по плановым заказам
+		/// </summary>
+		string PlannedOrdersBitrixBaseUrl { get; }
+
+		/// <summary>
+		/// Токен для доступа к API Битрикс24 для отправки уведомлений по плановым заказам
+		/// </summary>
+		string PlannedOrdersBitrixToken { get; }
+
+		/// <summary>
 		/// Адрес базового URL Битрикс24
 		/// </summary>
 		string BitrixBaseUrl { get; }

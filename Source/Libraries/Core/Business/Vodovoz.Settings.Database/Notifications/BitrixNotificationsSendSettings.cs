@@ -20,6 +20,21 @@ namespace Vodovoz.Settings.Database.Notifications
 		public TimeSpan CashlessDebtsNotificationsSendInterval =>
 			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}CashlessDebtsNotificationsSendInterval");
 
+		public TimeSpan PlannedOrdersNotificationsSendInterval =>
+			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}PlannedOrdersNotificationsSendInterval");
+
+		public TimeSpan PlannedOrdersSendTimeFrom =>
+			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}PlannedOrdersSendTimeFrom");
+
+		public TimeSpan PlannedOrdersSendTimeTo =>
+			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}PlannedOrdersSendTimeTo");
+
+		public string PlannedOrdersBitrixBaseUrl =>
+			_settingsController.GetStringValue($"{_parametersPrefix}PlannedOrdersBitrixBaseUrl");
+
+		public string PlannedOrdersBitrixToken =>
+			_settingsController.GetStringValue($"{_parametersPrefix}PlannedOrdersBitrixToken");
+
 		public string BitrixBaseUrl =>
 			_settingsController.GetStringValue($"{_parametersPrefix}BitrixBaseUrl");
 
