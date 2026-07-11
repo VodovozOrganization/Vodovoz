@@ -1,9 +1,12 @@
 using NHibernate.Criterion;
+using NHibernate.Linq;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -179,5 +182,51 @@ namespace Vodovoz.Infrastructure.Persistance.Operations
 					Delivered = x.Delivered,
 					Returned = x.Returned
 				});
+
+		public async Task<IDictionary<int, int>> GetBottlesDebtsByDeliveryPoints(
+			IUnitOfWork uow,
+			IEnumerable<int> deliveryPointIds,
+			CancellationToken cancellationToken)
+		{
+			var ids = deliveryPointIds.ToArray();
+
+			var debts = await (
+				from bottlesMovement in uow.Session.Query<BottlesMovementOperation>()
+				where
+					bottlesMovement.DeliveryPoint != null
+					&& ids.Contains(bottlesMovement.DeliveryPoint.Id)
+				group bottlesMovement by bottlesMovement.DeliveryPoint.Id into operationsGroup
+				select new
+				{
+					DeliveryPointId = operationsGroup.Key,
+					Debt = operationsGroup.Sum(o => o.Delivered) - operationsGroup.Sum(o => o.Returned)
+				})
+				.ToListAsync(cancellationToken);
+
+			return debts.ToDictionary(x => x.DeliveryPointId, x => x.Debt);
+		}
+
+		public async Task<IDictionary<int, int>> GetBottlesDebtsByCounterparties(
+			IUnitOfWork uow,
+			IEnumerable<int> counterpartyIds,
+			CancellationToken cancellationToken)
+		{
+			var ids = counterpartyIds.ToArray();
+
+			var debts = await (
+				from bottlesMovement in uow.Session.Query<BottlesMovementOperation>()
+				where
+					bottlesMovement.Counterparty != null
+					&& ids.Contains(bottlesMovement.Counterparty.Id)
+				group bottlesMovement by bottlesMovement.Counterparty.Id into operationsGroup
+				select new
+				{
+					CounterpartyId = operationsGroup.Key,
+					Debt = operationsGroup.Sum(o => o.Delivered) - operationsGroup.Sum(o => o.Returned)
+				})
+				.ToListAsync(cancellationToken);
+
+			return debts.ToDictionary(x => x.CounterpartyId, x => x.Debt);
+		}
 	}
 }

@@ -1,10 +1,13 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Linq;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
@@ -250,6 +253,26 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				select deliveryPoint.Id;
 
 			return query.Any();
+		}
+
+		public async Task<IDictionary<int, string>> GetDeliveryPointsCompiledAddresses(
+			IUnitOfWork uow,
+			IEnumerable<int> deliveryPointIds,
+			CancellationToken cancellationToken)
+		{
+			var ids = deliveryPointIds.ToArray();
+
+			var addresses = await (
+				from deliveryPoint in uow.Session.Query<DeliveryPoint>()
+				where ids.Contains(deliveryPoint.Id)
+				select new
+				{
+					deliveryPoint.Id,
+					deliveryPoint.CompiledAddress
+				})
+				.ToListAsync(cancellationToken);
+
+			return addresses.ToDictionary(x => x.Id, x => x.CompiledAddress);
 		}
 
 		private string GetBuildingNumber(string building)
