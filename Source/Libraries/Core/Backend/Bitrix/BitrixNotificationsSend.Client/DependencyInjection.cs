@@ -17,6 +17,15 @@ namespace BitrixNotificationsSend.Client
 					client.Timeout = bitrixSettings.ClientTimeout;
 				});
 
+			services
+				.AddHttpClient<IPlannedOrdersNotificationsSendClient, PlannedOrdersNotificationsSendClient>((sp, client) =>
+				{
+					var bitrixSettings = sp.GetRequiredService<IBitrixNotificationsSendSettings>();
+					client.BaseAddress = new Uri(bitrixSettings.PlannedOrdersBitrixBaseUrl);
+					client.DefaultRequestHeaders.Accept.Clear();
+					client.Timeout = bitrixSettings.ClientTimeout;
+				});
+
 			return services;
 		}
 	}
