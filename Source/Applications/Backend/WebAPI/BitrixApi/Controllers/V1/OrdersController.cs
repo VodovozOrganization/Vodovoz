@@ -42,7 +42,7 @@ namespace BitrixApi.Controllers.V1
 		/// <param name="startDate">Дата, начиная с которой ищутся заказы (по дате создания заказа)</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Dto ответа с идентификаторами найденных заказов через запятую</returns>
-		[HttpGet("GetOrders")]
+		[HttpGet]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetOrdersResponse))]
 		public async Task<IActionResult> GetOrders(

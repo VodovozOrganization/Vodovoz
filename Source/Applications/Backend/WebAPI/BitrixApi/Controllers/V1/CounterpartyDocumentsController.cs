@@ -29,7 +29,7 @@ namespace BitrixApi.Controllers.V1
 		/// <param name="request">Dto запроса на отправку отчета контрагенту</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		[HttpPost("SendDocumentByEmail")]
+		[HttpPost]
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
