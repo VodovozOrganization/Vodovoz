@@ -315,7 +315,14 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
 
+			ycheckbuttonNoPhoneForCounterpartyCallsRequired.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsNoPhoneForCounterpartyCallsRequired, w => w.Active)
+				.InitializeFromSource();
+
 			entityentryPhoneForCounterpartyCalls.ViewModel = ViewModel.PhoneForCounterpartyCallsViewModel;
+			entityentryPhoneForCounterpartyCalls.Binding
+				.AddFuncBinding(ViewModel.Entity, e => !e.IsNoPhoneForCounterpartyCallsRequired, w => w.Sensitive)
+				.InitializeFromSource();
 
 			ConfigureWorkSchedules();
 			ConfigureDistrictPriorities();

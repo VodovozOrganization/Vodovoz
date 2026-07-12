@@ -45,6 +45,7 @@ namespace Vodovoz.Data.NHibernate.HibernateMapping.Employees
 			Map(x => x.DriverType).Column("driver_type");
 			Map(x => x.SkillLevel).Column("skill_level");
 			Map(x => x.Comment).Column("comment");
+			Map(x => x.IsNoPhoneForCounterpartyCallsRequired).Column("is_no_phone_for_counterparty_calls_required");
 
 			Map(x => x.DriverOfCarTypeOfUse).Column("driver_of_car_type_of_use");
 			Map(x => x.DriverOfCarOwnType).Column("driver_of_car_own_type");

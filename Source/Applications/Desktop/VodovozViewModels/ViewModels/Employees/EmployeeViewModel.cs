@@ -263,6 +263,8 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				.Finish();
 
 			PhoneForCounterpartyCallsViewModel.CanViewEntity = false;
+
+			Entity.PropertyChanged += OnEntityPropertyChanged;
 		}
 
 		public ILifetimeScope LifetimeScope { get; private set; }
@@ -948,6 +950,12 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 				case nameof(Entity.Status):
 					_statusChangedByUser = true;
 					break;
+				case nameof(Entity.IsNoPhoneForCounterpartyCallsRequired):
+					if(Entity.IsNoPhoneForCounterpartyCallsRequired)
+					{
+						Entity.PhoneForCounterpartyCalls = null;
+					}
+					break;
 				default:
 					break;
 			}
@@ -1410,6 +1418,7 @@ namespace Vodovoz.ViewModels.ViewModels.Employees
 			}
 
 			if(Entity.Category == EmployeeCategory.driver
+				&& !Entity.IsNoPhoneForCounterpartyCallsRequired
 				&& Entity.Status != EmployeeStatus.IsFired
 				&& Entity.PhoneForCounterpartyCalls is null)
 			{

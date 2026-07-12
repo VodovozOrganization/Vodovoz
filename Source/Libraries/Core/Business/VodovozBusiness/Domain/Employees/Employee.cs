@@ -77,6 +77,7 @@ namespace Vodovoz.Domain.Employees
 		private GenericObservableList<DriverDistrictPrioritySet> _observableDriverDistrictPrioritySets;
 		private GenericObservableList<DriverWorkScheduleSet> _observableDriverWorkScheduleSets;
 		private IWageCalculationRepository _wageCalculationRepository;
+		private bool _isNoPhoneForCounterpartyCallsRequired;
 		private Phone _phoneForCounterpartyCalls;
 		private District _district;
 
@@ -171,6 +172,18 @@ namespace Vodovoz.Domain.Employees
 		{
 			get => _phones;
 			set => SetField(ref _phones, value);
+		}
+
+		/// <summary>
+		/// Необходимость указания телефона для приема звонков от контрагентов
+		/// Если true, то при сохранении сотрудника будет проверяться, что указан телефон для приема звонков от контрагентов
+		/// Если false, то проверка не будет выполняться
+		/// </summary>
+		[Display(Name = "Необходимость указания телефона для приема звонков от контрагентов")]
+		public virtual bool IsNoPhoneForCounterpartyCallsRequired
+		{
+			get => _isNoPhoneForCounterpartyCallsRequired;
+			set => SetField(ref _isNoPhoneForCounterpartyCallsRequired, value);
 		}
 
 		[Display(Name = "Телефон для приема звонков от контрагентов")]
@@ -432,7 +445,7 @@ namespace Vodovoz.Domain.Employees
 						new[] { nameof(DriverOfCarTypeOfUse), nameof(DriverOfCarOwnType) });
 				}
 
-				if(PhoneForCounterpartyCalls == null && Status != EmployeeStatus.IsFired)
+				if(PhoneForCounterpartyCalls == null && !IsNoPhoneForCounterpartyCallsRequired && Status != EmployeeStatus.IsFired)
 				{
 					yield return new ValidationResult(
 						"Не указан номер телефона водителя для приема звонка контрагента",
