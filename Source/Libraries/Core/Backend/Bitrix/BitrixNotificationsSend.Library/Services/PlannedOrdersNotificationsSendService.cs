@@ -1,4 +1,4 @@
-using BitrixNotificationsSend.Client;
+﻿using BitrixNotificationsSend.Client;
 using BitrixNotificationsSend.Contracts.Dto;
 using DateTimeHelpers;
 using Microsoft.Extensions.Logging;
@@ -15,14 +15,16 @@ using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Operations;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Notifications;
 using VodovozBusiness.EntityRepositories.Nodes;
 
 namespace BitrixNotificationsSend.Library.Services
 {
-	public class PlannedOrdersNotificationsSendService
+	/// <summary>
+	/// Сервис формирования и отправки уведомлений по плановым заказам клиентов в Битрикс24
+	/// </summary>
+	public partial class PlannedOrdersNotificationsSendService
 	{
-		private const int _daysToNextOrderAfterSingleOrder = 30;
-
 		private readonly OrderStatus[] _completedOrderStatuses =
 		{
 			OrderStatus.Shipped,
@@ -44,6 +46,7 @@ namespace BitrixNotificationsSend.Library.Services
 		private readonly ICounterpartyRepository _counterpartyRepository;
 		private readonly IDeliveryPointRepository _deliveryPointRepository;
 		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
+		private readonly IBitrixNotificationsSendSettings _bitrixNotificationsSendSettings;
 		private readonly IPlannedOrdersNotificationsSendClient _plannedOrdersNotificationsSendClient;
 
 		public PlannedOrdersNotificationsSendService(
@@ -54,6 +57,7 @@ namespace BitrixNotificationsSend.Library.Services
 			ICounterpartyRepository counterpartyRepository,
 			IDeliveryPointRepository deliveryPointRepository,
 			IDeliveryScheduleSettings deliveryScheduleSettings,
+			IBitrixNotificationsSendSettings bitrixNotificationsSendSettings,
 			IPlannedOrdersNotificationsSendClient plannedOrdersNotificationsSendClient)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -63,8 +67,8 @@ namespace BitrixNotificationsSend.Library.Services
 			_counterpartyRepository = counterpartyRepository ?? throw new ArgumentNullException(nameof(counterpartyRepository));
 			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
-			_plannedOrdersNotificationsSendClient = plannedOrdersNotificationsSendClient
-				?? throw new ArgumentNullException(nameof(plannedOrdersNotificationsSendClient));
+			_bitrixNotificationsSendSettings = bitrixNotificationsSendSettings ?? throw new ArgumentNullException(nameof(bitrixNotificationsSendSettings));
+			_plannedOrdersNotificationsSendClient = plannedOrdersNotificationsSendClient ?? throw new ArgumentNullException(nameof(plannedOrdersNotificationsSendClient));
 		}
 
 		/// <summary>
@@ -245,7 +249,9 @@ namespace BitrixNotificationsSend.Library.Services
 				"Получены агрегированные данные по заказам точек доставки. Количество точек: {DeliveryPointsCount}",
 				aggregatedData.Count);
 
-			var candidates = GetCandidatesWithPlannedDate(aggregatedData, today);
+			var candidates = GetCandidatesWithPlannedDate(
+				aggregatedData,
+				today);
 
 			_logger.LogInformation(
 				"Точек доставки с плановой датой заказа {PlannedOrderDate}: {CandidatesCount}",
@@ -285,7 +291,9 @@ namespace BitrixNotificationsSend.Library.Services
 				"Получены агрегированные данные по самовывозным заказам. Количество контрагентов: {CounterpartiesCount}",
 				aggregatedData.Count);
 
-			var candidates = GetCandidatesWithPlannedDate(aggregatedData, today);
+			var candidates = GetCandidatesWithPlannedDate(
+				aggregatedData,
+				today);
 
 			_logger.LogInformation(
 				"Контрагентов с плановой датой самовывозного заказа {PlannedOrderDate}: {CandidatesCount}",
@@ -369,15 +377,18 @@ namespace BitrixNotificationsSend.Library.Services
 			}
 		}
 
-		private static IList<PlannedOrderCandidate> GetCandidatesWithPlannedDate(
+		private IList<PlannedOrderCandidate> GetCandidatesWithPlannedDate(
 			IEnumerable<PlannedOrdersAggregatedNode> aggregatedData,
 			DateTime plannedOrderDate)
 		{
+			var daysToNextOrderAfterSingleOrder =
+				_bitrixNotificationsSendSettings.PlannedOrdersDaysToNextOrderAfterSingleOrder;
+
 			var candidates = new List<PlannedOrderCandidate>();
 
 			foreach(var node in aggregatedData)
 			{
-				var calculatedPlannedDate = CalculatePlannedOrderDate(node);
+				var calculatedPlannedDate = CalculatePlannedOrderDate(node, daysToNextOrderAfterSingleOrder);
 
 				if(calculatedPlannedDate == plannedOrderDate)
 				{
@@ -396,9 +407,8 @@ namespace BitrixNotificationsSend.Library.Services
 		/// Расчет даты планируемого заказа.
 		/// Средний интервал между заказами вычисляется как разность дат последнего и первого заказов,
 		/// деленная на количество интервалов, что равно среднему значению интервалов между последовательными заказами
-		/// (аналогично расчету в GetOrderFrequency)
 		/// </summary>
-		private static DateTime? CalculatePlannedOrderDate(PlannedOrdersAggregatedNode node)
+		private static DateTime? CalculatePlannedOrderDate(PlannedOrdersAggregatedNode node, int daysToNextOrderAfterSingleOrder)
 		{
 			if(node.MaxDeliveryDate == null || node.OrdersCount < 1)
 			{
@@ -409,7 +419,7 @@ namespace BitrixNotificationsSend.Library.Services
 
 			if(node.OrdersCount == 1)
 			{
-				return lastDeliveryDate.AddDays(_daysToNextOrderAfterSingleOrder);
+				return lastDeliveryDate.AddDays(daysToNextOrderAfterSingleOrder);
 			}
 
 			var averageDaysBetweenOrders =
@@ -449,13 +459,6 @@ namespace BitrixNotificationsSend.Library.Services
 			}
 
 			return lastOrder.BottlesMovementDelivered ?? (int)lastOrder.WaterBottlesCount;
-		}
-
-		private class PlannedOrderCandidate
-		{
-			public PlannedOrdersAggregatedNode Aggregate { get; set; }
-			public DateTime PlannedOrderDate { get; set; }
-			public PlannedOrderLastOrderNode LastOrder { get; set; }
 		}
 	}
 }

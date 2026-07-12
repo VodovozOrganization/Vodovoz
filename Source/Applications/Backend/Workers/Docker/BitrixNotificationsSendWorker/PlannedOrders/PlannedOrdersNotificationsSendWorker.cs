@@ -8,6 +8,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Infrastructure;
+using Vodovoz.Settings.Notifications;
 using Vodovoz.Zabbix.Sender;
 
 namespace BitrixNotificationsSendWorker.PlannedOrders
@@ -17,17 +18,19 @@ namespace BitrixNotificationsSendWorker.PlannedOrders
 		private readonly ILogger<PlannedOrdersNotificationsSendWorker> _logger;
 		private readonly IOptions<PlannedOrdersNotificationsSendOptions> _options;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
-
+		private readonly IZabbixSender _zabbixSender;
 		private DateTime? _lastSentDate;
 
 		public PlannedOrdersNotificationsSendWorker(
 			ILogger<PlannedOrdersNotificationsSendWorker> logger,
 			IOptions<PlannedOrdersNotificationsSendOptions> options,
-			IServiceScopeFactory serviceScopeFactory)
+			IServiceScopeFactory serviceScopeFactory,
+			IZabbixSender zabbixSender)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_options = options;
 			_serviceScopeFactory = serviceScopeFactory;
+			_zabbixSender = zabbixSender ?? throw new ArgumentNullException(nameof(zabbixSender));
 		}
 
 		protected override TimeSpan Interval => _options.Value.Interval;
@@ -35,10 +38,19 @@ namespace BitrixNotificationsSendWorker.PlannedOrders
 		protected override async Task DoWork(CancellationToken stoppingToken)
 		{
 			using var scope = _serviceScopeFactory.CreateScope();
-			var zabbixSender = scope.ServiceProvider.GetRequiredService<IZabbixSender>();
 
 			try
 			{
+				var bitrixNotificationsSendSettings = scope.ServiceProvider.GetRequiredService<IBitrixNotificationsSendSettings>();
+
+				if(!bitrixNotificationsSendSettings.PlannedOrdersNotificationsSendEnabled)
+				{
+					_logger.LogInformation("Работа воркера отправки уведомлений по плановым заказам отключена в настройках");
+					await _zabbixSender.SendIsHealthyAsync(stoppingToken);
+
+					return;
+				}
+
 				var moscowNow = DateTime.UtcNow.ToMoscowDateTime();
 
 				if(IsInSendTimeInterval(moscowNow) && _lastSentDate != moscowNow.Date)
@@ -56,13 +68,18 @@ namespace BitrixNotificationsSendWorker.PlannedOrders
 
 					_logger.LogInformation("Окончание отправки данных по плановым заказам клиентов");
 				}
+
+				await _zabbixSender.SendIsHealthyAsync(stoppingToken);
 			}
 			catch(Exception ex)
 			{
 				_logger.LogError(ex, "Ошибка отправки данных по плановым заказам клиентов");
-			}
 
-			await zabbixSender.SendIsHealthyAsync(stoppingToken);
+				await _zabbixSender.SendProblemMessageAsync(
+					ZabixSenderMessageType.Problem,
+					$"Ошибка отправки данных по плановым заказам клиентов: {ex.Message}",
+					stoppingToken);
+			}
 		}
 
 		private bool IsInSendTimeInterval(DateTime moscowNow) =>

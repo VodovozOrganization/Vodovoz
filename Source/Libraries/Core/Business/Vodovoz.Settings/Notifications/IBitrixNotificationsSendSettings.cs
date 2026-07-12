@@ -55,5 +55,16 @@ namespace Vodovoz.Settings.Notifications
 		/// Токен для доступа к API Битрикс24 для отправки уведомлений по плановым заказам
 		/// </summary>
 		string PlannedOrdersBitrixToken { get; }
+
+		/// <summary>
+		/// Количество дней до планируемого заказа, если у клиента был только один заказ
+		/// </summary>
+		int PlannedOrdersDaysToNextOrderAfterSingleOrder { get; }
+
+		/// <summary>
+		/// Включена ли отправка уведомлений по плановым заказам в Битрикс24
+		/// Когда выключена, воркер отправки не выполняет работу
+		/// </summary>
+		bool PlannedOrdersNotificationsSendEnabled { get; }
 	}
 }

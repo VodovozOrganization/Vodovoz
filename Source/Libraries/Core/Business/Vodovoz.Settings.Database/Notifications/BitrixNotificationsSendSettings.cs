@@ -43,5 +43,11 @@ namespace Vodovoz.Settings.Database.Notifications
 
 		public string PlannedOrdersBitrixToken =>
 			_settingsController.GetStringValue($"{_parametersPrefix}PlannedOrdersBitrixToken");
+
+		public int PlannedOrdersDaysToNextOrderAfterSingleOrder =>
+			_settingsController.GetIntValue($"{_parametersPrefix}PlannedOrdersDaysAfterSingleOrder");
+
+		public bool PlannedOrdersNotificationsSendEnabled =>
+			_settingsController.GetBoolValue($"{_parametersPrefix}PlannedOrdersNotificationsSendEnabled");
 	}
 }
