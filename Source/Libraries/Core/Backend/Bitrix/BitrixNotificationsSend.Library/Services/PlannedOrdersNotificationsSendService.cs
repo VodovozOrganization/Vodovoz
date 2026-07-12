@@ -1,5 +1,6 @@
 using BitrixNotificationsSend.Client;
 using BitrixNotificationsSend.Contracts.Dto;
+using DateTimeHelpers;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
@@ -72,7 +73,7 @@ namespace BitrixNotificationsSend.Library.Services
 		/// <returns>true - если уведомления успешно отправлены либо отправлять нечего, false - если отправка не удалась</returns>
 		public async Task<bool> SendNotifications(CancellationToken cancellationToken)
 		{
-			var today = MoscowDateTime.Today;
+			var today = DateTime.UtcNow.ToMoscowDateTime().Date;
 
 			_logger.LogInformation(
 				"Начало формирования данных по плановым заказам клиентов на {PlannedOrderDate}",

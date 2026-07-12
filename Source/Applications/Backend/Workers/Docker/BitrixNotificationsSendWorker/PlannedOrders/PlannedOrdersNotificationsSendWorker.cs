@@ -1,6 +1,6 @@
-using BitrixNotificationsSend.Library;
-using BitrixNotificationsSend.Library.Options;
+﻿using BitrixNotificationsSend.Library.Options;
 using BitrixNotificationsSend.Library.Services;
+using DateTimeHelpers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -39,7 +39,7 @@ namespace BitrixNotificationsSendWorker.PlannedOrders
 
 			try
 			{
-				var moscowNow = MoscowDateTime.Now;
+				var moscowNow = DateTime.UtcNow.ToMoscowDateTime();
 
 				if(IsInSendTimeInterval(moscowNow) && _lastSentDate != moscowNow.Date)
 				{
