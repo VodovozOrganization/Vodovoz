@@ -80,7 +80,7 @@ namespace BitrixNotificationsSend.Library.Services
 			var today = DateTime.UtcNow.ToMoscowDateTime().Date;
 
 			_logger.LogInformation(
-				"Начало формирования данных по плановым заказам клиентов на {PlannedOrderDate}",
+				"Начало формирования данных по плановым заказам клиентов на {PlannedOrderDate:yyyy.MM.dd}",
 				today);
 
 			IEnumerable<PlannedOrderDto> plannedOrders;
@@ -254,7 +254,7 @@ namespace BitrixNotificationsSend.Library.Services
 				today);
 
 			_logger.LogInformation(
-				"Точек доставки с плановой датой заказа {PlannedOrderDate}: {CandidatesCount}",
+				"Точек доставки с плановой датой заказа {PlannedOrderDate:yyyy.MM.dd}: {CandidatesCount}",
 				today,
 				candidates.Count);
 
@@ -296,7 +296,7 @@ namespace BitrixNotificationsSend.Library.Services
 				today);
 
 			_logger.LogInformation(
-				"Контрагентов с плановой датой самовывозного заказа {PlannedOrderDate}: {CandidatesCount}",
+				"Контрагентов с плановой датой самовывозного заказа {PlannedOrderDate:yyyy.MM.dd}: {CandidatesCount}",
 				today,
 				candidates.Count);
 
