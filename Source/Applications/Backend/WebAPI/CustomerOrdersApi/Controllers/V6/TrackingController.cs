@@ -19,6 +19,7 @@ namespace CustomerOrdersApi.Controllers.V6
 	/// Контроллер для работы с отслеживанием координат
 	/// </summary>
 	[ApiVersion("6.0")]
+	[Authorize]
 	public class TrackingController : VersionedController
 	{
 		private readonly ICourierTrackingService _courierTrackingService;
@@ -41,7 +42,6 @@ namespace CustomerOrdersApi.Controllers.V6
 		[Consumes(MediaTypeNames.Application.Json)]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CourierCoordinatesDto))]
-		[Authorize]
 		public async Task<IActionResult> GetCourierCoordinates(
 			[FromBody] GetCourierCoordinatesDto getCourierCoordinatesDto,
 			CancellationToken cancellationToken)
