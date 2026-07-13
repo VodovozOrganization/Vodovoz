@@ -1,12 +1,8 @@
-﻿using CustomerNotifications.Application;
-using CustomerNotifications.Application.Builders;
+﻿using CustomerNotifications.Application.Builders;
 using CustomerNotifications.Contracts;
 using CustomerNotifications.Transport;
 using CustomerOrdersApi.HealthCheck;
-using CustomerOrdersApi.Library;
-using CustomerOrdersApi.Library.Config;
 using CustomerOrdersApi.Services;
-using CustomerOrdersApi.Library.V5.Services;
 using DriverApi.Notifications.Client;
 using MassTransit;
 using MessageTransport;
@@ -17,11 +13,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Notifications.Infrastructure;
-using Osrm;
 using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Services;
 using System;
+using CustomerOrdersApi.Library;
+using CustomerOrdersApi.Library.Config;
+using Osrm;
 using TransactionalOutbox.Abstractions;
 using Vodovoz;
 using Vodovoz.Core.Application;
@@ -33,10 +31,7 @@ using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Presentation.WebApi;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Trackers;
-using VodovozBusiness.Services.Orders;
 using VodovozHealthCheck;
-using CreatingOnlineOrderV5 = CustomerOrdersApi.Library.V5.Dto.Orders.CreatingOnlineOrder;
-using CreatingOnlineOrderV6 = CustomerOrdersApi.Library.V6.Dto.Orders.CreatingOnlineOrder;
 
 namespace CustomerOrdersApi
 {
@@ -88,7 +83,6 @@ namespace CustomerOrdersApi
 
 				.AddScoped<IRouteListService, RouteListService>()
 				.AddScoped<IRouteListSpecialConditionsService, RouteListSpecialConditionsService>()
-				.AddScoped<ICustomerOrderCancellationService, CustomerOrderCancellationService>()
 				.AddPaymentApiClients(Configuration)
 				.AddPaymentRefundServices();
 
@@ -100,8 +94,12 @@ namespace CustomerOrdersApi
 				.AddMessageTransportSettings()
 				.AddMassTransit(busConf =>
 				{
-					busConf.AddRequestClient<CreatingOnlineOrderV5>(new Uri($"exchange:{CreatingOnlineOrderV5.ExchangeAndQueueName}"));
-					busConf.AddRequestClient<CreatingOnlineOrderV6>(new Uri($"exchange:{CreatingOnlineOrderV6.ExchangeAndQueueName}"));
+					busConf.AddRequestClient<Library.V4.Dto.Orders.CreatingOnlineOrder>(
+						new Uri($"exchange:{Library.V4.Dto.Orders.CreatingOnlineOrder.ExchangeAndQueueName}"));
+					busConf.AddRequestClient<Library.V5.Dto.Orders.CreatingOnlineOrder>(
+						new Uri($"exchange:{Library.V5.Dto.Orders.CreatingOnlineOrder.ExchangeAndQueueName}"));
+					busConf.AddRequestClient<Library.V6.Dto.Orders.CreatingOnlineOrder>(
+						new Uri($"exchange:{Library.V6.Dto.Orders.CreatingOnlineOrder.ExchangeAndQueueName}"));
 					busConf.ConfigureRabbitMq();					
 				})
 				.AddMassTransit<ICustomerNotificationsBus>(busConf =>

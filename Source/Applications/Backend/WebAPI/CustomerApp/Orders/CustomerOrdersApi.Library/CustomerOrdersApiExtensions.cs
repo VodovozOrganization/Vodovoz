@@ -67,6 +67,7 @@ namespace CustomerOrdersApi.Library
 				.AddScoped<ICustomerOrderFactoryV5, CustomerOrderFactoryV5>()
 				.AddScoped<ICustomerOrdersDiscountServiceV5, CustomerOrdersDiscountServiceV5>()
 				.AddScoped<ICustomerOrderFixedPriceServiceV5, CustomerOrderFixedPriceServiceV5>()
+				.AddScoped<V5.Services.ICustomerOrderCancellationService, V5.Services.CustomerOrderCancellationService>()
 				.AddScoped<IInfoMessageFactoryV5, InfoMessageFactoryV5>()
 				.AddDefault();
 			
