@@ -13,7 +13,6 @@ using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
-using Vodovoz.Errors.Orders;
 using Vodovoz.Presentation.WebApi.Messages;
 
 namespace CustomerOrdersApi.Controllers.V6
@@ -261,78 +260,6 @@ namespace CustomerOrdersApi.Controllers.V6
 				
 				return Problem(ResponseMessage.HasErrorOccurredPleaseTryAgainLater);
 			}
-		}
-
-		/// <summary>
-		/// Получение координат курьера и точки доставки
-		/// </summary>
-		/// <param name="getCourierCoordinatesDto">Данные для получения координат</param>
-		/// <param name="cancellationToken">Токен для отмены операции</param>
-		/// <returns>Координаты курьера <see cref="CourierCoordinatesDto"/></returns>
-		[HttpGet]
-		[Consumes(MediaTypeNames.Application.Json)]
-		[Produces(MediaTypeNames.Application.Json)]
-		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CourierCoordinatesDto))]
-		[Authorize]
-		public async Task<IActionResult> GetCourierCoordinates(
-			[FromBody] GetCourierCoordinatesDto getCourierCoordinatesDto,
-			CancellationToken cancellationToken)
-		{
-			var sourceName = getCourierCoordinatesDto.Source.GetEnumTitle();
-
-			try
-			{
-				_logger.LogInformation(
-					"Поступил запрос от {Source} на получение координат курьера. " +
-					"Клиент: {CounterpartyId} " +
-					"Идентификатор клиента в ИПЗ: {ExternalCounterpartyId} " +
-					"Номер заказа: {OrderId} " +
-					"Номер онлайн заказа: {OnlineOrderId}",
-					sourceName,
-					getCourierCoordinatesDto.CounterpartyErpId,
-					getCourierCoordinatesDto.ExternalCounterpartyId,
-					getCourierCoordinatesDto.OrderId,
-					getCourierCoordinatesDto.OnlineOrderId);
-
-				var courierCoordinatesResult = await _customerOrdersService.GetCourierCoordinates(getCourierCoordinatesDto, cancellationToken);
-
-				if(courierCoordinatesResult.IsFailure)
-				{
-					var firstError = courierCoordinatesResult.Errors.First();
-					return Problem(firstError.Message, statusCode: GetStatusCode(courierCoordinatesResult));
-				}
-
-				return Ok(courierCoordinatesResult);
-			}
-			catch(Exception e)
-			{
-				_logger.LogError(e,
-					"Ошибка при получении координат курьера по запросу клиента {CounterpartyId} от {Source}",
-					getCourierCoordinatesDto.CounterpartyErpId,
-					sourceName);
-
-				return Problem();
-			}
-		}
-
-		private static int GetStatusCode(Result result)
-		{
-			if(result.IsSuccess)
-			{
-				return StatusCodes.Status200OK;
-			}
-
-			var firstError = result.Errors.FirstOrDefault();
-
-			if(firstError != null
-				&& (firstError.Code == OrderErrors.NotFound
-					|| firstError.Code == OnlineOrderErrors.OnlineOrderNotFound
-					|| firstError.Code == OnlineOrderErrors.ErpOrderForOnlineOrderNotFound))
-			{
-				return StatusCodes.Status404NotFound;
-			}
-
-			return StatusCodes.Status400BadRequest;
 		}
 
 		[HttpPost]

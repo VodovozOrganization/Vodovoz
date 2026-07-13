@@ -25,40 +25,8 @@ using Vodovoz.Settings.Pacs;
 using VodovozInfrastructure.Cryptography;
 using YandexPayApi.Client;
 using YooKassaApi.Client;
-using ChangingOrderDtoV5 = CustomerOrdersApi.Library.V5.Dto.Orders.ChangingOrderDto;
-using ChangingOrderDtoV6 = CustomerOrdersApi.Library.V6.Dto.Orders.ChangingOrderDto;
 using IPaymentRefundServiceFactory = CustomerOrdersApi.Library.Default.Factories.IPaymentRefundServiceFactory;
 using PaymentRefundServiceFactory = CustomerOrdersApi.Library.Default.Factories.PaymentRefundServiceFactory;
-using IRefundRequestValidatorV5 = CustomerOrdersApi.Library.V5.Services.PaymentRefund.IRefundRequestValidator;
-using RefundRequestValidatorV5 = CustomerOrdersApi.Library.V5.Services.PaymentRefund.RefundRequestValidator;
-using ICloudPaymentsMapperV5 = CustomerOrdersApi.Library.V5.Services.PaymentRefund.Mappers.ICloudPaymentsMapper;
-using CloudPaymentsMapperV5 = CustomerOrdersApi.Library.V5.Services.PaymentRefund.Mappers.CloudPaymentsMapper;
-using IPaymentRefundServiceV5 = CustomerOrdersApi.Library.V5.Services.PaymentRefund.IPaymentRefundService;
-using CloudPaymentsRefundServiceV5 = CustomerOrdersApi.Library.V5.Services.PaymentRefund.CloudPaymentsRefundService;
-using YandexPayRefundServiceV5 = CustomerOrdersApi.Library.V5.Services.PaymentRefund.YandexPayRefundService;
-using YooKassaRefundServiceV5 = CustomerOrdersApi.Library.V5.Services.PaymentRefund.YooKassaRefundService;
-using FastPaymentsRefundServiceV5 = CustomerOrdersApi.Library.V5.Services.PaymentRefund.FastPaymentsRefundService;
-using IYandexPayMapperV5 = CustomerOrdersApi.Library.V5.Services.PaymentRefund.Mappers.IYandexPayMapper;
-using YandexPayMapperV5 = CustomerOrdersApi.Library.V5.Services.PaymentRefund.Mappers.YandexPayMapper;
-using IYooKassaMapperV5 = CustomerOrdersApi.Library.V5.Services.PaymentRefund.Mappers.IYooKassaMapper;
-using YooKassaMapperV5 = CustomerOrdersApi.Library.V5.Services.PaymentRefund.Mappers.YooKassaMapper;
-using IPaymentRefundServiceFactoryV6 = CustomerOrdersApi.Library.V6.Factories.IPaymentRefundServiceFactory;
-using PaymentRefundServiceFactoryV6 = CustomerOrdersApi.Library.V6.Factories.PaymentRefundServiceFactory;
-using IRefundRequestValidatorV6 = CustomerOrdersApi.Library.V6.Services.PaymentRefund.IRefundRequestValidator;
-using RefundRequestValidatorV6 = CustomerOrdersApi.Library.V6.Services.PaymentRefund.RefundRequestValidator;
-using ICloudPaymentsMapperV6 = CustomerOrdersApi.Library.V6.Services.PaymentRefund.Mappers.ICloudPaymentsMapper;
-using CloudPaymentsMapperV6 = CustomerOrdersApi.Library.V6.Services.PaymentRefund.Mappers.CloudPaymentsMapper;
-using IPaymentRefundServiceV6 = CustomerOrdersApi.Library.V6.Services.PaymentRefund.IPaymentRefundService;
-using CloudPaymentsRefundServiceV6 = CustomerOrdersApi.Library.V6.Services.PaymentRefund.CloudPaymentsRefundService;
-using YandexPayRefundServiceV6 = CustomerOrdersApi.Library.V6.Services.PaymentRefund.YandexPayRefundService;
-using YooKassaRefundServiceV6 = CustomerOrdersApi.Library.V6.Services.PaymentRefund.YooKassaRefundService;
-using FastPaymentsRefundServiceV6 = CustomerOrdersApi.Library.V6.Services.PaymentRefund.FastPaymentsRefundService;
-using IYandexPayMapperV6 = CustomerOrdersApi.Library.V6.Services.PaymentRefund.Mappers.IYandexPayMapper;
-using YandexPayMapperV6 = CustomerOrdersApi.Library.V6.Services.PaymentRefund.Mappers.YandexPayMapper;
-using IYooKassaMapperV6 = CustomerOrdersApi.Library.V6.Services.PaymentRefund.Mappers.IYooKassaMapper;
-using YooKassaMapperV6 = CustomerOrdersApi.Library.V6.Services.PaymentRefund.Mappers.YooKassaMapper;
-using ICustomerOrderCancellationServiceV6 = CustomerOrdersApi.Library.V6.Services.ICustomerOrderCancellationService;
-using CustomerOrderCancellationServiceV6 = CustomerOrdersApi.Library.V6.Services.CustomerOrderCancellationService;
 
 namespace CustomerOrdersApi.Library
 {
@@ -114,7 +82,8 @@ namespace CustomerOrdersApi.Library
 				.AddScoped<ICustomerOrdersDiscountServiceV6, CustomerOrdersDiscountServiceV6>()
 				.AddScoped<ICustomerOrderFixedPriceServiceV6, CustomerOrderFixedPriceServiceV6>()
 				.AddScoped<IInfoMessageFactoryV6, InfoMessageFactoryV6>()
-				.AddScoped<ICustomerOrderCancellationServiceV6, CustomerOrderCancellationServiceV6>()
+				.AddScoped<V6.Services.ICustomerOrderCancellationService, V6.Services.CustomerOrderCancellationService>()
+				.AddScoped<V6.Services.ICourierTrackingService, V6.Services.CourierTrackingService>()
 				.AddDefault();
 
 			return services;
@@ -251,7 +220,7 @@ namespace CustomerOrdersApi.Library
 			};
 		}
 
-		public static UpdateOnlineOrderFromChangeRequest ToUpdateOnlineOrderFromChangeRequest(this ChangingOrderDtoV5 source)
+		public static UpdateOnlineOrderFromChangeRequest ToUpdateOnlineOrderFromChangeRequest(this V5.Dto.Orders.ChangingOrderDto source)
 		{
 			return new UpdateOnlineOrderFromChangeRequest
 			{
@@ -271,7 +240,7 @@ namespace CustomerOrdersApi.Library
 			};
 		}
 
-		public static UpdateOnlineOrderFromChangeRequest ToUpdateOnlineOrderFromChangeRequest(this ChangingOrderDtoV6 source)
+		public static UpdateOnlineOrderFromChangeRequest ToUpdateOnlineOrderFromChangeRequest(this V6.Dto.Orders.ChangingOrderDto source)
 		{
 			return new UpdateOnlineOrderFromChangeRequest
 			{
@@ -304,19 +273,19 @@ namespace CustomerOrdersApi.Library
 		public static IServiceCollection AddPaymentRefundServicesV5(
 			this IServiceCollection services)
 		{
-			services.AddScoped<IRefundRequestValidatorV5, RefundRequestValidatorV5>();
+			services.AddScoped<V5.Services.PaymentRefund.IRefundRequestValidator, V5.Services.PaymentRefund.RefundRequestValidator>();
 			services.AddScoped<IPaymentRefundServiceFactory, PaymentRefundServiceFactory>();
 
-			services.AddScoped<ICloudPaymentsMapperV5, CloudPaymentsMapperV5>();
-			services.AddScoped<IPaymentRefundServiceV5, CloudPaymentsRefundServiceV5>();
+			services.AddScoped<V5.Services.PaymentRefund.Mappers.ICloudPaymentsMapper, V5.Services.PaymentRefund.Mappers.CloudPaymentsMapper>();
+			services.AddScoped<V5.Services.PaymentRefund.IPaymentRefundService, V5.Services.PaymentRefund.CloudPaymentsRefundService>();
 
-			services.AddScoped<IYandexPayMapperV5, YandexPayMapperV5>();
-			services.AddScoped<IPaymentRefundServiceV5, YandexPayRefundServiceV5>();
+			services.AddScoped<V5.Services.PaymentRefund.Mappers.IYandexPayMapper, V5.Services.PaymentRefund.Mappers.YandexPayMapper>();
+			services.AddScoped<V5.Services.PaymentRefund.IPaymentRefundService, V5.Services.PaymentRefund.YandexPayRefundService>();
 
-			services.AddScoped<IYooKassaMapperV5, YooKassaMapperV5>();
-			services.AddScoped<IPaymentRefundServiceV5, YooKassaRefundServiceV5>();
+			services.AddScoped<V5.Services.PaymentRefund.Mappers.IYooKassaMapper, V5.Services.PaymentRefund.Mappers.YooKassaMapper>();
+			services.AddScoped<V5.Services.PaymentRefund.IPaymentRefundService, V5.Services.PaymentRefund.YooKassaRefundService>();
 
-			services.AddScoped<IPaymentRefundServiceV5, FastPaymentsRefundServiceV5>();
+			services.AddScoped<V5.Services.PaymentRefund.IPaymentRefundService, V5.Services.PaymentRefund.FastPaymentsRefundService>();
 
 			return services;
 		}
@@ -324,19 +293,19 @@ namespace CustomerOrdersApi.Library
 		public static IServiceCollection AddPaymentRefundServicesV6(
 			this IServiceCollection services)
 		{
-			services.AddScoped<IRefundRequestValidatorV6, RefundRequestValidatorV6>();
-			services.AddScoped<IPaymentRefundServiceFactoryV6, PaymentRefundServiceFactoryV6>();
+			services.AddScoped<V6.Services.PaymentRefund.IRefundRequestValidator, V6.Services.PaymentRefund.RefundRequestValidator>();
+			services.AddScoped<V6.Factories.IPaymentRefundServiceFactory, V6.Factories.PaymentRefundServiceFactory>();
 
-			services.AddScoped<ICloudPaymentsMapperV6, CloudPaymentsMapperV6>();
-			services.AddScoped<IPaymentRefundServiceV6, CloudPaymentsRefundServiceV6>();
+			services.AddScoped<V6.Services.PaymentRefund.Mappers.ICloudPaymentsMapper, V6.Services.PaymentRefund.Mappers.CloudPaymentsMapper>();
+			services.AddScoped<V6.Services.PaymentRefund.IPaymentRefundService, V6.Services.PaymentRefund.CloudPaymentsRefundService>();
 
-			services.AddScoped<IYandexPayMapperV6, YandexPayMapperV6>();
-			services.AddScoped<IPaymentRefundServiceV6, YandexPayRefundServiceV6>();
+			services.AddScoped<V6.Services.PaymentRefund.Mappers.IYandexPayMapper, V6.Services.PaymentRefund.Mappers.YandexPayMapper>();
+			services.AddScoped<V6.Services.PaymentRefund.IPaymentRefundService, V6.Services.PaymentRefund.YandexPayRefundService>();
 
-			services.AddScoped<IYooKassaMapperV6, YooKassaMapperV6>();
-			services.AddScoped<IPaymentRefundServiceV6, YooKassaRefundServiceV6>();
+			services.AddScoped<V6.Services.PaymentRefund.Mappers.IYooKassaMapper, V6.Services.PaymentRefund.Mappers.YooKassaMapper>();
+			services.AddScoped<V6.Services.PaymentRefund.IPaymentRefundService, V6.Services.PaymentRefund.YooKassaRefundService>();
 
-			services.AddScoped<IPaymentRefundServiceV6, FastPaymentsRefundServiceV6>();
+			services.AddScoped<V6.Services.PaymentRefund.IPaymentRefundService, V6.Services.PaymentRefund.FastPaymentsRefundService>();
 
 			return services;
 		}

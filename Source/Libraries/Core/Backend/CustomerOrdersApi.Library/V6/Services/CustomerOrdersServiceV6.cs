@@ -20,7 +20,6 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Logistic;
 using Vodovoz.EntityRepositories.Orders;
-using Vodovoz.Errors.Orders;
 using Vodovoz.Settings.Orders;
 using VodovozBusiness.Services.Orders;
 using VodovozInfrastructure.Cryptography;
@@ -29,13 +28,6 @@ namespace CustomerOrdersApi.Library.V6.Services
 {
 	public class CustomerOrdersServiceV6 : ICustomerOrdersServiceV6
 	{
-		private static readonly OrderStatus[] _orderCompleteStatuses = new OrderStatus[]
-		{
-			OrderStatus.Shipped,
-			OrderStatus.UnloadingOnStock,
-			OrderStatus.Closed
-		};
-
 		private readonly ILogger<CustomerOrdersServiceV6> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly ISignatureManager _signatureManager;
@@ -46,6 +38,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 		private readonly IRouteListRepository _routeListRepository;
 		private readonly IGenericRepository<OrderRating> _genericRatingRepository;
 		private readonly IUnPaidOnlineOrderHandler _unPaidOnlineOrderHandler;
+		private readonly ICourierTrackingService _courierTrackingService;
 		private readonly IOptionsMonitor<CourierCoordinatesOptions> _courierCoordinatesOptions;
 		private readonly IConfigurationSection _signaturesSection;
 
@@ -60,6 +53,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 			IRouteListRepository routeListRepository,
 			IGenericRepository<OrderRating> genericRatingRepository,
 			IUnPaidOnlineOrderHandler unPaidOnlineOrderHandler,
+			ICourierTrackingService courierTrackingService,
 			IConfiguration configuration,
 			IOptionsMonitor<CourierCoordinatesOptions> courierCoordinatesOptions)
 		{
@@ -73,6 +67,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
 			_genericRatingRepository = genericRatingRepository ?? throw new ArgumentNullException(nameof(genericRatingRepository));
 			_unPaidOnlineOrderHandler = unPaidOnlineOrderHandler ?? throw new ArgumentNullException(nameof(unPaidOnlineOrderHandler));
+			_courierTrackingService = courierTrackingService ?? throw new ArgumentNullException(nameof(courierTrackingService));
 			_courierCoordinatesOptions = courierCoordinatesOptions ?? throw new ArgumentNullException(nameof(courierCoordinatesOptions));
 
 			_signaturesSection = configuration.GetSection("Signatures");
@@ -83,7 +78,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 		public bool ValidateOrderSignature(ICreatingOnlineOrder creatingOnlineOrder, out string generatedSignature)
 		{
 			var sourceSign = GetSourceSign(creatingOnlineOrder.Source);
-			
+
 			return _signatureManager.Validate(
 				creatingOnlineOrder.Signature,
 				new OrderSignatureParams
@@ -95,11 +90,11 @@ namespace CustomerOrdersApi.Library.V6.Services
 				},
 				out generatedSignature);
 		}
-		
+
 		public bool ValidateOrderRatingSignature(OrderRatingInfoForCreateDto orderRatingInfo, out string generatedSignature)
 		{
 			var sourceSign = GetSourceSign(orderRatingInfo.Source);
-			
+
 			return _signatureManager.Validate(
 				orderRatingInfo.Signature,
 				new OrderRatingSignatureParams
@@ -113,11 +108,11 @@ namespace CustomerOrdersApi.Library.V6.Services
 				},
 				out generatedSignature);
 		}
-		
+
 		public bool ValidateOrderInfoSignature(GetDetailedOrderInfoDto getDetailedOrderInfoDto, out string generatedSignature)
 		{
 			var sourceSign = GetSourceSign(getDetailedOrderInfoDto.Source);
-			
+
 			return _signatureManager.Validate(
 				getDetailedOrderInfoDto.Signature,
 				new OrderInfoSignatureParams
@@ -130,11 +125,11 @@ namespace CustomerOrdersApi.Library.V6.Services
 				},
 				out generatedSignature);
 		}
-		
+
 		public bool ValidateCounterpartyOrdersSignature(GetOrdersDto getOrdersDto, out string generatedSignature)
 		{
 			var sourceSign = GetSourceSign(getOrdersDto.Source);
-			
+
 			return _signatureManager.Validate(
 				getOrdersDto.Signature,
 				new CounterpartyOrdersSignatureParams
@@ -146,12 +141,12 @@ namespace CustomerOrdersApi.Library.V6.Services
 				},
 				out generatedSignature);
 		}
-		
+
 		public bool ValidateOnlineOrderPaymentStatusUpdatedSignature(
 			OnlineOrderPaymentStatusUpdatedDto paymentStatusUpdatedDto, out string generatedSignature)
 		{
 			var sourceSign = GetSourceSign(paymentStatusUpdatedDto.Source);
-			
+
 			return _signatureManager.Validate(
 				paymentStatusUpdatedDto.Signature,
 				new OnlineOrderPaymentStatusUpdatedSignatureParams
@@ -167,7 +162,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 		public bool ValidateRequestForCallSignature(CreatingRequestForCallDto creatingInfoDto, out string generatedSignature)
 		{
 			var sourceSign = GetSourceSign(creatingInfoDto.Source);
-			
+
 			return _signatureManager.Validate(
 				creatingInfoDto.Signature,
 				new RequestForCallSignatureParams
@@ -187,14 +182,14 @@ namespace CustomerOrdersApi.Library.V6.Services
 			)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot();
-			
+
 			var ratingAvailableFrom = _orderSettings.GetDateAvailabilityRatingOrder;
 			OrderRating orderRating = null;
 			OnlineOrder onlineOrder = null;
 
 			var timers = uow.GetAll<OnlineOrderTimers>().FirstOrDefault();
 
-			if(getDetailedOrderInfoDto.OnlineOrderId.HasValue) 
+			if(getDetailedOrderInfoDto.OnlineOrderId.HasValue)
 			{
 				onlineOrder = uow.GetById<OnlineOrder>(getDetailedOrderInfoDto.OnlineOrderId.Value);
 			}
@@ -202,15 +197,15 @@ namespace CustomerOrdersApi.Library.V6.Services
 			if(getDetailedOrderInfoDto.OrderId.HasValue)
 			{
 				var order = uow.GetById<Order>(getDetailedOrderInfoDto.OrderId.Value);
-				
+
 				orderRating = _genericRatingRepository.Get(
 						uow,
 						x => x.Order.Id == order.Id)
 					.FirstOrDefault();
 
-				var (establishedRoute, _, driversCoordinatesLastUpdateTime) = await GetDriverPositionData(uow, order, cancellationToken);
+				var driverPositionData = await _courierTrackingService.GetDriverPositionData(uow, order, cancellationToken);
 				var isOrderWasSelectedAsNext =
-					establishedRoute || await _routeListRepository.IsOrderEverWasSelectedAsNext(uow, order.Id, cancellationToken);
+					driverPositionData.EstablishedRoute || await _routeListRepository.IsOrderEverWasSelectedAsNext(uow, order.Id, cancellationToken);
 
 				var driversMangoExtensionNumber =
 					await _orderRepository.GetDriversMangoExtensionNumberByOrderId(uow, order.Id, cancellationToken);
@@ -223,18 +218,18 @@ namespace CustomerOrdersApi.Library.V6.Services
 					onlineOrder,
 					ratingAvailableFrom,
 					driversMangoExtensionNumber,
-					establishedRoute,
+					driverPositionData.EstablishedRoute,
 					isOrderWasSelectedAsNext,
-					driversCoordinatesLastUpdateTime,
+					driverPositionData.CoordinatesLastUpdateTime,
 					cancellationToken
 					);
 			}
-			
+
 			orderRating = _genericRatingRepository.Get(
 					uow,
 					x => x.OnlineOrder.Id == onlineOrder.Id)
 				.FirstOrDefault();
-			
+
 			return await _customerOrderFactory.CreateDetailedOrderInfo(
 				uow,
 				onlineOrder,
@@ -250,7 +245,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 		{
 			var skipElements = (getOrdersDto.Page - 1) * getOrdersDto.OrdersCountOnPage;
 			var dateAvailabilityRating = _orderSettings.GetDateAvailabilityRatingOrder;
-			
+
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot();
 			var allOrders = GetAllCounterpartyOrders(uow, getOrdersDto, dateAvailabilityRating);
 
@@ -263,8 +258,8 @@ namespace CustomerOrdersApi.Library.V6.Services
 
 			foreach(var orderDto in orderDtos)
 			{
-				var (establishedRoute, _, driversCoordinatesLastUpdateTime) = await GetDriverPositionData(uow, orderDto, cancellationToken);
-				orderDto.UpdateTrackingAvailability(establishedRoute, driversCoordinatesLastUpdateTime, _courierCoordinatesOptions.CurrentValue.TrackingLostTimeout);
+				var driverPositionData = await _courierTrackingService.GetDriverPositionData(uow, orderDto, cancellationToken);
+				orderDto.UpdateTrackingAvailability(driverPositionData.EstablishedRoute, driverPositionData.CoordinatesLastUpdateTime, _courierCoordinatesOptions.CurrentValue.TrackingLostTimeout);
 			}
 
 			return new OrdersDto
@@ -311,9 +306,9 @@ namespace CustomerOrdersApi.Library.V6.Services
 
 					if(order != null)
 					{
-						var (estRoute, _, coordinatesLastUpdateTime) = await GetDriverPositionData(uow, order, cancellationToken);
-						establishedRoute = estRoute;
-						driversCoordinatesLastUpdateTime = coordinatesLastUpdateTime;
+						var driverPositionData = await _courierTrackingService.GetDriverPositionData(uow, order, cancellationToken);
+						establishedRoute = driverPositionData.EstablishedRoute;
+						driversCoordinatesLastUpdateTime = driverPositionData.CoordinatesLastUpdateTime;
 						isOrderWasSelectedAsNext =
 							establishedRoute || await _routeListRepository.IsOrderEverWasSelectedAsNext(uow, order.Id, cancellationToken);
 					}
@@ -414,7 +409,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 					}
 				}
 			}
-			
+
 			return onlineOrdersInfo;
 		}
 
@@ -425,7 +420,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 
 			return _customerOrderFactory.GetOrderRatingReasonDtos(reasons);
 		}
-		
+
 		public void CreateOrderRating(OrderRatingInfoForCreateDto orderRatingInfo)
 		{
 			var negativeRating = _orderSettings.GetOrderRatingForMandatoryProcessing;
@@ -437,12 +432,12 @@ namespace CustomerOrdersApi.Library.V6.Services
 				orderRatingInfo.OrderId,
 				orderRatingInfo.OrderRatingReasonsIds,
 				negativeRating);
-			
+
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot();
 			uow.Save(orderRating);
 			uow.Commit();
 		}
-		
+
 		public bool TryUpdateOnlineOrderPaymentStatus(OnlineOrderPaymentStatusUpdatedDto paymentStatusUpdatedDto)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot();
@@ -472,7 +467,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 			{
 				nomenclature = uow.GetById<Nomenclature>(creatingInfoDto.NomenclatureErpId.Value);
 			}
-			
+
 			if(creatingInfoDto.CounterpartyErpId.HasValue)
 			{
 				counterparty = uow.GetById<Counterparty>(creatingInfoDto.CounterpartyErpId.Value);
@@ -485,7 +480,7 @@ namespace CustomerOrdersApi.Library.V6.Services
 				nomenclature,
 				counterparty
 				);
-			
+
 			uow.Save(requestForCall);
 			uow.Commit();
 		}
@@ -495,24 +490,24 @@ namespace CustomerOrdersApi.Library.V6.Services
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис онлайн заказов. Получение доступных способов оплат");
 			var onlineOrder = _onlineOrderRepository.GetOnlineOrderById(uow, getAvailablePaymentMethods.OnlineOrderId);
-			
+
 			var result = _unPaidOnlineOrderHandler.CanChangePaymentType(uow, onlineOrder);
-			
+
 			if(result.IsFailure)
 			{
 				var firstError = result.Errors.First();
 				return (int.Parse(firstError.Code), firstError.Message, null);
 			}
-			
+
 			var availablePayments = AvailablePaymentMethods.Create(getAvailablePaymentMethods.Source, onlineOrder.OnlineOrderPaymentType);
-			
+
 			return (200, null, availablePayments);
 		}
 
 		public async Task<Result<ChangedOrderDto>> UpdateOrderAsync(ChangingOrderDto changingOrderDto, CancellationToken cancellationToken)
 		{
 			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис онлайн заказов. Изменение заказа");
-			
+
 			var orders = _orderRepository.GetOrdersFromOnlineOrder(uow, changingOrderDto.OnlineOrderId ?? 0);
 			var onlineOrder = uow.GetAll<OnlineOrder>().FirstOrDefault(x => x.Id == changingOrderDto.OnlineOrderId);
 			var deliverySchedule = uow.GetAll<Vodovoz.Domain.Logistic.DeliverySchedule>()
@@ -525,258 +520,20 @@ namespace CustomerOrdersApi.Library.V6.Services
 				deliverySchedule,
 				changingOrderDto.ToUpdateOnlineOrderFromChangeRequest(),
 				cancellationToken);
-			
+
 			if(result.IsFailure)
 			{
 				return Result.Failure<ChangedOrderDto>(result.Errors);
 			}
-			
+
 			var changedOrderDto = ChangedOrderDto.Create(changingOrderDto.OnlineOrderId);
-			
+
 			return Result.Success(changedOrderDto);
 		}
 
 		private string GetSourceSign(Source source)
 		{
 			return _signaturesSection.GetValue<string>(source.ToString());
-		}
-
-		public async Task<Result<CourierCoordinatesDto>> GetCourierCoordinates(
-			GetCourierCoordinatesDto getCourierCoordinatesDto,
-			CancellationToken cancellationToken = default)
-		{
-			if(getCourierCoordinatesDto is null)
-			{
-				throw new ArgumentNullException(nameof(getCourierCoordinatesDto));
-			}
-
-			if(getCourierCoordinatesDto.OrderId is null && getCourierCoordinatesDto.OnlineOrderId is null)
-			{
-				return Result.Failure<CourierCoordinatesDto>(OnlineOrderErrors.IncorrectOrdersData);
-			}
-
-			using var uow = _unitOfWorkFactory.CreateWithoutRoot("Сервис онлайн заказов. Получение координат курьера");
-
-			Order order;
-
-			if(getCourierCoordinatesDto.OnlineOrderId != null)
-			{
-				var onlineOrder = _onlineOrderRepository.GetOnlineOrderById(uow, getCourierCoordinatesDto.OnlineOrderId.Value);
-
-				if(onlineOrder is null)
-				{
-					return Result.Failure<CourierCoordinatesDto>(OnlineOrderErrors.OnlineOrderNotFound);
-				}
-
-				var orders = _orderRepository.GetOrdersFromOnlineOrder(uow, onlineOrder.Id);
-
-				if(!orders.Any())
-				{
-					return Result.Failure<CourierCoordinatesDto>(OnlineOrderErrors.ErpOrderForOnlineOrderNotFound);
-				}
-
-				if(orders.Count() > 1 && getCourierCoordinatesDto.OrderId is null)
-				{
-					return Result.Failure<CourierCoordinatesDto>(OnlineOrderErrors.OnlineOrderHasManyErpOrders);
-				}
-
-				if(getCourierCoordinatesDto.OrderId != null
-					&& !orders.Any(x => x.Id == getCourierCoordinatesDto.OrderId))
-				{
-					return Result.Failure<CourierCoordinatesDto>(OnlineOrderErrors.ErpOrderNotRelatedToOnlineOrder);
-				}
-
-				order =
-					getCourierCoordinatesDto.OrderId is null
-					? orders.First()
-					: orders.First(x => x.Id == getCourierCoordinatesDto.OrderId);
-			}
-			else
-			{
-				order = uow.GetById<Order>(getCourierCoordinatesDto.OrderId.Value);
-
-				if(order is null)
-				{
-					return Result.Failure<CourierCoordinatesDto>(OrderErrors.NotFound);
-				}
-			}
-
-			if(order.Client.Id != getCourierCoordinatesDto.CounterpartyErpId)
-			{
-				return Result.Failure<CourierCoordinatesDto>(OrderErrors.OrderDoesNotBelongToCounterparty);
-			}
-
-			if(order.SelfDelivery)
-			{
-				return Result.Failure<CourierCoordinatesDto>(OnlineOrderErrors.CourierCoordinatesUnavailableSelfDeliveryOrders);
-			}
-
-			var isOrderComplete = _orderCompleteStatuses.Contains(order.OrderStatus);
-
-			if(order.OrderStatus != OrderStatus.OnTheWay && !isOrderComplete)
-			{
-				return Result.Failure<CourierCoordinatesDto>(OnlineOrderErrors.OrderHasInvalidStatusForCourierCoordinates);
-			}
-
-			var courierCoordinatesDto = new CourierCoordinatesDto
-			{
-				TimeForRefresh = _courierCoordinatesOptions.CurrentValue.TimeForRefreshInMobileApp,
-				ClientCoordinates = GetClientCoordinates(order)
-			};
-
-			if(isOrderComplete)
-			{
-				courierCoordinatesDto.TrackingStatus = CourierTrackingStatusTypeDto.Complete;
-				return Result.Success(courierCoordinatesDto);
-			}
-
-			var (establishedRoute, courierCoordinate, coordinatesLastUpdateTime) =
-				await GetDriverPositionData(uow, order, cancellationToken);
-
-			if(!establishedRoute)
-			{
-				return Result.Failure<CourierCoordinatesDto>(OnlineOrderErrors.OrderHasNoEstablishedRoute);
-			}
-
-			if(courierCoordinate is null || coordinatesLastUpdateTime is null)
-			{
-				return Result.Failure<CourierCoordinatesDto>(OnlineOrderErrors.CourierCoordinatesAreMissing);
-			}
-
-			var isTrackingLost =
-				DateTime.Now - coordinatesLastUpdateTime.Value > _courierCoordinatesOptions.CurrentValue.TrackingLostTimeout;
-
-			courierCoordinatesDto.TrackingStatus =
-				isTrackingLost
-				? CourierTrackingStatusTypeDto.Lost
-				: CourierTrackingStatusTypeDto.Active;
-
-			courierCoordinatesDto.CourierCoordinate = courierCoordinate;
-
-			return Result.Success(courierCoordinatesDto);
-		}
-
-		private async Task<(bool EstablishedRoute, CoordinatesDto CourierCoordinate, DateTime? coordinatesLastUpdateTime)> GetDriverPositionData(
-			IUnitOfWork uow,
-			Order order,
-			CancellationToken cancellationToken = default)
-		{
-			var (establishedRoute, routeListId, selectedAt) = await GetEstablishedRoute(uow, order, cancellationToken);
-
-			if(!establishedRoute)
-			{
-				return (false, null, null);
-			}
-			
-			(CoordinatesDto courierCoordinate, DateTime? coordinatesLastUpdateTime) =
-				await GetDriverLastCoordinate(uow, routeListId, selectedAt, cancellationToken);
-
-			return (true, courierCoordinate, coordinatesLastUpdateTime);
-		}
-
-		private async Task<(bool EstablishedRoute, CoordinatesDto CourierCoordinate, DateTime? coordinatesLastUpdateTime)> GetDriverPositionData(
-			IUnitOfWork uow,
-			OrderDto order,
-			CancellationToken cancellationToken = default)
-		{
-			var (establishedRoute, routeListId, selectedAt) = await GetEstablishedRoute(uow, order, cancellationToken);
-
-			if(!establishedRoute)
-			{
-				return (false, null, null);
-			}
-
-			(CoordinatesDto courierCoordinate, DateTime? coordinatesLastUpdateTime) =
-				await GetDriverLastCoordinate(uow, routeListId, selectedAt, cancellationToken);
-
-			return (true, courierCoordinate, coordinatesLastUpdateTime);
-		}
-
-		private async Task<(CoordinatesDto courierCoordinate, DateTime? coordinatesLastUpdateTime)> GetDriverLastCoordinate(IUnitOfWork uow, int? routeListId, DateTime? selectedAt, CancellationToken cancellationToken)
-		{
-			var trackPoint = await _routeListRepository.GetDriverLastCoordinate(uow, routeListId.Value, selectedAt.Value, cancellationToken);
-
-			CoordinatesDto courierCoordinate = null;
-
-			if(trackPoint != null)
-			{
-				courierCoordinate = new CoordinatesDto
-				{
-					Latitude = trackPoint.Latitude,
-					Longitude = trackPoint.Longitude,
-				};
-			}
-
-			var coordinatesLastUpdateTime = trackPoint?.ReceiveTimeStamp;
-			return (courierCoordinate, coordinatesLastUpdateTime);
-		}
-
-		private async Task<(bool EstablishedRoute, int? RouteListId, DateTime? SelectedAt)> GetEstablishedRoute(
-			IUnitOfWork uow,
-			Order order,
-			CancellationToken cancellationToken = default)
-		{
-			if(order.SelfDelivery || order.OrderStatus != OrderStatus.OnTheWay)
-			{
-				return (false, default, default);
-			}
-
-			return await GetEstablishedRoute(uow, order.Id, cancellationToken);
-		}
-
-		private async Task<(bool EstablishedRoute, int? RouteListId, DateTime? SelectedAt)> GetEstablishedRoute(
-			IUnitOfWork uow,
-			OrderDto order,
-			CancellationToken cancellationToken = default)
-		{
-			if(order.OrderId is null
-				|| order.IsSelfDelivery
-				|| order.OrderStatus != ExternalOrderStatus.OrderDelivering)
-			{
-				return (false, default, default);
-			}
-
-			return await GetEstablishedRoute(uow, order.OrderId.Value, cancellationToken);
-		}
-
-		private async Task<(bool EstablishedRoute, int? RouteListId, DateTime? SelectedAt)> GetEstablishedRoute(
-			IUnitOfWork uow,
-			int orderId,
-			CancellationToken cancellationToken = default)
-		{
-			var routeListItem =
-				await _routeListRepository.GetEnRouteRouteListItemByOrderId(uow, orderId, cancellationToken);
-
-			if(routeListItem == null)
-			{
-				return (false, default, default);
-			}
-
-			var routeListId = routeListItem.RouteList.Id;
-			var driverId = routeListItem.RouteList.Driver.Id;
-
-			var selectedAddress =
-				await _routeListRepository.GetLastSelectedAddressForRouteList(uow, driverId, routeListId, cancellationToken);
-
-			if(selectedAddress == null || selectedAddress.NextAddressId != routeListItem.Id)
-			{
-				return (false, default, default);
-			}
-
-			return (true, routeListId, selectedAddress.SelectedAt);
-		}
-
-		private CoordinatesDto GetClientCoordinates(Order order)
-		{
-			var deliveryPoint = order.DeliveryPoint;
-
-			return deliveryPoint?.Latitude == null || deliveryPoint.Longitude == null
-				? null
-				: new CoordinatesDto
-				{
-					Latitude = (double)deliveryPoint.Latitude.Value,
-					Longitude = (double)deliveryPoint.Longitude.Value
-				};
 		}
 	}
 }
