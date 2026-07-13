@@ -2361,8 +2361,16 @@ namespace Vodovoz.Domain.Orders
 					break;
 				default:
 					var canApplyAlternativePrice = HasPermissionsForAlternativePrice && nomenclature.AlternativeNomenclaturePrices.Any(x => x.MinCount <= count);
-
-					var orderItem = OrderItem.CreateForSaleWithDiscount(this, nomenclature, count, nomenclature.GetPrice(1, canApplyAlternativePrice), discountInMoney, discount, discountReasons, proSet, giftItem);
+					var orderItem = OrderItem.CreateForSaleWithDiscount(
+						this,
+						nomenclature,
+						count,
+						nomenclature.GetPrice(1, canApplyAlternativePrice),
+						discountInMoney,
+						discount,
+						discountReasons,
+						proSet,
+						giftItem);
 
 					var acceptableCategories = Nomenclature.GetCategoriesForSale();
 					if(orderItem?.Nomenclature == null
