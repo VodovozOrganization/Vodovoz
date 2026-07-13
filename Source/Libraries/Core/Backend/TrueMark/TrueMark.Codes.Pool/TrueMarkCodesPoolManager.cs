@@ -26,47 +26,13 @@ namespace TrueMark.Codes.Pool
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 		}
 
-		public IEnumerable<int> SelectCodes(int count, bool promoted)
-		{
-			using(var uow = CreateUow())
-			{
-				var query = GetSelectCodesQuery(uow, count, promoted);
-				var result = query.List<uint>().Select(x => (int)x);
-				return result;
-			}
-		}
-
-		public async Task<IEnumerable<int>> SelectCodesAsync(int count, bool promoted, CancellationToken cancellationToken)
-		{
-			using(var uow = CreateUow())
-			{
-				var query = GetSelectCodesQuery(uow, count, promoted);
-				var result = await query.ListAsync<uint>(cancellationToken);
-				return result.Select(x => (int)x);
-			}
-		}
-
-		private IQuery GetSelectCodesQuery(IUnitOfWork uow, int count, bool promoted)
-		{
-			var sql = $@"
-					SELECT code_id FROM {_poolTableName}
-					WHERE promoted = :promoted 
-					ORDER BY adding_time DESC
-					LIMIT :count
-					;";
-			var query = uow.Session.CreateSQLQuery(sql)
-				.SetParameter("count", count)
-				.SetParameter("promoted", promoted);
-			return query;
-		}
-
 		public async Task<IEnumerable<int>> SelectCodesForCheckAsync(int count, CancellationToken cancellationToken)
 		{
 			using(var uow = CreateUow())
 			{
 				var sql = $@"
 					SELECT code_id FROM {_poolTableName}
-					WHERE promoted = 0
+					WHERE expiration_date IS NULL
 					ORDER BY adding_time DESC
 					LIMIT :count
 					;";
@@ -120,65 +86,6 @@ namespace TrueMark.Codes.Pool
 				await uow.CommitAsync(cancellationToken);
 				return deletedCount;
 			}
-		}
-
-		public void PromoteCodes(IEnumerable<int> codeIds, int extraSecond)
-		{
-			using(var uow = CreateUow())
-			{
-				uow.OpenTransaction();
-
-				var query = GetPromoteSelectForUpdateQuery(uow, codeIds);
-				var codesToUpdate = query.List<uint>().ToArray();
-
-				var updateQuery = GetPromoteUpdateQuery(uow, codesToUpdate, extraSecond);
-				updateQuery.ExecuteUpdate();
-
-				uow.Commit();
-			}
-		}
-
-		public async Task PromoteCodesAsync(IEnumerable<int> codeIds, int extraSecond, CancellationToken cancellationToken)
-		{
-			using(var uow = CreateUow())
-			{
-				uow.OpenTransaction();
-
-				var query = GetPromoteSelectForUpdateQuery(uow, codeIds);
-				var codesToUpdateList = await query.ListAsync<uint>(cancellationToken);
-				var codesToUpdate = codesToUpdateList.ToArray();
-
-				var updateQuery = GetPromoteUpdateQuery(uow, codesToUpdate, extraSecond);
-				await updateQuery.ExecuteUpdateAsync(cancellationToken);
-
-				await uow.CommitAsync(cancellationToken);
-			}
-		}
-
-		private IQuery GetPromoteSelectForUpdateQuery(IUnitOfWork uow, IEnumerable<int> codeIds)
-		{
-			var sql = $@"
-					SELECT code_id FROM {_poolTableName}
-					WHERE code_id in (:code_ids)
-					FOR UPDATE SKIP LOCKED
-					;";
-			var query = uow.Session.CreateSQLQuery(sql)
-				.SetParameterList("code_ids", codeIds.ToArray());
-			return query;
-		}
-
-		private IQuery GetPromoteUpdateQuery(IUnitOfWork uow, uint[] codesToUpdate, int extraSecond)
-		{
-			var updateSql = $@"
-					UPDATE {_poolTableName} SET
-						adding_time = ADDDATE(current_timestamp(), INTERVAL :extra_second SECOND),
-						promoted = 1
-					WHERE code_id in (:code_ids)
-					;";
-			var updateQuery = uow.Session.CreateSQLQuery(updateSql)
-				.SetParameterList("code_ids", codesToUpdate)
-				.SetParameter("extra_second", extraSecond);
-			return updateQuery;
 		}
 
 		public void DeleteCodes(IEnumerable<int> codeIds)

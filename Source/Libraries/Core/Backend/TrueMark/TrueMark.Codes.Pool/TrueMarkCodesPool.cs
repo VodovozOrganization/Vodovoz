@@ -134,7 +134,7 @@ namespace TrueMark.Codes.Pool
 			var sql = $@"
 				SELECT id FROM {_poolTableName}
 				WHERE gtin = :gtin
-					AND (expiration_date IS NULL OR expiration_date > NOW())
+					AND expiration_date > NOW()
 				ORDER BY adding_time DESC 
 				LIMIT 1
 				FOR UPDATE SKIP LOCKED";

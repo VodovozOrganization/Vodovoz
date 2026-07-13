@@ -44,8 +44,8 @@ namespace VodovozBusiness.Models.TrueMark
 			_logger.LogInformation("Для проверки требуется {selectingCodesCount} кодов.", codesCountToCheck);
 			_logger.LogInformation("Запрос ранее не проверенных кодов.");
 
-			var unpromotedCodes = await _trueMarkCodesPool.SelectCodesForCheckAsync(codesCountToCheck, cancellationToken);
-			var codeIdsToCheck = unpromotedCodes.ToList();
+			var uncheckedCodes = await _trueMarkCodesPool.SelectCodesForCheckAsync(codesCountToCheck, cancellationToken);
+			var codeIdsToCheck = uncheckedCodes.ToList();
 
 			_logger.LogInformation("Получено {selectedCodesCount} ранее не проверенных кодов.", codeIdsToCheck.Count);
 
@@ -76,9 +76,12 @@ namespace VodovozBusiness.Models.TrueMark
 				var isIntroduced = status.Status == ProductInstanceStatusEnum.Introduced;
 				var isOurOrganizationOwner = _ourCodesChecker.IsOurOrganizationOwner(status.OwnerInn);
 				var isOurGtin = _ourCodesChecker.IsOurGtinOwner(status.Gtin);
-				var notExpired = expirationDate >= DateTime.Today;
+				var notExpired = expirationDate.HasValue && expirationDate.Value >= DateTime.Today;
 
-				codeExpirationMap[code.Id] = expirationDate.Value;
+				if(notExpired)
+				{
+					codeExpirationMap[code.Id] = expirationDate.Value;
+				}
 
 				var isValid = isIntroduced
 					&& isOurOrganizationOwner
@@ -95,17 +98,10 @@ namespace VodovozBusiness.Models.TrueMark
 				}
 			}
 
-			_logger.LogInformation("Обновление сроков годности для {count} кодов.", codeExpirationMap.Count);
-			await _trueMarkCodesPool.UpdateCodesExpirationAsync(codeExpirationMap, cancellationToken);
-
 			if(validCodeIds.Any())
 			{
-				var extraSecondsPromotion = _edoSettings.CodePoolPromoteWithExtraSeconds;
-				_logger.LogInformation(
-					"Продвижение {promotedCodesCount} проверенных кодов на верх пула на дополнительные {extraSecondsPromotion} секунд.",
-					validCodeIds.Count,
-					extraSecondsPromotion);
-				await _trueMarkCodesPool.PromoteCodesAsync(validCodeIds, extraSecondsPromotion, cancellationToken);
+				_logger.LogInformation("Обновление сроков годности для {count} кодов.", codeExpirationMap.Count);
+				await _trueMarkCodesPool.UpdateCodesExpirationAsync(codeExpirationMap, cancellationToken);
 			}
 
 			if(invalidCodeIds.Any())

@@ -46,7 +46,7 @@ namespace TrueMark.Codes.Pool
 				FROM {_poolTableName} pool
 				WHERE pool.gtin = :gtin
 					AND pool.has_check_code = 1
-					AND (pool.expiration_date IS NULL OR pool.expiration_date > NOW())
+					AND pool.expiration_date > NOW()
 				ORDER BY pool.adding_time DESC
 				LIMIT 1
 				FOR UPDATE SKIP LOCKED";

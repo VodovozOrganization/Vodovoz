@@ -54,39 +54,6 @@ namespace TrueMark.Codes.Pool
 		Task<IDictionary<string, long>> GetTotalCountByGtinAsync(CancellationToken cancellationToken);
 
 		/// <summary>
-		/// Продвигает коды, увеличивая их срок действия на указанное количество секунд
-		/// </summary>
-		/// <param name="codeIds">Идентификаторы кодов</param>
-		/// <param name="extraSecond">Количество секунд для продления срока действия</param>
-		void PromoteCodes(IEnumerable<int> codeIds, int extraSecond);
-
-		/// <summary>
-		/// Асинхронно продвигает коды, увеличивая их срок действия на указанное количество секунд
-		/// </summary>
-		/// <param name="codeIds">Идентификаторы кодов</param>
-		/// <param name="extraSecond">Количество секунд для продления срока действия</param>
-		/// <param name="cancellationToken">Токен отмены</param>
-		/// <returns>Результат операции</returns>
-		Task PromoteCodesAsync(IEnumerable<int> codeIds, int extraSecond, CancellationToken cancellationToken);
-
-		/// <summary>
-		/// Выбирает коды из пула кодов
-		/// </summary>
-		/// <param name="count">Количество кодов для выбора</param>
-		/// <param name="promoted">Флаг, указывающий, следует ли выбирать продвинутые коды</param>
-		/// <returns>Перечень идентификаторов выбранных кодов</returns>
-		IEnumerable<int> SelectCodes(int count, bool promoted);
-
-		/// <summary>
-		/// Выбирает коды из пула кодов асинхронно
-		/// </summary>
-		/// <param name="count">Количество кодов для выбора</param>
-		/// <param name="promoted">Флаг, указывающий, следует ли выбирать продвинутые коды</param>
-		/// <param name="cancellationToken">Токен отмены</param>
-		/// <returns>Перечень идентификаторов выбранных кодов</returns>
-		Task<IEnumerable<int>> SelectCodesAsync(int count, bool promoted, CancellationToken cancellationToken);
-
-		/// <summary>
 		/// Выбирает коды для проверки из пула кодов
 		/// </summary>
 		/// <param name="count">Количество кодов для выбора</param>
