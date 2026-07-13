@@ -1,0 +1,41 @@
+﻿using QS.DomainModel.UoW;
+using System.Collections.Generic;
+using Vodovoz.Core.Domain.Results;
+using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Settings.Organizations;
+using VodovozBusiness.EntityRepositories.Nodes;
+
+namespace VodovozBusiness.Services.Cash
+{
+	/// <summary>
+	/// Сервис для обработки наличных платежей по маршуртному листу
+	/// </summary>
+	public interface IRouteListCashProcessingService
+	{
+		/// <summary>
+		/// Создание приходных ордеров по вручную введенную сумму наличных платежей по маршуртному листу
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="routeList">Маршрутный лист</param>
+		/// <param name="cashInput">Сумма наличных платежей</param>
+		/// <returns>Результат создания приходных ордеров</returns>
+		Result<IEnumerable<Income>> CreateManualCashIncome(IUnitOfWork uow, RouteList routeList, decimal cashInput);
+
+		/// <summary>
+		/// Пересчет суммы наличных платежей по маршуртному листу для выравнивания баланса
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="routeList">Маршрутный лист</param>
+		/// <returns>Результат пересчета</returns>
+		Result<IEnumerable<string>> RecalculateRouteListCashBalance(IUnitOfWork uow, RouteList routeList);
+
+		/// <summary>
+		/// Возвращает список задолженностей по организациям для указанного маршрутного листа
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="routeList">Маршрутный лист</param>
+		/// <returns>Данные по долгам</returns>
+		IList<RouteListDebtByOrganizationNode> GetRouteListCashDebtsByOrganizations(IUnitOfWork uow, RouteList routeList);
+	}
+}

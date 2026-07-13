@@ -162,5 +162,22 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 
 			return transportCode;
 		}
+
+		public bool IsGroupCodeUsedInEdoDocument(int groupCodeId)
+		{
+			var fiscalPositions = _uow.Session.QueryOver<FiscalInventPosition>()
+				.Where(x => x.GroupCode != null && x.GroupCode.Id == groupCodeId)
+				.Select(x => x.Id)
+				.Take(1)
+				.Future<int>();
+
+			var updPositions = _uow.Session.QueryOver<EdoUpdInventPositionCode>()
+				.Where(x => x.GroupCode != null && x.GroupCode.Id == groupCodeId)
+				.Select(x => x.Id)
+				.Take(1)
+				.Future<int>();
+
+			return fiscalPositions.Any() || updPositions.Any();
+		}
 	}
 }

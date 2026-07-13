@@ -8,11 +8,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TransactionalOutbox.Abstractions;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Extensions;
+using VodovozBusiness.Extensions;
 
 namespace CustomerNotifications.Application.Builders
 {
@@ -45,6 +47,12 @@ namespace CustomerNotifications.Application.Builders
 				throw new ArgumentNullException(nameof(domainEvent));
 			}
 
+			// Пока пуши только в мобильном приложении
+			if(domainEvent.EventSource != Source.MobileApp)
+			{
+				return null;
+			}
+
 			var notificationText = _customerNotificationSettingsProvider.GetNotificationText(domainEvent);
 
 			if(string.IsNullOrEmpty(notificationText))
@@ -67,7 +75,7 @@ namespace CustomerNotifications.Application.Builders
 					{
 						throw new InvalidOperationException($"Онлайн заказ с Id {domainEvent.OnlineOrderId} не найден.");
 					}
-				}				
+				}
 
 				if(domainEvent.OrderId != null)
 				{
@@ -93,29 +101,51 @@ namespace CustomerNotifications.Application.Builders
 				{
 					notificationText = await ApplyOrderRescheduledAsync(unitOfWork, domainEvent, notificationText, cancellationToken);
 				}
-			}
 
-			var data = new CustomerNotificationMessage
-			{
-				CounterpartyErpId = onlineOrder?.CounterpartyId ?? order?.Client?.Id ?? 0,
-				Type = _customerNotificationSettingsProvider.GetCustomerPushType(domainEvent),
-				Target = _customerNotificationSettingsProvider.GetCustomerPushTarget(domainEvent),
-				Title = domainEvent.CustomerNotificationEventType.GetEnumDisplayName(),
-				Text = notificationText,
-				Params = new Dictionary<string, string>
+				var integrationEvent = new CustomerNotificationIntegrationEvent
 				{
-					["onlineOrderId"] = onlineOrder?.Id.ToString(),
-					["orderId"] = order?.Id.ToString()
+					EventSource = domainEvent.EventSource
+				};
+
+				// Временный костыль для сайта
+				if(domainEvent.EventSource == Source.VodovozWebSite)
+				{
+					if(onlineOrder != null)
+					{
+						var webSiteData = new WebSiteMessage
+						{
+							ExternalOrderId = onlineOrder.ExternalOrderId,
+							OnlineOrderId = onlineOrder.Id,
+							DeliveryDate = onlineOrder.OnlineOrderStatus != OnlineOrderStatus.Canceled ? onlineOrder.DeliveryDate : (DateTime?)null,
+							DeliveryScheduleId = onlineOrder.OnlineOrderStatus != OnlineOrderStatus.Canceled ? onlineOrder.DeliveryScheduleId : null,
+							OrderStatus = onlineOrder.GetExternalOrderStatus(),
+							PushText = notificationText
+						};
+
+						integrationEvent.WebSitePayload = webSiteData;
+					}
 				}
-			};
+				else
+				{
+					var moblieAppData = new CustomerNotificationMessage
+					{
+						CounterpartyErpId = onlineOrder?.CounterpartyId ?? order?.Client?.Id ?? 0,
+						Type = _customerNotificationSettingsProvider.GetCustomerPushType(domainEvent),
+						Target = _customerNotificationSettingsProvider.GetCustomerPushTarget(domainEvent),
+						Title = domainEvent.CustomerNotificationEventType.GetEnumDisplayName(),
+						Text = notificationText,
+						Params = new Dictionary<string, string>
+						{
+							["onlineOrderId"] = onlineOrder?.Id.ToString(),
+							["orderId"] = order?.Id.ToString()
+						}
+					};
 
-			var integrationEvent = new CustomerNotificationIntegrationEvent
-			{
-				Payload = data,
-				EventSource = domainEvent.EventSource
-			};
+					integrationEvent.Payload = moblieAppData;
+				}
 
-			return integrationEvent;
+				return integrationEvent;
+			}
 		}
 
 		private async Task<string> ApplyDeliveryCompletedAsync(
@@ -126,7 +156,7 @@ namespace CustomerNotifications.Application.Builders
 			string text,
 			CancellationToken cancellationToken)
 		{
-			var currentOrder = onlineOrder?.Orders			
+			var currentOrder = onlineOrder?.Orders
 				?.FirstOrDefault()
 				?? order;
 
@@ -154,7 +184,7 @@ namespace CustomerNotifications.Application.Builders
 			if(domainEvent.RescheduledNewOrderId is null)
 			{
 				throw new ArgumentNullException($"Для события {domainEvent.CustomerNotificationEventType} должен быть заполнен идентификатор перенесенного заказа: {nameof(domainEvent.RescheduledNewOrderId)}.");
-			}			
+			}
 
 			var rescheduledOrder =
 				   (await _orderRepository.GetAsync(
@@ -162,7 +192,7 @@ namespace CustomerNotifications.Application.Builders
 					   x => x.Id == domainEvent.RescheduledNewOrderId,
 					   cancellationToken: cancellationToken))
 				   .Value
-				   .Single();	
+				   .Single();
 
 			return text
 				.Replace(NotificationTemplates.RescheduleDate, rescheduledOrder.DeliveryDate?.ToString("D") ?? "")

@@ -32,7 +32,7 @@ namespace Edo.Transfer
 			var query = uow.Session.QueryOver<TransferEdoTask>()
 				.Where(x => x.FromOrganizationId == fromOrg)
 				.Where(x => x.ToOrganizationId == toOrg)
-				.Where(x => x.TransferStatus == TransferEdoTaskStatus.WaitingRequests)
+				.Where(x => x.TransferStatus == EdoTransferTaskStage.WaitingRequests)
 				.Take(1);
 
 			return await query.SingleOrDefaultAsync<TransferEdoTask>(cancellationToken);
@@ -54,7 +54,7 @@ namespace Edo.Transfer
 			);
 
 			var query = uow.Session.QueryOver<TransferEdoTask>()
-				.Where(x => x.TransferStatus == TransferEdoTaskStatus.WaitingRequests)
+				.Where(x => x.TransferStatus == EdoTransferTaskStage.WaitingRequests)
 				.Where(x => x.TransferStartTime == null)
 				.Where(Restrictions.Lt(timeoutProjection, DateTime.Now));
 

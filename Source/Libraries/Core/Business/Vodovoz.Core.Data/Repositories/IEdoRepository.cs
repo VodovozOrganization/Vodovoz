@@ -24,7 +24,9 @@ namespace Vodovoz.Core.Data.Repositories
 		/// <param name="orderId"></param>
 		/// <returns></returns>
 		IEnumerable<OrderEdoDocument> GetOrderEdoDocumentsByOrderId(IUnitOfWork uow, int orderId);
-		IEnumerable<OrderEdoTask> GetEdoTaskByOrderAsync(IUnitOfWork uow, int orderId);
+		IEnumerable<OrderEdoTask> GetEdoTaskByOrder(IUnitOfWork uow, int orderId);
+		IEnumerable<OrderEdoTaskNode> GetEdoTasksForOrder(IUnitOfWork uow, int orderId);
+		IEnumerable<EdoDocflowForOrderNode> GetEdoDocflowsForOrder(IUnitOfWork uow, int orderId);
 
 		/// <summary>
 		/// Возвращает задачи по ЭДО, которые связаны с клиентами, подключенными к системе TrueMark, и по которым истекло время ожидания ответа от клиента
@@ -33,7 +35,11 @@ namespace Vodovoz.Core.Data.Repositories
 		/// <param name="timeoutDays">Таймаут</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Заказ с задачами</returns>
-		Task<IList<TimedOutOrderDocumentTaskNode>> GetTimedOutOrderDocumentTasks(IUnitOfWork uow, int timeoutDays, CancellationToken cancellationToken);
+		Task<IList<TimedOutOrderDocumentTaskNode>> GetTimedOutOrderDocumentTasks(
+			IUnitOfWork uow,
+			int timeoutDays,
+			CancellationToken cancellationToken
+		);
 
 		/// <summary>
 		/// Возвращает номера заказов, по которым уже созданы заявки на вывод кодов из оборота
@@ -41,7 +47,11 @@ namespace Vodovoz.Core.Data.Repositories
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="orderIds">Номера заказов для проверки</param>
 		/// <returns>Номера заказов, по которым существуют заявки на вывод кодов из оборота</returns>
-		Task<IList<int>> GetExistingWithdrawalEdoRequestOrders(IUnitOfWork uow, IEnumerable<int> orderIds, CancellationToken cancellationToken);
+		Task<IList<int>> GetExistingWithdrawalEdoRequestOrders(
+			IUnitOfWork uow,
+			IEnumerable<int> orderIds,
+			CancellationToken cancellationToken
+		);
 
 		/// <summary>
 		/// Возвращает список задач ЭДО с указанной проблемой
@@ -53,7 +63,13 @@ namespace Vodovoz.Core.Data.Repositories
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <param name="maxCreationTime">Максимальное время создания задачи</param>
 		/// <returns>Список задач ЭДО с указанной проблемой</returns>
-		Task<IList<T>> GetProblemEdoTasks<T>(IUnitOfWork uow, string problemSourceName, DateTime minCreationTime, CancellationToken cancellationToken, DateTime? maxCreationTime = null) where T : OrderEdoTask;
+		Task<IList<T>> GetProblemEdoTasks<T>(
+			IUnitOfWork uow,
+			string problemSourceName,
+			DateTime minCreationTime,
+			CancellationToken cancellationToken,
+			DateTime? maxCreationTime = null
+		) where T : OrderEdoTask;
 
 		/// <summary>
 		/// Возвращает идентификаторы задач ЭДО с ошибкой отправки, которые связаны с документами, созданными после указанного времени
@@ -62,7 +78,11 @@ namespace Vodovoz.Core.Data.Repositories
 		/// <param name="minFiscalDocumentCreationTime">Минимальное время создания фискального документа</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Список идентификаторов задач ЭДО с ошибкой отправки</returns>
-		Task<IList<int>> GetSendErrorFiscalDocumentsEdoTasksIds(IUnitOfWork uow, DateTime minFiscalDocumentCreationTime, CancellationToken cancellationToken);
+		Task<IList<int>> GetSendErrorFiscalDocumentsEdoTasksIds(
+			IUnitOfWork uow,
+			DateTime minFiscalDocumentCreationTime,
+			CancellationToken cancellationToken
+		);
 
 		/// <summary>
 		/// Возвращает список активных задач ЭДО с указанной проблемой
@@ -71,6 +91,18 @@ namespace Vodovoz.Core.Data.Repositories
 		/// <param name="problemSourceName">Имя источника проблемы</param>
 		/// <param name="minCreationTime">Минимальное время создания задачи</param>
 		/// <param name="cancellationToken">Токен отмены</param>
-		Task<IList<OrderEdoTask>> GetProblemEdoTasks(IUnitOfWork unitOfWork, string problemSourceName, DateTime minCreationTime, CancellationToken cancellationToken);
+		Task<IList<OrderEdoTask>> GetProblemEdoTasks(
+			IUnitOfWork unitOfWork,
+			string problemSourceName,
+			DateTime minCreationTime,
+			CancellationToken cancellationToken
+		);
+
+		IEnumerable<EdoInOrderDocumentNode> GetEdoInOrderDocuments(
+			IUnitOfWork uow,
+			int orderId
+		);
+		IEnumerable<EdoInOrderProblemNode> GetEdoProblemsForOrder(IUnitOfWork uow, int orderId);
+		IEnumerable<EdoInOrderTransferNode> GetTransferEdoTasksForOrder(IUnitOfWork uow, int orderId);
 	}
 }

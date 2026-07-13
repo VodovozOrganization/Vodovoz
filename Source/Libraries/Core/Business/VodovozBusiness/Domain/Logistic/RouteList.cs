@@ -31,6 +31,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic.Cars;
 using Vodovoz.Domain.Logistic.FastDelivery;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Profitability;
 using Vodovoz.Domain.Sale;
@@ -57,6 +58,7 @@ using Vodovoz.Settings.Nomenclature;
 using Vodovoz.Settings.Orders;
 using Vodovoz.Tools;
 using Vodovoz.Tools.Logistic;
+using VodovozBusiness.EntityRepositories.Nodes;
 using Order = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Domain.Logistic
@@ -82,8 +84,6 @@ namespace Vodovoz.Domain.Logistic
 			.Resolve<IDeliveryRepository>();
 		private IGeneralSettings GetGeneralSettingsSettings => ScopeProvider.Scope
 			.Resolve<IGeneralSettings>();
-		private IRouteListCashOrganisationDistributor routeListCashOrganisationDistributor => ScopeProvider.Scope
-			.Resolve<IRouteListCashOrganisationDistributor>();
 		private IExpenseCashOrganisationDistributor expenseCashOrganisationDistributor => ScopeProvider.Scope
 			.Resolve<IExpenseCashOrganisationDistributor>();
 		private ICarUnloadRepository _carUnloadRepository => ScopeProvider.Scope
@@ -1803,50 +1803,6 @@ namespace Vodovoz.Domain.Logistic
 			return result;
 		}
 
-		public virtual string[] ManualCashOperations(
-			ref Income cashIncome, ref Expense cashExpense, decimal casheInput, IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
-		{
-			var messages = new List<string>();
-
-			if(Cashier?.Subdivision == null) {
-				messages.Add("Создающий кассовые документы пользователь - не привязан к сотруднику!");
-				return messages.ToArray();
-			}
-
-			if(casheInput > 0) {
-				cashIncome = new Income {
-					IncomeCategoryId = financialCategoriesGroupsSettings.RouteListClosingFinancialIncomeCategoryId,
-					TypeOperation = IncomeType.DriverReport,
-					Date = DateTime.Now,
-					Casher = this.Cashier,
-					Employee = Driver,
-					Description = $"Дополнение к МЛ №{this.Id} от {Date:d}",
-					Money = Math.Round(casheInput, 0, MidpointRounding.AwayFromZero),
-					RouteListClosing = this,
-					RelatedToSubdivision = Cashier.Subdivision
-				};
-
-				messages.Add($"Создан приходный ордер на сумму {cashIncome.Money:C0}");
-				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, this, cashIncome, cashIncome.Money);
-			} else {
-				cashExpense = new Expense {
-					ExpenseCategoryId = financialCategoriesGroupsSettings.RouteListClosingFinancialExpenseCategoryId,
-					TypeOperation = ExpenseType.Expense,
-					Date = DateTime.Now,
-					Casher = this.Cashier,
-					Employee = Driver,
-					Description = $"Дополнение к МЛ #{this.Id} от {Date:d}",
-					Money = Math.Round(-casheInput, 0, MidpointRounding.AwayFromZero),
-					RouteListClosing = this,
-					RelatedToSubdivision = Cashier.Subdivision
-				};
-				messages.Add($"Создан расходный ордер на сумму {cashExpense.Money:C0}");
-				routeListCashOrganisationDistributor.DistributeExpenseCash(UoW, this, cashExpense, cashExpense.Money);
-			}
-			IsManualAccounting = true;
-			return messages.ToArray();
-		}
-
 		public virtual string EmployeeAdvanceOperation(ref Expense cashExpense, decimal cashInput, IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
 		{
 			string message;
@@ -2051,81 +2007,6 @@ namespace Vodovoz.Domain.Logistic
 				{ "RouteListId",  id }
 			};
 			return reportInfo;
-		}
-
-		public virtual IEnumerable<string> UpdateCashOperations(IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
-		{
-			var messages = new List<string>();
-			//Закрываем наличку.
-			Income cashIncome = null;
-			Expense cashExpense = null;
-
-			var currentRouteListCash = _cashRepository.CurrentRouteListCash(UoW, this.Id);
-			var different = Total - currentRouteListCash;
-			if(different == 0M) {
-				return messages.ToArray();
-			}
-
-			if(Cashier?.Subdivision == null) {
-				messages.Add("Создающий кассовые документы пользователь - не привязан к сотруднику!");
-				return messages.ToArray();
-			}
-
-			if(different > 0) {
-				cashIncome = new Income {
-					IncomeCategoryId = financialCategoriesGroupsSettings.RouteListClosingFinancialIncomeCategoryId,
-					TypeOperation = IncomeType.DriverReport,
-					Date = DateTime.Now,
-					Casher = this.Cashier,
-					Employee = Driver,
-					Description = $"Закрытие МЛ №{Id} от {Date:d}",
-					Money = Math.Round(different, 2, MidpointRounding.AwayFromZero),
-					RouteListClosing = this,
-					RelatedToSubdivision = Cashier.Subdivision
-				};
-				
-				messages.Add($"Создан приходный ордер на сумму {cashIncome.Money}");
-				routeListCashOrganisationDistributor.DistributeIncomeCash(UoW, this, cashIncome, cashIncome.Money);
-			} else {
-				cashExpense = new Expense {
-					ExpenseCategoryId = financialCategoriesGroupsSettings.RouteListClosingFinancialExpenseCategoryId,
-					TypeOperation = ExpenseType.Expense,
-					Date = DateTime.Now,
-					Casher = this.Cashier,
-					Employee = Driver,
-					Description = $"Закрытие МЛ #{Id} от {Date:d}",
-					Money = Math.Round(-different, 2, MidpointRounding.AwayFromZero),
-					RouteListClosing = this,
-					RelatedToSubdivision = Cashier.Subdivision
-				};
-				
-				messages.Add($"Создан расходный ордер на сумму {cashExpense.Money}");
-				routeListCashOrganisationDistributor.DistributeExpenseCash(UoW, this, cashExpense, cashExpense.Money);
-			}
-
-			// Если хотя бы один fuelDocument имеет PayedForFuel то добавить пустую строку разделитель и сообщения о расходных ордерах топлива
-			bool wasEmptyLineAdded = false;
-			foreach(var fuelDocument in fuelDocuments) {
-				if (fuelDocument.PayedForFuel != null && fuelDocument.PayedForFuel != 0 && fuelDocument.FuelPaymentType == FuelPaymentType.Cash) {
-					if(!wasEmptyLineAdded) {
-						messages.Add("\n");
-						wasEmptyLineAdded = true;
-					}
-					messages.Add($"Создан расходный ордер топлива на сумму {fuelDocument.PayedForFuel}");
-				}
-			}
-
-			if (cashIncome != null) UoW.Save(cashIncome);
-			if (cashExpense != null) UoW.Save(cashExpense);
-			
-			return messages;
-		}
-
-		public virtual IEnumerable<string> UpdateMovementOperations(IFinancialCategoriesGroupsSettings financialCategoriesGroupsSettings)
-		{
-			var result = UpdateCashOperations(financialCategoriesGroupsSettings);
-			UpdateOperations();
-			return result;
 		}
 
 		public virtual void UpdateOperations()

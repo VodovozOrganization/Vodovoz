@@ -26,6 +26,7 @@ namespace Vodovoz.Domain.Documents.MovementDocuments.InstanceAccounting
 		public override AccountingType AccountingType => AccountingType.Instance;
 		public override string InventoryNumber =>
 			InventoryNomenclatureInstance != null ? InventoryNomenclatureInstance.GetInventoryNumber : string.Empty;
+		public override int? NomenclatureInstanceId => InventoryNomenclatureInstance?.Id;
 		public override bool CanEditAmount => false;
 	}
 }

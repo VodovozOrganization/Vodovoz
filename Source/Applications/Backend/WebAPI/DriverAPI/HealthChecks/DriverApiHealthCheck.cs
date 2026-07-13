@@ -78,7 +78,7 @@ namespace DriverAPI.HealthChecks
 			
 			var result = await HttpResponseHelper.SendRequestAsync<RouteListDto>(
 				HttpMethod.Get,
-				$"{_baseAddress}/api/v5/GetRouteList?routeListId={routeListId}",
+				$"{_baseAddress}/api/v6/GetRouteList?routeListId={routeListId}",
 				_httpClientFactory,
 				accessToken: _token,
 				cancellationToken: cancellationToken);

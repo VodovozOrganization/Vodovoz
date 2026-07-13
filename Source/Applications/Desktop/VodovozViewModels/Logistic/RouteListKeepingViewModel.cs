@@ -1104,7 +1104,7 @@ namespace Vodovoz
 			return new PrimaryEdoRequest
 			{
 				Order = item.RouteListItem.Order,
-				Source = CustomerEdoRequestSource.Manual,
+				Source = EdoRequestSource.Manual,
 				Time = DateTime.Now,
 				DocumentType = EdoDocumentType.UPD,
 				Type = CustomerEdoRequestType.Order,
@@ -1142,7 +1142,7 @@ namespace Vodovoz
 				return;
 			}
 			var selectedAddress = SelectedRouteListAddressesObjects.FirstOrDefault() as RouteListKeepingItemNode;
-			NavigationManager.OpenViewModel<OrderCodesViewModel, int>(null, selectedAddress.RouteListItem.Order.Id, OpenPageOptions.IgnoreHash);
+			NavigationManager.OpenViewModel<OrderCodesDialogViewModel, int>(null, selectedAddress.RouteListItem.Order.Id, OpenPageOptions.IgnoreHash);
 		}
 
 		protected bool CanOpenOrderCodes()

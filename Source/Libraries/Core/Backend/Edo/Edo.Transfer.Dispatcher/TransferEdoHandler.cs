@@ -98,7 +98,7 @@ namespace Edo.Transfer.Dispatcher
 				transferTasks.Add(transferTask);
 			}
 
-			var sentTasks = transferTasks.Where(x => x.TransferStatus == TransferEdoTaskStatus.PreparingToSend);
+			var sentTasks = transferTasks.Where(x => x.TransferStatus == EdoTransferTaskStage.PreparingToSend);
 			await _uow.CommitAsync(cancellationToken);
 
 			var events = sentTasks.Select(x => new TransferTaskPrepareToSendEvent { TransferTaskId = x.Id });
@@ -193,7 +193,7 @@ namespace Edo.Transfer.Dispatcher
 				return;
 			}
 
-			transferTask.TransferStatus = TransferEdoTaskStatus.Completed;
+			transferTask.TransferStatus = EdoTransferTaskStage.Completed;
 			transferTask.Status = EdoTaskStatus.Completed;
 			transferTask.EndTime = DateTime.Now;
 

@@ -288,7 +288,6 @@ namespace Vodovoz.Views.Logistic
 			{
 				this.Child.ShowAll();
 			}
-			this.specialListCmbSelfDeliveryGeoGroup.Hide();
 			this.Hide();
 		}
 	}
