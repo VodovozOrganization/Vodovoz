@@ -113,7 +113,6 @@ namespace TrueMark.Codes.Pool
 					DELETE FROM {_poolTableName}
 					WHERE expiration_date IS NOT NULL 
 						AND expiration_date < NOW()
-						AND promoted = 0
 					;";
 				var query = uow.Session.CreateSQLQuery(sql);
 				var deletedCount = await query.ExecuteUpdateAsync(cancellationToken);

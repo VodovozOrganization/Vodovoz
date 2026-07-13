@@ -64,8 +64,14 @@ namespace TrueMark.Codes.Pool
 		private IQuery GetPutCodeQuery(int codeId)
 		{
 			var sql = $@"
-				INSERT INTO {_poolTableName} (code_id, gtin)
-				SELECT :code_id, tmic.gtin
+				INSERT INTO {_poolTableName} (code_id, gtin, has_check_code)
+				SELECT 
+					:code_id, 
+					tmic.gtin,
+					CASE 
+						WHEN tmic.check_code IS NOT NULL AND tmic.check_code != '' THEN 1 
+						ELSE 0 
+					END
 				FROM true_mark_identification_code tmic
 				WHERE tmic.id = :code_id";
 
@@ -127,7 +133,8 @@ namespace TrueMark.Codes.Pool
 		{
 			var sql = $@"
 				SELECT id FROM {_poolTableName}
-				WHERE gtin = :gtin AND promoted = 1
+				WHERE gtin = :gtin
+					AND (expiration_date IS NULL OR expiration_date > NOW())
 				ORDER BY adding_time DESC 
 				LIMIT 1
 				FOR UPDATE SKIP LOCKED";
@@ -153,8 +160,8 @@ namespace TrueMark.Codes.Pool
 		{
 			var sql = $@"
 				SELECT id FROM {_poolTableName}
-				WHERE gtin = :gtin 
-					AND promoted = 1 
+				WHERE gtin = :gtin
+					AND pool.has_check_code = 0
 					AND (expiration_date IS NULL OR expiration_date > NOW())
 				ORDER BY adding_time DESC 
 				LIMIT :count

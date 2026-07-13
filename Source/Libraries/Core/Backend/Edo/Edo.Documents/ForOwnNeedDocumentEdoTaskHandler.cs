@@ -4,13 +4,10 @@ using Edo.Contracts.Messages.Events;
 using Edo.Documents.Services;
 using Edo.Problems;
 using Edo.Problems.Custom.Sources;
-using Grpc.Core.Logging;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
-using Renci.SshNet.Messages;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,8 +16,6 @@ using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
-using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 
 namespace Edo.Documents
@@ -30,11 +25,9 @@ namespace Edo.Documents
 		private readonly IUnitOfWork _uow;
 		private readonly ILogger<ForOwnNeedDocumentEdoTaskHandler> _logger;
 		private readonly ITrueMarkCodesValidator _trueMarkTaskCodesValidator;
-		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 		private readonly TransferRequestCreator _transferRequestCreator;
-		private readonly ITrueMarkCodesPool _trueMarkCodesPool;
+		private readonly TrueMarkCodesPool _trueMarkCodesPool;
 		private readonly ITrueMarkCodesPoolCodeProvider _trueMarkCodesPoolCodeProvider;
-		private readonly ITrueMarkWaterCodeService _trueMarkWaterCodeService;
 		private readonly IUpdDocumentBuilder _updDocumentBuilder;
 		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 		private readonly IBus _messageBus;
@@ -43,12 +36,10 @@ namespace Edo.Documents
 			IUnitOfWork uow,
 			ILogger<ForOwnNeedDocumentEdoTaskHandler> logger,
 			ITrueMarkCodesValidator trueMarkTaskCodesValidator,
-			ITrueMarkCodeRepository trueMarkCodeRepository,
 			TransferRequestCreator transferRequestCreator,
-			ITrueMarkCodesPool trueMarkCodesPool,
+			TrueMarkCodesPool trueMarkCodesPool,
 			ITrueMarkCodesPoolCodeProvider trueMarkCodesPoolCodeProvider,
 			IUpdDocumentBuilder updDocumentBuilder,
-			ITrueMarkWaterCodeService trueMarkWaterCodeService,
 			EdoProblemRegistrar edoProblemRegistrar,
 			IBus messageBus
 			)
@@ -56,11 +47,9 @@ namespace Edo.Documents
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_trueMarkTaskCodesValidator = trueMarkTaskCodesValidator ?? throw new ArgumentNullException(nameof(trueMarkTaskCodesValidator));
-			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 			_transferRequestCreator = transferRequestCreator ?? throw new ArgumentNullException(nameof(transferRequestCreator));
 			_trueMarkCodesPool = trueMarkCodesPool ?? throw new ArgumentNullException(nameof(trueMarkCodesPool));
 			_trueMarkCodesPoolCodeProvider = trueMarkCodesPoolCodeProvider ?? throw new ArgumentNullException(nameof(trueMarkCodesPoolCodeProvider));
-			_trueMarkWaterCodeService = trueMarkWaterCodeService ?? throw new ArgumentNullException(nameof(trueMarkWaterCodeService));
 			_updDocumentBuilder = updDocumentBuilder ?? throw new ArgumentNullException(nameof(updDocumentBuilder));
 			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));

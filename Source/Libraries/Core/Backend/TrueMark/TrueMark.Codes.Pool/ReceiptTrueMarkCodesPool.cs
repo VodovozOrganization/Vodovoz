@@ -44,10 +44,9 @@ namespace TrueMark.Codes.Pool
 			var sql = $@"
 				SELECT pool.id
 				FROM {_poolTableName} pool
-					INNER JOIN true_mark_identification_code code ON code.id = pool.code_id 
-				WHERE pool.promoted
-					AND code.gtin = :gtin
-					AND code.check_code is not null
+				WHERE pool.gtin = :gtin
+					AND pool.has_check_code = 1
+					AND (pool.expiration_date IS NULL OR pool.expiration_date > NOW())
 				ORDER BY pool.adding_time DESC
 				LIMIT 1
 				FOR UPDATE SKIP LOCKED";
@@ -60,9 +59,9 @@ namespace TrueMark.Codes.Pool
 		private IQuery GetTakeCodeQuery(uint codeId)
 		{
 			var sql = $@"
-			DELETE FROM {_poolTableName}
-			WHERE id = :code_id
-			RETURNING code_id";
+				DELETE FROM {_poolTableName}
+				WHERE id = :code_id
+				RETURNING code_id";
 
 			var query = UoW.Session.CreateSQLQuery(sql)
 				.SetParameter("code_id", codeId);
