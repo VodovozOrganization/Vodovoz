@@ -4,6 +4,7 @@ using Vodovoz.Settings.Counterparty;
 
 namespace CustomerAppsApi.Library.V2.Converters
 {
+	/// <inheritdoc/>
 	public class CameFromConverter : ICameFromConverter
 	{
 		private readonly ICounterpartySettings _counterpartySettings;
@@ -13,6 +14,7 @@ namespace CustomerAppsApi.Library.V2.Converters
 			_counterpartySettings = counterpartySettings ?? throw new ArgumentNullException(nameof(counterpartySettings));
 		}
 		
+		/// <inheritdoc/>
 		public CounterpartyFrom ConvertCameFromToCounterpartyFrom(int cameFromId)
 		{
 			if(cameFromId == _counterpartySettings.GetMobileAppCounterpartyCameFromId)

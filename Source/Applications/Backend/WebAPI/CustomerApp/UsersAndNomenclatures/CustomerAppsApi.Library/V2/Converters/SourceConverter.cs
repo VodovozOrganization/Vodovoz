@@ -5,8 +5,10 @@ using Vodovoz.Domain.Client;
 
 namespace CustomerAppsApi.Library.V2.Converters
 {
+	/// <inheritdoc/>
 	public class SourceConverter : ISourceConverter
 	{
+		/// <inheritdoc/>
 		public GoodsOnlineParameterType ConvertToNomenclatureOnlineParameterType(Source source)
 		{
 			switch(source)
@@ -24,6 +26,7 @@ namespace CustomerAppsApi.Library.V2.Converters
 			}
 		}
 		
+		/// <inheritdoc/>
 		public CounterpartyFrom ConvertToCounterpartyFrom(Source source)
 		{
 			switch(source)
