@@ -68,6 +68,8 @@ namespace CustomerOrdersApi.Library.V5.Dto.Orders.OrderItem
 			}
 		}
 
+		bool IOnlineOrderedProduct.GiftItem { get; set; }
+
 		public void ClearDiscount()
 		{
 			Discount = 0;
