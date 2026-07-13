@@ -6,7 +6,7 @@ using System.Linq;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 
-namespace CustomerOrdersApi.Library.Default.Factories
+namespace CustomerOrdersApi.Library.V5.Factories
 {
 	public class PaymentRefundServiceFactory : IPaymentRefundServiceFactory
 	{

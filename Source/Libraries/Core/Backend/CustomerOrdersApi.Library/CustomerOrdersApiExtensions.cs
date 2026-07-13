@@ -25,8 +25,6 @@ using Vodovoz.Settings.Pacs;
 using VodovozInfrastructure.Cryptography;
 using YandexPayApi.Client;
 using YooKassaApi.Client;
-using IPaymentRefundServiceFactory = CustomerOrdersApi.Library.Default.Factories.IPaymentRefundServiceFactory;
-using PaymentRefundServiceFactory = CustomerOrdersApi.Library.Default.Factories.PaymentRefundServiceFactory;
 
 namespace CustomerOrdersApi.Library
 {
@@ -274,7 +272,7 @@ namespace CustomerOrdersApi.Library
 			this IServiceCollection services)
 		{
 			services.AddScoped<V5.Services.PaymentRefund.IRefundRequestValidator, V5.Services.PaymentRefund.RefundRequestValidator>();
-			services.AddScoped<IPaymentRefundServiceFactory, PaymentRefundServiceFactory>();
+			services.AddScoped<V5.Factories.IPaymentRefundServiceFactory, V5.Factories.PaymentRefundServiceFactory>();
 
 			services.AddScoped<V5.Services.PaymentRefund.Mappers.ICloudPaymentsMapper, V5.Services.PaymentRefund.Mappers.CloudPaymentsMapper>();
 			services.AddScoped<V5.Services.PaymentRefund.IPaymentRefundService, V5.Services.PaymentRefund.CloudPaymentsRefundService>();
