@@ -145,6 +145,11 @@ namespace Vodovoz.Views
 				return;
 			}
 
+			if(!ViewModel.ConfirmPaymentsWithoutPayerInnUpload())
+			{
+				return;
+			}
+
 			ViewModel.IsSavingState = true;
 			UpdateProgress("Начинаем сохранение...", 0);
 
