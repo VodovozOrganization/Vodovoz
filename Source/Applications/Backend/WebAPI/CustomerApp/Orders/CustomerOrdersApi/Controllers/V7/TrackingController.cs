@@ -1,20 +1,20 @@
-﻿using CustomerOrdersApi.Library.V6.Dto.Orders;
+﻿using System;
+using System.Linq;
+using System.Net.Mime;
+using System.Threading;
+using System.Threading.Tasks;
+using CustomerOrdersApi.Library.V6.Dto.Orders;
 using CustomerOrdersApi.Library.V6.Services;
 using Gamma.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Linq;
-using System.Net.Mime;
-using System.Threading;
-using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Errors.Orders;
 using ICourierTrackingService = CustomerOrdersApi.Library.V7.Services.ICourierTrackingService;
 
-namespace CustomerOrdersApi.Controllers.V6
+namespace CustomerOrdersApi.Controllers.V7
 {
 	/// <summary>
 	/// Контроллер для работы с отслеживанием координат

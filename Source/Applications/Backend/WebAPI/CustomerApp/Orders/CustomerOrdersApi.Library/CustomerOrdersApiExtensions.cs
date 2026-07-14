@@ -87,6 +87,21 @@ namespace CustomerOrdersApi.Library
 
 			return services;
 		}
+		
+		public static IServiceCollection AddVersion7(this IServiceCollection services)
+		{
+			services
+				.AddScoped<V7.Services.ICustomerOrdersService, V7.Services.CustomerOrdersService>()
+				.AddScoped<V7.Services.ICustomerOrdersDiscountService, V7.Services.CustomerOrdersDiscountService>()
+				.AddScoped<V7.Services.ICustomerOrderFixedPriceService, V7.Services.CustomerOrderFixedPriceService>()
+				.AddScoped<V7.Services.ICustomerOrderCancellationService, V7.Services.CustomerOrderCancellationService>()
+				.AddScoped<V7.Services.ICourierTrackingService, V7.Services.CourierTrackingService>()
+				.AddScoped<V7.Factories.ICustomerOrderFactory, V7.Factories.CustomerOrderFactory>()
+				.AddScoped<V7.Factories.IInfoMessageFactory, V7.Factories.InfoMessageFactory>()
+				.AddDefault();
+
+			return services;
+		}
 
 		public static IServiceCollection AddDefault(this IServiceCollection services)
 		{
@@ -130,6 +145,7 @@ namespace CustomerOrdersApi.Library
 				AddTopologyV4(configurator);
 				AddTopologyV5(configurator);
 				AddTopologyV6(configurator);
+				AddTopologyV7(configurator);
 
 				configurator.ConfigureEndpoints(context);
 			});
@@ -199,6 +215,17 @@ namespace CustomerOrdersApi.Library
 				x.AutoDelete = false;
 			});
 		}
+		
+		private static void AddTopologyV7(IRabbitMqBusFactoryConfigurator configurator)
+		{
+			configurator.Message<V7.Dto.Orders.CreatingOnlineOrder>(x => x.SetEntityName(V7.Dto.Orders.CreatingOnlineOrder.ExchangeAndQueueName));
+			configurator.Publish<V7.Dto.Orders.CreatingOnlineOrder>(x =>
+			{
+				x.ExchangeType = ExchangeType.Fanout;
+				x.Durable = true;
+				x.AutoDelete = false;
+			});
+		}
 
 		public static UpdateOnlineOrderFromChangeRequest ToUpdateOnlineOrderFromChangeRequest(this ChangingOrderDto source)
 		{
@@ -258,13 +285,33 @@ namespace CustomerOrdersApi.Library
 				TransactionId = source.TransactionId
 			};
 		}
+		
+		public static UpdateOnlineOrderFromChangeRequest ToUpdateOnlineOrderFromChangeRequest(this V7.Dto.Orders.ChangingOrderDto source)
+		{
+			return new UpdateOnlineOrderFromChangeRequest
+			{
+				OnlineOrderId = source.OnlineOrderId,
+				OnlinePayment = source.OnlinePayment,
+				IsFastDelivery = source.IsFastDelivery,
+				Source = source.Source,
+				PaymentStatus = source.PaymentStatus,
+				OnlinePaymentSource = source.OnlinePaymentSource,
+				ErpCounterpartyId = source.ErpCounterpartyId,
+				ExternalCounterpartyId = source.ExternalCounterpartyId,
+				OnlineOrderPaymentType = source.OnlineOrderPaymentType,
+				UnPaidReason = source.UnPaidReason,
+				DeliveryDate = source.DeliveryDate,
+				DeliveryScheduleId = source.DeliveryScheduleId,
+				TransactionId = source.TransactionId
+			};
+		}
 
 		public static IServiceCollection AddPaymentRefundServices(
 			this IServiceCollection services)
 		{
-
 			services.AddPaymentRefundServicesV5();
 			services.AddPaymentRefundServicesV6();
+			services.AddPaymentRefundServicesV7();
 
 			return services;
 		}
@@ -305,6 +352,25 @@ namespace CustomerOrdersApi.Library
 			services.AddScoped<V6.Services.PaymentRefund.IPaymentRefundService, V6.Services.PaymentRefund.YooKassaRefundService>();
 
 			services.AddScoped<V6.Services.PaymentRefund.IPaymentRefundService, V6.Services.PaymentRefund.FastPaymentsRefundService>();
+
+			return services;
+		}
+		
+		public static IServiceCollection AddPaymentRefundServicesV7(this IServiceCollection services)
+		{
+			services.AddScoped<V7.Services.PaymentRefund.IRefundRequestValidator, V7.Services.PaymentRefund.RefundRequestValidator>();
+			services.AddScoped<V7.Factories.IPaymentRefundServiceFactory, V7.Factories.PaymentRefundServiceFactory>();
+
+			services.AddScoped<V7.Services.PaymentRefund.Mappers.ICloudPaymentsMapper, V7.Services.PaymentRefund.Mappers.CloudPaymentsMapper>();
+			services.AddScoped<V7.Services.PaymentRefund.IPaymentRefundService, V7.Services.PaymentRefund.CloudPaymentsRefundService>();
+
+			services.AddScoped<V7.Services.PaymentRefund.Mappers.IYandexPayMapper, V7.Services.PaymentRefund.Mappers.YandexPayMapper>();
+			services.AddScoped<V7.Services.PaymentRefund.IPaymentRefundService, V7.Services.PaymentRefund.YandexPayRefundService>();
+
+			services.AddScoped<V7.Services.PaymentRefund.Mappers.IYooKassaMapper, V7.Services.PaymentRefund.Mappers.YooKassaMapper>();
+			services.AddScoped<V7.Services.PaymentRefund.IPaymentRefundService, V7.Services.PaymentRefund.YooKassaRefundService>();
+
+			services.AddScoped<V7.Services.PaymentRefund.IPaymentRefundService, V7.Services.PaymentRefund.FastPaymentsRefundService>();
 
 			return services;
 		}

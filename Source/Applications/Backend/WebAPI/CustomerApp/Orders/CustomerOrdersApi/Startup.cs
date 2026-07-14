@@ -16,7 +16,6 @@ using Notifications.Infrastructure;
 using QS.HistoryLog;
 using QS.Project.Core;
 using QS.Services;
-using System;
 using CustomerOrdersApi.Library;
 using CustomerOrdersApi.Library.Config;
 using Osrm;
@@ -94,13 +93,14 @@ namespace CustomerOrdersApi
 				.AddMessageTransportSettings()
 				.AddMassTransit(busConf =>
 				{
-					busConf.AddRequestClient<Library.V4.Dto.Orders.CreatingOnlineOrder>(
+					//TODO проверить работу клиентов запрос-ответ, они должны резолвится по типу сообщения самостоятельно
+					/*busConf.AddRequestClient<Library.V4.Dto.Orders.CreatingOnlineOrder>(
 						new Uri($"exchange:{Library.V4.Dto.Orders.CreatingOnlineOrder.ExchangeAndQueueName}"));
 					busConf.AddRequestClient<Library.V5.Dto.Orders.CreatingOnlineOrder>(
 						new Uri($"exchange:{Library.V5.Dto.Orders.CreatingOnlineOrder.ExchangeAndQueueName}"));
 					busConf.AddRequestClient<Library.V6.Dto.Orders.CreatingOnlineOrder>(
-						new Uri($"exchange:{Library.V6.Dto.Orders.CreatingOnlineOrder.ExchangeAndQueueName}"));
-					busConf.ConfigureRabbitMq();					
+						new Uri($"exchange:{Library.V6.Dto.Orders.CreatingOnlineOrder.ExchangeAndQueueName}"));*/
+					busConf.ConfigureRabbitMq();
 				})
 				.AddMassTransit<ICustomerNotificationsBus>(busConf =>
 				{
