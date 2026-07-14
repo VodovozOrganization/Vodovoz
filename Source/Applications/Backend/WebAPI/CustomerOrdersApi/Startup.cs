@@ -4,7 +4,8 @@ using CustomerNotifications.Contracts;
 using CustomerNotifications.Transport;
 using CustomerOrdersApi.HealthCheck;
 using CustomerOrdersApi.Library;
-using CustomerOrdersApi.Library.V5.Dto.Orders;
+using CustomerOrdersApi.Library.Config;
+using CustomerOrdersApi.Services;
 using CustomerOrdersApi.Library.V5.Services;
 using DriverApi.Notifications.Client;
 using MassTransit;
@@ -27,12 +28,15 @@ using Vodovoz.Core.Application;
 using Vodovoz.Core.Application.Logistics;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate;
+using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Presentation.WebApi;
 using Vodovoz.Services.Logistics;
 using Vodovoz.Trackers;
 using VodovozBusiness.Services.Orders;
 using VodovozHealthCheck;
+using CreatingOnlineOrderV5 = CustomerOrdersApi.Library.V5.Dto.Orders.CreatingOnlineOrder;
+using CreatingOnlineOrderV6 = CustomerOrdersApi.Library.V6.Dto.Orders.CreatingOnlineOrder;
 
 namespace CustomerOrdersApi
 {
@@ -60,6 +64,10 @@ namespace CustomerOrdersApi
 					typeof(Vodovoz.Settings.Database.AssemblyFinder).Assembly
 				)
 				.AddDatabaseConnection()
+				.AddDatabaseConfigurationExposer(config =>
+				{
+					config.LinqToHqlGeneratorsRegistry<LinqToHqlGeneratorsRegistry>();
+				})
 				.AddCore()
 				.AddTrackedUoW()
 				.AddOrderTrackerFor1c()
@@ -72,6 +80,7 @@ namespace CustomerOrdersApi
 				.AddVersion3()
 				.AddVersion4()
 				.AddVersion5()
+				.AddVersion6()
 				.AddVersioning()
 				.AddOsrm()
 				.AddSwaggerGen(opt =>
@@ -91,7 +100,8 @@ namespace CustomerOrdersApi
 				.AddMessageTransportSettings()
 				.AddMassTransit(busConf =>
 				{
-					busConf.AddRequestClient<CreatedOnlineOrder>(new Uri($"exchange:{CreatingOnlineOrder.ExchangeAndQueueName}"));
+					busConf.AddRequestClient<CreatingOnlineOrderV5>(new Uri($"exchange:{CreatingOnlineOrderV5.ExchangeAndQueueName}"));
+					busConf.AddRequestClient<CreatingOnlineOrderV6>(new Uri($"exchange:{CreatingOnlineOrderV6.ExchangeAndQueueName}"));
 					busConf.ConfigureRabbitMq();					
 				})
 				.AddMassTransit<ICustomerNotificationsBus>(busConf =>
@@ -102,9 +112,16 @@ namespace CustomerOrdersApi
 			services
 				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, OutBoxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
 				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
-				.AddCustomerNotificationsSettingsProvider()
+				.AddCustomerNotificationsSettingsProvider();
 
-					;
+			services
+				.Configure<CourierCoordinatesOptions>(
+					Configuration.GetSection(nameof(CourierCoordinatesOptions)));
+
+			services.AddAuthentication("Basic")
+				.AddScheme<SignatureOptions, CustomAuthenticationHandler>(
+				"Basic",
+				conf => Configuration.GetSection(SignatureOptions.Path).Bind(conf));
 
 			services.ConfigureHealthCheckService<CustomerOrdersApiHealthCheck, ServiceInfoProvider>();
 		}
@@ -133,6 +150,7 @@ namespace CustomerOrdersApi
 
 			app.UseHttpsRedirection();
 			app.UseRouting();
+			app.UseAuthentication();
 			app.UseAuthorization();
 			app.UseApiVersioning();
 			app.UseVodovozHealthCheck();

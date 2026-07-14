@@ -1,9 +1,11 @@
-﻿namespace CustomerOrdersApi.Library.Config
+﻿using Microsoft.AspNetCore.Authentication;
+
+namespace CustomerOrdersApi.Library.Config
 {
 	/// <summary>
 	/// Подписи
 	/// </summary>
-	public class SignatureOptions
+	public class SignatureOptions : AuthenticationSchemeOptions
 	{
 		public const string Path = "Signatures";
 		

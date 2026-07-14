@@ -41,8 +41,14 @@ namespace DriverAPI.Library.V6.Converters
 		/// </summary>
 		/// <param name="routeList">Маршрутный лист ДВ</param>
 		/// <param name="itemsToReturn">Оборудование на возврат</param>
+		/// <param name="spectiaConditionsToAccept">Специальные состояния для принятия</param>
+		/// <param name="lastSelectedAddressId">Последний выбранный следующим для доставки адрес МЛ</param>
 		/// <returns></returns>
-		public RouteListDto ConvertToAPIRouteList(RouteList routeList, IEnumerable<KeyValuePair<string, int>> itemsToReturn, IEnumerable<KeyValuePair<int, string>> spectiaConditionsToAccept)
+		public RouteListDto ConvertToAPIRouteList(
+			RouteList routeList,
+			IEnumerable<KeyValuePair<string, int>> itemsToReturn,
+			IEnumerable<KeyValuePair<int, string>> spectiaConditionsToAccept,
+			int? lastSelectedAddressId = null)
 		{
 			var result = new RouteListDto()
 			{
@@ -103,6 +109,16 @@ namespace DriverAPI.Library.V6.Converters
 						RouteListAddresses = routelistAddresses,
 						SpecialConditionsToAccept = ConvertToApiDto(spectiaConditionsToAccept)
 					};
+				}
+			}
+
+			if(lastSelectedAddressId != null)
+			{
+				var lastSelectedAddress = routeList.Addresses.FirstOrDefault(x => x.Id == lastSelectedAddressId.Value);
+
+				if(lastSelectedAddress != null && lastSelectedAddress.Status == RouteListItemStatus.EnRoute)
+				{
+					result.OpenOrder = lastSelectedAddress.Order.Id;
 				}
 			}
 
