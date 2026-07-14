@@ -11,40 +11,49 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.Documents;
+using Vodovoz.Core.Domain.Orders.OrdersWithoutShipment;
+using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
-using VodovozBusiness.Domain.StoredEmails;
+using OrderWithoutShipmentForAdvancePayment = Vodovoz.Domain.Orders.OrdersWithoutShipment.OrderWithoutShipmentForAdvancePayment;
+using OrderWithoutShipmentForDebt = Vodovoz.Domain.Orders.OrdersWithoutShipment.OrderWithoutShipmentForDebt;
+using OrderWithoutShipmentForPayment = Vodovoz.Domain.Orders.OrdersWithoutShipment.OrderWithoutShipmentForPayment;
 
 namespace Vodovoz.ViewModels.Dialogs.Email
 {
 	public class SendDocumentByEmailViewModel : UoWWidgetViewModelBase
 	{
 		private string _emailString;
-		public string EmailString {
+		public string EmailString
+		{
 			get => _emailString;
 			set => SetField(ref _emailString, value);
 		}
 
 		private string _description;
-		public string Description {
+		public string Description
+		{
 			get => _description;
 			set => SetField(ref _description, value);
 		}
 
 		private bool _btnSendEmailSensitive;
-		public bool BtnSendEmailSensitive {
+		public bool BtnSendEmailSensitive
+		{
 			get => _btnSendEmailSensitive;
 			set => SetField(ref _btnSendEmailSensitive, value);
 		}
 
 		private StoredEmail _selectedStoredEmail;
-		public StoredEmail SelectedStoredEmail {
+		public StoredEmail SelectedStoredEmail
+		{
 			get => _selectedStoredEmail;
 			set => SetField(ref _selectedStoredEmail, value);
 		}
@@ -93,32 +102,29 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 			SendEmailCommand = new DelegateCommand(
 				() =>
 				{
-					switch (Document.Type)
+					switch(Document)
 					{
-						case OrderDocumentType.Bill:
-						case OrderDocumentType.SpecialBill:
-						case OrderDocumentType.UPD:
-						case OrderDocumentType.SpecialUPD:
-						case OrderDocumentType.EquipmentTransfer:
+						case BillDocument billDocument:
+						case SpecialBillDocument specialBillDocument:
+						case UPDDocument updDocument:
+						case SpecialUPDDocument specialUpdDocument:
+						case EquipmentTransferDocument equipmentTransferDocument:
 							SendDocument();
 							break;
-						case OrderDocumentType.BillWSForDebt:
-							var billWSForDebt = Document as OrderWithoutShipmentForDebt;
+						case OrderWithoutShipmentForDebt billWSForDebt:
 							if(Validate(billWSForDebt))
 							{
 								SaveAndSend();
 							}
 							break;
-						case OrderDocumentType.BillWSForPayment:
-							var billWSForPayment = Document as OrderWithoutShipmentForPayment;
+						case OrderWithoutShipmentForPayment billWSForPayment:
 							if(Validate(billWSForPayment))
 							{
 								SaveAndSend();
 							}
 							break;
-						case OrderDocumentType.BillWSForAdvancePayment:
-							var billWSForAdvancePayment = Document as OrderWithoutShipmentForAdvancePayment;
-							if (Validate(billWSForAdvancePayment))
+						case OrderWithoutShipmentForAdvancePayment billWSForAdvancePayment:
+							if(Validate(billWSForAdvancePayment))
 							{
 								SaveAndSend();
 							}
@@ -144,17 +150,21 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 		{
 			RefreshEmailListCommand = new DelegateCommand(
 				UpdateEmails,
-				() => {
+				() =>
+				{
 					if(Document == null)
 					{
 						return false;
 					}
-					if(Document.Type == OrderDocumentType.Bill || Document.Type == OrderDocumentType.SpecialBill)
+
+					var orderDocument = Document as OrderDocument;
+
+					if(orderDocument is BillDocument || orderDocument is SpecialBillDocument)
 					{
-						return Document?.Order != null;
+						return orderDocument.Order != null;
 					}
-					
-					return Document?.Id != 0;
+
+					return orderDocument?.Id != 0;
 				}
 			);
 		}
@@ -162,7 +172,7 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 		public void Update(IEmailableDocument document, string email)
 		{
 			Document = document;
-			
+
 			EmailString = email;
 
 			if(string.IsNullOrEmpty(EmailString) || Document == null)
@@ -186,79 +196,81 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 			{
 				IList<StoredEmail> listEmails = null;
 
-				switch(Document.Type)
+				var orderDocument = Document as OrderDocument;
+
+				switch(Document)
 				{
-					case OrderDocumentType.Bill:
-					case OrderDocumentType.SpecialBill:
+					case BillDocument billDocument:
+					case SpecialBillDocument specialBillDocument:
 						listEmails = uow.Session.QueryOver<BillDocumentEmail>()
-							.Where(o => o.OrderDocument.Id == Document.Id)
+							.Where(o => o.OrderDocument.Id == orderDocument.Id)
 							.Select(o => o.StoredEmail)
 							.List<StoredEmail>();
 
-						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, Document.Order.Id, Document.Type) 
-												&& Document.Order.Id > 0;
+						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, orderDocument.Order.Id, orderDocument.Type)
+												&& orderDocument.Order.Id > 0;
 						break;
-					case OrderDocumentType.BillWSForDebt:
+					case OrderWithoutShipmentForDebt billWSForDebt:
 						listEmails = uow.Session.QueryOver<OrderWithoutShipmentForDebtEmail>()
-							.Where(o => o.OrderWithoutShipmentForDebt.Id == Document.Id)
+							.Where(o => o.OrderWithoutShipmentForDebt.Id == orderDocument.Id)
 							.Select(o => o.StoredEmail)
 							.List<StoredEmail>();
 
-						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type)
+						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, orderDocument.Id, orderDocument.Type)
 							&& ((OrderWithoutShipmentForDebt)Document).Organization != null;
 						break;
-					case OrderDocumentType.BillWSForAdvancePayment:
+					case OrderWithoutShipmentForAdvancePayment billWSForAdvancePayment:
 						listEmails = uow.Session.QueryOver<OrderWithoutShipmentForAdvancePaymentEmail>()
-							.Where(o => o.OrderWithoutShipmentForAdvancePayment.Id == Document.Id)
+							.Where(o => o.OrderWithoutShipmentForAdvancePayment.Id == orderDocument.Id)
 							.Select(o => o.StoredEmail)
 							.List<StoredEmail>();
 
-						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type)
-						    && ((OrderWithoutShipmentForAdvancePayment)Document).Organization != null;
+						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, orderDocument.Id, orderDocument.Type)
+							&& ((OrderWithoutShipmentForAdvancePayment)Document).Organization != null;
 						break;
-					case OrderDocumentType.BillWSForPayment:
+					case OrderWithoutShipmentForPayment billWSForPayment:
 						listEmails = uow.Session.QueryOver<OrderWithoutShipmentForPaymentEmail>()
-							.Where(o => o.OrderWithoutShipmentForPayment.Id == Document.Id)
+							.Where(o => o.OrderWithoutShipmentForPayment.Id == orderDocument.Id)
 							.Select(o => o.StoredEmail)
 							.List<StoredEmail>();
 
-						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type)
-						    && ((OrderWithoutShipmentForPayment)Document).Organization != null;
+						BtnSendEmailSensitive = _emailRepository.CanSendByTimeout(EmailString, orderDocument.Id, orderDocument.Type)
+							&& ((OrderWithoutShipmentForPayment)Document).Organization != null;
 						break;
-					case OrderDocumentType.EquipmentTransfer:
+					case EquipmentTransferDocument equipmentTransferDocument:
 						listEmails = uow.Session.QueryOver<EquipmentTransferDocumentEmail>()
-							.Where(o => o.OrderDocument.Id == Document.Id)
+							.Where(o => o.OrderDocument.Id == equipmentTransferDocument.Id)
 							.Select(o => o.StoredEmail)
 							.List<StoredEmail>();
 
 						BtnSendEmailSensitive = _emailRepository
-							.CanSendByTimeout(EmailString, Document.Id, Document.Type) 
-								&& Document.Order.Id > 0;
+							.CanSendByTimeout(EmailString, orderDocument.Id, orderDocument.Type)
+								&& orderDocument.Order.Id > 0;
 						break;
-					case OrderDocumentType.LetterOfDebt:
+					case LetterOfDebtDocument letterOfDebtDocument:
 						listEmails = uow.Session.QueryOver<BulkEmail>()
-							.Where(o => o.OrderDocument.Id == Document.Id)
+							.Where(o => o.OrderDocument.Id == orderDocument.Id)
 							.Select(o => o.StoredEmail)
 							.List<StoredEmail>();
 
 						BtnSendEmailSensitive = false;
 						break;
-					case OrderDocumentType.UPD:
-					case OrderDocumentType.SpecialUPD:
+					case UPDDocument uPDDocument:
+					case SpecialUPDDocument specialUPDDocument:
 						listEmails = uow.Session.QueryOver<UpdDocumentEmail>()
-							.Where(o => o.OrderDocument.Id == Document.Id)
+							.Where(o => o.OrderDocument.Id == orderDocument.Id)
 							.Select(o => o.StoredEmail)
 							.List<StoredEmail>();
 
 						BtnSendEmailSensitive =
-							_emailRepository.CanSendByTimeout(EmailString, Document.Id, Document.Type)
+							_emailRepository.CanSendByTimeout(EmailString, orderDocument.Id, orderDocument.Type)
 							&& _canManuallyResendUpd;
 						break;
 					default:
 						BtnSendEmailSensitive = false;
 						break;
 				}
-				
+
 				if(listEmails != null && listEmails.Any())
 				{
 					UpdateSentEmailsList(listEmails);
@@ -268,13 +280,13 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 
 		private void UpdateSentEmailsList(IList<StoredEmail> listEmails)
 		{
-			foreach (StoredEmail item in listEmails)
+			foreach(StoredEmail item in listEmails)
 			{
 				StoredEmails.Add(item);
 			}
 		}
 
-		private bool CanSendDocument(Domain.Client.Counterparty client)
+		private bool CanSendDocument(CounterpartyEntity client)
 		{
 			var rdlDoc = Document as IPrintableRDLDocument;
 
@@ -288,14 +300,16 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 				result = false;
 			}
 
-			if((Document.Type == OrderDocumentType.Bill || Document.Type == OrderDocumentType.SpecialBill)
-				&& (Document.Order?.Id == 0 || Document.Order?.OrderStatus == OrderStatus.NewOrder))
+			var orderDocument = Document as OrderDocument;
+
+			if(orderDocument != null && (orderDocument.Type == OrderDocumentType.Bill || orderDocument.Type == OrderDocumentType.SpecialBill)
+				&& (orderDocument.Order?.Id == 0 || orderDocument.Order?.OrderStatus == OrderStatus.NewOrder))
 			{
 				stringBuilder.AppendLine("Для отправки необходимо подтвердить заказ.");
 				result = false;
 			}
 
-			if((Document.Type == OrderDocumentType.Bill || Document.Type == OrderDocumentType.SpecialBill)
+			if(orderDocument != null && (orderDocument.Type == OrderDocumentType.Bill || orderDocument.Type == OrderDocumentType.SpecialBill)
 			   && client == null)
 			{
 				stringBuilder.AppendLine("Должен быть выбран клиент в заказе");
@@ -361,71 +375,68 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 				try
 				{
 					unitOfWork.Save(storedEmail);
-					
-					switch(Document.Type)
+
+					switch(Document)
 					{
-						case OrderDocumentType.Bill:
-						case OrderDocumentType.SpecialBill:
+						case BillDocument billDocument:
+						case SpecialBillDocument specialBillDocument:
 							var orderDocumentEmail = new BillDocumentEmail
 							{
 								StoredEmail = storedEmail,
 								Counterparty = client,
-								OrderDocument = (OrderDocument) Document
+								OrderDocument = new OrderDocumentEntity { Id = Document.DocumentId }
 							};
 							unitOfWork.Save(orderDocumentEmail);
 							break;
-						case OrderDocumentType.BillWSForDebt:
-							var docForDebt = UoW.GetById<OrderWithoutShipmentForDebt>(Document.Id);
+						case OrderWithoutShipmentForDebt docForDebt:
 							docForDebt.IsBillWithoutShipmentSent = true;
 							UoW.Save();
 							var orderWithoutShipmentForDebtEmail = new OrderWithoutShipmentForDebtEmail()
 							{
 								StoredEmail = storedEmail,
 								Counterparty = client,
-								OrderWithoutShipmentForDebt = (OrderWithoutShipmentForDebt) Document
+								OrderWithoutShipmentForDebt = docForDebt
 							};
 							unitOfWork.Save(orderWithoutShipmentForDebtEmail);
 							break;
-						case OrderDocumentType.BillWSForAdvancePayment:
-							var docForAdvancePayment = UoW.GetById<OrderWithoutShipmentForAdvancePayment>(Document.Id);
+						case OrderWithoutShipmentForAdvancePayment docForAdvancePayment:
 							docForAdvancePayment.IsBillWithoutShipmentSent = true;
 							UoW.Save();
 							var orderWithoutShipmentForAdvancePaymentEmail = new OrderWithoutShipmentForAdvancePaymentEmail()
 							{
 								StoredEmail = storedEmail,
 								Counterparty = client,
-								OrderWithoutShipmentForAdvancePayment = (OrderWithoutShipmentForAdvancePayment)Document
+								OrderWithoutShipmentForAdvancePayment = docForAdvancePayment
 							};
 							unitOfWork.Save(orderWithoutShipmentForAdvancePaymentEmail);
 							break;
-						case OrderDocumentType.BillWSForPayment:
-							var docForPayment = UoW.GetById<OrderWithoutShipmentForPayment>(Document.Id);
+						case OrderWithoutShipmentForPayment docForPayment:
 							docForPayment.IsBillWithoutShipmentSent = true;
 							UoW.Save();
 							var orderWithoutShipmentForPaymentEmail = new OrderWithoutShipmentForPaymentEmail()
 							{
 								StoredEmail = storedEmail,
 								Counterparty = client,
-								OrderWithoutShipmentForPayment = (OrderWithoutShipmentForPayment)Document
+								OrderWithoutShipmentForPayment = docForPayment
 							};
 							unitOfWork.Save(orderWithoutShipmentForPaymentEmail);
 							break;
-						case OrderDocumentType.EquipmentTransfer:
+						case EquipmentTransferDocument equipmentTransferDocument:
 							var equipmentTransfertEmail = new EquipmentTransferDocumentEmail
 							{
 								StoredEmail = storedEmail,
 								Counterparty = client,
-								OrderDocument = (OrderDocument)Document
+								OrderDocument = new OrderDocumentEntity { Id = Document.DocumentId }
 							};
 							unitOfWork.Save(equipmentTransfertEmail);
 							break;
-						case OrderDocumentType.UPD:
-						case OrderDocumentType.SpecialUPD:
+						case UPDDocument uPDDocument:
+						case SpecialUPDDocument specialUPDDocument:
 							var updDocumentEmail = new UpdDocumentEmail
 							{
 								StoredEmail = storedEmail,
 								Counterparty = client,
-								OrderDocument = (OrderDocument)Document
+								OrderDocument = new OrderDocumentEntity { Id = Document.DocumentId }
 							};
 							unitOfWork.Save(updDocumentEmail);
 							break;

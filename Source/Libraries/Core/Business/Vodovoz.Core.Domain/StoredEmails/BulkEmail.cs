@@ -1,9 +1,9 @@
 ﻿using QS.DomainModel.Entity;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Domain.Orders.Documents;
-using Vodovoz.Domain.Orders.OrdersWithoutShipment;
+using Vodovoz.Core.Domain.Orders.Documents;
+using Vodovoz.Core.Domain.Orders.OrdersWithoutShipment;
 
-namespace Vodovoz.Domain.StoredEmails
+namespace Vodovoz.Core.Domain.StoredEmails
 {
 	/// <summary>
 	/// Массовая рассылка
@@ -13,7 +13,7 @@ namespace Vodovoz.Domain.StoredEmails
 		Nominative = "массовая рассылка")]
 	public class BulkEmail : CounterpartyEmail
 	{
-        private OrderDocument _orderDocument;
+        private OrderDocumentEntity _orderDocument;
         public override IEmailableDocument EmailableDocument { get; }
 		public override CounterpartyEmailType Type => CounterpartyEmailType.Bulk;
 
@@ -21,7 +21,7 @@ namespace Vodovoz.Domain.StoredEmails
         /// Документ заказа
         /// </summary>
         [Display(Name = "Документ заказа")]
-        public virtual OrderDocument OrderDocument
+        public virtual OrderDocumentEntity OrderDocument
         {
             get => _orderDocument;
             set => SetField(ref _orderDocument, value);

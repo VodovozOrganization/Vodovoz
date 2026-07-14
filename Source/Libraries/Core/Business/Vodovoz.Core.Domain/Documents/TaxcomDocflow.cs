@@ -15,6 +15,7 @@ namespace Vodovoz.Core.Domain.Documents
 		private Guid? _docflowId;
 		private int _edoDocumentId;
 		private bool _isReceived;
+		private bool _isReminderToAcceptUpdEmailSent;
 
 		/// <summary>
 		/// Идентификатор
@@ -73,6 +74,15 @@ namespace Vodovoz.Core.Domain.Documents
 		{
 			get => _isReceived;
 			set => SetField(ref _isReceived, value);
+		}
+
+		/// <summary>
+		/// Напоминание о принятии входящего документооборота отправлено
+		/// </summary>
+		public virtual bool IsReminderToAcceptUpdEmailSent 
+		{
+			get => _isReminderToAcceptUpdEmailSent;
+			set => SetField(ref _isReminderToAcceptUpdEmailSent, value);
 		}
 
 		/// <summary>

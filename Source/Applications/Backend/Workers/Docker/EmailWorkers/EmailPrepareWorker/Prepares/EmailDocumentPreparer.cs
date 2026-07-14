@@ -5,9 +5,10 @@ using QS.Report;
 using RdlEngine;
 using System;
 using System.IO;
+using Vodovoz.Core.Domain.Orders.OrdersWithoutShipment;
+using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Orders.OrdersWithoutShipment;
-using Vodovoz.Domain.StoredEmails;
+using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.EntityRepositories.Counterparties;
 using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
 
@@ -40,10 +41,12 @@ namespace EmailPrepareWorker.Prepares
 
 			string fileName = counterpartyEmailType.ToString();
 
+			var orderDocument = document as OrderDocument;
+
 			fileName += counterpartyEmailType switch
 			{
-				CounterpartyEmailType.BillDocument or CounterpartyEmailType.UpdDocument => $"_{document.Order.Id}",
-				_ => $"_{document.Id}",
+				CounterpartyEmailType.BillDocument or CounterpartyEmailType.UpdDocument => $"_{orderDocument?.Order?.Id}",
+				_ => $"_{orderDocument?.Id ?? document.DocumentId}",
 			};
 
 			fileName += $"_{documentDate}.pdf";

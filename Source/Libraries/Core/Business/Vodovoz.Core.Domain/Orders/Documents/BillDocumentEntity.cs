@@ -1,13 +1,19 @@
-﻿using QS.Print;
+﻿using MySqlConnector;
+using QS.Print;
+using QS.Report;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Controllers;
+using Vodovoz.Core.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Core.Domain.StoredEmails;
+using Vodovoz.Settings.Delivery;
+using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.Core.Domain.Orders.Documents
 {
-	public class BillDocumentEntity : PrintableOrderDocumentEntity
+	public class BillDocumentEntity : PrintableOrderDocumentEntity, IEmailableDocument
 	{
 		private int _copiesToPrint = 1;
 		private bool _hideSignature = true;
@@ -16,9 +22,9 @@ namespace Vodovoz.Core.Domain.Orders.Documents
 		public override OrderDocumentType Type => OrderDocumentType.Bill;
 		#endregion
 
-		public override string Name => Order?.DeliveryDate >= new DateTime(2026, 1, 1) 
-			?  $"Счет №{DocumentOrganizationCounter?.DocumentNumber ?? Order?.Id.ToString()}"
-			:  $"Счет №{Order?.Id}";
+		public override string Name => Order?.DeliveryDate >= new DateTime(2026, 1, 1)
+			? $"Счет №{DocumentOrganizationCounter?.DocumentNumber ?? Order?.Id.ToString()}"
+			: $"Счет №{Order?.Id}";
 
 		public override DateTime? DocumentDate => Order?.BillDate;
 
@@ -51,9 +57,18 @@ namespace Vodovoz.Core.Domain.Orders.Documents
 
 		#endregion
 
-		public virtual EmailTemplateEntity GetEmailTemplate(ICounterpartyEdoAccountEntityController edoAccountController = null)
+		public virtual string Title => $"{Name} от {Order.BillDate:d} {SpecialContractNumber}";
+
+		public virtual string SpecialContractNumber => Order.Client.IsForRetail ? Order.Client.GetSpecialContractString() : string.Empty;
+
+		public virtual int DocumentId => Id;
+
+		public virtual EmailTemplate GetEmailTemplate(
+			ICounterpartyEdoAccountEntityController edoAccountController = null,
+			IOrganizationSettings organizationSettings = null,
+			IDeliveryScheduleSettings deliveryScheduleSettings = null)
 		{
-			var template = new EmailTemplateEntity
+			var template = new EmailTemplate
 			{
 				Title = "ООО \"Веселый водовоз\"",
 				Text =
@@ -97,9 +112,9 @@ namespace Vodovoz.Core.Domain.Orders.Documents
 			return template;
 		}
 
-		public virtual EmailTemplateEntity GetResendDocumentEmailTemplate()
+		public virtual EmailTemplate GetResendDocumentEmailTemplate()
 		{
-			var template = new EmailTemplateEntity
+			var template = new EmailTemplate
 			{
 				Title = "ООО \"Веселый водовоз\"",
 				Text =
@@ -143,5 +158,23 @@ namespace Vodovoz.Core.Domain.Orders.Documents
 			return template;
 		}
 
+
+		public virtual ReportInfo GetReportInfo(string connectionString = null)
+		{
+			var reportInfoFactory = new DefaultReportInfoFactory(new MySqlConnectionStringBuilder(connectionString));
+			var reportInfo = reportInfoFactory.Create();
+			reportInfo.Title = Title;
+			reportInfo.Identifier = "Documents.Bill";
+			reportInfo.Parameters = new Dictionary<string, object>
+			{
+				{ "order_id",  Order.Id },
+				{ "hide_signature", HideSignature },
+				{ "special", false },
+				{ "special_contract_number", SpecialContractNumber},
+				{ "without_vat", Order.IsCashlessPaymentTypeAndOrganizationWithoutVAT },
+				{ "hide_delivery_point", Order.Client.HideDeliveryPointForBill }
+			};
+			return reportInfo;
+		}
 	}
 }
