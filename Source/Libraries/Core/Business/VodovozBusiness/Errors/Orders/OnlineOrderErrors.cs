@@ -269,5 +269,53 @@ namespace Vodovoz.Errors.Orders
 			new Error(
 				"400",
 				$"Не удалось получить информацию о пользователе из источника {source}");
+
+		public static Error IncorrectOrdersData =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(IncorrectOrdersData),
+				"Некорректные данные по заказу");
+
+		public static Error ErpOrderForOnlineOrderNotFound =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(ErpOrderForOnlineOrderNotFound),
+				"Заказ ERP, соответствующий онлайн заказу не найден");
+
+		public static Error OnlineOrderHasManyErpOrders =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(OnlineOrderHasManyErpOrders),
+				"Для онлайн заказа создано несколько заказов в ERP");
+
+		public static Error ErpOrderNotRelatedToOnlineOrder =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(ErpOrderNotRelatedToOnlineOrder),
+				"Указанный заказ в ERP не связан с указанным онлайн заказом");
+
+		public static Error OrderHasInvalidStatusForCourierCoordinates =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(OrderHasInvalidStatusForCourierCoordinates),
+				"Статус заказа не позволяет передать координаты курьера");
+
+		public static Error CourierCoordinatesUnavailableSelfDeliveryOrders =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(CourierCoordinatesUnavailableSelfDeliveryOrders),
+				"Координаты курьера недоступны для заказов с самовывозом");
+
+		public static Error OrderHasNoEstablishedRoute =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(OrderHasNoEstablishedRoute),
+				"Для данного заказа маршрут не установлен водителем");
+
+		public static Error CourierCoordinatesAreMissing =>
+			new Error(
+				typeof(OnlineOrderErrors),
+				nameof(CourierCoordinatesAreMissing),
+				"Координаты курьера отсутствуют");
 	}
 }

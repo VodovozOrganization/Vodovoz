@@ -12,6 +12,8 @@
 		<PackageReference Include="MassTransit.RabbitMQ" Version="8.0.12" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
+		<PackageReference Include="NLog.Extensions.Logging" Version="5.2.2" />
+		<PackageReference Include="NLog.Targets.Seq" Version="2.1.0" />
 		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
 	</ItemGroup>
 

@@ -1,4 +1,4 @@
-﻿using CustomerOrdersApi.Library.V5.Services.PaymentRefund;
+﻿using CustomerOrdersApi.Library.V6.Services.PaymentRefund;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -6,7 +6,7 @@ using System.Linq;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 
-namespace CustomerOrdersApi.Library.Default.Factories
+namespace CustomerOrdersApi.Library.V6.Factories
 {
 	public class PaymentRefundServiceFactory : IPaymentRefundServiceFactory
 	{

@@ -1,8 +1,8 @@
-﻿using CustomerOrdersApi.Library.V5.Services.PaymentRefund;
+﻿using CustomerOrdersApi.Library.V6.Services.PaymentRefund;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 
-namespace CustomerOrdersApi.Library.Default.Factories
+namespace CustomerOrdersApi.Library.V6.Factories
 {
 	public interface IPaymentRefundServiceFactory
 	{
