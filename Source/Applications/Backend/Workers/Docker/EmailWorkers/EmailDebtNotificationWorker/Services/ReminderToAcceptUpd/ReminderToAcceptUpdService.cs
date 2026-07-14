@@ -31,7 +31,8 @@ namespace EmailDebtNotificationWorker.Services.ReminderToAcceptUpd
 
 		public async Task RemindToAcceptUpd(IUnitOfWork unitOfWork, int timeoutDays, CancellationToken cancellationToken)
 		{
-			var timedOutDocFlowNodes = await _edoRepository.GetTimedOutDocFlows(unitOfWork, timeoutDays, cancellationToken);
+			var timedOutDocFlowNodes = (await _edoRepository.GetTimedOutDocFlows(unitOfWork, timeoutDays, cancellationToken))
+				.ToList();
 
 			var checkedTimedOutDocFlowNodes = await CheckDocFlowStatusInTaxcom(timedOutDocFlowNodes);
 
@@ -45,13 +46,11 @@ namespace EmailDebtNotificationWorker.Services.ReminderToAcceptUpd
 			await unitOfWork.CommitAsync(cancellationToken: cancellationToken);
 		}
 
-		private async Task<List<TimedOutDocFlowGrouppedNode>> CheckDocFlowStatusInTaxcom(IList<TimedOutDocFlowGrouppedNode> timedOutDocFlowNodes)
+		private async Task<List<TimedOutDocFlowGrouppedNode>> CheckDocFlowStatusInTaxcom(List<TimedOutDocFlowGrouppedNode> timedOutDocFlowNodes)
 		{
-			var checkedTimedOutDocFlowNodes = timedOutDocFlowNodes.ToList();
-
 			foreach(var node in timedOutDocFlowNodes)
 			{
-				foreach(var document in node.Documents)
+				foreach(var document in node.Documents.ToList())
 				{
 					var description = await _taxcomApiClient.GetDocflowStatus(document.TaxcomDocflow.DocflowId.ToString(), document.OurEdoAccount);
 
@@ -71,9 +70,9 @@ namespace EmailDebtNotificationWorker.Services.ReminderToAcceptUpd
 				}
 			}
 
-			checkedTimedOutDocFlowNodes.RemoveAll(x => x.Documents.Count == 0);
+			timedOutDocFlowNodes.RemoveAll(x => x.Documents.Count == 0);
 
-			return checkedTimedOutDocFlowNodes;
+			return timedOutDocFlowNodes;
 		}
 	}
 }
