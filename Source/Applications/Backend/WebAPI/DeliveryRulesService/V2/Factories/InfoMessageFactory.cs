@@ -2,16 +2,25 @@
 
 namespace DeliveryRulesService.Factories
 {
-	//TODO по результатам ответа Кости оставить и использовать или удалить класс
-	public class InfoMessageFactory
+	public class InfoMessageFactory : IInfoMessageFactory
 	{
+		/// <summary>
+		/// Создание сообщения о платной доставке
+		/// </summary>
+		/// <param name="message">Сообщение</param>
+		/// <returns></returns>
 		public InfoMessage CreatePaidDeliveryMessage(string message)
 		{
+			if(string.IsNullOrEmpty(message))
+			{
+				return null;
+			}
+			
 			return InfoMessage.Create(
 				"BasketDeliverySchedule",
 				2,
 				"Платная доставка",
-				message//"Добавьте в заказ 1 бутыль 19 литров, чтобы доставка была бесплатной"
+				message
 				);
 		}
 	}

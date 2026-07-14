@@ -2,6 +2,7 @@
 using DeliveryRulesService.V2.DTO;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Application.Orders.Cart;
+using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Goods.Rent;
 using Vodovoz.Domain.Orders;
@@ -48,12 +49,13 @@ namespace DeliveryRulesService.Factories
 		public ICartItem NomenclatureCartItem(IUnitOfWork uow, SaleItemDto saleItem)
 		{
 			ThrowIfErpIdIsNull(saleItem, "Номенклатура");
+			var nomenclature = uow.GetById<Nomenclature>(saleItem.ErpId.Value)
+				?? throw new ArgumentNullException(nameof(saleItem), "Пришла номенклатура с неизвестным значением id");
 			
 			return new NomenclatureCartItem
 			{
 				Count = saleItem.Amount,
-				Nomenclature = uow.GetById<Nomenclature>(saleItem.ErpId.Value)
-					?? throw new ArgumentNullException(nameof(saleItem), "Пришла номенклатура с неизвестным значением id")
+				Nomenclature = nomenclature
 			};
 		}
 		

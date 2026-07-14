@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace DeliveryRulesService.V2.DTO
+﻿namespace DeliveryRulesService.V2.DTO
 {
 	/// <summary>
 	/// Запрос по правилам доставки
@@ -15,6 +13,14 @@ namespace DeliveryRulesService.V2.DTO
 		/// Широта
 		/// </summary>
 		public decimal Longitude { get; set; }
+		/// <summary>
+		/// Идентификатор точки доставки в ДВ
+		/// </summary>
+		public int? ErpDeliveryPointId { get; set; }
+		/// <summary>
+		/// Самовывоз
+		/// </summary>
+		public bool IsSelfDelivery { get; set; }
 		/// <summary>
 		/// Корзина
 		/// </summary>

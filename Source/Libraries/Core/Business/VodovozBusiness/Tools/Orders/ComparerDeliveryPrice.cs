@@ -6,27 +6,27 @@ using VodovozBusiness.Domain.Orders;
 
 namespace Vodovoz.Tools.Orders
 {
-	public abstract class ComparerDeliveryPrice
+	public abstract class ComparerDeliveryPrice : IWaterCount
 	{
 		protected bool Initialized;
 		
 		[Display(Name = "Сколько воды многооборотной таре 19л?")]
-		protected decimal NotDisposableWater19LCount { get; set; }
+		public decimal NotDisposableWater19LCount { get; protected set; }
 
 		[Display(Name = "Сколько воды одноразовой таре 19л?")]
-		protected decimal DisposableWater19LCount { get; set; }
+		public decimal DisposableWater19LCount { get; private set; }
 
 		[Display(Name = "Сколько воды одноразовой таре 6л?")]
-		protected decimal DisposableWater6LCount { get; set; }
+		public decimal DisposableWater6LCount { get; private set; }
 
 		[Display(Name = "Сколько воды одноразовой таре 1.5л?")]
-		protected decimal DisposableWater1500mlCount { get; set; }
+		public decimal DisposableWater1500mlCount { get; private set; }
 
 		[Display(Name = "Сколько воды одноразовой таре 0.6л?")]
-		protected decimal DisposableWater600mlCount { get; set; }
+		public decimal DisposableWater600mlCount { get; private set; }
 
 		[Display(Name = "Сколько воды одноразовой таре 0.5л?")]
-		protected decimal DisposableWater500mlCount { get; set; }
+		public decimal DisposableWater500mlCount { get; private set; }
 
 		public virtual bool CompareWithDeliveryPriceRule(IDeliveryPriceRule rule)
 		{

@@ -29,6 +29,7 @@ using Vodovoz.Presentation.WebApi;
 using Vodovoz.Settings.Common;
 using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
+using VodovozBusiness.Domain.Orders.Delivery;
 using VodovozHealthCheck;
 
 namespace DeliveryRulesService
@@ -97,7 +98,10 @@ namespace DeliveryRulesService
 				.AddInfrastructure()
 				.AddHostedServices()
 				.AddScoped<ICartItemFactory, CartItemFactory>()
-				.AddScoped<IDeliveryPriceGetter<DeliveryRulesRequestDeliveryPriceGetterContext>, DeliveryRulesRequestDeliveryPriceGetter>()
+				.AddScoped<IInfoMessageFactory, InfoMessageFactory>()
+				.AddScoped<IOnlineCartDistrictRulesGetter, OnlineCartDistrictRulesGetter>()
+				.AddScoped<IDeliveryRulesHandler, DeliveryRulesHandler>()
+				.AddScoped<IDeliveryCostMessageFactory, DeliveryCostMessageFactory>()
 				.AddScoped<CustomerCartWaterCounts>()
 				.AddAuthentication("Basic")
 				.AddScheme<BasicAuthenticationOptions, CustomAuthenticationHandler>(

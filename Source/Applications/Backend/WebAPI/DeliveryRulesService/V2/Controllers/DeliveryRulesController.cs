@@ -6,7 +6,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using DeliveryRulesService.Cache;
-using DeliveryRulesService.Common;
 using DeliveryRulesService.Constants;
 using DeliveryRulesService.Factories;
 using DeliveryRulesService.V2.DTO;
@@ -17,7 +16,7 @@ using NetTopologySuite.Geometries;
 using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using Vodovoz.Core.Application.Orders.Delivery;
-using Vodovoz.Core.Domain.Interfaces.Orders;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Sale;
 using Vodovoz.EntityRepositories.Delivery;
@@ -26,7 +25,7 @@ using Vodovoz.Models;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Nomenclature;
-using VodovozBusiness.Domain.Orders.Cart;
+using VodovozBusiness.Domain.Orders.Delivery;
 using VodovozBusiness.Extensions;
 
 namespace DeliveryRulesService.V2.Controllers
@@ -43,8 +42,9 @@ namespace DeliveryRulesService.V2.Controllers
 		private readonly INomenclatureSettings _nomenclatureSettings;
 		private readonly IFastDeliveryAvailabilityHistoryModel _fastDeliveryAvailabilityHistoryModel;
 		private readonly DistrictCacheService _districtCacheService;
-		private readonly IDeliveryPriceGetter<DeliveryRulesRequestDeliveryPriceGetterContext> _deliveryPriceGetter;
+		private readonly IDeliveryRulesHandler _deliveryRulesHandler;
 		private readonly ICartItemFactory _cartItemFactory;
+		private readonly IInfoMessageFactory _infoMessageFactory;
 		private readonly IGeneralSettings _generalSettings;
 		private readonly DeliverySchedule _fastDeliverySchedule;
 		private readonly INamedDomainObject _paidDeliveryNomenclature;
@@ -58,8 +58,9 @@ namespace DeliveryRulesService.V2.Controllers
 			INomenclatureSettings nomenclatureSettings,
 			IFastDeliveryAvailabilityHistoryModel fastDeliveryAvailabilityHistoryModel,
 			DistrictCacheService districtCacheService,
-			IDeliveryPriceGetter<DeliveryRulesRequestDeliveryPriceGetterContext> deliveryPriceGetter,
+			IDeliveryRulesHandler deliveryRulesHandler,
 			ICartItemFactory cartItemFactory,
+			IInfoMessageFactory infoMessageFactory,
 			IGeneralSettings generalSettings) : base(logger)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
@@ -71,8 +72,9 @@ namespace DeliveryRulesService.V2.Controllers
 			_fastDeliveryAvailabilityHistoryModel =
 				fastDeliveryAvailabilityHistoryModel ?? throw new ArgumentNullException(nameof(fastDeliveryAvailabilityHistoryModel));
 			_districtCacheService = districtCacheService ?? throw new ArgumentNullException(nameof(districtCacheService));
-			_deliveryPriceGetter = deliveryPriceGetter ?? throw new ArgumentNullException(nameof(deliveryPriceGetter));
+			_deliveryRulesHandler = deliveryRulesHandler ?? throw new ArgumentNullException(nameof(deliveryRulesHandler));
 			_cartItemFactory = cartItemFactory ?? throw new ArgumentNullException(nameof(cartItemFactory));
+			_infoMessageFactory = infoMessageFactory ?? throw new ArgumentNullException(nameof(infoMessageFactory));
 			_generalSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 
 			using var uow = _uowFactory.CreateWithoutRoot("Получение графика быстрой доставки");
@@ -86,47 +88,51 @@ namespace DeliveryRulesService.V2.Controllers
 			CancellationToken cancellationToken
 		)
 		{
-			using var uow = _uowFactory.CreateWithoutRoot(ServiceConstants.CheckingFastDeliveryAvailable);
-
-			var cartItems = request.SaleItems
-				.Select(x => _cartItemFactory.CreateCartItem(uow, x))
-				.ToList();
-			
-			var result = await GetExtendedRulesByDistrict(
-				request.Latitude,
-				request.Longitude,
-				cartItems,
-				cancellationToken);
-			
-			var deliveryInfo = result.DeliveryInfo;
-			
-			if(deliveryInfo.Status != DeliveryRulesResponseStatus.Ok)
+			try
 			{
-				return deliveryInfo;
-			}
-
-			var fastDeliveryAllowed = await CheckIfFastDeliveryAllowedAsync(
-				uow, 
-				request.Latitude, 
-				request.Longitude, 
-				result.TariffZoneId, 
-				request.SaleItems,
-				cancellationToken
-			);
-
-			if(!_deliveryRulesSettings.IsStoppedOnlineDeliveriesToday && fastDeliveryAllowed)
-			{
-				var fastDeliveryNomenclature = _nomenclatureRepository.GetFastDeliveryNomenclature(uow);
-
-				deliveryInfo.AddFastDelivery(
-					fastDeliveryNomenclature.Id,
-					fastDeliveryNomenclature.GetPrice(1),
-					fastDeliveryNomenclature.Name,
-					_fastDeliverySchedule.Id,
-					_fastDeliverySchedule.Name);
-			}
+				using var uow = _uowFactory.CreateWithoutRoot(ServiceConstants.CheckingFastDeliveryAvailable);
 			
-			return result.DeliveryInfo;
+				var result = await ExecuteGetExtendedRulesByDistrict(
+					request,
+					cancellationToken);
+			
+				var deliveryInfo = result.DeliveryInfo;
+			
+				if(deliveryInfo.Status != DeliveryRulesResponseStatus.Ok)
+				{
+					return deliveryInfo;
+				}
+
+				var fastDeliveryAllowed = await CheckIfFastDeliveryAllowedAsync(
+					uow, 
+					request.Latitude, 
+					request.Longitude, 
+					result.TariffZoneId, 
+					request.SaleItems,
+					cancellationToken
+				);
+
+				if(!_deliveryRulesSettings.IsStoppedOnlineDeliveriesToday && fastDeliveryAllowed)
+				{
+					var fastDeliveryNomenclature = _nomenclatureRepository.GetFastDeliveryNomenclature(uow);
+
+					deliveryInfo.AddFastDelivery(
+						fastDeliveryNomenclature.Id,
+						fastDeliveryNomenclature.GetPrice(1),
+						fastDeliveryNomenclature.Name,
+						_fastDeliverySchedule.Id,
+						_fastDeliverySchedule.Name);
+				}
+			
+				return result.DeliveryInfo;
+			}
+			catch(Exception ex)
+			{
+				var errorResult = new ExtendedDeliveryRulesDto();
+				errorResult.SetErrorState();
+				_logger.LogError(ex, errorResult.Message);
+				return errorResult;
+			}
 		}
 
 		[HttpGet]
@@ -177,27 +183,6 @@ namespace DeliveryRulesService.V2.Controllers
 			var response2 = GetRulesByDistrict(59.886134m, 30.394007m);
 			return response.StatusEnum != DeliveryRulesResponseStatus.Error
 				&& response2.DeliveryInfo.Status != DeliveryRulesResponseStatus.Error;
-		}
-
-		private async Task<(int? TariffZoneId, ExtendedDeliveryRulesDto DeliveryInfo)> GetExtendedRulesByDistrict(
-			decimal latitude, 
-			decimal longitude,
-			IEnumerable<ICartItem> cartItems,
-			CancellationToken cancellationToken
-			)
-		{
-			try
-			{
-				return await ExecuteGetExtendedRulesByDistrict(latitude, longitude, cartItems, cancellationToken);
-			}
-			catch(Exception ex)
-			{
-				var errorResult = new ExtendedDeliveryRulesDto();
-				errorResult.SetErrorState();
-				_logger.LogError(ex, errorResult.Message);
-
-				return (null, errorResult);
-			}
 		}
 
 		private (int? TariffZoneId, DeliveryRulesDTO DeliveyInfo) ExecuteGetRulesByDistrict(decimal latitude, decimal longitude)
@@ -274,9 +259,7 @@ namespace DeliveryRulesService.V2.Controllers
 		}
 
 		private async Task<(int? TariffZoneId, ExtendedDeliveryRulesDto DeliveryInfo)> ExecuteGetExtendedRulesByDistrict(
-			decimal latitude, 
-			decimal longitude,
-			IEnumerable<ICartItem> cartItems,
+			DeliveryRulesRequest request,
 			CancellationToken cancellationToken
 		)
 		{
@@ -289,7 +272,7 @@ namespace DeliveryRulesService.V2.Controllers
 
 			try
 			{
-				district = await _deliveryRepository.GetDistrictAsync(uow, latitude, longitude, cancellationToken);
+				district = await _deliveryRepository.GetDistrictAsync(uow, request.Latitude, request.Longitude, cancellationToken);
 			}
 			catch(Exception e)
 			{
@@ -297,7 +280,7 @@ namespace DeliveryRulesService.V2.Controllers
 				_logger.LogInformation("Подбор района из кэша");
 				
 				district = _districtCacheService.Districts.Values
-					.FirstOrDefault(x => x.DistrictBorder.Contains(new Point((double)latitude, (double)longitude)));
+					.FirstOrDefault(x => x.DistrictBorder.Contains(new Point((double)request.Latitude, (double)request.Longitude)));
 			}
 
 			if(district != null)
@@ -311,20 +294,12 @@ namespace DeliveryRulesService.V2.Controllers
 
 				var isStoppedOnlineDeliveriesToday = _deliveryRulesSettings.IsStoppedOnlineDeliveriesToday;
 				var hasPaidDelivery = false;
+				var deliveryPoint = request.ErpDeliveryPointId.HasValue
+					? uow.GetById<DeliveryPoint>(request.ErpDeliveryPointId.Value)
+					: null;
 
 				foreach(WeekDayName weekDay in Enum.GetValues(typeof(WeekDayName)))
 				{
-					var rulesToAdd = district.GetWeekDayRuleItemCollectionByWeekDayName(weekDay)
-						.Select(x => x.Title)
-						.ToList();
-
-					if(!rulesToAdd.Any())
-					{
-						rulesToAdd = district.CommonDistrictRuleItems
-							.Select(x => x.Title)
-							.ToList();
-					}
-
 					var scheduleRestrictions = GetScheduleRestrictions(
 						district, 
 						weekDay, 
@@ -332,15 +307,17 @@ namespace DeliveryRulesService.V2.Controllers
 						isStoppedOnlineDeliveriesToday
 					);
 
-					var deliveryPriceContext = DeliveryPriceGetterContext<DeliveryRulesRequestDeliveryPriceGetterContext>.Create(
-						DeliveryRulesRequestDeliveryPriceGetterContext.Create(
+					var deliveryPriceContext = DeliveryRulesGetterFromDeliveryRulesApiContext.Create(
 							weekDay,
 							district,
-							cartItems
-						)
-					);
+							deliveryPoint,
+							request.IsSelfDelivery,
+							request.SaleItems
+								.Select(x => _cartItemFactory.CreateCartItem(uow, x))
+								.ToList()
+						);
 					
-					var paidDeliveryResult = _deliveryPriceGetter.GetDeliveryPrice(deliveryPriceContext);
+					var paidDeliveryResult = _deliveryRulesHandler.GetDeliveryCost(deliveryPriceContext);
 
 					if(paidDeliveryResult.IsFailure)
 					{
@@ -349,6 +326,8 @@ namespace DeliveryRulesService.V2.Controllers
 						
 						return (null, errorResult);
 					}
+					
+					var paidDeliveryCost = paidDeliveryResult.Value;
 					
 					var item = ExtendedWeekDayDeliveryRuleDto.Create(
 						weekDay,
@@ -359,10 +338,11 @@ namespace DeliveryRulesService.V2.Controllers
 								IntervalName = x.Name
 							})
 							.ToList(),
-						paidDeliveryResult.Value > 0 ? paidDeliveryResult.Value : null
+						paidDeliveryCost.DeliveryPrice,
+						_infoMessageFactory.CreatePaidDeliveryMessage(paidDeliveryCost.Message)
 					);
 
-					if(paidDeliveryResult.Value > 0)
+					if(paidDeliveryCost.DeliveryPrice.HasValue)
 					{
 						hasPaidDelivery = true;
 					}
@@ -385,11 +365,11 @@ namespace DeliveryRulesService.V2.Controllers
 			}
 
 			_logger.LogDebug("Невозможно получить информацию о правилах доставки, т.к. по координатам " +
-				"{Latitude}, {Longitude} не был найден район", latitude, longitude);
+				"{Latitude}, {Longitude} не был найден район", request.Latitude, request.Longitude);
 
 			var result = new ExtendedDeliveryRulesDto();
 			result.RuleNotFoundState("Невозможно получить информацию о правилах доставки, т.к. по координатам " +
-				$"{latitude}, {longitude} не был найден район");
+				$"{request.Latitude}, {request.Longitude} не был найден район");
 
 			return (null, result);
 		}

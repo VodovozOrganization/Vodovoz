@@ -32,6 +32,8 @@ using Vodovoz.Services.Logistics;
 using Vodovoz.Services.Orders;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Domain.Orders;
+using VodovozBusiness.Domain.Orders.Cart;
+using VodovozBusiness.Domain.Orders.Delivery;
 using VodovozBusiness.Domain.Settings;
 using VodovozBusiness.Employees;
 using VodovozBusiness.Models.TrueMark;
@@ -82,7 +84,9 @@ namespace Vodovoz.Core.Application
 				.AddScoped<IExternalCounterpartyHandler, ExternalCounterpartyHandler>()
 				.AddScoped<IStagingTrueMarkCodeFactory, StagingTrueMarkCodeFactory>()
 				.AddScoped<CustomerCartWaterCounts>()
-				.AddScoped<IDeliveryPriceGetter<DeliveryRulesRequestDeliveryPriceGetterContext>, DeliveryRulesRequestDeliveryPriceGetter>()
+				.AddScoped<IOnlineCartDistrictRulesGetter, OnlineCartDistrictRulesGetter>()
+				.AddScoped<IDeliveryRulesHandler, DeliveryRulesHandler>()
+				.AddScoped<IDeliveryCostMessageFactory, DeliveryCostMessageFactory>()
 				.AddTrueMarkApiClient()
 				.AddCoreApplicationOrderServices()				
 				;

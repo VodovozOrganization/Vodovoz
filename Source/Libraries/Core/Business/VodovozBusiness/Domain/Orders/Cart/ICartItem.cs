@@ -1,3 +1,5 @@
+using Vodovoz.Core.Domain.Goods;
+
 namespace VodovozBusiness.Domain.Orders.Cart
 {
 	/// <summary>
@@ -9,5 +11,9 @@ namespace VodovozBusiness.Domain.Orders.Cart
 		/// Количество
 		/// </summary>
 		decimal Count { get; }
+		/// <summary>
+		/// Тип позиции корзины
+		/// </summary>
+		SaleItemType ItemType { get; }
 	}
 }

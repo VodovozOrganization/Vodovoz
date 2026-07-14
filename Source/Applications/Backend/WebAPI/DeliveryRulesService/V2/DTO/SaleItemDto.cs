@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using Vodovoz.Core.Domain.Goods;
 
 namespace DeliveryRulesService.V2.DTO
 {
@@ -30,16 +31,5 @@ namespace DeliveryRulesService.V2.DTO
 			Type != SaleItemType.PromoSet
 			&& Type != SaleItemType.RentPackage
 			&& Type != SaleItemType.Service;
-	}
-
-	//TODO этот же тип есть в задаче 5942, надо потом объединить их и брать из одного проекта
-	public enum SaleItemType
-	{
-		Water,
-		PromoSet,
-		RentPackage,
-		Service,
-		Equipment,
-		Other
 	}
 }

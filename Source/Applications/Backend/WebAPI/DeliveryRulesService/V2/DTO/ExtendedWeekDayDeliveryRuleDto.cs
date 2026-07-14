@@ -41,5 +41,19 @@ namespace DeliveryRulesService.V2.DTO
 				PaidDeliveryPrice = paidDeliveryPrice,
 				InfoMessages = infoMessages
 			};
+		
+		public static ExtendedWeekDayDeliveryRuleDto Create(
+			WeekDayName weekDay,
+			IEnumerable<ScheduleRestrictionDto> deliveryIntervals,
+			decimal? paidDeliveryPrice = null,
+			InfoMessage infoMessage = null
+		) =>
+			new ExtendedWeekDayDeliveryRuleDto
+			{
+				WeekDay = weekDay,
+				DeliveryIntervals = deliveryIntervals,
+				PaidDeliveryPrice = paidDeliveryPrice,
+				InfoMessages = infoMessage is null ? null : new []{ infoMessage }
+			};
 	}
 }

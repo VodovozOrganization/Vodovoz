@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Sale;
 using VodovozBusiness.Domain.Orders.Cart;
 
@@ -7,33 +8,33 @@ namespace Vodovoz.Core.Application.Orders.Delivery
 	/// <summary>
 	/// Данные для расчета доставки по запросу правил доставки
 	/// </summary>
-	public class DeliveryRulesRequestDeliveryPriceGetterContext : IDeliveryPriceGetterContext
+	public class DeliveryRulesGetterFromDeliveryRulesApiContext : IDeliveryRulesRequestContext
 	{
-		/// <summary>
-		/// День недели
-		/// </summary>
+		/// <inheritdoc/>
 		public WeekDayName WeekDay { get; private set; }
-		/// <summary>
-		/// Район
-		/// </summary>
+		/// <inheritdoc/>
 		public District District { get; private set; }
-		/// <summary>
-		/// Список позиций корзины
-		/// </summary>
+		/// <inheritdoc/>
+		public DeliveryPoint DeliveryPoint { get; private set; }
+		/// <inheritdoc/>
+		public bool IsSelfDelivery { get; private set; }
+		/// <inheritdoc/>
 		public IEnumerable<ICartItem> CartItems { get; private set; }
 
-		public static DeliveryRulesRequestDeliveryPriceGetterContext Create(
+		public static DeliveryRulesGetterFromDeliveryRulesApiContext Create(
 			WeekDayName weekDay,
 			District district,
+			DeliveryPoint deliveryPoint,
+			bool selfDelivery,
 			IEnumerable<ICartItem> cartItems
 		) =>
-			new DeliveryRulesRequestDeliveryPriceGetterContext
+			new DeliveryRulesGetterFromDeliveryRulesApiContext
 			{
 				WeekDay = weekDay,
 				District = district,
+				DeliveryPoint = deliveryPoint,
+				IsSelfDelivery = selfDelivery,
 				CartItems = cartItems
 			};
 	}
-	
-	public interface IDeliveryPriceGetterContext { }
 }
