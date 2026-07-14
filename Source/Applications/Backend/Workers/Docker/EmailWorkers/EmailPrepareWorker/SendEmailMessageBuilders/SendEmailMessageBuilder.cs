@@ -6,8 +6,10 @@ using System;
 using System.Collections.Generic;
 using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.Documents;
 using Vodovoz.Core.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Core.Domain.StoredEmails;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
@@ -95,19 +97,20 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 
 			var hasSendedEmailsForBill = false;
 
-			if(document is OrderDocument orderDocument
-				&& (orderDocument.Type == OrderDocumentType.Bill || orderDocument.Type == OrderDocumentType.SpecialBill))
+			var orderDocument = document as OrderDocumentEntity;
+
+			if(orderDocument?.Type == OrderDocumentType.Bill || orderDocument?.Type == OrderDocumentType.SpecialBill)
 			{
 				hasSendedEmailsForBill = _emailRepository.HasSendedEmailsForBillExceptOf(orderDocument.Order.Id, _counterpartyEmail.StoredEmail.Id);
 			}
 
 			if(hasSendedEmailsForBill
-			   && document is BillDocument billDocument)
+			   && document is BillDocumentEntity billDocument)
 			{
 				_template = billDocument.GetResendEmailTemplate();
 			}
 			else if(hasSendedEmailsForBill
-				&& document is SpecialBillDocument specialBillDocument)
+				&& document is SpecialBillDocumentEntity specialBillDocument)
 			{
 				_template = specialBillDocument.GetResendEmailTemplate();
 			}
@@ -152,12 +155,15 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 				_emailDocumentPreparer.PrepareDocument(document, _counterpartyEmail.Type, connectionString)
 			};
 
-			if(document is OrderDocument orderDocument && (orderDocument.Order?.IsFirstOrder ?? false)
-				&& _counterpartyEmail.Type == CounterpartyEmailType.BillDocument
-				&& _emailDocumentPreparer
-					.PrepareOfferAgreementDocument(_unitOfWork, orderDocument.Order.Contract, connectionString) is EmailAttachment additionalAgreement)
+			if(document is OrderDocumentEntity orderDocument && (orderDocument.Order?.IsFirstOrder ?? false)
+				&& _counterpartyEmail.Type == CounterpartyEmailType.BillDocument)
 			{
-				attachments.Add(additionalAgreement);
+				var counterpartyContract = _unitOfWork.GetById<CounterpartyContract>(orderDocument.Order.Contract.Id);
+				var additionalAgreement = _emailDocumentPreparer.PrepareOfferAgreementDocument(_unitOfWork, counterpartyContract, connectionString);
+				if(additionalAgreement != null)
+				{
+					attachments.Add(additionalAgreement);
+				}
 			}
 
 			_sendEmailMessage.Attachments = attachments;

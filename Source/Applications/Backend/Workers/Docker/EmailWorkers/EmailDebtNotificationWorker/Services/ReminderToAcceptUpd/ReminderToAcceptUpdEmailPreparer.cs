@@ -1,4 +1,4 @@
-﻿using EmailDebtNotificationWorker.Repositories;
+using EmailDebtNotificationWorker.Repositories;
 using EmailDebtNotificationWorker.Services.Common.Factories;
 using EmailDebtNotificationWorker.Services.Common.Generators;
 using QS.DomainModel.UoW;
@@ -45,7 +45,7 @@ namespace EmailDebtNotificationWorker.Services.ReminderToAcceptUpd
 
 				foreach(var emailToSent in clientEmails)
 				{
-					var emailSubject = $"Запрос на на принятие и подтверждение УПД №({string.Join(", ", node.Documents.Select(d => d.UpdNum))})";
+					var emailSubject = $"Запрос на принятие и подтверждение УПД №({string.Join(", ", node.Documents.Select(d => d.UpdNum))})";
 
 					var storedEmail = _emailMessageFactory.CreateStoredEmail(emailSubject, emailToSent);
 

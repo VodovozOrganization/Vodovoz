@@ -1,4 +1,5 @@
 ﻿using MassTransit;
+using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -15,17 +16,20 @@ namespace EmailDebtNotificationWorker.Services.ReminderToAcceptUpd
 		private readonly IEdoRepository _edoRepository;
 		private readonly ITaxcomApiClient _taxcomApiClient;
 		private readonly IReminderToAcceptUpdEmailPreparer _reminderToAcceptUpdEmailPreparer;
+		private readonly ILogger<ReminderToAcceptUpdService> _logger;
 		private readonly IBus _bus;
 
 		public ReminderToAcceptUpdService(
 			IEdoRepository edoRepository,
 			ITaxcomApiClient taxcomApiClient,
 			IReminderToAcceptUpdEmailPreparer reminderToAcceptUpdEmailPreparer,
+			ILogger<ReminderToAcceptUpdService> logger,
 			IBus bus)
 		{
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 			_taxcomApiClient = taxcomApiClient ?? throw new ArgumentNullException(nameof(taxcomApiClient));
 			_reminderToAcceptUpdEmailPreparer = reminderToAcceptUpdEmailPreparer ?? throw new ArgumentNullException(nameof(reminderToAcceptUpdEmailPreparer));
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 		}
 
@@ -52,19 +56,28 @@ namespace EmailDebtNotificationWorker.Services.ReminderToAcceptUpd
 			{
 				foreach(var document in node.Documents.ToList())
 				{
-					var description = await _taxcomApiClient.GetDocflowStatus(document.TaxcomDocflow.DocflowId.ToString(), document.OurEdoAccount);
-
-					var mainDocument = description.DocFlow.Documents.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.Definition.Identifiers.ExternalIdentifier));
-
-					if(mainDocument is null)
+					try
 					{
-						node.Documents.Remove(document);
-						continue;
+						var description = await _taxcomApiClient.GetDocflowStatus(document.TaxcomDocflow.DocflowId.ToString(), document.OurEdoAccount);
+
+						var mainDocument = description.DocFlow.Documents.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.Definition.Identifiers.ExternalIdentifier));
+
+						if(mainDocument is null)
+						{
+							node.Documents.Remove(document);
+							continue;
+						}
+
+						if(description.DocFlow.Status != "Sent")
+						{
+							node.Documents.Remove(document);
+							continue;
+						}
 					}
-
-					if(description.DocFlow.Status != "Sent")
+					catch(Exception ex)
 					{
 						node.Documents.Remove(document);
+						_logger.LogError(ex, "Ошибка при проверке статуса документооборота в Такскоме для документа {DocflowId}: {Exception}." , document.TaxcomDocflow.DocflowId, ex);
 						continue;
 					}
 				}

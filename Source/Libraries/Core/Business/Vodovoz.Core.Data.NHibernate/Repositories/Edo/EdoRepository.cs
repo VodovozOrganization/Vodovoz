@@ -1,4 +1,4 @@
-﻿using NHibernate;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Linq;
 using NHibernate.SqlCommand;
@@ -319,14 +319,6 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 					on order.Id equals wer.Order.Id into withdrawalEdoRequests
 				from withdrawalEdoRequest in withdrawalEdoRequests.DefaultIfEmpty()
 
-				let taskItemCodesCount =
-					(int?)(from taskItem in unitOfWork.Session.Query<EdoTaskItem>()
-						   where
-						   taskItem.CustomerEdoTask.Id == task.Id
-						   && taskItem.ProductCode != null
-						   select taskItem.Id)
-						   .Count() ?? 0
-
 				let updNum =
 					(from docCounter in unitOfWork.Session.Query<DocumentOrganizationCounter>()
 					 where docCounter.Order.Id == order.Id
@@ -337,7 +329,7 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 
 				where
 					task.Status == EdoTaskStatus.InProgress
-					&& orderEdoDocument.CreationTime < thresholdDate && orderEdoDocument.CreationTime >= thresholdDate.AddDays(-1)
+					&& taxcomDocflow.CreationTime < thresholdDate && taxcomDocflow.CreationTime >= thresholdDate.AddDays(-1)
 					&& orderEdoDocument.Status == EdoDocumentStatus.InProgress
 					&& orderEdoDocument.AcceptTime == null
 					&& taxcomDocflow.IsReceived
@@ -346,7 +338,6 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 					&& client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
 					&& edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree
 					&& withdrawalEdoRequest == null
-					&& taskItemCodesCount > 0
 					&& !taxcomDocflow.IsReminderToAcceptUpdEmailSent
 
 				select new TimedOutDocFlowRow

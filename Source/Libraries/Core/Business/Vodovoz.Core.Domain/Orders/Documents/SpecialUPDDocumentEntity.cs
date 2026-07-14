@@ -13,7 +13,7 @@ using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.Core.Domain.Orders.Documents
 {
-	public class SpecialUPDDocumentEntity : PrintableOrderDocumentEntity, ISignableDocument, IEmailableDocument
+	public class SpecialUPDDocumentEntity : PrintableOrderDocumentEntity, ISignableDocument, IEmailableDocument, ICustomResendTemplateEmailableDocument
 	{
 		private static readonly DateTime _edition2017LastDate = Convert.ToDateTime("2021-06-30T23:59:59", CultureInfo.CreateSpecificCulture("ru-RU"));
 
@@ -170,6 +170,28 @@ namespace Vodovoz.Core.Domain.Orders.Documents
 				{ "hide_signature", HideSignature }
 			};
 			return reportInfo;
+		}
+
+		public virtual EmailTemplate GetResendDocumentEmailTemplate()
+		{
+			var text = $"Добрый день!" +
+				$"<br>" +
+				$"<br>Во вложении {Title}" +
+				$"<br>" +
+				$"<br>С Уважением," +
+				$"<br>Финансовый отдел" +
+				$"<br>Компания \"Веселый Водовоз\"" +
+				$"<br>тел.: +7 (812) 317-00-00, доб. 900" +
+				$"<br>P.S. И помни, мы тебя любим";
+
+			var template = new EmailTemplate
+			{
+				Title = "ООО \"Веселый водовоз\"",
+				TextHtml = text,
+				Text = text
+			};
+
+			return template;
 		}
 
 		public virtual int DocumentId => Id;

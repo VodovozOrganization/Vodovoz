@@ -5,6 +5,7 @@ using QS.Report;
 using RdlEngine;
 using System;
 using System.IO;
+using Vodovoz.Core.Domain.Orders.Documents;
 using Vodovoz.Core.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Domain.Client;
@@ -41,7 +42,7 @@ namespace EmailPrepareWorker.Prepares
 
 			string fileName = counterpartyEmailType.ToString();
 
-			var orderDocument = document as OrderDocument;
+			var orderDocument = document as OrderDocumentEntity;
 
 			fileName += counterpartyEmailType switch
 			{
