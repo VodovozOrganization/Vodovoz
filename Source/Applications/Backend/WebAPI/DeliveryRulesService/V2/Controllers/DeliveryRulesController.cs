@@ -555,7 +555,7 @@ namespace DeliveryRulesService.V2.Controllers
 				return false;
 			}
 
-			if(saleItems.Any(x => !x.IsNotServiceNomenclature))
+			if(saleItems.Any(x => !x.AllowedToFastDelivery))
 			{
 				return false;
 			}

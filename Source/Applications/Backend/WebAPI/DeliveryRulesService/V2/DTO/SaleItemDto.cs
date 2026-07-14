@@ -27,7 +27,11 @@ namespace DeliveryRulesService.V2.DTO
 		//[JsonPropertyOrder(2)]
 		public int Amount { get; set; }
 		
-		public bool IsNotServiceNomenclature =>
+		/// <summary>
+		/// Допустима для ДЗЧ
+		/// </summary>
+		[JsonIgnore]
+		public bool AllowedToFastDelivery =>
 			Type != SaleItemType.PromoSet
 			&& Type != SaleItemType.RentPackage
 			&& Type != SaleItemType.Service;
