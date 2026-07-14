@@ -59,12 +59,9 @@ namespace BitrixNotificationsSendWorker.PlannedOrders
 
 					var notificationsSendService = scope.ServiceProvider.GetRequiredService<PlannedOrdersNotificationsSendService>();
 
-					var isSent = await notificationsSendService.SendNotifications(stoppingToken);
+					await notificationsSendService.SendNotifications(stoppingToken);
 
-					if(isSent)
-					{
-						_lastSentDate = moscowNow.Date;
-					}
+					_lastSentDate = moscowNow.Date;
 
 					_logger.LogInformation("Окончание отправки данных по плановым заказам клиентов");
 				}

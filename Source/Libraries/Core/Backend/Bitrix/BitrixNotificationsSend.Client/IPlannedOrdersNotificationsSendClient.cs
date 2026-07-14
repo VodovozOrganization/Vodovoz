@@ -1,4 +1,4 @@
-using BitrixNotificationsSend.Contracts.Dto;
+﻿using BitrixNotificationsSend.Contracts.Dto;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,11 +12,11 @@ namespace BitrixNotificationsSend.Client
 	public interface IPlannedOrdersNotificationsSendClient
 	{
 		/// <summary>
-		/// Отправка уведомления в Битрикс24 по клиентам, не сделавшим заказ к плановой дате
+		/// Создание сделки в Битрикс24 по клиенту, не сделавшему заказ к плановой дате
 		/// </summary>
-		/// <param name="plannedOrders">Список с данными по плановым заказам</param>
+		/// <param name="plannedOrders">Данные по плановому заказу</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Результат отправки</returns>
-		Task<Result> SendPlannedOrdersNotification(IEnumerable<PlannedOrderDto> plannedOrders, CancellationToken cancellationToken);
+		Task<Result> CreatePlannedOrderDeal(PlannedOrderDto plannedOrder, CancellationToken cancellationToken);
 	}
 }

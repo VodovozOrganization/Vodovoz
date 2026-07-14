@@ -32,6 +32,21 @@ namespace Vodovoz.Settings.Notifications
 		TimeSpan ClientTimeout { get; }
 
 		/// <summary>
+		/// Адрес базового URL Битрикс24 для создания сделок
+		/// </summary>
+		string BitrixDealsBaseUrl { get; }
+
+		/// <summary>
+		/// Id пользователя Битрикс24 для создания сделок
+		/// </summary>
+		string BitrixDealsUser { get; }
+
+		/// <summary>
+		/// Токен доступа Битрикс24 для создания сделок
+		/// </summary>
+		string BitrixDealsToken { get; }
+
+		/// <summary>
 		/// Интервал проверки необходимости отправки уведомлений по плановым заказам в Битрикс24
 		/// </summary>
 		TimeSpan PlannedOrdersNotificationsSendInterval { get; }
@@ -45,16 +60,6 @@ namespace Vodovoz.Settings.Notifications
 		/// Время окончания интервала отправки уведомлений по плановым заказам в Битрикс24 (по Москве)
 		/// </summary>
 		TimeSpan PlannedOrdersSendTimeTo { get; }
-
-		/// <summary>
-		/// Адрес базового URL Битрикс24 для отправки уведомлений по плановым заказам
-		/// </summary>
-		string PlannedOrdersBitrixBaseUrl { get; }
-
-		/// <summary>
-		/// Токен для доступа к API Битрикс24 для отправки уведомлений по плановым заказам
-		/// </summary>
-		string PlannedOrdersBitrixToken { get; }
 
 		/// <summary>
 		/// Количество дней до планируемого заказа, если у клиента был только один заказ

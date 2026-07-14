@@ -1,8 +1,6 @@
-using BitrixNotificationsSend.Contracts.Dto;
+﻿using BitrixNotificationsSend.Contracts.Dto;
 using Polly;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -28,20 +26,36 @@ namespace BitrixNotificationsSend.Client
 				?? throw new ArgumentNullException(nameof(bitrixNotificationsSendSettings));
 		}
 
-		public async Task<Result> SendPlannedOrdersNotification(IEnumerable<PlannedOrderDto> plannedOrders, CancellationToken cancellationToken)
+		public async Task<Result> CreatePlannedOrderDeal(PlannedOrderDto plannedOrder, CancellationToken cancellationToken)
 		{
-			var content = JsonSerializer.Serialize(plannedOrders.ToArray());
-			HttpContent httpContent = new StringContent(content, Encoding.UTF8, "application/json");
+			var request = new CreatePlannedOrderDealRequest
+			{
+				Fields = plannedOrder
+			};
 
+			var content = JsonSerializer.Serialize(request);
+
+			return await CreateDeal(content, cancellationToken);
+		}
+
+		private async Task<Result> CreateDeal(string content, CancellationToken cancellationToken)
+		{
 			var retryPolicy = Policy
 				.Handle<HttpRequestException>()
 				.Or<TimeoutException>()
+				.Or<TaskCanceledException>(ex => !cancellationToken.IsCancellationRequested)
 				.WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
 
 			var result = await retryPolicy.ExecuteAndCaptureAsync(
 				async (innerCancellationToken) =>
 				{
-					var response = await _httpClient.PostAsync($"handler.php?token={_bitrixNotificationsSendSettings.PlannedOrdersBitrixToken}", httpContent, innerCancellationToken);
+					var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
+
+					var response = await _httpClient.PostAsync(
+						$"rest/{_bitrixNotificationsSendSettings.BitrixDealsUser}/{_bitrixNotificationsSendSettings.BitrixDealsToken}/crm.deal.add",
+						httpContent,
+						innerCancellationToken);
+
 					var responseResult =
 						response.IsSuccessStatusCode
 						? Result.Success()

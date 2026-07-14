@@ -75,7 +75,7 @@ namespace BitrixNotificationsSend.Library.Services
 		/// Формирование и отправка уведомлений по клиентам, не сделавшим заказ к плановой дате
 		/// </summary>
 		/// <returns>true - если уведомления успешно отправлены либо отправлять нечего, false - если отправка не удалась</returns>
-		public async Task<bool> SendNotifications(CancellationToken cancellationToken)
+		public async Task SendNotifications(CancellationToken cancellationToken)
 		{
 			var today = DateTime.UtcNow.ToMoscowDateTime().Date;
 
@@ -93,26 +93,49 @@ namespace BitrixNotificationsSend.Library.Services
 			if(!plannedOrders.Any())
 			{
 				_logger.LogInformation("Нет данных по плановым заказам клиентов для отправки в Битрикс24");
-				return true;
+				return;
 			}
 
 			_logger.LogInformation(
-				"Начало отправки уведомлений по плановым заказам в Битрикс24. Количество строк: {PlannedOrdersCount}",
+				"Начало создания сделок по плановым заказам в Битрикс24. Количество строк: {PlannedOrdersCount}",
 				plannedOrders.Count());
 
-			var sendNotificationResult =
-				await _plannedOrdersNotificationsSendClient.SendPlannedOrdersNotification(plannedOrders, cancellationToken);
+			var successfulDealsCount = 0;
 
-			if(sendNotificationResult.IsSuccess)
+			foreach(var plannedOrder in plannedOrders)
 			{
-				_logger.LogInformation("Уведомления по плановым заказам успешно отправлены в Битрикс24");
-				return true;
+				_logger.LogInformation(
+					"Создаем сделку. Плановый заказ: Контрагент {CounterpartyId}, Точка доставки {DeliveryPointId}, " +
+					"Дата последнего заказа {LastOrderDeliveryDate:yyyy.MM.dd}, Плановая дата заказа {PlannedOrderDate:yyyy.MM.dd}",
+					plannedOrder.CounterpartyId,
+					plannedOrder.DeliveryPointId,
+					plannedOrder.LastOrderDeliveryDate,
+					plannedOrder.PlannedOrderDate);
+
+				try
+				{
+					var sendNotificationResult =
+						await _plannedOrdersNotificationsSendClient.CreatePlannedOrderDeal(plannedOrder, cancellationToken);
+
+					if(sendNotificationResult.IsSuccess)
+					{
+						_logger.LogInformation("Сделка по плановым заказам успешно создана в Битрикс24");
+						successfulDealsCount++;
+						continue;
+					}
+
+					var message = sendNotificationResult.Errors.FirstOrDefault()?.Message;
+					_logger.LogError("Ошибка создания сделки по плановым заказам в Битрикс24: {ErrorMessage}", message);
+				}
+				catch(Exception ex)
+				{
+					_logger.LogError(ex, "Ошибка создания сделки по плановым заказам в Битрикс24");
+				}
 			}
 
-			var message = sendNotificationResult.Errors.FirstOrDefault()?.Message;
-			_logger.LogError("Ошибка отправки уведомлений по плановым заказам в Битрикс24: {ErrorMessage}", message);
-
-			return false;
+			_logger.LogInformation("Успешно создано {SuccessfulDealsCount} сделок из запланированных {PlannedDealsCount}",
+				successfulDealsCount,
+				plannedOrders.Count());
 		}
 
 		private async Task<IEnumerable<PlannedOrderDto>> GetPlannedOrders(
