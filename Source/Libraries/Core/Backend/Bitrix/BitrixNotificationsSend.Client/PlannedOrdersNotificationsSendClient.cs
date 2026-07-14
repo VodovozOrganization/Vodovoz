@@ -1,6 +1,8 @@
-﻿using BitrixNotificationsSend.Contracts.Dto;
+using BitrixNotificationsSend.Contracts.Dto;
 using Polly;
+using Polly.Retry;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -38,13 +40,42 @@ namespace BitrixNotificationsSend.Client
 			return await CreateDeal(content, cancellationToken);
 		}
 
+		public async Task<Result<PlannedOrderDealsBatchResult>> CreatePlannedOrderDeals(
+			IEnumerable<PlannedOrderDto> plannedOrders,
+			CancellationToken cancellationToken)
+		{
+			var commands = new Dictionary<string, string>();
+
+			foreach(var plannedOrder in plannedOrders)
+			{
+				commands.Add(GetDealCommandKey(plannedOrder), CreateDealAddCommand(plannedOrder));
+			}
+
+			if(commands.Count == 0)
+			{
+				return new PlannedOrderDealsBatchResult();
+			}
+
+			if(commands.Count > CreateDealsBatchRequest.MaxCommandsCount)
+			{
+				throw new ArgumentException(
+					$"Количество сделок в пакете не должно превышать {CreateDealsBatchRequest.MaxCommandsCount}",
+					nameof(plannedOrders));
+			}
+
+			var request = new CreateDealsBatchRequest
+			{
+				Commands = commands
+			};
+
+			var content = JsonSerializer.Serialize(request);
+
+			return await CreateDealsBatch(content, cancellationToken);
+		}
+
 		private async Task<Result> CreateDeal(string content, CancellationToken cancellationToken)
 		{
-			var retryPolicy = Policy
-				.Handle<HttpRequestException>()
-				.Or<TimeoutException>()
-				.Or<TaskCanceledException>(ex => !cancellationToken.IsCancellationRequested)
-				.WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+			var retryPolicy = CreateRetryPolicy(cancellationToken);
 
 			var result = await retryPolicy.ExecuteAndCaptureAsync(
 				async (innerCancellationToken) =>
@@ -67,5 +98,125 @@ namespace BitrixNotificationsSend.Client
 			return result.Result
 				?? Errors.BitrixNotificationsSendErrors.CreateSendPlannedOrdersNotificationError(result.FinalException.Message);
 		}
+
+		private async Task<Result<PlannedOrderDealsBatchResult>> CreateDealsBatch(string content, CancellationToken cancellationToken)
+		{
+			var retryPolicy = CreateRetryPolicy(cancellationToken);
+
+			var result = await retryPolicy.ExecuteAndCaptureAsync(
+				async (innerCancellationToken) =>
+				{
+					var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
+
+					var response = await _httpClient.PostAsync(
+						$"rest/{_bitrixNotificationsSendSettings.BitrixDealsUser}/{_bitrixNotificationsSendSettings.BitrixDealsToken}/batch.json",
+						httpContent,
+						innerCancellationToken);
+
+					if(!response.IsSuccessStatusCode)
+					{
+						return Result.Failure<PlannedOrderDealsBatchResult>(
+							Errors.BitrixNotificationsSendErrors.CreateSendPlannedOrdersNotificationError(response.ReasonPhrase));
+					}
+
+					var responseBody = await response.Content.ReadAsStringAsync();
+
+					return ParseDealsBatchResponse(responseBody);
+				},
+				cancellationToken);
+
+			return result.Result
+				?? Result.Failure<PlannedOrderDealsBatchResult>(
+					Errors.BitrixNotificationsSendErrors.CreateSendPlannedOrdersNotificationError(result.FinalException.Message));
+		}
+
+		private static Result<PlannedOrderDealsBatchResult> ParseDealsBatchResponse(string responseBody)
+		{
+			CreateDealsBatchResponse batchResponse;
+
+			try
+			{
+				batchResponse = JsonSerializer.Deserialize<CreateDealsBatchResponse>(responseBody);
+			}
+			catch(JsonException ex)
+			{
+				return Result.Failure<PlannedOrderDealsBatchResult>(
+					Errors.BitrixNotificationsSendErrors.CreateSendPlannedOrdersNotificationError(
+						$"Не удалось разобрать ответ пакетного запроса: {ex.Message}"));
+			}
+
+			if(batchResponse?.Result == null)
+			{
+				return Result.Failure<PlannedOrderDealsBatchResult>(
+					Errors.BitrixNotificationsSendErrors.CreateSendPlannedOrdersNotificationError(
+						"Ответ пакетного запроса не содержит результата"));
+			}
+
+			var batchResult = new PlannedOrderDealsBatchResult();
+
+			if(batchResponse.Result.CreatedDeals.ValueKind == JsonValueKind.Object)
+			{
+				foreach(var createdDeal in batchResponse.Result.CreatedDeals.EnumerateObject())
+				{
+					batchResult.CreatedDealKeys.Add(createdDeal.Name);
+				}
+			}
+
+			if(batchResponse.Result.Errors.ValueKind == JsonValueKind.Object)
+			{
+				foreach(var commandError in batchResponse.Result.Errors.EnumerateObject())
+				{
+					var message =
+						commandError.Value.ValueKind == JsonValueKind.Object
+						&& commandError.Value.TryGetProperty("error_description", out var errorDescription)
+						? errorDescription.GetString()
+						: commandError.Value.GetRawText();
+
+					batchResult.Errors.Add(new PlannedOrderDealCreationError
+					{
+						CommandKey = commandError.Name,
+						Message = message
+					});
+				}
+			}
+
+			return batchResult;
+		}
+
+		private static string GetDealCommandKey(PlannedOrderDto plannedOrder) =>
+			plannedOrder.DeliveryPointId.HasValue
+			? $"deal_{plannedOrder.CounterpartyId}_{plannedOrder.DeliveryPointId.Value}"
+			: $"deal_{plannedOrder.CounterpartyId}_self";
+
+		private static string CreateDealAddCommand(PlannedOrderDto plannedOrder)
+		{
+			using(var document = JsonDocument.Parse(JsonSerializer.Serialize(plannedOrder)))
+			{
+				var parameters = new List<string>();
+
+				foreach(var property in document.RootElement.EnumerateObject())
+				{
+					if(property.Value.ValueKind == JsonValueKind.Null)
+					{
+						continue;
+					}
+
+					var value = property.Value.ValueKind == JsonValueKind.String
+						? property.Value.GetString()
+						: property.Value.GetRawText();
+
+					parameters.Add($"fields[{property.Name}]={Uri.EscapeDataString(value)}");
+				}
+
+				return $"crm.deal.add?{string.Join("&", parameters)}";
+			}
+		}
+
+		private static AsyncRetryPolicy CreateRetryPolicy(CancellationToken cancellationToken) =>
+			Policy
+				.Handle<HttpRequestException>()
+				.Or<TimeoutException>()
+				.Or<TaskCanceledException>(ex => !cancellationToken.IsCancellationRequested)
+				.WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
 	}
 }

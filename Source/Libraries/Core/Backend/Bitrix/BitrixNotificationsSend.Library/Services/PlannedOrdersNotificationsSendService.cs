@@ -39,6 +39,11 @@ namespace BitrixNotificationsSend.Library.Services
 			OrderStatus.DeliveryCanceled
 		};
 
+		/// <summary>
+		/// Пауза между пакетными запросами, чтобы не превышать ограничение Битрикс24 на интенсивность запросов
+		/// </summary>
+		private static readonly TimeSpan _delayBetweenBatches = TimeSpan.FromSeconds(1);
+
 		private readonly ILogger<PlannedOrdersNotificationsSendService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOrderRepository _orderRepository;
@@ -83,11 +88,11 @@ namespace BitrixNotificationsSend.Library.Services
 				"Начало формирования данных по плановым заказам клиентов на {PlannedOrderDate:yyyy.MM.dd}",
 				today);
 
-			IEnumerable<PlannedOrderDto> plannedOrders;
+			IList<PlannedOrderDto> plannedOrders;
 
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(PlannedOrdersNotificationsSendService)))
 			{
-				plannedOrders = await GetPlannedOrders(uow, today, cancellationToken);
+				plannedOrders = (await GetPlannedOrders(uow, today, cancellationToken)).ToList();
 			}
 
 			if(!plannedOrders.Any())
@@ -98,44 +103,64 @@ namespace BitrixNotificationsSend.Library.Services
 
 			_logger.LogInformation(
 				"Начало создания сделок по плановым заказам в Битрикс24. Количество строк: {PlannedOrdersCount}",
-				plannedOrders.Count());
+				plannedOrders.Count);
 
+			var batchSize = CreateDealsBatchRequest.MaxCommandsCount;
+			var batchesCount = (plannedOrders.Count + batchSize - 1) / batchSize;
 			var successfulDealsCount = 0;
 
-			foreach(var plannedOrder in plannedOrders)
+			for(var batchIndex = 0; batchIndex < batchesCount; batchIndex++)
 			{
+				if(batchIndex > 0)
+				{
+					await Task.Delay(_delayBetweenBatches, cancellationToken);
+				}
+
+				var batchPlannedOrders = plannedOrders
+					.Skip(batchIndex * batchSize)
+					.Take(batchSize)
+					.ToList();
+
 				_logger.LogInformation(
-					"Создаем сделку. Плановый заказ: Контрагент {CounterpartyId}, Точка доставки {DeliveryPointId}, " +
-					"Дата последнего заказа {LastOrderDeliveryDate:yyyy.MM.dd}, Плановая дата заказа {PlannedOrderDate:yyyy.MM.dd}",
-					plannedOrder.CounterpartyId,
-					plannedOrder.DeliveryPointId,
-					plannedOrder.LastOrderDeliveryDate,
-					plannedOrder.PlannedOrderDate);
+					"Отправляем пакет {BatchNumber} из {BatchesCount} на создание сделок по плановым заказам в Битрикс24. " +
+					"Сделок в пакете: {BatchDealsCount}",
+					batchIndex + 1,
+					batchesCount,
+					batchPlannedOrders.Count);
 
 				try
 				{
-					var sendNotificationResult =
-						await _plannedOrdersNotificationsSendClient.CreatePlannedOrderDeal(plannedOrder, cancellationToken);
+					var batchResult =
+						await _plannedOrdersNotificationsSendClient.CreatePlannedOrderDeals(batchPlannedOrders, cancellationToken);
 
-					if(sendNotificationResult.IsSuccess)
+					if(batchResult.IsFailure)
 					{
-						_logger.LogInformation("Сделка по плановым заказам успешно создана в Битрикс24");
-						successfulDealsCount++;
+						var message = batchResult.Errors.FirstOrDefault()?.Message;
+						_logger.LogError(
+							"Ошибка отправки пакета создания сделок по плановым заказам в Битрикс24: {ErrorMessage}",
+							message);
 						continue;
 					}
 
-					var message = sendNotificationResult.Errors.FirstOrDefault()?.Message;
-					_logger.LogError("Ошибка создания сделки по плановым заказам в Битрикс24: {ErrorMessage}", message);
+					successfulDealsCount += batchResult.Value.CreatedDealKeys.Count;
+
+					foreach(var dealError in batchResult.Value.Errors)
+					{
+						_logger.LogError(
+							"Ошибка создания сделки {DealCommandKey} по плановым заказам в Битрикс24: {ErrorMessage}",
+							dealError.CommandKey,
+							dealError.Message);
+					}
 				}
 				catch(Exception ex)
 				{
-					_logger.LogError(ex, "Ошибка создания сделки по плановым заказам в Битрикс24");
+					_logger.LogError(ex, "Ошибка отправки пакета создания сделок по плановым заказам в Битрикс24");
 				}
 			}
 
 			_logger.LogInformation("Успешно создано {SuccessfulDealsCount} сделок из запланированных {PlannedDealsCount}",
 				successfulDealsCount,
-				plannedOrders.Count());
+				plannedOrders.Count);
 		}
 
 		private async Task<IEnumerable<PlannedOrderDto>> GetPlannedOrders(
