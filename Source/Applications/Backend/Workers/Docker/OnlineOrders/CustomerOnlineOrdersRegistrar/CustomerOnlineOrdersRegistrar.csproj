@@ -28,7 +28,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\CustomerOrdersApi.Library\CustomerOrdersApi.Library.csproj" />
       <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\DriverApi.Notifications.Client\DriverApi.Notifications.Client.csproj" />
       <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Infrastructure\MessageTransport\MessageTransport.csproj" />
       <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Backend\Osrm\Osrm.csproj" />
@@ -38,6 +37,7 @@
       <ProjectReference Include="..\..\..\..\..\..\Libraries\Core\Vodovoz.Trackers\Vodovoz.Trackers.csproj" />
       <ProjectReference Include="..\..\..\..\..\..\Libraries\Infrastructure\Vodovoz.Infrastructure.Persistance\Vodovoz.Infrastructure.Persistance.csproj" />
       <ProjectReference Include="..\..\..\..\..\..\Vodovoz.Data.NHibernate\Vodovoz.Data.NHibernate.csproj" />
+      <ProjectReference Include="..\..\..\..\WebAPI\CustomerApp\Orders\CustomerOrdersApi.Library\CustomerOrdersApi.Library.csproj" />
     </ItemGroup>
 
     <ItemGroup>
