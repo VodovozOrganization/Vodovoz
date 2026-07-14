@@ -24,7 +24,16 @@ namespace VodovozBusiness.EntityRepositories.Edo
 		/// <param name="uow">UnitOfWork</param>
 		/// <param name="clientId">Номер клиента</param>
 		/// <returns>Список данных документооборота</returns>
-		IList<EdoDockflowData> GetEdoDocflowDataByClientId(IUnitOfWork uow, int clientId);
+		IList<EdoDockflowData> GetEdoDocflowDataByClientId(IUnitOfWork uow, int clientId, int? maxResults = null);
+
+		/// <summary>
+		/// Получить данные старого документооборота по номеру клиента
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="clientId">Номер клиента</param>
+		/// <param name="maxResults">Максимальное количество документов</param>
+		/// <returns>Список данных документооборота</returns>
+		IList<EdoDockflowData> GetOldEdoDocflowDataByClientId(IUnitOfWork uow, int clientId, int? maxResults = null);
 
 		/// <summary>
 		/// Получить запросы ЭДО по номеру заказа
