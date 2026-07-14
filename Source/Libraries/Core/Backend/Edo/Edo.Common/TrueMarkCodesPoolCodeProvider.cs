@@ -285,6 +285,5 @@ namespace Edo.Common
 
 			return codeResult;
 		}
-
 	}
 }
