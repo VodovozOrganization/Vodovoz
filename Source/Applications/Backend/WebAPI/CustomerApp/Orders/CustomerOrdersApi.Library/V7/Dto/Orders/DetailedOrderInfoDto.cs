@@ -77,9 +77,9 @@ namespace CustomerOrdersApi.Library.V7.Dto.Orders
 			{
 				IsRatingAvailable =
 					CreatedDateTimeUtc >= DateTimeOffset.Parse(ratingAvailableFrom.ToString())
-					&& (Vodovoz.Domain.Orders.OrderStatus == ExternalOrderStatus.OrderCompleted
-						|| Vodovoz.Domain.Orders.OrderStatus == ExternalOrderStatus.Canceled
-						|| Vodovoz.Domain.Orders.OrderStatus == ExternalOrderStatus.OrderDelivering);
+					&& (OrderStatus == ExternalOrderStatus.OrderCompleted
+						|| OrderStatus == ExternalOrderStatus.Canceled
+						|| OrderStatus == ExternalOrderStatus.OrderDelivering);
 				RatingReasonsIds = new List<int>();
 				return;
 			}

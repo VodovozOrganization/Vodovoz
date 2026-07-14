@@ -1,5 +1,4 @@
 ﻿using Vodovoz.Core.Data.Orders;
-using Vodovoz.Core.Data.Orders.Default;
 
 namespace CustomerOrdersApi.Library.Default.Dto.Orders
 {

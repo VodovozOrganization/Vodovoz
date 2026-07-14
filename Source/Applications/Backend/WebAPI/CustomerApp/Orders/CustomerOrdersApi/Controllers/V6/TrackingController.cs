@@ -12,7 +12,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Errors.Orders;
-using ICourierTrackingService = CustomerOrdersApi.Library.V7.Services.ICourierTrackingService;
 
 namespace CustomerOrdersApi.Controllers.V6
 {

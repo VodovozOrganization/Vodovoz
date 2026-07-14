@@ -11,7 +11,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Data.InfoMessages;
-using Vodovoz.Core.Data.Orders.V6;
 using Vodovoz.Core.Domain.Mango;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Client;

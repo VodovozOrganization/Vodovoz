@@ -4,8 +4,8 @@ using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
 using CustomerOrdersApi.Library.Common;
-using CustomerOrdersApi.Library.V6.Dto.Orders;
-using CustomerOrdersApi.Library.V6.Services;
+using CustomerOrdersApi.Library.V7.Dto.Orders;
+using CustomerOrdersApi.Library.V7.Services;
 using Gamma.Utilities;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
@@ -20,13 +20,13 @@ namespace CustomerOrdersApi.Controllers.V7
 	[ApiVersion("6.0")]
 	public class OrdersController : SignatureControllerBase
 	{
-		private readonly ICustomerOrdersServiceV6 _customerOrdersService;
+		private readonly ICustomerOrdersService _customerOrdersService;
 		private readonly ICustomerOrderCancellationService _orderCancellationService;
 		private readonly IRequestClient<CreatingOnlineOrder> _requestClient;
 
 		public OrdersController(
 			ILogger<OrdersController> logger,
-			ICustomerOrdersServiceV6 customerOrdersService,
+			ICustomerOrdersService customerOrdersService,
 			ICustomerOrderCancellationService orderCancellationService,
 			IRequestClient<CreatingOnlineOrder> requestClient
 			) : base(logger)

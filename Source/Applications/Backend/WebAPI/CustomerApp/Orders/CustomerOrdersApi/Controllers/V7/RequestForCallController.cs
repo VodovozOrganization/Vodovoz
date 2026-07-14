@@ -1,6 +1,6 @@
 ﻿using System;
-using CustomerOrdersApi.Library.V6.Dto.Orders;
-using CustomerOrdersApi.Library.V6.Services;
+using CustomerOrdersApi.Library.V7.Dto.Orders;
+using CustomerOrdersApi.Library.V7.Services;
 using Gamma.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -10,11 +10,11 @@ namespace CustomerOrdersApi.Controllers.V7
 	[ApiVersion("6.0")]
 	public class RequestForCallController : SignatureControllerBase
 	{
-		private readonly ICustomerOrdersServiceV6 _customerOrdersService;
+		private readonly ICustomerOrdersService _customerOrdersService;
 
 		public RequestForCallController(
 			ILogger<RequestForCallController> logger,
-			ICustomerOrdersServiceV6 customerOrdersService) : base(logger)
+			ICustomerOrdersService customerOrdersService) : base(logger)
 		{
 			_customerOrdersService = customerOrdersService ?? throw new ArgumentNullException(nameof(customerOrdersService));
 		}

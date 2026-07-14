@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
-using CustomerOrdersApi.Library.V6.Dto.Orders.FixedPrice;
-using CustomerOrdersApi.Library.V6.Services;
+using CustomerOrdersApi.Library.V7.Dto.Orders.FixedPrice;
+using CustomerOrdersApi.Library.V7.Services;
 using Gamma.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -14,11 +14,11 @@ namespace CustomerOrdersApi.Controllers.V7
 	[ApiVersion("6.0")]
 	public class FixedPriceController : SignatureControllerBase
 	{
-		private readonly ICustomerOrderFixedPriceServiceV6 _fixedPriceService;
+		private readonly ICustomerOrderFixedPriceService _fixedPriceService;
 
 		public FixedPriceController(
 			ILogger<SignatureControllerBase> logger,
-			ICustomerOrderFixedPriceServiceV6 fixedPriceService) : base(logger)
+			ICustomerOrderFixedPriceService fixedPriceService) : base(logger)
 		{
 			_fixedPriceService = fixedPriceService ?? throw new ArgumentNullException(nameof(fixedPriceService));
 		}

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Vodovoz.Core.Data.InfoMessages;
 using Vodovoz.Core.Domain.Orders;
 
-namespace Vodovoz.Core.Data.Orders.V6
+namespace CustomerOrdersApi.Library.V7.Dto.Orders
 {
 	/// <summary>
 	/// Информация о заказе

@@ -2,7 +2,6 @@
 using QS.DomainModel.UoW;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Data.Orders.V6;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Domain.Orders;
 

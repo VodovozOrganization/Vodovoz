@@ -1,4 +1,4 @@
-﻿using Vodovoz.Core.Data.Orders.V4;
+﻿using CustomerOrdersApi.Library.V4.Dto.Orders;
 
 namespace CustomerOrdersApi.Library.V5.Dto.Orders
 {

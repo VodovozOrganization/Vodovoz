@@ -20,6 +20,7 @@ using System.Net.Security;
 using System.Security.Authentication;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using CustomerOrdersApi.Library.Default.Repositories;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Settings.Pacs;
 using VodovozInfrastructure.Cryptography;
@@ -44,6 +45,7 @@ namespace CustomerOrdersApi.Library
 				.AddScoped<ICustomerOrderFactory, CustomerOrderFactory>()
 				.AddScoped<ICustomerOrdersDiscountService, CustomerOrdersDiscountService>()
 				.AddScoped<ICustomerOrderFixedPriceService, CustomerOrderFixedPriceService>()
+				.AddScoped<ICustomerOrderRepository, CustomerOrderRepository>()
 				.AddDefault();
 			
 			return services;
@@ -56,6 +58,7 @@ namespace CustomerOrdersApi.Library
 				.AddScoped<ICustomerOrdersDiscountServiceV4, CustomerOrdersDiscountServiceV4>()
 				.AddScoped<ICustomerOrderFixedPriceServiceV4, CustomerOrderFixedPriceServiceV4>()
 				.AddScoped<IInfoMessageFactory, InfoMessageFactory>()
+				.AddScoped<V4.Repositories.ICustomerOrderRepository, V4.Repositories.CustomerOrderRepository>()
 				.AddDefault();
 			
 			return services;
@@ -69,6 +72,7 @@ namespace CustomerOrdersApi.Library
 				.AddScoped<ICustomerOrderFixedPriceServiceV5, CustomerOrderFixedPriceServiceV5>()
 				.AddScoped<V5.Services.ICustomerOrderCancellationService, V5.Services.CustomerOrderCancellationService>()
 				.AddScoped<IInfoMessageFactoryV5, InfoMessageFactoryV5>()
+				.AddScoped<V5.Repositories.ICustomerOrderRepository, V5.Repositories.CustomerOrderRepository>()
 				.AddDefault();
 			
 			return services;
@@ -83,6 +87,7 @@ namespace CustomerOrdersApi.Library
 				.AddScoped<IInfoMessageFactoryV6, InfoMessageFactoryV6>()
 				.AddScoped<V6.Services.ICustomerOrderCancellationService, V6.Services.CustomerOrderCancellationService>()
 				.AddScoped<V6.Services.ICourierTrackingService, V6.Services.CourierTrackingService>()
+				.AddScoped<V6.Repositories.ICustomerOrderRepository, V6.Repositories.CustomerOrderRepository>()
 				.AddDefault();
 
 			return services;
@@ -98,6 +103,7 @@ namespace CustomerOrdersApi.Library
 				.AddScoped<V7.Services.ICourierTrackingService, V7.Services.CourierTrackingService>()
 				.AddScoped<V7.Factories.ICustomerOrderFactory, V7.Factories.CustomerOrderFactory>()
 				.AddScoped<V7.Factories.IInfoMessageFactory, V7.Factories.InfoMessageFactory>()
+				.AddScoped<V7.Repositories.ICustomerOrderRepository, V7.Repositories.CustomerOrderRepository>()
 				.AddDefault();
 
 			return services;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Data.Orders.V4;
+using CustomerOrdersApi.Library.V4.Dto.Orders;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 
