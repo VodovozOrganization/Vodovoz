@@ -13,6 +13,9 @@ using Vodovoz.Zabbix.Sender;
 
 namespace BitrixNotificationsSendWorker.PlannedOrders
 {
+	/// <summary>
+	/// Воркер отправки уведомлений по плановым заказам клиентов в Битрикс24
+	/// </summary>
 	public class PlannedOrdersNotificationsSendWorker : TimerBackgroundServiceBase
 	{
 		private readonly ILogger<PlannedOrdersNotificationsSendWorker> _logger;

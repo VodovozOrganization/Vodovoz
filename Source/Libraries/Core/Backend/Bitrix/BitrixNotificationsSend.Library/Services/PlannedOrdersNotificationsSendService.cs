@@ -304,7 +304,7 @@ namespace BitrixNotificationsSend.Library.Services
 					CounterpartyInn = counterpartyData?.Inn,
 					PhoneNumber = candidate.LastOrder?.ContactPhoneNumber,
 					EmailAddress = SelectPriorityEmailAddress(counterpartyEmails),
-					DeliveryPointAddress = deliveryPointAddress,
+					DeliveryPointAddress = deliveryPointAddress?.Substring(0, Math.Min(deliveryPointAddress.Length, 1000)),
 					IsSelfDelivery = isSelfDelivery,
 					LastOrderDeliveryDate = candidate.Aggregate.MaxDeliveryDate.Value,
 					PlannedOrderDate = candidate.PlannedOrderDate,

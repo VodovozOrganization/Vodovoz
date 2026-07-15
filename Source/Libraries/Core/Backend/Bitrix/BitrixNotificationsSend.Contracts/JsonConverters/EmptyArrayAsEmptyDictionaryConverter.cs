@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -6,9 +6,7 @@ using System.Text.Json.Serialization;
 namespace BitrixNotificationsSend.Contracts.JsonConverters
 {
 	/// <summary>
-	/// Конвертер словаря, который вместо пустого объекта может приходить в виде пустого массива.
-	/// Битрикс24 (PHP) сериализует пустые ассоциативные массивы как [], а непустые - как объект,
-	/// поэтому обычная десериализация словаря на пустых данных падает
+	/// Конвертер словаря, который вместо пустого объекта может приходить в виде пустого массива
 	/// </summary>
 	public class EmptyArrayAsEmptyDictionaryConverter<TValue> : JsonConverter<Dictionary<string, TValue>>
 	{

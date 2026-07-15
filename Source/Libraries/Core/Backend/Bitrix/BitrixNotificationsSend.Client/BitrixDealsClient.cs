@@ -45,10 +45,6 @@ namespace BitrixNotificationsSend.Client
 			return await SendBatch(commands, cancellationToken);
 		}
 
-		/// <summary>
-		/// Отправка пакета команд одним запросом batch.json,
-		/// не более <see cref="BitrixApiLimits.MaxBatchCommandsCount"/> команд за один вызов
-		/// </summary>
 		private async Task<Result<BitrixBatchResult>> SendBatch(
 			IDictionary<string, string> commands,
 			CancellationToken cancellationToken)
