@@ -37,8 +37,8 @@ namespace Vodovoz.Settings.Edo
 		int WithdrawalDocflowTimeoutDays { get; }
 
 		/// <summary>
-		/// Интервал в часах, через который будет запускаться процесс очистки просроченных кодов из пула
+		/// Интервал в минутах, через который будет запускаться процесс очистки просроченных кодов из пула
 		/// </summary>
-		int ExpiredCodesCleanerIntervalHours { get; }
+		int ExpiredCodesCleanerIntervalMinutes { get; }
 	}
 }

@@ -28,7 +28,7 @@ namespace TrueMarkCodePoolCheckWorker
 
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_trueMarkCodePoolManager = trueMarkCodesPoolManager ?? throw new ArgumentNullException(nameof(trueMarkCodesPoolManager));
-			_interval = TimeSpan.FromHours(edoSettings.ExpiredCodesCleanerIntervalHours);
+			_interval = TimeSpan.FromMinutes(edoSettings.ExpiredCodesCleanerIntervalMinutes);
 		}
 
 		protected override TimeSpan Interval => _interval;
