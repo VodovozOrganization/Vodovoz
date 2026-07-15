@@ -69,6 +69,7 @@ namespace Vodovoz.Core.Application
 				.AddScoped<IComplaintService, ComplaintService>()
 				.AddScoped<ISubdivisionPermissionsService, SubdivisionPermissionsService>()
 				.AddScoped<ITrueMarkWaterCodeService, TrueMarkWaterCodeService>()
+				.AddScoped<ITrueMarkCodesChecker, TrueMarkCodesChecker>()
 				.AddScoped<ITrueMarkTransportCodeFactory, TrueMarkTransportCodeFactory>()
 				.AddScoped<ITrueMarkWaterGroupCodeFactory, TrueMarkWaterGroupCodeFactory>()
 				.AddScoped<ITrueMarkWaterIdentificationCodeFactory, TrueMarkWaterIdentificationCodeFactory>()
