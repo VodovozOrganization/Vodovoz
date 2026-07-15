@@ -150,6 +150,10 @@ namespace BitrixNotificationsSend.Library.Services
 
 				if(!plannedOrdersToSend.Any())
 				{
+					_logger.LogInformation(
+						"Нет плановых заказов клиентов на {PlannedOrderDate:yyyy.MM.dd} в стадии \"Сделка не создана\" для отправки в Битрикс24",
+						today);
+
 					return;
 				}
 

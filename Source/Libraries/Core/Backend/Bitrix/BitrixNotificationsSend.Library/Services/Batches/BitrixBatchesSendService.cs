@@ -36,7 +36,7 @@ namespace BitrixNotificationsSend.Library.Services.Batches
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
-		public async Task<BitrixBatchesSendResult<TItem>> SendAll<TItem>(
+		public async Task<BatchesSendResult<TItem>> SendAll<TItem>(
 			IReadOnlyList<TItem> items,
 			Func<TItem, string> commandKeySelector,
 			Func<IReadOnlyList<TItem>, CancellationToken, Task<Result<BitrixBatchResult>>> sendBatch,
@@ -63,41 +63,38 @@ namespace BitrixNotificationsSend.Library.Services.Batches
 				throw new ArgumentNullException(nameof(onBatchItemsSucceeded));
 			}
 
-			var result = new BitrixBatchesSendResult<TItem>();
+			var sendResult = await SendBatchesSeries(items, commandKeySelector, sendBatch, onBatchItemsSucceeded, cancellationToken);
 
-			var seriesResult = await SendBatchesSeries(items, commandKeySelector, sendBatch, onBatchItemsSucceeded, cancellationToken);
-
-			result.SuccessfulCount += seriesResult.SuccessfulCount;
-
-			if(seriesResult.OperatingLimitFailedItems.Any())
+			if(!sendResult.OperatingLimitFailedItems.Any())
 			{
-				_logger.LogInformation(
-					"{OperatingLimitFailedCount} команд не выполнено из-за операционного лимита Битрикс24. " +
-					"Ожидаем освобождения бюджета и отправляем их повторно",
-					seriesResult.OperatingLimitFailedItems.Count);
-
-				await WaitForOperatingReset(seriesResult.OperatingResetAt, cancellationToken);
-
-				var retrySeriesResult = await SendBatchesSeries(
-					seriesResult.OperatingLimitFailedItems,
-					commandKeySelector,
-					sendBatch,
-					onBatchItemsSucceeded,
-					cancellationToken);
-
-				result.SuccessfulCount += retrySeriesResult.SuccessfulCount;
-				result.OperatingLimitFailedItems = retrySeriesResult.OperatingLimitFailedItems;
-
-				if(retrySeriesResult.OperatingLimitFailedItems.Any())
-				{
-					_logger.LogError(
-						"После повторной отправки не выполнено {OperatingLimitFailedCount} команд " +
-						"из-за операционного лимита Битрикс24",
-						retrySeriesResult.OperatingLimitFailedItems.Count);
-				}
+				return sendResult;
 			}
 
-			return result;
+			_logger.LogInformation(
+				"{OperatingLimitFailedCount} команд не выполнено из-за операционного лимита Битрикс24. " +
+				"Ожидаем освобождения бюджета и отправляем их повторно",
+				sendResult.OperatingLimitFailedItems.Count);
+
+			await WaitForOperatingReset(sendResult.OperatingResetAt, cancellationToken);
+
+			var retrySendResult = await SendBatchesSeries(
+				sendResult.OperatingLimitFailedItems,
+				commandKeySelector,
+				sendBatch,
+				onBatchItemsSucceeded,
+				cancellationToken);
+
+			retrySendResult.SuccessfulCount += sendResult.SuccessfulCount;
+
+			if(retrySendResult.OperatingLimitFailedItems.Any())
+			{
+				_logger.LogError(
+					"После повторной отправки не выполнено {OperatingLimitFailedCount} команд " +
+					"из-за операционного лимита Битрикс24",
+					retrySendResult.OperatingLimitFailedItems.Count);
+			}
+
+			return retrySendResult;
 		}
 
 		private async Task<BatchesSeriesSendResult<TItem>> SendBatchesSeries<TItem>(

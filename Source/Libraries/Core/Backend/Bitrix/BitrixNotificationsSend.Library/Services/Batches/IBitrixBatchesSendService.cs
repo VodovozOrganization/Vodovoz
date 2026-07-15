@@ -27,7 +27,7 @@ namespace BitrixNotificationsSend.Library.Services.Batches
 		/// <param name="onBatchItemsSucceeded"> Обработка элементов пакета, команды по которым выполнены успешно </param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Результат отправки серии пакетов</returns>
-		Task<BitrixBatchesSendResult<TItem>> SendAll<TItem>(
+		Task<BatchesSendResult<TItem>> SendAll<TItem>(
 			IReadOnlyList<TItem> items,
 			Func<TItem, string> commandKeySelector,
 			Func<IReadOnlyList<TItem>, CancellationToken, Task<Result<BitrixBatchResult>>> sendBatch,
