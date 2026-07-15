@@ -10,6 +10,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.Counterparties;
 using Vodovoz.EntityRepositories.Operations;
@@ -72,6 +74,7 @@ namespace BitrixNotificationsSend.Library.Services
 		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
 		private readonly IBitrixNotificationsSendSettings _bitrixNotificationsSendSettings;
 		private readonly IPlannedOrdersNotificationsSendClient _plannedOrdersNotificationsSendClient;
+		private readonly IGenericRepository<PlannedOrder> _plannedOrderRepository;
 
 		public PlannedOrdersNotificationsSendService(
 			ILogger<PlannedOrdersNotificationsSendService> logger,
@@ -82,7 +85,8 @@ namespace BitrixNotificationsSend.Library.Services
 			IDeliveryPointRepository deliveryPointRepository,
 			IDeliveryScheduleSettings deliveryScheduleSettings,
 			IBitrixNotificationsSendSettings bitrixNotificationsSendSettings,
-			IPlannedOrdersNotificationsSendClient plannedOrdersNotificationsSendClient)
+			IPlannedOrdersNotificationsSendClient plannedOrdersNotificationsSendClient,
+			IGenericRepository<PlannedOrder> plannedOrderRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
@@ -93,70 +97,133 @@ namespace BitrixNotificationsSend.Library.Services
 			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 			_bitrixNotificationsSendSettings = bitrixNotificationsSendSettings ?? throw new ArgumentNullException(nameof(bitrixNotificationsSendSettings));
 			_plannedOrdersNotificationsSendClient = plannedOrdersNotificationsSendClient ?? throw new ArgumentNullException(nameof(plannedOrdersNotificationsSendClient));
+			_plannedOrderRepository = plannedOrderRepository ?? throw new ArgumentNullException(nameof(plannedOrderRepository));
 		}
 
 		/// <summary>
-		/// Формирование и отправка уведомлений по клиентам, не сделавшим заказ к плановой дате
+		/// Сбор и сохранение в базу данных данных по клиентам, не сделавшим заказ к плановой дате
+		/// Данные сохраняются в стадии "Сделка не создана".
+		/// Если данные на текущую дату уже есть в базе, повторный сбор не выполняется
 		/// </summary>
-		/// <returns>true - если уведомления успешно отправлены либо отправлять нечего, false - если отправка не удалась</returns>
-		public async Task SendNotifications(CancellationToken cancellationToken)
+		public async Task CollectPlannedOrders(CancellationToken cancellationToken)
 		{
 			var today = DateTime.UtcNow.ToMoscowDateTime().Date;
 
-			_logger.LogInformation(
-				"Начало формирования данных по плановым заказам клиентов на {PlannedOrderDate:yyyy.MM.dd}",
-				today);
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(PlannedOrdersNotificationsSendService)))
+			{
+				var hasPlannedOrdersForToday = _plannedOrderRepository
+					.Get(uow, x => x.PlannedOrderDate == today, 1)
+					.Any();
 
-			IList<PlannedOrderDto> plannedOrders;
+				if(hasPlannedOrdersForToday)
+				{
+					_logger.LogInformation(
+						"Данные по плановым заказам клиентов на {PlannedOrderDate:yyyy.MM.dd} уже собраны, повторный сбор не выполняется",
+						today);
+
+					return;
+				}
+
+				_logger.LogInformation(
+					"Начало формирования данных по плановым заказам клиентов на {PlannedOrderDate:yyyy.MM.dd}",
+					today);
+
+				var plannedOrders = (await GetPlannedOrders(uow, today, cancellationToken)).ToList();
+
+				if(!plannedOrders.Any())
+				{
+					_logger.LogInformation(
+						"Нет данных по плановым заказам клиентов на {PlannedOrderDate:yyyy.MM.dd}",
+						today);
+
+					return;
+				}
+
+				foreach(var plannedOrder in plannedOrders)
+				{
+					await uow.SaveAsync(plannedOrder, cancellationToken: cancellationToken);
+				}
+
+				await uow.CommitAsync(cancellationToken);
+
+				_logger.LogInformation(
+					"Сохранено {PlannedOrdersCount} строк данных по плановым заказам клиентов на {PlannedOrderDate:yyyy.MM.dd}",
+					plannedOrders.Count,
+					today);
+			}
+		}
+
+		/// <summary>
+		/// Отправка в Битрикс24 запросов на создание сделок по сохранённым на текущую дату планируемым заказам
+		/// в стадии "Сделка не создана". После успешного создания сделки стадия меняется на "Сделка создана"
+		/// </summary>
+		public async Task SendNotCreatedDeals(CancellationToken cancellationToken)
+		{
+			var today = DateTime.UtcNow.ToMoscowDateTime().Date;
 
 			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(PlannedOrdersNotificationsSendService)))
 			{
-				plannedOrders = (await GetPlannedOrders(uow, today, cancellationToken)).ToList();
-			}
+				var plannedOrdersToSend = _plannedOrderRepository
+					.Get(uow, x => x.PlannedOrderDate == today && x.Stage == PlannedOrderStage.DealNotCreated)
+					.Select(x => (Entity: x, Dto: CreatePlannedOrderDto(x)))
+					.ToList();
 
-			if(!plannedOrders.Any())
-			{
-				_logger.LogInformation("Нет данных по плановым заказам клиентов для отправки в Битрикс24");
-				return;
-			}
-
-			_logger.LogInformation(
-				"Начало создания сделок по плановым заказам в Битрикс24. Количество строк: {PlannedOrdersCount}",
-				plannedOrders.Count);
-
-			var sendResult = await SendDealsBatches(plannedOrders, cancellationToken);
-
-			var successfulDealsCount = sendResult.SuccessfulDealsCount;
-
-			if(sendResult.OperatingLimitFailedOrders.Any())
-			{
-				_logger.LogInformation(
-					"{OperatingLimitFailedCount} сделок не создано из-за операционного лимита Битрикс24. " +
-					"Ожидаем освобождения бюджета и отправляем их повторно",
-					sendResult.OperatingLimitFailedOrders.Count);
-
-				await WaitForOperatingReset(sendResult.OperatingResetAt, cancellationToken);
-
-				var retrySendResult = await SendDealsBatches(sendResult.OperatingLimitFailedOrders, cancellationToken);
-
-				successfulDealsCount += retrySendResult.SuccessfulDealsCount;
-
-				if(retrySendResult.OperatingLimitFailedOrders.Any())
+				if(!plannedOrdersToSend.Any())
 				{
-					_logger.LogError(
-						"После повторной отправки не создано {OperatingLimitFailedCount} сделок " +
-						"из-за операционного лимита Битрикс24",
-						retrySendResult.OperatingLimitFailedOrders.Count);
+					return;
 				}
-			}
 
-			_logger.LogInformation("Успешно создано {SuccessfulDealsCount} сделок из запланированных {PlannedDealsCount}",
-				successfulDealsCount,
-				plannedOrders.Count);
+				var plannedOrderDtos = plannedOrdersToSend
+					.Select(x => x.Dto)
+					.ToList();
+
+				var plannedOrdersByCommandKeys = plannedOrdersToSend
+					.ToDictionary(x => x.Dto.DealCommandKey, x => x.Entity);
+
+				_logger.LogInformation(
+					"Начало создания сделок по плановым заказам в Битрикс24. Количество строк: {PlannedOrdersCount}",
+					plannedOrderDtos.Count);
+
+				var sendResult = await SendDealsBatches(uow, plannedOrderDtos, plannedOrdersByCommandKeys, cancellationToken);
+
+				var successfulDealsCount = sendResult.SuccessfulDealsCount;
+
+				if(sendResult.OperatingLimitFailedOrders.Any())
+				{
+					_logger.LogInformation(
+						"{OperatingLimitFailedCount} сделок не создано из-за операционного лимита Битрикс24. " +
+						"Ожидаем освобождения бюджета и отправляем их повторно",
+						sendResult.OperatingLimitFailedOrders.Count);
+
+					await WaitForOperatingReset(sendResult.OperatingResetAt, cancellationToken);
+
+					var retrySendResult = await SendDealsBatches(
+						uow,
+						sendResult.OperatingLimitFailedOrders,
+						plannedOrdersByCommandKeys,
+						cancellationToken);
+
+					successfulDealsCount += retrySendResult.SuccessfulDealsCount;
+
+					if(retrySendResult.OperatingLimitFailedOrders.Any())
+					{
+						_logger.LogError(
+							"После повторной отправки не создано {OperatingLimitFailedCount} сделок " +
+							"из-за операционного лимита Битрикс24",
+							retrySendResult.OperatingLimitFailedOrders.Count);
+					}
+				}
+
+				_logger.LogInformation("Успешно создано {SuccessfulDealsCount} сделок из запланированных {PlannedDealsCount}",
+					successfulDealsCount,
+					plannedOrderDtos.Count);
+			}
 		}
 
 		private async Task<DealsBatchesSendResult> SendDealsBatches(
+			IUnitOfWork uow,
 			IList<PlannedOrderDto> plannedOrders,
+			IReadOnlyDictionary<string, PlannedOrder> plannedOrdersByCommandKeys,
 			CancellationToken cancellationToken)
 		{
 			var sendResult = new DealsBatchesSendResult();
@@ -213,6 +280,17 @@ namespace BitrixNotificationsSend.Library.Services
 					}
 
 					sendResult.SuccessfulDealsCount += batchResult.Value.CreatedDealKeys.Count;
+
+					foreach(var createdDealKey in batchResult.Value.CreatedDealKeys)
+					{
+						if(plannedOrdersByCommandKeys.TryGetValue(createdDealKey, out var createdDealPlannedOrder))
+						{
+							createdDealPlannedOrder.Stage = PlannedOrderStage.DealCreated;
+							await uow.SaveAsync(createdDealPlannedOrder, cancellationToken: cancellationToken);
+						}
+					}
+
+					await uow.CommitAsync(cancellationToken);
 
 					if(batchResult.Value.OperatingSeconds > sendResult.OperatingSeconds)
 					{
@@ -280,7 +358,7 @@ namespace BitrixNotificationsSend.Library.Services
 			await Task.Delay(delay, cancellationToken);
 		}
 
-		private async Task<IEnumerable<PlannedOrderDto>> GetPlannedOrders(
+		private async Task<IEnumerable<PlannedOrder>> GetPlannedOrders(
 			IUnitOfWork uow,
 			DateTime today,
 			CancellationToken cancellationToken)
@@ -298,7 +376,7 @@ namespace BitrixNotificationsSend.Library.Services
 
 			if(!allCandidates.Any())
 			{
-				return Enumerable.Empty<PlannedOrderDto>();
+				return Enumerable.Empty<PlannedOrder>();
 			}
 
 			await FillCandidatesLastOrders(uow, deliveryPointsCandidates, selfDeliveryCandidates, cancellationToken);
@@ -341,7 +419,9 @@ namespace BitrixNotificationsSend.Library.Services
 				? await _orderRepository.GetCounterpartiesCashlessDebts(uow, legalCounterpartyIds, cancellationToken)
 				: new Dictionary<int, decimal>();
 
-			var plannedOrders = new List<PlannedOrderDto>();
+			var creationDate = DateTime.UtcNow.ToMoscowDateTime();
+
+			var plannedOrders = new List<PlannedOrder>();
 
 			foreach(var candidate in allCandidates)
 			{
@@ -371,8 +451,10 @@ namespace BitrixNotificationsSend.Library.Services
 
 				var isLegalCounterparty = counterpartyData?.PersonType == PersonType.legal;
 
-				var plannedOrder = new PlannedOrderDto
+				var plannedOrder = new PlannedOrder
 				{
+					CreationDate = creationDate,
+					Stage = PlannedOrderStage.DealNotCreated,
 					CounterpartyId = counterpartyId,
 					DeliveryPointId = deliveryPointId,
 					CounterpartyName = counterpartyData?.FullName,
@@ -625,5 +707,26 @@ namespace BitrixNotificationsSend.Library.Services
 
 			return lastOrder.BottlesMovementDelivered ?? (int)lastOrder.WaterBottlesCount;
 		}
+
+		private static PlannedOrderDto CreatePlannedOrderDto(PlannedOrder plannedOrder) =>
+			new PlannedOrderDto
+			{
+				PlannedOrderId = plannedOrder.Id,
+				CounterpartyId = plannedOrder.CounterpartyId,
+				DeliveryPointId = plannedOrder.DeliveryPointId,
+				IsSelfDelivery = plannedOrder.IsSelfDelivery,
+				CounterpartyName = plannedOrder.CounterpartyName,
+				CounterpartyInn = plannedOrder.CounterpartyInn,
+				PhoneNumber = plannedOrder.PhoneNumber,
+				EmailAddress = plannedOrder.EmailAddress,
+				DeliveryPointAddress = plannedOrder.DeliveryPointAddress,
+				LastOrderDeliveryDate = plannedOrder.LastOrderDeliveryDate,
+				PlannedOrderDate = plannedOrder.PlannedOrderDate,
+				LastOrderBottlesCount = plannedOrder.LastOrderBottlesCount,
+				BottlesDebtByAddress = plannedOrder.BottlesDebtByAddress,
+				BottlesDebtByCounterparty = plannedOrder.BottlesDebtByCounterparty,
+				DelayDaysForCounterparty = plannedOrder.DelayDaysForCounterparty,
+				DebtorDebt = plannedOrder.DebtorDebt
+			};
 	}
 }

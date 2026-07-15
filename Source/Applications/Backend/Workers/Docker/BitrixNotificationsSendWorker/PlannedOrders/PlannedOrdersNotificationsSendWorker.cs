@@ -19,7 +19,8 @@ namespace BitrixNotificationsSendWorker.PlannedOrders
 		private readonly IOptions<PlannedOrdersNotificationsSendOptions> _options;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
 		private readonly IZabbixSender _zabbixSender;
-		private DateTime? _lastSentDate;
+
+		private DateTime? _lastCollectDate;
 
 		public PlannedOrdersNotificationsSendWorker(
 			ILogger<PlannedOrdersNotificationsSendWorker> logger,
@@ -53,17 +54,22 @@ namespace BitrixNotificationsSendWorker.PlannedOrders
 
 				var moscowNow = DateTime.UtcNow.ToMoscowDateTime();
 
-				if(IsInSendTimeInterval(moscowNow) && _lastSentDate != moscowNow.Date)
+				if(IsInSendTimeInterval(moscowNow))
 				{
-					_logger.LogInformation("Запуск отправки данных по плановым заказам клиентов");
-
 					var notificationsSendService = scope.ServiceProvider.GetRequiredService<PlannedOrdersNotificationsSendService>();
 
-					await notificationsSendService.SendNotifications(stoppingToken);
+					if(_lastCollectDate != moscowNow.Date)
+					{
+						_logger.LogInformation("Запуск сбора данных по плановым заказам клиентов");
 
-					_lastSentDate = moscowNow.Date;
+						await notificationsSendService.CollectPlannedOrders(stoppingToken);
 
-					_logger.LogInformation("Окончание отправки данных по плановым заказам клиентов");
+						_lastCollectDate = moscowNow.Date;
+
+						_logger.LogInformation("Окончание сбора данных по плановым заказам клиентов");
+					}
+
+					await notificationsSendService.SendNotCreatedDeals(stoppingToken);
 				}
 
 				await _zabbixSender.SendIsHealthyAsync(stoppingToken);

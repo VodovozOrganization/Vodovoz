@@ -27,6 +27,12 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		public string StageId => "NEW";
 
 		/// <summary>
+		/// Id сохранённой в базе данных записи о планируемом заказе
+		/// </summary>
+		[JsonIgnore]
+		public int PlannedOrderId { get; set; }
+
+		/// <summary>
 		/// Id контрагента
 		/// </summary>
 		[JsonIgnore]
@@ -40,13 +46,10 @@ namespace BitrixNotificationsSend.Contracts.Dto
 
 		/// <summary>
 		/// Ключ команды создания сделки в пакетном запросе,
-		/// содержит id контрагента и точки доставки (self - для самовывоза)
+		/// содержит id сохранённых данных о планируемом заказе
 		/// </summary>
 		[JsonIgnore]
-		public string DealCommandKey =>
-			DeliveryPointId.HasValue
-			? $"deal_{CounterpartyId}_{DeliveryPointId.Value}"
-			: $"deal_{CounterpartyId}_self";
+		public string DealCommandKey => $"deal_{PlannedOrderId}";
 
 		/// <summary>
 		/// Наименование контрагента
