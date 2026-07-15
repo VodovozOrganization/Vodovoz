@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using CustomerAppsApi.Library.V2.Dto.Goods;
 using Vodovoz.Core.Domain.Clients;
 
@@ -13,13 +14,16 @@ namespace CustomerAppsApi.Library.V2.Services
 		/// Получение информации по ценам продаваемых товаров/услуг
 		/// </summary>
 		/// <param name="source">Источник запроса (ИПЗ)</param>
+		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<SaleItemsPricesAndStockDto> GetSaleItemsPricesAndStocks(Source source);
+		Task<SaleItemsPricesAndStockDto> GetSaleItemsPricesAndStocksAsync(Source source, CancellationToken cancellationToken);
+
 		/// <summary>
 		/// Получение информации по продаваемым товарам/услугам
 		/// </summary>
 		/// <param name="source">Источник запроса (ИПЗ)</param>
+		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<SaleItemsDto> GetSaleItems(Source source);
+		Task<SaleItemsDto> GetSaleItemsAsync(Source source, CancellationToken cancellationToken);
 	}
 }

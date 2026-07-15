@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CustomerAppsApi.Library.V2.Converters;
 using CustomerAppsApi.Library.V2.Dto.Goods;
@@ -38,7 +39,7 @@ namespace CustomerAppsApi.Library.V2.Services
 		}
 
 		/// <inheritdoc/>
-		public async Task<SaleItemsPricesAndStockDto> GetSaleItemsPricesAndStocks(Source source)
+		public async Task<SaleItemsPricesAndStockDto> GetSaleItemsPricesAndStocksAsync(Source source, CancellationToken cancellationToken)
 		{
 			var parameterType = _sourceConverter.ConvertToNomenclatureOnlineParameterType(source);
 			var warehouses = _generalSettings.WarehousesForPricesAndStocksIntegration;
@@ -46,10 +47,13 @@ namespace CustomerAppsApi.Library.V2.Services
 			using var batchUow = _uowFactory.CreateWithoutRoot();
 			using var stocksUow = _uowFactory.CreateWithoutRoot();
 			using var promoSetItemsUow = _uowFactory.CreateWithoutRoot();
-			var aggregatedDataTask = _saleItemRepository.GetAggregatedSaleItemPricesAsync(batchUow, parameterType);
+			var aggregatedDataTask = _saleItemRepository.GetAggregatedSaleItemPricesAsync(
+				batchUow, parameterType, cancellationToken);
 			//TODO доработать выборку остатков и данных по товарам промонаборов. Они самые тяжелые выполняются от 6 до 10сек
-			var stocksTask = _saleItemRepository.GetNomenclaturesForSendInStock(stocksUow, parameterType, warehouses);
-			var promoSetItemsPricesTask = _saleItemRepository.GetPromotionalSetsItemsWithBalanceForSend(promoSetItemsUow, parameterType, warehouses);
+			var stocksTask = _saleItemRepository.GetNomenclaturesForSendInStockAsync(
+				stocksUow, parameterType, warehouses, cancellationToken);
+			var promoSetItemsPricesTask = _saleItemRepository.GetPromotionalSetsItemsWithBalanceForSendAsync(
+				promoSetItemsUow, parameterType, warehouses, cancellationToken);
 			
 			await Task.WhenAll(
 				aggregatedDataTask,
@@ -72,11 +76,11 @@ namespace CustomerAppsApi.Library.V2.Services
 		}
 
 		/// <inheritdoc/>
-		public async Task<SaleItemsDto> GetSaleItems(Source source)
+		public async Task<SaleItemsDto> GetSaleItemsAsync(Source source, CancellationToken cancellationToken)
 		{
 			using var uow = _uowFactory.CreateWithoutRoot();
 			var parameterType = _sourceConverter.ConvertToNomenclatureOnlineParameterType(source);
-			var data = await _saleItemRepository.GetAggregatedSaleItemsAsync(uow, parameterType);
+			var data = await _saleItemRepository.GetAggregatedSaleItemsAsync(uow, parameterType, cancellationToken);
 
 			var availableWaterIds = data.Nomenclatures
 				.Where(x => x.Category == NomenclatureCategory.water)

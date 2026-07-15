@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using CustomerAppsApi.Library.V2.Dto.Goods;
 using QS.DomainModel.UoW;
@@ -16,15 +17,26 @@ namespace CustomerAppsApi.Library.V2.Repositories
 		/// </summary>
 		/// <param name="uow">unit of work</param>
 		/// <param name="parameterType">Получатель параметров</param>
+		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<AggregatedSaleItems> GetAggregatedSaleItemsAsync(IUnitOfWork uow, GoodsOnlineParameterType parameterType);
+		Task<AggregatedSaleItems> GetAggregatedSaleItemsAsync(
+			IUnitOfWork uow,
+			GoodsOnlineParameterType parameterType,
+			CancellationToken cancellationToken
+			);
+
 		/// <summary>
 		/// Получение данных по ценам и остаткам
 		/// </summary>
 		/// <param name="uow">unit of work</param>
 		/// <param name="parameterType">Получатель параметров</param>
+		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<AggregatedSaleItemPrices> GetAggregatedSaleItemPricesAsync(IUnitOfWork uow, GoodsOnlineParameterType parameterType);
+		Task<AggregatedSaleItemPrices> GetAggregatedSaleItemPricesAsync(
+			IUnitOfWork uow,
+			GoodsOnlineParameterType parameterType,
+			CancellationToken cancellationToken
+			);
 
 		/// <summary>
 		/// Получение параметров выгружаемых номенклатур
@@ -65,11 +77,13 @@ namespace CustomerAppsApi.Library.V2.Repositories
 		/// <param name="uow">unit of work</param>
 		/// <param name="parameterType">Получатель параметров</param>
 		/// <param name="warehouseIds"></param>
+		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<IEnumerable<PromotionalSetItemBalanceDto>> GetPromotionalSetsItemsWithBalanceForSend(
+		Task<IEnumerable<PromotionalSetItemBalanceDto>> GetPromotionalSetsItemsWithBalanceForSendAsync(
 			IUnitOfWork uow,
 			GoodsOnlineParameterType parameterType,
-			IEnumerable<int> warehouseIds
+			IEnumerable<int> warehouseIds,
+			CancellationToken cancellationToken
 		);
 
 		/// <summary>
@@ -82,18 +96,20 @@ namespace CustomerAppsApi.Library.V2.Repositories
 			IUnitOfWork uow,
 			GoodsOnlineParameterType parameterType
 		);
-		
+
 		/// <summary>
 		/// Получение данных остаткам
 		/// </summary>
 		/// <param name="uow">unit of work</param>
 		/// <param name="parameterType">Получатель параметров</param>
 		/// <param name="warehouseIds">Идентификаторы складов, по которым будет выборка остатков</param>
+		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns></returns>
-		Task<IEnumerable<(int NomenclatureId, decimal Stock)>> GetNomenclaturesForSendInStock(
+		Task<IEnumerable<(int NomenclatureId, decimal Stock)>> GetNomenclaturesForSendInStockAsync(
 			IUnitOfWork uow,
 			GoodsOnlineParameterType parameterType,
-			IEnumerable<int> warehouseIds
+			IEnumerable<int> warehouseIds,
+			CancellationToken cancellationToken
 		);
 	}
 }

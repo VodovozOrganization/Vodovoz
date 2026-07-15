@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CustomerAppsApi.Library.V2.Dto;
 using CustomerAppsApi.Library.V2.Dto.Goods;
@@ -35,7 +36,11 @@ namespace CustomerAppsApi.Library.V2.Repositories
 		private const string _rentPackagePricesBatchKey = "rentPackagePrices";
 		
 		/// <inheritdoc/>
-		public async Task<AggregatedSaleItems> GetAggregatedSaleItemsAsync(IUnitOfWork uow, GoodsOnlineParameterType parameterType)
+		public async Task<AggregatedSaleItems> GetAggregatedSaleItemsAsync(
+			IUnitOfWork uow,
+			GoodsOnlineParameterType parameterType,
+			CancellationToken cancellationToken
+			)
 		{
 			var batch = uow.Session.CreateQueryBatch();
 
@@ -49,17 +54,24 @@ namespace CustomerAppsApi.Library.V2.Repositories
 				.Add<FreeRentPackageDto>(_rentPackagesBatchKey, rentPackagesBatch)
 				;
 
-			await batch.ExecuteAsync();
+			await batch.ExecuteAsync(cancellationToken);
 
-			var nomenclatures = await batch.GetResultAsync<OnlineNomenclatureDto>(_nomenclaturesBatchKey);
-			var promoSets = await batch.GetResultAsync<PromotionalSetDto>(_promoSetsBatchKey);
-			var rentPackages = await batch.GetResultAsync<FreeRentPackageDto>(_rentPackagesBatchKey);
+			var nomenclatures =
+				await batch.GetResultAsync<OnlineNomenclatureDto>(_nomenclaturesBatchKey, cancellationToken);
+			var promoSets =
+				await batch.GetResultAsync<PromotionalSetDto>(_promoSetsBatchKey, cancellationToken);
+			var rentPackages =
+				await batch.GetResultAsync<FreeRentPackageDto>(_rentPackagesBatchKey, cancellationToken);
 
 			return AggregatedSaleItems.Create(nomenclatures, promoSets, rentPackages);
 		}
 		
 		/// <inheritdoc/>
-		public async Task<AggregatedSaleItemPrices> GetAggregatedSaleItemPricesAsync(IUnitOfWork uow, GoodsOnlineParameterType parameterType)
+		public async Task<AggregatedSaleItemPrices> GetAggregatedSaleItemPricesAsync(
+			IUnitOfWork uow,
+			GoodsOnlineParameterType parameterType,
+			CancellationToken cancellationToken
+			)
 		{
 			var batch = uow.Session.CreateQueryBatch();
 
@@ -75,12 +87,16 @@ namespace CustomerAppsApi.Library.V2.Repositories
 				.Add<SaleItemPricesDto>(_rentPackagePricesBatchKey, rentPackagePricesBatch)
 				;
 
-			await batch.ExecuteAsync();
+			await batch.ExecuteAsync(cancellationToken);
 
-			var nomenclatureParameters = await batch.GetResultAsync<NomenclatureOnlineParametersDto>(_nomenclatureParametersBatchKey);
-			var nomenclaturePrices = await batch.GetResultAsync<NomenclatureOnlinePriceDto>(_nomenclaturePricesBatchKey);
-			var promoSetParameters = await batch.GetResultAsync<SaleItemPricesDto>(_promoSetParametersBatchKey);
-			var rentPackagePrices = await batch.GetResultAsync<SaleItemPricesDto>(_rentPackagePricesBatchKey);
+			var nomenclatureParameters =
+				await batch.GetResultAsync<NomenclatureOnlineParametersDto>(_nomenclatureParametersBatchKey, cancellationToken);
+			var nomenclaturePrices =
+				await batch.GetResultAsync<NomenclatureOnlinePriceDto>(_nomenclaturePricesBatchKey, cancellationToken);
+			var promoSetParameters =
+				await batch.GetResultAsync<SaleItemPricesDto>(_promoSetParametersBatchKey, cancellationToken);
+			var rentPackagePrices =
+				await batch.GetResultAsync<SaleItemPricesDto>(_rentPackagePricesBatchKey, cancellationToken);
 
 			return AggregatedSaleItemPrices.Create(
 				nomenclatureParameters,
@@ -131,29 +147,31 @@ namespace CustomerAppsApi.Library.V2.Repositories
 		}
 		
 		/// <inheritdoc/>
-		public async Task<IEnumerable<PromotionalSetItemBalanceDto>> GetPromotionalSetsItemsWithBalanceForSend(
+		public async Task<IEnumerable<PromotionalSetItemBalanceDto>> GetPromotionalSetsItemsWithBalanceForSendAsync(
 			IUnitOfWork uow,
 			GoodsOnlineParameterType parameterType,
-			IEnumerable<int> warehouseIds
+			IEnumerable<int> warehouseIds,
+			CancellationToken cancellationToken
 		)
 		{
 			return await GetQueryOverPromotionalSetsItemsWithBalanceForSend(parameterType, warehouseIds)
 				.DetachedCriteria
 				.GetExecutableCriteria(uow.Session)
-				.ListAsync<PromotionalSetItemBalanceDto>();
+				.ListAsync<PromotionalSetItemBalanceDto>(cancellationToken);
 		}
 
 		/// <inheritdoc/>
-		public async Task<IEnumerable<(int NomenclatureId, decimal Stock)>> GetNomenclaturesForSendInStock(
+		public async Task<IEnumerable<(int NomenclatureId, decimal Stock)>> GetNomenclaturesForSendInStockAsync(
 			IUnitOfWork uow,
 			GoodsOnlineParameterType parameterType,
-			IEnumerable<int> warehouseIds
+			IEnumerable<int> warehouseIds,
+			CancellationToken cancellationToken
 		)
 		{
 			return await IQueryOverNomenclaturesForSendInStock(parameterType, warehouseIds)
 				.DetachedCriteria
 				.GetExecutableCriteria(uow.Session)
-				.ListAsync<(int NomenclatureId, decimal Stock)>();
+				.ListAsync<(int NomenclatureId, decimal Stock)>(cancellationToken);
 		}
 		
 		private IQueryOver GetQueryOverNomenclaturesForSend(IUnitOfWork uow, GoodsOnlineParameterType parameterType)

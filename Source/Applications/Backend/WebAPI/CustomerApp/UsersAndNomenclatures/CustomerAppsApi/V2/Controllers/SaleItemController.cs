@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using CustomerAppsApi.Library.V2.Dto.Goods;
 using CustomerAppsApi.Library.V2.Services;
@@ -34,7 +35,10 @@ namespace CustomerAppsApi.V2.Controllers
 		}
 
 		[HttpGet]
-		public async Task<SaleItemsPricesAndStockDto> GetSaleItemsPricesAndStocks([FromQuery] Source source)
+		public async Task<SaleItemsPricesAndStockDto> GetSaleItemsPricesAndStocks(
+			[FromQuery] Source source,
+			CancellationToken cancellationToken
+			)
 		{
 			var sourceName = source.GetEnumTitle();
 			try
@@ -52,7 +56,7 @@ namespace CustomerAppsApi.V2.Controllers
 					};
 				}
 
-				var pricesAndStocks = await _saleItemService.GetSaleItemsPricesAndStocks(source);
+				var pricesAndStocks = await _saleItemService.GetSaleItemsPricesAndStocksAsync(source, cancellationToken);
 
 				if(!isDryRun)
 				{
@@ -72,7 +76,7 @@ namespace CustomerAppsApi.V2.Controllers
 		}
 		
 		[HttpGet]
-		public async Task<SaleItemsDto> GetSaleItems([FromQuery] Source source)
+		public async Task<SaleItemsDto> GetSaleItems([FromQuery] Source source, CancellationToken cancellationToken)
 		{
 			var sourceName = source.GetEnumTitle();
 			try
@@ -91,7 +95,7 @@ namespace CustomerAppsApi.V2.Controllers
 					};
 				}
 
-				var saleItems = await _saleItemService.GetSaleItems(source);
+				var saleItems = await _saleItemService.GetSaleItemsAsync(source, cancellationToken);
 
 				if(!isDryRun)
 				{
