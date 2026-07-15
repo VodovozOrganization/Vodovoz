@@ -4,15 +4,10 @@ using System.Text.Json.Serialization;
 namespace BitrixNotificationsSend.Contracts.Dto
 {
 	/// <summary>
-	/// Запрос на пакетное создание сделок в битриксе
+	/// Пакетный запрос batch.json в Битрикс24
 	/// </summary>
-	public class CreateDealsBatchRequest
+	public class BitrixBatchRequest
 	{
-		/// <summary>
-		/// Максимальное количество команд в одном пакетном запросе, ограничение Битрикс24
-		/// </summary>
-		public const int MaxCommandsCount = 50;
-
 		/// <summary>
 		/// Признак остановки выполнения пакета при ошибке в одной из команд:
 		/// 0 - продолжать выполнение остальных команд, 1 - остановить
@@ -21,7 +16,8 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		public int Halt => 0;
 
 		/// <summary>
-		/// Команды создания сделок: ключ команды - строка вызова crm.deal.add с параметрами полей сделки
+		/// Команды пакета: ключ команды - строка вызова REST-метода с параметрами,
+		/// не более <see cref="BitrixApiLimits.MaxBatchCommandsCount"/> команд
 		/// </summary>
 		[JsonPropertyName("cmd")]
 		public IDictionary<string, string> Commands { get; set; }

@@ -6,11 +6,12 @@ namespace BitrixNotificationsSend.Contracts.Dto
 	/// <summary>
 	/// Данные о времени выполнения команды пакетного запроса из ответа Битрикс24
 	/// </summary>
-	public class CreateDealsBatchCommandTime
+	public class BitrixBatchCommandTime
 	{
 		/// <summary>
 		/// Накопленное операционное время метода, сек.
-		/// Лимит Битрикс24 - 480 сек на метод в скользящем 10-минутном окне
+		/// Лимит Битрикс24 - <see cref="BitrixApiLimits.OperatingLimitSeconds"/> сек
+		/// на метод в скользящем 10-минутном окне
 		/// </summary>
 		[JsonPropertyName("operating")]
 		public double Operating { get; set; }

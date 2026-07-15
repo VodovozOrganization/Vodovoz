@@ -1,6 +1,7 @@
 ﻿using BitrixNotificationsSend.Client;
 using BitrixNotificationsSend.Library.Options;
 using BitrixNotificationsSend.Library.Services;
+using BitrixNotificationsSend.Library.Services.Batches;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BitrixNotificationsSend.Library
@@ -16,6 +17,7 @@ namespace BitrixNotificationsSend.Library
 
 			services.AddTransient<CashlessDebtsNotificationsSendService>();
 			services.AddTransient<PlannedOrdersNotificationsSendService>();
+			services.AddTransient<IBitrixBatchesSendService, BitrixBatchesSendService>();
 
 			return services;
 		}

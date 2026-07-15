@@ -3,14 +3,14 @@ using System.Text.Json.Serialization;
 namespace BitrixNotificationsSend.Contracts.Dto
 {
 	/// <summary>
-	/// Ответ Битрикс24 на пакетный запрос создания сделок
+	/// Ответ Битрикс24 на пакетный запрос batch.json
 	/// </summary>
-	public class CreateDealsBatchResponse
+	public class BitrixBatchResponse
 	{
 		/// <summary>
 		/// Результаты выполнения команд пакета
 		/// </summary>
 		[JsonPropertyName("result")]
-		public CreateDealsBatchResponseResult Result { get; set; }
+		public BitrixBatchResponseResult Result { get; set; }
 	}
 }

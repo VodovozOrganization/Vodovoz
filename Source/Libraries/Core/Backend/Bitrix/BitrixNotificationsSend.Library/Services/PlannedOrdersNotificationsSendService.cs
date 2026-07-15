@@ -1,5 +1,6 @@
 ﻿using BitrixNotificationsSend.Client;
 using BitrixNotificationsSend.Contracts.Dto;
+using BitrixNotificationsSend.Library.Services.Batches;
 using DateTimeHelpers;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
@@ -41,30 +42,6 @@ namespace BitrixNotificationsSend.Library.Services
 			OrderStatus.DeliveryCanceled
 		};
 
-		/// <summary>
-		/// Пауза между пакетными запросами, чтобы не превышать ограничение Битрикс24 на интенсивность запросов
-		/// </summary>
-		private static readonly TimeSpan _delayBetweenBatches = TimeSpan.FromSeconds(1);
-
-		/// <summary>
-		/// Порог накопленного операционного времени метода создания сделки, сек, после которого
-		/// делается пауза до сброса бюджета. Лимит Битрикс24 - 480 сек на метод в 10-минутном окне,
-		/// запас нужен, чтобы очередной пакет из 50 сделок не упёрся в лимит
-		/// </summary>
-		private const double _operatingSecondsThreshold = 400;
-
-		/// <summary>
-		/// Длительность окна операционного лимита Битрикс24.
-		/// Используется как время ожидания, если момент сброса бюджета не пришёл в ответе,
-		/// и как верхняя граница ожидания на случай расхождения часов с сервером Битрикс24
-		/// </summary>
-		private static readonly TimeSpan _operatingWindowDuration = TimeSpan.FromMinutes(10);
-
-		/// <summary>
-		/// Буфер к времени ожидания сброса операционного бюджета Битрикс24
-		/// </summary>
-		private static readonly TimeSpan _operatingResetBuffer = TimeSpan.FromSeconds(5);
-
 		private readonly ILogger<PlannedOrdersNotificationsSendService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOrderRepository _orderRepository;
@@ -73,7 +50,8 @@ namespace BitrixNotificationsSend.Library.Services
 		private readonly IDeliveryPointRepository _deliveryPointRepository;
 		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
 		private readonly IBitrixNotificationsSendSettings _bitrixNotificationsSendSettings;
-		private readonly IPlannedOrdersNotificationsSendClient _plannedOrdersNotificationsSendClient;
+		private readonly IBitrixDealsClient _bitrixDealsClient;
+		private readonly IBitrixBatchesSendService _bitrixBatchesSendService;
 		private readonly IGenericRepository<PlannedOrder> _plannedOrderRepository;
 
 		public PlannedOrdersNotificationsSendService(
@@ -85,7 +63,8 @@ namespace BitrixNotificationsSend.Library.Services
 			IDeliveryPointRepository deliveryPointRepository,
 			IDeliveryScheduleSettings deliveryScheduleSettings,
 			IBitrixNotificationsSendSettings bitrixNotificationsSendSettings,
-			IPlannedOrdersNotificationsSendClient plannedOrdersNotificationsSendClient,
+			IBitrixDealsClient bitrixDealsClient,
+			IBitrixBatchesSendService bitrixBatchesSendService,
 			IGenericRepository<PlannedOrder> plannedOrderRepository)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -96,7 +75,8 @@ namespace BitrixNotificationsSend.Library.Services
 			_deliveryPointRepository = deliveryPointRepository ?? throw new ArgumentNullException(nameof(deliveryPointRepository));
 			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 			_bitrixNotificationsSendSettings = bitrixNotificationsSendSettings ?? throw new ArgumentNullException(nameof(bitrixNotificationsSendSettings));
-			_plannedOrdersNotificationsSendClient = plannedOrdersNotificationsSendClient ?? throw new ArgumentNullException(nameof(plannedOrdersNotificationsSendClient));
+			_bitrixDealsClient = bitrixDealsClient ?? throw new ArgumentNullException(nameof(bitrixDealsClient));
+			_bitrixBatchesSendService = bitrixBatchesSendService ?? throw new ArgumentNullException(nameof(bitrixBatchesSendService));
 			_plannedOrderRepository = plannedOrderRepository ?? throw new ArgumentNullException(nameof(plannedOrderRepository));
 		}
 
@@ -184,178 +164,37 @@ namespace BitrixNotificationsSend.Library.Services
 					"Начало создания сделок по плановым заказам в Битрикс24. Количество строк: {PlannedOrdersCount}",
 					plannedOrderDtos.Count);
 
-				var sendResult = await SendDealsBatches(uow, plannedOrderDtos, plannedOrdersByCommandKeys, cancellationToken);
-
-				var successfulDealsCount = sendResult.SuccessfulDealsCount;
-
-				if(sendResult.OperatingLimitFailedOrders.Any())
-				{
-					_logger.LogInformation(
-						"{OperatingLimitFailedCount} сделок не создано из-за операционного лимита Битрикс24. " +
-						"Ожидаем освобождения бюджета и отправляем их повторно",
-						sendResult.OperatingLimitFailedOrders.Count);
-
-					await WaitForOperatingReset(sendResult.OperatingResetAt, cancellationToken);
-
-					var retrySendResult = await SendDealsBatches(
-						uow,
-						sendResult.OperatingLimitFailedOrders,
-						plannedOrdersByCommandKeys,
-						cancellationToken);
-
-					successfulDealsCount += retrySendResult.SuccessfulDealsCount;
-
-					if(retrySendResult.OperatingLimitFailedOrders.Any())
-					{
-						_logger.LogError(
-							"После повторной отправки не создано {OperatingLimitFailedCount} сделок " +
-							"из-за операционного лимита Битрикс24",
-							retrySendResult.OperatingLimitFailedOrders.Count);
-					}
-				}
+				var sendResult = await _bitrixBatchesSendService.SendAll(
+					plannedOrderDtos,
+					plannedOrderDto => plannedOrderDto.DealCommandKey,
+					(batchPlannedOrders, batchCancellationToken) =>
+						_bitrixDealsClient.SendPlannedOrderDeals(batchPlannedOrders, batchCancellationToken),
+					(succeededPlannedOrders, batchCancellationToken) =>
+						MarkDealsCreated(uow, succeededPlannedOrders, plannedOrdersByCommandKeys, batchCancellationToken),
+					cancellationToken);
 
 				_logger.LogInformation("Успешно создано {SuccessfulDealsCount} сделок из запланированных {PlannedDealsCount}",
-					successfulDealsCount,
+					sendResult.SuccessfulCount,
 					plannedOrderDtos.Count);
 			}
 		}
 
-		private async Task<DealsBatchesSendResult> SendDealsBatches(
+		private async Task MarkDealsCreated(
 			IUnitOfWork uow,
-			IList<PlannedOrderDto> plannedOrders,
+			IReadOnlyList<PlannedOrderDto> succeededPlannedOrders,
 			IReadOnlyDictionary<string, PlannedOrder> plannedOrdersByCommandKeys,
 			CancellationToken cancellationToken)
 		{
-			var sendResult = new DealsBatchesSendResult();
-
-			var batchSize = CreateDealsBatchRequest.MaxCommandsCount;
-			var batchesCount = (plannedOrders.Count + batchSize - 1) / batchSize;
-
-			for(var batchIndex = 0; batchIndex < batchesCount; batchIndex++)
+			foreach(var succeededPlannedOrder in succeededPlannedOrders)
 			{
-				if(batchIndex > 0)
+				if(plannedOrdersByCommandKeys.TryGetValue(succeededPlannedOrder.DealCommandKey, out var createdDealPlannedOrder))
 				{
-					if(sendResult.OperatingSeconds >= _operatingSecondsThreshold)
-					{
-						_logger.LogInformation(
-							"Операционное время метода создания сделок достигло {OperatingSeconds:F0} сек, " +
-							"приближаемся к лимиту Битрикс24",
-							sendResult.OperatingSeconds);
-
-						await WaitForOperatingReset(sendResult.OperatingResetAt, cancellationToken);
-
-						sendResult.OperatingSeconds = 0;
-						sendResult.OperatingResetAt = null;
-					}
-					else
-					{
-						await Task.Delay(_delayBetweenBatches, cancellationToken);
-					}
-				}
-
-				var batchPlannedOrders = plannedOrders
-					.Skip(batchIndex * batchSize)
-					.Take(batchSize)
-					.ToList();
-
-				_logger.LogInformation(
-					"Отправляем пакет {BatchNumber} из {BatchesCount} на создание сделок по плановым заказам в Битрикс24. " +
-					"Сделок в пакете: {BatchDealsCount}",
-					batchIndex + 1,
-					batchesCount,
-					batchPlannedOrders.Count);
-
-				try
-				{
-					var batchResult =
-						await _plannedOrdersNotificationsSendClient.CreatePlannedOrderDeals(batchPlannedOrders, cancellationToken);
-
-					if(batchResult.IsFailure)
-					{
-						var message = batchResult.Errors.FirstOrDefault()?.Message;
-						_logger.LogError(
-							"Ошибка отправки пакета создания сделок по плановым заказам в Битрикс24: {ErrorMessage}",
-							message);
-						continue;
-					}
-
-					sendResult.SuccessfulDealsCount += batchResult.Value.CreatedDealKeys.Count;
-
-					foreach(var createdDealKey in batchResult.Value.CreatedDealKeys)
-					{
-						if(plannedOrdersByCommandKeys.TryGetValue(createdDealKey, out var createdDealPlannedOrder))
-						{
-							createdDealPlannedOrder.Stage = PlannedOrderStage.DealCreated;
-							await uow.SaveAsync(createdDealPlannedOrder, cancellationToken: cancellationToken);
-						}
-					}
-
-					await uow.CommitAsync(cancellationToken);
-
-					if(batchResult.Value.OperatingSeconds > sendResult.OperatingSeconds)
-					{
-						sendResult.OperatingSeconds = batchResult.Value.OperatingSeconds;
-					}
-
-					if(batchResult.Value.OperatingResetAt != null
-						&& (sendResult.OperatingResetAt == null || batchResult.Value.OperatingResetAt > sendResult.OperatingResetAt))
-					{
-						sendResult.OperatingResetAt = batchResult.Value.OperatingResetAt;
-					}
-
-					var ordersByCommandKeys = batchPlannedOrders.ToDictionary(x => x.DealCommandKey);
-
-					foreach(var dealError in batchResult.Value.Errors)
-					{
-						if(dealError.IsOperatingLimitError
-							&& ordersByCommandKeys.TryGetValue(dealError.CommandKey, out var failedOrder))
-						{
-							_logger.LogWarning(
-								"Сделка {DealCommandKey} не создана из-за операционного лимита Битрикс24",
-								dealError.CommandKey);
-
-							sendResult.OperatingLimitFailedOrders.Add(failedOrder);
-							continue;
-						}
-
-						_logger.LogError(
-							"Ошибка создания сделки {DealCommandKey} по плановым заказам в Битрикс24: {ErrorMessage}",
-							dealError.CommandKey,
-							dealError.Message);
-					}
-				}
-				catch(Exception ex)
-				{
-					_logger.LogError(ex, "Ошибка отправки пакета создания сделок по плановым заказам в Битрикс24");
+					createdDealPlannedOrder.Stage = PlannedOrderStage.DealCreated;
+					await uow.SaveAsync(createdDealPlannedOrder, cancellationToken: cancellationToken);
 				}
 			}
 
-			return sendResult;
-		}
-
-		private async Task WaitForOperatingReset(DateTime? operatingResetAtUtc, CancellationToken cancellationToken)
-		{
-			var delay = operatingResetAtUtc.HasValue
-				? operatingResetAtUtc.Value - DateTime.UtcNow + _operatingResetBuffer
-				: _operatingWindowDuration;
-
-			var maxDelay = _operatingWindowDuration + _operatingResetBuffer;
-
-			if(delay > maxDelay)
-			{
-				delay = maxDelay;
-			}
-
-			if(delay <= TimeSpan.Zero)
-			{
-				return;
-			}
-
-			_logger.LogInformation(
-				"Ожидаем освобождения операционного бюджета Битрикс24: {DelaySeconds:F0} сек",
-				delay.TotalSeconds);
-
-			await Task.Delay(delay, cancellationToken);
+			await uow.CommitAsync(cancellationToken);
 		}
 
 		private async Task<IEnumerable<PlannedOrder>> GetPlannedOrders(

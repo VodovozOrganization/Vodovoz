@@ -23,21 +23,21 @@ namespace BitrixNotificationsSend.Client.Errors
 				$"Ошибка при отправке уведомления о долгах по безналу клиентов в Битрикс24: {message}");
 
 		/// <summary>
-		/// Ошибка при отправке уведомления по плановым заказам клиентов в Битрикс24
+		/// Ошибка при отправке пакетного запроса в Битрикс24
 		/// </summary>
-		public static Error SendPlannedOrdersNotificationError =>
+		public static Error BatchRequestError =>
 			new Error(
 				typeof(BitrixNotificationsSendErrors),
-				nameof(SendPlannedOrdersNotificationError),
-				"Ошибка при отправке уведомления по плановым заказам клиентов в Битрикс24");
+				nameof(BatchRequestError),
+				$"Ошибка при отправке пакетного запроса в Битрикс24");
 
 		/// <summary>
-		/// Ошибка при отправке уведомления по плановым заказам клиентов в Битрикс24
+		/// Ошибка при отправке пакетного запроса в Битрикс24
 		/// </summary>
-		public static Error CreateSendPlannedOrdersNotificationError(string message) =>
+		public static Error CreateBatchRequestError(string message) =>
 			new Error(
 				typeof(BitrixNotificationsSendErrors),
-				nameof(SendPlannedOrdersNotificationError),
-				$"Ошибка при отправке уведомления по плановым заказам клиентов в Битрикс24: {message}");
+				nameof(BatchRequestError),
+				$"Ошибка при отправке пакетного запроса в Битрикс24: {message}");
 	}
 }

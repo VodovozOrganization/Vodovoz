@@ -7,30 +7,30 @@ namespace BitrixNotificationsSend.Contracts.Dto
 	/// <summary>
 	/// Результаты выполнения команд пакетного запроса в Битрикс24
 	/// </summary>
-	public class CreateDealsBatchResponseResult
+	public class BitrixBatchResponseResult
 	{
 		/// <summary>
-		/// Результаты успешных команд: "ключ команды - id созданной сделки"
+		/// Результаты успешных команд: "ключ команды - id созданной сущности"
 		/// </summary>
 		[JsonPropertyName("result")]
 		[JsonConverter(typeof(EmptyArrayAsEmptyDictionaryConverter<long>))]
-		public Dictionary<string, long> CreatedDeals { get; set; } = new Dictionary<string, long>();
+		public Dictionary<string, long> SuccessfulCommands { get; set; } = new Dictionary<string, long>();
 
 		/// <summary>
 		/// Ошибки команд: "ключ команды - данные ошибки"
 		/// </summary>
 		[JsonPropertyName("result_error")]
-		[JsonConverter(typeof(EmptyArrayAsEmptyDictionaryConverter<CreateDealsBatchCommandError>))]
-		public Dictionary<string, CreateDealsBatchCommandError> Errors { get; set; } =
-			new Dictionary<string, CreateDealsBatchCommandError>();
+		[JsonConverter(typeof(EmptyArrayAsEmptyDictionaryConverter<BitrixBatchCommandError>))]
+		public Dictionary<string, BitrixBatchCommandError> Errors { get; set; } =
+			new Dictionary<string, BitrixBatchCommandError>();
 
 		/// <summary>
 		/// Данные о времени выполнения команд: "ключ команды - данные о времени",
 		/// в том числе накопленное операционное время метода и момент сброса операционного бюджета
 		/// </summary>
 		[JsonPropertyName("result_time")]
-		[JsonConverter(typeof(EmptyArrayAsEmptyDictionaryConverter<CreateDealsBatchCommandTime>))]
-		public Dictionary<string, CreateDealsBatchCommandTime> CommandsTime { get; set; } =
-			new Dictionary<string, CreateDealsBatchCommandTime>();
+		[JsonConverter(typeof(EmptyArrayAsEmptyDictionaryConverter<BitrixBatchCommandTime>))]
+		public Dictionary<string, BitrixBatchCommandTime> CommandsTime { get; set; } =
+			new Dictionary<string, BitrixBatchCommandTime>();
 	}
 }

@@ -1,14 +1,14 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace BitrixNotificationsSend.Contracts.Dto
 {
 	/// <summary>
 	/// Данные ошибки выполнения команды пакетного запроса из ответа Битрикс24
 	/// </summary>
-	public class CreateDealsBatchCommandError
+	public class BitrixBatchCommandError
 	{
 		/// <summary>
-		/// Код ошибки, например OPERATION_TIME_LIMIT
+		/// Код (текст) ошибки, например OPERATION_TIME_LIMIT
 		/// </summary>
 		[JsonPropertyName("error")]
 		public string Error { get; set; }
