@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using TrueMark.Codes.Pool;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Results;
 
 namespace Edo.Common
 {
@@ -38,17 +39,17 @@ namespace Edo.Common
 			CancellationToken cancellationToken);
 
 		/// <summary>
-		/// Забирает из пула пачку актуальных валидных кодов по GTIN и количеству.
+		/// Забирает из пула пачку актуальных валидных кодов по GTIN и количеству
 		/// </summary>
-		/// <param name="codesPool">Пул кодов маркировки.</param>
-		/// <param name="gtinCounts">Словарь GTIN -> количество.</param>
-		/// <param name="organizationInn">ИНН организации заказа.</param>
-		/// <param name="cancellationToken">Токен отмены операции.</param>
-		/// <returns>Словарь с результатами подбора кодов.</returns>
-		Task<IDictionary<string, IList<TrueMarkWaterIdentificationCode>>> TakeValidCodesBatchAsync(
-		   ITrueMarkCodesPool codesPool,
-		   IDictionary<string, int> gtinCounts,
-		   string organizationInn,
-		   CancellationToken cancellationToken);
+		/// <param name="codesPool">Пул кодов маркировки</param>
+		/// <param name="gtinCounts">Словарь GTIN -> количество</param>
+		/// <param name="organizationInn">ИНН организации заказа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Словарь GTIN -> список валидных кодов маркировки</returns>
+		Task<Result<IDictionary<string, IList<TrueMarkWaterIdentificationCode>>>> TakeValidCodesBatchAsync(
+			ITrueMarkCodesPool codesPool,
+			IDictionary<string, int> gtinCounts,
+			string organizationInn,
+			CancellationToken cancellationToken);
 	}
 }

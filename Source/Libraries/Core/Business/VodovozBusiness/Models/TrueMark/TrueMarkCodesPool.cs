@@ -68,7 +68,7 @@ namespace Vodovoz.Models.TrueMark
 							true_mark_codes_pool pool
 						WHERE 
 							pool.promoted 
-							pool code.gtin = :gtin
+							AND code.gtin = :gtin
 						ORDER BY pool.adding_time DESC 
 						LIMIT 1
 					;";

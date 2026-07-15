@@ -483,9 +483,19 @@ namespace Edo.Documents.Services
 				context.OrganizationInn,
 				cancellationToken);
 
+			if(loadedCodes.IsFailure)
+			{
+				var errorMessage = loadedCodes.Errors.FirstOrDefault()?.Message ?? "Неизвестная ошибка";
+				_logger.LogError(
+					"Ошибка при загрузке кодов из пула: {ErrorMessage}",
+					errorMessage);
+
+				throw new Exception($"Ошибка при загрузке кодов из пула: {errorMessage}");
+			}
+
 			context.CodesNeeded.Clear();
 
-			return loadedCodes.ToDictionary(
+			return loadedCodes.Value.ToDictionary(
 				kv => kv.Key,
 				kv => kv.Value.ToList());
 		}
