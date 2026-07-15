@@ -42,6 +42,6 @@ namespace Vodovoz.Settings.Database.Edo
 		public int WithdrawalDocflowTimeoutDays =>
 			_settingsController.GetIntValue("edo.withdrawal.docflow_timeout");
 
-		public int ExpiredCodesCleanerIntervalHours => _settingsController.GetIntValue(nameof(ExpiredCodesCleanerIntervalHours));
+		public int ExpiredCodesCleanerIntervalMinutes => _settingsController.GetIntValue(nameof(ExpiredCodesCleanerIntervalMinutes));
 	}
 }
