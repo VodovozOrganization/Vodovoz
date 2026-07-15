@@ -8,7 +8,5 @@
 	public abstract class SignatureParams
 	{
 		public string Sign { get; set; }
-		[PositionForGenerateSignature(1)]
-		public long ShopId { get; set; }
 	}
 }
