@@ -1,6 +1,6 @@
 ﻿namespace VodovozInfrastructure.Cryptography
 {
-	public class RequestForCallSignatureParams : SignatureParams
+	public class RequestForCallSignatureParams : ShopIdSignatureParams
 	{
 		[PositionForGenerateSignature(2)]
 		public string PhoneNumber { get; set; }

@@ -101,10 +101,20 @@ namespace Vodovoz.Errors.Logistics
 				$"Адрес #{routeListItemId} \"{routeListItemShortAddress}\" сам перенесен в МЛ №{transferedToRouteListId}." +
 				$" Отмена этого переноса не возможна. Сначала необходимо отменить перенос в МЛ #{transferedToRouteListId}.");
 
-			public static Error InvalidTransferType => new Error(
+			public static Error AlreadySelectedAsNext => new Error(
 				typeof(RouteListItem),
-				nameof(InvalidTransferType),
-				"Не поддерживаемый тип переноса");
+				nameof(AlreadySelectedAsNext),
+				"Данный адрес уже выбран следующим");
+
+			public static Error NextAddressSameAsUncompletedPrevious => new Error(
+					typeof(RouteListItem),
+					nameof(NextAddressSameAsUncompletedPrevious),
+					"Следующий адрес совпадает с предыдущим незавершенным адресом");
+
+			public static Error InvalidTransferType => new Error(
+					typeof(RouteListItem),
+					nameof(InvalidTransferType),
+					"Не поддерживаемый тип переноса");
 
 			public static Error CreateInvalidOrderTransferType(int orderId) => new Error(
 				typeof(RouteListItem),

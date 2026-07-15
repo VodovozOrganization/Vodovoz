@@ -276,7 +276,7 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel, vm => vm.CanCopyWarehouseAppUserCredentialsToDriverUser, w => w.Sensitive)
 				.InitializeFromSource();
 			btnCopyWarehouseAppUserCredentials.Clicked +=
-				(sender, args) => ViewModel.CopyWarehouseAppUserCredentialsToDriverAppUserCommand.Execute(); 
+				(sender, args) => ViewModel.CopyWarehouseAppUserCredentialsToDriverAppUserCommand.Execute();
 			
 			btnRegisterDriverAppUser.Binding
 				.AddBinding(ViewModel, vm => vm.IsValidNewDriverAppUser, w => w.Sensitive)
@@ -315,13 +315,13 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
 
-			ycheckbuttonCarRecieveCounterpartyCalls.Binding
-				.AddBinding(ViewModel.Entity, e => e.CanRecieveCounterpartyCalls, w => w.Active)
+			ycheckbuttonNoPhoneForCounterpartyCallsRequired.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsNoPhoneForCounterpartyCallsRequired, w => w.Active)
 				.InitializeFromSource();
 
 			entityentryPhoneForCounterpartyCalls.ViewModel = ViewModel.PhoneForCounterpartyCallsViewModel;
 			entityentryPhoneForCounterpartyCalls.Binding
-				.AddBinding(ViewModel.Entity, e => e.CanRecieveCounterpartyCalls, w => w.ViewModel.IsEditable)
+				.AddFuncBinding(ViewModel.Entity, e => !e.IsNoPhoneForCounterpartyCallsRequired, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ConfigureWorkSchedules();

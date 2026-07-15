@@ -104,5 +104,14 @@ namespace Vodovoz.Core.Data.Repositories
 		);
 		IEnumerable<EdoInOrderProblemNode> GetEdoProblemsForOrder(IUnitOfWork uow, int orderId);
 		IEnumerable<EdoInOrderTransferNode> GetTransferEdoTasksForOrder(IUnitOfWork uow, int orderId);
+
+		/// <summary>
+		/// Возвращает сгруппированные данные ЭДО, по которым истекло время подтверждения УПД от клиента
+		/// </summary>
+		/// <param name="unitOfWork">UnitOfWork</param>
+		/// <param name="timeoutDays">Количество дней до истечения принятия УПД</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns></returns>
+		Task<IList<TimedOutDocFlowGrouppedNode>> GetTimedOutDocFlows(IUnitOfWork unitOfWork, int timeoutDays, CancellationToken cancellationToken);
 	}
 }

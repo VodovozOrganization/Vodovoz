@@ -14,6 +14,12 @@ namespace Vodovoz.Errors.Orders
 				nameof(NotFound),
 				"Заказ не найден");
 
+		public static Error NotFoundByPhoneAndStartDate =>
+			new Error(
+				typeof(OrderErrors),
+				nameof(NotFoundByPhoneAndStartDate),
+				"Заказы по указанному номеру телефона и дате не найдены");
+
 		public static Error CantEdit =>
 			new Error(
 				typeof(OrderErrors),

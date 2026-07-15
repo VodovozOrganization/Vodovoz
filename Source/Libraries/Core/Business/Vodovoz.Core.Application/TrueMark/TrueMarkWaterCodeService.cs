@@ -20,7 +20,7 @@ using Vodovoz.Settings.Edo;
 using VodovozBusiness.Domain.Client.Specifications;
 using VodovozBusiness.Models.TrueMark;
 using VodovozBusiness.Services.TrueMark;
-using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
+using TrueMarkCodeErrors = Vodovoz.Core.Domain.Errors.TrueMarkCodeErrors;
 
 namespace Vodovoz.Core.Application.TrueMark
 {
@@ -36,7 +36,7 @@ namespace Vodovoz.Core.Application.TrueMark
 		private readonly IUnitOfWork _uow;
 		private readonly ITrueMarkApiClient _trueMarkApiClient;
 		private readonly OurCodesChecker _ourCodesChecker;
-		private readonly TrueMarkCodesChecker _trueMarkCodesChecker;
+		private readonly ITrueMarkCodesChecker _trueMarkCodesChecker;
 		private readonly TrueMarkWaterCodeParser _trueMarkWaterCodeParser;
 		private readonly ITrueMarkTransportCodeFactory _trueMarkTransportCodeFactory;
 		private readonly ITrueMarkWaterGroupCodeFactory _trueMarkWaterGroupCodeFactory;
@@ -56,7 +56,7 @@ namespace Vodovoz.Core.Application.TrueMark
 			IUnitOfWork uow,
 			ITrueMarkApiClient trueMarkApiClient,
 			OurCodesChecker ourCodesChecker,
-			TrueMarkCodesChecker trueMarkCodesChecker,
+			ITrueMarkCodesChecker trueMarkCodesChecker,
 			TrueMarkWaterCodeParser trueMarkWaterCodeParser,
 			ITrueMarkTransportCodeFactory trueMarkTransportCodeFactory,
 			ITrueMarkWaterGroupCodeFactory trueMarkWaterGroupCodeFactory,

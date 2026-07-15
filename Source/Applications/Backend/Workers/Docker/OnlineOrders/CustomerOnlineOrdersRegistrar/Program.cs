@@ -4,8 +4,8 @@ using CustomerNotifications.Contracts;
 using CustomerOnlineOrdersRegistrar.V3.Factories;
 using CustomerOnlineOrdersRegistrar.V4.Factories;
 using CustomerOnlineOrdersRegistrar.V5.Factories;
+using CustomerOnlineOrdersRegistrar.V6.Factories;
 using CustomerOrdersApi.Library;
-using DocumentFormat.OpenXml.Drawing.Charts;
 using DriverApi.Notifications.Client;
 using MassTransit;
 using MessageTransport;
@@ -73,6 +73,7 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddVersion3()
 						.AddVersion4()
 						.AddVersion5()
+						.AddVersion6()
 						.AddCoreApplicationOrderServices()
 						.AddOsrm()
 
@@ -81,6 +82,7 @@ namespace CustomerOnlineOrdersRegistrar
 						.AddScoped<IOnlineOrderFactoryV3, OnlineOrderFactoryV3>()
 						.AddScoped<IOnlineOrderFactoryV4, OnlineOrderFactoryV4>()
 						.AddScoped<IOnlineOrderFactoryV5, OnlineOrderFactoryV5>()
+						.AddScoped<IOnlineOrderFactoryV6, OnlineOrderFactoryV6>()
 
 						.AddMessageTransportSettings()
 						.AddMassTransit(busConf =>
@@ -89,6 +91,7 @@ namespace CustomerOnlineOrdersRegistrar
 							//busConf.AddConsumer<V3.Consumers.OnlineOrderRegisteredConsumer, V3.Consumers.OnlineOrderRegisteredConsumerDefinition>();
 							busConf.AddConsumer<V4.Consumers.CreatingOnlineOrderConsumer, V4.Consumers.CreatingOnlineOrderConsumerDefinition>();
 							busConf.AddConsumer<V5.Consumers.CreatingOnlineOrderConsumer, V5.Consumers.CreatingOnlineOrderConsumerDefinition>();
+							busConf.AddConsumer<V6.Consumers.CreatingOnlineOrderConsumer, V6.Consumers.CreatingOnlineOrderConsumerDefinition>();
 							busConf.ConfigureRabbitMq();
 						})
 

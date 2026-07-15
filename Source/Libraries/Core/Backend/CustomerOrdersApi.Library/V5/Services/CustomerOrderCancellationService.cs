@@ -1,5 +1,5 @@
-﻿using CustomerOrdersApi.Library.Default.Factories;
-using CustomerOrdersApi.Library.V5.Dto.Orders.CancelOrder;
+﻿using CustomerOrdersApi.Library.V5.Dto.Orders.CancelOrder;
+using CustomerOrdersApi.Library.V5.Factories;
 using Gamma.Utilities;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;

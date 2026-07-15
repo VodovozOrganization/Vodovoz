@@ -82,6 +82,9 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 			}
 		}
 
+		public virtual bool HasItemsWithZeroPrimeCostOrSum =>
+			Items.Any(item => item.PrimeCost == 0 || item.Sum == 0);
+
 		[Display(Name = "Склад")]
 		[Required(ErrorMessage = "Склад должен быть указан.")]
 		public virtual Warehouse Warehouse
@@ -215,4 +218,3 @@ namespace Vodovoz.Domain.Documents.IncomingInvoices
 		#endregion
 	}
 }
-

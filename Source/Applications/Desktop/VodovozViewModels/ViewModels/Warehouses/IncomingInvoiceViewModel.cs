@@ -509,6 +509,15 @@ namespace Vodovoz.ViewModels.Warehouses
 				return false;
 			}
 
+			if(Entity.HasItemsWithZeroPrimeCostOrSum)
+			{
+				ShowWarningMessage(
+					"В табличной части есть позиции с нулевой ценой закупки или суммой. " +
+					"Укажите цену закупки. Для позиций без цены укажите 0,01 руб.");
+
+				return false;
+			}
+
 			if(UoW.IsNew)
 			{
 				Entity.AuthorId = CurrentEmployee?.Id;

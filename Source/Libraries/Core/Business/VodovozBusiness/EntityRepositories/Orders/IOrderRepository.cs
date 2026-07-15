@@ -1,4 +1,4 @@
-﻿using NHibernate.Criterion;
+using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Vodovoz.Core.Data.Orders.Default;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Mango;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
@@ -222,6 +223,27 @@ namespace Vodovoz.EntityRepositories.Orders
 			IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
 		IEnumerable<Vodovoz.Core.Data.Orders.V4.OrderDto> GetCounterpartyOrdersWithoutOnlineOrdersV4(
 			IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom);
+
+		/// <summary>
+		/// Получение заказов контрагента, которые связаны с онлайн-заказами
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="counterpartyId">Id контрагента</param>
+		/// <param name="ratingAvailableFrom">Дата, с которой доступна рейтинговая информация</param>
+		/// <param name="orderStatuses">Статусы заказов</param>
+		/// <returns>Список заказов</returns>
+		IEnumerable<Core.Data.Orders.V6.OrderDto> GetCounterpartyOrdersFromOnlineOrdersV6(IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom, IEnumerable<ExternalOrderStatus> orderStatuses = null);
+
+		/// <summary>
+		/// Получение заказов контрагента, которые не связаны с онлайн-заказами
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="counterpartyId">Id контрагента</param>
+		/// <param name="ratingAvailableFrom">Дата, с которой доступна рейтинговая информация</param>
+		/// <param name="orderStatuses">Статусы заказов</param>
+		/// <returns>Список заказов</returns>
+		IEnumerable<Core.Data.Orders.V6.OrderDto> GetCounterpartyOrdersWithoutOnlineOrdersV6(IUnitOfWork uow, int counterpartyId, DateTime ratingAvailableFrom, IEnumerable<ExternalOrderStatus> orderStatuses = null);
+
 		IEnumerable<Order> GetOrdersFromOnlineOrder(IUnitOfWork uow, int onlineOrderId);
 		OrderStatus[] GetStatusesForEditGoodsInOrderInRouteList();
 		OrderStatus[] GetStatusesForFreeBalanceOperations();
@@ -392,6 +414,51 @@ namespace Vodovoz.EntityRepositories.Orders
 		Task<Order> GetEarliestOrder(
 			IUnitOfWork uow,
 			IEnumerable<int> orderIds,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получение добавочного номера Mango водителя, доставляющего заказ с указанным номером
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="orderId">Номер заказа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Добавочный номер Mango водителя</returns>
+		Task<DriverMangoExtensionNumber> GetDriversMangoExtensionNumberByOrderId(IUnitOfWork uow, int orderId, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получение идентификаторов заказов контрагента,
+		/// созданных начиная с указанной даты и не находящихся в исключаемых статусах
+		/// </summary>
+		/// <param name="uow">Unit of work</param>
+		/// <param name="counterpartyId">Идентификатор контрагента</param>
+		/// <param name="startDate">Дата, начиная с которой ищутся заказы (по дате создания заказа)</param>
+		/// <param name="excludedOrderStatuses">Статусы заказов, исключаемые из выборки</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Идентификаторы найденных заказов</returns>
+		Task<IEnumerable<int>> GetOrderIdsByCounterpartyFromDate(
+			IUnitOfWork uow,
+			int counterpartyId,
+			DateTime startDate,
+			IEnumerable<OrderStatus> excludedOrderStatuses,
+			CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получение идентификаторов заказов контрагента на указанные точки доставки,
+		/// созданных начиная с указанной даты и не находящихся в исключаемых статусах
+		/// </summary>
+		/// <param name="uow">Unit of work</param>
+		/// <param name="counterpartyId">Идентификатор контрагента</param>
+		/// <param name="deliveryPointIds">Идентификаторы точек доставки</param>
+		/// <param name="startDate">Дата, начиная с которой ищутся заказы (по дате создания заказа)</param>
+		/// <param name="excludedOrderStatuses">Статусы заказов, исключаемые из выборки</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Идентификаторы найденных заказов</returns>
+		Task<IEnumerable<int>> GetOrderIdsByCounterpartyAndDeliveryPointsFromDate(
+			IUnitOfWork uow,
+			int counterpartyId,
+			IEnumerable<int> deliveryPointIds,
+			DateTime startDate,
+			IEnumerable<OrderStatus> excludedOrderStatuses,
 			CancellationToken cancellationToken);
 	}
 }

@@ -116,6 +116,7 @@ using static Vodovoz.ViewModels.Cash.Reports.CashFlowAnalysisViewModel;
 using IErrorReporter = Vodovoz.Tools.IErrorReporter;
 using IWarehousePermissionService = Vodovoz.Infrastructure.Services.IWarehousePermissionService;
 using Vodovoz.Application.TrueMark;
+using VodovozBusiness.Models.TrueMark;
 
 namespace Vodovoz
 {

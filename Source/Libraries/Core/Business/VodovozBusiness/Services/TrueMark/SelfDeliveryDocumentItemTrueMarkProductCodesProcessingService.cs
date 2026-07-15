@@ -15,7 +15,7 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using VodovozBusiness.Controllers;
 using NomenclatureErrors = Vodovoz.Errors.Goods.NomenclatureErrors;
-using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
+using TrueMarkCodeErrors = Vodovoz.Core.Domain.Errors.TrueMarkCodeErrors;
 
 namespace VodovozBusiness.Services.TrueMark
 {

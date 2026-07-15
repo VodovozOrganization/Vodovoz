@@ -1,4 +1,4 @@
-﻿using CustomerNotifications.Application.Builders;
+using CustomerNotifications.Application.Builders;
 using CustomerNotifications.Contracts;
 using DriverAPI.Data;
 using DriverAPI.HealthChecks;
@@ -34,6 +34,8 @@ using Vodovoz.Tools;
 using Vodovoz.Tools.CallTasks;
 using Vodovoz.Trackers;
 using VodovozHealthCheck;
+using CustomerNotifications.Application;
+using CustomerNotifications.Application.Builders;
 
 namespace DriverAPI
 {
@@ -113,6 +115,12 @@ namespace DriverAPI
 			services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
 				.AddRoles<IdentityRole>()
 				.AddEntityFrameworkStores<ApplicationDbContext>();
+
+			services
+				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>,
+					OutBoxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
+				.AddScoped<IIntegrationEventBuilder<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>, CustomerNotificationsIntegrationEventBuilder>()
+				.AddCustomerNotificationsSettingsProvider();
 
 			services.Configure<IdentityOptions>(options =>
 			{

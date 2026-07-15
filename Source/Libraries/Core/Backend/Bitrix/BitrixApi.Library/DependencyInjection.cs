@@ -18,7 +18,8 @@ namespace BitrixApi.Library
 				.AddMailganerApiClientUsingDbParameters()
 				.AddScoped<EmailDirectSender>()
 				.AddScoped<IUnitOfWork>(sp => sp.GetService<IUnitOfWorkFactory>().CreateWithoutRoot(nameof(BitrixApi)))
-				.AddScoped<IEmalSendService, EmalSendService>();
+				.AddScoped<IEmalSendService, EmalSendService>()
+				.AddScoped<IOrdersService, OrdersService>();
 
 			return services;
 		}

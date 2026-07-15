@@ -65,7 +65,7 @@ using VodovozBusiness.Controllers;
 using VodovozBusiness.NotificationSenders;
 using VodovozBusiness.Services.Orders;
 using VodovozBusiness.Services.TrueMark;
-using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
+using TrueMarkCodeErrors = Vodovoz.Core.Domain.Errors.TrueMarkCodeErrors;
 using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
 
 namespace Vodovoz

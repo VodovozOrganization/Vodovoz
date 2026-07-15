@@ -1,4 +1,4 @@
-﻿using DateTimeHelpers;
+using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -17,12 +17,15 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
+using Vodovoz.Core.Domain.Mango;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Payments;
+using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Logistic.Cars;
@@ -1994,6 +1997,196 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return orders;
 		}
 
+		public IEnumerable<Vodovoz.Core.Data.Orders.V6.OrderDto> GetCounterpartyOrdersFromOnlineOrdersV6(
+			IUnitOfWork uow,
+			int counterpartyId,
+			DateTime ratingAvailableFrom,
+			IEnumerable<ExternalOrderStatus> orderStatuses = null)
+		{
+			var statusesList = orderStatuses?.ToArray();
+			var orders =
+				from onlineOrder in uow.Session.Query<OnlineOrder>()
+				from timer in uow.Session.Query<OnlineOrderTimers>()
+				join order in uow.Session.Query<VodovozOrder>()
+					on onlineOrder.Id equals order.OnlineOrder.Id
+				join deliverySchedule in uow.Session.Query<DeliverySchedule>()
+					on order.DeliverySchedule.Id equals deliverySchedule.Id into schedules
+				join orderRating in uow.Session.Query<OrderRating>()
+					on onlineOrder.Id equals orderRating.OnlineOrder.Id into orderRatings
+				from orderRating in orderRatings.DefaultIfEmpty()
+				from deliverySchedule in schedules.DefaultIfEmpty()
+
+				let address = order.DeliveryPoint != null ? order.DeliveryPoint.ShortAddress : null
+				let deliveryPointId = order.DeliveryPoint != null ? order.DeliveryPoint.Id : (int?)null
+				let orderStatus =
+					order.OrderStatus == OrderStatus.Canceled
+					|| order.OrderStatus == OrderStatus.DeliveryCanceled
+					|| order.OrderStatus == OrderStatus.NotDelivered
+						? ExternalOrderStatus.Canceled
+						: order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList
+							? ExternalOrderStatus.OrderPerformed
+							: order.OrderStatus == OrderStatus.Shipped
+							|| order.OrderStatus == OrderStatus.Closed
+							|| order.OrderStatus == OrderStatus.UnloadingOnStock
+								? ExternalOrderStatus.OrderCompleted
+								: order.OrderStatus == OrderStatus.WaitForPayment
+									? ExternalOrderStatus.WaitingForPayment
+									: order.OrderStatus == OrderStatus.OnTheWay
+										? ExternalOrderStatus.OrderDelivering
+										: order.OrderStatus == OrderStatus.OnLoading
+											? ExternalOrderStatus.OrderCollecting
+											: ExternalOrderStatus.OrderProcessing
+
+				let ratingAvailable =
+					order.CreateDate.HasValue
+					&& order.CreateDate >= ratingAvailableFrom
+					&& orderRating == null
+					&& (orderStatus == ExternalOrderStatus.OrderCompleted
+						|| orderStatus == ExternalOrderStatus.Canceled
+						|| orderStatus == ExternalOrderStatus.OrderDelivering)
+
+				let orderPaymentStatus = order.OnlinePaymentNumber.HasValue
+					? OnlineOrderPaymentStatus.Paid
+					: OnlineOrderPaymentStatus.UnPaid
+
+				let deliveryScheduleString = order.IsFastDelivery
+					? DeliverySchedule.FastDelivery
+					: deliverySchedule != null
+						? deliverySchedule.DeliveryTime
+						: null
+
+				let isNeedPay =
+					onlineOrder.OnlineOrderStatus == OnlineOrderStatus.WaitingForPayment
+					&& onlineOrder.OnlineOrderPaymentType == OnlineOrderPaymentType.PaidOnline
+					&& onlineOrder.OnlineOrderPaymentStatus == OnlineOrderPaymentStatus.UnPaid
+					&& (order.IsFastDelivery
+						? (DateTime.Now - onlineOrder.Created).TotalSeconds < timer.PayTimeWithFastDelivery.TotalSeconds
+						: (DateTime.Now - onlineOrder.Created).TotalSeconds < timer.PayTimeWithoutFastDelivery.TotalSeconds)
+
+				let orderSum =
+					(uow.Session.Query<OrderItem>()
+						.Where(oi => oi.Order.Id == order.Id)
+						.Sum(oi => (decimal?)oi.ActualSum) ?? 0m)
+					- (uow.Session.Query<OrderDepositItem>()
+						.Where(od => od.Order.Id == order.Id)
+						.Sum(od => (decimal?)od.ActualSum) ?? 0m)
+
+				where order.Client.Id == counterpartyId
+
+				select new Vodovoz.Core.Data.Orders.V6.OrderDto
+				{
+					OrderId = order.Id,
+					OnlineOrderId = onlineOrder.Id,
+					OrderStatus = orderStatus,
+					DeliveryDate = order.DeliveryDate.Value,
+					CreatedDateTimeUtc = DateTimeOffset.Parse(order.CreateDate.Value.ToString()),
+					OrderSum = orderSum,
+					DeliveryAddress = address,
+					DeliverySchedule = deliveryScheduleString,
+					RatingValue = orderRating.Rating,
+					IsRatingAvailable = ratingAvailable,
+					IsNeedPay = isNeedPay,
+					DeliveryPointId = deliveryPointId
+				};
+
+			if(statusesList != null && statusesList.Length > 0)
+			{
+				orders = orders.Where(x => statusesList.Contains(x.OrderStatus));
+			}
+
+			return orders;
+		}
+
+		public IEnumerable<Vodovoz.Core.Data.Orders.V6.OrderDto> GetCounterpartyOrdersWithoutOnlineOrdersV6(
+			IUnitOfWork uow,
+			int counterpartyId,
+			DateTime ratingAvailableFrom,
+			IEnumerable<ExternalOrderStatus> orderStatuses = null)
+		{
+			var statusesList = orderStatuses?.ToArray();
+			var orders = from order in uow.Session.Query<VodovozOrder>()
+						 join deliverySchedule in uow.Session.Query<DeliverySchedule>()
+							 on order.DeliverySchedule.Id equals deliverySchedule.Id into schedules
+						 join orderRating in uow.Session.Query<OrderRating>()
+							 on order.Id equals orderRating.Order.Id into orderRatings
+						 from orderRating in orderRatings.DefaultIfEmpty()
+						 from deliverySchedule in schedules.DefaultIfEmpty()
+
+						 let address = order.DeliveryPoint != null ? order.DeliveryPoint.ShortAddress : null
+						 let deliveryPointId = order.DeliveryPoint != null ? order.DeliveryPoint.Id : (int?)null
+						 let orderStatus =
+							 order.OrderStatus == OrderStatus.Canceled
+							 || order.OrderStatus == OrderStatus.DeliveryCanceled
+							 || order.OrderStatus == OrderStatus.NotDelivered
+								 ? ExternalOrderStatus.Canceled
+								 : order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList
+									 ? ExternalOrderStatus.OrderPerformed
+									 : order.OrderStatus == OrderStatus.Shipped
+									 || order.OrderStatus == OrderStatus.Closed
+									 || order.OrderStatus == OrderStatus.UnloadingOnStock
+										 ? ExternalOrderStatus.OrderCompleted
+										 : order.OrderStatus == OrderStatus.WaitForPayment
+											 ? ExternalOrderStatus.WaitingForPayment
+											 : order.OrderStatus == OrderStatus.OnTheWay
+												 ? ExternalOrderStatus.OrderDelivering
+												 : order.OrderStatus == OrderStatus.OnLoading
+													 ? ExternalOrderStatus.OrderCollecting
+													 : ExternalOrderStatus.OrderProcessing
+
+						 let ratingAvailable =
+							 order.CreateDate.HasValue
+							 && order.CreateDate >= ratingAvailableFrom
+							 && orderRating == null
+							 && (orderStatus == ExternalOrderStatus.OrderCompleted
+								 || orderStatus == ExternalOrderStatus.Canceled
+								 || orderStatus == ExternalOrderStatus.OrderDelivering)
+
+						 let orderPaymentStatus = order.OnlinePaymentNumber.HasValue
+							 ? OnlineOrderPaymentStatus.Paid
+							 : OnlineOrderPaymentStatus.UnPaid
+
+						 let deliveryScheduleString = order.IsFastDelivery
+							 ? DeliverySchedule.FastDelivery
+							 : deliverySchedule != null
+								 ? deliverySchedule.DeliveryTime
+								 : null
+
+						 let orderSum =
+								(uow.Session.Query<OrderItem>()
+									.Where(oi => oi.Order.Id == order.Id)
+									.Sum(oi => (decimal?)oi.ActualSum) ?? 0m)
+								- (uow.Session.Query<OrderDepositItem>()
+									.Where(od => od.Order.Id == order.Id)
+									.Sum(od => (decimal?)od.ActualSum) ?? 0m)
+
+						 where
+							 order.Client.Id == counterpartyId
+							 && order.OnlineOrder == null
+
+						 select new Vodovoz.Core.Data.Orders.V6.OrderDto
+						 {
+							 OrderId = order.Id,
+							 OnlineOrderId = null,
+							 OrderStatus = orderStatus,
+							 DeliveryDate = order.DeliveryDate != null ? order.DeliveryDate.Value : default,
+							 CreatedDateTimeUtc = DateTimeOffset.Parse(order.CreateDate.Value.ToString()),
+							 OrderSum = orderSum,
+							 DeliveryAddress = address,
+							 DeliverySchedule = deliveryScheduleString,
+							 RatingValue = orderRating.Rating,
+							 IsRatingAvailable = ratingAvailable,
+							 IsNeedPay = false,
+							 DeliveryPointId = deliveryPointId
+						 };
+
+			if(statusesList != null && statusesList.Length > 0)
+			{
+				orders = orders.Where(x => statusesList.Contains(x.OrderStatus));
+			}
+
+			return orders;
+		}
+
 		public IList<OrderOnDayNode> GetOrdersOnDay(IUnitOfWork uow, OrderOnDayFilters orderOnDayFilters)
 		{
 			//Подзапрос со всем фильтрами заказов, будет использоваться для фильтрации
@@ -3052,6 +3245,72 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			}
 
 			return query;
+		}
+
+		public Task<DriverMangoExtensionNumber> GetDriversMangoExtensionNumberByOrderId(
+			IUnitOfWork uow,
+			int orderId,
+			CancellationToken cancellationToken)
+		{
+			var routeListItemStatuses =
+				new[] { RouteListItemStatus.EnRoute, RouteListItemStatus.Completed };
+
+			var query =
+				from order in uow.Session.Query<Order>()
+				join routeListItem in uow.Session.Query<RouteListItem>()
+					on order.Id equals routeListItem.Order.Id
+				join routeList in uow.Session.Query<RouteList>()
+					on routeListItem.RouteList.Id equals routeList.Id
+				join driverMangoExtensionNumber in uow.Session.Query<DriverMangoExtensionNumber>()
+					on routeList.Driver.Id equals driverMangoExtensionNumber.DriverId
+				where
+					order.Id == orderId
+					&& routeListItemStatuses.Contains(routeListItem.Status)
+					&& driverMangoExtensionNumber.Status == DriverMangoExtensionNumberStatus.Active
+				select driverMangoExtensionNumber;
+
+			return query.FirstOrDefaultAsync(cancellationToken);
+		}
+
+		public async Task<IEnumerable<int>> GetOrderIdsByCounterpartyFromDate(
+			IUnitOfWork uow,
+			int counterpartyId,
+			DateTime startDate,
+			IEnumerable<OrderStatus> excludedOrderStatuses,
+			CancellationToken cancellationToken)
+		{
+			var orderIds =
+				await (from order in uow.Session.Query<Order>()
+					   where order.Client.Id == counterpartyId
+						   && order.CreateDate >= startDate
+						   && !excludedOrderStatuses.Contains(order.OrderStatus)
+					   select order.Id)
+				.Distinct()
+				.ToListAsync(cancellationToken);
+
+			return orderIds;
+		}
+
+		public async Task<IEnumerable<int>> GetOrderIdsByCounterpartyAndDeliveryPointsFromDate(
+			IUnitOfWork uow,
+			int counterpartyId,
+			IEnumerable<int> deliveryPointIds,
+			DateTime startDate,
+			IEnumerable<OrderStatus> excludedOrderStatuses,
+			CancellationToken cancellationToken)
+		{
+			var orderIds =
+				await (from order in uow.Session.Query<Order>()
+					   where order.Client.Id == counterpartyId
+						   && order.DeliveryPoint != null
+						   && deliveryPointIds.Contains(order.DeliveryPoint.Id)
+						   && order.CreateDate >= startDate
+						   && !excludedOrderStatuses.Contains(order.OrderStatus)
+					   select order.Id)
+				.Distinct()
+				.ToListAsync(cancellationToken);
+
+			return orderIds;
 		}
 	}
 }
