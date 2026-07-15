@@ -1,4 +1,6 @@
-﻿using System.Threading;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TrueMark.Codes.Pool
@@ -33,5 +35,14 @@ namespace TrueMark.Codes.Pool
 		/// <param name="cancellationToken">Токен отмены операции</param>
 		/// <returns>Id кода</returns>
 		Task<int> TakeCode(string gtin, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Получить пачку кодов по GTIN и количеству
+		/// </summary>
+		/// <param name="gtin"></param>
+		/// <param name="count"></param>
+		/// <param name="cancellationToken"></param>
+		/// <returns></returns>
+		Task<IList<int>> TakeCodes(string gtin, int count, CancellationToken cancellationToken);
 	}
 }

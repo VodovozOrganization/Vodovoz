@@ -320,6 +320,37 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 			return await uow.Session.GetAsync<Counterparty>(clientId, cancellationToken);
 		}
 
+		public async Task<IEnumerable<int>> GetCounterpartyIdsByCounterpartyPhoneNumber(IUnitOfWork uow, string phoneDigitsNumber, CancellationToken cancellationToken)
+		{
+			var counterpartyIds =
+				await (from phone in uow.Session.Query<Phone>()
+					   where !phone.IsArchive
+						   && phone.DigitsNumber == phoneDigitsNumber
+						   && phone.Counterparty != null
+					   select phone.Counterparty.Id)
+				.Distinct()
+				.ToListAsync(cancellationToken);
+
+			return counterpartyIds;
+		}
+
+		public async Task<IEnumerable<(int DeliveryPointId, int CounterpartyId)>> GetDeliveryPointIdsWithCounterpartyIdsByDeliveryPointPhoneNumber(
+			IUnitOfWork uow, string phoneDigitsNumber, CancellationToken cancellationToken)
+		{
+			var deliveryPointIdsWithCounterpartyIds =
+				await (from phone in uow.Session.Query<Phone>()
+					   where !phone.IsArchive
+						   && phone.DigitsNumber == phoneDigitsNumber
+						   && phone.DeliveryPoint != null
+						   && phone.DeliveryPoint.Counterparty != null
+					   select new { DeliveryPointId = phone.DeliveryPoint.Id, CounterpartyId = phone.DeliveryPoint.Counterparty.Id })
+				.Distinct()
+				.ToListAsync(cancellationToken);
+
+			return deliveryPointIdsWithCounterpartyIds
+				.Select(x => (x.DeliveryPointId, x.CounterpartyId));
+		}
+
 		public EdoOperator GetEdoOperatorByCode(IUnitOfWork uow, string edoOperatorCode)
 		{
 			return uow.Session.QueryOver<EdoOperator>()

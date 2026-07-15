@@ -7,6 +7,7 @@ using NHibernate;
 using NSubstitute;
 using QS.DomainModel.UoW;
 using TrueMark.Codes.Pool;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Settings.Edo;
@@ -23,6 +24,7 @@ namespace Receipt.Dispatcher.Tests
 		private readonly IEdoSettings _edoSettings;
 		private readonly ITrueMarkCodesPool _codesPool;
 		private readonly TrueMarkCodesPoolCodeProvider _provider;
+		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 
 		public TrueMarkCodesPoolCodeProviderTests()
 		{
@@ -31,6 +33,7 @@ namespace Receipt.Dispatcher.Tests
 			_trueMarkCodesValidator = Substitute.For<ITrueMarkCodesValidator>();
 			_edoSettings = Substitute.For<IEdoSettings>();
 			_codesPool = Substitute.For<ITrueMarkCodesPool>();
+			_trueMarkCodeRepository = Substitute.For<ITrueMarkCodeRepository>();
 			var logger = Substitute.For<ILogger<TrueMarkCodesPoolCodeProvider>>();
 			
 			uow.Session.Returns(_session);
@@ -40,7 +43,9 @@ namespace Receipt.Dispatcher.Tests
 				uow,
 				_trueMarkCodesValidator,
 				_edoSettings,
-				logger);
+				logger,
+				_trueMarkCodeRepository
+				);
 		}
 
 		[Fact]
