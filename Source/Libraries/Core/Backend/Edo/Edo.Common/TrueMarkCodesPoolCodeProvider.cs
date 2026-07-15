@@ -404,6 +404,7 @@ namespace Edo.Common
 			{
 				await codesPool.PutCodeAsync(code.Id, cancellationToken);
 			}
+
 			_logger.LogDebug(
 				"Для GTIN {Gtin} {CodeCount} кодов возвращено в пул.",
 				gtin,
