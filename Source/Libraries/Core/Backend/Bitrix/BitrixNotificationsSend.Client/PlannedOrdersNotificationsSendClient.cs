@@ -48,7 +48,7 @@ namespace BitrixNotificationsSend.Client
 
 			foreach(var plannedOrder in plannedOrders)
 			{
-				commands.Add(GetDealCommandKey(plannedOrder), CreateDealAddCommand(plannedOrder));
+				commands.Add(plannedOrder.DealCommandKey, CreateDealAddCommand(plannedOrder));
 			}
 
 			if(commands.Count == 0)
@@ -154,39 +154,49 @@ namespace BitrixNotificationsSend.Client
 
 			var batchResult = new PlannedOrderDealsBatchResult();
 
-			if(batchResponse.Result.CreatedDeals.ValueKind == JsonValueKind.Object)
+			foreach(var createdDeal in batchResponse.Result.CreatedDeals)
 			{
-				foreach(var createdDeal in batchResponse.Result.CreatedDeals.EnumerateObject())
-				{
-					batchResult.CreatedDealKeys.Add(createdDeal.Name);
-				}
+				batchResult.CreatedDealKeys.Add(createdDeal.Key);
 			}
 
-			if(batchResponse.Result.Errors.ValueKind == JsonValueKind.Object)
+			foreach(var commandError in batchResponse.Result.Errors)
 			{
-				foreach(var commandError in batchResponse.Result.Errors.EnumerateObject())
+				batchResult.Errors.Add(new PlannedOrderDealCreationError
 				{
-					var message =
-						commandError.Value.ValueKind == JsonValueKind.Object
-						&& commandError.Value.TryGetProperty("error_description", out var errorDescription)
-						? errorDescription.GetString()
-						: commandError.Value.GetRawText();
-
-					batchResult.Errors.Add(new PlannedOrderDealCreationError
-					{
-						CommandKey = commandError.Name,
-						Message = message
-					});
-				}
+					CommandKey = commandError.Key,
+					ErrorCode = commandError.Value?.Error,
+					Message = commandError.Value?.ErrorDescription
+				});
 			}
+
+			FillOperatingData(batchResponse.Result.CommandsTime.Values, batchResult);
 
 			return batchResult;
 		}
 
-		private static string GetDealCommandKey(PlannedOrderDto plannedOrder) =>
-			plannedOrder.DeliveryPointId.HasValue
-			? $"deal_{plannedOrder.CounterpartyId}_{plannedOrder.DeliveryPointId.Value}"
-			: $"deal_{plannedOrder.CounterpartyId}_self";
+		private static void FillOperatingData(
+			IEnumerable<CreateDealsBatchCommandTime> commandsTime,
+			PlannedOrderDealsBatchResult batchResult)
+		{
+			foreach(var commandTime in commandsTime)
+			{
+				if(commandTime == null)
+				{
+					continue;
+				}
+
+				if(commandTime.Operating > batchResult.OperatingSeconds)
+				{
+					batchResult.OperatingSeconds = commandTime.Operating;
+				}
+
+				if(commandTime.OperatingResetAtUtc != null
+					&& (batchResult.OperatingResetAt == null || commandTime.OperatingResetAtUtc > batchResult.OperatingResetAt))
+				{
+					batchResult.OperatingResetAt = commandTime.OperatingResetAtUtc;
+				}
+			}
+		}
 
 		private static string CreateDealAddCommand(PlannedOrderDto plannedOrder)
 		{

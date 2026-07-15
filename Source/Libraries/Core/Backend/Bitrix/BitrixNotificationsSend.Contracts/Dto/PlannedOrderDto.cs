@@ -39,6 +39,16 @@ namespace BitrixNotificationsSend.Contracts.Dto
 		public int? DeliveryPointId { get; set; }
 
 		/// <summary>
+		/// Ключ команды создания сделки в пакетном запросе,
+		/// содержит id контрагента и точки доставки (self - для самовывоза)
+		/// </summary>
+		[JsonIgnore]
+		public string DealCommandKey =>
+			DeliveryPointId.HasValue
+			? $"deal_{CounterpartyId}_{DeliveryPointId.Value}"
+			: $"deal_{CounterpartyId}_self";
+
+		/// <summary>
 		/// Наименование контрагента
 		/// </summary>
 		[JsonPropertyName("UF_CRM_1662373256")]
