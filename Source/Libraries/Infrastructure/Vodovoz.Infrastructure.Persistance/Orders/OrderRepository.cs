@@ -1,4 +1,4 @@
-﻿using DateTimeHelpers;
+using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -3270,6 +3270,47 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				select driverMangoExtensionNumber;
 
 			return query.FirstOrDefaultAsync(cancellationToken);
+		}
+
+		public async Task<IEnumerable<int>> GetOrderIdsByCounterpartyFromDate(
+			IUnitOfWork uow,
+			int counterpartyId,
+			DateTime startDate,
+			IEnumerable<OrderStatus> excludedOrderStatuses,
+			CancellationToken cancellationToken)
+		{
+			var orderIds =
+				await (from order in uow.Session.Query<Order>()
+					   where order.Client.Id == counterpartyId
+						   && order.CreateDate >= startDate
+						   && !excludedOrderStatuses.Contains(order.OrderStatus)
+					   select order.Id)
+				.Distinct()
+				.ToListAsync(cancellationToken);
+
+			return orderIds;
+		}
+
+		public async Task<IEnumerable<int>> GetOrderIdsByCounterpartyAndDeliveryPointsFromDate(
+			IUnitOfWork uow,
+			int counterpartyId,
+			IEnumerable<int> deliveryPointIds,
+			DateTime startDate,
+			IEnumerable<OrderStatus> excludedOrderStatuses,
+			CancellationToken cancellationToken)
+		{
+			var orderIds =
+				await (from order in uow.Session.Query<Order>()
+					   where order.Client.Id == counterpartyId
+						   && order.DeliveryPoint != null
+						   && deliveryPointIds.Contains(order.DeliveryPoint.Id)
+						   && order.CreateDate >= startDate
+						   && !excludedOrderStatuses.Contains(order.OrderStatus)
+					   select order.Id)
+				.Distinct()
+				.ToListAsync(cancellationToken);
+
+			return orderIds;
 		}
 	}
 }
