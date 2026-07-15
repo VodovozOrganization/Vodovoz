@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using TrueMark.Codes.Pool;
+using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Errors;
 using Vodovoz.Core.Domain.Goods;
@@ -20,17 +21,21 @@ namespace Edo.Common
 		private readonly ITrueMarkCodesValidator _trueMarkCodesValidator;
 		private readonly IEdoSettings _edoSettings;
 		private readonly ILogger<TrueMarkCodesPoolCodeProvider> _logger;
+		private readonly ITrueMarkCodeRepository _trueMarkCodeRepository;
 
 		public TrueMarkCodesPoolCodeProvider(
 			IUnitOfWork uow,
 			ITrueMarkCodesValidator trueMarkCodesValidator,
 			IEdoSettings edoSettings,
-			ILogger<TrueMarkCodesPoolCodeProvider> logger)
+			ILogger<TrueMarkCodesPoolCodeProvider> logger,
+			ITrueMarkCodeRepository trueMarkCodeRepository
+			)
 		{
 			_uow = uow ?? throw new ArgumentNullException(nameof(uow));
 			_trueMarkCodesValidator = trueMarkCodesValidator ?? throw new ArgumentNullException(nameof(trueMarkCodesValidator));
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_trueMarkCodeRepository = trueMarkCodeRepository ?? throw new ArgumentNullException(nameof(trueMarkCodeRepository));
 		}
 
 		public async Task<TrueMarkWaterIdentificationCode> TakeValidCodeAsync(
@@ -293,12 +298,10 @@ namespace Edo.Common
 							codeIds.Count,
 							attempt);
 
-						TrueMarkWaterIdentificationCode codeAlias = null;
-						var codes = await _uow.Session
-							.QueryOver(() => codeAlias)
-							.WhereRestrictionOn(() => codeAlias.Id)
-							.IsIn(codeIds.ToArray())
-							.ListAsync(cancellationToken);
+						var codes = await _trueMarkCodeRepository.LoadWaterCodes(
+							_uow,
+							codeIds.ToArray(),
+							cancellationToken);
 
 						takenForGtin.AddRange(codes);
 
