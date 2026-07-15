@@ -14,12 +14,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Employees;
 using Vodovoz.Domain.Logistic.Drivers;
 using IApiRouteListService = DriverAPI.Library.V6.Services.IRouteListService;
-using IRouteListTransferService = Vodovoz.Services.Logistics.IRouteListTransferService;
 using IRouteListSpecialConditionsService = Vodovoz.Services.Logistics.IRouteListSpecialConditionsService;
+using IRouteListTransferService = Vodovoz.Services.Logistics.IRouteListTransferService;
 
 namespace DriverAPI.Controllers.V6
 {
@@ -88,14 +89,14 @@ namespace DriverAPI.Controllers.V6
 		[HttpPost]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetRouteListsDetailsResponse))]
-		public IActionResult GetRouteListsDetails([FromBody] int[] routeListsIds)
+		public async Task<IActionResult> GetRouteListsDetails([FromBody] int[] routeListsIds, CancellationToken cancellationToken)
 		{
 			_logger.LogInformation("Запрос МЛ-ов с деталями: {@RouteListIds} пользователем {Username} User token: {AccessToken}",
 				routeListsIds,
 				HttpContext.User.Identity?.Name ?? "Unknown",
 				Request.Headers[HeaderNames.Authorization]);
 
-			var routeLists = _apiRouteListService.GetRouteLists(routeListsIds);
+			var routeLists = await _apiRouteListService.GetRouteLists(routeListsIds, cancellationToken);
 			var ordersIds = routeLists
 				.Where(x => x.CompletionStatus == RouteListDtoCompletionStatus.Incompleted)
 				.SelectMany(x => x.IncompletedRouteList.RouteListAddresses.Select(x => x.OrderId));
@@ -124,7 +125,7 @@ namespace DriverAPI.Controllers.V6
 		[HttpGet]
 		[Produces(MediaTypeNames.Application.Json)]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RouteListDto))]
-		public IActionResult GetRouteList(int routeListId)
+		public async Task<IActionResult> GetRouteList(int routeListId, CancellationToken cancellationToken)
 		{
 			var tokenStr = Request.Headers[HeaderNames.Authorization];
 
@@ -133,7 +134,7 @@ namespace DriverAPI.Controllers.V6
 				HttpContext.User.Identity?.Name ?? "Unknown",
 				tokenStr);
 
-			return Ok(_apiRouteListService.GetRouteList(routeListId));
+			return Ok(await _apiRouteListService.GetRouteList(routeListId, cancellationToken));
 		}
 
 		/// <summary>
@@ -363,6 +364,77 @@ namespace DriverAPI.Controllers.V6
 		public IActionResult ConfirmRouteListAddressTransferTransfered(ConfirmRouteListAddressTransferTransferedRequest confirmRouteListAddressTransferTransferedRequest)
 		{
 			return NoContent();
+		}
+
+		/// <summary>
+		/// Выбора адреса для следующей точки маршрута
+		/// </summary>
+		/// <param name="selectAddressRequest">Модель данных входящего запроса</param>
+		[HttpPost]
+		[Consumes(MediaTypeNames.Application.Json)]
+		[Produces(MediaTypeNames.Application.Json)]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		public async Task<IActionResult> SelectNextAddress([FromBody] SelectAddressRequest selectAddressRequest, CancellationToken cancellationToken)
+		{
+			_logger.LogInformation(
+				"Получен запрос на выбор адреса для следующей точки маршрута. " +
+				"Id следующего адреса: {NextAddressId} " +
+				"Предыдущий незавершенный заказ: {PreviousUncompletedAddressId} " +
+				"Запрос отправлен пользователем: {Username} | User token: {AccessToken}",
+				selectAddressRequest.NextAddressId,
+				selectAddressRequest.PreviousUncompletedAddressId,
+				HttpContext.User.Identity?.Name ?? "Unknown",
+				Request.Headers[HeaderNames.Authorization]);
+
+			var user = await _userManager.GetUserAsync(User);
+			var driver = _employeeService.GetByAPILogin(user.UserName);
+
+			try
+			{
+				return MapResult(
+					await _apiRouteListService.SelectNextAddress(selectAddressRequest, driver.Id, cancellationToken),
+					result =>
+					{
+						if(result.IsSuccess)
+						{
+							return StatusCodes.Status204NoContent;
+						}
+
+						var firstError = result.Errors.First();
+
+						if(firstError == Vodovoz.Errors.Logistics.RouteListErrors.NotEnRouteState
+							|| firstError == Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotEnRouteState
+							|| firstError == Vodovoz.Errors.Orders.OrderErrors.NotInOnTheWayStatus
+							|| firstError == Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.AlreadySelectedAsNext
+							|| firstError == Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NextAddressSameAsUncompletedPrevious)
+						{
+							return StatusCodes.Status400BadRequest;
+						}
+
+						if(firstError == Library.Errors.Security.Authorization.RouteListAccessDenied)
+						{
+							return StatusCodes.Status403Forbidden;
+						}
+
+						if(firstError == Vodovoz.Errors.Logistics.RouteListErrors.RouteListItem.NotFound
+							|| firstError == Vodovoz.Errors.Logistics.RouteListErrors.NotFound
+							|| firstError == Vodovoz.Errors.Orders.OrderErrors.NotFound)
+						{
+							return StatusCodes.Status404NotFound;
+						}
+
+						return StatusCodes.Status500InternalServerError;
+					});
+			}
+			catch(Exception ex)
+			{
+				_logger.LogError(
+					ex,
+					"Произошла ошибка при выборе адреса для следующей точки маршрута: {ErrorMessage}",
+					ex.Message);
+
+				return Problem("Непредвиденная ошибка при выборе адреса для следующей точки маршрута");
+			}
 		}
 	}
 }

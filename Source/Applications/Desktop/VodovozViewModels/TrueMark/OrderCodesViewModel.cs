@@ -34,7 +34,7 @@ namespace Vodovoz.ViewModels.TrueMark
 
 			Title = $"Коды ЧЗ для заказа {orderId}";
 
-			OrderCodesViewModel.OrderId = orderId;
+			OrderCodesViewModel.LoadForOrder(orderId);
 		}
 
 		public OrderCodesViewModel OrderCodesViewModel { get; }
@@ -110,7 +110,6 @@ namespace Vodovoz.ViewModels.TrueMark
 
 
 			CreateCommands();
-			Reload();
 		}
 
 		public ICommand RefreshCommand { get; private set; }
@@ -132,13 +131,7 @@ namespace Vodovoz.ViewModels.TrueMark
 		public virtual int OrderId
 		{
 			get => _orderId;
-			set
-			{
-				if(SetField(ref _orderId, value))
-				{
-					Reload();
-				}
-			}
+			private set => SetField(ref _orderId, value);
 		}
 
 		public virtual int CodesRequired
@@ -383,6 +376,11 @@ namespace Vodovoz.ViewModels.TrueMark
 
 		private void Reload()
 		{
+			if(OrderId <= 0)
+			{
+				return;
+			}
+
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 
@@ -408,6 +406,17 @@ namespace Vodovoz.ViewModels.TrueMark
 					+ TotalScannedBySelfdelivery;
 				CodesProvided = CodesProvidedFromScan + TotalAddedFromPool;
 			}
+		}
+
+		public void LoadForOrder(int orderId)
+		{
+			if(orderId <= 0)
+			{
+				throw new ArgumentOutOfRangeException(nameof(orderId), orderId, "Номер заказа должен быть больше нуля");
+			}
+
+			OrderId = orderId;
+			Reload();
 		}
 
 		private void ReloadCodesFromDriver(IUnitOfWork uow)

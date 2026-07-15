@@ -30,7 +30,6 @@ namespace Vodovoz.Settings.Database.Edo
 		public string TrueMarkApiParticipantsUri => _settingsController.GetStringValue("TrueMarkApiParticipantsUri");
 		public int CodePoolCheckCodesDepth => _settingsController.GetIntValue("TrueMarkCodePoolCheckCodesDepth");
 		public int CodePoolCheckIntervalMinutes => _settingsController.GetIntValue("TrueMarkCodePoolCheckIntervalMinutes");
-		public int CodePoolPromoteWithExtraSeconds => _settingsController.GetIntValue("TrueMarkCodePoolPromoteWithExtraSeconds");
 		public int CodePoolTakeValidCodeAttempts => _settingsController.GetIntValue("TrueMarkCodePoolTakeValidCodeAttempts");
 		public int[] OrganizationsHavingAccountsInTrueMark => _settingsController
 			.GetStringValue("TrueMark.OrganizationsHavingAccountsInTrueMark")
@@ -42,5 +41,7 @@ namespace Vodovoz.Settings.Database.Edo
 
 		public int WithdrawalDocflowTimeoutDays =>
 			_settingsController.GetIntValue("edo.withdrawal.docflow_timeout");
+
+		public int ExpiredCodesCleanerIntervalHours => _settingsController.GetIntValue(nameof(ExpiredCodesCleanerIntervalHours));
 	}
 }

@@ -44,6 +44,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Data.Bindings.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -55,13 +56,16 @@ using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Application.Orders.Services.OrderCancellation;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
+using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Orders.OrderEnums;
+using Vodovoz.Core.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
+using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Cores;
 using Vodovoz.Dialogs;
 using Vodovoz.Dialogs.Client;
@@ -81,7 +85,6 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Sale;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Sms;
-using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.BasicHandbooks;
 using Vodovoz.EntityRepositories.Cash;
@@ -308,6 +311,8 @@ namespace Vodovoz
 		private DateTime? _previousDeliveryDate;
 		private IObservableList<EdoDockflowData> _edoEdoDocumentDataNodes = new ObservableList<EdoDockflowData>();
 		private IObservableList<EdoContainer> _edoContainers = new ObservableList<EdoContainer>();
+		private bool _edoDocumentsLoaded;
+		private bool _edoInOrderViewModelConfigured;
 		private string _commentManager;
 		private StringBuilder _summaryInfoBuilder = new StringBuilder();
 		private EdoDockflowData _selectedEdoDocumentDataNode;
@@ -1248,10 +1253,6 @@ namespace Vodovoz
 			UpdateCallBeforeArrivalVisibility();
 			SetNearestDeliveryDateLoaderFunc();
 
-
-			var edoForOrderViewModel = ScopeProvider.Scope.Resolve<EdoInOrderViewModel>();
-			edoForOrderViewModel.Setup(UoW, Entity.Id);
-			edofororderview1.ViewModel = edoForOrderViewModel;
 
 			UpdateOrderItemsOriginalValues();
 
@@ -2402,12 +2403,6 @@ namespace Vodovoz
 				.AddBinding(this, vm => vm.SelectedEdoDocumentDataNode, w => w.SelectedRow)
 				.InitializeFromSource();
 
-			if(Entity.Id != 0)
-			{
-				UpdateEdoDocumentDataNodes();
-				CustomizeSendDocumentAgainButton();
-			}
-
 			treeViewEdoContainers.ItemsDataSource = _edoEdoDocumentDataNodes;
 
 			treeServiceClaim.ColumnsConfig = ColumnsConfigFactory.Create<ServiceClaim>()
@@ -2516,6 +2511,8 @@ namespace Vodovoz
 			{
 				_edoEdoDocumentDataNodes.Add(document);
 			}
+
+			_edoDocumentsLoaded = true;
 		}
 
 		private void ConfigureAcceptButtons()
@@ -3570,6 +3567,11 @@ namespace Vodovoz
 			if(toggleDocuments.Active)
 			{
 				ntbOrderEdit.CurrentPage = 5;
+				if(Entity.Id != 0 && !_edoDocumentsLoaded)
+				{
+					UpdateEdoDocumentDataNodes();
+					CustomizeSendDocumentAgainButton();
+				}
 			}
 
 			btnOpnPrnDlg.Sensitive = Entity.OrderDocuments
@@ -3581,12 +3583,34 @@ namespace Vodovoz
 		{
 			if(toggleEdo.Active)
 			{
+				var stopwatch = Stopwatch.StartNew();
+				_logger.Info("ЭДО заказа {OrderId}: открытие вкладки", Entity.Id);
 				ntbOrderEdit.CurrentPage = 6;
+				ConfigureEdoForOrderViewModel();
+
 				if(ntbOrderEdit.CurrentPageWidget is IActivatableOrderTab activatableTab)
 				{
 					activatableTab.Activate();
 				}
+				_logger.Info("ЭДО заказа {OrderId}: обработка открытия вкладки завершена за {Elapsed}", Entity.Id, stopwatch.Elapsed);
 			}
+		}
+
+		private void ConfigureEdoForOrderViewModel()
+		{
+			if(_edoInOrderViewModelConfigured)
+			{
+				_logger.Info("ЭДО заказа {OrderId}: ViewModel уже сконфигурирована", Entity.Id);
+				return;
+			}
+
+			var stopwatch = Stopwatch.StartNew();
+			_logger.Info("ЭДО заказа {OrderId}: начало конфигурации ViewModel", Entity.Id);
+			var edoForOrderViewModel = ScopeProvider.Scope.Resolve<EdoInOrderViewModel>();
+			edoForOrderViewModel.Setup(UoW, Entity.Id);
+			edofororderview1.ViewModel = edoForOrderViewModel;
+			_edoInOrderViewModelConfigured = true;
+			_logger.Info("ЭДО заказа {OrderId}: конфигурация ViewModel завершена за {Elapsed}", Entity.Id, stopwatch.Elapsed);
 		}
 
 		#endregion

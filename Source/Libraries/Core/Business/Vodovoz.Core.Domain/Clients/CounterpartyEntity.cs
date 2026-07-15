@@ -1108,5 +1108,25 @@ namespace Vodovoz.Core.Domain.Clients
 			RegistrationInChestnyZnakStatus.Registered,
 			RegistrationInChestnyZnakStatus.RegisteredWithoutWater
 		};
+
+		public virtual string GetSpecialContractString()
+		{
+			if(!string.IsNullOrWhiteSpace(SpecialContractName)
+				&& string.IsNullOrWhiteSpace(SpecialContractNumber)
+				&& !SpecialContractDate.HasValue)
+			{
+				return SpecialContractName;
+			}
+
+			var contractNumber = !string.IsNullOrWhiteSpace(SpecialContractNumber)
+				? $"№ {SpecialContractNumber}"
+				: string.Empty;
+
+			var contractDate = SpecialContractDate.HasValue
+				? $"от {SpecialContractDate.Value.ToShortDateString()}"
+				: string.Empty;
+
+			return $"{SpecialContractName} {contractNumber} {contractDate}";
+		}
 	}
 }

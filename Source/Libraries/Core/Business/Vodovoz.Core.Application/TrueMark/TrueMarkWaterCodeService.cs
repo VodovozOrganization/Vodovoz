@@ -20,7 +20,7 @@ using Vodovoz.Settings.Edo;
 using VodovozBusiness.Domain.Client.Specifications;
 using VodovozBusiness.Models.TrueMark;
 using VodovozBusiness.Services.TrueMark;
-using TrueMarkCodeErrors = Vodovoz.Errors.TrueMark.TrueMarkCodeErrors;
+using TrueMarkCodeErrors = Vodovoz.Core.Domain.Errors.TrueMarkCodeErrors;
 
 namespace Vodovoz.Core.Application.TrueMark
 {

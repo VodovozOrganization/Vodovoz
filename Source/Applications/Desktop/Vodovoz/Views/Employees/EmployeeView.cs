@@ -315,13 +315,13 @@ namespace Vodovoz.Views.Employees
 				.AddBinding(ViewModel, vm => vm.CanEditEmployee, w => w.Sensitive)
 				.InitializeFromSource();
 
-			ycheckbuttonCarRecieveCounterpartyCalls.Binding
-				.AddBinding(ViewModel.Entity, e => e.CanRecieveCounterpartyCalls, w => w.Active)
+			ycheckbuttonNoPhoneForCounterpartyCallsRequired.Binding
+				.AddBinding(ViewModel.Entity, e => e.IsNoPhoneForCounterpartyCallsRequired, w => w.Active)
 				.InitializeFromSource();
 
 			entityentryPhoneForCounterpartyCalls.ViewModel = ViewModel.PhoneForCounterpartyCallsViewModel;
 			entityentryPhoneForCounterpartyCalls.Binding
-				.AddBinding(ViewModel.Entity, e => e.CanRecieveCounterpartyCalls, w => w.ViewModel.IsEditable)
+				.AddFuncBinding(ViewModel.Entity, e => !e.IsNoPhoneForCounterpartyCallsRequired, w => w.Sensitive)
 				.InitializeFromSource();
 
 			ConfigureWorkSchedules();

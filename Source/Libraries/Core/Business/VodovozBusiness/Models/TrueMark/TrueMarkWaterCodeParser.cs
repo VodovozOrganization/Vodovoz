@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Errors;
 using Vodovoz.Core.Domain.Interfaces.TrueMark;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark;
@@ -144,7 +145,7 @@ namespace Vodovoz.Models.TrueMark
 			catch(Exception ex)
 			{
 				exceptionAction(ex);
-				return await Task.FromResult(Vodovoz.Errors.TrueMark.TrueMarkCodeErrors.TrueMarkCodeParsingError);
+				return await Task.FromResult(TrueMarkCodeErrors.TrueMarkCodeParsingError);
 			}
 		}
 
