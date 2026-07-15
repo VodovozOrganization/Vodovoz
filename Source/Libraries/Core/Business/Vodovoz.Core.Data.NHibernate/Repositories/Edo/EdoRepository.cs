@@ -4,9 +4,11 @@ using NHibernate.Linq;
 using NHibernate.SqlCommand;
 using NHibernate.Transform;
 using NHibernate.Type;
+using NLog;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,6 +25,7 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 {
 	public class EdoRepository : IEdoRepository
 	{
+		private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 		private readonly IUnitOfWorkFactory _uowFactory;
 
 		public EdoRepository(IUnitOfWorkFactory uowFactory)
@@ -453,6 +456,7 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 
 		public IEnumerable<EdoInOrderDocumentNode> GetEdoInOrderDocuments(IUnitOfWork uow, int orderId)
 		{
+			var stopwatch = Stopwatch.StartNew();
 			var sql = @"
 select
 	ecr.`time` as :request_time,
@@ -507,12 +511,19 @@ where eir.order_id = :order_id
 
 			query.SetParameter("order_id", orderId);
 			var result = query.List<EdoInOrderDocumentNode>();
+			_logger.Info(
+				"ЭДО заказа {OrderId}: EdoRepository.GetEdoInOrderDocuments, строк {Count}: {Elapsed}",
+				orderId,
+				result.Count,
+				stopwatch.Elapsed);
 
 			return result;
 		}
 
 		public IEnumerable<EdoInOrderProblemNode> GetEdoProblemsForOrder(IUnitOfWork uow, int orderId)
 		{
+			var totalStopwatch = Stopwatch.StartNew();
+			var stepStopwatch = Stopwatch.StartNew();
 			OrderEdoTask orderEdoTaskAlias = null;
 			FormalEdoRequest edoRequestAlias = null;
 			EdoTaskProblem edoTaskProblemAlias = null;
@@ -586,8 +597,14 @@ where eir.order_id = :order_id
 				)
 				.TransformUsing(Transformers.AliasToBean<EdoInOrderProblemNode>())
 				.List<EdoInOrderProblemNode>();
+			_logger.Info(
+				"ЭДО заказа {OrderId}: загрузка проблем основных ЭДО-задач, строк {Count}: {Elapsed}",
+				orderId,
+				edoTasksProblems.Count,
+				stepStopwatch.Elapsed);
 
 
+			stepStopwatch.Restart();
 			var edoTransferTasksProblems = uow.Session.QueryOver(() => edoTaskProblemAlias)
 				.Left.JoinAlias(() => edoTaskProblemAlias.EdoTask, () => transferEdoTaskAlias)
 				.JoinEntityAlias(
@@ -665,6 +682,11 @@ where eir.order_id = :order_id
 				)
 				.TransformUsing(Transformers.AliasToBean<EdoInOrderProblemNode>())
 				.List<EdoInOrderProblemNode>();
+			_logger.Info(
+				"ЭДО заказа {OrderId}: загрузка проблем трансферных ЭДО-задач, строк {Count}: {Elapsed}",
+				orderId,
+				edoTransferTasksProblems.Count,
+				stepStopwatch.Elapsed);
 
 			var allProblems = edoTasksProblems
 				.Union(edoTransferTasksProblems)
@@ -675,6 +697,11 @@ where eir.order_id = :order_id
 			var problemIds = allProblems.Keys.ToList();
 			if(!problemIds.Any())
 			{
+				_logger.Info(
+					"ЭДО заказа {OrderId}: GetEdoProblemsForOrder без элементов проблем, всего {Count}: {Elapsed}",
+					orderId,
+					allProblems.Count,
+					totalStopwatch.Elapsed);
 				return allProblems.Values;
 			}
 
@@ -703,12 +730,18 @@ and etpci.edo_task_problem_id in (:problem_ids)
 				.AddScalar("problem_id", NHibernateUtil.Int32)
 				.AddScalar("problem_item", NHibernateUtil.String)
 				.SetParameterList("problem_ids", problemIds);
+			stepStopwatch.Restart();
 			var problemItems = query.List<object[]>()
 				.Select(x => new
 				{
 					ProblemId = (int)x[0],
 					ProblemItem = (string)x[1]
 				});
+			_logger.Info(
+				"ЭДО заказа {OrderId}: загрузка элементов проблем, problemIds {ProblemIdsCount}: {Elapsed}",
+				orderId,
+				problemIds.Count,
+				stepStopwatch.Elapsed);
 
 			;
 			foreach(var problemItemsGroup in problemItems.GroupBy(x => x.ProblemId))
@@ -719,11 +752,18 @@ and etpci.edo_task_problem_id in (:problem_ids)
 				}
 			}
 
+			_logger.Info(
+				"ЭДО заказа {OrderId}: GetEdoProblemsForOrder всего проблем {Count}: {Elapsed}",
+				orderId,
+				allProblems.Count,
+				totalStopwatch.Elapsed);
 			return allProblems.Values;
 		}
 
 		public IEnumerable<EdoInOrderTransferNode> GetTransferEdoTasksForOrder(IUnitOfWork uow, int orderId)
 		{
+			var totalStopwatch = Stopwatch.StartNew();
+			var stepStopwatch = Stopwatch.StartNew();
 			OrderEdoTask orderEdoTaskAlias = null;
 			FormalEdoRequest edoRequestAlias = null;
 			TransferEdoRequestIteration transferIterationAlias = null;
@@ -778,10 +818,20 @@ and etpci.edo_task_problem_id in (:problem_ids)
 				.TransformUsing(Transformers.AliasToBean<EdoInOrderTransferNode>())
 				.List<EdoInOrderTransferNode>()
 			;
+			_logger.Info(
+				"ЭДО заказа {OrderId}: загрузка трансферных задач, строк {Count}: {Elapsed}",
+				orderId,
+				transferTasks.Count,
+				stepStopwatch.Elapsed);
 
 			var transferRequestIds = transferTasks.Select(x => x.RequestId);
 			if(!transferRequestIds.Any())
 			{
+				_logger.Info(
+					"ЭДО заказа {OrderId}: GetTransferEdoTasksForOrder без кодов, всего {Count}: {Elapsed}",
+					orderId,
+					transferTasks.Count,
+					totalStopwatch.Elapsed);
 				return transferTasks;
 			}
 
@@ -802,12 +852,17 @@ where eti.transfer_edo_request_id in (:request_ids)
 				.AddScalar("request_id", NHibernateUtil.Int32)
 				.AddScalar("transfered_code", NHibernateUtil.String)
 				.SetParameterList("request_ids", transferRequestIds);
+			stepStopwatch.Restart();
 			var transferedCodes = query.List<object[]>()
 				.Select(x => new
 				{
 					RequestId = (int)x[0],
 					TransferedCode = (string)x[1]
 				});
+			_logger.Info(
+				"ЭДО заказа {OrderId}: загрузка кодов трансферных задач: {Elapsed}",
+				orderId,
+				stepStopwatch.Elapsed);
 
 			var codesDic = transferedCodes
 				.GroupBy(x => x.RequestId)
@@ -820,6 +875,11 @@ where eti.transfer_edo_request_id in (:request_ids)
 				}
 			}
 
+			_logger.Info(
+				"ЭДО заказа {OrderId}: GetTransferEdoTasksForOrder всего задач {Count}: {Elapsed}",
+				orderId,
+				transferTasks.Count,
+				totalStopwatch.Elapsed);
 			return transferTasks;
 		}
 	}
