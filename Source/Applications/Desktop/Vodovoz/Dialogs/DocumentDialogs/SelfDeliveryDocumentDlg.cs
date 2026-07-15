@@ -21,6 +21,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Edo;
+using Vodovoz.Core.Domain.Errors;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Repositories;
@@ -445,7 +446,7 @@ namespace Vodovoz
 			{
 				if(isAllTrueMarkProductCodesMustBeAdded)
 				{
-					return Result.Failure(Errors.TrueMark.TrueMarkCodeErrors.NotAllCodesAdded);
+					return Result.Failure(TrueMarkCodeErrors.NotAllCodesAdded);
 				}
 
 				return Result.Success();

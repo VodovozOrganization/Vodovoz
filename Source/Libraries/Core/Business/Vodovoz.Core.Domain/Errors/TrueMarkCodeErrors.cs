@@ -1,7 +1,6 @@
 ﻿using Vodovoz.Core.Domain.Results;
-using VodovozBusiness.Domain.Goods;
 
-namespace Vodovoz.Errors.TrueMark
+namespace Vodovoz.Core.Domain.Errors
 {
 	public static class TrueMarkCodeErrors
 	{
@@ -225,5 +224,27 @@ namespace Vodovoz.Errors.TrueMark
 				typeof(TrueMarkCodeErrors),
 				nameof(GtinNomenclatureNotFoundInOrder),
 				$"Номенклатура {nomenclatureName} с данным Gtin {gtin} отсутствует в заказе.");
+
+		/// <summary>
+		/// Не удалось получить ни одного валидного кода для GTIN
+		/// </summary>
+		/// <param name="gtin"></param>
+		/// <returns></returns>
+		public static Error NoCodes(string gtin)
+			=> new Error(
+				typeof(TrueMarkCodeErrors),
+				nameof(NoCodes),
+				$"Не удалось получить ни одного валидного кода для GTIN: {gtin}");
+
+		/// <summary>
+		/// Собраны не все коды. Недостаточно кодов в пуле для GTIN
+		/// </summary>
+		/// <param name="gtin"></param>
+		/// <returns></returns>
+		public static Error PartialResult(string gtin)
+			=> new Error(
+				typeof(TrueMarkCodeErrors),
+				nameof(PartialResult),
+				$"Собраны не все коды. Недостаточно кодов в пуле для GTIN: {gtin}");
 	}
 }
