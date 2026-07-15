@@ -8,14 +8,13 @@ using TrueMark.Codes.Pool;
 using TrueMark.Contracts;
 using Vodovoz.EntityRepositories.TrueMark;
 using Vodovoz.Settings.Edo;
-using VodovozBusiness.Models.TrueMark;
 
-namespace Vodovoz.Models.TrueMark
+namespace VodovozBusiness.Models.TrueMark
 {
 	public class TrueMarkCodePoolChecker
 	{
 		private readonly ILogger<TrueMarkCodePoolChecker> _logger;
-		private readonly TrueMarkCodesPoolManager _trueMarkCodesPool;
+		private readonly ITrueMarkCodesPoolManager _trueMarkCodesPool;
 		private readonly TrueMarkCodesChecker _trueMarkCodesChecker;
 		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly IEdoSettings _edoSettings;
@@ -23,7 +22,7 @@ namespace Vodovoz.Models.TrueMark
 
 		public TrueMarkCodePoolChecker(
 			ILogger<TrueMarkCodePoolChecker> logger,
-			TrueMarkCodesPoolManager trueMarkCodesPool,
+			ITrueMarkCodesPoolManager trueMarkCodesPool,
 			TrueMarkCodesChecker trueMarkCodesChecker,
 			ITrueMarkRepository trueMarkRepository,
 			IEdoSettings edoSettings,
@@ -45,23 +44,10 @@ namespace Vodovoz.Models.TrueMark
 			_logger.LogInformation("Для проверки требуется {selectingCodesCount} кодов.", codesCountToCheck);
 			_logger.LogInformation("Запрос ранее не проверенных кодов.");
 
-			var unpromotedCodes = await _trueMarkCodesPool.SelectCodesAsync(codesCountToCheck, false, cancellationToken);
-			var codeIdsToCheck = unpromotedCodes.ToList();
+			var uncheckedCodes = await _trueMarkCodesPool.SelectCodesForCheckAsync(codesCountToCheck, cancellationToken);
+			var codeIdsToCheck = uncheckedCodes.ToList();
 
 			_logger.LogInformation("Получено {selectedCodesCount} ранее не проверенных кодов.", codeIdsToCheck.Count);
-
-			if(codeIdsToCheck.Count < codesCountToCheck)
-			{
-				var promotedCount = codesCountToCheck - codeIdsToCheck.Count;
-
-				_logger.LogInformation("Добираем до требуемого количества ранее проверенными кодами.");
-
-				var promotedCodes = _trueMarkCodesPool.SelectCodes(promotedCount, true);
-
-				_logger.LogInformation("Получено {promotedCodesCount} ранее проверенных кодов.", promotedCodes.Count());
-
-				codeIdsToCheck.AddRange(promotedCodes);
-			}
 
 			if(codeIdsToCheck.Count <= 0)
 			{
@@ -71,8 +57,9 @@ namespace Vodovoz.Models.TrueMark
 
 			_logger.LogInformation("Всего {selectedCodesCount} кодов на проверку.", codeIdsToCheck.Count);
 
-			var codeIdsToPromote = new List<int>();
-			var codeIdsToDelete = new List<int>();
+			var codeExpirationMap = new Dictionary<int, DateTime>();
+			var validCodeIds = new List<int>();
+			var invalidCodeIds = new List<int>();
 
 			_logger.LogInformation("Загружаем сущности с подробной информацией о кодах.");
 			var codesToCheck = await _trueMarkRepository.LoadWaterCodes(codeIdsToCheck, cancellationToken);
@@ -82,34 +69,45 @@ namespace Vodovoz.Models.TrueMark
 
 			foreach(var checkResult in checkResults)
 			{
-				var isIntroduced = checkResult.Value.Status == ProductInstanceStatusEnum.Introduced;
-				var isOurOrganizationOwner = _ourCodesChecker.IsOurOrganizationOwner(checkResult.Value.OwnerInn);
-				var isOurGtin = _ourCodesChecker.IsOurGtinOwner(checkResult.Value.Gtin);
-				var notExpired = checkResult.Value.ExpirationDate >= DateTime.Today;
+				var code = checkResult.Key;
+				var status = checkResult.Value;
 
-				if(isIntroduced && isOurOrganizationOwner && isOurGtin && notExpired)
+				var expirationDate = status.ExpirationDate;
+				var isIntroduced = status.Status == ProductInstanceStatusEnum.Introduced;
+				var isOurOrganizationOwner = _ourCodesChecker.IsOurOrganizationOwner(status.OwnerInn);
+				var isOurGtin = _ourCodesChecker.IsOurGtinOwner(status.Gtin);
+				var notExpired = expirationDate.HasValue && expirationDate.Value >= DateTime.Today;
+
+				if(notExpired)
 				{
-					codeIdsToPromote.Add(checkResult.Key.Id);
+					codeExpirationMap[code.Id] = expirationDate.Value;
+				}
+
+				var isValid = isIntroduced
+					&& isOurOrganizationOwner
+					&& isOurGtin
+					&& notExpired;
+
+				if(isValid)
+				{
+					validCodeIds.Add(code.Id);
 				}
 				else
 				{
-					codeIdsToDelete.Add(checkResult.Key.Id);
+					invalidCodeIds.Add(code.Id);
 				}
 			}
 
-			if(codeIdsToPromote.Any())
+			if(validCodeIds.Any())
 			{
-				var extraSecondsPromotion = _edoSettings.CodePoolPromoteWithExtraSeconds;
-				_logger.LogInformation(
-					"Продвижение {promotedCodesCount} проверенных кодов на верх пула на дополнительыне {extraSecondsPromotion} секунд сверх текущего времени.",
-					codeIdsToPromote.Count, extraSecondsPromotion);
-				await _trueMarkCodesPool.PromoteCodesAsync(codeIdsToPromote, extraSecondsPromotion, cancellationToken);
+				_logger.LogInformation("Обновление сроков годности для {count} кодов.", codeExpirationMap.Count);
+				await _trueMarkCodesPool.UpdateCodesExpirationAsync(codeExpirationMap, cancellationToken);
 			}
 
-			if(codeIdsToDelete.Any())
+			if(invalidCodeIds.Any())
 			{
-				_logger.LogInformation("Удаление из пула {codesToDeleteCount} кодов не прошедших проверку.", codeIdsToDelete.Count);
-				await _trueMarkCodesPool.DeleteCodesAsync(codeIdsToDelete, cancellationToken);
+				_logger.LogInformation("Удаление из пула {codesToDeleteCount} невалидных кодов.", invalidCodeIds.Count);
+				await _trueMarkCodesPool.DeleteCodesAsync(invalidCodeIds, cancellationToken);
 			}
 		}
 	}

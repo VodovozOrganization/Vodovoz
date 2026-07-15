@@ -21,7 +21,6 @@ namespace Vodovoz.Settings.Edo
 		bool NewEdoProcessing { get; }
 		int CodePoolCheckCodesDepth { get; }
 		int CodePoolCheckIntervalMinutes { get; }
-		int CodePoolPromoteWithExtraSeconds { get; }
 		
 		/// <summary>
 		/// Максимальное количество попыток подбора валидного кода из пула по одному GTIN
@@ -36,5 +35,10 @@ namespace Vodovoz.Settings.Edo
 		/// после которого будет создана заявка на вывод кодов из оборота
 		/// </summary>
 		int WithdrawalDocflowTimeoutDays { get; }
+
+		/// <summary>
+		/// Интервал в часах, через который будет запускаться процесс очистки просроченных кодов из пула
+		/// </summary>
+		int ExpiredCodesCleanerIntervalHours { get; }
 	}
 }

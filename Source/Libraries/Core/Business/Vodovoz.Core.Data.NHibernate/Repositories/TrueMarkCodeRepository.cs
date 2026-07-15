@@ -179,5 +179,17 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories
 
 			return fiscalPositions.Any() || updPositions.Any();
 		}
+
+		public async Task<IEnumerable<TrueMarkWaterIdentificationCode>> LoadWaterCodes(
+			IUnitOfWork unitOfWork,
+			int[] codeIds,
+			CancellationToken cancellationToken)
+		{
+			var result = await unitOfWork.Session.QueryOver<TrueMarkWaterIdentificationCode>()
+					.WhereRestrictionOn(x => x.Id).IsIn(codeIds)
+					.ListAsync(cancellationToken);
+
+			return result;
+		}
 	}
 }
