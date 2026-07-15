@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories.Document;
+using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
@@ -269,7 +270,7 @@ namespace EmailDebtNotificationWorker.Services.InformationLetters
 			var emailMessage = _emailMessageFactory.CreateSendEmailMessage(
 				uow,
 				storedEmail,
-				client,
+				client.FullName,
 				organization.FullName,
 				organization.EmailForMailing,
 				allAttachments,

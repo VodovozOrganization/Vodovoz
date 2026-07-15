@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using Autofac;
+﻿using Autofac;
 using QS.Print;
 using QS.Report;
+using System;
+using System.Collections.Generic;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Orders.OrdersWithoutShipment;
-using Vodovoz.Domain.StoredEmails;
+using Vodovoz.Core.Domain.Orders.OrdersWithoutShipment;
+using Vodovoz.Core.Domain.StoredEmails;
+using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Organizations;
-using VodovozBusiness.Controllers;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -50,7 +51,7 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public override DocumentOrientation Orientation => DocumentOrientation.Portrait;
 
-		public override int CopiesToPrint 
+		public override int CopiesToPrint
 		{
 			get => _copiesToPrint;
 			set => _copiesToPrint = value;
@@ -62,7 +63,10 @@ namespace Vodovoz.Domain.Orders.Documents
 			set => _hideSignature = value;
 		}
 
-		public virtual EmailTemplate GetEmailTemplate(ICounterpartyEdoAccountController edoAccountController = null, IOrganizationSettings organizationSettings = null)
+		public virtual EmailTemplate GetEmailTemplate(
+			ICounterpartyEdoAccountEntityController edoAccountController = null,
+			IOrganizationSettings organizationSettings = null,
+			IDeliveryScheduleSettings deliveryScheduleSettings = null)
 		{
 			string deliveryDateFormatted = Order.DeliveryDate?.ToString("dd.MM.yyyy")
 				?? string.Empty;
@@ -135,8 +139,10 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public virtual string Title => $"Письмо о задолженности №{Order.Id} от {DocumentDate?.ToString("dd.MM.yyyy")}";
 
-		
-		public virtual Counterparty Counterparty => Order.Client;
+
+		public virtual CounterpartyEntity Counterparty => Order.Client;
+
+		public virtual int DocumentId => Id;
 	}
 }
 

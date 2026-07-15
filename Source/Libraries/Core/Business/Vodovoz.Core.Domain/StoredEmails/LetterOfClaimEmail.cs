@@ -1,9 +1,7 @@
 ﻿using QS.DomainModel.Entity;
-using System.ComponentModel.DataAnnotations;
-using Vodovoz.Domain.Orders.OrdersWithoutShipment;
-using Vodovoz.Domain.StoredEmails;
+using Vodovoz.Core.Domain.Orders.OrdersWithoutShipment;
 
-namespace VodovozBusiness.Domain.StoredEmails
+namespace Vodovoz.Core.Domain.StoredEmails
 {
 	/// <summary>
 	/// Претензионное письмо

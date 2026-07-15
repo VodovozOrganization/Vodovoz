@@ -1,10 +1,10 @@
-﻿using System;
-using QS.DomainModel.Entity;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Orders.OrdersWithoutShipment;
+﻿using QS.DomainModel.Entity;
+using System;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Employees;
+using Vodovoz.Core.Domain.Orders.OrdersWithoutShipment;
 
-namespace Vodovoz.Domain.StoredEmails
+namespace Vodovoz.Core.Domain.StoredEmails
 {
 	[Appellative(Gender = GrammaticalGender.Feminine,
 		NominativePlural = "отправки кодов авторизации",
@@ -16,8 +16,8 @@ namespace Vodovoz.Domain.StoredEmails
 		protected AuthorizationCodeEmail() { }
 		
 		protected AuthorizationCodeEmail(
-			Employee employee,
-			Counterparty counterparty,
+			EmployeeEntity employee,
+			CounterpartyEntity counterparty,
 			int externalCounterpartyId,
 			string mailSubject,
 			string emailAddress)
@@ -50,8 +50,8 @@ namespace Vodovoz.Domain.StoredEmails
 		public override CounterpartyEmailType Type => CounterpartyEmailType.AuthorizationCode;
 
 		public static AuthorizationCodeEmail Create(
-			Employee employee,
-			Counterparty counterparty,
+			EmployeeEntity employee,
+			CounterpartyEntity counterparty,
 			int externalCounterpartyId,
 			string mailSubject,
 			string emailAddress)

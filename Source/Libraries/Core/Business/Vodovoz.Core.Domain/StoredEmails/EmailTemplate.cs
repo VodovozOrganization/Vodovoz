@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using Vodovoz.Core.Domain.StoredEmails;
 
-namespace Vodovoz.Domain.StoredEmails
+namespace Vodovoz.Core.Domain.StoredEmails
 {
 	public class EmailTemplate
 	{
