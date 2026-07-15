@@ -11,6 +11,7 @@ namespace CustomerAppsApi.Library.V2.Dto.Goods
 		/// Атрибуты
 		/// </summary>
 		public OtherSaleItemAttributes Attributes { get; set; }
+		/// <inheritdoc/>
 		public override SaleItemType Type => SaleItemType.Other;
 	}
 }

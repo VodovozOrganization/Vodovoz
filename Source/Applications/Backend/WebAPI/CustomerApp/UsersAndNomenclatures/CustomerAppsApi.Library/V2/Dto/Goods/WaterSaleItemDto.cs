@@ -11,7 +11,7 @@ namespace CustomerAppsApi.Library.V2.Dto.Goods
 		/// Атрибуты
 		/// </summary>
 		public WaterSaleItemAttributes Attributes { get; set; }
-
+		/// <inheritdoc/>
 		public override SaleItemType Type => SaleItemType.Water;
 	}
 }

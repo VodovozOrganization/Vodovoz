@@ -6,6 +6,7 @@ namespace CustomerAppsApi.Library.V2.Factories
 {
 	public class CounterpartyFactory : ICounterpartyFactory
 	{
+		/// <inheritdoc/>
 		public Counterparty CreateCounterpartyFromExternalSource(CounterpartyDto counterpartyDto)
 		{
 			switch(counterpartyDto.PersonType)
@@ -17,6 +18,7 @@ namespace CustomerAppsApi.Library.V2.Factories
 			}
 		}
 		
+		/// <inheritdoc/>
 		public CounterpartyBottlesDebtDto CounterpartyBottlesDebtDto(int counterpartyId, int debt)
 		{
 			return new CounterpartyBottlesDebtDto

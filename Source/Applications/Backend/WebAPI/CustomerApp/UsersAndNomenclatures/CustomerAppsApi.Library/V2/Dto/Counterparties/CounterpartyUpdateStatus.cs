@@ -8,8 +8,17 @@ namespace CustomerAppsApi.Library.V2.Dto.Counterparties
 	[JsonConverter(typeof(JsonStringEnumConverter))]
 	public enum CounterpartyUpdateStatus
 	{
+		/// <summary>
+		/// Ошибка
+		/// </summary>
 		Error = -1,
+		/// <summary>
+		/// Клиент не найден
+		/// </summary>
 		CounterpartyNotFound = 0,
+		/// <summary>
+		/// Клиент обновлен
+		/// </summary>
 		CounterpartyUpdated = 1
 	}
 }
