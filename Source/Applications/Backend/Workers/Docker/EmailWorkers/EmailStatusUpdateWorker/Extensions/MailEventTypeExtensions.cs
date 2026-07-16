@@ -1,6 +1,6 @@
 ﻿using Mailjet.Api.Abstractions.Events;
 using System;
-using Vodovoz.Core.Domain.StoredEmails;
+using Vodovoz.Domain.StoredEmails;
 
 namespace EmailStatusUpdateWorker.Extensions
 {

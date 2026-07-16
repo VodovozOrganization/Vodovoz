@@ -3,12 +3,11 @@ using Mailjet.Api.Abstractions;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
-using Vodovoz.Core.Domain.Controllers;
-using Vodovoz.Core.Domain.StoredEmails;
+using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
-using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Organizations;
+using VodovozBusiness.Controllers;
 using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
 
 namespace EmailPrepareWorker.SendEmailMessageBuilders
@@ -23,12 +22,11 @@ namespace EmailPrepareWorker.SendEmailMessageBuilders
 			IEmailRepository emailRepository,
 			IUnitOfWork unitOfWork,
 			IEmailDocumentPreparer emailDocumentPreparer,
-			ICounterpartyEdoAccountEntityController edoAccountController,
+			ICounterpartyEdoAccountController edoAccountController,
 			CounterpartyEmail counterpartyEmail,
 			IOrganizationSettings  organizationSettings,
-			IDeliveryScheduleSettings deliveryScheduleSettings,
 			int instanceId) 
-			: base(unitOfWork, emailSettings, emailRepository, emailDocumentPreparer, edoAccountController, counterpartyEmail, organizationSettings, deliveryScheduleSettings, instanceId)
+			: base(unitOfWork, emailSettings, emailRepository, emailDocumentPreparer, edoAccountController, counterpartyEmail, organizationSettings, instanceId)
 		{
 			_emailDocumentPreparer = emailDocumentPreparer ?? throw new ArgumentNullException(nameof(emailDocumentPreparer));
 			_counterpartyEmail = counterpartyEmail ?? throw new ArgumentNullException(nameof(counterpartyEmail));

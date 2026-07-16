@@ -4,10 +4,10 @@ using NHibernate.Dialect.Function;
 using QS.Project.Services;
 using System;
 using System.Linq;
-using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Domain.StoredEmails;
+using VodovozBusiness.Domain.StoredEmails;
 using VodovozInfrastructure.Configuration;
 
 namespace Vodovoz.Additions

@@ -9,7 +9,6 @@ using EmailDebtNotificationWorker.Services.Common.Factories;
 using EmailDebtNotificationWorker.Services.Common.Generators;
 using EmailDebtNotificationWorker.Services.Common.Selectors;
 using EmailDebtNotificationWorker.Services.InformationLetters;
-using EmailDebtNotificationWorker.Services.ReminderToAcceptUpd;
 using MassTransit;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;
@@ -23,12 +22,10 @@ using QS.Report;
 using RabbitMQ.MailSending;
 using System;
 using System.Text;
-using TaxcomEdo.Client;
 using Vodovoz.Core.Application.Orders.Services;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Data.NHibernate.NhibernateExtensions;
 using Vodovoz.Infrastructure.Persistance;
-using Vodovoz.Infrastructure.Scheduling;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Counterparty;
 using Vodovoz.Settings.Database.Common;
@@ -135,16 +132,6 @@ namespace EmailDebtNotificationWorker
 						.AddHostedService<EmailClosingDeliveriesWorker>()
 						.ConfigureZabbixSenderFromDataBase(nameof(EmailClosingDeliveriesWorker))
 						;
-
-					services.AddSingleton<IDailyScheduler, DailyScheduler>();
-
-					services
-						.Configure<ReminderToAcceptUpdEmailOptions>(hostContext.Configuration.GetSection(ReminderToAcceptUpdEmailOptions.SectionName))
-						.AddScoped<IReminderToAcceptUpdService, ReminderToAcceptUpdService>()
-						.AddScoped<IReminderToAcceptUpdEmailPreparer, ReminderToAcceptUpdEmailPreparer>()
-						.AddHttpClient()
-						.AddTaxcomClient()
-						.AddHostedService<ReminderToAcceptUpdEmailWorker>();
 				});
 	}
 }

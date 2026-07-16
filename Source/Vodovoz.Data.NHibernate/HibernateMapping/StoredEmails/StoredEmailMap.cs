@@ -1,7 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Core.Domain.StoredEmails;
+using Vodovoz.Domain.StoredEmails;
 
-namespace Vodovoz.Core.Data.NHibernate.Mapping.StoredEmails
+namespace Vodovoz.Data.NHibernate.HibernateMapping.StoredEmails
 {
 	public class StoredEmailMap : ClassMap<StoredEmail>
 	{

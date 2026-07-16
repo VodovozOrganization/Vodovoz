@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Core.Domain.StoredEmails
+namespace Vodovoz.Domain.StoredEmails
 {
 	/// <summary>
 	/// Типы писем для клиента
@@ -89,12 +89,6 @@ namespace Vodovoz.Core.Domain.StoredEmails
 		/// Информационное письмо
 		/// </summary>
 		[Display(Name = "Информационное письмо")]
-		InformationLetter,
-
-		/// <summary>
-		/// Напоминание о необходимости принятия УПД
-		/// </summary>
-		[Display(Name = "Напоминание о необходимости принятия УПД")]
-		ReminderToAcceptUpd
+		InformationLetter
 	}
 }

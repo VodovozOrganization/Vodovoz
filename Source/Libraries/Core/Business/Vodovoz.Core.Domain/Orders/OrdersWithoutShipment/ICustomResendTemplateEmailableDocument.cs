@@ -11,6 +11,6 @@ namespace Vodovoz.Core.Domain.Orders.OrdersWithoutShipment
 		/// Получить шаблон письма для повторной отправки документа
 		/// </summary>
 		/// <returns></returns>
-		EmailTemplate GetResendDocumentEmailTemplate();
+		EmailTemplateEntity GetResendDocumentEmailTemplate();
 	}
 }

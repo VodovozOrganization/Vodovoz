@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Core.Domain.StoredEmails
+namespace Vodovoz.Domain.StoredEmails
 {
 	public enum StoredEmailStates
 	{

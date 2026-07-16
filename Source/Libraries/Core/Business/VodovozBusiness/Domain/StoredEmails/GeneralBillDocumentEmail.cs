@@ -1,7 +1,7 @@
 ﻿using QS.DomainModel.Entity;
-using Vodovoz.Core.Domain.Orders.OrdersWithoutShipment;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 
-namespace Vodovoz.Core.Domain.StoredEmails
+namespace Vodovoz.Domain.StoredEmails
 {
 	/// <summary>
 	/// Общий счет по Email

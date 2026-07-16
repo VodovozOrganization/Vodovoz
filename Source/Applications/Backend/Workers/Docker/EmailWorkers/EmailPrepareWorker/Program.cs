@@ -18,7 +18,6 @@ using RabbitMQ.MailSending;
 using Vodovoz.Core.Application.Clients;
 using Vodovoz.Core.Data.NHibernate;
 using Vodovoz.Core.Data.NHibernate.Mappings;
-using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Settings;
 using Vodovoz.Settings.Common;
@@ -88,7 +87,7 @@ namespace EmailPrepareWorker
 						.AddScoped<IEmailDocumentPreparer, EmailDocumentPreparer>()
 						.AddScoped<IReportInfoFactory, DefaultReportInfoFactory>()
 						.AddScoped<IEmailSendMessagePreparer, EmailSendMessagePreparer>()
-						.AddScoped<ICounterpartyEdoAccountEntityController, CounterpartyEdoAccountEntityController>()
+						.AddScoped<ICounterpartyEdoAccountController, CounterpartyEdoAccountController>()
 						;
 
 					services.AddHostedService<EmailPrepareWorker>();

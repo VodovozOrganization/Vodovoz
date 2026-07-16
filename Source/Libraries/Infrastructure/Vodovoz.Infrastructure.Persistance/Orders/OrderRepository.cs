@@ -20,7 +20,6 @@ using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Mango;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Payments;
-using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
