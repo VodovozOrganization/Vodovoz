@@ -36,7 +36,7 @@ namespace Vodovoz.EntityRepositories.Operations
 		/// <param name="deliveryPointIds">Список Id точек доставки</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Задолженности по бутылям в разрезе точек доставки</returns>
-		Task<IDictionary<int, int>> GetBottlesDebtsByDeliveryPoints(
+		Task<IDictionary<int, int>> GetBottlesDebtsByDeliveryPointsAsync(
 			IUnitOfWork uow, IEnumerable<int> deliveryPointIds, CancellationToken cancellationToken);
 
 		/// <summary>
@@ -46,7 +46,7 @@ namespace Vodovoz.EntityRepositories.Operations
 		/// <param name="counterpartyIds">Список Id контрагентов</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Задолженности по бутылям в разрезе контрагентов</returns>
-		Task<IDictionary<int, int>> GetBottlesDebtsByCounterparties(
+		Task<IDictionary<int, int>> GetBottlesDebtsByCounterpartiesAsync(
 			IUnitOfWork uow, IEnumerable<int> counterpartyIds, CancellationToken cancellationToken);
 	}
 }

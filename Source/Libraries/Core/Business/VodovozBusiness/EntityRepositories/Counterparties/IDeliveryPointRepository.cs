@@ -48,7 +48,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		/// <param name="deliveryPointIds">Id точек доставки</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Адреса в разрезе точек доставки</returns>
-		Task<IDictionary<int, string>> GetDeliveryPointsCompiledAddresses(
+		Task<IDictionary<int, string>> GetDeliveryPointsCompiledAddressesAsync(
 			IUnitOfWork uow, IEnumerable<int> deliveryPointIds, CancellationToken cancellationToken);
 	}
 }

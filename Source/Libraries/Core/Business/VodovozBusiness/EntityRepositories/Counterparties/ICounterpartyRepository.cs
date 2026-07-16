@@ -129,7 +129,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		/// <param name="counterpartyIds">Id контрагентов</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Данные контрагентов</returns>
-		Task<IList<PlannedOrderCounterpartyNode>> GetCounterpartiesPlannedOrdersData(
+		Task<IList<PlannedOrderCounterpartyNode>> GetCounterpartiesPlannedOrdersDataAsync(
 			IUnitOfWork uow, IEnumerable<int> counterpartyIds, CancellationToken cancellationToken);
 
 		/// <summary>
@@ -139,7 +139,7 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		/// <param name="counterpartyIds">Id контрагентов</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Email адреса контрагентов</returns>
-		Task<IList<CounterpartyEmailWithPurposeNode>> GetCounterpartiesEmailsWithPurpose(
+		Task<IList<CounterpartyEmailWithPurposeNode>> GetCounterpartiesEmailsWithPurposeAsync(
 			IUnitOfWork uow, IEnumerable<int> counterpartyIds, CancellationToken cancellationToken);
 	}
 }

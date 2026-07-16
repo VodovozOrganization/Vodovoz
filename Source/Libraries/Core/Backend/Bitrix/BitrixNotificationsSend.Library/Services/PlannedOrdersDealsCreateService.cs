@@ -233,23 +233,23 @@ namespace BitrixNotificationsSend.Library.Services
 				.ToArray();
 
 			var counterpartiesData =
-				(await _counterpartyRepository.GetCounterpartiesPlannedOrdersData(uow, counterpartyIds, cancellationToken))
+				(await _counterpartyRepository.GetCounterpartiesPlannedOrdersDataAsync(uow, counterpartyIds, cancellationToken))
 				.ToDictionary(x => x.CounterpartyId);
 
 			var counterpartiesEmails =
-				(await _counterpartyRepository.GetCounterpartiesEmailsWithPurpose(uow, counterpartyIds, cancellationToken))
+				(await _counterpartyRepository.GetCounterpartiesEmailsWithPurposeAsync(uow, counterpartyIds, cancellationToken))
 				.GroupBy(x => x.CounterpartyId)
 				.ToDictionary(g => g.Key, g => g.ToArray());
 
 			var bottlesDebtsByCounterparties =
-				await _bottlesRepository.GetBottlesDebtsByCounterparties(uow, counterpartyIds, cancellationToken);
+				await _bottlesRepository.GetBottlesDebtsByCounterpartiesAsync(uow, counterpartyIds, cancellationToken);
 
 			var bottlesDebtsByDeliveryPoints = deliveryPointIds.Any()
-				? await _bottlesRepository.GetBottlesDebtsByDeliveryPoints(uow, deliveryPointIds, cancellationToken)
+				? await _bottlesRepository.GetBottlesDebtsByDeliveryPointsAsync(uow, deliveryPointIds, cancellationToken)
 				: new Dictionary<int, int>();
 
 			var deliveryPointsAddresses = deliveryPointIds.Any()
-				? await _deliveryPointRepository.GetDeliveryPointsCompiledAddresses(uow, deliveryPointIds, cancellationToken)
+				? await _deliveryPointRepository.GetDeliveryPointsCompiledAddressesAsync(uow, deliveryPointIds, cancellationToken)
 				: new Dictionary<int, string>();
 
 			var legalCounterpartyIds = counterpartiesData.Values
@@ -258,7 +258,7 @@ namespace BitrixNotificationsSend.Library.Services
 				.ToArray();
 
 			var counterpartiesCashlessDebts = legalCounterpartyIds.Any()
-				? await _orderRepository.GetCounterpartiesCashlessDebts(uow, legalCounterpartyIds, cancellationToken)
+				? await _orderRepository.GetCounterpartiesCashlessDebtsAsync(uow, legalCounterpartyIds, cancellationToken)
 				: new Dictionary<int, decimal>();
 
 			var creationDate = DateTime.UtcNow.ToMoscowDateTime();
@@ -328,7 +328,7 @@ namespace BitrixNotificationsSend.Library.Services
 			DateTime today,
 			CancellationToken cancellationToken)
 		{
-			var aggregatedData = await _orderRepository.GetDeliveryPointsOrdersAggregatedData(
+			var aggregatedData = await _orderRepository.GetDeliveryPointsOrdersAggregatedDataAsync(
 				uow,
 				_completedOrderStatuses,
 				_deliveryScheduleSettings,
@@ -353,7 +353,7 @@ namespace BitrixNotificationsSend.Library.Services
 			}
 
 			var deliveryPointIdsWithUpcomingOrders =
-				await _orderRepository.GetDeliveryPointIdsWithUpcomingOrders(
+				await _orderRepository.GetDeliveryPointIdsWithUpcomingOrdersAsync(
 					uow,
 					candidates.Select(x => x.Aggregate.DeliveryPointId.Value),
 					today,
@@ -370,7 +370,7 @@ namespace BitrixNotificationsSend.Library.Services
 			DateTime today,
 			CancellationToken cancellationToken)
 		{
-			var aggregatedData = await _orderRepository.GetSelfDeliveryOrdersAggregatedData(
+			var aggregatedData = await _orderRepository.GetSelfDeliveryOrdersAggregatedDataAsync(
 				uow,
 				_completedOrderStatuses,
 				_deliveryScheduleSettings,
@@ -395,7 +395,7 @@ namespace BitrixNotificationsSend.Library.Services
 			}
 
 			var counterpartyIdsWithUpcomingOrders =
-				await _orderRepository.GetCounterpartyIdsWithUpcomingSelfDeliveryOrders(
+				await _orderRepository.GetCounterpartyIdsWithUpcomingSelfDeliveryOrdersAsync(
 					uow,
 					candidates.Select(x => x.Aggregate.CounterpartyId),
 					today,
@@ -415,7 +415,7 @@ namespace BitrixNotificationsSend.Library.Services
 		{
 			if(deliveryPointsCandidates.Any())
 			{
-				var lastOrdersData = await _orderRepository.GetDeliveryPointsLastOrdersData(
+				var lastOrdersData = await _orderRepository.GetDeliveryPointsLastOrdersDataAsync(
 					uow,
 					deliveryPointsCandidates.Select(x => x.Aggregate.DeliveryPointId.Value),
 					deliveryPointsCandidates.Select(x => x.Aggregate.MaxDeliveryDate.Value).Distinct(),
@@ -441,7 +441,7 @@ namespace BitrixNotificationsSend.Library.Services
 
 			if(selfDeliveryCandidates.Any())
 			{
-				var lastOrdersData = await _orderRepository.GetSelfDeliveryLastOrdersData(
+				var lastOrdersData = await _orderRepository.GetSelfDeliveryLastOrdersDataAsync(
 					uow,
 					selfDeliveryCandidates.Select(x => x.Aggregate.CounterpartyId),
 					selfDeliveryCandidates.Select(x => x.Aggregate.MaxDeliveryDate.Value).Distinct(),

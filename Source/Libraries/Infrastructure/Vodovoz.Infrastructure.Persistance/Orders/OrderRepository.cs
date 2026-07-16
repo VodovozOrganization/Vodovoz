@@ -1,4 +1,4 @@
-using DateTimeHelpers;
+﻿using DateTimeHelpers;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
@@ -3314,7 +3314,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return orderIds;
 		}
 
-		public async Task<IList<PlannedOrdersAggregatedNode>> GetDeliveryPointsOrdersAggregatedData(
+		public async Task<IList<PlannedOrdersAggregatedNode>> GetDeliveryPointsOrdersAggregatedDataAsync(
 			IUnitOfWork uow,
 			IEnumerable<OrderStatus> orderStatuses,
 			IDeliveryScheduleSettings deliveryScheduleSettings,
@@ -3346,7 +3346,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return await query.WithOptions(x => x.SetTimeout(300)).ToListAsync(cancellationToken);
 		}
 
-		public async Task<IList<PlannedOrdersAggregatedNode>> GetSelfDeliveryOrdersAggregatedData(
+		public async Task<IList<PlannedOrdersAggregatedNode>> GetSelfDeliveryOrdersAggregatedDataAsync(
 			IUnitOfWork uow,
 			IEnumerable<OrderStatus> orderStatuses,
 			IDeliveryScheduleSettings deliveryScheduleSettings,
@@ -3390,7 +3390,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				select order;
 		}
 
-		public async Task<IList<int>> GetDeliveryPointIdsWithUpcomingOrders(
+		public async Task<IList<int>> GetDeliveryPointIdsWithUpcomingOrdersAsync(
 			IUnitOfWork uow,
 			IEnumerable<int> deliveryPointIds,
 			DateTime fromDeliveryDate,
@@ -3408,7 +3408,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return await query.ToListAsync(cancellationToken);
 		}
 
-		public async Task<IList<int>> GetCounterpartyIdsWithUpcomingSelfDeliveryOrders(
+		public async Task<IList<int>> GetCounterpartyIdsWithUpcomingSelfDeliveryOrdersAsync(
 			IUnitOfWork uow,
 			IEnumerable<int> counterpartyIds,
 			DateTime fromDeliveryDate,
@@ -3441,7 +3441,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				select order;
 		}
 
-		public async Task<IList<PlannedOrderLastOrderNode>> GetDeliveryPointsLastOrdersData(
+		public async Task<IList<PlannedOrderLastOrderNode>> GetDeliveryPointsLastOrdersDataAsync(
 			IUnitOfWork uow,
 			IEnumerable<int> deliveryPointIds,
 			IEnumerable<DateTime> deliveryDates,
@@ -3463,7 +3463,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 			return await query.ToListAsync(cancellationToken);
 		}
 
-		public async Task<IList<PlannedOrderLastOrderNode>> GetSelfDeliveryLastOrdersData(
+		public async Task<IList<PlannedOrderLastOrderNode>> GetSelfDeliveryLastOrdersDataAsync(
 			IUnitOfWork uow,
 			IEnumerable<int> counterpartyIds,
 			IEnumerable<DateTime> deliveryDates,
@@ -3534,7 +3534,7 @@ namespace Vodovoz.Infrastructure.Persistance.Orders
 				};
 		}
 
-		public async Task<IDictionary<int, decimal>> GetCounterpartiesCashlessDebts(
+		public async Task<IDictionary<int, decimal>> GetCounterpartiesCashlessDebtsAsync(
 			IUnitOfWork uow,
 			IEnumerable<int> counterpartyIds,
 			CancellationToken cancellationToken)

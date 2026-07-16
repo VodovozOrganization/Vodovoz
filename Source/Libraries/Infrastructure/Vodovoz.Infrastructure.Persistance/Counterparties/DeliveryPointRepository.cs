@@ -255,7 +255,7 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 			return query.Any();
 		}
 
-		public async Task<IDictionary<int, string>> GetDeliveryPointsCompiledAddresses(
+		public async Task<IDictionary<int, string>> GetDeliveryPointsCompiledAddressesAsync(
 			IUnitOfWork uow,
 			IEnumerable<int> deliveryPointIds,
 			CancellationToken cancellationToken)

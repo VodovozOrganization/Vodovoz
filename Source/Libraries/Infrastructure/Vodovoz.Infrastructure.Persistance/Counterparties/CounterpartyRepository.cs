@@ -785,7 +785,7 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 			return counterparties.ToList();
 		}
 
-		public async Task<IList<PlannedOrderCounterpartyNode>> GetCounterpartiesPlannedOrdersData(
+		public async Task<IList<PlannedOrderCounterpartyNode>> GetCounterpartiesPlannedOrdersDataAsync(
 			IUnitOfWork uow,
 			IEnumerable<int> counterpartyIds,
 			CancellationToken cancellationToken)
@@ -807,7 +807,7 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 			return await query.ToListAsync(cancellationToken);
 		}
 
-		public async Task<IList<CounterpartyEmailWithPurposeNode>> GetCounterpartiesEmailsWithPurpose(
+		public async Task<IList<CounterpartyEmailWithPurposeNode>> GetCounterpartiesEmailsWithPurposeAsync(
 			IUnitOfWork uow,
 			IEnumerable<int> counterpartyIds,
 			CancellationToken cancellationToken)

@@ -1,4 +1,4 @@
-using NHibernate.Criterion;
+﻿using NHibernate.Criterion;
 using QS.DomainModel.UoW;
 using System;
 using System.Collections.Generic;
@@ -470,7 +470,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="deliveryScheduleSettings">Настройки графиков доставки для исключения заказов-закрывашек</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Агрегированные данные по заказам в разрезе точек доставки</returns>
-		Task<IList<PlannedOrdersAggregatedNode>> GetDeliveryPointsOrdersAggregatedData(
+		Task<IList<PlannedOrdersAggregatedNode>> GetDeliveryPointsOrdersAggregatedDataAsync(
 			IUnitOfWork uow,
 			IEnumerable<OrderStatus> orderStatuses,
 			IDeliveryScheduleSettings deliveryScheduleSettings,
@@ -485,7 +485,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="deliveryScheduleSettings">Настройки графиков доставки для исключения заказов-закрывашек</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Агрегированные данные по самовывозным заказам в разрезе контрагентов</returns>
-		Task<IList<PlannedOrdersAggregatedNode>> GetSelfDeliveryOrdersAggregatedData(
+		Task<IList<PlannedOrdersAggregatedNode>> GetSelfDeliveryOrdersAggregatedDataAsync(
 			IUnitOfWork uow,
 			IEnumerable<OrderStatus> orderStatuses,
 			IDeliveryScheduleSettings deliveryScheduleSettings,
@@ -501,7 +501,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="excludeOrderStatuses">Исключаемые статусы заказов</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Id точек доставки с найденными заказами</returns>
-		Task<IList<int>> GetDeliveryPointIdsWithUpcomingOrders(
+		Task<IList<int>> GetDeliveryPointIdsWithUpcomingOrdersAsync(
 			IUnitOfWork uow,
 			IEnumerable<int> deliveryPointIds,
 			DateTime fromDeliveryDate,
@@ -518,7 +518,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="excludeOrderStatuses">Исключаемые статусы заказов</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Id контрагентов с найденными заказами</returns>
-		Task<IList<int>> GetCounterpartyIdsWithUpcomingSelfDeliveryOrders(
+		Task<IList<int>> GetCounterpartyIdsWithUpcomingSelfDeliveryOrdersAsync(
 			IUnitOfWork uow,
 			IEnumerable<int> counterpartyIds,
 			DateTime fromDeliveryDate,
@@ -536,7 +536,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="deliveryScheduleSettings">Настройки графиков доставки для исключения заказов-закрывашек</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Данные заказов</returns>
-		Task<IList<PlannedOrderLastOrderNode>> GetDeliveryPointsLastOrdersData(
+		Task<IList<PlannedOrderLastOrderNode>> GetDeliveryPointsLastOrdersDataAsync(
 			IUnitOfWork uow,
 			IEnumerable<int> deliveryPointIds,
 			IEnumerable<DateTime> deliveryDates,
@@ -555,7 +555,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="deliveryScheduleSettings">Настройки графиков доставки для исключения заказов-закрывашек</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Данные заказов</returns>
-		Task<IList<PlannedOrderLastOrderNode>> GetSelfDeliveryLastOrdersData(
+		Task<IList<PlannedOrderLastOrderNode>> GetSelfDeliveryLastOrdersDataAsync(
 			IUnitOfWork uow,
 			IEnumerable<int> counterpartyIds,
 			IEnumerable<DateTime> deliveryDates,
@@ -571,7 +571,7 @@ namespace Vodovoz.EntityRepositories.Orders
 		/// <param name="counterpartyIds">Id контрагентов</param>
 		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Задолженность в разрезе контрагентов</returns>
-		Task<IDictionary<int, decimal>> GetCounterpartiesCashlessDebts(
+		Task<IDictionary<int, decimal>> GetCounterpartiesCashlessDebtsAsync(
 			IUnitOfWork uow,
 			IEnumerable<int> counterpartyIds,
 			CancellationToken cancellationToken);

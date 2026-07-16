@@ -1,4 +1,4 @@
-using NHibernate.Criterion;
+﻿using NHibernate.Criterion;
 using NHibernate.Linq;
 using NHibernate.Transform;
 using QS.DomainModel.UoW;
@@ -183,7 +183,7 @@ namespace Vodovoz.Infrastructure.Persistance.Operations
 					Returned = x.Returned
 				});
 
-		public async Task<IDictionary<int, int>> GetBottlesDebtsByDeliveryPoints(
+		public async Task<IDictionary<int, int>> GetBottlesDebtsByDeliveryPointsAsync(
 			IUnitOfWork uow,
 			IEnumerable<int> deliveryPointIds,
 			CancellationToken cancellationToken)
@@ -206,7 +206,7 @@ namespace Vodovoz.Infrastructure.Persistance.Operations
 			return debts.ToDictionary(x => x.DeliveryPointId, x => x.Debt);
 		}
 
-		public async Task<IDictionary<int, int>> GetBottlesDebtsByCounterparties(
+		public async Task<IDictionary<int, int>> GetBottlesDebtsByCounterpartiesAsync(
 			IUnitOfWork uow,
 			IEnumerable<int> counterpartyIds,
 			CancellationToken cancellationToken)
