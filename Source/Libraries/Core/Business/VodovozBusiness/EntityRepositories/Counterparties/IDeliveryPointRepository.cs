@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using QS.DomainModel.UoW;
 using Vodovoz.Domain.Client;
 
@@ -38,5 +40,15 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		/// <param name="countLastOrders">Количество последних заказов</param>
 		/// <returns>Среднее количество дней между заказами</returns>
 		int? GetOrderFrequency(IUnitOfWork uow, DeliveryPoint deliveryPoint, int? countLastOrders);
+
+		/// <summary>
+		/// Адреса точек доставки по их Id
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="deliveryPointIds">Id точек доставки</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Адреса в разрезе точек доставки</returns>
+		Task<IDictionary<int, string>> GetDeliveryPointsCompiledAddressesAsync(
+			IUnitOfWork uow, IEnumerable<int> deliveryPointIds, CancellationToken cancellationToken);
 	}
 }
