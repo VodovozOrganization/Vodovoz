@@ -1,4 +1,4 @@
-﻿using NHibernate;
+using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Linq;
 using NHibernate.SqlCommand;
@@ -56,7 +56,7 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 				return result;
 			}
 		}
-		
+
 		public async Task<IEnumerable<GroupGtinEntity>> GetGroupGtinsAsync(CancellationToken cancellationToken)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())
@@ -133,10 +133,6 @@ namespace Vodovoz.Core.Data.NHibernate.Repositories.Edo
 				;
 			return edoTasks;
 		}
-
-		
-
-		
 
 		public IEnumerable<EdoDocflowForOrderNode> GetEdoDocflowsForOrder(IUnitOfWork uow, int orderId)
 		{
@@ -284,6 +280,98 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 			return orderTasks;
 		}
 
+		public async Task<IList<TimedOutDocFlowGrouppedNode>> GetTimedOutDocFlows(
+			IUnitOfWork unitOfWork,
+			int timeoutDays,
+			CancellationToken cancellationToken)
+		{
+			var thresholdDate = DateTime.Today.AddDays(-timeoutDays);
+
+			var timedOutDocFlowNodes =
+				from task in unitOfWork.Session.Query<DocumentEdoTask>()
+				join orderEdoDocument in unitOfWork.Session.Query<OrderEdoDocument>()
+					on task.Id equals orderEdoDocument.DocumentTaskId
+				join taxcomDocflow in unitOfWork.Session.Query<TaxcomDocflow>()
+					on orderEdoDocument.Id equals taxcomDocflow.EdoDocumentId
+				join formalEdoRequest in unitOfWork.Session.Query<FormalEdoRequest>()
+					on task.FormalEdoRequest.Id equals formalEdoRequest.Id
+				join order in unitOfWork.Session.Query<OrderEntity>()
+					on formalEdoRequest.Order.Id equals order.Id
+				join client in unitOfWork.Session.Query<CounterpartyEntity>()
+					on order.Client.Id equals client.Id
+				join contract in unitOfWork.Session.Query<CounterpartyContractEntity>()
+					on order.Contract.Id equals contract.Id
+				join taxcomSettings in unitOfWork.Session.Query<TaxcomEdoSettings>()
+					on contract.Organization.Id equals taxcomSettings.OrganizationId
+				join organization in unitOfWork.Session.Query<OrganizationEntity>()
+					on contract.Organization.Id equals organization.Id
+				join edoAccount in unitOfWork.Session.Query<CounterpartyEdoAccountEntity>()
+					on new
+					{
+						ClientId = client.Id,
+						OrganizationId = contract.Organization.Id,
+						IsDefault = true
+					}
+					equals new
+					{
+						ClientId = edoAccount.Counterparty.Id,
+						OrganizationId = edoAccount.OrganizationId ?? 0,
+						IsDefault = edoAccount.IsDefault
+					}
+				join wer in unitOfWork.Session.Query<WithdrawalEdoRequest>()
+					on order.Id equals wer.Order.Id into withdrawalEdoRequests
+				from withdrawalEdoRequest in withdrawalEdoRequests.DefaultIfEmpty()
+
+				let updNum =
+					(from docCounter in unitOfWork.Session.Query<DocumentOrganizationCounter>()
+					 where docCounter.Order.Id == order.Id
+						 && docCounter.Organization.Id == organization.Id
+					 orderby docCounter.Id descending
+					 select docCounter.DocumentNumber)
+					.FirstOrDefault()
+
+				where
+					task.Status == EdoTaskStatus.InProgress
+					&& taxcomDocflow.CreationTime < thresholdDate && taxcomDocflow.CreationTime >= thresholdDate.AddDays(-1)
+					&& orderEdoDocument.Status == EdoDocumentStatus.InProgress
+					&& orderEdoDocument.AcceptTime == null
+					&& taxcomDocflow.IsReceived
+					&& order.PaymentType == Vodovoz.Domain.Client.PaymentType.Cashless
+					&& client.PersonType == PersonType.legal
+					&& client.ReasonForLeaving == ReasonForLeaving.ForOwnNeeds
+					&& edoAccount.ConsentForEdoStatus == ConsentForEdoStatus.Agree
+					&& withdrawalEdoRequest == null
+					&& !taxcomDocflow.IsReminderToAcceptUpdEmailSent
+
+				select new TimedOutDocFlowRow
+				{
+					Client = client,
+					Organization = organization,
+					Order = order,
+					TaxcomDocflow = taxcomDocflow,
+					OurEdoAccount = taxcomSettings.EdoAccount,
+					UpdNum = updNum
+				};
+
+			var result = (await timedOutDocFlowNodes.ToListAsync(cancellationToken))
+				.GroupBy(x => new { ClientId = x.Client.Id, OrganizationId = x.Organization.Id })
+				.Select(g => new TimedOutDocFlowGrouppedNode
+				{
+					Client = g.First().Client,
+					Organization = g.First().Organization,
+					Documents = g.Distinct().Select(x => new TimedOutDocFlowDocumentNode
+					{
+						Order = x.Order,
+						TaxcomDocflow = x.TaxcomDocflow,
+						OurEdoAccount = x.OurEdoAccount,
+						UpdNum = x.UpdNum
+					}).ToList()
+				})
+				.ToList();
+
+			return result;
+		}
+
 		public async Task<IList<int>> GetExistingWithdrawalEdoRequestOrders(IUnitOfWork uow, IEnumerable<int> orderIds, CancellationToken cancellationToken)
 		{
 			var existingOrders = await uow.Session.Query<WithdrawalEdoRequest>()
@@ -298,7 +386,7 @@ where eod.`type` = 'Transfer' and ecr.order_id = :order_id
 			string problemSourceName,
 			DateTime minCreationTime,
 			CancellationToken cancellationToken,
-			DateTime? maxCreationTime = null 
+			DateTime? maxCreationTime = null
 			)
 			where T : OrderEdoTask
 		{
@@ -600,7 +688,7 @@ where eir.order_id = :order_id
 				edoTransferTasksProblems.Count,
 				stepStopwatch.Elapsed);
 
-			var allProblems =  edoTasksProblems
+			var allProblems = edoTasksProblems
 				.Union(edoTransferTasksProblems)
 				.GroupBy(x => x.TaskProblemId)
 				.ToDictionary(x => x.Key, x => x.First())
