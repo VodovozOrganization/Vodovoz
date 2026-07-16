@@ -11,6 +11,7 @@ using Vodovoz.Domain.Client.ClientClassification;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
+using VodovozBusiness.EntityRepositories.Nodes;
 
 namespace Vodovoz.EntityRepositories.Counterparties
 {
@@ -120,5 +121,25 @@ namespace Vodovoz.EntityRepositories.Counterparties
 		/// <param name="fromDate">Дата начала для поиска изменений</param>
 		/// <returns></returns>
 		IList<CounterpartyChangesDto> GetCounterpartyChanges(IUnitOfWork unitOfWork, DateTime fromDate, DateTime toDate);
+
+		/// <summary>
+		/// Данные контрагентов для уведомлений по плановым заказам (наименование, ИНН, форма, отсрочка)
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="counterpartyIds">Id контрагентов</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Данные контрагентов</returns>
+		Task<IList<PlannedOrderCounterpartyNode>> GetCounterpartiesPlannedOrdersDataAsync(
+			IUnitOfWork uow, IEnumerable<int> counterpartyIds, CancellationToken cancellationToken);
+
+		/// <summary>
+		/// Email адреса контрагентов с назначением адреса
+		/// </summary>
+		/// <param name="uow">UnitOfWork</param>
+		/// <param name="counterpartyIds">Id контрагентов</param>
+		/// <param name="cancellationToken">Токен отмены</param>
+		/// <returns>Email адреса контрагентов</returns>
+		Task<IList<CounterpartyEmailWithPurposeNode>> GetCounterpartiesEmailsWithPurposeAsync(
+			IUnitOfWork uow, IEnumerable<int> counterpartyIds, CancellationToken cancellationToken);
 	}
 }

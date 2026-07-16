@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using QS.HistoryLog.Domain;
 using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Payments;
 using Vodovoz.Domain.Client;
@@ -22,6 +23,7 @@ using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.Payments;
 using Vodovoz.EntityRepositories.Counterparties;
 using VodovozBusiness.Domain.Operations;
+using VodovozBusiness.EntityRepositories.Nodes;
 using System.Threading.Tasks;
 using System.Threading;
 
@@ -781,6 +783,53 @@ namespace Vodovoz.Infrastructure.Persistance.Counterparties
 				.Distinct();
 
 			return counterparties.ToList();
+		}
+
+		public async Task<IList<PlannedOrderCounterpartyNode>> GetCounterpartiesPlannedOrdersDataAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> counterpartyIds,
+			CancellationToken cancellationToken)
+		{
+			var ids = counterpartyIds.ToArray();
+
+			var query =
+				from counterparty in uow.Session.Query<Counterparty>()
+				where ids.Contains(counterparty.Id)
+				select new PlannedOrderCounterpartyNode
+				{
+					CounterpartyId = counterparty.Id,
+					FullName = counterparty.FullName,
+					Inn = counterparty.INN,
+					PersonType = counterparty.PersonType,
+					DelayDaysForBuyers = counterparty.DelayDaysForBuyers
+				};
+
+			return await query.ToListAsync(cancellationToken);
+		}
+
+		public async Task<IList<CounterpartyEmailWithPurposeNode>> GetCounterpartiesEmailsWithPurposeAsync(
+			IUnitOfWork uow,
+			IEnumerable<int> counterpartyIds,
+			CancellationToken cancellationToken)
+		{
+			var ids = counterpartyIds.ToArray();
+
+			var query =
+				from email in uow.Session.Query<Email>()
+				join emailType in uow.Session.Query<EmailType>() on email.EmailType.Id equals emailType.Id into emailTypes
+				from emailType in emailTypes.DefaultIfEmpty()
+				where
+					email.Counterparty != null
+					&& ids.Contains(email.Counterparty.Id)
+				orderby email.Id
+				select new CounterpartyEmailWithPurposeNode
+				{
+					CounterpartyId = email.Counterparty.Id,
+					Address = email.Address,
+					EmailPurpose = (EmailPurpose?)emailType.EmailPurpose
+				};
+
+			return await query.ToListAsync(cancellationToken);
 		}
 	}
 }
