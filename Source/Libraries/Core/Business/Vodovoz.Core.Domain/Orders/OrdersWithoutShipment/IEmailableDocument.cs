@@ -2,23 +2,17 @@
 using System;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Controllers;
+using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Orders.Documents;
 using Vodovoz.Core.Domain.StoredEmails;
-using Vodovoz.Settings.Delivery;
-using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.Core.Domain.Orders.OrdersWithoutShipment
 {
 	/// <summary>
 	/// Документ, который можно отправить по электронной почте
 	/// </summary>
-	public interface IEmailableDocument : ISignableDocument
+	public interface IEmailableDocument : IDocument, ISignableDocument
 	{
-		/// <summary>
-		/// Id документа
-		/// </summary>
-		//Пока не перенесём все документы на новый интерфейс, чтобы не ломать старый код.
-		int DocumentId { get; }
 		/// <summary>
 		/// Заголовок
 		/// </summary>
@@ -34,11 +28,9 @@ namespace Vodovoz.Core.Domain.Orders.OrdersWithoutShipment
 		/// <summary>
 		/// Получить шаблон письма для отправки документа
 		/// </summary>
+		/// <param name="edoAccountController"></param>
 		/// <returns></returns>
-		EmailTemplate GetEmailTemplate(
-			ICounterpartyEdoAccountEntityController edoAccountController = null,
-			IOrganizationSettings organizationSettings = null,
-			IDeliveryScheduleSettings deliveryScheduleSettings = null);
+		EmailTemplateEntity GetEmailTemplate(ICounterpartyEdoAccountEntityController edoAccountController = null);
 		/// <summary>
 		/// Получить информацию по отчету для формирования документа
 		/// </summary>

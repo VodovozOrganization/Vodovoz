@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Text.RegularExpressions;
 using Gamma.GtkWidgets;
 using QS.Views.GtkUI;
-using Vodovoz.Core.Domain.StoredEmails;
+using Vodovoz.Domain.StoredEmails;
 using Vodovoz.ViewModels.Dialogs.Email;
 
 namespace Vodovoz.Dialogs.Email

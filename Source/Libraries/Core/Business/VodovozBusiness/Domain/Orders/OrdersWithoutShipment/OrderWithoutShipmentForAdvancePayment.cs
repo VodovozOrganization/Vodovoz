@@ -10,18 +10,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Orders.OrdersWithoutShipment;
-using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Organizations;
 using Vodovoz.Domain.StoredEmails;
-using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Organizations;
 using VodovozBusiness.Controllers;
 
@@ -34,7 +29,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		PrepositionalPlural = "счетах без отгрузки на предоплату")]
 	[EntityPermission]
 	[HistoryTrace]
-	public class OrderWithoutShipmentForAdvancePayment : OrderWithoutShipmentBase, IDomainObject, IPrintableRDLDocument, IEmailableDocument, IValidatableObject
+	public class OrderWithoutShipmentForAdvancePayment : OrderWithoutShipmentBase, IPrintableRDLDocument, IEmailableDocument, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 		
@@ -151,8 +146,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 		public virtual string SpecialContractNumber => Client.IsForRetail ? Client.GetSpecialContractString() : string.Empty;
 
 		public virtual DateTime? DocumentDate => CreateDate;
-
-		CounterpartyEntity IEmailableDocument.Counterparty => Client;
+		public virtual Counterparty Counterparty => Client;
 
 		public virtual PrinterType PrintType => PrinterType.RDL;
 		public virtual DocumentOrientation Orientation => DocumentOrientation.Portrait;
@@ -174,10 +168,7 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 
 		#endregion
 
-		public virtual EmailTemplate GetEmailTemplate(
-			ICounterpartyEdoAccountEntityController edoAccountController = null,
-			IOrganizationSettings organizationSettings = null,
-			IDeliveryScheduleSettings deliveryScheduleSettings = null)
+		public virtual EmailTemplate GetEmailTemplate(ICounterpartyEdoAccountController edoAccountController = null, IOrganizationSettings organizationSettings = null)
 		{
 			var template = new EmailTemplate();
 
@@ -244,7 +235,5 @@ namespace Vodovoz.Domain.Orders.OrdersWithoutShipment
 					new[] {nameof(OrderWithoutDeliveryForAdvancePaymentItems)}
 				);
 		}
-
-		public virtual int DocumentId => Id;
 	}
 }

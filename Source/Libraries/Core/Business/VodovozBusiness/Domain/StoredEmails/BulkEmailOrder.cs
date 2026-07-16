@@ -1,17 +1,16 @@
 ﻿using QS.DomainModel.Entity;
 using System;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Domain.Orders;
 
-namespace Vodovoz.Core.Domain.StoredEmails
+namespace Vodovoz.Domain.StoredEmails
 {
 	[Obsolete("По задаче 5740 отказались от функционала задачи 4675, поэтому данный класс больше не нужен. Снести в будущем")]
 	public class BulkEmailOrder : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
 		private BulkEmail _bulkEmail;
-		private OrderEntity _order;
+		private Order _order;
 
         /// <summary>
         /// Идентификатор
@@ -37,7 +36,7 @@ namespace Vodovoz.Core.Domain.StoredEmails
 		/// Заказ
 		/// </summary>
 		[Display(Name = "Заказ")]
-		public virtual OrderEntity Order
+		public virtual Order Order
 		{
 			get => _order;
 			set => SetField(ref _order, value);

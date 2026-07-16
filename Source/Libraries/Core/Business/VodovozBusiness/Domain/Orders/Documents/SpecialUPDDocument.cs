@@ -4,13 +4,14 @@ using QS.Report;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Controllers;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Orders.OrdersWithoutShipment;
-using Vodovoz.Core.Domain.StoredEmails;
+using Vodovoz.Core.Domain.Clients;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
+using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Organizations;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -19,6 +20,10 @@ namespace Vodovoz.Domain.Orders.Documents
 		private static readonly DateTime _edition2017LastDate = Convert.ToDateTime("2021-06-30T23:59:59", CultureInfo.CreateSpecificCulture("ru-RU"));
 		private IOrganizationSettings _organizationSettings => ScopeProvider.Scope
 			.Resolve<IOrganizationSettings>();
+
+		private IDeliveryScheduleSettings _deliveryScheduleSettings => ScopeProvider.Scope
+			.Resolve<IDeliveryScheduleSettings>();
+
 
 		private int? _beveragesWorldOrganizationId;
 
@@ -148,12 +153,9 @@ namespace Vodovoz.Domain.Orders.Documents
 		#region implemented abstract members of IEmailableDocument
 
 		public virtual string Title => String.Format($"{Name} от {Order.DeliveryDate:d}");
-		public virtual CounterpartyEntity Counterparty => Order?.Client;
+		public virtual Counterparty Counterparty => Order?.Client;
 
-		public virtual EmailTemplate GetEmailTemplate(
-			ICounterpartyEdoAccountEntityController edoAccountController = null,
-			IOrganizationSettings organizationSettings = null,
-			IDeliveryScheduleSettings deliveryScheduleSettings = null)
+		public virtual EmailTemplate GetEmailTemplate(ICounterpartyEdoAccountController edoAccountController = null, IOrganizationSettings organizationSettings = null)
 		{
 			var hasAgreeForEdo = false;
 
@@ -165,7 +167,7 @@ namespace Vodovoz.Domain.Orders.Documents
 			}
 
 			return Order.DeliverySchedule.Id == 
-			       deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId 
+			       _deliveryScheduleSettings.ClosingDocumentDeliveryScheduleId 
 				? GetTemplateForClosingDocumentOrder(organizationSettings, hasAgreeForEdo) 
 				: GetTemplateForStandartReason(organizationSettings, hasAgreeForEdo);
 		}
@@ -229,7 +231,5 @@ namespace Vodovoz.Domain.Orders.Documents
 			
 			set => copiesToPrint = value;
 		}
-
-		public virtual int DocumentId => Id;
 	}
 }
