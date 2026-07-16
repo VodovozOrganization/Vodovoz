@@ -1,4 +1,4 @@
-using iTextSharp.text.pdf;
+﻿using iTextSharp.text.pdf;
 using QS.Commands;
 using QS.Dialog;
 using QS.DomainModel.UoW;
@@ -386,7 +386,7 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 							{
 								StoredEmail = storedEmail,
 								Counterparty = client,
-								OrderDocument = new OrderDocumentEntity { Id = Document.DocumentId }
+								OrderDocument = unitOfWork.GetById<OrderDocumentEntity>(Document.DocumentId)
 							};
 							unitOfWork.Save(orderDocumentEmail);
 							break;
@@ -428,7 +428,7 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 							{
 								StoredEmail = storedEmail,
 								Counterparty = client,
-								OrderDocument = new OrderDocumentEntity { Id = Document.DocumentId }
+								OrderDocument = unitOfWork.GetById<OrderDocumentEntity>(Document.DocumentId)
 							};
 							unitOfWork.Save(equipmentTransfertEmail);
 							break;
@@ -438,7 +438,7 @@ namespace Vodovoz.ViewModels.Dialogs.Email
 							{
 								StoredEmail = storedEmail,
 								Counterparty = client,
-								OrderDocument = new OrderDocumentEntity { Id = Document.DocumentId }
+								OrderDocument = unitOfWork.GetById<OrderDocumentEntity>(Document.DocumentId)
 							};
 							unitOfWork.Save(updDocumentEmail);
 							break;

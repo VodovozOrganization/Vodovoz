@@ -6,7 +6,7 @@ using Vodovoz.Core.Domain.Documents;
 
 namespace Vodovoz.Core.Domain.Orders.Documents
 {
-	public class OrderDocumentEntity : PropertyChangedBase
+	public class OrderDocumentEntity : PropertyChangedBase, IDomainObject
 	{
 		private int _id;
 		OrderEntity _order;

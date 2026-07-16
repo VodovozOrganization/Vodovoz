@@ -190,7 +190,7 @@ namespace Vodovoz.Services
 			{
 				StoredEmail = storedEmail,
 				Counterparty = order.Client,
-				OrderDocument = new OrderDocumentEntity { Id = document.Id }
+				OrderDocument = unitOfWork.GetById<OrderDocumentEntity>(document.Id)
 			};
 
 			unitOfWork.Save(updDocumentEmail);
@@ -237,7 +237,7 @@ namespace Vodovoz.Services
 				{
 					StoredEmail = storedEmail,
 					Counterparty = order.Client,
-					OrderDocument = new OrderDocumentEntity { Id = document.Id }
+					OrderDocument = unitOfWork.GetById<OrderDocumentEntity>(document.Id)
 				};
 
 				unitOfWork.Save(orderDocumentEmail);
