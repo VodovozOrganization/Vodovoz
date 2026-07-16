@@ -89,7 +89,7 @@ namespace BitrixNotificationsSend.Library.Services
 		{
 			var today = DateTime.UtcNow.ToMoscowDateTime().Date;
 
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(PlannedOrdersNotificationsSendService)))
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot($"Сервис {nameof(PlannedOrdersNotificationsSendService)}. Поиск плановых заказов"))
 			{
 				var hasPlannedOrdersForToday = _plannedOrderRepository
 					.Get(uow, x => x.PlannedOrderDate == today, 1)
@@ -141,64 +141,63 @@ namespace BitrixNotificationsSend.Library.Services
 		{
 			var today = DateTime.UtcNow.ToMoscowDateTime().Date;
 
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot(nameof(PlannedOrdersNotificationsSendService)))
+			List<PlannedOrderDto> plannedOrderDtos;
+
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot($"Сервис {nameof(PlannedOrdersNotificationsSendService)}. Поиск не созданных сделок"))
 			{
-				var plannedOrdersToSend = _plannedOrderRepository
+				plannedOrderDtos = _plannedOrderRepository
 					.Get(uow, x => x.PlannedOrderDate == today && x.Stage == PlannedOrderStage.DealNotCreated)
-					.Select(x => (Entity: x, Dto: CreatePlannedOrderDto(x)))
+					.Select(CreatePlannedOrderDto)
 					.ToList();
-
-				if(!plannedOrdersToSend.Any())
-				{
-					_logger.LogInformation(
-						"Нет плановых заказов клиентов на {PlannedOrderDate:yyyy.MM.dd} в стадии \"Сделка не создана\" для отправки в Битрикс24",
-						today);
-
-					return;
-				}
-
-				var plannedOrderDtos = plannedOrdersToSend
-					.Select(x => x.Dto)
-					.ToList();
-
-				var plannedOrdersByCommandKeys = plannedOrdersToSend
-					.ToDictionary(x => x.Dto.DealCommandKey, x => x.Entity);
-
-				_logger.LogInformation(
-					"Начало создания сделок по плановым заказам в Битрикс24. Количество строк: {PlannedOrdersCount}",
-					plannedOrderDtos.Count);
-
-				var sendResult = await _bitrixBatchesSendService.SendAll(
-					plannedOrderDtos,
-					plannedOrderDto => plannedOrderDto.DealCommandKey,
-					(batchPlannedOrders, batchCancellationToken) =>
-						_bitrixDealsClient.SendPlannedOrderDeals(batchPlannedOrders, batchCancellationToken),
-					(succeededPlannedOrders, batchCancellationToken) =>
-						MarkDealsCreated(uow, succeededPlannedOrders, plannedOrdersByCommandKeys, batchCancellationToken),
-					cancellationToken);
-
-				_logger.LogInformation("Успешно создано {SuccessfulDealsCount} сделок из запланированных {PlannedDealsCount}",
-					sendResult.SuccessfulCount,
-					plannedOrderDtos.Count);
 			}
+
+			if(!plannedOrderDtos.Any())
+			{
+				_logger.LogInformation(
+					"Нет плановых заказов клиентов на {PlannedOrderDate:yyyy.MM.dd} в стадии \"Сделка не создана\" для отправки в Битрикс24",
+					today);
+
+				return;
+			}
+
+			_logger.LogInformation(
+				"Начало создания сделок по плановым заказам в Битрикс24. Количество строк: {PlannedOrdersCount}",
+				plannedOrderDtos.Count);
+
+			var sendResult = await _bitrixBatchesSendService.SendAll(
+				plannedOrderDtos,
+				plannedOrderDto => plannedOrderDto.DealCommandKey,
+				(batchPlannedOrders, batchCancellationToken) =>
+					_bitrixDealsClient.SendPlannedOrderDeals(batchPlannedOrders, batchCancellationToken),
+				MarkDealsCreated,
+				cancellationToken);
+
+			_logger.LogInformation("Успешно создано {SuccessfulDealsCount} сделок из запланированных {PlannedDealsCount}",
+				sendResult.SuccessfulCount,
+				plannedOrderDtos.Count);
 		}
 
 		private async Task MarkDealsCreated(
-			IUnitOfWork uow,
 			IReadOnlyList<PlannedOrderDto> succeededPlannedOrders,
-			IReadOnlyDictionary<string, PlannedOrder> plannedOrdersByCommandKeys,
 			CancellationToken cancellationToken)
 		{
-			foreach(var succeededPlannedOrder in succeededPlannedOrders)
+			var plannedOrderIds = succeededPlannedOrders
+				.Select(x => x.PlannedOrderId)
+				.ToArray();
+
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot($"Сервис {nameof(PlannedOrdersNotificationsSendService)}. Обновление статуса сделок"))
 			{
-				if(plannedOrdersByCommandKeys.TryGetValue(succeededPlannedOrder.DealCommandKey, out var createdDealPlannedOrder))
+				var createdDealPlannedOrders = _plannedOrderRepository
+					.Get(uow, x => plannedOrderIds.Contains(x.Id));
+
+				foreach(var createdDealPlannedOrder in createdDealPlannedOrders)
 				{
 					createdDealPlannedOrder.Stage = PlannedOrderStage.DealCreated;
 					await uow.SaveAsync(createdDealPlannedOrder, cancellationToken: cancellationToken);
 				}
-			}
 
-			await uow.CommitAsync(cancellationToken);
+				await uow.CommitAsync(cancellationToken);
+			}
 		}
 
 		private async Task<IEnumerable<PlannedOrder>> GetPlannedOrders(
