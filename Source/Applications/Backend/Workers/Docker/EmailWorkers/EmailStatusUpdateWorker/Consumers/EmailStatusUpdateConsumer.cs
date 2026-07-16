@@ -5,7 +5,7 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using QS.DomainModel.UoW;
 using RabbitMQ.MailSending;
-using Vodovoz.Core.Domain.StoredEmails;
+using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 
 namespace EmailStatusUpdateWorker.Consumers

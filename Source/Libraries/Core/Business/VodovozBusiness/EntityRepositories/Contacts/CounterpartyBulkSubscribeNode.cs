@@ -1,5 +1,5 @@
-﻿using Vodovoz.Core.Domain.StoredEmails;
-using Vodovoz.Domain.Client;
+﻿using Vodovoz.Domain.Client;
+using Vodovoz.Domain.StoredEmails;
 
 namespace Vodovoz.EntityRepositories
 {

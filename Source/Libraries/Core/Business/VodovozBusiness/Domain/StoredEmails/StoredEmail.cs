@@ -1,9 +1,9 @@
-﻿using QS.DomainModel.Entity;
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Core.Domain.Employees;
+using QS.DomainModel.Entity;
+using Vodovoz.Domain.Employees;
 
-namespace Vodovoz.Core.Domain.StoredEmails
+namespace Vodovoz.Domain.StoredEmails
 {
 	[Appellative(Gender = GrammaticalGender.Masculine,
 		NominativePlural = "Электронные почты для отправки",
@@ -20,7 +20,7 @@ namespace Vodovoz.Core.Domain.StoredEmails
 		private string _description;
 		private string _recipientAddress;
 		private bool? _manualSending;
-		private EmployeeEntity _author;
+		private Employee _author;
 
 		public virtual int Id { get; set; }
 
@@ -69,7 +69,7 @@ namespace Vodovoz.Core.Domain.StoredEmails
 		}
 
 		[Display(Name = "Автор")]
-		public virtual EmployeeEntity Author
+		public virtual Employee Author
 		{
 			get => _author;
 			set => SetField(ref _author, value);

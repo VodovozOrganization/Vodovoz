@@ -1,16 +1,16 @@
-﻿using Autofac;
-using QS.Print;
-using QS.Report;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.Controllers;
+using System.IO;
+using Autofac;
+using QS.Print;
+using QS.Report;
 using Vodovoz.Core.Domain.Orders;
-using Vodovoz.Core.Domain.Orders.OrdersWithoutShipment;
-using Vodovoz.Core.Domain.StoredEmails;
-using Vodovoz.Settings.Delivery;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders.OrdersWithoutShipment;
+using Vodovoz.Domain.StoredEmails;
 using Vodovoz.Settings.Organizations;
+using VodovozBusiness.Controllers;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -52,7 +52,7 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public override DateTime? DocumentDate => Order?.BillDate;
 
-		public virtual CounterpartyEntity Counterparty => Order?.Client;
+		public virtual Counterparty Counterparty => Order?.Client;
 
 		public override PrinterType PrintType => PrinterType.RDL;
 
@@ -73,11 +73,8 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		#endregion
 
-		public virtual EmailTemplate GetEmailTemplate(
-			ICounterpartyEdoAccountEntityController edoAccountController = null,
-			IOrganizationSettings organizationSettings = null,
-			IDeliveryScheduleSettings deliveryScheduleSettings = null)
-		{ 
+		public virtual EmailTemplate GetEmailTemplate(ICounterpartyEdoAccountController edoAccountController = null, IOrganizationSettings organizationSettings = null)
+		{
 			var template = new EmailTemplate();
 
 			template.Title = "ООО \"Веселый водовоз\"";
@@ -165,7 +162,5 @@ namespace Vodovoz.Domain.Orders.Documents
 
 			return template;
 		}
-
-		public virtual int DocumentId => Id;
 	}
 }

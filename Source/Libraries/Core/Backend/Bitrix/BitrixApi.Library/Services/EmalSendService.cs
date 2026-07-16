@@ -15,10 +15,9 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Repositories;
-using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.EntityRepositories.Orders;
 using Vodovoz.Settings.Common;
-using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
+using StoredEmails = Vodovoz.Domain.StoredEmails;
 
 namespace BitrixApi.Library.Services
 {
@@ -138,11 +137,11 @@ namespace BitrixApi.Library.Services
 			{
 				await SendEmail(emailMessage);
 				storedEmail.Description = "При отправке письма не произошла ошибка";
-				storedEmail.State = StoredEmailStates.SendingComplete;
+				storedEmail.State = StoredEmails.StoredEmailStates.SendingComplete;
 			}
 			catch(Exception ex)
 			{
-				storedEmail.State = StoredEmailStates.SendingError;
+				storedEmail.State = StoredEmails.StoredEmailStates.SendingError;
 				storedEmail.Description = "При отправке письма произошла ошибка";
 				_logger.LogError(ex, "Ошибка при отправке письма: {ErrorMessage}", ex.Message);
 			}
@@ -152,11 +151,11 @@ namespace BitrixApi.Library.Services
 			}
 		}
 
-		private StoredEmail CreateStoredEmail(string subject, string email, string inn)
+		private StoredEmails.StoredEmail CreateStoredEmail(string subject, string email, string inn)
 		{
-			var storedEmail = new StoredEmail
+			var storedEmail = new StoredEmails.StoredEmail
 			{
-				State = StoredEmailStates.PreparingToSend,
+				State = StoredEmails.StoredEmailStates.PreparingToSend,
 				Author = null,
 				ManualSending = true,
 				SendDate = DateTime.Now,

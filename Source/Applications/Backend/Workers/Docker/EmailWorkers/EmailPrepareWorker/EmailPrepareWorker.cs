@@ -1,4 +1,4 @@
-﻿using EmailPrepareWorker.Prepares;
+using EmailPrepareWorker.Prepares;
 using EmailPrepareWorker.SendEmailMessageBuilders;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,13 +12,12 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Vodovoz.Core.Domain.Controllers;
-using Vodovoz.Core.Domain.StoredEmails;
+using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Infrastructure;
 using Vodovoz.Settings.Common;
-using Vodovoz.Settings.Delivery;
 using Vodovoz.Settings.Organizations;
+using VodovozBusiness.Controllers;
 
 namespace EmailPrepareWorker
 {
@@ -33,7 +32,6 @@ namespace EmailPrepareWorker
 		private readonly ILogger<EmailPrepareWorker> _logger;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
 		private readonly IHostApplicationLifetime _hostApplicationLifetime;
-		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
 		private readonly IBus _messageBus;
 
 		private bool _initialized = false;
@@ -44,13 +42,11 @@ namespace EmailPrepareWorker
 			ILogger<EmailPrepareWorker> logger,
 			IServiceScopeFactory serviceScopeFactory,
 			IHostApplicationLifetime hostApplicationLifetime,
-			IDeliveryScheduleSettings deliveryScheduleSettings,
 			IBus messageBus)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
 			_hostApplicationLifetime = hostApplicationLifetime;
-			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 			CultureInfo.CurrentCulture = CultureInfo.CreateSpecificCulture("ru-RU");
 
@@ -124,7 +120,7 @@ namespace EmailPrepareWorker
 			var emailDocumentPreparer = prepareAndSendEmailsScope.ServiceProvider.GetRequiredService<IEmailDocumentPreparer>();
 			var emailSendMessagePreparer = prepareAndSendEmailsScope.ServiceProvider.GetRequiredService<IEmailSendMessagePreparer>();
 			var mySqlConnectionStringBuilder = prepareAndSendEmailsScope.ServiceProvider.GetRequiredService<MySqlConnector.MySqlConnectionStringBuilder>();
-			var edoAccountController = prepareAndSendEmailsScope.ServiceProvider.GetRequiredService<ICounterpartyEdoAccountEntityController>();
+			var edoAccountController = prepareAndSendEmailsScope.ServiceProvider.GetRequiredService<ICounterpartyEdoAccountController>();
 			var organizationSettings = prepareAndSendEmailsScope.ServiceProvider.GetRequiredService<IOrganizationSettings>();
 
 			SendEmailMessageBuilder emailSendMessageBuilder = null;
@@ -172,7 +168,6 @@ namespace EmailPrepareWorker
 									edoAccountController,
 									counterpartyEmail,
 									organizationSettings,
-									_deliveryScheduleSettings,
 									_instanceId);
 
 								break;
@@ -187,7 +182,6 @@ namespace EmailPrepareWorker
 									edoAccountController,
 									counterpartyEmail,
 									organizationSettings,
-									_deliveryScheduleSettings,
 									_instanceId);
 
 								break;

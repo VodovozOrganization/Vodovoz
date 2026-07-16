@@ -2,9 +2,8 @@
 using QS.DomainModel.UoW;
 using RabbitMQ.MailSending;
 using System.Collections.Generic;
-using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Domain.Client;
-using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
+using Vodovoz.Domain.StoredEmails;
 
 namespace EmailDebtNotificationWorker.Services.Common.Factories
 {
@@ -15,26 +14,24 @@ namespace EmailDebtNotificationWorker.Services.Common.Factories
 		/// </summary>
 		/// <param name="uow">IUnitOfWork</param>
 		/// <param name="storedEmail">Электронное письмо для отправки</param>
-		/// <param name="clientName">Имя клиента</param>
+		/// <param name="client">Клиент</param>
 		/// <param name="organizationFullName">Полное название организации</param>
 		/// <param name="organizationEmailForMailing">Почта организации для отправки</param>
 		/// <param name="attachments">Вложения в письмо</param>
 		/// <param name="emailAddress">Почта клиента для отправки</param>
 		/// <param name="emailSubject">Тема письма</param>
 		/// <param name="messageText">Тело письма</param>
-		/// <param name="canUnsubscribe">Флаг, указывающий на возможность отписки</param>
 		/// <returns></returns>
 		SendEmailMessage CreateSendEmailMessage(
 			IUnitOfWork uow,
 			StoredEmail storedEmail,
-			string clientName,
+			Counterparty client,
 			string organizationFullName,
 			string organizationEmailForMailing,
-			IEnumerable<EmailAttachment>? attachments,
+			IEnumerable<EmailAttachment> attachments,
 			string emailAddress,
 			string emailSubject,
-			string messageText,
-			bool canUnsubscribe = true);
+			string messageText);
 
 		/// <summary>
 		/// Создать электронное письмо для отправки

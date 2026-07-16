@@ -1,21 +1,15 @@
-﻿using MySqlConnector;
-using QS.Print;
-using QS.Report;
+﻿using QS.Print;
 using System;
-using System.Collections.Generic;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Controllers;
-using Vodovoz.Core.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.Core.Domain.StoredEmails;
-using Vodovoz.Settings.Delivery;
-using Vodovoz.Settings.Organizations;
 
 namespace Vodovoz.Core.Domain.Orders.Documents
 {
 	/// <summary>
 	/// Документ письма о задолженности
 	/// </summary>
-	public class LetterOfDebtDocumentEntity : PrintableOrderDocumentEntity, ISignableDocument, IEmailableDocument
+	public class LetterOfDebtDocumentEntity : PrintableOrderDocumentEntity, ISignableDocument
 	{
 		private int _copiesToPrint = 2;
 		private bool _hideSignature = true;
@@ -44,17 +38,14 @@ namespace Vodovoz.Core.Domain.Orders.Documents
 			set => _hideSignature = value;
 		}
 
-		public virtual EmailTemplate GetEmailTemplate(
-			ICounterpartyEdoAccountEntityController edoAccountController = null,
-			IOrganizationSettings organizationSettings = null,
-			IDeliveryScheduleSettings deliveryScheduleSettings = null)
+		public virtual EmailTemplateEntity GetEmailTemplate(ICounterpartyEdoAccountEntityController edoAccountController = null)
 		{
 			string deliveryDateFormatted = Order.DeliveryDate?.ToString("dd.MM.yyyy")
 				?? string.Empty;
 
 			string dueDateFormatted = Order.DeliveryDate?.AddDays(Order.Client.DelayDaysForBuyers).ToString("dd.MM.yyyy") ?? string.Empty;
 
-			var template = new EmailTemplate
+			var template = new EmailTemplateEntity
 			{
 				Title = "ООО \"Веселый водовоз\" - Задолженность по заказу",
 				Text =
@@ -118,26 +109,9 @@ namespace Vodovoz.Core.Domain.Orders.Documents
 			return template;
 		}
 
-		public virtual ReportInfo GetReportInfo(string connectionString = null)
-		{
-			var reportInfoFactory = new DefaultReportInfoFactory(new MySqlConnectionStringBuilder(connectionString));
-			var reportInfo = reportInfoFactory.Create();
-			reportInfo.Title = Name;
-			reportInfo.Identifier = "Documents.LetterOfDebt";
-			reportInfo.Parameters = new Dictionary<string, object>
-			{
-				{ "order_id",  Order.Id },
-				{ "hide_signature", HideSignature }
-			};
-			return reportInfo;
-		}
-
 		public virtual string Title => $"Письмо о задолженности №{Order.Id} от {DocumentDate?.ToString("dd.MM.yyyy")}";
 
 
 		public virtual CounterpartyEntity Counterparty => Order.Client;
-
-		public virtual int DocumentId => Id;
-
 	}
 }

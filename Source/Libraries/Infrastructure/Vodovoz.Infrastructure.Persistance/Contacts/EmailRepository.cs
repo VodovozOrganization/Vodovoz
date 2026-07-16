@@ -13,7 +13,6 @@ using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Contacts;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.Core.Domain.Payments;
-using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Contacts;
 using Vodovoz.Domain.Logistic;
@@ -27,6 +26,7 @@ using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Contacts;
 using Vodovoz.Settings.Delivery;
 using VodovozBusiness.Domain.Operations;
+using VodovozBusiness.Domain.StoredEmails;
 using VodovozBusiness.EntityRepositories.Nodes;
 using Order = Vodovoz.Domain.Orders.Order;
 

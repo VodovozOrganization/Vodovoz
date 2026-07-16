@@ -3,6 +3,7 @@ using EmailDebtNotificationWorker.Options;
 using EmailDebtNotificationWorker.Services.Common.Factories;
 using EmailDebtNotificationWorker.Services.Common.Generators;
 using EmailDebtNotificationWorker.Services.Common.Selectors;
+using Mailjet.Api.Abstractions;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -14,13 +15,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Clients;
-using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.OrdersWithoutShipment;
 using Vodovoz.EntityRepositories;
 using Vodovoz.EntityRepositories.Orders;
+using VodovozBusiness.Domain.StoredEmails;
 using VodovozBusiness.EntityRepositories.Nodes;
-using EmailAttachment = Mailjet.Api.Abstractions.EmailAttachment;
 
 namespace EmailDebtNotificationWorker.Services.ClaimLetters
 {
@@ -168,7 +169,7 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 			{
 				try
 				{
-					var client = await uow.Session.GetAsync<Counterparty>(data.CounterpartyId, cancellationToken)
+					var client = await uow.Session.GetAsync<Counterparty>(data.CounterpartyId, cancellationToken) 
 						?? throw new InvalidOperationException($"Клиент с Id {data.CounterpartyId} не найден");
 
 					var contract = await uow.Session.GetAsync<CounterpartyContract>(data.ContractId, cancellationToken)
@@ -276,7 +277,7 @@ namespace EmailDebtNotificationWorker.Services.ClaimLetters
 			var emailMessage = _emailMessageFactory.CreateSendEmailMessage(
 				uow,
 				storedEmail,
-				client.FullName,
+				client,
 				organizationFullName,
 				organizationEmailForMailing,
 				attachments,

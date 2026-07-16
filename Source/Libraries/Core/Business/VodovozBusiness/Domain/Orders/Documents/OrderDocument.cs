@@ -6,6 +6,7 @@ using QS.HistoryLog;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.EntityRepositories.Counterparties;
+using IDocument = Vodovoz.Domain.Orders.OrdersWithoutShipment.IDocument;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -13,7 +14,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		NominativePlural = "документы заказа",
 		Nominative = "документ заказа")]
 	[HistoryTrace]
-	public abstract class OrderDocument : PropertyChangedBase, IDomainObject
+	public abstract class OrderDocument : PropertyChangedBase, IDocument
 	{
 		public virtual int Id { get; set; }
 

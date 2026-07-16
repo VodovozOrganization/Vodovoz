@@ -4,8 +4,8 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using UnsubscribePage.Models;
-using Vodovoz.Core.Domain.StoredEmails;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.StoredEmails;
 using Vodovoz.EntityRepositories;
 using Vodovoz.Settings.Common;
 
