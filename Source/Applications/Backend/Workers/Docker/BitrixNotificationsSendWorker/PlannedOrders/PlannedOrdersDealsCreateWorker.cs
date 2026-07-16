@@ -14,20 +14,20 @@ using Vodovoz.Zabbix.Sender;
 namespace BitrixNotificationsSendWorker.PlannedOrders
 {
 	/// <summary>
-	/// Воркер отправки уведомлений по плановым заказам клиентов в Битрикс24
+	/// Воркер создания сделок по плановым заказам клиентов в Битрикс24
 	/// </summary>
-	public class PlannedOrdersNotificationsSendWorker : TimerBackgroundServiceBase
+	public class PlannedOrdersDealsCreateWorker : TimerBackgroundServiceBase
 	{
-		private readonly ILogger<PlannedOrdersNotificationsSendWorker> _logger;
-		private readonly IOptions<PlannedOrdersNotificationsSendOptions> _options;
+		private readonly ILogger<PlannedOrdersDealsCreateWorker> _logger;
+		private readonly IOptions<PlannedOrdersDealsCreateOptions> _options;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
 		private readonly IZabbixSender _zabbixSender;
 
 		private DateTime? _lastCollectDate;
 
-		public PlannedOrdersNotificationsSendWorker(
-			ILogger<PlannedOrdersNotificationsSendWorker> logger,
-			IOptions<PlannedOrdersNotificationsSendOptions> options,
+		public PlannedOrdersDealsCreateWorker(
+			ILogger<PlannedOrdersDealsCreateWorker> logger,
+			IOptions<PlannedOrdersDealsCreateOptions> options,
 			IServiceScopeFactory serviceScopeFactory,
 			IZabbixSender zabbixSender)
 		{
@@ -59,20 +59,20 @@ namespace BitrixNotificationsSendWorker.PlannedOrders
 
 				if(IsInSendTimeInterval(moscowNow))
 				{
-					var notificationsSendService = scope.ServiceProvider.GetRequiredService<PlannedOrdersNotificationsSendService>();
+					var dealsCreateService = scope.ServiceProvider.GetRequiredService<PlannedOrdersDealsCreateService>();
 
 					if(_lastCollectDate != moscowNow.Date)
 					{
 						_logger.LogInformation("Запуск сбора данных по плановым заказам клиентов");
 
-						await notificationsSendService.CollectPlannedOrders(stoppingToken);
+						await dealsCreateService.CollectPlannedOrders(stoppingToken);
 
 						_lastCollectDate = moscowNow.Date;
 
 						_logger.LogInformation("Окончание сбора данных по плановым заказам клиентов");
 					}
 
-					await notificationsSendService.SendNotCreatedDeals(stoppingToken);
+					await dealsCreateService.SendNotCreatedDeals(stoppingToken);
 				}
 
 				await _zabbixSender.SendIsHealthyAsync(stoppingToken);

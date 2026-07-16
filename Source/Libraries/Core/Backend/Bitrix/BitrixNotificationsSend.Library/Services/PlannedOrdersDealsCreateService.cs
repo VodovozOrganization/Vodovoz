@@ -24,9 +24,9 @@ using VodovozBusiness.EntityRepositories.Nodes;
 namespace BitrixNotificationsSend.Library.Services
 {
 	/// <summary>
-	/// Сервис формирования и отправки уведомлений по плановым заказам клиентов в Битрикс24
+	/// Сервис формирования и отправки сделок по плановым заказам клиентов в Битрикс24
 	/// </summary>
-	public partial class PlannedOrdersNotificationsSendService
+	public partial class PlannedOrdersDealsCreateService
 	{
 		private readonly OrderStatus[] _completedOrderStatuses =
 		{
@@ -42,7 +42,7 @@ namespace BitrixNotificationsSend.Library.Services
 			OrderStatus.DeliveryCanceled
 		};
 
-		private readonly ILogger<PlannedOrdersNotificationsSendService> _logger;
+		private readonly ILogger<PlannedOrdersDealsCreateService> _logger;
 		private readonly IUnitOfWorkFactory _unitOfWorkFactory;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IBottlesRepository _bottlesRepository;
@@ -54,8 +54,8 @@ namespace BitrixNotificationsSend.Library.Services
 		private readonly IBitrixBatchesSendService _bitrixBatchesSendService;
 		private readonly IGenericRepository<PlannedOrder> _plannedOrderRepository;
 
-		public PlannedOrdersNotificationsSendService(
-			ILogger<PlannedOrdersNotificationsSendService> logger,
+		public PlannedOrdersDealsCreateService(
+			ILogger<PlannedOrdersDealsCreateService> logger,
 			IUnitOfWorkFactory unitOfWorkFactory,
 			IOrderRepository orderRepository,
 			IBottlesRepository bottlesRepository,
@@ -89,7 +89,7 @@ namespace BitrixNotificationsSend.Library.Services
 		{
 			var today = DateTime.UtcNow.ToMoscowDateTime().Date;
 
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot($"Сервис {nameof(PlannedOrdersNotificationsSendService)}. Поиск плановых заказов"))
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot($"Сервис {nameof(PlannedOrdersDealsCreateService)}. Поиск плановых заказов"))
 			{
 				var hasPlannedOrdersForToday = _plannedOrderRepository
 					.Get(uow, x => x.PlannedOrderDate == today, 1)
@@ -143,7 +143,7 @@ namespace BitrixNotificationsSend.Library.Services
 
 			List<PlannedOrderDto> plannedOrderDtos;
 
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot($"Сервис {nameof(PlannedOrdersNotificationsSendService)}. Поиск не созданных сделок"))
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot($"Сервис {nameof(PlannedOrdersDealsCreateService)}. Поиск не созданных сделок"))
 			{
 				plannedOrderDtos = _plannedOrderRepository
 					.Get(uow, x => x.PlannedOrderDate == today && x.Stage == PlannedOrderStage.DealNotCreated)
@@ -185,7 +185,7 @@ namespace BitrixNotificationsSend.Library.Services
 				.Select(x => x.PlannedOrderId)
 				.ToArray();
 
-			using(var uow = _unitOfWorkFactory.CreateWithoutRoot($"Сервис {nameof(PlannedOrdersNotificationsSendService)}. Обновление статуса сделок"))
+			using(var uow = _unitOfWorkFactory.CreateWithoutRoot($"Сервис {nameof(PlannedOrdersDealsCreateService)}. Обновление статуса сделок"))
 			{
 				var createdDealPlannedOrders = _plannedOrderRepository
 					.Get(uow, x => plannedOrderIds.Contains(x.Id));

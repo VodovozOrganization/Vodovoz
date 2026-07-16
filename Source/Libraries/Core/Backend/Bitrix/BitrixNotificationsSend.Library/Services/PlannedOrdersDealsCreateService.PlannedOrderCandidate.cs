@@ -3,10 +3,10 @@ using VodovozBusiness.EntityRepositories.Nodes;
 
 namespace BitrixNotificationsSend.Library.Services
 {
-	public partial class PlannedOrdersNotificationsSendService
+	public partial class PlannedOrdersDealsCreateService
 	{
 		/// <summary>
-		/// Класс, представляющий кандидата на уведомление по плановому заказу
+		/// Класс, представляющий кандидата на создание сделки по плановому заказу
 		/// </summary>
 		public class PlannedOrderCandidate
 		{

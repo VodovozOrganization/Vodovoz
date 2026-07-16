@@ -50,7 +50,7 @@ namespace BitrixNotificationsSendWorker
 						.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>))
 						.AddBitrixNotificationsSendServices()
 						.ConfigureZabbixSenderFromDataBase(nameof(CashlessDebtsNotificationsSendWorker))
-						.ConfigureZabbixSenderFromDataBase(nameof(PlannedOrdersNotificationsSendWorker));
+						.ConfigureZabbixSenderFromDataBase(nameof(PlannedOrdersDealsCreateWorker));
 
 					services
 						.AddDatabaseConfigurationExposer(config =>
@@ -72,7 +72,7 @@ namespace BitrixNotificationsSendWorker
 						});
 
 					services.AddHostedService<CashlessDebtsNotificationsSendWorker>();
-					services.AddHostedService<PlannedOrdersNotificationsSendWorker>();
+					services.AddHostedService<PlannedOrdersDealsCreateWorker>();
 				});
 	}
 }
