@@ -293,7 +293,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 						_contractUpdater,
 						product.Nomenclature,
 						product.Count,
-						giftItem: product.IsGift);
+						giftItem: product.GiftItem);
 				}
 				else
 				{
@@ -305,7 +305,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 							product.Nomenclature,
 							product.Count,
 							needGetFixedPrice: product.IsFixedPrice,
-							giftItem: product.IsGift);
+							giftItem: product.GiftItem);
 					}
 					else
 					{
@@ -318,7 +318,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 							product.IsDiscountInMoney,
 							product.IsFixedPrice,
 							discountReasons: product.DiscountReasons,
-							giftItem: product.IsGift);
+							giftItem: product.GiftItem);
 					}
 				}
 			}
@@ -342,7 +342,7 @@ namespace Vodovoz.Core.Application.Orders.Services
 					onlineOrderItem.IsDiscountInMoney,
 					onlineOrderItem.IsFixedPrice,
 					onlineOrderItem.DiscountReasons,
-					giftItem: onlineOrderItem.IsGift);
+					giftItem: onlineOrderItem.GiftItem);
 			}
 		}
 
