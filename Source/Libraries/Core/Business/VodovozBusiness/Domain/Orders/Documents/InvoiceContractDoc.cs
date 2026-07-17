@@ -5,6 +5,7 @@ using Autofac;
 using QS.Print;
 using QS.Report;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Orders.Documents;
 
 namespace Vodovoz.Domain.Orders.Documents
 {

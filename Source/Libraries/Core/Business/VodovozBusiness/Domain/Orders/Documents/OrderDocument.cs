@@ -61,27 +61,8 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual string DocumentDateText => DocumentDate?.ToShortDateString() ?? "не указана";
 	}
 
-
 	public interface ITemplateOdtDocument
 	{
 		void PrepareTemplate(IUnitOfWork uow, IDocTemplateRepository docTemplateRepository);
-	}
-
-	/// <summary>
-	/// Интерфейс необходим для документов заказа, напротив которых должен быть крыжик
-	/// "Без рекламы" в разделе "Документы" в диалоге заказа.
-	/// </summary>
-	public interface IAdvertisable
-	{
-		bool WithoutAdvertising { get; set; }
-	}
-
-	/// <summary>
-	/// Интерфейс необходим для документов заказа, напротив которых должен быть крыжик
-	/// "Без подписей и печати" в разделе "Документы" в диалоге заказа.
-	/// </summary>
-	public interface ISignableDocument
-	{
-		bool HideSignature { get; set; }
 	}
 }
