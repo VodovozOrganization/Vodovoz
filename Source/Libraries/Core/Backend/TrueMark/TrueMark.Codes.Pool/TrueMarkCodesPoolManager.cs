@@ -156,7 +156,9 @@ namespace TrueMark.Codes.Pool
 			{
 				var query = GetTotalCountByGtinQuery(uow);
 				var objects = query.List<object[]>();
-				var result = objects.ToDictionary(x => (string)x[0], x => (long)x[1]);
+				var result = objects
+					.Where(x => !string.IsNullOrWhiteSpace((string)x[0]))
+					.ToDictionary(x => (string)x[0], x => (long)x[1]);
 				return result;
 			}
 		}
@@ -167,7 +169,9 @@ namespace TrueMark.Codes.Pool
 			{
 				var query = GetTotalCountByGtinQuery(uow);
 				var objects = await query.ListAsync<object[]>(cancellationToken);
-				var result = objects.ToDictionary(x => (string)x[0], x => (long)x[1]);
+				var result = objects
+					.Where(x => !string.IsNullOrWhiteSpace((string)x[0]))
+					.ToDictionary(x => (string)x[0], x => (long)x[1]);
 				return result;
 			}
 		}
@@ -176,7 +180,7 @@ namespace TrueMark.Codes.Pool
 		{
 			var sql = $@"
 					SELECT
-						tmic.gtin,
+						pool.gtin,
 						Count(pool.code_id)
 					FROM {_poolTableName} pool
 					GROUP BY pool.gtin
