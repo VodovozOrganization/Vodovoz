@@ -390,8 +390,8 @@ namespace Vodovoz.ViewModels.TrueMark
 				ReloadCodesFromPool(uow);
 				ReloadScanndedStagingCodes(uow);
 
-				_codesRequired = _trueMarkRepository.GetCodesRequiredByOrder(uow, OrderId);
-				_codesProvidedFromScan = TotalScannedByDriver
+				CodesRequired = _trueMarkRepository.GetCodesRequiredByOrder(uow, OrderId);
+				CodesProvidedFromScan = TotalScannedByDriver
 					+ TotalScannedByWarehouse
 					+ TotalScannedBySelfdelivery;
 
@@ -399,11 +399,7 @@ namespace Vodovoz.ViewModels.TrueMark
 
 				FilterCodes();
 
-				OnPropertyChanged(nameof(CodesRequired));
 				OnPropertyChanged(nameof(SearchText));
-				CodesProvidedFromScan = TotalScannedByDriver
-					+ TotalScannedByWarehouse
-					+ TotalScannedBySelfdelivery;
 				CodesProvided = CodesProvidedFromScan + TotalAddedFromPool;
 			}
 		}
