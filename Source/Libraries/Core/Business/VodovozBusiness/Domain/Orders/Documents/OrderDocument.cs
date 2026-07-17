@@ -6,7 +6,6 @@ using QS.HistoryLog;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Orders;
 using Vodovoz.EntityRepositories.Counterparties;
-using IDocument = Vodovoz.Domain.Orders.OrdersWithoutShipment.IDocument;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -14,7 +13,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		NominativePlural = "документы заказа",
 		Nominative = "документ заказа")]
 	[HistoryTrace]
-	public abstract class OrderDocument : PropertyChangedBase, IDocument
+	public abstract class OrderDocument : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
 
@@ -62,27 +61,8 @@ namespace Vodovoz.Domain.Orders.Documents
 		public virtual string DocumentDateText => DocumentDate?.ToShortDateString() ?? "не указана";
 	}
 
-
 	public interface ITemplateOdtDocument
 	{
 		void PrepareTemplate(IUnitOfWork uow, IDocTemplateRepository docTemplateRepository);
-	}
-
-	/// <summary>
-	/// Интерфейс необходим для документов заказа, напротив которых должен быть крыжик
-	/// "Без рекламы" в разделе "Документы" в диалоге заказа.
-	/// </summary>
-	public interface IAdvertisable
-	{
-		bool WithoutAdvertising { get; set; }
-	}
-
-	/// <summary>
-	/// Интерфейс необходим для документов заказа, напротив которых должен быть крыжик
-	/// "Без подписей и печати" в разделе "Документы" в диалоге заказа.
-	/// </summary>
-	public interface ISignableDocument
-	{
-		bool HideSignature { get; set; }
 	}
 }

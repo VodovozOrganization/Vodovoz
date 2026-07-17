@@ -1,7 +1,7 @@
 ﻿using QS.DomainModel.Entity;
-using Vodovoz.Domain.Orders.OrdersWithoutShipment;
+using Vodovoz.Core.Domain.Orders.OrdersWithoutShipment;
 
-namespace Vodovoz.Domain.StoredEmails
+namespace Vodovoz.Core.Domain.StoredEmails
 {
 	/// <summary>
 	/// Информационное письмо

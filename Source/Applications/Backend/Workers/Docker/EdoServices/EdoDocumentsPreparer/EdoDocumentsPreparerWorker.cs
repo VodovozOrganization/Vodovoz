@@ -33,6 +33,7 @@ using Vodovoz.Zabbix.Sender;
 using VodovozBusiness.Controllers;
 using VodovozBusiness.Converters;
 using DocumentContainerType = Vodovoz.Core.Domain.Documents.DocumentContainerType;
+using Vodovoz.Core.Domain.Orders.Documents;
 
 namespace EdoDocumentsPreparer
 {

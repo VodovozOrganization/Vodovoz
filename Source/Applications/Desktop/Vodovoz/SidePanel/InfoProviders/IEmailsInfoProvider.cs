@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Vodovoz.Domain.StoredEmails;
+using Vodovoz.Core.Domain.StoredEmails;
 
 namespace Vodovoz.SidePanel.InfoProviders
 {

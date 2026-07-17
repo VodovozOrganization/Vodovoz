@@ -66,7 +66,7 @@ namespace Vodovoz.Core.Application.Documents
 		{
 			SetEdoContainerType(DocumentContainerType.BillWSForDebt);
 			_edoContainer.OrderWithoutShipmentForDebt = orderWithoutShipment;
-			SetCounterparty(orderWithoutShipment.Counterparty);
+			SetCounterparty(orderWithoutShipment.Client);
 			return this;
 		}
 		
@@ -80,7 +80,7 @@ namespace Vodovoz.Core.Application.Documents
 		{
 			SetEdoContainerType(DocumentContainerType.BillWSForPayment);
 			_edoContainer.OrderWithoutShipmentForPayment = orderWithoutShipment;
-			SetCounterparty(orderWithoutShipment.Counterparty);
+			SetCounterparty(orderWithoutShipment.Client);
 			return this;
 		}
 		
@@ -94,7 +94,7 @@ namespace Vodovoz.Core.Application.Documents
 		{
 			SetEdoContainerType(DocumentContainerType.BillWSForAdvancePayment);
 			_edoContainer.OrderWithoutShipmentForAdvancePayment = orderWithoutShipment;
-			SetCounterparty(orderWithoutShipment.Counterparty);
+			SetCounterparty(orderWithoutShipment.Client);
 			return this;
 		}
 		
