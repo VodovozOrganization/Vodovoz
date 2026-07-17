@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using QS.DomainModel.UoW;
 
@@ -14,9 +14,7 @@ namespace TrueMark.Codes.Pool
 		public static IServiceCollection AddCodesPool(this IServiceCollection services)
 		{
 			services.TryAddScoped<ITrueMarkCodesPool, TrueMarkCodesPool>();
-			services.TryAddScoped<TrueMarkCodesPool>();
 			services.TryAddScoped<ITrueMarkCodesPoolManager, TrueMarkCodesPoolManager>();
-			services.TryAddScoped<ReceiptTrueMarkCodesPool>();
 			services.TryAddScoped<TrueMarkCodesPoolFactory>();
 
 			services.TryAddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IUnitOfWorkFactory>().CreateWithoutRoot());
