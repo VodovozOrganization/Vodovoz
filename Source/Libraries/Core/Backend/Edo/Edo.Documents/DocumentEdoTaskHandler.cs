@@ -413,24 +413,33 @@ namespace Edo.Documents
 		public async Task HandleAccepted(int documentId, CancellationToken cancellationToken)
 		{
 			var document = await _uow.Session.GetAsync<OrderEdoDocument>(documentId, cancellationToken);
-			if(document == null)
+			if(document is null)
 			{
 				_logger.LogWarning("Документ №{DocumentId} не найден.", documentId);
+
 				return;
 			}
 
 			var edoTask = await _uow.Session.GetAsync<DocumentEdoTask>(document.DocumentTaskId, cancellationToken);
-			if(edoTask == null)
+			if(edoTask is null)
 			{
 				_logger.LogWarning("Задача ЭДО №{DocumentEdoTaskId} не найдена.", document.DocumentTaskId);
+
+				return;
+			}
+
+			if(edoTask.FormalEdoRequest is null)
+			{
+				_logger.LogWarning("Заявка ЭДО (Request) по TaskId = №{DocumentEdoTaskId} не найдена.", edoTask.Id);
+
 				return;
 			}
 
 			if(_edoCancellationService.IsEdoTaskMustBeCancelled(edoTask))
 			{
 				var reason = "Проблема с составом заказа. Сумма заказа или одна из позиций заказа меньше нуля";
-				
 				await _edoCancellationService.CancelTask(document.DocumentTaskId, reason, false, cancellationToken);
+
 				return;
 			}
 			
