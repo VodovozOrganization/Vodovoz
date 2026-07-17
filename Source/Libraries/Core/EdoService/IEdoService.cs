@@ -91,5 +91,19 @@ namespace EdoService.Library
 		/// которая попала в проблему в статусе New
 		/// </summary>
 		void RehandleNewReceiptDocumentWithProblem(int receiptEdoTaskId);
+
+		/// <summary>
+		/// Можно ли переотправить документ
+		/// </summary>
+		/// <param name="status">Статус документа</param>
+		/// <returns>Да - если можно переотправить, Нет - если нельзя</returns>
+		bool CanResend(EdoDocumentStatus? status);
+
+		/// <summary>
+		/// Переотправка документа по ЭДО по идентификатору задачи
+		/// </summary>
+		/// <param name="taskId">Идентификатор задачи</param>
+		/// <returns>Результат переотправки документа</returns>
+		Result ResendEdoDocumentForOrder(int taskId);
 	}
 }

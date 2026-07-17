@@ -17,5 +17,6 @@ namespace Vodovoz.Core.Data.Repositories
 		public DocumentEdoTaskStage? TaskUpdStage { get; set; }
 		public EdoReceiptStatus? TaskReceiptStage { get; set; }
 		public TenderEdoTaskStage? TaskTenderStage { get; set; }
+		public EdoDocumentStatus? EdoDocumentStatus { get; set; }
 	}
 }
