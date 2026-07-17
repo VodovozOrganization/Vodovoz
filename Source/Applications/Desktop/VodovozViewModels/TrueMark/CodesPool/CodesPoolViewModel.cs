@@ -31,7 +31,7 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 		private readonly IFileDialogService _fileDialogService;
 		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly TrueMarkCodePoolLoader _codePoolLoader;
-		private readonly TrueMarkCodesPoolManager _trueMarkCodesPoolManager;
+		private readonly ITrueMarkCodesPoolManager _trueMarkCodesPoolManager;
 		private readonly IEdoRepository _edoRepository;
 		private readonly OrderEdoCodePoolMissingProblemService _codePoolMissingProblemService;
 
@@ -59,7 +59,7 @@ namespace Vodovoz.ViewModels.TrueMark.CodesPool
 			IFileDialogService fileDialogService,
 			ITrueMarkRepository trueMarkRepository,
 			TrueMarkCodePoolLoader codePoolLoader,
-			TrueMarkCodesPoolManager trueMarkCodesPoolManager,
+			ITrueMarkCodesPoolManager trueMarkCodesPoolManager,
 			IEdoRepository edoRepository,
 			OrderEdoCodePoolMissingProblemService codePoolMissingProblemService
 			)
