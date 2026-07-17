@@ -4,11 +4,11 @@ using VodovozBusiness.Domain.Payments;
 namespace Vodovoz.Core.Application.Payments.OnlinePayments.Builders
 {
 	/// <summary>
-	/// Билдер для выписки по ВВ Восток
+	/// Билдер для выписки по ВВ Юг
 	/// </summary>
-	public class VvEastYookassaPaymentByCardOnlineBuilder : DefaultYookassaPaymentByCardOnlineBuilder
+	public class VvSouthYookassaPaymentByCardOnlineBuilder : DefaultYookassaPaymentByCardOnlineBuilder
 	{
-		public VvEastYookassaPaymentByCardOnlineBuilder((IOnlinePaymentRegisterColumns Columns, PaymentByCardOnlineFrom? PaymentFrom) registerData)
+		public VvSouthYookassaPaymentByCardOnlineBuilder((IOnlinePaymentRegisterColumns Columns, PaymentByCardOnlineFrom? PaymentFrom) registerData)
 			: base(registerData)
 		{
 		}
