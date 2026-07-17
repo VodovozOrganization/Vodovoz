@@ -4,18 +4,19 @@ using VodovozBusiness.Domain.Payments;
 namespace Vodovoz.Core.Application.Payments.OnlinePayments.Builders
 {
 	/// <summary>
-	/// Билдер для выписки по МН(мир напитков)
+	/// Билдер для выписки по ВВ Восток
 	/// </summary>
-	public class BwYookassaPaymentByCardOnlineBuilder : DefaultYookassaPaymentByCardOnlineBuilder
+	public class VvSouthYookassaPaymentByCardOnlineBuilder : DefaultYookassaPaymentByCardOnlineBuilder
 	{
-		public BwYookassaPaymentByCardOnlineBuilder((IOnlinePaymentRegisterColumns Columns, PaymentByCardOnlineFrom? PaymentFrom) registerData)
+		public VvSouthYookassaPaymentByCardOnlineBuilder((IOnlinePaymentRegisterColumns Columns, PaymentByCardOnlineFrom? PaymentFrom) registerData)
 			: base(registerData)
 		{
 		}
 
 		public override PaymentByCardOnline Build(string[] data)
 		{
-			Sum(data[RegisterData.Columns.PaymentSumColumn])
+			NewPayment()
+				.Sum(data[RegisterData.Columns.PaymentSumColumn])
 				.DateAndTime(data[RegisterData.Columns.DateAndTimeColumn])
 				.PaymentNumberAndSource(data[RegisterData.Columns.PaymentNumberColumn], RegisterData.PaymentFrom.Value);
 			
