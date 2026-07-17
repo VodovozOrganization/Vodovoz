@@ -68,7 +68,7 @@ namespace Edo.Documents
 		{
 			var edoTask = await _uow.Session.GetAsync<DocumentEdoTask>(documentEdoTaskId, cancellationToken);
 
-			if(edoTask == null)
+			if(edoTask is null)
 			{
 				_logger.LogInformation("Задача Id {DocumentEdoTaskId} не найдена", documentEdoTaskId);
 				return;
@@ -80,7 +80,7 @@ namespace Edo.Documents
 				return;
 			}
 
-			if(edoTask.FormalEdoRequest == null)
+			if(edoTask.FormalEdoRequest is null)
 			{
 				_logger.LogInformation("Задача Id {DocumentEdoTaskId} не имеет связи с ЭДО заявкой", documentEdoTaskId);
 				return;
@@ -262,21 +262,21 @@ namespace Edo.Documents
 		public async Task HandleTransfered(int transferIterationId, CancellationToken cancellationToken)
 		{
 			var transferIteration = await _uow.Session.GetAsync<TransferEdoRequestIteration>(transferIterationId, cancellationToken);
-			if(transferIteration == null)
+			if(transferIteration is null)
 			{
 				_logger.LogInformation("Итерация трансфера Id {TransferIterationId} не найдена", transferIterationId);
 				return;
 			}
 
 			var edoTask = transferIteration.OrderEdoTask.As<DocumentEdoTask>();
-			if(edoTask == null)
+			if(edoTask is null)
 			{
 				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
 					"так как задача Id {DocumentEdoTaskId} не найдена", transferIteration.OrderEdoTask.Id);
 				return;
 			}
 
-			if(edoTask.FormalEdoRequest == null)
+			if(edoTask.FormalEdoRequest is null)
 			{
 				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
 					"так как задача Id {DocumentEdoTaskId} не связана ни с одной клиенсткой заявкой", 
@@ -284,7 +284,7 @@ namespace Edo.Documents
 				return;
 			}
 
-			if(edoTask.Status == EdoTaskStatus.Completed)
+			if(edoTask.Status is EdoTaskStatus.Completed)
 			{
 				_logger.LogInformation("Невозможно выполнить завершение трансфера, " +
 					"так как задача Id {DocumentEdoTaskId} уже завершена", edoTask.Id);
@@ -416,7 +416,6 @@ namespace Edo.Documents
 			if(document is null)
 			{
 				_logger.LogWarning("Документ №{DocumentId} не найден.", documentId);
-
 				return;
 			}
 
@@ -424,14 +423,12 @@ namespace Edo.Documents
 			if(edoTask is null)
 			{
 				_logger.LogWarning("Задача ЭДО №{DocumentEdoTaskId} не найдена.", document.DocumentTaskId);
-
 				return;
 			}
 
 			if(edoTask.FormalEdoRequest is null)
 			{
-				_logger.LogWarning("Заявка ЭДО (Request) по TaskId = №{DocumentEdoTaskId} не найдена.", edoTask.Id);
-
+				_logger.LogInformation("Задача Id {DocumentEdoTaskId} не имеет связи с ЭДО заявкой", document.DocumentTaskId);
 				return;
 			}
 
@@ -469,7 +466,7 @@ namespace Edo.Documents
 
 			var document = await _uow.Session.GetAsync<OrderEdoDocument>(documentId, cancellationToken);
 
-			if(document == null)
+			if(document is null)
 			{
 				_logger.LogError("При обработке отмены документа №{DocumentId} не найден документ.", documentId);
 			}
