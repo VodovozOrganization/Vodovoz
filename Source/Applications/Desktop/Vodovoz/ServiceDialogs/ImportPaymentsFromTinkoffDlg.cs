@@ -26,12 +26,14 @@ namespace Vodovoz.ServiceDialogs
 	//FIXME Переименовать диалог при переписывании на MVVM.
 	public partial class ImportPaymentsFromTinkoffDlg : TdiTabBase
 	{
-		private readonly IPaymentsRepository _paymentsRepository = ScopeProvider.Scope.Resolve<IPaymentsRepository>();
 		private MenuItem _readTinkoff;
 		private MenuItem _readYookassa;
 		private MenuItem _readCloudPayments;
 		private Widget _readFileButton;
 		private readonly IInteractiveService _interactiveService = ServicesConfig.InteractiveService;
+		private IPaymentsRepository _paymentsRepository;
+		private ILifetimeScope _lifetimeScope = Startup.AppDIContainer.BeginLifetimeScope();
+		private PaymentsFromYookassaParser _yookassaParser;
 
 		IObservableList<PaymentByCardOnline> _paymentsByCard;
 		List<string> errorList = new List<string>();
@@ -52,6 +54,8 @@ namespace Vodovoz.ServiceDialogs
 
 		void ConfigureDlg()
 		{
+			ResolveDependencies();
+			
 			var csvFilter = new FileFilter();
 			csvFilter.AddPattern("*.csv");
 			csvFilter.Name = "Comma Separated Values File (*.csv)";
@@ -107,6 +111,12 @@ namespace Vodovoz.ServiceDialogs
 			ConfigureButtonReadFile();
 
 			SetControlsAccessibility();
+		}
+
+		private void ResolveDependencies()
+		{
+			_paymentsRepository = _lifetimeScope.Resolve<IPaymentsRepository>();
+			_yookassaParser = _lifetimeScope.Resolve<PaymentsFromYookassaParser>();
 		}
 
 		private void ConfigureButtonReadFile()
@@ -194,7 +204,7 @@ namespace Vodovoz.ServiceDialogs
 				return;
 			}
 
-			ParsePayments(new PaymentsFromYookassaParser(), fChooser.Filename);
+			ParsePayments(_yookassaParser, fChooser.Filename);
 		}
 
 		void ReadCloudPayments()
@@ -404,6 +414,13 @@ namespace Vodovoz.ServiceDialogs
 		protected void OnBtnCancelClicked(object sender, EventArgs e)
 		{
 			OnCloseTab(false);
+		}
+
+		protected override void OnDestroyed()
+		{
+			_lifetimeScope.Dispose();
+			_lifetimeScope = null;
+			base.OnDestroyed();
 		}
 	}
 }
