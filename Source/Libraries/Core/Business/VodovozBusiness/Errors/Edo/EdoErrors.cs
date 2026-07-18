@@ -58,6 +58,11 @@ namespace Vodovoz.Errors.Edo
 				nameof(HasProblem),
 				"Произошла ошибка во время переотправки документа");
 
+		public static Error IsUndeliveredOrder =>
+			new Error(typeof(EdoErrors),
+				nameof(IsUndeliveredOrder),
+				"Невозможно переотправить документ у отмененного заказа");
+
 		public static Error CreateAlreadySuccefullSended(EdoContainer edoContainer) =>
 			 new Error(
 				typeof(EdoErrors),
@@ -93,6 +98,6 @@ namespace Vodovoz.Errors.Edo
 			$"Для заказа №{orderId} " +
 			$"истек срок переотправки документа. " +
 			$"Документ был отправлен {edoDocument.SendTime?.ToString("dd.MM.yyyy HH:mm")}, " +
-			$"переотправка возможна в течение 3 дней");
+			$"переотправка возможна в течение 3х месяцев");
 	}
 }

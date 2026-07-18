@@ -78,7 +78,7 @@ namespace EdoService.Library
 			using(var uow = _uowFactory.CreateWithoutRoot("Ставим документ в очередь на переотправку в ЭДО"))
 			{
 				var order = GetOrderByTaskId(uow, taskId);
-				if(order == null)
+				if(order is null)
 				{
 					return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.HasProblem);
 				}
@@ -89,8 +89,13 @@ namespace EdoService.Library
 
 		private Result ResendEdoDocument(IUnitOfWork uow, OrderEntity order)
 		{
+			if(order.IsUndeliveredStatus)
+			{
+				return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.IsUndeliveredOrder);
+			}
+
 			var documents = _edoRepository.GetOrderEdoDocumentsByOrderId(uow, order.Id);
-			if(documents == null || !documents.Any())
+			if(documents is null || !documents.Any())
 			{
 				return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.HasProblem);
 			}
@@ -120,15 +125,15 @@ namespace EdoService.Library
 
 			if(hasMarkedProducts && document.CreationTime != null)
 			{
-				var threeDaysAgo = DateTime.Now.AddMonths(-3);
-				if(document.CreationTime < threeDaysAgo)
+				var threeMonthAgo = DateTime.Now.AddMonths(-3);
+				if(document.CreationTime < threeMonthAgo)
 				{
 					return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.CreateResendTimeLimitExceeded(document, order.Id));
 				}
 			}
 
 			var activeEdoTask = GetActiveEdoTaskForResend(uow, order);
-			if(activeEdoTask == null)
+			if(activeEdoTask is null)
 			{
 				return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.NoActiveEdoTaskForResend);
 			}
@@ -163,7 +168,7 @@ namespace EdoService.Library
 		/// <returns>Активная ЭДО задача или null, если нет подходящей</returns>
 		private OrderEdoTask GetActiveEdoTaskForResend(IUnitOfWork uow, OrderEntity order)
 		{
-			if(order == null)
+			if(order is null)
 			{
 				return null;
 			}
@@ -233,7 +238,7 @@ namespace EdoService.Library
 			{
 				var edoDocumentsActions = UpdateEdoDocumentAction(uow, entity, type);
 
-				if(type == DocumentContainerType.Upd)
+				if(type is DocumentContainerType.Upd)
 				{
 					var orderLastTrueMarkDocument = uow.GetAll<TrueMarkDocument>()
 						.Where(x => x.Order.Id == entity.GetId())
@@ -269,16 +274,11 @@ namespace EdoService.Library
 
 			var edoDocumentsAction = uow.GetAll<OrderEdoTrueMarkDocumentsActions>()
 					.Where(restriction)
-					.FirstOrDefault();
-
-			if(edoDocumentsAction == null)
-			{
-				edoDocumentsAction = new OrderEdoTrueMarkDocumentsActions();
-			}
+					.FirstOrDefault() ?? new OrderEdoTrueMarkDocumentsActions();
 
 			FillEdoDocumentsActionByType(edoDocumentsAction, entity, type);
 
-			if(type == DocumentContainerType.Upd)
+			if(type is DocumentContainerType.Upd)
 			{
 				edoDocumentsAction.IsNeedToResendEdoUpd = true;
 			}
@@ -354,14 +354,14 @@ namespace EdoService.Library
 
 		public Result ValidateEdoOrderDocument(IUnitOfWork uow, OrderEdoDocument document)
 		{
-			if(document == null)
+			if(document is null)
 			{
 				return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.HasProblem);
 			}
 
 			var order = _orderRepository.GetOrderByOrderEdoDocumentId(uow, document.Id);
 
-			if(order == null)
+			if(order is null)
 			{
 				return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.HasProblem);
 			}
@@ -380,7 +380,7 @@ namespace EdoService.Library
 		{
 			var errors = new List<Error>();
 
-			if(order.OrderPaymentStatus == OrderPaymentStatus.Paid)
+			if(order.OrderPaymentStatus is OrderPaymentStatus.Paid)
 			{
 				errors.Add(Vodovoz.Errors.Edo.EdoErrors.CreateAlreadyPaidUpd(order.Id, type));
 			}
@@ -397,7 +397,7 @@ namespace EdoService.Library
 		{
 			var errors = new List<Error>();
 
-			if(order.OrderPaymentStatus == OrderPaymentStatus.Paid)
+			if(order.OrderPaymentStatus is OrderPaymentStatus.Paid)
 			{
 				errors.Add(Vodovoz.Errors.Edo.EdoErrors.CreateAlreadyPaidUpd(order.Id, type));
 			}
@@ -476,8 +476,8 @@ namespace EdoService.Library
 		{
 			var errors = new List<Error>();
 
-			if(status == EdoDocFlowStatus.InProgress 
-				|| status == EdoDocFlowStatus.Succeed)
+			if(status is EdoDocFlowStatus.InProgress 
+				|| status is EdoDocFlowStatus.Succeed)
 			{
 				errors.Add(Vodovoz.Errors.Edo.EdoErrors.AlreadySuccefullSended);
 			}
@@ -497,7 +497,7 @@ namespace EdoService.Library
 				var informalRequest = uow.GetAll<InformalEdoRequest>()
 					.FirstOrDefault(r => r.Order.Id == order.Id && r.OrderDocumentType == type);
 				
-				if(informalRequest == null)
+				if(informalRequest is null)
 				{
 					var factory = _requestFactories.FirstOrDefault(f => f.CanCreateFor(type))
 						?? throw new NotSupportedException($"Не найден фабричный метод для типа документа {type}");
@@ -518,7 +518,7 @@ namespace EdoService.Library
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				var task = uow.Session.Get<DocumentEdoTask>(updEdoTaskId);
-				if(task == null)
+				if(task is null)
 				{
 					return;
 				}
@@ -542,7 +542,7 @@ namespace EdoService.Library
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				var task = uow.Session.Get<ReceiptEdoTask>(receiptEdoTaskId);
-				if(task == null)
+				if(task is null)
 				{
 					return;
 				}
