@@ -1088,6 +1088,7 @@
     <Compile Include="ViewModels\Service\ExportCashlessTo1cOperation.cs" />
     <Compile Include="ViewModels\Service\ExportTo1CViewModel.cs" />
     <Compile Include="ViewModels\Settings\EmployeeFixedPricesViewModel.cs" />
+    <Compile Include="ViewModels\Settings\ServiceNomenclaturesForBitrixDealsSettingsViewModel.cs" />
     <Compile Include="ViewModels\Settings\WarehousesSettingsViewModel.cs" />
     <Compile Include="ViewModels\Settings\NamedDomainEntitiesSettingsViewModelBase.cs" />
     <Compile Include="ViewModels\Settings\GeneralSettingsViewModel.cs" />
