@@ -92,12 +92,17 @@ namespace Vodovoz.Errors.Edo
 				$"У заказа {orderId} некорректный тип исходящего документа {documentType.GetEnumDisplayName()}");
 
 		public static Error CreateResendTimeLimitExceeded(OutgoingEdoDocument edoDocument, int orderId) =>
+			new Error(
+				typeof(EdoErrors),
+				nameof(ResendTimeLimitExceeded),
+				$"Для заказа №{orderId} " +
+				$"истек срок переотправки документа. " +
+				$"Документ был отправлен {edoDocument.SendTime?.ToString("dd.MM.yyyy HH:mm")}, " +
+				$"переотправка возможна в течение 3х месяцев");
+		public static Error CreateCannotResendReceiptFromSavedToPoolTask(int orderId) =>
 		new Error(
 			typeof(EdoErrors),
-			nameof(ResendTimeLimitExceeded),
-			$"Для заказа №{orderId} " +
-			$"истек срок переотправки документа. " +
-			$"Документ был отправлен {edoDocument.SendTime?.ToString("dd.MM.yyyy HH:mm")}, " +
-			$"переотправка возможна в течение 3х месяцев");
+			nameof(CreateCannotResendReceiptFromSavedToPoolTask),
+			$"Помимо задачи на сохранение кодов по заказу {orderId}, есть другая задача");
 	}
 }

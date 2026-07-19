@@ -10,10 +10,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Orders;
@@ -32,6 +34,7 @@ namespace EdoService.Library
 		private readonly IUnitOfWorkFactory _uowFactory;
 		private readonly IOrderRepository _orderRepository;
 		private readonly IEdoRepository _edoRepository;
+		private readonly IGenericRepository<ReceiptEdoTask> _receiptRepository;
 		private readonly MessageService _messageService;
 		private readonly IBus _messageBus;
 		private readonly IEnumerable<IInformalEdoRequestFactory> _requestFactories;
@@ -51,6 +54,7 @@ namespace EdoService.Library
 		public EdoService(
 			IUnitOfWorkFactory uowFactory,
 			IOrderRepository orderRepository,
+			IGenericRepository<ReceiptEdoTask> receiptRepository,
 			IEdoRepository edoRepository,
 			MessageService messageService,
 			IBus messageBus,
@@ -59,6 +63,7 @@ namespace EdoService.Library
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
+			_receiptRepository = receiptRepository ?? throw new ArgumentNullException(nameof(receiptRepository));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 			_messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
 			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
@@ -230,6 +235,37 @@ namespace EdoService.Library
 			edoTask.Status = EdoTaskStatus.Cancelled;
 
 			return edoRequest;
+		}
+
+		public async Task<Result> ResendReceiptFromSavedToPool(IUnitOfWork uow, int? orderTaskId, int orderId)
+		{
+			var tasks = _receiptRepository.Get(
+				uow,
+				f => f.FormalEdoRequest.Order.Id == orderId
+					&& f.Id != orderTaskId).ToList();
+
+			if(tasks.Any(x => x.ReceiptStatus != EdoReceiptStatus.SavedToPool))
+			{
+				return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.CreateCannotResendReceiptFromSavedToPoolTask(orderId));
+			}
+
+			var newRequest = new PrimaryEdoRequest
+			{
+				Order = new Order
+				{
+					Id = orderId
+				},
+				Time = DateTime.Now,
+				Source = EdoRequestSource.Manual,
+				DocumentType = EdoDocumentType.UPD
+			};
+
+			await uow.SaveAsync(newRequest);
+			await uow.CommitAsync();
+
+			await _messageService.PublishEdoRequestCreatedEvent(newRequest.Id);
+
+			return Result.Success();
 		}
 
 		public virtual void SetNeedToResendEdoDocumentForOrder<T>(T entity, DocumentContainerType type) where T : IDomainObject
