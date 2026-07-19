@@ -549,6 +549,80 @@ namespace EdoService.Library
 			}
 		}
 
+		public async Task<Result> ResendReceiptDocument(int receiptEdoTaskId)
+		{
+			using(var uow = _uowFactory.CreateWithoutRoot("Переотправка чека"))
+			{
+				var receiptTask = uow.Session.Get<ReceiptEdoTask>(receiptEdoTaskId);
+				if(receiptTask is null)
+				{
+					return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.HasProblem);
+				}
+
+				var order = receiptTask.FormalEdoRequest?.Order;
+				if(order is null)
+				{
+					return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.HasProblem);
+				}
+
+				var canResendResult = CanResendReceipt(receiptTask);
+				if(canResendResult.IsFailure)
+				{
+					return canResendResult;
+				}
+
+				receiptTask.Status = EdoTaskStatus.Cancelled;
+				receiptTask.ReceiptStatus = EdoReceiptStatus.New; // Мб Cancelled?
+
+				var request = CreateManualEdoRequests(order, receiptTask);
+
+				await uow.SaveAsync(request);
+				await uow.SaveAsync(receiptTask);
+				await uow.CommitAsync();
+
+				await _messageService.PublishEdoRequestCreatedEvent(request.Id);
+
+				return Result.Success();
+			}
+		}
+
+		private Result CanResendReceipt(ReceiptEdoTask receiptTask)
+		{
+			var errors = new List<Error>();
+
+			if(receiptTask.Status is EdoTaskStatus.Completed || receiptTask.Status is EdoTaskStatus.InCancellation)
+			{
+				errors.Add(Vodovoz.Errors.Edo.EdoErrors.CreateCannotResendCompletedTask(receiptTask.Id));
+			}
+
+			if(receiptTask.ReceiptStatus is EdoReceiptStatus.Completed)
+			{
+				errors.Add(Vodovoz.Errors.Edo.EdoErrors.CreateCannotResendCompletedReceipt(receiptTask.Id));
+			}
+
+			if(receiptTask.ReceiptStatus is EdoReceiptStatus.SavedToPool)
+			{
+				errors.Add(Vodovoz.Errors.Edo.EdoErrors.CreateCannotResendReceiptFromSavedToPool(receiptTask.Id));
+			}
+
+			if(receiptTask.FiscalDocuments?.Any() == true)
+			{
+				var hasInvalidDocument = receiptTask.FiscalDocuments.Any(fd =>
+					fd.Stage is FiscalDocumentStage.Completed ||
+					!string.IsNullOrEmpty(fd.FiscalNumber) ||
+					fd.Status is FiscalDocumentStatus.Printed || 
+					fd.Status is FiscalDocumentStatus.Completed);
+
+				if(hasInvalidDocument)
+				{
+					errors.Add(Vodovoz.Errors.Edo.EdoErrors.CreateCannotResendCompletedReceipt(receiptTask.Id));
+				}
+			}
+
+
+			return errors.Any() ? Result.Failure(errors) : Result.Success();
+		}
+
 		public void RehandleNewUpdDocumentWithProblem(int updEdoTaskId)
 		{
 			using(var uow = _uowFactory.CreateWithoutRoot())

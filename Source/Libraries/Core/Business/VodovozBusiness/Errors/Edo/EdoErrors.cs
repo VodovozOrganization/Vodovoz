@@ -100,9 +100,39 @@ namespace Vodovoz.Errors.Edo
 				$"Документ был отправлен {edoDocument.SendTime?.ToString("dd.MM.yyyy HH:mm")}, " +
 				$"переотправка возможна в течение 3х месяцев");
 		public static Error CreateCannotResendReceiptFromSavedToPoolTask(int orderId) =>
-		new Error(
-			typeof(EdoErrors),
-			nameof(CreateCannotResendReceiptFromSavedToPoolTask),
-			$"Помимо задачи на сохранение кодов по заказу {orderId}, есть другая задача");
+			new Error(
+				typeof(EdoErrors),
+				nameof(CreateCannotResendReceiptFromSavedToPoolTask),
+				$"Помимо задачи на сохранение кодов по заказу {orderId}, есть другая задача");
+
+		public static Error CreateCannotResendCompletedTask(int taskId) =>
+			new Error(
+				typeof(EdoErrors), 
+				nameof(CreateCannotResendCompletedTask), 
+				$"Нельзя переотправить завершенную задачу {taskId}");
+
+		public static Error CreateCannotResendCompletedReceipt(int taskId) =>
+			new Error(
+				typeof(EdoErrors), 
+				nameof(CreateCannotResendCompletedReceipt), 
+				$"Нельзя переотправить завершенный чек {taskId}");
+
+		public static Error CreateCannotResendReceiptFromSavedToPool(int taskId) =>
+			new Error(
+				typeof(EdoErrors), 
+				nameof(CreateCannotResendReceiptFromSavedToPool), 
+				$"Нельзя переотправить чек {taskId} из пула");
+
+		public static Error CreateCannotResendReceiptWithFiscalNumber(int taskId) =>
+			new Error(
+				typeof(EdoErrors), 
+				nameof(CreateCannotResendReceiptWithFiscalNumber), 
+				$"Нельзя переотправить чек {taskId} с фискальным номером");
+
+		public static Error CreateCannotResendPrintedOrCompletedReceipt(int taskId) =>
+			new Error(
+				typeof(EdoErrors), 
+				nameof(CreateCannotResendPrintedOrCompletedReceipt), 
+				$"Нельзя переотправить напечатанный или завершенный чек {taskId}");
 	}
 }
