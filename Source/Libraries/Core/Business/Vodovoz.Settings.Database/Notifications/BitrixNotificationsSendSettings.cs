@@ -52,5 +52,17 @@ namespace Vodovoz.Settings.Database.Notifications
 
 		public bool PlannedOrdersNotificationsSendEnabled =>
 			_settingsController.GetBoolValue($"{_parametersPrefix}PlannedOrdersNotificationsSendEnabled");
+
+		public TimeSpan LastServiceOrdersNotificationsSendInterval =>
+			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}LastServiceOrdersNotificationsSendInterval");
+
+		public TimeSpan LastServiceOrdersSendTimeFrom =>
+			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}LastServiceOrdersSendTimeFrom");
+
+		public TimeSpan LastServiceOrdersSendTimeTo =>
+			_settingsController.GetValue<TimeSpan>($"{_parametersPrefix}LastServiceOrdersSendTimeTo");
+
+		public bool LastServiceOrdersNotificationsSendEnabled =>
+			_settingsController.GetBoolValue($"{_parametersPrefix}LastServiceOrdersNotificationsSendEnabled");
 	}
 }

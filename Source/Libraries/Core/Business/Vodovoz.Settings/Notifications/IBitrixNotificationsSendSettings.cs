@@ -71,5 +71,25 @@ namespace Vodovoz.Settings.Notifications
 		/// Когда выключена, воркер отправки не выполняет работу
 		/// </summary>
 		bool PlannedOrdersNotificationsSendEnabled { get; }
+
+		/// <summary>
+		/// Интервал проверки необходимости создания сделок по последним сервисным заказам в Битрикс24
+		/// </summary>
+		TimeSpan LastServiceOrdersNotificationsSendInterval { get; }
+
+		/// <summary>
+		/// Время начала интервала для создания сделок по последним сервисным заказам в Битрикс24 (по Москве)
+		/// </summary>
+		TimeSpan LastServiceOrdersSendTimeFrom { get; }
+
+		/// <summary>
+		/// Время окончания интервала для создания сделок по последним сервисным заказам в Битрикс24 (по Москве)
+		/// </summary>
+		TimeSpan LastServiceOrdersSendTimeTo { get; }
+
+		/// <summary>
+		/// Включена ли отправка уведомлений по последним сервисным заказам в Битрикс24
+		/// </summary>
+		bool LastServiceOrdersNotificationsSendEnabled { get; }
 	}
 }

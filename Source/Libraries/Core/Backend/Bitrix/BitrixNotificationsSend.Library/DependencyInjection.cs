@@ -12,6 +12,7 @@ namespace BitrixNotificationsSend.Library
 		{
 			services.ConfigureOptions<ConfigureCashlessDebtsNotificationsSendOptions>();
 			services.ConfigureOptions<ConfigurePlannedOrdersDealsCreateOptions>();
+			services.ConfigureOptions<ConfigureLastServiceOrdersDealsCreateOptions>();
 
 			services.AddBitrixNotificationsSendClient();
 

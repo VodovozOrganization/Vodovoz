@@ -45,6 +45,20 @@ namespace BitrixNotificationsSend.Client
 			return await SendBatch(commands, cancellationToken);
 		}
 
+		public async Task<Result<BitrixBatchResult>> LastServiceOrderDeals(
+			IEnumerable<LastServiceOrderDto> lastServiceOrders,
+			CancellationToken cancellationToken)
+		{
+			var commands = new Dictionary<string, string>();
+
+			foreach(var lastServiceOrder in lastServiceOrders)
+			{
+				commands.Add(lastServiceOrder.DealCommandKey, BitrixCommandBuilder.CreateCommand(_dealAddMethod, lastServiceOrder));
+			}
+
+			return await SendBatch(commands, cancellationToken);
+		}
+
 		private async Task<Result<BitrixBatchResult>> SendBatch(
 			IDictionary<string, string> commands,
 			CancellationToken cancellationToken)
