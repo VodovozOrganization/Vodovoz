@@ -220,9 +220,9 @@ namespace VodovozBusiness.Services.TrueMark
 			return Result.Success<IDictionary<int, OrderItem>>(result);
 		}
 
-		private static PrimaryEdoRequest CreateEdoRequest(Order targetOrder)
+		private static ManualEdoRequest CreateEdoRequest(Order targetOrder)
 		{
-			return new PrimaryEdoRequest
+			return new ManualEdoRequest
 			{
 				Order = targetOrder,
 				Source = EdoRequestSource.Manual,
