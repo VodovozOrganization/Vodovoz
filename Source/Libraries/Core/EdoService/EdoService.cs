@@ -36,7 +36,7 @@ namespace EdoService.Library
 		private readonly IEdoRepository _edoRepository;
 		private readonly IGenericRepository<ReceiptEdoTask> _receiptRepository;
 		private readonly MessageService _messageService;
-		private readonly IBus _messageBus;
+		private readonly IBus _bus;
 		private readonly IEnumerable<IInformalEdoRequestFactory> _requestFactories;
 
 		private static EdoDocFlowStatus[] _successfulEdoStatuses => new[]
@@ -57,7 +57,7 @@ namespace EdoService.Library
 			IGenericRepository<ReceiptEdoTask> receiptRepository,
 			IEdoRepository edoRepository,
 			MessageService messageService,
-			IBus messageBus,
+			IBus bus,
 			IEnumerable<IInformalEdoRequestFactory> requestFactories
 			)
 		{
@@ -66,7 +66,7 @@ namespace EdoService.Library
 			_receiptRepository = receiptRepository ?? throw new ArgumentNullException(nameof(receiptRepository));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
 			_messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 			_requestFactories = requestFactories ?? throw new ArgumentNullException(nameof(requestFactories));
 		}
 
@@ -474,12 +474,17 @@ namespace EdoService.Library
 
 		public Result SendDocumentTaskCreatedEvent(EdoTask edoTask)
 		{
-			_messageService.PublishSendDocumentTaskCreatedEvent(edoTask.Id)
+			PublishSendDocumentTaskCreatedEvent(edoTask.Id)
 				.ConfigureAwait(false)
 				.GetAwaiter()
 				.GetResult();
 			
 			return Result.Success();
+		}
+
+		private async Task PublishSendDocumentTaskCreatedEvent(int edoTaskId)
+		{
+			await _bus.Publish(new DocumentTaskCreatedEvent { Id = edoTaskId });
 		}
 
 		public void CancelOldEdoOffers(IUnitOfWork unitOfWork, Order order)
@@ -544,9 +549,14 @@ namespace EdoService.Library
 
 				uow.Commit();
 
-				_messageService.PublishInformalEdoRequestCreatedEvent(informalRequest.Id)
+				PublishInformalEdoRequestCreatedEvent(informalRequest.Id)
 					.GetAwaiter().GetResult();
 			}
+		}
+
+		private async Task PublishInformalEdoRequestCreatedEvent(int informalRequestId)
+		{
+			await _bus.Publish(new InformalEdoRequestCreatedEvent { InformalRequestId = informalRequestId });
 		}
 
 		public async Task<Result> ResendReceiptDocument(int receiptEdoTaskId)
@@ -572,7 +582,7 @@ namespace EdoService.Library
 				}
 
 				receiptTask.Status = EdoTaskStatus.Cancelled;
-				receiptTask.ReceiptStatus = EdoReceiptStatus.New; // Мб Cancelled?
+				receiptTask.ReceiptStatus = EdoReceiptStatus.New;
 
 				var request = CreateManualEdoRequests(order, receiptTask);
 
@@ -643,7 +653,7 @@ namespace EdoService.Library
 					Id = updEdoTaskId,
 				};
 
-				_messageBus.Publish(message);
+				_bus.Publish(message);
 			}
 		}
 
@@ -667,7 +677,7 @@ namespace EdoService.Library
 					ReceiptEdoTaskId = receiptEdoTaskId,
 				};
 
-				_messageBus.Publish(message);
+				_bus.Publish(message);
 			}
 		}
 	}
