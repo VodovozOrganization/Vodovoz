@@ -4,7 +4,7 @@ namespace Vodovoz.Core.Domain.Edo
 {
 	public enum DocumentEdoTaskStage
 	{
-		[Display(Name = "Новый")]
+		[Display(Name = "Распределение")]
 		New,
 		[Display(Name = "Трансфер")]
 		Transfering,

@@ -7,11 +7,11 @@ namespace Vodovoz.Core.Domain.Edo
 	/// </summary>
 	public enum TenderEdoTaskStage
 	{
-		[Display(Name = "Новый")]
+		[Display(Name = "Распределение")]
 		New,
 		[Display(Name = "Трансфер")]
 		Transfering,
-		[Display(Name = "Отправка")]
+		[Display(Name = "Отправляется")]
 		Sending,
 		[Display(Name = "Коды выгружены вручную")]
 		ManualUploaded
