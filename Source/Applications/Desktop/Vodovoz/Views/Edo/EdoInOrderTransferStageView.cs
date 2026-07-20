@@ -47,7 +47,7 @@ namespace Vodovoz.Views.Edo
 				.InitializeFromSource();
 
 			ytreeviewTransferedCodes.ColumnsConfig = FluentColumnsConfig<string>.Create()
-				.AddColumn("КМ")
+				.AddColumn("Перемещаемые коды")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x).Editable(false)
 					.XAlign(0.5f)
