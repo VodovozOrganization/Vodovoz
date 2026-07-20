@@ -171,6 +171,11 @@ namespace Vodovoz.Representations
 				query.WhereRestrictionOn(o => o.PaymentType).IsIn(FilterViewModel.AllowPaymentTypes);
 			}
 
+			if(FilterViewModel.OrderId.HasValue)
+			{
+				query.Where(() => orderAlias.Id == FilterViewModel.OrderId.Value);
+			}
+
 			if(FilterViewModel.RestrictCounterparty != null)
 			{
 				query.Where(o => o.Client == FilterViewModel.RestrictCounterparty);
