@@ -272,6 +272,7 @@ namespace Vodovoz
 				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, OutBoxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
 				.AddCustomerNotificationsSettingsProvider();
 
+			services.AddScoped<ICancelledOrderTrueMarkCodesTransferEventPublisher, CancelledOrderTrueMarkCodesTransferEventPublisher>();
 			services.AddStaticHistoryTracker();
 			services.AddStaticScopeForEntity();
 			services.AddStaticServicesConfig();
