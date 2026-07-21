@@ -9,11 +9,13 @@ using QS.Dialog;
 using QS.DomainModel.UoW;
 using QS.Navigation;
 using QS.Project.Domain;
+using QS.Services;
 using QS.ViewModels;
 using QS.ViewModels.Control.EEVM;
 using QS.ViewModels.Dialog;
 using Vodovoz.Core.Data.Logistics;
 using Vodovoz.Core.Domain.Interfaces.TrueMark;
+using Vodovoz.Core.Domain.Permissions;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Employees;
@@ -50,6 +52,7 @@ namespace Vodovoz.ViewModels.TrueMark
 	public class OrderCodesViewModel : WidgetViewModelBase
 	{
 		private readonly IUnitOfWorkFactory _uowFactory;
+		private readonly ICommonServices _commonServices;
 		private readonly ITrueMarkRepository _trueMarkRepository;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
 		private readonly IClipboard _clipboard;
@@ -91,9 +94,11 @@ namespace Vodovoz.ViewModels.TrueMark
 		private string _parsedSearchCodeSerialNumber;
 		private Order _transferTargetOrder;
 		private bool _canShowTransferRejectedCodesControls;
+		private readonly bool _canTransferRejectedCodesFromCanceledOrder;
 
 		public OrderCodesViewModel(
 			IUnitOfWorkFactory uowFactory,
+			ICommonServices commonServices,
 			ITrueMarkRepository trueMarkRepository,
 			IGtkTabsOpener gtkTabsOpener,
 			IClipboard clipboard,
@@ -108,6 +113,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			) : base()
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
+			_commonServices = commonServices ?? throw new ArgumentNullException(nameof(commonServices));
 			_trueMarkRepository = trueMarkRepository ?? throw new ArgumentNullException(nameof(trueMarkRepository));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
 			_clipboard = clipboard ?? throw new ArgumentNullException(nameof(clipboard));
@@ -121,6 +127,8 @@ namespace Vodovoz.ViewModels.TrueMark
 			_edoRequestCreatedEventPublisher = edoRequestCreatedEventPublisher
 				?? throw new ArgumentNullException(nameof(edoRequestCreatedEventPublisher));
 			_orderViewModelEEVMBuilder = orderViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(orderViewModelEEVMBuilder));
+			_canTransferRejectedCodesFromCanceledOrder = _commonServices.CurrentPermissionService.ValidatePresetPermission(
+				OrderPermissions.CanTransferRejectedCodesFromCanceledOrder);
 			_scannedByDriverCodes = new List<OrderCodeItemViewModel>();
 			_scannedByDriverCodesSelected = Enumerable.Empty<OrderCodeItemViewModel>();
 			_scannedByWarehouseCodes = new List<OrderCodeItemViewModel>();
@@ -519,7 +527,8 @@ namespace Vodovoz.ViewModels.TrueMark
 			using(var uow = _uowFactory.CreateWithoutRoot())
 			{
 				var order = uow.GetById<Order>(OrderId);
-				CanShowTransferRejectedCodesControls = order?.OrderStatus == OrderStatus.Canceled;
+				CanShowTransferRejectedCodesControls = order?.OrderStatus == OrderStatus.Canceled
+					&& _canTransferRejectedCodesFromCanceledOrder;
 
 				ReloadCodesFromDriver(uow);
 				ReloadCodesFromWarehouse(uow);
