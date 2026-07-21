@@ -108,8 +108,21 @@ namespace Vodovoz.ViewModels.Edo
 			if(document.TaskReceiptStage == EdoReceiptStatus.New && document.TaskStatus == EdoTaskStatus.Problem)
 			{
 				newActions.Add(new NamedCommand(
-					"ППереотправить чек",
-					() => _edoService.RehandleNewReceiptDocumentWithProblem(document.TaskId)
+					"Переотправить чек",
+					() =>
+					{
+						var result = _edoService.ResendReceiptDocument(document.TaskId).GetAwaiter().GetResult();
+						if(result.IsSuccess)
+						{
+							_interactiveService.ShowMessage(ImportanceLevel.Info, "Успешно переотправлено");
+						}
+						else
+						{
+							_interactiveService.ShowMessage(ImportanceLevel.Error,
+								$"Не удалось переотправить документ.\nПричины:\n - " +
+								string.Join("\n - ", result.Errors.Select(x => x.Message)));
+						}
+					}
 				));
 			}
 		}

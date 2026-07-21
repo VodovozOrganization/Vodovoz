@@ -134,6 +134,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 
 		private void CreateResendReceiptFromSaveCodesTaskAction()
 		{
+			var cts = new CancellationTokenSource();
+
 			var action = new JournalAction(
 				"Отправить чек, ушедший в сохранение кодов",
 				sensitive => sensitive.Any() && sensitive.All(x =>
@@ -144,36 +146,50 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 				visible => _userCanSentReceiptWasSaveCodes,
 				async selected =>
 				{
-					var selectedNodes = selected.Cast<EdoProcessJournalNode>().ToList();
-					
-					using(var uow = _uowFactory.CreateWithoutRoot("Обработка переотправки чеков с кодами, сохраненными в пул"))
+					try
 					{
-						foreach(var selectedNode in selectedNodes)
+						var selectedNodes = selected.Cast<EdoProcessJournalNode>().ToList();
+
+						using(var uow = _uowFactory.CreateWithoutRoot("Обработка переотправки чеков с кодами, сохраненными в пул"))
 						{
-							if(selectedNode.OrderTaskType != EdoTaskType.Receipt
-								|| selectedNode.OrderTaskReceiptStage != EdoReceiptStatus.SavedToPool
-								|| selectedNode.OrderTaskStatus != EdoTaskStatus.Completed)
+							foreach(var selectedNode in selectedNodes)
 							{
-								continue;
-							}
+								cts.Token.ThrowIfCancellationRequested();
 
-							var orderId = selectedNode.OrderId;
-							var result = await _edoService.ResendReceiptFromSavedToPool(uow, selectedNode.OrderTaskId.Value, orderId);
-							var resultErrors = result.Errors.ToArray();
+								if(selectedNode.OrderTaskType != EdoTaskType.Receipt
+									|| selectedNode.OrderTaskReceiptStage != EdoReceiptStatus.SavedToPool
+									|| selectedNode.OrderTaskStatus != EdoTaskStatus.Completed)
+								{
+									continue;
+								}
 
-							if(result.IsFailure)
-							{
-								_interactiveService.ShowMessage(
-									ImportanceLevel.Warning,
-									$"Переотправка чека невозможна, т.к. {string.Join(", ", resultErrors.Select(x => x.Message))}");
+								var orderId = selectedNode.OrderId;
+								var result = await _edoService.ResendReceiptFromSavedToPool(
+									uow,
+									selectedNode.OrderTaskId.Value,
+									orderId,
+									cts.Token);
 
-								continue;
+								var resultErrors = result.Errors.ToArray();
+
+								if(result.IsFailure)
+								{
+									_interactiveService.ShowMessage(
+										ImportanceLevel.Warning,
+										$"Переотправка чека невозможна, т.к. {string.Join(", ", resultErrors.Select(x => x.Message))}");
+								}
 							}
 						}
 					}
+					catch(OperationCanceledException)
+					{
+						_interactiveService.ShowMessage(
+							ImportanceLevel.Warning,
+							"Операция была отменена");
+					}
 				}
 			);
-			
+
 			NodeActionsList.Add(action);
 		}
 

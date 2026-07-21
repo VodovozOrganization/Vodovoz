@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Documents;
@@ -237,33 +238,36 @@ namespace EdoService.Library
 			return edoRequest;
 		}
 
-		public async Task<Result> ResendReceiptFromSavedToPool(IUnitOfWork uow, int? orderTaskId, int orderId)
+		public async Task<Result> ResendReceiptFromSavedToPool(
+			IUnitOfWork uow,
+			int? orderTaskId,
+			int orderId,
+			CancellationToken cancellationToken = default)
 		{
-			var tasks = _receiptRepository.Get(
+			var tasksResult = await _receiptRepository.GetAsync(
 				uow,
 				f => f.FormalEdoRequest.Order.Id == orderId
-					&& f.Id != orderTaskId).ToList();
+					&& f.Id != orderTaskId, cancellationToken: cancellationToken);
+
+			if(tasksResult.IsFailure) 
+			{
+				return Result.Failure(tasksResult.Errors);
+			}
+			var tasks = tasksResult.Value;
 
 			if(tasks.Any(x => x.ReceiptStatus != EdoReceiptStatus.SavedToPool))
 			{
 				return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.CreateCannotResendReceiptFromSavedToPoolTask(orderId));
 			}
 
-			var newRequest = new PrimaryEdoRequest
-			{
-				Order = new Order
-				{
-					Id = orderId
-				},
-				Time = DateTime.Now,
-				Source = EdoRequestSource.Manual,
-				DocumentType = EdoDocumentType.UPD
-			};
+			var order = await _orderRepository.GetOrderByIdAsync(uow, orderId, cancellationToken);
 
-			await uow.SaveAsync(newRequest);
-			await uow.CommitAsync();
+			var newRequest = CreateManualEdoRequests(order, tasks.FirstOrDefault());
 
-			await _messageService.PublishEdoRequestCreatedEvent(newRequest.Id);
+			await uow.SaveAsync(newRequest, cancellationToken: cancellationToken);
+			await uow.CommitAsync(cancellationToken);
+
+			await _messageService.PublishEdoRequestCreatedEvent(newRequest.Id, cancellationToken);
 
 			return Result.Success();
 		}
@@ -559,8 +563,10 @@ namespace EdoService.Library
 			await _bus.Publish(new InformalEdoRequestCreatedEvent { InformalRequestId = informalRequestId });
 		}
 
-		public async Task<Result> ResendReceiptDocument(int receiptEdoTaskId)
-		{
+		public async Task<Result> ResendReceiptDocument(
+			int receiptEdoTaskId,
+			CancellationToken cancellationToken = default)
+		{	
 			using(var uow = _uowFactory.CreateWithoutRoot("Переотправка чека"))
 			{
 				var receiptTask = uow.Session.Get<ReceiptEdoTask>(receiptEdoTaskId);
@@ -586,9 +592,9 @@ namespace EdoService.Library
 
 				var request = CreateManualEdoRequests(order, receiptTask);
 
-				await uow.SaveAsync(request);
-				await uow.SaveAsync(receiptTask);
-				await uow.CommitAsync();
+				await uow.SaveAsync(request, cancellationToken: cancellationToken);
+				await uow.SaveAsync(receiptTask, cancellationToken: cancellationToken);
+				await uow.CommitAsync(cancellationToken);
 
 				await _messageService.PublishEdoRequestCreatedEvent(request.Id);
 

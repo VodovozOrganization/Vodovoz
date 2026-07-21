@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Edo.Contracts.Messages.Events;
 using MassTransit;
@@ -27,13 +28,13 @@ namespace Edo.Transport
 		/// </summary>
 		/// <param name="requestId"></param>
 		/// <returns></returns>
-		public async Task PublishEdoRequestCreatedEvent(int requestId)
+		public async Task PublishEdoRequestCreatedEvent(int requestId, CancellationToken cancellationToken = default)
 		{
 			_logger.LogInformation("Отправляем событие на создание новой заявки по ЭДО, запрос: {RequestId}.", requestId);
 
 			try
 			{
-				await _bus.Publish(new EdoRequestCreatedEvent { Id = requestId });
+				await _bus.Publish(new EdoRequestCreatedEvent { Id = requestId }, cancellationToken: cancellationToken);
 				_logger.LogInformation("Событие на создание новой заявки по ЭДО отправлено успешно");
 			}
 			catch(Exception ex)

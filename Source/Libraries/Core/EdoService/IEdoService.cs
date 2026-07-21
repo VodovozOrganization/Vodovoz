@@ -1,6 +1,7 @@
 ﻿using QS.DomainModel.Entity;
 using QS.DomainModel.UoW;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
@@ -112,14 +113,22 @@ namespace EdoService.Library
 		/// <param name="uow">IUnitOfWork</param>
 		/// <param name="orderTaskId">Идентификатор задачи</param>
 		/// <param name="orderId">Идентификатор заказа</param>
+		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Результат переотправки чека</returns>
-		Task<Result> ResendReceiptFromSavedToPool(IUnitOfWork uow, int? orderTaskId, int orderId);
+		Task<Result> ResendReceiptFromSavedToPool(
+			IUnitOfWork uow,
+			int? orderTaskId,
+			int orderId,
+			CancellationToken cancellationToken = default);
 
 		/// <summary>
 		/// Переотправка чека по ЭДО по идентификатору задачи
 		/// </summary>
 		/// <param name="receiptEdoTaskId">Идентификатор задачи чека</param>
+		/// <param name="cancellationToken">Токен отмены</param>
 		/// <returns>Результат переотправки чека</returns>
-		Task<Result> ResendReceiptDocument(int receiptEdoTaskId);
+		Task<Result> ResendReceiptDocument(
+			int receiptEdoTaskId,
+			CancellationToken cancellationToken = default);
 	}
 }
