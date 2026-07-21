@@ -838,7 +838,7 @@ and etpci.edo_task_problem_id in (:problem_ids)
 			var sql = @"
 select
 	eti.transfer_edo_request_id as request_id,
-	IFNULL(result_tmic.raw_code, source_tmic.raw_code) as transfered_code
+	REPLACE(IFNULL(result_tmic.raw_code, source_tmic.raw_code), '\\u001d', '') as transfered_code
 from edo_transfered_items eti 
 left join edo_order_task_items eoti on eoti.id = eti.order_edo_task_item_id  
 left join true_mark_product_codes tmpc on tmpc.id = eoti.product_code_id

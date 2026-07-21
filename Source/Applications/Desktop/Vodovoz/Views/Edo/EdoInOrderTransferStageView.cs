@@ -16,6 +16,8 @@ namespace Vodovoz.Views.Edo
 		{
 			base.ConfigureWidget();
 
+			var monospacedFont = Pango.FontDescription.FromString("Consolas 9");
+
 			ytreeviewTransferTasks.ColumnsConfig = FluentColumnsConfig<EdoInOrderTransferRowViewModel>.Create()
 				.AddColumn("Время")
 					.HeaderAlignment(0.5f)
@@ -50,7 +52,11 @@ namespace Vodovoz.Views.Edo
 				.AddColumn("Перемещаемые коды")
 					.HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x).Editable(false)
-					.XAlign(0.5f)
+					.AddSetter((c, node) => {
+						c.Xpad = 5;
+						c.FontDesc = monospacedFont;
+					})
+					.XAlign(0f)
 				.Finish();
 			ytreeviewTransferedCodes.Binding
 				.AddSource(ViewModel)
