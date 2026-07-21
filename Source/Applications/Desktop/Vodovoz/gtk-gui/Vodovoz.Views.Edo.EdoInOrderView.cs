@@ -48,7 +48,7 @@ namespace Vodovoz.Views.Edo
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewDocuments;
 
-		private global::QS.Widgets.GtkUI.Pipeline.PipelineView pipelineDocumentStages;
+		private global::QS.Widgets.GtkUI.Pipeline.PipelineView pipelineTransferStages;
 
 		private global::Gtk.Label GtkLabel9;
 
@@ -137,6 +137,7 @@ namespace Vodovoz.Views.Edo
 			this.radiobuttonHelp.CanFocus = true;
 			this.radiobuttonHelp.Name = "radiobuttonHelp";
 			this.radiobuttonHelp.Label = global::Mono.Unix.Catalog.GetString("Справка");
+			this.radiobuttonHelp.Active = true;
 			this.radiobuttonHelp.DrawIndicator = false;
 			this.radiobuttonHelp.UseUnderline = true;
 			this.radiobuttonHelp.Group = new global::GLib.SList(global::System.IntPtr.Zero);
@@ -263,11 +264,11 @@ namespace Vodovoz.Views.Edo
 			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.yhboxDocumentsTables[this.GtkScrolledWindow1]));
 			w15.Position = 1;
 			// Container child yhboxDocumentsTables.Gtk.Box+BoxChild
-			this.pipelineDocumentStages = new global::QS.Widgets.GtkUI.Pipeline.PipelineView();
-			this.pipelineDocumentStages.HeightRequest = 150;
-			this.pipelineDocumentStages.Name = "pipelineDocumentStages";
-			this.yhboxDocumentsTables.Add(this.pipelineDocumentStages);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.yhboxDocumentsTables[this.pipelineDocumentStages]));
+			this.pipelineTransferStages = new global::QS.Widgets.GtkUI.Pipeline.PipelineView();
+			this.pipelineTransferStages.HeightRequest = 150;
+			this.pipelineTransferStages.Name = "pipelineTransferStages";
+			this.yhboxDocumentsTables.Add(this.pipelineTransferStages);
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.yhboxDocumentsTables[this.pipelineTransferStages]));
 			w16.Position = 2;
 			w16.Expand = false;
 			this.yvboxDocumentsHistory.Add(this.yhboxDocumentsTables);

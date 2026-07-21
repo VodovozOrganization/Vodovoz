@@ -78,16 +78,16 @@ namespace Vodovoz.Views.Edo
 				.AddBinding(vm => vm.SelectedDocument, w => w.SelectedRow)
 				.InitializeFromSource();
 
-			pipelineDocumentStages.PipelineVerticalPadding = 5;
-			pipelineDocumentStages.PipelineSidePadding = 10;
-			pipelineDocumentStages.HorizontalAlignment = 0f;
-			pipelineDocumentStages.VerticalAlignment = 0f;
-			pipelineDocumentStages.HeightRequest = 0;
-			pipelineDocumentStages.StageCircleRadius = 16;
-			pipelineDocumentStages.StageAdditionalInfoHeight = 14;
-			pipelineDocumentStages.TitleHeight = 12;
-			pipelineDocumentStages.TitleBottomSpacing = 4;
-			pipelineDocumentStages.Binding
+			pipelineTransferStages.PipelineVerticalPadding = 5;
+			pipelineTransferStages.PipelineSidePadding = 10;
+			pipelineTransferStages.HorizontalAlignment = 0f;
+			pipelineTransferStages.VerticalAlignment = 0f;
+			pipelineTransferStages.HeightRequest = 0;
+			pipelineTransferStages.StageCircleRadius = 16;
+			pipelineTransferStages.StageAdditionalInfoHeight = 14;
+			pipelineTransferStages.TitleHeight = 12;
+			pipelineTransferStages.TitleBottomSpacing = 4;
+			pipelineTransferStages.Binding
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.PipelineViewModel, w => w.ViewModel)
 				.InitializeFromSource();
