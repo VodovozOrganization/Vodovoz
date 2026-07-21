@@ -208,7 +208,7 @@ namespace EdoService.Library
 		/// Создание ручной заявки ЭДО для переотправки документа
 		/// </summary>
 		/// <param name="order">Заказ</param>
-		/// <param name="productCodes">Коды маркировки для заявки</param>
+		/// <param name="edoTask">ЭДО задача с кодами на перенос</param>
 		/// <returns>Ручная заявка на отправку документа</returns>
 		private ManualEdoRequest CreateManualEdoRequests(OrderEntity order, OrderEdoTask edoTask)
 		{
@@ -225,7 +225,7 @@ namespace EdoService.Library
 				Order = order
 			};
 
-			if(edoRequest.ProductCodes != null && productCodes != null)
+			if(productCodes != null)
 			{
 				foreach(var code in productCodes)
 				{
