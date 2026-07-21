@@ -1,5 +1,4 @@
 using CustomerOrdersApi.Library.SiteOrdersImport.Dto;
-using System;
 using Vodovoz.Core.Domain.Results;
 
 namespace CustomerOrdersApi.Library.SiteOrdersImport.Services
@@ -13,10 +12,9 @@ namespace CustomerOrdersApi.Library.SiteOrdersImport.Services
 		/// Проверяет подпись пакета на указанную дату.
 		/// </summary>
 		/// <param name="request">Пакет выгрузки с сайта.</param>
-		/// <param name="date">Дата, на которую проверяется подпись.</param>
 		/// <param name="generatedSignature">Сгенерированная на нашей стороне подпись.</param>
 		/// <returns><c>true</c>, если подпись корректна.</returns>
-		bool ValidateSignature(OrdersImportRequest request, DateTime date, out string generatedSignature);
+		bool ValidateSignature(OrdersImportRequest request, out string generatedSignature);
 
 		/// <summary>
 		/// Проверяет обязательные поля пакета.

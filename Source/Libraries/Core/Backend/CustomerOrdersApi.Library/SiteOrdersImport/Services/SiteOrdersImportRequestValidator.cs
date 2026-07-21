@@ -17,7 +17,6 @@ namespace CustomerOrdersApi.Library.SiteOrdersImport.Services
 	/// </summary>
 	public class SiteOrdersImportRequestValidator : SignatureService, ISiteOrdersImportRequestValidator
 	{
-		private const string _dateFormat = "yyyy.MM.dd";
 		private static readonly HashSet<string> _availableEntityTypes = new(StringComparer.Ordinal)
 		{
 			"order",
@@ -41,7 +40,7 @@ namespace CustomerOrdersApi.Library.SiteOrdersImport.Services
 		/// <summary>
 		/// Проверяет подпись пакета на указанную дату.
 		/// </summary>
-		public bool ValidateSignature(OrdersImportRequest request, DateTime date, out string generatedSignature)
+		public bool ValidateSignature(OrdersImportRequest request, out string generatedSignature)
 		{
 			var sourceSign = GetSourceSign(Source.VodovozWebSite, _signatureOptions);
 
@@ -51,14 +50,21 @@ namespace CustomerOrdersApi.Library.SiteOrdersImport.Services
 					$"Не задана подпись {nameof(SignatureOptions.VodovozWebSite)} в секции \"{SignatureOptions.Path}\".");
 			}
 
-			return _signatureManager.Validate(
-				request?.Token,
-				new SiteOrdersImportSignatureParams
-				{
-					Sign = sourceSign,
-					Date = date.ToString(_dateFormat, CultureInfo.InvariantCulture)
-				},
-				out generatedSignature);
+			if(DateTimeOffset.TryParse(request.SentAt, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out _))
+			{
+				return _signatureManager.Validate(
+					request?.Token,
+					new SiteOrdersImportSignatureParams
+					{
+						Sign = sourceSign,
+						Date = request.SentAt
+					},
+					out generatedSignature);
+			}
+
+			generatedSignature = null;
+			return false;
+
 		}
 
 		/// <summary>
@@ -79,6 +85,12 @@ namespace CustomerOrdersApi.Library.SiteOrdersImport.Services
 			if(string.IsNullOrWhiteSpace(request.ContractVersion))
 			{
 				return ValidationError("Не заполнен contract_version");
+			}
+
+			if(string.IsNullOrWhiteSpace(request.SentAt)
+				|| !DateTimeOffset.TryParse(request.SentAt, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out _))
+			{
+				return ValidationError("Не заполнен или некорректен sent_at");
 			}
 
 			if(request.Items is null || request.Items.Count == 0)
