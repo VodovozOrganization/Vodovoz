@@ -1,7 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using NHibernate.Criterion;
+using NHibernate.Linq;
 using QS.DomainModel.UoW;
 using QS.Project.DB;
 using Vodovoz.Core.Domain.FastPayments;
@@ -98,6 +101,23 @@ namespace Vodovoz.Infrastructure.Persistance.FastPayments
 			}
 			
 			return query.SingleOrDefault();
+		}
+
+		public async Task<FastPayment> GetFastPaymentByExternalIdAsync(
+			IUnitOfWork uow,
+			int externalId,
+			DateTime? creationDate = null,
+			CancellationToken cancellationToken = default)
+		{
+			var query = uow.Session.Query<FastPayment>()
+				.Where(fp => fp.ExternalId == externalId);
+
+			if(creationDate.HasValue)
+			{
+				query = query.Where(fp => fp.CreationDate.Date == creationDate.Value);
+			}
+			
+			return await query.SingleOrDefaultAsync(cancellationToken);
 		}
 		
 		public IList<FastPayment> GetAllPaymentsByOnlineOrder(IUnitOfWork uow, int orderId)
