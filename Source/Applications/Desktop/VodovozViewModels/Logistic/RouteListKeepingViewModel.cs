@@ -97,7 +97,7 @@ namespace Vodovoz
 			new Dictionary<int, (bool Pushed, PrimaryEdoRequest Request)>();
 		private readonly List<Action> _cancellationRequestActions = new List<Action>();
 		private readonly IEdoSettings _edoSettings;
-		private readonly MessageService _edoMessageService;
+		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
 		private readonly ICounterpartyEdoAccountController _edoAccountController;
 		private readonly IRouteListChangesNotificationSender _routeListChangesNotificationSender;
 		private readonly OrderCancellationService _orderCancellationService;
@@ -134,7 +134,7 @@ namespace Vodovoz
 			ViewModelEEVMBuilder<Employee> forwarderViewModelEEVMBuilder,
 			ViewModelEEVMBuilder<Employee> logisticianViewModelEEVMBuilder,
 			IEdoSettings edoSettings,
-			MessageService messageService,
+			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher,
 			ICounterpartyEdoAccountController edoAccountController,
 			IRouteListChangesNotificationSender routeListChangesNotificationSender,
 			IOrderContractUpdater orderContractUpdater,
@@ -164,7 +164,8 @@ namespace Vodovoz
 			_forwarderViewModelEEVMBuilder = forwarderViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(forwarderViewModelEEVMBuilder));
 			_logisticianViewModelEEVMBuilder = logisticianViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(logisticianViewModelEEVMBuilder));
 			_edoSettings = edoSettings ?? throw new ArgumentNullException(nameof(edoSettings));
-			_edoMessageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
+			_edoRequestCreatedEventPublisher = edoRequestCreatedEventPublisher
+				?? throw new ArgumentNullException(nameof(edoRequestCreatedEventPublisher));
 			_edoAccountController = edoAccountController ?? throw new ArgumentNullException(nameof(edoAccountController));
 			_routeListChangesNotificationSender = routeListChangesNotificationSender ?? throw new ArgumentNullException(nameof(routeListChangesNotificationSender));
 			_routeListItemTrueMarkProductCodesProcessingService = routeListItemTrueMarkProductCodesProcessingService ?? throw new ArgumentNullException(nameof(routeListItemTrueMarkProductCodesProcessingService));
@@ -984,7 +985,9 @@ namespace Vodovoz
 							continue;
 						}
 						
-						await _edoMessageService.PublishEdoRequestCreatedEvent(value.Request.Id);
+						await _edoRequestCreatedEventPublisher.Publish(
+							value.Request.Id,
+							"Создание ЭДО-заявки при сохранении маршрутного листа");
 						value.Pushed = true;
 					}
 				});

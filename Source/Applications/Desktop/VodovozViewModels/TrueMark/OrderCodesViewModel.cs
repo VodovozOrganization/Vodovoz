@@ -59,7 +59,7 @@ namespace Vodovoz.ViewModels.TrueMark
 		private readonly IGenericRepository<Employee> _employeeRepository;
 		private readonly ICancelledOrderTrueMarkCodesTransferService _cancelledOrderTrueMarkCodesTransferService;
 		private readonly IInteractiveService _interactiveService;
-		private readonly ICancelledOrderTrueMarkCodesTransferEventPublisher _cancelledOrderTrueMarkCodesTransferEventPublisher;
+		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
 		private readonly ViewModelEEVMBuilder<Order> _orderViewModelEEVMBuilder;
 		private IUnitOfWork _transferTargetOrderEntryUow;
 		private int _orderId;
@@ -103,7 +103,7 @@ namespace Vodovoz.ViewModels.TrueMark
 			IGenericRepository<Employee> employeeRepository,
 			ICancelledOrderTrueMarkCodesTransferService cancelledOrderTrueMarkCodesTransferService,
 			IInteractiveService interactiveService,
-			ICancelledOrderTrueMarkCodesTransferEventPublisher cancelledOrderTrueMarkCodesTransferEventPublisher,
+			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher,
 			ViewModelEEVMBuilder<Order> orderViewModelEEVMBuilder
 			) : base()
 		{
@@ -118,8 +118,8 @@ namespace Vodovoz.ViewModels.TrueMark
 			_cancelledOrderTrueMarkCodesTransferService = cancelledOrderTrueMarkCodesTransferService
 				?? throw new ArgumentNullException(nameof(cancelledOrderTrueMarkCodesTransferService));
 			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
-			_cancelledOrderTrueMarkCodesTransferEventPublisher = cancelledOrderTrueMarkCodesTransferEventPublisher
-				?? throw new ArgumentNullException(nameof(cancelledOrderTrueMarkCodesTransferEventPublisher));
+			_edoRequestCreatedEventPublisher = edoRequestCreatedEventPublisher
+				?? throw new ArgumentNullException(nameof(edoRequestCreatedEventPublisher));
 			_orderViewModelEEVMBuilder = orderViewModelEEVMBuilder ?? throw new ArgumentNullException(nameof(orderViewModelEEVMBuilder));
 			_scannedByDriverCodes = new List<OrderCodeItemViewModel>();
 			_scannedByDriverCodesSelected = Enumerable.Empty<OrderCodeItemViewModel>();
@@ -548,7 +548,7 @@ namespace Vodovoz.ViewModels.TrueMark
 
 		private void TransferRejectedCodes()
 		{
-			if(TransferTargetOrder == null)
+			if(TransferTargetOrder is null)
 			{
 				_interactiveService.ShowMessage(ImportanceLevel.Warning, "Выберите заказ, в который нужно перенести коды.");
 				return;
@@ -567,8 +567,9 @@ namespace Vodovoz.ViewModels.TrueMark
 				}
 
 				uow.Commit();
-				_cancelledOrderTrueMarkCodesTransferEventPublisher
-					.PublishEdoRequestCreated(result.Value.EdoRequestId)
+
+				_edoRequestCreatedEventPublisher
+					.Publish(result.Value.EdoRequestId, "Перенос отклоненных кодов из отмененного заказа")
 					.GetAwaiter()
 					.GetResult();
 

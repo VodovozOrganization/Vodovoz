@@ -319,7 +319,6 @@ namespace Vodovoz.Infrastructure.Persistance.TrueMark
 		{
 			var rejectedCodes = uow.Session.Query<TrueMarkProductCode>()
 				.Fetch(x => x.SourceCode)
-				.Fetch(x => x.ResultCode)
 				.Where(x => x.CustomerEdoRequest.Order.Id == orderId)
 				.Where(x => x.SourceCodeStatus == SourceProductCodeStatus.Rejected)
 				.Where(x => x.SourceCode != null)

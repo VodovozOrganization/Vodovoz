@@ -315,7 +315,7 @@ namespace Edo.Transport
 			});
 
 			services.AddScoped<MessageService>();
-			services.AddScoped<ICancelledOrderTrueMarkCodesTransferEventPublisher, CancelledOrderTrueMarkCodesTransferEventPublisher>();
+			services.AddScoped<IEdoRequestCreatedEventPublisher, EdoRequestCreatedEventPublisher>();
 
 			return services;
 		}

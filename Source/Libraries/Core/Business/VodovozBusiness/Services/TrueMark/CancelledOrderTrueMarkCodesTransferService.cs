@@ -1,13 +1,13 @@
-﻿using QS.DomainModel.UoW;
-using QS.Extensions.Observable.Collections.List;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Vodovoz.Core.Domain.Edo;
+using QS.DomainModel.UoW;
 using Vodovoz.Core.Domain.Results;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 using Vodovoz.Domain.Orders;
 using Vodovoz.EntityRepositories.TrueMark;
+using Vodovoz.Errors.Edo;
+using VodovozBusiness.Services.Edo;
 
 namespace VodovozBusiness.Services.TrueMark
 {
@@ -71,12 +71,11 @@ namespace VodovozBusiness.Services.TrueMark
 				return Result.Failure<CancelledOrderTrueMarkCodesTransferResult>(targetOrderItemsBySourceCode.Errors);
 			}
 
-			var edoRequest = CreateEdoRequest(targetOrder);
+			var createdProductCodes = CreateProductCodes(sourceProductCodes);
+			var edoRequest = ManualEdoRequestFactory.Create(targetOrder, createdProductCodes.Values);
 			uow.Save(edoRequest);
 
-			var createdProductCodes = CreateProductCodes(uow, edoRequest, sourceProductCodes, targetOrderItemsBySourceCode.Value);
-			edoRequest.ProductCodes = new ObservableList<TrueMarkProductCode>(createdProductCodes);
-			uow.Save(edoRequest);
+			CreateProductCodeOrderItems(uow, createdProductCodes, targetOrderItemsBySourceCode.Value);
 
 			return Result.Success(new CancelledOrderTrueMarkCodesTransferResult
 			{
@@ -92,17 +91,17 @@ namespace VodovozBusiness.Services.TrueMark
 
 			if(sourceOrderId <= 0)
 			{
-				errors.Add(CreateError(nameof(sourceOrderId), "Не указан заказ-источник."));
+				errors.Add(EdoErrors.SourceOrderIdMissing);
 			}
 
 			if(targetOrderId <= 0)
 			{
-				errors.Add(CreateError(nameof(targetOrderId), "Не указан заказ, в который нужно перенести коды."));
+				errors.Add(EdoErrors.TargetOrderIdMissing);
 			}
 
 			if(sourceOrderId == targetOrderId)
 			{
-				errors.Add(CreateError(nameof(targetOrderId), "Нельзя перенести коды в тот же самый заказ."));
+				errors.Add(EdoErrors.SameTransferOrder);
 			}
 
 			return errors.Any() ? Result.Failure(errors) : Result.Success();
@@ -114,20 +113,20 @@ namespace VodovozBusiness.Services.TrueMark
 
 			if(sourceOrder is null)
 			{
-				errors.Add(CreateError(nameof(sourceOrder), "Заказ-источник не найден."));
+				errors.Add(EdoErrors.SourceOrderNotFound);
 			}
 			else if(sourceOrder.OrderStatus != OrderStatus.Canceled)
 			{
-				errors.Add(CreateError(nameof(sourceOrder), "Переносить коды можно только из полностью отмененного заказа."));
+				errors.Add(EdoErrors.SourceOrderNotCanceled);
 			}
 
 			if(targetOrder is null)
 			{
-				errors.Add(CreateError(nameof(targetOrder), "Целевой заказ не найден."));
+				errors.Add(EdoErrors.TargetOrderNotFound);
 			}
 			else if(targetOrder.OrderStatus == OrderStatus.Canceled || targetOrder.OrderStatus == OrderStatus.DeliveryCanceled)
 			{
-				errors.Add(CreateError(nameof(targetOrder), "Нельзя перенести коды в отмененный заказ."));
+				errors.Add(EdoErrors.TargetOrderCanceled);
 			}
 
 			return errors.Any() ? Result.Failure(errors) : Result.Success();
@@ -137,7 +136,7 @@ namespace VodovozBusiness.Services.TrueMark
 		{
 			if(!sourceProductCodes.Any())
 			{
-				return CreateError(nameof(sourceProductCodes), "В отмененном заказе нет отклоненных кодов для переноса.");
+				return EdoErrors.RejectedCodesNotFound;
 			}
 
 			var sourceCodeIds = new HashSet<int>();
@@ -149,7 +148,7 @@ namespace VodovozBusiness.Services.TrueMark
 
 				if(!sourceCodeIds.Add(sourceProductCode.SourceCode.Id))
 				{
-					return CreateError(nameof(sourceProductCodes), "В отмененном заказе есть повторяющиеся коды. Перенос отменен.");
+					return EdoErrors.DuplicateRejectedCodes;
 				}
 			}
 
@@ -160,9 +159,7 @@ namespace VodovozBusiness.Services.TrueMark
 			
 			if(usedProductCodes.Any())
 			{
-				return CreateError(
-					nameof(sourceProductCodes),
-					"Часть кодов уже используется в другом заказе или документе. Перенос отменен.");
+				return EdoErrors.ProductCodesAlreadyUsed;
 			}
 
 			return Result.Success();
@@ -180,7 +177,7 @@ namespace VodovozBusiness.Services.TrueMark
 
 			if(!targetOrderItems.Any())
 			{
-				return CreateError(nameof(targetOrder), "В целевом заказе нет товаров, требующих коды маркировки.");
+				return EdoErrors.TargetOrderItemsNotFound;
 			}
 
 			var productCodesCountByOrderItems = _trueMarkRepository.GetProductCodesCountByOrderItems(
@@ -209,9 +206,7 @@ namespace VodovozBusiness.Services.TrueMark
 
 				if(targetItem is null)
 				{
-					return CreateError(
-						nameof(targetOrder),
-						$"В целевом заказе недостаточно товаров с GTIN {sourceCode.Gtin} для переноса кодов.");
+					return EdoErrors.CreateInsufficientTargetOrderItems(sourceCode.Gtin);
 				}
 
 				result.Add(sourceProductCode.Id, targetItem.OrderItem);
@@ -220,56 +215,39 @@ namespace VodovozBusiness.Services.TrueMark
 			return Result.Success<IDictionary<int, OrderItem>>(result);
 		}
 
-		private static ManualEdoRequest CreateEdoRequest(Order targetOrder)
+		private static IDictionary<int, TrueMarkProductCode> CreateProductCodes(
+			IList<TrueMarkProductCode> sourceProductCodes)
 		{
-			return new ManualEdoRequest
+			var now = DateTime.Now;
+
+			return sourceProductCodes.ToDictionary(
+				sourceProductCode => sourceProductCode.Id,
+				sourceProductCode => (TrueMarkProductCode)new AutoTrueMarkProductCode
 			{
-				Order = targetOrder,
-				Source = EdoRequestSource.Manual,
-				Time = DateTime.Now,
-				DocumentType = EdoDocumentType.UPD,
-				Type = CustomerEdoRequestType.Order
-			};
+				CreationTime = now,
+				LastModified = now,
+				SourceCode = sourceProductCode.SourceCode,
+				ResultCode = sourceProductCode.SourceCode,
+				SourceCodeStatus = SourceProductCodeStatus.Accepted,
+				Problem = ProductCodeProblem.None
+			});
 		}
 
-		private static IList<TrueMarkProductCode> CreateProductCodes(
+		private static void CreateProductCodeOrderItems(
 			IUnitOfWork uow,
-			FormalEdoRequest edoRequest,
-			IList<TrueMarkProductCode> sourceProductCodes,
+			IDictionary<int, TrueMarkProductCode> createdProductCodes,
 			IDictionary<int, OrderItem> targetOrderItemsBySourceCode)
 		{
-			var createdProductCodes = new List<TrueMarkProductCode>();
-
-			foreach(var sourceProductCode in sourceProductCodes)
+			foreach(var createdProductCode in createdProductCodes)
 			{
-				var productCode = new AutoTrueMarkProductCode
-				{
-					CreationTime = DateTime.Now,
-					LastModified = DateTime.Now,
-					SourceCode = sourceProductCode.SourceCode,
-					ResultCode = sourceProductCode.SourceCode,
-					SourceCodeStatus = SourceProductCodeStatus.Accepted,
-					Problem = ProductCodeProblem.None,
-					CustomerEdoRequest = edoRequest
-				};
-
-				uow.Save(productCode);
-
 				var productCodeOrderItem = new TrueMarkProductCodeOrderItem
 				{
-					TrueMarkProductCodeId = productCode.Id,
-					OrderItemId = targetOrderItemsBySourceCode[sourceProductCode.Id].Id
+					TrueMarkProductCodeId = createdProductCode.Value.Id,
+					OrderItemId = targetOrderItemsBySourceCode[createdProductCode.Key].Id
 				};
 
 				uow.Save(productCodeOrderItem);
-
-				createdProductCodes.Add(productCode);
 			}
-
-			return createdProductCodes;
 		}
-
-		private static Error CreateError(string fieldName, string message) =>
-			new Error(typeof(CancelledOrderTrueMarkCodesTransferService), fieldName, message);
 	}
 }
