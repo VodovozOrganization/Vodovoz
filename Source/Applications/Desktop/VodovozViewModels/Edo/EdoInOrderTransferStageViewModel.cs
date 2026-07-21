@@ -78,6 +78,13 @@ namespace Vodovoz.ViewModels.Edo
 			{
 				var pipelineStageViewModel = new EnumPipelineStageViewModel(enumValue);
 
+				if(transferNode.TransferStage == EdoTransferTaskStage.Completed)
+				{
+					pipelineStageViewModel.Status = StageStatus.Completed;
+					stageViewModels.Add(pipelineStageViewModel);
+					continue;
+				}
+
 				if(enumValue == transferNode.TransferStage)
 				{
 					if(transferNode.Status == EdoTaskStatus.Problem)

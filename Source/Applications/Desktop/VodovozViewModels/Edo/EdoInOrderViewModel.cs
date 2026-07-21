@@ -321,6 +321,13 @@ namespace Vodovoz.ViewModels.Edo
 			{
 				var pipelineStageViewModel = new EnumPipelineStageViewModel(enumValue);
 
+				if(document.TaskUpdStage.Value == DocumentEdoTaskStage.Completed)
+				{
+					pipelineStageViewModel.Status = StageStatus.Completed;
+					stageViewModels.Add(pipelineStageViewModel);
+					continue;
+				}
+
 				if(enumValue == document.TaskUpdStage.Value)
 				{
 					if(document.TaskStatus == EdoTaskStatus.Problem)
@@ -372,6 +379,13 @@ namespace Vodovoz.ViewModels.Edo
 			foreach(var enumValue in updValues)
 			{
 				var pipelineStageViewModel = new EnumPipelineStageViewModel(enumValue);
+
+				if(document.TaskReceiptStage.Value == EdoReceiptStatus.Completed)
+				{
+					pipelineStageViewModel.Status = StageStatus.Completed;
+					stageViewModels.Add(pipelineStageViewModel);
+					continue;
+				}
 
 				if(enumValue == EdoReceiptStatus.SavedToPool)
 				{
@@ -440,6 +454,13 @@ namespace Vodovoz.ViewModels.Edo
 			foreach(var enumValue in updValues)
 			{
 				var pipelineStageViewModel = new EnumPipelineStageViewModel(enumValue);
+
+				if(document.TaskTenderStage.Value == TenderEdoTaskStage.ManualUploaded)
+				{
+					pipelineStageViewModel.Status = StageStatus.Completed;
+					stageViewModels.Add(pipelineStageViewModel);
+					continue;
+				}
 
 				if(enumValue == document.TaskTenderStage.Value)
 				{
