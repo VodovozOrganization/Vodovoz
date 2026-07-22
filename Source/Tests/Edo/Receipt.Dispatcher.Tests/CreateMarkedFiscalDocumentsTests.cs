@@ -16,16 +16,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Codes.Pool;
 using TrueMark.Library;
 using TrueMarkApi.Client;
 using Vodovoz.Core.Data.Repositories;
+using Vodovoz.Core.Domain.Cash;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
 using Vodovoz.Core.Domain.Edo;
 using Vodovoz.Core.Domain.Goods;
 using Vodovoz.Core.Domain.Orders;
+using Vodovoz.Core.Domain.Organizations;
 using Vodovoz.Core.Domain.Repositories;
 using Vodovoz.Core.Domain.TrueMark;
 using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
@@ -39,6 +42,7 @@ namespace Receipt.Dispatcher.Tests
 	{
 		private GenericRepositoryFixture<TrueMarkWaterGroupCode> _waterGroupCodeRepository;
 		private ForOwnNeedsReceiptEdoTaskHandler _forOwnNeedsReceiptEdoTaskHandler;
+		private ReceiptTrueMarkCodesPool _trueMarkCodesPool;
 
 		public CreateMarkedFiscalDocumentsTests()
 		{
@@ -94,7 +98,8 @@ namespace Receipt.Dispatcher.Tests
 					1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
 				});
 
-			var mainFiscalDocument = new EdoFiscalDocument();
+			var mainFiscalDocument = new EdoFiscalDocument { Index = 0 };
+			receiptEdoTask.FiscalDocuments.Add(mainFiscalDocument);
 
 			// Act
 
@@ -164,7 +169,8 @@ namespace Receipt.Dispatcher.Tests
 					1, 2, 3, 4, 5, 6, 7, 8, 9, 10
 				});
 
-			var mainFiscalDocument = new EdoFiscalDocument();
+			var mainFiscalDocument = new EdoFiscalDocument { Index = 0 };
+			receiptEdoTask.FiscalDocuments.Add(mainFiscalDocument);
 
 			// Act
 
@@ -234,7 +240,8 @@ namespace Receipt.Dispatcher.Tests
 					1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
 				});
 
-			var mainFiscalDocument = new EdoFiscalDocument();
+			var mainFiscalDocument = new EdoFiscalDocument { Index = 0 };
+			receiptEdoTask.FiscalDocuments.Add(mainFiscalDocument);
 
 			// Act
 
@@ -260,6 +267,236 @@ namespace Receipt.Dispatcher.Tests
 				x => Assert
 					.DoesNotContain(x, receiptEdoTask.FiscalDocuments
 					.SelectMany(x => x.InventPositions.Select(x => x.EdoTaskItem.ProductCode.ResultCode.Gtin))));
+		}
+
+		// Если чистую стоимость за единицу товара для группового кода нельзя получить без остатка (до копеек),
+		// групповой код не должен использоваться: товары становятся отдельными строками чека,
+		// а входящие в групповой код штучные коды возвращаются в пул
+		[Fact]
+		public async Task CreateMarkedFiscalDocuments_ShouldNotGroupAndReturnGroupCodeToPool_WhenNetSumPerItemHasRemainder()
+		{
+			// Arrange
+
+			var receiptEdoTask = CreateTestReceiptEdoTaskForTest(
+				// Nomenclatures
+				new (IEnumerable<int> gtinIds, IEnumerable<int> groupGtinIds, bool isAccountableInTrueMark)[]
+				{
+					(new [] { 1, 2 }, new [] { 1, 2 }, true),
+					(Array.Empty<int>(), Array.Empty<int>(), false)
+				},
+				// OrderItems: 11 шт по 30 руб без скидки + 1 шт по 30 руб со скидкой 29 руб.
+				// Чистая сумма 11*30 + (30-29) = 331 руб не делится на 12 без остатка (331/12 = 27,58(3))
+				new (int nomenclatureId, decimal count, decimal price, decimal discount)[]
+				{
+					(1, 11m, 30m, 0m),
+					(1, 1m, 30m, 29m)
+				},
+				// Identification Codes: 1-12 входят в групповой код, 13-24 — штучные для индивидуальной обработки
+				new (bool isInValid, int gtinId)[]
+				{
+					(false, 1), (false, 1), (false, 1), (false, 1), (false, 1), (false, 1),
+					(false, 1), (false, 1), (false, 1), (false, 1), (false, 1), (false, 1),
+					(false, 1), (false, 1), (false, 1), (false, 1), (false, 1), (false, 1),
+					(false, 1), (false, 1), (false, 1), (false, 1), (false, 1), (false, 1),
+				},
+				// Group Codes
+				new (int? parentWaterCodeId, int groupGtinId, bool isInValid, IEnumerable<int> childWaterCodeIds)[]
+				{
+					(null, 1, false, new []{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }),
+				},
+				// Edo Task Item Identification Codes
+				new[]
+				{
+					1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
+					13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24
+				});
+
+			var mainFiscalDocument = new EdoFiscalDocument { Index = 0 };
+			receiptEdoTask.FiscalDocuments.Add(mainFiscalDocument);
+
+			// Act
+
+			await _forOwnNeedsReceiptEdoTaskHandler.UpdateMarkedFiscalDocuments(receiptEdoTask, mainFiscalDocument, default);
+
+			// Assert
+
+			var inventPositions = receiptEdoTask.FiscalDocuments.SelectMany(x => x.InventPositions).ToList();
+
+			// групповой код не должен использоваться ни в одной строке чека
+			Assert.All(inventPositions, x => Assert.Null(x.GroupCode));
+
+			// все 12 единиц товара стали отдельными строками чека с индивидуальными кодами
+			Assert.Equal(12, inventPositions.Count);
+			Assert.All(inventPositions, x => Assert.Equal(1m, x.Quantity));
+			Assert.All(inventPositions, x => Assert.NotNull(x.EdoTaskItem));
+
+			// итоговое количество и стоимость соответствуют исходному заказу
+			Assert.Equal(
+				receiptEdoTask.FormalEdoRequest.Order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark).Sum(x => x.Count),
+				inventPositions.Sum(x => x.Quantity));
+
+			Assert.Equal(
+				receiptEdoTask.FormalEdoRequest.Order.OrderItems
+					.Where(x => x.Nomenclature.IsAccountableInTrueMark && x.Count > 0)
+					.Sum(x => x.Sum),
+				inventPositions.Sum(x => x.Price * x.Quantity - x.DiscountSum));
+
+			// входящие в отклонённый групповой код 12 штучных кодов возвращены в пул
+			await _trueMarkCodesPool.Received(12).PutCodeAsync(Arg.Any<int>(), Arg.Any<CancellationToken>());
+		}
+
+		// Проверка расформирования группы, один групповой код в одной строке заказа: количества в строке заказа
+		// хватает ровно на один групповой код, но сумма скидки такова, что чистую стоимость за единицу
+		// нельзя получить без остатка (до копеек). Групповой код не применяется — товары становятся
+		// отдельными строками чека, а входящие в него штучные коды возвращаются в пул
+		[Fact]
+		public async Task CreateMarkedFiscalDocuments_ShouldNotApplyGroupCodeToSingleOrderItem_WhenDiscountMakesNetSumPerItemHaveRemainder()
+		{
+			// Arrange
+
+			var receiptEdoTask = CreateTestReceiptEdoTaskForTest(
+				// Nomenclatures
+				new (IEnumerable<int> gtinIds, IEnumerable<int> groupGtinIds, bool isAccountableInTrueMark)[]
+				{
+					(new [] { 1, 2 }, new [] { 1, 2 }, true),
+					(Array.Empty<int>(), Array.Empty<int>(), false)
+				},
+				// OrderItems: 3 шт по 10 руб со скидкой 1 руб на строку.
+				// Скидка распределяется по единицам как [0,3; 0,3; 0,4].
+				// Чистая сумма 3*10 - 1 = 29 руб не делится на 3 без остатка (29/3 = 9,66(6))
+				new (int nomenclatureId, decimal count, decimal price, decimal discount)[]
+				{
+					(1, 3m, 10m, 1m)
+				},
+				// Identification Codes: 1-3 входят в групповой код, 4-6 — штучные для индивидуальной обработки
+				new (bool isInValid, int gtinId)[]
+				{
+					(false, 1), (false, 1), (false, 1),
+					(false, 1), (false, 1), (false, 1),
+				},
+				// Group Codes
+				new (int? parentWaterCodeId, int groupGtinId, bool isInValid, IEnumerable<int> childWaterCodeIds)[]
+				{
+					(null, 1, false, new []{ 1, 2, 3 }),
+				},
+				// Edo Task Item Identification Codes
+				new[]
+				{
+					1, 2, 3, 4, 5, 6
+				});
+
+			var mainFiscalDocument = new EdoFiscalDocument { Index = 0 };
+			receiptEdoTask.FiscalDocuments.Add(mainFiscalDocument);
+
+			// Act
+
+			await _forOwnNeedsReceiptEdoTaskHandler.UpdateMarkedFiscalDocuments(receiptEdoTask, mainFiscalDocument, default);
+
+			// Assert
+
+			var inventPositions = receiptEdoTask.FiscalDocuments.SelectMany(x => x.InventPositions).ToList();
+
+			// групповой код не применён ни в одной строке чека
+			Assert.All(inventPositions, x => Assert.Null(x.GroupCode));
+
+			// все 3 единицы товара стали отдельными строками чека с индивидуальными кодами
+			Assert.Equal(3, inventPositions.Count);
+			Assert.All(inventPositions, x => Assert.Equal(1m, x.Quantity));
+			Assert.All(inventPositions, x => Assert.NotNull(x.EdoTaskItem));
+
+			// итоговое количество и стоимость соответствуют исходному заказу
+			Assert.Equal(
+				receiptEdoTask.FormalEdoRequest.Order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark).Sum(x => x.Count),
+				inventPositions.Sum(x => x.Quantity));
+
+			Assert.Equal(
+				receiptEdoTask.FormalEdoRequest.Order.OrderItems
+					.Where(x => x.Nomenclature.IsAccountableInTrueMark && x.Count > 0)
+					.Sum(x => x.Sum),
+				inventPositions.Sum(x => x.Price * x.Quantity - x.DiscountSum));
+
+			// входящие в отклонённый групповой код 3 штучных кода возвращены в пул
+			await _trueMarkCodesPool.Received(3).PutCodeAsync(Arg.Any<int>(), Arg.Any<CancellationToken>());
+		}
+
+		// Проверка расформирования группы, два групповых кода в одной строке заказа: количества хватает на два
+		// групповых кода, но по сумме скидки без остатка можно применить только один. Один групповой
+		// код применяется (объединённая строка чека на 3 единицы), второй отклоняется — его товары
+		// становятся отдельными строками, а входящие в него штучные коды возвращаются в пул
+		[Fact]
+		public async Task CreateMarkedFiscalDocuments_ShouldApplyOnlyOneOfTwoGroupCodesToSingleOrderItem_WhenSecondGroupNetSumPerItemHasRemainder()
+		{
+			// Arrange
+
+			var receiptEdoTask = CreateTestReceiptEdoTaskForTest(
+				// Nomenclatures
+				new (IEnumerable<int> gtinIds, IEnumerable<int> groupGtinIds, bool isAccountableInTrueMark)[]
+				{
+					(new [] { 1, 2 }, new [] { 1, 2 }, true),
+					(Array.Empty<int>(), Array.Empty<int>(), false)
+				},
+				// OrderItems: 6 шт по 10 руб со скидкой 1 руб на строку.
+				// Скидка распределяется по единицам как [0,2; 0,2; 0,2; 0,2; 0,2; 0,0].
+				// Первый групповой код (первые 3 единицы): чистая сумма 30 - 0,6 = 29,4 делится на 3 (9,8) — применяется.
+				// Второй групповой код (оставшиеся 3 единицы): чистая сумма 30 - 0,4 = 29,6 не делится на 3 — отклоняется.
+				new (int nomenclatureId, decimal count, decimal price, decimal discount)[]
+				{
+					(1, 6m, 10m, 1m)
+				},
+				// Identification Codes: 1-3 и 4-6 входят в два групповых кода, 7-9 — штучные
+				new (bool isInValid, int gtinId)[]
+				{
+					(false, 1), (false, 1), (false, 1),
+					(false, 1), (false, 1), (false, 1),
+					(false, 1), (false, 1), (false, 1),
+				},
+				// Group Codes
+				new (int? parentWaterCodeId, int groupGtinId, bool isInValid, IEnumerable<int> childWaterCodeIds)[]
+				{
+					(null, 1, false, new []{ 1, 2, 3 }),
+					(null, 1, false, new []{ 4, 5, 6 }),
+				},
+				// Edo Task Item Identification Codes
+				new[]
+				{
+					1, 2, 3, 4, 5, 6, 7, 8, 9
+				});
+
+			var mainFiscalDocument = new EdoFiscalDocument { Index = 0 };
+			receiptEdoTask.FiscalDocuments.Add(mainFiscalDocument);
+
+			// Act
+
+			await _forOwnNeedsReceiptEdoTaskHandler.UpdateMarkedFiscalDocuments(receiptEdoTask, mainFiscalDocument, default);
+
+			// Assert
+
+			var inventPositions = receiptEdoTask.FiscalDocuments.SelectMany(x => x.InventPositions).ToList();
+
+			// ровно один групповой код применён — одной объединённой строкой на 3 единицы
+			var groupPositions = inventPositions.Where(x => x.GroupCode != null).ToList();
+			Assert.Single(groupPositions);
+			Assert.Equal(3m, groupPositions[0].Quantity);
+
+			// оставшиеся 3 единицы (из отклонённого группового кода) стали отдельными строками чека
+			var individualPositions = inventPositions.Where(x => x.GroupCode == null).ToList();
+			Assert.Equal(3, individualPositions.Count);
+			Assert.All(individualPositions, x => Assert.Equal(1m, x.Quantity));
+			Assert.All(individualPositions, x => Assert.NotNull(x.EdoTaskItem));
+
+			// итоговое количество и стоимость соответствуют исходному заказу
+			Assert.Equal(
+				receiptEdoTask.FormalEdoRequest.Order.OrderItems.Where(x => x.Nomenclature.IsAccountableInTrueMark).Sum(x => x.Count),
+				inventPositions.Sum(x => x.Quantity));
+
+			Assert.Equal(
+				receiptEdoTask.FormalEdoRequest.Order.OrderItems
+					.Where(x => x.Nomenclature.IsAccountableInTrueMark && x.Count > 0)
+					.Sum(x => x.Sum),
+				inventPositions.Sum(x => x.Price * x.Quantity - x.DiscountSum));
+
+			// входящие в отклонённый групповой код 3 штучных кода возвращены в пул
+			await _trueMarkCodesPool.Received(3).PutCodeAsync(Arg.Any<int>(), Arg.Any<CancellationToken>());
 		}
 
 		private ReceiptEdoTask CreateTestReceiptEdoTaskForTest(
@@ -446,7 +683,10 @@ namespace Receipt.Dispatcher.Tests
 			var order = new OrderEntity
 			{
 				Id = 1,
-				Contract = new CounterpartyContractEntity()
+				Contract = new CounterpartyContractEntity
+				{
+					Organization = new OrganizationEntity { INN = "0000000000" }
+				}
 			};
 
 			foreach(var orderItem in orderItems)
@@ -481,6 +721,13 @@ namespace Receipt.Dispatcher.Tests
 				nomenclature.GroupGtins.Add(groupGtin);
 			}
 
+			nomenclature.VatRateVersions.Add(new VatRateVersion
+			{
+				StartDate = new DateTime(2000, 1, 1),
+				EndDate = null,
+				VatRate = new VatRate { VatRateValue = 0m }
+			});
+
 			return nomenclature;
 		}
 
@@ -510,16 +757,27 @@ namespace Receipt.Dispatcher.Tests
 			var httpClientFactory = Substitute.For<IHttpClientFactory>();
 			var edoProblemRegistrar = CreateEdoProblemRegistrarFixture(unitOfWork, unitOfWorkFactory);
 			var edoTaskValidator = CreateEdoTaskValidatorFixture(unitOfWorkFactory, edoProblemRegistrar);
-			var edoTaskTrueMarkCodeCheckerFactory = Substitute.For<EdoTaskItemTrueMarkStatusProviderFactory>();
+			var edoTaskTrueMarkCodeCheckerFactory = Substitute.For<EdoTaskItemTrueMarkStatusProviderFactory>(Substitute.For<ITrueMarkApiClient>());
 			var transferRequestCreator = CreateTransferRequestCreatorFixture(edoRepository);
 			var edoReceiptSettings = Substitute.For<IEdoReceiptSettings>();
-			var localCodesValidator = CreateTrueMarkTaskCodesValidatorFixture(edoRepository, Substitute.For<TrueMarkApiClient>());
+			edoReceiptSettings.MaxCodesInReceiptCount.Returns(1000);
+			var localCodesValidator = CreateTrueMarkTaskCodesValidatorFixture(edoRepository, Substitute.For<ITrueMarkApiClient>());
 			var tag1260Checker = CreateTag1260CheckerFixture(httpClientFactory);
 			var trueMarkCodeRepository = Substitute.For<ITrueMarkCodeRepository>();
+			trueMarkCodeRepository
+				.GetGroupCode(Arg.Any<int>(), Arg.Any<CancellationToken>())
+				.Returns(callInfo => Task.FromResult(
+					_waterGroupCodeRepository.Data.FirstOrDefault(x => x.Id == (int)callInfo[0])));
 			var saveCodesService = Substitute.For<ISaveCodesService>();
 			var bus = Substitute.For<IBus>();
-			var edoCancellationService = Substitute.For<EdoCancellationService>();
+			var edoCancellationService = new EdoCancellationService(
+				Substitute.For<ILogger<EdoCancellationService>>(),
+				unitOfWork,
+				Substitute.For<IEdoCancellationValidator>(),
+				edoProblemRegistrar,
+				Substitute.For<IPublishEndpoint>());
 			var trueMarkWaterCodeService = Substitute.For<ITrueMarkWaterCodeService>();
+			_trueMarkCodesPool = Substitute.For<ReceiptTrueMarkCodesPool>(unitOfWork);
 
 			return new ForOwnNeedsReceiptEdoTaskHandler(
 				logger,
@@ -531,7 +789,7 @@ namespace Receipt.Dispatcher.Tests
 				edoRepository,
 				edoReceiptSettings,
 				localCodesValidator,
-				Substitute.For<ITrueMarkCodesPool>() as ReceiptTrueMarkCodesPool, 
+				_trueMarkCodesPool,
 				Substitute.For<ITrueMarkCodesPoolCodeProvider>(),
 				tag1260Checker,
 				trueMarkCodeRepository,
