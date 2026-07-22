@@ -768,7 +768,6 @@ namespace Receipt.Dispatcher.Tests
 				.GetGroupCode(Arg.Any<int>(), Arg.Any<CancellationToken>())
 				.Returns(callInfo => Task.FromResult(
 					_waterGroupCodeRepository.Data.FirstOrDefault(x => x.Id == (int)callInfo[0])));
-			var saveCodesService = Substitute.For<ISaveCodesService>();
 			var bus = Substitute.For<IBus>();
 			var edoCancellationService = new EdoCancellationService(
 				Substitute.For<ILogger<EdoCancellationService>>(),
@@ -778,6 +777,9 @@ namespace Receipt.Dispatcher.Tests
 				Substitute.For<IPublishEndpoint>());
 			var trueMarkWaterCodeService = Substitute.For<ITrueMarkWaterCodeService>();
 			_trueMarkCodesPool = Substitute.For<ReceiptTrueMarkCodesPool>(unitOfWork);
+			var saveCodesService = new SaveCodesService(
+				Substitute.For<ILogger<SaveCodesService>>(),
+				_trueMarkCodesPool);
 
 			return new ForOwnNeedsReceiptEdoTaskHandler(
 				logger,
