@@ -36,6 +36,8 @@ namespace Vodovoz.Views.Edo
 
 		private global::Gamma.GtkWidgets.yEntry yentryResaleInn;
 
+		private global::Gamma.GtkWidgets.yEntry yentrySum;
+
 		private global::Gamma.GtkWidgets.yLabel ylabelCashError;
 
 		private global::Gamma.GtkWidgets.yLabel ylabelCashier;
@@ -64,6 +66,8 @@ namespace Vodovoz.Views.Edo
 
 		private global::Gamma.GtkWidgets.yLabel ylabelResaleInn;
 
+		private global::Gamma.GtkWidgets.yLabel ylabelSum;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -73,7 +77,7 @@ namespace Vodovoz.Views.Edo
 			// Container child Vodovoz.Views.Edo.EdoInOrderReceiptView.Gtk.Container+ContainerChild
 			this.ytableMain = new global::Gamma.GtkWidgets.yTable();
 			this.ytableMain.Name = "ytableMain";
-			this.ytableMain.NRows = ((uint)(8));
+			this.ytableMain.NRows = ((uint)(9));
 			this.ytableMain.NColumns = ((uint)(4));
 			this.ytableMain.RowSpacing = ((uint)(6));
 			this.ytableMain.ColumnSpacing = ((uint)(6));
@@ -86,12 +90,13 @@ namespace Vodovoz.Views.Edo
 			this.ytextviewCashError = new global::Gamma.GtkWidgets.yTextView();
 			this.ytextviewCashError.CanFocus = true;
 			this.ytextviewCashError.Name = "ytextviewCashError";
+			this.ytextviewCashError.Editable = false;
 			this.ytextviewCashError.WrapMode = ((global::Gtk.WrapMode)(2));
 			this.GtkScrolledWindow.Add(this.ytextviewCashError);
 			this.ytableMain.Add(this.GtkScrolledWindow);
 			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.GtkScrolledWindow]));
-			w2.TopAttach = ((uint)(7));
-			w2.BottomAttach = ((uint)(8));
+			w2.TopAttach = ((uint)(8));
+			w2.BottomAttach = ((uint)(9));
 			w2.LeftAttach = ((uint)(1));
 			w2.RightAttach = ((uint)(4));
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -277,17 +282,31 @@ namespace Vodovoz.Views.Edo
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
+			this.yentrySum = new global::Gamma.GtkWidgets.yEntry();
+			this.yentrySum.CanFocus = true;
+			this.yentrySum.Name = "yentrySum";
+			this.yentrySum.IsEditable = false;
+			this.yentrySum.InvisibleChar = '•';
+			this.ytableMain.Add(this.yentrySum);
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.yentrySum]));
+			w16.TopAttach = ((uint)(7));
+			w16.BottomAttach = ((uint)(8));
+			w16.LeftAttach = ((uint)(1));
+			w16.RightAttach = ((uint)(2));
+			w16.XOptions = ((global::Gtk.AttachOptions)(4));
+			w16.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytableMain.Gtk.Table+TableChild
 			this.ylabelCashError = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelCashError.Name = "ylabelCashError";
 			this.ylabelCashError.Xalign = 1F;
 			this.ylabelCashError.LabelProp = global::Mono.Unix.Catalog.GetString("Ошибка кассы:");
 			this.ylabelCashError.Justify = ((global::Gtk.Justification)(1));
 			this.ytableMain.Add(this.ylabelCashError);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelCashError]));
-			w16.TopAttach = ((uint)(7));
-			w16.BottomAttach = ((uint)(8));
-			w16.XOptions = ((global::Gtk.AttachOptions)(4));
-			w16.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelCashError]));
+			w17.TopAttach = ((uint)(8));
+			w17.BottomAttach = ((uint)(9));
+			w17.XOptions = ((global::Gtk.AttachOptions)(4));
+			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
 			this.ylabelCashier = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelCashier.Name = "ylabelCashier";
@@ -295,11 +314,11 @@ namespace Vodovoz.Views.Edo
 			this.ylabelCashier.LabelProp = global::Mono.Unix.Catalog.GetString("Кассир:");
 			this.ylabelCashier.Justify = ((global::Gtk.Justification)(1));
 			this.ytableMain.Add(this.ylabelCashier);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelCashier]));
-			w17.TopAttach = ((uint)(6));
-			w17.BottomAttach = ((uint)(7));
-			w17.XOptions = ((global::Gtk.AttachOptions)(4));
-			w17.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelCashier]));
+			w18.TopAttach = ((uint)(6));
+			w18.BottomAttach = ((uint)(7));
+			w18.XOptions = ((global::Gtk.AttachOptions)(4));
+			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
 			this.ylabelContact = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelContact.Name = "ylabelContact";
@@ -307,13 +326,13 @@ namespace Vodovoz.Views.Edo
 			this.ylabelContact.LabelProp = global::Mono.Unix.Catalog.GetString("Контакт:");
 			this.ylabelContact.Justify = ((global::Gtk.Justification)(1));
 			this.ytableMain.Add(this.ylabelContact);
-			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelContact]));
-			w18.TopAttach = ((uint)(3));
-			w18.BottomAttach = ((uint)(4));
-			w18.LeftAttach = ((uint)(2));
-			w18.RightAttach = ((uint)(3));
-			w18.XOptions = ((global::Gtk.AttachOptions)(4));
-			w18.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelContact]));
+			w19.TopAttach = ((uint)(3));
+			w19.BottomAttach = ((uint)(4));
+			w19.LeftAttach = ((uint)(2));
+			w19.RightAttach = ((uint)(3));
+			w19.XOptions = ((global::Gtk.AttachOptions)(4));
+			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
 			this.ylabelDocGuid = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelDocGuid.Name = "ylabelDocGuid";
@@ -321,9 +340,9 @@ namespace Vodovoz.Views.Edo
 			this.ylabelDocGuid.LabelProp = global::Mono.Unix.Catalog.GetString("Уникальный \nидентификатор:");
 			this.ylabelDocGuid.Justify = ((global::Gtk.Justification)(1));
 			this.ytableMain.Add(this.ylabelDocGuid);
-			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelDocGuid]));
-			w19.XOptions = ((global::Gtk.AttachOptions)(4));
-			w19.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelDocGuid]));
+			w20.XOptions = ((global::Gtk.AttachOptions)(4));
+			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
 			this.ylabelDocIndex = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelDocIndex.Name = "ylabelDocIndex";
@@ -331,11 +350,11 @@ namespace Vodovoz.Views.Edo
 			this.ylabelDocIndex.LabelProp = global::Mono.Unix.Catalog.GetString("Номер п/п:");
 			this.ylabelDocIndex.Justify = ((global::Gtk.Justification)(1));
 			this.ytableMain.Add(this.ylabelDocIndex);
-			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelDocIndex]));
-			w20.TopAttach = ((uint)(3));
-			w20.BottomAttach = ((uint)(4));
-			w20.XOptions = ((global::Gtk.AttachOptions)(4));
-			w20.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelDocIndex]));
+			w21.TopAttach = ((uint)(3));
+			w21.BottomAttach = ((uint)(4));
+			w21.XOptions = ((global::Gtk.AttachOptions)(4));
+			w21.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
 			this.ylabelDocNumber = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelDocNumber.Name = "ylabelDocNumber";
@@ -343,11 +362,11 @@ namespace Vodovoz.Views.Edo
 			this.ylabelDocNumber.LabelProp = global::Mono.Unix.Catalog.GetString("Номер документа:");
 			this.ylabelDocNumber.Justify = ((global::Gtk.Justification)(1));
 			this.ytableMain.Add(this.ylabelDocNumber);
-			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelDocNumber]));
-			w21.TopAttach = ((uint)(1));
-			w21.BottomAttach = ((uint)(2));
-			w21.XOptions = ((global::Gtk.AttachOptions)(4));
-			w21.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelDocNumber]));
+			w22.TopAttach = ((uint)(1));
+			w22.BottomAttach = ((uint)(2));
+			w22.XOptions = ((global::Gtk.AttachOptions)(4));
+			w22.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
 			this.ylabelDocStatus = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelDocStatus.Name = "ylabelDocStatus";
@@ -355,13 +374,13 @@ namespace Vodovoz.Views.Edo
 			this.ylabelDocStatus.LabelProp = global::Mono.Unix.Catalog.GetString("Статус документа:");
 			this.ylabelDocStatus.Justify = ((global::Gtk.Justification)(1));
 			this.ytableMain.Add(this.ylabelDocStatus);
-			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelDocStatus]));
-			w22.TopAttach = ((uint)(2));
-			w22.BottomAttach = ((uint)(3));
-			w22.LeftAttach = ((uint)(2));
-			w22.RightAttach = ((uint)(3));
-			w22.XOptions = ((global::Gtk.AttachOptions)(4));
-			w22.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelDocStatus]));
+			w23.TopAttach = ((uint)(2));
+			w23.BottomAttach = ((uint)(3));
+			w23.LeftAttach = ((uint)(2));
+			w23.RightAttach = ((uint)(3));
+			w23.XOptions = ((global::Gtk.AttachOptions)(4));
+			w23.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
 			this.ylabelDocTime = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelDocTime.Name = "ylabelDocTime";
@@ -369,11 +388,11 @@ namespace Vodovoz.Views.Edo
 			this.ylabelDocTime.LabelProp = global::Mono.Unix.Catalog.GetString("Дата создания:");
 			this.ylabelDocTime.Justify = ((global::Gtk.Justification)(1));
 			this.ytableMain.Add(this.ylabelDocTime);
-			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelDocTime]));
-			w23.TopAttach = ((uint)(2));
-			w23.BottomAttach = ((uint)(3));
-			w23.XOptions = ((global::Gtk.AttachOptions)(4));
-			w23.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelDocTime]));
+			w24.TopAttach = ((uint)(2));
+			w24.BottomAttach = ((uint)(3));
+			w24.XOptions = ((global::Gtk.AttachOptions)(4));
+			w24.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
 			this.ylabelDocType = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelDocType.Name = "ylabelDocType";
@@ -381,13 +400,13 @@ namespace Vodovoz.Views.Edo
 			this.ylabelDocType.LabelProp = global::Mono.Unix.Catalog.GetString("Тип документа:");
 			this.ylabelDocType.Justify = ((global::Gtk.Justification)(1));
 			this.ytableMain.Add(this.ylabelDocType);
-			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelDocType]));
-			w24.TopAttach = ((uint)(1));
-			w24.BottomAttach = ((uint)(2));
-			w24.LeftAttach = ((uint)(2));
-			w24.RightAttach = ((uint)(3));
-			w24.XOptions = ((global::Gtk.AttachOptions)(4));
-			w24.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelDocType]));
+			w25.TopAttach = ((uint)(1));
+			w25.BottomAttach = ((uint)(2));
+			w25.LeftAttach = ((uint)(2));
+			w25.RightAttach = ((uint)(3));
+			w25.XOptions = ((global::Gtk.AttachOptions)(4));
+			w25.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
 			this.ylabelFiscalKktNumber = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelFiscalKktNumber.Name = "ylabelFiscalKktNumber";
@@ -396,13 +415,13 @@ namespace Vodovoz.Views.Edo
 			this.ylabelFiscalKktNumber.Wrap = true;
 			this.ylabelFiscalKktNumber.Justify = ((global::Gtk.Justification)(1));
 			this.ytableMain.Add(this.ylabelFiscalKktNumber);
-			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelFiscalKktNumber]));
-			w25.TopAttach = ((uint)(4));
-			w25.BottomAttach = ((uint)(5));
-			w25.LeftAttach = ((uint)(2));
-			w25.RightAttach = ((uint)(3));
-			w25.XOptions = ((global::Gtk.AttachOptions)(4));
-			w25.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelFiscalKktNumber]));
+			w26.TopAttach = ((uint)(4));
+			w26.BottomAttach = ((uint)(5));
+			w26.LeftAttach = ((uint)(2));
+			w26.RightAttach = ((uint)(3));
+			w26.XOptions = ((global::Gtk.AttachOptions)(4));
+			w26.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
 			this.ylabelFiscalMark = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelFiscalMark.Name = "ylabelFiscalMark";
@@ -411,11 +430,11 @@ namespace Vodovoz.Views.Edo
 			this.ylabelFiscalMark.Wrap = true;
 			this.ylabelFiscalMark.Justify = ((global::Gtk.Justification)(1));
 			this.ytableMain.Add(this.ylabelFiscalMark);
-			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelFiscalMark]));
-			w26.TopAttach = ((uint)(5));
-			w26.BottomAttach = ((uint)(6));
-			w26.XOptions = ((global::Gtk.AttachOptions)(4));
-			w26.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelFiscalMark]));
+			w27.TopAttach = ((uint)(5));
+			w27.BottomAttach = ((uint)(6));
+			w27.XOptions = ((global::Gtk.AttachOptions)(4));
+			w27.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
 			this.ylabelFiscalNumber = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelFiscalNumber.Name = "ylabelFiscalNumber";
@@ -424,11 +443,11 @@ namespace Vodovoz.Views.Edo
 			this.ylabelFiscalNumber.Wrap = true;
 			this.ylabelFiscalNumber.Justify = ((global::Gtk.Justification)(1));
 			this.ytableMain.Add(this.ylabelFiscalNumber);
-			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelFiscalNumber]));
-			w27.TopAttach = ((uint)(4));
-			w27.BottomAttach = ((uint)(5));
-			w27.XOptions = ((global::Gtk.AttachOptions)(4));
-			w27.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelFiscalNumber]));
+			w28.TopAttach = ((uint)(4));
+			w28.BottomAttach = ((uint)(5));
+			w28.XOptions = ((global::Gtk.AttachOptions)(4));
+			w28.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
 			this.ylabelFiscalTime = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelFiscalTime.Name = "ylabelFiscalTime";
@@ -437,13 +456,13 @@ namespace Vodovoz.Views.Edo
 			this.ylabelFiscalTime.Wrap = true;
 			this.ylabelFiscalTime.Justify = ((global::Gtk.Justification)(1));
 			this.ytableMain.Add(this.ylabelFiscalTime);
-			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelFiscalTime]));
-			w28.TopAttach = ((uint)(5));
-			w28.BottomAttach = ((uint)(6));
-			w28.LeftAttach = ((uint)(2));
-			w28.RightAttach = ((uint)(3));
-			w28.XOptions = ((global::Gtk.AttachOptions)(4));
-			w28.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w29 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelFiscalTime]));
+			w29.TopAttach = ((uint)(5));
+			w29.BottomAttach = ((uint)(6));
+			w29.LeftAttach = ((uint)(2));
+			w29.RightAttach = ((uint)(3));
+			w29.XOptions = ((global::Gtk.AttachOptions)(4));
+			w29.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
 			this.ylabelResaleInn = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabelResaleInn.Name = "ylabelResaleInn";
@@ -452,13 +471,25 @@ namespace Vodovoz.Views.Edo
 			this.ylabelResaleInn.Wrap = true;
 			this.ylabelResaleInn.Justify = ((global::Gtk.Justification)(1));
 			this.ytableMain.Add(this.ylabelResaleInn);
-			global::Gtk.Table.TableChild w29 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelResaleInn]));
-			w29.TopAttach = ((uint)(6));
-			w29.BottomAttach = ((uint)(7));
-			w29.LeftAttach = ((uint)(2));
-			w29.RightAttach = ((uint)(3));
-			w29.XOptions = ((global::Gtk.AttachOptions)(4));
-			w29.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w30 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelResaleInn]));
+			w30.TopAttach = ((uint)(6));
+			w30.BottomAttach = ((uint)(7));
+			w30.LeftAttach = ((uint)(2));
+			w30.RightAttach = ((uint)(3));
+			w30.XOptions = ((global::Gtk.AttachOptions)(4));
+			w30.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child ytableMain.Gtk.Table+TableChild
+			this.ylabelSum = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelSum.Name = "ylabelSum";
+			this.ylabelSum.Xalign = 1F;
+			this.ylabelSum.LabelProp = global::Mono.Unix.Catalog.GetString("Сумма:");
+			this.ylabelSum.Justify = ((global::Gtk.Justification)(1));
+			this.ytableMain.Add(this.ylabelSum);
+			global::Gtk.Table.TableChild w31 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelSum]));
+			w31.TopAttach = ((uint)(7));
+			w31.BottomAttach = ((uint)(8));
+			w31.XOptions = ((global::Gtk.AttachOptions)(4));
+			w31.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.ytableMain);
 			if ((this.Child != null))
 			{
