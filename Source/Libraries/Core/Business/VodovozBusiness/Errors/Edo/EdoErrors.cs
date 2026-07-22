@@ -95,45 +95,113 @@ namespace Vodovoz.Errors.Edo
 			$"Документ был отправлен {edoDocument.SendTime?.ToString("dd.MM.yyyy HH:mm")}, " +
 			$"переотправка возможна в течение 3 дней");
 
-		public static Error SourceOrderIdMissing => CreateTransferError(
-			nameof(SourceOrderIdMissing), "Не указан заказ-источник.");
+		/// <summary>
+		/// Не указан идентификатор заказа-источника для переноса кодов маркировки.
+		/// </summary>
+		public static Error SourceOrderIdMissing =>
+			new Error(
+				typeof(EdoErrors),
+				nameof(SourceOrderIdMissing),
+				"Не указан заказ-источник.");
 
-		public static Error TargetOrderIdMissing => CreateTransferError(
-			nameof(TargetOrderIdMissing), "Не указан заказ, в который нужно перенести коды.");
+		/// <summary>
+		/// Не указан идентификатор заказа-получателя для переноса кодов маркировки.
+		/// </summary>
+		public static Error TargetOrderIdMissing =>
+			new Error(
+				typeof(EdoErrors),
+				nameof(TargetOrderIdMissing),
+				"Не указан заказ, в который нужно перенести коды.");
 
-		public static Error SameTransferOrder => CreateTransferError(
-			nameof(SameTransferOrder), "Нельзя перенести коды в тот же самый заказ.");
+		/// <summary>
+		/// Заказ-источник и заказ-получатель совпадают.
+		/// </summary>
+		public static Error SameTransferOrder =>
+			new Error(
+				typeof(EdoErrors),
+				nameof(SameTransferOrder),
+				"Нельзя перенести коды в тот же самый заказ.");
 
-		public static Error SourceOrderNotFound => CreateTransferError(
-			nameof(SourceOrderNotFound), "Заказ-источник не найден.");
+		/// <summary>
+		/// Заказ-источник не найден.
+		/// </summary>
+		public static Error SourceOrderNotFound =>
+			new Error(
+				typeof(EdoErrors),
+				nameof(SourceOrderNotFound),
+				"Заказ-источник не найден.");
 
-		public static Error SourceOrderNotCanceled => CreateTransferError(
-			nameof(SourceOrderNotCanceled), "Переносить коды можно только из полностью отмененного заказа.");
+		/// <summary>
+		/// Заказ-источник не отменен полностью.
+		/// </summary>
+		public static Error SourceOrderNotCanceled =>
+			new Error(
+				typeof(EdoErrors),
+				nameof(SourceOrderNotCanceled),
+				"Переносить коды можно только из полностью отмененного заказа.");
 
-		public static Error TargetOrderNotFound => CreateTransferError(
-			nameof(TargetOrderNotFound), "Целевой заказ не найден.");
+		/// <summary>
+		/// Заказ-получатель не найден.
+		/// </summary>
+		public static Error TargetOrderNotFound =>
+			new Error(
+				typeof(EdoErrors),
+				nameof(TargetOrderNotFound),
+				"Целевой заказ не найден.");
 
-		public static Error TargetOrderCanceled => CreateTransferError(
-			nameof(TargetOrderCanceled), "Нельзя перенести коды в отмененный заказ.");
+		/// <summary>
+		/// Заказ-получатель отменен.
+		/// </summary>
+		public static Error TargetOrderCanceled =>
+			new Error(
+				typeof(EdoErrors),
+				nameof(TargetOrderCanceled),
+				"Нельзя перенести коды в отмененный заказ.");
 
-		public static Error RejectedCodesNotFound => CreateTransferError(
-			nameof(RejectedCodesNotFound), "В отмененном заказе нет отклоненных кодов для переноса.");
+		/// <summary>
+		/// В заказе-источнике отсутствуют отклоненные коды маркировки.
+		/// </summary>
+		public static Error RejectedCodesNotFound =>
+			new Error(
+				typeof(EdoErrors),
+				nameof(RejectedCodesNotFound),
+				"В отмененном заказе нет отклоненных кодов для переноса.");
 
-		public static Error DuplicateRejectedCodes => CreateTransferError(
-			nameof(DuplicateRejectedCodes), "В отмененном заказе есть повторяющиеся коды. Перенос отменен.");
+		/// <summary>
+		/// В заказе-источнике обнаружены повторяющиеся отклоненные коды маркировки.
+		/// </summary>
+		public static Error DuplicateRejectedCodes =>
+			new Error(
+				typeof(EdoErrors),
+				nameof(DuplicateRejectedCodes),
+				"В отмененном заказе есть повторяющиеся коды. Перенос отменен.");
 
-		public static Error ProductCodesAlreadyUsed => CreateTransferError(
-			nameof(ProductCodesAlreadyUsed),
-			"Часть кодов уже используется в другом заказе или документе. Перенос отменен.");
+		/// <summary>
+		/// Переносимые коды маркировки уже используются в другом заказе или документе.
+		/// </summary>
+		public static Error ProductCodesAlreadyUsed =>
+			new Error(
+				typeof(EdoErrors),
+				nameof(ProductCodesAlreadyUsed),
+				"Часть кодов уже используется в другом заказе или документе. Перенос отменен.");
 
-		public static Error TargetOrderItemsNotFound => CreateTransferError(
-			nameof(TargetOrderItemsNotFound), "В целевом заказе нет товаров, требующих коды маркировки.");
+		/// <summary>
+		/// В заказе-получателе отсутствуют товары, требующие коды маркировки.
+		/// </summary>
+		public static Error TargetOrderItemsNotFound =>
+			new Error(
+				typeof(EdoErrors),
+				nameof(TargetOrderItemsNotFound),
+				"В целевом заказе нет товаров, требующих коды маркировки.");
 
-		public static Error CreateInsufficientTargetOrderItems(string gtin) => CreateTransferError(
-			nameof(CreateInsufficientTargetOrderItems),
-			$"В целевом заказе недостаточно товаров с GTIN {gtin} для переноса кодов.");
-
-		private static Error CreateTransferError(string name, string message) =>
-			new Error(typeof(EdoErrors), name, message);
+		/// <summary>
+		/// В заказе-получателе недостаточно товаров с указанным GTIN для переноса кодов маркировки.
+		/// </summary>
+		/// <param name="gtin">GTIN переносимого кода маркировки</param>
+		public static Error CreateInsufficientTargetOrderItems(string gtin) =>
+			new Error(
+				typeof(EdoErrors),
+				nameof(CreateInsufficientTargetOrderItems),
+				$"В целевом заказе недостаточно товаров с GTIN {gtin} для переноса кодов.");
 	}
 }

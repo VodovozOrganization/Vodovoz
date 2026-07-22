@@ -8,7 +8,7 @@ using Vodovoz.Core.Domain.TrueMark.TrueMarkProductCodes;
 namespace VodovozBusiness.Services.Edo
 {
 	/// <summary>
-	/// Creates manual customer EDO requests and keeps their product-code relationship consistent.
+	/// Создает ручные заявки на отправку документов клиенту по ЭДО.
 	/// </summary>
 	public static class ManualEdoRequestFactory
 	{
@@ -26,7 +26,7 @@ namespace VodovozBusiness.Services.Edo
 				throw new ArgumentNullException(nameof(productCodes));
 			}
 
-			var edoRequest = new ManualEdoRequest
+			return new ManualEdoRequest
 			{
 				Type = CustomerEdoRequestType.Order,
 				Time = DateTime.Now,
@@ -35,13 +35,6 @@ namespace VodovozBusiness.Services.Edo
 				Order = order,
 				ProductCodes = new ObservableList<TrueMarkProductCode>(productCodes)
 			};
-
-			foreach(var productCode in edoRequest.ProductCodes)
-			{
-				productCode.CustomerEdoRequest = edoRequest;
-			}
-
-			return edoRequest;
 		}
 	}
 }

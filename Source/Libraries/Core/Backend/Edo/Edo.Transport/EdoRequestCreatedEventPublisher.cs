@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 namespace Edo.Transport
 {
 	/// <summary>
-	/// Publishes events indicating that customer EDO requests have been created.
+	/// Публикует события о создании заявок на отправку документов клиенту по ЭДО.
 	/// </summary>
 	public class EdoRequestCreatedEventPublisher : IEdoRequestCreatedEventPublisher
 	{

@@ -64,24 +64,27 @@ namespace VodovozBusiness.Services.TrueMark
 				return Result.Failure<CancelledOrderTrueMarkCodesTransferResult>(validationResult.Errors);
 			}
 
-			var targetOrderItemsBySourceCode = MatchTargetOrderItems(uow, targetOrder, sourceProductCodes);
+			var targetOrderItemsBySourceProductCodeId = MatchTargetOrderItems(uow, targetOrder, sourceProductCodes);
 
-			if(targetOrderItemsBySourceCode.IsFailure)
+			if(targetOrderItemsBySourceProductCodeId.IsFailure)
 			{
-				return Result.Failure<CancelledOrderTrueMarkCodesTransferResult>(targetOrderItemsBySourceCode.Errors);
+				return Result.Failure<CancelledOrderTrueMarkCodesTransferResult>(targetOrderItemsBySourceProductCodeId.Errors);
 			}
 
-			var createdProductCodes = CreateProductCodes(sourceProductCodes);
-			var edoRequest = ManualEdoRequestFactory.Create(targetOrder, createdProductCodes.Values);
+			var createdProductCodesBySourceProductCodeId = CreateProductCodesBySourceProductCodeId(sourceProductCodes);
+			var edoRequest = ManualEdoRequestFactory.Create(targetOrder, createdProductCodesBySourceProductCodeId.Values);
 			uow.Save(edoRequest);
 
-			CreateProductCodeOrderItems(uow, createdProductCodes, targetOrderItemsBySourceCode.Value);
+			CreateProductCodeOrderItems(
+				uow,
+				createdProductCodesBySourceProductCodeId,
+				targetOrderItemsBySourceProductCodeId.Value);
 
 			return Result.Success(new CancelledOrderTrueMarkCodesTransferResult
 			{
 				TargetOrderId = targetOrderId,
 				EdoRequestId = edoRequest.Id,
-				TransferredCodesCount = createdProductCodes.Count
+				TransferredCodesCount = createdProductCodesBySourceProductCodeId.Count
 			});
 		}
 
@@ -215,7 +218,7 @@ namespace VodovozBusiness.Services.TrueMark
 			return Result.Success<IDictionary<int, OrderItem>>(result);
 		}
 
-		private static IDictionary<int, TrueMarkProductCode> CreateProductCodes(
+		private static IDictionary<int, TrueMarkProductCode> CreateProductCodesBySourceProductCodeId(
 			IList<TrueMarkProductCode> sourceProductCodes)
 		{
 			var now = DateTime.Now;
@@ -235,15 +238,15 @@ namespace VodovozBusiness.Services.TrueMark
 
 		private static void CreateProductCodeOrderItems(
 			IUnitOfWork uow,
-			IDictionary<int, TrueMarkProductCode> createdProductCodes,
-			IDictionary<int, OrderItem> targetOrderItemsBySourceCode)
+			IDictionary<int, TrueMarkProductCode> createdProductCodesBySourceProductCodeId,
+			IDictionary<int, OrderItem> targetOrderItemsBySourceProductCodeId)
 		{
-			foreach(var createdProductCode in createdProductCodes)
+			foreach(var createdProductCode in createdProductCodesBySourceProductCodeId)
 			{
 				var productCodeOrderItem = new TrueMarkProductCodeOrderItem
 				{
 					TrueMarkProductCodeId = createdProductCode.Value.Id,
-					OrderItemId = targetOrderItemsBySourceCode[createdProductCode.Key].Id
+					OrderItemId =  [createdProductCode.Key].Id
 				};
 
 				uow.Save(productCodeOrderItem);
