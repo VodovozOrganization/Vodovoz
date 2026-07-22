@@ -36,6 +36,7 @@ namespace Edo.Problem.Routine
 				.AddReceiptNightSendProblem()
 				.AddOrderStatusProblem()
 				.AddCodeDuplicatedProblem()
+				.AddReceiptContactProblem()
 				;
 
 			return services;
@@ -93,6 +94,12 @@ namespace Edo.Problem.Routine
 
 			return services;
 		}
+
+		private static IServiceCollection AddReceiptContactProblem(this IServiceCollection services) =>
+			services
+				.ConfigureOptions<ConfigureReceiptContactProblemWorkerOptions>()
+				.AddScoped<ReceiptContactProblemService>()
+				.AddScoped<IReceiptContactProblemNotificationService, MockReceiptContactProblemNotificationService>();
 		
 		public static IServiceCollection AddOrderEdoCodePoolMissingProblem(this IServiceCollection services)
 		{
