@@ -875,11 +875,10 @@ namespace Edo.Receipt.Dispatcher
 			// Сохранение остатков в пул
 			foreach(var unprocessedCode in unprocessedCodes)
 			{
-				if(unprocessedCode.ProductCode.SourceCode != null)
+				if(unprocessedCode.ProductCode.SourceCode != null
+					&& unprocessedCode.ProductCode.Problem == ProductCodeProblem.None)
 				{
-					await _trueMarkCodesPool.PutCodeAsync(unprocessedCode.ProductCode.SourceCode.Id, cancellationToken);
-					unprocessedCode.ProductCode.SourceCodeStatus = SourceProductCodeStatus.SavedToPool;
-					unprocessedCode.ProductCode.ResultCode = null;
+					await _saveCodesService.SaveCodeToPool(unprocessedCode.ProductCode, cancellationToken);
 				}
 
 				receiptEdoTask.Items.Remove(unprocessedCode);
