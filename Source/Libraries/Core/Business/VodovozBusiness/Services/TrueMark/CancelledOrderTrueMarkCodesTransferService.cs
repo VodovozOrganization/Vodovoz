@@ -246,7 +246,7 @@ namespace VodovozBusiness.Services.TrueMark
 				var productCodeOrderItem = new TrueMarkProductCodeOrderItem
 				{
 					TrueMarkProductCodeId = createdProductCode.Value.Id,
-					OrderItemId =  [createdProductCode.Key].Id
+					OrderItemId = targetOrderItemsBySourceProductCodeId[createdProductCode.Key].Id
 				};
 
 				uow.Save(productCodeOrderItem);
