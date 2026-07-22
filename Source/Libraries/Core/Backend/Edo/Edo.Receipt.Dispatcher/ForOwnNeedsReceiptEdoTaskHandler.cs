@@ -659,6 +659,21 @@ namespace Edo.Receipt.Dispatcher
 						continue;
 					}
 
+					// проверяем, что стоимость за единицу товара для группового кода можно
+					// получить без остатка (до копеек). Если нет, то не объединяем строки заказа под
+					// групповой код на этом OrderItem, продолжаем искать другой подходящий OrderItem
+					var pricePerItemForGroupCode = Math.Round(orderItem.Price, 2);
+					var groupCodeNetSum =
+						pricePerItemForGroupCode * individualCodesInGroupCount
+						- expandedOrderItemsForOrderItemList
+							.Take(individualCodesInGroupCount)
+							.Sum(x => x.DiscountPerSingleItem);
+
+					if(!CanSplitGroupEvenly(groupCodeNetSum, individualCodesInGroupCount))
+					{
+						continue;
+					}
+
 					var inventPosition = CreateInventPosition(orderItem);
 
 					// i использовать не надо, цикл нужен только для того чтобы прибавить позиции
@@ -708,7 +723,7 @@ namespace Edo.Receipt.Dispatcher
 			// без жесткой привязки к конкретному OrderItem
 			// но в InventPosition будет указан только первый OrderItem
 
-			foreach(var remainGroupCodeItem in groupCodesWithTaskItems)
+			foreach(var remainGroupCodeItem in groupCodesWithTaskItems.ToList())
 			{
 				var groupCode = remainGroupCodeItem.Key;
 				var individualCodesInGroupCount = remainGroupCodeItem.Value.Count();
@@ -737,6 +752,24 @@ namespace Edo.Receipt.Dispatcher
 
 				var orderItemsForInventoryPositionDiscountsSum =
 					orderItemsForInventoryPosition.Sum(x => x.DiscountPerSingleItem);
+
+				// проверяем, что чистую стоимость за единицу товара для группового кода можно
+				// получить без остатка (до копеек). Если нет, то не объединяем строки заказа под
+				// групповой код: дезагрегируем его, входящие штучные коды возвращаем в пул, а строки
+				// заказа уйдут в индивидуальную обработку с подбором недостающих кодов из пула
+				var groupCodeNetSum =
+					orderItemsForInventoryPositionPricesSum - orderItemsForInventoryPositionDiscountsSum;
+
+				if(!CanSplitGroupEvenly(groupCodeNetSum, individualCodesInGroupCount))
+				{
+					// групповой код нельзя использовать в чеке: дезагрегируем его, а входящие штучные
+					// коды возвращаем в общий список необработанных (эти коды были удалены из unprocessedCodes в методе TakeGroupCodesWithTaskItems)
+					// Строки заказа при этом уйдут в индивидуальную обработку с подбором недостающих кодов из пула
+					await _trueMarkWaterCodeService.DisaggregateRelatedCodesAsync(_uow, groupCode, cancellationToken);
+					unprocessedCodes.AddRange(remainGroupCodeItem.Value);
+					groupCodesWithTaskItems.Remove(groupCode);
+					continue;
+				}
 
 				//Округляем цену за единицу до копееек в большую стороную. Далее при необходимости увеличим сумму скидки
 				var pricePerItem = Math.Ceiling(100 * orderItemsForInventoryPositionPricesSum / individualCodesInGroupCount) / 100;
@@ -842,10 +875,12 @@ namespace Edo.Receipt.Dispatcher
 			// Сохранение остатков в пул
 			foreach(var unprocessedCode in unprocessedCodes)
 			{
-				if(unprocessedCode.ProductCode.SourceCode != null)
+				if(unprocessedCode.ProductCode.SourceCode != null
+					&& unprocessedCode.ProductCode.Problem == ProductCodeProblem.None)
 				{
-					await _trueMarkCodesPool.PutCodeAsync(unprocessedCode.ProductCode.SourceCode.Id, cancellationToken);
+					await _saveCodesService.SaveCodeToPool(unprocessedCode.ProductCode, cancellationToken);
 				}
+
 				receiptEdoTask.Items.Remove(unprocessedCode);
 				await _uow.DeleteAsync(unprocessedCode, cancellationToken);
 			}
@@ -859,7 +894,24 @@ namespace Edo.Receipt.Dispatcher
 					await _uow.DeleteAsync(groupCodeTaskItem, cancellationToken);
 				}
 			}
-		}		
+		}
+
+		/// <summary>
+		/// Определяет, можно ли получить чистую стоимость за единицу товара для группового кода
+		/// без остатка (с точностью до копеек). Если нет, то товары нельзя объединять в одну
+		/// строку чека под этот групповой код
+		/// </summary>
+		/// <param name="netSum">Чистая стоимость строки чека (цена * кол-во - скидка)</param>
+		/// <param name="quantity">Количество товаров, покрываемых групповым кодом</param>
+		private static bool CanSplitGroupEvenly(decimal netSum, decimal quantity)
+		{
+			if(quantity <= 0)
+			{
+				return false;
+			}
+
+			return (netSum * 100m) % quantity == 0;
+		}
 
 		private async Task<IDictionary<TrueMarkWaterGroupCode, IEnumerable<EdoTaskItem>>> TakeGroupCodesWithTaskItems(
 			List<EdoTaskItem> unprocessedTaskItems,
