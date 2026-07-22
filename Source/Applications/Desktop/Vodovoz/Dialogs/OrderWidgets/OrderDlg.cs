@@ -1,4 +1,4 @@
-using Autofac;
+﻿using Autofac;
 using Core.Infrastructure;
 using CustomerNotifications.Contracts;
 using DriverApi.Contracts.V6;
@@ -2706,6 +2706,12 @@ namespace Vodovoz
 
 					if(_isNeedSendBillToEmail)
 					{
+						if(Entity.Id == 0)
+						{
+							// Пока не разберёмся с OrderDocument и OrderDocumentEntity
+							Entity.SaveEntity(UoW, _orderContractUpdater, _currentEmployee, _dailyNumberController, _paymentFromBankClientController);
+						}
+
 						_emailService.SendBillToEmail(UoW, Entity);
 					}
 					else if(needToResendBill)
