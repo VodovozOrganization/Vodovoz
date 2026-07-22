@@ -25,6 +25,7 @@ namespace Vodovoz.Views.Edo
 			// Container child yhboxMain.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
+			this.GtkScrolledWindow.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
 			this.ytreeviewReceipts = new global::Gamma.GtkWidgets.yTreeView();
@@ -42,6 +43,7 @@ namespace Vodovoz.Views.Edo
 			this.yhboxMain.Add(this.yhboxReceipt);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.yhboxMain[this.yhboxReceipt]));
 			w3.Position = 1;
+			w3.Expand = false;
 			this.Add(this.yhboxMain);
 			if ((this.Child != null))
 			{

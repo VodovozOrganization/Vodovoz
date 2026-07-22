@@ -6,7 +6,7 @@ namespace Vodovoz.Views.Edo
 	{
 		private global::Gamma.GtkWidgets.yTable ytableMain;
 
-		private global::Gtk.ScrolledWindow GtkScrolledWindow;
+		private global::Gtk.ScrolledWindow scrollWindowCashError;
 
 		private global::Gamma.GtkWidgets.yTextView ytextviewCashError;
 
@@ -77,28 +77,27 @@ namespace Vodovoz.Views.Edo
 			// Container child Vodovoz.Views.Edo.EdoInOrderReceiptView.Gtk.Container+ContainerChild
 			this.ytableMain = new global::Gamma.GtkWidgets.yTable();
 			this.ytableMain.Name = "ytableMain";
-			this.ytableMain.NRows = ((uint)(9));
-			this.ytableMain.NColumns = ((uint)(4));
+			this.ytableMain.NRows = ((uint)(6));
+			this.ytableMain.NColumns = ((uint)(6));
 			this.ytableMain.RowSpacing = ((uint)(6));
 			this.ytableMain.ColumnSpacing = ((uint)(6));
 			// Container child ytableMain.Gtk.Table+TableChild
-			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
-			this.GtkScrolledWindow.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
-			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
+			this.scrollWindowCashError = new global::Gtk.ScrolledWindow();
+			this.scrollWindowCashError.Name = "scrollWindowCashError";
+			this.scrollWindowCashError.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child scrollWindowCashError.Gtk.Container+ContainerChild
 			this.ytextviewCashError = new global::Gamma.GtkWidgets.yTextView();
 			this.ytextviewCashError.CanFocus = true;
 			this.ytextviewCashError.Name = "ytextviewCashError";
 			this.ytextviewCashError.Editable = false;
 			this.ytextviewCashError.WrapMode = ((global::Gtk.WrapMode)(2));
-			this.GtkScrolledWindow.Add(this.ytextviewCashError);
-			this.ytableMain.Add(this.GtkScrolledWindow);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.GtkScrolledWindow]));
-			w2.TopAttach = ((uint)(8));
-			w2.BottomAttach = ((uint)(9));
+			this.scrollWindowCashError.Add(this.ytextviewCashError);
+			this.ytableMain.Add(this.scrollWindowCashError);
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.scrollWindowCashError]));
+			w2.TopAttach = ((uint)(5));
+			w2.BottomAttach = ((uint)(6));
 			w2.LeftAttach = ((uint)(1));
-			w2.RightAttach = ((uint)(4));
+			w2.RightAttach = ((uint)(6));
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
@@ -109,10 +108,10 @@ namespace Vodovoz.Views.Edo
 			this.yentryCashier.InvisibleChar = '•';
 			this.ytableMain.Add(this.yentryCashier);
 			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.yentryCashier]));
-			w3.TopAttach = ((uint)(6));
-			w3.BottomAttach = ((uint)(7));
-			w3.LeftAttach = ((uint)(1));
-			w3.RightAttach = ((uint)(2));
+			w3.TopAttach = ((uint)(2));
+			w3.BottomAttach = ((uint)(3));
+			w3.LeftAttach = ((uint)(5));
+			w3.RightAttach = ((uint)(6));
 			w3.XOptions = ((global::Gtk.AttachOptions)(4));
 			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
@@ -123,8 +122,8 @@ namespace Vodovoz.Views.Edo
 			this.yentryContact.InvisibleChar = '•';
 			this.ytableMain.Add(this.yentryContact);
 			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.yentryContact]));
-			w4.TopAttach = ((uint)(3));
-			w4.BottomAttach = ((uint)(4));
+			w4.TopAttach = ((uint)(2));
+			w4.BottomAttach = ((uint)(3));
 			w4.LeftAttach = ((uint)(3));
 			w4.RightAttach = ((uint)(4));
 			w4.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -149,10 +148,8 @@ namespace Vodovoz.Views.Edo
 			this.yentryDocIndex.InvisibleChar = '•';
 			this.ytableMain.Add(this.yentryDocIndex);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.yentryDocIndex]));
-			w6.TopAttach = ((uint)(3));
-			w6.BottomAttach = ((uint)(4));
-			w6.LeftAttach = ((uint)(1));
-			w6.RightAttach = ((uint)(2));
+			w6.LeftAttach = ((uint)(5));
+			w6.RightAttach = ((uint)(6));
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
@@ -177,8 +174,8 @@ namespace Vodovoz.Views.Edo
 			this.yentryDocStatus.InvisibleChar = '•';
 			this.ytableMain.Add(this.yentryDocStatus);
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.yentryDocStatus]));
-			w8.TopAttach = ((uint)(2));
-			w8.BottomAttach = ((uint)(3));
+			w8.TopAttach = ((uint)(1));
+			w8.BottomAttach = ((uint)(2));
 			w8.LeftAttach = ((uint)(3));
 			w8.RightAttach = ((uint)(4));
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -207,8 +204,8 @@ namespace Vodovoz.Views.Edo
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.yentryDocType]));
 			w10.TopAttach = ((uint)(1));
 			w10.BottomAttach = ((uint)(2));
-			w10.LeftAttach = ((uint)(3));
-			w10.RightAttach = ((uint)(4));
+			w10.LeftAttach = ((uint)(5));
+			w10.RightAttach = ((uint)(6));
 			w10.XOptions = ((global::Gtk.AttachOptions)(4));
 			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
@@ -219,10 +216,10 @@ namespace Vodovoz.Views.Edo
 			this.yentryFiscalKktNumber.InvisibleChar = '•';
 			this.ytableMain.Add(this.yentryFiscalKktNumber);
 			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.yentryFiscalKktNumber]));
-			w11.TopAttach = ((uint)(4));
-			w11.BottomAttach = ((uint)(5));
-			w11.LeftAttach = ((uint)(3));
-			w11.RightAttach = ((uint)(4));
+			w11.TopAttach = ((uint)(3));
+			w11.BottomAttach = ((uint)(4));
+			w11.LeftAttach = ((uint)(5));
+			w11.RightAttach = ((uint)(6));
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
@@ -233,10 +230,10 @@ namespace Vodovoz.Views.Edo
 			this.yentryFiscalMark.InvisibleChar = '•';
 			this.ytableMain.Add(this.yentryFiscalMark);
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.yentryFiscalMark]));
-			w12.TopAttach = ((uint)(5));
-			w12.BottomAttach = ((uint)(6));
-			w12.LeftAttach = ((uint)(1));
-			w12.RightAttach = ((uint)(2));
+			w12.TopAttach = ((uint)(3));
+			w12.BottomAttach = ((uint)(4));
+			w12.LeftAttach = ((uint)(3));
+			w12.RightAttach = ((uint)(4));
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
@@ -247,8 +244,8 @@ namespace Vodovoz.Views.Edo
 			this.yentryFiscalNumber.InvisibleChar = '•';
 			this.ytableMain.Add(this.yentryFiscalNumber);
 			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.yentryFiscalNumber]));
-			w13.TopAttach = ((uint)(4));
-			w13.BottomAttach = ((uint)(5));
+			w13.TopAttach = ((uint)(3));
+			w13.BottomAttach = ((uint)(4));
 			w13.LeftAttach = ((uint)(1));
 			w13.RightAttach = ((uint)(2));
 			w13.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -261,8 +258,8 @@ namespace Vodovoz.Views.Edo
 			this.yentryFiscalTime.InvisibleChar = '•';
 			this.ytableMain.Add(this.yentryFiscalTime);
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.yentryFiscalTime]));
-			w14.TopAttach = ((uint)(5));
-			w14.BottomAttach = ((uint)(6));
+			w14.TopAttach = ((uint)(4));
+			w14.BottomAttach = ((uint)(5));
 			w14.LeftAttach = ((uint)(3));
 			w14.RightAttach = ((uint)(4));
 			w14.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -275,10 +272,10 @@ namespace Vodovoz.Views.Edo
 			this.yentryResaleInn.InvisibleChar = '•';
 			this.ytableMain.Add(this.yentryResaleInn);
 			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.yentryResaleInn]));
-			w15.TopAttach = ((uint)(6));
-			w15.BottomAttach = ((uint)(7));
-			w15.LeftAttach = ((uint)(3));
-			w15.RightAttach = ((uint)(4));
+			w15.TopAttach = ((uint)(4));
+			w15.BottomAttach = ((uint)(5));
+			w15.LeftAttach = ((uint)(5));
+			w15.RightAttach = ((uint)(6));
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
@@ -289,8 +286,8 @@ namespace Vodovoz.Views.Edo
 			this.yentrySum.InvisibleChar = '•';
 			this.ytableMain.Add(this.yentrySum);
 			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.yentrySum]));
-			w16.TopAttach = ((uint)(7));
-			w16.BottomAttach = ((uint)(8));
+			w16.TopAttach = ((uint)(4));
+			w16.BottomAttach = ((uint)(5));
 			w16.LeftAttach = ((uint)(1));
 			w16.RightAttach = ((uint)(2));
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -303,8 +300,8 @@ namespace Vodovoz.Views.Edo
 			this.ylabelCashError.Justify = ((global::Gtk.Justification)(1));
 			this.ytableMain.Add(this.ylabelCashError);
 			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelCashError]));
-			w17.TopAttach = ((uint)(8));
-			w17.BottomAttach = ((uint)(9));
+			w17.TopAttach = ((uint)(5));
+			w17.BottomAttach = ((uint)(6));
 			w17.XOptions = ((global::Gtk.AttachOptions)(4));
 			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
@@ -315,8 +312,10 @@ namespace Vodovoz.Views.Edo
 			this.ylabelCashier.Justify = ((global::Gtk.Justification)(1));
 			this.ytableMain.Add(this.ylabelCashier);
 			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelCashier]));
-			w18.TopAttach = ((uint)(6));
-			w18.BottomAttach = ((uint)(7));
+			w18.TopAttach = ((uint)(2));
+			w18.BottomAttach = ((uint)(3));
+			w18.LeftAttach = ((uint)(4));
+			w18.RightAttach = ((uint)(5));
 			w18.XOptions = ((global::Gtk.AttachOptions)(4));
 			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
@@ -327,8 +326,8 @@ namespace Vodovoz.Views.Edo
 			this.ylabelContact.Justify = ((global::Gtk.Justification)(1));
 			this.ytableMain.Add(this.ylabelContact);
 			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelContact]));
-			w19.TopAttach = ((uint)(3));
-			w19.BottomAttach = ((uint)(4));
+			w19.TopAttach = ((uint)(2));
+			w19.BottomAttach = ((uint)(3));
 			w19.LeftAttach = ((uint)(2));
 			w19.RightAttach = ((uint)(3));
 			w19.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -351,8 +350,8 @@ namespace Vodovoz.Views.Edo
 			this.ylabelDocIndex.Justify = ((global::Gtk.Justification)(1));
 			this.ytableMain.Add(this.ylabelDocIndex);
 			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelDocIndex]));
-			w21.TopAttach = ((uint)(3));
-			w21.BottomAttach = ((uint)(4));
+			w21.LeftAttach = ((uint)(4));
+			w21.RightAttach = ((uint)(5));
 			w21.XOptions = ((global::Gtk.AttachOptions)(4));
 			w21.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
@@ -375,8 +374,8 @@ namespace Vodovoz.Views.Edo
 			this.ylabelDocStatus.Justify = ((global::Gtk.Justification)(1));
 			this.ytableMain.Add(this.ylabelDocStatus);
 			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelDocStatus]));
-			w23.TopAttach = ((uint)(2));
-			w23.BottomAttach = ((uint)(3));
+			w23.TopAttach = ((uint)(1));
+			w23.BottomAttach = ((uint)(2));
 			w23.LeftAttach = ((uint)(2));
 			w23.RightAttach = ((uint)(3));
 			w23.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -403,8 +402,8 @@ namespace Vodovoz.Views.Edo
 			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelDocType]));
 			w25.TopAttach = ((uint)(1));
 			w25.BottomAttach = ((uint)(2));
-			w25.LeftAttach = ((uint)(2));
-			w25.RightAttach = ((uint)(3));
+			w25.LeftAttach = ((uint)(4));
+			w25.RightAttach = ((uint)(5));
 			w25.XOptions = ((global::Gtk.AttachOptions)(4));
 			w25.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
@@ -416,10 +415,10 @@ namespace Vodovoz.Views.Edo
 			this.ylabelFiscalKktNumber.Justify = ((global::Gtk.Justification)(1));
 			this.ytableMain.Add(this.ylabelFiscalKktNumber);
 			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelFiscalKktNumber]));
-			w26.TopAttach = ((uint)(4));
-			w26.BottomAttach = ((uint)(5));
-			w26.LeftAttach = ((uint)(2));
-			w26.RightAttach = ((uint)(3));
+			w26.TopAttach = ((uint)(3));
+			w26.BottomAttach = ((uint)(4));
+			w26.LeftAttach = ((uint)(4));
+			w26.RightAttach = ((uint)(5));
 			w26.XOptions = ((global::Gtk.AttachOptions)(4));
 			w26.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
@@ -431,8 +430,10 @@ namespace Vodovoz.Views.Edo
 			this.ylabelFiscalMark.Justify = ((global::Gtk.Justification)(1));
 			this.ytableMain.Add(this.ylabelFiscalMark);
 			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelFiscalMark]));
-			w27.TopAttach = ((uint)(5));
-			w27.BottomAttach = ((uint)(6));
+			w27.TopAttach = ((uint)(3));
+			w27.BottomAttach = ((uint)(4));
+			w27.LeftAttach = ((uint)(2));
+			w27.RightAttach = ((uint)(3));
 			w27.XOptions = ((global::Gtk.AttachOptions)(4));
 			w27.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
@@ -444,8 +445,8 @@ namespace Vodovoz.Views.Edo
 			this.ylabelFiscalNumber.Justify = ((global::Gtk.Justification)(1));
 			this.ytableMain.Add(this.ylabelFiscalNumber);
 			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelFiscalNumber]));
-			w28.TopAttach = ((uint)(4));
-			w28.BottomAttach = ((uint)(5));
+			w28.TopAttach = ((uint)(3));
+			w28.BottomAttach = ((uint)(4));
 			w28.XOptions = ((global::Gtk.AttachOptions)(4));
 			w28.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
@@ -457,8 +458,8 @@ namespace Vodovoz.Views.Edo
 			this.ylabelFiscalTime.Justify = ((global::Gtk.Justification)(1));
 			this.ytableMain.Add(this.ylabelFiscalTime);
 			global::Gtk.Table.TableChild w29 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelFiscalTime]));
-			w29.TopAttach = ((uint)(5));
-			w29.BottomAttach = ((uint)(6));
+			w29.TopAttach = ((uint)(4));
+			w29.BottomAttach = ((uint)(5));
 			w29.LeftAttach = ((uint)(2));
 			w29.RightAttach = ((uint)(3));
 			w29.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -472,10 +473,10 @@ namespace Vodovoz.Views.Edo
 			this.ylabelResaleInn.Justify = ((global::Gtk.Justification)(1));
 			this.ytableMain.Add(this.ylabelResaleInn);
 			global::Gtk.Table.TableChild w30 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelResaleInn]));
-			w30.TopAttach = ((uint)(6));
-			w30.BottomAttach = ((uint)(7));
-			w30.LeftAttach = ((uint)(2));
-			w30.RightAttach = ((uint)(3));
+			w30.TopAttach = ((uint)(4));
+			w30.BottomAttach = ((uint)(5));
+			w30.LeftAttach = ((uint)(4));
+			w30.RightAttach = ((uint)(5));
 			w30.XOptions = ((global::Gtk.AttachOptions)(4));
 			w30.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableMain.Gtk.Table+TableChild
@@ -486,8 +487,8 @@ namespace Vodovoz.Views.Edo
 			this.ylabelSum.Justify = ((global::Gtk.Justification)(1));
 			this.ytableMain.Add(this.ylabelSum);
 			global::Gtk.Table.TableChild w31 = ((global::Gtk.Table.TableChild)(this.ytableMain[this.ylabelSum]));
-			w31.TopAttach = ((uint)(7));
-			w31.BottomAttach = ((uint)(8));
+			w31.TopAttach = ((uint)(4));
+			w31.BottomAttach = ((uint)(5));
 			w31.XOptions = ((global::Gtk.AttachOptions)(4));
 			w31.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.ytableMain);
