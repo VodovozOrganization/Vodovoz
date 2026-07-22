@@ -1,4 +1,4 @@
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Linq;
 using NHibernate.SqlCommand;
@@ -13,6 +13,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Vodovoz.Core.Data.NHibernate.Extensions;
+using Vodovoz.Core.Data.NHibernate.Mapping.Edo;
 using Vodovoz.Core.Data.Repositories;
 using Vodovoz.Core.Domain.Clients;
 using Vodovoz.Core.Domain.Documents;
@@ -881,6 +882,47 @@ where eti.transfer_edo_request_id in (:request_ids)
 				transferTasks.Count,
 				totalStopwatch.Elapsed);
 			return transferTasks;
+		}
+
+		public IEnumerable<EdoInOrderReceiptNode> GetReceiptsForOrder(IUnitOfWork uow, int orderId)
+		{
+			EdoFiscalDocument edoFiscalDocumentAlias = null;
+			ReceiptEdoTask receiptEdoTaskAlias = null;
+			FormalEdoRequest formalEdoRequestAlias = null;
+			FiscalMoneyPosition fiscalMoneyPositionAlias = null;
+			EdoInOrderReceiptNode resultAlias = null;
+
+			var result = uow.Session.QueryOver(() => edoFiscalDocumentAlias)
+				.Left.JoinAlias(() => edoFiscalDocumentAlias.ReceiptEdoTask, () => receiptEdoTaskAlias)
+				.JoinEntityAlias(
+					() => formalEdoRequestAlias,
+					() => formalEdoRequestAlias.Task.Id == receiptEdoTaskAlias.Id,
+					JoinType.LeftOuterJoin
+				)
+				.Left.JoinAlias(() => edoFiscalDocumentAlias.MoneyPositions, () => fiscalMoneyPositionAlias)
+				.Where(() => formalEdoRequestAlias.Order.Id == orderId)
+				.SelectList(list => list
+					.SelectGroup(() => edoFiscalDocumentAlias.Id).WithAlias(() => resultAlias.FiscalDocumentId)
+					.Select(() => receiptEdoTaskAlias.Id).WithAlias(() => resultAlias.OrderEdoTaskId)
+					.Select(() => edoFiscalDocumentAlias.DocumentGuid).WithAlias(() => resultAlias.DocumentGuid)
+					.Select(() => edoFiscalDocumentAlias.DocumentNumber).WithAlias(() => resultAlias.DocumentNumber)
+					.Select(() => edoFiscalDocumentAlias.DocumentType).WithAlias(() => resultAlias.DocumentType)
+					.Select(() => edoFiscalDocumentAlias.CreationTime).WithAlias(() => resultAlias.CreationTime)
+					.Select(() => edoFiscalDocumentAlias.Status).WithAlias(() => resultAlias.DocumentStatus)
+					.Select(() => edoFiscalDocumentAlias.Index).WithAlias(() => resultAlias.Index)
+					.Select(() => edoFiscalDocumentAlias.Contact).WithAlias(() => resultAlias.Contact)
+					.Select(() => edoFiscalDocumentAlias.FiscalNumber).WithAlias(() => resultAlias.FiscalNumber)
+					.Select(() => edoFiscalDocumentAlias.FiscalMark).WithAlias(() => resultAlias.FiscalMark)
+					.Select(() => edoFiscalDocumentAlias.FiscalKktNumber).WithAlias(() => resultAlias.FiscalKktNumber)
+					.Select(() => edoFiscalDocumentAlias.FiscalTime).WithAlias(() => resultAlias.FiscalTime)
+					.Select(() => edoFiscalDocumentAlias.CashierName).WithAlias(() => resultAlias.Cashier)
+					.Select(() => edoFiscalDocumentAlias.ClientInn).WithAlias(() => resultAlias.ClientInn)
+					.Select(() => edoFiscalDocumentAlias.FailureMessage).WithAlias(() => resultAlias.FailureMessage)
+					.SelectSum(() => fiscalMoneyPositionAlias.Sum).WithAlias(() => resultAlias.Sum)
+				)
+				.TransformUsing(Transformers.AliasToBean<EdoInOrderReceiptNode>())
+				.List<EdoInOrderReceiptNode>();
+			return result;
 		}
 	}
 }

@@ -105,6 +105,8 @@
     <Compile Include="Edo\EdoInOrderDocumentType.cs" />
     <Compile Include="Edo\EdoInOrderDocumentTypeViewModel.cs" />
     <Compile Include="Edo\EdoInOrderDocumentViewModel.cs" />
+    <Compile Include="Edo\EdoInOrderReceiptSendStageViewModel.cs" />
+    <Compile Include="Edo\EdoInOrderReceiptViewModel.cs" />
     <Compile Include="Edo\EdoInOrderTransferRowViewModel.cs" />
     <Compile Include="Edo\EdoInOrderTransferStageViewModel.cs" />
     <Compile Include="Edo\EdoInOrderViewModel.cs" />

@@ -34,6 +34,7 @@ namespace Vodovoz.ViewModels.Edo
 		private EdoInOrderProblemViewModel _selectedProblem;
 		private IEnumerable<EdoInOrderProblemNode> _allProblems;
 		private IEnumerable<EdoInOrderTransferNode> _allTransfers;
+		private IEnumerable<EdoInOrderReceiptNode> _allReceipts;
 		private bool _hasProblems;
 		private string _problemDescription;
 		private string _problemRecommendation;
@@ -49,7 +50,6 @@ namespace Vodovoz.ViewModels.Edo
 			_edoRepository = edoRepository ?? throw new System.ArgumentNullException(nameof(edoRepository));
 			EdoInOrderDocumentActionsViewModel = edoInOrderDocumentActionsViewModel ?? throw new ArgumentNullException(nameof(edoInOrderDocumentActionsViewModel));
 			OrderCodesViewModel = orderCodesViewModel ?? throw new ArgumentNullException(nameof(orderCodesViewModel));
-
 			_allProblems = new List<EdoInOrderProblemNode>();
 
 			RefreshCommnand = new DelegateCommand(Refresh);
@@ -229,6 +229,15 @@ namespace Vodovoz.ViewModels.Edo
 				_orderId,
 				_allTransfers.Count(),
 				stepStopwatch.Elapsed);
+
+			stepStopwatch.Restart();
+			_allReceipts = _edoRepository.GetReceiptsForOrder(_uow, _orderId);
+			_logger.Info(
+				"ЭДО заказа {OrderId}: загрузка чеков, получено {Count}: {Elapsed}",
+				_orderId,
+				_allTransfers.Count(),
+				stepStopwatch.Elapsed);
+
 			_logger.Info("ЭДО заказа {OrderId}: полное обновление данных вкладки: {Elapsed}", _orderId, totalStopwatch.Elapsed);
 		}
 
@@ -272,7 +281,8 @@ namespace Vodovoz.ViewModels.Edo
 			DocumentViewModel = new EdoInOrderDocumentViewModel(
 				SelectedDocument,
 				PipelineViewModel,
-				_allTransfers
+				_allTransfers,
+				_allReceipts
 			);
 		}
 
@@ -321,7 +331,8 @@ namespace Vodovoz.ViewModels.Edo
 			{
 				var pipelineStageViewModel = new EnumPipelineStageViewModel(enumValue);
 
-				if(document.TaskUpdStage.Value == DocumentEdoTaskStage.Completed)
+				if(enumValue == DocumentEdoTaskStage.Completed &&
+					document.TaskUpdStage.Value == DocumentEdoTaskStage.Completed)
 				{
 					pipelineStageViewModel.Status = StageStatus.Completed;
 					stageViewModels.Add(pipelineStageViewModel);
@@ -380,7 +391,8 @@ namespace Vodovoz.ViewModels.Edo
 			{
 				var pipelineStageViewModel = new EnumPipelineStageViewModel(enumValue);
 
-				if(document.TaskReceiptStage.Value == EdoReceiptStatus.Completed)
+				if(enumValue == EdoReceiptStatus.Completed && 
+					document.TaskReceiptStage.Value == EdoReceiptStatus.Completed)
 				{
 					pipelineStageViewModel.Status = StageStatus.Completed;
 					stageViewModels.Add(pipelineStageViewModel);
@@ -397,8 +409,6 @@ namespace Vodovoz.ViewModels.Edo
 					}
 					else
 					{
-						pipelineStageViewModel.Status = StageStatus.NotStarted;
-						stageViewModels.Add(pipelineStageViewModel);
 						continue;
 					}
 				}
@@ -455,7 +465,8 @@ namespace Vodovoz.ViewModels.Edo
 			{
 				var pipelineStageViewModel = new EnumPipelineStageViewModel(enumValue);
 
-				if(document.TaskTenderStage.Value == TenderEdoTaskStage.ManualUploaded)
+				if(enumValue == TenderEdoTaskStage.ManualUploaded &&
+					document.TaskTenderStage.Value == TenderEdoTaskStage.ManualUploaded)
 				{
 					pipelineStageViewModel.Status = StageStatus.Completed;
 					stageViewModels.Add(pipelineStageViewModel);

@@ -23,7 +23,13 @@ namespace Vodovoz.ViewModels.Edo
 		public virtual IList<EdoInOrderTransferRowViewModel> Transfers
 		{
 			get => _transfers;
-			set => SetField(ref _transfers, value);
+			set
+			{
+				if(SetField(ref _transfers, value))
+				{
+					SelectedTransfer = _transfers?.FirstOrDefault();
+				}
+			}
 		}
 
 		public virtual EdoInOrderTransferRowViewModel SelectedTransfer
@@ -78,7 +84,8 @@ namespace Vodovoz.ViewModels.Edo
 			{
 				var pipelineStageViewModel = new EnumPipelineStageViewModel(enumValue);
 
-				if(transferNode.TransferStage == EdoTransferTaskStage.Completed)
+				if(enumValue == EdoTransferTaskStage.Completed &&
+					transferNode.TransferStage == EdoTransferTaskStage.Completed)
 				{
 					pipelineStageViewModel.Status = StageStatus.Completed;
 					stageViewModels.Add(pipelineStageViewModel);
