@@ -924,5 +924,86 @@ where eti.transfer_edo_request_id in (:request_ids)
 				.List<EdoInOrderReceiptNode>();
 			return result;
 		}
+		
+		public IEnumerable<EdoInOrderTaxcomDocflowNode> GetEdoInOrderDocflows(IUnitOfWork uow, int orderId)
+		{
+			var stopwatch = Stopwatch.StartNew();
+			var sql = @"
+select
+	eod.id as :docflow_id,
+	eod.document_task_id as :task_id,
+	eod.creation_time as :docflow_creation_time,
+	eod.status as :docflow_status,
+	td.creation_time as :taxcom_docflow_send_time,
+	td.docflow_id as :taxcom_docflow_id,
+	tda.`time` as :last_taxcom_status_update,
+	tda.`state` as :taxcom_status,
+	tda.`true_mark_traceability_status` as :taxcom_true_mark_traceability_status,
+	tda.`error_message` as :taxcom_error_message
+from edo_outgoing_documents eod
+left join edo_customer_requests ecr on ecr.order_task_id = eod.document_task_id
+left join taxcom_docflows td on td.edo_document_id = eod.document_task_id
+left join taxcom_docflow_actions tda ON tda.id = (
+    select id
+    from taxcom_docflow_actions
+    where taxcom_docflow_id = td.id
+    order by time desc
+    limit 1
+)
+where ecr.order_id = :order_id
+union all
+select
+	eod.id as :docflow_id,
+	eod.transfer_task_id as :task_id,
+	eod.creation_time as :docflow_creation_time,
+	eod.status as :docflow_status,
+	td.creation_time as :taxcom_docflow_send_time,
+	td.docflow_id as :taxcom_docflow_id,
+	tda.`time` as :last_taxcom_status_update,
+	tda.`state` as :taxcom_status,
+	tda.`true_mark_traceability_status` as :taxcom_true_mark_traceability_status,
+	tda.`error_message` as :taxcom_error_message
+from edo_outgoing_documents eod
+left join edo_transfer_requests etr on etr.transfer_edo_task_id = eod.transfer_task_id 
+left join edo_transfer_request_iterations etri on etri.id = etr.iteration_id 
+left join edo_customer_requests ecr on ecr.order_task_id = etri.order_edo_task_id
+left join taxcom_docflows td on td.edo_document_id = eod.transfer_task_id
+left join taxcom_docflow_actions tda ON tda.id = (
+    select id
+    from taxcom_docflow_actions
+    where taxcom_docflow_id = td.id
+    order by time desc
+    limit 1
+)
+where ecr.order_id = :order_id
+;
+";
+
+			var query = uow.Session.CreateSQLQuery(sql)
+				.MapParametersToNode<EdoInOrderTaxcomDocflowNode>()
+				.Map("docflow_id", x => x.DocflowId, NHibernateUtil.Int32)
+				.Map("task_id", x => x.TaskId, NHibernateUtil.Int32)
+				.Map("docflow_creation_time", x => x.DocflowCreationTime, NHibernateUtil.DateTime)
+				.Map("docflow_status", x => x.DocflowStatus, new EnumStringType<EdoDocumentStatus>())
+				.Map("taxcom_docflow_send_time", x => x.TaxcomDocflowSendTime, NHibernateUtil.DateTime)
+				.Map("taxcom_docflow_id", x => x.TaxcomDocflowId, NHibernateUtil.Guid)
+				.Map("last_taxcom_status_update", x => x.LastTaxcomStatusUpdateTime, NHibernateUtil.DateTime)
+				.Map("taxcom_status", x => x.TaxcomStatus, new EnumStringType<EdoDocFlowStatus>())
+				.Map("taxcom_true_mark_traceability_status", x => x.TaxcomTraceabilityStatus, new EnumStringType<TrueMarkTraceabilityStatus>())
+				.Map("taxcom_error_message", x => x.TaxcomErrorMessage, NHibernateUtil.String)
+				.SetResultTransformer();
+
+			query.SetParameter("order_id", orderId);
+			var result = query.List<EdoInOrderTaxcomDocflowNode>();
+
+			_logger.Info(
+				"ЭДО заказа {OrderId}: EdoRepository.GetEdoInOrderDocflows, строк {Count}: {Elapsed}",
+				orderId,
+				result.Count,
+				stopwatch.Elapsed
+			);
+
+			return result;
+		}
 	}
 }
