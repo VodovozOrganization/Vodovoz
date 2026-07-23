@@ -20,6 +20,8 @@ namespace Vodovoz.Views.Edo
 		{
 			base.ConfigureWidget();
 
+			radiobuttonHelp.Visible = false;
+
 			ytreeviewDocTypes.HeightRequest = 140;
 			ytreeviewDocTypes.ColumnsConfig = FluentColumnsConfig<EdoInOrderDocumentTypeViewModel>.Create()
 				.AddColumn("Тип документа")
@@ -142,7 +144,7 @@ namespace Vodovoz.Views.Edo
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.ProblemItems, w => w.ItemsDataSource)
 				.InitializeFromSource();
-			//frameProblems.Visible = false;
+			tabLabelProblems.UseMarkup = true;
 
 			edoinorderactionsview.ViewModel = ViewModel.EdoInOrderDocumentActionsViewModel;
 
@@ -160,12 +162,31 @@ namespace Vodovoz.Views.Edo
 
 		private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
-			if(e.PropertyName == nameof(ViewModel.HasProblems))
+			if(e.PropertyName == nameof(EdoInOrderViewModel.HasProblems))
 			{
-				//frameProblems.Visible = ViewModel.HasProblems;
+				if(ViewModel.HasProblems)
+				{
+					tabLabelProblems.Markup = "<span foreground=\"red\"><b>Проблемы</b></span>";
+				}
+				else
+				{
+					tabLabelProblems.LabelProp = "Проблемы";
+				}
 			}
 
-			if(e.PropertyName == nameof(ViewModel.DocumentViewModel))
+			if(e.PropertyName == nameof(EdoInOrderViewModel.SelectedDocument))
+			{
+				if(ViewModel.HasProblems)
+				{
+					ynotebookDocData.CurrentPage = 1;
+				}
+				else
+				{
+					ynotebookDocData.CurrentPage = 0;
+				}
+			}
+
+			if(e.PropertyName == nameof(EdoInOrderViewModel.DocumentViewModel))
 			{
 				edoinorderdocumentview1.ViewModel = ViewModel.DocumentViewModel;
 			}

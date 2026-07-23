@@ -942,7 +942,7 @@ select
 	tda.`error_message` as :taxcom_error_message
 from edo_outgoing_documents eod
 left join edo_customer_requests ecr on ecr.order_task_id = eod.document_task_id
-left join taxcom_docflows td on td.edo_document_id = eod.document_task_id
+left join taxcom_docflows td on td.edo_document_id = eod.id
 left join taxcom_docflow_actions tda ON tda.id = (
     select id
     from taxcom_docflow_actions
@@ -967,7 +967,7 @@ from edo_outgoing_documents eod
 left join edo_transfer_requests etr on etr.transfer_edo_task_id = eod.transfer_task_id 
 left join edo_transfer_request_iterations etri on etri.id = etr.iteration_id 
 left join edo_customer_requests ecr on ecr.order_task_id = etri.order_edo_task_id
-left join taxcom_docflows td on td.edo_document_id = eod.transfer_task_id
+left join taxcom_docflows td on td.edo_document_id = eod.id
 left join taxcom_docflow_actions tda ON tda.id = (
     select id
     from taxcom_docflow_actions

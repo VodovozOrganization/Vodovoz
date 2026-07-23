@@ -35,6 +35,7 @@ namespace Vodovoz.ViewModels.Edo
 		private IEnumerable<EdoInOrderProblemNode> _allProblems;
 		private IEnumerable<EdoInOrderTransferNode> _allTransfers;
 		private IEnumerable<EdoInOrderReceiptNode> _allReceipts;
+		private IEnumerable<EdoInOrderTaxcomDocflowNode> _allDocflows;
 		private bool _hasProblems;
 		private string _problemDescription;
 		private string _problemRecommendation;
@@ -88,12 +89,15 @@ namespace Vodovoz.ViewModels.Edo
 			get => _selectedDocument;
 			set
 			{
-				if(SetField(ref _selectedDocument, value))
+				if(_selectedDocument == value)
 				{
-					SelectDocument();
-					SelectProblemsByDocument();
-					EdoInOrderDocumentActionsViewModel.SelectedDocument = _selectedDocument;
+					return;
 				}
+				_selectedDocument = value;
+				SelectDocument();
+				SelectProblemsByDocument();
+				EdoInOrderDocumentActionsViewModel.SelectedDocument = _selectedDocument;
+				OnPropertyChanged(nameof(SelectedDocument));
 			}
 		}
 
@@ -238,6 +242,14 @@ namespace Vodovoz.ViewModels.Edo
 				_allTransfers.Count(),
 				stepStopwatch.Elapsed);
 
+			stepStopwatch.Restart();
+			_allDocflows = _edoRepository.GetEdoInOrderDocflows(_uow, _orderId);
+			_logger.Info(
+				"ЭДО заказа {OrderId}: загрузка документооборотов, получено {Count}: {Elapsed}",
+				_orderId,
+				_allTransfers.Count(),
+				stepStopwatch.Elapsed);
+
 			_logger.Info("ЭДО заказа {OrderId}: полное обновление данных вкладки: {Elapsed}", _orderId, totalStopwatch.Elapsed);
 		}
 
@@ -266,6 +278,8 @@ namespace Vodovoz.ViewModels.Edo
 			Documents = _allDocuments
 				.Where(x => x.DocumentGroupType == SelectedDocumentGroupType.DocumentGroupType)
 				.ToList();
+
+			SelectedDocument = Documents.FirstOrDefault();
 		}
 
 		private void SelectDocument()
@@ -282,7 +296,8 @@ namespace Vodovoz.ViewModels.Edo
 				SelectedDocument,
 				PipelineViewModel,
 				_allTransfers,
-				_allReceipts
+				_allReceipts,
+				_allDocflows
 			);
 		}
 

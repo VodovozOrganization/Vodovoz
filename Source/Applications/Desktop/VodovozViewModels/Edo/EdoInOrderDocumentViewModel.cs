@@ -16,19 +16,22 @@ namespace Vodovoz.ViewModels.Edo
 		private readonly PipelineViewModel _pipelineViewModel;
 		private readonly IEnumerable<EdoInOrderTransferNode> _allTransfers;
 		private readonly IEnumerable<EdoInOrderReceiptNode> _allReceipts;
+		private readonly IEnumerable<EdoInOrderTaxcomDocflowNode> _allDocflows;
 		private WidgetViewModelBase _stageViewModel;
 
 		public EdoInOrderDocumentViewModel(
 			EdoInOrderDocumentHistoryRowViewModel documentRowViewModel,
 			PipelineViewModel pipelineViewModel,
 			IEnumerable<EdoInOrderTransferNode> allTransfers,
-			IEnumerable<EdoInOrderReceiptNode> allReceipts
+			IEnumerable<EdoInOrderReceiptNode> allReceipts,
+			IEnumerable<EdoInOrderTaxcomDocflowNode> allDocflows
 			)
 		{
 			_documentViewModel = documentRowViewModel ?? throw new ArgumentNullException(nameof(documentRowViewModel));
 			_pipelineViewModel = pipelineViewModel ?? throw new ArgumentNullException(nameof(pipelineViewModel));
 			_allTransfers = allTransfers ?? throw new ArgumentNullException(nameof(allTransfers));
 			_allReceipts = allReceipts ?? throw new ArgumentNullException(nameof(allReceipts));
+			_allDocflows = allDocflows ?? throw new ArgumentNullException(nameof(allDocflows));
 			_pipelineViewModel.PropertyChanged += PipelineOnPropertyChanged;
 		}
 
@@ -62,7 +65,7 @@ namespace Vodovoz.ViewModels.Edo
 			var isAnyTransfer = transferStages.Any(x => x.Equals(enumStage.Content));
 			if(isAnyTransfer)
 			{
-				var transferStageViewModel = new EdoInOrderTransferStageViewModel();
+				var transferStageViewModel = new EdoInOrderTransferStageViewModel(_allDocflows);
 				transferStageViewModel.Transfers = _allTransfers
 					.Where(x => x.OrderTaskId == _documentViewModel.Document.TaskId)
 					.Select(x => new EdoInOrderTransferRowViewModel(x))
@@ -81,6 +84,22 @@ namespace Vodovoz.ViewModels.Edo
 			{
 				var receiptStageViewModel = new EdoInOrderReceiptSendStageViewModel(_allReceipts);
 				StageViewModel = receiptStageViewModel;
+				return;
+			}
+
+			var docflowsStages = new Enum[] {
+				DocumentEdoTaskStage.Sending,
+				DocumentEdoTaskStage.Sent,
+				DocumentEdoTaskStage.Completed
+			};
+			var isDocflowsStages = docflowsStages.Any(x => x.Equals(enumStage.Content));
+			if(isDocflowsStages)
+			{
+				var docflowsByTask = _allDocflows
+					.Where(x => x.TaskId == _documentViewModel.Document.TaskId)
+					.ToList();
+				var docflowsStageViewModel = new EdoInOrderDocflowsStageViewModel(docflowsByTask);
+				StageViewModel = docflowsStageViewModel;
 				return;
 			}
 

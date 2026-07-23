@@ -1,12 +1,16 @@
 ﻿using Gamma.ColumnConfig;
+using Gtk;
 using QS.Views.GtkUI;
 using System;
+using System.ComponentModel;
 using Vodovoz.ViewModels.Edo;
 namespace Vodovoz.Views.Edo
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class EdoInOrderTransferStageView : WidgetViewBase<EdoInOrderTransferStageViewModel>
 	{
+		private Widget _stageView;
+
 		public EdoInOrderTransferStageView()
 		{
 			this.Build();
@@ -74,6 +78,53 @@ namespace Vodovoz.Views.Edo
 				.InitializeFromSource();
 
 			yhboxTransferContent.HeightRequest = 140;
+
+			ViewModel.PropertyChanged += ViewModelPropertyChanged;
+		}
+
+		private void ViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == nameof(EdoInOrderTransferStageViewModel.TransferStageViewModel))
+			{
+				ShowStage();
+			}
+		}
+
+		private void ShowStage()
+		{
+			CloseStageView();
+			_stageView = ResolveStageView();
+			if(_stageView != null)
+			{
+				yhboxTransferStage.PackStart(_stageView);
+				_stageView.Show();
+			}
+		}
+
+		private Widget ResolveStageView()
+		{
+			if(ViewModel.TransferStageViewModel == null)
+			{
+				CloseStageView();
+				return null;
+			}
+
+			switch(ViewModel.TransferStageViewModel)
+			{
+				case EdoInOrderDocflowsStageViewModel docflows:
+					var transferView = new EdoInOrderDocflowsStageView();
+					transferView.ViewModel = docflows;
+					return transferView;
+				default:
+					throw new NotSupportedException($"Не поддерживаемый тип стадии: " +
+						$"{ViewModel.TransferStageViewModel.GetType()}");
+			}
+		}
+
+		private void CloseStageView()
+		{
+			yhboxTransferStage.Remove(_stageView);
+			_stageView?.Destroy();
 		}
 	}
 }

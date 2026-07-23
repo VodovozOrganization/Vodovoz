@@ -99,6 +99,7 @@
     <Compile Include="Cash\Transfer\Journal\TransferDocumentsJournalViewModel.cs" />
     <Compile Include="Cash\TransferExpenseViewModel.cs" />
     <Compile Include="Cash\TransferIncomeViewModel.cs" />
+    <Compile Include="Edo\EdoInOrderDocflowsStageViewModel.cs" />
     <Compile Include="Edo\EdoInOrderDocumentActionsViewModel.cs" />
     <Compile Include="Edo\EdoInOrderDocumentHistoryRowViewModel.cs" />
     <Compile Include="Edo\EdoInOrderDocumentGroupType.cs" />
@@ -107,6 +108,7 @@
     <Compile Include="Edo\EdoInOrderDocumentViewModel.cs" />
     <Compile Include="Edo\EdoInOrderReceiptSendStageViewModel.cs" />
     <Compile Include="Edo\EdoInOrderReceiptViewModel.cs" />
+    <Compile Include="Edo\EdoInOrderTaxcomDocflowViewModel.cs" />
     <Compile Include="Edo\EdoInOrderTransferRowViewModel.cs" />
     <Compile Include="Edo\EdoInOrderTransferStageViewModel.cs" />
     <Compile Include="Edo\EdoInOrderViewModel.cs" />
