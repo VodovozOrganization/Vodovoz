@@ -100,7 +100,8 @@ namespace CustomerOrdersApi.Library.V6.Dto.Orders
 						orderItem.CurrentCount,
 						orderItem.Price,
 						orderItem.IsDiscountInMoney,
-						orderItem.GetDiscount))
+						orderItem.GetDiscount,
+						orderItem.GiftItem))
 				.ToList();
 
 			UpdatePromoSets(orderItems);

@@ -49,5 +49,9 @@ namespace Vodovoz.Domain.Orders
 		/// Цена
 		/// </summary>
 		decimal Price { get; }
+		/// <summary>
+		/// Этот товар - подарок?
+		/// </summary>
+		bool GiftItem { get; }
 	}
 }
