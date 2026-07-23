@@ -32,6 +32,14 @@ namespace Vodovoz.Views.TrueMark
 
 		private global::Gamma.Widgets.CleanableEntry entrySearch;
 
+		private global::Gamma.GtkWidgets.yHBox yhboxTransferCodes;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelTransferTargetOrder;
+
+		private global::QS.Views.Control.EntityEntry entityentryTransferTargetOrder;
+
+		private global::Gamma.GtkWidgets.yButton ybuttonTransferRejectedCodes;
+
 		private global::Gamma.GtkWidgets.yNotebook ynotebookCodes;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
@@ -223,6 +231,45 @@ namespace Vodovoz.Views.TrueMark
 			w13.Expand = false;
 			w13.Fill = false;
 			// Container child vboxWidget.Gtk.Box+BoxChild
+			this.yhboxTransferCodes = new global::Gamma.GtkWidgets.yHBox();
+			this.yhboxTransferCodes.Name = "yhboxTransferCodes";
+			this.yhboxTransferCodes.NoShowAll = true;
+			this.yhboxTransferCodes.Spacing = 6;
+			this.yhboxTransferCodes.BorderWidth = ((uint)(4));
+			// Container child yhboxTransferCodes.Gtk.Box+BoxChild
+			this.ylabelTransferTargetOrder = new global::Gamma.GtkWidgets.yLabel();
+			this.ylabelTransferTargetOrder.Name = "ylabelTransferTargetOrder";
+			this.ylabelTransferTargetOrder.LabelProp = global::Mono.Unix.Catalog.GetString("\u041f\u0435\u0440\u0435\u043d\u0435\u0441\u0442\u0438 \u043e\u0442\u043a\u043b\u043e\u043d\u0435\u043d\u043d\u044b\u0435 \u043a\u043e\u0434\u044b \u0432 \u0437\u0430\u043a\u0430\u0437:");
+			this.yhboxTransferCodes.Add(this.ylabelTransferTargetOrder);
+			global::Gtk.Box.BoxChild transferChild1 = ((global::Gtk.Box.BoxChild)(this.yhboxTransferCodes[this.ylabelTransferTargetOrder]));
+			transferChild1.Position = 0;
+			transferChild1.Expand = false;
+			transferChild1.Fill = false;
+			// Container child yhboxTransferCodes.Gtk.Box+BoxChild
+			this.entityentryTransferTargetOrder = new global::QS.Views.Control.EntityEntry();
+			this.entityentryTransferTargetOrder.Name = "entityentryTransferTargetOrder";
+			this.yhboxTransferCodes.Add(this.entityentryTransferTargetOrder);
+			global::Gtk.Box.BoxChild transferChild2 = ((global::Gtk.Box.BoxChild)(this.yhboxTransferCodes[this.entityentryTransferTargetOrder]));
+			transferChild2.Position = 1;
+			transferChild2.Expand = false;
+			transferChild2.Fill = false;
+			// Container child yhboxTransferCodes.Gtk.Box+BoxChild
+			this.ybuttonTransferRejectedCodes = new global::Gamma.GtkWidgets.yButton();
+			this.ybuttonTransferRejectedCodes.CanFocus = true;
+			this.ybuttonTransferRejectedCodes.Name = "ybuttonTransferRejectedCodes";
+			this.ybuttonTransferRejectedCodes.UseUnderline = true;
+			this.ybuttonTransferRejectedCodes.Label = global::Mono.Unix.Catalog.GetString("\u041f\u0435\u0440\u0435\u043d\u0435\u0441\u0442\u0438");
+			this.yhboxTransferCodes.Add(this.ybuttonTransferRejectedCodes);
+			global::Gtk.Box.BoxChild transferChild3 = ((global::Gtk.Box.BoxChild)(this.yhboxTransferCodes[this.ybuttonTransferRejectedCodes]));
+			transferChild3.Position = 2;
+			transferChild3.Expand = false;
+			transferChild3.Fill = false;
+			this.vboxWidget.Add(this.yhboxTransferCodes);
+			global::Gtk.Box.BoxChild transferChild4 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.yhboxTransferCodes]));
+			transferChild4.Position = 2;
+			transferChild4.Expand = false;
+			transferChild4.Fill = false;
+			// Container child vboxWidget.Gtk.Box+BoxChild
 			this.ynotebookCodes = new global::Gamma.GtkWidgets.yNotebook();
 			this.ynotebookCodes.CanFocus = true;
 			this.ynotebookCodes.Name = "ynotebookCodes";
@@ -317,7 +364,7 @@ namespace Vodovoz.Views.TrueMark
 			this.labelPageStaging.ShowAll();
 			this.vboxWidget.Add(this.ynotebookCodes);
 			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vboxWidget[this.ynotebookCodes]));
-			w24.Position = 2;
+			w24.Position = 3;
 			this.Add(this.vboxWidget);
 			if ((this.Child != null))
 			{

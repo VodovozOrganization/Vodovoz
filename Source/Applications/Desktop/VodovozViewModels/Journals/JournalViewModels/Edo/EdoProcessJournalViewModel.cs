@@ -33,7 +33,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 		private readonly IInteractiveService _interactiveService;
 		private readonly IGenericRepository<ReceiptEdoTask> _receiptRepository;
 		private readonly IGenericRepository<DocumentEdoTask> _documentRepository;
-		private readonly MessageService _messageService;
+		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
 		private readonly IUserService _userService;
 		private readonly IClipboard _clipboard;
 		private readonly IGtkTabsOpener _gtkTabsOpener;
@@ -45,7 +45,7 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			IInteractiveService interactiveService,
 			IGenericRepository<ReceiptEdoTask> receiptRepository,
 			IGenericRepository<DocumentEdoTask> documentRepository,
-			MessageService messageService,
+			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher,
 			IUserService userService,
 			IClipboard clipboard,
 			IGtkTabsOpener gtkTabsOpener,
@@ -61,7 +61,8 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
 			_filterViewModel = filterViewModel ?? throw new ArgumentNullException(nameof(filterViewModel));
 			_receiptRepository = receiptRepository ?? throw new ArgumentNullException(nameof(receiptRepository));
-			_messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
+			_edoRequestCreatedEventPublisher = edoRequestCreatedEventPublisher
+				?? throw new ArgumentNullException(nameof(edoRequestCreatedEventPublisher));
 			_userService = userService ?? throw new ArgumentNullException(nameof(userService));
 			_clipboard = clipboard ?? throw new ArgumentNullException(nameof(clipboard));
 			_gtkTabsOpener = gtkTabsOpener ?? throw new ArgumentNullException(nameof(gtkTabsOpener));
@@ -183,7 +184,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 							await uow.SaveAsync(newRequest);
 							await uow.CommitAsync();
 
-							await _messageService.PublishEdoRequestCreatedEvent(newRequest.Id);
+							await _edoRequestCreatedEventPublisher.Publish(
+								newRequest.Id,
+								"Переотправка чека из журнала процессов ЭДО");
 						}
 					}
 				}
@@ -241,7 +244,9 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 							await uow.SaveAsync(newRequest);
 							await uow.CommitAsync();
 
-							await _messageService.PublishEdoRequestCreatedEvent(newRequest.Id);
+							await _edoRequestCreatedEventPublisher.Publish(
+								newRequest.Id,
+								"Переотправка документа из журнала процессов ЭДО");
 						}
 					}
 				}
