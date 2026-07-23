@@ -64,27 +64,22 @@ namespace VodovozBusiness.Services.TrueMark
 				return Result.Failure<CancelledOrderTrueMarkCodesTransferResult>(validationResult.Errors);
 			}
 
-			var targetOrderItemsBySourceProductCodeId = MatchTargetOrderItems(uow, targetOrder, sourceProductCodes);
+			validationResult = ValidateTargetOrderItems(uow, targetOrder, sourceProductCodes);
 
-			if(targetOrderItemsBySourceProductCodeId.IsFailure)
+			if(validationResult.IsFailure)
 			{
-				return Result.Failure<CancelledOrderTrueMarkCodesTransferResult>(targetOrderItemsBySourceProductCodeId.Errors);
+				return Result.Failure<CancelledOrderTrueMarkCodesTransferResult>(validationResult.Errors);
 			}
 
-			var createdProductCodesBySourceProductCodeId = CreateProductCodesBySourceProductCodeId(sourceProductCodes);
-			var edoRequest = ManualEdoRequestFactory.Create(targetOrder, createdProductCodesBySourceProductCodeId.Values);
+			var createdProductCodes = CreateProductCodes(sourceProductCodes);
+			var edoRequest = ManualEdoRequestFactory.Create(targetOrder, createdProductCodes);
 			uow.Save(edoRequest);
-
-			CreateProductCodeOrderItems(
-				uow,
-				createdProductCodesBySourceProductCodeId,
-				targetOrderItemsBySourceProductCodeId.Value);
 
 			return Result.Success(new CancelledOrderTrueMarkCodesTransferResult
 			{
 				TargetOrderId = targetOrderId,
 				EdoRequestId = edoRequest.Id,
-				TransferredCodesCount = createdProductCodesBySourceProductCodeId.Count
+				TransferredCodesCount = createdProductCodes.Count
 			});
 		}
 
@@ -168,7 +163,7 @@ namespace VodovozBusiness.Services.TrueMark
 			return Result.Success();
 		}
 
-		private Result<IDictionary<int, OrderItem>> MatchTargetOrderItems(
+		private Result ValidateTargetOrderItems(
 			IUnitOfWork uow,
 			Order targetOrder,
 			IList<TrueMarkProductCode> sourceProductCodes)
@@ -198,13 +193,15 @@ namespace VodovozBusiness.Services.TrueMark
 				})
 				.ToList();
 
-			var result = new Dictionary<int, OrderItem>();
+			var assignedProductCodesCountByOrderItemId = new Dictionary<int, int>();
 
 			foreach(var sourceProductCode in sourceProductCodes)
 			{
 				var sourceCode = sourceProductCode.SourceCode;
 				var targetItem = availableItems.FirstOrDefault(x =>
-					x.AvailableCount > result.Values.Count(item => item.Id == x.OrderItem.Id)
+					x.AvailableCount > GetAssignedProductCodesCount(
+						assignedProductCodesCountByOrderItemId,
+						x.OrderItem.Id)
 					&& x.Gtins.Contains(sourceCode.Gtin));
 
 				if(targetItem is null)
@@ -212,45 +209,36 @@ namespace VodovozBusiness.Services.TrueMark
 					return EdoErrors.CreateInsufficientTargetOrderItems(sourceCode.Gtin);
 				}
 
-				result.Add(sourceProductCode.Id, targetItem.OrderItem);
+				assignedProductCodesCountByOrderItemId[targetItem.OrderItem.Id] =
+					GetAssignedProductCodesCount(
+						assignedProductCodesCountByOrderItemId,
+						targetItem.OrderItem.Id) + 1;
 			}
 
-			return Result.Success<IDictionary<int, OrderItem>>(result);
+			return Result.Success();
 		}
 
-		private static IDictionary<int, TrueMarkProductCode> CreateProductCodesBySourceProductCodeId(
+		private static int GetAssignedProductCodesCount(
+			IDictionary<int, int> assignedProductCodesCountByOrderItemId,
+			int orderItemId) =>
+			assignedProductCodesCountByOrderItemId.TryGetValue(orderItemId, out var count) ? count : 0;
+
+		private static IList<TrueMarkProductCode> CreateProductCodes(
 			IList<TrueMarkProductCode> sourceProductCodes)
 		{
 			var now = DateTime.Now;
 
-			return sourceProductCodes.ToDictionary(
-				sourceProductCode => sourceProductCode.Id,
-				sourceProductCode => (TrueMarkProductCode)new AutoTrueMarkProductCode
-			{
-				CreationTime = now,
-				LastModified = now,
-				SourceCode = sourceProductCode.SourceCode,
-				ResultCode = sourceProductCode.SourceCode,
-				SourceCodeStatus = SourceProductCodeStatus.Accepted,
-				Problem = ProductCodeProblem.None
-			});
-		}
-
-		private static void CreateProductCodeOrderItems(
-			IUnitOfWork uow,
-			IDictionary<int, TrueMarkProductCode> createdProductCodesBySourceProductCodeId,
-			IDictionary<int, OrderItem> targetOrderItemsBySourceProductCodeId)
-		{
-			foreach(var createdProductCode in createdProductCodesBySourceProductCodeId)
-			{
-				var productCodeOrderItem = new TrueMarkProductCodeOrderItem
+			return sourceProductCodes
+				.Select(sourceProductCode => (TrueMarkProductCode)new AutoTrueMarkProductCode
 				{
-					TrueMarkProductCodeId = createdProductCode.Value.Id,
-					OrderItemId = targetOrderItemsBySourceProductCodeId[createdProductCode.Key].Id
-				};
-
-				uow.Save(productCodeOrderItem);
-			}
+					CreationTime = now,
+					LastModified = now,
+					SourceCode = sourceProductCode.SourceCode,
+					ResultCode = sourceProductCode.SourceCode,
+					SourceCodeStatus = SourceProductCodeStatus.Accepted,
+					Problem = ProductCodeProblem.None
+				})
+				.ToList();
 		}
 	}
 }
