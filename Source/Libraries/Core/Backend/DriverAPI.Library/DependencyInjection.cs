@@ -37,6 +37,7 @@ using OrderServiceV5 = DriverAPI.Library.V5.Services.OrderService;
 using RouteListServiceV5 = DriverAPI.Library.V5.Services.RouteListService;
 using SmsPaymentServiceV5 = DriverAPI.Library.V5.Services.SmsPaymentService;
 using TrackPointsServiceV5 = DriverAPI.Library.V5.Services.TrackPointsService;
+using DriverApiLibraryV7 = DriverAPI.Library.V7.Services;
 using Mango.Vpbx.Client;
 
 namespace DriverAPI.Library
@@ -66,10 +67,13 @@ namespace DriverAPI.Library
 
 			// Хелперы
 			services.AddScoped<ISmsPaymentServiceAPIHelper, SmsPaymentServiceAPIHelper>()
-				.AddScoped<IActionTimeHelper, ActionTimeHelper>();
+				.AddScoped<IActionTimeHelper, ActionTimeHelper>()
+				.AddScoped<IDriverApiSettings, DriverApiSettings>()
+				.AddTrueMarkCodesCheckDependencies();
 
 			services.AddVersion5();
 			services.AddVersion6();
+			services.AddVersion7();
 
 			services
 				.AddOsrm()
@@ -131,9 +135,25 @@ namespace DriverAPI.Library
 				.AddScoped<ISmsPaymentService, SmsPaymentService>()
 				.AddScoped<IDriverComplaintService, DriverComplaintService>()
 				.AddScoped<IFastPaymentService, FastPaymentService>()
-				.AddScoped<IDriverApiSettings, DriverApiSettings>()
-				.AddScoped<ICallsService, CallsService>()
-				.AddTrueMarkCodesCheckDependencies();
+				.AddScoped<ICallsService, CallsService>();
+		}
+
+		/// <summary>
+		/// Добавление сервисов для версии 7
+		/// </summary>
+		/// <param name="services">Коллекция сервисов</param>
+		/// <returns>Обновленная коллекция сервисов</returns>
+		public static IServiceCollection AddVersion7(this IServiceCollection services)
+		{
+			return services.AddScoped<DriverApiLibraryV7.ITrackPointsService, DriverApiLibraryV7.TrackPointsService>()
+				.AddScoped<DriverApiLibraryV7.IDriverMobileAppActionRecordService, DriverApiLibraryV7.DriverMobileAppActionRecordService>()
+				.AddScoped<DriverApiLibraryV7.IRouteListService, DriverApiLibraryV7.RouteListService>()
+				.AddScoped<DriverApiLibraryV7.IOrderService, DriverApiLibraryV7.OrderService>()
+				.AddScoped<DriverApiLibraryV7.IEmployeeService, DriverApiLibraryV7.EmployeeService>()
+				.AddScoped<DriverApiLibraryV7.ISmsPaymentService, DriverApiLibraryV7.SmsPaymentService>()
+				.AddScoped<DriverApiLibraryV7.IDriverComplaintService, DriverApiLibraryV7.DriverComplaintService>()
+				.AddScoped<DriverApiLibraryV7.IFastPaymentService, DriverApiLibraryV7.FastPaymentService>()
+				.AddScoped<DriverApiLibraryV7.ICallsService, DriverApiLibraryV7.CallsService>();
 		}
 
 		/// <summary>
