@@ -91,15 +91,6 @@ namespace Vodovoz.Errors.Edo
 				nameof(InvalidOutgoingDocumentType),
 				$"У заказа {orderId} некорректный тип исходящего документа {documentType.GetEnumDisplayName()}");
 
-		public static Error CreateResendTimeLimitExceeded(OutgoingEdoDocument edoDocument, int orderId) =>
-		new Error(
-			typeof(EdoErrors),
-			nameof(ResendTimeLimitExceeded),
-			$"Для заказа №{orderId} " +
-			$"истек срок переотправки документа. " +
-			$"Документ был отправлен {edoDocument.SendTime?.ToString("dd.MM.yyyy HH:mm")}, " +
-			$"переотправка возможна в течение 3 дней");
-
 		/// <summary>
 		/// Не указан идентификатор заказа-источника для переноса кодов маркировки.
 		/// </summary>
@@ -208,6 +199,8 @@ namespace Vodovoz.Errors.Edo
 				typeof(EdoErrors),
 				nameof(CreateInsufficientTargetOrderItems),
 				$"В целевом заказе недостаточно товаров с GTIN {gtin} для переноса кодов.");
+
+		public static Error CreateResendTimeLimitExceeded(OutgoingEdoDocument edoDocument, int orderId) =>
 			new Error(
 				typeof(EdoErrors),
 				nameof(ResendTimeLimitExceeded),

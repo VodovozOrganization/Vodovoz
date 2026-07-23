@@ -31,7 +31,7 @@ namespace EdoServices.Tests
 		private readonly IOrderRepository _orderRepository;
 		private readonly IEdoRepository _edoRepository;
 		private readonly IGenericRepository<ReceiptEdoTask> _receiptRepository;
-		private readonly MessageService _messageService;
+		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
 		private readonly IBus _bus;
 		private readonly IEnumerable<IInformalEdoRequestFactory> _requestFactories;
 		private readonly EdoService.Library.EdoService _edoService;
@@ -43,9 +43,8 @@ namespace EdoServices.Tests
 			_orderRepository = Substitute.For<IOrderRepository>();
 			_edoRepository = Substitute.For<IEdoRepository>();
 			_receiptRepository = Substitute.For<IGenericRepository<ReceiptEdoTask>>();
-			var logger = Substitute.For<ILogger<MessageService>>();
+			_edoRequestCreatedEventPublisher = Substitute.For<IEdoRequestCreatedEventPublisher>();
 			_bus = Substitute.For<IBus>();
-			_messageService = new MessageService(logger, _bus);
 			_requestFactories = Enumerable.Empty<IInformalEdoRequestFactory>();
 
 			_edoService = new EdoService.Library.EdoService(
@@ -53,7 +52,7 @@ namespace EdoServices.Tests
 				_orderRepository,
 				_receiptRepository,
 				_edoRepository,
-				_messageService,
+				_edoRequestCreatedEventPublisher,
 				_bus,
 				_requestFactories);
 		}

@@ -187,32 +187,6 @@ namespace Vodovoz.ViewModels.Journals.JournalViewModels.Edo
 						_interactiveService.ShowMessage(
 							ImportanceLevel.Warning,
 							"Операция была отменена");
-							if(tasks.Any(x => x.ReceiptStatus != EdoReceiptStatus.SavedToPool))
-							{
-								_interactiveService.ShowMessage(
-									ImportanceLevel.Warning,
-									$"Переотправка чека невозможна, т.к. помимо задачи на сохранение кодов по заказу {orderId}, есть другая задача");
-								continue;
-							}
-
-							var newRequest = new PrimaryEdoRequest
-							{
-								Order = new Order
-								{
-									Id = orderId
-								},
-								Time = DateTime.Now,
-								Source = EdoRequestSource.Manual,
-								DocumentType = EdoDocumentType.UPD
-							};
-
-							await uow.SaveAsync(newRequest);
-							await uow.CommitAsync();
-
-							await _edoRequestCreatedEventPublisher.Publish(
-								newRequest.Id,
-								"Переотправка чека из журнала процессов ЭДО");
-						}
 					}
 				}
 			);

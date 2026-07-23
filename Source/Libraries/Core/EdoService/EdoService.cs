@@ -37,9 +37,7 @@ namespace EdoService.Library
 		private readonly IOrderRepository _orderRepository;
 		private readonly IEdoRepository _edoRepository;
 		private readonly IGenericRepository<ReceiptEdoTask> _receiptRepository;
-		private readonly MessageService _messageService;
 		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
-		private readonly IBus _messageBus;
 		private readonly IBus _bus;
 		private readonly IEnumerable<IInformalEdoRequestFactory> _requestFactories;
 
@@ -60,9 +58,8 @@ namespace EdoService.Library
 			IOrderRepository orderRepository,
 			IGenericRepository<ReceiptEdoTask> receiptRepository,
 			IEdoRepository edoRepository,
-			MessageService messageService,
 			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher,
-			IBus messageBus,
+			IBus bus,
 			IEnumerable<IInformalEdoRequestFactory> requestFactories
 			)
 		{
@@ -70,10 +67,8 @@ namespace EdoService.Library
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
 			_receiptRepository = receiptRepository ?? throw new ArgumentNullException(nameof(receiptRepository));
 			_edoRepository = edoRepository ?? throw new ArgumentNullException(nameof(edoRepository));
-			_messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
 			_edoRequestCreatedEventPublisher = edoRequestCreatedEventPublisher
 				?? throw new ArgumentNullException(nameof(edoRequestCreatedEventPublisher));
-			_messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 			_requestFactories = requestFactories ?? throw new ArgumentNullException(nameof(requestFactories));
 		}
@@ -151,19 +146,19 @@ namespace EdoService.Library
 				return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.NoActiveEdoTaskForResend);
 			}
 
-				var productCodes = new ObservableList<TrueMarkProductCode>(
-					edoTask.Items.Select(x => x.ProductCode)
+			var productCodes = new ObservableList<TrueMarkProductCode>(
+					activeEdoTask.Items.Select(x => x.ProductCode)
 				);
 
-				var request = ManualEdoRequestFactory.Create(order, productCodes);
+			var request = ManualEdoRequestFactory.Create(order, productCodes);
 
-				uow.Save(request);
-				uow.Commit();
+			uow.Save(request);
+			uow.Commit();
 
-				_edoRequestCreatedEventPublisher.Publish(request.Id, "Ручная переотправка документов ЭДО")
-					.ConfigureAwait(false)
-					.GetAwaiter()
-					.GetResult();
+			_edoRequestCreatedEventPublisher.Publish(request.Id, "Ручная переотправка документов ЭДО")
+				.ConfigureAwait(false)
+				.GetAwaiter()
+				.GetResult();
 
 			return Result.Success();
 		}
@@ -215,40 +210,6 @@ namespace EdoService.Library
 			return activeTasksWithAcceptedCodes.FirstOrDefault();
 		}
 
-		/// <summary>
-		/// Создание ручной заявки ЭДО для переотправки документа
-		/// </summary>
-		/// <param name="order">Заказ</param>
-		/// <param name="edoTask">ЭДО задача с кодами на перенос</param>
-		/// <returns>Ручная заявка на отправку документа</returns>
-		private ManualEdoRequest CreateManualEdoRequests(OrderEntity order, OrderEdoTask edoTask)
-		{
-			var productCodes = new ObservableList<TrueMarkProductCode>(
-				edoTask.Items.Select(x => x.ProductCode)
-			);
-
-			var edoRequest = new ManualEdoRequest
-			{
-				Type = CustomerEdoRequestType.Order,
-				Time = DateTime.Now,
-				Source = EdoRequestSource.Manual,
-				DocumentType = EdoDocumentType.UPD,
-				Order = order
-			};
-
-			if(productCodes != null)
-			{
-				foreach(var code in productCodes)
-				{
-					edoRequest.ProductCodes.Add(code);
-				}
-			}
-
-			edoTask.Status = EdoTaskStatus.Cancelled;
-
-			return edoRequest;
-		}
-
 		public async Task<Result> ResendReceiptFromSavedToPool(
 			IUnitOfWork uow,
 			int? orderTaskId,
@@ -273,12 +234,16 @@ namespace EdoService.Library
 
 			var order = await _orderRepository.GetOrderByIdAsync(uow, orderId, cancellationToken);
 
-			var newRequest = CreateManualEdoRequests(order, tasks.FirstOrDefault());
+			var productCodes = new ObservableList<TrueMarkProductCode>(
+				tasks.FirstOrDefault().Items.Select(x => x.ProductCode)
+			);
+
+			var newRequest = ManualEdoRequestFactory.Create(order, productCodes);
 
 			await uow.SaveAsync(newRequest, cancellationToken: cancellationToken);
 			await uow.CommitAsync(cancellationToken);
 
-			await _messageService.PublishEdoRequestCreatedEvent(newRequest.Id, cancellationToken);
+			await _edoRequestCreatedEventPublisher.Publish(newRequest.Id, "Ручная переотправка чека из пула", cancellationToken);
 
 			return Result.Success();
 		}
@@ -601,13 +566,19 @@ namespace EdoService.Library
 				receiptTask.Status = EdoTaskStatus.Cancelled;
 				receiptTask.ReceiptStatus = EdoReceiptStatus.New;
 
-				var request = CreateManualEdoRequests(order, receiptTask);
+				var productCodes = new ObservableList<TrueMarkProductCode>(
+					receiptTask.Items.Select(x => x.ProductCode)
+				);
+
+				var request = ManualEdoRequestFactory.Create(order, productCodes);
+
+				receiptTask.Status = EdoTaskStatus.Cancelled;
 
 				await uow.SaveAsync(request, cancellationToken: cancellationToken);
 				await uow.SaveAsync(receiptTask, cancellationToken: cancellationToken);
 				await uow.CommitAsync(cancellationToken);
 
-				await _messageService.PublishEdoRequestCreatedEvent(request.Id);
+				await _edoRequestCreatedEventPublisher.Publish(request.Id, "Ручная переотправка чека", cancellationToken);
 
 				return Result.Success();
 			}
