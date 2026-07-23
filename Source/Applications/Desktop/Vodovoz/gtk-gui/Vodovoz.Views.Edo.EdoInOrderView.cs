@@ -52,11 +52,11 @@ namespace Vodovoz.Views.Edo
 
 		private global::Gtk.Label GtkLabel9;
 
+		private global::Gamma.GtkWidgets.yNotebook ynotebookDocData;
+
 		private global::Vodovoz.Views.Edo.EdoInOrderDocumentView edoinorderdocumentview1;
 
-		private global::Gtk.Frame frameProblems;
-
-		private global::Gtk.Alignment GtkAlignment6;
+		private global::Gtk.Label tabLabelDocument;
 
 		private global::Gamma.GtkWidgets.yHBox yhboxProblems;
 
@@ -82,7 +82,7 @@ namespace Vodovoz.Views.Edo
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewProblemItems;
 
-		private global::Gtk.Label GtkLabel8;
+		private global::Gtk.Label tabLabelProblems;
 
 		private global::Gtk.Label labelDocuments;
 
@@ -137,7 +137,6 @@ namespace Vodovoz.Views.Edo
 			this.radiobuttonHelp.CanFocus = true;
 			this.radiobuttonHelp.Name = "radiobuttonHelp";
 			this.radiobuttonHelp.Label = global::Mono.Unix.Catalog.GetString("Справка");
-			this.radiobuttonHelp.Active = true;
 			this.radiobuttonHelp.DrawIndicator = false;
 			this.radiobuttonHelp.UseUnderline = true;
 			this.radiobuttonHelp.Group = new global::GLib.SList(global::System.IntPtr.Zero);
@@ -287,27 +286,23 @@ namespace Vodovoz.Views.Edo
 			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.yvboxDocumentsTab[this.frameDocumentsHistory1]));
 			w20.Position = 0;
 			w20.Expand = false;
-			w20.Fill = false;
 			// Container child yvboxDocumentsTab.Gtk.Box+BoxChild
+			this.ynotebookDocData = new global::Gamma.GtkWidgets.yNotebook();
+			this.ynotebookDocData.CanFocus = true;
+			this.ynotebookDocData.Name = "ynotebookDocData";
+			this.ynotebookDocData.CurrentPage = 0;
+			// Container child ynotebookDocData.Gtk.Notebook+NotebookChild
 			this.edoinorderdocumentview1 = new global::Vodovoz.Views.Edo.EdoInOrderDocumentView();
 			this.edoinorderdocumentview1.Events = ((global::Gdk.EventMask)(256));
 			this.edoinorderdocumentview1.Name = "edoinorderdocumentview1";
-			this.yvboxDocumentsTab.Add(this.edoinorderdocumentview1);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.yvboxDocumentsTab[this.edoinorderdocumentview1]));
-			w21.Position = 1;
-			w21.Expand = false;
-			// Container child yvboxDocumentsTab.Gtk.Box+BoxChild
-			this.frameProblems = new global::Gtk.Frame();
-			this.frameProblems.Name = "frameProblems";
-			this.frameProblems.BorderWidth = ((uint)(1));
-			// Container child frameProblems.Gtk.Container+ContainerChild
-			this.GtkAlignment6 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
-			this.GtkAlignment6.Name = "GtkAlignment6";
-			this.GtkAlignment6.LeftPadding = ((uint)(3));
-			this.GtkAlignment6.TopPadding = ((uint)(3));
-			this.GtkAlignment6.RightPadding = ((uint)(3));
-			this.GtkAlignment6.BottomPadding = ((uint)(3));
-			// Container child GtkAlignment6.Gtk.Container+ContainerChild
+			this.ynotebookDocData.Add(this.edoinorderdocumentview1);
+			// Notebook tab
+			this.tabLabelDocument = new global::Gtk.Label();
+			this.tabLabelDocument.Name = "tabLabelDocument";
+			this.tabLabelDocument.LabelProp = global::Mono.Unix.Catalog.GetString("Документ");
+			this.ynotebookDocData.SetTabLabel(this.edoinorderdocumentview1, this.tabLabelDocument);
+			this.tabLabelDocument.ShowAll();
+			// Container child ynotebookDocData.Gtk.Notebook+NotebookChild
 			this.yhboxProblems = new global::Gamma.GtkWidgets.yHBox();
 			this.yhboxProblems.Name = "yhboxProblems";
 			this.yhboxProblems.Spacing = 6;
@@ -403,21 +398,21 @@ namespace Vodovoz.Views.Edo
 			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.yhboxProblems[this.yvboxProblemItems]));
 			w32.Position = 2;
 			w32.Expand = false;
-			this.GtkAlignment6.Add(this.yhboxProblems);
-			this.frameProblems.Add(this.GtkAlignment6);
-			this.GtkLabel8 = new global::Gtk.Label();
-			this.GtkLabel8.Name = "GtkLabel8";
-			this.GtkLabel8.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Проблемы:</b>");
-			this.GtkLabel8.UseMarkup = true;
-			this.frameProblems.LabelWidget = this.GtkLabel8;
-			this.yvboxDocumentsTab.Add(this.frameProblems);
-			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.yvboxDocumentsTab[this.frameProblems]));
-			w35.Position = 2;
-			w35.Expand = false;
-			w35.Fill = false;
+			this.ynotebookDocData.Add(this.yhboxProblems);
+			global::Gtk.Notebook.NotebookChild w33 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebookDocData[this.yhboxProblems]));
+			w33.Position = 1;
+			// Notebook tab
+			this.tabLabelProblems = new global::Gtk.Label();
+			this.tabLabelProblems.Name = "tabLabelProblems";
+			this.tabLabelProblems.LabelProp = global::Mono.Unix.Catalog.GetString("Проблемы");
+			this.ynotebookDocData.SetTabLabel(this.yhboxProblems, this.tabLabelProblems);
+			this.tabLabelProblems.ShowAll();
+			this.yvboxDocumentsTab.Add(this.ynotebookDocData);
+			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.yvboxDocumentsTab[this.ynotebookDocData]));
+			w34.Position = 1;
 			this.ynotebookEdoInOrder.Add(this.yvboxDocumentsTab);
-			global::Gtk.Notebook.NotebookChild w36 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebookEdoInOrder[this.yvboxDocumentsTab]));
-			w36.Position = 1;
+			global::Gtk.Notebook.NotebookChild w35 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebookEdoInOrder[this.yvboxDocumentsTab]));
+			w35.Position = 1;
 			// Notebook tab
 			this.labelDocuments = new global::Gtk.Label();
 			this.labelDocuments.Name = "labelDocuments";
@@ -429,8 +424,8 @@ namespace Vodovoz.Views.Edo
 			this.ordercodesview1.Events = ((global::Gdk.EventMask)(256));
 			this.ordercodesview1.Name = "ordercodesview1";
 			this.ynotebookEdoInOrder.Add(this.ordercodesview1);
-			global::Gtk.Notebook.NotebookChild w37 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebookEdoInOrder[this.ordercodesview1]));
-			w37.Position = 2;
+			global::Gtk.Notebook.NotebookChild w36 = ((global::Gtk.Notebook.NotebookChild)(this.ynotebookEdoInOrder[this.ordercodesview1]));
+			w36.Position = 2;
 			// Notebook tab
 			this.labelCodes = new global::Gtk.Label();
 			this.labelCodes.Name = "labelCodes";
@@ -438,8 +433,8 @@ namespace Vodovoz.Views.Edo
 			this.ynotebookEdoInOrder.SetTabLabel(this.ordercodesview1, this.labelCodes);
 			this.labelCodes.ShowAll();
 			this.yvboxMain.Add(this.ynotebookEdoInOrder);
-			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ynotebookEdoInOrder]));
-			w38.Position = 1;
+			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.yvboxMain[this.ynotebookEdoInOrder]));
+			w37.Position = 1;
 			this.Add(this.yvboxMain);
 			if ((this.Child != null))
 			{

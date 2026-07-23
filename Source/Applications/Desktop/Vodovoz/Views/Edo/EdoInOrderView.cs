@@ -142,7 +142,7 @@ namespace Vodovoz.Views.Edo
 				.AddSource(ViewModel)
 				.AddBinding(vm => vm.ProblemItems, w => w.ItemsDataSource)
 				.InitializeFromSource();
-			frameProblems.Visible = false;
+			//frameProblems.Visible = false;
 
 			edoinorderactionsview.ViewModel = ViewModel.EdoInOrderDocumentActionsViewModel;
 
@@ -162,7 +162,7 @@ namespace Vodovoz.Views.Edo
 		{
 			if(e.PropertyName == nameof(ViewModel.HasProblems))
 			{
-				frameProblems.Visible = ViewModel.HasProblems;
+				//frameProblems.Visible = ViewModel.HasProblems;
 			}
 
 			if(e.PropertyName == nameof(ViewModel.DocumentViewModel))

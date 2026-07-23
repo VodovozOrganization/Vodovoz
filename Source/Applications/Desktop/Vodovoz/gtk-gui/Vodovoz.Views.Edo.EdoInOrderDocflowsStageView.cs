@@ -112,7 +112,6 @@ namespace Vodovoz.Views.Edo
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.ytableDocflow[this.yentryCreationTime]));
 			w6.LeftAttach = ((uint)(1));
 			w6.RightAttach = ((uint)(2));
-			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableDocflow.Gtk.Table+TableChild
 			this.yentryStatus = new global::Gamma.GtkWidgets.yEntry();
@@ -126,7 +125,6 @@ namespace Vodovoz.Views.Edo
 			w7.BottomAttach = ((uint)(2));
 			w7.LeftAttach = ((uint)(1));
 			w7.RightAttach = ((uint)(2));
-			w7.XOptions = ((global::Gtk.AttachOptions)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child ytableDocflow.Gtk.Table+TableChild
 			this.ylabelCreationTime = new global::Gamma.GtkWidgets.yLabel();
