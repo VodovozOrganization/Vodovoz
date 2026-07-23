@@ -2179,6 +2179,8 @@
     <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderReceiptSendStageView.cs" />
     <Compile Include="Views\Edo\EdoInOrderReceiptView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderReceiptView.cs" />
+    <Compile Include="Views\Edo\EdoInOrderDocflowsStageView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Views.Edo.EdoInOrderDocflowsStageView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
