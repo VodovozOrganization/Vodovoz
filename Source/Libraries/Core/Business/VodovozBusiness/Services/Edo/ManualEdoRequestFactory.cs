@@ -12,6 +12,12 @@ namespace VodovozBusiness.Services.Edo
 	/// </summary>
 	public static class ManualEdoRequestFactory
 	{
+		/// <summary>
+		/// Создает ручную заявку на отправку документов клиенту по ЭДО.
+		/// </summary>
+		/// <param name="order">Заказ, для которого создается заявка</param>
+		/// <param name="productCodes">Коды маркировки, включаемые в заявку</param>
+		/// <returns>Ручная заявка на отправку документов клиенту по ЭДО</returns>
 		public static ManualEdoRequest Create(
 			OrderEntity order,
 			IEnumerable<TrueMarkProductCode> productCodes)
