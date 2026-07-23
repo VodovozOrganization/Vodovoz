@@ -6,13 +6,13 @@ namespace Vodovoz.Core.Domain.Edo
 	{
 		[Display(Name = "Ожидает запросов")]
 		WaitingRequests,
-		[Display(Name = "Подготовка к отправке")]
+		[Display(Name = "Подготовка")]
 		PreparingToSend,
-		[Display(Name = "Готов к отправке")]
+		[Display(Name = "Отправляется")]
 		ReadyToSend,
 		[Display(Name = "В работе")]
 		InProgress,
-		[Display(Name = "Завершена")]
+		[Display(Name = "Завершен")]
 		Completed
 	}
 }

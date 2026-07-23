@@ -75,6 +75,14 @@ namespace Vodovoz.Views.Edo
 					var transferView = new EdoInOrderTransferStageView();
 					transferView.ViewModel = transfer;
 					return transferView;
+				case EdoInOrderReceiptSendStageViewModel receiptSend:
+					var receiptSendView = new EdoInOrderReceiptSendStageView();
+					receiptSendView.ViewModel = receiptSend;
+					return receiptSendView; 
+				case EdoInOrderDocflowsStageViewModel docflows:
+					var docflowsView = new EdoInOrderDocflowsStageView();
+					docflowsView.ViewModel = docflows;
+					return docflowsView;
 				default:
 					throw new NotSupportedException($"Не поддерживаемый тип стадии: {ViewModel.StageViewModel.GetType()}");
 			}

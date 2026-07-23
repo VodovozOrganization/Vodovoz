@@ -4,15 +4,9 @@ namespace Vodovoz.Views.Edo
 {
 	public partial class EdoInOrderDocumentView
 	{
-		private global::Gtk.Frame frameMain;
-
-		private global::Gtk.Alignment GtkAlignment;
-
 		private global::Gamma.GtkWidgets.yVBox yvboxDocument;
 
 		private global::Gamma.GtkWidgets.yHBox yhboxDocumentStage;
-
-		private global::Gtk.Label GtkLabel;
 
 		protected virtual void Build()
 		{
@@ -21,17 +15,6 @@ namespace Vodovoz.Views.Edo
 			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Views.Edo.EdoInOrderDocumentView";
 			// Container child Vodovoz.Views.Edo.EdoInOrderDocumentView.Gtk.Container+ContainerChild
-			this.frameMain = new global::Gtk.Frame();
-			this.frameMain.Name = "frameMain";
-			this.frameMain.BorderWidth = ((uint)(1));
-			// Container child frameMain.Gtk.Container+ContainerChild
-			this.GtkAlignment = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
-			this.GtkAlignment.Name = "GtkAlignment";
-			this.GtkAlignment.LeftPadding = ((uint)(3));
-			this.GtkAlignment.TopPadding = ((uint)(3));
-			this.GtkAlignment.RightPadding = ((uint)(3));
-			this.GtkAlignment.BottomPadding = ((uint)(3));
-			// Container child GtkAlignment.Gtk.Container+ContainerChild
 			this.yvboxDocument = new global::Gamma.GtkWidgets.yVBox();
 			this.yvboxDocument.Name = "yvboxDocument";
 			this.yvboxDocument.Spacing = 6;
@@ -42,14 +25,7 @@ namespace Vodovoz.Views.Edo
 			this.yvboxDocument.Add(this.yhboxDocumentStage);
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.yvboxDocument[this.yhboxDocumentStage]));
 			w1.Position = 1;
-			this.GtkAlignment.Add(this.yvboxDocument);
-			this.frameMain.Add(this.GtkAlignment);
-			this.GtkLabel = new global::Gtk.Label();
-			this.GtkLabel.Name = "GtkLabel";
-			this.GtkLabel.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Документ</b>");
-			this.GtkLabel.UseMarkup = true;
-			this.frameMain.LabelWidget = this.GtkLabel;
-			this.Add(this.frameMain);
+			this.Add(this.yvboxDocument);
 			if ((this.Child != null))
 			{
 				this.Child.ShowAll();
