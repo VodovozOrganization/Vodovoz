@@ -99,6 +99,7 @@ namespace Vodovoz.Errors.Edo
 				$"истек срок переотправки документа. " +
 				$"Документ был отправлен {edoDocument.SendTime?.ToString("dd.MM.yyyy HH:mm")}, " +
 				$"переотправка возможна в течение 3х месяцев");
+
 		public static Error CreateCannotResendReceiptFromSavedToPoolTask(int orderId) =>
 			new Error(
 				typeof(EdoErrors),

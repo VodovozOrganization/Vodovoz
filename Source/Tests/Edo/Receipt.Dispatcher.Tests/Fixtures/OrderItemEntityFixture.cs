@@ -1,6 +1,6 @@
 ﻿using Vodovoz.Core.Domain.Orders;
 
-namespace Receipt.Dispatcher.Tests
+namespace Receipt.Dispatcher.Tests.Fixtures
 {
 	public class OrderItemEntityFixture : OrderItemEntity
 	{

@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TrueMark.Codes.Pool;
 
-namespace Receipt.Dispatcher.Tests
+namespace Receipt.Dispatcher.Tests.Fixtures
 {
 	public class TrueMarkCodesPoolFixture : TrueMarkCodesPool
 	{
