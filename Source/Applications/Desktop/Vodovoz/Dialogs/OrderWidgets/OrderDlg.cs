@@ -151,6 +151,7 @@ using Vodovoz.ViewModels.Journals.JournalViewModels.Logistic;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Nomenclatures;
 using Vodovoz.ViewModels.Journals.JournalViewModels.Rent;
 using Vodovoz.ViewModels.Orders;
+using Vodovoz.ViewModels.TrueMark;
 using Vodovoz.ViewModels.ViewModels.Goods;
 using Vodovoz.ViewModels.ViewModels.Logistic;
 using Vodovoz.ViewModels.Widgets;
@@ -3615,6 +3616,17 @@ namespace Vodovoz
 			_logger.Info("ЭДО заказа {OrderId}: начало конфигурации ViewModel", Entity.Id);
 			var edoForOrderViewModel = ScopeProvider.Scope.Resolve<EdoInOrderViewModel>();
 			edoForOrderViewModel.Setup(UoW, Entity.Id);
+			var transferTargetOrderViewModel = new LegacyEEVMBuilderFactory<OrderCodesViewModel>(
+					this,
+					edoForOrderViewModel.OrderCodesViewModel,
+					UoW,
+					NavigationManager,
+					_lifetimeScope)
+				.ForProperty(viewModel => viewModel.TransferTargetOrder)
+				.UseViewModelJournalAndAutocompleter<OrderJournalViewModel, OrderJournalFilterViewModel>(
+					filter => filter.RestrictHideService = true)
+				.Finish();
+			edoForOrderViewModel.OrderCodesViewModel.ConfigureTransferTargetOrderEntry(transferTargetOrderViewModel);
 			edofororderview1.ViewModel = edoForOrderViewModel;
 			_edoInOrderViewModelConfigured = true;
 			_logger.Info("ЭДО заказа {OrderId}: конфигурация ViewModel завершена за {Elapsed}", Entity.Id, stopwatch.Elapsed);

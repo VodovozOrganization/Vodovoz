@@ -25,7 +25,7 @@ namespace Edo.Transfer.Routine.Services
 		private readonly IDeliveryScheduleSettings _deliveryScheduleSettings;
 		private readonly IOptionsMonitor<ClosingDocumentsOrdersUpdSendSettings> _optionsMonitor;
 		private readonly IOrderRepository _orderRepository;
-		private readonly MessageService _edoMessageService;
+		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
 
 		private readonly IEnumerable<OrderStatus> _orderStatusesToSendUpd =
 			new[]
@@ -42,7 +42,7 @@ namespace Edo.Transfer.Routine.Services
 			IDeliveryScheduleSettings deliveryScheduleSettings,
 			IOptionsMonitor<ClosingDocumentsOrdersUpdSendSettings> optionsMonitor,
 			IOrderRepository orderRepository,
-			MessageService edoMessageService
+			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher
 			)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -51,7 +51,8 @@ namespace Edo.Transfer.Routine.Services
 			_deliveryScheduleSettings = deliveryScheduleSettings ?? throw new ArgumentNullException(nameof(deliveryScheduleSettings));
 			_optionsMonitor = optionsMonitor;
 			_orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-			_edoMessageService = edoMessageService ?? throw new ArgumentNullException(nameof(edoMessageService));
+			_edoRequestCreatedEventPublisher = edoRequestCreatedEventPublisher
+				?? throw new ArgumentNullException(nameof(edoRequestCreatedEventPublisher));
 		}
 
 		public async Task Send(CancellationToken cancellationToken)
@@ -159,7 +160,9 @@ namespace Edo.Transfer.Routine.Services
 						"Отправляем событие о создании новой заявки по ЭДО. RequestId: {RequestId}.",
 						edoRequest.Id);
 
-					await _edoMessageService.PublishEdoRequestCreatedEvent(edoRequest.Id);
+					await _edoRequestCreatedEventPublisher.Publish(
+						edoRequest.Id,
+						"Формирование УПД перемещения оборудования");
 
 					_logger.LogInformation("Событие о создании новой заявки по ЭДО отправлено успешно");
 				}
