@@ -1,5 +1,7 @@
 ﻿using Core.Infrastructure;
 using Edo.Contracts.Messages.Events;
+using Edo.Problems;
+using Edo.Problems.Custom.Sources;
 using Edo.Transport;
 using EdoService.Library.Factories;
 using MassTransit;
@@ -40,6 +42,7 @@ namespace EdoService.Library
 		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
 		private readonly IBus _bus;
 		private readonly IEnumerable<IInformalEdoRequestFactory> _requestFactories;
+		private readonly EdoProblemRegistrar _edoProblemRegistrar;
 
 		private static EdoDocFlowStatus[] _successfulEdoStatuses => new[]
 		{
@@ -60,7 +63,8 @@ namespace EdoService.Library
 			IEdoRepository edoRepository,
 			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher,
 			IBus bus,
-			IEnumerable<IInformalEdoRequestFactory> requestFactories
+			IEnumerable<IInformalEdoRequestFactory> requestFactories,
+			EdoProblemRegistrar edoProblemRegistrar
 			)
 		{
 			_uowFactory = uowFactory ?? throw new ArgumentNullException(nameof(uowFactory));
@@ -71,6 +75,7 @@ namespace EdoService.Library
 				?? throw new ArgumentNullException(nameof(edoRequestCreatedEventPublisher));
 			_bus = bus ?? throw new ArgumentNullException(nameof(bus));
 			_requestFactories = requestFactories ?? throw new ArgumentNullException(nameof(requestFactories));
+			_edoProblemRegistrar = edoProblemRegistrar ?? throw new ArgumentNullException(nameof(edoProblemRegistrar));
 		}
 
 		public Result ResendEdoDocumentForOrder(OrderEntity order)
@@ -110,7 +115,7 @@ namespace EdoService.Library
 
 			foreach(var doc in documents)
 			{
-				if(!CanResend(doc.Status))
+				if(!CanResendEdoDocument(doc.Status))
 				{
 					return Result.Failure(Vodovoz.Errors.Edo.EdoErrors.CreateAlreadySuccefullSended(order, doc));
 				}
@@ -152,7 +157,14 @@ namespace EdoService.Library
 
 			var request = ManualEdoRequestFactory.Create(order, productCodes);
 
+			activeEdoTask.Status = EdoTaskStatus.Cancelled;
+
+			RegisterProblem(activeEdoTask, CancellationToken.None)
+				.GetAwaiter()
+				.GetResult();
+
 			uow.Save(request);
+			uow.Save(activeEdoTask);
 			uow.Commit();
 
 			_edoRequestCreatedEventPublisher.Publish(request.Id, "Ручная переотправка документов ЭДО")
@@ -169,7 +181,7 @@ namespace EdoService.Library
 			return edoTask?.FormalEdoRequest?.Order;
 		}
 
-		public bool CanResend(EdoDocumentStatus? status) => status.HasValue
+		public bool CanResendEdoDocument(EdoDocumentStatus? status) => status.HasValue
 			&& _resendableEdoDocumentStatuses.Contains(status.Value);
 
 		/// <summary>
@@ -572,7 +584,7 @@ namespace EdoService.Library
 
 				var request = ManualEdoRequestFactory.Create(order, productCodes);
 
-				receiptTask.Status = EdoTaskStatus.Cancelled;
+				await RegisterProblem(receiptTask, cancellationToken);
 
 				await uow.SaveAsync(request, cancellationToken: cancellationToken);
 				await uow.SaveAsync(receiptTask, cancellationToken: cancellationToken);
@@ -582,6 +594,14 @@ namespace EdoService.Library
 
 				return Result.Success();
 			}
+		}
+
+		private async Task RegisterProblem(OrderEdoTask task, CancellationToken cancellationToken)
+		{
+			await _edoProblemRegistrar.RegisterCustomProblem<TaskHasBeenCancelledWithReason>(
+									task,
+									Enumerable.Empty<EdoTaskItem>(),
+									cancellationToken);
 		}
 
 		private Result CanResendReceipt(ReceiptEdoTask receiptTask)

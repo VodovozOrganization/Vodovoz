@@ -78,7 +78,7 @@ namespace Vodovoz.ViewModels.Edo
 			EdoInOrderDocumentNode document
 			) 
 		{
-			if(_edoService.CanResend(document.EdoDocumentStatus))
+			if(_edoService.CanResendEdoDocument(document.EdoDocumentStatus))
 			{
 				newActions.Add(new NamedCommand(
 					"Переотправить УПД",

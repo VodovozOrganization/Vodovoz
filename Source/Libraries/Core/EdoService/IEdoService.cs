@@ -98,7 +98,7 @@ namespace EdoService.Library
 		/// </summary>
 		/// <param name="status">Статус документа</param>
 		/// <returns>Да - если можно переотправить, Нет - если нельзя</returns>
-		bool CanResend(EdoDocumentStatus? status);
+		bool CanResendEdoDocument(EdoDocumentStatus? status);
 
 		/// <summary>
 		/// Переотправка документа по ЭДО по идентификатору задачи

@@ -1,7 +1,10 @@
-﻿using Edo.Transport;
+﻿using Edo.Problems;
+using Edo.Problems.Custom;
+using Edo.Problems.Custom.Sources;
+using Edo.Problems.Exception;
+using Edo.Transport;
 using EdoService.Library.Factories;
 using MassTransit;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
@@ -35,6 +38,9 @@ namespace EdoServices.Tests
 		private readonly IBus _bus;
 		private readonly IEnumerable<IInformalEdoRequestFactory> _requestFactories;
 		private readonly EdoService.Library.EdoService _edoService;
+		private readonly EdoProblemRegistrar _problemRegistrar;
+		private readonly EdoTaskCustomSourcesPersister _customSourcesPersister;
+		private readonly EdoTaskExceptionSourcesPersister _exceptionSourcesPersister;
 
 		public EdoServiceTests()
 		{
@@ -47,6 +53,23 @@ namespace EdoServices.Tests
 			_bus = Substitute.For<IBus>();
 			_requestFactories = Enumerable.Empty<IInformalEdoRequestFactory>();
 
+			_customSourcesPersister = Substitute.For<EdoTaskCustomSourcesPersister>(
+				_uowFactory,
+				Enumerable.Empty<EdoTaskProblemCustomSource>()
+			);
+
+			_exceptionSourcesPersister = Substitute.For<EdoTaskExceptionSourcesPersister>(
+				_uowFactory,
+				Enumerable.Empty<EdoTaskProblemExceptionSource>()
+			);
+
+			_problemRegistrar = Substitute.For<EdoProblemRegistrar>(
+				_uow,
+				_uowFactory,
+				_customSourcesPersister,
+				_exceptionSourcesPersister
+			);
+
 			_edoService = new EdoService.Library.EdoService(
 				_uowFactory,
 				_orderRepository,
@@ -54,7 +77,9 @@ namespace EdoServices.Tests
 				_edoRepository,
 				_edoRequestCreatedEventPublisher,
 				_bus,
-				_requestFactories);
+				_requestFactories,
+				_problemRegistrar
+			);
 		}
 
 		[Fact]
@@ -466,7 +491,7 @@ namespace EdoServices.Tests
 		public void CanResend_WhenStatusIsCancelled_ReturnsTrue()
 		{
 			// Act
-			var result = _edoService.CanResend(EdoDocumentStatus.Cancelled);
+			var result = _edoService.CanResendEdoDocument(EdoDocumentStatus.Cancelled);
 
 			// Assert
 			Assert.True(result);
@@ -476,7 +501,7 @@ namespace EdoServices.Tests
 		public void CanResend_WhenStatusIsError_ReturnsTrue()
 		{
 			// Act
-			var result = _edoService.CanResend(EdoDocumentStatus.Error);
+			var result = _edoService.CanResendEdoDocument(EdoDocumentStatus.Error);
 
 			// Assert
 			Assert.True(result);
@@ -486,7 +511,7 @@ namespace EdoServices.Tests
 		public void CanResend_WhenStatusIsNull_ReturnsFalse()
 		{
 			// Act
-			var result = _edoService.CanResend(null);
+			var result = _edoService.CanResendEdoDocument(null);
 
 			// Assert
 			Assert.False(result);
@@ -496,7 +521,7 @@ namespace EdoServices.Tests
 		public void CanResend_WhenStatusIsNotResendable_ReturnsFalse()
 		{
 			// Act
-			var result = _edoService.CanResend(EdoDocumentStatus.InProgress);
+			var result = _edoService.CanResendEdoDocument(EdoDocumentStatus.InProgress);
 
 			// Assert
 			Assert.False(result);
@@ -517,6 +542,15 @@ namespace EdoServices.Tests
 		private void SetupUowFactoryForReceiptEdoTaskWithRequest(ReceiptEdoTask receiptTask)
 		{
 			var taskId = receiptTask.Id;
+
+			_problemRegistrar
+				.RegisterCustomProblem<TaskHasBeenCancelledWithReason>(
+					Arg.Any<EdoTask>(),
+					Arg.Any<IEnumerable<EdoTaskItem>>(),
+					Arg.Any<CancellationToken>(),
+					Arg.Any<string>()
+				)
+				.Returns(Task.CompletedTask);
 
 			_uowFactory.CreateWithoutRoot(Arg.Any<string>())
 				.ReturnsForAnyArgs(x => {
