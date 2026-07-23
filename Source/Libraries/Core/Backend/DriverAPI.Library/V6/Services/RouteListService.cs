@@ -28,6 +28,7 @@ using Vodovoz.Tools.CallTasks;
 using IDomainRouteListService = Vodovoz.Services.Logistics.IRouteListService;
 using IDomainRouteListSpecialConditionsService = Vodovoz.Services.Logistics.IRouteListSpecialConditionsService;
 using IDomainRouteListTransferService = Vodovoz.Services.Logistics.IRouteListTransferService;
+using Vodovoz.Settings.Logistics;
 
 namespace DriverAPI.Library.V6.Services
 {
@@ -47,6 +48,7 @@ namespace DriverAPI.Library.V6.Services
 		private readonly PaymentTypeConverter _paymentTypeConverter;
 		private readonly IFastPaymentService _fastPaymentService;
 		private readonly ICallTaskWorker _callTaskWorker;
+		private readonly IDriverApiSettings _driverApiSettings;
 		private readonly IOutboxNotificationPublisher<CustomerNotificationDomainEvent> _customerNotificationPublisher;
 		private readonly IUnitOfWork _unitOfWork;
 
@@ -65,7 +67,8 @@ namespace DriverAPI.Library.V6.Services
 			PaymentTypeConverter paymentTypeConverter,
 			IFastPaymentService fastPaymentService,
 			ICallTaskWorker callTaskWorker,
-			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher)
+			IOutboxNotificationPublisher<CustomerNotificationDomainEvent> customerNotificationPublisher,
+			IDriverApiSettings driverApiSettings)
 		{
 			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 			_routeListRepository = routeListRepository ?? throw new ArgumentNullException(nameof(routeListRepository));
@@ -82,6 +85,7 @@ namespace DriverAPI.Library.V6.Services
 			_paymentTypeConverter = paymentTypeConverter ?? throw new ArgumentNullException(nameof(paymentTypeConverter));
 			_fastPaymentService = fastPaymentService ?? throw new ArgumentNullException(nameof(fastPaymentService));
 			_callTaskWorker = callTaskWorker ?? throw new ArgumentNullException(nameof(callTaskWorker));
+			_driverApiSettings = driverApiSettings ?? throw new ArgumentNullException(nameof(driverApiSettings));
 			_customerNotificationPublisher = customerNotificationPublisher ?? throw new ArgumentNullException(nameof(customerNotificationPublisher));
 		}
 
@@ -90,15 +94,16 @@ namespace DriverAPI.Library.V6.Services
 			var routeList = _routeListRepository.GetRouteListById(_unitOfWork, routeListId)
 				?? throw new DataNotFoundException(nameof(routeListId), $"Маршрутный лист {routeListId} не найден");
 
-			IDictionary<int, string> spectiaConditionsToAccept = new Dictionary<int, string>();
+			IDictionary<int, string> specialConditionsToAccept = new Dictionary<int, string>();
 
 			if(!routeList.SpecialConditionsAccepted)
 			{
-				spectiaConditionsToAccept = _domainRouteListSpecialConditionsService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeListId);
+				specialConditionsToAccept = _domainRouteListSpecialConditionsService.GetSpecialConditionsDictionaryFor(_unitOfWork, routeListId);
 			}
 
 			DriversSelectedAddress lastSelectedAddress = null;
-
+			var permittedDistance = _driverApiSettings.PermittedDistance;
+			
 			if(routeList.Status == RouteListStatus.EnRoute)
 			{
 				lastSelectedAddress = await _routeListRepository.GetLastSelectedAddressForRouteList(
@@ -111,7 +116,8 @@ namespace DriverAPI.Library.V6.Services
 			return _routeListConverter.ConvertToAPIRouteList(
 				routeList,
 				_routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeListId),
-				spectiaConditionsToAccept,
+				specialConditionsToAccept,
+				permittedDistance,
 				lastSelectedAddress?.NextAddressId);
 		}
 
@@ -119,6 +125,7 @@ namespace DriverAPI.Library.V6.Services
 		{
 			var vodovozRouteLists = _routeListRepository.GetRouteListsByIds(_unitOfWork, routeListsIds);
 			var routeLists = new List<RouteListDto>();
+			var permittedDistance = _driverApiSettings.PermittedDistance;
 
 			foreach(var routeList in vodovozRouteLists)
 			{
@@ -146,6 +153,7 @@ namespace DriverAPI.Library.V6.Services
 						routeList,
 						_routeListRepository.GetDeliveryItemsToReturn(_unitOfWork, routeList.Id),
 						spectiaConditionsToAccept,
+						permittedDistance,
 						lastSelectedAddress?.NextAddressId);
 
 					routeLists.Add(routeListDto);

@@ -7,15 +7,19 @@ using EventsApi.Library.Models;
 using MessageTransport;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Osrm;
 using System.Linq;
 using Vodovoz;
 using Vodovoz.Controllers;
+using Vodovoz.Core.Application;
 using Vodovoz.FirebaseCloudMessaging;
 using Vodovoz.Infrastructure.Persistance;
 using Vodovoz.Models.TrueMark;
 using Vodovoz.Settings.Common;
 using Vodovoz.Settings.Database;
 using Vodovoz.Settings.Database.Common;
+using Vodovoz.Settings.Database.Logistics;
+using Vodovoz.Settings.Logistics;
 using VodovozBusiness.Services.TrueMark;
 using DriverComplaintServiceV5 = DriverAPI.Library.V5.Services.DriverComplaintService;
 using DriverMobileAppActionRecordServiceV5 = DriverAPI.Library.V5.Services.DriverMobileAppActionRecordService;
@@ -33,8 +37,6 @@ using OrderServiceV5 = DriverAPI.Library.V5.Services.OrderService;
 using RouteListServiceV5 = DriverAPI.Library.V5.Services.RouteListService;
 using SmsPaymentServiceV5 = DriverAPI.Library.V5.Services.SmsPaymentService;
 using TrackPointsServiceV5 = DriverAPI.Library.V5.Services.TrackPointsService;
-using Osrm;
-using Vodovoz.Core.Application;
 using Mango.Vpbx.Client;
 
 namespace DriverAPI.Library
@@ -95,6 +97,11 @@ namespace DriverAPI.Library
 			return services;
 		}
 
+		/// <summary>
+		/// Добавление сервисов для версии 5
+		/// </summary>
+		/// <param name="services">Коллекция сервисов</param>
+		/// <returns>Обновленная коллекция сервисов</returns>
 		public static IServiceCollection AddVersion5(this IServiceCollection services)
 		{
 			// DAL обертки
@@ -109,7 +116,7 @@ namespace DriverAPI.Library
 		}
 
 		/// <summary>
-		/// Добавление сервисов для версии 5
+		/// Добавление сервисов для версии 6
 		/// </summary>
 		/// <param name="services">Коллекция сервисов</param>
 		/// <returns>Обновленная коллекция сервисов</returns>
@@ -124,6 +131,7 @@ namespace DriverAPI.Library
 				.AddScoped<ISmsPaymentService, SmsPaymentService>()
 				.AddScoped<IDriverComplaintService, DriverComplaintService>()
 				.AddScoped<IFastPaymentService, FastPaymentService>()
+				.AddScoped<IDriverApiSettings, DriverApiSettings>()
 				.AddScoped<ICallsService, CallsService>()
 				.AddTrueMarkCodesCheckDependencies();
 		}

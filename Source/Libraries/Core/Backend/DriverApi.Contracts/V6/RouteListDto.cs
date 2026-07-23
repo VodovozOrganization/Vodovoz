@@ -21,9 +21,14 @@
 		public IncompletedRouteListDto IncompletedRouteList { get; set; }
 
 		/// <summary>
-		/// Если завершен, сожержит информацию по завершенному маршрутному листу
+		/// Если завершен, содержит информацию по завершенному маршрутному листу
 		/// </summary>
 		public CompletedRouteListDto CompletedRouteList { get; set; }
+
+		/// <summary>
+		/// Разрешенное расстояние из ERP
+		/// </summary>
+		public int PermittedDistance { get; set; }
 
 		/// <summary>
 		/// Номер заказа, который выбран водителем следующим для доставки
