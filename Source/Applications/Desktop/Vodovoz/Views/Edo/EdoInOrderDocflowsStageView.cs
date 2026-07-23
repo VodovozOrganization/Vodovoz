@@ -55,6 +55,8 @@ namespace Vodovoz.Views.Edo
 				.AddBinding(vm => vm.TaxcomDocflows, w => w.ItemsDataSource)
 				.AddBinding(vm => vm.SelectedTaxcomDocflow, w => w.SelectedRow)
 				.InitializeFromSource();
+
+			ybuttonRefreshFromTaxcom.Visible = false;
 		}
 	}
 }
