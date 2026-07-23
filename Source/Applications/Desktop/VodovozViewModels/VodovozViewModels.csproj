@@ -7,7 +7,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Vodovoz.ViewModels</RootNamespace>
     <AssemblyName>VodovozViewModels</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -1067,6 +1067,13 @@
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport.OrderItemNode.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport.TurnoverWithDynamicsReportLastSaleDetails.cs" />
     <Compile Include="ViewModels\Reports\Sales\TurnoverWithDynamicsReportViewModel.TurnoverWithDynamicsReport.TurnoverWithDynamicsReportRow.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReportGroupingType.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReportDateType.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReportOrderNode.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReportClientHistoryNode.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReport.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReport.ExcelExporter.cs" />
+    <Compile Include="ViewModels\Reports\Sales\MarketingReportViewModel.cs" />
     <Compile Include="ViewModels\Reports\SelectableParameterReportFilterSelectionChangedArgs.cs" />
     <Compile Include="ViewModels\Reports\TrueMark\ProductCodesScanningReport.cs" />
     <Compile Include="ViewModels\Reports\TrueMark\ProductCodesScanningReport.Row.cs" />

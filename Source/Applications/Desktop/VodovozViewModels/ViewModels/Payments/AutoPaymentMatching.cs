@@ -64,9 +64,8 @@ namespace Vodovoz.ViewModels.ViewModels.Payments
 
 				if(formattedDocumentNumbers.Any())
 				{
-					var normalizedDocumentNumbers = formattedDocumentNumbers
-						.Select(NormalizeDocumentNumber)
-						.ToHashSet();
+					var normalizedDocumentNumbers = new HashSet<string>(
+						formattedDocumentNumbers.Select(NormalizeDocumentNumber));
 
 					var orderIdsByDocNumber = _uow.Session.Query<DocumentOrganizationCounter>()
 						.Where(d => normalizedDocumentNumbers.Contains(d.DocumentNumber) && d.Order != null)
