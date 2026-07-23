@@ -272,6 +272,7 @@ namespace Vodovoz
 				.AddScoped<IOutboxNotificationPublisher<CustomerNotificationDomainEvent>, OutBoxNotificationPublisher<CustomerNotificationDomainEvent, CustomerNotificationIntegrationEvent>>()
 				.AddCustomerNotificationsSettingsProvider();
 
+			services.AddScoped<IEdoRequestCreatedEventPublisher, EdoRequestCreatedEventPublisher>();
 			services.AddStaticHistoryTracker();
 			services.AddStaticScopeForEntity();
 			services.AddStaticServicesConfig();

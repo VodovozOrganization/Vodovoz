@@ -33,7 +33,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 		private readonly IOrderRepository _orderRepository;
 		private readonly IGenericRepository<TrueMarkProductCode> _productCodeRepository;
 		private readonly IGenericRepository<RouteListItemEntity> _routeListItemRepository;
-		private readonly MessageService _messageService;
+		private readonly IEdoRequestCreatedEventPublisher _edoRequestCreatedEventPublisher;
 
 		public ScannedCodesDelayedProcessingService(
 			ILogger<ScannedCodesDelayedProcessingService> logger,
@@ -44,7 +44,7 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 			IOrderRepository orderRepository,
 			IGenericRepository<TrueMarkProductCode> productCodeRepository,
 			IGenericRepository<RouteListItemEntity> routeListItemRepository,
-			MessageService messageService)
+			IEdoRequestCreatedEventPublisher edoRequestCreatedEventPublisher)
 		{
 			_logger =
 				logger ?? throw new System.ArgumentNullException(nameof(logger));
@@ -62,8 +62,8 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 				productCodeRepository ?? throw new ArgumentNullException(nameof(productCodeRepository));
 			_routeListItemRepository =
 				routeListItemRepository ?? throw new ArgumentNullException(nameof(routeListItemRepository));
-			_messageService =
-				messageService ?? throw new ArgumentNullException(nameof(messageService));
+			_edoRequestCreatedEventPublisher = edoRequestCreatedEventPublisher
+				?? throw new ArgumentNullException(nameof(edoRequestCreatedEventPublisher));
 		}
 
 		public async Task ProcessScannedCodesAsync(CancellationToken cancellationToken)
@@ -139,7 +139,9 @@ namespace ScannedTrueMarkCodesDelayedProcessing.Library.Services
 
 				foreach(var newEdoRequest in newEdoRequests)
 				{
-					await _messageService.PublishEdoRequestCreatedEvent(newEdoRequest.Id);
+					await _edoRequestCreatedEventPublisher.Publish(
+						newEdoRequest.Id,
+						"Обработка отсканированных кодов ЧЗ");
 				}
 
 				_logger.LogInformation("Обработка отсканированных кодов ЧЗ завершена");
