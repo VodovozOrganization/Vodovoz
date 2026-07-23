@@ -58,6 +58,11 @@ namespace Vodovoz.Errors.Edo
 				nameof(HasProblem),
 				"Произошла ошибка во время переотправки документа");
 
+		public static Error IsUndeliveredOrder =>
+			new Error(typeof(EdoErrors),
+				nameof(IsUndeliveredOrder),
+				"Невозможно переотправить документ у отмененного заказа");
+
 		public static Error CreateAlreadySuccefullSended(EdoContainer edoContainer) =>
 			 new Error(
 				typeof(EdoErrors),
@@ -85,15 +90,6 @@ namespace Vodovoz.Errors.Edo
 				typeof(EdoErrors),
 				nameof(InvalidOutgoingDocumentType),
 				$"У заказа {orderId} некорректный тип исходящего документа {documentType.GetEnumDisplayName()}");
-
-		public static Error CreateResendTimeLimitExceeded(OutgoingEdoDocument edoDocument, int orderId) =>
-		new Error(
-			typeof(EdoErrors),
-			nameof(ResendTimeLimitExceeded),
-			$"Для заказа №{orderId} " +
-			$"истек срок переотправки документа. " +
-			$"Документ был отправлен {edoDocument.SendTime?.ToString("dd.MM.yyyy HH:mm")}, " +
-			$"переотправка возможна в течение 3 дней");
 
 		/// <summary>
 		/// Не указан идентификатор заказа-источника для переноса кодов маркировки.
@@ -203,5 +199,50 @@ namespace Vodovoz.Errors.Edo
 				typeof(EdoErrors),
 				nameof(CreateInsufficientTargetOrderItems),
 				$"В целевом заказе недостаточно товаров с GTIN {gtin} для переноса кодов.");
+
+		public static Error CreateResendTimeLimitExceeded(OutgoingEdoDocument edoDocument, int orderId) =>
+			new Error(
+				typeof(EdoErrors),
+				nameof(ResendTimeLimitExceeded),
+				$"Для заказа №{orderId} " +
+				$"истек срок переотправки документа. " +
+				$"Документ был отправлен {edoDocument.SendTime?.ToString("dd.MM.yyyy HH:mm")}, " +
+				$"переотправка возможна в течение 3х месяцев");
+
+		public static Error CreateCannotResendReceiptFromSavedToPoolTask(int orderId) =>
+			new Error(
+				typeof(EdoErrors),
+				nameof(CreateCannotResendReceiptFromSavedToPoolTask),
+				$"Помимо задачи на сохранение кодов по заказу {orderId}, есть другая задача");
+
+		public static Error CreateCannotResendCompletedTask(int taskId) =>
+			new Error(
+				typeof(EdoErrors), 
+				nameof(CreateCannotResendCompletedTask), 
+				$"Нельзя переотправить завершенную задачу {taskId}");
+
+		public static Error CreateCannotResendCompletedReceipt(int taskId) =>
+			new Error(
+				typeof(EdoErrors), 
+				nameof(CreateCannotResendCompletedReceipt), 
+				$"Нельзя переотправить завершенный чек {taskId}");
+
+		public static Error CreateCannotResendReceiptFromSavedToPool(int taskId) =>
+			new Error(
+				typeof(EdoErrors), 
+				nameof(CreateCannotResendReceiptFromSavedToPool), 
+				$"Нельзя переотправить чек {taskId} из пула");
+
+		public static Error CreateCannotResendReceiptWithFiscalNumber(int taskId) =>
+			new Error(
+				typeof(EdoErrors), 
+				nameof(CreateCannotResendReceiptWithFiscalNumber), 
+				$"Нельзя переотправить чек {taskId} с фискальным номером");
+
+		public static Error CreateCannotResendPrintedOrCompletedReceipt(int taskId) =>
+			new Error(
+				typeof(EdoErrors), 
+				nameof(CreateCannotResendPrintedOrCompletedReceipt), 
+				$"Нельзя переотправить напечатанный или завершенный чек {taskId}");
 	}
 }

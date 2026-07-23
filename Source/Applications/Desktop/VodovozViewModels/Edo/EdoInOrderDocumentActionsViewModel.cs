@@ -1,5 +1,6 @@
 ﻿using EdoService.Library;
 using QS.Commands;
+using QS.Dialog;
 using QS.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -11,12 +12,17 @@ namespace Vodovoz.ViewModels.Edo
 {
 	public class EdoInOrderDocumentActionsViewModel : WidgetViewModelBase
 	{
+		private readonly IInteractiveService _interactiveService;
 		private readonly IEdoService _edoService;
 		private EdoInOrderDocumentHistoryRowViewModel _selectedDocument;
 		private IEnumerable<NamedCommand> _actions = Enumerable.Empty<NamedCommand>();
 
-		public EdoInOrderDocumentActionsViewModel(IEdoService edoService)
+		public EdoInOrderDocumentActionsViewModel(
+			IInteractiveService interactiveService,
+			IEdoService edoService
+			)
 		{
+			_interactiveService = interactiveService ?? throw new ArgumentNullException(nameof(interactiveService));
 			_edoService = edoService ?? throw new ArgumentNullException(nameof(edoService));
 		}
 
@@ -72,11 +78,24 @@ namespace Vodovoz.ViewModels.Edo
 			EdoInOrderDocumentNode document
 			) 
 		{
-			if(document.TaskUpdStage == DocumentEdoTaskStage.New && document.TaskStatus == EdoTaskStatus.Problem)
+			if(_edoService.CanResendEdoDocument(document.EdoDocumentStatus))
 			{
 				newActions.Add(new NamedCommand(
-					"Переобработать проблему",
-					() => _edoService.RehandleNewUpdDocumentWithProblem(document.TaskId)
+					"Переотправить УПД",
+					() => 
+					{ 
+						var result = _edoService.ResendEdoDocumentForOrder(document.TaskId);
+						if(result.IsSuccess)
+						{
+							_interactiveService.ShowMessage(ImportanceLevel.Info, "Успешно переотправлено");
+						}
+						else
+						{
+							_interactiveService.ShowMessage(ImportanceLevel.Error,
+								$"Не удалось переотправить документ.\nПричины:\n - " +
+								string.Join("\n - ", result.Errors.Select(x => x.Message)));
+						}
+					}
 				));
 			}
 		}
@@ -89,8 +108,21 @@ namespace Vodovoz.ViewModels.Edo
 			if(document.TaskReceiptStage == EdoReceiptStatus.New && document.TaskStatus == EdoTaskStatus.Problem)
 			{
 				newActions.Add(new NamedCommand(
-					"Переобработать проблему",
-					() => _edoService.RehandleNewReceiptDocumentWithProblem(document.TaskId)
+					"Переотправить чек",
+					() =>
+					{
+						var result = _edoService.ResendReceiptDocument(document.TaskId).GetAwaiter().GetResult();
+						if(result.IsSuccess)
+						{
+							_interactiveService.ShowMessage(ImportanceLevel.Info, "Успешно переотправлено");
+						}
+						else
+						{
+							_interactiveService.ShowMessage(ImportanceLevel.Error,
+								$"Не удалось переотправить документ.\nПричины:\n - " +
+								string.Join("\n - ", result.Errors.Select(x => x.Message)));
+						}
+					}
 				));
 			}
 		}

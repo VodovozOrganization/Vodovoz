@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using NSubstitute;
 using QS.DomainModel.UoW;
 using QS.Extensions.Observable.Collections.List;
+using Receipt.Dispatcher.Tests.Fixtures;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,8 +41,8 @@ namespace Receipt.Dispatcher.Tests
 {
 	public class CreateMarkedFiscalDocumentsTests
 	{
-		private GenericRepositoryFixture<TrueMarkWaterGroupCode> _waterGroupCodeRepository;
-		private ForOwnNeedsReceiptEdoTaskHandler _forOwnNeedsReceiptEdoTaskHandler;
+		private readonly GenericRepositoryFixture<TrueMarkWaterGroupCode> _waterGroupCodeRepository;
+		private readonly ForOwnNeedsReceiptEdoTaskHandler _forOwnNeedsReceiptEdoTaskHandler;
 		private ReceiptTrueMarkCodesPool _trueMarkCodesPool;
 
 		public CreateMarkedFiscalDocumentsTests()

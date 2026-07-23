@@ -314,7 +314,6 @@ namespace Edo.Transport
 				});
 			});
 
-			services.AddScoped<MessageService>();
 			services.AddScoped<IEdoRequestCreatedEventPublisher, EdoRequestCreatedEventPublisher>();
 
 			return services;
